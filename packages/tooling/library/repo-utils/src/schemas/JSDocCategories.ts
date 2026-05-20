@@ -5,7 +5,7 @@
  * @since 0.0.0
  */
 
-import { $RepoCliId } from "@beep/identity/packages";
+import { $RepoUtilsId } from "@beep/identity/packages";
 import { LiteralKit } from "@beep/schema";
 import { A, Str } from "@beep/utils";
 import { pipe } from "effect";
@@ -13,14 +13,14 @@ import * as O from "effect/Option";
 import * as S from "effect/Schema";
 
 // cspell:ignore dtos
-const $I = $RepoCliId.create("commands/Shared/JSDocCategories");
+const $I = $RepoUtilsId.create("schemas/JSDocCategories");
 
 /**
  * Closed set of canonical `@category` values accepted by repo docgen checks.
  *
  * @example
  * ```ts
- * import { CANONICAL_JSDOC_CATEGORIES } from "@beep/repo-cli/commands/Shared/JSDocCategories"
+ * import { CANONICAL_JSDOC_CATEGORIES } from "@beep/repo-utils/schemas/JSDocCategories"
  * const categories = CANONICAL_JSDOC_CATEGORIES
  * void categories
  * ```
@@ -115,7 +115,7 @@ export const CANONICAL_JSDOC_CATEGORIES = [
  *
  * @example
  * ```ts
- * import type { JSDocCategory } from "@beep/repo-cli/commands/Shared/JSDocCategories"
+ * import type { JSDocCategory } from "@beep/repo-utils/schemas/JSDocCategories"
  * const category: JSDocCategory = "validation"
  * void category
  * ```
@@ -129,7 +129,7 @@ export type JSDocCategory = (typeof CANONICAL_JSDOC_CATEGORIES)[number];
  *
  * @example
  * ```ts
- * import { JSDocCategoryNormalizationStatus } from "@beep/repo-cli/commands/Shared/JSDocCategories"
+ * import { JSDocCategoryNormalizationStatus } from "@beep/repo-utils/schemas/JSDocCategories"
  * const status = JSDocCategoryNormalizationStatus
  * void status
  * ```
@@ -146,7 +146,7 @@ export const JSDocCategoryNormalizationStatus = LiteralKit(["canonical", "alias"
  *
  * @example
  * ```ts
- * import type { JSDocCategoryNormalizationStatus } from "@beep/repo-cli/commands/Shared/JSDocCategories"
+ * import type { JSDocCategoryNormalizationStatus } from "@beep/repo-utils/schemas/JSDocCategories"
  * const status: JSDocCategoryNormalizationStatus = "canonical"
  * void status
  * ```
@@ -160,7 +160,7 @@ export type JSDocCategoryNormalizationStatus = typeof JSDocCategoryNormalization
  *
  * @example
  * ```ts
- * import { normalizeJSDocCategory } from "@beep/repo-cli/commands/Shared/JSDocCategories"
+ * import { normalizeJSDocCategory } from "@beep/repo-utils/schemas/JSDocCategories"
  * const normalized = normalizeJSDocCategory("DomainModel")
  * void normalized
  * ```
@@ -286,7 +286,7 @@ const appendCategorySeparator = (output: string): string =>
  * @returns The normalized kebab-case lookup key.
  * @example
  * ```ts
- * import { normalizeJSDocCategoryKey } from "@beep/repo-cli/commands/Shared/JSDocCategories"
+ * import { normalizeJSDocCategoryKey } from "@beep/repo-utils/schemas/JSDocCategories"
  * const key = normalizeJSDocCategoryKey("Resource Management & Finalization")
  * void key
  * ```
@@ -333,7 +333,7 @@ export const normalizeJSDocCategoryKey = (value: string): string => {
  * @returns True when the value is in the canonical category set.
  * @example
  * ```ts
- * import { isCanonicalJSDocCategory } from "@beep/repo-cli/commands/Shared/JSDocCategories"
+ * import { isCanonicalJSDocCategory } from "@beep/repo-utils/schemas/JSDocCategories"
  * const isCanonical = isCanonicalJSDocCategory("tool-schemas")
  * void isCanonical
  * ```
@@ -350,7 +350,7 @@ export const isCanonicalJSDocCategory = (value: string): value is JSDocCategory 
  * @returns The normalized category key, status, canonical value, and optional diagnostic message.
  * @example
  * ```ts
- * import { normalizeJSDocCategory } from "@beep/repo-cli/commands/Shared/JSDocCategories"
+ * import { normalizeJSDocCategory } from "@beep/repo-utils/schemas/JSDocCategories"
  * const normalized = normalizeJSDocCategory("ToolSchemas")
  * void normalized
  * ```
@@ -437,7 +437,7 @@ export const normalizeJSDocCategory = (value: string): JSDocCategoryNormalizatio
  * @returns True when the value is canonical or accepted as a migration alias.
  * @example
  * ```ts
- * import { isAcceptedJSDocCategory } from "@beep/repo-cli/commands/Shared/JSDocCategories"
+ * import { isAcceptedJSDocCategory } from "@beep/repo-utils/schemas/JSDocCategories"
  * const accepted = isAcceptedJSDocCategory("DomainModel")
  * void accepted
  * ```

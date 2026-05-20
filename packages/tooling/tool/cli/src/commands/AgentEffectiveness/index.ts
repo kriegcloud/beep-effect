@@ -88,16 +88,7 @@ type AgentEffectivenessProgramError = AgentEffectivenessError;
 
 const runAgentEffectivenessProgram = <A, R>(
   effect: Effect.Effect<A, AgentEffectivenessProgramError, R>
-): Effect.Effect<void, never, R> =>
-  effect.pipe(
-    Effect.catchTags({
-      AgentEffectivenessError: Effect.fn(function* (error) {
-        process.exitCode = 1;
-        yield* Console.error(`agent-effectiveness: ${error.message}`);
-      }),
-    }),
-    Effect.asVoid
-  );
+): Effect.Effect<void, AgentEffectivenessProgramError, R> => effect.pipe(Effect.asVoid);
 
 const makeDoctorInput = ({
   dataRoot,

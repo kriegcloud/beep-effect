@@ -6,6 +6,7 @@
  */
 
 import { $RepoCliId } from "@beep/identity/packages";
+import { isExcludedTypeScriptSourcePath, toPosixPath } from "@beep/repo-utils/schemas/TypeScriptSourceExclusions";
 import { TaggedErrorClass } from "@beep/schema";
 import { A, Str } from "@beep/utils";
 import { Effect, Inspectable, MutableHashSet, Path, pipe } from "effect";
@@ -13,7 +14,6 @@ import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
 import { Project } from "ts-morph";
-import { isExcludedTypeScriptSourcePath, toPosixPath } from "../Shared/TypeScriptSourceExclusions.ts";
 
 const $I = $RepoCliId.create("commands/Laws/EffectImports");
 

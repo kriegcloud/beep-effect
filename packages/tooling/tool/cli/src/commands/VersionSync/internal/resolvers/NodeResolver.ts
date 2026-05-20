@@ -117,7 +117,7 @@ const UnknownNodeVersionValueToString = S.Unknown.pipe(
 
 const decodeNodeVersionString = S.decodeUnknownOption(UnknownNodeVersionValueToString);
 const nodeVersionString = (value: unknown): string => O.getOrElse(decodeNodeVersionString(value), () => `${value}`);
-const stringEquivalence = S.toEquivalence(S.String);
+const stringEquivalence = Str.equivalence;
 
 // ── Public API ──────────────────────────────────────────────────────────────
 

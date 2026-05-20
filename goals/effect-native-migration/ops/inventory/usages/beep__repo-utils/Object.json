@@ -1,0 +1,142 @@
+[
+  {
+    "category": "Object",
+    "package": "@beep/repo-utils",
+    "filePath": "packages/tooling/library/repo-utils/src/schemas/JSDocCategories.ts",
+    "line": 250,
+    "nativeSnippet": "O.fromNullishOr(JSDOC_CATEGORY_ALIASES[value]);",
+    "nativeSymbol": "string-keyed record index access",
+    "suggestedTarget": "R.get",
+    "suggestedImport": "import * as R from \"effect/Record\"",
+    "note": "`JSDOC_CATEGORY_ALIASES` is a string-keyed record; `O.fromNullishOr(record[value])` collapses to `R.get(JSDOC_CATEGORY_ALIASES, value)` which returns Option directly."
+  },
+  {
+    "category": "Object",
+    "package": "@beep/repo-utils",
+    "filePath": "packages/tooling/library/repo-utils/src/schemas/JSDocCategories.ts",
+    "line": 253,
+    "nativeSnippet": "O.fromNullishOr(JSDOC_CATEGORY_REJECTED_VALUES[value]);",
+    "nativeSymbol": "string-keyed record index access",
+    "suggestedTarget": "R.get",
+    "suggestedImport": "import * as R from \"effect/Record\"",
+    "note": "`JSDOC_CATEGORY_REJECTED_VALUES` is a string-keyed record; `O.fromNullishOr(record[value])` collapses to `R.get(JSDOC_CATEGORY_REJECTED_VALUES, value)`."
+  },
+  {
+    "category": "Object",
+    "package": "@beep/repo-utils",
+    "filePath": "packages/tooling/library/repo-utils/src/schemas/PackageJsonTools.ts",
+    "line": 115,
+    "nativeSnippet": "out = R.set(out, key, canonicalizePublishConfigValue(key, value[key]));",
+    "nativeSymbol": "string-keyed record index access",
+    "suggestedTarget": "R.get",
+    "suggestedImport": "import * as R from \"effect/Record\"",
+    "note": "`value` is a string record (verified by `isStringRecord`) and the read is already guarded by `R.has(key)(value)`; native `value[key]` read maps to `R.get(value, key)` (with O unwrap)."
+  },
+  {
+    "category": "Object",
+    "package": "@beep/repo-utils",
+    "filePath": "packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts",
+    "line": 1178,
+    "nativeSnippet": "const matchedCount = matchCounts[pattern.id] ?? 0;",
+    "nativeSymbol": "string-keyed record index access",
+    "suggestedTarget": "R.get",
+    "suggestedImport": "import * as R from \"effect/Record\"",
+    "note": "`matchCounts` is `Readonly<Record<string, number>>`; `matchCounts[pattern.id] ?? 0` maps to `pipe(R.get(matchCounts, pattern.id), O.getOrElse(() => 0))`."
+  },
+  {
+    "category": "Object",
+    "package": "@beep/repo-utils",
+    "filePath": "packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts",
+    "line": 1207,
+    "nativeSnippet": "const hotspot = specialistHotspots[label];",
+    "nativeSymbol": "string-keyed record index access",
+    "suggestedTarget": "R.get",
+    "suggestedImport": "import * as R from \"effect/Record\"",
+    "needsHumanDecision": true,
+    "note": "Read of `specialistHotspots`, a local mutable `Record<string, ...>` accumulator (assigned at lines 1183-1184). Migrating the read implies migrating the whole accumulator (R immutable rebuild vs MutableHashMap); decide accumulator strategy with the write sites below."
+  },
+  {
+    "category": "Object",
+    "package": "@beep/repo-utils",
+    "filePath": "packages/tooling/library/repo-utils/src/Dependencies.ts",
+    "line": 36,
+    "nativeSnippet": "workspace[name] = version;",
+    "nativeSymbol": "string-keyed record element assignment",
+    "suggestedTarget": "R.set",
+    "suggestedImport": "import * as R from \"effect/Record\"",
+    "needsHumanDecision": true,
+    "note": "Local mutable accumulation into a `R.empty<string,string>()` record inside a for-of loop that never escapes before return; choose immutable rebuild via R.set/R.reduce vs MutableHashMap."
+  },
+  {
+    "category": "Object",
+    "package": "@beep/repo-utils",
+    "filePath": "packages/tooling/library/repo-utils/src/Dependencies.ts",
+    "line": 38,
+    "nativeSnippet": "npm[name] = version;",
+    "nativeSymbol": "string-keyed record element assignment",
+    "suggestedTarget": "R.set",
+    "suggestedImport": "import * as R from \"effect/Record\"",
+    "needsHumanDecision": true,
+    "note": "Local mutable accumulation into a `R.empty<string,string>()` record inside a for-of loop that never escapes before return; choose immutable rebuild via R.set/R.reduce vs MutableHashMap."
+  },
+  {
+    "category": "Object",
+    "package": "@beep/repo-utils",
+    "filePath": "packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts",
+    "line": 612,
+    "nativeSnippet": "buckets[pattern.id] = A.append(buckets[pattern.id] ?? A.empty<PatternOccurrence>(), {",
+    "nativeSymbol": "string-keyed record element assignment",
+    "suggestedTarget": "R.set",
+    "suggestedImport": "import * as R from \"effect/Record\"",
+    "needsHumanDecision": true,
+    "note": "Local mutable `Record<string, Array<PatternOccurrence>>` accumulator (`buckets = {}` at line 605) read+written in nested for-of loops, returned afterward. Choose immutable R rebuild vs MutableHashMap."
+  },
+  {
+    "category": "Object",
+    "package": "@beep/repo-utils",
+    "filePath": "packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts",
+    "line": 635,
+    "nativeSnippet": "counts[pattern.id] = (counts[pattern.id] ?? 0) + 1;",
+    "nativeSymbol": "string-keyed record element assignment",
+    "suggestedTarget": "R.modify",
+    "suggestedImport": "import * as R from \"effect/Record\"",
+    "needsHumanDecision": true,
+    "note": "Local mutable `Record<string, number>` counter accumulator (`counts = {}` at line 629) in a hot nested loop, returned afterward. Choose immutable R rebuild vs MutableHashMap for hot-loop accumulation."
+  },
+  {
+    "category": "Object",
+    "package": "@beep/repo-utils",
+    "filePath": "packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts",
+    "line": 908,
+    "nativeSnippet": "merged[patternId] = A.appendAll(merged[patternId] ?? A.empty<PatternOccurrence>(), occurrences);",
+    "nativeSymbol": "string-keyed record element assignment",
+    "suggestedTarget": "R.set",
+    "suggestedImport": "import * as R from \"effect/Record\"",
+    "needsHumanDecision": true,
+    "note": "Local mutable `Record<string, Array<PatternOccurrence>>` accumulator (`merged = {}` at line 881) read+written in a loop, returned afterward. Choose immutable R rebuild vs MutableHashMap."
+  },
+  {
+    "category": "Object",
+    "package": "@beep/repo-utils",
+    "filePath": "packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts",
+    "line": 934,
+    "nativeSnippet": "counts[patternId] = (counts[patternId] ?? 0) + count;",
+    "nativeSymbol": "string-keyed record element assignment",
+    "suggestedTarget": "R.modify",
+    "suggestedImport": "import * as R from \"effect/Record\"",
+    "needsHumanDecision": true,
+    "note": "Local mutable `Record<string, number>` counter accumulator (`counts = {}` at line 924) in a loop, returned afterward. Choose immutable R rebuild vs MutableHashMap for hot-loop accumulation."
+  },
+  {
+    "category": "Object",
+    "package": "@beep/repo-utils",
+    "filePath": "packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts",
+    "line": 1272,
+    "nativeSnippet": "mergedOccurrences[patternId] = A.appendAll(",
+    "nativeSymbol": "string-keyed record element assignment",
+    "suggestedTarget": "R.set",
+    "suggestedImport": "import * as R from \"effect/Record\"",
+    "needsHumanDecision": true,
+    "note": "Local mutable `Record<string, Array<PatternOccurrence>>` accumulator (`mergedOccurrences = {}` at line 1267) read+written in a loop, returned afterward. Choose immutable R rebuild vs MutableHashMap."
+  }
+]

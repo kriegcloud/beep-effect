@@ -9,15 +9,14 @@
  */
 
 import { DomainError } from "@beep/repo-utils";
-import { A } from "@beep/utils";
+import { A, Str } from "@beep/utils";
 import { Console, Effect } from "effect";
 import * as O from "effect/Option";
 import * as R from "effect/Record";
-import * as S from "effect/Schema";
 import { Command, Flag } from "effect/unstable/cli";
 import { aggregateGeneratedDocs } from "./Docgen/internal/Operations.js";
 
-const stringEquivalence = S.toEquivalence(S.String);
+const stringEquivalence = Str.equivalence;
 
 const packageFlag = Flag.string("package").pipe(
   Flag.withAlias("p"),

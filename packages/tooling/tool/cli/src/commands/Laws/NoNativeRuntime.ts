@@ -15,6 +15,7 @@ import {
   isNoNativeRuntimeErrorFile,
   isNoNativeRuntimeExtraCheckHotspot,
 } from "@beep/repo-configs/eslint/NoNativeRuntimeHotspots";
+import { isExcludedTypeScriptSourcePath, toPosixPath } from "@beep/repo-utils/schemas/TypeScriptSourceExclusions";
 import { LiteralKit, TaggedErrorClass } from "@beep/schema";
 import { A } from "@beep/utils";
 import { Effect, HashSet, Inspectable, Order, Path, pipe } from "effect";
@@ -33,7 +34,6 @@ import {
   type SwitchStatement,
   SyntaxKind,
 } from "ts-morph";
-import { isExcludedTypeScriptSourcePath, toPosixPath } from "../Shared/TypeScriptSourceExclusions.ts";
 
 const $I = $RepoCliId.create("commands/Laws/NoNativeRuntime");
 

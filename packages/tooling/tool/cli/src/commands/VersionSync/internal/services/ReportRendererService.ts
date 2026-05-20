@@ -6,10 +6,9 @@
  */
 
 import { $RepoCliId } from "@beep/identity/packages";
-import { A } from "@beep/utils";
+import { A, Str } from "@beep/utils";
 import { Console, Context, Effect, Layer } from "effect";
 import * as O from "effect/Option";
-import * as S from "effect/Schema";
 import {
   VersionCategoryReport,
   type VersionCategoryReport as VersionCategoryReportValue,
@@ -21,7 +20,7 @@ import {
 } from "../Models.js";
 
 const $I = $RepoCliId.create("commands/VersionSync/internal/services/ReportRendererService");
-const stringEquivalence = S.toEquivalence(S.String);
+const stringEquivalence = Str.equivalence;
 
 /**
  * Service contract for rendering a version-sync report to console.

@@ -1,6 +1,25 @@
 import { Str } from "@beep/utils";
+import * as A from "effect/Array";
 import { pipe } from "effect/Function";
 import { describe, expect, it } from "vitest";
+
+describe("@beep/utils Str.equivalence", () => {
+  it("data-first: compares strings for equality", () => {
+    expect(Str.equivalence("docs", "docs")).toBe(true);
+    expect(Str.equivalence("docs", "tests")).toBe(false);
+  });
+
+  it("data-last: compares strings for equality", () => {
+    expect(pipe("docs", Str.equivalence("docs"))).toBe(true);
+    expect(pipe("docs", Str.equivalence("tests"))).toBe(false);
+  });
+});
+
+describe("@beep/utils Str.orderAsc", () => {
+  it("sorts strings in ascending order", () => {
+    expect(A.sort(["tests", "docs"], Str.orderAsc)).toEqual(["docs", "tests"]);
+  });
+});
 
 describe("@beep/utils Str.prefix", () => {
   it("data-first: prepends prefix", () => {

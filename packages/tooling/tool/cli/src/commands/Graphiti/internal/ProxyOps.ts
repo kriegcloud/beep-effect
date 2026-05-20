@@ -9,7 +9,7 @@ import { $RepoCliId } from "@beep/identity/packages";
 import { findRepoRoot } from "@beep/repo-utils";
 import { TaggedErrorClass } from "@beep/schema";
 import { A, Str, thunkFalse } from "@beep/utils";
-import { Clock, Config, Console, Duration, Effect, FileSystem, Path, pipe, Stream } from "effect";
+import { Clock, Config, Console, Duration, Effect, FileSystem, Path, pipe, Runtime, Stream } from "effect";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import { ChildProcess, type ChildProcessSpawner } from "effect/unstable/process";
@@ -41,7 +41,9 @@ export class GraphitiProxyOpsError extends TaggedErrorClass<GraphitiProxyOpsErro
   $I.annote("GraphitiProxyOpsError", {
     description: "Failure raised while managing the local Graphiti proxy.",
   })
-) {}
+) {
+  override readonly [Runtime.errorExitCode] = this.exitCode ?? 1;
+}
 
 type ProxyEnsureConfig = {
   readonly falkorContainer: string;

@@ -22,6 +22,22 @@ describe("postfix", () => {
   });
 });
 
+describe("equivalence", () => {
+  it("data-first returns boolean", () => {
+    expect(Str.equivalence("docs", "docs")).type.toBe<boolean>();
+  });
+
+  it("data-last returns string comparator", () => {
+    expect(Str.equivalence("docs")).type.toBe<(self: string) => boolean>();
+  });
+});
+
+describe("orderAsc", () => {
+  it("is an ascending string order", () => {
+    expect(Str.orderAsc).type.toBe<import("effect/Order").Order<string>>();
+  });
+});
+
 describe("mapPrefix", () => {
   it("data-first returns prefixed array", () => {
     const arr = ["a", "b"] as const;

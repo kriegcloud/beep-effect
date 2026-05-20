@@ -15,7 +15,7 @@ import * as S from "effect/Schema";
 import { Command, Flag } from "effect/unstable/cli";
 
 const $I = $RepoCliId.create("purge");
-const stringEquivalence = S.toEquivalence(S.String);
+const stringEquivalence = Str.equivalence;
 /**
  * Workspace-local artifact names to purge.
  *

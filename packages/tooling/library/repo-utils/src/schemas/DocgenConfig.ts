@@ -5,8 +5,7 @@
  * @since 0.0.0
  */
 
-import { $RepoCliId } from "@beep/identity/packages";
-import type { PackageJson } from "@beep/repo-utils";
+import { $RepoUtilsId } from "@beep/identity/packages";
 import { A, Str } from "@beep/utils";
 import { Effect, flow, HashMap, HashSet, Order, Path, pipe } from "effect";
 import * as Eq from "effect/Equal";
@@ -15,6 +14,7 @@ import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
+import type { PackageJson } from "./PackageJson.js";
 import {
   buildDocgenAliasTargets,
   resolveRootExportTarget,
@@ -22,7 +22,7 @@ import {
   resolveWildcardExportTarget,
 } from "./TsconfigAliasTargets.js";
 
-const $I = $RepoCliId.create("commands/Shared/DocgenConfig");
+const $I = $RepoUtilsId.create("schemas/DocgenConfig");
 
 const EMPTY_STRING_RECORD: R.ReadonlyRecord<string, string> = R.empty();
 const byStringAscending: Order.Order<string> = Order.String;

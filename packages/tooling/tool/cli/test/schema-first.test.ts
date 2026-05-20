@@ -5,8 +5,8 @@ import {
   PlannedFile,
   PlannedSymlink,
 } from "@beep/repo-cli/commands/CreatePackage/FileGenerationPlanService";
-import { isExcludedTypeScriptSourcePath } from "@beep/repo-cli/commands/Shared/TypeScriptSourceExclusions";
 import { VersionSyncOptions } from "@beep/repo-cli/commands/VersionSync/internal/Models";
+import { isExcludedTypeScriptSourcePath } from "@beep/repo-utils/schemas/TypeScriptSourceExclusions";
 import * as S from "effect/Schema";
 import { describe, expect, it } from "vitest";
 

@@ -1,0 +1,14 @@
+[
+  {
+    "category": "Object",
+    "package": "@beep/data",
+    "filePath": "packages/foundation/primitive/data/src/internal/data/mime-types/index.ts",
+    "line": 93,
+    "nativeSnippet": "export const mimes = { ...application, ...audio, ...image, ...text, ...video, ...misc };",
+    "nativeSymbol": "object spread-merge",
+    "suggestedTarget": "Struct (effect/Struct merge) or R (effect/Record union)",
+    "suggestedImport": "import * as Struct from \"effect/Struct\"",
+    "needsHumanDecision": true,
+    "note": "Type-load-bearing static spread-merge of six imported MIME-definition records. `MimeType = keyof typeof mimes` and `FileExtension = (typeof mimes)[MimeType][\"extensions\"][number]` derive the package's core union types directly from this literal. canImportUtils=false so any replacement is raw effect/Struct or effect/Record. A runtime merge helper would erase the precise literal-keyed type inference; human must confirm the union types still infer identically (likely keep as-is) before remediating."
+  }
+]

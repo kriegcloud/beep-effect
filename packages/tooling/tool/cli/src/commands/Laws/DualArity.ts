@@ -6,6 +6,8 @@
  */
 
 import { $RepoCliId } from "@beep/identity/packages";
+import { renderBiomeJson } from "@beep/repo-utils/schemas/BiomeJson";
+import { isExcludedTypeScriptSourcePath, toPosixPath } from "@beep/repo-utils/schemas/TypeScriptSourceExclusions";
 import { TSMorphService, TsMorphProjectInspectionRequest } from "@beep/repo-utils/TSMorph/index";
 import { resolveWorkspaceDirs } from "@beep/repo-utils/Workspaces";
 import { LiteralKit, TaggedErrorClass } from "@beep/schema";
@@ -30,8 +32,6 @@ import {
   type Type,
   type VariableDeclaration,
 } from "ts-morph";
-import { renderBiomeJson } from "../Shared/BiomeJson.ts";
-import { isExcludedTypeScriptSourcePath, toPosixPath } from "../Shared/TypeScriptSourceExclusions.ts";
 
 const $I = $RepoCliId.create("commands/Laws/DualArity");
 const INVENTORY_PATH = "standards/dual-arity.inventory.jsonc";

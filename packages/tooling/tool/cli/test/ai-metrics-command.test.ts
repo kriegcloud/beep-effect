@@ -12,8 +12,21 @@ import {
 import { aiMetricsCommand } from "@beep/repo-cli/commands/AIMetrics/index";
 import { A, Str } from "@beep/utils";
 import { NodeServices } from "@effect/platform-node";
-import { ConfigProvider, Duration, Effect, Encoding, FileSystem, Layer, Path, pipe, Schedule } from "effect";
+import {
+  Cause,
+  ConfigProvider,
+  Duration,
+  Effect,
+  Encoding,
+  Exit,
+  FileSystem,
+  Layer,
+  Path,
+  pipe,
+  Schedule,
+} from "effect";
 import * as O from "effect/Option";
+import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
 import * as TestConsole from "effect/testing/TestConsole";
 import { Command } from "effect/unstable/cli";
@@ -38,6 +51,24 @@ const decodeWeeklyReport = S.decodeUnknownEffect(S.fromJsonString(AiMetricsWeekl
 const decodeUnknownJson = S.decodeUnknownEffect(S.UnknownFromJsonString);
 const farFutureUntilEpochMs = 4_102_444_800_000;
 
+const expectAiMetricsCommandFailure = Effect.fn("AIMetricsCommandTest.expectAiMetricsCommandFailure")(function* (
+  args: ReadonlyArray<string>
+) {
+  const exit = yield* Effect.exit(runAiMetricsCommand(args));
+  expect(Exit.isFailure(exit)).toBe(true);
+
+  if (Exit.isFailure(exit)) {
+    const error = Cause.squash(exit.cause);
+    if (P.hasProperty(error, "message") && P.isString(error.message)) {
+      return error.message;
+    }
+
+    return Cause.pretty(exit.cause);
+  }
+
+  return "";
+});
+
 type CapturedOtlpRequest = {
   readonly bodyByteLength: number;
   readonly bodyText: string;
@@ -49,14 +80,12 @@ const withTempDirectory = <A, E, R>(use: (tmpDir: string) => Effect.Effect<A, E,
   Effect.acquireUseRelease(
     Effect.gen(function* () {
       const fs = yield* FileSystem.FileSystem;
-      process.exitCode = 0;
       return yield* fs.makeTempDirectory();
     }),
     use,
     (tmpDir) =>
       Effect.gen(function* () {
         const fs = yield* FileSystem.FileSystem;
-        process.exitCode = 0;
         yield* fs.remove(tmpDir, { recursive: true, force: true });
       })
   ).pipe(provideScopedLayer(CommandTestLayer));
@@ -247,7 +276,6 @@ describe("ai-metrics command", () => {
           expect(output).not.toContain("claude-private-session");
           expect(output).not.toContain("sk-private-event-name");
           expect(output).not.toContain("/private/repo/path");
-          expect(process.exitCode ?? 0).toBe(0);
         })
       )
     ));
@@ -259,7 +287,7 @@ describe("ai-metrics command", () => {
           const path = yield* Path.Path;
           const inputPath = path.join(tmpDir, "private-missing-codex.jsonl");
 
-          yield* runAiMetricsCommand([
+          const output = yield* expectAiMetricsCommandFailure([
             "ingest",
             "--source",
             "codex",
@@ -270,11 +298,9 @@ describe("ai-metrics command", () => {
             "--json",
           ]);
 
-          const output = pipe(yield* TestConsole.errorLines, A.join("\n"));
           expect(output).toContain("Failed to read transcript input.");
           expect(output).not.toContain(inputPath);
           expect(output).not.toContain(tmpDir);
-          expect(process.exitCode).toBe(1);
         })
       )
     ));
@@ -283,11 +309,9 @@ describe("ai-metrics command", () => {
     Effect.runPromise(
       withTempDirectory(() =>
         Effect.gen(function* () {
-          yield* runAiMetricsCommand(["install", "preview", "--target", "dankserver"]);
+          const output = yield* expectAiMetricsCommandFailure(["install", "preview", "--target", "dankserver"]);
 
-          const output = pipe(yield* TestConsole.errorLines, A.join("\n"));
           expect(output).toContain("hash-salt-secret-ref");
-          expect(process.exitCode).toBe(1);
         })
       )
     ));
@@ -314,7 +338,6 @@ describe("ai-metrics command", () => {
           expect(output).toContain("op://TBK/ai-metrics/hash-salt");
           expect(output).toContain("rawArchiveKeySecretRef");
           expect(output).toContain("op://TBK/ai-metrics/raw-archive-key");
-          expect(process.exitCode ?? 0).toBe(0);
         })
       )
     ));
@@ -352,7 +375,6 @@ describe("ai-metrics command", () => {
           expect(output).toContain("--otlp-base-url");
           expect(output).toContain("beep-ai-metrics-forwarder.timer");
           expect(output).not.toContain("--max-files 200");
-          expect(process.exitCode ?? 0).toBe(0);
         })
       )
     ));
@@ -367,7 +389,6 @@ describe("ai-metrics command", () => {
           expect(output).toContain("arizephoenix/phoenix:latest");
           expect(output).toContain("127.0.0.1:6006:6006");
           expect(output).toContain("beep-ai-metrics-phoenix");
-          expect(process.exitCode ?? 0).toBe(0);
         })
       )
     ));
@@ -388,7 +409,6 @@ describe("ai-metrics command", () => {
               }),
             ])
           );
-          expect(process.exitCode ?? 0).toBe(0);
         })
       )
     ));
@@ -425,7 +445,6 @@ describe("ai-metrics command", () => {
           expect(doctor.status).toBe("warning");
           expect(doctor.availableSourceCount).toBe(1);
           expect(output).not.toContain(tmpDir);
-          expect(process.exitCode ?? 0).toBe(0);
         })
       )
     ));
@@ -438,23 +457,25 @@ describe("ai-metrics command", () => {
           const homeDir = path.join(tmpDir, "home");
           const repoRoot = path.join(tmpDir, "repo");
 
-          yield* runAiMetricsCommand([
-            "install",
-            "doctor",
-            "--target",
-            "local",
-            "--repo-root",
-            repoRoot,
-            "--home-dir",
-            homeDir,
-            "--all",
-            "--json",
-          ]);
+          const exit = yield* Effect.exit(
+            runAiMetricsCommand([
+              "install",
+              "doctor",
+              "--target",
+              "local",
+              "--repo-root",
+              repoRoot,
+              "--home-dir",
+              homeDir,
+              "--all",
+              "--json",
+            ])
+          );
 
           const doctor = yield* decodeInstallDoctor(yield* lastLoggedLine());
+          expect(Exit.isFailure(exit)).toBe(true);
           expect(doctor.status).toBe("failed");
           expect(doctor.availableSourceCount).toBe(0);
-          expect(process.exitCode).toBe(1);
         })
       )
     ));
@@ -487,7 +508,6 @@ describe("ai-metrics command", () => {
               }),
             ])
           );
-          expect(process.exitCode ?? 0).toBe(0);
         })
       )
     ));
@@ -496,11 +516,9 @@ describe("ai-metrics command", () => {
     Effect.runPromise(
       withTempDirectory(() =>
         Effect.gen(function* () {
-          yield* runAiMetricsCommand(["install", "apply", "--target", "local"]);
+          const output = yield* expectAiMetricsCommandFailure(["install", "apply", "--target", "local"]);
 
-          const output = pipe(yield* TestConsole.errorLines, A.join("\n"));
           expect(output).toContain("dry-run-only");
-          expect(process.exitCode).toBe(1);
         })
       )
     ));
@@ -520,7 +538,6 @@ describe("ai-metrics command", () => {
           expect(output).toContain("configHash");
           expect(output).toContain("AGENTS.md");
           expect(output).not.toContain(".repos/effect-v4/AGENTS.md");
-          expect(process.exitCode ?? 0).toBe(0);
         })
       )
     ));
@@ -535,13 +552,11 @@ describe("ai-metrics command", () => {
           yield* writeText(agentPath, "root guide\n");
           yield* fs.chmod(agentPath, 0o000);
 
-          yield* runAiMetricsCommand(["config", "snapshot", "--repo-root", tmpDir, "--json"]);
+          const output = yield* expectAiMetricsCommandFailure(["config", "snapshot", "--repo-root", tmpDir, "--json"]);
 
-          const output = pipe(yield* TestConsole.errorLines, A.join("\n"));
           expect(output).toContain("Failed to read config snapshot file.");
           expect(output).not.toContain(agentPath);
           expect(output).not.toContain(tmpDir);
-          expect(process.exitCode).toBe(1);
         })
       )
     ));
@@ -582,7 +597,6 @@ describe("ai-metrics command", () => {
           expect(output).not.toContain("private implementation details");
           expect(output).not.toContain("sk-privatefixture");
           expect(output).not.toContain(tmpDir);
-          expect(process.exitCode ?? 0).toBe(0);
         })
       )
     ));
@@ -594,7 +608,7 @@ describe("ai-metrics command", () => {
           const path = yield* Path.Path;
           const inputPath = path.join(tmpDir, "private-missing-codex.jsonl");
 
-          yield* runAiMetricsCommand([
+          const output = yield* expectAiMetricsCommandFailure([
             "privacy",
             "check",
             "--source",
@@ -606,11 +620,9 @@ describe("ai-metrics command", () => {
             "--json",
           ]);
 
-          const output = pipe(yield* TestConsole.errorLines, A.join("\n"));
           expect(output).toContain("Failed to inspect privacy input.");
           expect(output).not.toContain(inputPath);
           expect(output).not.toContain(tmpDir);
-          expect(process.exitCode).toBe(1);
         })
       )
     ));
@@ -673,7 +685,6 @@ describe("ai-metrics command", () => {
           expect(output).toContain("provided");
           expect(output).not.toContain(tmpDir);
           expect(output).not.toContain("super-secret-token");
-          expect(process.exitCode ?? 0).toBe(0);
         })
       )
     ));
@@ -724,7 +735,6 @@ describe("ai-metrics command", () => {
           expect(output).toContain("turnCount");
           expect(output).not.toContain("private-forwarder-secret");
           expect(output).not.toContain(rawArchiveKey);
-          expect(process.exitCode ?? 0).toBe(0);
         })
       )
     ));
@@ -795,7 +805,6 @@ describe("ai-metrics command", () => {
             expect(traceRequest.bodyText).not.toContain(tmpDir);
             expect(resultJson).not.toContain("private-forwarder-otlp-secret");
             expect(resultJson).not.toContain(rawArchiveKey);
-            expect(process.exitCode ?? 0).toBe(0);
           })
         )
       )
@@ -870,7 +879,6 @@ describe("ai-metrics command", () => {
               expect(errorOutput).not.toContain(tmpDir);
               expect(resultJson).not.toContain("private-forwarder-failed-otlp");
               expect(resultJson).not.toContain(rawArchiveKey);
-              expect(process.exitCode ?? 0).toBe(0);
             })
           ),
         500
@@ -893,9 +901,9 @@ describe("ai-metrics command", () => {
           yield* fs.chmod(sourcePath, 0o000);
           yield* writeText(path.join(repoRoot, "AGENTS.md"), "root guide\n");
 
-          yield* withRawArchiveKeyEnv(
+          const output = yield* withRawArchiveKeyEnv(
             rawArchiveKey,
-            runAiMetricsCommand([
+            expectAiMetricsCommandFailure([
               "forwarder",
               "run",
               "--repo-root",
@@ -911,12 +919,10 @@ describe("ai-metrics command", () => {
             ])
           );
 
-          const output = pipe(yield* TestConsole.errorLines, A.join("\n"));
           expect(output).toContain("Failed to read AI metrics codex source file");
           expect(output).not.toContain(sourcePath);
           expect(output).not.toContain(tmpDir);
           expect(output).not.toContain(rawArchiveKey);
-          expect(process.exitCode).toBe(1);
         })
       )
     ));
@@ -1059,7 +1065,6 @@ describe("ai-metrics command", () => {
             expect(reportJson).not.toContain("private-cli-report-text");
             expect(reportJson).not.toContain("secret-cli-report-fixture");
             expect(reportJson).not.toContain(tmpDir);
-            expect(process.exitCode ?? 0).toBe(0);
           })
         )
       ),
@@ -1073,7 +1078,7 @@ describe("ai-metrics command", () => {
           const path = yield* Path.Path;
           const dataRoot = path.join(tmpDir, "metrics");
 
-          yield* runAiMetricsCommand([
+          const output = yield* expectAiMetricsCommandFailure([
             "otlp",
             "export",
             "--target",
@@ -1085,11 +1090,9 @@ describe("ai-metrics command", () => {
             "--json",
           ]);
 
-          const output = pipe(yield* TestConsole.errorLines, A.join("\n"));
           expect(output).toContain("Failed to select the latest AI metrics ingest run.");
           expect(output).not.toContain(dataRoot);
           expect(output).not.toContain(tmpDir);
-          expect(process.exitCode).toBe(1);
         })
       )
     ));
@@ -1162,7 +1165,6 @@ describe("ai-metrics command", () => {
             expect(resultJson).not.toContain("private-otlp-fixture");
             expect(resultJson).not.toContain(rawArchiveKey);
             expect(resultJson).not.toContain(tmpDir);
-            expect(process.exitCode ?? 0).toBe(0);
           })
         )
       )
@@ -1176,7 +1178,7 @@ describe("ai-metrics command", () => {
             const path = yield* Path.Path;
             const dataRoot = path.join(tmpDir, "metrics");
 
-            yield* runAiMetricsCommand([
+            const output = yield* expectAiMetricsCommandFailure([
               "otlp",
               "export",
               "--target",
@@ -1194,13 +1196,11 @@ describe("ai-metrics command", () => {
               "--json",
             ]);
 
-            const output = pipe(yield* TestConsole.errorLines, A.join("\n"));
             expect(output).toContain("Failed to select the latest AI metrics ingest run.");
             expect(output).not.toContain("hash-salt-secret-ref");
             expect(output).not.toContain("raw-archive-key-secret-ref");
             expect(output).not.toContain(dataRoot);
             expect(output).not.toContain(tmpDir);
-            expect(process.exitCode).toBe(1);
           })
         )
       )
@@ -1243,7 +1243,6 @@ describe("ai-metrics command", () => {
                 status: "planned",
               })
             );
-            expect(process.exitCode ?? 0).toBe(0);
           })
         )
       )
@@ -1270,7 +1269,7 @@ describe("ai-metrics command", () => {
             const buildJson = yield* decodeMirrorBundle(yield* lastLoggedLine());
             yield* writeText(path.join(buildJson.bundleDir, "mirror.duckdb"), "unsafe payload");
 
-            yield* runAiMetricsCommand([
+            const output = yield* expectAiMetricsCommandFailure([
               "mirror",
               "sync",
               "--bundle",
@@ -1282,7 +1281,7 @@ describe("ai-metrics command", () => {
               "--json",
             ]);
 
-            expect(process.exitCode).toBe(1);
+            expect(output).toContain("AI metrics mirror bundle contains files outside the sanitized sync contract.");
           })
         )
       )
@@ -1309,7 +1308,7 @@ describe("ai-metrics command", () => {
             const buildJson = yield* decodeMirrorBundle(yield* lastLoggedLine());
             yield* writeText(path.join(buildJson.bundleDir, "parquet/undeclared.parquet"), "extra payload");
 
-            yield* runAiMetricsCommand([
+            const output = yield* expectAiMetricsCommandFailure([
               "mirror",
               "sync",
               "--bundle",
@@ -1321,7 +1320,7 @@ describe("ai-metrics command", () => {
               "--json",
             ]);
 
-            expect(process.exitCode).toBe(1);
+            expect(output).toContain("AI metrics mirror bundle contains Parquet files not declared in the manifest.");
           })
         )
       )
@@ -1378,7 +1377,6 @@ describe("ai-metrics command", () => {
             const commandLog = yield* fs.readFileString(logPath);
             expect(commandLog).toContain("ssh dankserver-yubi mkdir -p");
             expect(commandLog).toContain("rsync -az --delete");
-            expect(process.exitCode ?? 0).toBe(0);
           })
         )
       )
@@ -1419,7 +1417,6 @@ describe("ai-metrics command", () => {
 
             const output = yield* loggedText();
             expect(output).not.toContain("secret-value");
-            expect(process.exitCode ?? 0).toBe(0);
           })
         )
       )
@@ -1452,7 +1449,6 @@ describe("ai-metrics command", () => {
                 mode: "delete",
               })
             );
-            expect(process.exitCode ?? 0).toBe(0);
           })
         )
       )
@@ -1466,7 +1462,7 @@ describe("ai-metrics command", () => {
           Effect.gen(function* () {
             const { dataRoot } = yield* seedAiMetricsData(tmpDir);
 
-            yield* runAiMetricsCommand([
+            const deleteOutput = yield* expectAiMetricsCommandFailure([
               "retention",
               "delete",
               "--data-root",
@@ -1477,12 +1473,9 @@ describe("ai-metrics command", () => {
               "wrong-token",
               "--json",
             ]);
-            expect(process.exitCode).toBe(1);
+            expect(deleteOutput).toContain('AI metrics retention confirmation must be "p7-retention-window".');
 
-            yield* Effect.sync(() => {
-              process.exitCode = 0;
-            });
-            yield* runAiMetricsCommand([
+            const compactOutput = yield* expectAiMetricsCommandFailure([
               "retention",
               "compact",
               "--data-root",
@@ -1493,7 +1486,9 @@ describe("ai-metrics command", () => {
               "p7-retention-window",
               "--json",
             ]);
-            expect(process.exitCode).toBe(1);
+            expect(compactOutput).toContain(
+              "AI metrics retention writes require --before or a bounded --since/--until window."
+            );
           })
         )
       )
@@ -1531,7 +1526,6 @@ describe("ai-metrics command", () => {
             );
             expect(yield* fs.exists(path.join(dataRoot, "reports/weekly.md"))).toBe(false);
             expect(yield* fs.readDirectory(path.join(dataRoot, "raw/codex"))).toHaveLength(1);
-            expect(process.exitCode ?? 0).toBe(0);
           })
         )
       )
@@ -1571,7 +1565,6 @@ describe("ai-metrics command", () => {
             );
             expect(yield* fs.exists(path.join(dataRoot, "reports/weekly.md"))).toBe(false);
             expect(yield* fs.readDirectory(path.join(dataRoot, "raw/codex"))).toEqual([]);
-            expect(process.exitCode ?? 0).toBe(0);
           })
         )
       )

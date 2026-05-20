@@ -1,0 +1,14 @@
+[
+  {
+    "category": "Object",
+    "package": "@beep/identity",
+    "filePath": "packages/foundation/modeling/identity/src/Id.ts",
+    "line": 1043,
+    "nativeSnippet": "({ ...currentExtras, schemaId: annotation.schemaId, identifier: annotation.identifier, title: annotation.title })",
+    "nativeSymbol": "object spread-merge",
+    "suggestedTarget": "Struct (effect/Struct merge/evolve)",
+    "suggestedImport": "import * as Struct from \"effect/Struct\"",
+    "needsHumanDecision": true,
+    "note": "Record spread-merge of a generic Extras record with three literal annotation fields, immediately cast to IdentityAnnotationResult<...>. canImportUtils=false so any replacement is raw effect/Struct. The generic Extras type parameter is load-bearing and the result is a manual cast; rewriting to Struct ops risks losing the inferred shape. Human should confirm whether a Struct merge preserves the generic type before remediating."
+  }
+]

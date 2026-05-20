@@ -7,12 +7,13 @@
 
 import { createRequire } from "node:module";
 import { fileURLToPath } from "node:url";
-import { DomainError, findRepoRoot } from "@beep/repo-utils";
 import { Str, thunkEmptyStr } from "@beep/utils";
 import { Effect, Path, Stream } from "effect";
 import { dual } from "effect/Function";
 import * as S from "effect/Schema";
 import { ChildProcess } from "effect/unstable/process";
+import { DomainError } from "../errors/DomainError.js";
+import { findRepoRoot } from "../Root.js";
 
 const require = createRequire(import.meta.url);
 const biomeExecutable = require.resolve("@biomejs/biome/bin/biome");

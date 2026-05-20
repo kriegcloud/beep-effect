@@ -250,13 +250,9 @@ const addRoleCommand = Command.make(
   })
 ).pipe(Command.withDescription("Add a role through the architecture operation-plan factory"));
 
-const printCreateIndex = Effect.fn(function* () {
-  yield* Console.log("architecture create commands: slice, package");
-});
+const printCreateIndex = () => Console.log("architecture create commands: slice, package");
 
-const printAddIndex = Effect.fn(function* () {
-  yield* Console.log("architecture add commands: concept, role");
-});
+const printAddIndex = () => Console.log("architecture add commands: concept, role");
 
 const architectureCreateCommand = Command.make("create", {}, printCreateIndex).pipe(
   Command.withDescription("Create canonical architecture parts"),
@@ -268,10 +264,7 @@ const architectureAddCommand = Command.make("add", {}, printAddIndex).pipe(
   Command.withSubcommands([addConceptCommand, addRoleCommand])
 );
 
-const printArchitectureIndex = Effect.fn(function* () {
-  yield* Console.log("architecture commands: create, add, plan, apply, check");
-});
-
+const printArchitectureIndex = () => Console.log("architecture commands: create, add, plan, apply, check");
 /**
  * Architecture automation command group.
  *

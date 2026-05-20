@@ -114,7 +114,7 @@ const PackageType = LiteralKit(VALID_TYPES).annotate(
 type PackageType = typeof PackageType.Type;
 const isPackageType = S.is(PackageType);
 const packageTypeEquivalence = S.toEquivalence(PackageType);
-const stringEquivalence = S.toEquivalence(S.String);
+const stringEquivalence = Str.equivalence;
 
 const PackageFamily = LiteralKit(VALID_FAMILIES).annotate(
   $I.annote("PackageFamily", {

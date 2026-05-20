@@ -1,0 +1,14 @@
+[
+  {
+    "category": "Object",
+    "package": "@beep/openai-compat",
+    "filePath": "packages/drivers/openai-compat/src/OpenAiCompat.language-model.ts",
+    "line": 638,
+    "nativeSnippet": "const activeToolCall = activeToolCalls[toolIndex];",
+    "nativeSymbol": "Record index access",
+    "suggestedTarget": "R.get",
+    "suggestedImport": "import * as R from \"effect/Record\"",
+    "needsHumanDecision": true,
+    "note": "String-keyed record index read on `Readonly<Record<string, ActiveToolCall>>` (toolIndex is a string). `R.get` returns `Option<ActiveToolCall>` rather than `ActiveToolCall | undefined`; the surrounding code (lines 639-651) relies on `undefined` semantics via `activeToolCall?.id`, `activeToolCall?.name`, and `activeToolCall === undefined`, so migration would ripple into those null-checks. `R` is already imported in this module (used for R.set/R.values/R.getSomes). Human decision: keep undefined-based flow or refactor to Option."
+  }
+]

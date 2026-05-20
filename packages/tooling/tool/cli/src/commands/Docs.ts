@@ -15,7 +15,7 @@ import { Argument, Command } from "effect/unstable/cli";
 import { docsAggregateCommand } from "./DocsAggregate.js";
 
 const $I = $RepoCliId.create("docs");
-const stringEquivalence = S.toEquivalence(S.String);
+const stringEquivalence = Str.equivalence;
 
 const DocsSectionName = LiteralKit(["laws", "skills", "policies"]).annotate(
   $I.annote("DocsSectionName", {

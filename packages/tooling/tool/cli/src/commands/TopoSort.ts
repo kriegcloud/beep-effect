@@ -60,7 +60,7 @@ export const topoSortCommand = Command.make(
       })
     );
 
-    yield* Effect.forEach(sorted, (packageName) => Console.log(packageName), {
+    yield* Effect.forEach(sorted, Console.log, {
       discard: true,
     });
   })

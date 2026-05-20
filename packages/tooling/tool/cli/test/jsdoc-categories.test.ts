@@ -3,7 +3,7 @@ import {
   isCanonicalJSDocCategory,
   normalizeJSDocCategory,
   normalizeJSDocCategoryKey,
-} from "@beep/repo-cli/commands/Shared/JSDocCategories";
+} from "@beep/repo-utils/schemas/JSDocCategories";
 import { describe, expect, it } from "vitest";
 
 describe("JSDoc category taxonomy", () => {

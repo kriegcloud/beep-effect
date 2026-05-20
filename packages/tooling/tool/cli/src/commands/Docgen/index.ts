@@ -9,6 +9,7 @@
  */
 
 import { DomainError, findRepoRoot } from "@beep/repo-utils";
+import { renderBiomeJson } from "@beep/repo-utils/schemas/BiomeJson";
 import { Runpod, RunpodConfigInput } from "@beep/runpod";
 import { A, Str } from "@beep/utils";
 import { Config, Console, Effect, FileSystem, Layer, Match, Path, pipe } from "effect";
@@ -17,7 +18,6 @@ import * as R from "effect/Record";
 import * as S from "effect/Schema";
 import { Command, Flag } from "effect/unstable/cli";
 import * as jsonc from "jsonc-parser";
-import { renderBiomeJson } from "../Shared/BiomeJson.js";
 import { runDocgenLocal } from "./internal/Local.js";
 import {
   aggregateGeneratedDocs,

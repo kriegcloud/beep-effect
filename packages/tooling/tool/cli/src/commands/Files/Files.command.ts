@@ -5,7 +5,7 @@
  * @since 0.0.0
  */
 
-import { Console, Effect } from "effect";
+import { Effect } from "effect";
 import * as O from "effect/Option";
 import { Command, Flag } from "effect/unstable/cli";
 import type { FilesCommandError } from "./Files.errors.js";
@@ -33,17 +33,7 @@ import {
 
 const runFilesProgram = <A>(
   effect: Effect.Effect<A, FilesCommandError, FilesCommandService>
-): Effect.Effect<void, never, FilesCommandService> =>
-  effect.pipe(
-    Effect.catchTag(
-      "FilesCommandError",
-      Effect.fn(function* (error) {
-        process.exitCode = 1;
-        yield* Console.error(`[files] ${error.message}`);
-      })
-    ),
-    Effect.asVoid
-  );
+): Effect.Effect<void, FilesCommandError, FilesCommandService> => effect.pipe(Effect.asVoid);
 
 const sortDirFlag = Flag.directory("dir", { mustExist: true }).pipe(
   Flag.withDescription("Directory whose direct regular files should be sorted and renamed")

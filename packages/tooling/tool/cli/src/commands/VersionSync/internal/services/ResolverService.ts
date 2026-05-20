@@ -27,7 +27,7 @@ import { buildNodeReport, resolveNodeVersions } from "../resolvers/NodeResolver.
 import { CategorySelectionService } from "./CategorySelectionService.js";
 
 const $I = $RepoCliId.create("commands/VersionSync/internal/services/ResolverService");
-const stringEquivalence = S.toEquivalence(S.String);
+const stringEquivalence = Str.equivalence;
 const versionCategoryStatusEquivalence = S.toEquivalence(VersionCategoryStatus);
 
 type ResolverEnvironment = FileSystem.FileSystem | Path.Path | HttpClient.HttpClient | CategorySelectionService;

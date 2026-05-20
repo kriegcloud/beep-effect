@@ -6,9 +6,53 @@
  * @since 0.0.0
  */
 import { cast, dual, flow } from "effect/Function";
+import type * as Order from "effect/Order";
 import * as Str from "effect/String";
 import type * as TF from "type-fest";
 import * as A from "./Array.ts";
+
+/**
+ * Compare two strings for equality with data-first and data-last call forms.
+ *
+ * This is the canonical string-specific equivalence helper for reusable code.
+ * Use `SchemaUtils.toEquivalence(schema)` when comparing values whose equality
+ * should be derived from a named schema.
+ *
+ * @example
+ * ```ts
+ * import { pipe } from "effect"
+ * import { Str } from "@beep/utils"
+ *
+ * const same = Str.equivalence("docs", "docs")
+ * const piped = pipe("docs", Str.equivalence("tests"))
+ *
+ * console.log(same)
+ * console.log(piped)
+ * ```
+ *
+ * @category instances
+ * @since 0.0.0
+ */
+export const equivalence: {
+  (self: string, that: string): boolean;
+  (that: string): (self: string) => boolean;
+} = dual(2, Str.Equivalence);
+
+/**
+ * Ascending lexicographic order for strings.
+ *
+ * @example
+ * ```ts
+ * import { A, Str } from "@beep/utils"
+ *
+ * const sorted = A.sort(["b", "a"], Str.orderAsc)
+ * console.log(sorted)
+ * ```
+ *
+ * @category instances
+ * @since 0.0.0
+ */
+export const orderAsc: Order.Order<string> = Str.Order;
 
 /**
  * Prepends `prefix` to a string, preserving template-literal types.

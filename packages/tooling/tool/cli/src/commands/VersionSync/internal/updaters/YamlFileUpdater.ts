@@ -6,7 +6,7 @@
  */
 
 import { $RepoCliId } from "@beep/identity/packages";
-import { A } from "@beep/utils";
+import { A, Str } from "@beep/utils";
 import { Effect, FileSystem, Inspectable, SchemaTransformation } from "effect";
 import { dual } from "effect/Function";
 import * as O from "effect/Option";
@@ -35,7 +35,7 @@ const YamlNodeValueAsString = S.Unknown.pipe(
 const decodeYamlNodeValueAsString = S.decodeUnknownOption(YamlNodeValueAsString);
 const yamlNodeValueAsString = (value: unknown): string =>
   O.getOrElse(decodeYamlNodeValueAsString(value), () => `${value}`);
-const stringEquivalence = S.toEquivalence(S.String);
+const stringEquivalence = Str.equivalence;
 
 type UpdateYamlValueOptions = {
   readonly value: string;

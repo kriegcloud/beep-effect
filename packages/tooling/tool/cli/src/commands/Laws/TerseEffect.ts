@@ -6,6 +6,7 @@
  */
 
 import { $RepoCliId } from "@beep/identity/packages";
+import { isExcludedTypeScriptSourcePath, toPosixPath } from "@beep/repo-utils/schemas/TypeScriptSourceExclusions";
 import { TaggedErrorClass } from "@beep/schema";
 import { A, thunkEmptyStr } from "@beep/utils";
 import { Effect, HashMap, Inspectable, Order, Path, pipe } from "effect";
@@ -21,7 +22,6 @@ import {
   Project,
   SyntaxKind,
 } from "ts-morph";
-import { isExcludedTypeScriptSourcePath, toPosixPath } from "../Shared/TypeScriptSourceExclusions.ts";
 
 const $I = $RepoCliId.create("commands/Laws/TerseEffect");
 

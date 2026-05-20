@@ -117,6 +117,7 @@ import {
   Path,
   pipe,
   Redacted,
+  Runtime,
 } from "effect";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
@@ -157,6 +158,19 @@ export class AiMetricsCommandError extends TaggedErrorClass<AiMetricsCommandErro
     description: "User-facing failure raised by the AI metrics CLI command suite.",
   })
 ) {}
+
+class AiMetricsStatusExit extends TaggedErrorClass<AiMetricsStatusExit>($I`AiMetricsStatusExit`)(
+  "AiMetricsStatusExit",
+  {
+    message: S.String,
+  },
+  $I.annote("AiMetricsStatusExit", {
+    description: "Silent non-zero process exit requested after a command has already rendered its result.",
+  })
+) {
+  override readonly [Runtime.errorExitCode] = 1;
+  override readonly [Runtime.errorReported] = false;
+}
 
 class AiMetricsArchiveDrillRow extends S.Class<AiMetricsArchiveDrillRow>($I`AiMetricsArchiveDrillRow`)(
   {
@@ -373,62 +387,12 @@ type AiMetricsProgramError =
   | AiMetricsPrivacyError
   | AiMetricsRetentionError
   | AiMetricsScorecardError
-  | AiMetricsSourceDiscoveryError;
+  | AiMetricsSourceDiscoveryError
+  | AiMetricsStatusExit;
 
-const runAiMetricsProgram = <A, R>(effect: Effect.Effect<A, AiMetricsProgramError, R>): Effect.Effect<void, never, R> =>
-  effect.pipe(
-    Effect.catchTags({
-      AiMetricsArchiveError: Effect.fn(function* (error) {
-        process.exitCode = 1;
-        yield* Console.error(`ai-metrics: ${error.message}`);
-      }),
-      AiMetricsCommandError: Effect.fn(function* (error) {
-        process.exitCode = 1;
-        yield* Console.error(`ai-metrics: ${error.message}`);
-      }),
-      AiMetricsIngestError: Effect.fn(function* (error) {
-        process.exitCode = 1;
-        yield* Console.error(`ai-metrics: ${error.message}`);
-      }),
-      AiMetricsForwarderError: Effect.fn(function* (error) {
-        process.exitCode = 1;
-        yield* Console.error(`ai-metrics: ${error.message}`);
-      }),
-      AiMetricsInstallConfigurationError: Effect.fn(function* (error) {
-        process.exitCode = 1;
-        yield* Console.error(`ai-metrics: ${error.message}`);
-      }),
-      AiMetricsMirrorError: Effect.fn(function* (error) {
-        process.exitCode = 1;
-        yield* Console.error(`ai-metrics: ${error.message}`);
-      }),
-      AiMetricsOtlpExportError: Effect.fn(function* (error) {
-        process.exitCode = 1;
-        yield* Console.error(`ai-metrics: ${error.message}`);
-      }),
-      AiMetricsConfigSnapshotError: Effect.fn(function* (error) {
-        process.exitCode = 1;
-        yield* Console.error(`ai-metrics: ${error.message}`);
-      }),
-      AiMetricsPrivacyError: Effect.fn(function* (error) {
-        process.exitCode = 1;
-        yield* Console.error(`ai-metrics: ${error.message}`);
-      }),
-      AiMetricsRetentionError: Effect.fn(function* (error) {
-        process.exitCode = 1;
-        yield* Console.error(`ai-metrics: ${error.message}`);
-      }),
-      AiMetricsScorecardError: Effect.fn(function* (error) {
-        process.exitCode = 1;
-        yield* Console.error(`ai-metrics: ${error.message}`);
-      }),
-      AiMetricsSourceDiscoveryError: Effect.fn(function* (error) {
-        process.exitCode = 1;
-        yield* Console.error(`ai-metrics: ${error.message}`);
-      }),
-    }),
-    Effect.asVoid
-  );
+const runAiMetricsProgram = <A, R>(
+  effect: Effect.Effect<A, AiMetricsProgramError, R>
+): Effect.Effect<void, AiMetricsProgramError, R> => effect.pipe(Effect.asVoid);
 
 const readOptionalConfigString: (key: string) => Effect.Effect<O.Option<string>, AiMetricsCommandError> = Effect.fn(
   "AIMetrics.readOptionalConfigString"
@@ -983,7 +947,9 @@ const makeInstallDoctorProgram = Effect.fn("AIMetrics.makeInstallDoctorProgram")
 
   yield* renderInstallDoctor(result, json);
   if (result.status === AiMetricsInstallDoctorStatus.Enum.failed) {
-    process.exitCode = 1;
+    return yield* new AiMetricsStatusExit({
+      message: "AI metrics install doctor reported a failed status.",
+    });
   }
 });
 

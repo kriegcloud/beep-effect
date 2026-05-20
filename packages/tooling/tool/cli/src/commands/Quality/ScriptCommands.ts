@@ -9,7 +9,7 @@ import { $RepoCliId } from "@beep/identity/packages";
 import { findRepoRoot, jsonStringifyPretty } from "@beep/repo-utils";
 import { LiteralKit, TaggedErrorClass } from "@beep/schema";
 import { A, Str, thunkFalse } from "@beep/utils";
-import { Config, Console, Effect, FileSystem, Match, Order, Path, pipe, Stream } from "effect";
+import { Config, Console, Effect, FileSystem, Match, Order, Path, pipe, Runtime, Stream } from "effect";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as R from "effect/Record";
@@ -160,7 +160,9 @@ export class QualityScriptCommandError extends TaggedErrorClass<QualityScriptCom
   $I.annote("QualityScriptCommandError", {
     description: "Failure raised while running a migrated repo operational command.",
   })
-) {}
+) {
+  override readonly [Runtime.errorExitCode] = this.exitCode ?? 1;
+}
 
 const commandText = (command: string, args: ReadonlyArray<string>) => A.join([command, ...args], " ");
 
@@ -1482,17 +1484,7 @@ export const runRepoExportsCatalog = Effect.fn("QualityScriptCommands.runRepoExp
 
 const runQualityProgram = <A, R>(
   effect: Effect.Effect<A, QualityScriptCommandError, R>
-): Effect.Effect<void, never, R> =>
-  effect.pipe(
-    Effect.catchTag(
-      "QualityScriptCommandError",
-      Effect.fn(function* (error) {
-        process.exitCode = error.exitCode ?? 1;
-        yield* Console.error(`[beep-cli] ${error.message}`);
-      })
-    ),
-    Effect.asVoid
-  );
+): Effect.Effect<void, QualityScriptCommandError, R> => effect.pipe(Effect.asVoid);
 
 const githubChecksCommand = Command.make(
   "github-checks",

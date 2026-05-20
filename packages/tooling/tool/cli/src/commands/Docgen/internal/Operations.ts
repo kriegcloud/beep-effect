@@ -14,6 +14,15 @@ import {
   type NoSuchFileError,
   resolveWorkspaceDirs,
 } from "@beep/repo-utils";
+import {
+  buildDocgenAliasSource,
+  CanonicalDocgenConfigInput,
+  collectDocgenWorkspaceDependencyNames,
+  createCanonicalDocgenConfig,
+  type DocgenAliasSource,
+  toCanonicalDocgenConfigJson,
+} from "@beep/repo-utils/schemas/DocgenConfig";
+import { normalizeJSDocCategory } from "@beep/repo-utils/schemas/JSDocCategories";
 import { LiteralKit, normalizePath } from "@beep/schema";
 import { A, Str, thunk0, thunkEmptyStr, thunkFalse } from "@beep/utils";
 import { DateTime, Effect, FileSystem, flow, HashMap, MutableHashSet, Order, Path, pipe, Result, Stream } from "effect";
@@ -25,15 +34,6 @@ import { ChildProcess } from "effect/unstable/process";
 import type { ChildProcessSpawner } from "effect/unstable/process/ChildProcessSpawner";
 import * as jsonc from "jsonc-parser";
 import { type ExportDeclaration, type JSDoc, Node, Project, type SourceFile, SyntaxKind } from "ts-morph";
-import {
-  buildDocgenAliasSource,
-  CanonicalDocgenConfigInput,
-  collectDocgenWorkspaceDependencyNames,
-  createCanonicalDocgenConfig,
-  type DocgenAliasSource,
-  toCanonicalDocgenConfigJson,
-} from "../../Shared/DocgenConfig.js";
-import { normalizeJSDocCategory } from "../../Shared/JSDocCategories.js";
 
 const $I = $RepoCliId.create("commands/Docgen/internal/Operations");
 

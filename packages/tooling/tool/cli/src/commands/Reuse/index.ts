@@ -140,59 +140,12 @@ const provideReuseServices = <A>(effect: Effect.Effect<A, ReuseProgramError, Reu
 
 const runReuseProgram = <A>(
   effect: Effect.Effect<A, ReuseProgramError, ReuseProgramDependencies>
-): Effect.Effect<void, never, ReuseRuntimeContext> =>
-  provideReuseServices(effect).pipe(
-    Effect.catchTags({
-      DomainError: Effect.fn(function* (error) {
-        process.exitCode = 1;
-        yield* Console.error(`[reuse] ${error.message}`);
-      }),
-      ReuseAnalysisError: Effect.fn(function* (error) {
-        process.exitCode = 1;
-        yield* Console.error(`[reuse] ${error.operation}: ${error.message}`);
-      }),
-      ReuseCandidateNotFoundError: Effect.fn(function* (error) {
-        process.exitCode = 1;
-        yield* Console.error(
-          `[reuse] candidate ${error.candidateId} was not present in inventory scope ${error.scopeSelector}`
-        );
-      }),
-      NoSuchFileError: Effect.fn(function* (error) {
-        process.exitCode = 1;
-        yield* Console.error(`[reuse] missing file while preparing analysis context: ${error.path}`);
-      }),
-      RepoCodegraphCatalogReadError: Effect.fn(function* (error) {
-        process.exitCode = 1;
-        yield* Console.error(`[reuse] ${error.operation}: ${error.message}`);
-      }),
-      SchemaError: Effect.fn(function* (error) {
-        process.exitCode = 1;
-        yield* Console.error(`[reuse] ${String(error)}`);
-      }),
-    }),
-    Effect.asVoid
-  );
+): Effect.Effect<void, ReuseProgramError, ReuseRuntimeContext> => provideReuseServices(effect).pipe(Effect.asVoid);
 
 const runCodexSmokeProgram = <A>(
   effect: Effect.Effect<A, CodexRunnerError | DomainError | S.SchemaError, FileSystem.FileSystem>
-): Effect.Effect<void, never, FileSystem.FileSystem> =>
-  effect.pipe(
-    Effect.catchTags({
-      CodexRunnerError: Effect.fn(function* (error) {
-        process.exitCode = 1;
-        yield* Console.error(`[reuse] codex-smoke failed during ${error.stage}: ${error.message}`);
-      }),
-      DomainError: Effect.fn(function* (error) {
-        process.exitCode = 1;
-        yield* Console.error(`[reuse] ${error.message}`);
-      }),
-      SchemaError: Effect.fn(function* (error) {
-        process.exitCode = 1;
-        yield* Console.error(`[reuse] ${String(error)}`);
-      }),
-    }),
-    Effect.asVoid
-  );
+): Effect.Effect<void, CodexRunnerError | DomainError | S.SchemaError, FileSystem.FileSystem> =>
+  effect.pipe(Effect.asVoid);
 
 const printPartitionPlan = Effect.fn(function* (plan: ReusePartitionPlan) {
   yield* Console.log(`Scope: ${plan.scopeSelector}`);

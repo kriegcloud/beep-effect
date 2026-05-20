@@ -10,7 +10,7 @@ import { type DomainError, findRepoRoot, type NoSuchFileError } from "@beep/repo
 import { LiteralKit, TaggedErrorClass } from "@beep/schema";
 import { makePgliteTestcontainerResource, type PgliteTestcontainerResource } from "@beep/test-utils";
 import { A, Str, thunkFalse } from "@beep/utils";
-import { Cause, Console, Effect, FileSystem, flow, Match, Path, pipe, type Scope, Stream } from "effect";
+import { Console, Effect, FileSystem, flow, Match, Path, pipe, Runtime, type Scope, Stream } from "effect";
 import { dual } from "effect/Function";
 import * as O from "effect/Option";
 import * as R from "effect/Record";
@@ -171,7 +171,9 @@ export class QualityTaskFailed extends TaggedErrorClass<QualityTaskFailed>($I`Qu
   $I.annote("QualityTaskFailed", {
     description: "A quality subprocess exited with a non-zero status code.",
   })
-) {}
+) {
+  override readonly [Runtime.errorExitCode] = this.exitCode;
+}
 
 /**
  * Error raised when a bounded quality task group completes with failed steps.
@@ -204,7 +206,9 @@ export class QualityTaskGroupFailed extends TaggedErrorClass<QualityTaskGroupFai
   $I.annote("QualityTaskGroupFailed", {
     description: "A bounded quality task group completed with one or more failed subprocesses.",
   })
-) {}
+) {
+  override readonly [Runtime.errorExitCode] = this.exitCode;
+}
 
 /**
  * Error raised when a quality task cannot resolve its required configuration.
@@ -1165,43 +1169,13 @@ const runRootTask = Effect.fn("QualityTasks.runRootTask")(function* (
   yield* runSteps(rootStepsFor(repoRoot, invocation));
 });
 
-const handleQualityTaskError = Effect.catchTags({
-  NoSuchFileError: Effect.fn("QualityTasks.handleNoSuchFileError")(function* (error: NoSuchFileError) {
-    process.exitCode = 1;
-    yield* Console.error(`[beep-cli] ${error.message}`);
-  }),
-  QualityTaskConfigurationError: Effect.fn("QualityTasks.handleConfigurationError")(function* (
-    error: QualityTaskConfigurationError
-  ) {
-    process.exitCode = 1;
-    yield* Console.error(`[beep-cli] ${error.message}`);
-  }),
-  QualityTaskFailed: Effect.fn("QualityTasks.handleFailedTask")(function* (error: QualityTaskFailed) {
-    process.exitCode = error.exitCode;
-    yield* Console.error(`[beep-cli] ${error.label} failed with exit code ${error.exitCode}`);
-  }),
-  QualityTaskGroupFailed: Effect.fn("QualityTasks.handleFailedTaskGroup")(function* (error: QualityTaskGroupFailed) {
-    process.exitCode = error.exitCode;
-    yield* Console.error(`[beep-cli] ${error.label} failed with ${A.length(error.failures)} failed step(s)`);
-    yield* Effect.forEach(
-      error.failures,
-      (failure) => Console.error(`[beep-cli] ${failure.label} failed with exit code ${failure.exitCode}`),
-      { discard: true }
-    );
-  }),
-  DomainError: Effect.fn("QualityTasks.handleDomainError")(function* (error: DomainError) {
-    process.exitCode = 1;
-    yield* Console.error(`[beep-cli] ${error.message}`);
-  }),
-});
-
-const mapUnexpectedQualityTaskCause = Effect.catchCause(
-  Effect.fn("QualityTasks.mapUnexpectedCause")(function* (cause) {
-    return yield* new UnexpectedQualityTaskFailure({
-      message: `Unexpected quality task failure\n${Cause.pretty(cause)}`,
-    });
-  })
-);
+type QualityTaskError =
+  | DomainError
+  | NoSuchFileError
+  | QualityTaskConfigurationError
+  | QualityTaskFailed
+  | QualityTaskGroupFailed
+  | UnexpectedQualityTaskFailure;
 
 /**
  * Parse a raw argv vector into a quality task invocation when the first token is
@@ -1265,9 +1239,7 @@ export const parseQualityTaskInvocation = (argv: ReadonlyArray<string>): O.Optio
  */
 export const runQualityTask: (
   invocation: QualityTaskInvocation
-) => Effect.Effect<void, UnexpectedQualityTaskFailure, QualityTaskEnvironment> = Effect.fn(
-  "QualityTasks.runQualityTask"
-)(
+) => Effect.Effect<void, QualityTaskError, QualityTaskEnvironment> = Effect.fn("QualityTasks.runQualityTask")(
   function* (invocation: QualityTaskInvocation) {
     const path = yield* Path.Path;
     const cwd = path.resolve(process.cwd());
@@ -1279,9 +1251,7 @@ export const runQualityTask: (
       O.map((dir) => runPackageTask(dir, invocation)),
       O.getOrElse(() => runRootTask(repoRoot, invocation))
     );
-  },
-  handleQualityTaskError,
-  mapUnexpectedQualityTaskCause
+  }
 );
 
 /**
@@ -1299,7 +1269,7 @@ export const runQualityTask: (
  */
 export const runQualityTaskIfRequested: (
   argv: ReadonlyArray<string>
-) => Effect.Effect<boolean, UnexpectedQualityTaskFailure, QualityTaskEnvironment> = Effect.fn(
+) => Effect.Effect<boolean, QualityTaskError, QualityTaskEnvironment> = Effect.fn(
   "QualityTasks.runQualityTaskIfRequested"
 )(function* (argv: ReadonlyArray<string>) {
   return yield* pipe(

@@ -20,6 +20,21 @@ import {
   topologicalSort,
   type WorkspaceDeps,
 } from "@beep/repo-utils";
+import { renderBiomeJson } from "@beep/repo-utils/schemas/BiomeJson";
+import {
+  buildDocgenAliasSource,
+  CanonicalDocgenConfigInput,
+  collectDocgenWorkspaceDependencyNames,
+  createCanonicalDocgenConfig,
+  DocgenAliasSource,
+  mergeManagedDocgenConfig,
+} from "@beep/repo-utils/schemas/DocgenConfig";
+import {
+  buildCanonicalAliasTargets,
+  resolveRootExportTarget,
+  resolveSubpathExportTarget,
+  resolveWildcardExportTarget,
+} from "@beep/repo-utils/schemas/TsconfigAliasTargets";
 import { LiteralKit, normalizePath, TaggedErrorClass } from "@beep/schema";
 import { decodeJsoncTextAs } from "@beep/schema/Jsonc";
 import { A, Str, thunkFalse, thunkUndefined } from "@beep/utils";
@@ -32,21 +47,6 @@ import * as S from "effect/Schema";
 import { Command, Flag } from "effect/unstable/cli";
 import type { ChildProcessSpawner } from "effect/unstable/process/ChildProcessSpawner";
 import * as jsonc from "jsonc-parser";
-import { renderBiomeJson } from "./Shared/BiomeJson.js";
-import {
-  buildDocgenAliasSource,
-  CanonicalDocgenConfigInput,
-  collectDocgenWorkspaceDependencyNames,
-  createCanonicalDocgenConfig,
-  DocgenAliasSource,
-  mergeManagedDocgenConfig,
-} from "./Shared/DocgenConfig.js";
-import {
-  buildCanonicalAliasTargets,
-  resolveRootExportTarget,
-  resolveSubpathExportTarget,
-  resolveWildcardExportTarget,
-} from "./Shared/TsconfigAliasTargets.js";
 
 export {
   /**
@@ -63,7 +63,7 @@ export {
    * @since 0.0.0
    */
   resolveRootExportTarget,
-} from "./Shared/TsconfigAliasTargets.js";
+} from "@beep/repo-utils/schemas/TsconfigAliasTargets";
 
 /**
  * Formatting options used for jsonc edits.
@@ -132,15 +132,9 @@ const StringArray = S.Array(S.String).annotate(
 const isCanonicalAliasKey = S.is(CanonicalAliasKey);
 const isBeepScopedPackageName = S.is(BeepScopedPackageName);
 const isRootDepIndexKey = S.is(RootDepIndexKey);
-const stringEquivalence = S.toEquivalence(S.String);
+const stringEquivalence = Str.equivalence;
 const stringArrayEquivalence = S.toEquivalence(StringArray);
-const byStringAscending: Order.Order<string> = Order.String;
-
-const isArrayEmpty = <T>(values: ReadonlyArray<T>): boolean =>
-  A.match(values, {
-    onEmpty: () => true,
-    onNonEmpty: thunkFalse,
-  });
+const byStringAscending: Order.Order<string> = Str.orderAsc;
 
 /**
  * Drift error raised in check mode when changes are required.
@@ -695,15 +689,15 @@ export class TsconfigWithPaths extends S.Class<TsconfigWithPaths>($I`TsconfigWit
 ) {}
 
 const byWorkspaceRelativeDirAscending: Order.Order<WorkspaceDescriptor> = Order.mapInput(
-  Order.String,
+  Str.orderAsc,
   (descriptor: WorkspaceDescriptor) => descriptor.relativeDir
 );
 const byPlannedChangeFileAscending: Order.Order<PlannedFileChange> = Order.mapInput(
-  Order.String,
+  Str.orderAsc,
   (change: PlannedFileChange) => change.filePath
 );
 const byPlannedChangeSectionAscending: Order.Order<PlannedFileChange> = Order.mapInput(
-  Order.String,
+  Str.orderAsc,
   (change: PlannedFileChange) => change.section
 );
 const byPlannedChangeAscending = Order.combine(byPlannedChangeFileAscending, byPlannedChangeSectionAscending);
@@ -875,7 +869,10 @@ const readTstycheTsconfig = (parsed: Record<string, unknown>): string | undefine
 const isManagedTstycheWorkspace = (relativeDir: string): boolean =>
   Str.startsWith("packages/")(relativeDir) || Str.startsWith("apps/")(relativeDir);
 
-const workspacePatternCoversPath = (workspacePattern: string, relativeDir: string): boolean => {
+const workspacePatternCoversPath: {
+  (workspacePattern: string, relativeDir: string): boolean;
+  (relativeDir: string): (workspacePattern: string) => boolean;
+} = dual(2, (workspacePattern: string, relativeDir: string): boolean => {
   const patternSegments = pathSegments(workspacePattern);
   const pathParts = pathSegments(relativeDir);
 
@@ -890,7 +887,7 @@ const workspacePatternCoversPath = (workspacePattern: string, relativeDir: strin
   }
 
   return true;
-};
+});
 
 const buildCanonicalTstycheTestFileMatch = (
   workspaces: ReadonlyArray<WorkspaceDescriptor>,
@@ -905,9 +902,7 @@ const buildCanonicalTstycheTestFileMatch = (
     workspaces,
     A.map((workspace) => workspace.relativeDir),
     A.filter(isManagedTstycheWorkspace),
-    A.filter(
-      (relativeDir) => !A.some(managedWorkspacePatterns, (pattern) => workspacePatternCoversPath(pattern, relativeDir))
-    ),
+    A.filter((relativeDir) => !A.some(managedWorkspacePatterns, workspacePatternCoversPath(relativeDir))),
     A.map((relativeDir) => `${relativeDir}/dtslint/**/*.tst.*`),
     A.sort(byStringAscending)
   );
@@ -1273,7 +1268,7 @@ const planRootAliasSync = Effect.fn(function* (rootDir: string, workspaces: Read
     return !pathValuesEqual(currentPaths[key], expectedValue.value);
   });
 
-  if (isArrayEmpty(keysToRemove) && isArrayEmpty(keysToSet)) {
+  if (A.isArrayEmpty(keysToRemove) && A.isArrayEmpty(keysToSet)) {
     return O.none<PlannedFileChange>();
   }
 
@@ -1405,7 +1400,7 @@ const resolveTargetWorkspacesForPackageSync = (
     return packageNameMatchesFilter || stringEquivalence(workspace.relativeDir, normalizedFilter);
   });
 
-  if (filter !== undefined && isArrayEmpty(targetWorkspaces)) {
+  if (filter !== undefined && A.isArrayEmpty(targetWorkspaces)) {
     return Effect.fail(
       new TsconfigSyncFilterError({
         filter,
@@ -1545,7 +1540,7 @@ const planPackageReferenceSync = Effect.fn(function* (
     );
 
     const existingHasReferences = parsed.references !== undefined;
-    if (isArrayEmpty(finalRefPaths) && !existingHasReferences) {
+    if (A.isArrayEmpty(finalRefPaths) && !existingHasReferences) {
       continue;
     }
 
@@ -1662,7 +1657,7 @@ const renderChanges = Effect.fn(function* (
 ) {
   const path = yield* Path.Path;
 
-  if (isArrayEmpty(changes)) {
+  if (A.isReadonlyArrayEmpty(changes)) {
     yield* TsconfigSyncModeMatch(mode, {
       check: () => Console.log("tsconfig-sync: no drift detected"),
       "dry-run": () => Console.log("tsconfig-sync: dry-run found no changes"),
@@ -1721,7 +1716,7 @@ export const syncTsconfigAtRoot: {
     const adjacency = buildAdjacency(depIndex);
     const cycles = yield* detectCycles(adjacency);
 
-    if (!isArrayEmpty(cycles)) {
+    if (!A.isReadonlyArrayEmpty(cycles)) {
       return yield* new TsconfigSyncCycleError({
         cycles: A.map(cycles, (cycle) => [...cycle]),
         message: `Detected ${cycles.length} workspace dependency cycle(s)`,
@@ -1779,7 +1774,7 @@ export const syncTsconfigAtRoot: {
     const reportedChanges = A.map(sortedPlannedChanges, toReportedChange);
     yield* renderChanges(rootDir, options.mode, reportedChanges);
 
-    if (tsconfigSyncModeEquivalence(options.mode, "check") && !isArrayEmpty(reportedChanges)) {
+    if (tsconfigSyncModeEquivalence(options.mode, "check") && !A.isArrayEmpty(reportedChanges)) {
       return yield* new TsconfigSyncDriftError({
         fileCount: reportedChanges.length,
         summary: `Run "beep tsconfig-sync" to apply ${reportedChanges.length} change(s).`,

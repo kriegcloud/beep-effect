@@ -6,6 +6,7 @@
  */
 
 import { $RepoCliId } from "@beep/identity/packages";
+import { isExcludedTypeScriptSourcePath, toPosixPath } from "@beep/repo-utils/schemas/TypeScriptSourceExclusions";
 import {
   TSMorphService,
   type TSMorphServiceError,
@@ -27,7 +28,6 @@ import {
   type SourceFile,
   SyntaxKind,
 } from "ts-morph";
-import { isExcludedTypeScriptSourcePath, toPosixPath } from "../Shared/TypeScriptSourceExclusions.ts";
 
 const $I = $RepoCliId.create("commands/Laws/EffectFn");
 

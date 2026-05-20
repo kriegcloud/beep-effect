@@ -1,0 +1,73 @@
+[
+  {
+    "category": "Object",
+    "package": "@beep/ffmpeg",
+    "filePath": "packages/drivers/ffmpeg/src/FFmpeg.service.ts",
+    "line": 479,
+    "nativeSnippet": "block: { ...state.block, [key]: value }",
+    "nativeSymbol": "object spread-merge (string-keyed record)",
+    "suggestedTarget": "R.set",
+    "suggestedImport": "import * as R from \"effect/Record\"",
+    "note": "state.block is typed Record<string,string> (from S.Record(S.String, S.String)); spread-merge with a dynamic key is a string-keyed record set -> R.set(state.block, key, value)."
+  },
+  {
+    "category": "Object",
+    "package": "@beep/ffmpeg",
+    "filePath": "packages/drivers/ffmpeg/src/FFmpeg.service.ts",
+    "line": 264,
+    "nativeSnippet": "value === undefined ? {} : ({ [key]: value } as Record<K, V>)",
+    "nativeSymbol": "dynamic single-key record literal",
+    "suggestedTarget": "R.singleton",
+    "suggestedImport": "import * as R from \"effect/Record\"",
+    "needsHumanDecision": true,
+    "note": "`maybe` builds a Partial<Record<K,V>> with a typed key K extends string; R.singleton(key, value) returns Record<string,V> and would widen the typed key, and the empty-branch returns {}. Decide whether the typed-key contract matters before substituting."
+  },
+  {
+    "category": "Object",
+    "package": "@beep/ffmpeg",
+    "filePath": "packages/drivers/ffmpeg/src/FFmpeg.service.ts",
+    "line": 468,
+    "nativeSnippet": "{ ...state, block: {} }",
+    "nativeSymbol": "object spread-merge (S.Class instance)",
+    "suggestedTarget": "Struct.assign",
+    "suggestedImport": "import { Struct } from \"@beep/utils\"",
+    "needsHumanDecision": true,
+    "note": "Receiver `state` is a ProgressState S.Class instance; spreading it produces a plain object cast back to ProgressState. SPEC §5 forbids schema authoring; Struct.assign on a class instance is a behavior-adjacent change. Confirm a Struct merge preserves the class shape before substituting, or leave the struct spread as-is and only migrate the inner string-keyed `block` record."
+  },
+  {
+    "category": "Object",
+    "package": "@beep/ffmpeg",
+    "filePath": "packages/drivers/ffmpeg/src/FFmpeg.service.ts",
+    "line": 477,
+    "nativeSnippet": "{ ...state, block: { ...state.block, [key]: value } }",
+    "nativeSymbol": "object spread-merge (S.Class instance)",
+    "suggestedTarget": "Struct.assign",
+    "suggestedImport": "import { Struct } from \"@beep/utils\"",
+    "needsHumanDecision": true,
+    "note": "Outer spread merges into a ProgressState S.Class instance; same class-instance caveat as line 468. The inner `block` record spread is the clear win (see line 479)."
+  },
+  {
+    "category": "Object",
+    "package": "@beep/ffmpeg",
+    "filePath": "packages/drivers/ffmpeg/src/FFmpeg.service.ts",
+    "line": 518,
+    "nativeSnippet": "let nextState: ProgressState = { ...current, buffer, stdout: `${current.stdout}${chunk}` };",
+    "nativeSymbol": "object spread-merge (S.Class instance)",
+    "suggestedTarget": "Struct.assign",
+    "suggestedImport": "import { Struct } from \"@beep/utils\"",
+    "needsHumanDecision": true,
+    "note": "`current` is a ProgressState S.Class instance read from Ref; struct spread to a plain object. Same class-instance caveat as line 468."
+  },
+  {
+    "category": "Object",
+    "package": "@beep/ffmpeg",
+    "filePath": "packages/drivers/ffmpeg/src/FFmpeg.service.ts",
+    "line": 911,
+    "nativeSnippet": "new ExtractFramesRequest({ ...request, outDir, videoPath })",
+    "nativeSymbol": "object spread-merge (S.Class instance)",
+    "suggestedTarget": "Struct.assign",
+    "suggestedImport": "import { Struct } from \"@beep/utils\"",
+    "needsHumanDecision": true,
+    "note": "`request` is an ExtractFramesRequest S.Class instance spread into a new constructor call to override two fields. This is idiomatic constructor-override; substituting Struct.assign offers little gain and risks the class-shape caveat. Likely leave as-is."
+  }
+]

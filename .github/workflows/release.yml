@@ -47,6 +47,7 @@ jobs:
           commit: "chore(release): version packages"
           title: "chore(release): version packages"
         env:
+          LEFTHOOK: "0"
           # Auto-provisioned by GitHub Actions; requires permissions above.
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 

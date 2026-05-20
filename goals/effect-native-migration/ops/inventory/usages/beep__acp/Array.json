@@ -1,0 +1,38 @@
+[
+  {
+    "category": "Array",
+    "package": "@beep/acp",
+    "filePath": "packages/drivers/acp/src/client.ts",
+    "line": 434,
+    "nativeSnippet": "if (registration.handlers.length === 0 || registration.pending.length === 0) {",
+    "nativeSymbol": "Array.prototype.length (empty-array branching)",
+    "suggestedTarget": "A.match (or A.length(...) === 0 emptiness check)",
+    "suggestedImport": "import { A } from \"@beep/utils\"",
+    "needsHumanDecision": true,
+    "note": "Native `Array.length === 0` emptiness guard on `registration.handlers` and `registration.pending` (both `Array<...>`). SPEC §5 maps empty/non-empty branching to `A.match`, but this is a compound short-circuit guard combining two arrays; converting to `A.match`/`A.isEmptyArray` is a structural rewrite, not a direct method swap. The file already uses `A.length(registration.pending)` on line 437, so an `A.length(...) === 0` form is also consistent. Human should confirm intended shape."
+  },
+  {
+    "category": "Array",
+    "package": "@beep/acp",
+    "filePath": "packages/drivers/acp/src/client.ts",
+    "line": 446,
+    "nativeSnippet": "if (notificationHandlers.sessionUpdate.handlers.length === 0) {",
+    "nativeSymbol": "Array.prototype.length (empty-array branching)",
+    "suggestedTarget": "A.match (or A.length(...) === 0 emptiness check)",
+    "suggestedImport": "import { A } from \"@beep/utils\"",
+    "needsHumanDecision": true,
+    "note": "Native `Array.length === 0` emptiness guard on `notificationHandlers.sessionUpdate.handlers` (`Array<...>`). SPEC §5 maps empty/non-empty branching to `A.match`; here the branch returns `bufferNotification(...)` when empty and `runNotificationHandlers(...)` otherwise, so an `A.match` rewrite is plausible but non-mechanical. Human should confirm whether to use `A.match` or an `A.length(...) === 0` guard."
+  },
+  {
+    "category": "Array",
+    "package": "@beep/acp",
+    "filePath": "packages/drivers/acp/src/client.ts",
+    "line": 452,
+    "nativeSnippet": "if (notificationHandlers.elicitationComplete.handlers.length === 0) {",
+    "nativeSymbol": "Array.prototype.length (empty-array branching)",
+    "suggestedTarget": "A.match (or A.length(...) === 0 emptiness check)",
+    "suggestedImport": "import { A } from \"@beep/utils\"",
+    "needsHumanDecision": true,
+    "note": "Native `Array.length === 0` emptiness guard on `notificationHandlers.elicitationComplete.handlers` (`Array<...>`). Same shape as line 446: empty branch buffers, non-empty branch runs handlers. Human should confirm `A.match` vs `A.length(...) === 0`."
+  }
+]

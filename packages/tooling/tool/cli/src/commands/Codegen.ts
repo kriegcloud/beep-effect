@@ -12,7 +12,7 @@
 import { $RepoCliId } from "@beep/identity/packages";
 import { FsUtils } from "@beep/repo-utils";
 import { A, Str, Text, thunkFalse, thunkUndefined } from "@beep/utils";
-import { Console, Effect, FileSystem, Order, Path, pipe, Result, SchemaTransformation } from "effect";
+import { Console, Effect, FileSystem, type Order, Path, pipe, Result, SchemaTransformation } from "effect";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
@@ -107,7 +107,7 @@ const isTypeScriptSourceFileName = S.is(TypeScriptSourceFileName);
 const isTypeScriptTestFileName = S.is(TypeScriptTestFileName);
 const isInternalDirectoryName = S.is(InternalDirectoryName);
 const isRootIndexFileName = S.is(RootIndexFileName);
-const stringEquivalence = S.toEquivalence(S.String);
+const stringEquivalence = Str.equivalence;
 const decodeJSImportPathResult = S.decodeUnknownResult(TypeScriptSourceToJSImportPath);
 
 /**
@@ -143,7 +143,7 @@ const toImportPath = (name: string): string => {
  * @category utilities
  * @since 0.0.0
  */
-const alphabetical: Order.Order<string> = Order.String;
+const alphabetical: Order.Order<string> = Str.orderAsc;
 
 // ---------------------------------------------------------------------------
 // Core logic

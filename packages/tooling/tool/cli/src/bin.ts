@@ -11,8 +11,9 @@
 import { FsUtilsLive, TSMorphServiceLive } from "@beep/repo-utils";
 import { A } from "@beep/utils";
 import { BunChildProcessSpawner, BunHttpClient, BunRuntime, BunServices } from "@effect/platform-bun";
-import { Effect, Layer } from "effect";
+import { Cause, Effect, Exit, Layer, Runtime } from "effect";
 import * as O from "effect/Option";
+import * as P from "effect/Predicate";
 import { Command } from "effect/unstable/cli";
 import { parseQualityTaskInvocation, runQualityTask } from "./commands/Quality/Tasks.js";
 import { rootCommand } from "./commands/Root.js";
@@ -58,6 +59,33 @@ const DerivedLayers = Layer.mergeAll(BunChildProcessSpawner.layer, FsUtilsLive, 
 const argv = A.slice(process.argv, 2);
 const qualityTaskInvocation = parseQualityTaskInvocation(argv);
 
+const renderCliFailure = (exit: Exit.Exit<unknown, unknown>) => {
+  if (Exit.isSuccess(exit)) {
+    return;
+  }
+
+  const error = Cause.squash(exit.cause);
+  if (Runtime.getErrorReported(error) === false) {
+    return;
+  }
+
+  if (P.hasProperty(error, "message") && P.isString(error.message)) {
+    process.stderr.write(`${error.message}\n`);
+    return;
+  }
+
+  process.stderr.write(`${Cause.pretty(exit.cause)}\n`);
+};
+
+const runRepoCliMain = <E, A>(effect: Effect.Effect<A, E>) =>
+  BunRuntime.runMain(effect, {
+    disableErrorReporting: true,
+    teardown: (exit, onExit) => {
+      renderCliFailure(exit);
+      Runtime.defaultTeardown(exit, onExit);
+    },
+  });
+
 /**
  * Top-level CLI program effect produced by running the root command tree
  * with the fully-resolved {@link DerivedLayers}.
@@ -78,7 +106,7 @@ if (O.isSome(qualityTaskInvocation)) {
       )
     )
   );
-  BunRuntime.runMain(qualityProgram);
+  runRepoCliMain(qualityProgram);
 } else {
   const commandProgram = Effect.scoped(
     Layer.build(DerivedLayers).pipe(
@@ -89,6 +117,6 @@ if (O.isSome(qualityTaskInvocation)) {
       )
     )
   );
-  BunRuntime.runMain(commandProgram);
+  runRepoCliMain(commandProgram);
 }
 // bench

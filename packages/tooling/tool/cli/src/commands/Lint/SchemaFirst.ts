@@ -6,6 +6,7 @@
  */
 
 import { $RepoCliId } from "@beep/identity/packages";
+import { isExcludedTypeScriptSourcePath, toPosixPath } from "@beep/repo-utils/schemas/TypeScriptSourceExclusions";
 import { resolveWorkspaceDirs } from "@beep/repo-utils/Workspaces";
 import { LiteralKit } from "@beep/schema";
 import { A, Str, thunkEmptyStr } from "@beep/utils";
@@ -15,7 +16,6 @@ import * as S from "effect/Schema";
 import { Command, Flag } from "effect/unstable/cli";
 import { parse } from "jsonc-parser";
 import { Node, Project, SyntaxKind, type TypeElementTypes } from "ts-morph";
-import { isExcludedTypeScriptSourcePath, toPosixPath } from "../Shared/TypeScriptSourceExclusions.ts";
 
 const $I = $RepoCliId.create("commands/Lint/SchemaFirst");
 const INVENTORY_PATH = "standards/schema-first.inventory.jsonc";

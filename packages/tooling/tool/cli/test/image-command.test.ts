@@ -1,11 +1,15 @@
-import { ExtractFramesManifest } from "@beep/ffmpeg";
+import { ExtractFramesManifest, FFmpegError } from "@beep/ffmpeg";
 import { imageCommand } from "@beep/repo-cli";
 import { A, Str } from "@beep/utils";
 import { NodeChildProcessSpawner, NodeServices } from "@effect/platform-node";
-import { Effect, FileSystem, Layer, Order, Path, pipe } from "effect";
+import { Cause, Effect, Exit, FileSystem, Layer, Order, Path, pipe } from "effect";
+import * as Chunk from "effect/Chunk";
+import * as O from "effect/Option";
 import * as S from "effect/Schema";
+import * as Stream from "effect/Stream";
 import * as TestConsole from "effect/testing/TestConsole";
 import { Command } from "effect/unstable/cli";
+import { ChildProcess } from "effect/unstable/process";
 import { describe, expect, it } from "vitest";
 
 const provideScopedLayer =
@@ -20,6 +24,9 @@ const testLayer = Layer.mergeAll(
 );
 const runImageCommand = Command.runWith(imageCommand, { version: "0.0.0" });
 const decodeManifest = S.decodeUnknownSync(S.fromJsonString(ExtractFramesManifest));
+const CLI_ENTRYPOINT = new URL("../src/bin.ts", import.meta.url).pathname;
+
+const firstFailure = <E>(cause: Cause.Cause<E>): O.Option<E> => Cause.findErrorOption(cause);
 
 const withTempDirectory = <A, E, R>(use: (tmpDir: string) => Effect.Effect<A, E, R>) =>
   Effect.acquireUseRelease(
@@ -97,6 +104,28 @@ printf '%s\\n' 'frame=1' 'progress=continue' 'frame=2' 'progress=end'
   yield* fs.chmod(shimPath, 0o755);
 });
 
+const runCliCommand = Effect.fn("ImageTest.runCliCommand")(function* (
+  cwd: string,
+  pathPrefix: string,
+  ...args: ReadonlyArray<string>
+) {
+  return yield* Effect.scoped(
+    Effect.gen(function* () {
+      const handle = yield* ChildProcess.make("bun", ["run", CLI_ENTRYPOINT, "--", ...args], {
+        cwd,
+        env: {
+          PATH: `${pathPrefix}:${Bun.env.PATH ?? ""}`,
+        },
+        stdout: "pipe",
+        stderr: "pipe",
+      });
+      const output = yield* handle.all.pipe(Stream.decodeText(), Stream.runCollect, Effect.map(Chunk.join("")));
+      const exitCode = yield* handle.exitCode;
+      return { exitCode, output } as const;
+    })
+  );
+});
+
 describe.sequential("image command", () => {
   it("extracts frames, writes the default manifest, and prints a non-TTY summary", () =>
     Effect.runPromise(
@@ -151,16 +180,65 @@ describe.sequential("image command", () => {
           yield* fs.writeFileString(path.join(outDir, "clip_frame_00000.png"), "existing");
           yield* writeFfprobeShim(binDir);
           yield* writeExtractFramesFfmpegShim(binDir, argsPath);
-          yield* withPathPrefix(
-            binDir,
-            runImageCommand(["extract-frames", "--video", videoPath, "--out-dir", outDir, "--fps", "1"])
+          const exit = yield* Effect.exit(
+            withPathPrefix(
+              binDir,
+              runImageCommand(["extract-frames", "--video", videoPath, "--out-dir", outDir, "--fps", "1"])
+            )
           );
 
           expect(yield* fs.readFileString(path.join(outDir, "clip_frame_00000.png"))).toBe("existing");
-          expect(yield* TestConsole.errorLines).toEqual([
-            `[image] Refusing to overwrite existing frame output: "${path.join(outDir, "clip_frame_00000.png")}"`,
-          ]);
-          expect(process.exitCode).toBe(1);
+          expect(yield* TestConsole.errorLines).toEqual([]);
+          expect(process.exitCode ?? 0).toBe(0);
+          expect(Exit.isFailure(exit)).toBe(true);
+          if (Exit.isFailure(exit)) {
+            const failure = firstFailure(exit.cause);
+            expect(O.isSome(failure)).toBe(true);
+            if (O.isSome(failure)) {
+              expect(failure.value).toBeInstanceOf(FFmpegError);
+              expect(failure.value.message).toBe(
+                `Refusing to overwrite existing frame output: "${path.join(outDir, "clip_frame_00000.png")}"`
+              );
+            }
+          }
+        })
+      )
+    ));
+
+  it("exits nonzero through the real BunRuntime entrypoint when extract-frames fails", () =>
+    Effect.runPromise(
+      withTempDirectory((tmpDir) =>
+        Effect.gen(function* () {
+          const fs = yield* FileSystem.FileSystem;
+          const path = yield* Path.Path;
+          const binDir = path.join(tmpDir, "bin");
+          const argsPath = path.join(tmpDir, "ffmpeg-args.txt");
+          const videoPath = path.join(tmpDir, "clip.mp4");
+          const outDir = path.join(tmpDir, "frames");
+
+          yield* fs.makeDirectory(outDir, { recursive: true });
+          yield* fs.writeFileString(videoPath, "video");
+          yield* fs.writeFileString(path.join(outDir, "clip_frame_00000.png"), "existing");
+          yield* writeFfprobeShim(binDir);
+          yield* writeExtractFramesFfmpegShim(binDir, argsPath);
+
+          const result = yield* runCliCommand(
+            tmpDir,
+            binDir,
+            "image",
+            "extract-frames",
+            "--video",
+            videoPath,
+            "--out-dir",
+            outDir,
+            "--fps",
+            "1"
+          );
+
+          expect(result.exitCode).toBe(1);
+          expect(result.output).toContain(
+            `Refusing to overwrite existing frame output: "${path.join(outDir, "clip_frame_00000.png")}"`
+          );
         })
       )
     ));

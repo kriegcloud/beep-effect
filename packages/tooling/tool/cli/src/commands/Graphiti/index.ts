@@ -34,17 +34,7 @@ const graphitiProxyCommand = Command.make(
   })
 ).pipe(Command.withDescription("Run the Graphiti MCP queue proxy"));
 
-const runProxyOpsProgram = <A, R>(program: Effect.Effect<A, GraphitiProxyOpsError, R>) =>
-  program.pipe(
-    Effect.catchTag(
-      "GraphitiProxyOpsError",
-      Effect.fn(function* (error) {
-        process.exitCode = error.exitCode ?? 1;
-        yield* Console.error(`[graphiti-proxy] ${error.message}`);
-      })
-    ),
-    Effect.asVoid
-  );
+const runProxyOpsProgram = <A, R>(program: Effect.Effect<A, GraphitiProxyOpsError, R>) => program.pipe(Effect.asVoid);
 
 const graphitiProxyEnsureCommand = Command.make("ensure", {}, () => runProxyOpsProgram(ensureGraphitiProxy())).pipe(
   Command.withDescription("Ensure the Graphiti MCP queue proxy is healthy")

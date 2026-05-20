@@ -8,6 +8,7 @@
 /// <reference path="../../../madge.d.ts" />
 
 import { $RepoCliId } from "@beep/identity/packages";
+import { isExcludedTypeScriptSourcePath } from "@beep/repo-utils/schemas/TypeScriptSourceExclusions";
 import { normalizePath, TaggedErrorClass } from "@beep/schema";
 import { A, Str, thunkEmptyStr } from "@beep/utils";
 import { Console, Effect, FileSystem, HashSet, Inspectable, MutableHashSet, Order, Path, pipe } from "effect";
@@ -15,7 +16,6 @@ import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import { Command } from "effect/unstable/cli";
 import madge from "madge";
-import { isExcludedTypeScriptSourcePath } from "../Shared/TypeScriptSourceExclusions.ts";
 import { lintPackageTestImportsCommand } from "./PackageTestImports.js";
 import { lintSchemaFirstCommand } from "./SchemaFirst.ts";
 

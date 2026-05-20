@@ -1,0 +1,35 @@
+[
+  {
+    "category": "Array",
+    "package": "@beep/repo-utils",
+    "filePath": "packages/tooling/library/repo-utils/src/TypeScript/models/TSSyntaxKind.model.ts",
+    "line": 425,
+    "nativeSnippet": ") => entries.map(([name]) => name) as unknown as readonly [Entries[0][0], ...Array<Entries[number][0]>];",
+    "nativeSymbol": "Array.prototype.map",
+    "suggestedTarget": "A.map",
+    "suggestedImport": "import { A } from \"@beep/utils\"",
+    "note": "`entries` is a readonly non-empty tuple (generic `Entries`); the cast back to a literal tuple type may need to be preserved when switching to A.map."
+  },
+  {
+    "category": "Array",
+    "package": "@beep/repo-utils",
+    "filePath": "packages/tooling/library/repo-utils/src/schemas/JSDocCategories.ts",
+    "line": 302,
+    "nativeSnippet": "const character = characters[index] ?? \"\";",
+    "nativeSymbol": "Array index access",
+    "suggestedTarget": "A.get",
+    "suggestedImport": "import { A } from \"@beep/utils\"",
+    "note": "`characters` is built via `A.fromIterable`; native index `characters[index]` with `?? \"\"` fallback maps to `pipe(A.get(characters, index), O.getOrElse(() => \"\"))`. Inside an imperative index-based for-loop."
+  },
+  {
+    "category": "Array",
+    "package": "@beep/repo-utils",
+    "filePath": "packages/tooling/library/repo-utils/src/schemas/JSDocCategories.ts",
+    "line": 303,
+    "nativeSnippet": "const next = characters[index + 1] ?? \"\";",
+    "nativeSymbol": "Array index access",
+    "suggestedTarget": "A.get",
+    "suggestedImport": "import { A } from \"@beep/utils\"",
+    "note": "`characters` is built via `A.fromIterable`; native index `characters[index + 1]` with `?? \"\"` fallback maps to `pipe(A.get(characters, index + 1), O.getOrElse(() => \"\"))`. Inside an imperative index-based for-loop."
+  }
+]

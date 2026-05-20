@@ -16,6 +16,7 @@ import {
 } from "@beep/face-detection";
 import { $RepoCliId } from "@beep/identity/packages";
 import { profilePhase } from "@beep/observability";
+import { renderBiomeJson } from "@beep/repo-utils/schemas/BiomeJson";
 import { A, Str } from "@beep/utils";
 import {
   Config,
@@ -37,7 +38,6 @@ import * as O from "effect/Option";
 import { ChildProcess, type ChildProcessSpawner } from "effect/unstable/process";
 import { imageSizeFromFile } from "image-size/fromFile";
 import sharp from "sharp";
-import { renderBiomeJson } from "../Shared/BiomeJson.js";
 import { FilesCommandError, failOnExtensionlessFile, formatPlatformError } from "./Files.errors.js";
 import { FilesConcurrency, runFilesProgressForEach } from "./Files.progress.js";
 import {

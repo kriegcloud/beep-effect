@@ -5,12 +5,15 @@
  * @since 0.0.0
  */
 
-import { ExtractFramesRequest, FFmpeg, type FFmpegError, type FFmpegEvent } from "@beep/ffmpeg";
+import { ExtractFramesRequest, FFmpeg, type FFmpegEvent } from "@beep/ffmpeg";
 import { Str } from "@beep/utils";
-import { Console, Effect, pipe, Terminal } from "effect";
+import { Console, Effect, Match, pipe, Terminal } from "effect";
+import { dual, flow } from "effect/Function";
 import { Command, Flag } from "effect/unstable/cli";
 
-const barWidth = 24;
+const BAR_WIDTH = 24;
+
+const repeatBarWidth = Str.repeat(BAR_WIDTH);
 
 const videoFlag = Flag.file("video", { mustExist: true }).pipe(Flag.withDescription("Input video file to sample"));
 const outDirFlag = Flag.directory("out-dir").pipe(Flag.withDescription("Output directory for extracted PNG frames"));
@@ -27,44 +30,42 @@ const overwriteFlag = Flag.boolean("overwrite").pipe(
   Flag.withDescription("Overwrite existing frame outputs and manifest")
 );
 
-const renderProgressBar = (event: Extract<FFmpegEvent, { readonly kind: "progress" }>): string => {
-  const filled = Math.max(0, Math.min(barWidth, Math.round((event.percent / 100) * barWidth)));
-  const empty = barWidth - filled;
+const renderProgressBar = (
+  event: Extract<
+    FFmpegEvent,
+    {
+      readonly kind: "progress";
+    }
+  >
+): string => {
+  const filled = Math.max(0, Math.min(BAR_WIDTH, Math.round((event.percent / 100) * BAR_WIDTH)));
+  const empty = BAR_WIDTH - filled;
   const bar = `${pipe("#", Str.repeat(filled))}${pipe("-", Str.repeat(empty))}`;
   return `\rimage extract-frames [${bar}] ${event.frameCount} frame(s) ${event.percent.toFixed(1)}%`;
 };
 
-const renderExtractFramesEvent = (terminal: Terminal.Terminal, event: FFmpegEvent): Effect.Effect<void, never> => {
-  if (event.kind === "progress") {
-    return terminal.display(renderProgressBar(event)).pipe(Effect.ignore);
-  }
+const renderExtractFramesEvent: {
+  (terminal: Terminal.Terminal, event: FFmpegEvent): Effect.Effect<void, never>;
+  (event: FFmpegEvent): (terminal: Terminal.Terminal) => Effect.Effect<void, never>;
+} = dual(
+  2,
+  Effect.fnUntraced(function* (terminal: Terminal.Terminal, event: FFmpegEvent): Effect.fn.Return<void, never> {
+    return yield* Match.value(event).pipe(
+      Match.discriminators("kind")({
+        progress: flow(renderProgressBar, terminal.display, Effect.ignore),
+        completed: (event) =>
+          terminal
+            .display(`\rimage extract-frames [${pipe("#", repeatBarWidth)}] ${event.frameCount} frame(s) 100.0%\n`)
+            .pipe(Effect.ignore),
+      }),
+      Match.orElse(() =>
+        terminal.display(`\rimage extract-frames [${pipe("-", repeatBarWidth)}] 0 frame(s) 0.0%`).pipe(Effect.ignore)
+      )
+    );
+  })
+);
 
-  if (event.kind === "completed") {
-    return terminal
-      .display(`\rimage extract-frames [${pipe("#", Str.repeat(barWidth))}] ${event.frameCount} frame(s) 100.0%\n`)
-      .pipe(Effect.ignore);
-  }
-
-  return terminal
-    .display(`\rimage extract-frames [${pipe("-", Str.repeat(barWidth))}] 0 frame(s) 0.0%`)
-    .pipe(Effect.ignore);
-};
-
-const printImageIndex = Effect.fn("Image.printImageIndex")(function* () {
-  yield* Console.log("image commands: extract-frames");
-});
-
-const runImageProgram = <A, R>(effect: Effect.Effect<A, FFmpegError, R>): Effect.Effect<void, never, R> =>
-  effect.pipe(
-    Effect.catchTag(
-      "FFmpegError",
-      Effect.fn(function* (error) {
-        process.exitCode = 1;
-        yield* Console.error(`[image] ${error.message}`);
-      })
-    ),
-    Effect.asVoid
-  );
+const printImageIndex = () => Console.log("image commands: extract-frames");
 
 const imageExtractFramesCommand = Command.make(
   "extract-frames",
@@ -76,7 +77,7 @@ const imageExtractFramesCommand = Command.make(
     prefix: prefixFlag,
     video: videoFlag,
   },
-  Effect.fn(function* ({ fps, manifest, outDir, overwrite, prefix, video }) {
+  Effect.fn("imageExtractFramesCommand")(function* ({ fps, manifest, outDir, overwrite, prefix, video }) {
     const ffmpeg = yield* FFmpeg;
     const terminal = yield* Terminal.Terminal;
     const isTty = process.stdout.isTTY === true;
@@ -90,13 +91,9 @@ const imageExtractFramesCommand = Command.make(
       videoPath: video,
     });
 
-    yield* runImageProgram(
-      Effect.gen(function* () {
-        const result = yield* ffmpeg.extractFrames(request, events);
-        yield* Console.log(
-          `image extract-frames: wrote ${result.frameCount} frame(s) to ${result.outDir}. manifest: ${result.manifestPath}`
-        );
-      })
+    const result = yield* ffmpeg.extractFrames(request, events);
+    yield* Console.log(
+      `image extract-frames: wrote ${result.frameCount} frame(s) to ${result.outDir}. manifest: ${result.manifestPath}`
     );
   })
 ).pipe(

@@ -12,6 +12,7 @@
 import { $RepoCliId } from "@beep/identity/packages";
 import { parseComment } from "@beep/repo-docgen/Parser";
 import { DomainError, findRepoRoot } from "@beep/repo-utils";
+import { normalizeJSDocCategory } from "@beep/repo-utils/schemas/JSDocCategories";
 import { ContentHashFromSourceText } from "@beep/repo-utils/TSMorph/index";
 import { LiteralKit } from "@beep/schema";
 import { A, Str, thunkEmptyStr } from "@beep/utils";
@@ -23,7 +24,6 @@ import * as S from "effect/Schema";
 import { ChildProcess } from "effect/unstable/process";
 import * as jsonc from "jsonc-parser";
 import { type Diagnostic, type JSDoc, Node, Project, type SourceFile } from "ts-morph";
-import { normalizeJSDocCategory } from "../../Shared/JSDocCategories.js";
 import {
   assertNoOrphanDocgenConfigPaths,
   DocgenConfigDocument,

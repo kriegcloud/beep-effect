@@ -11,7 +11,6 @@ import { normalizePath } from "@beep/schema";
 import { A, Str, thunkFalse } from "@beep/utils";
 import { Effect, FileSystem, Match, Path } from "effect";
 import { dual } from "effect/Function";
-import * as S from "effect/Schema";
 import {
   type ArchitectureOperation,
   ArchitectureOperationCheck,
@@ -24,7 +23,7 @@ import {
 } from "./OperationPlan.js";
 import { renderPackageJsonOperation } from "./OperationPlanPackageJson.js";
 
-const stringEquivalence = S.toEquivalence(S.String);
+const stringEquivalence = Str.equivalence;
 
 const operationIdFor = (kind: ArchitectureOperation["kind"], operationPath: string): string =>
   `${kind}:${operationPath}`;

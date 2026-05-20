@@ -218,7 +218,7 @@ const scanBorderSide = (
  * @category utilities
  * @since 0.0.0
  */
-export const stringEquivalence = S.toEquivalence(S.String);
+export const stringEquivalence = Str.equivalence;
 
 /**
  * Schema-derived image extension guard.
@@ -252,7 +252,7 @@ export const isSupportedMetadataImageExtension = S.is(SupportedMetadataImageExte
  */
 export const bySizeDescendingThenNameAscending: Order.Order<SortableFile> = Order.combine(
   Order.flip(Order.mapInput(Order.BigInt, (file: SortableFile) => file.size)),
-  Order.mapInput(Order.String, (file: SortableFile) => file.name)
+  Order.mapInput(Str.orderAsc, (file: SortableFile) => file.name)
 );
 
 /**
@@ -262,7 +262,7 @@ export const bySizeDescendingThenNameAscending: Order.Order<SortableFile> = Orde
  * @since 0.0.0
  */
 export const byNameAscending: Order.Order<SortableFile> = Order.mapInput(
-  Order.String,
+  Str.orderAsc,
   (file: SortableFile) => file.name
 );
 

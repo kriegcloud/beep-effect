@@ -9,7 +9,7 @@ import { $RepoCliId } from "@beep/identity/packages";
 import { findRepoRoot } from "@beep/repo-utils";
 import { TaggedErrorClass } from "@beep/schema";
 import { A } from "@beep/utils";
-import { Console, Effect, type FileSystem, Stream } from "effect";
+import { Console, Effect, type FileSystem, Runtime, Stream } from "effect";
 import * as S from "effect/Schema";
 import { Argument, Command } from "effect/unstable/cli";
 import { ChildProcess, type ChildProcessSpawner } from "effect/unstable/process";
@@ -38,7 +38,9 @@ export class CodexCommandError extends TaggedErrorClass<CodexCommandError>($I`Co
   $I.annote("CodexCommandError", {
     description: "Failure raised by Codex helper commands.",
   })
-) {}
+) {
+  override readonly [Runtime.errorExitCode] = this.exitCode ?? 1;
+}
 
 const defaultInitiativeSummary =
   "Infer the initiative being closed from the current branch, git status, and changed surface.";
@@ -109,16 +111,7 @@ const qualityReviewFixLoopCommand = Command.make(
   {
     summary: Argument.string("summary").pipe(Argument.variadic),
   },
-  ({ summary }) =>
-    runCodexQualityReviewFixLoop(summary as ReadonlyArray<string>).pipe(
-      Effect.catchTag(
-        "CodexCommandError",
-        Effect.fn(function* (error) {
-          process.exitCode = error.exitCode ?? 1;
-          yield* Console.error(`[codex] ${error.message}`);
-        })
-      )
-    )
+  ({ summary }) => runCodexQualityReviewFixLoop(summary as ReadonlyArray<string>)
 ).pipe(Command.withDescription("Run Codex with the repo quality-review-fix-loop skill"));
 
 /**

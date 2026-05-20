@@ -10,7 +10,8 @@ import {
 } from "@beep/repo-cli/commands/Files/index";
 import { A, O, Str } from "@beep/utils";
 import { NodeChildProcessSpawner, NodeServices } from "@effect/platform-node";
-import { ConfigProvider, Data, Effect, FileSystem, Layer, Order, Path, pipe } from "effect";
+import { Cause, ConfigProvider, Data, Effect, Exit, FileSystem, Layer, Order, Path, pipe } from "effect";
+import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
 import * as TestConsole from "effect/testing/TestConsole";
 import { Command } from "effect/unstable/cli";
@@ -37,6 +38,24 @@ class FilesTestError extends Data.TaggedError("FilesTestError")<{ readonly cause
 
 const filesTestError = (cause: unknown) => new FilesTestError({ cause });
 
+const expectFilesCommandFailure = Effect.fn("FilesCommandTest.expectFilesCommandFailure")(function* (
+  args: ReadonlyArray<string>
+) {
+  const exit = yield* Effect.exit(runFilesCommand(args));
+  expect(Exit.isFailure(exit)).toBe(true);
+
+  if (Exit.isFailure(exit)) {
+    const error = Cause.squash(exit.cause);
+    if (P.hasProperty(error, "message") && P.isString(error.message)) {
+      return error.message;
+    }
+
+    return Cause.pretty(exit.cause);
+  }
+
+  return "";
+});
+
 const withTempDirectory = <A, E, R>(use: (tmpDir: string) => Effect.Effect<A, E, R>) =>
   Effect.acquireUseRelease(
     Effect.gen(function* () {
@@ -45,7 +64,6 @@ const withTempDirectory = <A, E, R>(use: (tmpDir: string) => Effect.Effect<A, E,
       const previousCwd = process.cwd();
 
       process.chdir(tmpDir);
-      process.exitCode = 0;
 
       return { fs, previousCwd, tmpDir } as const;
     }),
@@ -53,7 +71,6 @@ const withTempDirectory = <A, E, R>(use: (tmpDir: string) => Effect.Effect<A, E,
     ({ fs, previousCwd, tmpDir }) =>
       Effect.gen(function* () {
         process.chdir(previousCwd);
-        process.exitCode = 0;
         yield* fs.remove(tmpDir, { recursive: true, force: true });
       })
   ).pipe(provideScopedLayer(testLayer));
@@ -419,7 +436,6 @@ describe.sequential("files command", () => {
           expect(entry?.classification).toBe("pillarbox");
           expect(leftSide?.widthPx).toBe(20);
           expect(rightSide?.widthPx).toBe(20);
-          expect(process.exitCode ?? 0).toBe(0);
         })
       )
     ));
@@ -446,7 +462,6 @@ describe.sequential("files command", () => {
           expect(report.manifestWritten).toBe(true);
           expect(manifest.schemaVersion).toBe("beep.files.detect-faces.v1");
           expect(manifest.manifestWritten).toBe(true);
-          expect(process.exitCode ?? 0).toBe(0);
         })
       )
     ));
@@ -479,7 +494,6 @@ describe.sequential("files command", () => {
           expect(report.options.moveNoFaceTo).toBe(noFaceDir);
           expect(report.summary.movedNoFaceCount).toBe(0);
           expect(noFaceDirExists).toBe(true);
-          expect(process.exitCode ?? 0).toBe(0);
         })
       )
     ));
@@ -503,7 +517,6 @@ describe.sequential("files command", () => {
           expect(entry?.classification).toBe("canvas-edge");
           expect(leftSide?.colorHex).toBe("#ffffff");
           expect(leftSide?.widthPx).toBe(10);
-          expect(process.exitCode ?? 0).toBe(0);
         })
       )
     ));
@@ -522,7 +535,6 @@ describe.sequential("files command", () => {
           expect(yield* TestConsole.logLines).toContain(
             `files detect-borders: 0 bordered image(s) found in "${datasetDir}" (1 analyzed, 0 skipped).`
           );
-          expect(process.exitCode ?? 0).toBe(0);
         })
       )
     ));
@@ -546,7 +558,6 @@ describe.sequential("files command", () => {
           expect(entry?.classification).toBe("pillarbox");
           expect(leftSide?.widthPx).toBeGreaterThanOrEqual(8);
           expect(rightSide?.widthPx).toBeGreaterThanOrEqual(8);
-          expect(process.exitCode ?? 0).toBe(0);
         })
       )
     ));
@@ -588,7 +599,6 @@ describe.sequential("files command", () => {
             "directory",
             "unsupported-image",
           ]);
-          expect(process.exitCode ?? 0).toBe(0);
         })
       )
     ));
@@ -602,7 +612,7 @@ describe.sequential("files command", () => {
 
           yield* writePatternImage(path.join(datasetDir, "clean.png"), 32, 32);
 
-          yield* runFilesCommand([
+          const output = yield* expectFilesCommandFailure([
             "detect-borders",
             "--dir",
             datasetDir,
@@ -612,10 +622,7 @@ describe.sequential("files command", () => {
             "10",
           ]);
 
-          expect(yield* TestConsole.errorLines).toEqual([
-            "[files] Expected --min-width-pct (40) to be less than or equal to --max-scan-pct (10).",
-          ]);
-          expect(process.exitCode).toBe(1);
+          expect(output).toBe("Expected --min-width-pct (40) to be less than or equal to --max-scan-pct (10).");
         })
       )
     ));
@@ -644,7 +651,6 @@ describe.sequential("files command", () => {
           expect(metadata.width).toBe(60);
           expect(metadata.height).toBe(80);
           expect(yield* TestConsole.logLines).toContain("files crop-borders: cropped 1 image file(s).");
-          expect(process.exitCode ?? 0).toBe(0);
         })
       )
     ));
@@ -666,7 +672,6 @@ describe.sequential("files command", () => {
           expect(metadata.width).toBe(80);
           expect(metadata.height).toBe(80);
           expect(yield* TestConsole.logLines).toContain("files crop-borders: dry run; no files rewritten.");
-          expect(process.exitCode ?? 0).toBe(0);
         })
       )
     ));
@@ -680,7 +685,7 @@ describe.sequential("files command", () => {
 
           yield* writePatternImage(path.join(datasetDir, "clean.png"), 32, 32);
 
-          yield* runFilesCommand([
+          const output = yield* expectFilesCommandFailure([
             "crop-borders",
             "--dir",
             datasetDir,
@@ -690,10 +695,7 @@ describe.sequential("files command", () => {
             "10",
           ]);
 
-          expect(yield* TestConsole.errorLines).toEqual([
-            "[files] Expected --min-width-pct (40) to be less than or equal to --max-scan-pct (10).",
-          ]);
-          expect(process.exitCode).toBe(1);
+          expect(output).toBe("Expected --min-width-pct (40) to be less than or equal to --max-scan-pct (10).");
         })
       )
     ));
@@ -722,7 +724,6 @@ describe.sequential("files command", () => {
           ]);
           expect(yield* fileSize(path.join(datasetDir, "image_00.png"))).toBe(7n);
           expect(yield* fileSize(path.join(datasetDir, "image_06.png"))).toBe(1n);
-          expect(process.exitCode ?? 0).toBe(0);
         })
       )
     ));
@@ -785,7 +786,6 @@ describe.sequential("files command", () => {
           expect(yield* sortedDirectoryEntries(datasetDir)).toEqual(["large.png", "small.png"]);
           expect(yield* fs.exists(path.join(datasetDir, "image_00.png"))).toBe(false);
           expect(yield* TestConsole.logLines).toContain("files sort-and-rename: dry run; no files renamed.");
-          expect(process.exitCode ?? 0).toBe(0);
         })
       )
     ));
@@ -818,14 +818,17 @@ describe.sequential("files command", () => {
           yield* writeSizedFile(path.join(datasetDir, "extensionless"), 2, "x");
           yield* writeSizedFile(path.join(datasetDir, "small.png"), 1, "x");
 
-          yield* runFilesCommand(["sort-and-rename", "--prefix", "image", "--dir", datasetDir]);
+          const output = yield* expectFilesCommandFailure([
+            "sort-and-rename",
+            "--prefix",
+            "image",
+            "--dir",
+            datasetDir,
+          ]);
 
           expect(yield* sortedDirectoryEntries(datasetDir)).toEqual(["extensionless", "small.png"]);
           expect(yield* fs.exists(path.join(datasetDir, "image_00.png"))).toBe(false);
-          expect(yield* TestConsole.errorLines).toEqual([
-            `[files] Cannot rename extensionless file: "${path.join(datasetDir, "extensionless")}"`,
-          ]);
-          expect(process.exitCode).toBe(1);
+          expect(output).toBe(`Cannot rename extensionless file: "${path.join(datasetDir, "extensionless")}"`);
         })
       )
     ));
@@ -842,11 +845,17 @@ describe.sequential("files command", () => {
           yield* writeSizedFile(path.join(datasetDir, "source.png"), 1, "x");
           yield* fs.makeDirectory(collidingDirectory);
 
-          yield* runFilesCommand(["sort-and-rename", "--prefix", "image", "--dir", datasetDir]);
+          const output = yield* expectFilesCommandFailure([
+            "sort-and-rename",
+            "--prefix",
+            "image",
+            "--dir",
+            datasetDir,
+          ]);
 
           expect(yield* sortedDirectoryEntries(datasetDir)).toEqual(["image_00.png", "source.png"]);
           expect(yield* fs.exists(path.join(datasetDir, "source.png"))).toBe(true);
-          expect(process.exitCode).toBe(1);
+          expect(output).toContain("Refusing to overwrite existing target outside the rename set");
         })
       )
     ));
@@ -891,7 +900,6 @@ describe.sequential("files command", () => {
           expect(yield* TestConsole.logLines).toEqual([
             `files sort-and-rename: 0 file(s) in "${datasetDir}"; nothing to rename.`,
           ]);
-          expect(process.exitCode ?? 0).toBe(0);
         })
       )
     ));
@@ -909,7 +917,6 @@ describe.sequential("files command", () => {
           yield* runFilesCommand(["sort-and-rename", "--prefix", "image", "--dir", datasetDir, "--with-dimensions"]);
 
           expect(yield* sortedDirectoryEntries(datasetDir)).toEqual(["image_00_2x1.svg", "image_01_1x1.svg"]);
-          expect(process.exitCode ?? 0).toBe(0);
         })
       )
     ));
@@ -930,7 +937,6 @@ describe.sequential("files command", () => {
 
           expect(yield* sortedDirectoryEntries(datasetDir)).toEqual(["extensionless", "image_00_1x1.svg", "photo.txt"]);
           expect(yield* fs.readFileString(path.join(datasetDir, "photo.txt"))).toBe("caption");
-          expect(process.exitCode ?? 0).toBe(0);
         })
       )
     ));
@@ -948,7 +954,6 @@ describe.sequential("files command", () => {
           yield* runFilesCommand(["sort-and-rename", "--prefix", "image", "--dir", datasetDir, "--with-dimensions"]);
 
           expect(yield* sortedDirectoryEntries(datasetDir)).toEqual(["image_00_3x2.svg"]);
-          expect(process.exitCode ?? 0).toBe(0);
         })
       )
     ));
@@ -971,7 +976,6 @@ describe.sequential("files command", () => {
           );
 
           expect(yield* sortedDirectoryEntries(datasetDir)).toEqual(["clip_00_360x640.mp4"]);
-          expect(process.exitCode ?? 0).toBe(0);
         })
       )
     ));
@@ -986,10 +990,17 @@ describe.sequential("files command", () => {
           yield* writeSvgFile(path.join(datasetDir, "valid.svg"), 1, 1);
           yield* writeSizedFile(path.join(datasetDir, "broken.png"), 2, "x");
 
-          yield* runFilesCommand(["sort-and-rename", "--prefix", "image", "--dir", datasetDir, "--with-dimensions"]);
+          const output = yield* expectFilesCommandFailure([
+            "sort-and-rename",
+            "--prefix",
+            "image",
+            "--dir",
+            datasetDir,
+            "--with-dimensions",
+          ]);
 
           expect(yield* sortedDirectoryEntries(datasetDir)).toEqual(["broken.png", "valid.svg"]);
-          expect(process.exitCode).toBe(1);
+          expect(output).toContain("Failed to probe image dimensions");
         })
       )
     ));
@@ -1050,7 +1061,6 @@ describe.sequential("files command", () => {
           expect(manifest.entries[0]?.outputDimensions).toEqual({ width: 4, height: 2 });
           expect(manifest.entries[0]?.resized).toBe(true);
           expect(manifest.entries[0]?.outputSizeBytes).toBeDefined();
-          expect(process.exitCode ?? 0).toBe(0);
         })
       )
     ));
@@ -1089,7 +1099,6 @@ describe.sequential("files command", () => {
           expect(outputMetadata.height).toBe(2);
           expect(manifest.entries[0]?.resized).toBe(false);
           expect(manifest.summary.resizedCount).toBe(0);
-          expect(process.exitCode ?? 0).toBe(0);
         })
       )
     ));
@@ -1142,7 +1151,6 @@ describe.sequential("files command", () => {
           expect(duplicate?.duplicateOfOutputRelativePath).toBe("alpha.png");
           expect(duplicate?.duplicateOfSourceRelativePath).toBe("alpha.png");
           expect(duplicate?.outputHash).toBe(outputHash);
-          expect(process.exitCode ?? 0).toBe(0);
         })
       )
     ));
@@ -1205,7 +1213,6 @@ describe.sequential("files command", () => {
           expect(duplicate?.sourceName).toBe("copy.png");
           expect(duplicate?.duplicateMovedPath).toBe(path.join(duplicatesDir, "copy.png"));
           expect(duplicate?.duplicateMovedRelativePath).toBe("copy.png");
-          expect(process.exitCode ?? 0).toBe(0);
         })
       )
     ));
@@ -1249,7 +1256,6 @@ describe.sequential("files command", () => {
             resizedCount: 0,
             skippedCount: 5,
           });
-          expect(process.exitCode ?? 0).toBe(0);
         })
       )
     ));
@@ -1270,7 +1276,6 @@ describe.sequential("files command", () => {
 
           expect(yield* fs.exists(outDir)).toBe(false);
           expect(yield* TestConsole.logLines).toContain("files normalize: dry run; no files written.");
-          expect(process.exitCode ?? 0).toBe(0);
         })
       )
     ));
@@ -1290,18 +1295,15 @@ describe.sequential("files command", () => {
           yield* writeJpegWithExif(path.join(rawDir, "photo.jpg"), 2, 2);
           yield* fs.writeFileString(outputPath, "existing");
 
-          yield* runFilesCommand(["normalize", "--dir", rawDir, "--out-dir", outDir]);
+          const output = yield* expectFilesCommandFailure(["normalize", "--dir", rawDir, "--out-dir", outDir]);
 
           expect(yield* fs.readFileString(outputPath)).toBe("existing");
           expect(yield* fs.exists(path.join(outDir, "normalize-manifest.json"))).toBe(false);
-          expect(process.exitCode).toBe(1);
-
-          process.exitCode = 0;
+          expect(output).toContain("Refusing to overwrite existing normalize output");
           yield* runFilesCommand(["normalize", "--dir", rawDir, "--out-dir", outDir, "--overwrite"]);
 
           expect((yield* readImageMetadata(outputPath)).format).toBe("png");
           expect(yield* fs.exists(path.join(outDir, "normalize-manifest.json"))).toBe(true);
-          expect(process.exitCode ?? 0).toBe(0);
         })
       )
     ));
@@ -1321,11 +1323,11 @@ describe.sequential("files command", () => {
           yield* writeJpegWithExif(path.join(rawDir, "photo.jpg"), 2, 2);
           yield* fs.writeFileString(manifestPath, "existing manifest");
 
-          yield* runFilesCommand(["normalize", "--dir", rawDir, "--out-dir", outDir]);
+          const output = yield* expectFilesCommandFailure(["normalize", "--dir", rawDir, "--out-dir", outDir]);
 
           expect(yield* fs.readFileString(manifestPath)).toBe("existing manifest");
           expect(yield* fs.exists(path.join(outDir, "photo.png"))).toBe(false);
-          expect(process.exitCode).toBe(1);
+          expect(output).toContain("Refusing to overwrite existing normalize manifest");
         })
       )
     ));
@@ -1359,7 +1361,6 @@ describe.sequential("files command", () => {
           expect(yield* TestConsole.logLines).toContain(
             `files create-captions: created 1 caption sidecar file(s); overwritten 0 existing caption file(s).`
           );
-          expect(process.exitCode ?? 0).toBe(0);
         })
       )
     ));
@@ -1379,7 +1380,6 @@ describe.sequential("files command", () => {
           expect(yield* sortedDirectoryEntries(datasetDir)).toEqual(["alpha.jpg"]);
           expect(yield* fs.exists(path.join(datasetDir, "alpha.txt"))).toBe(false);
           expect(yield* TestConsole.logLines).toContain("files create-captions: dry run; no caption files written.");
-          expect(process.exitCode ?? 0).toBe(0);
         })
       )
     ));
@@ -1403,7 +1403,6 @@ describe.sequential("files command", () => {
           expect(yield* fs.readFileString(path.join(datasetDir, "alpha.txt"))).toBe("caption");
           expect(yield* fs.readFileString(outsideFile)).toBe("outside");
           expect(yield* fs.readLink(oldPredictableTempPath)).toBe(outsideFile);
-          expect(process.exitCode ?? 0).toBe(0);
         })
       )
     ));
@@ -1427,7 +1426,6 @@ describe.sequential("files command", () => {
           yield* runFilesCommand(["create-captions", "--dir", datasetDir, "--caption", "new caption", "--overwrite"]);
 
           expect(yield* fs.readFileString(captionPath)).toBe("new caption");
-          expect(process.exitCode ?? 0).toBe(0);
         })
       )
     ));
@@ -1450,7 +1448,6 @@ describe.sequential("files command", () => {
           expect(yield* TestConsole.logLines).toContain(
             `same.png [caption-target-collision] Another image in this run already targets "same.txt".`
           );
-          expect(process.exitCode ?? 0).toBe(0);
         })
       )
     ));
@@ -1514,7 +1511,6 @@ describe.sequential("files command", () => {
           expect(
             O.getOrUndefined(A.findFirst(manifest.entries, (entry) => entry.sourceName === "good.jpg"))?.decision
           ).toBe("keep");
-          expect(process.exitCode ?? 0).toBe(0);
         })
       )
     ));
@@ -1548,7 +1544,6 @@ describe.sequential("files command", () => {
           expect(yield* sortedDirectoryEntries(rawDir)).toEqual(["tiny.jpg", "tiny.txt"]);
           expect(yield* fs.exists(archiveDir)).toBe(false);
           expect(yield* TestConsole.logLines).toContain("files archive-poor-candidates: dry run; no files moved.");
-          expect(process.exitCode ?? 0).toBe(0);
         })
       )
     ));
@@ -1585,7 +1580,6 @@ describe.sequential("files command", () => {
             "archive-poor-candidates-manifest.json",
             "tiny.jpg",
           ]);
-          expect(process.exitCode ?? 0).toBe(0);
         })
       )
     ));
@@ -1605,7 +1599,7 @@ describe.sequential("files command", () => {
           yield* writeJpegWithExif(path.join(rawDir, "tiny.jpg"), 20, 80);
           yield* fs.writeFileString(archivePath, "existing");
 
-          yield* runFilesCommand([
+          const output = yield* expectFilesCommandFailure([
             "archive-poor-candidates",
             "--dir",
             rawDir,
@@ -1619,9 +1613,7 @@ describe.sequential("files command", () => {
 
           expect(yield* fs.readFileString(archivePath)).toBe("existing");
           expect(yield* fs.exists(path.join(rawDir, "tiny.jpg"))).toBe(true);
-          expect(process.exitCode).toBe(1);
-
-          process.exitCode = 0;
+          expect(output).toContain("Refusing to overwrite existing archive output file");
           yield* runFilesCommand([
             "archive-poor-candidates",
             "--dir",
@@ -1637,7 +1629,6 @@ describe.sequential("files command", () => {
 
           expect((yield* readImageMetadata(archivePath)).format).toBe("jpeg");
           expect(yield* fs.exists(path.join(rawDir, "tiny.jpg"))).toBe(false);
-          expect(process.exitCode ?? 0).toBe(0);
         })
       )
     ));
@@ -1675,7 +1666,6 @@ describe.sequential("files command", () => {
             "unsupported-image",
           ]);
           expect(manifest.summary.skippedCount).toBe(6);
-          expect(process.exitCode ?? 0).toBe(0);
         })
       )
     ));
@@ -1691,12 +1681,15 @@ describe.sequential("files command", () => {
           yield* fs.makeDirectory(rawDir, { recursive: true });
           yield* writeJpegWithExif(path.join(rawDir, "tiny.jpg"), 20, 80);
 
-          yield* runFilesCommand(["archive-poor-candidates", "--dir", rawDir, "--archive-dir", rawDir]);
-
-          expect(yield* TestConsole.errorLines).toEqual([
-            `[files] Refusing to archive into the source directory: "${rawDir}"`,
+          const output = yield* expectFilesCommandFailure([
+            "archive-poor-candidates",
+            "--dir",
+            rawDir,
+            "--archive-dir",
+            rawDir,
           ]);
-          expect(process.exitCode).toBe(1);
+
+          expect(output).toBe(`Refusing to archive into the source directory: "${rawDir}"`);
         })
       )
     ));
@@ -1719,7 +1712,6 @@ describe.sequential("files command", () => {
           expect(metadata.width).toBe(4);
           expect(metadata.height).toBe(3);
           expect(yield* sortedDirectoryEntries(datasetDir)).toEqual(["photo.jpg"]);
-          expect(process.exitCode ?? 0).toBe(0);
         })
       )
     ));
@@ -1738,7 +1730,6 @@ describe.sequential("files command", () => {
 
           expect(yield* sortedDirectoryEntries(datasetDir)).toEqual(["broken.jpg", "clip.mp4"]);
           expect(yield* TestConsole.logLines).toContain("files strip-metadata: dry run; no files rewritten.");
-          expect(process.exitCode ?? 0).toBe(0);
         })
       )
     ));
@@ -1763,7 +1754,6 @@ describe.sequential("files command", () => {
           expect(yield* TestConsole.logLines).toContain(
             "files strip-metadata: skipped 2 unsupported or non-media file(s)."
           );
-          expect(process.exitCode ?? 0).toBe(0);
         })
       )
     ));
@@ -1812,7 +1802,6 @@ describe.sequential("files command", () => {
           ]);
           expect(O.getOrUndefined(A.get(args, args.length - 2))).toContain(".beep-files-strip-metadata-");
           expect(yield* fs.readFileString(clipPath)).toBe("clean video\n");
-          expect(process.exitCode ?? 0).toBe(0);
         })
       )
     ));
@@ -1828,11 +1817,11 @@ describe.sequential("files command", () => {
           yield* writeJpegWithExif(validPath, 3, 3);
           yield* writeSizedFile(path.join(datasetDir, "broken.png"), 1, "x");
 
-          yield* runFilesCommand(["strip-metadata", "--dir", datasetDir]);
+          const output = yield* expectFilesCommandFailure(["strip-metadata", "--dir", datasetDir]);
 
           expect((yield* readImageMetadata(validPath)).exif).toBeDefined();
           expect(yield* sortedDirectoryEntries(datasetDir)).toEqual(["broken.png", "valid.jpg"]);
-          expect(process.exitCode).toBe(1);
+          expect(output).toContain("Failed to normalize image metadata");
         })
       )
     ));
@@ -1854,12 +1843,11 @@ describe.sequential("files command", () => {
           yield* withEnvVar(
             "BEEP_FFMPEG_PATH",
             path.join(binDir, "ffmpeg"),
-            runFilesCommand(["strip-metadata", "--dir", datasetDir])
+            expectFilesCommandFailure(["strip-metadata", "--dir", datasetDir])
           );
 
           expect(yield* fs.readFileString(clipPath)).toBe("vvvv");
           expect(yield* fs.exists(argsPath)).toBe(true);
-          expect(process.exitCode).toBe(1);
         })
       )
     ));

@@ -1,0 +1,14 @@
+[
+  {
+    "category": "Object",
+    "package": "@beep/test-utils",
+    "filePath": "packages/tooling/test-kit/test-utils/src/SqlTest.ts",
+    "line": 1078,
+    "nativeSnippet": "return { ...config, connectionUri: envConnectionUri.value };",
+    "nativeSymbol": "object spread-merge",
+    "suggestedTarget": "Struct (effect/Struct merge/evolve)",
+    "suggestedImport": "import { Struct } from \"@beep/utils\"",
+    "needsHumanDecision": true,
+    "note": "Single-field override spread of a PgExternalTestDriverConfigInput record (config may be undefined; guarded above). canImportUtils=true so Struct comes from @beep/utils. Low-value override pattern; human should decide whether a Struct.evolve/merge meaningfully improves it or whether to leave the idiomatic spread as-is."
+  }
+]

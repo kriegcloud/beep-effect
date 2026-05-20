@@ -162,7 +162,7 @@ const LatestDockerTag = S.Literal("latest").annotate(
   })
 );
 const isLatestDockerTag = S.is(LatestDockerTag);
-const stringEquivalence = S.toEquivalence(S.String);
+const stringEquivalence = Str.equivalence;
 
 const UnknownDockerImageValueToString = S.Unknown.pipe(
   S.decodeTo(

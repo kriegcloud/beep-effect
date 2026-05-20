@@ -11,6 +11,7 @@
 
 import { $RepoCliId } from "@beep/identity/packages";
 import { DomainError } from "@beep/repo-utils";
+import { buildCanonicalAliasTargets } from "@beep/repo-utils/schemas/TsconfigAliasTargets";
 import { SchemaUtils } from "@beep/schema";
 import { decodeJsoncTextAs } from "@beep/schema/Jsonc";
 import { A, Str, thunkNegative1 } from "@beep/utils";
@@ -21,7 +22,6 @@ import * as P from "effect/Predicate";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
 import * as jsonc from "jsonc-parser";
-import { buildCanonicalAliasTargets } from "../Shared/TsconfigAliasTargets.js";
 
 const $I = $RepoCliId.create("commands/CreatePackage/ConfigUpdater");
 
@@ -157,7 +157,7 @@ const toTstychePattern = (packagePath: string): string =>
     O.getOrElse(() => fallbackTstychePattern(packagePath))
   );
 const isPackagePath = S.is(PackagePath);
-const stringEquivalence = S.toEquivalence(S.String);
+const stringEquivalence = Str.equivalence;
 const stringArrayEquivalence = S.toEquivalence(S.Array(S.String));
 const JsoncUnknownObject = S.Record(S.String, S.Unknown).annotate(
   $I.annote("JsoncUnknownObject", {
@@ -230,7 +230,7 @@ const isTstycheEntryCovered: {
 });
 
 const byPackagePathAscending: Order.Order<ConfigUpdateTarget> = Order.mapInput(
-  Order.String,
+  Str.orderAsc,
   (target: ConfigUpdateTarget) => target.packagePath
 );
 
