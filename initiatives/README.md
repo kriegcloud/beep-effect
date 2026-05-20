@@ -34,6 +34,8 @@ actually lives here.
 - `ip-law-knowledge-graph`
 - `opip-web-production-hardening`
 - `opip-web-launch` — implementation complete; launch review pending.
+- `repo-codegraph` — deterministic-first codegraph lookup and retrieval
+  implementation packet.
 - `repo-quality-acceleration` — research-first quality feedback speedup packet.
 - `repo-quality-convergence` — 9/10 repo-health scorecard, release guardrail,
     and quality closure packet.
