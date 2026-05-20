@@ -112,7 +112,7 @@ const canonicalizePublishConfig = (
   let out = R.empty<string, unknown>();
   for (const key of publishConfigKeyOrder) {
     if (R.has(key)(value)) {
-      out = R.set(out, key, canonicalizePublishConfigValue(key, value[key]));
+      out = R.set(out, key, canonicalizePublishConfigValue(key, O.getOrUndefined(R.get(value, key))));
     }
   }
 

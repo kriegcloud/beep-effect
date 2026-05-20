@@ -1175,7 +1175,10 @@ export const ReusePartitionPlannerServiceLive = Layer.effect(
         const matchCounts = yield* collectPatternMatchCountsForScope(analysisContext, scope);
 
         for (const pattern of PATTERN_DEFINITIONS) {
-          const matchedCount = matchCounts[pattern.id] ?? 0;
+          const matchedCount = pipe(
+            R.get(matchCounts, pattern.id),
+            O.getOrElse(() => 0)
+          );
           if (matchedCount === 0) {
             continue;
           }

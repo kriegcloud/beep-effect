@@ -10,6 +10,7 @@ import { LiteralKit } from "@beep/schema";
 import { A, Str } from "@beep/utils";
 import { pipe } from "effect";
 import * as O from "effect/Option";
+import * as R from "effect/Record";
 import * as S from "effect/Schema";
 
 // cspell:ignore dtos
@@ -246,11 +247,9 @@ const JSDOC_CATEGORY_REJECTED_VALUES: Readonly<Record<string, string>> = {
 const canonicalCategoryOption = (value: string): O.Option<JSDocCategory> =>
   A.findFirst(CANONICAL_JSDOC_CATEGORIES, (category) => category === value);
 
-const aliasedCategoryOption = (value: string): O.Option<JSDocCategory> =>
-  O.fromNullishOr(JSDOC_CATEGORY_ALIASES[value]);
+const aliasedCategoryOption = (value: string): O.Option<JSDocCategory> => R.get(JSDOC_CATEGORY_ALIASES, value);
 
-const rejectedCategoryMessageOption = (value: string): O.Option<string> =>
-  O.fromNullishOr(JSDOC_CATEGORY_REJECTED_VALUES[value]);
+const rejectedCategoryMessageOption = (value: string): O.Option<string> => R.get(JSDOC_CATEGORY_REJECTED_VALUES, value);
 
 const MAX_JSDOC_CATEGORY_LENGTH = 128;
 
@@ -299,8 +298,14 @@ export const normalizeJSDocCategoryKey = (value: string): string => {
   let previousKind: CategoryCharacterKind = "separator";
 
   for (let index = 0; index < characters.length; index += 1) {
-    const character = characters[index] ?? "";
-    const next = characters[index + 1] ?? "";
+    const character = pipe(
+      A.get(characters, index),
+      O.getOrElse(() => "")
+    );
+    const next = pipe(
+      A.get(characters, index + 1),
+      O.getOrElse(() => "")
+    );
 
     if (isUpperAscii(character) || isLowerAscii(character) || isDigitAscii(character)) {
       const currentKind: CategoryCharacterKind = isDigitAscii(character)

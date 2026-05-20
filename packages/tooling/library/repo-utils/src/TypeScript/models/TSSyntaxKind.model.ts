@@ -6,7 +6,7 @@
  */
 
 import { LiteralKit, SchemaUtils } from "@beep/schema";
-import { Struct } from "@beep/utils";
+import { A, Struct } from "@beep/utils";
 
 /**
  * Canonical TypeScript SyntaxKind name entries.
@@ -422,7 +422,7 @@ const toNameOptions = <
   const Entries extends readonly [readonly [string, number], ...ReadonlyArray<readonly [string, number]>],
 >(
   entries: Entries
-) => entries.map(([name]) => name) as unknown as readonly [Entries[0][0], ...Array<Entries[number][0]>];
+) => A.map(entries, ([name]) => name) as unknown as readonly [Entries[0][0], ...Array<Entries[number][0]>];
 
 const TSSyntaxKindNames = toNameOptions(TSSyntaxKindEntries);
 
