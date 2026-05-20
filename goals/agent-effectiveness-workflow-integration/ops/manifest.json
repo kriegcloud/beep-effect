@@ -1,0 +1,32 @@
+{
+  "schemaVersion": "initiative-manifest/v1",
+  "initiative": {
+    "id": "agent-effectiveness-workflow-integration",
+    "title": "Agent Effectiveness Workflow Integration",
+    "status": "pending-planning",
+    "created": "2026-05-20",
+    "updated": "2026-05-20",
+    "packetAnchorDocument": "SPEC.md"
+  },
+  "mission": "Integrate proven agent-effectiveness evidence loops into normal repo workflows.",
+  "parentGoal": "goals/agent-effectiveness-loop",
+  "inputPackets": [
+    "goals/agent-effectiveness-loop",
+    "goals/agent-effectiveness-phoenix-enrichment",
+    "goals/ai-metrics-stack"
+  ],
+  "candidateSlices": [
+    "operator-runbook",
+    "repo-cli-workflow",
+    "ci-or-scheduled-report",
+    "agent-handoff-guidance",
+    "dashboard-or-summary-report"
+  ],
+  "constraints": [
+    "no-automatic-live-phoenix-writes",
+    "do-not-weaken-quality-gates",
+    "explicit-unavailable-or-blocked-states",
+    "sanitized-evidence-only"
+  ],
+  "nextAction": "Select one workflow integration target and define its evidence source, no-op behavior, and quality proof before implementation."
+}

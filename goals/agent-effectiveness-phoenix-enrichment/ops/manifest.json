@@ -1,0 +1,32 @@
+{
+  "schemaVersion": "initiative-manifest/v1",
+  "initiative": {
+    "id": "agent-effectiveness-phoenix-enrichment",
+    "title": "Agent Effectiveness Phoenix Enrichment",
+    "status": "pending-planning",
+    "created": "2026-05-20",
+    "updated": "2026-05-20",
+    "packetAnchorDocument": "SPEC.md"
+  },
+  "mission": "Plan and implement Phoenix-native enrichment for repo-owned agent-effectiveness evidence.",
+  "parentGoal": "goals/agent-effectiveness-loop",
+  "inputPackets": [
+    "goals/agent-effectiveness-loop",
+    "goals/ai-metrics-stack",
+    "goals/jsdoc-worker-eval"
+  ],
+  "candidateSlices": [
+    "phoenix-annotation-apply",
+    "phoenix-datasets",
+    "phoenix-experiments",
+    "phoenix-evals",
+    "prompt-config-comparison"
+  ],
+  "constraints": [
+    "dry-run-default",
+    "confirmation-required-for-live-writes",
+    "no-raw-transcripts-or-private-paths",
+    "privacy-checks-before-write"
+  ],
+  "nextAction": "Select one narrow Phoenix enrichment slice and write the payload, privacy, readback, and rollback contract before implementation."
+}

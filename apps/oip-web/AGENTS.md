@@ -17,7 +17,7 @@
 ## Laws
 - Follow repository laws through command discovery.
 - Run `bun run beep docs laws`.
-- Follow `initiatives/oip-web-launch` for launch scope and review gates.
+- Follow `goals/oip-web-launch` for launch scope and review gates.
 - Prefer tersest equivalent helper forms when behavior is unchanged.
 - Keep package guidance concise and avoid duplicating long policy prose.
 

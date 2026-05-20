@@ -56,7 +56,7 @@ extend-exclude = [
   ".beep/**",
   "scratchpad/**",
   "outputs/agent-reliability/**",
-  "initiatives/**",
+  "goals/**",
   "standards/repo-exports.catalog.jsonc",
   "standards/repo-exports.catalog.md",
   "**/internal/data/**",

@@ -28,7 +28,7 @@ export const TYPESCRIPT_SOURCE_EXCLUDED_SEGMENTS = [
   "/docs/",
   "/_generated/",
   "/generated/",
-  "/initiatives/",
+  "/goals/",
   "/test/",
   "/tests/",
   "/dtslint/",

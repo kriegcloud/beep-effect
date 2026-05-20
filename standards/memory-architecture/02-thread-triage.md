@@ -178,7 +178,7 @@ Layer 2 to Layer 1 promotion pipeline.
 
 ## 8. repo-codegraph-jsdoc Research
 
-**Location:** `initiatives/repo-codegraph-jsdoc/history/outputs/compiled_sources/`
+**Location:** `goals/repo-codegraph-jsdoc/history/outputs/compiled_sources/`
 
 **Status:** Pure research compilation -- 29 papers/reports synthesized.
 Validates the deterministic-first approach with evidence (32.8% improvement from
