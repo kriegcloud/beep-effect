@@ -139,8 +139,9 @@ export declare namespace JSDocTagDefinition {
 }
 
 /**
- * JSDoc model export.
+ * Asserts that a value matches the encoded JSDoc tag definition shape.
  *
+ * @param input - Encoded JSDoc tag definition candidate to refine.
  * @example
  * ```ts
  * import { assertJsDoc } from "@beep/repo-utils/JSDoc/models/JSDocTagDefinition.model"

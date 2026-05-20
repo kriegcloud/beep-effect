@@ -26,7 +26,7 @@ import {
   type Template,
 } from "@beep/runpod";
 import { LiteralKit } from "@beep/schema";
-import { Console, DateTime, Duration, Effect, Layer, Order, pipe, Ref, Result, Schedule } from "effect";
+import { Console, DateTime, Duration, Effect, flow, Layer, Order, pipe, Ref, Result, Schedule } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
@@ -359,9 +359,9 @@ const ollamaBootstrapCommand = (model: string): ReadonlyArray<string> => {
 const templateText = (template: Template): string =>
   pipe(
     [template.name, template.imageName, template.readme],
-    A.map((value) =>
-      pipe(
-        O.fromUndefinedOr(value),
+    A.map(
+      flow(
+        O.fromUndefinedOr,
         O.getOrElse(() => "")
       )
     ),
@@ -396,8 +396,11 @@ const templateOrder = Order.mapInput(Order.String, templateSortKey);
  * @category utilities
  * @since 0.0.0
  */
-export const selectQualityWorkerRunpodTemplate = (templates: ReadonlyArray<Template>): O.Option<Template> =>
-  pipe(templates, A.filter(isOllamaTemplate), A.sort(templateOrder), A.head);
+export const selectQualityWorkerRunpodTemplate: (templates: ReadonlyArray<Template>) => O.Option<Template> = flow(
+  A.filter(isOllamaTemplate),
+  A.sort(templateOrder),
+  A.head
+);
 
 const gpuTypeIdsFor = ({
   allow24GbFallback,
