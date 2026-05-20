@@ -4,6 +4,7 @@ import { TooltipProvider } from "@beep/ui/components/ui/tooltip";
 import { type InitialConfigType, LexicalComposer } from "@lexical/react/LexicalComposer";
 import { OnChangePlugin } from "@lexical/react/LexicalOnChangePlugin";
 import { Effect } from "effect";
+import * as S from "effect/Schema";
 import type { EditorState, SerializedEditorState } from "lexical";
 
 import { editorTheme } from "../../editor/themes/editor-theme.js";
@@ -43,7 +44,10 @@ export function Editor({
         initialConfig={{
           ...editorConfig,
           ...(editorState !== undefined ? { editorState } : {}),
-          ...(editorSerializedState !== undefined ? { editorState: JSON.stringify(editorSerializedState) } : {}),
+          // TODO(effect-native-migration): model schema
+          ...(editorSerializedState !== undefined
+            ? { editorState: S.encodeUnknownSync(S.UnknownFromJsonString)(editorSerializedState) }
+            : {}),
         }}
       >
         <TooltipProvider>
