@@ -10,8 +10,8 @@
   ],
   "entries": [
     {
-      "file": "infra/src/OpipWeb.ts",
-      "symbol": "OpipWebRuntimeSecrets",
+      "file": "infra/src/OipWeb.ts",
+      "symbol": "OipWebRuntimeSecrets",
       "kind": "exported-type-literal",
       "status": "candidate",
       "owner": "@beep/infra",

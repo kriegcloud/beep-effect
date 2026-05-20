@@ -1,0 +1,109 @@
+{
+  "$schema": "../../packages/tooling/tool/docgen/schema.json",
+  "exclude": ["src/internal/**/*.ts"],
+  "srcLink": "https://github.com/kriegcloud/beep-effect/tree/main/apps/oip-web/src/",
+  "examplesCompilerOptions": {
+    "noEmit": true,
+    "strict": true,
+    "skipLibCheck": true,
+    "moduleResolution": "bundler",
+    "module": "es2022",
+    "target": "es2022",
+    "lib": ["ESNext", "DOM", "DOM.Iterable"],
+    "rewriteRelativeImportExtensions": true,
+    "allowImportingTsExtensions": true,
+    "moduleDetection": "force",
+    "verbatimModuleSyntax": true,
+    "allowJs": false,
+    "erasableSyntaxOnly": true,
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true,
+    "exactOptionalPropertyTypes": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noImplicitOverride": true,
+    "noFallthroughCasesInSwitch": true,
+    "stripInternal": false,
+    "noErrorTruncation": true,
+    "types": [],
+    "jsx": "react-jsx",
+    "paths": {
+      "@beep/oip-web": ["../../apps/oip-web/src/index.ts"],
+      "@beep/oip-web/app/api/contact/route": [
+        "../../apps/oip-web/src/app/api/contact/route.ts"
+      ],
+      "@beep/oip-web/app/llms.txt/route": [
+        "../../apps/oip-web/src/app/llms.txt/route.ts"
+      ],
+      "@beep/oip-web/app/manifest": ["../../apps/oip-web/src/app/manifest.ts"],
+      "@beep/oip-web/app/robots": ["../../apps/oip-web/src/app/robots.ts"],
+      "@beep/oip-web/app/sitemap": ["../../apps/oip-web/src/app/sitemap.ts"],
+      "@beep/oip-web/contact": ["../../apps/oip-web/src/contact/index.ts"],
+      "@beep/oip-web/content": ["../../apps/oip-web/src/content/index.ts"],
+      "@beep/oip-web/mdx-components": [
+        "../../apps/oip-web/src/mdx-components.tsx"
+      ],
+      "@beep/oip-web/proxy": ["../../apps/oip-web/src/proxy.ts"],
+      "@beep/hubspot": ["../../packages/drivers/hubspot/src/index.ts"],
+      "@beep/hubspot/*": ["../../packages/drivers/hubspot/src/*.ts"],
+      "@beep/identity": [
+        "../../packages/foundation/modeling/identity/src/index.ts"
+      ],
+      "@beep/identity/*": [
+        "../../packages/foundation/modeling/identity/src/*.ts"
+      ],
+      "@beep/identity/packages": [
+        "../../packages/foundation/modeling/identity/src/packages.ts"
+      ],
+      "@beep/repo-configs": [
+        "../../packages/tooling/policy-pack/repo-configs/src/index.ts"
+      ],
+      "@beep/repo-configs/*": [
+        "../../packages/tooling/policy-pack/repo-configs/src/*.ts"
+      ],
+      "@beep/repo-configs/next": [
+        "../../packages/tooling/policy-pack/repo-configs/src/next/index.ts"
+      ],
+      "@beep/repo-utils": [
+        "../../packages/tooling/library/repo-utils/src/index.ts"
+      ],
+      "@beep/repo-utils/*": [
+        "../../packages/tooling/library/repo-utils/src/*.ts"
+      ],
+      "@beep/repo-utils/JSDoc/models/tag-values": [
+        "../../packages/tooling/library/repo-utils/src/JSDoc/models/tag-values/index.ts"
+      ],
+      "@beep/sanity": ["../../packages/drivers/sanity/src/index.ts"],
+      "@beep/sanity/*": ["../../packages/drivers/sanity/src/*.ts"],
+      "@beep/schema": [
+        "../../packages/foundation/modeling/schema/src/index.ts"
+      ],
+      "@beep/schema/*": ["../../packages/foundation/modeling/schema/src/*.ts"],
+      "@beep/ui": ["../../packages/foundation/ui-system/ui/src/index.ts"],
+      "@beep/ui/themes": [
+        "../../packages/foundation/ui-system/ui/src/themes/index.ts"
+      ],
+      "@beep/ui/themes/theme-init-script": [
+        "../../packages/foundation/ui-system/ui/src/themes/theme-init-script.tsx"
+      ],
+      "@beep/ui/styles/globals.css": [
+        "../../packages/foundation/ui-system/ui/src/styles/globals.css"
+      ],
+      "@beep/ui/postcss.config": [
+        "../../packages/foundation/ui-system/ui/postcss.config.mjs"
+      ],
+      "@beep/ui/components/blocks/editor-00/editor": [
+        "../../packages/foundation/ui-system/ui/src/components/blocks/editor-00/editor.tsx"
+      ],
+      "@beep/ui/components/editor/editor-ui/content-editable": [
+        "../../packages/foundation/ui-system/ui/src/components/editor/editor-ui/content-editable.tsx"
+      ],
+      "@beep/ui/components/editor/themes/editor-theme": [
+        "../../packages/foundation/ui-system/ui/src/components/editor/themes/editor-theme.ts"
+      ],
+      "@beep/utils": ["../../packages/foundation/modeling/utils/src/index.ts"],
+      "@beep/utils/*": ["../../packages/foundation/modeling/utils/src/*.ts"]
+    }
+  }
+}

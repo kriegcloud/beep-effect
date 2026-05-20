@@ -1,6 +1,6 @@
 # JSDoc Documentation Compliance Inventory
 
-Generated: 2026-05-17T06:07:02.644Z
+Generated: 2026-05-20T10:47:47.870Z
 
 ## Scope
 
@@ -10,22 +10,22 @@ The package universe is the current `bun run topo-sort` output. This inventory c
 
 | Metric | Count |
 |---|---:|
-| packages | 81 |
+| packages | 77 |
 | cleanPackages | 22 |
 | packagesWithoutPublicSrcSurface | 1 |
-| packagesNeedingRemediation | 58 |
-| publicModules | 994 |
-| publicExports | 6653 |
+| packagesNeedingRemediation | 54 |
+| publicModules | 1002 |
+| publicExports | 6797 |
 | openModules | 117 |
-| openExports | 3059 |
-| missingExportExamples | 2889 |
+| openExports | 3106 |
+| missingExportExamples | 2936 |
 | missingExportCategories | 51 |
 | missingExportSince | 49 |
 | forbiddenTagFindings | 7 |
 | malformedConditionalTagFindings | 0 |
 | exampleImportFindings | 20 |
 | unsafeExampleFindings | 62 |
-| schemaAnnotationFindings | 134 |
+| schemaAnnotationFindings | 136 |
 | rootPolicyOpen | 0 |
 
 ## Root Policy
@@ -42,86 +42,82 @@ The package universe is the current `bun run topo-sort` output. This inventory c
 | Order | Package | Path | Status | Modules | Exports | Open Modules | Open Exports |
 |---:|---|---|---|---:|---:|---:|---:|
 | 1 | `@beep/types` | `packages/foundation/primitive/types` | clean | 5 | 10 | 0 | 0 |
-| 2 | `@beep/identity` | `packages/foundation/modeling/identity` | needs-remediation | 3 | 111 | 0 | 31 |
+| 2 | `@beep/identity` | `packages/foundation/modeling/identity` | needs-remediation | 3 | 107 | 0 | 19 |
 | 3 | `@beep/utils` | `packages/foundation/modeling/utils` | clean | 20 | 147 | 0 | 0 |
 | 4 | `@beep/data` | `packages/foundation/primitive/data` | clean | 7 | 39 | 0 | 0 |
 | 5 | `@beep/messages` | `packages/foundation/modeling/messages` | needs-remediation | 2 | 6 | 0 | 1 |
 | 6 | `@beep/schema` | `packages/foundation/modeling/schema` | needs-remediation | 132 | 1283 | 7 | 1044 |
 | 7 | `@beep/shared-domain` | `packages/shared/domain` | needs-remediation | 36 | 192 | 0 | 13 |
 | 8 | `@beep/test-utils` | `packages/tooling/test-kit/test-utils` | needs-remediation | 3 | 23 | 0 | 7 |
-| 9 | `@beep/installer-security-domain` | `packages/installer-security/domain` | needs-remediation | 4 | 12 | 0 | 12 |
-| 10 | `@beep/installer-channels-domain` | `packages/installer-channels/domain` | needs-remediation | 4 | 12 | 0 | 12 |
-| 11 | `@beep/installer-providers-domain` | `packages/installer-providers/domain` | needs-remediation | 4 | 14 | 0 | 14 |
-| 12 | `@beep/installer-dependencies-domain` | `packages/installer-dependencies/domain` | needs-remediation | 4 | 12 | 0 | 12 |
-| 13 | `@beep/drizzle` | `packages/drivers/drizzle` | needs-remediation | 4 | 15 | 0 | 3 |
-| 14 | `@beep/architecture-lab-domain` | `packages/architecture-lab/domain` | needs-remediation | 15 | 52 | 0 | 51 |
-| 15 | `@beep/colors` | `packages/foundation/capability/colors` | clean | 1 | 9 | 0 | 0 |
-| 16 | `@beep/chalk` | `packages/foundation/capability/chalk` | clean | 1 | 35 | 0 | 0 |
-| 17 | `@beep/repo-utils` | `packages/tooling/library/repo-utils` | needs-remediation | 58 | 613 | 2 | 74 |
-| 18 | `@beep/duckdb` | `packages/drivers/duckdb` | needs-remediation | 4 | 15 | 0 | 3 |
-| 19 | `@beep/installer-workspace-domain` | `packages/installer-workspace/domain` | needs-remediation | 4 | 22 | 0 | 22 |
-| 20 | `@beep/installer-security-use-cases` | `packages/installer-security/use-cases` | needs-remediation | 3 | 9 | 0 | 9 |
-| 21 | `@beep/onepassword-cli` | `packages/drivers/onepassword-cli` | needs-remediation | 4 | 12 | 0 | 12 |
-| 22 | `@beep/discord` | `packages/drivers/discord` | needs-remediation | 4 | 12 | 0 | 12 |
-| 23 | `@beep/installer-channels-use-cases` | `packages/installer-channels/use-cases` | needs-remediation | 3 | 8 | 0 | 8 |
-| 24 | `@beep/ai-provider-cli` | `packages/drivers/ai-provider-cli` | needs-remediation | 4 | 12 | 0 | 12 |
-| 25 | `@beep/installer-providers-use-cases` | `packages/installer-providers/use-cases` | needs-remediation | 3 | 7 | 0 | 7 |
-| 26 | `@beep/installer-dependencies-use-cases` | `packages/installer-dependencies/use-cases` | needs-remediation | 3 | 7 | 0 | 7 |
-| 27 | `@beep/architecture-lab-config` | `packages/architecture-lab/config` | needs-remediation | 9 | 21 | 0 | 19 |
-| 28 | `@beep/architecture-lab-tables` | `packages/architecture-lab/tables` | needs-remediation | 7 | 21 | 0 | 20 |
-| 29 | `@beep/architecture-lab-use-cases` | `packages/architecture-lab/use-cases` | needs-remediation | 18 | 62 | 0 | 61 |
-| 30 | `@beep/postgres` | `packages/drivers/postgres` | needs-remediation | 7 | 35 | 0 | 5 |
-| 31 | `@beep/workspace-domain` | `packages/workspace/domain` | clean | 21 | 40 | 0 | 0 |
-| 32 | `@beep/face-detection` | `packages/drivers/face-detection` | needs-remediation | 4 | 27 | 0 | 23 |
-| 33 | `@beep/repo-docgen` | `packages/tooling/tool/docgen` | needs-remediation | 8 | 66 | 0 | 21 |
-| 34 | `@beep/repo-ai-metrics` | `packages/tooling/library/ai-metrics` | clean | 16 | 198 | 0 | 0 |
-| 35 | `@beep/runpod` | `packages/drivers/runpod` | needs-remediation | 6 | 174 | 0 | 174 |
-| 36 | `@beep/ffmpeg` | `packages/drivers/ffmpeg` | needs-remediation | 4 | 38 | 0 | 6 |
-| 37 | `@beep/observability` | `packages/foundation/capability/observability` | needs-remediation | 23 | 134 | 3 | 30 |
-| 38 | `@beep/repo-configs` | `packages/tooling/policy-pack/repo-configs` | needs-remediation | 24 | 130 | 0 | 5 |
-| 39 | `@beep/openai-compat` | `packages/drivers/openai-compat` | clean | 4 | 50 | 0 | 0 |
-| 40 | `@beep/installer-workspace-use-cases` | `packages/installer-workspace/use-cases` | needs-remediation | 3 | 9 | 0 | 9 |
-| 41 | `@beep/installer-security-server` | `packages/installer-security/server` | needs-remediation | 3 | 5 | 0 | 5 |
-| 42 | `@beep/installer-channels-server` | `packages/installer-channels/server` | needs-remediation | 3 | 5 | 0 | 5 |
-| 43 | `@beep/installer-providers-server` | `packages/installer-providers/server` | needs-remediation | 3 | 5 | 0 | 5 |
-| 44 | `@beep/ui` | `packages/foundation/ui-system/ui` | needs-remediation | 117 | 493 | 105 | 489 |
-| 45 | `@beep/installer-dependencies-server` | `packages/installer-dependencies/server` | needs-remediation | 3 | 5 | 0 | 5 |
-| 46 | `@beep/law-practice-domain` | `packages/law-practice/domain` | clean | 14 | 25 | 0 | 0 |
-| 47 | `@beep/agent-capability-use-cases` | `packages/agent-capability/use-cases` | needs-remediation | 13 | 47 | 0 | 11 |
-| 48 | `@beep/agent-capability-domain` | `packages/agent-capability/domain` | clean | 7 | 12 | 0 | 0 |
-| 49 | `@beep/epistemic-domain` | `packages/epistemic/domain` | clean | 13 | 21 | 0 | 0 |
-| 50 | `@beep/wealth-management-domain` | `packages/wealth-management/domain` | clean | 14 | 25 | 0 | 0 |
-| 51 | `@beep/architecture-lab-ui` | `packages/architecture-lab/ui` | needs-remediation | 3 | 7 | 0 | 6 |
-| 52 | `@beep/architecture-lab-server` | `packages/architecture-lab/server` | needs-remediation | 13 | 34 | 0 | 33 |
-| 53 | `@beep/hubspot` | `packages/drivers/hubspot` | needs-remediation | 4 | 20 | 0 | 3 |
-| 54 | `@beep/sanity` | `packages/drivers/sanity` | needs-remediation | 4 | 16 | 0 | 3 |
-| 55 | `@beep/root` | `.` | no-public-src-surface | 0 | 0 | 0 | 0 |
-| 56 | `@beep/workspace-tables` | `packages/workspace/tables` | needs-remediation | 7 | 10 | 0 | 2 |
-| 57 | `@beep/db-admin` | `packages/_internal/db-admin` | needs-remediation | 4 | 7 | 0 | 6 |
-| 58 | `@beep/architecture-lab-client` | `packages/architecture-lab/client` | needs-remediation | 3 | 7 | 0 | 6 |
-| 59 | `@beep/repo-cli` | `packages/tooling/tool/cli` | needs-remediation | 80 | 611 | 0 | 400 |
-| 60 | `@beep/shared-server` | `packages/shared/server` | clean | 1 | 1 | 0 | 0 |
-| 61 | `@beep/shared-config` | `packages/shared/config` | clean | 1 | 1 | 0 | 0 |
-| 62 | `@beep/sandbox` | `packages/foundation/capability/sandbox` | needs-remediation | 29 | 290 | 0 | 248 |
-| 63 | `@beep/shared-use-cases` | `packages/shared/use-cases` | clean | 1 | 1 | 0 | 0 |
-| 64 | `@beep/shared-tables` | `packages/shared/tables` | needs-remediation | 11 | 14 | 0 | 11 |
-| 65 | `@beep/md` | `packages/foundation/capability/md` | clean | 5 | 131 | 0 | 0 |
-| 66 | `@beep/semantic-web` | `packages/foundation/capability/semantic-web` | needs-remediation | 29 | 256 | 0 | 9 |
-| 67 | `@beep/venice-ai` | `packages/drivers/venice-ai` | clean | 3 | 35 | 0 | 0 |
-| 68 | `@beep/installer-workspace-server` | `packages/installer-workspace/server` | needs-remediation | 3 | 5 | 0 | 5 |
-| 69 | `@beep/stack-installer` | `apps/stack-installer` | needs-remediation | 6 | 21 | 0 | 21 |
-| 70 | `@beep/professional-desktop` | `apps/professional-desktop` | needs-remediation | 2 | 2 | 0 | 1 |
-| 71 | `@beep/professional-runtime-proof` | `apps/professional-runtime-proof` | clean | 1 | 4 | 0 | 0 |
-| 72 | `@beep/acp` | `packages/drivers/acp` | needs-remediation | 10 | 406 | 0 | 1 |
-| 73 | `@beep/nlp` | `packages/foundation/capability/nlp` | needs-remediation | 49 | 278 | 0 | 31 |
-| 74 | `@beep/infra` | `infra` | clean | 3 | 22 | 0 | 0 |
-| 75 | `@beep/codedank-web` | `apps/codedank-web` | needs-remediation | 5 | 6 | 0 | 5 |
-| 76 | `@beep/xai` | `packages/drivers/xai` | clean | 7 | 62 | 0 | 0 |
-| 77 | `@beep/architecture-lab-proof` | `apps/architecture-lab-proof` | needs-remediation | 1 | 3 | 0 | 2 |
-| 78 | `@beep/shared-client` | `packages/shared/client` | clean | 1 | 1 | 0 | 0 |
-| 79 | `@beep/openai` | `packages/drivers/openai` | needs-remediation | 1 | 1 | 0 | 1 |
-| 80 | `@beep/opip-web` | `apps/opip-web` | needs-remediation | 24 | 57 | 0 | 6 |
-| 81 | `@beep/shared-ui` | `packages/shared/ui` | clean | 4 | 7 | 0 | 0 |
+| 9 | `@beep/installer-domain` | `packages/installer/domain` | needs-remediation | 12 | 52 | 0 | 52 |
+| 10 | `@beep/drizzle` | `packages/drivers/drizzle` | needs-remediation | 4 | 15 | 0 | 3 |
+| 11 | `@beep/architecture-lab-domain` | `packages/architecture-lab/domain` | needs-remediation | 15 | 52 | 0 | 51 |
+| 12 | `@beep/colors` | `packages/foundation/capability/colors` | clean | 1 | 9 | 0 | 0 |
+| 13 | `@beep/chalk` | `packages/foundation/capability/chalk` | clean | 1 | 35 | 0 | 0 |
+| 14 | `@beep/repo-utils` | `packages/tooling/library/repo-utils` | needs-remediation | 58 | 613 | 2 | 74 |
+| 15 | `@beep/duckdb` | `packages/drivers/duckdb` | needs-remediation | 4 | 15 | 0 | 3 |
+| 16 | `@beep/canvas-domain` | `packages/canvas/domain` | needs-remediation | 8 | 37 | 0 | 36 |
+| 17 | `@beep/discord` | `packages/drivers/discord` | needs-remediation | 4 | 12 | 0 | 12 |
+| 18 | `@beep/ai-provider-cli` | `packages/drivers/ai-provider-cli` | needs-remediation | 4 | 12 | 0 | 12 |
+| 19 | `@beep/installer-use-cases` | `packages/installer/use-cases` | needs-remediation | 3 | 30 | 0 | 30 |
+| 20 | `@beep/onepassword-cli` | `packages/drivers/onepassword-cli` | needs-remediation | 4 | 12 | 0 | 12 |
+| 21 | `@beep/architecture-lab-config` | `packages/architecture-lab/config` | needs-remediation | 9 | 21 | 0 | 19 |
+| 22 | `@beep/architecture-lab-tables` | `packages/architecture-lab/tables` | needs-remediation | 7 | 21 | 0 | 20 |
+| 23 | `@beep/architecture-lab-use-cases` | `packages/architecture-lab/use-cases` | needs-remediation | 18 | 62 | 0 | 61 |
+| 24 | `@beep/postgres` | `packages/drivers/postgres` | needs-remediation | 7 | 35 | 0 | 5 |
+| 25 | `@beep/workspace-domain` | `packages/workspace/domain` | clean | 21 | 40 | 0 | 0 |
+| 26 | `@beep/repo-codegraph` | `packages/tooling/library/repo-codegraph` | clean | 5 | 40 | 0 | 0 |
+| 27 | `@beep/face-detection` | `packages/drivers/face-detection` | needs-remediation | 4 | 27 | 0 | 23 |
+| 28 | `@beep/repo-docgen` | `packages/tooling/tool/docgen` | needs-remediation | 8 | 66 | 0 | 21 |
+| 29 | `@beep/repo-ai-metrics` | `packages/tooling/library/ai-metrics` | needs-remediation | 17 | 226 | 0 | 2 |
+| 30 | `@beep/runpod` | `packages/drivers/runpod` | needs-remediation | 6 | 174 | 0 | 174 |
+| 31 | `@beep/ffmpeg` | `packages/drivers/ffmpeg` | needs-remediation | 4 | 38 | 0 | 6 |
+| 32 | `@beep/observability` | `packages/foundation/capability/observability` | needs-remediation | 23 | 134 | 3 | 30 |
+| 33 | `@beep/repo-configs` | `packages/tooling/policy-pack/repo-configs` | needs-remediation | 24 | 130 | 0 | 5 |
+| 34 | `@beep/canvas-use-cases` | `packages/canvas/use-cases` | needs-remediation | 10 | 34 | 0 | 33 |
+| 35 | `@beep/hubspot` | `packages/drivers/hubspot` | needs-remediation | 4 | 20 | 0 | 3 |
+| 36 | `@beep/ui` | `packages/foundation/ui-system/ui` | needs-remediation | 117 | 493 | 105 | 489 |
+| 37 | `@beep/sanity` | `packages/drivers/sanity` | needs-remediation | 4 | 16 | 0 | 3 |
+| 38 | `@beep/openai-compat` | `packages/drivers/openai-compat` | clean | 4 | 50 | 0 | 0 |
+| 39 | `@beep/installer-server` | `packages/installer/server` | needs-remediation | 3 | 19 | 0 | 19 |
+| 40 | `@beep/law-practice-domain` | `packages/law-practice/domain` | clean | 14 | 25 | 0 | 0 |
+| 41 | `@beep/agent-capability-use-cases` | `packages/agent-capability/use-cases` | needs-remediation | 13 | 47 | 0 | 11 |
+| 42 | `@beep/agent-capability-domain` | `packages/agent-capability/domain` | clean | 7 | 12 | 0 | 0 |
+| 43 | `@beep/epistemic-domain` | `packages/epistemic/domain` | clean | 13 | 21 | 0 | 0 |
+| 44 | `@beep/wealth-management-domain` | `packages/wealth-management/domain` | clean | 14 | 25 | 0 | 0 |
+| 45 | `@beep/architecture-lab-ui` | `packages/architecture-lab/ui` | needs-remediation | 3 | 7 | 0 | 6 |
+| 46 | `@beep/architecture-lab-server` | `packages/architecture-lab/server` | needs-remediation | 13 | 34 | 0 | 33 |
+| 47 | `@beep/root` | `.` | no-public-src-surface | 0 | 0 | 0 | 0 |
+| 48 | `@beep/workspace-tables` | `packages/workspace/tables` | needs-remediation | 7 | 10 | 0 | 2 |
+| 49 | `@beep/db-admin` | `packages/_internal/db-admin` | needs-remediation | 4 | 7 | 0 | 6 |
+| 50 | `@beep/architecture-lab-client` | `packages/architecture-lab/client` | needs-remediation | 3 | 7 | 0 | 6 |
+| 51 | `@beep/repo-cli` | `packages/tooling/tool/cli` | needs-remediation | 83 | 631 | 0 | 400 |
+| 52 | `@beep/shared-server` | `packages/shared/server` | clean | 1 | 1 | 0 | 0 |
+| 53 | `@beep/canvas-server` | `packages/canvas/server` | needs-remediation | 9 | 23 | 0 | 22 |
+| 54 | `@beep/shared-config` | `packages/shared/config` | clean | 1 | 1 | 0 | 0 |
+| 55 | `@beep/sandbox` | `packages/foundation/capability/sandbox` | needs-remediation | 29 | 290 | 0 | 248 |
+| 56 | `@beep/shared-use-cases` | `packages/shared/use-cases` | clean | 1 | 1 | 0 | 0 |
+| 57 | `@beep/oip-web` | `apps/oip-web` | needs-remediation | 24 | 57 | 0 | 6 |
+| 58 | `@beep/shared-tables` | `packages/shared/tables` | needs-remediation | 11 | 14 | 0 | 11 |
+| 59 | `@beep/md` | `packages/foundation/capability/md` | clean | 5 | 131 | 0 | 0 |
+| 60 | `@beep/canvas` | `apps/canvas` | needs-remediation | 1 | 1 | 0 | 1 |
+| 61 | `@beep/semantic-web` | `packages/foundation/capability/semantic-web` | needs-remediation | 29 | 256 | 0 | 9 |
+| 62 | `@beep/venice-ai` | `packages/drivers/venice-ai` | clean | 3 | 35 | 0 | 0 |
+| 63 | `@beep/stack-installer` | `apps/stack-installer` | needs-remediation | 6 | 19 | 0 | 19 |
+| 64 | `@beep/professional-desktop` | `apps/professional-desktop` | needs-remediation | 2 | 2 | 0 | 1 |
+| 65 | `@beep/professional-runtime-proof` | `apps/professional-runtime-proof` | clean | 1 | 4 | 0 | 0 |
+| 66 | `@beep/acp` | `packages/drivers/acp` | needs-remediation | 10 | 406 | 0 | 1 |
+| 67 | `@beep/nlp` | `packages/foundation/capability/nlp` | needs-remediation | 49 | 278 | 0 | 31 |
+| 68 | `@beep/infra` | `infra` | clean | 3 | 22 | 0 | 0 |
+| 69 | `@beep/codedank-web` | `apps/codedank-web` | needs-remediation | 5 | 6 | 0 | 5 |
+| 70 | `@beep/xai` | `packages/drivers/xai` | clean | 7 | 62 | 0 | 0 |
+| 71 | `@beep/architecture-lab-proof` | `apps/architecture-lab-proof` | needs-remediation | 1 | 3 | 0 | 2 |
+| 72 | `@beep/konva` | `packages/drivers/konva` | needs-remediation | 1 | 1 | 0 | 1 |
+| 73 | `@beep/shared-client` | `packages/shared/client` | clean | 1 | 1 | 0 | 0 |
+| 74 | `@beep/canvas-client` | `packages/canvas/client` | needs-remediation | 1 | 1 | 0 | 1 |
+| 75 | `@beep/openai` | `packages/drivers/openai` | needs-remediation | 1 | 1 | 0 | 1 |
+| 76 | `@beep/canvas-ui` | `packages/canvas/ui` | needs-remediation | 1 | 1 | 0 | 1 |
+| 77 | `@beep/shared-ui` | `packages/shared/ui` | clean | 4 | 7 | 0 | 0 |
 
 ## Open Findings
 
@@ -134,33 +130,21 @@ Export findings:
 - `src/Id.ts:150` `IdentitySegmentCountError` (class) - 1 schema annotation/type-alias gap(s)
 - `src/Id.ts:381` `IdentityString` (type) - 1 unsafe example violation(s)
 - `src/Id.ts:398` `IdentitySymbol` (type) - 1 unsafe example violation(s)
-- `src/packages.ts:680` `RepoPkgs` (const) - missing @example
-- `src/packages.ts:686` `$MdId` (const) - missing summary; missing @example
-- `src/packages.ts:692` `$CodedankWebId` (const) - missing summary; missing @example
-- `src/packages.ts:698` `$OpipWebId` (const) - missing summary; missing @example
-- `src/packages.ts:704` `$DrizzleId` (const) - missing summary; missing @example
-- `src/packages.ts:710` `$DuckdbId` (const) - missing summary; missing @example
-- `src/packages.ts:716` `$FaceDetectionId` (const) - missing summary; missing @example
-- `src/packages.ts:722` `$FfmpegId` (const) - missing summary; missing @example
-- `src/packages.ts:728` `$PostgresId` (const) - missing summary; missing @example
-- `src/packages.ts:891` `$OpenaiId` (const) - missing summary; missing @example
-- `src/packages.ts:897` `$VeniceAiId` (const) - missing summary; missing @example
-- `src/packages.ts:903` `$XaiId` (const) - missing summary; missing @example
-- `src/packages.ts:1113` `$InstallerDependenciesDomainId` (const) - missing @example
-- `src/packages.ts:1122` `$InstallerDependenciesUseCasesId` (const) - missing @example
-- `src/packages.ts:1131` `$InstallerDependenciesServerId` (const) - missing @example
-- `src/packages.ts:1140` `$InstallerSecurityDomainId` (const) - missing @example
-- `src/packages.ts:1149` `$InstallerSecurityUseCasesId` (const) - missing @example
-- `src/packages.ts:1158` `$InstallerSecurityServerId` (const) - missing @example
-- `src/packages.ts:1167` `$InstallerProvidersDomainId` (const) - missing @example
-- `src/packages.ts:1176` `$InstallerProvidersUseCasesId` (const) - missing @example
-- `src/packages.ts:1185` `$InstallerProvidersServerId` (const) - missing @example
-- `src/packages.ts:1194` `$InstallerChannelsDomainId` (const) - missing @example
-- `src/packages.ts:1203` `$InstallerChannelsUseCasesId` (const) - missing @example
-- `src/packages.ts:1212` `$InstallerChannelsServerId` (const) - missing @example
-- `src/packages.ts:1221` `$InstallerWorkspaceDomainId` (const) - missing @example
-- `src/packages.ts:1230` `$InstallerWorkspaceUseCasesId` (const) - missing @example
-- `src/packages.ts:1239` `$InstallerWorkspaceServerId` (const) - missing @example
+- `src/packages.ts:676` `RepoPkgs` (const) - missing @example
+- `src/packages.ts:682` `$MdId` (const) - missing summary; missing @example
+- `src/packages.ts:688` `$CodedankWebId` (const) - missing summary; missing @example
+- `src/packages.ts:694` `$OipWebId` (const) - missing summary; missing @example
+- `src/packages.ts:700` `$DrizzleId` (const) - missing summary; missing @example
+- `src/packages.ts:706` `$DuckdbId` (const) - missing summary; missing @example
+- `src/packages.ts:712` `$FaceDetectionId` (const) - missing summary; missing @example
+- `src/packages.ts:718` `$FfmpegId` (const) - missing summary; missing @example
+- `src/packages.ts:724` `$PostgresId` (const) - missing summary; missing @example
+- `src/packages.ts:887` `$OpenaiId` (const) - missing summary; missing @example
+- `src/packages.ts:893` `$VeniceAiId` (const) - missing summary; missing @example
+- `src/packages.ts:899` `$XaiId` (const) - missing summary; missing @example
+- `src/packages.ts:1109` `$InstallerDomainId` (const) - missing @example
+- `src/packages.ts:1117` `$InstallerUseCasesId` (const) - missing @example
+- `src/packages.ts:1126` `$InstallerServerId` (const) - missing @example
 
 ### @beep/messages
 
@@ -1254,33 +1238,15 @@ Path: `packages/tooling/test-kit/test-utils`
 Export findings:
 - `src/index.ts:14` `export * from "./Layer.js";` (re-export) - missing @example
 - `src/index.ts:22` `export * from "./SqlTest.js";` (re-export) - missing @example
-- `src/SqlTest.ts:189` `PgliteTestcontainersTestDriverConfigInput` (type) - missing @example
-- `src/SqlTest.ts:242` `PgExternalTestDriverConfigInput` (type) - missing @example
-- `src/SqlTest.ts:250` `PgliteSqlTestLayerMode` (type) - missing @example
-- `src/SqlTest.ts:258` `PgliteSqlTestLayerOptions` (interface) - missing @example
-- `src/SqlTest.ts:439` `PgliteTestcontainerResource` (interface) - 1 unsafe example violation(s)
+- `src/SqlTest.ts:190` `PgliteTestcontainersTestDriverConfigInput` (type) - missing @example
+- `src/SqlTest.ts:243` `PgExternalTestDriverConfigInput` (type) - missing @example
+- `src/SqlTest.ts:251` `PgliteSqlTestLayerMode` (type) - missing @example
+- `src/SqlTest.ts:259` `PgliteSqlTestLayerOptions` (interface) - missing @example
+- `src/SqlTest.ts:440` `PgliteTestcontainerResource` (interface) - 1 unsafe example violation(s)
 
-### @beep/installer-security-domain
+### @beep/installer-domain
 
-Path: `packages/installer-security/domain`
-
-Export findings:
-- `src/aggregates/index.ts:9` `export * as SecretReference from "./SecretReference/index.js";` (re-export) - missing @example
-- `src/aggregates/SecretReference/index.ts:7` `export * from "./SecretReference.model.js";` (re-export) - missing @example
-- `src/aggregates/SecretReference/SecretReference.model.ts:22` `SecretReferencePurpose` (const) - missing @example
-- `src/aggregates/SecretReference/SecretReference.model.ts:39` `SecretReferencePurpose` (type) - missing @example
-- `src/aggregates/SecretReference/SecretReference.model.ts:47` `SecretReferenceStatus` (const) - missing @example
-- `src/aggregates/SecretReference/SecretReference.model.ts:63` `SecretReferenceStatus` (type) - missing @example
-- `src/aggregates/SecretReference/SecretReference.model.ts:71` `SecretReference` (class) - missing @example
-- `src/index.ts:23` `export * as Aggregates from "./aggregates/index.js";` (re-export) - missing @example
-- `src/index.ts:30` `export * as Entities from "./entities/index.js";` (re-export) - missing @example
-- `src/index.ts:37` `export * as Identity from "./identity/index.js";` (re-export) - missing @example
-- `src/index.ts:44` `export * as Values from "./values/index.js";` (re-export) - missing @example
-- `src/index.ts:15` `VERSION` (const) - missing @example
-
-### @beep/installer-channels-domain
-
-Path: `packages/installer-channels/domain`
+Path: `packages/installer/domain`
 
 Export findings:
 - `src/aggregates/DiscordChannel/DiscordChannel.model.ts:22` `DiscordChannelKind` (const) - missing @example
@@ -1289,19 +1255,17 @@ Export findings:
 - `src/aggregates/DiscordChannel/DiscordChannel.model.ts:54` `DiscordChannelStatus` (type) - missing @example
 - `src/aggregates/DiscordChannel/DiscordChannel.model.ts:62` `DiscordChannel` (class) - missing @example
 - `src/aggregates/DiscordChannel/index.ts:7` `export * from "./DiscordChannel.model.js";` (re-export) - missing @example
-- `src/aggregates/index.ts:9` `export * as DiscordChannel from "./DiscordChannel/index.js";` (re-export) - missing @example
-- `src/index.ts:23` `export * as Aggregates from "./aggregates/index.js";` (re-export) - missing @example
-- `src/index.ts:30` `export * as Entities from "./entities/index.js";` (re-export) - missing @example
-- `src/index.ts:37` `export * as Identity from "./identity/index.js";` (re-export) - missing @example
-- `src/index.ts:44` `export * as Values from "./values/index.js";` (re-export) - missing @example
-- `src/index.ts:15` `VERSION` (const) - missing @example
-
-### @beep/installer-providers-domain
-
-Path: `packages/installer-providers/domain`
-
-Export findings:
-- `src/aggregates/index.ts:9` `export * as ProviderAccount from "./ProviderAccount/index.js";` (re-export) - missing @example
+- `src/aggregates/HostDependency/HostDependency.model.ts:21` `HostDependencyKind` (const) - missing @example
+- `src/aggregates/HostDependency/HostDependency.model.ts:33` `HostDependencyKind` (type) - missing @example
+- `src/aggregates/HostDependency/HostDependency.model.ts:41` `HostDependencyStatus` (const) - missing @example
+- `src/aggregates/HostDependency/HostDependency.model.ts:53` `HostDependencyStatus` (type) - missing @example
+- `src/aggregates/HostDependency/HostDependency.model.ts:61` `HostDependency` (class) - missing @example
+- `src/aggregates/HostDependency/index.ts:7` `export * from "./HostDependency.model.js";` (re-export) - missing @example
+- `src/aggregates/index.ts:15` `export * as DiscordChannel from "./DiscordChannel/index.js";` (re-export) - missing @example
+- `src/aggregates/index.ts:23` `export * as HostDependency from "./HostDependency/index.js";` (re-export) - missing @example
+- `src/aggregates/index.ts:31` `export * as ProviderAccount from "./ProviderAccount/index.js";` (re-export) - missing @example
+- `src/aggregates/index.ts:39` `export * as SecretReference from "./SecretReference/index.js";` (re-export) - missing @example
+- `src/aggregates/index.ts:47` `export * as StackManifest from "./StackManifest/index.js";` (re-export) - missing @example
 - `src/aggregates/ProviderAccount/index.ts:7` `export * from "./ProviderAccount.model.js";` (re-export) - missing @example
 - `src/aggregates/ProviderAccount/ProviderAccount.model.ts:22` `ProviderKind` (const) - missing @example
 - `src/aggregates/ProviderAccount/ProviderAccount.model.ts:34` `ProviderKind` (type) - missing @example
@@ -1310,24 +1274,28 @@ Export findings:
 - `src/aggregates/ProviderAccount/ProviderAccount.model.ts:62` `ProviderAccountStatus` (const) - missing @example
 - `src/aggregates/ProviderAccount/ProviderAccount.model.ts:74` `ProviderAccountStatus` (type) - missing @example
 - `src/aggregates/ProviderAccount/ProviderAccount.model.ts:82` `ProviderAccount` (class) - missing @example
-- `src/index.ts:23` `export * as Aggregates from "./aggregates/index.js";` (re-export) - missing @example
-- `src/index.ts:30` `export * as Entities from "./entities/index.js";` (re-export) - missing @example
-- `src/index.ts:37` `export * as Identity from "./identity/index.js";` (re-export) - missing @example
-- `src/index.ts:44` `export * as Values from "./values/index.js";` (re-export) - missing @example
-- `src/index.ts:15` `VERSION` (const) - missing @example
-
-### @beep/installer-dependencies-domain
-
-Path: `packages/installer-dependencies/domain`
-
-Export findings:
-- `src/aggregates/HostDependency/HostDependency.model.ts:21` `HostDependencyKind` (const) - missing @example
-- `src/aggregates/HostDependency/HostDependency.model.ts:33` `HostDependencyKind` (type) - missing @example
-- `src/aggregates/HostDependency/HostDependency.model.ts:41` `HostDependencyStatus` (const) - missing @example
-- `src/aggregates/HostDependency/HostDependency.model.ts:53` `HostDependencyStatus` (type) - missing @example
-- `src/aggregates/HostDependency/HostDependency.model.ts:61` `HostDependency` (class) - missing @example
-- `src/aggregates/HostDependency/index.ts:7` `export * from "./HostDependency.model.js";` (re-export) - missing @example
-- `src/aggregates/index.ts:9` `export * as HostDependency from "./HostDependency/index.js";` (re-export) - missing @example
+- `src/aggregates/SecretReference/index.ts:7` `export * from "./SecretReference.model.js";` (re-export) - missing @example
+- `src/aggregates/SecretReference/SecretReference.model.ts:22` `SecretReferencePurpose` (const) - missing @example
+- `src/aggregates/SecretReference/SecretReference.model.ts:39` `SecretReferencePurpose` (type) - missing @example
+- `src/aggregates/SecretReference/SecretReference.model.ts:47` `SecretReferenceStatus` (const) - missing @example
+- `src/aggregates/SecretReference/SecretReference.model.ts:63` `SecretReferenceStatus` (type) - missing @example
+- `src/aggregates/SecretReference/SecretReference.model.ts:71` `SecretReference` (class) - missing @example
+- `src/aggregates/StackManifest/index.ts:7` `export * from "./StackManifest.model.js";` (re-export) - missing @example
+- `src/aggregates/StackManifest/StackManifest.model.ts:22` `StackInstallerPlatform` (const) - missing @example
+- `src/aggregates/StackManifest/StackManifest.model.ts:34` `StackInstallerPlatform` (type) - missing @example
+- `src/aggregates/StackManifest/StackManifest.model.ts:42` `StackInstallerProvider` (const) - missing @example
+- `src/aggregates/StackManifest/StackManifest.model.ts:54` `StackInstallerProvider` (type) - missing @example
+- `src/aggregates/StackManifest/StackManifest.model.ts:62` `ValidationTier` (const) - missing @example
+- `src/aggregates/StackManifest/StackManifest.model.ts:80` `ValidationTier` (type) - missing @example
+- `src/aggregates/StackManifest/StackManifest.model.ts:88` `ValidationStatus` (const) - missing @example
+- `src/aggregates/StackManifest/StackManifest.model.ts:100` `ValidationStatus` (type) - missing @example
+- `src/aggregates/StackManifest/StackManifest.model.ts:108` `ManifestProvider` (class) - missing @example
+- `src/aggregates/StackManifest/StackManifest.model.ts:126` `ManifestDiscordChannel` (class) - missing @example
+- `src/aggregates/StackManifest/StackManifest.model.ts:144` `ManifestCapability` (class) - missing @example
+- `src/aggregates/StackManifest/StackManifest.model.ts:162` `AIStackManifest` (class) - missing @example
+- `src/aggregates/StackManifest/StackManifest.model.ts:185` `ValidationEvent` (class) - missing @example
+- `src/aggregates/StackManifest/StackManifest.model.ts:205` `P1aDryRunSnapshot` (class) - missing @example
+- `src/aggregates/StackManifest/StackManifest.model.ts:223` `P1LiveProofSnapshot` (class) - missing @example
 - `src/index.ts:23` `export * as Aggregates from "./aggregates/index.js";` (re-export) - missing @example
 - `src/index.ts:30` `export * as Entities from "./entities/index.js";` (re-export) - missing @example
 - `src/index.ts:37` `export * as Identity from "./identity/index.js";` (re-export) - missing @example
@@ -1763,66 +1731,47 @@ Export findings:
 - `src/index.ts:22` `export * from "./DuckDb.models.ts";` (re-export) - missing @example
 - `src/index.ts:30` `export * from "./DuckDb.service.ts";` (re-export) - missing @example
 
-### @beep/installer-workspace-domain
+### @beep/canvas-domain
 
-Path: `packages/installer-workspace/domain`
-
-Export findings:
-- `src/aggregates/index.ts:9` `export * as StackManifest from "./StackManifest/index.js";` (re-export) - missing @example
-- `src/aggregates/StackManifest/index.ts:7` `export * from "./StackManifest.model.js";` (re-export) - missing @example
-- `src/aggregates/StackManifest/StackManifest.model.ts:22` `StackInstallerPlatform` (const) - missing @example
-- `src/aggregates/StackManifest/StackManifest.model.ts:34` `StackInstallerPlatform` (type) - missing @example
-- `src/aggregates/StackManifest/StackManifest.model.ts:42` `StackInstallerProvider` (const) - missing @example
-- `src/aggregates/StackManifest/StackManifest.model.ts:54` `StackInstallerProvider` (type) - missing @example
-- `src/aggregates/StackManifest/StackManifest.model.ts:62` `ValidationTier` (const) - missing @example
-- `src/aggregates/StackManifest/StackManifest.model.ts:80` `ValidationTier` (type) - missing @example
-- `src/aggregates/StackManifest/StackManifest.model.ts:88` `ValidationStatus` (const) - missing @example
-- `src/aggregates/StackManifest/StackManifest.model.ts:100` `ValidationStatus` (type) - missing @example
-- `src/aggregates/StackManifest/StackManifest.model.ts:108` `ManifestProvider` (class) - missing @example
-- `src/aggregates/StackManifest/StackManifest.model.ts:126` `ManifestDiscordChannel` (class) - missing @example
-- `src/aggregates/StackManifest/StackManifest.model.ts:144` `ManifestCapability` (class) - missing @example
-- `src/aggregates/StackManifest/StackManifest.model.ts:162` `AIStackManifest` (class) - missing @example
-- `src/aggregates/StackManifest/StackManifest.model.ts:185` `ValidationEvent` (class) - missing @example
-- `src/aggregates/StackManifest/StackManifest.model.ts:205` `P1aDryRunSnapshot` (class) - missing @example
-- `src/aggregates/StackManifest/StackManifest.model.ts:223` `P1LiveProofSnapshot` (class) - missing @example
-- `src/index.ts:23` `export * as Aggregates from "./aggregates/index.js";` (re-export) - missing @example
-- `src/index.ts:30` `export * as Entities from "./entities/index.js";` (re-export) - missing @example
-- `src/index.ts:37` `export * as Identity from "./identity/index.js";` (re-export) - missing @example
-- `src/index.ts:44` `export * as Values from "./values/index.js";` (re-export) - missing @example
-- `src/index.ts:15` `VERSION` (const) - missing @example
-
-### @beep/installer-security-use-cases
-
-Path: `packages/installer-security/use-cases`
+Path: `packages/canvas/domain`
 
 Export findings:
-- `src/index.ts:23` `export * from "./public.js";` (re-export) - missing @example
-- `src/index.ts:15` `VERSION` (const) - missing @example
-- `src/public.ts:27` `SecretReferenceVerb` (class) - missing @example
-- `src/public.ts:47` `SecretReferencePlan` (class) - missing @example
-- `src/public.ts:65` `SecretReferenceValidationRequest` (class) - missing @example
-- `src/public.ts:86` `SecretReferenceValidationResult` (class) - missing @example
-- `src/public.ts:109` `SecretReferenceReadError` (class) - missing @example
-- `src/public.ts:126` `P1A_SECRET_REFERENCE_VERB_INPUTS` (const) - missing @example
-- `src/server.ts:44` `InstallerSecurityUseCases` (class) - missing @example
-
-### @beep/onepassword-cli
-
-Path: `packages/drivers/onepassword-cli`
-
-Export findings:
-- `src/index.ts:14` `export * from "./OnePasswordCli.errors.ts";` (re-export) - missing @example
-- `src/index.ts:22` `export * from "./OnePasswordCli.models.ts";` (re-export) - missing @example
-- `src/index.ts:30` `export * from "./OnePasswordCli.service.ts";` (re-export) - missing @example
-- `src/OnePasswordCli.errors.ts:22` `OnePasswordCliErrorOptions` (class) - missing @example
-- `src/OnePasswordCli.errors.ts:41` `OnePasswordCliError` (class) - missing @example
-- `src/OnePasswordCli.models.ts:20` `OnePasswordReferenceProbeStatus` (const) - missing @example
-- `src/OnePasswordCli.models.ts:32` `OnePasswordReferenceProbeStatus` (type) - missing @example
-- `src/OnePasswordCli.models.ts:40` `OnePasswordCliProcessResult` (class) - missing @example
-- `src/OnePasswordCli.models.ts:57` `OnePasswordCliAccount` (class) - missing @example
-- `src/OnePasswordCli.models.ts:73` `OnePasswordReferenceProbe` (class) - missing @example
-- `src/OnePasswordCli.service.ts:37` `OnePasswordCliRunner` (type) - missing @example
-- `src/OnePasswordCli.service.ts:143` `OnePasswordCli` (class) - missing @example
+- `src/aggregates/CanvasProject/CanvasProject.errors.ts:23` `CanvasProjectAlreadyArchived` (class) - missing @example
+- `src/aggregates/CanvasProject/CanvasProject.errors.ts:42` `CanvasProjectInvalidTransition` (class) - missing @example
+- `src/aggregates/CanvasProject/CanvasProject.errors.ts:81` `CanvasNodeAlreadyExists` (class) - missing @example
+- `src/aggregates/CanvasProject/CanvasProject.errors.ts:99` `CanvasNodeNotFound` (class) - missing @example
+- `src/aggregates/CanvasProject/CanvasProject.errors.ts:117` `CanvasProjectDomainError` (type) - missing @example
+- `src/aggregates/CanvasProject/CanvasProject.errors.ts:129` `CanvasProjectDomainError` (const) - missing @example; 1 schema annotation/type-alias gap(s)
+- `src/aggregates/CanvasProject/CanvasProject.model.ts:37` `CanvasNode` (class) - missing @example
+- `src/aggregates/CanvasProject/CanvasProject.model.ts:55` `CanvasProject` (class) - missing @example
+- `src/aggregates/CanvasProject/CanvasProject.model.ts:74` `CreateCanvasProjectInput` (class) - missing @example
+- `src/aggregates/CanvasProject/CanvasProject.model.ts:96` `create` (const) - missing @example
+- `src/aggregates/CanvasProject/CanvasProject.model.ts:121` `addNode` (const) - missing @example
+- `src/aggregates/CanvasProject/CanvasProject.model.ts:144` `removeNode` (const) - missing @example
+- `src/aggregates/CanvasProject/CanvasProject.model.ts:167` `archive` (const) - missing @example
+- `src/aggregates/CanvasProject/CanvasProject.model.ts:181` `reopen` (const) - missing @example
+- `src/aggregates/CanvasProject/CanvasProject.values.ts:21` `CanvasProjectId` (const) - missing @example
+- `src/aggregates/CanvasProject/CanvasProject.values.ts:36` `CanvasProjectId` (type) - missing @example
+- `src/aggregates/CanvasProject/CanvasProject.values.ts:44` `CanvasProjectTitle` (const) - missing @example
+- `src/aggregates/CanvasProject/CanvasProject.values.ts:58` `CanvasProjectTitle` (type) - missing @example
+- `src/aggregates/CanvasProject/CanvasProject.values.ts:66` `CanvasProjectStatus` (const) - missing @example
+- `src/aggregates/CanvasProject/CanvasProject.values.ts:79` `CanvasProjectStatus` (type) - missing @example
+- `src/aggregates/CanvasProject/CanvasProject.values.ts:87` `CanvasNodeId` (const) - missing @example
+- `src/aggregates/CanvasProject/CanvasProject.values.ts:102` `CanvasNodeId` (type) - missing @example
+- `src/aggregates/CanvasProject/CanvasProject.values.ts:110` `CanvasNodeKind` (const) - missing @example
+- `src/aggregates/CanvasProject/CanvasProject.values.ts:123` `CanvasNodeKind` (type) - missing @example
+- `src/aggregates/CanvasProject/CanvasProject.values.ts:131` `CanvasNodeLabel` (const) - missing @example
+- `src/aggregates/CanvasProject/CanvasProject.values.ts:145` `CanvasNodeLabel` (type) - missing @example
+- `src/aggregates/CanvasProject/index.ts:7` `export * from "./CanvasProject.errors.js";` (re-export) - missing @example
+- `src/aggregates/CanvasProject/index.ts:14` `export * from "./CanvasProject.model.js";` (re-export) - missing @example
+- `src/aggregates/CanvasProject/index.ts:21` `export * from "./CanvasProject.values.js";` (re-export) - missing @example
+- `src/aggregates/index.ts:13` `export * as CanvasProject from "./CanvasProject/index.js";` (re-export) - missing @example
+- `src/identity/Canvas.ts:21` `CanvasOperatorId` (const) - missing @example
+- `src/identity/Canvas.ts:31` `CanvasOperatorId` (type) - missing @example
+- `src/identity/index.ts:15` `export * as Canvas from "./Canvas.js";` (re-export) - missing @example
+- `src/index.ts:30` `export * as CanvasProject from "./aggregates/CanvasProject/index.js";` (re-export) - missing @example
+- `src/index.ts:37` `export * as Aggregates from "./aggregates/index.js";` (re-export) - missing @example
+- `src/index.ts:44` `export * as Identity from "./identity/index.js";` (re-export) - missing @example
 
 ### @beep/discord
 
@@ -1842,20 +1791,6 @@ Export findings:
 - `src/index.ts:22` `export * from "./Discord.models.ts";` (re-export) - missing @example
 - `src/index.ts:30` `export * from "./Discord.service.ts";` (re-export) - missing @example
 
-### @beep/installer-channels-use-cases
-
-Path: `packages/installer-channels/use-cases`
-
-Export findings:
-- `src/index.ts:23` `export * from "./public.js";` (re-export) - missing @example
-- `src/index.ts:15` `VERSION` (const) - missing @example
-- `src/public.ts:21` `DiscordChannelVerb` (class) - missing @example
-- `src/public.ts:41` `DiscordChannelPlan` (class) - missing @example
-- `src/public.ts:59` `DiscordLiveValidationRequest` (class) - missing @example
-- `src/public.ts:78` `DiscordLiveValidationResult` (class) - missing @example
-- `src/public.ts:97` `P1A_DISCORD_CHANNEL_VERB_INPUTS` (const) - missing @example
-- `src/server.ts:36` `InstallerChannelsUseCases` (class) - missing @example
-
 ### @beep/ai-provider-cli
 
 Path: `packages/drivers/ai-provider-cli`
@@ -1874,31 +1809,59 @@ Export findings:
 - `src/index.ts:22` `export * from "./AiProviderCli.models.ts";` (re-export) - missing @example
 - `src/index.ts:30` `export * from "./AiProviderCli.service.ts";` (re-export) - missing @example
 
-### @beep/installer-providers-use-cases
+### @beep/installer-use-cases
 
-Path: `packages/installer-providers/use-cases`
-
-Export findings:
-- `src/index.ts:23` `export * from "./public.js";` (re-export) - missing @example
-- `src/index.ts:15` `VERSION` (const) - missing @example
-- `src/public.ts:26` `ProviderAccountVerb` (class) - missing @example
-- `src/public.ts:46` `ProviderAccountPlan` (class) - missing @example
-- `src/public.ts:64` `ProviderAuthValidationResult` (class) - missing @example
-- `src/public.ts:86` `P1A_PROVIDER_ACCOUNT_VERB_INPUTS` (const) - missing @example
-- `src/server.ts:34` `InstallerProvidersUseCases` (class) - missing @example
-
-### @beep/installer-dependencies-use-cases
-
-Path: `packages/installer-dependencies/use-cases`
+Path: `packages/installer/use-cases`
 
 Export findings:
 - `src/index.ts:23` `export * from "./public.js";` (re-export) - missing @example
 - `src/index.ts:15` `VERSION` (const) - missing @example
-- `src/public.ts:21` `HostDependencyVerb` (class) - missing @example
-- `src/public.ts:41` `HostDependencyPlan` (class) - missing @example
-- `src/public.ts:59` `HostDependencyValidationResult` (class) - missing @example
-- `src/public.ts:78` `P1A_HOST_DEPENDENCY_VERB_INPUTS` (const) - missing @example
-- `src/server.ts:34` `InstallerDependenciesUseCases` (class) - missing @example
+- `src/public.ts:40` `InstallerDryRunVerb` (class) - missing @example
+- `src/public.ts:60` `HostDependencyPlan` (class) - missing @example
+- `src/public.ts:78` `HostDependencyValidationResult` (class) - missing @example
+- `src/public.ts:97` `ProviderAccountPlan` (class) - missing @example
+- `src/public.ts:115` `ProviderAuthValidationResult` (class) - missing @example
+- `src/public.ts:137` `SecretReferencePlan` (class) - missing @example
+- `src/public.ts:155` `SecretReferenceValidationRequest` (class) - missing @example
+- `src/public.ts:176` `SecretReferenceValidationResult` (class) - missing @example
+- `src/public.ts:199` `SecretReferenceReadError` (class) - missing @example
+- `src/public.ts:216` `DiscordChannelPlan` (class) - missing @example
+- `src/public.ts:234` `DiscordLiveValidationRequest` (class) - missing @example
+- `src/public.ts:253` `DiscordLiveValidationResult` (class) - missing @example
+- `src/public.ts:272` `WorkspaceDryRunPlan` (class) - missing @example
+- `src/public.ts:290` `P1ManualProofRequest` (class) - missing @example
+- `src/public.ts:312` `P1ManualProofResult` (class) - missing @example
+- `src/public.ts:328` `P1A_HOST_DEPENDENCY_VERB_INPUTS` (const) - missing @example
+- `src/public.ts:351` `P1A_SECRET_REFERENCE_VERB_INPUTS` (const) - missing @example
+- `src/public.ts:374` `P1A_PROVIDER_ACCOUNT_VERB_INPUTS` (const) - missing @example
+- `src/public.ts:397` `P1A_DISCORD_CHANNEL_VERB_INPUTS` (const) - missing @example
+- `src/public.ts:420` `P1A_WORKSPACE_VERB_INPUTS` (const) - missing @example
+- `src/public.ts:443` `P1A_INSTALLER_DRY_RUN_REGISTRY_INPUTS` (const) - missing @example
+- `src/public.ts:457` `P1A_DRY_RUN_SNAPSHOT_INPUT` (const) - missing @example
+- `src/server.ts:49` `HostDependencyUseCases` (class) - missing @example
+- `src/server.ts:75` `SecretReferenceUseCases` (class) - missing @example
+- `src/server.ts:96` `ProviderAccountUseCases` (class) - missing @example
+- `src/server.ts:120` `DiscordChannelUseCases` (class) - missing @example
+- `src/server.ts:140` `StackManifestUseCases` (class) - missing @example
+- `src/server.ts:163` `P1ManualProofWorkflow` (class) - missing @example
+
+### @beep/onepassword-cli
+
+Path: `packages/drivers/onepassword-cli`
+
+Export findings:
+- `src/index.ts:14` `export * from "./OnePasswordCli.errors.ts";` (re-export) - missing @example
+- `src/index.ts:22` `export * from "./OnePasswordCli.models.ts";` (re-export) - missing @example
+- `src/index.ts:30` `export * from "./OnePasswordCli.service.ts";` (re-export) - missing @example
+- `src/OnePasswordCli.errors.ts:22` `OnePasswordCliErrorOptions` (class) - missing @example
+- `src/OnePasswordCli.errors.ts:41` `OnePasswordCliError` (class) - missing @example
+- `src/OnePasswordCli.models.ts:20` `OnePasswordReferenceProbeStatus` (const) - missing @example
+- `src/OnePasswordCli.models.ts:32` `OnePasswordReferenceProbeStatus` (type) - missing @example
+- `src/OnePasswordCli.models.ts:40` `OnePasswordCliProcessResult` (class) - missing @example
+- `src/OnePasswordCli.models.ts:57` `OnePasswordCliAccount` (class) - missing @example
+- `src/OnePasswordCli.models.ts:73` `OnePasswordReferenceProbe` (class) - missing @example
+- `src/OnePasswordCli.service.ts:37` `OnePasswordCliRunner` (type) - missing @example
+- `src/OnePasswordCli.service.ts:143` `OnePasswordCli` (class) - missing @example
 
 ### @beep/architecture-lab-config
 
@@ -2093,6 +2056,14 @@ Export findings:
 - `src/index.ts:30` `export * as Domain from "./Domain.js";` (re-export) - missing @example
 - `src/index.ts:36` `export * as Parser from "./Parser.js";` (re-export) - missing @example
 - `src/index.ts:42` `export * as Printer from "./Printer.js";` (re-export) - missing @example
+
+### @beep/repo-ai-metrics
+
+Path: `packages/tooling/library/ai-metrics`
+
+Export findings:
+- `src/agent-effectiveness.ts:84` `AgentEffectivenessStatus` (type) - missing @example
+- `src/agent-effectiveness.ts:109` `AgentEffectivenessAnnotationValue` (type) - missing @example
 
 ### @beep/runpod
 
@@ -2338,53 +2309,53 @@ Export findings:
 - `src/next/models/AllowedDevOrigin.schema.ts:57` `AllowedDevOrigin` (type) - 1 unsafe example violation(s)
 - `src/next/models/ImageConfig.schema.ts:28` `LoaderValue` (const) - 1 schema annotation/type-alias gap(s)
 
-### @beep/installer-workspace-use-cases
+### @beep/canvas-use-cases
 
-Path: `packages/installer-workspace/use-cases`
-
-Export findings:
-- `src/index.ts:23` `export * from "./public.js";` (re-export) - missing @example
-- `src/index.ts:15` `VERSION` (const) - missing @example
-- `src/public.ts:26` `WorkspaceDryRunVerb` (class) - missing @example
-- `src/public.ts:46` `WorkspaceDryRunPlan` (class) - missing @example
-- `src/public.ts:64` `P1ManualProofRequest` (class) - missing @example
-- `src/public.ts:86` `P1ManualProofResult` (class) - missing @example
-- `src/public.ts:102` `P1A_WORKSPACE_VERB_INPUTS` (const) - missing @example
-- `src/public.ts:125` `P1A_DRY_RUN_SNAPSHOT_INPUT` (const) - missing @example
-- `src/server.ts:33` `InstallerWorkspaceUseCases` (class) - missing @example
-
-### @beep/installer-security-server
-
-Path: `packages/installer-security/server`
+Path: `packages/canvas/use-cases`
 
 Export findings:
-- `src/index.ts:23` `export * from "./Layer.js";` (re-export) - missing @example
-- `src/index.ts:15` `VERSION` (const) - missing @example
-- `src/Layer.ts:64` `makeInstallerSecurityServer` (const) - missing @example; 2 schema annotation/type-alias gap(s)
-- `src/Layer.ts:124` `InstallerSecurityServerLive` (const) - missing @example
-- `src/test.ts:17` `InstallerSecurityServerTest` (const) - missing @example
+- `src/aggregates/CanvasProject/CanvasProject.commands.ts:23` `CreateCanvasProjectCommand` (class) - missing @example
+- `src/aggregates/CanvasProject/CanvasProject.commands.ts:40` `ArchiveCanvasProjectCommand` (class) - missing @example
+- `src/aggregates/CanvasProject/CanvasProject.commands.ts:56` `AddCanvasNodeCommand` (class) - missing @example
+- `src/aggregates/CanvasProject/CanvasProject.commands.ts:73` `RemoveCanvasNodeCommand` (class) - missing @example
+- `src/aggregates/CanvasProject/CanvasProject.commands.ts:90` `GetCanvasProjectQuery` (class) - missing @example
+- `src/aggregates/CanvasProject/CanvasProject.commands.ts:106` `ListCanvasProjectsQuery` (class) - missing @example
+- `src/aggregates/CanvasProject/CanvasProject.errors.ts:22` `CANVAS_PROJECT_ACTION_UNAVAILABLE_REASON` (const) - missing @example
+- `src/aggregates/CanvasProject/CanvasProject.errors.ts:30` `CANVAS_PROJECT_CONFLICT_REASON` (const) - missing @example
+- `src/aggregates/CanvasProject/CanvasProject.errors.ts:38` `CanvasProjectNotFound` (class) - missing @example
+- `src/aggregates/CanvasProject/CanvasProject.errors.ts:55` `CanvasProjectConflict` (class) - missing @example
+- `src/aggregates/CanvasProject/CanvasProject.errors.ts:73` `CanvasProjectActionRejected` (class) - missing @example
+- `src/aggregates/CanvasProject/CanvasProject.errors.ts:93` `CanvasProjectActionFailed` (class) - missing @example
+- `src/aggregates/CanvasProject/CanvasProject.errors.ts:112` `CanvasProjectActionError` (type) - missing @example
+- `src/aggregates/CanvasProject/CanvasProject.errors.ts:124` `CanvasProjectActionError` (const) - missing @example; 1 schema annotation/type-alias gap(s)
+- `src/aggregates/CanvasProject/CanvasProject.repository.ts:23` `CanvasProjectRepositoryNotFound` (class) - missing @example
+- `src/aggregates/CanvasProject/CanvasProject.repository.ts:42` `CanvasProjectRepositoryConflict` (class) - missing @example
+- `src/aggregates/CanvasProject/CanvasProject.repository.ts:62` `CanvasProjectRepositoryUnavailable` (class) - missing @example
+- `src/aggregates/CanvasProject/CanvasProject.repository.ts:81` `CanvasProjectRepositoryError` (type) - missing @example
+- `src/aggregates/CanvasProject/CanvasProject.repository.ts:92` `CanvasProjectRepositoryShape` (interface) - missing @example
+- `src/aggregates/CanvasProject/CanvasProject.repository.ts:123` `CanvasProjectRepository` (class) - missing @example
+- `src/aggregates/CanvasProject/CanvasProject.service.ts:50` `toCanvasProjectActionError` (const) - missing @example
+- `src/aggregates/CanvasProject/CanvasProject.service.ts:96` `makeCanvasProjectUseCases` (const) - missing @example
+- `src/aggregates/CanvasProject/CanvasProject.use-cases.ts:30` `CanvasProjectUseCasesShape` (interface) - missing @example
+- `src/aggregates/CanvasProject/CanvasProject.use-cases.ts:57` `CanvasProjectUseCases` (class) - missing @example
+- `src/aggregates/CanvasProject/index.ts:7` `export * from "./CanvasProject.commands.js";` (re-export) - missing @example
+- `src/aggregates/CanvasProject/index.ts:14` `export * from "./CanvasProject.errors.js";` (re-export) - missing @example
+- `src/aggregates/CanvasProject/index.ts:21` `export * from "./CanvasProject.use-cases.js";` (re-export) - missing @example
+- `src/aggregates/CanvasProject/server.ts:14` `export * from "./CanvasProject.repository.js";` (re-export) - missing @example
+- `src/aggregates/CanvasProject/server.ts:21` `export { makeCanvasProjectUseCases, toCanvasProjectActionError } from "./CanvasProject.service.js";` (re-export) - missing @example
+- `src/aggregates/CanvasProject/server.ts:28` `export * from "./index.js";` (re-export) - missing @example
+- `src/index.ts:30` `export * from "./public.js";` (re-export) - missing @example
+- `src/public.ts:7` `export * as CanvasProject from "./aggregates/CanvasProject/index.js";` (re-export) - missing @example
+- `src/server.ts:7` `export * as CanvasProject from "./aggregates/CanvasProject/server.js";` (re-export) - missing @example
 
-### @beep/installer-channels-server
+### @beep/hubspot
 
-Path: `packages/installer-channels/server`
+Path: `packages/drivers/hubspot`
 
 Export findings:
-- `src/index.ts:23` `export * from "./Layer.js";` (re-export) - missing @example
-- `src/index.ts:15` `VERSION` (const) - missing @example
-- `src/Layer.ts:47` `makeInstallerChannelsServer` (const) - missing @example; 2 schema annotation/type-alias gap(s)
-- `src/Layer.ts:106` `InstallerChannelsServerLive` (const) - missing @example
-- `src/test.ts:17` `InstallerChannelsServerTest` (const) - missing @example
-
-### @beep/installer-providers-server
-
-Path: `packages/installer-providers/server`
-
-Export findings:
-- `src/index.ts:23` `export * from "./Layer.js";` (re-export) - missing @example
-- `src/index.ts:15` `VERSION` (const) - missing @example
-- `src/Layer.ts:53` `makeInstallerProvidersServer` (const) - missing @example
-- `src/Layer.ts:97` `InstallerProvidersServerLive` (const) - missing @example
-- `src/test.ts:17` `InstallerProvidersServerTest` (const) - missing @example
+- `src/index.ts:14` `export * from "./HubSpot.config.ts";` (re-export) - missing @example
+- `src/index.ts:21` `export * from "./HubSpot.errors.ts";` (re-export) - missing @example
+- `src/index.ts:28` `export * from "./HubSpot.service.ts";` (re-export) - missing @example
 
 ### @beep/ui
 
@@ -2988,16 +2959,39 @@ Export findings:
 - `src/types/component.ts:33` `ForwardStyledProps` (type) - missing summary; missing @example
 - `src/types/index.ts:5` `export * from "./component";` (re-export) - missing @example
 
-### @beep/installer-dependencies-server
+### @beep/sanity
 
-Path: `packages/installer-dependencies/server`
+Path: `packages/drivers/sanity`
+
+Export findings:
+- `src/index.ts:14` `export * from "./Sanity.config.ts";` (re-export) - missing @example
+- `src/index.ts:21` `export * from "./Sanity.errors.ts";` (re-export) - missing @example
+- `src/index.ts:28` `export * from "./Sanity.service.ts";` (re-export) - missing @example
+
+### @beep/installer-server
+
+Path: `packages/installer/server`
 
 Export findings:
 - `src/index.ts:23` `export * from "./Layer.js";` (re-export) - missing @example
 - `src/index.ts:15` `VERSION` (const) - missing @example
-- `src/Layer.ts:145` `makeInstallerDependenciesServer` (const) - missing @example
-- `src/Layer.ts:162` `InstallerDependenciesServerLive` (const) - missing @example
-- `src/test.ts:17` `InstallerDependenciesServerTest` (const) - missing @example
+- `src/Layer.ts:321` `makeHostDependencyServer` (const) - missing @example
+- `src/Layer.ts:338` `makeSecretReferenceServer` (const) - missing @example; 2 schema annotation/type-alias gap(s)
+- `src/Layer.ts:393` `makeProviderAccountServer` (const) - missing @example
+- `src/Layer.ts:435` `makeDiscordChannelServer` (const) - missing @example; 2 schema annotation/type-alias gap(s)
+- `src/Layer.ts:492` `makeStackManifestServer` (const) - missing @example
+- `src/Layer.ts:506` `makeP1ManualProofWorkflow` (const) - missing @example
+- `src/Layer.ts:669` `HostDependencyServerLive` (const) - missing @example
+- `src/Layer.ts:677` `SecretReferenceServerLive` (const) - missing @example
+- `src/Layer.ts:685` `ProviderAccountServerLive` (const) - missing @example
+- `src/Layer.ts:693` `DiscordChannelServerLive` (const) - missing @example
+- `src/Layer.ts:701` `StackManifestServerLive` (const) - missing @example
+- `src/Layer.ts:709` `InstallerConceptServerLive` (const) - missing @example
+- `src/Layer.ts:723` `P1ManualProofWorkflowLive` (const) - missing @example
+- `src/Layer.ts:731` `InstallerServerLive` (const) - missing @example
+- `src/Layer.ts:739` `runP1ManualProof` (const) - missing @example
+- `src/Layer.ts:752` `previewP1ManualProof` (const) - missing @example
+- `src/test.ts:17` `InstallerServerTest` (const) - missing @example
 
 ### @beep/agent-capability-use-cases
 
@@ -3066,24 +3060,6 @@ Export findings:
 - `src/index.ts:44` `export * from "./Layer.js";` (re-export) - missing @example
 - `src/Layer.ts:21` `ArchitectureLabServerLive` (const) - missing @example
 - `src/test.ts:21` `ArchitectureLabServerTest` (const) - missing @example
-
-### @beep/hubspot
-
-Path: `packages/drivers/hubspot`
-
-Export findings:
-- `src/index.ts:14` `export * from "./HubSpot.config.ts";` (re-export) - missing @example
-- `src/index.ts:21` `export * from "./HubSpot.errors.ts";` (re-export) - missing @example
-- `src/index.ts:28` `export * from "./HubSpot.service.ts";` (re-export) - missing @example
-
-### @beep/sanity
-
-Path: `packages/drivers/sanity`
-
-Export findings:
-- `src/index.ts:14` `export * from "./Sanity.config.ts";` (re-export) - missing @example
-- `src/index.ts:21` `export * from "./Sanity.errors.ts";` (re-export) - missing @example
-- `src/index.ts:28` `export * from "./Sanity.service.ts";` (re-export) - missing @example
 
 ### @beep/workspace-tables
 
@@ -3194,7 +3170,7 @@ Export findings:
 - `src/commands/CreatePackage/TsMorphIntegrationService.ts:219` `TsMorphIntegrationServiceShape` (type) - missing @example
 - `src/commands/CreatePackage/TsMorphIntegrationService.ts:232` `TsMorphIntegrationService` (class) - missing @example
 - `src/commands/CreatePackage/TsMorphIntegrationService.ts:256` `createTsMorphIntegrationService` (const) - missing @example
-- `src/commands/Docgen/index.ts:1114` `docgenCommand` (const) - missing @example
+- `src/commands/Docgen/index.ts:1170` `docgenCommand` (const) - missing @example
 - `src/commands/Docgen/internal/Operations.ts:84` `DocgenPackageStatus` (const) - missing @example
 - `src/commands/Docgen/internal/Operations.ts:99` `DocgenPackageStatus` (type) - missing @example
 - `src/commands/Docgen/internal/Operations.ts:113` `DocgenConfigDocument` (class) - missing @example
@@ -3407,7 +3383,7 @@ Export findings:
 - `src/commands/Quality/Tasks.ts:897` `sqlIntegrationConnectionUriFromEnvForTesting` (const) - missing @example
 - `src/commands/Quality/Tasks.ts:1054` `rootQualityStepsForTesting` (const) - missing @example
 - `src/commands/Quality/Tasks.ts:1309` `runQualityTaskStepGroupForTesting` (const) - missing @example
-- `src/commands/Reuse/index.ts:361` `reuseCommand` (const) - missing @example
+- `src/commands/Reuse/index.ts:517` `reuseCommand` (const) - missing @example
 - `src/commands/Reuse/internal/CodexRunner.ts:23` `CodexRunnerStage` (const) - missing @example
 - `src/commands/Reuse/internal/CodexRunner.ts:37` `CodexRunnerStage` (type) - missing @example
 - `src/commands/Reuse/internal/CodexRunner.ts:45` `CodexSmokeResult` (class) - missing @example
@@ -3460,8 +3436,8 @@ Export findings:
 - `src/commands/TsconfigSync.ts:622` `WorkspaceDescriptor` (class) - missing @example
 - `src/commands/TsconfigSync.ts:673` `TsconfigWithReferences` (class) - missing @example
 - `src/commands/TsconfigSync.ts:688` `TsconfigWithPaths` (class) - missing @example
-- `src/commands/TsconfigSync.ts:1695` `syncTsconfigAtRoot` (const) - missing @example
-- `src/commands/TsconfigSync.ts:1830` `tsconfigSyncCommand` (const) - missing @example
+- `src/commands/TsconfigSync.ts:1697` `syncTsconfigAtRoot` (const) - missing @example
+- `src/commands/TsconfigSync.ts:1832` `tsconfigSyncCommand` (const) - missing @example
 - `src/commands/VersionSync/index.ts:48` `versionSyncCommand` (const) - missing @example
 - `src/commands/VersionSync/internal/Handler.ts:70` `handleVersionSync` (const) - missing @example
 - `src/commands/VersionSync/internal/Models.ts:25` `VersionSyncError` (class) - missing @example
@@ -3521,7 +3497,7 @@ Export findings:
 - `src/commands/VersionSync/internal/updaters/PlainTextUpdater.ts:21` `updatePlainTextFile` (const) - missing @example
 - `src/commands/VersionSync/internal/updaters/YamlFileUpdater.ts:53` `updateYamlValue` (const) - missing @example
 - `src/commands/VersionSync/internal/updaters/YamlFileUpdater.ts:116` `replaceNodeVersionWithFile` (const) - missing @example
-- `src/index.ts:48` `export {
+- `src/index.ts:75` `export {
   /**
    * Code generation command for workspace barrels and exports.
    *
@@ -3530,7 +3506,7 @@ Export findings:
    */
   codegenCommand,
 } from "./commands/Codegen.js";` (re-export) - missing @example
-- `src/index.ts:90` `export {
+- `src/index.ts:117` `export {
   /**
    * Package scaffolding command for creating new workspace packages.
    *
@@ -3539,7 +3515,7 @@ Export findings:
    */
   createPackageCommand,
 } from "./commands/CreatePackage/index.js";` (re-export) - missing @example
-- `src/index.ts:105` `export {
+- `src/index.ts:132` `export {
   /**
    * Human-first docgen command group.
    *
@@ -3548,7 +3524,7 @@ Export findings:
    */
   docgenCommand,
 } from "./commands/Docgen/index.js";` (re-export) - missing @example
-- `src/index.ts:120` `export {
+- `src/index.ts:147` `export {
   /**
    * Command-first docs discovery command tree.
    *
@@ -3557,7 +3533,7 @@ Export findings:
    */
   docsCommand,
 } from "./commands/Docs.js";` (re-export) - missing @example
-- `src/index.ts:135` `export {
+- `src/index.ts:162` `export {
   /**
    * Dataset file curation command group.
    *
@@ -3566,7 +3542,7 @@ Export findings:
    */
   filesCommand,
 } from "./commands/Files/index.js";` (re-export) - missing @example
-- `src/index.ts:150` `export {
+- `src/index.ts:177` `export {
   /**
    * Graphiti operational command group.
    *
@@ -3575,7 +3551,7 @@ Export findings:
    */
   graphitiCommand,
 } from "./commands/Graphiti/index.js";` (re-export) - missing @example
-- `src/index.ts:165` `export {
+- `src/index.ts:192` `export {
   /**
    * Image and video curation command group.
    *
@@ -3584,7 +3560,7 @@ Export findings:
    */
   imageCommand,
 } from "./commands/Image/index.js";` (re-export) - missing @example
-- `src/index.ts:180` `export {
+- `src/index.ts:207` `export {
   /**
    * Effect laws command group.
    *
@@ -3593,7 +3569,7 @@ Export findings:
    */
   lawsCommand,
 } from "./commands/Laws/index.js";` (re-export) - missing @example
-- `src/index.ts:195` `export {
+- `src/index.ts:222` `export {
   /**
    * Lint policy command group.
    *
@@ -3602,7 +3578,7 @@ Export findings:
    */
   lintCommand,
 } from "./commands/Lint/index.js";` (re-export) - missing @example
-- `src/index.ts:210` `export {
+- `src/index.ts:237` `export {
   /**
    * Purge command for removing root/workspace build artifacts.
    *
@@ -3611,7 +3587,7 @@ Export findings:
    */
   purgeCommand,
 } from "./commands/Purge.js";` (re-export) - missing @example
-- `src/index.ts:252` `export {
+- `src/index.ts:279` `export {
   /**
    * Reuse-discovery command group.
    *
@@ -3620,7 +3596,7 @@ Export findings:
    */
   reuseCommand,
 } from "./commands/Reuse/index.js";` (re-export) - missing @example
-- `src/index.ts:267` `export {
+- `src/index.ts:294` `export {
   /**
    * Root CLI command that composes subcommands.
    *
@@ -3629,7 +3605,7 @@ Export findings:
    */
   rootCommand,
 } from "./commands/Root.js";` (re-export) - missing @example
-- `src/index.ts:282` `export {
+- `src/index.ts:309` `export {
   /**
    * Official data sync command for checked-in generated TypeScript modules.
    *
@@ -3638,7 +3614,7 @@ Export findings:
    */
   syncDataToTsCommand,
 } from "./commands/SyncDataToTs/index.js";` (re-export) - missing @example
-- `src/index.ts:297` `export {
+- `src/index.ts:324` `export {
   /**
    * Dependency topological sort command.
    *
@@ -3647,7 +3623,7 @@ Export findings:
    */
   topoSortCommand,
 } from "./commands/TopoSort.js";` (re-export) - missing @example
-- `src/index.ts:312` `export {
+- `src/index.ts:339` `export {
   /**
    * Tsconfig sync command for workspace tsconfig references and root aliases.
    *
@@ -3656,7 +3632,7 @@ Export findings:
    */
   tsconfigSyncCommand,
 } from "./commands/TsconfigSync.js";` (re-export) - missing @example
-- `src/index.ts:327` `export {
+- `src/index.ts:354` `export {
   /**
    * Version sync command for detecting and fixing version drift.
    *
@@ -3665,6 +3641,34 @@ Export findings:
    */
   versionSyncCommand,
 } from "./commands/VersionSync/index.js";` (re-export) - missing @example
+
+### @beep/canvas-server
+
+Path: `packages/canvas/server`
+
+Export findings:
+- `src/aggregates/CanvasProject/CanvasProject.http.ts:30` `CanvasProjectHttpStatus` (const) - missing @example
+- `src/aggregates/CanvasProject/CanvasProject.http.ts:43` `CanvasProjectHttpStatus` (type) - missing @example
+- `src/aggregates/CanvasProject/CanvasProject.http.ts:51` `CanvasProjectHttpResponse` (class) - missing @example
+- `src/aggregates/CanvasProject/CanvasProject.http.ts:68` `toCanvasProjectHttpError` (const) - missing @example
+- `src/aggregates/CanvasProject/CanvasProject.http.ts:89` `makeCanvasProjectHttpHandlers` (const) - missing @example
+- `src/aggregates/CanvasProject/CanvasProject.layer.ts:24` `makeCanvasProjectServer` (const) - missing @example
+- `src/aggregates/CanvasProject/CanvasProject.layer.ts:35` `CanvasProjectServer` (class) - missing @example
+- `src/aggregates/CanvasProject/CanvasProject.layer.ts:46` `CanvasProjectServerLayer` (const) - missing @example
+- `src/aggregates/CanvasProject/CanvasProject.repo.ts:37` `makeInMemoryCanvasProjectRepository` (const) - missing @example
+- `src/aggregates/CanvasProject/CanvasProject.repo.ts:81` `makeCanvasProjectRepository` (const) - missing @example
+- `src/aggregates/CanvasProject/CanvasProject.rpc.ts:17` `makeCanvasProjectRpcHandlers` (const) - missing @example
+- `src/aggregates/CanvasProject/CanvasProject.tools.ts:17` `CanvasProjectToolNames` (const) - missing @example
+- `src/aggregates/CanvasProject/CanvasProject.tools.ts:32` `makeCanvasProjectToolHandlers` (const) - missing @example
+- `src/aggregates/CanvasProject/index.ts:7` `export * from "./CanvasProject.http.js";` (re-export) - missing @example
+- `src/aggregates/CanvasProject/index.ts:14` `export * from "./CanvasProject.layer.js";` (re-export) - missing @example
+- `src/aggregates/CanvasProject/index.ts:21` `export * from "./CanvasProject.repo.js";` (re-export) - missing @example
+- `src/aggregates/CanvasProject/index.ts:28` `export * from "./CanvasProject.rpc.js";` (re-export) - missing @example
+- `src/aggregates/CanvasProject/index.ts:35` `export * from "./CanvasProject.tools.js";` (re-export) - missing @example
+- `src/index.ts:30` `export * as CanvasProject from "./aggregates/CanvasProject/index.js";` (re-export) - missing @example
+- `src/index.ts:37` `export * from "./Layer.js";` (re-export) - missing @example
+- `src/Layer.ts:17` `CanvasServerLive` (const) - missing @example
+- `src/test.ts:17` `CanvasServerTest` (const) - missing @example
 
 ### @beep/sandbox
 
@@ -3920,6 +3924,18 @@ Export findings:
 - `src/Worktree.ts:217` `pruneStaleWorktrees` (const) - missing @example
 - `src/Worktree.ts:243` `collectCommitShas` (const) - missing @example
 
+### @beep/oip-web
+
+Path: `apps/oip-web`
+
+Export findings:
+- `src/contact/index.ts:14` `export * from "./ContactSubmission.model.ts";` (re-export) - missing @example
+- `src/contact/index.ts:21` `export * from "./ContactSubmission.service.ts";` (re-export) - missing @example
+- `src/content/index.ts:14` `export * from "./OipContent.data.ts";` (re-export) - missing @example
+- `src/content/index.ts:22` `export * from "./OipContent.model.ts";` (re-export) - missing @example
+- `src/content/index.ts:30` `export * from "./OipContent.runtime.ts";` (re-export) - missing @example
+- `src/content/index.ts:38` `export * from "./OipSeo.ts";` (re-export) - missing @example
+
 ### @beep/shared-tables
 
 Path: `packages/shared/tables`
@@ -3937,6 +3953,13 @@ Export findings:
 - `src/table/index.ts:14` `export * as Table from "./Table.ts";` (re-export) - missing @example
 - `src/table/Table.ts:14` `export { EntityTable } from "@beep/drizzle";` (re-export) - missing @example
 
+### @beep/canvas
+
+Path: `apps/canvas`
+
+Export findings:
+- `src/index.ts:11` `VERSION` (const) - missing summary; missing @example
+
 ### @beep/semantic-web
 
 Path: `packages/foundation/capability/semantic-web`
@@ -3952,30 +3975,21 @@ Export findings:
 - `src/services/shacl-validation.ts:46` `ShaclSeverity` (const) - 1 schema annotation/type-alias gap(s)
 - `src/services/sparql-query.ts:42` `SparqlQueryProfile` (const) - 1 schema annotation/type-alias gap(s)
 
-### @beep/installer-workspace-server
-
-Path: `packages/installer-workspace/server`
-
-Export findings:
-- `src/index.ts:23` `export * from "./Layer.js";` (re-export) - missing @example
-- `src/index.ts:15` `VERSION` (const) - missing @example
-- `src/Layer.ts:32` `makeInstallerWorkspaceServer` (const) - missing @example
-- `src/Layer.ts:46` `InstallerWorkspaceServerLive` (const) - missing @example
-- `src/test.ts:17` `InstallerWorkspaceServerTest` (const) - missing @example
-
 ### @beep/stack-installer
 
 Path: `apps/stack-installer`
 
 Export findings:
 - `src/App.tsx:402` `App` (function) - missing @example
-- `src/dry-run-registry.ts:21` `p1aDryRunRegistry` (const) - missing @example
-- `src/dry-run-registry.ts:35` `p1aDryRunSnapshot` (const) - missing @example
+- `src/dry-run-registry.ts:17` `p1aDryRunRegistry` (const) - missing @example
+- `src/dry-run-registry.ts:25` `p1aDryRunSnapshot` (const) - missing @example
 - `src/index.ts:23` `export * from "./proof/P1ManualProof.js";` (re-export) - missing @example
 - `src/index.ts:15` `VERSION` (const) - missing @example
-- `src/proof/P1ManualProof.ts:43` `P1ManualProofSliceLayer` (const) - missing @example
-- `src/proof/P1ManualProof.ts:112` `runP1ManualProof` (const) - missing @example
-- `src/proof/P1ManualProof.ts:221` `previewP1ManualProof` (const) - missing @example
+- `src/proof/P1ManualProof.ts:9` `export {
+  InstallerServerLive as P1ManualProofSliceLayer,
+  previewP1ManualProof,
+  runP1ManualProof,
+} from "@beep/installer-server";` (re-export) - missing @example
 - `src/proof/P1ProofArtifacts.ts:20` `PROOF_FILE_NAME` (const) - missing @example
 - `src/proof/P1ProofArtifacts.ts:28` `COMMANDS_FILE_NAME` (const) - missing @example
 - `src/proof/P1ProofArtifacts.ts:36` `CHECKSUMS_FILE_NAME` (const) - missing @example
@@ -4060,6 +4074,20 @@ Export findings:
 - `src/index.ts:42` `ArchitectureLabProofResult` (class) - missing @example
 - `src/index.ts:59` `runArchitectureLabProof` (const) - missing @example
 
+### @beep/konva
+
+Path: `packages/drivers/konva`
+
+Export findings:
+- `src/index.ts:11` `VERSION` (const) - missing summary; missing @example
+
+### @beep/canvas-client
+
+Path: `packages/canvas/client`
+
+Export findings:
+- `src/index.ts:15` `VERSION` (const) - missing @example
+
 ### @beep/openai
 
 Path: `packages/drivers/openai`
@@ -4067,14 +4095,9 @@ Path: `packages/drivers/openai`
 Export findings:
 - `src/index.ts:12` `VERSION` (const) - missing summary; missing @example
 
-### @beep/opip-web
+### @beep/canvas-ui
 
-Path: `apps/opip-web`
+Path: `packages/canvas/ui`
 
 Export findings:
-- `src/contact/index.ts:14` `export * from "./ContactSubmission.model.ts";` (re-export) - missing @example
-- `src/contact/index.ts:21` `export * from "./ContactSubmission.service.ts";` (re-export) - missing @example
-- `src/content/index.ts:14` `export * from "./OpipContent.data.ts";` (re-export) - missing @example
-- `src/content/index.ts:22` `export * from "./OpipContent.model.ts";` (re-export) - missing @example
-- `src/content/index.ts:30` `export * from "./OpipContent.runtime.ts";` (re-export) - missing @example
-- `src/content/index.ts:38` `export * from "./OpipSeo.ts";` (re-export) - missing @example
+- `src/index.ts:15` `VERSION` (const) - missing @example

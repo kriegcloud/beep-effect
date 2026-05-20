@@ -33,7 +33,7 @@ Claude owns, when explicitly handed the lane:
 ## Default Boundaries
 
 - Default write scope is app-first: `apps/codedank-web/**`,
-  `apps/opip-web/**`, or the named app surface in the handoff.
+  `apps/oip-web/**`, or the named app surface in the handoff.
 - `packages/foundation/ui-system/ui/**` may be edited only when the mission
   brief explicitly says the behavior is a product-agnostic shared primitive,
   hook, style, or component that belongs in `@beep/ui`.

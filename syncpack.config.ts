@@ -20,7 +20,7 @@ const config = {
     "packages/tooling/test-kit/*/package.json",
     "packages/tooling/tool/*/package.json",
     "apps/codedank-web/package.json",
-    "apps/opip-web/package.json",
+    "apps/oip-web/package.json",
     "apps/professional-desktop/package.json",
     "apps/stack-installer/package.json",
     "apps/professional-runtime-proof/package.json",

@@ -17,7 +17,7 @@
     "packages/tooling/test-kit/*/dtslint/**/*.tst.*",
     "packages/tooling/tool/*/dtslint/**/*.tst.*",
     "apps/codedank-web/dtslint/**/*.tst.*",
-    "apps/opip-web/dtslint/**/*.tst.*",
+    "apps/oip-web/dtslint/**/*.tst.*",
     "apps/professional-desktop/dtslint/**/*.tst.*",
     "apps/stack-installer/dtslint/**/*.tst.*",
     "apps/professional-runtime-proof/dtslint/**/*.tst.*",

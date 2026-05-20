@@ -21,7 +21,7 @@
     "packages/tooling/test-kit/*",
     "packages/tooling/tool/*",
     "apps/codedank-web",
-    "apps/opip-web",
+    "apps/oip-web",
     "apps/professional-desktop",
     "apps/stack-installer",
     "apps/professional-runtime-proof",

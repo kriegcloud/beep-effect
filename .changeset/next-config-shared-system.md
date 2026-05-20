@@ -1,6 +1,6 @@
 ---
 "@beep/repo-configs": minor
-"@beep/opip-web": minor
+"@beep/oip-web": minor
 "@beep/identity": minor
 "@beep/schema": minor
 "@beep/codedank-web": patch

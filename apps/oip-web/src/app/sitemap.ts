@@ -1,0 +1,33 @@
+/**
+ * Sitemap for oip.law.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
+
+import type { MetadataRoute } from "next";
+import { oipSiteContent } from "../content";
+
+/**
+ * Returns the OIP sitemap.
+ *
+ * @example
+ * ```ts
+ * import sitemap from "@beep/oip-web/app/sitemap"
+ *
+ * console.log(sitemap()[0]?.url)
+ * ```
+ *
+ * @category constructors
+ * @since 0.0.0
+ */
+export default function sitemap(): MetadataRoute.Sitemap {
+  return [
+    {
+      url: oipSiteContent.metadata.siteUrl,
+      lastModified: "2026-05-14",
+      changeFrequency: "weekly",
+      priority: 1,
+    },
+  ];
+}
