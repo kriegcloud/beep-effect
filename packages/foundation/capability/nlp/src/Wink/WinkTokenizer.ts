@@ -203,9 +203,9 @@ const collectSentences = (
 
     const [safeStart, safeEnd] = resolvedSpan.value;
     const sentenceTokens = pipe(tokenArray, A.drop(safeStart), A.take(safeEnd - safeStart + 1));
-    const firstToken = sentenceTokens[0];
+    const maybeFirstToken = A.head(sentenceTokens);
 
-    if (P.isUndefined(firstToken)) {
+    if (O.isNone(maybeFirstToken)) {
       failure = O.some(
         new SentenceSpanFailure({
           reason: "Resolved sentence span produced no tokens.",
@@ -216,6 +216,7 @@ const collectSentences = (
       return;
     }
 
+    const firstToken = maybeFirstToken.value;
     const lastToken = A.reduce(sentenceTokens, firstToken, (_, token) => token);
 
     A.appendInPlace(

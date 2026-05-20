@@ -54,6 +54,7 @@ const SimilarityMethod = SimilarityMethodKit.pipe(
 
 const loadSimilarityRuntime = (): SimilarityRuntime => require("wink-nlp/utilities/similarity");
 
+// effect-native-migration: WONTFIX (wink-nlp FFI requires native Set)
 const toNativeTermSet = (terms: ReadonlyArray<string>): Set<string> => new Set(terms);
 
 /**

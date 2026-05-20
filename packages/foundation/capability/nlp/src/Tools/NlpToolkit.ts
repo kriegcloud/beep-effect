@@ -797,13 +797,19 @@ export const NlpToolkitLive: Layer.Layer<
           Chunk.toReadonlyArray(document.sentences),
           A.map((sentence) => {
             const tokens = Chunk.toReadonlyArray(sentence.tokens);
-            const first = tokens[0];
-            const last = tokens[tokens.length - 1];
 
             return {
-              end: last?.end ?? 0,
+              end: pipe(
+                A.last(tokens),
+                O.map((token) => token.end),
+                O.getOrElse(() => 0)
+              ),
               index: sentence.index,
-              start: first?.start ?? 0,
+              start: pipe(
+                A.head(tokens),
+                O.map((token) => token.start),
+                O.getOrElse(() => 0)
+              ),
               text: sentence.text,
               tokenCount: A.length(tokens),
             };
