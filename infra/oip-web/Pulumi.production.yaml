@@ -5,14 +5,11 @@ config:
   oipWeb:awsRegion: us-east-1
   oipWeb:cloudflareZoneId: 144f81bdbe12b3a7530cdcc8d56b13cc
   oipWeb:legacyCloudflareZoneId: 0d26e874202f4579081926dc38b3bf80
-  oipWeb:legacyProductionDnsRecordImportId: 0d26e874202f4579081926dc38b3bf80/35cf765786b3cd8bc520ac03108cc510
   oipWeb:legacyProductionDomain: opip.law
   oipWeb:legacyStagingDomain: staging.opip.law
-  oipWeb:legacyWwwDnsRecordImportId: 0d26e874202f4579081926dc38b3bf80/1516314c56abf7a0e6c5c1159a38faa1
   oipWeb:legacyWwwDomain: www.opip.law
   oipWeb:projectName: oip-web
   oipWeb:productionBranch: main
-  oipWeb:productionDnsRecordImportId: 144f81bdbe12b3a7530cdcc8d56b13cc/3264c7c0b6bc9f6fd64e3f637e8af03b
   oipWeb:productionDomain: oip.law
   oipWeb:pulumiStateBucketName: opip-law-pulumi-state
   oipWeb:repository: kriegcloud/beep-effect
