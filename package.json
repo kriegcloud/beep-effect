@@ -102,6 +102,7 @@
     "build-storybook": "bunx turbo run build-storybook --filter=@beep/ui",
     "test:storybook": "bunx turbo run test:storybook --filter=@beep/ui",
     "docgen": "bunx turbo run docgen && bun run docs:aggregate",
+    "docgen:local": "bun run beep docgen local",
     "docgen:affected": "bunx turbo run docgen --affected && bun run docs:aggregate",
     "jsdoc:inventory": "bun run beep quality jsdoc-inventory",
     "repo-exports:catalog": "bun run beep quality repo-exports-catalog",

@@ -18,6 +18,7 @@ import * as S from "effect/Schema";
 import { Command, Flag } from "effect/unstable/cli";
 import * as jsonc from "jsonc-parser";
 import { renderBiomeJson } from "../Shared/BiomeJson.js";
+import { runDocgenLocal } from "./internal/Local.js";
 import {
   aggregateGeneratedDocs,
   analyzePackageDocumentation,
@@ -74,11 +75,21 @@ const outputFlag = Flag.string("output").pipe(
   Flag.withDescription("Write output to a specific file path"),
   Flag.optional
 );
+const localBaseFlag = Flag.string("base").pipe(
+  Flag.withDefault("origin/main"),
+  Flag.withDescription("Git base ref used for local changed-file discovery")
+);
+const localHeadFlag = Flag.string("head").pipe(
+  Flag.withDefault("HEAD"),
+  Flag.withDescription("Git head ref used for local changed-file discovery")
+);
 const inputFlag = Flag.string("input").pipe(
   Flag.withDescription("Read input from a specific file path"),
   Flag.optional
 );
 const jsonFlag = Flag.boolean("json").pipe(Flag.withDescription("Emit machine-readable JSON output"));
+const planFlag = Flag.boolean("plan").pipe(Flag.withDescription("Print the local docgen plan without executing it"));
+const fullFlag = Flag.boolean("full").pipe(Flag.withDescription("Run the canonical full docgen proof"));
 const allFlag = Flag.boolean("all").pipe(Flag.withDescription("Run against every configured docgen package"));
 const changedFilesFlag = Flag.boolean("changed-files").pipe(
   Flag.withDescription("Run against packages touched by working-tree TypeScript changes only")
@@ -186,6 +197,11 @@ const parallelFlag = Flag.integer("parallel").pipe(
   Flag.withAlias("j"),
   Flag.withDefault(4),
   Flag.withDescription("Maximum number of packages to process concurrently")
+);
+const localParallelFlag = Flag.integer("parallel").pipe(
+  Flag.withAlias("j"),
+  Flag.withDefault(1),
+  Flag.withDescription("Maximum number of local docgen packages to process concurrently")
 );
 
 const encodeJson = S.encodeUnknownEffect(S.UnknownFromJsonString);
@@ -597,6 +613,46 @@ const docgenAggregateCommand = Command.make(
     )
   )
 ).pipe(Command.withDescription("Copy generated package docs into the current root docs layout"));
+
+const docgenLocalCommand = Command.make(
+  "local",
+  {
+    package: packageFlag,
+    base: localBaseFlag,
+    head: localHeadFlag,
+    parallel: localParallelFlag,
+    plan: planFlag,
+    full: fullFlag,
+    json: jsonFlag,
+  },
+  Effect.fn(
+    function* ({ package: packageSelector, base, head, parallel, plan, full, json }) {
+      yield* runDocgenLocal({
+        base,
+        full,
+        head,
+        json,
+        packageSelector,
+        parallel,
+        plan,
+      });
+    },
+    Effect.catchTag(
+      "DomainError",
+      Effect.fn(function* (error) {
+        process.exitCode = 1;
+        yield* Console.error(`docgen: ${error.message}`);
+      })
+    ),
+    Effect.catchTag(
+      "NoSuchFileError",
+      Effect.fn(function* (error) {
+        process.exitCode = 1;
+        yield* Console.error(`docgen: ${error.message}`);
+      })
+    )
+  )
+).pipe(Command.withDescription("Run a bounded local docgen proof for changed package surfaces"));
 
 const docgenAnalyzeCommand = Command.make(
   "analyze",
@@ -1133,6 +1189,7 @@ export const docgenCommand = Command.make("docgen", {}, printDocgenIndex).pipe(
     docgenGenerateCommand,
     docgenRunCommand,
     docgenAggregateCommand,
+    docgenLocalCommand,
     docgenAnalyzeCommand,
     docgenCheckCommand,
     docgenQualityCommand,

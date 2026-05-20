@@ -11,8 +11,9 @@
     "tstyche.json",
     "vitest.shared.ts"
   ],
-  "globalEnv": ["TURBO_TOKEN", "TURBO_TEAM"],
   "globalPassThroughEnv": [
+    "TURBO_TOKEN",
+    "TURBO_TEAM",
     "NODE_TLS_REJECT_UNAUTHORIZED",
     "PORTLESS_*",
     "AWS_*",

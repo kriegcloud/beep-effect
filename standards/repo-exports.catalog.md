@@ -20,9 +20,9 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | packagesWithPublicExports | 76 |
 | packagesWithoutPublicExports | 1 |
 | missingWorkspaceMetadata | 0 |
-| importSpecifiers | 911 |
-| publicExportEntries | 13342 |
-| uniquePackageSymbols | 5373 |
+| importSpecifiers | 912 |
+| publicExportEntries | 13353 |
+| uniquePackageSymbols | 5383 |
 
 ## Seed Discovery Proof
 
@@ -87,7 +87,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | 48 | `@beep/workspace-tables` | `packages/workspace/tables` | has-public-exports | 4 | 7 | 5 |
 | 49 | `@beep/db-admin` | `packages/_internal/db-admin` | has-public-exports | 5 | 15 | 6 |
 | 50 | `@beep/architecture-lab-client` | `packages/architecture-lab/client` | has-public-exports | 2 | 6 | 6 |
-| 51 | `@beep/repo-cli` | `packages/tooling/tool/cli` | has-public-exports | 83 | 851 | 517 |
+| 51 | `@beep/repo-cli` | `packages/tooling/tool/cli` | has-public-exports | 84 | 862 | 527 |
 | 52 | `@beep/shared-server` | `packages/shared/server` | has-public-exports | 2 | 2 | 1 |
 | 53 | `@beep/canvas-server` | `packages/canvas/server` | has-public-exports | 4 | 18 | 16 |
 | 54 | `@beep/shared-config` | `packages/shared/config` | has-public-exports | 2 | 2 | 1 |
@@ -10165,7 +10165,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli` | `codegenCommand` | const | `packages/tooling/tool/cli/src/commands/Codegen.ts:257` | CLI command that scans a package's `src/` directory and generates (or previews) |
 | `@beep/repo-cli` | `codexCommand` | const | `packages/tooling/tool/cli/src/commands/Codex.ts:134` | Codex helper command group. |
 | `@beep/repo-cli` | `createPackageCommand` | const | `packages/tooling/tool/cli/src/commands/CreatePackage/index.ts:16` | Package creation command. |
-| `@beep/repo-cli` | `docgenCommand` | const | `packages/tooling/tool/cli/src/commands/Docgen/index.ts:1128` | Human-first docgen command suite. |
+| `@beep/repo-cli` | `docgenCommand` | const | `packages/tooling/tool/cli/src/commands/Docgen/index.ts:1184` | Human-first docgen command suite. |
 | `@beep/repo-cli` | `docsCommand` | const | `packages/tooling/tool/cli/src/commands/Docs.ts:244` | Command-first docs discovery entrypoint used by agent config surfaces. |
 | `@beep/repo-cli` | `filesCommand` | const | `packages/tooling/tool/cli/src/commands/Files/Files.command.ts:447` | File curation command group. |
 | `@beep/repo-cli` | `graphitiCommand` | const | `packages/tooling/tool/cli/src/commands/Graphiti/index.ts:96` | Graphiti command group. |
@@ -10319,7 +10319,18 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/commands/CreatePackage/TsMorphIntegrationService` | `TsMorphMutationKind` | const | `packages/tooling/tool/cli/src/commands/CreatePackage/TsMorphIntegrationService.ts:23` | Supported AST mutation categories required by create-package. |
 | `@beep/repo-cli/commands/CreatePackage/TsMorphIntegrationService` | `TsMorphMutationKind` | type | `packages/tooling/tool/cli/src/commands/CreatePackage/TsMorphIntegrationService.ts:39` | Supported AST mutation categories required by create-package. |
 | `@beep/repo-cli/commands/CreatePackage/TsMorphIntegrationService` | `TsMorphMutationOutcome` | type | `packages/tooling/tool/cli/src/commands/CreatePackage/TsMorphIntegrationService.ts:184` | Outcome for one mutation. |
-| `@beep/repo-cli/commands/Docgen/index` | `docgenCommand` | const | `packages/tooling/tool/cli/src/commands/Docgen/index.ts:1128` | Human-first docgen command suite. |
+| `@beep/repo-cli/commands/Docgen/index` | `docgenCommand` | const | `packages/tooling/tool/cli/src/commands/Docgen/index.ts:1184` | Human-first docgen command suite. |
+| `@beep/repo-cli/commands/Docgen/internal/Local` | `buildDocgenLocalPlan` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/Local.ts:867` | Build a local docgen plan from repository state and command options. |
+| `@beep/repo-cli/commands/Docgen/internal/Local` | `DocgenLocalFullReason` | class | `packages/tooling/tool/cli/src/commands/Docgen/internal/Local.ts:202` | Reason local docgen must escalate to the full proof. |
+| `@beep/repo-cli/commands/Docgen/internal/Local` | `docgenLocalFullReasonsForTesting` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/Local.ts:830` | Resolve changed files that require the full docgen proof. |
+| `@beep/repo-cli/commands/Docgen/internal/Local` | `DocgenLocalMode` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/Local.ts:137` | Local docgen execution mode selected by the planner. |
+| `@beep/repo-cli/commands/Docgen/internal/Local` | `DocgenLocalMode` | type | `packages/tooling/tool/cli/src/commands/Docgen/internal/Local.ts:156` | Local docgen execution mode selected by the planner. |
+| `@beep/repo-cli/commands/Docgen/internal/Local` | `DocgenLocalPlan` | class | `packages/tooling/tool/cli/src/commands/Docgen/internal/Local.ts:235` | Planned local docgen proof. |
+| `@beep/repo-cli/commands/Docgen/internal/Local` | `DocgenLocalSelectedPackage` | class | `packages/tooling/tool/cli/src/commands/Docgen/internal/Local.ts:175` | Package selected for a local docgen run. |
+| `@beep/repo-cli/commands/Docgen/internal/Local` | `docgenLocalTurboArgsForTesting` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/Local.ts:808` | Build Turbo argv for local docgen targets. |
+| `@beep/repo-cli/commands/Docgen/internal/Local` | `DocgenLocalTurboTask` | class | `packages/tooling/tool/cli/src/commands/Docgen/internal/Local.ts:270` | Turbo dry-run package summary used by local docgen. |
+| `@beep/repo-cli/commands/Docgen/internal/Local` | `runDocgenLocal` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/Local.ts:901` | Run the bounded local docgen proof. |
+| `@beep/repo-cli/commands/Docgen/internal/Local` | `selectDocgenLocalPackagesForTesting` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/Local.ts:773` | Select package-local docgen targets for changed files. |
 | `@beep/repo-cli/commands/Docgen/internal/Operations` | `aggregateGeneratedDocs` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/Operations.ts:1478` | Aggregate generated package docs into the current root docs layout. |
 | `@beep/repo-cli/commands/Docgen/internal/Operations` | `analyzePackageDocumentation` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/Operations.ts:1303` | Analyze a package for missing docgen-required JSDoc. |
 | `@beep/repo-cli/commands/Docgen/internal/Operations` | `assertNoOrphanDocgenConfigPaths` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/Operations.ts:465` | Fail when stale package-local docgen configs exist outside current workspaces. |
@@ -10996,7 +11007,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/index` | `codegenCommand` | const | `packages/tooling/tool/cli/src/commands/Codegen.ts:257` | CLI command that scans a package's `src/` directory and generates (or previews) |
 | `@beep/repo-cli/index` | `codexCommand` | const | `packages/tooling/tool/cli/src/commands/Codex.ts:134` | Codex helper command group. |
 | `@beep/repo-cli/index` | `createPackageCommand` | const | `packages/tooling/tool/cli/src/commands/CreatePackage/index.ts:16` | Package creation command. |
-| `@beep/repo-cli/index` | `docgenCommand` | const | `packages/tooling/tool/cli/src/commands/Docgen/index.ts:1128` | Human-first docgen command suite. |
+| `@beep/repo-cli/index` | `docgenCommand` | const | `packages/tooling/tool/cli/src/commands/Docgen/index.ts:1184` | Human-first docgen command suite. |
 | `@beep/repo-cli/index` | `docsCommand` | const | `packages/tooling/tool/cli/src/commands/Docs.ts:244` | Command-first docs discovery entrypoint used by agent config surfaces. |
 | `@beep/repo-cli/index` | `filesCommand` | const | `packages/tooling/tool/cli/src/commands/Files/Files.command.ts:447` | File curation command group. |
 | `@beep/repo-cli/index` | `graphitiCommand` | const | `packages/tooling/tool/cli/src/commands/Graphiti/index.ts:96` | Graphiti command group. |

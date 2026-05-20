@@ -36,6 +36,14 @@ Phase 0 produces read-only evidence:
 
 No quality command behavior changes belong in the first proof.
 
+## Local Docgen Lane
+
+The first implementation slice adds `bun run docgen:local` for local agent and
+edit-loop relief. It preserves `bun run docgen` as the canonical full docgen
+proof, keeps CI docgen semantics unchanged, and scopes local work to packages
+selected from branch plus dirty file changes unless docgen tooling or global
+inputs require an explicit `--full` run.
+
 ## Reading Order
 
 - [SPEC.md](./SPEC.md) - research contract and quality semantics
