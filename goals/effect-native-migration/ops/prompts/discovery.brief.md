@@ -20,16 +20,22 @@ assigned package you write native-usage findings; you do not fix anything.
   files headed "Do not edit"), `node_modules`, re-export lines, and `@beep/utils`
   wrapper module internals.
 
+## Violation = method call / static / constructor only (SPEC §2)
+Flag only native **method calls**, **statics**, and **constructors**. Object-literal
+spread/merge `{ ...a, ...b }`, computed-key literals `{ [k]: v }`, bracket index
+access/assignment (`arr[0]`, `record[key]`, `match[n]`), and `.length` reads are
+language syntax/properties — **out of scope**, never flag them.
+
 ## What to flag (SPEC §3 → target)
 - **JSON**: `JSON.parse(` / `JSON.stringify(` → `S.fromJsonString`+`S.decodeUnknownEffect`
   (or `S.encodeUnknownEffect`) if a schema exists; else `S.UnknownFromJsonString`
   with `needsHumanDecision:true` + note "model schema later".
 - **String**: native string methods on a string value: `.split/.trim/.trimStart/.trimEnd/.toLowerCase/.toUpperCase/.replace/.replaceAll/.startsWith/.endsWith/.padStart/.padEnd/.repeat/.slice/.substring/.charAt/.normalize/.localeCompare` → `Str.*`.
-- **Array**: native array prototype on an array value: `.find/.findIndex/.some/.every/.map/.filter/.reduce/.flatMap/.sort/.includes/.indexOf/.lastIndexOf/.forEach/.flat/.slice/.at/.reverse/.concat/.join`; index access that should be `A.get/A.head/A.last`; empty/non-empty branching → `A.match`. → `A.*`.
-- **Object**: `Object.keys/values/entries/assign/fromEntries/freeze/getOwnPropertyNames`, spread-merge of records, string-keyed records → `Struct.*` (struct ops) or `R.*` (string-keyed). NEVER suggest converting a plain object to an `S.Class`/`S.Struct` schema (SPEC §5 Object rule; that is schema authoring, a non-goal).
-- **Map**: `new Map(`, `Map<…>` type annotations, native `.get/.set/.has/.delete` → `HashMap` (immutable default) or `R` (string keys). `MutableHashMap` ONLY for local hot-loop accumulation that never escapes → `needsHumanDecision:true`.
-- **Set**: `new Set(`, `Set<…>`, native `.add/.has/.delete` → `HashSet`. `MutableHashSet` only justified-local → `needsHumanDecision:true`.
-- **Date**: `new Date(`, `Date.now()`, native date arithmetic → `DateTime` (instants) or `Duration` (spans). Ambiguous instant-vs-span → `needsHumanDecision:true`.
+- **Array**: native array prototype **method calls** on an array value: `.find/.findIndex/.some/.every/.map/.filter/.reduce/.flatMap/.sort/.includes/.indexOf/.lastIndexOf/.forEach/.flat/.slice/.at/.reverse/.concat/.join` → `A.*`. (NOT `arr[i]` index access, NOT `arr.length`.)
+- **Object**: native **static helpers** `Object.keys/values/entries/assign/fromEntries/freeze/getOwnPropertyNames` → `Struct.*` / `R.*`. (NOT object-literal spread/merge, computed-key literals, or `record[key]` access — those are syntax.) NEVER convert a plain object to an `S.Class`/`S.Struct` schema (SPEC §5; schema authoring is a non-goal).
+- **Map**: `new Map(` constructor, `Map<…>` type annotations, native `.get/.set/.has/.delete` method calls → `HashMap` (immutable default) or `R` (string keys). `MutableHashMap` ONLY for local hot-loop accumulation that never escapes → `needsHumanDecision:true`.
+- **Set**: `new Set(` / `new WeakSet(` constructor, `Set<…>`, native `.add/.has/.delete` → `HashSet`. `MutableHashSet` only justified-local → `needsHumanDecision:true`.
+- **Date**: `new Date(`, `Date.now()`, native Date prototype methods (`.getTime/.toISOString/...`) → `DateTime` (instants) or `Duration` (spans). Ambiguous instant-vs-span → `needsHumanDecision:true`.
 
 ## CRITICAL — do NOT flag (already Effect-native / not targeted)
 - Namespaced calls: `A.*`, `O.*`, `R.*`, `S.*`, `Str.*`, `Effect.*`, `Stream.*`,

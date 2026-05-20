@@ -21,17 +21,17 @@ never overrides it.
 Scan every in-scope module under `{{PACKAGE_PATH}}` (TypeScript source; see
 exclusions). Flag:
 
-- **Array** — native array prototype methods used where an `effect/Array`(`A`)
-  helper exists: `.find/.findIndex/.some/.every/.map/.filter/.reduce/.flatMap/.sort/.includes/.at`,
-  index access that should be `A.get`/`A.head`/`A.last`, empty/non-empty
-  branching that should be `A.match`.
-- **String** — native string methods: `.split/.trim/.toLowerCase/.toUpperCase/.replace/.replaceAll/.startsWith/.endsWith/.includes/.repeat/.padStart/.padEnd/.slice`.
-- **Object** — native object usage: `Object.keys/values/entries/assign/fromEntries/freeze`,
-  spread-merge that should be `Struct`/`Record`, string-keyed records.
-- **Map** — `new Map(...)`, `Map` type annotations, `.get/.set/.has/.delete` on
-  native maps.
-- **Set** — `new Set(...)`, `Set` type annotations, `.add/.has/.delete`.
-- **Date** — `new Date(...)`, `Date.now()`, native date arithmetic.
+A violation is a native **method call**, **static**, or **constructor** only.
+Language syntax/property — object-literal spread `{ ...a, ...b }`, computed-key
+literals `{ [k]: v }`, bracket index access/assignment (`arr[0]`, `record[key]`,
+`match[n]`), and `.length` reads/branching — is **out of scope** (SPEC §2).
+
+- **Array** — native array prototype **method calls**: `.find/.findIndex/.some/.every/.map/.filter/.reduce/.flatMap/.sort/.includes/.indexOf/.forEach/.flat/.join/.slice/.at`. (NOT `arr[i]` index access or `arr.length`.)
+- **String** — native string **methods**: `.split/.trim/.toLowerCase/.toUpperCase/.replace/.replaceAll/.startsWith/.endsWith/.includes/.repeat/.padStart/.padEnd/.slice`.
+- **Object** — native object **static helpers**: `Object.keys/values/entries/assign/fromEntries/freeze`. (NOT spread/merge, computed-key literals, or `record[key]` access.)
+- **Map** — `new Map(...)` constructor, `Map` type annotations, native `.get/.set/.has/.delete` method calls on native maps.
+- **Set** — `new Set(...)` / `new WeakSet(...)` constructor, `Set` type annotations, native `.add/.has/.delete`.
+- **Date** — `new Date(...)`, `Date.now()`, native Date prototype methods (`.getTime/.toISOString/...`).
 - **JSON** — `JSON.parse(...)`, `JSON.stringify(...)`.
 
 ### Test/fixture special case

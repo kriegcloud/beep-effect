@@ -20,6 +20,22 @@ wrappers where importable.
   (native `.split`/`.trim`/`.toLowerCase`/`.toUpperCase`/`.replace`, etc.). All
   other categories are ignored in tests/fixtures for this goal.
 
+**What counts as a violation (normative).** A violation is a native **prototype
+method call** (`arr.map(...)`, `s.replace(...)`, `date.getTime()`), a native
+**static** (`Object.keys`, `JSON.parse`, `Date.now`), or a native **constructor**
+(`new Map/Set/WeakSet/Date`). The following are **language syntax / property
+access, NOT native helpers, and are out of scope** (the repo's own
+`bun run lint` does not flag them):
+
+- object-literal spread/merge `{ ...a, ...b }` and computed-key literals `{ [k]: v }`;
+- bracket index access/assignment `arr[0]`, `record[key]`, `record[key] = v`, and
+  `RegExpMatchArray` capture-group reads `match[n]`;
+- `.length` reads and `.length`-based empty/non-empty branching.
+
+(Migrating such sites to `A.head`/`A.get`/`R.get`/`R.set` is a *welcome* idiomatic
+improvement but is never *required* by this goal and is never flagged as a
+violation.)
+
 **Out of scope (hard exclusions — never edit or scan)**
 
 - `.repos/**` — vendored upstream subtrees, including the `effect-v4` source.
@@ -100,18 +116,20 @@ deterministically; only the listed ambiguous cases get `needsHumanDecision`.
   `S.UnknownFromJsonString` (decodes to `unknown`) and set
   `needsHumanDecision` with a note to model a schema later. Never leave a raw
   `JSON.parse`/`JSON.stringify` in in-scope code.
-- **Array/String/Struct — direct replacement.** Replace native prototype
-  methods with the mapped helper (e.g. `arr.find` → `A.findFirst`,
-  `arr.sort` → `A.sort(order)` with an explicit `Order`, `s.split` →
-  `Str.split`, empty/non-empty branching → `A.match`). Resolve the import per
-  §4.
-- **Object — struct/record ops only, never schema authoring.** Replace native
-  object operations (`Object.keys/values/entries/assign/fromEntries/freeze`,
-  spread-merge) with `effect/Struct` / `effect/Record` helpers. Do **NOT**
-  convert a plain object into an `S.Class`/`S.Struct` schema — that is new schema
-  authoring, a §8 non-goal. (SKILL Law #24 prefers `S.Class` for *domain object
-  schemas*, a separate concern from replacing native struct operations; see
-  `research/grill-with-docs-findings.md` F2.)
+- **Array/String — direct replacement of method calls.** Replace native
+  prototype **method calls** with the mapped helper (e.g. `arr.find` →
+  `A.findFirst`, `arr.sort` → `A.sort(order)` with an explicit `Order`,
+  `arr.includes` → `A.contains`, `s.split` → `Str.split`). Resolve the import per
+  §4. `.length` reads and bracket index access are not method calls — out of
+  scope per §2.
+- **Object — native static helpers only, never schema authoring.** Replace native
+  object **static helpers** (`Object.keys/values/entries/assign/fromEntries/freeze`)
+  with `effect/Struct` / `effect/Record` helpers. Object-literal spread/merge,
+  computed-key literals, and string-keyed index access/assignment are syntax, not
+  helpers — out of scope per §2. Do **NOT** convert a plain object into an
+  `S.Class`/`S.Struct` schema — that is new schema authoring, a §8 non-goal.
+  (SKILL Law #24 prefers `S.Class` for *domain object schemas*, a separate
+  concern; see `research/grill-with-docs-findings.md` F2.)
 
 ## 6. Inventory schemas
 
