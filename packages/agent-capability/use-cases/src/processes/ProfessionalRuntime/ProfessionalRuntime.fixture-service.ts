@@ -7,6 +7,7 @@
 import { A } from "@beep/utils";
 import { Effect, HashMap, HashSet } from "effect";
 import * as O from "effect/Option";
+import * as S from "effect/Schema";
 import type { ProposeCandidateOutputSet } from "./ProfessionalRuntime.commands.js";
 import type {
   CandidateOutputSet,
@@ -52,7 +53,8 @@ const sameScope = (left: RuntimeScope, right: RuntimeScope): boolean =>
 const sameOrderedStrings = (left: ReadonlyArray<string>, right: ReadonlyArray<string>): boolean =>
   left.length === right.length && A.every(left, (value, index) => value === right[index]);
 
-const toPlainJson = (value: unknown): string => JSON.stringify(value);
+// TODO(effect-native-migration): model schema
+const toPlainJson = (value: unknown): string => S.encodeUnknownSync(S.UnknownFromJsonString)(value);
 
 const spanIdsFromEvidence = (evidence: RuntimeEvidenceRef): ReadonlyArray<string> => [
   ...(evidence.spanId === undefined ? [] : [evidence.spanId]),
