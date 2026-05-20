@@ -2,7 +2,7 @@
 
 ## Status
 
-Phase 0 research complete; implementation slice selected
+Phase 1 local doctor and annotation-plan loop live-proofed for PR readiness
 
 ## Mission
 
@@ -41,10 +41,23 @@ or server configuration.
 
 ## Current Recommendation
 
-Implement the no-mutation agent-effectiveness doctor and annotation-plan loop
-first. The synthesis deliberately defers Phoenix writes, datasets, experiments,
-prompt management, and backend drivers until the repo-owned local trust gate
-and privacy-checked annotation schema exist.
+Use the implemented no-mutation agent-effectiveness doctor and annotation-plan
+loop as the trust gate before any Phoenix write path. The Phase 1 live proof is
+recorded in [history/outputs/phase1-live-proof.md](./history/outputs/phase1-live-proof.md).
+The synthesis still defers Phoenix writes, datasets, experiments, prompt
+management, and backend drivers until the repo-owned local trust gate and
+privacy-checked annotation schema prove useful.
+
+## Implemented Phase 1 Commands
+
+- `beep agent-effectiveness doctor --json`
+- `beep agent-effectiveness annotations plan --json`
+- `beep agent-effectiveness annotations check --json`
+
+The commands are report-only. They inspect Phoenix reachability/project
+inventory, local AI metrics evidence, and the JSDoc worker-eval report, then
+produce sanitized metadata-only annotation proposals. They do not write to
+Phoenix or mutate agent configuration.
 
 ## Reading Order
 

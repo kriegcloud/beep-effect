@@ -20,9 +20,9 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | packagesWithPublicExports | 68 |
 | packagesWithoutPublicExports | 1 |
 | missingWorkspaceMetadata | 0 |
-| importSpecifiers | 882 |
-| publicExportEntries | 13018 |
-| uniquePackageSymbols | 5232 |
+| importSpecifiers | 884 |
+| publicExportEntries | 13102 |
+| uniquePackageSymbols | 5258 |
 
 ## Seed Discovery Proof
 
@@ -63,7 +63,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | 24 | `@beep/workspace-domain` | `packages/workspace/domain` | has-public-exports | 12 | 35 | 11 |
 | 25 | `@beep/face-detection` | `packages/drivers/face-detection` | has-public-exports | 5 | 72 | 20 |
 | 26 | `@beep/repo-docgen` | `packages/tooling/tool/docgen` | has-public-exports | 9 | 72 | 64 |
-| 27 | `@beep/repo-ai-metrics` | `packages/tooling/library/ai-metrics` | has-public-exports | 17 | 549 | 167 |
+| 27 | `@beep/repo-ai-metrics` | `packages/tooling/library/ai-metrics` | has-public-exports | 18 | 630 | 192 |
 | 28 | `@beep/runpod` | `packages/drivers/runpod` | has-public-exports | 6 | 363 | 149 |
 | 29 | `@beep/ffmpeg` | `packages/drivers/ffmpeg` | has-public-exports | 5 | 105 | 31 |
 | 30 | `@beep/observability` | `packages/foundation/capability/observability` | has-public-exports | 4 | 115 | 98 |
@@ -84,7 +84,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | 45 | `@beep/workspace-tables` | `packages/workspace/tables` | has-public-exports | 4 | 7 | 5 |
 | 46 | `@beep/db-admin` | `packages/_internal/db-admin` | has-public-exports | 5 | 15 | 6 |
 | 47 | `@beep/architecture-lab-client` | `packages/architecture-lab/client` | has-public-exports | 2 | 6 | 6 |
-| 48 | `@beep/repo-cli` | `packages/tooling/tool/cli` | has-public-exports | 81 | 841 | 509 |
+| 48 | `@beep/repo-cli` | `packages/tooling/tool/cli` | has-public-exports | 82 | 844 | 510 |
 | 49 | `@beep/shared-server` | `packages/shared/server` | has-public-exports | 2 | 2 | 1 |
 | 50 | `@beep/shared-config` | `packages/shared/config` | has-public-exports | 2 | 2 | 1 |
 | 51 | `@beep/sandbox` | `packages/foundation/capability/sandbox` | has-public-exports | 30 | 786 | 238 |
@@ -7141,6 +7141,29 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | Import | Symbol | Kind | Source | Summary |
 |---|---|---|---|---|
 | `@beep/repo-ai-metrics` | `addAiMetricsOutcomeLabel` | const | `packages/tooling/library/ai-metrics/src/scorecard.ts:603` | Add or replace the current structured human label for a task. |
+| `@beep/repo-ai-metrics` | `AgentEffectivenessAiMetricsSection` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:359` | AI-metrics local evidence section for the doctor report. |
+| `@beep/repo-ai-metrics` | `AgentEffectivenessAnnotationCheckFinding` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:535` | One validation finding for an annotation plan. |
+| `@beep/repo-ai-metrics` | `AgentEffectivenessAnnotationCheckReport` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:559` | Report emitted by `agent-effectiveness annotations check`. |
+| `@beep/repo-ai-metrics` | `agentEffectivenessAnnotationCheckReportToJson` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:1855` | Encode an annotation-check report as JSON. |
+| `@beep/repo-ai-metrics` | `AgentEffectivenessAnnotationPlan` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:508` | Dry-run annotation plan for Phase 1. |
+| `@beep/repo-ai-metrics` | `AgentEffectivenessAnnotationPlanInput` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:185` | Input for building a dry-run annotation plan. |
+| `@beep/repo-ai-metrics` | `agentEffectivenessAnnotationPlanToJson` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:1829` | Encode an annotation plan as JSON. |
+| `@beep/repo-ai-metrics` | `AgentEffectivenessAnnotationValue` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:97` | Primitive annotation value allowed in local Phase 1 plans. |
+| `@beep/repo-ai-metrics` | `AgentEffectivenessAnnotationValue` | type | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:109` | Runtime type for `AgentEffectivenessAnnotationValue`. |
+| `@beep/repo-ai-metrics` | `AgentEffectivenessDoctorInput` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:144` | Input for the Phase 1 agent-effectiveness doctor. |
+| `@beep/repo-ai-metrics` | `AgentEffectivenessDoctorReport` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:447` | Phase 1 agent-effectiveness doctor report. |
+| `@beep/repo-ai-metrics` | `agentEffectivenessDoctorReportToJson` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:1803` | Encode a doctor report as JSON. |
+| `@beep/repo-ai-metrics` | `AgentEffectivenessDoctorSummary` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:422` | Aggregate summary emitted by the doctor report. |
+| `@beep/repo-ai-metrics` | `AgentEffectivenessError` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:122` | Error raised by agent-effectiveness report helpers. |
+| `@beep/repo-ai-metrics` | `AgentEffectivenessForwarderSummary` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:300` | Latest forwarder summary from derived AI-metrics storage. |
+| `@beep/repo-ai-metrics` | `AgentEffectivenessJsdocWorkerSection` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:390` | JSDoc worker-eval section for the doctor report. |
+| `@beep/repo-ai-metrics` | `AgentEffectivenessPhoenixProject` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:214` | Summary for one Phoenix project. |
+| `@beep/repo-ai-metrics` | `AgentEffectivenessPhoenixSection` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:242` | Read-only Phoenix health and inventory section. |
+| `@beep/repo-ai-metrics` | `AgentEffectivenessPlannedAnnotation` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:476` | One local-only annotation row that could be written to Phoenix later. |
+| `@beep/repo-ai-metrics` | `AgentEffectivenessScorecardSummary` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:328` | Latest scorecard summary from derived AI-metrics storage. |
+| `@beep/repo-ai-metrics` | `AgentEffectivenessSourceCoverage` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:273` | Source coverage row derived from AI-metrics storage. |
+| `@beep/repo-ai-metrics` | `AgentEffectivenessStatus` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:72` | Status emitted by agent-effectiveness reports. |
+| `@beep/repo-ai-metrics` | `AgentEffectivenessStatus` | type | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:84` | Runtime type for `AgentEffectivenessStatus`. |
 | `@beep/repo-ai-metrics` | `AgentSession` | class | `packages/tooling/library/ai-metrics/src/models.ts:415` | Session-level transcript metadata under an agent task. |
 | `@beep/repo-ai-metrics` | `AgentTask` | class | `packages/tooling/library/ai-metrics/src/models.ts:383` | Canonical unit of analysis for coding-agent metrics. |
 | `@beep/repo-ai-metrics` | `AgentTurn` | class | `packages/tooling/library/ai-metrics/src/models.ts:451` | Turn-level transcript event normalized from local agent logs. |
@@ -7275,6 +7298,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-ai-metrics` | `ConfigSnapshot` | class | `packages/tooling/library/ai-metrics/src/models.ts:354` | Versioned snapshot of agent-facing repository configuration. |
 | `@beep/repo-ai-metrics` | `configSnapshotToJson` | const | `packages/tooling/library/ai-metrics/src/config-snapshot.ts:552` | Render a config snapshot result as JSON. |
 | `@beep/repo-ai-metrics` | `decryptEncryptedRawArchiveEnvelope` | const | `packages/tooling/library/ai-metrics/src/archive.ts:362` | Decrypt an archive envelope for package-level verification. |
+| `@beep/repo-ai-metrics` | `DEFAULT_AGENT_EFFECTIVENESS_WORKER_EVAL_REPORT_PATH` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:35` | Stable default pointer used to locate the latest checked-in JSDoc worker-eval evidence. |
 | `@beep/repo-ai-metrics` | `discoverAiMetricsSources` | const | `packages/tooling/library/ai-metrics/src/source-discovery.ts:617` | Discover local AI metrics transcript sources for the smoke target. |
 | `@beep/repo-ai-metrics` | `ensureAiMetricsDerivedStorage` | const | `packages/tooling/library/ai-metrics/src/derived-storage.ts:643` | Ensure the AI metrics derived DuckDB schema exists and has P4 columns. |
 | `@beep/repo-ai-metrics` | `forwarderRunResultToJson` | const | `packages/tooling/library/ai-metrics/src/forwarder.ts:854` | Render a durable forwarder run result as JSON. |
@@ -7285,6 +7309,9 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-ai-metrics` | `listAiMetricsBenchmarkCases` | const | `packages/tooling/library/ai-metrics/src/scorecard.ts:760` | List deploy-safe benchmark cases. |
 | `@beep/repo-ai-metrics` | `listAiMetricsRetentionInventory` | const | `packages/tooling/library/ai-metrics/src/retention.ts:544` | List retained AI metrics raw archive objects and derived/report outputs. |
 | `@beep/repo-ai-metrics` | `locateLatestAiMetricsMirrorBundle` | const | `packages/tooling/library/ai-metrics/src/mirror.ts:540` | Locate the latest local mirror bundle pointer for a data root. |
+| `@beep/repo-ai-metrics` | `makeAgentEffectivenessAnnotationCheckReport` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:1774` | Check a local annotation plan for Phase 1 privacy and schema safety. |
+| `@beep/repo-ai-metrics` | `makeAgentEffectivenessAnnotationPlan` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:1661` | Build a sanitized local-only annotation plan. |
+| `@beep/repo-ai-metrics` | `makeAgentEffectivenessDoctorReport` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:1332` | Build the report-only Phase 1 agent-effectiveness doctor report. |
 | `@beep/repo-ai-metrics` | `makeAiMetricsConfigSnapshot` | const | `packages/tooling/library/ai-metrics/src/config-snapshot.ts:429` | Build a deterministic snapshot of repo-owned agent-facing configuration. |
 | `@beep/repo-ai-metrics` | `makeAiMetricsInstallApplyDryRunResult` | const | `packages/tooling/library/ai-metrics/src/install.ts:1219` | Resolve the P5a dry-run apply result. |
 | `@beep/repo-ai-metrics` | `makeAiMetricsInstallDoctorResult` | const | `packages/tooling/library/ai-metrics/src/install.ts:1120` | Evaluate the P5a install doctor contract checks. |
@@ -7323,6 +7350,33 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-ai-metrics` | `writeAiMetricsConfigSnapshotArtifacts` | const | `packages/tooling/library/ai-metrics/src/config-snapshot.ts:482` | Persist a config snapshot manifest and latest pointer for future diff attribution. |
 | `@beep/repo-ai-metrics` | `writeAiMetricsDerivedStorage` | const | `packages/tooling/library/ai-metrics/src/derived-storage.ts:1024` | Project sanitized AI metrics records into DuckDB and export Parquet snapshots. |
 | `@beep/repo-ai-metrics` | `writeEncryptedRawArchiveObject` | const | `packages/tooling/library/ai-metrics/src/archive.ts:251` | Write one raw transcript file into the encrypted content-addressed archive. |
+| `@beep/repo-ai-metrics/agent-effectiveness` | `AgentEffectivenessAiMetricsSection` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:359` | AI-metrics local evidence section for the doctor report. |
+| `@beep/repo-ai-metrics/agent-effectiveness` | `AgentEffectivenessAnnotationCheckFinding` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:535` | One validation finding for an annotation plan. |
+| `@beep/repo-ai-metrics/agent-effectiveness` | `AgentEffectivenessAnnotationCheckReport` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:559` | Report emitted by `agent-effectiveness annotations check`. |
+| `@beep/repo-ai-metrics/agent-effectiveness` | `agentEffectivenessAnnotationCheckReportToJson` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:1855` | Encode an annotation-check report as JSON. |
+| `@beep/repo-ai-metrics/agent-effectiveness` | `AgentEffectivenessAnnotationPlan` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:508` | Dry-run annotation plan for Phase 1. |
+| `@beep/repo-ai-metrics/agent-effectiveness` | `AgentEffectivenessAnnotationPlanInput` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:185` | Input for building a dry-run annotation plan. |
+| `@beep/repo-ai-metrics/agent-effectiveness` | `agentEffectivenessAnnotationPlanToJson` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:1829` | Encode an annotation plan as JSON. |
+| `@beep/repo-ai-metrics/agent-effectiveness` | `AgentEffectivenessAnnotationValue` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:97` | Primitive annotation value allowed in local Phase 1 plans. |
+| `@beep/repo-ai-metrics/agent-effectiveness` | `AgentEffectivenessAnnotationValue` | type | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:109` | Runtime type for `AgentEffectivenessAnnotationValue`. |
+| `@beep/repo-ai-metrics/agent-effectiveness` | `AgentEffectivenessDoctorInput` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:144` | Input for the Phase 1 agent-effectiveness doctor. |
+| `@beep/repo-ai-metrics/agent-effectiveness` | `AgentEffectivenessDoctorReport` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:447` | Phase 1 agent-effectiveness doctor report. |
+| `@beep/repo-ai-metrics/agent-effectiveness` | `agentEffectivenessDoctorReportToJson` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:1803` | Encode a doctor report as JSON. |
+| `@beep/repo-ai-metrics/agent-effectiveness` | `AgentEffectivenessDoctorSummary` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:422` | Aggregate summary emitted by the doctor report. |
+| `@beep/repo-ai-metrics/agent-effectiveness` | `AgentEffectivenessError` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:122` | Error raised by agent-effectiveness report helpers. |
+| `@beep/repo-ai-metrics/agent-effectiveness` | `AgentEffectivenessForwarderSummary` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:300` | Latest forwarder summary from derived AI-metrics storage. |
+| `@beep/repo-ai-metrics/agent-effectiveness` | `AgentEffectivenessJsdocWorkerSection` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:390` | JSDoc worker-eval section for the doctor report. |
+| `@beep/repo-ai-metrics/agent-effectiveness` | `AgentEffectivenessPhoenixProject` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:214` | Summary for one Phoenix project. |
+| `@beep/repo-ai-metrics/agent-effectiveness` | `AgentEffectivenessPhoenixSection` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:242` | Read-only Phoenix health and inventory section. |
+| `@beep/repo-ai-metrics/agent-effectiveness` | `AgentEffectivenessPlannedAnnotation` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:476` | One local-only annotation row that could be written to Phoenix later. |
+| `@beep/repo-ai-metrics/agent-effectiveness` | `AgentEffectivenessScorecardSummary` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:328` | Latest scorecard summary from derived AI-metrics storage. |
+| `@beep/repo-ai-metrics/agent-effectiveness` | `AgentEffectivenessSourceCoverage` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:273` | Source coverage row derived from AI-metrics storage. |
+| `@beep/repo-ai-metrics/agent-effectiveness` | `AgentEffectivenessStatus` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:72` | Status emitted by agent-effectiveness reports. |
+| `@beep/repo-ai-metrics/agent-effectiveness` | `AgentEffectivenessStatus` | type | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:84` | Runtime type for `AgentEffectivenessStatus`. |
+| `@beep/repo-ai-metrics/agent-effectiveness` | `DEFAULT_AGENT_EFFECTIVENESS_WORKER_EVAL_REPORT_PATH` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:35` | Stable default pointer used to locate the latest checked-in JSDoc worker-eval evidence. |
+| `@beep/repo-ai-metrics/agent-effectiveness` | `makeAgentEffectivenessAnnotationCheckReport` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:1774` | Check a local annotation plan for Phase 1 privacy and schema safety. |
+| `@beep/repo-ai-metrics/agent-effectiveness` | `makeAgentEffectivenessAnnotationPlan` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:1661` | Build a sanitized local-only annotation plan. |
+| `@beep/repo-ai-metrics/agent-effectiveness` | `makeAgentEffectivenessDoctorReport` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:1332` | Build the report-only Phase 1 agent-effectiveness doctor report. |
 | `@beep/repo-ai-metrics/archive` | `AiMetricsArchiveError` | class | `packages/tooling/library/ai-metrics/src/archive.ts:35` | Error raised by AI metrics encrypted archive helpers. |
 | `@beep/repo-ai-metrics/archive` | `AiMetricsEncryptedRawArchiveEnvelope` | class | `packages/tooling/library/ai-metrics/src/archive.ts:57` | Encrypted raw transcript archive envelope stored on disk. |
 | `@beep/repo-ai-metrics/archive` | `AiMetricsRawArchiveKey` | const | `packages/tooling/library/ai-metrics/src/archive.ts:115` | Redacted base64 AES-256-GCM key used for raw archive encryption. |
@@ -7361,6 +7415,29 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-ai-metrics/forwarder` | `renderAiMetricsForwarderTimerPlan` | const | `packages/tooling/library/ai-metrics/src/forwarder.ts:374` | Render a systemd user timer that repeatedly runs the forwarder with locking and status evidence. |
 | `@beep/repo-ai-metrics/forwarder` | `runAiMetricsForwarder` | const | `packages/tooling/library/ai-metrics/src/forwarder.ts:750` | Run durable ingest: encrypted raw archive, DuckDB projection, and Parquet export. |
 | `@beep/repo-ai-metrics/index` | `addAiMetricsOutcomeLabel` | const | `packages/tooling/library/ai-metrics/src/scorecard.ts:603` | Add or replace the current structured human label for a task. |
+| `@beep/repo-ai-metrics/index` | `AgentEffectivenessAiMetricsSection` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:359` | AI-metrics local evidence section for the doctor report. |
+| `@beep/repo-ai-metrics/index` | `AgentEffectivenessAnnotationCheckFinding` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:535` | One validation finding for an annotation plan. |
+| `@beep/repo-ai-metrics/index` | `AgentEffectivenessAnnotationCheckReport` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:559` | Report emitted by `agent-effectiveness annotations check`. |
+| `@beep/repo-ai-metrics/index` | `agentEffectivenessAnnotationCheckReportToJson` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:1855` | Encode an annotation-check report as JSON. |
+| `@beep/repo-ai-metrics/index` | `AgentEffectivenessAnnotationPlan` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:508` | Dry-run annotation plan for Phase 1. |
+| `@beep/repo-ai-metrics/index` | `AgentEffectivenessAnnotationPlanInput` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:185` | Input for building a dry-run annotation plan. |
+| `@beep/repo-ai-metrics/index` | `agentEffectivenessAnnotationPlanToJson` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:1829` | Encode an annotation plan as JSON. |
+| `@beep/repo-ai-metrics/index` | `AgentEffectivenessAnnotationValue` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:97` | Primitive annotation value allowed in local Phase 1 plans. |
+| `@beep/repo-ai-metrics/index` | `AgentEffectivenessAnnotationValue` | type | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:109` | Runtime type for `AgentEffectivenessAnnotationValue`. |
+| `@beep/repo-ai-metrics/index` | `AgentEffectivenessDoctorInput` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:144` | Input for the Phase 1 agent-effectiveness doctor. |
+| `@beep/repo-ai-metrics/index` | `AgentEffectivenessDoctorReport` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:447` | Phase 1 agent-effectiveness doctor report. |
+| `@beep/repo-ai-metrics/index` | `agentEffectivenessDoctorReportToJson` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:1803` | Encode a doctor report as JSON. |
+| `@beep/repo-ai-metrics/index` | `AgentEffectivenessDoctorSummary` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:422` | Aggregate summary emitted by the doctor report. |
+| `@beep/repo-ai-metrics/index` | `AgentEffectivenessError` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:122` | Error raised by agent-effectiveness report helpers. |
+| `@beep/repo-ai-metrics/index` | `AgentEffectivenessForwarderSummary` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:300` | Latest forwarder summary from derived AI-metrics storage. |
+| `@beep/repo-ai-metrics/index` | `AgentEffectivenessJsdocWorkerSection` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:390` | JSDoc worker-eval section for the doctor report. |
+| `@beep/repo-ai-metrics/index` | `AgentEffectivenessPhoenixProject` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:214` | Summary for one Phoenix project. |
+| `@beep/repo-ai-metrics/index` | `AgentEffectivenessPhoenixSection` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:242` | Read-only Phoenix health and inventory section. |
+| `@beep/repo-ai-metrics/index` | `AgentEffectivenessPlannedAnnotation` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:476` | One local-only annotation row that could be written to Phoenix later. |
+| `@beep/repo-ai-metrics/index` | `AgentEffectivenessScorecardSummary` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:328` | Latest scorecard summary from derived AI-metrics storage. |
+| `@beep/repo-ai-metrics/index` | `AgentEffectivenessSourceCoverage` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:273` | Source coverage row derived from AI-metrics storage. |
+| `@beep/repo-ai-metrics/index` | `AgentEffectivenessStatus` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:72` | Status emitted by agent-effectiveness reports. |
+| `@beep/repo-ai-metrics/index` | `AgentEffectivenessStatus` | type | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:84` | Runtime type for `AgentEffectivenessStatus`. |
 | `@beep/repo-ai-metrics/index` | `AgentSession` | class | `packages/tooling/library/ai-metrics/src/models.ts:415` | Session-level transcript metadata under an agent task. |
 | `@beep/repo-ai-metrics/index` | `AgentTask` | class | `packages/tooling/library/ai-metrics/src/models.ts:383` | Canonical unit of analysis for coding-agent metrics. |
 | `@beep/repo-ai-metrics/index` | `AgentTurn` | class | `packages/tooling/library/ai-metrics/src/models.ts:451` | Turn-level transcript event normalized from local agent logs. |
@@ -7495,6 +7572,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-ai-metrics/index` | `ConfigSnapshot` | class | `packages/tooling/library/ai-metrics/src/models.ts:354` | Versioned snapshot of agent-facing repository configuration. |
 | `@beep/repo-ai-metrics/index` | `configSnapshotToJson` | const | `packages/tooling/library/ai-metrics/src/config-snapshot.ts:552` | Render a config snapshot result as JSON. |
 | `@beep/repo-ai-metrics/index` | `decryptEncryptedRawArchiveEnvelope` | const | `packages/tooling/library/ai-metrics/src/archive.ts:362` | Decrypt an archive envelope for package-level verification. |
+| `@beep/repo-ai-metrics/index` | `DEFAULT_AGENT_EFFECTIVENESS_WORKER_EVAL_REPORT_PATH` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:35` | Stable default pointer used to locate the latest checked-in JSDoc worker-eval evidence. |
 | `@beep/repo-ai-metrics/index` | `discoverAiMetricsSources` | const | `packages/tooling/library/ai-metrics/src/source-discovery.ts:617` | Discover local AI metrics transcript sources for the smoke target. |
 | `@beep/repo-ai-metrics/index` | `ensureAiMetricsDerivedStorage` | const | `packages/tooling/library/ai-metrics/src/derived-storage.ts:643` | Ensure the AI metrics derived DuckDB schema exists and has P4 columns. |
 | `@beep/repo-ai-metrics/index` | `forwarderRunResultToJson` | const | `packages/tooling/library/ai-metrics/src/forwarder.ts:854` | Render a durable forwarder run result as JSON. |
@@ -7505,6 +7583,9 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-ai-metrics/index` | `listAiMetricsBenchmarkCases` | const | `packages/tooling/library/ai-metrics/src/scorecard.ts:760` | List deploy-safe benchmark cases. |
 | `@beep/repo-ai-metrics/index` | `listAiMetricsRetentionInventory` | const | `packages/tooling/library/ai-metrics/src/retention.ts:544` | List retained AI metrics raw archive objects and derived/report outputs. |
 | `@beep/repo-ai-metrics/index` | `locateLatestAiMetricsMirrorBundle` | const | `packages/tooling/library/ai-metrics/src/mirror.ts:540` | Locate the latest local mirror bundle pointer for a data root. |
+| `@beep/repo-ai-metrics/index` | `makeAgentEffectivenessAnnotationCheckReport` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:1774` | Check a local annotation plan for Phase 1 privacy and schema safety. |
+| `@beep/repo-ai-metrics/index` | `makeAgentEffectivenessAnnotationPlan` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:1661` | Build a sanitized local-only annotation plan. |
+| `@beep/repo-ai-metrics/index` | `makeAgentEffectivenessDoctorReport` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:1332` | Build the report-only Phase 1 agent-effectiveness doctor report. |
 | `@beep/repo-ai-metrics/index` | `makeAiMetricsConfigSnapshot` | const | `packages/tooling/library/ai-metrics/src/config-snapshot.ts:429` | Build a deterministic snapshot of repo-owned agent-facing configuration. |
 | `@beep/repo-ai-metrics/index` | `makeAiMetricsInstallApplyDryRunResult` | const | `packages/tooling/library/ai-metrics/src/install.ts:1219` | Resolve the P5a dry-run apply result. |
 | `@beep/repo-ai-metrics/index` | `makeAiMetricsInstallDoctorResult` | const | `packages/tooling/library/ai-metrics/src/install.ts:1120` | Evaluate the P5a install doctor contract checks. |
@@ -8853,39 +8934,39 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 
 | Import | Symbol | Kind | Source | Summary |
 |---|---|---|---|---|
-| `@beep/installer-server` | `DiscordChannelServerLive` | const | `packages/installer/server/src/Layer.ts:699` | Discord-channel concept layer. |
-| `@beep/installer-server` | `HostDependencyServerLive` | const | `packages/installer/server/src/Layer.ts:675` | Host-dependency concept layer. |
-| `@beep/installer-server` | `InstallerConceptServerLive` | const | `packages/installer/server/src/Layer.ts:715` | Concept-local installer services. |
-| `@beep/installer-server` | `InstallerServerLive` | const | `packages/installer/server/src/Layer.ts:737` | Complete installer server layer. |
-| `@beep/installer-server` | `makeDiscordChannelServer` | const | `packages/installer/server/src/Layer.ts:441` | Build the Discord-channel concept server. |
-| `@beep/installer-server` | `makeHostDependencyServer` | const | `packages/installer/server/src/Layer.ts:327` | Build the host-dependency concept server. |
-| `@beep/installer-server` | `makeP1ManualProofWorkflow` | const | `packages/installer/server/src/Layer.ts:512` | Build the P1 Manual Mode proof workflow. |
-| `@beep/installer-server` | `makeProviderAccountServer` | const | `packages/installer/server/src/Layer.ts:399` | Build the provider-account concept server. |
-| `@beep/installer-server` | `makeSecretReferenceServer` | const | `packages/installer/server/src/Layer.ts:344` | Build the secret-reference concept server. |
-| `@beep/installer-server` | `makeStackManifestServer` | const | `packages/installer/server/src/Layer.ts:498` | Build the stack-manifest concept server. |
-| `@beep/installer-server` | `P1ManualProofWorkflowLive` | const | `packages/installer/server/src/Layer.ts:729` | P1 Manual Mode proof workflow layer. |
-| `@beep/installer-server` | `previewP1ManualProof` | const | `packages/installer/server/src/Layer.ts:758` | Preview the P1 Manual Mode proof without sending a Discord message. |
-| `@beep/installer-server` | `ProviderAccountServerLive` | const | `packages/installer/server/src/Layer.ts:691` | Provider-account concept layer. |
-| `@beep/installer-server` | `runP1ManualProof` | const | `packages/installer/server/src/Layer.ts:745` | Run the live P1 Manual Mode proof and return sanitized evidence. |
-| `@beep/installer-server` | `SecretReferenceServerLive` | const | `packages/installer/server/src/Layer.ts:683` | Secret-reference concept layer. |
-| `@beep/installer-server` | `StackManifestServerLive` | const | `packages/installer/server/src/Layer.ts:707` | Stack-manifest concept layer. |
+| `@beep/installer-server` | `DiscordChannelServerLive` | const | `packages/installer/server/src/Layer.ts:693` | Discord-channel concept layer. |
+| `@beep/installer-server` | `HostDependencyServerLive` | const | `packages/installer/server/src/Layer.ts:669` | Host-dependency concept layer. |
+| `@beep/installer-server` | `InstallerConceptServerLive` | const | `packages/installer/server/src/Layer.ts:709` | Concept-local installer services. |
+| `@beep/installer-server` | `InstallerServerLive` | const | `packages/installer/server/src/Layer.ts:731` | Complete installer server layer. |
+| `@beep/installer-server` | `makeDiscordChannelServer` | const | `packages/installer/server/src/Layer.ts:435` | Build the Discord-channel concept server. |
+| `@beep/installer-server` | `makeHostDependencyServer` | const | `packages/installer/server/src/Layer.ts:321` | Build the host-dependency concept server. |
+| `@beep/installer-server` | `makeP1ManualProofWorkflow` | const | `packages/installer/server/src/Layer.ts:506` | Build the P1 Manual Mode proof workflow. |
+| `@beep/installer-server` | `makeProviderAccountServer` | const | `packages/installer/server/src/Layer.ts:393` | Build the provider-account concept server. |
+| `@beep/installer-server` | `makeSecretReferenceServer` | const | `packages/installer/server/src/Layer.ts:338` | Build the secret-reference concept server. |
+| `@beep/installer-server` | `makeStackManifestServer` | const | `packages/installer/server/src/Layer.ts:492` | Build the stack-manifest concept server. |
+| `@beep/installer-server` | `P1ManualProofWorkflowLive` | const | `packages/installer/server/src/Layer.ts:723` | P1 Manual Mode proof workflow layer. |
+| `@beep/installer-server` | `previewP1ManualProof` | const | `packages/installer/server/src/Layer.ts:752` | Preview the P1 Manual Mode proof without sending a Discord message. |
+| `@beep/installer-server` | `ProviderAccountServerLive` | const | `packages/installer/server/src/Layer.ts:685` | Provider-account concept layer. |
+| `@beep/installer-server` | `runP1ManualProof` | const | `packages/installer/server/src/Layer.ts:739` | Run the live P1 Manual Mode proof and return sanitized evidence. |
+| `@beep/installer-server` | `SecretReferenceServerLive` | const | `packages/installer/server/src/Layer.ts:677` | Secret-reference concept layer. |
+| `@beep/installer-server` | `StackManifestServerLive` | const | `packages/installer/server/src/Layer.ts:701` | Stack-manifest concept layer. |
 | `@beep/installer-server` | `VERSION` | const | `packages/installer/server/src/index.ts:15` | Package version for `@beep/installer-server`. |
-| `@beep/installer-server/layer` | `DiscordChannelServerLive` | const | `packages/installer/server/src/Layer.ts:699` | Discord-channel concept layer. |
-| `@beep/installer-server/layer` | `HostDependencyServerLive` | const | `packages/installer/server/src/Layer.ts:675` | Host-dependency concept layer. |
-| `@beep/installer-server/layer` | `InstallerConceptServerLive` | const | `packages/installer/server/src/Layer.ts:715` | Concept-local installer services. |
-| `@beep/installer-server/layer` | `InstallerServerLive` | const | `packages/installer/server/src/Layer.ts:737` | Complete installer server layer. |
-| `@beep/installer-server/layer` | `makeDiscordChannelServer` | const | `packages/installer/server/src/Layer.ts:441` | Build the Discord-channel concept server. |
-| `@beep/installer-server/layer` | `makeHostDependencyServer` | const | `packages/installer/server/src/Layer.ts:327` | Build the host-dependency concept server. |
-| `@beep/installer-server/layer` | `makeP1ManualProofWorkflow` | const | `packages/installer/server/src/Layer.ts:512` | Build the P1 Manual Mode proof workflow. |
-| `@beep/installer-server/layer` | `makeProviderAccountServer` | const | `packages/installer/server/src/Layer.ts:399` | Build the provider-account concept server. |
-| `@beep/installer-server/layer` | `makeSecretReferenceServer` | const | `packages/installer/server/src/Layer.ts:344` | Build the secret-reference concept server. |
-| `@beep/installer-server/layer` | `makeStackManifestServer` | const | `packages/installer/server/src/Layer.ts:498` | Build the stack-manifest concept server. |
-| `@beep/installer-server/layer` | `P1ManualProofWorkflowLive` | const | `packages/installer/server/src/Layer.ts:729` | P1 Manual Mode proof workflow layer. |
-| `@beep/installer-server/layer` | `previewP1ManualProof` | const | `packages/installer/server/src/Layer.ts:758` | Preview the P1 Manual Mode proof without sending a Discord message. |
-| `@beep/installer-server/layer` | `ProviderAccountServerLive` | const | `packages/installer/server/src/Layer.ts:691` | Provider-account concept layer. |
-| `@beep/installer-server/layer` | `runP1ManualProof` | const | `packages/installer/server/src/Layer.ts:745` | Run the live P1 Manual Mode proof and return sanitized evidence. |
-| `@beep/installer-server/layer` | `SecretReferenceServerLive` | const | `packages/installer/server/src/Layer.ts:683` | Secret-reference concept layer. |
-| `@beep/installer-server/layer` | `StackManifestServerLive` | const | `packages/installer/server/src/Layer.ts:707` | Stack-manifest concept layer. |
+| `@beep/installer-server/layer` | `DiscordChannelServerLive` | const | `packages/installer/server/src/Layer.ts:693` | Discord-channel concept layer. |
+| `@beep/installer-server/layer` | `HostDependencyServerLive` | const | `packages/installer/server/src/Layer.ts:669` | Host-dependency concept layer. |
+| `@beep/installer-server/layer` | `InstallerConceptServerLive` | const | `packages/installer/server/src/Layer.ts:709` | Concept-local installer services. |
+| `@beep/installer-server/layer` | `InstallerServerLive` | const | `packages/installer/server/src/Layer.ts:731` | Complete installer server layer. |
+| `@beep/installer-server/layer` | `makeDiscordChannelServer` | const | `packages/installer/server/src/Layer.ts:435` | Build the Discord-channel concept server. |
+| `@beep/installer-server/layer` | `makeHostDependencyServer` | const | `packages/installer/server/src/Layer.ts:321` | Build the host-dependency concept server. |
+| `@beep/installer-server/layer` | `makeP1ManualProofWorkflow` | const | `packages/installer/server/src/Layer.ts:506` | Build the P1 Manual Mode proof workflow. |
+| `@beep/installer-server/layer` | `makeProviderAccountServer` | const | `packages/installer/server/src/Layer.ts:393` | Build the provider-account concept server. |
+| `@beep/installer-server/layer` | `makeSecretReferenceServer` | const | `packages/installer/server/src/Layer.ts:338` | Build the secret-reference concept server. |
+| `@beep/installer-server/layer` | `makeStackManifestServer` | const | `packages/installer/server/src/Layer.ts:492` | Build the stack-manifest concept server. |
+| `@beep/installer-server/layer` | `P1ManualProofWorkflowLive` | const | `packages/installer/server/src/Layer.ts:723` | P1 Manual Mode proof workflow layer. |
+| `@beep/installer-server/layer` | `previewP1ManualProof` | const | `packages/installer/server/src/Layer.ts:752` | Preview the P1 Manual Mode proof without sending a Discord message. |
+| `@beep/installer-server/layer` | `ProviderAccountServerLive` | const | `packages/installer/server/src/Layer.ts:685` | Provider-account concept layer. |
+| `@beep/installer-server/layer` | `runP1ManualProof` | const | `packages/installer/server/src/Layer.ts:739` | Run the live P1 Manual Mode proof and return sanitized evidence. |
+| `@beep/installer-server/layer` | `SecretReferenceServerLive` | const | `packages/installer/server/src/Layer.ts:677` | Secret-reference concept layer. |
+| `@beep/installer-server/layer` | `StackManifestServerLive` | const | `packages/installer/server/src/Layer.ts:701` | Stack-manifest concept layer. |
 | `@beep/installer-server/test` | `InstallerServerTest` | const | `packages/installer/server/src/test.ts:17` | Deterministic test layer for the installer slice. |
 
 ### @beep/ui
@@ -9847,6 +9928,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 
 | Import | Symbol | Kind | Source | Summary |
 |---|---|---|---|---|
+| `@beep/repo-cli` | `agentEffectivenessCommand` | const | `packages/tooling/tool/cli/src/commands/AgentEffectiveness/index.ts:310` | Agent-effectiveness root command. |
 | `@beep/repo-cli` | `ciCommand` | const | `packages/tooling/tool/cli/src/commands/Ci.ts:338` | CI helper command group. |
 | `@beep/repo-cli` | `codegenCommand` | const | `packages/tooling/tool/cli/src/commands/Codegen.ts:257` | CLI command that scans a package's `src/` directory and generates (or previews) |
 | `@beep/repo-cli` | `codexCommand` | const | `packages/tooling/tool/cli/src/commands/Codex.ts:134` | Codex helper command group. |
@@ -9861,11 +9943,12 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli` | `purgeCommand` | const | `packages/tooling/tool/cli/src/commands/Purge.ts:258` | CLI command to purge workspace/root build artifacts. |
 | `@beep/repo-cli` | `qualityCommand` | const | `packages/tooling/tool/cli/src/commands/Quality/ScriptCommands.ts:1539` | Quality command group for repo operational checks. |
 | `@beep/repo-cli` | `reuseCommand` | const | `packages/tooling/tool/cli/src/commands/Reuse/index.ts:361` | Reuse-discovery command group. |
-| `@beep/repo-cli` | `rootCommand` | const | `packages/tooling/tool/cli/src/commands/Root.ts:44` | Top-level CLI command that registers all subcommands. |
+| `@beep/repo-cli` | `rootCommand` | const | `packages/tooling/tool/cli/src/commands/Root.ts:45` | Top-level CLI command that registers all subcommands. |
 | `@beep/repo-cli` | `syncDataToTsCommand` | const | `packages/tooling/tool/cli/src/commands/SyncDataToTs/index.ts:460` | CLI command for syncing official upstream datasets into checked-in TypeScript modules. |
 | `@beep/repo-cli` | `topoSortCommand` | const | `packages/tooling/tool/cli/src/commands/TopoSort.ts:32` | CLI command that builds the workspace dependency graph and prints package names |
 | `@beep/repo-cli` | `tsconfigSyncCommand` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync.ts:1832` | CLI command for synchronizing root and workspace tsconfig state. |
 | `@beep/repo-cli` | `versionSyncCommand` | const | `packages/tooling/tool/cli/src/commands/VersionSync/index.ts:48` | CLI command for synchronizing version pins across the monorepo. |
+| `@beep/repo-cli/commands/AgentEffectiveness/index` | `agentEffectivenessCommand` | const | `packages/tooling/tool/cli/src/commands/AgentEffectiveness/index.ts:310` | Agent-effectiveness root command. |
 | `@beep/repo-cli/commands/AIDocs/AIDocs` | `AIDocKind` | const | `packages/tooling/tool/cli/src/commands/AIDocs/AIDocs.ts:37` | Supported external documentation source formats for AI documentation. |
 | `@beep/repo-cli/commands/AIDocs/AIDocs` | `AIDocKind` | type | `packages/tooling/tool/cli/src/commands/AIDocs/AIDocs.ts:87` | Union type for supported external documentation source formats. |
 | `@beep/repo-cli/commands/AIDocs/AIDocs` | `AIDocsError` | class | `packages/tooling/tool/cli/src/commands/AIDocs/AIDocs.ts:23` | AIDocsError - A Tagged Error Class for errors occurring in the AIDocs command |
@@ -10542,7 +10625,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/commands/Reuse/internal/CodexRunner` | `CodexRunnerStage` | type | `packages/tooling/tool/cli/src/commands/Reuse/internal/CodexRunner.ts:37` | Runtime type for `CodexRunnerStage`. |
 | `@beep/repo-cli/commands/Reuse/internal/CodexRunner` | `CodexSmokeResult` | class | `packages/tooling/tool/cli/src/commands/Reuse/internal/CodexRunner.ts:45` | Structured result for `beep reuse codex-smoke`. |
 | `@beep/repo-cli/commands/Reuse/internal/CodexRunner` | `runCodexSmoke` | const | `packages/tooling/tool/cli/src/commands/Reuse/internal/CodexRunner.ts:83` | Validate the local Codex SDK adapter without running a reuse loop. |
-| `@beep/repo-cli/commands/Root` | `rootCommand` | const | `packages/tooling/tool/cli/src/commands/Root.ts:44` | Top-level CLI command that registers all subcommands. |
+| `@beep/repo-cli/commands/Root` | `rootCommand` | const | `packages/tooling/tool/cli/src/commands/Root.ts:45` | Top-level CLI command that registers all subcommands. |
 | `@beep/repo-cli/commands/Shared/BiomeJson` | `renderBiomeJson` | const | `packages/tooling/tool/cli/src/commands/Shared/BiomeJson.ts:42` | Render JSON with the same Biome config that repository lint uses. |
 | `@beep/repo-cli/commands/Shared/DocgenConfig` | `buildDocgenAliasSource` | const | `packages/tooling/tool/cli/src/commands/Shared/DocgenConfig.ts:290` | Build docgen alias targets for one workspace package from its exports. |
 | `@beep/repo-cli/commands/Shared/DocgenConfig` | `CanonicalDocgenConfig` | class | `packages/tooling/tool/cli/src/commands/Shared/DocgenConfig.ts:163` | Canonical repo docgen config payload. |
@@ -10669,6 +10752,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/commands/VersionSync/internal/updaters/PlainTextUpdater` | `updatePlainTextFile` | const | `packages/tooling/tool/cli/src/commands/VersionSync/internal/updaters/PlainTextUpdater.ts:21` | Update a plain text version file (e.g. `.bun-version`). |
 | `@beep/repo-cli/commands/VersionSync/internal/updaters/YamlFileUpdater` | `replaceNodeVersionWithFile` | const | `packages/tooling/tool/cli/src/commands/VersionSync/internal/updaters/YamlFileUpdater.ts:116` | Replace `node-version: <value>` with `node-version-file: .nvmrc` in a workflow YAML. |
 | `@beep/repo-cli/commands/VersionSync/internal/updaters/YamlFileUpdater` | `updateYamlValue` | const | `packages/tooling/tool/cli/src/commands/VersionSync/internal/updaters/YamlFileUpdater.ts:53` | Update a value at a specific path in a YAML file, preserving comments and formatting. |
+| `@beep/repo-cli/index` | `agentEffectivenessCommand` | const | `packages/tooling/tool/cli/src/commands/AgentEffectiveness/index.ts:310` | Agent-effectiveness root command. |
 | `@beep/repo-cli/index` | `ciCommand` | const | `packages/tooling/tool/cli/src/commands/Ci.ts:338` | CI helper command group. |
 | `@beep/repo-cli/index` | `codegenCommand` | const | `packages/tooling/tool/cli/src/commands/Codegen.ts:257` | CLI command that scans a package's `src/` directory and generates (or previews) |
 | `@beep/repo-cli/index` | `codexCommand` | const | `packages/tooling/tool/cli/src/commands/Codex.ts:134` | Codex helper command group. |
@@ -10683,7 +10767,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/index` | `purgeCommand` | const | `packages/tooling/tool/cli/src/commands/Purge.ts:258` | CLI command to purge workspace/root build artifacts. |
 | `@beep/repo-cli/index` | `qualityCommand` | const | `packages/tooling/tool/cli/src/commands/Quality/ScriptCommands.ts:1539` | Quality command group for repo operational checks. |
 | `@beep/repo-cli/index` | `reuseCommand` | const | `packages/tooling/tool/cli/src/commands/Reuse/index.ts:361` | Reuse-discovery command group. |
-| `@beep/repo-cli/index` | `rootCommand` | const | `packages/tooling/tool/cli/src/commands/Root.ts:44` | Top-level CLI command that registers all subcommands. |
+| `@beep/repo-cli/index` | `rootCommand` | const | `packages/tooling/tool/cli/src/commands/Root.ts:45` | Top-level CLI command that registers all subcommands. |
 | `@beep/repo-cli/index` | `syncDataToTsCommand` | const | `packages/tooling/tool/cli/src/commands/SyncDataToTs/index.ts:460` | CLI command for syncing official upstream datasets into checked-in TypeScript modules. |
 | `@beep/repo-cli/index` | `topoSortCommand` | const | `packages/tooling/tool/cli/src/commands/TopoSort.ts:32` | CLI command that builds the workspace dependency graph and prints package names |
 | `@beep/repo-cli/index` | `tsconfigSyncCommand` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync.ts:1832` | CLI command for synchronizing root and workspace tsconfig state. |
@@ -12161,9 +12245,9 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 
 | Import | Symbol | Kind | Source | Summary |
 |---|---|---|---|---|
-| `@beep/stack-installer` | `P1ManualProofSliceLayer` | const | `packages/installer/server/src/Layer.ts:737` | Complete installer server layer. |
-| `@beep/stack-installer` | `previewP1ManualProof` | const | `packages/installer/server/src/Layer.ts:758` | Preview the P1 Manual Mode proof without sending a Discord message. |
-| `@beep/stack-installer` | `runP1ManualProof` | const | `packages/installer/server/src/Layer.ts:745` | Run the live P1 Manual Mode proof and return sanitized evidence. |
+| `@beep/stack-installer` | `P1ManualProofSliceLayer` | const | `packages/installer/server/src/Layer.ts:731` | Complete installer server layer. |
+| `@beep/stack-installer` | `previewP1ManualProof` | const | `packages/installer/server/src/Layer.ts:752` | Preview the P1 Manual Mode proof without sending a Discord message. |
+| `@beep/stack-installer` | `runP1ManualProof` | const | `packages/installer/server/src/Layer.ts:739` | Run the live P1 Manual Mode proof and return sanitized evidence. |
 | `@beep/stack-installer` | `VERSION` | const | `apps/stack-installer/src/index.ts:15` | App version marker. |
 
 ### @beep/professional-desktop
