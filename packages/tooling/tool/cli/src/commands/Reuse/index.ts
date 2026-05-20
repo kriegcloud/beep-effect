@@ -33,7 +33,7 @@ import {
   ReuseServiceSuiteLive,
   type TSMorphService,
 } from "@beep/repo-utils";
-import { A } from "@beep/utils";
+import { A, Str } from "@beep/utils";
 import { Console, Effect, type FileSystem, Layer, type Path, pipe } from "effect";
 import * as Bool from "effect/Boolean";
 import * as O from "effect/Option";
@@ -77,8 +77,11 @@ const candidateIdFlag = Flag.string("candidate-id").pipe(
   Flag.withDescription("Candidate id from `beep reuse inventory --json`")
 );
 const typeOnlyExportKinds = ["interface", "type"] as const;
+const terminalControlSequence =
+  /(?:\u001b\][\s\S]*?(?:\u0007|\u001b\\)|\u001b(?:[@-Z\\-_]|\[[0-?]*[ -/]*[@-~])|[\u0000-\u0008\u000b-\u001f\u007f-\u009f])/gu;
 
 const isTypeOnlyExportKind = (exportKind: string): boolean => A.contains(typeOnlyExportKinds, exportKind);
+const sanitizeTerminalText = Str.replace(terminalControlSequence, "");
 
 const printJson = Effect.fn(function* (value: unknown) {
   const rendered = yield* jsonStringifyPretty(value);
@@ -302,36 +305,42 @@ const ensureRepoExportsCatalogFresh = Effect.fn("Reuse.ensureRepoExportsCatalogF
 });
 
 const printLookupSummary = Effect.fn(function* (result: RepoCodegraphLookupResult, snippet: boolean) {
-  yield* Console.log(`Query: ${result.query}`);
+  yield* Console.log(`Query: ${sanitizeTerminalText(result.query)}`);
   yield* Console.log(
     `Matches: ${A.length(result.matches)} returned, ${result.totals.matchedEntries} matched, ${result.totals.catalogEntries} catalog entries`
   );
   yield* Console.log(`Catalog freshness: ${result.freshnessStatus}`);
-  yield* Effect.forEach(result.warnings, (warning) => Console.log(`Warning: ${warning}`), {
+  yield* Effect.forEach(result.warnings, (warning) => Console.log(`Warning: ${sanitizeTerminalText(warning)}`), {
     concurrency: 1,
     discard: true,
   });
   yield* Effect.forEach(
     result.matches,
     Effect.fn(function* (match) {
-      yield* Console.log(`- ${match.symbolName} (${match.exportKind}) :: ${match.packageName}`);
-      yield* Console.log(`  recommended: ${match.recommendedImport.importSpecifier}`);
+      const exportKind = sanitizeTerminalText(match.exportKind);
+      const packageName = sanitizeTerminalText(match.packageName);
+      const sourcePath = sanitizeTerminalText(match.sourcePath);
+      const symbolName = sanitizeTerminalText(match.symbolName);
+      const importSpecifier = sanitizeTerminalText(match.recommendedImport.importSpecifier);
+
+      yield* Console.log(`- ${symbolName} (${exportKind}) :: ${packageName}`);
+      yield* Console.log(`  recommended: ${importSpecifier}`);
       if (snippet) {
-        const importKeyword = isTypeOnlyExportKind(match.exportKind) ? "import type" : "import";
-        yield* Console.log(
-          `  ${importKeyword} { ${match.symbolName} } from "${match.recommendedImport.importSpecifier}";`
-        );
+        const importKeyword = isTypeOnlyExportKind(exportKind) ? "import type" : "import";
+        yield* Console.log(`  ${importKeyword} { ${symbolName} } from "${importSpecifier}";`);
       }
-      yield* Console.log(`  source: ${match.sourcePath}:${match.sourceLine}`);
+      yield* Console.log(`  source: ${sourcePath}:${match.sourceLine}`);
       yield* pipe(
         match.summary,
-        O.map((summary) => Console.log(`  summary: ${summary}`)),
+        O.map((summary) => Console.log(`  summary: ${sanitizeTerminalText(summary)}`)),
         O.getOrElse(() => Effect.void)
       );
       yield* Console.log(
         `  score: ${match.score.total.toFixed(1)} (exact ${match.score.exact.toFixed(1)}, lexical ${match.score.lexical.toFixed(1)}, semantic ${match.score.semantic.toFixed(1)}, graph ${match.score.graph.toFixed(1)}, boundary ${match.score.boundary.toFixed(1)})`
       );
-      yield* Console.log(`  boundary: ${match.boundary.status} - ${match.boundary.reason}`);
+      yield* Console.log(
+        `  boundary: ${sanitizeTerminalText(match.boundary.status)} - ${sanitizeTerminalText(match.boundary.reason)}`
+      );
     }),
     { concurrency: 1, discard: true }
   );

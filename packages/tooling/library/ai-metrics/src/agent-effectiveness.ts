@@ -1276,6 +1276,8 @@ const decodeRunpodWorkerEvalReportJson = S.decodeUnknownEffect(S.fromJsonString(
 const decodePhoenixGraphqlResponse = S.decodeUnknownEffect(PhoenixGraphqlResponse);
 const encodeDoctorReportJson = S.encodeUnknownEffect(S.fromJsonString(AgentEffectivenessDoctorReport));
 const encodeAnnotationPlanJson = S.encodeUnknownEffect(S.fromJsonString(AgentEffectivenessAnnotationPlan));
+const encodeAnnotationPlanJsonSync = S.encodeUnknownSync(S.fromJsonString(AgentEffectivenessAnnotationPlan));
+const decodeUnknownJsonSync = S.decodeUnknownSync(S.UnknownFromJsonString);
 const encodeAnnotationCheckJson = S.encodeUnknownEffect(S.fromJsonString(AgentEffectivenessAnnotationCheckReport));
 const encodeDatasetBundleJson = S.encodeUnknownEffect(S.fromJsonString(AgentEffectivenessDatasetBundle));
 const encodePromptBundleJson = S.encodeUnknownEffect(S.fromJsonString(AgentEffectivenessPromptBundle));
@@ -2298,6 +2300,8 @@ const jsdocWorkerDataset = (doctor: AgentEffectivenessDoctorReport): AgentEffect
 /**
  * Build the Phoenix dataset bundle from a doctor report.
  *
+ * @param doctor - Doctor report used to derive sanitized aggregate Phoenix datasets.
+ * @returns Phoenix dataset bundle generated from the doctor report.
  * @example
  * ```ts
  * import { makeAgentEffectivenessDatasetBundle } from "@beep/repo-ai-metrics"
@@ -2325,6 +2329,8 @@ export const makeAgentEffectivenessDatasetBundle: (
 /**
  * Build the repo-owned Phoenix prompt bundle.
  *
+ * @param generatedAt - ISO timestamp to assign to the generated prompt bundle.
+ * @returns Repo-owned Phoenix prompt bundle for agent-effectiveness review.
  * @example
  * ```ts
  * import { makeAgentEffectivenessPromptBundle } from "@beep/repo-ai-metrics"
@@ -2377,6 +2383,8 @@ export const makeAgentEffectivenessPromptBundle: (generatedAt: string) => AgentE
 /**
  * Build deterministic experiment specs from a dataset bundle.
  *
+ * @param datasetBundle - Dataset bundle used to derive one experiment per dataset.
+ * @returns Deterministic Phoenix experiment bundle for the supplied datasets.
  * @example
  * ```ts
  * import { makeAgentEffectivenessExperimentBundle } from "@beep/repo-ai-metrics"
@@ -2571,7 +2579,6 @@ const unconfirmedSyncResult = ({
  * @remarks
  * This function defaults to dry-run. Live writes require
  * {@link AGENT_EFFECTIVENESS_PHOENIX_WRITE_CONFIRMATION}.
- *
  * @example
  * ```ts
  * import { syncAgentEffectivenessPhoenix } from "@beep/repo-ai-metrics"
@@ -2746,7 +2753,9 @@ export const syncAgentEffectivenessPhoenix: (
 const forbiddenPatterns = [
   { code: "private-home-path", pattern: /\/home\/[A-Za-z0-9_.-]+/u },
   { code: "onepassword-ref", pattern: /op:\/\//u },
-  { code: "secret-shaped-value", pattern: /(SECRET|TOKEN|API[_-]?KEY|sk-[A-Za-z0-9_-]{12,})/iu },
+  // Deliberately require assignment-shaped labels or key-like values here. Standalone words like TOKEN can appear
+  // in benign policy/status labels, and broader matching produced false positives on metrics such as provider_model_token_cost.
+  { code: "secret-shaped-value", pattern: /(?:\b(?:SECRET|TOKEN|API[_-]?KEY)\b\s*[=:]|sk-[A-Za-z0-9_-]{12,})/iu },
   { code: "raw-worker-draft", pattern: /draftJsDoc|@example|```ts/u },
 ] as const;
 
@@ -2796,7 +2805,7 @@ function checkUnknownText(
   if (A.isArray(value)) {
     return pipe(
       value,
-      A.flatMap((entry) => checkUnknownText(subjectId, entry, subject, depth + 1))
+      A.flatMap((entry, index) => checkUnknownText(`${subjectId}[${index}]`, entry, subject, depth + 1))
     );
   }
 
@@ -2820,12 +2829,17 @@ function checkRecordText(
 
   return pipe(
     R.toEntries(record),
-    A.flatMap(([key, value]) => [
-      ...checkText(subjectId, key, subject),
-      ...checkUnknownText(subjectId, value, subject, depth),
-    ])
+    A.flatMap(([key, value]) => {
+      const entryId = `${subjectId}.${key}`;
+      return [...checkText(entryId, key, subject), ...checkUnknownText(entryId, value, subject, depth)];
+    })
   );
 }
+
+const checkPlanPayload = (
+  plan: AgentEffectivenessAnnotationPlan
+): ReadonlyArray<AgentEffectivenessAnnotationCheckFinding> =>
+  checkUnknownText("plan", decodeUnknownJsonSync(encodeAnnotationPlanJsonSync(plan)), "Plan payload");
 
 const checkDatasetExample = (
   dataset: AgentEffectivenessDatasetSpec,
@@ -2925,6 +2939,7 @@ export const makeAgentEffectivenessAnnotationCheckReport: (
 ) => AgentEffectivenessAnnotationCheckReport = (plan) => {
   const findings = [
     ...pipe(plan.annotations, A.flatMap(checkAnnotation)),
+    ...checkPlanPayload(plan),
     ...duplicateAnnotationIdFindings(plan.annotations),
   ];
   return new AgentEffectivenessAnnotationCheckReport({
