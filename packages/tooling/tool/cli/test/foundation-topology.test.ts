@@ -3,9 +3,9 @@ import { A, Str } from "@beep/utils";
 import { Effect } from "effect";
 import { describe, expect, it } from "vitest";
 
-const repoRoot = fileURLToPath(new URL("../../../../..", import.meta.url)).replace(/\/$/u, "");
+const repoRoot = Str.replace(/\/$/u, "")(fileURLToPath(new URL("../../../../..", import.meta.url)));
 const joinPath = (base: string, ...segments: ReadonlyArray<string>): string =>
-  [base.replace(/\/+$/u, ""), ...segments.map((segment) => segment.replace(/^\/+|\/+$/gu, ""))]
+  [Str.replace(/\/+$/u, "")(base), ...segments.map((segment) => Str.replace(/^\/+|\/+$/gu, "")(segment))]
     .filter((segment) => segment.length > 0)
     .join("/");
 const relativeToRepo = (path: string): string =>

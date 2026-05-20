@@ -332,13 +332,14 @@ const hashPublicIdentifier = (value: string): Effect.Effect<string, DomainError>
 const shellQuote = (value: string): string => `'${Str.replaceAll("'", "'\"'\"'")(value)}'`;
 
 const ollamaBootstrapCommand = (model: string): ReadonlyArray<string> => {
-  const pullPayload = shellQuote(JSON.stringify({ name: model }));
+  // TODO(effect-native-migration): model schema
+  const pullPayload = shellQuote(S.encodeUnknownSync(S.UnknownFromJsonString)({ name: model }));
 
   // cspell:ignore resolv
   return [
     "bash",
     "-lc",
-    [
+    A.join("\n")([
       "set -euo pipefail",
       "printf 'nameserver 1.1.1.1\\nnameserver 8.8.8.8\\noptions timeout:2 attempts:3\\n' >/etc/resolv.conf || true",
       'wait_for_dns() { host="$1"; for attempt in $(seq 1 120); do getent hosts "$host" >/dev/null 2>&1 && return 0; echo "waiting for DNS: $host ($attempt/120)"; sleep 5; done; echo "DNS never resolved: $host" >&2; return 1; }',
@@ -353,7 +354,7 @@ const ollamaBootstrapCommand = (model: string): ReadonlyArray<string> => {
       `until curl -fsS http://127.0.0.1:${OLLAMA_PORT}/api/tags >/dev/null; do sleep 2; done`,
       `retry_command "ollama api pull" curl --retry 60 --retry-all-errors --retry-delay 5 --connect-timeout 10 --max-time 7200 -fsS -H 'Content-Type: application/json' -d ${pullPayload} http://127.0.0.1:${OLLAMA_PORT}/api/pull >/tmp/ollama-pull.log`,
       "tail -f /tmp/ollama.log",
-    ].join("\n"),
+    ]),
   ];
 };
 

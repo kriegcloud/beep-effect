@@ -203,7 +203,8 @@ const TrustedMediaToolRoots = ["/usr/bin", "/usr/local/bin", "/opt/homebrew/bin"
 const UnsafeMetadataVideoExtensions = ["asf", "asx", "m3u", "m3u8", "m4u", "mxu"] as const;
 
 const isUnsafeMetadataVideoExtension = (extension: string): boolean =>
-  UnsafeMetadataVideoExtensions.includes(
+  A.contains(
+    UnsafeMetadataVideoExtensions,
     normalizeBareExtension(extension) as (typeof UnsafeMetadataVideoExtensions)[number]
   );
 
@@ -226,7 +227,7 @@ const resolveTrustedMediaToolPath = Effect.fn("Files.resolveTrustedMediaToolPath
 
   const candidates = O.isSome(configuredPath)
     ? [configuredPath.value]
-    : TrustedMediaToolRoots.map((root) => path.join(root, toolName));
+    : A.map(TrustedMediaToolRoots, (root) => path.join(root, toolName));
 
   for (const candidate of candidates) {
     const exists = yield* fs.exists(candidate).pipe(Effect.orElseSucceed(() => false));

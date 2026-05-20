@@ -1321,10 +1321,7 @@ export const analyzePackageDocumentation: (
     A.flatMap((sourceFile) => analyzeSourceFile(sourceFile, targetPackage.absolutePath, path, requiredTags)),
     A.sort(byIssueAscending)
   );
-  const timestamp = yield* DateTime.now.pipe(
-    Effect.map(DateTime.toDateUtc),
-    Effect.map((date) => date.toISOString())
-  );
+  const timestamp = yield* DateTime.now.pipe(Effect.map(DateTime.formatIso));
 
   return new DocgenPackageAnalysis({
     packageName: targetPackage.name,

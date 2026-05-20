@@ -822,7 +822,7 @@ const processEnvRecord = (): Record<string, string> =>
 
 const ossProviderBaseUrl = (value: string): string => {
   const trimmed = Str.trim(value);
-  const normalized = trimmed.replace(/\/+$/, "");
+  const normalized = Str.replace(/\/+$/, "")(trimmed);
   return Str.endsWith("/v1")(normalized) ? normalized : `${normalized}/v1`;
 };
 

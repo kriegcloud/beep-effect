@@ -748,7 +748,7 @@ const extractEffectTsgoDiagnosticsTableFragment = (readme: string): O.Option<str
 
   return tableStart === -1 || tableEnd === -1 || tableEnd <= tableStart
     ? O.none()
-    : O.some(readme.slice(tableStart + effectTsgoDiagnosticsTableStartMarker.length, tableEnd));
+    : O.some(Str.slice(tableStart + effectTsgoDiagnosticsTableStartMarker.length, tableEnd)(readme));
 };
 
 const extractEffectTsgoRuleNameFromRow = (row: unknown): O.Option<string> =>
