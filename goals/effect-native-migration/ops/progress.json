@@ -2,25 +2,15 @@
   "schemaVersion": "effect-native-migration-progress/v1",
   "updated": "2026-05-20",
   "legend": {
-    "phaseStatus": [
-      "pending",
-      "in_progress",
-      "done"
-    ],
-    "packageStatus": [
-      "pending",
-      "discovery",
-      "remediation",
-      "blocked",
-      "done"
-    ]
+    "phaseStatus": ["pending", "in_progress", "done"],
+    "packageStatus": ["pending", "discovery", "remediation", "blocked", "done"]
   },
   "phases": {
     "phase0_bootstrap": "done",
     "phase1_symbol_inventories": "done",
     "phase1_5_grill_with_docs": "done",
     "phase2_discovery": "done",
-    "phase3_remediation": "in_progress"
+    "phase3_remediation": "done"
   },
   "symbolInventories": {
     "Map": "done",
@@ -135,9 +125,7 @@
       "canImportUtils": false,
       "discovery": "done",
       "remediation": "done",
-      "categoriesWithFindings": [
-        "Object"
-      ],
+      "categoriesWithFindings": ["Object"],
       "needsHumanDecision": 1,
       "triageWeight": "light",
       "waived": 1,
@@ -148,12 +136,11 @@
       "sanitized": "beep__utils",
       "canImportUtils": false,
       "discovery": "done",
-      "remediation": "pending",
-      "categoriesWithFindings": [
-        "String"
-      ],
+      "remediation": "done",
+      "categoriesWithFindings": ["String"],
       "needsHumanDecision": 0,
-      "triageWeight": "heavy"
+      "triageWeight": "heavy",
+      "remediationNote": "applied 2, waived 0; committed in c7dd06a (bundled with artifacts)"
     },
     "@beep/data": {
       "path": "packages/foundation/primitive/data",
@@ -161,9 +148,7 @@
       "canImportUtils": false,
       "discovery": "done",
       "remediation": "done",
-      "categoriesWithFindings": [
-        "Object"
-      ],
+      "categoriesWithFindings": ["Object"],
       "needsHumanDecision": 1,
       "triageWeight": "light",
       "waived": 1,
@@ -205,9 +190,7 @@
       "canImportUtils": true,
       "discovery": "done",
       "remediation": "done",
-      "categoriesWithFindings": [
-        "Object"
-      ],
+      "categoriesWithFindings": ["Object"],
       "needsHumanDecision": 1,
       "triageWeight": "light",
       "waived": 1,
@@ -268,13 +251,11 @@
       "sanitized": "beep__repo-utils",
       "canImportUtils": true,
       "discovery": "done",
-      "remediation": "pending",
-      "categoriesWithFindings": [
-        "Array",
-        "Object"
-      ],
+      "remediation": "done",
+      "categoriesWithFindings": ["Array", "Object"],
       "needsHumanDecision": 8,
-      "triageWeight": "heavy"
+      "triageWeight": "heavy",
+      "remediationNote": "applied 6 (A.map/get, R.get), waived 9; commit"
     },
     "@beep/phoenix": {
       "path": "packages/drivers/phoenix",
@@ -421,25 +402,22 @@
       "sanitized": "beep__repo-docgen",
       "canImportUtils": true,
       "discovery": "done",
-      "remediation": "pending",
-      "categoriesWithFindings": [
-        "Array"
-      ],
+      "remediation": "done",
+      "categoriesWithFindings": ["Array"],
       "needsHumanDecision": 3,
-      "triageWeight": "heavy"
+      "triageWeight": "heavy",
+      "remediationNote": "applied 1, waived 3; committed in c7dd06a (bundled with artifacts)"
     },
     "@beep/repo-ai-metrics": {
       "path": "packages/tooling/library/ai-metrics",
       "sanitized": "beep__repo-ai-metrics",
       "canImportUtils": true,
       "discovery": "done",
-      "remediation": "pending",
-      "categoriesWithFindings": [
-        "JSON",
-        "Date"
-      ],
+      "remediation": "done",
+      "categoriesWithFindings": ["JSON", "Date"],
       "needsHumanDecision": 5,
-      "triageWeight": "heavy"
+      "triageWeight": "heavy",
+      "remediationNote": "applied 2 JSON sync codecs, waived 3 Date; commit"
     },
     "@beep/runpod": {
       "path": "packages/drivers/runpod",
@@ -456,25 +434,22 @@
       "sanitized": "beep__ffmpeg",
       "canImportUtils": true,
       "discovery": "done",
-      "remediation": "pending",
-      "categoriesWithFindings": [
-        "JSON",
-        "Object"
-      ],
+      "remediation": "done",
+      "categoriesWithFindings": ["JSON", "Object"],
       "needsHumanDecision": 6,
-      "triageWeight": "heavy"
+      "triageWeight": "heavy",
+      "remediationNote": "applied R.set + test JSON sync codec, waived 6; commit"
     },
     "@beep/observability": {
       "path": "packages/foundation/capability/observability",
       "sanitized": "beep__observability",
       "canImportUtils": true,
       "discovery": "done",
-      "remediation": "pending",
-      "categoriesWithFindings": [
-        "String"
-      ],
+      "remediation": "done",
+      "categoriesWithFindings": ["String"],
       "needsHumanDecision": 0,
-      "triageWeight": "heavy"
+      "triageWeight": "heavy",
+      "remediationNote": "applied 3, waived 0; committed in c7dd06a (bundled with artifacts)"
     },
     "@beep/repo-configs": {
       "path": "packages/tooling/policy-pack/repo-configs",
@@ -511,12 +486,11 @@
       "sanitized": "beep__ui",
       "canImportUtils": true,
       "discovery": "done",
-      "remediation": "pending",
-      "categoriesWithFindings": [
-        "JSON"
-      ],
+      "remediation": "done",
+      "categoriesWithFindings": ["JSON"],
       "needsHumanDecision": 1,
-      "triageWeight": "light"
+      "triageWeight": "light",
+      "remediationNote": "applied 1 JSON sync codec; commit"
     },
     "@beep/sanity": {
       "path": "packages/drivers/sanity",
@@ -534,9 +508,7 @@
       "canImportUtils": true,
       "discovery": "done",
       "remediation": "done",
-      "categoriesWithFindings": [
-        "Object"
-      ],
+      "categoriesWithFindings": ["Object"],
       "needsHumanDecision": 1,
       "triageWeight": "heavy",
       "waived": 1,
@@ -567,12 +539,11 @@
       "sanitized": "beep__agent-capability-use-cases",
       "canImportUtils": true,
       "discovery": "done",
-      "remediation": "pending",
-      "categoriesWithFindings": [
-        "JSON"
-      ],
+      "remediation": "done",
+      "categoriesWithFindings": ["JSON"],
       "needsHumanDecision": 1,
-      "triageWeight": "light"
+      "triageWeight": "light",
+      "remediationNote": "applied 1 JSON sync codec; commit"
     },
     "@beep/agent-capability-domain": {
       "path": "packages/agent-capability/domain",
@@ -659,15 +630,11 @@
       "sanitized": "beep__repo-cli",
       "canImportUtils": true,
       "discovery": "done",
-      "remediation": "pending",
-      "categoriesWithFindings": [
-        "JSON",
-        "String",
-        "Array",
-        "Date"
-      ],
+      "remediation": "done",
+      "categoriesWithFindings": ["JSON", "String", "Array", "Date"],
       "needsHumanDecision": 2,
-      "triageWeight": "heavy"
+      "triageWeight": "heavy",
+      "remediationNote": "applied 12 (Array/String/Date/JSON), waived 1 Date; commit"
     },
     "@beep/shared-server": {
       "path": "packages/shared/server",
@@ -704,13 +671,11 @@
       "sanitized": "beep__sandbox",
       "canImportUtils": true,
       "discovery": "done",
-      "remediation": "pending",
-      "categoriesWithFindings": [
-        "String",
-        "Array"
-      ],
+      "remediation": "done",
+      "categoriesWithFindings": ["String", "Array"],
       "needsHumanDecision": 18,
-      "triageWeight": "heavy"
+      "triageWeight": "heavy",
+      "remediationNote": "applied 4 String, waived 18 Array; commit"
     },
     "@beep/shared-use-cases": {
       "path": "packages/shared/use-cases",
@@ -727,12 +692,11 @@
       "sanitized": "beep__oip-web",
       "canImportUtils": true,
       "discovery": "done",
-      "remediation": "pending",
-      "categoriesWithFindings": [
-        "JSON"
-      ],
+      "remediation": "done",
+      "categoriesWithFindings": ["JSON"],
       "needsHumanDecision": 1,
-      "triageWeight": "light"
+      "triageWeight": "light",
+      "remediationNote": "applied 1, waived 0; committed in c7dd06a (bundled with artifacts)"
     },
     "@beep/shared-tables": {
       "path": "packages/shared/tables",
@@ -770,9 +734,7 @@
       "canImportUtils": true,
       "discovery": "done",
       "remediation": "done",
-      "categoriesWithFindings": [
-        "Set"
-      ],
+      "categoriesWithFindings": ["Set"],
       "needsHumanDecision": 6,
       "triageWeight": "heavy",
       "waived": 6,
@@ -803,24 +765,22 @@
       "sanitized": "beep__professional-desktop",
       "canImportUtils": true,
       "discovery": "done",
-      "remediation": "pending",
-      "categoriesWithFindings": [
-        "Array"
-      ],
+      "remediation": "done",
+      "categoriesWithFindings": ["Array"],
       "needsHumanDecision": 0,
-      "triageWeight": "light"
+      "triageWeight": "light",
+      "remediationNote": "applied 1, waived 0; committed in c7dd06a (bundled with artifacts)"
     },
     "@beep/professional-runtime-proof": {
       "path": "apps/professional-runtime-proof",
       "sanitized": "beep__professional-runtime-proof",
       "canImportUtils": true,
       "discovery": "done",
-      "remediation": "pending",
-      "categoriesWithFindings": [
-        "JSON"
-      ],
+      "remediation": "done",
+      "categoriesWithFindings": ["JSON"],
       "needsHumanDecision": 1,
-      "triageWeight": "light"
+      "triageWeight": "light",
+      "remediationNote": "applied 1, waived 0; committed in c7dd06a (bundled with artifacts)"
     },
     "@beep/acp": {
       "path": "packages/drivers/acp",
@@ -828,9 +788,7 @@
       "canImportUtils": true,
       "discovery": "done",
       "remediation": "done",
-      "categoriesWithFindings": [
-        "Array"
-      ],
+      "categoriesWithFindings": ["Array"],
       "needsHumanDecision": 3,
       "triageWeight": "heavy",
       "waived": 3,
@@ -841,13 +799,11 @@
       "sanitized": "beep__nlp",
       "canImportUtils": true,
       "discovery": "done",
-      "remediation": "pending",
-      "categoriesWithFindings": [
-        "Array",
-        "Set"
-      ],
+      "remediation": "done",
+      "categoriesWithFindings": ["Array", "Set"],
       "needsHumanDecision": 1,
-      "triageWeight": "heavy"
+      "triageWeight": "heavy",
+      "remediationNote": "applied 3 A.head/last, 1 FFI Set WONTFIX; commit"
     },
     "@beep/codedank-web": {
       "path": "apps/codedank-web",
