@@ -1,5 +1,6 @@
 import { reuseCommand } from "@beep/repo-cli/commands/Reuse/index";
 import { CodexSmokeResult } from "@beep/repo-cli/commands/Reuse/internal/CodexRunner";
+import { RepoCodegraphLookupResult } from "@beep/repo-codegraph";
 import {
   FsUtilsLive,
   ReuseDiscoveryService,
@@ -35,6 +36,7 @@ const CommandTestLayer = Layer.mergeAll(
 );
 
 const decodeCodexSmokeResultJson = S.decodeUnknownSync(S.fromJsonString(CodexSmokeResult));
+const decodeRepoCodegraphLookupResultJson = S.decodeUnknownSync(S.fromJsonString(RepoCodegraphLookupResult));
 
 const parseLoggedJson = Effect.fn(function* <A>(decodeJson: (value: string) => A) {
   const logLines = yield* TestConsole.logLines;
@@ -238,6 +240,28 @@ describe("reuse command", () => {
           expect(result.sdkPackage).toBe("@openai/codex-sdk");
           expect(result.threadCreated).toBe(true);
           expect(result.threadRunMethodAvailable).toBe(true);
+        }).pipe(provideScopedLayer(CommandTestLayer))
+      ),
+    120_000
+  );
+
+  it(
+    "emits machine-readable lookup results for existing public exports",
+    () =>
+      Effect.runPromise(
+        Effect.gen(function* () {
+          yield* runReuseCommand(["lookup", "--query", "UnknownRecord", "--json"]);
+
+          const result = yield* parseLoggedJson(decodeRepoCodegraphLookupResultJson);
+
+          expect(result.query).toBe("UnknownRecord");
+          expect(result.freshnessStatus).toBe("unchecked");
+          expect(
+            A.some(
+              result.matches,
+              (match) => match.packageName === "@beep/schema" && match.symbolName === "UnknownRecord"
+            )
+          ).toBe(true);
         }).pipe(provideScopedLayer(CommandTestLayer))
       ),
     120_000

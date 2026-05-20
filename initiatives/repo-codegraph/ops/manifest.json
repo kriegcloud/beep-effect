@@ -1,0 +1,42 @@
+{
+  "schemaVersion": "initiative-manifest/v1",
+  "initiative": {
+    "id": "repo-codegraph",
+    "title": "Repo Codegraph",
+    "status": "active",
+    "created": "2026-05-20",
+    "updated": "2026-05-20",
+    "packetAnchorDocument": "SPEC.md"
+  },
+  "mission": "Build a deterministic-first repo codegraph lookup and retrieval surface for coding agents.",
+  "phase1": {
+    "id": "deterministic-export-lookup",
+    "package": "@beep/repo-codegraph",
+    "command": "bun run beep reuse lookup --query UnknownRecord --json",
+    "inputs": [
+      "standards/repo-exports.catalog.jsonc",
+      "package.json beep.importPolicy"
+    ],
+    "outputs": [
+      "RepoCodegraphLookupResult",
+      "legal import candidates",
+      "recommended import",
+      "score components",
+      "boundary advice"
+    ],
+    "seedProof": {
+      "symbol": "UnknownRecord",
+      "package": "@beep/schema",
+      "recommendedImportSpecifier": "@beep/schema",
+      "sourcePath": "packages/foundation/modeling/schema/src/Record.ts"
+    }
+  },
+  "futurePhases": [
+    "AST structural facts",
+    "provider-neutral semantic embeddings",
+    "FalkorDB graph projection",
+    "MCP lookup surface",
+    "agent effectiveness evaluation loop"
+  ],
+  "referencePackets": ["repo-context-topology", "repo-codegraph-jsdoc"]
+}

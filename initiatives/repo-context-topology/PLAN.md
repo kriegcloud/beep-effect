@@ -16,7 +16,8 @@
 
 ## Phase 2 - Agent Lookup Surface
 
-- Add a small CLI query command once the catalog shape stabilizes.
+- Hand off the active lookup implementation to `initiatives/repo-codegraph`.
+- Add and maintain `beep reuse lookup` as the first small CLI query command.
 - Query by symbol name, package, import specifier, category, or text in
   `searchText`.
 - Return anti-duplication hints only after repeated failure modes justify a

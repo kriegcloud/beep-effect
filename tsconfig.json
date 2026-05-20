@@ -577,6 +577,12 @@
       "@beep/opip-web/app/manifest": ["./apps/opip-web/src/app/manifest.ts"],
       "@beep/opip-web/app/robots": ["./apps/opip-web/src/app/robots.ts"],
       "@beep/opip-web/app/sitemap": ["./apps/opip-web/src/app/sitemap.ts"],
+      "@beep/repo-codegraph": [
+        "./packages/tooling/library/repo-codegraph/src/index.ts"
+      ],
+      "@beep/repo-codegraph/*": [
+        "./packages/tooling/library/repo-codegraph/src/*"
+      ],
       "@beep/installer-domain": ["./packages/installer/domain/src/index.ts"],
       "@beep/installer-domain/aggregates": [
         "./packages/installer/domain/src/aggregates/index.ts"

@@ -130,7 +130,8 @@ const composers = $I.compose(
   "discord",
   "ai-provider-cli",
   "sanity",
-  "hubspot"
+  "hubspot",
+  "repo-codegraph"
 );
 
 // --- foundation ---
@@ -1212,3 +1213,19 @@ export const $SanityId: Identity.IdentityComposer<"@beep/sanity"> = composers.$S
  * @category configuration
  */
 export const $HubspotId: Identity.IdentityComposer<"@beep/hubspot"> = composers.$HubspotId;
+
+/**
+ * Identity composer for `@beep/repo-codegraph`.
+ *
+ * @example
+ * ```typescript
+ * import { $RepoCodegraphId } from "@beep/identity"
+ *
+ * const id = $RepoCodegraphId.make("RepoCodegraph")
+ * void id
+ * ```
+ *
+ * @since 0.0.0
+ * @category configuration
+ */
+export const $RepoCodegraphId: Identity.IdentityComposer<"@beep/repo-codegraph"> = composers.$RepoCodegraphId;
