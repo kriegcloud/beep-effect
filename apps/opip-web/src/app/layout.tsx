@@ -18,6 +18,7 @@ import "./globals.css";
 
 const { metadata: siteMetadata } = opipSiteContent;
 const REACT_GRAB_VERSION = "0.1.34";
+const REACT_GRAB_INTEGRITY = "sha384-J3uUkSxoVuSuDgef6b1qRkPjoviSf3OhttzqVTJd98rv0/hPenLy8KfgE7UEulp2";
 const configStringOptionSync = (name: string): O.Option<string> => Effect.runSync(Config.option(Config.string(name)));
 const configStringEqualsSync = (name: string, expected: string): boolean =>
   pipe(
@@ -236,6 +237,7 @@ export default function RootLayout({
               <Script
                 src={`https://unpkg.com/react-grab@${REACT_GRAB_VERSION}/dist/index.global.js`}
                 crossOrigin="anonymous"
+                integrity={REACT_GRAB_INTEGRITY}
                 nonce={nonce}
                 strategy="beforeInteractive"
               />
