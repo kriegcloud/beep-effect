@@ -123,6 +123,35 @@ const makeDoctorInput = ({
 const provideAgentEffectivenessLayers = Effect.fn("AgentEffectiveness.provideLayers")(function* <A, E, R>({
   dataRoot,
   effect,
+}: {
+  readonly dataRoot: string;
+  readonly effect: Effect.Effect<A, E, R>;
+}) {
+  const path = yield* Path.Path;
+  const duckDbPath = path.resolve(dataRoot, "derived", "ai-metrics.duckdb");
+  return yield* Effect.scoped(
+    Layer.build(
+      Layer.mergeAll(
+        DuckDb.makeNodeLayer(new DuckDbConnectionOptions({ databasePath: duckDbPath })),
+        FetchHttpClient.layer
+      )
+    ).pipe(
+      Effect.flatMap(
+        Effect.fnUntraced(function* (context) {
+          return yield* effect.pipe(Effect.provide(context));
+        })
+      )
+    )
+  );
+});
+
+const provideAgentEffectivenessPhoenixLayers = Effect.fn("AgentEffectiveness.providePhoenixLayers")(function* <
+  A,
+  E,
+  R,
+>({
+  dataRoot,
+  effect,
   phoenixBaseUrl,
 }: {
   readonly dataRoot: string;
@@ -131,13 +160,12 @@ const provideAgentEffectivenessLayers = Effect.fn("AgentEffectiveness.provideLay
 }) {
   const path = yield* Path.Path;
   const duckDbPath = path.resolve(dataRoot, "derived", "ai-metrics.duckdb");
-  const phoenixLayer = Phoenix.makeLayer(new PhoenixConfigInput({ baseUrl: phoenixBaseUrl }));
   return yield* Effect.scoped(
     Layer.build(
       Layer.mergeAll(
         DuckDb.makeNodeLayer(new DuckDbConnectionOptions({ databasePath: duckDbPath })),
         FetchHttpClient.layer,
-        phoenixLayer
+        Phoenix.makeLayer(new PhoenixConfigInput({ baseUrl: phoenixBaseUrl }))
       )
     ).pipe(
       Effect.flatMap(
@@ -275,7 +303,6 @@ const makeDoctorProgram = Effect.fn("AgentEffectiveness.makeDoctorProgram")(func
   const report = yield* provideAgentEffectivenessLayers({
     dataRoot,
     effect: makeAgentEffectivenessDoctorReport(input),
-    phoenixBaseUrl,
   });
   yield* renderDoctorReport(report, json);
 });
@@ -299,7 +326,6 @@ const makeAnnotationPlanProgram = Effect.fn("AgentEffectiveness.makeAnnotationPl
   const plan = yield* provideAgentEffectivenessLayers({
     dataRoot,
     effect: makeAgentEffectivenessAnnotationPlan(new AgentEffectivenessAnnotationPlanInput({ doctor })),
-    phoenixBaseUrl,
   });
   yield* renderAnnotationPlan(plan, json);
 });
@@ -323,7 +349,6 @@ const makeAnnotationCheckProgram = Effect.fn("AgentEffectiveness.makeAnnotationC
   const plan = yield* provideAgentEffectivenessLayers({
     dataRoot,
     effect: makeAgentEffectivenessAnnotationPlan(new AgentEffectivenessAnnotationPlanInput({ doctor })),
-    phoenixBaseUrl,
   });
   const report = makeAgentEffectivenessAnnotationCheckReport(plan);
   yield* renderAnnotationCheck(report, json);
@@ -351,7 +376,6 @@ const makeDatasetBundleProgram = Effect.fn("AgentEffectiveness.makeDatasetBundle
   const report = yield* provideAgentEffectivenessLayers({
     dataRoot,
     effect: makeAgentEffectivenessDoctorReport(input),
-    phoenixBaseUrl,
   });
   yield* renderDatasetBundle(makeAgentEffectivenessDatasetBundle(report), json);
 });
@@ -375,7 +399,6 @@ const makePromptBundleProgram = Effect.fn("AgentEffectiveness.makePromptBundlePr
   const report = yield* provideAgentEffectivenessLayers({
     dataRoot,
     effect: makeAgentEffectivenessDoctorReport(input),
-    phoenixBaseUrl,
   });
   yield* renderPromptBundle(makeAgentEffectivenessPromptBundle(report.generatedAt), json);
 });
@@ -399,7 +422,6 @@ const makeExperimentBundleProgram = Effect.fn("AgentEffectiveness.makeExperiment
   const report = yield* provideAgentEffectivenessLayers({
     dataRoot,
     effect: makeAgentEffectivenessDoctorReport(input),
-    phoenixBaseUrl,
   });
   const datasetBundle = makeAgentEffectivenessDatasetBundle(report);
   yield* renderExperimentBundle(makeAgentEffectivenessExperimentBundle(datasetBundle), json);
@@ -425,7 +447,7 @@ const makePhoenixSyncProgram = Effect.fn("AgentEffectiveness.makePhoenixSyncProg
   readonly write: boolean;
 }) {
   const doctor = makeDoctorInput({ dataRoot, noPhoenix, phoenixBaseUrl, target, workerEvalReportPath });
-  const result = yield* provideAgentEffectivenessLayers({
+  const result = yield* provideAgentEffectivenessPhoenixLayers({
     dataRoot,
     effect: syncAgentEffectivenessPhoenix(
       new AgentEffectivenessPhoenixSyncInput({

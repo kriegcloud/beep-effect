@@ -2521,6 +2521,20 @@ export const syncAgentEffectivenessPhoenix: (
   const experimentBundle = makeAgentEffectivenessExperimentBundle(datasetBundle);
   const phoenixAnnotations = pipe(plan.annotations, A.map(plannedAnnotationToPhoenix), A.getSomes);
   const confirmed = !input.dryRun && input.confirmToken === AGENT_EFFECTIVENESS_PHOENIX_WRITE_CONFIRMATION;
+  const annotationCheck = makeAgentEffectivenessAnnotationCheckReport(plan);
+
+  if (annotationCheck.status === AgentEffectivenessStatus.Enum.failed) {
+    return unconfirmedSyncResult({
+      datasetBundle,
+      dryRun: input.dryRun,
+      experimentBundle,
+      mutationPolicy: input.dryRun ? "dry-run-annotation-check-failed" : "blocked-annotation-check-failed",
+      phoenixAnnotations,
+      plannedAnnotationCount: A.length(plan.annotations),
+      promptBundle,
+      status: AgentEffectivenessStatus.Enum.failed,
+    });
+  }
 
   if (input.dryRun) {
     return unconfirmedSyncResult({

@@ -63,7 +63,9 @@ const okSdk: PhoenixSdkShape = {
       })
     ),
   createPrompt: (input) =>
-    Promise.resolve(new PhoenixPromptWriteResult({ name: input.name, promptVersionId: "prompt-version-id" })),
+    Promise.resolve(
+      new PhoenixPromptWriteResult({ name: input.name, promptVersionId: `prompt-version-id:${input.modelProvider}` })
+    ),
   doctor: () =>
     Promise.resolve(
       new PhoenixDoctorResult({
@@ -133,7 +135,7 @@ describe("@beep/phoenix", () => {
 
       expect(doctor.version).toBe("1.2.3");
       expect(dataset.datasetId).toBe("dataset:agent-loop-health-v1:1");
-      expect(prompt.promptVersionId).toBe("prompt-version-id");
+      expect(prompt.promptVersionId).toBe("prompt-version-id:OPENAI");
     }).pipe(provideScopedLayer(Phoenix.makeLayerWithSdk(okSdk)))
   );
 
@@ -181,6 +183,17 @@ describe("@beep/phoenix", () => {
       expect(examples.versionId).toBe("version-id");
       expect(prompt.exists).toBe(true);
       expect(experiment.experimentId).toBe("experiment-id");
+    }).pipe(provideScopedLayer(Phoenix.makeLayerWithSdk(okSdk)))
+  );
+
+  it.effect("rejects empty prompt selectors before calling the SDK", () =>
+    Effect.gen(function* () {
+      const phoenix = yield* Phoenix;
+      const error = yield* pipe(phoenix.getPrompt(new PhoenixPromptSelector({})), Effect.flip);
+
+      expect(error).toBeInstanceOf(PhoenixError);
+      expect(error.operation).toBe("getPrompt");
+      expect(error.reason).toBe("config");
     }).pipe(provideScopedLayer(Phoenix.makeLayerWithSdk(okSdk)))
   );
 });

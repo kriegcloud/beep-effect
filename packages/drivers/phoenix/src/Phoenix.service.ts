@@ -46,6 +46,7 @@ import {
   type PhoenixExperimentCreateInput,
   PhoenixExperimentInfoResult,
   type PhoenixPromptCreateInput,
+  type PhoenixPromptModelProvider,
   PhoenixPromptReadResult,
   type PhoenixPromptSelector,
   PhoenixPromptWriteResult,
@@ -247,8 +248,18 @@ const promptSelectorToSdk = (selector: PhoenixPromptSelector): SdkPromptSelector
     return { name: name.value, tag: tag.value };
   }
 
+  if (O.isSome(tag)) {
+    return { name: O.getOrElse(name, () => ""), tag: tag.value };
+  }
+
   return { name: O.getOrElse(name, () => "") };
 };
+
+const promptSelectorHasValue = (selector: PhoenixPromptSelector): boolean =>
+  O.isSome(O.fromUndefinedOr(selector.promptId)) ||
+  O.isSome(O.fromUndefinedOr(selector.versionId)) ||
+  O.isSome(O.fromUndefinedOr(selector.name)) ||
+  O.isSome(O.fromUndefinedOr(selector.tag));
 
 const experimentInfoResult = (experiment: {
   readonly datasetId: string;
@@ -359,6 +370,30 @@ const optionalPromptVersionDescription = (input: PhoenixPromptCreateInput): { re
     O.getOrElse(() => ({}))
   );
 
+const promptVersionInputBase = (input: PhoenixPromptCreateInput) => ({
+  modelName: input.modelName,
+  template: pipe(
+    input.template,
+    A.map((message) => ({ content: message.content, role: message.role }))
+  ),
+  templateFormat: input.templateFormat,
+  ...optionalPromptVersionDescription(input),
+});
+
+const promptVersionForProvider = (input: PhoenixPromptCreateInput) => {
+  const base = promptVersionInputBase(input);
+  return Match.value<PhoenixPromptModelProvider>(input.modelProvider).pipe(
+    Match.when("OPENAI", () => promptVersion({ ...base, modelProvider: "OPENAI" })),
+    Match.when("AZURE_OPENAI", () => promptVersion({ ...base, modelProvider: "AZURE_OPENAI" })),
+    Match.when("GOOGLE", () => promptVersion({ ...base, modelProvider: "GOOGLE" })),
+    Match.when("DEEPSEEK", () => promptVersion({ ...base, modelProvider: "DEEPSEEK" })),
+    Match.when("XAI", () => promptVersion({ ...base, modelProvider: "XAI" })),
+    Match.when("OLLAMA", () => promptVersion({ ...base, modelProvider: "OLLAMA" })),
+    Match.when("AWS", () => promptVersion({ ...base, modelProvider: "AWS" })),
+    Match.exhaustive
+  );
+};
+
 const makePhoenixSdk = (config: ResolvedPhoenixConfig): PhoenixSdkShape => {
   const client = makeClient(config);
 
@@ -427,16 +462,7 @@ const makePhoenixSdk = (config: ResolvedPhoenixConfig): PhoenixSdkShape => {
         client,
         metadata: toMutableRecord(input.metadata),
         name: input.name,
-        version: promptVersion({
-          modelName: input.modelName,
-          modelProvider: "OPENAI",
-          template: pipe(
-            input.template,
-            A.map((message) => ({ content: message.content, role: message.role }))
-          ),
-          templateFormat: input.templateFormat,
-          ...optionalPromptVersionDescription(input),
-        }),
+        version: promptVersionForProvider(input),
         ...optionalPromptDescription(input),
       }).then(
         (result) =>
@@ -592,7 +618,13 @@ const makeService = (sdk: PhoenixSdkShape): PhoenixShape => ({
       })
     ),
   getPrompt: (selector) =>
-    callSdk("getPrompt", () => sdk.getPrompt(selector)).pipe(Effect.withSpan("Phoenix.getPrompt")),
+    promptSelectorHasValue(selector)
+      ? callSdk("getPrompt", () => sdk.getPrompt(selector)).pipe(Effect.withSpan("Phoenix.getPrompt"))
+      : Effect.fail(
+          PhoenixError.operation("getPrompt", "config", {
+            cause: "Phoenix prompt selector requires promptId, versionId, name, or tag.",
+          })
+        ).pipe(Effect.withSpan("Phoenix.getPrompt")),
 });
 
 const makePhoenixFromEnvironment = Effect.fn("Phoenix.makePhoenixFromEnvironment")(function* () {

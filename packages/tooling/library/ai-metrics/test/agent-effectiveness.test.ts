@@ -182,6 +182,15 @@ const workerReportJsonWithTwoViolations = `{
   }
 }`;
 
+const unsafeWorkerReportJson = `{
+  "cleanup": { "deleteStatus": "completed", "stopStatus": "completed" },
+  "otlp": { "status": "exported" },
+  "workerEval": {
+    "summary": { "completed": 2, "failed": 0, "selectedPackets": 2, "timedOut": 0 },
+    "policyViolations": [{ "code": "API_KEY" }]
+  }
+}`;
+
 const runtimeLayer = (duckDbPath: string) =>
   Layer.mergeAll(
     NodeServices.layer,
@@ -713,6 +722,54 @@ describe("@beep/repo-ai-metrics agent-effectiveness", () => {
             )
           ).toContain("duplicate-annotation-id");
         }).pipe(provideScopedLayer(runtimeLayer(path.join(tmpDir, "metrics/derived/ai-metrics.duckdb"))));
+      })
+    ).pipe(provideScopedLayer(NodeServices.layer))
+  );
+
+  it.effect("blocks confirmed Phoenix sync when annotation privacy checks fail", () =>
+    withTempDirectory((tmpDir) =>
+      Effect.gen(function* () {
+        const path = yield* Path.Path;
+        const calls = {
+          annotations: [] as string[],
+          datasets: [] as string[],
+          experiments: [] as string[],
+          prompts: [] as string[],
+        };
+        yield* Effect.gen(function* () {
+          const dataRoot = path.join(tmpDir, "metrics");
+          const workerReportPath = path.join(tmpDir, "worker-eval.json");
+          const annotationPlan = new AgentEffectivenessAnnotationPlanInput({
+            doctor: new AgentEffectivenessDoctorInput({
+              dataRoot,
+              noPhoenix: true,
+              workerEvalReportPath: workerReportPath,
+            }),
+          });
+          yield* writeText(workerReportPath, unsafeWorkerReportJson);
+
+          const blocked = yield* syncAgentEffectivenessPhoenix(
+            new AgentEffectivenessPhoenixSyncInput({
+              annotationPlan,
+              confirmToken: AGENT_EFFECTIVENESS_PHOENIX_WRITE_CONFIRMATION,
+              dryRun: false,
+            })
+          );
+
+          expect(blocked.status).toBe(AgentEffectivenessStatus.Enum.failed);
+          expect(blocked.mutationPolicy).toBe("blocked-annotation-check-failed");
+          expect(calls.datasets).toEqual([]);
+          expect(calls.prompts).toEqual([]);
+          expect(calls.experiments).toEqual([]);
+          expect(calls.annotations).toEqual([]);
+        }).pipe(
+          provideScopedLayer(
+            Layer.mergeAll(
+              runtimeLayer(path.join(tmpDir, "metrics/derived/ai-metrics.duckdb")),
+              Phoenix.makeLayerWithSdk(phoenixWriteSdk(calls))
+            )
+          )
+        );
       })
     ).pipe(provideScopedLayer(NodeServices.layer))
   );

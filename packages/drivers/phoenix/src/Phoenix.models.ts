@@ -210,6 +210,41 @@ export const PhoenixPromptTemplateFormat = LiteralKit(["F_STRING", "MUSTACHE"] a
 export type PhoenixPromptTemplateFormat = typeof PhoenixPromptTemplateFormat.Type;
 
 /**
+ * Prompt model providers supported by the Phoenix SDK helper without extra invocation parameters.
+ *
+ * @example
+ * ```ts
+ * import { PhoenixPromptModelProvider } from "@beep/phoenix"
+ *
+ * console.log(PhoenixPromptModelProvider.Enum.GOOGLE)
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export const PhoenixPromptModelProvider = LiteralKit([
+  "OPENAI",
+  "AZURE_OPENAI",
+  "GOOGLE",
+  "DEEPSEEK",
+  "XAI",
+  "OLLAMA",
+  "AWS",
+] as const).pipe(
+  $I.annoteSchema("PhoenixPromptModelProvider", {
+    description: "Prompt model providers supported by the Phoenix driver prompt creation path.",
+  })
+);
+
+/**
+ * Type for {@link PhoenixPromptModelProvider}.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export type PhoenixPromptModelProvider = typeof PhoenixPromptModelProvider.Type;
+
+/**
  * Phoenix driver doctor result.
  *
  * @example
@@ -494,6 +529,7 @@ export class PhoenixPromptChatMessage extends S.Class<PhoenixPromptChatMessage>(
  *
  * const input = new PhoenixPromptCreateInput({
  *   modelName: "gpt-4o-mini",
+ *   modelProvider: "OPENAI",
  *   name: "agent-effectiveness-review-evaluator-v1",
  *   template: [new PhoenixPromptChatMessage({ content: "Review {{caseId}}", role: "user" })]
  * })
@@ -511,6 +547,10 @@ export class PhoenixPromptCreateInput extends S.Class<PhoenixPromptCreateInput>(
       S.withDecodingDefaultKey(Effect.succeed({}))
     ),
     modelName: S.String,
+    modelProvider: PhoenixPromptModelProvider.pipe(
+      S.withConstructorDefault(Effect.succeed(PhoenixPromptModelProvider.Enum.OPENAI)),
+      S.withDecodingDefaultKey(Effect.succeed(PhoenixPromptModelProvider.Enum.OPENAI))
+    ),
     name: S.String,
     template: S.Array(PhoenixPromptChatMessage),
     templateFormat: PhoenixPromptTemplateFormat.pipe(
