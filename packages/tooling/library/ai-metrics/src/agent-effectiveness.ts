@@ -2297,6 +2297,8 @@ const jsdocWorkerDataset = (doctor: AgentEffectivenessDoctorReport): AgentEffect
 /**
  * Build the Phoenix dataset bundle from a doctor report.
  *
+ * @param doctor - Doctor report used to derive sanitized aggregate Phoenix datasets.
+ * @returns Phoenix dataset bundle generated from the doctor report.
  * @example
  * ```ts
  * import { makeAgentEffectivenessDatasetBundle } from "@beep/repo-ai-metrics"
@@ -2324,6 +2326,8 @@ export const makeAgentEffectivenessDatasetBundle: (
 /**
  * Build the repo-owned Phoenix prompt bundle.
  *
+ * @param generatedAt - ISO timestamp to assign to the generated prompt bundle.
+ * @returns Repo-owned Phoenix prompt bundle for agent-effectiveness review.
  * @example
  * ```ts
  * import { makeAgentEffectivenessPromptBundle } from "@beep/repo-ai-metrics"
@@ -2376,6 +2380,8 @@ export const makeAgentEffectivenessPromptBundle: (generatedAt: string) => AgentE
 /**
  * Build deterministic experiment specs from a dataset bundle.
  *
+ * @param datasetBundle - Dataset bundle used to derive one experiment per dataset.
+ * @returns Deterministic Phoenix experiment bundle for the supplied datasets.
  * @example
  * ```ts
  * import { makeAgentEffectivenessExperimentBundle } from "@beep/repo-ai-metrics"
@@ -2546,7 +2552,6 @@ const unconfirmedSyncResult = ({
  * @remarks
  * This function defaults to dry-run. Live writes require
  * {@link AGENT_EFFECTIVENESS_PHOENIX_WRITE_CONFIRMATION}.
- *
  * @example
  * ```ts
  * import { syncAgentEffectivenessPhoenix } from "@beep/repo-ai-metrics"
