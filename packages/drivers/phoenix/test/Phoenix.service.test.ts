@@ -164,6 +164,7 @@ describe("@beep/phoenix", () => {
       expect(error).toBeInstanceOf(PhoenixError);
       expect(error.operation).toBe("doctor");
       expect(error.reason).toBe("transport");
+      expect(error.cause).toBe("offline");
     }).pipe(provideScopedLayer(Phoenix.makeLayerWithSdk(failingSdk)))
   );
 
