@@ -75,6 +75,8 @@
       "@beep/observability/web": [
         "../../../../packages/foundation/capability/observability/src/web/index.ts"
       ],
+      "@beep/phoenix": ["../../../../packages/drivers/phoenix/src/index.ts"],
+      "@beep/phoenix/*": ["../../../../packages/drivers/phoenix/src/*.ts"],
       "@beep/repo-ai-metrics": [
         "../../../../packages/tooling/library/ai-metrics/src/index.ts"
       ],

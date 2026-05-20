@@ -21,8 +21,13 @@ import {
   type PhoenixSdkShape,
 } from "@beep/phoenix";
 import { describe, expect, it } from "@effect/vitest";
-import { Effect, pipe } from "effect";
+import { Effect, Layer, pipe } from "effect";
 import * as A from "effect/Array";
+
+const provideScopedLayer =
+  <ROut, E2, RIn>(layer: Layer.Layer<ROut, E2, RIn>) =>
+  <A, E, R>(effect: Effect.Effect<A, E, R>): Effect.Effect<A, E | E2, RIn | Exclude<R, ROut>> =>
+    Effect.scoped(Layer.build(layer).pipe(Effect.flatMap((context) => effect.pipe(Effect.provide(context)))));
 
 const okSdk: PhoenixSdkShape = {
   addAnnotation: (input) =>
@@ -129,7 +134,7 @@ describe("@beep/phoenix", () => {
       expect(doctor.version).toBe("1.2.3");
       expect(dataset.datasetId).toBe("dataset:agent-loop-health-v1:1");
       expect(prompt.promptVersionId).toBe("prompt-version-id");
-    }).pipe(Effect.provide(Phoenix.makeLayerWithSdk(okSdk)))
+    }).pipe(provideScopedLayer(Phoenix.makeLayerWithSdk(okSdk)))
   );
 
   it.effect("writes annotations through the injected SDK adapter", () =>
@@ -146,7 +151,7 @@ describe("@beep/phoenix", () => {
 
       expect(result.annotationId).toBe("annotation-id");
       expect(result.targetKind).toBe("trace");
-    }).pipe(Effect.provide(Phoenix.makeLayerWithSdk(okSdk)))
+    }).pipe(provideScopedLayer(Phoenix.makeLayerWithSdk(okSdk)))
   );
 
   it.effect("maps SDK promise failures into PhoenixError", () =>
@@ -157,7 +162,7 @@ describe("@beep/phoenix", () => {
       expect(error).toBeInstanceOf(PhoenixError);
       expect(error.operation).toBe("doctor");
       expect(error.reason).toBe("transport");
-    }).pipe(Effect.provide(Phoenix.makeLayerWithSdk(failingSdk)))
+    }).pipe(provideScopedLayer(Phoenix.makeLayerWithSdk(failingSdk)))
   );
 
   it.effect("reads back dataset, prompt, and experiment summaries", () =>
@@ -176,6 +181,6 @@ describe("@beep/phoenix", () => {
       expect(examples.versionId).toBe("version-id");
       expect(prompt.exists).toBe(true);
       expect(experiment.experimentId).toBe("experiment-id");
-    }).pipe(Effect.provide(Phoenix.makeLayerWithSdk(okSdk)))
+    }).pipe(provideScopedLayer(Phoenix.makeLayerWithSdk(okSdk)))
   );
 });
