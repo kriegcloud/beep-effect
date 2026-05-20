@@ -8,6 +8,7 @@ import { $AgentCapabilityDomainId } from "@beep/identity/packages";
 import * as EntitySchema from "@beep/schema/EntitySchema";
 import { BaseEntity } from "@beep/shared-domain/entity/BaseEntity";
 import * as AgentCapability from "@beep/shared-domain/identity/AgentCapability";
+import { Tuple } from "effect";
 import * as S from "effect/Schema";
 import { AgentMode } from "./Agent.values.js";
 
@@ -53,4 +54,17 @@ export class Agent extends BaseEntity.Class<Agent>($I`Agent`)(
   $I.annote("Agent", {
     description: "Agent definition available to the runtime proof.",
   })
-) {}
+) {
+  static readonly toTagged = () =>
+    Agent.fields.mode
+      .mapMembers(
+        Tuple.evolve([
+          () =>
+            S.Struct({
+              ...Agent.fields,
+              mode: S.tag("deterministic_fixture"),
+            }),
+        ])
+      )
+      .pipe(S.toTaggedUnion("mode"));
+}
