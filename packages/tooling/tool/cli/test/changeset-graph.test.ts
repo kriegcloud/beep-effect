@@ -35,16 +35,18 @@ const runGit = Effect.fn("ChangesetGraphTest.runGit")(function* (repoRoot: strin
 });
 
 const withTempRepo = <A, E, R>(use: (tmpDir: string) => Effect.Effect<A, E, R>) =>
-  Effect.acquireUseRelease(
-    Effect.gen(function* () {
-      const fs = yield* FileSystem.FileSystem;
-      const tmpDir = yield* fs.makeTempDirectory();
+  Effect.scoped(
+    Effect.acquireUseRelease(
+      Effect.gen(function* () {
+        const fs = yield* FileSystem.FileSystem;
+        const tmpDir = yield* fs.makeTempDirectory();
 
-      return { fs, tmpDir } as const;
-    }),
-    ({ tmpDir }) => use(tmpDir),
-    ({ fs, tmpDir }) => fs.remove(tmpDir, { recursive: true, force: true })
-  ).pipe(provideScopedLayer(testLayer));
+        return { fs, tmpDir } as const;
+      }),
+      ({ tmpDir }) => use(tmpDir),
+      ({ fs, tmpDir }) => fs.remove(tmpDir, { recursive: true, force: true })
+    ).pipe(provideScopedLayer(testLayer))
+  );
 
 const writeRepoFile = Effect.fn("ChangesetGraphTest.writeRepoFile")(function* (
   repoRoot: string,
@@ -172,86 +174,80 @@ Record a private workspace change.
 
   it("accepts tracked workspace changesets through the release-path check", () =>
     Effect.runPromise(
-      Effect.scoped(
-        withTempRepo((tmpDir) =>
-          Effect.gen(function* () {
-            yield* writeFixtureRepo(
-              tmpDir,
-              `---
+      withTempRepo((tmpDir) =>
+        Effect.gen(function* () {
+          yield* writeFixtureRepo(
+            tmpDir,
+            `---
 "@beep/demo": patch
 ---
 
 Patch demo.
 `
-            );
+          );
 
-            const summary = yield* runChangesetGraphCheck(tmpDir);
+          const summary = yield* runChangesetGraphCheck(tmpDir);
 
-            expect(summary).toMatchObject({
-              workspacePackages: 1,
-              changesetFiles: 1,
-              references: 1,
-              missingReferences: [],
-            });
-          })
-        )
+          expect(summary).toMatchObject({
+            workspacePackages: 1,
+            changesetFiles: 1,
+            references: 1,
+            missingReferences: [],
+          });
+        })
       )
     ));
 
   it("rejects tracked changesets that reference packages outside the workspace graph", () =>
     Effect.runPromise(
-      Effect.scoped(
-        withTempRepo((tmpDir) =>
-          Effect.gen(function* () {
-            yield* writeFixtureRepo(
-              tmpDir,
-              `---
+      withTempRepo((tmpDir) =>
+        Effect.gen(function* () {
+          yield* writeFixtureRepo(
+            tmpDir,
+            `---
 "@beep/missing": patch
 ---
 
 Patch missing package.
 `
-            );
+          );
 
-            const error = yield* runChangesetGraphCheck(tmpDir).pipe(Effect.flip);
-            const errorLines = yield* TestConsole.errorLines;
+          const error = yield* runChangesetGraphCheck(tmpDir).pipe(Effect.flip);
+          const errorLines = yield* TestConsole.errorLines;
 
-            expect(error).toMatchObject({
-              message: "Changeset package graph validation failed.",
-            });
-            expect(errorLines).toEqual([
-              "[changeset-graph] changeset package references outside current workspace graph:",
-              "- .changeset/demo.md :: @beep/missing",
-            ]);
-          })
-        )
+          expect(error).toMatchObject({
+            message: "Changeset package graph validation failed.",
+          });
+          expect(errorLines).toEqual([
+            "[changeset-graph] changeset package references outside current workspace graph:",
+            "- .changeset/demo.md :: @beep/missing",
+          ]);
+        })
       )
     ));
 
   it("treats tracked empty changesets as release-path no-ops", () =>
     Effect.runPromise(
-      Effect.scoped(
-        withTempRepo((tmpDir) =>
-          Effect.gen(function* () {
-            yield* writeFixtureRepo(
-              tmpDir,
-              `---
+      withTempRepo((tmpDir) =>
+        Effect.gen(function* () {
+          yield* writeFixtureRepo(
+            tmpDir,
+            `---
 ---
 
 Record a private workspace change.
 `
-            );
+          );
 
-            const summary = yield* runChangesetGraphCheck(tmpDir);
+          const summary = yield* runChangesetGraphCheck(tmpDir);
 
-            expect(summary).toMatchObject({
-              workspacePackages: 1,
-              changesetFiles: 1,
-              references: 0,
-              missingReferences: [],
-            });
-          })
-        )
+          expect(summary).toMatchObject({
+            workspacePackages: 1,
+            changesetFiles: 1,
+            references: 0,
+            missingReferences: [],
+          });
+        })
       )
     ));
 });

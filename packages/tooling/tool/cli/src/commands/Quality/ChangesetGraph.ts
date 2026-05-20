@@ -182,9 +182,9 @@ const collectGitOutput = Effect.fn("ChangesetGraph.collectGitOutput")(function* 
       const handle = yield* ChildProcess.make("git", [...args], {
         cwd: repoRoot,
         stdout: "pipe",
-        stderr: "pipe",
+        stderr: "ignore",
       });
-      const text = yield* handle.all.pipe(
+      const text = yield* handle.stdout.pipe(
         Stream.decodeText(),
         Stream.runFold(
           () => "",
