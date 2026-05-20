@@ -39,6 +39,9 @@
       "@beep/oip-web/app/manifest": ["../../apps/oip-web/src/app/manifest.ts"],
       "@beep/oip-web/app/robots": ["../../apps/oip-web/src/app/robots.ts"],
       "@beep/oip-web/app/sitemap": ["../../apps/oip-web/src/app/sitemap.ts"],
+      "@beep/oip-web/config/OipRedirects": [
+        "../../apps/oip-web/src/config/OipRedirects.ts"
+      ],
       "@beep/oip-web/contact": ["../../apps/oip-web/src/contact/index.ts"],
       "@beep/oip-web/content": ["../../apps/oip-web/src/content/index.ts"],
       "@beep/oip-web/mdx-components": [

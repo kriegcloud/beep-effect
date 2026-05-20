@@ -641,7 +641,10 @@
         "./packages/installer/use-cases/src/server.ts"
       ],
       "@beep/phoenix": ["./packages/drivers/phoenix/src/index.ts"],
-      "@beep/phoenix/*": ["./packages/drivers/phoenix/src/*"]
+      "@beep/phoenix/*": ["./packages/drivers/phoenix/src/*"],
+      "@beep/oip-web/config/OipRedirects": [
+        "./apps/oip-web/src/config/OipRedirects.ts"
+      ]
     }
   }
 }
