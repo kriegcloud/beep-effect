@@ -12,11 +12,14 @@ import {
   PhoenixAnnotationInput,
   PhoenixAnnotationTargetKind,
   type PhoenixAnnotationTargetKind as PhoenixAnnotationTargetKindType,
+  PhoenixDatasetAppendInput,
   PhoenixDatasetCreateInput,
   PhoenixDatasetExample,
+  PhoenixDatasetSelector,
   PhoenixExperimentCreateInput,
   PhoenixPromptChatMessage,
   PhoenixPromptCreateInput,
+  type PhoenixShape,
 } from "@beep/phoenix";
 import { LiteralKit, TaggedErrorClass } from "@beep/schema";
 import { A, O, P, Str } from "@beep/utils";
@@ -2425,6 +2428,37 @@ const toPhoenixDatasetCreateInput = (dataset: AgentEffectivenessDatasetSpec): Ph
     name: dataset.name,
   });
 
+const datasetSelectorFor = (dataset: AgentEffectivenessDatasetSpec): PhoenixDatasetSelector =>
+  new PhoenixDatasetSelector({ kind: "dataset-name", value: dataset.name });
+
+const syncPhoenixDataset = Effect.fn("AiMetrics.syncPhoenixDataset")(function* (
+  phoenix: PhoenixShape,
+  dataset: AgentEffectivenessDatasetSpec
+) {
+  const input = toPhoenixDatasetCreateInput(dataset);
+  const selector = datasetSelectorFor(dataset);
+  const existing = yield* phoenix.getDatasetInfo(selector).pipe(Effect.option);
+
+  if (O.isSome(existing)) {
+    const appended = yield* phoenix.appendDatasetExamples(
+      new PhoenixDatasetAppendInput({
+        dataset: selector,
+        examples: input.examples,
+      })
+    );
+    return {
+      createExperiment: false,
+      datasetId: appended.datasetId,
+    };
+  }
+
+  const created = yield* phoenix.createDataset(input);
+  return {
+    createExperiment: true,
+    datasetId: created.datasetId,
+  };
+});
+
 const toPhoenixPromptCreateInput = (prompt: AgentEffectivenessPromptSpec): PhoenixPromptCreateInput =>
   new PhoenixPromptCreateInput({
     description: prompt.description,
@@ -2551,6 +2585,20 @@ export const syncAgentEffectivenessPhoenix: (
     });
   }
 
+  const datasetFindings = checkDatasetBundle(datasetBundle);
+  if (A.isReadonlyArrayNonEmpty(datasetFindings)) {
+    return unconfirmedSyncResult({
+      datasetBundle,
+      dryRun: input.dryRun,
+      experimentBundle,
+      mutationPolicy: input.dryRun ? "dry-run-dataset-check-failed" : "blocked-dataset-check-failed",
+      phoenixAnnotations,
+      plannedAnnotationCount: A.length(plan.annotations),
+      promptBundle,
+      status: AgentEffectivenessStatus.Enum.failed,
+    });
+  }
+
   if (input.dryRun) {
     return unconfirmedSyncResult({
       datasetBundle,
@@ -2580,14 +2628,14 @@ export const syncAgentEffectivenessPhoenix: (
   const phoenix = yield* Phoenix;
   const datasetResults = yield* Effect.forEach(
     datasetBundle.datasets,
-    (dataset) => phoenix.createDataset(toPhoenixDatasetCreateInput(dataset)),
+    (dataset) => syncPhoenixDataset(phoenix, dataset),
     { concurrency: 1 }
   ).pipe(
     Effect.mapError(
       (cause) =>
         new AgentEffectivenessError({
           cause,
-          message: "Failed to write agent-effectiveness datasets to Phoenix.",
+          message: "Failed to sync agent-effectiveness datasets to Phoenix.",
         })
     )
   );
@@ -2605,11 +2653,18 @@ export const syncAgentEffectivenessPhoenix: (
     )
   );
   const experimentResults = yield* Effect.forEach(
-    pipe(datasetBundle.datasets, A.zip(datasetResults)),
-    ([dataset, result]) =>
+    pipe(
+      datasetBundle.datasets,
+      A.zip(datasetResults),
+      A.map(([dataset, result]) =>
+        result.createExperiment ? O.some({ dataset, datasetId: result.datasetId }) : O.none()
+      ),
+      A.getSomes
+    ),
+    ({ dataset, datasetId }) =>
       phoenix.createExperiment(
         new PhoenixExperimentCreateInput({
-          datasetId: result.datasetId,
+          datasetId,
           experimentDescription: `Deterministic readback experiment for ${dataset.name}.`,
           experimentMetadata: {
             datasetKind: dataset.kind,
@@ -2670,7 +2725,11 @@ const forbiddenPatterns = [
   { code: "raw-worker-draft", pattern: /draftJsDoc|@example|```ts/u },
 ] as const;
 
-const checkText = (annotationId: string, value: string): ReadonlyArray<AgentEffectivenessAnnotationCheckFinding> =>
+const checkText = (
+  annotationId: string,
+  value: string,
+  subject = "Annotation"
+): ReadonlyArray<AgentEffectivenessAnnotationCheckFinding> =>
   pipe(
     forbiddenPatterns,
     A.filter((entry) => entry.pattern.test(value)),
@@ -2679,8 +2738,68 @@ const checkText = (annotationId: string, value: string): ReadonlyArray<AgentEffe
         new AgentEffectivenessAnnotationCheckFinding({
           annotationId,
           code: entry.code,
-          message: `Annotation contains forbidden ${entry.code} content.`,
+          message: `${subject} contains forbidden ${entry.code} content.`,
         })
+    )
+  );
+
+const checkUnknownText = (
+  subjectId: string,
+  value: unknown,
+  subject: string
+): ReadonlyArray<AgentEffectivenessAnnotationCheckFinding> => {
+  if (P.isString(value)) {
+    return checkText(subjectId, value, subject);
+  }
+
+  if (A.isArray(value)) {
+    return pipe(
+      value,
+      A.flatMap((entry) => checkUnknownText(subjectId, entry, subject))
+    );
+  }
+
+  return [];
+};
+
+const checkRecordText = (
+  subjectId: string,
+  record: Readonly<Record<string, unknown>>,
+  subject: string
+): ReadonlyArray<AgentEffectivenessAnnotationCheckFinding> =>
+  pipe(
+    R.toEntries(record),
+    A.flatMap(([key, value]) => [...checkText(subjectId, key, subject), ...checkUnknownText(subjectId, value, subject)])
+  );
+
+const checkDatasetExample = (
+  dataset: AgentEffectivenessDatasetSpec,
+  example: AgentEffectivenessDatasetExample
+): ReadonlyArray<AgentEffectivenessAnnotationCheckFinding> => {
+  const subject = "Dataset example";
+  const subjectId = `dataset:${dataset.name}:example:${example.id}`;
+  return [
+    ...checkText(subjectId, dataset.description, subject),
+    ...checkText(subjectId, dataset.kind, subject),
+    ...checkText(subjectId, dataset.name, subject),
+    ...checkText(subjectId, example.id, subject),
+    ...checkText(subjectId, example.split, subject),
+    ...checkRecordText(subjectId, example.input, subject),
+    ...checkRecordText(subjectId, example.metadata, subject),
+    ...checkRecordText(subjectId, example.output, subject),
+  ];
+};
+
+const checkDatasetBundle = (
+  bundle: AgentEffectivenessDatasetBundle
+): ReadonlyArray<AgentEffectivenessAnnotationCheckFinding> =>
+  pipe(
+    bundle.datasets,
+    A.flatMap((dataset) =>
+      pipe(
+        dataset.examples,
+        A.flatMap((example) => checkDatasetExample(dataset, example))
+      )
     )
   );
 

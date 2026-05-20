@@ -253,12 +253,18 @@ const phoenixRuntimeLayer = (duckDbPath: string) =>
     DuckDb.makeNodeLayer(new DuckDbConnectionOptions({ databasePath: duckDbPath }))
   );
 
-const phoenixWriteSdk = (calls: {
-  readonly annotations: Array<string>;
-  readonly datasets: Array<string>;
-  readonly experiments: Array<string>;
-  readonly prompts: Array<string>;
-}): PhoenixSdkShape => ({
+const phoenixWriteSdk = (
+  calls: {
+    readonly annotations: Array<string>;
+    readonly appends: Array<string>;
+    readonly datasets: Array<string>;
+    readonly experiments: Array<string>;
+    readonly prompts: Array<string>;
+  },
+  options: {
+    readonly existingDatasetNames?: ReadonlyArray<string>;
+  } = {}
+): PhoenixSdkShape => ({
   addAnnotation: (input) => {
     calls.annotations.push(input.name);
     return Promise.resolve(
@@ -270,8 +276,12 @@ const phoenixWriteSdk = (calls: {
       })
     );
   },
-  appendDatasetExamples: () =>
-    Promise.resolve(new PhoenixDatasetAppendResult({ datasetId: "dataset-id", versionId: "version-id" })),
+  appendDatasetExamples: (input) => {
+    calls.appends.push(input.dataset.value);
+    return Promise.resolve(
+      new PhoenixDatasetAppendResult({ datasetId: `dataset:${input.dataset.value}`, versionId: "version-id" })
+    );
+  },
   createDataset: (input) => {
     calls.datasets.push(input.name);
     return Promise.resolve(new PhoenixDatasetCreateResult({ datasetId: `dataset:${input.name}` }));
@@ -311,15 +321,24 @@ const phoenixWriteSdk = (calls: {
     ),
   getDatasetExamples: () =>
     Promise.resolve(new PhoenixDatasetExamplesResult({ examples: [], versionId: "version-id" })),
-  getDatasetInfo: (selector) =>
-    Promise.resolve(
+  getDatasetInfo: (selector) => {
+    const existing = pipe(
+      options.existingDatasetNames ?? [],
+      A.findFirst((name) => name === selector.value)
+    );
+    if (O.isNone(existing)) {
+      return Promise.reject(new Error("not found"));
+    }
+
+    return Promise.resolve(
       new PhoenixDatasetInfoResult({
         datasetId: `dataset:${selector.value}`,
         description: null,
         metadata: {},
         name: selector.value,
       })
-    ),
+    );
+  },
   getExperimentInfo: (experimentId) =>
     Promise.resolve(
       new PhoenixExperimentInfoResult({
@@ -598,6 +617,7 @@ describe("@beep/repo-ai-metrics agent-effectiveness", () => {
         const path = yield* Path.Path;
         const calls = {
           annotations: [] as string[],
+          appends: [] as string[],
           datasets: [] as string[],
           experiments: [] as string[],
           prompts: [] as string[],
@@ -641,6 +661,7 @@ describe("@beep/repo-ai-metrics agent-effectiveness", () => {
           expect(written.annotationCount).toBe(0);
           expect(written.skippedAnnotationCount).toBeGreaterThan(0);
           expect(calls.datasets.length).toBe(5);
+          expect(calls.appends.length).toBe(0);
           expect(calls.prompts.length).toBe(2);
           expect(calls.experiments.length).toBe(5);
           expect(calls.annotations.length).toBe(0);
@@ -649,6 +670,73 @@ describe("@beep/repo-ai-metrics agent-effectiveness", () => {
             Layer.mergeAll(
               runtimeLayer(path.join(tmpDir, "metrics/derived/ai-metrics.duckdb")),
               Phoenix.makeLayerWithSdk(phoenixWriteSdk(calls))
+            )
+          )
+        );
+      })
+    ).pipe(provideScopedLayer(NodeServices.layer))
+  );
+
+  it.effect("appends examples when Phoenix datasets already exist", () =>
+    withTempDirectory((tmpDir) =>
+      Effect.gen(function* () {
+        const path = yield* Path.Path;
+        const calls = {
+          annotations: [] as string[],
+          appends: [] as string[],
+          datasets: [] as string[],
+          experiments: [] as string[],
+          prompts: [] as string[],
+        };
+        yield* Effect.gen(function* () {
+          const dataRoot = path.join(tmpDir, "metrics");
+          const workerReportPath = path.join(tmpDir, "worker-eval.json");
+          const annotationPlan = new AgentEffectivenessAnnotationPlanInput({
+            doctor: new AgentEffectivenessDoctorInput({
+              dataRoot,
+              noPhoenix: true,
+              workerEvalReportPath: workerReportPath,
+            }),
+          });
+          yield* writeText(workerReportPath, workerReportJson);
+
+          const result = yield* syncAgentEffectivenessPhoenix(
+            new AgentEffectivenessPhoenixSyncInput({
+              annotationPlan,
+              confirmToken: AGENT_EFFECTIVENESS_PHOENIX_WRITE_CONFIRMATION,
+              dryRun: false,
+            })
+          );
+
+          expect(result.status).toBe(AgentEffectivenessStatus.Enum.passed);
+          expect(result.writtenDatasetIds.length).toBe(5);
+          expect(result.writtenExperimentIds).toEqual([]);
+          expect(calls.datasets).toEqual([]);
+          expect(calls.appends).toEqual([
+            "agent-loop-health-v1",
+            "agent-outcomes-v1",
+            "agent-config-snapshots-v1",
+            "source-coverage-v1",
+            "jsdoc-worker-model-suitability-v1",
+          ]);
+          expect(calls.prompts.length).toBe(2);
+          expect(calls.experiments).toEqual([]);
+          expect(calls.annotations).toEqual([]);
+        }).pipe(
+          provideScopedLayer(
+            Layer.mergeAll(
+              runtimeLayer(path.join(tmpDir, "metrics/derived/ai-metrics.duckdb")),
+              Phoenix.makeLayerWithSdk(
+                phoenixWriteSdk(calls, {
+                  existingDatasetNames: [
+                    "agent-loop-health-v1",
+                    "agent-outcomes-v1",
+                    "agent-config-snapshots-v1",
+                    "source-coverage-v1",
+                    "jsdoc-worker-model-suitability-v1",
+                  ],
+                })
+              )
             )
           )
         );
@@ -732,6 +820,7 @@ describe("@beep/repo-ai-metrics agent-effectiveness", () => {
         const path = yield* Path.Path;
         const calls = {
           annotations: [] as string[],
+          appends: [] as string[],
           datasets: [] as string[],
           experiments: [] as string[],
           prompts: [] as string[],
@@ -758,6 +847,54 @@ describe("@beep/repo-ai-metrics agent-effectiveness", () => {
 
           expect(blocked.status).toBe(AgentEffectivenessStatus.Enum.failed);
           expect(blocked.mutationPolicy).toBe("blocked-annotation-check-failed");
+          expect(calls.appends).toEqual([]);
+          expect(calls.datasets).toEqual([]);
+          expect(calls.prompts).toEqual([]);
+          expect(calls.experiments).toEqual([]);
+          expect(calls.annotations).toEqual([]);
+        }).pipe(
+          provideScopedLayer(
+            Layer.mergeAll(
+              runtimeLayer(path.join(tmpDir, "metrics/derived/ai-metrics.duckdb")),
+              Phoenix.makeLayerWithSdk(phoenixWriteSdk(calls))
+            )
+          )
+        );
+      })
+    ).pipe(provideScopedLayer(NodeServices.layer))
+  );
+
+  it.effect("blocks confirmed Phoenix sync when dataset payload privacy checks fail", () =>
+    withTempDirectory((tmpDir) =>
+      Effect.gen(function* () {
+        const path = yield* Path.Path;
+        const calls = {
+          annotations: [] as string[],
+          appends: [] as string[],
+          datasets: [] as string[],
+          experiments: [] as string[],
+          prompts: [] as string[],
+        };
+        yield* Effect.gen(function* () {
+          const annotationPlan = new AgentEffectivenessAnnotationPlanInput({
+            doctor: new AgentEffectivenessDoctorInput({
+              dataRoot: "/home/alice/.beep/ai-metrics",
+              noPhoenix: true,
+              workerEvalReportPath: path.join(tmpDir, "missing-worker-report.json"),
+            }),
+          });
+
+          const blocked = yield* syncAgentEffectivenessPhoenix(
+            new AgentEffectivenessPhoenixSyncInput({
+              annotationPlan,
+              confirmToken: AGENT_EFFECTIVENESS_PHOENIX_WRITE_CONFIRMATION,
+              dryRun: false,
+            })
+          );
+
+          expect(blocked.status).toBe(AgentEffectivenessStatus.Enum.failed);
+          expect(blocked.mutationPolicy).toBe("blocked-dataset-check-failed");
+          expect(calls.appends).toEqual([]);
           expect(calls.datasets).toEqual([]);
           expect(calls.prompts).toEqual([]);
           expect(calls.experiments).toEqual([]);

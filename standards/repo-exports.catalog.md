@@ -6606,14 +6606,14 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/phoenix` | `PhoenixDoctorResult` | class | `packages/drivers/phoenix/src/Phoenix.models.ts:266` | Phoenix driver doctor result. |
 | `@beep/phoenix` | `PhoenixDoctorStatus` | const | `packages/drivers/phoenix/src/Phoenix.models.ts:28` | Driver health states returned by {@link Phoenix.doctor}. |
 | `@beep/phoenix` | `PhoenixDoctorStatus` | type | `packages/drivers/phoenix/src/Phoenix.models.ts:40` | Type for {@link PhoenixDoctorStatus}. |
-| `@beep/phoenix` | `PhoenixError` | class | `packages/drivers/phoenix/src/Phoenix.errors.ts:121` | Technical failure raised by the Phoenix driver boundary. |
-| `@beep/phoenix` | `PhoenixErrorOptions` | class | `packages/drivers/phoenix/src/Phoenix.errors.ts:98` | Options used when constructing Phoenix driver errors. |
-| `@beep/phoenix` | `PhoenixErrorReason` | const | `packages/drivers/phoenix/src/Phoenix.errors.ts:70` | Technical error reasons emitted by the Phoenix driver. |
-| `@beep/phoenix` | `PhoenixErrorReason` | type | `packages/drivers/phoenix/src/Phoenix.errors.ts:82` | Type for {@link PhoenixErrorReason}. |
+| `@beep/phoenix` | `PhoenixError` | class | `packages/drivers/phoenix/src/Phoenix.errors.ts:123` | Technical failure raised by the Phoenix driver boundary. |
+| `@beep/phoenix` | `PhoenixErrorOptions` | class | `packages/drivers/phoenix/src/Phoenix.errors.ts:100` | Options used when constructing Phoenix driver errors. |
+| `@beep/phoenix` | `PhoenixErrorReason` | const | `packages/drivers/phoenix/src/Phoenix.errors.ts:72` | Technical error reasons emitted by the Phoenix driver. |
+| `@beep/phoenix` | `PhoenixErrorReason` | type | `packages/drivers/phoenix/src/Phoenix.errors.ts:84` | Type for {@link PhoenixErrorReason}. |
 | `@beep/phoenix` | `PhoenixExperimentCreateInput` | class | `packages/drivers/phoenix/src/Phoenix.models.ts:658` | Input for creating a Phoenix experiment record. |
 | `@beep/phoenix` | `PhoenixExperimentInfoResult` | class | `packages/drivers/phoenix/src/Phoenix.models.ts:704` | Readback summary for a Phoenix experiment. |
-| `@beep/phoenix` | `PhoenixOperation` | const | `packages/drivers/phoenix/src/Phoenix.errors.ts:31` | Driver operation names surfaced in {@link PhoenixError} diagnostics. |
-| `@beep/phoenix` | `PhoenixOperation` | type | `packages/drivers/phoenix/src/Phoenix.errors.ts:55` | Type for {@link PhoenixOperation}. |
+| `@beep/phoenix` | `PhoenixOperation` | const | `packages/drivers/phoenix/src/Phoenix.errors.ts:32` | Driver operation names surfaced in {@link PhoenixError} diagnostics. |
+| `@beep/phoenix` | `PhoenixOperation` | type | `packages/drivers/phoenix/src/Phoenix.errors.ts:56` | Type for {@link PhoenixOperation}. |
 | `@beep/phoenix` | `PhoenixPromptChatMessage` | class | `packages/drivers/phoenix/src/Phoenix.models.ts:513` | Phoenix prompt chat message. |
 | `@beep/phoenix` | `PhoenixPromptChatRole` | const | `packages/drivers/phoenix/src/Phoenix.models.ts:163` | Prompt chat roles accepted by repo-owned Phoenix prompt templates. |
 | `@beep/phoenix` | `PhoenixPromptChatRole` | type | `packages/drivers/phoenix/src/Phoenix.models.ts:183` | Type for {@link PhoenixPromptChatRole}. |
@@ -6652,14 +6652,14 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/phoenix/index` | `PhoenixDoctorResult` | class | `packages/drivers/phoenix/src/Phoenix.models.ts:266` | Phoenix driver doctor result. |
 | `@beep/phoenix/index` | `PhoenixDoctorStatus` | const | `packages/drivers/phoenix/src/Phoenix.models.ts:28` | Driver health states returned by {@link Phoenix.doctor}. |
 | `@beep/phoenix/index` | `PhoenixDoctorStatus` | type | `packages/drivers/phoenix/src/Phoenix.models.ts:40` | Type for {@link PhoenixDoctorStatus}. |
-| `@beep/phoenix/index` | `PhoenixError` | class | `packages/drivers/phoenix/src/Phoenix.errors.ts:121` | Technical failure raised by the Phoenix driver boundary. |
-| `@beep/phoenix/index` | `PhoenixErrorOptions` | class | `packages/drivers/phoenix/src/Phoenix.errors.ts:98` | Options used when constructing Phoenix driver errors. |
-| `@beep/phoenix/index` | `PhoenixErrorReason` | const | `packages/drivers/phoenix/src/Phoenix.errors.ts:70` | Technical error reasons emitted by the Phoenix driver. |
-| `@beep/phoenix/index` | `PhoenixErrorReason` | type | `packages/drivers/phoenix/src/Phoenix.errors.ts:82` | Type for {@link PhoenixErrorReason}. |
+| `@beep/phoenix/index` | `PhoenixError` | class | `packages/drivers/phoenix/src/Phoenix.errors.ts:123` | Technical failure raised by the Phoenix driver boundary. |
+| `@beep/phoenix/index` | `PhoenixErrorOptions` | class | `packages/drivers/phoenix/src/Phoenix.errors.ts:100` | Options used when constructing Phoenix driver errors. |
+| `@beep/phoenix/index` | `PhoenixErrorReason` | const | `packages/drivers/phoenix/src/Phoenix.errors.ts:72` | Technical error reasons emitted by the Phoenix driver. |
+| `@beep/phoenix/index` | `PhoenixErrorReason` | type | `packages/drivers/phoenix/src/Phoenix.errors.ts:84` | Type for {@link PhoenixErrorReason}. |
 | `@beep/phoenix/index` | `PhoenixExperimentCreateInput` | class | `packages/drivers/phoenix/src/Phoenix.models.ts:658` | Input for creating a Phoenix experiment record. |
 | `@beep/phoenix/index` | `PhoenixExperimentInfoResult` | class | `packages/drivers/phoenix/src/Phoenix.models.ts:704` | Readback summary for a Phoenix experiment. |
-| `@beep/phoenix/index` | `PhoenixOperation` | const | `packages/drivers/phoenix/src/Phoenix.errors.ts:31` | Driver operation names surfaced in {@link PhoenixError} diagnostics. |
-| `@beep/phoenix/index` | `PhoenixOperation` | type | `packages/drivers/phoenix/src/Phoenix.errors.ts:55` | Type for {@link PhoenixOperation}. |
+| `@beep/phoenix/index` | `PhoenixOperation` | const | `packages/drivers/phoenix/src/Phoenix.errors.ts:32` | Driver operation names surfaced in {@link PhoenixError} diagnostics. |
+| `@beep/phoenix/index` | `PhoenixOperation` | type | `packages/drivers/phoenix/src/Phoenix.errors.ts:56` | Type for {@link PhoenixOperation}. |
 | `@beep/phoenix/index` | `PhoenixPromptChatMessage` | class | `packages/drivers/phoenix/src/Phoenix.models.ts:513` | Phoenix prompt chat message. |
 | `@beep/phoenix/index` | `PhoenixPromptChatRole` | const | `packages/drivers/phoenix/src/Phoenix.models.ts:163` | Prompt chat roles accepted by repo-owned Phoenix prompt templates. |
 | `@beep/phoenix/index` | `PhoenixPromptChatRole` | type | `packages/drivers/phoenix/src/Phoenix.models.ts:183` | Type for {@link PhoenixPromptChatRole}. |
@@ -6676,12 +6676,12 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/phoenix/index` | `VERSION` | const | `packages/drivers/phoenix/src/index.ts:21` | Package version for `@beep/phoenix`. |
 | `@beep/phoenix/Phoenix.config` | `PHOENIX_API_URL` | const | `packages/drivers/phoenix/src/Phoenix.config.ts:26` | Default Phoenix HTTP API base URL. |
 | `@beep/phoenix/Phoenix.config` | `PhoenixConfigInput` | class | `packages/drivers/phoenix/src/Phoenix.config.ts:47` | Runtime configuration accepted by {@link Phoenix.makeLayer}. |
-| `@beep/phoenix/Phoenix.errors` | `PhoenixError` | class | `packages/drivers/phoenix/src/Phoenix.errors.ts:121` | Technical failure raised by the Phoenix driver boundary. |
-| `@beep/phoenix/Phoenix.errors` | `PhoenixErrorOptions` | class | `packages/drivers/phoenix/src/Phoenix.errors.ts:98` | Options used when constructing Phoenix driver errors. |
-| `@beep/phoenix/Phoenix.errors` | `PhoenixErrorReason` | const | `packages/drivers/phoenix/src/Phoenix.errors.ts:70` | Technical error reasons emitted by the Phoenix driver. |
-| `@beep/phoenix/Phoenix.errors` | `PhoenixErrorReason` | type | `packages/drivers/phoenix/src/Phoenix.errors.ts:82` | Type for {@link PhoenixErrorReason}. |
-| `@beep/phoenix/Phoenix.errors` | `PhoenixOperation` | const | `packages/drivers/phoenix/src/Phoenix.errors.ts:31` | Driver operation names surfaced in {@link PhoenixError} diagnostics. |
-| `@beep/phoenix/Phoenix.errors` | `PhoenixOperation` | type | `packages/drivers/phoenix/src/Phoenix.errors.ts:55` | Type for {@link PhoenixOperation}. |
+| `@beep/phoenix/Phoenix.errors` | `PhoenixError` | class | `packages/drivers/phoenix/src/Phoenix.errors.ts:123` | Technical failure raised by the Phoenix driver boundary. |
+| `@beep/phoenix/Phoenix.errors` | `PhoenixErrorOptions` | class | `packages/drivers/phoenix/src/Phoenix.errors.ts:100` | Options used when constructing Phoenix driver errors. |
+| `@beep/phoenix/Phoenix.errors` | `PhoenixErrorReason` | const | `packages/drivers/phoenix/src/Phoenix.errors.ts:72` | Technical error reasons emitted by the Phoenix driver. |
+| `@beep/phoenix/Phoenix.errors` | `PhoenixErrorReason` | type | `packages/drivers/phoenix/src/Phoenix.errors.ts:84` | Type for {@link PhoenixErrorReason}. |
+| `@beep/phoenix/Phoenix.errors` | `PhoenixOperation` | const | `packages/drivers/phoenix/src/Phoenix.errors.ts:32` | Driver operation names surfaced in {@link PhoenixError} diagnostics. |
+| `@beep/phoenix/Phoenix.errors` | `PhoenixOperation` | type | `packages/drivers/phoenix/src/Phoenix.errors.ts:56` | Type for {@link PhoenixOperation}. |
 | `@beep/phoenix/Phoenix.models` | `PhoenixAnnotationInput` | class | `packages/drivers/phoenix/src/Phoenix.models.ts:747` | Input for writing one Phoenix annotation. |
 | `@beep/phoenix/Phoenix.models` | `PhoenixAnnotationTargetKind` | const | `packages/drivers/phoenix/src/Phoenix.models.ts:82` | Phoenix annotation target kind. |
 | `@beep/phoenix/Phoenix.models` | `PhoenixAnnotationTargetKind` | type | `packages/drivers/phoenix/src/Phoenix.models.ts:94` | Type for {@link PhoenixAnnotationTargetKind}. |
@@ -7470,49 +7470,49 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | Import | Symbol | Kind | Source | Summary |
 |---|---|---|---|---|
 | `@beep/repo-ai-metrics` | `addAiMetricsOutcomeLabel` | const | `packages/tooling/library/ai-metrics/src/scorecard.ts:603` | Add or replace the current structured human label for a task. |
-| `@beep/repo-ai-metrics` | `AGENT_EFFECTIVENESS_PHOENIX_PROJECT` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:597` | Dedicated Phoenix project namespace for the agent-effectiveness loop. |
-| `@beep/repo-ai-metrics` | `AGENT_EFFECTIVENESS_PHOENIX_WRITE_CONFIRMATION` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:611` | Confirmation token required before live Phoenix writes. |
-| `@beep/repo-ai-metrics` | `AgentEffectivenessAiMetricsSection` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:370` | AI-metrics local evidence section for the doctor report. |
-| `@beep/repo-ai-metrics` | `AgentEffectivenessAnnotationCheckFinding` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:546` | One validation finding for an annotation plan. |
-| `@beep/repo-ai-metrics` | `AgentEffectivenessAnnotationCheckReport` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:570` | Report emitted by `agent-effectiveness annotations check`. |
-| `@beep/repo-ai-metrics` | `agentEffectivenessAnnotationCheckReportToJson` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:2830` | Encode an annotation-check report as JSON. |
-| `@beep/repo-ai-metrics` | `AgentEffectivenessAnnotationPlan` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:519` | Dry-run annotation plan for Phase 1. |
-| `@beep/repo-ai-metrics` | `AgentEffectivenessAnnotationPlanInput` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:196` | Input for building a dry-run annotation plan. |
-| `@beep/repo-ai-metrics` | `agentEffectivenessAnnotationPlanToJson` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:2804` | Encode an annotation plan as JSON. |
-| `@beep/repo-ai-metrics` | `AgentEffectivenessAnnotationValue` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:108` | Primitive annotation value allowed in local Phase 1 plans. |
-| `@beep/repo-ai-metrics` | `AgentEffectivenessAnnotationValue` | type | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:120` | Runtime type for `AgentEffectivenessAnnotationValue`. |
-| `@beep/repo-ai-metrics` | `AgentEffectivenessDatasetBundle` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:732` | Full Phoenix dataset bundle derived from a doctor report. |
-| `@beep/repo-ai-metrics` | `agentEffectivenessDatasetBundleToJson` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:2857` | Encode a dataset bundle as JSON. |
-| `@beep/repo-ai-metrics` | `AgentEffectivenessDatasetExample` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:658` | One sanitized example destined for a Phoenix dataset. |
-| `@beep/repo-ai-metrics` | `AgentEffectivenessDatasetKind` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:625` | Phoenix dataset kinds owned by the agent-effectiveness loop. |
-| `@beep/repo-ai-metrics` | `AgentEffectivenessDatasetKind` | type | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:643` | Type for {@link AgentEffectivenessDatasetKind}. |
-| `@beep/repo-ai-metrics` | `AgentEffectivenessDatasetSpec` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:700` | One repo-owned Phoenix dataset specification. |
-| `@beep/repo-ai-metrics` | `AgentEffectivenessDoctorInput` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:155` | Input for the Phase 1 agent-effectiveness doctor. |
-| `@beep/repo-ai-metrics` | `AgentEffectivenessDoctorReport` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:458` | Phase 1 agent-effectiveness doctor report. |
-| `@beep/repo-ai-metrics` | `agentEffectivenessDoctorReportToJson` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:2778` | Encode a doctor report as JSON. |
-| `@beep/repo-ai-metrics` | `AgentEffectivenessDoctorSummary` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:433` | Aggregate summary emitted by the doctor report. |
-| `@beep/repo-ai-metrics` | `AgentEffectivenessError` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:133` | Error raised by agent-effectiveness report helpers. |
-| `@beep/repo-ai-metrics` | `AgentEffectivenessExperimentBundle` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:913` | Deterministic experiment bundle derived from dataset specs. |
-| `@beep/repo-ai-metrics` | `agentEffectivenessExperimentBundleToJson` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:2909` | Encode an experiment bundle as JSON. |
-| `@beep/repo-ai-metrics` | `AgentEffectivenessExperimentSpec` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:878` | Deterministic experiment plan entry. |
-| `@beep/repo-ai-metrics` | `AgentEffectivenessForwarderSummary` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:311` | Latest forwarder summary from derived AI-metrics storage. |
-| `@beep/repo-ai-metrics` | `AgentEffectivenessJsdocWorkerSection` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:401` | JSDoc worker-eval section for the doctor report. |
-| `@beep/repo-ai-metrics` | `AgentEffectivenessPhoenixProject` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:225` | Summary for one Phoenix project. |
-| `@beep/repo-ai-metrics` | `AgentEffectivenessPhoenixSection` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:253` | Read-only Phoenix health and inventory section. |
-| `@beep/repo-ai-metrics` | `AgentEffectivenessPhoenixSyncInput` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:940` | Input for syncing agent-effectiveness evidence to Phoenix. |
-| `@beep/repo-ai-metrics` | `AgentEffectivenessPhoenixSyncResult` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:985` | Result from a guarded Phoenix sync attempt. |
-| `@beep/repo-ai-metrics` | `agentEffectivenessPhoenixSyncResultToJson` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:2935` | Encode a Phoenix sync result as JSON. |
-| `@beep/repo-ai-metrics` | `AgentEffectivenessPlannedAnnotation` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:487` | One local-only annotation row that could be written to Phoenix later. |
-| `@beep/repo-ai-metrics` | `AgentEffectivenessPromptBundle` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:847` | Full repo-owned Phoenix prompt bundle. |
-| `@beep/repo-ai-metrics` | `agentEffectivenessPromptBundleToJson` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:2883` | Encode a prompt bundle as JSON. |
-| `@beep/repo-ai-metrics` | `AgentEffectivenessPromptMessage` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:785` | One repo-owned Phoenix prompt message. |
-| `@beep/repo-ai-metrics` | `AgentEffectivenessPromptRole` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:758` | Prompt roles used by repo-owned agent-effectiveness prompt templates. |
-| `@beep/repo-ai-metrics` | `AgentEffectivenessPromptRole` | type | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:770` | Type for {@link AgentEffectivenessPromptRole}. |
-| `@beep/repo-ai-metrics` | `AgentEffectivenessPromptSpec` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:815` | Repo-owned Phoenix prompt specification. |
-| `@beep/repo-ai-metrics` | `AgentEffectivenessScorecardSummary` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:339` | Latest scorecard summary from derived AI-metrics storage. |
-| `@beep/repo-ai-metrics` | `AgentEffectivenessSourceCoverage` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:284` | Source coverage row derived from AI-metrics storage. |
-| `@beep/repo-ai-metrics` | `AgentEffectivenessStatus` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:83` | Status emitted by agent-effectiveness reports. |
-| `@beep/repo-ai-metrics` | `AgentEffectivenessStatus` | type | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:95` | Runtime type for `AgentEffectivenessStatus`. |
+| `@beep/repo-ai-metrics` | `AGENT_EFFECTIVENESS_PHOENIX_PROJECT` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:600` | Dedicated Phoenix project namespace for the agent-effectiveness loop. |
+| `@beep/repo-ai-metrics` | `AGENT_EFFECTIVENESS_PHOENIX_WRITE_CONFIRMATION` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:614` | Confirmation token required before live Phoenix writes. |
+| `@beep/repo-ai-metrics` | `AgentEffectivenessAiMetricsSection` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:373` | AI-metrics local evidence section for the doctor report. |
+| `@beep/repo-ai-metrics` | `AgentEffectivenessAnnotationCheckFinding` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:549` | One validation finding for an annotation plan. |
+| `@beep/repo-ai-metrics` | `AgentEffectivenessAnnotationCheckReport` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:573` | Report emitted by `agent-effectiveness annotations check`. |
+| `@beep/repo-ai-metrics` | `agentEffectivenessAnnotationCheckReportToJson` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:2949` | Encode an annotation-check report as JSON. |
+| `@beep/repo-ai-metrics` | `AgentEffectivenessAnnotationPlan` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:522` | Dry-run annotation plan for Phase 1. |
+| `@beep/repo-ai-metrics` | `AgentEffectivenessAnnotationPlanInput` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:199` | Input for building a dry-run annotation plan. |
+| `@beep/repo-ai-metrics` | `agentEffectivenessAnnotationPlanToJson` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:2923` | Encode an annotation plan as JSON. |
+| `@beep/repo-ai-metrics` | `AgentEffectivenessAnnotationValue` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:111` | Primitive annotation value allowed in local Phase 1 plans. |
+| `@beep/repo-ai-metrics` | `AgentEffectivenessAnnotationValue` | type | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:123` | Runtime type for `AgentEffectivenessAnnotationValue`. |
+| `@beep/repo-ai-metrics` | `AgentEffectivenessDatasetBundle` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:735` | Full Phoenix dataset bundle derived from a doctor report. |
+| `@beep/repo-ai-metrics` | `agentEffectivenessDatasetBundleToJson` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:2976` | Encode a dataset bundle as JSON. |
+| `@beep/repo-ai-metrics` | `AgentEffectivenessDatasetExample` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:661` | One sanitized example destined for a Phoenix dataset. |
+| `@beep/repo-ai-metrics` | `AgentEffectivenessDatasetKind` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:628` | Phoenix dataset kinds owned by the agent-effectiveness loop. |
+| `@beep/repo-ai-metrics` | `AgentEffectivenessDatasetKind` | type | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:646` | Type for {@link AgentEffectivenessDatasetKind}. |
+| `@beep/repo-ai-metrics` | `AgentEffectivenessDatasetSpec` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:703` | One repo-owned Phoenix dataset specification. |
+| `@beep/repo-ai-metrics` | `AgentEffectivenessDoctorInput` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:158` | Input for the Phase 1 agent-effectiveness doctor. |
+| `@beep/repo-ai-metrics` | `AgentEffectivenessDoctorReport` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:461` | Phase 1 agent-effectiveness doctor report. |
+| `@beep/repo-ai-metrics` | `agentEffectivenessDoctorReportToJson` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:2897` | Encode a doctor report as JSON. |
+| `@beep/repo-ai-metrics` | `AgentEffectivenessDoctorSummary` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:436` | Aggregate summary emitted by the doctor report. |
+| `@beep/repo-ai-metrics` | `AgentEffectivenessError` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:136` | Error raised by agent-effectiveness report helpers. |
+| `@beep/repo-ai-metrics` | `AgentEffectivenessExperimentBundle` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:916` | Deterministic experiment bundle derived from dataset specs. |
+| `@beep/repo-ai-metrics` | `agentEffectivenessExperimentBundleToJson` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:3028` | Encode an experiment bundle as JSON. |
+| `@beep/repo-ai-metrics` | `AgentEffectivenessExperimentSpec` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:881` | Deterministic experiment plan entry. |
+| `@beep/repo-ai-metrics` | `AgentEffectivenessForwarderSummary` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:314` | Latest forwarder summary from derived AI-metrics storage. |
+| `@beep/repo-ai-metrics` | `AgentEffectivenessJsdocWorkerSection` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:404` | JSDoc worker-eval section for the doctor report. |
+| `@beep/repo-ai-metrics` | `AgentEffectivenessPhoenixProject` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:228` | Summary for one Phoenix project. |
+| `@beep/repo-ai-metrics` | `AgentEffectivenessPhoenixSection` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:256` | Read-only Phoenix health and inventory section. |
+| `@beep/repo-ai-metrics` | `AgentEffectivenessPhoenixSyncInput` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:943` | Input for syncing agent-effectiveness evidence to Phoenix. |
+| `@beep/repo-ai-metrics` | `AgentEffectivenessPhoenixSyncResult` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:988` | Result from a guarded Phoenix sync attempt. |
+| `@beep/repo-ai-metrics` | `agentEffectivenessPhoenixSyncResultToJson` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:3054` | Encode a Phoenix sync result as JSON. |
+| `@beep/repo-ai-metrics` | `AgentEffectivenessPlannedAnnotation` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:490` | One local-only annotation row that could be written to Phoenix later. |
+| `@beep/repo-ai-metrics` | `AgentEffectivenessPromptBundle` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:850` | Full repo-owned Phoenix prompt bundle. |
+| `@beep/repo-ai-metrics` | `agentEffectivenessPromptBundleToJson` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:3002` | Encode a prompt bundle as JSON. |
+| `@beep/repo-ai-metrics` | `AgentEffectivenessPromptMessage` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:788` | One repo-owned Phoenix prompt message. |
+| `@beep/repo-ai-metrics` | `AgentEffectivenessPromptRole` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:761` | Prompt roles used by repo-owned agent-effectiveness prompt templates. |
+| `@beep/repo-ai-metrics` | `AgentEffectivenessPromptRole` | type | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:773` | Type for {@link AgentEffectivenessPromptRole}. |
+| `@beep/repo-ai-metrics` | `AgentEffectivenessPromptSpec` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:818` | Repo-owned Phoenix prompt specification. |
+| `@beep/repo-ai-metrics` | `AgentEffectivenessScorecardSummary` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:342` | Latest scorecard summary from derived AI-metrics storage. |
+| `@beep/repo-ai-metrics` | `AgentEffectivenessSourceCoverage` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:287` | Source coverage row derived from AI-metrics storage. |
+| `@beep/repo-ai-metrics` | `AgentEffectivenessStatus` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:86` | Status emitted by agent-effectiveness reports. |
+| `@beep/repo-ai-metrics` | `AgentEffectivenessStatus` | type | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:98` | Runtime type for `AgentEffectivenessStatus`. |
 | `@beep/repo-ai-metrics` | `AgentSession` | class | `packages/tooling/library/ai-metrics/src/models.ts:415` | Session-level transcript metadata under an agent task. |
 | `@beep/repo-ai-metrics` | `AgentTask` | class | `packages/tooling/library/ai-metrics/src/models.ts:383` | Canonical unit of analysis for coding-agent metrics. |
 | `@beep/repo-ai-metrics` | `AgentTurn` | class | `packages/tooling/library/ai-metrics/src/models.ts:451` | Turn-level transcript event normalized from local agent logs. |
@@ -7647,7 +7647,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-ai-metrics` | `ConfigSnapshot` | class | `packages/tooling/library/ai-metrics/src/models.ts:354` | Versioned snapshot of agent-facing repository configuration. |
 | `@beep/repo-ai-metrics` | `configSnapshotToJson` | const | `packages/tooling/library/ai-metrics/src/config-snapshot.ts:552` | Render a config snapshot result as JSON. |
 | `@beep/repo-ai-metrics` | `decryptEncryptedRawArchiveEnvelope` | const | `packages/tooling/library/ai-metrics/src/archive.ts:362` | Decrypt an archive envelope for package-level verification. |
-| `@beep/repo-ai-metrics` | `DEFAULT_AGENT_EFFECTIVENESS_WORKER_EVAL_REPORT_PATH` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:46` | Stable default pointer used to locate the latest checked-in JSDoc worker-eval evidence. |
+| `@beep/repo-ai-metrics` | `DEFAULT_AGENT_EFFECTIVENESS_WORKER_EVAL_REPORT_PATH` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:49` | Stable default pointer used to locate the latest checked-in JSDoc worker-eval evidence. |
 | `@beep/repo-ai-metrics` | `discoverAiMetricsSources` | const | `packages/tooling/library/ai-metrics/src/source-discovery.ts:617` | Discover local AI metrics transcript sources for the smoke target. |
 | `@beep/repo-ai-metrics` | `ensureAiMetricsDerivedStorage` | const | `packages/tooling/library/ai-metrics/src/derived-storage.ts:643` | Ensure the AI metrics derived DuckDB schema exists and has P4 columns. |
 | `@beep/repo-ai-metrics` | `forwarderRunResultToJson` | const | `packages/tooling/library/ai-metrics/src/forwarder.ts:854` | Render a durable forwarder run result as JSON. |
@@ -7658,12 +7658,12 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-ai-metrics` | `listAiMetricsBenchmarkCases` | const | `packages/tooling/library/ai-metrics/src/scorecard.ts:760` | List deploy-safe benchmark cases. |
 | `@beep/repo-ai-metrics` | `listAiMetricsRetentionInventory` | const | `packages/tooling/library/ai-metrics/src/retention.ts:544` | List retained AI metrics raw archive objects and derived/report outputs. |
 | `@beep/repo-ai-metrics` | `locateLatestAiMetricsMirrorBundle` | const | `packages/tooling/library/ai-metrics/src/mirror.ts:540` | Locate the latest local mirror bundle pointer for a data root. |
-| `@beep/repo-ai-metrics` | `makeAgentEffectivenessAnnotationCheckReport` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:2749` | Check a local annotation plan for Phase 1 privacy and schema safety. |
-| `@beep/repo-ai-metrics` | `makeAgentEffectivenessAnnotationPlan` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:2097` | Build a sanitized local-only annotation plan. |
-| `@beep/repo-ai-metrics` | `makeAgentEffectivenessDatasetBundle` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:2305` | Build the Phoenix dataset bundle from a doctor report. |
-| `@beep/repo-ai-metrics` | `makeAgentEffectivenessDoctorReport` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:1768` | Build the report-only Phase 1 agent-effectiveness doctor report. |
-| `@beep/repo-ai-metrics` | `makeAgentEffectivenessExperimentBundle` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:2384` | Build deterministic experiment specs from a dataset bundle. |
-| `@beep/repo-ai-metrics` | `makeAgentEffectivenessPromptBundle` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:2332` | Build the repo-owned Phoenix prompt bundle. |
+| `@beep/repo-ai-metrics` | `makeAgentEffectivenessAnnotationCheckReport` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:2868` | Check a local annotation plan for Phase 1 privacy and schema safety. |
+| `@beep/repo-ai-metrics` | `makeAgentEffectivenessAnnotationPlan` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:2100` | Build a sanitized local-only annotation plan. |
+| `@beep/repo-ai-metrics` | `makeAgentEffectivenessDatasetBundle` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:2308` | Build the Phoenix dataset bundle from a doctor report. |
+| `@beep/repo-ai-metrics` | `makeAgentEffectivenessDoctorReport` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:1771` | Build the report-only Phase 1 agent-effectiveness doctor report. |
+| `@beep/repo-ai-metrics` | `makeAgentEffectivenessExperimentBundle` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:2387` | Build deterministic experiment specs from a dataset bundle. |
+| `@beep/repo-ai-metrics` | `makeAgentEffectivenessPromptBundle` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:2335` | Build the repo-owned Phoenix prompt bundle. |
 | `@beep/repo-ai-metrics` | `makeAiMetricsConfigSnapshot` | const | `packages/tooling/library/ai-metrics/src/config-snapshot.ts:429` | Build a deterministic snapshot of repo-owned agent-facing configuration. |
 | `@beep/repo-ai-metrics` | `makeAiMetricsInstallApplyDryRunResult` | const | `packages/tooling/library/ai-metrics/src/install.ts:1219` | Resolve the P5a dry-run apply result. |
 | `@beep/repo-ai-metrics` | `makeAiMetricsInstallDoctorResult` | const | `packages/tooling/library/ai-metrics/src/install.ts:1120` | Evaluate the P5a install doctor contract checks. |
@@ -7696,64 +7696,64 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-ai-metrics` | `sourceDiscoveryToJson` | const | `packages/tooling/library/ai-metrics/src/source-discovery.ts:674` | Render a source discovery result as JSON. |
 | `@beep/repo-ai-metrics` | `summarizeTranscriptText` | const | `packages/tooling/library/ai-metrics/src/ingest.ts:177` | Summarize JSONL transcript text into a stable ingest summary. |
 | `@beep/repo-ai-metrics` | `summaryToJson` | const | `packages/tooling/library/ai-metrics/src/ingest.ts:221` | Render a transcript ingest summary as JSON. |
-| `@beep/repo-ai-metrics` | `syncAgentEffectivenessPhoenix` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:2524` | Sync agent-effectiveness datasets, prompts, experiments, and resolved annotations to Phoenix. |
+| `@beep/repo-ai-metrics` | `syncAgentEffectivenessPhoenix` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:2558` | Sync agent-effectiveness datasets, prompts, experiments, and resolved annotations to Phoenix. |
 | `@beep/repo-ai-metrics` | `ToolInvocation` | class | `packages/tooling/library/ai-metrics/src/models.ts:503` | Tool or shell command invocation measured under an agent task. |
 | `@beep/repo-ai-metrics` | `TranscriptIngestSummary` | class | `packages/tooling/library/ai-metrics/src/models.ts:641` | Summary produced by transcript ingestion. |
 | `@beep/repo-ai-metrics` | `upsertAiMetricsBenchmarkCase` | const | `packages/tooling/library/ai-metrics/src/scorecard.ts:681` | Add or replace a deploy-safe benchmark case. |
 | `@beep/repo-ai-metrics` | `writeAiMetricsConfigSnapshotArtifacts` | const | `packages/tooling/library/ai-metrics/src/config-snapshot.ts:482` | Persist a config snapshot manifest and latest pointer for future diff attribution. |
 | `@beep/repo-ai-metrics` | `writeAiMetricsDerivedStorage` | const | `packages/tooling/library/ai-metrics/src/derived-storage.ts:1024` | Project sanitized AI metrics records into DuckDB and export Parquet snapshots. |
 | `@beep/repo-ai-metrics` | `writeEncryptedRawArchiveObject` | const | `packages/tooling/library/ai-metrics/src/archive.ts:251` | Write one raw transcript file into the encrypted content-addressed archive. |
-| `@beep/repo-ai-metrics/agent-effectiveness` | `AGENT_EFFECTIVENESS_PHOENIX_PROJECT` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:597` | Dedicated Phoenix project namespace for the agent-effectiveness loop. |
-| `@beep/repo-ai-metrics/agent-effectiveness` | `AGENT_EFFECTIVENESS_PHOENIX_WRITE_CONFIRMATION` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:611` | Confirmation token required before live Phoenix writes. |
-| `@beep/repo-ai-metrics/agent-effectiveness` | `AgentEffectivenessAiMetricsSection` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:370` | AI-metrics local evidence section for the doctor report. |
-| `@beep/repo-ai-metrics/agent-effectiveness` | `AgentEffectivenessAnnotationCheckFinding` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:546` | One validation finding for an annotation plan. |
-| `@beep/repo-ai-metrics/agent-effectiveness` | `AgentEffectivenessAnnotationCheckReport` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:570` | Report emitted by `agent-effectiveness annotations check`. |
-| `@beep/repo-ai-metrics/agent-effectiveness` | `agentEffectivenessAnnotationCheckReportToJson` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:2830` | Encode an annotation-check report as JSON. |
-| `@beep/repo-ai-metrics/agent-effectiveness` | `AgentEffectivenessAnnotationPlan` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:519` | Dry-run annotation plan for Phase 1. |
-| `@beep/repo-ai-metrics/agent-effectiveness` | `AgentEffectivenessAnnotationPlanInput` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:196` | Input for building a dry-run annotation plan. |
-| `@beep/repo-ai-metrics/agent-effectiveness` | `agentEffectivenessAnnotationPlanToJson` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:2804` | Encode an annotation plan as JSON. |
-| `@beep/repo-ai-metrics/agent-effectiveness` | `AgentEffectivenessAnnotationValue` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:108` | Primitive annotation value allowed in local Phase 1 plans. |
-| `@beep/repo-ai-metrics/agent-effectiveness` | `AgentEffectivenessAnnotationValue` | type | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:120` | Runtime type for `AgentEffectivenessAnnotationValue`. |
-| `@beep/repo-ai-metrics/agent-effectiveness` | `AgentEffectivenessDatasetBundle` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:732` | Full Phoenix dataset bundle derived from a doctor report. |
-| `@beep/repo-ai-metrics/agent-effectiveness` | `agentEffectivenessDatasetBundleToJson` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:2857` | Encode a dataset bundle as JSON. |
-| `@beep/repo-ai-metrics/agent-effectiveness` | `AgentEffectivenessDatasetExample` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:658` | One sanitized example destined for a Phoenix dataset. |
-| `@beep/repo-ai-metrics/agent-effectiveness` | `AgentEffectivenessDatasetKind` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:625` | Phoenix dataset kinds owned by the agent-effectiveness loop. |
-| `@beep/repo-ai-metrics/agent-effectiveness` | `AgentEffectivenessDatasetKind` | type | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:643` | Type for {@link AgentEffectivenessDatasetKind}. |
-| `@beep/repo-ai-metrics/agent-effectiveness` | `AgentEffectivenessDatasetSpec` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:700` | One repo-owned Phoenix dataset specification. |
-| `@beep/repo-ai-metrics/agent-effectiveness` | `AgentEffectivenessDoctorInput` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:155` | Input for the Phase 1 agent-effectiveness doctor. |
-| `@beep/repo-ai-metrics/agent-effectiveness` | `AgentEffectivenessDoctorReport` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:458` | Phase 1 agent-effectiveness doctor report. |
-| `@beep/repo-ai-metrics/agent-effectiveness` | `agentEffectivenessDoctorReportToJson` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:2778` | Encode a doctor report as JSON. |
-| `@beep/repo-ai-metrics/agent-effectiveness` | `AgentEffectivenessDoctorSummary` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:433` | Aggregate summary emitted by the doctor report. |
-| `@beep/repo-ai-metrics/agent-effectiveness` | `AgentEffectivenessError` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:133` | Error raised by agent-effectiveness report helpers. |
-| `@beep/repo-ai-metrics/agent-effectiveness` | `AgentEffectivenessExperimentBundle` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:913` | Deterministic experiment bundle derived from dataset specs. |
-| `@beep/repo-ai-metrics/agent-effectiveness` | `agentEffectivenessExperimentBundleToJson` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:2909` | Encode an experiment bundle as JSON. |
-| `@beep/repo-ai-metrics/agent-effectiveness` | `AgentEffectivenessExperimentSpec` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:878` | Deterministic experiment plan entry. |
-| `@beep/repo-ai-metrics/agent-effectiveness` | `AgentEffectivenessForwarderSummary` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:311` | Latest forwarder summary from derived AI-metrics storage. |
-| `@beep/repo-ai-metrics/agent-effectiveness` | `AgentEffectivenessJsdocWorkerSection` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:401` | JSDoc worker-eval section for the doctor report. |
-| `@beep/repo-ai-metrics/agent-effectiveness` | `AgentEffectivenessPhoenixProject` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:225` | Summary for one Phoenix project. |
-| `@beep/repo-ai-metrics/agent-effectiveness` | `AgentEffectivenessPhoenixSection` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:253` | Read-only Phoenix health and inventory section. |
-| `@beep/repo-ai-metrics/agent-effectiveness` | `AgentEffectivenessPhoenixSyncInput` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:940` | Input for syncing agent-effectiveness evidence to Phoenix. |
-| `@beep/repo-ai-metrics/agent-effectiveness` | `AgentEffectivenessPhoenixSyncResult` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:985` | Result from a guarded Phoenix sync attempt. |
-| `@beep/repo-ai-metrics/agent-effectiveness` | `agentEffectivenessPhoenixSyncResultToJson` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:2935` | Encode a Phoenix sync result as JSON. |
-| `@beep/repo-ai-metrics/agent-effectiveness` | `AgentEffectivenessPlannedAnnotation` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:487` | One local-only annotation row that could be written to Phoenix later. |
-| `@beep/repo-ai-metrics/agent-effectiveness` | `AgentEffectivenessPromptBundle` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:847` | Full repo-owned Phoenix prompt bundle. |
-| `@beep/repo-ai-metrics/agent-effectiveness` | `agentEffectivenessPromptBundleToJson` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:2883` | Encode a prompt bundle as JSON. |
-| `@beep/repo-ai-metrics/agent-effectiveness` | `AgentEffectivenessPromptMessage` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:785` | One repo-owned Phoenix prompt message. |
-| `@beep/repo-ai-metrics/agent-effectiveness` | `AgentEffectivenessPromptRole` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:758` | Prompt roles used by repo-owned agent-effectiveness prompt templates. |
-| `@beep/repo-ai-metrics/agent-effectiveness` | `AgentEffectivenessPromptRole` | type | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:770` | Type for {@link AgentEffectivenessPromptRole}. |
-| `@beep/repo-ai-metrics/agent-effectiveness` | `AgentEffectivenessPromptSpec` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:815` | Repo-owned Phoenix prompt specification. |
-| `@beep/repo-ai-metrics/agent-effectiveness` | `AgentEffectivenessScorecardSummary` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:339` | Latest scorecard summary from derived AI-metrics storage. |
-| `@beep/repo-ai-metrics/agent-effectiveness` | `AgentEffectivenessSourceCoverage` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:284` | Source coverage row derived from AI-metrics storage. |
-| `@beep/repo-ai-metrics/agent-effectiveness` | `AgentEffectivenessStatus` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:83` | Status emitted by agent-effectiveness reports. |
-| `@beep/repo-ai-metrics/agent-effectiveness` | `AgentEffectivenessStatus` | type | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:95` | Runtime type for `AgentEffectivenessStatus`. |
-| `@beep/repo-ai-metrics/agent-effectiveness` | `DEFAULT_AGENT_EFFECTIVENESS_WORKER_EVAL_REPORT_PATH` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:46` | Stable default pointer used to locate the latest checked-in JSDoc worker-eval evidence. |
-| `@beep/repo-ai-metrics/agent-effectiveness` | `makeAgentEffectivenessAnnotationCheckReport` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:2749` | Check a local annotation plan for Phase 1 privacy and schema safety. |
-| `@beep/repo-ai-metrics/agent-effectiveness` | `makeAgentEffectivenessAnnotationPlan` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:2097` | Build a sanitized local-only annotation plan. |
-| `@beep/repo-ai-metrics/agent-effectiveness` | `makeAgentEffectivenessDatasetBundle` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:2305` | Build the Phoenix dataset bundle from a doctor report. |
-| `@beep/repo-ai-metrics/agent-effectiveness` | `makeAgentEffectivenessDoctorReport` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:1768` | Build the report-only Phase 1 agent-effectiveness doctor report. |
-| `@beep/repo-ai-metrics/agent-effectiveness` | `makeAgentEffectivenessExperimentBundle` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:2384` | Build deterministic experiment specs from a dataset bundle. |
-| `@beep/repo-ai-metrics/agent-effectiveness` | `makeAgentEffectivenessPromptBundle` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:2332` | Build the repo-owned Phoenix prompt bundle. |
-| `@beep/repo-ai-metrics/agent-effectiveness` | `syncAgentEffectivenessPhoenix` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:2524` | Sync agent-effectiveness datasets, prompts, experiments, and resolved annotations to Phoenix. |
+| `@beep/repo-ai-metrics/agent-effectiveness` | `AGENT_EFFECTIVENESS_PHOENIX_PROJECT` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:600` | Dedicated Phoenix project namespace for the agent-effectiveness loop. |
+| `@beep/repo-ai-metrics/agent-effectiveness` | `AGENT_EFFECTIVENESS_PHOENIX_WRITE_CONFIRMATION` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:614` | Confirmation token required before live Phoenix writes. |
+| `@beep/repo-ai-metrics/agent-effectiveness` | `AgentEffectivenessAiMetricsSection` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:373` | AI-metrics local evidence section for the doctor report. |
+| `@beep/repo-ai-metrics/agent-effectiveness` | `AgentEffectivenessAnnotationCheckFinding` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:549` | One validation finding for an annotation plan. |
+| `@beep/repo-ai-metrics/agent-effectiveness` | `AgentEffectivenessAnnotationCheckReport` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:573` | Report emitted by `agent-effectiveness annotations check`. |
+| `@beep/repo-ai-metrics/agent-effectiveness` | `agentEffectivenessAnnotationCheckReportToJson` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:2949` | Encode an annotation-check report as JSON. |
+| `@beep/repo-ai-metrics/agent-effectiveness` | `AgentEffectivenessAnnotationPlan` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:522` | Dry-run annotation plan for Phase 1. |
+| `@beep/repo-ai-metrics/agent-effectiveness` | `AgentEffectivenessAnnotationPlanInput` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:199` | Input for building a dry-run annotation plan. |
+| `@beep/repo-ai-metrics/agent-effectiveness` | `agentEffectivenessAnnotationPlanToJson` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:2923` | Encode an annotation plan as JSON. |
+| `@beep/repo-ai-metrics/agent-effectiveness` | `AgentEffectivenessAnnotationValue` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:111` | Primitive annotation value allowed in local Phase 1 plans. |
+| `@beep/repo-ai-metrics/agent-effectiveness` | `AgentEffectivenessAnnotationValue` | type | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:123` | Runtime type for `AgentEffectivenessAnnotationValue`. |
+| `@beep/repo-ai-metrics/agent-effectiveness` | `AgentEffectivenessDatasetBundle` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:735` | Full Phoenix dataset bundle derived from a doctor report. |
+| `@beep/repo-ai-metrics/agent-effectiveness` | `agentEffectivenessDatasetBundleToJson` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:2976` | Encode a dataset bundle as JSON. |
+| `@beep/repo-ai-metrics/agent-effectiveness` | `AgentEffectivenessDatasetExample` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:661` | One sanitized example destined for a Phoenix dataset. |
+| `@beep/repo-ai-metrics/agent-effectiveness` | `AgentEffectivenessDatasetKind` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:628` | Phoenix dataset kinds owned by the agent-effectiveness loop. |
+| `@beep/repo-ai-metrics/agent-effectiveness` | `AgentEffectivenessDatasetKind` | type | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:646` | Type for {@link AgentEffectivenessDatasetKind}. |
+| `@beep/repo-ai-metrics/agent-effectiveness` | `AgentEffectivenessDatasetSpec` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:703` | One repo-owned Phoenix dataset specification. |
+| `@beep/repo-ai-metrics/agent-effectiveness` | `AgentEffectivenessDoctorInput` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:158` | Input for the Phase 1 agent-effectiveness doctor. |
+| `@beep/repo-ai-metrics/agent-effectiveness` | `AgentEffectivenessDoctorReport` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:461` | Phase 1 agent-effectiveness doctor report. |
+| `@beep/repo-ai-metrics/agent-effectiveness` | `agentEffectivenessDoctorReportToJson` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:2897` | Encode a doctor report as JSON. |
+| `@beep/repo-ai-metrics/agent-effectiveness` | `AgentEffectivenessDoctorSummary` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:436` | Aggregate summary emitted by the doctor report. |
+| `@beep/repo-ai-metrics/agent-effectiveness` | `AgentEffectivenessError` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:136` | Error raised by agent-effectiveness report helpers. |
+| `@beep/repo-ai-metrics/agent-effectiveness` | `AgentEffectivenessExperimentBundle` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:916` | Deterministic experiment bundle derived from dataset specs. |
+| `@beep/repo-ai-metrics/agent-effectiveness` | `agentEffectivenessExperimentBundleToJson` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:3028` | Encode an experiment bundle as JSON. |
+| `@beep/repo-ai-metrics/agent-effectiveness` | `AgentEffectivenessExperimentSpec` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:881` | Deterministic experiment plan entry. |
+| `@beep/repo-ai-metrics/agent-effectiveness` | `AgentEffectivenessForwarderSummary` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:314` | Latest forwarder summary from derived AI-metrics storage. |
+| `@beep/repo-ai-metrics/agent-effectiveness` | `AgentEffectivenessJsdocWorkerSection` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:404` | JSDoc worker-eval section for the doctor report. |
+| `@beep/repo-ai-metrics/agent-effectiveness` | `AgentEffectivenessPhoenixProject` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:228` | Summary for one Phoenix project. |
+| `@beep/repo-ai-metrics/agent-effectiveness` | `AgentEffectivenessPhoenixSection` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:256` | Read-only Phoenix health and inventory section. |
+| `@beep/repo-ai-metrics/agent-effectiveness` | `AgentEffectivenessPhoenixSyncInput` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:943` | Input for syncing agent-effectiveness evidence to Phoenix. |
+| `@beep/repo-ai-metrics/agent-effectiveness` | `AgentEffectivenessPhoenixSyncResult` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:988` | Result from a guarded Phoenix sync attempt. |
+| `@beep/repo-ai-metrics/agent-effectiveness` | `agentEffectivenessPhoenixSyncResultToJson` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:3054` | Encode a Phoenix sync result as JSON. |
+| `@beep/repo-ai-metrics/agent-effectiveness` | `AgentEffectivenessPlannedAnnotation` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:490` | One local-only annotation row that could be written to Phoenix later. |
+| `@beep/repo-ai-metrics/agent-effectiveness` | `AgentEffectivenessPromptBundle` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:850` | Full repo-owned Phoenix prompt bundle. |
+| `@beep/repo-ai-metrics/agent-effectiveness` | `agentEffectivenessPromptBundleToJson` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:3002` | Encode a prompt bundle as JSON. |
+| `@beep/repo-ai-metrics/agent-effectiveness` | `AgentEffectivenessPromptMessage` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:788` | One repo-owned Phoenix prompt message. |
+| `@beep/repo-ai-metrics/agent-effectiveness` | `AgentEffectivenessPromptRole` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:761` | Prompt roles used by repo-owned agent-effectiveness prompt templates. |
+| `@beep/repo-ai-metrics/agent-effectiveness` | `AgentEffectivenessPromptRole` | type | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:773` | Type for {@link AgentEffectivenessPromptRole}. |
+| `@beep/repo-ai-metrics/agent-effectiveness` | `AgentEffectivenessPromptSpec` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:818` | Repo-owned Phoenix prompt specification. |
+| `@beep/repo-ai-metrics/agent-effectiveness` | `AgentEffectivenessScorecardSummary` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:342` | Latest scorecard summary from derived AI-metrics storage. |
+| `@beep/repo-ai-metrics/agent-effectiveness` | `AgentEffectivenessSourceCoverage` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:287` | Source coverage row derived from AI-metrics storage. |
+| `@beep/repo-ai-metrics/agent-effectiveness` | `AgentEffectivenessStatus` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:86` | Status emitted by agent-effectiveness reports. |
+| `@beep/repo-ai-metrics/agent-effectiveness` | `AgentEffectivenessStatus` | type | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:98` | Runtime type for `AgentEffectivenessStatus`. |
+| `@beep/repo-ai-metrics/agent-effectiveness` | `DEFAULT_AGENT_EFFECTIVENESS_WORKER_EVAL_REPORT_PATH` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:49` | Stable default pointer used to locate the latest checked-in JSDoc worker-eval evidence. |
+| `@beep/repo-ai-metrics/agent-effectiveness` | `makeAgentEffectivenessAnnotationCheckReport` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:2868` | Check a local annotation plan for Phase 1 privacy and schema safety. |
+| `@beep/repo-ai-metrics/agent-effectiveness` | `makeAgentEffectivenessAnnotationPlan` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:2100` | Build a sanitized local-only annotation plan. |
+| `@beep/repo-ai-metrics/agent-effectiveness` | `makeAgentEffectivenessDatasetBundle` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:2308` | Build the Phoenix dataset bundle from a doctor report. |
+| `@beep/repo-ai-metrics/agent-effectiveness` | `makeAgentEffectivenessDoctorReport` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:1771` | Build the report-only Phase 1 agent-effectiveness doctor report. |
+| `@beep/repo-ai-metrics/agent-effectiveness` | `makeAgentEffectivenessExperimentBundle` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:2387` | Build deterministic experiment specs from a dataset bundle. |
+| `@beep/repo-ai-metrics/agent-effectiveness` | `makeAgentEffectivenessPromptBundle` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:2335` | Build the repo-owned Phoenix prompt bundle. |
+| `@beep/repo-ai-metrics/agent-effectiveness` | `syncAgentEffectivenessPhoenix` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:2558` | Sync agent-effectiveness datasets, prompts, experiments, and resolved annotations to Phoenix. |
 | `@beep/repo-ai-metrics/archive` | `AiMetricsArchiveError` | class | `packages/tooling/library/ai-metrics/src/archive.ts:35` | Error raised by AI metrics encrypted archive helpers. |
 | `@beep/repo-ai-metrics/archive` | `AiMetricsEncryptedRawArchiveEnvelope` | class | `packages/tooling/library/ai-metrics/src/archive.ts:57` | Encrypted raw transcript archive envelope stored on disk. |
 | `@beep/repo-ai-metrics/archive` | `AiMetricsRawArchiveKey` | const | `packages/tooling/library/ai-metrics/src/archive.ts:115` | Redacted base64 AES-256-GCM key used for raw archive encryption. |
@@ -7792,49 +7792,49 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-ai-metrics/forwarder` | `renderAiMetricsForwarderTimerPlan` | const | `packages/tooling/library/ai-metrics/src/forwarder.ts:374` | Render a systemd user timer that repeatedly runs the forwarder with locking and status evidence. |
 | `@beep/repo-ai-metrics/forwarder` | `runAiMetricsForwarder` | const | `packages/tooling/library/ai-metrics/src/forwarder.ts:750` | Run durable ingest: encrypted raw archive, DuckDB projection, and Parquet export. |
 | `@beep/repo-ai-metrics/index` | `addAiMetricsOutcomeLabel` | const | `packages/tooling/library/ai-metrics/src/scorecard.ts:603` | Add or replace the current structured human label for a task. |
-| `@beep/repo-ai-metrics/index` | `AGENT_EFFECTIVENESS_PHOENIX_PROJECT` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:597` | Dedicated Phoenix project namespace for the agent-effectiveness loop. |
-| `@beep/repo-ai-metrics/index` | `AGENT_EFFECTIVENESS_PHOENIX_WRITE_CONFIRMATION` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:611` | Confirmation token required before live Phoenix writes. |
-| `@beep/repo-ai-metrics/index` | `AgentEffectivenessAiMetricsSection` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:370` | AI-metrics local evidence section for the doctor report. |
-| `@beep/repo-ai-metrics/index` | `AgentEffectivenessAnnotationCheckFinding` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:546` | One validation finding for an annotation plan. |
-| `@beep/repo-ai-metrics/index` | `AgentEffectivenessAnnotationCheckReport` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:570` | Report emitted by `agent-effectiveness annotations check`. |
-| `@beep/repo-ai-metrics/index` | `agentEffectivenessAnnotationCheckReportToJson` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:2830` | Encode an annotation-check report as JSON. |
-| `@beep/repo-ai-metrics/index` | `AgentEffectivenessAnnotationPlan` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:519` | Dry-run annotation plan for Phase 1. |
-| `@beep/repo-ai-metrics/index` | `AgentEffectivenessAnnotationPlanInput` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:196` | Input for building a dry-run annotation plan. |
-| `@beep/repo-ai-metrics/index` | `agentEffectivenessAnnotationPlanToJson` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:2804` | Encode an annotation plan as JSON. |
-| `@beep/repo-ai-metrics/index` | `AgentEffectivenessAnnotationValue` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:108` | Primitive annotation value allowed in local Phase 1 plans. |
-| `@beep/repo-ai-metrics/index` | `AgentEffectivenessAnnotationValue` | type | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:120` | Runtime type for `AgentEffectivenessAnnotationValue`. |
-| `@beep/repo-ai-metrics/index` | `AgentEffectivenessDatasetBundle` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:732` | Full Phoenix dataset bundle derived from a doctor report. |
-| `@beep/repo-ai-metrics/index` | `agentEffectivenessDatasetBundleToJson` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:2857` | Encode a dataset bundle as JSON. |
-| `@beep/repo-ai-metrics/index` | `AgentEffectivenessDatasetExample` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:658` | One sanitized example destined for a Phoenix dataset. |
-| `@beep/repo-ai-metrics/index` | `AgentEffectivenessDatasetKind` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:625` | Phoenix dataset kinds owned by the agent-effectiveness loop. |
-| `@beep/repo-ai-metrics/index` | `AgentEffectivenessDatasetKind` | type | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:643` | Type for {@link AgentEffectivenessDatasetKind}. |
-| `@beep/repo-ai-metrics/index` | `AgentEffectivenessDatasetSpec` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:700` | One repo-owned Phoenix dataset specification. |
-| `@beep/repo-ai-metrics/index` | `AgentEffectivenessDoctorInput` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:155` | Input for the Phase 1 agent-effectiveness doctor. |
-| `@beep/repo-ai-metrics/index` | `AgentEffectivenessDoctorReport` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:458` | Phase 1 agent-effectiveness doctor report. |
-| `@beep/repo-ai-metrics/index` | `agentEffectivenessDoctorReportToJson` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:2778` | Encode a doctor report as JSON. |
-| `@beep/repo-ai-metrics/index` | `AgentEffectivenessDoctorSummary` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:433` | Aggregate summary emitted by the doctor report. |
-| `@beep/repo-ai-metrics/index` | `AgentEffectivenessError` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:133` | Error raised by agent-effectiveness report helpers. |
-| `@beep/repo-ai-metrics/index` | `AgentEffectivenessExperimentBundle` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:913` | Deterministic experiment bundle derived from dataset specs. |
-| `@beep/repo-ai-metrics/index` | `agentEffectivenessExperimentBundleToJson` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:2909` | Encode an experiment bundle as JSON. |
-| `@beep/repo-ai-metrics/index` | `AgentEffectivenessExperimentSpec` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:878` | Deterministic experiment plan entry. |
-| `@beep/repo-ai-metrics/index` | `AgentEffectivenessForwarderSummary` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:311` | Latest forwarder summary from derived AI-metrics storage. |
-| `@beep/repo-ai-metrics/index` | `AgentEffectivenessJsdocWorkerSection` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:401` | JSDoc worker-eval section for the doctor report. |
-| `@beep/repo-ai-metrics/index` | `AgentEffectivenessPhoenixProject` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:225` | Summary for one Phoenix project. |
-| `@beep/repo-ai-metrics/index` | `AgentEffectivenessPhoenixSection` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:253` | Read-only Phoenix health and inventory section. |
-| `@beep/repo-ai-metrics/index` | `AgentEffectivenessPhoenixSyncInput` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:940` | Input for syncing agent-effectiveness evidence to Phoenix. |
-| `@beep/repo-ai-metrics/index` | `AgentEffectivenessPhoenixSyncResult` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:985` | Result from a guarded Phoenix sync attempt. |
-| `@beep/repo-ai-metrics/index` | `agentEffectivenessPhoenixSyncResultToJson` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:2935` | Encode a Phoenix sync result as JSON. |
-| `@beep/repo-ai-metrics/index` | `AgentEffectivenessPlannedAnnotation` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:487` | One local-only annotation row that could be written to Phoenix later. |
-| `@beep/repo-ai-metrics/index` | `AgentEffectivenessPromptBundle` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:847` | Full repo-owned Phoenix prompt bundle. |
-| `@beep/repo-ai-metrics/index` | `agentEffectivenessPromptBundleToJson` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:2883` | Encode a prompt bundle as JSON. |
-| `@beep/repo-ai-metrics/index` | `AgentEffectivenessPromptMessage` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:785` | One repo-owned Phoenix prompt message. |
-| `@beep/repo-ai-metrics/index` | `AgentEffectivenessPromptRole` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:758` | Prompt roles used by repo-owned agent-effectiveness prompt templates. |
-| `@beep/repo-ai-metrics/index` | `AgentEffectivenessPromptRole` | type | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:770` | Type for {@link AgentEffectivenessPromptRole}. |
-| `@beep/repo-ai-metrics/index` | `AgentEffectivenessPromptSpec` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:815` | Repo-owned Phoenix prompt specification. |
-| `@beep/repo-ai-metrics/index` | `AgentEffectivenessScorecardSummary` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:339` | Latest scorecard summary from derived AI-metrics storage. |
-| `@beep/repo-ai-metrics/index` | `AgentEffectivenessSourceCoverage` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:284` | Source coverage row derived from AI-metrics storage. |
-| `@beep/repo-ai-metrics/index` | `AgentEffectivenessStatus` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:83` | Status emitted by agent-effectiveness reports. |
-| `@beep/repo-ai-metrics/index` | `AgentEffectivenessStatus` | type | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:95` | Runtime type for `AgentEffectivenessStatus`. |
+| `@beep/repo-ai-metrics/index` | `AGENT_EFFECTIVENESS_PHOENIX_PROJECT` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:600` | Dedicated Phoenix project namespace for the agent-effectiveness loop. |
+| `@beep/repo-ai-metrics/index` | `AGENT_EFFECTIVENESS_PHOENIX_WRITE_CONFIRMATION` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:614` | Confirmation token required before live Phoenix writes. |
+| `@beep/repo-ai-metrics/index` | `AgentEffectivenessAiMetricsSection` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:373` | AI-metrics local evidence section for the doctor report. |
+| `@beep/repo-ai-metrics/index` | `AgentEffectivenessAnnotationCheckFinding` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:549` | One validation finding for an annotation plan. |
+| `@beep/repo-ai-metrics/index` | `AgentEffectivenessAnnotationCheckReport` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:573` | Report emitted by `agent-effectiveness annotations check`. |
+| `@beep/repo-ai-metrics/index` | `agentEffectivenessAnnotationCheckReportToJson` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:2949` | Encode an annotation-check report as JSON. |
+| `@beep/repo-ai-metrics/index` | `AgentEffectivenessAnnotationPlan` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:522` | Dry-run annotation plan for Phase 1. |
+| `@beep/repo-ai-metrics/index` | `AgentEffectivenessAnnotationPlanInput` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:199` | Input for building a dry-run annotation plan. |
+| `@beep/repo-ai-metrics/index` | `agentEffectivenessAnnotationPlanToJson` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:2923` | Encode an annotation plan as JSON. |
+| `@beep/repo-ai-metrics/index` | `AgentEffectivenessAnnotationValue` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:111` | Primitive annotation value allowed in local Phase 1 plans. |
+| `@beep/repo-ai-metrics/index` | `AgentEffectivenessAnnotationValue` | type | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:123` | Runtime type for `AgentEffectivenessAnnotationValue`. |
+| `@beep/repo-ai-metrics/index` | `AgentEffectivenessDatasetBundle` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:735` | Full Phoenix dataset bundle derived from a doctor report. |
+| `@beep/repo-ai-metrics/index` | `agentEffectivenessDatasetBundleToJson` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:2976` | Encode a dataset bundle as JSON. |
+| `@beep/repo-ai-metrics/index` | `AgentEffectivenessDatasetExample` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:661` | One sanitized example destined for a Phoenix dataset. |
+| `@beep/repo-ai-metrics/index` | `AgentEffectivenessDatasetKind` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:628` | Phoenix dataset kinds owned by the agent-effectiveness loop. |
+| `@beep/repo-ai-metrics/index` | `AgentEffectivenessDatasetKind` | type | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:646` | Type for {@link AgentEffectivenessDatasetKind}. |
+| `@beep/repo-ai-metrics/index` | `AgentEffectivenessDatasetSpec` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:703` | One repo-owned Phoenix dataset specification. |
+| `@beep/repo-ai-metrics/index` | `AgentEffectivenessDoctorInput` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:158` | Input for the Phase 1 agent-effectiveness doctor. |
+| `@beep/repo-ai-metrics/index` | `AgentEffectivenessDoctorReport` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:461` | Phase 1 agent-effectiveness doctor report. |
+| `@beep/repo-ai-metrics/index` | `agentEffectivenessDoctorReportToJson` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:2897` | Encode a doctor report as JSON. |
+| `@beep/repo-ai-metrics/index` | `AgentEffectivenessDoctorSummary` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:436` | Aggregate summary emitted by the doctor report. |
+| `@beep/repo-ai-metrics/index` | `AgentEffectivenessError` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:136` | Error raised by agent-effectiveness report helpers. |
+| `@beep/repo-ai-metrics/index` | `AgentEffectivenessExperimentBundle` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:916` | Deterministic experiment bundle derived from dataset specs. |
+| `@beep/repo-ai-metrics/index` | `agentEffectivenessExperimentBundleToJson` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:3028` | Encode an experiment bundle as JSON. |
+| `@beep/repo-ai-metrics/index` | `AgentEffectivenessExperimentSpec` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:881` | Deterministic experiment plan entry. |
+| `@beep/repo-ai-metrics/index` | `AgentEffectivenessForwarderSummary` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:314` | Latest forwarder summary from derived AI-metrics storage. |
+| `@beep/repo-ai-metrics/index` | `AgentEffectivenessJsdocWorkerSection` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:404` | JSDoc worker-eval section for the doctor report. |
+| `@beep/repo-ai-metrics/index` | `AgentEffectivenessPhoenixProject` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:228` | Summary for one Phoenix project. |
+| `@beep/repo-ai-metrics/index` | `AgentEffectivenessPhoenixSection` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:256` | Read-only Phoenix health and inventory section. |
+| `@beep/repo-ai-metrics/index` | `AgentEffectivenessPhoenixSyncInput` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:943` | Input for syncing agent-effectiveness evidence to Phoenix. |
+| `@beep/repo-ai-metrics/index` | `AgentEffectivenessPhoenixSyncResult` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:988` | Result from a guarded Phoenix sync attempt. |
+| `@beep/repo-ai-metrics/index` | `agentEffectivenessPhoenixSyncResultToJson` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:3054` | Encode a Phoenix sync result as JSON. |
+| `@beep/repo-ai-metrics/index` | `AgentEffectivenessPlannedAnnotation` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:490` | One local-only annotation row that could be written to Phoenix later. |
+| `@beep/repo-ai-metrics/index` | `AgentEffectivenessPromptBundle` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:850` | Full repo-owned Phoenix prompt bundle. |
+| `@beep/repo-ai-metrics/index` | `agentEffectivenessPromptBundleToJson` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:3002` | Encode a prompt bundle as JSON. |
+| `@beep/repo-ai-metrics/index` | `AgentEffectivenessPromptMessage` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:788` | One repo-owned Phoenix prompt message. |
+| `@beep/repo-ai-metrics/index` | `AgentEffectivenessPromptRole` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:761` | Prompt roles used by repo-owned agent-effectiveness prompt templates. |
+| `@beep/repo-ai-metrics/index` | `AgentEffectivenessPromptRole` | type | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:773` | Type for {@link AgentEffectivenessPromptRole}. |
+| `@beep/repo-ai-metrics/index` | `AgentEffectivenessPromptSpec` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:818` | Repo-owned Phoenix prompt specification. |
+| `@beep/repo-ai-metrics/index` | `AgentEffectivenessScorecardSummary` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:342` | Latest scorecard summary from derived AI-metrics storage. |
+| `@beep/repo-ai-metrics/index` | `AgentEffectivenessSourceCoverage` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:287` | Source coverage row derived from AI-metrics storage. |
+| `@beep/repo-ai-metrics/index` | `AgentEffectivenessStatus` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:86` | Status emitted by agent-effectiveness reports. |
+| `@beep/repo-ai-metrics/index` | `AgentEffectivenessStatus` | type | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:98` | Runtime type for `AgentEffectivenessStatus`. |
 | `@beep/repo-ai-metrics/index` | `AgentSession` | class | `packages/tooling/library/ai-metrics/src/models.ts:415` | Session-level transcript metadata under an agent task. |
 | `@beep/repo-ai-metrics/index` | `AgentTask` | class | `packages/tooling/library/ai-metrics/src/models.ts:383` | Canonical unit of analysis for coding-agent metrics. |
 | `@beep/repo-ai-metrics/index` | `AgentTurn` | class | `packages/tooling/library/ai-metrics/src/models.ts:451` | Turn-level transcript event normalized from local agent logs. |
@@ -7969,7 +7969,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-ai-metrics/index` | `ConfigSnapshot` | class | `packages/tooling/library/ai-metrics/src/models.ts:354` | Versioned snapshot of agent-facing repository configuration. |
 | `@beep/repo-ai-metrics/index` | `configSnapshotToJson` | const | `packages/tooling/library/ai-metrics/src/config-snapshot.ts:552` | Render a config snapshot result as JSON. |
 | `@beep/repo-ai-metrics/index` | `decryptEncryptedRawArchiveEnvelope` | const | `packages/tooling/library/ai-metrics/src/archive.ts:362` | Decrypt an archive envelope for package-level verification. |
-| `@beep/repo-ai-metrics/index` | `DEFAULT_AGENT_EFFECTIVENESS_WORKER_EVAL_REPORT_PATH` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:46` | Stable default pointer used to locate the latest checked-in JSDoc worker-eval evidence. |
+| `@beep/repo-ai-metrics/index` | `DEFAULT_AGENT_EFFECTIVENESS_WORKER_EVAL_REPORT_PATH` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:49` | Stable default pointer used to locate the latest checked-in JSDoc worker-eval evidence. |
 | `@beep/repo-ai-metrics/index` | `discoverAiMetricsSources` | const | `packages/tooling/library/ai-metrics/src/source-discovery.ts:617` | Discover local AI metrics transcript sources for the smoke target. |
 | `@beep/repo-ai-metrics/index` | `ensureAiMetricsDerivedStorage` | const | `packages/tooling/library/ai-metrics/src/derived-storage.ts:643` | Ensure the AI metrics derived DuckDB schema exists and has P4 columns. |
 | `@beep/repo-ai-metrics/index` | `forwarderRunResultToJson` | const | `packages/tooling/library/ai-metrics/src/forwarder.ts:854` | Render a durable forwarder run result as JSON. |
@@ -7980,12 +7980,12 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-ai-metrics/index` | `listAiMetricsBenchmarkCases` | const | `packages/tooling/library/ai-metrics/src/scorecard.ts:760` | List deploy-safe benchmark cases. |
 | `@beep/repo-ai-metrics/index` | `listAiMetricsRetentionInventory` | const | `packages/tooling/library/ai-metrics/src/retention.ts:544` | List retained AI metrics raw archive objects and derived/report outputs. |
 | `@beep/repo-ai-metrics/index` | `locateLatestAiMetricsMirrorBundle` | const | `packages/tooling/library/ai-metrics/src/mirror.ts:540` | Locate the latest local mirror bundle pointer for a data root. |
-| `@beep/repo-ai-metrics/index` | `makeAgentEffectivenessAnnotationCheckReport` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:2749` | Check a local annotation plan for Phase 1 privacy and schema safety. |
-| `@beep/repo-ai-metrics/index` | `makeAgentEffectivenessAnnotationPlan` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:2097` | Build a sanitized local-only annotation plan. |
-| `@beep/repo-ai-metrics/index` | `makeAgentEffectivenessDatasetBundle` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:2305` | Build the Phoenix dataset bundle from a doctor report. |
-| `@beep/repo-ai-metrics/index` | `makeAgentEffectivenessDoctorReport` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:1768` | Build the report-only Phase 1 agent-effectiveness doctor report. |
-| `@beep/repo-ai-metrics/index` | `makeAgentEffectivenessExperimentBundle` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:2384` | Build deterministic experiment specs from a dataset bundle. |
-| `@beep/repo-ai-metrics/index` | `makeAgentEffectivenessPromptBundle` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:2332` | Build the repo-owned Phoenix prompt bundle. |
+| `@beep/repo-ai-metrics/index` | `makeAgentEffectivenessAnnotationCheckReport` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:2868` | Check a local annotation plan for Phase 1 privacy and schema safety. |
+| `@beep/repo-ai-metrics/index` | `makeAgentEffectivenessAnnotationPlan` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:2100` | Build a sanitized local-only annotation plan. |
+| `@beep/repo-ai-metrics/index` | `makeAgentEffectivenessDatasetBundle` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:2308` | Build the Phoenix dataset bundle from a doctor report. |
+| `@beep/repo-ai-metrics/index` | `makeAgentEffectivenessDoctorReport` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:1771` | Build the report-only Phase 1 agent-effectiveness doctor report. |
+| `@beep/repo-ai-metrics/index` | `makeAgentEffectivenessExperimentBundle` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:2387` | Build deterministic experiment specs from a dataset bundle. |
+| `@beep/repo-ai-metrics/index` | `makeAgentEffectivenessPromptBundle` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:2335` | Build the repo-owned Phoenix prompt bundle. |
 | `@beep/repo-ai-metrics/index` | `makeAiMetricsConfigSnapshot` | const | `packages/tooling/library/ai-metrics/src/config-snapshot.ts:429` | Build a deterministic snapshot of repo-owned agent-facing configuration. |
 | `@beep/repo-ai-metrics/index` | `makeAiMetricsInstallApplyDryRunResult` | const | `packages/tooling/library/ai-metrics/src/install.ts:1219` | Resolve the P5a dry-run apply result. |
 | `@beep/repo-ai-metrics/index` | `makeAiMetricsInstallDoctorResult` | const | `packages/tooling/library/ai-metrics/src/install.ts:1120` | Evaluate the P5a install doctor contract checks. |
@@ -8018,7 +8018,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-ai-metrics/index` | `sourceDiscoveryToJson` | const | `packages/tooling/library/ai-metrics/src/source-discovery.ts:674` | Render a source discovery result as JSON. |
 | `@beep/repo-ai-metrics/index` | `summarizeTranscriptText` | const | `packages/tooling/library/ai-metrics/src/ingest.ts:177` | Summarize JSONL transcript text into a stable ingest summary. |
 | `@beep/repo-ai-metrics/index` | `summaryToJson` | const | `packages/tooling/library/ai-metrics/src/ingest.ts:221` | Render a transcript ingest summary as JSON. |
-| `@beep/repo-ai-metrics/index` | `syncAgentEffectivenessPhoenix` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:2524` | Sync agent-effectiveness datasets, prompts, experiments, and resolved annotations to Phoenix. |
+| `@beep/repo-ai-metrics/index` | `syncAgentEffectivenessPhoenix` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:2558` | Sync agent-effectiveness datasets, prompts, experiments, and resolved annotations to Phoenix. |
 | `@beep/repo-ai-metrics/index` | `ToolInvocation` | class | `packages/tooling/library/ai-metrics/src/models.ts:503` | Tool or shell command invocation measured under an agent task. |
 | `@beep/repo-ai-metrics/index` | `TranscriptIngestSummary` | class | `packages/tooling/library/ai-metrics/src/models.ts:641` | Summary produced by transcript ingestion. |
 | `@beep/repo-ai-metrics/index` | `upsertAiMetricsBenchmarkCase` | const | `packages/tooling/library/ai-metrics/src/scorecard.ts:681` | Add or replace a deploy-safe benchmark case. |

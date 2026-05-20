@@ -8,6 +8,7 @@
 import { $PhoenixId } from "@beep/identity";
 import { LiteralKit, TaggedErrorClass } from "@beep/schema";
 import { Result } from "effect";
+import { dual } from "effect/Function";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as R from "effect/Record";
@@ -53,6 +54,7 @@ export const PhoenixOperation = LiteralKit([
  * @since 0.0.0
  */
 export type PhoenixOperation = typeof PhoenixOperation.Type;
+const isPhoenixOperation = S.is(PhoenixOperation);
 
 /**
  * Technical error reasons emitted by the Phoenix driver.
@@ -143,18 +145,31 @@ export class PhoenixError extends TaggedErrorClass<PhoenixError>($I`PhoenixError
    * @category errors
    * @since 0.0.0
    */
-  static readonly operation = (
-    operation: PhoenixOperation,
-    reason: PhoenixErrorReason,
-    options: PhoenixErrorOptions | { readonly cause?: unknown } = {}
-  ): PhoenixError =>
-    new PhoenixError({
-      operation,
-      reason,
-      ...R.getSomes({
-        cause: causeFromUnknown(options.cause),
-      }),
-    });
+  static readonly operation: {
+    (
+      operation: PhoenixOperation,
+      reason: PhoenixErrorReason,
+      options?: PhoenixErrorOptions | { readonly cause?: unknown }
+    ): PhoenixError;
+    (
+      reason: PhoenixErrorReason,
+      options?: PhoenixErrorOptions | { readonly cause?: unknown }
+    ): (operation: PhoenixOperation) => PhoenixError;
+  } = dual(
+    (args) => args.length >= 2 && isPhoenixOperation(args[0]),
+    (
+      operation: PhoenixOperation,
+      reason: PhoenixErrorReason,
+      options: PhoenixErrorOptions | { readonly cause?: unknown } = {}
+    ): PhoenixError =>
+      new PhoenixError({
+        operation,
+        reason,
+        ...R.getSomes({
+          cause: causeFromUnknown(options.cause),
+        }),
+      })
+  );
 }
 
 const readProperty = (value: unknown, key: PropertyKey): O.Option<unknown> => {
