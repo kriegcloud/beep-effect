@@ -12448,13 +12448,13 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/acp/errors` | `AcpRequestError` | class | `packages/drivers/acp/src/errors.ts:145` | JSON-RPC request failure returned by an ACP peer. |
 | `@beep/acp/errors` | `AcpSpawnError` | class | `packages/drivers/acp/src/errors.ts:31` | Failure raised when an ACP child process cannot be spawned. |
 | `@beep/acp/errors` | `AcpTransportError` | class | `packages/drivers/acp/src/errors.ts:120` | Failure raised by the ACP transport boundary. |
-| `@beep/acp/protocol` | `AcpIncomingNotification` | const | `packages/drivers/acp/src/protocol.ts:99` | Schema for notifications decoded from the ACP peer stream. |
-| `@beep/acp/protocol` | `AcpIncomingNotification` | type | `packages/drivers/acp/src/protocol.ts:132` | Type for {@link AcpIncomingNotification}. |
-| `@beep/acp/protocol` | `AcpPatchedProtocol` | interface | `packages/drivers/acp/src/protocol.ts:175` | Runtime protocol handles used by ACP clients and agents. |
-| `@beep/acp/protocol` | `AcpPatchedProtocolOptions` | interface | `packages/drivers/acp/src/protocol.ts:151` | Options used to create the patched ACP protocol. |
-| `@beep/acp/protocol` | `AcpProtocolLogEvent` | class | `packages/drivers/acp/src/protocol.ts:51` | Structured log event emitted by the ACP protocol adapter. |
-| `@beep/acp/protocol` | `AcpProtocolLoggingOptions` | class | `packages/drivers/acp/src/protocol.ts:76` | Schema-backed ACP protocol logging flags. |
-| `@beep/acp/protocol` | `makeAcpPatchedProtocol` | const | `packages/drivers/acp/src/protocol.ts:211` | Builds the patched ACP protocol over an Effect `Stdio` transport. |
+| `@beep/acp/protocol` | `AcpIncomingNotification` | const | `packages/drivers/acp/src/protocol.ts:132` | Schema for notifications decoded from the ACP peer stream. |
+| `@beep/acp/protocol` | `AcpIncomingNotification` | type | `packages/drivers/acp/src/protocol.ts:165` | Type for {@link AcpIncomingNotification}. |
+| `@beep/acp/protocol` | `AcpPatchedProtocol` | interface | `packages/drivers/acp/src/protocol.ts:208` | Runtime protocol handles used by ACP clients and agents. |
+| `@beep/acp/protocol` | `AcpPatchedProtocolOptions` | interface | `packages/drivers/acp/src/protocol.ts:184` | Options used to create the patched ACP protocol. |
+| `@beep/acp/protocol` | `AcpProtocolLogEvent` | class | `packages/drivers/acp/src/protocol.ts:84` | Structured log event emitted by the ACP protocol adapter. |
+| `@beep/acp/protocol` | `AcpProtocolLoggingOptions` | class | `packages/drivers/acp/src/protocol.ts:109` | Schema-backed ACP protocol logging flags. |
+| `@beep/acp/protocol` | `makeAcpPatchedProtocol` | const | `packages/drivers/acp/src/protocol.ts:244` | Builds the patched ACP protocol over an Effect `Stdio` transport. |
 | `@beep/acp/rpc` | `AgentRpcs` | const | `packages/drivers/acp/src/rpc.ts:425` | RPC group served by ACP agents. |
 | `@beep/acp/rpc` | `AuthenticateRpc` | const | `packages/drivers/acp/src/rpc.ts:45` | RPC definition for `AuthenticateRpc`. |
 | `@beep/acp/rpc` | `ClientRpcs` | const | `packages/drivers/acp/src/rpc.ts:453` | RPC group served by ACP clients. |
