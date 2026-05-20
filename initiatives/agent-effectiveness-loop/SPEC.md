@@ -2,7 +2,7 @@
 
 ## Status
 
-**Phase 1 local doctor and annotation-plan loop live-proofed for PR readiness**
+**Phase 1 complete**
 
 ## Owner
 
@@ -128,6 +128,18 @@ This slice produces a trust gate and privacy-checked annotation plan before any
 Phoenix mutation, dataset creation, prompt management, experiment creation, or
 backend driver work is allowed.
 
+Phase 1 closeout also landed guarded Phoenix sync plumbing:
+
+- `beep agent-effectiveness datasets bundle --json`
+- `beep agent-effectiveness prompts bundle --json`
+- `beep agent-effectiveness experiments bundle --json`
+- `beep agent-effectiveness phoenix sync --json`
+
+The sync path defaults to dry-run and requires explicit confirmation before live
+Phoenix writes. Phase 1 completion is proven by the no-mutation live proof,
+privacy checks, CI, and review closeout; it does not require live Phoenix
+mutation.
+
 ## Phase 1 Implementation Contract
 
 The Phase 1 implementation is split across:
@@ -158,3 +170,6 @@ Phase 1 live proof is recorded in
 the section level: Phoenix inventory must decode and pass, annotation privacy
 checks must pass, and the overall doctor may remain `warning` when optional
 local AI-metrics evidence is unavailable.
+
+Phase 1 post-merge closeout is recorded in
+`history/outputs/phase1-closeout.md`.

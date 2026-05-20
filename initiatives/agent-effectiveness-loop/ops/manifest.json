@@ -3,7 +3,7 @@
   "initiative": {
     "id": "agent-effectiveness-loop",
     "title": "Agent Effectiveness Loop",
-    "status": "phase1-live-proof-pr-ready",
+    "status": "phase1-complete",
     "created": "2026-05-16",
     "updated": "2026-05-20",
     "packetAnchorDocument": "SPEC.md"
@@ -41,14 +41,19 @@
   },
   "phase1": {
     "id": "doctor-and-annotation-plan",
-    "status": "live-proofed-pr-ready",
+    "status": "complete",
     "commands": [
       "beep agent-effectiveness doctor --json",
       "beep agent-effectiveness annotations plan --json",
-      "beep agent-effectiveness annotations check --json"
+      "beep agent-effectiveness annotations check --json",
+      "beep agent-effectiveness datasets bundle --json",
+      "beep agent-effectiveness prompts bundle --json",
+      "beep agent-effectiveness experiments bundle --json",
+      "beep agent-effectiveness phoenix sync --json"
     ],
-    "mutationPolicy": "local-artifacts-only",
+    "mutationPolicy": "dry-run-default-confirmation-required",
     "proof": "history/outputs/phase1-live-proof.md",
+    "closeout": "history/outputs/phase1-closeout.md",
     "implementationSurfaces": [
       "packages/tooling/library/ai-metrics/src/agent-effectiveness.ts",
       "packages/tooling/tool/cli/src/commands/AgentEffectiveness/index.ts"
@@ -66,10 +71,10 @@
     "https://arize.com/docs/phoenix/tracing/how-to-tracing/feedback-and-annotations/evaluating-phoenix-traces"
   ],
   "nonGoals": [
-    "mutating Phoenix projects, datasets, prompts, annotations, experiments, or server config during Phase 1",
+    "using live Phoenix mutation as required Phase 1 closeout proof",
     "moving AI metrics semantics out of tooling packages",
     "syncing raw transcripts or private paths into research artifacts",
     "graduating worker auto-remediation from read-only evidence"
   ],
-  "nextAction": "Open the Phase 1 draft PR, keep Phoenix mutation paths deferred, then decide separately whether Phase 2 should add Phoenix writes, datasets, experiments, or prompt-management workflows."
+  "nextAction": "Plan Phase 2 separately if Phoenix-native enrichment, live write workflows, prompt management, or experiment automation become the next priority."
 }
