@@ -36,6 +36,8 @@ actually lives here.
 - `repo-codegraph` — deterministic-first codegraph lookup and retrieval
   implementation packet.
 - `repo-quality-acceleration` — research-first quality feedback speedup packet.
+- `repo-quality-convergence` — 9/10 repo-health scorecard, release guardrail,
+    and quality closure packet.
 - `repo-context-topology` — generated topology and export catalog work for
     coding-agent symbol discovery.
 - `stack-installer`

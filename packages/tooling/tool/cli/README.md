@@ -331,8 +331,11 @@ bun run beep quality bun-audit
 bun run beep quality dtslint-tsgo
 bun run beep quality test-tsgo
 bun run beep quality tsgo-smoke
+bun run beep quality tsgo-rules
 bun run beep quality jsdoc-module-tags
 bun run beep quality jsdoc-inventory
+bun run beep quality repo-exports-catalog --check
+bun run beep quality changeset-graph
 ```
 
 ### `ci`
