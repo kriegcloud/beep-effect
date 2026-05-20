@@ -13,6 +13,33 @@
  */
 
 /**
+ * Agent-effectiveness evidence command group.
+ *
+ * @example
+ * ```ts
+ * import { agentEffectivenessCommand } from "@beep/repo-cli"
+ *
+ * console.log(agentEffectivenessCommand)
+ * ```
+ * @category cli-commands
+ * @since 0.0.0
+ */
+export {
+  /**
+   * Agent-effectiveness evidence command group.
+   *
+   * @example
+   * ```ts
+   * import { agentEffectivenessCommand } from "@beep/repo-cli"
+   *
+   * console.log(agentEffectivenessCommand)
+   * ```
+   * @category cli-commands
+   * @since 0.0.0
+   */
+  agentEffectivenessCommand,
+} from "./commands/AgentEffectiveness/index.js";
+/**
  * CI helper command group.
  *
  * @example
