@@ -6,6 +6,7 @@ import {
   AgentEffectivenessPlannedAnnotation,
   AgentEffectivenessStatus,
   agentEffectivenessAnnotationPlanToJson,
+  ensureAiMetricsDerivedStorage,
   makeAgentEffectivenessAnnotationCheckReport,
   makeAgentEffectivenessAnnotationPlan,
   makeAgentEffectivenessDoctorReport,
@@ -45,12 +46,74 @@ const writeText = Effect.fn("AgentEffectivenessTest.writeText")(function* (fileP
   yield* fs.writeFileString(filePath, content);
 });
 
+const seedScorecardWithCoverageGaps = Effect.fn("AgentEffectivenessTest.seedScorecardWithCoverageGaps")(function* (
+  coverageGapsJson: string
+) {
+  const duckdb = yield* DuckDb;
+  yield* ensureAiMetricsDerivedStorage;
+  yield* duckdb.run(
+    `INSERT OR REPLACE INTO ai_metrics_scorecards (
+      scorecard_id,
+      config_snapshot_id,
+      window_start_epoch_ms,
+      window_end_epoch_ms,
+      total_score,
+      outcome_score,
+      flow_score,
+      cost_score,
+      task_count,
+      label_count,
+      benchmark_run_count,
+      completion_ready,
+      coverage_gaps_json
+    ) VALUES (
+      $scorecardId,
+      $configSnapshotId,
+      $windowStartEpochMillis,
+      $windowEndEpochMillis,
+      $totalScore,
+      $outcomeScore,
+      $flowScore,
+      $costScore,
+      $taskCount,
+      $labelCount,
+      $benchmarkRunCount,
+      $completionReady,
+      $coverageGapsJson
+    )`,
+    {
+      benchmarkRunCount: 0,
+      completionReady: false,
+      configSnapshotId: "config-snapshot-test",
+      costScore: 0,
+      coverageGapsJson,
+      flowScore: 0,
+      labelCount: 0,
+      outcomeScore: 0,
+      scorecardId: "scorecard-test",
+      taskCount: 1,
+      totalScore: 0,
+      windowEndEpochMillis: 2,
+      windowStartEpochMillis: 1,
+    }
+  );
+});
+
 const workerReportJson = `{
   "cleanup": { "deleteStatus": "completed", "stopStatus": "completed" },
   "otlp": { "status": "exported" },
   "workerEval": {
     "summary": { "completed": 2, "failed": 0, "selectedPackets": 2, "timedOut": 0 },
     "policyViolations": [{ "code": "missing-example" }]
+  }
+}`;
+
+const workerReportJsonWithTwoViolations = `{
+  "cleanup": { "deleteStatus": "completed", "stopStatus": "completed" },
+  "otlp": { "status": "exported" },
+  "workerEval": {
+    "summary": { "completed": 2, "failed": 0, "selectedPackets": 2, "timedOut": 0 },
+    "policyViolations": [{ "code": "missing-example" }, { "code": "missing-since" }]
   }
 }`;
 
@@ -164,6 +227,42 @@ describe("@beep/repo-ai-metrics agent-effectiveness", () => {
     ).pipe(provideScopedLayer(NodeServices.layer))
   );
 
+  it.effect("resolves the default worker-eval manifest to the latest raw report", () =>
+    withTempDirectory((tmpDir) =>
+      Effect.gen(function* () {
+        const path = yield* Path.Path;
+        yield* Effect.gen(function* () {
+          const dataRoot = path.join(tmpDir, "metrics");
+          const initiativeRoot = path.join(tmpDir, "jsdoc-worker-eval");
+          const manifestPath = path.join(initiativeRoot, "ops", "manifest.json");
+          const rawReportPath = path.join(initiativeRoot, "history", "outputs", "latest-worker-eval.json");
+          yield* writeText(rawReportPath, workerReportJson);
+          yield* writeText(
+            manifestPath,
+            `{
+              "evidence": [
+                { "raw": "history/outputs/older-worker-eval.json" },
+                { "raw": "history/outputs/latest-worker-eval.json" }
+              ]
+            }`
+          );
+
+          const report = yield* makeAgentEffectivenessDoctorReport(
+            new AgentEffectivenessDoctorInput({
+              dataRoot,
+              noPhoenix: true,
+              workerEvalReportPath: manifestPath,
+            })
+          );
+
+          expect(report.jsdocWorkerEval.reportPath).toBe(rawReportPath);
+          expect(report.jsdocWorkerEval.completedPackets).toBe(2);
+          expect(report.jsdocWorkerEval.policyViolationCodes).toEqual(["missing-example"]);
+        }).pipe(provideScopedLayer(runtimeLayer(path.join(tmpDir, "metrics/derived/ai-metrics.duckdb"))));
+      })
+    ).pipe(provideScopedLayer(NodeServices.layer))
+  );
+
   it.effect("plans sanitized worker annotations without draft JSDoc bodies", () =>
     withTempDirectory((tmpDir) =>
       Effect.gen(function* () {
@@ -199,6 +298,55 @@ describe("@beep/repo-ai-metrics agent-effectiveness", () => {
     ).pipe(provideScopedLayer(NodeServices.layer))
   );
 
+  it.effect("disambiguates multi-entry scorecard and worker annotation ids", () =>
+    withTempDirectory((tmpDir) =>
+      Effect.gen(function* () {
+        const path = yield* Path.Path;
+        yield* Effect.gen(function* () {
+          const dataRoot = path.join(tmpDir, "metrics");
+          const workerReportPath = path.join(tmpDir, "worker-eval.json");
+          yield* writeText(workerReportPath, workerReportJsonWithTwoViolations);
+          yield* writeText(path.join(dataRoot, "derived", ".keep"), "");
+          yield* seedScorecardWithCoverageGaps(`["no_labels","no_benchmark_runs"]`);
+
+          const plan = yield* makeAgentEffectivenessAnnotationPlan(
+            new AgentEffectivenessAnnotationPlanInput({
+              doctor: new AgentEffectivenessDoctorInput({
+                dataRoot,
+                noPhoenix: true,
+                workerEvalReportPath: workerReportPath,
+              }),
+            })
+          );
+          const annotationIds = pipe(
+            plan.annotations,
+            A.map((annotation) => annotation.annotationId)
+          );
+          const gapIds = pipe(
+            plan.annotations,
+            A.filter((annotation) => annotation.name === "scorecard.gap"),
+            A.map((annotation) => annotation.annotationId)
+          );
+          const workerViolationIds = pipe(
+            plan.annotations,
+            A.filter((annotation) => annotation.name === "worker.policy_violation"),
+            A.map((annotation) => annotation.annotationId)
+          );
+
+          expect(A.length(annotationIds)).toBe(A.length(A.dedupe(annotationIds)));
+          expect(gapIds).toEqual([
+            "ai-metrics:scorecard:scorecard-test:scorecard.gap:no_labels",
+            "ai-metrics:scorecard:scorecard-test:scorecard.gap:no_benchmark_runs",
+          ]);
+          expect(workerViolationIds).toEqual([
+            "jsdoc-worker-eval:worker-report:jsdoc-worker-eval-latest:worker.policy_violation:missing-example",
+            "jsdoc-worker-eval:worker-report:jsdoc-worker-eval-latest:worker.policy_violation:missing-since",
+          ]);
+        }).pipe(provideScopedLayer(runtimeLayer(path.join(tmpDir, "metrics/derived/ai-metrics.duckdb"))));
+      })
+    ).pipe(provideScopedLayer(NodeServices.layer))
+  );
+
   it.effect("rejects forbidden private content in planned annotations", () =>
     withTempDirectory((tmpDir) =>
       Effect.gen(function* () {
@@ -224,7 +372,17 @@ describe("@beep/repo-ai-metrics agent-effectiveness", () => {
                 source: "test",
                 targetKind: "agent-task",
                 targetRef: "task",
-                value: "SECRET_TOKEN=oops",
+                value: "api_key=oops",
+              }),
+              new AgentEffectivenessPlannedAnnotation({
+                annotationId: "bad",
+                metadata: {},
+                name: "agent.outcome.note",
+                optimization: "minimize",
+                source: "test",
+                targetKind: "agent-task",
+                targetRef: "task-duplicate",
+                value: "safe",
               }),
             ],
             doctor: basePlan.doctor,
@@ -248,6 +406,12 @@ describe("@beep/repo-ai-metrics agent-effectiveness", () => {
               A.map((finding) => finding.code)
             )
           ).toContain("secret-shaped-value");
+          expect(
+            pipe(
+              report.findings,
+              A.map((finding) => finding.code)
+            )
+          ).toContain("duplicate-annotation-id");
         }).pipe(provideScopedLayer(runtimeLayer(path.join(tmpDir, "metrics/derived/ai-metrics.duckdb"))));
       })
     ).pipe(provideScopedLayer(NodeServices.layer))

@@ -8,7 +8,7 @@
 import { DuckDb } from "@beep/duckdb";
 import { $RepoAiMetricsId } from "@beep/identity/packages";
 import { LiteralKit, TaggedErrorClass } from "@beep/schema";
-import { A, O, P } from "@beep/utils";
+import { A, O, P, Str } from "@beep/utils";
 import { DateTime, Effect, FileSystem, flow, Path, pipe } from "effect";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
@@ -21,8 +21,18 @@ const $I = $RepoAiMetricsId.create("agent-effectiveness");
 
 const defaultPhoenixBaseUrl = "https://dankserver.tailc7c348.ts.net:8447";
 const defaultDataRoot = ".beep/ai-metrics";
-const defaultWorkerEvalReportPath =
-  "initiatives/jsdoc-worker-eval/history/outputs/2026-05-16-runpod-ollama-qwen3-coder-30b-worker-eval-10-packet.json";
+/**
+ * Stable default pointer used to locate the latest checked-in JSDoc worker-eval evidence.
+ *
+ * @example
+ * ```ts
+ * import { DEFAULT_AGENT_EFFECTIVENESS_WORKER_EVAL_REPORT_PATH } from "@beep/repo-ai-metrics"
+ * console.log(DEFAULT_AGENT_EFFECTIVENESS_WORKER_EVAL_REPORT_PATH)
+ * ```
+ * @category constants
+ * @since 0.0.0
+ */
+export const DEFAULT_AGENT_EFFECTIVENESS_WORKER_EVAL_REPORT_PATH = "initiatives/jsdoc-worker-eval/ops/manifest.json";
 const defaultAnnotationLimit = 50;
 
 const phoenixInventoryQuery = `
@@ -152,8 +162,8 @@ export class AgentEffectivenessDoctorInput extends S.Class<AgentEffectivenessDoc
       S.withDecodingDefaultKey(Effect.succeed(AiMetricsDeployTarget.Enum.dankserver))
     ),
     workerEvalReportPath: S.String.pipe(
-      S.withConstructorDefault(Effect.succeed(defaultWorkerEvalReportPath)),
-      S.withDecodingDefaultKey(Effect.succeed(defaultWorkerEvalReportPath))
+      S.withConstructorDefault(Effect.succeed(DEFAULT_AGENT_EFFECTIVENESS_WORKER_EVAL_REPORT_PATH)),
+      S.withDecodingDefaultKey(Effect.succeed(DEFAULT_AGENT_EFFECTIVENESS_WORKER_EVAL_REPORT_PATH))
     ),
   },
   $I.annote("AgentEffectivenessDoctorInput", {
@@ -734,6 +744,24 @@ class RunpodWorkerEvalReport extends S.Class<RunpodWorkerEvalReport>($I`RunpodWo
   })
 ) {}
 
+class WorkerEvalManifestEvidence extends S.Class<WorkerEvalManifestEvidence>($I`WorkerEvalManifestEvidence`)(
+  {
+    raw: S.String,
+  },
+  $I.annote("WorkerEvalManifestEvidence", {
+    description: "Internal initiative manifest evidence row used to resolve the latest worker-eval report.",
+  })
+) {}
+
+class WorkerEvalManifest extends S.Class<WorkerEvalManifest>($I`WorkerEvalManifest`)(
+  {
+    evidence: S.Array(WorkerEvalManifestEvidence),
+  },
+  $I.annote("WorkerEvalManifest", {
+    description: "Internal JSDoc worker-eval manifest shape used by the agent-effectiveness default.",
+  })
+) {}
+
 class PhoenixGraphqlProjectNode extends S.Class<PhoenixGraphqlProjectNode>($I`PhoenixGraphqlProjectNode`)(
   {
     hasTraces: S.Boolean,
@@ -807,6 +835,7 @@ const decodeScorecardSummaryRows = S.decodeUnknownEffect(S.Array(ScorecardSummar
 const decodeCountRows = S.decodeUnknownEffect(S.Array(CountRow));
 const decodeOutcomeLabelAnnotationRows = S.decodeUnknownEffect(S.Array(OutcomeLabelAnnotationRow));
 const decodeBenchmarkRunAnnotationRows = S.decodeUnknownEffect(S.Array(BenchmarkRunAnnotationRow));
+const decodeWorkerEvalManifestJson = S.decodeUnknownEffect(S.fromJsonString(WorkerEvalManifest));
 const decodeRunpodWorkerEvalReportJson = S.decodeUnknownEffect(S.fromJsonString(RunpodWorkerEvalReport));
 const decodePhoenixGraphqlResponse = S.decodeUnknownEffect(PhoenixGraphqlResponse);
 const encodeDoctorReportJson = S.encodeUnknownEffect(S.fromJsonString(AgentEffectivenessDoctorReport));
@@ -873,12 +902,48 @@ const aggregateSummary = (
 const firstOrNull: <A>(values: ReadonlyArray<A>) => A | null = flow(A.head, O.getOrNull);
 
 const dataRootDuckDbPath = (dataRoot: string): string => `${dataRoot}/derived/ai-metrics.duckdb`;
+const normalizePathSeparators = Str.replace(/\\/gu, "/");
+const isWorkerEvalManifestPath = flow(normalizePathSeparators, Str.endsWith("/ops/manifest.json"));
+const normalizeAnnotationIdSuffix = flow(Str.replace(/[^A-Za-z0-9._-]+/gu, "-"), Str.replace(/^-+|-+$/gu, ""));
+
+const annotationIdSuffixPart = (value: string): string => {
+  const normalized = normalizeAnnotationIdSuffix(value);
+  return Str.isNonEmpty(normalized) ? normalized : "value";
+};
 
 const readJsonFile = Effect.fn("AiMetrics.agentEffectiveness.readJsonFile")(function* (filePath: string) {
   const fs = yield* FileSystem.FileSystem;
   const path = yield* Path.Path;
   const absolutePath = path.resolve(filePath);
   return yield* fs.readFileString(absolutePath);
+});
+
+const latestWorkerEvalRawPath = (manifest: WorkerEvalManifest): O.Option<string> =>
+  pipe(
+    manifest.evidence,
+    A.findLast((entry) => Str.endsWith(".json")(entry.raw) && Str.includes("worker-eval")(entry.raw)),
+    O.map((entry) => entry.raw)
+  );
+
+const resolveWorkerEvalReportPath = Effect.fn("AiMetrics.agentEffectiveness.resolveWorkerEvalReportPath")(function* (
+  workerEvalReportPath: string
+) {
+  const path = yield* Path.Path;
+  const absolutePath = path.resolve(workerEvalReportPath);
+  if (!isWorkerEvalManifestPath(absolutePath)) {
+    return absolutePath;
+  }
+
+  const manifest = yield* readJsonFile(absolutePath).pipe(Effect.flatMap(decodeWorkerEvalManifestJson), Effect.option);
+  if (manifest._tag === "None") {
+    return absolutePath;
+  }
+
+  return pipe(
+    latestWorkerEvalRawPath(manifest.value),
+    O.map((rawPath) => path.resolve(path.dirname(path.dirname(absolutePath)), rawPath)),
+    O.getOrElse(() => absolutePath)
+  );
 });
 
 const buildPhoenixUnavailable = (
@@ -1176,8 +1241,7 @@ const buildJsdocWorkerSection = Effect.fn("AiMetrics.agentEffectiveness.buildJsd
   input: AgentEffectivenessDoctorInput
 ) {
   const fs = yield* FileSystem.FileSystem;
-  const path = yield* Path.Path;
-  const reportPath = path.resolve(input.workerEvalReportPath);
+  const reportPath = yield* resolveWorkerEvalReportPath(input.workerEvalReportPath);
   const exists = yield* fs.exists(reportPath).pipe(Effect.orElseSucceed(() => false));
 
   if (!exists) {
@@ -1298,6 +1362,7 @@ export const makeAgentEffectivenessDoctorReport: (
 });
 
 const annotation = ({
+  idSuffix,
   metadata = {},
   name,
   optimization,
@@ -1306,6 +1371,7 @@ const annotation = ({
   targetRef,
   value,
 }: {
+  readonly idSuffix?: string;
   readonly metadata?: Record<string, string>;
   readonly name: string;
   readonly optimization: string;
@@ -1313,9 +1379,15 @@ const annotation = ({
   readonly targetKind: string;
   readonly targetRef: string;
   readonly value: AgentEffectivenessAnnotationValue;
-}): AgentEffectivenessPlannedAnnotation =>
-  new AgentEffectivenessPlannedAnnotation({
-    annotationId: `${source}:${targetKind}:${targetRef}:${name}`,
+}): AgentEffectivenessPlannedAnnotation => {
+  const baseAnnotationId = `${source}:${targetKind}:${targetRef}:${name}`;
+  const annotationId = pipe(
+    O.fromUndefinedOr(idSuffix),
+    O.map((suffix) => `${baseAnnotationId}:${annotationIdSuffixPart(suffix)}`),
+    O.getOrElse(() => baseAnnotationId)
+  );
+  return new AgentEffectivenessPlannedAnnotation({
+    annotationId,
     metadata,
     name,
     optimization,
@@ -1324,6 +1396,7 @@ const annotation = ({
     targetRef,
     value,
   });
+};
 
 const sourceCoverageAnnotations = (
   doctor: AgentEffectivenessDoctorReport
@@ -1383,6 +1456,7 @@ const scorecardAnnotations = (
       scorecard.coverageGaps,
       A.map((gap) =>
         annotation({
+          idSuffix: gap,
           metadata: { gap },
           name: "scorecard.gap",
           optimization: "minimize",
@@ -1421,6 +1495,7 @@ const workerAnnotations = (
     doctor.jsdocWorkerEval.policyViolationCodes,
     A.map((code) =>
       annotation({
+        idSuffix: code,
         metadata: { code },
         name: "worker.policy_violation",
         optimization: "minimize",
@@ -1612,7 +1687,7 @@ export const makeAgentEffectivenessAnnotationPlan: (
 const forbiddenPatterns = [
   { code: "private-home-path", pattern: /\/home\/[A-Za-z0-9_.-]+/u },
   { code: "onepassword-ref", pattern: /op:\/\//u },
-  { code: "secret-shaped-value", pattern: /(SECRET|TOKEN|API[_-]?KEY|sk-[A-Za-z0-9_-]{12,})/u },
+  { code: "secret-shaped-value", pattern: /(SECRET|TOKEN|API[_-]?KEY|sk-[A-Za-z0-9_-]{12,})/iu },
   { code: "raw-worker-draft", pattern: /draftJsDoc|@example|```ts/u },
 ] as const;
 
@@ -1652,6 +1727,33 @@ const checkAnnotation = (
   ];
 };
 
+const duplicateAnnotationIdFindings = (
+  annotations: ReadonlyArray<AgentEffectivenessPlannedAnnotation>
+): ReadonlyArray<AgentEffectivenessAnnotationCheckFinding> => {
+  let seen = R.empty<string, true>();
+  const duplicatedIds = pipe(
+    annotations,
+    A.filter((annotation) => {
+      const duplicated = R.has(seen, annotation.annotationId);
+      seen = R.set(seen, annotation.annotationId, true);
+      return duplicated;
+    }),
+    A.map((annotation) => annotation.annotationId),
+    A.dedupe
+  );
+  return pipe(
+    duplicatedIds,
+    A.map(
+      (annotationId) =>
+        new AgentEffectivenessAnnotationCheckFinding({
+          annotationId,
+          code: "duplicate-annotation-id",
+          message: "Annotation id must be unique within the local plan.",
+        })
+    )
+  );
+};
+
 /**
  * Check a local annotation plan for Phase 1 privacy and schema safety.
  *
@@ -1668,7 +1770,10 @@ const checkAnnotation = (
 export const makeAgentEffectivenessAnnotationCheckReport: (
   plan: AgentEffectivenessAnnotationPlan
 ) => AgentEffectivenessAnnotationCheckReport = (plan) => {
-  const findings = pipe(plan.annotations, A.flatMap(checkAnnotation));
+  const findings = [
+    ...pipe(plan.annotations, A.flatMap(checkAnnotation)),
+    ...duplicateAnnotationIdFindings(plan.annotations),
+  ];
   return new AgentEffectivenessAnnotationCheckReport({
     annotationCount: A.length(plan.annotations),
     findings,

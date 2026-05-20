@@ -44,7 +44,6 @@ layer(NodeFileSystem.layer)("Root", (it) => {
         const fs = yield* Fs.FileSystem;
         // Create an isolated temp directory with no markers
         const tmpDir = yield* fs.makeTempDirectory({
-          directory: "/var/tmp",
           prefix: "beep-repo-utils-root-",
         });
         const subDir = `${tmpDir}/deep/nested/dir`;

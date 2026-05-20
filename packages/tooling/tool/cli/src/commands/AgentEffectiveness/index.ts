@@ -14,10 +14,12 @@ import {
   AgentEffectivenessDoctorInput,
   type AgentEffectivenessDoctorReport,
   type AgentEffectivenessError,
+  AgentEffectivenessStatus,
   AiMetricsDeployTarget,
   agentEffectivenessAnnotationCheckReportToJson,
   agentEffectivenessAnnotationPlanToJson,
   agentEffectivenessDoctorReportToJson,
+  DEFAULT_AGENT_EFFECTIVENESS_WORKER_EVAL_REPORT_PATH,
   makeAgentEffectivenessAnnotationCheckReport,
   makeAgentEffectivenessAnnotationPlan,
   makeAgentEffectivenessDoctorReport,
@@ -31,8 +33,6 @@ void $I;
 
 const defaultAgentEffectivenessDataRoot = ".beep/ai-metrics";
 const defaultAgentEffectivenessPhoenixBaseUrl = "https://dankserver.tailc7c348.ts.net:8447";
-const defaultAgentEffectivenessWorkerEvalReport =
-  "initiatives/jsdoc-worker-eval/history/outputs/2026-05-16-runpod-ollama-qwen3-coder-30b-worker-eval-10-packet.json";
 
 const jsonFlag = Flag.boolean("json").pipe(Flag.withDescription("Emit machine-readable JSON output"));
 const noPhoenixFlag = Flag.boolean("no-phoenix").pipe(
@@ -54,8 +54,8 @@ const phoenixBaseUrlFlag = Flag.string("phoenix-base-url").pipe(
   Flag.withDescription("Read-only Phoenix base URL")
 );
 const workerEvalReportFlag = Flag.string("worker-eval-report").pipe(
-  Flag.withDefault(defaultAgentEffectivenessWorkerEvalReport),
-  Flag.withDescription("JSDoc worker-eval JSON report path")
+  Flag.withDefault(DEFAULT_AGENT_EFFECTIVENESS_WORKER_EVAL_REPORT_PATH),
+  Flag.withDescription("JSDoc worker-eval report or initiative manifest path")
 );
 
 type AgentEffectivenessProgramError = AgentEffectivenessError;
@@ -230,6 +230,9 @@ const makeAnnotationCheckProgram = Effect.fn("AgentEffectiveness.makeAnnotationC
   });
   const report = makeAgentEffectivenessAnnotationCheckReport(plan);
   yield* renderAnnotationCheck(report, json);
+  if (report.status === AgentEffectivenessStatus.Enum.failed) {
+    process.exitCode = 1;
+  }
 });
 
 const doctorCommand = Command.make(

@@ -27,6 +27,15 @@ const workerReportJson = `{
   }
 }`;
 
+const workerReportJsonWithSecretShapedPolicyCode = `{
+  "cleanup": { "deleteStatus": "completed", "stopStatus": "completed" },
+  "otlp": { "status": "exported" },
+  "workerEval": {
+    "summary": { "completed": 1, "failed": 0, "selectedPackets": 1, "timedOut": 0 },
+    "policyViolations": [{ "code": "api_key" }]
+  }
+}`;
+
 const withTempDirectory = <A, E, R>(use: (tmpDir: string) => Effect.Effect<A, E, R>) =>
   Effect.acquireUseRelease(
     Effect.gen(function* () {
@@ -111,6 +120,39 @@ describe("agent-effectiveness command", () => {
         expect(report.status).toBe("passed");
         expect(report.annotationCount).toBeGreaterThan(0);
         expect(process.exitCode).toBe(0);
+      })
+    )
+  );
+
+  it.effect("sets a failing process exit code when annotation check findings are present", () =>
+    withTempDirectory((tmpDir) =>
+      Effect.gen(function* () {
+        const path = yield* Path.Path;
+        const dataRoot = path.join(tmpDir, "metrics");
+        const workerReportPath = path.join(tmpDir, "worker-eval.json");
+        yield* writeText(workerReportPath, workerReportJsonWithSecretShapedPolicyCode);
+
+        yield* runAgentEffectivenessCommand([
+          "annotations",
+          "check",
+          "--data-root",
+          dataRoot,
+          "--worker-eval-report",
+          workerReportPath,
+          "--no-phoenix",
+          "--json",
+        ]);
+
+        const output = yield* lastLoggedLine();
+        const report = yield* decodeAnnotationCheckReport(output);
+        expect(report.status).toBe("failed");
+        expect(
+          pipe(
+            report.findings,
+            A.map((finding) => finding.code)
+          )
+        ).toContain("secret-shaped-value");
+        expect(process.exitCode).toBe(1);
       })
     )
   );
