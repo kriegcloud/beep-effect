@@ -37,9 +37,12 @@ describe("@beep/infra OipWeb", () => {
       hubSpotAccountId: "12345",
       hubSpotFormGuid: "form-guid",
       legacyCloudflareZoneId: "legacy_zone_123",
+      legacyProductionDnsRecordImportId: "legacy_zone_123/legacy_apex_record",
       legacyProductionDomain: "old.example.com",
       legacyStagingDomain: "old-preview.example.com",
+      legacyWwwDnsRecordImportId: "legacy_zone_123/legacy_www_record",
       legacyWwwDomain: "www.old.example.com",
+      productionDnsRecordImportId: "zone_123/apex_record",
       pulumiStateBucketName: "example-pulumi-state",
       sanityDataset: "production",
       sanityProjectId: "sanity-id",
@@ -60,9 +63,12 @@ describe("@beep/infra OipWeb", () => {
     expect(args.dns.attachStagingDomain).toBe(false);
     expect(args.dns.cloudflareZoneId).toBe("zone_123");
     expect(args.dns.legacyCloudflareZoneId).toBe("legacy_zone_123");
+    expect(args.dns.legacyProductionDnsRecordImportId).toBe("legacy_zone_123/legacy_apex_record");
     expect(args.dns.legacyProductionDomain).toBe("old.example.com");
     expect(args.dns.legacyStagingDomain).toBe("old-preview.example.com");
+    expect(args.dns.legacyWwwDnsRecordImportId).toBe("legacy_zone_123/legacy_www_record");
     expect(args.dns.legacyWwwDomain).toBe("www.old.example.com");
+    expect(args.dns.productionDnsRecordImportId).toBe("zone_123/apex_record");
     expect(args.dns.stagingDomain).toBe("preview.example.com");
     expect(args.dns.vercelApexTarget).toBe("192.0.2.1");
     expect(args.vercel.hubSpotAccountId).toBe("12345");
@@ -80,6 +86,7 @@ describe("@beep/infra OipWeb", () => {
         attachProductionDomains: true,
         attachStagingDomain: false,
         createDynamoDbLockTable: true,
+        productionDnsRecordImportId: "zone_123/apex_record",
         pulumiStateBucketName: "oip-state",
       })
     );
@@ -87,6 +94,7 @@ describe("@beep/infra OipWeb", () => {
     expect(decoded.attachProductionDomains).toBe(true);
     expect(decoded.attachStagingDomain).toBe(false);
     expect(decoded.createDynamoDbLockTable).toBe(true);
+    expect(decoded.productionDnsRecordImportId).toBe("zone_123/apex_record");
     expect(decoded.pulumiStateBucketName).toBe("oip-state");
   });
 });

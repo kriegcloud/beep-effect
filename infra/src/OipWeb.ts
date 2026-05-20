@@ -33,6 +33,8 @@ const defaultVercelApexTarget = "76.76.21.21";
 const defaultVercelAuthenticationDeploymentType: VercelAuthenticationDeploymentType = "none";
 const defaultVercelCnameTarget = "cname.vercel-dns.com";
 const defaultWwwDomain = "www.oip.law";
+const productionRedirectStatusCode = 308;
+const stagingRedirectStatusCode = 307;
 
 const defaultTags = {
   App: "oip-web",
@@ -50,9 +52,12 @@ type OipWebPulumiConfigValues = {
   readonly hubSpotAccountId?: string | undefined;
   readonly hubSpotFormGuid?: string | undefined;
   readonly legacyCloudflareZoneId?: string | undefined;
+  readonly legacyProductionDnsRecordImportId?: string | undefined;
   readonly legacyProductionDomain?: string | undefined;
   readonly legacyStagingDomain?: string | undefined;
+  readonly legacyWwwDnsRecordImportId?: string | undefined;
   readonly legacyWwwDomain?: string | undefined;
+  readonly productionDnsRecordImportId?: string | undefined;
   readonly projectName?: string | undefined;
   readonly productionBranch?: string | undefined;
   readonly productionDomain?: string | undefined;
@@ -104,9 +109,12 @@ export const OipWebPulumiConfigValues = S.Class<OipWebPulumiConfigValues>($I`Oip
     hubSpotAccountId: S.String,
     hubSpotFormGuid: S.String,
     legacyCloudflareZoneId: S.String,
+    legacyProductionDnsRecordImportId: S.String,
     legacyProductionDomain: S.String,
     legacyStagingDomain: S.String,
+    legacyWwwDnsRecordImportId: S.String,
     legacyWwwDomain: S.String,
+    productionDnsRecordImportId: S.String,
     projectName: S.String,
     productionBranch: S.String,
     productionDomain: S.String,
@@ -227,6 +235,7 @@ export class OipDnsConfig extends S.Class<OipDnsConfig>($I`OipDnsConfig`)(
     ),
     cloudflareZoneId: S.optionalKey(S.String),
     legacyCloudflareZoneId: S.optionalKey(S.String),
+    legacyProductionDnsRecordImportId: S.optionalKey(S.String),
     legacyProductionDomain: S.String.pipe(
       S.withConstructorDefault(Effect.succeed(defaultLegacyProductionDomain)),
       S.withDecodingDefaultKey(Effect.succeed(defaultLegacyProductionDomain))
@@ -235,10 +244,12 @@ export class OipDnsConfig extends S.Class<OipDnsConfig>($I`OipDnsConfig`)(
       S.withConstructorDefault(Effect.succeed(defaultLegacyStagingDomain)),
       S.withDecodingDefaultKey(Effect.succeed(defaultLegacyStagingDomain))
     ),
+    legacyWwwDnsRecordImportId: S.optionalKey(S.String),
     legacyWwwDomain: S.String.pipe(
       S.withConstructorDefault(Effect.succeed(defaultLegacyWwwDomain)),
       S.withDecodingDefaultKey(Effect.succeed(defaultLegacyWwwDomain))
     ),
+    productionDnsRecordImportId: S.optionalKey(S.String),
     productionDomain: S.String.pipe(
       S.withConstructorDefault(Effect.succeed(defaultProductionDomain)),
       S.withDecodingDefaultKey(Effect.succeed(defaultProductionDomain))
@@ -406,10 +417,13 @@ export const makeOipWebStackArgsFromConfigValues = ({
   hubSpotAccountId,
   hubSpotFormGuid,
   legacyCloudflareZoneId,
+  legacyProductionDnsRecordImportId,
   legacyProductionDomain,
   legacyStagingDomain,
+  legacyWwwDnsRecordImportId,
   legacyWwwDomain,
   projectName,
+  productionDnsRecordImportId,
   productionBranch,
   productionDomain,
   pulumiStateBucketName,
@@ -435,9 +449,12 @@ export const makeOipWebStackArgsFromConfigValues = ({
       ...(attachStagingDomain === undefined ? {} : { attachStagingDomain }),
       ...(cloudflareZoneId === undefined ? {} : { cloudflareZoneId }),
       ...(legacyCloudflareZoneId === undefined ? {} : { legacyCloudflareZoneId }),
+      ...(legacyProductionDnsRecordImportId === undefined ? {} : { legacyProductionDnsRecordImportId }),
       ...(legacyProductionDomain === undefined ? {} : { legacyProductionDomain }),
       ...(legacyStagingDomain === undefined ? {} : { legacyStagingDomain }),
+      ...(legacyWwwDnsRecordImportId === undefined ? {} : { legacyWwwDnsRecordImportId }),
       ...(legacyWwwDomain === undefined ? {} : { legacyWwwDomain }),
+      ...(productionDnsRecordImportId === undefined ? {} : { productionDnsRecordImportId }),
       ...(productionDomain === undefined ? {} : { productionDomain }),
       ...(stagingDomain === undefined ? {} : { stagingDomain }),
       ...(vercelApexTarget === undefined ? {} : { vercelApexTarget }),
@@ -493,10 +510,13 @@ export const loadOipWebStackArgs = (): OipWebStackArgs => {
     hubSpotAccountId: config.get("hubSpotAccountId"),
     hubSpotFormGuid: config.get("hubSpotFormGuid"),
     legacyCloudflareZoneId: config.get("legacyCloudflareZoneId"),
+    legacyProductionDnsRecordImportId: config.get("legacyProductionDnsRecordImportId"),
     legacyProductionDomain: config.get("legacyProductionDomain"),
     legacyStagingDomain: config.get("legacyStagingDomain"),
+    legacyWwwDnsRecordImportId: config.get("legacyWwwDnsRecordImportId"),
     legacyWwwDomain: config.get("legacyWwwDomain"),
     projectName: config.get("projectName"),
+    productionDnsRecordImportId: config.get("productionDnsRecordImportId"),
     productionBranch: config.get("productionBranch"),
     productionDomain: config.get("productionDomain"),
     pulumiStateBucketName: config.get("pulumiStateBucketName"),
@@ -649,6 +669,7 @@ const makeDnsRecord = (
   recordName: string,
   type: "A" | "CNAME",
   content: string,
+  importId: string | undefined,
   opts: pulumi.CustomResourceOptions
 ) =>
   zoneId === undefined
@@ -664,7 +685,10 @@ const makeDnsRecord = (
           type,
           zoneId,
         },
-        opts
+        {
+          ...opts,
+          ...(importId === undefined ? {} : { import: importId }),
+        }
       );
 
 const makeARecord = (
@@ -672,16 +696,18 @@ const makeARecord = (
   zoneId: string | undefined,
   recordName: string,
   content: string,
+  importId: string | undefined,
   opts: pulumi.CustomResourceOptions
-) => makeDnsRecord(name, zoneId, recordName, "A", content, opts);
+) => makeDnsRecord(name, zoneId, recordName, "A", content, importId, opts);
 
 const makeCnameRecord = (
   name: string,
   zoneId: string | undefined,
   recordName: string,
   content: string,
+  importId: string | undefined,
   opts: pulumi.CustomResourceOptions
-) => makeDnsRecord(name, zoneId, recordName, "CNAME", content, opts);
+) => makeDnsRecord(name, zoneId, recordName, "CNAME", content, importId, opts);
 
 /**
  * Import-safe Pulumi component for OIP production web infrastructure.
@@ -905,7 +931,7 @@ export class OipWebStack extends pulumi.ComponentResource {
             domain: args.dns.legacyProductionDomain,
             projectId: project.id,
             redirect: args.dns.productionDomain,
-            redirectStatusCode: 308,
+            redirectStatusCode: productionRedirectStatusCode,
           },
           { parent: this }
         )
@@ -932,7 +958,7 @@ export class OipWebStack extends pulumi.ComponentResource {
             domain: args.dns.legacyStagingDomain,
             projectId: project.id,
             redirect: args.dns.stagingDomain,
-            redirectStatusCode: 308,
+            redirectStatusCode: stagingRedirectStatusCode,
           },
           { parent: this }
         )
@@ -945,7 +971,7 @@ export class OipWebStack extends pulumi.ComponentResource {
             domain: args.dns.wwwDomain,
             projectId: project.id,
             redirect: args.dns.productionDomain,
-            redirectStatusCode: 308,
+            redirectStatusCode: productionRedirectStatusCode,
           },
           { parent: this }
         )
@@ -958,7 +984,7 @@ export class OipWebStack extends pulumi.ComponentResource {
             domain: args.dns.legacyWwwDomain,
             projectId: project.id,
             redirect: args.dns.productionDomain,
-            redirectStatusCode: 308,
+            redirectStatusCode: productionRedirectStatusCode,
           },
           { parent: this }
         )
@@ -985,6 +1011,7 @@ export class OipWebStack extends pulumi.ComponentResource {
         args.dns.cloudflareZoneId,
         args.dns.productionDomain,
         args.dns.vercelApexTarget,
+        args.dns.productionDnsRecordImportId,
         dnsOpts
       );
       makeCnameRecord(
@@ -992,6 +1019,7 @@ export class OipWebStack extends pulumi.ComponentResource {
         args.dns.cloudflareZoneId,
         args.dns.wwwDomain,
         args.dns.vercelCnameTarget,
+        undefined,
         dnsOpts
       );
       makeARecord(
@@ -999,6 +1027,7 @@ export class OipWebStack extends pulumi.ComponentResource {
         args.dns.legacyCloudflareZoneId,
         args.dns.legacyProductionDomain,
         args.dns.vercelApexTarget,
+        args.dns.legacyProductionDnsRecordImportId,
         legacyDnsOpts
       );
       makeCnameRecord(
@@ -1006,6 +1035,7 @@ export class OipWebStack extends pulumi.ComponentResource {
         args.dns.legacyCloudflareZoneId,
         args.dns.legacyWwwDomain,
         args.dns.vercelCnameTarget,
+        args.dns.legacyWwwDnsRecordImportId,
         legacyDnsOpts
       );
     }
@@ -1015,6 +1045,7 @@ export class OipWebStack extends pulumi.ComponentResource {
         args.dns.cloudflareZoneId,
         args.dns.stagingDomain,
         args.dns.vercelCnameTarget,
+        undefined,
         dnsOpts
       );
       makeCnameRecord(
@@ -1022,6 +1053,7 @@ export class OipWebStack extends pulumi.ComponentResource {
         args.dns.legacyCloudflareZoneId,
         args.dns.legacyStagingDomain,
         args.dns.vercelCnameTarget,
+        undefined,
         legacyDnsOpts
       );
     }

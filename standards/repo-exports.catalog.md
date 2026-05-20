@@ -13824,19 +13824,19 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/infra` | `AIMetricsStackArgs` | class | `infra/src/AIMetrics.ts:341` | Pulumi-facing args for the AI metrics component. |
 | `@beep/infra` | `infraProjectName` | const | `infra/src/index.ts:28` | Canonical project name for this repository's infrastructure workspace. |
 | `@beep/infra` | `loadAIMetricsStackArgs` | const | `infra/src/AIMetrics.ts:450` | Load AI metrics args from Pulumi config. |
-| `@beep/infra` | `loadOipWebRuntimeSecrets` | const | `infra/src/OipWeb.ts:534` | Load OIP web runtime secrets from Pulumi secret config. |
-| `@beep/infra` | `loadOipWebStackArgs` | const | `infra/src/OipWeb.ts:483` | Load OIP web stack args from Pulumi config. |
+| `@beep/infra` | `loadOipWebRuntimeSecrets` | const | `infra/src/OipWeb.ts:554` | Load OIP web runtime secrets from Pulumi secret config. |
+| `@beep/infra` | `loadOipWebStackArgs` | const | `infra/src/OipWeb.ts:500` | Load OIP web stack args from Pulumi config. |
 | `@beep/infra` | `makeAIMetricsStackArgs` | const | `infra/src/AIMetrics.ts:367` | Build Pulumi component args from a schema-first install input. |
 | `@beep/infra` | `makeAIMetricsStackArgsFromConfigValues` | const | `infra/src/AIMetrics.ts:389` | Build AI metrics stack args from decoded Pulumi config values. |
-| `@beep/infra` | `makeOipWebStackArgsFromConfigValues` | const | `infra/src/OipWeb.ts:399` | Build OIP web stack args from decoded Pulumi config values. |
-| `@beep/infra` | `OipAssetsBucketConfig` | class | `infra/src/OipWeb.ts:185` | S3 asset bucket resources for OIP-controlled media. |
-| `@beep/infra` | `OipDnsConfig` | class | `infra/src/OipWeb.ts:218` | DNS configuration for Cloudflare-managed OIP records. |
-| `@beep/infra` | `OipPulumiStateBackendConfig` | class | `infra/src/OipWeb.ts:144` | Pulumi DIY state backend settings for OIP. |
-| `@beep/infra` | `OipVercelProjectConfig` | class | `infra/src/OipWeb.ts:281` | Vercel project configuration for `@beep/oip-web`. |
-| `@beep/infra` | `OipWebPulumiConfigValues` | const | `infra/src/OipWeb.ts:96` | Optional Pulumi config values before OIP deploy defaults are applied. |
-| `@beep/infra` | `OipWebRuntimeSecrets` | type | `infra/src/OipWeb.ts:337` | Secret runtime values for OIP deploy targets. |
-| `@beep/infra` | `OipWebStack` | class | `infra/src/OipWeb.ts:700` | Import-safe Pulumi component for OIP production web infrastructure. |
-| `@beep/infra` | `OipWebStackArgs` | class | `infra/src/OipWeb.ts:355` | Pulumi-facing args for the OIP web stack. |
+| `@beep/infra` | `makeOipWebStackArgsFromConfigValues` | const | `infra/src/OipWeb.ts:410` | Build OIP web stack args from decoded Pulumi config values. |
+| `@beep/infra` | `OipAssetsBucketConfig` | class | `infra/src/OipWeb.ts:193` | S3 asset bucket resources for OIP-controlled media. |
+| `@beep/infra` | `OipDnsConfig` | class | `infra/src/OipWeb.ts:226` | DNS configuration for Cloudflare-managed OIP records. |
+| `@beep/infra` | `OipPulumiStateBackendConfig` | class | `infra/src/OipWeb.ts:152` | Pulumi DIY state backend settings for OIP. |
+| `@beep/infra` | `OipVercelProjectConfig` | class | `infra/src/OipWeb.ts:292` | Vercel project configuration for `@beep/oip-web`. |
+| `@beep/infra` | `OipWebPulumiConfigValues` | const | `infra/src/OipWeb.ts:101` | Optional Pulumi config values before OIP deploy defaults are applied. |
+| `@beep/infra` | `OipWebRuntimeSecrets` | type | `infra/src/OipWeb.ts:348` | Secret runtime values for OIP deploy targets. |
+| `@beep/infra` | `OipWebStack` | class | `infra/src/OipWeb.ts:726` | Import-safe Pulumi component for OIP production web infrastructure. |
+| `@beep/infra` | `OipWebStackArgs` | class | `infra/src/OipWeb.ts:366` | Pulumi-facing args for the OIP web stack. |
 
 ### @beep/codedank-web
 
