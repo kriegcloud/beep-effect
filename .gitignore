@@ -42,8 +42,8 @@ stats.html
 **/next-env.d.ts
 docs/
 **/docs
-!initiatives/**/docs/
-!initiatives/**/docs/**
+!goals/**/docs/
+!goals/**/docs/**
 !apps/professional-desktop/docs/
 !apps/professional-desktop/docs/**
 # Docgen analysis artifacts
