@@ -76,6 +76,9 @@ const symbolIdFlag = Flag.string("symbol-id").pipe(
 const candidateIdFlag = Flag.string("candidate-id").pipe(
   Flag.withDescription("Candidate id from `beep reuse inventory --json`")
 );
+const typeOnlyExportKinds = ["interface", "type"] as const;
+
+const isTypeOnlyExportKind = (exportKind: string): boolean => A.contains(typeOnlyExportKinds, exportKind);
 
 const printJson = Effect.fn(function* (value: unknown) {
   const rendered = yield* jsonStringifyPretty(value);
@@ -313,7 +316,10 @@ const printLookupSummary = Effect.fn(function* (result: RepoCodegraphLookupResul
       yield* Console.log(`- ${match.symbolName} (${match.exportKind}) :: ${match.packageName}`);
       yield* Console.log(`  recommended: ${match.recommendedImport.importSpecifier}`);
       if (snippet) {
-        yield* Console.log(`  import { ${match.symbolName} } from "${match.recommendedImport.importSpecifier}";`);
+        const importKeyword = isTypeOnlyExportKind(match.exportKind) ? "import type" : "import";
+        yield* Console.log(
+          `  ${importKeyword} { ${match.symbolName} } from "${match.recommendedImport.importSpecifier}";`
+        );
       }
       yield* Console.log(`  source: ${match.sourcePath}:${match.sourceLine}`);
       yield* pipe(

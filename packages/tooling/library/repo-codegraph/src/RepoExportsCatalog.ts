@@ -17,7 +17,6 @@ import { decodeRepoExportsCatalog, type RepoExportsCatalog } from "./RepoExports
 
 const $I = $RepoCodegraphId.create("RepoExportsCatalog");
 const catalogRelativePath = "standards/repo-exports.catalog.jsonc";
-const emptyPreferredImports = (): [] => [];
 
 /**
  * Typed failure raised while reading repo-codegraph inputs.
@@ -56,8 +55,8 @@ class RepoCodegraphPackagePolicyPayload extends S.Class<RepoCodegraphPackagePoli
 )(
   {
     preferredImports: S.Array(RepoCodegraphPreferredImport).pipe(
-      S.withConstructorDefault(Effect.succeed(emptyPreferredImports())),
-      S.withDecodingDefault(Effect.succeed(emptyPreferredImports()))
+      S.withConstructorDefault(Effect.succeed(A.empty<RepoCodegraphPreferredImport>())),
+      S.withDecodingDefault(Effect.succeed(A.empty<typeof RepoCodegraphPreferredImport.Encoded>()))
     ),
   },
   $I.annote("RepoCodegraphPackagePolicyPayload", {

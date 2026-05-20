@@ -1,6 +1,6 @@
 # @beep/repo-codegraph
 
-Schema-first repo codegraph, lookup, and semantic retrieval primitives.
+Schema-first deterministic repo export lookup primitives.
 
 ## Purpose
 

@@ -179,9 +179,29 @@ const packageFamily = (packagePath: string): string => {
 const isRepoExportsCatalogArgument = (value: unknown): value is RepoExportsCatalog =>
   P.hasProperty(value, "packages") && P.hasProperty(value, "schemaVersion");
 
+const normalizePathLikeSelector = (selector: string): string =>
+  pipe(
+    selector,
+    Str.trim,
+    Str.replace(/\\/gu, "/"),
+    Str.replace(/\/+/gu, "/"),
+    Str.split("/"),
+    A.reduce(A.empty<string>(), (segments, segment) => {
+      if (segment === "" || segment === ".") {
+        return segments;
+      }
+      if (segment === "..") {
+        return A.dropRight(segments, 1);
+      }
+      return A.append(segments, segment);
+    }),
+    A.join("/")
+  );
+
 const resolveFromPackage = (catalog: RepoExportsCatalog, fromPackage: O.Option<string>): FromPackageResolution => ({
   package: pipe(
     fromPackage,
+    O.map(normalizePathLikeSelector),
     O.flatMap((selector) =>
       pipe(
         catalog.packages,

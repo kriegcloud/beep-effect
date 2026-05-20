@@ -165,7 +165,7 @@ const catalog = new RepoExportsCatalog({
   }),
   standard: "repo-exports-catalog",
   totals: new RepoExportsCatalogTotals({
-    importSpecifiers: 3,
+    importSpecifiers: 5,
     missingWorkspaceMetadata: 0,
     packages: 4,
     packagesWithPublicExports: 4,
@@ -249,6 +249,21 @@ describe("lookupRepoExports", () => {
     expect(result.matches[0]?.boundary.reason).toBe(
       'Caller package selector "packages/missing/domain" did not match any catalog package.'
     );
+  });
+
+  it("normalizes repo-relative caller file selectors before boundary checks", () => {
+    const result = lookupRepoExports(
+      catalog,
+      new RepoCodegraphLookupRequest({
+        fromPackage: O.some("./packages/tooling/library/repo-utils/src/Reuse/../index.ts"),
+        limit: 8,
+        query: "UnknownRecord",
+      }),
+      { freshnessStatus: "current", importPolicies: [] }
+    );
+
+    expect(result.warnings).toEqual([]);
+    expect(result.matches[0]?.boundary.status).toBe("allowed");
   });
 
   it("supports data-last lookup composition", () => {

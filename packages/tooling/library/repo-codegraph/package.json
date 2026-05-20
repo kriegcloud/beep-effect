@@ -1,7 +1,7 @@
 {
   "name": "@beep/repo-codegraph",
   "version": "0.0.0",
-  "description": "Schema-first repo codegraph, lookup, and semantic retrieval primitives",
+  "description": "Schema-first deterministic repo export lookup primitives",
   "license": "MIT",
   "private": true,
   "type": "module",
@@ -52,7 +52,7 @@
     "access": "public",
     "provenance": true,
     "exports": {
-      ".": "./dist/index.ts",
+      ".": "./dist/index.js",
       "./*": "./dist/*.js",
       "./internal/*": null,
       "./package.json": "./package.json"
