@@ -44,6 +44,4 @@ import { VERSION } from "@beep/opip-web"
 
 This version has breaking changes — APIs, conventions, and file structure may all differ from your training data. Read the relevant guide in `node_modules/next/dist/docs/` before writing any code. Heed deprecation notices.
 
-When `next-devtools-mcp` is available in Codex, call its `init` tool at the start
-of Next.js debugging work for this app before inspecting runtime diagnostics.
 <!-- END:nextjs-agent-rules -->
