@@ -6995,8 +6995,8 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-codegraph` | `encodeRepoCodegraphLookupResult` | const | `packages/tooling/library/repo-codegraph/src/RepoCodegraphLookup.model.ts:389` | Encode a lookup result into its JSON-safe representation. |
 | `@beep/repo-codegraph` | `encodeRepoExportsCatalog` | const | `packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts:338` | Encode a repo export catalog into its JSON-safe representation. |
 | `@beep/repo-codegraph` | `lookupRepoExports` | const | `packages/tooling/library/repo-codegraph/src/RepoCodegraphLookup.ts:528` | Lookup public repo exports by symbol name or free-text intent. |
-| `@beep/repo-codegraph` | `readRepoCodegraphImportPolicies` | const | `packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.ts:233` | Read package-local import policies from package.json metadata. |
-| `@beep/repo-codegraph` | `readRepoExportsCatalog` | const | `packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.ts:209` | Read and decode the generated repo export catalog from a repo root. |
+| `@beep/repo-codegraph` | `readRepoCodegraphImportPolicies` | const | `packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.ts:234` | Read package-local import policies from package.json metadata. |
+| `@beep/repo-codegraph` | `readRepoExportsCatalog` | const | `packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.ts:210` | Read and decode the generated repo export catalog from a repo root. |
 | `@beep/repo-codegraph` | `RepoCodegraphBoundaryAdvice` | class | `packages/tooling/library/repo-codegraph/src/RepoCodegraphLookup.model.ts:218` | Advisory architecture boundary note for a match. |
 | `@beep/repo-codegraph` | `RepoCodegraphBoundaryStatus` | const | `packages/tooling/library/repo-codegraph/src/RepoCodegraphLookup.model.ts:89` | Advisory boundary status for a candidate import. |
 | `@beep/repo-codegraph` | `RepoCodegraphBoundaryStatus` | type | `packages/tooling/library/repo-codegraph/src/RepoCodegraphLookup.model.ts:107` | Runtime type for {@link RepoCodegraphBoundaryStatus}. |
@@ -7018,7 +7018,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-codegraph` | `RepoExportsCatalogEntry` | class | `packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts:225` | One legal public export fact from the generated catalog. |
 | `@beep/repo-codegraph` | `RepoExportsCatalogPackage` | class | `packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts:273` | Per-package export catalog entry. |
 | `@beep/repo-codegraph` | `RepoExportsCatalogPackageCounts` | class | `packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts:184` | Per-package counts in the generated export catalog. |
-| `@beep/repo-codegraph` | `repoExportsCatalogPath` | const | `packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.ts:191` | Resolve the generated export catalog path for a repo root. |
+| `@beep/repo-codegraph` | `repoExportsCatalogPath` | const | `packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.ts:192` | Resolve the generated export catalog path for a repo root. |
 | `@beep/repo-codegraph` | `RepoExportsCatalogSchemaVersion` | const | `packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts:57` | Generated export catalog schema version. |
 | `@beep/repo-codegraph` | `RepoExportsCatalogSchemaVersion` | type | `packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts:75` | Runtime type for {@link RepoExportsCatalogSchemaVersion}. |
 | `@beep/repo-codegraph` | `RepoExportsCatalogSource` | class | `packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts:122` | Source metadata for the generated export catalog. |
@@ -7031,8 +7031,8 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-codegraph/index` | `encodeRepoCodegraphLookupResult` | const | `packages/tooling/library/repo-codegraph/src/RepoCodegraphLookup.model.ts:389` | Encode a lookup result into its JSON-safe representation. |
 | `@beep/repo-codegraph/index` | `encodeRepoExportsCatalog` | const | `packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts:338` | Encode a repo export catalog into its JSON-safe representation. |
 | `@beep/repo-codegraph/index` | `lookupRepoExports` | const | `packages/tooling/library/repo-codegraph/src/RepoCodegraphLookup.ts:528` | Lookup public repo exports by symbol name or free-text intent. |
-| `@beep/repo-codegraph/index` | `readRepoCodegraphImportPolicies` | const | `packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.ts:233` | Read package-local import policies from package.json metadata. |
-| `@beep/repo-codegraph/index` | `readRepoExportsCatalog` | const | `packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.ts:209` | Read and decode the generated repo export catalog from a repo root. |
+| `@beep/repo-codegraph/index` | `readRepoCodegraphImportPolicies` | const | `packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.ts:234` | Read package-local import policies from package.json metadata. |
+| `@beep/repo-codegraph/index` | `readRepoExportsCatalog` | const | `packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.ts:210` | Read and decode the generated repo export catalog from a repo root. |
 | `@beep/repo-codegraph/index` | `RepoCodegraphBoundaryAdvice` | class | `packages/tooling/library/repo-codegraph/src/RepoCodegraphLookup.model.ts:218` | Advisory architecture boundary note for a match. |
 | `@beep/repo-codegraph/index` | `RepoCodegraphBoundaryStatus` | const | `packages/tooling/library/repo-codegraph/src/RepoCodegraphLookup.model.ts:89` | Advisory boundary status for a candidate import. |
 | `@beep/repo-codegraph/index` | `RepoCodegraphBoundaryStatus` | type | `packages/tooling/library/repo-codegraph/src/RepoCodegraphLookup.model.ts:107` | Runtime type for {@link RepoCodegraphBoundaryStatus}. |
@@ -7054,7 +7054,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-codegraph/index` | `RepoExportsCatalogEntry` | class | `packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts:225` | One legal public export fact from the generated catalog. |
 | `@beep/repo-codegraph/index` | `RepoExportsCatalogPackage` | class | `packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts:273` | Per-package export catalog entry. |
 | `@beep/repo-codegraph/index` | `RepoExportsCatalogPackageCounts` | class | `packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts:184` | Per-package counts in the generated export catalog. |
-| `@beep/repo-codegraph/index` | `repoExportsCatalogPath` | const | `packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.ts:191` | Resolve the generated export catalog path for a repo root. |
+| `@beep/repo-codegraph/index` | `repoExportsCatalogPath` | const | `packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.ts:192` | Resolve the generated export catalog path for a repo root. |
 | `@beep/repo-codegraph/index` | `RepoExportsCatalogSchemaVersion` | const | `packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts:57` | Generated export catalog schema version. |
 | `@beep/repo-codegraph/index` | `RepoExportsCatalogSchemaVersion` | type | `packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts:75` | Runtime type for {@link RepoExportsCatalogSchemaVersion}. |
 | `@beep/repo-codegraph/index` | `RepoExportsCatalogSource` | class | `packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts:122` | Source metadata for the generated export catalog. |
@@ -7079,10 +7079,10 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-codegraph/RepoCodegraphLookup.model` | `RepoCodegraphLookupTotals` | class | `packages/tooling/library/repo-codegraph/src/RepoCodegraphLookup.model.ts:278` | Aggregate match counts for a lookup result. |
 | `@beep/repo-codegraph/RepoCodegraphLookup.model` | `RepoCodegraphPackageImportPolicy` | class | `packages/tooling/library/repo-codegraph/src/RepoCodegraphLookup.model.ts:365` | Package-local import policy consumed by lookup. |
 | `@beep/repo-codegraph/RepoCodegraphLookup.model` | `RepoCodegraphPreferredImport` | class | `packages/tooling/library/repo-codegraph/src/RepoCodegraphLookup.model.ts:333` | Preferred import rule recorded in package-local repo-codegraph policy. |
-| `@beep/repo-codegraph/RepoExportsCatalog` | `readRepoCodegraphImportPolicies` | const | `packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.ts:233` | Read package-local import policies from package.json metadata. |
-| `@beep/repo-codegraph/RepoExportsCatalog` | `readRepoExportsCatalog` | const | `packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.ts:209` | Read and decode the generated repo export catalog from a repo root. |
+| `@beep/repo-codegraph/RepoExportsCatalog` | `readRepoCodegraphImportPolicies` | const | `packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.ts:234` | Read package-local import policies from package.json metadata. |
+| `@beep/repo-codegraph/RepoExportsCatalog` | `readRepoExportsCatalog` | const | `packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.ts:210` | Read and decode the generated repo export catalog from a repo root. |
 | `@beep/repo-codegraph/RepoExportsCatalog` | `RepoCodegraphCatalogReadError` | class | `packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.ts:38` | Typed failure raised while reading repo-codegraph inputs. |
-| `@beep/repo-codegraph/RepoExportsCatalog` | `repoExportsCatalogPath` | const | `packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.ts:191` | Resolve the generated export catalog path for a repo root. |
+| `@beep/repo-codegraph/RepoExportsCatalog` | `repoExportsCatalogPath` | const | `packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.ts:192` | Resolve the generated export catalog path for a repo root. |
 | `@beep/repo-codegraph/RepoExportsCatalog.model` | `decodeRepoExportsCatalog` | const | `packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts:325` | Decode unknown input into a generated repo export catalog. |
 | `@beep/repo-codegraph/RepoExportsCatalog.model` | `decodeRepoExportsCatalogJson` | const | `packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts:353` | Decode JSON text into a generated repo export catalog. |
 | `@beep/repo-codegraph/RepoExportsCatalog.model` | `encodeRepoExportsCatalog` | const | `packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts:338` | Encode a repo export catalog into its JSON-safe representation. |
@@ -10058,7 +10058,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli` | `lintCommand` | const | `packages/tooling/tool/cli/src/commands/Lint/index.ts:607` | Lint command group. |
 | `@beep/repo-cli` | `purgeCommand` | const | `packages/tooling/tool/cli/src/commands/Purge.ts:258` | CLI command to purge workspace/root build artifacts. |
 | `@beep/repo-cli` | `qualityCommand` | const | `packages/tooling/tool/cli/src/commands/Quality/ScriptCommands.ts:1576` | Quality command group for repo operational checks. |
-| `@beep/repo-cli` | `reuseCommand` | const | `packages/tooling/tool/cli/src/commands/Reuse/index.ts:516` | Reuse-discovery command group. |
+| `@beep/repo-cli` | `reuseCommand` | const | `packages/tooling/tool/cli/src/commands/Reuse/index.ts:517` | Reuse-discovery command group. |
 | `@beep/repo-cli` | `rootCommand` | const | `packages/tooling/tool/cli/src/commands/Root.ts:45` | Top-level CLI command that registers all subcommands. |
 | `@beep/repo-cli` | `syncDataToTsCommand` | const | `packages/tooling/tool/cli/src/commands/SyncDataToTs/index.ts:460` | CLI command for syncing official upstream datasets into checked-in TypeScript modules. |
 | `@beep/repo-cli` | `topoSortCommand` | const | `packages/tooling/tool/cli/src/commands/TopoSort.ts:32` | CLI command that builds the workspace dependency graph and prints package names |
@@ -10742,7 +10742,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/commands/Quality/Tasks` | `sqlIntegrationConnectionUriFromEnvForTesting` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:897` | Resolve the SQL integration database connection URI from environment variables. |
 | `@beep/repo-cli/commands/Quality/Tasks` | `sqlIntegrationStepForTesting` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:874` | Build the SQL integration test subprocess step. Exposed for focused unit tests. |
 | `@beep/repo-cli/commands/Quality/Tasks` | `UnexpectedQualityTaskFailure` | class | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:245` | Error raised when an unexpected quality task cause reaches the command boundary. |
-| `@beep/repo-cli/commands/Reuse/index` | `reuseCommand` | const | `packages/tooling/tool/cli/src/commands/Reuse/index.ts:516` | Reuse-discovery command group. |
+| `@beep/repo-cli/commands/Reuse/index` | `reuseCommand` | const | `packages/tooling/tool/cli/src/commands/Reuse/index.ts:517` | Reuse-discovery command group. |
 | `@beep/repo-cli/commands/Reuse/internal/CodexRunner` | `CodexRunnerError` | class | `packages/tooling/tool/cli/src/commands/Reuse/internal/CodexRunner.ts:64` | Structured error emitted when the Codex SDK smoke path fails. |
 | `@beep/repo-cli/commands/Reuse/internal/CodexRunner` | `CodexRunnerStage` | const | `packages/tooling/tool/cli/src/commands/Reuse/internal/CodexRunner.ts:23` | Lifecycle stages surfaced by the Codex smoke runner. |
 | `@beep/repo-cli/commands/Reuse/internal/CodexRunner` | `CodexRunnerStage` | type | `packages/tooling/tool/cli/src/commands/Reuse/internal/CodexRunner.ts:37` | Runtime type for `CodexRunnerStage`. |
@@ -10889,7 +10889,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/index` | `lintCommand` | const | `packages/tooling/tool/cli/src/commands/Lint/index.ts:607` | Lint command group. |
 | `@beep/repo-cli/index` | `purgeCommand` | const | `packages/tooling/tool/cli/src/commands/Purge.ts:258` | CLI command to purge workspace/root build artifacts. |
 | `@beep/repo-cli/index` | `qualityCommand` | const | `packages/tooling/tool/cli/src/commands/Quality/ScriptCommands.ts:1576` | Quality command group for repo operational checks. |
-| `@beep/repo-cli/index` | `reuseCommand` | const | `packages/tooling/tool/cli/src/commands/Reuse/index.ts:516` | Reuse-discovery command group. |
+| `@beep/repo-cli/index` | `reuseCommand` | const | `packages/tooling/tool/cli/src/commands/Reuse/index.ts:517` | Reuse-discovery command group. |
 | `@beep/repo-cli/index` | `rootCommand` | const | `packages/tooling/tool/cli/src/commands/Root.ts:45` | Top-level CLI command that registers all subcommands. |
 | `@beep/repo-cli/index` | `syncDataToTsCommand` | const | `packages/tooling/tool/cli/src/commands/SyncDataToTs/index.ts:460` | CLI command for syncing official upstream datasets into checked-in TypeScript modules. |
 | `@beep/repo-cli/index` | `topoSortCommand` | const | `packages/tooling/tool/cli/src/commands/TopoSort.ts:32` | CLI command that builds the workspace dependency graph and prints package names |

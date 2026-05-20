@@ -269,6 +269,7 @@ const ensureRepoExportsCatalogFresh = Effect.fn("Reuse.ensureRepoExportsCatalogF
   repoRoot: string,
   strict: boolean
 ): Effect.fn.Return<RepoCodegraphFreshnessStatus, DomainError, ChildProcessSpawner.ChildProcessSpawner> {
+  // Strict mode hard-fails stale catalogs, so successful lookup output is only unchecked or current.
   if (!strict) {
     return "unchecked";
   }

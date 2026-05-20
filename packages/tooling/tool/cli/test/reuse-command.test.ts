@@ -267,4 +267,21 @@ describe("reuse command", () => {
       ),
     120_000
   );
+
+  it(
+    "runs strict lookup through the command child-process spawner",
+    () =>
+      Effect.runPromise(
+        Effect.gen(function* () {
+          yield* runReuseCommand(["lookup", "--query", "UnknownRecord", "--strict", "--json"]);
+
+          const result = yield* parseLoggedJson(decodeRepoCodegraphLookupResultJson);
+
+          expect(result.query).toBe("UnknownRecord");
+          expect(result.freshnessStatus).toBe("current");
+          expect(result.warnings).toEqual([]);
+        }).pipe(provideScopedLayer(CommandTestLayer))
+      ),
+    180_000
+  );
 });

@@ -55,6 +55,7 @@ class RepoCodegraphPackagePolicyPayload extends S.Class<RepoCodegraphPackagePoli
 )(
   {
     preferredImports: S.Array(RepoCodegraphPreferredImport).pipe(
+      // The repo-pinned Effect v4 beta expects constructor defaults as Effects.
       S.withConstructorDefault(Effect.succeed(A.empty<RepoCodegraphPreferredImport>())),
       S.withDecodingDefault(Effect.succeed(A.empty<typeof RepoCodegraphPreferredImport.Encoded>()))
     ),
