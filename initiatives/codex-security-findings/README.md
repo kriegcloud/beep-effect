@@ -2,7 +2,7 @@
 
 ## Status
 
-Catalog captured; current-HEAD triage pending.
+Catalog captured; current-HEAD triage completed with 63 fixed findings and 1 dismissed finding.
 
 ## Mission
 

@@ -65,7 +65,7 @@ Captured from Codex Security on 2026-05-19. This index covers all 64 findings vi
 | CSF-039 | Low | fixed | Closed | [Host-network PGLite fallback exposes test database](./CSF-039-host-network-pglite-fallback-exposes-test-database.md) | tooling/test-utils | 0c25ebd |
 | CSF-040 | Low | fixed | Closed | [Unrestricted ffmpeg processing can trigger local SSRF](./CSF-040-unrestricted-ffmpeg-processing-can-trigger-local-ssrf.md) | tooling/cli | af06b2a |
 | CSF-041 | Low | fixed | Closed | [Enumerable __proto__ in Struct.fromEntries enables pollution](./CSF-041-enumerable-proto-in-struct-fromentries-enables-pollution.md) | packages/common/utils/src | 7ed5024 |
-| CSF-042 | Low | fixed | Closed | [Glob scan now aborts on dangling symlinks causing DoS](./CSF-042-glob-scan-now-aborts-on-dangling-symlinks-causing-dos.md) | packages/common/utils/src | 8199257 |
+| CSF-042 | Low | fixed | Closed | [Glob scan now aborts on dangling symlinks causing DoS](./CSF-042-glob-scan-now-aborts-on-dangling-symlinks-causing-dos.md) | packages/foundation/modeling/utils/src | 8199257 |
 | CSF-043 | Informational | fixed | Closed | [Docs aux_links key is not nested under aux_links](./CSF-043-docs-aux-links-key-is-not-nested-under-aux-links.md) | apps/professional-desktop | 0b3fc6e |
 | CSF-044 | Informational | fixed | Closed | [Schema assertions now return without validating](./CSF-044-schema-assertions-now-return-without-validating.md) | packages/foundation/modeling/utils | b8bc609 |
 | CSF-045 | Informational | fixed | Closed | [Stale Bun lock keeps old Next peer copies](./CSF-045-stale-bun-lock-keeps-old-next-peer-copies.md) | apps/opip-web | 02c1fba |
@@ -85,6 +85,6 @@ Captured from Codex Security on 2026-05-19. This index covers all 64 findings vi
 | CSF-059 | Informational | fixed | Closed | [LocalDate constructors allow impossible calendar dates](./CSF-059-localdate-constructors-allow-impossible-calendar-dates.md) | packages/shared/domain/src | b06f2f3 |
 | CSF-060 | Informational | fixed | Closed | [Unbound CauseTaggedErrorClass helpers now crash](./CSF-060-unbound-causetaggederrorclass-helpers-now-crash.md) | packages/common/schema/src | bb74c4f |
 | CSF-061 | Informational | fixed | Closed | [IndexedDbQueryBuilder stream can hang with zero chunk size](./CSF-061-indexeddbquerybuilder-stream-can-hang-with-zero-chunk-size.md) | packages/platform-browser/src/IndexedDbQueryBuilder.ts | 1e38762 |
-| CSF-062 | Informational | fixed | Closed | [Custom glob walker now traverses full tree, enabling DoS](./CSF-062-custom-glob-walker-now-traverses-full-tree-enabling-dos.md) | packages/common/utils/src | d70aed0 |
+| CSF-062 | Informational | fixed | Closed | [Custom glob walker now traverses full tree, enabling DoS](./CSF-062-custom-glob-walker-now-traverses-full-tree-enabling-dos.md) | packages/foundation/modeling/utils/src | d70aed0 |
 | CSF-063 | Informational | fixed | Closed | [Markdown-to-HTML schema allows raw script tags by default](./CSF-063-markdown-to-html-schema-allows-raw-script-tags-by-default.md) | packages/common/schema/src | 0cf18c4 |
 | CSF-064 | Informational | fixed | Closed | [IntelliJ shared index auto-consent to external server](./CSF-064-intellij-shared-index-auto-consent-to-external-server.md) | intellij.yaml | a6dd7e3 |

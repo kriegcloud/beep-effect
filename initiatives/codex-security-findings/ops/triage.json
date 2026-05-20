@@ -122,7 +122,7 @@
     "rationale": "Installer security secret reads and validation are now gated by the approved install plan. Unapproved 1Password references are rejected before live secret reads, and validation reports a missing reference when the id, purpose, reference, or consumer does not match the approved plan.",
     "verificationCommand": "bunx vitest run apps/stack-installer/test/P1ManualProof.test.ts",
     "changedFiles": [
-      "packages/installer-security/server/src/Layer.ts",
+      "packages/installer/server/src/Layer.ts",
       "apps/stack-installer/test/P1ManualProof.test.ts"
     ],
     "verificationNotes": [
@@ -358,7 +358,7 @@
     "closeReason": "Already fixed",
     "remediationStatus": "fixed-in-branch",
     "rationale": "Committed Stack Installer docs and manifests now use coordinator placeholders instead of the live tailnet IP or MagicDNS upload endpoint.",
-    "verificationCommand": "rg -n '100\\.117\\.213\\.114|dankputer\\.tailc7c348\\.ts\\.net|tailc7c348' initiatives/stack-installer apps/stack-installer || true",
+    "verificationCommand": "rg -n '<redacted-tailnet-ip>|<redacted-tailnet-host>|<redacted-tailnet-suffix>' initiatives/stack-installer apps/stack-installer || true",
     "changedFiles": [
       "initiatives/stack-installer/history/outputs/p1-completion-audit.md",
       "initiatives/stack-installer/history/outputs/p1-pause-handoff-2026-05-14.md",
@@ -400,7 +400,7 @@
     "closeReason": "Already fixed",
     "remediationStatus": "fixed-in-branch",
     "rationale": "Committed audit notes no longer disclose the live tailnet upload endpoint; the endpoint is represented with coordinator placeholders and live commands remain under ignored output paths.",
-    "verificationCommand": "rg -n '100\\.117\\.213\\.114|dankputer\\.tailc7c348\\.ts\\.net|tailc7c348' initiatives/stack-installer apps/stack-installer || true",
+    "verificationCommand": "rg -n '<redacted-tailnet-ip>|<redacted-tailnet-host>|<redacted-tailnet-suffix>' initiatives/stack-installer apps/stack-installer || true",
     "changedFiles": [
       "initiatives/stack-installer/history/outputs/p1-completion-audit.md",
       "initiatives/stack-installer/history/outputs/p1-pause-handoff-2026-05-14.md"
@@ -414,7 +414,7 @@
     "closeReason": "Already fixed",
     "remediationStatus": "fixed-in-branch",
     "rationale": "The committed audit note now redacts the concrete Windows proof peer MagicDNS host while preserving the operational note about denied anonymous SMB access.",
-    "verificationCommand": "rg -n '100\\.117\\.213\\.114|dankputer\\.tailc7c348\\.ts\\.net|tailc7c348' initiatives/stack-installer apps/stack-installer || true",
+    "verificationCommand": "rg -n '<redacted-tailnet-ip>|<redacted-tailnet-host>|<redacted-tailnet-suffix>' initiatives/stack-installer apps/stack-installer || true",
     "changedFiles": [
       "initiatives/stack-installer/history/outputs/p1-completion-audit.md"
     ],

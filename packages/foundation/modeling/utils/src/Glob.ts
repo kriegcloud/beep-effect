@@ -430,7 +430,12 @@ const scanWithNodeGlob = (
     const relativePaths = pipe(
       scanRootsForPatterns(patterns),
       A.flatMap((scanRoot) => {
-        const absoluteScanRoot = scanRoot.length === 0 ? cwdPath : fileURLToPath(new URL(scanRoot, cwdUrl));
+        const absoluteScanRoot =
+          scanRoot.length === 0
+            ? cwdPath
+            : absolutePathPattern.test(scanRoot)
+              ? scanRoot
+              : fileURLToPath(new URL(scanRoot, cwdUrl));
         try {
           if (!fs.statSync(absoluteScanRoot).isDirectory()) {
             return [];

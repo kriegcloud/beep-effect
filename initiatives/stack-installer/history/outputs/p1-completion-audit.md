@@ -69,9 +69,9 @@ What is not complete:
    hidden debt.
 3. Remove the waiver only after a real Windows proof bundle is produced,
    returned, and audited.
-4. Start P1D only after the P1C loop is complete.
-  live only in ignored `output/stack-installer/p1-live/proof-upload-commands.txt`
-  and are not committed.
+4. Start P1D only after the P1C loop is complete. The upload helper commands
+   live only in ignored `output/stack-installer/p1-live/proof-upload-commands.txt`
+   and are not committed.
 - Current upload fallback state:
   the live upload endpoint now runs from committed
   `initiatives/stack-installer/ops/proof-upload-server.mjs` on

@@ -1021,6 +1021,12 @@ const docgenQualityWorkerRunpodEvalCommand = Command.make(
         });
       }
 
+      if (skipTemplateSearch && allowPublicTemplateSearch) {
+        return yield* new DomainError({
+          message: "Choose at most one template-search mode: --skip-template-search or --allow-public-template-search.",
+        });
+      }
+
       if (provider !== "ollama") {
         return yield* new DomainError({
           message: "docgen quality-worker-eval-runpod v1 only supports --provider ollama.",

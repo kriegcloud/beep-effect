@@ -12,7 +12,7 @@ const indexPath = join(findingsDir, "INDEX.md");
 const manifestPath = join(opsDir, "manifest.json");
 
 const verdictOrder = ["needs-current-head-review", "active", "dismissed", "fixed"];
-const today = "2026-05-20";
+const today = new Date().toISOString().slice(0, 10);
 
 const triage = JSON.parse(await readFile(triagePath, "utf8"));
 const manifest = JSON.parse(await readFile(manifestPath, "utf8"));
@@ -65,10 +65,7 @@ for (const findingPath of findingPaths) {
       `\\| ${id} \\| ([^|]+) \\| ([^|]+) \\| ([^|]+) \\| (\\[[^\\]]+\\]\\(${relativeFinding.replace(/[.*+?^${}()|[\]\\]/gu, "\\$&")}\\)) \\| ([^|]+) \\| ([^|]+) \\|`,
       "u"
     );
-    index = index.replace(
-      rowPattern,
-      `| ${id} | $1 | ${entry.verdict} | $3 | $4 | $5 | $6 |`
-    );
+    index = index.replace(rowPattern, `| ${id} | $1 | ${entry.verdict} | $3 | $4 | $5 | $6 |`);
   }
 }
 

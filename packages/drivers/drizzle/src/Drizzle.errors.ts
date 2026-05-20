@@ -171,6 +171,17 @@ const extractCauseContext = (cause: Cause.Cause<unknown>, seen: ReadonlyArray<ob
   });
 };
 
+const redactedExistingDrizzleError = (error: DrizzleError): DrizzleError =>
+  new DrizzleError({
+    operation: error.operation,
+    cause: error.cause,
+    query: error.query,
+    params: O.map(
+      error.params,
+      A.map(() => REDACTED_SQL_PARAMETER)
+    ),
+  });
+
 const extractNativeQueryContext = (cause: unknown, seen: ReadonlyArray<object> = []): DrizzleErrorContext => {
   if (P.isObject(cause) && hasSeenReference(seen, cause)) {
     return parseDrizzleMessage(cause);
@@ -256,7 +267,7 @@ export class DrizzleError extends TaggedErrorClass<DrizzleError>($I`DrizzleError
    * @since 0.0.0
    */
   static readonly fromUnknown = (operation: string, cause?: unknown, context: DrizzleErrorContext = {}): DrizzleError =>
-    O.getOrElse(existingDrizzleErrorFromUnknown(cause), () => {
+    O.getOrElse(O.map(existingDrizzleErrorFromUnknown(cause), redactedExistingDrizzleError), () => {
       const nativeContext = extractNativeQueryContext(cause);
       return new DrizzleError({
         operation,

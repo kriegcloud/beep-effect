@@ -123,9 +123,9 @@ initiatives/ai-metrics-stack/history/outputs/p6-pre-may16-readiness-ledger.md
 303
 - Mirror sync stayed dry-run and planned only:
 304
-- `ssh dankserver-yubi mkdir -p /srv/data/ai-metrics/p7-derived-mirror`
+- `ssh <mirror-host> mkdir -p /srv/data/ai-metrics/p7-derived-mirror`
 305
-- `rsync -az --delete ... dankserver-yubi:/srv/data/ai-metrics/p7-derived-mirror/`
+- `rsync -az --delete ... <mirror-host>:/srv/data/ai-metrics/p7-derived-mirror/`
 306
 - confirmation token remains `p7-derived-mirror`
 307
@@ -158,7 +158,7 @@ initiatives/ai-metrics-stack/ops/manifest.json
 184
 "id": "ai-metrics-p7-disposable-proof-copy",
 185
-"command": "rsync -a --delete /home/elpresidank/YeeBois/projects/beep-effect/.beep/ai-metrics/ /tmp/ai-metrics-p7-proof-data/"
+"command": "rsync -a --delete <repo-root>/.beep/ai-metrics/ /tmp/ai-metrics-p7-proof-data/"
 186
 },
 187
@@ -166,7 +166,7 @@ initiatives/ai-metrics-stack/ops/manifest.json
 188
 "id": "ai-metrics-p7-mirror-build",
 189
-"command": "bun run beep ai-metrics mirror build --target dankserver --data-root /tmp/ai-metrics-p7-proof-data --json"
+"command": "bun run beep ai-metrics mirror build --target <mirror-target> --data-root /tmp/ai-metrics-p7-proof-data --json"
 190
 },
 191
@@ -182,7 +182,7 @@ initiatives/ai-metrics-stack/ops/manifest.json
 196
 "id": "ai-metrics-p7-remote-mirror-presence-check",
 197
-"command": "ssh -o BatchMode=yes -o ConnectTimeout=10 dankserver-yubi \"sh -lc 'if test -f /srv/data/ai-metrics/p7-derived-mirror/manifest.json; then echo present; else echo missing; fi'\""
+"command": "ssh -o BatchMode=yes -o ConnectTimeout=10 <mirror-host> \"sh -lc 'if test -f /srv/data/ai-metrics/p7-derived-mirror/manifest.json; then echo present; else echo missing; fi'\""
 198
 },
 199
@@ -190,7 +190,7 @@ initiatives/ai-metrics-stack/ops/manifest.json
 200
 "id": "ai-metrics-p7-retention-list",
 201
-"command": "bun run beep ai-metrics retention list --data-root /home/elpresidank/YeeBois/projects/beep-effect/.beep/ai-metrics --json"
+"command": "bun run beep ai-metrics retention list --data-root <repo-root>/.beep/ai-metrics --json"
 202
 },
 203
@@ -198,7 +198,7 @@ initiatives/ai-metrics-stack/ops/manifest.json
 204
 "id": "ai-metrics-p7-retention-restore-drill",
 205
-"command": "BEEP_AI_METRICS_RAW_ARCHIVE_KEY=\"$(op read 'op://TBK/ai-metrics/raw-archive-key')\" bun run beep ai-metrics retention restore-drill --data-root /home/elpresidank/YeeBois/projects/beep-effect/.beep/ai-metrics --restore-root /tmp/ai-metrics-p7-restore --before <iso> --json"
+"command": "BEEP_AI_METRICS_RAW_ARCHIVE_KEY=\"$(op read 'op://<vault>/<item>/<field>')\" bun run beep ai-metrics retention restore-drill --data-root <repo-root>/.beep/ai-metrics --restore-root /tmp/ai-metrics-p7-restore --before <iso> --json"
 Attack-path analysis
 Kept at low. The vulnerable pattern is evidenced in repository artifacts and the validation PoC demonstrates the core symlink/rsync behavior, so it is not a false positive. But reachability is limited to internal local/operator tooling, with no public service exposure, no network port, and required user interaction/CI execution. Impact is local data disclosure and possible redirected deletion under the invoking user's privileges, not remote code execution, tenant compromise, or broad credential exposure.
 Path

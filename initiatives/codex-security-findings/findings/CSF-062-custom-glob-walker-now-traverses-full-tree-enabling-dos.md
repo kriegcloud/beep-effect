@@ -10,7 +10,7 @@
 | Source commit | d70aed0 |
 | Reported age | 1mo ago |
 | Capture method | dom-fallback |
-| Owner area | packages/common/utils/src |
+| Owner area | packages/foundation/modeling/utils/src |
 | Triage verdict | fixed |
 | Codex close reason | Already fixed |
 
@@ -31,7 +31,7 @@ Introduces a resource-exhaustion/stack overflow risk by traversing the entire di
 
 ## Evidence Paths
 
-- packages/common/utils/src/Glob.ts
+- packages/foundation/modeling/utils/src/Glob.ts
 
 ## Validation Notes From Codex
 
@@ -68,7 +68,7 @@ Observe excessive memory/IO with the real module under dependency-installed runt
 Capture debugger/valgrind evidence (tools unavailable).
 Validation artifact
 Evidence
-packages/common/utils/src/Glob.ts
+packages/foundation/modeling/utils/src/Glob.ts
 136
 const scanWithNodeGlob = async (
 137
@@ -142,7 +142,7 @@ Attack-path analysis
 The traversal bug is real, but the only in-repo consumers are tooling utilities (tooling/cli and tooling/repo-utils). These are developer/CI tools, not part of the runtime services in the threat model, and they are not exposed over a network. The impact is therefore limited to local availability and is out of scope for the modeled attack surfaces, so criticality is adjusted to ignore.
 Path
 Attacker-controlled repo contents (deep/large tree) --repo passed to CLI--> Tooling CLI uses FsUtils.globFiles with repo root cwd --globFiles -> SharedGlob.glob()--> @beep/utils/Glob.walk() full-tree recursion before filtering --full enumeration causes heavy I/O/CPU--> Resource exhaustion / tooling DoS
-The custom Glob implementation recursively walks every directory and only filters after collecting all entries (packages/common/utils/src/Glob.ts:148-172). This service is consumed by tooling/repo-utils FsUtils and used by tooling CLI commands such as TrustGraph to discover workspace package.json files via globFiles (tooling/repo-utils/src/FsUtils.ts:148-173; tooling/cli/src/commands/TrustGraph/internal/TrustGraphRuntime.ts:1117-1125). As a result, running these developer/CI tools on a repo with a large/deep tree can cause local resource exhaustion. However, this code path is in tooling, not the runtime services in the threat model, so it is out of scope for production attack surfaces.
+The custom Glob implementation recursively walks every directory and only filters after collecting all entries (packages/foundation/modeling/utils/src/Glob.ts:148-172). This service is consumed by tooling/repo-utils FsUtils and used by tooling CLI commands such as TrustGraph to discover workspace package.json files via globFiles (tooling/repo-utils/src/FsUtils.ts:148-173; tooling/cli/src/commands/TrustGraph/internal/TrustGraphRuntime.ts:1117-1125). As a result, running these developer/CI tools on a repo with a large/deep tree can cause local resource exhaustion. However, this code path is in tooling, not the runtime services in the threat model, so it is out of scope for production attack surfaces.
 Likelihood
 Ignore - Requires a user/CI to run tooling against a crafted large/deep repo; not remotely triggerable.
 Impact

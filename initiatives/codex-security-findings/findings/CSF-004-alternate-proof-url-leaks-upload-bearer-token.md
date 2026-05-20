@@ -42,7 +42,7 @@ Introduced a credential exfiltration flaw in proof-upload-status.mjs by adding t
 
 ## Sanitized Finding Content
 
-```text
+````text
 Finding
 Alternate proof URL leaks upload bearer token
 Report
@@ -197,4 +197,4 @@ The downstream trust placed in uploaded proof bundles for release or PR decision
 No cloud IAM, Kubernetes, or load-balancer manifests for this helper were present in the inspected evidence.
 Finding content copied
 Finding content copied
-```
+````

@@ -10,7 +10,7 @@
 | Source commit | 8199257 |
 | Reported age | 1mo ago |
 | Capture method | dom-fallback |
-| Owner area | packages/common/utils/src |
+| Owner area | packages/foundation/modeling/utils/src |
 | Triage verdict | fixed |
 | Codex close reason | Already fixed |
 
@@ -31,7 +31,7 @@ Introduced: the new traversal always stats symlink targets and does not catch er
 
 ## Evidence Paths
 
-- packages/common/utils/src/Glob.ts
+- packages/foundation/modeling/utils/src/Glob.ts
 
 ## Validation Notes From Codex
 
@@ -69,7 +69,7 @@ Validate permission-denied symlink case
 Execute full Glob service with dependencies to observe GlobError propagation
 Validation artifact
 Evidence
-packages/common/utils/src/Glob.ts
+packages/foundation/modeling/utils/src/Glob.ts
 272
 fs.readdirSync(absoluteDirectoryPath, {
 273

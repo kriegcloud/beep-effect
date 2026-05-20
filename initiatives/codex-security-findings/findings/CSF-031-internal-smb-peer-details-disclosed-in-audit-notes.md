@@ -23,7 +23,7 @@ Introduced a low-severity information disclosure in documentation by committing 
 - Verdict: `fixed`
 - Rationale: The committed audit note now redacts the concrete Windows proof peer MagicDNS host while preserving the operational note about denied anonymous SMB access.
 - Remediation status: `fixed-in-branch`
-- Verification command: `rg -n '100\.117\.213\.114|dankputer\.tailc7c348\.ts\.net|tailc7c348' initiatives/stack-installer apps/stack-installer || true`
+- Verification command: `rg -n '<redacted-tailnet-ip>|<redacted-tailnet-host>|<redacted-tailnet-suffix>' initiatives/stack-installer apps/stack-installer || true`
 - Changed files:
   - initiatives/stack-installer/history/outputs/p1-completion-audit.md
 - Verification notes:
@@ -38,7 +38,7 @@ Introduced a low-severity information disclosure in documentation by committing 
 - Confirm the repository is at the specified commit and the target audit Markdown file is tracked.
 - Confirm the suspected lines are present at the cited file and line numbers.
 - Confirm the checked-out commit introduced the lines and the parent revision does not contain the same hostname/service details.
-- Confirm the content discloses concrete infrastructure reconnaissance details: Tailscale DNS peer name, SMB port 445 exposure/reachability, and anonymous SMB listing result.
+- Confirm the content discloses concrete infrastructure reconnaissance details: Tailscale DNS peer name, SMB exposure/reachability, and anonymous SMB listing result.
 - Confirm severity scope: no credentials are disclosed and anonymous access was denied, so impact is limited to confidentiality of internal host/service metadata; crash/Valgrind/debugger validation is not applicable to a Markdown-only disclosure.
 
 ## Sanitized Finding Content
@@ -59,34 +59,34 @@ Repository
 kriegcloud/beep-effect
 Summary
 Introduced a low-severity information disclosure in documentation by committing internal network/service reconnaissance details.
-The added audit note records the full Tailscale DNS name of a Windows peer and states that SMB port 445 is exposed, along with the result of an anonymous share-listing attempt. No credentials are disclosed and anonymous access was denied, so this is not a direct authentication bypass or code execution issue. However, publishing internal hostnames and reachable services is an information disclosure risk because it gives attackers concrete infrastructure targets and confirms SMB exposure.
+The added audit note records the full Tailscale DNS name of a Windows peer and states that SMB is exposed, along with the result of an anonymous share-listing attempt. No credentials are disclosed and anonymous access was denied, so this is not a direct authentication bypass or code execution issue. However, publishing internal hostnames and reachable services is an information disclosure risk because it gives attackers concrete infrastructure targets and confirms SMB exposure.
 Validation
 Confirm the repository is at the specified commit and the target audit Markdown file is tracked.
 Confirm the suspected lines are present at the cited file and line numbers.
 Confirm the checked-out commit introduced the lines and the parent revision does not contain the same hostname/service details.
-Confirm the content discloses concrete infrastructure reconnaissance details: Tailscale DNS peer name, SMB port 445 exposure/reachability, and anonymous SMB listing result.
+Confirm the content discloses concrete infrastructure reconnaissance details: Tailscale DNS peer name, SMB exposure/reachability, and anonymous SMB listing result.
 Confirm severity scope: no credentials are disclosed and anonymous access was denied, so impact is limited to confidentiality of internal host/service metadata; crash/Valgrind/debugger validation is not applicable to a Markdown-only disclosure.
 Validation artifact
 Evidence
 initiatives/stack-installer/history/outputs/p1-completion-audit.md
 59
-The Windows peer `desktop-m5ap41u.tailc7c348.ts.net` is reachable and exposes
+The Windows peer `<redacted-windows-tailnet-peer>` is reachable and exposes
 60
-SMB port `445`, but anonymous `smbclient -L` share listing fails with
+SMB service access, but anonymous `smbclient -L` share listing fails with
 61
 `NT_STATUS_ACCESS_DENIED`; no SMB credential was available or guessed.
 Attack-path analysis
-Severity remains low. Evidence at initiatives/stack-installer/history/outputs/p1-completion-audit.md:59-61 confirms a real information disclosure: a specific Tailscale Windows peer and SMB port 445 are named. However, the same evidence also records NT_STATUS_ACCESS_DENIED for anonymous share listing and says no SMB credential was available or guessed. The affected artifact is committed documentation rather than product runtime code, there is no public ingress/LB definition for the SMB service, and no code-execution, authentication-bypass, secret-disclosure, or data-access path is demonstrated. Probability and impact therefore support low severity rather than medium/high; it is not ignored because the repository artifact does disclose actionable internal network metadata.
+Severity remains low. Evidence at initiatives/stack-installer/history/outputs/p1-completion-audit.md:59-61 confirms a real information disclosure: a specific Tailscale Windows peer and SMB service are named. However, the same evidence also records NT_STATUS_ACCESS_DENIED for anonymous share listing and says no SMB credential was available or guessed. The affected artifact is committed documentation rather than product runtime code, there is no public ingress/LB definition for the SMB service, and no code-execution, authentication-bypass, secret-disclosure, or data-access path is demonstrated. Probability and impact therefore support low severity rather than medium/high; it is not ignored because the repository artifact does disclose actionable internal network metadata.
 Path
-Repository/commit readable by attacker --read committed documentation--> P1 completion audit Markdown --extract full internal DNS name--> Disclosed Tailscale Windows peer --identify reachable SMB service on port 445--> SMB port 445 reconnaissance --anonymous share listing already reported as denied--> Anonymous listing denied / no credentials
-The finding is real: the committed audit note names a specific Windows Tailscale peer and confirms SMB port 445 reachability. It is reachable to anyone who can read the repository contents. The security impact is limited to reconnaissance because the same lines state anonymous SMB listing returned NT_STATUS_ACCESS_DENIED and no credentials were available or guessed. No executable sink, credential disclosure, auth bypass, or direct path to SMB access is evidenced.
+Repository/commit readable by attacker --read committed documentation--> P1 completion audit Markdown --extract full internal DNS name--> Disclosed Tailscale Windows peer --identify reachable SMB service--> SMB reconnaissance --anonymous share listing already reported as denied--> Anonymous listing denied / no credentials
+The finding is real: the committed audit note names a specific Windows Tailscale peer and confirms SMB reachability. It is reachable to anyone who can read the repository contents. The security impact is limited to reconnaissance because the same lines state anonymous SMB listing returned NT_STATUS_ACCESS_DENIED and no credentials were available or guessed. No executable sink, credential disclosure, auth bypass, or direct path to SMB access is evidenced.
 Likelihood
 Low - Extraction from the repository is trivial for any repository reader, but practical exploitation beyond reconnaissance requires additional preconditions such as tailnet reachability or valid SMB credentials. Anonymous SMB access was explicitly denied.
 Impact
 Low - The disclosure gives attackers concrete internal reconnaissance data for a single SMB peer, but does not disclose credentials, does not bypass SMB authorization, and does not prove public network reachability. The main harm is reduced uncertainty for a future attacker.
 Assumptions
 The repository or commit contents are readable by actors outside the trusted operator group; static analysis cannot verify GitHub visibility without calling external APIs.
-The disclosed Tailscale DNS name represents an internal Windows peer and SMB port 445 was reachable at the time the audit note was written.
+The disclosed Tailscale DNS name represents an internal Windows peer and SMB was reachable at the time the audit note was written.
 Attackers do not receive SMB credentials from this disclosure and would need separate network reachability into the tailnet or another exposure path to interact with the SMB service.
 attacker can read the repository contents or the committed audit note
 attacker can make use of internal host/service metadata for reconnaissance

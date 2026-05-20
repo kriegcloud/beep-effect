@@ -25,7 +25,7 @@ Introduced: the live proof harness crossed the webview-to-native boundary and ad
 - Remediation status: `fixed-in-branch`
 - Verification command: `bunx vitest run apps/stack-installer/test/P1ManualProof.test.ts`
 - Changed files:
-  - packages/installer-security/server/src/Layer.ts
+  - packages/installer/server/src/Layer.ts
   - apps/stack-installer/test/P1ManualProof.test.ts
 - Verification notes:
   - The focused Vitest suite passes, including the regression that verifies unapproved references are rejected before any live secret read.
@@ -36,7 +36,7 @@ Introduced: the live proof harness crossed the webview-to-native boundary and ad
 - apps/stack-installer/src/App.tsx
 - apps/stack-installer/src/proof/P1ManualProof.ts
 - packages/drivers/discord/src/Discord.service.ts
-- packages/installer-security/server/src/Layer.ts
+- packages/installer/server/src/Layer.ts
 
 ## Validation Notes From Codex
 
@@ -234,7 +234,7 @@ HttpClientRequest.setHeader("Authorization", `Bot ${Redacted.value(botToken)}`),
 HttpClientRequest.accept("application/json")
 89
 );
-packages/installer-security/server/src/Layer.ts
+packages/installer/server/src/Layer.ts
 62
 export const makeInstallerSecurityServer = Effect.fn("InstallerSecurityServer.make")(function* () {
 63

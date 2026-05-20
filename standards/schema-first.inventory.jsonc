@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generatedOn": "2026-05-16",
+  "generatedOn": "2026-05-20",
   "scope": ["apps/**/*.{ts,tsx}", "packages/**/*.{ts,tsx}", "infra/**/*.ts"],
   "enforcedRoots": [
     "packages/tooling/tool/cli/src",
@@ -1224,6 +1224,14 @@
       "status": "exception",
       "owner": "@beep/ui",
       "reason": "React tour configuration is coupled to Step render contracts containing ReactNode values, so it stays tracked as a UI boundary exception."
+    },
+    {
+      "file": "packages/shared/domain/src/values/LocalDate/LocalDate.model.ts",
+      "symbol": "LocalDateFields",
+      "kind": "object-struct-schema",
+      "status": "candidate",
+      "owner": "@beep/shared-domain",
+      "reason": "Object schema should prefer an annotated S.Class over S.Struct."
     },
     {
       "file": "packages/tooling/library/repo-utils/src/FsUtils.ts",

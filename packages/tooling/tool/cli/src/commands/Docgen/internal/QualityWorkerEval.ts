@@ -940,6 +940,7 @@ const makeIsolatedWorkerEvalDirectory = Effect.fn("DocgenQualityWorkerEval.makeI
         "This temporary worker directory intentionally contains no repository checkout. Evaluate only the prompt-supplied packet.\n"
       )
       .pipe(
+        Effect.tapError(() => fs.remove(directory, { recursive: true, force: true }).pipe(Effect.ignore)),
         Effect.mapError(
           (cause) =>
             new DomainError({

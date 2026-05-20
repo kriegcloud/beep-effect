@@ -18,6 +18,7 @@ import { $RepoCliId } from "@beep/identity/packages";
 import { profilePhase } from "@beep/observability";
 import { A, Str } from "@beep/utils";
 import {
+  Config,
   Console,
   Context,
   Effect,
@@ -212,9 +213,10 @@ const resolveTrustedMediaToolPath = Effect.fn("Files.resolveTrustedMediaToolPath
 ): Effect.fn.Return<string, FilesCommandError, FileSystem.FileSystem | Path.Path> {
   const fs = yield* FileSystem.FileSystem;
   const path = yield* Path.Path;
-  const configured = process.env[envVarName];
-  const configuredPath =
-    configured === undefined || Str.isEmpty(Str.trim(configured)) ? O.none<string>() : O.some(configured);
+  const configuredPath = yield* Config.option(Config.string(envVarName)).pipe(
+    Effect.orElseSucceed(O.none<string>),
+    Effect.map(flow(O.map(Str.trim), O.filter(Str.isNonEmpty)))
+  );
 
   if (O.isSome(configuredPath) && !path.isAbsolute(configuredPath.value)) {
     return yield* new FilesCommandError({

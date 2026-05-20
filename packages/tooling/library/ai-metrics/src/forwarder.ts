@@ -267,7 +267,7 @@ export class AiMetricsForwarderTimerInput extends S.Class<AiMetricsForwarderTime
   $I`AiMetricsForwarderTimerInput`
 )(
   {
-    command: S.Array(S.String),
+    command: S.NonEmptyArray(S.String),
     hashSaltSecretRef: S.optionalKey(S.String),
     intervalMinutes: S.Number.pipe(
       S.withConstructorDefault(Effect.succeed(30)),
@@ -358,19 +358,6 @@ const requireForwarderHashSalt = Effect.fn("AiMetrics.forwarder.requireHashSalt"
   );
 });
 
-/**
- * Render a systemd user timer that repeatedly runs the forwarder with locking and status evidence.
- *
- * @param input - Timer rendering input with service names, command text, status path, and secret references.
- * @returns A render-only systemd timer/service plan for operator installation.
- * @example
- * ```ts
- * import { renderAiMetricsForwarderTimerPlan } from "@beep/repo-ai-metrics"
- * console.log(renderAiMetricsForwarderTimerPlan)
- * ```
- * @category services
- * @since 0.0.0
- */
 const systemdUnitFieldValue: (value: string) => string = Str.replace(/[\u0000-\u001f\u007f]/gu, " ");
 
 const safeSystemdUnitNameStem = (value: string): string => {
@@ -385,6 +372,20 @@ const safeSystemdUnitNameStem = (value: string): string => {
 
 const shellCommandFromArgv = (argv: ReadonlyArray<string>): string => pipe(argv, A.map(shellQuote), A.join(" "));
 
+/**
+ * Render a systemd user timer that repeatedly runs the forwarder with locking and status evidence.
+ *
+ * @param input - Timer rendering input with service names, command text, status path, and secret references.
+ * @returns A render-only systemd timer/service plan for operator installation.
+ * @example
+ * ```ts
+ * import { renderAiMetricsForwarderTimerPlan } from "@beep/repo-ai-metrics"
+ *
+ * console.log(renderAiMetricsForwarderTimerPlan)
+ * ```
+ * @category services
+ * @since 0.0.0
+ */
 export const renderAiMetricsForwarderTimerPlan = (input: AiMetricsForwarderTimerInput): AiMetricsForwarderTimerPlan => {
   const serviceName = safeSystemdUnitNameStem(input.serviceName);
   const serviceUnitName = `${serviceName}.service`;

@@ -5,7 +5,7 @@
  * @since 0.0.0
  */
 
-import { DuckDb, type DuckDbError, DuckDbParquetExport } from "@beep/duckdb";
+import { DuckDb, type DuckDbClient, type DuckDbError, DuckDbParquetExport } from "@beep/duckdb";
 import { $RepoAiMetricsId } from "@beep/identity/packages";
 import { TaggedErrorClass } from "@beep/schema";
 import { A, Str } from "@beep/utils";
@@ -422,6 +422,7 @@ type DerivedStorageMigration = {
   readonly migrationId: string;
   readonly requiredColumns?: ReadonlyArray<Pick<MigrationColumn, "columnName" | "tableName">>;
   readonly statements: ReadonlyArray<string>;
+  readonly transactional?: boolean;
 };
 
 const derivedStorageMigrations = [
@@ -441,6 +442,7 @@ const derivedStorageMigrations = [
       { columnName: "agent_task_id", tableName: "ai_metrics_outcome_labels" },
     ],
     statements: legacyAgentTaskIdMigrationStatements,
+    transactional: true,
   },
   {
     migrationId: "ai-metrics-raw-archive-object-id-v2",
@@ -638,20 +640,33 @@ const runDerivedStorageMigrationOnce: (migration: DerivedStorageMigration) => Ef
       return;
     }
 
-    yield* duckdb.runMany(migration.statements);
-    yield* duckdb.run(
-      `INSERT OR REPLACE INTO ai_metrics_schema_migrations (
+    const appliedAtEpochMillis = globalThis.String(yield* Clock.currentTimeMillis);
+    const recordMigration = (client: Pick<DuckDbClient, "run">): Effect.Effect<void, DuckDbError> =>
+      client.run(
+        `INSERT OR REPLACE INTO ai_metrics_schema_migrations (
       migration_id,
       applied_at_epoch_ms
     ) VALUES (
       $migrationId,
       $appliedAtEpochMillis
     )`,
-      {
-        appliedAtEpochMillis: globalThis.String(yield* Clock.currentTimeMillis),
-        migrationId: migration.migrationId,
-      }
-    );
+        {
+          appliedAtEpochMillis,
+          migrationId: migration.migrationId,
+        }
+      );
+
+    if (migration.transactional === true) {
+      yield* duckdb.withTransaction(
+        Effect.fn(function* (transaction) {
+          yield* transaction.runMany(migration.statements);
+          yield* recordMigration(transaction);
+        })
+      );
+    } else {
+      yield* duckdb.runMany(migration.statements);
+      yield* recordMigration(duckdb);
+    }
   });
 
 const ensureAiMetricsDerivedStorageRaw = Effect.fn("AiMetrics.derivedStorage.ensureRaw")(function* () {

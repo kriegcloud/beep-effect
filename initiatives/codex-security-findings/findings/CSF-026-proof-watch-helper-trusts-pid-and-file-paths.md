@@ -44,7 +44,7 @@ Introduced: the new proof-watch starter adds PID-file based process termination 
 
 ## Sanitized Finding Content
 
-```text
+````text
 Finding
 Proof watch helper trusts PID and file paths
 Report
@@ -207,4 +207,4 @@ The provided validation PoC demonstrates local impact but does not prove a remot
 Other ops helpers in the same directory appear to use similar PID/control-file patterns but were not re-scoped as separate findings here.
 Finding content copied
 Finding content copied
-```
+````

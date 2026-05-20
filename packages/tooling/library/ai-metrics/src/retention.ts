@@ -24,7 +24,7 @@ import { AiMetricsDerivedTranscriptRecord, writeAiMetricsDerivedStorage } from "
 import { summarizeTranscriptText } from "./ingest.ts";
 import { AiMetricsInstallInput, makeAiMetricsInstallSpec } from "./install.ts";
 import { AiMetricsDeployTarget, AiMetricsTranscriptSource, ConfigSnapshot } from "./models.ts";
-import { hashPrivateIdentifier, makeAiMetricsPrivacyCheckResult } from "./privacy.ts";
+import { hashPrivateIdentifier, hashPublicTextSha256, makeAiMetricsPrivacyCheckResult } from "./privacy.ts";
 
 const $I = $RepoAiMetricsId.create("retention");
 
@@ -860,10 +860,14 @@ export const runAiMetricsRetentionRestoreDrill = Effect.fn("AiMetrics.runAiMetri
     const contentHash = yield* hashPrivateIdentifier(plaintext, input.hashSalt).pipe(
       Effect.mapError((cause) => retentionFailure("Failed to hash restored archive plaintext identity.", cause))
     );
-    if (contentHash !== item.plaintextContentHash) {
+    const legacyPublicContentHash = yield* hashPublicTextSha256(plaintext).pipe(
+      Effect.mapError((cause) => retentionFailure("Failed to hash restored archive plaintext legacy identity.", cause))
+    );
+    if (contentHash !== item.plaintextContentHash && legacyPublicContentHash !== item.plaintextContentHash) {
       return yield* retentionFailure("Restored AI metrics archive object failed plaintext hash verification.", {
         archiveObjectId: item.archiveObjectId,
         expectedPlaintextContentHash: item.plaintextContentHash,
+        legacyRestoredPlaintextContentHash: legacyPublicContentHash,
         restoredPlaintextContentHash: contentHash,
       });
     }
