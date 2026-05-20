@@ -71,6 +71,7 @@ import { expect, layer } from "@effect/vitest";
 import { Effect, Encoding, Exit, FileSystem, Layer, Order, Path, pipe, Redacted } from "effect";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
+import * as S from "effect/Schema";
 
 const provideScopedLayer =
   <ROut, E2, RIn>(layer: Layer.Layer<ROut, E2, RIn>) =>
@@ -1443,7 +1444,8 @@ volumes:
           yield* writeText(path.join(tmpDir, "AGENTS.md"), "current agent guide\n");
           yield* writeText(
             path.join(tmpDir, ".beep/ai-metrics/config-snapshots/latest.json"),
-            globalThis.JSON.stringify({
+            // TODO(effect-native-migration): model schema
+            S.encodeUnknownSync(S.UnknownFromJsonString)({
               excludedDirectoryNames: [],
               fileCount: 1,
               files: [{ contentHash: "legacy-hash", relativePath: "AGENTS.md", sizeBytes: 18 }],

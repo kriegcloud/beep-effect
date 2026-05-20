@@ -576,7 +576,8 @@ const privacyProofFor = (
   const checkedTokens = [...forbiddenFieldTokens, ...additionalForbiddenTokens];
   const tokenMatchesPayload = (token: ForbiddenTokenCheck): boolean =>
     token.matchMode === "json-string"
-      ? Str.includes(globalThis.JSON.stringify(token.value))(payload)
+      ? // TODO(effect-native-migration): model schema
+        Str.includes(S.encodeUnknownSync(S.UnknownFromJsonString)(token.value))(payload)
       : Str.includes(token.value)(payload);
   const forbiddenMatches = pipe(
     checkedTokens,
