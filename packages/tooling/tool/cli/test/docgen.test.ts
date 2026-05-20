@@ -58,6 +58,7 @@ const provideScopedLayer =
 const PlatformLayer = Layer.mergeAll(NodeFileSystem.layer, NodePath.layer);
 const TestLayer = Layer.mergeAll(
   PlatformLayer,
+  NodeChildProcessSpawner.layer.pipe(Layer.provideMerge(PlatformLayer)),
   FsUtilsLive.pipe(Layer.provideMerge(PlatformLayer)),
   TSMorphServiceLive.pipe(Layer.provideMerge(PlatformLayer))
 );

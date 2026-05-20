@@ -527,10 +527,10 @@ const collectStepOutput = Effect.fn("DocgenLocal.collectStepOutput")(function* (
     Effect.gen(function* () {
       const handle = yield* ChildProcess.make(command, [...args], {
         cwd,
-        stderr: "pipe",
+        stderr: "ignore",
         stdout: "pipe",
       });
-      const output = yield* handle.all.pipe(
+      const output = yield* handle.stdout.pipe(
         Stream.decodeText(),
         Stream.runFold(thunkEmptyStr, (acc, chunk) => `${acc}${chunk}`)
       );
@@ -803,6 +803,15 @@ export const docgenLocalFullReasonsForTesting = (
 ): ReadonlyArray<DocgenLocalFullReason> =>
   pipe(changedFiles, A.map(normalizedFilePath), A.map(fullReasonForFile), collectOptions);
 
+const buildDocgenLocalPlanWithRepoRoot = Effect.fn("DocgenLocal.buildDocgenLocalPlanWithRepoRoot")(function* (
+  options: DocgenLocalOptions,
+  repoRoot: string
+) {
+  return yield* O.isSome(options.packageSelector)
+    ? buildPlanFromPackage(options)
+    : buildPlanFromChangedFiles(options, repoRoot);
+});
+
 /**
  * Build a local docgen plan from repository state and command options.
  *
@@ -834,9 +843,7 @@ export const buildDocgenLocalPlan: (
   FileSystem.FileSystem | Path.Path | FsUtils | ChildProcessSpawner
 > = Effect.fn("DocgenLocal.buildDocgenLocalPlan")(function* (options) {
   const repoRoot = yield* findRepoRoot();
-  return yield* O.isSome(options.packageSelector)
-    ? buildPlanFromPackage(options)
-    : buildPlanFromChangedFiles(options, repoRoot);
+  return yield* buildDocgenLocalPlanWithRepoRoot(options, repoRoot);
 });
 
 /**
@@ -868,7 +875,7 @@ export const runDocgenLocal: (
   "DocgenLocal.runDocgenLocal"
 )(function* (options) {
   const repoRoot = yield* findRepoRoot();
-  const plan = yield* buildDocgenLocalPlan(options);
+  const plan = yield* buildDocgenLocalPlanWithRepoRoot(options, repoRoot);
 
   if (options.json) {
     yield* renderPlanJson(plan);
@@ -879,6 +886,8 @@ export const runDocgenLocal: (
   if (options.plan) {
     if (plan.mode === "full-required") {
       process.exitCode = 1;
+    } else {
+      process.exitCode = 0;
     }
     return plan;
   }
