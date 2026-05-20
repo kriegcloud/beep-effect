@@ -83,8 +83,9 @@ const writeFixtureRepo = Effect.fn("ChangesetGraphTest.writeFixtureRepo")(functi
 });
 
 describe("changeset graph", () => {
-  it.effect("parses package names from changeset frontmatter", () =>
-    Effect.gen(function* () {
+  it.effect(
+    "parses package names from changeset frontmatter",
+    Effect.fnUntraced(function* () {
       const references = yield* changesetPackageReferencesFromText(
         ".changeset/demo.md",
         `---
@@ -109,8 +110,9 @@ Patch package metadata.
     })
   );
 
-  it.effect("treats empty changeset frontmatter as a valid no-op", () =>
-    Effect.gen(function* () {
+  it.effect(
+    "treats empty changeset frontmatter as a valid no-op",
+    Effect.fnUntraced(function* () {
       const references = yield* changesetPackageReferencesFromText(
         ".changeset/noop.md",
         `---

@@ -1733,9 +1733,8 @@ volumes:
           const homeDir = path.join(tmpDir, "home");
           const repoRoot = path.join(tmpDir, "repo");
           const codexRoot = path.join(homeDir, ".codex/sessions");
-          const decoy = `{"payload":{"message":"not metadata session_meta ${pipe(
-            "x",
-            Str.repeat(70_000)
+          const decoy = `{"payload":{"message":"not metadata session_meta ${"x".repeat(
+            70_000
           )}"},"timestamp":"2026-05-05T10:00:00Z","type":"event_msg"}`;
           const actual =
             '{"payload":{"id":"child-session","source":{"subagent":{"agent_nickname":"worker-one","agent_role":"worker","parent_thread_id":"parent-thread","thread_spawn":true}}},"timestamp":"2026-05-05T10:01:00Z","type":"session_meta"}';

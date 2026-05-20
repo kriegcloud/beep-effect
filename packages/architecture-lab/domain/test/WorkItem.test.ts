@@ -19,8 +19,9 @@ const makeWorkItem = (id: WorkItem.WorkItemId) =>
   );
 
 describe("WorkItem aggregate", () => {
-  it.effect("moves through assignment, completion, reopen, and archive", () =>
-    Effect.gen(function* () {
+  it.effect(
+    "moves through assignment, completion, reopen, and archive",
+    Effect.fnUntraced(function* () {
       const workerId = yield* decodeWorkerId(1);
       const workItemId = yield* decodeWorkItemId("work-item-1");
       const assigned = yield* WorkItem.assign(makeWorkItem(workItemId), workerId);
@@ -39,8 +40,9 @@ describe("WorkItem aggregate", () => {
     })
   );
 
-  it.effect("rejects reopening an archived WorkItem", () =>
-    Effect.gen(function* () {
+  it.effect(
+    "rejects reopening an archived WorkItem",
+    Effect.fnUntraced(function* () {
       const workItemId = yield* decodeWorkItemId("work-item-1");
       const archived = yield* WorkItem.archive(makeWorkItem(workItemId));
       const exit = yield* WorkItem.reopen(archived).pipe(Effect.exit);

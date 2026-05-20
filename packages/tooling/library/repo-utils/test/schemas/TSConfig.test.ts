@@ -57,8 +57,9 @@ describe("TSConfig schema", () => {
       }
     });
 
-    it.effect("decodes JSONC text with comments and trailing commas", () =>
-      Effect.gen(function* () {
+    it.effect(
+      "decodes JSONC text with comments and trailing commas",
+      Effect.fnUntraced(function* () {
         const result = yield* decodeTSConfigFromJsoncTextEffect(`{
           // shared base config
           "extends": "./tsconfig.base.json",
@@ -209,7 +210,9 @@ describe("TSConfig schema", () => {
         const compilerOptions = result["ts-node"].value.compilerOptions.value as {
           readonly customOption?: { readonly jsxRuntime: string };
         };
-        expect(compilerOptions.customOption).toEqual({ jsxRuntime: "automatic" });
+        expect(compilerOptions.customOption).toEqual({
+          jsxRuntime: "automatic",
+        });
       }
     });
   });
@@ -298,8 +301,9 @@ describe("TSConfig schema", () => {
   });
 
   describe("encoding", () => {
-    it.effect("encodes compact and pretty JSON output", () =>
-      Effect.gen(function* () {
+    it.effect(
+      "encodes compact and pretty JSON output",
+      Effect.fnUntraced(function* () {
         const input = {
           extends: "./tsconfig.base.json",
           include: ["src"],
@@ -330,8 +334,9 @@ describe("TSConfig schema", () => {
       })
     );
 
-    it.effect("preserves open JSON extras inside plugin and ts-node compiler option sections", () =>
-      Effect.gen(function* () {
+    it.effect(
+      "preserves open JSON extras inside plugin and ts-node compiler option sections",
+      Effect.fnUntraced(function* () {
         const encoded = yield* encodeTSConfigEffect({
           compilerOptions: {
             plugins: [

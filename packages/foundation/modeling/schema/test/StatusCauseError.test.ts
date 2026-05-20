@@ -22,7 +22,7 @@ describe("StatusCauseError", () => {
   });
 
   it("normalizes optional causes when constructing payloads", () => {
-    expect(statusCauseInput("boom", { status: 500 })).toEqual({
+    expect(statusCauseInput("boom", { status: 500, cause: undefined })).toEqual({
       message: "boom",
       status: 500,
       cause: O.none(),

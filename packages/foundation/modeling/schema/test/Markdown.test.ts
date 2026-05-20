@@ -32,8 +32,9 @@ const restoreGlobalBunMarkdownHtml = ({
   });
 
 describe("Markdown", () => {
-  it.effect("brands Markdown text accepted by the active parser", () =>
-    Effect.gen(function* () {
+  it.effect(
+    "brands Markdown text accepted by the active parser",
+    Effect.fnUntraced(function* () {
       const decodeMarkdown = S.decodeUnknownEffect(Markdown);
 
       expect(yield* decodeMarkdown("# Hello")).toBe("# Hello");
@@ -54,8 +55,9 @@ describe("Markdown", () => {
     }
   });
 
-  it.effect("maps parser output failures into SchemaIssue.InvalidValue", () =>
-    Effect.gen(function* () {
+  it.effect(
+    "maps parser output failures into SchemaIssue.InvalidValue",
+    Effect.fnUntraced(function* () {
       const result = yield* Effect.acquireUseRelease(
         replaceGlobalBunMarkdownHtml(() => 1),
         () => Effect.exit(S.decodeUnknownEffect(Markdown)("# Hello")),
@@ -71,8 +73,9 @@ describe("Markdown", () => {
     })
   );
 
-  it.effect("fails Markdown-to-HTML decoding when the Bun renderer is unavailable", () =>
-    Effect.gen(function* () {
+  it.effect(
+    "fails Markdown-to-HTML decoding when the Bun renderer is unavailable",
+    Effect.fnUntraced(function* () {
       const result = yield* Effect.acquireUseRelease(
         replaceGlobalBunMarkdownHtml(undefined),
         () => Effect.exit(S.decodeUnknownEffect(MarkdownTextToHtml())("# Hello")),
@@ -88,8 +91,9 @@ describe("Markdown", () => {
     })
   );
 
-  it.effect("maps renderer exceptions into markdown parse failures", () =>
-    Effect.gen(function* () {
+  it.effect(
+    "maps renderer exceptions into markdown parse failures",
+    Effect.fnUntraced(function* () {
       const errorResult = yield* Effect.acquireUseRelease(
         replaceGlobalBunMarkdownHtml(() => {
           throw new Error("renderer failed");
@@ -121,32 +125,36 @@ describe("Markdown", () => {
     })
   );
 
-  it.effect("renders Markdown text to HTML with raw HTML filtering by default", () =>
-    Effect.gen(function* () {
+  it.effect(
+    "renders Markdown text to HTML with raw HTML filtering by default",
+    Effect.fnUntraced(function* () {
       const html = yield* decodeMarkdownTextAs(S.String)("<script>x</script>");
 
       expect(html).toBe("&lt;script>x&lt;/script>\n");
     })
   );
 
-  it.effect("forwards Bun Markdown options through the schema factory", () =>
-    Effect.gen(function* () {
+  it.effect(
+    "forwards Bun Markdown options through the schema factory",
+    Effect.fnUntraced(function* () {
       const html = yield* decodeMarkdownTextAs(S.String, { tagFilter: false })("<script>x</script>");
 
       expect(html).toBe("<script>x</script>\n");
     })
   );
 
-  it.effect("decodes rendered HTML into a target string schema", () =>
-    Effect.gen(function* () {
+  it.effect(
+    "decodes rendered HTML into a target string schema",
+    Effect.fnUntraced(function* () {
       const rendered = yield* decodeMarkdownTextAs(S.NonEmptyString)("# Hello");
 
       expect(rendered).toBe("<h1>Hello</h1>\n");
     })
   );
 
-  it.effect("fails to encode HTML output back into Markdown text", () =>
-    Effect.gen(function* () {
+  it.effect(
+    "fails to encode HTML output back into Markdown text",
+    Effect.fnUntraced(function* () {
       const result = yield* Effect.exit(S.encodeEffect(MarkdownTextToHtml())("<h1>Hello</h1>\n"));
 
       expect(Exit.isFailure(result)).toBe(true);

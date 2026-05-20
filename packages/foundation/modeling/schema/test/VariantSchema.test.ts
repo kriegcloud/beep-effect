@@ -9,7 +9,7 @@ const { Class, Field, FieldExcept, FieldOnly, Struct, Union, extract, fieldEvolv
   defaultVariant: "select",
 });
 
-const variantTitle = (schema: S.Top): unknown => schema.ast.annotations.title;
+const variantTitle = (schema: S.Top): unknown => schema.ast.annotations?.title;
 
 const baseFields = {
   id: Field({

@@ -29,16 +29,16 @@ describe("@beep/ui hooks/useNumberInput", () => {
 
   describe("getStepFactor", () => {
     it("supports data-first usage", () => {
-      expect(getStepFactor({ shiftKey: true }, 2, 0)).toBe(20);
-      expect(getStepFactor({ ctrlKey: true }, 2, 2)).toBe(0.2);
+      expect(getStepFactor({ shiftKey: true }, 2, { precision: 0 })).toBe(20);
+      expect(getStepFactor({ ctrlKey: true }, 2, { precision: 2 })).toBe(0.2);
     });
 
     it("supports data-last usage", () => {
-      expect(pipe({ metaKey: true }, getStepFactor(5, 2))).toBe(0.5);
+      expect(pipe({ metaKey: true }, getStepFactor(5, { precision: 2 }))).toBe(0.5);
     });
 
     it("falls back to the base step when fine-grained scaling would be rounded away", () => {
-      expect(getStepFactor({ ctrlKey: true }, 0.001, 2)).toBe(0.001);
+      expect(getStepFactor({ ctrlKey: true }, 0.001, { precision: 2 })).toBe(0.001);
     });
   });
 

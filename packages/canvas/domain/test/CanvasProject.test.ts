@@ -15,8 +15,9 @@ const makeCanvasProject = (id: CanvasProject.CanvasProjectId) =>
   );
 
 describe("CanvasProject aggregate", () => {
-  it.effect("adds and removes bootstrap node metadata", () =>
-    Effect.gen(function* () {
+  it.effect(
+    "adds and removes bootstrap node metadata",
+    Effect.fnUntraced(function* () {
       const canvasProjectId = yield* decodeCanvasProjectId("canvas-project-1");
       const canvasNodeId = yield* decodeCanvasNodeId("node-1");
       const node = new CanvasProject.CanvasNode({
@@ -34,8 +35,9 @@ describe("CanvasProject aggregate", () => {
     })
   );
 
-  it.effect("rejects mutating an archived CanvasProject", () =>
-    Effect.gen(function* () {
+  it.effect(
+    "rejects mutating an archived CanvasProject",
+    Effect.fnUntraced(function* () {
       const canvasProjectId = yield* decodeCanvasProjectId("canvas-project-1");
       const canvasNodeId = yield* decodeCanvasNodeId("node-1");
       const archived = yield* CanvasProject.archive(makeCanvasProject(canvasProjectId));

@@ -37,8 +37,9 @@ const formInput = {
 } as const;
 
 describe("Organization UI contracts", () => {
-  it.effect("decodes browser-safe display payloads", () =>
-    Effect.gen(function* () {
+  it.effect(
+    "decodes browser-safe display payloads",
+    Effect.fnUntraced(function* () {
       const display = yield* decodeDisplay(displayInput);
 
       expect(display.id).toBe(1);
@@ -48,8 +49,9 @@ describe("Organization UI contracts", () => {
     })
   );
 
-  it.effect("decodes browser-safe form payloads with parent organizations", () =>
-    Effect.gen(function* () {
+  it.effect(
+    "decodes browser-safe form payloads with parent organizations",
+    Effect.fnUntraced(function* () {
       const form = yield* decodeForm({
         ...formInput,
         parentOrgId: 1,
@@ -60,8 +62,9 @@ describe("Organization UI contracts", () => {
     })
   );
 
-  it.effect("decodes null parent organization ids as None", () =>
-    Effect.gen(function* () {
+  it.effect(
+    "decodes null parent organization ids as None",
+    Effect.fnUntraced(function* () {
       const display = yield* decodeDisplay({
         ...displayInput,
         parentOrgId: null,
@@ -76,16 +79,18 @@ describe("Organization UI contracts", () => {
     })
   );
 
-  it.effect("derives the primary display label from the organization name", () =>
-    Effect.gen(function* () {
+  it.effect(
+    "derives the primary display label from the organization name",
+    Effect.fnUntraced(function* () {
       const display = yield* decodeDisplay(displayInput);
 
       expect(Organization.primaryLabel(display)).toBe("Acme");
     })
   );
 
-  it.effect("encodes nullish parent organization ids for browser payloads", () =>
-    Effect.gen(function* () {
+  it.effect(
+    "encodes nullish parent organization ids for browser payloads",
+    Effect.fnUntraced(function* () {
       const withoutParent = yield* decodeDisplay(displayInput);
       const withParent = yield* decodeDisplay({
         ...displayInput,
@@ -99,8 +104,9 @@ describe("Organization UI contracts", () => {
     })
   );
 
-  it.effect("rejects invalid browser-safe organization payload fields", () =>
-    Effect.gen(function* () {
+  it.effect(
+    "rejects invalid browser-safe organization payload fields",
+    Effect.fnUntraced(function* () {
       yield* expectFailure(
         decodeDisplay({
           ...displayInput,

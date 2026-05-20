@@ -46,6 +46,11 @@
   "exports": {
     "./package.json": "./package.json",
     ".": "./src/index.ts",
+    "./color": "./src/color/index.ts",
+    "./csv/parse": "./src/csv/parse/index.ts",
+    "./dom": "./src/dom/index.ts",
+    "./internal/markdown": "./src/internal/markdown.ts",
+    "./internal/yaml": "./src/internal/yaml.ts",
     "./*": "./src/*.ts",
     "./internal/*": null
   },
@@ -69,6 +74,9 @@
     "exports": {
       "./package.json": "./package.json",
       ".": "./dist/index.js",
+      "./color": "./dist/color/index.js",
+      "./csv/parse": "./dist/csv/parse/index.js",
+      "./dom": "./dist/dom/index.js",
       "./*": "./dist/*.js",
       "./internal/*": null
     }

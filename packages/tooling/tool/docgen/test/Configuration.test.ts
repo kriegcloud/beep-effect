@@ -158,8 +158,9 @@ describe("Configuration", () => {
   );
 
   layer(makeTestLayer({ projectHomepage: 1 }))((it) =>
-    it.effect("raises a typed error when docgen.json is invalid", () =>
-      Effect.gen(function* () {
+    it.effect(
+      "raises a typed error when docgen.json is invalid",
+      Effect.fnUntraced(function* () {
         const error = yield* Configuration.load(makeLoadArgs()).pipe(Effect.flip);
         expect(S.is(Domain.DocgenError)(error)).toBe(true);
         expect(Str.includes("[Configuration.readJsoncFile] Failed to decode")(error.message)).toBe(true);

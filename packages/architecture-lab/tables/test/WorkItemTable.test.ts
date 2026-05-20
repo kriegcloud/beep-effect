@@ -11,8 +11,9 @@ const decodeWorkItemId = S.decodeUnknownEffect(DomainWorkItem.WorkItemId);
 const decodeWorkerId = S.decodeUnknownEffect(DomainWorker.WorkerId);
 
 describe("WorkItem table", () => {
-  it.effect("projects the WorkItem aggregate into the architecture lab table", () =>
-    Effect.gen(function* () {
+  it.effect(
+    "projects the WorkItem aggregate into the architecture lab table",
+    Effect.fnUntraced(function* () {
       const workerId = yield* decodeWorkerId(1);
       const id = yield* decodeWorkItemId("work-item-1");
       const workItem = DomainWorkItem.create(
@@ -32,6 +33,8 @@ describe("WorkItem table", () => {
         O.getOrThrow(
           fromWorkItemRow({
             ...row,
+            assigneeId: workerId,
+            priority: WorkPriority.WorkPriority.Enum.high,
             createdAt: DateTime.toDateUtc(DateTime.makeUnsafe(0)),
             updatedAt: DateTime.toDateUtc(DateTime.makeUnsafe(0)),
           }).assignee

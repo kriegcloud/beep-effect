@@ -212,108 +212,85 @@ const csvTarget: SyncDataTarget = {
 describe("sync-data-to-ts", () => {
   it("writes the generated ISO 4217 module in write mode", () =>
     Effect.runPromise(
-      withTempRepoCommand(
-        provideIso4217Client(
-          Effect.gen(function* () {
-            yield* runSyncDataToTsCommand(["--target", "iso4217"]);
+      Effect.gen(function* () {
+        yield* runSyncDataToTsCommand(["--target", "iso4217"]);
 
-            const content = yield* readGeneratedFile;
-            const logs = yield* TestConsole.logLines;
+        const content = yield* readGeneratedFile;
+        const logs = yield* TestConsole.logLines;
 
-            expect(content).toContain(`export const CurrencyCodeDataPublished = "2026-01-01" as const;`);
-            expect(content).toContain(`code: "USD"`);
-            expect(content).toContain(`digits: 0`);
-            expect(content).toContain(`currency: "Zimbabwe Gold"`);
-            expect(content).toContain(`"American Samoa"`);
-            expect(content).toContain(`"United States Of America (The)"`);
-            expect(content).not.toContain("No universal currency");
-            expect(logs).toContain(
-              "sync-data-to-ts: updated iso4217 -> packages/foundation/primitive/data/src/generated/iso4217.ts (3 currency entries published 2026-01-01)"
-            );
-            expect(process.exitCode ?? 0).toBe(0);
-          })
-        )
-      )
+        expect(content).toContain(`export const CurrencyCodeDataPublished = "2026-01-01" as const;`);
+        expect(content).toContain(`code: "USD"`);
+        expect(content).toContain(`digits: 0`);
+        expect(content).toContain(`currency: "Zimbabwe Gold"`);
+        expect(content).toContain(`"American Samoa"`);
+        expect(content).toContain(`"United States Of America (The)"`);
+        expect(content).not.toContain("No universal currency");
+        expect(logs).toContain(
+          "sync-data-to-ts: updated iso4217 -> packages/foundation/primitive/data/src/generated/iso4217.ts (3 currency entries published 2026-01-01)"
+        );
+        expect(process.exitCode ?? 0).toBe(0);
+      }).pipe(provideIso4217Client, withTempRepoCommand)
     ));
 
   it("does not write files in dry-run mode", () =>
     Effect.runPromise(
-      withTempRepoCommand(
-        provideIso4217Client(
-          Effect.gen(function* () {
-            yield* runSyncDataToTsCommand(["--target", "iso4217", "--dry-run"]);
+      Effect.gen(function* () {
+        yield* runSyncDataToTsCommand(["--target", "iso4217", "--dry-run"]);
 
-            const exists = yield* generatedFileExists;
-            const logs = yield* TestConsole.logLines;
+        const exists = yield* generatedFileExists;
+        const logs = yield* TestConsole.logLines;
 
-            expect(exists).toBe(false);
-            expect(logs).toContain(
-              "sync-data-to-ts: would update iso4217 -> packages/foundation/primitive/data/src/generated/iso4217.ts (3 currency entries published 2026-01-01)"
-            );
-            expect(process.exitCode ?? 0).toBe(0);
-          })
-        )
-      )
+        expect(exists).toBe(false);
+        expect(logs).toContain(
+          "sync-data-to-ts: would update iso4217 -> packages/foundation/primitive/data/src/generated/iso4217.ts (3 currency entries published 2026-01-01)"
+        );
+        expect(process.exitCode ?? 0).toBe(0);
+      }).pipe(provideIso4217Client, withTempRepoCommand)
     ));
 
   it("fails check mode on drift without modifying the file", () =>
     Effect.runPromise(
-      withTempRepoCommand(
-        provideIso4217Client(
-          Effect.gen(function* () {
-            yield* writeGeneratedFile("stale-content\n");
+      Effect.gen(function* () {
+        yield* writeGeneratedFile("stale-content\n");
 
-            yield* runSyncDataToTsCommand(["--target", "iso4217", "--check"]);
+        yield* runSyncDataToTsCommand(["--target", "iso4217", "--check"]);
 
-            const content = yield* readGeneratedFile;
-            const errors = yield* TestConsole.errorLines;
+        const content = yield* readGeneratedFile;
+        const errors = yield* TestConsole.errorLines;
 
-            expect(content).toBe("stale-content\n");
-            expect(errors).toContain(
-              'sync-data-to-ts: Detected drift in 1 target(s): iso4217. Run "bun run beep sync-data-to-ts --all" to refresh generated files.'
-            );
-            expect(process.exitCode).toBe(1);
-          })
-        )
-      )
+        expect(content).toBe("stale-content\n");
+        expect(errors).toContain(
+          'sync-data-to-ts: Detected drift in 1 target(s): iso4217. Run "bun run beep sync-data-to-ts --all" to refresh generated files.'
+        );
+        expect(process.exitCode).toBe(1);
+      }).pipe(provideIso4217Client, withTempRepoCommand)
     ));
 
   it("becomes a no-op when the generated file is already current", () =>
     Effect.runPromise(
-      withTempRepoCommand(
-        provideIso4217Client(
-          Effect.gen(function* () {
-            yield* runSyncDataToTsCommand(["--target", "iso4217"]);
-            yield* runSyncDataToTsCommand(["--target", "iso4217"]);
+      Effect.gen(function* () {
+        yield* runSyncDataToTsCommand(["--target", "iso4217"]);
+        yield* runSyncDataToTsCommand(["--target", "iso4217"]);
 
-            const logs = yield* TestConsole.logLines;
+        const logs = yield* TestConsole.logLines;
 
-            expect(logs).toContain("sync-data-to-ts: wrote 0 of 1 target(s)");
-            expect(process.exitCode ?? 0).toBe(0);
-          })
-        )
-      )
+        expect(logs).toContain("sync-data-to-ts: wrote 0 of 1 target(s)");
+        expect(process.exitCode ?? 0).toBe(0);
+      }).pipe(provideIso4217Client, withTempRepoCommand)
     ));
 
   it("parses CSV targets with the canonical @beep/schema CSV implementation", () =>
     Effect.runPromise(
-      withRegisteredTarget(
-        csvTarget,
-        withTempRepoCommand(
-          provideCsvFixtureClient(
-            Effect.gen(function* () {
-              yield* runSyncDataToTsCommand(["--target", "test-csv"]);
+      Effect.gen(function* () {
+        yield* runSyncDataToTsCommand(["--target", "test-csv"]);
 
-              const content = yield* readOutputFile(csvGeneratedOutputPath);
+        const content = yield* readOutputFile(csvGeneratedOutputPath);
 
-              expect(content).toContain(`"columns":["code","name","notes"]`);
-              expect(content).toContain(`"code":"USD"`);
-              expect(content).toContain(`"notes":"Used in, multiple countries"`);
-              expect(content).toContain(`"notes":"Line 1\\nLine 2"`);
-              expect(process.exitCode ?? 0).toBe(0);
-            })
-          )
-        )
-      )
+        expect(content).toContain(`"columns":["code","name","notes"]`);
+        expect(content).toContain(`"code":"USD"`);
+        expect(content).toContain(`"notes":"Used in, multiple countries"`);
+        expect(content).toContain(`"notes":"Line 1\\nLine 2"`);
+        expect(process.exitCode ?? 0).toBe(0);
+      }).pipe(provideCsvFixtureClient, withTempRepoCommand, (effect) => withRegisteredTarget(csvTarget, effect))
     ));
 });

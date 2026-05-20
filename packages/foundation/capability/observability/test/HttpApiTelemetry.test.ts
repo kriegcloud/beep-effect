@@ -6,7 +6,7 @@ import {
   observeHttpApiEffect,
   observeHttpApiHandler,
 } from "@beep/observability/server";
-import { Context, Effect, Metric } from "effect";
+import { Effect, Metric } from "effect";
 import * as S from "effect/Schema";
 import * as HttpServerResponse from "effect/unstable/http/HttpServerResponse";
 import { HttpApiEndpoint, HttpApiGroup, HttpApiSchema } from "effect/unstable/httpapi";
@@ -66,15 +66,14 @@ describe("HttpApiTelemetry", () => {
         });
         const descriptor = makeHttpApiTelemetryDescriptor("test-api", HttpApiGroup.make("system"), endpoint);
 
-        const response = yield* observeHttpApiEffect(
+        const response = yield* observeHttpApiEffect(Effect.succeed(HttpServerResponse.text("ok", { status: 202 })), {
           descriptor,
           endpoint,
-          {
+          metrics: {
             requestsTotal,
             requestDuration,
           },
-          Effect.succeed(HttpServerResponse.text("ok", { status: 202 }))
-        );
+        });
 
         expect(response.status).toBe(202);
 
@@ -91,15 +90,17 @@ describe("HttpApiTelemetry", () => {
 
         const failureExit = yield* Effect.exit(
           observeHttpApiEffect(
-            descriptor,
-            endpoint,
-            {
-              requestsTotal,
-              requestDuration,
-            },
             Effect.fail({
               message: "backend unavailable",
-            })
+            }),
+            {
+              descriptor,
+              endpoint,
+              metrics: {
+                requestsTotal,
+                requestDuration,
+              },
+            }
           )
         );
 
@@ -114,6 +115,6 @@ describe("HttpApiTelemetry", () => {
         );
 
         expect(failureState.count).toBe(1);
-      }).pipe(Effect.provide(Context.empty() as Context.Context<unknown>))
+      })
     ));
 });

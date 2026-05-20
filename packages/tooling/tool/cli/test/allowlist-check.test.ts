@@ -24,21 +24,19 @@ const withTempRepo = <A, E>(use: (tmpDir: string) => Effect.Effect<A, E, FileSys
     ({ fs, tmpDir }) => fs.remove(tmpDir, { recursive: true })
   );
 
-const writeRepoFile: (
+const writeRepoFile = Effect.fn("AllowlistCheckTest.writeRepoFile")(function* (
   repoRoot: string,
   relativePath: string,
   content: string
-) => Effect.Effect<void, unknown, FileSystem.FileSystem | Path.Path> = Effect.fn(
-  function* (repoRoot, relativePath, content) {
-    const fs = yield* FileSystem.FileSystem;
-    const path = yield* Path.Path;
-    const absolutePath = path.join(repoRoot, relativePath);
-    const directoryPath = path.dirname(absolutePath);
+): Effect.fn.Return<void, never, FileSystem.FileSystem | Path.Path> {
+  const fs = yield* FileSystem.FileSystem;
+  const path = yield* Path.Path;
+  const absolutePath = path.join(repoRoot, relativePath);
+  const directoryPath = path.dirname(absolutePath);
 
-    yield* fs.makeDirectory(directoryPath, { recursive: true });
-    yield* fs.writeFileString(absolutePath, content);
-  }
-);
+  yield* fs.makeDirectory(directoryPath, { recursive: true }).pipe(Effect.orDie);
+  yield* fs.writeFileString(absolutePath, content).pipe(Effect.orDie);
+});
 
 describe("allowlist-check", () => {
   it("passes when all referenced files exist", () =>
@@ -83,7 +81,7 @@ describe("allowlist-check", () => {
           expect(summary.ok).toBe(true);
           expect(summary.diagnostics).toEqual([]);
         })
-      ).pipe(provideScopedLayer(testLayer))
+      ).pipe(provideScopedLayer(testLayer), Effect.orDie)
     ));
 
   it("fails when an allowlist entry points at a missing file", () =>
@@ -125,7 +123,7 @@ describe("allowlist-check", () => {
             "entries.0.file: Referenced file does not exist: packages/demo/src/missing.ts",
           ]);
         })
-      ).pipe(provideScopedLayer(testLayer))
+      ).pipe(provideScopedLayer(testLayer), Effect.orDie)
     ));
 
   it("resolves allowlist paths from the repository root when started in a subdirectory", () =>
@@ -173,6 +171,6 @@ describe("allowlist-check", () => {
           expect(summary.ok).toBe(true);
           expect(summary.diagnostics).toEqual([]);
         })
-      ).pipe(provideScopedLayer(testLayer))
+      ).pipe(provideScopedLayer(testLayer), Effect.orDie)
     ));
 });

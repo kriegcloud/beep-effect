@@ -98,6 +98,7 @@ class OpenApiSpec extends S.Class<OpenApiSpec>($TestI`OpenApiSpec`)(
 
 const decodeOpenApiSpec = S.decodeUnknownEffect(OpenApiSpec);
 const decodeOpenApiOperation = S.decodeUnknownEffect(OpenApiOperation);
+
 class PromptBody extends S.Class<PromptBody>($TestI`PromptBody`)(
   {
     model: S.String,
@@ -119,7 +120,11 @@ const descriptorIds = () => sortStrings(A.map(VENICE_AI_OPERATION_DESCRIPTORS, (
 const readSwagger = Effect.gen(function* () {
   const raw = yield* Effect.tryPromise({
     try: () => Bun.file(swaggerFile).text(),
-    catch: () => new VeniceAIError({ path: "swagger.yaml", reason: "request encoding" }),
+    catch: () =>
+      new VeniceAIError({
+        path: "swagger.yaml",
+        reason: "request encoding",
+      }),
   });
   return yield* decodeOpenApiSpec(parseYaml(raw));
 });
@@ -157,7 +162,11 @@ const swaggerDescriptors = Effect.gen(function* () {
         operations,
         R.toEntries,
         A.filter(([method]) => isHttpMethod(method)),
-        A.map(([method, operation]) => ({ method, operation, path }))
+        A.map(([method, operation]) => ({
+          method,
+          operation,
+          path,
+        }))
       )
     ),
     A.sortWith((operation) => `${operation.path}:${operation.method}`, Order.String)
@@ -165,37 +174,37 @@ const swaggerDescriptors = Effect.gen(function* () {
 
   const descriptors = yield* Effect.forEach(
     rawOperations,
-    ({ method, operation, path }) =>
-      Effect.gen(function* () {
-        const decoded = yield* decodeOpenApiOperation(operation);
 
-        return {
-          method: Str.toUpperCase(method),
-          operationId: decoded.operationId ?? (path === "/image/styles" ? "listImageStyles" : ""),
-          path,
-          authenticated: pipe(
-            O.fromUndefinedOr(decoded.security),
-            O.map(A.isReadonlyArrayEmpty),
-            O.map((isEmpty) => !isEmpty),
-            O.getOrElse(thunkTrue)
+    Effect.fnUntraced(function* ({ method, operation, path }) {
+      const decoded = yield* decodeOpenApiOperation(operation);
+
+      return {
+        method: Str.toUpperCase(method),
+        operationId: decoded.operationId ?? (path === "/image/styles" ? "listImageStyles" : ""),
+        path,
+        authenticated: pipe(
+          O.fromUndefinedOr(decoded.security),
+          O.map(A.isReadonlyArrayEmpty),
+          O.map((isEmpty) => !isEmpty),
+          O.getOrElse(thunkTrue)
+        ),
+        requestContentTypes: pipe(
+          O.fromUndefinedOr(decoded.requestBody),
+          O.map((requestBody) => R.keys(requestBody.content)),
+          O.getOrElse(A.empty<string>)
+        ),
+        responseContentTypes: pipe(
+          decoded.responses,
+          R.toEntries,
+          A.flatMap(([, response]) =>
+            pipe(O.fromUndefinedOr(response.content), O.map(R.keys), O.getOrElse(A.empty<string>))
           ),
-          requestContentTypes: pipe(
-            O.fromUndefinedOr(decoded.requestBody),
-            O.map((requestBody) => R.keys(requestBody.content)),
-            O.getOrElse(A.empty<string>)
-          ),
-          responseContentTypes: pipe(
-            decoded.responses,
-            R.toEntries,
-            A.flatMap(([, response]) =>
-              pipe(O.fromUndefinedOr(response.content), O.map(R.keys), O.getOrElse(A.empty<string>))
-            ),
-            A.dedupe,
-            sortStrings
-          ),
-          tag: pipe(O.fromUndefinedOr(decoded.tags), O.flatMap(A.get(0)), O.getOrElse(thunkEmptyStr)),
-        };
-      }),
+          A.dedupe,
+          sortStrings
+        ),
+        tag: pipe(O.fromUndefinedOr(decoded.tags), O.flatMap(A.get(0)), O.getOrElse(thunkEmptyStr)),
+      };
+    }),
     { concurrency: 1 }
   );
 
@@ -304,7 +313,10 @@ const TestHttpClientLayer = Layer.effect(
 );
 
 const makeVeniceAIUnitLayer = (
-  config = new VeniceAIConfigInput({ apiKey: Redacted.make("test-key"), baseUrl: VENICE_API_URL })
+  config = new VeniceAIConfigInput({
+    apiKey: Redacted.make("test-key"),
+    baseUrl: VENICE_API_URL,
+  })
 ) => VeniceAI.makeLayer(config).pipe(Layer.provide(TestHttpClientLayer), Layer.provideMerge(VeniceAITestHttpLayer));
 
 const makeVeniceAIChatUnitLayer = () => VeniceAiChat.makeLayer.pipe(Layer.provideMerge(makeVeniceAIUnitLayer()));
@@ -333,7 +345,12 @@ const requestFor = (descriptor: (typeof VENICE_AI_OPERATION_DESCRIPTORS)[number]
   return new VeniceAIRequestOptions({
     ...R.getSomes({
       body: pipe(descriptor.requestContentTypes, A.contains("application/json"), (hasJson) =>
-        hasJson ? O.some({ model: "venice-uncensored-1-2", prompt: "hello" }) : O.none()
+        hasJson
+          ? O.some({
+              model: "venice-uncensored-1-2",
+              prompt: "hello",
+            })
+          : O.none()
       ),
     }),
     ...R.getSomes({
@@ -350,8 +367,9 @@ const requestFor = (descriptor: (typeof VENICE_AI_OPERATION_DESCRIPTORS)[number]
 
 describe("@beep/venice-ai", () => {
   layer(makeVeniceAIUnitLayer())((it) =>
-    it.effect("keeps the operation registry and service surface aligned with swagger.yaml", () =>
-      Effect.gen(function* () {
+    it.effect(
+      "keeps the operation registry and service surface aligned with swagger.yaml",
+      Effect.fnUntraced(function* () {
         const testHttp = yield* VeniceAITestHttp;
         yield* testHttp.reset;
 
@@ -374,8 +392,9 @@ describe("@beep/venice-ai", () => {
   );
 
   layer(makeVeniceAIUnitLayer())((it) =>
-    it.effect("keeps descriptor metadata aligned with swagger.yaml", () =>
-      Effect.gen(function* () {
+    it.effect(
+      "keeps descriptor metadata aligned with swagger.yaml",
+      Effect.fnUntraced(function* () {
         const fromSwagger = yield* swaggerDescriptors;
         const fromRegistry = pipe(
           VENICE_AI_OPERATION_DESCRIPTORS,
@@ -397,8 +416,9 @@ describe("@beep/venice-ai", () => {
   );
 
   layer(makeVeniceAIUnitLayer())((it) =>
-    it.effect("sends every operation with the expected method, path, auth, query, and body mode", () =>
-      Effect.gen(function* () {
+    it.effect(
+      "sends every operation with the expected method, path, auth, query, and body mode",
+      Effect.fnUntraced(function* () {
         const testHttp = yield* VeniceAITestHttp;
         yield* testHttp.reset;
 
@@ -407,7 +427,10 @@ describe("@beep/venice-ai", () => {
         yield* Effect.forEach(
           VENICE_AI_OPERATION_DESCRIPTORS,
           (descriptor) => venice[descriptor.operationId](requestFor(descriptor)),
-          { concurrency: 1, discard: true }
+          {
+            concurrency: 1,
+            discard: true,
+          }
         );
 
         const captures = yield* testHttp.captures;
@@ -438,15 +461,19 @@ describe("@beep/venice-ai", () => {
                 expect(capture?.bodyTag).toBe("Empty");
               }
             }),
-          { concurrency: 1, discard: true }
+          {
+            concurrency: 1,
+            discard: true,
+          }
         );
       })
     )
   );
 
   layer(makeVeniceAIUnitLayer())((it) =>
-    it.effect("honors request options for headers, accept, path encoding, JSON bodies, and missing path params", () =>
-      Effect.gen(function* () {
+    it.effect(
+      "honors request options for headers, accept, path encoding, JSON bodies, and missing path params",
+      Effect.fnUntraced(function* () {
         const testHttp = yield* VeniceAITestHttp;
         const venice = yield* VeniceAI;
 
@@ -526,11 +553,15 @@ describe("@beep/venice-ai", () => {
 
   layer(
     makeVeniceAIUnitLayer(
-      new VeniceAIConfigInput({ apiKey: Redacted.make("test-key"), baseUrl: "https://example.test/api/v1///" })
+      new VeniceAIConfigInput({
+        apiKey: Redacted.make("test-key"),
+        baseUrl: "https://example.test/api/v1///",
+      })
     )
   )((it) =>
-    it.effect("normalizes custom base URLs", () =>
-      Effect.gen(function* () {
+    it.effect(
+      "normalizes custom base URLs",
+      Effect.fnUntraced(function* () {
         const testHttp = yield* VeniceAITestHttp;
         yield* testHttp.reset;
 
@@ -548,8 +579,9 @@ describe("@beep/venice-ai", () => {
   );
 
   layer(makeVeniceAIUnitLayer())((it) =>
-    it.effect("decodes JSON, text, and binary success responses", () =>
-      Effect.gen(function* () {
+    it.effect(
+      "decodes JSON, text, and binary success responses",
+      Effect.fnUntraced(function* () {
         const testHttp = yield* VeniceAITestHttp;
         const venice = yield* VeniceAI;
 
@@ -591,8 +623,9 @@ describe("@beep/venice-ai", () => {
   );
 
   layer(makeVeniceAIUnitLayer())((it) =>
-    it.effect("maps response status, malformed JSON, multipart, transport, and SSE failures", () =>
-      Effect.gen(function* () {
+    it.effect(
+      "maps response status, malformed JSON, multipart, transport, and SSE failures",
+      Effect.fnUntraced(function* () {
         const testHttp = yield* VeniceAITestHttp;
         const venice = yield* VeniceAI;
 
@@ -711,8 +744,9 @@ describe("@beep/venice-ai", () => {
   );
 
   layer(makeVeniceAIUnitLayer())((it) =>
-    it.effect("maps language-model transport failures to retryable network errors", () =>
-      Effect.gen(function* () {
+    it.effect(
+      "maps language-model transport failures to retryable network errors",
+      Effect.fnUntraced(function* () {
         const testHttp = yield* VeniceAITestHttp;
         yield* testHttp.reset;
         yield* testHttp.respondWith((request) =>
@@ -741,8 +775,9 @@ describe("@beep/venice-ai", () => {
   );
 
   layer(makeVeniceAIUnitLayer())((it) =>
-    it.effect("parses SSE streams for chat completions and responses", () =>
-      Effect.gen(function* () {
+    it.effect(
+      "parses SSE streams for chat completions and responses",
+      Effect.fnUntraced(function* () {
         const testHttp = yield* VeniceAITestHttp;
         yield* testHttp.reset;
         yield* testHttp.respondWith(() =>
@@ -782,8 +817,9 @@ describe("@beep/venice-ai", () => {
   );
 
   layer(makeVeniceAIUnitLayer())((it) =>
-    it.effect("emits SSE events before the response body closes", () =>
-      Effect.gen(function* () {
+    it.effect(
+      "emits SSE events before the response body closes",
+      Effect.fnUntraced(function* () {
         const testHttp = yield* VeniceAITestHttp;
         yield* testHttp.reset;
         yield* testHttp.respondWith(() =>
@@ -816,8 +852,9 @@ describe("@beep/venice-ai", () => {
   );
 
   layer(makeVeniceAIChatUnitLayer())((it) =>
-    it.effect("delegates the compatibility chat service through VeniceAI", () =>
-      Effect.gen(function* () {
+    it.effect(
+      "delegates the compatibility chat service through VeniceAI",
+      Effect.fnUntraced(function* () {
         const testHttp = yield* VeniceAITestHttp;
         const chat = yield* VeniceAiChat;
 

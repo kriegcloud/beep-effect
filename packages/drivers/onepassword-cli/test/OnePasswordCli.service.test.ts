@@ -3,7 +3,7 @@ import { describe, expect, layer } from "@effect/vitest";
 import { Effect, Redacted } from "effect";
 import * as A from "effect/Array";
 
-const successRunner = (command: string, args: ReadonlyArray<string>) =>
+const successRunner = (_command: string, args: ReadonlyArray<string>) =>
   Effect.succeed(
     new OnePasswordCliProcessResult({
       exitCode: 0,
@@ -12,7 +12,7 @@ const successRunner = (command: string, args: ReadonlyArray<string>) =>
     })
   );
 
-const missingRunner = (command: string, args: ReadonlyArray<string>) =>
+const missingRunner = (_command: string, _args: ReadonlyArray<string>) =>
   Effect.succeed(
     new OnePasswordCliProcessResult({
       exitCode: 1,
@@ -23,8 +23,9 @@ const missingRunner = (command: string, args: ReadonlyArray<string>) =>
 
 describe("@beep/onepassword-cli", () => {
   layer(OnePasswordCli.makeLayerFromRunner(successRunner))((it) => {
-    it.effect("probes signed-in state and reference metadata without exposing the secret", () =>
-      Effect.gen(function* () {
+    it.effect(
+      "probes signed-in state and reference metadata without exposing the secret",
+      Effect.fnUntraced(function* () {
         const onePassword = yield* OnePasswordCli;
 
         const account = yield* onePassword.whoami();
@@ -41,8 +42,9 @@ describe("@beep/onepassword-cli", () => {
   });
 
   layer(OnePasswordCli.makeLayerFromRunner(missingRunner))((it) => {
-    it.effect("returns typed driver errors for unresolved references", () =>
-      Effect.gen(function* () {
+    it.effect(
+      "returns typed driver errors for unresolved references",
+      Effect.fnUntraced(function* () {
         const onePassword = yield* OnePasswordCli;
         const result = yield* onePassword.probeReference("op://Private/Missing/token").pipe(Effect.flip);
 

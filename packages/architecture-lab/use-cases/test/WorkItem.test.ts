@@ -23,18 +23,27 @@ const makeRepository = (workItemId: DomainWorkItem.WorkItemId): WorkItemServer.W
             current = workItem;
             return workItem;
           })
-        : Effect.fail(new WorkItemServer.WorkItem.WorkItemRepositoryNotFound({ workItemId: workItem.id })),
+        : Effect.fail(
+            new WorkItemServer.WorkItem.WorkItemRepositoryNotFound({
+              workItemId: workItem.id,
+            })
+          ),
     get: (id) =>
       id === current.id
         ? Effect.succeed(current)
-        : Effect.fail(new WorkItemServer.WorkItem.WorkItemRepositoryNotFound({ workItemId: id })),
+        : Effect.fail(
+            new WorkItemServer.WorkItem.WorkItemRepositoryNotFound({
+              workItemId: id,
+            })
+          ),
     list: () => Effect.succeed([current]),
   };
 };
 
 describe("WorkItem use-cases", () => {
-  it.effect("redacts repository unavailable details at the public action boundary", () =>
-    Effect.gen(function* () {
+  it.effect(
+    "redacts repository unavailable details at the public action boundary",
+    Effect.fnUntraced(function* () {
       const workItemId = yield* decodeWorkItemId("work-item-1");
       const useCases = WorkItemServer.WorkItem.makeWorkItemUseCases({
         create: () =>
@@ -73,12 +82,16 @@ describe("WorkItem use-cases", () => {
         .pipe(Effect.flip);
 
       expect(error._tag).toBe("WorkItemActionFailed");
+      if (error._tag !== "WorkItemActionFailed") {
+        return;
+      }
       expect(error.reason).toBe(WorkItem.WORK_ITEM_ACTION_UNAVAILABLE_REASON);
     })
   );
 
-  it.effect("translates repository not-found failures to public failures", () =>
-    Effect.gen(function* () {
+  it.effect(
+    "translates repository not-found failures to public failures",
+    Effect.fnUntraced(function* () {
       const workItemId = yield* decodeWorkItemId("work-item-1");
       const missingWorkItemId = yield* decodeWorkItemId("missing");
       const useCases = WorkItemServer.WorkItem.makeWorkItemUseCases(makeRepository(workItemId));
@@ -94,8 +107,9 @@ describe("WorkItem use-cases", () => {
     })
   );
 
-  it.effect("keeps archive terminal at the use-case boundary", () =>
-    Effect.gen(function* () {
+  it.effect(
+    "keeps archive terminal at the use-case boundary",
+    Effect.fnUntraced(function* () {
       const workItemId = yield* decodeWorkItemId("work-item-1");
       const useCases = WorkItemServer.WorkItem.makeWorkItemUseCases(makeRepository(workItemId));
       yield* useCases.archive(new WorkItem.ArchiveWorkItemCommand({ id: workItemId }));

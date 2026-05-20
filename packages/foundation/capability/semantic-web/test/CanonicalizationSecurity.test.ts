@@ -36,8 +36,8 @@ const dataset = makeDataset([
   }),
 ]);
 
-const runCanonicalization = <A>(effect: Effect.Effect<A, unknown, CanonicalizationService>) =>
-  Effect.runPromise(effect.pipe(provideScopedLayer(CanonicalizationServiceLive)));
+const runCanonicalization = <A, E>(effect: Effect.Effect<A, E, CanonicalizationService>) =>
+  Effect.runPromise(effect.pipe(provideScopedLayer(CanonicalizationServiceLive), Effect.orDie));
 
 const expectSemanticBudgetFailure = (error: Error) => {
   canonizeMock.mockRejectedValueOnce(error);

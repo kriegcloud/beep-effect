@@ -14,8 +14,9 @@ const provideScopedLayer =
 const decodeWorkItemId = S.decodeUnknownEffect(DomainWorkItem.WorkItemId);
 
 describe("WorkItem server", () => {
-  it.effect("redacts unavailable details from HTTP failure bodies", () =>
-    Effect.gen(function* () {
+  it.effect(
+    "redacts unavailable details from HTTP failure bodies",
+    Effect.fnUntraced(function* () {
       const id = yield* decodeWorkItemId("work-item-1");
       const unavailable = new WorkItemUseCases.WorkItemActionFailed({
         reason: "select WorkItem failed against architecture_lab_work_item",
@@ -41,8 +42,9 @@ describe("WorkItem server", () => {
     })
   );
 
-  it.effect("provides a configured WorkItem use-case facade", () =>
-    Effect.gen(function* () {
+  it.effect(
+    "provides a configured WorkItem use-case facade",
+    Effect.fnUntraced(function* () {
       const server = yield* WorkItemServer;
       const id = yield* decodeWorkItemId("work-item-1");
       const workItem = yield* server.create(
@@ -54,6 +56,6 @@ describe("WorkItem server", () => {
 
       expect(workItem.status).toBe("open");
       expect(O.isNone(workItem.assignee)).toBe(true);
-    }).pipe(provideScopedLayer(ArchitectureLabServerTest))
+    }, provideScopedLayer(ArchitectureLabServerTest))
   );
 });

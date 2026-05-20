@@ -65,7 +65,7 @@ describe("Core models", () => {
     const tokens = [makeToken(0, "Ada", 0, 3), makeToken(1, "Loves", 3, 8), makeToken(2, "Code", 8, 12)];
     const sentence = makeSentence(0, "AdaLovesCode", tokens);
     const document = makeDocument("AdaLovesCode", tokens, [sentence]);
-    const overlappingTokens: Chunk.Chunk<Token> = Document.getTokensInRange(document, 2, 4);
+    const overlappingTokens: Chunk.Chunk<Token> = Document.getTokensInRange(document, 2, { end: 4 });
 
     const overlapping = pipe(
       overlappingTokens,
@@ -80,7 +80,7 @@ describe("Core models", () => {
     const grace = makeToken(2, "Grace", 10, 15);
     const debugged = makeToken(3, "debugged", 16, 24);
     const sentence = makeSentence(1, "Grace debugged", [grace, debugged]);
-    const rangedTokens: Chunk.Chunk<Token> = Sentence.getTokensInRange(sentence, 2, 3);
+    const rangedTokens: Chunk.Chunk<Token> = Sentence.getTokensInRange(sentence, 2, { end: 3 });
 
     const inRange = pipe(
       rangedTokens,

@@ -4,8 +4,9 @@ import { Effect, Exit } from "effect";
 import type { NextConfig as NextConfigFromNext } from "next";
 
 describe("NextConfig", () => {
-  it.effect("decodes user-authored config without invoking function-valued fields", () =>
-    Effect.gen(function* () {
+  it.effect(
+    "decodes user-authored config without invoking function-valued fields",
+    Effect.fnUntraced(function* () {
       let headersCalled = false;
       const headers: NonNullable<NextConfigFromNext["headers"]> = () => {
         headersCalled = true;
@@ -39,8 +40,9 @@ describe("NextConfig", () => {
     })
   );
 
-  it.effect("strips unknown and internal-only Next.js fields", () =>
-    Effect.gen(function* () {
+  it.effect(
+    "strips unknown and internal-only Next.js fields",
+    Effect.fnUntraced(function* () {
       const decoded = yield* decodeNextConfig({
         reactStrictMode: true,
         configFile: "next.config.ts",
@@ -62,8 +64,9 @@ describe("NextConfig", () => {
     })
   );
 
-  it.effect("rejects invalid literal values and documented numeric constraints", () =>
-    Effect.gen(function* () {
+  it.effect(
+    "rejects invalid literal values and documented numeric constraints",
+    Effect.fnUntraced(function* () {
       const invalidCrossOrigin = yield* Effect.exit(decodeNextConfig({ crossOrigin: "credentialed" }));
       const invalidStaleTimes = yield* Effect.exit(
         decodeNextConfig({

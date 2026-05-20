@@ -1,8 +1,8 @@
-import { createPackageCommand } from "@beep/repo-cli/commands/CreatePackage";
+import { createPackageCommand } from "@beep/repo-cli/commands/CreatePackage/index";
 import { FsUtilsLive, TSMorphServiceLive } from "@beep/repo-utils";
 import { A, Str } from "@beep/utils";
 import { NodeServices } from "@effect/platform-node";
-import { Context, Effect, FileSystem, Layer, Path } from "effect";
+import { Effect, FileSystem, Layer, Path } from "effect";
 import * as S from "effect/Schema";
 import { Command } from "effect/unstable/cli";
 import * as jsonc from "jsonc-parser";
@@ -115,7 +115,7 @@ const withTempRepoCommand = <A, E, R>(use: Effect.Effect<A, E, R>) =>
         process.chdir(TestFileCwd);
         yield* fs.remove(tmpDir, { recursive: true, force: true });
       })
-  ).pipe(provideScopedLayer(CommandTestLayer), Effect.provide(Context.empty() as Context.Context<unknown>));
+  ).pipe(provideScopedLayer(CommandTestLayer), Effect.orDie);
 
 const writeTextFile = Effect.fn(function* (filePath: string, content: string) {
   const fs = yield* FileSystem.FileSystem;

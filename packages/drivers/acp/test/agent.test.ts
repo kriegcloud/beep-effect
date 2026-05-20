@@ -24,8 +24,9 @@ const decodeRequestPermissionRequest = Schema.decodeEffect(Schema.fromJsonString
 const decodeInitializeResponse = Schema.decodeEffect(Schema.fromJsonString(InitializeResponse));
 const decodeExtRequest = Schema.decodeEffect(Schema.fromJsonString(ExtRequest));
 
-it.effect("effect-acp agent handles core agent requests and outbound client requests", () =>
-  Effect.gen(function* () {
+it.effect(
+  "effect-acp agent handles core agent requests and outbound client requests",
+  Effect.fnUntraced(function* () {
     const { stdio, input, output } = yield* makeInMemoryStdio();
     const cancelNotifications = yield* Ref.make<Array<string>>([]);
     const extNotifications = yield* Ref.make<Array<number>>([]);
@@ -161,8 +162,9 @@ it.effect("effect-acp agent handles core agent requests and outbound client requ
   })
 );
 
-it.effect("effect-acp agent uses distinct ids for RPC calls and extension requests", () =>
-  Effect.gen(function* () {
+it.effect(
+  "effect-acp agent uses distinct ids for RPC calls and extension requests",
+  Effect.fnUntraced(function* () {
     const { stdio, input, output } = yield* makeInMemoryStdio();
     const scope = yield* Scope.make();
     const context = yield* Layer.buildWithScope(AcpAgent.layer(stdio), scope);

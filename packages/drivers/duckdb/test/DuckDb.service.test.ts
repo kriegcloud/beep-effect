@@ -57,9 +57,9 @@ describe("@beep/duckdb", () => {
 
   it.effect(
     "runs statements, queries rows, and exports parquet",
-    Effect.fn(function* () {
+    Effect.fnUntraced(function* () {
       yield* withTempDirectory(
-        Effect.fn(function* (tmpDir) {
+        Effect.fnUntraced(function* (tmpDir) {
           const path = yield* Path.Path;
           const fs = yield* FileSystem.FileSystem;
           const databasePath = path.join(tmpDir, "metrics.duckdb");
@@ -69,7 +69,7 @@ describe("@beep/duckdb", () => {
           yield* Effect.gen(function* () {
             const duckdb = yield* DuckDb;
             yield* duckdb.withTransaction(
-              Effect.fn(function* (transaction) {
+              Effect.fnUntraced(function* (transaction) {
                 yield* transaction.run("CREATE TABLE events (id VARCHAR, value INTEGER)");
                 yield* transaction.run("INSERT INTO events VALUES ($id, $value)", { id: "run-1", value: 42 });
               })
@@ -93,7 +93,7 @@ describe("@beep/duckdb", () => {
 
   it.effect(
     "preserves in-memory state across client operations",
-    Effect.fn(function* () {
+    Effect.fnUntraced(function* () {
       yield* Effect.gen(function* () {
         const duckdb = yield* DuckDb;
         yield* duckdb.run("CREATE TABLE memory_events (id VARCHAR, value INTEGER)");
@@ -107,9 +107,9 @@ describe("@beep/duckdb", () => {
 
   it.effect(
     "rolls back failed nested transactions on the same connection",
-    Effect.fn(function* () {
+    Effect.fnUntraced(function* () {
       yield* withTempDirectory(
-        Effect.fn(function* (tmpDir) {
+        Effect.fnUntraced(function* (tmpDir) {
           const path = yield* Path.Path;
           const databasePath = path.join(tmpDir, "metrics.duckdb");
 
@@ -119,7 +119,7 @@ describe("@beep/duckdb", () => {
 
             const exit = yield* Effect.exit(
               duckdb.withTransaction(
-                Effect.fn(function* (transaction) {
+                Effect.fnUntraced(function* (transaction) {
                   yield* transaction.run("INSERT INTO tx_events VALUES ('outer')");
                   yield* transaction.withTransaction((nested) => nested.run("INSERT INTO tx_events VALUES ('inner')"));
                   return yield* new DuckDbError({

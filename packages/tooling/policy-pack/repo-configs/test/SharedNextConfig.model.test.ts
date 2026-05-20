@@ -10,8 +10,9 @@ import { Effect } from "effect";
 import type { NextConfig } from "next";
 
 describe("Shared Next.js config preset", () => {
-  it.effect("decodes only the env toggles owned by the shared preset", () =>
-    Effect.gen(function* () {
+  it.effect(
+    "decodes only the env toggles owned by the shared preset",
+    Effect.fnUntraced(function* () {
       const env = yield* decodeBeepNextConfigEnv({
         ANALYZE: "1",
         NEXT_DISABLE_PWA: "0",

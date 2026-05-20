@@ -54,8 +54,9 @@ const makeHandle = Effect.fn("AcpProtocolTest.makeHandle")(function* (env?: Reco
 });
 
 it.layer(NodeServices.layer)("effect-acp protocol", (it) => {
-  it.effect("emits exact JSON-RPC notifications and decodes inbound session/update and elicitation completion", () =>
-    Effect.gen(function* () {
+  it.effect(
+    "emits exact JSON-RPC notifications and decodes inbound session/update and elicitation completion",
+    Effect.fnUntraced(function* () {
       const { stdio, input, output } = yield* makeInMemoryStdio();
       const transport = yield* AcpProtocol.makeAcpPatchedProtocol({
         stdio,
@@ -118,8 +119,9 @@ it.layer(NodeServices.layer)("effect-acp protocol", (it) => {
     })
   );
 
-  it.effect("logs outgoing notifications when logOutgoing is enabled", () =>
-    Effect.gen(function* () {
+  it.effect(
+    "logs outgoing notifications when logOutgoing is enabled",
+    Effect.fnUntraced(function* () {
       const { stdio } = yield* makeInMemoryStdio();
       const events: Array<AcpProtocol.AcpProtocolLogEvent> = [];
       const transport = yield* AcpProtocol.makeAcpPatchedProtocol({
@@ -158,8 +160,9 @@ it.layer(NodeServices.layer)("effect-acp protocol", (it) => {
     })
   );
 
-  it.effect("fails notification encoding through the declared ACP error channel", () =>
-    Effect.gen(function* () {
+  it.effect(
+    "fails notification encoding through the declared ACP error channel",
+    Effect.fnUntraced(function* () {
       const { stdio } = yield* makeInMemoryStdio();
       const transport = yield* AcpProtocol.makeAcpPatchedProtocol({
         stdio,
@@ -178,8 +181,9 @@ it.layer(NodeServices.layer)("effect-acp protocol", (it) => {
     })
   );
 
-  it.effect("supports generic extension requests over the patched transport", () =>
-    Effect.gen(function* () {
+  it.effect(
+    "supports generic extension requests over the patched transport",
+    Effect.fnUntraced(function* () {
       const { stdio, input, output } = yield* makeInMemoryStdio();
       const transport = yield* AcpProtocol.makeAcpPatchedProtocol({
         stdio,
@@ -214,8 +218,9 @@ it.layer(NodeServices.layer)("effect-acp protocol", (it) => {
     })
   );
 
-  it.effect("preserves zero-valued ids for inbound core client requests", () =>
-    Effect.gen(function* () {
+  it.effect(
+    "preserves zero-valued ids for inbound core client requests",
+    Effect.fnUntraced(function* () {
       const { stdio, input, output } = yield* makeInMemoryStdio();
       const transport = yield* AcpProtocol.makeAcpPatchedProtocol({
         stdio,
@@ -239,7 +244,13 @@ it.layer(NodeServices.layer)("effect-acp protocol", (it) => {
               toolCallId: "tool-1",
               title: "Allow mock action",
             },
-            options: [{ optionId: "allow", name: "Allow", kind: "allow_once" }],
+            options: [
+              {
+                optionId: "allow",
+                name: "Allow",
+                kind: "allow_once",
+              },
+            ],
           },
           headers: [],
         })
@@ -256,7 +267,13 @@ it.layer(NodeServices.layer)("effect-acp protocol", (it) => {
             toolCallId: "tool-1",
             title: "Allow mock action",
           },
-          options: [{ optionId: "allow", name: "Allow", kind: "allow_once" }],
+          options: [
+            {
+              optionId: "allow",
+              name: "Allow",
+              kind: "allow_once",
+            },
+          ],
         },
         headers: [],
       });
@@ -289,8 +306,9 @@ it.layer(NodeServices.layer)("effect-acp protocol", (it) => {
     })
   );
 
-  it.effect("cleans up interrupted extension requests before a late response arrives", () =>
-    Effect.gen(function* () {
+  it.effect(
+    "cleans up interrupted extension requests before a late response arrives",
+    Effect.fnUntraced(function* () {
       const { stdio, input, output } = yield* makeInMemoryStdio();
       const transport = yield* AcpProtocol.makeAcpPatchedProtocol({
         stdio,
@@ -342,76 +360,101 @@ it.layer(NodeServices.layer)("effect-acp protocol", (it) => {
 
   it.effect(
     "propagates the real child exit code when the input stream ends",
-    () =>
-      Effect.gen(function* () {
-        const handle = yield* makeHandle({
-          ACP_MOCK_EXIT_IMMEDIATELY_CODE: "7",
-        });
-        const firstMessage = yield* Deferred.make<unknown>();
-        const termination = yield* Deferred.make<AcpError.AcpError>();
-        const transport = yield* AcpProtocol.makeAcpPatchedProtocol({
-          stdio: makeChildStdio(handle),
-          terminationError: makeTerminationError(handle),
-          serverRequestMethods: HashSet.empty(),
-          onTermination: (error) => Deferred.succeed(termination, error).pipe(Effect.asVoid),
-        });
+    Effect.fnUntraced(function* () {
+      const handle = yield* makeHandle({
+        ACP_MOCK_EXIT_IMMEDIATELY_CODE: "7",
+      });
+      const firstMessage = yield* Deferred.make<unknown>();
+      const termination = yield* Deferred.make<AcpError.AcpError>();
+      const transport = yield* AcpProtocol.makeAcpPatchedProtocol({
+        stdio: makeChildStdio(handle),
+        terminationError: makeTerminationError(handle),
+        serverRequestMethods: HashSet.empty(),
+        onTermination: (error) => Deferred.succeed(termination, error).pipe(Effect.asVoid),
+      });
 
-        yield* transport.clientProtocol
-          .run(0, (message) => Deferred.succeed(firstMessage, message).pipe(Effect.asVoid))
-          .pipe(Effect.forkScoped);
+      yield* transport.clientProtocol
+        .run(0, (message) => Deferred.succeed(firstMessage, message).pipe(Effect.asVoid))
+        .pipe(Effect.forkScoped);
 
-        const message = yield* Deferred.await(firstMessage);
-        const exitError = yield* Deferred.await(termination);
-        assert.instanceOf(exitError, AcpError.AcpProcessExitedError);
-        assert.equal((exitError as AcpError.AcpProcessExitedError).code, 7);
-        assert.equal((message as { readonly _tag?: string })._tag, "ClientProtocolError");
-        const defect = (message as { readonly error: { readonly reason: unknown } }).error.reason as {
-          readonly _tag: string;
-          readonly cause: unknown;
-        };
-        assert.equal(defect._tag, "RpcClientDefect");
-        assert.instanceOf(defect.cause, AcpError.AcpProcessExitedError);
-        assert.equal((defect.cause as AcpError.AcpProcessExitedError).code, 7);
-      }),
+      const message = yield* Deferred.await(firstMessage);
+      const exitError = yield* Deferred.await(termination);
+      assert.instanceOf(exitError, AcpError.AcpProcessExitedError);
+      assert.equal((exitError as AcpError.AcpProcessExitedError).code, 7);
+      assert.equal(
+        (
+          message as {
+            readonly _tag?: string;
+          }
+        )._tag,
+        "ClientProtocolError"
+      );
+      const defect = (
+        message as {
+          readonly error: {
+            readonly reason: unknown;
+          };
+        }
+      ).error.reason as {
+        readonly _tag: string;
+        readonly cause: unknown;
+      };
+      assert.equal(defect._tag, "RpcClientDefect");
+      assert.instanceOf(defect.cause, AcpError.AcpProcessExitedError);
+      assert.equal((defect.cause as AcpError.AcpProcessExitedError).code, 7);
+    }),
     childProcessProtocolTestTimeout
   );
 
   it.effect(
     "does not emit a second process-exit error after a decode failure",
-    () =>
-      Effect.gen(function* () {
-        const handle = yield* makeHandle({
-          ACP_MOCK_MALFORMED_OUTPUT: "1",
-          ACP_MOCK_MALFORMED_OUTPUT_EXIT_CODE: "23",
-        });
-        const terminationCalls = yield* Ref.make(0);
-        const firstMessage = yield* Deferred.make<unknown>();
-        const transport = yield* AcpProtocol.makeAcpPatchedProtocol({
-          stdio: makeChildStdio(handle),
-          terminationError: makeTerminationError(handle),
-          serverRequestMethods: HashSet.empty(),
-          onTermination: () => Ref.update(terminationCalls, (count) => count + 1),
-        });
+    Effect.fnUntraced(function* () {
+      const handle = yield* makeHandle({
+        ACP_MOCK_MALFORMED_OUTPUT: "1",
+        ACP_MOCK_MALFORMED_OUTPUT_EXIT_CODE: "23",
+      });
+      const terminationCalls = yield* Ref.make(0);
+      const firstMessage = yield* Deferred.make<unknown>();
+      const transport = yield* AcpProtocol.makeAcpPatchedProtocol({
+        stdio: makeChildStdio(handle),
+        terminationError: makeTerminationError(handle),
+        serverRequestMethods: HashSet.empty(),
+        onTermination: () => Ref.update(terminationCalls, (count) => count + 1),
+      });
 
-        yield* transport.clientProtocol
-          .run(0, (message) => Deferred.succeed(firstMessage, message).pipe(Effect.asVoid))
-          .pipe(Effect.forkScoped);
+      yield* transport.clientProtocol
+        .run(0, (message) => Deferred.succeed(firstMessage, message).pipe(Effect.asVoid))
+        .pipe(Effect.forkScoped);
 
-        const message = yield* Deferred.await(firstMessage);
-        assert.equal(yield* Ref.get(terminationCalls), 1);
-        assert.equal((message as { readonly _tag?: string })._tag, "ClientProtocolError");
-        const defect = (message as { readonly error: { readonly reason: unknown } }).error.reason as {
-          readonly _tag: string;
-          readonly cause: unknown;
-        };
-        assert.equal(defect._tag, "RpcClientDefect");
-        assert.instanceOf(defect.cause, AcpError.AcpProtocolParseError);
-      }),
+      const message = yield* Deferred.await(firstMessage);
+      assert.equal(yield* Ref.get(terminationCalls), 1);
+      assert.equal(
+        (
+          message as {
+            readonly _tag?: string;
+          }
+        )._tag,
+        "ClientProtocolError"
+      );
+      const defect = (
+        message as {
+          readonly error: {
+            readonly reason: unknown;
+          };
+        }
+      ).error.reason as {
+        readonly _tag: string;
+        readonly cause: unknown;
+      };
+      assert.equal(defect._tag, "RpcClientDefect");
+      assert.instanceOf(defect.cause, AcpError.AcpProtocolParseError);
+    }),
     childProcessProtocolTestTimeout
   );
 
-  it.effect("fails pending extension requests with the propagated exit code", () =>
-    Effect.gen(function* () {
+  it.effect(
+    "fails pending extension requests with the propagated exit code",
+    Effect.fnUntraced(function* () {
       const { stdio, input, output } = yield* makeInMemoryStdio();
       const transport = yield* AcpProtocol.makeAcpPatchedProtocol({
         stdio,

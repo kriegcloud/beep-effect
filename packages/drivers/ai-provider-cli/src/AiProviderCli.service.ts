@@ -6,6 +6,7 @@
  */
 
 import { $AiProviderCliId } from "@beep/identity";
+import { thunkEmptyStr } from "@beep/utils";
 import { Context, Effect, Layer, Match, Stream } from "effect";
 import * as A from "effect/Array";
 import { ChildProcess, ChildProcessSpawner } from "effect/unstable/process";
@@ -21,10 +22,7 @@ const $I = $AiProviderCliId.create("AiProviderCli.service");
 const collectText = <E>(stream: Stream.Stream<Uint8Array, E>): Effect.Effect<string, E> =>
   stream.pipe(
     Stream.decodeText(),
-    Stream.runFold(
-      () => "",
-      (acc, chunk) => `${acc}${chunk}`
-    )
+    Stream.runFold(thunkEmptyStr, (acc, chunk) => `${acc}${chunk}`)
   );
 
 /**

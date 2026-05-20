@@ -33,7 +33,7 @@
     "./package.json": "./package.json",
     ".": "./src/index.ts",
     "./*": "./src/*.ts",
-    "./internal/*": null
+    "./internal/*": "./src/internal/*.ts"
   },
   "browser": {
     "./src/index.ts": "./src/Chalk.browser.ts",

@@ -11,8 +11,8 @@ import {
   XAiConfigInput,
   XAiEndpoint,
   type XAiEndpointDescriptor,
-  type XAiHttpEndpointMethodName,
   XAiError,
+  type XAiHttpEndpointMethodName,
   XAiLanguageModel,
   XAiRequestOptions,
 } from "@beep/xai";
@@ -68,10 +68,7 @@ const isHttpEndpointDescriptor = (descriptor: XAiEndpointDescriptor): descriptor
   descriptor.response !== "websocket";
 
 const httpDescriptors = (): ReadonlyArray<XAiHttpEndpointDescriptor> =>
-  pipe(
-    XAI_ENDPOINTS,
-    A.filter(isHttpEndpointDescriptor)
-  );
+  pipe(XAI_ENDPOINTS, A.filter(isHttpEndpointDescriptor));
 
 const realtimeVoiceDescriptor = (): Effect.Effect<XAiEndpointDescriptor, XAiError> =>
   pipe(
@@ -228,8 +225,9 @@ const requestFor = (descriptor: XAiEndpointDescriptor): XAiRequestOptions => {
 
 describe("@beep/xai", () => {
   layer(makeXAiUnitLayer())((it) =>
-    it.effect("keeps endpoint manifest and service surface aligned", () =>
-      Effect.gen(function* () {
+    it.effect(
+      "keeps endpoint manifest and service surface aligned",
+      Effect.fnUntraced(function* () {
         expect(XAI_ENDPOINTS).toHaveLength(XAI_ENDPOINT_COUNT);
         expect(XAI_ENDPOINT_METHOD_NAMES).toHaveLength(XAI_ENDPOINT_COUNT);
         expect(uniqueStrings(endpointIds())).toHaveLength(XAI_ENDPOINT_COUNT);
@@ -257,8 +255,9 @@ describe("@beep/xai", () => {
   );
 
   layer(makeXAiUnitLayer())((it) =>
-    it.effect("sends every HTTP endpoint with the expected method, path, auth, query, and body mode", () =>
-      Effect.gen(function* () {
+    it.effect(
+      "sends every HTTP endpoint with the expected method, path, auth, query, and body mode",
+      Effect.fnUntraced(function* () {
         const testHttp = yield* XAiTestHttp;
         yield* testHttp.reset;
 
@@ -299,8 +298,9 @@ describe("@beep/xai", () => {
   );
 
   layer(makeXAiUnitLayer())((it) =>
-    it.effect("maps status, malformed JSON, multipart, and SSE failures", () =>
-      Effect.gen(function* () {
+    it.effect(
+      "maps status, malformed JSON, multipart, and SSE failures",
+      Effect.fnUntraced(function* () {
         const testHttp = yield* XAiTestHttp;
         const xai = yield* XAi;
 
@@ -358,8 +358,9 @@ describe("@beep/xai", () => {
   );
 
   layer(makeXAiUnitLayer())((it) =>
-    it.effect("redacts xAI transport and WebSocket failure causes before rendering", () =>
-      Effect.gen(function* () {
+    it.effect(
+      "redacts xAI transport and WebSocket failure causes before rendering",
+      Effect.fnUntraced(function* () {
         const testHttp = yield* XAiTestHttp;
         const xai = yield* XAi;
 
@@ -427,8 +428,9 @@ describe("@beep/xai", () => {
   );
 
   layer(makeXAiUnitLayer())((it) =>
-    it.effect("maps language-model transport failures to retryable network errors", () =>
-      Effect.gen(function* () {
+    it.effect(
+      "maps language-model transport failures to retryable network errors",
+      Effect.fnUntraced(function* () {
         const testHttp = yield* XAiTestHttp;
         yield* testHttp.reset;
         yield* testHttp.respondWith((request) =>
@@ -457,8 +459,9 @@ describe("@beep/xai", () => {
   );
 
   layer(makeXAiUnitLayer())((it) =>
-    it.effect("rejects non-JSON chat completion responses in the language model adapter", () =>
-      Effect.gen(function* () {
+    it.effect(
+      "rejects non-JSON chat completion responses in the language model adapter",
+      Effect.fnUntraced(function* () {
         const testHttp = yield* XAiTestHttp;
         yield* testHttp.reset;
         yield* testHttp.respondWith(() =>
@@ -482,8 +485,9 @@ describe("@beep/xai", () => {
   );
 
   layer(makeXAiUnitLayer())((it) =>
-    it.effect("rejects request payloads that do not match the endpoint body mode", () =>
-      Effect.gen(function* () {
+    it.effect(
+      "rejects request payloads that do not match the endpoint body mode",
+      Effect.fnUntraced(function* () {
         const xai = yield* XAi;
 
         const noneBodyError = yield* xai.listModels(new XAiRequestOptions({ body: {} })).pipe(Effect.flip);
@@ -506,8 +510,9 @@ describe("@beep/xai", () => {
   );
 
   layer(makeInvalidWebSocketUrlLayer())((it) =>
-    it.effect("maps invalid WebSocket URL configuration into a typed driver error", () =>
-      Effect.gen(function* () {
+    it.effect(
+      "maps invalid WebSocket URL configuration into a typed driver error",
+      Effect.fnUntraced(function* () {
         const xai = yield* XAi;
         const invalidUrlError = yield* xai.connectRealtimeVoice().pipe(Effect.flip);
 
@@ -518,8 +523,9 @@ describe("@beep/xai", () => {
   );
 
   layer(makeXAiUnitLayer())((it) =>
-    it.effect("parses SSE streams for chat, responses, and legacy-compatible endpoints", () =>
-      Effect.gen(function* () {
+    it.effect(
+      "parses SSE streams for chat, responses, and legacy-compatible endpoints",
+      Effect.fnUntraced(function* () {
         const testHttp = yield* XAiTestHttp;
         const xai = yield* XAi;
         yield* testHttp.reset;

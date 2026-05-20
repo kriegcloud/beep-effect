@@ -571,7 +571,7 @@ describe("@beep/sandbox", () => {
         const execResult = yield* sandbox.exec(
           "printf 'one\\ntwo\\npartial'",
           new SandboxExecOptions({
-            onLine: (line) => {
+            onLine: (line: string) => {
               A.appendInPlace(lines, line);
             },
           })
@@ -600,7 +600,7 @@ describe("@beep/sandbox", () => {
         const execResult = yield* sandbox.exec(
           "printf 'section1\\n\\nsection2\\n'",
           new SandboxExecOptions({
-            onLine: (line) => {
+            onLine: (line: string) => {
               A.appendInPlace(lines, line);
             },
           })
@@ -622,6 +622,8 @@ describe("@beep/sandbox", () => {
       const displayRef = yield* Ref.make<ReadonlyArray<DisplayEntry>>([]);
       const provider: AgentProvider = {
         buildPrintCommand: () => new PrintCommand({ command: "wait" }),
+        captureSessions: false,
+        env: {},
         name: "silent-agent",
         parseStreamLine: () => [],
       };

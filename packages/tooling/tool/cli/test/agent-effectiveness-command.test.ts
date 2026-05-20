@@ -79,8 +79,8 @@ const lastLoggedLine = Effect.fn("AgentEffectivenessCommandTest.lastLoggedLine")
 
 describe("agent-effectiveness command", () => {
   it.effect("emits report-only doctor JSON with offline Phoenix", () =>
-    withTempDirectory((tmpDir) =>
-      Effect.gen(function* () {
+    withTempDirectory(
+      Effect.fnUntraced(function* (tmpDir) {
         const path = yield* Path.Path;
         const dataRoot = path.join(tmpDir, "metrics");
         const workerReportPath = path.join(tmpDir, "worker-eval.json");
@@ -106,8 +106,8 @@ describe("agent-effectiveness command", () => {
   );
 
   it.effect("emits report-only annotation check JSON", () =>
-    withTempDirectory((tmpDir) =>
-      Effect.gen(function* () {
+    withTempDirectory(
+      Effect.fnUntraced(function* (tmpDir) {
         const path = yield* Path.Path;
         const dataRoot = path.join(tmpDir, "metrics");
         const workerReportPath = path.join(tmpDir, "worker-eval.json");
@@ -134,8 +134,8 @@ describe("agent-effectiveness command", () => {
   );
 
   it.effect("sets a failing process exit code when annotation check findings are present", () =>
-    withTempDirectory((tmpDir) =>
-      Effect.gen(function* () {
+    withTempDirectory(
+      Effect.fnUntraced(function* (tmpDir) {
         const path = yield* Path.Path;
         const dataRoot = path.join(tmpDir, "metrics");
         const workerReportPath = path.join(tmpDir, "worker-eval.json");
@@ -167,8 +167,8 @@ describe("agent-effectiveness command", () => {
   );
 
   it.effect("emits sanitized Phoenix dataset bundle JSON", () =>
-    withTempDirectory((tmpDir) =>
-      Effect.gen(function* () {
+    withTempDirectory(
+      Effect.fnUntraced(function* (tmpDir) {
         const path = yield* Path.Path;
         const dataRoot = path.join(tmpDir, "metrics");
         const workerReportPath = path.join(tmpDir, "worker-eval.json");
@@ -196,8 +196,8 @@ describe("agent-effectiveness command", () => {
   );
 
   it.effect("emits static Phoenix prompt bundle JSON without doctor inputs", () =>
-    withTempDirectory(() =>
-      Effect.gen(function* () {
+    withTempDirectory(
+      Effect.fnUntraced(function* () {
         yield* runAgentEffectivenessCommand(["prompts", "bundle", "--json"]);
 
         const output = yield* lastLoggedLine();
@@ -210,8 +210,8 @@ describe("agent-effectiveness command", () => {
   );
 
   it.effect("defaults Phoenix sync to dry-run JSON", () =>
-    withTempDirectory((tmpDir) =>
-      Effect.gen(function* () {
+    withTempDirectory(
+      Effect.fnUntraced(function* (tmpDir) {
         const path = yield* Path.Path;
         const dataRoot = path.join(tmpDir, "metrics");
         const workerReportPath = path.join(tmpDir, "worker-eval.json");

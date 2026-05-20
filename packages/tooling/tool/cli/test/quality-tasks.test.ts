@@ -31,6 +31,7 @@ const PlatformLayer = Layer.mergeAll(
 const encodeJson = S.encodeUnknownSync(S.UnknownFromJsonString);
 const isQualityTaskFailed = S.is(QualityTaskFailed);
 const isQualityTaskGroupFailed = S.is(QualityTaskGroupFailed);
+const isString = (value: unknown): value is string => typeof value === "string";
 
 const withTempRepo = <A, E, R>(use: Effect.Effect<A, E, R>) =>
   Effect.acquireUseRelease(
@@ -351,7 +352,7 @@ describe("quality task adapter", () => {
             2
           );
 
-          const logText = A.join(yield* TestConsole.logLines, "\n");
+          const logText = A.join(A.filter(yield* TestConsole.logLines, isString), "\n");
           expect(logText).toContain("[beep-cli] test:group: running 2 step(s) with concurrency 2");
           expect(logText).toContain("[beep-cli] test:slow: bun -e await Bun.sleep(20); console.log('slow')");
           expect(logText).toContain("[beep-cli] test:fast: bun -e console.log('fast')");
@@ -375,7 +376,7 @@ describe("quality task adapter", () => {
             1
           );
 
-          const logText = A.join(yield* TestConsole.logLines, "\n");
+          const logText = A.join(A.filter(yield* TestConsole.logLines, isString), "\n");
           expect(logText).toContain("[beep-cli] output truncated after 262144 characters");
           expect(Str.length(logText)).toBeLessThan(270_000);
         })
@@ -407,7 +408,7 @@ describe("quality task adapter", () => {
             }
           }
 
-          const logText = A.join(yield* TestConsole.logLines, "\n");
+          const logText = A.join(A.filter(yield* TestConsole.logLines, isString), "\n");
           expectSubstringBefore(
             logText,
             "[beep-cli] test:first output:\nfirst failed",

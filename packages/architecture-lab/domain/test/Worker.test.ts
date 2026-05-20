@@ -7,8 +7,9 @@ const decodeWorkerId = S.decodeUnknownEffect(Worker.WorkerId);
 const decodeOrganizationId = S.decodeUnknownEffect(Worker.WorkerOrganizationId);
 
 describe("Worker entity", () => {
-  it.effect("creates a BaseEntity-backed active Worker", () =>
-    Effect.gen(function* () {
+  it.effect(
+    "creates a BaseEntity-backed active Worker",
+    Effect.fnUntraced(function* () {
       const id = yield* decodeWorkerId(1);
       const organizationId = yield* decodeOrganizationId(1);
       const worker = Worker.create(

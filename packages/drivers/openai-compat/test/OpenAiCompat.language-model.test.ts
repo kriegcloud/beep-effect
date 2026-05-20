@@ -70,8 +70,9 @@ const makeOpenAiCompatClientLayer = (respond: TestRespond) =>
   );
 
 layer(Layer.empty as Layer.Layer<TUnsafe.Any>)("OpenAiCompat language model", (it) => {
-  it.effect("translates Effect prompts into chat completion requests", () =>
-    Effect.gen(function* () {
+  it.effect(
+    "translates Effect prompts into chat completion requests",
+    Effect.fnUntraced(function* () {
       const requests = yield* Ref.make<ReadonlyArray<OpenAiCompatChatCompletionRequest>>([]);
       const languageModel = yield* makeFromProvider({
         model: "compat-model",
@@ -95,8 +96,9 @@ layer(Layer.empty as Layer.Layer<TUnsafe.Any>)("OpenAiCompat language model", (i
     })
   );
 
-  it.effect("decodes tool calls from chat completion responses", () =>
-    Effect.gen(function* () {
+  it.effect(
+    "decodes tool calls from chat completion responses",
+    Effect.fnUntraced(function* () {
       const languageModel = yield* makeFromProvider({
         model: "compat-model",
         moduleName: "OpenAiCompatLanguageModelTest",
@@ -146,8 +148,9 @@ layer(Layer.empty as Layer.Layer<TUnsafe.Any>)("OpenAiCompat language model", (i
     })
   );
 
-  it.effect("streams chat completion chunks as Effect AI stream parts", () =>
-    Effect.gen(function* () {
+  it.effect(
+    "streams chat completion chunks as Effect AI stream parts",
+    Effect.fnUntraced(function* () {
       const chunk = (content: string, finishReason?: string | null): OpenAiCompatChatCompletionChunk => ({
         choices: [
           {
@@ -191,8 +194,9 @@ layer(Layer.empty as Layer.Layer<TUnsafe.Any>)("OpenAiCompat language model", (i
     })
   );
 
-  it.effect("emits streamed finish after the trailing usage chunk", () =>
-    Effect.gen(function* () {
+  it.effect(
+    "emits streamed finish after the trailing usage chunk",
+    Effect.fnUntraced(function* () {
       const textChunk = (content: string): OpenAiCompatChatCompletionChunk => ({
         choices: [
           {
@@ -251,8 +255,9 @@ layer(Layer.empty as Layer.Layer<TUnsafe.Any>)("OpenAiCompat language model", (i
     })
   );
 
-  it.effect("decodes partial streaming tool-call deltas", () =>
-    Effect.gen(function* () {
+  it.effect(
+    "decodes partial streaming tool-call deltas",
+    Effect.fnUntraced(function* () {
       const chunk = yield* decodeChatCompletionChunk({
         choices: [
           {
@@ -284,8 +289,9 @@ layer(Layer.empty as Layer.Layer<TUnsafe.Any>)("OpenAiCompat language model", (i
     })
   );
 
-  it.effect("buffers streaming tool-call argument deltas until JSON is complete", () =>
-    Effect.gen(function* () {
+  it.effect(
+    "buffers streaming tool-call argument deltas until JSON is complete",
+    Effect.fnUntraced(function* () {
       const chunk = (
         toolCalls: OpenAiCompatChatCompletionChunk["choices"][number]["delta"],
         finishReason?: string
@@ -376,8 +382,9 @@ layer(Layer.empty as Layer.Layer<TUnsafe.Any>)("OpenAiCompat language model", (i
     })
   );
 
-  it.effect("rejects non-image file parts before provider calls", () =>
-    Effect.gen(function* () {
+  it.effect(
+    "rejects non-image file parts before provider calls",
+    Effect.fnUntraced(function* () {
       const languageModel = yield* makeFromProvider({
         model: "compat-model",
         moduleName: "OpenAiCompatLanguageModelTest",
@@ -411,8 +418,9 @@ layer(Layer.empty as Layer.Layer<TUnsafe.Any>)("OpenAiCompat language model", (i
     })
   );
 
-  it.effect("maps tool schema conversion failures to UnsupportedSchemaError before provider calls", () =>
-    Effect.gen(function* () {
+  it.effect(
+    "maps tool schema conversion failures to UnsupportedSchemaError before provider calls",
+    Effect.fnUntraced(function* () {
       const languageModel = yield* makeFromProvider({
         model: "compat-model",
         moduleName: "OpenAiCompatLanguageModelTest",
@@ -440,8 +448,9 @@ layer(Layer.empty as Layer.Layer<TUnsafe.Any>)("OpenAiCompat language model", (i
     })
   );
 
-  it.effect("maps structured response schema conversion failures to UnsupportedSchemaError before provider calls", () =>
-    Effect.gen(function* () {
+  it.effect(
+    "maps structured response schema conversion failures to UnsupportedSchemaError before provider calls",
+    Effect.fnUntraced(function* () {
       const languageModel = yield* makeFromProvider({
         model: "compat-model",
         moduleName: "OpenAiCompatLanguageModelTest",
@@ -454,7 +463,7 @@ layer(Layer.empty as Layer.Layer<TUnsafe.Any>)("OpenAiCompat language model", (i
       const error = yield* pipe(
         languageModel.generateObject({
           prompt: "return object",
-          schema: S.Unknown,
+          schema: S.Record(S.String, S.Symbol),
         }),
         Effect.flip
       );
@@ -465,8 +474,9 @@ layer(Layer.empty as Layer.Layer<TUnsafe.Any>)("OpenAiCompat language model", (i
     })
   );
 
-  it.effect("maps JSON body encoding failures to AiError", () =>
-    Effect.gen(function* () {
+  it.effect(
+    "maps JSON body encoding failures to AiError",
+    Effect.fnUntraced(function* () {
       const request = new OpenAiCompatChatCompletionRequest({
         messages: [],
         model: "compat-model",
@@ -489,8 +499,9 @@ layer(Layer.empty as Layer.Layer<TUnsafe.Any>)("OpenAiCompat language model", (i
     })
   );
 
-  it.effect("maps non-2xx client responses without exposing response bodies", () =>
-    Effect.gen(function* () {
+  it.effect(
+    "maps non-2xx client responses without exposing response bodies",
+    Effect.fnUntraced(function* () {
       const request = new OpenAiCompatChatCompletionRequest({
         messages: [],
         model: "compat-model",
@@ -519,8 +530,9 @@ layer(Layer.empty as Layer.Layer<TUnsafe.Any>)("OpenAiCompat language model", (i
     })
   );
 
-  it.effect("rejects stream responses whose leading content type is not text/event-stream", () =>
-    Effect.gen(function* () {
+  it.effect(
+    "rejects stream responses whose leading content type is not text/event-stream",
+    Effect.fnUntraced(function* () {
       const request = new OpenAiCompatChatCompletionRequest({
         messages: [],
         model: "compat-model",
@@ -550,8 +562,9 @@ layer(Layer.empty as Layer.Layer<TUnsafe.Any>)("OpenAiCompat language model", (i
     })
   );
 
-  it.effect("sets operation-specific Accept headers and allows configured overrides", () =>
-    Effect.gen(function* () {
+  it.effect(
+    "sets operation-specific Accept headers and allows configured overrides",
+    Effect.fnUntraced(function* () {
       const capturedHeaders = yield* Ref.make<ReadonlyArray<Record<string, string>>>([]);
       const jsonBody =
         '{"choices":[{"finish_reason":"stop","index":0,"message":{"content":"ok","role":"assistant","tool_calls":[]}}],"usage":{"completion_tokens":2,"prompt_tokens":1,"total_tokens":3}}';
@@ -627,8 +640,9 @@ layer(Layer.empty as Layer.Layer<TUnsafe.Any>)("OpenAiCompat language model", (i
     })
   );
 
-  it.effect("maps SSE retry directives to typed AiError", () =>
-    Effect.gen(function* () {
+  it.effect(
+    "maps SSE retry directives to typed AiError",
+    Effect.fnUntraced(function* () {
       const request = new OpenAiCompatChatCompletionRequest({
         messages: [],
         model: "compat-model",

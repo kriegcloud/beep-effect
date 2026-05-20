@@ -38,14 +38,17 @@ const CommandTestLayer = Layer.mergeAll(
 
 const decodeCodexSmokeResultJson = S.decodeUnknownSync(S.fromJsonString(CodexSmokeResult));
 const decodeRepoCodegraphLookupResultJson = S.decodeUnknownSync(S.fromJsonString(RepoCodegraphLookupResult));
+const isString = (value: unknown): value is string => typeof value === "string";
 
 const parseLoggedJson = Effect.fn(function* <A>(decodeJson: (value: string) => A) {
-  const logLines = yield* TestConsole.logLines;
+  const logLines = A.filter(yield* TestConsole.logLines, isString);
   return decodeJson(A.join(logLines, "\n"));
 });
 
 const sharedReuseScope = Scope.makeUnsafe();
-let sharedReuseContextPromise: Promise<Context.Context<unknown>>;
+let sharedReuseContextPromise: Promise<
+  Context.Context<ReuseDiscoveryService | ReuseInventoryService | ReusePartitionPlannerService>
+>;
 
 beforeAll(() => {
   sharedReuseContextPromise = Effect.runPromise(
@@ -281,7 +284,7 @@ describe("reuse command", () => {
             "packages/missing\u001b[31m/domain",
           ]);
 
-          const output = A.join(yield* TestConsole.logLines, "\n");
+          const output = A.join(A.filter(yield* TestConsole.logLines, isString), "\n");
 
           expect(output).toContain("Query: UnknownRecordspoof");
           expect(output).toContain('Warning: Caller package selector "packages/missing/domain"');
@@ -303,7 +306,7 @@ describe("reuse command", () => {
           yield* runReuseCommand(["lookup", "--query", query, "--from", caller, "--json"]);
 
           const result = yield* parseLoggedJson(decodeRepoCodegraphLookupResultJson);
-          const output = A.join(yield* TestConsole.logLines, "\n");
+          const output = A.join(A.filter(yield* TestConsole.logLines, isString), "\n");
 
           expect(result.query).toBe(query);
           expect(result.warnings.join("\n")).toContain(caller);

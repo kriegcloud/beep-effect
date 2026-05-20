@@ -10,7 +10,7 @@ import * as Stream from "effect/Stream";
 import * as TestConsole from "effect/testing/TestConsole";
 import { Command } from "effect/unstable/cli";
 import { ChildProcess } from "effect/unstable/process";
-import { ChildProcessSpawner } from "effect/unstable/process/ChildProcessSpawner";
+import type { ChildProcessSpawner } from "effect/unstable/process/ChildProcessSpawner";
 import { describe, expect, it } from "vitest";
 
 const provideScopedLayer =

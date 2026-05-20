@@ -66,7 +66,7 @@ export function decodeExtRequestRegistration<A, I>({
           issue: error.issue,
         })
       ),
-      Effect.flatMap((decoded) => handler(decoded))
+      Effect.flatMap(handler)
     );
 }
 
@@ -84,6 +84,6 @@ export function decodeExtNotificationRegistration<A, I>({
             cause: error,
           })
       ),
-      Effect.flatMap((decoded) => handler(decoded))
+      Effect.flatMap(handler)
     );
 }

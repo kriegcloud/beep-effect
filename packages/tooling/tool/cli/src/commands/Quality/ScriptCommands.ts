@@ -722,6 +722,174 @@ const collectFiles = Effect.fn("QualityScriptCommands.collectFiles")(function* (
   return pipe(yield* visit(searchRoot), A.sort(Order.String));
 });
 
+type TestTsgoPackageGroup = {
+  readonly packageDir: string;
+  readonly tsconfigPath: string;
+  readonly files: ReadonlyArray<string>;
+};
+
+type TestTsgoPackageResult = {
+  readonly group: TestTsgoPackageGroup;
+  readonly output: string;
+  readonly exitCode: number;
+  readonly syntheticConfigPath: string;
+};
+
+const tsgoTestPackageLabel = (repoRoot: string, packageDir: string): string =>
+  pipe(packageDir, Str.replace(`${repoRoot}/`, ""), Str.replaceAll("/", "-"), Str.replaceAll("@", ""));
+
+const findOwningPackageDir = Effect.fn("QualityScriptCommands.findOwningPackageDir")(function* (
+  repoRoot: string,
+  filePath: string
+): Effect.fn.Return<string, QualityScriptCommandError, FileSystem.FileSystem | Path.Path> {
+  const fs = yield* FileSystem.FileSystem;
+  const path = yield* Path.Path;
+  let current = path.dirname(filePath);
+
+  while (current !== repoRoot && Str.startsWith(repoRoot)(current)) {
+    const packageJsonPath = path.join(current, "package.json");
+    const hasPackageJson = yield* fs.exists(packageJsonPath).pipe(Effect.orElseSucceed(thunkFalse));
+
+    if (hasPackageJson) {
+      return current;
+    }
+
+    current = path.dirname(current);
+  }
+
+  return repoRoot;
+});
+
+const resolveTestTsconfigPath = Effect.fn("QualityScriptCommands.resolveTestTsconfigPath")(function* (
+  packageDir: string
+): Effect.fn.Return<string, never, FileSystem.FileSystem | Path.Path> {
+  const fs = yield* FileSystem.FileSystem;
+  const path = yield* Path.Path;
+  const candidates = [
+    path.join(packageDir, "tsconfig.test.json"),
+    path.join(packageDir, "test", "tsconfig.json"),
+    path.join(packageDir, "tsconfig.json"),
+  ];
+
+  for (const candidate of candidates) {
+    const exists = yield* fs.exists(candidate).pipe(Effect.orElseSucceed(thunkFalse));
+
+    if (exists) {
+      return candidate;
+    }
+  }
+
+  return path.join(packageDir, "tsconfig.json");
+});
+
+const collectTestTsgoPackageGroups = Effect.fn("QualityScriptCommands.collectTestTsgoPackageGroups")(function* (
+  repoRoot: string,
+  discoveredFiles: ReadonlyArray<string>
+): Effect.fn.Return<ReadonlyArray<TestTsgoPackageGroup>, QualityScriptCommandError, FileSystem.FileSystem | Path.Path> {
+  const fileEntries = yield* Effect.forEach(
+    discoveredFiles,
+    Effect.fnUntraced(function* (filePath) {
+      const packageDir = yield* findOwningPackageDir(repoRoot, filePath);
+      return [packageDir, filePath] as const;
+    }),
+    { concurrency: 1 }
+  );
+  const packageDirs = pipe(
+    fileEntries,
+    A.map(([packageDir]) => packageDir),
+    A.dedupe,
+    A.sort(Order.String)
+  );
+
+  return yield* Effect.forEach(
+    packageDirs,
+    Effect.fnUntraced(function* (packageDir) {
+      const tsconfigPath = yield* resolveTestTsconfigPath(packageDir);
+      const files = pipe(
+        fileEntries,
+        A.filter(([entryPackageDir]) => entryPackageDir === packageDir),
+        A.map(([, filePath]) => filePath),
+        A.sort(Order.String)
+      );
+      return {
+        packageDir,
+        tsconfigPath,
+        files,
+      } satisfies TestTsgoPackageGroup;
+    }),
+    { concurrency: 1 }
+  );
+});
+
+const runTestTsgoPackageGroup = Effect.fn("QualityScriptCommands.runTestTsgoPackageGroup")(function* (
+  repoRoot: string,
+  tempDir: string,
+  extraArgs: ReadonlyArray<string>,
+  group: TestTsgoPackageGroup
+): Effect.fn.Return<
+  TestTsgoPackageResult,
+  QualityScriptCommandError,
+  FileSystem.FileSystem | Path.Path | ChildProcessSpawner.ChildProcessSpawner
+> {
+  const fs = yield* FileSystem.FileSystem;
+  const path = yield* Path.Path;
+  const groupLabel = tsgoTestPackageLabel(repoRoot, group.packageDir);
+  const syntheticConfigPath = path.join(tempDir, `${groupLabel}.tsconfig.json`);
+  const syntheticConfig = {
+    extends: group.tsconfigPath,
+    references: [],
+    include: group.files,
+    exclude: [],
+    compilerOptions: {
+      composite: false,
+      declaration: false,
+      declarationMap: false,
+      emitDeclarationOnly: false,
+      incremental: false,
+      noEmit: true,
+      rootDir: repoRoot,
+      sourceMap: false,
+      tsBuildInfoFile: path.join(tempDir, `${groupLabel}.tsbuildinfo`),
+      types: ["node", "bun"],
+    },
+  };
+  const configText = yield* jsonStringifyPretty(syntheticConfig).pipe(
+    Effect.mapError(
+      (cause) =>
+        new QualityScriptCommandError({
+          message: `Failed to encode ${groupLabel} test tsconfig.`,
+          cause,
+        })
+    )
+  );
+
+  yield* fs.writeFileString(syntheticConfigPath, `${configText}\n`).pipe(
+    Effect.mapError(
+      (cause) =>
+        new QualityScriptCommandError({
+          message: `Failed to write ${syntheticConfigPath}.`,
+          cause,
+        })
+    )
+  );
+
+  const result = yield* collectOutput(
+    new QualityTaskStep({
+      label: `check:tsgo:tests:${groupLabel}`,
+      command: path.join(repoRoot, "node_modules", ".bin", "tsgo"),
+      args: ["-p", syntheticConfigPath, "--pretty", "false", ...extraArgs],
+      cwd: repoRoot,
+    })
+  ).pipe(Effect.ensuring(fs.remove(syntheticConfigPath).pipe(Effect.ignore)));
+
+  return {
+    group,
+    output: result.output,
+    exitCode: result.exitCode,
+    syntheticConfigPath,
+  };
+});
+
 const unknownRecordProperty = (value: unknown, key: string): O.Option<unknown> => {
   if (A.isArray(value)) {
     return O.none();
@@ -1154,72 +1322,55 @@ export const runTestTsgoChecks = Effect.fn("QualityScriptCommands.runTestTsgoChe
   }
 
   const tempDir = path.join(repoRoot, "node_modules", ".tmp", "tsgo-test-checks");
-  const syntheticConfigPath = path.join(tempDir, "test.tsconfig.json");
   const normalizedExtraArgs = normalizeExtraArgs(extraArgs);
-  const syntheticConfig = {
-    extends: path.join(repoRoot, "tsconfig.json"),
-    references: [],
-    include: discoveredFiles,
-    exclude: [],
-    compilerOptions: {
-      composite: false,
-      incremental: false,
-      noEmit: true,
-      rootDir: repoRoot,
-      tsBuildInfoFile: path.join(tempDir, "test.tsbuildinfo"),
-    },
-  };
-  const configText = yield* jsonStringifyPretty(syntheticConfig).pipe(
-    Effect.mapError((cause) => new QualityScriptCommandError({ message: "Failed to encode test tsconfig.", cause }))
-  );
+  const packageGroups = yield* collectTestTsgoPackageGroups(repoRoot, discoveredFiles);
 
   yield* fs
     .makeDirectory(tempDir, { recursive: true })
     .pipe(
       Effect.mapError((cause) => new QualityScriptCommandError({ message: `Failed to create ${tempDir}.`, cause }))
     );
-  yield* fs
-    .writeFileString(syntheticConfigPath, `${configText}\n`)
-    .pipe(
-      Effect.mapError(
-        (cause) => new QualityScriptCommandError({ message: `Failed to write ${syntheticConfigPath}.`, cause })
-      )
-    );
 
-  yield* Console.log(`[check:tsgo:tests] checking ${A.length(discoveredFiles)} file(s) with tsconfig.json`);
-  const result = yield* collectOutput(
-    new QualityTaskStep({
-      label: "check:tsgo:tests",
-      command: path.join(repoRoot, "node_modules", ".bin", "tsgo"),
-      args: ["-p", syntheticConfigPath, "--pretty", "false", ...normalizedExtraArgs],
-      cwd: repoRoot,
-    })
-  ).pipe(Effect.ensuring(fs.remove(syntheticConfigPath).pipe(Effect.ignore)));
-  const outputLines = Str.split(result.output, "\n");
-  const effectDiagnosticLines = A.filter(outputLines, (line) =>
-    /\b(?:error|warning) TS\d+: .* effect\([^)]+\)/u.test(line)
+  yield* Console.log(
+    `[check:tsgo:tests] checking ${A.length(discoveredFiles)} file(s) across ${A.length(packageGroups)} package(s)`
   );
+  const results = yield* Effect.forEach(
+    packageGroups,
+    (group) => runTestTsgoPackageGroup(repoRoot, tempDir, normalizedExtraArgs, group),
+    { concurrency: 1 }
+  ).pipe(Effect.ensuring(fs.remove(tempDir, { recursive: true, force: true }).pipe(Effect.ignore)));
+  const failures = A.filter(results, (result) => result.exitCode !== 0);
+  const effectDiagnosticLines = pipe(
+    failures,
+    A.flatMap((result) =>
+      pipe(
+        Str.split(result.output, "\n"),
+        A.filter((line) => /\b(?:error|warning) TS\d+: .* effect\([^)]+\)/u.test(line))
+      )
+    )
+  );
+
   if (A.isReadonlyArrayNonEmpty(effectDiagnosticLines)) {
     yield* Console.error(
       `[check:tsgo:tests] found ${A.length(effectDiagnosticLines)} Effect diagnostic(s) in test files`
     );
     yield* Console.error(A.join(effectDiagnosticLines, "\n"));
-    return yield* new QualityScriptCommandError({
-      message: "Effect diagnostics were found in test files.",
-      command: commandText(path.join(repoRoot, "node_modules", ".bin", "tsgo"), ["-p", syntheticConfigPath]),
-      exitCode: 1,
-    });
   }
 
-  if (result.exitCode !== 0) {
-    if (Str.isNonEmpty(result.output)) {
-      yield* Console.error(result.output);
+  if (A.isReadonlyArrayNonEmpty(failures)) {
+    for (const failure of failures) {
+      const packageName = tsgoTestPackageLabel(repoRoot, failure.group.packageDir);
+      const configName = pipe(failure.group.tsconfigPath, Str.replace(`${failure.group.packageDir}/`, ""));
+      yield* Console.error(`[check:tsgo:tests] ${packageName} failed with ${configName}`);
+      if (Str.isNonEmpty(failure.output)) {
+        yield* Console.error(failure.output);
+      }
     }
     return yield* withExitCode(
       "check:tsgo:tests",
       path.join(repoRoot, "node_modules", ".bin", "tsgo"),
-      ["-p", syntheticConfigPath],
-      result.exitCode
+      ["-p", "<package-test-tsconfig>"],
+      1
     );
   }
 });

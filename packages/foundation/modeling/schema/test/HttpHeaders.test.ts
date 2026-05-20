@@ -33,8 +33,8 @@ type HeaderLike = {
   readonly value: O.Option<string>;
 };
 
-const run = <A, E>(effect: Effect.Effect<A, E>) => Effect.runPromise(effect);
-const runExit = <A, E>(effect: Effect.Effect<A, E>) => Effect.runSyncExit(effect);
+const run = <A, E>(effect: Effect.Effect<A, E>) => Effect.runPromise(effect.pipe(Effect.orDie));
+const runExit = <A, E>(effect: Effect.Effect<A, E>) => Effect.runSyncExit(effect.pipe(Effect.orDie));
 
 const expectHeader = (header: HeaderLike, name: string, value: string | undefined) => {
   expect(header.name).toBe(name);
@@ -55,9 +55,9 @@ type CrossOriginCase = {
   readonly validValue: string;
   readonly decodeDisabled: (input: false | undefined) => HeaderLike;
   readonly decodeValid: () => HeaderLike;
-  readonly createValueValid: () => Effect.Effect<O.Option<string>, unknown>;
-  readonly createValid: () => Effect.Effect<O.Option<HeaderLike>, unknown>;
-  readonly createInvalid: () => Effect.Effect<O.Option<string>, unknown>;
+  readonly createValueValid: () => Effect.Effect<O.Option<string>, never, never>;
+  readonly createValid: () => Effect.Effect<O.Option<HeaderLike>, never, never>;
+  readonly createInvalid: () => Effect.Effect<O.Option<string>, never, never>;
 };
 
 const crossOriginCases: ReadonlyArray<CrossOriginCase> = [
@@ -67,9 +67,9 @@ const crossOriginCases: ReadonlyArray<CrossOriginCase> = [
     validValue: "require-corp",
     decodeDisabled: (input) => S.decodeUnknownSync(CrossOriginEmbedderPolicyHeader)(input),
     decodeValid: () => S.decodeUnknownSync(CrossOriginEmbedderPolicyHeader)("require-corp"),
-    createValueValid: () => CrossOriginEmbedderPolicyHeader.createValue("require-corp"),
-    createValid: () => CrossOriginEmbedderPolicyHeader.create("require-corp"),
-    createInvalid: () => CrossOriginEmbedderPolicyHeader.createValue("invalid" as never),
+    createValueValid: () => CrossOriginEmbedderPolicyHeader.createValue("require-corp").pipe(Effect.orDie),
+    createValid: () => CrossOriginEmbedderPolicyHeader.create("require-corp").pipe(Effect.orDie),
+    createInvalid: () => CrossOriginEmbedderPolicyHeader.createValue("invalid" as never).pipe(Effect.orDie),
   },
   {
     label: "COOP",
@@ -77,9 +77,9 @@ const crossOriginCases: ReadonlyArray<CrossOriginCase> = [
     validValue: "same-origin",
     decodeDisabled: (input) => S.decodeUnknownSync(CrossOriginOpenerPolicyHeader)(input),
     decodeValid: () => S.decodeUnknownSync(CrossOriginOpenerPolicyHeader)("same-origin"),
-    createValueValid: () => CrossOriginOpenerPolicyHeader.createValue("same-origin"),
-    createValid: () => CrossOriginOpenerPolicyHeader.create("same-origin"),
-    createInvalid: () => CrossOriginOpenerPolicyHeader.createValue("invalid" as never),
+    createValueValid: () => CrossOriginOpenerPolicyHeader.createValue("same-origin").pipe(Effect.orDie),
+    createValid: () => CrossOriginOpenerPolicyHeader.create("same-origin").pipe(Effect.orDie),
+    createInvalid: () => CrossOriginOpenerPolicyHeader.createValue("invalid" as never).pipe(Effect.orDie),
   },
   {
     label: "CORP",
@@ -87,9 +87,9 @@ const crossOriginCases: ReadonlyArray<CrossOriginCase> = [
     validValue: "same-origin",
     decodeDisabled: (input) => S.decodeUnknownSync(CrossOriginResourcePolicyHeader)(input),
     decodeValid: () => S.decodeUnknownSync(CrossOriginResourcePolicyHeader)("same-origin"),
-    createValueValid: () => CrossOriginResourcePolicyHeader.createValue("same-origin"),
-    createValid: () => CrossOriginResourcePolicyHeader.create("same-origin"),
-    createInvalid: () => CrossOriginResourcePolicyHeader.createValue("invalid" as never),
+    createValueValid: () => CrossOriginResourcePolicyHeader.createValue("same-origin").pipe(Effect.orDie),
+    createValid: () => CrossOriginResourcePolicyHeader.create("same-origin").pipe(Effect.orDie),
+    createInvalid: () => CrossOriginResourcePolicyHeader.createValue("invalid" as never).pipe(Effect.orDie),
   },
 ];
 
@@ -101,21 +101,25 @@ describe("Secure header schemas", () => {
         expectHeader(testCase.decodeDisabled(false), testCase.headerName, undefined);
       });
 
-      it("decodes valid input and creates a matching header", () =>
-        Effect.gen(function* () {
-          expectHeader(testCase.decodeValid(), testCase.headerName, testCase.validValue);
-          yield* Effect.promise(() =>
-            Promise.resolve(expect(run(testCase.createValueValid())).resolves.toEqual(O.some(testCase.validValue)))
-          );
-          expectSomeHeader(
-            yield* Effect.promise(() => Promise.resolve(run(testCase.createValid()))),
-            testCase.headerName,
-            testCase.validValue
-          );
-        }));
+      it("decodes valid input and creates a matching header", () => {
+        expectHeader(testCase.decodeValid(), testCase.headerName, testCase.validValue);
+        const createdValue = Effect.runSync(
+          testCase.createValueValid() as unknown as Effect.Effect<O.Option<string>, never, never>
+        );
+        expect(createdValue).toEqual(O.some(testCase.validValue));
+        expectSomeHeader(
+          Effect.runSync(testCase.createValid() as unknown as Effect.Effect<O.Option<HeaderLike>, never, never>),
+          testCase.headerName,
+          testCase.validValue
+        );
+      });
 
       it("fails on invalid createValue input", () => {
-        expect(Exit.isFailure(runExit(testCase.createInvalid()))).toBe(true);
+        expect(
+          Exit.isFailure(
+            Effect.runSyncExit(testCase.createInvalid() as unknown as Effect.Effect<unknown, never, never>)
+          )
+        ).toBe(true);
       });
     });
   }

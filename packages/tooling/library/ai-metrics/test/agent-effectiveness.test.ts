@@ -280,7 +280,10 @@ const phoenixWriteSdk = (
   appendDatasetExamples: (input) => {
     calls.appends.push(input.dataset.value);
     return Promise.resolve(
-      new PhoenixDatasetAppendResult({ datasetId: `dataset:${input.dataset.value}`, versionId: "version-id" })
+      new PhoenixDatasetAppendResult({
+        datasetId: `dataset:${input.dataset.value}`,
+        versionId: "version-id",
+      })
     );
   },
   createDataset: (input) => {
@@ -308,7 +311,10 @@ const phoenixWriteSdk = (
   createPrompt: (input) => {
     calls.prompts.push(input.name);
     return Promise.resolve(
-      new PhoenixPromptWriteResult({ name: input.name, promptVersionId: `prompt-version:${input.name}` })
+      new PhoenixPromptWriteResult({
+        name: input.name,
+        promptVersionId: `prompt-version:${input.name}`,
+      })
     );
   },
   doctor: () =>
@@ -321,7 +327,12 @@ const phoenixWriteSdk = (
       })
     ),
   getDatasetExamples: () =>
-    Promise.resolve(new PhoenixDatasetExamplesResult({ examples: [], versionId: "version-id" })),
+    Promise.resolve(
+      new PhoenixDatasetExamplesResult({
+        examples: [],
+        versionId: "version-id",
+      })
+    ),
   getDatasetInfo: (selector) => {
     const forcedFailure = O.fromUndefinedOr(options.datasetLookupFailure);
     if (O.isSome(forcedFailure)) {
@@ -358,13 +369,19 @@ const phoenixWriteSdk = (
         successfulRunCount: 1,
       })
     ),
-  getPrompt: () => Promise.resolve(new PhoenixPromptReadResult({ exists: true, promptVersionId: "prompt-version-id" })),
+  getPrompt: () =>
+    Promise.resolve(
+      new PhoenixPromptReadResult({
+        exists: true,
+        promptVersionId: "prompt-version-id",
+      })
+    ),
 });
 
 describe("@beep/repo-ai-metrics agent-effectiveness", () => {
   it.effect("reports unavailable evidence as data instead of failing", () =>
-    withTempDirectory((tmpDir) =>
-      Effect.gen(function* () {
+    withTempDirectory(
+      Effect.fnUntraced(function* (tmpDir) {
         const path = yield* Path.Path;
         yield* Effect.gen(function* () {
           const dataRoot = path.join(tmpDir, "metrics");
@@ -386,8 +403,8 @@ describe("@beep/repo-ai-metrics agent-effectiveness", () => {
   );
 
   it.effect("decodes the live Phoenix trace annotation field shape", () =>
-    withTempDirectory((tmpDir) =>
-      Effect.gen(function* () {
+    withTempDirectory(
+      Effect.fnUntraced(function* (tmpDir) {
         const path = yield* Path.Path;
         yield* Effect.gen(function* () {
           const dataRoot = path.join(tmpDir, "metrics");
@@ -410,8 +427,8 @@ describe("@beep/repo-ai-metrics agent-effectiveness", () => {
   );
 
   it.effect("resolves the default worker-eval manifest to the latest raw report", () =>
-    withTempDirectory((tmpDir) =>
-      Effect.gen(function* () {
+    withTempDirectory(
+      Effect.fnUntraced(function* (tmpDir) {
         const path = yield* Path.Path;
         yield* Effect.gen(function* () {
           const dataRoot = path.join(tmpDir, "metrics");
@@ -446,8 +463,8 @@ describe("@beep/repo-ai-metrics agent-effectiveness", () => {
   );
 
   it.effect("plans sanitized worker annotations without draft JSDoc bodies", () =>
-    withTempDirectory((tmpDir) =>
-      Effect.gen(function* () {
+    withTempDirectory(
+      Effect.fnUntraced(function* (tmpDir) {
         const path = yield* Path.Path;
         yield* Effect.gen(function* () {
           const dataRoot = path.join(tmpDir, "metrics");
@@ -481,8 +498,8 @@ describe("@beep/repo-ai-metrics agent-effectiveness", () => {
   );
 
   it.effect("disambiguates multi-entry scorecard and worker annotation ids", () =>
-    withTempDirectory((tmpDir) =>
-      Effect.gen(function* () {
+    withTempDirectory(
+      Effect.fnUntraced(function* (tmpDir) {
         const path = yield* Path.Path;
         yield* Effect.gen(function* () {
           const dataRoot = path.join(tmpDir, "metrics");
@@ -530,14 +547,20 @@ describe("@beep/repo-ai-metrics agent-effectiveness", () => {
   );
 
   it.effect("disambiguates relabeled task annotations by label id", () =>
-    withTempDirectory((tmpDir) =>
-      Effect.gen(function* () {
+    withTempDirectory(
+      Effect.fnUntraced(function* (tmpDir) {
         const path = yield* Path.Path;
         yield* Effect.gen(function* () {
           const dataRoot = path.join(tmpDir, "metrics");
           yield* writeText(path.join(dataRoot, "derived", ".keep"), "");
-          yield* seedOutcomeLabel({ labeledAtEpochMillis: 1, labelId: "label-first" });
-          yield* seedOutcomeLabel({ labeledAtEpochMillis: 2, labelId: "label-second" });
+          yield* seedOutcomeLabel({
+            labeledAtEpochMillis: 1,
+            labelId: "label-first",
+          });
+          yield* seedOutcomeLabel({
+            labeledAtEpochMillis: 2,
+            labelId: "label-second",
+          });
 
           const plan = yield* makeAgentEffectivenessAnnotationPlan(
             new AgentEffectivenessAnnotationPlanInput({
@@ -574,8 +597,8 @@ describe("@beep/repo-ai-metrics agent-effectiveness", () => {
   );
 
   it.effect("builds sanitized Phoenix dataset, prompt, and experiment bundles", () =>
-    withTempDirectory((tmpDir) =>
-      Effect.gen(function* () {
+    withTempDirectory(
+      Effect.fnUntraced(function* (tmpDir) {
         const path = yield* Path.Path;
         yield* Effect.gen(function* () {
           const dataRoot = path.join(tmpDir, "metrics");
@@ -618,8 +641,8 @@ describe("@beep/repo-ai-metrics agent-effectiveness", () => {
   );
 
   it.effect("keeps Phoenix sync dry-run by default and writes only with confirmation", () =>
-    withTempDirectory((tmpDir) =>
-      Effect.gen(function* () {
+    withTempDirectory(
+      Effect.fnUntraced(function* (tmpDir) {
         const path = yield* Path.Path;
         const calls = {
           annotations: [] as string[],
@@ -644,7 +667,10 @@ describe("@beep/repo-ai-metrics agent-effectiveness", () => {
             new AgentEffectivenessPhoenixSyncInput({ annotationPlan })
           );
           const blocked = yield* syncAgentEffectivenessPhoenix(
-            new AgentEffectivenessPhoenixSyncInput({ annotationPlan, dryRun: false })
+            new AgentEffectivenessPhoenixSyncInput({
+              annotationPlan,
+              dryRun: false,
+            })
           );
           const written = yield* syncAgentEffectivenessPhoenix(
             new AgentEffectivenessPhoenixSyncInput({
@@ -684,8 +710,8 @@ describe("@beep/repo-ai-metrics agent-effectiveness", () => {
   );
 
   it.effect("appends examples when Phoenix datasets already exist", () =>
-    withTempDirectory((tmpDir) =>
-      Effect.gen(function* () {
+    withTempDirectory(
+      Effect.fnUntraced(function* (tmpDir) {
         const path = yield* Path.Path;
         const calls = {
           annotations: [] as string[],
@@ -751,8 +777,8 @@ describe("@beep/repo-ai-metrics agent-effectiveness", () => {
   );
 
   it.effect("does not create datasets when Phoenix dataset lookup transport fails", () =>
-    withTempDirectory((tmpDir) =>
-      Effect.gen(function* () {
+    withTempDirectory(
+      Effect.fnUntraced(function* (tmpDir) {
         const path = yield* Path.Path;
         const calls = {
           annotations: [] as string[],
@@ -807,8 +833,8 @@ describe("@beep/repo-ai-metrics agent-effectiveness", () => {
   );
 
   it.effect("rejects forbidden private content in planned annotations", () =>
-    withTempDirectory((tmpDir) =>
-      Effect.gen(function* () {
+    withTempDirectory(
+      Effect.fnUntraced(function* (tmpDir) {
         const path = yield* Path.Path;
         yield* Effect.gen(function* () {
           const dataRoot = path.join(tmpDir, "metrics");
@@ -877,40 +903,44 @@ describe("@beep/repo-ai-metrics agent-effectiveness", () => {
   );
 
   it.effect("rejects forbidden private content in the embedded doctor report", () =>
-    withTempDirectory((tmpDir) =>
-      Effect.gen(function* () {
-        const plan = yield* makeAgentEffectivenessAnnotationPlan(
-          new AgentEffectivenessAnnotationPlanInput({
-            doctor: new AgentEffectivenessDoctorInput({
-              dataRoot: "/home/beep-private/metrics",
-              noPhoenix: true,
-              workerEvalReportPath: "/home/beep-private/worker-eval.json",
-            }),
-          })
-        );
+    withTempDirectory(
+      Effect.fnUntraced(
+        function* (tmpDir) {
+          void tmpDir;
+          const plan = yield* makeAgentEffectivenessAnnotationPlan(
+            new AgentEffectivenessAnnotationPlanInput({
+              doctor: new AgentEffectivenessDoctorInput({
+                dataRoot: "/home/beep-private/metrics",
+                noPhoenix: true,
+                workerEvalReportPath: "/home/beep-private/worker-eval.json",
+              }),
+            })
+          );
 
-        const report = makeAgentEffectivenessAnnotationCheckReport(plan);
+          const report = makeAgentEffectivenessAnnotationCheckReport(plan);
 
-        expect(report.status).toBe(AgentEffectivenessStatus.Enum.failed);
-        expect(
-          pipe(
-            report.findings,
-            A.map((finding) => finding.annotationId)
-          )
-        ).toContain("plan.doctor.dataRoot");
-        expect(
-          pipe(
-            report.findings,
-            A.map((finding) => finding.code)
-          )
-        ).toContain("private-home-path");
-      }).pipe(provideScopedLayer(runtimeLayer(`${tmpDir}/metrics/derived/ai-metrics.duckdb`)))
+          expect(report.status).toBe(AgentEffectivenessStatus.Enum.failed);
+          expect(
+            pipe(
+              report.findings,
+              A.map((finding) => finding.annotationId)
+            )
+          ).toContain("plan.doctor.dataRoot");
+          expect(
+            pipe(
+              report.findings,
+              A.map((finding) => finding.code)
+            )
+          ).toContain("private-home-path");
+        },
+        (effect, tmpDir) => effect.pipe(provideScopedLayer(runtimeLayer(`${tmpDir}/metrics/derived/ai-metrics.duckdb`)))
+      )
     ).pipe(provideScopedLayer(NodeServices.layer))
   );
 
   it.effect("blocks confirmed Phoenix sync when annotation privacy checks fail", () =>
-    withTempDirectory((tmpDir) =>
-      Effect.gen(function* () {
+    withTempDirectory(
+      Effect.fnUntraced(function* (tmpDir) {
         const path = yield* Path.Path;
         const calls = {
           annotations: [] as string[],
@@ -959,8 +989,8 @@ describe("@beep/repo-ai-metrics agent-effectiveness", () => {
   );
 
   it.effect("blocks confirmed Phoenix sync when the embedded doctor report contains private paths", () =>
-    withTempDirectory((tmpDir) =>
-      Effect.gen(function* () {
+    withTempDirectory(
+      Effect.fnUntraced(function* (tmpDir) {
         const path = yield* Path.Path;
         const calls = {
           annotations: [] as string[],

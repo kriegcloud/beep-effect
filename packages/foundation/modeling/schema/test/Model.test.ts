@@ -15,7 +15,9 @@ describe("Model optional helpers", () => {
     expect(S.decodeUnknownSync(Struct)({ value: "kept" }).value).toEqual(O.some("kept"));
 
     expect(S.encodeSync(Struct)({ value: O.none() })).toEqual({});
-    expect(S.encodeSync(Struct)({ value: O.some("encoded") })).toEqual({ value: "encoded" });
+    expect(S.encodeSync(Struct)({ value: O.some("encoded") })).toEqual({
+      value: "encoded",
+    });
   });
 });
 
@@ -60,8 +62,9 @@ describe("Model projection helpers", () => {
     });
   });
 
-  it.effect("uses constructor defaults without making decoders optional", () =>
-    Effect.gen(function* () {
+  it.effect(
+    "uses constructor defaults without making decoders optional",
+    Effect.fnUntraced(function* () {
       const Fields = Model.Struct({
         createdAt: Model.DateTimeInsertFromNumber,
       });

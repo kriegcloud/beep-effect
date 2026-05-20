@@ -119,20 +119,26 @@ const rawBlankNodeDocument = {
   ],
 } as const;
 
-const runContext = <A>(effect: Effect.Effect<A, unknown, JsonLdContextService>) =>
-  Effect.runPromise(effect.pipe(provideScopedLayer(JsonLdContextServiceLive)));
+const runContext = <A, E>(effect: Effect.Effect<A, E, JsonLdContextService>) =>
+  Effect.runPromise(effect.pipe(provideScopedLayer(JsonLdContextServiceLive), Effect.orDie));
 
-const runDocument = <A>(effect: Effect.Effect<A, unknown, JsonLdDocumentService>) =>
-  Effect.runPromise(effect.pipe(provideScopedLayer(JsonLdDocumentServiceLive)));
+const runDocument = <A, E>(effect: Effect.Effect<A, E, JsonLdDocumentService>) =>
+  Effect.runPromise(effect.pipe(provideScopedLayer(JsonLdDocumentServiceLive), Effect.orDie));
 
-const runStreamParse = <A>(effect: Effect.Effect<A, unknown, JsonLdStreamParseService>) =>
+const runStreamParse = <A, E>(effect: Effect.Effect<A, E, JsonLdStreamParseService>) =>
   Effect.runPromise(
-    effect.pipe(provideScopedLayer(JsonLdStreamParseServiceLive.pipe(Layer.provide(JsonLdDocumentServiceLive))))
+    effect.pipe(
+      provideScopedLayer(JsonLdStreamParseServiceLive.pipe(Layer.provide(JsonLdDocumentServiceLive))),
+      Effect.orDie
+    )
   );
 
-const runStreamSerialize = <A>(effect: Effect.Effect<A, unknown, JsonLdStreamSerializeService>) =>
+const runStreamSerialize = <A, E>(effect: Effect.Effect<A, E, JsonLdStreamSerializeService>) =>
   Effect.runPromise(
-    effect.pipe(provideScopedLayer(JsonLdStreamSerializeServiceLive.pipe(Layer.provide(JsonLdDocumentServiceLive))))
+    effect.pipe(
+      provideScopedLayer(JsonLdStreamSerializeServiceLive.pipe(Layer.provide(JsonLdDocumentServiceLive))),
+      Effect.orDie
+    )
   );
 
 describe("JSON-LD", () => {

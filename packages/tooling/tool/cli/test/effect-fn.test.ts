@@ -2,9 +2,7 @@ import { EffectFnRulesOptions, runEffectFnRules } from "@beep/repo-cli/commands/
 import { TSMorphServiceLive } from "@beep/repo-utils/TSMorph/index";
 import { A } from "@beep/utils";
 import { NodeChildProcessSpawner, NodeServices } from "@effect/platform-node";
-import { Context, Effect, FileSystem, Layer, Path, Stream } from "effect";
-import * as Chunk from "effect/Chunk";
-import { ChildProcess } from "effect/unstable/process";
+import { Effect, FileSystem, Layer, Path } from "effect";
 import { describe, expect, it } from "vitest";
 
 const provideScopedLayer =
@@ -70,18 +68,15 @@ const writeProjectScaffold = Effect.gen(function* () {
 });
 
 const runCliCommand = Effect.fn("effect-fn.test.runCliCommand")(function* (...args: ReadonlyArray<string>) {
-  return yield* Effect.scoped(
-    Effect.gen(function* () {
-      const handle = yield* ChildProcess.make("bun", ["run", CLI_ENTRYPOINT, "--", ...args], {
-        cwd: process.cwd(),
-        stdout: "pipe",
-        stderr: "pipe",
-      });
-      const output = yield* handle.all.pipe(Stream.decodeText(), Stream.runCollect, Effect.map(Chunk.join("")));
-      const exitCode = yield* handle.exitCode;
-      return { exitCode, output } as const;
-    })
-  );
+  return yield* Effect.sync(() => {
+    const result = Bun.spawnSync(["bun", "run", CLI_ENTRYPOINT, "--", ...args], {
+      cwd: process.cwd(),
+      stdout: "pipe",
+      stderr: "pipe",
+    });
+    const output = `${result.stdout.toString()}${result.stderr.toString()}`;
+    return { exitCode: result.exitCode, output } as const;
+  });
 });
 
 describe("effect fn laws", () => {
@@ -171,7 +166,7 @@ describe("effect fn laws", () => {
             "Effect.fnUntraced",
           ]);
         })
-      ).pipe(provideScopedLayer(testLayer))
+      ).pipe(provideScopedLayer(testLayer), Effect.orDie)
     ));
 
   it("ignores one-off effects, existing Effect.fn wrappers, excluded paths, and non-direct Effect.gen composition", () =>
@@ -234,7 +229,7 @@ describe("effect fn laws", () => {
           expect(summary.affectedFiles).toEqual([]);
           expect(summary.diagnostics).toEqual([]);
         })
-      ).pipe(provideScopedLayer(testLayer))
+      ).pipe(provideScopedLayer(testLayer), Effect.orDie)
     ));
 
   it("honors explicit exclude paths", () =>
@@ -269,7 +264,7 @@ describe("effect fn laws", () => {
           expect(summary.violationCount).toBe(0);
           expect(summary.strictFailure).toBe(false);
         })
-      ).pipe(provideScopedLayer(testLayer))
+      ).pipe(provideScopedLayer(testLayer), Effect.orDie)
     ));
 
   it(
@@ -301,7 +296,7 @@ describe("effect fn laws", () => {
             expect(result.output).toContain("packages/demo/src/index.ts");
             expect(result.output).toContain('Use named Effect.fn("loadDemo") instead');
           })
-        ).pipe(provideScopedLayer(testLayer), Effect.provide(Context.empty() as Context.Context<unknown>))
+        ).pipe(provideScopedLayer(testLayer), Effect.orDie)
       ),
     30_000
   );

@@ -17,8 +17,9 @@ class JsoncPerson extends S.Class<JsoncPerson>($I`JsoncPerson`)(
 ) {}
 
 describe("Jsonc", () => {
-  it.effect("decodes JSONC text with comments and trailing commas into typed schema values", () =>
-    Effect.gen(function* () {
+  it.effect(
+    "decodes JSONC text with comments and trailing commas into typed schema values",
+    Effect.fnUntraced(function* () {
       const person = yield* decodeJsoncTextAs(JsoncPerson)(`{
         // comment
         "name": "Ada",
@@ -31,8 +32,9 @@ describe("Jsonc", () => {
     })
   );
 
-  it.effect("maps invalid JSONC into SchemaIssue.InvalidValue", () =>
-    Effect.gen(function* () {
+  it.effect(
+    "maps invalid JSONC into SchemaIssue.InvalidValue",
+    Effect.fnUntraced(function* () {
       const result = yield* Effect.exit(S.decodeUnknownEffect(JsoncTextToUnknown)(`{ "name": }`));
 
       expect(Exit.isFailure(result)).toBe(true);
@@ -45,8 +47,9 @@ describe("Jsonc", () => {
     })
   );
 
-  it.effect("fails to encode unknown values back into JSONC text", () =>
-    Effect.gen(function* () {
+  it.effect(
+    "fails to encode unknown values back into JSONC text",
+    Effect.fnUntraced(function* () {
       const result = yield* Effect.exit(
         S.encodeEffect(JsoncTextToUnknown)({
           name: "Ada",

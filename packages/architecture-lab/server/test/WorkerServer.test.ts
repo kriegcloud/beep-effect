@@ -15,8 +15,9 @@ const decodeWorkerId = S.decodeUnknownEffect(DomainWorker.WorkerId);
 const decodeOrganizationId = S.decodeUnknownEffect(DomainWorker.WorkerOrganizationId);
 
 describe("Worker server", () => {
-  it.effect("provides a configured Worker use-case facade", () =>
-    Effect.gen(function* () {
+  it.effect(
+    "provides a configured Worker use-case facade",
+    Effect.fnUntraced(function* () {
       const server = yield* WorkerServer;
       const id = yield* decodeWorkerId(1);
       const organizationId = yield* decodeOrganizationId(1);
@@ -29,6 +30,6 @@ describe("Worker server", () => {
       );
 
       expect(worker.status).toBe("active");
-    }).pipe(provideScopedLayer(ArchitectureLabServerTest))
+    }, provideScopedLayer(ArchitectureLabServerTest))
   );
 });

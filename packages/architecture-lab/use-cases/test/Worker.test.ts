@@ -39,8 +39,9 @@ const makeRepository = (): WorkerServer.Worker.WorkerRepositoryShape => {
 };
 
 describe("Worker use-cases", () => {
-  it.effect("creates and lists Worker entities", () =>
-    Effect.gen(function* () {
+  it.effect(
+    "creates and lists Worker entities",
+    Effect.fnUntraced(function* () {
       const workerId = yield* decodeWorkerId(1);
       const organizationId = yield* decodeOrganizationId(1);
       const useCases = WorkerServer.Worker.makeWorkerUseCases(makeRepository());
@@ -58,8 +59,9 @@ describe("Worker use-cases", () => {
     })
   );
 
-  it.effect("translates repository not-found failures to public failures", () =>
-    Effect.gen(function* () {
+  it.effect(
+    "translates repository not-found failures to public failures",
+    Effect.fnUntraced(function* () {
       const workerId = yield* decodeWorkerId(1);
       const useCases = WorkerServer.Worker.makeWorkerUseCases(makeRepository());
       const error = yield* useCases.get(new Worker.GetWorkerQuery({ id: workerId })).pipe(Effect.flip);

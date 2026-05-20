@@ -9,8 +9,9 @@ const decodeWorkerId = S.decodeUnknownEffect(DomainWorker.WorkerId);
 const decodeOrganizationId = S.decodeUnknownEffect(DomainWorker.WorkerOrganizationId);
 
 describe("Worker table", () => {
-  it.effect("projects the Worker entity through EntityTable", () =>
-    Effect.gen(function* () {
+  it.effect(
+    "projects the Worker entity through EntityTable",
+    Effect.fnUntraced(function* () {
       const id = yield* decodeWorkerId(1);
       const organizationId = yield* decodeOrganizationId(1);
       const worker = DomainWorker.create(
@@ -27,7 +28,7 @@ describe("Worker table", () => {
       expect(workerTable.definition).toBe(DomainWorker.Worker.definition);
       expect(columns.id.primary).toBe(true);
       expect(columns.displayName.name).toBe("display_name");
-      expect(fromWorkerRow(row).displayName).toBe("Ada Lovelace");
+      expect(fromWorkerRow({ ...row, id }).displayName).toBe("Ada Lovelace");
     })
   );
 });

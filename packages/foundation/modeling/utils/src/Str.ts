@@ -30,7 +30,7 @@ import * as A from "./Array.ts";
  * console.log(piped)
  * ```
  *
- * @category instances
+ * @category predicates
  * @since 0.0.0
  */
 export const equivalence: {
@@ -49,7 +49,7 @@ export const equivalence: {
  * console.log(sorted)
  * ```
  *
- * @category instances
+ * @category utilities
  * @since 0.0.0
  */
 export const orderAsc: Order.Order<string> = Str.Order;

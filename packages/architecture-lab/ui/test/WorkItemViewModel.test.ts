@@ -8,8 +8,9 @@ import * as S from "effect/Schema";
 const decodeWorkItemId = S.decodeUnknownEffect(DomainWorkItem.WorkItemId);
 
 describe("WorkItem UI view model", () => {
-  it.effect("derives status labels from the canonical status value", () =>
-    Effect.gen(function* () {
+  it.effect(
+    "derives status labels from the canonical status value",
+    Effect.fnUntraced(function* () {
       const id = yield* decodeWorkItemId("work-item-1");
       const workItem = DomainWorkItem.create(
         new DomainWorkItem.CreateWorkItemInput({
@@ -22,8 +23,9 @@ describe("WorkItem UI view model", () => {
     })
   );
 
-  it.effect("exposes archive as terminal", () =>
-    Effect.gen(function* () {
+  it.effect(
+    "exposes archive as terminal",
+    Effect.fnUntraced(function* () {
       const id = yield* decodeWorkItemId("work-item-1");
       const workItem = DomainWorkItem.create(
         new DomainWorkItem.CreateWorkItemInput({
@@ -31,7 +33,10 @@ describe("WorkItem UI view model", () => {
           title: "Document topology",
         })
       );
-      const archived = new DomainWorkItem.WorkItem({ ...workItem, status: "archived" });
+      const archived = new DomainWorkItem.WorkItem({
+        ...workItem,
+        status: "archived",
+      });
 
       expect(toWorkItemSummaryViewModel(archived, defaultWorkItemPublicConfig).visibleActions).toEqual([]);
     })

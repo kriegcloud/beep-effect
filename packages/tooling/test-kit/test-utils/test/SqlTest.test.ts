@@ -63,8 +63,9 @@ const doesTableExist = Effect.fn("SqlTest.doesTableExist")(function* (tableName:
 });
 
 describe("SqlTest", () => {
-  it.effect("creates a fresh SQLite database for each locally provided layer", () =>
-    Effect.gen(function* () {
+  it.effect(
+    "creates a fresh SQLite database for each locally provided layer",
+    Effect.fnUntraced(function* () {
       const createTable = Effect.gen(function* () {
         const sql = (yield* SqlClient.SqlClient).withoutTransforms();
         yield* sql`
@@ -88,8 +89,9 @@ describe("SqlTest", () => {
     })
   );
 
-  it.effect("runs migrate and seed hooks before the test effect executes", () =>
-    Effect.gen(function* () {
+  it.effect(
+    "runs migrate and seed hooks before the test effect executes",
+    Effect.fnUntraced(function* () {
       const result = yield* Effect.gen(function* () {
         const info = yield* TestDatabaseInfo;
         const fs = yield* FileSystem.FileSystem;
@@ -141,8 +143,9 @@ describe("SqlTest", () => {
     })
   );
 
-  it.effect("wraps hook failures in a typed harness error", () =>
-    Effect.gen(function* () {
+  it.effect(
+    "wraps hook failures in a typed harness error",
+    Effect.fnUntraced(function* () {
       const exit = yield* Effect.exit(
         Effect.void.pipe(
           provideScopedLayer(
@@ -166,8 +169,9 @@ describe("SqlTest", () => {
     })
   );
 
-  it.effect("removes the temporary SQLite directory when the layer scope closes", () =>
-    Effect.gen(function* () {
+  it.effect(
+    "removes the temporary SQLite directory when the layer scope closes",
+    Effect.fnUntraced(function* () {
       const scope = yield* Scope.make();
       const services = yield* Layer.buildWithScope(makeLayer(), scope);
       const info = Context.get(services, TestDatabaseInfo);
@@ -180,8 +184,9 @@ describe("SqlTest", () => {
     })
   );
 
-  it.effect("rejects invalid PGLite driver config as a typed harness error", () =>
-    Effect.gen(function* () {
+  it.effect(
+    "rejects invalid PGLite driver config as a typed harness error",
+    Effect.fnUntraced(function* () {
       const exit = yield* Effect.exit(
         Effect.void.pipe(
           provideScopedLayer(
@@ -206,17 +211,21 @@ describe("SqlTest", () => {
     })
   );
 
-  it("uses a generated PGLite Testcontainers password by default", () => {
-    const config = new PgliteTestcontainersTestDriverConfig({});
+  it.effect(
+    "uses a generated PGLite Testcontainers password by default",
+    Effect.fnUntraced(function* () {
+      const config = new PgliteTestcontainersTestDriverConfig({});
 
-    expect(config.username).toBe("postgres");
-    expect(config.database).toBe("postgres");
-    expect(config.password).not.toBe("postgres");
-    expect(config.password.length).toBeGreaterThan(20);
-  });
+      expect(config.username).toBe("postgres");
+      expect(config.database).toBe("postgres");
+      expect(config.password).not.toBe("postgres");
+      expect(config.password.length).toBeGreaterThan(20);
+    })
+  );
 
-  it.effect("rejects invalid external PostgreSQL connection URIs as typed harness errors", () =>
-    Effect.gen(function* () {
+  it.effect(
+    "rejects invalid external PostgreSQL connection URIs as typed harness errors",
+    Effect.fnUntraced(function* () {
       const exit = yield* Effect.exit(
         Effect.void.pipe(
           provideScopedLayer(

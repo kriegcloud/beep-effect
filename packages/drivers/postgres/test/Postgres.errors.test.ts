@@ -449,8 +449,9 @@ describe("Postgres interop", () => {
 });
 
 describe("Postgres Drizzle migrations", () => {
-  it.effect("normalizes synchronous native migrator setup failures", () =>
-    Effect.gen(function* () {
+  it.effect(
+    "normalizes synchronous native migrator setup failures",
+    Effect.fnUntraced(function* () {
       const error = yield* migrate({} as PostgresDrizzleDatabase, {
         migrationsFolder: "/tmp/beep-effect2-postgres-missing-migrations-folder/child",
       }).pipe(Effect.flip);

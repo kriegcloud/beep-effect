@@ -1720,7 +1720,7 @@ const packageShellDocgenContent = (target: ArchitecturePlanTarget, role: Archite
 `;
 
 const packageShellTsconfigContent = (): string => `{
-  "$schema": "http://json.schemastore.org/tsconfig",
+  "$schema": "https://json.schemastore.org/tsconfig",
   "extends": "../../../tsconfig.base.json",
   "include": ["src"],
   "compilerOptions": {
@@ -1732,7 +1732,7 @@ const packageShellTsconfigContent = (): string => `{
 `;
 
 const packageShellTestTsconfigContent = (): string => `{
-  "$schema": "http://json.schemastore.org/tsconfig",
+  "$schema": "https://json.schemastore.org/tsconfig",
   "extends": "../../../tsconfig.base.json",
   "include": ["src", "test", "dtslint"],
   "compilerOptions": {

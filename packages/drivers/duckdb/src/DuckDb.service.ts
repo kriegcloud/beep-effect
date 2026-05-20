@@ -6,7 +6,7 @@
  */
 
 import { make } from "@beep/identity";
-import { A } from "@beep/utils";
+import { A, thunkUndefined } from "@beep/utils";
 import {
   type DuckDBConnection,
   DuckDBInstance,
@@ -125,7 +125,7 @@ const releaseConnection = Effect.fn("DuckDb.releaseConnection")(
         connection.closeSync();
         instance.closeSync();
       },
-      catch: () => undefined,
+      catch: thunkUndefined,
     }).pipe(
       Effect.asVoid,
       Effect.catch(() => Effect.void)

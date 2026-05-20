@@ -17,8 +17,9 @@ class JsonlPerson extends S.Class<JsonlPerson>($I`JsonlPerson`)(
 ) {}
 
 describe("Jsonl", () => {
-  it.effect("decodes JSONL text into typed schema values", () =>
-    Effect.gen(function* () {
+  it.effect(
+    "decodes JSONL text into typed schema values",
+    Effect.fnUntraced(function* () {
       const people = yield* decodeJsonlTextAs(S.Array(JsonlPerson))(`{"name":"Ada","age":36}
 {"name":"Grace","age":85}
 `);
@@ -30,8 +31,9 @@ describe("Jsonl", () => {
     })
   );
 
-  it.effect("rejects malformed trailing lines instead of returning a parsed prefix", () =>
-    Effect.gen(function* () {
+  it.effect(
+    "rejects malformed trailing lines instead of returning a parsed prefix",
+    Effect.fnUntraced(function* () {
       const result = yield* Effect.exit(
         S.decodeUnknownEffect(JsonlTextToUnknown)(`{"name":"Ada","age":36}
 {invalid}
@@ -48,8 +50,9 @@ describe("Jsonl", () => {
     })
   );
 
-  it.effect("fails to encode unknown values back into JSONL text", () =>
-    Effect.gen(function* () {
+  it.effect(
+    "fails to encode unknown values back into JSONL text",
+    Effect.fnUntraced(function* () {
       const result = yield* Effect.exit(
         S.encodeEffect(JsonlTextToUnknown)([
           {

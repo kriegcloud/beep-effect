@@ -3,7 +3,7 @@ import { describe, expect, layer } from "@effect/vitest";
 import { Effect } from "effect";
 import * as A from "effect/Array";
 
-const runner = (provider: AiProviderCliProvider, command: string, args: ReadonlyArray<string>) =>
+const runner = (provider: AiProviderCliProvider, _command: string, args: ReadonlyArray<string>) =>
   Effect.succeed(
     new AiProviderCliProcessResult({
       exitCode: provider === "claude" ? 0 : 1,
@@ -14,8 +14,9 @@ const runner = (provider: AiProviderCliProvider, command: string, args: Readonly
 
 describe("@beep/ai-provider-cli", () => {
   layer(AiProviderCli.makeLayerFromRunner(runner))((it) => {
-    it.effect("maps Claude and Codex CLI exit codes to sanitized auth probes", () =>
-      Effect.gen(function* () {
+    it.effect(
+      "maps Claude and Codex CLI exit codes to sanitized auth probes",
+      Effect.fnUntraced(function* () {
         const providerCli = yield* AiProviderCli;
 
         const claude = yield* providerCli.checkAuth("claude");

@@ -37,7 +37,9 @@ describe("CauseTaggedError", () => {
 
   it("constructs extra-field errors in data-first form", () => {
     const cause = new Error("kapow");
-    const error = OperationError.new(cause, "boom", { operation: "load-profile" });
+    const error = OperationError.new(cause, "boom", {
+      operation: "load-profile",
+    });
 
     expect(error).toBeInstanceOf(OperationError);
     expect(S.is(OperationError)(error)).toBe(true);
@@ -57,8 +59,9 @@ describe("CauseTaggedError", () => {
     expect(error.operation).toBe("load-profile");
   });
 
-  it.effect("maps errors in data-first form", () =>
-    Effect.gen(function* () {
+  it.effect(
+    "maps errors in data-first form",
+    Effect.fnUntraced(function* () {
       const error = yield* Effect.flip(DomainError.mapError(Effect.fail("raw failure"), "boom"));
 
       expect(error).toBeInstanceOf(DomainError);
@@ -67,8 +70,9 @@ describe("CauseTaggedError", () => {
     })
   );
 
-  it.effect("maps errors in pipe-friendly form", () =>
-    Effect.gen(function* () {
+  it.effect(
+    "maps errors in pipe-friendly form",
+    Effect.fnUntraced(function* () {
       const error = yield* pipe(Effect.fail("raw failure"), DomainError.mapError("boom"), Effect.flip);
 
       expect(error).toBeInstanceOf(DomainError);
@@ -77,8 +81,9 @@ describe("CauseTaggedError", () => {
     })
   );
 
-  it.effect("keeps static helpers callable after destructuring", () =>
-    Effect.gen(function* () {
+  it.effect(
+    "keeps static helpers callable after destructuring",
+    Effect.fnUntraced(function* () {
       const { mapError, new: makeDomainError } = DomainError;
       const cause = new Error("kapow");
       const constructed = makeDomainError(cause, "boom");
@@ -91,10 +96,13 @@ describe("CauseTaggedError", () => {
     })
   );
 
-  it.effect("maps extra-field errors in data-first form", () =>
-    Effect.gen(function* () {
+  it.effect(
+    "maps extra-field errors in data-first form",
+    Effect.fnUntraced(function* () {
       const error = yield* Effect.flip(
-        OperationError.mapError(Effect.fail("raw failure"), "boom", { operation: "load-profile" })
+        OperationError.mapError(Effect.fail("raw failure"), "boom", {
+          operation: "load-profile",
+        })
       );
 
       expect(error).toBeInstanceOf(OperationError);
@@ -104,8 +112,9 @@ describe("CauseTaggedError", () => {
     })
   );
 
-  it.effect("maps extra-field errors in pipe-friendly form", () =>
-    Effect.gen(function* () {
+  it.effect(
+    "maps extra-field errors in pipe-friendly form",
+    Effect.fnUntraced(function* () {
       const error = yield* pipe(
         Effect.fail("raw failure"),
         OperationError.mapError("boom", { operation: "load-profile" }),

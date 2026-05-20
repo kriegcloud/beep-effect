@@ -8,9 +8,12 @@ import { FetchHttpClient } from "effect/unstable/http";
 const apiKey = pipe(Bun.env.AI_VENICE_API_KEY, O.fromUndefinedOr, O.filter(Str.isNonEmpty));
 
 const makeLiveLayer = (key: string) =>
-  VeniceAI.makeLayer(new VeniceAIConfigInput({ apiKey: Redacted.make(key), baseUrl: VENICE_API_URL })).pipe(
-    Layer.provide(FetchHttpClient.layer)
-  );
+  VeniceAI.makeLayer(
+    new VeniceAIConfigInput({
+      apiKey: Redacted.make(key),
+      baseUrl: VENICE_API_URL,
+    })
+  ).pipe(Layer.provide(FetchHttpClient.layer));
 
 pipe(
   apiKey,
@@ -24,8 +27,9 @@ pipe(
     onSome: (key) =>
       describe.sequential("VeniceAI live integration", () => {
         layer(makeLiveLayer(key), { timeout: "30 seconds" })((it) => {
-          it.effect("lists models through the live Venice API", () =>
-            Effect.gen(function* () {
+          it.effect(
+            "lists models through the live Venice API",
+            Effect.fnUntraced(function* () {
               const venice = yield* VeniceAI;
               const response = yield* venice.listModels();
 

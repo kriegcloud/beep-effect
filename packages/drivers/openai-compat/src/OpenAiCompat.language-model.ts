@@ -7,7 +7,7 @@
 
 import { $OpenaiCompatId } from "@beep/identity";
 import { decodeJsonString, encodeJsonString } from "@beep/schema/Json";
-import { A, Str } from "@beep/utils";
+import { A, Str, thunkTrue } from "@beep/utils";
 import { Effect, flow, Layer, pipe, Stream, Tuple } from "effect";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
@@ -203,12 +203,9 @@ const mapSchemaError =
     makeAiError(moduleName, method, AiError.InvalidOutputError.fromSchemaError(cause));
 
 const jsonObjectOrEmpty = (value: unknown): Readonly<Record<string, unknown>> =>
-  pipe(
-    decodeUnknownRecordOption(value),
-    O.getOrElse((): Readonly<Record<string, unknown>> => ({}))
-  );
+  pipe(decodeUnknownRecordOption(value), O.getOrElse(R.empty<string, unknown>));
 
-const nonEmptyStringOption: (value: string) => O.Option<string> = O.liftPredicate(Str.isNonEmpty);
+const nonEmptyStringOption = O.liftPredicate(Str.isNonEmpty);
 const isImageMediaType = flow(Str.toLowerCase, Str.startsWith("image/"));
 
 const toFinishReason: (reason: O.Option<string>) => Response.FinishReason = flow(
@@ -474,7 +471,7 @@ const prepareTool = (
             Tool.getStrictMode(tool),
             O.fromUndefinedOr,
             O.orElse(() => O.fromUndefinedOr(config.strictJsonSchema)),
-            O.getOrElse(() => true)
+            O.getOrElse(thunkTrue)
           ),
         },
         type: "function",
@@ -547,10 +544,7 @@ const prepareResponseFormat = (
             schema: jsonObjectOrEmpty(
               Tool.getJsonSchemaFromSchema(responseFormat.schema, { transformer: toCodecOpenAI })
             ),
-            strict: pipe(
-              O.fromUndefinedOr(config.strictJsonSchema),
-              O.getOrElse(() => true)
-            ),
+            strict: pipe(O.fromUndefinedOr(config.strictJsonSchema), O.getOrElse(thunkTrue)),
           },
           type: "json_schema",
         })

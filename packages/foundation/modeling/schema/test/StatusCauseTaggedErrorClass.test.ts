@@ -3,7 +3,9 @@ import { describe, expect, it } from "@effect/vitest";
 import { Data, Effect, Option as O, pipe } from "effect";
 import * as S from "effect/Schema";
 
-class RawFailure extends Data.TaggedError("RawFailure")<{ readonly message: string }> {}
+class RawFailure extends Data.TaggedError("RawFailure")<{
+  readonly message: string;
+}> {}
 
 const rawFailure = () => new RawFailure({ message: "raw failure" });
 
@@ -61,8 +63,9 @@ describe("StatusCauseTaggedErrorClass", () => {
     expect(O.isNone(error.cause)).toBe(true);
   });
 
-  it.effect("keeps static helpers callable after destructuring", () =>
-    Effect.gen(function* () {
+  it.effect(
+    "keeps static helpers callable after destructuring",
+    Effect.fnUntraced(function* () {
       const { mapError, new: makeHttpError, noCause } = HttpError;
       const cause = new Error("kapow");
       const constructed = makeHttpError(cause, "boom", 500);
@@ -111,8 +114,9 @@ describe("StatusCauseTaggedErrorClass", () => {
     expect(O.isNone(error.cause)).toBe(true);
   });
 
-  it.effect("maps errors in data-first form", () =>
-    Effect.gen(function* () {
+  it.effect(
+    "maps errors in data-first form",
+    Effect.fnUntraced(function* () {
       const error = yield* Effect.flip(HttpError.mapError(Effect.fail(rawFailure()), "boom", 500));
 
       expect(error).toBeInstanceOf(HttpError);
@@ -122,8 +126,9 @@ describe("StatusCauseTaggedErrorClass", () => {
     })
   );
 
-  it.effect("maps errors in pipe-friendly form", () =>
-    Effect.gen(function* () {
+  it.effect(
+    "maps errors in pipe-friendly form",
+    Effect.fnUntraced(function* () {
       const error = yield* pipe(Effect.fail(rawFailure()), HttpError.mapError("boom", 500), Effect.flip);
 
       expect(error).toBeInstanceOf(HttpError);
@@ -133,8 +138,9 @@ describe("StatusCauseTaggedErrorClass", () => {
     })
   );
 
-  it.effect("maps extra-field errors in pipe-friendly form", () =>
-    Effect.gen(function* () {
+  it.effect(
+    "maps extra-field errors in pipe-friendly form",
+    Effect.fnUntraced(function* () {
       const error = yield* pipe(
         Effect.fail(rawFailure()),
         ProviderError.mapError("boom", 502, { provider: "local" }),
@@ -149,10 +155,13 @@ describe("StatusCauseTaggedErrorClass", () => {
     })
   );
 
-  it.effect("maps extra-field errors in data-first form", () =>
-    Effect.gen(function* () {
+  it.effect(
+    "maps extra-field errors in data-first form",
+    Effect.fnUntraced(function* () {
       const error = yield* Effect.flip(
-        ProviderError.mapError(Effect.fail(rawFailure()), "boom", 502, { provider: "local" })
+        ProviderError.mapError(Effect.fail(rawFailure()), "boom", 502, {
+          provider: "local",
+        })
       );
 
       expect(error).toBeInstanceOf(ProviderError);

@@ -36,6 +36,7 @@ import {
   withId,
   withMark,
 } from "@beep/nlp/Core/index";
+import { NonNegativeInt } from "@beep/schema";
 import { Str } from "@beep/utils";
 import { Chunk, Effect, Schema } from "effect";
 import { describe, expect, it } from "vitest";
@@ -44,6 +45,8 @@ const firstIncludes = (values: ReadonlyArray<string>, searchString: string): boo
   const first = values[0];
   return first !== undefined && Str.includes(searchString)(first);
 };
+const nonNegativeInt = Schema.decodeUnknownSync(NonNegativeInt);
+const mark = (start: number, end: number) => [nonNegativeInt(start), nonNegativeInt(end)] as const;
 
 describe("Core Pattern", () => {
   it("creates element builders with optional values", () => {
@@ -55,7 +58,7 @@ describe("Core Pattern", () => {
   });
 
   it("supports pattern construction and inspection helpers", () => {
-    const pattern = withMark(make("test", [pos("ADJ"), pos("NOUN"), literal("thing")]), [0, 1]);
+    const pattern = withMark(make("test", [pos("ADJ"), pos("NOUN"), literal("thing")]), mark(0, 1));
 
     expect(length(pattern)).toBe(3);
     expect(isEmpty(pattern)).toBe(false);
@@ -79,7 +82,7 @@ describe("Core Pattern", () => {
     expect(
       Chunk.isChunk(filterElements(extended, (item: PatternElement) => item._tag !== "LiteralPatternElement").elements)
     ).toBe(true);
-    expect(hasMark(prependElements(withMark(base, [0, 1]), [literal("the")]))).toBe(false);
+    expect(hasMark(prependElements(withMark(base, mark(0, 1)), [literal("the")]))).toBe(false);
   });
 
   it("supports patch-based literal generalization", () => {
@@ -94,7 +97,7 @@ describe("Core Pattern", () => {
     const generalized = generalizeLiterals(pattern, (values) =>
       firstIncludes(values, "2010") ? entity("DATE") : pos("NOUN")
     );
-    const combined = combine(pattern, make("other", [pos("VERB")]), "combined");
+    const combined = combine(pattern, make("other", [pos("VERB")]), { id: "combined" });
 
     expect(elementAt(patched, 0)?._tag).toBe("EntityPatternElement");
     expect(elementAt(patched, 1)?._tag).toBe("POSPatternElement");

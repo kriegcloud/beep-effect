@@ -3,40 +3,12 @@ import type * as Cause from "effect/Cause";
 import * as Effect from "effect/Effect";
 import * as Queue from "effect/Queue";
 import * as S from "effect/Schema";
-import * as SchemaIssue from "effect/SchemaIssue";
 import * as Sink from "effect/Sink";
 import * as Stdio from "effect/Stdio";
 import * as Stream from "effect/Stream";
 import type { ChildProcessSpawner } from "effect/unstable/process";
 
-const formatSchemaIssue = SchemaIssue.makeFormatterDefault();
 const encoder = new TextEncoder();
-
-export const decodeExtRequestRegistration =
-  <A, I>(method: string, payload: S.Codec<A, I>, handler: (payload: A) => Effect.Effect<unknown, AcpError.AcpError>) =>
-  (params: unknown): Effect.Effect<unknown, AcpError.AcpError> =>
-    S.decodeUnknownEffect(payload)(params).pipe(
-      Effect.mapError((error) =>
-        AcpError.AcpRequestError.invalidParams(`Invalid ${method} payload: ${formatSchemaIssue(error.issue)}`, {
-          issue: error.issue,
-        })
-      ),
-      Effect.flatMap((decoded) => handler(decoded))
-    );
-
-export const decodeExtNotificationRegistration =
-  <A, I>(method: string, payload: S.Codec<A, I>, handler: (payload: A) => Effect.Effect<void, AcpError.AcpError>) =>
-  (params: unknown): Effect.Effect<void, AcpError.AcpError> =>
-    S.decodeUnknownEffect(payload)(params).pipe(
-      Effect.mapError(
-        (error) =>
-          new AcpError.AcpProtocolParseError({
-            detail: `Invalid ${method} notification payload: ${formatSchemaIssue(error.issue)}`,
-            cause: error,
-          })
-      ),
-      Effect.flatMap((decoded) => handler(decoded))
-    );
 
 const JsonRpcId = S.Union([S.Number, S.String]);
 const JsonRpcHeaders = S.Array(S.Unknown);

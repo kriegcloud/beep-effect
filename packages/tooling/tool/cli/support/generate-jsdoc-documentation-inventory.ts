@@ -180,8 +180,14 @@ const topoSortPackageNames = () => {
   }
 
   return A.filter(
-    A.map(Str.split(/\r?\n/)(result.stdout), (line) => Str.trim(line)),
-    (line) => Str.startsWith("@")(line)
+    A.map(
+      A.filter(
+        A.map(Str.split(/\r?\n/)(result.stdout), (line) => Str.trim(line)),
+        (line) => Str.startsWith("@")(line)
+      ),
+      (line) => Str.split(/\s+/u)(line)[0]
+    ),
+    (packageName) => packageName !== undefined
   );
 };
 

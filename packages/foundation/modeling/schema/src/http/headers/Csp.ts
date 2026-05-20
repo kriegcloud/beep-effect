@@ -120,6 +120,7 @@ export const createDirectiveValue: {
     value: T | readonly T[],
     options: DirectiveValueOptions
   ): `${string} ${string}`;
+  <const T extends string>(value: T | readonly T[]): (directiveName: string) => `${string} ${string}`;
   <const T extends string>(
     value: T | readonly T[],
     options: DirectiveValueOptions

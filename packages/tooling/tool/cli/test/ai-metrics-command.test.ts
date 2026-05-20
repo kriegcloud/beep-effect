@@ -49,6 +49,7 @@ const decodeOtlpExportResult = S.decodeUnknownEffect(S.fromJsonString(AiMetricsO
 const decodeSourceDiscovery = S.decodeUnknownEffect(S.fromJsonString(AiMetricsSourceDiscoveryResult));
 const decodeWeeklyReport = S.decodeUnknownEffect(S.fromJsonString(AiMetricsWeeklyReportResult));
 const decodeUnknownJson = S.decodeUnknownEffect(S.UnknownFromJsonString);
+const isString = (value: unknown): value is string => typeof value === "string";
 const farFutureUntilEpochMs = 4_102_444_800_000;
 
 const expectAiMetricsCommandFailure = Effect.fn("AIMetricsCommandTest.expectAiMetricsCommandFailure")(function* (
@@ -98,7 +99,7 @@ const writeText = Effect.fn("AIMetricsCommandTest.writeText")(function* (filePat
 });
 
 const loggedText = Effect.fn("AIMetricsCommandTest.loggedText")(function* () {
-  return pipe(yield* TestConsole.logLines, A.join("\n"));
+  return pipe(yield* TestConsole.logLines, A.filter(isString), A.join("\n"));
 });
 
 const lastLoggedLine = Effect.fn("AIMetricsCommandTest.lastLoggedLine")(function* () {
@@ -858,7 +859,7 @@ describe("ai-metrics command", () => {
               const resultJson = yield* lastLoggedLine();
               const result = yield* decodeForwarderResult(resultJson);
               const otlpExport = O.fromNullishOr(result.otlpExport);
-              const errorOutput = pipe(yield* TestConsole.errorLines, A.join("\n"));
+              const errorOutput = pipe(yield* TestConsole.errorLines, A.filter(isString), A.join("\n"));
 
               expect(result.sourceFileCount).toBe(1);
               expect(result.turnCount).toBeGreaterThan(0);

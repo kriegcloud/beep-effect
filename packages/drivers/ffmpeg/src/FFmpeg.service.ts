@@ -6,7 +6,7 @@
  */
 
 import { $FfmpegId } from "@beep/identity/packages";
-import { A, Str } from "@beep/utils";
+import { A, Str, thunkEmptyStr } from "@beep/utils";
 import { Context, Effect, FileSystem, Layer, Number as N, Order, Path, pipe, Ref, Stream } from "effect";
 import * as O from "effect/Option";
 import type * as PlatformError from "effect/PlatformError";
@@ -227,10 +227,7 @@ const defaultConfig = (input?: FFmpegConfigInput | undefined): FFmpegConfig =>
 const collectText = <E>(stream: Stream.Stream<Uint8Array, E>): Effect.Effect<string, E> =>
   stream.pipe(
     Stream.decodeText(),
-    Stream.runFold(
-      () => "",
-      (acc, chunk) => `${acc}${chunk}`
-    )
+    Stream.runFold(thunkEmptyStr, (acc, chunk) => `${acc}${chunk}`)
   );
 
 const parseNumber = (value: unknown): O.Option<number> => {
@@ -506,12 +503,7 @@ const collectProgressText = Effect.fn("FFmpeg.collectProgressText")(function* (
         const hasTrailingLineBreak = Str.endsWith("\n")(combined);
         const lines = Str.split(/\r?\n/)(combined);
         const completeLines = hasTrailingLineBreak ? lines : A.dropRight(lines, 1);
-        const buffer = hasTrailingLineBreak
-          ? ""
-          : pipe(
-              A.last(lines),
-              O.getOrElse(() => "")
-            );
+        const buffer = hasTrailingLineBreak ? "" : pipe(A.last(lines), O.getOrElse(thunkEmptyStr));
         let nextState: ProgressState = {
           ...current,
           buffer,

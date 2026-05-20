@@ -38,8 +38,9 @@ const makeRepository = (
 };
 
 describe("CanvasProject use-cases", () => {
-  it.effect("redacts repository unavailable details at the public action boundary", () =>
-    Effect.gen(function* () {
+  it.effect(
+    "redacts repository unavailable details at the public action boundary",
+    Effect.fnUntraced(function* () {
       const canvasProjectId = yield* decodeCanvasProjectId("canvas-project-1");
       const useCases = CanvasProjectServer.CanvasProject.makeCanvasProjectUseCases({
         create: () =>
@@ -78,12 +79,16 @@ describe("CanvasProject use-cases", () => {
         .pipe(Effect.flip);
 
       expect(error._tag).toBe("CanvasProjectActionFailed");
+      if (error._tag !== "CanvasProjectActionFailed") {
+        return;
+      }
       expect(error.reason).toBe(CanvasProject.CANVAS_PROJECT_ACTION_UNAVAILABLE_REASON);
     })
   );
 
-  it.effect("redacts repository conflict details at the public action boundary", () =>
-    Effect.gen(function* () {
+  it.effect(
+    "redacts repository conflict details at the public action boundary",
+    Effect.fnUntraced(function* () {
       const canvasProjectId = yield* decodeCanvasProjectId("canvas-project-1");
       const useCases = CanvasProjectServer.CanvasProject.makeCanvasProjectUseCases({
         create: () =>
@@ -110,13 +115,17 @@ describe("CanvasProject use-cases", () => {
         .pipe(Effect.flip);
 
       expect(error._tag).toBe("CanvasProjectConflict");
+      if (error._tag !== "CanvasProjectConflict") {
+        return;
+      }
       expect(error.reason).toBe(CanvasProject.CANVAS_PROJECT_CONFLICT_REASON);
       expect(error.reason).not.toContain("canvas_project");
     })
   );
 
-  it.effect("translates repository not-found failures to public failures", () =>
-    Effect.gen(function* () {
+  it.effect(
+    "translates repository not-found failures to public failures",
+    Effect.fnUntraced(function* () {
       const canvasProjectId = yield* decodeCanvasProjectId("canvas-project-1");
       const missingCanvasProjectId = yield* decodeCanvasProjectId("missing");
       const useCases = CanvasProjectServer.CanvasProject.makeCanvasProjectUseCases(makeRepository(canvasProjectId));
@@ -132,8 +141,9 @@ describe("CanvasProject use-cases", () => {
     })
   );
 
-  it.effect("keeps archived projects terminal at the use-case boundary", () =>
-    Effect.gen(function* () {
+  it.effect(
+    "keeps archived projects terminal at the use-case boundary",
+    Effect.fnUntraced(function* () {
       const canvasProjectId = yield* decodeCanvasProjectId("canvas-project-1");
       const canvasNodeId = yield* decodeCanvasNodeId("node-1");
       const useCases = CanvasProjectServer.CanvasProject.makeCanvasProjectUseCases(makeRepository(canvasProjectId));

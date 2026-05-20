@@ -6,6 +6,7 @@
  */
 
 import { $OnepasswordCliId } from "@beep/identity";
+import { thunkEmptyStr } from "@beep/utils";
 import { Context, Effect, Layer, Redacted, Stream } from "effect";
 import * as A from "effect/Array";
 import * as Str from "effect/String";
@@ -22,10 +23,7 @@ const $I = $OnepasswordCliId.create("OnePasswordCli.service");
 const collectText = <E>(stream: Stream.Stream<Uint8Array, E>): Effect.Effect<string, E> =>
   stream.pipe(
     Stream.decodeText(),
-    Stream.runFold(
-      () => "",
-      (acc, chunk) => `${acc}${chunk}`
-    )
+    Stream.runFold(thunkEmptyStr, (acc, chunk) => `${acc}${chunk}`)
   );
 
 /**

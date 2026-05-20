@@ -33,6 +33,7 @@ const decodeArchivePoorCandidatesManifest = S.decodeUnknownSync(S.fromJsonString
 const decodeDetectBordersReport = S.decodeUnknownSync(S.fromJsonString(DetectBordersReport));
 const decodeDetectFacesReport = S.decodeUnknownEffect(S.fromJsonString(DetectFacesReport));
 const decodeNormalizeManifest = S.decodeUnknownSync(S.fromJsonString(NormalizeManifest));
+const isString = (value: unknown): value is string => typeof value === "string";
 
 class FilesTestError extends Data.TaggedError("FilesTestError")<{ readonly cause: unknown }> {}
 
@@ -179,12 +180,12 @@ const readArchivePoorCandidatesManifest = Effect.fn("FilesTest.readArchivePoorCa
 });
 
 const readDetectBordersJsonLog = Effect.fn("FilesTest.readDetectBordersJsonLog")(function* () {
-  const lines = yield* TestConsole.logLines;
+  const lines = A.filter(yield* TestConsole.logLines, isString);
   return decodeDetectBordersReport(A.join("\n")(lines));
 });
 
 const readDetectFacesJsonLog = Effect.fn("FilesTest.readDetectFacesJsonLog")(function* () {
-  const lines = yield* TestConsole.logLines;
+  const lines = A.filter(yield* TestConsole.logLines, isString);
   return yield* decodeDetectFacesReport(A.join("\n")(lines)).pipe(Effect.mapError(filesTestError));
 });
 

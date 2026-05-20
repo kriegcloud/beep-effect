@@ -108,7 +108,7 @@ describe("withEmptyArrayDefaults", () => {
   });
 
   it("supports the data-first call style", () => {
-    const Tags = SchemaUtils.withEmptyArrayDefaults<string>(S.String.pipe(S.Array));
+    const Tags = SchemaUtils.withEmptyArrayDefaults(S.String.pipe(S.Array));
     const Settings = S.Struct({ tags: Tags });
 
     expect(A.isReadonlyArrayEmpty(S.decodeUnknownSync(Settings)({ tags: undefined }).tags)).toBe(true);

@@ -50,8 +50,9 @@ class InvalidNumberRow extends S.Class<InvalidNumberRow>($I`InvalidNumberRow`)(
 ) {}
 
 describe("CSV", () => {
-  it.effect("decodes headered CSV text into typed row arrays", () =>
-    Effect.gen(function* () {
+  it.effect(
+    "decodes headered CSV text into typed row arrays",
+    Effect.fnUntraced(function* () {
       const csv = CSV(UserRow);
       const rows = yield* S.decodeUnknownEffect(csv)(
         "id,first_name,last_name,address\n1,Ada,Lovelace,London\n2,Grace,Hopper,New York"
@@ -64,8 +65,9 @@ describe("CSV", () => {
     })
   );
 
-  it.effect("maps input columns by header name even when the file order differs", () =>
-    Effect.gen(function* () {
+  it.effect(
+    "maps input columns by header name even when the file order differs",
+    Effect.fnUntraced(function* () {
       const csv = CSV(UserRow);
       const rows = yield* S.decodeUnknownEffect(csv)(
         "address,last_name,id,first_name\nLondon,Lovelace,1,Ada\nNew York,Hopper,2,Grace"
@@ -77,8 +79,9 @@ describe("CSV", () => {
     })
   );
 
-  it.effect("supports delimiter, quoting, trimming, skipRows, skipLines, and maxRows", () =>
-    Effect.gen(function* () {
+  it.effect(
+    "supports delimiter, quoting, trimming, skipRows, skipLines, and maxRows",
+    Effect.fnUntraced(function* () {
       const csv = CSV(UserRow, {
         delimiter: ";",
         maxRows: 1,
@@ -98,8 +101,9 @@ describe("CSV", () => {
     })
   );
 
-  it.effect("supports curried options, empty documents, and short non-strict rows", () =>
-    Effect.gen(function* () {
+  it.effect(
+    "supports curried options, empty documents, and short non-strict rows",
+    Effect.fnUntraced(function* () {
       const csv = CSV({ trim: true })(OptionalUserRow);
 
       expect(yield* S.decodeUnknownEffect(csv)("")).toEqual([]);
@@ -107,15 +111,20 @@ describe("CSV", () => {
       const rows = yield* S.decodeUnknownEffect(csv)("id, first_name, nickname\n1, Ada");
 
       expect(rows).toHaveLength(1);
-      expect(rows[0]).toBeInstanceOf(OptionalUserRow);
-      expect(rows[0].id).toBe(1);
-      expect(rows[0].first_name).toBe("Ada");
-      expect(rows[0].nickname).toBe("");
+      const [row] = rows as ReadonlyArray<OptionalUserRow>;
+      expect(row).toBeInstanceOf(OptionalUserRow);
+      if (row === undefined) {
+        return;
+      }
+      expect(row.id).toBe(1);
+      expect(row.first_name).toBe("Ada");
+      expect(row.nickname).toBe("");
     })
   );
 
-  it.effect("encodes rows back to branded CSV text in schema field order", () =>
-    Effect.gen(function* () {
+  it.effect(
+    "encodes rows back to branded CSV text in schema field order",
+    Effect.fnUntraced(function* () {
       const csv = CSV(UserRow);
       const rows = [
         new UserRow({
@@ -136,8 +145,9 @@ describe("CSV", () => {
     })
   );
 
-  it.effect("renders missing optional encoded fields as empty cells", () =>
-    Effect.gen(function* () {
+  it.effect(
+    "renders missing optional encoded fields as empty cells",
+    Effect.fnUntraced(function* () {
       const csv = CSV(OptionalUserRow);
       const rows = [
         new OptionalUserRow({
@@ -152,8 +162,9 @@ describe("CSV", () => {
     })
   );
 
-  it.effect("renders nullable encoded fields as empty cells", () =>
-    Effect.gen(function* () {
+  it.effect(
+    "renders nullable encoded fields as empty cells",
+    Effect.fnUntraced(function* () {
       const csv = CSV(NullableUserRow);
       const rows = [
         new NullableUserRow({
@@ -168,8 +179,9 @@ describe("CSV", () => {
     })
   );
 
-  it.effect("rejects duplicate headers", () =>
-    Effect.gen(function* () {
+  it.effect(
+    "rejects duplicate headers",
+    Effect.fnUntraced(function* () {
       const result = yield* Effect.exit(
         S.decodeUnknownEffect(CSV(UserRow))("id,id,last_name,address\n1,2,Lovelace,London")
       );
@@ -182,8 +194,9 @@ describe("CSV", () => {
     })
   );
 
-  it.effect("rejects missing or unexpected headers", () =>
-    Effect.gen(function* () {
+  it.effect(
+    "rejects missing or unexpected headers",
+    Effect.fnUntraced(function* () {
       const result = yield* Effect.exit(
         S.decodeUnknownEffect(CSV(UserRow))("id,first_name,address,unexpected\n1,Ada,London,nope")
       );
@@ -198,8 +211,9 @@ describe("CSV", () => {
     })
   );
 
-  it.effect("reports missing-only and unexpected-only header mismatches", () =>
-    Effect.gen(function* () {
+  it.effect(
+    "reports missing-only and unexpected-only header mismatches",
+    Effect.fnUntraced(function* () {
       const missingOnly = yield* Effect.exit(
         S.decodeUnknownEffect(CSV(UserRow))("id,first_name,last_name\n1,Ada,Lovelace")
       );
@@ -223,8 +237,9 @@ describe("CSV", () => {
     })
   );
 
-  it.effect("rejects row length mismatches when strict column handling is enabled", () =>
-    Effect.gen(function* () {
+  it.effect(
+    "rejects row length mismatches when strict column handling is enabled",
+    Effect.fnUntraced(function* () {
       const result = yield* Effect.exit(
         S.decodeUnknownEffect(CSV(UserRow, { strictColumnHandling: true }))(
           "id,first_name,last_name,address\n1,Ada,Lovelace"
@@ -239,8 +254,9 @@ describe("CSV", () => {
     })
   );
 
-  it.effect("rejects extra row cells even without strict column handling", () =>
-    Effect.gen(function* () {
+  it.effect(
+    "rejects extra row cells even without strict column handling",
+    Effect.fnUntraced(function* () {
       const result = yield* Effect.exit(
         S.decodeUnknownEffect(CSV(UserRow))("id,first_name,last_name,address\n1,Ada,Lovelace,London,extra")
       );
@@ -253,8 +269,9 @@ describe("CSV", () => {
     })
   );
 
-  it.effect("fails when the row schema does not model a CSV text boundary", () =>
-    Effect.gen(function* () {
+  it.effect(
+    "fails when the row schema does not model a CSV text boundary",
+    Effect.fnUntraced(function* () {
       const result = yield* Effect.exit(S.decodeUnknownEffect(CSV(InvalidNumberRow))("id,name\n1,Ada"));
 
       expect(Exit.isFailure(result)).toBe(true);
@@ -265,8 +282,9 @@ describe("CSV", () => {
     })
   );
 
-  it.effect("fails to encode non-string-compatible field output", () =>
-    Effect.gen(function* () {
+  it.effect(
+    "fails to encode non-string-compatible field output",
+    Effect.fnUntraced(function* () {
       const csv = CSV(InvalidNumberRow);
       const rows = [new InvalidNumberRow({ id: 1, name: "Ada" })];
       const result = yield* Effect.exit(S.encodeEffect(csv)(rows));

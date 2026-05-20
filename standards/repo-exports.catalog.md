@@ -20,9 +20,9 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | packagesWithPublicExports | 77 |
 | packagesWithoutPublicExports | 1 |
 | missingWorkspaceMetadata | 0 |
-| importSpecifiers | 920 |
-| publicExportEntries | 13568 |
-| uniquePackageSymbols | 5445 |
+| importSpecifiers | 930 |
+| publicExportEntries | 13708 |
+| uniquePackageSymbols | 5477 |
 
 ## Seed Discovery Proof
 
@@ -39,18 +39,18 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 |---:|---|---|---|---:|---:|---:|
 | 1 | `@beep/types` | `packages/foundation/primitive/types` | has-public-exports | 6 | 14 | 10 |
 | 2 | `@beep/identity` | `packages/foundation/modeling/identity` | has-public-exports | 4 | 318 | 106 |
-| 3 | `@beep/utils` | `packages/foundation/modeling/utils` | has-public-exports | 21 | 736 | 556 |
+| 3 | `@beep/utils` | `packages/foundation/modeling/utils` | has-public-exports | 21 | 738 | 558 |
 | 4 | `@beep/data` | `packages/foundation/primitive/data` | has-public-exports | 8 | 44 | 38 |
 | 5 | `@beep/messages` | `packages/foundation/modeling/messages` | has-public-exports | 3 | 15 | 5 |
-| 6 | `@beep/schema` | `packages/foundation/modeling/schema` | has-public-exports | 133 | 3051 | 738 |
+| 6 | `@beep/schema` | `packages/foundation/modeling/schema` | has-public-exports | 136 | 3143 | 738 |
 | 7 | `@beep/shared-domain` | `packages/shared/domain` | has-public-exports | 41 | 291 | 111 |
 | 8 | `@beep/test-utils` | `packages/tooling/test-kit/test-utils` | has-public-exports | 4 | 62 | 21 |
 | 9 | `@beep/installer-domain` | `packages/installer/domain` | has-public-exports | 7 | 47 | 30 |
 | 10 | `@beep/drizzle` | `packages/drivers/drizzle` | has-public-exports | 1 | 8 | 7 |
 | 11 | `@beep/architecture-lab-domain` | `packages/architecture-lab/domain` | has-public-exports | 9 | 46 | 29 |
 | 12 | `@beep/colors` | `packages/foundation/capability/colors` | has-public-exports | 4 | 34 | 8 |
-| 13 | `@beep/chalk` | `packages/foundation/capability/chalk` | has-public-exports | 4 | 140 | 24 |
-| 14 | `@beep/repo-utils` | `packages/tooling/library/repo-utils` | has-public-exports | 60 | 1584 | 474 |
+| 13 | `@beep/chalk` | `packages/foundation/capability/chalk` | has-public-exports | 11 | 186 | 53 |
+| 14 | `@beep/repo-utils` | `packages/tooling/library/repo-utils` | has-public-exports | 65 | 1615 | 503 |
 | 15 | `@beep/phoenix` | `packages/drivers/phoenix` | has-public-exports | 6 | 137 | 36 |
 | 16 | `@beep/duckdb` | `packages/drivers/duckdb` | has-public-exports | 1 | 12 | 10 |
 | 17 | `@beep/canvas-domain` | `packages/canvas/domain` | has-public-exports | 5 | 34 | 24 |
@@ -88,7 +88,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | 49 | `@beep/workspace-tables` | `packages/workspace/tables` | has-public-exports | 4 | 7 | 5 |
 | 50 | `@beep/db-admin` | `packages/_internal/db-admin` | has-public-exports | 5 | 15 | 6 |
 | 51 | `@beep/architecture-lab-client` | `packages/architecture-lab/client` | has-public-exports | 2 | 6 | 6 |
-| 52 | `@beep/repo-cli` | `packages/tooling/tool/cli` | has-public-exports | 84 | 862 | 527 |
+| 52 | `@beep/repo-cli` | `packages/tooling/tool/cli` | has-public-exports | 79 | 831 | 499 |
 | 53 | `@beep/shared-server` | `packages/shared/server` | has-public-exports | 2 | 2 | 1 |
 | 54 | `@beep/canvas-server` | `packages/canvas/server` | has-public-exports | 4 | 18 | 16 |
 | 55 | `@beep/shared-config` | `packages/shared/config` | has-public-exports | 2 | 2 | 1 |
@@ -503,161 +503,161 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/utils` | `thunkTrue` | const | `packages/foundation/modeling/utils/src/thunk.ts:106` | A thunk that always yields `true`. |
 | `@beep/utils` | `thunkUndefined` | const | `packages/foundation/modeling/utils/src/thunk.ts:70` | A thunk that always yields `undefined`. |
 | `@beep/utils` | `thunkVoid` | const | `packages/foundation/modeling/utils/src/thunk.ts:88` | A thunk that always yields `void 0` (equivalent to `undefined`). |
-| `@beep/utils/Array` | `allocate` | const | `node_modules/effect/dist/Array.d.ts:128` | Creates a new `Array` of the specified length with all slots uninitialized. |
-| `@beep/utils/Array` | `append` | const | `node_modules/effect/dist/Array.d.ts:836` | Adds a single element to the end of an iterable, returning a `NonEmptyArray`. |
-| `@beep/utils/Array` | `appendAll` | const | `node_modules/effect/dist/Array.d.ts:903` | Concatenates two iterables into a single array. |
+| `@beep/utils/Array` | `allocate` | const | `node_modules/effect/dist/Array.d.ts:138` | Creates a new `Array` of the specified length with all slots uninitialized. |
+| `@beep/utils/Array` | `append` | const | `node_modules/effect/dist/Array.d.ts:902` | Adds a single element to the end of an iterable, returning a `NonEmptyArray`. |
+| `@beep/utils/Array` | `appendAll` | const | `node_modules/effect/dist/Array.d.ts:975` | Concatenates two iterables into a single array. |
 | `@beep/utils/Array` | `appendAllInPlace` | const | `packages/foundation/modeling/utils/src/Array.ts:442` | Appends all `values` to a mutable array and returns the same array reference. |
 | `@beep/utils/Array` | `appendInPlace` | const | `packages/foundation/modeling/utils/src/Array.ts:415` | Appends `value` to a mutable array and returns the same array reference. |
-| `@beep/utils/Array` | `Array` | const | `node_modules/effect/dist/Array.d.ts:29` | Reference to the global `Array` constructor. |
+| `@beep/utils/Array` | `Array` | const | `node_modules/effect/dist/Array.d.ts:31` | Reference to the global `Array` constructor. |
 | `@beep/utils/Array` | `assertNonEmptyArray` | const | `packages/foundation/modeling/utils/src/Array.ts:66` | Asserts that `input` is a mutable non-empty array, throwing on failure. |
 | `@beep/utils/Array` | `assertNonEmptyReadonlyArray` | const | `packages/foundation/modeling/utils/src/Array.ts:87` | Asserts that `input` is a readonly non-empty array, throwing on failure. |
-| `@beep/utils/Array` | `bind` | const | `node_modules/effect/dist/Array.d.ts:7104` | Introduces a new array variable into a do-notation scope, producing the cartesian product with all previous bindings. |
-| `@beep/utils/Array` | `bindTo` | const | `node_modules/effect/dist/Array.d.ts:7192` | Names the elements of an array by wrapping each in an object with the given key, starting a do-notation scope. |
-| `@beep/utils/Array` | `cartesian` | const | `node_modules/effect/dist/Array.d.ts:7002` | Computes the cartesian product of two arrays, returning all pairs as tuples. |
-| `@beep/utils/Array` | `cartesianWith` | const | `node_modules/effect/dist/Array.d.ts:6936` | Computes the cartesian product of two arrays, applying a combiner to each pair. |
-| `@beep/utils/Array` | `chop` | const | `node_modules/effect/dist/Array.d.ts:4070` | Repeatedly applies a function that consumes a prefix of the array and |
-| `@beep/utils/Array` | `chunksOf` | const | `node_modules/effect/dist/Array.d.ts:4553` | Splits an iterable into chunks of length `n`. The last chunk may be shorter |
-| `@beep/utils/Array` | `contains` | const | `node_modules/effect/dist/Array.d.ts:4005` | Tests whether an array contains a value, using `Equal.equivalence()` for |
-| `@beep/utils/Array` | `containsWith` | const | `node_modules/effect/dist/Array.d.ts:3984` | Returns a membership-test function using a custom equivalence. |
-| `@beep/utils/Array` | `copy` | const | `node_modules/effect/dist/Array.d.ts:4419` | Creates a shallow copy of an array. |
-| `@beep/utils/Array` | `countBy` | const | `node_modules/effect/dist/Array.d.ts:7322` | Counts the elements in an iterable that satisfy a predicate. |
-| `@beep/utils/Array` | `dedupe` | const | `node_modules/effect/dist/Array.d.ts:6707` | Removes duplicates using `Equal.equivalence()`, preserving the order of the |
-| `@beep/utils/Array` | `dedupeAdjacent` | const | `node_modules/effect/dist/Array.d.ts:6789` | Removes consecutive duplicate elements using `Equal.equivalence()`. |
-| `@beep/utils/Array` | `dedupeAdjacentWith` | const | `node_modules/effect/dist/Array.d.ts:6728` | Removes consecutive duplicate elements using a custom equivalence. |
-| `@beep/utils/Array` | `dedupeWith` | const | `node_modules/effect/dist/Array.d.ts:6630` | Removes duplicates using a custom equivalence, preserving the order of the |
-| `@beep/utils/Array` | `difference` | const | `node_modules/effect/dist/Array.d.ts:5201` | Computes elements in the first array that are not in the second, using |
-| `@beep/utils/Array` | `differenceWith` | const | `node_modules/effect/dist/Array.d.ts:5178` | Computes elements in the first array that are not in the second, using a |
-| `@beep/utils/Array` | `Do` | const | `node_modules/effect/dist/Array.d.ts:7075` | Starting point for the "do simulation" — an array comprehension pattern. |
-| `@beep/utils/Array` | `drop` | const | `node_modules/effect/dist/Array.d.ts:2050` | Removes the first `n` elements, creating a new array. |
-| `@beep/utils/Array` | `dropRight` | const | `node_modules/effect/dist/Array.d.ts:2115` | Removes the last `n` elements, creating a new array. |
-| `@beep/utils/Array` | `dropWhile` | const | `node_modules/effect/dist/Array.d.ts:2176` | Drops elements from the start while the predicate holds, returning the rest. |
-| `@beep/utils/Array` | `dropWhileFilter` | const | `node_modules/effect/dist/Array.d.ts:2227` | Drops elements from the start while a `Filter` succeeds. |
-| `@beep/utils/Array` | `empty` | const | `node_modules/effect/dist/Array.d.ts:5261` | Creates an empty array. |
-| `@beep/utils/Array` | `ensure` | const | `node_modules/effect/dist/Array.d.ts:335` | Normalizes a value that is either a single element or an array into an array. |
+| `@beep/utils/Array` | `bind` | const | `node_modules/effect/dist/Array.d.ts:7540` | Introduces a new array variable into a do-notation scope, producing the cartesian product with all previous bindings. |
+| `@beep/utils/Array` | `bindTo` | const | `node_modules/effect/dist/Array.d.ts:7634` | Names the elements of an array by wrapping each in an object with the given key, starting a do-notation scope. |
+| `@beep/utils/Array` | `cartesian` | const | `node_modules/effect/dist/Array.d.ts:7430` | Computes the cartesian product of two arrays, returning all pairs as tuples. |
+| `@beep/utils/Array` | `cartesianWith` | const | `node_modules/effect/dist/Array.d.ts:7358` | Computes the cartesian product of two arrays, applying a combiner to each pair. |
+| `@beep/utils/Array` | `chop` | const | `node_modules/effect/dist/Array.d.ts:4364` | Repeatedly applies a function that consumes a prefix of the array and |
+| `@beep/utils/Array` | `chunksOf` | const | `node_modules/effect/dist/Array.d.ts:4879` | Splits an iterable into chunks of length `n`. The last chunk may be shorter |
+| `@beep/utils/Array` | `contains` | const | `node_modules/effect/dist/Array.d.ts:4297` | Tests whether an array contains a value, using `Equal.equivalence()` for |
+| `@beep/utils/Array` | `containsWith` | const | `node_modules/effect/dist/Array.d.ts:4276` | Returns a membership-test function using a custom equivalence. |
+| `@beep/utils/Array` | `copy` | const | `node_modules/effect/dist/Array.d.ts:4733` | Creates a shallow copy of an array. |
+| `@beep/utils/Array` | `countBy` | const | `node_modules/effect/dist/Array.d.ts:7772` | Counts the elements in an iterable that satisfy a predicate. |
+| `@beep/utils/Array` | `dedupe` | const | `node_modules/effect/dist/Array.d.ts:7115` | Removes duplicates using `Equal.equivalence()`, preserving the order of the |
+| `@beep/utils/Array` | `dedupeAdjacent` | const | `node_modules/effect/dist/Array.d.ts:7203` | Removes consecutive duplicate elements using `Equal.equivalence()`. |
+| `@beep/utils/Array` | `dedupeAdjacentWith` | const | `node_modules/effect/dist/Array.d.ts:7138` | Removes consecutive duplicate elements using a custom equivalence. |
+| `@beep/utils/Array` | `dedupeWith` | const | `node_modules/effect/dist/Array.d.ts:7038` | Removes duplicates using a custom equivalence, preserving the order of the |
+| `@beep/utils/Array` | `difference` | const | `node_modules/effect/dist/Array.d.ts:5553` | Computes elements in the first array that are not in the second, using |
+| `@beep/utils/Array` | `differenceWith` | const | `node_modules/effect/dist/Array.d.ts:5530` | Computes elements in the first array that are not in the second, using a |
+| `@beep/utils/Array` | `Do` | const | `node_modules/effect/dist/Array.d.ts:7509` | Starting point for the "do simulation" — an array comprehension pattern. |
+| `@beep/utils/Array` | `drop` | const | `node_modules/effect/dist/Array.d.ts:2208` | Removes the first `n` elements, creating a new array. |
+| `@beep/utils/Array` | `dropRight` | const | `node_modules/effect/dist/Array.d.ts:2279` | Removes the last `n` elements, creating a new array. |
+| `@beep/utils/Array` | `dropWhile` | const | `node_modules/effect/dist/Array.d.ts:2346` | Drops elements from the start while the predicate holds, returning the rest. |
+| `@beep/utils/Array` | `dropWhileFilter` | const | `node_modules/effect/dist/Array.d.ts:2403` | Drops elements from the start while a `Filter` succeeds. |
+| `@beep/utils/Array` | `empty` | const | `node_modules/effect/dist/Array.d.ts:5613` | Creates an empty array. |
+| `@beep/utils/Array` | `ensure` | const | `node_modules/effect/dist/Array.d.ts:363` | Normalizes a value that is either a single element or an array into an array. |
 | `@beep/utils/Array` | `entries` | const | `packages/foundation/modeling/utils/src/Array.ts:359` | Materializes array entries as readonly `[index, value]` pairs. |
-| `@beep/utils/Array` | `every` | const | `node_modules/effect/dist/Array.d.ts:6195` | Tests whether all elements satisfy the predicate. Supports refinements for |
-| `@beep/utils/Array` | `extend` | const | `node_modules/effect/dist/Array.d.ts:6351` | Applies a function to each suffix of the array (starting from each index), |
-| `@beep/utils/Array` | `filter` | const | `node_modules/effect/dist/Array.d.ts:5681` | Keeps only elements satisfying a predicate (or refinement). |
-| `@beep/utils/Array` | `filterMap` | const | `node_modules/effect/dist/Array.d.ts:5618` | Keeps transformed values for elements where a `Filter` succeeds. |
-| `@beep/utils/Array` | `findFirst` | const | `node_modules/effect/dist/Array.d.ts:2388` | Returns the first element matching a predicate, refinement, or mapping |
-| `@beep/utils/Array` | `findFirstIndex` | const | `node_modules/effect/dist/Array.d.ts:2267` | Returns the index of the first element matching the predicate, wrapped in an |
-| `@beep/utils/Array` | `findFirstWithIndex` | const | `node_modules/effect/dist/Array.d.ts:2556` | Returns the first selected value together with its index, wrapped in an |
-| `@beep/utils/Array` | `findLast` | const | `node_modules/effect/dist/Array.d.ts:2717` | Returns the last element matching a predicate, refinement, or mapping |
-| `@beep/utils/Array` | `findLastIndex` | const | `node_modules/effect/dist/Array.d.ts:2325` | Returns the index of the last element matching the predicate, wrapped in an |
-| `@beep/utils/Array` | `flatMap` | const | `node_modules/effect/dist/Array.d.ts:5458` | Maps each element to an array and flattens the results into a single array. |
+| `@beep/utils/Array` | `every` | const | `node_modules/effect/dist/Array.d.ts:6597` | Tests whether all elements satisfy the predicate. Supports refinements for |
+| `@beep/utils/Array` | `extend` | const | `node_modules/effect/dist/Array.d.ts:6755` | Applies a function to each suffix of the array (starting from each index), |
+| `@beep/utils/Array` | `filter` | const | `node_modules/effect/dist/Array.d.ts:6055` | Keeps only elements satisfying a predicate (or refinement). |
+| `@beep/utils/Array` | `filterMap` | const | `node_modules/effect/dist/Array.d.ts:5986` | Keeps transformed values for elements where a `Filter` succeeds. |
+| `@beep/utils/Array` | `findFirst` | const | `node_modules/effect/dist/Array.d.ts:2570` | Returns the first element matching a predicate, refinement, or mapping |
+| `@beep/utils/Array` | `findFirstIndex` | const | `node_modules/effect/dist/Array.d.ts:2447` | Returns the index of the first element matching the predicate, wrapped in an |
+| `@beep/utils/Array` | `findFirstWithIndex` | const | `node_modules/effect/dist/Array.d.ts:2752` | Returns the first selected value together with its index, wrapped in an |
+| `@beep/utils/Array` | `findLast` | const | `node_modules/effect/dist/Array.d.ts:2927` | Returns the last element matching a predicate, refinement, or mapping |
+| `@beep/utils/Array` | `findLastIndex` | const | `node_modules/effect/dist/Array.d.ts:2505` | Returns the index of the last element matching the predicate, wrapped in an |
+| `@beep/utils/Array` | `flatMap` | const | `node_modules/effect/dist/Array.d.ts:5818` | Maps each element to an array and flattens the results into a single array. |
 | `@beep/utils/Array` | `flatMapNonEmpty` | const | `packages/foundation/modeling/utils/src/Array.ts:165` | Like `Array.flatMap` but asserts the result as `NonEmptyArray`. |
 | `@beep/utils/Array` | `flatMapNonEmptyReadonly` | const | `packages/foundation/modeling/utils/src/Array.ts:245` | Like `Array.flatMap` but asserts the result as `NonEmptyReadonlyArray`. |
-| `@beep/utils/Array` | `flatMapNullishOr` | const | `node_modules/effect/dist/Array.d.ts:6115` | Maps each element with a nullable-returning function, keeping only non-null / |
-| `@beep/utils/Array` | `flatten` | const | `node_modules/effect/dist/Array.d.ts:5539` | Flattens a nested array of arrays into a single array. |
-| `@beep/utils/Array` | `forEach` | const | `node_modules/effect/dist/Array.d.ts:6580` | Runs a side-effect for each element. The callback receives `(element, index)`. |
-| `@beep/utils/Array` | `fromIterable` | const | `node_modules/effect/dist/Array.d.ts:312` | Converts an `Iterable` to an `Array`. |
+| `@beep/utils/Array` | `flatMapNullishOr` | const | `node_modules/effect/dist/Array.d.ts:6517` | Maps each element with a nullable-returning function, keeping only non-null / |
+| `@beep/utils/Array` | `flatten` | const | `node_modules/effect/dist/Array.d.ts:5905` | Flattens a nested array of arrays into a single array. |
+| `@beep/utils/Array` | `forEach` | const | `node_modules/effect/dist/Array.d.ts:6988` | Runs a side-effect for each element. The callback receives `(element, index)`. |
+| `@beep/utils/Array` | `fromIterable` | const | `node_modules/effect/dist/Array.d.ts:338` | Converts an `Iterable` to an `Array`. |
 | `@beep/utils/Array` | `fromIterableNonEmpty` | const | `packages/foundation/modeling/utils/src/Array.ts:575` | Converts an iterable into a `NonEmptyReadonlyArray`, asserting that at |
-| `@beep/utils/Array` | `fromNullishOr` | const | `node_modules/effect/dist/Array.d.ts:6074` | Converts a nullable value to an array: `null`/`undefined` becomes `[]`, |
-| `@beep/utils/Array` | `fromOption` | const | `node_modules/effect/dist/Array.d.ts:372` | Converts an `Option` to an array: `Some(a)` becomes `[a]`, `None` becomes `[]`. |
-| `@beep/utils/Array` | `fromRecord` | const | `node_modules/effect/dist/Array.d.ts:354` | Converts a record into an array of `[key, value]` tuples. |
-| `@beep/utils/Array` | `get` | const | `node_modules/effect/dist/Array.d.ts:1313` | Safely reads an element at the given index, returning `Option.some` or |
-| `@beep/utils/Array` | `getFailures` | const | `node_modules/effect/dist/Array.d.ts:5577` | Extracts all failure values from an iterable of `Result`s, discarding |
-| `@beep/utils/Array` | `getReadonlyReducerConcat` | function | `node_modules/effect/dist/Array.d.ts:7292` | Returns a `Reducer` that combines `ReadonlyArray` values by concatenation. |
-| `@beep/utils/Array` | `getSomes` | const | `node_modules/effect/dist/Array.d.ts:5557` | Extracts all `Some` values from an iterable of `Option`s, discarding `None`s. |
-| `@beep/utils/Array` | `getSuccesses` | const | `node_modules/effect/dist/Array.d.ts:5597` | Extracts all success values from an iterable of `Result`s, discarding |
-| `@beep/utils/Array` | `getUnsafe` | const | `node_modules/effect/dist/Array.d.ts:1383` | Reads an element at the given index, throwing if the index is out of bounds. |
-| `@beep/utils/Array` | `group` | const | `node_modules/effect/dist/Array.d.ts:4774` | Groups consecutive equal elements using `Equal.equivalence()`. |
-| `@beep/utils/Array` | `groupBy` | const | `node_modules/effect/dist/Array.d.ts:4805` | Groups elements into a record by a key-returning function. Each key maps |
-| `@beep/utils/Array` | `groupWith` | const | `node_modules/effect/dist/Array.d.ts:4709` | Groups consecutive equal elements using a custom equivalence function. |
-| `@beep/utils/Array` | `head` | const | `node_modules/effect/dist/Array.d.ts:1493` | Returns the first element of an array wrapped in `Option.some`, or |
-| `@beep/utils/Array` | `headNonEmpty` | const | `node_modules/effect/dist/Array.d.ts:1511` | Returns the first element of a `NonEmptyReadonlyArray` directly (no `Option` |
+| `@beep/utils/Array` | `fromNullishOr` | const | `node_modules/effect/dist/Array.d.ts:6476` | Converts a nullable value to an array: `null`/`undefined` becomes `[]`, |
+| `@beep/utils/Array` | `fromOption` | const | `node_modules/effect/dist/Array.d.ts:402` | Converts an `Option` to an array: `Some(a)` becomes `[a]`, `None` becomes `[]`. |
+| `@beep/utils/Array` | `fromRecord` | const | `node_modules/effect/dist/Array.d.ts:384` | Converts a record into an array of `[key, value]` tuples. |
+| `@beep/utils/Array` | `get` | const | `node_modules/effect/dist/Array.d.ts:1413` | Safely reads an element at the given index, returning `Option.some` or |
+| `@beep/utils/Array` | `getFailures` | const | `node_modules/effect/dist/Array.d.ts:5943` | Extracts all failure values from an iterable of `Result`s, discarding |
+| `@beep/utils/Array` | `getReadonlyReducerConcat` | function | `node_modules/effect/dist/Array.d.ts:7740` | Returns a `Reducer` that combines `ReadonlyArray` values by concatenation. |
+| `@beep/utils/Array` | `getSomes` | const | `node_modules/effect/dist/Array.d.ts:5923` | Extracts all `Some` values from an iterable of `Option`s, discarding `None`s. |
+| `@beep/utils/Array` | `getSuccesses` | const | `node_modules/effect/dist/Array.d.ts:5963` | Extracts all success values from an iterable of `Result`s, discarding |
+| `@beep/utils/Array` | `getUnsafe` | const | `node_modules/effect/dist/Array.d.ts:1489` | Reads an element at the given index, throwing if the index is out of bounds. |
+| `@beep/utils/Array` | `group` | const | `node_modules/effect/dist/Array.d.ts:5120` | Groups consecutive equal elements using `Equal.equivalence()`. |
+| `@beep/utils/Array` | `groupBy` | const | `node_modules/effect/dist/Array.d.ts:5153` | Groups elements into a record by a key-returning function. Each key maps |
+| `@beep/utils/Array` | `groupWith` | const | `node_modules/effect/dist/Array.d.ts:5049` | Groups consecutive equal elements using a custom equivalence function. |
+| `@beep/utils/Array` | `head` | const | `node_modules/effect/dist/Array.d.ts:1607` | Returns the first element of an array wrapped in `Option.some`, or |
+| `@beep/utils/Array` | `headNonEmpty` | const | `node_modules/effect/dist/Array.d.ts:1625` | Returns the first element of a `NonEmptyReadonlyArray` directly (no `Option` |
 | `@beep/utils/Array` | `indexOf` | const | `packages/foundation/modeling/utils/src/Array.ts:279` | Finds the first index where `value` appears in `self`. |
-| `@beep/utils/Array` | `init` | function | `node_modules/effect/dist/Array.d.ts:1611` | Returns all elements except the last, wrapped in an `Option`. |
-| `@beep/utils/Array` | `initNonEmpty` | const | `node_modules/effect/dist/Array.d.ts:1629` | Returns all elements except the last of a `NonEmptyReadonlyArray`. |
-| `@beep/utils/Array` | `insertAt` | const | `node_modules/effect/dist/Array.d.ts:2872` | Inserts an element at the specified index, returning a new `NonEmptyArray` |
-| `@beep/utils/Array` | `intersection` | const | `node_modules/effect/dist/Array.d.ts:5116` | Computes the intersection of two arrays using `Equal.equivalence()`. Order is |
-| `@beep/utils/Array` | `intersectionWith` | const | `node_modules/effect/dist/Array.d.ts:5093` | Computes the intersection of two arrays using a custom equivalence. Order is |
-| `@beep/utils/Array` | `intersperse` | const | `node_modules/effect/dist/Array.d.ts:3598` | Places a separator element between every pair of elements. |
-| `@beep/utils/Array` | `isArray` | const | `node_modules/effect/dist/Array.d.ts:1151` | Tests whether a value is an `Array`. |
-| `@beep/utils/Array` | `isArrayEmpty` | const | `node_modules/effect/dist/Array.d.ts:1215` | Tests whether a mutable `Array` is empty, narrowing the type to `[]`. |
-| `@beep/utils/Array` | `isArrayNonEmpty` | const | `node_modules/effect/dist/Array.d.ts:1254` | Tests whether a mutable `Array` is non-empty, narrowing the type to |
-| `@beep/utils/Array` | `isReadonlyArrayEmpty` | const | `node_modules/effect/dist/Array.d.ts:1234` | Tests whether a `ReadonlyArray` is empty, narrowing the type to `readonly []`. |
-| `@beep/utils/Array` | `isReadonlyArrayNonEmpty` | const | `node_modules/effect/dist/Array.d.ts:1274` | Tests whether a `ReadonlyArray` is non-empty, narrowing the type to |
-| `@beep/utils/Array` | `join` | const | `node_modules/effect/dist/Array.d.ts:6806` | Joins string elements with a separator. |
+| `@beep/utils/Array` | `init` | function | `node_modules/effect/dist/Array.d.ts:1729` | Returns all elements except the last, wrapped in an `Option`. |
+| `@beep/utils/Array` | `initNonEmpty` | const | `node_modules/effect/dist/Array.d.ts:1747` | Returns all elements except the last of a `NonEmptyReadonlyArray`. |
+| `@beep/utils/Array` | `insertAt` | const | `node_modules/effect/dist/Array.d.ts:3096` | Inserts an element at the specified index, returning a new `NonEmptyArray` |
+| `@beep/utils/Array` | `intersection` | const | `node_modules/effect/dist/Array.d.ts:5468` | Computes the intersection of two arrays using `Equal.equivalence()`. Order is |
+| `@beep/utils/Array` | `intersectionWith` | const | `node_modules/effect/dist/Array.d.ts:5445` | Computes the intersection of two arrays using a custom equivalence. Order is |
+| `@beep/utils/Array` | `intersperse` | const | `node_modules/effect/dist/Array.d.ts:3876` | Places a separator element between every pair of elements. |
+| `@beep/utils/Array` | `isArray` | const | `node_modules/effect/dist/Array.d.ts:1245` | Tests whether a value is an `Array`. |
+| `@beep/utils/Array` | `isArrayEmpty` | const | `node_modules/effect/dist/Array.d.ts:1313` | Tests whether a mutable `Array` is empty, narrowing the type to `[]`. |
+| `@beep/utils/Array` | `isArrayNonEmpty` | const | `node_modules/effect/dist/Array.d.ts:1352` | Tests whether a mutable `Array` is non-empty, narrowing the type to |
+| `@beep/utils/Array` | `isReadonlyArrayEmpty` | const | `node_modules/effect/dist/Array.d.ts:1332` | Tests whether a `ReadonlyArray` is empty, narrowing the type to `readonly []`. |
+| `@beep/utils/Array` | `isReadonlyArrayNonEmpty` | const | `node_modules/effect/dist/Array.d.ts:1372` | Tests whether a `ReadonlyArray` is non-empty, narrowing the type to |
+| `@beep/utils/Array` | `join` | const | `node_modules/effect/dist/Array.d.ts:7220` | Joins string elements with a separator. |
 | `@beep/utils/Array` | `keys` | const | `packages/foundation/modeling/utils/src/Array.ts:376` | Materializes the numeric indexes of `self`. |
-| `@beep/utils/Array` | `last` | const | `node_modules/effect/dist/Array.d.ts:1531` | Returns the last element of an array wrapped in `Option.some`, or |
+| `@beep/utils/Array` | `last` | const | `node_modules/effect/dist/Array.d.ts:1645` | Returns the last element of an array wrapped in `Option.some`, or |
 | `@beep/utils/Array` | `lastIndexOf` | const | `packages/foundation/modeling/utils/src/Array.ts:308` | Finds the last index where `value` appears in `self`. |
-| `@beep/utils/Array` | `lastNonEmpty` | const | `node_modules/effect/dist/Array.d.ts:1549` | Returns the last element of a `NonEmptyReadonlyArray` directly (no `Option` |
-| `@beep/utils/Array` | `length` | const | `node_modules/effect/dist/Array.d.ts:1289` | Returns the number of elements in a `ReadonlyArray`. |
-| `@beep/utils/Array` | `let` | const | `node_modules/effect/dist/Array.d.ts:7248` |  |
-| `@beep/utils/Array` | `liftNullishOr` | const | `node_modules/effect/dist/Array.d.ts:6098` | Lifts a nullable-returning function into one that returns an array: |
-| `@beep/utils/Array` | `liftOption` | const | `node_modules/effect/dist/Array.d.ts:6053` | Lifts an `Option`-returning function into one that returns an array: |
-| `@beep/utils/Array` | `liftPredicate` | const | `node_modules/effect/dist/Array.d.ts:6006` | Lifts a predicate into an array: returns `[value]` if the predicate holds, |
-| `@beep/utils/Array` | `liftResult` | const | `node_modules/effect/dist/Array.d.ts:6176` | Lifts a `Result`-returning function into one that returns an array: failures |
-| `@beep/utils/Array` | `make` | const | `node_modules/effect/dist/Array.d.ts:106` | Creates a `NonEmptyArray` from one or more elements. |
-| `@beep/utils/Array` | `makeBy` | const | `node_modules/effect/dist/Array.d.ts:151` | Creates a `NonEmptyArray` of length `n` where element `i` is computed by `f(i)`. |
-| `@beep/utils/Array` | `makeEquivalence` | const | `node_modules/effect/dist/Array.d.ts:6565` | Creates an `Equivalence` for arrays based on an element `Equivalence`. Two |
-| `@beep/utils/Array` | `makeOrder` | const | `node_modules/effect/dist/Array.d.ts:6545` | Creates an `Order` for arrays based on an element `Order`. Arrays are |
+| `@beep/utils/Array` | `lastNonEmpty` | const | `node_modules/effect/dist/Array.d.ts:1663` | Returns the last element of a `NonEmptyReadonlyArray` directly (no `Option` |
+| `@beep/utils/Array` | `length` | const | `node_modules/effect/dist/Array.d.ts:1387` | Returns the number of elements in a `ReadonlyArray`. |
+| `@beep/utils/Array` | `let` | const | `node_modules/effect/dist/Array.d.ts:7694` |  |
+| `@beep/utils/Array` | `liftNullishOr` | const | `node_modules/effect/dist/Array.d.ts:6500` | Lifts a nullable-returning function into one that returns an array: |
+| `@beep/utils/Array` | `liftOption` | const | `node_modules/effect/dist/Array.d.ts:6455` | Lifts an `Option`-returning function into one that returns an array: |
+| `@beep/utils/Array` | `liftPredicate` | const | `node_modules/effect/dist/Array.d.ts:6408` | Lifts a predicate into an array: returns `[value]` if the predicate holds, |
+| `@beep/utils/Array` | `liftResult` | const | `node_modules/effect/dist/Array.d.ts:6578` | Lifts a `Result`-returning function into one that returns an array: failures |
+| `@beep/utils/Array` | `make` | const | `node_modules/effect/dist/Array.d.ts:114` | Creates a `NonEmptyArray` from one or more elements. |
+| `@beep/utils/Array` | `makeBy` | const | `node_modules/effect/dist/Array.d.ts:163` | Creates a `NonEmptyArray` of length `n` where element `i` is computed by `f(i)`. |
+| `@beep/utils/Array` | `makeEquivalence` | const | `node_modules/effect/dist/Array.d.ts:6973` | Creates an `Equivalence` for arrays based on an element `Equivalence`. Two |
+| `@beep/utils/Array` | `makeOrder` | const | `node_modules/effect/dist/Array.d.ts:6953` | Creates an `Order` for arrays based on an element `Order`. Arrays are |
 | `@beep/utils/Array` | `makeReadonly` | const | `packages/foundation/modeling/utils/src/Array.ts:555` | Normalizes a value-or-array into a `ReadonlyArray`. |
-| `@beep/utils/Array` | `makeReducerConcat` | function | `node_modules/effect/dist/Array.d.ts:7301` | Returns a `Reducer` that combines `Array` values by concatenation. |
-| `@beep/utils/Array` | `map` | const | `node_modules/effect/dist/Array.d.ts:5396` | Transforms each element using a function, returning a new array. |
-| `@beep/utils/Array` | `mapAccum` | const | `node_modules/effect/dist/Array.d.ts:6865` | Maps over an array while threading an accumulator through each step, returning both the final state and the mapped array. |
+| `@beep/utils/Array` | `makeReducerConcat` | function | `node_modules/effect/dist/Array.d.ts:7749` | Returns a `Reducer` that combines `Array` values by concatenation. |
+| `@beep/utils/Array` | `map` | const | `node_modules/effect/dist/Array.d.ts:5750` | Transforms each element using a function, returning a new array. |
+| `@beep/utils/Array` | `mapAccum` | const | `node_modules/effect/dist/Array.d.ts:7281` | Maps over an array while threading an accumulator through each step, returning both the final state and the mapped array. |
 | `@beep/utils/Array` | `mapNonEmpty` | const | `packages/foundation/modeling/utils/src/Array.ts:129` | Like `Array.map` but asserts the result as `NonEmptyArray`. |
 | `@beep/utils/Array` | `mapNonEmptyReadonly` | const | `packages/foundation/modeling/utils/src/Array.ts:203` | Like `Array.map` but asserts the result as `NonEmptyReadonlyArray`. |
-| `@beep/utils/Array` | `match` | const | `node_modules/effect/dist/Array.d.ts:399` | Pattern-matches on an array, handling empty and non-empty cases separately. |
-| `@beep/utils/Array` | `matchLeft` | const | `node_modules/effect/dist/Array.d.ts:487` | Pattern-matches on an array from the left, providing the first element and |
-| `@beep/utils/Array` | `matchRight` | const | `node_modules/effect/dist/Array.d.ts:575` | Pattern-matches on an array from the right, providing all elements except the |
+| `@beep/utils/Array` | `match` | const | `node_modules/effect/dist/Array.d.ts:431` | Pattern-matches on an array, handling empty and non-empty cases separately. |
+| `@beep/utils/Array` | `matchLeft` | const | `node_modules/effect/dist/Array.d.ts:525` | Pattern-matches on an array from the left, providing the first element and |
+| `@beep/utils/Array` | `matchRight` | const | `node_modules/effect/dist/Array.d.ts:619` | Pattern-matches on an array from the right, providing all elements except the |
 | `@beep/utils/Array` | `matchToBoolean` | const | `packages/foundation/modeling/utils/src/Array.ts:39` | Returns `true` when the array is non-empty, `false` otherwise. |
-| `@beep/utils/Array` | `max` | const | `node_modules/effect/dist/Array.d.ts:6465` | Returns the maximum element of a non-empty array according to the given |
-| `@beep/utils/Array` | `min` | const | `node_modules/effect/dist/Array.d.ts:6407` | Returns the minimum element of a non-empty array according to the given |
-| `@beep/utils/Array` | `modify` | const | `node_modules/effect/dist/Array.d.ts:3008` | Applies a function to the element at the specified index, returning the |
-| `@beep/utils/Array` | `modifyHeadNonEmpty` | const | `node_modules/effect/dist/Array.d.ts:3678` | Applies a function to the first element of a non-empty array, returning a |
-| `@beep/utils/Array` | `modifyLastNonEmpty` | const | `node_modules/effect/dist/Array.d.ts:3791` | Applies a function to the last element of a non-empty array, returning a |
-| `@beep/utils/Array` | `NonEmptyArray` | type | `node_modules/effect/dist/Array.d.ts:83` | A mutable array guaranteed to have at least one element. |
-| `@beep/utils/Array` | `NonEmptyReadonlyArray` | type | `node_modules/effect/dist/Array.d.ts:60` | A readonly array guaranteed to have at least one element. |
-| `@beep/utils/Array` | `of` | const | `node_modules/effect/dist/Array.d.ts:5279` | Wraps a single value in a `NonEmptyArray`. |
-| `@beep/utils/Array` | `pad` | const | `node_modules/effect/dist/Array.d.ts:4487` | Pads or truncates an array to exactly `n` elements, filling with `fill` |
-| `@beep/utils/Array` | `partition` | const | `node_modules/effect/dist/Array.d.ts:5786` | Splits an iterable using a `Filter` into failures and successes. |
-| `@beep/utils/Array` | `prepend` | const | `node_modules/effect/dist/Array.d.ts:658` | Adds a single element to the front of an iterable, returning a `NonEmptyArray`. |
-| `@beep/utils/Array` | `prependAll` | const | `node_modules/effect/dist/Array.d.ts:725` | Prepends all elements from a prefix iterable to the front of an array. |
-| `@beep/utils/Array` | `range` | const | `node_modules/effect/dist/Array.d.ts:221` | Creates a `NonEmptyArray` containing a range of integers, inclusive on both |
-| `@beep/utils/Array` | `ReadonlyArray` | namespace | `node_modules/effect/dist/Array.d.ts:5286` | Utility types for working with `ReadonlyArray` at the type level. Use these |
-| `@beep/utils/Array` | `ReadonlyArrayTypeLambda` | interface | `node_modules/effect/dist/Array.d.ts:36` | Type lambda for `ReadonlyArray`, used for higher-kinded type operations. |
-| `@beep/utils/Array` | `reduce` | const | `node_modules/effect/dist/Array.d.ts:5883` | Folds an iterable from left to right into a single value. |
-| `@beep/utils/Array` | `reduceRight` | const | `node_modules/effect/dist/Array.d.ts:5944` | Folds an iterable from right to left into a single value. |
-| `@beep/utils/Array` | `remove` | const | `node_modules/effect/dist/Array.d.ts:3079` | Removes the element at the specified index, returning a new array. If the |
-| `@beep/utils/Array` | `replace` | const | `node_modules/effect/dist/Array.d.ts:2939` | Replaces the element at the specified index with a new value, returning the |
-| `@beep/utils/Array` | `replicate` | const | `node_modules/effect/dist/Array.d.ts:243` | Creates a `NonEmptyArray` containing a value repeated `n` times. |
-| `@beep/utils/Array` | `reverse` | const | `node_modules/effect/dist/Array.d.ts:3142` | Reverses an iterable into a new array. |
-| `@beep/utils/Array` | `rotate` | const | `node_modules/effect/dist/Array.d.ts:3905` | Rotates an array by `n` steps. Positive `n` rotates right; negative `n` |
-| `@beep/utils/Array` | `scan` | const | `node_modules/effect/dist/Array.d.ts:1015` | Left-to-right fold that keeps every intermediate accumulator value. |
-| `@beep/utils/Array` | `scanRight` | const | `node_modules/effect/dist/Array.d.ts:1084` | Right-to-left fold that keeps every intermediate accumulator value. |
-| `@beep/utils/Array` | `separate` | const | `node_modules/effect/dist/Array.d.ts:5860` | Separates an iterable of `Result`s into failure values and success values. |
-| `@beep/utils/Array` | `setHeadNonEmpty` | const | `node_modules/effect/dist/Array.d.ts:3735` | Replaces the first element of a non-empty array with a new value. |
-| `@beep/utils/Array` | `setLastNonEmpty` | const | `node_modules/effect/dist/Array.d.ts:3848` | Replaces the last element of a non-empty array with a new value. |
+| `@beep/utils/Array` | `max` | const | `node_modules/effect/dist/Array.d.ts:6873` | Returns the maximum element of a non-empty array according to the given |
+| `@beep/utils/Array` | `min` | const | `node_modules/effect/dist/Array.d.ts:6815` | Returns the minimum element of a non-empty array according to the given |
+| `@beep/utils/Array` | `modify` | const | `node_modules/effect/dist/Array.d.ts:3244` | Applies a function to the element at the specified index, returning the |
+| `@beep/utils/Array` | `modifyHeadNonEmpty` | const | `node_modules/effect/dist/Array.d.ts:3962` | Applies a function to the first element of a non-empty array, returning a |
+| `@beep/utils/Array` | `modifyLastNonEmpty` | const | `node_modules/effect/dist/Array.d.ts:4075` | Applies a function to the last element of a non-empty array, returning a |
+| `@beep/utils/Array` | `NonEmptyArray` | type | `node_modules/effect/dist/Array.d.ts:89` | A mutable array guaranteed to have at least one element. |
+| `@beep/utils/Array` | `NonEmptyReadonlyArray` | type | `node_modules/effect/dist/Array.d.ts:64` | A readonly array guaranteed to have at least one element. |
+| `@beep/utils/Array` | `of` | const | `node_modules/effect/dist/Array.d.ts:5631` | Wraps a single value in a `NonEmptyArray`. |
+| `@beep/utils/Array` | `pad` | const | `node_modules/effect/dist/Array.d.ts:4807` | Pads or truncates an array to exactly `n` elements, filling with `fill` |
+| `@beep/utils/Array` | `partition` | const | `node_modules/effect/dist/Array.d.ts:6170` | Splits an iterable using a `Filter` into failures and successes. |
+| `@beep/utils/Array` | `prepend` | const | `node_modules/effect/dist/Array.d.ts:708` | Adds a single element to the front of an iterable, returning a `NonEmptyArray`. |
+| `@beep/utils/Array` | `prependAll` | const | `node_modules/effect/dist/Array.d.ts:781` | Prepends all elements from a prefix iterable to the front of an array. |
+| `@beep/utils/Array` | `range` | const | `node_modules/effect/dist/Array.d.ts:239` | Creates a `NonEmptyArray` containing a range of integers, inclusive on both |
+| `@beep/utils/Array` | `ReadonlyArray` | namespace | `node_modules/effect/dist/Array.d.ts:5638` | Utility types for working with `ReadonlyArray` at the type level. Use these |
+| `@beep/utils/Array` | `ReadonlyArrayTypeLambda` | interface | `node_modules/effect/dist/Array.d.ts:38` | Type lambda for `ReadonlyArray`, used for higher-kinded type operations. |
+| `@beep/utils/Array` | `reduce` | const | `node_modules/effect/dist/Array.d.ts:6275` | Folds an iterable from left to right into a single value. |
+| `@beep/utils/Array` | `reduceRight` | const | `node_modules/effect/dist/Array.d.ts:6342` | Folds an iterable from right to left into a single value. |
+| `@beep/utils/Array` | `remove` | const | `node_modules/effect/dist/Array.d.ts:3321` | Removes the element at the specified index, returning a new array. If the |
+| `@beep/utils/Array` | `replace` | const | `node_modules/effect/dist/Array.d.ts:3169` | Replaces the element at the specified index with a new value, returning the |
+| `@beep/utils/Array` | `replicate` | const | `node_modules/effect/dist/Array.d.ts:263` | Creates a `NonEmptyArray` containing a value repeated `n` times. |
+| `@beep/utils/Array` | `reverse` | const | `node_modules/effect/dist/Array.d.ts:3390` | Reverses an iterable into a new array. |
+| `@beep/utils/Array` | `rotate` | const | `node_modules/effect/dist/Array.d.ts:4191` | Rotates an array by `n` steps. Positive `n` rotates right; negative `n` |
+| `@beep/utils/Array` | `scan` | const | `node_modules/effect/dist/Array.d.ts:1097` | Left-to-right fold that keeps every intermediate accumulator value. |
+| `@beep/utils/Array` | `scanRight` | const | `node_modules/effect/dist/Array.d.ts:1172` | Right-to-left fold that keeps every intermediate accumulator value. |
+| `@beep/utils/Array` | `separate` | const | `node_modules/effect/dist/Array.d.ts:6250` | Separates an iterable of `Result`s into failure values and success values. |
+| `@beep/utils/Array` | `setHeadNonEmpty` | const | `node_modules/effect/dist/Array.d.ts:4019` | Replaces the first element of a non-empty array with a new value. |
+| `@beep/utils/Array` | `setLastNonEmpty` | const | `node_modules/effect/dist/Array.d.ts:4132` | Replaces the last element of a non-empty array with a new value. |
 | `@beep/utils/Array` | `slice` | const | `packages/foundation/modeling/utils/src/Array.ts:337` | Returns an immutable copy of the selected range from `self`. |
-| `@beep/utils/Array` | `some` | const | `node_modules/effect/dist/Array.d.ts:6292` | Tests whether at least one element satisfies the predicate. Narrows the type |
-| `@beep/utils/Array` | `sort` | const | `node_modules/effect/dist/Array.d.ts:3165` | Sorts an array by the given `Order`, returning a new array. |
-| `@beep/utils/Array` | `sortBy` | const | `node_modules/effect/dist/Array.d.ts:3364` | Sorts an array by multiple `Order`s applied in sequence: the first order is |
+| `@beep/utils/Array` | `some` | const | `node_modules/effect/dist/Array.d.ts:6694` | Tests whether at least one element satisfies the predicate. Narrows the type |
+| `@beep/utils/Array` | `sort` | const | `node_modules/effect/dist/Array.d.ts:3415` | Sorts an array by the given `Order`, returning a new array. |
+| `@beep/utils/Array` | `sortBy` | const | `node_modules/effect/dist/Array.d.ts:3630` | Sorts an array by multiple `Order`s applied in sequence: the first order is |
 | `@beep/utils/Array` | `sortInPlace` | const | `packages/foundation/modeling/utils/src/Array.ts:473` | Sorts a mutable array in place using an explicit `Order`. |
-| `@beep/utils/Array` | `sortWith` | const | `node_modules/effect/dist/Array.d.ts:3258` | Sorts an array by a derived key using a mapping function and an `Order` for |
-| `@beep/utils/Array` | `span` | const | `node_modules/effect/dist/Array.d.ts:1931` | Splits an iterable into two arrays: the longest prefix where the predicate |
+| `@beep/utils/Array` | `sortWith` | const | `node_modules/effect/dist/Array.d.ts:3516` | Sorts an array by a derived key using a mapping function and an `Order` for |
+| `@beep/utils/Array` | `span` | const | `node_modules/effect/dist/Array.d.ts:2079` | Splits an iterable into two arrays: the longest prefix where the predicate |
 | `@beep/utils/Array` | `spliceInPlace` | const | `packages/foundation/modeling/utils/src/Array.ts:503` | Removes and inserts items in a mutable array and returns the removed values. |
-| `@beep/utils/Array` | `split` | const | `node_modules/effect/dist/Array.d.ts:4297` | Splits an iterable into `n` roughly equal-sized chunks. |
-| `@beep/utils/Array` | `splitAt` | const | `node_modules/effect/dist/Array.d.ts:4176` | Splits an iterable into two arrays at the given index. |
-| `@beep/utils/Array` | `splitAtNonEmpty` | const | `node_modules/effect/dist/Array.d.ts:4238` | Splits a non-empty array into two parts at the given index. The first part |
-| `@beep/utils/Array` | `splitWhere` | const | `node_modules/effect/dist/Array.d.ts:4357` | Splits an iterable at the first element matching the predicate. The matching |
-| `@beep/utils/Array` | `tail` | function | `node_modules/effect/dist/Array.d.ts:1571` | Returns all elements except the first, wrapped in an `Option`. |
-| `@beep/utils/Array` | `tailNonEmpty` | const | `node_modules/effect/dist/Array.d.ts:1589` | Returns all elements except the first of a `NonEmptyReadonlyArray`. |
-| `@beep/utils/Array` | `take` | const | `node_modules/effect/dist/Array.d.ts:1651` | Keeps the first `n` elements, creating a new array. |
-| `@beep/utils/Array` | `takeRight` | const | `node_modules/effect/dist/Array.d.ts:1717` | Keeps the last `n` elements, creating a new array. |
-| `@beep/utils/Array` | `takeWhile` | const | `node_modules/effect/dist/Array.d.ts:1783` | Takes elements from the start while the predicate holds, stopping at the |
-| `@beep/utils/Array` | `takeWhileFilter` | const | `node_modules/effect/dist/Array.d.ts:1886` | Takes elements from the start while a `Filter` succeeds, collecting transformed values. |
-| `@beep/utils/Array` | `unappend` | const | `node_modules/effect/dist/Array.d.ts:1473` | Splits a non-empty array into all elements except the last, and the last |
-| `@beep/utils/Array` | `unfold` | const | `node_modules/effect/dist/Array.d.ts:6525` | Builds an array by repeatedly applying a function to a seed value. The |
-| `@beep/utils/Array` | `union` | const | `node_modules/effect/dist/Array.d.ts:4989` | Computes the union of two arrays, removing duplicates using |
-| `@beep/utils/Array` | `unionWith` | const | `node_modules/effect/dist/Array.d.ts:4888` | Computes the union of two arrays using a custom equivalence, removing |
-| `@beep/utils/Array` | `unprepend` | const | `node_modules/effect/dist/Array.d.ts:1449` | Splits a non-empty array into its first element and the remaining elements. |
-| `@beep/utils/Array` | `unzip` | const | `node_modules/effect/dist/Array.d.ts:3578` | Splits an array of pairs into two arrays. Inverse of {@link zip}. |
+| `@beep/utils/Array` | `split` | const | `node_modules/effect/dist/Array.d.ts:4605` | Splits an iterable into `n` roughly equal-sized chunks. |
+| `@beep/utils/Array` | `splitAt` | const | `node_modules/effect/dist/Array.d.ts:4478` | Splits an iterable into two arrays at the given index. |
+| `@beep/utils/Array` | `splitAtNonEmpty` | const | `node_modules/effect/dist/Array.d.ts:4544` | Splits a non-empty array into two parts at the given index. The first part |
+| `@beep/utils/Array` | `splitWhere` | const | `node_modules/effect/dist/Array.d.ts:4669` | Splits an iterable at the first element matching the predicate. The matching |
+| `@beep/utils/Array` | `tail` | function | `node_modules/effect/dist/Array.d.ts:1687` | Returns all elements except the first, wrapped in an `Option`. |
+| `@beep/utils/Array` | `tailNonEmpty` | const | `node_modules/effect/dist/Array.d.ts:1705` | Returns all elements except the first of a `NonEmptyReadonlyArray`. |
+| `@beep/utils/Array` | `take` | const | `node_modules/effect/dist/Array.d.ts:1771` | Keeps the first `n` elements, creating a new array. |
+| `@beep/utils/Array` | `takeRight` | const | `node_modules/effect/dist/Array.d.ts:1843` | Keeps the last `n` elements, creating a new array. |
+| `@beep/utils/Array` | `takeWhile` | const | `node_modules/effect/dist/Array.d.ts:1915` | Takes elements from the start while the predicate holds, stopping at the |
+| `@beep/utils/Array` | `takeWhileFilter` | const | `node_modules/effect/dist/Array.d.ts:2028` | Takes elements from the start while a `Filter` succeeds, collecting transformed values. |
+| `@beep/utils/Array` | `unappend` | const | `node_modules/effect/dist/Array.d.ts:1587` | Splits a non-empty array into all elements except the last, and the last |
+| `@beep/utils/Array` | `unfold` | const | `node_modules/effect/dist/Array.d.ts:6933` | Builds an array by repeatedly applying a function to a seed value. The |
+| `@beep/utils/Array` | `union` | const | `node_modules/effect/dist/Array.d.ts:5341` | Computes the union of two arrays, removing duplicates using |
+| `@beep/utils/Array` | `unionWith` | const | `node_modules/effect/dist/Array.d.ts:5240` | Computes the union of two arrays using a custom equivalence, removing |
+| `@beep/utils/Array` | `unprepend` | const | `node_modules/effect/dist/Array.d.ts:1561` | Splits a non-empty array into its first element and the remaining elements. |
+| `@beep/utils/Array` | `unzip` | const | `node_modules/effect/dist/Array.d.ts:3854` | Splits an array of pairs into two arrays. Inverse of {@link zip}. |
 | `@beep/utils/Array` | `values` | const | `packages/foundation/modeling/utils/src/Array.ts:392` | Returns a shallow immutable copy of the values in `self`. |
-| `@beep/utils/Array` | `window` | const | `node_modules/effect/dist/Array.d.ts:4644` | Creates overlapping sliding windows of size `n`. |
-| `@beep/utils/Array` | `zip` | const | `node_modules/effect/dist/Array.d.ts:3385` | Pairs elements from two iterables by position. If the iterables differ in |
-| `@beep/utils/Array` | `zipWith` | const | `node_modules/effect/dist/Array.d.ts:3488` | Combines elements from two iterables pairwise using a function. If the |
+| `@beep/utils/Array` | `window` | const | `node_modules/effect/dist/Array.d.ts:4978` | Creates overlapping sliding windows of size `n`. |
+| `@beep/utils/Array` | `zip` | const | `node_modules/effect/dist/Array.d.ts:3653` | Pairs elements from two iterables by position. If the iterables differ in |
+| `@beep/utils/Array` | `zipWith` | const | `node_modules/effect/dist/Array.d.ts:3764` | Combines elements from two iterables pairwise using a function. If the |
 | `@beep/utils/Bool` | `and` | const | `node_modules/effect/dist/Boolean.d.ts:195` | Combines two boolean using AND: `self && that`. |
 | `@beep/utils/Bool` | `Boolean` | const | `node_modules/effect/dist/Boolean.d.ts:32` | Reference to the global Boolean constructor. |
 | `@beep/utils/Bool` | `Equivalence` | const | `node_modules/effect/dist/Boolean.d.ts:159` | An `Equivalence` instance for booleans using strict equality (`===`). |
@@ -671,181 +671,181 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/utils/Bool` | `not` | const | `node_modules/effect/dist/Boolean.d.ts:176` | Negates the given boolean: `!self` |
 | `@beep/utils/Bool` | `or` | const | `node_modules/effect/dist/Boolean.d.ts:311` | Combines two boolean using OR: `self \|\| that`. |
 | `@beep/utils/Bool` | `Order` | const | `node_modules/effect/dist/Boolean.d.ts:143` | Provides an `Order` instance for `boolean` that allows comparing and sorting boolean values. |
-| `@beep/utils/Bool` | `ReducerAnd` | const | `node_modules/effect/dist/Boolean.d.ts:625` | A `Reducer` for combining `boolean`s using AND. |
-| `@beep/utils/Bool` | `ReducerOr` | const | `node_modules/effect/dist/Boolean.d.ts:634` | A `Reducer` for combining `boolean`s using OR. |
+| `@beep/utils/Bool` | `ReducerAnd` | const | `node_modules/effect/dist/Boolean.d.ts:627` | A `Reducer` for combining `boolean`s using AND. |
+| `@beep/utils/Bool` | `ReducerOr` | const | `node_modules/effect/dist/Boolean.d.ts:638` | A `Reducer` for combining `boolean`s using OR. |
 | `@beep/utils/Bool` | `some` | const | `node_modules/effect/dist/Boolean.d.ts:616` | This utility function is used to check if at least one of the elements in a collection of boolean values is `true`. |
 | `@beep/utils/Bool` | `xor` | const | `node_modules/effect/dist/Boolean.d.ts:427` | Combines two booleans using XOR: `(!self && that) \|\| (self && !that)`. |
-| `@beep/utils/DateTime` | `add` | const | `node_modules/effect/dist/DateTime.d.ts:3116` | Add the given `amount` of `unit`'s to a `DateTime`. |
-| `@beep/utils/DateTime` | `addDuration` | const | `node_modules/effect/dist/DateTime.d.ts:3003` | Add the given `Duration` to a `DateTime`. |
-| `@beep/utils/DateTime` | `between` | const | `node_modules/effect/dist/DateTime.d.ts:1691` | Checks if a `DateTime` is between two other `DateTime` values (inclusive). |
-| `@beep/utils/DateTime` | `clamp` | const | `node_modules/effect/dist/DateTime.d.ts:482` | Clamp a `DateTime` between a minimum and maximum value. |
-| `@beep/utils/DateTime` | `CurrentTimeZone` | class | `node_modules/effect/dist/DateTime.d.ts:2301` | Context service that supplies the ambient `TimeZone` for APIs that work in |
-| `@beep/utils/DateTime` | `DateTime` | namespace | `node_modules/effect/dist/DateTime.d.ts:112` | Companion namespace containing the public helper types used by `DateTime` |
+| `@beep/utils/DateTime` | `add` | const | `node_modules/effect/dist/DateTime.d.ts:3271` | Add the given `amount` of `unit`'s to a `DateTime`. |
+| `@beep/utils/DateTime` | `addDuration` | const | `node_modules/effect/dist/DateTime.d.ts:3156` | Add the given `Duration` to a `DateTime`. |
+| `@beep/utils/DateTime` | `between` | const | `node_modules/effect/dist/DateTime.d.ts:1769` | Checks if a `DateTime` is between two other `DateTime` values (inclusive). |
+| `@beep/utils/DateTime` | `clamp` | const | `node_modules/effect/dist/DateTime.d.ts:518` | Clamp a `DateTime` between a minimum and maximum value. |
+| `@beep/utils/DateTime` | `CurrentTimeZone` | class | `node_modules/effect/dist/DateTime.d.ts:2427` | Context service that supplies the ambient `TimeZone` for APIs that work in |
+| `@beep/utils/DateTime` | `DateTime` | namespace | `node_modules/effect/dist/DateTime.d.ts:116` | Companion namespace containing the public helper types used by `DateTime` |
 | `@beep/utils/DateTime` | `DateTime` | type | `node_modules/effect/dist/DateTime.d.ts:73` | A `DateTime` represents a point in time. It can optionally have a time zone |
 | `@beep/utils/DateTime` | `DateTimes` | class | `packages/foundation/modeling/utils/src/DateTime.ts:57` | Time service with live and fixed clock-backed helpers. |
-| `@beep/utils/DateTime` | `Disambiguation` | type | `node_modules/effect/dist/DateTime.d.ts:368` | A `Disambiguation` is used to resolve ambiguities when a `DateTime` is |
-| `@beep/utils/DateTime` | `distance` | const | `node_modules/effect/dist/DateTime.d.ts:1259` | Calulate the difference between two `DateTime` values, returning a |
-| `@beep/utils/DateTime` | `endOf` | const | `node_modules/effect/dist/DateTime.d.ts:3307` | Converts a `DateTime` to the end of the given `part`. |
-| `@beep/utils/DateTime` | `Equivalence` | const | `node_modules/effect/dist/DateTime.d.ts:433` | An `Equivalence` for comparing two `DateTime` values for equality. |
-| `@beep/utils/DateTime` | `format` | const | `node_modules/effect/dist/DateTime.d.ts:3459` | Formats a `DateTime` with `Intl.DateTimeFormat`. |
-| `@beep/utils/DateTime` | `formatIntl` | const | `node_modules/effect/dist/DateTime.d.ts:3743` | Format a `DateTime` as a string using the `DateTimeFormat` API. |
-| `@beep/utils/DateTime` | `formatIso` | const | `node_modules/effect/dist/DateTime.d.ts:3823` | Format a `DateTime` as a UTC ISO string. |
-| `@beep/utils/DateTime` | `formatIsoDate` | const | `node_modules/effect/dist/DateTime.d.ts:3846` | Format a `DateTime` as a time zone adjusted ISO date string. |
-| `@beep/utils/DateTime` | `formatIsoDateUtc` | const | `node_modules/effect/dist/DateTime.d.ts:3869` | Format a `DateTime` as a UTC ISO date string. |
-| `@beep/utils/DateTime` | `formatIsoOffset` | const | `node_modules/effect/dist/DateTime.d.ts:3893` | Format a `DateTime.Zoned` as an ISO string with an offset. |
-| `@beep/utils/DateTime` | `formatIsoZoned` | const | `node_modules/effect/dist/DateTime.d.ts:3922` | Format a `DateTime.Zoned` as a string. |
-| `@beep/utils/DateTime` | `formatLocal` | const | `node_modules/effect/dist/DateTime.d.ts:3556` | Format a `DateTime` as a string using the `DateTimeFormat` API. |
-| `@beep/utils/DateTime` | `formatUtc` | const | `node_modules/effect/dist/DateTime.d.ts:3648` | Format a `DateTime` as a string using the `DateTimeFormat` API. |
-| `@beep/utils/DateTime` | `fromDateUnsafe` | const | `node_modules/effect/dist/DateTime.d.ts:557` | Create a `DateTime` from a `Date`. |
-| `@beep/utils/DateTime` | `getPart` | const | `node_modules/effect/dist/DateTime.d.ts:2086` | Get a part of a `DateTime` as a number. |
-| `@beep/utils/DateTime` | `getPartUtc` | const | `node_modules/effect/dist/DateTime.d.ts:2026` | Get a part of a `DateTime` as a number. |
-| `@beep/utils/DateTime` | `isDateTime` | const | `node_modules/effect/dist/DateTime.d.ts:375` | Checks whether a value is a `DateTime`. |
-| `@beep/utils/DateTime` | `isFuture` | const | `node_modules/effect/dist/DateTime.d.ts:1757` | Checks if a `DateTime` is in the future compared to the current time. |
-| `@beep/utils/DateTime` | `isFutureUnsafe` | const | `node_modules/effect/dist/DateTime.d.ts:1778` | Checks if a `DateTime` is in the future compared to the current time. |
-| `@beep/utils/DateTime` | `isGreaterThan` | const | `node_modules/effect/dist/DateTime.d.ts:1447` | Checks if the first `DateTime` is after the second `DateTime`. |
-| `@beep/utils/DateTime` | `isGreaterThanOrEqualTo` | const | `node_modules/effect/dist/DateTime.d.ts:1507` | Checks if the first `DateTime` is after or equal to the second `DateTime`. |
-| `@beep/utils/DateTime` | `isLessThan` | const | `node_modules/effect/dist/DateTime.d.ts:1569` | Checks if the first `DateTime` is before the second `DateTime`. |
-| `@beep/utils/DateTime` | `isLessThanOrEqualTo` | const | `node_modules/effect/dist/DateTime.d.ts:1629` | Checks if the first `DateTime` is before or equal to the second `DateTime`. |
-| `@beep/utils/DateTime` | `isPast` | const | `node_modules/effect/dist/DateTime.d.ts:1799` | Checks if a `DateTime` is in the past compared to the current time. |
-| `@beep/utils/DateTime` | `isPastUnsafe` | const | `node_modules/effect/dist/DateTime.d.ts:1820` | Checks if a `DateTime` is in the past compared to the current time. |
-| `@beep/utils/DateTime` | `isTimeZone` | const | `node_modules/effect/dist/DateTime.d.ts:382` | Checks if a value is a `TimeZone`. |
-| `@beep/utils/DateTime` | `isTimeZoneNamed` | const | `node_modules/effect/dist/DateTime.d.ts:396` | Checks if a value is a named `TimeZone` (IANA time zone). |
-| `@beep/utils/DateTime` | `isTimeZoneOffset` | const | `node_modules/effect/dist/DateTime.d.ts:389` | Checks if a value is an offset-based `TimeZone`. |
-| `@beep/utils/DateTime` | `isUtc` | const | `node_modules/effect/dist/DateTime.d.ts:403` | Checks if a `DateTime` is a UTC `DateTime` (no time zone information). |
-| `@beep/utils/DateTime` | `isZoned` | const | `node_modules/effect/dist/DateTime.d.ts:410` | Checks if a `DateTime` is a zoned `DateTime` (has time zone information). |
-| `@beep/utils/DateTime` | `layerCurrentZone` | const | `node_modules/effect/dist/DateTime.d.ts:3948` | Create a Layer from the given time zone. |
-| `@beep/utils/DateTime` | `layerCurrentZoneLocal` | const | `node_modules/effect/dist/DateTime.d.ts:4022` | Create a Layer from the system's local time zone. |
-| `@beep/utils/DateTime` | `layerCurrentZoneNamed` | const | `node_modules/effect/dist/DateTime.d.ts:3998` | Create a Layer from the given IANA time zone identifier. |
-| `@beep/utils/DateTime` | `layerCurrentZoneOffset` | const | `node_modules/effect/dist/DateTime.d.ts:3973` | Create a Layer from the given time zone offset. |
-| `@beep/utils/DateTime` | `make` | const | `node_modules/effect/dist/DateTime.d.ts:702` | Creates a `DateTime` from one of the following: |
-| `@beep/utils/DateTime` | `makeUnsafe` | const | `node_modules/effect/dist/DateTime.d.ts:588` | Create a `DateTime` from one of the following: |
+| `@beep/utils/DateTime` | `Disambiguation` | type | `node_modules/effect/dist/DateTime.d.ts:398` | A `Disambiguation` is used to resolve ambiguities when a `DateTime` is |
+| `@beep/utils/DateTime` | `distance` | const | `node_modules/effect/dist/DateTime.d.ts:1333` | Calulate the difference between two `DateTime` values, returning a |
+| `@beep/utils/DateTime` | `endOf` | const | `node_modules/effect/dist/DateTime.d.ts:3474` | Converts a `DateTime` to the end of the given `part`. |
+| `@beep/utils/DateTime` | `Equivalence` | const | `node_modules/effect/dist/DateTime.d.ts:465` | An `Equivalence` for comparing two `DateTime` values for equality. |
+| `@beep/utils/DateTime` | `format` | const | `node_modules/effect/dist/DateTime.d.ts:3638` | Formats a `DateTime` with `Intl.DateTimeFormat`. |
+| `@beep/utils/DateTime` | `formatIntl` | const | `node_modules/effect/dist/DateTime.d.ts:3938` | Format a `DateTime` as a string using the `DateTimeFormat` API. |
+| `@beep/utils/DateTime` | `formatIso` | const | `node_modules/effect/dist/DateTime.d.ts:4020` | Format a `DateTime` as a UTC ISO string. |
+| `@beep/utils/DateTime` | `formatIsoDate` | const | `node_modules/effect/dist/DateTime.d.ts:4045` | Format a `DateTime` as a time zone adjusted ISO date string. |
+| `@beep/utils/DateTime` | `formatIsoDateUtc` | const | `node_modules/effect/dist/DateTime.d.ts:4070` | Format a `DateTime` as a UTC ISO date string. |
+| `@beep/utils/DateTime` | `formatIsoOffset` | const | `node_modules/effect/dist/DateTime.d.ts:4096` | Format a `DateTime.Zoned` as an ISO string with an offset. |
+| `@beep/utils/DateTime` | `formatIsoZoned` | const | `node_modules/effect/dist/DateTime.d.ts:4127` | Format a `DateTime.Zoned` as a string. |
+| `@beep/utils/DateTime` | `formatLocal` | const | `node_modules/effect/dist/DateTime.d.ts:3741` | Format a `DateTime` as a string using the `DateTimeFormat` API. |
+| `@beep/utils/DateTime` | `formatUtc` | const | `node_modules/effect/dist/DateTime.d.ts:3839` | Format a `DateTime` as a string using the `DateTimeFormat` API. |
+| `@beep/utils/DateTime` | `fromDateUnsafe` | const | `node_modules/effect/dist/DateTime.d.ts:599` | Create a `DateTime` from a `Date`. |
+| `@beep/utils/DateTime` | `getPart` | const | `node_modules/effect/dist/DateTime.d.ts:2194` | Get a part of a `DateTime` as a number. |
+| `@beep/utils/DateTime` | `getPartUtc` | const | `node_modules/effect/dist/DateTime.d.ts:2128` | Get a part of a `DateTime` as a number. |
+| `@beep/utils/DateTime` | `isDateTime` | const | `node_modules/effect/dist/DateTime.d.ts:405` | Checks whether a value is a `DateTime`. |
+| `@beep/utils/DateTime` | `isFuture` | const | `node_modules/effect/dist/DateTime.d.ts:1837` | Checks if a `DateTime` is in the future compared to the current time. |
+| `@beep/utils/DateTime` | `isFutureUnsafe` | const | `node_modules/effect/dist/DateTime.d.ts:1860` | Checks if a `DateTime` is in the future compared to the current time. |
+| `@beep/utils/DateTime` | `isGreaterThan` | const | `node_modules/effect/dist/DateTime.d.ts:1525` | Checks if the first `DateTime` is after the second `DateTime`. |
+| `@beep/utils/DateTime` | `isGreaterThanOrEqualTo` | const | `node_modules/effect/dist/DateTime.d.ts:1585` | Checks if the first `DateTime` is after or equal to the second `DateTime`. |
+| `@beep/utils/DateTime` | `isLessThan` | const | `node_modules/effect/dist/DateTime.d.ts:1647` | Checks if the first `DateTime` is before the second `DateTime`. |
+| `@beep/utils/DateTime` | `isLessThanOrEqualTo` | const | `node_modules/effect/dist/DateTime.d.ts:1707` | Checks if the first `DateTime` is before or equal to the second `DateTime`. |
+| `@beep/utils/DateTime` | `isPast` | const | `node_modules/effect/dist/DateTime.d.ts:1883` | Checks if a `DateTime` is in the past compared to the current time. |
+| `@beep/utils/DateTime` | `isPastUnsafe` | const | `node_modules/effect/dist/DateTime.d.ts:1906` | Checks if a `DateTime` is in the past compared to the current time. |
+| `@beep/utils/DateTime` | `isTimeZone` | const | `node_modules/effect/dist/DateTime.d.ts:412` | Checks if a value is a `TimeZone`. |
+| `@beep/utils/DateTime` | `isTimeZoneNamed` | const | `node_modules/effect/dist/DateTime.d.ts:426` | Checks if a value is a named `TimeZone` (IANA time zone). |
+| `@beep/utils/DateTime` | `isTimeZoneOffset` | const | `node_modules/effect/dist/DateTime.d.ts:419` | Checks if a value is an offset-based `TimeZone`. |
+| `@beep/utils/DateTime` | `isUtc` | const | `node_modules/effect/dist/DateTime.d.ts:433` | Checks if a `DateTime` is a UTC `DateTime` (no time zone information). |
+| `@beep/utils/DateTime` | `isZoned` | const | `node_modules/effect/dist/DateTime.d.ts:440` | Checks if a `DateTime` is a zoned `DateTime` (has time zone information). |
+| `@beep/utils/DateTime` | `layerCurrentZone` | const | `node_modules/effect/dist/DateTime.d.ts:4155` | Create a Layer from the given time zone. |
+| `@beep/utils/DateTime` | `layerCurrentZoneLocal` | const | `node_modules/effect/dist/DateTime.d.ts:4235` | Create a Layer from the system's local time zone. |
+| `@beep/utils/DateTime` | `layerCurrentZoneNamed` | const | `node_modules/effect/dist/DateTime.d.ts:4209` | Create a Layer from the given IANA time zone identifier. |
+| `@beep/utils/DateTime` | `layerCurrentZoneOffset` | const | `node_modules/effect/dist/DateTime.d.ts:4182` | Create a Layer from the given time zone offset. |
+| `@beep/utils/DateTime` | `make` | const | `node_modules/effect/dist/DateTime.d.ts:752` | Creates a `DateTime` from supported input values. |
+| `@beep/utils/DateTime` | `makeUnsafe` | const | `node_modules/effect/dist/DateTime.d.ts:632` | Create a `DateTime` from supported input values. |
 | `@beep/utils/DateTime` | `makeUnsafeUtc` | const | `packages/foundation/modeling/utils/src/DateTime.ts:26` | Constructs a `DateTime.Utc` from any supported `DateTime` input. |
-| `@beep/utils/DateTime` | `makeZoned` | const | `node_modules/effect/dist/DateTime.d.ts:660` | Creates a `DateTime.Zoned` from an input and a time zone. |
-| `@beep/utils/DateTime` | `makeZonedFromString` | const | `node_modules/effect/dist/DateTime.d.ts:731` | Parses an ISO zoned date-time string into a `DateTime.Zoned`. |
-| `@beep/utils/DateTime` | `makeZonedUnsafe` | const | `node_modules/effect/dist/DateTime.d.ts:618` | Create a `DateTime.Zoned` using `DateTime.makeUnsafe` and a time zone. |
-| `@beep/utils/DateTime` | `mapEpochMillis` | const | `node_modules/effect/dist/DateTime.d.ts:2712` | Transform a `DateTime` by applying a function to the number of milliseconds |
-| `@beep/utils/DateTime` | `match` | const | `node_modules/effect/dist/DateTime.d.ts:2916` | Pattern match on a `DateTime` to handle `Utc` and `Zoned` cases differently. |
-| `@beep/utils/DateTime` | `max` | const | `node_modules/effect/dist/DateTime.d.ts:1389` | Returns the later of two `DateTime` values. |
-| `@beep/utils/DateTime` | `min` | const | `node_modules/effect/dist/DateTime.d.ts:1331` | Returns the earlier of two `DateTime` values. |
-| `@beep/utils/DateTime` | `mutate` | const | `node_modules/effect/dist/DateTime.d.ts:2564` | Modify a `DateTime` by applying a function to a cloned `Date` instance. |
-| `@beep/utils/DateTime` | `mutateUtc` | const | `node_modules/effect/dist/DateTime.d.ts:2646` | Modify a `DateTime` by applying a function to a cloned UTC `Date` instance. |
-| `@beep/utils/DateTime` | `nearest` | const | `node_modules/effect/dist/DateTime.d.ts:3378` | Converts a `DateTime` to the nearest given `part`. |
-| `@beep/utils/DateTime` | `now` | const | `node_modules/effect/dist/DateTime.d.ts:749` | Get the current time using the `Clock` service and convert it to a `DateTime`. |
-| `@beep/utils/DateTime` | `nowAsDate` | const | `node_modules/effect/dist/DateTime.d.ts:767` | Gets the current time from the `Clock` service and returns it as a |
-| `@beep/utils/DateTime` | `nowInCurrentZone` | const | `node_modules/effect/dist/DateTime.d.ts:2537` | Get the current time as a `DateTime.Zoned`, using the `CurrentTimeZone`. |
-| `@beep/utils/DateTime` | `nowUnsafe` | const | `node_modules/effect/dist/DateTime.d.ts:786` | Get the current time using `Date.now`. |
-| `@beep/utils/DateTime` | `Order` | const | `node_modules/effect/dist/DateTime.d.ts:458` | An `Order` for comparing and sorting `DateTime` values. |
-| `@beep/utils/DateTime` | `removeTime` | const | `node_modules/effect/dist/DateTime.d.ts:1954` | Remove the time aspect of a `DateTime`, first adjusting for the time |
-| `@beep/utils/DateTime` | `setParts` | const | `node_modules/effect/dist/DateTime.d.ts:2153` | Set the different parts of a `DateTime` as an object. |
-| `@beep/utils/DateTime` | `setPartsUtc` | const | `node_modules/effect/dist/DateTime.d.ts:2225` | Set the different parts of a `DateTime` as an object. |
-| `@beep/utils/DateTime` | `setZone` | const | `node_modules/effect/dist/DateTime.d.ts:827` | Set the time zone of a `DateTime`, returning a new `DateTime.Zoned`. |
-| `@beep/utils/DateTime` | `setZoneCurrent` | const | `node_modules/effect/dist/DateTime.d.ts:2323` | Set the time zone of a `DateTime` to the current time zone, which is |
-| `@beep/utils/DateTime` | `setZoneNamed` | const | `node_modules/effect/dist/DateTime.d.ts:1119` | Set the time zone of a `DateTime` from an IANA time zone identifier. If the |
-| `@beep/utils/DateTime` | `setZoneNamedUnsafe` | const | `node_modules/effect/dist/DateTime.d.ts:1186` | Set the time zone of a `DateTime` from an IANA time zone identifier. If the |
-| `@beep/utils/DateTime` | `setZoneOffset` | const | `node_modules/effect/dist/DateTime.d.ts:898` | Add a fixed offset time zone to a `DateTime`. |
-| `@beep/utils/DateTime` | `startOf` | const | `node_modules/effect/dist/DateTime.d.ts:3236` | Converts a `DateTime` to the start of the given `part`. |
-| `@beep/utils/DateTime` | `subtract` | const | `node_modules/effect/dist/DateTime.d.ts:3177` | Subtract the given `amount` of `unit`'s from a `DateTime`. |
-| `@beep/utils/DateTime` | `subtractDuration` | const | `node_modules/effect/dist/DateTime.d.ts:3058` | Subtract the given `Duration` from a `DateTime`. |
-| `@beep/utils/DateTime` | `TimeZone` | namespace | `node_modules/effect/dist/DateTime.d.ts:268` | Companion namespace containing the public variant and protocol types for |
-| `@beep/utils/DateTime` | `TimeZone` | type | `node_modules/effect/dist/DateTime.d.ts:261` | Represents a time zone used by `DateTime.Zoned`. |
-| `@beep/utils/DateTime` | `toDate` | const | `node_modules/effect/dist/DateTime.d.ts:1866` | Convert a `DateTime` to a `Date`, applying the time zone first. |
-| `@beep/utils/DateTime` | `toDateUtc` | const | `node_modules/effect/dist/DateTime.d.ts:1842` | Get the UTC `Date` of a `DateTime`. |
-| `@beep/utils/DateTime` | `toEpochMillis` | const | `node_modules/effect/dist/DateTime.d.ts:1931` | Get the milliseconds since the Unix epoch of a `DateTime`. |
-| `@beep/utils/DateTime` | `toParts` | const | `node_modules/effect/dist/DateTime.d.ts:1984` | Get the different parts of a `DateTime` as an object. |
-| `@beep/utils/DateTime` | `toPartsUtc` | const | `node_modules/effect/dist/DateTime.d.ts:2007` | Get the different parts of a `DateTime` as an object. |
-| `@beep/utils/DateTime` | `toUtc` | const | `node_modules/effect/dist/DateTime.d.ts:806` | For a `DateTime` returns a new `DateTime.Utc`. |
-| `@beep/utils/DateTime` | `Utc` | interface | `node_modules/effect/dist/DateTime.d.ts:83` | Represents a `DateTime` stored as an absolute UTC instant with no associated |
-| `@beep/utils/DateTime` | `withCurrentZone` | const | `node_modules/effect/dist/DateTime.d.ts:2342` | Provide the `CurrentTimeZone` to an effect. |
-| `@beep/utils/DateTime` | `withCurrentZoneLocal` | const | `node_modules/effect/dist/DateTime.d.ts:2400` | Provide the `CurrentTimeZone` to an effect, using the system's local time |
-| `@beep/utils/DateTime` | `withCurrentZoneNamed` | const | `node_modules/effect/dist/DateTime.d.ts:2476` | Provide the `CurrentTimeZone` to an effect using an IANA time zone |
-| `@beep/utils/DateTime` | `withCurrentZoneOffset` | const | `node_modules/effect/dist/DateTime.d.ts:2418` | Provide the `CurrentTimeZone` to an effect, using a offset. |
-| `@beep/utils/DateTime` | `withDate` | const | `node_modules/effect/dist/DateTime.d.ts:2773` | Applies a function to a JavaScript `Date` representing the `DateTime`'s UTC |
-| `@beep/utils/DateTime` | `withDateUtc` | const | `node_modules/effect/dist/DateTime.d.ts:2840` | Applies a function to a JavaScript `Date` representing the `DateTime`'s UTC |
-| `@beep/utils/DateTime` | `Zoned` | interface | `node_modules/effect/dist/DateTime.d.ts:98` | Represents a `DateTime` with an associated `TimeZone`. |
-| `@beep/utils/DateTime` | `zonedOffset` | const | `node_modules/effect/dist/DateTime.d.ts:1889` | Calculate the time zone offset of a `DateTime.Zoned` in milliseconds. |
-| `@beep/utils/DateTime` | `zonedOffsetIso` | const | `node_modules/effect/dist/DateTime.d.ts:1911` | Format the time zone offset of a `DateTime.Zoned` as an ISO string. |
-| `@beep/utils/DateTime` | `zoneFromString` | const | `node_modules/effect/dist/DateTime.d.ts:1080` | Try to parse a `TimeZone` from a string. |
-| `@beep/utils/DateTime` | `zoneMakeLocal` | const | `node_modules/effect/dist/DateTime.d.ts:1057` | Create a named time zone from the system's local time zone. |
-| `@beep/utils/DateTime` | `zoneMakeNamed` | const | `node_modules/effect/dist/DateTime.d.ts:1017` | Create a named time zone from a IANA time zone identifier. |
-| `@beep/utils/DateTime` | `zoneMakeNamedEffect` | const | `node_modules/effect/dist/DateTime.d.ts:1038` | Create a named time zone from a IANA time zone identifier. |
-| `@beep/utils/DateTime` | `zoneMakeNamedUnsafe` | const | `node_modules/effect/dist/DateTime.d.ts:973` | Attempt to create a named time zone from a IANA time zone identifier. |
-| `@beep/utils/DateTime` | `zoneMakeOffset` | const | `node_modules/effect/dist/DateTime.d.ts:996` | Create a fixed offset time zone. |
-| `@beep/utils/DateTime` | `zoneToString` | const | `node_modules/effect/dist/DateTime.d.ts:1099` | Format a `TimeZone` as a string. |
-| `@beep/utils/Event` | `AnyEvent` | type | `node_modules/effect/dist/unstable/encoding/Sse.d.ts:238` | Union of SSE values that can be rendered by an `Encoder`: regular events and |
-| `@beep/utils/Event` | `decode` | const | `node_modules/effect/dist/unstable/encoding/Sse.d.ts:37` | Creates a channel that parses Server-Sent Events text chunks into `Event` |
-| `@beep/utils/Event` | `decodeDataSchema` | const | `node_modules/effect/dist/unstable/encoding/Sse.d.ts:62` | Creates an SSE decoder channel that JSON-decodes each event `data` field with |
-| `@beep/utils/Event` | `decodeSchema` | const | `node_modules/effect/dist/unstable/encoding/Sse.d.ts:47` | Creates an SSE decoder channel that decodes each parsed event with a schema. |
-| `@beep/utils/Event` | `encode` | const | `node_modules/effect/dist/unstable/encoding/Sse.d.ts:98` | Creates a channel that encodes `Event` values as Server-Sent Events text. |
-| `@beep/utils/Event` | `encoder` | const | `node_modules/effect/dist/unstable/encoding/Sse.d.ts:248` | Default Server-Sent Events encoder. |
-| `@beep/utils/Event` | `Encoder` | interface | `node_modules/effect/dist/unstable/encoding/Sse.d.ts:120` | Encoder capable of rendering an `Event` or `Retry` value as Server-Sent |
-| `@beep/utils/Event` | `encodeSchema` | const | `node_modules/effect/dist/unstable/encoding/Sse.d.ts:108` | Creates an SSE encoder channel for values accepted by a schema. |
-| `@beep/utils/Event` | `Event` | const | `node_modules/effect/dist/unstable/encoding/Sse.d.ts:159` | Schema for the tagged Server-Sent Events message model. |
-| `@beep/utils/Event` | `Event` | interface | `node_modules/effect/dist/unstable/encoding/Sse.d.ts:131` | Tagged model for a Server-Sent Events message. |
-| `@beep/utils/Event` | `EventEncoded` | const | `node_modules/effect/dist/unstable/encoding/Sse.d.ts:145` | Schema for the untagged Server-Sent Events payload shape. |
-| `@beep/utils/Event` | `EventEncoded` | interface | `node_modules/effect/dist/unstable/encoding/Sse.d.ts:190` | Untagged Server-Sent Events payload shape. |
+| `@beep/utils/DateTime` | `makeZoned` | const | `node_modules/effect/dist/DateTime.d.ts:708` | Creates a `DateTime.Zoned` from an input and a time zone. |
+| `@beep/utils/DateTime` | `makeZonedFromString` | const | `node_modules/effect/dist/DateTime.d.ts:783` | Parses an ISO zoned date-time string into a `DateTime.Zoned`. |
+| `@beep/utils/DateTime` | `makeZonedUnsafe` | const | `node_modules/effect/dist/DateTime.d.ts:664` | Create a `DateTime.Zoned` using `DateTime.makeUnsafe` and a time zone. |
+| `@beep/utils/DateTime` | `mapEpochMillis` | const | `node_modules/effect/dist/DateTime.d.ts:2850` | Transform a `DateTime` by applying a function to the number of milliseconds |
+| `@beep/utils/DateTime` | `match` | const | `node_modules/effect/dist/DateTime.d.ts:3069` | Pattern match on a `DateTime` to handle `Utc` and `Zoned` cases differently. |
+| `@beep/utils/DateTime` | `max` | const | `node_modules/effect/dist/DateTime.d.ts:1467` | Returns the later of two `DateTime` values. |
+| `@beep/utils/DateTime` | `min` | const | `node_modules/effect/dist/DateTime.d.ts:1409` | Returns the earlier of two `DateTime` values. |
+| `@beep/utils/DateTime` | `mutate` | const | `node_modules/effect/dist/DateTime.d.ts:2698` | Modify a `DateTime` by applying a function to a cloned `Date` instance. |
+| `@beep/utils/DateTime` | `mutateUtc` | const | `node_modules/effect/dist/DateTime.d.ts:2784` | Modify a `DateTime` by applying a function to a cloned UTC `Date` instance. |
+| `@beep/utils/DateTime` | `nearest` | const | `node_modules/effect/dist/DateTime.d.ts:3551` | Converts a `DateTime` to the nearest given `part`. |
+| `@beep/utils/DateTime` | `now` | const | `node_modules/effect/dist/DateTime.d.ts:801` | Get the current time using the `Clock` service and convert it to a `DateTime`. |
+| `@beep/utils/DateTime` | `nowAsDate` | const | `node_modules/effect/dist/DateTime.d.ts:819` | Gets the current time from the `Clock` service and returns it as a |
+| `@beep/utils/DateTime` | `nowInCurrentZone` | const | `node_modules/effect/dist/DateTime.d.ts:2669` | Get the current time as a `DateTime.Zoned`, using the `CurrentTimeZone`. |
+| `@beep/utils/DateTime` | `nowUnsafe` | const | `node_modules/effect/dist/DateTime.d.ts:840` | Get the current time using `Date.now`. |
+| `@beep/utils/DateTime` | `Order` | const | `node_modules/effect/dist/DateTime.d.ts:492` | An `Order` for comparing and sorting `DateTime` values. |
+| `@beep/utils/DateTime` | `removeTime` | const | `node_modules/effect/dist/DateTime.d.ts:2050` | Remove the time aspect of a `DateTime`, first adjusting for the time |
+| `@beep/utils/DateTime` | `setParts` | const | `node_modules/effect/dist/DateTime.d.ts:2267` | Set the different parts of a `DateTime` as an object. |
+| `@beep/utils/DateTime` | `setPartsUtc` | const | `node_modules/effect/dist/DateTime.d.ts:2345` | Set the different parts of a `DateTime` as an object. |
+| `@beep/utils/DateTime` | `setZone` | const | `node_modules/effect/dist/DateTime.d.ts:881` | Set the time zone of a `DateTime`, returning a new `DateTime.Zoned`. |
+| `@beep/utils/DateTime` | `setZoneCurrent` | const | `node_modules/effect/dist/DateTime.d.ts:2449` | Set the time zone of a `DateTime` to the current time zone, which is |
+| `@beep/utils/DateTime` | `setZoneNamed` | const | `node_modules/effect/dist/DateTime.d.ts:1191` | Set the time zone of a `DateTime` from an IANA time zone identifier. If the |
+| `@beep/utils/DateTime` | `setZoneNamedUnsafe` | const | `node_modules/effect/dist/DateTime.d.ts:1258` | Set the time zone of a `DateTime` from an IANA time zone identifier. If the |
+| `@beep/utils/DateTime` | `setZoneOffset` | const | `node_modules/effect/dist/DateTime.d.ts:954` | Add a fixed offset time zone to a `DateTime`. |
+| `@beep/utils/DateTime` | `startOf` | const | `node_modules/effect/dist/DateTime.d.ts:3397` | Converts a `DateTime` to the start of the given `part`. |
+| `@beep/utils/DateTime` | `subtract` | const | `node_modules/effect/dist/DateTime.d.ts:3336` | Subtract the given `amount` of `unit`'s from a `DateTime`. |
+| `@beep/utils/DateTime` | `subtractDuration` | const | `node_modules/effect/dist/DateTime.d.ts:3211` | Subtract the given `Duration` from a `DateTime`. |
+| `@beep/utils/DateTime` | `TimeZone` | namespace | `node_modules/effect/dist/DateTime.d.ts:290` | Companion namespace containing the public variant and protocol types for |
+| `@beep/utils/DateTime` | `TimeZone` | type | `node_modules/effect/dist/DateTime.d.ts:283` | Represents a time zone used by `DateTime.Zoned`. |
+| `@beep/utils/DateTime` | `toDate` | const | `node_modules/effect/dist/DateTime.d.ts:1956` | Convert a `DateTime` to a `Date`, applying the time zone first. |
+| `@beep/utils/DateTime` | `toDateUtc` | const | `node_modules/effect/dist/DateTime.d.ts:1930` | Get the UTC `Date` of a `DateTime`. |
+| `@beep/utils/DateTime` | `toEpochMillis` | const | `node_modules/effect/dist/DateTime.d.ts:2027` | Get the milliseconds since the Unix epoch of a `DateTime`. |
+| `@beep/utils/DateTime` | `toParts` | const | `node_modules/effect/dist/DateTime.d.ts:2082` | Get the different parts of a `DateTime` as an object. |
+| `@beep/utils/DateTime` | `toPartsUtc` | const | `node_modules/effect/dist/DateTime.d.ts:2107` | Get the different parts of a `DateTime` as an object. |
+| `@beep/utils/DateTime` | `toUtc` | const | `node_modules/effect/dist/DateTime.d.ts:860` | For a `DateTime` returns a new `DateTime.Utc`. |
+| `@beep/utils/DateTime` | `Utc` | interface | `node_modules/effect/dist/DateTime.d.ts:85` | Represents a `DateTime` stored as an absolute UTC instant with no associated |
+| `@beep/utils/DateTime` | `withCurrentZone` | const | `node_modules/effect/dist/DateTime.d.ts:2468` | Provide the `CurrentTimeZone` to an effect. |
+| `@beep/utils/DateTime` | `withCurrentZoneLocal` | const | `node_modules/effect/dist/DateTime.d.ts:2526` | Provide the `CurrentTimeZone` to an effect, using the system's local time |
+| `@beep/utils/DateTime` | `withCurrentZoneNamed` | const | `node_modules/effect/dist/DateTime.d.ts:2604` | Provide the `CurrentTimeZone` to an effect using an IANA time zone |
+| `@beep/utils/DateTime` | `withCurrentZoneOffset` | const | `node_modules/effect/dist/DateTime.d.ts:2544` | Provide the `CurrentTimeZone` to an effect, using a offset. |
+| `@beep/utils/DateTime` | `withDate` | const | `node_modules/effect/dist/DateTime.d.ts:2914` | Applies a function to a JavaScript `Date` representing the `DateTime` and |
+| `@beep/utils/DateTime` | `withDateUtc` | const | `node_modules/effect/dist/DateTime.d.ts:2989` | Applies a function to a JavaScript `Date` representing the `DateTime`'s UTC |
+| `@beep/utils/DateTime` | `Zoned` | interface | `node_modules/effect/dist/DateTime.d.ts:102` | Represents a `DateTime` with an associated `TimeZone`. |
+| `@beep/utils/DateTime` | `zonedOffset` | const | `node_modules/effect/dist/DateTime.d.ts:1981` | Calculate the time zone offset of a `DateTime.Zoned` in milliseconds. |
+| `@beep/utils/DateTime` | `zonedOffsetIso` | const | `node_modules/effect/dist/DateTime.d.ts:2005` | Format the time zone offset of a `DateTime.Zoned` as an ISO string. |
+| `@beep/utils/DateTime` | `zoneFromString` | const | `node_modules/effect/dist/DateTime.d.ts:1152` | Try to parse a `TimeZone` from a string. |
+| `@beep/utils/DateTime` | `zoneMakeLocal` | const | `node_modules/effect/dist/DateTime.d.ts:1127` | Create a named time zone from the system's local time zone. |
+| `@beep/utils/DateTime` | `zoneMakeNamed` | const | `node_modules/effect/dist/DateTime.d.ts:1083` | Create a named time zone from a IANA time zone identifier. |
+| `@beep/utils/DateTime` | `zoneMakeNamedEffect` | const | `node_modules/effect/dist/DateTime.d.ts:1106` | Create a named time zone from a IANA time zone identifier. |
+| `@beep/utils/DateTime` | `zoneMakeNamedUnsafe` | const | `node_modules/effect/dist/DateTime.d.ts:1035` | Attempt to create a named time zone from a IANA time zone identifier. |
+| `@beep/utils/DateTime` | `zoneMakeOffset` | const | `node_modules/effect/dist/DateTime.d.ts:1060` | Create a fixed offset time zone. |
+| `@beep/utils/DateTime` | `zoneToString` | const | `node_modules/effect/dist/DateTime.d.ts:1171` | Format a `TimeZone` as a string. |
+| `@beep/utils/Event` | `AnyEvent` | type | `node_modules/effect/dist/unstable/encoding/Sse.d.ts:243` | Union of SSE values that can be rendered by an `Encoder`: regular events and |
+| `@beep/utils/Event` | `decode` | const | `node_modules/effect/dist/unstable/encoding/Sse.d.ts:38` | Creates a channel that parses Server-Sent Events text chunks into `Event` values. |
+| `@beep/utils/Event` | `decodeDataSchema` | const | `node_modules/effect/dist/unstable/encoding/Sse.d.ts:66` | Creates an SSE decoder channel that JSON-decodes each event `data` field with a schema. |
+| `@beep/utils/Event` | `decodeSchema` | const | `node_modules/effect/dist/unstable/encoding/Sse.d.ts:50` | Creates an SSE decoder channel that decodes each parsed event with a schema. |
+| `@beep/utils/Event` | `encode` | const | `node_modules/effect/dist/unstable/encoding/Sse.d.ts:108` | Creates a channel that encodes `Event` values as Server-Sent Events text. |
+| `@beep/utils/Event` | `encoder` | const | `node_modules/effect/dist/unstable/encoding/Sse.d.ts:255` | Default Server-Sent Events encoder. |
+| `@beep/utils/Event` | `Encoder` | interface | `node_modules/effect/dist/unstable/encoding/Sse.d.ts:132` | Encoder capable of rendering an `Event` or `Retry` value as Server-Sent |
+| `@beep/utils/Event` | `encodeSchema` | const | `node_modules/effect/dist/unstable/encoding/Sse.d.ts:120` | Creates an SSE encoder channel for values accepted by a schema. |
+| `@beep/utils/Event` | `Event` | const | `node_modules/effect/dist/unstable/encoding/Sse.d.ts:164` | Schema for the tagged Server-Sent Events message model that adds `_tag: "Event"` to the event name, optional event ID, and string data payload. |
+| `@beep/utils/Event` | `Event` | interface | `node_modules/effect/dist/unstable/encoding/Sse.d.ts:141` | Tagged model for a Server-Sent Events message containing the event name, optional event ID, and string data payload. |
+| `@beep/utils/Event` | `EventEncoded` | const | `node_modules/effect/dist/unstable/encoding/Sse.d.ts:153` | Schema for the untagged Server-Sent Events payload shape containing `id`, `event`, and string `data` fields. |
+| `@beep/utils/Event` | `EventEncoded` | interface | `node_modules/effect/dist/unstable/encoding/Sse.d.ts:193` | Untagged Server-Sent Events payload shape containing the event name, optional event ID, and string data payload. |
 | `@beep/utils/Event` | `makeEvent` | const | `packages/foundation/modeling/utils/src/Event.ts:89` | Creates a typed server-sent event schema. |
-| `@beep/utils/Event` | `makeParser` | function | `node_modules/effect/dist/unstable/encoding/Sse.d.ts:76` | Creates a stateful Server-Sent Events parser. |
-| `@beep/utils/Event` | `Parser` | interface | `node_modules/effect/dist/unstable/encoding/Sse.d.ts:85` | Stateful Server-Sent Events parser returned by `makeParser`. |
-| `@beep/utils/Event` | `Retry` | class | `node_modules/effect/dist/unstable/encoding/Sse.d.ts:208` | Server-Sent Events retry directive. |
-| `@beep/utils/Event` | `transformEvent` | const | `node_modules/effect/dist/unstable/encoding/Sse.d.ts:172` | Schema transformation between the untagged SSE event shape and the tagged |
+| `@beep/utils/Event` | `makeParser` | function | `node_modules/effect/dist/unstable/encoding/Sse.d.ts:82` | Creates a stateful Server-Sent Events parser. |
+| `@beep/utils/Event` | `Parser` | interface | `node_modules/effect/dist/unstable/encoding/Sse.d.ts:93` | Stateful Server-Sent Events parser returned by `makeParser`. |
+| `@beep/utils/Event` | `Retry` | class | `node_modules/effect/dist/unstable/encoding/Sse.d.ts:213` | Server-Sent Events retry directive. |
+| `@beep/utils/Event` | `transformEvent` | const | `node_modules/effect/dist/unstable/encoding/Sse.d.ts:177` | Schema transformation between the untagged SSE event shape and the tagged |
 | `@beep/utils/FileSystem` | `makeWaitForFile` | const | `packages/foundation/modeling/utils/src/FileSystem.ts:42` | Creates a dual API helper that waits for the first file-system watch event |
-| `@beep/utils/Function` | `absurd` | const | `node_modules/effect/dist/Function.d.ts:565` | The `absurd` function is a stub for cases where a value of type `never` is encountered in your code, |
-| `@beep/utils/Function` | `apply` | const | `node_modules/effect/dist/Function.d.ts:283` | Apply a function to a given value. |
-| `@beep/utils/Function` | `cast` | const | `node_modules/effect/dist/Function.d.ts:364` | Returns the input value with a different static type. |
-| `@beep/utils/Function` | `compose` | const | `node_modules/effect/dist/Function.d.ts:504` | Composes two functions, `ab` and `bc` into a single function that takes in an argument `a` of type `A` and returns a result of type `C`. |
-| `@beep/utils/Function` | `constant` | const | `node_modules/effect/dist/Function.d.ts:386` | Creates a zero-argument function that always returns the provided value. |
-| `@beep/utils/Function` | `constFalse` | const | `node_modules/effect/dist/Function.d.ts:418` | A thunk that returns always `false`. |
-| `@beep/utils/Function` | `constNull` | const | `node_modules/effect/dist/Function.d.ts:434` | A thunk that returns always `null`. |
-| `@beep/utils/Function` | `constTrue` | const | `node_modules/effect/dist/Function.d.ts:402` | A thunk that returns always `true`. |
-| `@beep/utils/Function` | `constUndefined` | const | `node_modules/effect/dist/Function.d.ts:450` | A thunk that returns always `undefined`. |
-| `@beep/utils/Function` | `constVoid` | const | `node_modules/effect/dist/Function.d.ts:466` | A thunk that returns always `void`. |
+| `@beep/utils/Function` | `absurd` | const | `node_modules/effect/dist/Function.d.ts:556` | Marks an impossible branch by accepting a `never` value and returning any |
+| `@beep/utils/Function` | `apply` | const | `node_modules/effect/dist/Function.d.ts:262` | Apply a function to a given value. |
+| `@beep/utils/Function` | `cast` | const | `node_modules/effect/dist/Function.d.ts:345` | Returns the input value with a different static type. |
+| `@beep/utils/Function` | `compose` | const | `node_modules/effect/dist/Function.d.ts:487` | Composes two functions, `ab` and `bc` into a single function that takes in an argument `a` of type `A` and returns a result of type `C`. |
+| `@beep/utils/Function` | `constant` | const | `node_modules/effect/dist/Function.d.ts:369` | Creates a zero-argument function that always returns the provided value. |
+| `@beep/utils/Function` | `constFalse` | const | `node_modules/effect/dist/Function.d.ts:401` | A thunk that returns always `false`. |
+| `@beep/utils/Function` | `constNull` | const | `node_modules/effect/dist/Function.d.ts:417` | A thunk that returns always `null`. |
+| `@beep/utils/Function` | `constTrue` | const | `node_modules/effect/dist/Function.d.ts:385` | A thunk that returns always `true`. |
+| `@beep/utils/Function` | `constUndefined` | const | `node_modules/effect/dist/Function.d.ts:433` | A thunk that returns always `undefined`. |
+| `@beep/utils/Function` | `constVoid` | const | `node_modules/effect/dist/Function.d.ts:449` | A thunk that returns always `void`. |
 | `@beep/utils/Function` | `curry` | function | `packages/foundation/modeling/utils/src/Function.ts:137` | Convert a two-argument function into a curried function. |
-| `@beep/utils/Function` | `dual` | const | `node_modules/effect/dist/Function.d.ts:134` | Creates a function that can be used in a data-last (aka `pipe`able) or |
-| `@beep/utils/Function` | `flip` | const | `node_modules/effect/dist/Function.d.ts:484` | Reverses the order of arguments for a curried function. |
-| `@beep/utils/Function` | `flow` | function | `node_modules/effect/dist/Function.d.ts:757` | Performs left-to-right function composition. The first argument may have any arity, the remaining arguments must be unary. |
-| `@beep/utils/Function` | `flow` | function | `node_modules/effect/dist/Function.d.ts:758` |  |
-| `@beep/utils/Function` | `flow` | function | `node_modules/effect/dist/Function.d.ts:759` |  |
-| `@beep/utils/Function` | `flow` | function | `node_modules/effect/dist/Function.d.ts:760` |  |
-| `@beep/utils/Function` | `flow` | function | `node_modules/effect/dist/Function.d.ts:761` |  |
-| `@beep/utils/Function` | `flow` | function | `node_modules/effect/dist/Function.d.ts:762` |  |
-| `@beep/utils/Function` | `flow` | function | `node_modules/effect/dist/Function.d.ts:763` |  |
-| `@beep/utils/Function` | `flow` | function | `node_modules/effect/dist/Function.d.ts:764` |  |
-| `@beep/utils/Function` | `flow` | function | `node_modules/effect/dist/Function.d.ts:765` |  |
-| `@beep/utils/Function` | `FunctionN` | type | `node_modules/effect/dist/Function.d.ts:315` | Represents a function with multiple arguments. |
+| `@beep/utils/Function` | `dual` | const | `node_modules/effect/dist/Function.d.ts:127` | Creates a function that can be called in data-first style or data-last |
+| `@beep/utils/Function` | `flip` | const | `node_modules/effect/dist/Function.d.ts:467` | Reverses the order of arguments for a curried function. |
+| `@beep/utils/Function` | `flow` | function | `node_modules/effect/dist/Function.d.ts:744` | Performs left-to-right function composition. |
+| `@beep/utils/Function` | `flow` | function | `node_modules/effect/dist/Function.d.ts:745` |  |
+| `@beep/utils/Function` | `flow` | function | `node_modules/effect/dist/Function.d.ts:746` |  |
+| `@beep/utils/Function` | `flow` | function | `node_modules/effect/dist/Function.d.ts:747` |  |
+| `@beep/utils/Function` | `flow` | function | `node_modules/effect/dist/Function.d.ts:748` |  |
+| `@beep/utils/Function` | `flow` | function | `node_modules/effect/dist/Function.d.ts:749` |  |
+| `@beep/utils/Function` | `flow` | function | `node_modules/effect/dist/Function.d.ts:750` |  |
+| `@beep/utils/Function` | `flow` | function | `node_modules/effect/dist/Function.d.ts:751` |  |
+| `@beep/utils/Function` | `flow` | function | `node_modules/effect/dist/Function.d.ts:752` |  |
+| `@beep/utils/Function` | `FunctionN` | type | `node_modules/effect/dist/Function.d.ts:294` | Represents a function with multiple arguments. |
 | `@beep/utils/Function` | `FunctionTypeLambda` | interface | `node_modules/effect/dist/Function.d.ts:66` | Type lambda for function types, used for higher-kinded type operations. |
-| `@beep/utils/Function` | `hole` | const | `node_modules/effect/dist/Function.d.ts:789` | Creates a compile-time placeholder for a value of any type. |
-| `@beep/utils/Function` | `identity` | const | `node_modules/effect/dist/Function.d.ts:331` | The identity function, i.e. A function that returns its input argument. |
+| `@beep/utils/Function` | `hole` | const | `node_modules/effect/dist/Function.d.ts:778` | Creates a compile-time placeholder for a value of any type. |
+| `@beep/utils/Function` | `identity` | const | `node_modules/effect/dist/Function.d.ts:310` | The identity function, i.e. A function that returns its input argument. |
 | `@beep/utils/Function` | `lazy` | function | `packages/foundation/modeling/utils/src/Function.ts:192` | Memoize a nullary function and return the cached result after the first call. |
-| `@beep/utils/Function` | `LazyArg` | type | `node_modules/effect/dist/Function.d.ts:298` | A zero-argument function that produces a value when invoked. |
-| `@beep/utils/Function` | `memoize` | function | `node_modules/effect/dist/Function.d.ts:816` | Memoizes a function whose input is an object, caching results by object |
-| `@beep/utils/Function` | `pipe` | function | `node_modules/effect/dist/Function.d.ts:715` | Pipes the value of an expression into a pipeline of functions. |
+| `@beep/utils/Function` | `LazyArg` | type | `node_modules/effect/dist/Function.d.ts:277` | A zero-argument function that produces a value when invoked. |
+| `@beep/utils/Function` | `memoize` | function | `node_modules/effect/dist/Function.d.ts:808` | Memoizes a function whose input is an object, caching results by object |
+| `@beep/utils/Function` | `pipe` | function | `node_modules/effect/dist/Function.d.ts:699` | Pipes the value of an expression through a left-to-right sequence of |
+| `@beep/utils/Function` | `pipe` | function | `node_modules/effect/dist/Function.d.ts:700` |  |
+| `@beep/utils/Function` | `pipe` | function | `node_modules/effect/dist/Function.d.ts:701` |  |
+| `@beep/utils/Function` | `pipe` | function | `node_modules/effect/dist/Function.d.ts:702` |  |
+| `@beep/utils/Function` | `pipe` | function | `node_modules/effect/dist/Function.d.ts:703` |  |
+| `@beep/utils/Function` | `pipe` | function | `node_modules/effect/dist/Function.d.ts:704` |  |
+| `@beep/utils/Function` | `pipe` | function | `node_modules/effect/dist/Function.d.ts:705` |  |
+| `@beep/utils/Function` | `pipe` | function | `node_modules/effect/dist/Function.d.ts:706` |  |
+| `@beep/utils/Function` | `pipe` | function | `node_modules/effect/dist/Function.d.ts:707` |  |
+| `@beep/utils/Function` | `pipe` | function | `node_modules/effect/dist/Function.d.ts:708` |  |
+| `@beep/utils/Function` | `pipe` | function | `node_modules/effect/dist/Function.d.ts:709` |  |
+| `@beep/utils/Function` | `pipe` | function | `node_modules/effect/dist/Function.d.ts:710` |  |
+| `@beep/utils/Function` | `pipe` | function | `node_modules/effect/dist/Function.d.ts:711` |  |
+| `@beep/utils/Function` | `pipe` | function | `node_modules/effect/dist/Function.d.ts:712` |  |
+| `@beep/utils/Function` | `pipe` | function | `node_modules/effect/dist/Function.d.ts:713` |  |
+| `@beep/utils/Function` | `pipe` | function | `node_modules/effect/dist/Function.d.ts:714` |  |
+| `@beep/utils/Function` | `pipe` | function | `node_modules/effect/dist/Function.d.ts:715` |  |
 | `@beep/utils/Function` | `pipe` | function | `node_modules/effect/dist/Function.d.ts:716` |  |
 | `@beep/utils/Function` | `pipe` | function | `node_modules/effect/dist/Function.d.ts:717` |  |
 | `@beep/utils/Function` | `pipe` | function | `node_modules/effect/dist/Function.d.ts:718` |  |
-| `@beep/utils/Function` | `pipe` | function | `node_modules/effect/dist/Function.d.ts:719` |  |
-| `@beep/utils/Function` | `pipe` | function | `node_modules/effect/dist/Function.d.ts:720` |  |
-| `@beep/utils/Function` | `pipe` | function | `node_modules/effect/dist/Function.d.ts:721` |  |
-| `@beep/utils/Function` | `pipe` | function | `node_modules/effect/dist/Function.d.ts:722` |  |
-| `@beep/utils/Function` | `pipe` | function | `node_modules/effect/dist/Function.d.ts:723` |  |
-| `@beep/utils/Function` | `pipe` | function | `node_modules/effect/dist/Function.d.ts:724` |  |
-| `@beep/utils/Function` | `pipe` | function | `node_modules/effect/dist/Function.d.ts:725` |  |
-| `@beep/utils/Function` | `pipe` | function | `node_modules/effect/dist/Function.d.ts:726` |  |
-| `@beep/utils/Function` | `pipe` | function | `node_modules/effect/dist/Function.d.ts:727` |  |
-| `@beep/utils/Function` | `pipe` | function | `node_modules/effect/dist/Function.d.ts:728` |  |
-| `@beep/utils/Function` | `pipe` | function | `node_modules/effect/dist/Function.d.ts:729` |  |
-| `@beep/utils/Function` | `pipe` | function | `node_modules/effect/dist/Function.d.ts:730` |  |
-| `@beep/utils/Function` | `pipe` | function | `node_modules/effect/dist/Function.d.ts:731` |  |
-| `@beep/utils/Function` | `pipe` | function | `node_modules/effect/dist/Function.d.ts:732` |  |
-| `@beep/utils/Function` | `pipe` | function | `node_modules/effect/dist/Function.d.ts:733` |  |
-| `@beep/utils/Function` | `pipe` | function | `node_modules/effect/dist/Function.d.ts:734` |  |
 | `@beep/utils/Function` | `reverseCurry` | function | `packages/foundation/modeling/utils/src/Function.ts:112` | Reverse the argument order of a two-argument curried function. |
-| `@beep/utils/Function` | `satisfies` | const | `node_modules/effect/dist/Function.d.ts:354` | A function that ensures that the type of an expression matches some type, |
-| `@beep/utils/Function` | `SK` | const | `node_modules/effect/dist/Function.d.ts:808` | The SK combinator, also known as the "S-K combinator" or "S-combinator", is a fundamental combinator in the |
+| `@beep/utils/Function` | `satisfies` | const | `node_modules/effect/dist/Function.d.ts:333` | A function that ensures that the type of an expression matches some type, |
+| `@beep/utils/Function` | `SK` | const | `node_modules/effect/dist/Function.d.ts:800` | The SK combinator, also known as the "S-K combinator" or "S-combinator", is |
 | `@beep/utils/Function` | `tuple` | function | `packages/foundation/modeling/utils/src/Function.ts:60` | Construct a readonly tuple from the provided elements. |
-| `@beep/utils/Function` | `tupled` | const | `node_modules/effect/dist/Function.d.ts:583` | Creates a tupled version of this function: instead of `n` arguments, it accepts a single tuple argument. |
+| `@beep/utils/Function` | `tupled` | const | `node_modules/effect/dist/Function.d.ts:574` | Creates a tupled version of this function: instead of `n` arguments, it accepts a single tuple argument. |
 | `@beep/utils/Function` | `tupledCurry` | function | `packages/foundation/modeling/utils/src/Function.ts:86` | Convert a curried two-argument function into a tuple-consuming function. |
 | `@beep/utils/Function` | `uncurry` | function | `packages/foundation/modeling/utils/src/Function.ts:162` | Convert a curried two-argument function into an uncurried function. |
-| `@beep/utils/Function` | `untupled` | const | `node_modules/effect/dist/Function.d.ts:601` | Inverse function of `tupled` |
+| `@beep/utils/Function` | `untupled` | const | `node_modules/effect/dist/Function.d.ts:592` | Inverse function of `tupled` |
 | `@beep/utils/Glob` | `Glob` | const | `packages/foundation/modeling/utils/src/Glob.ts:196` | Service tag for the {@link Glob} capability. |
 | `@beep/utils/Glob` | `Glob` | interface | `packages/foundation/modeling/utils/src/Glob.ts:178` | Service interface for performing glob-based file matching. |
 | `@beep/utils/Glob` | `GlobError` | class | `packages/foundation/modeling/utils/src/Glob.ts:131` | An error raised when glob pattern matching fails. |
@@ -899,277 +899,279 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/utils/NodeUrl` | `fileURLToPath` | const | `packages/foundation/modeling/utils/src/NodeUrl.ts:127` | Converts a `file:` URL back into a platform path string. |
 | `@beep/utils/NodeUrl` | `fromFileUrl` | const | `packages/foundation/modeling/utils/src/NodeUrl.ts:53` | Converts a `file:` URL into a platform path string. |
 | `@beep/utils/NodeUrl` | `toFileUrl` | const | `packages/foundation/modeling/utils/src/NodeUrl.ts:102` | Converts a platform path string into a `file:` URL. |
-| `@beep/utils/Number` | `between` | const | `node_modules/effect/dist/Number.d.ts:615` | Checks if a `number` is between a `minimum` and `maximum` value (inclusive). |
-| `@beep/utils/Number` | `clamp` | const | `node_modules/effect/dist/Number.d.ts:686` | Restricts the given `number` to be within the range specified by the `minimum` and `maximum` values. |
-| `@beep/utils/Number` | `decrement` | const | `node_modules/effect/dist/Number.d.ts:339` | Decrements a number by `1`. |
-| `@beep/utils/Number` | `divide` | const | `node_modules/effect/dist/Number.d.ts:212` | Provides a division operation on `number`s. |
-| `@beep/utils/Number` | `divideUnsafe` | const | `node_modules/effect/dist/Number.d.ts:268` | Provides an unsafe division operation on `number`s. |
-| `@beep/utils/Number` | `Equivalence` | const | `node_modules/effect/dist/Number.d.ts:375` | An `Equivalence` instance for numbers. |
-| `@beep/utils/Number` | `increment` | const | `node_modules/effect/dist/Number.d.ts:323` | Returns the result of adding `1` to a given number. |
-| `@beep/utils/Number` | `isGreaterThan` | const | `node_modules/effect/dist/Number.d.ts:503` | Returns `true` if the first argument is greater than the second, otherwise `false`. |
-| `@beep/utils/Number` | `isGreaterThanOrEqualTo` | const | `node_modules/effect/dist/Number.d.ts:558` | Returns a function that checks if a given `number` is greater than or equal to the provided one. |
+| `@beep/utils/Number` | `between` | const | `node_modules/effect/dist/Number.d.ts:601` | Checks if a `number` is between a `minimum` and `maximum` value (inclusive). |
+| `@beep/utils/Number` | `clamp` | const | `node_modules/effect/dist/Number.d.ts:674` | Restricts the given `number` to be within the range specified by the `minimum` and `maximum` values. |
+| `@beep/utils/Number` | `decrement` | const | `node_modules/effect/dist/Number.d.ts:327` | Decrements a number by `1`. |
+| `@beep/utils/Number` | `divide` | const | `node_modules/effect/dist/Number.d.ts:210` | Provides a division operation on `number`s, returning `Option.none()` if the divisor is `0`. |
+| `@beep/utils/Number` | `divideUnsafe` | const | `node_modules/effect/dist/Number.d.ts:260` | Provides an unsafe division operation on `number`s that throws a `RangeError` if the divisor is `0`. |
+| `@beep/utils/Number` | `Equivalence` | const | `node_modules/effect/dist/Number.d.ts:361` | An `Equivalence` instance for numbers where `NaN` is considered equal to `NaN`. |
+| `@beep/utils/Number` | `increment` | const | `node_modules/effect/dist/Number.d.ts:311` | Returns the result of adding `1` to a given number. |
+| `@beep/utils/Number` | `isGreaterThan` | const | `node_modules/effect/dist/Number.d.ts:489` | Returns `true` if the first argument is greater than the second, otherwise `false`. |
+| `@beep/utils/Number` | `isGreaterThanOrEqualTo` | const | `node_modules/effect/dist/Number.d.ts:544` | Returns a function that checks if a given `number` is greater than or equal to the provided one. |
 | `@beep/utils/Number` | `isInteger` | const | `packages/foundation/modeling/utils/src/Number.ts:83` | Type guard that checks whether a value is a `number` and an integer. |
-| `@beep/utils/Number` | `isLessThan` | const | `node_modules/effect/dist/Number.d.ts:393` | Returns `true` if the first argument is less than the second, otherwise `false`. |
-| `@beep/utils/Number` | `isLessThanOrEqualTo` | const | `node_modules/effect/dist/Number.d.ts:448` | Returns a function that checks if a given `number` is less than or equal to the provided one. |
+| `@beep/utils/Number` | `isLessThan` | const | `node_modules/effect/dist/Number.d.ts:379` | Returns `true` if the first argument is less than the second, otherwise `false`. |
+| `@beep/utils/Number` | `isLessThanOrEqualTo` | const | `node_modules/effect/dist/Number.d.ts:434` | Returns a function that checks if a given `number` is less than or equal to the provided one. |
 | `@beep/utils/Number` | `isNumber` | const | `node_modules/effect/dist/Number.d.ts:47` | Tests if a value is a `number`. |
 | `@beep/utils/Number` | `isPositive` | const | `packages/foundation/modeling/utils/src/Number.ts:41` | Determines if the given input is a number and is positive (greater than or equal to 0). |
-| `@beep/utils/Number` | `max` | const | `node_modules/effect/dist/Number.d.ts:806` | Returns the maximum between two `number`s. |
-| `@beep/utils/Number` | `min` | const | `node_modules/effect/dist/Number.d.ts:757` | Returns the minimum between two `number`s. |
+| `@beep/utils/Number` | `max` | const | `node_modules/effect/dist/Number.d.ts:798` | Returns the maximum between two `number`s. |
+| `@beep/utils/Number` | `min` | const | `node_modules/effect/dist/Number.d.ts:749` | Returns the minimum between two `number`s. |
 | `@beep/utils/Number` | `multiply` | const | `node_modules/effect/dist/Number.d.ts:112` | Provides a multiplication operation on `number`s. |
-| `@beep/utils/Number` | `multiplyAll` | const | `node_modules/effect/dist/Number.d.ts:889` | Takes an `Iterable` of `number`s and returns their multiplication as a single `number`. |
-| `@beep/utils/Number` | `nextPow2` | const | `node_modules/effect/dist/Number.d.ts:967` | Returns the next power of 2 from the given number. |
+| `@beep/utils/Number` | `multiplyAll` | const | `node_modules/effect/dist/Number.d.ts:881` | Takes an `Iterable` of `number`s and returns their multiplication as a single `number`. |
+| `@beep/utils/Number` | `nextPow2` | const | `node_modules/effect/dist/Number.d.ts:953` | Returns the next power of 2 from the given number. |
 | `@beep/utils/Number` | `Number` | const | `node_modules/effect/dist/Number.d.ts:30` | The global `Number` constructor. |
-| `@beep/utils/Number` | `Order` | const | `node_modules/effect/dist/Number.d.ts:356` | An `Order` instance for `number` values. |
-| `@beep/utils/Number` | `parse` | const | `node_modules/effect/dist/Number.d.ts:988` | Tries to parse a `number` from a `string` using the `Number()` function. |
-| `@beep/utils/Number` | `ReducerMax` | const | `node_modules/effect/dist/Number.d.ts:1061` | A `Reducer` for reducing `number`s by keeping the maximum value. |
-| `@beep/utils/Number` | `ReducerMin` | const | `node_modules/effect/dist/Number.d.ts:1068` | A `Reducer` for reducing `number`s by keeping the minimum value. |
-| `@beep/utils/Number` | `ReducerMultiply` | const | `node_modules/effect/dist/Number.d.ts:1054` | A `Reducer` for combining `number`s using multiplication. |
-| `@beep/utils/Number` | `ReducerSum` | const | `node_modules/effect/dist/Number.d.ts:1047` | A `Reducer` for combining `number`s using addition. |
-| `@beep/utils/Number` | `remainder` | const | `node_modules/effect/dist/Number.d.ts:909` | Returns the remainder left over when one operand is divided by a second operand. |
-| `@beep/utils/Number` | `round` | const | `node_modules/effect/dist/Number.d.ts:1005` | Returns the number rounded with the given precision. |
-| `@beep/utils/Number` | `sign` | const | `node_modules/effect/dist/Number.d.ts:857` | Determines the sign of a given `number`. |
+| `@beep/utils/Number` | `Order` | const | `node_modules/effect/dist/Number.d.ts:344` | An `Order` instance for `number` values. |
+| `@beep/utils/Number` | `parse` | const | `node_modules/effect/dist/Number.d.ts:974` | Tries to parse a `number` from a `string` using the `Number()` function. |
+| `@beep/utils/Number` | `ReducerMax` | const | `node_modules/effect/dist/Number.d.ts:1047` | A `Reducer` for reducing `number`s by keeping the maximum value. |
+| `@beep/utils/Number` | `ReducerMin` | const | `node_modules/effect/dist/Number.d.ts:1054` | A `Reducer` for reducing `number`s by keeping the minimum value. |
+| `@beep/utils/Number` | `ReducerMultiply` | const | `node_modules/effect/dist/Number.d.ts:1040` | A `Reducer` for combining `number`s using multiplication. |
+| `@beep/utils/Number` | `ReducerSum` | const | `node_modules/effect/dist/Number.d.ts:1033` | A `Reducer` for combining `number`s using addition. |
+| `@beep/utils/Number` | `remainder` | const | `node_modules/effect/dist/Number.d.ts:899` | Returns the remainder left over when one operand is divided by a second operand, always taking the sign of the dividend. |
+| `@beep/utils/Number` | `round` | const | `node_modules/effect/dist/Number.d.ts:991` | Returns the number rounded with the given precision. |
+| `@beep/utils/Number` | `sign` | const | `node_modules/effect/dist/Number.d.ts:849` | Determines the sign of a given `number`. |
 | `@beep/utils/Number` | `subtract` | const | `node_modules/effect/dist/Number.d.ts:161` | Provides a subtraction operation on `number`s. |
 | `@beep/utils/Number` | `sum` | const | `node_modules/effect/dist/Number.d.ts:63` | Provides an addition operation on `number`s. |
-| `@beep/utils/Number` | `sumAll` | const | `node_modules/effect/dist/Number.d.ts:873` | Takes an `Iterable` of `number`s and returns their sum as a single `number`. |
-| `@beep/utils/Option` | `all` | const | `node_modules/effect/dist/Option.d.ts:2882` | Combines a structure of `Option`s (tuple, struct, or iterable) into a single |
-| `@beep/utils/Option` | `andThen` | const | `node_modules/effect/dist/Option.d.ts:1864` | Chains a second computation onto an `Option`. The second value can be a |
-| `@beep/utils/Option` | `as` | const | `node_modules/effect/dist/Option.d.ts:1566` | Replaces the value inside a `Some` with a constant, leaving `None` unchanged. |
-| `@beep/utils/Option` | `asVoid` | const | `node_modules/effect/dist/Option.d.ts:1660` | Replaces the value inside a `Some` with `void` (`undefined`), leaving `None` |
-| `@beep/utils/Option` | `bind` | const | `node_modules/effect/dist/Option.d.ts:4259` | Adds an `Option` value to the do notation record under a given name. If the |
-| `@beep/utils/Option` | `bindTo` | const | `node_modules/effect/dist/Option.d.ts:4121` | Gives a name to the value of an `Option`, creating a single-key record |
-| `@beep/utils/Option` | `composeK` | const | `node_modules/effect/dist/Option.d.ts:2578` | Composes two `Option`-returning functions into a single function that chains |
-| `@beep/utils/Option` | `contains` | const | `node_modules/effect/dist/Option.d.ts:3828` | Checks if an `Option` contains a value equal to the given one, using default |
-| `@beep/utils/Option` | `containsWith` | const | `node_modules/effect/dist/Option.d.ts:3790` | Checks if an `Option` contains a value equivalent to the given one, using a |
-| `@beep/utils/Option` | `Do` | const | `node_modules/effect/dist/Option.d.ts:4360` | An `Option` containing an empty record `{}`, used as the starting point for |
-| `@beep/utils/Option` | `exists` | const | `node_modules/effect/dist/Option.d.ts:3937` | Tests if the value in a `Some` satisfies a predicate or refinement. |
-| `@beep/utils/Option` | `filter` | const | `node_modules/effect/dist/Option.d.ts:3340` | Filters an `Option` using a predicate. Returns `None` if the predicate is |
-| `@beep/utils/Option` | `filterMap` | const | `node_modules/effect/dist/Option.d.ts:3250` | Transforms and filters an `Option` using a `Filter` callback. |
-| `@beep/utils/Option` | `firstSomeOf` | const | `node_modules/effect/dist/Option.d.ts:1065` | Returns the first `Some` found in an iterable of `Option`s, or `None` if |
-| `@beep/utils/Option` | `flatMap` | const | `node_modules/effect/dist/Option.d.ts:1730` | Applies a function that returns an `Option` to the value of a `Some`, |
-| `@beep/utils/Option` | `flatMapNullishOr` | const | `node_modules/effect/dist/Option.d.ts:2235` | Combines {@link flatMap} with {@link fromNullishOr}: applies a function that |
-| `@beep/utils/Option` | `flatten` | const | `node_modules/effect/dist/Option.d.ts:2351` | Flattens a nested `Option<Option<A>>` into `Option<A>`. |
-| `@beep/utils/Option` | `fromIterable` | const | `node_modules/effect/dist/Option.d.ts:579` | Wraps the first element of an `Iterable` in a `Some`, or returns `None` if |
-| `@beep/utils/Option` | `fromNullishOr` | const | `node_modules/effect/dist/Option.d.ts:1101` | Converts a nullable value (`null` or `undefined`) into an `Option`. |
-| `@beep/utils/Option` | `fromNullOr` | const | `node_modules/effect/dist/Option.d.ts:1171` | Converts a possibly `null` value into an `Option`, leaving `undefined` |
-| `@beep/utils/Option` | `fromUndefinedOr` | const | `node_modules/effect/dist/Option.d.ts:1136` | Converts a possibly `undefined` value into an `Option`, leaving `null` |
-| `@beep/utils/Option` | `gen` | const | `node_modules/effect/dist/Option.d.ts:4400` | Generator-based syntax for `Option`, similar to `async`/`await` but for |
-| `@beep/utils/Option` | `getFailure` | const | `node_modules/effect/dist/Option.d.ts:639` | Converts a `Result` into an `Option`, keeping only the failure value. |
-| `@beep/utils/Option` | `getOrElse` | const | `node_modules/effect/dist/Option.d.ts:673` | Extracts the value from a `Some`, or evaluates a fallback thunk on `None`. |
-| `@beep/utils/Option` | `getOrNull` | const | `node_modules/effect/dist/Option.d.ts:1241` | Extracts the value from a `Some`, or returns `null` for `None`. |
-| `@beep/utils/Option` | `getOrThrow` | const | `node_modules/effect/dist/Option.d.ts:1432` | Extracts the value from a `Some`, or throws a default `Error` for `None`. |
-| `@beep/utils/Option` | `getOrThrowWith` | const | `node_modules/effect/dist/Option.d.ts:1336` | Extracts the value from a `Some`, or throws a custom error for `None`. |
-| `@beep/utils/Option` | `getOrUndefined` | const | `node_modules/effect/dist/Option.d.ts:1272` | Extracts the value from a `Some`, or returns `undefined` for `None`. |
-| `@beep/utils/Option` | `getSuccess` | const | `node_modules/effect/dist/Option.d.ts:609` | Converts a `Result` into an `Option`, keeping only the success value. |
-| `@beep/utils/Option` | `isNone` | const | `node_modules/effect/dist/Option.d.ts:368` | Checks whether an `Option` is `None` (absent). |
-| `@beep/utils/Option` | `isOption` | const | `node_modules/effect/dist/Option.d.ts:339` | Determines whether the given value is an `Option`. |
-| `@beep/utils/Option` | `isSome` | const | `node_modules/effect/dist/Option.d.ts:397` | Checks whether an `Option` contains a value (`Some`). |
-| `@beep/utils/Option` | `let` | const | `node_modules/effect/dist/Option.d.ts:4189` |  |
-| `@beep/utils/Option` | `lift2` | const | `node_modules/effect/dist/Option.d.ts:3605` | Lifts a binary function to operate on two `Option` values. |
-| `@beep/utils/Option` | `liftNullishOr` | const | `node_modules/effect/dist/Option.d.ts:1210` | Lifts a function that may return `null` or `undefined` into one that returns |
-| `@beep/utils/Option` | `liftPredicate` | const | `node_modules/effect/dist/Option.d.ts:3644` | Lifts a `Predicate` or `Refinement` into the `Option` context: returns |
-| `@beep/utils/Option` | `liftThrowable` | const | `node_modules/effect/dist/Option.d.ts:1304` | Lifts a function that may throw into one that returns an `Option`. |
-| `@beep/utils/Option` | `makeCombinerFailFast` | function | `node_modules/effect/dist/Option.d.ts:4466` | Creates a `Combiner` for `Option<A>` with fail-fast semantics: returns `None` |
-| `@beep/utils/Option` | `makeEquivalence` | const | `node_modules/effect/dist/Option.d.ts:3539` | Creates an `Equivalence` for `Option<A>` from an `Equivalence` for `A`. |
-| `@beep/utils/Option` | `makeOrder` | const | `node_modules/effect/dist/Option.d.ts:3573` | Creates an `Order` for `Option<A>` from an `Order` for `A`. |
-| `@beep/utils/Option` | `makeReducer` | function | `node_modules/effect/dist/Option.d.ts:4433` | Creates a `Reducer` for `Option<A>` that prioritizes the first non-`None` |
-| `@beep/utils/Option` | `makeReducerFailFast` | function | `node_modules/effect/dist/Option.d.ts:4501` | Creates a `Reducer` for `Option<A>` by lifting an existing `Reducer` with |
-| `@beep/utils/Option` | `map` | const | `node_modules/effect/dist/Option.d.ts:1466` | Transforms the value inside a `Some` using the provided function, leaving |
-| `@beep/utils/Option` | `match` | const | `node_modules/effect/dist/Option.d.ts:431` | Pattern-matches on an `Option`, handling both `None` and `Some` cases. |
-| `@beep/utils/Option` | `none` | const | `node_modules/effect/dist/Option.d.ts:272` | Creates an `Option` representing the absence of a value. |
+| `@beep/utils/Number` | `sumAll` | const | `node_modules/effect/dist/Number.d.ts:865` | Takes an `Iterable` of `number`s and returns their sum as a single `number`. |
+| `@beep/utils/Option` | `all` | const | `node_modules/effect/dist/Option.d.ts:2886` | Combines a structure of `Option`s (tuple, struct, or iterable) into a single |
+| `@beep/utils/Option` | `andThen` | const | `node_modules/effect/dist/Option.d.ts:1868` | Chains a second computation onto an `Option`. The second value can be a |
+| `@beep/utils/Option` | `as` | const | `node_modules/effect/dist/Option.d.ts:1570` | Replaces the value inside a `Some` with a constant, leaving `None` unchanged. |
+| `@beep/utils/Option` | `asVoid` | const | `node_modules/effect/dist/Option.d.ts:1664` | Replaces the value inside a `Some` with `void` (`undefined`), leaving `None` |
+| `@beep/utils/Option` | `bind` | const | `node_modules/effect/dist/Option.d.ts:4269` | Adds an `Option` value to the do notation record under a given name. If the |
+| `@beep/utils/Option` | `bindTo` | const | `node_modules/effect/dist/Option.d.ts:4131` | Gives a name to the value of an `Option`, creating a single-key record |
+| `@beep/utils/Option` | `composeK` | const | `node_modules/effect/dist/Option.d.ts:2582` | Composes two `Option`-returning functions into a single function that chains |
+| `@beep/utils/Option` | `contains` | const | `node_modules/effect/dist/Option.d.ts:3838` | Checks if an `Option` contains a value equal to the given one, using default |
+| `@beep/utils/Option` | `containsWith` | const | `node_modules/effect/dist/Option.d.ts:3800` | Checks if an `Option` contains a value equivalent to the given one, using a |
+| `@beep/utils/Option` | `Do` | const | `node_modules/effect/dist/Option.d.ts:4370` | An `Option` containing an empty record `{}`, used as the starting point for |
+| `@beep/utils/Option` | `exists` | const | `node_modules/effect/dist/Option.d.ts:3947` | Tests if the value in a `Some` satisfies a predicate or refinement. |
+| `@beep/utils/Option` | `filter` | const | `node_modules/effect/dist/Option.d.ts:3350` | Filters an `Option` using a predicate. Returns `None` if the predicate is |
+| `@beep/utils/Option` | `filterMap` | const | `node_modules/effect/dist/Option.d.ts:3256` | Transforms and filters an `Option` using a `Filter` callback. |
+| `@beep/utils/Option` | `firstSomeOf` | const | `node_modules/effect/dist/Option.d.ts:1069` | Returns the first `Some` found in an iterable of `Option`s, or `None` if |
+| `@beep/utils/Option` | `flatMap` | const | `node_modules/effect/dist/Option.d.ts:1734` | Applies a function that returns an `Option` to the value of a `Some`, |
+| `@beep/utils/Option` | `flatMapNullishOr` | const | `node_modules/effect/dist/Option.d.ts:2239` | Combines {@link flatMap} with {@link fromNullishOr}: applies a function that |
+| `@beep/utils/Option` | `flatten` | const | `node_modules/effect/dist/Option.d.ts:2355` | Flattens a nested `Option<Option<A>>` into `Option<A>`. |
+| `@beep/utils/Option` | `fromIterable` | const | `node_modules/effect/dist/Option.d.ts:583` | Wraps the first element of an `Iterable` in a `Some`, or returns `None` if |
+| `@beep/utils/Option` | `fromNullishOr` | const | `node_modules/effect/dist/Option.d.ts:1105` | Converts a nullable value (`null` or `undefined`) into an `Option`. |
+| `@beep/utils/Option` | `fromNullOr` | const | `node_modules/effect/dist/Option.d.ts:1175` | Converts a possibly `null` value into an `Option`, leaving `undefined` |
+| `@beep/utils/Option` | `fromUndefinedOr` | const | `node_modules/effect/dist/Option.d.ts:1140` | Converts a possibly `undefined` value into an `Option`, leaving `null` |
+| `@beep/utils/Option` | `gen` | const | `node_modules/effect/dist/Option.d.ts:4410` | Generator-based syntax for `Option`, similar to `async`/`await` but for |
+| `@beep/utils/Option` | `getFailure` | const | `node_modules/effect/dist/Option.d.ts:643` | Converts a `Result` into an `Option`, keeping only the failure value. |
+| `@beep/utils/Option` | `getOrElse` | const | `node_modules/effect/dist/Option.d.ts:677` | Extracts the value from a `Some`, or evaluates a fallback thunk on `None`. |
+| `@beep/utils/Option` | `getOrNull` | const | `node_modules/effect/dist/Option.d.ts:1245` | Extracts the value from a `Some`, or returns `null` for `None`. |
+| `@beep/utils/Option` | `getOrThrow` | const | `node_modules/effect/dist/Option.d.ts:1436` | Extracts the value from a `Some`, or throws a default `Error` for `None`. |
+| `@beep/utils/Option` | `getOrThrowWith` | const | `node_modules/effect/dist/Option.d.ts:1340` | Extracts the value from a `Some`, or throws a custom error for `None`. |
+| `@beep/utils/Option` | `getOrUndefined` | const | `node_modules/effect/dist/Option.d.ts:1276` | Extracts the value from a `Some`, or returns `undefined` for `None`. |
+| `@beep/utils/Option` | `getSuccess` | const | `node_modules/effect/dist/Option.d.ts:613` | Converts a `Result` into an `Option`, keeping only the success value. |
+| `@beep/utils/Option` | `isNone` | const | `node_modules/effect/dist/Option.d.ts:372` | Checks whether an `Option` is `None` (absent). |
+| `@beep/utils/Option` | `isOption` | const | `node_modules/effect/dist/Option.d.ts:343` | Determines whether the given value is an `Option`. |
+| `@beep/utils/Option` | `isSome` | const | `node_modules/effect/dist/Option.d.ts:401` | Checks whether an `Option` contains a value (`Some`). |
+| `@beep/utils/Option` | `let` | const | `node_modules/effect/dist/Option.d.ts:4199` |  |
+| `@beep/utils/Option` | `lift2` | const | `node_modules/effect/dist/Option.d.ts:3615` | Lifts a binary function to operate on two `Option` values. |
+| `@beep/utils/Option` | `liftNullishOr` | const | `node_modules/effect/dist/Option.d.ts:1214` | Lifts a function that may return `null` or `undefined` into one that returns |
+| `@beep/utils/Option` | `liftPredicate` | const | `node_modules/effect/dist/Option.d.ts:3654` | Lifts a `Predicate` or `Refinement` into the `Option` context: returns |
+| `@beep/utils/Option` | `liftThrowable` | const | `node_modules/effect/dist/Option.d.ts:1308` | Lifts a function that may throw into one that returns an `Option`. |
+| `@beep/utils/Option` | `makeCombinerFailFast` | function | `node_modules/effect/dist/Option.d.ts:4476` | Creates a `Combiner` for `Option<A>` with fail-fast semantics: returns `None` |
+| `@beep/utils/Option` | `makeEquivalence` | const | `node_modules/effect/dist/Option.d.ts:3549` | Creates an `Equivalence` for `Option<A>` from an `Equivalence` for `A`. |
+| `@beep/utils/Option` | `makeOrder` | const | `node_modules/effect/dist/Option.d.ts:3583` | Creates an `Order` for `Option<A>` from an `Order` for `A`. |
+| `@beep/utils/Option` | `makeReducer` | function | `node_modules/effect/dist/Option.d.ts:4443` | Creates a `Reducer` for `Option<A>` that prioritizes the first non-`None` |
+| `@beep/utils/Option` | `makeReducerFailFast` | function | `node_modules/effect/dist/Option.d.ts:4511` | Creates a `Reducer` for `Option<A>` by lifting an existing `Reducer` with |
+| `@beep/utils/Option` | `map` | const | `node_modules/effect/dist/Option.d.ts:1470` | Transforms the value inside a `Some` using the provided function, leaving |
+| `@beep/utils/Option` | `match` | const | `node_modules/effect/dist/Option.d.ts:435` | Pattern-matches on an `Option`, handling both `None` and `Some` cases. |
+| `@beep/utils/Option` | `none` | const | `node_modules/effect/dist/Option.d.ts:276` | Creates an `Option` representing the absence of a value. |
 | `@beep/utils/Option` | `None` | interface | `node_modules/effect/dist/Option.d.ts:125` | Represents the absence of a value within an {@link Option}. |
-| `@beep/utils/Option` | `Option` | namespace | `node_modules/effect/dist/Option.d.ts:200` | Namespace containing utility types for `Option`. |
+| `@beep/utils/Option` | `Option` | namespace | `node_modules/effect/dist/Option.d.ts:202` | Namespace containing utility types for `Option`. |
 | `@beep/utils/Option` | `Option` | type | `node_modules/effect/dist/Option.d.ts:106` | The `Option` data type represents optional values. An `Option<A>` is either |
 | `@beep/utils/Option` | `OptionIterator` | interface | `node_modules/effect/dist/Option.d.ts:144` | Iterator protocol used to yield an `Option` inside {@link gen}, returning the |
-| `@beep/utils/Option` | `OptionTypeLambda` | interface | `node_modules/effect/dist/Option.d.ts:238` | Type lambda interface for higher-kinded type encodings with `Option`. |
-| `@beep/utils/Option` | `OptionUnify` | interface | `node_modules/effect/dist/Option.d.ts:190` | Type-level unification support for `Option` values. |
-| `@beep/utils/Option` | `OptionUnifyIgnore` | interface | `node_modules/effect/dist/Option.d.ts:230` | Marker interface used by Effect's `Unify` machinery for `Option` values. |
-| `@beep/utils/Option` | `orElse` | const | `node_modules/effect/dist/Option.d.ts:775` | Returns the fallback `Option` if `self` is `None`; otherwise returns `self`. |
-| `@beep/utils/Option` | `orElseResult` | const | `node_modules/effect/dist/Option.d.ts:968` | Like {@link orElse}, but wraps the result in a `Result` to indicate the |
-| `@beep/utils/Option` | `orElseSome` | const | `node_modules/effect/dist/Option.d.ts:873` | Returns `Some` of the fallback value if `self` is `None`; otherwise returns |
-| `@beep/utils/Option` | `partitionMap` | const | `node_modules/effect/dist/Option.d.ts:3147` | Splits an `Option` into two `Option`s using a function that returns a `Result`. |
-| `@beep/utils/Option` | `product` | const | `node_modules/effect/dist/Option.d.ts:2801` | Combines two `Option`s into a `Some` containing a tuple `[A, B]` if both |
-| `@beep/utils/Option` | `productMany` | const | `node_modules/effect/dist/Option.d.ts:2836` | Combines a primary `Option` with an iterable of `Option`s into a tuple if |
+| `@beep/utils/Option` | `OptionTypeLambda` | interface | `node_modules/effect/dist/Option.d.ts:242` | Type lambda interface for higher-kinded type encodings with `Option`. |
+| `@beep/utils/Option` | `OptionUnify` | interface | `node_modules/effect/dist/Option.d.ts:192` | Type-level unification support for `Option` values. |
+| `@beep/utils/Option` | `OptionUnifyIgnore` | interface | `node_modules/effect/dist/Option.d.ts:234` | Marker interface used by Effect's `Unify` machinery for `Option` values. |
+| `@beep/utils/Option` | `orElse` | const | `node_modules/effect/dist/Option.d.ts:779` | Returns the fallback `Option` if `self` is `None`; otherwise returns `self`. |
+| `@beep/utils/Option` | `orElseResult` | const | `node_modules/effect/dist/Option.d.ts:972` | Like {@link orElse}, but wraps the result in a `Result` to indicate the |
+| `@beep/utils/Option` | `orElseSome` | const | `node_modules/effect/dist/Option.d.ts:877` | Returns `Some` of the fallback value if `self` is `None`; otherwise returns |
+| `@beep/utils/Option` | `partitionMap` | const | `node_modules/effect/dist/Option.d.ts:3151` | Splits an `Option` into two `Option`s using a function that returns a `Result`. |
+| `@beep/utils/Option` | `product` | const | `node_modules/effect/dist/Option.d.ts:2805` | Combines two `Option`s into a `Some` containing a tuple `[A, B]` if both |
+| `@beep/utils/Option` | `productMany` | const | `node_modules/effect/dist/Option.d.ts:2840` | Combines a primary `Option` with an iterable of `Option`s into a tuple if |
 | `@beep/utils/Option` | `propFromNullishOr` | const | `packages/foundation/modeling/utils/src/Option.ts:51` | Retrieves a value from a struct by path and converts missing or nullish |
-| `@beep/utils/Option` | `reduceCompact` | const | `node_modules/effect/dist/Option.d.ts:3020` | Reduces an iterable of `Option`s to a single value, skipping `None` entries. |
-| `@beep/utils/Option` | `some` | const | `node_modules/effect/dist/Option.d.ts:304` | Wraps the given value into an `Option` to represent its presence. |
+| `@beep/utils/Option` | `reduceCompact` | const | `node_modules/effect/dist/Option.d.ts:3024` | Reduces an iterable of `Option`s to a single value, skipping `None` entries. |
+| `@beep/utils/Option` | `some` | const | `node_modules/effect/dist/Option.d.ts:308` | Wraps the given value into an `Option` to represent its presence. |
 | `@beep/utils/Option` | `Some` | interface | `node_modules/effect/dist/Option.d.ts:167` | Represents the presence of a value within an {@link Option}. |
-| `@beep/utils/Option` | `tap` | const | `node_modules/effect/dist/Option.d.ts:2694` | Runs a side-effecting `Option`-returning function on the value of a `Some`, |
-| `@beep/utils/Option` | `toArray` | const | `node_modules/effect/dist/Option.d.ts:3108` | Converts an `Option` into an `Array`. |
-| `@beep/utils/Option` | `toRefinement` | const | `node_modules/effect/dist/Option.d.ts:547` | Converts an `Option`-returning function into a type guard (refinement). |
-| `@beep/utils/Option` | `void` | const | `node_modules/effect/dist/Option.d.ts:1661` |  |
-| `@beep/utils/Option` | `zipLeft` | const | `node_modules/effect/dist/Option.d.ts:2476` | Sequences two `Option`s, keeping the value from the first if both are `Some`. |
-| `@beep/utils/Option` | `zipRight` | const | `node_modules/effect/dist/Option.d.ts:2382` | Sequences two `Option`s, keeping the value from the second if both are `Some`. |
-| `@beep/utils/Option` | `zipWith` | const | `node_modules/effect/dist/Option.d.ts:2921` | Combines two `Option`s using a provided function. |
-| `@beep/utils/Predicate` | `and` | const | `node_modules/effect/dist/Predicate.d.ts:1922` | Creates a predicate that returns `true` only if both predicates are `true`. |
-| `@beep/utils/Predicate` | `compose` | const | `node_modules/effect/dist/Predicate.d.ts:1523` | Composes two predicates or refinements into one. |
-| `@beep/utils/Predicate` | `eqv` | const | `node_modules/effect/dist/Predicate.d.ts:2179` | Creates a predicate that returns `true` when both predicates agree. |
-| `@beep/utils/Predicate` | `every` | function | `node_modules/effect/dist/Predicate.d.ts:2507` | Creates a predicate that returns `true` if all predicates in the collection return `true`. |
+| `@beep/utils/Option` | `tap` | const | `node_modules/effect/dist/Option.d.ts:2698` | Runs a side-effecting `Option`-returning function on the value of a `Some`, |
+| `@beep/utils/Option` | `toArray` | const | `node_modules/effect/dist/Option.d.ts:3112` | Converts an `Option` into an `Array`. |
+| `@beep/utils/Option` | `toRefinement` | const | `node_modules/effect/dist/Option.d.ts:551` | Converts an `Option`-returning function into a type guard (refinement). |
+| `@beep/utils/Option` | `void` | const | `node_modules/effect/dist/Option.d.ts:1665` |  |
+| `@beep/utils/Option` | `zipLeft` | const | `node_modules/effect/dist/Option.d.ts:2480` | Sequences two `Option`s, keeping the value from the first if both are `Some`. |
+| `@beep/utils/Option` | `zipRight` | const | `node_modules/effect/dist/Option.d.ts:2386` | Sequences two `Option`s, keeping the value from the second if both are `Some`. |
+| `@beep/utils/Option` | `zipWith` | const | `node_modules/effect/dist/Option.d.ts:2925` | Combines two `Option`s using a provided function. |
+| `@beep/utils/Predicate` | `and` | const | `node_modules/effect/dist/Predicate.d.ts:2051` | Creates a predicate that returns `true` only if both predicates are `true`. |
+| `@beep/utils/Predicate` | `compose` | const | `node_modules/effect/dist/Predicate.d.ts:1625` | Composes two predicates or refinements into one. |
+| `@beep/utils/Predicate` | `eqv` | const | `node_modules/effect/dist/Predicate.d.ts:2323` | Creates a predicate that returns `true` when both predicates agree. |
+| `@beep/utils/Predicate` | `every` | function | `node_modules/effect/dist/Predicate.d.ts:2673` | Creates a predicate that returns `true` if all predicates in the collection return `true`. |
 | `@beep/utils/Predicate` | `hasProperties` | const | `packages/foundation/modeling/utils/src/Predicate.ts:54` | Returns a predicate that succeeds when an unknown value is an object with all |
-| `@beep/utils/Predicate` | `hasProperty` | const | `node_modules/effect/dist/Predicate.d.ts:1156` | Checks whether a value has a given property key. |
-| `@beep/utils/Predicate` | `implies` | const | `node_modules/effect/dist/Predicate.d.ts:2263` | Creates a predicate representing logical implication: if `antecedent`, then `consequent`. |
-| `@beep/utils/Predicate` | `isBigInt` | function | `node_modules/effect/dist/Predicate.d.ts:730` | Checks whether a value is a `bigint`. |
-| `@beep/utils/Predicate` | `isBoolean` | function | `node_modules/effect/dist/Predicate.d.ts:702` | Checks whether a value is a `boolean`. |
-| `@beep/utils/Predicate` | `isDate` | function | `node_modules/effect/dist/Predicate.d.ts:1387` | Checks whether a value is a `Date`. |
-| `@beep/utils/Predicate` | `isError` | function | `node_modules/effect/dist/Predicate.d.ts:1335` | Checks whether a value is an `Error`. |
-| `@beep/utils/Predicate` | `isFunction` | function | `node_modules/effect/dist/Predicate.d.ts:815` | Checks whether a value is a `function`. |
-| `@beep/utils/Predicate` | `isIterable` | function | `node_modules/effect/dist/Predicate.d.ts:1414` | Checks whether a value is iterable. |
-| `@beep/utils/Predicate` | `isMap` | function | `node_modules/effect/dist/Predicate.d.ts:616` | Checks whether a value is a `Map`. |
-| `@beep/utils/Predicate` | `isNever` | function | `node_modules/effect/dist/Predicate.d.ts:999` | A guard that always returns `false`. |
-| `@beep/utils/Predicate` | `isNotNull` | function | `node_modules/effect/dist/Predicate.d.ts:921` | Checks whether a value is not `null`. |
-| `@beep/utils/Predicate` | `isNotNullish` | function | `node_modules/effect/dist/Predicate.d.ts:975` | Checks whether a value is not `null` and not `undefined`. |
-| `@beep/utils/Predicate` | `isNotUndefined` | function | `node_modules/effect/dist/Predicate.d.ts:868` | Checks whether a value is not `undefined`. |
-| `@beep/utils/Predicate` | `isNull` | function | `node_modules/effect/dist/Predicate.d.ts:894` | Checks whether a value is `null`. |
-| `@beep/utils/Predicate` | `isNullish` | function | `node_modules/effect/dist/Predicate.d.ts:948` | Checks whether a value is `null` or `undefined`. |
-| `@beep/utils/Predicate` | `isNumber` | function | `node_modules/effect/dist/Predicate.d.ts:674` | Checks whether a value is a `number`. |
-| `@beep/utils/Predicate` | `isObject` | function | `node_modules/effect/dist/Predicate.d.ts:1072` | Checks whether a value is a non-null object value that is not an array. |
-| `@beep/utils/Predicate` | `isObjectKeyword` | function | `node_modules/effect/dist/Predicate.d.ts:1125` | Checks whether a value is an `object` in the JavaScript sense (objects, arrays, functions). |
-| `@beep/utils/Predicate` | `isObjectOrArray` | function | `node_modules/effect/dist/Predicate.d.ts:1048` | Checks whether a value is an object or an array (non-null object). |
-| `@beep/utils/Predicate` | `isPromise` | function | `node_modules/effect/dist/Predicate.d.ts:1440` | Checks whether a value is a `Promise`-like object with `then` and `catch`. |
-| `@beep/utils/Predicate` | `isPromiseLike` | function | `node_modules/effect/dist/Predicate.d.ts:1466` | Checks whether a value is `PromiseLike` (has a `then` method). |
-| `@beep/utils/Predicate` | `isPropertyKey` | function | `node_modules/effect/dist/Predicate.d.ts:787` | Checks whether a value is a valid `PropertyKey` (string, number, or symbol). |
-| `@beep/utils/Predicate` | `isReadonlyObject` | function | `node_modules/effect/dist/Predicate.d.ts:1098` | Checks whether a value is a non-null, non-array object and narrows it to a |
-| `@beep/utils/Predicate` | `isRegExp` | function | `node_modules/effect/dist/Predicate.d.ts:1492` | Checks whether a value is a `RegExp`. |
-| `@beep/utils/Predicate` | `isSet` | function | `node_modules/effect/dist/Predicate.d.ts:588` | Checks whether a value is a `Set`. |
-| `@beep/utils/Predicate` | `isString` | function | `node_modules/effect/dist/Predicate.d.ts:645` | Checks whether a value is a `string`. |
-| `@beep/utils/Predicate` | `isSymbol` | function | `node_modules/effect/dist/Predicate.d.ts:758` | Checks whether a value is a `symbol`. |
-| `@beep/utils/Predicate` | `isTagged` | const | `node_modules/effect/dist/Predicate.d.ts:1250` | Checks whether a value has a `_tag` property equal to the given tag. |
-| `@beep/utils/Predicate` | `isTruthy` | function | `node_modules/effect/dist/Predicate.d.ts:560` | Checks whether a value is truthy. |
-| `@beep/utils/Predicate` | `isTupleOf` | const | `node_modules/effect/dist/Predicate.d.ts:389` | Checks whether a readonly array has exactly `n` elements. |
-| `@beep/utils/Predicate` | `isTupleOfAtLeast` | const | `node_modules/effect/dist/Predicate.d.ts:474` | Checks whether a readonly array has at least `n` elements. |
-| `@beep/utils/Predicate` | `isUint8Array` | function | `node_modules/effect/dist/Predicate.d.ts:1361` | Checks whether a value is a `Uint8Array`. |
-| `@beep/utils/Predicate` | `isUndefined` | function | `node_modules/effect/dist/Predicate.d.ts:841` | Checks whether a value is `undefined`. |
-| `@beep/utils/Predicate` | `isUnknown` | function | `node_modules/effect/dist/Predicate.d.ts:1023` | A guard that always returns `true`. |
-| `@beep/utils/Predicate` | `mapInput` | const | `node_modules/effect/dist/Predicate.d.ts:300` | Transforms the input of a predicate using a mapping function. |
-| `@beep/utils/Predicate` | `nand` | const | `node_modules/effect/dist/Predicate.d.ts:2427` | Creates a predicate that returns `true` unless both predicates are `true`. |
-| `@beep/utils/Predicate` | `nor` | const | `node_modules/effect/dist/Predicate.d.ts:2348` | Creates a predicate that returns `true` when neither predicate is `true`. |
-| `@beep/utils/Predicate` | `not` | function | `node_modules/effect/dist/Predicate.d.ts:1745` | Negates a predicate. |
-| `@beep/utils/Predicate` | `or` | const | `node_modules/effect/dist/Predicate.d.ts:1773` | Creates a predicate that returns `true` if either predicate is `true`. |
-| `@beep/utils/Predicate` | `Predicate` | interface | `node_modules/effect/dist/Predicate.d.ts:31` | A function that decides whether a value of type `A` satisfies a condition. |
-| `@beep/utils/Predicate` | `Predicate` | namespace | `node_modules/effect/dist/Predicate.d.ts:120` | Type-level utilities for working with {@link Predicate} types. |
-| `@beep/utils/Predicate` | `PredicateTypeLambda` | interface | `node_modules/effect/dist/Predicate.d.ts:59` | Type-level lambda for higher-kinded usage of {@link Predicate}. |
-| `@beep/utils/Predicate` | `Refinement` | interface | `node_modules/effect/dist/Predicate.d.ts:93` | A predicate that also narrows the input type when it returns `true`. |
-| `@beep/utils/Predicate` | `Refinement` | namespace | `node_modules/effect/dist/Predicate.d.ts:196` | Type-level utilities for working with {@link Refinement} types. |
-| `@beep/utils/Predicate` | `some` | function | `node_modules/effect/dist/Predicate.d.ts:2534` | Creates a predicate that returns `true` if any predicate in the collection returns `true`. |
-| `@beep/utils/Predicate` | `Struct` | function | `node_modules/effect/dist/Predicate.d.ts:1713` | Creates a predicate for objects by applying predicates to named properties. |
-| `@beep/utils/Predicate` | `Tuple` | function | `node_modules/effect/dist/Predicate.d.ts:1676` | Creates a predicate for tuples by applying predicates to each element. |
-| `@beep/utils/Predicate` | `xor` | const | `node_modules/effect/dist/Predicate.d.ts:2095` | Creates a predicate that returns `true` if exactly one predicate is `true`. |
+| `@beep/utils/Predicate` | `hasProperty` | const | `node_modules/effect/dist/Predicate.d.ts:1240` | Checks whether a value has a given property key. |
+| `@beep/utils/Predicate` | `implies` | const | `node_modules/effect/dist/Predicate.d.ts:2411` | Creates a predicate representing logical implication: if `antecedent`, then `consequent`. |
+| `@beep/utils/Predicate` | `isBigInt` | function | `node_modules/effect/dist/Predicate.d.ts:784` | Checks whether a value is a `bigint`. |
+| `@beep/utils/Predicate` | `isBoolean` | function | `node_modules/effect/dist/Predicate.d.ts:755` | Checks whether a value is a `boolean`. |
+| `@beep/utils/Predicate` | `isDate` | function | `node_modules/effect/dist/Predicate.d.ts:1482` | Checks whether a value is a `Date`. |
+| `@beep/utils/Predicate` | `isError` | function | `node_modules/effect/dist/Predicate.d.ts:1427` | Checks whether a value is an `Error`. |
+| `@beep/utils/Predicate` | `isFunction` | function | `node_modules/effect/dist/Predicate.d.ts:874` | Checks whether a value is a `function`. |
+| `@beep/utils/Predicate` | `isIterable` | function | `node_modules/effect/dist/Predicate.d.ts:1511` | Checks whether a value is iterable. |
+| `@beep/utils/Predicate` | `isMap` | function | `node_modules/effect/dist/Predicate.d.ts:662` | Checks whether a value is a `Map`. |
+| `@beep/utils/Predicate` | `isNever` | function | `node_modules/effect/dist/Predicate.d.ts:1073` | A guard that always returns `false`. |
+| `@beep/utils/Predicate` | `isNotNull` | function | `node_modules/effect/dist/Predicate.d.ts:988` | Checks whether a value is not `null`. |
+| `@beep/utils/Predicate` | `isNotNullish` | function | `node_modules/effect/dist/Predicate.d.ts:1048` | Checks whether a value is not `null` and not `undefined`. |
+| `@beep/utils/Predicate` | `isNotUndefined` | function | `node_modules/effect/dist/Predicate.d.ts:931` | Checks whether a value is not `undefined`. |
+| `@beep/utils/Predicate` | `isNull` | function | `node_modules/effect/dist/Predicate.d.ts:959` | Checks whether a value is `null`. |
+| `@beep/utils/Predicate` | `isNullish` | function | `node_modules/effect/dist/Predicate.d.ts:1018` | Checks whether a value is `null` or `undefined`. |
+| `@beep/utils/Predicate` | `isNumber` | function | `node_modules/effect/dist/Predicate.d.ts:725` | Checks whether a value is a `number`. |
+| `@beep/utils/Predicate` | `isObject` | function | `node_modules/effect/dist/Predicate.d.ts:1151` | Checks whether a value is a non-null object value that is not an array. |
+| `@beep/utils/Predicate` | `isObjectKeyword` | function | `node_modules/effect/dist/Predicate.d.ts:1207` | Checks whether a value is an `object` in the JavaScript sense (objects, arrays, functions). |
+| `@beep/utils/Predicate` | `isObjectOrArray` | function | `node_modules/effect/dist/Predicate.d.ts:1125` | Checks whether a value is an object or an array (non-null object). |
+| `@beep/utils/Predicate` | `isPromise` | function | `node_modules/effect/dist/Predicate.d.ts:1538` | Checks whether a value is a `Promise`-like object with `then` and `catch`. |
+| `@beep/utils/Predicate` | `isPromiseLike` | function | `node_modules/effect/dist/Predicate.d.ts:1565` | Checks whether a value is `PromiseLike` (has a `then` method). |
+| `@beep/utils/Predicate` | `isPropertyKey` | function | `node_modules/effect/dist/Predicate.d.ts:845` | Checks whether a value is a valid `PropertyKey` (string, number, or symbol). |
+| `@beep/utils/Predicate` | `isReadonlyObject` | function | `node_modules/effect/dist/Predicate.d.ts:1178` | Checks whether a value is a non-null, non-array object and narrows it to a |
+| `@beep/utils/Predicate` | `isRegExp` | function | `node_modules/effect/dist/Predicate.d.ts:1592` | Checks whether a value is a `RegExp`. |
+| `@beep/utils/Predicate` | `isSet` | function | `node_modules/effect/dist/Predicate.d.ts:632` | Checks whether a value is a `Set`. |
+| `@beep/utils/Predicate` | `isString` | function | `node_modules/effect/dist/Predicate.d.ts:694` | Checks whether a value is a `string`. |
+| `@beep/utils/Predicate` | `isSymbol` | function | `node_modules/effect/dist/Predicate.d.ts:813` | Checks whether a value is a `symbol`. |
+| `@beep/utils/Predicate` | `isTagged` | const | `node_modules/effect/dist/Predicate.d.ts:1339` | Checks whether a value has a `_tag` property equal to the given tag. |
+| `@beep/utils/Predicate` | `isTruthy` | function | `node_modules/effect/dist/Predicate.d.ts:602` | Checks whether a value is truthy. |
+| `@beep/utils/Predicate` | `isTupleOf` | const | `node_modules/effect/dist/Predicate.d.ts:419` | Checks whether a readonly array has exactly `n` elements. |
+| `@beep/utils/Predicate` | `isTupleOfAtLeast` | const | `node_modules/effect/dist/Predicate.d.ts:510` | Checks whether a readonly array has at least `n` elements. |
+| `@beep/utils/Predicate` | `isUint8Array` | function | `node_modules/effect/dist/Predicate.d.ts:1455` | Checks whether a value is a `Uint8Array`. |
+| `@beep/utils/Predicate` | `isUndefined` | function | `node_modules/effect/dist/Predicate.d.ts:902` | Checks whether a value is `undefined`. |
+| `@beep/utils/Predicate` | `isUnknown` | function | `node_modules/effect/dist/Predicate.d.ts:1098` | A guard that always returns `true`. |
+| `@beep/utils/Predicate` | `mapInput` | const | `node_modules/effect/dist/Predicate.d.ts:322` | Transforms the input of a predicate using a mapping function. |
+| `@beep/utils/Predicate` | `nand` | const | `node_modules/effect/dist/Predicate.d.ts:2587` | Creates a predicate that returns `true` unless both predicates are `true`. |
+| `@beep/utils/Predicate` | `nor` | const | `node_modules/effect/dist/Predicate.d.ts:2502` | Creates a predicate that returns `true` when neither predicate is `true`. |
+| `@beep/utils/Predicate` | `not` | function | `node_modules/effect/dist/Predicate.d.ts:1862` | Negates a predicate. |
+| `@beep/utils/Predicate` | `or` | const | `node_modules/effect/dist/Predicate.d.ts:1892` | Creates a predicate that returns `true` if either predicate is `true`. |
+| `@beep/utils/Predicate` | `Predicate` | interface | `node_modules/effect/dist/Predicate.d.ts:34` | A function that decides whether a value of type `A` satisfies a condition. |
+| `@beep/utils/Predicate` | `Predicate` | namespace | `node_modules/effect/dist/Predicate.d.ts:129` | Type-level utilities for working with {@link Predicate} types. |
+| `@beep/utils/Predicate` | `PredicateTypeLambda` | interface | `node_modules/effect/dist/Predicate.d.ts:63` | Type-level lambda for higher-kinded usage of {@link Predicate}. |
+| `@beep/utils/Predicate` | `Refinement` | interface | `node_modules/effect/dist/Predicate.d.ts:100` | A predicate that also narrows the input type when it returns `true`. |
+| `@beep/utils/Predicate` | `Refinement` | namespace | `node_modules/effect/dist/Predicate.d.ts:210` | Type-level utilities for working with {@link Refinement} types. |
+| `@beep/utils/Predicate` | `some` | function | `node_modules/effect/dist/Predicate.d.ts:2702` | Creates a predicate that returns `true` if any predicate in the collection returns `true`. |
+| `@beep/utils/Predicate` | `Struct` | function | `node_modules/effect/dist/Predicate.d.ts:1827` | Creates a predicate for objects by applying predicates to named properties. |
+| `@beep/utils/Predicate` | `Tuple` | function | `node_modules/effect/dist/Predicate.d.ts:1788` | Creates a predicate for tuples by applying predicates to each element. |
+| `@beep/utils/Predicate` | `xor` | const | `node_modules/effect/dist/Predicate.d.ts:2234` | Creates a predicate that returns `true` if exactly one predicate is `true`. |
 | `@beep/utils/Random` | `RandomValues` | class | `packages/foundation/modeling/utils/src/Random.ts:26` | Service that yields random byte arrays. |
-| `@beep/utils/Str` | `at` | const | `node_modules/effect/dist/String.d.ts:602` | Returns the character at the specified index, or `None` if the index is out of bounds. |
-| `@beep/utils/Str` | `camelCase` | const | `packages/foundation/modeling/utils/src/Str.ts:263` | Converts a string to `camelCase` with a type-level `CamelCase` return. |
-| `@beep/utils/Str` | `camelToSnake` | const | `packages/foundation/modeling/utils/src/Str.ts:404` | Converts a `camelCase` string to `snake_case` at both type and value level. |
+| `@beep/utils/Str` | `at` | const | `node_modules/effect/dist/String.d.ts:604` | Returns the character at the specified index, or `None` if the index is out of bounds. |
+| `@beep/utils/Str` | `camelCase` | const | `packages/foundation/modeling/utils/src/Str.ts:307` | Converts a string to `camelCase` with a type-level `CamelCase` return. |
+| `@beep/utils/Str` | `camelToSnake` | const | `packages/foundation/modeling/utils/src/Str.ts:448` | Converts a `camelCase` string to `snake_case` at both type and value level. |
 | `@beep/utils/Str` | `capitalize` | const | `node_modules/effect/dist/String.d.ts:211` | Capitalizes the first character of a string. |
-| `@beep/utils/Str` | `charAt` | const | `node_modules/effect/dist/String.d.ts:651` | Returns the character at the specified index, or `None` if the index is out of bounds. |
-| `@beep/utils/Str` | `charCodeAt` | const | `node_modules/effect/dist/String.d.ts:537` | Returns the character code at the specified index, or `None` if the index is out of bounds. |
-| `@beep/utils/Str` | `codePointAt` | const | `node_modules/effect/dist/String.d.ts:700` | Returns the Unicode code point at the specified index, or `None` if the index is out of bounds. |
+| `@beep/utils/Str` | `charAt` | const | `node_modules/effect/dist/String.d.ts:653` | Returns the character at the specified index, or `None` if the index is out of bounds. |
+| `@beep/utils/Str` | `charCodeAt` | const | `node_modules/effect/dist/String.d.ts:539` | Returns the character code at the specified index, or `None` if the index is out of bounds. |
+| `@beep/utils/Str` | `codePointAt` | const | `node_modules/effect/dist/String.d.ts:702` | Returns the Unicode code point at the specified index, or `None` if the index is out of bounds. |
 | `@beep/utils/Str` | `concat` | const | `node_modules/effect/dist/String.d.ts:121` | Concatenates two strings at runtime. |
 | `@beep/utils/Str` | `Concat` | type | `node_modules/effect/dist/String.d.ts:102` | Concatenates two strings at the type level. |
-| `@beep/utils/Str` | `constantCase` | const | `node_modules/effect/dist/String.d.ts:1419` | Converts a string to CONSTANT_CASE (uppercase with underscores). |
-| `@beep/utils/Str` | `contains` | const | `packages/foundation/modeling/utils/src/Str.ts:543` | Type-narrowing predicate that checks whether a string contains `searchString`. |
+| `@beep/utils/Str` | `constantCase` | const | `node_modules/effect/dist/String.d.ts:1433` | Converts a string to CONSTANT_CASE (uppercase with underscores). |
+| `@beep/utils/Str` | `contains` | const | `packages/foundation/modeling/utils/src/Str.ts:587` | Type-narrowing predicate that checks whether a string contains `searchString`. |
 | `@beep/utils/Str` | `empty` | const | `node_modules/effect/dist/String.d.ts:86` | The empty string `""`. |
-| `@beep/utils/Str` | `endsWith` | const | `packages/foundation/modeling/utils/src/Str.ts:501` | Type-narrowing predicate that checks whether a string ends with `searchString`. |
+| `@beep/utils/Str` | `endsWith` | const | `packages/foundation/modeling/utils/src/Str.ts:545` | Type-narrowing predicate that checks whether a string ends with `searchString`. |
+| `@beep/utils/Str` | `equivalence` | const | `packages/foundation/modeling/utils/src/Str.ts:36` | Compare two strings for equality with data-first and data-last call forms. |
 | `@beep/utils/Str` | `Equivalence` | const | `node_modules/effect/dist/String.d.ts:70` | An `Equivalence` instance for strings using strict equality (`===`). |
-| `@beep/utils/Str` | `fromNumber` | const | `packages/foundation/modeling/utils/src/Str.ts:728` | Convert a numeric literal into its string-literal representation. |
-| `@beep/utils/Str` | `includes` | const | `node_modules/effect/dist/String.d.ts:487` | Returns `true` if `searchString` appears as a substring of `self`, at one or more positions that are |
-| `@beep/utils/Str` | `indexOf` | const | `node_modules/effect/dist/String.d.ts:749` | Returns the index of the first occurrence of a substring, or `None` if not found. |
-| `@beep/utils/Str` | `isEmpty` | const | `node_modules/effect/dist/String.d.ts:381` | Test whether a `string` is empty. |
-| `@beep/utils/Str` | `isNonEmpty` | const | `node_modules/effect/dist/String.d.ts:398` | Test whether a `string` is non empty. |
+| `@beep/utils/Str` | `fromNumber` | const | `packages/foundation/modeling/utils/src/Str.ts:772` | Convert a numeric literal into its string-literal representation. |
+| `@beep/utils/Str` | `includes` | const | `node_modules/effect/dist/String.d.ts:489` | Returns `true` if `searchString` appears as a substring of `self`, at one or more positions that are |
+| `@beep/utils/Str` | `indexOf` | const | `node_modules/effect/dist/String.d.ts:751` | Returns the index of the first occurrence of a substring, or `None` if not found. |
+| `@beep/utils/Str` | `isEmpty` | const | `node_modules/effect/dist/String.d.ts:383` | Test whether a `string` is empty. |
+| `@beep/utils/Str` | `isNonEmpty` | const | `node_modules/effect/dist/String.d.ts:400` | Test whether a `string` is non empty. |
 | `@beep/utils/Str` | `isString` | const | `node_modules/effect/dist/String.d.ts:37` | Tests if a value is a `string`. |
-| `@beep/utils/Str` | `kebabCase` | const | `packages/foundation/modeling/utils/src/Str.ts:297` | Converts a string to `kebab-case` with a type-level `KebabCase` return. |
-| `@beep/utils/Str` | `kebabToSnake` | const | `packages/foundation/modeling/utils/src/Str.ts:440` | Converts a `kebab-case` string to `snake_case` at both type and value level. |
-| `@beep/utils/Str` | `lastIndexOf` | const | `node_modules/effect/dist/String.d.ts:765` | Returns the index of the last occurrence of a substring, or `None` if not found. |
-| `@beep/utils/Str` | `length` | const | `node_modules/effect/dist/String.d.ts:414` | Returns the JavaScript string length, measured in UTF-16 code units. |
-| `@beep/utils/Str` | `linesIterator` | const | `node_modules/effect/dist/String.d.ts:1164` | Returns an `IterableIterator` which yields each line contained within the |
-| `@beep/utils/Str` | `linesWithSeparators` | const | `node_modules/effect/dist/String.d.ts:1181` | Returns an `IterableIterator` which yields each line contained within the |
-| `@beep/utils/Str` | `localeCompare` | const | `node_modules/effect/dist/String.d.ts:785` | Compares two strings using locale-aware collation, with optional locales and |
-| `@beep/utils/Str` | `mapPostfix` | const | `packages/foundation/modeling/utils/src/Str.ts:229` | Maps a non-empty string array by appending each element with `postfix`. |
-| `@beep/utils/Str` | `mapPrefix` | const | `packages/foundation/modeling/utils/src/Str.ts:183` | Maps a non-empty string array by prepending each element with `prefix`. |
-| `@beep/utils/Str` | `match` | const | `node_modules/effect/dist/String.d.ts:807` | Matches a string against a pattern and returns `Option.some` with the match |
-| `@beep/utils/Str` | `matchAll` | const | `node_modules/effect/dist/String.d.ts:826` | Returns an iterator over all regular expression matches in the string using |
-| `@beep/utils/Str` | `noCase` | const | `node_modules/effect/dist/String.d.ts:1371` | Normalizes a string by splitting it into word parts, transforming each part, |
-| `@beep/utils/Str` | `normalize` | const | `node_modules/effect/dist/String.d.ts:850` | Normalizes a string according to the specified Unicode normalization form. |
+| `@beep/utils/Str` | `kebabCase` | const | `packages/foundation/modeling/utils/src/Str.ts:341` | Converts a string to `kebab-case` with a type-level `KebabCase` return. |
+| `@beep/utils/Str` | `kebabToSnake` | const | `packages/foundation/modeling/utils/src/Str.ts:484` | Converts a `kebab-case` string to `snake_case` at both type and value level. |
+| `@beep/utils/Str` | `lastIndexOf` | const | `node_modules/effect/dist/String.d.ts:767` | Returns the index of the last occurrence of a substring, or `None` if not found. |
+| `@beep/utils/Str` | `length` | const | `node_modules/effect/dist/String.d.ts:416` | Returns the JavaScript string length, measured in UTF-16 code units. |
+| `@beep/utils/Str` | `linesIterator` | const | `node_modules/effect/dist/String.d.ts:1178` | Returns an `IterableIterator` which yields each line contained within the |
+| `@beep/utils/Str` | `linesWithSeparators` | const | `node_modules/effect/dist/String.d.ts:1195` | Returns an `IterableIterator` which yields each line contained within the |
+| `@beep/utils/Str` | `localeCompare` | const | `node_modules/effect/dist/String.d.ts:787` | Compares two strings using locale-aware collation, with optional locales and |
+| `@beep/utils/Str` | `mapPostfix` | const | `packages/foundation/modeling/utils/src/Str.ts:273` | Maps a non-empty string array by appending each element with `postfix`. |
+| `@beep/utils/Str` | `mapPrefix` | const | `packages/foundation/modeling/utils/src/Str.ts:227` | Maps a non-empty string array by prepending each element with `prefix`. |
+| `@beep/utils/Str` | `match` | const | `node_modules/effect/dist/String.d.ts:809` | Matches a string against a pattern and returns `Option.some` with the match |
+| `@beep/utils/Str` | `matchAll` | const | `node_modules/effect/dist/String.d.ts:828` | Returns an iterator over all regular expression matches in the string using |
+| `@beep/utils/Str` | `noCase` | const | `node_modules/effect/dist/String.d.ts:1385` | Normalizes a string by splitting it into word parts, transforming each part, |
+| `@beep/utils/Str` | `normalize` | const | `node_modules/effect/dist/String.d.ts:852` | Normalizes a string according to the specified Unicode normalization form. |
 | `@beep/utils/Str` | `Order` | const | `node_modules/effect/dist/String.d.ts:54` | `Order` instance for comparing strings using lexicographic ordering. |
-| `@beep/utils/Str` | `padEnd` | const | `node_modules/effect/dist/String.d.ts:867` | Pads the string from the end with a given fill string to a specified length. |
-| `@beep/utils/Str` | `padStart` | const | `node_modules/effect/dist/String.d.ts:884` | Pads the string from the start with a given fill string to a specified length. |
-| `@beep/utils/Str` | `pascalCase` | const | `packages/foundation/modeling/utils/src/Str.ts:333` | Converts a string to `PascalCase` with a type-level `PascalCase` return. |
-| `@beep/utils/Str` | `pascalToSnake` | const | `packages/foundation/modeling/utils/src/Str.ts:350` | Converts a `PascalCase` string to `snake_case` at both type and value level. |
-| `@beep/utils/Str` | `postfix` | const | `packages/foundation/modeling/utils/src/Str.ts:109` | Appends `postfix` to a string, preserving template-literal types. |
-| `@beep/utils/Str` | `postfixThunk` | const | `packages/foundation/modeling/utils/src/Str.ts:146` | Appends `postfix` to a string and returns a thunk of the result. |
-| `@beep/utils/Str` | `prefix` | const | `packages/foundation/modeling/utils/src/Str.ts:38` | Prepends `prefix` to a string, preserving template-literal types. |
-| `@beep/utils/Str` | `prefixThunk` | const | `packages/foundation/modeling/utils/src/Str.ts:74` | Prepends `prefix` to a string and returns a thunk of the result. |
-| `@beep/utils/Str` | `ReducerConcat` | const | `node_modules/effect/dist/String.d.ts:1440` | A `Reducer` for concatenating `string`s. |
-| `@beep/utils/Str` | `repeat` | const | `packages/foundation/modeling/utils/src/Str.ts:584` | Repeats a string `count` times with a type-level `StringRepeat` return. |
-| `@beep/utils/Str` | `replace` | const | `node_modules/effect/dist/String.d.ts:251` | Replaces matches in a string using `String.prototype.replace`. |
-| `@beep/utils/Str` | `replaceAll` | const | `node_modules/effect/dist/String.d.ts:918` | Replaces all occurrences of a substring or pattern in a string. |
-| `@beep/utils/Str` | `replaceAllWith` | const | `packages/foundation/modeling/utils/src/Str.ts:658` | Replaces every occurrence of `searchValue` using a callback replacer. |
-| `@beep/utils/Str` | `replaceWith` | const | `packages/foundation/modeling/utils/src/Str.ts:617` | Replaces the first occurrence of `searchValue` using a callback replacer. |
-| `@beep/utils/Str` | `screamingSnake` | const | `packages/foundation/modeling/utils/src/Str.ts:315` | Converts a string to `SCREAMING_SNAKE_CASE` with a type-level |
-| `@beep/utils/Str` | `search` | const | `node_modules/effect/dist/String.d.ts:936` | Returns the index of the first match for a string or regular expression, or |
-| `@beep/utils/Str` | `slice` | const | `node_modules/effect/dist/String.d.ts:364` | Extracts a section of a string and returns it as a new string. |
-| `@beep/utils/Str` | `snakeCase` | const | `packages/foundation/modeling/utils/src/Str.ts:280` | Converts a string to `snake_case` with a type-level `SnakeCase` return. |
-| `@beep/utils/Str` | `snakeToCamel` | const | `packages/foundation/modeling/utils/src/Str.ts:368` | Converts a `snake_case` string to `camelCase` at both type and value level. |
-| `@beep/utils/Str` | `snakeToKebab` | const | `packages/foundation/modeling/utils/src/Str.ts:386` | Converts a `snake_case` string to `kebab-case` at both type and value level. |
-| `@beep/utils/Str` | `snakeToPascal` | const | `packages/foundation/modeling/utils/src/Str.ts:422` | Converts a `snake_case` string to `PascalCase` at both type and value level. |
-| `@beep/utils/Str` | `split` | const | `node_modules/effect/dist/String.d.ts:432` | Splits a string into an array of substrings using a separator. |
-| `@beep/utils/Str` | `startsWith` | const | `packages/foundation/modeling/utils/src/Str.ts:464` | Type-narrowing predicate that checks whether a string starts with `searchString`. |
+| `@beep/utils/Str` | `orderAsc` | const | `packages/foundation/modeling/utils/src/Str.ts:55` | Ascending lexicographic order for strings. |
+| `@beep/utils/Str` | `padEnd` | const | `node_modules/effect/dist/String.d.ts:869` | Pads the string from the end with a given fill string to a specified length. |
+| `@beep/utils/Str` | `padStart` | const | `node_modules/effect/dist/String.d.ts:886` | Pads the string from the start with a given fill string to a specified length. |
+| `@beep/utils/Str` | `pascalCase` | const | `packages/foundation/modeling/utils/src/Str.ts:377` | Converts a string to `PascalCase` with a type-level `PascalCase` return. |
+| `@beep/utils/Str` | `pascalToSnake` | const | `packages/foundation/modeling/utils/src/Str.ts:394` | Converts a `PascalCase` string to `snake_case` at both type and value level. |
+| `@beep/utils/Str` | `postfix` | const | `packages/foundation/modeling/utils/src/Str.ts:153` | Appends `postfix` to a string, preserving template-literal types. |
+| `@beep/utils/Str` | `postfixThunk` | const | `packages/foundation/modeling/utils/src/Str.ts:190` | Appends `postfix` to a string and returns a thunk of the result. |
+| `@beep/utils/Str` | `prefix` | const | `packages/foundation/modeling/utils/src/Str.ts:82` | Prepends `prefix` to a string, preserving template-literal types. |
+| `@beep/utils/Str` | `prefixThunk` | const | `packages/foundation/modeling/utils/src/Str.ts:118` | Prepends `prefix` to a string and returns a thunk of the result. |
+| `@beep/utils/Str` | `ReducerConcat` | const | `node_modules/effect/dist/String.d.ts:1454` | A `Reducer` for concatenating `string`s. |
+| `@beep/utils/Str` | `repeat` | const | `packages/foundation/modeling/utils/src/Str.ts:628` | Repeats a string `count` times with a type-level `StringRepeat` return. |
+| `@beep/utils/Str` | `replace` | const | `node_modules/effect/dist/String.d.ts:253` | Replaces matches in a string using `String.prototype.replace`. |
+| `@beep/utils/Str` | `replaceAll` | const | `node_modules/effect/dist/String.d.ts:920` | Replaces all occurrences of a substring or pattern in a string. |
+| `@beep/utils/Str` | `replaceAllWith` | const | `packages/foundation/modeling/utils/src/Str.ts:702` | Replaces every occurrence of `searchValue` using a callback replacer. |
+| `@beep/utils/Str` | `replaceWith` | const | `packages/foundation/modeling/utils/src/Str.ts:661` | Replaces the first occurrence of `searchValue` using a callback replacer. |
+| `@beep/utils/Str` | `screamingSnake` | const | `packages/foundation/modeling/utils/src/Str.ts:359` | Converts a string to `SCREAMING_SNAKE_CASE` with a type-level |
+| `@beep/utils/Str` | `search` | const | `node_modules/effect/dist/String.d.ts:938` | Returns the index of the first match for a string or regular expression, or |
+| `@beep/utils/Str` | `slice` | const | `node_modules/effect/dist/String.d.ts:366` | Extracts a section of a string and returns it as a new string. |
+| `@beep/utils/Str` | `snakeCase` | const | `packages/foundation/modeling/utils/src/Str.ts:324` | Converts a string to `snake_case` with a type-level `SnakeCase` return. |
+| `@beep/utils/Str` | `snakeToCamel` | const | `packages/foundation/modeling/utils/src/Str.ts:412` | Converts a `snake_case` string to `camelCase` at both type and value level. |
+| `@beep/utils/Str` | `snakeToKebab` | const | `packages/foundation/modeling/utils/src/Str.ts:430` | Converts a `snake_case` string to `kebab-case` at both type and value level. |
+| `@beep/utils/Str` | `snakeToPascal` | const | `packages/foundation/modeling/utils/src/Str.ts:466` | Converts a `snake_case` string to `PascalCase` at both type and value level. |
+| `@beep/utils/Str` | `split` | const | `node_modules/effect/dist/String.d.ts:434` | Splits a string into an array of substrings using a separator. |
+| `@beep/utils/Str` | `startsWith` | const | `packages/foundation/modeling/utils/src/Str.ts:508` | Type-narrowing predicate that checks whether a string starts with `searchString`. |
 | `@beep/utils/Str` | `String` | const | `node_modules/effect/dist/String.d.ts:20` | Reference to the global `String` constructor. |
-| `@beep/utils/Str` | `stripMargin` | const | `node_modules/effect/dist/String.d.ts:1257` | For every line in this string, strip a leading prefix consisting of blanks |
-| `@beep/utils/Str` | `stripMarginWith` | const | `node_modules/effect/dist/String.d.ts:1200` | For every line in this string, strip a leading prefix consisting of blanks |
-| `@beep/utils/Str` | `substring` | const | `node_modules/effect/dist/String.d.ts:586` | Extracts characters from a string between two specified indices. |
-| `@beep/utils/Str` | `takeLeft` | const | `node_modules/effect/dist/String.d.ts:1030` | Keep the specified number of characters from the start of a string. |
-| `@beep/utils/Str` | `takeRight` | const | `node_modules/effect/dist/String.d.ts:1100` | Keep the specified number of characters from the end of a string. |
-| `@beep/utils/Str` | `toLocaleLowerCase` | const | `node_modules/effect/dist/String.d.ts:990` | Converts the string to lowercase according to the specified locale. |
-| `@beep/utils/Str` | `toLocaleUpperCase` | const | `node_modules/effect/dist/String.d.ts:1007` | Converts the string to uppercase according to the specified locale. |
+| `@beep/utils/Str` | `stripMargin` | const | `node_modules/effect/dist/String.d.ts:1271` | For every line in this string, strip a leading prefix consisting of blanks |
+| `@beep/utils/Str` | `stripMarginWith` | const | `node_modules/effect/dist/String.d.ts:1214` | For every line in this string, strip a leading prefix consisting of blanks |
+| `@beep/utils/Str` | `substring` | const | `node_modules/effect/dist/String.d.ts:588` | Extracts characters from a string between two specified indices. |
+| `@beep/utils/Str` | `takeLeft` | const | `node_modules/effect/dist/String.d.ts:1034` | Keep the specified number of characters from the start of a string. |
+| `@beep/utils/Str` | `takeRight` | const | `node_modules/effect/dist/String.d.ts:1110` | Keep the specified number of characters from the end of a string. |
+| `@beep/utils/Str` | `toLocaleLowerCase` | const | `node_modules/effect/dist/String.d.ts:992` | Converts the string to lowercase according to the specified locale. |
+| `@beep/utils/Str` | `toLocaleUpperCase` | const | `node_modules/effect/dist/String.d.ts:1009` | Converts the string to uppercase according to the specified locale. |
 | `@beep/utils/Str` | `toLowerCase` | const | `node_modules/effect/dist/String.d.ts:194` | Converts a string to lowercase. |
-| `@beep/utils/Str` | `toSlug` | const | `packages/foundation/modeling/utils/src/Str.ts:744` | Converts arbitrary text into a lowercase kebab-case slug. |
+| `@beep/utils/Str` | `toSlug` | const | `packages/foundation/modeling/utils/src/Str.ts:788` | Converts arbitrary text into a lowercase kebab-case slug. |
 | `@beep/utils/Str` | `toUpperCase` | const | `node_modules/effect/dist/String.d.ts:177` | Converts a string to uppercase. |
-| `@beep/utils/Str` | `trim` | const | `node_modules/effect/dist/String.d.ts:283` | Removes whitespace from both ends of a string. |
-| `@beep/utils/Str` | `Trim` | type | `node_modules/effect/dist/String.d.ts:266` | Type-level representation of trimming whitespace from both ends of a string. |
-| `@beep/utils/Str` | `trimEnd` | const | `node_modules/effect/dist/String.d.ts:347` | Removes whitespace from the end of a string. |
-| `@beep/utils/Str` | `TrimEnd` | type | `node_modules/effect/dist/String.d.ts:330` | Type-level representation of trimming whitespace from the end of a string. |
-| `@beep/utils/Str` | `trimStart` | const | `node_modules/effect/dist/String.d.ts:315` | Removes whitespace from the start of a string. |
-| `@beep/utils/Str` | `TrimStart` | type | `node_modules/effect/dist/String.d.ts:298` | Type-level representation of trimming whitespace from the start of a string. |
-| `@beep/utils/Str` | `trimThunk` | const | `packages/foundation/modeling/utils/src/Str.ts:709` | Returns a thunk that lazily trims whitespace from both ends of a string. |
-| `@beep/utils/Str` | `truncate` | const | `packages/foundation/modeling/utils/src/Str.ts:779` | Trim text and truncate it to the requested visible character count. |
+| `@beep/utils/Str` | `trim` | const | `node_modules/effect/dist/String.d.ts:285` | Removes whitespace from both ends of a string. |
+| `@beep/utils/Str` | `Trim` | type | `node_modules/effect/dist/String.d.ts:268` | Type-level representation of trimming whitespace from both ends of a string. |
+| `@beep/utils/Str` | `trimEnd` | const | `node_modules/effect/dist/String.d.ts:349` | Removes whitespace from the end of a string. |
+| `@beep/utils/Str` | `TrimEnd` | type | `node_modules/effect/dist/String.d.ts:332` | Type-level representation of trimming whitespace from the end of a string. |
+| `@beep/utils/Str` | `trimStart` | const | `node_modules/effect/dist/String.d.ts:317` | Removes whitespace from the start of a string. |
+| `@beep/utils/Str` | `TrimStart` | type | `node_modules/effect/dist/String.d.ts:300` | Type-level representation of trimming whitespace from the start of a string. |
+| `@beep/utils/Str` | `trimThunk` | const | `packages/foundation/modeling/utils/src/Str.ts:753` | Returns a thunk that lazily trims whitespace from both ends of a string. |
+| `@beep/utils/Str` | `truncate` | const | `packages/foundation/modeling/utils/src/Str.ts:823` | Trim text and truncate it to the requested visible character count. |
 | `@beep/utils/Str` | `uncapitalize` | const | `node_modules/effect/dist/String.d.ts:228` | Uncapitalizes the first character of a string. |
 | `@beep/utils/Stream` | `streamFilterJson` | const | `packages/foundation/modeling/utils/src/Stream.ts:43` | Splits a text stream into lines, decodes each line as JSON with `schema`, |
-| `@beep/utils/Struct` | `Apply` | type | `node_modules/effect/dist/Struct.d.ts:991` | Applies a {@link Lambda} type-level function to a value type `V`, producing |
-| `@beep/utils/Struct` | `assign` | const | `node_modules/effect/dist/Struct.d.ts:424` | Merges two structs into a new struct. When both structs share a key, the |
-| `@beep/utils/Struct` | `Assign` | type | `node_modules/effect/dist/Struct.d.ts:159` | Merges two object types with properties from `U` taking precedence over `T` |
+| `@beep/utils/Struct` | `Apply` | type | `node_modules/effect/dist/Struct.d.ts:1133` | Applies a {@link Lambda} type-level function to a value type `V`, producing |
+| `@beep/utils/Struct` | `assign` | const | `node_modules/effect/dist/Struct.d.ts:497` | Merges two structs into a new struct. When both structs share a key, the |
+| `@beep/utils/Struct` | `Assign` | type | `node_modules/effect/dist/Struct.d.ts:170` | Merges two object types with properties from `U` taking precedence over `T` |
 | `@beep/utils/Struct` | `dotGet` | const | `packages/foundation/modeling/utils/src/Struct.ts:134` | Retrieves a value from a struct by a dot-delimited or tuple path. |
 | `@beep/utils/Struct` | `dotGetOption` | const | `packages/foundation/modeling/utils/src/Struct.ts:174` | Retrieves a value as an `Option` by a dot-delimited or tuple path. |
 | `@beep/utils/Struct` | `EmptyStructError` | class | `packages/foundation/modeling/utils/src/Struct.ts:41` | Thrown when a struct expected to have at least one string key is empty. |
 | `@beep/utils/Struct` | `entries` | const | `packages/foundation/modeling/utils/src/Struct.ts:489` | Retrieves the entries (key-value pairs) of an object, where keys are strings, |
 | `@beep/utils/Struct` | `entriesNonEmpty` | const | `packages/foundation/modeling/utils/src/Struct.ts:518` | Returns the string-key entries of a non-empty object in a type-safe manner. |
-| `@beep/utils/Struct` | `evolve` | const | `node_modules/effect/dist/Struct.d.ts:515` | Selectively transforms values of a struct using per-key functions. Keys |
-| `@beep/utils/Struct` | `evolveEntries` | const | `node_modules/effect/dist/Struct.d.ts:717` | Selectively transforms both keys and values of a struct. Each per-key |
-| `@beep/utils/Struct` | `evolveKeys` | const | `node_modules/effect/dist/Struct.d.ts:617` | Selectively transforms keys of a struct using per-key functions. Keys without |
+| `@beep/utils/Struct` | `evolve` | const | `node_modules/effect/dist/Struct.d.ts:600` | Selectively transforms values of a struct using per-key functions. Keys |
+| `@beep/utils/Struct` | `evolveEntries` | const | `node_modules/effect/dist/Struct.d.ts:823` | Selectively transforms both keys and values of a struct. Each per-key |
+| `@beep/utils/Struct` | `evolveKeys` | const | `node_modules/effect/dist/Struct.d.ts:713` | Selectively transforms keys of a struct using per-key functions. Keys without |
 | `@beep/utils/Struct` | `fromEntries` | const | `packages/foundation/modeling/utils/src/Struct.ts:601` | Type-safe `Object.fromEntries` that preserves per-key value types. |
-| `@beep/utils/Struct` | `get` | const | `node_modules/effect/dist/Struct.d.ts:182` | Retrieves the value at `key` from a struct. |
+| `@beep/utils/Struct` | `get` | const | `node_modules/effect/dist/Struct.d.ts:196` | Retrieves the value at `key` from a struct. |
 | `@beep/utils/Struct` | `getLazy` | const | `packages/foundation/modeling/utils/src/Struct.ts:377` | Returns a thunk that reads a value from a struct by key. |
 | `@beep/utils/Struct` | `keys` | const | `packages/foundation/modeling/utils/src/Struct.ts:546` | Returns the string keys of an object in a type-safe manner. |
 | `@beep/utils/Struct` | `keysNonEmpty` | const | `packages/foundation/modeling/utils/src/Struct.ts:569` | Returns the string keys of a non-empty object in a type-safe manner. |
-| `@beep/utils/Struct` | `lambda` | const | `node_modules/effect/dist/Struct.d.ts:1024` | Wraps a plain function as a {@link Lambda} value so it can be used with |
-| `@beep/utils/Struct` | `Lambda` | interface | `node_modules/effect/dist/Struct.d.ts:960` | Interface for type-level functions used by {@link map}, {@link mapPick}, and |
-| `@beep/utils/Struct` | `makeCombiner` | function | `node_modules/effect/dist/Struct.d.ts:1358` | Creates a `Combiner` for a struct shape by providing a `Combiner` for each |
-| `@beep/utils/Struct` | `makeEquivalence` | const | `node_modules/effect/dist/Struct.d.ts:903` | Creates an `Equivalence` for a struct by providing an `Equivalence` for each |
-| `@beep/utils/Struct` | `makeOrder` | const | `node_modules/effect/dist/Struct.d.ts:934` | Creates an `Order` for a struct by providing an `Order` for each property. |
-| `@beep/utils/Struct` | `makeReducer` | function | `node_modules/effect/dist/Struct.d.ts:1397` | Creates a `Reducer` for a struct shape by providing a `Reducer` for each |
-| `@beep/utils/Struct` | `map` | const | `node_modules/effect/dist/Struct.d.ts:1055` | Applies a {@link Lambda} transformation to every value in a struct. |
-| `@beep/utils/Struct` | `mapOmit` | const | `node_modules/effect/dist/Struct.d.ts:1258` | Applies a {@link Lambda} transformation to all keys except the specified |
+| `@beep/utils/Struct` | `lambda` | const | `node_modules/effect/dist/Struct.d.ts:1167` | Wraps a plain function as a {@link Lambda} value so it can be used with |
+| `@beep/utils/Struct` | `Lambda` | interface | `node_modules/effect/dist/Struct.d.ts:1098` | Interface for type-level functions used by {@link map}, {@link mapPick}, and |
+| `@beep/utils/Struct` | `makeCombiner` | function | `node_modules/effect/dist/Struct.d.ts:1535` | Creates a `Combiner` for a struct shape by providing a `Combiner` for each |
+| `@beep/utils/Struct` | `makeEquivalence` | const | `node_modules/effect/dist/Struct.d.ts:1032` | Creates an `Equivalence` for a struct by providing an `Equivalence` for each |
+| `@beep/utils/Struct` | `makeOrder` | const | `node_modules/effect/dist/Struct.d.ts:1066` | Creates an `Order` for a struct by providing an `Order` for each property. |
+| `@beep/utils/Struct` | `makeReducer` | function | `node_modules/effect/dist/Struct.d.ts:1577` | Creates a `Reducer` for a struct shape by providing a `Reducer` for each |
+| `@beep/utils/Struct` | `map` | const | `node_modules/effect/dist/Struct.d.ts:1201` | Applies a {@link Lambda} transformation to every value in a struct. |
+| `@beep/utils/Struct` | `mapOmit` | const | `node_modules/effect/dist/Struct.d.ts:1423` | Applies a {@link Lambda} transformation to all keys except the specified |
 | `@beep/utils/Struct` | `mapPath` | const | `packages/foundation/modeling/utils/src/Struct.ts:223` | Applies a unary function to a value retrieved from a struct by path. |
 | `@beep/utils/Struct` | `mapPathLazy` | const | `packages/foundation/modeling/utils/src/Struct.ts:298` | Returns a thunk that applies a unary function to a value retrieved from a |
-| `@beep/utils/Struct` | `mapPick` | const | `node_modules/effect/dist/Struct.d.ts:1155` | Applies a {@link Lambda} transformation only to the specified keys; all |
-| `@beep/utils/Struct` | `Mutable` | type | `node_modules/effect/dist/Struct.d.ts:131` | Removes `readonly` modifiers from all properties of an object type. |
-| `@beep/utils/Struct` | `omit` | const | `node_modules/effect/dist/Struct.d.ts:351` | Creates a new struct with the specified keys removed. |
+| `@beep/utils/Struct` | `mapPick` | const | `node_modules/effect/dist/Struct.d.ts:1310` | Applies a {@link Lambda} transformation only to the specified keys; all |
+| `@beep/utils/Struct` | `Mutable` | type | `node_modules/effect/dist/Struct.d.ts:138` | Removes `readonly` modifiers from all properties of an object type. |
+| `@beep/utils/Struct` | `omit` | const | `node_modules/effect/dist/Struct.d.ts:406` | Creates a new struct with the specified keys removed. |
 | `@beep/utils/Struct` | `PathLookup` | type | `packages/foundation/modeling/utils/src/Struct.ts:102` | Result of a runtime struct path lookup. |
 | `@beep/utils/Struct` | `pathsOf` | const | `packages/foundation/modeling/utils/src/Struct.ts:410` | Returns all type-level `Paths` of a struct as a `NonEmptyReadonlyArray` of |
-| `@beep/utils/Struct` | `pick` | const | `node_modules/effect/dist/Struct.d.ts:279` | Creates a new struct containing only the specified keys. |
-| `@beep/utils/Struct` | `Record` | function | `node_modules/effect/dist/Struct.d.ts:1417` | Creates a record with the given keys and value. |
-| `@beep/utils/Struct` | `renameKeys` | const | `node_modules/effect/dist/Struct.d.ts:807` | Renames keys in a struct using a static `{ oldKey: newKey }` mapping. Keys |
+| `@beep/utils/Struct` | `pick` | const | `node_modules/effect/dist/Struct.d.ts:313` | Creates a new struct containing only the specified keys. |
+| `@beep/utils/Struct` | `Record` | function | `node_modules/effect/dist/Struct.d.ts:1597` | Creates a record with the given keys and value. |
+| `@beep/utils/Struct` | `renameKeys` | const | `node_modules/effect/dist/Struct.d.ts:925` | Renames keys in a struct using a static `{ oldKey: newKey }` mapping. Keys |
 | `@beep/utils/Struct` | `reverse` | const | `packages/foundation/modeling/utils/src/Struct.ts:703` | Reverses a struct mapping, producing a new struct where original values |
 | `@beep/utils/Struct` | `ReverseableStruct` | type | `packages/foundation/modeling/utils/src/Struct.ts:647` | Struct shape accepted by {@link reverse}. |
 | `@beep/utils/Struct` | `ReverseStruct` | type | `packages/foundation/modeling/utils/src/Struct.ts:670` | Type-level inversion of a struct where each value becomes a key. |
-| `@beep/utils/Struct` | `Simplify` | type | `node_modules/effect/dist/Struct.d.ts:106` | Flattens intersection types into a single object type for readability. |
+| `@beep/utils/Struct` | `Simplify` | type | `node_modules/effect/dist/Struct.d.ts:109` | Flattens intersection types into a single object type for readability. |
 | `@beep/utils/Struct` | `StringKeyEntries` | type | `packages/foundation/modeling/utils/src/Struct.ts:465` | An array of `[key, value]` pairs for all string keys of `T`, preserving per-key correlation. |
 | `@beep/utils/Struct` | `StringKeyEntry` | type | `packages/foundation/modeling/utils/src/Struct.ts:444` | A single `[key, value]` pair for a string key of `T`, preserving per-key correlation. |
 | `@beep/utils/Text` | `formatNameWithAliases` | const | `packages/foundation/modeling/utils/src/Text.ts:58` | Renders a named list row with optional aliases. |
@@ -1317,20 +1319,20 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/schema` | `ColorAmount` | type | `packages/foundation/modeling/schema/src/color/Color.ts:894` | Type for {@link ColorAmount}. |
 | `@beep/schema` | `CommaSeparatedList` | const | `packages/foundation/modeling/schema/src/CommonTextSchemas.ts:81` | Schema that decodes a comma-separated string into a trimmed non-empty string array. |
 | `@beep/schema` | `CommaSeparatedList` | type | `packages/foundation/modeling/schema/src/CommonTextSchemas.ts:109` | Type for {@link CommaSeparatedList}. |
-| `@beep/schema` | `ContentSecurityPolicyHeader` | const | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:581` |  |
-| `@beep/schema` | `ContentSecurityPolicyHeader` | type | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:649` |  |
+| `@beep/schema` | `ContentSecurityPolicyHeader` | const | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:582` |  |
+| `@beep/schema` | `ContentSecurityPolicyHeader` | type | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:650` |  |
 | `@beep/schema` | `ContentSecurityPolicyHeaderName` | const | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:47` |  |
 | `@beep/schema` | `ContentSecurityPolicyHeaderName` | type | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:58` |  |
-| `@beep/schema` | `ContentSecurityPolicyOption` | const | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:481` |  |
-| `@beep/schema` | `ContentSecurityPolicyOption` | type | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:491` |  |
-| `@beep/schema` | `ContentSecurityPolicyOptionStruct` | class | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:449` |  |
-| `@beep/schema` | `ContentSecurityPolicyResponseHeader` | class | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:497` |  |
+| `@beep/schema` | `ContentSecurityPolicyOption` | const | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:482` |  |
+| `@beep/schema` | `ContentSecurityPolicyOption` | type | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:492` |  |
+| `@beep/schema` | `ContentSecurityPolicyOptionStruct` | class | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:450` |  |
+| `@beep/schema` | `ContentSecurityPolicyResponseHeader` | class | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:498` |  |
 | `@beep/schema` | `CoopValue` | const | `packages/foundation/modeling/schema/src/http/headers/CrossOriginOpenerPolicy.ts:38` | Schema for supported `Cross-Origin-Opener-Policy` header values. |
 | `@beep/schema` | `CoopValue` | type | `packages/foundation/modeling/schema/src/http/headers/CrossOriginOpenerPolicy.ts:51` | Type-level representation of {@link CoopValue}. |
 | `@beep/schema` | `CoreError` | class | `packages/foundation/modeling/schema/src/http/headers/SecureHeaderError.ts:187` |  |
 | `@beep/schema` | `CorpValue` | const | `packages/foundation/modeling/schema/src/http/headers/CrossOriginResourcePolicy.ts:27` |  |
 | `@beep/schema` | `CorpValue` | type | `packages/foundation/modeling/schema/src/http/headers/CrossOriginResourcePolicy.ts:38` |  |
-| `@beep/schema` | `createContentSecurityPolicyOptionHeaderValue` | const | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:555` |  |
+| `@beep/schema` | `createContentSecurityPolicyOptionHeaderValue` | const | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:556` |  |
 | `@beep/schema` | `createDirectiveValue` | const | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:116` | Creates a serialized directive value from a directive name and value list. |
 | `@beep/schema` | `createDOMRefSchema` | const | `packages/foundation/modeling/schema/src/dom/elements.ts:175` | Creates a Schema for React.Ref<T> where T extends HTMLElement |
 | `@beep/schema` | `createHeadersObject` | const | `packages/foundation/modeling/schema/src/http/headers/SecureHeaderOptions.ts:157` | Resolve secure-header options into a plain `Record<string, string>` header object. |
@@ -1360,7 +1362,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/schema` | `CryptoWalletAddress` | type | `packages/foundation/modeling/schema/src/blockchain/CryptoWalletAddress.ts:196` | Type for {@link CryptoWalletAddress}. |
 | `@beep/schema` | `CryptoWalletAddressRedacted` | const | `packages/foundation/modeling/schema/src/blockchain/CryptoWalletAddress.ts:204` | Redacted Branded schema for canonical mainnet blockchain wallet addresses. |
 | `@beep/schema` | `CryptoWalletAddressRedacted` | type | `packages/foundation/modeling/schema/src/blockchain/CryptoWalletAddress.ts:223` | Type for {@link CryptoWalletAddressRedacted}. |
-| `@beep/schema` | `CspDirectives` | const | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:434` |  |
+| `@beep/schema` | `CspDirectives` | const | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:435` |  |
 | `@beep/schema` | `CspError` | class | `packages/foundation/modeling/schema/src/http/headers/SecureHeaderError.ts:109` |  |
 | `@beep/schema` | `CSV` | const | `packages/foundation/modeling/schema/src/csv/index.ts:275` | Schema factory for CSV documents whose rows are validated by the provided |
 | `@beep/schema` | `CsvCodecOptions` | class | `packages/foundation/modeling/schema/src/csv/CsvCodecOptions.ts:38` | Schema-backed CSV text codec options. |
@@ -1405,7 +1407,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/schema` | `DirectedGraphFromSelf` | interface | `packages/foundation/modeling/schema/src/Graph.ts:726` | Schema for validating existing immutable directed Effect graphs. |
 | `@beep/schema` | `DirectiveSource` | const | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:25` |  |
 | `@beep/schema` | `DirectiveSource` | type | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:35` |  |
-| `@beep/schema` | `DocumentDirective` | class | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:300` |  |
+| `@beep/schema` | `DocumentDirective` | class | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:301` |  |
 | `@beep/schema` | `DomainModel` | SourceFile | `packages/foundation/modeling/schema/src/DomainModel.ts:8` |  |
 | `@beep/schema` | `DOMCssProperties` | const | `packages/foundation/modeling/schema/src/dom/elements.ts:67` | A React.CSSProperties |
 | `@beep/schema` | `DOMDragEvent` | const | `packages/foundation/modeling/schema/src/dom/elements.ts:198` | A DragEvent |
@@ -1469,7 +1471,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/schema` | `ExpectCTResponseHeader` | class | `packages/foundation/modeling/schema/src/http/headers/ExpectCT.ts:74` |  |
 | `@beep/schema` | `extractMimeExtensions` | const | `packages/foundation/modeling/schema/src/FileExtension.ts:72` | Extracts the distinct file extensions from a mime-type dictionary. |
 | `@beep/schema` | `extractMimeTypes` | const | `packages/foundation/modeling/schema/src/MimeType.ts:65` | Extracts all mime-type keys from a mime-type dictionary as a deduplicated array. |
-| `@beep/schema` | `FetchDirective` | class | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:231` |  |
+| `@beep/schema` | `FetchDirective` | class | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:232` |  |
 | `@beep/schema` | `FileExtension` | const | `packages/foundation/modeling/schema/src/FileExtension.ts:332` | Schema for any supported file extension across all mime-type categories. |
 | `@beep/schema` | `FileExtension` | type | `packages/foundation/modeling/schema/src/FileExtension.ts:358` | Union of literals accepted by {@link FileExtension}. |
 | `@beep/schema` | `FileName` | const | `packages/foundation/modeling/schema/src/FileName.ts:100` |  |
@@ -1674,7 +1676,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/schema` | `MutableUndirectedGraphFromSelf` | const | `packages/foundation/modeling/schema/src/Graph.ts:1025` | Schema for validating existing mutable undirected Effect graphs. |
 | `@beep/schema` | `MutableUndirectedGraphFromSelf` | interface | `packages/foundation/modeling/schema/src/Graph.ts:798` | Schema for validating existing mutable undirected Effect graphs. |
 | `@beep/schema` | `NativePathToPosixPath` | const | `packages/foundation/modeling/schema/src/PosixPath.ts:70` | Schema transformation that converts native file-system paths (with backslashes) to POSIX separators. |
-| `@beep/schema` | `NavigationDirective` | class | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:344` |  |
+| `@beep/schema` | `NavigationDirective` | class | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:345` |  |
 | `@beep/schema` | `NegInt` | const | `packages/foundation/modeling/schema/src/Int.ts:154` | Branded schema for negative integers (less than zero). |
 | `@beep/schema` | `NegInt` | type | `packages/foundation/modeling/schema/src/Int.ts:180` | Type for {@link NegInt}. |
 | `@beep/schema` | `NodeIndex` | const | `packages/foundation/modeling/schema/src/Graph.ts:269` | Branded schema for graph node indices. |
@@ -1773,8 +1775,8 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/schema` | `PermittedCrossDomainPoliciesResponseHeader` | class | `packages/foundation/modeling/schema/src/http/headers/PermittedCrossDomainPolicies.ts:70` |  |
 | `@beep/schema` | `PermittedCrossDomainPoliciesValue` | const | `packages/foundation/modeling/schema/src/http/headers/PermittedCrossDomainPolicies.ts:34` |  |
 | `@beep/schema` | `PermittedCrossDomainPoliciesValue` | type | `packages/foundation/modeling/schema/src/http/headers/PermittedCrossDomainPolicies.ts:45` |  |
-| `@beep/schema` | `PluginTypes` | const | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:144` |  |
-| `@beep/schema` | `PluginTypes` | type | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:154` |  |
+| `@beep/schema` | `PluginTypes` | const | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:145` |  |
+| `@beep/schema` | `PluginTypes` | type | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:155` |  |
 | `@beep/schema` | `PosInt` | const | `packages/foundation/modeling/schema/src/Int.ts:72` | Branded schema for positive integers (greater than zero). |
 | `@beep/schema` | `PosInt` | type | `packages/foundation/modeling/schema/src/Int.ts:98` | Type for {@link PosInt}. |
 | `@beep/schema` | `PosixPath` | const | `packages/foundation/modeling/schema/src/PosixPath.ts:31` | Branded schema for path strings using only POSIX `/` separators. |
@@ -1801,8 +1803,8 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/schema` | `RegExpFromStr` | type | `packages/foundation/modeling/schema/src/RegExp.ts:135` | Type for {@link RegExpFromStr}. |
 | `@beep/schema` | `RegExpStr` | const | `packages/foundation/modeling/schema/src/RegExp.ts:58` | Branded schema for strings that can be converted directly to a JavaScript `RegExp`. |
 | `@beep/schema` | `RegExpStr` | type | `packages/foundation/modeling/schema/src/RegExp.ts:80` | Type for {@link RegExpStr}. |
-| `@beep/schema` | `ReportingDirective` | class | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:398` |  |
-| `@beep/schema` | `ReportURI` | const | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:388` |  |
+| `@beep/schema` | `ReportingDirective` | class | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:399` |  |
+| `@beep/schema` | `ReportURI` | const | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:389` |  |
 | `@beep/schema` | `Rgb` | class | `packages/foundation/modeling/schema/src/color/Color.ts:523` | RGB object with normalized channels. |
 | `@beep/schema` | `RgbaColorString` | const | `packages/foundation/modeling/schema/src/color/Color.ts:694` | CSS rgba color string produced by with-alpha helpers. |
 | `@beep/schema` | `RgbaColorString` | type | `packages/foundation/modeling/schema/src/color/Color.ts:709` | Type for {@link RgbaColorString}. |
@@ -1815,8 +1817,8 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/schema` | `RgbToHex` | type | `packages/foundation/modeling/schema/src/color/Color.ts:764` | Type for {@link RgbToHex}. |
 | `@beep/schema` | `RgbToOklch` | const | `packages/foundation/modeling/schema/src/color/Color.ts:772` | Transformation schema for decoding normalized RGB into canonical OKLCH. |
 | `@beep/schema` | `RgbToOklch` | type | `packages/foundation/modeling/schema/src/color/Color.ts:790` | Type for {@link RgbToOklch}. |
-| `@beep/schema` | `Sandbox` | const | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:177` |  |
-| `@beep/schema` | `Sandbox` | type | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:188` |  |
+| `@beep/schema` | `Sandbox` | const | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:178` |  |
+| `@beep/schema` | `Sandbox` | type | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:189` |  |
 | `@beep/schema` | `SchemaUtils` | SourceFile | `packages/foundation/modeling/schema/src/SchemaUtils/index.ts:12` |  |
 | `@beep/schema` | `SecureHeader` | const | `packages/foundation/modeling/schema/src/http/headers/SecureHeader.ts:33` |  |
 | `@beep/schema` | `SecureHeader` | type | `packages/foundation/modeling/schema/src/http/headers/SecureHeader.ts:44` |  |
@@ -2003,6 +2005,67 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/schema/CauseTaggedError` | `CauseTaggedErrorConstructor` | type | `packages/foundation/modeling/schema/src/CauseTaggedError.ts:248` | Callable constructor for creating cause-tagged error class factories. |
 | `@beep/schema/CauseTaggedError` | `CauseTaggedErrorFactory` | interface | `packages/foundation/modeling/schema/src/CauseTaggedError.ts:209` | Factory returned by {@link CauseTaggedError} after an identity namespace has been selected. |
 | `@beep/schema/CauseTaggedError` | `CauseTaggedErrorWithStatics` | type | `packages/foundation/modeling/schema/src/CauseTaggedError.ts:163` | Tagged error class returned by {@link CauseTaggedError}, including dual construction helpers. |
+| `@beep/schema/color` | `ColorAmount` | const | `packages/foundation/modeling/schema/src/color/Color.ts:879` | Shared finite amount used by color helper request schemas. |
+| `@beep/schema/color` | `ColorAmount` | type | `packages/foundation/modeling/schema/src/color/Color.ts:894` | Type for {@link ColorAmount}. |
+| `@beep/schema/color` | `Darken` | const | `packages/foundation/modeling/schema/src/color/Color.ts:1145` | One-way schema for darkening a color. |
+| `@beep/schema/color` | `Darken` | type | `packages/foundation/modeling/schema/src/color/Color.ts:1163` | Type for {@link Darken}. |
+| `@beep/schema/color` | `DarkenInput` | class | `packages/foundation/modeling/schema/src/color/Color.ts:1129` | Request schema for darkening a color. |
+| `@beep/schema/color` | `GenerateAlphaScale` | const | `packages/foundation/modeling/schema/src/color/Color.ts:1016` | One-way schema for generating an alpha-blended 12-step scale. |
+| `@beep/schema/color` | `GenerateAlphaScale` | type | `packages/foundation/modeling/schema/src/color/Color.ts:1036` | Type for {@link GenerateAlphaScale}. |
+| `@beep/schema/color` | `GenerateAlphaScaleInput` | class | `packages/foundation/modeling/schema/src/color/Color.ts:1000` | Request schema for generating an alpha-blended 12-step scale. |
+| `@beep/schema/color` | `GenerateNeutralScale` | const | `packages/foundation/modeling/schema/src/color/Color.ts:972` | One-way schema for generating a neutral 12-step scale. |
+| `@beep/schema/color` | `GenerateNeutralScale` | type | `packages/foundation/modeling/schema/src/color/Color.ts:992` | Type for {@link GenerateNeutralScale}. |
+| `@beep/schema/color` | `GenerateNeutralScaleInput` | class | `packages/foundation/modeling/schema/src/color/Color.ts:956` | Request schema for generating a neutral 12-step scale. |
+| `@beep/schema/color` | `GenerateScale` | const | `packages/foundation/modeling/schema/src/color/Color.ts:928` | One-way schema for generating a chromatic 12-step scale. |
+| `@beep/schema/color` | `GenerateScale` | type | `packages/foundation/modeling/schema/src/color/Color.ts:948` | Type for {@link GenerateScale}. |
+| `@beep/schema/color` | `GenerateScaleInput` | class | `packages/foundation/modeling/schema/src/color/Color.ts:912` | Request schema for generating a chromatic 12-step scale. |
+| `@beep/schema/color` | `HexColor` | const | `packages/foundation/modeling/schema/src/color/Color.ts:407` | Canonical lowercase six-digit hex color schema. |
+| `@beep/schema/color` | `HexColor` | type | `packages/foundation/modeling/schema/src/color/Color.ts:422` | Type for {@link HexColor}. |
+| `@beep/schema/color` | `HexColorInput` | const | `packages/foundation/modeling/schema/src/color/Color.ts:385` | Boundary schema for hex color input strings. |
+| `@beep/schema/color` | `HexColorInput` | type | `packages/foundation/modeling/schema/src/color/Color.ts:399` | Type for {@link HexColorInput}. |
+| `@beep/schema/color` | `HexColorScale12` | const | `packages/foundation/modeling/schema/src/color/Color.ts:669` | Fixed-size 12-step canonical hex color scale. |
+| `@beep/schema/color` | `HexColorScale12` | type | `packages/foundation/modeling/schema/src/color/Color.ts:686` | Type for {@link HexColorScale12}. |
+| `@beep/schema/color` | `HexToOklch` | const | `packages/foundation/modeling/schema/src/color/Color.ts:824` | Transformation schema for decoding boundary hex input into canonical OKLCH. |
+| `@beep/schema/color` | `HexToOklch` | type | `packages/foundation/modeling/schema/src/color/Color.ts:845` | Type for {@link HexToOklch}. |
+| `@beep/schema/color` | `HexToRgb` | const | `packages/foundation/modeling/schema/src/color/Color.ts:717` | Transformation schema for decoding boundary hex input into normalized RGB. |
+| `@beep/schema/color` | `HexToRgb` | type | `packages/foundation/modeling/schema/src/color/Color.ts:738` | Type for {@link HexToRgb}. |
+| `@beep/schema/color` | `Lighten` | const | `packages/foundation/modeling/schema/src/color/Color.ts:1103` | One-way schema for lightening a color. |
+| `@beep/schema/color` | `Lighten` | type | `packages/foundation/modeling/schema/src/color/Color.ts:1121` | Type for {@link Lighten}. |
+| `@beep/schema/color` | `LightenInput` | class | `packages/foundation/modeling/schema/src/color/Color.ts:1087` | Request schema for lightening a color. |
+| `@beep/schema/color` | `MixColors` | const | `packages/foundation/modeling/schema/src/color/Color.ts:1061` | One-way schema for mixing two colors. |
+| `@beep/schema/color` | `MixColors` | type | `packages/foundation/modeling/schema/src/color/Color.ts:1079` | Type for {@link MixColors}. |
+| `@beep/schema/color` | `MixColorsInput` | class | `packages/foundation/modeling/schema/src/color/Color.ts:1044` | Request schema for mixing two colors. |
+| `@beep/schema/color` | `NormalizeHexColor` | const | `packages/foundation/modeling/schema/src/color/Color.ts:430` | Canonicalization schema from boundary hex input to canonical hex output. |
+| `@beep/schema/color` | `NormalizeHexColor` | type | `packages/foundation/modeling/schema/src/color/Color.ts:451` | Type for {@link NormalizeHexColor}. |
+| `@beep/schema/color` | `OklchChroma` | const | `packages/foundation/modeling/schema/src/color/Color.ts:587` | Canonical OKLCH chroma component. |
+| `@beep/schema/color` | `OklchChroma` | type | `packages/foundation/modeling/schema/src/color/Color.ts:603` | Type for {@link OklchChroma}. |
+| `@beep/schema/color` | `OklchColor` | class | `packages/foundation/modeling/schema/src/color/Color.ts:652` | Canonical OKLCH color object. |
+| `@beep/schema/color` | `OklchCoordinate` | const | `packages/foundation/modeling/schema/src/color/Color.ts:540` | Branded finite OKLCH coordinate. |
+| `@beep/schema/color` | `OklchCoordinate` | type | `packages/foundation/modeling/schema/src/color/Color.ts:555` | Type for {@link OklchCoordinate}. |
+| `@beep/schema/color` | `OklchHue` | const | `packages/foundation/modeling/schema/src/color/Color.ts:611` | Canonical OKLCH hue component. |
+| `@beep/schema/color` | `OklchHue` | type | `packages/foundation/modeling/schema/src/color/Color.ts:627` | Type for {@link OklchHue}. |
+| `@beep/schema/color` | `OklchInput` | class | `packages/foundation/modeling/schema/src/color/Color.ts:635` | OKLCH object with finite coordinates. |
+| `@beep/schema/color` | `OklchLightness` | const | `packages/foundation/modeling/schema/src/color/Color.ts:563` | Canonical OKLCH lightness component. |
+| `@beep/schema/color` | `OklchLightness` | type | `packages/foundation/modeling/schema/src/color/Color.ts:579` | Type for {@link OklchLightness}. |
+| `@beep/schema/color` | `OklchToHex` | const | `packages/foundation/modeling/schema/src/color/Color.ts:853` | Transformation schema for encoding OKLCH coordinates into canonical hex. |
+| `@beep/schema/color` | `OklchToHex` | type | `packages/foundation/modeling/schema/src/color/Color.ts:871` | Type for {@link OklchToHex}. |
+| `@beep/schema/color` | `OklchToRgb` | const | `packages/foundation/modeling/schema/src/color/Color.ts:798` | Transformation schema for encoding OKLCH coordinates into RGB input values. |
+| `@beep/schema/color` | `OklchToRgb` | type | `packages/foundation/modeling/schema/src/color/Color.ts:816` | Type for {@link OklchToRgb}. |
+| `@beep/schema/color` | `Rgb` | class | `packages/foundation/modeling/schema/src/color/Color.ts:523` | RGB object with normalized channels. |
+| `@beep/schema/color` | `RgbaColorString` | const | `packages/foundation/modeling/schema/src/color/Color.ts:694` | CSS rgba color string produced by with-alpha helpers. |
+| `@beep/schema/color` | `RgbaColorString` | type | `packages/foundation/modeling/schema/src/color/Color.ts:709` | Type for {@link RgbaColorString}. |
+| `@beep/schema/color` | `RgbChannel` | const | `packages/foundation/modeling/schema/src/color/Color.ts:482` | Branded normalized RGB channel in the range 0 through 1. |
+| `@beep/schema/color` | `RgbChannel` | type | `packages/foundation/modeling/schema/src/color/Color.ts:498` | Type for {@link RgbChannel}. |
+| `@beep/schema/color` | `RgbInput` | class | `packages/foundation/modeling/schema/src/color/Color.ts:506` | RGB object with finite channel inputs. |
+| `@beep/schema/color` | `RgbInputChannel` | const | `packages/foundation/modeling/schema/src/color/Color.ts:459` | Branded finite RGB input channel. |
+| `@beep/schema/color` | `RgbInputChannel` | type | `packages/foundation/modeling/schema/src/color/Color.ts:474` | Type for {@link RgbInputChannel}. |
+| `@beep/schema/color` | `RgbToHex` | const | `packages/foundation/modeling/schema/src/color/Color.ts:746` | Transformation schema for encoding RGB input into canonical hex. |
+| `@beep/schema/color` | `RgbToHex` | type | `packages/foundation/modeling/schema/src/color/Color.ts:764` | Type for {@link RgbToHex}. |
+| `@beep/schema/color` | `RgbToOklch` | const | `packages/foundation/modeling/schema/src/color/Color.ts:772` | Transformation schema for decoding normalized RGB into canonical OKLCH. |
+| `@beep/schema/color` | `RgbToOklch` | type | `packages/foundation/modeling/schema/src/color/Color.ts:790` | Type for {@link RgbToOklch}. |
+| `@beep/schema/color` | `WithAlpha` | const | `packages/foundation/modeling/schema/src/color/Color.ts:1187` | One-way schema for rendering an rgba string. |
+| `@beep/schema/color` | `WithAlpha` | type | `packages/foundation/modeling/schema/src/color/Color.ts:1205` | Type for {@link WithAlpha}. |
+| `@beep/schema/color` | `WithAlphaInput` | class | `packages/foundation/modeling/schema/src/color/Color.ts:1171` | Request schema for converting a color plus alpha to an rgba string. |
 | `@beep/schema/color/Color` | `ColorAmount` | const | `packages/foundation/modeling/schema/src/color/Color.ts:879` | Shared finite amount used by color helper request schemas. |
 | `@beep/schema/color/Color` | `ColorAmount` | type | `packages/foundation/modeling/schema/src/color/Color.ts:894` | Type for {@link ColorAmount}. |
 | `@beep/schema/color/Color` | `Darken` | const | `packages/foundation/modeling/schema/src/color/Color.ts:1145` | One-way schema for darkening a color. |
@@ -2186,6 +2249,18 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/schema/csv/index` | `ParserOptions` | class | `packages/foundation/modeling/schema/src/csv/parse/ParserOptions.ts:107` | Schema-backed CSV parser options. |
 | `@beep/schema/csv/index` | `ParserOptionsArgs` | type | `packages/foundation/modeling/schema/src/csv/parse/ParserOptions.ts:226` | Encoded/raw constructor input for {@link ParserOptions}. |
 | `@beep/schema/csv/index` | `ParserOptionsError` | class | `packages/foundation/modeling/schema/src/csv/parse/ParserOptions.ts:80` | A parser options configuration error. |
+| `@beep/schema/csv/parse` | `HeaderArray` | const | `packages/foundation/modeling/schema/src/csv/parse/types.ts:20` | An array containing possibly nullish strings. |
+| `@beep/schema/csv/parse` | `HeaderArray` | type | `packages/foundation/modeling/schema/src/csv/parse/types.ts:35` | {@inheritDoc HeaderArray} |
+| `@beep/schema/csv/parse` | `HeaderTransformFunction` | const | `packages/foundation/modeling/schema/src/csv/parse/types.ts:44` | An identity function taking an array containing possibly nullish strings |
+| `@beep/schema/csv/parse` | `HeaderTransformFunction` | type | `packages/foundation/modeling/schema/src/csv/parse/types.ts:59` | {@inheritDoc HeaderTransformFunction} |
+| `@beep/schema/csv/parse` | `HeaderValueInput` | const | `packages/foundation/modeling/schema/src/csv/parse/ParserOptions.ts:60` | A parser header configuration input. |
+| `@beep/schema/csv/parse` | `HeaderValueInput` | type | `packages/foundation/modeling/schema/src/csv/parse/ParserOptions.ts:72` | {@inheritDoc HeaderValueInput} |
+| `@beep/schema/csv/parse` | `parseCsvRows` | const | `packages/foundation/modeling/schema/src/csv/parse/CsvParser.ts:379` | Parse full CSV text into raw row arrays using low-level parser options. |
+| `@beep/schema/csv/parse` | `ParsedField` | class | `packages/foundation/modeling/schema/src/csv/parse/CsvParser.ts:98` |  |
+| `@beep/schema/csv/parse` | `ParsedRow` | class | `packages/foundation/modeling/schema/src/csv/parse/CsvParser.ts:243` |  |
+| `@beep/schema/csv/parse` | `ParserOptions` | class | `packages/foundation/modeling/schema/src/csv/parse/ParserOptions.ts:107` | Schema-backed CSV parser options. |
+| `@beep/schema/csv/parse` | `ParserOptionsArgs` | type | `packages/foundation/modeling/schema/src/csv/parse/ParserOptions.ts:226` | Encoded/raw constructor input for {@link ParserOptions}. |
+| `@beep/schema/csv/parse` | `ParserOptionsError` | class | `packages/foundation/modeling/schema/src/csv/parse/ParserOptions.ts:80` | A parser options configuration error. |
 | `@beep/schema/csv/parse/CsvParser` | `parseCsvRows` | const | `packages/foundation/modeling/schema/src/csv/parse/CsvParser.ts:379` | Parse full CSV text into raw row arrays using low-level parser options. |
 | `@beep/schema/csv/parse/CsvParser` | `ParsedField` | class | `packages/foundation/modeling/schema/src/csv/parse/CsvParser.ts:98` |  |
 | `@beep/schema/csv/parse/CsvParser` | `ParsedRow` | class | `packages/foundation/modeling/schema/src/csv/parse/CsvParser.ts:243` |  |
@@ -2247,6 +2322,25 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/schema/DateTimeUtcFromValid` | `DateTimeInputString` | type | `packages/foundation/modeling/schema/src/DateTimeUtcFromValid.ts:180` | {@inheritDoc DateTimeInputString} |
 | `@beep/schema/DateTimeUtcFromValid` | `DateTimeUtcFromValid` | const | `packages/foundation/modeling/schema/src/DateTimeUtcFromValid.ts:512` | Bidirectional schema transformation from valid DateTime input to `DateTime.Utc`. |
 | `@beep/schema/DateTimeUtcFromValid` | `DateTimeUtcFromValid` | type | `packages/foundation/modeling/schema/src/DateTimeUtcFromValid.ts:540` | {@inheritDoc DateTimeUtcFromValid} |
+| `@beep/schema/dom` | `createDOMRefSchema` | const | `packages/foundation/modeling/schema/src/dom/elements.ts:175` | Creates a Schema for React.Ref<T> where T extends HTMLElement |
+| `@beep/schema/dom` | `DOMCssProperties` | const | `packages/foundation/modeling/schema/src/dom/elements.ts:67` | A React.CSSProperties |
+| `@beep/schema/dom` | `DOMDragEvent` | const | `packages/foundation/modeling/schema/src/dom/elements.ts:198` | A DragEvent |
+| `@beep/schema/dom` | `DOMDragEvent` | type | `packages/foundation/modeling/schema/src/dom/elements.ts:210` | {@inheritDoc DOMDragEvent} |
+| `@beep/schema/dom` | `DOMEvent` | const | `packages/foundation/modeling/schema/src/dom/events.ts:38` | A DOM event |
+| `@beep/schema/dom` | `DOMEvent` | type | `packages/foundation/modeling/schema/src/dom/events.ts:50` | {@inheritDoc DOMEvent} |
+| `@beep/schema/dom` | `DOMHtmlElement` | const | `packages/foundation/modeling/schema/src/dom/elements.ts:30` | An HTMLElement |
+| `@beep/schema/dom` | `DOMHtmlElement` | type | `packages/foundation/modeling/schema/src/dom/elements.ts:42` | {@inheritDoc HTMLElement} |
+| `@beep/schema/dom` | `DOMMouseEvent` | const | `packages/foundation/modeling/schema/src/dom/events.ts:58` | A DOM mouse event |
+| `@beep/schema/dom` | `DOMMouseEvent` | type | `packages/foundation/modeling/schema/src/dom/events.ts:70` | {@inheritDoc DOMMouseEvent} |
+| `@beep/schema/dom` | `DOMReactNode` | const | `packages/foundation/modeling/schema/src/dom/elements.ts:119` | A React.ReactNode |
+| `@beep/schema/dom` | `DOMReactNode` | type | `packages/foundation/modeling/schema/src/dom/elements.ts:131` | {@inheritDoc DOMReactNode} |
+| `@beep/schema/dom` | `isCSSProperties` | const | `packages/foundation/modeling/schema/src/dom/elements.ts:52` | Type guard for React.CSSProperties |
+| `@beep/schema/dom` | `isDragEvent` | const | `packages/foundation/modeling/schema/src/dom/elements.ts:190` | Type guard for DragEvent |
+| `@beep/schema/dom` | `isEvent` | const | `packages/foundation/modeling/schema/src/dom/events.ts:20` | Type guard for Event |
+| `@beep/schema/dom` | `isHTMLElement` | const | `packages/foundation/modeling/schema/src/dom/elements.ts:22` | Type guard for HTMLElement |
+| `@beep/schema/dom` | `isMouseEvent` | const | `packages/foundation/modeling/schema/src/dom/events.ts:30` | Type guard for MouseEvent |
+| `@beep/schema/dom` | `isReactNode` | const | `packages/foundation/modeling/schema/src/dom/elements.ts:81` | Type guard for React.ReactNode |
+| `@beep/schema/dom` | `isReactRef` | const | `packages/foundation/modeling/schema/src/dom/elements.ts:141` | Type guard for React.Ref<T> |
 | `@beep/schema/dom/elements` | `createDOMRefSchema` | const | `packages/foundation/modeling/schema/src/dom/elements.ts:175` | Creates a Schema for React.Ref<T> where T extends HTMLElement |
 | `@beep/schema/dom/elements` | `DOMCssProperties` | const | `packages/foundation/modeling/schema/src/dom/elements.ts:67` | A React.CSSProperties |
 | `@beep/schema/dom/elements` | `DOMDragEvent` | const | `packages/foundation/modeling/schema/src/dom/elements.ts:198` | A DragEvent |
@@ -2546,29 +2640,29 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/schema/http/headers/CrossOriginResourcePolicy` | `CrossOriginResourcePolicyOption` | const | `packages/foundation/modeling/schema/src/http/headers/CrossOriginResourcePolicy.ts:46` |  |
 | `@beep/schema/http/headers/CrossOriginResourcePolicy` | `CrossOriginResourcePolicyOption` | type | `packages/foundation/modeling/schema/src/http/headers/CrossOriginResourcePolicy.ts:57` |  |
 | `@beep/schema/http/headers/CrossOriginResourcePolicy` | `CrossOriginResourcePolicyResponseHeader` | class | `packages/foundation/modeling/schema/src/http/headers/CrossOriginResourcePolicy.ts:63` |  |
-| `@beep/schema/http/headers/Csp` | `ContentSecurityPolicyHeader` | const | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:581` |  |
-| `@beep/schema/http/headers/Csp` | `ContentSecurityPolicyHeader` | type | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:649` |  |
+| `@beep/schema/http/headers/Csp` | `ContentSecurityPolicyHeader` | const | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:582` |  |
+| `@beep/schema/http/headers/Csp` | `ContentSecurityPolicyHeader` | type | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:650` |  |
 | `@beep/schema/http/headers/Csp` | `ContentSecurityPolicyHeaderName` | const | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:47` |  |
 | `@beep/schema/http/headers/Csp` | `ContentSecurityPolicyHeaderName` | type | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:58` |  |
-| `@beep/schema/http/headers/Csp` | `ContentSecurityPolicyOption` | const | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:481` |  |
-| `@beep/schema/http/headers/Csp` | `ContentSecurityPolicyOption` | type | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:491` |  |
-| `@beep/schema/http/headers/Csp` | `ContentSecurityPolicyOptionStruct` | class | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:449` |  |
-| `@beep/schema/http/headers/Csp` | `ContentSecurityPolicyResponseHeader` | class | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:497` |  |
-| `@beep/schema/http/headers/Csp` | `createContentSecurityPolicyOptionHeaderValue` | const | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:555` |  |
+| `@beep/schema/http/headers/Csp` | `ContentSecurityPolicyOption` | const | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:482` |  |
+| `@beep/schema/http/headers/Csp` | `ContentSecurityPolicyOption` | type | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:492` |  |
+| `@beep/schema/http/headers/Csp` | `ContentSecurityPolicyOptionStruct` | class | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:450` |  |
+| `@beep/schema/http/headers/Csp` | `ContentSecurityPolicyResponseHeader` | class | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:498` |  |
+| `@beep/schema/http/headers/Csp` | `createContentSecurityPolicyOptionHeaderValue` | const | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:556` |  |
 | `@beep/schema/http/headers/Csp` | `createDirectiveValue` | const | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:116` | Creates a serialized directive value from a directive name and value list. |
-| `@beep/schema/http/headers/Csp` | `CspDirectives` | const | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:434` |  |
+| `@beep/schema/http/headers/Csp` | `CspDirectives` | const | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:435` |  |
 | `@beep/schema/http/headers/Csp` | `DirectiveSource` | const | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:25` |  |
 | `@beep/schema/http/headers/Csp` | `DirectiveSource` | type | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:35` |  |
-| `@beep/schema/http/headers/Csp` | `DocumentDirective` | class | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:300` |  |
-| `@beep/schema/http/headers/Csp` | `FetchDirective` | class | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:231` |  |
+| `@beep/schema/http/headers/Csp` | `DocumentDirective` | class | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:301` |  |
+| `@beep/schema/http/headers/Csp` | `FetchDirective` | class | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:232` |  |
 | `@beep/schema/http/headers/Csp` | `getProperHeaderName` | const | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:92` | Get proper header name for CSP |
-| `@beep/schema/http/headers/Csp` | `NavigationDirective` | class | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:344` |  |
-| `@beep/schema/http/headers/Csp` | `PluginTypes` | const | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:144` |  |
-| `@beep/schema/http/headers/Csp` | `PluginTypes` | type | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:154` |  |
-| `@beep/schema/http/headers/Csp` | `ReportingDirective` | class | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:398` |  |
-| `@beep/schema/http/headers/Csp` | `ReportURI` | const | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:388` |  |
-| `@beep/schema/http/headers/Csp` | `Sandbox` | const | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:177` |  |
-| `@beep/schema/http/headers/Csp` | `Sandbox` | type | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:188` |  |
+| `@beep/schema/http/headers/Csp` | `NavigationDirective` | class | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:345` |  |
+| `@beep/schema/http/headers/Csp` | `PluginTypes` | const | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:145` |  |
+| `@beep/schema/http/headers/Csp` | `PluginTypes` | type | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:155` |  |
+| `@beep/schema/http/headers/Csp` | `ReportingDirective` | class | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:399` |  |
+| `@beep/schema/http/headers/Csp` | `ReportURI` | const | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:389` |  |
+| `@beep/schema/http/headers/Csp` | `Sandbox` | const | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:178` |  |
+| `@beep/schema/http/headers/Csp` | `Sandbox` | type | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:189` |  |
 | `@beep/schema/http/headers/ExpectCT` | `ExpectCTConfig` | class | `packages/foundation/modeling/schema/src/http/headers/ExpectCT.ts:27` |  |
 | `@beep/schema/http/headers/ExpectCT` | `ExpectCTEnabled` | const | `packages/foundation/modeling/schema/src/http/headers/ExpectCT.ts:42` |  |
 | `@beep/schema/http/headers/ExpectCT` | `ExpectCTEnabled` | type | `packages/foundation/modeling/schema/src/http/headers/ExpectCT.ts:52` |  |
@@ -2598,20 +2692,20 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/schema/http/headers/index` | `COEPResponseHeader` | class | `packages/foundation/modeling/schema/src/http/headers/CrossOriginEmbedderPolicy.ts:66` | Schema for the Cross-Origin-Embedder-Policy response header output. |
 | `@beep/schema/http/headers/index` | `CoepValue` | const | `packages/foundation/modeling/schema/src/http/headers/CrossOriginEmbedderPolicy.ts:29` |  |
 | `@beep/schema/http/headers/index` | `CoepValue` | type | `packages/foundation/modeling/schema/src/http/headers/CrossOriginEmbedderPolicy.ts:40` |  |
-| `@beep/schema/http/headers/index` | `ContentSecurityPolicyHeader` | const | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:581` |  |
-| `@beep/schema/http/headers/index` | `ContentSecurityPolicyHeader` | type | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:649` |  |
+| `@beep/schema/http/headers/index` | `ContentSecurityPolicyHeader` | const | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:582` |  |
+| `@beep/schema/http/headers/index` | `ContentSecurityPolicyHeader` | type | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:650` |  |
 | `@beep/schema/http/headers/index` | `ContentSecurityPolicyHeaderName` | const | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:47` |  |
 | `@beep/schema/http/headers/index` | `ContentSecurityPolicyHeaderName` | type | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:58` |  |
-| `@beep/schema/http/headers/index` | `ContentSecurityPolicyOption` | const | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:481` |  |
-| `@beep/schema/http/headers/index` | `ContentSecurityPolicyOption` | type | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:491` |  |
-| `@beep/schema/http/headers/index` | `ContentSecurityPolicyOptionStruct` | class | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:449` |  |
-| `@beep/schema/http/headers/index` | `ContentSecurityPolicyResponseHeader` | class | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:497` |  |
+| `@beep/schema/http/headers/index` | `ContentSecurityPolicyOption` | const | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:482` |  |
+| `@beep/schema/http/headers/index` | `ContentSecurityPolicyOption` | type | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:492` |  |
+| `@beep/schema/http/headers/index` | `ContentSecurityPolicyOptionStruct` | class | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:450` |  |
+| `@beep/schema/http/headers/index` | `ContentSecurityPolicyResponseHeader` | class | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:498` |  |
 | `@beep/schema/http/headers/index` | `CoopValue` | const | `packages/foundation/modeling/schema/src/http/headers/CrossOriginOpenerPolicy.ts:38` | Schema for supported `Cross-Origin-Opener-Policy` header values. |
 | `@beep/schema/http/headers/index` | `CoopValue` | type | `packages/foundation/modeling/schema/src/http/headers/CrossOriginOpenerPolicy.ts:51` | Type-level representation of {@link CoopValue}. |
 | `@beep/schema/http/headers/index` | `CoreError` | class | `packages/foundation/modeling/schema/src/http/headers/SecureHeaderError.ts:187` |  |
 | `@beep/schema/http/headers/index` | `CorpValue` | const | `packages/foundation/modeling/schema/src/http/headers/CrossOriginResourcePolicy.ts:27` |  |
 | `@beep/schema/http/headers/index` | `CorpValue` | type | `packages/foundation/modeling/schema/src/http/headers/CrossOriginResourcePolicy.ts:38` |  |
-| `@beep/schema/http/headers/index` | `createContentSecurityPolicyOptionHeaderValue` | const | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:555` |  |
+| `@beep/schema/http/headers/index` | `createContentSecurityPolicyOptionHeaderValue` | const | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:556` |  |
 | `@beep/schema/http/headers/index` | `createDirectiveValue` | const | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:116` | Creates a serialized directive value from a directive name and value list. |
 | `@beep/schema/http/headers/index` | `createHeadersObject` | const | `packages/foundation/modeling/schema/src/http/headers/SecureHeaderOptions.ts:157` | Resolve secure-header options into a plain `Record<string, string>` header object. |
 | `@beep/schema/http/headers/index` | `createSecureHeaders` | const | `packages/foundation/modeling/schema/src/http/headers/SecureHeaderOptions.ts:186` | Resolve secure-header options into an array of {@link SecureHeaderEntry} pairs. |
@@ -2632,11 +2726,11 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/schema/http/headers/index` | `CrossOriginResourcePolicyOption` | const | `packages/foundation/modeling/schema/src/http/headers/CrossOriginResourcePolicy.ts:46` |  |
 | `@beep/schema/http/headers/index` | `CrossOriginResourcePolicyOption` | type | `packages/foundation/modeling/schema/src/http/headers/CrossOriginResourcePolicy.ts:57` |  |
 | `@beep/schema/http/headers/index` | `CrossOriginResourcePolicyResponseHeader` | class | `packages/foundation/modeling/schema/src/http/headers/CrossOriginResourcePolicy.ts:63` |  |
-| `@beep/schema/http/headers/index` | `CspDirectives` | const | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:434` |  |
+| `@beep/schema/http/headers/index` | `CspDirectives` | const | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:435` |  |
 | `@beep/schema/http/headers/index` | `CspError` | class | `packages/foundation/modeling/schema/src/http/headers/SecureHeaderError.ts:109` |  |
 | `@beep/schema/http/headers/index` | `DirectiveSource` | const | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:25` |  |
 | `@beep/schema/http/headers/index` | `DirectiveSource` | type | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:35` |  |
-| `@beep/schema/http/headers/index` | `DocumentDirective` | class | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:300` |  |
+| `@beep/schema/http/headers/index` | `DocumentDirective` | class | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:301` |  |
 | `@beep/schema/http/headers/index` | `ExpectCTConfig` | class | `packages/foundation/modeling/schema/src/http/headers/ExpectCT.ts:27` |  |
 | `@beep/schema/http/headers/index` | `ExpectCTEnabled` | const | `packages/foundation/modeling/schema/src/http/headers/ExpectCT.ts:42` |  |
 | `@beep/schema/http/headers/index` | `ExpectCTEnabled` | type | `packages/foundation/modeling/schema/src/http/headers/ExpectCT.ts:52` |  |
@@ -2646,7 +2740,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/schema/http/headers/index` | `ExpectCTOption` | const | `packages/foundation/modeling/schema/src/http/headers/ExpectCT.ts:58` |  |
 | `@beep/schema/http/headers/index` | `ExpectCTOption` | type | `packages/foundation/modeling/schema/src/http/headers/ExpectCT.ts:68` |  |
 | `@beep/schema/http/headers/index` | `ExpectCTResponseHeader` | class | `packages/foundation/modeling/schema/src/http/headers/ExpectCT.ts:74` |  |
-| `@beep/schema/http/headers/index` | `FetchDirective` | class | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:231` |  |
+| `@beep/schema/http/headers/index` | `FetchDirective` | class | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:232` |  |
 | `@beep/schema/http/headers/index` | `ForceHttpsRedirectConfig` | class | `packages/foundation/modeling/schema/src/http/headers/ForceHttpsRedirect.ts:27` |  |
 | `@beep/schema/http/headers/index` | `ForceHttpsRedirectEnabled` | const | `packages/foundation/modeling/schema/src/http/headers/ForceHttpsRedirect.ts:42` |  |
 | `@beep/schema/http/headers/index` | `ForceHttpsRedirectEnabled` | type | `packages/foundation/modeling/schema/src/http/headers/ForceHttpsRedirect.ts:52` |  |
@@ -2668,7 +2762,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/schema/http/headers/index` | `FrameGuardOption` | type | `packages/foundation/modeling/schema/src/http/headers/FrameGuard.ts:86` |  |
 | `@beep/schema/http/headers/index` | `FrameGuardResponseHeader` | class | `packages/foundation/modeling/schema/src/http/headers/FrameGuard.ts:92` |  |
 | `@beep/schema/http/headers/index` | `getProperHeaderName` | const | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:92` | Get proper header name for CSP |
-| `@beep/schema/http/headers/index` | `NavigationDirective` | class | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:344` |  |
+| `@beep/schema/http/headers/index` | `NavigationDirective` | class | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:345` |  |
 | `@beep/schema/http/headers/index` | `NoOpenError` | class | `packages/foundation/modeling/schema/src/http/headers/SecureHeaderError.ts:139` |  |
 | `@beep/schema/http/headers/index` | `NoOpenHeader` | const | `packages/foundation/modeling/schema/src/http/headers/NoOpen.ts:80` |  |
 | `@beep/schema/http/headers/index` | `NoOpenHeader` | type | `packages/foundation/modeling/schema/src/http/headers/NoOpen.ts:139` |  |
@@ -2712,8 +2806,8 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/schema/http/headers/index` | `PermittedCrossDomainPoliciesResponseHeader` | class | `packages/foundation/modeling/schema/src/http/headers/PermittedCrossDomainPolicies.ts:70` |  |
 | `@beep/schema/http/headers/index` | `PermittedCrossDomainPoliciesValue` | const | `packages/foundation/modeling/schema/src/http/headers/PermittedCrossDomainPolicies.ts:34` |  |
 | `@beep/schema/http/headers/index` | `PermittedCrossDomainPoliciesValue` | type | `packages/foundation/modeling/schema/src/http/headers/PermittedCrossDomainPolicies.ts:45` |  |
-| `@beep/schema/http/headers/index` | `PluginTypes` | const | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:144` |  |
-| `@beep/schema/http/headers/index` | `PluginTypes` | type | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:154` |  |
+| `@beep/schema/http/headers/index` | `PluginTypes` | const | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:145` |  |
+| `@beep/schema/http/headers/index` | `PluginTypes` | type | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:155` |  |
 | `@beep/schema/http/headers/index` | `QuotedOrigin` | const | `packages/foundation/modeling/schema/src/http/headers/PermissionsPolicy.ts:97` |  |
 | `@beep/schema/http/headers/index` | `QuotedOrigin` | type | `packages/foundation/modeling/schema/src/http/headers/PermissionsPolicy.ts:113` |  |
 | `@beep/schema/http/headers/index` | `ReferrerPolicyError` | class | `packages/foundation/modeling/schema/src/http/headers/SecureHeaderError.ts:127` |  |
@@ -2726,10 +2820,10 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/schema/http/headers/index` | `ReferrerPolicyValue` | type | `packages/foundation/modeling/schema/src/http/headers/ReferrerPolicy.ts:48` |  |
 | `@beep/schema/http/headers/index` | `ReferrerPolicyValueList` | const | `packages/foundation/modeling/schema/src/http/headers/ReferrerPolicy.ts:54` |  |
 | `@beep/schema/http/headers/index` | `ReferrerPolicyValueList` | type | `packages/foundation/modeling/schema/src/http/headers/ReferrerPolicy.ts:64` |  |
-| `@beep/schema/http/headers/index` | `ReportingDirective` | class | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:398` |  |
-| `@beep/schema/http/headers/index` | `ReportURI` | const | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:388` |  |
-| `@beep/schema/http/headers/index` | `Sandbox` | const | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:177` |  |
-| `@beep/schema/http/headers/index` | `Sandbox` | type | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:188` |  |
+| `@beep/schema/http/headers/index` | `ReportingDirective` | class | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:399` |  |
+| `@beep/schema/http/headers/index` | `ReportURI` | const | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:389` |  |
+| `@beep/schema/http/headers/index` | `Sandbox` | const | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:178` |  |
+| `@beep/schema/http/headers/index` | `Sandbox` | type | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:189` |  |
 | `@beep/schema/http/headers/index` | `SecureHeader` | const | `packages/foundation/modeling/schema/src/http/headers/SecureHeader.ts:33` |  |
 | `@beep/schema/http/headers/index` | `SecureHeader` | type | `packages/foundation/modeling/schema/src/http/headers/SecureHeader.ts:44` |  |
 | `@beep/schema/http/headers/index` | `SecureHeaderEntry` | class | `packages/foundation/modeling/schema/src/http/headers/SecureHeaderOptions.ts:87` | A rendered secure header pair in `{ key, value }` format. |
@@ -3009,20 +3103,20 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/schema/http/index` | `COEPResponseHeader` | class | `packages/foundation/modeling/schema/src/http/headers/CrossOriginEmbedderPolicy.ts:66` | Schema for the Cross-Origin-Embedder-Policy response header output. |
 | `@beep/schema/http/index` | `CoepValue` | const | `packages/foundation/modeling/schema/src/http/headers/CrossOriginEmbedderPolicy.ts:29` |  |
 | `@beep/schema/http/index` | `CoepValue` | type | `packages/foundation/modeling/schema/src/http/headers/CrossOriginEmbedderPolicy.ts:40` |  |
-| `@beep/schema/http/index` | `ContentSecurityPolicyHeader` | const | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:581` |  |
-| `@beep/schema/http/index` | `ContentSecurityPolicyHeader` | type | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:649` |  |
+| `@beep/schema/http/index` | `ContentSecurityPolicyHeader` | const | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:582` |  |
+| `@beep/schema/http/index` | `ContentSecurityPolicyHeader` | type | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:650` |  |
 | `@beep/schema/http/index` | `ContentSecurityPolicyHeaderName` | const | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:47` |  |
 | `@beep/schema/http/index` | `ContentSecurityPolicyHeaderName` | type | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:58` |  |
-| `@beep/schema/http/index` | `ContentSecurityPolicyOption` | const | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:481` |  |
-| `@beep/schema/http/index` | `ContentSecurityPolicyOption` | type | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:491` |  |
-| `@beep/schema/http/index` | `ContentSecurityPolicyOptionStruct` | class | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:449` |  |
-| `@beep/schema/http/index` | `ContentSecurityPolicyResponseHeader` | class | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:497` |  |
+| `@beep/schema/http/index` | `ContentSecurityPolicyOption` | const | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:482` |  |
+| `@beep/schema/http/index` | `ContentSecurityPolicyOption` | type | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:492` |  |
+| `@beep/schema/http/index` | `ContentSecurityPolicyOptionStruct` | class | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:450` |  |
+| `@beep/schema/http/index` | `ContentSecurityPolicyResponseHeader` | class | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:498` |  |
 | `@beep/schema/http/index` | `CoopValue` | const | `packages/foundation/modeling/schema/src/http/headers/CrossOriginOpenerPolicy.ts:38` | Schema for supported `Cross-Origin-Opener-Policy` header values. |
 | `@beep/schema/http/index` | `CoopValue` | type | `packages/foundation/modeling/schema/src/http/headers/CrossOriginOpenerPolicy.ts:51` | Type-level representation of {@link CoopValue}. |
 | `@beep/schema/http/index` | `CoreError` | class | `packages/foundation/modeling/schema/src/http/headers/SecureHeaderError.ts:187` |  |
 | `@beep/schema/http/index` | `CorpValue` | const | `packages/foundation/modeling/schema/src/http/headers/CrossOriginResourcePolicy.ts:27` |  |
 | `@beep/schema/http/index` | `CorpValue` | type | `packages/foundation/modeling/schema/src/http/headers/CrossOriginResourcePolicy.ts:38` |  |
-| `@beep/schema/http/index` | `createContentSecurityPolicyOptionHeaderValue` | const | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:555` |  |
+| `@beep/schema/http/index` | `createContentSecurityPolicyOptionHeaderValue` | const | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:556` |  |
 | `@beep/schema/http/index` | `createDirectiveValue` | const | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:116` | Creates a serialized directive value from a directive name and value list. |
 | `@beep/schema/http/index` | `createHeadersObject` | const | `packages/foundation/modeling/schema/src/http/headers/SecureHeaderOptions.ts:157` | Resolve secure-header options into a plain `Record<string, string>` header object. |
 | `@beep/schema/http/index` | `createSecureHeaders` | const | `packages/foundation/modeling/schema/src/http/headers/SecureHeaderOptions.ts:186` | Resolve secure-header options into an array of {@link SecureHeaderEntry} pairs. |
@@ -3043,11 +3137,11 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/schema/http/index` | `CrossOriginResourcePolicyOption` | const | `packages/foundation/modeling/schema/src/http/headers/CrossOriginResourcePolicy.ts:46` |  |
 | `@beep/schema/http/index` | `CrossOriginResourcePolicyOption` | type | `packages/foundation/modeling/schema/src/http/headers/CrossOriginResourcePolicy.ts:57` |  |
 | `@beep/schema/http/index` | `CrossOriginResourcePolicyResponseHeader` | class | `packages/foundation/modeling/schema/src/http/headers/CrossOriginResourcePolicy.ts:63` |  |
-| `@beep/schema/http/index` | `CspDirectives` | const | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:434` |  |
+| `@beep/schema/http/index` | `CspDirectives` | const | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:435` |  |
 | `@beep/schema/http/index` | `CspError` | class | `packages/foundation/modeling/schema/src/http/headers/SecureHeaderError.ts:109` |  |
 | `@beep/schema/http/index` | `DirectiveSource` | const | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:25` |  |
 | `@beep/schema/http/index` | `DirectiveSource` | type | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:35` |  |
-| `@beep/schema/http/index` | `DocumentDirective` | class | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:300` |  |
+| `@beep/schema/http/index` | `DocumentDirective` | class | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:301` |  |
 | `@beep/schema/http/index` | `ExpectCTConfig` | class | `packages/foundation/modeling/schema/src/http/headers/ExpectCT.ts:27` |  |
 | `@beep/schema/http/index` | `ExpectCTEnabled` | const | `packages/foundation/modeling/schema/src/http/headers/ExpectCT.ts:42` |  |
 | `@beep/schema/http/index` | `ExpectCTEnabled` | type | `packages/foundation/modeling/schema/src/http/headers/ExpectCT.ts:52` |  |
@@ -3057,7 +3151,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/schema/http/index` | `ExpectCTOption` | const | `packages/foundation/modeling/schema/src/http/headers/ExpectCT.ts:58` |  |
 | `@beep/schema/http/index` | `ExpectCTOption` | type | `packages/foundation/modeling/schema/src/http/headers/ExpectCT.ts:68` |  |
 | `@beep/schema/http/index` | `ExpectCTResponseHeader` | class | `packages/foundation/modeling/schema/src/http/headers/ExpectCT.ts:74` |  |
-| `@beep/schema/http/index` | `FetchDirective` | class | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:231` |  |
+| `@beep/schema/http/index` | `FetchDirective` | class | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:232` |  |
 | `@beep/schema/http/index` | `ForceHttpsRedirectConfig` | class | `packages/foundation/modeling/schema/src/http/headers/ForceHttpsRedirect.ts:27` |  |
 | `@beep/schema/http/index` | `ForceHttpsRedirectEnabled` | const | `packages/foundation/modeling/schema/src/http/headers/ForceHttpsRedirect.ts:42` |  |
 | `@beep/schema/http/index` | `ForceHttpsRedirectEnabled` | type | `packages/foundation/modeling/schema/src/http/headers/ForceHttpsRedirect.ts:52` |  |
@@ -3085,7 +3179,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/schema/http/index` | `HttpProtocol` | const | `packages/foundation/modeling/schema/src/http/HttpProtocol.ts:18` | An HTTP protocol ("http" or "https") |
 | `@beep/schema/http/index` | `HttpProtocol` | type | `packages/foundation/modeling/schema/src/http/HttpProtocol.ts:30` | {@inheritDoc HttpProtocol} |
 | `@beep/schema/http/index` | `HttpStatus` | SourceFile | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:16` |  |
-| `@beep/schema/http/index` | `NavigationDirective` | class | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:344` |  |
+| `@beep/schema/http/index` | `NavigationDirective` | class | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:345` |  |
 | `@beep/schema/http/index` | `NoOpenError` | class | `packages/foundation/modeling/schema/src/http/headers/SecureHeaderError.ts:139` |  |
 | `@beep/schema/http/index` | `NoOpenHeader` | const | `packages/foundation/modeling/schema/src/http/headers/NoOpen.ts:80` |  |
 | `@beep/schema/http/index` | `NoOpenHeader` | type | `packages/foundation/modeling/schema/src/http/headers/NoOpen.ts:139` |  |
@@ -3129,8 +3223,8 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/schema/http/index` | `PermittedCrossDomainPoliciesResponseHeader` | class | `packages/foundation/modeling/schema/src/http/headers/PermittedCrossDomainPolicies.ts:70` |  |
 | `@beep/schema/http/index` | `PermittedCrossDomainPoliciesValue` | const | `packages/foundation/modeling/schema/src/http/headers/PermittedCrossDomainPolicies.ts:34` |  |
 | `@beep/schema/http/index` | `PermittedCrossDomainPoliciesValue` | type | `packages/foundation/modeling/schema/src/http/headers/PermittedCrossDomainPolicies.ts:45` |  |
-| `@beep/schema/http/index` | `PluginTypes` | const | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:144` |  |
-| `@beep/schema/http/index` | `PluginTypes` | type | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:154` |  |
+| `@beep/schema/http/index` | `PluginTypes` | const | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:145` |  |
+| `@beep/schema/http/index` | `PluginTypes` | type | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:155` |  |
 | `@beep/schema/http/index` | `QuotedOrigin` | const | `packages/foundation/modeling/schema/src/http/headers/PermissionsPolicy.ts:97` |  |
 | `@beep/schema/http/index` | `QuotedOrigin` | type | `packages/foundation/modeling/schema/src/http/headers/PermissionsPolicy.ts:113` |  |
 | `@beep/schema/http/index` | `ReferrerPolicyError` | class | `packages/foundation/modeling/schema/src/http/headers/SecureHeaderError.ts:127` |  |
@@ -3143,10 +3237,10 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/schema/http/index` | `ReferrerPolicyValue` | type | `packages/foundation/modeling/schema/src/http/headers/ReferrerPolicy.ts:48` |  |
 | `@beep/schema/http/index` | `ReferrerPolicyValueList` | const | `packages/foundation/modeling/schema/src/http/headers/ReferrerPolicy.ts:54` |  |
 | `@beep/schema/http/index` | `ReferrerPolicyValueList` | type | `packages/foundation/modeling/schema/src/http/headers/ReferrerPolicy.ts:64` |  |
-| `@beep/schema/http/index` | `ReportingDirective` | class | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:398` |  |
-| `@beep/schema/http/index` | `ReportURI` | const | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:388` |  |
-| `@beep/schema/http/index` | `Sandbox` | const | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:177` |  |
-| `@beep/schema/http/index` | `Sandbox` | type | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:188` |  |
+| `@beep/schema/http/index` | `ReportingDirective` | class | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:399` |  |
+| `@beep/schema/http/index` | `ReportURI` | const | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:389` |  |
+| `@beep/schema/http/index` | `Sandbox` | const | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:178` |  |
+| `@beep/schema/http/index` | `Sandbox` | type | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:189` |  |
 | `@beep/schema/http/index` | `SecureHeader` | const | `packages/foundation/modeling/schema/src/http/headers/SecureHeader.ts:33` |  |
 | `@beep/schema/http/index` | `SecureHeader` | type | `packages/foundation/modeling/schema/src/http/headers/SecureHeader.ts:44` |  |
 | `@beep/schema/http/index` | `SecureHeaderEntry` | class | `packages/foundation/modeling/schema/src/http/headers/SecureHeaderOptions.ts:87` | A rendered secure header pair in `{ key, value }` format. |
@@ -3207,20 +3301,20 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/schema/index` | `ColorAmount` | type | `packages/foundation/modeling/schema/src/color/Color.ts:894` | Type for {@link ColorAmount}. |
 | `@beep/schema/index` | `CommaSeparatedList` | const | `packages/foundation/modeling/schema/src/CommonTextSchemas.ts:81` | Schema that decodes a comma-separated string into a trimmed non-empty string array. |
 | `@beep/schema/index` | `CommaSeparatedList` | type | `packages/foundation/modeling/schema/src/CommonTextSchemas.ts:109` | Type for {@link CommaSeparatedList}. |
-| `@beep/schema/index` | `ContentSecurityPolicyHeader` | const | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:581` |  |
-| `@beep/schema/index` | `ContentSecurityPolicyHeader` | type | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:649` |  |
+| `@beep/schema/index` | `ContentSecurityPolicyHeader` | const | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:582` |  |
+| `@beep/schema/index` | `ContentSecurityPolicyHeader` | type | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:650` |  |
 | `@beep/schema/index` | `ContentSecurityPolicyHeaderName` | const | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:47` |  |
 | `@beep/schema/index` | `ContentSecurityPolicyHeaderName` | type | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:58` |  |
-| `@beep/schema/index` | `ContentSecurityPolicyOption` | const | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:481` |  |
-| `@beep/schema/index` | `ContentSecurityPolicyOption` | type | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:491` |  |
-| `@beep/schema/index` | `ContentSecurityPolicyOptionStruct` | class | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:449` |  |
-| `@beep/schema/index` | `ContentSecurityPolicyResponseHeader` | class | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:497` |  |
+| `@beep/schema/index` | `ContentSecurityPolicyOption` | const | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:482` |  |
+| `@beep/schema/index` | `ContentSecurityPolicyOption` | type | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:492` |  |
+| `@beep/schema/index` | `ContentSecurityPolicyOptionStruct` | class | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:450` |  |
+| `@beep/schema/index` | `ContentSecurityPolicyResponseHeader` | class | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:498` |  |
 | `@beep/schema/index` | `CoopValue` | const | `packages/foundation/modeling/schema/src/http/headers/CrossOriginOpenerPolicy.ts:38` | Schema for supported `Cross-Origin-Opener-Policy` header values. |
 | `@beep/schema/index` | `CoopValue` | type | `packages/foundation/modeling/schema/src/http/headers/CrossOriginOpenerPolicy.ts:51` | Type-level representation of {@link CoopValue}. |
 | `@beep/schema/index` | `CoreError` | class | `packages/foundation/modeling/schema/src/http/headers/SecureHeaderError.ts:187` |  |
 | `@beep/schema/index` | `CorpValue` | const | `packages/foundation/modeling/schema/src/http/headers/CrossOriginResourcePolicy.ts:27` |  |
 | `@beep/schema/index` | `CorpValue` | type | `packages/foundation/modeling/schema/src/http/headers/CrossOriginResourcePolicy.ts:38` |  |
-| `@beep/schema/index` | `createContentSecurityPolicyOptionHeaderValue` | const | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:555` |  |
+| `@beep/schema/index` | `createContentSecurityPolicyOptionHeaderValue` | const | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:556` |  |
 | `@beep/schema/index` | `createDirectiveValue` | const | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:116` | Creates a serialized directive value from a directive name and value list. |
 | `@beep/schema/index` | `createDOMRefSchema` | const | `packages/foundation/modeling/schema/src/dom/elements.ts:175` | Creates a Schema for React.Ref<T> where T extends HTMLElement |
 | `@beep/schema/index` | `createHeadersObject` | const | `packages/foundation/modeling/schema/src/http/headers/SecureHeaderOptions.ts:157` | Resolve secure-header options into a plain `Record<string, string>` header object. |
@@ -3250,7 +3344,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/schema/index` | `CryptoWalletAddress` | type | `packages/foundation/modeling/schema/src/blockchain/CryptoWalletAddress.ts:196` | Type for {@link CryptoWalletAddress}. |
 | `@beep/schema/index` | `CryptoWalletAddressRedacted` | const | `packages/foundation/modeling/schema/src/blockchain/CryptoWalletAddress.ts:204` | Redacted Branded schema for canonical mainnet blockchain wallet addresses. |
 | `@beep/schema/index` | `CryptoWalletAddressRedacted` | type | `packages/foundation/modeling/schema/src/blockchain/CryptoWalletAddress.ts:223` | Type for {@link CryptoWalletAddressRedacted}. |
-| `@beep/schema/index` | `CspDirectives` | const | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:434` |  |
+| `@beep/schema/index` | `CspDirectives` | const | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:435` |  |
 | `@beep/schema/index` | `CspError` | class | `packages/foundation/modeling/schema/src/http/headers/SecureHeaderError.ts:109` |  |
 | `@beep/schema/index` | `CSV` | const | `packages/foundation/modeling/schema/src/csv/index.ts:275` | Schema factory for CSV documents whose rows are validated by the provided |
 | `@beep/schema/index` | `CsvCodecOptions` | class | `packages/foundation/modeling/schema/src/csv/CsvCodecOptions.ts:38` | Schema-backed CSV text codec options. |
@@ -3295,7 +3389,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/schema/index` | `DirectedGraphFromSelf` | interface | `packages/foundation/modeling/schema/src/Graph.ts:726` | Schema for validating existing immutable directed Effect graphs. |
 | `@beep/schema/index` | `DirectiveSource` | const | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:25` |  |
 | `@beep/schema/index` | `DirectiveSource` | type | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:35` |  |
-| `@beep/schema/index` | `DocumentDirective` | class | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:300` |  |
+| `@beep/schema/index` | `DocumentDirective` | class | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:301` |  |
 | `@beep/schema/index` | `DomainModel` | SourceFile | `packages/foundation/modeling/schema/src/DomainModel.ts:8` |  |
 | `@beep/schema/index` | `DOMCssProperties` | const | `packages/foundation/modeling/schema/src/dom/elements.ts:67` | A React.CSSProperties |
 | `@beep/schema/index` | `DOMDragEvent` | const | `packages/foundation/modeling/schema/src/dom/elements.ts:198` | A DragEvent |
@@ -3359,7 +3453,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/schema/index` | `ExpectCTResponseHeader` | class | `packages/foundation/modeling/schema/src/http/headers/ExpectCT.ts:74` |  |
 | `@beep/schema/index` | `extractMimeExtensions` | const | `packages/foundation/modeling/schema/src/FileExtension.ts:72` | Extracts the distinct file extensions from a mime-type dictionary. |
 | `@beep/schema/index` | `extractMimeTypes` | const | `packages/foundation/modeling/schema/src/MimeType.ts:65` | Extracts all mime-type keys from a mime-type dictionary as a deduplicated array. |
-| `@beep/schema/index` | `FetchDirective` | class | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:231` |  |
+| `@beep/schema/index` | `FetchDirective` | class | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:232` |  |
 | `@beep/schema/index` | `FileExtension` | const | `packages/foundation/modeling/schema/src/FileExtension.ts:332` | Schema for any supported file extension across all mime-type categories. |
 | `@beep/schema/index` | `FileExtension` | type | `packages/foundation/modeling/schema/src/FileExtension.ts:358` | Union of literals accepted by {@link FileExtension}. |
 | `@beep/schema/index` | `FileName` | const | `packages/foundation/modeling/schema/src/FileName.ts:100` |  |
@@ -3564,7 +3658,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/schema/index` | `MutableUndirectedGraphFromSelf` | const | `packages/foundation/modeling/schema/src/Graph.ts:1025` | Schema for validating existing mutable undirected Effect graphs. |
 | `@beep/schema/index` | `MutableUndirectedGraphFromSelf` | interface | `packages/foundation/modeling/schema/src/Graph.ts:798` | Schema for validating existing mutable undirected Effect graphs. |
 | `@beep/schema/index` | `NativePathToPosixPath` | const | `packages/foundation/modeling/schema/src/PosixPath.ts:70` | Schema transformation that converts native file-system paths (with backslashes) to POSIX separators. |
-| `@beep/schema/index` | `NavigationDirective` | class | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:344` |  |
+| `@beep/schema/index` | `NavigationDirective` | class | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:345` |  |
 | `@beep/schema/index` | `NegInt` | const | `packages/foundation/modeling/schema/src/Int.ts:154` | Branded schema for negative integers (less than zero). |
 | `@beep/schema/index` | `NegInt` | type | `packages/foundation/modeling/schema/src/Int.ts:180` | Type for {@link NegInt}. |
 | `@beep/schema/index` | `NodeIndex` | const | `packages/foundation/modeling/schema/src/Graph.ts:269` | Branded schema for graph node indices. |
@@ -3663,8 +3757,8 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/schema/index` | `PermittedCrossDomainPoliciesResponseHeader` | class | `packages/foundation/modeling/schema/src/http/headers/PermittedCrossDomainPolicies.ts:70` |  |
 | `@beep/schema/index` | `PermittedCrossDomainPoliciesValue` | const | `packages/foundation/modeling/schema/src/http/headers/PermittedCrossDomainPolicies.ts:34` |  |
 | `@beep/schema/index` | `PermittedCrossDomainPoliciesValue` | type | `packages/foundation/modeling/schema/src/http/headers/PermittedCrossDomainPolicies.ts:45` |  |
-| `@beep/schema/index` | `PluginTypes` | const | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:144` |  |
-| `@beep/schema/index` | `PluginTypes` | type | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:154` |  |
+| `@beep/schema/index` | `PluginTypes` | const | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:145` |  |
+| `@beep/schema/index` | `PluginTypes` | type | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:155` |  |
 | `@beep/schema/index` | `PosInt` | const | `packages/foundation/modeling/schema/src/Int.ts:72` | Branded schema for positive integers (greater than zero). |
 | `@beep/schema/index` | `PosInt` | type | `packages/foundation/modeling/schema/src/Int.ts:98` | Type for {@link PosInt}. |
 | `@beep/schema/index` | `PosixPath` | const | `packages/foundation/modeling/schema/src/PosixPath.ts:31` | Branded schema for path strings using only POSIX `/` separators. |
@@ -3691,8 +3785,8 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/schema/index` | `RegExpFromStr` | type | `packages/foundation/modeling/schema/src/RegExp.ts:135` | Type for {@link RegExpFromStr}. |
 | `@beep/schema/index` | `RegExpStr` | const | `packages/foundation/modeling/schema/src/RegExp.ts:58` | Branded schema for strings that can be converted directly to a JavaScript `RegExp`. |
 | `@beep/schema/index` | `RegExpStr` | type | `packages/foundation/modeling/schema/src/RegExp.ts:80` | Type for {@link RegExpStr}. |
-| `@beep/schema/index` | `ReportingDirective` | class | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:398` |  |
-| `@beep/schema/index` | `ReportURI` | const | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:388` |  |
+| `@beep/schema/index` | `ReportingDirective` | class | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:399` |  |
+| `@beep/schema/index` | `ReportURI` | const | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:389` |  |
 | `@beep/schema/index` | `Rgb` | class | `packages/foundation/modeling/schema/src/color/Color.ts:523` | RGB object with normalized channels. |
 | `@beep/schema/index` | `RgbaColorString` | const | `packages/foundation/modeling/schema/src/color/Color.ts:694` | CSS rgba color string produced by with-alpha helpers. |
 | `@beep/schema/index` | `RgbaColorString` | type | `packages/foundation/modeling/schema/src/color/Color.ts:709` | Type for {@link RgbaColorString}. |
@@ -3705,8 +3799,8 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/schema/index` | `RgbToHex` | type | `packages/foundation/modeling/schema/src/color/Color.ts:764` | Type for {@link RgbToHex}. |
 | `@beep/schema/index` | `RgbToOklch` | const | `packages/foundation/modeling/schema/src/color/Color.ts:772` | Transformation schema for decoding normalized RGB into canonical OKLCH. |
 | `@beep/schema/index` | `RgbToOklch` | type | `packages/foundation/modeling/schema/src/color/Color.ts:790` | Type for {@link RgbToOklch}. |
-| `@beep/schema/index` | `Sandbox` | const | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:177` |  |
-| `@beep/schema/index` | `Sandbox` | type | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:188` |  |
+| `@beep/schema/index` | `Sandbox` | const | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:178` |  |
+| `@beep/schema/index` | `Sandbox` | type | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:189` |  |
 | `@beep/schema/index` | `SchemaUtils` | SourceFile | `packages/foundation/modeling/schema/src/SchemaUtils/index.ts:12` |  |
 | `@beep/schema/index` | `SecureHeader` | const | `packages/foundation/modeling/schema/src/http/headers/SecureHeader.ts:33` |  |
 | `@beep/schema/index` | `SecureHeader` | type | `packages/foundation/modeling/schema/src/http/headers/SecureHeader.ts:44` |  |
@@ -4988,6 +5082,52 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/chalk/index` | `modifiers` | const | `packages/foundation/capability/chalk/src/Chalk.ts:589` | Alias for {@link modifierNames} preserved for Chalk API compatibility. |
 | `@beep/chalk/index` | `supportsColor` | const | `packages/foundation/capability/chalk/src/Chalk.ts:655` | Color support detected for stdout in the current Node.js runtime. |
 | `@beep/chalk/index` | `supportsColorStderr` | const | `packages/foundation/capability/chalk/src/Chalk.ts:675` | Color support detected for stderr in the current Node.js runtime. |
+| `@beep/chalk/internal/AnsiStyles` | `ansi256ToAnsi` | const | `packages/foundation/capability/chalk/src/internal/AnsiStyles.ts:379` | Convert an ANSI 256 color index to a basic ANSI color code. |
+| `@beep/chalk/internal/AnsiStyles` | `ansiStyles` | const | `packages/foundation/capability/chalk/src/internal/AnsiStyles.ts:220` | ANSI escape builders grouped by modifier, foreground color, and background color. |
+| `@beep/chalk/internal/AnsiStyles` | `BackgroundStyleName` | type | `packages/foundation/capability/chalk/src/internal/AnsiStyles.ts:66` | Background color style names accepted by the Chalk runtime. |
+| `@beep/chalk/internal/AnsiStyles` | `ForegroundStyleName` | type | `packages/foundation/capability/chalk/src/internal/AnsiStyles.ts:50` | Foreground color style names accepted by the Chalk runtime. |
+| `@beep/chalk/internal/AnsiStyles` | `getModelAnsi` | const | `packages/foundation/capability/chalk/src/internal/AnsiStyles.ts:495` | Render an ANSI opening escape for an RGB, hexadecimal, or ANSI 256 color model. |
+| `@beep/chalk/internal/AnsiStyles` | `getStyleEntry` | const | `packages/foundation/capability/chalk/src/internal/AnsiStyles.ts:256` | Look up the ANSI style entry for a known Chalk style name. |
+| `@beep/chalk/internal/AnsiStyles` | `hexToAnsi` | const | `packages/foundation/capability/chalk/src/internal/AnsiStyles.ts:447` | Convert a hexadecimal color string to a basic ANSI color code. |
+| `@beep/chalk/internal/AnsiStyles` | `hexToAnsi256` | const | `packages/foundation/capability/chalk/src/internal/AnsiStyles.ts:428` | Convert a hexadecimal color string to an ANSI 256 color index. |
+| `@beep/chalk/internal/AnsiStyles` | `hexToRgb` | const | `packages/foundation/capability/chalk/src/internal/AnsiStyles.ts:334` | Convert a hexadecimal color string to an RGB tuple. |
+| `@beep/chalk/internal/AnsiStyles` | `ModifierStyleName` | type | `packages/foundation/capability/chalk/src/internal/AnsiStyles.ts:34` | Modifier style names accepted by the Chalk runtime. |
+| `@beep/chalk/internal/AnsiStyles` | `rgbToAnsi` | const | `packages/foundation/capability/chalk/src/internal/AnsiStyles.ts:407` | Convert RGB values to a basic ANSI color code. |
+| `@beep/chalk/internal/AnsiStyles` | `rgbToAnsi256` | const | `packages/foundation/capability/chalk/src/internal/AnsiStyles.ts:310` |  |
+| `@beep/chalk/internal/AnsiStyles` | `StyleName` | type | `packages/foundation/capability/chalk/src/internal/AnsiStyles.ts:82` | Any supported Chalk style name. |
+| `@beep/chalk/internal/AnsiStyles` | `StylerEntry` | class | `packages/foundation/capability/chalk/src/internal/AnsiStyles.ts:98` | Open and close ANSI escape sequences for a style. |
+| `@beep/chalk/internal/ChalkRuntime` | `makeCreateChalk` | const | `packages/foundation/capability/chalk/src/internal/ChalkRuntime.ts:282` | Create a Chalk instance factory from detected default color support. |
+| `@beep/chalk/internal/ChalkSchema` | `BackgroundColorName` | const | `packages/foundation/capability/chalk/src/internal/ChalkSchema.ts:355` | Supported Chalk background color names. |
+| `@beep/chalk/internal/ChalkSchema` | `BackgroundColorName` | type | `packages/foundation/capability/chalk/src/internal/ChalkSchema.ts:375` | Runtime type for {@link BackgroundColorName}. |
+| `@beep/chalk/internal/ChalkSchema` | `backgroundColorNameValues` | const | `packages/foundation/capability/chalk/src/internal/ChalkSchema.ts:105` | Supported background color names. |
+| `@beep/chalk/internal/ChalkSchema` | `ChalkOptions` | class | `packages/foundation/capability/chalk/src/internal/ChalkSchema.ts:257` | Constructor options for isolated Chalk instances. |
+| `@beep/chalk/internal/ChalkSchema` | `ColorInfo` | const | `packages/foundation/capability/chalk/src/internal/ChalkSchema.ts:221` | Schema for exported Chalk color support info values. |
+| `@beep/chalk/internal/ChalkSchema` | `ColorInfo` | type | `packages/foundation/capability/chalk/src/internal/ChalkSchema.ts:241` | Runtime type for {@link ColorInfo}. |
+| `@beep/chalk/internal/ChalkSchema` | `ColorName` | const | `packages/foundation/capability/chalk/src/internal/ChalkSchema.ts:392` | Supported Chalk color names. |
+| `@beep/chalk/internal/ChalkSchema` | `ColorName` | type | `packages/foundation/capability/chalk/src/internal/ChalkSchema.ts:412` | Runtime type for {@link ColorName}. |
+| `@beep/chalk/internal/ChalkSchema` | `colorNameValues` | const | `packages/foundation/capability/chalk/src/internal/ChalkSchema.ts:140` | Supported foreground and background color names. |
+| `@beep/chalk/internal/ChalkSchema` | `ColorSupport` | class | `packages/foundation/capability/chalk/src/internal/ChalkSchema.ts:194` | Color support metadata for an enabled Chalk output stream. |
+| `@beep/chalk/internal/ChalkSchema` | `ColorSupportLevel` | const | `packages/foundation/capability/chalk/src/internal/ChalkSchema.ts:157` | Supported Chalk color support levels. |
+| `@beep/chalk/internal/ChalkSchema` | `ColorSupportLevel` | type | `packages/foundation/capability/chalk/src/internal/ChalkSchema.ts:178` | Runtime type for {@link ColorSupportLevel}. |
+| `@beep/chalk/internal/ChalkSchema` | `colorSupportLevelValues` | const | `packages/foundation/capability/chalk/src/internal/ChalkSchema.ts:28` | Supported numeric color support levels. |
+| `@beep/chalk/internal/ChalkSchema` | `ForegroundColorName` | const | `packages/foundation/capability/chalk/src/internal/ChalkSchema.ts:318` | Supported Chalk foreground color names. |
+| `@beep/chalk/internal/ChalkSchema` | `ForegroundColorName` | type | `packages/foundation/capability/chalk/src/internal/ChalkSchema.ts:338` | Runtime type for {@link ForegroundColorName}. |
+| `@beep/chalk/internal/ChalkSchema` | `foregroundColorNameValues` | const | `packages/foundation/capability/chalk/src/internal/ChalkSchema.ts:70` | Supported foreground color names. |
+| `@beep/chalk/internal/ChalkSchema` | `ModifierName` | const | `packages/foundation/capability/chalk/src/internal/ChalkSchema.ts:281` | Supported Chalk modifier names. |
+| `@beep/chalk/internal/ChalkSchema` | `ModifierName` | type | `packages/foundation/capability/chalk/src/internal/ChalkSchema.ts:301` | Runtime type for {@link ModifierName}. |
+| `@beep/chalk/internal/ChalkSchema` | `modifierNameValues` | const | `packages/foundation/capability/chalk/src/internal/ChalkSchema.ts:44` | Supported modifier style names. |
+| `@beep/chalk/internal/PublicSurface` | `ChalkConstructorBase` | type | `packages/foundation/capability/chalk/src/internal/PublicSurface.ts:188` | Base constructor shape wrapped by the Chalk constructor proxy. |
+| `@beep/chalk/internal/PublicSurface` | `ChalkConstructorOptions` | const | `packages/foundation/capability/chalk/src/internal/PublicSurface.ts:153` | Schema for options accepted by Chalk constructors. |
+| `@beep/chalk/internal/PublicSurface` | `ChalkConstructorOptions` | type | `packages/foundation/capability/chalk/src/internal/PublicSurface.ts:172` | Plain constructor options accepted by Chalk constructors. |
+| `@beep/chalk/internal/PublicSurface` | `ChalkCreator` | type | `packages/foundation/capability/chalk/src/internal/PublicSurface.ts:204` | Function that creates a Chalk instance from constructor options. |
+| `@beep/chalk/internal/PublicSurface` | `ChalkInstanceSurface` | class | `packages/foundation/capability/chalk/src/internal/PublicSurface.ts:82` | Method and property surface shared by Chalk instances. |
+| `@beep/chalk/internal/PublicSurface` | `ColorSupportLevelInput` | const | `packages/foundation/capability/chalk/src/internal/PublicSurface.ts:53` | Numeric Chalk color support level input accepted by constructor and setter boundaries. |
+| `@beep/chalk/internal/PublicSurface` | `makeChalkConstructor` | const | `packages/foundation/capability/chalk/src/internal/PublicSurface.ts:221` | Wrap a constructor base so `new` delegates to a Chalk creator. |
+| `@beep/chalk/internal/SupportsColor` | `createSupportsColor` | const | `packages/foundation/capability/chalk/src/internal/SupportsColor.ts:528` | Detect color support for a stream and process-like runtime. |
+| `@beep/chalk/internal/SupportsColor` | `detectedSupportsColor` | const | `packages/foundation/capability/chalk/src/internal/SupportsColor.ts:564` | Color support detected for the current Node.js stdout and stderr streams. |
+| `@beep/chalk/internal/SupportsColor.browser` | `detectedSupportsColorBrowser` | const | `packages/foundation/capability/chalk/src/internal/SupportsColor.browser.ts:105` | Color support detected for browser stdout and stderr compatibility channels. |
+| `@beep/chalk/internal/Utilities` | `stringEncaseCRLFWithFirstIndex` | const | `packages/foundation/capability/chalk/src/internal/Utilities.ts:120` |  |
+| `@beep/chalk/internal/Utilities` | `stringReplaceAll` | const | `packages/foundation/capability/chalk/src/internal/Utilities.ts:82` |  |
 
 ### @beep/repo-utils
 
@@ -5082,16 +5222,16 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-utils` | `ReuseCatalogService` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:971` | Service tag for the reuse catalog contract. |
 | `@beep/repo-utils` | `ReuseCatalogServiceLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1107` | Default live layer for building the shared reuse catalog. |
 | `@beep/repo-utils` | `ReuseDiscoveryService` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1039` | Service tag for reuse candidate discovery. |
-| `@beep/repo-utils` | `ReuseDiscoveryServiceLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1252` | Default live layer for reuse candidate discovery and local option lookup. |
+| `@beep/repo-utils` | `ReuseDiscoveryServiceLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1255` | Default live layer for reuse candidate discovery and local option lookup. |
 | `@beep/repo-utils` | `ReuseFindResult` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts:409` | Results for local-file reuse lookups. |
 | `@beep/repo-utils` | `ReuseInventory` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts:335` | Inventory payload produced for a requested scope. |
 | `@beep/repo-utils` | `ReuseInventoryService` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1073` | Service tag for reuse inventory materialization. |
-| `@beep/repo-utils` | `ReuseInventoryServiceLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1430` | Default live layer for ranked reuse inventories and implementation packets. |
+| `@beep/repo-utils` | `ReuseInventoryServiceLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1433` | Default live layer for ranked reuse inventories and implementation packets. |
 | `@beep/repo-utils` | `ReusePacket` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts:379` | Materialized implementation packet for one reuse candidate. |
 | `@beep/repo-utils` | `ReusePartitionPlan` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts:247` | Partition plan covering scout and specialist work units for a selected scope. |
 | `@beep/repo-utils` | `ReusePartitionPlannerService` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1001` | Service tag for reuse partition planning. |
 | `@beep/repo-utils` | `ReusePartitionPlannerServiceLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1152` | Default live layer for reuse partition planning. |
-| `@beep/repo-utils` | `ReuseServiceSuiteLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1515` | Fully wired reuse-discovery layer suite for CLI and tests. |
+| `@beep/repo-utils` | `ReuseServiceSuiteLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1518` | Fully wired reuse-discovery layer suite for CLI and tests. |
 | `@beep/repo-utils` | `ReuseSourceSymbolRef` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts:143` | File-local source symbol reference tied to a reuse opportunity. |
 | `@beep/repo-utils` | `ReuseWorkUnit` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts:215` | Partition work unit emitted for package scouts or hotspot specialists. |
 | `@beep/repo-utils` | `ReuseWorkUnitKind` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts:65` | Partition work-unit kind. |
@@ -5286,16 +5426,16 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-utils/index` | `ReuseCatalogService` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:971` | Service tag for the reuse catalog contract. |
 | `@beep/repo-utils/index` | `ReuseCatalogServiceLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1107` | Default live layer for building the shared reuse catalog. |
 | `@beep/repo-utils/index` | `ReuseDiscoveryService` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1039` | Service tag for reuse candidate discovery. |
-| `@beep/repo-utils/index` | `ReuseDiscoveryServiceLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1252` | Default live layer for reuse candidate discovery and local option lookup. |
+| `@beep/repo-utils/index` | `ReuseDiscoveryServiceLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1255` | Default live layer for reuse candidate discovery and local option lookup. |
 | `@beep/repo-utils/index` | `ReuseFindResult` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts:409` | Results for local-file reuse lookups. |
 | `@beep/repo-utils/index` | `ReuseInventory` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts:335` | Inventory payload produced for a requested scope. |
 | `@beep/repo-utils/index` | `ReuseInventoryService` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1073` | Service tag for reuse inventory materialization. |
-| `@beep/repo-utils/index` | `ReuseInventoryServiceLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1430` | Default live layer for ranked reuse inventories and implementation packets. |
+| `@beep/repo-utils/index` | `ReuseInventoryServiceLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1433` | Default live layer for ranked reuse inventories and implementation packets. |
 | `@beep/repo-utils/index` | `ReusePacket` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts:379` | Materialized implementation packet for one reuse candidate. |
 | `@beep/repo-utils/index` | `ReusePartitionPlan` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts:247` | Partition plan covering scout and specialist work units for a selected scope. |
 | `@beep/repo-utils/index` | `ReusePartitionPlannerService` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1001` | Service tag for reuse partition planning. |
 | `@beep/repo-utils/index` | `ReusePartitionPlannerServiceLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1152` | Default live layer for reuse partition planning. |
-| `@beep/repo-utils/index` | `ReuseServiceSuiteLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1515` | Fully wired reuse-discovery layer suite for CLI and tests. |
+| `@beep/repo-utils/index` | `ReuseServiceSuiteLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1518` | Fully wired reuse-discovery layer suite for CLI and tests. |
 | `@beep/repo-utils/index` | `ReuseSourceSymbolRef` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts:143` | File-local source symbol reference tied to a reuse opportunity. |
 | `@beep/repo-utils/index` | `ReuseWorkUnit` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts:215` | Partition work unit emitted for package scouts or hotspot specialists. |
 | `@beep/repo-utils/index` | `ReuseWorkUnitKind` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts:65` | Partition work-unit kind. |
@@ -6223,16 +6363,16 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-utils/Reuse/index` | `ReuseCatalogService` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:971` | Service tag for the reuse catalog contract. |
 | `@beep/repo-utils/Reuse/index` | `ReuseCatalogServiceLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1107` | Default live layer for building the shared reuse catalog. |
 | `@beep/repo-utils/Reuse/index` | `ReuseDiscoveryService` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1039` | Service tag for reuse candidate discovery. |
-| `@beep/repo-utils/Reuse/index` | `ReuseDiscoveryServiceLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1252` | Default live layer for reuse candidate discovery and local option lookup. |
+| `@beep/repo-utils/Reuse/index` | `ReuseDiscoveryServiceLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1255` | Default live layer for reuse candidate discovery and local option lookup. |
 | `@beep/repo-utils/Reuse/index` | `ReuseFindResult` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts:409` | Results for local-file reuse lookups. |
 | `@beep/repo-utils/Reuse/index` | `ReuseInventory` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts:335` | Inventory payload produced for a requested scope. |
 | `@beep/repo-utils/Reuse/index` | `ReuseInventoryService` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1073` | Service tag for reuse inventory materialization. |
-| `@beep/repo-utils/Reuse/index` | `ReuseInventoryServiceLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1430` | Default live layer for ranked reuse inventories and implementation packets. |
+| `@beep/repo-utils/Reuse/index` | `ReuseInventoryServiceLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1433` | Default live layer for ranked reuse inventories and implementation packets. |
 | `@beep/repo-utils/Reuse/index` | `ReusePacket` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts:379` | Materialized implementation packet for one reuse candidate. |
 | `@beep/repo-utils/Reuse/index` | `ReusePartitionPlan` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts:247` | Partition plan covering scout and specialist work units for a selected scope. |
 | `@beep/repo-utils/Reuse/index` | `ReusePartitionPlannerService` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1001` | Service tag for reuse partition planning. |
 | `@beep/repo-utils/Reuse/index` | `ReusePartitionPlannerServiceLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1152` | Default live layer for reuse partition planning. |
-| `@beep/repo-utils/Reuse/index` | `ReuseServiceSuiteLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1515` | Fully wired reuse-discovery layer suite for CLI and tests. |
+| `@beep/repo-utils/Reuse/index` | `ReuseServiceSuiteLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1518` | Fully wired reuse-discovery layer suite for CLI and tests. |
 | `@beep/repo-utils/Reuse/index` | `ReuseSourceSymbolRef` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts:143` | File-local source symbol reference tied to a reuse opportunity. |
 | `@beep/repo-utils/Reuse/index` | `ReuseWorkUnit` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts:215` | Partition work unit emitted for package scouts or hotspot specialists. |
 | `@beep/repo-utils/Reuse/index` | `ReuseWorkUnitKind` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts:65` | Partition work-unit kind. |
@@ -6256,13 +6396,34 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-utils/Reuse/Reuse.service` | `ReuseCatalogService` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:971` | Service tag for the reuse catalog contract. |
 | `@beep/repo-utils/Reuse/Reuse.service` | `ReuseCatalogServiceLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1107` | Default live layer for building the shared reuse catalog. |
 | `@beep/repo-utils/Reuse/Reuse.service` | `ReuseDiscoveryService` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1039` | Service tag for reuse candidate discovery. |
-| `@beep/repo-utils/Reuse/Reuse.service` | `ReuseDiscoveryServiceLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1252` | Default live layer for reuse candidate discovery and local option lookup. |
+| `@beep/repo-utils/Reuse/Reuse.service` | `ReuseDiscoveryServiceLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1255` | Default live layer for reuse candidate discovery and local option lookup. |
 | `@beep/repo-utils/Reuse/Reuse.service` | `ReuseInventoryService` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1073` | Service tag for reuse inventory materialization. |
-| `@beep/repo-utils/Reuse/Reuse.service` | `ReuseInventoryServiceLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1430` | Default live layer for ranked reuse inventories and implementation packets. |
+| `@beep/repo-utils/Reuse/Reuse.service` | `ReuseInventoryServiceLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1433` | Default live layer for ranked reuse inventories and implementation packets. |
 | `@beep/repo-utils/Reuse/Reuse.service` | `ReusePartitionPlannerService` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1001` | Service tag for reuse partition planning. |
 | `@beep/repo-utils/Reuse/Reuse.service` | `ReusePartitionPlannerServiceLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1152` | Default live layer for reuse partition planning. |
-| `@beep/repo-utils/Reuse/Reuse.service` | `ReuseServiceSuiteLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1515` | Fully wired reuse-discovery layer suite for CLI and tests. |
+| `@beep/repo-utils/Reuse/Reuse.service` | `ReuseServiceSuiteLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1518` | Fully wired reuse-discovery layer suite for CLI and tests. |
 | `@beep/repo-utils/Root` | `findRepoRoot` | const | `packages/tooling/library/repo-utils/src/Root.ts:45` | Find the repository root by walking upward from the given directory |
+| `@beep/repo-utils/schemas/BiomeJson` | `renderBiomeJson` | const | `packages/tooling/library/repo-utils/src/schemas/BiomeJson.ts:43` | Render JSON with the same Biome config that repository lint uses. |
+| `@beep/repo-utils/schemas/DocgenConfig` | `buildDocgenAliasSource` | const | `packages/tooling/library/repo-utils/src/schemas/DocgenConfig.ts:290` | Build docgen alias targets for one workspace package from its exports. |
+| `@beep/repo-utils/schemas/DocgenConfig` | `CanonicalDocgenConfig` | class | `packages/tooling/library/repo-utils/src/schemas/DocgenConfig.ts:163` | Canonical repo docgen config payload. |
+| `@beep/repo-utils/schemas/DocgenConfig` | `CanonicalDocgenConfigInput` | class | `packages/tooling/library/repo-utils/src/schemas/DocgenConfig.ts:93` | Input used to build the canonical repo docgen config for a package. |
+| `@beep/repo-utils/schemas/DocgenConfig` | `CanonicalDocgenExamplesCompilerOptions` | class | `packages/tooling/library/repo-utils/src/schemas/DocgenConfig.ts:117` | Managed TypeScript compiler options used for docgen examples. |
+| `@beep/repo-utils/schemas/DocgenConfig` | `collectDocgenWorkspaceDependencyNames` | const | `packages/tooling/library/repo-utils/src/schemas/DocgenConfig.ts:264` | Collect direct workspace package dependencies from a package manifest. |
+| `@beep/repo-utils/schemas/DocgenConfig` | `createCanonicalDocgenConfig` | const | `packages/tooling/library/repo-utils/src/schemas/DocgenConfig.ts:406` | Build the canonical repo docgen config for a package. |
+| `@beep/repo-utils/schemas/DocgenConfig` | `DEFAULT_DOCGEN_EXCLUDE` | const | `packages/tooling/library/repo-utils/src/schemas/DocgenConfig.ts:59` | Default docgen exclude globs for repo packages. |
+| `@beep/repo-utils/schemas/DocgenConfig` | `DocgenAliasSource` | class | `packages/tooling/library/repo-utils/src/schemas/DocgenConfig.ts:71` | Workspace alias metadata used to build docgen example path mappings. |
+| `@beep/repo-utils/schemas/DocgenConfig` | `mergeManagedDocgenConfig` | const | `packages/tooling/library/repo-utils/src/schemas/DocgenConfig.ts:471` | Merge managed docgen fields into an existing parsed `docgen.json` document. |
+| `@beep/repo-utils/schemas/DocgenConfig` | `toCanonicalDocgenConfigJson` | const | `packages/tooling/library/repo-utils/src/schemas/DocgenConfig.ts:238` | Convert the canonical docgen config model to a plain JSON-compatible object. |
+| `@beep/repo-utils/schemas/DocgenConfig` | `toDocgenExamplesCompilerOptionsJson` | const | `packages/tooling/library/repo-utils/src/schemas/DocgenConfig.ts:192` | Convert canonical docgen compiler options to a plain JSON-compatible object. |
+| `@beep/repo-utils/schemas/JSDocCategories` | `CANONICAL_JSDOC_CATEGORIES` | const | `packages/tooling/library/repo-utils/src/schemas/JSDocCategories.ts:31` | Closed set of canonical `@category` values accepted by repo docgen checks. |
+| `@beep/repo-utils/schemas/JSDocCategories` | `isAcceptedJSDocCategory` | const | `packages/tooling/library/repo-utils/src/schemas/JSDocCategories.ts:452` | Return true when a category is canonical or accepted as a migration alias. |
+| `@beep/repo-utils/schemas/JSDocCategories` | `isCanonicalJSDocCategory` | const | `packages/tooling/library/repo-utils/src/schemas/JSDocCategories.ts:348` | Check whether a string is already a canonical category slug. |
+| `@beep/repo-utils/schemas/JSDocCategories` | `JSDocCategory` | type | `packages/tooling/library/repo-utils/src/schemas/JSDocCategories.ts:126` | Canonical category literal used by `@category` JSDoc tags. |
+| `@beep/repo-utils/schemas/JSDocCategories` | `JSDocCategoryNormalization` | class | `packages/tooling/library/repo-utils/src/schemas/JSDocCategories.ts:171` | Normalized interpretation of a single `@category` tag value. |
+| `@beep/repo-utils/schemas/JSDocCategories` | `JSDocCategoryNormalizationStatus` | const | `packages/tooling/library/repo-utils/src/schemas/JSDocCategories.ts:140` | Normalization status for an observed `@category` value. |
+| `@beep/repo-utils/schemas/JSDocCategories` | `JSDocCategoryNormalizationStatus` | type | `packages/tooling/library/repo-utils/src/schemas/JSDocCategories.ts:157` | Normalization status for an observed `@category` value. |
+| `@beep/repo-utils/schemas/JSDocCategories` | `normalizeJSDocCategory` | const | `packages/tooling/library/repo-utils/src/schemas/JSDocCategories.ts:365` | Normalize and classify a single observed `@category` value. |
+| `@beep/repo-utils/schemas/JSDocCategories` | `normalizeJSDocCategoryKey` | const | `packages/tooling/library/repo-utils/src/schemas/JSDocCategories.ts:295` | Normalize free-form category text to the repo slug key format. |
 | `@beep/repo-utils/schemas/PackageJson` | `Author` | const | `packages/tooling/library/repo-utils/src/schemas/PackageJson.ts:297` | The package author field. |
 | `@beep/repo-utils/schemas/PackageJson` | `Author` | type | `packages/tooling/library/repo-utils/src/schemas/PackageJson.ts:1079` | Runtime type for {@link Author}. |
 | `@beep/repo-utils/schemas/PackageJson` | `Bin` | const | `packages/tooling/library/repo-utils/src/schemas/PackageJson.ts:414` | Schema for the `bin` field. |
@@ -6338,6 +6499,16 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-utils/schemas/TSConfig` | `TSConfigTypeAcquisition` | class | `packages/tooling/library/repo-utils/src/schemas/TSConfig.ts:1385` | Strict TypeScript typeAcquisition section. |
 | `@beep/repo-utils/schemas/TSConfig` | `TSConfigWatchOptions` | class | `packages/tooling/library/repo-utils/src/schemas/TSConfig.ts:1302` | Strict TypeScript watchOptions section. |
 | `@beep/repo-utils/schemas/TSConfig` | `TSNodeConfig` | class | `packages/tooling/library/repo-utils/src/schemas/TSConfig.ts:1489` | Strict ts-node config section stored under `ts-node`. |
+| `@beep/repo-utils/schemas/TsconfigAliasTargets` | `buildCanonicalAliasTargets` | const | `packages/tooling/library/repo-utils/src/schemas/TsconfigAliasTargets.ts:154` | Build root and wildcard alias targets for a package export target. |
+| `@beep/repo-utils/schemas/TsconfigAliasTargets` | `buildDocgenAliasTargets` | const | `packages/tooling/library/repo-utils/src/schemas/TsconfigAliasTargets.ts:204` | Build source-root and source-wildcard alias targets for docgen example resolution. |
+| `@beep/repo-utils/schemas/TsconfigAliasTargets` | `CanonicalAliasTargets` | class | `packages/tooling/library/repo-utils/src/schemas/TsconfigAliasTargets.ts:35` | Canonical alias targets derived for a package root export. |
+| `@beep/repo-utils/schemas/TsconfigAliasTargets` | `resolveRootExportTarget` | const | `packages/tooling/library/repo-utils/src/schemas/TsconfigAliasTargets.ts:89` | Resolve the canonical root export target from a package `exports` field. |
+| `@beep/repo-utils/schemas/TsconfigAliasTargets` | `resolveSubpathExportTarget` | const | `packages/tooling/library/repo-utils/src/schemas/TsconfigAliasTargets.ts:115` | Resolve a specific subpath export target from a package `exports` field. |
+| `@beep/repo-utils/schemas/TsconfigAliasTargets` | `resolveWildcardExportTarget` | const | `packages/tooling/library/repo-utils/src/schemas/TsconfigAliasTargets.ts:138` | Resolve the wildcard export target from a package `exports` field. |
+| `@beep/repo-utils/schemas/TypeScriptSourceExclusions` | `isExcludedTypeScriptSourcePath` | const | `packages/tooling/library/repo-utils/src/schemas/TypeScriptSourceExclusions.ts:84` | Check whether a TypeScript source path should be excluded from lint traversals. |
+| `@beep/repo-utils/schemas/TypeScriptSourceExclusions` | `toPosixPath` | const | `packages/tooling/library/repo-utils/src/schemas/TypeScriptSourceExclusions.ts:70` | Normalize filesystem paths to POSIX separators before string matching. |
+| `@beep/repo-utils/schemas/TypeScriptSourceExclusions` | `TYPESCRIPT_SOURCE_EXCLUDED_SEGMENTS` | const | `packages/tooling/library/repo-utils/src/schemas/TypeScriptSourceExclusions.ts:19` | Path segments excluded from TypeScript source lint traversals. |
+| `@beep/repo-utils/schemas/TypeScriptSourceExclusions` | `TYPESCRIPT_SOURCE_EXCLUDED_SUFFIXES` | const | `packages/tooling/library/repo-utils/src/schemas/TypeScriptSourceExclusions.ts:47` | File suffixes excluded from TypeScript source lint traversals. |
 | `@beep/repo-utils/schemas/WorkspaceDeps` | `DependencyRecord` | const | `packages/tooling/library/repo-utils/src/schemas/WorkspaceDeps.ts:27` | A record mapping package names to version specifiers. |
 | `@beep/repo-utils/schemas/WorkspaceDeps` | `DependencyRecord` | type | `packages/tooling/library/repo-utils/src/schemas/WorkspaceDeps.ts:47` | A record mapping package names to version specifiers. |
 | `@beep/repo-utils/schemas/WorkspaceDeps` | `emptyWorkspaceDeps` | const | `packages/tooling/library/repo-utils/src/schemas/WorkspaceDeps.ts:103` | Create an empty WorkspaceDeps for a given package name. |
@@ -6812,7 +6983,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 
 | Import | Symbol | Kind | Source | Summary |
 |---|---|---|---|---|
-| `@beep/ai-provider-cli` | `AiProviderCli` | class | `packages/drivers/ai-provider-cli/src/AiProviderCli.service.ts:128` | Effect service for Claude and Codex CLI status checks. |
+| `@beep/ai-provider-cli` | `AiProviderCli` | class | `packages/drivers/ai-provider-cli/src/AiProviderCli.service.ts:126` | Effect service for Claude and Codex CLI status checks. |
 | `@beep/ai-provider-cli` | `AiProviderCliAuthProbe` | class | `packages/drivers/ai-provider-cli/src/AiProviderCli.models.ts:77` | Redacted provider CLI authentication probe. |
 | `@beep/ai-provider-cli` | `AiProviderCliAuthStatus` | const | `packages/drivers/ai-provider-cli/src/AiProviderCli.models.ts:40` | Provider CLI authentication status. |
 | `@beep/ai-provider-cli` | `AiProviderCliAuthStatus` | type | `packages/drivers/ai-provider-cli/src/AiProviderCli.models.ts:52` | Runtime type for {@link AiProviderCliAuthStatus}. |
@@ -6820,7 +6991,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/ai-provider-cli` | `AiProviderCliProcessResult` | class | `packages/drivers/ai-provider-cli/src/AiProviderCli.models.ts:60` | Provider CLI process result. |
 | `@beep/ai-provider-cli` | `AiProviderCliProvider` | const | `packages/drivers/ai-provider-cli/src/AiProviderCli.models.ts:20` | AI provider CLI vocabulary. |
 | `@beep/ai-provider-cli` | `AiProviderCliProvider` | type | `packages/drivers/ai-provider-cli/src/AiProviderCli.models.ts:32` | Runtime type for {@link AiProviderCliProvider}. |
-| `@beep/ai-provider-cli` | `AiProviderCliRunner` | type | `packages/drivers/ai-provider-cli/src/AiProviderCli.service.ts:36` | Product-neutral process runner used by provider CLI probes. |
+| `@beep/ai-provider-cli` | `AiProviderCliRunner` | type | `packages/drivers/ai-provider-cli/src/AiProviderCli.service.ts:34` | Product-neutral process runner used by provider CLI probes. |
 | `@beep/ai-provider-cli/AiProviderCli.errors` | `AiProviderCliError` | class | `packages/drivers/ai-provider-cli/src/AiProviderCli.errors.ts:20` | Technical provider CLI failure. |
 | `@beep/ai-provider-cli/AiProviderCli.models` | `AiProviderCliAuthProbe` | class | `packages/drivers/ai-provider-cli/src/AiProviderCli.models.ts:77` | Redacted provider CLI authentication probe. |
 | `@beep/ai-provider-cli/AiProviderCli.models` | `AiProviderCliAuthStatus` | const | `packages/drivers/ai-provider-cli/src/AiProviderCli.models.ts:40` | Provider CLI authentication status. |
@@ -6828,9 +6999,9 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/ai-provider-cli/AiProviderCli.models` | `AiProviderCliProcessResult` | class | `packages/drivers/ai-provider-cli/src/AiProviderCli.models.ts:60` | Provider CLI process result. |
 | `@beep/ai-provider-cli/AiProviderCli.models` | `AiProviderCliProvider` | const | `packages/drivers/ai-provider-cli/src/AiProviderCli.models.ts:20` | AI provider CLI vocabulary. |
 | `@beep/ai-provider-cli/AiProviderCli.models` | `AiProviderCliProvider` | type | `packages/drivers/ai-provider-cli/src/AiProviderCli.models.ts:32` | Runtime type for {@link AiProviderCliProvider}. |
-| `@beep/ai-provider-cli/AiProviderCli.service` | `AiProviderCli` | class | `packages/drivers/ai-provider-cli/src/AiProviderCli.service.ts:128` | Effect service for Claude and Codex CLI status checks. |
-| `@beep/ai-provider-cli/AiProviderCli.service` | `AiProviderCliRunner` | type | `packages/drivers/ai-provider-cli/src/AiProviderCli.service.ts:36` | Product-neutral process runner used by provider CLI probes. |
-| `@beep/ai-provider-cli/index` | `AiProviderCli` | class | `packages/drivers/ai-provider-cli/src/AiProviderCli.service.ts:128` | Effect service for Claude and Codex CLI status checks. |
+| `@beep/ai-provider-cli/AiProviderCli.service` | `AiProviderCli` | class | `packages/drivers/ai-provider-cli/src/AiProviderCli.service.ts:126` | Effect service for Claude and Codex CLI status checks. |
+| `@beep/ai-provider-cli/AiProviderCli.service` | `AiProviderCliRunner` | type | `packages/drivers/ai-provider-cli/src/AiProviderCli.service.ts:34` | Product-neutral process runner used by provider CLI probes. |
+| `@beep/ai-provider-cli/index` | `AiProviderCli` | class | `packages/drivers/ai-provider-cli/src/AiProviderCli.service.ts:126` | Effect service for Claude and Codex CLI status checks. |
 | `@beep/ai-provider-cli/index` | `AiProviderCliAuthProbe` | class | `packages/drivers/ai-provider-cli/src/AiProviderCli.models.ts:77` | Redacted provider CLI authentication probe. |
 | `@beep/ai-provider-cli/index` | `AiProviderCliAuthStatus` | const | `packages/drivers/ai-provider-cli/src/AiProviderCli.models.ts:40` | Provider CLI authentication status. |
 | `@beep/ai-provider-cli/index` | `AiProviderCliAuthStatus` | type | `packages/drivers/ai-provider-cli/src/AiProviderCli.models.ts:52` | Runtime type for {@link AiProviderCliAuthStatus}. |
@@ -6838,7 +7009,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/ai-provider-cli/index` | `AiProviderCliProcessResult` | class | `packages/drivers/ai-provider-cli/src/AiProviderCli.models.ts:60` | Provider CLI process result. |
 | `@beep/ai-provider-cli/index` | `AiProviderCliProvider` | const | `packages/drivers/ai-provider-cli/src/AiProviderCli.models.ts:20` | AI provider CLI vocabulary. |
 | `@beep/ai-provider-cli/index` | `AiProviderCliProvider` | type | `packages/drivers/ai-provider-cli/src/AiProviderCli.models.ts:32` | Runtime type for {@link AiProviderCliProvider}. |
-| `@beep/ai-provider-cli/index` | `AiProviderCliRunner` | type | `packages/drivers/ai-provider-cli/src/AiProviderCli.service.ts:36` | Product-neutral process runner used by provider CLI probes. |
+| `@beep/ai-provider-cli/index` | `AiProviderCliRunner` | type | `packages/drivers/ai-provider-cli/src/AiProviderCli.service.ts:34` | Product-neutral process runner used by provider CLI probes. |
 
 ### @beep/installer-use-cases
 
@@ -6900,21 +7071,21 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 
 | Import | Symbol | Kind | Source | Summary |
 |---|---|---|---|---|
-| `@beep/onepassword-cli` | `OnePasswordCli` | class | `packages/drivers/onepassword-cli/src/OnePasswordCli.service.ts:143` | Effect service for native `op` execution. |
+| `@beep/onepassword-cli` | `OnePasswordCli` | class | `packages/drivers/onepassword-cli/src/OnePasswordCli.service.ts:141` | Effect service for native `op` execution. |
 | `@beep/onepassword-cli` | `OnePasswordCliAccount` | class | `packages/drivers/onepassword-cli/src/OnePasswordCli.models.ts:57` | 1Password account/session probe result. |
 | `@beep/onepassword-cli` | `OnePasswordCliError` | class | `packages/drivers/onepassword-cli/src/OnePasswordCli.errors.ts:41` | Technical failure raised by the `@beep/onepassword-cli` driver boundary. |
 | `@beep/onepassword-cli` | `OnePasswordCliErrorOptions` | class | `packages/drivers/onepassword-cli/src/OnePasswordCli.errors.ts:22` | Options captured while normalizing unknown 1Password CLI failures. |
 | `@beep/onepassword-cli` | `OnePasswordCliProcessResult` | class | `packages/drivers/onepassword-cli/src/OnePasswordCli.models.ts:40` | Process output captured by a 1Password CLI command. |
-| `@beep/onepassword-cli` | `OnePasswordCliRunner` | type | `packages/drivers/onepassword-cli/src/OnePasswordCli.service.ts:37` | Product-neutral process runner used by the 1Password CLI driver. |
+| `@beep/onepassword-cli` | `OnePasswordCliRunner` | type | `packages/drivers/onepassword-cli/src/OnePasswordCli.service.ts:35` | Product-neutral process runner used by the 1Password CLI driver. |
 | `@beep/onepassword-cli` | `OnePasswordReferenceProbe` | class | `packages/drivers/onepassword-cli/src/OnePasswordCli.models.ts:73` | Secret-reference validation result that does not expose the secret. |
 | `@beep/onepassword-cli` | `OnePasswordReferenceProbeStatus` | const | `packages/drivers/onepassword-cli/src/OnePasswordCli.models.ts:20` | 1Password reference probe status. |
 | `@beep/onepassword-cli` | `OnePasswordReferenceProbeStatus` | type | `packages/drivers/onepassword-cli/src/OnePasswordCli.models.ts:32` | Runtime type for {@link OnePasswordReferenceProbeStatus}. |
-| `@beep/onepassword-cli/index` | `OnePasswordCli` | class | `packages/drivers/onepassword-cli/src/OnePasswordCli.service.ts:143` | Effect service for native `op` execution. |
+| `@beep/onepassword-cli/index` | `OnePasswordCli` | class | `packages/drivers/onepassword-cli/src/OnePasswordCli.service.ts:141` | Effect service for native `op` execution. |
 | `@beep/onepassword-cli/index` | `OnePasswordCliAccount` | class | `packages/drivers/onepassword-cli/src/OnePasswordCli.models.ts:57` | 1Password account/session probe result. |
 | `@beep/onepassword-cli/index` | `OnePasswordCliError` | class | `packages/drivers/onepassword-cli/src/OnePasswordCli.errors.ts:41` | Technical failure raised by the `@beep/onepassword-cli` driver boundary. |
 | `@beep/onepassword-cli/index` | `OnePasswordCliErrorOptions` | class | `packages/drivers/onepassword-cli/src/OnePasswordCli.errors.ts:22` | Options captured while normalizing unknown 1Password CLI failures. |
 | `@beep/onepassword-cli/index` | `OnePasswordCliProcessResult` | class | `packages/drivers/onepassword-cli/src/OnePasswordCli.models.ts:40` | Process output captured by a 1Password CLI command. |
-| `@beep/onepassword-cli/index` | `OnePasswordCliRunner` | type | `packages/drivers/onepassword-cli/src/OnePasswordCli.service.ts:37` | Product-neutral process runner used by the 1Password CLI driver. |
+| `@beep/onepassword-cli/index` | `OnePasswordCliRunner` | type | `packages/drivers/onepassword-cli/src/OnePasswordCli.service.ts:35` | Product-neutral process runner used by the 1Password CLI driver. |
 | `@beep/onepassword-cli/index` | `OnePasswordReferenceProbe` | class | `packages/drivers/onepassword-cli/src/OnePasswordCli.models.ts:73` | Secret-reference validation result that does not expose the secret. |
 | `@beep/onepassword-cli/index` | `OnePasswordReferenceProbeStatus` | const | `packages/drivers/onepassword-cli/src/OnePasswordCli.models.ts:20` | 1Password reference probe status. |
 | `@beep/onepassword-cli/index` | `OnePasswordReferenceProbeStatus` | type | `packages/drivers/onepassword-cli/src/OnePasswordCli.models.ts:32` | Runtime type for {@link OnePasswordReferenceProbeStatus}. |
@@ -6925,8 +7096,8 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/onepassword-cli/OnePasswordCli.models` | `OnePasswordReferenceProbe` | class | `packages/drivers/onepassword-cli/src/OnePasswordCli.models.ts:73` | Secret-reference validation result that does not expose the secret. |
 | `@beep/onepassword-cli/OnePasswordCli.models` | `OnePasswordReferenceProbeStatus` | const | `packages/drivers/onepassword-cli/src/OnePasswordCli.models.ts:20` | 1Password reference probe status. |
 | `@beep/onepassword-cli/OnePasswordCli.models` | `OnePasswordReferenceProbeStatus` | type | `packages/drivers/onepassword-cli/src/OnePasswordCli.models.ts:32` | Runtime type for {@link OnePasswordReferenceProbeStatus}. |
-| `@beep/onepassword-cli/OnePasswordCli.service` | `OnePasswordCli` | class | `packages/drivers/onepassword-cli/src/OnePasswordCli.service.ts:143` | Effect service for native `op` execution. |
-| `@beep/onepassword-cli/OnePasswordCli.service` | `OnePasswordCliRunner` | type | `packages/drivers/onepassword-cli/src/OnePasswordCli.service.ts:37` | Product-neutral process runner used by the 1Password CLI driver. |
+| `@beep/onepassword-cli/OnePasswordCli.service` | `OnePasswordCli` | class | `packages/drivers/onepassword-cli/src/OnePasswordCli.service.ts:141` | Effect service for native `op` execution. |
+| `@beep/onepassword-cli/OnePasswordCli.service` | `OnePasswordCliRunner` | type | `packages/drivers/onepassword-cli/src/OnePasswordCli.service.ts:35` | Product-neutral process runner used by the 1Password CLI driver. |
 
 ### @beep/architecture-lab-config
 
@@ -7459,11 +7630,11 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-docgen/Parser` | `parseTypeAliases` | const | `packages/tooling/tool/docgen/src/Parser.ts:334` | Parses exported type alias declarations from the active source file. |
 | `@beep/repo-docgen/Parser` | `Source` | class | `packages/tooling/tool/docgen/src/Parser.ts:81` | Parser service that provides the active source context while traversing a module. |
 | `@beep/repo-docgen/Parser` | `SourceShape` | class | `packages/tooling/tool/docgen/src/Parser.ts:44` | Source metadata carried through parser effects while a module is being processed. |
-| `@beep/repo-docgen/Printer` | `prettify` | function | `packages/tooling/tool/docgen/src/Printer.ts:474` | `prettier` is optional in this repo-local port; returning the markdown |
-| `@beep/repo-docgen/Printer` | `print` | const | `packages/tooling/tool/docgen/src/Printer.ts:354` | Renders a single documented entity into markdown. |
-| `@beep/repo-docgen/Printer` | `Printable` | type | `packages/tooling/tool/docgen/src/Printer.ts:30` | Union of documented entities that the markdown printer can render. |
-| `@beep/repo-docgen/Printer` | `printFrontMatter` | const | `packages/tooling/tool/docgen/src/Printer.ts:446` | Builds the front matter used for a generated module documentation page. |
-| `@beep/repo-docgen/Printer` | `printModule` | const | `packages/tooling/tool/docgen/src/Printer.ts:398` | Renders a parsed module into markdown grouped by documentation category. |
+| `@beep/repo-docgen/Printer` | `prettify` | function | `packages/tooling/tool/docgen/src/Printer.ts:475` | `prettier` is optional in this repo-local port; returning the markdown |
+| `@beep/repo-docgen/Printer` | `print` | const | `packages/tooling/tool/docgen/src/Printer.ts:355` | Renders a single documented entity into markdown. |
+| `@beep/repo-docgen/Printer` | `Printable` | type | `packages/tooling/tool/docgen/src/Printer.ts:31` | Union of documented entities that the markdown printer can render. |
+| `@beep/repo-docgen/Printer` | `printFrontMatter` | const | `packages/tooling/tool/docgen/src/Printer.ts:447` | Builds the front matter used for a generated module documentation page. |
+| `@beep/repo-docgen/Printer` | `printModule` | const | `packages/tooling/tool/docgen/src/Printer.ts:399` | Renders a parsed module into markdown grouped by documentation category. |
 
 ### @beep/repo-ai-metrics
 
@@ -7577,7 +7748,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-ai-metrics` | `AiMetricsMirrorBundleInput` | class | `packages/tooling/library/ai-metrics/src/mirror.ts:401` | Input for building a sanitized P7 mirror bundle. |
 | `@beep/repo-ai-metrics` | `AiMetricsMirrorBundleManifest` | class | `packages/tooling/library/ai-metrics/src/mirror.ts:479` | Deploy-safe manifest written into every P7 mirror bundle. |
 | `@beep/repo-ai-metrics` | `AiMetricsMirrorBundleResult` | class | `packages/tooling/library/ai-metrics/src/mirror.ts:513` | Result of building a sanitized P7 mirror bundle. |
-| `@beep/repo-ai-metrics` | `aiMetricsMirrorBundleToJson` | const | `packages/tooling/library/ai-metrics/src/mirror.ts:788` | Render a mirror bundle build result as JSON. |
+| `@beep/repo-ai-metrics` | `aiMetricsMirrorBundleToJson` | const | `packages/tooling/library/ai-metrics/src/mirror.ts:789` | Render a mirror bundle build result as JSON. |
 | `@beep/repo-ai-metrics` | `AiMetricsMirrorError` | class | `packages/tooling/library/ai-metrics/src/mirror.ts:367` | Error raised by the P7 AI metrics mirror bundle workflow. |
 | `@beep/repo-ai-metrics` | `AiMetricsMirrorPrivacyProof` | class | `packages/tooling/library/ai-metrics/src/mirror.ts:456` | Privacy proof summary attached to a P7 mirror bundle. |
 | `@beep/repo-ai-metrics` | `AiMetricsMirrorTableExport` | class | `packages/tooling/library/ai-metrics/src/mirror.ts:434` | One sanitized table exported into a P7 mirror bundle. |
@@ -7641,7 +7812,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-ai-metrics` | `aiMetricsWeeklyReportToJson` | const | `packages/tooling/library/ai-metrics/src/scorecard.ts:1407` | Render a weekly report result as JSON. |
 | `@beep/repo-ai-metrics` | `BenchmarkCase` | class | `packages/tooling/library/ai-metrics/src/models.ts:554` | Repeatable benchmark case for comparing agent configurations. |
 | `@beep/repo-ai-metrics` | `BenchmarkRun` | class | `packages/tooling/library/ai-metrics/src/models.ts:578` | Benchmark run result under one config snapshot. |
-| `@beep/repo-ai-metrics` | `buildAiMetricsMirrorBundle` | const | `packages/tooling/library/ai-metrics/src/mirror.ts:642` | Build a sanitized deploy-safe P7 mirror bundle from local derived DuckDB data. |
+| `@beep/repo-ai-metrics` | `buildAiMetricsMirrorBundle` | const | `packages/tooling/library/ai-metrics/src/mirror.ts:643` | Build a sanitized deploy-safe P7 mirror bundle from local derived DuckDB data. |
 | `@beep/repo-ai-metrics` | `ClaudeTranscriptLine` | class | `packages/tooling/library/ai-metrics/src/models.ts:692` | Minimal external Claude JSONL shape. |
 | `@beep/repo-ai-metrics` | `CodexTranscriptLine` | class | `packages/tooling/library/ai-metrics/src/models.ts:669` | Minimal external Codex JSONL shape. |
 | `@beep/repo-ai-metrics` | `ConfigSnapshot` | class | `packages/tooling/library/ai-metrics/src/models.ts:354` | Versioned snapshot of agent-facing repository configuration. |
@@ -7899,7 +8070,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-ai-metrics/index` | `AiMetricsMirrorBundleInput` | class | `packages/tooling/library/ai-metrics/src/mirror.ts:401` | Input for building a sanitized P7 mirror bundle. |
 | `@beep/repo-ai-metrics/index` | `AiMetricsMirrorBundleManifest` | class | `packages/tooling/library/ai-metrics/src/mirror.ts:479` | Deploy-safe manifest written into every P7 mirror bundle. |
 | `@beep/repo-ai-metrics/index` | `AiMetricsMirrorBundleResult` | class | `packages/tooling/library/ai-metrics/src/mirror.ts:513` | Result of building a sanitized P7 mirror bundle. |
-| `@beep/repo-ai-metrics/index` | `aiMetricsMirrorBundleToJson` | const | `packages/tooling/library/ai-metrics/src/mirror.ts:788` | Render a mirror bundle build result as JSON. |
+| `@beep/repo-ai-metrics/index` | `aiMetricsMirrorBundleToJson` | const | `packages/tooling/library/ai-metrics/src/mirror.ts:789` | Render a mirror bundle build result as JSON. |
 | `@beep/repo-ai-metrics/index` | `AiMetricsMirrorError` | class | `packages/tooling/library/ai-metrics/src/mirror.ts:367` | Error raised by the P7 AI metrics mirror bundle workflow. |
 | `@beep/repo-ai-metrics/index` | `AiMetricsMirrorPrivacyProof` | class | `packages/tooling/library/ai-metrics/src/mirror.ts:456` | Privacy proof summary attached to a P7 mirror bundle. |
 | `@beep/repo-ai-metrics/index` | `AiMetricsMirrorTableExport` | class | `packages/tooling/library/ai-metrics/src/mirror.ts:434` | One sanitized table exported into a P7 mirror bundle. |
@@ -7963,7 +8134,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-ai-metrics/index` | `aiMetricsWeeklyReportToJson` | const | `packages/tooling/library/ai-metrics/src/scorecard.ts:1407` | Render a weekly report result as JSON. |
 | `@beep/repo-ai-metrics/index` | `BenchmarkCase` | class | `packages/tooling/library/ai-metrics/src/models.ts:554` | Repeatable benchmark case for comparing agent configurations. |
 | `@beep/repo-ai-metrics/index` | `BenchmarkRun` | class | `packages/tooling/library/ai-metrics/src/models.ts:578` | Benchmark run result under one config snapshot. |
-| `@beep/repo-ai-metrics/index` | `buildAiMetricsMirrorBundle` | const | `packages/tooling/library/ai-metrics/src/mirror.ts:642` | Build a sanitized deploy-safe P7 mirror bundle from local derived DuckDB data. |
+| `@beep/repo-ai-metrics/index` | `buildAiMetricsMirrorBundle` | const | `packages/tooling/library/ai-metrics/src/mirror.ts:643` | Build a sanitized deploy-safe P7 mirror bundle from local derived DuckDB data. |
 | `@beep/repo-ai-metrics/index` | `ClaudeTranscriptLine` | class | `packages/tooling/library/ai-metrics/src/models.ts:692` | Minimal external Claude JSONL shape. |
 | `@beep/repo-ai-metrics/index` | `CodexTranscriptLine` | class | `packages/tooling/library/ai-metrics/src/models.ts:669` | Minimal external Codex JSONL shape. |
 | `@beep/repo-ai-metrics/index` | `ConfigSnapshot` | class | `packages/tooling/library/ai-metrics/src/models.ts:354` | Versioned snapshot of agent-facing repository configuration. |
@@ -8055,11 +8226,11 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-ai-metrics/mirror` | `AiMetricsMirrorBundleInput` | class | `packages/tooling/library/ai-metrics/src/mirror.ts:401` | Input for building a sanitized P7 mirror bundle. |
 | `@beep/repo-ai-metrics/mirror` | `AiMetricsMirrorBundleManifest` | class | `packages/tooling/library/ai-metrics/src/mirror.ts:479` | Deploy-safe manifest written into every P7 mirror bundle. |
 | `@beep/repo-ai-metrics/mirror` | `AiMetricsMirrorBundleResult` | class | `packages/tooling/library/ai-metrics/src/mirror.ts:513` | Result of building a sanitized P7 mirror bundle. |
-| `@beep/repo-ai-metrics/mirror` | `aiMetricsMirrorBundleToJson` | const | `packages/tooling/library/ai-metrics/src/mirror.ts:788` | Render a mirror bundle build result as JSON. |
+| `@beep/repo-ai-metrics/mirror` | `aiMetricsMirrorBundleToJson` | const | `packages/tooling/library/ai-metrics/src/mirror.ts:789` | Render a mirror bundle build result as JSON. |
 | `@beep/repo-ai-metrics/mirror` | `AiMetricsMirrorError` | class | `packages/tooling/library/ai-metrics/src/mirror.ts:367` | Error raised by the P7 AI metrics mirror bundle workflow. |
 | `@beep/repo-ai-metrics/mirror` | `AiMetricsMirrorPrivacyProof` | class | `packages/tooling/library/ai-metrics/src/mirror.ts:456` | Privacy proof summary attached to a P7 mirror bundle. |
 | `@beep/repo-ai-metrics/mirror` | `AiMetricsMirrorTableExport` | class | `packages/tooling/library/ai-metrics/src/mirror.ts:434` | One sanitized table exported into a P7 mirror bundle. |
-| `@beep/repo-ai-metrics/mirror` | `buildAiMetricsMirrorBundle` | const | `packages/tooling/library/ai-metrics/src/mirror.ts:642` | Build a sanitized deploy-safe P7 mirror bundle from local derived DuckDB data. |
+| `@beep/repo-ai-metrics/mirror` | `buildAiMetricsMirrorBundle` | const | `packages/tooling/library/ai-metrics/src/mirror.ts:643` | Build a sanitized deploy-safe P7 mirror bundle from local derived DuckDB data. |
 | `@beep/repo-ai-metrics/mirror` | `locateLatestAiMetricsMirrorBundle` | const | `packages/tooling/library/ai-metrics/src/mirror.ts:540` | Locate the latest local mirror bundle pointer for a data root. |
 | `@beep/repo-ai-metrics/models` | `AgentSession` | class | `packages/tooling/library/ai-metrics/src/models.ts:415` | Session-level transcript metadata under an agent task. |
 | `@beep/repo-ai-metrics/models` | `AgentTask` | class | `packages/tooling/library/ai-metrics/src/models.ts:383` | Canonical unit of analysis for coding-agent metrics. |
@@ -8544,8 +8715,8 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 
 | Import | Symbol | Kind | Source | Summary |
 |---|---|---|---|---|
-| `@beep/ffmpeg` | `buildExtractFramesArgs` | const | `packages/drivers/ffmpeg/src/FFmpeg.service.ts:384` | Build ffmpeg arguments for extracting PNG frames. |
-| `@beep/ffmpeg` | `buildFfprobeArgs` | const | `packages/drivers/ffmpeg/src/FFmpeg.service.ts:352` | Build ffprobe arguments for the video-probe operation. |
+| `@beep/ffmpeg` | `buildExtractFramesArgs` | const | `packages/drivers/ffmpeg/src/FFmpeg.service.ts:382` | Build ffmpeg arguments for extracting PNG frames. |
+| `@beep/ffmpeg` | `buildFfprobeArgs` | const | `packages/drivers/ffmpeg/src/FFmpeg.service.ts:350` | Build ffprobe arguments for the video-probe operation. |
 | `@beep/ffmpeg` | `decodeExtractFramesRequest` | const | `packages/drivers/ffmpeg/src/FFmpeg.models.ts:640` | Decode an unknown value into an extract-frames request. |
 | `@beep/ffmpeg` | `decodeProbeVideoRequest` | const | `packages/drivers/ffmpeg/src/FFmpeg.models.ts:656` | Decode an unknown value into a probe request. |
 | `@beep/ffmpeg` | `encodeExtractFramesManifest` | const | `packages/drivers/ffmpeg/src/FFmpeg.models.ts:681` | Encode an extract-frames manifest into its JSON-safe shape. |
@@ -8555,7 +8726,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/ffmpeg` | `ExtractFramesManifestSummary` | class | `packages/drivers/ffmpeg/src/FFmpeg.models.ts:414` | Summary recorded in an extract-frames manifest. |
 | `@beep/ffmpeg` | `ExtractFramesRequest` | class | `packages/drivers/ffmpeg/src/FFmpeg.models.ts:319` | Request to extract PNG frames from a video. |
 | `@beep/ffmpeg` | `ExtractFramesResult` | class | `packages/drivers/ffmpeg/src/FFmpeg.models.ts:484` | Result returned after frames have been committed. |
-| `@beep/ffmpeg` | `FFmpeg` | class | `packages/drivers/ffmpeg/src/FFmpeg.service.ts:1006` | Effect service for native FFmpeg and ffprobe execution. |
+| `@beep/ffmpeg` | `FFmpeg` | class | `packages/drivers/ffmpeg/src/FFmpeg.service.ts:996` | Effect service for native FFmpeg and ffprobe execution. |
 | `@beep/ffmpeg` | `FFmpegCompletedEvent` | class | `packages/drivers/ffmpeg/src/FFmpeg.models.ts:577` | Event emitted after frames and manifest are committed. |
 | `@beep/ffmpeg` | `FFmpegConfig` | class | `packages/drivers/ffmpeg/src/FFmpeg.models.ts:235` | Resolved runtime configuration for the native FFmpeg driver. |
 | `@beep/ffmpeg` | `FFmpegConfigInput` | class | `packages/drivers/ffmpeg/src/FFmpeg.models.ts:206` | Runtime path overrides for the native FFmpeg binaries. |
@@ -8564,18 +8735,18 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/ffmpeg` | `FFmpegErrorFromUnknownOptions` | class | `packages/drivers/ffmpeg/src/FFmpeg.errors.ts:65` | Options used when normalizing unknown FFmpeg boundary failures. |
 | `@beep/ffmpeg` | `FFmpegEvent` | const | `packages/drivers/ffmpeg/src/FFmpeg.models.ts:603` | Structured events emitted by extract-frames. |
 | `@beep/ffmpeg` | `FFmpegEvent` | type | `packages/drivers/ffmpeg/src/FFmpeg.models.ts:624` | Structured events emitted by extract-frames. |
-| `@beep/ffmpeg` | `FFmpegEventSink` | type | `packages/drivers/ffmpeg/src/FFmpeg.service.ts:91` | Effectful sink for structured FFmpeg events. |
+| `@beep/ffmpeg` | `FFmpegEventSink` | type | `packages/drivers/ffmpeg/src/FFmpeg.service.ts:92` | Effectful sink for structured FFmpeg events. |
 | `@beep/ffmpeg` | `FFmpegProgressEvent` | class | `packages/drivers/ffmpeg/src/FFmpeg.models.ts:544` | Event emitted when ffmpeg reports extraction progress. |
-| `@beep/ffmpeg` | `FFmpegShape` | interface | `packages/drivers/ffmpeg/src/FFmpeg.service.ts:111` | Runtime shape exposed by the {@link FFmpeg} service. |
+| `@beep/ffmpeg` | `FFmpegShape` | interface | `packages/drivers/ffmpeg/src/FFmpeg.service.ts:112` | Runtime shape exposed by the {@link FFmpeg} service. |
 | `@beep/ffmpeg` | `FFmpegStartedEvent` | class | `packages/drivers/ffmpeg/src/FFmpeg.models.ts:517` | Event emitted when extract-frames starts. |
-| `@beep/ffmpeg` | `formatFrameFileName` | const | `packages/drivers/ffmpeg/src/FFmpeg.service.ts:332` | Format a generated PNG frame filename. |
-| `@beep/ffmpeg` | `PlannedFrameCommit` | class | `packages/drivers/ffmpeg/src/FFmpeg.service.ts:177` | Planned file-system move for a staged extracted frame. |
+| `@beep/ffmpeg` | `formatFrameFileName` | const | `packages/drivers/ffmpeg/src/FFmpeg.service.ts:330` | Format a generated PNG frame filename. |
+| `@beep/ffmpeg` | `PlannedFrameCommit` | class | `packages/drivers/ffmpeg/src/FFmpeg.service.ts:178` | Planned file-system move for a staged extracted frame. |
 | `@beep/ffmpeg` | `PositiveFrameRate` | const | `packages/drivers/ffmpeg/src/FFmpeg.models.ts:30` | Positive frame extraction rate in frames per second. |
 | `@beep/ffmpeg` | `PositiveFrameRate` | type | `packages/drivers/ffmpeg/src/FFmpeg.models.ts:72` | Positive frame extraction rate in frames per second. |
 | `@beep/ffmpeg` | `PositiveMilliseconds` | const | `packages/drivers/ffmpeg/src/FFmpeg.models.ts:89` | Positive timeout value in milliseconds. |
 | `@beep/ffmpeg` | `PositiveMilliseconds` | type | `packages/drivers/ffmpeg/src/FFmpeg.models.ts:131` | Positive timeout value in milliseconds. |
 | `@beep/ffmpeg` | `ProbeVideoRequest` | class | `packages/drivers/ffmpeg/src/FFmpeg.models.ts:260` | Request to probe a video's first video stream. |
-| `@beep/ffmpeg` | `ProgressState` | class | `packages/drivers/ffmpeg/src/FFmpeg.service.ts:208` | Buffered ffmpeg progress output accumulated while parsing progress blocks. |
+| `@beep/ffmpeg` | `ProgressState` | class | `packages/drivers/ffmpeg/src/FFmpeg.service.ts:209` | Buffered ffmpeg progress output accumulated while parsing progress blocks. |
 | `@beep/ffmpeg` | `SafeFramePrefix` | const | `packages/drivers/ffmpeg/src/FFmpeg.models.ts:148` | File-name prefix accepted for generated frame outputs. |
 | `@beep/ffmpeg` | `SafeFramePrefix` | type | `packages/drivers/ffmpeg/src/FFmpeg.models.ts:190` | Safe frame filename prefix. |
 | `@beep/ffmpeg` | `VideoProbe` | class | `packages/drivers/ffmpeg/src/FFmpeg.models.ts:283` | Video metadata extracted from ffprobe. |
@@ -8606,16 +8777,16 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/ffmpeg/FFmpeg.models` | `SafeFramePrefix` | const | `packages/drivers/ffmpeg/src/FFmpeg.models.ts:148` | File-name prefix accepted for generated frame outputs. |
 | `@beep/ffmpeg/FFmpeg.models` | `SafeFramePrefix` | type | `packages/drivers/ffmpeg/src/FFmpeg.models.ts:190` | Safe frame filename prefix. |
 | `@beep/ffmpeg/FFmpeg.models` | `VideoProbe` | class | `packages/drivers/ffmpeg/src/FFmpeg.models.ts:283` | Video metadata extracted from ffprobe. |
-| `@beep/ffmpeg/FFmpeg.service` | `buildExtractFramesArgs` | const | `packages/drivers/ffmpeg/src/FFmpeg.service.ts:384` | Build ffmpeg arguments for extracting PNG frames. |
-| `@beep/ffmpeg/FFmpeg.service` | `buildFfprobeArgs` | const | `packages/drivers/ffmpeg/src/FFmpeg.service.ts:352` | Build ffprobe arguments for the video-probe operation. |
-| `@beep/ffmpeg/FFmpeg.service` | `FFmpeg` | class | `packages/drivers/ffmpeg/src/FFmpeg.service.ts:1006` | Effect service for native FFmpeg and ffprobe execution. |
-| `@beep/ffmpeg/FFmpeg.service` | `FFmpegEventSink` | type | `packages/drivers/ffmpeg/src/FFmpeg.service.ts:91` | Effectful sink for structured FFmpeg events. |
-| `@beep/ffmpeg/FFmpeg.service` | `FFmpegShape` | interface | `packages/drivers/ffmpeg/src/FFmpeg.service.ts:111` | Runtime shape exposed by the {@link FFmpeg} service. |
-| `@beep/ffmpeg/FFmpeg.service` | `formatFrameFileName` | const | `packages/drivers/ffmpeg/src/FFmpeg.service.ts:332` | Format a generated PNG frame filename. |
-| `@beep/ffmpeg/FFmpeg.service` | `PlannedFrameCommit` | class | `packages/drivers/ffmpeg/src/FFmpeg.service.ts:177` | Planned file-system move for a staged extracted frame. |
-| `@beep/ffmpeg/FFmpeg.service` | `ProgressState` | class | `packages/drivers/ffmpeg/src/FFmpeg.service.ts:208` | Buffered ffmpeg progress output accumulated while parsing progress blocks. |
-| `@beep/ffmpeg/index` | `buildExtractFramesArgs` | const | `packages/drivers/ffmpeg/src/FFmpeg.service.ts:384` | Build ffmpeg arguments for extracting PNG frames. |
-| `@beep/ffmpeg/index` | `buildFfprobeArgs` | const | `packages/drivers/ffmpeg/src/FFmpeg.service.ts:352` | Build ffprobe arguments for the video-probe operation. |
+| `@beep/ffmpeg/FFmpeg.service` | `buildExtractFramesArgs` | const | `packages/drivers/ffmpeg/src/FFmpeg.service.ts:382` | Build ffmpeg arguments for extracting PNG frames. |
+| `@beep/ffmpeg/FFmpeg.service` | `buildFfprobeArgs` | const | `packages/drivers/ffmpeg/src/FFmpeg.service.ts:350` | Build ffprobe arguments for the video-probe operation. |
+| `@beep/ffmpeg/FFmpeg.service` | `FFmpeg` | class | `packages/drivers/ffmpeg/src/FFmpeg.service.ts:996` | Effect service for native FFmpeg and ffprobe execution. |
+| `@beep/ffmpeg/FFmpeg.service` | `FFmpegEventSink` | type | `packages/drivers/ffmpeg/src/FFmpeg.service.ts:92` | Effectful sink for structured FFmpeg events. |
+| `@beep/ffmpeg/FFmpeg.service` | `FFmpegShape` | interface | `packages/drivers/ffmpeg/src/FFmpeg.service.ts:112` | Runtime shape exposed by the {@link FFmpeg} service. |
+| `@beep/ffmpeg/FFmpeg.service` | `formatFrameFileName` | const | `packages/drivers/ffmpeg/src/FFmpeg.service.ts:330` | Format a generated PNG frame filename. |
+| `@beep/ffmpeg/FFmpeg.service` | `PlannedFrameCommit` | class | `packages/drivers/ffmpeg/src/FFmpeg.service.ts:178` | Planned file-system move for a staged extracted frame. |
+| `@beep/ffmpeg/FFmpeg.service` | `ProgressState` | class | `packages/drivers/ffmpeg/src/FFmpeg.service.ts:209` | Buffered ffmpeg progress output accumulated while parsing progress blocks. |
+| `@beep/ffmpeg/index` | `buildExtractFramesArgs` | const | `packages/drivers/ffmpeg/src/FFmpeg.service.ts:382` | Build ffmpeg arguments for extracting PNG frames. |
+| `@beep/ffmpeg/index` | `buildFfprobeArgs` | const | `packages/drivers/ffmpeg/src/FFmpeg.service.ts:350` | Build ffprobe arguments for the video-probe operation. |
 | `@beep/ffmpeg/index` | `decodeExtractFramesRequest` | const | `packages/drivers/ffmpeg/src/FFmpeg.models.ts:640` | Decode an unknown value into an extract-frames request. |
 | `@beep/ffmpeg/index` | `decodeProbeVideoRequest` | const | `packages/drivers/ffmpeg/src/FFmpeg.models.ts:656` | Decode an unknown value into a probe request. |
 | `@beep/ffmpeg/index` | `encodeExtractFramesManifest` | const | `packages/drivers/ffmpeg/src/FFmpeg.models.ts:681` | Encode an extract-frames manifest into its JSON-safe shape. |
@@ -8625,7 +8796,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/ffmpeg/index` | `ExtractFramesManifestSummary` | class | `packages/drivers/ffmpeg/src/FFmpeg.models.ts:414` | Summary recorded in an extract-frames manifest. |
 | `@beep/ffmpeg/index` | `ExtractFramesRequest` | class | `packages/drivers/ffmpeg/src/FFmpeg.models.ts:319` | Request to extract PNG frames from a video. |
 | `@beep/ffmpeg/index` | `ExtractFramesResult` | class | `packages/drivers/ffmpeg/src/FFmpeg.models.ts:484` | Result returned after frames have been committed. |
-| `@beep/ffmpeg/index` | `FFmpeg` | class | `packages/drivers/ffmpeg/src/FFmpeg.service.ts:1006` | Effect service for native FFmpeg and ffprobe execution. |
+| `@beep/ffmpeg/index` | `FFmpeg` | class | `packages/drivers/ffmpeg/src/FFmpeg.service.ts:996` | Effect service for native FFmpeg and ffprobe execution. |
 | `@beep/ffmpeg/index` | `FFmpegCompletedEvent` | class | `packages/drivers/ffmpeg/src/FFmpeg.models.ts:577` | Event emitted after frames and manifest are committed. |
 | `@beep/ffmpeg/index` | `FFmpegConfig` | class | `packages/drivers/ffmpeg/src/FFmpeg.models.ts:235` | Resolved runtime configuration for the native FFmpeg driver. |
 | `@beep/ffmpeg/index` | `FFmpegConfigInput` | class | `packages/drivers/ffmpeg/src/FFmpeg.models.ts:206` | Runtime path overrides for the native FFmpeg binaries. |
@@ -8634,18 +8805,18 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/ffmpeg/index` | `FFmpegErrorFromUnknownOptions` | class | `packages/drivers/ffmpeg/src/FFmpeg.errors.ts:65` | Options used when normalizing unknown FFmpeg boundary failures. |
 | `@beep/ffmpeg/index` | `FFmpegEvent` | const | `packages/drivers/ffmpeg/src/FFmpeg.models.ts:603` | Structured events emitted by extract-frames. |
 | `@beep/ffmpeg/index` | `FFmpegEvent` | type | `packages/drivers/ffmpeg/src/FFmpeg.models.ts:624` | Structured events emitted by extract-frames. |
-| `@beep/ffmpeg/index` | `FFmpegEventSink` | type | `packages/drivers/ffmpeg/src/FFmpeg.service.ts:91` | Effectful sink for structured FFmpeg events. |
+| `@beep/ffmpeg/index` | `FFmpegEventSink` | type | `packages/drivers/ffmpeg/src/FFmpeg.service.ts:92` | Effectful sink for structured FFmpeg events. |
 | `@beep/ffmpeg/index` | `FFmpegProgressEvent` | class | `packages/drivers/ffmpeg/src/FFmpeg.models.ts:544` | Event emitted when ffmpeg reports extraction progress. |
-| `@beep/ffmpeg/index` | `FFmpegShape` | interface | `packages/drivers/ffmpeg/src/FFmpeg.service.ts:111` | Runtime shape exposed by the {@link FFmpeg} service. |
+| `@beep/ffmpeg/index` | `FFmpegShape` | interface | `packages/drivers/ffmpeg/src/FFmpeg.service.ts:112` | Runtime shape exposed by the {@link FFmpeg} service. |
 | `@beep/ffmpeg/index` | `FFmpegStartedEvent` | class | `packages/drivers/ffmpeg/src/FFmpeg.models.ts:517` | Event emitted when extract-frames starts. |
-| `@beep/ffmpeg/index` | `formatFrameFileName` | const | `packages/drivers/ffmpeg/src/FFmpeg.service.ts:332` | Format a generated PNG frame filename. |
-| `@beep/ffmpeg/index` | `PlannedFrameCommit` | class | `packages/drivers/ffmpeg/src/FFmpeg.service.ts:177` | Planned file-system move for a staged extracted frame. |
+| `@beep/ffmpeg/index` | `formatFrameFileName` | const | `packages/drivers/ffmpeg/src/FFmpeg.service.ts:330` | Format a generated PNG frame filename. |
+| `@beep/ffmpeg/index` | `PlannedFrameCommit` | class | `packages/drivers/ffmpeg/src/FFmpeg.service.ts:178` | Planned file-system move for a staged extracted frame. |
 | `@beep/ffmpeg/index` | `PositiveFrameRate` | const | `packages/drivers/ffmpeg/src/FFmpeg.models.ts:30` | Positive frame extraction rate in frames per second. |
 | `@beep/ffmpeg/index` | `PositiveFrameRate` | type | `packages/drivers/ffmpeg/src/FFmpeg.models.ts:72` | Positive frame extraction rate in frames per second. |
 | `@beep/ffmpeg/index` | `PositiveMilliseconds` | const | `packages/drivers/ffmpeg/src/FFmpeg.models.ts:89` | Positive timeout value in milliseconds. |
 | `@beep/ffmpeg/index` | `PositiveMilliseconds` | type | `packages/drivers/ffmpeg/src/FFmpeg.models.ts:131` | Positive timeout value in milliseconds. |
 | `@beep/ffmpeg/index` | `ProbeVideoRequest` | class | `packages/drivers/ffmpeg/src/FFmpeg.models.ts:260` | Request to probe a video's first video stream. |
-| `@beep/ffmpeg/index` | `ProgressState` | class | `packages/drivers/ffmpeg/src/FFmpeg.service.ts:208` | Buffered ffmpeg progress output accumulated while parsing progress blocks. |
+| `@beep/ffmpeg/index` | `ProgressState` | class | `packages/drivers/ffmpeg/src/FFmpeg.service.ts:209` | Buffered ffmpeg progress output accumulated while parsing progress blocks. |
 | `@beep/ffmpeg/index` | `SafeFramePrefix` | const | `packages/drivers/ffmpeg/src/FFmpeg.models.ts:148` | File-name prefix accepted for generated frame outputs. |
 | `@beep/ffmpeg/index` | `SafeFramePrefix` | type | `packages/drivers/ffmpeg/src/FFmpeg.models.ts:190` | Safe frame filename prefix. |
 | `@beep/ffmpeg/index` | `VideoProbe` | class | `packages/drivers/ffmpeg/src/FFmpeg.models.ts:283` | Video metadata extracted from ffprobe. |
@@ -9322,7 +9493,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/ui/components/badge` | `Badge` | function | `packages/foundation/ui-system/ui/src/components/badge.tsx:34` |  |
 | `@beep/ui/components/badge` | `badgeVariants` | const | `packages/foundation/ui-system/ui/src/components/badge.tsx:10` |  |
 | `@beep/ui/components/banner` | `bannerVariants` | const | `packages/foundation/ui-system/ui/src/components/banner.tsx:10` |  |
-| `@beep/ui/components/blocks/editor-00/editor` | `Editor` | function | `packages/foundation/ui-system/ui/src/components/blocks/editor-00/editor.tsx:29` | Rich text editor block assembled from the shared editor theme and plugins. |
+| `@beep/ui/components/blocks/editor-00/editor` | `Editor` | function | `packages/foundation/ui-system/ui/src/components/blocks/editor-00/editor.tsx:30` | Rich text editor block assembled from the shared editor theme and plugins. |
 | `@beep/ui/components/blocks/editor-00/plugins` | `Plugins` | function | `packages/foundation/ui-system/ui/src/components/blocks/editor-00/plugins.tsx:12` | Core plugin set for the shared editor block. |
 | `@beep/ui/components/breadcrumb` | `Breadcrumb` | function | `packages/foundation/ui-system/ui/src/components/breadcrumb.tsx:11` |  |
 | `@beep/ui/components/breadcrumb` | `BreadcrumbEllipsis` | function | `packages/foundation/ui-system/ui/src/components/breadcrumb.tsx:89` |  |
@@ -9824,26 +9995,26 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 
 | Import | Symbol | Kind | Source | Summary |
 |---|---|---|---|---|
-| `@beep/sanity` | `Sanity` | class | `packages/drivers/sanity/src/Sanity.service.ts:304` | Effect service for Sanity content API requests. |
+| `@beep/sanity` | `Sanity` | class | `packages/drivers/sanity/src/Sanity.service.ts:331` | Effect service for Sanity content API requests. |
 | `@beep/sanity` | `SANITY_API_VERSION` | const | `packages/drivers/sanity/src/Sanity.config.ts:44` | Default Sanity API version used when callers do not provide one. |
 | `@beep/sanity` | `SanityConfigInput` | class | `packages/drivers/sanity/src/Sanity.config.ts:65` | Runtime configuration accepted by {@link Sanity.makeLayer}. |
-| `@beep/sanity` | `SanityError` | class | `packages/drivers/sanity/src/Sanity.errors.ts:83` | Technical failure raised by the Sanity driver boundary. |
-| `@beep/sanity` | `SanityErrorOptions` | class | `packages/drivers/sanity/src/Sanity.errors.ts:145` | Options used when constructing Sanity driver errors. |
-| `@beep/sanity` | `SanityErrorReason` | const | `packages/drivers/sanity/src/Sanity.errors.ts:36` | Technical error reasons emitted by the Sanity driver. |
-| `@beep/sanity` | `SanityErrorReason` | type | `packages/drivers/sanity/src/Sanity.errors.ts:63` | Type for {@link SanityErrorReason}. |
+| `@beep/sanity` | `SanityError` | class | `packages/drivers/sanity/src/Sanity.errors.ts:84` | Technical failure raised by the Sanity driver boundary. |
+| `@beep/sanity` | `SanityErrorOptions` | class | `packages/drivers/sanity/src/Sanity.errors.ts:146` | Options used when constructing Sanity driver errors. |
+| `@beep/sanity` | `SanityErrorReason` | const | `packages/drivers/sanity/src/Sanity.errors.ts:37` | Technical error reasons emitted by the Sanity driver. |
+| `@beep/sanity` | `SanityErrorReason` | type | `packages/drivers/sanity/src/Sanity.errors.ts:64` | Type for {@link SanityErrorReason}. |
 | `@beep/sanity` | `SanityQueryParamValue` | const | `packages/drivers/sanity/src/Sanity.service.ts:40` | Scalar JSON value accepted in Sanity query params. |
 | `@beep/sanity` | `SanityQueryParamValue` | type | `packages/drivers/sanity/src/Sanity.service.ts:65` | Type for {@link SanityQueryParamValue}. |
 | `@beep/sanity` | `SanityQueryRequest` | class | `packages/drivers/sanity/src/Sanity.service.ts:85` | Sanity GROQ query request. |
 | `@beep/sanity` | `SanityQueryResponse` | class | `packages/drivers/sanity/src/Sanity.service.ts:113` | Sanity query response. |
 | `@beep/sanity` | `SanityShape` | type | `packages/drivers/sanity/src/Sanity.service.ts:143` | Public Sanity service shape. |
 | `@beep/sanity` | `VERSION` | const | `packages/drivers/sanity/src/index.ts:43` | Package version. |
-| `@beep/sanity/index` | `Sanity` | class | `packages/drivers/sanity/src/Sanity.service.ts:304` | Effect service for Sanity content API requests. |
+| `@beep/sanity/index` | `Sanity` | class | `packages/drivers/sanity/src/Sanity.service.ts:331` | Effect service for Sanity content API requests. |
 | `@beep/sanity/index` | `SANITY_API_VERSION` | const | `packages/drivers/sanity/src/Sanity.config.ts:44` | Default Sanity API version used when callers do not provide one. |
 | `@beep/sanity/index` | `SanityConfigInput` | class | `packages/drivers/sanity/src/Sanity.config.ts:65` | Runtime configuration accepted by {@link Sanity.makeLayer}. |
-| `@beep/sanity/index` | `SanityError` | class | `packages/drivers/sanity/src/Sanity.errors.ts:83` | Technical failure raised by the Sanity driver boundary. |
-| `@beep/sanity/index` | `SanityErrorOptions` | class | `packages/drivers/sanity/src/Sanity.errors.ts:145` | Options used when constructing Sanity driver errors. |
-| `@beep/sanity/index` | `SanityErrorReason` | const | `packages/drivers/sanity/src/Sanity.errors.ts:36` | Technical error reasons emitted by the Sanity driver. |
-| `@beep/sanity/index` | `SanityErrorReason` | type | `packages/drivers/sanity/src/Sanity.errors.ts:63` | Type for {@link SanityErrorReason}. |
+| `@beep/sanity/index` | `SanityError` | class | `packages/drivers/sanity/src/Sanity.errors.ts:84` | Technical failure raised by the Sanity driver boundary. |
+| `@beep/sanity/index` | `SanityErrorOptions` | class | `packages/drivers/sanity/src/Sanity.errors.ts:146` | Options used when constructing Sanity driver errors. |
+| `@beep/sanity/index` | `SanityErrorReason` | const | `packages/drivers/sanity/src/Sanity.errors.ts:37` | Technical error reasons emitted by the Sanity driver. |
+| `@beep/sanity/index` | `SanityErrorReason` | type | `packages/drivers/sanity/src/Sanity.errors.ts:64` | Type for {@link SanityErrorReason}. |
 | `@beep/sanity/index` | `SanityQueryParamValue` | const | `packages/drivers/sanity/src/Sanity.service.ts:40` | Scalar JSON value accepted in Sanity query params. |
 | `@beep/sanity/index` | `SanityQueryParamValue` | type | `packages/drivers/sanity/src/Sanity.service.ts:65` | Type for {@link SanityQueryParamValue}. |
 | `@beep/sanity/index` | `SanityQueryRequest` | class | `packages/drivers/sanity/src/Sanity.service.ts:85` | Sanity GROQ query request. |
@@ -9852,11 +10023,11 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/sanity/index` | `VERSION` | const | `packages/drivers/sanity/src/index.ts:43` | Package version. |
 | `@beep/sanity/Sanity.config` | `SANITY_API_VERSION` | const | `packages/drivers/sanity/src/Sanity.config.ts:44` | Default Sanity API version used when callers do not provide one. |
 | `@beep/sanity/Sanity.config` | `SanityConfigInput` | class | `packages/drivers/sanity/src/Sanity.config.ts:65` | Runtime configuration accepted by {@link Sanity.makeLayer}. |
-| `@beep/sanity/Sanity.errors` | `SanityError` | class | `packages/drivers/sanity/src/Sanity.errors.ts:83` | Technical failure raised by the Sanity driver boundary. |
-| `@beep/sanity/Sanity.errors` | `SanityErrorOptions` | class | `packages/drivers/sanity/src/Sanity.errors.ts:145` | Options used when constructing Sanity driver errors. |
-| `@beep/sanity/Sanity.errors` | `SanityErrorReason` | const | `packages/drivers/sanity/src/Sanity.errors.ts:36` | Technical error reasons emitted by the Sanity driver. |
-| `@beep/sanity/Sanity.errors` | `SanityErrorReason` | type | `packages/drivers/sanity/src/Sanity.errors.ts:63` | Type for {@link SanityErrorReason}. |
-| `@beep/sanity/Sanity.service` | `Sanity` | class | `packages/drivers/sanity/src/Sanity.service.ts:304` | Effect service for Sanity content API requests. |
+| `@beep/sanity/Sanity.errors` | `SanityError` | class | `packages/drivers/sanity/src/Sanity.errors.ts:84` | Technical failure raised by the Sanity driver boundary. |
+| `@beep/sanity/Sanity.errors` | `SanityErrorOptions` | class | `packages/drivers/sanity/src/Sanity.errors.ts:146` | Options used when constructing Sanity driver errors. |
+| `@beep/sanity/Sanity.errors` | `SanityErrorReason` | const | `packages/drivers/sanity/src/Sanity.errors.ts:37` | Technical error reasons emitted by the Sanity driver. |
+| `@beep/sanity/Sanity.errors` | `SanityErrorReason` | type | `packages/drivers/sanity/src/Sanity.errors.ts:64` | Type for {@link SanityErrorReason}. |
+| `@beep/sanity/Sanity.service` | `Sanity` | class | `packages/drivers/sanity/src/Sanity.service.ts:331` | Effect service for Sanity content API requests. |
 | `@beep/sanity/Sanity.service` | `SanityQueryParamValue` | const | `packages/drivers/sanity/src/Sanity.service.ts:40` | Scalar JSON value accepted in Sanity query params. |
 | `@beep/sanity/Sanity.service` | `SanityQueryParamValue` | type | `packages/drivers/sanity/src/Sanity.service.ts:65` | Type for {@link SanityQueryParamValue}. |
 | `@beep/sanity/Sanity.service` | `SanityQueryRequest` | class | `packages/drivers/sanity/src/Sanity.service.ts:85` | Sanity GROQ query request. |
@@ -9869,11 +10040,11 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 |---|---|---|---|---|
 | `@beep/openai-compat` | `decodeChatCompletionChunk` | const | `packages/drivers/openai-compat/src/OpenAiCompat.models.ts:1003` | Decodes an unknown value into an OpenAI-compatible chat completion stream chunk. |
 | `@beep/openai-compat` | `decodeChatCompletionResponse` | const | `packages/drivers/openai-compat/src/OpenAiCompat.models.ts:985` | Decodes an unknown value into an OpenAI-compatible chat completion response. |
-| `@beep/openai-compat` | `layer` | const | `packages/drivers/openai-compat/src/OpenAiCompat.language-model.ts:953` | Builds a language-model layer backed by {@link OpenAiCompatClient}. |
-| `@beep/openai-compat` | `layerFromProvider` | const | `packages/drivers/openai-compat/src/OpenAiCompat.language-model.ts:902` | Builds a layer for an OpenAI-compatible language model from provider callbacks. |
-| `@beep/openai-compat` | `make` | const | `packages/drivers/openai-compat/src/OpenAiCompat.language-model.ts:921` | Builds an OpenAI-compatible language-model service backed by {@link OpenAiCompatClient}. |
-| `@beep/openai-compat` | `makeFromProvider` | const | `packages/drivers/openai-compat/src/OpenAiCompat.language-model.ts:854` | Builds an Effect AI language-model service from OpenAI-compatible provider callbacks. |
-| `@beep/openai-compat` | `model` | const | `packages/drivers/openai-compat/src/OpenAiCompat.language-model.ts:973` | Builds an Effect AI model value for a generic OpenAI-compatible provider. |
+| `@beep/openai-compat` | `layer` | const | `packages/drivers/openai-compat/src/OpenAiCompat.language-model.ts:947` | Builds a language-model layer backed by {@link OpenAiCompatClient}. |
+| `@beep/openai-compat` | `layerFromProvider` | const | `packages/drivers/openai-compat/src/OpenAiCompat.language-model.ts:896` | Builds a layer for an OpenAI-compatible language model from provider callbacks. |
+| `@beep/openai-compat` | `make` | const | `packages/drivers/openai-compat/src/OpenAiCompat.language-model.ts:915` | Builds an OpenAI-compatible language-model service backed by {@link OpenAiCompatClient}. |
+| `@beep/openai-compat` | `makeFromProvider` | const | `packages/drivers/openai-compat/src/OpenAiCompat.language-model.ts:848` | Builds an Effect AI language-model service from OpenAI-compatible provider callbacks. |
+| `@beep/openai-compat` | `model` | const | `packages/drivers/openai-compat/src/OpenAiCompat.language-model.ts:967` | Builds an Effect AI model value for a generic OpenAI-compatible provider. |
 | `@beep/openai-compat` | `OpenAiCompatAssistantChatMessage` | class | `packages/drivers/openai-compat/src/OpenAiCompat.models.ts:372` | Assistant chat message accepted by OpenAI-compatible chat completion endpoints. |
 | `@beep/openai-compat` | `OpenAiCompatAssistantDelta` | class | `packages/drivers/openai-compat/src/OpenAiCompat.models.ts:766` | Delta message returned by OpenAI-compatible chat completion streams. |
 | `@beep/openai-compat` | `OpenAiCompatAssistantMessage` | class | `packages/drivers/openai-compat/src/OpenAiCompat.models.ts:730` | Assistant message returned by OpenAI-compatible chat completion endpoints. |
@@ -9916,11 +10087,11 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/openai-compat` | `VERSION` | const | `packages/drivers/openai-compat/src/index.ts:23` | OpenAI-compatible driver package version. |
 | `@beep/openai-compat/index` | `decodeChatCompletionChunk` | const | `packages/drivers/openai-compat/src/OpenAiCompat.models.ts:1003` | Decodes an unknown value into an OpenAI-compatible chat completion stream chunk. |
 | `@beep/openai-compat/index` | `decodeChatCompletionResponse` | const | `packages/drivers/openai-compat/src/OpenAiCompat.models.ts:985` | Decodes an unknown value into an OpenAI-compatible chat completion response. |
-| `@beep/openai-compat/index` | `layer` | const | `packages/drivers/openai-compat/src/OpenAiCompat.language-model.ts:953` | Builds a language-model layer backed by {@link OpenAiCompatClient}. |
-| `@beep/openai-compat/index` | `layerFromProvider` | const | `packages/drivers/openai-compat/src/OpenAiCompat.language-model.ts:902` | Builds a layer for an OpenAI-compatible language model from provider callbacks. |
-| `@beep/openai-compat/index` | `make` | const | `packages/drivers/openai-compat/src/OpenAiCompat.language-model.ts:921` | Builds an OpenAI-compatible language-model service backed by {@link OpenAiCompatClient}. |
-| `@beep/openai-compat/index` | `makeFromProvider` | const | `packages/drivers/openai-compat/src/OpenAiCompat.language-model.ts:854` | Builds an Effect AI language-model service from OpenAI-compatible provider callbacks. |
-| `@beep/openai-compat/index` | `model` | const | `packages/drivers/openai-compat/src/OpenAiCompat.language-model.ts:973` | Builds an Effect AI model value for a generic OpenAI-compatible provider. |
+| `@beep/openai-compat/index` | `layer` | const | `packages/drivers/openai-compat/src/OpenAiCompat.language-model.ts:947` | Builds a language-model layer backed by {@link OpenAiCompatClient}. |
+| `@beep/openai-compat/index` | `layerFromProvider` | const | `packages/drivers/openai-compat/src/OpenAiCompat.language-model.ts:896` | Builds a layer for an OpenAI-compatible language model from provider callbacks. |
+| `@beep/openai-compat/index` | `make` | const | `packages/drivers/openai-compat/src/OpenAiCompat.language-model.ts:915` | Builds an OpenAI-compatible language-model service backed by {@link OpenAiCompatClient}. |
+| `@beep/openai-compat/index` | `makeFromProvider` | const | `packages/drivers/openai-compat/src/OpenAiCompat.language-model.ts:848` | Builds an Effect AI language-model service from OpenAI-compatible provider callbacks. |
+| `@beep/openai-compat/index` | `model` | const | `packages/drivers/openai-compat/src/OpenAiCompat.language-model.ts:967` | Builds an Effect AI model value for a generic OpenAI-compatible provider. |
 | `@beep/openai-compat/index` | `OpenAiCompatAssistantChatMessage` | class | `packages/drivers/openai-compat/src/OpenAiCompat.models.ts:372` | Assistant chat message accepted by OpenAI-compatible chat completion endpoints. |
 | `@beep/openai-compat/index` | `OpenAiCompatAssistantDelta` | class | `packages/drivers/openai-compat/src/OpenAiCompat.models.ts:766` | Delta message returned by OpenAI-compatible chat completion streams. |
 | `@beep/openai-compat/index` | `OpenAiCompatAssistantMessage` | class | `packages/drivers/openai-compat/src/OpenAiCompat.models.ts:730` | Assistant message returned by OpenAI-compatible chat completion endpoints. |
@@ -9964,11 +10135,11 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/openai-compat/OpenAiCompat.client` | `OpenAiCompatClient` | class | `packages/drivers/openai-compat/src/OpenAiCompat.client.ts:322` | OpenAI-compatible HTTP client service. |
 | `@beep/openai-compat/OpenAiCompat.client` | `OpenAiCompatClientOptions` | class | `packages/drivers/openai-compat/src/OpenAiCompat.client.ts:53` | Runtime configuration accepted by {@link OpenAiCompatClient.makeLayer}. |
 | `@beep/openai-compat/OpenAiCompat.client` | `OpenAiCompatClientShape` | interface | `packages/drivers/openai-compat/src/OpenAiCompat.client.ts:87` | OpenAI-compatible HTTP client service shape. |
-| `@beep/openai-compat/OpenAiCompat.language-model` | `layer` | const | `packages/drivers/openai-compat/src/OpenAiCompat.language-model.ts:953` | Builds a language-model layer backed by {@link OpenAiCompatClient}. |
-| `@beep/openai-compat/OpenAiCompat.language-model` | `layerFromProvider` | const | `packages/drivers/openai-compat/src/OpenAiCompat.language-model.ts:902` | Builds a layer for an OpenAI-compatible language model from provider callbacks. |
-| `@beep/openai-compat/OpenAiCompat.language-model` | `make` | const | `packages/drivers/openai-compat/src/OpenAiCompat.language-model.ts:921` | Builds an OpenAI-compatible language-model service backed by {@link OpenAiCompatClient}. |
-| `@beep/openai-compat/OpenAiCompat.language-model` | `makeFromProvider` | const | `packages/drivers/openai-compat/src/OpenAiCompat.language-model.ts:854` | Builds an Effect AI language-model service from OpenAI-compatible provider callbacks. |
-| `@beep/openai-compat/OpenAiCompat.language-model` | `model` | const | `packages/drivers/openai-compat/src/OpenAiCompat.language-model.ts:973` | Builds an Effect AI model value for a generic OpenAI-compatible provider. |
+| `@beep/openai-compat/OpenAiCompat.language-model` | `layer` | const | `packages/drivers/openai-compat/src/OpenAiCompat.language-model.ts:947` | Builds a language-model layer backed by {@link OpenAiCompatClient}. |
+| `@beep/openai-compat/OpenAiCompat.language-model` | `layerFromProvider` | const | `packages/drivers/openai-compat/src/OpenAiCompat.language-model.ts:896` | Builds a layer for an OpenAI-compatible language model from provider callbacks. |
+| `@beep/openai-compat/OpenAiCompat.language-model` | `make` | const | `packages/drivers/openai-compat/src/OpenAiCompat.language-model.ts:915` | Builds an OpenAI-compatible language-model service backed by {@link OpenAiCompatClient}. |
+| `@beep/openai-compat/OpenAiCompat.language-model` | `makeFromProvider` | const | `packages/drivers/openai-compat/src/OpenAiCompat.language-model.ts:848` | Builds an Effect AI language-model service from OpenAI-compatible provider callbacks. |
+| `@beep/openai-compat/OpenAiCompat.language-model` | `model` | const | `packages/drivers/openai-compat/src/OpenAiCompat.language-model.ts:967` | Builds an Effect AI model value for a generic OpenAI-compatible provider. |
 | `@beep/openai-compat/OpenAiCompat.language-model` | `OpenAiCompatLanguageModelClientOptions` | class | `packages/drivers/openai-compat/src/OpenAiCompat.language-model.ts:149` | Options accepted by the default OpenAI-compatible language-model constructor. |
 | `@beep/openai-compat/OpenAiCompat.language-model` | `OpenAiCompatLanguageModelConfig` | class | `packages/drivers/openai-compat/src/OpenAiCompat.language-model.ts:62` | Request-time tuning options shared by OpenAI-compatible language-model adapters. |
 | `@beep/openai-compat/OpenAiCompat.language-model` | `OpenAiCompatLanguageModelOptions` | type | `packages/drivers/openai-compat/src/OpenAiCompat.language-model.ts:126` | Options accepted by {@link makeFromProvider}. |
@@ -10121,7 +10292,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/agent-capability-use-cases` | `SdkContextPacket` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts:396` | Context packet returned to SDK clients. |
 | `@beep/agent-capability-use-cases/proof` | `CandidateOutputSet` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts:433` | Batch of candidate outputs proposed by an agent run. |
 | `@beep/agent-capability-use-cases/proof` | `GetContextPacket` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.queries.ts:26` | Request for an evidence-bounded context packet. |
-| `@beep/agent-capability-use-cases/proof` | `makeInMemoryProfessionalRuntimeSdk` | const | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.fixture-service.ts:208` | Create an in-memory SDK facade over deterministic runtime fixture inputs. |
+| `@beep/agent-capability-use-cases/proof` | `makeInMemoryProfessionalRuntimeSdk` | const | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.fixture-service.ts:210` | Create an in-memory SDK facade over deterministic runtime fixture inputs. |
 | `@beep/agent-capability-use-cases/proof` | `ProfessionalRuntimeSdk` | interface | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.service.ts:27` | SDK facade shape exposed to clients and adapters. |
 | `@beep/agent-capability-use-cases/proof` | `ProfessionalRuntimeValidationError` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.errors.ts:27` | Validation failure for runtime SDK requests and candidate proposals. |
 | `@beep/agent-capability-use-cases/proof` | `ProposeCandidateOutputSet` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.commands.ts:27` | Command for proposing candidate work through the SDK facade. |
@@ -10178,7 +10349,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/agent-capability-use-cases/public` | `SdkContextPacket` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts:396` | Context packet returned to SDK clients. |
 | `@beep/agent-capability-use-cases/test` | `CandidateOutputSet` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts:433` | Batch of candidate outputs proposed by an agent run. |
 | `@beep/agent-capability-use-cases/test` | `GetContextPacket` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.queries.ts:26` | Request for an evidence-bounded context packet. |
-| `@beep/agent-capability-use-cases/test` | `makeInMemoryProfessionalRuntimeSdk` | const | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.fixture-service.ts:208` | Create an in-memory SDK facade over deterministic runtime fixture inputs. |
+| `@beep/agent-capability-use-cases/test` | `makeInMemoryProfessionalRuntimeSdk` | const | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.fixture-service.ts:210` | Create an in-memory SDK facade over deterministic runtime fixture inputs. |
 | `@beep/agent-capability-use-cases/test` | `ProfessionalRuntimeSdk` | interface | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.service.ts:27` | SDK facade shape exposed to clients and adapters. |
 | `@beep/agent-capability-use-cases/test` | `ProfessionalRuntimeValidationError` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.errors.ts:27` | Validation failure for runtime SDK requests and candidate proposals. |
 | `@beep/agent-capability-use-cases/test` | `ProposeCandidateOutputSet` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.commands.ts:27` | Command for proposing candidate work through the SDK facade. |
@@ -10378,122 +10549,122 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 
 | Import | Symbol | Kind | Source | Summary |
 |---|---|---|---|---|
-| `@beep/repo-cli` | `agentEffectivenessCommand` | const | `packages/tooling/tool/cli/src/commands/AgentEffectiveness/index.ts:650` | Agent-effectiveness root command. |
+| `@beep/repo-cli` | `agentEffectivenessCommand` | const | `packages/tooling/tool/cli/src/commands/AgentEffectiveness/index.ts:641` | Agent-effectiveness root command. |
 | `@beep/repo-cli` | `ciCommand` | const | `packages/tooling/tool/cli/src/commands/Ci.ts:338` | CI helper command group. |
 | `@beep/repo-cli` | `codegenCommand` | const | `packages/tooling/tool/cli/src/commands/Codegen.ts:257` | CLI command that scans a package's `src/` directory and generates (or previews) |
-| `@beep/repo-cli` | `codexCommand` | const | `packages/tooling/tool/cli/src/commands/Codex.ts:134` | Codex helper command group. |
+| `@beep/repo-cli` | `codexCommand` | const | `packages/tooling/tool/cli/src/commands/Codex.ts:127` | Codex helper command group. |
 | `@beep/repo-cli` | `createPackageCommand` | const | `packages/tooling/tool/cli/src/commands/CreatePackage/index.ts:16` | Package creation command. |
 | `@beep/repo-cli` | `docgenCommand` | const | `packages/tooling/tool/cli/src/commands/Docgen/index.ts:1184` | Human-first docgen command suite. |
 | `@beep/repo-cli` | `docsCommand` | const | `packages/tooling/tool/cli/src/commands/Docs.ts:244` | Command-first docs discovery entrypoint used by agent config surfaces. |
-| `@beep/repo-cli` | `filesCommand` | const | `packages/tooling/tool/cli/src/commands/Files/Files.command.ts:447` | File curation command group. |
-| `@beep/repo-cli` | `graphitiCommand` | const | `packages/tooling/tool/cli/src/commands/Graphiti/index.ts:96` | Graphiti command group. |
-| `@beep/repo-cli` | `imageCommand` | const | `packages/tooling/tool/cli/src/commands/Image/index.ts:118` | Image and video curation command group. |
+| `@beep/repo-cli` | `filesCommand` | const | `packages/tooling/tool/cli/src/commands/Files/Files.command.ts:437` | File curation command group. |
+| `@beep/repo-cli` | `graphitiCommand` | const | `packages/tooling/tool/cli/src/commands/Graphiti/index.ts:86` | Graphiti command group. |
+| `@beep/repo-cli` | `imageCommand` | const | `packages/tooling/tool/cli/src/commands/Image/index.ts:115` | Image and video curation command group. |
 | `@beep/repo-cli` | `lawsCommand` | const | `packages/tooling/tool/cli/src/commands/Laws/index.ts:434` | Laws command group. |
 | `@beep/repo-cli` | `lintCommand` | const | `packages/tooling/tool/cli/src/commands/Lint/index.ts:607` | Lint command group. |
 | `@beep/repo-cli` | `purgeCommand` | const | `packages/tooling/tool/cli/src/commands/Purge.ts:258` | CLI command to purge workspace/root build artifacts. |
-| `@beep/repo-cli` | `qualityCommand` | const | `packages/tooling/tool/cli/src/commands/Quality/ScriptCommands.ts:1589` | Quality command group for repo operational checks. |
-| `@beep/repo-cli` | `reuseCommand` | const | `packages/tooling/tool/cli/src/commands/Reuse/index.ts:526` | Reuse-discovery command group. |
+| `@beep/repo-cli` | `qualityCommand` | const | `packages/tooling/tool/cli/src/commands/Quality/ScriptCommands.ts:1710` | Quality command group for repo operational checks. |
+| `@beep/repo-cli` | `reuseCommand` | const | `packages/tooling/tool/cli/src/commands/Reuse/index.ts:479` | Reuse-discovery command group. |
 | `@beep/repo-cli` | `rootCommand` | const | `packages/tooling/tool/cli/src/commands/Root.ts:45` | Top-level CLI command that registers all subcommands. |
 | `@beep/repo-cli` | `syncDataToTsCommand` | const | `packages/tooling/tool/cli/src/commands/SyncDataToTs/index.ts:460` | CLI command for syncing official upstream datasets into checked-in TypeScript modules. |
 | `@beep/repo-cli` | `topoSortCommand` | const | `packages/tooling/tool/cli/src/commands/TopoSort.ts:32` | CLI command that builds the workspace dependency graph and prints package names |
-| `@beep/repo-cli` | `tsconfigSyncCommand` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync.ts:1832` | CLI command for synchronizing root and workspace tsconfig state. |
+| `@beep/repo-cli` | `tsconfigSyncCommand` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync.ts:1827` | CLI command for synchronizing root and workspace tsconfig state. |
 | `@beep/repo-cli` | `versionSyncCommand` | const | `packages/tooling/tool/cli/src/commands/VersionSync/index.ts:48` | CLI command for synchronizing version pins across the monorepo. |
-| `@beep/repo-cli/commands/AgentEffectiveness/index` | `agentEffectivenessCommand` | const | `packages/tooling/tool/cli/src/commands/AgentEffectiveness/index.ts:650` | Agent-effectiveness root command. |
+| `@beep/repo-cli/commands/AgentEffectiveness/index` | `agentEffectivenessCommand` | const | `packages/tooling/tool/cli/src/commands/AgentEffectiveness/index.ts:641` | Agent-effectiveness root command. |
 | `@beep/repo-cli/commands/AIDocs/AIDocs` | `AIDocKind` | const | `packages/tooling/tool/cli/src/commands/AIDocs/AIDocs.ts:37` | Supported external documentation source formats for AI documentation. |
 | `@beep/repo-cli/commands/AIDocs/AIDocs` | `AIDocKind` | type | `packages/tooling/tool/cli/src/commands/AIDocs/AIDocs.ts:87` | Union type for supported external documentation source formats. |
 | `@beep/repo-cli/commands/AIDocs/AIDocs` | `AIDocsError` | class | `packages/tooling/tool/cli/src/commands/AIDocs/AIDocs.ts:23` | AIDocsError - A Tagged Error Class for errors occurring in the AIDocs command |
-| `@beep/repo-cli/commands/AIMetrics/index` | `aiMetricsCommand` | const | `packages/tooling/tool/cli/src/commands/AIMetrics/index.ts:3375` | AI metrics root command. |
-| `@beep/repo-cli/commands/AIMetrics/index` | `AiMetricsCommandError` | class | `packages/tooling/tool/cli/src/commands/AIMetrics/index.ts:150` | Error raised by the AI metrics CLI. |
-| `@beep/repo-cli/commands/Architecture/Command` | `architectureCommand` | const | `packages/tooling/tool/cli/src/commands/Architecture/Command.ts:287` | Architecture automation command group. |
-| `@beep/repo-cli/commands/Architecture/index` | `applyCanonicalSliceOperationPlan` | const | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlanExecution.ts:180` | Apply a decoded operation plan with failsafe conflict behavior. |
-| `@beep/repo-cli/commands/Architecture/index` | `architectureCommand` | const | `packages/tooling/tool/cli/src/commands/Architecture/Command.ts:287` | Architecture automation command group. |
-| `@beep/repo-cli/commands/Architecture/index` | `ArchitectureDomainKind` | const | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:26` | Canonical architecture domain-kind folders. |
-| `@beep/repo-cli/commands/Architecture/index` | `ArchitectureDomainKind` | type | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:38` | Canonical architecture domain-kind folder. |
-| `@beep/repo-cli/commands/Architecture/index` | `ArchitectureOperation` | const | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:541` | Canonical operation-plan operation. |
-| `@beep/repo-cli/commands/Architecture/index` | `ArchitectureOperation` | type | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:554` | Canonical operation-plan operation. |
-| `@beep/repo-cli/commands/Architecture/index` | `ArchitectureOperationCheck` | class | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:574` | Idempotency status for one checked operation. |
-| `@beep/repo-cli/commands/Architecture/index` | `ArchitectureOperationCheckStatus` | const | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:325` | Per-operation idempotency status. |
-| `@beep/repo-cli/commands/Architecture/index` | `ArchitectureOperationCheckStatus` | type | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:350` | Per-operation idempotency status. |
-| `@beep/repo-cli/commands/Architecture/index` | `ArchitectureOperationConflictPolicy` | const | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:248` | Conflict policy metadata for architecture operations. |
-| `@beep/repo-cli/commands/Architecture/index` | `ArchitectureOperationConflictPolicy` | type | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:271` | Conflict policy metadata for an architecture operation. |
-| `@beep/repo-cli/commands/Architecture/index` | `ArchitectureOperationKind` | const | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:145` | Operation kinds supported by canonical architecture operation plans. |
-| `@beep/repo-cli/commands/Architecture/index` | `ArchitectureOperationKind` | type | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:169` | Operation kind supported by canonical architecture operation plans. |
-| `@beep/repo-cli/commands/Architecture/index` | `ArchitectureOperationSource` | const | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:286` | Source metadata for architecture operations. |
-| `@beep/repo-cli/commands/Architecture/index` | `ArchitectureOperationSource` | type | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:310` | Source metadata for an architecture operation. |
-| `@beep/repo-cli/commands/Architecture/index` | `ArchitectureOperationWriteMode` | const | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:210` | Write-mode metadata for architecture operations. |
-| `@beep/repo-cli/commands/Architecture/index` | `ArchitectureOperationWriteMode` | type | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:233` | Write-mode metadata for an architecture operation. |
-| `@beep/repo-cli/commands/Architecture/index` | `ArchitecturePackageRole` | const | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:103` | Slice role packages supported by `beep architecture create package`. |
-| `@beep/repo-cli/commands/Architecture/index` | `ArchitecturePackageRole` | type | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:130` | Slice role package supported by `beep architecture create package`. |
-| `@beep/repo-cli/commands/Architecture/index` | `ArchitecturePlanStage` | const | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:46` | Staged architecture proof targets. |
-| `@beep/repo-cli/commands/Architecture/index` | `ArchitecturePlanStage` | type | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:58` | Staged architecture proof target. |
-| `@beep/repo-cli/commands/Architecture/index` | `ArchitecturePlanTarget` | class | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:409` | Normalized architecture creation target. |
-| `@beep/repo-cli/commands/Architecture/index` | `ArchitectureSliceRole` | const | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:66` | Canonical architecture slice roles. |
-| `@beep/repo-cli/commands/Architecture/index` | `ArchitectureSliceRole` | type | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:88` | Canonical architecture slice role. |
-| `@beep/repo-cli/commands/Architecture/index` | `ArchitectureSliceRolePlan` | class | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:391` | Role package entry in a canonical architecture slice operation plan. |
-| `@beep/repo-cli/commands/Architecture/index` | `ArchitectureWriterKind` | const | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:177` | Writer families selected from normalized architecture operations. |
-| `@beep/repo-cli/commands/Architecture/index` | `ArchitectureWriterKind` | type | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:195` | Writer family selected from normalized architecture operations. |
-| `@beep/repo-cli/commands/Architecture/index` | `CanonicalSliceOperationPlan` | class | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:592` | Schema-versioned canonical architecture slice operation plan. |
-| `@beep/repo-cli/commands/Architecture/index` | `checkCanonicalSliceOperationPlan` | const | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlanExecution.ts:86` | Validate a decoded operation plan against a repository root. |
-| `@beep/repo-cli/commands/Architecture/index` | `decodeCanonicalSliceOperationPlanJson` | const | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:2319` | Decode operation-plan JSON text. |
-| `@beep/repo-cli/commands/Architecture/index` | `defaultArchitecturePlanTarget` | const | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:680` | Default architecture target shared by command defaults and plan factories. |
-| `@beep/repo-cli/commands/Architecture/index` | `encodeCanonicalSliceOperationPlanJson` | const | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:2311` | Encode an operation plan as JSON text. |
-| `@beep/repo-cli/commands/Architecture/index` | `EnsureAbsentPathOperation` | class | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:520` | Operation that proves a legacy repo-relative path must not exist. |
-| `@beep/repo-cli/commands/Architecture/index` | `EnsureFileOperation` | class | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:498` | Operation that proves a repo-relative file must exist. |
-| `@beep/repo-cli/commands/Architecture/index` | `makeArchitectureOperationPlan` | const | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:2203` | Build a write-capable operation plan from the accepted WorkItem proof files. |
-| `@beep/repo-cli/commands/Architecture/index` | `makeArchitecturePackageOperationPlan` | const | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:2284` | Build a shell-only slice role package operation plan. |
-| `@beep/repo-cli/commands/Architecture/index` | `makeCanonicalSliceOperationPlan` | const | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:2158` | Build the canonical architecture lab WorkItem operation plan. |
-| `@beep/repo-cli/commands/Architecture/index` | `OperationPlanApplyResult` | class | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:650` | Result of applying a canonical operation plan. |
-| `@beep/repo-cli/commands/Architecture/index` | `OperationPlanCheckResult` | class | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:629` | Result of validating a canonical operation plan against a checkout. |
-| `@beep/repo-cli/commands/Architecture/index` | `WriteFileOperation` | class | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:428` | Operation that writes a repo-relative file when absent. |
-| `@beep/repo-cli/commands/Architecture/index` | `WritePackageJsonOperation` | class | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:470` | Operation that writes a structured package manifest. |
-| `@beep/repo-cli/commands/Architecture/OperationPlan` | `ArchitectureDomainKind` | const | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:26` | Canonical architecture domain-kind folders. |
-| `@beep/repo-cli/commands/Architecture/OperationPlan` | `ArchitectureDomainKind` | type | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:38` | Canonical architecture domain-kind folder. |
-| `@beep/repo-cli/commands/Architecture/OperationPlan` | `ArchitectureOperation` | const | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:541` | Canonical operation-plan operation. |
-| `@beep/repo-cli/commands/Architecture/OperationPlan` | `ArchitectureOperation` | type | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:554` | Canonical operation-plan operation. |
-| `@beep/repo-cli/commands/Architecture/OperationPlan` | `ArchitectureOperationCheck` | class | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:574` | Idempotency status for one checked operation. |
-| `@beep/repo-cli/commands/Architecture/OperationPlan` | `ArchitectureOperationCheckStatus` | const | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:325` | Per-operation idempotency status. |
-| `@beep/repo-cli/commands/Architecture/OperationPlan` | `ArchitectureOperationCheckStatus` | type | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:350` | Per-operation idempotency status. |
-| `@beep/repo-cli/commands/Architecture/OperationPlan` | `ArchitectureOperationConflictPolicy` | const | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:248` | Conflict policy metadata for architecture operations. |
-| `@beep/repo-cli/commands/Architecture/OperationPlan` | `ArchitectureOperationConflictPolicy` | type | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:271` | Conflict policy metadata for an architecture operation. |
-| `@beep/repo-cli/commands/Architecture/OperationPlan` | `ArchitectureOperationKind` | const | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:145` | Operation kinds supported by canonical architecture operation plans. |
-| `@beep/repo-cli/commands/Architecture/OperationPlan` | `ArchitectureOperationKind` | type | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:169` | Operation kind supported by canonical architecture operation plans. |
-| `@beep/repo-cli/commands/Architecture/OperationPlan` | `ArchitectureOperationSource` | const | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:286` | Source metadata for architecture operations. |
-| `@beep/repo-cli/commands/Architecture/OperationPlan` | `ArchitectureOperationSource` | type | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:310` | Source metadata for an architecture operation. |
-| `@beep/repo-cli/commands/Architecture/OperationPlan` | `ArchitectureOperationWriteMode` | const | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:210` | Write-mode metadata for architecture operations. |
-| `@beep/repo-cli/commands/Architecture/OperationPlan` | `ArchitectureOperationWriteMode` | type | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:233` | Write-mode metadata for an architecture operation. |
-| `@beep/repo-cli/commands/Architecture/OperationPlan` | `ArchitecturePackageRole` | const | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:103` | Slice role packages supported by `beep architecture create package`. |
-| `@beep/repo-cli/commands/Architecture/OperationPlan` | `ArchitecturePackageRole` | type | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:130` | Slice role package supported by `beep architecture create package`. |
-| `@beep/repo-cli/commands/Architecture/OperationPlan` | `ArchitecturePlanStage` | const | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:46` | Staged architecture proof targets. |
-| `@beep/repo-cli/commands/Architecture/OperationPlan` | `ArchitecturePlanStage` | type | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:58` | Staged architecture proof target. |
-| `@beep/repo-cli/commands/Architecture/OperationPlan` | `ArchitecturePlanTarget` | class | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:409` | Normalized architecture creation target. |
-| `@beep/repo-cli/commands/Architecture/OperationPlan` | `ArchitectureSliceRole` | const | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:66` | Canonical architecture slice roles. |
-| `@beep/repo-cli/commands/Architecture/OperationPlan` | `ArchitectureSliceRole` | type | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:88` | Canonical architecture slice role. |
-| `@beep/repo-cli/commands/Architecture/OperationPlan` | `ArchitectureSliceRolePlan` | class | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:391` | Role package entry in a canonical architecture slice operation plan. |
-| `@beep/repo-cli/commands/Architecture/OperationPlan` | `ArchitectureWriterKind` | const | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:177` | Writer families selected from normalized architecture operations. |
-| `@beep/repo-cli/commands/Architecture/OperationPlan` | `ArchitectureWriterKind` | type | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:195` | Writer family selected from normalized architecture operations. |
-| `@beep/repo-cli/commands/Architecture/OperationPlan` | `CanonicalSliceOperationPlan` | class | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:592` | Schema-versioned canonical architecture slice operation plan. |
-| `@beep/repo-cli/commands/Architecture/OperationPlan` | `decodeCanonicalSliceOperationPlanJson` | const | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:2319` | Decode operation-plan JSON text. |
-| `@beep/repo-cli/commands/Architecture/OperationPlan` | `defaultArchitecturePlanTarget` | const | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:680` | Default architecture target shared by command defaults and plan factories. |
-| `@beep/repo-cli/commands/Architecture/OperationPlan` | `encodeCanonicalSliceOperationPlanJson` | const | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:2311` | Encode an operation plan as JSON text. |
-| `@beep/repo-cli/commands/Architecture/OperationPlan` | `EnsureAbsentPathOperation` | class | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:520` | Operation that proves a legacy repo-relative path must not exist. |
-| `@beep/repo-cli/commands/Architecture/OperationPlan` | `EnsureFileOperation` | class | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:498` | Operation that proves a repo-relative file must exist. |
-| `@beep/repo-cli/commands/Architecture/OperationPlan` | `makeArchitectureOperationPlan` | const | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:2203` | Build a write-capable operation plan from the accepted WorkItem proof files. |
-| `@beep/repo-cli/commands/Architecture/OperationPlan` | `makeArchitecturePackageOperationPlan` | const | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:2284` | Build a shell-only slice role package operation plan. |
-| `@beep/repo-cli/commands/Architecture/OperationPlan` | `makeCanonicalSliceOperationPlan` | const | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:2158` | Build the canonical architecture lab WorkItem operation plan. |
-| `@beep/repo-cli/commands/Architecture/OperationPlan` | `OperationPlanApplyResult` | class | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:650` | Result of applying a canonical operation plan. |
-| `@beep/repo-cli/commands/Architecture/OperationPlan` | `OperationPlanCheckResult` | class | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:629` | Result of validating a canonical operation plan against a checkout. |
-| `@beep/repo-cli/commands/Architecture/OperationPlan` | `WriteFileOperation` | class | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:428` | Operation that writes a repo-relative file when absent. |
-| `@beep/repo-cli/commands/Architecture/OperationPlan` | `WritePackageJsonOperation` | class | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:470` | Operation that writes a structured package manifest. |
-| `@beep/repo-cli/commands/Architecture/OperationPlanExecution` | `applyCanonicalSliceOperationPlan` | const | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlanExecution.ts:180` | Apply a decoded operation plan with failsafe conflict behavior. |
-| `@beep/repo-cli/commands/Architecture/OperationPlanExecution` | `checkCanonicalSliceOperationPlan` | const | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlanExecution.ts:86` | Validate a decoded operation plan against a repository root. |
+| `@beep/repo-cli/commands/AIMetrics/index` | `aiMetricsCommand` | const | `packages/tooling/tool/cli/src/commands/AIMetrics/index.ts:3341` | AI metrics root command. |
+| `@beep/repo-cli/commands/AIMetrics/index` | `AiMetricsCommandError` | class | `packages/tooling/tool/cli/src/commands/AIMetrics/index.ts:151` | Error raised by the AI metrics CLI. |
+| `@beep/repo-cli/commands/Architecture/Command` | `architectureCommand` | const | `packages/tooling/tool/cli/src/commands/Architecture/Command.ts:280` | Architecture automation command group. |
+| `@beep/repo-cli/commands/Architecture/index` | `applyCanonicalSliceOperationPlan` | const | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlanExecution.ts:179` | Apply a decoded operation plan with failsafe conflict behavior. |
+| `@beep/repo-cli/commands/Architecture/index` | `architectureCommand` | const | `packages/tooling/tool/cli/src/commands/Architecture/Command.ts:280` | Architecture automation command group. |
+| `@beep/repo-cli/commands/Architecture/index` | `ArchitectureDomainKind` | const | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:27` | Canonical architecture domain-kind folders. |
+| `@beep/repo-cli/commands/Architecture/index` | `ArchitectureDomainKind` | type | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:39` | Canonical architecture domain-kind folder. |
+| `@beep/repo-cli/commands/Architecture/index` | `ArchitectureOperation` | const | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:542` | Canonical operation-plan operation. |
+| `@beep/repo-cli/commands/Architecture/index` | `ArchitectureOperation` | type | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:555` | Canonical operation-plan operation. |
+| `@beep/repo-cli/commands/Architecture/index` | `ArchitectureOperationCheck` | class | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:575` | Idempotency status for one checked operation. |
+| `@beep/repo-cli/commands/Architecture/index` | `ArchitectureOperationCheckStatus` | const | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:326` | Per-operation idempotency status. |
+| `@beep/repo-cli/commands/Architecture/index` | `ArchitectureOperationCheckStatus` | type | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:351` | Per-operation idempotency status. |
+| `@beep/repo-cli/commands/Architecture/index` | `ArchitectureOperationConflictPolicy` | const | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:249` | Conflict policy metadata for architecture operations. |
+| `@beep/repo-cli/commands/Architecture/index` | `ArchitectureOperationConflictPolicy` | type | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:272` | Conflict policy metadata for an architecture operation. |
+| `@beep/repo-cli/commands/Architecture/index` | `ArchitectureOperationKind` | const | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:146` | Operation kinds supported by canonical architecture operation plans. |
+| `@beep/repo-cli/commands/Architecture/index` | `ArchitectureOperationKind` | type | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:170` | Operation kind supported by canonical architecture operation plans. |
+| `@beep/repo-cli/commands/Architecture/index` | `ArchitectureOperationSource` | const | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:287` | Source metadata for architecture operations. |
+| `@beep/repo-cli/commands/Architecture/index` | `ArchitectureOperationSource` | type | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:311` | Source metadata for an architecture operation. |
+| `@beep/repo-cli/commands/Architecture/index` | `ArchitectureOperationWriteMode` | const | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:211` | Write-mode metadata for architecture operations. |
+| `@beep/repo-cli/commands/Architecture/index` | `ArchitectureOperationWriteMode` | type | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:234` | Write-mode metadata for an architecture operation. |
+| `@beep/repo-cli/commands/Architecture/index` | `ArchitecturePackageRole` | const | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:104` | Slice role packages supported by `beep architecture create package`. |
+| `@beep/repo-cli/commands/Architecture/index` | `ArchitecturePackageRole` | type | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:131` | Slice role package supported by `beep architecture create package`. |
+| `@beep/repo-cli/commands/Architecture/index` | `ArchitecturePlanStage` | const | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:47` | Staged architecture proof targets. |
+| `@beep/repo-cli/commands/Architecture/index` | `ArchitecturePlanStage` | type | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:59` | Staged architecture proof target. |
+| `@beep/repo-cli/commands/Architecture/index` | `ArchitecturePlanTarget` | class | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:410` | Normalized architecture creation target. |
+| `@beep/repo-cli/commands/Architecture/index` | `ArchitectureSliceRole` | const | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:67` | Canonical architecture slice roles. |
+| `@beep/repo-cli/commands/Architecture/index` | `ArchitectureSliceRole` | type | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:89` | Canonical architecture slice role. |
+| `@beep/repo-cli/commands/Architecture/index` | `ArchitectureSliceRolePlan` | class | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:392` | Role package entry in a canonical architecture slice operation plan. |
+| `@beep/repo-cli/commands/Architecture/index` | `ArchitectureWriterKind` | const | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:178` | Writer families selected from normalized architecture operations. |
+| `@beep/repo-cli/commands/Architecture/index` | `ArchitectureWriterKind` | type | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:196` | Writer family selected from normalized architecture operations. |
+| `@beep/repo-cli/commands/Architecture/index` | `CanonicalSliceOperationPlan` | class | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:593` | Schema-versioned canonical architecture slice operation plan. |
+| `@beep/repo-cli/commands/Architecture/index` | `checkCanonicalSliceOperationPlan` | const | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlanExecution.ts:85` | Validate a decoded operation plan against a repository root. |
+| `@beep/repo-cli/commands/Architecture/index` | `decodeCanonicalSliceOperationPlanJson` | const | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:2489` | Decode operation-plan JSON text. |
+| `@beep/repo-cli/commands/Architecture/index` | `defaultArchitecturePlanTarget` | const | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:686` | Default architecture target shared by command defaults and plan factories. |
+| `@beep/repo-cli/commands/Architecture/index` | `encodeCanonicalSliceOperationPlanJson` | const | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:2481` | Encode an operation plan as JSON text. |
+| `@beep/repo-cli/commands/Architecture/index` | `EnsureAbsentPathOperation` | class | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:521` | Operation that proves a legacy repo-relative path must not exist. |
+| `@beep/repo-cli/commands/Architecture/index` | `EnsureFileOperation` | class | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:499` | Operation that proves a repo-relative file must exist. |
+| `@beep/repo-cli/commands/Architecture/index` | `makeArchitectureOperationPlan` | const | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:2373` | Build a write-capable operation plan from the accepted WorkItem proof files. |
+| `@beep/repo-cli/commands/Architecture/index` | `makeArchitecturePackageOperationPlan` | const | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:2454` | Build a shell-only slice role package operation plan. |
+| `@beep/repo-cli/commands/Architecture/index` | `makeCanonicalSliceOperationPlan` | const | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:2328` | Build the canonical architecture lab WorkItem operation plan. |
+| `@beep/repo-cli/commands/Architecture/index` | `OperationPlanApplyResult` | class | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:651` | Result of applying a canonical operation plan. |
+| `@beep/repo-cli/commands/Architecture/index` | `OperationPlanCheckResult` | class | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:630` | Result of validating a canonical operation plan against a checkout. |
+| `@beep/repo-cli/commands/Architecture/index` | `WriteFileOperation` | class | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:429` | Operation that writes a repo-relative file when absent. |
+| `@beep/repo-cli/commands/Architecture/index` | `WritePackageJsonOperation` | class | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:471` | Operation that writes a structured package manifest. |
+| `@beep/repo-cli/commands/Architecture/OperationPlan` | `ArchitectureDomainKind` | const | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:27` | Canonical architecture domain-kind folders. |
+| `@beep/repo-cli/commands/Architecture/OperationPlan` | `ArchitectureDomainKind` | type | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:39` | Canonical architecture domain-kind folder. |
+| `@beep/repo-cli/commands/Architecture/OperationPlan` | `ArchitectureOperation` | const | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:542` | Canonical operation-plan operation. |
+| `@beep/repo-cli/commands/Architecture/OperationPlan` | `ArchitectureOperation` | type | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:555` | Canonical operation-plan operation. |
+| `@beep/repo-cli/commands/Architecture/OperationPlan` | `ArchitectureOperationCheck` | class | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:575` | Idempotency status for one checked operation. |
+| `@beep/repo-cli/commands/Architecture/OperationPlan` | `ArchitectureOperationCheckStatus` | const | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:326` | Per-operation idempotency status. |
+| `@beep/repo-cli/commands/Architecture/OperationPlan` | `ArchitectureOperationCheckStatus` | type | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:351` | Per-operation idempotency status. |
+| `@beep/repo-cli/commands/Architecture/OperationPlan` | `ArchitectureOperationConflictPolicy` | const | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:249` | Conflict policy metadata for architecture operations. |
+| `@beep/repo-cli/commands/Architecture/OperationPlan` | `ArchitectureOperationConflictPolicy` | type | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:272` | Conflict policy metadata for an architecture operation. |
+| `@beep/repo-cli/commands/Architecture/OperationPlan` | `ArchitectureOperationKind` | const | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:146` | Operation kinds supported by canonical architecture operation plans. |
+| `@beep/repo-cli/commands/Architecture/OperationPlan` | `ArchitectureOperationKind` | type | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:170` | Operation kind supported by canonical architecture operation plans. |
+| `@beep/repo-cli/commands/Architecture/OperationPlan` | `ArchitectureOperationSource` | const | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:287` | Source metadata for architecture operations. |
+| `@beep/repo-cli/commands/Architecture/OperationPlan` | `ArchitectureOperationSource` | type | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:311` | Source metadata for an architecture operation. |
+| `@beep/repo-cli/commands/Architecture/OperationPlan` | `ArchitectureOperationWriteMode` | const | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:211` | Write-mode metadata for architecture operations. |
+| `@beep/repo-cli/commands/Architecture/OperationPlan` | `ArchitectureOperationWriteMode` | type | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:234` | Write-mode metadata for an architecture operation. |
+| `@beep/repo-cli/commands/Architecture/OperationPlan` | `ArchitecturePackageRole` | const | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:104` | Slice role packages supported by `beep architecture create package`. |
+| `@beep/repo-cli/commands/Architecture/OperationPlan` | `ArchitecturePackageRole` | type | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:131` | Slice role package supported by `beep architecture create package`. |
+| `@beep/repo-cli/commands/Architecture/OperationPlan` | `ArchitecturePlanStage` | const | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:47` | Staged architecture proof targets. |
+| `@beep/repo-cli/commands/Architecture/OperationPlan` | `ArchitecturePlanStage` | type | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:59` | Staged architecture proof target. |
+| `@beep/repo-cli/commands/Architecture/OperationPlan` | `ArchitecturePlanTarget` | class | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:410` | Normalized architecture creation target. |
+| `@beep/repo-cli/commands/Architecture/OperationPlan` | `ArchitectureSliceRole` | const | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:67` | Canonical architecture slice roles. |
+| `@beep/repo-cli/commands/Architecture/OperationPlan` | `ArchitectureSliceRole` | type | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:89` | Canonical architecture slice role. |
+| `@beep/repo-cli/commands/Architecture/OperationPlan` | `ArchitectureSliceRolePlan` | class | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:392` | Role package entry in a canonical architecture slice operation plan. |
+| `@beep/repo-cli/commands/Architecture/OperationPlan` | `ArchitectureWriterKind` | const | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:178` | Writer families selected from normalized architecture operations. |
+| `@beep/repo-cli/commands/Architecture/OperationPlan` | `ArchitectureWriterKind` | type | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:196` | Writer family selected from normalized architecture operations. |
+| `@beep/repo-cli/commands/Architecture/OperationPlan` | `CanonicalSliceOperationPlan` | class | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:593` | Schema-versioned canonical architecture slice operation plan. |
+| `@beep/repo-cli/commands/Architecture/OperationPlan` | `decodeCanonicalSliceOperationPlanJson` | const | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:2489` | Decode operation-plan JSON text. |
+| `@beep/repo-cli/commands/Architecture/OperationPlan` | `defaultArchitecturePlanTarget` | const | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:686` | Default architecture target shared by command defaults and plan factories. |
+| `@beep/repo-cli/commands/Architecture/OperationPlan` | `encodeCanonicalSliceOperationPlanJson` | const | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:2481` | Encode an operation plan as JSON text. |
+| `@beep/repo-cli/commands/Architecture/OperationPlan` | `EnsureAbsentPathOperation` | class | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:521` | Operation that proves a legacy repo-relative path must not exist. |
+| `@beep/repo-cli/commands/Architecture/OperationPlan` | `EnsureFileOperation` | class | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:499` | Operation that proves a repo-relative file must exist. |
+| `@beep/repo-cli/commands/Architecture/OperationPlan` | `makeArchitectureOperationPlan` | const | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:2373` | Build a write-capable operation plan from the accepted WorkItem proof files. |
+| `@beep/repo-cli/commands/Architecture/OperationPlan` | `makeArchitecturePackageOperationPlan` | const | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:2454` | Build a shell-only slice role package operation plan. |
+| `@beep/repo-cli/commands/Architecture/OperationPlan` | `makeCanonicalSliceOperationPlan` | const | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:2328` | Build the canonical architecture lab WorkItem operation plan. |
+| `@beep/repo-cli/commands/Architecture/OperationPlan` | `OperationPlanApplyResult` | class | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:651` | Result of applying a canonical operation plan. |
+| `@beep/repo-cli/commands/Architecture/OperationPlan` | `OperationPlanCheckResult` | class | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:630` | Result of validating a canonical operation plan against a checkout. |
+| `@beep/repo-cli/commands/Architecture/OperationPlan` | `WriteFileOperation` | class | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:429` | Operation that writes a repo-relative file when absent. |
+| `@beep/repo-cli/commands/Architecture/OperationPlan` | `WritePackageJsonOperation` | class | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:471` | Operation that writes a structured package manifest. |
+| `@beep/repo-cli/commands/Architecture/OperationPlanExecution` | `applyCanonicalSliceOperationPlan` | const | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlanExecution.ts:179` | Apply a decoded operation plan with failsafe conflict behavior. |
+| `@beep/repo-cli/commands/Architecture/OperationPlanExecution` | `checkCanonicalSliceOperationPlan` | const | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlanExecution.ts:85` | Validate a decoded operation plan against a repository root. |
 | `@beep/repo-cli/commands/Architecture/OperationPlanPackageJson` | `renderPackageJsonOperation` | const | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlanPackageJson.ts:64` | Render a structured package manifest operation. |
 | `@beep/repo-cli/commands/Ci` | `appendTurboSummary` | const | `packages/tooling/tool/cli/src/commands/Ci.ts:280` | Append the latest Turbo run summary to GitHub step summary or stdout. |
 | `@beep/repo-cli/commands/Ci` | `ciCommand` | const | `packages/tooling/tool/cli/src/commands/Ci.ts:338` | CI helper command group. |
 | `@beep/repo-cli/commands/Ci` | `CiCommandError` | class | `packages/tooling/tool/cli/src/commands/Ci.ts:98` | Typed failure for CI helper commands. |
 | `@beep/repo-cli/commands/Codegen` | `codegenCommand` | const | `packages/tooling/tool/cli/src/commands/Codegen.ts:257` | CLI command that scans a package's `src/` directory and generates (or previews) |
-| `@beep/repo-cli/commands/Codex` | `codexCommand` | const | `packages/tooling/tool/cli/src/commands/Codex.ts:134` | Codex helper command group. |
+| `@beep/repo-cli/commands/Codex` | `codexCommand` | const | `packages/tooling/tool/cli/src/commands/Codex.ts:127` | Codex helper command group. |
 | `@beep/repo-cli/commands/Codex` | `CodexCommandError` | class | `packages/tooling/tool/cli/src/commands/Codex.ts:31` | Typed failure for Codex helper commands. |
-| `@beep/repo-cli/commands/Codex` | `runCodexQualityReviewFixLoop` | const | `packages/tooling/tool/cli/src/commands/Codex.ts:70` | Launch Codex with the repo-local quality review fix loop prompt. |
+| `@beep/repo-cli/commands/Codex` | `runCodexQualityReviewFixLoop` | const | `packages/tooling/tool/cli/src/commands/Codex.ts:72` | Launch Codex with the repo-local quality review fix loop prompt. |
 | `@beep/repo-cli/commands/CreatePackage/ConfigUpdater` | `checkConfigNeedsUpdate` | const | `packages/tooling/tool/cli/src/commands/CreatePackage/ConfigUpdater.ts:642` | Check whether config entries already exist (for dry-run output). |
 | `@beep/repo-cli/commands/CreatePackage/ConfigUpdater` | `checkConfigNeedsUpdateForTargets` | const | `packages/tooling/tool/cli/src/commands/CreatePackage/ConfigUpdater.ts:570` | Batch read-only drift checker for root config updates. |
 | `@beep/repo-cli/commands/CreatePackage/ConfigUpdater` | `ConfigUpdateBatchResult` | class | `packages/tooling/tool/cli/src/commands/CreatePackage/ConfigUpdater.ts:97` | Batch config orchestration result for one or more package targets. |
@@ -10517,9 +10688,9 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/commands/CreatePackage/FileGenerationPlanService` | `GenerationActionKind` | type | `packages/tooling/tool/cli/src/commands/CreatePackage/FileGenerationPlanService.ts:146` | Planned generation action. |
 | `@beep/repo-cli/commands/CreatePackage/FileGenerationPlanService` | `PlannedFile` | class | `packages/tooling/tool/cli/src/commands/CreatePackage/FileGenerationPlanService.ts:85` | A file write operation. |
 | `@beep/repo-cli/commands/CreatePackage/FileGenerationPlanService` | `PlannedSymlink` | class | `packages/tooling/tool/cli/src/commands/CreatePackage/FileGenerationPlanService.ts:101` | A symlink operation. |
-| `@beep/repo-cli/commands/CreatePackage/Handler` | `createPackageCommand` | const | `packages/tooling/tool/cli/src/commands/CreatePackage/Handler.ts:552` | CLI command that scaffolds a new package with templates, a Schema-validated |
+| `@beep/repo-cli/commands/CreatePackage/Handler` | `createPackageCommand` | const | `packages/tooling/tool/cli/src/commands/CreatePackage/Handler.ts:554` | CLI command that scaffolds a new package with templates, a Schema-validated |
 | `@beep/repo-cli/commands/CreatePackage/Handler` | `resolveCreatePackageTemplateDir` | const | `packages/tooling/tool/cli/src/commands/CreatePackage/Handler.ts:75` | Resolve create-package template directory for both src and dist runtimes. |
-| `@beep/repo-cli/commands/CreatePackage/Handler` | `TemplateContext` | class | `packages/tooling/tool/cli/src/commands/CreatePackage/Handler.ts:265` | Variables passed into every template during package scaffolding. |
+| `@beep/repo-cli/commands/CreatePackage/Handler` | `TemplateContext` | class | `packages/tooling/tool/cli/src/commands/CreatePackage/Handler.ts:267` | Variables passed into every template during package scaffolding. |
 | `@beep/repo-cli/commands/CreatePackage/index` | `createPackageCommand` | const | `packages/tooling/tool/cli/src/commands/CreatePackage/index.ts:16` | Package creation command. |
 | `@beep/repo-cli/commands/CreatePackage/TemplateService` | `createTemplateService` | const | `packages/tooling/tool/cli/src/commands/CreatePackage/TemplateService.ts:126` | Construct the default template service implementation. |
 | `@beep/repo-cli/commands/CreatePackage/TemplateService` | `RenderedTemplate` | class | `packages/tooling/tool/cli/src/commands/CreatePackage/TemplateService.ts:40` | Rendered template output. |
@@ -10549,7 +10720,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/commands/Docgen/internal/Local` | `DocgenLocalTurboTask` | class | `packages/tooling/tool/cli/src/commands/Docgen/internal/Local.ts:270` | Turbo dry-run package summary used by local docgen. |
 | `@beep/repo-cli/commands/Docgen/internal/Local` | `runDocgenLocal` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/Local.ts:901` | Run the bounded local docgen proof. |
 | `@beep/repo-cli/commands/Docgen/internal/Local` | `selectDocgenLocalPackagesForTesting` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/Local.ts:773` | Select package-local docgen targets for changed files. |
-| `@beep/repo-cli/commands/Docgen/internal/Operations` | `aggregateGeneratedDocs` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/Operations.ts:1478` | Aggregate generated package docs into the current root docs layout. |
+| `@beep/repo-cli/commands/Docgen/internal/Operations` | `aggregateGeneratedDocs` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/Operations.ts:1475` | Aggregate generated package docs into the current root docs layout. |
 | `@beep/repo-cli/commands/Docgen/internal/Operations` | `analyzePackageDocumentation` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/Operations.ts:1303` | Analyze a package for missing docgen-required JSDoc. |
 | `@beep/repo-cli/commands/Docgen/internal/Operations` | `assertNoOrphanDocgenConfigPaths` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/Operations.ts:465` | Fail when stale package-local docgen configs exist outside current workspaces. |
 | `@beep/repo-cli/commands/Docgen/internal/Operations` | `createDocgenConfigDocument` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/Operations.ts:1166` | Build the repo-standard `docgen.json` document for a package. |
@@ -10568,12 +10739,12 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/commands/Docgen/internal/Operations` | `DocgenPackageStatus` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/Operations.ts:84` | Workspace docgen status derived from config and generated output presence. |
 | `@beep/repo-cli/commands/Docgen/internal/Operations` | `DocgenPackageStatus` | type | `packages/tooling/tool/cli/src/commands/Docgen/internal/Operations.ts:99` | Workspace docgen status derived from config and generated output presence. |
 | `@beep/repo-cli/commands/Docgen/internal/Operations` | `DocgenWorkspacePackage` | class | `packages/tooling/tool/cli/src/commands/Docgen/internal/Operations.ts:142` | Workspace package metadata used by docgen commands. |
-| `@beep/repo-cli/commands/Docgen/internal/Operations` | `generateAnalysisJson` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/Operations.ts:1468` | Encode a package analysis document as JSON text. |
-| `@beep/repo-cli/commands/Docgen/internal/Operations` | `generateAnalysisReport` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/Operations.ts:1347` | Render a human-first markdown report for a package analysis run. |
+| `@beep/repo-cli/commands/Docgen/internal/Operations` | `generateAnalysisJson` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/Operations.ts:1465` | Encode a package analysis document as JSON text. |
+| `@beep/repo-cli/commands/Docgen/internal/Operations` | `generateAnalysisReport` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/Operations.ts:1344` | Render a human-first markdown report for a package analysis run. |
 | `@beep/repo-cli/commands/Docgen/internal/Operations` | `loadDocgenConfigDocument` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/Operations.ts:1138` | Load a package-local `docgen.json` document. |
 | `@beep/repo-cli/commands/Docgen/internal/Operations` | `normalizeDocsOutputPath` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/Operations.ts:1127` | Normalize a workspace-relative package path to the current root docs output layout. |
 | `@beep/repo-cli/commands/Docgen/internal/Operations` | `resolveDocgenWorkspacePackage` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/Operations.ts:1251` | Resolve a workspace package by package name, repo-relative path, absolute path, or current docs output path. |
-| `@beep/repo-cli/commands/Docgen/internal/Operations` | `runDocgenForPackage` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/Operations.ts:1629` | Run the repo-local `@beep/repo-docgen` implementation for a single workspace package. |
+| `@beep/repo-cli/commands/Docgen/internal/Operations` | `runDocgenForPackage` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/Operations.ts:1626` | Run the repo-local `@beep/repo-docgen` implementation for a single workspace package. |
 | `@beep/repo-cli/commands/Docgen/internal/Quality` | `analyzeDocgenQuality` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/Quality.ts:1766` | Builds the consolidated report emitted by the quality command. |
 | `@beep/repo-cli/commands/Docgen/internal/Quality` | `analyzePackageQuality` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/Quality.ts:1696` | Builds a package-local quality report from ts-morph-enriched subjects. |
 | `@beep/repo-cli/commands/Docgen/internal/Quality` | `DocgenQualityFindingCode` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/Quality.ts:194` | Typed finding code emitted by the v1 quality rubric. |
@@ -10614,22 +10785,22 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/commands/Docgen/internal/QualityWorkerEval` | `generateQualityWorkerEvalJson` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerEval.ts:1377` | Render a worker eval report as stable JSON. |
 | `@beep/repo-cli/commands/Docgen/internal/QualityWorkerEval` | `qualityWorkerEvalSourcePacketLimit` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerEval.ts:1182` | Compute the source packet limit used for generated quality reports. |
 | `@beep/repo-cli/commands/Docgen/internal/QualityWorkerEval` | `selectQualityWorkerEvalPackets` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerEval.ts:736` | Select remediation packets for a capped worker eval run. |
-| `@beep/repo-cli/commands/Docgen/internal/QualityWorkerRunpodEval` | `defaultQualityWorkerRunpodEvalOtlpBaseUrl` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerRunpodEval.ts:1022` | Default Phoenix-compatible OTLP base URL for remote worker eval traces. |
-| `@beep/repo-cli/commands/Docgen/internal/QualityWorkerRunpodEval` | `defaultQualityWorkerRunpodEvalOtlpProject` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerRunpodEval.ts:1037` | Default Phoenix project for remote worker eval traces. |
-| `@beep/repo-cli/commands/Docgen/internal/QualityWorkerRunpodEval` | `defaultQualityWorkerRunpodEvalPacketLimit` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerRunpodEval.ts:1007` | Default packet cap for Runpod-backed worker eval runs. |
-| `@beep/repo-cli/commands/Docgen/internal/QualityWorkerRunpodEval` | `defaultQualityWorkerRunpodEvalReadinessTimeoutMs` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerRunpodEval.ts:1052` | Default readiness timeout for remote Ollama bootstrap. |
+| `@beep/repo-cli/commands/Docgen/internal/QualityWorkerRunpodEval` | `defaultQualityWorkerRunpodEvalOtlpBaseUrl` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerRunpodEval.ts:1023` | Default Phoenix-compatible OTLP base URL for remote worker eval traces. |
+| `@beep/repo-cli/commands/Docgen/internal/QualityWorkerRunpodEval` | `defaultQualityWorkerRunpodEvalOtlpProject` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerRunpodEval.ts:1038` | Default Phoenix project for remote worker eval traces. |
+| `@beep/repo-cli/commands/Docgen/internal/QualityWorkerRunpodEval` | `defaultQualityWorkerRunpodEvalPacketLimit` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerRunpodEval.ts:1008` | Default packet cap for Runpod-backed worker eval runs. |
+| `@beep/repo-cli/commands/Docgen/internal/QualityWorkerRunpodEval` | `defaultQualityWorkerRunpodEvalReadinessTimeoutMs` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerRunpodEval.ts:1053` | Default readiness timeout for remote Ollama bootstrap. |
 | `@beep/repo-cli/commands/Docgen/internal/QualityWorkerRunpodEval` | `DocgenQualityWorkerRunpodEvalReport` | class | `packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerRunpodEval.ts:230` | JSON wrapper report emitted by `docgen quality-worker-eval-runpod`. |
-| `@beep/repo-cli/commands/Docgen/internal/QualityWorkerRunpodEval` | `generateQualityWorkerRunpodEvalJson` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerRunpodEval.ts:1173` | Render a Runpod worker eval wrapper report as stable JSON. |
-| `@beep/repo-cli/commands/Docgen/internal/QualityWorkerRunpodEval` | `makeQualityWorkerRunpodEvalPodCreateInput` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerRunpodEval.ts:442` | Build the Runpod create-pod body for an Ollama worker eval host. |
-| `@beep/repo-cli/commands/Docgen/internal/QualityWorkerRunpodEval` | `requiredQualityWorkerRunpodEvalModel` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerRunpodEval.ts:992` | Required v1 model id for Runpod-backed Qwen worker evals. |
-| `@beep/repo-cli/commands/Docgen/internal/QualityWorkerRunpodEval` | `runDocgenQualityWorkerRunpodEval` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerRunpodEval.ts:1072` | Run a read-only JSDoc quality worker eval on an ephemeral Runpod pod. |
+| `@beep/repo-cli/commands/Docgen/internal/QualityWorkerRunpodEval` | `generateQualityWorkerRunpodEvalJson` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerRunpodEval.ts:1174` | Render a Runpod worker eval wrapper report as stable JSON. |
+| `@beep/repo-cli/commands/Docgen/internal/QualityWorkerRunpodEval` | `makeQualityWorkerRunpodEvalPodCreateInput` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerRunpodEval.ts:443` | Build the Runpod create-pod body for an Ollama worker eval host. |
+| `@beep/repo-cli/commands/Docgen/internal/QualityWorkerRunpodEval` | `requiredQualityWorkerRunpodEvalModel` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerRunpodEval.ts:993` | Required v1 model id for Runpod-backed Qwen worker evals. |
+| `@beep/repo-cli/commands/Docgen/internal/QualityWorkerRunpodEval` | `runDocgenQualityWorkerRunpodEval` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerRunpodEval.ts:1073` | Run a read-only JSDoc quality worker eval on an ephemeral Runpod pod. |
 | `@beep/repo-cli/commands/Docgen/internal/QualityWorkerRunpodEval` | `RunDocgenQualityWorkerRunpodEvalOptions` | class | `packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerRunpodEval.ts:267` | Options for a Runpod-backed quality worker eval run. |
-| `@beep/repo-cli/commands/Docgen/internal/QualityWorkerRunpodEval` | `selectQualityWorkerRunpodTemplate` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerRunpodEval.ts:400` | Select the first suitable Ollama template from live Runpod templates. |
+| `@beep/repo-cli/commands/Docgen/internal/QualityWorkerRunpodEval` | `selectQualityWorkerRunpodTemplate` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerRunpodEval.ts:401` | Select the first suitable Ollama template from live Runpod templates. |
 | `@beep/repo-cli/commands/Docs` | `docsCommand` | const | `packages/tooling/tool/cli/src/commands/Docs.ts:244` | Command-first docs discovery entrypoint used by agent config surfaces. |
 | `@beep/repo-cli/commands/Docs` | `DocsSection` | const | `packages/tooling/tool/cli/src/commands/Docs.ts:78` | Documentation section model. |
 | `@beep/repo-cli/commands/Docs` | `DocsSection` | type | `packages/tooling/tool/cli/src/commands/Docs.ts:97` | Documentation section model. |
-| `@beep/repo-cli/commands/DocsAggregate` | `docsAggregateCommand` | const | `packages/tooling/tool/cli/src/commands/DocsAggregate.ts:77` | Aggregate generated package docs into the root `docs/` layout. |
-| `@beep/repo-cli/commands/Files/Files.command` | `filesCommand` | const | `packages/tooling/tool/cli/src/commands/Files/Files.command.ts:447` | File curation command group. |
+| `@beep/repo-cli/commands/DocsAggregate` | `docsAggregateCommand` | const | `packages/tooling/tool/cli/src/commands/DocsAggregate.ts:76` | Aggregate generated package docs into the root `docs/` layout. |
+| `@beep/repo-cli/commands/Files/Files.command` | `filesCommand` | const | `packages/tooling/tool/cli/src/commands/Files/Files.command.ts:437` | File curation command group. |
 | `@beep/repo-cli/commands/Files/Files.errors` | `failOnExtensionlessFile` | const | `packages/tooling/tool/cli/src/commands/Files/Files.errors.ts:74` | Fail when a rename operation selects an extensionless file. |
 | `@beep/repo-cli/commands/Files/Files.errors` | `FilesCommandError` | class | `packages/tooling/tool/cli/src/commands/Files/Files.errors.ts:33` | Error raised by file curation commands. |
 | `@beep/repo-cli/commands/Files/Files.errors` | `formatPlatformError` | const | `packages/tooling/tool/cli/src/commands/Files/Files.errors.ts:54` | Convert a platform failure into a file command error. |
@@ -10753,18 +10924,18 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/commands/Files/Files.schemas` | `StripMetadataSummary` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:915` | Summary returned by `stripMetadataFiles`. |
 | `@beep/repo-cli/commands/Files/Files.schemas` | `SupportedMetadataImageExtension` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:144` | Image extension schema supported by metadata stripping. |
 | `@beep/repo-cli/commands/Files/Files.schemas` | `SupportedMetadataImageExtension` | type | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:164` | Image extension supported by metadata stripping. |
-| `@beep/repo-cli/commands/Files/Files.service` | `archivePoorCandidates` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:4497` | Archive obvious poor image candidates out of a dataset directory. |
-| `@beep/repo-cli/commands/Files/Files.service` | `createCaptionFiles` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:4512` | Create same-stem caption sidecar files for direct image files. |
-| `@beep/repo-cli/commands/Files/Files.service` | `cropBordersFiles` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:4527` | Crop solid or near-solid borders from direct image files. |
-| `@beep/repo-cli/commands/Files/Files.service` | `detectBordersFiles` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:4542` | Detect solid or near-solid borders in direct image files. |
-| `@beep/repo-cli/commands/Files/Files.service` | `detectFacesFiles` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:4557` | Detect human faces in direct image files. |
-| `@beep/repo-cli/commands/Files/Files.service` | `FilesCommandService` | class | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:322` | Service tag for dataset file curation operations. |
-| `@beep/repo-cli/commands/Files/Files.service` | `FilesCommandServiceLive` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:4486` | Live service layer for dataset file curation operations. |
-| `@beep/repo-cli/commands/Files/Files.service` | `FilesCommandServiceShape` | interface | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:249` | Service contract for dataset file curation operations. |
-| `@beep/repo-cli/commands/Files/Files.service` | `normalizeFiles` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:4572` | Normalize direct image files into an output directory and write a transform manifest. |
-| `@beep/repo-cli/commands/Files/Files.service` | `printFilesIndex` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:3726` | Print the files command index. |
-| `@beep/repo-cli/commands/Files/Files.service` | `sortAndRenameFiles` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:4590` | Sort direct regular files in a directory by size and rename them with a generated prefix. |
-| `@beep/repo-cli/commands/Files/Files.service` | `stripMetadataFiles` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:4617` | Strip user-authored metadata from direct image and video files in a directory. |
+| `@beep/repo-cli/commands/Files/Files.service` | `archivePoorCandidates` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:4498` | Archive obvious poor image candidates out of a dataset directory. |
+| `@beep/repo-cli/commands/Files/Files.service` | `createCaptionFiles` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:4513` | Create same-stem caption sidecar files for direct image files. |
+| `@beep/repo-cli/commands/Files/Files.service` | `cropBordersFiles` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:4528` | Crop solid or near-solid borders from direct image files. |
+| `@beep/repo-cli/commands/Files/Files.service` | `detectBordersFiles` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:4543` | Detect solid or near-solid borders in direct image files. |
+| `@beep/repo-cli/commands/Files/Files.service` | `detectFacesFiles` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:4558` | Detect human faces in direct image files. |
+| `@beep/repo-cli/commands/Files/Files.service` | `FilesCommandService` | class | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:323` | Service tag for dataset file curation operations. |
+| `@beep/repo-cli/commands/Files/Files.service` | `FilesCommandServiceLive` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:4487` | Live service layer for dataset file curation operations. |
+| `@beep/repo-cli/commands/Files/Files.service` | `FilesCommandServiceShape` | interface | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:250` | Service contract for dataset file curation operations. |
+| `@beep/repo-cli/commands/Files/Files.service` | `normalizeFiles` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:4573` | Normalize direct image files into an output directory and write a transform manifest. |
+| `@beep/repo-cli/commands/Files/Files.service` | `printFilesIndex` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:3727` | Print the files command index. |
+| `@beep/repo-cli/commands/Files/Files.service` | `sortAndRenameFiles` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:4591` | Sort direct regular files in a directory by size and rename them with a generated prefix. |
+| `@beep/repo-cli/commands/Files/Files.service` | `stripMetadataFiles` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:4618` | Strip user-authored metadata from direct image and video files in a directory. |
 | `@beep/repo-cli/commands/Files/Files.utils` | `analyzeSolidBorders` | const | `packages/tooling/tool/cli/src/commands/Files/Files.utils.ts:730` | Analyze raw RGB image pixels for near-solid borders on all four sides. |
 | `@beep/repo-cli/commands/Files/Files.utils` | `assessImageCandidate` | const | `packages/tooling/tool/cli/src/commands/Files/Files.utils.ts:601` | Assess image dimensions against hard candidate-quality thresholds. |
 | `@beep/repo-cli/commands/Files/Files.utils` | `byNameAscending` | const | `packages/tooling/tool/cli/src/commands/Files/Files.utils.ts:264` | Order regular files by name ascending. |
@@ -10809,7 +10980,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/commands/Files/Files.utils` | `targetNameForEntry` | const | `packages/tooling/tool/cli/src/commands/Files/Files.utils.ts:408` | Build a generated filename for a planned rename. |
 | `@beep/repo-cli/commands/Files/index` | `analyzeSolidBorders` | const | `packages/tooling/tool/cli/src/commands/Files/Files.utils.ts:730` | Analyze raw RGB image pixels for near-solid borders on all four sides. |
 | `@beep/repo-cli/commands/Files/index` | `ArchivedSidecarEntry` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1316` | Caption or metadata sidecar moved with an archived image. |
-| `@beep/repo-cli/commands/Files/index` | `archivePoorCandidates` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:4497` | Archive obvious poor image candidates out of a dataset directory. |
+| `@beep/repo-cli/commands/Files/index` | `archivePoorCandidates` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:4498` | Archive obvious poor image candidates out of a dataset directory. |
 | `@beep/repo-cli/commands/Files/index` | `ArchivePoorCandidatesEntry` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1335` | Assessed image candidate with an archive or keep decision. |
 | `@beep/repo-cli/commands/Files/index` | `ArchivePoorCandidatesManifest` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1450` | Manifest written by a successful poor-candidate archive run. |
 | `@beep/repo-cli/commands/Files/index` | `ArchivePoorCandidatesManifestOptions` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1275` | JSON-safe options recorded in a poor-candidate archive manifest. |
@@ -10844,7 +11015,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/commands/Files/index` | `CandidateRatioThreshold` | type | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:510` | Numeric threshold ratio used by candidate-quality triage. |
 | `@beep/repo-cli/commands/Files/index` | `classifyBorderSides` | const | `packages/tooling/tool/cli/src/commands/Files/Files.utils.ts:684` | Classify an analyzed image from its matched border sides. |
 | `@beep/repo-cli/commands/Files/index` | `collectText` | const | `packages/tooling/tool/cli/src/commands/Files/Files.utils.ts:323` | Collect a byte stream into trimmed text. |
-| `@beep/repo-cli/commands/Files/index` | `createCaptionFiles` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:4512` | Create same-stem caption sidecar files for direct image files. |
+| `@beep/repo-cli/commands/Files/index` | `createCaptionFiles` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:4513` | Create same-stem caption sidecar files for direct image files. |
 | `@beep/repo-cli/commands/Files/index` | `CreateCaptionFilesOptions` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:959` | Options used by caption sidecar creation. |
 | `@beep/repo-cli/commands/Files/index` | `CreateCaptionFilesPlan` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1021` | Planned caption sidecar creation run. |
 | `@beep/repo-cli/commands/Files/index` | `CreateCaptionFilesPlanEntry` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:977` | Planned caption sidecar file creation. |
@@ -10852,7 +11023,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/commands/Files/index` | `CreateCaptionFilesSkippedReason` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:240` | Reason a direct directory entry was skipped by `files create-captions`. |
 | `@beep/repo-cli/commands/Files/index` | `CreateCaptionFilesSkippedReason` | type | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:261` | Reason a direct directory entry was skipped by `files create-captions`. |
 | `@beep/repo-cli/commands/Files/index` | `CreateCaptionFilesSummary` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1040` | Summary returned by `createCaptionFiles`. |
-| `@beep/repo-cli/commands/Files/index` | `cropBordersFiles` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:4527` | Crop solid or near-solid borders from direct image files. |
+| `@beep/repo-cli/commands/Files/index` | `cropBordersFiles` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:4528` | Crop solid or near-solid borders from direct image files. |
 | `@beep/repo-cli/commands/Files/index` | `CropBordersOptions` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1537` | Options used by the image border cropping operation. |
 | `@beep/repo-cli/commands/Files/index` | `CropBordersPlan` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1793` | Planned border crop entries plus skipped file counts. |
 | `@beep/repo-cli/commands/Files/index` | `CropBordersPlanEntry` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1767` | Planned crop for an image with detected solid borders. |
@@ -10869,7 +11040,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/commands/Files/index` | `decodeRotationNumber` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1899` | Decode an unknown rotation value into an optional number. |
 | `@beep/repo-cli/commands/Files/index` | `decodeSafeFilePrefix` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1907` | Decode an unknown safe filename prefix. |
 | `@beep/repo-cli/commands/Files/index` | `DetectBordersEntry` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1595` | Image entry analyzed by `files detect-borders`. |
-| `@beep/repo-cli/commands/Files/index` | `detectBordersFiles` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:4542` | Detect solid or near-solid borders in direct image files. |
+| `@beep/repo-cli/commands/Files/index` | `detectBordersFiles` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:4543` | Detect solid or near-solid borders in direct image files. |
 | `@beep/repo-cli/commands/Files/index` | `DetectBorderSideMeasurement` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1574` | Measurement for one scanned image side. |
 | `@beep/repo-cli/commands/Files/index` | `DetectBordersOptions` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1474` | Options used by the image border detection operation. |
 | `@beep/repo-cli/commands/Files/index` | `DetectBordersReport` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1656` | JSON report emitted by an image border detection run. |
@@ -10878,7 +11049,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/commands/Files/index` | `DetectBordersSkippedReason` | type | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:336` | Reason a direct directory entry was skipped by `files detect-borders`. |
 | `@beep/repo-cli/commands/Files/index` | `DetectBordersSummary` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1637` | Summary counts for an image border detection run. |
 | `@beep/repo-cli/commands/Files/index` | `DetectFacesEntry` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1676` | Image entry analyzed by `files detect-faces`. |
-| `@beep/repo-cli/commands/Files/index` | `detectFacesFiles` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:4557` | Detect human faces in direct image files. |
+| `@beep/repo-cli/commands/Files/index` | `detectFacesFiles` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:4558` | Detect human faces in direct image files. |
 | `@beep/repo-cli/commands/Files/index` | `DetectFacesFlag` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:373` | Triage flag emitted by `files detect-faces`. |
 | `@beep/repo-cli/commands/Files/index` | `DetectFacesFlag` | type | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:391` | Triage flag emitted by `files detect-faces`. |
 | `@beep/repo-cli/commands/Files/index` | `DetectFacesOptions` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1494` | Options used by the image face detection operation. |
@@ -10896,11 +11067,11 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/commands/Files/index` | `FfprobeOutput` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:736` | JSON document emitted by `ffprobe`. |
 | `@beep/repo-cli/commands/Files/index` | `FfprobeSideData` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:703` | Side-data entry returned by `ffprobe`. |
 | `@beep/repo-cli/commands/Files/index` | `FfprobeStream` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:718` | Video stream metadata returned by `ffprobe`. |
-| `@beep/repo-cli/commands/Files/index` | `filesCommand` | const | `packages/tooling/tool/cli/src/commands/Files/Files.command.ts:447` | File curation command group. |
+| `@beep/repo-cli/commands/Files/index` | `filesCommand` | const | `packages/tooling/tool/cli/src/commands/Files/Files.command.ts:437` | File curation command group. |
 | `@beep/repo-cli/commands/Files/index` | `FilesCommandError` | class | `packages/tooling/tool/cli/src/commands/Files/Files.errors.ts:33` | Error raised by file curation commands. |
-| `@beep/repo-cli/commands/Files/index` | `FilesCommandService` | class | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:322` | Service tag for dataset file curation operations. |
-| `@beep/repo-cli/commands/Files/index` | `FilesCommandServiceLive` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:4486` | Live service layer for dataset file curation operations. |
-| `@beep/repo-cli/commands/Files/index` | `FilesCommandServiceShape` | interface | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:249` | Service contract for dataset file curation operations. |
+| `@beep/repo-cli/commands/Files/index` | `FilesCommandService` | class | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:323` | Service tag for dataset file curation operations. |
+| `@beep/repo-cli/commands/Files/index` | `FilesCommandServiceLive` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:4487` | Live service layer for dataset file curation operations. |
+| `@beep/repo-cli/commands/Files/index` | `FilesCommandServiceShape` | interface | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:250` | Service contract for dataset file curation operations. |
 | `@beep/repo-cli/commands/Files/index` | `FilesConcurrency` | const | `packages/tooling/tool/cli/src/commands/Files/Files.progress.ts:23` | Shared concurrency caps for Files command phases. |
 | `@beep/repo-cli/commands/Files/index` | `FileSha256Hash` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:61` | SHA-256 hash recorded for normalized file bytes. |
 | `@beep/repo-cli/commands/Files/index` | `FileSha256Hash` | type | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:80` | SHA-256 hash recorded for normalized file bytes. |
@@ -10925,7 +11096,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/commands/Files/index` | `NonNegativePixelOffset` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:88` | Non-negative pixel offset schema. |
 | `@beep/repo-cli/commands/Files/index` | `NonNegativePixelOffset` | type | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:116` | Non-negative pixel offset value. |
 | `@beep/repo-cli/commands/Files/index` | `normalizeBareExtension` | const | `packages/tooling/tool/cli/src/commands/Files/Files.utils.ts:277` | Normalize a file extension to a lowercase bare extension. |
-| `@beep/repo-cli/commands/Files/index` | `normalizeFiles` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:4572` | Normalize direct image files into an output directory and write a transform manifest. |
+| `@beep/repo-cli/commands/Files/index` | `normalizeFiles` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:4573` | Normalize direct image files into an output directory and write a transform manifest. |
 | `@beep/repo-cli/commands/Files/index` | `NormalizeFilesOptions` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1060` | Options used by the image normalization operation. |
 | `@beep/repo-cli/commands/Files/index` | `NormalizeImageFormat` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:192` | Canonical image output format emitted by `files normalize`. |
 | `@beep/repo-cli/commands/Files/index` | `NormalizeImageFormat` | type | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:204` | Canonical image output format emitted by `files normalize`. |
@@ -10944,7 +11115,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/commands/Files/index` | `NormalizeSummary` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1177` | Summary counts for an image normalization run. |
 | `@beep/repo-cli/commands/Files/index` | `PositiveMediaDimension` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:25` | Positive media dimension schema. |
 | `@beep/repo-cli/commands/Files/index` | `PositiveMediaDimension` | type | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:53` | Positive media dimension value. |
-| `@beep/repo-cli/commands/Files/index` | `printFilesIndex` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:3726` | Print the files command index. |
+| `@beep/repo-cli/commands/Files/index` | `printFilesIndex` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:3727` | Print the files command index. |
 | `@beep/repo-cli/commands/Files/index` | `RenamePlan` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1849` | Planned rename entries plus skipped file counts. |
 | `@beep/repo-cli/commands/Files/index` | `RenamePlanEntry` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:838` | Planned rename from an existing file path to a generated target path. |
 | `@beep/repo-cli/commands/Files/index` | `renderArchivePoorCandidatesEntry` | const | `packages/tooling/tool/cli/src/commands/Files/Files.utils.ts:645` | Render a poor-candidate archive plan entry. |
@@ -10975,26 +11146,26 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/commands/Files/index` | `sharpFormatForNormalize` | const | `packages/tooling/tool/cli/src/commands/Files/Files.utils.ts:533` | Resolve the sharp encoder name for a canonical normalize format. |
 | `@beep/repo-cli/commands/Files/index` | `SortableFile` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:818` | File discovered for deterministic rename planning. |
 | `@beep/repo-cli/commands/Files/index` | `SortableFileCollection` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1833` | Files selected for rename planning plus skipped file counts. |
-| `@beep/repo-cli/commands/Files/index` | `sortAndRenameFiles` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:4590` | Sort direct regular files in a directory by size and rename them with a generated prefix. |
+| `@beep/repo-cli/commands/Files/index` | `sortAndRenameFiles` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:4591` | Sort direct regular files in a directory by size and rename them with a generated prefix. |
 | `@beep/repo-cli/commands/Files/index` | `SortAndRenameSummary` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:863` | Summary returned by `sortAndRenameFiles`. |
 | `@beep/repo-cli/commands/Files/index` | `stringEquivalence` | const | `packages/tooling/tool/cli/src/commands/Files/Files.utils.ts:221` | Schema-derived string equivalence. |
-| `@beep/repo-cli/commands/Files/index` | `stripMetadataFiles` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:4617` | Strip user-authored metadata from direct image and video files in a directory. |
+| `@beep/repo-cli/commands/Files/index` | `stripMetadataFiles` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:4618` | Strip user-authored metadata from direct image and video files in a directory. |
 | `@beep/repo-cli/commands/Files/index` | `StripMetadataPlan` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1865` | Planned metadata stripping entries plus skipped file counts. |
 | `@beep/repo-cli/commands/Files/index` | `StripMetadataPlanEntry` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:896` | Planned metadata strip for a selected image or video file. |
 | `@beep/repo-cli/commands/Files/index` | `StripMetadataSummary` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:915` | Summary returned by `stripMetadataFiles`. |
 | `@beep/repo-cli/commands/Files/index` | `SupportedMetadataImageExtension` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:144` | Image extension schema supported by metadata stripping. |
 | `@beep/repo-cli/commands/Files/index` | `SupportedMetadataImageExtension` | type | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:164` | Image extension supported by metadata stripping. |
 | `@beep/repo-cli/commands/Files/index` | `targetNameForEntry` | const | `packages/tooling/tool/cli/src/commands/Files/Files.utils.ts:408` | Build a generated filename for a planned rename. |
-| `@beep/repo-cli/commands/Graphiti/index` | `graphitiCommand` | const | `packages/tooling/tool/cli/src/commands/Graphiti/index.ts:96` | Graphiti command group. |
+| `@beep/repo-cli/commands/Graphiti/index` | `graphitiCommand` | const | `packages/tooling/tool/cli/src/commands/Graphiti/index.ts:86` | Graphiti command group. |
 | `@beep/repo-cli/commands/Graphiti/internal/ProxyConfig` | `GraphitiProxyConfig` | class | `packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyConfig.ts:104` | Runtime configuration schema for graphiti proxy. |
 | `@beep/repo-cli/commands/Graphiti/internal/ProxyConfig` | `GraphitiProxyConfigLoadError` | class | `packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyConfig.ts:178` | Raised when graphiti proxy configuration cannot be loaded. |
 | `@beep/repo-cli/commands/Graphiti/internal/ProxyConfig` | `loadGraphitiProxyConfig` | const | `packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyConfig.ts:203` | Load graphiti proxy config from Effect Config environment values. |
-| `@beep/repo-cli/commands/Graphiti/internal/ProxyOps` | `ensureGraphitiProxy` | const | `packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyOps.ts:490` | Ensure the local Graphiti proxy is healthy, starting it in the background when needed. |
+| `@beep/repo-cli/commands/Graphiti/internal/ProxyOps` | `ensureGraphitiProxy` | const | `packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyOps.ts:492` | Ensure the local Graphiti proxy is healthy, starting it in the background when needed. |
 | `@beep/repo-cli/commands/Graphiti/internal/ProxyOps` | `GraphitiProxyOpsError` | class | `packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyOps.ts:33` | Typed failure for Graphiti proxy operational helpers. |
-| `@beep/repo-cli/commands/Graphiti/internal/ProxyOps` | `installGraphitiProxyService` | const | `packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyOps.ts:671` | Install and start the user-level systemd unit for the Graphiti proxy. |
-| `@beep/repo-cli/commands/Graphiti/internal/ProxyOps` | `recoverGraphitiStack` | const | `packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyOps.ts:592` | Recover the local Graphiti backing stack by restarting unhealthy containers. |
-| `@beep/repo-cli/commands/Graphiti/internal/ProxyOps` | `runKgWithGraphitiProxy` | const | `packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyOps.ts:558` | Run a knowledge-graph CLI command with the local Graphiti proxy ensured first. |
-| `@beep/repo-cli/commands/Graphiti/internal/ProxyOps` | `shouldRecoverGraphitiStackForTesting` | const | `packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyOps.ts:623` | Decide whether Graphiti recovery should restart the backing containers. |
+| `@beep/repo-cli/commands/Graphiti/internal/ProxyOps` | `installGraphitiProxyService` | const | `packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyOps.ts:673` | Install and start the user-level systemd unit for the Graphiti proxy. |
+| `@beep/repo-cli/commands/Graphiti/internal/ProxyOps` | `recoverGraphitiStack` | const | `packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyOps.ts:594` | Recover the local Graphiti backing stack by restarting unhealthy containers. |
+| `@beep/repo-cli/commands/Graphiti/internal/ProxyOps` | `runKgWithGraphitiProxy` | const | `packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyOps.ts:560` | Run a knowledge-graph CLI command with the local Graphiti proxy ensured first. |
+| `@beep/repo-cli/commands/Graphiti/internal/ProxyOps` | `shouldRecoverGraphitiStackForTesting` | const | `packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyOps.ts:625` | Decide whether Graphiti recovery should restart the backing containers. |
 | `@beep/repo-cli/commands/Graphiti/internal/ProxyRuntime` | `runGraphitiProxy` | const | `packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyRuntime.ts:38` | Run the graphiti queue proxy runtime with graceful shutdown. |
 | `@beep/repo-cli/commands/Graphiti/internal/ProxyServices` | `ContainerHealthState` | const | `packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyServices.ts:55` | Container health literal union. |
 | `@beep/repo-cli/commands/Graphiti/internal/ProxyServices` | `DependencyHealthSnapshot` | class | `packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyServices.ts:109` | Cached dependency health snapshot payload. |
@@ -11009,7 +11180,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/commands/Graphiti/internal/ProxyServices` | `ProxyHealthPayload` | class | `packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyServices.ts:156` | Structured JSON payload for health endpoints. |
 | `@beep/repo-cli/commands/Graphiti/internal/ProxyServices` | `proxyHealthResponse` | const | `packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyServices.ts:293` | Build a structured proxy health HTTP response. |
 | `@beep/repo-cli/commands/Graphiti/internal/ProxyServices` | `ProxyQueueStats` | class | `packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyServices.ts:129` | Queue and processing counters for proxy introspection. |
-| `@beep/repo-cli/commands/Image/index` | `imageCommand` | const | `packages/tooling/tool/cli/src/commands/Image/index.ts:118` | Image and video curation command group. |
+| `@beep/repo-cli/commands/Image/index` | `imageCommand` | const | `packages/tooling/tool/cli/src/commands/Image/index.ts:115` | Image and video curation command group. |
 | `@beep/repo-cli/commands/Laws/AllowlistCheck` | `ALLOWLIST_PATH` | const | `packages/tooling/tool/cli/src/commands/Laws/AllowlistCheck.ts:33` | Relative path to the effect laws allowlist. |
 | `@beep/repo-cli/commands/Laws/AllowlistCheck` | `AllowlistCheckOptions` | class | `packages/tooling/tool/cli/src/commands/Laws/AllowlistCheck.ts:94` | Runtime options for allowlist integrity checks. |
 | `@beep/repo-cli/commands/Laws/AllowlistCheck` | `AllowlistCheckSummary` | class | `packages/tooling/tool/cli/src/commands/Laws/AllowlistCheck.ts:113` | Result of an allowlist integrity check. |
@@ -11058,73 +11229,42 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/commands/Quality/internal/Config` | `configStringOptionSync` | const | `packages/tooling/tool/cli/src/commands/Quality/internal/Config.ts:22` | Synchronously read an optional string config value. |
 | `@beep/repo-cli/commands/Quality/ScriptCommands` | `GithubCheckMode` | const | `packages/tooling/tool/cli/src/commands/Quality/ScriptCommands.ts:120` | GitHub check mode handled by `beep quality github-checks`. |
 | `@beep/repo-cli/commands/Quality/ScriptCommands` | `GithubCheckMode` | type | `packages/tooling/tool/cli/src/commands/Quality/ScriptCommands.ts:137` | GitHub check mode handled by `beep quality github-checks`. |
-| `@beep/repo-cli/commands/Quality/ScriptCommands` | `qualityCommand` | const | `packages/tooling/tool/cli/src/commands/Quality/ScriptCommands.ts:1589` | Quality command group for repo operational checks. |
+| `@beep/repo-cli/commands/Quality/ScriptCommands` | `qualityCommand` | const | `packages/tooling/tool/cli/src/commands/Quality/ScriptCommands.ts:1710` | Quality command group for repo operational checks. |
 | `@beep/repo-cli/commands/Quality/ScriptCommands` | `QualityScriptCommandError` | class | `packages/tooling/tool/cli/src/commands/Quality/ScriptCommands.ts:150` | Typed failure for repo operational commands. |
-| `@beep/repo-cli/commands/Quality/ScriptCommands` | `runBunAudit` | const | `packages/tooling/tool/cli/src/commands/Quality/ScriptCommands.ts:352` | Run Bun's high-severity package audit with OSV ignores mirrored from config. |
-| `@beep/repo-cli/commands/Quality/ScriptCommands` | `runDtslintTsgoChecks` | const | `packages/tooling/tool/cli/src/commands/Quality/ScriptCommands.ts:1077` | Run repo-wide tsgo diagnostics for dtslint files. |
-| `@beep/repo-cli/commands/Quality/ScriptCommands` | `runGithubChecks` | const | `packages/tooling/tool/cli/src/commands/Quality/ScriptCommands.ts:621` | Run a GitHub checks mode from the repository root. |
-| `@beep/repo-cli/commands/Quality/ScriptCommands` | `runJSDocInventory` | const | `packages/tooling/tool/cli/src/commands/Quality/ScriptCommands.ts:1445` | Run the JSDoc inventory generator now owned by repo-cli. |
-| `@beep/repo-cli/commands/Quality/ScriptCommands` | `runJSDocModuleTagsCheck` | const | `packages/tooling/tool/cli/src/commands/Quality/ScriptCommands.ts:1367` | Verify tracked fileoverview comments do not use the legacy `@module` tag. |
-| `@beep/repo-cli/commands/Quality/ScriptCommands` | `runRepoExportsCatalog` | const | `packages/tooling/tool/cli/src/commands/Quality/ScriptCommands.ts:1470` | Run the repo export catalog generator now owned by repo-cli. |
-| `@beep/repo-cli/commands/Quality/ScriptCommands` | `runTestTsgoChecks` | const | `packages/tooling/tool/cli/src/commands/Quality/ScriptCommands.ts:1125` | Run repo-wide Effect diagnostics for test files. |
-| `@beep/repo-cli/commands/Quality/ScriptCommands` | `runTsgoRulesCheck` | const | `packages/tooling/tool/cli/src/commands/Quality/ScriptCommands.ts:862` | Check that the root tsgo Effect diagnostics configuration enables every installed rule as an error. |
-| `@beep/repo-cli/commands/Quality/ScriptCommands` | `runTsgoSmokeCheck` | const | `packages/tooling/tool/cli/src/commands/Quality/ScriptCommands.ts:1259` | Verify that tsgo reports the Effect diagnostic expected by this repo. |
-| `@beep/repo-cli/commands/Quality/Tasks` | `collectStepOutput` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:1332` | Run a subprocess and capture all output. Exposed for focused unit tests. |
+| `@beep/repo-cli/commands/Quality/ScriptCommands` | `runBunAudit` | const | `packages/tooling/tool/cli/src/commands/Quality/ScriptCommands.ts:354` | Run Bun's high-severity package audit with OSV ignores mirrored from config. |
+| `@beep/repo-cli/commands/Quality/ScriptCommands` | `runDtslintTsgoChecks` | const | `packages/tooling/tool/cli/src/commands/Quality/ScriptCommands.ts:1247` | Run repo-wide tsgo diagnostics for dtslint files. |
+| `@beep/repo-cli/commands/Quality/ScriptCommands` | `runGithubChecks` | const | `packages/tooling/tool/cli/src/commands/Quality/ScriptCommands.ts:623` | Run a GitHub checks mode from the repository root. |
+| `@beep/repo-cli/commands/Quality/ScriptCommands` | `runJSDocInventory` | const | `packages/tooling/tool/cli/src/commands/Quality/ScriptCommands.ts:1576` | Run the JSDoc inventory generator now owned by repo-cli. |
+| `@beep/repo-cli/commands/Quality/ScriptCommands` | `runJSDocModuleTagsCheck` | const | `packages/tooling/tool/cli/src/commands/Quality/ScriptCommands.ts:1498` | Verify tracked fileoverview comments do not use the legacy `@module` tag. |
+| `@beep/repo-cli/commands/Quality/ScriptCommands` | `runRepoExportsCatalog` | const | `packages/tooling/tool/cli/src/commands/Quality/ScriptCommands.ts:1601` | Run the repo export catalog generator now owned by repo-cli. |
+| `@beep/repo-cli/commands/Quality/ScriptCommands` | `runTestTsgoChecks` | const | `packages/tooling/tool/cli/src/commands/Quality/ScriptCommands.ts:1295` | Run repo-wide Effect diagnostics for test files. |
+| `@beep/repo-cli/commands/Quality/ScriptCommands` | `runTsgoRulesCheck` | const | `packages/tooling/tool/cli/src/commands/Quality/ScriptCommands.ts:1032` | Check that the root tsgo Effect diagnostics configuration enables every installed rule as an error. |
+| `@beep/repo-cli/commands/Quality/ScriptCommands` | `runTsgoSmokeCheck` | const | `packages/tooling/tool/cli/src/commands/Quality/ScriptCommands.ts:1390` | Verify that tsgo reports the Effect diagnostic expected by this repo. |
+| `@beep/repo-cli/commands/Quality/Tasks` | `collectStepOutput` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:1302` | Run a subprocess and capture all output. Exposed for focused unit tests. |
 | `@beep/repo-cli/commands/Quality/Tasks` | `PackageTaskProfile` | class | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:82` | Package-local script profile used by the quality task adapter. |
-| `@beep/repo-cli/commands/Quality/Tasks` | `parseQualityTaskInvocation` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:1222` | Parse a raw argv vector into a quality task invocation when the first token is |
-| `@beep/repo-cli/commands/Quality/Tasks` | `QualityTaskConfigurationError` | class | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:222` | Error raised when a quality task cannot resolve its required configuration. |
+| `@beep/repo-cli/commands/Quality/Tasks` | `parseQualityTaskInvocation` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:1196` | Parse a raw argv vector into a quality task invocation when the first token is |
+| `@beep/repo-cli/commands/Quality/Tasks` | `QualityTaskConfigurationError` | class | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:226` | Error raised when a quality task cannot resolve its required configuration. |
 | `@beep/repo-cli/commands/Quality/Tasks` | `QualityTaskFailed` | class | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:164` | Error raised when a quality task subprocess exits unsuccessfully. |
-| `@beep/repo-cli/commands/Quality/Tasks` | `QualityTaskGroupFailed` | class | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:197` | Error raised when a bounded quality task group completes with failed steps. |
+| `@beep/repo-cli/commands/Quality/Tasks` | `QualityTaskGroupFailed` | class | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:199` | Error raised when a bounded quality task group completes with failed steps. |
 | `@beep/repo-cli/commands/Quality/Tasks` | `QualityTaskInvocation` | class | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:138` | Result of parsing a quality command invocation. |
 | `@beep/repo-cli/commands/Quality/Tasks` | `QualityTaskName` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:48` | Canonical quality task name. |
 | `@beep/repo-cli/commands/Quality/Tasks` | `QualityTaskName` | type | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:65` | Canonical quality task name. |
 | `@beep/repo-cli/commands/Quality/Tasks` | `QualityTaskStep` | class | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:109` | Planned subprocess invocation. |
-| `@beep/repo-cli/commands/Quality/Tasks` | `rootQualityStepsForTesting` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:1089` | Build root quality task subprocess steps. Exposed for focused unit tests. |
-| `@beep/repo-cli/commands/Quality/Tasks` | `runQualityTask` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:1266` | Run a parsed quality task in either repo-root or package-local mode. |
-| `@beep/repo-cli/commands/Quality/Tasks` | `runQualityTaskIfRequested` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:1300` | Run a quality task directly from a raw argv vector. |
-| `@beep/repo-cli/commands/Quality/Tasks` | `runQualityTaskStepGroupForTesting` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:1344` | Run a bounded quality task group. Exposed for focused unit tests. |
-| `@beep/repo-cli/commands/Quality/Tasks` | `runSqlIntegrationTestLaneForTesting` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:923` | Run the SQL integration lane with an injected resource and child command. |
-| `@beep/repo-cli/commands/Quality/Tasks` | `sqlIntegrationConnectionUriFromEnvForTesting` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:932` | Resolve the SQL integration database connection URI from environment variables. |
-| `@beep/repo-cli/commands/Quality/Tasks` | `sqlIntegrationStepForTesting` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:909` | Build the SQL integration test subprocess step. Exposed for focused unit tests. |
-| `@beep/repo-cli/commands/Quality/Tasks` | `UnexpectedQualityTaskFailure` | class | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:247` | Error raised when an unexpected quality task cause reaches the command boundary. |
-| `@beep/repo-cli/commands/Reuse/index` | `reuseCommand` | const | `packages/tooling/tool/cli/src/commands/Reuse/index.ts:526` | Reuse-discovery command group. |
+| `@beep/repo-cli/commands/Quality/Tasks` | `rootQualityStepsForTesting` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:1093` | Build root quality task subprocess steps. Exposed for focused unit tests. |
+| `@beep/repo-cli/commands/Quality/Tasks` | `runQualityTask` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:1240` | Run a parsed quality task in either repo-root or package-local mode. |
+| `@beep/repo-cli/commands/Quality/Tasks` | `runQualityTaskIfRequested` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:1270` | Run a quality task directly from a raw argv vector. |
+| `@beep/repo-cli/commands/Quality/Tasks` | `runQualityTaskStepGroupForTesting` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:1314` | Run a bounded quality task group. Exposed for focused unit tests. |
+| `@beep/repo-cli/commands/Quality/Tasks` | `runSqlIntegrationTestLaneForTesting` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:927` | Run the SQL integration lane with an injected resource and child command. |
+| `@beep/repo-cli/commands/Quality/Tasks` | `sqlIntegrationConnectionUriFromEnvForTesting` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:936` | Resolve the SQL integration database connection URI from environment variables. |
+| `@beep/repo-cli/commands/Quality/Tasks` | `sqlIntegrationStepForTesting` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:913` | Build the SQL integration test subprocess step. Exposed for focused unit tests. |
+| `@beep/repo-cli/commands/Quality/Tasks` | `UnexpectedQualityTaskFailure` | class | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:251` | Error raised when an unexpected quality task cause reaches the command boundary. |
+| `@beep/repo-cli/commands/Reuse/index` | `reuseCommand` | const | `packages/tooling/tool/cli/src/commands/Reuse/index.ts:479` | Reuse-discovery command group. |
 | `@beep/repo-cli/commands/Reuse/internal/CodexRunner` | `CodexRunnerError` | class | `packages/tooling/tool/cli/src/commands/Reuse/internal/CodexRunner.ts:64` | Structured error emitted when the Codex SDK smoke path fails. |
 | `@beep/repo-cli/commands/Reuse/internal/CodexRunner` | `CodexRunnerStage` | const | `packages/tooling/tool/cli/src/commands/Reuse/internal/CodexRunner.ts:23` | Lifecycle stages surfaced by the Codex smoke runner. |
 | `@beep/repo-cli/commands/Reuse/internal/CodexRunner` | `CodexRunnerStage` | type | `packages/tooling/tool/cli/src/commands/Reuse/internal/CodexRunner.ts:37` | Runtime type for `CodexRunnerStage`. |
 | `@beep/repo-cli/commands/Reuse/internal/CodexRunner` | `CodexSmokeResult` | class | `packages/tooling/tool/cli/src/commands/Reuse/internal/CodexRunner.ts:45` | Structured result for `beep reuse codex-smoke`. |
 | `@beep/repo-cli/commands/Reuse/internal/CodexRunner` | `runCodexSmoke` | const | `packages/tooling/tool/cli/src/commands/Reuse/internal/CodexRunner.ts:83` | Validate the local Codex SDK adapter without running a reuse loop. |
 | `@beep/repo-cli/commands/Root` | `rootCommand` | const | `packages/tooling/tool/cli/src/commands/Root.ts:45` | Top-level CLI command that registers all subcommands. |
-| `@beep/repo-cli/commands/Shared/BiomeJson` | `renderBiomeJson` | const | `packages/tooling/tool/cli/src/commands/Shared/BiomeJson.ts:42` | Render JSON with the same Biome config that repository lint uses. |
-| `@beep/repo-cli/commands/Shared/DocgenConfig` | `buildDocgenAliasSource` | const | `packages/tooling/tool/cli/src/commands/Shared/DocgenConfig.ts:290` | Build docgen alias targets for one workspace package from its exports. |
-| `@beep/repo-cli/commands/Shared/DocgenConfig` | `CanonicalDocgenConfig` | class | `packages/tooling/tool/cli/src/commands/Shared/DocgenConfig.ts:163` | Canonical repo docgen config payload. |
-| `@beep/repo-cli/commands/Shared/DocgenConfig` | `CanonicalDocgenConfigInput` | class | `packages/tooling/tool/cli/src/commands/Shared/DocgenConfig.ts:93` | Input used to build the canonical repo docgen config for a package. |
-| `@beep/repo-cli/commands/Shared/DocgenConfig` | `CanonicalDocgenExamplesCompilerOptions` | class | `packages/tooling/tool/cli/src/commands/Shared/DocgenConfig.ts:117` | Managed TypeScript compiler options used for docgen examples. |
-| `@beep/repo-cli/commands/Shared/DocgenConfig` | `collectDocgenWorkspaceDependencyNames` | const | `packages/tooling/tool/cli/src/commands/Shared/DocgenConfig.ts:264` | Collect direct workspace package dependencies from a package manifest. |
-| `@beep/repo-cli/commands/Shared/DocgenConfig` | `createCanonicalDocgenConfig` | const | `packages/tooling/tool/cli/src/commands/Shared/DocgenConfig.ts:406` | Build the canonical repo docgen config for a package. |
-| `@beep/repo-cli/commands/Shared/DocgenConfig` | `DEFAULT_DOCGEN_EXCLUDE` | const | `packages/tooling/tool/cli/src/commands/Shared/DocgenConfig.ts:59` | Default docgen exclude globs for repo packages. |
-| `@beep/repo-cli/commands/Shared/DocgenConfig` | `DocgenAliasSource` | class | `packages/tooling/tool/cli/src/commands/Shared/DocgenConfig.ts:71` | Workspace alias metadata used to build docgen example path mappings. |
-| `@beep/repo-cli/commands/Shared/DocgenConfig` | `mergeManagedDocgenConfig` | const | `packages/tooling/tool/cli/src/commands/Shared/DocgenConfig.ts:471` | Merge managed docgen fields into an existing parsed `docgen.json` document. |
-| `@beep/repo-cli/commands/Shared/DocgenConfig` | `toCanonicalDocgenConfigJson` | const | `packages/tooling/tool/cli/src/commands/Shared/DocgenConfig.ts:238` | Convert the canonical docgen config model to a plain JSON-compatible object. |
-| `@beep/repo-cli/commands/Shared/DocgenConfig` | `toDocgenExamplesCompilerOptionsJson` | const | `packages/tooling/tool/cli/src/commands/Shared/DocgenConfig.ts:192` | Convert canonical docgen compiler options to a plain JSON-compatible object. |
-| `@beep/repo-cli/commands/Shared/JSDocCategories` | `CANONICAL_JSDOC_CATEGORIES` | const | `packages/tooling/tool/cli/src/commands/Shared/JSDocCategories.ts:30` | Closed set of canonical `@category` values accepted by repo docgen checks. |
-| `@beep/repo-cli/commands/Shared/JSDocCategories` | `isAcceptedJSDocCategory` | const | `packages/tooling/tool/cli/src/commands/Shared/JSDocCategories.ts:447` | Return true when a category is canonical or accepted as a migration alias. |
-| `@beep/repo-cli/commands/Shared/JSDocCategories` | `isCanonicalJSDocCategory` | const | `packages/tooling/tool/cli/src/commands/Shared/JSDocCategories.ts:343` | Check whether a string is already a canonical category slug. |
-| `@beep/repo-cli/commands/Shared/JSDocCategories` | `JSDocCategory` | type | `packages/tooling/tool/cli/src/commands/Shared/JSDocCategories.ts:125` | Canonical category literal used by `@category` JSDoc tags. |
-| `@beep/repo-cli/commands/Shared/JSDocCategories` | `JSDocCategoryNormalization` | class | `packages/tooling/tool/cli/src/commands/Shared/JSDocCategories.ts:170` | Normalized interpretation of a single `@category` tag value. |
-| `@beep/repo-cli/commands/Shared/JSDocCategories` | `JSDocCategoryNormalizationStatus` | const | `packages/tooling/tool/cli/src/commands/Shared/JSDocCategories.ts:139` | Normalization status for an observed `@category` value. |
-| `@beep/repo-cli/commands/Shared/JSDocCategories` | `JSDocCategoryNormalizationStatus` | type | `packages/tooling/tool/cli/src/commands/Shared/JSDocCategories.ts:156` | Normalization status for an observed `@category` value. |
-| `@beep/repo-cli/commands/Shared/JSDocCategories` | `normalizeJSDocCategory` | const | `packages/tooling/tool/cli/src/commands/Shared/JSDocCategories.ts:360` | Normalize and classify a single observed `@category` value. |
-| `@beep/repo-cli/commands/Shared/JSDocCategories` | `normalizeJSDocCategoryKey` | const | `packages/tooling/tool/cli/src/commands/Shared/JSDocCategories.ts:296` | Normalize free-form category text to the repo slug key format. |
-| `@beep/repo-cli/commands/Shared/TsconfigAliasTargets` | `buildCanonicalAliasTargets` | const | `packages/tooling/tool/cli/src/commands/Shared/TsconfigAliasTargets.ts:154` | Build root and wildcard alias targets for a package export target. |
-| `@beep/repo-cli/commands/Shared/TsconfigAliasTargets` | `buildDocgenAliasTargets` | const | `packages/tooling/tool/cli/src/commands/Shared/TsconfigAliasTargets.ts:204` | Build source-root and source-wildcard alias targets for docgen example resolution. |
-| `@beep/repo-cli/commands/Shared/TsconfigAliasTargets` | `CanonicalAliasTargets` | class | `packages/tooling/tool/cli/src/commands/Shared/TsconfigAliasTargets.ts:35` | Canonical alias targets derived for a package root export. |
-| `@beep/repo-cli/commands/Shared/TsconfigAliasTargets` | `resolveRootExportTarget` | const | `packages/tooling/tool/cli/src/commands/Shared/TsconfigAliasTargets.ts:89` | Resolve the canonical root export target from a package `exports` field. |
-| `@beep/repo-cli/commands/Shared/TsconfigAliasTargets` | `resolveSubpathExportTarget` | const | `packages/tooling/tool/cli/src/commands/Shared/TsconfigAliasTargets.ts:115` | Resolve a specific subpath export target from a package `exports` field. |
-| `@beep/repo-cli/commands/Shared/TsconfigAliasTargets` | `resolveWildcardExportTarget` | const | `packages/tooling/tool/cli/src/commands/Shared/TsconfigAliasTargets.ts:138` | Resolve the wildcard export target from a package `exports` field. |
-| `@beep/repo-cli/commands/Shared/TypeScriptSourceExclusions` | `isExcludedTypeScriptSourcePath` | const | `packages/tooling/tool/cli/src/commands/Shared/TypeScriptSourceExclusions.ts:84` | Check whether a TypeScript source path should be excluded from lint traversals. |
-| `@beep/repo-cli/commands/Shared/TypeScriptSourceExclusions` | `toPosixPath` | const | `packages/tooling/tool/cli/src/commands/Shared/TypeScriptSourceExclusions.ts:70` | Normalize filesystem paths to POSIX separators before string matching. |
-| `@beep/repo-cli/commands/Shared/TypeScriptSourceExclusions` | `TYPESCRIPT_SOURCE_EXCLUDED_SEGMENTS` | const | `packages/tooling/tool/cli/src/commands/Shared/TypeScriptSourceExclusions.ts:19` | Path segments excluded from TypeScript source lint traversals. |
-| `@beep/repo-cli/commands/Shared/TypeScriptSourceExclusions` | `TYPESCRIPT_SOURCE_EXCLUDED_SUFFIXES` | const | `packages/tooling/tool/cli/src/commands/Shared/TypeScriptSourceExclusions.ts:47` | File suffixes excluded from TypeScript source lint traversals. |
 | `@beep/repo-cli/commands/SyncDataToTs/index` | `syncDataToTsCommand` | const | `packages/tooling/tool/cli/src/commands/SyncDataToTs/index.ts:460` | CLI command for syncing official upstream datasets into checked-in TypeScript modules. |
 | `@beep/repo-cli/commands/SyncDataToTs/internal/Models` | `SyncDataRunMode` | const | `packages/tooling/tool/cli/src/commands/SyncDataToTs/internal/Models.ts:46` | Command execution mode for sync-data-to-ts. |
 | `@beep/repo-cli/commands/SyncDataToTs/internal/Models` | `SyncDataRunMode` | type | `packages/tooling/tool/cli/src/commands/SyncDataToTs/internal/Models.ts:58` | Command execution mode for sync-data-to-ts. |
@@ -11140,27 +11280,27 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/commands/SyncDataToTs/targets/Iso4217` | `ISO4217_SOURCE_URL` | const | `packages/tooling/tool/cli/src/commands/SyncDataToTs/targets/Iso4217.ts:27` | Official SIX XML source for ISO 4217 List One. |
 | `@beep/repo-cli/commands/SyncDataToTs/targets/Iso4217` | `iso4217Target` | const | `packages/tooling/tool/cli/src/commands/SyncDataToTs/targets/Iso4217.ts:283` | Checked-in sync target for the official SIX ISO 4217 List One XML feed. |
 | `@beep/repo-cli/commands/TopoSort` | `topoSortCommand` | const | `packages/tooling/tool/cli/src/commands/TopoSort.ts:32` | CLI command that builds the workspace dependency graph and prints package names |
-| `@beep/repo-cli/commands/TsconfigSync` | `buildCanonicalAliasTargets` | const | `packages/tooling/tool/cli/src/commands/Shared/TsconfigAliasTargets.ts:154` | Build root and wildcard alias targets for a package export target. |
-| `@beep/repo-cli/commands/TsconfigSync` | `PlannedFileChange` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync.ts:524` | A planned file change with transformed file content. |
-| `@beep/repo-cli/commands/TsconfigSync` | `PlannedFileChange` | type | `packages/tooling/tool/cli/src/commands/TsconfigSync.ts:548` | A planned file change with transformed file content. |
-| `@beep/repo-cli/commands/TsconfigSync` | `resolveRootExportTarget` | const | `packages/tooling/tool/cli/src/commands/Shared/TsconfigAliasTargets.ts:89` | Resolve the canonical root export target from a package `exports` field. |
-| `@beep/repo-cli/commands/TsconfigSync` | `syncTsconfigAtRoot` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync.ts:1697` | Synchronize tsconfig references and root aliases under a specific repository root. |
-| `@beep/repo-cli/commands/TsconfigSync` | `TsconfigSyncChange` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync.ts:399` | A single planned file change. |
-| `@beep/repo-cli/commands/TsconfigSync` | `TsconfigSyncChange` | type | `packages/tooling/tool/cli/src/commands/TsconfigSync.ts:423` | A single planned file change. |
-| `@beep/repo-cli/commands/TsconfigSync` | `tsconfigSyncCommand` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync.ts:1832` | CLI command for synchronizing root and workspace tsconfig state. |
-| `@beep/repo-cli/commands/TsconfigSync` | `TsconfigSyncCycleError` | class | `packages/tooling/tool/cli/src/commands/TsconfigSync.ts:169` | Cycle error raised when workspace dependency cycles are detected. |
-| `@beep/repo-cli/commands/TsconfigSync` | `TsconfigSyncDriftError` | class | `packages/tooling/tool/cli/src/commands/TsconfigSync.ts:151` | Drift error raised in check mode when changes are required. |
-| `@beep/repo-cli/commands/TsconfigSync` | `TsconfigSyncFilterError` | class | `packages/tooling/tool/cli/src/commands/TsconfigSync.ts:187` | Filter error raised when `--filter` does not match any workspace package. |
-| `@beep/repo-cli/commands/TsconfigSync` | `TsconfigSyncMode` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync.ts:212` | Command execution mode. |
-| `@beep/repo-cli/commands/TsconfigSync` | `TsconfigSyncResult` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync.ts:590` | Result emitted after a sync run. |
-| `@beep/repo-cli/commands/TsconfigSync` | `TsconfigSyncResult` | type | `packages/tooling/tool/cli/src/commands/TsconfigSync.ts:606` | Result emitted after a sync run. |
-| `@beep/repo-cli/commands/TsconfigSync` | `TsconfigSyncRunOptions` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync.ts:266` | Runtime options for executing tsconfig sync at a repo root. |
-| `@beep/repo-cli/commands/TsconfigSync` | `TsconfigSyncRunOptions` | type | `packages/tooling/tool/cli/src/commands/TsconfigSync.ts:285` | Runtime options for executing tsconfig sync at a repo root. |
-| `@beep/repo-cli/commands/TsconfigSync` | `TsconfigSyncSection` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync.ts:293` | Sync change section categories. |
-| `@beep/repo-cli/commands/TsconfigSync` | `TsconfigSyncSection` | type | `packages/tooling/tool/cli/src/commands/TsconfigSync.ts:313` | Sync change section categories. |
-| `@beep/repo-cli/commands/TsconfigSync` | `TsconfigWithPaths` | class | `packages/tooling/tool/cli/src/commands/TsconfigSync.ts:688` | Minimal tsconfig shape containing optional `compilerOptions.paths`. |
-| `@beep/repo-cli/commands/TsconfigSync` | `TsconfigWithReferences` | class | `packages/tooling/tool/cli/src/commands/TsconfigSync.ts:673` | Minimal tsconfig shape containing optional `references`. |
-| `@beep/repo-cli/commands/TsconfigSync` | `WorkspaceDescriptor` | class | `packages/tooling/tool/cli/src/commands/TsconfigSync.ts:622` | Workspace package descriptor with metadata for tsconfig synchronization. |
+| `@beep/repo-cli/commands/TsconfigSync` | `buildCanonicalAliasTargets` | const | `packages/tooling/library/repo-utils/src/schemas/TsconfigAliasTargets.ts:154` | Build root and wildcard alias targets for a package export target. |
+| `@beep/repo-cli/commands/TsconfigSync` | `PlannedFileChange` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync.ts:518` | A planned file change with transformed file content. |
+| `@beep/repo-cli/commands/TsconfigSync` | `PlannedFileChange` | type | `packages/tooling/tool/cli/src/commands/TsconfigSync.ts:542` | A planned file change with transformed file content. |
+| `@beep/repo-cli/commands/TsconfigSync` | `resolveRootExportTarget` | const | `packages/tooling/library/repo-utils/src/schemas/TsconfigAliasTargets.ts:89` | Resolve the canonical root export target from a package `exports` field. |
+| `@beep/repo-cli/commands/TsconfigSync` | `syncTsconfigAtRoot` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync.ts:1692` | Synchronize tsconfig references and root aliases under a specific repository root. |
+| `@beep/repo-cli/commands/TsconfigSync` | `TsconfigSyncChange` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync.ts:393` | A single planned file change. |
+| `@beep/repo-cli/commands/TsconfigSync` | `TsconfigSyncChange` | type | `packages/tooling/tool/cli/src/commands/TsconfigSync.ts:417` | A single planned file change. |
+| `@beep/repo-cli/commands/TsconfigSync` | `tsconfigSyncCommand` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync.ts:1827` | CLI command for synchronizing root and workspace tsconfig state. |
+| `@beep/repo-cli/commands/TsconfigSync` | `TsconfigSyncCycleError` | class | `packages/tooling/tool/cli/src/commands/TsconfigSync.ts:163` | Cycle error raised when workspace dependency cycles are detected. |
+| `@beep/repo-cli/commands/TsconfigSync` | `TsconfigSyncDriftError` | class | `packages/tooling/tool/cli/src/commands/TsconfigSync.ts:145` | Drift error raised in check mode when changes are required. |
+| `@beep/repo-cli/commands/TsconfigSync` | `TsconfigSyncFilterError` | class | `packages/tooling/tool/cli/src/commands/TsconfigSync.ts:181` | Filter error raised when `--filter` does not match any workspace package. |
+| `@beep/repo-cli/commands/TsconfigSync` | `TsconfigSyncMode` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync.ts:206` | Command execution mode. |
+| `@beep/repo-cli/commands/TsconfigSync` | `TsconfigSyncResult` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync.ts:584` | Result emitted after a sync run. |
+| `@beep/repo-cli/commands/TsconfigSync` | `TsconfigSyncResult` | type | `packages/tooling/tool/cli/src/commands/TsconfigSync.ts:600` | Result emitted after a sync run. |
+| `@beep/repo-cli/commands/TsconfigSync` | `TsconfigSyncRunOptions` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync.ts:260` | Runtime options for executing tsconfig sync at a repo root. |
+| `@beep/repo-cli/commands/TsconfigSync` | `TsconfigSyncRunOptions` | type | `packages/tooling/tool/cli/src/commands/TsconfigSync.ts:279` | Runtime options for executing tsconfig sync at a repo root. |
+| `@beep/repo-cli/commands/TsconfigSync` | `TsconfigSyncSection` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync.ts:287` | Sync change section categories. |
+| `@beep/repo-cli/commands/TsconfigSync` | `TsconfigSyncSection` | type | `packages/tooling/tool/cli/src/commands/TsconfigSync.ts:307` | Sync change section categories. |
+| `@beep/repo-cli/commands/TsconfigSync` | `TsconfigWithPaths` | class | `packages/tooling/tool/cli/src/commands/TsconfigSync.ts:682` | Minimal tsconfig shape containing optional `compilerOptions.paths`. |
+| `@beep/repo-cli/commands/TsconfigSync` | `TsconfigWithReferences` | class | `packages/tooling/tool/cli/src/commands/TsconfigSync.ts:667` | Minimal tsconfig shape containing optional `references`. |
+| `@beep/repo-cli/commands/TsconfigSync` | `WorkspaceDescriptor` | class | `packages/tooling/tool/cli/src/commands/TsconfigSync.ts:616` | Workspace package descriptor with metadata for tsconfig synchronization. |
 | `@beep/repo-cli/commands/VersionSync/index` | `versionSyncCommand` | const | `packages/tooling/tool/cli/src/commands/VersionSync/index.ts:48` | CLI command for synchronizing version pins across the monorepo. |
 | `@beep/repo-cli/commands/VersionSync/internal/Handler` | `handleVersionSync` | const | `packages/tooling/tool/cli/src/commands/VersionSync/internal/Handler.ts:70` | Execute the version-sync command. |
 | `@beep/repo-cli/commands/VersionSync/internal/Models` | `NetworkUnavailableError` | class | `packages/tooling/tool/cli/src/commands/VersionSync/internal/Models.ts:40` | Network unavailable during upstream version resolution. |
@@ -11206,9 +11346,9 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/commands/VersionSync/internal/services/CategorySelectionService` | `CategorySelectionService` | class | `packages/tooling/tool/cli/src/commands/VersionSync/internal/services/CategorySelectionService.ts:36` | Service tag for category-selection logic. |
 | `@beep/repo-cli/commands/VersionSync/internal/services/CategorySelectionService` | `CategorySelectionServiceLive` | const | `packages/tooling/tool/cli/src/commands/VersionSync/internal/services/CategorySelectionService.ts:66` | Live layer for category-selection logic. |
 | `@beep/repo-cli/commands/VersionSync/internal/services/CategorySelectionService` | `CategorySelectionServiceShape` | type | `packages/tooling/tool/cli/src/commands/VersionSync/internal/services/CategorySelectionService.ts:25` | Service contract for selecting categories to resolve and update. |
-| `@beep/repo-cli/commands/VersionSync/internal/services/ReportRendererService` | `ReportRendererService` | class | `packages/tooling/tool/cli/src/commands/VersionSync/internal/services/ReportRendererService.ts:43` | Service tag for report rendering. |
-| `@beep/repo-cli/commands/VersionSync/internal/services/ReportRendererService` | `ReportRendererServiceLive` | const | `packages/tooling/tool/cli/src/commands/VersionSync/internal/services/ReportRendererService.ts:127` | Live layer for report rendering. |
-| `@beep/repo-cli/commands/VersionSync/internal/services/ReportRendererService` | `ReportRendererServiceShape` | type | `packages/tooling/tool/cli/src/commands/VersionSync/internal/services/ReportRendererService.ts:32` | Service contract for rendering a version-sync report to console. |
+| `@beep/repo-cli/commands/VersionSync/internal/services/ReportRendererService` | `ReportRendererService` | class | `packages/tooling/tool/cli/src/commands/VersionSync/internal/services/ReportRendererService.ts:42` | Service tag for report rendering. |
+| `@beep/repo-cli/commands/VersionSync/internal/services/ReportRendererService` | `ReportRendererServiceLive` | const | `packages/tooling/tool/cli/src/commands/VersionSync/internal/services/ReportRendererService.ts:126` | Live layer for report rendering. |
+| `@beep/repo-cli/commands/VersionSync/internal/services/ReportRendererService` | `ReportRendererServiceShape` | type | `packages/tooling/tool/cli/src/commands/VersionSync/internal/services/ReportRendererService.ts:31` | Service contract for rendering a version-sync report to console. |
 | `@beep/repo-cli/commands/VersionSync/internal/services/ResolverService` | `ResolverService` | class | `packages/tooling/tool/cli/src/commands/VersionSync/internal/services/ResolverService.ts:54` | Service tag for resolver orchestration. |
 | `@beep/repo-cli/commands/VersionSync/internal/services/ResolverService` | `ResolverServiceLive` | const | `packages/tooling/tool/cli/src/commands/VersionSync/internal/services/ResolverService.ts:152` | Live layer for resolver orchestration. |
 | `@beep/repo-cli/commands/VersionSync/internal/services/ResolverService` | `ResolverServiceShape` | type | `packages/tooling/tool/cli/src/commands/VersionSync/internal/services/ResolverService.ts:41` | Service contract for resolving version drift state. |
@@ -11220,25 +11360,25 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/commands/VersionSync/internal/updaters/PlainTextUpdater` | `updatePlainTextFile` | const | `packages/tooling/tool/cli/src/commands/VersionSync/internal/updaters/PlainTextUpdater.ts:21` | Update a plain text version file (e.g. `.bun-version`). |
 | `@beep/repo-cli/commands/VersionSync/internal/updaters/YamlFileUpdater` | `replaceNodeVersionWithFile` | const | `packages/tooling/tool/cli/src/commands/VersionSync/internal/updaters/YamlFileUpdater.ts:116` | Replace `node-version: <value>` with `node-version-file: .nvmrc` in a workflow YAML. |
 | `@beep/repo-cli/commands/VersionSync/internal/updaters/YamlFileUpdater` | `updateYamlValue` | const | `packages/tooling/tool/cli/src/commands/VersionSync/internal/updaters/YamlFileUpdater.ts:53` | Update a value at a specific path in a YAML file, preserving comments and formatting. |
-| `@beep/repo-cli/index` | `agentEffectivenessCommand` | const | `packages/tooling/tool/cli/src/commands/AgentEffectiveness/index.ts:650` | Agent-effectiveness root command. |
+| `@beep/repo-cli/index` | `agentEffectivenessCommand` | const | `packages/tooling/tool/cli/src/commands/AgentEffectiveness/index.ts:641` | Agent-effectiveness root command. |
 | `@beep/repo-cli/index` | `ciCommand` | const | `packages/tooling/tool/cli/src/commands/Ci.ts:338` | CI helper command group. |
 | `@beep/repo-cli/index` | `codegenCommand` | const | `packages/tooling/tool/cli/src/commands/Codegen.ts:257` | CLI command that scans a package's `src/` directory and generates (or previews) |
-| `@beep/repo-cli/index` | `codexCommand` | const | `packages/tooling/tool/cli/src/commands/Codex.ts:134` | Codex helper command group. |
+| `@beep/repo-cli/index` | `codexCommand` | const | `packages/tooling/tool/cli/src/commands/Codex.ts:127` | Codex helper command group. |
 | `@beep/repo-cli/index` | `createPackageCommand` | const | `packages/tooling/tool/cli/src/commands/CreatePackage/index.ts:16` | Package creation command. |
 | `@beep/repo-cli/index` | `docgenCommand` | const | `packages/tooling/tool/cli/src/commands/Docgen/index.ts:1184` | Human-first docgen command suite. |
 | `@beep/repo-cli/index` | `docsCommand` | const | `packages/tooling/tool/cli/src/commands/Docs.ts:244` | Command-first docs discovery entrypoint used by agent config surfaces. |
-| `@beep/repo-cli/index` | `filesCommand` | const | `packages/tooling/tool/cli/src/commands/Files/Files.command.ts:447` | File curation command group. |
-| `@beep/repo-cli/index` | `graphitiCommand` | const | `packages/tooling/tool/cli/src/commands/Graphiti/index.ts:96` | Graphiti command group. |
-| `@beep/repo-cli/index` | `imageCommand` | const | `packages/tooling/tool/cli/src/commands/Image/index.ts:118` | Image and video curation command group. |
+| `@beep/repo-cli/index` | `filesCommand` | const | `packages/tooling/tool/cli/src/commands/Files/Files.command.ts:437` | File curation command group. |
+| `@beep/repo-cli/index` | `graphitiCommand` | const | `packages/tooling/tool/cli/src/commands/Graphiti/index.ts:86` | Graphiti command group. |
+| `@beep/repo-cli/index` | `imageCommand` | const | `packages/tooling/tool/cli/src/commands/Image/index.ts:115` | Image and video curation command group. |
 | `@beep/repo-cli/index` | `lawsCommand` | const | `packages/tooling/tool/cli/src/commands/Laws/index.ts:434` | Laws command group. |
 | `@beep/repo-cli/index` | `lintCommand` | const | `packages/tooling/tool/cli/src/commands/Lint/index.ts:607` | Lint command group. |
 | `@beep/repo-cli/index` | `purgeCommand` | const | `packages/tooling/tool/cli/src/commands/Purge.ts:258` | CLI command to purge workspace/root build artifacts. |
-| `@beep/repo-cli/index` | `qualityCommand` | const | `packages/tooling/tool/cli/src/commands/Quality/ScriptCommands.ts:1589` | Quality command group for repo operational checks. |
-| `@beep/repo-cli/index` | `reuseCommand` | const | `packages/tooling/tool/cli/src/commands/Reuse/index.ts:526` | Reuse-discovery command group. |
+| `@beep/repo-cli/index` | `qualityCommand` | const | `packages/tooling/tool/cli/src/commands/Quality/ScriptCommands.ts:1710` | Quality command group for repo operational checks. |
+| `@beep/repo-cli/index` | `reuseCommand` | const | `packages/tooling/tool/cli/src/commands/Reuse/index.ts:479` | Reuse-discovery command group. |
 | `@beep/repo-cli/index` | `rootCommand` | const | `packages/tooling/tool/cli/src/commands/Root.ts:45` | Top-level CLI command that registers all subcommands. |
 | `@beep/repo-cli/index` | `syncDataToTsCommand` | const | `packages/tooling/tool/cli/src/commands/SyncDataToTs/index.ts:460` | CLI command for syncing official upstream datasets into checked-in TypeScript modules. |
 | `@beep/repo-cli/index` | `topoSortCommand` | const | `packages/tooling/tool/cli/src/commands/TopoSort.ts:32` | CLI command that builds the workspace dependency graph and prints package names |
-| `@beep/repo-cli/index` | `tsconfigSyncCommand` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync.ts:1832` | CLI command for synchronizing root and workspace tsconfig state. |
+| `@beep/repo-cli/index` | `tsconfigSyncCommand` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync.ts:1827` | CLI command for synchronizing root and workspace tsconfig state. |
 | `@beep/repo-cli/index` | `versionSyncCommand` | const | `packages/tooling/tool/cli/src/commands/VersionSync/index.ts:48` | CLI command for synchronizing version pins across the monorepo. |
 
 ### @beep/shared-server
@@ -12805,9 +12945,9 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 
 | Import | Symbol | Kind | Source | Summary |
 |---|---|---|---|---|
-| `@beep/professional-runtime-proof` | `runProfessionalRuntimeScenario` | const | `apps/professional-runtime-proof/src/index.ts:530` | Run one deterministic professional-runtime proof scenario end to end. |
+| `@beep/professional-runtime-proof` | `runProfessionalRuntimeScenario` | const | `apps/professional-runtime-proof/src/index.ts:532` | Run one deterministic professional-runtime proof scenario end to end. |
 | `@beep/professional-runtime-proof` | `ScenarioId` | type | `apps/professional-runtime-proof/src/index.ts:166` | Deterministic proof scenario identifiers. |
-| `@beep/professional-runtime-proof` | `toPlain` | const | `apps/professional-runtime-proof/src/index.ts:198` | Convert decoded Schema class instances into JSON-comparable plain data. |
+| `@beep/professional-runtime-proof` | `toPlain` | const | `apps/professional-runtime-proof/src/index.ts:199` | Convert decoded Schema class instances into JSON-comparable plain data. |
 | `@beep/professional-runtime-proof` | `VERSION` | const | `apps/professional-runtime-proof/src/index.ts:54` | Package version. |
 
 ### @beep/acp
@@ -13677,7 +13817,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/nlp/Wink` | `CorpusManagerError` | class | `packages/foundation/capability/nlp/src/Wink/WinkCorpusManager.ts:261` | Error raised while managing a live corpus session. |
 | `@beep/nlp/Wink` | `CustomEntityExample` | class | `packages/foundation/capability/nlp/src/Wink/WinkPattern.ts:100` | One custom-entity example expressed as ordered bracket-pattern elements. |
 | `@beep/nlp/Wink` | `DefaultBM25Config` | const | `packages/foundation/capability/nlp/src/Wink/WinkVectorizer.ts:220` | Default BM25 configuration used by the live wink vectorizer. |
-| `@beep/nlp/Wink` | `DocumentTermSet` | class | `packages/foundation/capability/nlp/src/Wink/WinkSimilarity.ts:99` | Set of normalized document terms used for set-based similarity. |
+| `@beep/nlp/Wink` | `DocumentTermSet` | class | `packages/foundation/capability/nlp/src/Wink/WinkSimilarity.ts:100` | Set of normalized document terms used for set-based similarity. |
 | `@beep/nlp/Wink` | `DocumentVector` | class | `packages/foundation/capability/nlp/src/Wink/WinkVectorizer.ts:240` | Dense vector representation for a document or query. |
 | `@beep/nlp/Wink` | `EntityGroupName` | const | `packages/foundation/capability/nlp/src/Wink/WinkPattern.ts:63` | Branded identifier for a wink custom-entity group. |
 | `@beep/nlp/Wink` | `EntityGroupName` | type | `packages/foundation/capability/nlp/src/Wink/WinkPattern.ts:85` | Runtime type for {@link EntityGroupName}. |
@@ -13685,10 +13825,10 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/nlp/Wink` | `InstanceId` | type | `packages/foundation/capability/nlp/src/Wink/WinkEngine.ts:73` | Runtime type for {@link InstanceId}. |
 | `@beep/nlp/Wink` | `ScopedVectorizer` | interface | `packages/foundation/capability/nlp/src/Wink/WinkVectorizer.ts:79` | Minimal isolated vectorizer surface used by ranking and keyword extraction. |
 | `@beep/nlp/Wink` | `SentenceSpanFailure` | class | `packages/foundation/capability/nlp/src/Wink/WinkTokenizer.ts:44` | Failure raised when wink sentence spans cannot be derived from the token stream. |
-| `@beep/nlp/Wink` | `SimilarityError` | class | `packages/foundation/capability/nlp/src/Wink/WinkSimilarity.ts:156` | Error raised while computing wink-backed similarity. |
-| `@beep/nlp/Wink` | `SimilarityScore` | class | `packages/foundation/capability/nlp/src/Wink/WinkSimilarity.ts:126` | Similarity score returned from a wink-backed comparison. |
+| `@beep/nlp/Wink` | `SimilarityError` | class | `packages/foundation/capability/nlp/src/Wink/WinkSimilarity.ts:157` | Error raised while computing wink-backed similarity. |
+| `@beep/nlp/Wink` | `SimilarityScore` | class | `packages/foundation/capability/nlp/src/Wink/WinkSimilarity.ts:127` | Similarity score returned from a wink-backed comparison. |
 | `@beep/nlp/Wink` | `TermFrequency` | class | `packages/foundation/capability/nlp/src/Wink/WinkVectorizer.ts:295` | Term-frequency entry for a learned document. |
-| `@beep/nlp/Wink` | `TverskyParams` | class | `packages/foundation/capability/nlp/src/Wink/WinkSimilarity.ts:72` | Parameters controlling the asymmetric Tversky index. |
+| `@beep/nlp/Wink` | `TverskyParams` | class | `packages/foundation/capability/nlp/src/Wink/WinkSimilarity.ts:73` | Parameters controlling the asymmetric Tversky index. |
 | `@beep/nlp/Wink` | `VectorizerError` | class | `packages/foundation/capability/nlp/src/Wink/WinkVectorizer.ts:322` | Error raised while learning or querying wink BM25 vectors. |
 | `@beep/nlp/Wink` | `WinkCorpusManager` | class | `packages/foundation/capability/nlp/src/Wink/WinkCorpusManager.ts:726` | Wink corpus manager service. |
 | `@beep/nlp/Wink` | `WinkCorpusManagerLive` | const | `packages/foundation/capability/nlp/src/Wink/WinkCorpusManager.ts:743` | Live wink corpus manager layer. |
@@ -13704,11 +13844,11 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/nlp/Wink` | `WinkError` | type | `packages/foundation/capability/nlp/src/Wink/WinkErrors.ts:180` | Union of wink runtime errors. |
 | `@beep/nlp/Wink` | `WinkLayerAllLive` | const | `packages/foundation/capability/nlp/src/Wink/index.ts:21` | import { WinkLayerAllLive } from "@beep/nlp/Wink" |
 | `@beep/nlp/Wink` | `WinkLayerLive` | const | `packages/foundation/capability/nlp/src/Wink/index.ts:33` | import { WinkLayerLive } from "@beep/nlp/Wink" |
-| `@beep/nlp/Wink` | `WinkSimilarity` | class | `packages/foundation/capability/nlp/src/Wink/WinkSimilarity.ts:283` | Wink similarity service. |
-| `@beep/nlp/Wink` | `WinkSimilarityLive` | const | `packages/foundation/capability/nlp/src/Wink/WinkSimilarity.ts:298` | Live wink similarity layer. |
-| `@beep/nlp/Wink` | `WinkTokenization` | const | `packages/foundation/capability/nlp/src/Wink/WinkTokenizer.ts:339` | Wink-backed tokenization layer. |
+| `@beep/nlp/Wink` | `WinkSimilarity` | class | `packages/foundation/capability/nlp/src/Wink/WinkSimilarity.ts:284` | Wink similarity service. |
+| `@beep/nlp/Wink` | `WinkSimilarityLive` | const | `packages/foundation/capability/nlp/src/Wink/WinkSimilarity.ts:299` | Live wink similarity layer. |
+| `@beep/nlp/Wink` | `WinkTokenization` | const | `packages/foundation/capability/nlp/src/Wink/WinkTokenizer.ts:340` | Wink-backed tokenization layer. |
 | `@beep/nlp/Wink` | `WinkTokenizationError` | class | `packages/foundation/capability/nlp/src/Wink/WinkErrors.ts:82` | Failure raised while reading or tokenizing text through wink. |
-| `@beep/nlp/Wink` | `WinkTokenizationLive` | const | `packages/foundation/capability/nlp/src/Wink/WinkTokenizer.ts:354` | Wink-backed tokenization layer with the live engine provided. |
+| `@beep/nlp/Wink` | `WinkTokenizationLive` | const | `packages/foundation/capability/nlp/src/Wink/WinkTokenizer.ts:355` | Wink-backed tokenization layer with the live engine provided. |
 | `@beep/nlp/Wink` | `WinkUtils` | class | `packages/foundation/capability/nlp/src/Wink/WinkUtils.ts:242` | Wink utility service. |
 | `@beep/nlp/Wink` | `WinkUtilsError` | class | `packages/foundation/capability/nlp/src/Wink/WinkUtils.ts:118` | Error raised while calling wink utility helpers. |
 | `@beep/nlp/Wink` | `WinkUtilsLive` | const | `packages/foundation/capability/nlp/src/Wink/WinkUtils.ts:257` | Live wink utility layer. |
@@ -13720,7 +13860,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/nlp/Wink/index` | `CorpusManagerError` | class | `packages/foundation/capability/nlp/src/Wink/WinkCorpusManager.ts:261` | Error raised while managing a live corpus session. |
 | `@beep/nlp/Wink/index` | `CustomEntityExample` | class | `packages/foundation/capability/nlp/src/Wink/WinkPattern.ts:100` | One custom-entity example expressed as ordered bracket-pattern elements. |
 | `@beep/nlp/Wink/index` | `DefaultBM25Config` | const | `packages/foundation/capability/nlp/src/Wink/WinkVectorizer.ts:220` | Default BM25 configuration used by the live wink vectorizer. |
-| `@beep/nlp/Wink/index` | `DocumentTermSet` | class | `packages/foundation/capability/nlp/src/Wink/WinkSimilarity.ts:99` | Set of normalized document terms used for set-based similarity. |
+| `@beep/nlp/Wink/index` | `DocumentTermSet` | class | `packages/foundation/capability/nlp/src/Wink/WinkSimilarity.ts:100` | Set of normalized document terms used for set-based similarity. |
 | `@beep/nlp/Wink/index` | `DocumentVector` | class | `packages/foundation/capability/nlp/src/Wink/WinkVectorizer.ts:240` | Dense vector representation for a document or query. |
 | `@beep/nlp/Wink/index` | `EntityGroupName` | const | `packages/foundation/capability/nlp/src/Wink/WinkPattern.ts:63` | Branded identifier for a wink custom-entity group. |
 | `@beep/nlp/Wink/index` | `EntityGroupName` | type | `packages/foundation/capability/nlp/src/Wink/WinkPattern.ts:85` | Runtime type for {@link EntityGroupName}. |
@@ -13728,10 +13868,10 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/nlp/Wink/index` | `InstanceId` | type | `packages/foundation/capability/nlp/src/Wink/WinkEngine.ts:73` | Runtime type for {@link InstanceId}. |
 | `@beep/nlp/Wink/index` | `ScopedVectorizer` | interface | `packages/foundation/capability/nlp/src/Wink/WinkVectorizer.ts:79` | Minimal isolated vectorizer surface used by ranking and keyword extraction. |
 | `@beep/nlp/Wink/index` | `SentenceSpanFailure` | class | `packages/foundation/capability/nlp/src/Wink/WinkTokenizer.ts:44` | Failure raised when wink sentence spans cannot be derived from the token stream. |
-| `@beep/nlp/Wink/index` | `SimilarityError` | class | `packages/foundation/capability/nlp/src/Wink/WinkSimilarity.ts:156` | Error raised while computing wink-backed similarity. |
-| `@beep/nlp/Wink/index` | `SimilarityScore` | class | `packages/foundation/capability/nlp/src/Wink/WinkSimilarity.ts:126` | Similarity score returned from a wink-backed comparison. |
+| `@beep/nlp/Wink/index` | `SimilarityError` | class | `packages/foundation/capability/nlp/src/Wink/WinkSimilarity.ts:157` | Error raised while computing wink-backed similarity. |
+| `@beep/nlp/Wink/index` | `SimilarityScore` | class | `packages/foundation/capability/nlp/src/Wink/WinkSimilarity.ts:127` | Similarity score returned from a wink-backed comparison. |
 | `@beep/nlp/Wink/index` | `TermFrequency` | class | `packages/foundation/capability/nlp/src/Wink/WinkVectorizer.ts:295` | Term-frequency entry for a learned document. |
-| `@beep/nlp/Wink/index` | `TverskyParams` | class | `packages/foundation/capability/nlp/src/Wink/WinkSimilarity.ts:72` | Parameters controlling the asymmetric Tversky index. |
+| `@beep/nlp/Wink/index` | `TverskyParams` | class | `packages/foundation/capability/nlp/src/Wink/WinkSimilarity.ts:73` | Parameters controlling the asymmetric Tversky index. |
 | `@beep/nlp/Wink/index` | `VectorizerError` | class | `packages/foundation/capability/nlp/src/Wink/WinkVectorizer.ts:322` | Error raised while learning or querying wink BM25 vectors. |
 | `@beep/nlp/Wink/index` | `WinkCorpusManager` | class | `packages/foundation/capability/nlp/src/Wink/WinkCorpusManager.ts:726` | Wink corpus manager service. |
 | `@beep/nlp/Wink/index` | `WinkCorpusManagerLive` | const | `packages/foundation/capability/nlp/src/Wink/WinkCorpusManager.ts:743` | Live wink corpus manager layer. |
@@ -13747,11 +13887,11 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/nlp/Wink/index` | `WinkError` | type | `packages/foundation/capability/nlp/src/Wink/WinkErrors.ts:180` | Union of wink runtime errors. |
 | `@beep/nlp/Wink/index` | `WinkLayerAllLive` | const | `packages/foundation/capability/nlp/src/Wink/index.ts:21` | import { WinkLayerAllLive } from "@beep/nlp/Wink" |
 | `@beep/nlp/Wink/index` | `WinkLayerLive` | const | `packages/foundation/capability/nlp/src/Wink/index.ts:33` | import { WinkLayerLive } from "@beep/nlp/Wink" |
-| `@beep/nlp/Wink/index` | `WinkSimilarity` | class | `packages/foundation/capability/nlp/src/Wink/WinkSimilarity.ts:283` | Wink similarity service. |
-| `@beep/nlp/Wink/index` | `WinkSimilarityLive` | const | `packages/foundation/capability/nlp/src/Wink/WinkSimilarity.ts:298` | Live wink similarity layer. |
-| `@beep/nlp/Wink/index` | `WinkTokenization` | const | `packages/foundation/capability/nlp/src/Wink/WinkTokenizer.ts:339` | Wink-backed tokenization layer. |
+| `@beep/nlp/Wink/index` | `WinkSimilarity` | class | `packages/foundation/capability/nlp/src/Wink/WinkSimilarity.ts:284` | Wink similarity service. |
+| `@beep/nlp/Wink/index` | `WinkSimilarityLive` | const | `packages/foundation/capability/nlp/src/Wink/WinkSimilarity.ts:299` | Live wink similarity layer. |
+| `@beep/nlp/Wink/index` | `WinkTokenization` | const | `packages/foundation/capability/nlp/src/Wink/WinkTokenizer.ts:340` | Wink-backed tokenization layer. |
 | `@beep/nlp/Wink/index` | `WinkTokenizationError` | class | `packages/foundation/capability/nlp/src/Wink/WinkErrors.ts:82` | Failure raised while reading or tokenizing text through wink. |
-| `@beep/nlp/Wink/index` | `WinkTokenizationLive` | const | `packages/foundation/capability/nlp/src/Wink/WinkTokenizer.ts:354` | Wink-backed tokenization layer with the live engine provided. |
+| `@beep/nlp/Wink/index` | `WinkTokenizationLive` | const | `packages/foundation/capability/nlp/src/Wink/WinkTokenizer.ts:355` | Wink-backed tokenization layer with the live engine provided. |
 | `@beep/nlp/Wink/index` | `WinkUtils` | class | `packages/foundation/capability/nlp/src/Wink/WinkUtils.ts:242` | Wink utility service. |
 | `@beep/nlp/Wink/index` | `WinkUtilsError` | class | `packages/foundation/capability/nlp/src/Wink/WinkUtils.ts:118` | Error raised while calling wink utility helpers. |
 | `@beep/nlp/Wink/index` | `WinkUtilsLive` | const | `packages/foundation/capability/nlp/src/Wink/WinkUtils.ts:257` | Live wink utility layer. |
@@ -13790,15 +13930,15 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/nlp/Wink/WinkPattern` | `EntityGroupName` | const | `packages/foundation/capability/nlp/src/Wink/WinkPattern.ts:63` | Branded identifier for a wink custom-entity group. |
 | `@beep/nlp/Wink/WinkPattern` | `EntityGroupName` | type | `packages/foundation/capability/nlp/src/Wink/WinkPattern.ts:85` | Runtime type for {@link EntityGroupName}. |
 | `@beep/nlp/Wink/WinkPattern` | `WinkEngineCustomEntities` | class | `packages/foundation/capability/nlp/src/Wink/WinkPattern.ts:144` | Collection of learned custom-entity examples tracked as one logical group. |
-| `@beep/nlp/Wink/WinkSimilarity` | `DocumentTermSet` | class | `packages/foundation/capability/nlp/src/Wink/WinkSimilarity.ts:99` | Set of normalized document terms used for set-based similarity. |
-| `@beep/nlp/Wink/WinkSimilarity` | `SimilarityError` | class | `packages/foundation/capability/nlp/src/Wink/WinkSimilarity.ts:156` | Error raised while computing wink-backed similarity. |
-| `@beep/nlp/Wink/WinkSimilarity` | `SimilarityScore` | class | `packages/foundation/capability/nlp/src/Wink/WinkSimilarity.ts:126` | Similarity score returned from a wink-backed comparison. |
-| `@beep/nlp/Wink/WinkSimilarity` | `TverskyParams` | class | `packages/foundation/capability/nlp/src/Wink/WinkSimilarity.ts:72` | Parameters controlling the asymmetric Tversky index. |
-| `@beep/nlp/Wink/WinkSimilarity` | `WinkSimilarity` | class | `packages/foundation/capability/nlp/src/Wink/WinkSimilarity.ts:283` | Wink similarity service. |
-| `@beep/nlp/Wink/WinkSimilarity` | `WinkSimilarityLive` | const | `packages/foundation/capability/nlp/src/Wink/WinkSimilarity.ts:298` | Live wink similarity layer. |
+| `@beep/nlp/Wink/WinkSimilarity` | `DocumentTermSet` | class | `packages/foundation/capability/nlp/src/Wink/WinkSimilarity.ts:100` | Set of normalized document terms used for set-based similarity. |
+| `@beep/nlp/Wink/WinkSimilarity` | `SimilarityError` | class | `packages/foundation/capability/nlp/src/Wink/WinkSimilarity.ts:157` | Error raised while computing wink-backed similarity. |
+| `@beep/nlp/Wink/WinkSimilarity` | `SimilarityScore` | class | `packages/foundation/capability/nlp/src/Wink/WinkSimilarity.ts:127` | Similarity score returned from a wink-backed comparison. |
+| `@beep/nlp/Wink/WinkSimilarity` | `TverskyParams` | class | `packages/foundation/capability/nlp/src/Wink/WinkSimilarity.ts:73` | Parameters controlling the asymmetric Tversky index. |
+| `@beep/nlp/Wink/WinkSimilarity` | `WinkSimilarity` | class | `packages/foundation/capability/nlp/src/Wink/WinkSimilarity.ts:284` | Wink similarity service. |
+| `@beep/nlp/Wink/WinkSimilarity` | `WinkSimilarityLive` | const | `packages/foundation/capability/nlp/src/Wink/WinkSimilarity.ts:299` | Live wink similarity layer. |
 | `@beep/nlp/Wink/WinkTokenizer` | `SentenceSpanFailure` | class | `packages/foundation/capability/nlp/src/Wink/WinkTokenizer.ts:44` | Failure raised when wink sentence spans cannot be derived from the token stream. |
-| `@beep/nlp/Wink/WinkTokenizer` | `WinkTokenization` | const | `packages/foundation/capability/nlp/src/Wink/WinkTokenizer.ts:339` | Wink-backed tokenization layer. |
-| `@beep/nlp/Wink/WinkTokenizer` | `WinkTokenizationLive` | const | `packages/foundation/capability/nlp/src/Wink/WinkTokenizer.ts:354` | Wink-backed tokenization layer with the live engine provided. |
+| `@beep/nlp/Wink/WinkTokenizer` | `WinkTokenization` | const | `packages/foundation/capability/nlp/src/Wink/WinkTokenizer.ts:340` | Wink-backed tokenization layer. |
+| `@beep/nlp/Wink/WinkTokenizer` | `WinkTokenizationLive` | const | `packages/foundation/capability/nlp/src/Wink/WinkTokenizer.ts:355` | Wink-backed tokenization layer with the live engine provided. |
 | `@beep/nlp/Wink/WinkUtils` | `WinkUtils` | class | `packages/foundation/capability/nlp/src/Wink/WinkUtils.ts:242` | Wink utility service. |
 | `@beep/nlp/Wink/WinkUtils` | `WinkUtilsError` | class | `packages/foundation/capability/nlp/src/Wink/WinkUtils.ts:118` | Error raised while calling wink utility helpers. |
 | `@beep/nlp/Wink/WinkUtils` | `WinkUtilsLive` | const | `packages/foundation/capability/nlp/src/Wink/WinkUtils.ts:257` | Live wink utility layer. |

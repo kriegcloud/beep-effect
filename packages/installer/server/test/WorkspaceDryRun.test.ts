@@ -44,8 +44,9 @@ const TestChildProcessSpawnerLive = Layer.succeed(
 );
 
 describe("Installer workspace dry-run server", () => {
-  it.effect("provides a deterministic manifest snapshot", () =>
-    Effect.gen(function* () {
+  it.effect(
+    "provides a deterministic manifest snapshot",
+    Effect.fnUntraced(function* () {
       const workspace = yield* StackManifestUseCases;
       const plan = yield* workspace.previewWorkspace();
 
@@ -53,25 +54,29 @@ describe("Installer workspace dry-run server", () => {
       expect(A.map(plan.snapshot.manifest.providers, (provider) => provider.provider)).toEqual(["claude", "codex"]);
       expect(plan.snapshot.manifest.discordChannel.displayName).toBe("ai-stack-installer");
       expect(plan.snapshot.validationEvents).toHaveLength(4);
-    }).pipe(provideScopedLayer(StackManifestServerLive))
+    }, provideScopedLayer(StackManifestServerLive))
   );
 
-  it.effect("collects command output without corrupting detected versions", () =>
-    Effect.gen(function* () {
-      const hostDependencies = yield* HostDependencyUseCases;
-      const results = yield* hostDependencies.validateRequiredCommands();
+  it.effect(
+    "collects command output without corrupting detected versions",
+    Effect.fnUntraced(
+      function* () {
+        const hostDependencies = yield* HostDependencyUseCases;
+        const results = yield* hostDependencies.validateRequiredCommands();
 
-      expect(
-        A.map(results, (result) => ({
-          id: result.dependency.id,
-          version: O.getOrUndefined(result.dependency.detectedVersion),
-        }))
-      ).toEqual([
-        { id: "op-cli", version: "op 1.2.3" },
-        { id: "claude-cli", version: "claude 1.2.3" },
-        { id: "codex-cli", version: "codex 1.2.3" },
-        { id: "bun", version: "bun 1.2.3" },
-      ]);
-    }).pipe(provideScopedLayer(HostDependencyServerLive.pipe(Layer.provide(TestChildProcessSpawnerLive))))
+        expect(
+          A.map(results, (result) => ({
+            id: result.dependency.id,
+            version: O.getOrUndefined(result.dependency.detectedVersion),
+          }))
+        ).toEqual([
+          { id: "op-cli", version: "op 1.2.3" },
+          { id: "claude-cli", version: "claude 1.2.3" },
+          { id: "codex-cli", version: "codex 1.2.3" },
+          { id: "bun", version: "bun 1.2.3" },
+        ]);
+      },
+      provideScopedLayer(HostDependencyServerLive.pipe(Layer.provide(TestChildProcessSpawnerLive)))
+    )
   );
 });

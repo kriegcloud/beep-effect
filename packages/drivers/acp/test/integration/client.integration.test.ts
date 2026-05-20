@@ -43,8 +43,9 @@ it.layer(NodeServices.layer)("effect-acp client", (it) => {
     return yield* spawner.spawn(command);
   });
 
-  it.effect("initializes, prompts, receives updates, and handles permission requests", () =>
-    Effect.gen(function* () {
+  it.effect(
+    "initializes, prompts, receives updates, and handles permission requests",
+    Effect.fnUntraced(function* () {
       const updates = yield* Ref.make<Array<unknown>>([]);
       const elicitationCompletions = yield* Ref.make<Array<unknown>>([]);
       const typedRequests = yield* Ref.make<Array<unknown>>([]);
@@ -141,8 +142,9 @@ it.layer(NodeServices.layer)("effect-acp client", (it) => {
     })
   );
 
-  it.effect("returns formatted invalid params when a typed extension request payload is wrong", () =>
-    Effect.gen(function* () {
+  it.effect(
+    "returns formatted invalid params when a typed extension request payload is wrong",
+    Effect.fnUntraced(function* () {
       const handle = yield* makeHandle({ ACP_MOCK_BAD_TYPED_REQUEST: "1" });
       const scope = yield* Scope.make();
       const acpLayer = AcpClient.layerChildProcess(handle);
@@ -207,8 +209,9 @@ it.layer(NodeServices.layer)("effect-acp client", (it) => {
     })
   );
 
-  it.effect("replays buffered notifications to handlers registered after they arrive", () =>
-    Effect.gen(function* () {
+  it.effect(
+    "replays buffered notifications to handlers registered after they arrive",
+    Effect.fnUntraced(function* () {
       const updates = yield* Ref.make<Array<unknown>>([]);
       const elicitationCompletions = yield* Ref.make<Array<unknown>>([]);
       const typedRequests = yield* Ref.make<Array<unknown>>([]);
@@ -286,8 +289,9 @@ it.layer(NodeServices.layer)("effect-acp client", (it) => {
     })
   );
 
-  it.effect("continues dispatching session updates after one handler fails", () =>
-    Effect.gen(function* () {
+  it.effect(
+    "continues dispatching session updates after one handler fails",
+    Effect.fnUntraced(function* () {
       const successfulHandlers = yield* Ref.make(0);
       const handle = yield* makeHandle();
       const scope = yield* Scope.make();
@@ -349,8 +353,9 @@ it.layer(NodeServices.layer)("effect-acp client", (it) => {
     })
   );
 
-  it.effect("uses distinct ids for RPC calls and extension requests", () =>
-    Effect.gen(function* () {
+  it.effect(
+    "uses distinct ids for RPC calls and extension requests",
+    Effect.fnUntraced(function* () {
       const { stdio, input, output } = yield* makeInMemoryStdio();
       const scope = yield* Scope.make();
       const acp = yield* AcpClient.make(stdio).pipe(Effect.provideService(Scope.Scope, scope));

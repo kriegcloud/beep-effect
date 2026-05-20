@@ -1,5 +1,4 @@
 import { Glob } from "@beep/schema";
-import { Str } from "@beep/utils";
 import { describe, expect, it } from "@effect/vitest";
 import * as S from "effect/Schema";
 
@@ -24,7 +23,7 @@ describe("Glob", () => {
   });
 
   it("rejects patterns longer than the current matcher limit", () => {
-    const tooLong = Str.repeat("a", 65537);
+    const tooLong = "a".repeat(65_537);
 
     expect(() => decode(tooLong)).toThrow("Glob pattern must not exceed 65536 characters");
   });

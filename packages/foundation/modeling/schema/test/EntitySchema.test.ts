@@ -164,7 +164,7 @@ describe("EntitySchema", () => {
 
   it("keeps decoded domain side separate from encoded persistence side", () => {
     const fixture = new Fixture({
-      id: 1,
+      id: S.decodeUnknownSync(FixtureId)(1),
       name: "Acme",
       optionalName: O.none(),
       payload: {

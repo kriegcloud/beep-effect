@@ -25,13 +25,35 @@ import {
 import { HookTimeoutError } from "@beep/sandbox/Sandbox.errors";
 import { A } from "@beep/utils";
 import { describe, expect, it } from "@effect/vitest";
-import { Duration, Effect, Fiber, Layer, Ref } from "effect";
+import { Duration, Effect, Fiber, Layer, Ref, Schema } from "effect";
 import { TestClock } from "effect/testing";
 
 const provideScopedLayer =
   <ROut, E2, RIn>(layer: Layer.Layer<ROut, E2, RIn>) =>
   <A, E, R>(effect: Effect.Effect<A, E, R>): Effect.Effect<A, E | E2, RIn | Exclude<R, ROut>> =>
     Effect.scoped(Layer.build(layer).pipe(Effect.flatMap((context) => effect.pipe(Effect.provide(context)))));
+const appendCommandCwd = (
+  calls: Array<{ readonly command: string; readonly cwd?: string }>,
+  command: string,
+  cwd: string | undefined
+) => {
+  if (cwd === undefined) {
+    A.appendInPlace(calls, { command });
+  } else {
+    A.appendInPlace(calls, { command, cwd });
+  }
+};
+const appendArgsCwd = (
+  calls: Array<{ readonly cwd?: string; readonly args: ReadonlyArray<string> }>,
+  args: ReadonlyArray<string>,
+  cwd: string | undefined
+) => {
+  if (cwd === undefined) {
+    A.appendInPlace(calls, { args });
+  } else {
+    A.appendInPlace(calls, { args, cwd });
+  }
+};
 
 describe("@beep/sandbox lifecycle foundation", () => {
   it.effect(
@@ -45,7 +67,7 @@ describe("@beep/sandbox lifecycle foundation", () => {
         copyFileOut: () => Effect.void,
         exec: (command, options) =>
           Effect.sync(() => {
-            A.appendInPlace(commands, { command, cwd: options?.cwd });
+            appendCommandCwd(commands, command, options?.cwd);
 
             return new ExecResult({
               exitCode: 0,
@@ -97,7 +119,7 @@ describe("@beep/sandbox lifecycle foundation", () => {
           ),
           runShell: Effect.fn("SandboxProcess.runShell")((command, options) =>
             Effect.sync(() => {
-              A.appendInPlace(hostShellCalls, { command, cwd: options?.cwd });
+              appendCommandCwd(hostShellCalls, command, options?.cwd);
 
               return new ProcessResult({ exitCode: 0, stderr: "", stdout: "" });
             })
@@ -109,7 +131,11 @@ describe("@beep/sandbox lifecycle foundation", () => {
         copyFileOut: () => Effect.void,
         exec: (command, options) =>
           Effect.sync(() => {
-            A.appendInPlace(sandboxExecCalls, { command, options });
+            if (options === undefined) {
+              A.appendInPlace(sandboxExecCalls, { command });
+            } else {
+              A.appendInPlace(sandboxExecCalls, { command, options });
+            }
 
             return new ExecResult({ exitCode: 0, stderr: "", stdout: "" });
           }),
@@ -169,7 +195,10 @@ describe("@beep/sandbox lifecycle foundation", () => {
       yield* TestClock.adjust(Duration.millis(5));
       const error = yield* Fiber.join(fiber);
 
-      expect(error).toBeInstanceOf(HookTimeoutError);
+      expect(Schema.is(HookTimeoutError)(error)).toBe(true);
+      if (!Schema.is(HookTimeoutError)(error)) {
+        return;
+      }
       expect(error._tag).toBe("HookTimeoutError");
       expect(error.command).toBe("slow-hook");
     })
@@ -186,7 +215,7 @@ describe("@beep/sandbox lifecycle foundation", () => {
         SandboxProcess.of({
           run: Effect.fn("SandboxProcess.run")((command) =>
             Effect.sync(() => {
-              A.appendInPlace(gitCalls, { args: command.args, cwd: command.cwd });
+              appendArgsCwd(gitCalls, command.args, command.cwd);
 
               return new ProcessResult({
                 exitCode: 0,

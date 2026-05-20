@@ -37,14 +37,14 @@ const dataset = makeDataset([
   makeQuad(makeNamedNode("https://example.com/people/alice"), RDF_TYPE, makeNamedNode("https://schema.org/Person")),
 ]);
 
-const runCanonicalization = <A>(effect: Effect.Effect<A, unknown, CanonicalizationService>) =>
-  Effect.runPromise(effect.pipe(provideScopedLayer(CanonicalizationServiceLive)));
+const runCanonicalization = <A, E>(effect: Effect.Effect<A, E, CanonicalizationService>) =>
+  Effect.runPromise(effect.pipe(provideScopedLayer(CanonicalizationServiceLive), Effect.orDie));
 
-const runShacl = <A>(effect: Effect.Effect<A, unknown, ShaclValidationService>) =>
-  Effect.runPromise(effect.pipe(provideScopedLayer(ShaclValidationServiceLive)));
+const runShacl = <A, E>(effect: Effect.Effect<A, E, ShaclValidationService>) =>
+  Effect.runPromise(effect.pipe(provideScopedLayer(ShaclValidationServiceLive), Effect.orDie));
 
-const runSparql = <A>(effect: Effect.Effect<A, unknown, SparqlQueryService>) =>
-  Effect.runPromise(effect.pipe(provideScopedLayer(UnsupportedSparqlQueryServiceLive)));
+const runSparql = <A, E>(effect: Effect.Effect<A, E, SparqlQueryService>) =>
+  Effect.runPromise(effect.pipe(provideScopedLayer(UnsupportedSparqlQueryServiceLive), Effect.orDie));
 
 describe("Services and Surface", () => {
   it("keeps the package root surface curated to VERSION plus the IRI family", () => {

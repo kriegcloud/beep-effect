@@ -4,7 +4,6 @@ import {
   normalizeJSDocCategory,
   normalizeJSDocCategoryKey,
 } from "@beep/repo-utils/schemas/JSDocCategories";
-import { Str } from "@beep/utils";
 import { describe, expect, it } from "vitest";
 
 describe("JSDoc category taxonomy", () => {
@@ -65,7 +64,7 @@ describe("JSDoc category taxonomy", () => {
   });
 
   it("rejects overlong category text before normalization", () => {
-    expect(normalizeJSDocCategory(Str.repeat(10_000)("A"))).toMatchObject({
+    expect(normalizeJSDocCategory("A".repeat(10_000))).toMatchObject({
       message: "@category value exceeds 128 characters.",
       status: "rejected",
     });

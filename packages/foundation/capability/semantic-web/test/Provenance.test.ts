@@ -50,8 +50,8 @@ const rawBundle = {
   ],
 } as const;
 
-const runProvenance = <A>(effect: Effect.Effect<A, unknown, ProvenanceService>) =>
-  Effect.runPromise(effect.pipe(provideScopedLayer(ProvenanceServiceLive)));
+const runProvenance = <A, E>(effect: Effect.Effect<A, E, ProvenanceService>) =>
+  Effect.runPromise(effect.pipe(provideScopedLayer(ProvenanceServiceLive), Effect.orDie));
 
 describe("Provenance", () => {
   it("decodes the bounded semantic-web ProvO surface", () => {

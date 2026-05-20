@@ -395,7 +395,7 @@ export const AcpError = S.Union([
   AcpProcessExitedError,
   AcpProtocolParseError,
   AcpTransportError,
-]);
+]).pipe(S.toTaggedUnion("_tag"));
 
 /**
  * Type for {@link AcpError}.

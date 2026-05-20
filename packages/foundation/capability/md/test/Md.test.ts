@@ -245,8 +245,9 @@ ${Md.h3("Inside")}
     expect(renderHtmlBlock(Md.hr)).toBe("<hr />");
   });
 
-  it.effect("exposes pure adapters and schema transformations for Markdown and HTML", () =>
-    Effect.gen(function* () {
+  it.effect(
+    "exposes pure adapters and schema transformations for Markdown and HTML",
+    Effect.fnUntraced(function* () {
       const doc = Md.make([Md.h1("Hello"), Md.p("World")]);
 
       expect(Result.getOrThrow(renderWith(MarkdownAdapter, doc))).toBe("# Hello\n\nWorld");

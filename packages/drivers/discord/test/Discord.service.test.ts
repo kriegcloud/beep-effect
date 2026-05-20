@@ -102,8 +102,9 @@ const makeLayer = () =>
 
 describe("@beep/discord", () => {
   layer(makeLayer())((it) => {
-    it.effect("probes channel liveness and sends a test message with mentions disabled", () =>
-      Effect.gen(function* () {
+    it.effect(
+      "probes channel liveness and sends a test message with mentions disabled",
+      Effect.fnUntraced(function* () {
         const discord = yield* Discord;
         const testHttp = yield* DiscordTestHttp;
         yield* testHttp.reset;

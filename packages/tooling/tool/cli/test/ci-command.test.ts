@@ -14,6 +14,7 @@ const provideScopedLayer =
 
 const TestLayer = Layer.mergeAll(NodeServices.layer, TestConsole.layer);
 const encodeJson = S.encodeUnknownSync(S.UnknownFromJsonString);
+const isString = (value: unknown): value is string => typeof value === "string";
 
 const withTempRepo = <A, E, R>(use: Effect.Effect<A, E, R>) =>
   Effect.acquireUseRelease(
@@ -84,7 +85,7 @@ describe("CI commands", () => {
 
           yield* appendTurboSummary(O.some(summaryPath));
 
-          const output = A.join(yield* TestConsole.logLines, "\n");
+          const output = A.join(A.filter(yield* TestConsole.logLines, isString), "\n");
           expect(output).toContain("## Turbo Summary");
           expect(output).toContain("Attempted tasks: 1");
           expect(output).toContain("`@beep/repo-cli#test`");

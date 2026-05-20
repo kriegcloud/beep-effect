@@ -27,8 +27,9 @@ class TomlConfig extends S.Class<TomlConfig>($I`TomlConfig`)(
 ) {}
 
 describe("Toml", () => {
-  it.effect("decodes TOML text into typed schema values", () =>
-    Effect.gen(function* () {
+  it.effect(
+    "decodes TOML text into typed schema values",
+    Effect.fnUntraced(function* () {
       const config = yield* decodeTomlTextAs(TomlConfig)(`title = "beep"
 
 [database]
@@ -43,8 +44,9 @@ port = 5432
     })
   );
 
-  it.effect("maps invalid TOML into SchemaIssue.InvalidValue", () =>
-    Effect.gen(function* () {
+  it.effect(
+    "maps invalid TOML into SchemaIssue.InvalidValue",
+    Effect.fnUntraced(function* () {
       const result = yield* Effect.exit(S.decodeUnknownEffect(TomlTextToUnknown)("invalid = = ="));
 
       expect(Exit.isFailure(result)).toBe(true);
@@ -57,8 +59,9 @@ port = 5432
     })
   );
 
-  it.effect("fails to encode unknown values back into TOML text", () =>
-    Effect.gen(function* () {
+  it.effect(
+    "fails to encode unknown values back into TOML text",
+    Effect.fnUntraced(function* () {
       const result = yield* Effect.exit(
         S.encodeEffect(TomlTextToUnknown)({
           title: "beep",

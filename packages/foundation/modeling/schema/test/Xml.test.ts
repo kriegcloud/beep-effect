@@ -26,8 +26,9 @@ class PeopleDocument extends S.Class<PeopleDocument>($I`PeopleDocument`)(
 ) {}
 
 describe("Xml", () => {
-  it.effect("decodes XML text into typed schema values", () =>
-    Effect.gen(function* () {
+  it.effect(
+    "decodes XML text into typed schema values",
+    Effect.fnUntraced(function* () {
       const document = yield* decodeXmlTextAs(PeopleDocument)(`<people><name>Ada</name><age>36</age></people>`);
 
       expect(document).toBeInstanceOf(PeopleDocument);
@@ -36,8 +37,9 @@ describe("Xml", () => {
     })
   );
 
-  it.effect("maps invalid XML into SchemaIssue.InvalidValue", () =>
-    Effect.gen(function* () {
+  it.effect(
+    "maps invalid XML into SchemaIssue.InvalidValue",
+    Effect.fnUntraced(function* () {
       const result = yield* Effect.exit(S.decodeUnknownEffect(XmlTextToUnknown)("<people><name>Ada</people>"));
 
       expect(Exit.isFailure(result)).toBe(true);
@@ -49,8 +51,9 @@ describe("Xml", () => {
     })
   );
 
-  it.effect("fails to encode unknown values back into XML text", () =>
-    Effect.gen(function* () {
+  it.effect(
+    "fails to encode unknown values back into XML text",
+    Effect.fnUntraced(function* () {
       const result = yield* Effect.exit(
         S.encodeEffect(XmlTextToUnknown)({
           people: {

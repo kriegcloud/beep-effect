@@ -8,7 +8,7 @@ describe("EffectSchema", () => {
     const value = Effect.succeed(1);
 
     expect(isEffect(value)).toBe(true);
-    expect(S.decodeUnknownSync(EffectSchema)(value)).toBe(value);
+    expect(S.is(EffectSchema)(value)).toBe(true);
   });
 
   it("accepts composed effects", () => {
@@ -18,12 +18,16 @@ describe("EffectSchema", () => {
     });
 
     expect(isEffect(value)).toBe(true);
-    expect(S.decodeUnknownSync(EffectSchema)(value)).toBe(value);
+    expect(S.is(EffectSchema)(value)).toBe(true);
   });
 
-  it("rejects non-effect values", () => {
-    expect(isEffect(globalThis.Promise.resolve(1))).toBe(false);
-    expect(isEffect("nope")).toBe(false);
-    expect(() => S.decodeUnknownSync(EffectSchema)("nope")).toThrow(/Expected Effect/);
-  });
+  it.effect(
+    "rejects non-effect values",
+    Effect.fnUntraced(function* () {
+      expect(isEffect(globalThis.Promise.resolve(1))).toBe(false);
+      expect(isEffect("nope")).toBe(false);
+      const result = yield* Effect.exit(S.decodeUnknownEffect(EffectSchema)("nope"));
+      expect(result._tag).toBe("Failure");
+    })
+  );
 });

@@ -103,13 +103,22 @@ const withTempDirectory = <A, E, R>(use: (tmpDir: string) => Effect.Effect<A, E,
     (tmpDir) =>
       Effect.gen(function* () {
         const fs = yield* FileSystem.FileSystem;
-        yield* fs.remove(tmpDir, { recursive: true, force: true });
+        yield* fs.remove(tmpDir, {
+          recursive: true,
+          force: true,
+        });
       })
   );
 
 describe("@beep/ffmpeg", () => {
   it("formats frame names and command arguments", () => {
-    expect(formatFrameFileName({ index: 7, padding: 5, prefix: "clip_frame" })).toBe("clip_frame_00007.png");
+    expect(
+      formatFrameFileName({
+        index: 7,
+        padding: 5,
+        prefix: "clip_frame",
+      })
+    ).toBe("clip_frame_00007.png");
     expect(buildFfprobeArgs(new ProbeVideoRequest({ videoPath: "./clip.mp4" }))).toContain("./clip.mp4");
     expect(
       buildExtractFramesArgs({
@@ -139,8 +148,8 @@ describe("@beep/ffmpeg", () => {
   it.effect("probes video metadata through the fake child-process layer", () => {
     const commands: Array<ChildProcess.StandardCommand> = [];
 
-    return withTempDirectory((tmpDir) =>
-      Effect.gen(function* () {
+    return withTempDirectory(
+      Effect.fnUntraced(function* (tmpDir) {
         const fs = yield* FileSystem.FileSystem;
         const path = yield* Path.Path;
         const videoPath = path.join(tmpDir, "clip.mp4");
@@ -159,8 +168,9 @@ describe("@beep/ffmpeg", () => {
     ).pipe(provideScopedLayer(Layer.mergeAll(NodeServices.layer, makeLayer(commands))));
   });
 
-  it("extracts frames into final names and writes the default manifest", () =>
-    Effect.gen(function* () {
+  it(
+    "extracts frames into final names and writes the default manifest",
+    Effect.fnUntraced(function* () {
       const commands: Array<ChildProcess.StandardCommand> = [];
       const events: Array<FFmpegEvent> = [];
 
@@ -202,10 +212,12 @@ describe("@beep/ffmpeg", () => {
           expect(A.map(commands, (command) => command.command)).toEqual(["ffprobe", "ffmpeg"]);
         })
       ).pipe(provideScopedLayer(Layer.mergeAll(NodeServices.layer, makeLayer(commands))));
-    }));
+    })
+  );
 
-  it("fails before overwriting an existing frame target", () =>
-    Effect.gen(function* () {
+  it(
+    "fails before overwriting an existing frame target",
+    Effect.fnUntraced(function* () {
       const commands: Array<ChildProcess.StandardCommand> = [];
 
       yield* withTempDirectory((tmpDir) =>
@@ -237,10 +249,12 @@ describe("@beep/ffmpeg", () => {
           expect(yield* fs.readFileString(path.join(outDir, "sample_frame_00000.png"))).toBe("existing");
         })
       ).pipe(provideScopedLayer(Layer.mergeAll(NodeServices.layer, makeLayer(commands))));
-    }));
+    })
+  );
 
-  it("normalizes failed ffmpeg exits into FFmpegError", () =>
-    Effect.gen(function* () {
+  it(
+    "normalizes failed ffmpeg exits into FFmpegError",
+    Effect.fnUntraced(function* () {
       const commands: Array<ChildProcess.StandardCommand> = [];
 
       yield* withTempDirectory((tmpDir) =>
@@ -269,5 +283,6 @@ describe("@beep/ffmpeg", () => {
           expect(error.message).toContain("ffmpeg could not extract frames");
         })
       ).pipe(provideScopedLayer(Layer.mergeAll(NodeServices.layer, makeLayer(commands, 7))));
-    }));
+    })
+  );
 });

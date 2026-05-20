@@ -9,11 +9,12 @@ const provideScopedLayer =
     Effect.scoped(Layer.build(layer).pipe(Effect.flatMap((context) => effect.pipe(Effect.provide(context)))));
 
 describe("WorkItem configuration", () => {
-  it.effect("provides client-safe and server configuration", () =>
-    Effect.gen(function* () {
+  it.effect(
+    "provides client-safe and server configuration",
+    Effect.fnUntraced(function* () {
       const config = yield* WorkItemConfig;
       expect(config.publicConfig.assignmentEnabled).toBe(true);
       expect(config.serverConfig.migrationSchemaName).toBe("architecture_lab");
-    }).pipe(provideScopedLayer(ArchitectureLabConfigTest))
+    }, provideScopedLayer(ArchitectureLabConfigTest))
   );
 });

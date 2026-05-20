@@ -66,8 +66,9 @@ describe("Yaml", () => {
     }
   });
 
-  it.effect("decodes YAML text into typed schema values", () =>
-    Effect.gen(function* () {
+  it.effect(
+    "decodes YAML text into typed schema values",
+    Effect.fnUntraced(function* () {
       const person = yield* decodeYamlTextAs(YamlPerson)("name: Ada\nage: 36");
 
       expect(person).toBeInstanceOf(YamlPerson);
@@ -76,8 +77,9 @@ describe("Yaml", () => {
     })
   );
 
-  it.effect("maps invalid YAML into SchemaIssue.InvalidValue", () =>
-    Effect.gen(function* () {
+  it.effect(
+    "maps invalid YAML into SchemaIssue.InvalidValue",
+    Effect.fnUntraced(function* () {
       const result = yield* Effect.exit(S.decodeUnknownEffect(YamlTextToUnknown)("name: [Ada"));
 
       expect(Exit.isFailure(result)).toBe(true);
@@ -89,8 +91,9 @@ describe("Yaml", () => {
     })
   );
 
-  it.effect("fails to encode unknown values back into YAML text", () =>
-    Effect.gen(function* () {
+  it.effect(
+    "fails to encode unknown values back into YAML text",
+    Effect.fnUntraced(function* () {
       const result = yield* Effect.exit(
         S.encodeEffect(YamlTextToUnknown)({
           name: "Ada",

@@ -172,7 +172,7 @@ describe("@beep/sandbox parity helpers", () => {
           } finally {
             yield* removePath(dir);
           }
-        }) as Effect.Effect<void, unknown>
+        }).pipe(Effect.orDie)
       ));
   });
 });

@@ -199,8 +199,9 @@ describe("@beep/runpod", () => {
   );
 
   layer(makeRunpodUnitLayer())((it) =>
-    it.effect("sends typed operations with expected auth, query, path, and JSON body encoding", () =>
-      Effect.gen(function* () {
+    it.effect(
+      "sends typed operations with expected auth, query, path, and JSON body encoding",
+      Effect.fnUntraced(function* () {
         const testHttp = yield* RunpodTestHttp;
         const runpod = yield* Runpod;
         yield* testHttp.reset;
@@ -247,8 +248,9 @@ describe("@beep/runpod", () => {
   );
 
   layer(makeRunpodUnitLayer())((it) =>
-    it.effect("enforces generated OpenAPI enum schemas while leaving dynamic ids flexible", () =>
-      Effect.gen(function* () {
+    it.effect(
+      "enforces generated OpenAPI enum schemas while leaving dynamic ids flexible",
+      Effect.fnUntraced(function* () {
         const decodePodCreateInput = S.decodeUnknownEffect(PodCreateInput);
 
         const decoded = yield* decodePodCreateInput({
@@ -271,8 +273,9 @@ describe("@beep/runpod", () => {
   );
 
   layer(makeRunpodUnitLayer())((it) =>
-    it.effect("maps status and transport failures into typed errors", () =>
-      Effect.gen(function* () {
+    it.effect(
+      "maps status and transport failures into typed errors",
+      Effect.fnUntraced(function* () {
         const testHttp = yield* RunpodTestHttp;
         const runpod = yield* Runpod;
 
@@ -302,8 +305,9 @@ describe("@beep/runpod", () => {
   );
 
   layer(makeRunpodUnitLayer())((it) =>
-    it.effect("supports raw requests for ahead-of-spec endpoints", () =>
-      Effect.gen(function* () {
+    it.effect(
+      "supports raw requests for ahead-of-spec endpoints",
+      Effect.fnUntraced(function* () {
         const testHttp = yield* RunpodTestHttp;
         const runpod = yield* Runpod;
         yield* testHttp.reset;
@@ -333,8 +337,9 @@ describe("@beep/runpod", () => {
   );
 
   layer(makeRunpodDocsUnitLayer())((it) =>
-    it.effect("parses and fetches the Runpod llms.txt documentation index", () =>
-      Effect.gen(function* () {
+    it.effect(
+      "parses and fetches the Runpod llms.txt documentation index",
+      Effect.fnUntraced(function* () {
         const parsed = yield* parseRunpodDocsIndex(llmsText);
         expect(parsed.title).toBe("Runpod Documentation");
         expect(parsed.entries).toHaveLength(2);

@@ -15,8 +15,9 @@ const decodeCanvasProjectId = S.decodeUnknownEffect(DomainCanvasProject.CanvasPr
 const decodeCanvasNodeId = S.decodeUnknownEffect(DomainCanvasProject.CanvasNodeId);
 
 describe("CanvasProject server", () => {
-  it.effect("redacts unavailable details from HTTP failure bodies", () =>
-    Effect.gen(function* () {
+  it.effect(
+    "redacts unavailable details from HTTP failure bodies",
+    Effect.fnUntraced(function* () {
       const id = yield* decodeCanvasProjectId("canvas-project-1");
       const unavailable = new CanvasProjectUseCases.CanvasProjectActionFailed({
         reason: "select CanvasProject failed against canvas_project",
@@ -41,8 +42,9 @@ describe("CanvasProject server", () => {
     })
   );
 
-  it.effect("provides a configured CanvasProject use-case facade", () =>
-    Effect.gen(function* () {
+  it.effect(
+    "provides a configured CanvasProject use-case facade",
+    Effect.fnUntraced(function* () {
       const server = yield* CanvasProjectServer;
       const id = yield* decodeCanvasProjectId("canvas-project-1");
       const nodeId = yield* decodeCanvasNodeId("node-1");
@@ -65,6 +67,6 @@ describe("CanvasProject server", () => {
 
       expect(canvasProject.status).toBe("open");
       expect(withNode.nodes).toHaveLength(1);
-    }).pipe(provideScopedLayer(CanvasServerTest))
+    }, provideScopedLayer(CanvasServerTest))
   );
 });

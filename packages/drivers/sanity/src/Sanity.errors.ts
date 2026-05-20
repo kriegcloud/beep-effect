@@ -7,6 +7,7 @@
 
 import { $SanityId } from "@beep/identity";
 import { LiteralKit, TaggedErrorClass } from "@beep/schema";
+import { thunkFalse, thunkUndefined } from "@beep/utils";
 import { pipe, Result } from "effect";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
@@ -161,7 +162,7 @@ const readProperty = (value: unknown, key: PropertyKey): O.Option<unknown> => {
   return O.fromUndefinedOr(
     Result.getOrElse(
       Result.try(() => Reflect.get(value, key)),
-      () => undefined
+      thunkUndefined
     )
   );
 };
@@ -169,7 +170,7 @@ const readProperty = (value: unknown, key: PropertyKey): O.Option<unknown> => {
 const readString = (value: unknown, key: PropertyKey): O.Option<string> =>
   O.filter(readProperty(value, key), P.isString);
 
-const safeBoolean = (evaluate: () => boolean): boolean => Result.getOrElse(Result.try(evaluate), () => false);
+const safeBoolean = (evaluate: () => boolean): boolean => Result.getOrElse(Result.try(evaluate), thunkFalse);
 
 const httpClientCauseLabel = (cause: unknown): O.Option<string> =>
   safeBoolean(() => HttpClientError.isHttpClientError(cause))

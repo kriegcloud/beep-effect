@@ -619,7 +619,7 @@ export const make = Effect.fn($I`AcpClient_make`)(function* (
     payload: S.Codec<A, I>,
     handler: (payload: A) => Effect.Effect<unknown, AcpError.AcpError>
   ) {
-    yield* Ref.update(extRequestHandlers, (handlers) =>
+    return yield* Ref.update(extRequestHandlers, (handlers) =>
       HashMap.set(handlers, method, decodeExtRequestRegistration({ handler, method, payload }))
     );
   });
@@ -628,7 +628,7 @@ export const make = Effect.fn($I`AcpClient_make`)(function* (
     payload: S.Codec<A, I>,
     handler: (payload: A) => Effect.Effect<void, AcpError.AcpError>
   ) {
-    yield* Ref.update(extNotificationHandlers, (handlers) =>
+    return yield* Ref.update(extNotificationHandlers, (handlers) =>
       HashMap.set(handlers, method, decodeExtNotificationRegistration({ handler, method, payload }))
     );
   });

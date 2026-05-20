@@ -10,6 +10,26 @@ const joinPath = (base: string, ...segments: ReadonlyArray<string>): string =>
     .filter((segment) => segment.length > 0)
     .join("/");
 const catalogPath = joinPath(repoRoot, "standards/repo-exports.catalog.jsonc");
+type CatalogExportEntry = {
+  readonly exportKind: string;
+  readonly importSpecifier: string;
+  readonly searchText: string;
+  readonly sourcePath: string;
+  readonly summary: string;
+  readonly symbolName: string;
+};
+type CatalogPackageEntry = {
+  readonly exports: ReadonlyArray<CatalogExportEntry>;
+  readonly packageName: string;
+};
+type RepoExportsCatalog = {
+  readonly authority: {
+    readonly boundaryDoctrine: ReadonlyArray<string>;
+    readonly canonicalStatus: string;
+    readonly posture: string;
+  };
+  readonly packages: ReadonlyArray<CatalogPackageEntry>;
+};
 
 const readCatalog = Effect.gen(function* () {
   const errors: Array<jsonc.ParseError> = [];
@@ -20,7 +40,7 @@ const readCatalog = Effect.gen(function* () {
   });
 
   expect(errors).toEqual([]);
-  return parsed;
+  return parsed as RepoExportsCatalog;
 });
 
 describe("repo export catalog", () => {
@@ -48,6 +68,9 @@ describe("repo export catalog", () => {
         const schemaPackage = catalog.packages.find((entry) => entry.packageName === "@beep/schema");
 
         expect(schemaPackage).toBeDefined();
+        if (schemaPackage === undefined) {
+          return;
+        }
 
         const unknownRecordEntries = schemaPackage.exports.filter(
           (entry) => entry.importSpecifier === "@beep/schema" && entry.symbolName === "UnknownRecord"

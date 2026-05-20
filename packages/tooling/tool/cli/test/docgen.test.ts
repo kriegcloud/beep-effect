@@ -74,6 +74,7 @@ const runDocgenCommand = Command.runWith(docgenCommand, { version: "0.0.0" });
 const encodeJson = S.encodeUnknownSync(S.UnknownFromJsonString);
 const decodeUnknownJson = S.decodeUnknownSync(S.fromJsonString(S.Unknown));
 const decodeWorkerEvalReportJson = S.decodeUnknownSync(S.fromJsonString(DocgenQualityWorkerEvalReport));
+const isString = (value: unknown): value is string => typeof value === "string";
 const DOCGEN_COMMAND_TEST_TIMEOUT = 30_000;
 
 const runCommand = (command: string, args: ReadonlyArray<string>, cwd: string) =>
@@ -292,7 +293,7 @@ describe("Docgen operations", () => {
 
             yield* runDocgenCommand(["local", "--plan", "-p", "@beep/schema"]);
 
-            const output = A.join(yield* TestConsole.logLines, "\n");
+            const output = A.join(A.filter(yield* TestConsole.logLines, isString), "\n");
             expect(output).toContain("docgen:local plan");
             expect(output).toContain("- mode: scoped");
             expect(output).toContain("--filter=...@beep/schema");
@@ -314,7 +315,7 @@ describe("Docgen operations", () => {
             yield* runDocgenCommand(["local", "--json"]);
 
             expect(yield* TestConsole.logLines).toEqual([]);
-            expect(A.join(yield* TestConsole.errorLines, "\n")).toContain(
+            expect(A.join(A.filter(yield* TestConsole.errorLines, isString), "\n")).toContain(
               "--json requires --plan for docgen:local so stdout remains machine-readable."
             );
             expect(process.exitCode).toBe(1);
@@ -1538,7 +1539,7 @@ export const parseValue = (value: string): string => value.trim();
 
           yield* runDocgenCommand(["quality", "--changed-files", "--json"]);
 
-          const output = A.join(yield* TestConsole.logLines, "\n");
+          const output = A.join(A.filter(yield* TestConsole.logLines, isString), "\n");
           const decoded = decodeUnknownJson(output) as {
             readonly scope?: string;
             readonly packages?: ReadonlyArray<{
@@ -2051,7 +2052,7 @@ export const workerEvalValue = 1;
             ]);
 
             const decoded = decodeWorkerEvalReportJson(yield* fs.readFileString(evalPath));
-            const logLines = yield* TestConsole.logLines;
+            const logLines = A.filter(yield* TestConsole.logLines, isString);
 
             expect(decoded.schemaVersion).toBe(1);
             expect(decoded.scope).toBe("input");
@@ -2161,11 +2162,17 @@ export const parseValue = (value: string): string => value.trim();
             Runpod,
             Runpod.of({
               createPod: () => Effect.succeed(new Pod({ name: "created-without-id" })),
-              deletePod: (request) => Ref.update(deletedPodIds, A.append(request.podId)),
-              getPod: (request) => Effect.succeed(new Pod({ id: request.podId, name: "recovered-pod" })),
+              deletePod: (request: { readonly podId: string }) => Ref.update(deletedPodIds, A.append(request.podId)),
+              getPod: (request: { readonly podId: string }) =>
+                Effect.succeed(new Pod({ id: request.podId, name: "recovered-pod" })),
               listTemplates: () => Effect.die("unexpected public template search"),
-              listPods: (request) => Effect.succeed([new Pod({ id: "pod-recovered", name: request?.name })]),
-              stopPod: (request) => Ref.update(stoppedPodIds, A.append(request.podId)),
+              listPods: (request?: { readonly name?: string }) =>
+                Effect.succeed([
+                  new Pod(
+                    request?.name === undefined ? { id: "pod-recovered" } : { id: "pod-recovered", name: request.name }
+                  ),
+                ]),
+              stopPod: (request: { readonly podId: string }) => Ref.update(stoppedPodIds, A.append(request.podId)),
             } as never)
           ).pipe(
             Layer.provideMerge(
@@ -2286,7 +2293,9 @@ export const parseValue = (value: string): string => value.trim();
 
           yield* runDocgenCommand(["quality", "-p", "packages/foundation/modeling/schema", "--packet-limit=-1"]);
 
-          expect(A.join(yield* TestConsole.errorLines, "\n")).toContain("--packet-limit must be zero or greater");
+          expect(A.join(A.filter(yield* TestConsole.errorLines, isString), "\n")).toContain(
+            "--packet-limit must be zero or greater"
+          );
           expect(process.exitCode).toBe(1);
         })
       )
@@ -2365,7 +2374,7 @@ export const parseValue = (value: string): string => value.trim();
 
           yield* runDocgenCommand(["check", "-p", "packages/foundation/modeling/schema"]);
 
-          const errorLines = yield* TestConsole.errorLines;
+          const errorLines = A.filter(yield* TestConsole.errorLines, isString);
           const wroteMarkdown = yield* fs.exists(path.join(packageDir, "JSDOC_ANALYSIS.md"));
           const wroteJson = yield* fs.exists(path.join(packageDir, "JSDOC_ANALYSIS.json"));
 
@@ -2432,7 +2441,7 @@ export const RejectedCategory = "nope";
 
             yield* runDocgenCommand(["check", "-p", "packages/foundation/modeling/schema"]);
 
-            const errorText = A.join(yield* TestConsole.errorLines, "\n");
+            const errorText = A.join(A.filter(yield* TestConsole.errorLines, isString), "\n");
             const wroteMarkdown = yield* fs.exists(path.join(packageDir, "JSDOC_ANALYSIS.md"));
             const wroteJson = yield* fs.exists(path.join(packageDir, "JSDOC_ANALYSIS.json"));
 
@@ -2521,7 +2530,7 @@ export const parseValue = (value: string): string => value.trim();
               readonly scorer?: unknown;
               readonly remediationPackets?: ReadonlyArray<{ readonly prompt?: string }>;
             };
-            const logText = A.join(yield* TestConsole.logLines, "\n");
+            const logText = A.join(A.filter(yield* TestConsole.logLines, isString), "\n");
 
             expect(decoded.schemaVersion).toBe(2);
             expect(decoded.scorer).toBe("codex-advisory-packet-v1");
