@@ -3,6 +3,7 @@ import {
   AgentEffectivenessDatasetBundle,
   AgentEffectivenessDoctorReport,
   AgentEffectivenessPhoenixSyncResult,
+  AgentEffectivenessPromptBundle,
 } from "@beep/repo-ai-metrics";
 import { agentEffectivenessCommand } from "@beep/repo-cli/commands/AgentEffectiveness/index";
 import { A } from "@beep/utils";
@@ -19,6 +20,7 @@ const decodeDoctorReport = S.decodeUnknownEffect(S.fromJsonString(AgentEffective
 const decodeAnnotationCheckReport = S.decodeUnknownEffect(S.fromJsonString(AgentEffectivenessAnnotationCheckReport));
 const decodeDatasetBundle = S.decodeUnknownEffect(S.fromJsonString(AgentEffectivenessDatasetBundle));
 const decodePhoenixSyncResult = S.decodeUnknownEffect(S.fromJsonString(AgentEffectivenessPhoenixSyncResult));
+const decodePromptBundle = S.decodeUnknownEffect(S.fromJsonString(AgentEffectivenessPromptBundle));
 
 const provideScopedLayer =
   <ROut, E2, RIn>(layer: Layer.Layer<ROut, E2, RIn>) =>
@@ -188,6 +190,20 @@ describe("agent-effectiveness command", () => {
         expect(bundle.datasets.length).toBe(5);
         expect(output).not.toContain("draftJsDoc");
         expect(output).not.toContain("@example");
+        expect(process.exitCode).toBe(0);
+      })
+    )
+  );
+
+  it.effect("emits static Phoenix prompt bundle JSON without doctor inputs", () =>
+    withTempDirectory(() =>
+      Effect.gen(function* () {
+        yield* runAgentEffectivenessCommand(["prompts", "bundle", "--json"]);
+
+        const output = yield* lastLoggedLine();
+        const bundle = yield* decodePromptBundle(output);
+        expect(bundle.prompts.length).toBe(2);
+        expect(bundle.projectName).toBe("beep-agent-effectiveness");
         expect(process.exitCode).toBe(0);
       })
     )

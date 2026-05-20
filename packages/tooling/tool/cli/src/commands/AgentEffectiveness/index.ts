@@ -40,7 +40,7 @@ import {
   syncAgentEffectivenessPhoenix,
 } from "@beep/repo-ai-metrics";
 import { A } from "@beep/utils";
-import { Console, Effect, Layer, Path, pipe } from "effect";
+import { Console, DateTime, Effect, Layer, Path, pipe } from "effect";
 import * as O from "effect/Option";
 import { Command, Flag } from "effect/unstable/cli";
 import { FetchHttpClient } from "effect/unstable/http";
@@ -381,12 +381,7 @@ const makeDatasetBundleProgram = Effect.fn("AgentEffectiveness.makeDatasetBundle
 });
 
 const makePromptBundleProgram = Effect.fn("AgentEffectiveness.makePromptBundleProgram")(function* ({
-  dataRoot,
   json,
-  noPhoenix,
-  phoenixBaseUrl,
-  target,
-  workerEvalReportPath,
 }: {
   readonly dataRoot: string;
   readonly json: boolean;
@@ -395,12 +390,8 @@ const makePromptBundleProgram = Effect.fn("AgentEffectiveness.makePromptBundlePr
   readonly target: AiMetricsDeployTarget;
   readonly workerEvalReportPath: string;
 }) {
-  const input = makeDoctorInput({ dataRoot, noPhoenix, phoenixBaseUrl, target, workerEvalReportPath });
-  const report = yield* provideAgentEffectivenessLayers({
-    dataRoot,
-    effect: makeAgentEffectivenessDoctorReport(input),
-  });
-  yield* renderPromptBundle(makeAgentEffectivenessPromptBundle(report.generatedAt), json);
+  const generatedAt = yield* DateTime.now.pipe(Effect.map(DateTime.formatIso));
+  yield* renderPromptBundle(makeAgentEffectivenessPromptBundle(generatedAt), json);
 });
 
 const makeExperimentBundleProgram = Effect.fn("AgentEffectiveness.makeExperimentBundleProgram")(function* ({

@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generatedOn": "2026-05-16",
+  "generatedOn": "2026-05-20",
   "scope": ["apps/**/*.{ts,tsx}", "packages/**/*.{ts,tsx}", "infra/**/*.ts"],
   "enforcedRoots": [
     "packages/tooling/tool/cli/src/commands/Laws/DualArity.ts",
@@ -8,6 +8,18 @@
     "packages/tooling/library/repo-utils/src/TSMorph/TSMorph.service.ts"
   ],
   "entries": [
+    {
+      "file": "packages/drivers/phoenix/src/Phoenix.errors.ts",
+      "qualifiedName": "PhoenixError.operation",
+      "kind": "static-function-property",
+      "status": "candidate",
+      "owner": "@beep/phoenix",
+      "reason": "Public 2-3 parameter helper APIs must be implemented with dual from effect/Function.",
+      "line": 146,
+      "column": 19,
+      "parameterCount": 3,
+      "diagnostics": ["missing-dual"]
+    },
     {
       "file": "packages/foundation/capability/observability/src/server/HttpApiTelemetry.ts",
       "qualifiedName": "observeHttpApiHandler",
@@ -20,6 +32,58 @@
       "column": 14,
       "parameterCount": 3,
       "diagnostics": ["invalid-dual-arity", "third-param-not-object-like"]
+    },
+    {
+      "file": "packages/foundation/modeling/utils/src/Array.ts",
+      "qualifiedName": "indexOf",
+      "kind": "exported-const-function",
+      "status": "exception",
+      "owner": "@beep/utils",
+      "reason": "Central Array.prototype.indexOf parity helper intentionally mirrors the native optional fromIndex positional API while returning Option for effect-first consumers.",
+      "issue": "UTILS-ARRAY-NATIVE-PARITY",
+      "line": 279,
+      "column": 14,
+      "parameterCount": 3,
+      "diagnostics": ["third-param-not-object-like"]
+    },
+    {
+      "file": "packages/foundation/modeling/utils/src/Array.ts",
+      "qualifiedName": "lastIndexOf",
+      "kind": "exported-const-function",
+      "status": "exception",
+      "owner": "@beep/utils",
+      "reason": "Central Array.prototype.lastIndexOf parity helper intentionally mirrors the native optional fromIndex positional API while returning Option for effect-first consumers.",
+      "issue": "UTILS-ARRAY-NATIVE-PARITY",
+      "line": 308,
+      "column": 14,
+      "parameterCount": 3,
+      "diagnostics": ["third-param-not-object-like"]
+    },
+    {
+      "file": "packages/foundation/modeling/utils/src/Array.ts",
+      "qualifiedName": "slice",
+      "kind": "exported-const-function",
+      "status": "exception",
+      "owner": "@beep/utils",
+      "reason": "Central Array.prototype.slice parity helper intentionally mirrors the native optional end positional API for behavior-preserving array-method migration.",
+      "issue": "UTILS-ARRAY-NATIVE-PARITY",
+      "line": 337,
+      "column": 14,
+      "parameterCount": 3,
+      "diagnostics": ["third-param-not-object-like"]
+    },
+    {
+      "file": "packages/foundation/modeling/utils/src/Array.ts",
+      "qualifiedName": "spliceInPlace",
+      "kind": "exported-const-function",
+      "status": "exception",
+      "owner": "@beep/utils",
+      "reason": "Explicit in-place Array.prototype.splice parity helper centralizes the rare identity-preserving mutation cases found by the native Array sweep.",
+      "issue": "UTILS-ARRAY-NATIVE-PARITY",
+      "line": 503,
+      "column": 14,
+      "parameterCount": 4,
+      "diagnostics": ["too-many-positional-params"]
     },
     {
       "file": "packages/foundation/modeling/utils/src/Str.ts",
@@ -46,58 +110,6 @@
       "column": 14,
       "parameterCount": 3,
       "diagnostics": ["third-param-not-object-like"]
-    },
-    {
-      "file": "packages/foundation/modeling/utils/src/Array.ts",
-      "qualifiedName": "indexOf",
-      "kind": "exported-const-function",
-      "status": "exception",
-      "owner": "@beep/utils",
-      "reason": "Central Array.prototype.indexOf parity helper intentionally mirrors the native optional fromIndex positional API while returning Option for effect-first consumers.",
-      "issue": "UTILS-ARRAY-NATIVE-PARITY",
-      "line": 275,
-      "column": 14,
-      "parameterCount": 3,
-      "diagnostics": ["third-param-not-object-like"]
-    },
-    {
-      "file": "packages/foundation/modeling/utils/src/Array.ts",
-      "qualifiedName": "lastIndexOf",
-      "kind": "exported-const-function",
-      "status": "exception",
-      "owner": "@beep/utils",
-      "reason": "Central Array.prototype.lastIndexOf parity helper intentionally mirrors the native optional fromIndex positional API while returning Option for effect-first consumers.",
-      "issue": "UTILS-ARRAY-NATIVE-PARITY",
-      "line": 304,
-      "column": 14,
-      "parameterCount": 3,
-      "diagnostics": ["third-param-not-object-like"]
-    },
-    {
-      "file": "packages/foundation/modeling/utils/src/Array.ts",
-      "qualifiedName": "slice",
-      "kind": "exported-const-function",
-      "status": "exception",
-      "owner": "@beep/utils",
-      "reason": "Central Array.prototype.slice parity helper intentionally mirrors the native optional end positional API for behavior-preserving array-method migration.",
-      "issue": "UTILS-ARRAY-NATIVE-PARITY",
-      "line": 333,
-      "column": 14,
-      "parameterCount": 3,
-      "diagnostics": ["third-param-not-object-like"]
-    },
-    {
-      "file": "packages/foundation/modeling/utils/src/Array.ts",
-      "qualifiedName": "spliceInPlace",
-      "kind": "exported-const-function",
-      "status": "exception",
-      "owner": "@beep/utils",
-      "reason": "Explicit in-place Array.prototype.splice parity helper centralizes the rare identity-preserving mutation cases found by the native Array sweep.",
-      "issue": "UTILS-ARRAY-NATIVE-PARITY",
-      "line": 499,
-      "column": 14,
-      "parameterCount": 4,
-      "diagnostics": ["too-many-positional-params"]
     }
   ]
 }

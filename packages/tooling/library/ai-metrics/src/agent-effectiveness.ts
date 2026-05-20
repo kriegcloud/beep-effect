@@ -718,7 +718,12 @@ export class AgentEffectivenessDatasetSpec extends S.Class<AgentEffectivenessDat
  * ```ts
  * import { AgentEffectivenessDatasetBundle } from "@beep/repo-ai-metrics"
  *
- * const bundle = new AgentEffectivenessDatasetBundle({ datasets: [], projectName: "beep-agent-effectiveness" })
+ * const bundle = new AgentEffectivenessDatasetBundle({
+ *   datasets: [],
+ *   generatedAt: "2026-05-20T00:00:00.000Z",
+ *   projectName: "beep-agent-effectiveness",
+ *   schemaVersion: "agent-effectiveness-datasets/v1"
+ * })
  * console.log(bundle.projectName)
  * ```
  * @category models
@@ -828,7 +833,12 @@ export class AgentEffectivenessPromptSpec extends S.Class<AgentEffectivenessProm
  * ```ts
  * import { AgentEffectivenessPromptBundle } from "@beep/repo-ai-metrics"
  *
- * const bundle = new AgentEffectivenessPromptBundle({ prompts: [], projectName: "beep-agent-effectiveness" })
+ * const bundle = new AgentEffectivenessPromptBundle({
+ *   generatedAt: "2026-05-20T00:00:00.000Z",
+ *   projectName: "beep-agent-effectiveness",
+ *   prompts: [],
+ *   schemaVersion: "agent-effectiveness-prompts/v1"
+ * })
  * console.log(bundle.projectName)
  * ```
  * @category models
@@ -889,7 +899,12 @@ export class AgentEffectivenessExperimentSpec extends S.Class<AgentEffectiveness
  * ```ts
  * import { AgentEffectivenessExperimentBundle } from "@beep/repo-ai-metrics"
  *
- * const bundle = new AgentEffectivenessExperimentBundle({ experiments: [], projectName: "beep-agent-effectiveness" })
+ * const bundle = new AgentEffectivenessExperimentBundle({
+ *   experiments: [],
+ *   generatedAt: "2026-05-20T00:00:00.000Z",
+ *   projectName: "beep-agent-effectiveness",
+ *   schemaVersion: "agent-effectiveness-experiments/v1"
+ * })
  * console.log(bundle.projectName)
  * ```
  * @category models

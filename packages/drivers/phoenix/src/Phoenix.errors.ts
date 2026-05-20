@@ -39,6 +39,7 @@ export const PhoenixOperation = LiteralKit([
   "getDatasetInfo",
   "getExperimentInfo",
   "getPrompt",
+  "init",
 ] as const).pipe(
   $I.annoteSchema("PhoenixOperation", {
     description: "Phoenix driver operation names used in technical error diagnostics.",

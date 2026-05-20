@@ -713,6 +713,6 @@ export class Phoenix extends Context.Service<Phoenix, PhoenixShape>()($I`Phoenix
    */
   static readonly layer: Layer.Layer<Phoenix, PhoenixError> = Layer.effect(
     Phoenix,
-    makePhoenixFromEnvironment().pipe(Effect.mapError((cause) => PhoenixError.operation("doctor", "config", { cause })))
+    makePhoenixFromEnvironment().pipe(Effect.mapError((cause) => PhoenixError.operation("init", "config", { cause })))
   );
 }
