@@ -8,7 +8,7 @@
 import { $RepoAiMetricsId } from "@beep/identity/packages";
 import { TaggedErrorClass } from "@beep/schema";
 import { A, Str } from "@beep/utils";
-import { Clock, Effect, FileSystem, Order, Path, pipe } from "effect";
+import { Clock, Effect, FileSystem, flow, Order, Path, pipe } from "effect";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import { AiMetricsRawArchiveKey, writeEncryptedRawArchiveObject } from "./archive.ts";
@@ -370,7 +370,7 @@ const safeSystemdUnitNameStem = (value: string): string => {
   return Str.isNonEmpty(sanitized) ? sanitized : "beep-ai-metrics-forwarder";
 };
 
-const shellCommandFromArgv = (argv: ReadonlyArray<string>): string => pipe(argv, A.map(shellQuote), A.join(" "));
+const shellCommandFromArgv: (argv: ReadonlyArray<string>) => string = flow(A.map(shellQuote), A.join(" "));
 
 /**
  * Render a systemd user timer that repeatedly runs the forwarder with locking and status evidence.
