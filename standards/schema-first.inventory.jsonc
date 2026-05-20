@@ -74,6 +74,22 @@
       "reason": "Interface contains non-schema signals such as function members or runtime handles."
     },
     {
+      "file": "packages/canvas/use-cases/src/aggregates/CanvasProject/CanvasProject.repository.ts",
+      "symbol": "CanvasProjectRepositoryShape",
+      "kind": "exported-interface",
+      "status": "exception",
+      "owner": "@beep/canvas-use-cases",
+      "reason": "Interface contains non-schema signals such as function members or runtime handles."
+    },
+    {
+      "file": "packages/canvas/use-cases/src/aggregates/CanvasProject/CanvasProject.use-cases.ts",
+      "symbol": "CanvasProjectUseCasesShape",
+      "kind": "exported-interface",
+      "status": "exception",
+      "owner": "@beep/canvas-use-cases",
+      "reason": "Interface contains non-schema signals such as function members or runtime handles."
+    },
+    {
       "file": "packages/drivers/acp/src/agent.ts",
       "symbol": "AcpAgentOptions",
       "kind": "exported-interface",

@@ -554,15 +554,7 @@ export const makeGraphitiProxyForwarderService = (
               : proxyErrorResponse("upstream_failure", Inspectable.toStringUnknown(error, 0), { status: 502 })
           ),
         onSuccess: flow(
-          O.map(
-            Effect.fnUntraced(function* (upstreamResponse) {
-              const bodyBuffer = yield* Effect.orElseSucceed(upstreamResponse.arrayBuffer, () => new ArrayBuffer(0));
-              return HttpServerResponse.uint8Array(new Uint8Array(bodyBuffer), {
-                status: upstreamResponse.status,
-                headers: upstreamResponse.headers,
-              });
-            })
-          ),
+          O.map(flow(HttpServerResponse.fromClientResponse, Effect.succeed)),
           O.getOrElse(() =>
             Effect.succeed(
               proxyErrorResponse("upstream_timeout", `Upstream request timed out after ${config.requestTimeoutMs}ms`, {

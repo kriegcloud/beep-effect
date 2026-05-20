@@ -50,6 +50,11 @@ const config = {
     "packages/architecture-lab/tables/package.json",
     "packages/architecture-lab/client/package.json",
     "packages/architecture-lab/ui/package.json",
+    "packages/canvas/domain/package.json",
+    "packages/canvas/use-cases/package.json",
+    "packages/canvas/server/package.json",
+    "packages/canvas/client/package.json",
+    "packages/canvas/ui/package.json",
     "apps/architecture-lab-proof/package.json",
     "packages/drivers/runpod/package.json",
     "packages/drivers/onepassword-cli/package.json",
@@ -57,6 +62,8 @@ const config = {
     "packages/drivers/ai-provider-cli/package.json",
     "packages/drivers/sanity/package.json",
     "packages/drivers/hubspot/package.json",
+    "packages/drivers/konva/package.json",
+    "apps/canvas/package.json",
   ],
   customTypes: {
     catalog: {
