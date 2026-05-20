@@ -17,7 +17,7 @@
     "infraPackage": "@beep/infra"
   },
   "livePhoenix": {
-    "access": "read-only",
+    "access": "read-only-default-confirmation-gated-writes-available",
     "projectsUrl": "https://dankserver.tailc7c348.ts.net:8447/projects",
     "graphqlUrl": "https://dankserver.tailc7c348.ts.net:8447/graphql",
     "sanitization": "project names, aggregate counts, feature availability, schema names, attribute names, and hashed identifiers only"
