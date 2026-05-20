@@ -1,15 +1,35 @@
 import { DuckDb, DuckDbConnectionOptions } from "@beep/duckdb";
 import {
+  Phoenix,
+  PhoenixAnnotationWriteResult,
+  PhoenixDatasetAppendResult,
+  PhoenixDatasetCreateResult,
+  PhoenixDatasetExamplesResult,
+  PhoenixDatasetInfoResult,
+  PhoenixDoctorResult,
+  PhoenixExperimentInfoResult,
+  PhoenixPromptReadResult,
+  PhoenixPromptWriteResult,
+  type PhoenixSdkShape,
+} from "@beep/phoenix";
+import {
+  AGENT_EFFECTIVENESS_PHOENIX_WRITE_CONFIRMATION,
   AgentEffectivenessAnnotationPlan,
   AgentEffectivenessAnnotationPlanInput,
   AgentEffectivenessDoctorInput,
+  AgentEffectivenessPhoenixSyncInput,
   AgentEffectivenessPlannedAnnotation,
   AgentEffectivenessStatus,
   agentEffectivenessAnnotationPlanToJson,
+  agentEffectivenessDatasetBundleToJson,
   ensureAiMetricsDerivedStorage,
   makeAgentEffectivenessAnnotationCheckReport,
   makeAgentEffectivenessAnnotationPlan,
+  makeAgentEffectivenessDatasetBundle,
   makeAgentEffectivenessDoctorReport,
+  makeAgentEffectivenessExperimentBundle,
+  makeAgentEffectivenessPromptBundle,
+  syncAgentEffectivenessPhoenix,
 } from "@beep/repo-ai-metrics";
 import { A, O } from "@beep/utils";
 import { NodeServices } from "@effect/platform-node";
@@ -224,6 +244,89 @@ const phoenixRuntimeLayer = (duckDbPath: string) =>
     DuckDb.makeNodeLayer(new DuckDbConnectionOptions({ databasePath: duckDbPath }))
   );
 
+const phoenixWriteSdk = (calls: {
+  readonly annotations: Array<string>;
+  readonly datasets: Array<string>;
+  readonly experiments: Array<string>;
+  readonly prompts: Array<string>;
+}): PhoenixSdkShape => ({
+  addAnnotation: (input) => {
+    calls.annotations.push(input.name);
+    return Promise.resolve(
+      new PhoenixAnnotationWriteResult({
+        annotationId: `annotation:${input.name}`,
+        name: input.name,
+        targetId: input.targetId,
+        targetKind: input.targetKind,
+      })
+    );
+  },
+  appendDatasetExamples: () =>
+    Promise.resolve(new PhoenixDatasetAppendResult({ datasetId: "dataset-id", versionId: "version-id" })),
+  createDataset: (input) => {
+    calls.datasets.push(input.name);
+    return Promise.resolve(new PhoenixDatasetCreateResult({ datasetId: `dataset:${input.name}` }));
+  },
+  createExperiment: (input) => {
+    const experimentId = input.experimentName ?? `experiment:${input.datasetId}`;
+    calls.experiments.push(experimentId);
+    return Promise.resolve(
+      new PhoenixExperimentInfoResult({
+        datasetId: input.datasetId,
+        datasetVersionId: input.datasetVersionId ?? "latest",
+        exampleCount: 1,
+        experimentId,
+        failedRunCount: 0,
+        metadata: input.experimentMetadata,
+        missingRunCount: 0,
+        projectName: null,
+        repetitions: input.repetitions,
+        successfulRunCount: 1,
+      })
+    );
+  },
+  createPrompt: (input) => {
+    calls.prompts.push(input.name);
+    return Promise.resolve(
+      new PhoenixPromptWriteResult({ name: input.name, promptVersionId: `prompt-version:${input.name}` })
+    );
+  },
+  doctor: () =>
+    Promise.resolve(
+      new PhoenixDoctorResult({
+        baseUrl: "https://phoenix.test",
+        message: "Phoenix is reachable.",
+        status: "passed",
+        version: "1.2.3",
+      })
+    ),
+  getDatasetExamples: () =>
+    Promise.resolve(new PhoenixDatasetExamplesResult({ examples: [], versionId: "version-id" })),
+  getDatasetInfo: (selector) =>
+    Promise.resolve(
+      new PhoenixDatasetInfoResult({
+        datasetId: `dataset:${selector.value}`,
+        description: null,
+        metadata: {},
+        name: selector.value,
+      })
+    ),
+  getExperimentInfo: (experimentId) =>
+    Promise.resolve(
+      new PhoenixExperimentInfoResult({
+        datasetId: "dataset-id",
+        datasetVersionId: "version-id",
+        exampleCount: 1,
+        experimentId,
+        failedRunCount: 0,
+        missingRunCount: 0,
+        repetitions: 1,
+        successfulRunCount: 1,
+      })
+    ),
+  getPrompt: () => Promise.resolve(new PhoenixPromptReadResult({ exists: true, promptVersionId: "prompt-version-id" })),
+});
+
 describe("@beep/repo-ai-metrics agent-effectiveness", () => {
   it.effect("reports unavailable evidence as data instead of failing", () =>
     withTempDirectory((tmpDir) =>
@@ -432,6 +535,114 @@ describe("@beep/repo-ai-metrics agent-effectiveness", () => {
             "ai-metrics:agent-task:agent-task-relabeled:agent.follow_up_fix:label-first",
           ]);
         }).pipe(provideScopedLayer(runtimeLayer(path.join(tmpDir, "metrics/derived/ai-metrics.duckdb"))));
+      })
+    ).pipe(provideScopedLayer(NodeServices.layer))
+  );
+
+  it.effect("builds sanitized Phoenix dataset, prompt, and experiment bundles", () =>
+    withTempDirectory((tmpDir) =>
+      Effect.gen(function* () {
+        const path = yield* Path.Path;
+        yield* Effect.gen(function* () {
+          const dataRoot = path.join(tmpDir, "metrics");
+          const workerReportPath = path.join(tmpDir, "worker-eval.json");
+          yield* writeText(workerReportPath, workerReportJson);
+
+          const plan = yield* makeAgentEffectivenessAnnotationPlan(
+            new AgentEffectivenessAnnotationPlanInput({
+              doctor: new AgentEffectivenessDoctorInput({
+                dataRoot,
+                noPhoenix: true,
+                workerEvalReportPath: workerReportPath,
+              }),
+            })
+          );
+          const datasetBundle = makeAgentEffectivenessDatasetBundle(plan.doctor);
+          const promptBundle = makeAgentEffectivenessPromptBundle(plan.generatedAt);
+          const experimentBundle = makeAgentEffectivenessExperimentBundle(datasetBundle);
+          const datasetJson = yield* agentEffectivenessDatasetBundleToJson(datasetBundle);
+
+          expect(
+            pipe(
+              datasetBundle.datasets,
+              A.map((dataset) => dataset.kind)
+            )
+          ).toEqual([
+            "agent-loop-health",
+            "agent-outcomes",
+            "agent-config-snapshots",
+            "source-coverage",
+            "jsdoc-worker-model-suitability",
+          ]);
+          expect(promptBundle.prompts.length).toBe(2);
+          expect(experimentBundle.experiments.length).toBe(datasetBundle.datasets.length);
+          expect(datasetJson).not.toContain("draftJsDoc");
+          expect(datasetJson).not.toContain("@example");
+        }).pipe(provideScopedLayer(runtimeLayer(path.join(tmpDir, "metrics/derived/ai-metrics.duckdb"))));
+      })
+    ).pipe(provideScopedLayer(NodeServices.layer))
+  );
+
+  it.effect("keeps Phoenix sync dry-run by default and writes only with confirmation", () =>
+    withTempDirectory((tmpDir) =>
+      Effect.gen(function* () {
+        const path = yield* Path.Path;
+        const calls = {
+          annotations: [] as string[],
+          datasets: [] as string[],
+          experiments: [] as string[],
+          prompts: [] as string[],
+        };
+        yield* Effect.gen(function* () {
+          const dataRoot = path.join(tmpDir, "metrics");
+          const workerReportPath = path.join(tmpDir, "worker-eval.json");
+          const annotationPlan = new AgentEffectivenessAnnotationPlanInput({
+            doctor: new AgentEffectivenessDoctorInput({
+              dataRoot,
+              noPhoenix: true,
+              workerEvalReportPath: workerReportPath,
+            }),
+          });
+          yield* writeText(workerReportPath, workerReportJson);
+
+          const dryRun = yield* syncAgentEffectivenessPhoenix(
+            new AgentEffectivenessPhoenixSyncInput({ annotationPlan })
+          );
+          const blocked = yield* syncAgentEffectivenessPhoenix(
+            new AgentEffectivenessPhoenixSyncInput({ annotationPlan, dryRun: false })
+          );
+          const written = yield* syncAgentEffectivenessPhoenix(
+            new AgentEffectivenessPhoenixSyncInput({
+              annotationPlan,
+              confirmToken: AGENT_EFFECTIVENESS_PHOENIX_WRITE_CONFIRMATION,
+              dryRun: false,
+            })
+          );
+
+          expect(dryRun.dryRun).toBe(true);
+          expect(dryRun.datasetCount).toBe(5);
+          expect(dryRun.promptCount).toBe(2);
+          expect(dryRun.experimentCount).toBe(5);
+          expect(dryRun.writtenDatasetIds).toEqual([]);
+          expect(blocked.status).toBe(AgentEffectivenessStatus.Enum.failed);
+          expect(written.status).toBe(AgentEffectivenessStatus.Enum.passed);
+          expect(written.writtenDatasetIds.length).toBe(5);
+          expect(written.writtenPromptVersionIds.length).toBe(2);
+          expect(written.writtenExperimentIds.length).toBe(5);
+          expect(written.annotationCount).toBe(0);
+          expect(written.skippedAnnotationCount).toBeGreaterThan(0);
+          expect(calls.datasets.length).toBe(5);
+          expect(calls.prompts.length).toBe(2);
+          expect(calls.experiments.length).toBe(5);
+          expect(calls.annotations.length).toBe(0);
+        }).pipe(
+          provideScopedLayer(
+            Layer.mergeAll(
+              runtimeLayer(path.join(tmpDir, "metrics/derived/ai-metrics.duckdb")),
+              Phoenix.makeLayerWithSdk(phoenixWriteSdk(calls))
+            )
+          )
+        );
       })
     ).pipe(provideScopedLayer(NodeServices.layer))
   );

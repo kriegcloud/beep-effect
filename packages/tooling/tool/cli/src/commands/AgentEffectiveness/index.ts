@@ -7,24 +7,41 @@
 
 import { DuckDb, DuckDbConnectionOptions } from "@beep/duckdb";
 import { $RepoCliId } from "@beep/identity/packages";
+import { Phoenix, PhoenixConfigInput } from "@beep/phoenix";
 import {
+  AGENT_EFFECTIVENESS_PHOENIX_WRITE_CONFIRMATION,
   type AgentEffectivenessAnnotationCheckReport,
   type AgentEffectivenessAnnotationPlan,
   AgentEffectivenessAnnotationPlanInput,
+  type AgentEffectivenessDatasetBundle,
   AgentEffectivenessDoctorInput,
   type AgentEffectivenessDoctorReport,
   type AgentEffectivenessError,
+  type AgentEffectivenessExperimentBundle,
+  AgentEffectivenessPhoenixSyncInput,
+  type AgentEffectivenessPhoenixSyncResult,
+  type AgentEffectivenessPromptBundle,
   AgentEffectivenessStatus,
   AiMetricsDeployTarget,
   agentEffectivenessAnnotationCheckReportToJson,
   agentEffectivenessAnnotationPlanToJson,
+  agentEffectivenessDatasetBundleToJson,
   agentEffectivenessDoctorReportToJson,
+  agentEffectivenessExperimentBundleToJson,
+  agentEffectivenessPhoenixSyncResultToJson,
+  agentEffectivenessPromptBundleToJson,
   DEFAULT_AGENT_EFFECTIVENESS_WORKER_EVAL_REPORT_PATH,
   makeAgentEffectivenessAnnotationCheckReport,
   makeAgentEffectivenessAnnotationPlan,
+  makeAgentEffectivenessDatasetBundle,
   makeAgentEffectivenessDoctorReport,
+  makeAgentEffectivenessExperimentBundle,
+  makeAgentEffectivenessPromptBundle,
+  syncAgentEffectivenessPhoenix,
 } from "@beep/repo-ai-metrics";
-import { Console, Effect, Layer, Path } from "effect";
+import { A } from "@beep/utils";
+import { Console, Effect, Layer, Path, pipe } from "effect";
+import * as O from "effect/Option";
 import { Command, Flag } from "effect/unstable/cli";
 import { FetchHttpClient } from "effect/unstable/http";
 
@@ -56,6 +73,15 @@ const phoenixBaseUrlFlag = Flag.string("phoenix-base-url").pipe(
 const workerEvalReportFlag = Flag.string("worker-eval-report").pipe(
   Flag.withDefault(DEFAULT_AGENT_EFFECTIVENESS_WORKER_EVAL_REPORT_PATH),
   Flag.withDescription("JSDoc worker-eval report or initiative manifest path")
+);
+const writeFlag = Flag.boolean("write").pipe(
+  Flag.withDescription("Perform live Phoenix writes instead of the default dry-run")
+);
+const confirmPhoenixWriteFlag = Flag.string("confirm-phoenix-write").pipe(
+  Flag.withDescription(
+    `Confirmation token required for live Phoenix writes: ${AGENT_EFFECTIVENESS_PHOENIX_WRITE_CONFIRMATION}`
+  ),
+  Flag.optional
 );
 
 type AgentEffectivenessProgramError = AgentEffectivenessError;
@@ -97,17 +123,21 @@ const makeDoctorInput = ({
 const provideAgentEffectivenessLayers = Effect.fn("AgentEffectiveness.provideLayers")(function* <A, E, R>({
   dataRoot,
   effect,
+  phoenixBaseUrl,
 }: {
   readonly dataRoot: string;
   readonly effect: Effect.Effect<A, E, R>;
+  readonly phoenixBaseUrl: string;
 }) {
   const path = yield* Path.Path;
   const duckDbPath = path.resolve(dataRoot, "derived", "ai-metrics.duckdb");
+  const phoenixLayer = Phoenix.makeLayer(new PhoenixConfigInput({ baseUrl: phoenixBaseUrl }));
   return yield* Effect.scoped(
     Layer.build(
       Layer.mergeAll(
         DuckDb.makeNodeLayer(new DuckDbConnectionOptions({ databasePath: duckDbPath })),
-        FetchHttpClient.layer
+        FetchHttpClient.layer,
+        phoenixLayer
       )
     ).pipe(
       Effect.flatMap(
@@ -162,6 +192,70 @@ const renderAnnotationCheck = Effect.fn("AgentEffectiveness.renderAnnotationChec
   yield* Console.log(`findings: ${report.findings.length}`);
 });
 
+const renderDatasetBundle = Effect.fn("AgentEffectiveness.renderDatasetBundle")(function* (
+  bundle: AgentEffectivenessDatasetBundle,
+  json: boolean
+) {
+  if (json) {
+    yield* Console.log(yield* agentEffectivenessDatasetBundleToJson(bundle));
+    return;
+  }
+
+  yield* Console.log(`agent-effectiveness datasets: ${bundle.datasets.length}`);
+  yield* Console.log(`project: ${bundle.projectName}`);
+  yield* Console.log(
+    `examples: ${pipe(
+      bundle.datasets,
+      A.reduce(0, (total, dataset) => total + dataset.examples.length)
+    )}`
+  );
+});
+
+const renderPromptBundle = Effect.fn("AgentEffectiveness.renderPromptBundle")(function* (
+  bundle: AgentEffectivenessPromptBundle,
+  json: boolean
+) {
+  if (json) {
+    yield* Console.log(yield* agentEffectivenessPromptBundleToJson(bundle));
+    return;
+  }
+
+  yield* Console.log(`agent-effectiveness prompts: ${bundle.prompts.length}`);
+  yield* Console.log(`project: ${bundle.projectName}`);
+});
+
+const renderExperimentBundle = Effect.fn("AgentEffectiveness.renderExperimentBundle")(function* (
+  bundle: AgentEffectivenessExperimentBundle,
+  json: boolean
+) {
+  if (json) {
+    yield* Console.log(yield* agentEffectivenessExperimentBundleToJson(bundle));
+    return;
+  }
+
+  yield* Console.log(`agent-effectiveness experiments: ${bundle.experiments.length}`);
+  yield* Console.log(`project: ${bundle.projectName}`);
+});
+
+const renderPhoenixSyncResult = Effect.fn("AgentEffectiveness.renderPhoenixSyncResult")(function* (
+  result: AgentEffectivenessPhoenixSyncResult,
+  json: boolean
+) {
+  if (json) {
+    yield* Console.log(yield* agentEffectivenessPhoenixSyncResultToJson(result));
+    return;
+  }
+
+  yield* Console.log(`agent-effectiveness phoenix sync: status=${result.status}`);
+  yield* Console.log(`dry-run: ${result.dryRun}`);
+  yield* Console.log(`mutation policy: ${result.mutationPolicy}`);
+  yield* Console.log(`datasets: ${result.datasetCount}`);
+  yield* Console.log(`prompts: ${result.promptCount}`);
+  yield* Console.log(`experiments: ${result.experimentCount}`);
+  yield* Console.log(`annotations: ${result.annotationCount}`);
+  yield* Console.log(`skipped annotations: ${result.skippedAnnotationCount}`);
+});
+
 const makeDoctorProgram = Effect.fn("AgentEffectiveness.makeDoctorProgram")(function* ({
   dataRoot,
   json,
@@ -181,6 +275,7 @@ const makeDoctorProgram = Effect.fn("AgentEffectiveness.makeDoctorProgram")(func
   const report = yield* provideAgentEffectivenessLayers({
     dataRoot,
     effect: makeAgentEffectivenessDoctorReport(input),
+    phoenixBaseUrl,
   });
   yield* renderDoctorReport(report, json);
 });
@@ -204,6 +299,7 @@ const makeAnnotationPlanProgram = Effect.fn("AgentEffectiveness.makeAnnotationPl
   const plan = yield* provideAgentEffectivenessLayers({
     dataRoot,
     effect: makeAgentEffectivenessAnnotationPlan(new AgentEffectivenessAnnotationPlanInput({ doctor })),
+    phoenixBaseUrl,
   });
   yield* renderAnnotationPlan(plan, json);
 });
@@ -227,10 +323,121 @@ const makeAnnotationCheckProgram = Effect.fn("AgentEffectiveness.makeAnnotationC
   const plan = yield* provideAgentEffectivenessLayers({
     dataRoot,
     effect: makeAgentEffectivenessAnnotationPlan(new AgentEffectivenessAnnotationPlanInput({ doctor })),
+    phoenixBaseUrl,
   });
   const report = makeAgentEffectivenessAnnotationCheckReport(plan);
   yield* renderAnnotationCheck(report, json);
   if (report.status === AgentEffectivenessStatus.Enum.failed) {
+    process.exitCode = 1;
+  }
+});
+
+const makeDatasetBundleProgram = Effect.fn("AgentEffectiveness.makeDatasetBundleProgram")(function* ({
+  dataRoot,
+  json,
+  noPhoenix,
+  phoenixBaseUrl,
+  target,
+  workerEvalReportPath,
+}: {
+  readonly dataRoot: string;
+  readonly json: boolean;
+  readonly noPhoenix: boolean;
+  readonly phoenixBaseUrl: string;
+  readonly target: AiMetricsDeployTarget;
+  readonly workerEvalReportPath: string;
+}) {
+  const input = makeDoctorInput({ dataRoot, noPhoenix, phoenixBaseUrl, target, workerEvalReportPath });
+  const report = yield* provideAgentEffectivenessLayers({
+    dataRoot,
+    effect: makeAgentEffectivenessDoctorReport(input),
+    phoenixBaseUrl,
+  });
+  yield* renderDatasetBundle(makeAgentEffectivenessDatasetBundle(report), json);
+});
+
+const makePromptBundleProgram = Effect.fn("AgentEffectiveness.makePromptBundleProgram")(function* ({
+  dataRoot,
+  json,
+  noPhoenix,
+  phoenixBaseUrl,
+  target,
+  workerEvalReportPath,
+}: {
+  readonly dataRoot: string;
+  readonly json: boolean;
+  readonly noPhoenix: boolean;
+  readonly phoenixBaseUrl: string;
+  readonly target: AiMetricsDeployTarget;
+  readonly workerEvalReportPath: string;
+}) {
+  const input = makeDoctorInput({ dataRoot, noPhoenix, phoenixBaseUrl, target, workerEvalReportPath });
+  const report = yield* provideAgentEffectivenessLayers({
+    dataRoot,
+    effect: makeAgentEffectivenessDoctorReport(input),
+    phoenixBaseUrl,
+  });
+  yield* renderPromptBundle(makeAgentEffectivenessPromptBundle(report.generatedAt), json);
+});
+
+const makeExperimentBundleProgram = Effect.fn("AgentEffectiveness.makeExperimentBundleProgram")(function* ({
+  dataRoot,
+  json,
+  noPhoenix,
+  phoenixBaseUrl,
+  target,
+  workerEvalReportPath,
+}: {
+  readonly dataRoot: string;
+  readonly json: boolean;
+  readonly noPhoenix: boolean;
+  readonly phoenixBaseUrl: string;
+  readonly target: AiMetricsDeployTarget;
+  readonly workerEvalReportPath: string;
+}) {
+  const input = makeDoctorInput({ dataRoot, noPhoenix, phoenixBaseUrl, target, workerEvalReportPath });
+  const report = yield* provideAgentEffectivenessLayers({
+    dataRoot,
+    effect: makeAgentEffectivenessDoctorReport(input),
+    phoenixBaseUrl,
+  });
+  const datasetBundle = makeAgentEffectivenessDatasetBundle(report);
+  yield* renderExperimentBundle(makeAgentEffectivenessExperimentBundle(datasetBundle), json);
+});
+
+const makePhoenixSyncProgram = Effect.fn("AgentEffectiveness.makePhoenixSyncProgram")(function* ({
+  confirmPhoenixWrite,
+  dataRoot,
+  json,
+  noPhoenix,
+  phoenixBaseUrl,
+  target,
+  workerEvalReportPath,
+  write,
+}: {
+  readonly confirmPhoenixWrite: O.Option<string>;
+  readonly dataRoot: string;
+  readonly json: boolean;
+  readonly noPhoenix: boolean;
+  readonly phoenixBaseUrl: string;
+  readonly target: AiMetricsDeployTarget;
+  readonly workerEvalReportPath: string;
+  readonly write: boolean;
+}) {
+  const doctor = makeDoctorInput({ dataRoot, noPhoenix, phoenixBaseUrl, target, workerEvalReportPath });
+  const result = yield* provideAgentEffectivenessLayers({
+    dataRoot,
+    effect: syncAgentEffectivenessPhoenix(
+      new AgentEffectivenessPhoenixSyncInput({
+        annotationPlan: new AgentEffectivenessAnnotationPlanInput({ doctor }),
+        dryRun: !write,
+        ...(O.isSome(confirmPhoenixWrite) ? { confirmToken: confirmPhoenixWrite.value } : {}),
+      })
+    ),
+    phoenixBaseUrl,
+  });
+  yield* renderPhoenixSyncResult(result, json);
+  if (result.status === AgentEffectivenessStatus.Enum.failed) {
     process.exitCode = 1;
   }
 });
@@ -296,6 +503,126 @@ const annotationsCommand = Command.make(
   Command.withSubcommands([annotationsPlanCommand, annotationsCheckCommand])
 );
 
+const datasetsBundleCommand = Command.make(
+  "bundle",
+  {
+    dataRoot: dataRootFlag,
+    json: jsonFlag,
+    noPhoenix: noPhoenixFlag,
+    phoenixBaseUrl: phoenixBaseUrlFlag,
+    target: targetFlag,
+    workerEvalReportPath: workerEvalReportFlag,
+  },
+  ({ dataRoot, json, noPhoenix, phoenixBaseUrl, target, workerEvalReportPath }) =>
+    runAgentEffectivenessProgram(
+      makeDatasetBundleProgram({ dataRoot, json, noPhoenix, phoenixBaseUrl, target, workerEvalReportPath })
+    )
+).pipe(Command.withDescription("Render the sanitized Phoenix dataset bundle"));
+
+const datasetsCommand = Command.make(
+  "datasets",
+  {},
+  Effect.fn(function* () {
+    yield* Console.log("Agent-effectiveness dataset commands:");
+    yield* Console.log("- bundle");
+  })
+).pipe(
+  Command.withDescription("Build repo-owned Phoenix dataset specs"),
+  Command.withSubcommands([datasetsBundleCommand])
+);
+
+const promptsBundleCommand = Command.make(
+  "bundle",
+  {
+    dataRoot: dataRootFlag,
+    json: jsonFlag,
+    noPhoenix: noPhoenixFlag,
+    phoenixBaseUrl: phoenixBaseUrlFlag,
+    target: targetFlag,
+    workerEvalReportPath: workerEvalReportFlag,
+  },
+  ({ dataRoot, json, noPhoenix, phoenixBaseUrl, target, workerEvalReportPath }) =>
+    runAgentEffectivenessProgram(
+      makePromptBundleProgram({ dataRoot, json, noPhoenix, phoenixBaseUrl, target, workerEvalReportPath })
+    )
+).pipe(Command.withDescription("Render the repo-owned Phoenix prompt bundle"));
+
+const promptsCommand = Command.make(
+  "prompts",
+  {},
+  Effect.fn(function* () {
+    yield* Console.log("Agent-effectiveness prompt commands:");
+    yield* Console.log("- bundle");
+  })
+).pipe(
+  Command.withDescription("Build repo-owned Phoenix prompt specs"),
+  Command.withSubcommands([promptsBundleCommand])
+);
+
+const experimentsBundleCommand = Command.make(
+  "bundle",
+  {
+    dataRoot: dataRootFlag,
+    json: jsonFlag,
+    noPhoenix: noPhoenixFlag,
+    phoenixBaseUrl: phoenixBaseUrlFlag,
+    target: targetFlag,
+    workerEvalReportPath: workerEvalReportFlag,
+  },
+  ({ dataRoot, json, noPhoenix, phoenixBaseUrl, target, workerEvalReportPath }) =>
+    runAgentEffectivenessProgram(
+      makeExperimentBundleProgram({ dataRoot, json, noPhoenix, phoenixBaseUrl, target, workerEvalReportPath })
+    )
+).pipe(Command.withDescription("Render deterministic Phoenix experiment specs"));
+
+const experimentsCommand = Command.make(
+  "experiments",
+  {},
+  Effect.fn(function* () {
+    yield* Console.log("Agent-effectiveness experiment commands:");
+    yield* Console.log("- bundle");
+  })
+).pipe(
+  Command.withDescription("Build deterministic Phoenix experiment specs"),
+  Command.withSubcommands([experimentsBundleCommand])
+);
+
+const phoenixSyncCommand = Command.make(
+  "sync",
+  {
+    confirmPhoenixWrite: confirmPhoenixWriteFlag,
+    dataRoot: dataRootFlag,
+    json: jsonFlag,
+    noPhoenix: noPhoenixFlag,
+    phoenixBaseUrl: phoenixBaseUrlFlag,
+    target: targetFlag,
+    workerEvalReportPath: workerEvalReportFlag,
+    write: writeFlag,
+  },
+  ({ confirmPhoenixWrite, dataRoot, json, noPhoenix, phoenixBaseUrl, target, workerEvalReportPath, write }) =>
+    runAgentEffectivenessProgram(
+      makePhoenixSyncProgram({
+        confirmPhoenixWrite,
+        dataRoot,
+        json,
+        noPhoenix,
+        phoenixBaseUrl,
+        target,
+        workerEvalReportPath,
+        write,
+      })
+    )
+).pipe(Command.withDescription("Dry-run or confirmed-write agent-effectiveness specs to Phoenix"));
+
+const phoenixCommand = Command.make(
+  "phoenix",
+  {},
+  Effect.fn(function* () {
+    yield* Console.log("Agent-effectiveness Phoenix commands:");
+    yield* Console.log("- sync");
+  })
+).pipe(Command.withDescription("Guarded Phoenix sync workflow"), Command.withSubcommands([phoenixSyncCommand]));
+
 /**
  * Agent-effectiveness root command.
  *
@@ -315,8 +642,19 @@ export const agentEffectivenessCommand = Command.make(
     yield* Console.log("- doctor");
     yield* Console.log("- annotations plan");
     yield* Console.log("- annotations check");
+    yield* Console.log("- datasets bundle");
+    yield* Console.log("- prompts bundle");
+    yield* Console.log("- experiments bundle");
+    yield* Console.log("- phoenix sync");
   })
 ).pipe(
-  Command.withDescription("Inspect local AI-agent effectiveness evidence without mutating Phoenix"),
-  Command.withSubcommands([doctorCommand, annotationsCommand])
+  Command.withDescription("Inspect and sync AI-agent effectiveness evidence"),
+  Command.withSubcommands([
+    doctorCommand,
+    annotationsCommand,
+    datasetsCommand,
+    promptsCommand,
+    experimentsCommand,
+    phoenixCommand,
+  ])
 );

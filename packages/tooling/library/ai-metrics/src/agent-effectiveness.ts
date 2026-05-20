@@ -2464,6 +2464,7 @@ const unconfirmedSyncResult = ({
   experimentBundle,
   mutationPolicy,
   phoenixAnnotations,
+  plannedAnnotationCount,
   promptBundle,
   status,
 }: {
@@ -2472,6 +2473,7 @@ const unconfirmedSyncResult = ({
   readonly experimentBundle: AgentEffectivenessExperimentBundle;
   readonly mutationPolicy: string;
   readonly phoenixAnnotations: ReadonlyArray<PhoenixAnnotationInput>;
+  readonly plannedAnnotationCount: number;
   readonly promptBundle: AgentEffectivenessPromptBundle;
   readonly status: AgentEffectivenessStatus;
 }): AgentEffectivenessPhoenixSyncResult =>
@@ -2482,7 +2484,7 @@ const unconfirmedSyncResult = ({
     experimentCount: A.length(experimentBundle.experiments),
     mutationPolicy,
     promptCount: A.length(promptBundle.prompts),
-    skippedAnnotationCount: 0,
+    skippedAnnotationCount: plannedAnnotationCount - A.length(phoenixAnnotations),
     status,
     writtenDatasetIds: [],
     writtenExperimentIds: [],
@@ -2527,6 +2529,7 @@ export const syncAgentEffectivenessPhoenix: (
       experimentBundle,
       mutationPolicy: "dry-run-no-phoenix-mutation",
       phoenixAnnotations,
+      plannedAnnotationCount: A.length(plan.annotations),
       promptBundle,
       status: AgentEffectivenessStatus.Enum.passed,
     });
@@ -2539,6 +2542,7 @@ export const syncAgentEffectivenessPhoenix: (
       experimentBundle,
       mutationPolicy: "blocked-missing-confirmation-token",
       phoenixAnnotations,
+      plannedAnnotationCount: A.length(plan.annotations),
       promptBundle,
       status: AgentEffectivenessStatus.Enum.failed,
     });
