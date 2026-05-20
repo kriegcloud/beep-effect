@@ -23,7 +23,8 @@ environment, domain, DNS, and state-backend wiring.
 
 - AWS profile: `codedank-elpresidank`
 - Region: `us-east-1`
-- Bucket: `oip-law-pulumi-state`
+- Bucket: `opip-law-pulumi-state` (historical name retained for state
+  continuity during the OIP rename)
 - Public access: blocked
 - Versioning: enabled
 - Encryption: default SSE-S3
@@ -32,19 +33,20 @@ environment, domain, DNS, and state-backend wiring.
 
 ## Applied Staging Posture
 
-- S3 backend bucket `oip-law-pulumi-state` exists and is hardened.
+- S3 backend bucket `opip-law-pulumi-state` exists and is hardened.
 - Staging stack `staging` applies the Vercel project/domain/env and staging
   asset bucket.
 - Production stack `production` is initialized and preview-only until explicit
   launch approval.
-- Staging DNS is applied through Pulumi. Production DNS previews cleanly and
-  remains unapplied until explicit cutover approval.
+- Historical staging DNS for `staging.opip.law` is applied through Pulumi. OIP
+  DNS records are modeled in IaC and remain pending provider apply until
+  explicit cutover approval.
 - Current staging proof split:
   - `oip-web-staging.vercel.app` responds but reflects the last deployed
     `main` commit until the current hardening changes deploy.
-  - `staging.oip.law` DNS resolves to Vercel and now returns HTTP/2 200 over
-    HTTPS, but it also reflects the last deployed `main` commit until the
-    current hardening changes deploy.
+  - `staging.oip.law` DNS/TLS/public proof is pending provider apply.
+  - `staging.opip.law` remains the verified historical staging endpoint until
+    the redirect cutover completes.
 
 ## Deferred OIP AWS Org
 

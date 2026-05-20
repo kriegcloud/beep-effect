@@ -21,8 +21,8 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | packagesWithoutPublicExports | 1 |
 | missingWorkspaceMetadata | 0 |
 | importSpecifiers | 918 |
-| publicExportEntries | 13565 |
-| uniquePackageSymbols | 5442 |
+| publicExportEntries | 13567 |
+| uniquePackageSymbols | 5444 |
 
 ## Seed Discovery Proof
 
@@ -94,7 +94,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | 55 | `@beep/shared-config` | `packages/shared/config` | has-public-exports | 2 | 2 | 1 |
 | 56 | `@beep/sandbox` | `packages/foundation/capability/sandbox` | has-public-exports | 30 | 786 | 238 |
 | 57 | `@beep/shared-use-cases` | `packages/shared/use-cases` | has-public-exports | 2 | 2 | 1 |
-| 58 | `@beep/oip-web` | `apps/oip-web` | has-public-exports | 10 | 39 | 35 |
+| 58 | `@beep/oip-web` | `apps/oip-web` | has-public-exports | 10 | 41 | 37 |
 | 59 | `@beep/shared-tables` | `packages/shared/tables` | has-public-exports | 14 | 19 | 7 |
 | 60 | `@beep/md` | `packages/foundation/capability/md` | has-public-exports | 5 | 253 | 97 |
 | 61 | `@beep/canvas` | `apps/canvas` | has-public-exports | 2 | 2 | 1 |
@@ -12081,17 +12081,19 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | Import | Symbol | Kind | Source | Summary |
 |---|---|---|---|---|
 | `@beep/oip-web` | `VERSION` | const | `apps/oip-web/src/index.ts:21` | Package version for the oip web app. |
-| `@beep/oip-web/app/api/contact/route` | `POST` | function | `apps/oip-web/src/app/api/contact/route.ts:68` | Handles OIP contact submissions. |
+| `@beep/oip-web/app/api/contact/route` | `contactRequestResponse` | const | `apps/oip-web/src/app/api/contact/route.ts:120` | Builds an OIP contact route response inside an Effect runtime. |
+| `@beep/oip-web/app/api/contact/route` | `contactRequestResponseWithSubmit` | const | `apps/oip-web/src/app/api/contact/route.ts:77` | Builds an OIP contact route response using an injected contact workflow. |
+| `@beep/oip-web/app/api/contact/route` | `POST` | function | `apps/oip-web/src/app/api/contact/route.ts:138` | Handles OIP contact submissions at the Next.js route boundary. |
 | `@beep/oip-web/app/llms.txt/route` | `GET` | function | `apps/oip-web/src/app/llms.txt/route.ts:24` | Returns `llms.txt` for oip.law. |
 | `@beep/oip-web/app/manifest` | `default` | function | `apps/oip-web/src/app/manifest.ts:23` | Returns the static web manifest for oip web. |
 | `@beep/oip-web/app/robots` | `default` | function | `apps/oip-web/src/app/robots.ts:24` | Returns the robots policy for OIP. |
 | `@beep/oip-web/app/sitemap` | `default` | function | `apps/oip-web/src/app/sitemap.ts:24` | Returns the OIP sitemap. |
-| `@beep/oip-web/contact` | `contactResponseBody` | const | `apps/oip-web/src/contact/ContactSubmission.service.ts:333` | Builds a JSON-safe contact response object. |
-| `@beep/oip-web/contact` | `ContactSubmission` | class | `apps/oip-web/src/contact/ContactSubmission.model.ts:125` | Browser-submitted OIP contact form payload. |
-| `@beep/oip-web/contact` | `ContactSubmissionResponse` | class | `apps/oip-web/src/contact/ContactSubmission.model.ts:160` | Public contact submission response. |
+| `@beep/oip-web/contact` | `contactResponseBody` | const | `apps/oip-web/src/contact/ContactSubmission.service.ts:336` | Builds a JSON-safe contact response object. |
+| `@beep/oip-web/contact` | `ContactSubmission` | class | `apps/oip-web/src/contact/ContactSubmission.model.ts:127` | Browser-submitted OIP contact form payload. |
+| `@beep/oip-web/contact` | `ContactSubmissionResponse` | class | `apps/oip-web/src/contact/ContactSubmission.model.ts:162` | Public contact submission response. |
 | `@beep/oip-web/contact` | `ContactSubmissionStatus` | const | `apps/oip-web/src/contact/ContactSubmission.model.ts:82` | Public contact submission status. |
 | `@beep/oip-web/contact` | `ContactSubmissionStatus` | type | `apps/oip-web/src/contact/ContactSubmission.model.ts:102` | Type for {@link ContactSubmissionStatus}. |
-| `@beep/oip-web/contact` | `decodeContactSubmission` | const | `apps/oip-web/src/contact/ContactSubmission.model.ts:191` | Decodes unknown input into a contact submission. |
+| `@beep/oip-web/contact` | `decodeContactSubmission` | const | `apps/oip-web/src/contact/ContactSubmission.model.ts:193` | Decodes unknown input into a contact submission. |
 | `@beep/oip-web/contact` | `submitContact` | const | `apps/oip-web/src/contact/ContactSubmission.service.ts:284` | Submits an OIP contact payload to HubSpot when runtime config is present. |
 | `@beep/oip-web/content` | `AboutPanel` | class | `apps/oip-web/src/content/OipContent.model.ts:260` | Biographical bridge panel. |
 | `@beep/oip-web/content` | `ClientLogo` | class | `apps/oip-web/src/content/OipContent.model.ts:364` | Client logo reference. |

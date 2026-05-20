@@ -1,5 +1,6 @@
 import { VERSION } from "@beep/oip-web";
-import { decodeContactSubmission, submitContact } from "@beep/oip-web/contact";
+import { contactRequestResponseWithSubmit, POST } from "@beep/oip-web/app/api/contact/route";
+import { ContactSubmissionResponse, decodeContactSubmission, submitContact } from "@beep/oip-web/contact";
 import { decodeOipSiteContentResult, launchReviewGates, oipSiteContent, ReviewStatus } from "@beep/oip-web/content";
 import { Button } from "@beep/ui/components/ui/button";
 import { A } from "@beep/utils";
@@ -10,6 +11,7 @@ import * as React from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import Home from "../src/app/page.tsx";
 import { OipThemeProvider } from "../src/components/OipThemeProvider.tsx";
+import { oipRedirects } from "../src/config/OipRedirects.ts";
 
 vi.mock("next/image", () =>
   vi.importActual<typeof import("react")>("react").then((ReactModule) => {
@@ -32,6 +34,10 @@ vi.mock("next/headers", () => ({
 
 vi.mock("next/server", () => ({
   connection: () => Promise.resolve(undefined),
+  NextResponse: {
+    json: (body: unknown, init?: ResponseInit) => Response.json(body, init),
+    redirect: (url: string | URL, status?: number) => Response.redirect(url, status),
+  },
 }));
 
 const validContactPayload = () => ({
@@ -68,7 +74,34 @@ const hubSpotResponse = (body: unknown, status = 200): Response =>
     status,
   });
 
-describe("@beep/oip-web", () => {
+const contactFormData = (payload = validContactPayload()) => {
+  const formData = new FormData();
+  formData.set("email", payload.email);
+  formData.set("message", payload.message);
+  formData.set("name", payload.name);
+  formData.set("submittedAt", `${payload.submittedAt}`);
+  return formData;
+};
+
+const jsonRequestBody = (body: unknown) => Response.json(body).text();
+
+const jsonContactRequest = (body: unknown) =>
+  jsonRequestBody(body).then(
+    (payload) =>
+      new Request("https://oip.law/api/contact", {
+        body: payload,
+        headers: { "content-type": "application/json" },
+        method: "POST",
+      })
+  );
+
+const formContactRequest = (formData = contactFormData()) =>
+  new Request("https://oip.law/api/contact", {
+    body: formData,
+    method: "POST",
+  });
+
+describe.sequential("@beep/oip-web", () => {
   beforeEach(() => {
     cleanup();
     document.documentElement.classList.remove("light", "dark");
@@ -134,6 +167,39 @@ describe("@beep/oip-web", () => {
     expect(A.every(oipSiteContent.clients, (client) => ReviewStatus.is.needs_review(client.review.status))).toBe(true);
     expect(A.every(oipSiteContent.matters, (matter) => ReviewStatus.is.needs_review(matter.review.status))).toBe(true);
   });
+
+  it("pins the OPIP compatibility redirect table to canonical OIP domains", () =>
+    Promise.resolve(oipRedirects()).then((redirects) => {
+      expect(redirects).toContainEqual({
+        destination: "/oip/:path*",
+        permanent: true,
+        source: "/opip/:path*",
+      });
+      expect(redirects).toContainEqual({
+        destination: "https://oip.law/:path*",
+        has: [{ type: "host", value: "opip.law" }],
+        permanent: true,
+        source: "/:path*",
+      });
+      expect(redirects).toContainEqual({
+        destination: "https://oip.law/:path*",
+        has: [{ type: "host", value: "www.opip.law" }],
+        permanent: true,
+        source: "/:path*",
+      });
+      expect(redirects).toContainEqual({
+        destination: "https://oip.law/:path*",
+        has: [{ type: "host", value: "www.oip.law" }],
+        permanent: true,
+        source: "/:path*",
+      });
+      expect(redirects).toContainEqual({
+        destination: "https://staging.oip.law/:path*",
+        has: [{ type: "host", value: "staging.opip.law" }],
+        permanent: true,
+        source: "/:path*",
+      });
+    }));
 
   it("rejects malformed contact payloads at the schema boundary", () =>
     Promise.all([
@@ -223,4 +289,50 @@ describe("@beep/oip-web", () => {
       })
       .finally(() => fetchSpy.mockRestore());
   });
+
+  it("returns a JSON accepted response for valid contact route submissions", () => {
+    const submit = () =>
+      Effect.succeed(
+        new ContactSubmissionResponse({
+          message: "Your note was received.",
+          status: "accepted",
+        })
+      );
+
+    return jsonContactRequest(validContactPayload())
+      .then((request) => Effect.runPromise(contactRequestResponseWithSubmit(request, submit)))
+      .then((response) =>
+        response.json().then((body) => {
+          expect(response.status).toBe(202);
+          expect(body).toEqual({
+            message: "Your note was received.",
+            status: "accepted",
+          });
+        })
+      );
+  });
+
+  it("returns a JSON rejected response for malformed contact route submissions", () =>
+    jsonContactRequest({
+      email: "not-an-email",
+      message: "short",
+      name: "",
+      submittedAt: Number.POSITIVE_INFINITY,
+    })
+      .then(POST)
+      .then((response) =>
+        response.json().then((body) => {
+          expect(response.status).toBe(400);
+          expect(body).toEqual({
+            message: "The submission could not be accepted.",
+            status: "rejected",
+          });
+        })
+      ));
+
+  it("redirects browser form contact submissions back to the contact section", () =>
+    POST(formContactRequest()).then((response) => {
+      expect(response.status).toBe(303);
+      expect(response.headers.get("location")).toBe("https://oip.law/?contact=rejected#contact");
+    }));
 });

@@ -14,10 +14,10 @@
 - [x] Run local quality, browser QA, Lighthouse, and closure evidence updates.
 - [x] Prove the `next.config.ts` CSP/security headers locally through portless
   HTTPS.
-- [x] Enable Cloudflare staging DNS records after the token has Zone DNS
-  read/edit.
-- [x] Prove the current hardening on public staging after a fresh Vercel
-  deployment and custom-domain TLS activation.
+- [ ] Apply Cloudflare DNS for `staging.oip.law`, `www.oip.law`, and OPIP
+  legacy redirect records through the OIP rename IaC.
+- [ ] Prove the current hardening on public `staging.oip.law` after a fresh
+  Vercel deployment and custom-domain TLS activation.
 - [ ] Decide whether Observatory A+ should override the `next.config.ts`-only
   CSP constraint; A+ requires a request-bound nonce/proxy path or equivalent
   generated hashes.
@@ -53,7 +53,7 @@ Browser and deployment proof:
 ```sh
 bun run --cwd apps/oip-web start
 aws-vault exec codedank-elpresidank --duration=12h -- aws sts get-caller-identity
-pulumi login s3://oip-law-pulumi-state
+pulumi login s3://opip-law-pulumi-state
 pulumi preview -s staging --non-interactive --diff
 pulumi up -s staging --yes --non-interactive
 pulumi preview -s production --non-interactive --diff

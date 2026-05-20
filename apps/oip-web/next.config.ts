@@ -1,5 +1,6 @@
 import { fileURLToPath } from "node:url";
 import { defineBeepNextConfig } from "@beep/repo-configs/next";
+import { oipRedirects } from "./src/config/OipRedirects.ts";
 
 const repoRoot = fileURLToPath(new URL("../..", import.meta.url));
 
@@ -47,38 +48,7 @@ export default defineBeepNextConfig({
     images: {
       qualities: [50, 60, 75],
     },
-    redirects: () =>
-      Promise.resolve([
-        {
-          source: "/opip/:path*",
-          destination: "/oip/:path*",
-          permanent: true,
-        },
-        {
-          source: "/:path*",
-          destination: "https://oip.law/:path*",
-          permanent: true,
-          has: [{ type: "host", value: "opip.law" }],
-        },
-        {
-          source: "/:path*",
-          destination: "https://oip.law/:path*",
-          permanent: true,
-          has: [{ type: "host", value: "www.opip.law" }],
-        },
-        {
-          source: "/:path*",
-          destination: "https://oip.law/:path*",
-          permanent: true,
-          has: [{ type: "host", value: "www.oip.law" }],
-        },
-        {
-          source: "/:path*",
-          destination: "https://staging.oip.law/:path*",
-          permanent: true,
-          has: [{ type: "host", value: "staging.opip.law" }],
-        },
-      ]),
+    redirects: () => Promise.resolve(oipRedirects()),
   },
   securityHeaders: {
     headers: securityHeaders,

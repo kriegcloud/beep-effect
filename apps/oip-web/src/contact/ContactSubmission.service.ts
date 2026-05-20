@@ -281,7 +281,9 @@ const contactResponseForError = (_error: ContactSubmissionError): ContactSubmiss
  * @category workflows
  * @since 0.0.0
  */
-export const submitContact = (input: unknown): Effect.Effect<ContactSubmissionResponse> =>
+export const submitContact: (input: unknown) => Effect.Effect<ContactSubmissionResponse> = Effect.fn(
+  "OipContact.submitContact"
+)((input: unknown) =>
   Effect.gen(function* () {
     const submission = yield* decodeContactSubmission(input).pipe(
       Effect.mapError(() => ContactSubmissionError.fromReason("decode"))
@@ -310,7 +312,8 @@ export const submitContact = (input: unknown): Effect.Effect<ContactSubmissionRe
         Effect.as(contactResponseForError(error))
       )
     )
-  );
+  )
+);
 
 /**
  * Builds a JSON-safe contact response object.

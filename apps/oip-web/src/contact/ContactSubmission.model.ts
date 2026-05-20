@@ -106,17 +106,19 @@ export type ContactSubmissionStatus = typeof ContactSubmissionStatus.Type;
  *
  * @example
  * ```ts
- * import * as S from "effect/Schema"
- * import { ContactSubmission } from "@beep/oip-web/contact"
+ * import { Effect } from "effect"
+ * import { decodeContactSubmission } from "@beep/oip-web/contact"
  *
- * const submission = S.decodeUnknownSync(ContactSubmission)({
+ * const program = decodeContactSubmission({
  *   email: "builder@example.com",
  *   message: "I would like to discuss a patent matter.",
  *   name: "Builder",
  *   submittedAt: 0
  * })
  *
- * console.log(submission.email)
+ * Effect.runPromise(program).then((submission) => {
+ *   console.log(submission.email)
+ * })
  * ```
  *
  * @category models
