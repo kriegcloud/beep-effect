@@ -3,12 +3,12 @@
   "initiative": {
     "id": "codex-security-findings",
     "title": "Codex Security Findings",
-    "status": "triaged-remediation-active",
+    "status": "follow-up-remediation-active",
     "created": "2026-05-19",
     "updated": "2026-05-20",
     "packetAnchorDocument": "SPEC.md"
   },
-  "branch": "codex/security-findings-remediation",
+  "branch": "codex/security-findings-followup",
   "source": {
     "provider": "Codex Security UI",
     "repository": "kriegcloud/beep-effect",
@@ -18,23 +18,35 @@
     "rawCaptureRoot": "/tmp/codex-security-findings-2026-05-20T02-58-57-448Z",
     "rawCaptureTracked": false
   },
+  "followUpCapture": {
+    "capturedAt": "2026-05-20T09:13:08Z",
+    "count": 3,
+    "captureMethodPolicy": "authenticated-browser-backend-api",
+    "rawCaptureTracked": false,
+    "findings": [
+      "af2fd1496dfc8191a2c078d39b776e27",
+      "0adeac89858c819193d10edd33be28d4",
+      "5879ada8c0e081918f55670af78a43d6"
+    ]
+  },
   "catalog": {
-    "expectedCount": 64,
-    "capturedCount": 64,
+    "expectedCount": 67,
+    "capturedCount": 67,
     "severityCounts": {
       "High": 1,
-      "Medium": 20,
-      "Low": 21,
-      "Informational": 22
+      "Medium": 21,
+      "Low": 22,
+      "Informational": 23
     },
     "statuses": {
-      "Closed": 64
+      "Closed": 64,
+      "New": 3
     },
     "verdictCounts": {
       "needs-current-head-review": 0,
       "active": 0,
       "dismissed": 1,
-      "fixed": 63
+      "fixed": 66
     }
   },
   "paths": {
@@ -103,7 +115,10 @@
       "findings/CSF-061-indexeddbquerybuilder-stream-can-hang-with-zero-chunk-size.md",
       "findings/CSF-062-custom-glob-walker-now-traverses-full-tree-enabling-dos.md",
       "findings/CSF-063-markdown-to-html-schema-allows-raw-script-tags-by-default.md",
-      "findings/CSF-064-intellij-shared-index-auto-consent-to-external-server.md"
+      "findings/CSF-064-intellij-shared-index-auto-consent-to-external-server.md",
+      "findings/CSF-065-unsanitized-catalog-text-reaches-terminal-output.md",
+      "findings/CSF-066-annotation-privacy-check-ignores-embedded-doctor-report.md",
+      "findings/CSF-067-path-normalization-accepts-traversal-above-repo-root.md"
     ]
   },
   "closeoutPolicy": {

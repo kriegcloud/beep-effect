@@ -269,6 +269,31 @@ describe("reuse command", () => {
   );
 
   it(
+    "strips terminal control sequences from human-readable lookup output",
+    () =>
+      Effect.runPromise(
+        Effect.gen(function* () {
+          yield* runReuseCommand([
+            "lookup",
+            "--query",
+            "UnknownRecord\u001b]52;c;clipboard\u0007\rspoof",
+            "--from",
+            "packages/missing\u001b[31m/domain",
+          ]);
+
+          const output = A.join(yield* TestConsole.logLines, "\n");
+
+          expect(output).toContain("Query: UnknownRecordspoof");
+          expect(output).toContain('Warning: Caller package selector "packages/missing/domain"');
+          expect(output).not.toContain("\u001b");
+          expect(output).not.toContain("\u0007");
+          expect(output).not.toContain("\r");
+        }).pipe(provideScopedLayer(CommandTestLayer))
+      ),
+    120_000
+  );
+
+  it(
     "runs strict lookup through the command child-process spawner",
     () =>
       Effect.runPromise(

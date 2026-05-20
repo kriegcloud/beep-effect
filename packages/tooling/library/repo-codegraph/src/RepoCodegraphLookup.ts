@@ -49,6 +49,11 @@ type LookupOptions = {
   readonly importPolicies?: ReadonlyArray<RepoCodegraphPackageImportPolicy>;
 };
 
+type NormalizedPathLikeSelector = {
+  readonly escapedRoot: boolean;
+  readonly segments: ReadonlyArray<string>;
+};
+
 const normalizeCamelCase = Str.replace(/([a-z0-9])([A-Z])/gu, "$1 $2");
 const normalizeSearchText = flow(normalizeCamelCase, Str.toLowerCase, Str.replace(/[^a-z0-9@/._-]+/gu, " "), Str.trim);
 
@@ -179,24 +184,26 @@ const packageFamily = (packagePath: string): string => {
 const isRepoExportsCatalogArgument = (value: unknown): value is RepoExportsCatalog =>
   P.hasProperty(value, "packages") && P.hasProperty(value, "schemaVersion");
 
-const normalizePathLikeSelector = (selector: string): string =>
-  pipe(
-    selector,
-    Str.trim,
-    Str.replace(/\\/gu, "/"),
-    Str.replace(/\/+/gu, "/"),
+const normalizePathLikeSelector = (selector: string): string => {
+  const normalized = pipe(selector, Str.trim, Str.replace(/\\/gu, "/"), Str.replace(/\/+/gu, "/"));
+  const state = pipe(
+    normalized,
     Str.split("/"),
-    A.reduce(A.empty<string>(), (segments, segment) => {
-      if (segment === "" || segment === ".") {
-        return segments;
+    A.reduce<NormalizedPathLikeSelector, string>({ escapedRoot: false, segments: A.empty() }, (state, segment) => {
+      if (state.escapedRoot || segment === "" || segment === ".") {
+        return state;
       }
       if (segment === "..") {
-        return A.dropRight(segments, 1);
+        if (A.isReadonlyArrayNonEmpty(state.segments)) {
+          return { escapedRoot: false, segments: A.dropRight(state.segments, 1) };
+        }
+        return { escapedRoot: true, segments: state.segments };
       }
-      return A.append(segments, segment);
-    }),
-    A.join("/")
+      return { escapedRoot: false, segments: A.append(state.segments, segment) };
+    })
   );
+  return state.escapedRoot ? normalized : pipe(state.segments, A.join("/"));
+};
 
 const resolveFromPackage = (catalog: RepoExportsCatalog, fromPackage: O.Option<string>): FromPackageResolution => ({
   package: pipe(

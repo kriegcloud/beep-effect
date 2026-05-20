@@ -1691,11 +1691,15 @@ export const makeAgentEffectivenessAnnotationPlan: (
 const forbiddenPatterns = [
   { code: "private-home-path", pattern: /\/home\/[A-Za-z0-9_.-]+/u },
   { code: "onepassword-ref", pattern: /op:\/\//u },
-  { code: "secret-shaped-value", pattern: /(SECRET|TOKEN|API[_-]?KEY|sk-[A-Za-z0-9_-]{12,})/iu },
+  { code: "secret-shaped-value", pattern: /(?:\b(?:SECRET|TOKEN|API[_-]?KEY)\b\s*[=:]|sk-[A-Za-z0-9_-]{12,})/iu },
   { code: "raw-worker-draft", pattern: /draftJsDoc|@example|```ts/u },
 ] as const;
 
-const checkText = (annotationId: string, value: string): ReadonlyArray<AgentEffectivenessAnnotationCheckFinding> =>
+const checkText = (
+  annotationId: string,
+  value: string,
+  subject = "Annotation"
+): ReadonlyArray<AgentEffectivenessAnnotationCheckFinding> =>
   pipe(
     forbiddenPatterns,
     A.filter((entry) => entry.pattern.test(value)),
@@ -1704,10 +1708,116 @@ const checkText = (annotationId: string, value: string): ReadonlyArray<AgentEffe
         new AgentEffectivenessAnnotationCheckFinding({
           annotationId,
           code: entry.code,
-          message: `Annotation contains forbidden ${entry.code} content.`,
+          message: `${subject} contains forbidden ${entry.code} content.`,
         })
     )
   );
+
+const checkPlanPayloadText = (
+  annotationId: string,
+  value: unknown
+): ReadonlyArray<AgentEffectivenessAnnotationCheckFinding> => {
+  if (P.isString(value)) {
+    return checkText(annotationId, value, "Plan payload");
+  }
+  if (A.isArray(value)) {
+    return pipe(
+      value,
+      A.flatMap((entry, index) => checkPlanPayloadText(`${annotationId}[${index}]`, entry))
+    );
+  }
+  if (P.isObject(value)) {
+    return pipe(
+      R.toEntries(value as Readonly<Record<string, unknown>>),
+      A.flatMap(([key, entry]) => [
+        ...checkText(annotationId, key, "Plan payload"),
+        ...checkPlanPayloadText(`${annotationId}.${key}`, entry),
+      ])
+    );
+  }
+  return [];
+};
+
+const checkPlanPayload = (
+  plan: AgentEffectivenessAnnotationPlan
+): ReadonlyArray<AgentEffectivenessAnnotationCheckFinding> =>
+  checkPlanPayloadText("plan", {
+    doctor: {
+      aiMetrics: {
+        dataRoot: plan.doctor.aiMetrics.dataRoot,
+        derivedDuckDbPath: plan.doctor.aiMetrics.derivedDuckDbPath,
+        latestForwarder:
+          plan.doctor.aiMetrics.latestForwarder === null
+            ? null
+            : {
+                configSnapshotId: plan.doctor.aiMetrics.latestForwarder.configSnapshotId,
+                ingestRunId: plan.doctor.aiMetrics.latestForwarder.ingestRunId,
+                target: plan.doctor.aiMetrics.latestForwarder.target,
+              },
+        latestScorecard:
+          plan.doctor.aiMetrics.latestScorecard === null
+            ? null
+            : {
+                configSnapshotId: plan.doctor.aiMetrics.latestScorecard.configSnapshotId,
+                coverageGaps: plan.doctor.aiMetrics.latestScorecard.coverageGaps,
+                scorecardId: plan.doctor.aiMetrics.latestScorecard.scorecardId,
+              },
+        message: plan.doctor.aiMetrics.message,
+        sourceCoverage: pipe(
+          plan.doctor.aiMetrics.sourceCoverage,
+          A.map((coverage) => ({
+            lastTimestamp: coverage.lastTimestamp,
+            sourceKind: coverage.sourceKind,
+          }))
+        ),
+        status: plan.doctor.aiMetrics.status,
+        unavailableMetrics: plan.doctor.aiMetrics.unavailableMetrics,
+      },
+      dataRoot: plan.doctor.dataRoot,
+      generatedAt: plan.doctor.generatedAt,
+      jsdocWorkerEval: {
+        cleanupDeleteStatus: plan.doctor.jsdocWorkerEval.cleanupDeleteStatus,
+        cleanupStopStatus: plan.doctor.jsdocWorkerEval.cleanupStopStatus,
+        message: plan.doctor.jsdocWorkerEval.message,
+        otlpStatus: plan.doctor.jsdocWorkerEval.otlpStatus,
+        policyViolationCodes: plan.doctor.jsdocWorkerEval.policyViolationCodes,
+        reportPath: plan.doctor.jsdocWorkerEval.reportPath,
+        status: plan.doctor.jsdocWorkerEval.status,
+      },
+      phoenix: {
+        baseUrl: plan.doctor.phoenix.baseUrl,
+        message: plan.doctor.phoenix.message,
+        projects: pipe(
+          plan.doctor.phoenix.projects,
+          A.map((project) => ({
+            name: project.name,
+            sessionAnnotationNames: project.sessionAnnotationNames,
+            spanAnnotationNames: project.spanAnnotationNames,
+            traceAnnotationNames: project.traceAnnotationNames,
+          }))
+        ),
+        status: plan.doctor.phoenix.status,
+        version: plan.doctor.phoenix.version,
+      },
+      schemaVersion: plan.doctor.schemaVersion,
+      summary: {
+        failures: plan.doctor.summary.failures,
+        status: plan.doctor.summary.status,
+        unavailable: plan.doctor.summary.unavailable,
+        warnings: plan.doctor.summary.warnings,
+      },
+      target: plan.doctor.target,
+    },
+    generatedAt: plan.generatedAt,
+    mutationPolicy: plan.mutationPolicy,
+    schemaVersion: plan.schemaVersion,
+    summary: {
+      failures: plan.summary.failures,
+      status: plan.summary.status,
+      unavailable: plan.summary.unavailable,
+      warnings: plan.summary.warnings,
+    },
+  });
 
 const checkAnnotation = (
   annotation: AgentEffectivenessPlannedAnnotation
@@ -1776,6 +1886,7 @@ export const makeAgentEffectivenessAnnotationCheckReport: (
 ) => AgentEffectivenessAnnotationCheckReport = (plan) => {
   const findings = [
     ...pipe(plan.annotations, A.flatMap(checkAnnotation)),
+    ...checkPlanPayload(plan),
     ...duplicateAnnotationIdFindings(plan.annotations),
   ];
   return new AgentEffectivenessAnnotationCheckReport({

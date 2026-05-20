@@ -2,15 +2,15 @@
 
 ## Status
 
-**Catalog captured; current-HEAD triage pending**
+**Original catalog closed; follow-up remediation active**
 
 ## Mission
 
-Create a durable, sanitized, repo-local catalog of Codex Security findings and use it as the working queue for one consolidated remediation branch and PR.
+Create a durable, sanitized, repo-local catalog of Codex Security findings and use it as the working queue for consolidated remediation branches and PRs.
 
 ## Scope
 
-The catalog includes all 64 visible findings from Codex Security for `kriegcloud/beep-effect`, across critical, high, medium, low, and informational severities. Closed findings are included for local audit history.
+The original catalog includes all 64 findings visible from Codex Security for `kriegcloud/beep-effect` on 2026-05-19, across critical, high, medium, low, and informational severities. A 2026-05-20 follow-up catalog adds 3 post-merge findings discovered after PR #164 merged. Closed findings are included for local audit history.
 
 ## Evidence Handling
 
@@ -30,7 +30,7 @@ When updating Codex Security after local triage and remediation:
 
 ## Acceptance Criteria
 
-- Exactly 64 local finding files exist.
+- Exactly 67 local finding files exist: 64 original findings and 3 post-merge follow-up findings.
 - The index and manifest agree on the count and severity distribution.
 - Every finding has a triage verdict before remediation is considered complete.
 - Every active finding has a fix, verification command, and Codex closeout reason.
