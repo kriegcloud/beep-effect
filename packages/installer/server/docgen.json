@@ -1,0 +1,164 @@
+{
+  "$schema": "../../../packages/tooling/tool/docgen/schema.json",
+  "exclude": ["src/internal/**/*.ts"],
+  "srcLink": "https://github.com/kriegcloud/beep-effect/tree/main/packages/installer/server/src/",
+  "examplesCompilerOptions": {
+    "noEmit": true,
+    "strict": true,
+    "skipLibCheck": true,
+    "moduleResolution": "bundler",
+    "module": "es2022",
+    "target": "es2022",
+    "lib": ["ESNext", "DOM", "DOM.Iterable"],
+    "rewriteRelativeImportExtensions": true,
+    "allowImportingTsExtensions": true,
+    "moduleDetection": "force",
+    "verbatimModuleSyntax": true,
+    "allowJs": false,
+    "erasableSyntaxOnly": true,
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true,
+    "exactOptionalPropertyTypes": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noImplicitOverride": true,
+    "noFallthroughCasesInSwitch": true,
+    "stripInternal": false,
+    "noErrorTruncation": true,
+    "types": [],
+    "jsx": "react-jsx",
+    "paths": {
+      "@beep/installer-server": [
+        "../../../packages/installer/server/src/index.ts"
+      ],
+      "@beep/installer-server/layer": [
+        "../../../packages/installer/server/src/Layer.ts"
+      ],
+      "@beep/installer-server/test": [
+        "../../../packages/installer/server/src/test.ts"
+      ],
+      "@beep/ai-provider-cli": [
+        "../../../packages/drivers/ai-provider-cli/src/index.ts"
+      ],
+      "@beep/ai-provider-cli/*": [
+        "../../../packages/drivers/ai-provider-cli/src/*.ts"
+      ],
+      "@beep/discord": ["../../../packages/drivers/discord/src/index.ts"],
+      "@beep/discord/*": ["../../../packages/drivers/discord/src/*.ts"],
+      "@beep/identity": [
+        "../../../packages/foundation/modeling/identity/src/index.ts"
+      ],
+      "@beep/identity/*": [
+        "../../../packages/foundation/modeling/identity/src/*.ts"
+      ],
+      "@beep/identity/packages": [
+        "../../../packages/foundation/modeling/identity/src/packages.ts"
+      ],
+      "@beep/installer-domain": [
+        "../../../packages/installer/domain/src/index.ts"
+      ],
+      "@beep/installer-domain/aggregates": [
+        "../../../packages/installer/domain/src/aggregates/index.ts"
+      ],
+      "@beep/installer-domain/entities": [
+        "../../../packages/installer/domain/src/entities/index.ts"
+      ],
+      "@beep/installer-domain/identity": [
+        "../../../packages/installer/domain/src/identity/index.ts"
+      ],
+      "@beep/installer-domain/values": [
+        "../../../packages/installer/domain/src/values/index.ts"
+      ],
+      "@beep/installer-use-cases": [
+        "../../../packages/installer/use-cases/src/index.ts"
+      ],
+      "@beep/installer-use-cases/public": [
+        "../../../packages/installer/use-cases/src/public.ts"
+      ],
+      "@beep/installer-use-cases/server": [
+        "../../../packages/installer/use-cases/src/server.ts"
+      ],
+      "@beep/onepassword-cli": [
+        "../../../packages/drivers/onepassword-cli/src/index.ts"
+      ],
+      "@beep/onepassword-cli/*": [
+        "../../../packages/drivers/onepassword-cli/src/*.ts"
+      ],
+      "@beep/schema": [
+        "../../../packages/foundation/modeling/schema/src/index.ts"
+      ],
+      "@beep/schema/*": [
+        "../../../packages/foundation/modeling/schema/src/*.ts"
+      ],
+      "@beep/shared-domain": ["../../../packages/shared/domain/src/index.ts"],
+      "@beep/shared-domain/*": ["../../../packages/shared/domain/src/*.ts"],
+      "@beep/shared-domain/aggregates": [
+        "../../../packages/shared/domain/src/aggregates.ts"
+      ],
+      "@beep/shared-domain/entities": [
+        "../../../packages/shared/domain/src/entities.ts"
+      ],
+      "@beep/shared-domain/entities/Membership": [
+        "../../../packages/shared/domain/src/entities/Membership/index.ts"
+      ],
+      "@beep/shared-domain/entities/Organization": [
+        "../../../packages/shared/domain/src/entities/Organization/index.ts"
+      ],
+      "@beep/shared-domain/entities/User": [
+        "../../../packages/shared/domain/src/entities/User/index.ts"
+      ],
+      "@beep/shared-domain/entity": [
+        "../../../packages/shared/domain/src/entity.ts"
+      ],
+      "@beep/shared-domain/entity/BaseEntity": [
+        "../../../packages/shared/domain/src/entity/BaseEntity.ts"
+      ],
+      "@beep/shared-domain/entity/EntityId": [
+        "../../../packages/shared/domain/src/entity/EntityId.ts"
+      ],
+      "@beep/shared-domain/entity/EntityRef": [
+        "../../../packages/shared/domain/src/entity/EntityRef.ts"
+      ],
+      "@beep/shared-domain/entity/Principal": [
+        "../../../packages/shared/domain/src/entity/Principal.ts"
+      ],
+      "@beep/shared-domain/entity/SourceKind": [
+        "../../../packages/shared/domain/src/entity/SourceKind.ts"
+      ],
+      "@beep/shared-domain/entity/primitives": [
+        "../../../packages/shared/domain/src/entity/primitives.ts"
+      ],
+      "@beep/shared-domain/identity": [
+        "../../../packages/shared/domain/src/identity.ts"
+      ],
+      "@beep/shared-domain/identity/AgentCapability": [
+        "../../../packages/shared/domain/src/identity/AgentCapability.ts"
+      ],
+      "@beep/shared-domain/identity/Epistemic": [
+        "../../../packages/shared/domain/src/identity/Epistemic.ts"
+      ],
+      "@beep/shared-domain/identity/LawPractice": [
+        "../../../packages/shared/domain/src/identity/LawPractice.ts"
+      ],
+      "@beep/shared-domain/identity/Shared": [
+        "../../../packages/shared/domain/src/identity/Shared.ts"
+      ],
+      "@beep/shared-domain/identity/WealthManagement": [
+        "../../../packages/shared/domain/src/identity/WealthManagement.ts"
+      ],
+      "@beep/shared-domain/identity/Workspace": [
+        "../../../packages/shared/domain/src/identity/Workspace.ts"
+      ],
+      "@beep/shared-domain/values": [
+        "../../../packages/shared/domain/src/values.ts"
+      ],
+      "@beep/shared-domain/values/LocalDate": [
+        "../../../packages/shared/domain/src/values/LocalDate/index.ts"
+      ],
+      "@beep/shared-domain/values/OnePasswordReference": [
+        "../../../packages/shared/domain/src/values/OnePasswordReference/index.ts"
+      ]
+    }
+  }
+}

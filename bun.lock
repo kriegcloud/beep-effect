@@ -197,17 +197,9 @@
         "@beep/ai-provider-cli": "workspace:^",
         "@beep/discord": "workspace:^",
         "@beep/identity": "workspace:^",
-        "@beep/installer-channels-domain": "workspace:^",
-        "@beep/installer-channels-server": "workspace:^",
-        "@beep/installer-channels-use-cases": "workspace:^",
-        "@beep/installer-dependencies-server": "workspace:^",
-        "@beep/installer-dependencies-use-cases": "workspace:^",
-        "@beep/installer-providers-server": "workspace:^",
-        "@beep/installer-providers-use-cases": "workspace:^",
-        "@beep/installer-security-server": "workspace:^",
-        "@beep/installer-security-use-cases": "workspace:^",
-        "@beep/installer-workspace-domain": "workspace:^",
-        "@beep/installer-workspace-use-cases": "workspace:^",
+        "@beep/installer-domain": "workspace:^",
+        "@beep/installer-server": "workspace:^",
+        "@beep/installer-use-cases": "workspace:^",
         "@beep/onepassword-cli": "workspace:^",
         "@beep/schema": "workspace:^",
         "@beep/shared-domain": "workspace:^",
@@ -950,8 +942,8 @@
         "react-dom": "^19",
       },
     },
-    "packages/installer-channels/domain": {
-      "name": "@beep/installer-channels-domain",
+    "packages/installer/domain": {
+      "name": "@beep/installer-domain",
       "version": "0.0.0",
       "dependencies": {
         "@beep/identity": "workspace:^",
@@ -964,173 +956,17 @@
         "@types/node": "catalog:",
       },
     },
-    "packages/installer-channels/server": {
-      "name": "@beep/installer-channels-server",
-      "version": "0.0.0",
-      "dependencies": {
-        "@beep/discord": "workspace:^",
-        "@beep/identity": "workspace:^",
-        "@beep/installer-channels-domain": "workspace:^",
-        "@beep/installer-channels-use-cases": "workspace:^",
-        "@beep/schema": "workspace:^",
-        "effect": "catalog:",
-      },
-      "devDependencies": {
-        "@effect/vitest": "catalog:",
-        "@types/node": "catalog:",
-      },
-    },
-    "packages/installer-channels/use-cases": {
-      "name": "@beep/installer-channels-use-cases",
-      "version": "0.0.0",
-      "dependencies": {
-        "@beep/identity": "workspace:^",
-        "@beep/installer-channels-domain": "workspace:^",
-        "@beep/schema": "workspace:^",
-        "effect": "catalog:",
-      },
-      "devDependencies": {
-        "@effect/vitest": "catalog:",
-        "@types/node": "catalog:",
-      },
-    },
-    "packages/installer-dependencies/domain": {
-      "name": "@beep/installer-dependencies-domain",
-      "version": "0.0.0",
-      "dependencies": {
-        "@beep/identity": "workspace:^",
-        "@beep/schema": "workspace:^",
-        "@beep/shared-domain": "workspace:^",
-        "effect": "catalog:",
-      },
-      "devDependencies": {
-        "@effect/vitest": "catalog:",
-        "@types/node": "catalog:",
-      },
-    },
-    "packages/installer-dependencies/server": {
-      "name": "@beep/installer-dependencies-server",
-      "version": "0.0.0",
-      "dependencies": {
-        "@beep/identity": "workspace:^",
-        "@beep/installer-dependencies-domain": "workspace:^",
-        "@beep/installer-dependencies-use-cases": "workspace:^",
-        "@beep/schema": "workspace:^",
-        "effect": "catalog:",
-      },
-      "devDependencies": {
-        "@effect/vitest": "catalog:",
-        "@types/node": "catalog:",
-      },
-    },
-    "packages/installer-dependencies/use-cases": {
-      "name": "@beep/installer-dependencies-use-cases",
-      "version": "0.0.0",
-      "dependencies": {
-        "@beep/identity": "workspace:^",
-        "@beep/installer-dependencies-domain": "workspace:^",
-        "@beep/schema": "workspace:^",
-        "effect": "catalog:",
-      },
-      "devDependencies": {
-        "@effect/vitest": "catalog:",
-        "@types/node": "catalog:",
-      },
-    },
-    "packages/installer-providers/domain": {
-      "name": "@beep/installer-providers-domain",
-      "version": "0.0.0",
-      "dependencies": {
-        "@beep/identity": "workspace:^",
-        "@beep/schema": "workspace:^",
-        "@beep/shared-domain": "workspace:^",
-        "effect": "catalog:",
-      },
-      "devDependencies": {
-        "@effect/vitest": "catalog:",
-        "@types/node": "catalog:",
-      },
-    },
-    "packages/installer-providers/server": {
-      "name": "@beep/installer-providers-server",
+    "packages/installer/server": {
+      "name": "@beep/installer-server",
       "version": "0.0.0",
       "dependencies": {
         "@beep/ai-provider-cli": "workspace:^",
+        "@beep/discord": "workspace:^",
         "@beep/identity": "workspace:^",
-        "@beep/installer-providers-domain": "workspace:^",
-        "@beep/installer-providers-use-cases": "workspace:^",
-        "@beep/schema": "workspace:^",
-        "effect": "catalog:",
-      },
-      "devDependencies": {
-        "@effect/vitest": "catalog:",
-        "@types/node": "catalog:",
-      },
-    },
-    "packages/installer-providers/use-cases": {
-      "name": "@beep/installer-providers-use-cases",
-      "version": "0.0.0",
-      "dependencies": {
-        "@beep/identity": "workspace:^",
-        "@beep/installer-providers-domain": "workspace:^",
-        "@beep/schema": "workspace:^",
-        "effect": "catalog:",
-      },
-      "devDependencies": {
-        "@effect/vitest": "catalog:",
-        "@types/node": "catalog:",
-      },
-    },
-    "packages/installer-security/domain": {
-      "name": "@beep/installer-security-domain",
-      "version": "0.0.0",
-      "dependencies": {
-        "@beep/identity": "workspace:^",
-        "@beep/schema": "workspace:^",
-        "@beep/shared-domain": "workspace:^",
-        "effect": "catalog:",
-      },
-      "devDependencies": {
-        "@effect/vitest": "catalog:",
-        "@types/node": "catalog:",
-      },
-    },
-    "packages/installer-security/server": {
-      "name": "@beep/installer-security-server",
-      "version": "0.0.0",
-      "dependencies": {
-        "@beep/identity": "workspace:^",
-        "@beep/installer-security-domain": "workspace:^",
-        "@beep/installer-security-use-cases": "workspace:^",
+        "@beep/installer-domain": "workspace:^",
+        "@beep/installer-use-cases": "workspace:^",
         "@beep/onepassword-cli": "workspace:^",
         "@beep/schema": "workspace:^",
-        "effect": "catalog:",
-      },
-      "devDependencies": {
-        "@effect/vitest": "catalog:",
-        "@types/node": "catalog:",
-      },
-    },
-    "packages/installer-security/use-cases": {
-      "name": "@beep/installer-security-use-cases",
-      "version": "0.0.0",
-      "dependencies": {
-        "@beep/identity": "workspace:^",
-        "@beep/installer-security-domain": "workspace:^",
-        "@beep/schema": "workspace:^",
-        "effect": "catalog:",
-      },
-      "devDependencies": {
-        "@effect/vitest": "catalog:",
-        "@types/node": "catalog:",
-      },
-    },
-    "packages/installer-workspace/domain": {
-      "name": "@beep/installer-workspace-domain",
-      "version": "0.0.0",
-      "dependencies": {
-        "@beep/identity": "workspace:^",
-        "@beep/schema": "workspace:^",
         "@beep/shared-domain": "workspace:^",
         "effect": "catalog:",
       },
@@ -1139,28 +975,14 @@
         "@types/node": "catalog:",
       },
     },
-    "packages/installer-workspace/server": {
-      "name": "@beep/installer-workspace-server",
+    "packages/installer/use-cases": {
+      "name": "@beep/installer-use-cases",
       "version": "0.0.0",
       "dependencies": {
         "@beep/identity": "workspace:^",
-        "@beep/installer-workspace-domain": "workspace:^",
-        "@beep/installer-workspace-use-cases": "workspace:^",
+        "@beep/installer-domain": "workspace:^",
         "@beep/schema": "workspace:^",
-        "effect": "catalog:",
-      },
-      "devDependencies": {
-        "@effect/vitest": "catalog:",
-        "@types/node": "catalog:",
-      },
-    },
-    "packages/installer-workspace/use-cases": {
-      "name": "@beep/installer-workspace-use-cases",
-      "version": "0.0.0",
-      "dependencies": {
-        "@beep/identity": "workspace:^",
-        "@beep/installer-workspace-domain": "workspace:^",
-        "@beep/schema": "workspace:^",
+        "@beep/shared-domain": "workspace:^",
         "effect": "catalog:",
       },
       "devDependencies": {
@@ -2034,35 +1856,11 @@
 
     "@beep/infra": ["@beep/infra@workspace:infra"],
 
-    "@beep/installer-channels-domain": ["@beep/installer-channels-domain@workspace:packages/installer-channels/domain"],
+    "@beep/installer-domain": ["@beep/installer-domain@workspace:packages/installer/domain"],
 
-    "@beep/installer-channels-server": ["@beep/installer-channels-server@workspace:packages/installer-channels/server"],
+    "@beep/installer-server": ["@beep/installer-server@workspace:packages/installer/server"],
 
-    "@beep/installer-channels-use-cases": ["@beep/installer-channels-use-cases@workspace:packages/installer-channels/use-cases"],
-
-    "@beep/installer-dependencies-domain": ["@beep/installer-dependencies-domain@workspace:packages/installer-dependencies/domain"],
-
-    "@beep/installer-dependencies-server": ["@beep/installer-dependencies-server@workspace:packages/installer-dependencies/server"],
-
-    "@beep/installer-dependencies-use-cases": ["@beep/installer-dependencies-use-cases@workspace:packages/installer-dependencies/use-cases"],
-
-    "@beep/installer-providers-domain": ["@beep/installer-providers-domain@workspace:packages/installer-providers/domain"],
-
-    "@beep/installer-providers-server": ["@beep/installer-providers-server@workspace:packages/installer-providers/server"],
-
-    "@beep/installer-providers-use-cases": ["@beep/installer-providers-use-cases@workspace:packages/installer-providers/use-cases"],
-
-    "@beep/installer-security-domain": ["@beep/installer-security-domain@workspace:packages/installer-security/domain"],
-
-    "@beep/installer-security-server": ["@beep/installer-security-server@workspace:packages/installer-security/server"],
-
-    "@beep/installer-security-use-cases": ["@beep/installer-security-use-cases@workspace:packages/installer-security/use-cases"],
-
-    "@beep/installer-workspace-domain": ["@beep/installer-workspace-domain@workspace:packages/installer-workspace/domain"],
-
-    "@beep/installer-workspace-server": ["@beep/installer-workspace-server@workspace:packages/installer-workspace/server"],
-
-    "@beep/installer-workspace-use-cases": ["@beep/installer-workspace-use-cases@workspace:packages/installer-workspace/use-cases"],
+    "@beep/installer-use-cases": ["@beep/installer-use-cases@workspace:packages/installer/use-cases"],
 
     "@beep/law-practice-domain": ["@beep/law-practice-domain@workspace:packages/law-practice/domain"],
 

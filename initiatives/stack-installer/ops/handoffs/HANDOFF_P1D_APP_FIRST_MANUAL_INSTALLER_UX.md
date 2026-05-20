@@ -8,7 +8,9 @@ Make the Tauri app the primary operator surface for the next milestone and
 prove one real dependency repair action end to end.
 
 For this milestone, the first real action is Linux-first Bun repair for an
-existing Bun install owned by `installer-dependencies`.
+existing Bun install owned by the single installer slice:
+`@beep/installer-domain`, `@beep/installer-use-cases`, and
+`@beep/installer-server`.
 
 ## Required Startup
 
@@ -22,8 +24,9 @@ existing Bun install owned by `installer-dependencies`.
 
 - Keep the mutation owned by installer slice contracts and server
   implementation, not app-local shell glue.
-- Keep the required Bun version in installer-owned config, not app-local
-  repo metadata reads.
+- Keep the required Bun version in the installer slice, not app-local repo
+  metadata reads. Do not create a separate config package until real installer
+  config exists.
 - Keep the UX approval-first.
 - Keep this milestone Linux-first for proof staging.
 - Do not broaden this milestone into first-time Bun bootstrap.

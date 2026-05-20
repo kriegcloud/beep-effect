@@ -65,10 +65,10 @@ rerunning the local quality loop from
 | Command | Result | Evidence |
 | --- | --- | --- |
 | `bun i` | Passed. | Installed the updated Effect toolchain and confirmed the `effect-tsgo` patch path for `@effect/tsgo@0.7.4`. |
-| `bun run repo-exports:catalog` | Passed. | Refreshed `standards/repo-exports.catalog.jsonc` and `standards/repo-exports.catalog.md`; `packages=81`, `importSpecifiers=915`, `publicExportEntries=13086`. |
+| `bun run repo-exports:catalog` | Passed. | Refreshed `standards/repo-exports.catalog.jsonc` and `standards/repo-exports.catalog.md`; `packages=69`, `importSpecifiers=883`, `publicExportEntries=13025`. |
 | `bun run lint:fix` | Passed. | Root lint fix completed; governance import fix reported `touched_files=0`. |
 | `bun run audit:github quality` | Passed. | Build, check, lint, docgen, catalog, test, repo-sanity, and changeset status lanes completed. |
-| `bun run beep quality changeset-graph` | Passed. | `workspace_packages=80`, `changeset_files=62`, `references=47`, `missing_references=0`. |
+| `bun run beep quality changeset-graph` | Passed. | `workspace_packages=68`, `changeset_files=63`, `references=47`, `missing_references=0`. |
 | `bunx --bun vitest run packages/tooling/tool/cli/test/changeset-graph.test.ts packages/tooling/tool/cli/test/schema-first.test.ts` | Passed. | 2 test files, 12 tests, including fixture-level `runChangesetGraphCheck` coverage for valid, missing, and empty tracked changesets. |
 | `bun run changeset:version` | Passed in a throwaway copy with `GITHUB_TOKEN=$(gh auth token)`. | The real checkout was not mutated; Changesets reported all files updated in the temp copy. |
 
