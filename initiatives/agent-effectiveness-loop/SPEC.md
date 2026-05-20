@@ -2,7 +2,7 @@
 
 ## Status
 
-**Phase 0 research complete; implementation slice selected**
+**Phase 1 local doctor and annotation-plan loop live-proofed for PR readiness**
 
 ## Owner
 
@@ -11,7 +11,7 @@
 ## Created / Updated
 
 - **Created:** 2026-05-16
-- **Updated:** 2026-05-16
+- **Updated:** 2026-05-20
 
 ## Mission
 
@@ -124,6 +124,37 @@ The selected first implementation slice is local and no-mutation:
 - `beep agent-effectiveness annotations plan --json`
 - `beep agent-effectiveness annotations check --json`
 
-This slice must produce a trust gate and privacy-checked annotation plan before
-any Phoenix mutation, dataset creation, prompt management, experiment creation,
-or backend driver work is allowed.
+This slice produces a trust gate and privacy-checked annotation plan before any
+Phoenix mutation, dataset creation, prompt management, experiment creation, or
+backend driver work is allowed.
+
+## Phase 1 Implementation Contract
+
+The Phase 1 implementation is split across:
+
+- `@beep/repo-ai-metrics`, which owns the report schemas, doctor evidence
+  aggregation, annotation-plan construction, and annotation privacy checks.
+- `@beep/repo-cli`, which owns the `beep agent-effectiveness ...` operator
+  commands and terminal/JSON rendering.
+
+The default Phoenix target is
+`https://dankserver.tailc7c348.ts.net:8447`. The default local metrics root is
+`.beep/ai-metrics`. The default worker-eval evidence is the 2026-05-16
+Runpod/Ollama Qwen3-Coder 30B worker-eval packet under
+`initiatives/jsdoc-worker-eval/history/outputs/`.
+
+Phase 1 reports use report-only statuses. Missing Phoenix, missing local
+DuckDB evidence, or missing worker-eval reports are represented as
+`unavailable` data, not as blocking process failures. Encoding failures remain
+typed command failures.
+
+Annotation plans are metadata-only. They may include source coverage, scorecard,
+label, benchmark, worker-eval, and loop-health metadata, but they must not
+include raw transcript bodies, private local paths, secrets, draft JSDoc bodies,
+or code examples.
+
+Phase 1 live proof is recorded in
+`history/outputs/phase1-live-proof.md`. The proof keeps the acceptance gate at
+the section level: Phoenix inventory must decode and pass, annotation privacy
+checks must pass, and the overall doctor may remain `warning` when optional
+local AI-metrics evidence is unavailable.

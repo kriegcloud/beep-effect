@@ -13,22 +13,27 @@ Status: complete
 
 ## Phase 1 - Agent-Effectiveness Doctor And Annotation Plan
 
-Status: selected
+Status: live-proofed for PR readiness
 
-Implement only local, no-mutation outputs:
+Implemented local, no-mutation outputs:
 
 - `beep agent-effectiveness doctor --json`
 - `beep agent-effectiveness annotations plan --json`
 - `beep agent-effectiveness annotations check --json`
 
-This phase should combine Phoenix health, project inventory, AI-metrics
-forwarder/report state, source coverage, scorecard gaps, labels, benchmarks,
-worker-eval report status, mirror/retention status, and explicit unavailable
-provider/tool/cost metrics into one trust gate.
+This phase combines Phoenix reachability/project inventory, local AI-metrics
+DuckDB evidence, source coverage, scorecard gaps, labels, benchmarks, and
+worker-eval report status into one report-only trust gate. Missing providers
+are represented as `unavailable` evidence.
 
-The annotation plan should render proposed Phoenix annotations from repo-owned
+The annotation plan renders proposed Phoenix annotation metadata from repo-owned
 labels, benchmarks, scorecards, worker-eval status, source coverage, and loop
-health without applying them to Phoenix.
+health without applying them to Phoenix. The annotation check command validates
+that plans stay metadata-only and do not include private paths, secret-shaped
+values, draft JSDoc, or code examples.
+
+Live proof is recorded in
+[history/outputs/phase1-live-proof.md](./history/outputs/phase1-live-proof.md).
 
 ## Phase 2 - Phoenix-Native Enrichment
 
