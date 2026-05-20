@@ -516,6 +516,13 @@ const runSastScan = Effect.fn("QualityScriptCommands.runSastScan")(function* (
         return O.none<string>();
       }
 
+      const symlinkTarget = yield* fs.readLink(absolutePath).pipe(Effect.option);
+      if (O.isSome(symlinkTarget)) {
+        return yield* new QualityScriptCommandError({
+          message: `Changed JavaScript/TypeScript symlink paths are not accepted by the SAST scan: ${filePath}`,
+        });
+      }
+
       const canonicalPath = yield* fs.realPath(absolutePath).pipe(Effect.option);
       if (O.isNone(canonicalPath) || canonicalPath.value !== path.resolve(absolutePath)) {
         return O.none<string>();
@@ -665,6 +672,12 @@ const collectFiles = Effect.fn("QualityScriptCommands.collectFiles")(function* (
     for (const entry of entries) {
       const childPath = path.join(currentPath, entry);
       const normalized = normalizePath(childPath);
+      const symlinkTarget = yield* fs.readLink(childPath).pipe(Effect.option);
+
+      if (O.isSome(symlinkTarget)) {
+        continue;
+      }
+
       const stat = yield* fs.stat(childPath).pipe(
         Effect.mapError(
           (cause) =>

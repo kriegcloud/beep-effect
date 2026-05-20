@@ -10,7 +10,7 @@
  */
 
 import { $RepoCliId } from "@beep/identity/packages";
-import { DomainError, findRepoRoot } from "@beep/repo-utils";
+import { DomainError } from "@beep/repo-utils";
 import { LiteralKit } from "@beep/schema";
 import { A } from "@beep/utils";
 import { DateTime, Duration, Effect, FileSystem, Match, Order, Path, pipe, Result } from "effect";
@@ -921,6 +921,42 @@ const makeDefaultCodexRunner = Effect.fn("DocgenQualityWorkerEval.makeDefaultCod
   return makeCodexRunner(sdkModule);
 });
 
+const makeIsolatedWorkerEvalDirectory = Effect.fn("DocgenQualityWorkerEval.makeIsolatedWorkerEvalDirectory")(
+  function* () {
+    const fs = yield* FileSystem.FileSystem;
+    const path = yield* Path.Path;
+    const directory = yield* fs.makeTempDirectory({ prefix: "beep-docgen-worker-eval-" }).pipe(
+      Effect.mapError(
+        (cause) =>
+          new DomainError({
+            message: "Failed to create isolated docgen worker eval directory.",
+            cause,
+          })
+      )
+    );
+    yield* fs
+      .writeFileString(
+        path.join(directory, "README.md"),
+        "This temporary worker directory intentionally contains no repository checkout. Evaluate only the prompt-supplied packet.\n"
+      )
+      .pipe(
+        Effect.mapError(
+          (cause) =>
+            new DomainError({
+              message: "Failed to write isolated docgen worker eval directory marker.",
+              cause,
+            })
+        )
+      );
+    return directory;
+  }
+);
+
+const removeIsolatedWorkerEvalDirectory = (directory: string): Effect.Effect<void, never, FileSystem.FileSystem> =>
+  Effect.flatMap(FileSystem.FileSystem, (fs) =>
+    fs.remove(directory, { recursive: true, force: true }).pipe(Effect.ignore)
+  );
+
 const decodeWorkerOutput = (value: string): Effect.Effect<DocgenQualityWorkerEvalWorkerOutput, DomainError> =>
   decodeWorkerOutputJson(value).pipe(
     Effect.mapError((cause) => new DomainError({ message: "Worker returned invalid eval JSON.", cause }))
@@ -1179,7 +1215,7 @@ export const defaultQualityWorkerEvalReasoningEffort = (): DocgenQualityWorkerEv
  * Build a read-only worker eval report from a quality report.
  *
  * @effects
- * - Resolves the repository root via `findRepoRoot`.
+ * - Creates an isolated temporary working directory for packet-only worker turns.
  * - Runs read-only Codex worker turns through the configured runner; never edits source files.
  * @example
  * ```ts
@@ -1233,7 +1269,6 @@ export const analyzeDocgenQualityWorkerEval = Effect.fn("DocgenQualityWorkerEval
     timeout = DEFAULT_WORKER_EVAL_TIMEOUT,
   }: AnalyzeDocgenQualityWorkerEvalOptions) {
     const startedAtMs = globalThis.performance.now();
-    const workingDirectory = yield* findRepoRoot();
     const sdkVersion = codexSdkVersion ?? (yield* resolveCodexSdkVersionOrUnknown);
     const resolvedBaseUrl = pipe(O.fromNullishOr(baseUrl), O.map(Str.trim), O.filter(Str.isNonEmpty), O.getOrUndefined);
     const candidates = A.map(report.remediationPackets, (packet) => packetCandidate(report, packet));
@@ -1243,27 +1278,32 @@ export const analyzeDocgenQualityWorkerEval = Effect.fn("DocgenQualityWorkerEval
       packets = A.empty();
     } else {
       const resolvedRunner = runner ?? (yield* makeDefaultCodexRunner());
-      packets = yield* Effect.forEach(
-        selected,
-        (candidate) => {
-          const reasoningInput = pipe(
-            O.fromNullishOr(reasoningEffort),
-            O.map((value) => ({ reasoningEffort: value })),
-            O.getOrElse(() => ({}))
-          );
+      packets = yield* Effect.acquireUseRelease(
+        makeIsolatedWorkerEvalDirectory(),
+        (workingDirectory) =>
+          Effect.forEach(
+            selected,
+            (candidate) => {
+              const reasoningInput = pipe(
+                O.fromNullishOr(reasoningEffort),
+                O.map((value) => ({ reasoningEffort: value })),
+                O.getOrElse(() => ({}))
+              );
 
-          return runPacketEval({
-            ...(resolvedBaseUrl === undefined ? {} : { baseUrl: resolvedBaseUrl }),
-            candidate,
-            model,
-            provider,
-            ...reasoningInput,
-            runner: resolvedRunner,
-            timeout,
-            workingDirectory,
-          });
-        },
-        { concurrency: 1 }
+              return runPacketEval({
+                ...(resolvedBaseUrl === undefined ? {} : { baseUrl: resolvedBaseUrl }),
+                candidate,
+                model,
+                provider,
+                ...reasoningInput,
+                runner: resolvedRunner,
+                timeout,
+                workingDirectory,
+              });
+            },
+            { concurrency: 1 }
+          ),
+        removeIsolatedWorkerEvalDirectory
       );
     }
     const summary = summarizePacketResults(report, selected.length, packets);

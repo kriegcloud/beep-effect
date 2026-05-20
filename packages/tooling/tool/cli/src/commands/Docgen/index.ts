@@ -143,11 +143,16 @@ const runpodGpuTypeIdsFlag = Flag.string("gpu-type").pipe(
   Flag.optional
 );
 const runpodTemplateIdFlag = Flag.string("template-id").pipe(
-  Flag.withDescription("Optional Runpod template id override; otherwise live templates are searched first"),
+  Flag.withDescription(
+    "Optional trusted Runpod template id override; otherwise the repo fallback image is used unless public template search is explicitly enabled"
+  ),
   Flag.optional
 );
 const skipRunpodTemplateSearchFlag = Flag.boolean("skip-template-search").pipe(
   Flag.withDescription("Use the repo fallback image instead of searching public Runpod templates")
+);
+const allowPublicRunpodTemplateSearchFlag = Flag.boolean("allow-public-template-search").pipe(
+  Flag.withDescription("Opt into searching public Runpod templates instead of using the repo fallback image")
 );
 const runpodReadinessTimeoutMsFlag = Flag.integer("readiness-timeout-ms").pipe(
   Flag.withDefault(defaultQualityWorkerRunpodEvalReadinessTimeoutMs()),
@@ -968,6 +973,7 @@ const docgenQualityWorkerRunpodEvalCommand = Command.make(
     gpuTypeIds: runpodGpuTypeIdsFlag,
     templateId: runpodTemplateIdFlag,
     skipTemplateSearch: skipRunpodTemplateSearchFlag,
+    allowPublicTemplateSearch: allowPublicRunpodTemplateSearchFlag,
     readinessTimeoutMs: runpodReadinessTimeoutMsFlag,
     otlp: qualityWorkerRunpodEvalOtlpFlag,
     otlpBaseUrl: qualityWorkerRunpodEvalOtlpBaseUrlFlag,
@@ -988,6 +994,7 @@ const docgenQualityWorkerRunpodEvalCommand = Command.make(
       gpuTypeIds,
       templateId,
       skipTemplateSearch,
+      allowPublicTemplateSearch,
       readinessTimeoutMs,
       otlp,
       otlpBaseUrl,
@@ -1066,6 +1073,7 @@ const docgenQualityWorkerRunpodEvalCommand = Command.make(
         scope: source.scope,
         sourceQualityReport: source.sourceQualityReport,
         skipTemplateSearch,
+        allowPublicTemplateSearch,
         ...(O.isSome(templateId) ? { templateId: templateId.value } : {}),
       }).pipe((effect) =>
         Effect.scoped(

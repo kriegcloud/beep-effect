@@ -1,0 +1,471 @@
+{
+  "CSF-001": {
+    "verdict": "fixed",
+    "closeReason": "Already fixed",
+    "remediationStatus": "fixed-in-branch",
+    "rationale": "Current HEAD still executed marked prompt shell expressions through sandbox.exec. The branch now keeps repository-controlled !`...` prompt blocks as literal text and strips only the internal marker, removing the command-execution and unbounded expansion path.",
+    "verificationCommand": "bun test packages/foundation/capability/sandbox/test/lifecycle.test.ts --test-name-pattern \"preserves prompt shell expressions\"",
+    "changedFiles": [
+      "packages/foundation/capability/sandbox/src/Prompt.ts",
+      "packages/foundation/capability/sandbox/test/lifecycle.test.ts"
+    ],
+    "verificationNotes": [
+      "The focused new/updated prompt-shell test passes.",
+      "The unrelated existing lifecycle timeout test still hangs under bun test and remains a broader package-test caveat."
+    ]
+  },
+  "CSF-002": {
+    "verdict": "fixed",
+    "closeReason": "Already fixed",
+    "remediationStatus": "fixed-in-branch",
+    "rationale": "Current HEAD still retained grouped child stdout/stderr with an unbounded Stream.runFold accumulator. The branch now caps retained grouped-step output at 262144 characters, appends a visible truncation notice, and keeps deterministic grouped failure reporting.",
+    "verificationCommand": "bun test packages/tooling/tool/cli/test/quality-tasks.test.ts",
+    "changedFiles": [
+      "packages/tooling/tool/cli/src/commands/Quality/Tasks.ts",
+      "packages/tooling/tool/cli/test/quality-tasks.test.ts"
+    ],
+    "verificationNotes": [
+      "The full quality-tasks focused test file passes, including the retained-output truncation regression test."
+    ]
+  },
+  "CSF-003": {
+    "verdict": "fixed",
+    "closeReason": "Already fixed",
+    "remediationStatus": "fixed-in-branch",
+    "rationale": "Current HEAD still searched public Runpod templates by default when no template id or skip flag was supplied. The branch now uses the pinned fallback image by default, keeps explicit trusted template ids supported, and requires --allow-public-template-search before public template discovery is used.",
+    "verificationCommand": "bun test packages/tooling/tool/cli/test/docgen.test.ts --test-name-pattern \"Runpod|runpod\"",
+    "changedFiles": [
+      "packages/tooling/tool/cli/src/commands/Docgen/index.ts",
+      "packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerRunpodEval.ts",
+      "packages/tooling/tool/cli/test/docgen.test.ts"
+    ],
+    "verificationNotes": [
+      "The Runpod-focused docgen tests pass and the cleanup regression test now fails if default execution attempts public template search."
+    ]
+  },
+  "CSF-004": {
+    "verdict": "fixed",
+    "closeReason": "Already fixed",
+    "remediationStatus": "fixed-in-branch",
+    "rationale": "The proof upload server no longer accepts bearer tokens in query strings. Operator instructions use Authorization headers, the landing page is generated from the configured advertised URL rather than request Host, and the status response avoids leaking absolute coordinator paths.",
+    "verificationCommand": "node initiatives/stack-installer/ops/proof-upload-smoke.mjs",
+    "changedFiles": [
+      "initiatives/stack-installer/ops/proof-upload-server.mjs",
+      "initiatives/stack-installer/ops/proof-upload-smoke.mjs",
+      "initiatives/stack-installer/ops/proof-upload-status.mjs"
+    ],
+    "verificationNotes": [
+      "The smoke test covers authenticated endpoints, generated operator commands, token file permissions, and status responses."
+    ]
+  },
+  "CSF-005": {
+    "verdict": "fixed",
+    "closeReason": "Already fixed",
+    "remediationStatus": "fixed-in-branch",
+    "rationale": "The upload-window helper now validates the PID from its pid file against /proc/<pid>/cmdline and refuses to stop a process unless it is the expected proof-upload-server process for the configured output root.",
+    "verificationCommand": "node --check initiatives/stack-installer/ops/start-proof-upload-window.mjs && node initiatives/stack-installer/ops/proof-upload-smoke.mjs",
+    "changedFiles": [
+      "initiatives/stack-installer/ops/start-proof-upload-window.mjs",
+      "initiatives/stack-installer/ops/proof-upload-smoke.mjs"
+    ],
+    "verificationNotes": [
+      "Script syntax checks pass and the smoke test exercises replace-existing upload-window startup."
+    ]
+  },
+  "CSF-006": {
+    "verdict": "fixed",
+    "closeReason": "Already fixed",
+    "remediationStatus": "fixed-in-branch",
+    "rationale": "The proof upload server no longer parses attacker-controlled Host headers to build public URLs. It uses the configured advertised URL when present and a normalized configured host/port fallback otherwise.",
+    "verificationCommand": "node --check initiatives/stack-installer/ops/proof-upload-server.mjs && node initiatives/stack-installer/ops/proof-upload-smoke.mjs",
+    "changedFiles": [
+      "initiatives/stack-installer/ops/proof-upload-server.mjs",
+      "initiatives/stack-installer/ops/proof-upload-smoke.mjs"
+    ],
+    "verificationNotes": [
+      "Script syntax checks pass and the smoke test validates the served landing page and generated commands."
+    ]
+  },
+  "CSF-007": {
+    "verdict": "fixed",
+    "closeReason": "Already fixed",
+    "remediationStatus": "fixed-in-branch",
+    "rationale": "P1 manual proof capture now lists archive entries before extraction and rejects absolute paths, null bytes, empty path segments, dot segments, parent traversal, and entries outside the expected platform directory before invoking tar or unzip.",
+    "verificationCommand": "bunx vitest run apps/stack-installer/test/P1ManualProof.test.ts",
+    "changedFiles": [
+      "apps/stack-installer/src/proof/P1ProofArtifacts.ts",
+      "apps/stack-installer/src/proof/capture-p1-manual-proof.ts",
+      "apps/stack-installer/test/P1ManualProof.test.ts"
+    ],
+    "verificationNotes": [
+      "The focused Vitest suite passes, including the newly covered archive listing command path."
+    ]
+  },
+  "CSF-008": {
+    "verdict": "fixed",
+    "closeReason": "Already fixed",
+    "remediationStatus": "fixed-in-branch",
+    "rationale": "Generated proof command transcripts no longer persist the raw proof request JSON. The command helpers now write a redacted placeholder variable and reference that variable from the generated Bash and PowerShell instructions.",
+    "verificationCommand": "bunx vitest run apps/stack-installer/test/P1ManualProof.test.ts",
+    "changedFiles": [
+      "apps/stack-installer/src/proof/P1ProofCommands.ts",
+      "apps/stack-installer/test/P1ManualProof.test.ts"
+    ],
+    "verificationNotes": [
+      "The focused Vitest suite passes and asserts that generated Bash and PowerShell command text does not include the raw request JSON."
+    ]
+  },
+  "CSF-009": {
+    "verdict": "fixed",
+    "closeReason": "Already fixed",
+    "remediationStatus": "fixed-in-branch",
+    "rationale": "Installer security secret reads and validation are now gated by the approved install plan. Unapproved 1Password references are rejected before live secret reads, and validation reports a missing reference when the id, purpose, reference, or consumer does not match the approved plan.",
+    "verificationCommand": "bunx vitest run apps/stack-installer/test/P1ManualProof.test.ts",
+    "changedFiles": [
+      "packages/installer-security/server/src/Layer.ts",
+      "apps/stack-installer/test/P1ManualProof.test.ts"
+    ],
+    "verificationNotes": [
+      "The focused Vitest suite passes, including the regression that verifies unapproved references are rejected before any live secret read."
+    ]
+  },
+  "CSF-010": {
+    "verdict": "fixed",
+    "closeReason": "Already fixed",
+    "remediationStatus": "fixed-in-branch",
+    "rationale": "Face detection preprocessing now rejects oversized input images before decoding large buffers or tensors. The branch bounds source byte size, source pixel count, fixed model dimensions, padded tensor dimensions, and decoded image dimensions before allocating pixel arrays.",
+    "verificationCommand": "bunx tsc --noEmit --pretty false -p packages/drivers/face-detection/tsconfig.json && bunx vitest run packages/drivers/face-detection/test/FaceDetection.service.test.ts",
+    "changedFiles": [
+      "packages/drivers/face-detection/src/FaceDetection.service.ts"
+    ],
+    "verificationNotes": [
+      "The package typecheck passes and the focused face-detection service test passes."
+    ]
+  },
+  "CSF-011": {
+    "verdict": "fixed",
+    "closeReason": "Already fixed",
+    "remediationStatus": "fixed-in-branch",
+    "rationale": "Docgen worker eval no longer runs prompt-driven packet evaluation from the repository root. The branch creates an isolated temporary working directory for each worker evaluation run, writes only a small marker README there, and removes it after evaluation.",
+    "verificationCommand": "bun test packages/tooling/tool/cli/test/docgen.test.ts --test-name-pattern \"worker packets|Runpod|runpod\"",
+    "changedFiles": [
+      "packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerEval.ts",
+      "packages/tooling/tool/cli/test/docgen.test.ts"
+    ],
+    "verificationNotes": [
+      "The worker-eval focused docgen tests pass and assert that the evaluator working directory is not the repository root."
+    ]
+  },
+  "CSF-012": {
+    "verdict": "fixed",
+    "closeReason": "Already fixed",
+    "remediationStatus": "fixed-in-branch",
+    "rationale": "Generated AI metrics timer units now use an argv array with the current Bun executable path instead of a PATH-captured shell command. The systemd ExecStart command is shell-quoted from argv, and generated unit metadata is control-character sanitized.",
+    "verificationCommand": "bun test packages/tooling/library/ai-metrics/test/ingest.test.ts --test-name-pattern \"forwarder timer|timer\" && bun test packages/tooling/tool/cli/test/ai-metrics-command.test.ts --test-name-pattern \"forwarder timer\" && bunx tsc --noEmit --pretty false -p packages/tooling/tool/cli/tsconfig.json",
+    "changedFiles": [
+      "packages/tooling/library/ai-metrics/src/forwarder.ts",
+      "packages/tooling/library/ai-metrics/test/ingest.test.ts",
+      "packages/tooling/tool/cli/src/commands/AIMetrics/index.ts",
+      "packages/tooling/tool/cli/test/ai-metrics-command.test.ts"
+    ],
+    "verificationNotes": [
+      "Focused timer tests pass for both the library and CLI, and the CLI typecheck passes after rebuilding the local ai-metrics package artifacts."
+    ]
+  },
+  "CSF-013": {
+    "verdict": "fixed",
+    "closeReason": "Already fixed",
+    "remediationStatus": "fixed-in-branch",
+    "rationale": "Docgen quality export-list hashing no longer hashes unbounded declaration text. The branch derives candidate identity from the first line of each declaration and bounds that text before hashing.",
+    "verificationCommand": "bun test packages/tooling/tool/cli/test/docgen.test.ts --test-name-pattern \"quality|category\"",
+    "changedFiles": [
+      "packages/tooling/tool/cli/src/commands/Docgen/internal/Quality.ts",
+      "packages/tooling/tool/cli/test/docgen.test.ts"
+    ],
+    "verificationNotes": [
+      "The docgen quality/category focused tests pass after the bounded-hash change."
+    ]
+  },
+  "CSF-014": {
+    "verdict": "fixed",
+    "closeReason": "Already fixed",
+    "remediationStatus": "fixed-in-branch",
+    "rationale": "The migrated quality file scanner now checks each discovered child path with readLink before stat and skips symlinks instead of following them while recursing.",
+    "verificationCommand": "bun test packages/tooling/tool/cli/test/quality-tasks.test.ts && bunx tsc --noEmit --pretty false -p packages/tooling/tool/cli/tsconfig.json",
+    "changedFiles": [
+      "packages/tooling/tool/cli/src/commands/Quality/ScriptCommands.ts",
+      "packages/tooling/tool/cli/test/quality-tasks.test.ts"
+    ],
+    "verificationNotes": [
+      "The quality task tests pass and the CLI typecheck passes."
+    ]
+  },
+  "CSF-015": {
+    "verdict": "fixed",
+    "closeReason": "Already fixed",
+    "remediationStatus": "fixed-in-branch",
+    "rationale": "AI metrics timer generation no longer embeds attacker-controlled strings as raw systemd or shell syntax. Unit names and metadata are sanitized, and ExecStart is built by shell-quoting an argv array.",
+    "verificationCommand": "bun test packages/tooling/library/ai-metrics/test/ingest.test.ts --test-name-pattern \"forwarder timer|timer\" && bun test packages/tooling/tool/cli/test/ai-metrics-command.test.ts --test-name-pattern \"forwarder timer\"",
+    "changedFiles": [
+      "packages/tooling/library/ai-metrics/src/forwarder.ts",
+      "packages/tooling/library/ai-metrics/test/ingest.test.ts",
+      "packages/tooling/tool/cli/src/commands/AIMetrics/index.ts",
+      "packages/tooling/tool/cli/test/ai-metrics-command.test.ts"
+    ],
+    "verificationNotes": [
+      "Focused timer tests pass and include a regression for unit-field sanitization plus shell quoting."
+    ]
+  },
+  "CSF-016": {
+    "verdict": "fixed",
+    "closeReason": "Already fixed",
+    "remediationStatus": "fixed-in-branch",
+    "rationale": "JSDoc category normalization now uses a linear scanner instead of repeated regex passes, and category values over 128 characters are rejected before normalization.",
+    "verificationCommand": "bun test packages/tooling/tool/cli/test/jsdoc-categories.test.ts && bun test packages/tooling/tool/cli/test/docgen.test.ts --test-name-pattern \"quality|category\"",
+    "changedFiles": [
+      "packages/tooling/tool/cli/src/commands/Shared/JSDocCategories.ts",
+      "packages/tooling/tool/cli/test/jsdoc-categories.test.ts"
+    ],
+    "verificationNotes": [
+      "The JSDoc category test suite passes, including the overlong-value regression, and docgen quality/category tests still pass."
+    ]
+  },
+  "CSF-017": {
+    "verdict": "fixed",
+    "closeReason": "Already fixed",
+    "remediationStatus": "fixed-in-branch",
+    "rationale": "ACP protocol and client notification queues now have finite capacities. Peer-driven protocol queues use bounded queues, disconnect queues have a smaller bound, and pre-session notification buffers drop oldest entries once their cap is reached.",
+    "verificationCommand": "bunx vitest run packages/drivers/acp/test/protocol.test.ts packages/drivers/acp/test/integration/client.integration.test.ts",
+    "changedFiles": [
+      "packages/drivers/acp/src/client.ts",
+      "packages/drivers/acp/src/protocol.ts"
+    ],
+    "verificationNotes": [
+      "The ACP protocol and client integration test suites pass."
+    ]
+  },
+  "CSF-018": {
+    "verdict": "fixed",
+    "closeReason": "Already fixed",
+    "remediationStatus": "fixed-in-branch",
+    "rationale": "SQL integration quality tests no longer fall back to production-like DATABASE_URL values. The branch requires the explicit BEEP_TEST_DATABASE_URL variable for SQL integration execution.",
+    "verificationCommand": "bun test packages/tooling/tool/cli/test/quality-tasks.test.ts",
+    "changedFiles": [
+      "packages/tooling/tool/cli/src/commands/Quality/Tasks.ts",
+      "packages/tooling/tool/cli/test/quality-tasks.test.ts"
+    ],
+    "verificationNotes": [
+      "The quality task tests pass and now cover the explicit test database URL requirement."
+    ]
+  },
+  "CSF-019": {
+    "verdict": "fixed",
+    "closeReason": "Already fixed",
+    "remediationStatus": "fixed-in-current-head",
+    "rationale": "The referenced Playwright snapshot file is absent from current HEAD, and a targeted scan of Playwright snapshot directories did not find the reported OpenClaw metadata.",
+    "verificationCommand": "test ! -e playwright-cli/page-2026-05-01T10-01-36-589Z.yml && (rg -n 'OpenClaw|OPENCLAW|opencode|claw' playwright-cli .playwright-cli 2>/dev/null || true)",
+    "changedFiles": [],
+    "verificationNotes": [
+      "No current-head code change was needed because the reported committed snapshot is no longer present."
+    ]
+  },
+  "CSF-020": {
+    "verdict": "fixed",
+    "closeReason": "Already fixed",
+    "remediationStatus": "fixed-in-branch",
+    "rationale": "Postgres and Drizzle diagnostic contexts now redact SQL parameter values before storing them in normalized errors, preserving parameter count without retaining secrets.",
+    "verificationCommand": "bunx vitest run packages/drivers/postgres/test/Postgres.errors.test.ts packages/drivers/drizzle/test/Drizzle.errors.test.ts",
+    "changedFiles": [
+      "packages/drivers/postgres/src/Postgres.errors.ts",
+      "packages/drivers/postgres/test/Postgres.errors.test.ts",
+      "packages/drivers/drizzle/src/Drizzle.errors.ts",
+      "packages/drivers/drizzle/test/Drizzle.errors.test.ts"
+    ],
+    "verificationNotes": [
+      "The focused Postgres and Drizzle error suites pass with redaction coverage."
+    ]
+  },
+  "CSF-021": {
+    "verdict": "fixed",
+    "closeReason": "Already fixed",
+    "remediationStatus": "fixed-in-current-head",
+    "rationale": "The referenced unstable EventLogEncryption file is absent from current HEAD. The current AI metrics archive encryption path calls randomNonce for each encrypted archive object and fills it with crypto.getRandomValues before AES-GCM encryption.",
+    "verificationCommand": "test ! -e packages/effect/src/unstable/eventlog/EventLogEncryption.ts && rg -n 'const nonce = randomNonce\\(\\)|crypto\\.getRandomValues\\(nonce\\)|AES-GCM' packages/tooling/library/ai-metrics/src/archive.ts",
+    "changedFiles": [],
+    "verificationNotes": [
+      "No current-head code change was needed because the reported reused nonce path is gone and the active encryption path uses fresh random nonces."
+    ]
+  },
+  "CSF-022": {
+    "verdict": "fixed",
+    "closeReason": "Already fixed",
+    "remediationStatus": "fixed-in-current-head",
+    "rationale": "OPIP CSP nonces are now derived from node:crypto randomUUID rather than Effect Random, and the old Effect.runSync(Random.nextUUIDv4) path is absent from the proxy.",
+    "verificationCommand": "rg -n 'Random\\.nextUUIDv4|Effect\\.runSync\\(Random|randomUUID' apps/opip-web/src/proxy.ts",
+    "changedFiles": [],
+    "verificationNotes": [
+      "No current-head code change was needed because the active proxy imports randomUUID from node:crypto and uses it for the nonce."
+    ]
+  },
+  "CSF-023": {
+    "verdict": "fixed",
+    "closeReason": "Already fixed",
+    "remediationStatus": "fixed-in-branch",
+    "rationale": "The professional desktop dev script now binds Vite to 127.0.0.1 instead of 0.0.0.0, keeping the development server local by default.",
+    "verificationCommand": "rg -n 'vite --host 0\\.0\\.0\\.0' apps/professional-desktop || true",
+    "changedFiles": ["apps/professional-desktop/package.json"],
+    "verificationNotes": [
+      "The old all-interface Vite host flag is no longer present in the professional desktop app package script."
+    ]
+  },
+  "CSF-024": {
+    "verdict": "fixed",
+    "closeReason": "Already fixed",
+    "remediationStatus": "fixed-in-branch",
+    "rationale": "Sanity configuration now schema-validates projectId, dataset, and API version before constructing client URLs, preventing slash or URL delimiter injection through projectId.",
+    "verificationCommand": "bunx vitest run packages/drivers/sanity/test/Sanity.service.test.ts",
+    "changedFiles": ["packages/drivers/sanity/src/Sanity.config.ts"],
+    "verificationNotes": [
+      "The focused Sanity service test suite passes after the schema constraint change."
+    ]
+  },
+  "CSF-025": {
+    "verdict": "fixed",
+    "closeReason": "Already fixed",
+    "remediationStatus": "fixed-in-branch",
+    "rationale": "The proof upload status helper no longer includes raw ps stdout or stderr in failure details. It reports a generic ps-unavailable detail and keeps process table content out of status output when ps fails.",
+    "verificationCommand": "node --check initiatives/stack-installer/ops/proof-upload-status.mjs",
+    "changedFiles": ["initiatives/stack-installer/ops/proof-upload-status.mjs"],
+    "verificationNotes": [
+      "Script syntax checks pass and source review confirms the failure path reports only a generic detail."
+    ]
+  },
+  "CSF-026": {
+    "verdict": "fixed",
+    "closeReason": "Already fixed",
+    "remediationStatus": "fixed-in-branch",
+    "rationale": "The proof-watch helper now validates PID files before sending signals, rejects pid <= 1, and refuses to terminate a process group unless /proc/<pid>/cmdline matches the expected p1:proof:watch invocation for the configured output root.",
+    "verificationCommand": "node --check initiatives/stack-installer/ops/start-proof-watch-window.mjs",
+    "changedFiles": [
+      "initiatives/stack-installer/ops/start-proof-watch-window.mjs"
+    ],
+    "verificationNotes": [
+      "Script syntax checks pass and source review confirms PID validation precedes process and process-group termination."
+    ]
+  },
+  "CSF-027": {
+    "verdict": "fixed",
+    "closeReason": "Already fixed",
+    "remediationStatus": "fixed-in-branch",
+    "rationale": "Committed Stack Installer docs and manifests now use coordinator placeholders instead of the live tailnet IP or MagicDNS upload endpoint.",
+    "verificationCommand": "rg -n '100\\.117\\.213\\.114|dankputer\\.tailc7c348\\.ts\\.net|tailc7c348' initiatives/stack-installer apps/stack-installer || true",
+    "changedFiles": [
+      "initiatives/stack-installer/history/outputs/p1-completion-audit.md",
+      "initiatives/stack-installer/history/outputs/p1-pause-handoff-2026-05-14.md",
+      "initiatives/stack-installer/ops/handoffs/HANDOFF_P1_DISCORD_MANUAL.md",
+      "initiatives/stack-installer/ops/manifest.json"
+    ],
+    "verificationNotes": [
+      "The disclosure scan returns no concrete tailnet upload endpoint after the redactions."
+    ]
+  },
+  "CSF-028": {
+    "verdict": "fixed",
+    "closeReason": "Already fixed",
+    "remediationStatus": "fixed-in-branch",
+    "rationale": "The proof upload status endpoint returns only the output root basename, not the coordinator's absolute output path.",
+    "verificationCommand": "node initiatives/stack-installer/ops/proof-upload-smoke.mjs",
+    "changedFiles": [
+      "initiatives/stack-installer/ops/proof-upload-server.mjs",
+      "initiatives/stack-installer/ops/proof-upload-status.mjs",
+      "initiatives/stack-installer/ops/proof-upload-smoke.mjs"
+    ],
+    "verificationNotes": [
+      "The proof upload smoke test validates that status returns outputRootName equal to the basename of the output root."
+    ]
+  },
+  "CSF-029": {
+    "verdict": "fixed",
+    "closeReason": "Already fixed",
+    "remediationStatus": "fixed-in-branch",
+    "rationale": "Recent proof upload log lines are sanitized before replay: control characters are replaced and each rendered line is length-bounded.",
+    "verificationCommand": "node --check initiatives/stack-installer/ops/proof-upload-status.mjs",
+    "changedFiles": ["initiatives/stack-installer/ops/proof-upload-status.mjs"],
+    "verificationNotes": [
+      "Script syntax checks pass and source review confirms recent log output flows through sanitizeLogLine."
+    ]
+  },
+  "CSF-030": {
+    "verdict": "fixed",
+    "closeReason": "Already fixed",
+    "remediationStatus": "fixed-in-branch",
+    "rationale": "Committed audit notes no longer disclose the live tailnet upload endpoint; the endpoint is represented with coordinator placeholders and live commands remain under ignored output paths.",
+    "verificationCommand": "rg -n '100\\.117\\.213\\.114|dankputer\\.tailc7c348\\.ts\\.net|tailc7c348' initiatives/stack-installer apps/stack-installer || true",
+    "changedFiles": [
+      "initiatives/stack-installer/history/outputs/p1-completion-audit.md",
+      "initiatives/stack-installer/history/outputs/p1-pause-handoff-2026-05-14.md"
+    ],
+    "verificationNotes": [
+      "The disclosure scan returns no concrete tailnet upload endpoint after the redactions."
+    ]
+  },
+  "CSF-031": {
+    "verdict": "fixed",
+    "closeReason": "Already fixed",
+    "remediationStatus": "fixed-in-branch",
+    "rationale": "The committed audit note now redacts the concrete Windows proof peer MagicDNS host while preserving the operational note about denied anonymous SMB access.",
+    "verificationCommand": "rg -n '100\\.117\\.213\\.114|dankputer\\.tailc7c348\\.ts\\.net|tailc7c348' initiatives/stack-installer apps/stack-installer || true",
+    "changedFiles": [
+      "initiatives/stack-installer/history/outputs/p1-completion-audit.md"
+    ],
+    "verificationNotes": [
+      "The disclosure scan returns no concrete tailnet domain suffix after the redaction."
+    ]
+  },
+  "CSF-032": {
+    "verdict": "fixed",
+    "closeReason": "Already fixed",
+    "remediationStatus": "fixed-in-branch",
+    "rationale": "The Stack Installer dev script now binds Vite to 127.0.0.1 instead of 0.0.0.0, keeping the development server local by default.",
+    "verificationCommand": "rg -n 'vite --host 0\\.0\\.0\\.0' apps/stack-installer || true",
+    "changedFiles": ["apps/stack-installer/package.json"],
+    "verificationNotes": [
+      "The old all-interface Vite host flag is no longer present in the Stack Installer app package script."
+    ]
+  },
+  "CSF-046": {
+    "verdict": "fixed",
+    "closeReason": "Already fixed",
+    "remediationStatus": "fixed-in-branch",
+    "rationale": "The proof upload landing page no longer reflects request Host. It renders URLs from the configured advertised URL or normalized configured host and port.",
+    "verificationCommand": "node --check initiatives/stack-installer/ops/proof-upload-server.mjs && node initiatives/stack-installer/ops/proof-upload-smoke.mjs",
+    "changedFiles": ["initiatives/stack-installer/ops/proof-upload-server.mjs"],
+    "verificationNotes": [
+      "Script syntax checks pass and the proof upload smoke validates the served landing page."
+    ]
+  },
+  "CSF-047": {
+    "verdict": "fixed",
+    "closeReason": "Already fixed",
+    "remediationStatus": "fixed-in-branch",
+    "rationale": "The proof-watch startup helper validates the PID and expected command line before using a negative PID to terminate a process group.",
+    "verificationCommand": "node --check initiatives/stack-installer/ops/start-proof-watch-window.mjs",
+    "changedFiles": [
+      "initiatives/stack-installer/ops/start-proof-watch-window.mjs"
+    ],
+    "verificationNotes": [
+      "Script syntax checks pass and source review confirms validation is required before process-group kill."
+    ]
+  },
+  "CSF-048": {
+    "verdict": "fixed",
+    "closeReason": "Already fixed",
+    "remediationStatus": "fixed-in-branch",
+    "rationale": "The upload server writes incoming proof bundles to a temporary .uploading file and removes partial files on pipeline failure before renaming only completed uploads into their final approved bundle path.",
+    "verificationCommand": "node --check initiatives/stack-installer/ops/proof-upload-server.mjs && node initiatives/stack-installer/ops/proof-upload-smoke.mjs",
+    "changedFiles": ["initiatives/stack-installer/ops/proof-upload-server.mjs"],
+    "verificationNotes": [
+      "Script syntax checks pass and the proof upload smoke covers successful bundle persistence through the temp-file path."
+    ]
+  }
+}

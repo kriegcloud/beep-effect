@@ -322,6 +322,32 @@ const matchesCompiledPatterns = (
     A.some((matcher) => matcher(relativePath, isDirectory))
   );
 
+const globMetaPattern = /[*?[{(!]/u;
+
+const patternScanRoot = (pattern: string): string => {
+  const normalizedPattern = normalizePathSeparators(pattern);
+  const segments = Str.split("/")(normalizedPattern);
+  const staticSegments = A.takeWhile(segments, (segment) => !globMetaPattern.test(segment));
+
+  if (staticSegments.length === 0) {
+    return "";
+  }
+
+  return staticSegments.length === segments.length
+    ? A.join("/")(A.dropRight(staticSegments, 1))
+    : A.join("/")(staticSegments);
+};
+
+const isNestedScanRoot = (parent: string, child: string): boolean =>
+  parent.length === 0 || child === parent || Str.startsWith(`${parent}/`)(child);
+
+const scanRootsForPatterns: (patterns: ReadonlyArray<string>) => ReadonlyArray<string> = flow(
+  A.map(patternScanRoot),
+  A.dedupe,
+  A.sort(Order.String),
+  (roots) => A.filter(roots, (root, index) => !A.some(A.take(roots, index), (parent) => isNestedScanRoot(parent, root)))
+);
+
 const scanDirectoryWithNodeFs = (
   fs: typeof import("node:fs"),
   cwdUrl: URL,
@@ -346,7 +372,14 @@ const scanDirectoryWithNodeFs = (
         return [];
       }
 
-      const isDirectory = entry.isDirectory() || (entry.isSymbolicLink() && fs.statSync(absolutePath).isDirectory());
+      let isDirectory = entry.isDirectory();
+      if (entry.isSymbolicLink()) {
+        try {
+          isDirectory = fs.statSync(absolutePath).isDirectory();
+        } catch {
+          return [];
+        }
+      }
 
       if (matchesCompiledPatterns(ignoreMatchers, normalizedRelativePath, isDirectory)) {
         return [];
@@ -389,12 +422,33 @@ const scanWithNodeGlob = (
   toAbsolute: (relativePath: string) => string
 ): Promise<Array<string>> =>
   import("node:fs").then((fs) => {
-    const includeMatchers = compileIncludedPatterns(toPatterns(pattern));
+    const patterns = toPatterns(pattern);
+    const includeMatchers = compileIncludedPatterns(patterns);
     const ignoreMatchers = compileIgnoredPatterns(toIgnorePatterns(options?.ignore));
     const cwdPath = fileURLToPath(cwdUrl);
 
     const relativePaths = pipe(
-      scanDirectoryWithNodeFs(fs, cwdUrl, cwdPath, "", includeMatchers, ignoreMatchers, options),
+      scanRootsForPatterns(patterns),
+      A.flatMap((scanRoot) => {
+        const absoluteScanRoot = scanRoot.length === 0 ? cwdPath : fileURLToPath(new URL(scanRoot, cwdUrl));
+        try {
+          if (!fs.statSync(absoluteScanRoot).isDirectory()) {
+            return [];
+          }
+        } catch {
+          return [];
+        }
+
+        return scanDirectoryWithNodeFs(
+          fs,
+          cwdUrl,
+          absoluteScanRoot,
+          scanRoot,
+          includeMatchers,
+          ignoreMatchers,
+          options
+        );
+      }),
       A.map((entry) => entry.relativePath),
       A.dedupe,
       A.sort(Order.String)

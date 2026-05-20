@@ -32,6 +32,7 @@ import {
   p1ProofBundleExtractionCommand,
   p1ProofBundleExtractionProcess,
   p1ProofBundleFileNameForPlatform,
+  p1ProofBundleListingProcess,
   p1ProofMissingRequiredArtifactFiles,
 } from "./P1ProofArtifacts.js";
 import { buildP1ProofCommandsText, p1ProofCommandsTextMatchesPlatform } from "./P1ProofCommands.js";
@@ -67,6 +68,28 @@ const collectText = <E>(stream: Stream.Stream<Uint8Array, E>): Effect.Effect<str
       (acc, chunk) => `${acc}${chunk}`
     )
   );
+
+const runNativeProcess = Effect.fn("StackInstaller.runNativeProcess")(function* (process: {
+  readonly args: ReadonlyArray<string>;
+  readonly command: string;
+}) {
+  return yield* Effect.scoped(
+    Effect.gen(function* () {
+      const spawner = yield* ChildProcessSpawner.ChildProcessSpawner;
+      const handle = yield* spawner.spawn(
+        ChildProcess.make(process.command, A.fromIterable(process.args), {
+          stderr: "pipe",
+          stdin: "ignore",
+          stdout: "pipe",
+        })
+      );
+
+      return yield* Effect.all([collectText(handle.stdout), collectText(handle.stderr), handle.exitCode], {
+        concurrency: "unbounded",
+      });
+    })
+  );
+});
 
 const argAfter = (name: string): O.Option<string> =>
   pipe(
@@ -247,29 +270,63 @@ const proofArtifactStatus = Effect.fn("StackInstaller.proofArtifactStatus")(func
   ]);
 });
 
+const normalizeBundleEntry = (entry: string): string => {
+  const trimmed = pipe(entry, Str.trim, Str.replaceAll("\\", "/"));
+
+  return Str.endsWith("/")(trimmed) ? Str.slice(0, -1)(trimmed) : trimmed;
+};
+
+const isSafeBundleEntry = (platform: P1RequiredPlatform, entry: string): boolean => {
+  const normalized = normalizeBundleEntry(entry);
+  const segments = Str.split("/")(normalized);
+  const firstSegment = A.head(segments);
+
+  return (
+    Str.isNonEmpty(normalized) &&
+    !Str.includes("\u0000")(normalized) &&
+    !Str.startsWith("/")(normalized) &&
+    O.isSome(firstSegment) &&
+    firstSegment.value === platform &&
+    A.every(segments, (segment) => Str.isNonEmpty(segment) && segment !== "." && segment !== "..")
+  );
+};
+
+const validateBundleEntries = Effect.fn("StackInstaller.validateBundleEntries")(function* (
+  platform: P1RequiredPlatform,
+  bundlePath: string
+) {
+  const process = p1ProofBundleListingProcess(platform, { bundlePath, outputRoot: "" });
+  const [stdout, stderr, exitCode] = yield* runNativeProcess(process);
+
+  yield* requireAudit(
+    exitCode === 0,
+    `Failed to list ${bundlePath} with ${process.command}; exitCode=${exitCode}; stderr=${stderr}; stdout=${stdout}`
+  );
+
+  const entries = pipe(Str.split("\n")(stdout), A.map(Str.trim), A.filter(Str.isNonEmpty));
+  const unsafeEntries = pipe(
+    entries,
+    A.filter((entry) => !isSafeBundleEntry(platform, entry))
+  );
+
+  yield* requireAudit(
+    A.isReadonlyArrayEmpty(unsafeEntries),
+    `Refusing to extract ${bundlePath}; archive entries must stay under ${platform}/ and avoid traversal segments: ${pipe(
+      unsafeEntries,
+      A.take(10),
+      A.join(", ")
+    )}`
+  );
+});
+
 const runExtractionProcess = Effect.fn("StackInstaller.runExtractionProcess")(function* (
   platform: P1RequiredPlatform,
   bundlePath: string,
   outputRoot: string
 ) {
   const process = p1ProofBundleExtractionProcess(platform, { bundlePath, outputRoot });
-
-  const [stdout, stderr, exitCode] = yield* Effect.scoped(
-    Effect.gen(function* () {
-      const spawner = yield* ChildProcessSpawner.ChildProcessSpawner;
-      const handle = yield* spawner.spawn(
-        ChildProcess.make(process.command, A.fromIterable(process.args), {
-          stderr: "pipe",
-          stdin: "ignore",
-          stdout: "pipe",
-        })
-      );
-
-      return yield* Effect.all([collectText(handle.stdout), collectText(handle.stderr), handle.exitCode], {
-        concurrency: "unbounded",
-      });
-    })
-  );
+  yield* validateBundleEntries(platform, bundlePath);
+  const [stdout, stderr, exitCode] = yield* runNativeProcess(process);
 
   yield* requireAudit(
     exitCode === 0,

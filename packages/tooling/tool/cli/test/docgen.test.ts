@@ -1595,8 +1595,10 @@ export type TypeValue = string;
             scoreMode: "codex",
             targets,
           });
-          const runner: DocgenQualityWorkerEvalRunner = () =>
-            Effect.succeed({
+          let observedWorkingDirectories = A.empty<string>();
+          const runner: DocgenQualityWorkerEvalRunner = (input) => {
+            observedWorkingDirectories = A.append(observedWorkingDirectories, input.workingDirectory);
+            return Effect.succeed({
               finalResponse: encodeJson({
                 localScore: 8,
                 rationale: "The draft adds an observable example and keeps required tags.",
@@ -1605,6 +1607,7 @@ export type TypeValue = string;
                 reviewDisposition: "candidate",
               }),
             });
+          };
 
           const workerReport = yield* analyzeDocgenQualityWorkerEval({
             codexSdkVersion: "test-sdk",
@@ -1635,6 +1638,7 @@ export type TypeValue = string;
           expect(decoded.summary.completed).toBe(2);
           expect(decoded.summary.candidates).toBe(2);
           expect(packetPackages).toEqual(["@beep/schema", "@beep/types"]);
+          expect(A.every(observedWorkingDirectories, (directory) => directory !== tmpDir)).toBe(true);
 
           const localProviderReport = yield* analyzeDocgenQualityWorkerEval({
             codexSdkVersion: "test-sdk",
@@ -1966,6 +1970,7 @@ export const parseValue = (value: string): string => value.trim();
               createPod: () => Effect.succeed(new Pod({ name: "created-without-id" })),
               deletePod: (request) => Ref.update(deletedPodIds, A.append(request.podId)),
               getPod: (request) => Effect.succeed(new Pod({ id: request.podId, name: "recovered-pod" })),
+              listTemplates: () => Effect.die("unexpected public template search"),
               listPods: (request) => Effect.succeed([new Pod({ id: "pod-recovered", name: request?.name })]),
               stopPod: (request) => Ref.update(stoppedPodIds, A.append(request.podId)),
             } as never)
@@ -1985,7 +1990,6 @@ export const parseValue = (value: string): string => value.trim();
             readinessTimeoutMs: 1,
             report,
             scope: "package",
-            skipTemplateSearch: true,
             sourceQualityReport: "quality.json",
           }).pipe(provideScopedLayer(RunpodTestLayer), Effect.exit);
 

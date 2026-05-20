@@ -18,6 +18,8 @@ import { OnePasswordCli } from "@beep/onepassword-cli";
 import type { OnePasswordReference } from "@beep/shared-domain/values/OnePasswordReference";
 import type { TUnsafe } from "@beep/types";
 import { Effect, Layer } from "effect";
+import * as A from "effect/Array";
+import * as O from "effect/Option";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
 
@@ -64,12 +66,30 @@ const p1aSecretReferencePlanInput = {
 export const makeInstallerSecurityServer = Effect.fn("InstallerSecurityServer.make")(function* () {
   const plan = yield* decodeSecretReferencePlan(p1aSecretReferencePlanInput);
   const onePassword = yield* OnePasswordCli;
+  const isApprovedReference = (reference: OnePasswordReference): boolean =>
+    A.some(plan.references, (approved) => approved.reference === reference);
+  const approvedValidationRequest = (request: SecretReferenceValidationRequest) =>
+    A.findFirst(
+      plan.references,
+      (approved) =>
+        approved.id === request.id &&
+        approved.purpose === request.purpose &&
+        approved.reference === request.reference &&
+        approved.usedBy === request.usedBy
+    );
 
   return {
     previewSecretReferences: () => Effect.succeed(plan),
     readSecretReference: Effect.fn("InstallerSecurityServer.readSecretReference")(function* (
       reference: OnePasswordReference
     ) {
+      if (!isApprovedReference(reference)) {
+        return yield* new SecretReferenceReadError({
+          message: "Refusing to resolve unapproved 1Password reference.",
+          reference,
+        });
+      }
+
       return yield* onePassword.read(reference).pipe(
         Effect.mapError(
           () =>
@@ -84,6 +104,17 @@ export const makeInstallerSecurityServer = Effect.fn("InstallerSecurityServer.ma
       rawRequest: SecretReferenceValidationRequest
     ) {
       const request = yield* decodeSecretReferenceValidationRequest(rawRequest);
+      const approved = approvedValidationRequest(request);
+
+      if (O.isNone(approved)) {
+        return new SecretReferenceValidationResult({
+          message: "1Password reference is not approved for this installer proof.",
+          purpose: request.purpose,
+          reference: request.reference,
+          status: "reference-missing",
+          usedBy: request.usedBy,
+        });
+      }
 
       return yield* onePassword.probeReference(request.reference).pipe(
         Effect.match({

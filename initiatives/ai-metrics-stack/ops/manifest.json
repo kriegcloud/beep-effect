@@ -210,15 +210,15 @@
     },
     {
       "id": "ai-metrics-p7-disposable-proof-copy",
-      "command": "rsync -a --delete /home/elpresidank/YeeBois/projects/beep-effect/.beep/ai-metrics/ /tmp/ai-metrics-p7-proof-data/"
+      "command": "umask 077; proof_root=\"$(mktemp -d -t ai-metrics-p7-proof-data.XXXXXXXXXX)\"; rsync -a --delete /home/elpresidank/YeeBois/projects/beep-effect/.beep/ai-metrics/ \"$proof_root/\"; printf 'AI_METRICS_P7_PROOF_DATA_ROOT=%s\\n' \"$proof_root\""
     },
     {
       "id": "ai-metrics-p7-mirror-build",
-      "command": "bun run beep ai-metrics mirror build --target dankserver --data-root /tmp/ai-metrics-p7-proof-data --json"
+      "command": "bun run beep ai-metrics mirror build --target dankserver --data-root \"${AI_METRICS_P7_PROOF_DATA_ROOT:?run ai-metrics-p7-disposable-proof-copy first}\" --json"
     },
     {
       "id": "ai-metrics-p7-mirror-sync-dry-run",
-      "command": "bun run beep ai-metrics mirror sync --bundle latest --data-root /tmp/ai-metrics-p7-proof-data --json"
+      "command": "bun run beep ai-metrics mirror sync --bundle latest --data-root \"${AI_METRICS_P7_PROOF_DATA_ROOT:?run ai-metrics-p7-disposable-proof-copy first}\" --json"
     },
     {
       "id": "ai-metrics-p7-remote-mirror-presence-check",
@@ -242,7 +242,7 @@
     },
     {
       "id": "ai-metrics-p7-retention-restore-drill",
-      "command": "BEEP_AI_METRICS_RAW_ARCHIVE_KEY=\"$(op read 'op://TBK/ai-metrics/raw-archive-key')\" bun run beep ai-metrics retention restore-drill --data-root /home/elpresidank/YeeBois/projects/beep-effect/.beep/ai-metrics --restore-root /tmp/ai-metrics-p7-restore --before <REPLACE_WITH_ISO_8601_TIMESTAMP> --json"
+      "command": "umask 077; restore_root=\"$(mktemp -d -t ai-metrics-p7-restore.XXXXXXXXXX)\"; BEEP_AI_METRICS_RAW_ARCHIVE_KEY=\"$(op read 'op://TBK/ai-metrics/raw-archive-key')\" bun run beep ai-metrics retention restore-drill --data-root /home/elpresidank/YeeBois/projects/beep-effect/.beep/ai-metrics --restore-root \"$restore_root\" --before <REPLACE_WITH_ISO_8601_TIMESTAMP> --json"
     },
     {
       "id": "infra-package",

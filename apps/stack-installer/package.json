@@ -14,7 +14,7 @@
   "scripts": {
     "audit": "bun run --if-present beep:audit",
     "codegen": "echo 'no codegen needed'",
-    "dev": "vite --host 0.0.0.0",
+    "dev": "vite --host 127.0.0.1",
     "dev:tauri": "tauri dev",
     "p1:proof": "bun run src/proof/run-p1-manual-proof.ts",
     "p1:proof:audit-all": "bun run src/proof/capture-p1-manual-proof.ts -- --audit-all",

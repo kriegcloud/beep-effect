@@ -267,7 +267,7 @@ export class AiMetricsForwarderTimerInput extends S.Class<AiMetricsForwarderTime
   $I`AiMetricsForwarderTimerInput`
 )(
   {
-    command: S.String,
+    command: S.Array(S.String),
     hashSaltSecretRef: S.optionalKey(S.String),
     intervalMinutes: S.Number.pipe(
       S.withConstructorDefault(Effect.succeed(30)),
@@ -371,13 +371,29 @@ const requireForwarderHashSalt = Effect.fn("AiMetrics.forwarder.requireHashSalt"
  * @category services
  * @since 0.0.0
  */
+const systemdUnitFieldValue: (value: string) => string = Str.replace(/[\u0000-\u001f\u007f]/gu, " ");
+
+const safeSystemdUnitNameStem = (value: string): string => {
+  const sanitized = pipe(
+    value,
+    Str.replace(/[^A-Za-z0-9_.@-]/gu, "-"),
+    Str.replace(/-+/gu, "-"),
+    Str.replace(/^-|-$/gu, "")
+  );
+  return Str.isNonEmpty(sanitized) ? sanitized : "beep-ai-metrics-forwarder";
+};
+
+const shellCommandFromArgv = (argv: ReadonlyArray<string>): string => pipe(argv, A.map(shellQuote), A.join(" "));
+
 export const renderAiMetricsForwarderTimerPlan = (input: AiMetricsForwarderTimerInput): AiMetricsForwarderTimerPlan => {
-  const serviceUnitName = `${input.serviceName}.service`;
-  const timerUnitName = `${input.serviceName}.timer`;
+  const serviceName = safeSystemdUnitNameStem(input.serviceName);
+  const serviceUnitName = `${serviceName}.service`;
+  const timerUnitName = `${serviceName}.timer`;
   const statusTmpPath = `${input.statusPath}.tmp`;
   const stderrTmpPath = `${input.statusPath}.stderr.tmp`;
   const envFileShellPath = "~/.config/beep/ai-metrics.env";
   const envFileUnitPath = "%h/.config/beep/ai-metrics.env";
+  const command = shellCommandFromArgv(input.command);
   const failureStatusPython =
     'import json,sys; data=open(sys.argv[2],"rb").read(2000).decode("utf-8","replace"); print(json.dumps({"status":"failed","exitCode":int(sys.argv[1]),"stderr":data},separators=(",",":")))';
   const execCommand = pipe(
@@ -386,7 +402,7 @@ export const renderAiMetricsForwarderTimerPlan = (input: AiMetricsForwarderTimer
       `mkdir -p "$(dirname ${shellQuote(input.statusPath)})" "$(dirname ${shellQuote(input.lockPath)})"`,
       "exit_code=0",
       `> ${shellQuote(stderrTmpPath)}`,
-      `if flock -n ${shellQuote(input.lockPath)} ${input.command} > ${shellQuote(statusTmpPath)} 2> ${shellQuote(stderrTmpPath)}; then :; else exit_code=$?; python3 -c ${shellQuote(failureStatusPython)} "$exit_code" ${shellQuote(stderrTmpPath)} > ${shellQuote(statusTmpPath)}; fi`,
+      `if flock -n ${shellQuote(input.lockPath)} ${command} > ${shellQuote(statusTmpPath)} 2> ${shellQuote(stderrTmpPath)}; then :; else exit_code=$?; python3 -c ${shellQuote(failureStatusPython)} "$exit_code" ${shellQuote(stderrTmpPath)} > ${shellQuote(statusTmpPath)}; fi`,
       `rm -f ${shellQuote(stderrTmpPath)}`,
       `mv ${shellQuote(statusTmpPath)} ${shellQuote(input.statusPath)}`,
       'exit "$exit_code"',
@@ -402,9 +418,9 @@ export const renderAiMetricsForwarderTimerPlan = (input: AiMetricsForwarderTimer
       "",
       "[Service]",
       "Type=oneshot",
-      `WorkingDirectory=${input.workingDirectory}`,
+      `WorkingDirectory=${systemdUnitFieldValue(input.workingDirectory)}`,
       `EnvironmentFile=${envFileUnitPath}`,
-      "# The command may capture PATH at render time so user-local Bun can be found; rerender after changing Bun install paths.",
+      "# The command pins the Bun executable path captured when this timer was rendered; rerender after changing Bun install paths.",
       `ExecStart=/usr/bin/env bash -lc ${shellQuote(execCommand)}`,
       "Restart=on-failure",
       "RestartSec=5m",

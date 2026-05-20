@@ -291,13 +291,16 @@ describe("@beep/utils Struct.keys", () => {
 });
 
 describe("@beep/utils Struct.fromEntries", () => {
-  it("treats __proto__ as a regular own property", () => {
+  it("keeps prototype-sensitive entries non-enumerable", () => {
     const result = Struct.fromEntries([["__proto__", { polluted: true }]] as const);
     const descriptor = Object.getOwnPropertyDescriptor(result, "__proto__");
+    const assigned = Object.assign({}, result);
 
     expect(Object.getPrototypeOf(result)).toBe(Object.prototype);
     expect(Object.hasOwn(result, "__proto__")).toBe(true);
+    expect(descriptor?.enumerable).toBe(false);
     expect(descriptor?.value).toEqual({ polluted: true });
+    expect(Object.getPrototypeOf(assigned)).toBe(Object.prototype);
     expect(Object.hasOwn(result, "polluted")).toBe(false);
   });
 

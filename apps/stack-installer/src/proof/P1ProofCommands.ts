@@ -26,6 +26,8 @@ const shellQuote = (value: string): string => `'${Str.replaceAll("'", "'\"'\"'")
 
 const powerShellQuote = (value: string): string => `'${Str.replaceAll("'", "''")(value)}'`;
 
+const redactedRequestJsonPlaceholder = "<redacted P1 request JSON; use the coordinator-approved local request>";
+
 const hasBashProofCommandMarkers = (commandsText: string): boolean =>
   Str.includes("command -v op")(commandsText) &&
   Str.includes("(cd apps/stack-installer && bun run p1:proof:capture")(commandsText);
@@ -36,7 +38,7 @@ const hasPowerShellProofCommandMarkers = (commandsText: string): boolean =>
     'bun run p1:proof:capture -- --request-json "$stackInstallerRequestJson" --output-dir "$stackInstallerOutputDir"'
   )(commandsText);
 
-const buildBashP1ProofCommandsText = (request: P1ManualProofRequest, requestJson: string, outputDir: string): string =>
+const buildBashP1ProofCommandsText = (request: P1ManualProofRequest, _requestJson: string, outputDir: string): string =>
   A.join("\n")([
     "# Stack Installer P1 Manual Mode proof commands",
     "# This transcript records the commands required for the fresh-machine proof.",
@@ -56,7 +58,8 @@ const buildBashP1ProofCommandsText = (request: P1ManualProofRequest, requestJson
     "op whoami",
     "claude auth status",
     "codex login status",
-    `(cd apps/stack-installer && bun run p1:proof:capture -- --request-json ${shellQuote(requestJson)} --output-dir ${shellQuote(outputDir)})`,
+    `STACK_INSTALLER_P1_REQUEST_JSON=${shellQuote(redactedRequestJsonPlaceholder)}`,
+    `(cd apps/stack-installer && bun run p1:proof:capture -- --request-json "$STACK_INSTALLER_P1_REQUEST_JSON" --output-dir ${shellQuote(outputDir)})`,
     "",
     "# After recording screencast.*, refresh checksums without re-sending the Discord proof message:",
     `(cd apps/stack-installer && bun run p1:proof:checksums -- --output-dir ${shellQuote(outputDir)})`,
@@ -66,7 +69,7 @@ const buildBashP1ProofCommandsText = (request: P1ManualProofRequest, requestJson
 
 const buildPowerShellP1ProofCommandsText = (
   request: P1ManualProofRequest,
-  requestJson: string,
+  _requestJson: string,
   outputDir: string
 ): string =>
   A.join("\n")([
@@ -75,7 +78,7 @@ const buildPowerShellP1ProofCommandsText = (
     "# Inputs must contain only 1Password references, never plaintext secrets.",
     `$env:STACK_INSTALLER_PLATFORM = ${powerShellQuote(request.targetPlatform)}`,
     `$env:STACK_INSTALLER_OPERATOR_LABEL = ${powerShellQuote(request.operatorLabel)}`,
-    `$stackInstallerRequestJson = ${powerShellQuote(requestJson)}`,
+    `$stackInstallerRequestJson = ${powerShellQuote(redactedRequestJsonPlaceholder)}`,
     `$stackInstallerOutputDir = ${powerShellQuote(outputDir)}`,
     "",
     "git status --short --branch",

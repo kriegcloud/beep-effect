@@ -268,8 +268,8 @@ For the current proof window, the coordinator has verified the upload endpoint
 through both the raw tailnet address and MagicDNS:
 
 ```text
-http://100.117.213.114:8765
-http://dankputer.tailc7c348.ts.net:8765
+http://<coordinator-tailscale-ip>:8765
+http://<coordinator-magic-dns-name>:8765
 ```
 
 If a future proof window restarts the upload endpoint, prefer the values in the

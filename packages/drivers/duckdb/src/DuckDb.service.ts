@@ -14,7 +14,7 @@ import {
   quotedIdentifier,
   quotedString,
 } from "@duckdb/node-api";
-import { Context, Effect, Exit, Layer, Scope } from "effect";
+import { Context, Effect, Exit, Layer, Scope, Semaphore } from "effect";
 import * as O from "effect/Option";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
@@ -311,12 +311,17 @@ const makeConnectionClient = (
 
 const makeNodeClient = (options: DuckDbConnectionOptions): DuckDbClient => {
   const getConnection = acquireSharedConnection(options);
+  const connectionLock = Effect.runSync(Semaphore.make(1));
   const useNodeConnection = Effect.fn("DuckDb.useNodeConnection")(function* <A, R>(
     operation: string,
     use: NativeUse<A, R>
   ): Effect.fn.Return<A, DuckDbError, R> {
-    const { connection } = yield* getConnection(operation);
-    return yield* use(connection);
+    return yield* connectionLock.withPermit(
+      Effect.gen(function* () {
+        const { connection } = yield* getConnection(operation);
+        return yield* use(connection);
+      })
+    );
   });
   return makeConnectionClient(options, useNodeConnection);
 };
@@ -326,12 +331,17 @@ const makeNodeLayer = (options: DuckDbConnectionOptions): Layer.Layer<DuckDb> =>
     Effect.gen(function* () {
       const scope = yield* Scope.Scope;
       const getConnection = acquireScopedSharedConnection(options, scope);
+      const connectionLock = yield* Semaphore.make(1);
       const useLayerConnection = Effect.fn("DuckDb.useLayerConnection")(function* <A, R>(
         operation: string,
         useNative: NativeUse<A, R>
       ): Effect.fn.Return<A, DuckDbError, R> {
-        const { connection } = yield* getConnection(operation);
-        return yield* useNative(connection);
+        return yield* connectionLock.withPermit(
+          Effect.gen(function* () {
+            const { connection } = yield* getConnection(operation);
+            return yield* useNative(connection);
+          })
+        );
       });
       return Context.make(DuckDb, DuckDb.of(makeConnectionClient(options, useLayerConnection)));
     })

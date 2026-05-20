@@ -75,7 +75,7 @@ What is not complete:
 - Current upload fallback state:
   the live upload endpoint now runs from committed
   `initiatives/stack-installer/ops/proof-upload-server.mjs` on
-  `http://100.117.213.114:8765`. The helper now prefers
+  `http://<coordinator-tailscale-ip>:8765`. The helper now prefers
   `Authorization: Bearer ...` upload tokens so the token does not need to
   appear in upload URLs. The current private one-time token is stored in ignored
   `output/stack-installer/p1-live/proof-upload-token.txt` with `0600`
@@ -91,7 +91,7 @@ What is not complete:
   `GET /next-actions`, which returns the generated full operator next-actions
   note. No operator upload has hit the endpoint yet. The same live endpoint has
   also been verified through MagicDNS at
-  `http://dankputer.tailc7c348.ts.net:8765/health`, the MagicDNS public landing
+  `http://<coordinator-magic-dns-name>:8765/health`, the MagicDNS public landing
   page, MagicDNS `GET /commands` with bearer token, and MagicDNS
   `GET /next-actions` with bearer token.
   The upload receiver now removes stale temporary upload files before storage
@@ -179,7 +179,7 @@ What is not complete:
   denied, and non-interactive `sudo -n tailscale set --operator=$USER` fails
   because sudo requires a password. Artifact intake via Taildrop therefore
   remains a user-side setup step before the coordinator can receive bundles.
-  The Windows peer `desktop-m5ap41u.tailc7c348.ts.net` is reachable and exposes
+  The Windows peer `<windows-proof-peer-magic-dns-name>` is reachable and exposes
   SMB port `445`, but anonymous `smbclient -L` share listing fails with
   `NT_STATUS_ACCESS_DENIED`; anonymous access to common `Users`, `Public`,
   `C$`, and `D$` share names also fails with `NT_STATUS_ACCESS_DENIED`. No SMB

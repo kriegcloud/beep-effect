@@ -658,43 +658,7 @@ const startPgliteContainer = Effect.fn("SqlTest.startPgliteContainer")(function*
       ),
   });
 
-  const startHostNetworkContainer = Effect.tryPromise({
-    try: (): Promise<StartedPgliteContainer> =>
-      makeContainer()
-        .withNetworkMode("host")
-        .start()
-        .then((container) => ({
-          container,
-          host: "127.0.0.1",
-          port: config.internalPort,
-        })),
-    catch: (cause) =>
-      toHarnessError(
-        "pglite-testcontainers",
-        "provision",
-        "Failed to start the PGLite Testcontainers SQL test driver.",
-        cause
-      ),
-  });
-
-  const shouldRetryWithHostNetwork = (error: SqlTestHarnessError): boolean =>
-    pipe(
-      error.cause,
-      O.exists((cause) => {
-        const message = String(cause);
-        return (
-          Str.includes("failed to set up container networking")(message) &&
-          Str.includes("operation not supported")(message)
-        );
-      })
-    );
-
-  return yield* Effect.acquireRelease(
-    startBridgeContainer.pipe(
-      Effect.catch((error) => (shouldRetryWithHostNetwork(error) ? startHostNetworkContainer : Effect.fail(error)))
-    ),
-    (started) => releasePgliteContainer(started.container)
-  );
+  return yield* Effect.acquireRelease(startBridgeContainer, (started) => releasePgliteContainer(started.container));
 });
 
 /**

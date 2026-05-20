@@ -664,8 +664,20 @@ layer(NodeServices.layer as Layer.Layer<TUnsafe.Any>)("@beep/repo-ai-metrics", (
     Effect.fn(function* () {
       const plan = renderAiMetricsForwarderTimerPlan(
         new AiMetricsForwarderTimerInput({
-          command:
-            "bun run beep ai-metrics forwarder run --target dankserver --data-root .beep/ai-metrics --otlp --json",
+          command: [
+            "/home/example/.bun/bin/bun",
+            "run",
+            "beep",
+            "ai-metrics",
+            "forwarder",
+            "run",
+            "--target",
+            "dankserver",
+            "--data-root",
+            ".beep/ai-metrics",
+            "--otlp",
+            "--json",
+          ],
           hashSaltSecretRef: "op://TBK/ai-metrics/hash-salt",
           intervalMinutes: 15,
           lockPath: "%t/beep-ai-metrics-forwarder.lock",
@@ -680,7 +692,8 @@ layer(NodeServices.layer as Layer.Layer<TUnsafe.Any>)("@beep/repo-ai-metrics", (
       expect(plan.serviceUnit).toContain('"status":"failed"');
       expect(plan.serviceUnit).toContain("json.dumps");
       expect(plan.serviceUnit).toContain('decode("utf-8","replace")');
-      expect(plan.serviceUnit).toContain("capture PATH at render time");
+      expect(plan.serviceUnit).toContain("pins the Bun executable path");
+      expect(plan.serviceUnit).toContain("'/home/example/.bun/bin/bun'");
       expect(plan.serviceUnit).toMatch(/exit_code=0; > .*latest\.json\.stderr\.tmp.*; if flock -n/su);
       expect(plan.serviceUnit).not.toContain("sed 's/");
       expect(plan.serviceUnit).toContain("StartLimitBurst=3\nStartLimitIntervalSec=30m\n\n[Service]");
@@ -697,6 +710,29 @@ layer(NodeServices.layer as Layer.Layer<TUnsafe.Any>)("@beep/repo-ai-metrics", (
         ])
       );
       expect(json).not.toContain("base64-32-byte-key");
+    })
+  );
+
+  it.effect(
+    "sanitizes timer unit fields and shell-quotes command arguments",
+    Effect.fn(function* () {
+      const plan = renderAiMetricsForwarderTimerPlan(
+        new AiMetricsForwarderTimerInput({
+          command: ["/bin/bun", "run", "beep", "--data-root", "/tmp/metrics; touch /tmp/pwn"],
+          intervalMinutes: 15,
+          lockPath: "%t/beep-ai-metrics-forwarder.lock",
+          serviceName: "beep\nmalicious.service",
+          statusPath: ".beep/ai-metrics/forwarder/status/latest.json",
+          workingDirectory: "/repo/beep-effect\nEnvironment=OWNED=1",
+        })
+      );
+
+      expect(plan.serviceUnitName).toBe("beep-malicious.service.service");
+      expect(plan.timerUnitName).toBe("beep-malicious.service.timer");
+      expect(plan.serviceUnit).toContain("WorkingDirectory=/repo/beep-effect Environment=OWNED=1");
+      expect(plan.serviceUnit).not.toContain("\nEnvironment=OWNED=1");
+      expect(plan.serviceUnit).toContain("--data-root");
+      expect(plan.serviceUnit).toContain("/tmp/metrics; touch /tmp/pwn");
     })
   );
 

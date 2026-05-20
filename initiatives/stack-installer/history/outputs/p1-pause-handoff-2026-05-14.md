@@ -93,10 +93,10 @@ starting a fresh upload window instead of reusing any old token.
 
 ```bash
 node initiatives/stack-installer/ops/start-proof-upload-window.mjs \
-  --host 100.117.213.114 \
+  --host <coordinator-tailscale-ip> \
   --port 8765 \
   --output-root output/stack-installer/p1-live \
-  --advertised-url http://dankputer.tailc7c348.ts.net:8765 \
+  --advertised-url http://<coordinator-magic-dns-name>:8765 \
   --replace-existing
 ```
 

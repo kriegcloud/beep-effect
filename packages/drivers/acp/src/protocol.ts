@@ -27,6 +27,8 @@ import * as AcpError from "./errors.ts";
 const $I = $AcpId.create("protocol");
 const isAcpError = S.is(AcpError.AcpError);
 const isAcpRequestError = S.is(AcpError.AcpRequestError);
+const ACP_PROTOCOL_QUEUE_CAPACITY = 1_024;
+const ACP_PROTOCOL_DISCONNECT_QUEUE_CAPACITY = 16;
 
 /**
  * Structured log event emitted by the ACP protocol adapter.
@@ -210,11 +212,11 @@ export const makeAcpPatchedProtocol = Effect.fn($I`makeAcpPatchedProtocol`)(func
   options: AcpPatchedProtocolOptions
 ): Effect.fn.Return<AcpPatchedProtocol, never, Scope.Scope> {
   const parser = parserFactory.makeUnsafe();
-  const serverQueue = yield* Queue.unbounded<RpcMessage.FromClientEncoded>();
-  const clientQueue = yield* Queue.unbounded<RpcMessage.FromServerEncoded>();
-  const notificationQueue = yield* Queue.unbounded<AcpIncomingNotification>();
-  const disconnects = yield* Queue.unbounded<number>();
-  const outgoing = yield* Queue.unbounded<string | Uint8Array, Cause.Done<void>>();
+  const serverQueue = yield* Queue.bounded<RpcMessage.FromClientEncoded>(ACP_PROTOCOL_QUEUE_CAPACITY);
+  const clientQueue = yield* Queue.bounded<RpcMessage.FromServerEncoded>(ACP_PROTOCOL_QUEUE_CAPACITY);
+  const notificationQueue = yield* Queue.bounded<AcpIncomingNotification>(ACP_PROTOCOL_QUEUE_CAPACITY);
+  const disconnects = yield* Queue.bounded<number>(ACP_PROTOCOL_DISCONNECT_QUEUE_CAPACITY);
+  const outgoing = yield* Queue.bounded<string | Uint8Array, Cause.Done<void>>(ACP_PROTOCOL_QUEUE_CAPACITY);
   const nextRequestId = yield* Ref.make(1n);
   const terminationHandled = yield* Ref.make(false);
   const extPending = yield* Ref.make(HashMap.empty<string, Deferred.Deferred<unknown, AcpError.AcpError>>());

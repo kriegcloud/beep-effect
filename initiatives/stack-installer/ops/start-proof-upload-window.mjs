@@ -43,12 +43,32 @@ const processExists = (pid) => {
   }
 };
 
+const readProcessCommand = async (pid) =>
+  fs.promises
+    .readFile(`/proc/${pid}/cmdline`, "utf8")
+    .then((text) => text.replaceAll("\u0000", " ").trim())
+    .catch(() => "");
+
+const isExpectedUploadServerProcess = async (pid) => {
+  if (!Number.isInteger(pid) || pid <= 1) {
+    return false;
+  }
+
+  const command = await readProcessCommand(pid);
+
+  return command.includes("proof-upload-server.mjs") && command.includes(outputRoot);
+};
+
 const stopExisting = async () => {
   const rawPid = await fs.promises.readFile(pidPath, "utf8").catch(() => "");
   const pid = Number.parseInt(rawPid.trim(), 10);
 
   if (!Number.isInteger(pid) || !processExists(pid)) {
     return;
+  }
+
+  if (!(await isExpectedUploadServerProcess(pid))) {
+    throw new Error(`Refusing to stop pid ${pid}; it is not the expected proof-upload-server process.`);
   }
 
   if (!replaceExisting) {
