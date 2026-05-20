@@ -48,9 +48,36 @@ Captured on 2026-05-16 after local implementation.
 | `bun run lint` | Passed. | Root lint completed after JSDoc and formatting fixes. |
 | `bun run check` | Passed. | Turbo package checks and repo tsgo lanes completed. |
 | `bun run repo-exports:catalog` | Passed. | Refreshed `standards/repo-exports.catalog.jsonc` and `standards/repo-exports.catalog.md`. |
-| `bun run repo-exports:catalog:check` | Passed. | Generated catalog artifacts are current; `packages=81`, `importSpecifiers=913`, `publicExportEntries=13079`. |
+| `bun run repo-exports:catalog:check` | Passed before the latest main merge. | Generated catalog artifacts were current for the 2026-05-16 checkout. Latest-main totals are recorded in the post-merge section below. |
 | `bun run audit:github repo-sanity` | Passed. | Changeset graph, tsconfig sync, version sync, syncpack, sherif package graph, and `bun audit --audit-level=high` passed. |
 | `bun run changeset:version` | Passed in a throwaway copy. | The real checkout was not mutated; Changesets reported all files updated in the temp copy. |
+
+The 2026-05-16 changeset graph row is pre-main-merge evidence. Latest-main
+evidence is recorded below because `origin/main` gained additional tracked
+changesets before this packet was published.
+
+## After Latest Main Merge
+
+Captured on 2026-05-20 after merging latest `origin/main`, running `bun i`, and
+rerunning the local quality loop from
+`/home/elpresidank/YeeBois/projects/beep-effect3`.
+
+| Command | Result | Evidence |
+| --- | --- | --- |
+| `bun i` | Passed. | Installed the updated Effect toolchain and confirmed the `effect-tsgo` patch path for `@effect/tsgo@0.7.4`. |
+| `bun run repo-exports:catalog` | Passed. | Refreshed `standards/repo-exports.catalog.jsonc` and `standards/repo-exports.catalog.md`; `packages=81`, `importSpecifiers=915`, `publicExportEntries=13086`. |
+| `bun run lint:fix` | Passed. | Root lint fix completed; governance import fix reported `touched_files=0`. |
+| `bun run audit:github quality` | Passed. | Build, check, lint, docgen, catalog, test, repo-sanity, and changeset status lanes completed. |
+| `bun run beep quality changeset-graph` | Passed. | `workspace_packages=80`, `changeset_files=62`, `references=47`, `missing_references=0`. |
+| `bunx --bun vitest run packages/tooling/tool/cli/test/changeset-graph.test.ts packages/tooling/tool/cli/test/schema-first.test.ts` | Passed. | 2 test files, 12 tests, including fixture-level `runChangesetGraphCheck` coverage for valid, missing, and empty tracked changesets. |
+| `bun run changeset:version` | Passed in a throwaway copy with `GITHUB_TOKEN=$(gh auth token)`. | The real checkout was not mutated; Changesets reported all files updated in the temp copy. |
+
+Known retained warnings during the quality run:
+
+- `@beep/professional-desktop` build emits Lightning CSS warnings for Tailwind v4
+  at-rules. This packet did not touch that app or its CSS pipeline.
+- `@beep/stack-installer` build emits an existing chunk-size warning over 500
+  kB. This packet did not touch that app bundle.
 
 ## Blocker Closure
 
@@ -58,6 +85,8 @@ Captured on 2026-05-16 after local implementation.
   `TYPESCRIPT_SOURCE_EXCLUDED_SEGMENTS`, with a focused regression test.
 - Release graph drift is guarded by `bun run beep quality changeset-graph`,
   wired into repo-sanity and the Release workflow before `changesets/action`.
+  Fixture-level tests now exercise the real tracked-file/git path through
+  `runChangesetGraphCheck`.
 - Stale changeset package references for removed workspaces were removed.
 - Stale root `tsconfig.json` excludes for removed app workspaces were removed.
 - The repo export catalog was refreshed after adding the new public quality
