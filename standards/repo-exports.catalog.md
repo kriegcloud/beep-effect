@@ -20,9 +20,9 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | packagesWithPublicExports | 68 |
 | packagesWithoutPublicExports | 1 |
 | missingWorkspaceMetadata | 0 |
-| importSpecifiers | 884 |
-| publicExportEntries | 13102 |
-| uniquePackageSymbols | 5258 |
+| importSpecifiers | 885 |
+| publicExportEntries | 13109 |
+| uniquePackageSymbols | 5265 |
 
 ## Seed Discovery Proof
 
@@ -84,7 +84,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | 45 | `@beep/workspace-tables` | `packages/workspace/tables` | has-public-exports | 4 | 7 | 5 |
 | 46 | `@beep/db-admin` | `packages/_internal/db-admin` | has-public-exports | 5 | 15 | 6 |
 | 47 | `@beep/architecture-lab-client` | `packages/architecture-lab/client` | has-public-exports | 2 | 6 | 6 |
-| 48 | `@beep/repo-cli` | `packages/tooling/tool/cli` | has-public-exports | 82 | 844 | 510 |
+| 48 | `@beep/repo-cli` | `packages/tooling/tool/cli` | has-public-exports | 83 | 851 | 517 |
 | 49 | `@beep/shared-server` | `packages/shared/server` | has-public-exports | 2 | 2 | 1 |
 | 50 | `@beep/shared-config` | `packages/shared/config` | has-public-exports | 2 | 2 | 1 |
 | 51 | `@beep/sandbox` | `packages/foundation/capability/sandbox` | has-public-exports | 30 | 786 | 238 |
@@ -9941,7 +9941,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli` | `lawsCommand` | const | `packages/tooling/tool/cli/src/commands/Laws/index.ts:434` | Laws command group. |
 | `@beep/repo-cli` | `lintCommand` | const | `packages/tooling/tool/cli/src/commands/Lint/index.ts:607` | Lint command group. |
 | `@beep/repo-cli` | `purgeCommand` | const | `packages/tooling/tool/cli/src/commands/Purge.ts:258` | CLI command to purge workspace/root build artifacts. |
-| `@beep/repo-cli` | `qualityCommand` | const | `packages/tooling/tool/cli/src/commands/Quality/ScriptCommands.ts:1539` | Quality command group for repo operational checks. |
+| `@beep/repo-cli` | `qualityCommand` | const | `packages/tooling/tool/cli/src/commands/Quality/ScriptCommands.ts:1576` | Quality command group for repo operational checks. |
 | `@beep/repo-cli` | `reuseCommand` | const | `packages/tooling/tool/cli/src/commands/Reuse/index.ts:361` | Reuse-discovery command group. |
 | `@beep/repo-cli` | `rootCommand` | const | `packages/tooling/tool/cli/src/commands/Root.ts:45` | Top-level CLI command that registers all subcommands. |
 | `@beep/repo-cli` | `syncDataToTsCommand` | const | `packages/tooling/tool/cli/src/commands/SyncDataToTs/index.ts:460` | CLI command for syncing official upstream datasets into checked-in TypeScript modules. |
@@ -10585,22 +10585,29 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/commands/Purge` | `purgeAtRoot` | const | `packages/tooling/tool/cli/src/commands/Purge.ts:197` | Purge root/workspace artifacts under a specific root directory. |
 | `@beep/repo-cli/commands/Purge` | `purgeCommand` | const | `packages/tooling/tool/cli/src/commands/Purge.ts:258` | CLI command to purge workspace/root build artifacts. |
 | `@beep/repo-cli/commands/Purge` | `PurgeSummary` | class | `packages/tooling/tool/cli/src/commands/Purge.ts:132` | Summary statistics returned after a purge run. |
+| `@beep/repo-cli/commands/Quality/ChangesetGraph` | `ChangesetGraphError` | class | `packages/tooling/tool/cli/src/commands/Quality/ChangesetGraph.ts:120` | Failure raised while validating changeset package references. |
+| `@beep/repo-cli/commands/Quality/ChangesetGraph` | `ChangesetGraphPackageReference` | class | `packages/tooling/tool/cli/src/commands/Quality/ChangesetGraph.ts:63` | A package name referenced by a changeset file. |
+| `@beep/repo-cli/commands/Quality/ChangesetGraph` | `ChangesetGraphSummary` | class | `packages/tooling/tool/cli/src/commands/Quality/ChangesetGraph.ts:93` | Summary emitted by the changeset package graph guard. |
+| `@beep/repo-cli/commands/Quality/ChangesetGraph` | `changesetPackageReferencesFromText` | const | `packages/tooling/tool/cli/src/commands/Quality/ChangesetGraph.ts:356` | Parse package references from one changeset Markdown document. |
+| `@beep/repo-cli/commands/Quality/ChangesetGraph` | `findMissingChangesetPackageReferences` | const | `packages/tooling/tool/cli/src/commands/Quality/ChangesetGraph.ts:473` | Find changeset package references that are not in the workspace graph. |
+| `@beep/repo-cli/commands/Quality/ChangesetGraph` | `makeChangesetGraphSummary` | const | `packages/tooling/tool/cli/src/commands/Quality/ChangesetGraph.ts:520` | Build a changeset graph summary from already-collected inputs. |
+| `@beep/repo-cli/commands/Quality/ChangesetGraph` | `runChangesetGraphCheck` | const | `packages/tooling/tool/cli/src/commands/Quality/ChangesetGraph.ts:535` | Run the non-mutating changeset package graph guard. |
 | `@beep/repo-cli/commands/Quality/internal/Config` | `configStringEqualsSync` | const | `packages/tooling/tool/cli/src/commands/Quality/internal/Config.ts:35` | Check whether an optional string config value equals the expected value. |
 | `@beep/repo-cli/commands/Quality/internal/Config` | `configStringOption` | const | `packages/tooling/tool/cli/src/commands/Quality/internal/Config.ts:54` | Read an optional string config value inside an Effect workflow. |
 | `@beep/repo-cli/commands/Quality/internal/Config` | `configStringOptionSync` | const | `packages/tooling/tool/cli/src/commands/Quality/internal/Config.ts:22` | Synchronously read an optional string config value. |
-| `@beep/repo-cli/commands/Quality/ScriptCommands` | `GithubCheckMode` | const | `packages/tooling/tool/cli/src/commands/Quality/ScriptCommands.ts:119` | GitHub check mode handled by `beep quality github-checks`. |
-| `@beep/repo-cli/commands/Quality/ScriptCommands` | `GithubCheckMode` | type | `packages/tooling/tool/cli/src/commands/Quality/ScriptCommands.ts:136` | GitHub check mode handled by `beep quality github-checks`. |
-| `@beep/repo-cli/commands/Quality/ScriptCommands` | `qualityCommand` | const | `packages/tooling/tool/cli/src/commands/Quality/ScriptCommands.ts:1539` | Quality command group for repo operational checks. |
-| `@beep/repo-cli/commands/Quality/ScriptCommands` | `QualityScriptCommandError` | class | `packages/tooling/tool/cli/src/commands/Quality/ScriptCommands.ts:149` | Typed failure for repo operational commands. |
-| `@beep/repo-cli/commands/Quality/ScriptCommands` | `runBunAudit` | const | `packages/tooling/tool/cli/src/commands/Quality/ScriptCommands.ts:351` | Run Bun's high-severity package audit with OSV ignores mirrored from config. |
-| `@beep/repo-cli/commands/Quality/ScriptCommands` | `runDtslintTsgoChecks` | const | `packages/tooling/tool/cli/src/commands/Quality/ScriptCommands.ts:1050` | Run repo-wide tsgo diagnostics for dtslint files. |
-| `@beep/repo-cli/commands/Quality/ScriptCommands` | `runGithubChecks` | const | `packages/tooling/tool/cli/src/commands/Quality/ScriptCommands.ts:600` | Run a GitHub checks mode from the repository root. |
-| `@beep/repo-cli/commands/Quality/ScriptCommands` | `runJSDocInventory` | const | `packages/tooling/tool/cli/src/commands/Quality/ScriptCommands.ts:1418` | Run the JSDoc inventory generator now owned by repo-cli. |
-| `@beep/repo-cli/commands/Quality/ScriptCommands` | `runJSDocModuleTagsCheck` | const | `packages/tooling/tool/cli/src/commands/Quality/ScriptCommands.ts:1340` | Verify tracked fileoverview comments do not use the legacy `@module` tag. |
-| `@beep/repo-cli/commands/Quality/ScriptCommands` | `runRepoExportsCatalog` | const | `packages/tooling/tool/cli/src/commands/Quality/ScriptCommands.ts:1443` | Run the repo export catalog generator now owned by repo-cli. |
-| `@beep/repo-cli/commands/Quality/ScriptCommands` | `runTestTsgoChecks` | const | `packages/tooling/tool/cli/src/commands/Quality/ScriptCommands.ts:1098` | Run repo-wide Effect diagnostics for test files. |
-| `@beep/repo-cli/commands/Quality/ScriptCommands` | `runTsgoRulesCheck` | const | `packages/tooling/tool/cli/src/commands/Quality/ScriptCommands.ts:835` | Check that the root tsgo Effect diagnostics configuration enables every installed rule as an error. |
-| `@beep/repo-cli/commands/Quality/ScriptCommands` | `runTsgoSmokeCheck` | const | `packages/tooling/tool/cli/src/commands/Quality/ScriptCommands.ts:1232` | Verify that tsgo reports the Effect diagnostic expected by this repo. |
+| `@beep/repo-cli/commands/Quality/ScriptCommands` | `GithubCheckMode` | const | `packages/tooling/tool/cli/src/commands/Quality/ScriptCommands.ts:120` | GitHub check mode handled by `beep quality github-checks`. |
+| `@beep/repo-cli/commands/Quality/ScriptCommands` | `GithubCheckMode` | type | `packages/tooling/tool/cli/src/commands/Quality/ScriptCommands.ts:137` | GitHub check mode handled by `beep quality github-checks`. |
+| `@beep/repo-cli/commands/Quality/ScriptCommands` | `qualityCommand` | const | `packages/tooling/tool/cli/src/commands/Quality/ScriptCommands.ts:1576` | Quality command group for repo operational checks. |
+| `@beep/repo-cli/commands/Quality/ScriptCommands` | `QualityScriptCommandError` | class | `packages/tooling/tool/cli/src/commands/Quality/ScriptCommands.ts:150` | Typed failure for repo operational commands. |
+| `@beep/repo-cli/commands/Quality/ScriptCommands` | `runBunAudit` | const | `packages/tooling/tool/cli/src/commands/Quality/ScriptCommands.ts:352` | Run Bun's high-severity package audit with OSV ignores mirrored from config. |
+| `@beep/repo-cli/commands/Quality/ScriptCommands` | `runDtslintTsgoChecks` | const | `packages/tooling/tool/cli/src/commands/Quality/ScriptCommands.ts:1064` | Run repo-wide tsgo diagnostics for dtslint files. |
+| `@beep/repo-cli/commands/Quality/ScriptCommands` | `runGithubChecks` | const | `packages/tooling/tool/cli/src/commands/Quality/ScriptCommands.ts:614` | Run a GitHub checks mode from the repository root. |
+| `@beep/repo-cli/commands/Quality/ScriptCommands` | `runJSDocInventory` | const | `packages/tooling/tool/cli/src/commands/Quality/ScriptCommands.ts:1432` | Run the JSDoc inventory generator now owned by repo-cli. |
+| `@beep/repo-cli/commands/Quality/ScriptCommands` | `runJSDocModuleTagsCheck` | const | `packages/tooling/tool/cli/src/commands/Quality/ScriptCommands.ts:1354` | Verify tracked fileoverview comments do not use the legacy `@module` tag. |
+| `@beep/repo-cli/commands/Quality/ScriptCommands` | `runRepoExportsCatalog` | const | `packages/tooling/tool/cli/src/commands/Quality/ScriptCommands.ts:1457` | Run the repo export catalog generator now owned by repo-cli. |
+| `@beep/repo-cli/commands/Quality/ScriptCommands` | `runTestTsgoChecks` | const | `packages/tooling/tool/cli/src/commands/Quality/ScriptCommands.ts:1112` | Run repo-wide Effect diagnostics for test files. |
+| `@beep/repo-cli/commands/Quality/ScriptCommands` | `runTsgoRulesCheck` | const | `packages/tooling/tool/cli/src/commands/Quality/ScriptCommands.ts:849` | Check that the root tsgo Effect diagnostics configuration enables every installed rule as an error. |
+| `@beep/repo-cli/commands/Quality/ScriptCommands` | `runTsgoSmokeCheck` | const | `packages/tooling/tool/cli/src/commands/Quality/ScriptCommands.ts:1246` | Verify that tsgo reports the Effect diagnostic expected by this repo. |
 | `@beep/repo-cli/commands/Quality/Tasks` | `collectStepOutput` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:1297` | Run a subprocess and capture all output. Exposed for focused unit tests. |
 | `@beep/repo-cli/commands/Quality/Tasks` | `PackageTaskProfile` | class | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:80` | Package-local script profile used by the quality task adapter. |
 | `@beep/repo-cli/commands/Quality/Tasks` | `parseQualityTaskInvocation` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:1187` | Parse a raw argv vector into a quality task invocation when the first token is |
@@ -10653,10 +10660,10 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/commands/Shared/TsconfigAliasTargets` | `resolveRootExportTarget` | const | `packages/tooling/tool/cli/src/commands/Shared/TsconfigAliasTargets.ts:89` | Resolve the canonical root export target from a package `exports` field. |
 | `@beep/repo-cli/commands/Shared/TsconfigAliasTargets` | `resolveSubpathExportTarget` | const | `packages/tooling/tool/cli/src/commands/Shared/TsconfigAliasTargets.ts:115` | Resolve a specific subpath export target from a package `exports` field. |
 | `@beep/repo-cli/commands/Shared/TsconfigAliasTargets` | `resolveWildcardExportTarget` | const | `packages/tooling/tool/cli/src/commands/Shared/TsconfigAliasTargets.ts:138` | Resolve the wildcard export target from a package `exports` field. |
-| `@beep/repo-cli/commands/Shared/TypeScriptSourceExclusions` | `isExcludedTypeScriptSourcePath` | const | `packages/tooling/tool/cli/src/commands/Shared/TypeScriptSourceExclusions.ts:83` | Check whether a TypeScript source path should be excluded from lint traversals. |
-| `@beep/repo-cli/commands/Shared/TypeScriptSourceExclusions` | `toPosixPath` | const | `packages/tooling/tool/cli/src/commands/Shared/TypeScriptSourceExclusions.ts:69` | Normalize filesystem paths to POSIX separators before string matching. |
+| `@beep/repo-cli/commands/Shared/TypeScriptSourceExclusions` | `isExcludedTypeScriptSourcePath` | const | `packages/tooling/tool/cli/src/commands/Shared/TypeScriptSourceExclusions.ts:84` | Check whether a TypeScript source path should be excluded from lint traversals. |
+| `@beep/repo-cli/commands/Shared/TypeScriptSourceExclusions` | `toPosixPath` | const | `packages/tooling/tool/cli/src/commands/Shared/TypeScriptSourceExclusions.ts:70` | Normalize filesystem paths to POSIX separators before string matching. |
 | `@beep/repo-cli/commands/Shared/TypeScriptSourceExclusions` | `TYPESCRIPT_SOURCE_EXCLUDED_SEGMENTS` | const | `packages/tooling/tool/cli/src/commands/Shared/TypeScriptSourceExclusions.ts:19` | Path segments excluded from TypeScript source lint traversals. |
-| `@beep/repo-cli/commands/Shared/TypeScriptSourceExclusions` | `TYPESCRIPT_SOURCE_EXCLUDED_SUFFIXES` | const | `packages/tooling/tool/cli/src/commands/Shared/TypeScriptSourceExclusions.ts:46` | File suffixes excluded from TypeScript source lint traversals. |
+| `@beep/repo-cli/commands/Shared/TypeScriptSourceExclusions` | `TYPESCRIPT_SOURCE_EXCLUDED_SUFFIXES` | const | `packages/tooling/tool/cli/src/commands/Shared/TypeScriptSourceExclusions.ts:47` | File suffixes excluded from TypeScript source lint traversals. |
 | `@beep/repo-cli/commands/SyncDataToTs/index` | `syncDataToTsCommand` | const | `packages/tooling/tool/cli/src/commands/SyncDataToTs/index.ts:460` | CLI command for syncing official upstream datasets into checked-in TypeScript modules. |
 | `@beep/repo-cli/commands/SyncDataToTs/internal/Models` | `SyncDataRunMode` | const | `packages/tooling/tool/cli/src/commands/SyncDataToTs/internal/Models.ts:46` | Command execution mode for sync-data-to-ts. |
 | `@beep/repo-cli/commands/SyncDataToTs/internal/Models` | `SyncDataRunMode` | type | `packages/tooling/tool/cli/src/commands/SyncDataToTs/internal/Models.ts:58` | Command execution mode for sync-data-to-ts. |
@@ -10765,7 +10772,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/index` | `lawsCommand` | const | `packages/tooling/tool/cli/src/commands/Laws/index.ts:434` | Laws command group. |
 | `@beep/repo-cli/index` | `lintCommand` | const | `packages/tooling/tool/cli/src/commands/Lint/index.ts:607` | Lint command group. |
 | `@beep/repo-cli/index` | `purgeCommand` | const | `packages/tooling/tool/cli/src/commands/Purge.ts:258` | CLI command to purge workspace/root build artifacts. |
-| `@beep/repo-cli/index` | `qualityCommand` | const | `packages/tooling/tool/cli/src/commands/Quality/ScriptCommands.ts:1539` | Quality command group for repo operational checks. |
+| `@beep/repo-cli/index` | `qualityCommand` | const | `packages/tooling/tool/cli/src/commands/Quality/ScriptCommands.ts:1576` | Quality command group for repo operational checks. |
 | `@beep/repo-cli/index` | `reuseCommand` | const | `packages/tooling/tool/cli/src/commands/Reuse/index.ts:361` | Reuse-discovery command group. |
 | `@beep/repo-cli/index` | `rootCommand` | const | `packages/tooling/tool/cli/src/commands/Root.ts:45` | Top-level CLI command that registers all subcommands. |
 | `@beep/repo-cli/index` | `syncDataToTsCommand` | const | `packages/tooling/tool/cli/src/commands/SyncDataToTs/index.ts:460` | CLI command for syncing official upstream datasets into checked-in TypeScript modules. |
