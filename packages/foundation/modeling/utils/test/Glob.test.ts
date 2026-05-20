@@ -12,6 +12,7 @@ import * as BunFileSystem from "@effect/platform-bun/BunFileSystem";
 import * as BunPath from "@effect/platform-bun/BunPath";
 import { Effect, Layer, Match } from "effect";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import { describe, expect, it } from "vitest";
 
 type TestEffect<A, E = never> = Effect.Effect<A, E, never>;
@@ -30,7 +31,7 @@ type Fixture = {
 
 const platformLayer = GlobLayer.pipe(Layer.provide(Layer.mergeAll(BunFileSystem.layer, BunPath.layer)));
 const joinPath = (base: string, ...segments: ReadonlyArray<string>): string =>
-  [base.replace(/\/+$/u, ""), ...segments.map((segment) => segment.replace(/^\/+|\/+$/gu, ""))]
+  [Str.replace(/\/+$/u, "")(base), ...segments.map((segment) => Str.replace(/^\/+|\/+$/gu, "")(segment))]
     .filter((segment) => segment.length > 0)
     .join("/");
 const runFileCommand = (command: string, args: ReadonlyArray<string>): TestEffect<void> =>

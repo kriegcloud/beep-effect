@@ -195,7 +195,9 @@ const readBody = (scenarioId: string): Promise<string> =>
  * @category utilities
  * @since 0.0.0
  */
-export const toPlain = <A>(value: A): unknown => JSON.parse(JSON.stringify(value));
+// TODO(effect-native-migration): model schema
+export const toPlain = <A>(value: A): unknown =>
+  S.decodeUnknownSync(S.UnknownFromJsonString)(S.encodeUnknownSync(S.UnknownFromJsonString)(value));
 const toSnapshot = (value: unknown): typeof UnknownRecord.Type => S.decodeUnknownSync(UnknownRecord)(toPlain(value));
 
 const decodeFixtureModel = <A>(schema: S.Top): ((input: unknown) => A) =>

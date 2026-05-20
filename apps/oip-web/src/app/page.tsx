@@ -19,7 +19,9 @@ type HomeProps = {
 };
 
 const isContactSubmissionStatus = S.is(ContactSubmissionStatus);
-const safeJsonScript = (value: unknown) => Str.replaceAll("<", "\\u003c")(JSON.stringify(value));
+// TODO(effect-native-migration): model schema
+const safeJsonScript = (value: unknown) =>
+  Str.replaceAll("<", "\\u003c")(S.encodeUnknownSync(S.UnknownFromJsonString)(value));
 
 /**
  * Allows the search-param aware home route to block during the first render.

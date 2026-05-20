@@ -9,6 +9,7 @@
 import { Badge } from "@beep/ui/components/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@beep/ui/components/card";
 import { Separator } from "@beep/ui/components/separator";
+import { A } from "@beep/utils";
 import { AppWindow, Brain, Buildings, CheckCircle, FolderOpen, Scales, ShieldCheck } from "@phosphor-icons/react";
 import { invoke } from "@tauri-apps/api/core";
 import { Match } from "effect";
@@ -177,7 +178,7 @@ export function App({
               </CardDescription>
             </CardHeader>
             <CardContent className="grid gap-4 md:grid-cols-2">
-              {sliceMeta.map(({ description, icon: Icon, name }) => (
+              {A.map(sliceMeta, ({ description, icon: Icon, name }) => (
                 <div key={name} className="rounded-lg border bg-background p-4">
                   <div className="flex items-center gap-3">
                     <div className="rounded-md border p-2 text-muted-foreground">

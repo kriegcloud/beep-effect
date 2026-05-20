@@ -1,10 +1,11 @@
+import { Str } from "@beep/utils";
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
 import { describe, expect, it } from "vitest";
 
-const pathFromUrl = (url: URL): string => decodeURIComponent(url.pathname).replace(/\/$/u, "");
+const pathFromUrl = (url: URL): string => Str.replace(/\/$/u, "")(decodeURIComponent(url.pathname));
 const joinPath = (base: string, ...segments: ReadonlyArray<string>): string =>
-  [base.replace(/\/+$/u, ""), ...segments.map((segment) => segment.replace(/^\/+|\/+$/gu, ""))]
+  [Str.replace(/\/+$/u, "")(base), ...segments.map((segment) => Str.replaceAll(/^\/+|\/+$/gu, "")(segment))]
     .filter((segment) => segment.length > 0)
     .join("/");
 

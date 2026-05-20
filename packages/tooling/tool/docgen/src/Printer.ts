@@ -5,9 +5,10 @@
  * @since 0.0.0
  */
 
-import { A, Str } from "@beep/utils";
+import { A, Str, thunkEmptyStr } from "@beep/utils";
 import { Effect, Layer, Match, Order, pipe } from "effect";
 import { dual, flow } from "effect/Function";
+import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as R from "effect/Record";
 
@@ -59,7 +60,7 @@ function removeFenceMetadata(markdown: string): string {
       const fenceText = P.isString(fence) ? fence : "";
       const infoText = P.isString(info) ? info : "";
       const tokens = pipe(infoText, Str.trim, Str.split(/\s+/));
-      return `${fenceText}${tokens[0] ?? ""}`;
+      return `${fenceText}${pipe(tokens, A.head, O.getOrElse(thunkEmptyStr))}`;
     })
   );
 }
