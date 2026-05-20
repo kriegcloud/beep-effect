@@ -20,9 +20,9 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | packagesWithPublicExports | 68 |
 | packagesWithoutPublicExports | 1 |
 | missingWorkspaceMetadata | 0 |
-| importSpecifiers | 882 |
-| publicExportEntries | 13018 |
-| uniquePackageSymbols | 5232 |
+| importSpecifiers | 884 |
+| publicExportEntries | 13102 |
+| uniquePackageSymbols | 5258 |
 
 ## Seed Discovery Proof
 
@@ -63,7 +63,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | 24 | `@beep/workspace-domain` | `packages/workspace/domain` | has-public-exports | 12 | 35 | 11 |
 | 25 | `@beep/face-detection` | `packages/drivers/face-detection` | has-public-exports | 5 | 72 | 20 |
 | 26 | `@beep/repo-docgen` | `packages/tooling/tool/docgen` | has-public-exports | 9 | 72 | 64 |
-| 27 | `@beep/repo-ai-metrics` | `packages/tooling/library/ai-metrics` | has-public-exports | 17 | 549 | 167 |
+| 27 | `@beep/repo-ai-metrics` | `packages/tooling/library/ai-metrics` | has-public-exports | 18 | 630 | 192 |
 | 28 | `@beep/runpod` | `packages/drivers/runpod` | has-public-exports | 6 | 363 | 149 |
 | 29 | `@beep/ffmpeg` | `packages/drivers/ffmpeg` | has-public-exports | 5 | 105 | 31 |
 | 30 | `@beep/observability` | `packages/foundation/capability/observability` | has-public-exports | 4 | 115 | 98 |
@@ -84,7 +84,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | 45 | `@beep/workspace-tables` | `packages/workspace/tables` | has-public-exports | 4 | 7 | 5 |
 | 46 | `@beep/db-admin` | `packages/_internal/db-admin` | has-public-exports | 5 | 15 | 6 |
 | 47 | `@beep/architecture-lab-client` | `packages/architecture-lab/client` | has-public-exports | 2 | 6 | 6 |
-| 48 | `@beep/repo-cli` | `packages/tooling/tool/cli` | has-public-exports | 81 | 841 | 509 |
+| 48 | `@beep/repo-cli` | `packages/tooling/tool/cli` | has-public-exports | 82 | 844 | 510 |
 | 49 | `@beep/shared-server` | `packages/shared/server` | has-public-exports | 2 | 2 | 1 |
 | 50 | `@beep/shared-config` | `packages/shared/config` | has-public-exports | 2 | 2 | 1 |
 | 51 | `@beep/sandbox` | `packages/foundation/capability/sandbox` | has-public-exports | 30 | 786 | 238 |
@@ -815,7 +815,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/utils/Glob` | `GlobError` | class | `packages/foundation/modeling/utils/src/Glob.ts:131` | An error raised when glob pattern matching fails. |
 | `@beep/utils/Glob` | `GlobError` | namespace | `packages/foundation/modeling/utils/src/Glob.ts:97` | Namespace for the encoded form of {@link GlobError}. |
 | `@beep/utils/Glob` | `GlobOptions` | class | `packages/foundation/modeling/utils/src/Glob.ts:70` | Optional runtime flags for glob scans. |
-| `@beep/utils/Glob` | `layer` | const | `packages/foundation/modeling/utils/src/Glob.ts:527` | Live `Layer` providing the {@link Glob} service backed by `Bun.Glob` when |
+| `@beep/utils/Glob` | `layer` | const | `packages/foundation/modeling/utils/src/Glob.ts:532` | Live `Layer` providing the {@link Glob} service backed by `Bun.Glob` when |
 | `@beep/utils/Glob` | `Pattern` | const | `packages/foundation/modeling/utils/src/Glob.ts:34` | Schema for a glob pattern: either a single string or an array of strings. |
 | `@beep/utils/Glob` | `Pattern` | type | `packages/foundation/modeling/utils/src/Glob.ts:54` | A glob pattern: either a single string or an array of strings. |
 | `@beep/utils/Html` | `escapeHtml` | const | `packages/foundation/modeling/utils/src/Html.ts:27` | Escapes the HTML-sensitive characters in `text`. |
@@ -4711,7 +4711,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 |---|---|---|---|---|
 | `@beep/drizzle` | `Drizzle` | class | `packages/drivers/drizzle/src/Drizzle.service.ts:127` | Effect service for product-neutral Drizzle execution. |
 | `@beep/drizzle` | `DrizzleClient` | interface | `packages/drivers/drizzle/src/Drizzle.service.ts:74` | Narrow adapter accepted by {@link Drizzle.makeLayer}. |
-| `@beep/drizzle` | `DrizzleError` | class | `packages/drivers/drizzle/src/Drizzle.errors.ts:228` | Technical failure raised by the `@beep/drizzle` driver boundary. |
+| `@beep/drizzle` | `DrizzleError` | class | `packages/drivers/drizzle/src/Drizzle.errors.ts:239` | Technical failure raised by the `@beep/drizzle` driver boundary. |
 | `@beep/drizzle` | `DrizzleErrorContext` | class | `packages/drivers/drizzle/src/Drizzle.errors.ts:38` | Optional query context captured while normalizing Drizzle driver failures. |
 | `@beep/drizzle` | `DrizzleRows` | const | `packages/drivers/drizzle/src/Drizzle.service.ts:30` | Schema for rows returned by a product-neutral Drizzle adapter. |
 | `@beep/drizzle` | `DrizzleRows` | type | `packages/drivers/drizzle/src/Drizzle.service.ts:50` | Type for {@link DrizzleRows}. |
@@ -7141,6 +7141,29 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | Import | Symbol | Kind | Source | Summary |
 |---|---|---|---|---|
 | `@beep/repo-ai-metrics` | `addAiMetricsOutcomeLabel` | const | `packages/tooling/library/ai-metrics/src/scorecard.ts:603` | Add or replace the current structured human label for a task. |
+| `@beep/repo-ai-metrics` | `AgentEffectivenessAiMetricsSection` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:359` | AI-metrics local evidence section for the doctor report. |
+| `@beep/repo-ai-metrics` | `AgentEffectivenessAnnotationCheckFinding` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:535` | One validation finding for an annotation plan. |
+| `@beep/repo-ai-metrics` | `AgentEffectivenessAnnotationCheckReport` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:559` | Report emitted by `agent-effectiveness annotations check`. |
+| `@beep/repo-ai-metrics` | `agentEffectivenessAnnotationCheckReportToJson` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:1855` | Encode an annotation-check report as JSON. |
+| `@beep/repo-ai-metrics` | `AgentEffectivenessAnnotationPlan` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:508` | Dry-run annotation plan for Phase 1. |
+| `@beep/repo-ai-metrics` | `AgentEffectivenessAnnotationPlanInput` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:185` | Input for building a dry-run annotation plan. |
+| `@beep/repo-ai-metrics` | `agentEffectivenessAnnotationPlanToJson` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:1829` | Encode an annotation plan as JSON. |
+| `@beep/repo-ai-metrics` | `AgentEffectivenessAnnotationValue` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:97` | Primitive annotation value allowed in local Phase 1 plans. |
+| `@beep/repo-ai-metrics` | `AgentEffectivenessAnnotationValue` | type | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:109` | Runtime type for `AgentEffectivenessAnnotationValue`. |
+| `@beep/repo-ai-metrics` | `AgentEffectivenessDoctorInput` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:144` | Input for the Phase 1 agent-effectiveness doctor. |
+| `@beep/repo-ai-metrics` | `AgentEffectivenessDoctorReport` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:447` | Phase 1 agent-effectiveness doctor report. |
+| `@beep/repo-ai-metrics` | `agentEffectivenessDoctorReportToJson` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:1803` | Encode a doctor report as JSON. |
+| `@beep/repo-ai-metrics` | `AgentEffectivenessDoctorSummary` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:422` | Aggregate summary emitted by the doctor report. |
+| `@beep/repo-ai-metrics` | `AgentEffectivenessError` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:122` | Error raised by agent-effectiveness report helpers. |
+| `@beep/repo-ai-metrics` | `AgentEffectivenessForwarderSummary` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:300` | Latest forwarder summary from derived AI-metrics storage. |
+| `@beep/repo-ai-metrics` | `AgentEffectivenessJsdocWorkerSection` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:390` | JSDoc worker-eval section for the doctor report. |
+| `@beep/repo-ai-metrics` | `AgentEffectivenessPhoenixProject` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:214` | Summary for one Phoenix project. |
+| `@beep/repo-ai-metrics` | `AgentEffectivenessPhoenixSection` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:242` | Read-only Phoenix health and inventory section. |
+| `@beep/repo-ai-metrics` | `AgentEffectivenessPlannedAnnotation` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:476` | One local-only annotation row that could be written to Phoenix later. |
+| `@beep/repo-ai-metrics` | `AgentEffectivenessScorecardSummary` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:328` | Latest scorecard summary from derived AI-metrics storage. |
+| `@beep/repo-ai-metrics` | `AgentEffectivenessSourceCoverage` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:273` | Source coverage row derived from AI-metrics storage. |
+| `@beep/repo-ai-metrics` | `AgentEffectivenessStatus` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:72` | Status emitted by agent-effectiveness reports. |
+| `@beep/repo-ai-metrics` | `AgentEffectivenessStatus` | type | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:84` | Runtime type for `AgentEffectivenessStatus`. |
 | `@beep/repo-ai-metrics` | `AgentSession` | class | `packages/tooling/library/ai-metrics/src/models.ts:415` | Session-level transcript metadata under an agent task. |
 | `@beep/repo-ai-metrics` | `AgentTask` | class | `packages/tooling/library/ai-metrics/src/models.ts:383` | Canonical unit of analysis for coding-agent metrics. |
 | `@beep/repo-ai-metrics` | `AgentTurn` | class | `packages/tooling/library/ai-metrics/src/models.ts:451` | Turn-level transcript event normalized from local agent logs. |
@@ -7160,10 +7183,10 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-ai-metrics` | `AiMetricsConfigSnapshotResult` | class | `packages/tooling/library/ai-metrics/src/config-snapshot.ts:124` | Complete repo-local agent configuration snapshot result. |
 | `@beep/repo-ai-metrics` | `AiMetricsDeployTarget` | const | `packages/tooling/library/ai-metrics/src/models.ts:26` | Supported deployment targets for the AI metrics stack. |
 | `@beep/repo-ai-metrics` | `AiMetricsDeployTarget` | type | `packages/tooling/library/ai-metrics/src/models.ts:44` | Runtime type for {@link AiMetricsDeployTarget}. |
-| `@beep/repo-ai-metrics` | `AiMetricsDerivedStorageError` | class | `packages/tooling/library/ai-metrics/src/derived-storage.ts:471` | Error raised by the DuckDB derived storage projection. |
-| `@beep/repo-ai-metrics` | `AiMetricsDerivedStorageWriteInput` | class | `packages/tooling/library/ai-metrics/src/derived-storage.ts:518` | Input for a derived DuckDB storage write. |
-| `@beep/repo-ai-metrics` | `AiMetricsDerivedStorageWriteResult` | class | `packages/tooling/library/ai-metrics/src/derived-storage.ts:546` | Result of a derived DuckDB storage write. |
-| `@beep/repo-ai-metrics` | `AiMetricsDerivedTranscriptRecord` | class | `packages/tooling/library/ai-metrics/src/derived-storage.ts:495` | One sanitized transcript ready for derived storage projection. |
+| `@beep/repo-ai-metrics` | `AiMetricsDerivedStorageError` | class | `packages/tooling/library/ai-metrics/src/derived-storage.ts:473` | Error raised by the DuckDB derived storage projection. |
+| `@beep/repo-ai-metrics` | `AiMetricsDerivedStorageWriteInput` | class | `packages/tooling/library/ai-metrics/src/derived-storage.ts:520` | Input for a derived DuckDB storage write. |
+| `@beep/repo-ai-metrics` | `AiMetricsDerivedStorageWriteResult` | class | `packages/tooling/library/ai-metrics/src/derived-storage.ts:548` | Result of a derived DuckDB storage write. |
+| `@beep/repo-ai-metrics` | `AiMetricsDerivedTranscriptRecord` | class | `packages/tooling/library/ai-metrics/src/derived-storage.ts:497` | One sanitized transcript ready for derived storage projection. |
 | `@beep/repo-ai-metrics` | `AiMetricsDiscoveredSource` | class | `packages/tooling/library/ai-metrics/src/source-discovery.ts:149` | Source-level discovery summary. |
 | `@beep/repo-ai-metrics` | `AiMetricsDiscoveredTranscriptFile` | class | `packages/tooling/library/ai-metrics/src/source-discovery.ts:116` | One transcript or source metadata file discovered for AI metrics. |
 | `@beep/repo-ai-metrics` | `AiMetricsEncryptedRawArchiveEnvelope` | class | `packages/tooling/library/ai-metrics/src/archive.ts:57` | Encrypted raw transcript archive envelope stored on disk. |
@@ -7237,13 +7260,13 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-ai-metrics` | `AiMetricsRetentionError` | class | `packages/tooling/library/ai-metrics/src/retention.ts:167` | Error raised by P7 AI metrics retention workflows. |
 | `@beep/repo-ai-metrics` | `AiMetricsRetentionFileItem` | class | `packages/tooling/library/ai-metrics/src/retention.ts:242` | Deploy-safe retained file inventory row. |
 | `@beep/repo-ai-metrics` | `AiMetricsRetentionInventory` | class | `packages/tooling/library/ai-metrics/src/retention.ts:263` | Path-safe inventory returned by `ai-metrics retention list`. |
-| `@beep/repo-ai-metrics` | `aiMetricsRetentionInventoryToJson` | const | `packages/tooling/library/ai-metrics/src/retention.ts:935` | Render a retention inventory as JSON. |
+| `@beep/repo-ai-metrics` | `aiMetricsRetentionInventoryToJson` | const | `packages/tooling/library/ai-metrics/src/retention.ts:939` | Render a retention inventory as JSON. |
 | `@beep/repo-ai-metrics` | `AiMetricsRetentionMutationResult` | class | `packages/tooling/library/ai-metrics/src/retention.ts:290` | Result for delete or compaction retention commands. |
-| `@beep/repo-ai-metrics` | `aiMetricsRetentionMutationToJson` | const | `packages/tooling/library/ai-metrics/src/retention.ts:955` | Render a retention mutation result as JSON. |
+| `@beep/repo-ai-metrics` | `aiMetricsRetentionMutationToJson` | const | `packages/tooling/library/ai-metrics/src/retention.ts:959` | Render a retention mutation result as JSON. |
 | `@beep/repo-ai-metrics` | `AiMetricsRetentionRawArchiveItem` | class | `packages/tooling/library/ai-metrics/src/retention.ts:215` | Deploy-safe raw archive inventory row. |
 | `@beep/repo-ai-metrics` | `AiMetricsRetentionRestoreDrillInput` | class | `packages/tooling/library/ai-metrics/src/retention.ts:318` | Input for a retained raw archive restore drill. |
 | `@beep/repo-ai-metrics` | `AiMetricsRetentionRestoreDrillResult` | class | `packages/tooling/library/ai-metrics/src/retention.ts:344` | Result for a retained raw archive restore drill. |
-| `@beep/repo-ai-metrics` | `aiMetricsRetentionRestoreDrillToJson` | const | `packages/tooling/library/ai-metrics/src/retention.ts:975` | Render a restore drill result as JSON. |
+| `@beep/repo-ai-metrics` | `aiMetricsRetentionRestoreDrillToJson` | const | `packages/tooling/library/ai-metrics/src/retention.ts:979` | Render a restore drill result as JSON. |
 | `@beep/repo-ai-metrics` | `AiMetricsRetentionSelector` | class | `packages/tooling/library/ai-metrics/src/retention.ts:189` | Time-window selector for AI metrics retention commands. |
 | `@beep/repo-ai-metrics` | `AiMetricsSanitizedTranscript` | class | `packages/tooling/library/ai-metrics/src/privacy.ts:145` | Redacted transcript summary safe for derived tables, dashboards, and OTLP attributes. |
 | `@beep/repo-ai-metrics` | `AiMetricsScorecardError` | class | `packages/tooling/library/ai-metrics/src/scorecard.ts:42` | Error raised by AI metrics label, benchmark, or scorecard workflows. |
@@ -7275,16 +7298,20 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-ai-metrics` | `ConfigSnapshot` | class | `packages/tooling/library/ai-metrics/src/models.ts:354` | Versioned snapshot of agent-facing repository configuration. |
 | `@beep/repo-ai-metrics` | `configSnapshotToJson` | const | `packages/tooling/library/ai-metrics/src/config-snapshot.ts:552` | Render a config snapshot result as JSON. |
 | `@beep/repo-ai-metrics` | `decryptEncryptedRawArchiveEnvelope` | const | `packages/tooling/library/ai-metrics/src/archive.ts:362` | Decrypt an archive envelope for package-level verification. |
+| `@beep/repo-ai-metrics` | `DEFAULT_AGENT_EFFECTIVENESS_WORKER_EVAL_REPORT_PATH` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:35` | Stable default pointer used to locate the latest checked-in JSDoc worker-eval evidence. |
 | `@beep/repo-ai-metrics` | `discoverAiMetricsSources` | const | `packages/tooling/library/ai-metrics/src/source-discovery.ts:617` | Discover local AI metrics transcript sources for the smoke target. |
-| `@beep/repo-ai-metrics` | `ensureAiMetricsDerivedStorage` | const | `packages/tooling/library/ai-metrics/src/derived-storage.ts:675` | Ensure the AI metrics derived DuckDB schema exists and has P4 columns. |
-| `@beep/repo-ai-metrics` | `forwarderRunResultToJson` | const | `packages/tooling/library/ai-metrics/src/forwarder.ts:870` | Render a durable forwarder run result as JSON. |
-| `@beep/repo-ai-metrics` | `forwarderTimerPlanToJson` | const | `packages/tooling/library/ai-metrics/src/forwarder.ts:891` | Render a forwarder timer plan as JSON. |
+| `@beep/repo-ai-metrics` | `ensureAiMetricsDerivedStorage` | const | `packages/tooling/library/ai-metrics/src/derived-storage.ts:690` | Ensure the AI metrics derived DuckDB schema exists and has P4 columns. |
+| `@beep/repo-ai-metrics` | `forwarderRunResultToJson` | const | `packages/tooling/library/ai-metrics/src/forwarder.ts:871` | Render a durable forwarder run result as JSON. |
+| `@beep/repo-ai-metrics` | `forwarderTimerPlanToJson` | const | `packages/tooling/library/ai-metrics/src/forwarder.ts:892` | Render a forwarder timer plan as JSON. |
 | `@beep/repo-ai-metrics` | `generateAiMetricsWeeklyReport` | const | `packages/tooling/library/ai-metrics/src/scorecard.ts:1224` | Generate and persist a weekly config-impact report. |
 | `@beep/repo-ai-metrics` | `hashPrivateIdentifier` | const | `packages/tooling/library/ai-metrics/src/privacy.ts:351` | Compute a salted SHA-256 digest for private identifiers such as local paths and session ids. |
 | `@beep/repo-ai-metrics` | `hashPublicTextSha256` | const | `packages/tooling/library/ai-metrics/src/privacy.ts:327` | Compute a deterministic public SHA-256 digest for non-private content identity. |
 | `@beep/repo-ai-metrics` | `listAiMetricsBenchmarkCases` | const | `packages/tooling/library/ai-metrics/src/scorecard.ts:760` | List deploy-safe benchmark cases. |
 | `@beep/repo-ai-metrics` | `listAiMetricsRetentionInventory` | const | `packages/tooling/library/ai-metrics/src/retention.ts:587` | List retained AI metrics raw archive objects and derived/report outputs. |
 | `@beep/repo-ai-metrics` | `locateLatestAiMetricsMirrorBundle` | const | `packages/tooling/library/ai-metrics/src/mirror.ts:540` | Locate the latest local mirror bundle pointer for a data root. |
+| `@beep/repo-ai-metrics` | `makeAgentEffectivenessAnnotationCheckReport` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:1774` | Check a local annotation plan for Phase 1 privacy and schema safety. |
+| `@beep/repo-ai-metrics` | `makeAgentEffectivenessAnnotationPlan` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:1661` | Build a sanitized local-only annotation plan. |
+| `@beep/repo-ai-metrics` | `makeAgentEffectivenessDoctorReport` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:1332` | Build the report-only Phase 1 agent-effectiveness doctor report. |
 | `@beep/repo-ai-metrics` | `makeAiMetricsConfigSnapshot` | const | `packages/tooling/library/ai-metrics/src/config-snapshot.ts:429` | Build a deterministic snapshot of repo-owned agent-facing configuration. |
 | `@beep/repo-ai-metrics` | `makeAiMetricsInstallApplyDryRunResult` | const | `packages/tooling/library/ai-metrics/src/install.ts:1219` | Resolve the P5a dry-run apply result. |
 | `@beep/repo-ai-metrics` | `makeAiMetricsInstallDoctorResult` | const | `packages/tooling/library/ai-metrics/src/install.ts:1120` | Evaluate the P5a install doctor contract checks. |
@@ -7303,11 +7330,11 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-ai-metrics` | `readEncryptedRawArchiveEnvelope` | const | `packages/tooling/library/ai-metrics/src/archive.ts:399` | Read and decode an encrypted raw archive envelope from disk. |
 | `@beep/repo-ai-metrics` | `recordAiMetricsBenchmarkRun` | const | `packages/tooling/library/ai-metrics/src/scorecard.ts:796` | Record an observed benchmark run for one config snapshot. |
 | `@beep/repo-ai-metrics` | `redactAiMetricsSensitiveText` | const | `packages/tooling/library/ai-metrics/src/privacy.ts:506` | Redact secret-shaped text before any diagnostic rendering. |
-| `@beep/repo-ai-metrics` | `renderAiMetricsForwarderTimerPlan` | const | `packages/tooling/library/ai-metrics/src/forwarder.ts:388` |  |
+| `@beep/repo-ai-metrics` | `renderAiMetricsForwarderTimerPlan` | const | `packages/tooling/library/ai-metrics/src/forwarder.ts:389` | Render a systemd user timer that repeatedly runs the forwarder with locking and status evidence. |
 | `@beep/repo-ai-metrics` | `renderAiMetricsLocalPhoenixCompose` | const | `packages/tooling/library/ai-metrics/src/compose.ts:45` | Render a dedicated Docker Compose file for local Phoenix smoke tests. |
 | `@beep/repo-ai-metrics` | `resolveAiMetricsHashSaltStatus` | const | `packages/tooling/library/ai-metrics/src/privacy.ts:311` | Resolve the effective private hash salt status. |
 | `@beep/repo-ai-metrics` | `resolveAiMetricsHashSaltValue` | const | `packages/tooling/library/ai-metrics/src/privacy.ts:295` | Resolve the effective private hash salt value. |
-| `@beep/repo-ai-metrics` | `runAiMetricsForwarder` | const | `packages/tooling/library/ai-metrics/src/forwarder.ts:766` | Run durable ingest: encrypted raw archive, DuckDB projection, and Parquet export. |
+| `@beep/repo-ai-metrics` | `runAiMetricsForwarder` | const | `packages/tooling/library/ai-metrics/src/forwarder.ts:767` | Run durable ingest: encrypted raw archive, DuckDB projection, and Parquet export. |
 | `@beep/repo-ai-metrics` | `runAiMetricsOtlpExport` | const | `packages/tooling/library/ai-metrics/src/otlp.ts:474` | Emit redacted AI metrics derived spans through the active Effect tracer. |
 | `@beep/repo-ai-metrics` | `runAiMetricsRetentionCompact` | const | `packages/tooling/library/ai-metrics/src/retention.ts:779` | Compact selected AI metrics derived Parquet and report outputs. |
 | `@beep/repo-ai-metrics` | `runAiMetricsRetentionDelete` | const | `packages/tooling/library/ai-metrics/src/retention.ts:754` | Delete selected AI metrics raw, derived, and report data. |
@@ -7321,8 +7348,35 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-ai-metrics` | `TranscriptIngestSummary` | class | `packages/tooling/library/ai-metrics/src/models.ts:641` | Summary produced by transcript ingestion. |
 | `@beep/repo-ai-metrics` | `upsertAiMetricsBenchmarkCase` | const | `packages/tooling/library/ai-metrics/src/scorecard.ts:681` | Add or replace a deploy-safe benchmark case. |
 | `@beep/repo-ai-metrics` | `writeAiMetricsConfigSnapshotArtifacts` | const | `packages/tooling/library/ai-metrics/src/config-snapshot.ts:482` | Persist a config snapshot manifest and latest pointer for future diff attribution. |
-| `@beep/repo-ai-metrics` | `writeAiMetricsDerivedStorage` | const | `packages/tooling/library/ai-metrics/src/derived-storage.ts:1056` | Project sanitized AI metrics records into DuckDB and export Parquet snapshots. |
+| `@beep/repo-ai-metrics` | `writeAiMetricsDerivedStorage` | const | `packages/tooling/library/ai-metrics/src/derived-storage.ts:1071` | Project sanitized AI metrics records into DuckDB and export Parquet snapshots. |
 | `@beep/repo-ai-metrics` | `writeEncryptedRawArchiveObject` | const | `packages/tooling/library/ai-metrics/src/archive.ts:251` | Write one raw transcript file into the encrypted content-addressed archive. |
+| `@beep/repo-ai-metrics/agent-effectiveness` | `AgentEffectivenessAiMetricsSection` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:359` | AI-metrics local evidence section for the doctor report. |
+| `@beep/repo-ai-metrics/agent-effectiveness` | `AgentEffectivenessAnnotationCheckFinding` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:535` | One validation finding for an annotation plan. |
+| `@beep/repo-ai-metrics/agent-effectiveness` | `AgentEffectivenessAnnotationCheckReport` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:559` | Report emitted by `agent-effectiveness annotations check`. |
+| `@beep/repo-ai-metrics/agent-effectiveness` | `agentEffectivenessAnnotationCheckReportToJson` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:1855` | Encode an annotation-check report as JSON. |
+| `@beep/repo-ai-metrics/agent-effectiveness` | `AgentEffectivenessAnnotationPlan` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:508` | Dry-run annotation plan for Phase 1. |
+| `@beep/repo-ai-metrics/agent-effectiveness` | `AgentEffectivenessAnnotationPlanInput` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:185` | Input for building a dry-run annotation plan. |
+| `@beep/repo-ai-metrics/agent-effectiveness` | `agentEffectivenessAnnotationPlanToJson` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:1829` | Encode an annotation plan as JSON. |
+| `@beep/repo-ai-metrics/agent-effectiveness` | `AgentEffectivenessAnnotationValue` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:97` | Primitive annotation value allowed in local Phase 1 plans. |
+| `@beep/repo-ai-metrics/agent-effectiveness` | `AgentEffectivenessAnnotationValue` | type | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:109` | Runtime type for `AgentEffectivenessAnnotationValue`. |
+| `@beep/repo-ai-metrics/agent-effectiveness` | `AgentEffectivenessDoctorInput` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:144` | Input for the Phase 1 agent-effectiveness doctor. |
+| `@beep/repo-ai-metrics/agent-effectiveness` | `AgentEffectivenessDoctorReport` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:447` | Phase 1 agent-effectiveness doctor report. |
+| `@beep/repo-ai-metrics/agent-effectiveness` | `agentEffectivenessDoctorReportToJson` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:1803` | Encode a doctor report as JSON. |
+| `@beep/repo-ai-metrics/agent-effectiveness` | `AgentEffectivenessDoctorSummary` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:422` | Aggregate summary emitted by the doctor report. |
+| `@beep/repo-ai-metrics/agent-effectiveness` | `AgentEffectivenessError` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:122` | Error raised by agent-effectiveness report helpers. |
+| `@beep/repo-ai-metrics/agent-effectiveness` | `AgentEffectivenessForwarderSummary` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:300` | Latest forwarder summary from derived AI-metrics storage. |
+| `@beep/repo-ai-metrics/agent-effectiveness` | `AgentEffectivenessJsdocWorkerSection` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:390` | JSDoc worker-eval section for the doctor report. |
+| `@beep/repo-ai-metrics/agent-effectiveness` | `AgentEffectivenessPhoenixProject` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:214` | Summary for one Phoenix project. |
+| `@beep/repo-ai-metrics/agent-effectiveness` | `AgentEffectivenessPhoenixSection` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:242` | Read-only Phoenix health and inventory section. |
+| `@beep/repo-ai-metrics/agent-effectiveness` | `AgentEffectivenessPlannedAnnotation` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:476` | One local-only annotation row that could be written to Phoenix later. |
+| `@beep/repo-ai-metrics/agent-effectiveness` | `AgentEffectivenessScorecardSummary` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:328` | Latest scorecard summary from derived AI-metrics storage. |
+| `@beep/repo-ai-metrics/agent-effectiveness` | `AgentEffectivenessSourceCoverage` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:273` | Source coverage row derived from AI-metrics storage. |
+| `@beep/repo-ai-metrics/agent-effectiveness` | `AgentEffectivenessStatus` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:72` | Status emitted by agent-effectiveness reports. |
+| `@beep/repo-ai-metrics/agent-effectiveness` | `AgentEffectivenessStatus` | type | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:84` | Runtime type for `AgentEffectivenessStatus`. |
+| `@beep/repo-ai-metrics/agent-effectiveness` | `DEFAULT_AGENT_EFFECTIVENESS_WORKER_EVAL_REPORT_PATH` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:35` | Stable default pointer used to locate the latest checked-in JSDoc worker-eval evidence. |
+| `@beep/repo-ai-metrics/agent-effectiveness` | `makeAgentEffectivenessAnnotationCheckReport` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:1774` | Check a local annotation plan for Phase 1 privacy and schema safety. |
+| `@beep/repo-ai-metrics/agent-effectiveness` | `makeAgentEffectivenessAnnotationPlan` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:1661` | Build a sanitized local-only annotation plan. |
+| `@beep/repo-ai-metrics/agent-effectiveness` | `makeAgentEffectivenessDoctorReport` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:1332` | Build the report-only Phase 1 agent-effectiveness doctor report. |
 | `@beep/repo-ai-metrics/archive` | `AiMetricsArchiveError` | class | `packages/tooling/library/ai-metrics/src/archive.ts:35` | Error raised by AI metrics encrypted archive helpers. |
 | `@beep/repo-ai-metrics/archive` | `AiMetricsEncryptedRawArchiveEnvelope` | class | `packages/tooling/library/ai-metrics/src/archive.ts:57` | Encrypted raw transcript archive envelope stored on disk. |
 | `@beep/repo-ai-metrics/archive` | `AiMetricsRawArchiveKey` | const | `packages/tooling/library/ai-metrics/src/archive.ts:115` | Redacted base64 AES-256-GCM key used for raw archive encryption. |
@@ -7340,12 +7394,12 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-ai-metrics/config-snapshot` | `configSnapshotToJson` | const | `packages/tooling/library/ai-metrics/src/config-snapshot.ts:552` | Render a config snapshot result as JSON. |
 | `@beep/repo-ai-metrics/config-snapshot` | `makeAiMetricsConfigSnapshot` | const | `packages/tooling/library/ai-metrics/src/config-snapshot.ts:429` | Build a deterministic snapshot of repo-owned agent-facing configuration. |
 | `@beep/repo-ai-metrics/config-snapshot` | `writeAiMetricsConfigSnapshotArtifacts` | const | `packages/tooling/library/ai-metrics/src/config-snapshot.ts:482` | Persist a config snapshot manifest and latest pointer for future diff attribution. |
-| `@beep/repo-ai-metrics/derived-storage` | `AiMetricsDerivedStorageError` | class | `packages/tooling/library/ai-metrics/src/derived-storage.ts:471` | Error raised by the DuckDB derived storage projection. |
-| `@beep/repo-ai-metrics/derived-storage` | `AiMetricsDerivedStorageWriteInput` | class | `packages/tooling/library/ai-metrics/src/derived-storage.ts:518` | Input for a derived DuckDB storage write. |
-| `@beep/repo-ai-metrics/derived-storage` | `AiMetricsDerivedStorageWriteResult` | class | `packages/tooling/library/ai-metrics/src/derived-storage.ts:546` | Result of a derived DuckDB storage write. |
-| `@beep/repo-ai-metrics/derived-storage` | `AiMetricsDerivedTranscriptRecord` | class | `packages/tooling/library/ai-metrics/src/derived-storage.ts:495` | One sanitized transcript ready for derived storage projection. |
-| `@beep/repo-ai-metrics/derived-storage` | `ensureAiMetricsDerivedStorage` | const | `packages/tooling/library/ai-metrics/src/derived-storage.ts:675` | Ensure the AI metrics derived DuckDB schema exists and has P4 columns. |
-| `@beep/repo-ai-metrics/derived-storage` | `writeAiMetricsDerivedStorage` | const | `packages/tooling/library/ai-metrics/src/derived-storage.ts:1056` | Project sanitized AI metrics records into DuckDB and export Parquet snapshots. |
+| `@beep/repo-ai-metrics/derived-storage` | `AiMetricsDerivedStorageError` | class | `packages/tooling/library/ai-metrics/src/derived-storage.ts:473` | Error raised by the DuckDB derived storage projection. |
+| `@beep/repo-ai-metrics/derived-storage` | `AiMetricsDerivedStorageWriteInput` | class | `packages/tooling/library/ai-metrics/src/derived-storage.ts:520` | Input for a derived DuckDB storage write. |
+| `@beep/repo-ai-metrics/derived-storage` | `AiMetricsDerivedStorageWriteResult` | class | `packages/tooling/library/ai-metrics/src/derived-storage.ts:548` | Result of a derived DuckDB storage write. |
+| `@beep/repo-ai-metrics/derived-storage` | `AiMetricsDerivedTranscriptRecord` | class | `packages/tooling/library/ai-metrics/src/derived-storage.ts:497` | One sanitized transcript ready for derived storage projection. |
+| `@beep/repo-ai-metrics/derived-storage` | `ensureAiMetricsDerivedStorage` | const | `packages/tooling/library/ai-metrics/src/derived-storage.ts:690` | Ensure the AI metrics derived DuckDB schema exists and has P4 columns. |
+| `@beep/repo-ai-metrics/derived-storage` | `writeAiMetricsDerivedStorage` | const | `packages/tooling/library/ai-metrics/src/derived-storage.ts:1071` | Project sanitized AI metrics records into DuckDB and export Parquet snapshots. |
 | `@beep/repo-ai-metrics/forwarder` | `AiMetricsForwarderError` | class | `packages/tooling/library/ai-metrics/src/forwarder.ts:50` | Error raised by the durable AI metrics forwarder. |
 | `@beep/repo-ai-metrics/forwarder` | `AiMetricsForwarderInput` | class | `packages/tooling/library/ai-metrics/src/forwarder.ts:72` | Input for the durable AI metrics forwarder. |
 | `@beep/repo-ai-metrics/forwarder` | `AiMetricsForwarderOtlpExport` | const | `packages/tooling/library/ai-metrics/src/forwarder.ts:198` | Tagged derived OTLP export status attached to a forwarder run. |
@@ -7356,11 +7410,34 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-ai-metrics/forwarder` | `AiMetricsForwarderSourceCoverage` | class | `packages/tooling/library/ai-metrics/src/forwarder.ts:115` | Per-source coverage selected by one durable forwarder run. |
 | `@beep/repo-ai-metrics/forwarder` | `AiMetricsForwarderTimerInput` | class | `packages/tooling/library/ai-metrics/src/forwarder.ts:266` | Input for rendering a workstation-owned forwarder timer. |
 | `@beep/repo-ai-metrics/forwarder` | `AiMetricsForwarderTimerPlan` | class | `packages/tooling/library/ai-metrics/src/forwarder.ts:301` | Rendered systemd user units for the workstation-owned forwarder timer. |
-| `@beep/repo-ai-metrics/forwarder` | `forwarderRunResultToJson` | const | `packages/tooling/library/ai-metrics/src/forwarder.ts:870` | Render a durable forwarder run result as JSON. |
-| `@beep/repo-ai-metrics/forwarder` | `forwarderTimerPlanToJson` | const | `packages/tooling/library/ai-metrics/src/forwarder.ts:891` | Render a forwarder timer plan as JSON. |
-| `@beep/repo-ai-metrics/forwarder` | `renderAiMetricsForwarderTimerPlan` | const | `packages/tooling/library/ai-metrics/src/forwarder.ts:388` |  |
-| `@beep/repo-ai-metrics/forwarder` | `runAiMetricsForwarder` | const | `packages/tooling/library/ai-metrics/src/forwarder.ts:766` | Run durable ingest: encrypted raw archive, DuckDB projection, and Parquet export. |
+| `@beep/repo-ai-metrics/forwarder` | `forwarderRunResultToJson` | const | `packages/tooling/library/ai-metrics/src/forwarder.ts:871` | Render a durable forwarder run result as JSON. |
+| `@beep/repo-ai-metrics/forwarder` | `forwarderTimerPlanToJson` | const | `packages/tooling/library/ai-metrics/src/forwarder.ts:892` | Render a forwarder timer plan as JSON. |
+| `@beep/repo-ai-metrics/forwarder` | `renderAiMetricsForwarderTimerPlan` | const | `packages/tooling/library/ai-metrics/src/forwarder.ts:389` | Render a systemd user timer that repeatedly runs the forwarder with locking and status evidence. |
+| `@beep/repo-ai-metrics/forwarder` | `runAiMetricsForwarder` | const | `packages/tooling/library/ai-metrics/src/forwarder.ts:767` | Run durable ingest: encrypted raw archive, DuckDB projection, and Parquet export. |
 | `@beep/repo-ai-metrics/index` | `addAiMetricsOutcomeLabel` | const | `packages/tooling/library/ai-metrics/src/scorecard.ts:603` | Add or replace the current structured human label for a task. |
+| `@beep/repo-ai-metrics/index` | `AgentEffectivenessAiMetricsSection` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:359` | AI-metrics local evidence section for the doctor report. |
+| `@beep/repo-ai-metrics/index` | `AgentEffectivenessAnnotationCheckFinding` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:535` | One validation finding for an annotation plan. |
+| `@beep/repo-ai-metrics/index` | `AgentEffectivenessAnnotationCheckReport` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:559` | Report emitted by `agent-effectiveness annotations check`. |
+| `@beep/repo-ai-metrics/index` | `agentEffectivenessAnnotationCheckReportToJson` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:1855` | Encode an annotation-check report as JSON. |
+| `@beep/repo-ai-metrics/index` | `AgentEffectivenessAnnotationPlan` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:508` | Dry-run annotation plan for Phase 1. |
+| `@beep/repo-ai-metrics/index` | `AgentEffectivenessAnnotationPlanInput` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:185` | Input for building a dry-run annotation plan. |
+| `@beep/repo-ai-metrics/index` | `agentEffectivenessAnnotationPlanToJson` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:1829` | Encode an annotation plan as JSON. |
+| `@beep/repo-ai-metrics/index` | `AgentEffectivenessAnnotationValue` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:97` | Primitive annotation value allowed in local Phase 1 plans. |
+| `@beep/repo-ai-metrics/index` | `AgentEffectivenessAnnotationValue` | type | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:109` | Runtime type for `AgentEffectivenessAnnotationValue`. |
+| `@beep/repo-ai-metrics/index` | `AgentEffectivenessDoctorInput` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:144` | Input for the Phase 1 agent-effectiveness doctor. |
+| `@beep/repo-ai-metrics/index` | `AgentEffectivenessDoctorReport` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:447` | Phase 1 agent-effectiveness doctor report. |
+| `@beep/repo-ai-metrics/index` | `agentEffectivenessDoctorReportToJson` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:1803` | Encode a doctor report as JSON. |
+| `@beep/repo-ai-metrics/index` | `AgentEffectivenessDoctorSummary` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:422` | Aggregate summary emitted by the doctor report. |
+| `@beep/repo-ai-metrics/index` | `AgentEffectivenessError` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:122` | Error raised by agent-effectiveness report helpers. |
+| `@beep/repo-ai-metrics/index` | `AgentEffectivenessForwarderSummary` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:300` | Latest forwarder summary from derived AI-metrics storage. |
+| `@beep/repo-ai-metrics/index` | `AgentEffectivenessJsdocWorkerSection` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:390` | JSDoc worker-eval section for the doctor report. |
+| `@beep/repo-ai-metrics/index` | `AgentEffectivenessPhoenixProject` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:214` | Summary for one Phoenix project. |
+| `@beep/repo-ai-metrics/index` | `AgentEffectivenessPhoenixSection` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:242` | Read-only Phoenix health and inventory section. |
+| `@beep/repo-ai-metrics/index` | `AgentEffectivenessPlannedAnnotation` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:476` | One local-only annotation row that could be written to Phoenix later. |
+| `@beep/repo-ai-metrics/index` | `AgentEffectivenessScorecardSummary` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:328` | Latest scorecard summary from derived AI-metrics storage. |
+| `@beep/repo-ai-metrics/index` | `AgentEffectivenessSourceCoverage` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:273` | Source coverage row derived from AI-metrics storage. |
+| `@beep/repo-ai-metrics/index` | `AgentEffectivenessStatus` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:72` | Status emitted by agent-effectiveness reports. |
+| `@beep/repo-ai-metrics/index` | `AgentEffectivenessStatus` | type | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:84` | Runtime type for `AgentEffectivenessStatus`. |
 | `@beep/repo-ai-metrics/index` | `AgentSession` | class | `packages/tooling/library/ai-metrics/src/models.ts:415` | Session-level transcript metadata under an agent task. |
 | `@beep/repo-ai-metrics/index` | `AgentTask` | class | `packages/tooling/library/ai-metrics/src/models.ts:383` | Canonical unit of analysis for coding-agent metrics. |
 | `@beep/repo-ai-metrics/index` | `AgentTurn` | class | `packages/tooling/library/ai-metrics/src/models.ts:451` | Turn-level transcript event normalized from local agent logs. |
@@ -7380,10 +7457,10 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-ai-metrics/index` | `AiMetricsConfigSnapshotResult` | class | `packages/tooling/library/ai-metrics/src/config-snapshot.ts:124` | Complete repo-local agent configuration snapshot result. |
 | `@beep/repo-ai-metrics/index` | `AiMetricsDeployTarget` | const | `packages/tooling/library/ai-metrics/src/models.ts:26` | Supported deployment targets for the AI metrics stack. |
 | `@beep/repo-ai-metrics/index` | `AiMetricsDeployTarget` | type | `packages/tooling/library/ai-metrics/src/models.ts:44` | Runtime type for {@link AiMetricsDeployTarget}. |
-| `@beep/repo-ai-metrics/index` | `AiMetricsDerivedStorageError` | class | `packages/tooling/library/ai-metrics/src/derived-storage.ts:471` | Error raised by the DuckDB derived storage projection. |
-| `@beep/repo-ai-metrics/index` | `AiMetricsDerivedStorageWriteInput` | class | `packages/tooling/library/ai-metrics/src/derived-storage.ts:518` | Input for a derived DuckDB storage write. |
-| `@beep/repo-ai-metrics/index` | `AiMetricsDerivedStorageWriteResult` | class | `packages/tooling/library/ai-metrics/src/derived-storage.ts:546` | Result of a derived DuckDB storage write. |
-| `@beep/repo-ai-metrics/index` | `AiMetricsDerivedTranscriptRecord` | class | `packages/tooling/library/ai-metrics/src/derived-storage.ts:495` | One sanitized transcript ready for derived storage projection. |
+| `@beep/repo-ai-metrics/index` | `AiMetricsDerivedStorageError` | class | `packages/tooling/library/ai-metrics/src/derived-storage.ts:473` | Error raised by the DuckDB derived storage projection. |
+| `@beep/repo-ai-metrics/index` | `AiMetricsDerivedStorageWriteInput` | class | `packages/tooling/library/ai-metrics/src/derived-storage.ts:520` | Input for a derived DuckDB storage write. |
+| `@beep/repo-ai-metrics/index` | `AiMetricsDerivedStorageWriteResult` | class | `packages/tooling/library/ai-metrics/src/derived-storage.ts:548` | Result of a derived DuckDB storage write. |
+| `@beep/repo-ai-metrics/index` | `AiMetricsDerivedTranscriptRecord` | class | `packages/tooling/library/ai-metrics/src/derived-storage.ts:497` | One sanitized transcript ready for derived storage projection. |
 | `@beep/repo-ai-metrics/index` | `AiMetricsDiscoveredSource` | class | `packages/tooling/library/ai-metrics/src/source-discovery.ts:149` | Source-level discovery summary. |
 | `@beep/repo-ai-metrics/index` | `AiMetricsDiscoveredTranscriptFile` | class | `packages/tooling/library/ai-metrics/src/source-discovery.ts:116` | One transcript or source metadata file discovered for AI metrics. |
 | `@beep/repo-ai-metrics/index` | `AiMetricsEncryptedRawArchiveEnvelope` | class | `packages/tooling/library/ai-metrics/src/archive.ts:57` | Encrypted raw transcript archive envelope stored on disk. |
@@ -7457,13 +7534,13 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-ai-metrics/index` | `AiMetricsRetentionError` | class | `packages/tooling/library/ai-metrics/src/retention.ts:167` | Error raised by P7 AI metrics retention workflows. |
 | `@beep/repo-ai-metrics/index` | `AiMetricsRetentionFileItem` | class | `packages/tooling/library/ai-metrics/src/retention.ts:242` | Deploy-safe retained file inventory row. |
 | `@beep/repo-ai-metrics/index` | `AiMetricsRetentionInventory` | class | `packages/tooling/library/ai-metrics/src/retention.ts:263` | Path-safe inventory returned by `ai-metrics retention list`. |
-| `@beep/repo-ai-metrics/index` | `aiMetricsRetentionInventoryToJson` | const | `packages/tooling/library/ai-metrics/src/retention.ts:935` | Render a retention inventory as JSON. |
+| `@beep/repo-ai-metrics/index` | `aiMetricsRetentionInventoryToJson` | const | `packages/tooling/library/ai-metrics/src/retention.ts:939` | Render a retention inventory as JSON. |
 | `@beep/repo-ai-metrics/index` | `AiMetricsRetentionMutationResult` | class | `packages/tooling/library/ai-metrics/src/retention.ts:290` | Result for delete or compaction retention commands. |
-| `@beep/repo-ai-metrics/index` | `aiMetricsRetentionMutationToJson` | const | `packages/tooling/library/ai-metrics/src/retention.ts:955` | Render a retention mutation result as JSON. |
+| `@beep/repo-ai-metrics/index` | `aiMetricsRetentionMutationToJson` | const | `packages/tooling/library/ai-metrics/src/retention.ts:959` | Render a retention mutation result as JSON. |
 | `@beep/repo-ai-metrics/index` | `AiMetricsRetentionRawArchiveItem` | class | `packages/tooling/library/ai-metrics/src/retention.ts:215` | Deploy-safe raw archive inventory row. |
 | `@beep/repo-ai-metrics/index` | `AiMetricsRetentionRestoreDrillInput` | class | `packages/tooling/library/ai-metrics/src/retention.ts:318` | Input for a retained raw archive restore drill. |
 | `@beep/repo-ai-metrics/index` | `AiMetricsRetentionRestoreDrillResult` | class | `packages/tooling/library/ai-metrics/src/retention.ts:344` | Result for a retained raw archive restore drill. |
-| `@beep/repo-ai-metrics/index` | `aiMetricsRetentionRestoreDrillToJson` | const | `packages/tooling/library/ai-metrics/src/retention.ts:975` | Render a restore drill result as JSON. |
+| `@beep/repo-ai-metrics/index` | `aiMetricsRetentionRestoreDrillToJson` | const | `packages/tooling/library/ai-metrics/src/retention.ts:979` | Render a restore drill result as JSON. |
 | `@beep/repo-ai-metrics/index` | `AiMetricsRetentionSelector` | class | `packages/tooling/library/ai-metrics/src/retention.ts:189` | Time-window selector for AI metrics retention commands. |
 | `@beep/repo-ai-metrics/index` | `AiMetricsSanitizedTranscript` | class | `packages/tooling/library/ai-metrics/src/privacy.ts:145` | Redacted transcript summary safe for derived tables, dashboards, and OTLP attributes. |
 | `@beep/repo-ai-metrics/index` | `AiMetricsScorecardError` | class | `packages/tooling/library/ai-metrics/src/scorecard.ts:42` | Error raised by AI metrics label, benchmark, or scorecard workflows. |
@@ -7495,16 +7572,20 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-ai-metrics/index` | `ConfigSnapshot` | class | `packages/tooling/library/ai-metrics/src/models.ts:354` | Versioned snapshot of agent-facing repository configuration. |
 | `@beep/repo-ai-metrics/index` | `configSnapshotToJson` | const | `packages/tooling/library/ai-metrics/src/config-snapshot.ts:552` | Render a config snapshot result as JSON. |
 | `@beep/repo-ai-metrics/index` | `decryptEncryptedRawArchiveEnvelope` | const | `packages/tooling/library/ai-metrics/src/archive.ts:362` | Decrypt an archive envelope for package-level verification. |
+| `@beep/repo-ai-metrics/index` | `DEFAULT_AGENT_EFFECTIVENESS_WORKER_EVAL_REPORT_PATH` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:35` | Stable default pointer used to locate the latest checked-in JSDoc worker-eval evidence. |
 | `@beep/repo-ai-metrics/index` | `discoverAiMetricsSources` | const | `packages/tooling/library/ai-metrics/src/source-discovery.ts:617` | Discover local AI metrics transcript sources for the smoke target. |
-| `@beep/repo-ai-metrics/index` | `ensureAiMetricsDerivedStorage` | const | `packages/tooling/library/ai-metrics/src/derived-storage.ts:675` | Ensure the AI metrics derived DuckDB schema exists and has P4 columns. |
-| `@beep/repo-ai-metrics/index` | `forwarderRunResultToJson` | const | `packages/tooling/library/ai-metrics/src/forwarder.ts:870` | Render a durable forwarder run result as JSON. |
-| `@beep/repo-ai-metrics/index` | `forwarderTimerPlanToJson` | const | `packages/tooling/library/ai-metrics/src/forwarder.ts:891` | Render a forwarder timer plan as JSON. |
+| `@beep/repo-ai-metrics/index` | `ensureAiMetricsDerivedStorage` | const | `packages/tooling/library/ai-metrics/src/derived-storage.ts:690` | Ensure the AI metrics derived DuckDB schema exists and has P4 columns. |
+| `@beep/repo-ai-metrics/index` | `forwarderRunResultToJson` | const | `packages/tooling/library/ai-metrics/src/forwarder.ts:871` | Render a durable forwarder run result as JSON. |
+| `@beep/repo-ai-metrics/index` | `forwarderTimerPlanToJson` | const | `packages/tooling/library/ai-metrics/src/forwarder.ts:892` | Render a forwarder timer plan as JSON. |
 | `@beep/repo-ai-metrics/index` | `generateAiMetricsWeeklyReport` | const | `packages/tooling/library/ai-metrics/src/scorecard.ts:1224` | Generate and persist a weekly config-impact report. |
 | `@beep/repo-ai-metrics/index` | `hashPrivateIdentifier` | const | `packages/tooling/library/ai-metrics/src/privacy.ts:351` | Compute a salted SHA-256 digest for private identifiers such as local paths and session ids. |
 | `@beep/repo-ai-metrics/index` | `hashPublicTextSha256` | const | `packages/tooling/library/ai-metrics/src/privacy.ts:327` | Compute a deterministic public SHA-256 digest for non-private content identity. |
 | `@beep/repo-ai-metrics/index` | `listAiMetricsBenchmarkCases` | const | `packages/tooling/library/ai-metrics/src/scorecard.ts:760` | List deploy-safe benchmark cases. |
 | `@beep/repo-ai-metrics/index` | `listAiMetricsRetentionInventory` | const | `packages/tooling/library/ai-metrics/src/retention.ts:587` | List retained AI metrics raw archive objects and derived/report outputs. |
 | `@beep/repo-ai-metrics/index` | `locateLatestAiMetricsMirrorBundle` | const | `packages/tooling/library/ai-metrics/src/mirror.ts:540` | Locate the latest local mirror bundle pointer for a data root. |
+| `@beep/repo-ai-metrics/index` | `makeAgentEffectivenessAnnotationCheckReport` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:1774` | Check a local annotation plan for Phase 1 privacy and schema safety. |
+| `@beep/repo-ai-metrics/index` | `makeAgentEffectivenessAnnotationPlan` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:1661` | Build a sanitized local-only annotation plan. |
+| `@beep/repo-ai-metrics/index` | `makeAgentEffectivenessDoctorReport` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:1332` | Build the report-only Phase 1 agent-effectiveness doctor report. |
 | `@beep/repo-ai-metrics/index` | `makeAiMetricsConfigSnapshot` | const | `packages/tooling/library/ai-metrics/src/config-snapshot.ts:429` | Build a deterministic snapshot of repo-owned agent-facing configuration. |
 | `@beep/repo-ai-metrics/index` | `makeAiMetricsInstallApplyDryRunResult` | const | `packages/tooling/library/ai-metrics/src/install.ts:1219` | Resolve the P5a dry-run apply result. |
 | `@beep/repo-ai-metrics/index` | `makeAiMetricsInstallDoctorResult` | const | `packages/tooling/library/ai-metrics/src/install.ts:1120` | Evaluate the P5a install doctor contract checks. |
@@ -7523,11 +7604,11 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-ai-metrics/index` | `readEncryptedRawArchiveEnvelope` | const | `packages/tooling/library/ai-metrics/src/archive.ts:399` | Read and decode an encrypted raw archive envelope from disk. |
 | `@beep/repo-ai-metrics/index` | `recordAiMetricsBenchmarkRun` | const | `packages/tooling/library/ai-metrics/src/scorecard.ts:796` | Record an observed benchmark run for one config snapshot. |
 | `@beep/repo-ai-metrics/index` | `redactAiMetricsSensitiveText` | const | `packages/tooling/library/ai-metrics/src/privacy.ts:506` | Redact secret-shaped text before any diagnostic rendering. |
-| `@beep/repo-ai-metrics/index` | `renderAiMetricsForwarderTimerPlan` | const | `packages/tooling/library/ai-metrics/src/forwarder.ts:388` |  |
+| `@beep/repo-ai-metrics/index` | `renderAiMetricsForwarderTimerPlan` | const | `packages/tooling/library/ai-metrics/src/forwarder.ts:389` | Render a systemd user timer that repeatedly runs the forwarder with locking and status evidence. |
 | `@beep/repo-ai-metrics/index` | `renderAiMetricsLocalPhoenixCompose` | const | `packages/tooling/library/ai-metrics/src/compose.ts:45` | Render a dedicated Docker Compose file for local Phoenix smoke tests. |
 | `@beep/repo-ai-metrics/index` | `resolveAiMetricsHashSaltStatus` | const | `packages/tooling/library/ai-metrics/src/privacy.ts:311` | Resolve the effective private hash salt status. |
 | `@beep/repo-ai-metrics/index` | `resolveAiMetricsHashSaltValue` | const | `packages/tooling/library/ai-metrics/src/privacy.ts:295` | Resolve the effective private hash salt value. |
-| `@beep/repo-ai-metrics/index` | `runAiMetricsForwarder` | const | `packages/tooling/library/ai-metrics/src/forwarder.ts:766` | Run durable ingest: encrypted raw archive, DuckDB projection, and Parquet export. |
+| `@beep/repo-ai-metrics/index` | `runAiMetricsForwarder` | const | `packages/tooling/library/ai-metrics/src/forwarder.ts:767` | Run durable ingest: encrypted raw archive, DuckDB projection, and Parquet export. |
 | `@beep/repo-ai-metrics/index` | `runAiMetricsOtlpExport` | const | `packages/tooling/library/ai-metrics/src/otlp.ts:474` | Emit redacted AI metrics derived spans through the active Effect tracer. |
 | `@beep/repo-ai-metrics/index` | `runAiMetricsRetentionCompact` | const | `packages/tooling/library/ai-metrics/src/retention.ts:779` | Compact selected AI metrics derived Parquet and report outputs. |
 | `@beep/repo-ai-metrics/index` | `runAiMetricsRetentionDelete` | const | `packages/tooling/library/ai-metrics/src/retention.ts:754` | Delete selected AI metrics raw, derived, and report data. |
@@ -7541,7 +7622,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-ai-metrics/index` | `TranscriptIngestSummary` | class | `packages/tooling/library/ai-metrics/src/models.ts:641` | Summary produced by transcript ingestion. |
 | `@beep/repo-ai-metrics/index` | `upsertAiMetricsBenchmarkCase` | const | `packages/tooling/library/ai-metrics/src/scorecard.ts:681` | Add or replace a deploy-safe benchmark case. |
 | `@beep/repo-ai-metrics/index` | `writeAiMetricsConfigSnapshotArtifacts` | const | `packages/tooling/library/ai-metrics/src/config-snapshot.ts:482` | Persist a config snapshot manifest and latest pointer for future diff attribution. |
-| `@beep/repo-ai-metrics/index` | `writeAiMetricsDerivedStorage` | const | `packages/tooling/library/ai-metrics/src/derived-storage.ts:1056` | Project sanitized AI metrics records into DuckDB and export Parquet snapshots. |
+| `@beep/repo-ai-metrics/index` | `writeAiMetricsDerivedStorage` | const | `packages/tooling/library/ai-metrics/src/derived-storage.ts:1071` | Project sanitized AI metrics records into DuckDB and export Parquet snapshots. |
 | `@beep/repo-ai-metrics/index` | `writeEncryptedRawArchiveObject` | const | `packages/tooling/library/ai-metrics/src/archive.ts:251` | Write one raw transcript file into the encrypted content-addressed archive. |
 | `@beep/repo-ai-metrics/ingest` | `AiMetricsIngestError` | class | `packages/tooling/library/ai-metrics/src/ingest.ts:43` | Error raised by AI metrics ingest helpers. |
 | `@beep/repo-ai-metrics/ingest` | `summarizeTranscriptText` | const | `packages/tooling/library/ai-metrics/src/ingest.ts:177` | Summarize JSONL transcript text into a stable ingest summary. |
@@ -7643,13 +7724,13 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-ai-metrics/retention` | `AiMetricsRetentionError` | class | `packages/tooling/library/ai-metrics/src/retention.ts:167` | Error raised by P7 AI metrics retention workflows. |
 | `@beep/repo-ai-metrics/retention` | `AiMetricsRetentionFileItem` | class | `packages/tooling/library/ai-metrics/src/retention.ts:242` | Deploy-safe retained file inventory row. |
 | `@beep/repo-ai-metrics/retention` | `AiMetricsRetentionInventory` | class | `packages/tooling/library/ai-metrics/src/retention.ts:263` | Path-safe inventory returned by `ai-metrics retention list`. |
-| `@beep/repo-ai-metrics/retention` | `aiMetricsRetentionInventoryToJson` | const | `packages/tooling/library/ai-metrics/src/retention.ts:935` | Render a retention inventory as JSON. |
+| `@beep/repo-ai-metrics/retention` | `aiMetricsRetentionInventoryToJson` | const | `packages/tooling/library/ai-metrics/src/retention.ts:939` | Render a retention inventory as JSON. |
 | `@beep/repo-ai-metrics/retention` | `AiMetricsRetentionMutationResult` | class | `packages/tooling/library/ai-metrics/src/retention.ts:290` | Result for delete or compaction retention commands. |
-| `@beep/repo-ai-metrics/retention` | `aiMetricsRetentionMutationToJson` | const | `packages/tooling/library/ai-metrics/src/retention.ts:955` | Render a retention mutation result as JSON. |
+| `@beep/repo-ai-metrics/retention` | `aiMetricsRetentionMutationToJson` | const | `packages/tooling/library/ai-metrics/src/retention.ts:959` | Render a retention mutation result as JSON. |
 | `@beep/repo-ai-metrics/retention` | `AiMetricsRetentionRawArchiveItem` | class | `packages/tooling/library/ai-metrics/src/retention.ts:215` | Deploy-safe raw archive inventory row. |
 | `@beep/repo-ai-metrics/retention` | `AiMetricsRetentionRestoreDrillInput` | class | `packages/tooling/library/ai-metrics/src/retention.ts:318` | Input for a retained raw archive restore drill. |
 | `@beep/repo-ai-metrics/retention` | `AiMetricsRetentionRestoreDrillResult` | class | `packages/tooling/library/ai-metrics/src/retention.ts:344` | Result for a retained raw archive restore drill. |
-| `@beep/repo-ai-metrics/retention` | `aiMetricsRetentionRestoreDrillToJson` | const | `packages/tooling/library/ai-metrics/src/retention.ts:975` | Render a restore drill result as JSON. |
+| `@beep/repo-ai-metrics/retention` | `aiMetricsRetentionRestoreDrillToJson` | const | `packages/tooling/library/ai-metrics/src/retention.ts:979` | Render a restore drill result as JSON. |
 | `@beep/repo-ai-metrics/retention` | `AiMetricsRetentionSelector` | class | `packages/tooling/library/ai-metrics/src/retention.ts:189` | Time-window selector for AI metrics retention commands. |
 | `@beep/repo-ai-metrics/retention` | `listAiMetricsRetentionInventory` | const | `packages/tooling/library/ai-metrics/src/retention.ts:587` | List retained AI metrics raw archive objects and derived/report outputs. |
 | `@beep/repo-ai-metrics/retention` | `runAiMetricsRetentionCompact` | const | `packages/tooling/library/ai-metrics/src/retention.ts:779` | Compact selected AI metrics derived Parquet and report outputs. |
@@ -9847,11 +9928,12 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 
 | Import | Symbol | Kind | Source | Summary |
 |---|---|---|---|---|
+| `@beep/repo-cli` | `agentEffectivenessCommand` | const | `packages/tooling/tool/cli/src/commands/AgentEffectiveness/index.ts:310` | Agent-effectiveness root command. |
 | `@beep/repo-cli` | `ciCommand` | const | `packages/tooling/tool/cli/src/commands/Ci.ts:338` | CI helper command group. |
 | `@beep/repo-cli` | `codegenCommand` | const | `packages/tooling/tool/cli/src/commands/Codegen.ts:257` | CLI command that scans a package's `src/` directory and generates (or previews) |
 | `@beep/repo-cli` | `codexCommand` | const | `packages/tooling/tool/cli/src/commands/Codex.ts:134` | Codex helper command group. |
 | `@beep/repo-cli` | `createPackageCommand` | const | `packages/tooling/tool/cli/src/commands/CreatePackage/index.ts:16` | Package creation command. |
-| `@beep/repo-cli` | `docgenCommand` | const | `packages/tooling/tool/cli/src/commands/Docgen/index.ts:1122` | Human-first docgen command suite. |
+| `@beep/repo-cli` | `docgenCommand` | const | `packages/tooling/tool/cli/src/commands/Docgen/index.ts:1128` | Human-first docgen command suite. |
 | `@beep/repo-cli` | `docsCommand` | const | `packages/tooling/tool/cli/src/commands/Docs.ts:244` | Command-first docs discovery entrypoint used by agent config surfaces. |
 | `@beep/repo-cli` | `filesCommand` | const | `packages/tooling/tool/cli/src/commands/Files/Files.command.ts:447` | File curation command group. |
 | `@beep/repo-cli` | `graphitiCommand` | const | `packages/tooling/tool/cli/src/commands/Graphiti/index.ts:96` | Graphiti command group. |
@@ -9861,11 +9943,12 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli` | `purgeCommand` | const | `packages/tooling/tool/cli/src/commands/Purge.ts:258` | CLI command to purge workspace/root build artifacts. |
 | `@beep/repo-cli` | `qualityCommand` | const | `packages/tooling/tool/cli/src/commands/Quality/ScriptCommands.ts:1552` | Quality command group for repo operational checks. |
 | `@beep/repo-cli` | `reuseCommand` | const | `packages/tooling/tool/cli/src/commands/Reuse/index.ts:361` | Reuse-discovery command group. |
-| `@beep/repo-cli` | `rootCommand` | const | `packages/tooling/tool/cli/src/commands/Root.ts:44` | Top-level CLI command that registers all subcommands. |
+| `@beep/repo-cli` | `rootCommand` | const | `packages/tooling/tool/cli/src/commands/Root.ts:45` | Top-level CLI command that registers all subcommands. |
 | `@beep/repo-cli` | `syncDataToTsCommand` | const | `packages/tooling/tool/cli/src/commands/SyncDataToTs/index.ts:460` | CLI command for syncing official upstream datasets into checked-in TypeScript modules. |
 | `@beep/repo-cli` | `topoSortCommand` | const | `packages/tooling/tool/cli/src/commands/TopoSort.ts:32` | CLI command that builds the workspace dependency graph and prints package names |
 | `@beep/repo-cli` | `tsconfigSyncCommand` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync.ts:1832` | CLI command for synchronizing root and workspace tsconfig state. |
 | `@beep/repo-cli` | `versionSyncCommand` | const | `packages/tooling/tool/cli/src/commands/VersionSync/index.ts:48` | CLI command for synchronizing version pins across the monorepo. |
+| `@beep/repo-cli/commands/AgentEffectiveness/index` | `agentEffectivenessCommand` | const | `packages/tooling/tool/cli/src/commands/AgentEffectiveness/index.ts:310` | Agent-effectiveness root command. |
 | `@beep/repo-cli/commands/AIDocs/AIDocs` | `AIDocKind` | const | `packages/tooling/tool/cli/src/commands/AIDocs/AIDocs.ts:37` | Supported external documentation source formats for AI documentation. |
 | `@beep/repo-cli/commands/AIDocs/AIDocs` | `AIDocKind` | type | `packages/tooling/tool/cli/src/commands/AIDocs/AIDocs.ts:87` | Union type for supported external documentation source formats. |
 | `@beep/repo-cli/commands/AIDocs/AIDocs` | `AIDocsError` | class | `packages/tooling/tool/cli/src/commands/AIDocs/AIDocs.ts:23` | AIDocsError - A Tagged Error Class for errors occurring in the AIDocs command |
@@ -10004,7 +10087,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/commands/CreatePackage/TsMorphIntegrationService` | `TsMorphMutationKind` | const | `packages/tooling/tool/cli/src/commands/CreatePackage/TsMorphIntegrationService.ts:23` | Supported AST mutation categories required by create-package. |
 | `@beep/repo-cli/commands/CreatePackage/TsMorphIntegrationService` | `TsMorphMutationKind` | type | `packages/tooling/tool/cli/src/commands/CreatePackage/TsMorphIntegrationService.ts:39` | Supported AST mutation categories required by create-package. |
 | `@beep/repo-cli/commands/CreatePackage/TsMorphIntegrationService` | `TsMorphMutationOutcome` | type | `packages/tooling/tool/cli/src/commands/CreatePackage/TsMorphIntegrationService.ts:184` | Outcome for one mutation. |
-| `@beep/repo-cli/commands/Docgen/index` | `docgenCommand` | const | `packages/tooling/tool/cli/src/commands/Docgen/index.ts:1122` | Human-first docgen command suite. |
+| `@beep/repo-cli/commands/Docgen/index` | `docgenCommand` | const | `packages/tooling/tool/cli/src/commands/Docgen/index.ts:1128` | Human-first docgen command suite. |
 | `@beep/repo-cli/commands/Docgen/internal/Operations` | `aggregateGeneratedDocs` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/Operations.ts:1478` | Aggregate generated package docs into the current root docs layout. |
 | `@beep/repo-cli/commands/Docgen/internal/Operations` | `analyzePackageDocumentation` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/Operations.ts:1303` | Analyze a package for missing docgen-required JSDoc. |
 | `@beep/repo-cli/commands/Docgen/internal/Operations` | `assertNoOrphanDocgenConfigPaths` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/Operations.ts:465` | Fail when stale package-local docgen configs exist outside current workspaces. |
@@ -10045,11 +10128,11 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/commands/Docgen/internal/Quality` | `generateQualityJson` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/Quality.ts:1846` | Renders a quality report as stable JSON. |
 | `@beep/repo-cli/commands/Docgen/internal/Quality` | `generateQualityReport` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/Quality.ts:1898` | Renders a quality report as human-readable Markdown. |
 | `@beep/repo-cli/commands/Docgen/internal/Quality` | `resolveDocgenQualityTargets` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/Quality.ts:562` | Resolves `docgen quality` targets using the v1 scope policy. |
-| `@beep/repo-cli/commands/Docgen/internal/QualityWorkerEval` | `analyzeDocgenQualityWorkerEval` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerEval.ts:1257` | Build a read-only worker eval report from a quality report. |
+| `@beep/repo-cli/commands/Docgen/internal/QualityWorkerEval` | `analyzeDocgenQualityWorkerEval` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerEval.ts:1258` | Build a read-only worker eval report from a quality report. |
 | `@beep/repo-cli/commands/Docgen/internal/QualityWorkerEval` | `AnalyzeDocgenQualityWorkerEvalOptions` | class | `packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerEval.ts:523` | Options for one worker eval run. |
-| `@beep/repo-cli/commands/Docgen/internal/QualityWorkerEval` | `decodeDocgenQualityReportForWorkerEval` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerEval.ts:1160` | Decode a saved `docgen quality` JSON report for worker eval. |
-| `@beep/repo-cli/commands/Docgen/internal/QualityWorkerEval` | `defaultQualityWorkerEvalPacketLimit` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerEval.ts:1197` | Default packet cap for `docgen quality-worker-eval`. |
-| `@beep/repo-cli/commands/Docgen/internal/QualityWorkerEval` | `defaultQualityWorkerEvalReasoningEffort` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerEval.ts:1212` | Default hosted Codex reasoning effort for worker eval. |
+| `@beep/repo-cli/commands/Docgen/internal/QualityWorkerEval` | `decodeDocgenQualityReportForWorkerEval` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerEval.ts:1161` | Decode a saved `docgen quality` JSON report for worker eval. |
+| `@beep/repo-cli/commands/Docgen/internal/QualityWorkerEval` | `defaultQualityWorkerEvalPacketLimit` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerEval.ts:1198` | Default packet cap for `docgen quality-worker-eval`. |
+| `@beep/repo-cli/commands/Docgen/internal/QualityWorkerEval` | `defaultQualityWorkerEvalReasoningEffort` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerEval.ts:1213` | Default hosted Codex reasoning effort for worker eval. |
 | `@beep/repo-cli/commands/Docgen/internal/QualityWorkerEval` | `DocgenQualityWorkerEvalPacketStatus` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerEval.ts:197` | Read-only packet execution status for worker eval. |
 | `@beep/repo-cli/commands/Docgen/internal/QualityWorkerEval` | `DocgenQualityWorkerEvalPacketStatus` | type | `packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerEval.ts:216` | Read-only packet execution status for worker eval. |
 | `@beep/repo-cli/commands/Docgen/internal/QualityWorkerEval` | `DocgenQualityWorkerEvalPolicyViolationCode` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerEval.ts:267` | Closed repo-policy issue code emitted by a worker eval. |
@@ -10067,8 +10150,8 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/commands/Docgen/internal/QualityWorkerEval` | `DocgenQualityWorkerEvalScope` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerEval.ts:164` | Source mode used to build a worker eval queue. |
 | `@beep/repo-cli/commands/Docgen/internal/QualityWorkerEval` | `DocgenQualityWorkerEvalScope` | type | `packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerEval.ts:183` | Source mode used to build a worker eval queue. |
 | `@beep/repo-cli/commands/Docgen/internal/QualityWorkerEval` | `DocgenQualityWorkerEvalWorkerOutput` | class | `packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerEval.ts:313` | Structured response expected from the Codex worker. |
-| `@beep/repo-cli/commands/Docgen/internal/QualityWorkerEval` | `generateQualityWorkerEvalJson` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerEval.ts:1376` | Render a worker eval report as stable JSON. |
-| `@beep/repo-cli/commands/Docgen/internal/QualityWorkerEval` | `qualityWorkerEvalSourcePacketLimit` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerEval.ts:1181` | Compute the source packet limit used for generated quality reports. |
+| `@beep/repo-cli/commands/Docgen/internal/QualityWorkerEval` | `generateQualityWorkerEvalJson` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerEval.ts:1377` | Render a worker eval report as stable JSON. |
+| `@beep/repo-cli/commands/Docgen/internal/QualityWorkerEval` | `qualityWorkerEvalSourcePacketLimit` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerEval.ts:1182` | Compute the source packet limit used for generated quality reports. |
 | `@beep/repo-cli/commands/Docgen/internal/QualityWorkerEval` | `selectQualityWorkerEvalPackets` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerEval.ts:736` | Select remediation packets for a capped worker eval run. |
 | `@beep/repo-cli/commands/Docgen/internal/QualityWorkerRunpodEval` | `defaultQualityWorkerRunpodEvalOtlpBaseUrl` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerRunpodEval.ts:1022` | Default Phoenix-compatible OTLP base URL for remote worker eval traces. |
 | `@beep/repo-cli/commands/Docgen/internal/QualityWorkerRunpodEval` | `defaultQualityWorkerRunpodEvalOtlpProject` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerRunpodEval.ts:1037` | Default Phoenix project for remote worker eval traces. |
@@ -10209,18 +10292,18 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/commands/Files/Files.schemas` | `StripMetadataSummary` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:915` | Summary returned by `stripMetadataFiles`. |
 | `@beep/repo-cli/commands/Files/Files.schemas` | `SupportedMetadataImageExtension` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:144` | Image extension schema supported by metadata stripping. |
 | `@beep/repo-cli/commands/Files/Files.schemas` | `SupportedMetadataImageExtension` | type | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:164` | Image extension supported by metadata stripping. |
-| `@beep/repo-cli/commands/Files/Files.service` | `archivePoorCandidates` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:4495` | Archive obvious poor image candidates out of a dataset directory. |
-| `@beep/repo-cli/commands/Files/Files.service` | `createCaptionFiles` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:4510` | Create same-stem caption sidecar files for direct image files. |
-| `@beep/repo-cli/commands/Files/Files.service` | `cropBordersFiles` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:4525` | Crop solid or near-solid borders from direct image files. |
-| `@beep/repo-cli/commands/Files/Files.service` | `detectBordersFiles` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:4540` | Detect solid or near-solid borders in direct image files. |
-| `@beep/repo-cli/commands/Files/Files.service` | `detectFacesFiles` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:4555` | Detect human faces in direct image files. |
-| `@beep/repo-cli/commands/Files/Files.service` | `FilesCommandService` | class | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:320` | Service tag for dataset file curation operations. |
-| `@beep/repo-cli/commands/Files/Files.service` | `FilesCommandServiceLive` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:4484` | Live service layer for dataset file curation operations. |
-| `@beep/repo-cli/commands/Files/Files.service` | `FilesCommandServiceShape` | interface | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:247` | Service contract for dataset file curation operations. |
-| `@beep/repo-cli/commands/Files/Files.service` | `normalizeFiles` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:4570` | Normalize direct image files into an output directory and write a transform manifest. |
-| `@beep/repo-cli/commands/Files/Files.service` | `printFilesIndex` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:3724` | Print the files command index. |
-| `@beep/repo-cli/commands/Files/Files.service` | `sortAndRenameFiles` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:4588` | Sort direct regular files in a directory by size and rename them with a generated prefix. |
-| `@beep/repo-cli/commands/Files/Files.service` | `stripMetadataFiles` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:4615` | Strip user-authored metadata from direct image and video files in a directory. |
+| `@beep/repo-cli/commands/Files/Files.service` | `archivePoorCandidates` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:4497` | Archive obvious poor image candidates out of a dataset directory. |
+| `@beep/repo-cli/commands/Files/Files.service` | `createCaptionFiles` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:4512` | Create same-stem caption sidecar files for direct image files. |
+| `@beep/repo-cli/commands/Files/Files.service` | `cropBordersFiles` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:4527` | Crop solid or near-solid borders from direct image files. |
+| `@beep/repo-cli/commands/Files/Files.service` | `detectBordersFiles` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:4542` | Detect solid or near-solid borders in direct image files. |
+| `@beep/repo-cli/commands/Files/Files.service` | `detectFacesFiles` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:4557` | Detect human faces in direct image files. |
+| `@beep/repo-cli/commands/Files/Files.service` | `FilesCommandService` | class | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:322` | Service tag for dataset file curation operations. |
+| `@beep/repo-cli/commands/Files/Files.service` | `FilesCommandServiceLive` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:4486` | Live service layer for dataset file curation operations. |
+| `@beep/repo-cli/commands/Files/Files.service` | `FilesCommandServiceShape` | interface | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:249` | Service contract for dataset file curation operations. |
+| `@beep/repo-cli/commands/Files/Files.service` | `normalizeFiles` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:4572` | Normalize direct image files into an output directory and write a transform manifest. |
+| `@beep/repo-cli/commands/Files/Files.service` | `printFilesIndex` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:3726` | Print the files command index. |
+| `@beep/repo-cli/commands/Files/Files.service` | `sortAndRenameFiles` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:4590` | Sort direct regular files in a directory by size and rename them with a generated prefix. |
+| `@beep/repo-cli/commands/Files/Files.service` | `stripMetadataFiles` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:4617` | Strip user-authored metadata from direct image and video files in a directory. |
 | `@beep/repo-cli/commands/Files/Files.utils` | `analyzeSolidBorders` | const | `packages/tooling/tool/cli/src/commands/Files/Files.utils.ts:730` | Analyze raw RGB image pixels for near-solid borders on all four sides. |
 | `@beep/repo-cli/commands/Files/Files.utils` | `assessImageCandidate` | const | `packages/tooling/tool/cli/src/commands/Files/Files.utils.ts:601` | Assess image dimensions against hard candidate-quality thresholds. |
 | `@beep/repo-cli/commands/Files/Files.utils` | `byNameAscending` | const | `packages/tooling/tool/cli/src/commands/Files/Files.utils.ts:264` | Order regular files by name ascending. |
@@ -10265,7 +10348,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/commands/Files/Files.utils` | `targetNameForEntry` | const | `packages/tooling/tool/cli/src/commands/Files/Files.utils.ts:408` | Build a generated filename for a planned rename. |
 | `@beep/repo-cli/commands/Files/index` | `analyzeSolidBorders` | const | `packages/tooling/tool/cli/src/commands/Files/Files.utils.ts:730` | Analyze raw RGB image pixels for near-solid borders on all four sides. |
 | `@beep/repo-cli/commands/Files/index` | `ArchivedSidecarEntry` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1316` | Caption or metadata sidecar moved with an archived image. |
-| `@beep/repo-cli/commands/Files/index` | `archivePoorCandidates` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:4495` | Archive obvious poor image candidates out of a dataset directory. |
+| `@beep/repo-cli/commands/Files/index` | `archivePoorCandidates` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:4497` | Archive obvious poor image candidates out of a dataset directory. |
 | `@beep/repo-cli/commands/Files/index` | `ArchivePoorCandidatesEntry` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1335` | Assessed image candidate with an archive or keep decision. |
 | `@beep/repo-cli/commands/Files/index` | `ArchivePoorCandidatesManifest` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1450` | Manifest written by a successful poor-candidate archive run. |
 | `@beep/repo-cli/commands/Files/index` | `ArchivePoorCandidatesManifestOptions` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1275` | JSON-safe options recorded in a poor-candidate archive manifest. |
@@ -10300,7 +10383,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/commands/Files/index` | `CandidateRatioThreshold` | type | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:510` | Numeric threshold ratio used by candidate-quality triage. |
 | `@beep/repo-cli/commands/Files/index` | `classifyBorderSides` | const | `packages/tooling/tool/cli/src/commands/Files/Files.utils.ts:684` | Classify an analyzed image from its matched border sides. |
 | `@beep/repo-cli/commands/Files/index` | `collectText` | const | `packages/tooling/tool/cli/src/commands/Files/Files.utils.ts:323` | Collect a byte stream into trimmed text. |
-| `@beep/repo-cli/commands/Files/index` | `createCaptionFiles` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:4510` | Create same-stem caption sidecar files for direct image files. |
+| `@beep/repo-cli/commands/Files/index` | `createCaptionFiles` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:4512` | Create same-stem caption sidecar files for direct image files. |
 | `@beep/repo-cli/commands/Files/index` | `CreateCaptionFilesOptions` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:959` | Options used by caption sidecar creation. |
 | `@beep/repo-cli/commands/Files/index` | `CreateCaptionFilesPlan` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1021` | Planned caption sidecar creation run. |
 | `@beep/repo-cli/commands/Files/index` | `CreateCaptionFilesPlanEntry` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:977` | Planned caption sidecar file creation. |
@@ -10308,7 +10391,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/commands/Files/index` | `CreateCaptionFilesSkippedReason` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:240` | Reason a direct directory entry was skipped by `files create-captions`. |
 | `@beep/repo-cli/commands/Files/index` | `CreateCaptionFilesSkippedReason` | type | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:261` | Reason a direct directory entry was skipped by `files create-captions`. |
 | `@beep/repo-cli/commands/Files/index` | `CreateCaptionFilesSummary` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1040` | Summary returned by `createCaptionFiles`. |
-| `@beep/repo-cli/commands/Files/index` | `cropBordersFiles` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:4525` | Crop solid or near-solid borders from direct image files. |
+| `@beep/repo-cli/commands/Files/index` | `cropBordersFiles` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:4527` | Crop solid or near-solid borders from direct image files. |
 | `@beep/repo-cli/commands/Files/index` | `CropBordersOptions` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1537` | Options used by the image border cropping operation. |
 | `@beep/repo-cli/commands/Files/index` | `CropBordersPlan` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1793` | Planned border crop entries plus skipped file counts. |
 | `@beep/repo-cli/commands/Files/index` | `CropBordersPlanEntry` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1767` | Planned crop for an image with detected solid borders. |
@@ -10325,7 +10408,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/commands/Files/index` | `decodeRotationNumber` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1899` | Decode an unknown rotation value into an optional number. |
 | `@beep/repo-cli/commands/Files/index` | `decodeSafeFilePrefix` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1907` | Decode an unknown safe filename prefix. |
 | `@beep/repo-cli/commands/Files/index` | `DetectBordersEntry` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1595` | Image entry analyzed by `files detect-borders`. |
-| `@beep/repo-cli/commands/Files/index` | `detectBordersFiles` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:4540` | Detect solid or near-solid borders in direct image files. |
+| `@beep/repo-cli/commands/Files/index` | `detectBordersFiles` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:4542` | Detect solid or near-solid borders in direct image files. |
 | `@beep/repo-cli/commands/Files/index` | `DetectBorderSideMeasurement` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1574` | Measurement for one scanned image side. |
 | `@beep/repo-cli/commands/Files/index` | `DetectBordersOptions` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1474` | Options used by the image border detection operation. |
 | `@beep/repo-cli/commands/Files/index` | `DetectBordersReport` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1656` | JSON report emitted by an image border detection run. |
@@ -10334,7 +10417,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/commands/Files/index` | `DetectBordersSkippedReason` | type | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:336` | Reason a direct directory entry was skipped by `files detect-borders`. |
 | `@beep/repo-cli/commands/Files/index` | `DetectBordersSummary` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1637` | Summary counts for an image border detection run. |
 | `@beep/repo-cli/commands/Files/index` | `DetectFacesEntry` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1676` | Image entry analyzed by `files detect-faces`. |
-| `@beep/repo-cli/commands/Files/index` | `detectFacesFiles` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:4555` | Detect human faces in direct image files. |
+| `@beep/repo-cli/commands/Files/index` | `detectFacesFiles` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:4557` | Detect human faces in direct image files. |
 | `@beep/repo-cli/commands/Files/index` | `DetectFacesFlag` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:373` | Triage flag emitted by `files detect-faces`. |
 | `@beep/repo-cli/commands/Files/index` | `DetectFacesFlag` | type | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:391` | Triage flag emitted by `files detect-faces`. |
 | `@beep/repo-cli/commands/Files/index` | `DetectFacesOptions` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1494` | Options used by the image face detection operation. |
@@ -10354,9 +10437,9 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/commands/Files/index` | `FfprobeStream` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:718` | Video stream metadata returned by `ffprobe`. |
 | `@beep/repo-cli/commands/Files/index` | `filesCommand` | const | `packages/tooling/tool/cli/src/commands/Files/Files.command.ts:447` | File curation command group. |
 | `@beep/repo-cli/commands/Files/index` | `FilesCommandError` | class | `packages/tooling/tool/cli/src/commands/Files/Files.errors.ts:33` | Error raised by file curation commands. |
-| `@beep/repo-cli/commands/Files/index` | `FilesCommandService` | class | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:320` | Service tag for dataset file curation operations. |
-| `@beep/repo-cli/commands/Files/index` | `FilesCommandServiceLive` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:4484` | Live service layer for dataset file curation operations. |
-| `@beep/repo-cli/commands/Files/index` | `FilesCommandServiceShape` | interface | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:247` | Service contract for dataset file curation operations. |
+| `@beep/repo-cli/commands/Files/index` | `FilesCommandService` | class | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:322` | Service tag for dataset file curation operations. |
+| `@beep/repo-cli/commands/Files/index` | `FilesCommandServiceLive` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:4486` | Live service layer for dataset file curation operations. |
+| `@beep/repo-cli/commands/Files/index` | `FilesCommandServiceShape` | interface | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:249` | Service contract for dataset file curation operations. |
 | `@beep/repo-cli/commands/Files/index` | `FilesConcurrency` | const | `packages/tooling/tool/cli/src/commands/Files/Files.progress.ts:23` | Shared concurrency caps for Files command phases. |
 | `@beep/repo-cli/commands/Files/index` | `FileSha256Hash` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:61` | SHA-256 hash recorded for normalized file bytes. |
 | `@beep/repo-cli/commands/Files/index` | `FileSha256Hash` | type | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:80` | SHA-256 hash recorded for normalized file bytes. |
@@ -10381,7 +10464,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/commands/Files/index` | `NonNegativePixelOffset` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:88` | Non-negative pixel offset schema. |
 | `@beep/repo-cli/commands/Files/index` | `NonNegativePixelOffset` | type | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:116` | Non-negative pixel offset value. |
 | `@beep/repo-cli/commands/Files/index` | `normalizeBareExtension` | const | `packages/tooling/tool/cli/src/commands/Files/Files.utils.ts:277` | Normalize a file extension to a lowercase bare extension. |
-| `@beep/repo-cli/commands/Files/index` | `normalizeFiles` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:4570` | Normalize direct image files into an output directory and write a transform manifest. |
+| `@beep/repo-cli/commands/Files/index` | `normalizeFiles` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:4572` | Normalize direct image files into an output directory and write a transform manifest. |
 | `@beep/repo-cli/commands/Files/index` | `NormalizeFilesOptions` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1060` | Options used by the image normalization operation. |
 | `@beep/repo-cli/commands/Files/index` | `NormalizeImageFormat` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:192` | Canonical image output format emitted by `files normalize`. |
 | `@beep/repo-cli/commands/Files/index` | `NormalizeImageFormat` | type | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:204` | Canonical image output format emitted by `files normalize`. |
@@ -10400,7 +10483,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/commands/Files/index` | `NormalizeSummary` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1177` | Summary counts for an image normalization run. |
 | `@beep/repo-cli/commands/Files/index` | `PositiveMediaDimension` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:25` | Positive media dimension schema. |
 | `@beep/repo-cli/commands/Files/index` | `PositiveMediaDimension` | type | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:53` | Positive media dimension value. |
-| `@beep/repo-cli/commands/Files/index` | `printFilesIndex` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:3724` | Print the files command index. |
+| `@beep/repo-cli/commands/Files/index` | `printFilesIndex` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:3726` | Print the files command index. |
 | `@beep/repo-cli/commands/Files/index` | `RenamePlan` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1849` | Planned rename entries plus skipped file counts. |
 | `@beep/repo-cli/commands/Files/index` | `RenamePlanEntry` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:838` | Planned rename from an existing file path to a generated target path. |
 | `@beep/repo-cli/commands/Files/index` | `renderArchivePoorCandidatesEntry` | const | `packages/tooling/tool/cli/src/commands/Files/Files.utils.ts:645` | Render a poor-candidate archive plan entry. |
@@ -10431,10 +10514,10 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/commands/Files/index` | `sharpFormatForNormalize` | const | `packages/tooling/tool/cli/src/commands/Files/Files.utils.ts:533` | Resolve the sharp encoder name for a canonical normalize format. |
 | `@beep/repo-cli/commands/Files/index` | `SortableFile` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:818` | File discovered for deterministic rename planning. |
 | `@beep/repo-cli/commands/Files/index` | `SortableFileCollection` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1833` | Files selected for rename planning plus skipped file counts. |
-| `@beep/repo-cli/commands/Files/index` | `sortAndRenameFiles` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:4588` | Sort direct regular files in a directory by size and rename them with a generated prefix. |
+| `@beep/repo-cli/commands/Files/index` | `sortAndRenameFiles` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:4590` | Sort direct regular files in a directory by size and rename them with a generated prefix. |
 | `@beep/repo-cli/commands/Files/index` | `SortAndRenameSummary` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:863` | Summary returned by `sortAndRenameFiles`. |
 | `@beep/repo-cli/commands/Files/index` | `stringEquivalence` | const | `packages/tooling/tool/cli/src/commands/Files/Files.utils.ts:221` | Schema-derived string equivalence. |
-| `@beep/repo-cli/commands/Files/index` | `stripMetadataFiles` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:4615` | Strip user-authored metadata from direct image and video files in a directory. |
+| `@beep/repo-cli/commands/Files/index` | `stripMetadataFiles` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:4617` | Strip user-authored metadata from direct image and video files in a directory. |
 | `@beep/repo-cli/commands/Files/index` | `StripMetadataPlan` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1865` | Planned metadata stripping entries plus skipped file counts. |
 | `@beep/repo-cli/commands/Files/index` | `StripMetadataPlanEntry` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:896` | Planned metadata strip for a selected image or video file. |
 | `@beep/repo-cli/commands/Files/index` | `StripMetadataSummary` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:915` | Summary returned by `stripMetadataFiles`. |
@@ -10542,7 +10625,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/commands/Reuse/internal/CodexRunner` | `CodexRunnerStage` | type | `packages/tooling/tool/cli/src/commands/Reuse/internal/CodexRunner.ts:37` | Runtime type for `CodexRunnerStage`. |
 | `@beep/repo-cli/commands/Reuse/internal/CodexRunner` | `CodexSmokeResult` | class | `packages/tooling/tool/cli/src/commands/Reuse/internal/CodexRunner.ts:45` | Structured result for `beep reuse codex-smoke`. |
 | `@beep/repo-cli/commands/Reuse/internal/CodexRunner` | `runCodexSmoke` | const | `packages/tooling/tool/cli/src/commands/Reuse/internal/CodexRunner.ts:83` | Validate the local Codex SDK adapter without running a reuse loop. |
-| `@beep/repo-cli/commands/Root` | `rootCommand` | const | `packages/tooling/tool/cli/src/commands/Root.ts:44` | Top-level CLI command that registers all subcommands. |
+| `@beep/repo-cli/commands/Root` | `rootCommand` | const | `packages/tooling/tool/cli/src/commands/Root.ts:45` | Top-level CLI command that registers all subcommands. |
 | `@beep/repo-cli/commands/Shared/BiomeJson` | `renderBiomeJson` | const | `packages/tooling/tool/cli/src/commands/Shared/BiomeJson.ts:42` | Render JSON with the same Biome config that repository lint uses. |
 | `@beep/repo-cli/commands/Shared/DocgenConfig` | `buildDocgenAliasSource` | const | `packages/tooling/tool/cli/src/commands/Shared/DocgenConfig.ts:290` | Build docgen alias targets for one workspace package from its exports. |
 | `@beep/repo-cli/commands/Shared/DocgenConfig` | `CanonicalDocgenConfig` | class | `packages/tooling/tool/cli/src/commands/Shared/DocgenConfig.ts:163` | Canonical repo docgen config payload. |
@@ -10669,11 +10752,12 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/commands/VersionSync/internal/updaters/PlainTextUpdater` | `updatePlainTextFile` | const | `packages/tooling/tool/cli/src/commands/VersionSync/internal/updaters/PlainTextUpdater.ts:21` | Update a plain text version file (e.g. `.bun-version`). |
 | `@beep/repo-cli/commands/VersionSync/internal/updaters/YamlFileUpdater` | `replaceNodeVersionWithFile` | const | `packages/tooling/tool/cli/src/commands/VersionSync/internal/updaters/YamlFileUpdater.ts:116` | Replace `node-version: <value>` with `node-version-file: .nvmrc` in a workflow YAML. |
 | `@beep/repo-cli/commands/VersionSync/internal/updaters/YamlFileUpdater` | `updateYamlValue` | const | `packages/tooling/tool/cli/src/commands/VersionSync/internal/updaters/YamlFileUpdater.ts:53` | Update a value at a specific path in a YAML file, preserving comments and formatting. |
+| `@beep/repo-cli/index` | `agentEffectivenessCommand` | const | `packages/tooling/tool/cli/src/commands/AgentEffectiveness/index.ts:310` | Agent-effectiveness root command. |
 | `@beep/repo-cli/index` | `ciCommand` | const | `packages/tooling/tool/cli/src/commands/Ci.ts:338` | CI helper command group. |
 | `@beep/repo-cli/index` | `codegenCommand` | const | `packages/tooling/tool/cli/src/commands/Codegen.ts:257` | CLI command that scans a package's `src/` directory and generates (or previews) |
 | `@beep/repo-cli/index` | `codexCommand` | const | `packages/tooling/tool/cli/src/commands/Codex.ts:134` | Codex helper command group. |
 | `@beep/repo-cli/index` | `createPackageCommand` | const | `packages/tooling/tool/cli/src/commands/CreatePackage/index.ts:16` | Package creation command. |
-| `@beep/repo-cli/index` | `docgenCommand` | const | `packages/tooling/tool/cli/src/commands/Docgen/index.ts:1122` | Human-first docgen command suite. |
+| `@beep/repo-cli/index` | `docgenCommand` | const | `packages/tooling/tool/cli/src/commands/Docgen/index.ts:1128` | Human-first docgen command suite. |
 | `@beep/repo-cli/index` | `docsCommand` | const | `packages/tooling/tool/cli/src/commands/Docs.ts:244` | Command-first docs discovery entrypoint used by agent config surfaces. |
 | `@beep/repo-cli/index` | `filesCommand` | const | `packages/tooling/tool/cli/src/commands/Files/Files.command.ts:447` | File curation command group. |
 | `@beep/repo-cli/index` | `graphitiCommand` | const | `packages/tooling/tool/cli/src/commands/Graphiti/index.ts:96` | Graphiti command group. |
@@ -10683,7 +10767,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/index` | `purgeCommand` | const | `packages/tooling/tool/cli/src/commands/Purge.ts:258` | CLI command to purge workspace/root build artifacts. |
 | `@beep/repo-cli/index` | `qualityCommand` | const | `packages/tooling/tool/cli/src/commands/Quality/ScriptCommands.ts:1552` | Quality command group for repo operational checks. |
 | `@beep/repo-cli/index` | `reuseCommand` | const | `packages/tooling/tool/cli/src/commands/Reuse/index.ts:361` | Reuse-discovery command group. |
-| `@beep/repo-cli/index` | `rootCommand` | const | `packages/tooling/tool/cli/src/commands/Root.ts:44` | Top-level CLI command that registers all subcommands. |
+| `@beep/repo-cli/index` | `rootCommand` | const | `packages/tooling/tool/cli/src/commands/Root.ts:45` | Top-level CLI command that registers all subcommands. |
 | `@beep/repo-cli/index` | `syncDataToTsCommand` | const | `packages/tooling/tool/cli/src/commands/SyncDataToTs/index.ts:460` | CLI command for syncing official upstream datasets into checked-in TypeScript modules. |
 | `@beep/repo-cli/index` | `topoSortCommand` | const | `packages/tooling/tool/cli/src/commands/TopoSort.ts:32` | CLI command that builds the workspace dependency graph and prints package names |
 | `@beep/repo-cli/index` | `tsconfigSyncCommand` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync.ts:1832` | CLI command for synchronizing root and workspace tsconfig state. |
