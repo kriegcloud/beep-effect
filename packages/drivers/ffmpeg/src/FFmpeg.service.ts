@@ -11,6 +11,7 @@ import { Context, Effect, FileSystem, Layer, Number as N, Order, Path, pipe, Ref
 import * as O from "effect/Option";
 import type * as PlatformError from "effect/PlatformError";
 import * as P from "effect/Predicate";
+import * as R from "effect/Record";
 import * as S from "effect/Schema";
 import { ChildProcess, ChildProcessSpawner } from "effect/unstable/process";
 import { FFmpegError } from "./FFmpeg.errors.ts";
@@ -476,10 +477,7 @@ const consumeProgressLine = (
   return [
     {
       ...state,
-      block: {
-        ...state.block,
-        [key]: value,
-      },
+      block: R.set(state.block, key, value),
     },
     O.none(),
   ];

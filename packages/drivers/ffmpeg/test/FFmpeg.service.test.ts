@@ -25,7 +25,8 @@ const provideScopedLayer =
 const encoder = new TextEncoder();
 const decodeManifest = S.decodeUnknownSync(S.fromJsonString(ExtractFramesManifest));
 
-const ffprobeJson = JSON.stringify({
+// TODO(effect-native-migration): model schema
+const ffprobeJson = S.encodeUnknownSync(S.UnknownFromJsonString)({
   format: { duration: "2.0" },
   streams: [
     {
