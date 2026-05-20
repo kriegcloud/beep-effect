@@ -1522,25 +1522,32 @@ const makeForwarderTimerProgram = Effect.fn("AIMetrics.makeForwarderTimerProgram
     rawArchiveKeySecretRef: yield* resolveRawArchiveKeySecretRef(rawArchiveKeySecretRef),
     target,
   });
-  const dataRootFlag = ` --data-root ${shellQuote(spec.storage.dataRoot)}`;
-  const hashSaltSecretRefFlagText =
-    resolvedHashSaltSecretRef === undefined ? "" : ` --hash-salt-secret-ref ${shellQuote(resolvedHashSaltSecretRef)}`;
-  const rawArchiveKeySecretRefFlagText =
-    resolvedRawArchiveKeySecretRef === undefined
-      ? ""
-      : ` --raw-archive-key-secret-ref ${shellQuote(resolvedRawArchiveKeySecretRef)}`;
-  const otlpFlagText =
-    target === AiMetricsDeployTarget.Enum.dankserver ? ` --otlp --otlp-base-url ${shellQuote(endpoint.baseUrl)}` : "";
-  const maxFileBytesFlagText = ` --max-file-bytes ${maxFileBytes}`;
-  const maxFilesFlagText = ` --max-files ${maxFiles}`;
-  const pathEnv = pipe(
-    yield* Config.option(Config.string("PATH")).pipe(Effect.orElseSucceed(O.none<string>)),
-    O.getOrElse(() => "")
-  );
-  const cliCommand = `/usr/bin/env PATH=${shellQuote(pathEnv)} bun packages/tooling/tool/cli/src/bin.ts --`;
+  const otlpArgs =
+    target === AiMetricsDeployTarget.Enum.dankserver ? ["--otlp", "--otlp-base-url", endpoint.baseUrl] : [];
   const plan = renderAiMetricsForwarderTimerPlan(
     new AiMetricsForwarderTimerInput({
-      command: `${cliCommand} ai-metrics forwarder run --target ${target}${dataRootFlag}${hashSaltSecretRefFlagText}${rawArchiveKeySecretRefFlagText}${otlpFlagText}${maxFileBytesFlagText}${maxFilesFlagText} --json`,
+      command: [
+        process.execPath,
+        "packages/tooling/tool/cli/src/bin.ts",
+        "--",
+        "ai-metrics",
+        "forwarder",
+        "run",
+        "--target",
+        target,
+        "--data-root",
+        spec.storage.dataRoot,
+        ...(resolvedHashSaltSecretRef === undefined ? [] : ["--hash-salt-secret-ref", resolvedHashSaltSecretRef]),
+        ...(resolvedRawArchiveKeySecretRef === undefined
+          ? []
+          : ["--raw-archive-key-secret-ref", resolvedRawArchiveKeySecretRef]),
+        ...otlpArgs,
+        "--max-file-bytes",
+        `${maxFileBytes}`,
+        "--max-files",
+        `${maxFiles}`,
+        "--json",
+      ],
       ...(resolvedHashSaltSecretRef === undefined ? {} : { hashSaltSecretRef: resolvedHashSaltSecretRef }),
       intervalMinutes,
       lockPath: "%t/beep-ai-metrics-forwarder.lock",

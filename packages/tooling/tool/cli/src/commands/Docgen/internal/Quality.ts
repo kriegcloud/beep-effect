@@ -438,6 +438,9 @@ const firstLine = (value: string): string => {
   return Str.trim(line ?? value);
 };
 
+const boundedText = (value: string, maxLength: number): string =>
+  value.length <= maxLength ? value : `${Str.slice(0, maxLength - 3)(value)}...`;
+
 const timestampIso = (): string => DateTime.formatIso(DateTime.nowUnsafe());
 
 const renderJson = Effect.fn("DocgenQuality.renderJson")(function* (value: unknown) {
@@ -831,7 +834,7 @@ const collectExportedDeclarationCandidates = (sourceFile: SourceFile): ReadonlyA
         declaration,
         anchorNode: exportAssignment,
         ...(Str.trim(rawJsDoc).length > 0 ? { rawJsDoc } : {}),
-        exportDeclarationText: exportAssignment.getText(),
+        exportDeclarationText: boundedText(firstLine(exportAssignment.getText()), 240),
       });
     }
   }
@@ -858,7 +861,7 @@ const collectExportedDeclarationCandidates = (sourceFile: SourceFile): ReadonlyA
           declaration,
           anchorNode: exportDeclaration,
           ...(Str.trim(rawJsDoc).length > 0 ? { rawJsDoc } : {}),
-          exportDeclarationText: exportDeclaration.getText(),
+          exportDeclarationText: boundedText(firstLine(exportDeclaration.getText()), 240),
         });
       }
     }
@@ -899,9 +902,6 @@ const collectExportedDeclarationCandidates = (sourceFile: SourceFile): ReadonlyA
 };
 
 const nodeLine = (node: Node): number => node.getSourceFile().getLineAndColumnAtPos(node.getStart()).line;
-
-const boundedText = (value: string, maxLength: number): string =>
-  value.length <= maxLength ? value : `${Str.slice(0, maxLength - 3)(value)}...`;
 
 const signatureText = (node: Node): string => {
   const text = Node.isVariableDeclaration(node)

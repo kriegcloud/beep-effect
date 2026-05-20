@@ -323,7 +323,10 @@ const addJsonBody = Effect.fnUntraced(function* (
   return yield* pipe(
     readProperty(decodedRequest, "body"),
     O.match({
-      onNone: () => Effect.fail(RunpodError.fromDescriptor(descriptor, "request encoding")),
+      onNone: () =>
+        descriptor.requestBodyRequired
+          ? Effect.fail(RunpodError.fromDescriptor(descriptor, "request encoding"))
+          : Effect.succeed(request),
       onSome: (body) =>
         pipe(
           HttpClientRequest.bodyJson(request, body),

@@ -61,6 +61,21 @@ describe("StatusCauseTaggedErrorClass", () => {
     expect(O.isNone(error.cause)).toBe(true);
   });
 
+  it.effect("keeps static helpers callable after destructuring", () =>
+    Effect.gen(function* () {
+      const { mapError, new: makeHttpError, noCause } = HttpError;
+      const cause = new Error("kapow");
+      const constructed = makeHttpError(cause, "boom", 500);
+      const withoutCause = noCause("missing", 404);
+      const mapped = yield* pipe(Effect.fail(rawFailure()), mapError("mapped", 503), Effect.flip);
+
+      expect(constructed).toBeInstanceOf(HttpError);
+      expect(withoutCause).toBeInstanceOf(HttpError);
+      expect(mapped).toBeInstanceOf(HttpError);
+      expect(mapped.status).toBe(503);
+    })
+  );
+
   it("constructs extra-field errors in data-first cause form", () => {
     const cause = new Error("kapow");
     const error = ProviderError.new(cause, "boom", 502, { provider: "local" });

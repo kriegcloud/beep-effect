@@ -82,6 +82,9 @@ function assertStructHasStringEntries<T>(
 const pathFromOptions = (options: { readonly path: PathInput }): PathInput =>
   P.isObject(options) && P.hasProperty(options, "path") ? cast(options.path) : cast(options);
 
+const isBlockedObjectKey = (key: PropertyKey): boolean =>
+  key === "__proto__" || key === "constructor" || key === "prototype";
+
 /**
  * Result of a runtime struct path lookup.
  *
@@ -603,7 +606,7 @@ export const fromEntries = <const E extends readonly [PropertyKey, unknown]>(
   for (const [key, value] of entries) {
     Reflect.defineProperty(out, key, {
       configurable: true,
-      enumerable: true,
+      enumerable: !isBlockedObjectKey(key),
       value,
       writable: true,
     });
