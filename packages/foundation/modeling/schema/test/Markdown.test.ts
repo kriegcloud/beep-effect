@@ -121,19 +121,19 @@ describe("Markdown", () => {
     })
   );
 
-  it.effect("renders Markdown text to HTML with Bun defaults", () =>
+  it.effect("renders Markdown text to HTML with raw HTML filtering by default", () =>
     Effect.gen(function* () {
       const html = yield* decodeMarkdownTextAs(S.String)("<script>x</script>");
 
-      expect(html).toBe("<script>x</script>\n");
+      expect(html).toBe("&lt;script>x&lt;/script>\n");
     })
   );
 
   it.effect("forwards Bun Markdown options through the schema factory", () =>
     Effect.gen(function* () {
-      const html = yield* decodeMarkdownTextAs(S.String, { tagFilter: true })("<script>x</script>");
+      const html = yield* decodeMarkdownTextAs(S.String, { tagFilter: false })("<script>x</script>");
 
-      expect(html).toBe("&lt;script>x&lt;/script>\n");
+      expect(html).toBe("<script>x</script>\n");
     })
   );
 

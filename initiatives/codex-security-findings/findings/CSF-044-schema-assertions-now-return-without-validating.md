@@ -11,8 +11,8 @@
 | Reported age | 1h ago |
 | Capture method | dom-fallback |
 | Owner area | packages/foundation/modeling/utils |
-| Triage verdict | needs-current-head-review |
-| Codex close reason | pending |
+| Triage verdict | fixed |
+| Codex close reason | Already fixed |
 
 ## Summary
 
@@ -20,10 +20,14 @@ Introduced bug: validation assertions were converted from direct curried asserti
 
 ## Current-HEAD Triage
 
-- Verdict: `needs-current-head-review`
-- Rationale: Pending validation against current `HEAD`.
-- Remediation status: `not-started`
-- Verification command: `pending`
+- Verdict: `fixed`
+- Rationale: Effect v4 exposes S.asserts as a data-first assertion function, so the branch invokes S.asserts(schema, input) directly for non-empty array helpers while the JSDoc assertion path already uses the current API shape.
+- Remediation status: `fixed-in-branch`
+- Verification command: `bunx --bun vitest run packages/foundation/modeling/utils/test/Array.test.ts && bunx tsc --noEmit --pretty false -p packages/foundation/modeling/utils/tsconfig.json && bunx tsc --noEmit --pretty false -p packages/tooling/library/repo-utils/tsconfig.json`
+- Changed files:
+  - packages/foundation/modeling/utils/src/Array.ts
+- Verification notes:
+  - The Array tests and package typechecks pass with data-first S.asserts calls.
 
 ## Evidence Paths
 

@@ -11,8 +11,8 @@
 | Reported age | 1w ago |
 | Capture method | dom-fallback |
 | Owner area | packages/drivers/runpod/scripts |
-| Triage verdict | needs-current-head-review |
-| Codex close reason | pending |
+| Triage verdict | fixed |
+| Codex close reason | Already fixed |
 
 ## Summary
 
@@ -20,10 +20,16 @@ Introduced a functional bug in generated clients for OpenAPI operations with opt
 
 ## Current-HEAD Triage
 
-- Verdict: `needs-current-head-review`
-- Rationale: Pending validation against current `HEAD`.
-- Remediation status: `not-started`
-- Verification command: `pending`
+- Verdict: `fixed`
+- Rationale: Runpod operation descriptors now carry OpenAPI requestBody.required metadata, and the runtime only rejects omitted JSON bodies when the operation actually requires one.
+- Remediation status: `fixed-in-branch`
+- Verification command: `bunx --bun vitest run packages/drivers/runpod/test/Runpod.service.test.ts && bunx tsc --noEmit --pretty false -p packages/drivers/runpod/tsconfig.json`
+- Changed files:
+  - packages/drivers/runpod/scripts/generate.ts
+  - packages/drivers/runpod/src/Runpod.service.ts
+  - packages/drivers/runpod/src/_generated/Runpod.generated.ts
+- Verification notes:
+  - The Runpod service suite and package typecheck pass after regenerating descriptors.
 
 ## Evidence Paths
 

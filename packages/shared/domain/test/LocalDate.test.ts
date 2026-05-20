@@ -78,6 +78,10 @@ describe("LocalDate.Model", () => {
       assert.deepEqual(encoded, { year: 2024, month: 6, day: 15 });
     })
   );
+
+  it.effect("rejects impossible calendar dates at the schema boundary", () =>
+    expectFailure(S.decodeUnknownEffect(Model)({ year: 2024, month: 2, day: 30 }))
+  );
 });
 
 describe("constructors", () => {
@@ -85,14 +89,21 @@ describe("constructors", () => {
     const date = make({ year: 2024, month: 6, day: 15 });
     const optionalDate = makeOption({ year: 2024, month: 6, day: 15 });
     const invalidDate = makeOption({ year: 2024, month: 13, day: 15 });
+    const impossibleDate = makeOption({ year: 2024, month: 2, day: 30 });
 
     expect(date.toISOString()).toBe("2024-06-15");
     expect(O.isSome(optionalDate)).toBe(true);
     expect(O.isNone(invalidDate)).toBe(true);
+    expect(O.isNone(impossibleDate)).toBe(true);
+    expect(() => make({ year: 2024, month: 6, day: 31 })).toThrow();
   });
 
   it.effect("fails effectful construction when fields are outside schema bounds", () =>
     expectFailure(makeEffect({ year: 2024, month: 13, day: 15 }))
+  );
+
+  it.effect("fails effectful construction for impossible calendar dates", () =>
+    expectFailure(makeEffect({ year: 2023, month: 2, day: 29 }))
   );
 
   it("guards LocalDate instances", () => {

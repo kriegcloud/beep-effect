@@ -11,8 +11,8 @@
 | Reported age | 3w ago |
 | Capture method | dom-fallback |
 | Owner area | packages/common/utils/src |
-| Triage verdict | needs-current-head-review |
-| Codex close reason | pending |
+| Triage verdict | fixed |
+| Codex close reason | Already fixed |
 
 ## Summary
 
@@ -20,10 +20,14 @@ Introduced a prototype-pollution risk by making fromEntries-defined keys enumera
 
 ## Current-HEAD Triage
 
-- Verdict: `needs-current-head-review`
-- Rationale: Pending validation against current `HEAD`.
-- Remediation status: `not-started`
-- Verification command: `pending`
+- Verdict: `fixed`
+- Rationale: Struct.fromEntries defines prototype-sensitive keys as own non-enumerable data properties, preventing Object.assign or spread from copying __proto__, constructor, or prototype into another object.
+- Remediation status: `fixed-in-current-head`
+- Verification command: `bunx --bun vitest run packages/foundation/modeling/utils/test/Struct.test.ts --testNamePattern 'prototype-sensitive'`
+- Changed files:
+  - none
+- Verification notes:
+  - The Struct regression verifies __proto__ remains own but non-enumerable and does not pollute assigned objects.
 
 ## Evidence Paths
 

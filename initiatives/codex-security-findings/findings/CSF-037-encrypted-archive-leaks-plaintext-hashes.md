@@ -11,8 +11,8 @@
 | Reported age | 1w ago |
 | Capture method | dom-fallback |
 | Owner area | packages/tooling/library/ai-metrics |
-| Triage verdict | needs-current-head-review |
-| Codex close reason | pending |
+| Triage verdict | fixed |
+| Codex close reason | Already fixed |
 
 ## Summary
 
@@ -20,10 +20,14 @@ Introduced a privacy/info-leak bug in the new durable ingest storage path. Raw t
 
 ## Current-HEAD Triage
 
-- Verdict: `needs-current-head-review`
-- Rationale: Pending validation against current `HEAD`.
-- Remediation status: `not-started`
-- Verification command: `pending`
+- Verdict: `fixed`
+- Rationale: Encrypted raw archive plaintext identity is now stored as a salted private identifier hash instead of a public unsalted plaintext digest, and mirror export omits the raw archive object table.
+- Remediation status: `fixed-in-current-head`
+- Verification command: `rg -n 'plaintextContentHash = yield\* hashPrivateIdentifier\(content|omittedMirrorTables = \["ai_metrics_raw_archive_objects"\]' packages/tooling/library/ai-metrics/src/archive.ts packages/tooling/library/ai-metrics/src/mirror.ts`
+- Changed files:
+  - none
+- Verification notes:
+  - The archive writer hashes raw content through hashPrivateIdentifier, using the operator salt when provided.
 
 ## Evidence Paths
 

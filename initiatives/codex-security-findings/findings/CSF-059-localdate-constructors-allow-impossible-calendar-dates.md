@@ -11,8 +11,8 @@
 | Reported age | 3w ago |
 | Capture method | dom-fallback |
 | Owner area | packages/shared/domain/src |
-| Triage verdict | needs-current-head-review |
-| Codex close reason | pending |
+| Triage verdict | fixed |
+| Codex close reason | Already fixed |
 
 ## Summary
 
@@ -20,10 +20,15 @@ Introduced a correctness bug in the new LocalDate value module: non-string const
 
 ## Current-HEAD Triage
 
-- Verdict: `needs-current-head-review`
-- Rationale: Pending validation against current `HEAD`.
-- Remediation status: `not-started`
-- Verification command: `pending`
+- Verdict: `fixed`
+- Rationale: LocalDate field construction now validates real calendar dates, including month length and leap-year boundaries, before schema decoding and non-string constructors succeed.
+- Remediation status: `fixed-in-branch`
+- Verification command: `bunx --bun vitest run packages/shared/domain/test/LocalDate.test.ts && bunx tsc --noEmit --pretty false -p packages/shared/domain/tsconfig.json`
+- Changed files:
+  - packages/shared/domain/src/values/LocalDate/LocalDate.model.ts
+  - packages/shared/domain/test/LocalDate.test.ts
+- Verification notes:
+  - The LocalDate test suite passes with impossible February and 31-day boundary regressions.
 
 ## Evidence Paths
 

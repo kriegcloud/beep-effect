@@ -11,8 +11,8 @@
 | Reported age | 1h ago |
 | Capture method | dom-fallback |
 | Owner area | apps/professional-desktop |
-| Triage verdict | needs-current-head-review |
-| Codex close reason | pending |
+| Triage verdict | fixed |
+| Codex close reason | Already fixed |
 
 ## Summary
 
@@ -20,10 +20,14 @@ A low-impact documentation configuration bug was introduced. No exploitable vuln
 
 ## Current-HEAD Triage
 
-- Verdict: `needs-current-head-review`
-- Rationale: Pending validation against current `HEAD`.
-- Remediation status: `not-started`
-- Verification command: `pending`
+- Verdict: `fixed`
+- Rationale: The professional desktop docs config now nests the Repository link underneath aux_links instead of defining it as a separate top-level YAML key.
+- Remediation status: `fixed-in-branch`
+- Verification command: `rg -n '^aux_links:|^  Repository:' apps/professional-desktop/docs/_config.yml`
+- Changed files:
+  - apps/professional-desktop/docs/_config.yml
+- Verification notes:
+  - The fixed YAML keeps the Repository aux link under aux_links.
 
 ## Evidence Paths
 

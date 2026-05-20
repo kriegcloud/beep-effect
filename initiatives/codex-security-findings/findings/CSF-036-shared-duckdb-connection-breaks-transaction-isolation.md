@@ -11,8 +11,8 @@
 | Reported age | 1w ago |
 | Capture method | dom-fallback |
 | Owner area | packages/drivers/duckdb/src |
-| Triage verdict | needs-current-head-review |
-| Codex close reason | pending |
+| Triage verdict | fixed |
+| Codex close reason | Already fixed |
 
 ## Summary
 
@@ -20,10 +20,14 @@ Introduced: the commit replaced acquireUseRelease-based per-use connections with
 
 ## Current-HEAD Triage
 
-- Verdict: `needs-current-head-review`
-- Rationale: Pending validation against current `HEAD`.
-- Remediation status: `not-started`
-- Verification command: `pending`
+- Verdict: `fixed`
+- Rationale: Native DuckDB clients and layers now wrap shared connection use in a Semaphore with one permit, so ordinary queries and withTransaction blocks do not interleave on the cached connection.
+- Remediation status: `fixed-in-current-head`
+- Verification command: `bunx --bun vitest run packages/drivers/duckdb/test/DuckDb.service.test.ts && bunx tsc --noEmit --pretty false -p packages/drivers/duckdb/tsconfig.json`
+- Changed files:
+  - none
+- Verification notes:
+  - Current HEAD creates a connectionLock in both makeNodeClient and makeNodeLayer.
 
 ## Evidence Paths
 

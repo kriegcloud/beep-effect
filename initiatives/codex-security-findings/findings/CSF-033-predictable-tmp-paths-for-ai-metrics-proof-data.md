@@ -11,8 +11,8 @@
 | Reported age | 1w ago |
 | Capture method | dom-fallback |
 | Owner area | initiatives/ai-metrics-stack |
-| Triage verdict | needs-current-head-review |
-| Codex close reason | pending |
+| Triage verdict | fixed |
+| Codex close reason | Already fixed |
 
 ## Summary
 
@@ -20,10 +20,14 @@ Introduced. The commit adds new P7 mirror/retention command gates and ledger gui
 
 ## Current-HEAD Triage
 
-- Verdict: `needs-current-head-review`
-- Rationale: Pending validation against current `HEAD`.
-- Remediation status: `not-started`
-- Verification command: `pending`
+- Verdict: `fixed`
+- Rationale: The P7 proof-data and restore-drill command gates now create disposable roots with umask 077 and mktemp -d templates instead of staging sensitive AI metrics proof data under predictable /tmp paths.
+- Remediation status: `fixed-in-current-head`
+- Verification command: `rg -n 'umask 077; .*mktemp -d -t ai-metrics-p7-(proof-data|restore)' initiatives/ai-metrics-stack/ops/manifest.json && ! rg -n '/tmp/ai-metrics-p7|/tmp/beep-ai-metrics' initiatives/ai-metrics-stack/ops/manifest.json`
+- Changed files:
+  - none
+- Verification notes:
+  - Current HEAD uses random mktemp directories for the disposable proof copy and restore-drill paths.
 
 ## Evidence Paths
 

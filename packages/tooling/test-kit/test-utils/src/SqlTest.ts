@@ -164,8 +164,8 @@ export class PgliteTestcontainersTestDriverConfig extends S.Class<PgliteTestcont
       S.withDecodingDefaultKey(Effect.succeed(1))
     ),
     password: S.String.pipe(
-      S.withConstructorDefault(Effect.succeed("postgres")),
-      S.withDecodingDefaultKey(Effect.succeed("postgres"))
+      S.withConstructorDefault(Effect.sync(randomUUID)),
+      S.withDecodingDefaultKey(Effect.sync(randomUUID))
     ),
     startupTimeoutMs: PglitePositiveInteger.pipe(
       S.withConstructorDefault(Effect.succeed(60_000)),

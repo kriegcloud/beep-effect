@@ -11,8 +11,8 @@
 | Reported age | 1mo ago |
 | Capture method | dom-fallback |
 | Owner area | packages/common/utils/src |
-| Triage verdict | needs-current-head-review |
-| Codex close reason | pending |
+| Triage verdict | fixed |
+| Codex close reason | Already fixed |
 
 ## Summary
 
@@ -20,10 +20,14 @@ Introduces a resource-exhaustion/stack overflow risk by traversing the entire di
 
 ## Current-HEAD Triage
 
-- Verdict: `needs-current-head-review`
-- Rationale: Pending validation against current `HEAD`.
-- Remediation status: `not-started`
-- Verification command: `pending`
+- Verdict: `fixed`
+- Rationale: The custom Glob Node fallback derives static scan roots from include patterns, filters nested scan roots, applies ignore matchers before recursion, and skips symlinked directories.
+- Remediation status: `fixed-in-current-head`
+- Verification command: `bunx --bun vitest run packages/foundation/modeling/utils/test/Glob.test.ts --testNamePattern 'ignore|symlinked directories' && bunx tsc --noEmit --pretty false -p packages/foundation/modeling/utils/tsconfig.json`
+- Changed files:
+  - none
+- Verification notes:
+  - The Glob tests cover ignore-scoped output and symlink non-recursion in the fallback scanner.
 
 ## Evidence Paths
 

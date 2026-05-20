@@ -360,6 +360,11 @@ const migrationColumns = [
     columnName: "coverage_gaps_json",
     tableName: "ai_metrics_scorecards",
   },
+  {
+    columnDefinition: "archive_run_object_id VARCHAR",
+    columnName: "archive_run_object_id",
+    tableName: "ai_metrics_raw_archive_objects",
+  },
 ] as const;
 
 const migrationBackfillStatements = [
@@ -378,6 +383,16 @@ const currentAgentTaskIdExpression = (tableAlias: string): string =>
   `concat('agent-task-', sha256(concat('agent-task', chr(0), ${tableAlias}.config_snapshot_id, chr(0), ${tableAlias}.source_kind, chr(0), ${tableAlias}.source_role, chr(0), ${tableAlias}.source_path_hash)))`;
 
 const legacyAgentTaskIdMigrationStatements = [
+  `UPDATE ai_metrics_sessions AS sessions
+   SET agent_task_id = ${currentAgentTaskIdExpression("task")}
+   FROM ai_metrics_agent_tasks AS task
+   WHERE sessions.agent_task_id = task.agent_task_id
+     AND task.agent_task_id = ${legacyAgentTaskIdExpression("task")}`,
+  `UPDATE ai_metrics_outcome_labels AS label
+   SET agent_task_id = ${currentAgentTaskIdExpression("task")}
+   FROM ai_metrics_agent_tasks AS task
+   WHERE label.agent_task_id = task.agent_task_id
+     AND task.agent_task_id = ${legacyAgentTaskIdExpression("task")}`,
   `DELETE FROM ai_metrics_agent_tasks AS legacy
    WHERE legacy.agent_task_id = ${legacyAgentTaskIdExpression("legacy")}
      AND EXISTS (
@@ -389,6 +404,12 @@ const legacyAgentTaskIdMigrationStatements = [
   `UPDATE ai_metrics_agent_tasks AS task
    SET agent_task_id = ${currentAgentTaskIdExpression("task")}
    WHERE task.agent_task_id = ${legacyAgentTaskIdExpression("task")}`,
+] as const;
+
+const rawArchiveObjectIdMigrationStatements = [
+  `UPDATE ai_metrics_raw_archive_objects
+   SET archive_run_object_id = concat('archive-object-', sha256(concat('archive-object', chr(0), ingest_run_id, chr(0), archive_object_id)))
+   WHERE archive_run_object_id IS NULL`,
 ] as const;
 
 type MigrationColumn = {
@@ -416,8 +437,19 @@ const derivedStorageMigrations = [
       { columnName: "source_kind", tableName: "ai_metrics_agent_tasks" },
       { columnName: "source_path_hash", tableName: "ai_metrics_agent_tasks" },
       { columnName: "source_role", tableName: "ai_metrics_agent_tasks" },
+      { columnName: "agent_task_id", tableName: "ai_metrics_sessions" },
+      { columnName: "agent_task_id", tableName: "ai_metrics_outcome_labels" },
     ],
     statements: legacyAgentTaskIdMigrationStatements,
+  },
+  {
+    migrationId: "ai-metrics-raw-archive-object-id-v2",
+    requiredColumns: [
+      { columnName: "archive_run_object_id", tableName: "ai_metrics_raw_archive_objects" },
+      { columnName: "archive_object_id", tableName: "ai_metrics_raw_archive_objects" },
+      { columnName: "ingest_run_id", tableName: "ai_metrics_raw_archive_objects" },
+    ],
+    statements: rawArchiveObjectIdMigrationStatements,
   },
 ] as const satisfies ReadonlyArray<DerivedStorageMigration>;
 

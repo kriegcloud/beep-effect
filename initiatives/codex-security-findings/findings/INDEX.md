@@ -6,10 +6,10 @@ Captured from Codex Security on 2026-05-19. This index covers all 64 findings vi
 
 | Status | Count |
 |---|---:|
-| needs-current-head-review | 29 |
+| needs-current-head-review | 0 |
 | active | 0 |
-| dismissed | 0 |
-| fixed | 35 |
+| dismissed | 1 |
+| fixed | 63 |
 
 ## Severity Summary
 
@@ -56,35 +56,35 @@ Captured from Codex Security on 2026-05-19. This index covers all 64 findings vi
 | CSF-030 | Low | fixed | Closed | [Tailnet upload endpoint disclosed in committed audit notes](./CSF-030-tailnet-upload-endpoint-disclosed-in-committed-audit-notes.md) | initiatives/stack-installer | 8f36343 |
 | CSF-031 | Low | fixed | Closed | [Internal SMB peer details disclosed in audit notes](./CSF-031-internal-smb-peer-details-disclosed-in-audit-notes.md) | initiatives/stack-installer | 6ec9c16 |
 | CSF-032 | Low | fixed | Closed | [Stack Installer dev server binds to all interfaces](./CSF-032-stack-installer-dev-server-binds-to-all-interfaces.md) | apps/stack-installer | 6a86555 |
-| CSF-033 | Low | needs-current-head-review | Closed | [Predictable /tmp paths for AI metrics proof data](./CSF-033-predictable-tmp-paths-for-ai-metrics-proof-data.md) | initiatives/ai-metrics-stack | 7033ed3 |
-| CSF-034 | Low | needs-current-head-review | Closed | [Retention delete trusts traversable archive IDs](./CSF-034-retention-delete-trusts-traversable-archive-ids.md) | packages/tooling/library/ai-metrics | 408f4c2 |
-| CSF-035 | Low | needs-current-head-review | Closed | [SAST skips changed JavaScript/TypeScript symlinks](./CSF-035-sast-skips-changed-javascript-typescript-symlinks.md) | packages/tooling/tool/cli | b07de7b |
-| CSF-036 | Low | needs-current-head-review | Closed | [Shared DuckDB connection breaks transaction isolation](./CSF-036-shared-duckdb-connection-breaks-transaction-isolation.md) | packages/drivers/duckdb/src | fb91cc5 |
-| CSF-037 | Low | needs-current-head-review | Closed | [Encrypted archive leaks plaintext hashes](./CSF-037-encrypted-archive-leaks-plaintext-hashes.md) | packages/tooling/library/ai-metrics | a3857ad |
-| CSF-038 | Low | needs-current-head-review | Closed | [AI metrics privacy output leaks transcript identifiers](./CSF-038-ai-metrics-privacy-output-leaks-transcript-identifiers.md) | packages/tooling/library/ai-metrics | aa86796 |
-| CSF-039 | Low | needs-current-head-review | Closed | [Host-network PGLite fallback exposes test database](./CSF-039-host-network-pglite-fallback-exposes-test-database.md) | tooling/test-utils | 0c25ebd |
-| CSF-040 | Low | needs-current-head-review | Closed | [Unrestricted ffmpeg processing can trigger local SSRF](./CSF-040-unrestricted-ffmpeg-processing-can-trigger-local-ssrf.md) | tooling/cli | af06b2a |
-| CSF-041 | Low | needs-current-head-review | Closed | [Enumerable __proto__ in Struct.fromEntries enables pollution](./CSF-041-enumerable-proto-in-struct-fromentries-enables-pollution.md) | packages/common/utils/src | 7ed5024 |
-| CSF-042 | Low | needs-current-head-review | Closed | [Glob scan now aborts on dangling symlinks causing DoS](./CSF-042-glob-scan-now-aborts-on-dangling-symlinks-causing-dos.md) | packages/common/utils/src | 8199257 |
-| CSF-043 | Informational | needs-current-head-review | Closed | [Docs aux_links key is not nested under aux_links](./CSF-043-docs-aux-links-key-is-not-nested-under-aux-links.md) | apps/professional-desktop | 0b3fc6e |
-| CSF-044 | Informational | needs-current-head-review | Closed | [Schema assertions now return without validating](./CSF-044-schema-assertions-now-return-without-validating.md) | packages/foundation/modeling/utils | b8bc609 |
-| CSF-045 | Informational | needs-current-head-review | Closed | [Stale Bun lock keeps old Next peer copies](./CSF-045-stale-bun-lock-keeps-old-next-peer-copies.md) | apps/opip-web | 02c1fba |
+| CSF-033 | Low | fixed | Closed | [Predictable /tmp paths for AI metrics proof data](./CSF-033-predictable-tmp-paths-for-ai-metrics-proof-data.md) | initiatives/ai-metrics-stack | 7033ed3 |
+| CSF-034 | Low | fixed | Closed | [Retention delete trusts traversable archive IDs](./CSF-034-retention-delete-trusts-traversable-archive-ids.md) | packages/tooling/library/ai-metrics | 408f4c2 |
+| CSF-035 | Low | fixed | Closed | [SAST skips changed JavaScript/TypeScript symlinks](./CSF-035-sast-skips-changed-javascript-typescript-symlinks.md) | packages/tooling/tool/cli | b07de7b |
+| CSF-036 | Low | fixed | Closed | [Shared DuckDB connection breaks transaction isolation](./CSF-036-shared-duckdb-connection-breaks-transaction-isolation.md) | packages/drivers/duckdb/src | fb91cc5 |
+| CSF-037 | Low | fixed | Closed | [Encrypted archive leaks plaintext hashes](./CSF-037-encrypted-archive-leaks-plaintext-hashes.md) | packages/tooling/library/ai-metrics | a3857ad |
+| CSF-038 | Low | fixed | Closed | [AI metrics privacy output leaks transcript identifiers](./CSF-038-ai-metrics-privacy-output-leaks-transcript-identifiers.md) | packages/tooling/library/ai-metrics | aa86796 |
+| CSF-039 | Low | fixed | Closed | [Host-network PGLite fallback exposes test database](./CSF-039-host-network-pglite-fallback-exposes-test-database.md) | tooling/test-utils | 0c25ebd |
+| CSF-040 | Low | fixed | Closed | [Unrestricted ffmpeg processing can trigger local SSRF](./CSF-040-unrestricted-ffmpeg-processing-can-trigger-local-ssrf.md) | tooling/cli | af06b2a |
+| CSF-041 | Low | fixed | Closed | [Enumerable __proto__ in Struct.fromEntries enables pollution](./CSF-041-enumerable-proto-in-struct-fromentries-enables-pollution.md) | packages/common/utils/src | 7ed5024 |
+| CSF-042 | Low | fixed | Closed | [Glob scan now aborts on dangling symlinks causing DoS](./CSF-042-glob-scan-now-aborts-on-dangling-symlinks-causing-dos.md) | packages/common/utils/src | 8199257 |
+| CSF-043 | Informational | fixed | Closed | [Docs aux_links key is not nested under aux_links](./CSF-043-docs-aux-links-key-is-not-nested-under-aux-links.md) | apps/professional-desktop | 0b3fc6e |
+| CSF-044 | Informational | fixed | Closed | [Schema assertions now return without validating](./CSF-044-schema-assertions-now-return-without-validating.md) | packages/foundation/modeling/utils | b8bc609 |
+| CSF-045 | Informational | fixed | Closed | [Stale Bun lock keeps old Next peer copies](./CSF-045-stale-bun-lock-keeps-old-next-peer-copies.md) | apps/opip-web | 02c1fba |
 | CSF-046 | Informational | fixed | Closed | [Host header poisoning in proof upload landing page](./CSF-046-host-header-poisoning-in-proof-upload-landing-page.md) | initiatives/stack-installer | d8f1ede |
 | CSF-047 | Informational | fixed | Closed | [Unvalidated PID is negated for process-group kill](./CSF-047-unvalidated-pid-is-negated-for-process-group-kill.md) | initiatives/stack-installer | 6eb1d33 |
 | CSF-048 | Informational | fixed | Closed | [Proof watch aborts on partial bundle transfers](./CSF-048-proof-watch-aborts-on-partial-bundle-transfers.md) | apps/stack-installer | 60ac17f |
-| CSF-049 | Informational | needs-current-head-review | Closed | [Optional JSON bodies are generated but still rejected](./CSF-049-optional-json-bodies-are-generated-but-still-rejected.md) | packages/drivers/runpod/scripts | 342c52d |
-| CSF-050 | Informational | needs-current-head-review | Closed | [Worker migration drops existing assignee data](./CSF-050-worker-migration-drops-existing-assignee-data.md) | packages/_internal/db-admin/drizzle | b99c7b8 |
-| CSF-051 | Informational | needs-current-head-review | Closed | [Agent task migration orphans dependent metric rows](./CSF-051-agent-task-migration-orphans-dependent-metric-rows.md) | packages/tooling/library/ai-metrics | deb5047 |
-| CSF-052 | Informational | needs-current-head-review | Closed | [Agent task ID migration orphans related metrics rows](./CSF-052-agent-task-id-migration-orphans-related-metrics-rows.md) | packages/tooling/library/ai-metrics | 1ec6e3a |
-| CSF-053 | Informational | needs-current-head-review | Closed | [ACP protocol exposes Effect HashSet as native ReadonlySet](./CSF-053-acp-protocol-exposes-effect-hashset-as-native-readonlyset.md) | packages/drivers/acp/src | 6912323 |
-| CSF-054 | Informational | needs-current-head-review | Closed | [DuckDB schema change breaks existing AI metrics stores](./CSF-054-duckdb-schema-change-breaks-existing-ai-metrics-stores.md) | packages/tooling/library/ai-metrics | d20bea9 |
-| CSF-055 | Informational | needs-current-head-review | Closed | [Caption creation follows symlinks and can overwrite files](./CSF-055-caption-creation-follows-symlinks-and-can-overwrite-files.md) | tooling/cli | 1004b9f |
-| CSF-056 | Informational | needs-current-head-review | Closed | [Cause formatting returns reason instead of PostgresError](./CSF-056-cause-formatting-returns-reason-instead-of-postgreserror.md) | packages/drivers/postgres/src | d021c3a |
-| CSF-057 | Informational | needs-current-head-review | Closed | [Untrusted ffprobe lookup can execute attacker code](./CSF-057-untrusted-ffprobe-lookup-can-execute-attacker-code.md) | tooling/cli | 7b7260b |
-| CSF-058 | Informational | needs-current-head-review | Closed | [PGLite test DB exposed with default credentials](./CSF-058-pglite-test-db-exposed-with-default-credentials.md) | tooling/test-utils | 1dbf931 |
-| CSF-059 | Informational | needs-current-head-review | Closed | [LocalDate constructors allow impossible calendar dates](./CSF-059-localdate-constructors-allow-impossible-calendar-dates.md) | packages/shared/domain/src | b06f2f3 |
-| CSF-060 | Informational | needs-current-head-review | Closed | [Unbound CauseTaggedErrorClass helpers now crash](./CSF-060-unbound-causetaggederrorclass-helpers-now-crash.md) | packages/common/schema/src | bb74c4f |
-| CSF-061 | Informational | needs-current-head-review | Closed | [IndexedDbQueryBuilder stream can hang with zero chunk size](./CSF-061-indexeddbquerybuilder-stream-can-hang-with-zero-chunk-size.md) | packages/platform-browser/src/IndexedDbQueryBuilder.ts | 1e38762 |
-| CSF-062 | Informational | needs-current-head-review | Closed | [Custom glob walker now traverses full tree, enabling DoS](./CSF-062-custom-glob-walker-now-traverses-full-tree-enabling-dos.md) | packages/common/utils/src | d70aed0 |
-| CSF-063 | Informational | needs-current-head-review | Closed | [Markdown-to-HTML schema allows raw script tags by default](./CSF-063-markdown-to-html-schema-allows-raw-script-tags-by-default.md) | packages/common/schema/src | 0cf18c4 |
-| CSF-064 | Informational | needs-current-head-review | Closed | [IntelliJ shared index auto-consent to external server](./CSF-064-intellij-shared-index-auto-consent-to-external-server.md) | intellij.yaml | a6dd7e3 |
+| CSF-049 | Informational | fixed | Closed | [Optional JSON bodies are generated but still rejected](./CSF-049-optional-json-bodies-are-generated-but-still-rejected.md) | packages/drivers/runpod/scripts | 342c52d |
+| CSF-050 | Informational | dismissed | Closed | [Worker migration drops existing assignee data](./CSF-050-worker-migration-drops-existing-assignee-data.md) | packages/_internal/db-admin/drizzle | b99c7b8 |
+| CSF-051 | Informational | fixed | Closed | [Agent task migration orphans dependent metric rows](./CSF-051-agent-task-migration-orphans-dependent-metric-rows.md) | packages/tooling/library/ai-metrics | deb5047 |
+| CSF-052 | Informational | fixed | Closed | [Agent task ID migration orphans related metrics rows](./CSF-052-agent-task-id-migration-orphans-related-metrics-rows.md) | packages/tooling/library/ai-metrics | 1ec6e3a |
+| CSF-053 | Informational | fixed | Closed | [ACP protocol exposes Effect HashSet as native ReadonlySet](./CSF-053-acp-protocol-exposes-effect-hashset-as-native-readonlyset.md) | packages/drivers/acp/src | 6912323 |
+| CSF-054 | Informational | fixed | Closed | [DuckDB schema change breaks existing AI metrics stores](./CSF-054-duckdb-schema-change-breaks-existing-ai-metrics-stores.md) | packages/tooling/library/ai-metrics | d20bea9 |
+| CSF-055 | Informational | fixed | Closed | [Caption creation follows symlinks and can overwrite files](./CSF-055-caption-creation-follows-symlinks-and-can-overwrite-files.md) | tooling/cli | 1004b9f |
+| CSF-056 | Informational | fixed | Closed | [Cause formatting returns reason instead of PostgresError](./CSF-056-cause-formatting-returns-reason-instead-of-postgreserror.md) | packages/drivers/postgres/src | d021c3a |
+| CSF-057 | Informational | fixed | Closed | [Untrusted ffprobe lookup can execute attacker code](./CSF-057-untrusted-ffprobe-lookup-can-execute-attacker-code.md) | tooling/cli | 7b7260b |
+| CSF-058 | Informational | fixed | Closed | [PGLite test DB exposed with default credentials](./CSF-058-pglite-test-db-exposed-with-default-credentials.md) | tooling/test-utils | 1dbf931 |
+| CSF-059 | Informational | fixed | Closed | [LocalDate constructors allow impossible calendar dates](./CSF-059-localdate-constructors-allow-impossible-calendar-dates.md) | packages/shared/domain/src | b06f2f3 |
+| CSF-060 | Informational | fixed | Closed | [Unbound CauseTaggedErrorClass helpers now crash](./CSF-060-unbound-causetaggederrorclass-helpers-now-crash.md) | packages/common/schema/src | bb74c4f |
+| CSF-061 | Informational | fixed | Closed | [IndexedDbQueryBuilder stream can hang with zero chunk size](./CSF-061-indexeddbquerybuilder-stream-can-hang-with-zero-chunk-size.md) | packages/platform-browser/src/IndexedDbQueryBuilder.ts | 1e38762 |
+| CSF-062 | Informational | fixed | Closed | [Custom glob walker now traverses full tree, enabling DoS](./CSF-062-custom-glob-walker-now-traverses-full-tree-enabling-dos.md) | packages/common/utils/src | d70aed0 |
+| CSF-063 | Informational | fixed | Closed | [Markdown-to-HTML schema allows raw script tags by default](./CSF-063-markdown-to-html-schema-allows-raw-script-tags-by-default.md) | packages/common/schema/src | 0cf18c4 |
+| CSF-064 | Informational | fixed | Closed | [IntelliJ shared index auto-consent to external server](./CSF-064-intellij-shared-index-auto-consent-to-external-server.md) | intellij.yaml | a6dd7e3 |

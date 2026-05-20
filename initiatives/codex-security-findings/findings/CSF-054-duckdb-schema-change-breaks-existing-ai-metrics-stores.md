@@ -11,8 +11,8 @@
 | Reported age | 1w ago |
 | Capture method | dom-fallback |
 | Owner area | packages/tooling/library/ai-metrics |
-| Triage verdict | needs-current-head-review |
-| Codex close reason | pending |
+| Triage verdict | fixed |
+| Codex close reason | Already fixed |
 
 ## Summary
 
@@ -20,10 +20,15 @@ Introduced a compatibility/crash bug in durable AI metrics ingest. Existing loca
 
 ## Current-HEAD Triage
 
-- Verdict: `needs-current-head-review`
-- Rationale: Pending validation against current `HEAD`.
-- Remediation status: `not-started`
-- Verification command: `pending`
+- Verdict: `fixed`
+- Rationale: The AI metrics derived-store migration now adds and backfills archive_run_object_id for upgraded raw archive tables before the new insert/query shape is used.
+- Remediation status: `fixed-in-branch`
+- Verification command: `bunx --bun vitest run packages/tooling/library/ai-metrics/test/ingest.test.ts --testNamePattern 'backfills archive run object ids' && bunx tsc --noEmit --pretty false -p packages/tooling/library/ai-metrics/tsconfig.json`
+- Changed files:
+  - packages/tooling/library/ai-metrics/src/derived-storage.ts
+  - packages/tooling/library/ai-metrics/test/ingest.test.ts
+- Verification notes:
+  - The upgraded-store regression starts from the legacy raw archive schema and verifies archive_run_object_id is backfilled.
 
 ## Evidence Paths
 

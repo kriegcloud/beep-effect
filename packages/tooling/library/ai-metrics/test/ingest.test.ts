@@ -1207,6 +1207,47 @@ volumes:
               )`,
               { currentTaskId, legacyTaskId }
             );
+            yield* duckdb.run(
+              "CREATE TABLE ai_metrics_sessions (agent_session_id VARCHAR PRIMARY KEY, agent_task_id VARCHAR)"
+            );
+            yield* duckdb.run(
+              "INSERT INTO ai_metrics_sessions (agent_session_id, agent_task_id) VALUES ('session-legacy', $legacyTaskId)",
+              { legacyTaskId }
+            );
+            yield* duckdb.run(
+              `CREATE TABLE ai_metrics_outcome_labels (
+                label_id VARCHAR PRIMARY KEY,
+                agent_task_id VARCHAR NOT NULL,
+                rating DOUBLE NOT NULL,
+                passed BOOLEAN NOT NULL,
+                quality_gate VARCHAR NOT NULL,
+                intervention_count INTEGER NOT NULL,
+                follow_up_fix BOOLEAN NOT NULL,
+                labeled_at_epoch_ms DOUBLE NOT NULL
+              )`
+            );
+            yield* duckdb.run(
+              `INSERT INTO ai_metrics_outcome_labels (
+                label_id,
+                agent_task_id,
+                rating,
+                passed,
+                quality_gate,
+                intervention_count,
+                follow_up_fix,
+                labeled_at_epoch_ms
+              ) VALUES (
+                'label-legacy',
+                $legacyTaskId,
+                4,
+                TRUE,
+                'passed',
+                0,
+                FALSE,
+                1
+              )`,
+              { legacyTaskId }
+            );
 
             yield* ensureAiMetricsDerivedStorage;
 
@@ -1220,9 +1261,86 @@ volumes:
                FROM ai_metrics_schema_migrations
                WHERE migration_id = 'ai-metrics-agent-task-id-v2'`
             );
+            const sessionRows = yield* duckdb.query(
+              `SELECT agent_task_id AS "agentTaskId"
+               FROM ai_metrics_sessions
+               WHERE agent_session_id = 'session-legacy'`
+            );
+            const labelRows = yield* duckdb.query(
+              `SELECT agent_task_id AS "agentTaskId"
+               FROM ai_metrics_outcome_labels
+               WHERE label_id = 'label-legacy'`
+            );
 
             expect(taskRows).toEqual([{ agentTaskId: currentTaskId }]);
+            expect(sessionRows).toEqual([{ agentTaskId: currentTaskId }]);
+            expect(labelRows).toEqual([{ agentTaskId: currentTaskId }]);
             expect(migrationRows).toEqual([{ migrationId: "ai-metrics-agent-task-id-v2" }]);
+          }).pipe(provideScopedLayer(DuckDb.makeNodeLayer(new DuckDbConnectionOptions({ databasePath: duckDbPath }))));
+        })
+      ).pipe(provideScopedLayer(NodeServices.layer));
+    })
+  );
+
+  it.effect(
+    "backfills archive run object ids for upgraded derived stores",
+    Effect.fn(function* () {
+      yield* withTempDirectory(
+        Effect.fn(function* (tmpDir) {
+          const path = yield* Path.Path;
+          const duckDbPath = path.join(tmpDir, "ai-metrics.duckdb");
+
+          yield* Effect.gen(function* () {
+            const duckdb = yield* DuckDb;
+            yield* duckdb.run(
+              `CREATE TABLE ai_metrics_raw_archive_objects (
+                archive_object_id VARCHAR PRIMARY KEY,
+                ingest_run_id VARCHAR NOT NULL,
+                source_kind VARCHAR NOT NULL,
+                source_path_hash VARCHAR NOT NULL,
+                plaintext_content_hash VARCHAR NOT NULL,
+                archive_path VARCHAR NOT NULL,
+                algorithm VARCHAR NOT NULL,
+                encrypted_at_epoch_ms DOUBLE NOT NULL
+              )`
+            );
+            yield* duckdb.run(
+              `INSERT INTO ai_metrics_raw_archive_objects (
+                archive_object_id,
+                ingest_run_id,
+                source_kind,
+                source_path_hash,
+                plaintext_content_hash,
+                archive_path,
+                algorithm,
+                encrypted_at_epoch_ms
+              ) VALUES (
+                'archive-object-legacy',
+                'ingest-1',
+                'codex',
+                'source-hash',
+                'plaintext-hash',
+                '/tmp/archive.json',
+                'AES-256-GCM',
+                1
+              )`
+            );
+
+            yield* ensureAiMetricsDerivedStorage;
+
+            const archiveRows = yield* duckdb.query(
+              `SELECT archive_run_object_id AS "archiveRunObjectId"
+               FROM ai_metrics_raw_archive_objects
+               WHERE archive_object_id = 'archive-object-legacy'`
+            );
+
+            expect(archiveRows).toEqual([
+              {
+                archiveRunObjectId: `archive-object-${yield* hashPublicTextSha256(
+                  "archive-object\u0000ingest-1\u0000archive-object-legacy"
+                )}`,
+              },
+            ]);
           }).pipe(provideScopedLayer(DuckDb.makeNodeLayer(new DuckDbConnectionOptions({ databasePath: duckDbPath }))));
         })
       ).pipe(provideScopedLayer(NodeServices.layer));

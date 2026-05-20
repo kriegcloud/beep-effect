@@ -26,6 +26,7 @@ type MarkdownRenderOptions = R.ReadonlyRecord<string, unknown>;
 type MarkdownHtmlRender = (content: string, options?: undefined | MarkdownRenderOptions) => unknown;
 
 const MarkdownBrand = S.String.pipe(S.brand("Markdown"));
+const defaultMarkdownRenderOptions = { tagFilter: true } satisfies MarkdownRenderOptions;
 
 const encodeUnsupported = (value: unknown): Effect.Effect<string, SchemaIssue.Issue> =>
   Effect.fail(
@@ -56,15 +57,17 @@ const getMarkdownHtmlRender = (): O.Option<MarkdownHtmlRender> => {
   return O.none();
 };
 
-const makeRenderMarkdownHtml = (options?: undefined | MarkdownRenderOptions) =>
-  Effect.fn("Markdown.renderMarkdownHtml")(function* (content: string) {
+const makeRenderMarkdownHtml = (options?: undefined | MarkdownRenderOptions) => {
+  const renderOptions = { ...defaultMarkdownRenderOptions, ...options };
+
+  return Effect.fn("Markdown.renderMarkdownHtml")(function* (content: string) {
     const renderMarkdownHtml = yield* O.match(getMarkdownHtmlRender(), {
       onNone: () =>
         Effect.fail(invalidMarkdownInput(content, "Bun.markdown.html is unavailable in the current runtime.")),
       onSome: Effect.succeed,
     });
     const rendered = yield* Effect.try({
-      try: () => renderMarkdownHtml(content, options),
+      try: () => renderMarkdownHtml(content, renderOptions),
       catch: (cause) =>
         invalidMarkdownInput(
           content,
@@ -76,6 +79,7 @@ const makeRenderMarkdownHtml = (options?: undefined | MarkdownRenderOptions) =>
       Effect.mapError(() => invalidMarkdownInput(content, "Invalid Markdown input (Expected HTML string output)."))
     );
   });
+};
 
 const parseMarkdownText = (content: string): MarkdownParseResult =>
   makeParseMarkdownForSchema(getGlobalMarkdownRuntime(), loadMarkdownModule, {
@@ -157,7 +161,7 @@ export type Markdown = typeof Markdown.Type;
  * void program
  * ```
  *
- * @param options - Optional Bun Markdown parser options. When omitted, Bun defaults are preserved.
+ * @param options - Optional Bun Markdown parser options. Raw HTML tag filtering is enabled by default.
  * @returns Schema transformation from Markdown text to rendered HTML text.
  * @category validation
  * @since 0.0.0
@@ -198,7 +202,7 @@ export const MarkdownTextToHtml = (options?: MarkdownRenderOptions) => {
  * ```
  *
  * @param schema - Target schema to decode rendered HTML output into.
- * @param options - Optional Bun Markdown parser options. When omitted, Bun defaults are preserved.
+ * @param options - Optional Bun Markdown parser options. Raw HTML tag filtering is enabled by default.
  * @returns Decoder function from Markdown text to the target schema type.
  * @category utilities
  * @since 0.0.0

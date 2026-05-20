@@ -11,8 +11,8 @@
 | Reported age | 1mo ago |
 | Capture method | dom-fallback |
 | Owner area | intellij.yaml |
-| Triage verdict | needs-current-head-review |
-| Codex close reason | pending |
+| Triage verdict | fixed |
+| Codex close reason | Already fixed |
 
 ## Summary
 
@@ -20,10 +20,14 @@ The configuration introduces a new outbound trust relationship to a non‑standa
 
 ## Current-HEAD Triage
 
-- Verdict: `needs-current-head-review`
-- Rationale: Pending validation against current `HEAD`.
-- Remediation status: `not-started`
-- Verification command: `pending`
+- Verdict: `fixed`
+- Rationale: The IntelliJ shared-index config no longer contains automatic consent for the external shared-index server, leaving developer trust decisions manual.
+- Remediation status: `fixed-in-branch`
+- Verification command: `! rg -n 'consents:|decision: allowed' intellij.yaml`
+- Changed files:
+  - intellij.yaml
+- Verification notes:
+  - The auto-consent fields are absent from intellij.yaml after the patch.
 
 ## Evidence Paths
 

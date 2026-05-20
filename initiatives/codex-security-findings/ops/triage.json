@@ -433,6 +433,152 @@
       "The old all-interface Vite host flag is no longer present in the Stack Installer app package script."
     ]
   },
+  "CSF-033": {
+    "verdict": "fixed",
+    "closeReason": "Already fixed",
+    "remediationStatus": "fixed-in-current-head",
+    "rationale": "The P7 proof-data and restore-drill command gates now create disposable roots with umask 077 and mktemp -d templates instead of staging sensitive AI metrics proof data under predictable /tmp paths.",
+    "verificationCommand": "rg -n 'umask 077; .*mktemp -d -t ai-metrics-p7-(proof-data|restore)' initiatives/ai-metrics-stack/ops/manifest.json && ! rg -n '/tmp/ai-metrics-p7|/tmp/beep-ai-metrics' initiatives/ai-metrics-stack/ops/manifest.json",
+    "changedFiles": [],
+    "verificationNotes": [
+      "Current HEAD uses random mktemp directories for the disposable proof copy and restore-drill paths."
+    ]
+  },
+  "CSF-034": {
+    "verdict": "fixed",
+    "closeReason": "Already fixed",
+    "remediationStatus": "fixed-in-current-head",
+    "rationale": "Retention delete and restore workflows validate raw archive object ids against the generated raw digest format and verify selected archive paths exactly match the expected data-root raw archive layout before reading or deleting them.",
+    "verificationCommand": "bunx --bun vitest run packages/tooling/library/ai-metrics/test/ingest.test.ts --testNamePattern 'fails restore drills|supports explicit-window compact'",
+    "changedFiles": [],
+    "verificationNotes": [
+      "The retention restore-drill test mutates a stored archive_path outside the data root and now fails closed."
+    ]
+  },
+  "CSF-035": {
+    "verdict": "fixed",
+    "closeReason": "Already fixed",
+    "remediationStatus": "fixed-in-current-head",
+    "rationale": "The SAST changed-file lane no longer silently drops JavaScript or TypeScript symlinks. It rejects changed symlink paths before invoking Semgrep, so a symlink cannot be used to bypass the scan.",
+    "verificationCommand": "rg -n 'Changed JavaScript/TypeScript symlink paths are not accepted by the SAST scan|fs\\.readLink\\(absolutePath\\)' packages/tooling/tool/cli/src/commands/Quality/ScriptCommands.ts",
+    "changedFiles": [],
+    "verificationNotes": [
+      "Source review confirms changed JS/TS symlink paths produce a typed quality error."
+    ]
+  },
+  "CSF-036": {
+    "verdict": "fixed",
+    "closeReason": "Already fixed",
+    "remediationStatus": "fixed-in-current-head",
+    "rationale": "Native DuckDB clients and layers now wrap shared connection use in a Semaphore with one permit, so ordinary queries and withTransaction blocks do not interleave on the cached connection.",
+    "verificationCommand": "bunx --bun vitest run packages/drivers/duckdb/test/DuckDb.service.test.ts && bunx tsc --noEmit --pretty false -p packages/drivers/duckdb/tsconfig.json",
+    "changedFiles": [],
+    "verificationNotes": [
+      "Current HEAD creates a connectionLock in both makeNodeClient and makeNodeLayer."
+    ]
+  },
+  "CSF-037": {
+    "verdict": "fixed",
+    "closeReason": "Already fixed",
+    "remediationStatus": "fixed-in-current-head",
+    "rationale": "Encrypted raw archive plaintext identity is now stored as a salted private identifier hash instead of a public unsalted plaintext digest, and mirror export omits the raw archive object table.",
+    "verificationCommand": "rg -n 'plaintextContentHash = yield\\* hashPrivateIdentifier\\(content|omittedMirrorTables = \\[\"ai_metrics_raw_archive_objects\"\\]' packages/tooling/library/ai-metrics/src/archive.ts packages/tooling/library/ai-metrics/src/mirror.ts",
+    "changedFiles": [],
+    "verificationNotes": [
+      "The archive writer hashes raw content through hashPrivateIdentifier, using the operator salt when provided."
+    ]
+  },
+  "CSF-038": {
+    "verdict": "fixed",
+    "closeReason": "Already fixed",
+    "remediationStatus": "fixed-in-current-head",
+    "rationale": "AI metrics event names now pass through source-specific allowlisting and fallback normalization, while session ids, paths, parent ids, agent roles, and raw event lines are represented only as private hashes.",
+    "verificationCommand": "bunx --bun vitest run packages/tooling/library/ai-metrics/test/ingest.test.ts --testNamePattern 'bounded event names|privacy proof without exposing'",
+    "changedFiles": [],
+    "verificationNotes": [
+      "The privacy proof test asserts prompt, output, path, and secret-shaped values are absent from the JSON result."
+    ]
+  },
+  "CSF-039": {
+    "verdict": "fixed",
+    "closeReason": "Already fixed",
+    "remediationStatus": "fixed-in-branch",
+    "rationale": "The host-network PGLite fallback is absent from current HEAD, and the branch also removes the remaining default test-container password by generating a per-resource password when config omits one.",
+    "verificationCommand": "bunx --bun vitest run packages/tooling/test-kit/test-utils/test/SqlTest.test.ts && bunx tsc --noEmit --pretty false -p packages/tooling/test-kit/test-utils/tsconfig.json",
+    "changedFiles": [
+      "packages/tooling/test-kit/test-utils/src/SqlTest.ts",
+      "packages/tooling/test-kit/test-utils/test/SqlTest.test.ts"
+    ],
+    "verificationNotes": [
+      "The focused SqlTest suite passes and covers generated PGLite Testcontainers passwords."
+    ]
+  },
+  "CSF-040": {
+    "verdict": "fixed",
+    "closeReason": "Already fixed",
+    "remediationStatus": "fixed-in-current-head",
+    "rationale": "The metadata-strip video path rejects known playlist and indirection extensions before selection and invokes ffmpeg with a file,pipe protocol whitelist.",
+    "verificationCommand": "bunx --bun vitest run packages/tooling/tool/cli/test/files-command.test.ts --testNamePattern 'ffmpeg stream copy|strip-metadata'",
+    "changedFiles": [],
+    "verificationNotes": [
+      "The focused files-command tests pass and assert ffmpeg receives -protocol_whitelist file,pipe."
+    ]
+  },
+  "CSF-041": {
+    "verdict": "fixed",
+    "closeReason": "Already fixed",
+    "remediationStatus": "fixed-in-current-head",
+    "rationale": "Struct.fromEntries defines prototype-sensitive keys as own non-enumerable data properties, preventing Object.assign or spread from copying __proto__, constructor, or prototype into another object.",
+    "verificationCommand": "bunx --bun vitest run packages/foundation/modeling/utils/test/Struct.test.ts --testNamePattern 'prototype-sensitive'",
+    "changedFiles": [],
+    "verificationNotes": [
+      "The Struct regression verifies __proto__ remains own but non-enumerable and does not pollute assigned objects."
+    ]
+  },
+  "CSF-042": {
+    "verdict": "fixed",
+    "closeReason": "Already fixed",
+    "remediationStatus": "fixed-in-current-head",
+    "rationale": "The Node glob fallback catches failed stat calls for dangling or inaccessible symlinks, skips symlinked directories instead of recursing into them, and limits scans to static roots derived from include patterns.",
+    "verificationCommand": "bunx --bun vitest run packages/foundation/modeling/utils/test/Glob.test.ts --testNamePattern 'dangling symlinks|symlinked directories'",
+    "changedFiles": [],
+    "verificationNotes": [
+      "The Glob tests cover dangling symlink skipping and non-recursion into symlinked directories."
+    ]
+  },
+  "CSF-043": {
+    "verdict": "fixed",
+    "closeReason": "Already fixed",
+    "remediationStatus": "fixed-in-branch",
+    "rationale": "The professional desktop docs config now nests the Repository link underneath aux_links instead of defining it as a separate top-level YAML key.",
+    "verificationCommand": "rg -n '^aux_links:|^  Repository:' apps/professional-desktop/docs/_config.yml",
+    "changedFiles": ["apps/professional-desktop/docs/_config.yml"],
+    "verificationNotes": [
+      "The fixed YAML keeps the Repository aux link under aux_links."
+    ]
+  },
+  "CSF-044": {
+    "verdict": "fixed",
+    "closeReason": "Already fixed",
+    "remediationStatus": "fixed-in-branch",
+    "rationale": "Effect v4 exposes S.asserts as a data-first assertion function, so the branch invokes S.asserts(schema, input) directly for non-empty array helpers while the JSDoc assertion path already uses the current API shape.",
+    "verificationCommand": "bunx --bun vitest run packages/foundation/modeling/utils/test/Array.test.ts && bunx tsc --noEmit --pretty false -p packages/foundation/modeling/utils/tsconfig.json && bunx tsc --noEmit --pretty false -p packages/tooling/library/repo-utils/tsconfig.json",
+    "changedFiles": ["packages/foundation/modeling/utils/src/Array.ts"],
+    "verificationNotes": [
+      "The Array tests and package typechecks pass with data-first S.asserts calls."
+    ]
+  },
+  "CSF-045": {
+    "verdict": "fixed",
+    "closeReason": "Already fixed",
+    "remediationStatus": "fixed-in-branch",
+    "rationale": "The root dependency overrides now force Next to 16.3.0-canary.24 and the lockfile no longer contains stale 16.3.0-canary.19 peer copies for Vercel analytics, speed insights, or next-pwa.",
+    "verificationCommand": "bun pm ls --all | rg 'next@16\\.3\\.0-canary\\.24' && ! rg -n '16\\.3\\.0-canary\\.19|@vercel/analytics/next|@vercel/speed-insights/next|next-pwa/next' bun.lock",
+    "changedFiles": ["package.json", "bun.lock"],
+    "verificationNotes": [
+      "The stale Next canary peer-copy scan returns no matches after regenerating the lockfile."
+    ]
+  },
   "CSF-046": {
     "verdict": "fixed",
     "closeReason": "Already fixed",
@@ -466,6 +612,212 @@
     "changedFiles": ["initiatives/stack-installer/ops/proof-upload-server.mjs"],
     "verificationNotes": [
       "Script syntax checks pass and the proof upload smoke covers successful bundle persistence through the temp-file path."
+    ]
+  },
+  "CSF-049": {
+    "verdict": "fixed",
+    "closeReason": "Already fixed",
+    "remediationStatus": "fixed-in-branch",
+    "rationale": "Runpod operation descriptors now carry OpenAPI requestBody.required metadata, and the runtime only rejects omitted JSON bodies when the operation actually requires one.",
+    "verificationCommand": "bunx --bun vitest run packages/drivers/runpod/test/Runpod.service.test.ts && bunx tsc --noEmit --pretty false -p packages/drivers/runpod/tsconfig.json",
+    "changedFiles": [
+      "packages/drivers/runpod/scripts/generate.ts",
+      "packages/drivers/runpod/src/Runpod.service.ts",
+      "packages/drivers/runpod/src/_generated/Runpod.generated.ts"
+    ],
+    "verificationNotes": [
+      "The Runpod service suite and package typecheck pass after regenerating descriptors."
+    ]
+  },
+  "CSF-050": {
+    "verdict": "dismissed",
+    "closeReason": "False positive",
+    "remediationStatus": "dismissed-non-security-data-migration-defect",
+    "rationale": "The report describes a plausible internal architecture-lab migration data-loss defect, but it does not establish a security vulnerability: there is no attacker-controlled input, public ingress, auth boundary, privilege escalation, secret exposure, or code execution path.",
+    "verificationCommand": "sed -n '1,80p' packages/_internal/db-admin/drizzle/20260512001000_architecture_lab_worker_archetype/migration.sql && sed -n '1,80p' packages/architecture-lab/tables/src/aggregates/WorkItem/WorkItem.table.ts",
+    "changedFiles": [],
+    "verificationNotes": [
+      "Kept as a non-security correctness note rather than a security remediation item."
+    ]
+  },
+  "CSF-051": {
+    "verdict": "fixed",
+    "closeReason": "Already fixed",
+    "remediationStatus": "fixed-in-branch",
+    "rationale": "The AI metrics derived-store migration now remaps legacy agent_task_id values in ai_metrics_sessions and ai_metrics_outcome_labels before deleting or rewriting legacy task rows.",
+    "verificationCommand": "bunx --bun vitest run packages/tooling/library/ai-metrics/test/ingest.test.ts --testNamePattern 'deduplicates legacy agent task ids' && bunx tsc --noEmit --pretty false -p packages/tooling/library/ai-metrics/tsconfig.json",
+    "changedFiles": [
+      "packages/tooling/library/ai-metrics/src/derived-storage.ts",
+      "packages/tooling/library/ai-metrics/test/ingest.test.ts"
+    ],
+    "verificationNotes": [
+      "The migration regression now seeds dependent session and label rows and verifies they point at the current task id after migration."
+    ]
+  },
+  "CSF-052": {
+    "verdict": "fixed",
+    "closeReason": "Already fixed",
+    "remediationStatus": "fixed-in-branch",
+    "rationale": "The same AI metrics migration now updates dependent task references in sessions and outcome labels before legacy task ids are removed, preventing orphaned related metric rows.",
+    "verificationCommand": "bunx --bun vitest run packages/tooling/library/ai-metrics/test/ingest.test.ts --testNamePattern 'deduplicates legacy agent task ids' && bunx tsc --noEmit --pretty false -p packages/tooling/library/ai-metrics/tsconfig.json",
+    "changedFiles": [
+      "packages/tooling/library/ai-metrics/src/derived-storage.ts",
+      "packages/tooling/library/ai-metrics/test/ingest.test.ts"
+    ],
+    "verificationNotes": [
+      "The focused migration test covers both ai_metrics_sessions and ai_metrics_outcome_labels remapping."
+    ]
+  },
+  "CSF-053": {
+    "verdict": "fixed",
+    "closeReason": "Already fixed",
+    "remediationStatus": "fixed-in-branch",
+    "rationale": "The ACP protocol adapter now returns a native Set<number> for clientIds instead of casting an Effect HashSet to the ReadonlySet contract.",
+    "verificationCommand": "bunx tsc --noEmit --pretty false -p packages/drivers/acp/tsconfig.json",
+    "changedFiles": ["packages/drivers/acp/src/protocol.ts"],
+    "verificationNotes": [
+      "The ACP package typecheck passes with the native Set runtime shape."
+    ]
+  },
+  "CSF-054": {
+    "verdict": "fixed",
+    "closeReason": "Already fixed",
+    "remediationStatus": "fixed-in-branch",
+    "rationale": "The AI metrics derived-store migration now adds and backfills archive_run_object_id for upgraded raw archive tables before the new insert/query shape is used.",
+    "verificationCommand": "bunx --bun vitest run packages/tooling/library/ai-metrics/test/ingest.test.ts --testNamePattern 'backfills archive run object ids' && bunx tsc --noEmit --pretty false -p packages/tooling/library/ai-metrics/tsconfig.json",
+    "changedFiles": [
+      "packages/tooling/library/ai-metrics/src/derived-storage.ts",
+      "packages/tooling/library/ai-metrics/test/ingest.test.ts"
+    ],
+    "verificationNotes": [
+      "The upgraded-store regression starts from the legacy raw archive schema and verifies archive_run_object_id is backfilled."
+    ]
+  },
+  "CSF-055": {
+    "verdict": "fixed",
+    "closeReason": "Already fixed",
+    "remediationStatus": "fixed-in-branch",
+    "rationale": "Caption sidecar planning rejects symlinked source and target entries, and caption writes now stage content inside a fresh mkdtemp-style directory before renaming into place so predictable temp symlinks cannot redirect writes.",
+    "verificationCommand": "bunx --bun vitest run packages/tooling/tool/cli/test/files-command.test.ts --testNamePattern 'create-captions' && bunx tsc --noEmit --pretty false -p packages/tooling/tool/cli/tsconfig.json",
+    "changedFiles": [
+      "packages/tooling/tool/cli/src/commands/Files/Files.service.ts",
+      "packages/tooling/tool/cli/test/files-command.test.ts"
+    ],
+    "verificationNotes": [
+      "The create-captions regression pre-creates the old predictable temp symlink and verifies the outside target is not modified."
+    ]
+  },
+  "CSF-056": {
+    "verdict": "fixed",
+    "closeReason": "Already fixed",
+    "remediationStatus": "fixed-in-branch",
+    "rationale": "formatPostgresError now maps Cause reasons through postgresErrorFromReason, drops None values, and returns the first real PostgresError instead of returning the raw reason selected by findFirst.",
+    "verificationCommand": "bunx --bun vitest run packages/drivers/postgres/test/Postgres.errors.test.ts --testNamePattern 'Postgres formatting' && bunx tsc --noEmit --pretty false -p packages/drivers/postgres/tsconfig.json",
+    "changedFiles": ["packages/drivers/postgres/src/Postgres.format.ts"],
+    "verificationNotes": [
+      "The Postgres formatting focused tests and package typecheck pass."
+    ]
+  },
+  "CSF-057": {
+    "verdict": "fixed",
+    "closeReason": "Already fixed",
+    "remediationStatus": "fixed-in-current-head",
+    "rationale": "The files command resolves ffprobe from trusted absolute locations or an absolute BEEP_FFPROBE_PATH override and runs it with the file,pipe protocol whitelist, so an untrusted media directory PATH shim is not executed.",
+    "verificationCommand": "bunx --bun vitest run packages/tooling/tool/cli/test/files-command.test.ts --testNamePattern 'ffprobe stream rotation' && bunx tsc --noEmit --pretty false -p packages/tooling/tool/cli/tsconfig.json",
+    "changedFiles": ["packages/tooling/tool/cli/test/files-command.test.ts"],
+    "verificationNotes": [
+      "The test now exercises the hardened absolute override path rather than PATH injection."
+    ]
+  },
+  "CSF-058": {
+    "verdict": "fixed",
+    "closeReason": "Already fixed",
+    "remediationStatus": "fixed-in-branch",
+    "rationale": "The host-network PGLite fallback is absent from current HEAD, and default PGLite Testcontainers credentials now use a generated password instead of postgres/postgres when the caller omits a password.",
+    "verificationCommand": "bunx --bun vitest run packages/tooling/test-kit/test-utils/test/SqlTest.test.ts && bunx tsc --noEmit --pretty false -p packages/tooling/test-kit/test-utils/tsconfig.json",
+    "changedFiles": [
+      "packages/tooling/test-kit/test-utils/src/SqlTest.ts",
+      "packages/tooling/test-kit/test-utils/test/SqlTest.test.ts"
+    ],
+    "verificationNotes": [
+      "The SqlTest regression verifies the default PGLite Testcontainers password is generated and not postgres."
+    ]
+  },
+  "CSF-059": {
+    "verdict": "fixed",
+    "closeReason": "Already fixed",
+    "remediationStatus": "fixed-in-branch",
+    "rationale": "LocalDate field construction now validates real calendar dates, including month length and leap-year boundaries, before schema decoding and non-string constructors succeed.",
+    "verificationCommand": "bunx --bun vitest run packages/shared/domain/test/LocalDate.test.ts && bunx tsc --noEmit --pretty false -p packages/shared/domain/tsconfig.json",
+    "changedFiles": [
+      "packages/shared/domain/src/values/LocalDate/LocalDate.model.ts",
+      "packages/shared/domain/test/LocalDate.test.ts"
+    ],
+    "verificationNotes": [
+      "The LocalDate test suite passes with impossible February and 31-day boundary regressions."
+    ]
+  },
+  "CSF-060": {
+    "verdict": "fixed",
+    "closeReason": "Already fixed",
+    "remediationStatus": "fixed-in-branch",
+    "rationale": "CauseTaggedError and StatusCauseTaggedError static helper accessors now bind helpers to the accessed class when destructured, preserving subclass construction while keeping unbound helper calls usable.",
+    "verificationCommand": "cd packages/foundation/modeling/schema && bunx --bun vitest run test/CauseTaggedError.test.ts test/StatusCauseTaggedErrorClass.test.ts && bunx tsc --noEmit --pretty false -p tsconfig.json",
+    "changedFiles": [
+      "packages/foundation/modeling/schema/src/CauseTaggedError.ts",
+      "packages/foundation/modeling/schema/src/StatusCauseTaggedErrorClass.ts",
+      "packages/foundation/modeling/schema/test/CauseTaggedError.test.ts",
+      "packages/foundation/modeling/schema/test/StatusCauseTaggedErrorClass.test.ts"
+    ],
+    "verificationNotes": [
+      "The schema package tests cover destructured new, noCause, and mapError helpers."
+    ]
+  },
+  "CSF-061": {
+    "verdict": "fixed",
+    "closeReason": "Already fixed",
+    "remediationStatus": "fixed-in-current-head",
+    "rationale": "The reported IndexedDbQueryBuilder file and platform-browser package path are absent from current HEAD, so the zero chunk-size stream path is no longer present.",
+    "verificationCommand": "! rg --files | rg 'packages/platform-browser/src/IndexedDbQueryBuilder\\.ts|IndexedDbQueryBuilder'",
+    "changedFiles": [],
+    "verificationNotes": [
+      "A targeted file scan finds no IndexedDbQueryBuilder implementation in current HEAD."
+    ]
+  },
+  "CSF-062": {
+    "verdict": "fixed",
+    "closeReason": "Already fixed",
+    "remediationStatus": "fixed-in-current-head",
+    "rationale": "The custom Glob Node fallback derives static scan roots from include patterns, filters nested scan roots, applies ignore matchers before recursion, and skips symlinked directories.",
+    "verificationCommand": "bunx --bun vitest run packages/foundation/modeling/utils/test/Glob.test.ts --testNamePattern 'ignore|symlinked directories' && bunx tsc --noEmit --pretty false -p packages/foundation/modeling/utils/tsconfig.json",
+    "changedFiles": [],
+    "verificationNotes": [
+      "The Glob tests cover ignore-scoped output and symlink non-recursion in the fallback scanner."
+    ]
+  },
+  "CSF-063": {
+    "verdict": "fixed",
+    "closeReason": "Already fixed",
+    "remediationStatus": "fixed-in-branch",
+    "rationale": "Markdown HTML rendering now enables Bun's tagFilter option by default while still allowing callers to opt out explicitly for trusted input.",
+    "verificationCommand": "cd packages/foundation/modeling/schema && bunx --bun vitest run test/Markdown.test.ts && bunx tsc --noEmit --pretty false -p tsconfig.json",
+    "changedFiles": [
+      "packages/foundation/modeling/schema/src/Markdown.ts",
+      "packages/foundation/modeling/schema/test/Markdown.test.ts"
+    ],
+    "verificationNotes": [
+      "The Markdown tests assert script tags are escaped by default and only raw when tagFilter is explicitly false."
+    ]
+  },
+  "CSF-064": {
+    "verdict": "fixed",
+    "closeReason": "Already fixed",
+    "remediationStatus": "fixed-in-branch",
+    "rationale": "The IntelliJ shared-index config no longer contains automatic consent for the external shared-index server, leaving developer trust decisions manual.",
+    "verificationCommand": "! rg -n 'consents:|decision: allowed' intellij.yaml",
+    "changedFiles": ["intellij.yaml"],
+    "verificationNotes": [
+      "The auto-consent fields are absent from intellij.yaml after the patch."
     ]
   }
 }

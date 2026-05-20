@@ -11,8 +11,8 @@
 | Reported age | 1w ago |
 | Capture method | dom-fallback |
 | Owner area | packages/tooling/tool/cli |
-| Triage verdict | needs-current-head-review |
-| Codex close reason | pending |
+| Triage verdict | fixed |
+| Codex close reason | Already fixed |
 
 ## Summary
 
@@ -20,10 +20,14 @@ Introduced a SAST bypass: changed JavaScript/TypeScript symlinks are now silentl
 
 ## Current-HEAD Triage
 
-- Verdict: `needs-current-head-review`
-- Rationale: Pending validation against current `HEAD`.
-- Remediation status: `not-started`
-- Verification command: `pending`
+- Verdict: `fixed`
+- Rationale: The SAST changed-file lane no longer silently drops JavaScript or TypeScript symlinks. It rejects changed symlink paths before invoking Semgrep, so a symlink cannot be used to bypass the scan.
+- Remediation status: `fixed-in-current-head`
+- Verification command: `rg -n 'Changed JavaScript/TypeScript symlink paths are not accepted by the SAST scan|fs\.readLink\(absolutePath\)' packages/tooling/tool/cli/src/commands/Quality/ScriptCommands.ts`
+- Changed files:
+  - none
+- Verification notes:
+  - Source review confirms changed JS/TS symlink paths produce a typed quality error.
 
 ## Evidence Paths
 

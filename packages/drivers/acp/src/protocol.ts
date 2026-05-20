@@ -580,7 +580,7 @@ export const makeAcpPatchedProtocol = Effect.fn($I`makeAcpPatchedProtocol`)(func
   });
 
   const serverProtocol = RpcServer.Protocol.of({
-    clientIds: Effect.succeed(HashSet.make(0) as unknown as ReadonlySet<number>),
+    clientIds: Effect.succeed(new Set<number>([0])),
     disconnects,
     end: Effect.fn($I`AcpServer_Protocol_end`)((_clientId) => Queue.end(outgoing)),
     initialMessage: Effect.succeedNone,

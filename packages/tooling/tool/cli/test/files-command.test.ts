@@ -301,17 +301,21 @@ const writeNearSolidJpegBorder = Effect.fn("FilesTest.writeNearSolidJpegBorder")
   }).pipe(Effect.asVoid);
 });
 
-const withPathPrefix = <A, E, R>(pathPrefix: string, use: Effect.Effect<A, E, R>) =>
+const withEnvVar = <A, E, R>(name: string, value: string, use: Effect.Effect<A, E, R>) =>
   Effect.acquireUseRelease(
     Effect.sync(() => {
-      const previousPath = Bun.env.PATH;
-      Bun.env.PATH = `${pathPrefix}:${previousPath ?? ""}`;
-      return previousPath;
+      const previousValue = Bun.env[name];
+      Bun.env[name] = value;
+      return previousValue;
     }),
     () => use,
-    (previousPath) =>
+    (previousValue) =>
       Effect.sync(() => {
-        Bun.env.PATH = previousPath;
+        if (previousValue === undefined) {
+          delete Bun.env[name];
+        } else {
+          Bun.env[name] = previousValue;
+        }
       })
   );
 
@@ -960,8 +964,9 @@ describe.sequential("files command", () => {
           yield* writeFfprobeShim(binDir, 640, 360, 90);
           yield* writeSizedFile(path.join(datasetDir, "clip.mp4"), 4, "x");
 
-          yield* withPathPrefix(
-            binDir,
+          yield* withEnvVar(
+            "BEEP_FFPROBE_PATH",
+            path.join(binDir, "ffprobe"),
             runFilesCommand(["sort-and-rename", "--prefix", "clip", "--dir", datasetDir, "--with-dimensions"])
           );
 
@@ -1379,6 +1384,30 @@ describe.sequential("files command", () => {
       )
     ));
 
+  it("does not write through predictable caption temp symlinks", () =>
+    Effect.runPromise(
+      withTempDirectory((tmpDir) =>
+        Effect.gen(function* () {
+          const fs = yield* FileSystem.FileSystem;
+          const path = yield* Path.Path;
+          const datasetDir = yield* makeDatasetDir(tmpDir);
+          const outsideFile = path.join(tmpDir, "outside.txt");
+          const oldPredictableTempPath = path.join(datasetDir, `.alpha.txt.${process.pid}.tmp`);
+
+          yield* writeJpegWithExif(path.join(datasetDir, "alpha.jpg"), 4, 4);
+          yield* fs.writeFileString(outsideFile, "outside");
+          yield* fs.symlink(outsideFile, oldPredictableTempPath);
+
+          yield* runFilesCommand(["create-captions", "--dir", datasetDir, "--caption", "caption"]);
+
+          expect(yield* fs.readFileString(path.join(datasetDir, "alpha.txt"))).toBe("caption");
+          expect(yield* fs.readFileString(outsideFile)).toBe("outside");
+          expect(yield* fs.readLink(oldPredictableTempPath)).toBe(outsideFile);
+          expect(process.exitCode ?? 0).toBe(0);
+        })
+      )
+    ));
+
   it("overwrites existing caption sidecars only when requested", () =>
     Effect.runPromise(
       withTempDirectory((tmpDir) =>
@@ -1753,13 +1782,19 @@ describe.sequential("files command", () => {
           yield* writeFfmpegShim(binDir, argsPath);
           yield* writeSizedFile(clipPath, 4, "v");
 
-          yield* withPathPrefix(binDir, runFilesCommand(["strip-metadata", "--dir", datasetDir]));
+          yield* withEnvVar(
+            "BEEP_FFMPEG_PATH",
+            path.join(binDir, "ffmpeg"),
+            runFilesCommand(["strip-metadata", "--dir", datasetDir])
+          );
 
           const args = pipe(yield* fs.readFileString(argsPath), Str.split("\n"));
           expect(A.slice(args, 0, -2)).toEqual([
             "-hide_banner",
             "-nostdin",
             "-y",
+            "-protocol_whitelist",
+            "file,pipe",
             "-i",
             clipPath,
             "-map",
@@ -1816,7 +1851,11 @@ describe.sequential("files command", () => {
           yield* writeFailingFfmpegShim(binDir, argsPath);
           yield* writeSizedFile(clipPath, 4, "v");
 
-          yield* withPathPrefix(binDir, runFilesCommand(["strip-metadata", "--dir", datasetDir]));
+          yield* withEnvVar(
+            "BEEP_FFMPEG_PATH",
+            path.join(binDir, "ffmpeg"),
+            runFilesCommand(["strip-metadata", "--dir", datasetDir])
+          );
 
           expect(yield* fs.readFileString(clipPath)).toBe("vvvv");
           expect(yield* fs.exists(argsPath)).toBe(true);

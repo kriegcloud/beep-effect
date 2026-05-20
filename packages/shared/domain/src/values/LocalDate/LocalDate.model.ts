@@ -10,18 +10,47 @@
  */
 import { $SharedDomainId } from "@beep/identity";
 import { Str } from "@beep/utils";
-import { DateTime, Hash } from "effect";
+import { DateTime, Hash, Match } from "effect";
 import * as Eq from "effect/Equal";
 import * as S from "effect/Schema";
 
 const $I = $SharedDomainId.create("values/LocalDate/LocalDate.model");
 
+type CalendarParts = {
+  readonly year: number;
+  readonly month: number;
+  readonly day: number;
+};
+
+const isLeapYearInternal = (year: number): boolean => (year % 4 === 0 && year % 100 !== 0) || year % 400 === 0;
+
+const getDaysInMonth = (year: number, month: number): number =>
+  Match.value(month).pipe(
+    Match.when(2, () => (isLeapYearInternal(year) ? 29 : 28)),
+    Match.whenOr(4, 6, 9, 11, () => 30),
+    Match.orElse(() => 31)
+  );
+
+const isValidCalendarDate = ({ day, month, year }: CalendarParts): boolean => day <= getDaysInMonth(year, month);
+
+const LocalDateFields = S.Struct({
+  year: S.Int.check(S.makeFilterGroup([S.isGreaterThanOrEqualTo(1), S.isLessThanOrEqualTo(9999)])),
+  month: S.Int.check(S.makeFilterGroup([S.isGreaterThanOrEqualTo(1), S.isLessThanOrEqualTo(12)])),
+  day: S.Int.check(S.makeFilterGroup([S.isGreaterThanOrEqualTo(1), S.isLessThanOrEqualTo(31)])),
+}).check(
+  S.makeFilter(isValidCalendarDate, {
+    description: "LocalDate calendar fields must represent a real day in the selected month and year.",
+    identifier: "LocalDateCalendarDay",
+    message: "Invalid calendar date",
+    title: "LocalDate calendar day",
+  })
+);
+
 /**
  * Schema class representing a calendar date without time or timezone.
  *
- * Stores year, month, and day as integer fields. Calendar-day validation that
- * depends on both month and year is handled by the string boundary in the
- * behavior module.
+ * Stores year, month, and day as integer fields and validates that the
+ * selected day exists in the selected month and year.
  *
  * @example
  * ```ts
@@ -36,14 +65,11 @@ const $I = $SharedDomainId.create("values/LocalDate/LocalDate.model");
  * @since 0.0.0
  */
 export class Model extends S.Class<Model>($I`LocalDateModel`)(
-  {
-    year: S.Int.check(S.makeFilterGroup([S.isGreaterThanOrEqualTo(1), S.isLessThanOrEqualTo(9999)])),
-    month: S.Int.check(S.makeFilterGroup([S.isGreaterThanOrEqualTo(1), S.isLessThanOrEqualTo(12)])),
-    day: S.Int.check(S.makeFilterGroup([S.isGreaterThanOrEqualTo(1), S.isLessThanOrEqualTo(31)])),
-  },
+  LocalDateFields,
   $I.annote("LocalDateModel", {
     description: "Schema class representing a calendar date without time or timezone.",
-    documentation: "Stores year, month, and day as integer fields and formats them as YYYY-MM-DD.",
+    documentation:
+      "Stores year, month, and day as integer fields, validates real calendar days, and formats them as YYYY-MM-DD.",
   })
 ) {
   /**

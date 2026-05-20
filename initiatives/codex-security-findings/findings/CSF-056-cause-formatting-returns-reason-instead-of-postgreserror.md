@@ -11,8 +11,8 @@
 | Reported age | 3w ago |
 | Capture method | dom-fallback |
 | Owner area | packages/drivers/postgres/src |
-| Triage verdict | needs-current-head-review |
-| Codex close reason | pending |
+| Triage verdict | fixed |
+| Codex close reason | Already fixed |
 
 ## Summary
 
@@ -20,10 +20,14 @@ Introduced bug: Effect Cause inputs to formatPostgresError are incorrectly norma
 
 ## Current-HEAD Triage
 
-- Verdict: `needs-current-head-review`
-- Rationale: Pending validation against current `HEAD`.
-- Remediation status: `not-started`
-- Verification command: `pending`
+- Verdict: `fixed`
+- Rationale: formatPostgresError now maps Cause reasons through postgresErrorFromReason, drops None values, and returns the first real PostgresError instead of returning the raw reason selected by findFirst.
+- Remediation status: `fixed-in-branch`
+- Verification command: `bunx --bun vitest run packages/drivers/postgres/test/Postgres.errors.test.ts --testNamePattern 'Postgres formatting' && bunx tsc --noEmit --pretty false -p packages/drivers/postgres/tsconfig.json`
+- Changed files:
+  - packages/drivers/postgres/src/Postgres.format.ts
+- Verification notes:
+  - The Postgres formatting focused tests and package typecheck pass.
 
 ## Evidence Paths
 

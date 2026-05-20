@@ -11,8 +11,8 @@
 | Reported age | 1mo ago |
 | Capture method | dom-fallback |
 | Owner area | packages/common/schema/src |
-| Triage verdict | needs-current-head-review |
-| Codex close reason | pending |
+| Triage verdict | fixed |
+| Codex close reason | Already fixed |
 
 ## Summary
 
@@ -20,10 +20,15 @@ Introduced a Markdown-to-HTML transformation that does not sanitize or filter ra
 
 ## Current-HEAD Triage
 
-- Verdict: `needs-current-head-review`
-- Rationale: Pending validation against current `HEAD`.
-- Remediation status: `not-started`
-- Verification command: `pending`
+- Verdict: `fixed`
+- Rationale: Markdown HTML rendering now enables Bun's tagFilter option by default while still allowing callers to opt out explicitly for trusted input.
+- Remediation status: `fixed-in-branch`
+- Verification command: `cd packages/foundation/modeling/schema && bunx --bun vitest run test/Markdown.test.ts && bunx tsc --noEmit --pretty false -p tsconfig.json`
+- Changed files:
+  - packages/foundation/modeling/schema/src/Markdown.ts
+  - packages/foundation/modeling/schema/test/Markdown.test.ts
+- Verification notes:
+  - The Markdown tests assert script tags are escaped by default and only raw when tagFilter is explicitly false.
 
 ## Evidence Paths
 

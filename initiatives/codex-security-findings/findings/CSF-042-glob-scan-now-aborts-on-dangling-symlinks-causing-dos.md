@@ -11,8 +11,8 @@
 | Reported age | 1mo ago |
 | Capture method | dom-fallback |
 | Owner area | packages/common/utils/src |
-| Triage verdict | needs-current-head-review |
-| Codex close reason | pending |
+| Triage verdict | fixed |
+| Codex close reason | Already fixed |
 
 ## Summary
 
@@ -20,10 +20,14 @@ Introduced: the new traversal always stats symlink targets and does not catch er
 
 ## Current-HEAD Triage
 
-- Verdict: `needs-current-head-review`
-- Rationale: Pending validation against current `HEAD`.
-- Remediation status: `not-started`
-- Verification command: `pending`
+- Verdict: `fixed`
+- Rationale: The Node glob fallback catches failed stat calls for dangling or inaccessible symlinks, skips symlinked directories instead of recursing into them, and limits scans to static roots derived from include patterns.
+- Remediation status: `fixed-in-current-head`
+- Verification command: `bunx --bun vitest run packages/foundation/modeling/utils/test/Glob.test.ts --testNamePattern 'dangling symlinks|symlinked directories'`
+- Changed files:
+  - none
+- Verification notes:
+  - The Glob tests cover dangling symlink skipping and non-recursion into symlinked directories.
 
 ## Evidence Paths
 

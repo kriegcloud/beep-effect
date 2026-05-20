@@ -11,8 +11,8 @@
 | Reported age | 1w ago |
 | Capture method | dom-fallback |
 | Owner area | packages/tooling/library/ai-metrics |
-| Triage verdict | needs-current-head-review |
-| Codex close reason | pending |
+| Triage verdict | fixed |
+| Codex close reason | Already fixed |
 
 ## Summary
 
@@ -20,10 +20,14 @@ Introduced: packages/tooling/library/ai-metrics/src/retention.ts is new in this 
 
 ## Current-HEAD Triage
 
-- Verdict: `needs-current-head-review`
-- Rationale: Pending validation against current `HEAD`.
-- Remediation status: `not-started`
-- Verification command: `pending`
+- Verdict: `fixed`
+- Rationale: Retention delete and restore workflows validate raw archive object ids against the generated raw digest format and verify selected archive paths exactly match the expected data-root raw archive layout before reading or deleting them.
+- Remediation status: `fixed-in-current-head`
+- Verification command: `bunx --bun vitest run packages/tooling/library/ai-metrics/test/ingest.test.ts --testNamePattern 'fails restore drills|supports explicit-window compact'`
+- Changed files:
+  - none
+- Verification notes:
+  - The retention restore-drill test mutates a stored archive_path outside the data root and now fails closed.
 
 ## Evidence Paths
 

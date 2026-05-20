@@ -11,8 +11,8 @@
 | Reported age | 1w ago |
 | Capture method | dom-fallback |
 | Owner area | packages/tooling/library/ai-metrics |
-| Triage verdict | needs-current-head-review |
-| Codex close reason | pending |
+| Triage verdict | fixed |
+| Codex close reason | Already fixed |
 
 ## Summary
 
@@ -20,10 +20,15 @@ Introduced bug: the migration mutates only ai_metrics_agent_tasks.agent_task_id.
 
 ## Current-HEAD Triage
 
-- Verdict: `needs-current-head-review`
-- Rationale: Pending validation against current `HEAD`.
-- Remediation status: `not-started`
-- Verification command: `pending`
+- Verdict: `fixed`
+- Rationale: The AI metrics derived-store migration now remaps legacy agent_task_id values in ai_metrics_sessions and ai_metrics_outcome_labels before deleting or rewriting legacy task rows.
+- Remediation status: `fixed-in-branch`
+- Verification command: `bunx --bun vitest run packages/tooling/library/ai-metrics/test/ingest.test.ts --testNamePattern 'deduplicates legacy agent task ids' && bunx tsc --noEmit --pretty false -p packages/tooling/library/ai-metrics/tsconfig.json`
+- Changed files:
+  - packages/tooling/library/ai-metrics/src/derived-storage.ts
+  - packages/tooling/library/ai-metrics/test/ingest.test.ts
+- Verification notes:
+  - The migration regression now seeds dependent session and label rows and verifies they point at the current task id after migration.
 
 ## Evidence Paths
 

@@ -11,8 +11,8 @@
 | Reported age | 3w ago |
 | Capture method | dom-fallback |
 | Owner area | tooling/cli |
-| Triage verdict | needs-current-head-review |
-| Codex close reason | pending |
+| Triage verdict | fixed |
+| Codex close reason | Already fixed |
 
 ## Summary
 
@@ -20,10 +20,15 @@ Introduced a symlink-following arbitrary file overwrite in the newly added creat
 
 ## Current-HEAD Triage
 
-- Verdict: `needs-current-head-review`
-- Rationale: Pending validation against current `HEAD`.
-- Remediation status: `not-started`
-- Verification command: `pending`
+- Verdict: `fixed`
+- Rationale: Caption sidecar planning rejects symlinked source and target entries, and caption writes now stage content inside a fresh mkdtemp-style directory before renaming into place so predictable temp symlinks cannot redirect writes.
+- Remediation status: `fixed-in-branch`
+- Verification command: `bunx --bun vitest run packages/tooling/tool/cli/test/files-command.test.ts --testNamePattern 'create-captions' && bunx tsc --noEmit --pretty false -p packages/tooling/tool/cli/tsconfig.json`
+- Changed files:
+  - packages/tooling/tool/cli/src/commands/Files/Files.service.ts
+  - packages/tooling/tool/cli/test/files-command.test.ts
+- Verification notes:
+  - The create-captions regression pre-creates the old predictable temp symlink and verifies the outside target is not modified.
 
 ## Evidence Paths
 

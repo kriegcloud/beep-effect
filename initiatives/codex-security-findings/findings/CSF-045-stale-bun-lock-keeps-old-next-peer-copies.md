@@ -11,8 +11,8 @@
 | Reported age | 4d ago |
 | Capture method | dom-fallback |
 | Owner area | apps/opip-web |
-| Triage verdict | needs-current-head-review |
-| Codex close reason | pending |
+| Triage verdict | fixed |
+| Codex close reason | Already fixed |
 
 ## Summary
 
@@ -20,10 +20,15 @@ Introduced dependency-lock inconsistency: old Next.js 16.3.0-canary.19 peer copi
 
 ## Current-HEAD Triage
 
-- Verdict: `needs-current-head-review`
-- Rationale: Pending validation against current `HEAD`.
-- Remediation status: `not-started`
-- Verification command: `pending`
+- Verdict: `fixed`
+- Rationale: The root dependency overrides now force Next to 16.3.0-canary.24 and the lockfile no longer contains stale 16.3.0-canary.19 peer copies for Vercel analytics, speed insights, or next-pwa.
+- Remediation status: `fixed-in-branch`
+- Verification command: `bun pm ls --all | rg 'next@16\.3\.0-canary\.24' && ! rg -n '16\.3\.0-canary\.19|@vercel/analytics/next|@vercel/speed-insights/next|next-pwa/next' bun.lock`
+- Changed files:
+  - package.json
+  - bun.lock
+- Verification notes:
+  - The stale Next canary peer-copy scan returns no matches after regenerating the lockfile.
 
 ## Evidence Paths
 

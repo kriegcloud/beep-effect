@@ -3,7 +3,7 @@
   "initiative": {
     "id": "codex-security-findings",
     "title": "Codex Security Findings",
-    "status": "catalog-captured-triage-active",
+    "status": "triaged-remediation-active",
     "created": "2026-05-19",
     "updated": "2026-05-20",
     "packetAnchorDocument": "SPEC.md"
@@ -31,10 +31,10 @@
       "Closed": 64
     },
     "verdictCounts": {
-      "needs-current-head-review": 29,
+      "needs-current-head-review": 0,
       "active": 0,
-      "dismissed": 0,
-      "fixed": 35
+      "dismissed": 1,
+      "fixed": 63
     }
   },
   "paths": {

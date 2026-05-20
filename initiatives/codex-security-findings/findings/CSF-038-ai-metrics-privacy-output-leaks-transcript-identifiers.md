@@ -11,8 +11,8 @@
 | Reported age | 2w ago |
 | Capture method | dom-fallback |
 | Owner area | packages/tooling/library/ai-metrics |
-| Triage verdict | needs-current-head-review |
-| Codex close reason | pending |
+| Triage verdict | fixed |
+| Codex close reason | Already fixed |
 
 ## Summary
 
@@ -20,10 +20,14 @@ Introduced: the newly added AI metrics privacy and ingest helpers treat untruste
 
 ## Current-HEAD Triage
 
-- Verdict: `needs-current-head-review`
-- Rationale: Pending validation against current `HEAD`.
-- Remediation status: `not-started`
-- Verification command: `pending`
+- Verdict: `fixed`
+- Rationale: AI metrics event names now pass through source-specific allowlisting and fallback normalization, while session ids, paths, parent ids, agent roles, and raw event lines are represented only as private hashes.
+- Remediation status: `fixed-in-current-head`
+- Verification command: `bunx --bun vitest run packages/tooling/library/ai-metrics/test/ingest.test.ts --testNamePattern 'bounded event names|privacy proof without exposing'`
+- Changed files:
+  - none
+- Verification notes:
+  - The privacy proof test asserts prompt, output, path, and secret-shaped values are absent from the JSON result.
 
 ## Evidence Paths
 

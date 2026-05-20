@@ -11,8 +11,8 @@
 | Reported age | 4w ago |
 | Capture method | dom-fallback |
 | Owner area | packages/common/schema/src |
-| Triage verdict | needs-current-head-review |
-| Codex close reason | pending |
+| Triage verdict | fixed |
+| Codex close reason | Already fixed |
 
 ## Summary
 
@@ -20,10 +20,17 @@ Introduced a runtime regression: static helpers depend on a bound `this` and wil
 
 ## Current-HEAD Triage
 
-- Verdict: `needs-current-head-review`
-- Rationale: Pending validation against current `HEAD`.
-- Remediation status: `not-started`
-- Verification command: `pending`
+- Verdict: `fixed`
+- Rationale: CauseTaggedError and StatusCauseTaggedError static helper accessors now bind helpers to the accessed class when destructured, preserving subclass construction while keeping unbound helper calls usable.
+- Remediation status: `fixed-in-branch`
+- Verification command: `cd packages/foundation/modeling/schema && bunx --bun vitest run test/CauseTaggedError.test.ts test/StatusCauseTaggedErrorClass.test.ts && bunx tsc --noEmit --pretty false -p tsconfig.json`
+- Changed files:
+  - packages/foundation/modeling/schema/src/CauseTaggedError.ts
+  - packages/foundation/modeling/schema/src/StatusCauseTaggedErrorClass.ts
+  - packages/foundation/modeling/schema/test/CauseTaggedError.test.ts
+  - packages/foundation/modeling/schema/test/StatusCauseTaggedErrorClass.test.ts
+- Verification notes:
+  - The schema package tests cover destructured new, noCause, and mapError helpers.
 
 ## Evidence Paths
 

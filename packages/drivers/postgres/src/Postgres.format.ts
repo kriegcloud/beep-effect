@@ -281,7 +281,7 @@ const postgresErrorFromReason = (reason: Cause.Reason<unknown>): O.Option<Postgr
   );
 
 const postgresErrorFromCause = (cause: Cause.Cause<unknown>): O.Option<PostgresError> =>
-  pipe(readCauseReasons(cause), A.findFirst(postgresErrorFromReason));
+  pipe(readCauseReasons(cause), A.map(postgresErrorFromReason), A.getSomes, A.head);
 
 const normalizePostgresError = (error: unknown): PostgresError => {
   if (isPostgresError(error)) {

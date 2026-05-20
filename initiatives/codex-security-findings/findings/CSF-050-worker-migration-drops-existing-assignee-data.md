@@ -11,8 +11,8 @@
 | Reported age | 1w ago |
 | Capture method | dom-fallback |
 | Owner area | packages/_internal/db-admin/drizzle |
-| Triage verdict | needs-current-head-review |
-| Codex close reason | pending |
+| Triage verdict | dismissed |
+| Codex close reason | False positive |
 
 ## Summary
 
@@ -20,10 +20,14 @@ Introduced: the new migration drops the existing assignee column after adding as
 
 ## Current-HEAD Triage
 
-- Verdict: `needs-current-head-review`
-- Rationale: Pending validation against current `HEAD`.
-- Remediation status: `not-started`
-- Verification command: `pending`
+- Verdict: `dismissed`
+- Rationale: The report describes a plausible internal architecture-lab migration data-loss defect, but it does not establish a security vulnerability: there is no attacker-controlled input, public ingress, auth boundary, privilege escalation, secret exposure, or code execution path.
+- Remediation status: `dismissed-non-security-data-migration-defect`
+- Verification command: `sed -n '1,80p' packages/_internal/db-admin/drizzle/20260512001000_architecture_lab_worker_archetype/migration.sql && sed -n '1,80p' packages/architecture-lab/tables/src/aggregates/WorkItem/WorkItem.table.ts`
+- Changed files:
+  - none
+- Verification notes:
+  - Kept as a non-security correctness note rather than a security remediation item.
 
 ## Evidence Paths
 

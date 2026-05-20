@@ -11,8 +11,8 @@
 | Reported age | 1w ago |
 | Capture method | dom-fallback |
 | Owner area | packages/drivers/acp/src |
-| Triage verdict | needs-current-head-review |
-| Codex close reason | pending |
+| Triage verdict | fixed |
+| Codex close reason | Already fixed |
 
 ## Summary
 
@@ -20,10 +20,14 @@ Introduced a runtime type-contract bug in the ACP protocol adapter by replacing 
 
 ## Current-HEAD Triage
 
-- Verdict: `needs-current-head-review`
-- Rationale: Pending validation against current `HEAD`.
-- Remediation status: `not-started`
-- Verification command: `pending`
+- Verdict: `fixed`
+- Rationale: The ACP protocol adapter now returns a native Set<number> for clientIds instead of casting an Effect HashSet to the ReadonlySet contract.
+- Remediation status: `fixed-in-branch`
+- Verification command: `bunx tsc --noEmit --pretty false -p packages/drivers/acp/tsconfig.json`
+- Changed files:
+  - packages/drivers/acp/src/protocol.ts
+- Verification notes:
+  - The ACP package typecheck passes with the native Set runtime shape.
 
 ## Evidence Paths
 

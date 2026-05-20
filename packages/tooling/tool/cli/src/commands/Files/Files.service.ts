@@ -1378,30 +1378,45 @@ const applyCreateCaptionFilesPlan = Effect.fn("Files.applyCreateCaptionFilesPlan
 ): Effect.fn.Return<void, FilesCommandError, FileSystem.FileSystem | Path.Path | Terminal.Terminal> {
   const fs = yield* FileSystem.FileSystem;
   const path = yield* Path.Path;
-  yield* runFilesProgressForEach(
-    plan.entries,
-    Effect.fnUntraced(function* (entry) {
-      const tempPath = path.join(path.dirname(entry.captionPath), `.${entry.captionName}.${process.pid}.tmp`);
-      yield* fs
-        .writeFileString(tempPath, plan.caption)
-        .pipe(
-          Effect.mapError((cause) =>
-            formatPlatformError("Failed to write temporary caption sidecar", tempPath, { cause })
-          )
-        );
-      yield* fs
-        .rename(tempPath, entry.captionPath)
-        .pipe(
-          Effect.mapError((cause) =>
-            formatPlatformError("Failed to move caption sidecar into place", entry.captionPath, { cause })
-          )
+
+  yield* Effect.acquireUseRelease(
+    fs
+      .makeTempDirectory({ directory: plan.directory, prefix: ".beep-files-create-captions-" })
+      .pipe(
+        Effect.mapError((cause) =>
+          formatPlatformError("Failed to create temporary caption directory", plan.directory, { cause })
         )
-        .pipe(Effect.ensuring(fs.remove(tempPath, { force: true }).pipe(Effect.ignore)));
+      ),
+    Effect.fnUntraced(function* (tempDir) {
+      yield* runFilesProgressForEach(
+        plan.entries,
+        Effect.fnUntraced(function* (entry, index) {
+          const tempPath = path.join(
+            tempDir,
+            `${formatIndex(index, `${A.length(plan.entries)}`.length + 1)}-${entry.captionName}`
+          );
+          yield* fs
+            .writeFileString(tempPath, plan.caption)
+            .pipe(
+              Effect.mapError((cause) =>
+                formatPlatformError("Failed to write temporary caption sidecar", tempPath, { cause })
+              )
+            );
+          yield* fs
+            .rename(tempPath, entry.captionPath)
+            .pipe(
+              Effect.mapError((cause) =>
+                formatPlatformError("Failed to move caption sidecar into place", entry.captionPath, { cause })
+              )
+            );
+        }),
+        {
+          concurrency: FilesConcurrency.scan,
+          label: "captions write",
+        }
+      );
     }),
-    {
-      concurrency: FilesConcurrency.scan,
-      label: "captions write",
-    }
+    (tempDir) => fs.remove(tempDir, { recursive: true, force: true }).pipe(Effect.ignore)
   );
 });
 

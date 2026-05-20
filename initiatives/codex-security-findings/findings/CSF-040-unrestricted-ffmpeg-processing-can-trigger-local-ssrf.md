@@ -11,8 +11,8 @@
 | Reported age | 3w ago |
 | Capture method | dom-fallback |
 | Owner area | tooling/cli |
-| Triage verdict | needs-current-head-review |
-| Codex close reason | pending |
+| Triage verdict | fixed |
+| Codex close reason | Already fixed |
 
 ## Summary
 
@@ -20,10 +20,14 @@ A security bug was introduced in the new strip-metadata video path. The command 
 
 ## Current-HEAD Triage
 
-- Verdict: `needs-current-head-review`
-- Rationale: Pending validation against current `HEAD`.
-- Remediation status: `not-started`
-- Verification command: `pending`
+- Verdict: `fixed`
+- Rationale: The metadata-strip video path rejects known playlist and indirection extensions before selection and invokes ffmpeg with a file,pipe protocol whitelist.
+- Remediation status: `fixed-in-current-head`
+- Verification command: `bunx --bun vitest run packages/tooling/tool/cli/test/files-command.test.ts --testNamePattern 'ffmpeg stream copy|strip-metadata'`
+- Changed files:
+  - none
+- Verification notes:
+  - The focused files-command tests pass and assert ffmpeg receives -protocol_whitelist file,pipe.
 
 ## Evidence Paths
 

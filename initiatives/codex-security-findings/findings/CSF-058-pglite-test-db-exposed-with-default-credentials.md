@@ -11,8 +11,8 @@
 | Reported age | 3w ago |
 | Capture method | dom-fallback |
 | Owner area | tooling/test-utils |
-| Triage verdict | needs-current-head-review |
-| Codex close reason | pending |
+| Triage verdict | fixed |
+| Codex close reason | Already fixed |
 
 ## Summary
 
@@ -20,10 +20,15 @@ Introduced a network-exposed test database configuration with predictable creden
 
 ## Current-HEAD Triage
 
-- Verdict: `needs-current-head-review`
-- Rationale: Pending validation against current `HEAD`.
-- Remediation status: `not-started`
-- Verification command: `pending`
+- Verdict: `fixed`
+- Rationale: The host-network PGLite fallback is absent from current HEAD, and default PGLite Testcontainers credentials now use a generated password instead of postgres/postgres when the caller omits a password.
+- Remediation status: `fixed-in-branch`
+- Verification command: `bunx --bun vitest run packages/tooling/test-kit/test-utils/test/SqlTest.test.ts && bunx tsc --noEmit --pretty false -p packages/tooling/test-kit/test-utils/tsconfig.json`
+- Changed files:
+  - packages/tooling/test-kit/test-utils/src/SqlTest.ts
+  - packages/tooling/test-kit/test-utils/test/SqlTest.test.ts
+- Verification notes:
+  - The SqlTest regression verifies the default PGLite Testcontainers password is generated and not postgres.
 
 ## Evidence Paths
 

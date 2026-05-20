@@ -1915,6 +1915,7 @@ export class RunpodOperationDescriptor extends S.Class<RunpodOperationDescriptor
     pathParams: S.Array(S.String),
     queryParams: S.Array(S.String),
     requestBody: RunpodRequestBodyKind,
+    requestBodyRequired: S.Boolean,
     responseBody: RunpodResponseBodyKind,
     status: S.String,
   },
@@ -1938,6 +1939,7 @@ export const getOpenAPIOperation = new RunpodOperationDescriptor({
   pathParams: [],
   queryParams: [],
   requestBody: "none",
+  requestBodyRequired: false,
   responseBody: "json",
   status: "200",
 });
@@ -1957,6 +1959,7 @@ export const getDocsOperation = new RunpodOperationDescriptor({
   pathParams: [],
   queryParams: [],
   requestBody: "none",
+  requestBodyRequired: false,
   responseBody: "text",
   status: "200",
 });
@@ -1993,6 +1996,7 @@ export const listPodsOperation = new RunpodOperationDescriptor({
     "templateId",
   ],
   requestBody: "none",
+  requestBodyRequired: false,
   responseBody: "json",
   status: "200",
 });
@@ -2012,6 +2016,7 @@ export const createPodOperation = new RunpodOperationDescriptor({
   pathParams: [],
   queryParams: [],
   requestBody: "json",
+  requestBodyRequired: true,
   responseBody: "json",
   status: "201",
 });
@@ -2031,6 +2036,7 @@ export const getPodOperation = new RunpodOperationDescriptor({
   pathParams: ["podId"],
   queryParams: ["includeMachine", "includeNetworkVolume", "includeSavingsPlans", "includeTemplate", "includeWorkers"],
   requestBody: "none",
+  requestBodyRequired: false,
   responseBody: "json",
   status: "200",
 });
@@ -2050,6 +2056,7 @@ export const updatePodOperation = new RunpodOperationDescriptor({
   pathParams: ["podId"],
   queryParams: [],
   requestBody: "json",
+  requestBodyRequired: true,
   responseBody: "json",
   status: "200",
 });
@@ -2069,6 +2076,7 @@ export const deletePodOperation = new RunpodOperationDescriptor({
   pathParams: ["podId"],
   queryParams: [],
   requestBody: "none",
+  requestBodyRequired: false,
   responseBody: "none",
   status: "204",
 });
@@ -2088,6 +2096,7 @@ export const updatePodViaPostOperation = new RunpodOperationDescriptor({
   pathParams: ["podId"],
   queryParams: [],
   requestBody: "json",
+  requestBodyRequired: true,
   responseBody: "json",
   status: "200",
 });
@@ -2107,6 +2116,7 @@ export const startPodOperation = new RunpodOperationDescriptor({
   pathParams: ["podId"],
   queryParams: [],
   requestBody: "none",
+  requestBodyRequired: false,
   responseBody: "none",
   status: "200",
 });
@@ -2126,6 +2136,7 @@ export const stopPodOperation = new RunpodOperationDescriptor({
   pathParams: ["podId"],
   queryParams: [],
   requestBody: "none",
+  requestBodyRequired: false,
   responseBody: "none",
   status: "200",
 });
@@ -2145,6 +2156,7 @@ export const resetPodOperation = new RunpodOperationDescriptor({
   pathParams: ["podId"],
   queryParams: [],
   requestBody: "none",
+  requestBodyRequired: false,
   responseBody: "none",
   status: "200",
 });
@@ -2164,6 +2176,7 @@ export const restartPodOperation = new RunpodOperationDescriptor({
   pathParams: ["podId"],
   queryParams: [],
   requestBody: "none",
+  requestBodyRequired: false,
   responseBody: "none",
   status: "400",
 });
@@ -2183,6 +2196,7 @@ export const listEndpointsOperation = new RunpodOperationDescriptor({
   pathParams: [],
   queryParams: ["includeTemplate", "includeWorkers"],
   requestBody: "none",
+  requestBodyRequired: false,
   responseBody: "json",
   status: "200",
 });
@@ -2202,6 +2216,7 @@ export const createEndpointOperation = new RunpodOperationDescriptor({
   pathParams: [],
   queryParams: [],
   requestBody: "json",
+  requestBodyRequired: true,
   responseBody: "json",
   status: "200",
 });
@@ -2221,6 +2236,7 @@ export const getEndpointOperation = new RunpodOperationDescriptor({
   pathParams: ["endpointId"],
   queryParams: ["includeTemplate", "includeWorkers"],
   requestBody: "none",
+  requestBodyRequired: false,
   responseBody: "json",
   status: "200",
 });
@@ -2240,6 +2256,7 @@ export const updateEndpointOperation = new RunpodOperationDescriptor({
   pathParams: ["endpointId"],
   queryParams: [],
   requestBody: "json",
+  requestBodyRequired: true,
   responseBody: "json",
   status: "200",
 });
@@ -2259,6 +2276,7 @@ export const deleteEndpointOperation = new RunpodOperationDescriptor({
   pathParams: ["endpointId"],
   queryParams: [],
   requestBody: "none",
+  requestBodyRequired: false,
   responseBody: "none",
   status: "204",
 });
@@ -2278,6 +2296,7 @@ export const updateEndpointViaPostOperation = new RunpodOperationDescriptor({
   pathParams: ["endpointId"],
   queryParams: [],
   requestBody: "json",
+  requestBodyRequired: true,
   responseBody: "json",
   status: "200",
 });
@@ -2297,6 +2316,7 @@ export const listTemplatesOperation = new RunpodOperationDescriptor({
   pathParams: [],
   queryParams: ["includeEndpointBoundTemplates", "includePublicTemplates", "includeRunpodTemplates"],
   requestBody: "none",
+  requestBodyRequired: false,
   responseBody: "json",
   status: "200",
 });
@@ -2316,6 +2336,7 @@ export const createTemplateOperation = new RunpodOperationDescriptor({
   pathParams: [],
   queryParams: [],
   requestBody: "json",
+  requestBodyRequired: true,
   responseBody: "json",
   status: "200",
 });
@@ -2335,6 +2356,7 @@ export const getTemplateOperation = new RunpodOperationDescriptor({
   pathParams: ["templateId"],
   queryParams: ["includeEndpointBoundTemplates", "includePublicTemplates", "includeRunpodTemplates"],
   requestBody: "none",
+  requestBodyRequired: false,
   responseBody: "json",
   status: "200",
 });
@@ -2354,6 +2376,7 @@ export const updateTemplateOperation = new RunpodOperationDescriptor({
   pathParams: ["templateId"],
   queryParams: [],
   requestBody: "json",
+  requestBodyRequired: true,
   responseBody: "json",
   status: "200",
 });
@@ -2373,6 +2396,7 @@ export const deleteTemplateOperation = new RunpodOperationDescriptor({
   pathParams: ["templateId"],
   queryParams: [],
   requestBody: "none",
+  requestBodyRequired: false,
   responseBody: "none",
   status: "204",
 });
@@ -2392,6 +2416,7 @@ export const updateTemplateViaPostOperation = new RunpodOperationDescriptor({
   pathParams: ["templateId"],
   queryParams: [],
   requestBody: "json",
+  requestBodyRequired: true,
   responseBody: "json",
   status: "200",
 });
@@ -2411,6 +2436,7 @@ export const listNetworkVolumesOperation = new RunpodOperationDescriptor({
   pathParams: [],
   queryParams: [],
   requestBody: "none",
+  requestBodyRequired: false,
   responseBody: "json",
   status: "200",
 });
@@ -2430,6 +2456,7 @@ export const createNetworkVolumeOperation = new RunpodOperationDescriptor({
   pathParams: [],
   queryParams: [],
   requestBody: "json",
+  requestBodyRequired: true,
   responseBody: "json",
   status: "200",
 });
@@ -2449,6 +2476,7 @@ export const getNetworkVolumeOperation = new RunpodOperationDescriptor({
   pathParams: ["networkVolumeId"],
   queryParams: [],
   requestBody: "none",
+  requestBodyRequired: false,
   responseBody: "json",
   status: "200",
 });
@@ -2468,6 +2496,7 @@ export const updateNetworkVolumeOperation = new RunpodOperationDescriptor({
   pathParams: ["networkVolumeId"],
   queryParams: [],
   requestBody: "json",
+  requestBodyRequired: true,
   responseBody: "json",
   status: "200",
 });
@@ -2487,6 +2516,7 @@ export const deleteNetworkVolumeOperation = new RunpodOperationDescriptor({
   pathParams: ["networkVolumeId"],
   queryParams: [],
   requestBody: "none",
+  requestBodyRequired: false,
   responseBody: "none",
   status: "204",
 });
@@ -2506,6 +2536,7 @@ export const updateNetworkVolumeViaPostOperation = new RunpodOperationDescriptor
   pathParams: ["networkVolumeId"],
   queryParams: [],
   requestBody: "json",
+  requestBodyRequired: true,
   responseBody: "json",
   status: "200",
 });
@@ -2525,6 +2556,7 @@ export const listContainerRegistryAuthsOperation = new RunpodOperationDescriptor
   pathParams: [],
   queryParams: [],
   requestBody: "none",
+  requestBodyRequired: false,
   responseBody: "json",
   status: "200",
 });
@@ -2544,6 +2576,7 @@ export const createContainerRegistryAuthOperation = new RunpodOperationDescripto
   pathParams: [],
   queryParams: [],
   requestBody: "json",
+  requestBodyRequired: true,
   responseBody: "json",
   status: "200",
 });
@@ -2563,6 +2596,7 @@ export const getContainerRegistryAuthOperation = new RunpodOperationDescriptor({
   pathParams: ["containerRegistryAuthId"],
   queryParams: [],
   requestBody: "none",
+  requestBodyRequired: false,
   responseBody: "json",
   status: "200",
 });
@@ -2582,6 +2616,7 @@ export const deleteContainerRegistryAuthOperation = new RunpodOperationDescripto
   pathParams: ["containerRegistryAuthId"],
   queryParams: [],
   requestBody: "none",
+  requestBodyRequired: false,
   responseBody: "none",
   status: "204",
 });
@@ -2601,6 +2636,7 @@ export const podBillingOperation = new RunpodOperationDescriptor({
   pathParams: [],
   queryParams: ["bucketSize", "endTime", "gpuTypeId", "grouping", "podId", "startTime"],
   requestBody: "none",
+  requestBodyRequired: false,
   responseBody: "json",
   status: "200",
 });
@@ -2630,6 +2666,7 @@ export const endpointBillingOperation = new RunpodOperationDescriptor({
     "templateId",
   ],
   requestBody: "none",
+  requestBodyRequired: false,
   responseBody: "json",
   status: "200",
 });
@@ -2649,6 +2686,7 @@ export const networkVolumeBillingOperation = new RunpodOperationDescriptor({
   pathParams: [],
   queryParams: ["bucketSize", "endTime", "startTime"],
   requestBody: "none",
+  requestBodyRequired: false,
   responseBody: "json",
   status: "200",
 });

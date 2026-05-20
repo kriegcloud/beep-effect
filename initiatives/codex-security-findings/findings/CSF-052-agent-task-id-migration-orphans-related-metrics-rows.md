@@ -11,8 +11,8 @@
 | Reported age | 1w ago |
 | Capture method | dom-fallback |
 | Owner area | packages/tooling/library/ai-metrics |
-| Triage verdict | needs-current-head-review |
-| Codex close reason | pending |
+| Triage verdict | fixed |
+| Codex close reason | Already fixed |
 
 ## Summary
 
@@ -20,10 +20,15 @@ Introduced bug: the migration updates the primary task table but does not cascad
 
 ## Current-HEAD Triage
 
-- Verdict: `needs-current-head-review`
-- Rationale: Pending validation against current `HEAD`.
-- Remediation status: `not-started`
-- Verification command: `pending`
+- Verdict: `fixed`
+- Rationale: The same AI metrics migration now updates dependent task references in sessions and outcome labels before legacy task ids are removed, preventing orphaned related metric rows.
+- Remediation status: `fixed-in-branch`
+- Verification command: `bunx --bun vitest run packages/tooling/library/ai-metrics/test/ingest.test.ts --testNamePattern 'deduplicates legacy agent task ids' && bunx tsc --noEmit --pretty false -p packages/tooling/library/ai-metrics/tsconfig.json`
+- Changed files:
+  - packages/tooling/library/ai-metrics/src/derived-storage.ts
+  - packages/tooling/library/ai-metrics/test/ingest.test.ts
+- Verification notes:
+  - The focused migration test covers both ai_metrics_sessions and ai_metrics_outcome_labels remapping.
 
 ## Evidence Paths
 

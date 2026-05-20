@@ -11,8 +11,8 @@
 | Reported age | 1mo ago |
 | Capture method | dom-fallback |
 | Owner area | packages/platform-browser/src/IndexedDbQueryBuilder.ts |
-| Triage verdict | needs-current-head-review |
-| Codex close reason | pending |
+| Triage verdict | fixed |
+| Codex close reason | Already fixed |
 
 ## Summary
 
@@ -20,10 +20,14 @@ Introduced a non-terminating stream when chunkSize/limit is 0 due to missing val
 
 ## Current-HEAD Triage
 
-- Verdict: `needs-current-head-review`
-- Rationale: Pending validation against current `HEAD`.
-- Remediation status: `not-started`
-- Verification command: `pending`
+- Verdict: `fixed`
+- Rationale: The reported IndexedDbQueryBuilder file and platform-browser package path are absent from current HEAD, so the zero chunk-size stream path is no longer present.
+- Remediation status: `fixed-in-current-head`
+- Verification command: `! rg --files | rg 'packages/platform-browser/src/IndexedDbQueryBuilder\.ts|IndexedDbQueryBuilder'`
+- Changed files:
+  - none
+- Verification notes:
+  - A targeted file scan finds no IndexedDbQueryBuilder implementation in current HEAD.
 
 ## Evidence Paths
 

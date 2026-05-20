@@ -11,8 +11,8 @@
 | Reported age | 3w ago |
 | Capture method | dom-fallback |
 | Owner area | tooling/cli |
-| Triage verdict | needs-current-head-review |
-| Codex close reason | pending |
+| Triage verdict | fixed |
+| Codex close reason | Already fixed |
 
 ## Summary
 
@@ -20,10 +20,14 @@ Introduced a new security bug in the new Files command. The command should avoid
 
 ## Current-HEAD Triage
 
-- Verdict: `needs-current-head-review`
-- Rationale: Pending validation against current `HEAD`.
-- Remediation status: `not-started`
-- Verification command: `pending`
+- Verdict: `fixed`
+- Rationale: The files command resolves ffprobe from trusted absolute locations or an absolute BEEP_FFPROBE_PATH override and runs it with the file,pipe protocol whitelist, so an untrusted media directory PATH shim is not executed.
+- Remediation status: `fixed-in-current-head`
+- Verification command: `bunx --bun vitest run packages/tooling/tool/cli/test/files-command.test.ts --testNamePattern 'ffprobe stream rotation' && bunx tsc --noEmit --pretty false -p packages/tooling/tool/cli/tsconfig.json`
+- Changed files:
+  - packages/tooling/tool/cli/test/files-command.test.ts
+- Verification notes:
+  - The test now exercises the hardened absolute override path rather than PATH injection.
 
 ## Evidence Paths
 
