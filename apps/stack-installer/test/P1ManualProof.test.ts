@@ -1,11 +1,19 @@
 import { AiProviderCli, AiProviderCliProcessResult, type AiProviderCliProvider } from "@beep/ai-provider-cli";
 import { Discord, DiscordConfigInput } from "@beep/discord";
-import { InstallerChannelsServerLive } from "@beep/installer-channels-server";
-import { HostDependencyPlan, HostDependencyValidationResult } from "@beep/installer-dependencies-use-cases";
-import { InstallerDependenciesUseCases } from "@beep/installer-dependencies-use-cases/server";
-import { InstallerProvidersServerLive } from "@beep/installer-providers-server";
-import { InstallerSecurityServerLive } from "@beep/installer-security-server";
-import { P1ManualProofRequest, P1ManualProofResult } from "@beep/installer-workspace-use-cases";
+import {
+  DiscordChannelServerLive,
+  P1ManualProofWorkflowLive,
+  ProviderAccountServerLive,
+  SecretReferenceServerLive,
+  StackManifestServerLive,
+} from "@beep/installer-server";
+import {
+  HostDependencyPlan,
+  HostDependencyValidationResult,
+  P1ManualProofRequest,
+  P1ManualProofResult,
+} from "@beep/installer-use-cases";
+import { HostDependencyUseCases } from "@beep/installer-use-cases/server";
 import { OnePasswordCli, OnePasswordCliProcessResult } from "@beep/onepassword-cli";
 import { OnePasswordReference } from "@beep/shared-domain/values/OnePasswordReference";
 import type { TUnsafe } from "@beep/types";
@@ -71,8 +79,8 @@ const DriverLayer = Layer.mergeAll(
 );
 
 const TestDependenciesLayer = Layer.succeed(
-  InstallerDependenciesUseCases,
-  InstallerDependenciesUseCases.of({
+  HostDependencyUseCases,
+  HostDependencyUseCases.of({
     previewHostDependencies: Effect.fn("TestDependencies.previewHostDependencies")(function* () {
       return yield* Effect.succeed(new HostDependencyPlan({ dependencies: [], notes: ["test"], verbs: [] }));
     }),
@@ -95,11 +103,15 @@ const TestDependenciesLayer = Layer.succeed(
   })
 );
 
-const TestSliceLayer = InstallerChannelsServerLive.pipe(
-  Layer.provideMerge(InstallerSecurityServerLive),
-  Layer.provideMerge(InstallerProvidersServerLive),
-  Layer.provideMerge(TestDependenciesLayer)
+const TestConceptLayer = Layer.mergeAll(
+  DiscordChannelServerLive,
+  SecretReferenceServerLive,
+  ProviderAccountServerLive,
+  StackManifestServerLive,
+  TestDependenciesLayer
 );
+
+const TestSliceLayer = P1ManualProofWorkflowLive.pipe(Layer.provideMerge(TestConceptLayer));
 
 const TestLayer = TestSliceLayer.pipe(Layer.provideMerge(DriverLayer));
 

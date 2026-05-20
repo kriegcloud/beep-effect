@@ -11,21 +11,9 @@ import {
   $AgentCapabilityDomainId,
   $AgentCapabilityUseCasesId,
   $EpistemicDomainId,
-  $InstallerChannelsDomainId,
-  $InstallerChannelsServerId,
-  $InstallerChannelsUseCasesId,
-  $InstallerDependenciesDomainId,
-  $InstallerDependenciesServerId,
-  $InstallerDependenciesUseCasesId,
-  $InstallerProvidersDomainId,
-  $InstallerProvidersServerId,
-  $InstallerProvidersUseCasesId,
-  $InstallerSecurityDomainId,
-  $InstallerSecurityServerId,
-  $InstallerSecurityUseCasesId,
-  $InstallerWorkspaceDomainId,
-  $InstallerWorkspaceServerId,
-  $InstallerWorkspaceUseCasesId,
+  $InstallerDomainId,
+  $InstallerServerId,
+  $InstallerUseCasesId,
   $LawPracticeDomainId,
   $ProfessionalRuntimeProofId,
   $StackInstallerId,
@@ -74,40 +62,12 @@ describe("Identity", () => {
     >();
   });
 
-  it("preserves literal types for Stack Installer P1A package composers", () => {
+  it("preserves literal types for Stack Installer package composers", () => {
     expect($StackInstallerId).type.toBeAssignableTo<IdentityComposer<"@beep/stack-installer">>();
-    expect($InstallerDependenciesDomainId).type.toBeAssignableTo<
-      IdentityComposer<"@beep/installer-dependencies-domain">
-    >();
-    expect($InstallerDependenciesUseCasesId).type.toBeAssignableTo<
-      IdentityComposer<"@beep/installer-dependencies-use-cases">
-    >();
-    expect($InstallerDependenciesServerId).type.toBeAssignableTo<
-      IdentityComposer<"@beep/installer-dependencies-server">
-    >();
-    expect($InstallerSecurityDomainId).type.toBeAssignableTo<IdentityComposer<"@beep/installer-security-domain">>();
-    expect($InstallerSecurityUseCasesId).type.toBeAssignableTo<
-      IdentityComposer<"@beep/installer-security-use-cases">
-    >();
-    expect($InstallerSecurityServerId).type.toBeAssignableTo<IdentityComposer<"@beep/installer-security-server">>();
-    expect($InstallerProvidersDomainId).type.toBeAssignableTo<IdentityComposer<"@beep/installer-providers-domain">>();
-    expect($InstallerProvidersUseCasesId).type.toBeAssignableTo<
-      IdentityComposer<"@beep/installer-providers-use-cases">
-    >();
-    expect($InstallerProvidersServerId).type.toBeAssignableTo<IdentityComposer<"@beep/installer-providers-server">>();
-    expect($InstallerChannelsDomainId).type.toBeAssignableTo<IdentityComposer<"@beep/installer-channels-domain">>();
-    expect($InstallerChannelsUseCasesId).type.toBeAssignableTo<
-      IdentityComposer<"@beep/installer-channels-use-cases">
-    >();
-    expect($InstallerChannelsServerId).type.toBeAssignableTo<IdentityComposer<"@beep/installer-channels-server">>();
-    expect($InstallerWorkspaceDomainId).type.toBeAssignableTo<IdentityComposer<"@beep/installer-workspace-domain">>();
-    expect($InstallerWorkspaceUseCasesId).type.toBeAssignableTo<
-      IdentityComposer<"@beep/installer-workspace-use-cases">
-    >();
-    expect($InstallerWorkspaceServerId).type.toBeAssignableTo<IdentityComposer<"@beep/installer-workspace-server">>();
-    expect($InstallerWorkspaceDomainId`AIStackManifest`).type.toBe<
-      IdentityString<`@beep/installer-workspace-domain/${string}`>
-    >();
+    expect($InstallerDomainId).type.toBeAssignableTo<IdentityComposer<"@beep/installer-domain">>();
+    expect($InstallerUseCasesId).type.toBeAssignableTo<IdentityComposer<"@beep/installer-use-cases">>();
+    expect($InstallerServerId).type.toBeAssignableTo<IdentityComposer<"@beep/installer-server">>();
+    expect($InstallerDomainId`AIStackManifest`).type.toBe<IdentityString<`@beep/installer-domain/${string}`>>();
   });
 
   it("preserves literal types for annote and derived titles", () => {
