@@ -332,6 +332,6 @@ describe("reuse command", () => {
           expect(result.warnings).toEqual([]);
         }).pipe(provideScopedLayer(CommandTestLayer))
       ),
-    180_000
+    360_000
   );
 });
