@@ -1,6 +1,6 @@
 {
   "name": "@beep/drizzle",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "description": "Driver-level Drizzle capability wrapper for product-neutral database execution.",
   "license": "MIT",
   "private": true,

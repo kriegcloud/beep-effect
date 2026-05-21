@@ -1,6 +1,6 @@
 {
   "name": "@beep/architecture-lab-server",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "description": "Architecture-lab server adapter package for WorkItem repositories, handlers, and Layers.",
   "license": "MIT",
   "private": true,

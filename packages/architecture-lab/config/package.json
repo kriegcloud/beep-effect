@@ -1,6 +1,6 @@
 {
   "name": "@beep/architecture-lab-config",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "description": "Architecture-lab typed configuration package for WorkItem proof settings.",
   "license": "MIT",
   "private": true,

@@ -1,6 +1,6 @@
 {
   "name": "@beep/canvas-client",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "description": "Canvas client adapter package.",
   "license": "MIT",
   "private": true,

@@ -1,6 +1,6 @@
 {
   "name": "@beep/colors",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "description": "terminal output formatting with ANSI colors.",
   "license": "MIT",
   "private": true,

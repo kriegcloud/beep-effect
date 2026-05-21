@@ -1,6 +1,6 @@
 {
   "name": "@beep/canvas-server",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "description": "Canvas server adapter package for scene repositories, handlers, and Layers.",
   "license": "MIT",
   "private": true,

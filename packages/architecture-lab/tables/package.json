@@ -1,6 +1,6 @@
 {
   "name": "@beep/architecture-lab-tables",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "description": "Architecture-lab tables package for WorkItem persistence projections.",
   "license": "MIT",
   "private": true,

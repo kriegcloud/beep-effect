@@ -1,6 +1,6 @@
 {
   "name": "@beep/shared-server",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "description": "Driver-neutral shared-kernel server boundary helpers for deliberate cross-slice product semantics.",
   "license": "MIT",
   "private": true,

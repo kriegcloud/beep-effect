@@ -1,6 +1,6 @@
 {
   "name": "@beep/postgres",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "description": "Driver-level Postgres runtime, diagnostics, and Drizzle Effect composition.",
   "license": "MIT",
   "private": true,

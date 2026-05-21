@@ -1,6 +1,6 @@
 {
   "name": "@beep/architecture-lab-ui",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "description": "Architecture-lab UI package for the WorkItem proof surface.",
   "license": "MIT",
   "private": true,
