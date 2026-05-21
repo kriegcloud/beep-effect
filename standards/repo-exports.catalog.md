@@ -21,8 +21,8 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | packagesWithoutPublicExports | 1 |
 | missingWorkspaceMetadata | 0 |
 | importSpecifiers | 930 |
-| publicExportEntries | 13708 |
-| uniquePackageSymbols | 5477 |
+| publicExportEntries | 13711 |
+| uniquePackageSymbols | 5480 |
 
 ## Seed Discovery Proof
 
@@ -88,7 +88,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | 49 | `@beep/workspace-tables` | `packages/workspace/tables` | has-public-exports | 4 | 7 | 5 |
 | 50 | `@beep/db-admin` | `packages/_internal/db-admin` | has-public-exports | 5 | 15 | 6 |
 | 51 | `@beep/architecture-lab-client` | `packages/architecture-lab/client` | has-public-exports | 2 | 6 | 6 |
-| 52 | `@beep/repo-cli` | `packages/tooling/tool/cli` | has-public-exports | 79 | 831 | 499 |
+| 52 | `@beep/repo-cli` | `packages/tooling/tool/cli` | has-public-exports | 79 | 834 | 502 |
 | 53 | `@beep/shared-server` | `packages/shared/server` | has-public-exports | 2 | 2 | 1 |
 | 54 | `@beep/canvas-server` | `packages/canvas/server` | has-public-exports | 4 | 18 | 16 |
 | 55 | `@beep/shared-config` | `packages/shared/config` | has-public-exports | 2 | 2 | 1 |
@@ -10558,7 +10558,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli` | `docsCommand` | const | `packages/tooling/tool/cli/src/commands/Docs.ts:244` | Command-first docs discovery entrypoint used by agent config surfaces. |
 | `@beep/repo-cli` | `filesCommand` | const | `packages/tooling/tool/cli/src/commands/Files/Files.command.ts:437` | File curation command group. |
 | `@beep/repo-cli` | `graphitiCommand` | const | `packages/tooling/tool/cli/src/commands/Graphiti/index.ts:86` | Graphiti command group. |
-| `@beep/repo-cli` | `imageCommand` | const | `packages/tooling/tool/cli/src/commands/Image/index.ts:115` | Image and video curation command group. |
+| `@beep/repo-cli` | `imageCommand` | const | `packages/tooling/tool/cli/src/commands/Image/index.ts:371` | Image and video curation command group. |
 | `@beep/repo-cli` | `lawsCommand` | const | `packages/tooling/tool/cli/src/commands/Laws/index.ts:434` | Laws command group. |
 | `@beep/repo-cli` | `lintCommand` | const | `packages/tooling/tool/cli/src/commands/Lint/index.ts:607` | Lint command group. |
 | `@beep/repo-cli` | `purgeCommand` | const | `packages/tooling/tool/cli/src/commands/Purge.ts:258` | CLI command to purge workspace/root build artifacts. |
@@ -11180,7 +11180,10 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/commands/Graphiti/internal/ProxyServices` | `ProxyHealthPayload` | class | `packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyServices.ts:156` | Structured JSON payload for health endpoints. |
 | `@beep/repo-cli/commands/Graphiti/internal/ProxyServices` | `proxyHealthResponse` | const | `packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyServices.ts:293` | Build a structured proxy health HTTP response. |
 | `@beep/repo-cli/commands/Graphiti/internal/ProxyServices` | `ProxyQueueStats` | class | `packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyServices.ts:129` | Queue and processing counters for proxy introspection. |
-| `@beep/repo-cli/commands/Image/index` | `imageCommand` | const | `packages/tooling/tool/cli/src/commands/Image/index.ts:115` | Image and video curation command group. |
+| `@beep/repo-cli/commands/Image/index` | `ExtractFramesDirFailure` | class | `packages/tooling/tool/cli/src/commands/Image/index.ts:90` | Failed video from a folder-based frame extraction run. |
+| `@beep/repo-cli/commands/Image/index` | `ExtractFramesDirVideo` | class | `packages/tooling/tool/cli/src/commands/Image/index.ts:72` | Direct video selected by `image extract-frames-dir`. |
+| `@beep/repo-cli/commands/Image/index` | `imageCommand` | const | `packages/tooling/tool/cli/src/commands/Image/index.ts:371` | Image and video curation command group. |
+| `@beep/repo-cli/commands/Image/index` | `ImageCommandError` | class | `packages/tooling/tool/cli/src/commands/Image/index.ts:56` | Error raised by image curation commands. |
 | `@beep/repo-cli/commands/Laws/AllowlistCheck` | `ALLOWLIST_PATH` | const | `packages/tooling/tool/cli/src/commands/Laws/AllowlistCheck.ts:33` | Relative path to the effect laws allowlist. |
 | `@beep/repo-cli/commands/Laws/AllowlistCheck` | `AllowlistCheckOptions` | class | `packages/tooling/tool/cli/src/commands/Laws/AllowlistCheck.ts:94` | Runtime options for allowlist integrity checks. |
 | `@beep/repo-cli/commands/Laws/AllowlistCheck` | `AllowlistCheckSummary` | class | `packages/tooling/tool/cli/src/commands/Laws/AllowlistCheck.ts:113` | Result of an allowlist integrity check. |
@@ -11369,7 +11372,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/index` | `docsCommand` | const | `packages/tooling/tool/cli/src/commands/Docs.ts:244` | Command-first docs discovery entrypoint used by agent config surfaces. |
 | `@beep/repo-cli/index` | `filesCommand` | const | `packages/tooling/tool/cli/src/commands/Files/Files.command.ts:437` | File curation command group. |
 | `@beep/repo-cli/index` | `graphitiCommand` | const | `packages/tooling/tool/cli/src/commands/Graphiti/index.ts:86` | Graphiti command group. |
-| `@beep/repo-cli/index` | `imageCommand` | const | `packages/tooling/tool/cli/src/commands/Image/index.ts:115` | Image and video curation command group. |
+| `@beep/repo-cli/index` | `imageCommand` | const | `packages/tooling/tool/cli/src/commands/Image/index.ts:371` | Image and video curation command group. |
 | `@beep/repo-cli/index` | `lawsCommand` | const | `packages/tooling/tool/cli/src/commands/Laws/index.ts:434` | Laws command group. |
 | `@beep/repo-cli/index` | `lintCommand` | const | `packages/tooling/tool/cli/src/commands/Lint/index.ts:607` | Lint command group. |
 | `@beep/repo-cli/index` | `purgeCommand` | const | `packages/tooling/tool/cli/src/commands/Purge.ts:258` | CLI command to purge workspace/root build artifacts. |
