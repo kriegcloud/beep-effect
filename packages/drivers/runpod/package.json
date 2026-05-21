@@ -1,6 +1,6 @@
 {
   "name": "@beep/runpod",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "description": "Runpod API driver package",
   "license": "MIT",
   "private": true,

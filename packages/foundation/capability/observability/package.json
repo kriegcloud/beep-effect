@@ -1,6 +1,6 @@
 {
   "name": "@beep/observability",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "description": "A library containing utilities & modules for observability.",
   "license": "Apache-2.0",
   "private": true,

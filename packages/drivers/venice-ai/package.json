@@ -1,6 +1,6 @@
 {
   "name": "@beep/venice-ai",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "description": "Product-neutral Effect driver for the Venice AI API.",
   "license": "MIT",
   "private": true,

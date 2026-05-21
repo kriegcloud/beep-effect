@@ -1,6 +1,6 @@
 {
   "name": "@beep/ai-provider-cli",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "description": "Driver-level Claude and Codex CLI capability wrapper for product-neutral auth status checks.",
   "license": "MIT",
   "private": true,

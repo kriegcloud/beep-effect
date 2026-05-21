@@ -1,6 +1,6 @@
 {
   "name": "@beep/onepassword-cli",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "description": "Driver-level 1Password CLI capability wrapper for product-neutral secret reference checks.",
   "license": "MIT",
   "private": true,
