@@ -42,6 +42,7 @@ export class GraphitiProxyOpsError extends TaggedErrorClass<GraphitiProxyOpsErro
     description: "Failure raised while managing the local Graphiti proxy.",
   })
 ) {
+  /** Process exit code reported when this error reaches the runtime boundary. */
   override readonly [Runtime.errorExitCode] = this.exitCode ?? 1;
 }
 

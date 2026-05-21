@@ -23,7 +23,7 @@ import type {
 } from "@arizeai/phoenix-client/types/datasets";
 import type { PromptSelector as SdkPromptSelector } from "@arizeai/phoenix-client/types/prompts";
 import { $PhoenixId } from "@beep/identity";
-import { Config, Context, Effect, Layer, Match, pipe, Redacted } from "effect";
+import { Config, Context, Effect, flow, Layer, Match, pipe, Redacted } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
@@ -151,12 +151,10 @@ const makeClient = (config: ResolvedPhoenixConfig): PhoenixClient =>
     },
   });
 
-const semanticVersionToString = (version: readonly [number, number, number]): string =>
-  pipe(
-    version,
-    A.map((value) => `${value}`),
-    A.join(".")
-  );
+const semanticVersionToString = flow(
+  A.map((value: number) => `${value}`),
+  A.join(".")
+);
 
 const toMutableRecord = (record: Readonly<Record<string, unknown>>): Record<string, unknown> =>
   R.fromEntries(R.toEntries(record));

@@ -17,7 +17,9 @@ Practifi
 pulumi
 pulumiverse
 singlestore
+Solv
 Solana
+Toggl
 zepai
 Zock
 Zocks

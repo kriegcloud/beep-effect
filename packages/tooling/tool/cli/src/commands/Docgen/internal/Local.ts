@@ -9,7 +9,7 @@ import { $RepoCliId } from "@beep/identity/packages";
 import { DomainError, type FsUtils, findRepoRoot, type NoSuchFileError } from "@beep/repo-utils";
 import { LiteralKit } from "@beep/schema";
 import { A, Str, thunkEmptyStr } from "@beep/utils";
-import { Console, Effect, type FileSystem, Order, type Path, pipe, Stream } from "effect";
+import { Console, Effect, type FileSystem, flow, Order, type Path, pipe, Stream } from "effect";
 import { dual } from "effect/Function";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
@@ -425,9 +425,8 @@ const collectChangedFiles = Effect.fn("DocgenLocal.collectChangedFiles")(functio
 const discoverConfiguredPackages = Effect.fn("DocgenLocal.discoverConfiguredPackages")(function* () {
   yield* assertNoOrphanDocgenConfigPaths();
   return yield* discoverDocgenWorkspacePackages().pipe(
-    Effect.map((packages) =>
-      pipe(
-        packages,
+    Effect.map(
+      flow(
         A.filter((pkg) => pkg.hasDocgenConfig),
         A.sort(byPackagePathAscending)
       )
@@ -830,7 +829,7 @@ export const docgenLocalTurboArgsForTesting: {
 export const docgenLocalFullReasonsForTesting = (
   changedFiles: ReadonlyArray<string>
 ): ReadonlyArray<DocgenLocalFullReason> =>
-  pipe(changedFiles, A.map(normalizedFilePath), A.map(fullReasonForFile), collectOptions);
+  flow(A.map(normalizedFilePath), A.map(fullReasonForFile), collectOptions)(changedFiles);
 
 const buildDocgenLocalPlanWithRepoRoot = Effect.fn("DocgenLocal.buildDocgenLocalPlanWithRepoRoot")(function* (
   options: DocgenLocalOptions,

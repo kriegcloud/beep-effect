@@ -67,13 +67,10 @@ const getInvocation = (argv: ReadonlyArray<string>): QualityTaskInvocation => {
 
 const withEnvVar = <A>(name: string, value: string | undefined, use: () => A): A => {
   const previousValue = Bun.env[name];
-  const previousProcessValue = process.env[name];
   if (value === undefined) {
     delete Bun.env[name];
-    delete process.env[name];
   } else {
     Bun.env[name] = value;
-    process.env[name] = value;
   }
 
   try {
@@ -83,11 +80,6 @@ const withEnvVar = <A>(name: string, value: string | undefined, use: () => A): A
       delete Bun.env[name];
     } else {
       Bun.env[name] = previousValue;
-    }
-    if (previousProcessValue === undefined) {
-      delete process.env[name];
-    } else {
-      process.env[name] = previousProcessValue;
     }
   }
 };

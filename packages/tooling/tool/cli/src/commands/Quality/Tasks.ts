@@ -172,6 +172,7 @@ export class QualityTaskFailed extends TaggedErrorClass<QualityTaskFailed>($I`Qu
     description: "A quality subprocess exited with a non-zero status code.",
   })
 ) {
+  /** Process exit code reported when this error reaches the runtime boundary. */
   override readonly [Runtime.errorExitCode] = this.exitCode;
 }
 
@@ -207,6 +208,7 @@ export class QualityTaskGroupFailed extends TaggedErrorClass<QualityTaskGroupFai
     description: "A bounded quality task group completed with one or more failed subprocesses.",
   })
 ) {
+  /** Process exit code reported when this error reaches the runtime boundary. */
   override readonly [Runtime.errorExitCode] = this.exitCode;
 }
 

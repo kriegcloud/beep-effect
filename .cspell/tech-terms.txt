@@ -44,6 +44,7 @@ Ffmpeg
 ffmpeg
 Ffprobe
 ffprobe
+falkordblite
 fract
 fullrepo
 geohash
@@ -104,6 +105,7 @@ NTILE
 ntile
 objectset
 officedocument
+officejs
 oklch
 openxmlformats
 otel
@@ -118,6 +120,7 @@ PGDATABASE
 PGPASSWORD
 PGPORT
 PGUSER
+rusqlite
 plpgsql
 PLPGSQL
 pooler

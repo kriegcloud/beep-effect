@@ -39,6 +39,7 @@ export class CodexCommandError extends TaggedErrorClass<CodexCommandError>($I`Co
     description: "Failure raised by Codex helper commands.",
   })
 ) {
+  /** Process exit code reported when this error reaches the runtime boundary. */
   override readonly [Runtime.errorExitCode] = this.exitCode ?? 1;
 }
 

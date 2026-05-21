@@ -11,8 +11,13 @@ graphiti
 CAFC
 Gramm
 gramm
+IOLTA
+LEDES
 partes
 PTAB
+reattribute
+reattributed
+reattributes
 SDSU
 mcporter
 nana
@@ -27,9 +32,12 @@ Sentra
 tailc
 generalisation
 generalise
+unbilled
+unreviewed
 QWEN
 Qwen
 qwen
+squircle
 todox
 tmpfs
 ulimits

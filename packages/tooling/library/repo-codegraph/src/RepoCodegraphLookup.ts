@@ -59,8 +59,9 @@ const normalizeSearchText = flow(normalizeCamelCase, Str.toLowerCase, Str.replac
 
 const tokenize = flow(normalizeSearchText, Str.split(" "), A.map(Str.trim), A.filter(Str.isNonEmpty), A.dedupe);
 
-const uniqueSortedStrings = (values: ReadonlyArray<string>): ReadonlyArray<string> =>
-  pipe(values, A.dedupe, A.sort(Order.String));
+function uniqueSortedStrings(values: ReadonlyArray<string>): ReadonlyArray<string> {
+  return pipe(values, A.dedupe, A.sort(Order.String));
+}
 
 const entryIdentity = (entry: RepoExportsCatalogEntry): string =>
   `${entry.packageName}:${entry.symbolName}:${entry.exportKind}:${entry.sourcePath}:${entry.sourceLine}`;

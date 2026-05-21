@@ -1,7 +1,11 @@
 {
   "version": 1,
-  "generatedOn": "2026-05-20",
-  "scope": ["apps/**/*.{ts,tsx}", "packages/**/*.{ts,tsx}", "infra/**/*.ts"],
+  "generatedOn": "2026-05-21",
+  "scope": [
+    "apps/**/*.{ts,tsx}",
+    "packages/**/*.{ts,tsx}",
+    "infra/**/*.ts"
+  ],
   "enforcedRoots": [
     "packages/tooling/tool/cli/src",
     "packages/tooling/library/repo-utils/src/FsUtils.ts",
@@ -16,6 +20,14 @@
       "status": "candidate",
       "owner": "@beep/infra",
       "reason": "Exported pure-data type alias should be modeled as an annotated schema."
+    },
+    {
+      "file": "packages/agent-capability/domain/src/entities/Agent/Agent.model.ts",
+      "symbol": "anonymous@63",
+      "kind": "object-struct-schema",
+      "status": "exception",
+      "owner": "@beep/agent-capability-domain",
+      "reason": "S.Struct with non-identifier or spread keys stays tracked as an exception."
     },
     {
       "file": "packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.service.ts",

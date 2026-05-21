@@ -8,7 +8,7 @@
 import { $RepoCodegraphId } from "@beep/identity/packages";
 import { TaggedErrorClass } from "@beep/schema";
 import { A, Str, thunkFalse } from "@beep/utils";
-import { Effect, FileSystem, Inspectable, Order, Path, pipe } from "effect";
+import { Effect, FileSystem, flow, Inspectable, Order, Path, pipe } from "effect";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import { type ParseError, parse, printParseErrorCode } from "jsonc-parser";
@@ -100,13 +100,11 @@ const catalogReadFailure = (
     path,
   });
 
-const firstParseErrorMessage = (errors: ReadonlyArray<ParseError>): string =>
-  pipe(
-    errors,
-    A.head,
-    O.map((error) => `${printParseErrorCode(error.error)} at offset ${error.offset}`),
-    O.getOrElse(() => "unknown JSONC parse error")
-  );
+const firstParseErrorMessage = flow(
+  A.head<ParseError>,
+  O.map((error) => `${printParseErrorCode(error.error)} at offset ${error.offset}`),
+  O.getOrElse(() => "unknown JSONC parse error")
+);
 
 const parseJsoncUnknown = (path: string, content: string) => {
   const errors: Array<ParseError> = [];

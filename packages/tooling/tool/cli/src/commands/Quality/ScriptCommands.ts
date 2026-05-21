@@ -161,6 +161,7 @@ export class QualityScriptCommandError extends TaggedErrorClass<QualityScriptCom
     description: "Failure raised while running a migrated repo operational command.",
   })
 ) {
+  /** Process exit code reported when this error reaches the runtime boundary. */
   override readonly [Runtime.errorExitCode] = this.exitCode ?? 1;
 }
 
