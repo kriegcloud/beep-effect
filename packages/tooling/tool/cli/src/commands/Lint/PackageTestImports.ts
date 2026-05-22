@@ -14,24 +14,41 @@ import * as S from "effect/Schema";
 import { Command } from "effect/unstable/cli";
 import { Node, Project, SyntaxKind } from "ts-morph";
 
-type PackageSourceRoot = {
-  readonly name: string;
-  readonly sourceRoot: string;
-};
-
-type ModuleSpecifierUse = {
-  readonly line: number;
-  readonly specifier: string;
-};
-
-type PackageTestImportViolation = {
-  readonly file: string;
-  readonly line: number;
-  readonly replacement: string;
-  readonly specifier: string;
-};
-
 const $I = $RepoCliId.create("commands/Lint/PackageTestImports");
+
+class PackageSourceRoot extends S.Class<PackageSourceRoot>($I`PackageSourceRoot`)(
+  {
+    name: S.String,
+    sourceRoot: S.String,
+  },
+  $I.annote("PackageSourceRoot", {
+    description: "Represents the source root of a package, including its name and source root path.",
+  })
+) {}
+
+class ModuleSpecifierUse extends S.Class<ModuleSpecifierUse>($I`ModuleSpecifierUse`)(
+  {
+    line: S.Number,
+    specifier: S.String,
+  },
+  $I.annote("ModuleSpecifierUse", {
+    description:
+      "Represents a module specifier use within a TypeScript file, including the line number and specifier string.",
+  })
+) {}
+
+class PackageTestImportViolation extends S.Class<PackageTestImportViolation>($I`PackageTestImportViolation`)(
+  {
+    file: S.String,
+    line: S.Number,
+    replacement: S.String,
+    specifier: S.String,
+  },
+  $I.annote("PackageTestImportViolation", {
+    description:
+      "Represents a violation of the package test import policy, including the file, line number, replacement, and specifier.",
+  })
+) {}
 
 class PackageNameDocument extends S.Class<PackageNameDocument>($I`PackageNameDocument`)(
   {

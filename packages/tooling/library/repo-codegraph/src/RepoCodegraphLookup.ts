@@ -7,7 +7,7 @@
 
 import { $RepoCodegraphId } from "@beep/identity/packages";
 import { A, Str } from "@beep/utils";
-import { flow, Order, pipe } from "effect";
+import { flow, identity, Order, pipe } from "effect";
 import { dual } from "effect/Function";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
@@ -101,9 +101,10 @@ const normalizeSearchText = flow(normalizeCamelCase, Str.toLowerCase, Str.replac
 
 const tokenize = flow(normalizeSearchText, Str.split(" "), A.map(Str.trim), A.filter(Str.isNonEmpty), A.dedupe);
 
-function uniqueSortedStrings(values: ReadonlyArray<string>): ReadonlyArray<string> {
-  return pipe(values, A.dedupe, A.sort(Order.String));
-}
+const uniqueSortedStrings: (values: ReadonlyArray<string>) => ReadonlyArray<string> = flow(
+  A.dedupe<ReadonlyArray<string>>,
+  A.sort(Order.String)
+);
 
 const entryIdentity = (entry: RepoExportsCatalogEntry): string =>
   `${entry.packageName}:${entry.symbolName}:${entry.exportKind}:${entry.sourcePath}:${entry.sourceLine}`;
@@ -435,7 +436,7 @@ const legalImportCandidates = (
     matchingEntries,
     A.match({
       onEmpty: () => [entry],
-      onNonEmpty: (nonEmptyEntries) => nonEmptyEntries,
+      onNonEmpty: identity,
     })
   );
   const importSpecifiers = pipe(

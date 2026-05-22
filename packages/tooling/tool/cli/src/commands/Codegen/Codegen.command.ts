@@ -107,7 +107,6 @@ const isTypeScriptSourceFileName = S.is(TypeScriptSourceFileName);
 const isTypeScriptTestFileName = S.is(TypeScriptTestFileName);
 const isInternalDirectoryName = S.is(InternalDirectoryName);
 const isRootIndexFileName = S.is(RootIndexFileName);
-const stringEquivalence = Str.equivalence;
 const decodeJSImportPathResult = S.decodeUnknownResult(TypeScriptSourceToJSImportPath);
 
 /**
@@ -182,14 +181,14 @@ const discoverModules = Effect.fn(function* (srcDir: string) {
           const info = yield* fs.stat(fullPath).pipe(Effect.orElseSucceed(thunkUndefined));
           if (info === undefined) return A.empty<string>();
 
-          if (stringEquivalence(info.type, "Directory")) {
+          if (Str.equivalence(info.type, "Directory")) {
             // Skip internal directories
             if (isInternalDirectoryName(entry)) return A.empty<string>();
 
             // Recurse into subdirectories
             return yield* walk(fullPath, `${prefix}${entry}/`);
           }
-          if (stringEquivalence(info.type, "File") && isTypeScriptSourceFileName(entry)) {
+          if (Str.equivalence(info.type, "File") && isTypeScriptSourceFileName(entry)) {
             // Skip test files
             if (isTypeScriptTestFileName(entry)) return A.empty<string>();
 

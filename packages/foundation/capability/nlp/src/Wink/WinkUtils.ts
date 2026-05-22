@@ -118,7 +118,7 @@ const sanitizeNGramResult = (
 export class WinkUtilsError extends TaggedErrorClass<WinkUtilsError>($I`WinkUtilsError`)(
   "WinkUtilsError",
   {
-    cause: S.Unknown,
+    cause: S.DefectWithStack,
     message: S.String,
     operation: S.String,
   },

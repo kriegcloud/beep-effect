@@ -322,7 +322,7 @@ export class TermFrequency extends S.Class<TermFrequency>($I`TermFrequency`)(
 export class VectorizerError extends TaggedErrorClass<VectorizerError>($I`VectorizerError`)(
   "VectorizerError",
   {
-    cause: S.Unknown,
+    cause: S.DefectWithStack,
     message: S.String,
     operation: S.String,
   },

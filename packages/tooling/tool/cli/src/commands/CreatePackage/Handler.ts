@@ -114,7 +114,6 @@ const PackageType = LiteralKit(VALID_TYPES).annotate(
 type PackageType = typeof PackageType.Type;
 const isPackageType = S.is(PackageType);
 const packageTypeEquivalence = S.toEquivalence(PackageType);
-const stringEquivalence = Str.equivalence;
 
 const PackageFamily = LiteralKit(VALID_FAMILIES).annotate(
   $I.annote("PackageFamily", {
@@ -363,7 +362,7 @@ const matchesWorkspacePattern = (pattern: string, targetPath: string): boolean =
   return A.every(
     A.zip(patternSegments, targetSegments),
     ([patternSegment, targetSegment]) =>
-      stringEquivalence(patternSegment, "*") || stringEquivalence(patternSegment, targetSegment)
+      Str.equivalence(patternSegment, "*") || Str.equivalence(patternSegment, targetSegment)
   );
 };
 
@@ -429,7 +428,7 @@ const ensureRootWorkspaceEntry = Effect.fn(function* (repoRoot: string, packageP
 
   const nextContent = appendWorkspaceEntry(content, currentWorkspaces, packagePath);
 
-  if (stringEquivalence(nextContent, content)) {
+  if (Str.equivalence(nextContent, content)) {
     return false;
   }
 
@@ -493,7 +492,7 @@ const ensureIdentityPackageRegistration = Effect.fn(function* (identityPackagesF
       A.map((literal) => literal.getLiteralText())
     );
 
-    if (!A.some(existingSegments, (segment) => stringEquivalence(segment, packageName))) {
+    if (!A.some(existingSegments, (segment) => Str.equivalence(segment, packageName))) {
       composersCall.addArgument(`"${packageName}"`);
     }
 

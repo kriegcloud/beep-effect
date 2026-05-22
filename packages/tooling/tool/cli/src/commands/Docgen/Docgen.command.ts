@@ -12,7 +12,7 @@ import { DomainError, findRepoRoot } from "@beep/repo-utils";
 import { renderBiomeJson } from "@beep/repo-utils/schemas/BiomeJson";
 import { Runpod, RunpodConfigInput } from "@beep/runpod";
 import { A, Str } from "@beep/utils";
-import { Config, Console, Effect, FileSystem, Layer, Match, Path, pipe } from "effect";
+import { Config, Console, Effect, FileSystem, flow, Layer, Match, Path, pipe } from "effect";
 import * as O from "effect/Option";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
@@ -302,8 +302,11 @@ const resolvePackageSelector = Effect.fn("Docgen.resolvePackageSelector")(functi
   return O.isSome(packageSelector) ? packageSelector : filterSelector;
 });
 
-const splitCommaSeparatedFlag = (value: string): ReadonlyArray<string> =>
-  pipe(Str.split(",")(value), A.map(Str.trim), A.filter(Str.isNonEmpty));
+const splitCommaSeparatedFlag: (value: string) => ReadonlyArray<string> = flow(
+  Str.split(","),
+  A.map(Str.trim),
+  A.filter(Str.isNonEmpty)
+);
 
 const resolveQualityWorkerEvalSource = Effect.fn("Docgen.resolveQualityWorkerEvalSource")(function* ({
   all,

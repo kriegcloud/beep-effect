@@ -84,7 +84,7 @@ const parameterNamesForTool = (tool: NlpTool): ReadonlyArray<string> => {
 export class ExportedToolError extends TaggedErrorClass<ExportedToolError>($I`ExportedToolError`)(
   "ExportedToolError",
   {
-    cause: S.Unknown,
+    cause: S.DefectWithStack,
     message: S.String,
     toolName: S.String,
   },

@@ -20,9 +20,9 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | packagesWithPublicExports | 77 |
 | packagesWithoutPublicExports | 1 |
 | missingWorkspaceMetadata | 0 |
-| importSpecifiers | 1001 |
-| publicExportEntries | 14756 |
-| uniquePackageSymbols | 5489 |
+| importSpecifiers | 1012 |
+| publicExportEntries | 14826 |
+| uniquePackageSymbols | 5496 |
 
 ## Seed Discovery Proof
 
@@ -89,7 +89,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | 50 | `@beep/workspace-tables` | `packages/workspace/tables` | has-public-exports | 4 | 7 | 5 |
 | 51 | `@beep/db-admin` | `packages/_internal/db-admin` | has-public-exports | 5 | 15 | 6 |
 | 52 | `@beep/architecture-lab-client` | `packages/architecture-lab/client` | has-public-exports | 2 | 6 | 6 |
-| 53 | `@beep/repo-cli` | `packages/tooling/tool/cli` | has-public-exports | 130 | 1444 | 525 |
+| 53 | `@beep/repo-cli` | `packages/tooling/tool/cli` | has-public-exports | 141 | 1514 | 532 |
 | 54 | `@beep/shared-server` | `packages/shared/server` | has-public-exports | 2 | 2 | 1 |
 | 55 | `@beep/shared-config` | `packages/shared/config` | has-public-exports | 2 | 2 | 1 |
 | 56 | `@beep/sandbox` | `packages/foundation/capability/sandbox` | has-public-exports | 30 | 786 | 238 |
@@ -11156,10 +11156,10 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 
 | Import | Symbol | Kind | Source | Summary |
 |---|---|---|---|---|
-| `@beep/repo-cli` | `agentEffectivenessCommand` | const | `packages/tooling/tool/cli/src/commands/AgentEffectiveness/AgentEffectiveness.command.ts:690` | Agent-effectiveness root command. |
-| `@beep/repo-cli` | `ciCommand` | const | `packages/tooling/tool/cli/src/commands/Ci/Ci.command.ts:336` | CI helper command group. |
+| `@beep/repo-cli` | `agentEffectivenessCommand` | const | `packages/tooling/tool/cli/src/commands/AgentEffectiveness/AgentEffectiveness.command.ts:597` | Agent-effectiveness root command. |
+| `@beep/repo-cli` | `ciCommand` | const | `packages/tooling/tool/cli/src/commands/Ci/Ci.command.ts:315` | CI helper command group. |
 | `@beep/repo-cli` | `codegenCommand` | const | `packages/tooling/tool/cli/src/commands/Codegen/Codegen.command.ts:257` | CLI command that scans a package's `src/` directory and generates (or previews) |
-| `@beep/repo-cli` | `codexCommand` | const | `packages/tooling/tool/cli/src/commands/Codex/Codex.command.ts:129` | Codex helper command group. |
+| `@beep/repo-cli` | `codexCommand` | const | `packages/tooling/tool/cli/src/commands/Codex/Codex.command.ts:101` | Codex helper command group. |
 | `@beep/repo-cli` | `createPackageCommand` | const | `packages/tooling/tool/cli/src/commands/CreatePackage/CreatePackage.command.ts:16` | Package creation command. |
 | `@beep/repo-cli` | `docgenCommand` | const | `packages/tooling/tool/cli/src/commands/Docgen/Docgen.command.ts:1076` | Human-first docgen command suite. |
 | `@beep/repo-cli` | `docsCommand` | const | `packages/tooling/tool/cli/src/commands/Docs/Docs.command.ts:246` | Command-first docs discovery entrypoint used by agent config surfaces. |
@@ -11167,24 +11167,27 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli` | `graphitiCommand` | const | `packages/tooling/tool/cli/src/commands/Graphiti/Graphiti.command.ts:94` | Graphiti command group. |
 | `@beep/repo-cli` | `imageCommand` | const | `packages/tooling/tool/cli/src/commands/Image/Image.command.ts:149` | Image and video curation command group. |
 | `@beep/repo-cli` | `lawsCommand` | const | `packages/tooling/tool/cli/src/commands/Laws/Laws.command.ts:435` | Laws command group. |
-| `@beep/repo-cli` | `lintCommand` | const | `packages/tooling/tool/cli/src/commands/Lint/Lint.command.ts:608` | Lint command group. |
+| `@beep/repo-cli` | `lintCommand` | const | `packages/tooling/tool/cli/src/commands/Lint/Lint.command.ts:587` | Lint command group. |
 | `@beep/repo-cli` | `purgeCommand` | const | `packages/tooling/tool/cli/src/commands/Purge/Purge.command.ts:250` | CLI command to purge workspace/root build artifacts. |
-| `@beep/repo-cli` | `qualityCommand` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:1710` | Quality command group for repo operational checks. |
+| `@beep/repo-cli` | `qualityCommand` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:1684` | Quality command group for repo operational checks. |
 | `@beep/repo-cli` | `reuseCommand` | const | `packages/tooling/tool/cli/src/commands/Reuse/Reuse.command.ts:460` | Reuse-discovery command group. |
 | `@beep/repo-cli` | `rootCommand` | const | `packages/tooling/tool/cli/src/commands/Root.ts:45` | Top-level CLI command that registers all subcommands. |
 | `@beep/repo-cli` | `syncDataToTsCommand` | const | `packages/tooling/tool/cli/src/commands/SyncDataToTs/SyncDataToTs.command.ts:485` | CLI command for syncing official upstream datasets into checked-in TypeScript modules. |
 | `@beep/repo-cli` | `topoSortCommand` | const | `packages/tooling/tool/cli/src/commands/TopoSort/TopoSort.command.ts:32` | CLI command that builds the workspace dependency graph and prints package names |
-| `@beep/repo-cli` | `tsconfigSyncCommand` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:1828` | CLI command for synchronizing root and workspace tsconfig state. |
+| `@beep/repo-cli` | `tsconfigSyncCommand` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:1775` | CLI command for synchronizing root and workspace tsconfig state. |
 | `@beep/repo-cli` | `versionSyncCommand` | const | `packages/tooling/tool/cli/src/commands/VersionSync/VersionSync.command.ts:48` | CLI command for synchronizing version pins across the monorepo. |
-| `@beep/repo-cli/commands/AgentEffectiveness` | `agentEffectivenessCommand` | const | `packages/tooling/tool/cli/src/commands/AgentEffectiveness/AgentEffectiveness.command.ts:690` | Agent-effectiveness root command. |
-| `@beep/repo-cli/commands/AgentEffectiveness/AgentEffectiveness.command` | `agentEffectivenessCommand` | const | `packages/tooling/tool/cli/src/commands/AgentEffectiveness/AgentEffectiveness.command.ts:690` | Agent-effectiveness root command. |
-| `@beep/repo-cli/commands/AgentEffectiveness/index` | `agentEffectivenessCommand` | const | `packages/tooling/tool/cli/src/commands/AgentEffectiveness/AgentEffectiveness.command.ts:690` | Agent-effectiveness root command. |
-| `@beep/repo-cli/commands/AIMetrics` | `aiMetricsCommand` | const | `packages/tooling/tool/cli/src/commands/AIMetrics/AIMetrics.command.ts:3511` | AI metrics root command. |
-| `@beep/repo-cli/commands/AIMetrics` | `AiMetricsCommandError` | class | `packages/tooling/tool/cli/src/commands/AIMetrics/AIMetrics.command.ts:153` | Error raised by the AI metrics CLI. |
-| `@beep/repo-cli/commands/AIMetrics/AIMetrics.command` | `aiMetricsCommand` | const | `packages/tooling/tool/cli/src/commands/AIMetrics/AIMetrics.command.ts:3511` | AI metrics root command. |
-| `@beep/repo-cli/commands/AIMetrics/AIMetrics.command` | `AiMetricsCommandError` | class | `packages/tooling/tool/cli/src/commands/AIMetrics/AIMetrics.command.ts:153` | Error raised by the AI metrics CLI. |
-| `@beep/repo-cli/commands/AIMetrics/index` | `aiMetricsCommand` | const | `packages/tooling/tool/cli/src/commands/AIMetrics/AIMetrics.command.ts:3511` | AI metrics root command. |
-| `@beep/repo-cli/commands/AIMetrics/index` | `AiMetricsCommandError` | class | `packages/tooling/tool/cli/src/commands/AIMetrics/AIMetrics.command.ts:153` | Error raised by the AI metrics CLI. |
+| `@beep/repo-cli/commands/AgentEffectiveness` | `agentEffectivenessCommand` | const | `packages/tooling/tool/cli/src/commands/AgentEffectiveness/AgentEffectiveness.command.ts:597` | Agent-effectiveness root command. |
+| `@beep/repo-cli/commands/AgentEffectiveness/AgentEffectiveness.command` | `agentEffectivenessCommand` | const | `packages/tooling/tool/cli/src/commands/AgentEffectiveness/AgentEffectiveness.command.ts:597` | Agent-effectiveness root command. |
+| `@beep/repo-cli/commands/AgentEffectiveness/index` | `agentEffectivenessCommand` | const | `packages/tooling/tool/cli/src/commands/AgentEffectiveness/AgentEffectiveness.command.ts:597` | Agent-effectiveness root command. |
+| `@beep/repo-cli/commands/AIMetrics` | `aiMetricsCommand` | const | `packages/tooling/tool/cli/src/commands/AIMetrics/AIMetrics.command.ts:3475` | AI metrics root command. |
+| `@beep/repo-cli/commands/AIMetrics` | `AiMetricsCommandError` | class | `packages/tooling/tool/cli/src/commands/AIMetrics/AIMetrics.errors.ts:23` |  |
+| `@beep/repo-cli/commands/AIMetrics` | `AiMetricsStatusExit` | class | `packages/tooling/tool/cli/src/commands/AIMetrics/AIMetrics.errors.ts:31` |  |
+| `@beep/repo-cli/commands/AIMetrics/AIMetrics.command` | `aiMetricsCommand` | const | `packages/tooling/tool/cli/src/commands/AIMetrics/AIMetrics.command.ts:3475` | AI metrics root command. |
+| `@beep/repo-cli/commands/AIMetrics/AIMetrics.errors` | `AiMetricsCommandError` | class | `packages/tooling/tool/cli/src/commands/AIMetrics/AIMetrics.errors.ts:23` |  |
+| `@beep/repo-cli/commands/AIMetrics/AIMetrics.errors` | `AiMetricsStatusExit` | class | `packages/tooling/tool/cli/src/commands/AIMetrics/AIMetrics.errors.ts:31` |  |
+| `@beep/repo-cli/commands/AIMetrics/index` | `aiMetricsCommand` | const | `packages/tooling/tool/cli/src/commands/AIMetrics/AIMetrics.command.ts:3475` | AI metrics root command. |
+| `@beep/repo-cli/commands/AIMetrics/index` | `AiMetricsCommandError` | class | `packages/tooling/tool/cli/src/commands/AIMetrics/AIMetrics.errors.ts:23` |  |
+| `@beep/repo-cli/commands/AIMetrics/index` | `AiMetricsStatusExit` | class | `packages/tooling/tool/cli/src/commands/AIMetrics/AIMetrics.errors.ts:31` |  |
 | `@beep/repo-cli/commands/Architecture` | `applyCanonicalSliceOperationPlan` | const | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlanExecution.ts:270` | Apply a decoded operation plan with failsafe conflict behavior. |
 | `@beep/repo-cli/commands/Architecture` | `architectureCommand` | const | `packages/tooling/tool/cli/src/commands/Architecture/Architecture.command.ts:280` | Architecture automation command group. |
 | `@beep/repo-cli/commands/Architecture` | `ArchitectureDomainKind` | const | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:27` | Canonical architecture domain-kind folders. |
@@ -11309,27 +11312,27 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/commands/Architecture/OperationPlanExecution` | `applyCanonicalSliceOperationPlan` | const | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlanExecution.ts:270` | Apply a decoded operation plan with failsafe conflict behavior. |
 | `@beep/repo-cli/commands/Architecture/OperationPlanExecution` | `checkCanonicalSliceOperationPlan` | const | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlanExecution.ts:178` | Validate a decoded operation plan against a repository root. |
 | `@beep/repo-cli/commands/Architecture/OperationPlanPackageJson` | `renderPackageJsonOperation` | const | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlanPackageJson.ts:64` | Render a structured package manifest operation. |
-| `@beep/repo-cli/commands/Ci` | `appendTurboSummary` | const | `packages/tooling/tool/cli/src/commands/Ci/Ci.command.ts:278` | Append the latest Turbo run summary to GitHub step summary or stdout. |
-| `@beep/repo-cli/commands/Ci` | `ciCommand` | const | `packages/tooling/tool/cli/src/commands/Ci/Ci.command.ts:336` | CI helper command group. |
-| `@beep/repo-cli/commands/Ci` | `CiCommandError` | class | `packages/tooling/tool/cli/src/commands/Ci/Ci.command.ts:99` | Typed failure for CI helper commands. |
-| `@beep/repo-cli/commands/Ci/Ci.command` | `appendTurboSummary` | const | `packages/tooling/tool/cli/src/commands/Ci/Ci.command.ts:278` | Append the latest Turbo run summary to GitHub step summary or stdout. |
-| `@beep/repo-cli/commands/Ci/Ci.command` | `ciCommand` | const | `packages/tooling/tool/cli/src/commands/Ci/Ci.command.ts:336` | CI helper command group. |
-| `@beep/repo-cli/commands/Ci/Ci.command` | `CiCommandError` | class | `packages/tooling/tool/cli/src/commands/Ci/Ci.command.ts:99` | Typed failure for CI helper commands. |
-| `@beep/repo-cli/commands/Ci/index` | `appendTurboSummary` | const | `packages/tooling/tool/cli/src/commands/Ci/Ci.command.ts:278` | Append the latest Turbo run summary to GitHub step summary or stdout. |
-| `@beep/repo-cli/commands/Ci/index` | `ciCommand` | const | `packages/tooling/tool/cli/src/commands/Ci/Ci.command.ts:336` | CI helper command group. |
-| `@beep/repo-cli/commands/Ci/index` | `CiCommandError` | class | `packages/tooling/tool/cli/src/commands/Ci/Ci.command.ts:99` | Typed failure for CI helper commands. |
+| `@beep/repo-cli/commands/Ci` | `appendTurboSummary` | const | `packages/tooling/tool/cli/src/commands/Ci/Ci.command.ts:257` | Append the latest Turbo run summary to GitHub step summary or stdout. |
+| `@beep/repo-cli/commands/Ci` | `ciCommand` | const | `packages/tooling/tool/cli/src/commands/Ci/Ci.command.ts:315` | CI helper command group. |
+| `@beep/repo-cli/commands/Ci` | `CiCommandError` | class | `packages/tooling/tool/cli/src/commands/Ci/Ci.errors.ts:22` |  |
+| `@beep/repo-cli/commands/Ci/Ci.command` | `appendTurboSummary` | const | `packages/tooling/tool/cli/src/commands/Ci/Ci.command.ts:257` | Append the latest Turbo run summary to GitHub step summary or stdout. |
+| `@beep/repo-cli/commands/Ci/Ci.command` | `ciCommand` | const | `packages/tooling/tool/cli/src/commands/Ci/Ci.command.ts:315` | CI helper command group. |
+| `@beep/repo-cli/commands/Ci/Ci.errors` | `CiCommandError` | class | `packages/tooling/tool/cli/src/commands/Ci/Ci.errors.ts:22` |  |
+| `@beep/repo-cli/commands/Ci/index` | `appendTurboSummary` | const | `packages/tooling/tool/cli/src/commands/Ci/Ci.command.ts:257` | Append the latest Turbo run summary to GitHub step summary or stdout. |
+| `@beep/repo-cli/commands/Ci/index` | `ciCommand` | const | `packages/tooling/tool/cli/src/commands/Ci/Ci.command.ts:315` | CI helper command group. |
+| `@beep/repo-cli/commands/Ci/index` | `CiCommandError` | class | `packages/tooling/tool/cli/src/commands/Ci/Ci.errors.ts:22` |  |
 | `@beep/repo-cli/commands/Codegen` | `codegenCommand` | const | `packages/tooling/tool/cli/src/commands/Codegen/Codegen.command.ts:257` | CLI command that scans a package's `src/` directory and generates (or previews) |
 | `@beep/repo-cli/commands/Codegen/Codegen.command` | `codegenCommand` | const | `packages/tooling/tool/cli/src/commands/Codegen/Codegen.command.ts:257` | CLI command that scans a package's `src/` directory and generates (or previews) |
 | `@beep/repo-cli/commands/Codegen/index` | `codegenCommand` | const | `packages/tooling/tool/cli/src/commands/Codegen/Codegen.command.ts:257` | CLI command that scans a package's `src/` directory and generates (or previews) |
-| `@beep/repo-cli/commands/Codex` | `codexCommand` | const | `packages/tooling/tool/cli/src/commands/Codex/Codex.command.ts:129` | Codex helper command group. |
-| `@beep/repo-cli/commands/Codex` | `CodexCommandError` | class | `packages/tooling/tool/cli/src/commands/Codex/Codex.command.ts:32` | Typed failure for Codex helper commands. |
-| `@beep/repo-cli/commands/Codex` | `runCodexQualityReviewFixLoop` | const | `packages/tooling/tool/cli/src/commands/Codex/Codex.command.ts:74` | Launch Codex with the repo-local quality review fix loop prompt. |
-| `@beep/repo-cli/commands/Codex/Codex.command` | `codexCommand` | const | `packages/tooling/tool/cli/src/commands/Codex/Codex.command.ts:129` | Codex helper command group. |
-| `@beep/repo-cli/commands/Codex/Codex.command` | `CodexCommandError` | class | `packages/tooling/tool/cli/src/commands/Codex/Codex.command.ts:32` | Typed failure for Codex helper commands. |
-| `@beep/repo-cli/commands/Codex/Codex.command` | `runCodexQualityReviewFixLoop` | const | `packages/tooling/tool/cli/src/commands/Codex/Codex.command.ts:74` | Launch Codex with the repo-local quality review fix loop prompt. |
-| `@beep/repo-cli/commands/Codex/index` | `codexCommand` | const | `packages/tooling/tool/cli/src/commands/Codex/Codex.command.ts:129` | Codex helper command group. |
-| `@beep/repo-cli/commands/Codex/index` | `CodexCommandError` | class | `packages/tooling/tool/cli/src/commands/Codex/Codex.command.ts:32` | Typed failure for Codex helper commands. |
-| `@beep/repo-cli/commands/Codex/index` | `runCodexQualityReviewFixLoop` | const | `packages/tooling/tool/cli/src/commands/Codex/Codex.command.ts:74` | Launch Codex with the repo-local quality review fix loop prompt. |
+| `@beep/repo-cli/commands/Codex` | `codexCommand` | const | `packages/tooling/tool/cli/src/commands/Codex/Codex.command.ts:101` | Codex helper command group. |
+| `@beep/repo-cli/commands/Codex` | `CodexCommandError` | class | `packages/tooling/tool/cli/src/commands/Codex/Codex.errors.ts:23` |  |
+| `@beep/repo-cli/commands/Codex` | `runCodexQualityReviewFixLoop` | const | `packages/tooling/tool/cli/src/commands/Codex/Codex.command.ts:46` | Launch Codex with the repo-local quality review fix loop prompt. |
+| `@beep/repo-cli/commands/Codex/Codex.command` | `codexCommand` | const | `packages/tooling/tool/cli/src/commands/Codex/Codex.command.ts:101` | Codex helper command group. |
+| `@beep/repo-cli/commands/Codex/Codex.command` | `runCodexQualityReviewFixLoop` | const | `packages/tooling/tool/cli/src/commands/Codex/Codex.command.ts:46` | Launch Codex with the repo-local quality review fix loop prompt. |
+| `@beep/repo-cli/commands/Codex/Codex.errors` | `CodexCommandError` | class | `packages/tooling/tool/cli/src/commands/Codex/Codex.errors.ts:23` |  |
+| `@beep/repo-cli/commands/Codex/index` | `codexCommand` | const | `packages/tooling/tool/cli/src/commands/Codex/Codex.command.ts:101` | Codex helper command group. |
+| `@beep/repo-cli/commands/Codex/index` | `CodexCommandError` | class | `packages/tooling/tool/cli/src/commands/Codex/Codex.errors.ts:23` |  |
+| `@beep/repo-cli/commands/Codex/index` | `runCodexQualityReviewFixLoop` | const | `packages/tooling/tool/cli/src/commands/Codex/Codex.command.ts:46` | Launch Codex with the repo-local quality review fix loop prompt. |
 | `@beep/repo-cli/commands/CreatePackage` | `createPackageCommand` | const | `packages/tooling/tool/cli/src/commands/CreatePackage/CreatePackage.command.ts:16` | Package creation command. |
 | `@beep/repo-cli/commands/CreatePackage/ConfigUpdater` | `checkConfigNeedsUpdate` | const | `packages/tooling/tool/cli/src/commands/CreatePackage/ConfigUpdater.ts:624` | Check whether config entries already exist (for dry-run output). |
 | `@beep/repo-cli/commands/CreatePackage/ConfigUpdater` | `checkConfigNeedsUpdateForTargets` | const | `packages/tooling/tool/cli/src/commands/CreatePackage/ConfigUpdater.ts:552` | Batch read-only drift checker for root config updates. |
@@ -12010,18 +12013,23 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/commands/Files/index` | `SupportedMetadataImageExtension` | type | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:164` | Image extension supported by metadata stripping. |
 | `@beep/repo-cli/commands/Files/index` | `targetNameForEntry` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:447` | Build a generated filename for a planned rename. |
 | `@beep/repo-cli/commands/Graphiti` | `graphitiCommand` | const | `packages/tooling/tool/cli/src/commands/Graphiti/Graphiti.command.ts:94` | Graphiti command group. |
+| `@beep/repo-cli/commands/Graphiti` | `GraphitiProxyConfigLoadError` | class | `packages/tooling/tool/cli/src/commands/Graphiti/Graphiti.errors.ts:22` |  |
+| `@beep/repo-cli/commands/Graphiti` | `GraphitiProxyOpsError` | class | `packages/tooling/tool/cli/src/commands/Graphiti/Graphiti.errors.ts:52` | Typed failure for Graphiti proxy operational helpers. |
 | `@beep/repo-cli/commands/Graphiti/Graphiti.command` | `graphitiCommand` | const | `packages/tooling/tool/cli/src/commands/Graphiti/Graphiti.command.ts:94` | Graphiti command group. |
+| `@beep/repo-cli/commands/Graphiti/Graphiti.errors` | `GraphitiProxyConfigLoadError` | class | `packages/tooling/tool/cli/src/commands/Graphiti/Graphiti.errors.ts:22` |  |
+| `@beep/repo-cli/commands/Graphiti/Graphiti.errors` | `GraphitiProxyOpsError` | class | `packages/tooling/tool/cli/src/commands/Graphiti/Graphiti.errors.ts:52` | Typed failure for Graphiti proxy operational helpers. |
 | `@beep/repo-cli/commands/Graphiti/index` | `graphitiCommand` | const | `packages/tooling/tool/cli/src/commands/Graphiti/Graphiti.command.ts:94` | Graphiti command group. |
-| `@beep/repo-cli/commands/Graphiti/internal/ProxyConfig` | `GraphitiProxyConfig` | class | `packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyConfig.ts:105` | Runtime configuration schema for graphiti proxy. |
-| `@beep/repo-cli/commands/Graphiti/internal/ProxyConfig` | `GraphitiProxyConfigLoadError` | class | `packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyConfig.ts:184` | Raised when graphiti proxy configuration cannot be loaded. |
-| `@beep/repo-cli/commands/Graphiti/internal/ProxyConfig` | `loadGraphitiProxyConfig` | const | `packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyConfig.ts:215` | Load graphiti proxy config from Effect Config environment values. |
-| `@beep/repo-cli/commands/Graphiti/internal/ProxyOps` | `ensureGraphitiProxy` | const | `packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyOps.ts:580` | Ensure the local Graphiti proxy is healthy, starting it in the background when needed. |
-| `@beep/repo-cli/commands/Graphiti/internal/ProxyOps` | `GraphitiProxyOpsError` | class | `packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyOps.ts:34` | Typed failure for Graphiti proxy operational helpers. |
-| `@beep/repo-cli/commands/Graphiti/internal/ProxyOps` | `installGraphitiProxyService` | const | `packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyOps.ts:781` | Install and start the user-level systemd unit for the Graphiti proxy. |
-| `@beep/repo-cli/commands/Graphiti/internal/ProxyOps` | `ProxyServiceConfig` | class | `packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyOps.ts:82` | Configuration for installing and managing the Graphiti proxy user service. |
-| `@beep/repo-cli/commands/Graphiti/internal/ProxyOps` | `recoverGraphitiStack` | const | `packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyOps.ts:695` | Recover the local Graphiti backing stack by restarting unhealthy containers. |
-| `@beep/repo-cli/commands/Graphiti/internal/ProxyOps` | `runKgWithGraphitiProxy` | const | `packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyOps.ts:655` | Run a knowledge-graph CLI command with the local Graphiti proxy ensured first. |
-| `@beep/repo-cli/commands/Graphiti/internal/ProxyOps` | `shouldRecoverGraphitiStackForTesting` | const | `packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyOps.ts:732` | Decide whether Graphiti recovery should restart the backing containers. |
+| `@beep/repo-cli/commands/Graphiti/index` | `GraphitiProxyConfigLoadError` | class | `packages/tooling/tool/cli/src/commands/Graphiti/Graphiti.errors.ts:22` |  |
+| `@beep/repo-cli/commands/Graphiti/index` | `GraphitiProxyOpsError` | class | `packages/tooling/tool/cli/src/commands/Graphiti/Graphiti.errors.ts:52` | Typed failure for Graphiti proxy operational helpers. |
+| `@beep/repo-cli/commands/Graphiti/internal/ProxyConfig` | `GraphitiProxyConfig` | class | `packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyConfig.ts:106` | Runtime configuration schema for graphiti proxy. |
+| `@beep/repo-cli/commands/Graphiti/internal/ProxyConfig` | `loadGraphitiProxyConfig` | const | `packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyConfig.ts:187` | Load graphiti proxy config from Effect Config environment values. |
+| `@beep/repo-cli/commands/Graphiti/internal/ProxyOps` | `ensureGraphitiProxy` | const | `packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyOps.ts:556` | Ensure the local Graphiti proxy is healthy, starting it in the background when needed. |
+| `@beep/repo-cli/commands/Graphiti/internal/ProxyOps` | `GraphitiProxyOpsError` | class | `packages/tooling/tool/cli/src/commands/Graphiti/Graphiti.errors.ts:52` | Typed failure for Graphiti proxy operational helpers. |
+| `@beep/repo-cli/commands/Graphiti/internal/ProxyOps` | `installGraphitiProxyService` | const | `packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyOps.ts:757` | Install and start the user-level systemd unit for the Graphiti proxy. |
+| `@beep/repo-cli/commands/Graphiti/internal/ProxyOps` | `ProxyServiceConfig` | class | `packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyOps.ts:58` | Configuration for installing and managing the Graphiti proxy user service. |
+| `@beep/repo-cli/commands/Graphiti/internal/ProxyOps` | `recoverGraphitiStack` | const | `packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyOps.ts:671` | Recover the local Graphiti backing stack by restarting unhealthy containers. |
+| `@beep/repo-cli/commands/Graphiti/internal/ProxyOps` | `runKgWithGraphitiProxy` | const | `packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyOps.ts:631` | Run a knowledge-graph CLI command with the local Graphiti proxy ensured first. |
+| `@beep/repo-cli/commands/Graphiti/internal/ProxyOps` | `shouldRecoverGraphitiStackForTesting` | const | `packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyOps.ts:708` | Decide whether Graphiti recovery should restart the backing containers. |
 | `@beep/repo-cli/commands/Graphiti/internal/ProxyRuntime` | `runGraphitiProxy` | const | `packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyRuntime.ts:38` | Run the graphiti queue proxy runtime with graceful shutdown. |
 | `@beep/repo-cli/commands/Graphiti/internal/ProxyServices` | `ContainerHealthState` | const | `packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyServices.ts:55` | Container health literal union. |
 | `@beep/repo-cli/commands/Graphiti/internal/ProxyServices` | `DependencyHealthSnapshot` | class | `packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyServices.ts:109` | Cached dependency health snapshot payload. |
@@ -12099,41 +12107,59 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/commands/Image/index` | `ImageCommandService` | class | `packages/tooling/tool/cli/src/commands/Image/Image.service.ts:73` | Service tag for image and video curation operations. |
 | `@beep/repo-cli/commands/Image/index` | `ImageCommandServiceLive` | const | `packages/tooling/tool/cli/src/commands/Image/Image.service.ts:276` | Live service layer for image and video curation operations. |
 | `@beep/repo-cli/commands/Image/index` | `ImageCommandServiceShape` | interface | `packages/tooling/tool/cli/src/commands/Image/Image.service.ts:47` | Service contract for image and video curation commands. |
+| `@beep/repo-cli/commands/Laws` | `DualArityInventoryReadError` | class | `packages/tooling/tool/cli/src/commands/Laws/Laws.errors.ts:12` |  |
+| `@beep/repo-cli/commands/Laws` | `EffectImportRulesPersistenceError` | class | `packages/tooling/tool/cli/src/commands/Laws/Laws.errors.ts:24` |  |
 | `@beep/repo-cli/commands/Laws` | `lawsCommand` | const | `packages/tooling/tool/cli/src/commands/Laws/Laws.command.ts:435` | Laws command group. |
+| `@beep/repo-cli/commands/Laws` | `NoNativeRuntimeRulesExecutionError` | class | `packages/tooling/tool/cli/src/commands/Laws/Laws.errors.ts:36` |  |
+| `@beep/repo-cli/commands/Laws` | `TerseEffectRulesPersistenceError` | class | `packages/tooling/tool/cli/src/commands/Laws/Laws.errors.ts:48` |  |
 | `@beep/repo-cli/commands/Laws/AllowlistCheck` | `ALLOWLIST_PATH` | const | `packages/tooling/tool/cli/src/commands/Laws/AllowlistCheck.ts:33` | Relative path to the effect laws allowlist. |
 | `@beep/repo-cli/commands/Laws/AllowlistCheck` | `AllowlistCheckOptions` | class | `packages/tooling/tool/cli/src/commands/Laws/AllowlistCheck.ts:94` | Runtime options for allowlist integrity checks. |
 | `@beep/repo-cli/commands/Laws/AllowlistCheck` | `AllowlistCheckSummary` | class | `packages/tooling/tool/cli/src/commands/Laws/AllowlistCheck.ts:113` | Result of an allowlist integrity check. |
 | `@beep/repo-cli/commands/Laws/AllowlistCheck` | `reportAllowlistCheckSummary` | const | `packages/tooling/tool/cli/src/commands/Laws/AllowlistCheck.ts:314` | Print allowlist integrity diagnostics to the console. |
 | `@beep/repo-cli/commands/Laws/AllowlistCheck` | `runAllowlistCheck` | const | `packages/tooling/tool/cli/src/commands/Laws/AllowlistCheck.ts:252` | Run the effect laws allowlist integrity check. |
-| `@beep/repo-cli/commands/Laws/DualArity` | `DualArityInventoryEntry` | namespace | `packages/tooling/tool/cli/src/commands/Laws/DualArity.ts:112` | Namespace for {@link DualArityInventoryEntry} companion types. |
-| `@beep/repo-cli/commands/Laws/DualArity` | `DualArityRulesOptions` | class | `packages/tooling/tool/cli/src/commands/Laws/DualArity.ts:158` | Runtime options for public API dual-arity enforcement. |
-| `@beep/repo-cli/commands/Laws/DualArity` | `DualArityRulesSummary` | class | `packages/tooling/tool/cli/src/commands/Laws/DualArity.ts:188` | Summary of public API dual-arity inventory verification. |
-| `@beep/repo-cli/commands/Laws/DualArity` | `runDualArityRules` | const | `packages/tooling/tool/cli/src/commands/Laws/DualArity.ts:1399` | Run public API dual-arity inventory verification. |
+| `@beep/repo-cli/commands/Laws/DualArity` | `DualArityInventoryEntry` | namespace | `packages/tooling/tool/cli/src/commands/Laws/DualArity.ts:113` | Namespace for {@link DualArityInventoryEntry} companion types. |
+| `@beep/repo-cli/commands/Laws/DualArity` | `DualArityRulesOptions` | class | `packages/tooling/tool/cli/src/commands/Laws/DualArity.ts:159` | Runtime options for public API dual-arity enforcement. |
+| `@beep/repo-cli/commands/Laws/DualArity` | `DualArityRulesSummary` | class | `packages/tooling/tool/cli/src/commands/Laws/DualArity.ts:189` | Summary of public API dual-arity inventory verification. |
+| `@beep/repo-cli/commands/Laws/DualArity` | `runDualArityRules` | const | `packages/tooling/tool/cli/src/commands/Laws/DualArity.ts:1388` | Run public API dual-arity inventory verification. |
 | `@beep/repo-cli/commands/Laws/EffectFn` | `EffectFnDiagnostic` | class | `packages/tooling/tool/cli/src/commands/Laws/EffectFn.ts:100` | Single Effect.fn supplemental law diagnostic. |
 | `@beep/repo-cli/commands/Laws/EffectFn` | `EffectFnRulesOptions` | class | `packages/tooling/tool/cli/src/commands/Laws/EffectFn.ts:62` | Runtime options for the Effect.fn supplemental law. |
 | `@beep/repo-cli/commands/Laws/EffectFn` | `EffectFnRulesSummary` | class | `packages/tooling/tool/cli/src/commands/Laws/EffectFn.ts:134` | Summary of Effect.fn supplemental law results. |
 | `@beep/repo-cli/commands/Laws/EffectFn` | `runEffectFnRules` | const | `packages/tooling/tool/cli/src/commands/Laws/EffectFn.ts:395` | Run the repo-local Effect.fn supplemental law. |
-| `@beep/repo-cli/commands/Laws/EffectImports` | `EffectImportRulesOptions` | class | `packages/tooling/tool/cli/src/commands/Laws/EffectImports.ts:30` | Runtime options for effect import law migration checks. |
-| `@beep/repo-cli/commands/Laws/EffectImports` | `EffectImportRulesSummary` | class | `packages/tooling/tool/cli/src/commands/Laws/EffectImports.ts:60` | Summary of effect import law migration results. |
-| `@beep/repo-cli/commands/Laws/EffectImports` | `runEffectImportRules` | const | `packages/tooling/tool/cli/src/commands/Laws/EffectImports.ts:122` | Run effect import style migration/check logic. |
+| `@beep/repo-cli/commands/Laws/EffectImports` | `EffectImportRulesOptions` | class | `packages/tooling/tool/cli/src/commands/Laws/EffectImports.ts:31` | Runtime options for effect import law migration checks. |
+| `@beep/repo-cli/commands/Laws/EffectImports` | `EffectImportRulesSummary` | class | `packages/tooling/tool/cli/src/commands/Laws/EffectImports.ts:61` | Summary of effect import law migration results. |
+| `@beep/repo-cli/commands/Laws/EffectImports` | `runEffectImportRules` | const | `packages/tooling/tool/cli/src/commands/Laws/EffectImports.ts:111` | Run effect import style migration/check logic. |
+| `@beep/repo-cli/commands/Laws/index` | `DualArityInventoryReadError` | class | `packages/tooling/tool/cli/src/commands/Laws/Laws.errors.ts:12` |  |
+| `@beep/repo-cli/commands/Laws/index` | `EffectImportRulesPersistenceError` | class | `packages/tooling/tool/cli/src/commands/Laws/Laws.errors.ts:24` |  |
 | `@beep/repo-cli/commands/Laws/index` | `lawsCommand` | const | `packages/tooling/tool/cli/src/commands/Laws/Laws.command.ts:435` | Laws command group. |
+| `@beep/repo-cli/commands/Laws/index` | `NoNativeRuntimeRulesExecutionError` | class | `packages/tooling/tool/cli/src/commands/Laws/Laws.errors.ts:36` |  |
+| `@beep/repo-cli/commands/Laws/index` | `TerseEffectRulesPersistenceError` | class | `packages/tooling/tool/cli/src/commands/Laws/Laws.errors.ts:48` |  |
 | `@beep/repo-cli/commands/Laws/Laws.command` | `lawsCommand` | const | `packages/tooling/tool/cli/src/commands/Laws/Laws.command.ts:435` | Laws command group. |
-| `@beep/repo-cli/commands/Laws/NoNativeRuntime` | `collectNativeRuntimeViolationKeys` | const | `packages/tooling/tool/cli/src/commands/Laws/NoNativeRuntime.ts:500` | Collect normalized native-runtime violation keys for allowlist integrity checks. |
-| `@beep/repo-cli/commands/Laws/NoNativeRuntime` | `NativeRuntimeViolationKeyOptions` | class | `packages/tooling/tool/cli/src/commands/Laws/NoNativeRuntime.ts:207` | Options for collecting native-runtime allowlist lookup keys. |
-| `@beep/repo-cli/commands/Laws/NoNativeRuntime` | `NoNativeRuntimeDiagnostic` | class | `packages/tooling/tool/cli/src/commands/Laws/NoNativeRuntime.ts:120` | Single repo-local native runtime diagnostic. |
-| `@beep/repo-cli/commands/Laws/NoNativeRuntime` | `NoNativeRuntimeDiagnostic` | namespace | `packages/tooling/tool/cli/src/commands/Laws/NoNativeRuntime.ts:144` | Namespace for {@link NoNativeRuntimeDiagnostic} companion types. |
-| `@beep/repo-cli/commands/Laws/NoNativeRuntime` | `NoNativeRuntimeRulesOptions` | class | `packages/tooling/tool/cli/src/commands/Laws/NoNativeRuntime.ts:92` | Runtime options for repo-local native runtime checks. |
-| `@beep/repo-cli/commands/Laws/NoNativeRuntime` | `NoNativeRuntimeRulesSummary` | class | `packages/tooling/tool/cli/src/commands/Laws/NoNativeRuntime.ts:168` | Summary of repo-local native runtime checks. |
-| `@beep/repo-cli/commands/Laws/NoNativeRuntime` | `runNoNativeRuntimeRules` | const | `packages/tooling/tool/cli/src/commands/Laws/NoNativeRuntime.ts:525` | Run repo-local native runtime checks. |
-| `@beep/repo-cli/commands/Laws/TerseEffect` | `runTerseEffectRules` | const | `packages/tooling/tool/cli/src/commands/Laws/TerseEffect.ts:511` | Run terse Effect style migration/check logic. |
-| `@beep/repo-cli/commands/Laws/TerseEffect` | `TerseEffectRulesOptions` | class | `packages/tooling/tool/cli/src/commands/Laws/TerseEffect.ts:38` | Runtime options for terse Effect style migration checks. |
-| `@beep/repo-cli/commands/Laws/TerseEffect` | `TerseEffectRulesSummary` | class | `packages/tooling/tool/cli/src/commands/Laws/TerseEffect.ts:68` | Summary of terse Effect style migration results. |
-| `@beep/repo-cli/commands/Lint` | `collectTypeScriptFiles` | const | `packages/tooling/tool/cli/src/commands/Lint/Lint.command.ts:132` | Collect TypeScript source files under a lint root without following symlink escapes. |
-| `@beep/repo-cli/commands/Lint` | `lintCommand` | const | `packages/tooling/tool/cli/src/commands/Lint/Lint.command.ts:608` | Lint command group. |
-| `@beep/repo-cli/commands/Lint/index` | `collectTypeScriptFiles` | const | `packages/tooling/tool/cli/src/commands/Lint/Lint.command.ts:132` | Collect TypeScript source files under a lint root without following symlink escapes. |
-| `@beep/repo-cli/commands/Lint/index` | `lintCommand` | const | `packages/tooling/tool/cli/src/commands/Lint/Lint.command.ts:608` | Lint command group. |
-| `@beep/repo-cli/commands/Lint/Lint.command` | `collectTypeScriptFiles` | const | `packages/tooling/tool/cli/src/commands/Lint/Lint.command.ts:132` | Collect TypeScript source files under a lint root without following symlink escapes. |
-| `@beep/repo-cli/commands/Lint/Lint.command` | `lintCommand` | const | `packages/tooling/tool/cli/src/commands/Lint/Lint.command.ts:608` | Lint command group. |
+| `@beep/repo-cli/commands/Laws/Laws.errors` | `DualArityInventoryReadError` | class | `packages/tooling/tool/cli/src/commands/Laws/Laws.errors.ts:12` |  |
+| `@beep/repo-cli/commands/Laws/Laws.errors` | `EffectImportRulesPersistenceError` | class | `packages/tooling/tool/cli/src/commands/Laws/Laws.errors.ts:24` |  |
+| `@beep/repo-cli/commands/Laws/Laws.errors` | `NoNativeRuntimeRulesExecutionError` | class | `packages/tooling/tool/cli/src/commands/Laws/Laws.errors.ts:36` |  |
+| `@beep/repo-cli/commands/Laws/Laws.errors` | `TerseEffectRulesPersistenceError` | class | `packages/tooling/tool/cli/src/commands/Laws/Laws.errors.ts:48` |  |
+| `@beep/repo-cli/commands/Laws/NoNativeRuntime` | `collectNativeRuntimeViolationKeys` | const | `packages/tooling/tool/cli/src/commands/Laws/NoNativeRuntime.ts:489` | Collect normalized native-runtime violation keys for allowlist integrity checks. |
+| `@beep/repo-cli/commands/Laws/NoNativeRuntime` | `NativeRuntimeViolationKeyOptions` | class | `packages/tooling/tool/cli/src/commands/Laws/NoNativeRuntime.ts:208` | Options for collecting native-runtime allowlist lookup keys. |
+| `@beep/repo-cli/commands/Laws/NoNativeRuntime` | `NoNativeRuntimeDiagnostic` | class | `packages/tooling/tool/cli/src/commands/Laws/NoNativeRuntime.ts:121` | Single repo-local native runtime diagnostic. |
+| `@beep/repo-cli/commands/Laws/NoNativeRuntime` | `NoNativeRuntimeDiagnostic` | namespace | `packages/tooling/tool/cli/src/commands/Laws/NoNativeRuntime.ts:145` | Namespace for {@link NoNativeRuntimeDiagnostic} companion types. |
+| `@beep/repo-cli/commands/Laws/NoNativeRuntime` | `NoNativeRuntimeRulesOptions` | class | `packages/tooling/tool/cli/src/commands/Laws/NoNativeRuntime.ts:93` | Runtime options for repo-local native runtime checks. |
+| `@beep/repo-cli/commands/Laws/NoNativeRuntime` | `NoNativeRuntimeRulesSummary` | class | `packages/tooling/tool/cli/src/commands/Laws/NoNativeRuntime.ts:169` | Summary of repo-local native runtime checks. |
+| `@beep/repo-cli/commands/Laws/NoNativeRuntime` | `runNoNativeRuntimeRules` | const | `packages/tooling/tool/cli/src/commands/Laws/NoNativeRuntime.ts:514` | Run repo-local native runtime checks. |
+| `@beep/repo-cli/commands/Laws/TerseEffect` | `runTerseEffectRules` | const | `packages/tooling/tool/cli/src/commands/Laws/TerseEffect.ts:500` | Run terse Effect style migration/check logic. |
+| `@beep/repo-cli/commands/Laws/TerseEffect` | `TerseEffectRulesOptions` | class | `packages/tooling/tool/cli/src/commands/Laws/TerseEffect.ts:39` | Runtime options for terse Effect style migration checks. |
+| `@beep/repo-cli/commands/Laws/TerseEffect` | `TerseEffectRulesSummary` | class | `packages/tooling/tool/cli/src/commands/Laws/TerseEffect.ts:69` | Summary of terse Effect style migration results. |
+| `@beep/repo-cli/commands/Lint` | `collectTypeScriptFiles` | const | `packages/tooling/tool/cli/src/commands/Lint/Lint.command.ts:111` | Collect TypeScript source files under a lint root without following symlink escapes. |
+| `@beep/repo-cli/commands/Lint` | `LintCircularAnalysisError` | class | `packages/tooling/tool/cli/src/commands/Lint/Lint.errors.ts:12` |  |
+| `@beep/repo-cli/commands/Lint` | `lintCommand` | const | `packages/tooling/tool/cli/src/commands/Lint/Lint.command.ts:587` | Lint command group. |
+| `@beep/repo-cli/commands/Lint` | `LintFileDiscoveryError` | class | `packages/tooling/tool/cli/src/commands/Lint/Lint.errors.ts:24` |  |
+| `@beep/repo-cli/commands/Lint/index` | `collectTypeScriptFiles` | const | `packages/tooling/tool/cli/src/commands/Lint/Lint.command.ts:111` | Collect TypeScript source files under a lint root without following symlink escapes. |
+| `@beep/repo-cli/commands/Lint/index` | `LintCircularAnalysisError` | class | `packages/tooling/tool/cli/src/commands/Lint/Lint.errors.ts:12` |  |
+| `@beep/repo-cli/commands/Lint/index` | `lintCommand` | const | `packages/tooling/tool/cli/src/commands/Lint/Lint.command.ts:587` | Lint command group. |
+| `@beep/repo-cli/commands/Lint/index` | `LintFileDiscoveryError` | class | `packages/tooling/tool/cli/src/commands/Lint/Lint.errors.ts:24` |  |
+| `@beep/repo-cli/commands/Lint/Lint.command` | `collectTypeScriptFiles` | const | `packages/tooling/tool/cli/src/commands/Lint/Lint.command.ts:111` | Collect TypeScript source files under a lint root without following symlink escapes. |
+| `@beep/repo-cli/commands/Lint/Lint.command` | `lintCommand` | const | `packages/tooling/tool/cli/src/commands/Lint/Lint.command.ts:587` | Lint command group. |
+| `@beep/repo-cli/commands/Lint/Lint.errors` | `LintCircularAnalysisError` | class | `packages/tooling/tool/cli/src/commands/Lint/Lint.errors.ts:12` |  |
+| `@beep/repo-cli/commands/Lint/Lint.errors` | `LintFileDiscoveryError` | class | `packages/tooling/tool/cli/src/commands/Lint/Lint.errors.ts:24` |  |
 | `@beep/repo-cli/commands/Lint/PackageTestImports` | `lintPackageTestImportsCommand` | const | `packages/tooling/tool/cli/src/commands/Lint/PackageTestImports.ts:299` | Lint command for enforcing package aliases from package test and dtslint files. |
 | `@beep/repo-cli/commands/Lint/SchemaFirst` | `lintSchemaFirstCommand` | const | `packages/tooling/tool/cli/src/commands/Lint/SchemaFirst.ts:551` | Repo-wide schema-first lint command. |
 | `@beep/repo-cli/commands/Lint/SchemaFirst` | `runSchemaFirstLint` | const | `packages/tooling/tool/cli/src/commands/Lint/SchemaFirst.ts:457` | Run schema-first inventory verification against the committed baseline. |
@@ -12147,73 +12173,104 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/commands/Purge/Purge.command` | `purgeAtRoot` | const | `packages/tooling/tool/cli/src/commands/Purge/Purge.command.ts:193` | Purge root/workspace artifacts under a specific root directory. |
 | `@beep/repo-cli/commands/Purge/Purge.command` | `purgeCommand` | const | `packages/tooling/tool/cli/src/commands/Purge/Purge.command.ts:250` | CLI command to purge workspace/root build artifacts. |
 | `@beep/repo-cli/commands/Purge/Purge.command` | `PurgeSummary` | class | `packages/tooling/tool/cli/src/commands/Purge/Purge.command.ts:128` | Summary statistics returned after a purge run. |
-| `@beep/repo-cli/commands/Quality` | `qualityCommand` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:1710` | Quality command group for repo operational checks. |
-| `@beep/repo-cli/commands/Quality` | `QualityScriptCommandError` | class | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:151` | Typed failure for repo operational commands. |
-| `@beep/repo-cli/commands/Quality/ChangesetGraph` | `ChangesetGraphError` | class | `packages/tooling/tool/cli/src/commands/Quality/ChangesetGraph.ts:120` | Failure raised while validating changeset package references. |
-| `@beep/repo-cli/commands/Quality/ChangesetGraph` | `ChangesetGraphPackageReference` | class | `packages/tooling/tool/cli/src/commands/Quality/ChangesetGraph.ts:63` | A package name referenced by a changeset file. |
-| `@beep/repo-cli/commands/Quality/ChangesetGraph` | `ChangesetGraphSummary` | class | `packages/tooling/tool/cli/src/commands/Quality/ChangesetGraph.ts:93` | Summary emitted by the changeset package graph guard. |
-| `@beep/repo-cli/commands/Quality/ChangesetGraph` | `changesetPackageReferencesFromText` | const | `packages/tooling/tool/cli/src/commands/Quality/ChangesetGraph.ts:356` | Parse package references from one changeset Markdown document. |
-| `@beep/repo-cli/commands/Quality/ChangesetGraph` | `findMissingChangesetPackageReferences` | const | `packages/tooling/tool/cli/src/commands/Quality/ChangesetGraph.ts:473` | Find changeset package references that are not in the workspace graph. |
-| `@beep/repo-cli/commands/Quality/ChangesetGraph` | `makeChangesetGraphSummary` | const | `packages/tooling/tool/cli/src/commands/Quality/ChangesetGraph.ts:520` | Build a changeset graph summary from already-collected inputs. |
-| `@beep/repo-cli/commands/Quality/ChangesetGraph` | `runChangesetGraphCheck` | const | `packages/tooling/tool/cli/src/commands/Quality/ChangesetGraph.ts:535` | Run the non-mutating changeset package graph guard. |
-| `@beep/repo-cli/commands/Quality/index` | `qualityCommand` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:1710` | Quality command group for repo operational checks. |
-| `@beep/repo-cli/commands/Quality/index` | `QualityScriptCommandError` | class | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:151` | Typed failure for repo operational commands. |
+| `@beep/repo-cli/commands/Quality` | `ChangesetGraphError` | class | `packages/tooling/tool/cli/src/commands/Quality/Quality.errors.ts:27` |  |
+| `@beep/repo-cli/commands/Quality` | `qualityCommand` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:1684` | Quality command group for repo operational checks. |
+| `@beep/repo-cli/commands/Quality` | `QualityScriptCommandError` | class | `packages/tooling/tool/cli/src/commands/Quality/Quality.errors.ts:50` | Typed failure for repo operational commands. |
+| `@beep/repo-cli/commands/Quality` | `QualityTaskConfigurationError` | class | `packages/tooling/tool/cli/src/commands/Quality/Quality.errors.ts:147` | Error raised when a quality task cannot resolve its required configuration. |
+| `@beep/repo-cli/commands/Quality` | `QualityTaskFailed` | class | `packages/tooling/tool/cli/src/commands/Quality/Quality.errors.ts:83` | Error raised when a quality task subprocess exits unsuccessfully. |
+| `@beep/repo-cli/commands/Quality` | `QualityTaskGroupFailed` | class | `packages/tooling/tool/cli/src/commands/Quality/Quality.errors.ts:119` | Error raised when a bounded quality task group completes with failed steps. |
+| `@beep/repo-cli/commands/Quality` | `UnexpectedQualityTaskFailure` | class | `packages/tooling/tool/cli/src/commands/Quality/Quality.errors.ts:172` | Error raised when an unexpected quality task cause reaches the command boundary. |
+| `@beep/repo-cli/commands/Quality/ChangesetGraph` | `ChangesetGraphError` | class | `packages/tooling/tool/cli/src/commands/Quality/Quality.errors.ts:27` |  |
+| `@beep/repo-cli/commands/Quality/ChangesetGraph` | `ChangesetGraphPackageReference` | class | `packages/tooling/tool/cli/src/commands/Quality/ChangesetGraph.ts:66` | A package name referenced by a changeset file. |
+| `@beep/repo-cli/commands/Quality/ChangesetGraph` | `ChangesetGraphSummary` | class | `packages/tooling/tool/cli/src/commands/Quality/ChangesetGraph.ts:96` | Summary emitted by the changeset package graph guard. |
+| `@beep/repo-cli/commands/Quality/ChangesetGraph` | `changesetPackageReferencesFromText` | const | `packages/tooling/tool/cli/src/commands/Quality/ChangesetGraph.ts:332` | Parse package references from one changeset Markdown document. |
+| `@beep/repo-cli/commands/Quality/ChangesetGraph` | `findMissingChangesetPackageReferences` | const | `packages/tooling/tool/cli/src/commands/Quality/ChangesetGraph.ts:449` | Find changeset package references that are not in the workspace graph. |
+| `@beep/repo-cli/commands/Quality/ChangesetGraph` | `makeChangesetGraphSummary` | const | `packages/tooling/tool/cli/src/commands/Quality/ChangesetGraph.ts:496` | Build a changeset graph summary from already-collected inputs. |
+| `@beep/repo-cli/commands/Quality/ChangesetGraph` | `runChangesetGraphCheck` | const | `packages/tooling/tool/cli/src/commands/Quality/ChangesetGraph.ts:511` | Run the non-mutating changeset package graph guard. |
+| `@beep/repo-cli/commands/Quality/index` | `ChangesetGraphError` | class | `packages/tooling/tool/cli/src/commands/Quality/Quality.errors.ts:27` |  |
+| `@beep/repo-cli/commands/Quality/index` | `qualityCommand` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:1684` | Quality command group for repo operational checks. |
+| `@beep/repo-cli/commands/Quality/index` | `QualityScriptCommandError` | class | `packages/tooling/tool/cli/src/commands/Quality/Quality.errors.ts:50` | Typed failure for repo operational commands. |
+| `@beep/repo-cli/commands/Quality/index` | `QualityTaskConfigurationError` | class | `packages/tooling/tool/cli/src/commands/Quality/Quality.errors.ts:147` | Error raised when a quality task cannot resolve its required configuration. |
+| `@beep/repo-cli/commands/Quality/index` | `QualityTaskFailed` | class | `packages/tooling/tool/cli/src/commands/Quality/Quality.errors.ts:83` | Error raised when a quality task subprocess exits unsuccessfully. |
+| `@beep/repo-cli/commands/Quality/index` | `QualityTaskGroupFailed` | class | `packages/tooling/tool/cli/src/commands/Quality/Quality.errors.ts:119` | Error raised when a bounded quality task group completes with failed steps. |
+| `@beep/repo-cli/commands/Quality/index` | `UnexpectedQualityTaskFailure` | class | `packages/tooling/tool/cli/src/commands/Quality/Quality.errors.ts:172` | Error raised when an unexpected quality task cause reaches the command boundary. |
 | `@beep/repo-cli/commands/Quality/internal/Config` | `configStringEqualsSync` | const | `packages/tooling/tool/cli/src/commands/Quality/internal/Config.ts:35` | Check whether an optional string config value equals the expected value. |
 | `@beep/repo-cli/commands/Quality/internal/Config` | `configStringOption` | const | `packages/tooling/tool/cli/src/commands/Quality/internal/Config.ts:54` | Read an optional string config value inside an Effect workflow. |
 | `@beep/repo-cli/commands/Quality/internal/Config` | `configStringOptionSync` | const | `packages/tooling/tool/cli/src/commands/Quality/internal/Config.ts:22` | Synchronously read an optional string config value. |
-| `@beep/repo-cli/commands/Quality/Quality.command` | `GithubCheckMode` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:121` | GitHub check mode handled by `beep quality github-checks`. |
-| `@beep/repo-cli/commands/Quality/Quality.command` | `GithubCheckMode` | type | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:138` | GitHub check mode handled by `beep quality github-checks`. |
-| `@beep/repo-cli/commands/Quality/Quality.command` | `qualityCommand` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:1710` | Quality command group for repo operational checks. |
-| `@beep/repo-cli/commands/Quality/Quality.command` | `QualityScriptCommandError` | class | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:151` | Typed failure for repo operational commands. |
-| `@beep/repo-cli/commands/Quality/Quality.command` | `runBunAudit` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:356` | Run Bun's high-severity package audit with OSV ignores mirrored from config. |
-| `@beep/repo-cli/commands/Quality/Quality.command` | `runDtslintTsgoChecks` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:1247` | Run repo-wide tsgo diagnostics for dtslint files. |
-| `@beep/repo-cli/commands/Quality/Quality.command` | `runGithubChecks` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:625` | Run a GitHub checks mode from the repository root. |
-| `@beep/repo-cli/commands/Quality/Quality.command` | `runJSDocInventory` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:1576` | Run the JSDoc inventory generator now owned by repo-cli. |
-| `@beep/repo-cli/commands/Quality/Quality.command` | `runJSDocModuleTagsCheck` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:1498` | Verify tracked fileoverview comments do not use the legacy `@module` tag. |
-| `@beep/repo-cli/commands/Quality/Quality.command` | `runRepoExportsCatalog` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:1601` | Run the repo export catalog generator now owned by repo-cli. |
-| `@beep/repo-cli/commands/Quality/Quality.command` | `runTestTsgoChecks` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:1295` | Run repo-wide Effect diagnostics for test files. |
-| `@beep/repo-cli/commands/Quality/Quality.command` | `runTsgoRulesCheck` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:1034` | Check that the root tsgo Effect diagnostics configuration enables every installed rule as an error. |
-| `@beep/repo-cli/commands/Quality/Quality.command` | `runTsgoSmokeCheck` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:1390` | Verify that tsgo reports the Effect diagnostic expected by this repo. |
-| `@beep/repo-cli/commands/Quality/Tasks` | `collectStepOutput` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:1309` | Run a subprocess and capture all output. Exposed for focused unit tests. |
-| `@beep/repo-cli/commands/Quality/Tasks` | `PackageTaskProfile` | class | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:82` | Package-local script profile used by the quality task adapter. |
-| `@beep/repo-cli/commands/Quality/Tasks` | `parseQualityTaskInvocation` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:1203` | Parse a raw argv vector into a quality task invocation when the first token is |
-| `@beep/repo-cli/commands/Quality/Tasks` | `QualityTaskConfigurationError` | class | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:228` | Error raised when a quality task cannot resolve its required configuration. |
-| `@beep/repo-cli/commands/Quality/Tasks` | `QualityTaskFailed` | class | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:164` | Error raised when a quality task subprocess exits unsuccessfully. |
-| `@beep/repo-cli/commands/Quality/Tasks` | `QualityTaskGroupFailed` | class | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:200` | Error raised when a bounded quality task group completes with failed steps. |
-| `@beep/repo-cli/commands/Quality/Tasks` | `QualityTaskInvocation` | class | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:138` | Result of parsing a quality command invocation. |
-| `@beep/repo-cli/commands/Quality/Tasks` | `QualityTaskName` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:48` | Canonical quality task name. |
-| `@beep/repo-cli/commands/Quality/Tasks` | `QualityTaskName` | type | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:65` | Canonical quality task name. |
-| `@beep/repo-cli/commands/Quality/Tasks` | `QualityTaskStep` | class | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:109` | Planned subprocess invocation. |
-| `@beep/repo-cli/commands/Quality/Tasks` | `rootQualityStepsForTesting` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:1100` | Build root quality task subprocess steps. Exposed for focused unit tests. |
-| `@beep/repo-cli/commands/Quality/Tasks` | `runQualityTask` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:1247` | Run a parsed quality task in either repo-root or package-local mode. |
-| `@beep/repo-cli/commands/Quality/Tasks` | `runQualityTaskIfRequested` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:1277` | Run a quality task directly from a raw argv vector. |
-| `@beep/repo-cli/commands/Quality/Tasks` | `runQualityTaskStepGroupForTesting` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:1321` | Run a bounded quality task group. Exposed for focused unit tests. |
-| `@beep/repo-cli/commands/Quality/Tasks` | `runSqlIntegrationTestLaneForTesting` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:934` | Run the SQL integration lane with an injected resource and child command. |
-| `@beep/repo-cli/commands/Quality/Tasks` | `sqlIntegrationConnectionUriFromEnvForTesting` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:943` | Resolve the SQL integration database connection URI from environment variables. |
-| `@beep/repo-cli/commands/Quality/Tasks` | `sqlIntegrationStepForTesting` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:920` | Build the SQL integration test subprocess step. Exposed for focused unit tests. |
-| `@beep/repo-cli/commands/Quality/Tasks` | `UnexpectedQualityTaskFailure` | class | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:253` | Error raised when an unexpected quality task cause reaches the command boundary. |
+| `@beep/repo-cli/commands/Quality/Quality.command` | `GithubCheckMode` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:124` | GitHub check mode handled by `beep quality github-checks`. |
+| `@beep/repo-cli/commands/Quality/Quality.command` | `GithubCheckMode` | type | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:141` | GitHub check mode handled by `beep quality github-checks`. |
+| `@beep/repo-cli/commands/Quality/Quality.command` | `qualityCommand` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:1684` | Quality command group for repo operational checks. |
+| `@beep/repo-cli/commands/Quality/Quality.command` | `QualityScriptCommandError` | class | `packages/tooling/tool/cli/src/commands/Quality/Quality.errors.ts:50` | Typed failure for repo operational commands. |
+| `@beep/repo-cli/commands/Quality/Quality.command` | `runBunAudit` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:330` | Run Bun's high-severity package audit with OSV ignores mirrored from config. |
+| `@beep/repo-cli/commands/Quality/Quality.command` | `runDtslintTsgoChecks` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:1221` | Run repo-wide tsgo diagnostics for dtslint files. |
+| `@beep/repo-cli/commands/Quality/Quality.command` | `runGithubChecks` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:599` | Run a GitHub checks mode from the repository root. |
+| `@beep/repo-cli/commands/Quality/Quality.command` | `runJSDocInventory` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:1550` | Run the JSDoc inventory generator now owned by repo-cli. |
+| `@beep/repo-cli/commands/Quality/Quality.command` | `runJSDocModuleTagsCheck` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:1472` | Verify tracked fileoverview comments do not use the legacy `@module` tag. |
+| `@beep/repo-cli/commands/Quality/Quality.command` | `runRepoExportsCatalog` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:1575` | Run the repo export catalog generator now owned by repo-cli. |
+| `@beep/repo-cli/commands/Quality/Quality.command` | `runTestTsgoChecks` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:1269` | Run repo-wide Effect diagnostics for test files. |
+| `@beep/repo-cli/commands/Quality/Quality.command` | `runTsgoRulesCheck` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:1008` | Check that the root tsgo Effect diagnostics configuration enables every installed rule as an error. |
+| `@beep/repo-cli/commands/Quality/Quality.command` | `runTsgoSmokeCheck` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:1364` | Verify that tsgo reports the Effect diagnostic expected by this repo. |
+| `@beep/repo-cli/commands/Quality/Quality.errors` | `ChangesetGraphError` | class | `packages/tooling/tool/cli/src/commands/Quality/Quality.errors.ts:27` |  |
+| `@beep/repo-cli/commands/Quality/Quality.errors` | `QualityScriptCommandError` | class | `packages/tooling/tool/cli/src/commands/Quality/Quality.errors.ts:50` | Typed failure for repo operational commands. |
+| `@beep/repo-cli/commands/Quality/Quality.errors` | `QualityTaskConfigurationError` | class | `packages/tooling/tool/cli/src/commands/Quality/Quality.errors.ts:147` | Error raised when a quality task cannot resolve its required configuration. |
+| `@beep/repo-cli/commands/Quality/Quality.errors` | `QualityTaskFailed` | class | `packages/tooling/tool/cli/src/commands/Quality/Quality.errors.ts:83` | Error raised when a quality task subprocess exits unsuccessfully. |
+| `@beep/repo-cli/commands/Quality/Quality.errors` | `QualityTaskGroupFailed` | class | `packages/tooling/tool/cli/src/commands/Quality/Quality.errors.ts:119` | Error raised when a bounded quality task group completes with failed steps. |
+| `@beep/repo-cli/commands/Quality/Quality.errors` | `UnexpectedQualityTaskFailure` | class | `packages/tooling/tool/cli/src/commands/Quality/Quality.errors.ts:172` | Error raised when an unexpected quality task cause reaches the command boundary. |
+| `@beep/repo-cli/commands/Quality/Tasks` | `collectStepOutput` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:1206` | Run a subprocess and capture all output. Exposed for focused unit tests. |
+| `@beep/repo-cli/commands/Quality/Tasks` | `PackageTaskProfile` | class | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:95` | Package-local script profile used by the quality task adapter. |
+| `@beep/repo-cli/commands/Quality/Tasks` | `parseQualityTaskInvocation` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:1100` | Parse a raw argv vector into a quality task invocation when the first token is |
+| `@beep/repo-cli/commands/Quality/Tasks` | `QualityTaskConfigurationError` | class | `packages/tooling/tool/cli/src/commands/Quality/Quality.errors.ts:147` | Error raised when a quality task cannot resolve its required configuration. |
+| `@beep/repo-cli/commands/Quality/Tasks` | `QualityTaskFailed` | class | `packages/tooling/tool/cli/src/commands/Quality/Quality.errors.ts:83` | Error raised when a quality task subprocess exits unsuccessfully. |
+| `@beep/repo-cli/commands/Quality/Tasks` | `QualityTaskGroupFailed` | class | `packages/tooling/tool/cli/src/commands/Quality/Quality.errors.ts:119` | Error raised when a bounded quality task group completes with failed steps. |
+| `@beep/repo-cli/commands/Quality/Tasks` | `QualityTaskInvocation` | class | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:151` | Result of parsing a quality command invocation. |
+| `@beep/repo-cli/commands/Quality/Tasks` | `QualityTaskName` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:61` | Canonical quality task name. |
+| `@beep/repo-cli/commands/Quality/Tasks` | `QualityTaskName` | type | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:78` | Canonical quality task name. |
+| `@beep/repo-cli/commands/Quality/Tasks` | `QualityTaskStep` | class | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:122` | Planned subprocess invocation. |
+| `@beep/repo-cli/commands/Quality/Tasks` | `rootQualityStepsForTesting` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:997` | Build root quality task subprocess steps. Exposed for focused unit tests. |
+| `@beep/repo-cli/commands/Quality/Tasks` | `runQualityTask` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:1144` | Run a parsed quality task in either repo-root or package-local mode. |
+| `@beep/repo-cli/commands/Quality/Tasks` | `runQualityTaskIfRequested` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:1174` | Run a quality task directly from a raw argv vector. |
+| `@beep/repo-cli/commands/Quality/Tasks` | `runQualityTaskStepGroupForTesting` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:1218` | Run a bounded quality task group. Exposed for focused unit tests. |
+| `@beep/repo-cli/commands/Quality/Tasks` | `runSqlIntegrationTestLaneForTesting` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:831` | Run the SQL integration lane with an injected resource and child command. |
+| `@beep/repo-cli/commands/Quality/Tasks` | `sqlIntegrationConnectionUriFromEnvForTesting` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:840` | Resolve the SQL integration database connection URI from environment variables. |
+| `@beep/repo-cli/commands/Quality/Tasks` | `sqlIntegrationStepForTesting` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:817` | Build the SQL integration test subprocess step. Exposed for focused unit tests. |
+| `@beep/repo-cli/commands/Quality/Tasks` | `UnexpectedQualityTaskFailure` | class | `packages/tooling/tool/cli/src/commands/Quality/Quality.errors.ts:172` | Error raised when an unexpected quality task cause reaches the command boundary. |
+| `@beep/repo-cli/commands/Reuse` | `CodexRunnerError` | class | `packages/tooling/tool/cli/src/commands/Reuse/Reuse.errors.ts:41` | Structured error emitted when the Codex SDK smoke path fails. |
+| `@beep/repo-cli/commands/Reuse` | `CodexRunnerStage` | const | `packages/tooling/tool/cli/src/commands/Reuse/Reuse.errors.ts:19` | Lifecycle stages surfaced by the Codex smoke runner. |
+| `@beep/repo-cli/commands/Reuse` | `CodexRunnerStage` | type | `packages/tooling/tool/cli/src/commands/Reuse/Reuse.errors.ts:33` | Runtime type for `CodexRunnerStage`. |
 | `@beep/repo-cli/commands/Reuse` | `reuseCommand` | const | `packages/tooling/tool/cli/src/commands/Reuse/Reuse.command.ts:460` | Reuse-discovery command group. |
+| `@beep/repo-cli/commands/Reuse/index` | `CodexRunnerError` | class | `packages/tooling/tool/cli/src/commands/Reuse/Reuse.errors.ts:41` | Structured error emitted when the Codex SDK smoke path fails. |
+| `@beep/repo-cli/commands/Reuse/index` | `CodexRunnerStage` | const | `packages/tooling/tool/cli/src/commands/Reuse/Reuse.errors.ts:19` | Lifecycle stages surfaced by the Codex smoke runner. |
+| `@beep/repo-cli/commands/Reuse/index` | `CodexRunnerStage` | type | `packages/tooling/tool/cli/src/commands/Reuse/Reuse.errors.ts:33` | Runtime type for `CodexRunnerStage`. |
 | `@beep/repo-cli/commands/Reuse/index` | `reuseCommand` | const | `packages/tooling/tool/cli/src/commands/Reuse/Reuse.command.ts:460` | Reuse-discovery command group. |
-| `@beep/repo-cli/commands/Reuse/internal/CodexRunner` | `CodexRunnerError` | class | `packages/tooling/tool/cli/src/commands/Reuse/internal/CodexRunner.ts:64` | Structured error emitted when the Codex SDK smoke path fails. |
-| `@beep/repo-cli/commands/Reuse/internal/CodexRunner` | `CodexRunnerStage` | const | `packages/tooling/tool/cli/src/commands/Reuse/internal/CodexRunner.ts:23` | Lifecycle stages surfaced by the Codex smoke runner. |
-| `@beep/repo-cli/commands/Reuse/internal/CodexRunner` | `CodexRunnerStage` | type | `packages/tooling/tool/cli/src/commands/Reuse/internal/CodexRunner.ts:37` | Runtime type for `CodexRunnerStage`. |
-| `@beep/repo-cli/commands/Reuse/internal/CodexRunner` | `CodexSmokeResult` | class | `packages/tooling/tool/cli/src/commands/Reuse/internal/CodexRunner.ts:45` | Structured result for `beep reuse codex-smoke`. |
-| `@beep/repo-cli/commands/Reuse/internal/CodexRunner` | `runCodexSmoke` | const | `packages/tooling/tool/cli/src/commands/Reuse/internal/CodexRunner.ts:83` | Validate the local Codex SDK adapter without running a reuse loop. |
+| `@beep/repo-cli/commands/Reuse/internal/CodexRunner` | `CodexRunnerError` | class | `packages/tooling/tool/cli/src/commands/Reuse/Reuse.errors.ts:41` | Structured error emitted when the Codex SDK smoke path fails. |
+| `@beep/repo-cli/commands/Reuse/internal/CodexRunner` | `CodexRunnerStage` | const | `packages/tooling/tool/cli/src/commands/Reuse/Reuse.errors.ts:19` | Lifecycle stages surfaced by the Codex smoke runner. |
+| `@beep/repo-cli/commands/Reuse/internal/CodexRunner` | `CodexRunnerStage` | type | `packages/tooling/tool/cli/src/commands/Reuse/Reuse.errors.ts:33` | Runtime type for `CodexRunnerStage`. |
+| `@beep/repo-cli/commands/Reuse/internal/CodexRunner` | `CodexSmokeResult` | class | `packages/tooling/tool/cli/src/commands/Reuse/internal/CodexRunner.ts:25` | Structured result for `beep reuse codex-smoke`. |
+| `@beep/repo-cli/commands/Reuse/internal/CodexRunner` | `runCodexSmoke` | const | `packages/tooling/tool/cli/src/commands/Reuse/internal/CodexRunner.ts:46` | Validate the local Codex SDK adapter without running a reuse loop. |
 | `@beep/repo-cli/commands/Reuse/Reuse.command` | `reuseCommand` | const | `packages/tooling/tool/cli/src/commands/Reuse/Reuse.command.ts:460` | Reuse-discovery command group. |
+| `@beep/repo-cli/commands/Reuse/Reuse.errors` | `CodexRunnerError` | class | `packages/tooling/tool/cli/src/commands/Reuse/Reuse.errors.ts:41` | Structured error emitted when the Codex SDK smoke path fails. |
+| `@beep/repo-cli/commands/Reuse/Reuse.errors` | `CodexRunnerStage` | const | `packages/tooling/tool/cli/src/commands/Reuse/Reuse.errors.ts:19` | Lifecycle stages surfaced by the Codex smoke runner. |
+| `@beep/repo-cli/commands/Reuse/Reuse.errors` | `CodexRunnerStage` | type | `packages/tooling/tool/cli/src/commands/Reuse/Reuse.errors.ts:33` | Runtime type for `CodexRunnerStage`. |
 | `@beep/repo-cli/commands/Root` | `rootCommand` | const | `packages/tooling/tool/cli/src/commands/Root.ts:45` | Top-level CLI command that registers all subcommands. |
 | `@beep/repo-cli/commands/SyncDataToTs` | `syncDataToTsCommand` | const | `packages/tooling/tool/cli/src/commands/SyncDataToTs/SyncDataToTs.command.ts:485` | CLI command for syncing official upstream datasets into checked-in TypeScript modules. |
+| `@beep/repo-cli/commands/SyncDataToTs` | `SyncDataToTsDriftError` | class | `packages/tooling/tool/cli/src/commands/SyncDataToTs/SyncDataToTs.errors.ts:37` | Drift detected in check mode. |
+| `@beep/repo-cli/commands/SyncDataToTs` | `SyncDataToTsError` | class | `packages/tooling/tool/cli/src/commands/SyncDataToTs/SyncDataToTs.errors.ts:17` |  |
 | `@beep/repo-cli/commands/SyncDataToTs/index` | `syncDataToTsCommand` | const | `packages/tooling/tool/cli/src/commands/SyncDataToTs/SyncDataToTs.command.ts:485` | CLI command for syncing official upstream datasets into checked-in TypeScript modules. |
-| `@beep/repo-cli/commands/SyncDataToTs/internal/Models` | `SyncDataRunMode` | const | `packages/tooling/tool/cli/src/commands/SyncDataToTs/internal/Models.ts:46` | Command execution mode for sync-data-to-ts. |
-| `@beep/repo-cli/commands/SyncDataToTs/internal/Models` | `SyncDataRunMode` | type | `packages/tooling/tool/cli/src/commands/SyncDataToTs/internal/Models.ts:58` | Command execution mode for sync-data-to-ts. |
-| `@beep/repo-cli/commands/SyncDataToTs/internal/Models` | `SyncDataSourceFormat` | const | `packages/tooling/tool/cli/src/commands/SyncDataToTs/internal/Models.ts:24` | Supported source formats for sync-data-to-ts targets. |
-| `@beep/repo-cli/commands/SyncDataToTs/internal/Models` | `SyncDataSourceFormat` | type | `packages/tooling/tool/cli/src/commands/SyncDataToTs/internal/Models.ts:36` | Supported source formats for sync-data-to-ts targets. |
-| `@beep/repo-cli/commands/SyncDataToTs/internal/Models` | `SyncDataTarget` | const | `packages/tooling/tool/cli/src/commands/SyncDataToTs/internal/Models.ts:170` | Checked-in sync target definition. |
-| `@beep/repo-cli/commands/SyncDataToTs/internal/Models` | `SyncDataTarget` | type | `packages/tooling/tool/cli/src/commands/SyncDataToTs/internal/Models.ts:186` | {@inheritDoc SyncDataTarget} |
-| `@beep/repo-cli/commands/SyncDataToTs/internal/Models` | `SyncDataTargetProjection` | class | `packages/tooling/tool/cli/src/commands/SyncDataToTs/internal/Models.ts:104` | Rendered target projection ready to compare or write to disk. |
-| `@beep/repo-cli/commands/SyncDataToTs/internal/Models` | `SyncDataTargetResult` | class | `packages/tooling/tool/cli/src/commands/SyncDataToTs/internal/Models.ts:194` | Per-target command result after diffing or writing. |
-| `@beep/repo-cli/commands/SyncDataToTs/internal/Models` | `SyncDataToTsDriftError` | class | `packages/tooling/tool/cli/src/commands/SyncDataToTs/internal/Models.ts:86` | Drift detected in check mode. |
-| `@beep/repo-cli/commands/SyncDataToTs/internal/Models` | `SyncDataToTsError` | class | `packages/tooling/tool/cli/src/commands/SyncDataToTs/internal/Models.ts:66` | Operational error during source fetch, parsing, projection, or file writes. |
+| `@beep/repo-cli/commands/SyncDataToTs/index` | `SyncDataToTsDriftError` | class | `packages/tooling/tool/cli/src/commands/SyncDataToTs/SyncDataToTs.errors.ts:37` | Drift detected in check mode. |
+| `@beep/repo-cli/commands/SyncDataToTs/index` | `SyncDataToTsError` | class | `packages/tooling/tool/cli/src/commands/SyncDataToTs/SyncDataToTs.errors.ts:17` |  |
+| `@beep/repo-cli/commands/SyncDataToTs/internal/Models` | `SyncDataRunMode` | const | `packages/tooling/tool/cli/src/commands/SyncDataToTs/internal/Models.ts:49` | Command execution mode for sync-data-to-ts. |
+| `@beep/repo-cli/commands/SyncDataToTs/internal/Models` | `SyncDataRunMode` | type | `packages/tooling/tool/cli/src/commands/SyncDataToTs/internal/Models.ts:61` | Command execution mode for sync-data-to-ts. |
+| `@beep/repo-cli/commands/SyncDataToTs/internal/Models` | `SyncDataSourceFormat` | const | `packages/tooling/tool/cli/src/commands/SyncDataToTs/internal/Models.ts:27` | Supported source formats for sync-data-to-ts targets. |
+| `@beep/repo-cli/commands/SyncDataToTs/internal/Models` | `SyncDataSourceFormat` | type | `packages/tooling/tool/cli/src/commands/SyncDataToTs/internal/Models.ts:39` | Supported source formats for sync-data-to-ts targets. |
+| `@beep/repo-cli/commands/SyncDataToTs/internal/Models` | `SyncDataTarget` | const | `packages/tooling/tool/cli/src/commands/SyncDataToTs/internal/Models.ts:135` | Checked-in sync target definition. |
+| `@beep/repo-cli/commands/SyncDataToTs/internal/Models` | `SyncDataTarget` | type | `packages/tooling/tool/cli/src/commands/SyncDataToTs/internal/Models.ts:151` | {@inheritDoc SyncDataTarget} |
+| `@beep/repo-cli/commands/SyncDataToTs/internal/Models` | `SyncDataTargetProjection` | class | `packages/tooling/tool/cli/src/commands/SyncDataToTs/internal/Models.ts:69` | Rendered target projection ready to compare or write to disk. |
+| `@beep/repo-cli/commands/SyncDataToTs/internal/Models` | `SyncDataTargetResult` | class | `packages/tooling/tool/cli/src/commands/SyncDataToTs/internal/Models.ts:159` | Per-target command result after diffing or writing. |
+| `@beep/repo-cli/commands/SyncDataToTs/internal/Models` | `SyncDataToTsDriftError` | class | `packages/tooling/tool/cli/src/commands/SyncDataToTs/SyncDataToTs.errors.ts:37` | Drift detected in check mode. |
+| `@beep/repo-cli/commands/SyncDataToTs/internal/Models` | `SyncDataToTsError` | class | `packages/tooling/tool/cli/src/commands/SyncDataToTs/SyncDataToTs.errors.ts:17` |  |
 | `@beep/repo-cli/commands/SyncDataToTs/SyncDataToTs.command` | `syncDataToTsCommand` | const | `packages/tooling/tool/cli/src/commands/SyncDataToTs/SyncDataToTs.command.ts:485` | CLI command for syncing official upstream datasets into checked-in TypeScript modules. |
+| `@beep/repo-cli/commands/SyncDataToTs/SyncDataToTs.errors` | `SyncDataToTsDriftError` | class | `packages/tooling/tool/cli/src/commands/SyncDataToTs/SyncDataToTs.errors.ts:37` | Drift detected in check mode. |
+| `@beep/repo-cli/commands/SyncDataToTs/SyncDataToTs.errors` | `SyncDataToTsError` | class | `packages/tooling/tool/cli/src/commands/SyncDataToTs/SyncDataToTs.errors.ts:17` |  |
 | `@beep/repo-cli/commands/SyncDataToTs/targets/index` | `syncDataTargets` | const | `packages/tooling/tool/cli/src/commands/SyncDataToTs/targets/index.ts:16` | All checked-in sync targets supported by sync-data-to-ts. |
 | `@beep/repo-cli/commands/SyncDataToTs/targets/Iso4217` | `ISO4217_SOURCE_URL` | const | `packages/tooling/tool/cli/src/commands/SyncDataToTs/targets/Iso4217.ts:27` | Official SIX XML source for ISO 4217 List One. |
 | `@beep/repo-cli/commands/SyncDataToTs/targets/Iso4217` | `iso4217Target` | const | `packages/tooling/tool/cli/src/commands/SyncDataToTs/targets/Iso4217.ts:283` | Checked-in sync target for the official SIX ISO 4217 List One XML feed. |
@@ -12221,93 +12278,99 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/commands/TopoSort/index` | `topoSortCommand` | const | `packages/tooling/tool/cli/src/commands/TopoSort/TopoSort.command.ts:32` | CLI command that builds the workspace dependency graph and prints package names |
 | `@beep/repo-cli/commands/TopoSort/TopoSort.command` | `topoSortCommand` | const | `packages/tooling/tool/cli/src/commands/TopoSort/TopoSort.command.ts:32` | CLI command that builds the workspace dependency graph and prints package names |
 | `@beep/repo-cli/commands/TsconfigSync` | `buildCanonicalAliasTargets` | const | `packages/tooling/library/repo-utils/src/schemas/TsconfigAliasTargets.ts:154` | Build root and wildcard alias targets for a package export target. |
-| `@beep/repo-cli/commands/TsconfigSync` | `PlannedFileChange` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:544` | A planned file change with transformed file content. |
-| `@beep/repo-cli/commands/TsconfigSync` | `PlannedFileChange` | type | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:568` | A planned file change with transformed file content. |
+| `@beep/repo-cli/commands/TsconfigSync` | `PlannedFileChange` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:491` | A planned file change with transformed file content. |
+| `@beep/repo-cli/commands/TsconfigSync` | `PlannedFileChange` | type | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:515` | A planned file change with transformed file content. |
 | `@beep/repo-cli/commands/TsconfigSync` | `resolveRootExportTarget` | const | `packages/tooling/library/repo-utils/src/schemas/TsconfigAliasTargets.ts:89` | Resolve the canonical root export target from a package `exports` field. |
-| `@beep/repo-cli/commands/TsconfigSync` | `syncTsconfigAtRoot` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:1693` | Synchronize tsconfig references and root aliases under a specific repository root. |
-| `@beep/repo-cli/commands/TsconfigSync` | `TsconfigSyncChange` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:419` | A single planned file change. |
-| `@beep/repo-cli/commands/TsconfigSync` | `TsconfigSyncChange` | type | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:443` | A single planned file change. |
-| `@beep/repo-cli/commands/TsconfigSync` | `tsconfigSyncCommand` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:1828` | CLI command for synchronizing root and workspace tsconfig state. |
-| `@beep/repo-cli/commands/TsconfigSync` | `TsconfigSyncCycleError` | class | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:189` | Cycle error raised when workspace dependency cycles are detected. |
-| `@beep/repo-cli/commands/TsconfigSync` | `TsconfigSyncDriftError` | class | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:171` | Drift error raised in check mode when changes are required. |
-| `@beep/repo-cli/commands/TsconfigSync` | `TsconfigSyncFilterError` | class | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:207` | Filter error raised when `--filter` does not match any workspace package. |
-| `@beep/repo-cli/commands/TsconfigSync` | `TsconfigSyncMode` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:232` | Command execution mode. |
-| `@beep/repo-cli/commands/TsconfigSync` | `TsconfigSyncResult` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:610` | Result emitted after a sync run. |
-| `@beep/repo-cli/commands/TsconfigSync` | `TsconfigSyncResult` | type | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:626` | Result emitted after a sync run. |
-| `@beep/repo-cli/commands/TsconfigSync` | `TsconfigSyncRunOptions` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:286` | Runtime options for executing tsconfig sync at a repo root. |
-| `@beep/repo-cli/commands/TsconfigSync` | `TsconfigSyncRunOptions` | type | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:305` | Runtime options for executing tsconfig sync at a repo root. |
-| `@beep/repo-cli/commands/TsconfigSync` | `TsconfigSyncSection` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:313` | Sync change section categories. |
-| `@beep/repo-cli/commands/TsconfigSync` | `TsconfigSyncSection` | type | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:333` | Sync change section categories. |
-| `@beep/repo-cli/commands/TsconfigSync` | `TsconfigWithPaths` | class | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:708` | Minimal tsconfig shape containing optional `compilerOptions.paths`. |
-| `@beep/repo-cli/commands/TsconfigSync` | `TsconfigWithReferences` | class | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:693` | Minimal tsconfig shape containing optional `references`. |
-| `@beep/repo-cli/commands/TsconfigSync` | `WorkspaceDescriptor` | class | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:642` | Workspace package descriptor with metadata for tsconfig synchronization. |
+| `@beep/repo-cli/commands/TsconfigSync` | `syncTsconfigAtRoot` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:1640` | Synchronize tsconfig references and root aliases under a specific repository root. |
+| `@beep/repo-cli/commands/TsconfigSync` | `TsconfigSyncChange` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:366` | A single planned file change. |
+| `@beep/repo-cli/commands/TsconfigSync` | `TsconfigSyncChange` | type | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:390` | A single planned file change. |
+| `@beep/repo-cli/commands/TsconfigSync` | `tsconfigSyncCommand` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:1775` | CLI command for synchronizing root and workspace tsconfig state. |
+| `@beep/repo-cli/commands/TsconfigSync` | `TsconfigSyncCycleError` | class | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.errors.ts:35` | Cycle error raised when workspace dependency cycles are detected. |
+| `@beep/repo-cli/commands/TsconfigSync` | `TsconfigSyncDriftError` | class | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.errors.ts:17` |  |
+| `@beep/repo-cli/commands/TsconfigSync` | `TsconfigSyncFilterError` | class | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.errors.ts:53` | Filter error raised when `--filter` does not match any workspace package. |
+| `@beep/repo-cli/commands/TsconfigSync` | `TsconfigSyncMode` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:179` | Command execution mode. |
+| `@beep/repo-cli/commands/TsconfigSync` | `TsconfigSyncResult` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:557` | Result emitted after a sync run. |
+| `@beep/repo-cli/commands/TsconfigSync` | `TsconfigSyncResult` | type | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:573` | Result emitted after a sync run. |
+| `@beep/repo-cli/commands/TsconfigSync` | `TsconfigSyncRunOptions` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:233` | Runtime options for executing tsconfig sync at a repo root. |
+| `@beep/repo-cli/commands/TsconfigSync` | `TsconfigSyncRunOptions` | type | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:252` | Runtime options for executing tsconfig sync at a repo root. |
+| `@beep/repo-cli/commands/TsconfigSync` | `TsconfigSyncSection` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:260` | Sync change section categories. |
+| `@beep/repo-cli/commands/TsconfigSync` | `TsconfigSyncSection` | type | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:280` | Sync change section categories. |
+| `@beep/repo-cli/commands/TsconfigSync` | `TsconfigWithPaths` | class | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:655` | Minimal tsconfig shape containing optional `compilerOptions.paths`. |
+| `@beep/repo-cli/commands/TsconfigSync` | `TsconfigWithReferences` | class | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:640` | Minimal tsconfig shape containing optional `references`. |
+| `@beep/repo-cli/commands/TsconfigSync` | `WorkspaceDescriptor` | class | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:589` | Workspace package descriptor with metadata for tsconfig synchronization. |
 | `@beep/repo-cli/commands/TsconfigSync/index` | `buildCanonicalAliasTargets` | const | `packages/tooling/library/repo-utils/src/schemas/TsconfigAliasTargets.ts:154` | Build root and wildcard alias targets for a package export target. |
-| `@beep/repo-cli/commands/TsconfigSync/index` | `PlannedFileChange` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:544` | A planned file change with transformed file content. |
-| `@beep/repo-cli/commands/TsconfigSync/index` | `PlannedFileChange` | type | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:568` | A planned file change with transformed file content. |
+| `@beep/repo-cli/commands/TsconfigSync/index` | `PlannedFileChange` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:491` | A planned file change with transformed file content. |
+| `@beep/repo-cli/commands/TsconfigSync/index` | `PlannedFileChange` | type | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:515` | A planned file change with transformed file content. |
 | `@beep/repo-cli/commands/TsconfigSync/index` | `resolveRootExportTarget` | const | `packages/tooling/library/repo-utils/src/schemas/TsconfigAliasTargets.ts:89` | Resolve the canonical root export target from a package `exports` field. |
-| `@beep/repo-cli/commands/TsconfigSync/index` | `syncTsconfigAtRoot` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:1693` | Synchronize tsconfig references and root aliases under a specific repository root. |
-| `@beep/repo-cli/commands/TsconfigSync/index` | `TsconfigSyncChange` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:419` | A single planned file change. |
-| `@beep/repo-cli/commands/TsconfigSync/index` | `TsconfigSyncChange` | type | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:443` | A single planned file change. |
-| `@beep/repo-cli/commands/TsconfigSync/index` | `tsconfigSyncCommand` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:1828` | CLI command for synchronizing root and workspace tsconfig state. |
-| `@beep/repo-cli/commands/TsconfigSync/index` | `TsconfigSyncCycleError` | class | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:189` | Cycle error raised when workspace dependency cycles are detected. |
-| `@beep/repo-cli/commands/TsconfigSync/index` | `TsconfigSyncDriftError` | class | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:171` | Drift error raised in check mode when changes are required. |
-| `@beep/repo-cli/commands/TsconfigSync/index` | `TsconfigSyncFilterError` | class | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:207` | Filter error raised when `--filter` does not match any workspace package. |
-| `@beep/repo-cli/commands/TsconfigSync/index` | `TsconfigSyncMode` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:232` | Command execution mode. |
-| `@beep/repo-cli/commands/TsconfigSync/index` | `TsconfigSyncResult` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:610` | Result emitted after a sync run. |
-| `@beep/repo-cli/commands/TsconfigSync/index` | `TsconfigSyncResult` | type | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:626` | Result emitted after a sync run. |
-| `@beep/repo-cli/commands/TsconfigSync/index` | `TsconfigSyncRunOptions` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:286` | Runtime options for executing tsconfig sync at a repo root. |
-| `@beep/repo-cli/commands/TsconfigSync/index` | `TsconfigSyncRunOptions` | type | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:305` | Runtime options for executing tsconfig sync at a repo root. |
-| `@beep/repo-cli/commands/TsconfigSync/index` | `TsconfigSyncSection` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:313` | Sync change section categories. |
-| `@beep/repo-cli/commands/TsconfigSync/index` | `TsconfigSyncSection` | type | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:333` | Sync change section categories. |
-| `@beep/repo-cli/commands/TsconfigSync/index` | `TsconfigWithPaths` | class | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:708` | Minimal tsconfig shape containing optional `compilerOptions.paths`. |
-| `@beep/repo-cli/commands/TsconfigSync/index` | `TsconfigWithReferences` | class | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:693` | Minimal tsconfig shape containing optional `references`. |
-| `@beep/repo-cli/commands/TsconfigSync/index` | `WorkspaceDescriptor` | class | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:642` | Workspace package descriptor with metadata for tsconfig synchronization. |
+| `@beep/repo-cli/commands/TsconfigSync/index` | `syncTsconfigAtRoot` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:1640` | Synchronize tsconfig references and root aliases under a specific repository root. |
+| `@beep/repo-cli/commands/TsconfigSync/index` | `TsconfigSyncChange` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:366` | A single planned file change. |
+| `@beep/repo-cli/commands/TsconfigSync/index` | `TsconfigSyncChange` | type | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:390` | A single planned file change. |
+| `@beep/repo-cli/commands/TsconfigSync/index` | `tsconfigSyncCommand` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:1775` | CLI command for synchronizing root and workspace tsconfig state. |
+| `@beep/repo-cli/commands/TsconfigSync/index` | `TsconfigSyncCycleError` | class | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.errors.ts:35` | Cycle error raised when workspace dependency cycles are detected. |
+| `@beep/repo-cli/commands/TsconfigSync/index` | `TsconfigSyncDriftError` | class | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.errors.ts:17` |  |
+| `@beep/repo-cli/commands/TsconfigSync/index` | `TsconfigSyncFilterError` | class | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.errors.ts:53` | Filter error raised when `--filter` does not match any workspace package. |
+| `@beep/repo-cli/commands/TsconfigSync/index` | `TsconfigSyncMode` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:179` | Command execution mode. |
+| `@beep/repo-cli/commands/TsconfigSync/index` | `TsconfigSyncResult` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:557` | Result emitted after a sync run. |
+| `@beep/repo-cli/commands/TsconfigSync/index` | `TsconfigSyncResult` | type | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:573` | Result emitted after a sync run. |
+| `@beep/repo-cli/commands/TsconfigSync/index` | `TsconfigSyncRunOptions` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:233` | Runtime options for executing tsconfig sync at a repo root. |
+| `@beep/repo-cli/commands/TsconfigSync/index` | `TsconfigSyncRunOptions` | type | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:252` | Runtime options for executing tsconfig sync at a repo root. |
+| `@beep/repo-cli/commands/TsconfigSync/index` | `TsconfigSyncSection` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:260` | Sync change section categories. |
+| `@beep/repo-cli/commands/TsconfigSync/index` | `TsconfigSyncSection` | type | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:280` | Sync change section categories. |
+| `@beep/repo-cli/commands/TsconfigSync/index` | `TsconfigWithPaths` | class | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:655` | Minimal tsconfig shape containing optional `compilerOptions.paths`. |
+| `@beep/repo-cli/commands/TsconfigSync/index` | `TsconfigWithReferences` | class | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:640` | Minimal tsconfig shape containing optional `references`. |
+| `@beep/repo-cli/commands/TsconfigSync/index` | `WorkspaceDescriptor` | class | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:589` | Workspace package descriptor with metadata for tsconfig synchronization. |
 | `@beep/repo-cli/commands/TsconfigSync/TsconfigSync.command` | `buildCanonicalAliasTargets` | const | `packages/tooling/library/repo-utils/src/schemas/TsconfigAliasTargets.ts:154` | Build root and wildcard alias targets for a package export target. |
-| `@beep/repo-cli/commands/TsconfigSync/TsconfigSync.command` | `PlannedFileChange` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:544` | A planned file change with transformed file content. |
-| `@beep/repo-cli/commands/TsconfigSync/TsconfigSync.command` | `PlannedFileChange` | type | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:568` | A planned file change with transformed file content. |
+| `@beep/repo-cli/commands/TsconfigSync/TsconfigSync.command` | `PlannedFileChange` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:491` | A planned file change with transformed file content. |
+| `@beep/repo-cli/commands/TsconfigSync/TsconfigSync.command` | `PlannedFileChange` | type | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:515` | A planned file change with transformed file content. |
 | `@beep/repo-cli/commands/TsconfigSync/TsconfigSync.command` | `resolveRootExportTarget` | const | `packages/tooling/library/repo-utils/src/schemas/TsconfigAliasTargets.ts:89` | Resolve the canonical root export target from a package `exports` field. |
-| `@beep/repo-cli/commands/TsconfigSync/TsconfigSync.command` | `syncTsconfigAtRoot` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:1693` | Synchronize tsconfig references and root aliases under a specific repository root. |
-| `@beep/repo-cli/commands/TsconfigSync/TsconfigSync.command` | `TsconfigSyncChange` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:419` | A single planned file change. |
-| `@beep/repo-cli/commands/TsconfigSync/TsconfigSync.command` | `TsconfigSyncChange` | type | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:443` | A single planned file change. |
-| `@beep/repo-cli/commands/TsconfigSync/TsconfigSync.command` | `tsconfigSyncCommand` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:1828` | CLI command for synchronizing root and workspace tsconfig state. |
-| `@beep/repo-cli/commands/TsconfigSync/TsconfigSync.command` | `TsconfigSyncCycleError` | class | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:189` | Cycle error raised when workspace dependency cycles are detected. |
-| `@beep/repo-cli/commands/TsconfigSync/TsconfigSync.command` | `TsconfigSyncDriftError` | class | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:171` | Drift error raised in check mode when changes are required. |
-| `@beep/repo-cli/commands/TsconfigSync/TsconfigSync.command` | `TsconfigSyncFilterError` | class | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:207` | Filter error raised when `--filter` does not match any workspace package. |
-| `@beep/repo-cli/commands/TsconfigSync/TsconfigSync.command` | `TsconfigSyncMode` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:232` | Command execution mode. |
-| `@beep/repo-cli/commands/TsconfigSync/TsconfigSync.command` | `TsconfigSyncResult` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:610` | Result emitted after a sync run. |
-| `@beep/repo-cli/commands/TsconfigSync/TsconfigSync.command` | `TsconfigSyncResult` | type | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:626` | Result emitted after a sync run. |
-| `@beep/repo-cli/commands/TsconfigSync/TsconfigSync.command` | `TsconfigSyncRunOptions` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:286` | Runtime options for executing tsconfig sync at a repo root. |
-| `@beep/repo-cli/commands/TsconfigSync/TsconfigSync.command` | `TsconfigSyncRunOptions` | type | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:305` | Runtime options for executing tsconfig sync at a repo root. |
-| `@beep/repo-cli/commands/TsconfigSync/TsconfigSync.command` | `TsconfigSyncSection` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:313` | Sync change section categories. |
-| `@beep/repo-cli/commands/TsconfigSync/TsconfigSync.command` | `TsconfigSyncSection` | type | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:333` | Sync change section categories. |
-| `@beep/repo-cli/commands/TsconfigSync/TsconfigSync.command` | `TsconfigWithPaths` | class | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:708` | Minimal tsconfig shape containing optional `compilerOptions.paths`. |
-| `@beep/repo-cli/commands/TsconfigSync/TsconfigSync.command` | `TsconfigWithReferences` | class | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:693` | Minimal tsconfig shape containing optional `references`. |
-| `@beep/repo-cli/commands/TsconfigSync/TsconfigSync.command` | `WorkspaceDescriptor` | class | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:642` | Workspace package descriptor with metadata for tsconfig synchronization. |
+| `@beep/repo-cli/commands/TsconfigSync/TsconfigSync.command` | `syncTsconfigAtRoot` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:1640` | Synchronize tsconfig references and root aliases under a specific repository root. |
+| `@beep/repo-cli/commands/TsconfigSync/TsconfigSync.command` | `TsconfigSyncChange` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:366` | A single planned file change. |
+| `@beep/repo-cli/commands/TsconfigSync/TsconfigSync.command` | `TsconfigSyncChange` | type | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:390` | A single planned file change. |
+| `@beep/repo-cli/commands/TsconfigSync/TsconfigSync.command` | `tsconfigSyncCommand` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:1775` | CLI command for synchronizing root and workspace tsconfig state. |
+| `@beep/repo-cli/commands/TsconfigSync/TsconfigSync.command` | `TsconfigSyncMode` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:179` | Command execution mode. |
+| `@beep/repo-cli/commands/TsconfigSync/TsconfigSync.command` | `TsconfigSyncResult` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:557` | Result emitted after a sync run. |
+| `@beep/repo-cli/commands/TsconfigSync/TsconfigSync.command` | `TsconfigSyncResult` | type | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:573` | Result emitted after a sync run. |
+| `@beep/repo-cli/commands/TsconfigSync/TsconfigSync.command` | `TsconfigSyncRunOptions` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:233` | Runtime options for executing tsconfig sync at a repo root. |
+| `@beep/repo-cli/commands/TsconfigSync/TsconfigSync.command` | `TsconfigSyncRunOptions` | type | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:252` | Runtime options for executing tsconfig sync at a repo root. |
+| `@beep/repo-cli/commands/TsconfigSync/TsconfigSync.command` | `TsconfigSyncSection` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:260` | Sync change section categories. |
+| `@beep/repo-cli/commands/TsconfigSync/TsconfigSync.command` | `TsconfigSyncSection` | type | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:280` | Sync change section categories. |
+| `@beep/repo-cli/commands/TsconfigSync/TsconfigSync.command` | `TsconfigWithPaths` | class | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:655` | Minimal tsconfig shape containing optional `compilerOptions.paths`. |
+| `@beep/repo-cli/commands/TsconfigSync/TsconfigSync.command` | `TsconfigWithReferences` | class | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:640` | Minimal tsconfig shape containing optional `references`. |
+| `@beep/repo-cli/commands/TsconfigSync/TsconfigSync.command` | `WorkspaceDescriptor` | class | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:589` | Workspace package descriptor with metadata for tsconfig synchronization. |
+| `@beep/repo-cli/commands/TsconfigSync/TsconfigSync.errors` | `TsconfigSyncCycleError` | class | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.errors.ts:35` | Cycle error raised when workspace dependency cycles are detected. |
+| `@beep/repo-cli/commands/TsconfigSync/TsconfigSync.errors` | `TsconfigSyncDriftError` | class | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.errors.ts:17` |  |
+| `@beep/repo-cli/commands/TsconfigSync/TsconfigSync.errors` | `TsconfigSyncFilterError` | class | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.errors.ts:53` | Filter error raised when `--filter` does not match any workspace package. |
+| `@beep/repo-cli/commands/VersionSync` | `NetworkUnavailableError` | class | `packages/tooling/tool/cli/src/commands/VersionSync/VersionSync.errors.ts:32` | Network unavailable during upstream version resolution. |
 | `@beep/repo-cli/commands/VersionSync` | `versionSyncCommand` | const | `packages/tooling/tool/cli/src/commands/VersionSync/VersionSync.command.ts:48` | CLI command for synchronizing version pins across the monorepo. |
+| `@beep/repo-cli/commands/VersionSync` | `VersionSyncDriftError` | class | `packages/tooling/tool/cli/src/commands/VersionSync/VersionSync.errors.ts:47` | Drift detected in check mode (non-zero exit). |
+| `@beep/repo-cli/commands/VersionSync` | `VersionSyncError` | class | `packages/tooling/tool/cli/src/commands/VersionSync/VersionSync.errors.ts:17` |  |
+| `@beep/repo-cli/commands/VersionSync/index` | `NetworkUnavailableError` | class | `packages/tooling/tool/cli/src/commands/VersionSync/VersionSync.errors.ts:32` | Network unavailable during upstream version resolution. |
 | `@beep/repo-cli/commands/VersionSync/index` | `versionSyncCommand` | const | `packages/tooling/tool/cli/src/commands/VersionSync/VersionSync.command.ts:48` | CLI command for synchronizing version pins across the monorepo. |
+| `@beep/repo-cli/commands/VersionSync/index` | `VersionSyncDriftError` | class | `packages/tooling/tool/cli/src/commands/VersionSync/VersionSync.errors.ts:47` | Drift detected in check mode (non-zero exit). |
+| `@beep/repo-cli/commands/VersionSync/index` | `VersionSyncError` | class | `packages/tooling/tool/cli/src/commands/VersionSync/VersionSync.errors.ts:17` |  |
 | `@beep/repo-cli/commands/VersionSync/internal/Handler` | `handleVersionSync` | const | `packages/tooling/tool/cli/src/commands/VersionSync/internal/Handler.ts:70` | Execute the version-sync command. |
-| `@beep/repo-cli/commands/VersionSync/internal/Models` | `NetworkUnavailableError` | class | `packages/tooling/tool/cli/src/commands/VersionSync/internal/Models.ts:40` | Network unavailable during upstream version resolution. |
-| `@beep/repo-cli/commands/VersionSync/internal/Models` | `VersionCategory` | const | `packages/tooling/tool/cli/src/commands/VersionSync/internal/Models.ts:98` | Version category for grouping drift items. |
-| `@beep/repo-cli/commands/VersionSync/internal/Models` | `VersionCategory` | type | `packages/tooling/tool/cli/src/commands/VersionSync/internal/Models.ts:116` | Version category for grouping drift items. |
-| `@beep/repo-cli/commands/VersionSync/internal/Models` | `VersionCategoryOptions` | const | `packages/tooling/tool/cli/src/commands/VersionSync/internal/Models.ts:109` | Literal option tuple for version categories. |
-| `@beep/repo-cli/commands/VersionSync/internal/Models` | `VersionCategoryReport` | const | `packages/tooling/tool/cli/src/commands/VersionSync/internal/Models.ts:251` | Report for a single version category (bun, node, docker, biome, or effect). |
-| `@beep/repo-cli/commands/VersionSync/internal/Models` | `VersionCategoryReport` | type | `packages/tooling/tool/cli/src/commands/VersionSync/internal/Models.ts:272` | Report for a single version category (bun, node, docker, or biome). |
-| `@beep/repo-cli/commands/VersionSync/internal/Models` | `VersionCategoryStatus` | const | `packages/tooling/tool/cli/src/commands/VersionSync/internal/Models.ts:130` | Status of a version category. |
-| `@beep/repo-cli/commands/VersionSync/internal/Models` | `VersionCategoryStatus` | type | `packages/tooling/tool/cli/src/commands/VersionSync/internal/Models.ts:162` | Status of a version category. |
-| `@beep/repo-cli/commands/VersionSync/internal/Models` | `VersionCategoryStatusEnum` | const | `packages/tooling/tool/cli/src/commands/VersionSync/internal/Models.ts:148` | Enum mapping for version category status literals. |
-| `@beep/repo-cli/commands/VersionSync/internal/Models` | `VersionCategoryStatusMatch` | const | `packages/tooling/tool/cli/src/commands/VersionSync/internal/Models.ts:141` | Pattern-matching helper for version category status literals. |
-| `@beep/repo-cli/commands/VersionSync/internal/Models` | `VersionCategoryStatusThunk` | const | `packages/tooling/tool/cli/src/commands/VersionSync/internal/Models.ts:155` | Thunk helpers for version category status literals. |
-| `@beep/repo-cli/commands/VersionSync/internal/Models` | `VersionDriftItem` | class | `packages/tooling/tool/cli/src/commands/VersionSync/internal/Models.ts:72` | A single version pin location with its current and expected values. |
-| `@beep/repo-cli/commands/VersionSync/internal/Models` | `VersionSyncDriftError` | class | `packages/tooling/tool/cli/src/commands/VersionSync/internal/Models.ts:55` | Drift detected in check mode (non-zero exit). |
-| `@beep/repo-cli/commands/VersionSync/internal/Models` | `VersionSyncError` | class | `packages/tooling/tool/cli/src/commands/VersionSync/internal/Models.ts:25` | Operational error during version sync (file read/write, parse failures). |
-| `@beep/repo-cli/commands/VersionSync/internal/Models` | `VersionSyncMode` | const | `packages/tooling/tool/cli/src/commands/VersionSync/internal/Models.ts:303` | Command execution mode. |
-| `@beep/repo-cli/commands/VersionSync/internal/Models` | `VersionSyncMode` | type | `packages/tooling/tool/cli/src/commands/VersionSync/internal/Models.ts:322` | Command execution mode. |
-| `@beep/repo-cli/commands/VersionSync/internal/Models` | `VersionSyncModeMatch` | const | `packages/tooling/tool/cli/src/commands/VersionSync/internal/Models.ts:314` | Pattern-matching helper for version-sync mode literals. |
-| `@beep/repo-cli/commands/VersionSync/internal/Models` | `VersionSyncOptions` | const | `packages/tooling/tool/cli/src/commands/VersionSync/internal/Models.ts:381` | Resolved command options after flag parsing. |
-| `@beep/repo-cli/commands/VersionSync/internal/Models` | `VersionSyncOptions` | type | `packages/tooling/tool/cli/src/commands/VersionSync/internal/Models.ts:397` | Resolved command options after flag parsing. |
-| `@beep/repo-cli/commands/VersionSync/internal/Models` | `VersionSyncReport` | class | `packages/tooling/tool/cli/src/commands/VersionSync/internal/Models.ts:280` | Full version sync report across all categories. |
-| `@beep/repo-cli/commands/VersionSync/internal/Models` | `VersionSyncResolution` | class | `packages/tooling/tool/cli/src/commands/VersionSync/internal/Models.ts:421` | Resolver output consumed by reporting and write-mode services. |
-| `@beep/repo-cli/commands/VersionSync/internal/Models` | `VersionSyncUpdateLocation` | class | `packages/tooling/tool/cli/src/commands/VersionSync/internal/Models.ts:405` | YAML location to update in write mode. |
+| `@beep/repo-cli/commands/VersionSync/internal/Models` | `NetworkUnavailableError` | class | `packages/tooling/tool/cli/src/commands/VersionSync/VersionSync.errors.ts:32` | Network unavailable during upstream version resolution. |
+| `@beep/repo-cli/commands/VersionSync/internal/Models` | `VersionCategory` | const | `packages/tooling/tool/cli/src/commands/VersionSync/internal/Models.ts:55` | Version category for grouping drift items. |
+| `@beep/repo-cli/commands/VersionSync/internal/Models` | `VersionCategory` | type | `packages/tooling/tool/cli/src/commands/VersionSync/internal/Models.ts:73` | Version category for grouping drift items. |
+| `@beep/repo-cli/commands/VersionSync/internal/Models` | `VersionCategoryOptions` | const | `packages/tooling/tool/cli/src/commands/VersionSync/internal/Models.ts:66` | Literal option tuple for version categories. |
+| `@beep/repo-cli/commands/VersionSync/internal/Models` | `VersionCategoryReport` | const | `packages/tooling/tool/cli/src/commands/VersionSync/internal/Models.ts:208` | Report for a single version category (bun, node, docker, biome, or effect). |
+| `@beep/repo-cli/commands/VersionSync/internal/Models` | `VersionCategoryReport` | type | `packages/tooling/tool/cli/src/commands/VersionSync/internal/Models.ts:229` | Report for a single version category (bun, node, docker, or biome). |
+| `@beep/repo-cli/commands/VersionSync/internal/Models` | `VersionCategoryStatus` | const | `packages/tooling/tool/cli/src/commands/VersionSync/internal/Models.ts:87` | Status of a version category. |
+| `@beep/repo-cli/commands/VersionSync/internal/Models` | `VersionCategoryStatus` | type | `packages/tooling/tool/cli/src/commands/VersionSync/internal/Models.ts:119` | Status of a version category. |
+| `@beep/repo-cli/commands/VersionSync/internal/Models` | `VersionCategoryStatusEnum` | const | `packages/tooling/tool/cli/src/commands/VersionSync/internal/Models.ts:105` | Enum mapping for version category status literals. |
+| `@beep/repo-cli/commands/VersionSync/internal/Models` | `VersionCategoryStatusMatch` | const | `packages/tooling/tool/cli/src/commands/VersionSync/internal/Models.ts:98` | Pattern-matching helper for version category status literals. |
+| `@beep/repo-cli/commands/VersionSync/internal/Models` | `VersionCategoryStatusThunk` | const | `packages/tooling/tool/cli/src/commands/VersionSync/internal/Models.ts:112` | Thunk helpers for version category status literals. |
+| `@beep/repo-cli/commands/VersionSync/internal/Models` | `VersionDriftItem` | class | `packages/tooling/tool/cli/src/commands/VersionSync/internal/Models.ts:29` | A single version pin location with its current and expected values. |
+| `@beep/repo-cli/commands/VersionSync/internal/Models` | `VersionSyncDriftError` | class | `packages/tooling/tool/cli/src/commands/VersionSync/VersionSync.errors.ts:47` | Drift detected in check mode (non-zero exit). |
+| `@beep/repo-cli/commands/VersionSync/internal/Models` | `VersionSyncError` | class | `packages/tooling/tool/cli/src/commands/VersionSync/VersionSync.errors.ts:17` |  |
+| `@beep/repo-cli/commands/VersionSync/internal/Models` | `VersionSyncMode` | const | `packages/tooling/tool/cli/src/commands/VersionSync/internal/Models.ts:260` | Command execution mode. |
+| `@beep/repo-cli/commands/VersionSync/internal/Models` | `VersionSyncMode` | type | `packages/tooling/tool/cli/src/commands/VersionSync/internal/Models.ts:279` | Command execution mode. |
+| `@beep/repo-cli/commands/VersionSync/internal/Models` | `VersionSyncModeMatch` | const | `packages/tooling/tool/cli/src/commands/VersionSync/internal/Models.ts:271` | Pattern-matching helper for version-sync mode literals. |
+| `@beep/repo-cli/commands/VersionSync/internal/Models` | `VersionSyncOptions` | const | `packages/tooling/tool/cli/src/commands/VersionSync/internal/Models.ts:338` | Resolved command options after flag parsing. |
+| `@beep/repo-cli/commands/VersionSync/internal/Models` | `VersionSyncOptions` | type | `packages/tooling/tool/cli/src/commands/VersionSync/internal/Models.ts:354` | Resolved command options after flag parsing. |
+| `@beep/repo-cli/commands/VersionSync/internal/Models` | `VersionSyncReport` | class | `packages/tooling/tool/cli/src/commands/VersionSync/internal/Models.ts:237` | Full version sync report across all categories. |
+| `@beep/repo-cli/commands/VersionSync/internal/Models` | `VersionSyncResolution` | class | `packages/tooling/tool/cli/src/commands/VersionSync/internal/Models.ts:378` | Resolver output consumed by reporting and write-mode services. |
+| `@beep/repo-cli/commands/VersionSync/internal/Models` | `VersionSyncUpdateLocation` | class | `packages/tooling/tool/cli/src/commands/VersionSync/internal/Models.ts:362` | YAML location to update in write mode. |
 | `@beep/repo-cli/commands/VersionSync/internal/resolvers/BiomeResolver` | `BiomeSchemaState` | class | `packages/tooling/tool/cli/src/commands/VersionSync/internal/resolvers/BiomeResolver.ts:147` | Resolved Biome schema state. |
 | `@beep/repo-cli/commands/VersionSync/internal/resolvers/BiomeResolver` | `buildBiomeReport` | const | `packages/tooling/tool/cli/src/commands/VersionSync/internal/resolvers/BiomeResolver.ts:242` | Build the Biome schema category report from resolved state. |
 | `@beep/repo-cli/commands/VersionSync/internal/resolvers/BiomeResolver` | `resolveBiomeSchema` | const | `packages/tooling/tool/cli/src/commands/VersionSync/internal/resolvers/BiomeResolver.ts:167` | Resolve current Biome schema version from `biome.jsonc` and installed version from `package.json` catalog. |
@@ -12344,6 +12407,9 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/commands/VersionSync/internal/updaters/YamlFileUpdater` | `replaceNodeVersionWithFile` | const | `packages/tooling/tool/cli/src/commands/VersionSync/internal/updaters/YamlFileUpdater.ts:116` | Replace `node-version: <value>` with `node-version-file: .nvmrc` in a workflow YAML. |
 | `@beep/repo-cli/commands/VersionSync/internal/updaters/YamlFileUpdater` | `updateYamlValue` | const | `packages/tooling/tool/cli/src/commands/VersionSync/internal/updaters/YamlFileUpdater.ts:53` | Update a value at a specific path in a YAML file, preserving comments and formatting. |
 | `@beep/repo-cli/commands/VersionSync/VersionSync.command` | `versionSyncCommand` | const | `packages/tooling/tool/cli/src/commands/VersionSync/VersionSync.command.ts:48` | CLI command for synchronizing version pins across the monorepo. |
+| `@beep/repo-cli/commands/VersionSync/VersionSync.errors` | `NetworkUnavailableError` | class | `packages/tooling/tool/cli/src/commands/VersionSync/VersionSync.errors.ts:32` | Network unavailable during upstream version resolution. |
+| `@beep/repo-cli/commands/VersionSync/VersionSync.errors` | `VersionSyncDriftError` | class | `packages/tooling/tool/cli/src/commands/VersionSync/VersionSync.errors.ts:47` | Drift detected in check mode (non-zero exit). |
+| `@beep/repo-cli/commands/VersionSync/VersionSync.errors` | `VersionSyncError` | class | `packages/tooling/tool/cli/src/commands/VersionSync/VersionSync.errors.ts:17` |  |
 | `@beep/repo-cli/test/CreatePackage` | `checkConfigNeedsUpdate` | const | `packages/tooling/tool/cli/src/commands/CreatePackage/ConfigUpdater.ts:624` | Check whether config entries already exist (for dry-run output). |
 | `@beep/repo-cli/test/CreatePackage` | `checkConfigNeedsUpdateForTargets` | const | `packages/tooling/tool/cli/src/commands/CreatePackage/ConfigUpdater.ts:552` | Batch read-only drift checker for root config updates. |
 | `@beep/repo-cli/test/CreatePackage` | `ConfigUpdateBatchResult` | class | `packages/tooling/tool/cli/src/commands/CreatePackage/ConfigUpdater.ts:97` | Batch config orchestration result for one or more package targets. |
@@ -12459,16 +12525,16 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/test/Graphiti` | `ContainerHealthState` | const | `packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyServices.ts:55` | Container health literal union. |
 | `@beep/repo-cli/test/Graphiti` | `DependencyHealthSnapshot` | class | `packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyServices.ts:109` | Cached dependency health snapshot payload. |
 | `@beep/repo-cli/test/Graphiti` | `DependencyHealthState` | const | `packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyServices.ts:71` | Dependency health literal union. |
-| `@beep/repo-cli/test/Graphiti` | `ensureGraphitiProxy` | const | `packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyOps.ts:580` | Ensure the local Graphiti proxy is healthy, starting it in the background when needed. |
+| `@beep/repo-cli/test/Graphiti` | `ensureGraphitiProxy` | const | `packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyOps.ts:556` | Ensure the local Graphiti proxy is healthy, starting it in the background when needed. |
 | `@beep/repo-cli/test/Graphiti` | `graphitiCommand` | const | `packages/tooling/tool/cli/src/commands/Graphiti/Graphiti.command.ts:94` | Graphiti command group. |
 | `@beep/repo-cli/test/Graphiti` | `GraphitiDependencyHealthService` | class | `packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyServices.ts:334` | Service tag for dependency health snapshots. |
-| `@beep/repo-cli/test/Graphiti` | `GraphitiProxyConfig` | class | `packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyConfig.ts:105` | Runtime configuration schema for graphiti proxy. |
-| `@beep/repo-cli/test/Graphiti` | `GraphitiProxyConfigLoadError` | class | `packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyConfig.ts:184` | Raised when graphiti proxy configuration cannot be loaded. |
+| `@beep/repo-cli/test/Graphiti` | `GraphitiProxyConfig` | class | `packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyConfig.ts:106` | Runtime configuration schema for graphiti proxy. |
+| `@beep/repo-cli/test/Graphiti` | `GraphitiProxyConfigLoadError` | class | `packages/tooling/tool/cli/src/commands/Graphiti/Graphiti.errors.ts:22` |  |
 | `@beep/repo-cli/test/Graphiti` | `GraphitiProxyForwarderService` | class | `packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyServices.ts:349` | Service tag for forwarding requests to upstream graphiti. |
-| `@beep/repo-cli/test/Graphiti` | `GraphitiProxyOpsError` | class | `packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyOps.ts:34` | Typed failure for Graphiti proxy operational helpers. |
+| `@beep/repo-cli/test/Graphiti` | `GraphitiProxyOpsError` | class | `packages/tooling/tool/cli/src/commands/Graphiti/Graphiti.errors.ts:52` | Typed failure for Graphiti proxy operational helpers. |
 | `@beep/repo-cli/test/Graphiti` | `GraphitiProxyQueueService` | class | `packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyServices.ts:364` | Service tag for queueing and draining proxy traffic. |
-| `@beep/repo-cli/test/Graphiti` | `installGraphitiProxyService` | const | `packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyOps.ts:781` | Install and start the user-level systemd unit for the Graphiti proxy. |
-| `@beep/repo-cli/test/Graphiti` | `loadGraphitiProxyConfig` | const | `packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyConfig.ts:215` | Load graphiti proxy config from Effect Config environment values. |
+| `@beep/repo-cli/test/Graphiti` | `installGraphitiProxyService` | const | `packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyOps.ts:757` | Install and start the user-level systemd unit for the Graphiti proxy. |
+| `@beep/repo-cli/test/Graphiti` | `loadGraphitiProxyConfig` | const | `packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyConfig.ts:187` | Load graphiti proxy config from Effect Config environment values. |
 | `@beep/repo-cli/test/Graphiti` | `makeGraphitiDependencyHealthService` | const | `packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyServices.ts:422` | Construct dependency health service implementation. |
 | `@beep/repo-cli/test/Graphiti` | `makeGraphitiProxyForwarderService` | const | `packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyServices.ts:479` | Construct upstream forwarder service implementation. |
 | `@beep/repo-cli/test/Graphiti` | `makeGraphitiProxyQueueService` | const | `packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyServices.ts:591` | Construct proxy queue service implementation. |
@@ -12476,84 +12542,88 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/test/Graphiti` | `ProxyHealthPayload` | class | `packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyServices.ts:156` | Structured JSON payload for health endpoints. |
 | `@beep/repo-cli/test/Graphiti` | `proxyHealthResponse` | const | `packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyServices.ts:296` | Build a structured proxy health HTTP response. |
 | `@beep/repo-cli/test/Graphiti` | `ProxyQueueStats` | class | `packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyServices.ts:129` | Queue and processing counters for proxy introspection. |
-| `@beep/repo-cli/test/Graphiti` | `ProxyServiceConfig` | class | `packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyOps.ts:82` | Configuration for installing and managing the Graphiti proxy user service. |
-| `@beep/repo-cli/test/Graphiti` | `recoverGraphitiStack` | const | `packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyOps.ts:695` | Recover the local Graphiti backing stack by restarting unhealthy containers. |
-| `@beep/repo-cli/test/Graphiti` | `runKgWithGraphitiProxy` | const | `packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyOps.ts:655` | Run a knowledge-graph CLI command with the local Graphiti proxy ensured first. |
-| `@beep/repo-cli/test/Graphiti` | `shouldRecoverGraphitiStackForTesting` | const | `packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyOps.ts:732` | Decide whether Graphiti recovery should restart the backing containers. |
+| `@beep/repo-cli/test/Graphiti` | `ProxyServiceConfig` | class | `packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyOps.ts:58` | Configuration for installing and managing the Graphiti proxy user service. |
+| `@beep/repo-cli/test/Graphiti` | `recoverGraphitiStack` | const | `packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyOps.ts:671` | Recover the local Graphiti backing stack by restarting unhealthy containers. |
+| `@beep/repo-cli/test/Graphiti` | `runKgWithGraphitiProxy` | const | `packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyOps.ts:631` | Run a knowledge-graph CLI command with the local Graphiti proxy ensured first. |
+| `@beep/repo-cli/test/Graphiti` | `shouldRecoverGraphitiStackForTesting` | const | `packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyOps.ts:708` | Decide whether Graphiti recovery should restart the backing containers. |
 | `@beep/repo-cli/test/Laws` | `ALLOWLIST_PATH` | const | `packages/tooling/tool/cli/src/commands/Laws/AllowlistCheck.ts:33` | Relative path to the effect laws allowlist. |
 | `@beep/repo-cli/test/Laws` | `AllowlistCheckOptions` | class | `packages/tooling/tool/cli/src/commands/Laws/AllowlistCheck.ts:94` | Runtime options for allowlist integrity checks. |
 | `@beep/repo-cli/test/Laws` | `AllowlistCheckSummary` | class | `packages/tooling/tool/cli/src/commands/Laws/AllowlistCheck.ts:113` | Result of an allowlist integrity check. |
-| `@beep/repo-cli/test/Laws` | `collectNativeRuntimeViolationKeys` | const | `packages/tooling/tool/cli/src/commands/Laws/NoNativeRuntime.ts:500` | Collect normalized native-runtime violation keys for allowlist integrity checks. |
-| `@beep/repo-cli/test/Laws` | `DualArityInventoryEntry` | namespace | `packages/tooling/tool/cli/src/commands/Laws/DualArity.ts:112` | Namespace for {@link DualArityInventoryEntry} companion types. |
-| `@beep/repo-cli/test/Laws` | `DualArityRulesOptions` | class | `packages/tooling/tool/cli/src/commands/Laws/DualArity.ts:158` | Runtime options for public API dual-arity enforcement. |
-| `@beep/repo-cli/test/Laws` | `DualArityRulesSummary` | class | `packages/tooling/tool/cli/src/commands/Laws/DualArity.ts:188` | Summary of public API dual-arity inventory verification. |
+| `@beep/repo-cli/test/Laws` | `collectNativeRuntimeViolationKeys` | const | `packages/tooling/tool/cli/src/commands/Laws/NoNativeRuntime.ts:489` | Collect normalized native-runtime violation keys for allowlist integrity checks. |
+| `@beep/repo-cli/test/Laws` | `DualArityInventoryEntry` | namespace | `packages/tooling/tool/cli/src/commands/Laws/DualArity.ts:113` | Namespace for {@link DualArityInventoryEntry} companion types. |
+| `@beep/repo-cli/test/Laws` | `DualArityInventoryReadError` | class | `packages/tooling/tool/cli/src/commands/Laws/Laws.errors.ts:12` |  |
+| `@beep/repo-cli/test/Laws` | `DualArityRulesOptions` | class | `packages/tooling/tool/cli/src/commands/Laws/DualArity.ts:159` | Runtime options for public API dual-arity enforcement. |
+| `@beep/repo-cli/test/Laws` | `DualArityRulesSummary` | class | `packages/tooling/tool/cli/src/commands/Laws/DualArity.ts:189` | Summary of public API dual-arity inventory verification. |
 | `@beep/repo-cli/test/Laws` | `EffectFnDiagnostic` | class | `packages/tooling/tool/cli/src/commands/Laws/EffectFn.ts:100` | Single Effect.fn supplemental law diagnostic. |
 | `@beep/repo-cli/test/Laws` | `EffectFnRulesOptions` | class | `packages/tooling/tool/cli/src/commands/Laws/EffectFn.ts:62` | Runtime options for the Effect.fn supplemental law. |
 | `@beep/repo-cli/test/Laws` | `EffectFnRulesSummary` | class | `packages/tooling/tool/cli/src/commands/Laws/EffectFn.ts:134` | Summary of Effect.fn supplemental law results. |
-| `@beep/repo-cli/test/Laws` | `EffectImportRulesOptions` | class | `packages/tooling/tool/cli/src/commands/Laws/EffectImports.ts:30` | Runtime options for effect import law migration checks. |
-| `@beep/repo-cli/test/Laws` | `EffectImportRulesSummary` | class | `packages/tooling/tool/cli/src/commands/Laws/EffectImports.ts:60` | Summary of effect import law migration results. |
+| `@beep/repo-cli/test/Laws` | `EffectImportRulesOptions` | class | `packages/tooling/tool/cli/src/commands/Laws/EffectImports.ts:31` | Runtime options for effect import law migration checks. |
+| `@beep/repo-cli/test/Laws` | `EffectImportRulesPersistenceError` | class | `packages/tooling/tool/cli/src/commands/Laws/Laws.errors.ts:24` |  |
+| `@beep/repo-cli/test/Laws` | `EffectImportRulesSummary` | class | `packages/tooling/tool/cli/src/commands/Laws/EffectImports.ts:61` | Summary of effect import law migration results. |
 | `@beep/repo-cli/test/Laws` | `lawsCommand` | const | `packages/tooling/tool/cli/src/commands/Laws/Laws.command.ts:435` | Laws command group. |
-| `@beep/repo-cli/test/Laws` | `NativeRuntimeViolationKeyOptions` | class | `packages/tooling/tool/cli/src/commands/Laws/NoNativeRuntime.ts:207` | Options for collecting native-runtime allowlist lookup keys. |
-| `@beep/repo-cli/test/Laws` | `NoNativeRuntimeDiagnostic` | class | `packages/tooling/tool/cli/src/commands/Laws/NoNativeRuntime.ts:120` | Single repo-local native runtime diagnostic. |
-| `@beep/repo-cli/test/Laws` | `NoNativeRuntimeDiagnostic` | namespace | `packages/tooling/tool/cli/src/commands/Laws/NoNativeRuntime.ts:144` | Namespace for {@link NoNativeRuntimeDiagnostic} companion types. |
-| `@beep/repo-cli/test/Laws` | `NoNativeRuntimeRulesOptions` | class | `packages/tooling/tool/cli/src/commands/Laws/NoNativeRuntime.ts:92` | Runtime options for repo-local native runtime checks. |
-| `@beep/repo-cli/test/Laws` | `NoNativeRuntimeRulesSummary` | class | `packages/tooling/tool/cli/src/commands/Laws/NoNativeRuntime.ts:168` | Summary of repo-local native runtime checks. |
+| `@beep/repo-cli/test/Laws` | `NativeRuntimeViolationKeyOptions` | class | `packages/tooling/tool/cli/src/commands/Laws/NoNativeRuntime.ts:208` | Options for collecting native-runtime allowlist lookup keys. |
+| `@beep/repo-cli/test/Laws` | `NoNativeRuntimeDiagnostic` | class | `packages/tooling/tool/cli/src/commands/Laws/NoNativeRuntime.ts:121` | Single repo-local native runtime diagnostic. |
+| `@beep/repo-cli/test/Laws` | `NoNativeRuntimeDiagnostic` | namespace | `packages/tooling/tool/cli/src/commands/Laws/NoNativeRuntime.ts:145` | Namespace for {@link NoNativeRuntimeDiagnostic} companion types. |
+| `@beep/repo-cli/test/Laws` | `NoNativeRuntimeRulesExecutionError` | class | `packages/tooling/tool/cli/src/commands/Laws/Laws.errors.ts:36` |  |
+| `@beep/repo-cli/test/Laws` | `NoNativeRuntimeRulesOptions` | class | `packages/tooling/tool/cli/src/commands/Laws/NoNativeRuntime.ts:93` | Runtime options for repo-local native runtime checks. |
+| `@beep/repo-cli/test/Laws` | `NoNativeRuntimeRulesSummary` | class | `packages/tooling/tool/cli/src/commands/Laws/NoNativeRuntime.ts:169` | Summary of repo-local native runtime checks. |
 | `@beep/repo-cli/test/Laws` | `reportAllowlistCheckSummary` | const | `packages/tooling/tool/cli/src/commands/Laws/AllowlistCheck.ts:314` | Print allowlist integrity diagnostics to the console. |
 | `@beep/repo-cli/test/Laws` | `runAllowlistCheck` | const | `packages/tooling/tool/cli/src/commands/Laws/AllowlistCheck.ts:252` | Run the effect laws allowlist integrity check. |
-| `@beep/repo-cli/test/Laws` | `runDualArityRules` | const | `packages/tooling/tool/cli/src/commands/Laws/DualArity.ts:1399` | Run public API dual-arity inventory verification. |
+| `@beep/repo-cli/test/Laws` | `runDualArityRules` | const | `packages/tooling/tool/cli/src/commands/Laws/DualArity.ts:1388` | Run public API dual-arity inventory verification. |
 | `@beep/repo-cli/test/Laws` | `runEffectFnRules` | const | `packages/tooling/tool/cli/src/commands/Laws/EffectFn.ts:395` | Run the repo-local Effect.fn supplemental law. |
-| `@beep/repo-cli/test/Laws` | `runEffectImportRules` | const | `packages/tooling/tool/cli/src/commands/Laws/EffectImports.ts:122` | Run effect import style migration/check logic. |
-| `@beep/repo-cli/test/Laws` | `runNoNativeRuntimeRules` | const | `packages/tooling/tool/cli/src/commands/Laws/NoNativeRuntime.ts:525` | Run repo-local native runtime checks. |
-| `@beep/repo-cli/test/Laws` | `runTerseEffectRules` | const | `packages/tooling/tool/cli/src/commands/Laws/TerseEffect.ts:511` | Run terse Effect style migration/check logic. |
-| `@beep/repo-cli/test/Laws` | `TerseEffectRulesOptions` | class | `packages/tooling/tool/cli/src/commands/Laws/TerseEffect.ts:38` | Runtime options for terse Effect style migration checks. |
-| `@beep/repo-cli/test/Laws` | `TerseEffectRulesSummary` | class | `packages/tooling/tool/cli/src/commands/Laws/TerseEffect.ts:68` | Summary of terse Effect style migration results. |
-| `@beep/repo-cli/test/Quality` | `ChangesetGraphError` | class | `packages/tooling/tool/cli/src/commands/Quality/ChangesetGraph.ts:120` | Failure raised while validating changeset package references. |
-| `@beep/repo-cli/test/Quality` | `ChangesetGraphPackageReference` | class | `packages/tooling/tool/cli/src/commands/Quality/ChangesetGraph.ts:63` | A package name referenced by a changeset file. |
-| `@beep/repo-cli/test/Quality` | `ChangesetGraphSummary` | class | `packages/tooling/tool/cli/src/commands/Quality/ChangesetGraph.ts:93` | Summary emitted by the changeset package graph guard. |
-| `@beep/repo-cli/test/Quality` | `changesetPackageReferencesFromText` | const | `packages/tooling/tool/cli/src/commands/Quality/ChangesetGraph.ts:356` | Parse package references from one changeset Markdown document. |
-| `@beep/repo-cli/test/Quality` | `collectStepOutput` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:1309` | Run a subprocess and capture all output. Exposed for focused unit tests. |
-| `@beep/repo-cli/test/Quality` | `findMissingChangesetPackageReferences` | const | `packages/tooling/tool/cli/src/commands/Quality/ChangesetGraph.ts:473` | Find changeset package references that are not in the workspace graph. |
-| `@beep/repo-cli/test/Quality` | `makeChangesetGraphSummary` | const | `packages/tooling/tool/cli/src/commands/Quality/ChangesetGraph.ts:520` | Build a changeset graph summary from already-collected inputs. |
-| `@beep/repo-cli/test/Quality` | `PackageTaskProfile` | class | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:82` | Package-local script profile used by the quality task adapter. |
-| `@beep/repo-cli/test/Quality` | `parseQualityTaskInvocation` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:1203` | Parse a raw argv vector into a quality task invocation when the first token is |
-| `@beep/repo-cli/test/Quality` | `qualityCommand` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:1710` | Quality command group for repo operational checks. |
-| `@beep/repo-cli/test/Quality` | `QualityScriptCommandError` | class | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:151` | Typed failure for repo operational commands. |
-| `@beep/repo-cli/test/Quality` | `QualityTaskConfigurationError` | class | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:228` | Error raised when a quality task cannot resolve its required configuration. |
-| `@beep/repo-cli/test/Quality` | `QualityTaskFailed` | class | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:164` | Error raised when a quality task subprocess exits unsuccessfully. |
-| `@beep/repo-cli/test/Quality` | `QualityTaskGroupFailed` | class | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:200` | Error raised when a bounded quality task group completes with failed steps. |
-| `@beep/repo-cli/test/Quality` | `QualityTaskInvocation` | class | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:138` | Result of parsing a quality command invocation. |
-| `@beep/repo-cli/test/Quality` | `QualityTaskName` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:48` | Canonical quality task name. |
-| `@beep/repo-cli/test/Quality` | `QualityTaskName` | type | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:65` | Canonical quality task name. |
-| `@beep/repo-cli/test/Quality` | `QualityTaskStep` | class | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:109` | Planned subprocess invocation. |
-| `@beep/repo-cli/test/Quality` | `rootQualityStepsForTesting` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:1100` | Build root quality task subprocess steps. Exposed for focused unit tests. |
-| `@beep/repo-cli/test/Quality` | `runChangesetGraphCheck` | const | `packages/tooling/tool/cli/src/commands/Quality/ChangesetGraph.ts:535` | Run the non-mutating changeset package graph guard. |
-| `@beep/repo-cli/test/Quality` | `runQualityTask` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:1247` | Run a parsed quality task in either repo-root or package-local mode. |
-| `@beep/repo-cli/test/Quality` | `runQualityTaskIfRequested` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:1277` | Run a quality task directly from a raw argv vector. |
-| `@beep/repo-cli/test/Quality` | `runQualityTaskStepGroupForTesting` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:1321` | Run a bounded quality task group. Exposed for focused unit tests. |
-| `@beep/repo-cli/test/Quality` | `runSqlIntegrationTestLaneForTesting` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:934` | Run the SQL integration lane with an injected resource and child command. |
-| `@beep/repo-cli/test/Quality` | `sqlIntegrationConnectionUriFromEnvForTesting` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:943` | Resolve the SQL integration database connection URI from environment variables. |
-| `@beep/repo-cli/test/Quality` | `sqlIntegrationStepForTesting` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:920` | Build the SQL integration test subprocess step. Exposed for focused unit tests. |
-| `@beep/repo-cli/test/Quality` | `UnexpectedQualityTaskFailure` | class | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:253` | Error raised when an unexpected quality task cause reaches the command boundary. |
-| `@beep/repo-cli/test/Reuse` | `CodexRunnerError` | class | `packages/tooling/tool/cli/src/commands/Reuse/internal/CodexRunner.ts:64` | Structured error emitted when the Codex SDK smoke path fails. |
-| `@beep/repo-cli/test/Reuse` | `CodexRunnerStage` | const | `packages/tooling/tool/cli/src/commands/Reuse/internal/CodexRunner.ts:23` | Lifecycle stages surfaced by the Codex smoke runner. |
-| `@beep/repo-cli/test/Reuse` | `CodexRunnerStage` | type | `packages/tooling/tool/cli/src/commands/Reuse/internal/CodexRunner.ts:37` | Runtime type for `CodexRunnerStage`. |
-| `@beep/repo-cli/test/Reuse` | `CodexSmokeResult` | class | `packages/tooling/tool/cli/src/commands/Reuse/internal/CodexRunner.ts:45` | Structured result for `beep reuse codex-smoke`. |
+| `@beep/repo-cli/test/Laws` | `runEffectImportRules` | const | `packages/tooling/tool/cli/src/commands/Laws/EffectImports.ts:111` | Run effect import style migration/check logic. |
+| `@beep/repo-cli/test/Laws` | `runNoNativeRuntimeRules` | const | `packages/tooling/tool/cli/src/commands/Laws/NoNativeRuntime.ts:514` | Run repo-local native runtime checks. |
+| `@beep/repo-cli/test/Laws` | `runTerseEffectRules` | const | `packages/tooling/tool/cli/src/commands/Laws/TerseEffect.ts:500` | Run terse Effect style migration/check logic. |
+| `@beep/repo-cli/test/Laws` | `TerseEffectRulesOptions` | class | `packages/tooling/tool/cli/src/commands/Laws/TerseEffect.ts:39` | Runtime options for terse Effect style migration checks. |
+| `@beep/repo-cli/test/Laws` | `TerseEffectRulesPersistenceError` | class | `packages/tooling/tool/cli/src/commands/Laws/Laws.errors.ts:48` |  |
+| `@beep/repo-cli/test/Laws` | `TerseEffectRulesSummary` | class | `packages/tooling/tool/cli/src/commands/Laws/TerseEffect.ts:69` | Summary of terse Effect style migration results. |
+| `@beep/repo-cli/test/Quality` | `ChangesetGraphError` | class | `packages/tooling/tool/cli/src/commands/Quality/Quality.errors.ts:27` |  |
+| `@beep/repo-cli/test/Quality` | `ChangesetGraphPackageReference` | class | `packages/tooling/tool/cli/src/commands/Quality/ChangesetGraph.ts:66` | A package name referenced by a changeset file. |
+| `@beep/repo-cli/test/Quality` | `ChangesetGraphSummary` | class | `packages/tooling/tool/cli/src/commands/Quality/ChangesetGraph.ts:96` | Summary emitted by the changeset package graph guard. |
+| `@beep/repo-cli/test/Quality` | `changesetPackageReferencesFromText` | const | `packages/tooling/tool/cli/src/commands/Quality/ChangesetGraph.ts:332` | Parse package references from one changeset Markdown document. |
+| `@beep/repo-cli/test/Quality` | `collectStepOutput` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:1206` | Run a subprocess and capture all output. Exposed for focused unit tests. |
+| `@beep/repo-cli/test/Quality` | `findMissingChangesetPackageReferences` | const | `packages/tooling/tool/cli/src/commands/Quality/ChangesetGraph.ts:449` | Find changeset package references that are not in the workspace graph. |
+| `@beep/repo-cli/test/Quality` | `makeChangesetGraphSummary` | const | `packages/tooling/tool/cli/src/commands/Quality/ChangesetGraph.ts:496` | Build a changeset graph summary from already-collected inputs. |
+| `@beep/repo-cli/test/Quality` | `PackageTaskProfile` | class | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:95` | Package-local script profile used by the quality task adapter. |
+| `@beep/repo-cli/test/Quality` | `parseQualityTaskInvocation` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:1100` | Parse a raw argv vector into a quality task invocation when the first token is |
+| `@beep/repo-cli/test/Quality` | `qualityCommand` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:1684` | Quality command group for repo operational checks. |
+| `@beep/repo-cli/test/Quality` | `QualityScriptCommandError` | class | `packages/tooling/tool/cli/src/commands/Quality/Quality.errors.ts:50` | Typed failure for repo operational commands. |
+| `@beep/repo-cli/test/Quality` | `QualityTaskConfigurationError` | class | `packages/tooling/tool/cli/src/commands/Quality/Quality.errors.ts:147` | Error raised when a quality task cannot resolve its required configuration. |
+| `@beep/repo-cli/test/Quality` | `QualityTaskFailed` | class | `packages/tooling/tool/cli/src/commands/Quality/Quality.errors.ts:83` | Error raised when a quality task subprocess exits unsuccessfully. |
+| `@beep/repo-cli/test/Quality` | `QualityTaskGroupFailed` | class | `packages/tooling/tool/cli/src/commands/Quality/Quality.errors.ts:119` | Error raised when a bounded quality task group completes with failed steps. |
+| `@beep/repo-cli/test/Quality` | `QualityTaskInvocation` | class | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:151` | Result of parsing a quality command invocation. |
+| `@beep/repo-cli/test/Quality` | `QualityTaskName` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:61` | Canonical quality task name. |
+| `@beep/repo-cli/test/Quality` | `QualityTaskName` | type | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:78` | Canonical quality task name. |
+| `@beep/repo-cli/test/Quality` | `QualityTaskStep` | class | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:122` | Planned subprocess invocation. |
+| `@beep/repo-cli/test/Quality` | `rootQualityStepsForTesting` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:997` | Build root quality task subprocess steps. Exposed for focused unit tests. |
+| `@beep/repo-cli/test/Quality` | `runChangesetGraphCheck` | const | `packages/tooling/tool/cli/src/commands/Quality/ChangesetGraph.ts:511` | Run the non-mutating changeset package graph guard. |
+| `@beep/repo-cli/test/Quality` | `runQualityTask` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:1144` | Run a parsed quality task in either repo-root or package-local mode. |
+| `@beep/repo-cli/test/Quality` | `runQualityTaskIfRequested` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:1174` | Run a quality task directly from a raw argv vector. |
+| `@beep/repo-cli/test/Quality` | `runQualityTaskStepGroupForTesting` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:1218` | Run a bounded quality task group. Exposed for focused unit tests. |
+| `@beep/repo-cli/test/Quality` | `runSqlIntegrationTestLaneForTesting` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:831` | Run the SQL integration lane with an injected resource and child command. |
+| `@beep/repo-cli/test/Quality` | `sqlIntegrationConnectionUriFromEnvForTesting` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:840` | Resolve the SQL integration database connection URI from environment variables. |
+| `@beep/repo-cli/test/Quality` | `sqlIntegrationStepForTesting` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:817` | Build the SQL integration test subprocess step. Exposed for focused unit tests. |
+| `@beep/repo-cli/test/Quality` | `UnexpectedQualityTaskFailure` | class | `packages/tooling/tool/cli/src/commands/Quality/Quality.errors.ts:172` | Error raised when an unexpected quality task cause reaches the command boundary. |
+| `@beep/repo-cli/test/Reuse` | `CodexRunnerError` | class | `packages/tooling/tool/cli/src/commands/Reuse/Reuse.errors.ts:41` | Structured error emitted when the Codex SDK smoke path fails. |
+| `@beep/repo-cli/test/Reuse` | `CodexRunnerStage` | const | `packages/tooling/tool/cli/src/commands/Reuse/Reuse.errors.ts:19` | Lifecycle stages surfaced by the Codex smoke runner. |
+| `@beep/repo-cli/test/Reuse` | `CodexRunnerStage` | type | `packages/tooling/tool/cli/src/commands/Reuse/Reuse.errors.ts:33` | Runtime type for `CodexRunnerStage`. |
+| `@beep/repo-cli/test/Reuse` | `CodexSmokeResult` | class | `packages/tooling/tool/cli/src/commands/Reuse/internal/CodexRunner.ts:25` | Structured result for `beep reuse codex-smoke`. |
 | `@beep/repo-cli/test/Reuse` | `reuseCommand` | const | `packages/tooling/tool/cli/src/commands/Reuse/Reuse.command.ts:460` | Reuse-discovery command group. |
-| `@beep/repo-cli/test/Reuse` | `runCodexSmoke` | const | `packages/tooling/tool/cli/src/commands/Reuse/internal/CodexRunner.ts:83` | Validate the local Codex SDK adapter without running a reuse loop. |
+| `@beep/repo-cli/test/Reuse` | `runCodexSmoke` | const | `packages/tooling/tool/cli/src/commands/Reuse/internal/CodexRunner.ts:46` | Validate the local Codex SDK adapter without running a reuse loop. |
 | `@beep/repo-cli/test/SyncDataToTs` | `ISO4217_SOURCE_URL` | const | `packages/tooling/tool/cli/src/commands/SyncDataToTs/targets/Iso4217.ts:27` | Official SIX XML source for ISO 4217 List One. |
 | `@beep/repo-cli/test/SyncDataToTs` | `iso4217Target` | const | `packages/tooling/tool/cli/src/commands/SyncDataToTs/targets/Iso4217.ts:283` | Checked-in sync target for the official SIX ISO 4217 List One XML feed. |
-| `@beep/repo-cli/test/SyncDataToTs` | `SyncDataRunMode` | const | `packages/tooling/tool/cli/src/commands/SyncDataToTs/internal/Models.ts:46` | Command execution mode for sync-data-to-ts. |
-| `@beep/repo-cli/test/SyncDataToTs` | `SyncDataRunMode` | type | `packages/tooling/tool/cli/src/commands/SyncDataToTs/internal/Models.ts:58` | Command execution mode for sync-data-to-ts. |
-| `@beep/repo-cli/test/SyncDataToTs` | `SyncDataSourceFormat` | const | `packages/tooling/tool/cli/src/commands/SyncDataToTs/internal/Models.ts:24` | Supported source formats for sync-data-to-ts targets. |
-| `@beep/repo-cli/test/SyncDataToTs` | `SyncDataSourceFormat` | type | `packages/tooling/tool/cli/src/commands/SyncDataToTs/internal/Models.ts:36` | Supported source formats for sync-data-to-ts targets. |
-| `@beep/repo-cli/test/SyncDataToTs` | `SyncDataTarget` | const | `packages/tooling/tool/cli/src/commands/SyncDataToTs/internal/Models.ts:170` | Checked-in sync target definition. |
-| `@beep/repo-cli/test/SyncDataToTs` | `SyncDataTarget` | type | `packages/tooling/tool/cli/src/commands/SyncDataToTs/internal/Models.ts:186` | {@inheritDoc SyncDataTarget} |
-| `@beep/repo-cli/test/SyncDataToTs` | `SyncDataTargetProjection` | class | `packages/tooling/tool/cli/src/commands/SyncDataToTs/internal/Models.ts:104` | Rendered target projection ready to compare or write to disk. |
-| `@beep/repo-cli/test/SyncDataToTs` | `SyncDataTargetResult` | class | `packages/tooling/tool/cli/src/commands/SyncDataToTs/internal/Models.ts:194` | Per-target command result after diffing or writing. |
+| `@beep/repo-cli/test/SyncDataToTs` | `SyncDataRunMode` | const | `packages/tooling/tool/cli/src/commands/SyncDataToTs/internal/Models.ts:49` | Command execution mode for sync-data-to-ts. |
+| `@beep/repo-cli/test/SyncDataToTs` | `SyncDataRunMode` | type | `packages/tooling/tool/cli/src/commands/SyncDataToTs/internal/Models.ts:61` | Command execution mode for sync-data-to-ts. |
+| `@beep/repo-cli/test/SyncDataToTs` | `SyncDataSourceFormat` | const | `packages/tooling/tool/cli/src/commands/SyncDataToTs/internal/Models.ts:27` | Supported source formats for sync-data-to-ts targets. |
+| `@beep/repo-cli/test/SyncDataToTs` | `SyncDataSourceFormat` | type | `packages/tooling/tool/cli/src/commands/SyncDataToTs/internal/Models.ts:39` | Supported source formats for sync-data-to-ts targets. |
+| `@beep/repo-cli/test/SyncDataToTs` | `SyncDataTarget` | const | `packages/tooling/tool/cli/src/commands/SyncDataToTs/internal/Models.ts:135` | Checked-in sync target definition. |
+| `@beep/repo-cli/test/SyncDataToTs` | `SyncDataTarget` | type | `packages/tooling/tool/cli/src/commands/SyncDataToTs/internal/Models.ts:151` | {@inheritDoc SyncDataTarget} |
+| `@beep/repo-cli/test/SyncDataToTs` | `SyncDataTargetProjection` | class | `packages/tooling/tool/cli/src/commands/SyncDataToTs/internal/Models.ts:69` | Rendered target projection ready to compare or write to disk. |
+| `@beep/repo-cli/test/SyncDataToTs` | `SyncDataTargetResult` | class | `packages/tooling/tool/cli/src/commands/SyncDataToTs/internal/Models.ts:159` | Per-target command result after diffing or writing. |
 | `@beep/repo-cli/test/SyncDataToTs` | `syncDataTargets` | const | `packages/tooling/tool/cli/src/commands/SyncDataToTs/targets/index.ts:16` | All checked-in sync targets supported by sync-data-to-ts. |
 | `@beep/repo-cli/test/SyncDataToTs` | `syncDataToTsCommand` | const | `packages/tooling/tool/cli/src/commands/SyncDataToTs/SyncDataToTs.command.ts:485` | CLI command for syncing official upstream datasets into checked-in TypeScript modules. |
-| `@beep/repo-cli/test/SyncDataToTs` | `SyncDataToTsDriftError` | class | `packages/tooling/tool/cli/src/commands/SyncDataToTs/internal/Models.ts:86` | Drift detected in check mode. |
-| `@beep/repo-cli/test/SyncDataToTs` | `SyncDataToTsError` | class | `packages/tooling/tool/cli/src/commands/SyncDataToTs/internal/Models.ts:66` | Operational error during source fetch, parsing, projection, or file writes. |
+| `@beep/repo-cli/test/SyncDataToTs` | `SyncDataToTsDriftError` | class | `packages/tooling/tool/cli/src/commands/SyncDataToTs/SyncDataToTs.errors.ts:37` | Drift detected in check mode. |
+| `@beep/repo-cli/test/SyncDataToTs` | `SyncDataToTsError` | class | `packages/tooling/tool/cli/src/commands/SyncDataToTs/SyncDataToTs.errors.ts:17` |  |
 | `@beep/repo-cli/test/VersionSync` | `BiomeSchemaState` | class | `packages/tooling/tool/cli/src/commands/VersionSync/internal/resolvers/BiomeResolver.ts:147` | Resolved Biome schema state. |
 | `@beep/repo-cli/test/VersionSync` | `buildBiomeReport` | const | `packages/tooling/tool/cli/src/commands/VersionSync/internal/resolvers/BiomeResolver.ts:242` | Build the Biome schema category report from resolved state. |
 | `@beep/repo-cli/test/VersionSync` | `buildBunReport` | const | `packages/tooling/tool/cli/src/commands/VersionSync/internal/resolvers/BunResolver.ts:392` | Build the Bun category report from resolved state. |
@@ -12564,7 +12634,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/test/VersionSync` | `BunVersionState` | class | `packages/tooling/tool/cli/src/commands/VersionSync/internal/resolvers/BunResolver.ts:255` | Resolved Bun version state. |
 | `@beep/repo-cli/test/VersionSync` | `DockerImageState` | class | `packages/tooling/tool/cli/src/commands/VersionSync/internal/resolvers/DockerResolver.ts:127` | Resolved Docker image state. |
 | `@beep/repo-cli/test/VersionSync` | `EffectCatalogState` | class | `packages/tooling/tool/cli/src/commands/VersionSync/internal/resolvers/EffectResolver.ts:61` | Resolved Effect catalog state derived from the root `package.json` catalog entries. |
-| `@beep/repo-cli/test/VersionSync` | `NetworkUnavailableError` | class | `packages/tooling/tool/cli/src/commands/VersionSync/internal/Models.ts:40` | Network unavailable during upstream version resolution. |
+| `@beep/repo-cli/test/VersionSync` | `NetworkUnavailableError` | class | `packages/tooling/tool/cli/src/commands/VersionSync/VersionSync.errors.ts:32` | Network unavailable during upstream version resolution. |
 | `@beep/repo-cli/test/VersionSync` | `NodeVersionLocation` | class | `packages/tooling/tool/cli/src/commands/VersionSync/internal/resolvers/NodeResolver.ts:31` | A workflow file location with a `node-version` field. |
 | `@beep/repo-cli/test/VersionSync` | `NodeVersionState` | class | `packages/tooling/tool/cli/src/commands/VersionSync/internal/resolvers/NodeResolver.ts:50` | Resolved Node version state. |
 | `@beep/repo-cli/test/VersionSync` | `replaceNodeVersionWithFile` | const | `packages/tooling/tool/cli/src/commands/VersionSync/internal/updaters/YamlFileUpdater.ts:116` | Replace `node-version: <value>` with `node-version-file: .nvmrc` in a workflow YAML. |
@@ -12578,28 +12648,28 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/test/VersionSync` | `updatePackageManagerField` | const | `packages/tooling/tool/cli/src/commands/VersionSync/internal/updaters/PackageJsonUpdater.ts:38` | Update the `packageManager` field in `package.json` using `jsonc-parser`. |
 | `@beep/repo-cli/test/VersionSync` | `updatePlainTextFile` | const | `packages/tooling/tool/cli/src/commands/VersionSync/internal/updaters/PlainTextUpdater.ts:21` | Update a plain text version file (e.g. `.bun-version`). |
 | `@beep/repo-cli/test/VersionSync` | `updateYamlValue` | const | `packages/tooling/tool/cli/src/commands/VersionSync/internal/updaters/YamlFileUpdater.ts:53` | Update a value at a specific path in a YAML file, preserving comments and formatting. |
-| `@beep/repo-cli/test/VersionSync` | `VersionCategory` | const | `packages/tooling/tool/cli/src/commands/VersionSync/internal/Models.ts:98` | Version category for grouping drift items. |
-| `@beep/repo-cli/test/VersionSync` | `VersionCategory` | type | `packages/tooling/tool/cli/src/commands/VersionSync/internal/Models.ts:116` | Version category for grouping drift items. |
-| `@beep/repo-cli/test/VersionSync` | `VersionCategoryOptions` | const | `packages/tooling/tool/cli/src/commands/VersionSync/internal/Models.ts:109` | Literal option tuple for version categories. |
-| `@beep/repo-cli/test/VersionSync` | `VersionCategoryReport` | const | `packages/tooling/tool/cli/src/commands/VersionSync/internal/Models.ts:251` | Report for a single version category (bun, node, docker, biome, or effect). |
-| `@beep/repo-cli/test/VersionSync` | `VersionCategoryReport` | type | `packages/tooling/tool/cli/src/commands/VersionSync/internal/Models.ts:272` | Report for a single version category (bun, node, docker, or biome). |
-| `@beep/repo-cli/test/VersionSync` | `VersionCategoryStatus` | const | `packages/tooling/tool/cli/src/commands/VersionSync/internal/Models.ts:130` | Status of a version category. |
-| `@beep/repo-cli/test/VersionSync` | `VersionCategoryStatus` | type | `packages/tooling/tool/cli/src/commands/VersionSync/internal/Models.ts:162` | Status of a version category. |
-| `@beep/repo-cli/test/VersionSync` | `VersionCategoryStatusEnum` | const | `packages/tooling/tool/cli/src/commands/VersionSync/internal/Models.ts:148` | Enum mapping for version category status literals. |
-| `@beep/repo-cli/test/VersionSync` | `VersionCategoryStatusMatch` | const | `packages/tooling/tool/cli/src/commands/VersionSync/internal/Models.ts:141` | Pattern-matching helper for version category status literals. |
-| `@beep/repo-cli/test/VersionSync` | `VersionCategoryStatusThunk` | const | `packages/tooling/tool/cli/src/commands/VersionSync/internal/Models.ts:155` | Thunk helpers for version category status literals. |
-| `@beep/repo-cli/test/VersionSync` | `VersionDriftItem` | class | `packages/tooling/tool/cli/src/commands/VersionSync/internal/Models.ts:72` | A single version pin location with its current and expected values. |
+| `@beep/repo-cli/test/VersionSync` | `VersionCategory` | const | `packages/tooling/tool/cli/src/commands/VersionSync/internal/Models.ts:55` | Version category for grouping drift items. |
+| `@beep/repo-cli/test/VersionSync` | `VersionCategory` | type | `packages/tooling/tool/cli/src/commands/VersionSync/internal/Models.ts:73` | Version category for grouping drift items. |
+| `@beep/repo-cli/test/VersionSync` | `VersionCategoryOptions` | const | `packages/tooling/tool/cli/src/commands/VersionSync/internal/Models.ts:66` | Literal option tuple for version categories. |
+| `@beep/repo-cli/test/VersionSync` | `VersionCategoryReport` | const | `packages/tooling/tool/cli/src/commands/VersionSync/internal/Models.ts:208` | Report for a single version category (bun, node, docker, biome, or effect). |
+| `@beep/repo-cli/test/VersionSync` | `VersionCategoryReport` | type | `packages/tooling/tool/cli/src/commands/VersionSync/internal/Models.ts:229` | Report for a single version category (bun, node, docker, or biome). |
+| `@beep/repo-cli/test/VersionSync` | `VersionCategoryStatus` | const | `packages/tooling/tool/cli/src/commands/VersionSync/internal/Models.ts:87` | Status of a version category. |
+| `@beep/repo-cli/test/VersionSync` | `VersionCategoryStatus` | type | `packages/tooling/tool/cli/src/commands/VersionSync/internal/Models.ts:119` | Status of a version category. |
+| `@beep/repo-cli/test/VersionSync` | `VersionCategoryStatusEnum` | const | `packages/tooling/tool/cli/src/commands/VersionSync/internal/Models.ts:105` | Enum mapping for version category status literals. |
+| `@beep/repo-cli/test/VersionSync` | `VersionCategoryStatusMatch` | const | `packages/tooling/tool/cli/src/commands/VersionSync/internal/Models.ts:98` | Pattern-matching helper for version category status literals. |
+| `@beep/repo-cli/test/VersionSync` | `VersionCategoryStatusThunk` | const | `packages/tooling/tool/cli/src/commands/VersionSync/internal/Models.ts:112` | Thunk helpers for version category status literals. |
+| `@beep/repo-cli/test/VersionSync` | `VersionDriftItem` | class | `packages/tooling/tool/cli/src/commands/VersionSync/internal/Models.ts:29` | A single version pin location with its current and expected values. |
 | `@beep/repo-cli/test/VersionSync` | `versionSyncCommand` | const | `packages/tooling/tool/cli/src/commands/VersionSync/VersionSync.command.ts:48` | CLI command for synchronizing version pins across the monorepo. |
-| `@beep/repo-cli/test/VersionSync` | `VersionSyncDriftError` | class | `packages/tooling/tool/cli/src/commands/VersionSync/internal/Models.ts:55` | Drift detected in check mode (non-zero exit). |
-| `@beep/repo-cli/test/VersionSync` | `VersionSyncError` | class | `packages/tooling/tool/cli/src/commands/VersionSync/internal/Models.ts:25` | Operational error during version sync (file read/write, parse failures). |
-| `@beep/repo-cli/test/VersionSync` | `VersionSyncMode` | const | `packages/tooling/tool/cli/src/commands/VersionSync/internal/Models.ts:303` | Command execution mode. |
-| `@beep/repo-cli/test/VersionSync` | `VersionSyncMode` | type | `packages/tooling/tool/cli/src/commands/VersionSync/internal/Models.ts:322` | Command execution mode. |
-| `@beep/repo-cli/test/VersionSync` | `VersionSyncModeMatch` | const | `packages/tooling/tool/cli/src/commands/VersionSync/internal/Models.ts:314` | Pattern-matching helper for version-sync mode literals. |
-| `@beep/repo-cli/test/VersionSync` | `VersionSyncOptions` | const | `packages/tooling/tool/cli/src/commands/VersionSync/internal/Models.ts:381` | Resolved command options after flag parsing. |
-| `@beep/repo-cli/test/VersionSync` | `VersionSyncOptions` | type | `packages/tooling/tool/cli/src/commands/VersionSync/internal/Models.ts:397` | Resolved command options after flag parsing. |
-| `@beep/repo-cli/test/VersionSync` | `VersionSyncReport` | class | `packages/tooling/tool/cli/src/commands/VersionSync/internal/Models.ts:280` | Full version sync report across all categories. |
-| `@beep/repo-cli/test/VersionSync` | `VersionSyncResolution` | class | `packages/tooling/tool/cli/src/commands/VersionSync/internal/Models.ts:421` | Resolver output consumed by reporting and write-mode services. |
-| `@beep/repo-cli/test/VersionSync` | `VersionSyncUpdateLocation` | class | `packages/tooling/tool/cli/src/commands/VersionSync/internal/Models.ts:405` | YAML location to update in write mode. |
+| `@beep/repo-cli/test/VersionSync` | `VersionSyncDriftError` | class | `packages/tooling/tool/cli/src/commands/VersionSync/VersionSync.errors.ts:47` | Drift detected in check mode (non-zero exit). |
+| `@beep/repo-cli/test/VersionSync` | `VersionSyncError` | class | `packages/tooling/tool/cli/src/commands/VersionSync/VersionSync.errors.ts:17` |  |
+| `@beep/repo-cli/test/VersionSync` | `VersionSyncMode` | const | `packages/tooling/tool/cli/src/commands/VersionSync/internal/Models.ts:260` | Command execution mode. |
+| `@beep/repo-cli/test/VersionSync` | `VersionSyncMode` | type | `packages/tooling/tool/cli/src/commands/VersionSync/internal/Models.ts:279` | Command execution mode. |
+| `@beep/repo-cli/test/VersionSync` | `VersionSyncModeMatch` | const | `packages/tooling/tool/cli/src/commands/VersionSync/internal/Models.ts:271` | Pattern-matching helper for version-sync mode literals. |
+| `@beep/repo-cli/test/VersionSync` | `VersionSyncOptions` | const | `packages/tooling/tool/cli/src/commands/VersionSync/internal/Models.ts:338` | Resolved command options after flag parsing. |
+| `@beep/repo-cli/test/VersionSync` | `VersionSyncOptions` | type | `packages/tooling/tool/cli/src/commands/VersionSync/internal/Models.ts:354` | Resolved command options after flag parsing. |
+| `@beep/repo-cli/test/VersionSync` | `VersionSyncReport` | class | `packages/tooling/tool/cli/src/commands/VersionSync/internal/Models.ts:237` | Full version sync report across all categories. |
+| `@beep/repo-cli/test/VersionSync` | `VersionSyncResolution` | class | `packages/tooling/tool/cli/src/commands/VersionSync/internal/Models.ts:378` | Resolver output consumed by reporting and write-mode services. |
+| `@beep/repo-cli/test/VersionSync` | `VersionSyncUpdateLocation` | class | `packages/tooling/tool/cli/src/commands/VersionSync/internal/Models.ts:362` | YAML location to update in write mode. |
 
 ### @beep/shared-server
 

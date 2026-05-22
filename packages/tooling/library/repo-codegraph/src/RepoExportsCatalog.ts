@@ -43,7 +43,7 @@ export class RepoCodegraphCatalogReadError extends TaggedErrorClass<RepoCodegrap
     operation: S.NonEmptyString,
     path: S.NonEmptyString,
     message: S.NonEmptyString,
-    cause: S.Unknown,
+    cause: S.DefectWithStack,
   },
   $I.annote("RepoCodegraphCatalogReadError", {
     description: "Typed failure raised while reading repo-codegraph catalog and package policy inputs.",
@@ -107,7 +107,7 @@ const firstParseErrorMessage = flow(
 );
 
 const parseJsoncUnknown = (path: string, content: string) => {
-  const errors: Array<ParseError> = [];
+  const errors = A.empty<ParseError>();
   const parsed: unknown = parse(content, errors, { allowTrailingComma: true });
 
   if (A.length(errors) > 0) {

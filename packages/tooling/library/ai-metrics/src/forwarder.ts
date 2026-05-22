@@ -76,7 +76,7 @@ const AiMetricsForwarderTimerCommand = AiMetricsForwarderTimerCommandBase.pipe(
 export class AiMetricsForwarderError extends TaggedErrorClass<AiMetricsForwarderError>($I`AiMetricsForwarderError`)(
   "AiMetricsForwarderError",
   {
-    cause: S.Unknown,
+    cause: S.DefectWithStack,
     message: S.String,
   },
   $I.annote("AiMetricsForwarderError", {

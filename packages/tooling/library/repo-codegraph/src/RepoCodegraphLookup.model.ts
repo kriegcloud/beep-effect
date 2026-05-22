@@ -7,11 +7,11 @@
 
 import { $RepoCodegraphId } from "@beep/identity/packages";
 import { LiteralKit } from "@beep/schema";
+import { A } from "@beep/utils";
 import { Effect } from "effect";
 import * as S from "effect/Schema";
 
 const $I = $RepoCodegraphId.create("RepoCodegraphLookup.model");
-const emptyStringArray = (): [] => [];
 
 /**
  * Lookup result schema version.
@@ -220,8 +220,8 @@ export class RepoCodegraphBoundaryAdvice extends S.Class<RepoCodegraphBoundaryAd
     status: RepoCodegraphBoundaryStatus,
     reason: S.String,
     citations: S.Array(S.String).pipe(
-      S.withConstructorDefault(Effect.succeed(emptyStringArray())),
-      S.withDecodingDefault(Effect.succeed(emptyStringArray()))
+      S.withConstructorDefault(Effect.succeed(A.empty())),
+      S.withDecodingDefault(Effect.succeed(A.empty()))
     ),
   },
   $I.annote("RepoCodegraphBoundaryAdvice", {
@@ -336,8 +336,8 @@ export class RepoCodegraphPreferredImport extends S.Class<RepoCodegraphPreferred
   {
     importSpecifier: S.NonEmptyString,
     symbols: S.Array(S.NonEmptyString).pipe(
-      S.withConstructorDefault(Effect.succeed(emptyStringArray())),
-      S.withDecodingDefault(Effect.succeed(emptyStringArray()))
+      S.withConstructorDefault(Effect.succeed(A.empty())),
+      S.withDecodingDefault(Effect.succeed(A.empty()))
     ),
     reason: S.OptionFromNullOr(S.String),
   },

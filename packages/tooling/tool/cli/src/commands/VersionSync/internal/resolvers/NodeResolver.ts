@@ -117,7 +117,6 @@ const UnknownNodeVersionValueToString = S.Unknown.pipe(
 
 const decodeNodeVersionString = S.decodeUnknownOption(UnknownNodeVersionValueToString);
 const nodeVersionString = (value: unknown): string => O.getOrElse(decodeNodeVersionString(value), () => `${value}`);
-const stringEquivalence = Str.equivalence;
 
 // ── Public API ──────────────────────────────────────────────────────────────
 
@@ -246,7 +245,7 @@ export const buildNodeReport: (state: NodeVersionState) => VersionCategoryReport
   let items = A.empty<VersionDriftItem>();
 
   for (const loc of state.workflowLocations) {
-    if (!stringEquivalence(loc.currentValue, state.nvmrc)) {
+    if (!Str.equivalence(loc.currentValue, state.nvmrc)) {
       items = A.append(
         items,
         new VersionDriftItem({

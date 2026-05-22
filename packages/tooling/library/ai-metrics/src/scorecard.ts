@@ -42,7 +42,7 @@ const $I = $RepoAiMetricsId.create("scorecard");
 export class AiMetricsScorecardError extends TaggedErrorClass<AiMetricsScorecardError>($I`AiMetricsScorecardError`)(
   "AiMetricsScorecardError",
   {
-    cause: S.Unknown,
+    cause: S.DefectWithStack,
     message: S.String,
   },
   $I.annote("AiMetricsScorecardError", {

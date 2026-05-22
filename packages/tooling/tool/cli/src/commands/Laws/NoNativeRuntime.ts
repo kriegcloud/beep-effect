@@ -16,7 +16,7 @@ import {
   isNoNativeRuntimeExtraCheckHotspot,
 } from "@beep/repo-configs/eslint/NoNativeRuntimeHotspots";
 import { isExcludedTypeScriptSourcePath, toPosixPath } from "@beep/repo-utils/schemas/TypeScriptSourceExclusions";
-import { LiteralKit, TaggedErrorClass } from "@beep/schema";
+import { LiteralKit } from "@beep/schema";
 import { A } from "@beep/utils";
 import { Effect, HashSet, Inspectable, Order, Path, pipe } from "effect";
 import { dual } from "effect/Function";
@@ -34,6 +34,7 @@ import {
   type SwitchStatement,
   SyntaxKind,
 } from "ts-morph";
+import { NoNativeRuntimeRulesExecutionError } from "./Laws.errors.js";
 
 const $I = $RepoCliId.create("commands/Laws/NoNativeRuntime");
 
@@ -213,18 +214,6 @@ export class NativeRuntimeViolationKeyOptions extends S.Class<NativeRuntimeViola
   },
   $I.annote("NativeRuntimeViolationKeyOptions", {
     description: "Options for collecting native-runtime allowlist lookup keys.",
-  })
-) {}
-
-class NoNativeRuntimeRulesExecutionError extends TaggedErrorClass<NoNativeRuntimeRulesExecutionError>(
-  $I`NoNativeRuntimeRulesExecutionError`
-)(
-  "NoNativeRuntimeRulesExecutionError",
-  {
-    message: S.String,
-  },
-  $I.annote("NoNativeRuntimeRulesExecutionError", {
-    description: "Repo-local native runtime checks failed unexpectedly.",
   })
 ) {}
 

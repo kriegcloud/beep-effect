@@ -367,7 +367,7 @@ const mirrorFailure = (message: string, cause: unknown): AiMetricsMirrorError =>
 export class AiMetricsMirrorError extends TaggedErrorClass<AiMetricsMirrorError>($I`AiMetricsMirrorError`)(
   "AiMetricsMirrorError",
   {
-    cause: S.Unknown,
+    cause: S.DefectWithStack,
     message: S.String,
   },
   $I.annote("AiMetricsMirrorError", {

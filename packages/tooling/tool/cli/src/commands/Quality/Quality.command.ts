@@ -7,9 +7,9 @@
 
 import { $RepoCliId } from "@beep/identity/packages";
 import { findRepoRoot, jsonStringifyPretty } from "@beep/repo-utils";
-import { LiteralKit, TaggedErrorClass } from "@beep/schema";
+import { LiteralKit } from "@beep/schema";
 import { A, Str, thunkFalse } from "@beep/utils";
-import { Console, Effect, FileSystem, Match, Order, Path, pipe, Runtime, Stream } from "effect";
+import { Console, Effect, FileSystem, Match, Order, Path, pipe, Stream } from "effect";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as R from "effect/Record";
@@ -21,7 +21,10 @@ import { type ParseError, parse } from "jsonc-parser";
 import { printLines } from "../../internal/cli/Printer.js";
 import { runChangesetGraphCheck } from "./ChangesetGraph.js";
 import { configStringEqualsSync } from "./internal/Config.js";
+import { QualityScriptCommandError } from "./Quality.errors.js";
 import { QualityTaskStep } from "./Tasks.js";
+
+export { QualityScriptCommandError } from "./Quality.errors.js";
 
 const $I = $RepoCliId.create("commands/Quality/ScriptCommands");
 
@@ -136,35 +139,6 @@ export const GithubCheckMode = LiteralKit(GITHUB_CHECK_MODES).annotate(
  * @since 0.0.0
  */
 export type GithubCheckMode = typeof GithubCheckMode.Type;
-
-/**
- * Typed failure for repo operational commands.
- *
- * @example
- * ```ts
- * import { QualityScriptCommandError } from "@beep/repo-cli/commands/Quality/Quality.command"
- * const error = new QualityScriptCommandError({ message: "failed" })
- * ```
- * @category errors
- * @since 0.0.0
- */
-export class QualityScriptCommandError extends TaggedErrorClass<QualityScriptCommandError>(
-  $I`QualityScriptCommandError`
-)(
-  "QualityScriptCommandError",
-  {
-    message: S.String,
-    command: S.optionalKey(S.String),
-    exitCode: S.optionalKey(S.Number),
-    cause: S.optionalKey(S.Defect),
-  },
-  $I.annote("QualityScriptCommandError", {
-    description: "Failure raised while running a migrated repo operational command.",
-  })
-) {
-  /** Process exit code reported when this error reaches the runtime boundary. */
-  override readonly [Runtime.errorExitCode] = this.exitCode ?? 1;
-}
 
 const commandText = (command: string, args: ReadonlyArray<string>) => A.join([command, ...args], " ");
 

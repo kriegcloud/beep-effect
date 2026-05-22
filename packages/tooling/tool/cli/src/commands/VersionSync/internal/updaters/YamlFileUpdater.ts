@@ -35,7 +35,6 @@ const YamlNodeValueAsString = S.Unknown.pipe(
 const decodeYamlNodeValueAsString = S.decodeUnknownOption(YamlNodeValueAsString);
 const yamlNodeValueAsString = (value: unknown): string =>
   O.getOrElse(decodeYamlNodeValueAsString(value), () => `${value}`);
-const stringEquivalence = Str.equivalence;
 
 type UpdateYamlValueOptions = {
   readonly value: string;
@@ -78,14 +77,14 @@ export const updateYamlValue: {
     const doc = parseDocument(original);
     const currentValue = doc.getIn(yamlPath);
 
-    if (stringEquivalence(yamlNodeValueAsString(currentValue), options.value)) {
+    if (Str.equivalence(yamlNodeValueAsString(currentValue), options.value)) {
       return false;
     }
 
     doc.setIn(yamlPath, options.value);
     const updated = doc.toString();
 
-    if (stringEquivalence(updated, original)) {
+    if (Str.equivalence(updated, original)) {
       return false;
     }
 
@@ -167,7 +166,7 @@ export const replaceNodeVersionWithFile: {
 
     const updated = doc.toString();
 
-    if (stringEquivalence(updated, original)) {
+    if (Str.equivalence(updated, original)) {
       return false;
     }
 

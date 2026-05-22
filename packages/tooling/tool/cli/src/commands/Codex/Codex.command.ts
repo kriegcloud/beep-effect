@@ -5,44 +5,16 @@
  * @since 0.0.0
  */
 
-import { $RepoCliId } from "@beep/identity/packages";
 import { findRepoRoot } from "@beep/repo-utils";
-import { TaggedErrorClass } from "@beep/schema";
+
 import { A } from "@beep/utils";
-import { Effect, type FileSystem, Runtime, Stream } from "effect";
-import * as S from "effect/Schema";
+import { Effect, type FileSystem, Stream } from "effect";
 import { Argument, Command } from "effect/unstable/cli";
 import { ChildProcess, type ChildProcessSpawner } from "effect/unstable/process";
 import { printLines } from "../../internal/cli/Printer.js";
+import { CodexCommandError } from "./Codex.errors.js";
 
-const $I = $RepoCliId.create("commands/Codex/Codex.command");
 const textEncoder = new TextEncoder();
-
-/**
- * Typed failure for Codex helper commands.
- *
- * @example
- * ```ts
- * import { CodexCommandError } from "@beep/repo-cli/commands/Codex"
- * const error = new CodexCommandError({ message: "failed" })
- * ```
- * @category errors
- * @since 0.0.0
- */
-export class CodexCommandError extends TaggedErrorClass<CodexCommandError>($I`CodexCommandError`)(
-  "CodexCommandError",
-  {
-    message: S.String,
-    exitCode: S.optionalKey(S.Number),
-    cause: S.optionalKey(S.Defect),
-  },
-  $I.annote("CodexCommandError", {
-    description: "Failure raised by Codex helper commands.",
-  })
-) {
-  /** Process exit code reported when this error reaches the runtime boundary. */
-  override readonly [Runtime.errorExitCode] = this.exitCode ?? 1;
-}
 
 const defaultInitiativeSummary =
   "Infer the initiative being closed from the current branch, git status, and changed surface.";

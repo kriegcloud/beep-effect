@@ -7,7 +7,7 @@
 
 import { $RepoCliId } from "@beep/identity/packages";
 import { isExcludedTypeScriptSourcePath, toPosixPath } from "@beep/repo-utils/schemas/TypeScriptSourceExclusions";
-import { TaggedErrorClass } from "@beep/schema";
+
 import { A, thunkEmptyStr } from "@beep/utils";
 import { Effect, HashMap, Inspectable, Order, Path, pipe } from "effect";
 import * as O from "effect/Option";
@@ -22,6 +22,7 @@ import {
   Project,
   SyntaxKind,
 } from "ts-morph";
+import { TerseEffectRulesPersistenceError } from "./Laws.errors.js";
 
 const $I = $RepoCliId.create("commands/Laws/TerseEffect");
 
@@ -100,18 +101,6 @@ type ThunkHelperName = (typeof THUNK_HELPER_NAMES)[number];
 const OPTION_MATCH_HANDLER_NAMES = ["onNone", "onSome"] as const;
 
 const BOOL_MATCH_HANDLER_NAMES = ["onFalse", "onTrue"] as const;
-
-class TerseEffectRulesPersistenceError extends TaggedErrorClass<TerseEffectRulesPersistenceError>(
-  $I`TerseEffectRulesPersistenceError`
-)(
-  "TerseEffectRulesPersistenceError",
-  {
-    message: S.String,
-  },
-  $I.annote("TerseEffectRulesPersistenceError", {
-    description: "Terse Effect rule updates could not be persisted to disk.",
-  })
-) {}
 
 const INCLUDED_GLOBS = ["apps/**/*.{ts,tsx}", "packages/**/*.{ts,tsx}", "infra/**/*.ts"] as const;
 

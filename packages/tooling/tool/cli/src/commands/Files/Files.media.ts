@@ -252,14 +252,6 @@ const scanBorderSide = (
 };
 
 /**
- * Schema-derived string equivalence.
- *
- * @category utilities
- * @since 0.0.0
- */
-export const stringEquivalence = Str.equivalence;
-
-/**
  * Schema-derived image extension guard.
  *
  * @category utilities

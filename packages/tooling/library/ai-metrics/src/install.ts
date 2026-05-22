@@ -110,7 +110,7 @@ export class AiMetricsInstallConfigurationError extends TaggedErrorClass<AiMetri
 )(
   "AiMetricsInstallConfigurationError",
   {
-    cause: S.Unknown,
+    cause: S.DefectWithStack,
     message: S.String,
   },
   $I.annote("AiMetricsInstallConfigurationError", {

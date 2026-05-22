@@ -5,10 +5,11 @@
  * @since 0.0.0
  */
 
+export * from "./SyncDataToTs.command.js";
 /**
  * Public command module export.
  *
  * @category cli-commands
  * @since 0.0.0
  */
-export * from "./SyncDataToTs.command.js";
+export * from "./SyncDataToTs.errors.js";

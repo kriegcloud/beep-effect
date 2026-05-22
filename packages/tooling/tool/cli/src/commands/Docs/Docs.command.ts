@@ -16,7 +16,6 @@ import { printLines } from "../../internal/cli/Printer.js";
 import { docsAggregateCommand } from "./Docs.aggregate.js";
 
 const $I = $RepoCliId.create("docs");
-const stringEquivalence = Str.equivalence;
 
 const DocsSectionName = LiteralKit(["laws", "skills", "policies"]).annotate(
   $I.annote("DocsSectionName", {
@@ -160,7 +159,7 @@ const printDocsIndex = () =>
   ]);
 
 const findSectionByName = (name: DocsSectionName): O.Option<DocsSection> =>
-  A.findFirst(DocsSections, (entry) => stringEquivalence(entry.name, name));
+  A.findFirst(DocsSections, (entry) => Str.equivalence(entry.name, name));
 
 const printSectionByName = (name: DocsSectionName) =>
   pipe(

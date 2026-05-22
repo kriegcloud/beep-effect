@@ -16,8 +16,6 @@ import * as R from "effect/Record";
 import { Command, Flag } from "effect/unstable/cli";
 import { aggregateGeneratedDocs } from "../Docgen/internal/Operations.js";
 
-const stringEquivalence = Str.equivalence;
-
 const packageFlag = Flag.string("package").pipe(
   Flag.withAlias("p"),
   Flag.withDescription("Limit aggregation to one workspace package"),
@@ -36,7 +34,7 @@ const resolveAggregateSelector = Effect.fn("DocsAggregate.resolveAggregateSelect
   if (
     O.isSome(packageSelector) &&
     O.isSome(filterSelector) &&
-    !stringEquivalence(packageSelector.value, filterSelector.value)
+    !Str.equivalence(packageSelector.value, filterSelector.value)
   ) {
     return yield* new DomainError({
       message: `Received conflicting selectors --package=${packageSelector.value} and --filter=${filterSelector.value}.`,

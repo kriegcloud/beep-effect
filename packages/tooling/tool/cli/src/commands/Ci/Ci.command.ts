@@ -7,7 +7,7 @@
 
 import { $RepoCliId } from "@beep/identity/packages";
 import { findRepoRoot } from "@beep/repo-utils";
-import { TaggedErrorClass } from "@beep/schema";
+
 import { A, Str, thunkFalse } from "@beep/utils";
 import { Config, Console, Effect, FileSystem, Order, Path, pipe } from "effect";
 import * as O from "effect/Option";
@@ -15,6 +15,7 @@ import * as R from "effect/Record";
 import * as S from "effect/Schema";
 import { Argument, Command } from "effect/unstable/cli";
 import { printLines } from "../../internal/cli/Printer.js";
+import { CiCommandError } from "./Ci.errors.js";
 
 const $I = $RepoCliId.create("commands/Ci/Ci.command");
 
@@ -82,28 +83,6 @@ class TurboSummary extends S.Class<TurboSummary>($I`TurboSummary`)(
   },
   $I.annote("TurboSummary", {
     description: "Turbo run summary document consumed by CI summary rendering.",
-  })
-) {}
-
-/**
- * Typed failure for CI helper commands.
- *
- * @example
- * ```ts
- * import { CiCommandError } from "@beep/repo-cli/commands/Ci"
- * const error = new CiCommandError({ message: "failed" })
- * ```
- * @category errors
- * @since 0.0.0
- */
-export class CiCommandError extends TaggedErrorClass<CiCommandError>($I`CiCommandError`)(
-  "CiCommandError",
-  {
-    message: S.String,
-    cause: S.optionalKey(S.Defect),
-  },
-  $I.annote("CiCommandError", {
-    description: "Failure raised by CI helper commands.",
   })
 ) {}
 

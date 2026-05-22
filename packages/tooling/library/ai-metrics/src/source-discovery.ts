@@ -226,7 +226,7 @@ export class AiMetricsSourceDiscoveryError extends TaggedErrorClass<AiMetricsSou
 )(
   "AiMetricsSourceDiscoveryError",
   {
-    cause: S.Unknown,
+    cause: S.DefectWithStack,
     message: S.String,
   },
   $I.annote("AiMetricsSourceDiscoveryError", {

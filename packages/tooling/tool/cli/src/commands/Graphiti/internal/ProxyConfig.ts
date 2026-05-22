@@ -6,11 +6,12 @@
  */
 
 import { $RepoCliId } from "@beep/identity/packages";
-import { NormalizedBooleanString, TaggedErrorClass } from "@beep/schema";
+import { NormalizedBooleanString } from "@beep/schema";
 import { Config, Effect, identity, pipe, SchemaGetter } from "effect";
 import * as O from "effect/Option";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
+import { GraphitiProxyConfigLoadError } from "../Graphiti.errors.js";
 
 const $I = $RepoCliId.create("commands/Graphiti/internal/ProxyConfig");
 const booleanToNormalizedString = (value: boolean) => (value ? "true" : "false");
@@ -170,35 +171,6 @@ export class GraphitiProxyConfig extends S.Class<GraphitiProxyConfig>($I`Graphit
     description: "Runtime configuration for Graphiti queue proxy command.",
   })
 ) {}
-
-/**
- * Raised when graphiti proxy configuration cannot be loaded.
- *
- * @example
- * ```ts
- * console.log("GraphitiProxyConfigLoadError")
- * ```
- * @category models
- * @since 0.0.0
- */
-export class GraphitiProxyConfigLoadError extends TaggedErrorClass<GraphitiProxyConfigLoadError>(
-  $I`GraphitiProxyConfigLoadError`
-)(
-  "GraphitiProxyConfigLoadError",
-  {
-    message: S.String,
-    cause: S.optionalKey(S.Defect),
-  },
-  $I.annote("GraphitiProxyConfigLoadError", {
-    description: "Raised when graphiti proxy config cannot be decoded from Effect Config values.",
-  })
-) {
-  static readonly new = (message: string) => (cause: unknown) =>
-    new GraphitiProxyConfigLoadError({
-      message,
-      cause,
-    });
-}
 
 const decodeGraphitiProxyConfig = S.decodeUnknownEffect(GraphitiProxyConfig);
 

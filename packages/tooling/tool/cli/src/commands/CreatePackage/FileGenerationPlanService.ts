@@ -273,7 +273,6 @@ export class FileGenerationPlanService extends Context.Service<
 >()($I`FileGenerationPlanService`) {}
 
 const toPosixPath = normalizePath;
-const stringEquivalence = SchemaUtils.toEquivalence(S.String);
 
 const unique = (values: ReadonlyArray<string>): ReadonlyArray<string> => A.dedupe(values);
 
@@ -356,7 +355,7 @@ const ensureCanonicalAncestor = (
 ): Effect.Effect<void, DomainError> =>
   pipe(
     ancestor,
-    O.liftPredicate(({ canonicalPath, existingPath }) => stringEquivalence(existingPath, canonicalPath)),
+    O.liftPredicate(({ canonicalPath, existingPath }) => Str.equivalence(existingPath, canonicalPath)),
     O.isNone,
     failWhen(failDomainMessage(`${message}: "${ancestor.existingPath}" -> "${ancestor.canonicalPath}"`))
   );
@@ -584,7 +583,7 @@ export const createFileGenerationPlanService = (): FileGenerationPlanServiceShap
         Effect.andThen((existingContent: O.Option<string>) =>
           pipe(
             existingContent,
-            O.filter(stringEquivalence(content)),
+            O.filter(Str.equivalence(content)),
             O.map(() => countSkippedFileWrite),
             O.getOrElse(() => writeFile(absolutePath, content))
           )
@@ -655,7 +654,7 @@ export const createFileGenerationPlanService = (): FileGenerationPlanServiceShap
             }) {
               return yield* pipe(
                 currentTarget,
-                O.filter(stringEquivalence(target)),
+                O.filter(Str.equivalence(target)),
                 O.map(() => countSkippedSymlink),
                 O.getOrElse(() => pipe(exists, writeSymlinkForState(absolutePath, target)))
               );

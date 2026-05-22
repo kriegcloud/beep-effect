@@ -157,7 +157,6 @@ const toTstychePattern = (packagePath: string): string =>
     O.getOrElse(() => fallbackTstychePattern(packagePath))
   );
 const isPackagePath = S.is(PackagePath);
-const stringEquivalence = Str.equivalence;
 const stringArrayEquivalence = S.toEquivalence(S.Array(S.String));
 const JsoncUnknownObject = S.Record(S.String, S.Unknown).annotate(
   $I.annote("JsoncUnknownObject", {
@@ -186,7 +185,7 @@ const hasReferencePath: {
 } = dual(
   2,
   (entry: unknown, target: string): boolean =>
-    P.isObject(entry) && P.isString(entry.path) && stringEquivalence(entry.path, target)
+    P.isObject(entry) && P.isString(entry.path) && Str.equivalence(entry.path, target)
 );
 
 const readPathsRecord = (parsed: Record<string, unknown>): Record<string, unknown> => {
@@ -215,12 +214,12 @@ const isTstycheEntryCovered: {
 } = dual(2, (testFileMatch: ReadonlyArray<unknown>, packagePath: string): boolean => {
   if (!isPackagePath(packagePath)) return false;
   const candidatePattern = toTstychePattern(packagePath);
-  if (A.some(testFileMatch, (entry) => P.isString(entry) && stringEquivalence(entry, candidatePattern))) return true;
+  if (A.some(testFileMatch, (entry) => P.isString(entry) && Str.equivalence(entry, candidatePattern))) return true;
   const lastSlash = pipe(packagePath, Str.lastIndexOf("/"), O.getOrElse(thunkNegative1));
   if (lastSlash < 0) return false;
   const parentDir = Str.substring(0, lastSlash)(packagePath);
   const parentWildcard = `${parentDir}/*/dtslint/**/*.tst.*`;
-  return A.some(testFileMatch, (entry) => P.isString(entry) && stringEquivalence(entry, parentWildcard));
+  return A.some(testFileMatch, (entry) => P.isString(entry) && Str.equivalence(entry, parentWildcard));
 });
 
 const byPackagePathAscending: Order.Order<ConfigUpdateTarget> = Order.mapInput(
@@ -280,7 +279,7 @@ const modifyFileString: {
       .readFileString(filePath)
       .pipe(Effect.mapError(DomainError.newCauseMessage(`Failed to read ${filePath}`)));
     const transformed = yield* transform(original);
-    if (stringEquivalence(transformed, original)) return false;
+    if (Str.equivalence(transformed, original)) return false;
     yield* fs
       .writeFileString(filePath, transformed)
       .pipe(Effect.mapError(DomainError.newCauseMessage(`Failed to write ${filePath}`)));
