@@ -84,6 +84,29 @@ const isVideoFileName: {
   pipe(name, path.extname, normalizeBareExtension, videoExtensionGuard)
 );
 
+const resolveExtractFramesDirOutDir = Effect.fn("ImageCommandService.resolveExtractFramesDirOutDir")(function* (
+  path: Path.Path,
+  directory: string,
+  sourceName: string,
+  stem: string
+) {
+  const outDir = path.resolve(directory, stem);
+  const relativeOutDir = path.relative(directory, outDir);
+
+  if (
+    relativeOutDir === "" ||
+    relativeOutDir === ".." ||
+    path.isAbsolute(relativeOutDir) ||
+    Str.startsWith(`..${path.sep}`)(relativeOutDir)
+  ) {
+    return yield* ImageCommandError.make({
+      message: `image extract-frames-dir: refusing unsafe output directory for "${sourceName}".`,
+    });
+  }
+
+  return outDir;
+});
+
 const makeExtractFramesRequest = (options: ExtractFramesOptions): ExtractFramesRequest =>
   ExtractFramesRequest.make({
     fps: options.fps,
@@ -162,10 +185,11 @@ const collectExtractFramesDirVideos = Effect.fn("ImageCommandService.collectExtr
 
     const extension = path.extname(entry);
     const stem = path.basename(entry, extension);
+    const outDir = yield* resolveExtractFramesDirOutDir(path, directory, entry, stem);
     videos = A.append(
       videos,
       ExtractFramesDirVideo.make({
-        outDir: path.join(directory, stem),
+        outDir,
         sourceName: entry,
         sourcePath,
         stem,

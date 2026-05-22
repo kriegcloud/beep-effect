@@ -32,7 +32,7 @@ import {
   ReuseServiceSuiteLive,
   type TSMorphService,
 } from "@beep/repo-utils";
-import { A, Str } from "@beep/utils";
+import { A } from "@beep/utils";
 import { Console, Effect, type FileSystem, Layer, type Path, pipe } from "effect";
 import * as Bool from "effect/Boolean";
 import * as O from "effect/Option";
@@ -78,11 +78,82 @@ const candidateIdFlag = Flag.string("candidate-id").pipe(
   Flag.withDescription("Candidate id from `beep reuse inventory --json`")
 );
 const typeOnlyExportKinds = ["interface", "type"] as const;
-const terminalControlSequence =
-  /(?:\u001b\][\s\S]*?(?:\u0007|\u001b\\)|\u001b(?:[@-Z\\-_]|\[[0-?]*[ -/]*[@-~])|[\u0000-\u0008\u000b-\u001f\u007f-\u009f])/gu;
+const ASCII_BACKSLASH_CODE = 0x5c;
+const ASCII_LEFT_BRACKET_CODE = 0x5b;
+const ASCII_RIGHT_BRACKET_CODE = 0x5d;
+const BEL_CODE = 0x07;
+const ESC_CODE = 0x1b;
 
 const isTypeOnlyExportKind = (exportKind: string): boolean => A.contains(typeOnlyExportKinds, exportKind);
-const sanitizeTerminalText = Str.replace(terminalControlSequence, "");
+
+const isControlCode = (code: number): boolean =>
+  code <= 0x08 || (code >= 0x0b && code <= 0x1f) || (code >= 0x7f && code <= 0x9f);
+
+const isCsiParameterCode = (code: number): boolean => code >= 0x30 && code <= 0x3f;
+const isCsiIntermediateCode = (code: number): boolean => code >= 0x20 && code <= 0x2f;
+const isCsiFinalCode = (code: number): boolean => code >= 0x40 && code <= 0x7e;
+const isEscFinalCode = (code: number): boolean => code >= 0x40 && code <= 0x5f;
+
+const skipOscSequence = (input: string, cursor: number): number => {
+  while (cursor < input.length) {
+    const code = input.charCodeAt(cursor);
+    if (code === BEL_CODE) {
+      return cursor + 1;
+    }
+    if (code === ESC_CODE && input.charCodeAt(cursor + 1) === ASCII_BACKSLASH_CODE) {
+      return cursor + 2;
+    }
+    cursor += 1;
+  }
+
+  return input.length;
+};
+
+const skipCsiSequence = (input: string, cursor: number): number => {
+  while (cursor < input.length && isCsiParameterCode(input.charCodeAt(cursor))) {
+    cursor += 1;
+  }
+  while (cursor < input.length && isCsiIntermediateCode(input.charCodeAt(cursor))) {
+    cursor += 1;
+  }
+
+  return cursor < input.length && isCsiFinalCode(input.charCodeAt(cursor)) ? cursor + 1 : cursor;
+};
+
+export const sanitizeTerminalText = (input: string): string => {
+  let output = "";
+  let cursor = 0;
+
+  while (cursor < input.length) {
+    const code = input.charCodeAt(cursor);
+
+    if (code === ESC_CODE) {
+      const nextCode = input.charCodeAt(cursor + 1);
+      if (nextCode === ASCII_RIGHT_BRACKET_CODE) {
+        cursor = skipOscSequence(input, cursor + 2);
+        continue;
+      }
+      if (nextCode === ASCII_LEFT_BRACKET_CODE) {
+        cursor = skipCsiSequence(input, cursor + 2);
+        continue;
+      }
+      if (isEscFinalCode(nextCode)) {
+        cursor += 2;
+        continue;
+      }
+    }
+
+    if (isControlCode(code)) {
+      cursor += 1;
+      continue;
+    }
+
+    output += input[cursor];
+    cursor += 1;
+  }
+
+  return output;
+};
 
 const printSelectedOutput = <EJson, RJson, EHuman, RHuman>(
   json: boolean,
