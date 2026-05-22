@@ -5,7 +5,9 @@
  */
 
 export * from "./core.ts";
+
 /**
  * @since 0.0.0
+ * @category Configuration
  */
-export * from "./react.ts";
+export const VERSION = "0.0.0" as const;

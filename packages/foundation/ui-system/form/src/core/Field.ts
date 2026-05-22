@@ -29,8 +29,7 @@ export type AnyFieldDef = FieldDef<string, S.Top> | ArrayFieldDef<string, S.Top>
 
 export type FieldsRecord = Record<string, AnyFieldDef>;
 
-export const isArrayFieldDef = (def: AnyFieldDef): def is ArrayFieldDef<string, S.Top> =>
-  def._tag === "array";
+export const isArrayFieldDef = (def: AnyFieldDef): def is ArrayFieldDef<string, S.Top> => def._tag === "array";
 
 export const isFieldDef = (def: AnyFieldDef): def is FieldDef<string, S.Top> => def._tag === "field";
 
@@ -149,9 +148,7 @@ export const createTouchedRecord = (fields: FieldsRecord, value: boolean): Recor
   return result;
 };
 
-export const extractStructFieldDefs = (
-  schema: S.Top
-): ReadonlyArray<FieldDef<string, S.Top>> | undefined => {
+export const extractStructFieldDefs = (schema: S.Top): ReadonlyArray<FieldDef<string, S.Top>> | undefined => {
   const unwrapObjects = (ast: AST.AST): AST.Objects | undefined => {
     if (AST.isObjects(ast)) return ast;
     if (AST.isSuspend(ast)) return unwrapObjects(ast.thunk());

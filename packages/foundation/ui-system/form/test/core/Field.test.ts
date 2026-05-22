@@ -1,7 +1,7 @@
 import { identity, SchemaTransformation } from "effect";
-import * as S from "../helpers/SchemaCompat.ts";
 import { describe, expect, it } from "vitest";
 import * as Field from "../../src/core/Field.js";
+import * as S from "../helpers/SchemaCompat.ts";
 
 describe("Field", () => {
   describe("getDefaultFromSchema", () => {
@@ -29,7 +29,7 @@ describe("Field", () => {
     });
 
     it("returns undefined for empty enums and unions", () => {
-      const emptyEnums = S.Enum({}) ;
+      const emptyEnums = S.Enum({});
       const emptyUnion = S.Union([]);
 
       expect(Field.getDefaultFromSchema(emptyEnums)).toBeUndefined();

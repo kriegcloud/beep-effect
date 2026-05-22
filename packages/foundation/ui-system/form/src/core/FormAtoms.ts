@@ -842,10 +842,7 @@ export const make = <TFields extends Field.FieldsRecord, R, A, E, SubmitArgs = v
   const keepAliveActiveAtom = Atom.make(false).pipe(Atom.setIdleTTL(0));
   const debounceSubmitMs = parsedMode.debounce;
   const debouncedSubmitAtom =
-    parsedMode.autoSubmit &&
-    parsedMode.validation === "onChange" &&
-    debounceSubmitMs !== null &&
-    debounceSubmitMs > 0
+    parsedMode.autoSubmit && parsedMode.validation === "onChange" && debounceSubmitMs !== null && debounceSubmitMs > 0
       ? runtime
           .fn<void>()((_, get) =>
             pipe(

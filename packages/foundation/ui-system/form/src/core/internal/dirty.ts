@@ -1,5 +1,5 @@
-import * as Equal from "effect/Equal"
-import {getNestedValue, isPathUnderRoot} from "../Path.ts"
+import * as Equal from "effect/Equal";
+import { getNestedValue, isPathUnderRoot } from "../Path.ts";
 
 export const recalculateDirtyFieldsForArray = (
   dirtyFields: ReadonlySet<string>,
@@ -7,37 +7,35 @@ export const recalculateDirtyFieldsForArray = (
   arrayPath: string,
   newItems: ReadonlyArray<unknown>
 ): ReadonlySet<string> => {
-  const initialItems = (getNestedValue(initialValues, arrayPath) ?? []) as ReadonlyArray<unknown>
+  const initialItems = (getNestedValue(initialValues, arrayPath) ?? []) as ReadonlyArray<unknown>;
 
   if (newItems === initialItems) {
-    return dirtyFields
+    return dirtyFields;
   }
 
-  const nextDirty = new Set(
-    Array.from(dirtyFields).filter((path) => !isPathUnderRoot(path, arrayPath))
-  )
+  const nextDirty = new Set(Array.from(dirtyFields).filter((path) => !isPathUnderRoot(path, arrayPath)));
 
-  const loopLength = Math.max(newItems.length, initialItems.length)
+  const loopLength = Math.max(newItems.length, initialItems.length);
   for (let i = 0; i < loopLength; i++) {
-    const itemPath = `${arrayPath}[${i}]`
-    const newItem = newItems[i]
-    const initialItem = initialItems[i]
+    const itemPath = `${arrayPath}[${i}]`;
+    const newItem = newItems[i];
+    const initialItem = initialItems[i];
 
-    if (newItem === initialItem) continue
+    if (newItem === initialItem) continue;
 
     if (!Equal.equals(newItem, initialItem)) {
-      nextDirty.add(itemPath)
+      nextDirty.add(itemPath);
     }
   }
 
   if (newItems.length !== initialItems.length) {
-    nextDirty.add(arrayPath)
+    nextDirty.add(arrayPath);
   } else {
-    nextDirty.delete(arrayPath)
+    nextDirty.delete(arrayPath);
   }
 
-  return nextDirty
-}
+  return nextDirty;
+};
 
 export const recalculateDirtySubtree = (
   currentDirty: ReadonlySet<string>,
@@ -45,60 +43,60 @@ export const recalculateDirtySubtree = (
   allValues: unknown,
   rootPath = ""
 ): ReadonlySet<string> => {
-  const targetValue = rootPath !== "" ? getNestedValue(allValues, rootPath) : allValues
-  const targetInitial = rootPath !== "" ? getNestedValue(allInitial, rootPath) : allInitial
+  const targetValue = rootPath !== "" ? getNestedValue(allValues, rootPath) : allValues;
+  const targetInitial = rootPath !== "" ? getNestedValue(allInitial, rootPath) : allInitial;
 
   if (targetValue === targetInitial) {
     if (rootPath === "") {
-      return new Set()
+      return new Set();
     }
 
-    let changed = false
-    const nextDirty = new Set(currentDirty)
+    let changed = false;
+    const nextDirty = new Set(currentDirty);
     for (const path of currentDirty) {
       if (isPathUnderRoot(path, rootPath)) {
-        nextDirty.delete(path)
-        changed = true
+        nextDirty.delete(path);
+        changed = true;
       }
     }
-    return changed ? nextDirty : currentDirty
+    return changed ? nextDirty : currentDirty;
   }
 
-  const nextDirty = new Set(currentDirty)
+  const nextDirty = new Set(currentDirty);
 
   if (rootPath === "") {
-    nextDirty.clear()
+    nextDirty.clear();
   } else {
     for (const path of nextDirty) {
       if (isPathUnderRoot(path, rootPath)) {
-        nextDirty.delete(path)
+        nextDirty.delete(path);
       }
     }
   }
 
   const recurse = (current: unknown, initial: unknown, path: string): void => {
-    if (current === initial) return
+    if (current === initial) return;
 
     if (Array.isArray(current)) {
-      const initialArr = (initial ?? []) as ReadonlyArray<unknown>
+      const initialArr = (initial ?? []) as ReadonlyArray<unknown>;
       for (let i = 0; i < Math.max(current.length, initialArr.length); i++) {
-        recurse(current[i], initialArr[i], path !== "" ? `${path}[${i}]` : `[${i}]`)
+        recurse(current[i], initialArr[i], path !== "" ? `${path}[${i}]` : `[${i}]`);
       }
     } else if (current !== null && typeof current === "object") {
-      const initialObj = (initial ?? {}) as Record<string, unknown>
+      const initialObj = (initial ?? {}) as Record<string, unknown>;
       for (const key in current as object) {
-        recurse((current as Record<string, unknown>)[key], initialObj[key], path !== "" ? `${path}.${key}` : key)
+        recurse((current as Record<string, unknown>)[key], initialObj[key], path !== "" ? `${path}.${key}` : key);
       }
       for (const key in initialObj) {
         if (!(key in (current as object))) {
-          recurse(undefined, initialObj[key], path !== "" ? `${path}.${key}` : key)
+          recurse(undefined, initialObj[key], path !== "" ? `${path}.${key}` : key);
         }
       }
     } else {
-      if (!Equal.equals(current, initial) && path !== "") nextDirty.add(path)
+      if (!Equal.equals(current, initial) && path !== "") nextDirty.add(path);
     }
-  }
+  };
 
-  recurse(targetValue, targetInitial, rootPath)
-  return nextDirty
-}
+  recurse(targetValue, targetInitial, rootPath);
+  return nextDirty;
+};

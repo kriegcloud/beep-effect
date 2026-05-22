@@ -1,9 +1,9 @@
 import { extractFirstError, routeErrors, routeErrorsWithSource } from "@beep/form/core/Validation";
-import * as Effect from "../helpers/EffectCompat.ts";
-import * as S from "../helpers/SchemaCompat.ts";
 import * as O from "effect/Option";
 import * as SchemaIssue from "effect/SchemaIssue";
 import { describe, expect, it } from "vitest";
+import * as Effect from "../helpers/EffectCompat.ts";
+import * as S from "../helpers/SchemaCompat.ts";
 
 describe("Validation", () => {
   describe("extractFirstError", () => {
@@ -27,7 +27,7 @@ describe("Validation", () => {
     it("returns first error when multiple errors exist", () => {
       const schema = S.Struct({
         name: S.String.check(S.isMinLength(3, { message: "Name too short" })),
-        email: S.String.check(S.isPattern(/@/, { message:  "Invalid email" })),
+        email: S.String.check(S.isPattern(/@/, { message: "Invalid email" })),
       });
       const result = S.decodeUnknownResult(schema)({ name: "AB", email: "invalid" });
 
@@ -309,9 +309,7 @@ describe("Validation", () => {
         })
       );
 
-      const result = await Effect.runPromise(
-        S.decodeUnknown(schema)({ type: "a", value: "ab" }).pipe(Effect.either)
-      );
+      const result = await Effect.runPromise(S.decodeUnknown(schema)({ type: "a", value: "ab" }).pipe(Effect.either));
 
       if (result._tag === "Right") {
         throw new Error("Expected Left");
@@ -391,9 +389,7 @@ describe("Validation", () => {
         })
       );
 
-      const result = await Effect.runPromise(
-        S.decodeUnknown(schema)({ a: "same", b: "same" }).pipe(Effect.either)
-      );
+      const result = await Effect.runPromise(S.decodeUnknown(schema)({ a: "same", b: "same" }).pipe(Effect.either));
 
       if (result._tag === "Right") {
         throw new Error("Expected Left");
@@ -475,10 +471,7 @@ describe("Validation", () => {
     it("prefers refinement errors when field and refinement target the same path", () => {
       const struct = S.Struct({ age: S.Number });
 
-      const fieldIssue = new SchemaIssue.Pointer(
-        ["age"],
-        new SchemaIssue.InvalidType(S.Number.ast, O.some("x"))
-      );
+      const fieldIssue = new SchemaIssue.Pointer(["age"], new SchemaIssue.InvalidType(S.Number.ast, O.some("x")));
       const refinementInner = new SchemaIssue.Pointer(
         ["age"],
         new SchemaIssue.InvalidValue(O.some({ age: "x" }), { message: "Refinement error" })

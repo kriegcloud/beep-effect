@@ -37,12 +37,17 @@
   },
   "exports": {
     ".": "./src/index.ts",
-    "./*": "./src/*.ts",
+    "./core": "./src/core.ts",
+    "./core/internal/*": null,
+    "./core/*": "./src/core/*.ts",
     "./internal/*": null,
+    "./react": "./src/react.ts",
+    "./react/FormReact": "./src/react/FormReact.tsx",
     "./package.json": "./package.json"
   },
   "files": [
     "src/**/*.ts",
+    "src/**/*.tsx",
     "dist/**/*.js",
     "dist/**/*.js.map",
     "dist/**/*.d.ts",
@@ -53,21 +58,34 @@
     "access": "public",
     "provenance": true,
     "exports": {
-      ".": "./dist/index.ts",
-      "./*": "./dist/*.js",
+      ".": "./dist/index.js",
+      "./core": "./dist/core.js",
+      "./core/internal/*": null,
+      "./core/*": "./dist/core/*.js",
       "./internal/*": null,
+      "./react": "./dist/react.js",
+      "./react/FormReact": "./dist/react/FormReact.js",
       "./package.json": "./package.json"
     }
   },
   "dependencies": {
+    "@beep/types": "workspace:^",
     "@effect/atom-react": "catalog:",
-    "effect": "catalog:",
-    "@beep/utils": "workspace:^",
-    "@beep/schema": "workspace:^"
+    "effect": "catalog:"
   },
   "devDependencies": {
     "@effect/vitest": "catalog:",
+    "@testing-library/dom": "^10.4.1",
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^16.3.2",
+    "@testing-library/user-event": "^14.6.1",
     "@types/node": "catalog:",
-    "@beep/types": "workspace:^"
+    "@types/react": "catalog:",
+    "@types/react-dom": "catalog:",
+    "jsdom": "^29.1.1"
+  },
+  "peerDependencies": {
+    "react": "^19",
+    "react-dom": "^19"
   }
 }

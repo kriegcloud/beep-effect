@@ -62,7 +62,7 @@ const getIssueMessage = (issue: SchemaIssue.Issue): string | undefined => {
 };
 
 export const extractFirstError = (error: S.SchemaError): O.Option<string> => {
-  const issues = SchemaIssue.makeFormatterStandardSchemaV1()(error.issue).issues
+  const issues = SchemaIssue.makeFormatterStandardSchemaV1()(error.issue).issues;
   if (issues.length === 0) {
     return O.none();
   }
@@ -71,7 +71,7 @@ export const extractFirstError = (error: S.SchemaError): O.Option<string> => {
 
 export const routeErrors = (error: S.SchemaError): Map<string, string> => {
   const result = new Map<string, string>();
-  const issues = SchemaIssue.makeFormatterStandardSchemaV1()(error.issue).issues
+  const issues = SchemaIssue.makeFormatterStandardSchemaV1()(error.issue).issues;
 
   for (const issue of issues) {
     const fieldPath = schemaPathToFieldPath(issue.path);

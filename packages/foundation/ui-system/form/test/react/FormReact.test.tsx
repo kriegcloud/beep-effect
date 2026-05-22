@@ -688,9 +688,7 @@ describe("FormReact.make", () => {
       const user = userEvent.setup();
       const submitHandler = vi.fn();
 
-      const AsyncEmail = S.String.pipe(
-        S.filterEffect(() => Effect.succeed(true).pipe(Effect.delay("10 millis")))
-      );
+      const AsyncEmail = S.String.pipe(S.filterEffect(() => Effect.succeed(true).pipe(Effect.delay("10 millis"))));
 
       const EmailField = Field.makeField("email", AsyncEmail);
       const formBuilder = FormBuilder.empty.addField(EmailField);
@@ -722,9 +720,7 @@ describe("FormReact.make", () => {
     it("exposes isValidating state during async validation", async () => {
       const user = userEvent.setup();
 
-      const AsyncField = S.String.pipe(
-        S.filterEffect(() => Effect.succeed(true).pipe(Effect.delay("100 millis")))
-      );
+      const AsyncField = S.String.pipe(S.filterEffect(() => Effect.succeed(true).pipe(Effect.delay("100 millis"))));
 
       const ValidatingInput: FormReact.FieldComponent<string> = ({ field }) => (
         <div>
@@ -2687,10 +2683,7 @@ describe("FormReact.make", () => {
 
   describe("validate", () => {
     it("shows field errors immediately with validateOnInit + invalid defaults", async () => {
-      const NameField = Field.makeField(
-        "name",
-        S.String.pipe(S.minLength(5, { message: () => "Too short" }))
-      );
+      const NameField = Field.makeField("name", S.String.pipe(S.minLength(5, { message: () => "Too short" })));
       const formBuilder = FormBuilder.empty.addField(NameField);
 
       const form = FormReact.make(formBuilder, {
@@ -2718,10 +2711,7 @@ describe("FormReact.make", () => {
     });
 
     it("shows no errors with validateOnInit + valid defaults", async () => {
-      const NameField = Field.makeField(
-        "name",
-        S.String.pipe(S.minLength(5, { message: () => "Too short" }))
-      );
+      const NameField = Field.makeField("name", S.String.pipe(S.minLength(5, { message: () => "Too short" })));
       const formBuilder = FormBuilder.empty.addField(NameField);
 
       const form = FormReact.make(formBuilder, {
@@ -2797,10 +2787,7 @@ describe("FormReact.make", () => {
     it("errors clear when user fixes the field in onChange mode", async () => {
       const user = userEvent.setup();
 
-      const NameField = Field.makeField(
-        "name",
-        S.String.pipe(S.minLength(5, { message: () => "Too short" }))
-      );
+      const NameField = Field.makeField("name", S.String.pipe(S.minLength(5, { message: () => "Too short" })));
       const formBuilder = FormBuilder.empty.addField(NameField);
 
       const form = FormReact.make(formBuilder, {
@@ -2828,10 +2815,7 @@ describe("FormReact.make", () => {
     });
 
     it("reset clears validate errors and validationCount", async () => {
-      const NameField = Field.makeField(
-        "name",
-        S.String.pipe(S.minLength(5, { message: () => "Too short" }))
-      );
+      const NameField = Field.makeField("name", S.String.pipe(S.minLength(5, { message: () => "Too short" })));
       const formBuilder = FormBuilder.empty.addField(NameField);
 
       const form = FormReact.make(formBuilder, {
@@ -2874,10 +2858,7 @@ describe("FormReact.make", () => {
     });
 
     it("does not re-validate when KeepAlive preserves state", async () => {
-      const NameField = Field.makeField(
-        "name",
-        S.String.pipe(S.minLength(5, { message: () => "Too short" }))
-      );
+      const NameField = Field.makeField("name", S.String.pipe(S.minLength(5, { message: () => "Too short" })));
       const formBuilder = FormBuilder.empty.addField(NameField);
 
       const form = FormReact.make(formBuilder, {
@@ -2931,10 +2912,7 @@ describe("FormReact.make", () => {
     it("works with onSubmit mode", async () => {
       const user = userEvent.setup();
 
-      const NameField = Field.makeField(
-        "name",
-        S.String.pipe(S.minLength(5, { message: () => "Too short" }))
-      );
+      const NameField = Field.makeField("name", S.String.pipe(S.minLength(5, { message: () => "Too short" })));
       const formBuilder = FormBuilder.empty.addField(NameField);
 
       const form = FormReact.make(formBuilder, {
@@ -2962,10 +2940,7 @@ describe("FormReact.make", () => {
     });
 
     it("imperative validate shows errors after programmatic setValues", async () => {
-      const NameField = Field.makeField(
-        "name",
-        S.String.pipe(S.minLength(5, { message: () => "Too short" }))
-      );
+      const NameField = Field.makeField("name", S.String.pipe(S.minLength(5, { message: () => "Too short" })));
       const formBuilder = FormBuilder.empty.addField(NameField);
 
       const form = FormReact.make(formBuilder, {
@@ -3009,10 +2984,7 @@ describe("FormReact.make", () => {
     });
 
     it("imperative validate clears previous errors when values are now valid", async () => {
-      const NameField = Field.makeField(
-        "name",
-        S.String.pipe(S.minLength(5, { message: () => "Too short" }))
-      );
+      const NameField = Field.makeField("name", S.String.pipe(S.minLength(5, { message: () => "Too short" })));
       const formBuilder = FormBuilder.empty.addField(NameField);
 
       const form = FormReact.make(formBuilder, {
@@ -3058,10 +3030,7 @@ describe("FormReact.make", () => {
     });
 
     it("calling validate multiple times reflects latest state each time", async () => {
-      const NameField = Field.makeField(
-        "name",
-        S.String.pipe(S.minLength(5, { message: () => "Too short" }))
-      );
+      const NameField = Field.makeField("name", S.String.pipe(S.minLength(5, { message: () => "Too short" })));
       const formBuilder = FormBuilder.empty.addField(NameField);
 
       const form = FormReact.make(formBuilder, {
@@ -3139,10 +3108,7 @@ describe("FormReact.make", () => {
     it("validate does not interfere with submitCount", async () => {
       const user = userEvent.setup();
 
-      const NameField = Field.makeField(
-        "name",
-        S.String.pipe(S.minLength(5, { message: () => "Too short" }))
-      );
+      const NameField = Field.makeField("name", S.String.pipe(S.minLength(5, { message: () => "Too short" })));
       const formBuilder = FormBuilder.empty.addField(NameField);
 
       const form = FormReact.make(formBuilder, {
@@ -3262,14 +3228,8 @@ describe("FormReact.make", () => {
         </div>
       );
 
-      const NameField = Field.makeField(
-        "name",
-        S.String.pipe(S.minLength(5, { message: () => "Name too short" }))
-      );
-      const EmailField = Field.makeField(
-        "email",
-        S.String.pipe(S.minLength(5, { message: () => "Email too short" }))
-      );
+      const NameField = Field.makeField("name", S.String.pipe(S.minLength(5, { message: () => "Name too short" })));
+      const EmailField = Field.makeField("email", S.String.pipe(S.minLength(5, { message: () => "Email too short" })));
       const formBuilder = FormBuilder.empty.addField(NameField).addField(EmailField);
 
       const form = FormReact.make(formBuilder, {
@@ -3310,10 +3270,7 @@ describe("FormReact.make", () => {
     it("works in onBlur mode", async () => {
       const user = userEvent.setup();
 
-      const NameField = Field.makeField(
-        "name",
-        S.String.pipe(S.minLength(5, { message: () => "Too short" }))
-      );
+      const NameField = Field.makeField("name", S.String.pipe(S.minLength(5, { message: () => "Too short" })));
       const formBuilder = FormBuilder.empty.addField(NameField);
 
       const form = FormReact.make(formBuilder, {
@@ -3356,10 +3313,7 @@ describe("FormReact.make", () => {
     });
 
     it("works in onChange mode", async () => {
-      const NameField = Field.makeField(
-        "name",
-        S.String.check(S.isMinLength(5, { message:  "Too short" }))
-      );
+      const NameField = Field.makeField("name", S.String.check(S.isMinLength(5, { message: "Too short" })));
       const formBuilder = FormBuilder.empty.addField(NameField);
 
       const form = FormReact.make(formBuilder, {
@@ -3406,10 +3360,7 @@ describe("FormReact.make", () => {
     });
 
     it("reset clears per-field validation state", async () => {
-      const NameField = Field.makeField(
-        "name",
-        S.String.check(S.isMinLength(5, { message:  "Too short" }))
-      );
+      const NameField = Field.makeField("name", S.String.check(S.isMinLength(5, { message: "Too short" })));
       const formBuilder = FormBuilder.empty.addField(NameField);
 
       const form = FormReact.make(formBuilder, {
@@ -3454,10 +3405,7 @@ describe("FormReact.make", () => {
     });
 
     it("per-field validate works after reset", async () => {
-      const NameField = Field.makeField(
-        "name",
-        S.String.check(S.isMinLength(5, { message:  "Too short" }))
-      );
+      const NameField = Field.makeField("name", S.String.check(S.isMinLength(5, { message: "Too short" })));
       const formBuilder = FormBuilder.empty.addField(NameField);
 
       const form = FormReact.make(formBuilder, {
@@ -3508,10 +3456,7 @@ describe("FormReact.make", () => {
     });
 
     it("does not affect form-level validationCount or submitCount", async () => {
-      const NameField = Field.makeField(
-        "name",
-        S.String.check(S.isMinLength(5, { message:  "Too short" }))
-      );
+      const NameField = Field.makeField("name", S.String.check(S.isMinLength(5, { message: "Too short" })));
       const formBuilder = FormBuilder.empty.addField(NameField);
 
       const form = FormReact.make(formBuilder, {
@@ -3587,18 +3532,9 @@ describe("FormReact.make", () => {
         </div>
       );
 
-      const NameField = Field.makeField(
-        "name",
-        S.String.check(S.isMinLength(5, { message:  "Name too short" }))
-      );
-      const EmailField = Field.makeField(
-        "email",
-        S.String.check(S.isMinLength(5, { message:  "Email too short" }))
-      );
-      const AgeField = Field.makeField(
-        "age",
-        S.String.pipe(S.minLength(2, { message: () => "Age too short" }))
-      );
+      const NameField = Field.makeField("name", S.String.check(S.isMinLength(5, { message: "Name too short" })));
+      const EmailField = Field.makeField("email", S.String.check(S.isMinLength(5, { message: "Email too short" })));
+      const AgeField = Field.makeField("age", S.String.pipe(S.minLength(2, { message: () => "Age too short" })));
       const formBuilder = FormBuilder.empty.addField(NameField).addField(EmailField).addField(AgeField);
 
       const form = FormReact.make(formBuilder, {

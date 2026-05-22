@@ -2,14 +2,14 @@ import * as Field from "@beep/form/core/Field";
 import * as FormAtoms from "@beep/form/core/FormAtoms";
 import * as FormBuilder from "@beep/form/core/FormBuilder";
 import { isPathOrParentDirty } from "@beep/form/core/Path";
-import * as Context from "../helpers/ContextCompat.ts";
-import * as Effect from "../helpers/EffectCompat.ts";
 import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
-import * as S from "../helpers/SchemaCompat.ts";
 import * as Atom from "effect/unstable/reactivity/Atom";
 import * as Registry from "effect/unstable/reactivity/AtomRegistry";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import * as Context from "../helpers/ContextCompat.ts";
+import * as Effect from "../helpers/EffectCompat.ts";
+import * as S from "../helpers/SchemaCompat.ts";
 
 const makeTestForm = () => {
   const NameField = Field.makeField("name", S.String);
@@ -1462,10 +1462,7 @@ describe("FormAtoms", () => {
   describe("submitAtom", () => {
     it("does not set lastSubmittedValues on validation failure", async () => {
       const runtime = Atom.runtime(Layer.empty);
-      const EmailField = Field.makeField(
-        "email",
-        S.String.check(S.isNonEmpty({ message: "Email is required" }))
-      );
+      const EmailField = Field.makeField("email", S.String.check(S.isNonEmpty({ message: "Email is required" })));
       const form = FormBuilder.empty.addField(EmailField);
       const onSubmit = vi.fn();
       const atoms = FormAtoms.make({ runtime, formBuilder: form, onSubmit });
@@ -1490,10 +1487,7 @@ describe("FormAtoms", () => {
 
     it("sets lastSubmittedValues with encoded and decoded on successful validation", async () => {
       const runtime = Atom.runtime(Layer.empty);
-      const EmailField = Field.makeField(
-        "email",
-        S.String.check(S.isNonEmpty({ message: "Email is required" }))
-      );
+      const EmailField = Field.makeField("email", S.String.check(S.isNonEmpty({ message: "Email is required" })));
       const form = FormBuilder.empty.addField(EmailField);
       const onSubmit = vi.fn();
       const atoms = FormAtoms.make({ runtime, formBuilder: form, onSubmit });
@@ -1522,18 +1516,9 @@ describe("FormAtoms", () => {
 
     it("collects all validation errors on submit, not just the first", async () => {
       const runtime = Atom.runtime(Layer.empty);
-      const NameField = Field.makeField(
-        "name",
-        S.String.check(S.isNonEmpty({ message: "Name is required" }))
-      );
-      const EmailField = Field.makeField(
-        "email",
-        S.String.check(S.isNonEmpty({ message: "Email is required" }))
-      );
-      const AgeField = Field.makeField(
-        "age",
-        S.String.check(S.isNonEmpty({ message: "Age is required" }))
-      );
+      const NameField = Field.makeField("name", S.String.check(S.isNonEmpty({ message: "Name is required" })));
+      const EmailField = Field.makeField("email", S.String.check(S.isNonEmpty({ message: "Email is required" })));
+      const AgeField = Field.makeField("age", S.String.check(S.isNonEmpty({ message: "Age is required" })));
       const form = FormBuilder.empty.addField(NameField).addField(EmailField).addField(AgeField);
       const onSubmit = vi.fn();
       const atoms = FormAtoms.make({ runtime, formBuilder: form, onSubmit });
@@ -1558,10 +1543,7 @@ describe("FormAtoms", () => {
 
     it("preserves previous lastSubmittedValues when subsequent submit fails", async () => {
       const runtime = Atom.runtime(Layer.empty);
-      const EmailField = Field.makeField(
-        "email",
-        S.String.check(S.isNonEmpty({ message: "Email is required" }))
-      );
+      const EmailField = Field.makeField("email", S.String.check(S.isNonEmpty({ message: "Email is required" })));
       const form = FormBuilder.empty.addField(EmailField);
       const onSubmit = vi.fn();
       const atoms = FormAtoms.make({ runtime, formBuilder: form, onSubmit });
@@ -1664,10 +1646,7 @@ describe("FormAtoms", () => {
 
     it("returns live per-field error when validation fails", () => {
       const runtime = Atom.runtime(Layer.empty);
-      const NameField = Field.makeField(
-        "name",
-        S.String.check(S.isNonEmpty({ message: "Name is required" }))
-      );
+      const NameField = Field.makeField("name", S.String.check(S.isNonEmpty({ message: "Name is required" })));
       const EmailField = Field.makeField("email", S.String);
       const form = FormBuilder.empty.addField(NameField).addField(EmailField);
       const atoms = FormAtoms.make({
@@ -1723,10 +1702,7 @@ describe("FormAtoms", () => {
 
     it("surfaces filterEffect errors from field schemas", () => {
       const runtime = Atom.runtime(Layer.empty);
-      const NameField = Field.makeField(
-        "name",
-        S.String.pipe(S.filterEffect(() => Effect.succeed("Name is invalid")))
-      );
+      const NameField = Field.makeField("name", S.String.pipe(S.filterEffect(() => Effect.succeed("Name is invalid"))));
       const form = FormBuilder.empty.addField(NameField);
       const atoms = FormAtoms.make({
         runtime,
@@ -1872,10 +1848,7 @@ describe("FormAtoms", () => {
 
     it("only shows error after submitCount > 0 in onSubmit mode", () => {
       const runtime = Atom.runtime(Layer.empty);
-      const NameField = Field.makeField(
-        "name",
-        S.String.check(S.isNonEmpty({ message: "Name is required" }))
-      );
+      const NameField = Field.makeField("name", S.String.check(S.isNonEmpty({ message: "Name is required" })));
       const EmailField = Field.makeField("email", S.String);
       const form = FormBuilder.empty.addField(NameField).addField(EmailField);
       const atoms = FormAtoms.make({
@@ -1904,10 +1877,7 @@ describe("FormAtoms", () => {
 
     it("shows error when isTouched in onBlur mode", () => {
       const runtime = Atom.runtime(Layer.empty);
-      const NameField = Field.makeField(
-        "name",
-        S.String.check(S.isNonEmpty({ message: "Name is required" }))
-      );
+      const NameField = Field.makeField("name", S.String.check(S.isNonEmpty({ message: "Name is required" })));
       const EmailField = Field.makeField("email", S.String);
       const form = FormBuilder.empty.addField(NameField).addField(EmailField);
       const atoms = FormAtoms.make({ runtime, formBuilder: form, onSubmit: () => {}, mode: { validation: "onBlur" } });
@@ -1934,10 +1904,7 @@ describe("FormAtoms", () => {
 
     it("shows error when isDirty in onChange mode", () => {
       const runtime = Atom.runtime(Layer.empty);
-      const NameField = Field.makeField(
-        "name",
-        S.String.check(S.isNonEmpty({ message: "Name is required" }))
-      );
+      const NameField = Field.makeField("name", S.String.check(S.isNonEmpty({ message: "Name is required" })));
       const EmailField = Field.makeField("email", S.String);
       const form = FormBuilder.empty.addField(NameField).addField(EmailField);
       const atoms = FormAtoms.make({
@@ -1969,10 +1936,7 @@ describe("FormAtoms", () => {
 
     it("does not show error when not dirty and submitCount is 0 in onChange mode", () => {
       const runtime = Atom.runtime(Layer.empty);
-      const NameField = Field.makeField(
-        "name",
-        S.String.check(S.isNonEmpty({ message: "Name is required" }))
-      );
+      const NameField = Field.makeField("name", S.String.check(S.isNonEmpty({ message: "Name is required" })));
       const EmailField = Field.makeField("email", S.String);
       const form = FormBuilder.empty.addField(NameField).addField(EmailField);
       const atoms = FormAtoms.make({

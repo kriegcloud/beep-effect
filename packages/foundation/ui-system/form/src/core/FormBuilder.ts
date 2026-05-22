@@ -172,7 +172,11 @@ const normalizeFilterIssue = (entry: FormFilterIssue): S.FilterIssue =>
   isLegacyFilterIssue(entry) ? { path: entry.path, issue: entry.message } : entry;
 
 const normalizeFilterOutput = (output: FormFilterOutput): S.FilterOutput =>
-  isFilterIssueArray(output) ? output.map(normalizeFilterIssue) : output === undefined || typeof output === "boolean" ? output : normalizeFilterIssue(output);
+  isFilterIssueArray(output)
+    ? output.map(normalizeFilterIssue)
+    : output === undefined || typeof output === "boolean"
+      ? output
+      : normalizeFilterIssue(output);
 
 const makeFilterIssue = (input: unknown, entry: FormFilterIssue): SchemaIssue.Issue => {
   const normalizedEntry = normalizeFilterIssue(entry);
@@ -189,9 +193,14 @@ const makeFilterIssue = (input: unknown, entry: FormFilterIssue): SchemaIssue.Is
   return new SchemaIssue.Pointer(normalizedEntry.path, inner);
 };
 
-const isFilterIssueArray = (output: FormFilterOutput): output is ReadonlyArray<FormFilterIssue> => Array.isArray(output);
+const isFilterIssueArray = (output: FormFilterOutput): output is ReadonlyArray<FormFilterIssue> =>
+  Array.isArray(output);
 
-const makeFilterOutputIssue = (input: unknown, ast: AST.AST, output: FormFilterOutput): SchemaIssue.Issue | undefined => {
+const makeFilterOutputIssue = (
+  input: unknown,
+  ast: AST.AST,
+  output: FormFilterOutput
+): SchemaIssue.Issue | undefined => {
   if (output === undefined) {
     return undefined;
   }
@@ -213,7 +222,6 @@ const makeFilterOutputIssue = (input: unknown, ast: AST.AST, output: FormFilterO
 };
 
 export const isFormBuilder = (u: unknown): u is FormBuilder<FieldsRecord, unknown> => P.hasProperty(u, TypeId);
-
 
 export const empty: FormBuilder<{}, never> = (() => {
   const self = Object.create(FormBuilderProto);

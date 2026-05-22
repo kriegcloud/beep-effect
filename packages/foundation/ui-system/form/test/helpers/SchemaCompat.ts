@@ -6,9 +6,9 @@ import * as Exit from "effect/Exit";
 import * as O from "effect/Option";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
+import type * as AST from "effect/SchemaAST";
 import * as SchemaGetter from "effect/SchemaGetter";
 import * as SchemaIssue from "effect/SchemaIssue";
-import type * as AST from "effect/SchemaAST";
 
 type LegacyAnnotations = Omit<S.Annotations.Filter, "message"> & {
   readonly message?: string | (() => string) | undefined;
@@ -67,7 +67,11 @@ const makeFilterIssue = (input: unknown, entry: CompatFilterIssue): SchemaIssue.
   return new SchemaIssue.Pointer(normalizedEntry.path, inner);
 };
 
-const makeFilterOutputIssue = (input: unknown, ast: AST.AST, output: CompatFilterOutput): SchemaIssue.Issue | undefined => {
+const makeFilterOutputIssue = (
+  input: unknown,
+  ast: AST.AST,
+  output: CompatFilterOutput
+): SchemaIssue.Issue | undefined => {
   if (output === undefined) {
     return undefined;
   }
@@ -88,23 +92,25 @@ const makeFilterOutputIssue = (input: unknown, ast: AST.AST, output: CompatFilte
   return makeFilterIssue(input, output);
 };
 
-export const minLength = (length: number, annotations?: LegacyAnnotations | undefined) =>
+export const minLength =
+  (length: number, annotations?: LegacyAnnotations | undefined) =>
   <Schema extends S.Top>(schema: Schema): Schema =>
     schema.check(S.isMinLength(length, normalizeAnnotations(annotations)) as never) as Schema;
 
-export const pattern = (regex: RegExp, annotations?: LegacyAnnotations | undefined) =>
+export const pattern =
+  (regex: RegExp, annotations?: LegacyAnnotations | undefined) =>
   <Schema extends S.Top>(schema: Schema): Schema =>
     schema.check(S.isPattern(regex, normalizeAnnotations(annotations)) as never) as Schema;
 
-export const filter = <Source extends S.Top>(predicate: (value: S.Schema.Type<Source>) => CompatFilterOutput) =>
+export const filter =
+  <Source extends S.Top>(predicate: (value: S.Schema.Type<Source>) => CompatFilterOutput) =>
   (schema: Source): Source =>
     schema.check(S.makeFilter((value) => normalizeFilterOutput(predicate(value as S.Schema.Type<Source>)))) as Source;
 
-export const filterEffect = <Source extends S.Top, R>(
-  predicate: (value: S.Schema.Type<Source>) => Effect.Effect<CompatFilterOutput, never, R>
-) =>
+export const filterEffect =
+  <Source extends S.Top, R>(predicate: (value: S.Schema.Type<Source>) => Effect.Effect<CompatFilterOutput, never, R>) =>
   (schema: Source): Source =>
-    (schema.pipe(
+    schema.pipe(
       S.decode({
         decode: SchemaGetter.transformOrFail((value) =>
           predicate(value as S.Schema.Type<Source>).pipe(
@@ -116,7 +122,7 @@ export const filterEffect = <Source extends S.Top, R>(
         ),
         encode: SchemaGetter.passthrough(),
       })
-    ) as unknown) as Source;
+    ) as unknown as Source;
 
 export function Union<const Members extends ReadonlyArray<S.Top>>(members: Members): S.Union<Members>;
 export function Union<const Members extends ReadonlyArray<S.Top>>(...members: Members): S.Union<Members>;
@@ -125,13 +131,17 @@ export function Union(...args: ReadonlyArray<S.Top | ReadonlyArray<S.Top>>): S.U
   return S.Union(members as ReadonlyArray<S.Top>);
 }
 
-export const decodeUnknownResult = <Schema extends S.Decoder<unknown>>(schema: Schema, options?: AST.ParseOptions) =>
+export const decodeUnknownResult =
+  <Schema extends S.Decoder<unknown>>(schema: Schema, options?: AST.ParseOptions) =>
   (input: unknown, parseOptions?: AST.ParseOptions): Result.Result<S.Schema.Type<Schema>, S.SchemaError> => {
     const result = S.decodeUnknownResult(schema, options)(input, parseOptions);
-    return Result.isSuccess(result) ? Result.succeed(result.success as S.Schema.Type<Schema>) : Result.fail(new S.SchemaError(result.failure));
+    return Result.isSuccess(result)
+      ? Result.succeed(result.success as S.Schema.Type<Schema>)
+      : Result.fail(new S.SchemaError(result.failure));
   };
 
-export const decodeUnknownEither = <Schema extends S.Decoder<unknown>>(schema: Schema, options?: AST.ParseOptions) =>
+export const decodeUnknownEither =
+  <Schema extends S.Decoder<unknown>>(schema: Schema, options?: AST.ParseOptions) =>
   (input: unknown, parseOptions?: AST.ParseOptions): Either<S.SchemaError, S.Schema.Type<Schema>> => {
     const exit = S.decodeUnknownExit(schema, options)(input, parseOptions);
     if (Exit.isSuccess(exit)) {
