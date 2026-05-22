@@ -265,7 +265,7 @@
     "@phosphor-icons/react": "^2.1.10",
     "@pulumi/github": "^6.14.0",
     "@pulumi/aws": "^7.30.0",
-    "@pulumi/cloudflare": "^6.16.0",
+    "@pulumi/cloudflare": "^6.17.0",
     "@pulumi/kubernetes": "^4.31.1",
     "@pulumi/std": "^2.3.2",
     "@pulumi/tls": "^5.5.0",

@@ -21,8 +21,8 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | packagesWithoutPublicExports | 1 |
 | missingWorkspaceMetadata | 0 |
 | importSpecifiers | 1001 |
-| publicExportEntries | 14756 |
-| uniquePackageSymbols | 5489 |
+| publicExportEntries | 14773 |
+| uniquePackageSymbols | 5491 |
 
 ## Seed Discovery Proof
 
@@ -89,7 +89,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | 50 | `@beep/workspace-tables` | `packages/workspace/tables` | has-public-exports | 4 | 7 | 5 |
 | 51 | `@beep/db-admin` | `packages/_internal/db-admin` | has-public-exports | 5 | 15 | 6 |
 | 52 | `@beep/architecture-lab-client` | `packages/architecture-lab/client` | has-public-exports | 2 | 6 | 6 |
-| 53 | `@beep/repo-cli` | `packages/tooling/tool/cli` | has-public-exports | 130 | 1444 | 525 |
+| 53 | `@beep/repo-cli` | `packages/tooling/tool/cli` | has-public-exports | 130 | 1461 | 527 |
 | 54 | `@beep/shared-server` | `packages/shared/server` | has-public-exports | 2 | 2 | 1 |
 | 55 | `@beep/shared-config` | `packages/shared/config` | has-public-exports | 2 | 2 | 1 |
 | 56 | `@beep/sandbox` | `packages/foundation/capability/sandbox` | has-public-exports | 30 | 786 | 238 |
@@ -11169,8 +11169,8 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli` | `lawsCommand` | const | `packages/tooling/tool/cli/src/commands/Laws/Laws.command.ts:435` | Laws command group. |
 | `@beep/repo-cli` | `lintCommand` | const | `packages/tooling/tool/cli/src/commands/Lint/Lint.command.ts:608` | Lint command group. |
 | `@beep/repo-cli` | `purgeCommand` | const | `packages/tooling/tool/cli/src/commands/Purge/Purge.command.ts:250` | CLI command to purge workspace/root build artifacts. |
-| `@beep/repo-cli` | `qualityCommand` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:1704` | Quality command group for repo operational checks. |
-| `@beep/repo-cli` | `reuseCommand` | const | `packages/tooling/tool/cli/src/commands/Reuse/Reuse.command.ts:460` | Reuse-discovery command group. |
+| `@beep/repo-cli` | `qualityCommand` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:1726` | Quality command group for repo operational checks. |
+| `@beep/repo-cli` | `reuseCommand` | const | `packages/tooling/tool/cli/src/commands/Reuse/Reuse.command.ts:545` | Reuse-discovery command group. |
 | `@beep/repo-cli` | `rootCommand` | const | `packages/tooling/tool/cli/src/commands/Root.ts:45` | Top-level CLI command that registers all subcommands. |
 | `@beep/repo-cli` | `syncDataToTsCommand` | const | `packages/tooling/tool/cli/src/commands/SyncDataToTs/SyncDataToTs.command.ts:475` | CLI command for syncing official upstream datasets into checked-in TypeScript modules. |
 | `@beep/repo-cli` | `topoSortCommand` | const | `packages/tooling/tool/cli/src/commands/TopoSort/TopoSort.command.ts:32` | CLI command that builds the workspace dependency graph and prints package names |
@@ -12038,8 +12038,8 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/commands/Graphiti/internal/ProxyServices` | `ProxyQueueStats` | class | `packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyServices.ts:129` | Queue and processing counters for proxy introspection. |
 | `@beep/repo-cli/commands/Image` | `decodeExtractFramesDirOptions` | const | `packages/tooling/tool/cli/src/commands/Image/Image.schemas.ts:258` | Decode unknown directory frame extraction options. |
 | `@beep/repo-cli/commands/Image` | `decodeExtractFramesOptions` | const | `packages/tooling/tool/cli/src/commands/Image/Image.schemas.ts:250` | Decode unknown single-video frame extraction options. |
-| `@beep/repo-cli/commands/Image` | `extractFrames` | const | `packages/tooling/tool/cli/src/commands/Image/Image.service.ts:284` | Extract PNG frames from a single video. |
-| `@beep/repo-cli/commands/Image` | `extractFramesDir` | const | `packages/tooling/tool/cli/src/commands/Image/Image.service.ts:299` | Extract PNG frames from every direct video in a directory. |
+| `@beep/repo-cli/commands/Image` | `extractFrames` | const | `packages/tooling/tool/cli/src/commands/Image/Image.service.ts:308` | Extract PNG frames from a single video. |
+| `@beep/repo-cli/commands/Image` | `extractFramesDir` | const | `packages/tooling/tool/cli/src/commands/Image/Image.service.ts:323` | Extract PNG frames from every direct video in a directory. |
 | `@beep/repo-cli/commands/Image` | `ExtractFramesDirFailure` | class | `packages/tooling/tool/cli/src/commands/Image/Image.schemas.ts:182` | Failed video from a folder-based frame extraction run. |
 | `@beep/repo-cli/commands/Image` | `ExtractFramesDirOptions` | class | `packages/tooling/tool/cli/src/commands/Image/Image.schemas.ts:79` | Options accepted by `image extract-frames-dir`. |
 | `@beep/repo-cli/commands/Image` | `ExtractFramesDirOutcome` | const | `packages/tooling/tool/cli/src/commands/Image/Image.schemas.ts:200` | Ordered outcome for one `image extract-frames-dir` input video. |
@@ -12051,7 +12051,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/commands/Image` | `imageCommand` | const | `packages/tooling/tool/cli/src/commands/Image/Image.command.ts:147` | Image and video curation command group. |
 | `@beep/repo-cli/commands/Image` | `ImageCommandError` | class | `packages/tooling/tool/cli/src/commands/Image/Image.errors.ts:26` | Error raised by image curation commands. |
 | `@beep/repo-cli/commands/Image` | `ImageCommandService` | class | `packages/tooling/tool/cli/src/commands/Image/Image.service.ts:73` | Service tag for image and video curation operations. |
-| `@beep/repo-cli/commands/Image` | `ImageCommandServiceLive` | const | `packages/tooling/tool/cli/src/commands/Image/Image.service.ts:273` | Live service layer for image and video curation operations. |
+| `@beep/repo-cli/commands/Image` | `ImageCommandServiceLive` | const | `packages/tooling/tool/cli/src/commands/Image/Image.service.ts:297` | Live service layer for image and video curation operations. |
 | `@beep/repo-cli/commands/Image` | `ImageCommandServiceShape` | interface | `packages/tooling/tool/cli/src/commands/Image/Image.service.ts:47` | Service contract for image and video curation commands. |
 | `@beep/repo-cli/commands/Image/Image.command` | `imageCommand` | const | `packages/tooling/tool/cli/src/commands/Image/Image.command.ts:147` | Image and video curation command group. |
 | `@beep/repo-cli/commands/Image/Image.errors` | `ImageCommandError` | class | `packages/tooling/tool/cli/src/commands/Image/Image.errors.ts:26` | Error raised by image curation commands. |
@@ -12077,15 +12077,15 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/commands/Image/Image.schemas` | `ExtractFramesDirSuccess` | class | `packages/tooling/tool/cli/src/commands/Image/Image.schemas.ts:152` | Successful video from a folder-based frame extraction run. |
 | `@beep/repo-cli/commands/Image/Image.schemas` | `ExtractFramesDirVideo` | class | `packages/tooling/tool/cli/src/commands/Image/Image.schemas.ts:115` | Direct video selected by `image extract-frames-dir`. |
 | `@beep/repo-cli/commands/Image/Image.schemas` | `ExtractFramesOptions` | class | `packages/tooling/tool/cli/src/commands/Image/Image.schemas.ts:37` | Options accepted by `image extract-frames`. |
-| `@beep/repo-cli/commands/Image/Image.service` | `extractFrames` | const | `packages/tooling/tool/cli/src/commands/Image/Image.service.ts:284` | Extract PNG frames from a single video. |
-| `@beep/repo-cli/commands/Image/Image.service` | `extractFramesDir` | const | `packages/tooling/tool/cli/src/commands/Image/Image.service.ts:299` | Extract PNG frames from every direct video in a directory. |
+| `@beep/repo-cli/commands/Image/Image.service` | `extractFrames` | const | `packages/tooling/tool/cli/src/commands/Image/Image.service.ts:308` | Extract PNG frames from a single video. |
+| `@beep/repo-cli/commands/Image/Image.service` | `extractFramesDir` | const | `packages/tooling/tool/cli/src/commands/Image/Image.service.ts:323` | Extract PNG frames from every direct video in a directory. |
 | `@beep/repo-cli/commands/Image/Image.service` | `ImageCommandService` | class | `packages/tooling/tool/cli/src/commands/Image/Image.service.ts:73` | Service tag for image and video curation operations. |
-| `@beep/repo-cli/commands/Image/Image.service` | `ImageCommandServiceLive` | const | `packages/tooling/tool/cli/src/commands/Image/Image.service.ts:273` | Live service layer for image and video curation operations. |
+| `@beep/repo-cli/commands/Image/Image.service` | `ImageCommandServiceLive` | const | `packages/tooling/tool/cli/src/commands/Image/Image.service.ts:297` | Live service layer for image and video curation operations. |
 | `@beep/repo-cli/commands/Image/Image.service` | `ImageCommandServiceShape` | interface | `packages/tooling/tool/cli/src/commands/Image/Image.service.ts:47` | Service contract for image and video curation commands. |
 | `@beep/repo-cli/commands/Image/index` | `decodeExtractFramesDirOptions` | const | `packages/tooling/tool/cli/src/commands/Image/Image.schemas.ts:258` | Decode unknown directory frame extraction options. |
 | `@beep/repo-cli/commands/Image/index` | `decodeExtractFramesOptions` | const | `packages/tooling/tool/cli/src/commands/Image/Image.schemas.ts:250` | Decode unknown single-video frame extraction options. |
-| `@beep/repo-cli/commands/Image/index` | `extractFrames` | const | `packages/tooling/tool/cli/src/commands/Image/Image.service.ts:284` | Extract PNG frames from a single video. |
-| `@beep/repo-cli/commands/Image/index` | `extractFramesDir` | const | `packages/tooling/tool/cli/src/commands/Image/Image.service.ts:299` | Extract PNG frames from every direct video in a directory. |
+| `@beep/repo-cli/commands/Image/index` | `extractFrames` | const | `packages/tooling/tool/cli/src/commands/Image/Image.service.ts:308` | Extract PNG frames from a single video. |
+| `@beep/repo-cli/commands/Image/index` | `extractFramesDir` | const | `packages/tooling/tool/cli/src/commands/Image/Image.service.ts:323` | Extract PNG frames from every direct video in a directory. |
 | `@beep/repo-cli/commands/Image/index` | `ExtractFramesDirFailure` | class | `packages/tooling/tool/cli/src/commands/Image/Image.schemas.ts:182` | Failed video from a folder-based frame extraction run. |
 | `@beep/repo-cli/commands/Image/index` | `ExtractFramesDirOptions` | class | `packages/tooling/tool/cli/src/commands/Image/Image.schemas.ts:79` | Options accepted by `image extract-frames-dir`. |
 | `@beep/repo-cli/commands/Image/index` | `ExtractFramesDirOutcome` | const | `packages/tooling/tool/cli/src/commands/Image/Image.schemas.ts:200` | Ordered outcome for one `image extract-frames-dir` input video. |
@@ -12097,7 +12097,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/commands/Image/index` | `imageCommand` | const | `packages/tooling/tool/cli/src/commands/Image/Image.command.ts:147` | Image and video curation command group. |
 | `@beep/repo-cli/commands/Image/index` | `ImageCommandError` | class | `packages/tooling/tool/cli/src/commands/Image/Image.errors.ts:26` | Error raised by image curation commands. |
 | `@beep/repo-cli/commands/Image/index` | `ImageCommandService` | class | `packages/tooling/tool/cli/src/commands/Image/Image.service.ts:73` | Service tag for image and video curation operations. |
-| `@beep/repo-cli/commands/Image/index` | `ImageCommandServiceLive` | const | `packages/tooling/tool/cli/src/commands/Image/Image.service.ts:273` | Live service layer for image and video curation operations. |
+| `@beep/repo-cli/commands/Image/index` | `ImageCommandServiceLive` | const | `packages/tooling/tool/cli/src/commands/Image/Image.service.ts:297` | Live service layer for image and video curation operations. |
 | `@beep/repo-cli/commands/Image/index` | `ImageCommandServiceShape` | interface | `packages/tooling/tool/cli/src/commands/Image/Image.service.ts:47` | Service contract for image and video curation commands. |
 | `@beep/repo-cli/commands/Laws` | `lawsCommand` | const | `packages/tooling/tool/cli/src/commands/Laws/Laws.command.ts:435` | Laws command group. |
 | `@beep/repo-cli/commands/Laws/AllowlistCheck` | `ALLOWLIST_PATH` | const | `packages/tooling/tool/cli/src/commands/Laws/AllowlistCheck.ts:33` | Relative path to the effect laws allowlist. |
@@ -12147,8 +12147,8 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/commands/Purge/Purge.command` | `purgeAtRoot` | const | `packages/tooling/tool/cli/src/commands/Purge/Purge.command.ts:193` | Purge root/workspace artifacts under a specific root directory. |
 | `@beep/repo-cli/commands/Purge/Purge.command` | `purgeCommand` | const | `packages/tooling/tool/cli/src/commands/Purge/Purge.command.ts:250` | CLI command to purge workspace/root build artifacts. |
 | `@beep/repo-cli/commands/Purge/Purge.command` | `PurgeSummary` | class | `packages/tooling/tool/cli/src/commands/Purge/Purge.command.ts:128` | Summary statistics returned after a purge run. |
-| `@beep/repo-cli/commands/Quality` | `qualityCommand` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:1704` | Quality command group for repo operational checks. |
-| `@beep/repo-cli/commands/Quality` | `QualityScriptCommandError` | class | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:151` | Typed failure for repo operational commands. |
+| `@beep/repo-cli/commands/Quality` | `qualityCommand` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:1726` | Quality command group for repo operational checks. |
+| `@beep/repo-cli/commands/Quality` | `QualityScriptCommandError` | class | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:155` | Typed failure for repo operational commands. |
 | `@beep/repo-cli/commands/Quality/ChangesetGraph` | `ChangesetGraphError` | class | `packages/tooling/tool/cli/src/commands/Quality/ChangesetGraph.ts:120` | Failure raised while validating changeset package references. |
 | `@beep/repo-cli/commands/Quality/ChangesetGraph` | `ChangesetGraphPackageReference` | class | `packages/tooling/tool/cli/src/commands/Quality/ChangesetGraph.ts:63` | A package name referenced by a changeset file. |
 | `@beep/repo-cli/commands/Quality/ChangesetGraph` | `ChangesetGraphSummary` | class | `packages/tooling/tool/cli/src/commands/Quality/ChangesetGraph.ts:93` | Summary emitted by the changeset package graph guard. |
@@ -12156,24 +12156,25 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/commands/Quality/ChangesetGraph` | `findMissingChangesetPackageReferences` | const | `packages/tooling/tool/cli/src/commands/Quality/ChangesetGraph.ts:467` | Find changeset package references that are not in the workspace graph. |
 | `@beep/repo-cli/commands/Quality/ChangesetGraph` | `makeChangesetGraphSummary` | const | `packages/tooling/tool/cli/src/commands/Quality/ChangesetGraph.ts:514` | Build a changeset graph summary from already-collected inputs. |
 | `@beep/repo-cli/commands/Quality/ChangesetGraph` | `runChangesetGraphCheck` | const | `packages/tooling/tool/cli/src/commands/Quality/ChangesetGraph.ts:529` | Run the non-mutating changeset package graph guard. |
-| `@beep/repo-cli/commands/Quality/index` | `qualityCommand` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:1704` | Quality command group for repo operational checks. |
-| `@beep/repo-cli/commands/Quality/index` | `QualityScriptCommandError` | class | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:151` | Typed failure for repo operational commands. |
+| `@beep/repo-cli/commands/Quality/index` | `qualityCommand` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:1726` | Quality command group for repo operational checks. |
+| `@beep/repo-cli/commands/Quality/index` | `QualityScriptCommandError` | class | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:155` | Typed failure for repo operational commands. |
 | `@beep/repo-cli/commands/Quality/internal/Config` | `configStringEqualsSync` | const | `packages/tooling/tool/cli/src/commands/Quality/internal/Config.ts:35` | Check whether an optional string config value equals the expected value. |
 | `@beep/repo-cli/commands/Quality/internal/Config` | `configStringOption` | const | `packages/tooling/tool/cli/src/commands/Quality/internal/Config.ts:54` | Read an optional string config value inside an Effect workflow. |
 | `@beep/repo-cli/commands/Quality/internal/Config` | `configStringOptionSync` | const | `packages/tooling/tool/cli/src/commands/Quality/internal/Config.ts:22` | Synchronously read an optional string config value. |
-| `@beep/repo-cli/commands/Quality/Quality.command` | `GithubCheckMode` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:121` | GitHub check mode handled by `beep quality github-checks`. |
-| `@beep/repo-cli/commands/Quality/Quality.command` | `GithubCheckMode` | type | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:138` | GitHub check mode handled by `beep quality github-checks`. |
-| `@beep/repo-cli/commands/Quality/Quality.command` | `qualityCommand` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:1704` | Quality command group for repo operational checks. |
-| `@beep/repo-cli/commands/Quality/Quality.command` | `QualityScriptCommandError` | class | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:151` | Typed failure for repo operational commands. |
-| `@beep/repo-cli/commands/Quality/Quality.command` | `runBunAudit` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:354` | Run Bun's high-severity package audit with OSV ignores mirrored from config. |
-| `@beep/repo-cli/commands/Quality/Quality.command` | `runDtslintTsgoChecks` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:1238` | Run repo-wide tsgo diagnostics for dtslint files. |
-| `@beep/repo-cli/commands/Quality/Quality.command` | `runGithubChecks` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:621` | Run a GitHub checks mode from the repository root. |
-| `@beep/repo-cli/commands/Quality/Quality.command` | `runJSDocInventory` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:1571` | Run the JSDoc inventory generator now owned by repo-cli. |
-| `@beep/repo-cli/commands/Quality/Quality.command` | `runJSDocModuleTagsCheck` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:1491` | Verify tracked fileoverview comments do not use the legacy `@module` tag. |
-| `@beep/repo-cli/commands/Quality/Quality.command` | `runRepoExportsCatalog` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:1596` | Run the repo export catalog generator now owned by repo-cli. |
-| `@beep/repo-cli/commands/Quality/Quality.command` | `runTestTsgoChecks` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:1286` | Run repo-wide Effect diagnostics for test files. |
-| `@beep/repo-cli/commands/Quality/Quality.command` | `runTsgoRulesCheck` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:1025` | Check that the root tsgo Effect diagnostics configuration enables every installed rule as an error. |
-| `@beep/repo-cli/commands/Quality/Quality.command` | `runTsgoSmokeCheck` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:1381` | Verify that tsgo reports the Effect diagnostic expected by this repo. |
+| `@beep/repo-cli/commands/Quality/Quality.command` | `collectEffectTsgoDiagnosticLines` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:903` | Collect Effect tsgo diagnostics from command output regardless of process exit code. |
+| `@beep/repo-cli/commands/Quality/Quality.command` | `GithubCheckMode` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:125` | GitHub check mode handled by `beep quality github-checks`. |
+| `@beep/repo-cli/commands/Quality/Quality.command` | `GithubCheckMode` | type | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:142` | GitHub check mode handled by `beep quality github-checks`. |
+| `@beep/repo-cli/commands/Quality/Quality.command` | `qualityCommand` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:1726` | Quality command group for repo operational checks. |
+| `@beep/repo-cli/commands/Quality/Quality.command` | `QualityScriptCommandError` | class | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:155` | Typed failure for repo operational commands. |
+| `@beep/repo-cli/commands/Quality/Quality.command` | `runBunAudit` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:358` | Run Bun's high-severity package audit with OSV ignores mirrored from config. |
+| `@beep/repo-cli/commands/Quality/Quality.command` | `runDtslintTsgoChecks` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:1265` | Run repo-wide tsgo diagnostics for dtslint files. |
+| `@beep/repo-cli/commands/Quality/Quality.command` | `runGithubChecks` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:625` | Run a GitHub checks mode from the repository root. |
+| `@beep/repo-cli/commands/Quality/Quality.command` | `runJSDocInventory` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:1593` | Run the JSDoc inventory generator now owned by repo-cli. |
+| `@beep/repo-cli/commands/Quality/Quality.command` | `runJSDocModuleTagsCheck` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:1513` | Verify tracked fileoverview comments do not use the legacy `@module` tag. |
+| `@beep/repo-cli/commands/Quality/Quality.command` | `runRepoExportsCatalog` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:1618` | Run the repo export catalog generator now owned by repo-cli. |
+| `@beep/repo-cli/commands/Quality/Quality.command` | `runTestTsgoChecks` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:1313` | Run repo-wide Effect diagnostics for test files. |
+| `@beep/repo-cli/commands/Quality/Quality.command` | `runTsgoRulesCheck` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:1052` | Check that the root tsgo Effect diagnostics configuration enables every installed rule as an error. |
+| `@beep/repo-cli/commands/Quality/Quality.command` | `runTsgoSmokeCheck` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:1403` | Verify that tsgo reports the Effect diagnostic expected by this repo. |
 | `@beep/repo-cli/commands/Quality/Tasks` | `collectStepOutput` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:1304` | Run a subprocess and capture all output. Exposed for focused unit tests. |
 | `@beep/repo-cli/commands/Quality/Tasks` | `PackageTaskProfile` | class | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:82` | Package-local script profile used by the quality task adapter. |
 | `@beep/repo-cli/commands/Quality/Tasks` | `parseQualityTaskInvocation` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:1198` | Parse a raw argv vector into a quality task invocation when the first token is |
@@ -12192,14 +12193,17 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/commands/Quality/Tasks` | `sqlIntegrationConnectionUriFromEnvForTesting` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:938` | Resolve the SQL integration database connection URI from environment variables. |
 | `@beep/repo-cli/commands/Quality/Tasks` | `sqlIntegrationStepForTesting` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:915` | Build the SQL integration test subprocess step. Exposed for focused unit tests. |
 | `@beep/repo-cli/commands/Quality/Tasks` | `UnexpectedQualityTaskFailure` | class | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:253` | Error raised when an unexpected quality task cause reaches the command boundary. |
-| `@beep/repo-cli/commands/Reuse` | `reuseCommand` | const | `packages/tooling/tool/cli/src/commands/Reuse/Reuse.command.ts:460` | Reuse-discovery command group. |
-| `@beep/repo-cli/commands/Reuse/index` | `reuseCommand` | const | `packages/tooling/tool/cli/src/commands/Reuse/Reuse.command.ts:460` | Reuse-discovery command group. |
+| `@beep/repo-cli/commands/Reuse` | `reuseCommand` | const | `packages/tooling/tool/cli/src/commands/Reuse/Reuse.command.ts:545` | Reuse-discovery command group. |
+| `@beep/repo-cli/commands/Reuse` | `sanitizeTerminalText` | const | `packages/tooling/tool/cli/src/commands/Reuse/Reuse.command.ts:137` | Remove terminal control sequences from human-readable reuse output. |
+| `@beep/repo-cli/commands/Reuse/index` | `reuseCommand` | const | `packages/tooling/tool/cli/src/commands/Reuse/Reuse.command.ts:545` | Reuse-discovery command group. |
+| `@beep/repo-cli/commands/Reuse/index` | `sanitizeTerminalText` | const | `packages/tooling/tool/cli/src/commands/Reuse/Reuse.command.ts:137` | Remove terminal control sequences from human-readable reuse output. |
 | `@beep/repo-cli/commands/Reuse/internal/CodexRunner` | `CodexRunnerError` | class | `packages/tooling/tool/cli/src/commands/Reuse/internal/CodexRunner.ts:64` | Structured error emitted when the Codex SDK smoke path fails. |
 | `@beep/repo-cli/commands/Reuse/internal/CodexRunner` | `CodexRunnerStage` | const | `packages/tooling/tool/cli/src/commands/Reuse/internal/CodexRunner.ts:23` | Lifecycle stages surfaced by the Codex smoke runner. |
 | `@beep/repo-cli/commands/Reuse/internal/CodexRunner` | `CodexRunnerStage` | type | `packages/tooling/tool/cli/src/commands/Reuse/internal/CodexRunner.ts:37` | Runtime type for `CodexRunnerStage`. |
 | `@beep/repo-cli/commands/Reuse/internal/CodexRunner` | `CodexSmokeResult` | class | `packages/tooling/tool/cli/src/commands/Reuse/internal/CodexRunner.ts:45` | Structured result for `beep reuse codex-smoke`. |
 | `@beep/repo-cli/commands/Reuse/internal/CodexRunner` | `runCodexSmoke` | const | `packages/tooling/tool/cli/src/commands/Reuse/internal/CodexRunner.ts:83` | Validate the local Codex SDK adapter without running a reuse loop. |
-| `@beep/repo-cli/commands/Reuse/Reuse.command` | `reuseCommand` | const | `packages/tooling/tool/cli/src/commands/Reuse/Reuse.command.ts:460` | Reuse-discovery command group. |
+| `@beep/repo-cli/commands/Reuse/Reuse.command` | `reuseCommand` | const | `packages/tooling/tool/cli/src/commands/Reuse/Reuse.command.ts:545` | Reuse-discovery command group. |
+| `@beep/repo-cli/commands/Reuse/Reuse.command` | `sanitizeTerminalText` | const | `packages/tooling/tool/cli/src/commands/Reuse/Reuse.command.ts:137` | Remove terminal control sequences from human-readable reuse output. |
 | `@beep/repo-cli/commands/Root` | `rootCommand` | const | `packages/tooling/tool/cli/src/commands/Root.ts:45` | Top-level CLI command that registers all subcommands. |
 | `@beep/repo-cli/commands/SyncDataToTs` | `syncDataToTsCommand` | const | `packages/tooling/tool/cli/src/commands/SyncDataToTs/SyncDataToTs.command.ts:475` | CLI command for syncing official upstream datasets into checked-in TypeScript modules. |
 | `@beep/repo-cli/commands/SyncDataToTs/index` | `syncDataToTsCommand` | const | `packages/tooling/tool/cli/src/commands/SyncDataToTs/SyncDataToTs.command.ts:475` | CLI command for syncing official upstream datasets into checked-in TypeScript modules. |
@@ -12511,13 +12515,16 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/test/Quality` | `ChangesetGraphPackageReference` | class | `packages/tooling/tool/cli/src/commands/Quality/ChangesetGraph.ts:63` | A package name referenced by a changeset file. |
 | `@beep/repo-cli/test/Quality` | `ChangesetGraphSummary` | class | `packages/tooling/tool/cli/src/commands/Quality/ChangesetGraph.ts:93` | Summary emitted by the changeset package graph guard. |
 | `@beep/repo-cli/test/Quality` | `changesetPackageReferencesFromText` | const | `packages/tooling/tool/cli/src/commands/Quality/ChangesetGraph.ts:352` | Parse package references from one changeset Markdown document. |
+| `@beep/repo-cli/test/Quality` | `collectEffectTsgoDiagnosticLines` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:903` | Collect Effect tsgo diagnostics from command output regardless of process exit code. |
 | `@beep/repo-cli/test/Quality` | `collectStepOutput` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:1304` | Run a subprocess and capture all output. Exposed for focused unit tests. |
 | `@beep/repo-cli/test/Quality` | `findMissingChangesetPackageReferences` | const | `packages/tooling/tool/cli/src/commands/Quality/ChangesetGraph.ts:467` | Find changeset package references that are not in the workspace graph. |
+| `@beep/repo-cli/test/Quality` | `GithubCheckMode` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:125` | GitHub check mode handled by `beep quality github-checks`. |
+| `@beep/repo-cli/test/Quality` | `GithubCheckMode` | type | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:142` | GitHub check mode handled by `beep quality github-checks`. |
 | `@beep/repo-cli/test/Quality` | `makeChangesetGraphSummary` | const | `packages/tooling/tool/cli/src/commands/Quality/ChangesetGraph.ts:514` | Build a changeset graph summary from already-collected inputs. |
 | `@beep/repo-cli/test/Quality` | `PackageTaskProfile` | class | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:82` | Package-local script profile used by the quality task adapter. |
 | `@beep/repo-cli/test/Quality` | `parseQualityTaskInvocation` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:1198` | Parse a raw argv vector into a quality task invocation when the first token is |
-| `@beep/repo-cli/test/Quality` | `qualityCommand` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:1704` | Quality command group for repo operational checks. |
-| `@beep/repo-cli/test/Quality` | `QualityScriptCommandError` | class | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:151` | Typed failure for repo operational commands. |
+| `@beep/repo-cli/test/Quality` | `qualityCommand` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:1726` | Quality command group for repo operational checks. |
+| `@beep/repo-cli/test/Quality` | `QualityScriptCommandError` | class | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:155` | Typed failure for repo operational commands. |
 | `@beep/repo-cli/test/Quality` | `QualityTaskConfigurationError` | class | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:228` | Error raised when a quality task cannot resolve its required configuration. |
 | `@beep/repo-cli/test/Quality` | `QualityTaskFailed` | class | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:164` | Error raised when a quality task subprocess exits unsuccessfully. |
 | `@beep/repo-cli/test/Quality` | `QualityTaskGroupFailed` | class | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:200` | Error raised when a bounded quality task group completes with failed steps. |
@@ -12526,11 +12533,20 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/test/Quality` | `QualityTaskName` | type | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:65` | Canonical quality task name. |
 | `@beep/repo-cli/test/Quality` | `QualityTaskStep` | class | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:109` | Planned subprocess invocation. |
 | `@beep/repo-cli/test/Quality` | `rootQualityStepsForTesting` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:1095` | Build root quality task subprocess steps. Exposed for focused unit tests. |
+| `@beep/repo-cli/test/Quality` | `runBunAudit` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:358` | Run Bun's high-severity package audit with OSV ignores mirrored from config. |
 | `@beep/repo-cli/test/Quality` | `runChangesetGraphCheck` | const | `packages/tooling/tool/cli/src/commands/Quality/ChangesetGraph.ts:529` | Run the non-mutating changeset package graph guard. |
+| `@beep/repo-cli/test/Quality` | `runDtslintTsgoChecks` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:1265` | Run repo-wide tsgo diagnostics for dtslint files. |
+| `@beep/repo-cli/test/Quality` | `runGithubChecks` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:625` | Run a GitHub checks mode from the repository root. |
+| `@beep/repo-cli/test/Quality` | `runJSDocInventory` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:1593` | Run the JSDoc inventory generator now owned by repo-cli. |
+| `@beep/repo-cli/test/Quality` | `runJSDocModuleTagsCheck` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:1513` | Verify tracked fileoverview comments do not use the legacy `@module` tag. |
 | `@beep/repo-cli/test/Quality` | `runQualityTask` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:1242` | Run a parsed quality task in either repo-root or package-local mode. |
 | `@beep/repo-cli/test/Quality` | `runQualityTaskIfRequested` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:1272` | Run a quality task directly from a raw argv vector. |
 | `@beep/repo-cli/test/Quality` | `runQualityTaskStepGroupForTesting` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:1316` | Run a bounded quality task group. Exposed for focused unit tests. |
+| `@beep/repo-cli/test/Quality` | `runRepoExportsCatalog` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:1618` | Run the repo export catalog generator now owned by repo-cli. |
 | `@beep/repo-cli/test/Quality` | `runSqlIntegrationTestLaneForTesting` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:929` | Run the SQL integration lane with an injected resource and child command. |
+| `@beep/repo-cli/test/Quality` | `runTestTsgoChecks` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:1313` | Run repo-wide Effect diagnostics for test files. |
+| `@beep/repo-cli/test/Quality` | `runTsgoRulesCheck` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:1052` | Check that the root tsgo Effect diagnostics configuration enables every installed rule as an error. |
+| `@beep/repo-cli/test/Quality` | `runTsgoSmokeCheck` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:1403` | Verify that tsgo reports the Effect diagnostic expected by this repo. |
 | `@beep/repo-cli/test/Quality` | `sqlIntegrationConnectionUriFromEnvForTesting` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:938` | Resolve the SQL integration database connection URI from environment variables. |
 | `@beep/repo-cli/test/Quality` | `sqlIntegrationStepForTesting` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:915` | Build the SQL integration test subprocess step. Exposed for focused unit tests. |
 | `@beep/repo-cli/test/Quality` | `UnexpectedQualityTaskFailure` | class | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:253` | Error raised when an unexpected quality task cause reaches the command boundary. |
@@ -12538,8 +12554,9 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/test/Reuse` | `CodexRunnerStage` | const | `packages/tooling/tool/cli/src/commands/Reuse/internal/CodexRunner.ts:23` | Lifecycle stages surfaced by the Codex smoke runner. |
 | `@beep/repo-cli/test/Reuse` | `CodexRunnerStage` | type | `packages/tooling/tool/cli/src/commands/Reuse/internal/CodexRunner.ts:37` | Runtime type for `CodexRunnerStage`. |
 | `@beep/repo-cli/test/Reuse` | `CodexSmokeResult` | class | `packages/tooling/tool/cli/src/commands/Reuse/internal/CodexRunner.ts:45` | Structured result for `beep reuse codex-smoke`. |
-| `@beep/repo-cli/test/Reuse` | `reuseCommand` | const | `packages/tooling/tool/cli/src/commands/Reuse/Reuse.command.ts:460` | Reuse-discovery command group. |
+| `@beep/repo-cli/test/Reuse` | `reuseCommand` | const | `packages/tooling/tool/cli/src/commands/Reuse/Reuse.command.ts:545` | Reuse-discovery command group. |
 | `@beep/repo-cli/test/Reuse` | `runCodexSmoke` | const | `packages/tooling/tool/cli/src/commands/Reuse/internal/CodexRunner.ts:83` | Validate the local Codex SDK adapter without running a reuse loop. |
+| `@beep/repo-cli/test/Reuse` | `sanitizeTerminalText` | const | `packages/tooling/tool/cli/src/commands/Reuse/Reuse.command.ts:137` | Remove terminal control sequences from human-readable reuse output. |
 | `@beep/repo-cli/test/SyncDataToTs` | `ISO4217_SOURCE_URL` | const | `packages/tooling/tool/cli/src/commands/SyncDataToTs/targets/Iso4217.ts:27` | Official SIX XML source for ISO 4217 List One. |
 | `@beep/repo-cli/test/SyncDataToTs` | `iso4217Target` | const | `packages/tooling/tool/cli/src/commands/SyncDataToTs/targets/Iso4217.ts:281` | Checked-in sync target for the official SIX ISO 4217 List One XML feed. |
 | `@beep/repo-cli/test/SyncDataToTs` | `SyncDataRunMode` | const | `packages/tooling/tool/cli/src/commands/SyncDataToTs/internal/Models.ts:46` | Command execution mode for sync-data-to-ts. |

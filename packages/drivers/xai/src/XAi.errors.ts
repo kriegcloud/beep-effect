@@ -211,7 +211,7 @@ const causeFromUnknown = (cause: unknown): O.Option<string> =>
  */
 export class XAiErrorOptions extends S.Class<XAiErrorOptions>($I`XAiErrorOptions`)(
   {
-    cause: S.optionalKey(S.Unknown),
+    cause: S.optionalKey(S.DefectWithStack),
     status: S.optionalKey(S.Number),
   },
   $I.annote("XAiErrorOptions", {

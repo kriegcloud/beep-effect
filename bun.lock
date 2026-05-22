@@ -1546,7 +1546,7 @@
     "@pigment-css/react": "^0.0.31",
     "@pigment-css/vite-plugin": "^0.0.31",
     "@pulumi/aws": "^7.30.0",
-    "@pulumi/cloudflare": "^6.16.0",
+    "@pulumi/cloudflare": "^6.17.0",
     "@pulumi/command": "^1.2.1",
     "@pulumi/github": "^6.14.0",
     "@pulumi/kubernetes": "^4.31.1",
@@ -3556,7 +3556,7 @@
 
     "@pulumi/aws": ["@pulumi/aws@7.30.0", "", { "dependencies": { "@pulumi/pulumi": "^3.142.0", "mime": "^2.0.0" } }, "sha512-R1CnPcGD/ECRj/JZw2N+MLKwhKkm0C8aF+S5arBXf1j85qb+67lg+E2skgR2GtAIj6PJ1Qy8usEx+4ZlVeit7Q=="],
 
-    "@pulumi/cloudflare": ["@pulumi/cloudflare@6.16.0", "", { "dependencies": { "@pulumi/pulumi": "^3.142.0" } }, "sha512-7uYkUSAqlN1NZWlDUQ4jG6GzAuaqhEBh4mitOoa0aU5LwswT/vW49K+uKNJIgK6IIC/qFU89JYrGnaIPJMpf5g=="],
+    "@pulumi/cloudflare": ["@pulumi/cloudflare@6.17.0", "", { "dependencies": { "@pulumi/pulumi": "^3.142.0" } }, "sha512-sIL1rfjNavy+yZQ/OjyFHD4owe2E/TpHLFCVsogQJOC+Y6Bj7JxrhoTfsJdxVEXEFBGlNCu68T+g9im8iEZM9A=="],
 
     "@pulumi/command": ["@pulumi/command@1.2.1", "", { "dependencies": { "@pulumi/pulumi": "^3.142.0" } }, "sha512-mutNDIUYP67yCBYOVIidQyxuTwZDY9v/sx9EGbgIv4PXfyfolOKGgGLeoHEbI1lxRwaw2wbTZ3VNIynDnA5VKA=="],
 

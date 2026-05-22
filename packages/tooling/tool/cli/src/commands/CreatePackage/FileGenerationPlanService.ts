@@ -579,9 +579,8 @@ export const createFileGenerationPlanService = (): FileGenerationPlanServiceShap
     const writeFileIfChanged = (absolutePath: string, content: string) =>
       ensureDirectoryFor(absolutePath).pipe(
         Effect.andThen(() => readIfExists(absolutePath)),
-        Effect.andThen((existingContent: O.Option<string>) =>
-          pipe(
-            existingContent,
+        Effect.andThen(
+          flow(
             O.filter(stringEquivalence(content)),
             O.map(() => countSkippedFileWrite),
             O.getOrElse(() => writeFile(absolutePath, content))

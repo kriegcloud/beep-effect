@@ -120,6 +120,20 @@ const skipCsiSequence = (input: string, cursor: number): number => {
   return cursor < input.length && isCsiFinalCode(input.charCodeAt(cursor)) ? cursor + 1 : cursor;
 };
 
+/**
+ * Remove terminal control sequences from human-readable reuse output.
+ *
+ * @param input - Terminal text that may contain control sequences.
+ * @returns Text with terminal control sequences and control characters removed.
+ * @example
+ * ```ts
+ * import { sanitizeTerminalText } from "@beep/repo-cli/commands/Reuse"
+ * const text = sanitizeTerminalText("\u001b[31munsafe\u001b[0m")
+ * console.log(text)
+ * ```
+ * @category utilities
+ * @since 0.0.0
+ */
 export const sanitizeTerminalText = (input: string): string => {
   let output = "";
   let cursor = 0;

@@ -9,7 +9,7 @@ import { $RepoCliId } from "@beep/identity/packages";
 import { findRepoRoot, jsonStringifyPretty } from "@beep/repo-utils";
 import { LiteralKit, TaggedErrorClass } from "@beep/schema";
 import { A, Str, thunkFalse } from "@beep/utils";
-import { Console, Effect, FileSystem, Match, Order, Path, pipe, Runtime, Stream } from "effect";
+import { Console, Effect, FileSystem, flow, Match, Order, Path, pipe, Runtime, Stream } from "effect";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as R from "effect/Record";
@@ -900,10 +900,9 @@ const runTestTsgoPackageGroup = Effect.fn("QualityScriptCommands.runTestTsgoPack
  * @category utilities
  * @since 0.0.0
  */
-export const collectEffectTsgoDiagnosticLines = (results: ReadonlyArray<TsgoDiagnosticOutput>): ReadonlyArray<string> =>
-  pipe(
-    results,
-    A.flatMap((result) =>
+export const collectEffectTsgoDiagnosticLines: (results: ReadonlyArray<TsgoDiagnosticOutput>) => ReadonlyArray<string> =
+  flow(
+    A.flatMap((result: TsgoDiagnosticOutput) =>
       pipe(
         Str.split(result.output, "\n"),
         A.filter((line) => effectTsgoDiagnosticPattern.test(line))
