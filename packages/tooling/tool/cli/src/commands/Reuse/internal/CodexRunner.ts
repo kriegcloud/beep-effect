@@ -83,12 +83,11 @@ const causeMessage = (cause: unknown, fallback: string): string => (P.isError(ca
 export const runCodexSmoke: Effect.Effect<CodexSmokeResult, CodexRunnerError, FileSystem.FileSystem> = Effect.gen(
   function* () {
     const repoRoot = yield* findRepoRoot().pipe(
-      Effect.mapError(
-        (cause) =>
-          CodexRunnerError.make({
-            stage: "findRepoRoot",
-            message: cause.message,
-          })
+      Effect.mapError((cause) =>
+        CodexRunnerError.make({
+          stage: "findRepoRoot",
+          message: cause.message,
+        })
       )
     );
     const sdkModule = yield* Effect.tryPromise({

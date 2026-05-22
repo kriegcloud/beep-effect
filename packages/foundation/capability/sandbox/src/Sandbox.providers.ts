@@ -280,7 +280,9 @@ const createContainerProvider = (
  * @category constructors
  * @since 0.0.0
  */
-export const noSandbox = (options: NoSandboxOptions = NoSandboxOptions.make({})): NoSandboxProvider<SandboxProcess> => ({
+export const noSandbox = (
+  options: NoSandboxOptions = NoSandboxOptions.make({})
+): NoSandboxProvider<SandboxProcess> => ({
   _tag: "None",
   create: Effect.fn("NoSandboxProvider.create")(function* ({ env, worktreePath }) {
     return {

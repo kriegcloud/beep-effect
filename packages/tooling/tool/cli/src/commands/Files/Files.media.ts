@@ -922,13 +922,11 @@ export const makeStripMetadataTempEntries: {
     path: Path.Path
   ): ReadonlyArray<StripMetadataTempEntry>;
 } = dual(3, (tempDir: string, plan: ReadonlyArray<StripMetadataPlanEntry>, path: Path.Path) =>
-  A.map(
-    plan,
-    (entry, index) =>
-      StripMetadataTempEntry.make({
-        entry,
-        tempPath: path.join(tempDir, `${formatIndex(index, Str.length(`${A.length(plan)}`) + 1)}-${entry.sourceName}`),
-      })
+  A.map(plan, (entry, index) =>
+    StripMetadataTempEntry.make({
+      entry,
+      tempPath: path.join(tempDir, `${formatIndex(index, Str.length(`${A.length(plan)}`) + 1)}-${entry.sourceName}`),
+    })
   )
 );
 

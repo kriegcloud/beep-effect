@@ -109,8 +109,8 @@ const executeJson = Effect.fn("Discord.executeJson")(function* (
   const rawRequest = HttpClientRequest.make(method)(`${baseUrl}${fullPath}`);
   const request = yield* pipe(
     body === undefined ? Effect.succeed(rawRequest) : HttpClientRequest.bodyJson(rawRequest, body),
-    Effect.mapError(
-      (cause) => DiscordError.make({ cause: errorCause(cause), method, path: fullPath, reason: "request" })
+    Effect.mapError((cause) =>
+      DiscordError.make({ cause: errorCause(cause), method, path: fullPath, reason: "request" })
     ),
     Effect.map((requestWithBody) => authRequest(requestWithBody, botToken))
   );
@@ -118,15 +118,15 @@ const executeJson = Effect.fn("Discord.executeJson")(function* (
   const response = yield* client
     .execute(request)
     .pipe(
-      Effect.mapError(
-        (cause) => DiscordError.make({ cause: errorCause(cause), method, path: fullPath, reason: "transport" })
+      Effect.mapError((cause) =>
+        DiscordError.make({ cause: errorCause(cause), method, path: fullPath, reason: "transport" })
       )
     );
   const successful = yield* ensureSuccess(response, fullPath, method);
 
   return yield* successful.json.pipe(
-    Effect.mapError(
-      (cause) => DiscordError.make({ cause: errorCause(cause), method, path: fullPath, reason: "response-decoding" })
+    Effect.mapError((cause) =>
+      DiscordError.make({ cause: errorCause(cause), method, path: fullPath, reason: "response-decoding" })
     )
   );
 });

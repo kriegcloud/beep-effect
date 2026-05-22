@@ -24,12 +24,11 @@ const encodeJsonLdDocumentToJson = S.encodeEffect(S.fromJsonString(JsonLdDocumen
 
 const decodeNonNegativeInt = (value: number): Effect.Effect<NonNegativeInt, JsonLdStreamSerializeError> =>
   S.decodeUnknownEffect(NonNegativeInt)(value).pipe(
-    Effect.mapError(
-      (cause) =>
-        JsonLdStreamSerializeError.make({
-          reason: "serializeFailure",
-          message: `Failed to decode JSON-LD stream chunk count: ${String(cause)}`,
-        })
+    Effect.mapError((cause) =>
+      JsonLdStreamSerializeError.make({
+        reason: "serializeFailure",
+        message: `Failed to decode JSON-LD stream chunk count: ${String(cause)}`,
+      })
     )
   );
 
@@ -93,12 +92,11 @@ export const JsonLdStreamSerializeServiceLive = Layer.effect(
         );
 
         const documentText = yield* encodeJsonLdDocumentToJson(document.document).pipe(
-          Effect.mapError(
-            (cause) =>
-              JsonLdStreamSerializeError.make({
-                reason: "serializeFailure",
-                message: `Unable to encode bounded JSON-LD document output: ${String(cause)}`,
-              })
+          Effect.mapError((cause) =>
+            JsonLdStreamSerializeError.make({
+              reason: "serializeFailure",
+              message: `Unable to encode bounded JSON-LD document output: ${String(cause)}`,
+            })
           )
         );
         const chunks = pipe(chunkText(documentText, maxChunkCharacters), A.fromIterable);

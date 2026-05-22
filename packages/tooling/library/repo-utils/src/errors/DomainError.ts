@@ -44,13 +44,11 @@ export class DomainError extends TaggedErrorClass<DomainError>($I`DomainError`)(
   static readonly newCause: {
     (cause: unknown, message: string): DomainError;
     (message: string): (cause: unknown) => DomainError;
-  } = dual(
-    2,
-    (cause: unknown, message: string) =>
-      DomainError.make({
-        message,
-        cause,
-      })
+  } = dual(2, (cause: unknown, message: string) =>
+    DomainError.make({
+      message,
+      cause,
+    })
   );
 
   static readonly newMessage = (message: string) => DomainError.make({ message });

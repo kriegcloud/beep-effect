@@ -125,15 +125,13 @@ export class FFmpegError extends TaggedErrorClass<FFmpegError>($I`FFmpegError`)(
     (message: string, options: FFmpegErrorFromUnknownOptions): (operation: string) => FFmpegError;
   } = dual(3, (operation: string, message: string, options: FFmpegErrorFromUnknownOptions): FFmpegError => {
     const { cause, ...context } = options;
-    return O.getOrElse(
-      existingFfmpegError(cause),
-      () =>
-        FFmpegError.make({
-          ...context,
-          cause: causeFromUnknown(cause),
-          message,
-          operation,
-        })
+    return O.getOrElse(existingFfmpegError(cause), () =>
+      FFmpegError.make({
+        ...context,
+        cause: causeFromUnknown(cause),
+        message,
+        operation,
+      })
     );
   });
 }

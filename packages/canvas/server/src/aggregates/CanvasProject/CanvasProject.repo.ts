@@ -23,7 +23,9 @@ const getStoredCanvasProject = Effect.fn("Canvas.CanvasProjectRepository.getStor
   const canvasProjects = yield* Ref.get(store);
   const found = HashMap.get(canvasProjects, id);
   if (O.isNone(found)) {
-    return yield* CanvasProjectUseCaseServer.CanvasProject.CanvasProjectRepositoryNotFound.make({ canvasProjectId: id });
+    return yield* CanvasProjectUseCaseServer.CanvasProject.CanvasProjectRepositoryNotFound.make({
+      canvasProjectId: id,
+    });
   }
   return found.value;
 });

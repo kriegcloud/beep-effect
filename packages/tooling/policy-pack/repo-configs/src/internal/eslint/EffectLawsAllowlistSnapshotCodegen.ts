@@ -34,13 +34,12 @@ export const buildAllowlistSnapshotFromJsoncText = (
 ): Effect.Effect<EffectLawsAllowlistSnapshot> =>
   pipe(
     decodeAllowlistDocumentFromJsoncText(allowlistText),
-    Effect.map(
-      (document) =>
-        EffectLawsAllowlistSnapshot.make({
-          path: normalizedAllowlistPath,
-          entries: normalizeAllowlistEntries(document.entries),
-          diagnostics: EMPTY_DIAGNOSTICS,
-        })
+    Effect.map((document) =>
+      EffectLawsAllowlistSnapshot.make({
+        path: normalizedAllowlistPath,
+        entries: normalizeAllowlistEntries(document.entries),
+        diagnostics: EMPTY_DIAGNOSTICS,
+      })
     ),
     Effect.catch((error) =>
       Effect.succeed(

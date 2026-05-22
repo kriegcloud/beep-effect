@@ -307,12 +307,11 @@ const countRecords = (
 
 const decodeNonNegativeInt = (value: number, label: string): Effect.Effect<NonNegativeInt, ProvenanceServiceError> =>
   S.decodeUnknownEffect(NonNegativeInt)(value).pipe(
-    Effect.mapError(
-      (cause) =>
-        ProvenanceServiceError.make({
-          reason: "projectionLimit",
-          message: `Failed to decode non-negative ${label}: ${String(cause)}`,
-        })
+    Effect.mapError((cause) =>
+      ProvenanceServiceError.make({
+        reason: "projectionLimit",
+        message: `Failed to decode non-negative ${label}: ${String(cause)}`,
+      })
     )
   );
 

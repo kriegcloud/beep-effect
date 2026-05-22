@@ -141,9 +141,8 @@ export class GlobError extends S.TaggedErrorClass<GlobError>($I`GlobError`)(
   static readonly new: {
     (pattern: GlobError.Encoded["pattern"], cause: GlobError.Encoded["cause"]): GlobError;
     (pattern: GlobError.Encoded["pattern"]): (cause: GlobError.Encoded["cause"]) => GlobError;
-  } = dual(
-    2,
-    (pattern: GlobError.Encoded["pattern"], cause: GlobError.Encoded["cause"]) => GlobError.make({ pattern, cause })
+  } = dual(2, (pattern: GlobError.Encoded["pattern"], cause: GlobError.Encoded["cause"]) =>
+    GlobError.make({ pattern, cause })
   );
   static readonly newThunk: {
     (pattern: GlobError.Encoded["pattern"], cause: GlobError.Encoded["cause"]): () => GlobError;
@@ -221,12 +220,11 @@ function toGlobError(pattern: Pattern): (cause: unknown) => GlobError {
   return (cause: unknown): GlobError =>
     Match.value(cause).pipe(
       Match.when(S.is(GlobError), (error) => error),
-      Match.orElse(
-        (error) =>
-          GlobError.make({
-            pattern,
-            cause: S.decodeUnknownOption(S.DefectWithStack)(error),
-          })
+      Match.orElse((error) =>
+        GlobError.make({
+          pattern,
+          cause: S.decodeUnknownOption(S.DefectWithStack)(error),
+        })
       )
     );
 }

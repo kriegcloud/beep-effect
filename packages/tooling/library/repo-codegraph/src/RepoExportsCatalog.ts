@@ -136,13 +136,12 @@ const packageManifestPolicy = (
   pipe(
     manifest.beep,
     O.flatMap((beep) => beep.importPolicy),
-    O.map(
-      (policy) =>
-        RepoCodegraphPackageImportPolicy.make({
-          packageName,
-          packagePath,
-          preferredImports: policy.preferredImports,
-        })
+    O.map((policy) =>
+      RepoCodegraphPackageImportPolicy.make({
+        packageName,
+        packagePath,
+        preferredImports: policy.preferredImports,
+      })
     )
   );
 

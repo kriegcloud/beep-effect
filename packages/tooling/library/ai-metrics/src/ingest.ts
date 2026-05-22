@@ -179,12 +179,11 @@ export const summarizeTranscriptText: (
 ) => Effect.Effect<TranscriptIngestSummary, AiMetricsIngestError> = Effect.fn("AiMetrics.summarizeTranscriptText")(
   function* ({ content, hashSalt, sourceKind, sourcePath }) {
     const sourcePathHash = yield* hashPrivateIdentifier(sourcePath, hashSalt).pipe(
-      Effect.mapError(
-        (cause) =>
-          AiMetricsIngestError.make({
-            cause,
-            message: "Failed to hash transcript source path.",
-          })
+      Effect.mapError((cause) =>
+        AiMetricsIngestError.make({
+          cause,
+          message: "Failed to hash transcript source path.",
+        })
       )
     );
     const lines = transcriptLines(content);
@@ -221,12 +220,11 @@ export const summarizeTranscriptText: (
 export const summaryToJson: (summary: TranscriptIngestSummary) => Effect.Effect<string, AiMetricsIngestError> =
   Effect.fn("AiMetrics.summaryToJson")(function* (summary) {
     return yield* encodeTranscriptIngestSummaryJson(summary).pipe(
-      Effect.mapError(
-        (cause) =>
-          AiMetricsIngestError.make({
-            cause,
-            message: "Failed to encode transcript ingest summary as JSON.",
-          })
+      Effect.mapError((cause) =>
+        AiMetricsIngestError.make({
+          cause,
+          message: "Failed to encode transcript ingest summary as JSON.",
+        })
       )
     );
   });

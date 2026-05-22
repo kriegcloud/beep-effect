@@ -181,34 +181,31 @@ const fetchSourceText = Effect.fn("fetchSourceText")(function* (
   target: SyncDataTarget
 ): Effect.fn.Return<string, SyncDataToTsError, HttpClient.HttpClient> {
   const response = yield* HttpClient.get(target.sourceUrl).pipe(
-    Effect.mapError(
-      (cause) =>
-        SyncDataToTsError.make({
-          message: `Failed to fetch ${target.sourceUrl}: ${cause.message}`,
-          targetId: target.id,
-        })
+    Effect.mapError((cause) =>
+      SyncDataToTsError.make({
+        message: `Failed to fetch ${target.sourceUrl}: ${cause.message}`,
+        targetId: target.id,
+      })
     ),
     Effect.flatMap(
       Effect.fnUntraced(function* (response) {
         return yield* HttpClientResponse.filterStatusOk(response);
       })
     ),
-    Effect.mapError(
-      (cause) =>
-        SyncDataToTsError.make({
-          message: `Received a non-2xx response from ${target.sourceUrl}: ${cause.message}`,
-          targetId: target.id,
-        })
+    Effect.mapError((cause) =>
+      SyncDataToTsError.make({
+        message: `Received a non-2xx response from ${target.sourceUrl}: ${cause.message}`,
+        targetId: target.id,
+      })
     )
   );
 
   return yield* response.text.pipe(
-    Effect.mapError(
-      (cause) =>
-        SyncDataToTsError.make({
-          message: `Failed to read response body from ${target.sourceUrl}: ${cause.message}`,
-          targetId: target.id,
-        })
+    Effect.mapError((cause) =>
+      SyncDataToTsError.make({
+        message: `Failed to read response body from ${target.sourceUrl}: ${cause.message}`,
+        targetId: target.id,
+      })
     )
   );
 });
@@ -241,13 +238,12 @@ const decodeCsvText = Effect.fn("SyncDataToTs.decodeCsvText")(function* (content
 
 const parseCsvText = (content: string, target: SyncDataTarget): Effect.Effect<unknown, SyncDataToTsError> =>
   decodeCsvText(content).pipe(
-    Effect.mapError(
-      (cause) =>
-        SyncDataToTsError.make({
-          message: `Failed to parse CSV payload for ${target.id}: ${cause.message}`,
-          targetId: target.id,
-          cause,
-        })
+    Effect.mapError((cause) =>
+      SyncDataToTsError.make({
+        message: `Failed to parse CSV payload for ${target.id}: ${cause.message}`,
+        targetId: target.id,
+        cause,
+      })
     )
   );
 
@@ -255,24 +251,22 @@ const parseSourceText = (content: string, target: SyncDataTarget): Effect.Effect
   SyncDataSourceFormat.$match(target.format, {
     json: () =>
       decodeJsonText(content).pipe(
-        Effect.mapError(
-          (cause) =>
-            SyncDataToTsError.make({
-              message: `Failed to parse JSON payload for ${target.id}: ${cause.message}`,
-              targetId: target.id,
-              cause,
-            })
+        Effect.mapError((cause) =>
+          SyncDataToTsError.make({
+            message: `Failed to parse JSON payload for ${target.id}: ${cause.message}`,
+            targetId: target.id,
+            cause,
+          })
         )
       ),
     csv: () => parseCsvText(content, target),
     xml: () =>
       decodeXmlText(content).pipe(
-        Effect.mapError(
-          (cause) =>
-            SyncDataToTsError.make({
-              message: `Failed to parse XML payload for ${target.id}: ${cause.message}`,
-              targetId: target.id,
-            })
+        Effect.mapError((cause) =>
+          SyncDataToTsError.make({
+            message: `Failed to parse XML payload for ${target.id}: ${cause.message}`,
+            targetId: target.id,
+          })
         )
       ),
   });
@@ -283,25 +277,23 @@ const readExistingFile = Effect.fn(function* (
 ): Effect.fn.Return<O.Option<string>, SyncDataToTsError, FileSystem.FileSystem> {
   const fs = yield* FileSystem.FileSystem;
   const exists = yield* fs.exists(absolutePath).pipe(
-    Effect.mapError(
-      () =>
-        SyncDataToTsError.make({
-          message: `Failed to check whether ${absolutePath} exists.`,
-          targetId: target.id,
-          file: target.outputPath,
-        })
+    Effect.mapError(() =>
+      SyncDataToTsError.make({
+        message: `Failed to check whether ${absolutePath} exists.`,
+        targetId: target.id,
+        file: target.outputPath,
+      })
     )
   );
 
   return yield* fs.readFileString(absolutePath).pipe(
     Effect.map(O.some),
-    Effect.mapError(
-      () =>
-        SyncDataToTsError.make({
-          message: `Failed to read ${absolutePath}.`,
-          targetId: target.id,
-          file: target.outputPath,
-        })
+    Effect.mapError(() =>
+      SyncDataToTsError.make({
+        message: `Failed to read ${absolutePath}.`,
+        targetId: target.id,
+        file: target.outputPath,
+      })
     ),
     Effect.when(Effect.succeed(exists)),
     Effect.map(O.flatten)
@@ -316,23 +308,21 @@ const writeProjectedFile = Effect.fn("writeProjectedFile")(function* (
   const fs = yield* FileSystem.FileSystem;
   const path = yield* Path.Path;
   yield* fs.makeDirectory(path.dirname(absolutePath), { recursive: true }).pipe(
-    Effect.mapError(
-      () =>
-        SyncDataToTsError.make({
-          message: `Failed to create parent directory for ${absolutePath}.`,
-          targetId: target.id,
-          file: target.outputPath,
-        })
+    Effect.mapError(() =>
+      SyncDataToTsError.make({
+        message: `Failed to create parent directory for ${absolutePath}.`,
+        targetId: target.id,
+        file: target.outputPath,
+      })
     )
   );
   yield* fs.writeFileString(absolutePath, content).pipe(
-    Effect.mapError(
-      () =>
-        SyncDataToTsError.make({
-          message: `Failed to write ${absolutePath}.`,
-          targetId: target.id,
-          file: target.outputPath,
-        })
+    Effect.mapError(() =>
+      SyncDataToTsError.make({
+        message: `Failed to write ${absolutePath}.`,
+        targetId: target.id,
+        file: target.outputPath,
+      })
     )
   );
 });

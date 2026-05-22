@@ -277,21 +277,19 @@ const makeSnapshotFile = Effect.fn("AiMetrics.makeSnapshotFile")(function* (repo
   const fs = yield* FileSystem.FileSystem;
   const pathApi = yield* Path.Path;
   const info = yield* fs.stat(filePath).pipe(
-    Effect.mapError(
-      (cause) =>
-        AiMetricsConfigSnapshotError.make({
-          cause,
-          message: "Failed to stat config snapshot file.",
-        })
+    Effect.mapError((cause) =>
+      AiMetricsConfigSnapshotError.make({
+        cause,
+        message: "Failed to stat config snapshot file.",
+      })
     )
   );
   const content = yield* fs.readFileString(filePath).pipe(
-    Effect.mapError(
-      (cause) =>
-        AiMetricsConfigSnapshotError.make({
-          cause,
-          message: "Failed to read config snapshot file.",
-        })
+    Effect.mapError((cause) =>
+      AiMetricsConfigSnapshotError.make({
+        cause,
+        message: "Failed to read config snapshot file.",
+      })
     )
   );
 
@@ -381,12 +379,11 @@ const readPreviousSnapshot = Effect.fn("AiMetrics.readPreviousConfigSnapshot")(f
 
   const fs = yield* FileSystem.FileSystem;
   const exists = yield* fs.exists(previousSnapshotPath).pipe(
-    Effect.mapError(
-      (cause) =>
-        AiMetricsConfigSnapshotError.make({
-          cause,
-          message: "Failed to inspect previous AI metrics config snapshot artifact.",
-        })
+    Effect.mapError((cause) =>
+      AiMetricsConfigSnapshotError.make({
+        cause,
+        message: "Failed to inspect previous AI metrics config snapshot artifact.",
+      })
     )
   );
   if (!exists) {
@@ -394,23 +391,21 @@ const readPreviousSnapshot = Effect.fn("AiMetrics.readPreviousConfigSnapshot")(f
   }
 
   const content = yield* fs.readFileString(previousSnapshotPath).pipe(
-    Effect.mapError(
-      (cause) =>
-        AiMetricsConfigSnapshotError.make({
-          cause,
-          message: "Failed to read previous AI metrics config snapshot artifact.",
-        })
+    Effect.mapError((cause) =>
+      AiMetricsConfigSnapshotError.make({
+        cause,
+        message: "Failed to read previous AI metrics config snapshot artifact.",
+      })
     )
   );
 
   return yield* decodeConfigSnapshotJson(content).pipe(
     Effect.map(O.some),
-    Effect.mapError(
-      (cause) =>
-        AiMetricsConfigSnapshotError.make({
-          cause,
-          message: "Failed to decode previous AI metrics config snapshot artifact.",
-        })
+    Effect.mapError((cause) =>
+      AiMetricsConfigSnapshotError.make({
+        cause,
+        message: "Failed to decode previous AI metrics config snapshot artifact.",
+      })
     )
   );
 });
@@ -496,40 +491,36 @@ export const writeAiMetricsConfigSnapshotArtifacts = Effect.fn("AiMetrics.writeA
     const latestPath = pathApi.join(outputDir, "latest.json");
     const latestTmpPath = pathApi.join(outputDir, "latest.json.tmp");
     yield* fs.makeDirectory(outputDir, { recursive: true }).pipe(
-      Effect.mapError(
-        (cause) =>
-          AiMetricsConfigSnapshotError.make({
-            cause,
-            message: "Failed to create AI metrics config snapshot artifact directory.",
-          })
+      Effect.mapError((cause) =>
+        AiMetricsConfigSnapshotError.make({
+          cause,
+          message: "Failed to create AI metrics config snapshot artifact directory.",
+        })
       )
     );
     yield* fs.writeFileString(manifestPath, content).pipe(
-      Effect.mapError(
-        (cause) =>
-          AiMetricsConfigSnapshotError.make({
-            cause,
-            message: "Failed to write AI metrics config snapshot manifest.",
-          })
+      Effect.mapError((cause) =>
+        AiMetricsConfigSnapshotError.make({
+          cause,
+          message: "Failed to write AI metrics config snapshot manifest.",
+        })
       )
     );
     if (commitLatest) {
       yield* fs.writeFileString(latestTmpPath, content).pipe(
-        Effect.mapError(
-          (cause) =>
-            AiMetricsConfigSnapshotError.make({
-              cause,
-              message: "Failed to write AI metrics latest config snapshot temporary pointer.",
-            })
+        Effect.mapError((cause) =>
+          AiMetricsConfigSnapshotError.make({
+            cause,
+            message: "Failed to write AI metrics latest config snapshot temporary pointer.",
+          })
         )
       );
       yield* fs.rename(latestTmpPath, latestPath).pipe(
-        Effect.mapError(
-          (cause) =>
-            AiMetricsConfigSnapshotError.make({
-              cause,
-              message: "Failed to promote AI metrics latest config snapshot pointer.",
-            })
+        Effect.mapError((cause) =>
+          AiMetricsConfigSnapshotError.make({
+            cause,
+            message: "Failed to promote AI metrics latest config snapshot pointer.",
+          })
         )
       );
     }
@@ -554,12 +545,11 @@ export const configSnapshotToJson: (
 ) => Effect.Effect<string, AiMetricsConfigSnapshotError> = Effect.fn("AiMetrics.configSnapshotToJson")(
   function* (result) {
     return yield* encodeConfigSnapshotJson(result).pipe(
-      Effect.mapError(
-        (cause) =>
-          AiMetricsConfigSnapshotError.make({
-            cause,
-            message: "Failed to encode AI metrics config snapshot as JSON.",
-          })
+      Effect.mapError((cause) =>
+        AiMetricsConfigSnapshotError.make({
+          cause,
+          message: "Failed to encode AI metrics config snapshot as JSON.",
+        })
       )
     );
   }

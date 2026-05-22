@@ -98,12 +98,11 @@ const validateExtractFramesOptions = (
   options: ExtractFramesOptions
 ): Effect.Effect<ExtractFramesOptions, ImageCommandError> =>
   decodeExtractFramesOptions(options).pipe(
-    Effect.mapError(
-      (cause) =>
-        ImageCommandError.make({
-          message: "Invalid image extract-frames options. Expected a video, output directory, and positive FPS.",
-          cause,
-        })
+    Effect.mapError((cause) =>
+      ImageCommandError.make({
+        message: "Invalid image extract-frames options. Expected a video, output directory, and positive FPS.",
+        cause,
+      })
     )
   );
 
@@ -111,12 +110,11 @@ const validateExtractFramesDirOptions = (
   options: ExtractFramesDirOptions
 ): Effect.Effect<ExtractFramesDirOptions, ImageCommandError> =>
   decodeExtractFramesDirOptions(options).pipe(
-    Effect.mapError(
-      (cause) =>
-        ImageCommandError.make({
-          message: "Invalid image extract-frames-dir options. Expected a directory and positive FPS.",
-          cause,
-        })
+    Effect.mapError((cause) =>
+      ImageCommandError.make({
+        message: "Invalid image extract-frames-dir options. Expected a directory and positive FPS.",
+        cause,
+      })
     )
   );
 
@@ -146,12 +144,11 @@ const collectExtractFramesDirVideos = Effect.fn("ImageCommandService.collectExtr
   const path = yield* Path.Path;
   const directory = path.resolve(dir);
   const entries = yield* fs.readDirectory(directory).pipe(
-    Effect.mapError(
-      (cause) =>
-        ImageCommandError.make({
-          message: `Failed to read video directory: "${directory}"`,
-          cause,
-        })
+    Effect.mapError((cause) =>
+      ImageCommandError.make({
+        message: `Failed to read video directory: "${directory}"`,
+        cause,
+      })
     )
   );
   let videos = A.empty<ExtractFramesDirVideo>();

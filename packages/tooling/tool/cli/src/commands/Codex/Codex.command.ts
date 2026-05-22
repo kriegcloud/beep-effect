@@ -91,12 +91,11 @@ export const runCodexQualityReviewFixLoop = Effect.fn("Codex.runCodexQualityRevi
       return yield* handle.exitCode;
     })
   ).pipe(
-    Effect.mapError(
-      (cause) =>
-        CodexCommandError.make({
-          message: "Failed to spawn codex quality-review-fix-loop.",
-          cause,
-        })
+    Effect.mapError((cause) =>
+      CodexCommandError.make({
+        message: "Failed to spawn codex quality-review-fix-loop.",
+        cause,
+      })
     )
   );
 

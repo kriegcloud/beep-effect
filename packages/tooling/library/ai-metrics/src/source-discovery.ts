@@ -633,12 +633,11 @@ export const sourceDiscoveryToJson: (
 ) => Effect.Effect<string, AiMetricsSourceDiscoveryError> = Effect.fn("AiMetrics.sourceDiscoveryToJson")(
   function* (result) {
     return yield* encodeSourceDiscoveryJson(result).pipe(
-      Effect.mapError(
-        (cause) =>
-          AiMetricsSourceDiscoveryError.make({
-            cause,
-            message: "Failed to encode AI metrics source discovery result as JSON.",
-          })
+      Effect.mapError((cause) =>
+        AiMetricsSourceDiscoveryError.make({
+          cause,
+          message: "Failed to encode AI metrics source discovery result as JSON.",
+        })
       )
     );
   }

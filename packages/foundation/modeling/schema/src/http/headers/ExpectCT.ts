@@ -170,12 +170,11 @@ export const ExpectCTHeader = S.Union([ExpectCTOption, S.Undefined]).pipe(
         }
 
         const enabled = yield* S.decodeUnknownEffect(ExpectCTEnabled)(option).pipe(
-          Effect.mapError(
-            (cause) =>
-              ExpectCtError.make({
-                message: cause.message,
-                cause: O.none(),
-              })
+          Effect.mapError((cause) =>
+            ExpectCtError.make({
+              message: cause.message,
+              cause: O.none(),
+            })
           )
         );
 

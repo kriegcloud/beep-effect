@@ -173,22 +173,20 @@ export const resolveBiomeSchema = Effect.fn(function* (
   // Read biome.jsonc
   const biomePath = path.join(repoRoot, "biome.jsonc");
   const biomeContent = yield* fs.readFileString(biomePath).pipe(
-    Effect.mapError(
-      (e) =>
-        VersionSyncError.make({
-          message: `Failed to read biome.jsonc: ${Inspectable.toStringUnknown(e, 0)}`,
-          file: "biome.jsonc",
-        })
+    Effect.mapError((e) =>
+      VersionSyncError.make({
+        message: `Failed to read biome.jsonc: ${Inspectable.toStringUnknown(e, 0)}`,
+        file: "biome.jsonc",
+      })
     )
   );
 
   const biomeJson = yield* decodeJsoncTextAs(BiomeJsoncDocument)(biomeContent).pipe(
-    Effect.mapError(
-      (e) =>
-        VersionSyncError.make({
-          message: `Failed to parse biome.jsonc: ${e.message}`,
-          file: "biome.jsonc",
-        })
+    Effect.mapError((e) =>
+      VersionSyncError.make({
+        message: `Failed to parse biome.jsonc: ${e.message}`,
+        file: "biome.jsonc",
+      })
     )
   );
 
@@ -198,22 +196,20 @@ export const resolveBiomeSchema = Effect.fn(function* (
   // Read installed version from root package.json catalog
   const pkgJsonPath = path.join(repoRoot, "package.json");
   const pkgJsonContent = yield* fs.readFileString(pkgJsonPath).pipe(
-    Effect.mapError(
-      (e) =>
-        VersionSyncError.make({
-          message: `Failed to read package.json: ${Inspectable.toStringUnknown(e, 0)}`,
-          file: "package.json",
-        })
+    Effect.mapError((e) =>
+      VersionSyncError.make({
+        message: `Failed to read package.json: ${Inspectable.toStringUnknown(e, 0)}`,
+        file: "package.json",
+      })
     )
   );
 
   const pkgJson = yield* decodeJsoncTextAs(RootPackageJsonDocument)(pkgJsonContent).pipe(
-    Effect.mapError(
-      (e) =>
-        VersionSyncError.make({
-          message: `Failed to parse package.json: ${e.message}`,
-          file: "package.json",
-        })
+    Effect.mapError((e) =>
+      VersionSyncError.make({
+        message: `Failed to parse package.json: ${e.message}`,
+        file: "package.json",
+      })
     )
   );
 
@@ -291,12 +287,11 @@ export const updateBiomeSchema = Effect.fn("updateBiomeSchema")(function* (
   const fs = yield* FileSystem.FileSystem;
 
   const original = yield* fs.readFileString(filePath).pipe(
-    Effect.mapError(
-      (e) =>
-        VersionSyncError.make({
-          message: `Failed to read ${filePath}: ${Inspectable.toStringUnknown(e, 0)}`,
-          file: filePath,
-        })
+    Effect.mapError((e) =>
+      VersionSyncError.make({
+        message: `Failed to read ${filePath}: ${Inspectable.toStringUnknown(e, 0)}`,
+        file: filePath,
+      })
     )
   );
 
@@ -320,12 +315,11 @@ export const updateBiomeSchema = Effect.fn("updateBiomeSchema")(function* (
   }
 
   yield* fs.writeFileString(filePath, updated).pipe(
-    Effect.mapError(
-      (e) =>
-        VersionSyncError.make({
-          message: `Failed to write ${filePath}: ${Inspectable.toStringUnknown(e, 0)}`,
-          file: filePath,
-        })
+    Effect.mapError((e) =>
+      VersionSyncError.make({
+        message: `Failed to write ${filePath}: ${Inspectable.toStringUnknown(e, 0)}`,
+        file: filePath,
+      })
     )
   );
 

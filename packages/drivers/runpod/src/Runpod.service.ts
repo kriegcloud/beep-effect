@@ -586,13 +586,12 @@ const rawResponseBody = Effect.fnUntraced(function* (
 
   if (Str.includes("application/json")(contentType)) {
     return yield* response.json.pipe(
-      Effect.map(
-        (body) =>
-          RunpodRawResponse.make({
-            body,
-            headers: response.headers,
-            status: response.status,
-          })
+      Effect.map((body) =>
+        RunpodRawResponse.make({
+          body,
+          headers: response.headers,
+          status: response.status,
+        })
       ),
       Effect.mapError((cause) =>
         RunpodError.raw({
@@ -606,14 +605,13 @@ const rawResponseBody = Effect.fnUntraced(function* (
   }
 
   return yield* response.text.pipe(
-    Effect.map(
-      (text) =>
-        RunpodRawResponse.make({
-          body: text,
-          headers: response.headers,
-          status: response.status,
-          text,
-        })
+    Effect.map((text) =>
+      RunpodRawResponse.make({
+        body: text,
+        headers: response.headers,
+        status: response.status,
+        text,
+      })
     ),
     Effect.mapError((cause) =>
       RunpodError.raw({
@@ -694,21 +692,15 @@ const makeService = (client: HttpClient.HttpClient, config: ResolvedRunpodConfig
   deleteNetworkVolume: requiredVoidOperation(client, config, G.RUNPOD_OPERATION_SPECS.deleteNetworkVolume),
   deletePod: requiredVoidOperation(client, config, G.RUNPOD_OPERATION_SPECS.deletePod),
   deleteTemplate: requiredVoidOperation(client, config, G.RUNPOD_OPERATION_SPECS.deleteTemplate),
-  endpointBilling: optionalJsonOperation(
-    client,
-    config,
-    G.RUNPOD_OPERATION_SPECS.endpointBilling,
-    () => G.EndpointBillingRequest.make({})
+  endpointBilling: optionalJsonOperation(client, config, G.RUNPOD_OPERATION_SPECS.endpointBilling, () =>
+    G.EndpointBillingRequest.make({})
   ),
   getContainerRegistryAuth: requiredJsonOperation(client, config, G.RUNPOD_OPERATION_SPECS.getContainerRegistryAuth),
   getDocs: optionalTextOperation(client, config, G.RUNPOD_OPERATION_SPECS.getDocs, () => G.GetDocsRequest.make({})),
   getEndpoint: requiredJsonOperation(client, config, G.RUNPOD_OPERATION_SPECS.getEndpoint),
   getNetworkVolume: requiredJsonOperation(client, config, G.RUNPOD_OPERATION_SPECS.getNetworkVolume),
-  getOpenAPI: optionalJsonOperation(
-    client,
-    config,
-    G.RUNPOD_OPERATION_SPECS.getOpenAPI,
-    () => G.GetOpenAPIRequest.make({})
+  getOpenAPI: optionalJsonOperation(client, config, G.RUNPOD_OPERATION_SPECS.getOpenAPI, () =>
+    G.GetOpenAPIRequest.make({})
   ),
   getPod: requiredJsonOperation(client, config, G.RUNPOD_OPERATION_SPECS.getPod),
   getTemplate: requiredJsonOperation(client, config, G.RUNPOD_OPERATION_SPECS.getTemplate),
@@ -718,36 +710,21 @@ const makeService = (client: HttpClient.HttpClient, config: ResolvedRunpodConfig
     G.RUNPOD_OPERATION_SPECS.listContainerRegistryAuths,
     () => G.ListContainerRegistryAuthsRequest.make({})
   ),
-  listEndpoints: optionalJsonOperation(
-    client,
-    config,
-    G.RUNPOD_OPERATION_SPECS.listEndpoints,
-    () => G.ListEndpointsRequest.make({})
+  listEndpoints: optionalJsonOperation(client, config, G.RUNPOD_OPERATION_SPECS.listEndpoints, () =>
+    G.ListEndpointsRequest.make({})
   ),
-  listNetworkVolumes: optionalJsonOperation(
-    client,
-    config,
-    G.RUNPOD_OPERATION_SPECS.listNetworkVolumes,
-    () => G.ListNetworkVolumesRequest.make({})
+  listNetworkVolumes: optionalJsonOperation(client, config, G.RUNPOD_OPERATION_SPECS.listNetworkVolumes, () =>
+    G.ListNetworkVolumesRequest.make({})
   ),
   listPods: optionalJsonOperation(client, config, G.RUNPOD_OPERATION_SPECS.listPods, () => G.ListPodsRequest.make({})),
-  listTemplates: optionalJsonOperation(
-    client,
-    config,
-    G.RUNPOD_OPERATION_SPECS.listTemplates,
-    () => G.ListTemplatesRequest.make({})
+  listTemplates: optionalJsonOperation(client, config, G.RUNPOD_OPERATION_SPECS.listTemplates, () =>
+    G.ListTemplatesRequest.make({})
   ),
-  networkVolumeBilling: optionalJsonOperation(
-    client,
-    config,
-    G.RUNPOD_OPERATION_SPECS.networkVolumeBilling,
-    () => G.NetworkVolumeBillingRequest.make({})
+  networkVolumeBilling: optionalJsonOperation(client, config, G.RUNPOD_OPERATION_SPECS.networkVolumeBilling, () =>
+    G.NetworkVolumeBillingRequest.make({})
   ),
-  podBilling: optionalJsonOperation(
-    client,
-    config,
-    G.RUNPOD_OPERATION_SPECS.podBilling,
-    () => G.PodBillingRequest.make({})
+  podBilling: optionalJsonOperation(client, config, G.RUNPOD_OPERATION_SPECS.podBilling, () =>
+    G.PodBillingRequest.make({})
   ),
   raw: Effect.fnUntraced(function* (request): Effect.fn.Return<RunpodRawResponse, RunpodError> {
     return yield* executeRawRequest(client, config, request).pipe(
@@ -811,7 +788,9 @@ export class Runpod extends Context.Service<Runpod, RunpodShape>()($I`Runpod`) {
    * @category layers
    * @since 0.1.0
    */
-  static readonly makeLayer = (config = RunpodConfigInput.make({})): Layer.Layer<Runpod, never, HttpClient.HttpClient> =>
+  static readonly makeLayer = (
+    config = RunpodConfigInput.make({})
+  ): Layer.Layer<Runpod, never, HttpClient.HttpClient> =>
     Layer.effect(Runpod, makeRunpodFromConfig(resolveConfig(config)));
 
   /**

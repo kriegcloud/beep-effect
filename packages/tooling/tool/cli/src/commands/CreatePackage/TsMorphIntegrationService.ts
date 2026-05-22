@@ -197,7 +197,8 @@ export class TsMorphIntegrationResult extends S.Class<TsMorphIntegrationResult>(
     description: "Batch mutation result.",
   })
 ) {
-  static readonly new = (outcomes: ReadonlyArray<TsMorphMutationOutcome>) => TsMorphIntegrationResult.make({ outcomes });
+  static readonly new = (outcomes: ReadonlyArray<TsMorphMutationOutcome>) =>
+    TsMorphIntegrationResult.make({ outcomes });
 }
 
 /**

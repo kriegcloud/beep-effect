@@ -298,34 +298,31 @@ export const resolveBunVersions: {
     const bunVersionPath = path.join(repoRoot, ".bun-version");
     const bunVersionFile = yield* fs.readFileString(bunVersionPath).pipe(
       Effect.map(Str.trim),
-      Effect.mapError(
-        (e) =>
-          VersionSyncError.make({
-            message: `Failed to read .bun-version: ${Inspectable.toStringUnknown(e, 0)}`,
-            file: ".bun-version",
-          })
+      Effect.mapError((e) =>
+        VersionSyncError.make({
+          message: `Failed to read .bun-version: ${Inspectable.toStringUnknown(e, 0)}`,
+          file: ".bun-version",
+        })
       )
     );
 
     // Read package.json packageManager field
     const pkgJsonPath = path.join(repoRoot, "package.json");
     const pkgJsonContent = yield* fs.readFileString(pkgJsonPath).pipe(
-      Effect.mapError(
-        (e) =>
-          VersionSyncError.make({
-            message: `Failed to read package.json: ${Inspectable.toStringUnknown(e, 0)}`,
-            file: "package.json",
-          })
+      Effect.mapError((e) =>
+        VersionSyncError.make({
+          message: `Failed to read package.json: ${Inspectable.toStringUnknown(e, 0)}`,
+          file: "package.json",
+        })
       )
     );
 
     const pkgJson = yield* decodeJsoncTextAs(BunPackageJsonDocument)(pkgJsonContent).pipe(
-      Effect.mapError(
-        (e) =>
-          VersionSyncError.make({
-            message: `Failed to parse package.json: ${e.message}`,
-            file: "package.json",
-          })
+      Effect.mapError((e) =>
+        VersionSyncError.make({
+          message: `Failed to parse package.json: ${e.message}`,
+          file: "package.json",
+        })
       )
     );
     const packageManagerField = extractPackageManagerVersion(pkgJson.packageManager);
@@ -363,19 +360,17 @@ const fetchLatestBunVersion = Effect.fn(function* (): Effect.fn.Return<
       },
     })
     .pipe(
-      Effect.mapError(
-        (e) =>
-          NetworkUnavailableError.make({
-            message: `GitHub API request failed: ${Inspectable.toStringUnknown(e, 0)}`,
-          })
+      Effect.mapError((e) =>
+        NetworkUnavailableError.make({
+          message: `GitHub API request failed: ${Inspectable.toStringUnknown(e, 0)}`,
+        })
       )
     );
   const body = yield* HttpClientResponse.schemaBodyJson(BunRelease)(response).pipe(
-    Effect.mapError(
-      (e) =>
-        NetworkUnavailableError.make({
-          message: `Failed to parse GitHub API response: ${Inspectable.toStringUnknown(e, 0)}`,
-        })
+    Effect.mapError((e) =>
+      NetworkUnavailableError.make({
+        message: `Failed to parse GitHub API response: ${Inspectable.toStringUnknown(e, 0)}`,
+      })
     )
   );
   return extractBunVersion(body.tag_name);

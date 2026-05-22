@@ -696,12 +696,11 @@ export const makeAiMetricsPrivacyCheckResult = Effect.fn("AiMetrics.makeAiMetric
 export const privacyCheckToJson: (result: AiMetricsPrivacyCheckResult) => Effect.Effect<string, AiMetricsPrivacyError> =
   Effect.fn("AiMetrics.privacyCheckToJson")(function* (result) {
     return yield* encodePrivacyCheckJson(result).pipe(
-      Effect.mapError(
-        (cause) =>
-          AiMetricsPrivacyError.make({
-            cause,
-            message: "Failed to encode AI metrics privacy check as JSON.",
-          })
+      Effect.mapError((cause) =>
+        AiMetricsPrivacyError.make({
+          cause,
+          message: "Failed to encode AI metrics privacy check as JSON.",
+        })
       )
     );
   });

@@ -24,11 +24,10 @@ const globFiles = (pattern: string, exclude: ReadonlyArray<string> = []) =>
     const fsUtils = yield* FsUtils;
     return yield* fsUtils.globFiles(pattern, exclude.length === 0 ? undefined : { ignore: A.fromIterable(exclude) });
   }).pipe(
-    Effect.mapError(
-      () =>
-        Domain.DocgenError.make({
-          message: `[Core.globFiles] Unable to execute glob pattern '${pattern}' excluding files matching '${exclude}'`,
-        })
+    Effect.mapError(() =>
+      Domain.DocgenError.make({
+        message: `[Core.globFiles] Unable to execute glob pattern '${pattern}' excluding files matching '${exclude}'`,
+      })
     )
   );
 
@@ -45,11 +44,10 @@ const readSourceFiles = Effect.gen(function* () {
     (filePath) =>
       fs.readFileString(filePath).pipe(
         Effect.map((content) => Domain.File.new(filePath, content, { isOverwritable: false })),
-        Effect.mapError(
-          (cause) =>
-            Domain.DocgenError.make({
-              message: `[Core.readSourceFiles] Failed to read '${filePath}'\n${String(cause)}`,
-            })
+        Effect.mapError((cause) =>
+          Domain.DocgenError.make({
+            message: `[Core.readSourceFiles] Failed to read '${filePath}'\n${String(cause)}`,
+          })
         )
       ),
     { concurrency: "inherit" }
@@ -64,11 +62,10 @@ const writeFileToOutDir = Effect.fn("writeFileToOutDir")(function* (file: Domain
   const cwd = yield* process.cwd;
   const fileName = path.relative(path.join(cwd, config.outDir), file.path);
   const exists = yield* fs.exists(file.path).pipe(
-    Effect.mapError(
-      (cause) =>
-        Domain.DocgenError.make({
-          message: `[Core.writeFileToOutDir] Failed to check '${file.path}'\n${String(cause)}`,
-        })
+    Effect.mapError((cause) =>
+      Domain.DocgenError.make({
+        message: `[Core.writeFileToOutDir] Failed to check '${file.path}'\n${String(cause)}`,
+      })
     )
   );
 
@@ -82,19 +79,17 @@ const writeFileToOutDir = Effect.fn("writeFileToOutDir")(function* (file: Domain
   }
 
   yield* fs.makeDirectory(path.dirname(file.path), { recursive: true }).pipe(
-    Effect.mapError(
-      (cause) =>
-        Domain.DocgenError.make({
-          message: `[Core.writeFileToOutDir] Failed to create '${path.dirname(file.path)}'\n${String(cause)}`,
-        })
+    Effect.mapError((cause) =>
+      Domain.DocgenError.make({
+        message: `[Core.writeFileToOutDir] Failed to create '${path.dirname(file.path)}'\n${String(cause)}`,
+      })
     )
   );
   yield* fs.writeFileString(file.path, file.content).pipe(
-    Effect.mapError(
-      (cause) =>
-        Domain.DocgenError.make({
-          message: `[Core.writeFileToOutDir] Failed to write '${file.path}'\n${String(cause)}`,
-        })
+    Effect.mapError((cause) =>
+      Domain.DocgenError.make({
+        message: `[Core.writeFileToOutDir] Failed to write '${file.path}'\n${String(cause)}`,
+      })
     )
   );
 });
@@ -104,11 +99,10 @@ const writeFilesToOutDir = (files: ReadonlyArray<Domain.File>) =>
 
 const parseModules = (files: ReadonlyArray<Domain.File>) =>
   Parser.parseFiles(files).pipe(
-    Effect.mapError(
-      (errors) =>
-        Domain.DocgenError.make({
-          message: `[Core.parseModules] The following error(s) occurred while parsing the TypeScript source files:\n${pipe(errors, A.map(A.join("\n")), A.join("\n"))}`,
-        })
+    Effect.mapError((errors) =>
+      Domain.DocgenError.make({
+        message: `[Core.parseModules] The following error(s) occurred while parsing the TypeScript source files:\n${pipe(errors, A.map(A.join("\n")), A.join("\n"))}`,
+      })
     )
   );
 
@@ -333,11 +327,10 @@ const cleanupExamples = Effect.gen(function* () {
   const path = yield* Path.Path;
   const examplesDir = path.join(config.outDir, "examples");
   yield* fs.remove(examplesDir, { recursive: true, force: true }).pipe(
-    Effect.mapError(
-      (cause) =>
-        Domain.DocgenError.make({
-          message: `[Core.cleanupExamples] Failed to remove '${examplesDir}'\n${String(cause)}`,
-        })
+    Effect.mapError((cause) =>
+      Domain.DocgenError.make({
+        message: `[Core.cleanupExamples] Failed to remove '${examplesDir}'\n${String(cause)}`,
+      })
     )
   );
 });
@@ -372,11 +365,10 @@ const runTscOnExamples = Effect.gen(function* () {
 
   yield* Effect.logDebug("Running tsc on examples...");
   const { output, exitCode } = yield* collectCommandOutput(command).pipe(
-    Effect.mapError(
-      (cause) =>
-        Domain.DocgenError.make({
-          message: `[Core.runTscOnExamples] Failed to run '${config.tscExecutable}'\n${String(cause)}`,
-        })
+    Effect.mapError((cause) =>
+      Domain.DocgenError.make({
+        message: `[Core.runTscOnExamples] Failed to run '${config.tscExecutable}'\n${String(cause)}`,
+      })
     )
   );
 
@@ -402,11 +394,10 @@ const runBunOnExamples = Effect.gen(function* () {
 
   yield* Effect.logDebug("Running bun on examples...");
   const { output, exitCode } = yield* collectCommandOutput(command).pipe(
-    Effect.mapError(
-      (cause) =>
-        Domain.DocgenError.make({
-          message: `[Core.runBunOnExamples] Failed to run bun examples\n${String(cause)}`,
-        })
+    Effect.mapError((cause) =>
+      Domain.DocgenError.make({
+        message: `[Core.runBunOnExamples] Failed to run bun examples\n${String(cause)}`,
+      })
     )
   );
 
@@ -432,11 +423,10 @@ const createExamplesTsConfigJson = Effect.gen(function* () {
   const content = yield* encodeTSConfigPrettyEffect({
     compilerOptions: config.examplesCompilerOptions,
   }).pipe(
-    Effect.mapError(
-      (cause) =>
-        Domain.DocgenError.make({
-          message: `[Core.createExamplesTsConfigJson] Failed to encode examples tsconfig\n${String(cause)}`,
-        })
+    Effect.mapError((cause) =>
+      Domain.DocgenError.make({
+        message: `[Core.createExamplesTsConfigJson] Failed to encode examples tsconfig\n${String(cause)}`,
+      })
     )
   );
   yield* writeFileToOutDir(
@@ -515,11 +505,10 @@ const getMarkdownConfigYML = Effect.fn("getMarkdownConfigYML")(function* () {
 
   if (exists) {
     const content = yield* fs.readFileString(configPath).pipe(
-      Effect.mapError(
-        (cause) =>
-          Domain.DocgenError.make({
-            message: `[Core.getMarkdownConfigYML] Failed to read '${configPath}'\n${String(cause)}`,
-          })
+      Effect.mapError((cause) =>
+        Domain.DocgenError.make({
+          message: `[Core.getMarkdownConfigYML] Failed to read '${configPath}'\n${String(cause)}`,
+        })
       )
     );
     const resolved = yield* resolveConfigYML(content);
@@ -582,11 +571,10 @@ const writeMarkdown = Effect.fn("writeMarkdown")(function* (files: ReadonlyArray
     paths,
     (filePath) =>
       fileSystem.remove(filePath, { recursive: true }).pipe(
-        Effect.mapError(
-          (cause) =>
-            Domain.DocgenError.make({
-              message: `[Core.writeMarkdown] Failed to delete '${filePath}'\n${String(cause)}`,
-            })
+        Effect.mapError((cause) =>
+          Domain.DocgenError.make({
+            message: `[Core.writeMarkdown] Failed to delete '${filePath}'\n${String(cause)}`,
+          })
         )
       ),
     {

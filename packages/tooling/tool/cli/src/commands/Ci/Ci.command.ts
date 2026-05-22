@@ -158,12 +158,11 @@ const appendToSummary = Effect.fn("Ci.appendToSummary")(function* (
     : "";
 
   yield* fs.writeFileString(summaryPath, `${previous}${renderedSummary}`).pipe(
-    Effect.mapError(
-      (cause) =>
-        CiCommandError.make({
-          message: `Failed to append Turbo summary to ${summaryPath}.`,
-          cause,
-        })
+    Effect.mapError((cause) =>
+      CiCommandError.make({
+        message: `Failed to append Turbo summary to ${summaryPath}.`,
+        cause,
+      })
     )
   );
 });

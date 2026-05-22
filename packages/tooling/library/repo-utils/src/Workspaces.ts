@@ -102,8 +102,8 @@ export const resolveWorkspaceDirs: (
       });
     }
     const rootPkg = yield* decodePackageJsonEffect(rawPkg.value).pipe(
-      Effect.mapError(
-        (error) => DomainError.make({ cause: error, message: `Failed to decode root package.json at "${rootPkgPath}"` })
+      Effect.mapError((error) =>
+        DomainError.make({ cause: error, message: `Failed to decode root package.json at "${rootPkgPath}"` })
       )
     );
 

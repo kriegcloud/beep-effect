@@ -188,12 +188,10 @@ export const createSecureHeaders = Effect.fn("SecureHeaderOptions.createSecureHe
 ): Effect.fn.Return<ReadonlyArray<SecureHeaderEntry>, SecureHeaderError> {
   const headers = yield* resolveHeaders(options);
 
-  return A.map(
-    headers,
-    (header) =>
-      SecureHeaderEntry.make({
-        key: header.name,
-        value: header.value,
-      })
+  return A.map(headers, (header) =>
+    SecureHeaderEntry.make({
+      key: header.name,
+      value: header.value,
+    })
   );
 });

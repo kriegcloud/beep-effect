@@ -84,11 +84,10 @@ const tscExecutable = Flag.string("tscExecutable").pipe(
 
 const decodeCompilerOptionsText = (value: string) =>
   decodeCompilerOptions(value).pipe(
-    Effect.mapError(
-      (cause) =>
-        Domain.DocgenError.make({
-          message: `[CLI.decodeCompilerOptionsText] Invalid compiler options JSON\n${cause.message}`,
-        })
+    Effect.mapError((cause) =>
+      Domain.DocgenError.make({
+        message: `[CLI.decodeCompilerOptionsText] Invalid compiler options JSON\n${cause.message}`,
+      })
     )
   );
 

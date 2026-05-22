@@ -494,12 +494,11 @@ export const initSandbox: (
     );
 
     yield* fs.makeDirectory(configDir, { recursive: false }).pipe(
-      Effect.mapError(
-        (cause) =>
-          InitError.make({
-            cause,
-            message: `Failed to create ${SANDBOX_CONFIG_DIR}/.`,
-          })
+      Effect.mapError((cause) =>
+        InitError.make({
+          cause,
+          message: `Failed to create ${SANDBOX_CONFIG_DIR}/.`,
+        })
       )
     );
 
@@ -521,12 +520,11 @@ export const initSandbox: (
       ],
       (file) =>
         fs.writeFileString(path.join(configDir, file.path), file.content).pipe(
-          Effect.mapError(
-            (cause) =>
-              InitError.make({
-                cause,
-                message: `Failed to write ${SANDBOX_CONFIG_DIR}/${file.path}.`,
-              })
+          Effect.mapError((cause) =>
+            InitError.make({
+              cause,
+              message: `Failed to write ${SANDBOX_CONFIG_DIR}/${file.path}.`,
+            })
           )
         ),
       { discard: true }

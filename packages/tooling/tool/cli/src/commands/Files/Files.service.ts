@@ -327,11 +327,10 @@ export class FilesCommandService extends Context.Service<FilesCommandService, Fi
 
 const validatePrefix = (prefix: string): Effect.Effect<SafeFilePrefix, FilesCommandError> =>
   decodeSafeFilePrefix(prefix).pipe(
-    Effect.mapError(
-      () =>
-        FilesCommandError.make({
-          message: `Invalid prefix "${prefix}". Use a non-empty stem without dots, path separators, or embedded NUL bytes.`,
-        })
+    Effect.mapError(() =>
+      FilesCommandError.make({
+        message: `Invalid prefix "${prefix}". Use a non-empty stem without dots, path separators, or embedded NUL bytes.`,
+      })
     )
   );
 
@@ -370,11 +369,10 @@ const validateNormalizeMaxLongEdge: (
     onSome: (value) =>
       decodeNormalizeMaxLongEdge(value).pipe(
         Effect.map(O.some),
-        Effect.mapError(
-          () =>
-            FilesCommandError.make({
-              message: `Expected --max-long-edge to be a positive integer: ${value}`,
-            })
+        Effect.mapError(() =>
+          FilesCommandError.make({
+            message: `Expected --max-long-edge to be a positive integer: ${value}`,
+          })
         )
       ),
   })
@@ -384,12 +382,11 @@ const validateCreateCaptionFilesOptions = (
   options: CreateCaptionFilesOptions
 ): Effect.Effect<CreateCaptionFilesOptions, FilesCommandError> =>
   decodeCreateCaptionFilesOptions(options).pipe(
-    Effect.mapError(
-      (cause) =>
-        FilesCommandError.make({
-          message: "Invalid create-captions options. Expected a directory, caption text, and boolean flags.",
-          cause,
-        })
+    Effect.mapError((cause) =>
+      FilesCommandError.make({
+        message: "Invalid create-captions options. Expected a directory, caption text, and boolean flags.",
+        cause,
+      })
     )
   );
 
@@ -397,13 +394,12 @@ const validateDetectBordersOptions = (
   options: DetectBordersOptions
 ): Effect.Effect<DetectBordersOptions, FilesCommandError> =>
   decodeDetectBordersOptions(options).pipe(
-    Effect.mapError(
-      (cause) =>
-        FilesCommandError.make({
-          message:
-            "Invalid detect-borders options. Expected --tolerance between 0 and 255, --min-solid-pct and --min-width-pct between greater than 0 and 100, and --max-scan-pct between greater than 0 and 50.",
-          cause,
-        })
+    Effect.mapError((cause) =>
+      FilesCommandError.make({
+        message:
+          "Invalid detect-borders options. Expected --tolerance between 0 and 255, --min-solid-pct and --min-width-pct between greater than 0 and 100, and --max-scan-pct between greater than 0 and 50.",
+        cause,
+      })
     ),
     Effect.flatMap((decoded) => {
       if (decoded.minWidthPct > decoded.maxScanPct) {
@@ -422,13 +418,12 @@ const validateDetectFacesOptions = (
   options: DetectFacesOptions
 ): Effect.Effect<DetectFacesOptions, FilesCommandError> =>
   decodeDetectFacesOptions(options).pipe(
-    Effect.mapError(
-      (cause) =>
-        FilesCommandError.make({
-          message:
-            "Invalid detect-faces options. Expected --model to point at a YuNet ONNX file, --min-confidence between 0 and 1, and face area/margin percentages between 0 and 100.",
-          cause,
-        })
+    Effect.mapError((cause) =>
+      FilesCommandError.make({
+        message:
+          "Invalid detect-faces options. Expected --model to point at a YuNet ONNX file, --min-confidence between 0 and 1, and face area/margin percentages between 0 and 100.",
+        cause,
+      })
     )
   );
 
@@ -503,13 +498,12 @@ const validateCropBordersOptions = (
   options: CropBordersOptions
 ): Effect.Effect<CropBordersOptions, FilesCommandError> =>
   decodeCropBordersOptions(options).pipe(
-    Effect.mapError(
-      (cause) =>
-        FilesCommandError.make({
-          message:
-            "Invalid crop-borders options. Expected --tolerance between 0 and 255, --min-solid-pct and --min-width-pct between greater than 0 and 100, and --max-scan-pct between greater than 0 and 50.",
-          cause,
-        })
+    Effect.mapError((cause) =>
+      FilesCommandError.make({
+        message:
+          "Invalid crop-borders options. Expected --tolerance between 0 and 255, --min-solid-pct and --min-width-pct between greater than 0 and 100, and --max-scan-pct between greater than 0 and 50.",
+        cause,
+      })
     ),
     Effect.flatMap((decoded) => {
       if (decoded.minWidthPct > decoded.maxScanPct) {
@@ -665,13 +659,12 @@ const validateArchivePoorCandidatesOptions = (
   options: ArchivePoorCandidatesOptions
 ): Effect.Effect<ArchivePoorCandidatesOptions, FilesCommandError> =>
   decodeArchivePoorCandidatesOptions(options).pipe(
-    Effect.mapError(
-      (cause) =>
-        FilesCommandError.make({
-          message:
-            "Invalid archive-poor-candidates options. Expected positive integer --target-resolution and --min-short-edge values plus --max-aspect and --max-upscale ratios greater than or equal to 1.",
-          cause,
-        })
+    Effect.mapError((cause) =>
+      FilesCommandError.make({
+        message:
+          "Invalid archive-poor-candidates options. Expected positive integer --target-resolution and --min-short-edge values plus --max-aspect and --max-upscale ratios greater than or equal to 1.",
+        cause,
+      })
     )
   );
 
@@ -1812,11 +1805,10 @@ const probeImageDimensions = Effect.fn("Files.probeImageDimensions")(function* (
       }),
   });
   const metadata = yield* decodeImageSizeMetadata(rawMetadata).pipe(
-    Effect.mapError(
-      () =>
-        FilesCommandError.make({
-          message: `Image probe did not return usable dimensions for "${file.sourcePath}"`,
-        })
+    Effect.mapError(() =>
+      FilesCommandError.make({
+        message: `Image probe did not return usable dimensions for "${file.sourcePath}"`,
+      })
     )
   );
   const dimensions = MediaDimensions.make({
@@ -1867,12 +1859,11 @@ const runFfprobe = Effect.fn("Files.runFfprobe")(function* (
       return { exitCode, stderr, stdout };
     })
   ).pipe(
-    Effect.mapError(
-      (cause) =>
-        FilesCommandError.make({
-          message: `Failed to run ffprobe for "${file.sourcePath}". Install ffprobe or run without --with-dimensions.`,
-          cause,
-        })
+    Effect.mapError((cause) =>
+      FilesCommandError.make({
+        message: `Failed to run ffprobe for "${file.sourcePath}". Install ffprobe or run without --with-dimensions.`,
+        cause,
+      })
     )
   );
 
@@ -1894,11 +1885,10 @@ const probeVideoDimensions = Effect.fn("Files.probeVideoDimensions")(function* (
 > {
   const outputText = yield* runFfprobe(file);
   const output = yield* decodeFfprobeOutputJson(outputText).pipe(
-    Effect.mapError(
-      () =>
-        FilesCommandError.make({
-          message: `ffprobe returned invalid JSON while probing "${file.sourcePath}"`,
-        })
+    Effect.mapError(() =>
+      FilesCommandError.make({
+        message: `ffprobe returned invalid JSON while probing "${file.sourcePath}"`,
+      })
     )
   );
   const stream = yield* pipe(
@@ -2068,12 +2058,11 @@ const analyzeDetectFacesFile = Effect.fn("Files.analyzeDetectFacesFile")(functio
       })
     )
     .pipe(
-      Effect.mapError(
-        (cause) =>
-          FilesCommandError.make({
-            message: cause.message,
-            cause,
-          })
+      Effect.mapError((cause) =>
+        FilesCommandError.make({
+          message: cause.message,
+          cause,
+        })
       )
     );
   const primaryFace = A.head(result.faces);
@@ -2732,22 +2721,20 @@ const renderNormalizeManifest = Effect.fn("Files.renderNormalizeManifest")(funct
   manifest: NormalizeManifest
 ): Effect.fn.Return<string, FilesCommandError, Path.Path | ChildProcessSpawner.ChildProcessSpawner> {
   const encoded = yield* encodeNormalizeManifest(manifest).pipe(
-    Effect.mapError(
-      (cause) =>
-        FilesCommandError.make({
-          message: `Failed to encode normalize manifest for "${manifestPath}"`,
-          cause,
-        })
+    Effect.mapError((cause) =>
+      FilesCommandError.make({
+        message: `Failed to encode normalize manifest for "${manifestPath}"`,
+        cause,
+      })
     )
   );
 
   return yield* renderBiomeJson(manifestPath, encoded).pipe(
-    Effect.mapError(
-      (cause) =>
-        FilesCommandError.make({
-          message: `Failed to render normalize manifest for "${manifestPath}"`,
-          cause,
-        })
+    Effect.mapError((cause) =>
+      FilesCommandError.make({
+        message: `Failed to render normalize manifest for "${manifestPath}"`,
+        cause,
+      })
     )
   );
 });
@@ -2782,22 +2769,20 @@ const renderArchivePoorCandidatesManifest = Effect.fn("Files.renderArchivePoorCa
   manifest: ArchivePoorCandidatesManifest
 ): Effect.fn.Return<string, FilesCommandError, Path.Path | ChildProcessSpawner.ChildProcessSpawner> {
   const encoded = yield* encodeArchivePoorCandidatesManifest(manifest).pipe(
-    Effect.mapError(
-      (cause) =>
-        FilesCommandError.make({
-          message: `Failed to encode archive manifest for "${manifestPath}"`,
-          cause,
-        })
+    Effect.mapError((cause) =>
+      FilesCommandError.make({
+        message: `Failed to encode archive manifest for "${manifestPath}"`,
+        cause,
+      })
     )
   );
 
   return yield* renderBiomeJson(manifestPath, encoded).pipe(
-    Effect.mapError(
-      (cause) =>
-        FilesCommandError.make({
-          message: `Failed to render archive manifest for "${manifestPath}"`,
-          cause,
-        })
+    Effect.mapError((cause) =>
+      FilesCommandError.make({
+        message: `Failed to render archive manifest for "${manifestPath}"`,
+        cause,
+      })
     )
   );
 });
@@ -2806,22 +2791,20 @@ const renderDetectBordersReportJson = Effect.fn("Files.renderDetectBordersReport
   report: DetectBordersReport
 ): Effect.fn.Return<string, FilesCommandError, Path.Path | ChildProcessSpawner.ChildProcessSpawner> {
   const encoded = yield* encodeDetectBordersReport(report).pipe(
-    Effect.mapError(
-      (cause) =>
-        FilesCommandError.make({
-          message: "Failed to encode detect-borders report",
-          cause,
-        })
+    Effect.mapError((cause) =>
+      FilesCommandError.make({
+        message: "Failed to encode detect-borders report",
+        cause,
+      })
     )
   );
 
   return yield* renderBiomeJson("detect-borders-report.json", encoded).pipe(
-    Effect.mapError(
-      (cause) =>
-        FilesCommandError.make({
-          message: "Failed to render detect-borders report",
-          cause,
-        })
+    Effect.mapError((cause) =>
+      FilesCommandError.make({
+        message: "Failed to render detect-borders report",
+        cause,
+      })
     )
   );
 });
@@ -2831,22 +2814,20 @@ const renderDetectFacesReportJson = Effect.fn("Files.renderDetectFacesReportJson
   outputPath: string
 ): Effect.fn.Return<string, FilesCommandError, Path.Path | ChildProcessSpawner.ChildProcessSpawner> {
   const encoded = yield* encodeDetectFacesReport(report).pipe(
-    Effect.mapError(
-      (cause) =>
-        FilesCommandError.make({
-          message: `Failed to encode detect-faces report for "${outputPath}"`,
-          cause,
-        })
+    Effect.mapError((cause) =>
+      FilesCommandError.make({
+        message: `Failed to encode detect-faces report for "${outputPath}"`,
+        cause,
+      })
     )
   );
 
   return yield* renderBiomeJson(outputPath, encoded).pipe(
-    Effect.mapError(
-      (cause) =>
-        FilesCommandError.make({
-          message: `Failed to render detect-faces report for "${outputPath}"`,
-          cause,
-        })
+    Effect.mapError((cause) =>
+      FilesCommandError.make({
+        message: `Failed to render detect-faces report for "${outputPath}"`,
+        cause,
+      })
     )
   );
 });
@@ -3236,12 +3217,11 @@ const renameOrFail: (
   function* (sourcePath, targetPath, tempDir) {
     const fs = yield* FileSystem.FileSystem;
     yield* fs.rename(sourcePath, targetPath).pipe(
-      Effect.mapError(
-        (cause) =>
-          FilesCommandError.make({
-            message: `Failed to rename "${sourcePath}" to "${targetPath}". Recovery temp directory: "${tempDir}"`,
-            cause,
-          })
+      Effect.mapError((cause) =>
+        FilesCommandError.make({
+          message: `Failed to rename "${sourcePath}" to "${targetPath}". Recovery temp directory: "${tempDir}"`,
+          cause,
+        })
       )
     );
   }
@@ -3525,12 +3505,11 @@ const runFfmpegStripMetadata = Effect.fn("Files.runFfmpegStripMetadata")(functio
       return { exitCode, stderr, stdout };
     })
   ).pipe(
-    Effect.mapError(
-      (cause) =>
-        FilesCommandError.make({
-          message: `Failed to run ffmpeg for "${entry.sourcePath}". Install ffmpeg or remove videos from the selection.`,
-          cause,
-        })
+    Effect.mapError((cause) =>
+      FilesCommandError.make({
+        message: `Failed to run ffmpeg for "${entry.sourcePath}". Install ffmpeg or remove videos from the selection.`,
+        cause,
+      })
     )
   );
 
@@ -4134,12 +4113,11 @@ const detectFacesFilesImpl = Effect.fn("FilesCommandService.detectFacesFiles")(f
         })
       ).pipe(
         Effect.provideService(FaceDetectionService, makeFaceDetectionService()),
-        Effect.mapError(
-          (cause) =>
-            FilesCommandError.make({
-              message: cause.message,
-              cause,
-            })
+        Effect.mapError((cause) =>
+          FilesCommandError.make({
+            message: cause.message,
+            cause,
+          })
         )
       );
     }

@@ -490,24 +490,22 @@ export const createFileGenerationPlanService = (): FileGenerationPlanServiceShap
     const writeActions = pipe(
       input.files,
       sortedByRelativePath,
-      A.map(
-        (file) =>
-          GenerationAction.cases["write-file"].make({
-            relativePath: toPosixPath(file.relativePath),
-            content: file.content,
-          })
+      A.map((file) =>
+        GenerationAction.cases["write-file"].make({
+          relativePath: toPosixPath(file.relativePath),
+          content: file.content,
+        })
       )
     );
 
     const symlinkActions = pipe(
       symlinks,
       sortedByRelativePath,
-      A.map(
-        (link) =>
-          GenerationAction.cases.symlink.make({
-            relativePath: toPosixPath(link.relativePath),
-            target: toPosixPath(link.target),
-          })
+      A.map((link) =>
+        GenerationAction.cases.symlink.make({
+          relativePath: toPosixPath(link.relativePath),
+          target: toPosixPath(link.target),
+        })
       )
     );
 

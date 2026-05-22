@@ -422,14 +422,13 @@ const makePhoenixSdk = (config: ResolvedPhoenixConfig): PhoenixSdkShape => {
           ),
           Match.exhaustive
         )
-        .then(
-          (result) =>
-            PhoenixAnnotationWriteResult.make({
-              annotationId: result?.id ?? null,
-              name: input.name,
-              targetId: input.targetId,
-              targetKind: input.targetKind,
-            })
+        .then((result) =>
+          PhoenixAnnotationWriteResult.make({
+            annotationId: result?.id ?? null,
+            name: input.name,
+            targetId: input.targetId,
+            targetKind: input.targetKind,
+          })
         ),
     appendDatasetExamples: (input) =>
       appendDatasetExamples({
@@ -462,53 +461,48 @@ const makePhoenixSdk = (config: ResolvedPhoenixConfig): PhoenixSdkShape => {
         name: input.name,
         version: promptVersionForProvider(input),
         ...optionalPromptDescription(input),
-      }).then(
-        (result) =>
-          PhoenixPromptWriteResult.make({
-            name: input.name,
-            promptVersionId: result.id,
-          })
+      }).then((result) =>
+        PhoenixPromptWriteResult.make({
+          name: input.name,
+          promptVersionId: result.id,
+        })
       ),
     doctor: () =>
-      client.getServerVersion().then(
-        (version) =>
-          PhoenixDoctorResult.make({
-            baseUrl: config.baseUrl,
-            message: "Phoenix is reachable.",
-            status: "passed",
-            version: semanticVersionToString(version),
-          })
+      client.getServerVersion().then((version) =>
+        PhoenixDoctorResult.make({
+          baseUrl: config.baseUrl,
+          message: "Phoenix is reachable.",
+          status: "passed",
+          version: semanticVersionToString(version),
+        })
       ),
     getDatasetExamples: (selector) =>
-      getDatasetExamples({ client, dataset: datasetSelectorToSdk(selector) }).then(
-        (result) =>
-          PhoenixDatasetExamplesResult.make({
-            examples: pipe(
-              result.examples,
-              A.map(
-                (example) =>
-                  PhoenixDatasetExample.make({
-                    id: example.id,
-                    input: example.input,
-                    metadata: example.metadata ?? {},
-                    output: example.output ?? null,
-                    spanId: example.spanId ?? null,
-                    splits: example.splits ?? null,
-                  })
-              )
-            ),
-            versionId: result.versionId,
-          })
+      getDatasetExamples({ client, dataset: datasetSelectorToSdk(selector) }).then((result) =>
+        PhoenixDatasetExamplesResult.make({
+          examples: pipe(
+            result.examples,
+            A.map((example) =>
+              PhoenixDatasetExample.make({
+                id: example.id,
+                input: example.input,
+                metadata: example.metadata ?? {},
+                output: example.output ?? null,
+                spanId: example.spanId ?? null,
+                splits: example.splits ?? null,
+              })
+            )
+          ),
+          versionId: result.versionId,
+        })
       ),
     getDatasetInfo: (selector) =>
-      getDatasetInfo({ client, dataset: datasetSelectorToSdk(selector) }).then(
-        (result) =>
-          PhoenixDatasetInfoResult.make({
-            datasetId: result.id,
-            description: result.description ?? null,
-            metadata: result.metadata ?? {},
-            name: result.name,
-          })
+      getDatasetInfo({ client, dataset: datasetSelectorToSdk(selector) }).then((result) =>
+        PhoenixDatasetInfoResult.make({
+          datasetId: result.id,
+          description: result.description ?? null,
+          metadata: result.metadata ?? {},
+          name: result.name,
+        })
       ),
     getExperimentInfo: (experimentId) => getExperimentInfo({ client, experimentId }).then(experimentInfoResult),
     getPrompt: (selector) =>

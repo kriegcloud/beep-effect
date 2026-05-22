@@ -91,15 +91,14 @@ const runNative = (
       return AiProviderCliProcessResult.make({ exitCode, stderr, stdout });
     })
   ).pipe(
-    Effect.mapError(
-      () =>
-        AiProviderCliError.make({
-          command: commandPath,
-          message: "Failed to execute provider CLI status command.",
-          operation: "checkAuth",
-          provider,
-          stderr: "unknown",
-        })
+    Effect.mapError(() =>
+      AiProviderCliError.make({
+        command: commandPath,
+        message: "Failed to execute provider CLI status command.",
+        operation: "checkAuth",
+        provider,
+        stderr: "unknown",
+      })
     )
   );
 };

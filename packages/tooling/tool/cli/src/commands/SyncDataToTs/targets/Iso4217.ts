@@ -183,12 +183,11 @@ export const CurrencyCodeDataValues = ${renderedValues} as const;
 const projectIso4217Document: SyncDataTarget["project"] = Effect.fn("SyncDataToTs.Iso4217.projectIso4217Document")(
   function* (document) {
     const decoded = yield* S.decodeUnknownEffect(Iso4217Document)(document).pipe(
-      Effect.mapError(
-        (cause) =>
-          SyncDataToTsError.make({
-            message: `Failed to decode the official ISO 4217 XML payload: ${cause.message}`,
-            targetId: "iso4217",
-          })
+      Effect.mapError((cause) =>
+        SyncDataToTsError.make({
+          message: `Failed to decode the official ISO 4217 XML payload: ${cause.message}`,
+          targetId: "iso4217",
+        })
       )
     );
 
@@ -254,12 +253,11 @@ const projectIso4217Document: SyncDataTarget["project"] = Effect.fn("SyncDataToT
 
     const values = pipe(
       A.fromIterable(MutableHashMap.values(grouped)),
-      A.map(
-        (entry) =>
-          Iso4217CurrencyEntry.make({
-            ...entry,
-            countries: A.sort(entry.countries, Order.String),
-          })
+      A.map((entry) =>
+        Iso4217CurrencyEntry.make({
+          ...entry,
+          countries: A.sort(entry.countries, Order.String),
+        })
       ),
       A.sort(Order.mapInput(Order.String, ({ code }: Iso4217CurrencyEntryType) => code))
     );

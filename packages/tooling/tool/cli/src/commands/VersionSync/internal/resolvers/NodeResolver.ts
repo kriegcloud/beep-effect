@@ -160,12 +160,11 @@ export const resolveNodeVersions: (
     const relativeFile = `.github/workflows/${ymlFile}`;
     const filePath = path.join(workflowDir, ymlFile);
     const content = yield* fs.readFileString(filePath).pipe(
-      Effect.mapError(
-        (e) =>
-          VersionSyncError.make({
-            message: `Failed to read workflow file: ${e}`,
-            file: relativeFile,
-          })
+      Effect.mapError((e) =>
+        VersionSyncError.make({
+          message: `Failed to read workflow file: ${e}`,
+          file: relativeFile,
+        })
       )
     );
 
@@ -194,12 +193,11 @@ const findNodeVersionLocations: (
   let locations = A.empty<NodeVersionLocation>();
 
   const workflow = yield* decodeYamlTextAs(WorkflowDocument)(content).pipe(
-    Effect.mapError(
-      (e) =>
-        VersionSyncError.make({
-          message: `Failed to parse workflow YAML: ${e.message}`,
-          file: relativeFile,
-        })
+    Effect.mapError((e) =>
+      VersionSyncError.make({
+        message: `Failed to parse workflow YAML: ${e.message}`,
+        file: relativeFile,
+      })
     )
   );
 

@@ -948,12 +948,11 @@ const encodeInstallContractJson =
   (failureMessage: string) =>
   (value: A): Effect.Effect<string, AiMetricsInstallConfigurationError> =>
     encoder(value).pipe(
-      Effect.mapError(
-        (cause) =>
-          AiMetricsInstallConfigurationError.make({
-            cause,
-            message: failureMessage,
-          })
+      Effect.mapError((cause) =>
+        AiMetricsInstallConfigurationError.make({
+          cause,
+          message: failureMessage,
+        })
       )
     );
 

@@ -346,16 +346,15 @@ const assistantToolCall = (
 ): Effect.Effect<OpenAiCompatToolCall, AiError.AiError> =>
   pipe(
     encodeToolParams(moduleName, "prepareMessages", part.params),
-    Effect.map(
-      (args) =>
-        OpenAiCompatToolCall.make({
-          function: OpenAiCompatToolCallFunction.make({
-            arguments: args,
-            name: toolNameMapper.getProviderName(part.name),
-          }),
-          id: part.id,
-          type: "function",
-        })
+    Effect.map((args) =>
+      OpenAiCompatToolCall.make({
+        function: OpenAiCompatToolCallFunction.make({
+          arguments: args,
+          name: toolNameMapper.getProviderName(part.name),
+        }),
+        id: part.id,
+        type: "function",
+      })
     )
   );
 
@@ -386,14 +385,13 @@ const toolResultMessage = (
   }
   return pipe(
     encodeToolParams(moduleName, "prepareMessages", part.result),
-    Effect.map(
-      (content) =>
-        OpenAiCompatToolChatMessage.make({
-          content,
-          name: toolNameMapper.getProviderName(part.name),
-          role: "tool",
-          tool_call_id: part.id,
-        })
+    Effect.map((content) =>
+      OpenAiCompatToolChatMessage.make({
+        content,
+        name: toolNameMapper.getProviderName(part.name),
+        role: "tool",
+        tool_call_id: part.id,
+      })
     )
   );
 };

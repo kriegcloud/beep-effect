@@ -104,15 +104,13 @@ export class FaceDetectionError extends TaggedErrorClass<FaceDetectionError>($I`
     3,
     (operation: string, message: string, options: FaceDetectionErrorFromUnknownOptions): FaceDetectionError => {
       const { cause, ...context } = options;
-      return O.getOrElse(
-        existingFaceDetectionError(cause),
-        () =>
-          FaceDetectionError.make({
-            ...context,
-            cause: causeFromUnknown(cause),
-            message: messageWithCause(message, cause),
-            operation,
-          })
+      return O.getOrElse(existingFaceDetectionError(cause), () =>
+        FaceDetectionError.make({
+          ...context,
+          cause: causeFromUnknown(cause),
+          message: messageWithCause(message, cause),
+          operation,
+        })
       );
     }
   );

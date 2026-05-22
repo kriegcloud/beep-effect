@@ -48,8 +48,8 @@ export const renderBiomeJson: {
   Effect.fn(function* (filePath: string, value: unknown) {
     const path = yield* Path.Path;
     const repoRoot = yield* findRepoRoot(moduleDir).pipe(
-      Effect.mapError(
-        (cause) => DomainError.make({ message: "Failed to locate the repo root for Biome formatting.", cause })
+      Effect.mapError((cause) =>
+        DomainError.make({ message: "Failed to locate the repo root for Biome formatting.", cause })
       )
     );
     const biomeConfigPath = path.join(repoRoot, "biome.jsonc");

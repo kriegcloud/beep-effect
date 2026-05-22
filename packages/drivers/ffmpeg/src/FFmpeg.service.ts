@@ -898,7 +898,11 @@ const makeService = Effect.fn("FFmpeg.make")(function* (configInput?: FFmpegConf
     yield* preflightWritable(fs, manifestPath, request.overwrite, "manifest");
 
     const probe = yield* probeVideo(ProbeVideoRequest.make({ videoPath }));
-    const context = yield* makeExtractContext(path, ExtractFramesRequest.make({ ...request, outDir, videoPath }), probe);
+    const context = yield* makeExtractContext(
+      path,
+      ExtractFramesRequest.make({ ...request, outDir, videoPath }),
+      probe
+    );
 
     return yield* Effect.acquireUseRelease(
       fs

@@ -433,12 +433,11 @@ export const makeAcpPatchedProtocol = Effect.fn($I`makeAcpPatchedProtocol`)(func
                 params,
               }) satisfies AcpIncomingNotification
           ),
-          Effect.mapError(
-            (cause) =>
-              AcpError.AcpProtocolParseError.make({
-                cause,
-                detail: `Invalid ${CLIENT_METHODS.session_update} notification payload`,
-              })
+          Effect.mapError((cause) =>
+            AcpError.AcpProtocolParseError.make({
+              cause,
+              detail: `Invalid ${CLIENT_METHODS.session_update} notification payload`,
+            })
           ),
           Effect.flatMap(dispatchNotification)
         );
@@ -453,12 +452,11 @@ export const makeAcpPatchedProtocol = Effect.fn($I`makeAcpPatchedProtocol`)(func
                 params,
               }) satisfies AcpIncomingNotification
           ),
-          Effect.mapError(
-            (cause) =>
-              AcpError.AcpProtocolParseError.make({
-                cause,
-                detail: `Invalid ${CLIENT_METHODS.session_elicitation_complete} notification payload`,
-              })
+          Effect.mapError((cause) =>
+            AcpError.AcpProtocolParseError.make({
+              cause,
+              detail: `Invalid ${CLIENT_METHODS.session_elicitation_complete} notification payload`,
+            })
           ),
           Effect.flatMap(dispatchNotification)
         );

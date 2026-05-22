@@ -63,24 +63,20 @@ export const toCanvasProjectActionError = (
 ): CanvasProjectActionError =>
   Match.value(error).pipe(
     Match.when(isRepositoryNotFound, (error) => CanvasProjectNotFound.make({ canvasProjectId: error.canvasProjectId })),
-    Match.when(
-      isRepositoryConflict,
-      (error) =>
-        CanvasProjectConflict.make({
-          canvasProjectId: error.canvasProjectId,
-          reason: CANVAS_PROJECT_CONFLICT_REASON,
-        })
+    Match.when(isRepositoryConflict, (error) =>
+      CanvasProjectConflict.make({
+        canvasProjectId: error.canvasProjectId,
+        reason: CANVAS_PROJECT_CONFLICT_REASON,
+      })
     ),
-    Match.when(
-      isRepositoryUnavailable,
-      () => CanvasProjectActionFailed.make({ reason: CANVAS_PROJECT_ACTION_UNAVAILABLE_REASON })
+    Match.when(isRepositoryUnavailable, () =>
+      CanvasProjectActionFailed.make({ reason: CANVAS_PROJECT_ACTION_UNAVAILABLE_REASON })
     ),
-    Match.orElse(
-      (error) =>
-        CanvasProjectActionRejected.make({
-          canvasProjectId: error.canvasProjectId,
-          reason: error._tag,
-        })
+    Match.orElse((error) =>
+      CanvasProjectActionRejected.make({
+        canvasProjectId: error.canvasProjectId,
+        reason: error._tag,
+      })
     )
   );
 

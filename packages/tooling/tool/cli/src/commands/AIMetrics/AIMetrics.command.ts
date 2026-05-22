@@ -338,12 +338,11 @@ const readInputFile = Effect.fn("AIMetrics.readInputFile")(function* (input: str
   const path = yield* Path.Path;
   const absolutePath = path.resolve(input);
   const content = yield* fs.readFileString(absolutePath).pipe(
-    Effect.mapError(
-      (cause) =>
-        AiMetricsCommandError.make({
-          cause,
-          message: "Failed to read transcript input.",
-        })
+    Effect.mapError((cause) =>
+      AiMetricsCommandError.make({
+        cause,
+        message: "Failed to read transcript input.",
+      })
     )
   );
 
@@ -355,12 +354,11 @@ const readInputFile = Effect.fn("AIMetrics.readInputFile")(function* (input: str
 
 const encodeCommandJson = Effect.fn("AIMetrics.encodeCommandJson")(function* (value: unknown) {
   return yield* encodeJson(value).pipe(
-    Effect.mapError(
-      (cause) =>
-        AiMetricsCommandError.make({
-          cause,
-          message: "Failed to encode AI metrics command output as JSON.",
-        })
+    Effect.mapError((cause) =>
+      AiMetricsCommandError.make({
+        cause,
+        message: "Failed to encode AI metrics command output as JSON.",
+      })
     )
   );
 });
@@ -369,12 +367,11 @@ const encodeInstallSpecCommandJson = Effect.fn("AIMetrics.encodeInstallSpecComma
   spec: AiMetricsInstallSpec
 ) {
   return yield* encodeInstallSpecJson(spec).pipe(
-    Effect.mapError(
-      (cause) =>
-        AiMetricsCommandError.make({
-          cause,
-          message: "Failed to encode AI metrics install spec as JSON.",
-        })
+    Effect.mapError((cause) =>
+      AiMetricsCommandError.make({
+        cause,
+        message: "Failed to encode AI metrics install spec as JSON.",
+      })
     )
   );
 });
@@ -402,12 +399,11 @@ const readOptionalConfigString: (key: string) => Effect.Effect<O.Option<string>,
   "AIMetrics.readOptionalConfigString"
 )((key) =>
   ConfigProvider.ConfigProvider.use((provider) => Config.option(Config.string(key)).parse(provider)).pipe(
-    Effect.mapError(
-      (cause) =>
-        AiMetricsCommandError.make({
-          cause,
-          message: `Failed to read ${key} from the Effect config provider.`,
-        })
+    Effect.mapError((cause) =>
+      AiMetricsCommandError.make({
+        cause,
+        message: `Failed to read ${key} from the Effect config provider.`,
+      })
     )
   )
 );
@@ -418,12 +414,11 @@ const readOptionalRedactedConfigString: (
   "AIMetrics.readOptionalRedactedConfigString"
 )((key) =>
   ConfigProvider.ConfigProvider.use((provider) => Config.option(Config.redacted(key)).parse(provider)).pipe(
-    Effect.mapError(
-      (cause) =>
-        AiMetricsCommandError.make({
-          cause,
-          message: `Failed to read ${key} from the Effect config provider.`,
-        })
+    Effect.mapError((cause) =>
+      AiMetricsCommandError.make({
+        cause,
+        message: `Failed to read ${key} from the Effect config provider.`,
+      })
     )
   )
 );
@@ -1066,12 +1061,11 @@ const collectJsonlInputFiles = Effect.fn("AIMetrics.collectJsonlInputFiles")(fun
   const fs = yield* FileSystem.FileSystem;
   const path = yield* Path.Path;
   const stat = yield* fs.stat(inputPath).pipe(
-    Effect.mapError(
-      (cause) =>
-        AiMetricsCommandError.make({
-          cause,
-          message: "Failed to inspect privacy input.",
-        })
+    Effect.mapError((cause) =>
+      AiMetricsCommandError.make({
+        cause,
+        message: "Failed to inspect privacy input.",
+      })
     )
   );
 
@@ -1123,12 +1117,11 @@ const readPrivacyInput = Effect.fn("AIMetrics.readPrivacyInput")(function* (inpu
     files,
     (filePath) =>
       fs.readFileString(filePath).pipe(
-        Effect.mapError(
-          (cause) =>
-            AiMetricsCommandError.make({
-              cause,
-              message: "Failed to read transcript input.",
-            })
+        Effect.mapError((cause) =>
+          AiMetricsCommandError.make({
+            cause,
+            message: "Failed to read transcript input.",
+          })
         )
       ),
     { concurrency: 8 }
@@ -2045,21 +2038,19 @@ const resolveMirrorBundleDir = Effect.fn("AIMetrics.resolveMirrorBundleDir")(fun
 const readMirrorManifest = Effect.fn("AIMetrics.readMirrorManifest")(function* (manifestPath: string) {
   const fs = yield* FileSystem.FileSystem;
   const content = yield* fs.readFileString(manifestPath).pipe(
-    Effect.mapError(
-      (cause) =>
-        AiMetricsCommandError.make({
-          cause,
-          message: "Failed to read AI metrics mirror manifest JSON.",
-        })
+    Effect.mapError((cause) =>
+      AiMetricsCommandError.make({
+        cause,
+        message: "Failed to read AI metrics mirror manifest JSON.",
+      })
     )
   );
   return yield* decodeMirrorManifestJson(content).pipe(
-    Effect.mapError(
-      (cause) =>
-        AiMetricsCommandError.make({
-          cause,
-          message: "Failed to parse AI metrics mirror manifest JSON.",
-        })
+    Effect.mapError((cause) =>
+      AiMetricsCommandError.make({
+        cause,
+        message: "Failed to parse AI metrics mirror manifest JSON.",
+      })
     )
   );
 });
@@ -2123,12 +2114,11 @@ const listMirrorBundleFiles = Effect.fn("AIMetrics.listMirrorBundleFiles")(funct
     currentPath: string
   ): Effect.fn.Return<ReadonlyArray<string>, AiMetricsCommandError, FileSystem.FileSystem | Path.Path> {
     const stat = yield* fs.stat(currentPath).pipe(
-      Effect.mapError(
-        (cause) =>
-          AiMetricsCommandError.make({
-            cause,
-            message: "Failed to inspect AI metrics mirror bundle file inventory.",
-          })
+      Effect.mapError((cause) =>
+        AiMetricsCommandError.make({
+          cause,
+          message: "Failed to inspect AI metrics mirror bundle file inventory.",
+        })
       )
     );
     if (stat.type === "File") {
@@ -2139,12 +2129,11 @@ const listMirrorBundleFiles = Effect.fn("AIMetrics.listMirrorBundleFiles")(funct
     }
 
     const entries = yield* fs.readDirectory(currentPath).pipe(
-      Effect.mapError(
-        (cause) =>
-          AiMetricsCommandError.make({
-            cause,
-            message: "Failed to read AI metrics mirror bundle file inventory.",
-          })
+      Effect.mapError((cause) =>
+        AiMetricsCommandError.make({
+          cause,
+          message: "Failed to read AI metrics mirror bundle file inventory.",
+        })
       )
     );
     const nested = yield* Effect.forEach(entries, (entry) => walk(path.join(currentPath, entry)), { concurrency: 8 });
@@ -2328,12 +2317,11 @@ const makeMirrorStatusProgram = Effect.fn("AIMetrics.makeMirrorStatusProgram")(f
   const manifestPath = `${remoteRoot}/manifest.json`;
   const captured = yield* runCapturedCommand("ssh", [host, `cat ${shellQuote(manifestPath)}`]);
   const manifest = yield* decodeMirrorManifestJson(captured.stdout).pipe(
-    Effect.mapError(
-      (cause) =>
-        AiMetricsCommandError.make({
-          cause,
-          message: "Failed to parse remote AI metrics mirror manifest JSON.",
-        })
+    Effect.mapError((cause) =>
+      AiMetricsCommandError.make({
+        cause,
+        message: "Failed to parse remote AI metrics mirror manifest JSON.",
+      })
     )
   );
   yield* requireSafeMirrorManifest({
@@ -2553,21 +2541,19 @@ const makeArchiveDrillProgram = Effect.fn("AIMetrics.makeArchiveDrillProgram")(f
                   FROM ai_metrics_raw_archive_objects
                   ORDER BY encrypted_at_epoch_ms DESC LIMIT 1`)
             .pipe(
-              Effect.mapError(
-                (cause) =>
-                  AiMetricsCommandError.make({
-                    cause,
-                    message: "Failed to select an AI metrics archive object for the decrypt drill.",
-                  })
+              Effect.mapError((cause) =>
+                AiMetricsCommandError.make({
+                  cause,
+                  message: "Failed to select an AI metrics archive object for the decrypt drill.",
+                })
               )
             );
           const decoded = yield* decodeArchiveDrillRows(rows).pipe(
-            Effect.mapError(
-              (cause) =>
-                AiMetricsCommandError.make({
-                  cause,
-                  message: "Failed to decode AI metrics archive drill rows.",
-                })
+            Effect.mapError((cause) =>
+              AiMetricsCommandError.make({
+                cause,
+                message: "Failed to decode AI metrics archive drill rows.",
+              })
             )
           );
           const row = A.head(decoded);

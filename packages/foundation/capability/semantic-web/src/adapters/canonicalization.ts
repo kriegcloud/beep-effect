@@ -74,12 +74,11 @@ const hashCanonicalText = Effect.fn("SemanticWeb.hashCanonicalText")(function* (
   });
 
   return yield* S.decodeUnknownEffect(Sha256Hex)(hex).pipe(
-    Effect.mapError(
-      () =>
-        CanonicalizationError.make({
-          reason: "fingerprintFailure",
-          message: "Failed to decode SHA-256 dataset fingerprint.",
-        })
+    Effect.mapError(() =>
+      CanonicalizationError.make({
+        reason: "fingerprintFailure",
+        message: "Failed to decode SHA-256 dataset fingerprint.",
+      })
     )
   );
 });

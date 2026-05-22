@@ -278,12 +278,11 @@ const runtimeAgentPrincipalId = (seed: SeedFixture): string =>
     seed.principals,
     A.findFirst((candidate) => candidate.agentId === seed.agent.agentId),
     O.map((principal) => principal.principalId),
-    O.getOrThrowWith(
-      () =>
-        MissingRuntimeAgentPrincipalError.make({
-          message: `${seed.scenarioId}: missing runtime agent principal`,
-          scenarioId: seed.scenarioId,
-        })
+    O.getOrThrowWith(() =>
+      MissingRuntimeAgentPrincipalError.make({
+        message: `${seed.scenarioId}: missing runtime agent principal`,
+        scenarioId: seed.scenarioId,
+      })
     )
   );
 

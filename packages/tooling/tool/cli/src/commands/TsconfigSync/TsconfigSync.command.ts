@@ -1580,15 +1580,13 @@ const planPackageDocgenSync = Effect.fn(function* (
 ) {
   const path = yield* Path.Path;
   const targetWorkspaces = yield* resolveTargetWorkspacesForPackageSync(workspaces, filter);
-  const workspaceAliasSources = A.map(
-    workspaces,
-    (workspace) =>
-      DocgenAliasSource.make({
-        packageName: workspace.packageName,
-        rootAliasTarget: O.getOrUndefined(O.fromUndefinedOr(workspace.docgenRootAliasTarget)) ?? "",
-        wildcardAliasTarget: O.getOrUndefined(O.fromUndefinedOr(workspace.docgenWildcardAliasTarget)) ?? "",
-        subpathAliasTargets: O.getOrUndefined(O.fromUndefinedOr(workspace.docgenSubpathAliasTargets)) ?? R.empty(),
-      })
+  const workspaceAliasSources = A.map(workspaces, (workspace) =>
+    DocgenAliasSource.make({
+      packageName: workspace.packageName,
+      rootAliasTarget: O.getOrUndefined(O.fromUndefinedOr(workspace.docgenRootAliasTarget)) ?? "",
+      wildcardAliasTarget: O.getOrUndefined(O.fromUndefinedOr(workspace.docgenWildcardAliasTarget)) ?? "",
+      subpathAliasTargets: O.getOrUndefined(O.fromUndefinedOr(workspace.docgenSubpathAliasTargets)) ?? R.empty(),
+    })
   );
   const plannedChanges = A.empty<PlannedFileChange>();
 

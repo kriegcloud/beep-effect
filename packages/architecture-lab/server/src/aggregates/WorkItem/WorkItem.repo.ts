@@ -85,11 +85,10 @@ const repositoryUnavailable =
           Effect.annotateLogs({ operation, table: WORK_ITEM_TABLE_NAME, cause })
         )
       ),
-      Effect.mapError(
-        () =>
-          WorkItemUseCaseServer.WorkItem.WorkItemRepositoryUnavailable.make({
-            reason: `${operation} failed against ${WORK_ITEM_TABLE_NAME}`,
-          })
+      Effect.mapError(() =>
+        WorkItemUseCaseServer.WorkItem.WorkItemRepositoryUnavailable.make({
+          reason: `${operation} failed against ${WORK_ITEM_TABLE_NAME}`,
+        })
       )
     );
 

@@ -520,13 +520,11 @@ export const updateRootConfigsForTargets: {
   Effect.fn(function* (repoRoot, targets) {
     const normalizedTargets = normalizeTargets(targets);
     const targetResults = yield* Effect.forEach(normalizedTargets, (target) =>
-      Effect.map(
-        updateRootConfigsForTarget(repoRoot, target),
-        (result) =>
-          ConfigUpdateTargetResult.make({
-            target,
-            result,
-          })
+      Effect.map(updateRootConfigsForTarget(repoRoot, target), (result) =>
+        ConfigUpdateTargetResult.make({
+          target,
+          result,
+        })
       )
     );
 
@@ -562,13 +560,11 @@ export const checkConfigNeedsUpdateForTargets: {
   Effect.fn(function* (repoRoot, targets) {
     const normalizedTargets = normalizeTargets(targets);
     const targetResults = yield* Effect.forEach(normalizedTargets, (target) =>
-      Effect.map(
-        checkConfigNeedsUpdateForTarget(repoRoot, target),
-        (result) =>
-          ConfigUpdateTargetResult.make({
-            target,
-            result,
-          })
+      Effect.map(checkConfigNeedsUpdateForTarget(repoRoot, target), (result) =>
+        ConfigUpdateTargetResult.make({
+          target,
+          result,
+        })
       )
     );
 

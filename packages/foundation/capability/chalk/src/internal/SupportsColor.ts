@@ -291,14 +291,13 @@ const envForceColor = (env: Readonly<Record<string, string | undefined>>): O.Opt
 const translateLevel = (level: ColorSupportLevel): ColorInfo =>
   Match.type<ColorSupportLevel>().pipe(
     Match.when(level0, () => false as const),
-    Match.orElse(
-      (enabledLevel) =>
-        ColorSupport.make({
-          has16m: enabledLevel >= 3,
-          has256: enabledLevel >= 2,
-          hasBasic: true,
-          level: enabledLevel,
-        })
+    Match.orElse((enabledLevel) =>
+      ColorSupport.make({
+        has16m: enabledLevel >= 3,
+        has256: enabledLevel >= 2,
+        hasBasic: true,
+        level: enabledLevel,
+      })
     )
   )(level);
 

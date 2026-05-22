@@ -362,12 +362,11 @@ export const makeSecretReferenceServer = Effect.fn("InstallerServer.makeSecretRe
       }
 
       return yield* onePassword.read(reference).pipe(
-        Effect.mapError(
-          () =>
-            SecretReferenceReadError.make({
-              message: "Unable to resolve approved 1Password reference.",
-              reference,
-            })
+        Effect.mapError(() =>
+          SecretReferenceReadError.make({
+            message: "Unable to resolve approved 1Password reference.",
+            reference,
+          })
         )
       );
     }),
@@ -558,14 +557,12 @@ export const makeP1ManualProofWorkflow = Effect.fn("InstallerServer.makeP1Manual
   });
 
   const providersForManifest = (providerValidations: ReadonlyArray<ProviderAuthValidationResult>) =>
-    A.map(
-      providerValidations,
-      (provider) =>
-        ManifestProvider.make({
-          authMode: provider.authMode,
-          provider: provider.provider,
-          status: provider.status,
-        })
+    A.map(providerValidations, (provider) =>
+      ManifestProvider.make({
+        authMode: provider.authMode,
+        provider: provider.provider,
+        status: provider.status,
+      })
     );
 
   const providerEvents = (providerValidations: ReadonlyArray<ProviderAuthValidationResult>) =>

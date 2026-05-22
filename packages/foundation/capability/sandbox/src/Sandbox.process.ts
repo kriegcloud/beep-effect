@@ -58,13 +58,12 @@ const collectText = Effect.fnUntraced(function* <E>(
       () => ({ lineBuffer: "", text: "" }),
       (acc, chunk) => collectChunk(acc, chunk, onLine)
     ),
-    Effect.mapError(
-      (cause) =>
-        ExecHostError.make({
-          cause,
-          command,
-          message: `Failed to collect host command output: ${command}`,
-        })
+    Effect.mapError((cause) =>
+      ExecHostError.make({
+        cause,
+        command,
+        message: `Failed to collect host command output: ${command}`,
+      })
     )
   );
 
@@ -167,25 +166,23 @@ const spawnAndCollectProcess = Effect.fn("SandboxProcess.spawnAndCollectProcess"
   onLine?: (line: string) => void
 ) {
   const handle = yield* spawner.spawn(child).pipe(
-    Effect.mapError(
-      (cause) =>
-        ExecHostError.make({
-          cause,
-          command,
-          message: `Failed to spawn host command: ${command}`,
-        })
+    Effect.mapError((cause) =>
+      ExecHostError.make({
+        cause,
+        command,
+        message: `Failed to spawn host command: ${command}`,
+      })
     )
   );
   const result = yield* Effect.all(
     {
       exitCode: handle.exitCode.pipe(
-        Effect.mapError(
-          (cause) =>
-            ExecHostError.make({
-              cause,
-              command,
-              message: `Failed to wait for host command: ${command}`,
-            })
+        Effect.mapError((cause) =>
+          ExecHostError.make({
+            cause,
+            command,
+            message: `Failed to wait for host command: ${command}`,
+          })
         )
       ),
       stderr: collectText(handle.stderr, command),

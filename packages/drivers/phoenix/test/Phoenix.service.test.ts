@@ -104,7 +104,8 @@ const okSdk: PhoenixSdkShape = {
         successfulRunCount: 0,
       })
     ),
-  getPrompt: () => Promise.resolve(PhoenixPromptReadResult.make({ exists: true, promptVersionId: "prompt-version-id" })),
+  getPrompt: () =>
+    Promise.resolve(PhoenixPromptReadResult.make({ exists: true, promptVersionId: "prompt-version-id" })),
 };
 
 const failingSdk: PhoenixSdkShape = {

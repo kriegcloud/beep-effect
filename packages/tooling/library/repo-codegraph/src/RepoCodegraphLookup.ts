@@ -480,14 +480,13 @@ const toLookupMatch = (
   const recommendedImport = pipe(
     legalImports,
     A.head,
-    O.getOrElse(
-      () =>
-        RepoCodegraphImportCandidate.make({
-          exportSubpath: scored.entry.exportSubpath,
-          importSpecifier: scored.entry.importSpecifier,
-          isRecommended: true,
-          reason: O.some("Catalog entry import is the only available public import surface."),
-        })
+    O.getOrElse(() =>
+      RepoCodegraphImportCandidate.make({
+        exportSubpath: scored.entry.exportSubpath,
+        importSpecifier: scored.entry.importSpecifier,
+        isRecommended: true,
+        reason: O.some("Catalog entry import is the only available public import surface."),
+      })
     )
   );
   const summary = Str.isNonEmpty(Str.trim(scored.entry.summary)) ? O.some(scored.entry.summary) : O.none<string>();

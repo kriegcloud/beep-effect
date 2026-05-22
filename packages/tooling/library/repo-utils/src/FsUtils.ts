@@ -195,8 +195,8 @@ export const FsUtilsLive: Layer.Layer<FsUtils, never, FileSystem.FileSystem | Pa
       return yield* globUtils
         .glob(pattern, sharedGlobOptions)
         .pipe(
-          Effect.mapError(
-            (error) => DomainError.make({ cause: error, message: `Glob failed for pattern "${String(pattern)}"` })
+          Effect.mapError((error) =>
+            DomainError.make({ cause: error, message: `Glob failed for pattern "${String(pattern)}"` })
           )
         );
     });
@@ -223,9 +223,8 @@ export const FsUtilsLive: Layer.Layer<FsUtils, never, FileSystem.FileSystem | Pa
       const original = yield* fs
         .readFileString(filePath)
         .pipe(
-          Effect.mapError(
-            (e) =>
-              NoSuchFileError.make({ path: filePath, message: `Failed to read file for modification: ${e.message}` })
+          Effect.mapError((e) =>
+            NoSuchFileError.make({ path: filePath, message: `Failed to read file for modification: ${e.message}` })
           )
         );
       const transformed = transform(original);
@@ -242,12 +241,11 @@ export const FsUtilsLive: Layer.Layer<FsUtils, never, FileSystem.FileSystem | Pa
 
     const realPath: FsUtilsShape["realPath"] = Effect.fn(function* (filePath) {
       return yield* fs.realPath(filePath).pipe(
-        Effect.mapError(
-          (e) =>
-            NoSuchFileError.make({
-              path: filePath,
-              message: `Failed to resolve canonical path for "${filePath}": ${e.message}`,
-            })
+        Effect.mapError((e) =>
+          NoSuchFileError.make({
+            path: filePath,
+            message: `Failed to resolve canonical path for "${filePath}": ${e.message}`,
+          })
         )
       );
     });
@@ -256,8 +254,8 @@ export const FsUtilsLive: Layer.Layer<FsUtils, never, FileSystem.FileSystem | Pa
       const exists = yield* fs
         .exists(filePath)
         .pipe(
-          Effect.mapError(
-            () => NoSuchFileError.make({ path: filePath, message: `Unable to check existence of "${filePath}"` })
+          Effect.mapError(() =>
+            NoSuchFileError.make({ path: filePath, message: `Unable to check existence of "${filePath}"` })
           )
         );
       if (!exists) {

@@ -30,12 +30,11 @@ const decodeJsonLdDocumentFromJson = S.decodeUnknownEffect(S.fromJsonString(Json
 
 const decodeNonNegativeInt = (value: number): Effect.Effect<NonNegativeInt, JsonLdStreamParseError> =>
   S.decodeUnknownEffect(NonNegativeInt)(value).pipe(
-    Effect.mapError(
-      (cause) =>
-        JsonLdStreamParseError.make({
-          reason: "parseFailure",
-          message: `Failed to decode JSON-LD stream chunk count: ${String(cause)}`,
-        })
+    Effect.mapError((cause) =>
+      JsonLdStreamParseError.make({
+        reason: "parseFailure",
+        message: `Failed to decode JSON-LD stream chunk count: ${String(cause)}`,
+      })
     )
   );
 
@@ -128,12 +127,11 @@ export const JsonLdStreamParseServiceLive = Layer.effect(
 
         const document = yield* pipe(
           decodeJsonLdDocumentFromJson(sourceText),
-          Effect.mapError(
-            () =>
-              JsonLdStreamParseError.make({
-                reason: "parseFailure",
-                message: "Unable to decode bounded JSON-LD stream input.",
-              })
+          Effect.mapError(() =>
+            JsonLdStreamParseError.make({
+              reason: "parseFailure",
+              message: "Unable to decode bounded JSON-LD stream input.",
+            })
           )
         );
 

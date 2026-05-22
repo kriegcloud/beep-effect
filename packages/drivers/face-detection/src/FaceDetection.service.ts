@@ -535,13 +535,12 @@ const postprocess = Effect.fn("FaceDetection.postprocess")(function* (
 const makeLoadedDetector = (ort: Ort, session: OrtSession): LoadedFaceDetector => ({
   detect: Effect.fn("LoadedFaceDetector.detect")(function* (request) {
     const validatedRequest = yield* decodeFaceDetectionImageRequest(request).pipe(
-      Effect.mapError(
-        () =>
-          FaceDetectionError.make({
-            imagePath: request.imagePath,
-            message: "Invalid face detection image request.",
-            operation: "detect",
-          })
+      Effect.mapError(() =>
+        FaceDetectionError.make({
+          imagePath: request.imagePath,
+          message: "Invalid face detection image request.",
+          operation: "detect",
+        })
       )
     );
     const inputName = yield* pipe(
@@ -589,12 +588,11 @@ export const makeFaceDetectionService = (): FaceDetectionServiceShape =>
   FaceDetectionService.of({
     withDetector: Effect.fn("FaceDetectionService.withDetector")(function* (config, use) {
       const validatedConfig = yield* decodeFaceDetectionModelConfig(config).pipe(
-        Effect.mapError(
-          () =>
-            FaceDetectionError.make({
-              message: "Invalid face detection model config.",
-              operation: "withDetector",
-            })
+        Effect.mapError(() =>
+          FaceDetectionError.make({
+            message: "Invalid face detection model config.",
+            operation: "withDetector",
+          })
         )
       );
       const ort = yield* loadOnnxRuntime();

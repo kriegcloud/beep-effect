@@ -202,12 +202,11 @@ const collectGitOutput = Effect.fn("ChangesetGraph.collectGitOutput")(function* 
       return text;
     })
   ).pipe(
-    Effect.mapError(
-      (cause) =>
-        ChangesetGraphError.make({
-          message: `Failed to run git ${A.join(args, " ")}.`,
-          cause,
-        })
+    Effect.mapError((cause) =>
+      ChangesetGraphError.make({
+        message: `Failed to run git ${A.join(args, " ")}.`,
+        cause,
+      })
     )
   );
 
@@ -219,24 +218,22 @@ const readPackageJson = Effect.fn("ChangesetGraph.readPackageJson")(function* (
 ): Effect.fn.Return<ChangesetGraphPackageJson, ChangesetGraphError, FileSystem.FileSystem> {
   const fs = yield* FileSystem.FileSystem;
   const content = yield* fs.readFileString(filePath).pipe(
-    Effect.mapError(
-      (cause) =>
-        ChangesetGraphError.make({
-          message: `Failed to read package manifest ${filePath}.`,
-          file: filePath,
-          cause,
-        })
+    Effect.mapError((cause) =>
+      ChangesetGraphError.make({
+        message: `Failed to read package manifest ${filePath}.`,
+        file: filePath,
+        cause,
+      })
     )
   );
 
   return yield* decodePackageJson(content).pipe(
-    Effect.mapError(
-      (cause) =>
-        ChangesetGraphError.make({
-          message: `Failed to parse package manifest ${filePath}.`,
-          file: filePath,
-          cause,
-        })
+    Effect.mapError((cause) =>
+      ChangesetGraphError.make({
+        message: `Failed to parse package manifest ${filePath}.`,
+        file: filePath,
+        cause,
+      })
     )
   );
 });
@@ -314,13 +311,12 @@ const collectChangesetFiles = Effect.fn("ChangesetGraph.collectChangesetFiles")(
     trackedFiles,
     Effect.fn(function* (file) {
       const exists = yield* fs.exists(path.join(repoRoot, file)).pipe(
-        Effect.mapError(
-          (cause) =>
-            ChangesetGraphError.make({
-              message: `Failed to inspect changeset file ${file}.`,
-              file,
-              cause,
-            })
+        Effect.mapError((cause) =>
+          ChangesetGraphError.make({
+            message: `Failed to inspect changeset file ${file}.`,
+            file,
+            cause,
+          })
         )
       );
       return exists ? O.some(file) : O.none<string>();
@@ -401,13 +397,12 @@ export const changesetPackageReferencesFromText = Effect.fn("ChangesetGraph.chan
     }
 
     const decoded = yield* decodeChangesetFrontmatter(value).pipe(
-      Effect.mapError(
-        (cause) =>
-          ChangesetGraphError.make({
-            message: `Changeset frontmatter in ${file} must be a package bump mapping.`,
-            file,
-            cause,
-          })
+      Effect.mapError((cause) =>
+        ChangesetGraphError.make({
+          message: `Changeset frontmatter in ${file} must be a package bump mapping.`,
+          file,
+          cause,
+        })
       )
     );
 
@@ -434,13 +429,12 @@ const collectChangesetPackageReferences = Effect.fn("ChangesetGraph.collectChang
     files,
     Effect.fn(function* (file) {
       const content = yield* fs.readFileString(path.join(repoRoot, file)).pipe(
-        Effect.mapError(
-          (cause) =>
-            ChangesetGraphError.make({
-              message: `Failed to read changeset file ${file}.`,
-              file,
-              cause,
-            })
+        Effect.mapError((cause) =>
+          ChangesetGraphError.make({
+            message: `Failed to read changeset file ${file}.`,
+            file,
+            cause,
+          })
         )
       );
       return yield* changesetPackageReferencesFromText(file, content);

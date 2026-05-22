@@ -31,7 +31,9 @@ const makeRepository = (
             return canvasProject;
           })
         : Effect.fail(
-            CanvasProjectServer.CanvasProject.CanvasProjectRepositoryNotFound.make({ canvasProjectId: canvasProject.id })
+            CanvasProjectServer.CanvasProject.CanvasProjectRepositoryNotFound.make({
+              canvasProjectId: canvasProject.id,
+            })
           ),
     get: (id) =>
       id === current.id
@@ -187,7 +189,9 @@ describe("CanvasProject use-cases", () => {
         title: "Restored scene",
       });
 
-      const restored = yield* useCases.restore(CanvasProject.RestoreCanvasProjectCommand.make({ scene: restoredScene }));
+      const restored = yield* useCases.restore(
+        CanvasProject.RestoreCanvasProjectCommand.make({ scene: restoredScene })
+      );
       const loaded = yield* useCases.get(CanvasProject.GetCanvasProjectQuery.make({ id: canvasProjectId }));
 
       expect(restored.title).toBe("Restored scene");
@@ -210,7 +214,9 @@ describe("CanvasProject use-cases", () => {
         title: "Imported scene",
       });
 
-      const imported = yield* useCases.restore(CanvasProject.RestoreCanvasProjectCommand.make({ scene: importedScene }));
+      const imported = yield* useCases.restore(
+        CanvasProject.RestoreCanvasProjectCommand.make({ scene: importedScene })
+      );
       const loaded = yield* useCases.get(CanvasProject.GetCanvasProjectQuery.make({ id: importedCanvasProjectId }));
 
       expect(imported.title).toBe("Imported scene");

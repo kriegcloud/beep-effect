@@ -538,34 +538,28 @@ const readRetentionPlan = Effect.fn("AiMetrics.retention.readPlan")(function* (i
 
 const planToInventory = (input: AiMetricsRetentionSelector, plan: RetentionPlan): AiMetricsRetentionInventory =>
   AiMetricsRetentionInventory.make({
-    derivedExports: A.map(
-      plan.derivedExportItems,
-      (item) =>
-        AiMetricsRetentionFileItem.make({
-          modifiedAtEpochMillis: item.modifiedAtEpochMillis,
-          relativePath: item.relativePath,
-        })
+    derivedExports: A.map(plan.derivedExportItems, (item) =>
+      AiMetricsRetentionFileItem.make({
+        modifiedAtEpochMillis: item.modifiedAtEpochMillis,
+        relativePath: item.relativePath,
+      })
     ),
     explicitWindow: hasExplicitWindow(input),
-    rawArchiveObjects: A.map(
-      plan.rawArchiveItems,
-      (item) =>
-        AiMetricsRetentionRawArchiveItem.make({
-          archiveObjectId: item.archiveObjectId,
-          encryptedAtEpochMillis: item.encryptedAtEpochMillis,
-          ingestRunId: item.ingestRunId,
-          plaintextContentHash: item.plaintextContentHash,
-          sourceKind: item.sourceKind,
-          sourcePathHash: item.sourcePathHash,
-        })
+    rawArchiveObjects: A.map(plan.rawArchiveItems, (item) =>
+      AiMetricsRetentionRawArchiveItem.make({
+        archiveObjectId: item.archiveObjectId,
+        encryptedAtEpochMillis: item.encryptedAtEpochMillis,
+        ingestRunId: item.ingestRunId,
+        plaintextContentHash: item.plaintextContentHash,
+        sourceKind: item.sourceKind,
+        sourcePathHash: item.sourcePathHash,
+      })
     ),
-    reports: A.map(
-      plan.reportItems,
-      (item) =>
-        AiMetricsRetentionFileItem.make({
-          modifiedAtEpochMillis: item.modifiedAtEpochMillis,
-          relativePath: item.relativePath,
-        })
+    reports: A.map(plan.reportItems, (item) =>
+      AiMetricsRetentionFileItem.make({
+        modifiedAtEpochMillis: item.modifiedAtEpochMillis,
+        relativePath: item.relativePath,
+      })
     ),
     schemaVersion: retentionSchemaVersion,
     selectedDerivedExportCount: plan.derivedExportItems.length,

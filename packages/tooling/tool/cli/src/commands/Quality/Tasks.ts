@@ -406,20 +406,18 @@ const parseRootAuditSelection = (args: ReadonlyArray<string>): RootAuditSelectio
 const readJsonFile = Effect.fn("QualityTasks.readJsonFile")(function* (filePath: string) {
   const fs = yield* FileSystem.FileSystem;
   const content = yield* fs.readFileString(filePath).pipe(
-    Effect.mapError(
-      (cause) =>
-        QualityTaskConfigurationError.make({
-          message: `Failed to read ${filePath}: ${String(cause)}`,
-        })
+    Effect.mapError((cause) =>
+      QualityTaskConfigurationError.make({
+        message: `Failed to read ${filePath}: ${String(cause)}`,
+      })
     )
   );
 
   return yield* decodePackageJsonDocument(content).pipe(
-    Effect.mapError(
-      (cause) =>
-        QualityTaskConfigurationError.make({
-          message: `Failed to parse ${filePath}: ${String(cause)}`,
-        })
+    Effect.mapError((cause) =>
+      QualityTaskConfigurationError.make({
+        message: `Failed to parse ${filePath}: ${String(cause)}`,
+      })
     )
   );
 });
@@ -615,11 +613,10 @@ const runStep = Effect.fn("QualityTasks.runStep")(function* (step: QualityTaskSt
       return yield* handle.exitCode;
     })
   ).pipe(
-    Effect.mapError(
-      (cause) =>
-        QualityTaskConfigurationError.make({
-          message: `Failed to spawn ${commandText(resolved.command, resolved.args)}: ${String(cause)}`,
-        })
+    Effect.mapError((cause) =>
+      QualityTaskConfigurationError.make({
+        message: `Failed to spawn ${commandText(resolved.command, resolved.args)}: ${String(cause)}`,
+      })
     )
   );
 
@@ -695,11 +692,10 @@ const collectResolvedStepOutput = Effect.fn("QualityTasks.collectResolvedStepOut
       };
     })
   ).pipe(
-    Effect.mapError(
-      (cause) =>
-        QualityTaskConfigurationError.make({
-          message: `Failed to spawn ${command}: ${cause.message}`,
-        })
+    Effect.mapError((cause) =>
+      QualityTaskConfigurationError.make({
+        message: `Failed to spawn ${command}: ${cause.message}`,
+      })
     )
   );
 
@@ -863,11 +859,10 @@ const sqlIntegrationStep = (
 const acquireTestcontainersSqlIntegrationResource = withRyukDisabledDuringAcquire(
   makePgliteTestcontainerResource()
 ).pipe(
-  Effect.mapError(
-    (error) =>
-      QualityTaskConfigurationError.make({
-        message: `Failed to start shared PGLite SQL integration database: ${error.message}`,
-      })
+  Effect.mapError((error) =>
+    QualityTaskConfigurationError.make({
+      message: `Failed to start shared PGLite SQL integration database: ${error.message}`,
+    })
   )
 );
 

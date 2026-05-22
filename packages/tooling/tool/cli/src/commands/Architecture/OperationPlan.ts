@@ -2043,20 +2043,18 @@ const packageShellFileOperationsFor = (
   if (role === "config") {
     return [
       ...commonFiles,
-      ...A.map(
-        ["public", "server", "secrets"] as const,
-        (surface) =>
-          WriteFileOperation.make({
-            kind: "write-file",
-            role,
-            path: `${basePath}/src/${surface}.ts`,
-            writer: "ts-morph",
-            content: packageShellEmptyModuleContent(
-              `${target.boundedContext} ${surface} config exports`,
-              "configuration"
-            ),
-            description: `Write ${surface} config shell.`,
-          })
+      ...A.map(["public", "server", "secrets"] as const, (surface) =>
+        WriteFileOperation.make({
+          kind: "write-file",
+          role,
+          path: `${basePath}/src/${surface}.ts`,
+          writer: "ts-morph",
+          content: packageShellEmptyModuleContent(
+            `${target.boundedContext} ${surface} config exports`,
+            "configuration"
+          ),
+          description: `Write ${surface} config shell.`,
+        })
       ),
       WriteFileOperation.make({
         kind: "write-file",

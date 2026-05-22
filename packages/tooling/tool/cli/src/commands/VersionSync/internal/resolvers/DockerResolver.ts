@@ -346,22 +346,20 @@ export const resolveDockerImages: {
     }
 
     const content = yield* fs.readFileString(composePath).pipe(
-      Effect.mapError(
-        (e) =>
-          VersionSyncError.make({
-            message: `Failed to read docker-compose.yml: ${Inspectable.toStringUnknown(e, 0)}`,
-            file: "docker-compose.yml",
-          })
+      Effect.mapError((e) =>
+        VersionSyncError.make({
+          message: `Failed to read docker-compose.yml: ${Inspectable.toStringUnknown(e, 0)}`,
+          file: "docker-compose.yml",
+        })
       )
     );
 
     const composeDocument = yield* decodeYamlTextAs(DockerComposeDocument)(content).pipe(
-      Effect.mapError(
-        (e) =>
-          VersionSyncError.make({
-            message: `Failed to parse docker-compose.yml: ${e.message}`,
-            file: "docker-compose.yml",
-          })
+      Effect.mapError((e) =>
+        VersionSyncError.make({
+          message: `Failed to parse docker-compose.yml: ${e.message}`,
+          file: "docker-compose.yml",
+        })
       )
     );
 
@@ -405,20 +403,18 @@ const fetchLatestDockerTag: (
   const url = dockerHubTagsUrl(ref.repository);
 
   const response = yield* client.get(url, { headers: { "User-Agent": "beep-cli/0.0.0" } }).pipe(
-    Effect.mapError(
-      (e) =>
-        NetworkUnavailableError.make({
-          message: `Docker Hub API request failed for ${ref.repository}: ${Inspectable.toStringUnknown(e, 0)}`,
-        })
+    Effect.mapError((e) =>
+      NetworkUnavailableError.make({
+        message: `Docker Hub API request failed for ${ref.repository}: ${Inspectable.toStringUnknown(e, 0)}`,
+      })
     )
   );
 
   const body = yield* HttpClientResponse.schemaBodyJson(DockerTagsResponse)(response).pipe(
-    Effect.mapError(
-      (e) =>
-        NetworkUnavailableError.make({
-          message: `Failed to parse Docker Hub response for ${ref.repository}: ${Inspectable.toStringUnknown(e, 0)}`,
-        })
+    Effect.mapError((e) =>
+      NetworkUnavailableError.make({
+        message: `Failed to parse Docker Hub response for ${ref.repository}: ${Inspectable.toStringUnknown(e, 0)}`,
+      })
     )
   );
 

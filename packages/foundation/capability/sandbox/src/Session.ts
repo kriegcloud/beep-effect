@@ -110,13 +110,12 @@ const decodeSessionId = S.decodeUnknownEffect(SessionId);
 
 const validateSessionId = Effect.fn("Session.validateSessionId")(function* (sessionId: string) {
   return yield* decodeSessionId(sessionId).pipe(
-    Effect.mapError(
-      (cause) =>
-        SessionCaptureError.make({
-          cause,
-          message: `Invalid session id: ${sessionId}`,
-          sessionId,
-        })
+    Effect.mapError((cause) =>
+      SessionCaptureError.make({
+        cause,
+        message: `Invalid session id: ${sessionId}`,
+        sessionId,
+      })
     )
   );
 });

@@ -23,7 +23,9 @@ describe("@beep/drizzle", () => {
     expect(DrizzleErrorContext.make({ query: "select 1", params: [] })).type.toBe<DrizzleErrorContext>();
     expect(DrizzleError.fromUnknown("execute")).type.toBe<DrizzleError>();
     expect(DrizzleError.fromUnknown("execute", new Error("boom"))).type.toBe<DrizzleError>();
-    expect(DrizzleError.fromUnknown("execute", new Error("boom"), DrizzleErrorContext.make())).type.toBe<DrizzleError>();
+    expect(
+      DrizzleError.fromUnknown("execute", new Error("boom"), DrizzleErrorContext.make())
+    ).type.toBe<DrizzleError>();
     expect<DrizzleError["_tag"]>().type.toBe<"DrizzleError">();
     expect<DrizzleError["operation"]>().type.toBe<string>();
     expect<DrizzleError["cause"]>().type.toBe<O.Option<unknown>>();

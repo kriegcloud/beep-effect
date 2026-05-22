@@ -215,13 +215,12 @@ const collectSuccessfulOutput = Effect.fn("GraphitiProxyOps.collectSuccessfulOut
   step: QualityTaskStep
 ): Effect.fn.Return<string, GraphitiProxyOpsError, ChildProcessSpawner.ChildProcessSpawner> {
   const result = yield* collectStepOutput(step).pipe(
-    Effect.mapError(
-      (cause) =>
-        GraphitiProxyOpsError.make({
-          message: `Failed to run ${commandText(step.command, step.args)}.`,
-          command: commandText(step.command, step.args),
-          cause,
-        })
+    Effect.mapError((cause) =>
+      GraphitiProxyOpsError.make({
+        message: `Failed to run ${commandText(step.command, step.args)}.`,
+        command: commandText(step.command, step.args),
+        cause,
+      })
     )
   );
   if (result.exitCode !== 0) {
@@ -251,13 +250,12 @@ const runInheritedStep = Effect.fn("GraphitiProxyOps.runInheritedStep")(function
       return yield* handle.exitCode;
     })
   ).pipe(
-    Effect.mapError(
-      (cause) =>
-        GraphitiProxyOpsError.make({
-          message: `Failed to spawn ${commandText(step.command, step.args)}.`,
-          command: commandText(step.command, step.args),
-          cause,
-        })
+    Effect.mapError((cause) =>
+      GraphitiProxyOpsError.make({
+        message: `Failed to spawn ${commandText(step.command, step.args)}.`,
+        command: commandText(step.command, step.args),
+        cause,
+      })
     )
   );
 
@@ -511,12 +509,11 @@ const startProxyDetached: {
     const path = yield* Path.Path;
 
     yield* fs.makeDirectory(config.stateDir, { recursive: true }).pipe(
-      Effect.mapError(
-        (cause) =>
-          GraphitiProxyOpsError.make({
-            message: `Failed to create ${config.stateDir}.`,
-            cause,
-          })
+      Effect.mapError((cause) =>
+        GraphitiProxyOpsError.make({
+          message: `Failed to create ${config.stateDir}.`,
+          cause,
+        })
       )
     );
     yield* fs.makeDirectory(path.dirname(config.pidFile), { recursive: true }).pipe(Effect.ignore);
@@ -585,12 +582,11 @@ export const ensureGraphitiProxy = Effect.fn("GraphitiProxyOps.ensureGraphitiPro
   const path = yield* Path.Path;
   const fs = yield* FileSystem.FileSystem;
   const repoRoot = yield* findRepoRoot().pipe(
-    Effect.mapError(
-      (cause) =>
-        GraphitiProxyOpsError.make({
-          message: "Failed to locate repository root.",
-          cause,
-        })
+    Effect.mapError((cause) =>
+      GraphitiProxyOpsError.make({
+        message: "Failed to locate repository root.",
+        cause,
+      })
     )
   );
   const config = proxyEnsureConfig(path);
@@ -598,12 +594,11 @@ export const ensureGraphitiProxy = Effect.fn("GraphitiProxyOps.ensureGraphitiPro
   const deadline = start + config.timeoutSeconds * 1000;
 
   yield* fs.makeDirectory(config.stateDir, { recursive: true }).pipe(
-    Effect.mapError(
-      (cause) =>
-        GraphitiProxyOpsError.make({
-          message: `Failed to create ${config.stateDir}.`,
-          cause,
-        })
+    Effect.mapError((cause) =>
+      GraphitiProxyOpsError.make({
+        message: `Failed to create ${config.stateDir}.`,
+        cause,
+      })
     )
   );
   yield* fs.makeDirectory(path.dirname(config.pidFile), { recursive: true }).pipe(Effect.ignore);
@@ -656,12 +651,11 @@ export const runKgWithGraphitiProxy = Effect.fn("GraphitiProxyOps.runKgWithGraph
   args: ReadonlyArray<string>
 ): Effect.fn.Return<void, GraphitiProxyOpsError, GraphitiProxyOpsEnvironment> {
   const repoRoot = yield* findRepoRoot().pipe(
-    Effect.mapError(
-      (cause) =>
-        GraphitiProxyOpsError.make({
-          message: "Failed to locate repository root.",
-          cause,
-        })
+    Effect.mapError((cause) =>
+      GraphitiProxyOpsError.make({
+        message: "Failed to locate repository root.",
+        cause,
+      })
     )
   );
 
@@ -698,12 +692,11 @@ export const recoverGraphitiStack = Effect.fn("GraphitiProxyOps.recoverGraphitiS
 }): Effect.fn.Return<void, GraphitiProxyOpsError, GraphitiProxyOpsEnvironment> {
   const path = yield* Path.Path;
   const repoRoot = yield* findRepoRoot().pipe(
-    Effect.mapError(
-      (cause) =>
-        GraphitiProxyOpsError.make({
-          message: "Failed to locate repository root.",
-          cause,
-        })
+    Effect.mapError((cause) =>
+      GraphitiProxyOpsError.make({
+        message: "Failed to locate repository root.",
+        cause,
+      })
     )
   );
   const config = proxyEnsureConfig(path);
@@ -783,12 +776,11 @@ export const installGraphitiProxyService = Effect.fn("GraphitiProxyOps.installGr
     const fs = yield* FileSystem.FileSystem;
     const path = yield* Path.Path;
     const repoRoot = yield* findRepoRoot().pipe(
-      Effect.mapError(
-        (cause) =>
-          GraphitiProxyOpsError.make({
-            message: "Failed to locate repository root.",
-            cause,
-          })
+      Effect.mapError((cause) =>
+        GraphitiProxyOpsError.make({
+          message: "Failed to locate repository root.",
+          cause,
+        })
       )
     );
     const config = proxyServiceConfig(path);
@@ -802,30 +794,27 @@ export const installGraphitiProxyService = Effect.fn("GraphitiProxyOps.installGr
     );
 
     yield* fs.makeDirectory(config.systemdUserDir, { recursive: true }).pipe(
-      Effect.mapError(
-        (cause) =>
-          GraphitiProxyOpsError.make({
-            message: `Failed to create ${config.systemdUserDir}.`,
-            cause,
-          })
+      Effect.mapError((cause) =>
+        GraphitiProxyOpsError.make({
+          message: `Failed to create ${config.systemdUserDir}.`,
+          cause,
+        })
       )
     );
     yield* fs.makeDirectory(config.stateDir, { recursive: true }).pipe(
-      Effect.mapError(
-        (cause) =>
-          GraphitiProxyOpsError.make({
-            message: `Failed to create ${config.stateDir}.`,
-            cause,
-          })
+      Effect.mapError((cause) =>
+        GraphitiProxyOpsError.make({
+          message: `Failed to create ${config.stateDir}.`,
+          cause,
+        })
       )
     );
     yield* fs.writeFileString(config.serviceFile, renderServiceUnit(repoRoot, bunBin, config)).pipe(
-      Effect.mapError(
-        (cause) =>
-          GraphitiProxyOpsError.make({
-            message: `Failed to write ${config.serviceFile}.`,
-            cause,
-          })
+      Effect.mapError((cause) =>
+        GraphitiProxyOpsError.make({
+          message: `Failed to write ${config.serviceFile}.`,
+          cause,
+        })
       )
     );
     yield* Console.log(`[graphiti-proxy:service] Wrote user unit: ${config.serviceFile}`);

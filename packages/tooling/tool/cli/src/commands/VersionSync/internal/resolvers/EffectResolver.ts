@@ -152,22 +152,20 @@ export const resolveEffectCatalog: (
     const pkgJsonPath = path.join(repoRoot, "package.json");
 
     const pkgJsonContent = yield* fs.readFileString(pkgJsonPath).pipe(
-      Effect.mapError(
-        (e) =>
-          VersionSyncError.make({
-            message: `Failed to read package.json: ${Inspectable.toStringUnknown(e, 0)}`,
-            file: "package.json",
-          })
+      Effect.mapError((e) =>
+        VersionSyncError.make({
+          message: `Failed to read package.json: ${Inspectable.toStringUnknown(e, 0)}`,
+          file: "package.json",
+        })
       )
     );
 
     const pkgJson = yield* decodeJsoncTextAs(RootPackageJsonDocument)(pkgJsonContent).pipe(
-      Effect.mapError(
-        (e) =>
-          VersionSyncError.make({
-            message: `Failed to parse package.json: ${e.message}`,
-            file: "package.json",
-          })
+      Effect.mapError((e) =>
+        VersionSyncError.make({
+          message: `Failed to parse package.json: ${e.message}`,
+          file: "package.json",
+        })
       )
     );
 
