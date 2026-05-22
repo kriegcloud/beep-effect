@@ -1088,7 +1088,15 @@
       ],
       "@beep/schema/URL": ["./packages/foundation/modeling/schema/src/URL.ts"],
       "@beep/schema/Xml": ["./packages/foundation/modeling/schema/src/Xml.ts"],
-      "@beep/schema/Yaml": ["./packages/foundation/modeling/schema/src/Yaml.ts"]
+      "@beep/schema/Yaml": [
+        "./packages/foundation/modeling/schema/src/Yaml.ts"
+      ],
+      "@beep/form": [
+        "./packages/foundation/ui-system/form/src/index.ts"
+      ],
+      "@beep/form/*": [
+        "./packages/foundation/ui-system/form/src/*"
+      ]
     }
   }
 }

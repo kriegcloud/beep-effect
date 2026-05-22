@@ -1,0 +1,25 @@
+{
+  "$schema": "https://unpkg.com/knip@6/schema.json",
+  "workspaces": {
+    "packages/**": {
+      // Library packages publish their whole top-level src surface via `"./*": "./src/*.ts"`,
+      // so treat every src/*.ts as an entry (src/index.ts is already covered by the exports map).
+      "entry": ["src/*.ts"]
+    }
+  },
+  // Type-tests (tstyche .tst.ts), ops scripts, scratch, test fixtures, runnable examples, and
+  // build configs are not part of the analyzable source graph.
+  "ignore": [
+    "**/dtslint/**",
+    "goals/**",
+    "scratchpad/**",
+    "**/test/fixtures/**",
+    "**/examples/**",
+    "**/postcss.config.*"
+  ],
+  // @effect/vitest is imported across virtually every package's tests; knip's vitest plugin
+  // doesn't activate per-workspace in this layout, so it would otherwise read as unused everywhere.
+  "ignoreDependencies": ["@effect/vitest"],
+  // op = 1Password CLI, beep-cli = repo CLI bin — binaries not provided by a dependency.
+  "ignoreBinaries": ["op", "beep-cli"]
+}

@@ -51,6 +51,21 @@ export * as Bool from "./Bool.ts";
  */
 export * as DateTime from "./DateTime.ts";
 /**
+ * Equality utilities extending `effect/Equal`.
+ *
+ * @example
+ * ```ts
+ * import { Eq } from "@beep/utils"
+ *
+ * const equals = Eq.equals(42)(42)
+ * console.log(equals)
+ * ```
+ *
+ * @category utilities
+ * @since 0.0.0
+ */
+export * as Eq from "./Equal.ts";
+/**
  * Error combinators for dual `Effect.mapError` wrappers.
  *
  * @example
@@ -90,6 +105,7 @@ export * as Err from "./Errors.ts";
  * @since 0.0.0
  */
 export * as FileSystem from "./FileSystem.ts";
+export * from "./GlobalValue.ts";
 /**
  * HTML escaping helpers.
  *
@@ -110,16 +126,16 @@ export * as Html from "./Html.ts";
  *
  * @example
  * ```ts
- * import { Num } from "@beep/utils"
+ * import { N } from "@beep/utils"
  *
- * const whole = Num.isInteger(42)
+ * const whole = N.isInteger(42)
  * console.log(whole)
  * ```
  *
  * @category utilities
  * @since 0.0.0
  */
-export * as Num from "./Number.ts";
+export * as N from "./Number.ts";
 /**
  * Option utilities extending `effect/Option`.
  *
@@ -238,3 +254,5 @@ export * as Text from "./Text.ts";
  * @since 0.0.0
  */
 export * from "./thunk.ts";
+
+export * as Utils from "./Utils.ts";

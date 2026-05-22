@@ -4,7 +4,7 @@
  * @packageDocumentation
  * @since 0.0.0
  */
-import { Number as Num } from "effect";
+import * as N from "effect/Number";
 
 /**
  * Determines if the given input is a number and is positive (greater than or equal to 0).
@@ -39,7 +39,7 @@ import { Number as Num } from "effect";
  * @since 0.0.0
  */
 export const isPositive: (u: unknown) => u is number = (u: unknown): u is number =>
-  Num.isNumber(u) && Num.isGreaterThanOrEqualTo(0)(u);
+  N.isNumber(u) && N.isGreaterThanOrEqualTo(0)(u);
 
 /**
  * Re-export of all helpers from `effect/Number`.
@@ -81,4 +81,4 @@ export * from "effect/Number";
  * @since 0.0.0
  */
 export const isInteger: (u: unknown) => u is number = (u: unknown): u is number =>
-  Num.isNumber(u) && Number.isInteger(u);
+  N.isNumber(u) && Number.isInteger(u);

@@ -16,13 +16,13 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 
 | Metric | Count |
 |---|---:|
-| packages | 82 |
-| packagesWithPublicExports | 77 |
+| packages | 83 |
+| packagesWithPublicExports | 78 |
 | packagesWithoutPublicExports | 1 |
 | missingWorkspaceMetadata | 4 |
-| importSpecifiers | 959 |
-| publicExportEntries | 12715 |
-| uniquePackageSymbols | 5522 |
+| importSpecifiers | 977 |
+| publicExportEntries | 12829 |
+| uniquePackageSymbols | 5599 |
 
 ## Seed Discovery Proof
 
@@ -75,50 +75,51 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | 36 | `@beep/canvas` | `apps/canvas` | has-public-exports | 1 | 23 | 20 |
 | 37 | `@beep/workspace-domain` | `packages/workspace/domain` | has-public-exports | 12 | 35 | 11 |
 | 38 | `@beep/semantic-web` | `packages/foundation/capability/semantic-web` | has-public-exports | 30 | 272 | 219 |
-| 39 | `@beep/utils` | `packages/foundation/modeling/utils` | has-public-exports | 21 | 743 | 562 |
+| 39 | `@beep/utils` | `packages/foundation/modeling/utils` | has-public-exports | 24 | 763 | 577 |
 | 40 | `@beep/repo-ai-metrics` | `packages/tooling/library/ai-metrics` | has-public-exports | 18 | 702 | 214 |
 | 41 | `@beep/architecture-lab-tables` | `packages/architecture-lab/tables` | has-public-exports | 4 | 19 | 16 |
 | 42 | `@beep/venice-ai` | `packages/drivers/venice-ai` | has-public-exports | 1 | 30 | 24 |
-| 43 | `@beep/identity` | `packages/foundation/modeling/identity` | has-public-exports | 4 | 318 | 106 |
-| 44 | `@beep/drizzle` | `packages/drivers/drizzle` | has-public-exports | 1 | 8 | 7 |
-| 45 | `@beep/openai-compat` | `packages/drivers/openai-compat` | has-public-exports | 1 | 47 | 42 |
-| 46 | `@beep/stack-installer` | `apps/stack-installer` | has-public-exports | 1 | 4 | 4 |
-| 47 | `@beep/professional-desktop` | `apps/professional-desktop` | has-public-exports | 1 | 1 | 1 |
-| 48 | `@beep/epistemic-domain` | `packages/epistemic/domain` | has-public-exports | 8 | 18 | 5 |
-| 49 | `@beep/architecture-lab-use-cases` | `packages/architecture-lab/use-cases` | has-public-exports | 7 | 77 | 44 |
-| 50 | `@beep/professional-runtime-proof` | `apps/professional-runtime-proof` | has-public-exports | 1 | 4 | 4 |
-| 51 | `@beep/acp` | `packages/drivers/acp` | has-public-exports | 8 | 404 | 229 |
-| 52 | `@beep/nlp` | `packages/foundation/capability/nlp` | has-public-exports | 53 | 589 | 178 |
-| 53 | `@beep/infra` | `infra` | has-public-exports | 1 | 20 | 20 |
-| 54 | `@beep/installer-use-cases` | `packages/installer/use-cases` | has-public-exports | 3 | 51 | 29 |
-| 55 | `@beep/runpod` | `packages/drivers/runpod` | has-public-exports | 1 | 169 | 149 |
-| 56 | `@beep/repo-utils` | `packages/tooling/library/repo-utils` | has-public-exports | 65 | 1616 | 504 |
-| 57 | `@beep/schema` | `packages/foundation/modeling/schema` | has-public-exports | 123 | 1885 | 727 |
-| 58 | `@beep/codedank-web` | `apps/codedank-web` | has-public-exports | 1 | 1 | 1 |
-| 59 | `@beep/onepassword-cli` | `packages/drivers/onepassword-cli` | has-public-exports | 5 | 27 | 8 |
-| 60 | `@beep/architecture-lab-config` | `packages/architecture-lab/config` | has-public-exports | 7 | 29 | 13 |
-| 61 | `@beep/data` | `packages/foundation/primitive/data` | has-public-exports | 8 | 44 | 38 |
-| 62 | `@beep/xai` | `packages/drivers/xai` | has-public-exports | 1 | 53 | 40 |
-| 63 | `@beep/wealth-management-domain` | `packages/wealth-management/domain` | has-public-exports | 6 | 36 | 8 |
-| 64 | `@beep/architecture-lab-server` | `packages/architecture-lab/server` | has-public-exports | 5 | 26 | 24 |
-| 65 | `@beep/duckdb` | `packages/drivers/duckdb` | has-public-exports | 1 | 12 | 10 |
-| 66 | `@beep/ffmpeg` | `packages/drivers/ffmpeg` | has-public-exports | 5 | 105 | 31 |
-| 67 | `@beep/architecture-lab-proof` | `apps/architecture-lab-proof` | has-public-exports | 1 | 3 | 3 |
-| 68 | `@beep/installer-server` | `packages/installer/server` | has-public-exports | 3 | 34 | 18 |
-| 69 | `@beep/observability` | `packages/foundation/capability/observability` | has-public-exports | 4 | 115 | 98 |
-| 70 | `@beep/konva` | `packages/drivers/konva` | has-public-exports | 2 | 2 | 1 |
-| 71 | `@beep/shared-client` | `packages/shared/client` | has-public-exports | 2 | 2 | 1 |
-| 72 | `@beep/ui` | `packages/foundation/ui-system/ui` | has-public-exports | 114 | 525 | 445 |
-| 73 | `@beep/repo-configs` | `packages/tooling/policy-pack/repo-configs` | has-public-exports | 30 | 411 | 117 |
-| 74 | `@beep/canvas-client` | `packages/canvas/client` | has-public-exports | 1 | 1 | 1 |
-| 75 | `@beep/openai` | `packages/drivers/openai` | has-public-exports | 2 | 2 | 1 |
-| 76 | `@beep/postgres` | `packages/drivers/postgres` | has-public-exports | 7 | 65 | 31 |
-| 77 | `@beep/installer-domain` | `packages/installer/domain` | has-public-exports | 7 | 47 | 30 |
-| 78 | `@beep/architecture-lab-domain` | `packages/architecture-lab/domain` | has-public-exports | 9 | 46 | 29 |
-| 79 | `@beep/canvas-ui` | `packages/canvas/ui` | has-public-exports | 1 | 1 | 1 |
-| 80 | `@beep/messages` | `packages/foundation/modeling/messages` | has-public-exports | 3 | 15 | 5 |
-| 81 | `@beep/sanity` | `packages/drivers/sanity` | has-public-exports | 5 | 38 | 11 |
-| 82 | `@beep/shared-ui` | `packages/shared/ui` | has-public-exports | 7 | 15 | 6 |
+| 43 | `@beep/form` | `packages/foundation/ui-system/form` | has-public-exports | 15 | 91 | 61 |
+| 44 | `@beep/identity` | `packages/foundation/modeling/identity` | has-public-exports | 4 | 321 | 107 |
+| 45 | `@beep/drizzle` | `packages/drivers/drizzle` | has-public-exports | 1 | 8 | 7 |
+| 46 | `@beep/openai-compat` | `packages/drivers/openai-compat` | has-public-exports | 1 | 47 | 42 |
+| 47 | `@beep/stack-installer` | `apps/stack-installer` | has-public-exports | 1 | 4 | 4 |
+| 48 | `@beep/professional-desktop` | `apps/professional-desktop` | has-public-exports | 1 | 1 | 1 |
+| 49 | `@beep/epistemic-domain` | `packages/epistemic/domain` | has-public-exports | 8 | 18 | 5 |
+| 50 | `@beep/architecture-lab-use-cases` | `packages/architecture-lab/use-cases` | has-public-exports | 7 | 77 | 44 |
+| 51 | `@beep/professional-runtime-proof` | `apps/professional-runtime-proof` | has-public-exports | 1 | 4 | 4 |
+| 52 | `@beep/acp` | `packages/drivers/acp` | has-public-exports | 8 | 404 | 229 |
+| 53 | `@beep/nlp` | `packages/foundation/capability/nlp` | has-public-exports | 53 | 589 | 178 |
+| 54 | `@beep/infra` | `infra` | has-public-exports | 1 | 20 | 20 |
+| 55 | `@beep/installer-use-cases` | `packages/installer/use-cases` | has-public-exports | 3 | 51 | 29 |
+| 56 | `@beep/runpod` | `packages/drivers/runpod` | has-public-exports | 1 | 169 | 149 |
+| 57 | `@beep/repo-utils` | `packages/tooling/library/repo-utils` | has-public-exports | 65 | 1616 | 504 |
+| 58 | `@beep/schema` | `packages/foundation/modeling/schema` | has-public-exports | 123 | 1885 | 727 |
+| 59 | `@beep/codedank-web` | `apps/codedank-web` | has-public-exports | 1 | 1 | 1 |
+| 60 | `@beep/onepassword-cli` | `packages/drivers/onepassword-cli` | has-public-exports | 5 | 27 | 8 |
+| 61 | `@beep/architecture-lab-config` | `packages/architecture-lab/config` | has-public-exports | 7 | 29 | 13 |
+| 62 | `@beep/data` | `packages/foundation/primitive/data` | has-public-exports | 8 | 44 | 38 |
+| 63 | `@beep/xai` | `packages/drivers/xai` | has-public-exports | 1 | 53 | 40 |
+| 64 | `@beep/wealth-management-domain` | `packages/wealth-management/domain` | has-public-exports | 6 | 36 | 8 |
+| 65 | `@beep/architecture-lab-server` | `packages/architecture-lab/server` | has-public-exports | 5 | 26 | 24 |
+| 66 | `@beep/duckdb` | `packages/drivers/duckdb` | has-public-exports | 1 | 12 | 10 |
+| 67 | `@beep/ffmpeg` | `packages/drivers/ffmpeg` | has-public-exports | 5 | 105 | 31 |
+| 68 | `@beep/architecture-lab-proof` | `apps/architecture-lab-proof` | has-public-exports | 1 | 3 | 3 |
+| 69 | `@beep/installer-server` | `packages/installer/server` | has-public-exports | 3 | 34 | 18 |
+| 70 | `@beep/observability` | `packages/foundation/capability/observability` | has-public-exports | 4 | 115 | 98 |
+| 71 | `@beep/konva` | `packages/drivers/konva` | has-public-exports | 2 | 2 | 1 |
+| 72 | `@beep/shared-client` | `packages/shared/client` | has-public-exports | 2 | 2 | 1 |
+| 73 | `@beep/ui` | `packages/foundation/ui-system/ui` | has-public-exports | 114 | 525 | 445 |
+| 74 | `@beep/repo-configs` | `packages/tooling/policy-pack/repo-configs` | has-public-exports | 30 | 411 | 117 |
+| 75 | `@beep/canvas-client` | `packages/canvas/client` | has-public-exports | 1 | 1 | 1 |
+| 76 | `@beep/openai` | `packages/drivers/openai` | has-public-exports | 2 | 2 | 1 |
+| 77 | `@beep/postgres` | `packages/drivers/postgres` | has-public-exports | 7 | 65 | 31 |
+| 78 | `@beep/installer-domain` | `packages/installer/domain` | has-public-exports | 7 | 47 | 30 |
+| 79 | `@beep/architecture-lab-domain` | `packages/architecture-lab/domain` | has-public-exports | 9 | 46 | 29 |
+| 80 | `@beep/canvas-ui` | `packages/canvas/ui` | has-public-exports | 1 | 1 | 1 |
+| 81 | `@beep/messages` | `packages/foundation/modeling/messages` | has-public-exports | 3 | 15 | 5 |
+| 82 | `@beep/sanity` | `packages/drivers/sanity` | has-public-exports | 5 | 38 | 11 |
+| 83 | `@beep/shared-ui` | `packages/shared/ui` | has-public-exports | 7 | 15 | 6 |
 
 ## Public Exports
 
@@ -982,18 +983,18 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/commands/CreatePackage/ConfigUpdater` | `updateTsconfigPaths` | const | `packages/tooling/tool/cli/src/commands/CreatePackage/ConfigUpdater.ts:345` | Add path aliases to `tsconfig.json` (JSONC-safe, preserves comments). |
 | `@beep/repo-cli/commands/CreatePackage/ConfigUpdater` | `updateTstycheConfig` | const | `packages/tooling/tool/cli/src/commands/CreatePackage/ConfigUpdater.ts:399` | Add a test file match entry to `tstyche.json`. |
 | `@beep/repo-cli/commands/CreatePackage/CreatePackage.command` | `createPackageCommand` | const | `packages/tooling/tool/cli/src/commands/CreatePackage/CreatePackage.command.ts:16` | Package creation command. |
-| `@beep/repo-cli/commands/CreatePackage/FileGenerationPlanService` | `createFileGenerationPlanService` | const | `packages/tooling/tool/cli/src/commands/CreatePackage/FileGenerationPlanService.ts:468` | Construct the default generation plan service implementation. |
-| `@beep/repo-cli/commands/CreatePackage/FileGenerationPlanService` | `FileGenerationExecutionResult` | class | `packages/tooling/tool/cli/src/commands/CreatePackage/FileGenerationPlanService.ts:235` | Execution report for a plan run. |
-| `@beep/repo-cli/commands/CreatePackage/FileGenerationPlanService` | `FileGenerationPlan` | class | `packages/tooling/tool/cli/src/commands/CreatePackage/FileGenerationPlanService.ts:219` | Deterministic generation plan. |
-| `@beep/repo-cli/commands/CreatePackage/FileGenerationPlanService` | `FileGenerationPlanInput` | class | `packages/tooling/tool/cli/src/commands/CreatePackage/FileGenerationPlanService.ts:117` | Input payload used to create a generation plan. |
-| `@beep/repo-cli/commands/CreatePackage/FileGenerationPlanService` | `FileGenerationPlanService` | class | `packages/tooling/tool/cli/src/commands/CreatePackage/FileGenerationPlanService.ts:270` | Service tag for deterministic file-generation planning and execution. |
-| `@beep/repo-cli/commands/CreatePackage/FileGenerationPlanService` | `FileGenerationPlanServiceShape` | type | `packages/tooling/tool/cli/src/commands/CreatePackage/FileGenerationPlanService.ts:256` | Service contract for deterministic generation plan orchestration. |
-| `@beep/repo-cli/commands/CreatePackage/FileGenerationPlanService` | `GenerationAction` | const | `packages/tooling/tool/cli/src/commands/CreatePackage/FileGenerationPlanService.ts:187` | Planned generation action schema. |
-| `@beep/repo-cli/commands/CreatePackage/FileGenerationPlanService` | `GenerationAction` | type | `packages/tooling/tool/cli/src/commands/CreatePackage/FileGenerationPlanService.ts:211` | Planned generation action. |
-| `@beep/repo-cli/commands/CreatePackage/FileGenerationPlanService` | `GenerationActionKind` | const | `packages/tooling/tool/cli/src/commands/CreatePackage/FileGenerationPlanService.ts:135` | Planned action kinds. |
-| `@beep/repo-cli/commands/CreatePackage/FileGenerationPlanService` | `GenerationActionKind` | type | `packages/tooling/tool/cli/src/commands/CreatePackage/FileGenerationPlanService.ts:146` | Planned generation action. |
-| `@beep/repo-cli/commands/CreatePackage/FileGenerationPlanService` | `PlannedFile` | class | `packages/tooling/tool/cli/src/commands/CreatePackage/FileGenerationPlanService.ts:85` | A file write operation. |
-| `@beep/repo-cli/commands/CreatePackage/FileGenerationPlanService` | `PlannedSymlink` | class | `packages/tooling/tool/cli/src/commands/CreatePackage/FileGenerationPlanService.ts:101` | A symlink operation. |
+| `@beep/repo-cli/commands/CreatePackage/FileGenerationPlanService` | `createFileGenerationPlanService` | const | `packages/tooling/tool/cli/src/commands/CreatePackage/FileGenerationPlanService.ts:465` | Construct the default generation plan service implementation. |
+| `@beep/repo-cli/commands/CreatePackage/FileGenerationPlanService` | `FileGenerationExecutionResult` | class | `packages/tooling/tool/cli/src/commands/CreatePackage/FileGenerationPlanService.ts:232` | Execution report for a plan run. |
+| `@beep/repo-cli/commands/CreatePackage/FileGenerationPlanService` | `FileGenerationPlan` | class | `packages/tooling/tool/cli/src/commands/CreatePackage/FileGenerationPlanService.ts:216` | Deterministic generation plan. |
+| `@beep/repo-cli/commands/CreatePackage/FileGenerationPlanService` | `FileGenerationPlanInput` | class | `packages/tooling/tool/cli/src/commands/CreatePackage/FileGenerationPlanService.ts:114` | Input payload used to create a generation pla. |
+| `@beep/repo-cli/commands/CreatePackage/FileGenerationPlanService` | `FileGenerationPlanService` | class | `packages/tooling/tool/cli/src/commands/CreatePackage/FileGenerationPlanService.ts:267` | Service tag for deterministic file-generation planning and execution. |
+| `@beep/repo-cli/commands/CreatePackage/FileGenerationPlanService` | `FileGenerationPlanServiceShape` | type | `packages/tooling/tool/cli/src/commands/CreatePackage/FileGenerationPlanService.ts:253` | Service contract for deterministic generation plan orchestration. |
+| `@beep/repo-cli/commands/CreatePackage/FileGenerationPlanService` | `GenerationAction` | const | `packages/tooling/tool/cli/src/commands/CreatePackage/FileGenerationPlanService.ts:184` | Planned generation action schema. |
+| `@beep/repo-cli/commands/CreatePackage/FileGenerationPlanService` | `GenerationAction` | type | `packages/tooling/tool/cli/src/commands/CreatePackage/FileGenerationPlanService.ts:208` | Planned generation action. |
+| `@beep/repo-cli/commands/CreatePackage/FileGenerationPlanService` | `GenerationActionKind` | const | `packages/tooling/tool/cli/src/commands/CreatePackage/FileGenerationPlanService.ts:132` | Planned action kinds. |
+| `@beep/repo-cli/commands/CreatePackage/FileGenerationPlanService` | `GenerationActionKind` | type | `packages/tooling/tool/cli/src/commands/CreatePackage/FileGenerationPlanService.ts:143` | Planned generation action. |
+| `@beep/repo-cli/commands/CreatePackage/FileGenerationPlanService` | `PlannedFile` | class | `packages/tooling/tool/cli/src/commands/CreatePackage/FileGenerationPlanService.ts:82` | A file write operation. |
+| `@beep/repo-cli/commands/CreatePackage/FileGenerationPlanService` | `PlannedSymlink` | class | `packages/tooling/tool/cli/src/commands/CreatePackage/FileGenerationPlanService.ts:98` | A symlink operation. |
 | `@beep/repo-cli/commands/CreatePackage/Handler` | `createPackageCommand` | const | `packages/tooling/tool/cli/src/commands/CreatePackage/Handler.ts:562` | CLI command that scaffolds a new package with templates, a Schema-validated |
 | `@beep/repo-cli/commands/CreatePackage/Handler` | `resolveCreatePackageTemplateDir` | const | `packages/tooling/tool/cli/src/commands/CreatePackage/Handler.ts:75` | Resolve create-package template directory for both src and dist runtimes. |
 | `@beep/repo-cli/commands/CreatePackage/Handler` | `TemplateContext` | class | `packages/tooling/tool/cli/src/commands/CreatePackage/Handler.ts:279` | Variables passed into every template during package scaffolding. |
@@ -2066,19 +2067,19 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/test/CreatePackage` | `ConfigUpdateResult` | class | `packages/tooling/tool/cli/src/commands/CreatePackage/ConfigUpdater.ts:39` | Summary of which root configuration files were modified during a config update pass. |
 | `@beep/repo-cli/test/CreatePackage` | `ConfigUpdateTarget` | class | `packages/tooling/tool/cli/src/commands/CreatePackage/ConfigUpdater.ts:56` | Config update target for a package that should be registered in root tsconfig files. |
 | `@beep/repo-cli/test/CreatePackage` | `ConfigUpdateTargetResult` | class | `packages/tooling/tool/cli/src/commands/CreatePackage/ConfigUpdater.ts:74` | Per-target config update summary. |
-| `@beep/repo-cli/test/CreatePackage` | `createFileGenerationPlanService` | const | `packages/tooling/tool/cli/src/commands/CreatePackage/FileGenerationPlanService.ts:468` | Construct the default generation plan service implementation. |
+| `@beep/repo-cli/test/CreatePackage` | `createFileGenerationPlanService` | const | `packages/tooling/tool/cli/src/commands/CreatePackage/FileGenerationPlanService.ts:465` | Construct the default generation plan service implementation. |
 | `@beep/repo-cli/test/CreatePackage` | `createPackageCommand` | const | `packages/tooling/tool/cli/src/commands/CreatePackage/CreatePackage.command.ts:16` | Package creation command. |
-| `@beep/repo-cli/test/CreatePackage` | `FileGenerationExecutionResult` | class | `packages/tooling/tool/cli/src/commands/CreatePackage/FileGenerationPlanService.ts:235` | Execution report for a plan run. |
-| `@beep/repo-cli/test/CreatePackage` | `FileGenerationPlan` | class | `packages/tooling/tool/cli/src/commands/CreatePackage/FileGenerationPlanService.ts:219` | Deterministic generation plan. |
-| `@beep/repo-cli/test/CreatePackage` | `FileGenerationPlanInput` | class | `packages/tooling/tool/cli/src/commands/CreatePackage/FileGenerationPlanService.ts:117` | Input payload used to create a generation plan. |
-| `@beep/repo-cli/test/CreatePackage` | `FileGenerationPlanService` | class | `packages/tooling/tool/cli/src/commands/CreatePackage/FileGenerationPlanService.ts:270` | Service tag for deterministic file-generation planning and execution. |
-| `@beep/repo-cli/test/CreatePackage` | `FileGenerationPlanServiceShape` | type | `packages/tooling/tool/cli/src/commands/CreatePackage/FileGenerationPlanService.ts:256` | Service contract for deterministic generation plan orchestration. |
-| `@beep/repo-cli/test/CreatePackage` | `GenerationAction` | const | `packages/tooling/tool/cli/src/commands/CreatePackage/FileGenerationPlanService.ts:187` | Planned generation action schema. |
-| `@beep/repo-cli/test/CreatePackage` | `GenerationAction` | type | `packages/tooling/tool/cli/src/commands/CreatePackage/FileGenerationPlanService.ts:211` | Planned generation action. |
-| `@beep/repo-cli/test/CreatePackage` | `GenerationActionKind` | const | `packages/tooling/tool/cli/src/commands/CreatePackage/FileGenerationPlanService.ts:135` | Planned action kinds. |
-| `@beep/repo-cli/test/CreatePackage` | `GenerationActionKind` | type | `packages/tooling/tool/cli/src/commands/CreatePackage/FileGenerationPlanService.ts:146` | Planned generation action. |
-| `@beep/repo-cli/test/CreatePackage` | `PlannedFile` | class | `packages/tooling/tool/cli/src/commands/CreatePackage/FileGenerationPlanService.ts:85` | A file write operation. |
-| `@beep/repo-cli/test/CreatePackage` | `PlannedSymlink` | class | `packages/tooling/tool/cli/src/commands/CreatePackage/FileGenerationPlanService.ts:101` | A symlink operation. |
+| `@beep/repo-cli/test/CreatePackage` | `FileGenerationExecutionResult` | class | `packages/tooling/tool/cli/src/commands/CreatePackage/FileGenerationPlanService.ts:232` | Execution report for a plan run. |
+| `@beep/repo-cli/test/CreatePackage` | `FileGenerationPlan` | class | `packages/tooling/tool/cli/src/commands/CreatePackage/FileGenerationPlanService.ts:216` | Deterministic generation plan. |
+| `@beep/repo-cli/test/CreatePackage` | `FileGenerationPlanInput` | class | `packages/tooling/tool/cli/src/commands/CreatePackage/FileGenerationPlanService.ts:114` | Input payload used to create a generation pla. |
+| `@beep/repo-cli/test/CreatePackage` | `FileGenerationPlanService` | class | `packages/tooling/tool/cli/src/commands/CreatePackage/FileGenerationPlanService.ts:267` | Service tag for deterministic file-generation planning and execution. |
+| `@beep/repo-cli/test/CreatePackage` | `FileGenerationPlanServiceShape` | type | `packages/tooling/tool/cli/src/commands/CreatePackage/FileGenerationPlanService.ts:253` | Service contract for deterministic generation plan orchestration. |
+| `@beep/repo-cli/test/CreatePackage` | `GenerationAction` | const | `packages/tooling/tool/cli/src/commands/CreatePackage/FileGenerationPlanService.ts:184` | Planned generation action schema. |
+| `@beep/repo-cli/test/CreatePackage` | `GenerationAction` | type | `packages/tooling/tool/cli/src/commands/CreatePackage/FileGenerationPlanService.ts:208` | Planned generation action. |
+| `@beep/repo-cli/test/CreatePackage` | `GenerationActionKind` | const | `packages/tooling/tool/cli/src/commands/CreatePackage/FileGenerationPlanService.ts:132` | Planned action kinds. |
+| `@beep/repo-cli/test/CreatePackage` | `GenerationActionKind` | type | `packages/tooling/tool/cli/src/commands/CreatePackage/FileGenerationPlanService.ts:143` | Planned generation action. |
+| `@beep/repo-cli/test/CreatePackage` | `PlannedFile` | class | `packages/tooling/tool/cli/src/commands/CreatePackage/FileGenerationPlanService.ts:82` | A file write operation. |
+| `@beep/repo-cli/test/CreatePackage` | `PlannedSymlink` | class | `packages/tooling/tool/cli/src/commands/CreatePackage/FileGenerationPlanService.ts:98` | A symlink operation. |
 | `@beep/repo-cli/test/CreatePackage` | `updateRootConfigs` | const | `packages/tooling/tool/cli/src/commands/CreatePackage/ConfigUpdater.ts:591` | Orchestrate all root config updates for a newly created package. |
 | `@beep/repo-cli/test/CreatePackage` | `updateRootConfigsForTargets` | const | `packages/tooling/tool/cli/src/commands/CreatePackage/ConfigUpdater.ts:509` | Batch root config updater for slice flows creating multiple packages. |
 | `@beep/repo-cli/test/CreatePackage` | `updateTsconfigPackages` | const | `packages/tooling/tool/cli/src/commands/CreatePackage/ConfigUpdater.ts:304` | Add a project reference to `tsconfig.packages.json`. |
@@ -4649,10 +4650,12 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/utils` | `A` | SourceFile | `packages/foundation/modeling/utils/src/Array.ts:8` |  |
 | `@beep/utils` | `Bool` | SourceFile | `packages/foundation/modeling/utils/src/Bool.ts:17` |  |
 | `@beep/utils` | `DateTime` | SourceFile | `packages/foundation/modeling/utils/src/DateTime.ts:8` |  |
+| `@beep/utils` | `Eq` | SourceFile | `packages/foundation/modeling/utils/src/Equal.ts:22` |  |
 | `@beep/utils` | `Err` | SourceFile | `packages/foundation/modeling/utils/src/Errors.ts:7` |  |
 | `@beep/utils` | `FileSystem` | SourceFile | `packages/foundation/modeling/utils/src/FileSystem.ts:8` |  |
+| `@beep/utils` | `globalValue` | const | `packages/foundation/modeling/utils/src/GlobalValue.ts:44` | Retrieves or computes a global value associated with the given `id`. If the value for this `id` |
 | `@beep/utils` | `Html` | SourceFile | `packages/foundation/modeling/utils/src/Html.ts:8` |  |
-| `@beep/utils` | `Num` | SourceFile | `packages/foundation/modeling/utils/src/Number.ts:7` |  |
+| `@beep/utils` | `N` | SourceFile | `packages/foundation/modeling/utils/src/Number.ts:7` |  |
 | `@beep/utils` | `O` | SourceFile | `packages/foundation/modeling/utils/src/Option.ts:8` |  |
 | `@beep/utils` | `P` | SourceFile | `packages/foundation/modeling/utils/src/Predicate.ts:8` |  |
 | `@beep/utils` | `RandomValues` | class | `packages/foundation/modeling/utils/src/Random.ts:26` | Service that yields random byte arrays. |
@@ -4685,6 +4688,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/utils` | `thunkTrue` | const | `packages/foundation/modeling/utils/src/thunk.ts:106` | A thunk that always yields `true`. |
 | `@beep/utils` | `thunkUndefined` | const | `packages/foundation/modeling/utils/src/thunk.ts:70` | A thunk that always yields `undefined`. |
 | `@beep/utils` | `thunkVoid` | const | `packages/foundation/modeling/utils/src/thunk.ts:88` | A thunk that always yields `void 0` (equivalent to `undefined`). |
+| `@beep/utils` | `Utils` | SourceFile | `packages/foundation/modeling/utils/src/Utils.ts:1` |  |
 | `@beep/utils/Array` | `allocate` | const | `node_modules/effect/dist/Array.d.ts:138` | Creates a new `Array` of the specified length with all slots uninitialized. |
 | `@beep/utils/Array` | `append` | const | `node_modules/effect/dist/Array.d.ts:902` | Adds a single element to the end of an iterable, returning a `NonEmptyArray`. |
 | `@beep/utils/Array` | `appendAll` | const | `node_modules/effect/dist/Array.d.ts:975` | Concatenates two iterables into a single array. |
@@ -4953,6 +4957,14 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/utils/DateTime` | `zoneMakeNamedUnsafe` | const | `node_modules/effect/dist/DateTime.d.ts:1035` | Attempt to create a named time zone from a IANA time zone identifier. |
 | `@beep/utils/DateTime` | `zoneMakeOffset` | const | `node_modules/effect/dist/DateTime.d.ts:1060` | Create a fixed offset time zone. |
 | `@beep/utils/DateTime` | `zoneToString` | const | `node_modules/effect/dist/DateTime.d.ts:1171` | Format a `TimeZone` as a string. |
+| `@beep/utils/Equal` | `asEquivalence` | const | `node_modules/effect/dist/Equal.d.ts:310` | Wraps {@link equals} as an `Equivalence<A>`. |
+| `@beep/utils/Equal` | `byReference` | const | `node_modules/effect/dist/Equal.d.ts:353` | Creates a proxy that uses reference equality instead of structural equality. |
+| `@beep/utils/Equal` | `byReferenceUnsafe` | const | `node_modules/effect/dist/Equal.d.ts:397` | Permanently marks an object to use reference equality, without creating a |
+| `@beep/utils/Equal` | `Equal` | interface | `node_modules/effect/dist/Equal.d.ts:164` | The interface for types that define their own equality logic. |
+| `@beep/utils/Equal` | `equals` | function | `node_modules/effect/dist/Equal.d.ts:237` | Compares two values for deep structural equality. |
+| `@beep/utils/Equal` | `equals` | function | `node_modules/effect/dist/Equal.d.ts:238` |  |
+| `@beep/utils/Equal` | `isEqual` | const | `node_modules/effect/dist/Equal.d.ts:281` | Checks whether a value implements the {@link Equal} interface. |
+| `@beep/utils/Equal` | `symbol` | const | `node_modules/effect/dist/Equal.d.ts:111` | The unique string identifier for the {@link Equal} interface. |
 | `@beep/utils/Errors` | `ErrorMapper` | type | `packages/foundation/modeling/utils/src/Errors.ts:44` | Dual data-first/data-last mapper for converting an effect's error channel. |
 | `@beep/utils/Errors` | `mapCauseError` | const | `packages/foundation/modeling/utils/src/Errors.ts:95` | Builds a dual mapper that preserves the original failure as constructor input. |
 | `@beep/utils/Errors` | `mapToError` | function | `packages/foundation/modeling/utils/src/Errors.ts:160` | Builds a dual mapper that replaces the original failure with a target error. |
@@ -5041,15 +5053,18 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/utils/Glob` | `layer` | const | `packages/foundation/modeling/utils/src/Glob.ts:529` | Live `Layer` providing the {@link Glob} service backed by `Bun.Glob` when |
 | `@beep/utils/Glob` | `Pattern` | const | `packages/foundation/modeling/utils/src/Glob.ts:34` | Schema for a glob pattern: either a single string or an array of strings. |
 | `@beep/utils/Glob` | `Pattern` | type | `packages/foundation/modeling/utils/src/Glob.ts:54` | A glob pattern: either a single string or an array of strings. |
+| `@beep/utils/GlobalValue` | `globalValue` | const | `packages/foundation/modeling/utils/src/GlobalValue.ts:44` | Retrieves or computes a global value associated with the given `id`. If the value for this `id` |
 | `@beep/utils/Html` | `escapeHtml` | const | `packages/foundation/modeling/utils/src/Html.ts:27` | Escapes the HTML-sensitive characters in `text`. |
 | `@beep/utils/Html` | `escapeHtmlMultiline` | const | `packages/foundation/modeling/utils/src/Html.ts:51` | Escapes HTML-sensitive characters and converts newlines to `<br />`. |
 | `@beep/utils/index` | `A` | SourceFile | `packages/foundation/modeling/utils/src/Array.ts:8` |  |
 | `@beep/utils/index` | `Bool` | SourceFile | `packages/foundation/modeling/utils/src/Bool.ts:17` |  |
 | `@beep/utils/index` | `DateTime` | SourceFile | `packages/foundation/modeling/utils/src/DateTime.ts:8` |  |
+| `@beep/utils/index` | `Eq` | SourceFile | `packages/foundation/modeling/utils/src/Equal.ts:22` |  |
 | `@beep/utils/index` | `Err` | SourceFile | `packages/foundation/modeling/utils/src/Errors.ts:7` |  |
 | `@beep/utils/index` | `FileSystem` | SourceFile | `packages/foundation/modeling/utils/src/FileSystem.ts:8` |  |
+| `@beep/utils/index` | `globalValue` | const | `packages/foundation/modeling/utils/src/GlobalValue.ts:44` | Retrieves or computes a global value associated with the given `id`. If the value for this `id` |
 | `@beep/utils/index` | `Html` | SourceFile | `packages/foundation/modeling/utils/src/Html.ts:8` |  |
-| `@beep/utils/index` | `Num` | SourceFile | `packages/foundation/modeling/utils/src/Number.ts:7` |  |
+| `@beep/utils/index` | `N` | SourceFile | `packages/foundation/modeling/utils/src/Number.ts:7` |  |
 | `@beep/utils/index` | `O` | SourceFile | `packages/foundation/modeling/utils/src/Option.ts:8` |  |
 | `@beep/utils/index` | `P` | SourceFile | `packages/foundation/modeling/utils/src/Predicate.ts:8` |  |
 | `@beep/utils/index` | `RandomValues` | class | `packages/foundation/modeling/utils/src/Random.ts:26` | Service that yields random byte arrays. |
@@ -5082,6 +5097,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/utils/index` | `thunkTrue` | const | `packages/foundation/modeling/utils/src/thunk.ts:106` | A thunk that always yields `true`. |
 | `@beep/utils/index` | `thunkUndefined` | const | `packages/foundation/modeling/utils/src/thunk.ts:70` | A thunk that always yields `undefined`. |
 | `@beep/utils/index` | `thunkVoid` | const | `packages/foundation/modeling/utils/src/thunk.ts:88` | A thunk that always yields `void 0` (equivalent to `undefined`). |
+| `@beep/utils/index` | `Utils` | SourceFile | `packages/foundation/modeling/utils/src/Utils.ts:1` |  |
 | `@beep/utils/NodeUrl` | `fileURLToPath` | const | `packages/foundation/modeling/utils/src/NodeUrl.ts:127` | Converts a `file:` URL back into a platform path string. |
 | `@beep/utils/NodeUrl` | `fromFileUrl` | const | `packages/foundation/modeling/utils/src/NodeUrl.ts:53` | Converts a `file:` URL into a platform path string. |
 | `@beep/utils/NodeUrl` | `toFileUrl` | const | `packages/foundation/modeling/utils/src/NodeUrl.ts:102` | Converts a platform path string into a `file:` URL. |
@@ -5389,6 +5405,11 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/utils/thunk` | `thunkTrue` | const | `packages/foundation/modeling/utils/src/thunk.ts:106` | A thunk that always yields `true`. |
 | `@beep/utils/thunk` | `thunkUndefined` | const | `packages/foundation/modeling/utils/src/thunk.ts:70` | A thunk that always yields `undefined`. |
 | `@beep/utils/thunk` | `thunkVoid` | const | `packages/foundation/modeling/utils/src/thunk.ts:88` | A thunk that always yields `void 0` (equivalent to `undefined`). |
+| `@beep/utils/Utils` | `Gen` | type | `node_modules/effect/dist/Utils.d.ts:187` | Type-level signature for generator-based monadic composition over any |
+| `@beep/utils/Utils` | `SingleShotGen` | class | `node_modules/effect/dist/Utils.d.ts:100` | An `IterableIterator` that yields its wrapped value exactly once. |
+| `@beep/utils/Utils` | `structuralRegion` | const | `packages/foundation/modeling/utils/src/Utils.ts:23` | Note: this is an experimental feature made available to allow custom matchers in tests, not to be directly used yet in user code |
+| `@beep/utils/Utils` | `structuralRegionState` | const | `packages/foundation/modeling/utils/src/Utils.ts:9` | Note: this is an experimental feature made available to allow custom matchers in tests, not to be directly used yet in user code |
+| `@beep/utils/Utils` | `Variance` | interface | `node_modules/effect/dist/Utils.d.ts:151` | Type-level marker encoding the variance of a `TypeLambda`'s type |
 
 ### @beep/repo-ai-metrics
 
@@ -6156,6 +6177,102 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/venice-ai` | `VeniceAITextResponse` | class | `packages/drivers/venice-ai/src/VeniceAI.service.ts:407` | Text response returned by the Venice AI driver. |
 | `@beep/venice-ai` | `VERSION` | const | `packages/drivers/venice-ai/src/index.ts:53` | Current version of the `@beep/venice-ai` package. |
 
+### @beep/form
+
+| Import | Symbol | Kind | Source | Summary |
+|---|---|---|---|---|
+| `@beep/form` | `VERSION` | const | `packages/foundation/ui-system/form/src/index.ts:11` |  |
+| `@beep/form/core` | `Field` | SourceFile | `packages/foundation/ui-system/form/src/core/Field.ts:1` |  |
+| `@beep/form/core` | `FieldState` | SourceFile | `packages/foundation/ui-system/form/src/core/FieldState.ts:1` |  |
+| `@beep/form/core` | `FormAtoms` | SourceFile | `packages/foundation/ui-system/form/src/core/FormAtoms.ts:1` |  |
+| `@beep/form/core` | `FormBuilder` | SourceFile | `packages/foundation/ui-system/form/src/core/FormBuilder.ts:1` |  |
+| `@beep/form/core` | `Mode` | SourceFile | `packages/foundation/ui-system/form/src/core/Mode.ts:1` |  |
+| `@beep/form/core` | `Path` | SourceFile | `packages/foundation/ui-system/form/src/core/Path.ts:1` |  |
+| `@beep/form/core` | `Validation` | SourceFile | `packages/foundation/ui-system/form/src/core/Validation.ts:1` |  |
+| `@beep/form/core/Field` | `AnyFieldDef` | type | `packages/foundation/ui-system/form/src/core/Field.ts:28` |  |
+| `@beep/form/core/Field` | `ArrayFieldDef` | interface | `packages/foundation/ui-system/form/src/core/Field.ts:22` |  |
+| `@beep/form/core/Field` | `createTouchedRecord` | const | `packages/foundation/ui-system/form/src/core/Field.ts:143` |  |
+| `@beep/form/core/Field` | `DecodedFromFields` | type | `packages/foundation/ui-system/form/src/core/Field.ts:60` |  |
+| `@beep/form/core/Field` | `EncodedFromFields` | type | `packages/foundation/ui-system/form/src/core/Field.ts:52` |  |
+| `@beep/form/core/Field` | `extractStructFieldDefs` | const | `packages/foundation/ui-system/form/src/core/Field.ts:151` |  |
+| `@beep/form/core/Field` | `FieldDef` | interface | `packages/foundation/ui-system/form/src/core/Field.ts:16` |  |
+| `@beep/form/core/Field` | `FieldsRecord` | type | `packages/foundation/ui-system/form/src/core/Field.ts:30` |  |
+| `@beep/form/core/Field` | `getDefaultEncodedValues` | const | `packages/foundation/ui-system/form/src/core/Field.ts:131` |  |
+| `@beep/form/core/Field` | `getDefaultFromSchema` | const | `packages/foundation/ui-system/form/src/core/Field.ts:129` |  |
+| `@beep/form/core/Field` | `isArrayFieldDef` | const | `packages/foundation/ui-system/form/src/core/Field.ts:32` |  |
+| `@beep/form/core/Field` | `isFieldDef` | const | `packages/foundation/ui-system/form/src/core/Field.ts:35` |  |
+| `@beep/form/core/Field` | `makeArrayField` | const | `packages/foundation/ui-system/form/src/core/Field.ts:43` |  |
+| `@beep/form/core/Field` | `makeField` | const | `packages/foundation/ui-system/form/src/core/Field.ts:37` |  |
+| `@beep/form/core/Field` | `TypeId` | const | `packages/foundation/ui-system/form/src/core/Field.ts:12` |  |
+| `@beep/form/core/Field` | `TypeId` | type | `packages/foundation/ui-system/form/src/core/Field.ts:14` |  |
+| `@beep/form/core/FieldState` | `ArrayFieldOperations` | interface | `packages/foundation/ui-system/form/src/core/FieldState.ts:17` |  |
+| `@beep/form/core/FieldState` | `FieldState` | interface | `packages/foundation/ui-system/form/src/core/FieldState.ts:6` |  |
+| `@beep/form/core/FieldState` | `FieldValue` | type | `packages/foundation/ui-system/form/src/core/FieldState.ts:4` |  |
+| `@beep/form/core/FormAtoms` | `FieldAtoms` | interface | `packages/foundation/ui-system/form/src/core/FormAtoms.ts:15` |  |
+| `@beep/form/core/FormAtoms` | `FieldRefs` | type | `packages/foundation/ui-system/form/src/core/FormAtoms.ts:54` |  |
+| `@beep/form/core/FormAtoms` | `FormAtoms` | interface | `packages/foundation/ui-system/form/src/core/FormAtoms.ts:62` |  |
+| `@beep/form/core/FormAtoms` | `FormAtomsConfig` | interface | `packages/foundation/ui-system/form/src/core/FormAtoms.ts:39` |  |
+| `@beep/form/core/FormAtoms` | `FormOperations` | interface | `packages/foundation/ui-system/form/src/core/FormAtoms.ts:127` |  |
+| `@beep/form/core/FormAtoms` | `make` | const | `packages/foundation/ui-system/form/src/core/FormAtoms.ts:180` |  |
+| `@beep/form/core/FormAtoms` | `PublicFieldAtoms` | interface | `packages/foundation/ui-system/form/src/core/FormAtoms.ts:28` |  |
+| `@beep/form/core/FormBuilder` | `buildSchema` | const | `packages/foundation/ui-system/form/src/core/FormBuilder.ts:225` |  |
+| `@beep/form/core/FormBuilder` | `empty` | const | `packages/foundation/ui-system/form/src/core/FormBuilder.ts:218` |  |
+| `@beep/form/core/FormBuilder` | `FieldRef` | interface | `packages/foundation/ui-system/form/src/core/FormBuilder.ts:29` |  |
+| `@beep/form/core/FormBuilder` | `FieldTypeId` | const | `packages/foundation/ui-system/form/src/core/FormBuilder.ts:25` |  |
+| `@beep/form/core/FormBuilder` | `FieldTypeId` | type | `packages/foundation/ui-system/form/src/core/FormBuilder.ts:27` |  |
+| `@beep/form/core/FormBuilder` | `FormBuilder` | interface | `packages/foundation/ui-system/form/src/core/FormBuilder.ts:75` |  |
+| `@beep/form/core/FormBuilder` | `FormFilterIssue` | type | `packages/foundation/ui-system/form/src/core/FormBuilder.ts:59` |  |
+| `@beep/form/core/FormBuilder` | `FormFilterOutput` | type | `packages/foundation/ui-system/form/src/core/FormBuilder.ts:61` |  |
+| `@beep/form/core/FormBuilder` | `FormState` | interface | `packages/foundation/ui-system/form/src/core/FormBuilder.ts:44` |  |
+| `@beep/form/core/FormBuilder` | `isFormBuilder` | const | `packages/foundation/ui-system/form/src/core/FormBuilder.ts:215` |  |
+| `@beep/form/core/FormBuilder` | `LegacyFilterIssue` | type | `packages/foundation/ui-system/form/src/core/FormBuilder.ts:54` |  |
+| `@beep/form/core/FormBuilder` | `makeFieldRef` | const | `packages/foundation/ui-system/form/src/core/FormBuilder.ts:35` |  |
+| `@beep/form/core/FormBuilder` | `SubmittedValues` | interface | `packages/foundation/ui-system/form/src/core/FormBuilder.ts:20` |  |
+| `@beep/form/core/FormBuilder` | `TypeId` | const | `packages/foundation/ui-system/form/src/core/FormBuilder.ts:40` |  |
+| `@beep/form/core/FormBuilder` | `TypeId` | type | `packages/foundation/ui-system/form/src/core/FormBuilder.ts:42` |  |
+| `@beep/form/core/index` | `Field` | SourceFile | `packages/foundation/ui-system/form/src/core/Field.ts:1` |  |
+| `@beep/form/core/index` | `FieldState` | SourceFile | `packages/foundation/ui-system/form/src/core/FieldState.ts:1` |  |
+| `@beep/form/core/index` | `FormAtoms` | SourceFile | `packages/foundation/ui-system/form/src/core/FormAtoms.ts:1` |  |
+| `@beep/form/core/index` | `FormBuilder` | SourceFile | `packages/foundation/ui-system/form/src/core/FormBuilder.ts:1` |  |
+| `@beep/form/core/index` | `Mode` | SourceFile | `packages/foundation/ui-system/form/src/core/Mode.ts:1` |  |
+| `@beep/form/core/index` | `Path` | SourceFile | `packages/foundation/ui-system/form/src/core/Path.ts:1` |  |
+| `@beep/form/core/index` | `Validation` | SourceFile | `packages/foundation/ui-system/form/src/core/Validation.ts:1` |  |
+| `@beep/form/core/internal/dirty` | `recalculateDirtyFieldsForArray` | const | `packages/foundation/ui-system/form/src/core/internal/dirty.ts:4` |  |
+| `@beep/form/core/internal/dirty` | `recalculateDirtySubtree` | const | `packages/foundation/ui-system/form/src/core/internal/dirty.ts:42` |  |
+| `@beep/form/core/internal/weak-registry` | `createWeakRegistry` | const | `packages/foundation/ui-system/form/src/core/internal/weak-registry.ts:9` |  |
+| `@beep/form/core/internal/weak-registry` | `WeakRegistry` | interface | `packages/foundation/ui-system/form/src/core/internal/weak-registry.ts:1` |  |
+| `@beep/form/core/Mode` | `FormMode` | type | `packages/foundation/ui-system/form/src/core/Mode.ts:3` |  |
+| `@beep/form/core/Mode` | `FormModeWithoutAutoSubmit` | type | `packages/foundation/ui-system/form/src/core/Mode.ts:8` |  |
+| `@beep/form/core/Mode` | `parse` | const | `packages/foundation/ui-system/form/src/core/Mode.ts:19` |  |
+| `@beep/form/core/Mode` | `ParsedMode` | interface | `packages/foundation/ui-system/form/src/core/Mode.ts:13` |  |
+| `@beep/form/core/Path` | `getNestedValue` | const | `packages/foundation/ui-system/form/src/core/Path.ts:52` |  |
+| `@beep/form/core/Path` | `isPathOrParentDirty` | const | `packages/foundation/ui-system/form/src/core/Path.ts:34` |  |
+| `@beep/form/core/Path` | `isPathUnderRoot` | const | `packages/foundation/ui-system/form/src/core/Path.ts:31` |  |
+| `@beep/form/core/Path` | `schemaPathToFieldPath` | const | `packages/foundation/ui-system/form/src/core/Path.ts:10` |  |
+| `@beep/form/core/Path` | `setNestedValue` | const | `packages/foundation/ui-system/form/src/core/Path.ts:63` |  |
+| `@beep/form/core/Validation` | `ErrorEntry` | interface | `packages/foundation/ui-system/form/src/core/Validation.ts:8` |  |
+| `@beep/form/core/Validation` | `ErrorSource` | type | `packages/foundation/ui-system/form/src/core/Validation.ts:6` |  |
+| `@beep/form/core/Validation` | `extractFirstError` | const | `packages/foundation/ui-system/form/src/core/Validation.ts:64` |  |
+| `@beep/form/core/Validation` | `routeErrors` | const | `packages/foundation/ui-system/form/src/core/Validation.ts:72` |  |
+| `@beep/form/core/Validation` | `routeErrorsWithSource` | const | `packages/foundation/ui-system/form/src/core/Validation.ts:86` |  |
+| `@beep/form/index` | `VERSION` | const | `packages/foundation/ui-system/form/src/index.ts:11` |  |
+| `@beep/form/react` | `Field` | SourceFile | `packages/foundation/ui-system/form/src/core/Field.ts:1` |  |
+| `@beep/form/react` | `FieldState` | SourceFile | `packages/foundation/ui-system/form/src/core/FieldState.ts:1` |  |
+| `@beep/form/react` | `FormAtoms` | SourceFile | `packages/foundation/ui-system/form/src/core/FormAtoms.ts:1` |  |
+| `@beep/form/react` | `FormBuilder` | SourceFile | `packages/foundation/ui-system/form/src/core/FormBuilder.ts:1` |  |
+| `@beep/form/react` | `FormReact` | SourceFile | `packages/foundation/ui-system/form/src/react/FormReact.tsx:1` |  |
+| `@beep/form/react` | `Mode` | SourceFile | `packages/foundation/ui-system/form/src/core/Mode.ts:1` |  |
+| `@beep/form/react` | `Path` | SourceFile | `packages/foundation/ui-system/form/src/core/Path.ts:1` |  |
+| `@beep/form/react` | `Validation` | SourceFile | `packages/foundation/ui-system/form/src/core/Validation.ts:1` |  |
+| `@beep/form/react/index` | `Field` | SourceFile | `packages/foundation/ui-system/form/src/core/Field.ts:1` |  |
+| `@beep/form/react/index` | `FieldState` | SourceFile | `packages/foundation/ui-system/form/src/core/FieldState.ts:1` |  |
+| `@beep/form/react/index` | `FormAtoms` | SourceFile | `packages/foundation/ui-system/form/src/core/FormAtoms.ts:1` |  |
+| `@beep/form/react/index` | `FormBuilder` | SourceFile | `packages/foundation/ui-system/form/src/core/FormBuilder.ts:1` |  |
+| `@beep/form/react/index` | `FormReact` | SourceFile | `packages/foundation/ui-system/form/src/react/FormReact.tsx:1` |  |
+| `@beep/form/react/index` | `Mode` | SourceFile | `packages/foundation/ui-system/form/src/core/Mode.ts:1` |  |
+| `@beep/form/react/index` | `Path` | SourceFile | `packages/foundation/ui-system/form/src/core/Path.ts:1` |  |
+| `@beep/form/react/index` | `Validation` | SourceFile | `packages/foundation/ui-system/form/src/core/Validation.ts:1` |  |
+
 ### @beep/identity
 
 | Import | Symbol | Kind | Source | Summary |
@@ -6191,6 +6308,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/identity` | `$EpistemicDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:573` | Identity composer for the `@beep/epistemic-domain` package. |
 | `@beep/identity` | `$FaceDetectionId` | const | `packages/foundation/modeling/identity/src/packages.ts:713` |  |
 | `@beep/identity` | `$FfmpegId` | const | `packages/foundation/modeling/identity/src/packages.ts:719` |  |
+| `@beep/identity` | `$FormId` | const | `packages/foundation/modeling/identity/src/packages.ts:1384` | Identity composer for `@beep/form`. |
 | `@beep/identity` | `$HubspotId` | const | `packages/foundation/modeling/identity/src/packages.ts:1223` | Identity composer for `@beep/hubspot`. |
 | `@beep/identity` | `$I` | const | `packages/foundation/modeling/identity/src/packages.ts:40` | Root identity composer for the `@beep` namespace. |
 | `@beep/identity` | `$IamDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:797` | Identity composer for the `@beep/iam-domain` package. |
@@ -6317,6 +6435,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/identity/index` | `$EpistemicDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:573` | Identity composer for the `@beep/epistemic-domain` package. |
 | `@beep/identity/index` | `$FaceDetectionId` | const | `packages/foundation/modeling/identity/src/packages.ts:713` |  |
 | `@beep/identity/index` | `$FfmpegId` | const | `packages/foundation/modeling/identity/src/packages.ts:719` |  |
+| `@beep/identity/index` | `$FormId` | const | `packages/foundation/modeling/identity/src/packages.ts:1384` | Identity composer for `@beep/form`. |
 | `@beep/identity/index` | `$HubspotId` | const | `packages/foundation/modeling/identity/src/packages.ts:1223` | Identity composer for `@beep/hubspot`. |
 | `@beep/identity/index` | `$I` | const | `packages/foundation/modeling/identity/src/packages.ts:40` | Root identity composer for the `@beep` namespace. |
 | `@beep/identity/index` | `$IamDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:797` | Identity composer for the `@beep/iam-domain` package. |
@@ -6423,6 +6542,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/identity/packages` | `$EpistemicDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:573` | Identity composer for the `@beep/epistemic-domain` package. |
 | `@beep/identity/packages` | `$FaceDetectionId` | const | `packages/foundation/modeling/identity/src/packages.ts:713` |  |
 | `@beep/identity/packages` | `$FfmpegId` | const | `packages/foundation/modeling/identity/src/packages.ts:719` |  |
+| `@beep/identity/packages` | `$FormId` | const | `packages/foundation/modeling/identity/src/packages.ts:1384` | Identity composer for `@beep/form`. |
 | `@beep/identity/packages` | `$HubspotId` | const | `packages/foundation/modeling/identity/src/packages.ts:1223` | Identity composer for `@beep/hubspot`. |
 | `@beep/identity/packages` | `$I` | const | `packages/foundation/modeling/identity/src/packages.ts:40` | Root identity composer for the `@beep` namespace. |
 | `@beep/identity/packages` | `$IamDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:797` | Identity composer for the `@beep/iam-domain` package. |
