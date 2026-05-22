@@ -8145,9 +8145,9 @@ export interface Redacted<S extends Top> extends
  *   - The default JSON serializer will deserialize into a `Redacted` instance with the label
  *   - The arbitrary generator will produce a `Redacted` instance with the label
  *   - The formatter will return the label
- * - `disallowJsonEncode`: When set to `true`, when attempting to encode a `Redacted` instance
- *   into JSON, it will fail with an error. This is useful when the wrapped schema is
- *   sensitive and should not be exposed in JSON.
+ * - `disallowJsonEncode`: Controls JSON encoding safety for `Redacted` values.
+ *   - `true` or omitted: JSON encoding fails with an error.
+ *   - `false`: JSON encoding is allowed and extracts the underlying value.
  *
  * @category Redacted
  * @since 3.10.0
@@ -8203,7 +8203,7 @@ export function Redacted<S extends Top>(value: S, options?: {
           redact(value),
           {
             decode: Getter.transform((e) => Redacted_.make(e, { label: options?.label })),
-            encode: options?.disallowJsonEncode ?
+            encode: options?.disallowJsonEncode !== false ?
               Getter.forbidden((oe) =>
                 "Cannot serialize Redacted" +
                 (Option_.isSome(oe) && typeof oe.value.label === "string" ? ` with label: "${oe.value.label}"` : "")
@@ -8263,7 +8263,7 @@ export function RedactedFromValue<S extends Top>(value: S, options?: {
       }),
       {
         decode: Getter.transform((t) => Redacted_.make(t, { label: options?.label })),
-        encode: options?.disallowEncode ?
+        encode: options?.disallowEncode !== false ?
           Getter.forbidden((oe) =>
             "Cannot encode Redacted" +
             (Option_.isSome(oe) && typeof oe.value.label === "string" ? ` with label: "${oe.value.label}"` : "")
