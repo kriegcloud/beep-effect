@@ -43,8 +43,13 @@ Only `@beep/schema/<Concept>` is public for concept modules. Role files are
 source topology. Utility namespaces such as `SchemaUtils` may expose helper
 leaves when direct helper imports are the intended API.
 
-Compatibility suite modules that still have lower-case source directories keep
-their current source location while publishing canonical public subpaths:
+Public package subpaths are explicit. `SchemaUtils` helper leaves such as
+`@beep/schema/SchemaUtils/pluck` remain intentional public imports, but concept
+role files such as `@beep/schema/Duration/Duration.schema` are private source
+topology.
+
+Topical suite modules use PascalCase source directories and canonical public
+subpaths:
 
 ```ts
 import * as Color from "@beep/schema/Color"
@@ -53,7 +58,14 @@ import * as Http from "@beep/schema/Http"
 ```
 
 Do not create case-only sibling source directories such as `src/Color/` beside
-`src/color/`; physically moving those suites is a separate migration.
+`src/color/`. Lowercase topical source and public paths such as `src/color/`,
+`src/http/`, `@beep/schema/color`, and `@beep/schema/http/headers` are retired.
+
+Topology is enforced by:
+
+```bash
+bun run beep lint schema-topology
+```
 
 See `goals/beep-schema-topology` and `standards/ARCHITECTURE.md` for the
 canonical migration plan and doctrine.

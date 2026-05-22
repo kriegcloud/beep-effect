@@ -27,7 +27,7 @@ import { HashSet, pipe } from "effect";
 import * as Bool from "effect/Boolean";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
-import { LiteralKit } from "./LiteralKit.ts";
+import { LiteralKit } from "./LiteralKit/index.ts";
 
 const $I = $SchemaId.create("BinaryFileExtension");
 

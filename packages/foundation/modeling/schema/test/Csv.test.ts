@@ -1,5 +1,5 @@
 import { $SchemaId } from "@beep/identity";
-import { CSV } from "@beep/schema";
+import { CSV } from "@beep/schema/Csv";
 import { describe, expect, it } from "@effect/vitest";
 import { Cause, Effect, Exit } from "effect";
 import * as S from "effect/Schema";

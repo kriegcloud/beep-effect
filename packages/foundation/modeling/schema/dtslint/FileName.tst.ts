@@ -1,4 +1,4 @@
-import { FileName, type FileName as FileNameType } from "@beep/schema";
+import { FileName, type FileName as FileNameType } from "@beep/schema/FileName";
 import * as S from "effect/Schema";
 import { describe, expect, it } from "tstyche";
 

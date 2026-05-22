@@ -18,3 +18,11 @@ export * from "./Lint.command.js";
  * @since 0.0.0
  */
 export * from "./Lint.errors.js";
+
+/**
+ * Schema topology lint utilities.
+ *
+ * @category cli-commands
+ * @since 0.0.0
+ */
+export * from "./SchemaTopology.ts";

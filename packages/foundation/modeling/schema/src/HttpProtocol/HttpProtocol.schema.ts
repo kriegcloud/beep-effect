@@ -1,13 +1,38 @@
 /**
- * Primary schema for HTTP protocol literals.
+ * Module for HTTP protocol ("http" or "https").
  *
  * @packageDocumentation
  * @since 0.0.0
  */
+import { $SchemaId } from "@beep/identity";
+import { LiteralKit } from "../LiteralKit/index.ts";
+
+const $I = $SchemaId.create("HttpProtocol");
+
 /**
- * Canonical aliases for the HTTP protocol schema module.
+ * An HTTP protocol ("http" or "https")
+ *
+ * @category validation
+ * @since 0.0.0
+ */
+export const HttpProtocol = LiteralKit(["http", "https"]).pipe(
+  $I.annoteSchema("HttpProtocol", {
+    description: 'An HTTP protocol ("http" or "https")',
+  })
+);
+
+/**
+ * {@inheritDoc HttpProtocol}
+ *
+ * @category validation
+ * @since 0.0.0
+ */
+export type HttpProtocol = typeof HttpProtocol.Type;
+
+/**
+ * Public aliases for concise namespace roles.
  *
  * @category schemas
  * @since 0.0.0
  */
-export { HttpProtocol as Schema, HttpProtocol } from "../http/HttpProtocol.ts";
+export { HttpProtocol as Schema };

@@ -5,7 +5,7 @@ import {
   Sha256HexFromHexBytes,
   type Sha256HexFromHexBytes as Sha256HexFromHexBytesType,
   type Sha256Hex as Sha256HexType,
-} from "@beep/schema";
+} from "@beep/schema/Sha256";
 import type { Effect } from "effect";
 import type * as Brand from "effect/Brand";
 import * as S from "effect/Schema";

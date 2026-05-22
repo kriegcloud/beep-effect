@@ -8,7 +8,7 @@
 import { $SchemaId } from "@beep/identity";
 import * as S from "effect/Schema";
 import { NonNegativeInt } from "./Int.ts";
-import * as Model from "./Model.ts";
+import * as Model from "./Model/index.ts";
 
 const $I = $SchemaId.create("DomainModel");
 

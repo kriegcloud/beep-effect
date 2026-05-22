@@ -42,7 +42,7 @@ const RelativePlanPathChecks = S.makeFilterGroup(
       message: "Create-package plan paths must not be empty.",
     }),
     S.makeFilter(
-      P.not((value: string) => Str.startsWith("/")(value)),
+      (value: string) => !Str.startsWith("/")(value),
       {
         identifier: $I`RelativePlanPathNotAbsoluteCheck`,
         title: "Relative plan path not absolute",
@@ -109,7 +109,7 @@ export class PlannedSymlink extends S.Class<PlannedSymlink>($I`PlannedSymlink`)(
 ) {}
 
 /**
- * Input payload used to create a generation plan.
+ * Input payload used to create a generation pla.
  *
  * @category models
  * @since 0.0.0

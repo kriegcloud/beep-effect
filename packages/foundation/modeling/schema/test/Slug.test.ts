@@ -1,4 +1,4 @@
-import { Slug } from "@beep/schema";
+import { Slug } from "@beep/schema/Slug";
 import { describe, expect, it } from "@effect/vitest";
 import * as S from "effect/Schema";
 

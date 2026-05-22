@@ -17,12 +17,12 @@ export const VERSION = "0.0.0" as const;
  * @since 0.0.0
  * @category validation
  */
-export * from "./LiteralKit.ts";
+export * from "./LiteralKit/index.ts";
 /**
  * @since 0.0.0
  * @category validation
  */
-export * from "./MappedLiteralKit.ts";
+export * from "./MappedLiteralKit/index.ts";
 
 // bench
 
@@ -45,17 +45,22 @@ export * from "./BigDecimal.ts";
  * @since 0.0.0
  * @category validation
  */
+export * from "./Blockchain/index.ts";
+/**
+ * @since 0.0.0
+ * @category validation
+ */
 export * from "./BufferEncoding.ts";
 /**
  * @since 0.0.0
  * @category validation
  */
-export * from "./blockchain/index.ts";
+export * from "./CauseTaggedError/index.ts";
 /**
  * @since 0.0.0
  * @category validation
  */
-export * from "./CauseTaggedError.ts";
+export * from "./Color/index.ts";
 /**
  * @since 0.0.0
  * @category validation
@@ -65,17 +70,17 @@ export * from "./CommonTextSchemas.ts";
  * @since 0.0.0
  * @category validation
  */
-export * from "./color/index.ts";
+export { CSV, Csv, type CsvDocument, type CsvText, type RowSchemaWithFields } from "./Csv/index.ts";
 /**
  * @since 0.0.0
  * @category validation
  */
-export * from "./csv.ts";
+export * from "./DateTimeUtcFromValid/index.ts";
 /**
  * @since 0.0.0
  * @category validation
  */
-export * from "./DateTimeUtcFromValid.ts";
+export * from "./Dom/index.ts";
 /**
  * @since 0.0.0
  * @category validation
@@ -85,12 +90,19 @@ export * as DomainModel from "./DomainModel.ts";
  * @since 0.0.0
  * @category validation
  */
-export * from "./Duration.ts";
-/**
- * @since 0.0.0
- * @category validation
- */
-export * from "./dom/index.ts";
+export {
+  Duration,
+  type Duration as DurationValue,
+  DurationFromInput,
+  type DurationFromInput as DurationFromInputValue,
+  DurationInput,
+  type DurationInput as DurationInputValue,
+  DurationObject,
+  DurationUnit,
+  type DurationUnit as DurationUnitValue,
+  FromInput,
+  type Unit as DurationUnitAlias,
+} from "./Duration/index.ts";
 /**
  * @since 0.0.0
  * @category validation
@@ -105,7 +117,7 @@ export * from "./Email.ts";
  * @since 0.0.0
  * @category validation
  */
-export * as EntitySchema from "./EntitySchema.ts";
+export * as EntitySchema from "./EntitySchema/index.ts";
 /**
  * @since 0.0.0
  * @category validation
@@ -120,7 +132,7 @@ export * from "./FileName.ts";
  * @since 0.0.0
  * @category validation
  */
-export * from "./FilePath.ts";
+export * from "./FilePath/index.ts";
 /**
  * @since 0.0.0
  * @category validation
@@ -140,17 +152,17 @@ export * from "./Float64Array.ts";
  * @since 0.0.0
  * @category validation
  */
-export * from "./Fn.ts";
+export * from "./Fn/index.ts";
 /**
  * @since 0.0.0
  * @category validation
  */
-export * from "./Glob.ts";
+export * from "./Glob/index.ts";
 /**
  * @since 0.0.0
  * @category validation
  */
-export * from "./Graph.ts";
+export * from "./Graph/index.ts";
 /**
  * @since 0.0.0
  * @category validation
@@ -160,7 +172,7 @@ export * from "./Html.ts";
  * @since 0.0.0
  * @category validation
  */
-export * from "./http/index.ts";
+export * from "./Http/index.ts";
 /**
  * @since 0.0.0
  * @category validation
@@ -190,17 +202,17 @@ export * from "./KebabStr.ts";
  * @since 0.0.0
  * @category validation
  */
-export * from "./LocalDate.ts";
+export * from "./LocalDate/index.ts";
+/**
+ * @since 0.0.0
+ * @category validation
+ */
+export * from "./Location/index.ts";
 /**
  * @since 0.0.0
  * @category validation
  */
 export * from "./Logs.ts";
-/**
- * @since 0.0.0
- * @category validation
- */
-export * from "./location/index.ts";
 /**
  * @since 0.0.0
  * @category validation
@@ -215,7 +227,7 @@ export * from "./MimeType.ts";
  * @since 0.0.0
  * @category validation
  */
-export * as Model from "./Model.ts";
+export * as Model from "./Model/index.ts";
 /**
  * @since 0.0.0
  * @category validation
@@ -240,6 +252,11 @@ export * from "./PascalStr.ts";
  * @since 0.0.0
  * @category validation
  */
+export * from "./Person/index.ts";
+/**
+ * @since 0.0.0
+ * @category validation
+ */
 export * from "./PosixPath.ts";
 /**
  * @since 0.0.0
@@ -253,14 +270,9 @@ export * from "./Primitive.ts";
 export * from "./PromiseSchema.ts";
 /**
  * @since 0.0.0
- * @category validation
- */
-export * from "./person/index.ts";
-/**
- * @since 0.0.0
  * @category schemas
  */
-export * from "./Record.ts";
+export * from "./Record/index.ts";
 /**
  * @since 0.0.0
  * @category validation
@@ -305,7 +317,7 @@ export * from "./StatusCauseError.ts";
  * @since 0.0.0
  * @category validation
  */
-export * from "./StatusCauseTaggedErrorClass.ts";
+export * from "./StatusCauseTaggedErrorClass/index.ts";
 /**
  * @since 0.0.0
  * @category validation
@@ -315,7 +327,7 @@ export * from "./String.ts";
  * @since 0.0.0
  * @category validation
  */
-export * from "./TaggedErrorClass.ts";
+export * from "./TaggedErrorClass/index.ts";
 /**
  * @since 0.0.0
  * @category validation
@@ -340,7 +352,7 @@ export * from "./URL.ts";
  * @since 0.0.0
  * @category validation
  */
-export * as VariantSchema from "./VariantSchema.ts";
+export * as VariantSchema from "./VariantSchema/index.ts";
 /**
  * @since 0.0.0
  * @category validation

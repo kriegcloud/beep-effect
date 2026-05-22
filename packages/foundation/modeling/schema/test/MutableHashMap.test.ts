@@ -1,4 +1,4 @@
-import { isMutableHashMap, MutableHashMap, MutableHashMapFromSelf } from "@beep/schema";
+import { isMutableHashMap, MutableHashMap, MutableHashMapFromSelf } from "@beep/schema/MutableHashMap";
 import { A } from "@beep/utils";
 import { describe, expect, it } from "@effect/vitest";
 import * as MutableHashMap_ from "effect/MutableHashMap";

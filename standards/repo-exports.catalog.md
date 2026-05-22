@@ -20,9 +20,9 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | packagesWithPublicExports | 77 |
 | packagesWithoutPublicExports | 1 |
 | missingWorkspaceMetadata | 4 |
-| importSpecifiers | 1013 |
-| publicExportEntries | 14843 |
-| uniquePackageSymbols | 5500 |
+| importSpecifiers | 959 |
+| publicExportEntries | 12715 |
+| uniquePackageSymbols | 5522 |
 
 ## Seed Discovery Proof
 
@@ -30,8 +30,8 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 
 | Import | Symbol | Kind | Source | Summary |
 |---|---|---|---|---|
-| `@beep/schema` | `UnknownRecord` | const | `packages/foundation/modeling/schema/src/Record.ts:29` | Schema for object records with string keys and unknown values. |
-| `@beep/schema` | `UnknownRecord` | type | `packages/foundation/modeling/schema/src/Record.ts:49` | Runtime type extracted from the {@link UnknownRecord} schema. |
+| `@beep/schema` | `UnknownRecord` | const | `packages/foundation/modeling/schema/src/Record/Record.schema.ts:29` | Schema for object records with string keys and unknown values. |
+| `@beep/schema` | `UnknownRecord` | type | `packages/foundation/modeling/schema/src/Record/Record.schema.ts:49` | Runtime type extracted from the {@link UnknownRecord} schema. |
 
 ## Package Summary
 
@@ -52,7 +52,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | 13 | `@beep/discord` | `packages/drivers/discord` | has-public-exports | 5 | 27 | 8 |
 | 14 | `@beep/face-detection` | `packages/drivers/face-detection` | has-public-exports | 5 | 72 | 20 |
 | 15 | `@beep/architecture-lab-client` | `packages/architecture-lab/client` | has-public-exports | 2 | 6 | 6 |
-| 16 | `@beep/repo-cli` | `packages/tooling/tool/cli` | has-public-exports | 141 | 1530 | 534 |
+| 16 | `@beep/repo-cli` | `packages/tooling/tool/cli` | has-public-exports | 142 | 1542 | 538 |
 | 17 | `@beep/shared-server` | `packages/shared/server` | has-public-exports | 2 | 2 | 1 |
 | 18 | `@beep/law-practice-domain` | `packages/law-practice/domain` | has-public-exports | 6 | 36 | 8 |
 | 19 | `@beep/repo-docgen` | `packages/tooling/tool/docgen` | has-public-exports | 9 | 72 | 64 |
@@ -93,7 +93,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | 54 | `@beep/installer-use-cases` | `packages/installer/use-cases` | has-public-exports | 3 | 51 | 29 |
 | 55 | `@beep/runpod` | `packages/drivers/runpod` | has-public-exports | 1 | 169 | 149 |
 | 56 | `@beep/repo-utils` | `packages/tooling/library/repo-utils` | has-public-exports | 65 | 1616 | 504 |
-| 57 | `@beep/schema` | `packages/foundation/modeling/schema` | has-public-exports | 178 | 4025 | 709 |
+| 57 | `@beep/schema` | `packages/foundation/modeling/schema` | has-public-exports | 123 | 1885 | 727 |
 | 58 | `@beep/codedank-web` | `apps/codedank-web` | has-public-exports | 1 | 1 | 1 |
 | 59 | `@beep/onepassword-cli` | `packages/drivers/onepassword-cli` | has-public-exports | 5 | 27 | 8 |
 | 60 | `@beep/architecture-lab-config` | `packages/architecture-lab/config` | has-public-exports | 7 | 29 | 13 |
@@ -803,9 +803,9 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli` | `graphitiCommand` | const | `packages/tooling/tool/cli/src/commands/Graphiti/Graphiti.command.ts:94` | Graphiti command group. |
 | `@beep/repo-cli` | `imageCommand` | const | `packages/tooling/tool/cli/src/commands/Image/Image.command.ts:139` | Image and video curation command group. |
 | `@beep/repo-cli` | `lawsCommand` | const | `packages/tooling/tool/cli/src/commands/Laws/Laws.command.ts:435` | Laws command group. |
-| `@beep/repo-cli` | `lintCommand` | const | `packages/tooling/tool/cli/src/commands/Lint/Lint.command.ts:573` | Lint command group. |
+| `@beep/repo-cli` | `lintCommand` | const | `packages/tooling/tool/cli/src/commands/Lint/Lint.command.ts:574` | Lint command group. |
 | `@beep/repo-cli` | `purgeCommand` | const | `packages/tooling/tool/cli/src/commands/Purge/Purge.command.ts:249` | CLI command to purge workspace/root build artifacts. |
-| `@beep/repo-cli` | `qualityCommand` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:1638` | Quality command group for repo operational checks. |
+| `@beep/repo-cli` | `qualityCommand` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:1644` | Quality command group for repo operational checks. |
 | `@beep/repo-cli` | `reuseCommand` | const | `packages/tooling/tool/cli/src/commands/Reuse/Reuse.command.ts:545` | Reuse-discovery command group. |
 | `@beep/repo-cli` | `rootCommand` | const | `packages/tooling/tool/cli/src/commands/Root.ts:45` | Top-level CLI command that registers all subcommands. |
 | `@beep/repo-cli` | `syncDataToTsCommand` | const | `packages/tooling/tool/cli/src/commands/SyncDataToTs/SyncDataToTs.command.ts:441` | CLI command for syncing official upstream datasets into checked-in TypeScript modules. |
@@ -816,14 +816,14 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/commands/AgentEffectiveness/AgentEffectiveness.command` | `agentEffectivenessCommand` | const | `packages/tooling/tool/cli/src/commands/AgentEffectiveness/AgentEffectiveness.command.ts:597` | Agent-effectiveness root command. |
 | `@beep/repo-cli/commands/AgentEffectiveness/index` | `agentEffectivenessCommand` | const | `packages/tooling/tool/cli/src/commands/AgentEffectiveness/AgentEffectiveness.command.ts:597` | Agent-effectiveness root command. |
 | `@beep/repo-cli/commands/AIMetrics` | `aiMetricsCommand` | const | `packages/tooling/tool/cli/src/commands/AIMetrics/AIMetrics.command.ts:3410` | AI metrics root command. |
-| `@beep/repo-cli/commands/AIMetrics` | `AiMetricsCommandError` | class | `packages/tooling/tool/cli/src/commands/AIMetrics/AIMetrics.errors.ts:24` |  |
-| `@beep/repo-cli/commands/AIMetrics` | `AiMetricsStatusExit` | class | `packages/tooling/tool/cli/src/commands/AIMetrics/AIMetrics.errors.ts:32` |  |
+| `@beep/repo-cli/commands/AIMetrics` | `AiMetricsCommandError` | class | `packages/tooling/tool/cli/src/commands/AIMetrics/AIMetrics.errors.ts:26` | Error raised by the AI metrics CLI. |
+| `@beep/repo-cli/commands/AIMetrics` | `AiMetricsStatusExit` | class | `packages/tooling/tool/cli/src/commands/AIMetrics/AIMetrics.errors.ts:47` | Silent non-zero status used after the status command has already rendered output. |
 | `@beep/repo-cli/commands/AIMetrics/AIMetrics.command` | `aiMetricsCommand` | const | `packages/tooling/tool/cli/src/commands/AIMetrics/AIMetrics.command.ts:3410` | AI metrics root command. |
-| `@beep/repo-cli/commands/AIMetrics/AIMetrics.errors` | `AiMetricsCommandError` | class | `packages/tooling/tool/cli/src/commands/AIMetrics/AIMetrics.errors.ts:24` |  |
-| `@beep/repo-cli/commands/AIMetrics/AIMetrics.errors` | `AiMetricsStatusExit` | class | `packages/tooling/tool/cli/src/commands/AIMetrics/AIMetrics.errors.ts:32` |  |
+| `@beep/repo-cli/commands/AIMetrics/AIMetrics.errors` | `AiMetricsCommandError` | class | `packages/tooling/tool/cli/src/commands/AIMetrics/AIMetrics.errors.ts:26` | Error raised by the AI metrics CLI. |
+| `@beep/repo-cli/commands/AIMetrics/AIMetrics.errors` | `AiMetricsStatusExit` | class | `packages/tooling/tool/cli/src/commands/AIMetrics/AIMetrics.errors.ts:47` | Silent non-zero status used after the status command has already rendered output. |
 | `@beep/repo-cli/commands/AIMetrics/index` | `aiMetricsCommand` | const | `packages/tooling/tool/cli/src/commands/AIMetrics/AIMetrics.command.ts:3410` | AI metrics root command. |
-| `@beep/repo-cli/commands/AIMetrics/index` | `AiMetricsCommandError` | class | `packages/tooling/tool/cli/src/commands/AIMetrics/AIMetrics.errors.ts:24` |  |
-| `@beep/repo-cli/commands/AIMetrics/index` | `AiMetricsStatusExit` | class | `packages/tooling/tool/cli/src/commands/AIMetrics/AIMetrics.errors.ts:32` |  |
+| `@beep/repo-cli/commands/AIMetrics/index` | `AiMetricsCommandError` | class | `packages/tooling/tool/cli/src/commands/AIMetrics/AIMetrics.errors.ts:26` | Error raised by the AI metrics CLI. |
+| `@beep/repo-cli/commands/AIMetrics/index` | `AiMetricsStatusExit` | class | `packages/tooling/tool/cli/src/commands/AIMetrics/AIMetrics.errors.ts:47` | Silent non-zero status used after the status command has already rendered output. |
 | `@beep/repo-cli/commands/Architecture` | `applyCanonicalSliceOperationPlan` | const | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlanExecution.ts:268` | Apply a decoded operation plan with failsafe conflict behavior. |
 | `@beep/repo-cli/commands/Architecture` | `architectureCommand` | const | `packages/tooling/tool/cli/src/commands/Architecture/Architecture.command.ts:280` | Architecture automation command group. |
 | `@beep/repo-cli/commands/Architecture` | `ArchitectureDomainKind` | const | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:27` | Canonical architecture domain-kind folders. |
@@ -1008,7 +1008,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/commands/CreatePackage/TsMorphIntegrationService` | `TsMorphIntegrationResult` | class | `packages/tooling/tool/cli/src/commands/CreatePackage/TsMorphIntegrationService.ts:192` | Batch mutation result. |
 | `@beep/repo-cli/commands/CreatePackage/TsMorphIntegrationService` | `TsMorphIntegrationService` | class | `packages/tooling/tool/cli/src/commands/CreatePackage/TsMorphIntegrationService.ts:233` | Service tag for ts-morph integration orchestration. |
 | `@beep/repo-cli/commands/CreatePackage/TsMorphIntegrationService` | `TsMorphIntegrationServiceShape` | type | `packages/tooling/tool/cli/src/commands/CreatePackage/TsMorphIntegrationService.ts:220` | Service contract expected by create-package orchestration. |
-| `@beep/repo-cli/commands/CreatePackage/TsMorphIntegrationService` | `TsMorphMutation` | const | `packages/tooling/tool/cli/src/commands/CreatePackage/TsMorphIntegrationService.ts:113` | Input descriptor for one AST mutation. |
+| `@beep/repo-cli/commands/CreatePackage/TsMorphIntegrationService` | `TsMorphMutation` | const | `packages/tooling/tool/cli/src/commands/CreatePackage/TsMorphIntegrationService.ts:114` | Input descriptor for one AST mutation. |
 | `@beep/repo-cli/commands/CreatePackage/TsMorphIntegrationService` | `TsMorphMutation` | type | `packages/tooling/tool/cli/src/commands/CreatePackage/TsMorphIntegrationService.ts:134` | Input descriptor for one AST mutation. |
 | `@beep/repo-cli/commands/CreatePackage/TsMorphIntegrationService` | `TsMorphMutationAdapter` | type | `packages/tooling/tool/cli/src/commands/CreatePackage/TsMorphIntegrationService.ts:210` | Adapter boundary for concrete ts-morph-morph implementations. |
 | `@beep/repo-cli/commands/CreatePackage/TsMorphIntegrationService` | `TsMorphMutationKind` | const | `packages/tooling/tool/cli/src/commands/CreatePackage/TsMorphIntegrationService.ts:23` | Supported AST mutation categories required by create-package. |
@@ -1028,46 +1028,46 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/commands/Docgen/internal/Local` | `DocgenLocalTurboTask` | class | `packages/tooling/tool/cli/src/commands/Docgen/internal/Local.ts:275` | Turbo dry-run package summary used by local docgen. |
 | `@beep/repo-cli/commands/Docgen/internal/Local` | `runDocgenLocal` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/Local.ts:878` | Run the bounded local docgen proof. |
 | `@beep/repo-cli/commands/Docgen/internal/Local` | `selectDocgenLocalPackagesForTesting` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/Local.ts:750` | Select package-local docgen targets for changed files. |
-| `@beep/repo-cli/commands/Docgen/internal/Operations` | `aggregateGeneratedDocs` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/Operations.ts:1410` | Aggregate generated package docs into the current root docs layout. |
-| `@beep/repo-cli/commands/Docgen/internal/Operations` | `analyzePackageDocumentation` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/Operations.ts:1238` | Analyze a package for missing docgen-required JSDoc. |
-| `@beep/repo-cli/commands/Docgen/internal/Operations` | `assertNoOrphanDocgenConfigPaths` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/Operations.ts:447` | Fail when stale package-local docgen configs exist outside current workspaces. |
-| `@beep/repo-cli/commands/Docgen/internal/Operations` | `createDocgenConfigDocument` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/Operations.ts:1101` | Build the repo-standard `docgen.json` document for a package. |
-| `@beep/repo-cli/commands/Docgen/internal/Operations` | `discoverDocgenWorkspacePackages` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/Operations.ts:1144` | Discover all workspace packages relevant to docgen. |
-| `@beep/repo-cli/commands/Docgen/internal/Operations` | `discoverOrphanDocgenConfigPaths` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/Operations.ts:393` | Discover package-local docgen configs that do not belong to a current workspace. |
-| `@beep/repo-cli/commands/Docgen/internal/Operations` | `DocgenAggregateResult` | class | `packages/tooling/tool/cli/src/commands/Docgen/internal/Operations.ts:297` | Per-package aggregated docs result. |
-| `@beep/repo-cli/commands/Docgen/internal/Operations` | `DocgenAnalysisSummary` | class | `packages/tooling/tool/cli/src/commands/Docgen/internal/Operations.ts:237` | Summary counts for a package analysis run. |
-| `@beep/repo-cli/commands/Docgen/internal/Operations` | `DocgenConfigDocument` | class | `packages/tooling/tool/cli/src/commands/Docgen/internal/Operations.ts:113` | Parsed `docgen.json` document used by the command suite. |
-| `@beep/repo-cli/commands/Docgen/internal/Operations` | `DocgenExportAnalysis` | class | `packages/tooling/tool/cli/src/commands/Docgen/internal/Operations.ts:211` | Analysis finding for a single export or module-level doc requirement. |
-| `@beep/repo-cli/commands/Docgen/internal/Operations` | `DocgenExportKind` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/Operations.ts:182` | Export kind surfaced by analysis. |
-| `@beep/repo-cli/commands/Docgen/internal/Operations` | `DocgenExportKind` | type | `packages/tooling/tool/cli/src/commands/Docgen/internal/Operations.ts:203` | Export kind surfaced by analysis. |
-| `@beep/repo-cli/commands/Docgen/internal/Operations` | `DocgenGenerationResult` | class | `packages/tooling/tool/cli/src/commands/Docgen/internal/Operations.ts:277` | Per-package docgen generation result. |
-| `@beep/repo-cli/commands/Docgen/internal/Operations` | `DocgenIssuePriority` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/Operations.ts:163` | Issue priority used by analysis findings. |
-| `@beep/repo-cli/commands/Docgen/internal/Operations` | `DocgenIssuePriority` | type | `packages/tooling/tool/cli/src/commands/Docgen/internal/Operations.ts:174` | Issue priority used by analysis findings. |
-| `@beep/repo-cli/commands/Docgen/internal/Operations` | `DocgenPackageAnalysis` | class | `packages/tooling/tool/cli/src/commands/Docgen/internal/Operations.ts:258` | Package-level analysis document written by `docgen analyze`. |
-| `@beep/repo-cli/commands/Docgen/internal/Operations` | `DocgenPackageStatus` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/Operations.ts:84` | Workspace docgen status derived from config and generated output presence. |
-| `@beep/repo-cli/commands/Docgen/internal/Operations` | `DocgenPackageStatus` | type | `packages/tooling/tool/cli/src/commands/Docgen/internal/Operations.ts:99` | Workspace docgen status derived from config and generated output presence. |
-| `@beep/repo-cli/commands/Docgen/internal/Operations` | `DocgenWorkspacePackage` | class | `packages/tooling/tool/cli/src/commands/Docgen/internal/Operations.ts:142` | Workspace package metadata used by docgen commands. |
-| `@beep/repo-cli/commands/Docgen/internal/Operations` | `generateAnalysisJson` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/Operations.ts:1400` | Encode a package analysis document as JSON text. |
-| `@beep/repo-cli/commands/Docgen/internal/Operations` | `generateAnalysisReport` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/Operations.ts:1279` | Render a human-first markdown report for a package analysis run. |
-| `@beep/repo-cli/commands/Docgen/internal/Operations` | `loadDocgenConfigDocument` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/Operations.ts:1079` | Load a package-local `docgen.json` document. |
-| `@beep/repo-cli/commands/Docgen/internal/Operations` | `normalizeDocsOutputPath` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/Operations.ts:1068` | Normalize a workspace-relative package path to the current root docs output layout. |
-| `@beep/repo-cli/commands/Docgen/internal/Operations` | `resolveDocgenWorkspacePackage` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/Operations.ts:1186` | Resolve a workspace package by package name, repo-relative path, absolute path, or current docs output path. |
-| `@beep/repo-cli/commands/Docgen/internal/Operations` | `runDocgenForPackage` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/Operations.ts:1553` | Run the repo-local `@beep/repo-docgen` implementation for a single workspace package. |
-| `@beep/repo-cli/commands/Docgen/internal/Quality` | `analyzeDocgenQuality` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/Quality.ts:1759` | Builds the consolidated report emitted by the quality command. |
-| `@beep/repo-cli/commands/Docgen/internal/Quality` | `analyzePackageQuality` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/Quality.ts:1689` | Builds a package-local quality report from ts-morph-enriched subjects. |
-| `@beep/repo-cli/commands/Docgen/internal/Quality` | `DocgenQualityFindingCode` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/Quality.ts:194` | Typed finding code emitted by the v1 quality rubric. |
-| `@beep/repo-cli/commands/Docgen/internal/Quality` | `DocgenQualityFindingCode` | type | `packages/tooling/tool/cli/src/commands/Docgen/internal/Quality.ts:225` | Typed finding code emitted by the v1 quality rubric. |
-| `@beep/repo-cli/commands/Docgen/internal/Quality` | `DocgenQualityReport` | class | `packages/tooling/tool/cli/src/commands/Docgen/internal/Quality.ts:381` | Consolidated report emitted by `beep docgen quality`. |
-| `@beep/repo-cli/commands/Docgen/internal/Quality` | `DocgenQualityScopeMode` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/Quality.ts:87` | Scope mode supported by `docgen quality`. |
-| `@beep/repo-cli/commands/Docgen/internal/Quality` | `DocgenQualityScopeMode` | type | `packages/tooling/tool/cli/src/commands/Docgen/internal/Quality.ts:106` | Scope mode supported by `docgen quality`. |
-| `@beep/repo-cli/commands/Docgen/internal/Quality` | `DocgenQualityScoreMode` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/Quality.ts:120` | Optional advisory scoring mode for `docgen quality`. |
-| `@beep/repo-cli/commands/Docgen/internal/Quality` | `DocgenQualityScoreMode` | type | `packages/tooling/tool/cli/src/commands/Docgen/internal/Quality.ts:139` | Optional advisory scoring mode for `docgen quality`. |
-| `@beep/repo-cli/commands/Docgen/internal/Quality` | `DocgenQualitySubject` | class | `packages/tooling/tool/cli/src/commands/Docgen/internal/Quality.ts:278` | Stable evidence packet for one exported-symbol JSDoc quality review. |
-| `@beep/repo-cli/commands/Docgen/internal/Quality` | `DocgenQualityTier` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/Quality.ts:153` | Quality tier assigned to a JSDoc review subject. |
-| `@beep/repo-cli/commands/Docgen/internal/Quality` | `DocgenQualityTier` | type | `packages/tooling/tool/cli/src/commands/Docgen/internal/Quality.ts:172` | Quality tier assigned to a JSDoc review subject. |
-| `@beep/repo-cli/commands/Docgen/internal/Quality` | `generateQualityJson` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/Quality.ts:1839` | Renders a quality report as stable JSON. |
-| `@beep/repo-cli/commands/Docgen/internal/Quality` | `generateQualityReport` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/Quality.ts:1891` | Renders a quality report as human-readable Markdown. |
-| `@beep/repo-cli/commands/Docgen/internal/Quality` | `resolveDocgenQualityTargets` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/Quality.ts:559` | Resolves `docgen quality` targets using the v1 scope policy. |
+| `@beep/repo-cli/commands/Docgen/internal/Operations` | `aggregateGeneratedDocs` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/Operations.ts:1417` | Aggregate generated package docs into the current root docs layout. |
+| `@beep/repo-cli/commands/Docgen/internal/Operations` | `analyzePackageDocumentation` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/Operations.ts:1245` | Analyze a package for missing docgen-required JSDoc. |
+| `@beep/repo-cli/commands/Docgen/internal/Operations` | `assertNoOrphanDocgenConfigPaths` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/Operations.ts:454` | Fail when stale package-local docgen configs exist outside current workspaces. |
+| `@beep/repo-cli/commands/Docgen/internal/Operations` | `createDocgenConfigDocument` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/Operations.ts:1108` | Build the repo-standard `docgen.json` document for a package. |
+| `@beep/repo-cli/commands/Docgen/internal/Operations` | `discoverDocgenWorkspacePackages` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/Operations.ts:1151` | Discover all workspace packages relevant to docgen. |
+| `@beep/repo-cli/commands/Docgen/internal/Operations` | `discoverOrphanDocgenConfigPaths` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/Operations.ts:400` | Discover package-local docgen configs that do not belong to a current workspace. |
+| `@beep/repo-cli/commands/Docgen/internal/Operations` | `DocgenAggregateResult` | class | `packages/tooling/tool/cli/src/commands/Docgen/internal/Operations.ts:304` | Per-package aggregated docs result. |
+| `@beep/repo-cli/commands/Docgen/internal/Operations` | `DocgenAnalysisSummary` | class | `packages/tooling/tool/cli/src/commands/Docgen/internal/Operations.ts:244` | Summary counts for a package analysis run. |
+| `@beep/repo-cli/commands/Docgen/internal/Operations` | `DocgenConfigDocument` | class | `packages/tooling/tool/cli/src/commands/Docgen/internal/Operations.ts:120` | Parsed `docgen.json` document used by the command suite. |
+| `@beep/repo-cli/commands/Docgen/internal/Operations` | `DocgenExportAnalysis` | class | `packages/tooling/tool/cli/src/commands/Docgen/internal/Operations.ts:218` | Analysis finding for a single export or module-level doc requirement. |
+| `@beep/repo-cli/commands/Docgen/internal/Operations` | `DocgenExportKind` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/Operations.ts:189` | Export kind surfaced by analysis. |
+| `@beep/repo-cli/commands/Docgen/internal/Operations` | `DocgenExportKind` | type | `packages/tooling/tool/cli/src/commands/Docgen/internal/Operations.ts:210` | Export kind surfaced by analysis. |
+| `@beep/repo-cli/commands/Docgen/internal/Operations` | `DocgenGenerationResult` | class | `packages/tooling/tool/cli/src/commands/Docgen/internal/Operations.ts:284` | Per-package docgen generation result. |
+| `@beep/repo-cli/commands/Docgen/internal/Operations` | `DocgenIssuePriority` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/Operations.ts:170` | Issue priority used by analysis findings. |
+| `@beep/repo-cli/commands/Docgen/internal/Operations` | `DocgenIssuePriority` | type | `packages/tooling/tool/cli/src/commands/Docgen/internal/Operations.ts:181` | Issue priority used by analysis findings. |
+| `@beep/repo-cli/commands/Docgen/internal/Operations` | `DocgenPackageAnalysis` | class | `packages/tooling/tool/cli/src/commands/Docgen/internal/Operations.ts:265` | Package-level analysis document written by `docgen analyze`. |
+| `@beep/repo-cli/commands/Docgen/internal/Operations` | `DocgenPackageStatus` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/Operations.ts:91` | Workspace docgen status derived from config and generated output presence. |
+| `@beep/repo-cli/commands/Docgen/internal/Operations` | `DocgenPackageStatus` | type | `packages/tooling/tool/cli/src/commands/Docgen/internal/Operations.ts:106` | Workspace docgen status derived from config and generated output presence. |
+| `@beep/repo-cli/commands/Docgen/internal/Operations` | `DocgenWorkspacePackage` | class | `packages/tooling/tool/cli/src/commands/Docgen/internal/Operations.ts:149` | Workspace package metadata used by docgen commands. |
+| `@beep/repo-cli/commands/Docgen/internal/Operations` | `generateAnalysisJson` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/Operations.ts:1407` | Encode a package analysis document as JSON text. |
+| `@beep/repo-cli/commands/Docgen/internal/Operations` | `generateAnalysisReport` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/Operations.ts:1286` | Render a human-first markdown report for a package analysis run. |
+| `@beep/repo-cli/commands/Docgen/internal/Operations` | `loadDocgenConfigDocument` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/Operations.ts:1086` | Load a package-local `docgen.json` document. |
+| `@beep/repo-cli/commands/Docgen/internal/Operations` | `normalizeDocsOutputPath` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/Operations.ts:1075` | Normalize a workspace-relative package path to the current root docs output layout. |
+| `@beep/repo-cli/commands/Docgen/internal/Operations` | `resolveDocgenWorkspacePackage` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/Operations.ts:1193` | Resolve a workspace package by package name, repo-relative path, absolute path, or current docs output path. |
+| `@beep/repo-cli/commands/Docgen/internal/Operations` | `runDocgenForPackage` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/Operations.ts:1560` | Run the repo-local `@beep/repo-docgen` implementation for a single workspace package. |
+| `@beep/repo-cli/commands/Docgen/internal/Quality` | `analyzeDocgenQuality` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/Quality.ts:1821` | Builds the consolidated report emitted by the quality command. |
+| `@beep/repo-cli/commands/Docgen/internal/Quality` | `analyzePackageQuality` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/Quality.ts:1750` | Builds a package-local quality report from ts-morph-enriched subjects. |
+| `@beep/repo-cli/commands/Docgen/internal/Quality` | `DocgenQualityFindingCode` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/Quality.ts:208` | Typed finding code emitted by the v1 quality rubric. |
+| `@beep/repo-cli/commands/Docgen/internal/Quality` | `DocgenQualityFindingCode` | type | `packages/tooling/tool/cli/src/commands/Docgen/internal/Quality.ts:239` | Typed finding code emitted by the v1 quality rubric. |
+| `@beep/repo-cli/commands/Docgen/internal/Quality` | `DocgenQualityReport` | class | `packages/tooling/tool/cli/src/commands/Docgen/internal/Quality.ts:395` | Consolidated report emitted by `beep docgen quality`. |
+| `@beep/repo-cli/commands/Docgen/internal/Quality` | `DocgenQualityScopeMode` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/Quality.ts:101` | Scope mode supported by `docgen quality`. |
+| `@beep/repo-cli/commands/Docgen/internal/Quality` | `DocgenQualityScopeMode` | type | `packages/tooling/tool/cli/src/commands/Docgen/internal/Quality.ts:120` | Scope mode supported by `docgen quality`. |
+| `@beep/repo-cli/commands/Docgen/internal/Quality` | `DocgenQualityScoreMode` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/Quality.ts:134` | Optional advisory scoring mode for `docgen quality`. |
+| `@beep/repo-cli/commands/Docgen/internal/Quality` | `DocgenQualityScoreMode` | type | `packages/tooling/tool/cli/src/commands/Docgen/internal/Quality.ts:153` | Optional advisory scoring mode for `docgen quality`. |
+| `@beep/repo-cli/commands/Docgen/internal/Quality` | `DocgenQualitySubject` | class | `packages/tooling/tool/cli/src/commands/Docgen/internal/Quality.ts:292` | Stable evidence packet for one exported-symbol JSDoc quality review. |
+| `@beep/repo-cli/commands/Docgen/internal/Quality` | `DocgenQualityTier` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/Quality.ts:167` | Quality tier assigned to a JSDoc review subject. |
+| `@beep/repo-cli/commands/Docgen/internal/Quality` | `DocgenQualityTier` | type | `packages/tooling/tool/cli/src/commands/Docgen/internal/Quality.ts:186` | Quality tier assigned to a JSDoc review subject. |
+| `@beep/repo-cli/commands/Docgen/internal/Quality` | `generateQualityJson` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/Quality.ts:1901` | Renders a quality report as stable JSON. |
+| `@beep/repo-cli/commands/Docgen/internal/Quality` | `generateQualityReport` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/Quality.ts:1953` | Renders a quality report as human-readable Markdown. |
+| `@beep/repo-cli/commands/Docgen/internal/Quality` | `resolveDocgenQualityTargets` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/Quality.ts:592` | Resolves `docgen quality` targets using the v1 scope policy. |
 | `@beep/repo-cli/commands/Docgen/internal/QualityWorkerEval` | `analyzeDocgenQualityWorkerEval` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerEval.ts:1242` | Build a read-only worker eval report from a quality report. |
 | `@beep/repo-cli/commands/Docgen/internal/QualityWorkerEval` | `AnalyzeDocgenQualityWorkerEvalOptions` | class | `packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerEval.ts:523` | Options for one worker eval run. |
 | `@beep/repo-cli/commands/Docgen/internal/QualityWorkerEval` | `decodeDocgenQualityReportForWorkerEval` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerEval.ts:1145` | Decode a saved `docgen quality` JSON report for worker eval. |
@@ -1199,7 +1199,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/commands/Files` | `encodeDetectBordersReport` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1978` | Encode a detect-borders report into its JSON-safe shape. |
 | `@beep/repo-cli/commands/Files` | `encodeDetectFacesReport` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1985` | Encode a face detection report into its JSON-safe shape. |
 | `@beep/repo-cli/commands/Files` | `encodeNormalizeManifest` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1962` | Encode a normalize manifest into its JSON-safe shape. |
-| `@beep/repo-cli/commands/Files` | `failOnExtensionlessFile` | const | `packages/tooling/tool/cli/src/commands/Files/Files.errors.ts:87` | Fail when a rename operation selects an extensionless file. |
+| `@beep/repo-cli/commands/Files` | `failOnExtensionlessFile` | const | `packages/tooling/tool/cli/src/commands/Files/Files.errors.ts:92` | Fail when a rename operation selects an extensionless file. |
 | `@beep/repo-cli/commands/Files` | `FfprobeOutput` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:736` | JSON document emitted by `ffprobe`. |
 | `@beep/repo-cli/commands/Files` | `FfprobeSideData` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:703` | Side-data entry returned by `ffprobe`. |
 | `@beep/repo-cli/commands/Files` | `FfprobeStream` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:718` | Video stream metadata returned by `ffprobe`. |
@@ -1212,7 +1212,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/commands/Files` | `FileSha256Hash` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:61` | SHA-256 hash recorded for normalized file bytes. |
 | `@beep/repo-cli/commands/Files` | `FileSha256Hash` | type | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:80` | SHA-256 hash recorded for normalized file bytes. |
 | `@beep/repo-cli/commands/Files` | `formatIndex` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:341` | Format a zero-padded numeric index. |
-| `@beep/repo-cli/commands/Files` | `formatPlatformError` | const | `packages/tooling/tool/cli/src/commands/Files/Files.errors.ts:67` | Convert a platform failure into a file command error. |
+| `@beep/repo-cli/commands/Files` | `formatPlatformError` | const | `packages/tooling/tool/cli/src/commands/Files/Files.errors.ts:72` | Convert a platform failure into a file command error. |
 | `@beep/repo-cli/commands/Files` | `hasSkippedFiles` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:463` | Check whether a plan skipped any files. |
 | `@beep/repo-cli/commands/Files` | `ImageSizeMetadata` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:686` | Dimension metadata returned by `image-size`. |
 | `@beep/repo-cli/commands/Files` | `isExifOrientationRotated` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:372` | Check whether an EXIF orientation value implies a quarter-turn image. |
@@ -1292,9 +1292,9 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/commands/Files` | `SupportedMetadataImageExtension` | type | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:164` | Image extension supported by metadata stripping. |
 | `@beep/repo-cli/commands/Files` | `targetNameForEntry` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:439` | Build a generated filename for a planned rename. |
 | `@beep/repo-cli/commands/Files/Files.command` | `filesCommand` | const | `packages/tooling/tool/cli/src/commands/Files/Files.command.ts:437` | File curation command group. |
-| `@beep/repo-cli/commands/Files/Files.errors` | `failOnExtensionlessFile` | const | `packages/tooling/tool/cli/src/commands/Files/Files.errors.ts:87` | Fail when a rename operation selects an extensionless file. |
+| `@beep/repo-cli/commands/Files/Files.errors` | `failOnExtensionlessFile` | const | `packages/tooling/tool/cli/src/commands/Files/Files.errors.ts:92` | Fail when a rename operation selects an extensionless file. |
 | `@beep/repo-cli/commands/Files/Files.errors` | `FilesCommandError` | class | `packages/tooling/tool/cli/src/commands/Files/Files.errors.ts:39` | Error raised by file curation commands. |
-| `@beep/repo-cli/commands/Files/Files.errors` | `formatPlatformError` | const | `packages/tooling/tool/cli/src/commands/Files/Files.errors.ts:67` | Convert a platform failure into a file command error. |
+| `@beep/repo-cli/commands/Files/Files.errors` | `formatPlatformError` | const | `packages/tooling/tool/cli/src/commands/Files/Files.errors.ts:72` | Convert a platform failure into a file command error. |
 | `@beep/repo-cli/commands/Files/Files.media` | `analyzeSolidBorders` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:762` | Analyze raw RGB image pixels for near-solid borders on all four sides. |
 | `@beep/repo-cli/commands/Files/Files.media` | `assessImageCandidate` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:632` | Assess image dimensions against hard candidate-quality thresholds. |
 | `@beep/repo-cli/commands/Files/Files.media` | `byNameAscending` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:295` | Order regular files by name ascending. |
@@ -1553,7 +1553,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/commands/Files/index` | `encodeDetectBordersReport` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1978` | Encode a detect-borders report into its JSON-safe shape. |
 | `@beep/repo-cli/commands/Files/index` | `encodeDetectFacesReport` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1985` | Encode a face detection report into its JSON-safe shape. |
 | `@beep/repo-cli/commands/Files/index` | `encodeNormalizeManifest` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1962` | Encode a normalize manifest into its JSON-safe shape. |
-| `@beep/repo-cli/commands/Files/index` | `failOnExtensionlessFile` | const | `packages/tooling/tool/cli/src/commands/Files/Files.errors.ts:87` | Fail when a rename operation selects an extensionless file. |
+| `@beep/repo-cli/commands/Files/index` | `failOnExtensionlessFile` | const | `packages/tooling/tool/cli/src/commands/Files/Files.errors.ts:92` | Fail when a rename operation selects an extensionless file. |
 | `@beep/repo-cli/commands/Files/index` | `FfprobeOutput` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:736` | JSON document emitted by `ffprobe`. |
 | `@beep/repo-cli/commands/Files/index` | `FfprobeSideData` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:703` | Side-data entry returned by `ffprobe`. |
 | `@beep/repo-cli/commands/Files/index` | `FfprobeStream` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:718` | Video stream metadata returned by `ffprobe`. |
@@ -1566,7 +1566,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/commands/Files/index` | `FileSha256Hash` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:61` | SHA-256 hash recorded for normalized file bytes. |
 | `@beep/repo-cli/commands/Files/index` | `FileSha256Hash` | type | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:80` | SHA-256 hash recorded for normalized file bytes. |
 | `@beep/repo-cli/commands/Files/index` | `formatIndex` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:341` | Format a zero-padded numeric index. |
-| `@beep/repo-cli/commands/Files/index` | `formatPlatformError` | const | `packages/tooling/tool/cli/src/commands/Files/Files.errors.ts:67` | Convert a platform failure into a file command error. |
+| `@beep/repo-cli/commands/Files/index` | `formatPlatformError` | const | `packages/tooling/tool/cli/src/commands/Files/Files.errors.ts:72` | Convert a platform failure into a file command error. |
 | `@beep/repo-cli/commands/Files/index` | `hasSkippedFiles` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:463` | Check whether a plan skipped any files. |
 | `@beep/repo-cli/commands/Files/index` | `ImageSizeMetadata` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:686` | Dimension metadata returned by `image-size`. |
 | `@beep/repo-cli/commands/Files/index` | `isExifOrientationRotated` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:372` | Check whether an EXIF orientation value implies a quarter-turn image. |
@@ -1647,22 +1647,22 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/commands/Files/index` | `targetNameForEntry` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:439` | Build a generated filename for a planned rename. |
 | `@beep/repo-cli/commands/Graphiti` | `graphitiCommand` | const | `packages/tooling/tool/cli/src/commands/Graphiti/Graphiti.command.ts:94` | Graphiti command group. |
 | `@beep/repo-cli/commands/Graphiti` | `GraphitiProxyConfigLoadError` | class | `packages/tooling/tool/cli/src/commands/Graphiti/Graphiti.errors.ts:35` | Raised when graphiti proxy configuration cannot be loaded. |
-| `@beep/repo-cli/commands/Graphiti` | `GraphitiProxyOpsError` | class | `packages/tooling/tool/cli/src/commands/Graphiti/Graphiti.errors.ts:73` | Typed failure for Graphiti proxy operational helpers. |
+| `@beep/repo-cli/commands/Graphiti` | `GraphitiProxyOpsError` | class | `packages/tooling/tool/cli/src/commands/Graphiti/Graphiti.errors.ts:78` | Typed failure for Graphiti proxy operational helpers. |
 | `@beep/repo-cli/commands/Graphiti/Graphiti.command` | `graphitiCommand` | const | `packages/tooling/tool/cli/src/commands/Graphiti/Graphiti.command.ts:94` | Graphiti command group. |
 | `@beep/repo-cli/commands/Graphiti/Graphiti.errors` | `GraphitiProxyConfigLoadError` | class | `packages/tooling/tool/cli/src/commands/Graphiti/Graphiti.errors.ts:35` | Raised when graphiti proxy configuration cannot be loaded. |
-| `@beep/repo-cli/commands/Graphiti/Graphiti.errors` | `GraphitiProxyOpsError` | class | `packages/tooling/tool/cli/src/commands/Graphiti/Graphiti.errors.ts:73` | Typed failure for Graphiti proxy operational helpers. |
+| `@beep/repo-cli/commands/Graphiti/Graphiti.errors` | `GraphitiProxyOpsError` | class | `packages/tooling/tool/cli/src/commands/Graphiti/Graphiti.errors.ts:78` | Typed failure for Graphiti proxy operational helpers. |
 | `@beep/repo-cli/commands/Graphiti/index` | `graphitiCommand` | const | `packages/tooling/tool/cli/src/commands/Graphiti/Graphiti.command.ts:94` | Graphiti command group. |
 | `@beep/repo-cli/commands/Graphiti/index` | `GraphitiProxyConfigLoadError` | class | `packages/tooling/tool/cli/src/commands/Graphiti/Graphiti.errors.ts:35` | Raised when graphiti proxy configuration cannot be loaded. |
-| `@beep/repo-cli/commands/Graphiti/index` | `GraphitiProxyOpsError` | class | `packages/tooling/tool/cli/src/commands/Graphiti/Graphiti.errors.ts:73` | Typed failure for Graphiti proxy operational helpers. |
+| `@beep/repo-cli/commands/Graphiti/index` | `GraphitiProxyOpsError` | class | `packages/tooling/tool/cli/src/commands/Graphiti/Graphiti.errors.ts:78` | Typed failure for Graphiti proxy operational helpers. |
 | `@beep/repo-cli/commands/Graphiti/internal/ProxyConfig` | `GraphitiProxyConfig` | class | `packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyConfig.ts:106` | Runtime configuration schema for graphiti proxy. |
 | `@beep/repo-cli/commands/Graphiti/internal/ProxyConfig` | `loadGraphitiProxyConfig` | const | `packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyConfig.ts:187` | Load graphiti proxy config from Effect Config environment values. |
-| `@beep/repo-cli/commands/Graphiti/internal/ProxyOps` | `ensureGraphitiProxy` | const | `packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyOps.ts:540` | Ensure the local Graphiti proxy is healthy, starting it in the background when needed. |
-| `@beep/repo-cli/commands/Graphiti/internal/ProxyOps` | `GraphitiProxyOpsError` | class | `packages/tooling/tool/cli/src/commands/Graphiti/Graphiti.errors.ts:73` | Typed failure for Graphiti proxy operational helpers. |
-| `@beep/repo-cli/commands/Graphiti/internal/ProxyOps` | `installGraphitiProxyService` | const | `packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyOps.ts:711` | Install and start the user-level systemd unit for the Graphiti proxy. |
-| `@beep/repo-cli/commands/Graphiti/internal/ProxyOps` | `ProxyServiceConfig` | class | `packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyOps.ts:58` | Configuration for installing and managing the Graphiti proxy user service. |
-| `@beep/repo-cli/commands/Graphiti/internal/ProxyOps` | `recoverGraphitiStack` | const | `packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyOps.ts:633` | Recover the local Graphiti backing stack by restarting unhealthy containers. |
-| `@beep/repo-cli/commands/Graphiti/internal/ProxyOps` | `runKgWithGraphitiProxy` | const | `packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyOps.ts:601` | Run a knowledge-graph CLI command with the local Graphiti proxy ensured first. |
-| `@beep/repo-cli/commands/Graphiti/internal/ProxyOps` | `shouldRecoverGraphitiStackForTesting` | const | `packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyOps.ts:662` | Decide whether Graphiti recovery should restart the backing containers. |
+| `@beep/repo-cli/commands/Graphiti/internal/ProxyOps` | `ensureGraphitiProxy` | const | `packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyOps.ts:546` | Ensure the local Graphiti proxy is healthy, starting it in the background when needed. |
+| `@beep/repo-cli/commands/Graphiti/internal/ProxyOps` | `GraphitiProxyOpsError` | class | `packages/tooling/tool/cli/src/commands/Graphiti/Graphiti.errors.ts:78` | Typed failure for Graphiti proxy operational helpers. |
+| `@beep/repo-cli/commands/Graphiti/internal/ProxyOps` | `installGraphitiProxyService` | const | `packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyOps.ts:717` | Install and start the user-level systemd unit for the Graphiti proxy. |
+| `@beep/repo-cli/commands/Graphiti/internal/ProxyOps` | `ProxyServiceConfig` | class | `packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyOps.ts:64` | Configuration for installing and managing the Graphiti proxy user service. |
+| `@beep/repo-cli/commands/Graphiti/internal/ProxyOps` | `recoverGraphitiStack` | const | `packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyOps.ts:639` | Recover the local Graphiti backing stack by restarting unhealthy containers. |
+| `@beep/repo-cli/commands/Graphiti/internal/ProxyOps` | `runKgWithGraphitiProxy` | const | `packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyOps.ts:607` | Run a knowledge-graph CLI command with the local Graphiti proxy ensured first. |
+| `@beep/repo-cli/commands/Graphiti/internal/ProxyOps` | `shouldRecoverGraphitiStackForTesting` | const | `packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyOps.ts:668` | Decide whether Graphiti recovery should restart the backing containers. |
 | `@beep/repo-cli/commands/Graphiti/internal/ProxyRuntime` | `runGraphitiProxy` | const | `packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyRuntime.ts:38` | Run the graphiti queue proxy runtime with graceful shutdown. |
 | `@beep/repo-cli/commands/Graphiti/internal/ProxyServices` | `ContainerHealthState` | const | `packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyServices.ts:55` | Container health literal union. |
 | `@beep/repo-cli/commands/Graphiti/internal/ProxyServices` | `DependencyHealthSnapshot` | class | `packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyServices.ts:137` | Cached dependency health snapshot payload. |
@@ -1670,10 +1670,10 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/commands/Graphiti/internal/ProxyServices` | `GraphitiDependencyHealthService` | class | `packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyServices.ts:384` | Service tag for dependency health snapshots. |
 | `@beep/repo-cli/commands/Graphiti/internal/ProxyServices` | `GraphitiProxyForwarderService` | class | `packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyServices.ts:399` | Service tag for forwarding requests to upstream graphiti. |
 | `@beep/repo-cli/commands/Graphiti/internal/ProxyServices` | `GraphitiProxyQueueService` | class | `packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyServices.ts:414` | Service tag for queueing and draining proxy traffic. |
-| `@beep/repo-cli/commands/Graphiti/internal/ProxyServices` | `isFastMcpRequestBody` | const | `packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyServices.ts:473` | Determine whether an MCP request body is cheap enough to bypass the serialized memory-work queue. |
-| `@beep/repo-cli/commands/Graphiti/internal/ProxyServices` | `makeGraphitiDependencyHealthService` | const | `packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyServices.ts:536` | Construct dependency health service implementation. |
-| `@beep/repo-cli/commands/Graphiti/internal/ProxyServices` | `makeGraphitiProxyForwarderService` | const | `packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyServices.ts:593` | Construct upstream forwarder service implementation. |
-| `@beep/repo-cli/commands/Graphiti/internal/ProxyServices` | `makeGraphitiProxyQueueService` | const | `packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyServices.ts:711` | Construct proxy queue service implementation. |
+| `@beep/repo-cli/commands/Graphiti/internal/ProxyServices` | `isFastMcpRequestBody` | const | `packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyServices.ts:476` | Determine whether an MCP request body is cheap enough to bypass the serialized memory-work queue. |
+| `@beep/repo-cli/commands/Graphiti/internal/ProxyServices` | `makeGraphitiDependencyHealthService` | const | `packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyServices.ts:537` | Construct dependency health service implementation. |
+| `@beep/repo-cli/commands/Graphiti/internal/ProxyServices` | `makeGraphitiProxyForwarderService` | const | `packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyServices.ts:594` | Construct upstream forwarder service implementation. |
+| `@beep/repo-cli/commands/Graphiti/internal/ProxyServices` | `makeGraphitiProxyQueueService` | const | `packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyServices.ts:712` | Construct proxy queue service implementation. |
 | `@beep/repo-cli/commands/Graphiti/internal/ProxyServices` | `proxyErrorResponse` | const | `packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyServices.ts:303` | Build a structured proxy error HTTP response. |
 | `@beep/repo-cli/commands/Graphiti/internal/ProxyServices` | `ProxyHealthPayload` | class | `packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyServices.ts:184` | Structured JSON payload for health endpoints. |
 | `@beep/repo-cli/commands/Graphiti/internal/ProxyServices` | `proxyHealthResponse` | const | `packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyServices.ts:345` | Build a structured proxy health HTTP response. |
@@ -1741,11 +1741,11 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/commands/Image/index` | `ImageCommandService` | class | `packages/tooling/tool/cli/src/commands/Image/Image.service.ts:73` | Service tag for image and video curation operations. |
 | `@beep/repo-cli/commands/Image/index` | `ImageCommandServiceLive` | const | `packages/tooling/tool/cli/src/commands/Image/Image.service.ts:284` | Live service layer for image and video curation operations. |
 | `@beep/repo-cli/commands/Image/index` | `ImageCommandServiceShape` | interface | `packages/tooling/tool/cli/src/commands/Image/Image.service.ts:47` | Service contract for image and video curation commands. |
-| `@beep/repo-cli/commands/Laws` | `DualArityInventoryReadError` | class | `packages/tooling/tool/cli/src/commands/Laws/Laws.errors.ts:18` |  |
-| `@beep/repo-cli/commands/Laws` | `EffectImportRulesPersistenceError` | class | `packages/tooling/tool/cli/src/commands/Laws/Laws.errors.ts:36` |  |
+| `@beep/repo-cli/commands/Laws` | `DualArityInventoryReadError` | class | `packages/tooling/tool/cli/src/commands/Laws/Laws.errors.ts:31` | Failure raised when the dual-arity inventory cannot be read or decoded. |
+| `@beep/repo-cli/commands/Laws` | `EffectImportRulesPersistenceError` | class | `packages/tooling/tool/cli/src/commands/Laws/Laws.errors.ts:62` | Failure raised when Effect import rule updates cannot be written. |
 | `@beep/repo-cli/commands/Laws` | `lawsCommand` | const | `packages/tooling/tool/cli/src/commands/Laws/Laws.command.ts:435` | Laws command group. |
-| `@beep/repo-cli/commands/Laws` | `NoNativeRuntimeRulesExecutionError` | class | `packages/tooling/tool/cli/src/commands/Laws/Laws.errors.ts:55` |  |
-| `@beep/repo-cli/commands/Laws` | `TerseEffectRulesPersistenceError` | class | `packages/tooling/tool/cli/src/commands/Laws/Laws.errors.ts:74` |  |
+| `@beep/repo-cli/commands/Laws` | `NoNativeRuntimeRulesExecutionError` | class | `packages/tooling/tool/cli/src/commands/Laws/Laws.errors.ts:94` | Failure raised when native runtime enforcement cannot complete. |
+| `@beep/repo-cli/commands/Laws` | `TerseEffectRulesPersistenceError` | class | `packages/tooling/tool/cli/src/commands/Laws/Laws.errors.ts:126` | Failure raised when terse Effect rule updates cannot be written. |
 | `@beep/repo-cli/commands/Laws/AllowlistCheck` | `ALLOWLIST_PATH` | const | `packages/tooling/tool/cli/src/commands/Laws/AllowlistCheck.ts:33` | Relative path to the effect laws allowlist. |
 | `@beep/repo-cli/commands/Laws/AllowlistCheck` | `AllowlistCheckOptions` | class | `packages/tooling/tool/cli/src/commands/Laws/AllowlistCheck.ts:94` | Runtime options for allowlist integrity checks. |
 | `@beep/repo-cli/commands/Laws/AllowlistCheck` | `AllowlistCheckSummary` | class | `packages/tooling/tool/cli/src/commands/Laws/AllowlistCheck.ts:113` | Result of an allowlist integrity check. |
@@ -1754,7 +1754,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/commands/Laws/DualArity` | `DualArityInventoryEntry` | namespace | `packages/tooling/tool/cli/src/commands/Laws/DualArity.ts:113` | Namespace for {@link DualArityInventoryEntry} companion types. |
 | `@beep/repo-cli/commands/Laws/DualArity` | `DualArityRulesOptions` | class | `packages/tooling/tool/cli/src/commands/Laws/DualArity.ts:159` | Runtime options for public API dual-arity enforcement. |
 | `@beep/repo-cli/commands/Laws/DualArity` | `DualArityRulesSummary` | class | `packages/tooling/tool/cli/src/commands/Laws/DualArity.ts:189` | Summary of public API dual-arity inventory verification. |
-| `@beep/repo-cli/commands/Laws/DualArity` | `runDualArityRules` | const | `packages/tooling/tool/cli/src/commands/Laws/DualArity.ts:1388` | Run public API dual-arity inventory verification. |
+| `@beep/repo-cli/commands/Laws/DualArity` | `runDualArityRules` | const | `packages/tooling/tool/cli/src/commands/Laws/DualArity.ts:1425` | Run public API dual-arity inventory verification. |
 | `@beep/repo-cli/commands/Laws/EffectFn` | `EffectFnDiagnostic` | class | `packages/tooling/tool/cli/src/commands/Laws/EffectFn.ts:100` | Single Effect.fn supplemental law diagnostic. |
 | `@beep/repo-cli/commands/Laws/EffectFn` | `EffectFnRulesOptions` | class | `packages/tooling/tool/cli/src/commands/Laws/EffectFn.ts:62` | Runtime options for the Effect.fn supplemental law. |
 | `@beep/repo-cli/commands/Laws/EffectFn` | `EffectFnRulesSummary` | class | `packages/tooling/tool/cli/src/commands/Laws/EffectFn.ts:134` | Summary of Effect.fn supplemental law results. |
@@ -1762,16 +1762,16 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/commands/Laws/EffectImports` | `EffectImportRulesOptions` | class | `packages/tooling/tool/cli/src/commands/Laws/EffectImports.ts:31` | Runtime options for effect import law migration checks. |
 | `@beep/repo-cli/commands/Laws/EffectImports` | `EffectImportRulesSummary` | class | `packages/tooling/tool/cli/src/commands/Laws/EffectImports.ts:61` | Summary of effect import law migration results. |
 | `@beep/repo-cli/commands/Laws/EffectImports` | `runEffectImportRules` | const | `packages/tooling/tool/cli/src/commands/Laws/EffectImports.ts:111` | Run effect import style migration/check logic. |
-| `@beep/repo-cli/commands/Laws/index` | `DualArityInventoryReadError` | class | `packages/tooling/tool/cli/src/commands/Laws/Laws.errors.ts:18` |  |
-| `@beep/repo-cli/commands/Laws/index` | `EffectImportRulesPersistenceError` | class | `packages/tooling/tool/cli/src/commands/Laws/Laws.errors.ts:36` |  |
+| `@beep/repo-cli/commands/Laws/index` | `DualArityInventoryReadError` | class | `packages/tooling/tool/cli/src/commands/Laws/Laws.errors.ts:31` | Failure raised when the dual-arity inventory cannot be read or decoded. |
+| `@beep/repo-cli/commands/Laws/index` | `EffectImportRulesPersistenceError` | class | `packages/tooling/tool/cli/src/commands/Laws/Laws.errors.ts:62` | Failure raised when Effect import rule updates cannot be written. |
 | `@beep/repo-cli/commands/Laws/index` | `lawsCommand` | const | `packages/tooling/tool/cli/src/commands/Laws/Laws.command.ts:435` | Laws command group. |
-| `@beep/repo-cli/commands/Laws/index` | `NoNativeRuntimeRulesExecutionError` | class | `packages/tooling/tool/cli/src/commands/Laws/Laws.errors.ts:55` |  |
-| `@beep/repo-cli/commands/Laws/index` | `TerseEffectRulesPersistenceError` | class | `packages/tooling/tool/cli/src/commands/Laws/Laws.errors.ts:74` |  |
+| `@beep/repo-cli/commands/Laws/index` | `NoNativeRuntimeRulesExecutionError` | class | `packages/tooling/tool/cli/src/commands/Laws/Laws.errors.ts:94` | Failure raised when native runtime enforcement cannot complete. |
+| `@beep/repo-cli/commands/Laws/index` | `TerseEffectRulesPersistenceError` | class | `packages/tooling/tool/cli/src/commands/Laws/Laws.errors.ts:126` | Failure raised when terse Effect rule updates cannot be written. |
 | `@beep/repo-cli/commands/Laws/Laws.command` | `lawsCommand` | const | `packages/tooling/tool/cli/src/commands/Laws/Laws.command.ts:435` | Laws command group. |
-| `@beep/repo-cli/commands/Laws/Laws.errors` | `DualArityInventoryReadError` | class | `packages/tooling/tool/cli/src/commands/Laws/Laws.errors.ts:18` |  |
-| `@beep/repo-cli/commands/Laws/Laws.errors` | `EffectImportRulesPersistenceError` | class | `packages/tooling/tool/cli/src/commands/Laws/Laws.errors.ts:36` |  |
-| `@beep/repo-cli/commands/Laws/Laws.errors` | `NoNativeRuntimeRulesExecutionError` | class | `packages/tooling/tool/cli/src/commands/Laws/Laws.errors.ts:55` |  |
-| `@beep/repo-cli/commands/Laws/Laws.errors` | `TerseEffectRulesPersistenceError` | class | `packages/tooling/tool/cli/src/commands/Laws/Laws.errors.ts:74` |  |
+| `@beep/repo-cli/commands/Laws/Laws.errors` | `DualArityInventoryReadError` | class | `packages/tooling/tool/cli/src/commands/Laws/Laws.errors.ts:31` | Failure raised when the dual-arity inventory cannot be read or decoded. |
+| `@beep/repo-cli/commands/Laws/Laws.errors` | `EffectImportRulesPersistenceError` | class | `packages/tooling/tool/cli/src/commands/Laws/Laws.errors.ts:62` | Failure raised when Effect import rule updates cannot be written. |
+| `@beep/repo-cli/commands/Laws/Laws.errors` | `NoNativeRuntimeRulesExecutionError` | class | `packages/tooling/tool/cli/src/commands/Laws/Laws.errors.ts:94` | Failure raised when native runtime enforcement cannot complete. |
+| `@beep/repo-cli/commands/Laws/Laws.errors` | `TerseEffectRulesPersistenceError` | class | `packages/tooling/tool/cli/src/commands/Laws/Laws.errors.ts:126` | Failure raised when terse Effect rule updates cannot be written. |
 | `@beep/repo-cli/commands/Laws/NoNativeRuntime` | `collectNativeRuntimeViolationKeys` | const | `packages/tooling/tool/cli/src/commands/Laws/NoNativeRuntime.ts:489` | Collect normalized native-runtime violation keys for allowlist integrity checks. |
 | `@beep/repo-cli/commands/Laws/NoNativeRuntime` | `NativeRuntimeViolationKeyOptions` | class | `packages/tooling/tool/cli/src/commands/Laws/NoNativeRuntime.ts:208` | Options for collecting native-runtime allowlist lookup keys. |
 | `@beep/repo-cli/commands/Laws/NoNativeRuntime` | `NoNativeRuntimeDiagnostic` | class | `packages/tooling/tool/cli/src/commands/Laws/NoNativeRuntime.ts:121` | Single repo-local native runtime diagnostic. |
@@ -1782,22 +1782,34 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/commands/Laws/TerseEffect` | `runTerseEffectRules` | const | `packages/tooling/tool/cli/src/commands/Laws/TerseEffect.ts:500` | Run terse Effect style migration/check logic. |
 | `@beep/repo-cli/commands/Laws/TerseEffect` | `TerseEffectRulesOptions` | class | `packages/tooling/tool/cli/src/commands/Laws/TerseEffect.ts:39` | Runtime options for terse Effect style migration checks. |
 | `@beep/repo-cli/commands/Laws/TerseEffect` | `TerseEffectRulesSummary` | class | `packages/tooling/tool/cli/src/commands/Laws/TerseEffect.ts:69` | Summary of terse Effect style migration results. |
-| `@beep/repo-cli/commands/Lint` | `collectTypeScriptFiles` | const | `packages/tooling/tool/cli/src/commands/Lint/Lint.command.ts:99` | Collect TypeScript source files under a lint root without following symlink escapes. |
-| `@beep/repo-cli/commands/Lint` | `LintCircularAnalysisError` | class | `packages/tooling/tool/cli/src/commands/Lint/Lint.errors.ts:19` |  |
-| `@beep/repo-cli/commands/Lint` | `lintCommand` | const | `packages/tooling/tool/cli/src/commands/Lint/Lint.command.ts:573` | Lint command group. |
-| `@beep/repo-cli/commands/Lint` | `LintFileDiscoveryError` | class | `packages/tooling/tool/cli/src/commands/Lint/Lint.errors.ts:37` |  |
-| `@beep/repo-cli/commands/Lint/index` | `collectTypeScriptFiles` | const | `packages/tooling/tool/cli/src/commands/Lint/Lint.command.ts:99` | Collect TypeScript source files under a lint root without following symlink escapes. |
-| `@beep/repo-cli/commands/Lint/index` | `LintCircularAnalysisError` | class | `packages/tooling/tool/cli/src/commands/Lint/Lint.errors.ts:19` |  |
-| `@beep/repo-cli/commands/Lint/index` | `lintCommand` | const | `packages/tooling/tool/cli/src/commands/Lint/Lint.command.ts:573` | Lint command group. |
-| `@beep/repo-cli/commands/Lint/index` | `LintFileDiscoveryError` | class | `packages/tooling/tool/cli/src/commands/Lint/Lint.errors.ts:37` |  |
-| `@beep/repo-cli/commands/Lint/Lint.command` | `collectTypeScriptFiles` | const | `packages/tooling/tool/cli/src/commands/Lint/Lint.command.ts:99` | Collect TypeScript source files under a lint root without following symlink escapes. |
-| `@beep/repo-cli/commands/Lint/Lint.command` | `lintCommand` | const | `packages/tooling/tool/cli/src/commands/Lint/Lint.command.ts:573` | Lint command group. |
-| `@beep/repo-cli/commands/Lint/Lint.errors` | `LintCircularAnalysisError` | class | `packages/tooling/tool/cli/src/commands/Lint/Lint.errors.ts:19` |  |
-| `@beep/repo-cli/commands/Lint/Lint.errors` | `LintFileDiscoveryError` | class | `packages/tooling/tool/cli/src/commands/Lint/Lint.errors.ts:37` |  |
+| `@beep/repo-cli/commands/Lint` | `collectSchemaTopologyViolations` | const | `packages/tooling/tool/cli/src/commands/Lint/SchemaTopology.ts:294` | Collect schema topology violations without mutating process state. |
+| `@beep/repo-cli/commands/Lint` | `collectTypeScriptFiles` | const | `packages/tooling/tool/cli/src/commands/Lint/Lint.command.ts:100` | Collect TypeScript source files under a lint root without following symlink escapes. |
+| `@beep/repo-cli/commands/Lint` | `LintCircularAnalysisError` | class | `packages/tooling/tool/cli/src/commands/Lint/Lint.errors.ts:32` | Failure raised when circular dependency analysis cannot complete. |
+| `@beep/repo-cli/commands/Lint` | `lintCommand` | const | `packages/tooling/tool/cli/src/commands/Lint/Lint.command.ts:574` | Lint command group. |
+| `@beep/repo-cli/commands/Lint` | `LintFileDiscoveryError` | class | `packages/tooling/tool/cli/src/commands/Lint/Lint.errors.ts:63` | Failure raised when lint file discovery cannot read a source root. |
+| `@beep/repo-cli/commands/Lint` | `lintSchemaTopologyCommand` | const | `packages/tooling/tool/cli/src/commands/Lint/SchemaTopology.ts:353` | Lint command for enforcing canonical `@beep/schema` topology. |
+| `@beep/repo-cli/commands/Lint` | `runSchemaTopologyLint` | const | `packages/tooling/tool/cli/src/commands/Lint/SchemaTopology.ts:326` | Run the schema topology lint command. |
+| `@beep/repo-cli/commands/Lint` | `SchemaTopologyViolation` | class | `packages/tooling/tool/cli/src/commands/Lint/SchemaTopology.ts:58` | Schema topology lint violation. |
+| `@beep/repo-cli/commands/Lint/index` | `collectSchemaTopologyViolations` | const | `packages/tooling/tool/cli/src/commands/Lint/SchemaTopology.ts:294` | Collect schema topology violations without mutating process state. |
+| `@beep/repo-cli/commands/Lint/index` | `collectTypeScriptFiles` | const | `packages/tooling/tool/cli/src/commands/Lint/Lint.command.ts:100` | Collect TypeScript source files under a lint root without following symlink escapes. |
+| `@beep/repo-cli/commands/Lint/index` | `LintCircularAnalysisError` | class | `packages/tooling/tool/cli/src/commands/Lint/Lint.errors.ts:32` | Failure raised when circular dependency analysis cannot complete. |
+| `@beep/repo-cli/commands/Lint/index` | `lintCommand` | const | `packages/tooling/tool/cli/src/commands/Lint/Lint.command.ts:574` | Lint command group. |
+| `@beep/repo-cli/commands/Lint/index` | `LintFileDiscoveryError` | class | `packages/tooling/tool/cli/src/commands/Lint/Lint.errors.ts:63` | Failure raised when lint file discovery cannot read a source root. |
+| `@beep/repo-cli/commands/Lint/index` | `lintSchemaTopologyCommand` | const | `packages/tooling/tool/cli/src/commands/Lint/SchemaTopology.ts:353` | Lint command for enforcing canonical `@beep/schema` topology. |
+| `@beep/repo-cli/commands/Lint/index` | `runSchemaTopologyLint` | const | `packages/tooling/tool/cli/src/commands/Lint/SchemaTopology.ts:326` | Run the schema topology lint command. |
+| `@beep/repo-cli/commands/Lint/index` | `SchemaTopologyViolation` | class | `packages/tooling/tool/cli/src/commands/Lint/SchemaTopology.ts:58` | Schema topology lint violation. |
+| `@beep/repo-cli/commands/Lint/Lint.command` | `collectTypeScriptFiles` | const | `packages/tooling/tool/cli/src/commands/Lint/Lint.command.ts:100` | Collect TypeScript source files under a lint root without following symlink escapes. |
+| `@beep/repo-cli/commands/Lint/Lint.command` | `lintCommand` | const | `packages/tooling/tool/cli/src/commands/Lint/Lint.command.ts:574` | Lint command group. |
+| `@beep/repo-cli/commands/Lint/Lint.errors` | `LintCircularAnalysisError` | class | `packages/tooling/tool/cli/src/commands/Lint/Lint.errors.ts:32` | Failure raised when circular dependency analysis cannot complete. |
+| `@beep/repo-cli/commands/Lint/Lint.errors` | `LintFileDiscoveryError` | class | `packages/tooling/tool/cli/src/commands/Lint/Lint.errors.ts:63` | Failure raised when lint file discovery cannot read a source root. |
 | `@beep/repo-cli/commands/Lint/PackageTestImports` | `lintPackageTestImportsCommand` | const | `packages/tooling/tool/cli/src/commands/Lint/PackageTestImports.ts:316` | Lint command for enforcing package aliases from package test and dtslint files. |
 | `@beep/repo-cli/commands/Lint/SchemaFirst` | `lintSchemaFirstCommand` | const | `packages/tooling/tool/cli/src/commands/Lint/SchemaFirst.ts:551` | Repo-wide schema-first lint command. |
 | `@beep/repo-cli/commands/Lint/SchemaFirst` | `runSchemaFirstLint` | const | `packages/tooling/tool/cli/src/commands/Lint/SchemaFirst.ts:457` | Run schema-first inventory verification against the committed baseline. |
 | `@beep/repo-cli/commands/Lint/SchemaFirst` | `SchemaFirstInventoryEntry` | namespace | `packages/tooling/tool/cli/src/commands/Lint/SchemaFirst.ts:76` | Namespace for {@link SchemaFirstInventoryEntry} companion types. |
+| `@beep/repo-cli/commands/Lint/SchemaTopology` | `collectSchemaTopologyViolations` | const | `packages/tooling/tool/cli/src/commands/Lint/SchemaTopology.ts:294` | Collect schema topology violations without mutating process state. |
+| `@beep/repo-cli/commands/Lint/SchemaTopology` | `lintSchemaTopologyCommand` | const | `packages/tooling/tool/cli/src/commands/Lint/SchemaTopology.ts:353` | Lint command for enforcing canonical `@beep/schema` topology. |
+| `@beep/repo-cli/commands/Lint/SchemaTopology` | `runSchemaTopologyLint` | const | `packages/tooling/tool/cli/src/commands/Lint/SchemaTopology.ts:326` | Run the schema topology lint command. |
+| `@beep/repo-cli/commands/Lint/SchemaTopology` | `SchemaTopologyViolation` | class | `packages/tooling/tool/cli/src/commands/Lint/SchemaTopology.ts:58` | Schema topology lint violation. |
 | `@beep/repo-cli/commands/Purge` | `purgeAtRoot` | const | `packages/tooling/tool/cli/src/commands/Purge/Purge.command.ts:192` | Purge root/workspace artifacts under a specific root directory. |
 | `@beep/repo-cli/commands/Purge` | `purgeCommand` | const | `packages/tooling/tool/cli/src/commands/Purge/Purge.command.ts:249` | CLI command to purge workspace/root build artifacts. |
 | `@beep/repo-cli/commands/Purge` | `PurgeSummary` | class | `packages/tooling/tool/cli/src/commands/Purge/Purge.command.ts:127` | Summary statistics returned after a purge run. |
@@ -1808,67 +1820,67 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/commands/Purge/Purge.command` | `purgeCommand` | const | `packages/tooling/tool/cli/src/commands/Purge/Purge.command.ts:249` | CLI command to purge workspace/root build artifacts. |
 | `@beep/repo-cli/commands/Purge/Purge.command` | `PurgeSummary` | class | `packages/tooling/tool/cli/src/commands/Purge/Purge.command.ts:127` | Summary statistics returned after a purge run. |
 | `@beep/repo-cli/commands/Quality` | `ChangesetGraphError` | class | `packages/tooling/tool/cli/src/commands/Quality/Quality.errors.ts:43` | Failure raised while validating changeset package references. |
-| `@beep/repo-cli/commands/Quality` | `qualityCommand` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:1638` | Quality command group for repo operational checks. |
-| `@beep/repo-cli/commands/Quality` | `QualityScriptCommandError` | class | `packages/tooling/tool/cli/src/commands/Quality/Quality.errors.ts:83` | Typed failure for repo operational commands. |
-| `@beep/repo-cli/commands/Quality` | `QualityTaskConfigurationError` | class | `packages/tooling/tool/cli/src/commands/Quality/Quality.errors.ts:225` | Error raised when a quality task cannot resolve its required configuration. |
-| `@beep/repo-cli/commands/Quality` | `QualityTaskFailed` | class | `packages/tooling/tool/cli/src/commands/Quality/Quality.errors.ts:134` | Error raised when a quality task subprocess exits unsuccessfully. |
-| `@beep/repo-cli/commands/Quality` | `QualityTaskGroupFailed` | class | `packages/tooling/tool/cli/src/commands/Quality/Quality.errors.ts:183` | Error raised when a bounded quality task group completes with failed steps. |
-| `@beep/repo-cli/commands/Quality` | `UnexpectedQualityTaskFailure` | class | `packages/tooling/tool/cli/src/commands/Quality/Quality.errors.ts:257` | Error raised when an unexpected quality task cause reaches the command boundary. |
+| `@beep/repo-cli/commands/Quality` | `qualityCommand` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:1644` | Quality command group for repo operational checks. |
+| `@beep/repo-cli/commands/Quality` | `QualityScriptCommandError` | class | `packages/tooling/tool/cli/src/commands/Quality/Quality.errors.ts:88` | Typed failure for repo operational commands. |
+| `@beep/repo-cli/commands/Quality` | `QualityTaskConfigurationError` | class | `packages/tooling/tool/cli/src/commands/Quality/Quality.errors.ts:245` | Error raised when a quality task cannot resolve its required configuration. |
+| `@beep/repo-cli/commands/Quality` | `QualityTaskFailed` | class | `packages/tooling/tool/cli/src/commands/Quality/Quality.errors.ts:144` | Error raised when a quality task subprocess exits unsuccessfully. |
+| `@beep/repo-cli/commands/Quality` | `QualityTaskGroupFailed` | class | `packages/tooling/tool/cli/src/commands/Quality/Quality.errors.ts:198` | Error raised when a bounded quality task group completes with failed steps. |
+| `@beep/repo-cli/commands/Quality` | `UnexpectedQualityTaskFailure` | class | `packages/tooling/tool/cli/src/commands/Quality/Quality.errors.ts:277` | Error raised when an unexpected quality task cause reaches the command boundary. |
 | `@beep/repo-cli/commands/Quality/ChangesetGraph` | `ChangesetGraphError` | class | `packages/tooling/tool/cli/src/commands/Quality/Quality.errors.ts:43` | Failure raised while validating changeset package references. |
-| `@beep/repo-cli/commands/Quality/ChangesetGraph` | `ChangesetGraphPackageReference` | class | `packages/tooling/tool/cli/src/commands/Quality/ChangesetGraph.ts:66` | A package name referenced by a changeset file. |
-| `@beep/repo-cli/commands/Quality/ChangesetGraph` | `ChangesetGraphSummary` | class | `packages/tooling/tool/cli/src/commands/Quality/ChangesetGraph.ts:96` | Summary emitted by the changeset package graph guard. |
-| `@beep/repo-cli/commands/Quality/ChangesetGraph` | `changesetPackageReferencesFromText` | const | `packages/tooling/tool/cli/src/commands/Quality/ChangesetGraph.ts:303` | Parse package references from one changeset Markdown document. |
-| `@beep/repo-cli/commands/Quality/ChangesetGraph` | `findMissingChangesetPackageReferences` | const | `packages/tooling/tool/cli/src/commands/Quality/ChangesetGraph.ts:396` | Find changeset package references that are not in the workspace graph. |
-| `@beep/repo-cli/commands/Quality/ChangesetGraph` | `makeChangesetGraphSummary` | const | `packages/tooling/tool/cli/src/commands/Quality/ChangesetGraph.ts:443` | Build a changeset graph summary from already-collected inputs. |
-| `@beep/repo-cli/commands/Quality/ChangesetGraph` | `runChangesetGraphCheck` | const | `packages/tooling/tool/cli/src/commands/Quality/ChangesetGraph.ts:458` | Run the non-mutating changeset package graph guard. |
+| `@beep/repo-cli/commands/Quality/ChangesetGraph` | `ChangesetGraphPackageReference` | class | `packages/tooling/tool/cli/src/commands/Quality/ChangesetGraph.ts:72` | A package name referenced by a changeset file. |
+| `@beep/repo-cli/commands/Quality/ChangesetGraph` | `ChangesetGraphSummary` | class | `packages/tooling/tool/cli/src/commands/Quality/ChangesetGraph.ts:102` | Summary emitted by the changeset package graph guard. |
+| `@beep/repo-cli/commands/Quality/ChangesetGraph` | `changesetPackageReferencesFromText` | const | `packages/tooling/tool/cli/src/commands/Quality/ChangesetGraph.ts:309` | Parse package references from one changeset Markdown document. |
+| `@beep/repo-cli/commands/Quality/ChangesetGraph` | `findMissingChangesetPackageReferences` | const | `packages/tooling/tool/cli/src/commands/Quality/ChangesetGraph.ts:402` | Find changeset package references that are not in the workspace graph. |
+| `@beep/repo-cli/commands/Quality/ChangesetGraph` | `makeChangesetGraphSummary` | const | `packages/tooling/tool/cli/src/commands/Quality/ChangesetGraph.ts:449` | Build a changeset graph summary from already-collected inputs. |
+| `@beep/repo-cli/commands/Quality/ChangesetGraph` | `runChangesetGraphCheck` | const | `packages/tooling/tool/cli/src/commands/Quality/ChangesetGraph.ts:464` | Run the non-mutating changeset package graph guard. |
 | `@beep/repo-cli/commands/Quality/index` | `ChangesetGraphError` | class | `packages/tooling/tool/cli/src/commands/Quality/Quality.errors.ts:43` | Failure raised while validating changeset package references. |
-| `@beep/repo-cli/commands/Quality/index` | `qualityCommand` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:1638` | Quality command group for repo operational checks. |
-| `@beep/repo-cli/commands/Quality/index` | `QualityScriptCommandError` | class | `packages/tooling/tool/cli/src/commands/Quality/Quality.errors.ts:83` | Typed failure for repo operational commands. |
-| `@beep/repo-cli/commands/Quality/index` | `QualityTaskConfigurationError` | class | `packages/tooling/tool/cli/src/commands/Quality/Quality.errors.ts:225` | Error raised when a quality task cannot resolve its required configuration. |
-| `@beep/repo-cli/commands/Quality/index` | `QualityTaskFailed` | class | `packages/tooling/tool/cli/src/commands/Quality/Quality.errors.ts:134` | Error raised when a quality task subprocess exits unsuccessfully. |
-| `@beep/repo-cli/commands/Quality/index` | `QualityTaskGroupFailed` | class | `packages/tooling/tool/cli/src/commands/Quality/Quality.errors.ts:183` | Error raised when a bounded quality task group completes with failed steps. |
-| `@beep/repo-cli/commands/Quality/index` | `UnexpectedQualityTaskFailure` | class | `packages/tooling/tool/cli/src/commands/Quality/Quality.errors.ts:257` | Error raised when an unexpected quality task cause reaches the command boundary. |
+| `@beep/repo-cli/commands/Quality/index` | `qualityCommand` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:1644` | Quality command group for repo operational checks. |
+| `@beep/repo-cli/commands/Quality/index` | `QualityScriptCommandError` | class | `packages/tooling/tool/cli/src/commands/Quality/Quality.errors.ts:88` | Typed failure for repo operational commands. |
+| `@beep/repo-cli/commands/Quality/index` | `QualityTaskConfigurationError` | class | `packages/tooling/tool/cli/src/commands/Quality/Quality.errors.ts:245` | Error raised when a quality task cannot resolve its required configuration. |
+| `@beep/repo-cli/commands/Quality/index` | `QualityTaskFailed` | class | `packages/tooling/tool/cli/src/commands/Quality/Quality.errors.ts:144` | Error raised when a quality task subprocess exits unsuccessfully. |
+| `@beep/repo-cli/commands/Quality/index` | `QualityTaskGroupFailed` | class | `packages/tooling/tool/cli/src/commands/Quality/Quality.errors.ts:198` | Error raised when a bounded quality task group completes with failed steps. |
+| `@beep/repo-cli/commands/Quality/index` | `UnexpectedQualityTaskFailure` | class | `packages/tooling/tool/cli/src/commands/Quality/Quality.errors.ts:277` | Error raised when an unexpected quality task cause reaches the command boundary. |
 | `@beep/repo-cli/commands/Quality/internal/Config` | `configStringEqualsSync` | const | `packages/tooling/tool/cli/src/commands/Quality/internal/Config.ts:35` | Check whether an optional string config value equals the expected value. |
 | `@beep/repo-cli/commands/Quality/internal/Config` | `configStringOption` | const | `packages/tooling/tool/cli/src/commands/Quality/internal/Config.ts:54` | Read an optional string config value inside an Effect workflow. |
 | `@beep/repo-cli/commands/Quality/internal/Config` | `configStringOptionSync` | const | `packages/tooling/tool/cli/src/commands/Quality/internal/Config.ts:22` | Synchronously read an optional string config value. |
-| `@beep/repo-cli/commands/Quality/Quality.command` | `collectEffectTsgoDiagnosticLines` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:858` | Collect Effect tsgo diagnostics from command output regardless of process exit code. |
-| `@beep/repo-cli/commands/Quality/Quality.command` | `GithubCheckMode` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:130` | GitHub check mode handled by `beep quality github-checks`. |
-| `@beep/repo-cli/commands/Quality/Quality.command` | `GithubCheckMode` | type | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:147` | GitHub check mode handled by `beep quality github-checks`. |
-| `@beep/repo-cli/commands/Quality/Quality.command` | `qualityCommand` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:1638` | Quality command group for repo operational checks. |
-| `@beep/repo-cli/commands/Quality/Quality.command` | `QualityScriptCommandError` | class | `packages/tooling/tool/cli/src/commands/Quality/Quality.errors.ts:83` | Typed failure for repo operational commands. |
-| `@beep/repo-cli/commands/Quality/Quality.command` | `runBunAudit` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:350` | Run Bun's high-severity package audit with OSV ignores mirrored from config. |
-| `@beep/repo-cli/commands/Quality/Quality.command` | `runDtslintTsgoChecks` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:1195` | Run repo-wide tsgo diagnostics for dtslint files. |
-| `@beep/repo-cli/commands/Quality/Quality.command` | `runGithubChecks` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:610` | Run a GitHub checks mode from the repository root. |
-| `@beep/repo-cli/commands/Quality/Quality.command` | `runJSDocInventory` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:1515` | Run the JSDoc inventory generator now owned by repo-cli. |
-| `@beep/repo-cli/commands/Quality/Quality.command` | `runJSDocModuleTagsCheck` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:1438` | Verify tracked fileoverview comments do not use the legacy `@module` tag. |
-| `@beep/repo-cli/commands/Quality/Quality.command` | `runRepoExportsCatalog` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:1538` | Run the repo export catalog generator now owned by repo-cli. |
-| `@beep/repo-cli/commands/Quality/Quality.command` | `runTestTsgoChecks` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:1241` | Run repo-wide Effect diagnostics for test files. |
-| `@beep/repo-cli/commands/Quality/Quality.command` | `runTsgoRulesCheck` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:1004` | Check that the root tsgo Effect diagnostics configuration enables every installed rule as an error. |
-| `@beep/repo-cli/commands/Quality/Quality.command` | `runTsgoSmokeCheck` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:1337` | Verify that tsgo reports the Effect diagnostic expected by this repo. |
+| `@beep/repo-cli/commands/Quality/Quality.command` | `collectEffectTsgoDiagnosticLines` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:864` | Collect Effect tsgo diagnostics from command output regardless of process exit code. |
+| `@beep/repo-cli/commands/Quality/Quality.command` | `GithubCheckMode` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:136` | GitHub check mode handled by `beep quality github-checks`. |
+| `@beep/repo-cli/commands/Quality/Quality.command` | `GithubCheckMode` | type | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:153` | GitHub check mode handled by `beep quality github-checks`. |
+| `@beep/repo-cli/commands/Quality/Quality.command` | `qualityCommand` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:1644` | Quality command group for repo operational checks. |
+| `@beep/repo-cli/commands/Quality/Quality.command` | `QualityScriptCommandError` | class | `packages/tooling/tool/cli/src/commands/Quality/Quality.errors.ts:88` | Typed failure for repo operational commands. |
+| `@beep/repo-cli/commands/Quality/Quality.command` | `runBunAudit` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:356` | Run Bun's high-severity package audit with OSV ignores mirrored from config. |
+| `@beep/repo-cli/commands/Quality/Quality.command` | `runDtslintTsgoChecks` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:1201` | Run repo-wide tsgo diagnostics for dtslint files. |
+| `@beep/repo-cli/commands/Quality/Quality.command` | `runGithubChecks` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:616` | Run a GitHub checks mode from the repository root. |
+| `@beep/repo-cli/commands/Quality/Quality.command` | `runJSDocInventory` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:1521` | Run the JSDoc inventory generator now owned by repo-cli. |
+| `@beep/repo-cli/commands/Quality/Quality.command` | `runJSDocModuleTagsCheck` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:1444` | Verify tracked fileoverview comments do not use the legacy `@module` tag. |
+| `@beep/repo-cli/commands/Quality/Quality.command` | `runRepoExportsCatalog` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:1544` | Run the repo export catalog generator now owned by repo-cli. |
+| `@beep/repo-cli/commands/Quality/Quality.command` | `runTestTsgoChecks` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:1247` | Run repo-wide Effect diagnostics for test files. |
+| `@beep/repo-cli/commands/Quality/Quality.command` | `runTsgoRulesCheck` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:1010` | Check that the root tsgo Effect diagnostics configuration enables every installed rule as an error. |
+| `@beep/repo-cli/commands/Quality/Quality.command` | `runTsgoSmokeCheck` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:1343` | Verify that tsgo reports the Effect diagnostic expected by this repo. |
 | `@beep/repo-cli/commands/Quality/Quality.errors` | `ChangesetGraphError` | class | `packages/tooling/tool/cli/src/commands/Quality/Quality.errors.ts:43` | Failure raised while validating changeset package references. |
-| `@beep/repo-cli/commands/Quality/Quality.errors` | `QualityScriptCommandError` | class | `packages/tooling/tool/cli/src/commands/Quality/Quality.errors.ts:83` | Typed failure for repo operational commands. |
-| `@beep/repo-cli/commands/Quality/Quality.errors` | `QualityTaskConfigurationError` | class | `packages/tooling/tool/cli/src/commands/Quality/Quality.errors.ts:225` | Error raised when a quality task cannot resolve its required configuration. |
-| `@beep/repo-cli/commands/Quality/Quality.errors` | `QualityTaskFailed` | class | `packages/tooling/tool/cli/src/commands/Quality/Quality.errors.ts:134` | Error raised when a quality task subprocess exits unsuccessfully. |
-| `@beep/repo-cli/commands/Quality/Quality.errors` | `QualityTaskGroupFailed` | class | `packages/tooling/tool/cli/src/commands/Quality/Quality.errors.ts:183` | Error raised when a bounded quality task group completes with failed steps. |
-| `@beep/repo-cli/commands/Quality/Quality.errors` | `UnexpectedQualityTaskFailure` | class | `packages/tooling/tool/cli/src/commands/Quality/Quality.errors.ts:257` | Error raised when an unexpected quality task cause reaches the command boundary. |
-| `@beep/repo-cli/commands/Quality/Tasks` | `collectStepOutput` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:1161` | Run a subprocess and capture all output. Exposed for focused unit tests. |
-| `@beep/repo-cli/commands/Quality/Tasks` | `PackageTaskProfile` | class | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:95` | Package-local script profile used by the quality task adapter. |
-| `@beep/repo-cli/commands/Quality/Tasks` | `parseQualityTaskInvocation` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:1055` | Parse a raw argv vector into a quality task invocation when the first token is |
-| `@beep/repo-cli/commands/Quality/Tasks` | `QualityTaskConfigurationError` | class | `packages/tooling/tool/cli/src/commands/Quality/Quality.errors.ts:225` | Error raised when a quality task cannot resolve its required configuration. |
-| `@beep/repo-cli/commands/Quality/Tasks` | `QualityTaskFailed` | class | `packages/tooling/tool/cli/src/commands/Quality/Quality.errors.ts:134` | Error raised when a quality task subprocess exits unsuccessfully. |
-| `@beep/repo-cli/commands/Quality/Tasks` | `QualityTaskGroupFailed` | class | `packages/tooling/tool/cli/src/commands/Quality/Quality.errors.ts:183` | Error raised when a bounded quality task group completes with failed steps. |
-| `@beep/repo-cli/commands/Quality/Tasks` | `QualityTaskInvocation` | class | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:151` | Result of parsing a quality command invocation. |
-| `@beep/repo-cli/commands/Quality/Tasks` | `QualityTaskName` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:61` | Canonical quality task name. |
-| `@beep/repo-cli/commands/Quality/Tasks` | `QualityTaskName` | type | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:78` | Canonical quality task name. |
-| `@beep/repo-cli/commands/Quality/Tasks` | `QualityTaskStep` | class | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:122` | Planned subprocess invocation. |
-| `@beep/repo-cli/commands/Quality/Tasks` | `rootQualityStepsForTesting` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:952` | Build root quality task subprocess steps. Exposed for focused unit tests. |
-| `@beep/repo-cli/commands/Quality/Tasks` | `runQualityTask` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:1099` | Run a parsed quality task in either repo-root or package-local mode. |
-| `@beep/repo-cli/commands/Quality/Tasks` | `runQualityTaskIfRequested` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:1129` | Run a quality task directly from a raw argv vector. |
-| `@beep/repo-cli/commands/Quality/Tasks` | `runQualityTaskStepGroupForTesting` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:1173` | Run a bounded quality task group. Exposed for focused unit tests. |
-| `@beep/repo-cli/commands/Quality/Tasks` | `runSqlIntegrationTestLaneForTesting` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:786` | Run the SQL integration lane with an injected resource and child command. |
-| `@beep/repo-cli/commands/Quality/Tasks` | `sqlIntegrationConnectionUriFromEnvForTesting` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:795` | Resolve the SQL integration database connection URI from environment variables. |
-| `@beep/repo-cli/commands/Quality/Tasks` | `sqlIntegrationStepForTesting` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:772` | Build the SQL integration test subprocess step. Exposed for focused unit tests. |
-| `@beep/repo-cli/commands/Quality/Tasks` | `UnexpectedQualityTaskFailure` | class | `packages/tooling/tool/cli/src/commands/Quality/Quality.errors.ts:257` | Error raised when an unexpected quality task cause reaches the command boundary. |
+| `@beep/repo-cli/commands/Quality/Quality.errors` | `QualityScriptCommandError` | class | `packages/tooling/tool/cli/src/commands/Quality/Quality.errors.ts:88` | Typed failure for repo operational commands. |
+| `@beep/repo-cli/commands/Quality/Quality.errors` | `QualityTaskConfigurationError` | class | `packages/tooling/tool/cli/src/commands/Quality/Quality.errors.ts:245` | Error raised when a quality task cannot resolve its required configuration. |
+| `@beep/repo-cli/commands/Quality/Quality.errors` | `QualityTaskFailed` | class | `packages/tooling/tool/cli/src/commands/Quality/Quality.errors.ts:144` | Error raised when a quality task subprocess exits unsuccessfully. |
+| `@beep/repo-cli/commands/Quality/Quality.errors` | `QualityTaskGroupFailed` | class | `packages/tooling/tool/cli/src/commands/Quality/Quality.errors.ts:198` | Error raised when a bounded quality task group completes with failed steps. |
+| `@beep/repo-cli/commands/Quality/Quality.errors` | `UnexpectedQualityTaskFailure` | class | `packages/tooling/tool/cli/src/commands/Quality/Quality.errors.ts:277` | Error raised when an unexpected quality task cause reaches the command boundary. |
+| `@beep/repo-cli/commands/Quality/Tasks` | `collectStepOutput` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:1168` | Run a subprocess and capture all output. Exposed for focused unit tests. |
+| `@beep/repo-cli/commands/Quality/Tasks` | `PackageTaskProfile` | class | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:102` | Package-local script profile used by the quality task adapter. |
+| `@beep/repo-cli/commands/Quality/Tasks` | `parseQualityTaskInvocation` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:1062` | Parse a raw argv vector into a quality task invocation when the first token is |
+| `@beep/repo-cli/commands/Quality/Tasks` | `QualityTaskConfigurationError` | class | `packages/tooling/tool/cli/src/commands/Quality/Quality.errors.ts:245` | Error raised when a quality task cannot resolve its required configuration. |
+| `@beep/repo-cli/commands/Quality/Tasks` | `QualityTaskFailed` | class | `packages/tooling/tool/cli/src/commands/Quality/Quality.errors.ts:144` | Error raised when a quality task subprocess exits unsuccessfully. |
+| `@beep/repo-cli/commands/Quality/Tasks` | `QualityTaskGroupFailed` | class | `packages/tooling/tool/cli/src/commands/Quality/Quality.errors.ts:198` | Error raised when a bounded quality task group completes with failed steps. |
+| `@beep/repo-cli/commands/Quality/Tasks` | `QualityTaskInvocation` | class | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:158` | Result of parsing a quality command invocation. |
+| `@beep/repo-cli/commands/Quality/Tasks` | `QualityTaskName` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:68` | Canonical quality task name. |
+| `@beep/repo-cli/commands/Quality/Tasks` | `QualityTaskName` | type | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:85` | Canonical quality task name. |
+| `@beep/repo-cli/commands/Quality/Tasks` | `QualityTaskStep` | class | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:129` | Planned subprocess invocation. |
+| `@beep/repo-cli/commands/Quality/Tasks` | `rootQualityStepsForTesting` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:959` | Build root quality task subprocess steps. Exposed for focused unit tests. |
+| `@beep/repo-cli/commands/Quality/Tasks` | `runQualityTask` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:1106` | Run a parsed quality task in either repo-root or package-local mode. |
+| `@beep/repo-cli/commands/Quality/Tasks` | `runQualityTaskIfRequested` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:1136` | Run a quality task directly from a raw argv vector. |
+| `@beep/repo-cli/commands/Quality/Tasks` | `runQualityTaskStepGroupForTesting` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:1180` | Run a bounded quality task group. Exposed for focused unit tests. |
+| `@beep/repo-cli/commands/Quality/Tasks` | `runSqlIntegrationTestLaneForTesting` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:793` | Run the SQL integration lane with an injected resource and child command. |
+| `@beep/repo-cli/commands/Quality/Tasks` | `sqlIntegrationConnectionUriFromEnvForTesting` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:802` | Resolve the SQL integration database connection URI from environment variables. |
+| `@beep/repo-cli/commands/Quality/Tasks` | `sqlIntegrationStepForTesting` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:779` | Build the SQL integration test subprocess step. Exposed for focused unit tests. |
+| `@beep/repo-cli/commands/Quality/Tasks` | `UnexpectedQualityTaskFailure` | class | `packages/tooling/tool/cli/src/commands/Quality/Quality.errors.ts:277` | Error raised when an unexpected quality task cause reaches the command boundary. |
 | `@beep/repo-cli/commands/Reuse` | `CodexRunnerError` | class | `packages/tooling/tool/cli/src/commands/Reuse/Reuse.errors.ts:48` | Structured error emitted when the Codex SDK smoke path fails. |
 | `@beep/repo-cli/commands/Reuse` | `CodexRunnerStage` | const | `packages/tooling/tool/cli/src/commands/Reuse/Reuse.errors.ts:26` | Lifecycle stages surfaced by the Codex smoke runner. |
 | `@beep/repo-cli/commands/Reuse` | `CodexRunnerStage` | type | `packages/tooling/tool/cli/src/commands/Reuse/Reuse.errors.ts:40` | Runtime type for `CodexRunnerStage`. |
@@ -1882,8 +1894,8 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/commands/Reuse/internal/CodexRunner` | `CodexRunnerError` | class | `packages/tooling/tool/cli/src/commands/Reuse/Reuse.errors.ts:48` | Structured error emitted when the Codex SDK smoke path fails. |
 | `@beep/repo-cli/commands/Reuse/internal/CodexRunner` | `CodexRunnerStage` | const | `packages/tooling/tool/cli/src/commands/Reuse/Reuse.errors.ts:26` | Lifecycle stages surfaced by the Codex smoke runner. |
 | `@beep/repo-cli/commands/Reuse/internal/CodexRunner` | `CodexRunnerStage` | type | `packages/tooling/tool/cli/src/commands/Reuse/Reuse.errors.ts:40` | Runtime type for `CodexRunnerStage`. |
-| `@beep/repo-cli/commands/Reuse/internal/CodexRunner` | `CodexSmokeResult` | class | `packages/tooling/tool/cli/src/commands/Reuse/internal/CodexRunner.ts:25` | Structured result for `beep reuse codex-smoke`. |
-| `@beep/repo-cli/commands/Reuse/internal/CodexRunner` | `runCodexSmoke` | const | `packages/tooling/tool/cli/src/commands/Reuse/internal/CodexRunner.ts:46` | Validate the local Codex SDK adapter without running a reuse loop. |
+| `@beep/repo-cli/commands/Reuse/internal/CodexRunner` | `CodexSmokeResult` | class | `packages/tooling/tool/cli/src/commands/Reuse/internal/CodexRunner.ts:31` | Structured result for `beep reuse codex-smoke`. |
+| `@beep/repo-cli/commands/Reuse/internal/CodexRunner` | `runCodexSmoke` | const | `packages/tooling/tool/cli/src/commands/Reuse/internal/CodexRunner.ts:52` | Validate the local Codex SDK adapter without running a reuse loop. |
 | `@beep/repo-cli/commands/Reuse/Reuse.command` | `reuseCommand` | const | `packages/tooling/tool/cli/src/commands/Reuse/Reuse.command.ts:545` | Reuse-discovery command group. |
 | `@beep/repo-cli/commands/Reuse/Reuse.command` | `sanitizeTerminalText` | const | `packages/tooling/tool/cli/src/commands/Reuse/Reuse.command.ts:137` | Remove terminal control sequences from human-readable reuse output. |
 | `@beep/repo-cli/commands/Reuse/Reuse.errors` | `CodexRunnerError` | class | `packages/tooling/tool/cli/src/commands/Reuse/Reuse.errors.ts:48` | Structured error emitted when the Codex SDK smoke path fails. |
@@ -1891,23 +1903,23 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/commands/Reuse/Reuse.errors` | `CodexRunnerStage` | type | `packages/tooling/tool/cli/src/commands/Reuse/Reuse.errors.ts:40` | Runtime type for `CodexRunnerStage`. |
 | `@beep/repo-cli/commands/Root` | `rootCommand` | const | `packages/tooling/tool/cli/src/commands/Root.ts:45` | Top-level CLI command that registers all subcommands. |
 | `@beep/repo-cli/commands/SyncDataToTs` | `syncDataToTsCommand` | const | `packages/tooling/tool/cli/src/commands/SyncDataToTs/SyncDataToTs.command.ts:441` | CLI command for syncing official upstream datasets into checked-in TypeScript modules. |
-| `@beep/repo-cli/commands/SyncDataToTs` | `SyncDataToTsDriftError` | class | `packages/tooling/tool/cli/src/commands/SyncDataToTs/SyncDataToTs.errors.ts:81` | Drift detected in check mode. |
+| `@beep/repo-cli/commands/SyncDataToTs` | `SyncDataToTsDriftError` | class | `packages/tooling/tool/cli/src/commands/SyncDataToTs/SyncDataToTs.errors.ts:86` | Drift detected in check mode. |
 | `@beep/repo-cli/commands/SyncDataToTs` | `SyncDataToTsError` | class | `packages/tooling/tool/cli/src/commands/SyncDataToTs/SyncDataToTs.errors.ts:35` | Operational error during source fetch, parsing, projection, or file writes. |
 | `@beep/repo-cli/commands/SyncDataToTs/index` | `syncDataToTsCommand` | const | `packages/tooling/tool/cli/src/commands/SyncDataToTs/SyncDataToTs.command.ts:441` | CLI command for syncing official upstream datasets into checked-in TypeScript modules. |
-| `@beep/repo-cli/commands/SyncDataToTs/index` | `SyncDataToTsDriftError` | class | `packages/tooling/tool/cli/src/commands/SyncDataToTs/SyncDataToTs.errors.ts:81` | Drift detected in check mode. |
+| `@beep/repo-cli/commands/SyncDataToTs/index` | `SyncDataToTsDriftError` | class | `packages/tooling/tool/cli/src/commands/SyncDataToTs/SyncDataToTs.errors.ts:86` | Drift detected in check mode. |
 | `@beep/repo-cli/commands/SyncDataToTs/index` | `SyncDataToTsError` | class | `packages/tooling/tool/cli/src/commands/SyncDataToTs/SyncDataToTs.errors.ts:35` | Operational error during source fetch, parsing, projection, or file writes. |
-| `@beep/repo-cli/commands/SyncDataToTs/internal/Models` | `SyncDataRunMode` | const | `packages/tooling/tool/cli/src/commands/SyncDataToTs/internal/Models.ts:49` | Command execution mode for sync-data-to-ts. |
-| `@beep/repo-cli/commands/SyncDataToTs/internal/Models` | `SyncDataRunMode` | type | `packages/tooling/tool/cli/src/commands/SyncDataToTs/internal/Models.ts:61` | Command execution mode for sync-data-to-ts. |
-| `@beep/repo-cli/commands/SyncDataToTs/internal/Models` | `SyncDataSourceFormat` | const | `packages/tooling/tool/cli/src/commands/SyncDataToTs/internal/Models.ts:27` | Supported source formats for sync-data-to-ts targets. |
-| `@beep/repo-cli/commands/SyncDataToTs/internal/Models` | `SyncDataSourceFormat` | type | `packages/tooling/tool/cli/src/commands/SyncDataToTs/internal/Models.ts:39` | Supported source formats for sync-data-to-ts targets. |
-| `@beep/repo-cli/commands/SyncDataToTs/internal/Models` | `SyncDataTarget` | const | `packages/tooling/tool/cli/src/commands/SyncDataToTs/internal/Models.ts:135` | Checked-in sync target definition. |
-| `@beep/repo-cli/commands/SyncDataToTs/internal/Models` | `SyncDataTarget` | type | `packages/tooling/tool/cli/src/commands/SyncDataToTs/internal/Models.ts:151` | {@inheritDoc SyncDataTarget} |
-| `@beep/repo-cli/commands/SyncDataToTs/internal/Models` | `SyncDataTargetProjection` | class | `packages/tooling/tool/cli/src/commands/SyncDataToTs/internal/Models.ts:69` | Rendered target projection ready to compare or write to disk. |
-| `@beep/repo-cli/commands/SyncDataToTs/internal/Models` | `SyncDataTargetResult` | class | `packages/tooling/tool/cli/src/commands/SyncDataToTs/internal/Models.ts:159` | Per-target command result after diffing or writing. |
-| `@beep/repo-cli/commands/SyncDataToTs/internal/Models` | `SyncDataToTsDriftError` | class | `packages/tooling/tool/cli/src/commands/SyncDataToTs/SyncDataToTs.errors.ts:81` | Drift detected in check mode. |
+| `@beep/repo-cli/commands/SyncDataToTs/internal/Models` | `SyncDataRunMode` | const | `packages/tooling/tool/cli/src/commands/SyncDataToTs/internal/Models.ts:55` | Command execution mode for sync-data-to-ts. |
+| `@beep/repo-cli/commands/SyncDataToTs/internal/Models` | `SyncDataRunMode` | type | `packages/tooling/tool/cli/src/commands/SyncDataToTs/internal/Models.ts:67` | Command execution mode for sync-data-to-ts. |
+| `@beep/repo-cli/commands/SyncDataToTs/internal/Models` | `SyncDataSourceFormat` | const | `packages/tooling/tool/cli/src/commands/SyncDataToTs/internal/Models.ts:33` | Supported source formats for sync-data-to-ts targets. |
+| `@beep/repo-cli/commands/SyncDataToTs/internal/Models` | `SyncDataSourceFormat` | type | `packages/tooling/tool/cli/src/commands/SyncDataToTs/internal/Models.ts:45` | Supported source formats for sync-data-to-ts targets. |
+| `@beep/repo-cli/commands/SyncDataToTs/internal/Models` | `SyncDataTarget` | const | `packages/tooling/tool/cli/src/commands/SyncDataToTs/internal/Models.ts:141` | Checked-in sync target definition. |
+| `@beep/repo-cli/commands/SyncDataToTs/internal/Models` | `SyncDataTarget` | type | `packages/tooling/tool/cli/src/commands/SyncDataToTs/internal/Models.ts:157` | {@inheritDoc SyncDataTarget} |
+| `@beep/repo-cli/commands/SyncDataToTs/internal/Models` | `SyncDataTargetProjection` | class | `packages/tooling/tool/cli/src/commands/SyncDataToTs/internal/Models.ts:75` | Rendered target projection ready to compare or write to disk. |
+| `@beep/repo-cli/commands/SyncDataToTs/internal/Models` | `SyncDataTargetResult` | class | `packages/tooling/tool/cli/src/commands/SyncDataToTs/internal/Models.ts:165` | Per-target command result after diffing or writing. |
+| `@beep/repo-cli/commands/SyncDataToTs/internal/Models` | `SyncDataToTsDriftError` | class | `packages/tooling/tool/cli/src/commands/SyncDataToTs/SyncDataToTs.errors.ts:86` | Drift detected in check mode. |
 | `@beep/repo-cli/commands/SyncDataToTs/internal/Models` | `SyncDataToTsError` | class | `packages/tooling/tool/cli/src/commands/SyncDataToTs/SyncDataToTs.errors.ts:35` | Operational error during source fetch, parsing, projection, or file writes. |
 | `@beep/repo-cli/commands/SyncDataToTs/SyncDataToTs.command` | `syncDataToTsCommand` | const | `packages/tooling/tool/cli/src/commands/SyncDataToTs/SyncDataToTs.command.ts:441` | CLI command for syncing official upstream datasets into checked-in TypeScript modules. |
-| `@beep/repo-cli/commands/SyncDataToTs/SyncDataToTs.errors` | `SyncDataToTsDriftError` | class | `packages/tooling/tool/cli/src/commands/SyncDataToTs/SyncDataToTs.errors.ts:81` | Drift detected in check mode. |
+| `@beep/repo-cli/commands/SyncDataToTs/SyncDataToTs.errors` | `SyncDataToTsDriftError` | class | `packages/tooling/tool/cli/src/commands/SyncDataToTs/SyncDataToTs.errors.ts:86` | Drift detected in check mode. |
 | `@beep/repo-cli/commands/SyncDataToTs/SyncDataToTs.errors` | `SyncDataToTsError` | class | `packages/tooling/tool/cli/src/commands/SyncDataToTs/SyncDataToTs.errors.ts:35` | Operational error during source fetch, parsing, projection, or file writes. |
 | `@beep/repo-cli/commands/SyncDataToTs/targets/index` | `syncDataTargets` | const | `packages/tooling/tool/cli/src/commands/SyncDataToTs/targets/index.ts:16` | All checked-in sync targets supported by sync-data-to-ts. |
 | `@beep/repo-cli/commands/SyncDataToTs/targets/Iso4217` | `ISO4217_SOURCE_URL` | const | `packages/tooling/tool/cli/src/commands/SyncDataToTs/targets/Iso4217.ts:27` | Official SIX XML source for ISO 4217 List One. |
@@ -1923,9 +1935,9 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/commands/TsconfigSync` | `TsconfigSyncChange` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:365` | A single planned file change. |
 | `@beep/repo-cli/commands/TsconfigSync` | `TsconfigSyncChange` | type | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:389` | A single planned file change. |
 | `@beep/repo-cli/commands/TsconfigSync` | `tsconfigSyncCommand` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:1767` | CLI command for synchronizing root and workspace tsconfig state. |
-| `@beep/repo-cli/commands/TsconfigSync` | `TsconfigSyncCycleError` | class | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.errors.ts:55` | Cycle error raised when workspace dependency cycles are detected. |
+| `@beep/repo-cli/commands/TsconfigSync` | `TsconfigSyncCycleError` | class | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.errors.ts:60` | Cycle error raised when workspace dependency cycles are detected. |
 | `@beep/repo-cli/commands/TsconfigSync` | `TsconfigSyncDriftError` | class | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.errors.ts:21` | Drift error raised in check mode when changes are required. |
-| `@beep/repo-cli/commands/TsconfigSync` | `TsconfigSyncFilterError` | class | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.errors.ts:89` | Filter error raised when `--filter` does not match any workspace package. |
+| `@beep/repo-cli/commands/TsconfigSync` | `TsconfigSyncFilterError` | class | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.errors.ts:99` | Filter error raised when `--filter` does not match any workspace package. |
 | `@beep/repo-cli/commands/TsconfigSync` | `TsconfigSyncMode` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:178` | Command execution mode. |
 | `@beep/repo-cli/commands/TsconfigSync` | `TsconfigSyncResult` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:556` | Result emitted after a sync run. |
 | `@beep/repo-cli/commands/TsconfigSync` | `TsconfigSyncResult` | type | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:572` | Result emitted after a sync run. |
@@ -1944,9 +1956,9 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/commands/TsconfigSync/index` | `TsconfigSyncChange` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:365` | A single planned file change. |
 | `@beep/repo-cli/commands/TsconfigSync/index` | `TsconfigSyncChange` | type | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:389` | A single planned file change. |
 | `@beep/repo-cli/commands/TsconfigSync/index` | `tsconfigSyncCommand` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:1767` | CLI command for synchronizing root and workspace tsconfig state. |
-| `@beep/repo-cli/commands/TsconfigSync/index` | `TsconfigSyncCycleError` | class | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.errors.ts:55` | Cycle error raised when workspace dependency cycles are detected. |
+| `@beep/repo-cli/commands/TsconfigSync/index` | `TsconfigSyncCycleError` | class | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.errors.ts:60` | Cycle error raised when workspace dependency cycles are detected. |
 | `@beep/repo-cli/commands/TsconfigSync/index` | `TsconfigSyncDriftError` | class | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.errors.ts:21` | Drift error raised in check mode when changes are required. |
-| `@beep/repo-cli/commands/TsconfigSync/index` | `TsconfigSyncFilterError` | class | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.errors.ts:89` | Filter error raised when `--filter` does not match any workspace package. |
+| `@beep/repo-cli/commands/TsconfigSync/index` | `TsconfigSyncFilterError` | class | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.errors.ts:99` | Filter error raised when `--filter` does not match any workspace package. |
 | `@beep/repo-cli/commands/TsconfigSync/index` | `TsconfigSyncMode` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:178` | Command execution mode. |
 | `@beep/repo-cli/commands/TsconfigSync/index` | `TsconfigSyncResult` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:556` | Result emitted after a sync run. |
 | `@beep/repo-cli/commands/TsconfigSync/index` | `TsconfigSyncResult` | type | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:572` | Result emitted after a sync run. |
@@ -1975,40 +1987,40 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/commands/TsconfigSync/TsconfigSync.command` | `TsconfigWithPaths` | class | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:654` | Minimal tsconfig shape containing optional `compilerOptions.paths`. |
 | `@beep/repo-cli/commands/TsconfigSync/TsconfigSync.command` | `TsconfigWithReferences` | class | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:639` | Minimal tsconfig shape containing optional `references`. |
 | `@beep/repo-cli/commands/TsconfigSync/TsconfigSync.command` | `WorkspaceDescriptor` | class | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:588` | Workspace package descriptor with metadata for tsconfig synchronization. |
-| `@beep/repo-cli/commands/TsconfigSync/TsconfigSync.errors` | `TsconfigSyncCycleError` | class | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.errors.ts:55` | Cycle error raised when workspace dependency cycles are detected. |
+| `@beep/repo-cli/commands/TsconfigSync/TsconfigSync.errors` | `TsconfigSyncCycleError` | class | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.errors.ts:60` | Cycle error raised when workspace dependency cycles are detected. |
 | `@beep/repo-cli/commands/TsconfigSync/TsconfigSync.errors` | `TsconfigSyncDriftError` | class | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.errors.ts:21` | Drift error raised in check mode when changes are required. |
-| `@beep/repo-cli/commands/TsconfigSync/TsconfigSync.errors` | `TsconfigSyncFilterError` | class | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.errors.ts:89` | Filter error raised when `--filter` does not match any workspace package. |
-| `@beep/repo-cli/commands/VersionSync` | `NetworkUnavailableError` | class | `packages/tooling/tool/cli/src/commands/VersionSync/VersionSync.errors.ts:74` | Network unavailable during upstream version resolution. |
+| `@beep/repo-cli/commands/TsconfigSync/TsconfigSync.errors` | `TsconfigSyncFilterError` | class | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.errors.ts:99` | Filter error raised when `--filter` does not match any workspace package. |
+| `@beep/repo-cli/commands/VersionSync` | `NetworkUnavailableError` | class | `packages/tooling/tool/cli/src/commands/VersionSync/VersionSync.errors.ts:79` | Network unavailable during upstream version resolution. |
 | `@beep/repo-cli/commands/VersionSync` | `versionSyncCommand` | const | `packages/tooling/tool/cli/src/commands/VersionSync/VersionSync.command.ts:48` | CLI command for synchronizing version pins across the monorepo. |
-| `@beep/repo-cli/commands/VersionSync` | `VersionSyncDriftError` | class | `packages/tooling/tool/cli/src/commands/VersionSync/VersionSync.errors.ts:95` | Drift detected in check mode (non-zero exit). |
+| `@beep/repo-cli/commands/VersionSync` | `VersionSyncDriftError` | class | `packages/tooling/tool/cli/src/commands/VersionSync/VersionSync.errors.ts:100` | Drift detected in check mode (non-zero exit). |
 | `@beep/repo-cli/commands/VersionSync` | `VersionSyncError` | class | `packages/tooling/tool/cli/src/commands/VersionSync/VersionSync.errors.ts:35` | Operational error during version sync (file read/write, parse failures). |
-| `@beep/repo-cli/commands/VersionSync/index` | `NetworkUnavailableError` | class | `packages/tooling/tool/cli/src/commands/VersionSync/VersionSync.errors.ts:74` | Network unavailable during upstream version resolution. |
+| `@beep/repo-cli/commands/VersionSync/index` | `NetworkUnavailableError` | class | `packages/tooling/tool/cli/src/commands/VersionSync/VersionSync.errors.ts:79` | Network unavailable during upstream version resolution. |
 | `@beep/repo-cli/commands/VersionSync/index` | `versionSyncCommand` | const | `packages/tooling/tool/cli/src/commands/VersionSync/VersionSync.command.ts:48` | CLI command for synchronizing version pins across the monorepo. |
-| `@beep/repo-cli/commands/VersionSync/index` | `VersionSyncDriftError` | class | `packages/tooling/tool/cli/src/commands/VersionSync/VersionSync.errors.ts:95` | Drift detected in check mode (non-zero exit). |
+| `@beep/repo-cli/commands/VersionSync/index` | `VersionSyncDriftError` | class | `packages/tooling/tool/cli/src/commands/VersionSync/VersionSync.errors.ts:100` | Drift detected in check mode (non-zero exit). |
 | `@beep/repo-cli/commands/VersionSync/index` | `VersionSyncError` | class | `packages/tooling/tool/cli/src/commands/VersionSync/VersionSync.errors.ts:35` | Operational error during version sync (file read/write, parse failures). |
 | `@beep/repo-cli/commands/VersionSync/internal/Handler` | `handleVersionSync` | const | `packages/tooling/tool/cli/src/commands/VersionSync/internal/Handler.ts:67` | Execute the version-sync command. |
-| `@beep/repo-cli/commands/VersionSync/internal/Models` | `NetworkUnavailableError` | class | `packages/tooling/tool/cli/src/commands/VersionSync/VersionSync.errors.ts:74` | Network unavailable during upstream version resolution. |
-| `@beep/repo-cli/commands/VersionSync/internal/Models` | `VersionCategory` | const | `packages/tooling/tool/cli/src/commands/VersionSync/internal/Models.ts:55` | Version category for grouping drift items. |
-| `@beep/repo-cli/commands/VersionSync/internal/Models` | `VersionCategory` | type | `packages/tooling/tool/cli/src/commands/VersionSync/internal/Models.ts:73` | Version category for grouping drift items. |
-| `@beep/repo-cli/commands/VersionSync/internal/Models` | `VersionCategoryOptions` | const | `packages/tooling/tool/cli/src/commands/VersionSync/internal/Models.ts:66` | Literal option tuple for version categories. |
-| `@beep/repo-cli/commands/VersionSync/internal/Models` | `VersionCategoryReport` | const | `packages/tooling/tool/cli/src/commands/VersionSync/internal/Models.ts:208` | Report for a single version category (bun, node, docker, biome, or effect). |
-| `@beep/repo-cli/commands/VersionSync/internal/Models` | `VersionCategoryReport` | type | `packages/tooling/tool/cli/src/commands/VersionSync/internal/Models.ts:229` | Report for a single version category (bun, node, docker, or biome). |
-| `@beep/repo-cli/commands/VersionSync/internal/Models` | `VersionCategoryStatus` | const | `packages/tooling/tool/cli/src/commands/VersionSync/internal/Models.ts:87` | Status of a version category. |
-| `@beep/repo-cli/commands/VersionSync/internal/Models` | `VersionCategoryStatus` | type | `packages/tooling/tool/cli/src/commands/VersionSync/internal/Models.ts:119` | Status of a version category. |
-| `@beep/repo-cli/commands/VersionSync/internal/Models` | `VersionCategoryStatusEnum` | const | `packages/tooling/tool/cli/src/commands/VersionSync/internal/Models.ts:105` | Enum mapping for version category status literals. |
-| `@beep/repo-cli/commands/VersionSync/internal/Models` | `VersionCategoryStatusMatch` | const | `packages/tooling/tool/cli/src/commands/VersionSync/internal/Models.ts:98` | Pattern-matching helper for version category status literals. |
-| `@beep/repo-cli/commands/VersionSync/internal/Models` | `VersionCategoryStatusThunk` | const | `packages/tooling/tool/cli/src/commands/VersionSync/internal/Models.ts:112` | Thunk helpers for version category status literals. |
-| `@beep/repo-cli/commands/VersionSync/internal/Models` | `VersionDriftItem` | class | `packages/tooling/tool/cli/src/commands/VersionSync/internal/Models.ts:29` | A single version pin location with its current and expected values. |
-| `@beep/repo-cli/commands/VersionSync/internal/Models` | `VersionSyncDriftError` | class | `packages/tooling/tool/cli/src/commands/VersionSync/VersionSync.errors.ts:95` | Drift detected in check mode (non-zero exit). |
+| `@beep/repo-cli/commands/VersionSync/internal/Models` | `NetworkUnavailableError` | class | `packages/tooling/tool/cli/src/commands/VersionSync/VersionSync.errors.ts:79` | Network unavailable during upstream version resolution. |
+| `@beep/repo-cli/commands/VersionSync/internal/Models` | `VersionCategory` | const | `packages/tooling/tool/cli/src/commands/VersionSync/internal/Models.ts:61` | Version category for grouping drift items. |
+| `@beep/repo-cli/commands/VersionSync/internal/Models` | `VersionCategory` | type | `packages/tooling/tool/cli/src/commands/VersionSync/internal/Models.ts:79` | Version category for grouping drift items. |
+| `@beep/repo-cli/commands/VersionSync/internal/Models` | `VersionCategoryOptions` | const | `packages/tooling/tool/cli/src/commands/VersionSync/internal/Models.ts:72` | Literal option tuple for version categories. |
+| `@beep/repo-cli/commands/VersionSync/internal/Models` | `VersionCategoryReport` | const | `packages/tooling/tool/cli/src/commands/VersionSync/internal/Models.ts:214` | Report for a single version category (bun, node, docker, biome, or effect). |
+| `@beep/repo-cli/commands/VersionSync/internal/Models` | `VersionCategoryReport` | type | `packages/tooling/tool/cli/src/commands/VersionSync/internal/Models.ts:235` | Report for a single version category (bun, node, docker, or biome). |
+| `@beep/repo-cli/commands/VersionSync/internal/Models` | `VersionCategoryStatus` | const | `packages/tooling/tool/cli/src/commands/VersionSync/internal/Models.ts:93` | Status of a version category. |
+| `@beep/repo-cli/commands/VersionSync/internal/Models` | `VersionCategoryStatus` | type | `packages/tooling/tool/cli/src/commands/VersionSync/internal/Models.ts:125` | Status of a version category. |
+| `@beep/repo-cli/commands/VersionSync/internal/Models` | `VersionCategoryStatusEnum` | const | `packages/tooling/tool/cli/src/commands/VersionSync/internal/Models.ts:111` | Enum mapping for version category status literals. |
+| `@beep/repo-cli/commands/VersionSync/internal/Models` | `VersionCategoryStatusMatch` | const | `packages/tooling/tool/cli/src/commands/VersionSync/internal/Models.ts:104` | Pattern-matching helper for version category status literals. |
+| `@beep/repo-cli/commands/VersionSync/internal/Models` | `VersionCategoryStatusThunk` | const | `packages/tooling/tool/cli/src/commands/VersionSync/internal/Models.ts:118` | Thunk helpers for version category status literals. |
+| `@beep/repo-cli/commands/VersionSync/internal/Models` | `VersionDriftItem` | class | `packages/tooling/tool/cli/src/commands/VersionSync/internal/Models.ts:35` | A single version pin location with its current and expected values. |
+| `@beep/repo-cli/commands/VersionSync/internal/Models` | `VersionSyncDriftError` | class | `packages/tooling/tool/cli/src/commands/VersionSync/VersionSync.errors.ts:100` | Drift detected in check mode (non-zero exit). |
 | `@beep/repo-cli/commands/VersionSync/internal/Models` | `VersionSyncError` | class | `packages/tooling/tool/cli/src/commands/VersionSync/VersionSync.errors.ts:35` | Operational error during version sync (file read/write, parse failures). |
-| `@beep/repo-cli/commands/VersionSync/internal/Models` | `VersionSyncMode` | const | `packages/tooling/tool/cli/src/commands/VersionSync/internal/Models.ts:260` | Command execution mode. |
-| `@beep/repo-cli/commands/VersionSync/internal/Models` | `VersionSyncMode` | type | `packages/tooling/tool/cli/src/commands/VersionSync/internal/Models.ts:279` | Command execution mode. |
-| `@beep/repo-cli/commands/VersionSync/internal/Models` | `VersionSyncModeMatch` | const | `packages/tooling/tool/cli/src/commands/VersionSync/internal/Models.ts:271` | Pattern-matching helper for version-sync mode literals. |
-| `@beep/repo-cli/commands/VersionSync/internal/Models` | `VersionSyncOptions` | const | `packages/tooling/tool/cli/src/commands/VersionSync/internal/Models.ts:338` | Resolved command options after flag parsing. |
-| `@beep/repo-cli/commands/VersionSync/internal/Models` | `VersionSyncOptions` | type | `packages/tooling/tool/cli/src/commands/VersionSync/internal/Models.ts:354` | Resolved command options after flag parsing. |
-| `@beep/repo-cli/commands/VersionSync/internal/Models` | `VersionSyncReport` | class | `packages/tooling/tool/cli/src/commands/VersionSync/internal/Models.ts:237` | Full version sync report across all categories. |
-| `@beep/repo-cli/commands/VersionSync/internal/Models` | `VersionSyncResolution` | class | `packages/tooling/tool/cli/src/commands/VersionSync/internal/Models.ts:378` | Resolver output consumed by reporting and write-mode services. |
-| `@beep/repo-cli/commands/VersionSync/internal/Models` | `VersionSyncUpdateLocation` | class | `packages/tooling/tool/cli/src/commands/VersionSync/internal/Models.ts:362` | YAML location to update in write mode. |
+| `@beep/repo-cli/commands/VersionSync/internal/Models` | `VersionSyncMode` | const | `packages/tooling/tool/cli/src/commands/VersionSync/internal/Models.ts:266` | Command execution mode. |
+| `@beep/repo-cli/commands/VersionSync/internal/Models` | `VersionSyncMode` | type | `packages/tooling/tool/cli/src/commands/VersionSync/internal/Models.ts:285` | Command execution mode. |
+| `@beep/repo-cli/commands/VersionSync/internal/Models` | `VersionSyncModeMatch` | const | `packages/tooling/tool/cli/src/commands/VersionSync/internal/Models.ts:277` | Pattern-matching helper for version-sync mode literals. |
+| `@beep/repo-cli/commands/VersionSync/internal/Models` | `VersionSyncOptions` | const | `packages/tooling/tool/cli/src/commands/VersionSync/internal/Models.ts:344` | Resolved command options after flag parsing. |
+| `@beep/repo-cli/commands/VersionSync/internal/Models` | `VersionSyncOptions` | type | `packages/tooling/tool/cli/src/commands/VersionSync/internal/Models.ts:360` | Resolved command options after flag parsing. |
+| `@beep/repo-cli/commands/VersionSync/internal/Models` | `VersionSyncReport` | class | `packages/tooling/tool/cli/src/commands/VersionSync/internal/Models.ts:243` | Full version sync report across all categories. |
+| `@beep/repo-cli/commands/VersionSync/internal/Models` | `VersionSyncResolution` | class | `packages/tooling/tool/cli/src/commands/VersionSync/internal/Models.ts:384` | Resolver output consumed by reporting and write-mode services. |
+| `@beep/repo-cli/commands/VersionSync/internal/Models` | `VersionSyncUpdateLocation` | class | `packages/tooling/tool/cli/src/commands/VersionSync/internal/Models.ts:368` | YAML location to update in write mode. |
 | `@beep/repo-cli/commands/VersionSync/internal/resolvers/BiomeResolver` | `BiomeSchemaState` | class | `packages/tooling/tool/cli/src/commands/VersionSync/internal/resolvers/BiomeResolver.ts:147` | Resolved Biome schema state. |
 | `@beep/repo-cli/commands/VersionSync/internal/resolvers/BiomeResolver` | `buildBiomeReport` | const | `packages/tooling/tool/cli/src/commands/VersionSync/internal/resolvers/BiomeResolver.ts:218` | Build the Biome schema category report from resolved state. |
 | `@beep/repo-cli/commands/VersionSync/internal/resolvers/BiomeResolver` | `resolveBiomeSchema` | const | `packages/tooling/tool/cli/src/commands/VersionSync/internal/resolvers/BiomeResolver.ts:167` | Resolve current Biome schema version from `biome.jsonc` and installed version from `package.json` catalog. |
@@ -2045,8 +2057,8 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/commands/VersionSync/internal/updaters/YamlFileUpdater` | `replaceNodeVersionWithFile` | const | `packages/tooling/tool/cli/src/commands/VersionSync/internal/updaters/YamlFileUpdater.ts:103` | Replace `node-version: <value>` with `node-version-file: .nvmrc` in a workflow YAML. |
 | `@beep/repo-cli/commands/VersionSync/internal/updaters/YamlFileUpdater` | `updateYamlValue` | const | `packages/tooling/tool/cli/src/commands/VersionSync/internal/updaters/YamlFileUpdater.ts:52` | Update a value at a specific path in a YAML file, preserving comments and formatting. |
 | `@beep/repo-cli/commands/VersionSync/VersionSync.command` | `versionSyncCommand` | const | `packages/tooling/tool/cli/src/commands/VersionSync/VersionSync.command.ts:48` | CLI command for synchronizing version pins across the monorepo. |
-| `@beep/repo-cli/commands/VersionSync/VersionSync.errors` | `NetworkUnavailableError` | class | `packages/tooling/tool/cli/src/commands/VersionSync/VersionSync.errors.ts:74` | Network unavailable during upstream version resolution. |
-| `@beep/repo-cli/commands/VersionSync/VersionSync.errors` | `VersionSyncDriftError` | class | `packages/tooling/tool/cli/src/commands/VersionSync/VersionSync.errors.ts:95` | Drift detected in check mode (non-zero exit). |
+| `@beep/repo-cli/commands/VersionSync/VersionSync.errors` | `NetworkUnavailableError` | class | `packages/tooling/tool/cli/src/commands/VersionSync/VersionSync.errors.ts:79` | Network unavailable during upstream version resolution. |
+| `@beep/repo-cli/commands/VersionSync/VersionSync.errors` | `VersionSyncDriftError` | class | `packages/tooling/tool/cli/src/commands/VersionSync/VersionSync.errors.ts:100` | Drift detected in check mode (non-zero exit). |
 | `@beep/repo-cli/commands/VersionSync/VersionSync.errors` | `VersionSyncError` | class | `packages/tooling/tool/cli/src/commands/VersionSync/VersionSync.errors.ts:35` | Operational error during version sync (file read/write, parse failures). |
 | `@beep/repo-cli/test/CreatePackage` | `checkConfigNeedsUpdate` | const | `packages/tooling/tool/cli/src/commands/CreatePackage/ConfigUpdater.ts:619` | Check whether config entries already exist (for dry-run output). |
 | `@beep/repo-cli/test/CreatePackage` | `checkConfigNeedsUpdateForTargets` | const | `packages/tooling/tool/cli/src/commands/CreatePackage/ConfigUpdater.ts:549` | Batch read-only drift checker for root config updates. |
@@ -2072,15 +2084,15 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/test/CreatePackage` | `updateTsconfigPackages` | const | `packages/tooling/tool/cli/src/commands/CreatePackage/ConfigUpdater.ts:304` | Add a project reference to `tsconfig.packages.json`. |
 | `@beep/repo-cli/test/CreatePackage` | `updateTsconfigPaths` | const | `packages/tooling/tool/cli/src/commands/CreatePackage/ConfigUpdater.ts:345` | Add path aliases to `tsconfig.json` (JSONC-safe, preserves comments). |
 | `@beep/repo-cli/test/CreatePackage` | `updateTstycheConfig` | const | `packages/tooling/tool/cli/src/commands/CreatePackage/ConfigUpdater.ts:399` | Add a test file match entry to `tstyche.json`. |
-| `@beep/repo-cli/test/Docgen` | `aggregateGeneratedDocs` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/Operations.ts:1410` | Aggregate generated package docs into the current root docs layout. |
-| `@beep/repo-cli/test/Docgen` | `analyzeDocgenQuality` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/Quality.ts:1759` | Builds the consolidated report emitted by the quality command. |
+| `@beep/repo-cli/test/Docgen` | `aggregateGeneratedDocs` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/Operations.ts:1417` | Aggregate generated package docs into the current root docs layout. |
+| `@beep/repo-cli/test/Docgen` | `analyzeDocgenQuality` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/Quality.ts:1821` | Builds the consolidated report emitted by the quality command. |
 | `@beep/repo-cli/test/Docgen` | `analyzeDocgenQualityWorkerEval` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerEval.ts:1242` | Build a read-only worker eval report from a quality report. |
 | `@beep/repo-cli/test/Docgen` | `AnalyzeDocgenQualityWorkerEvalOptions` | class | `packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerEval.ts:523` | Options for one worker eval run. |
-| `@beep/repo-cli/test/Docgen` | `analyzePackageDocumentation` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/Operations.ts:1238` | Analyze a package for missing docgen-required JSDoc. |
-| `@beep/repo-cli/test/Docgen` | `analyzePackageQuality` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/Quality.ts:1689` | Builds a package-local quality report from ts-morph-enriched subjects. |
-| `@beep/repo-cli/test/Docgen` | `assertNoOrphanDocgenConfigPaths` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/Operations.ts:447` | Fail when stale package-local docgen configs exist outside current workspaces. |
+| `@beep/repo-cli/test/Docgen` | `analyzePackageDocumentation` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/Operations.ts:1245` | Analyze a package for missing docgen-required JSDoc. |
+| `@beep/repo-cli/test/Docgen` | `analyzePackageQuality` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/Quality.ts:1750` | Builds a package-local quality report from ts-morph-enriched subjects. |
+| `@beep/repo-cli/test/Docgen` | `assertNoOrphanDocgenConfigPaths` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/Operations.ts:454` | Fail when stale package-local docgen configs exist outside current workspaces. |
 | `@beep/repo-cli/test/Docgen` | `buildDocgenLocalPlan` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/Local.ts:844` | Build a local docgen plan from repository state and command options. |
-| `@beep/repo-cli/test/Docgen` | `createDocgenConfigDocument` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/Operations.ts:1101` | Build the repo-standard `docgen.json` document for a package. |
+| `@beep/repo-cli/test/Docgen` | `createDocgenConfigDocument` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/Operations.ts:1108` | Build the repo-standard `docgen.json` document for a package. |
 | `@beep/repo-cli/test/Docgen` | `decodeDocgenQualityReportForWorkerEval` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerEval.ts:1145` | Decode a saved `docgen quality` JSON report for worker eval. |
 | `@beep/repo-cli/test/Docgen` | `defaultQualityWorkerEvalPacketLimit` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerEval.ts:1182` | Default packet cap for `docgen quality-worker-eval`. |
 | `@beep/repo-cli/test/Docgen` | `defaultQualityWorkerEvalReasoningEffort` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerEval.ts:1197` | Default hosted Codex reasoning effort for worker eval. |
@@ -2088,18 +2100,18 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/test/Docgen` | `defaultQualityWorkerRunpodEvalOtlpProject` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerRunpodEval.ts:1030` | Default Phoenix project for remote worker eval traces. |
 | `@beep/repo-cli/test/Docgen` | `defaultQualityWorkerRunpodEvalPacketLimit` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerRunpodEval.ts:1000` | Default packet cap for Runpod-backed worker eval runs. |
 | `@beep/repo-cli/test/Docgen` | `defaultQualityWorkerRunpodEvalReadinessTimeoutMs` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerRunpodEval.ts:1045` | Default readiness timeout for remote Ollama bootstrap. |
-| `@beep/repo-cli/test/Docgen` | `discoverDocgenWorkspacePackages` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/Operations.ts:1144` | Discover all workspace packages relevant to docgen. |
-| `@beep/repo-cli/test/Docgen` | `discoverOrphanDocgenConfigPaths` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/Operations.ts:393` | Discover package-local docgen configs that do not belong to a current workspace. |
-| `@beep/repo-cli/test/Docgen` | `DocgenAggregateResult` | class | `packages/tooling/tool/cli/src/commands/Docgen/internal/Operations.ts:297` | Per-package aggregated docs result. |
-| `@beep/repo-cli/test/Docgen` | `DocgenAnalysisSummary` | class | `packages/tooling/tool/cli/src/commands/Docgen/internal/Operations.ts:237` | Summary counts for a package analysis run. |
+| `@beep/repo-cli/test/Docgen` | `discoverDocgenWorkspacePackages` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/Operations.ts:1151` | Discover all workspace packages relevant to docgen. |
+| `@beep/repo-cli/test/Docgen` | `discoverOrphanDocgenConfigPaths` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/Operations.ts:400` | Discover package-local docgen configs that do not belong to a current workspace. |
+| `@beep/repo-cli/test/Docgen` | `DocgenAggregateResult` | class | `packages/tooling/tool/cli/src/commands/Docgen/internal/Operations.ts:304` | Per-package aggregated docs result. |
+| `@beep/repo-cli/test/Docgen` | `DocgenAnalysisSummary` | class | `packages/tooling/tool/cli/src/commands/Docgen/internal/Operations.ts:244` | Summary counts for a package analysis run. |
 | `@beep/repo-cli/test/Docgen` | `docgenCommand` | const | `packages/tooling/tool/cli/src/commands/Docgen/Docgen.command.ts:1079` | Human-first docgen command suite. |
-| `@beep/repo-cli/test/Docgen` | `DocgenConfigDocument` | class | `packages/tooling/tool/cli/src/commands/Docgen/internal/Operations.ts:113` | Parsed `docgen.json` document used by the command suite. |
-| `@beep/repo-cli/test/Docgen` | `DocgenExportAnalysis` | class | `packages/tooling/tool/cli/src/commands/Docgen/internal/Operations.ts:211` | Analysis finding for a single export or module-level doc requirement. |
-| `@beep/repo-cli/test/Docgen` | `DocgenExportKind` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/Operations.ts:182` | Export kind surfaced by analysis. |
-| `@beep/repo-cli/test/Docgen` | `DocgenExportKind` | type | `packages/tooling/tool/cli/src/commands/Docgen/internal/Operations.ts:203` | Export kind surfaced by analysis. |
-| `@beep/repo-cli/test/Docgen` | `DocgenGenerationResult` | class | `packages/tooling/tool/cli/src/commands/Docgen/internal/Operations.ts:277` | Per-package docgen generation result. |
-| `@beep/repo-cli/test/Docgen` | `DocgenIssuePriority` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/Operations.ts:163` | Issue priority used by analysis findings. |
-| `@beep/repo-cli/test/Docgen` | `DocgenIssuePriority` | type | `packages/tooling/tool/cli/src/commands/Docgen/internal/Operations.ts:174` | Issue priority used by analysis findings. |
+| `@beep/repo-cli/test/Docgen` | `DocgenConfigDocument` | class | `packages/tooling/tool/cli/src/commands/Docgen/internal/Operations.ts:120` | Parsed `docgen.json` document used by the command suite. |
+| `@beep/repo-cli/test/Docgen` | `DocgenExportAnalysis` | class | `packages/tooling/tool/cli/src/commands/Docgen/internal/Operations.ts:218` | Analysis finding for a single export or module-level doc requirement. |
+| `@beep/repo-cli/test/Docgen` | `DocgenExportKind` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/Operations.ts:189` | Export kind surfaced by analysis. |
+| `@beep/repo-cli/test/Docgen` | `DocgenExportKind` | type | `packages/tooling/tool/cli/src/commands/Docgen/internal/Operations.ts:210` | Export kind surfaced by analysis. |
+| `@beep/repo-cli/test/Docgen` | `DocgenGenerationResult` | class | `packages/tooling/tool/cli/src/commands/Docgen/internal/Operations.ts:284` | Per-package docgen generation result. |
+| `@beep/repo-cli/test/Docgen` | `DocgenIssuePriority` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/Operations.ts:170` | Issue priority used by analysis findings. |
+| `@beep/repo-cli/test/Docgen` | `DocgenIssuePriority` | type | `packages/tooling/tool/cli/src/commands/Docgen/internal/Operations.ts:181` | Issue priority used by analysis findings. |
 | `@beep/repo-cli/test/Docgen` | `DocgenLocalFullReason` | class | `packages/tooling/tool/cli/src/commands/Docgen/internal/Local.ts:207` | Reason local docgen must escalate to the full proof. |
 | `@beep/repo-cli/test/Docgen` | `docgenLocalFullReasonsForTesting` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/Local.ts:807` | Resolve changed files that require the full docgen proof. |
 | `@beep/repo-cli/test/Docgen` | `DocgenLocalMode` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/Local.ts:142` | Local docgen execution mode selected by the planner. |
@@ -2108,19 +2120,19 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/test/Docgen` | `DocgenLocalSelectedPackage` | class | `packages/tooling/tool/cli/src/commands/Docgen/internal/Local.ts:180` | Package selected for a local docgen run. |
 | `@beep/repo-cli/test/Docgen` | `docgenLocalTurboArgsForTesting` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/Local.ts:785` | Build Turbo argv for local docgen targets. |
 | `@beep/repo-cli/test/Docgen` | `DocgenLocalTurboTask` | class | `packages/tooling/tool/cli/src/commands/Docgen/internal/Local.ts:275` | Turbo dry-run package summary used by local docgen. |
-| `@beep/repo-cli/test/Docgen` | `DocgenPackageAnalysis` | class | `packages/tooling/tool/cli/src/commands/Docgen/internal/Operations.ts:258` | Package-level analysis document written by `docgen analyze`. |
-| `@beep/repo-cli/test/Docgen` | `DocgenPackageStatus` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/Operations.ts:84` | Workspace docgen status derived from config and generated output presence. |
-| `@beep/repo-cli/test/Docgen` | `DocgenPackageStatus` | type | `packages/tooling/tool/cli/src/commands/Docgen/internal/Operations.ts:99` | Workspace docgen status derived from config and generated output presence. |
-| `@beep/repo-cli/test/Docgen` | `DocgenQualityFindingCode` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/Quality.ts:194` | Typed finding code emitted by the v1 quality rubric. |
-| `@beep/repo-cli/test/Docgen` | `DocgenQualityFindingCode` | type | `packages/tooling/tool/cli/src/commands/Docgen/internal/Quality.ts:225` | Typed finding code emitted by the v1 quality rubric. |
-| `@beep/repo-cli/test/Docgen` | `DocgenQualityReport` | class | `packages/tooling/tool/cli/src/commands/Docgen/internal/Quality.ts:381` | Consolidated report emitted by `beep docgen quality`. |
-| `@beep/repo-cli/test/Docgen` | `DocgenQualityScopeMode` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/Quality.ts:87` | Scope mode supported by `docgen quality`. |
-| `@beep/repo-cli/test/Docgen` | `DocgenQualityScopeMode` | type | `packages/tooling/tool/cli/src/commands/Docgen/internal/Quality.ts:106` | Scope mode supported by `docgen quality`. |
-| `@beep/repo-cli/test/Docgen` | `DocgenQualityScoreMode` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/Quality.ts:120` | Optional advisory scoring mode for `docgen quality`. |
-| `@beep/repo-cli/test/Docgen` | `DocgenQualityScoreMode` | type | `packages/tooling/tool/cli/src/commands/Docgen/internal/Quality.ts:139` | Optional advisory scoring mode for `docgen quality`. |
-| `@beep/repo-cli/test/Docgen` | `DocgenQualitySubject` | class | `packages/tooling/tool/cli/src/commands/Docgen/internal/Quality.ts:278` | Stable evidence packet for one exported-symbol JSDoc quality review. |
-| `@beep/repo-cli/test/Docgen` | `DocgenQualityTier` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/Quality.ts:153` | Quality tier assigned to a JSDoc review subject. |
-| `@beep/repo-cli/test/Docgen` | `DocgenQualityTier` | type | `packages/tooling/tool/cli/src/commands/Docgen/internal/Quality.ts:172` | Quality tier assigned to a JSDoc review subject. |
+| `@beep/repo-cli/test/Docgen` | `DocgenPackageAnalysis` | class | `packages/tooling/tool/cli/src/commands/Docgen/internal/Operations.ts:265` | Package-level analysis document written by `docgen analyze`. |
+| `@beep/repo-cli/test/Docgen` | `DocgenPackageStatus` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/Operations.ts:91` | Workspace docgen status derived from config and generated output presence. |
+| `@beep/repo-cli/test/Docgen` | `DocgenPackageStatus` | type | `packages/tooling/tool/cli/src/commands/Docgen/internal/Operations.ts:106` | Workspace docgen status derived from config and generated output presence. |
+| `@beep/repo-cli/test/Docgen` | `DocgenQualityFindingCode` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/Quality.ts:208` | Typed finding code emitted by the v1 quality rubric. |
+| `@beep/repo-cli/test/Docgen` | `DocgenQualityFindingCode` | type | `packages/tooling/tool/cli/src/commands/Docgen/internal/Quality.ts:239` | Typed finding code emitted by the v1 quality rubric. |
+| `@beep/repo-cli/test/Docgen` | `DocgenQualityReport` | class | `packages/tooling/tool/cli/src/commands/Docgen/internal/Quality.ts:395` | Consolidated report emitted by `beep docgen quality`. |
+| `@beep/repo-cli/test/Docgen` | `DocgenQualityScopeMode` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/Quality.ts:101` | Scope mode supported by `docgen quality`. |
+| `@beep/repo-cli/test/Docgen` | `DocgenQualityScopeMode` | type | `packages/tooling/tool/cli/src/commands/Docgen/internal/Quality.ts:120` | Scope mode supported by `docgen quality`. |
+| `@beep/repo-cli/test/Docgen` | `DocgenQualityScoreMode` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/Quality.ts:134` | Optional advisory scoring mode for `docgen quality`. |
+| `@beep/repo-cli/test/Docgen` | `DocgenQualityScoreMode` | type | `packages/tooling/tool/cli/src/commands/Docgen/internal/Quality.ts:153` | Optional advisory scoring mode for `docgen quality`. |
+| `@beep/repo-cli/test/Docgen` | `DocgenQualitySubject` | class | `packages/tooling/tool/cli/src/commands/Docgen/internal/Quality.ts:292` | Stable evidence packet for one exported-symbol JSDoc quality review. |
+| `@beep/repo-cli/test/Docgen` | `DocgenQualityTier` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/Quality.ts:167` | Quality tier assigned to a JSDoc review subject. |
+| `@beep/repo-cli/test/Docgen` | `DocgenQualityTier` | type | `packages/tooling/tool/cli/src/commands/Docgen/internal/Quality.ts:186` | Quality tier assigned to a JSDoc review subject. |
 | `@beep/repo-cli/test/Docgen` | `DocgenQualityWorkerEvalPacketStatus` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerEval.ts:197` | Read-only packet execution status for worker eval. |
 | `@beep/repo-cli/test/Docgen` | `DocgenQualityWorkerEvalPacketStatus` | type | `packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerEval.ts:216` | Read-only packet execution status for worker eval. |
 | `@beep/repo-cli/test/Docgen` | `DocgenQualityWorkerEvalPolicyViolationCode` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerEval.ts:267` | Closed repo-policy issue code emitted by a worker eval. |
@@ -2139,21 +2151,21 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/test/Docgen` | `DocgenQualityWorkerEvalScope` | type | `packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerEval.ts:183` | Source mode used to build a worker eval queue. |
 | `@beep/repo-cli/test/Docgen` | `DocgenQualityWorkerEvalWorkerOutput` | class | `packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerEval.ts:313` | Structured response expected from the Codex worker. |
 | `@beep/repo-cli/test/Docgen` | `DocgenQualityWorkerRunpodEvalReport` | class | `packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerRunpodEval.ts:230` | JSON wrapper report emitted by `docgen quality-worker-eval-runpod`. |
-| `@beep/repo-cli/test/Docgen` | `DocgenWorkspacePackage` | class | `packages/tooling/tool/cli/src/commands/Docgen/internal/Operations.ts:142` | Workspace package metadata used by docgen commands. |
-| `@beep/repo-cli/test/Docgen` | `generateAnalysisJson` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/Operations.ts:1400` | Encode a package analysis document as JSON text. |
-| `@beep/repo-cli/test/Docgen` | `generateAnalysisReport` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/Operations.ts:1279` | Render a human-first markdown report for a package analysis run. |
-| `@beep/repo-cli/test/Docgen` | `generateQualityJson` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/Quality.ts:1839` | Renders a quality report as stable JSON. |
-| `@beep/repo-cli/test/Docgen` | `generateQualityReport` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/Quality.ts:1891` | Renders a quality report as human-readable Markdown. |
+| `@beep/repo-cli/test/Docgen` | `DocgenWorkspacePackage` | class | `packages/tooling/tool/cli/src/commands/Docgen/internal/Operations.ts:149` | Workspace package metadata used by docgen commands. |
+| `@beep/repo-cli/test/Docgen` | `generateAnalysisJson` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/Operations.ts:1407` | Encode a package analysis document as JSON text. |
+| `@beep/repo-cli/test/Docgen` | `generateAnalysisReport` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/Operations.ts:1286` | Render a human-first markdown report for a package analysis run. |
+| `@beep/repo-cli/test/Docgen` | `generateQualityJson` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/Quality.ts:1901` | Renders a quality report as stable JSON. |
+| `@beep/repo-cli/test/Docgen` | `generateQualityReport` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/Quality.ts:1953` | Renders a quality report as human-readable Markdown. |
 | `@beep/repo-cli/test/Docgen` | `generateQualityWorkerEvalJson` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerEval.ts:1361` | Render a worker eval report as stable JSON. |
 | `@beep/repo-cli/test/Docgen` | `generateQualityWorkerRunpodEvalJson` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerRunpodEval.ts:1166` | Render a Runpod worker eval wrapper report as stable JSON. |
-| `@beep/repo-cli/test/Docgen` | `loadDocgenConfigDocument` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/Operations.ts:1079` | Load a package-local `docgen.json` document. |
+| `@beep/repo-cli/test/Docgen` | `loadDocgenConfigDocument` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/Operations.ts:1086` | Load a package-local `docgen.json` document. |
 | `@beep/repo-cli/test/Docgen` | `makeQualityWorkerRunpodEvalPodCreateInput` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerRunpodEval.ts:441` | Build the Runpod create-pod body for an Ollama worker eval host. |
-| `@beep/repo-cli/test/Docgen` | `normalizeDocsOutputPath` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/Operations.ts:1068` | Normalize a workspace-relative package path to the current root docs output layout. |
+| `@beep/repo-cli/test/Docgen` | `normalizeDocsOutputPath` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/Operations.ts:1075` | Normalize a workspace-relative package path to the current root docs output layout. |
 | `@beep/repo-cli/test/Docgen` | `qualityWorkerEvalSourcePacketLimit` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerEval.ts:1166` | Compute the source packet limit used for generated quality reports. |
 | `@beep/repo-cli/test/Docgen` | `requiredQualityWorkerRunpodEvalModel` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerRunpodEval.ts:985` | Required v1 model id for Runpod-backed Qwen worker evals. |
-| `@beep/repo-cli/test/Docgen` | `resolveDocgenQualityTargets` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/Quality.ts:559` | Resolves `docgen quality` targets using the v1 scope policy. |
-| `@beep/repo-cli/test/Docgen` | `resolveDocgenWorkspacePackage` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/Operations.ts:1186` | Resolve a workspace package by package name, repo-relative path, absolute path, or current docs output path. |
-| `@beep/repo-cli/test/Docgen` | `runDocgenForPackage` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/Operations.ts:1553` | Run the repo-local `@beep/repo-docgen` implementation for a single workspace package. |
+| `@beep/repo-cli/test/Docgen` | `resolveDocgenQualityTargets` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/Quality.ts:592` | Resolves `docgen quality` targets using the v1 scope policy. |
+| `@beep/repo-cli/test/Docgen` | `resolveDocgenWorkspacePackage` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/Operations.ts:1193` | Resolve a workspace package by package name, repo-relative path, absolute path, or current docs output path. |
+| `@beep/repo-cli/test/Docgen` | `runDocgenForPackage` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/Operations.ts:1560` | Run the repo-local `@beep/repo-docgen` implementation for a single workspace package. |
 | `@beep/repo-cli/test/Docgen` | `runDocgenLocal` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/Local.ts:878` | Run the bounded local docgen proof. |
 | `@beep/repo-cli/test/Docgen` | `runDocgenQualityWorkerRunpodEval` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerRunpodEval.ts:1065` | Run a read-only JSDoc quality worker eval on an ephemeral Runpod pod. |
 | `@beep/repo-cli/test/Docgen` | `RunDocgenQualityWorkerRunpodEvalOptions` | class | `packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerRunpodEval.ts:267` | Options for a Runpod-backed quality worker eval run. |
@@ -2163,118 +2175,118 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/test/Graphiti` | `ContainerHealthState` | const | `packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyServices.ts:55` | Container health literal union. |
 | `@beep/repo-cli/test/Graphiti` | `DependencyHealthSnapshot` | class | `packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyServices.ts:137` | Cached dependency health snapshot payload. |
 | `@beep/repo-cli/test/Graphiti` | `DependencyHealthState` | const | `packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyServices.ts:71` | Dependency health literal union. |
-| `@beep/repo-cli/test/Graphiti` | `ensureGraphitiProxy` | const | `packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyOps.ts:540` | Ensure the local Graphiti proxy is healthy, starting it in the background when needed. |
+| `@beep/repo-cli/test/Graphiti` | `ensureGraphitiProxy` | const | `packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyOps.ts:546` | Ensure the local Graphiti proxy is healthy, starting it in the background when needed. |
 | `@beep/repo-cli/test/Graphiti` | `graphitiCommand` | const | `packages/tooling/tool/cli/src/commands/Graphiti/Graphiti.command.ts:94` | Graphiti command group. |
 | `@beep/repo-cli/test/Graphiti` | `GraphitiDependencyHealthService` | class | `packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyServices.ts:384` | Service tag for dependency health snapshots. |
 | `@beep/repo-cli/test/Graphiti` | `GraphitiProxyConfig` | class | `packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyConfig.ts:106` | Runtime configuration schema for graphiti proxy. |
 | `@beep/repo-cli/test/Graphiti` | `GraphitiProxyConfigLoadError` | class | `packages/tooling/tool/cli/src/commands/Graphiti/Graphiti.errors.ts:35` | Raised when graphiti proxy configuration cannot be loaded. |
 | `@beep/repo-cli/test/Graphiti` | `GraphitiProxyForwarderService` | class | `packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyServices.ts:399` | Service tag for forwarding requests to upstream graphiti. |
-| `@beep/repo-cli/test/Graphiti` | `GraphitiProxyOpsError` | class | `packages/tooling/tool/cli/src/commands/Graphiti/Graphiti.errors.ts:73` | Typed failure for Graphiti proxy operational helpers. |
+| `@beep/repo-cli/test/Graphiti` | `GraphitiProxyOpsError` | class | `packages/tooling/tool/cli/src/commands/Graphiti/Graphiti.errors.ts:78` | Typed failure for Graphiti proxy operational helpers. |
 | `@beep/repo-cli/test/Graphiti` | `GraphitiProxyQueueService` | class | `packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyServices.ts:414` | Service tag for queueing and draining proxy traffic. |
-| `@beep/repo-cli/test/Graphiti` | `installGraphitiProxyService` | const | `packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyOps.ts:711` | Install and start the user-level systemd unit for the Graphiti proxy. |
-| `@beep/repo-cli/test/Graphiti` | `isFastMcpRequestBody` | const | `packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyServices.ts:473` | Determine whether an MCP request body is cheap enough to bypass the serialized memory-work queue. |
+| `@beep/repo-cli/test/Graphiti` | `installGraphitiProxyService` | const | `packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyOps.ts:717` | Install and start the user-level systemd unit for the Graphiti proxy. |
+| `@beep/repo-cli/test/Graphiti` | `isFastMcpRequestBody` | const | `packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyServices.ts:476` | Determine whether an MCP request body is cheap enough to bypass the serialized memory-work queue. |
 | `@beep/repo-cli/test/Graphiti` | `loadGraphitiProxyConfig` | const | `packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyConfig.ts:187` | Load graphiti proxy config from Effect Config environment values. |
-| `@beep/repo-cli/test/Graphiti` | `makeGraphitiDependencyHealthService` | const | `packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyServices.ts:536` | Construct dependency health service implementation. |
-| `@beep/repo-cli/test/Graphiti` | `makeGraphitiProxyForwarderService` | const | `packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyServices.ts:593` | Construct upstream forwarder service implementation. |
-| `@beep/repo-cli/test/Graphiti` | `makeGraphitiProxyQueueService` | const | `packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyServices.ts:711` | Construct proxy queue service implementation. |
+| `@beep/repo-cli/test/Graphiti` | `makeGraphitiDependencyHealthService` | const | `packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyServices.ts:537` | Construct dependency health service implementation. |
+| `@beep/repo-cli/test/Graphiti` | `makeGraphitiProxyForwarderService` | const | `packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyServices.ts:594` | Construct upstream forwarder service implementation. |
+| `@beep/repo-cli/test/Graphiti` | `makeGraphitiProxyQueueService` | const | `packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyServices.ts:712` | Construct proxy queue service implementation. |
 | `@beep/repo-cli/test/Graphiti` | `proxyErrorResponse` | const | `packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyServices.ts:303` | Build a structured proxy error HTTP response. |
 | `@beep/repo-cli/test/Graphiti` | `ProxyHealthPayload` | class | `packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyServices.ts:184` | Structured JSON payload for health endpoints. |
 | `@beep/repo-cli/test/Graphiti` | `proxyHealthResponse` | const | `packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyServices.ts:345` | Build a structured proxy health HTTP response. |
 | `@beep/repo-cli/test/Graphiti` | `ProxyQueueStats` | class | `packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyServices.ts:157` | Queue and processing counters for proxy introspection. |
-| `@beep/repo-cli/test/Graphiti` | `ProxyServiceConfig` | class | `packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyOps.ts:58` | Configuration for installing and managing the Graphiti proxy user service. |
-| `@beep/repo-cli/test/Graphiti` | `recoverGraphitiStack` | const | `packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyOps.ts:633` | Recover the local Graphiti backing stack by restarting unhealthy containers. |
-| `@beep/repo-cli/test/Graphiti` | `runKgWithGraphitiProxy` | const | `packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyOps.ts:601` | Run a knowledge-graph CLI command with the local Graphiti proxy ensured first. |
-| `@beep/repo-cli/test/Graphiti` | `shouldRecoverGraphitiStackForTesting` | const | `packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyOps.ts:662` | Decide whether Graphiti recovery should restart the backing containers. |
+| `@beep/repo-cli/test/Graphiti` | `ProxyServiceConfig` | class | `packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyOps.ts:64` | Configuration for installing and managing the Graphiti proxy user service. |
+| `@beep/repo-cli/test/Graphiti` | `recoverGraphitiStack` | const | `packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyOps.ts:639` | Recover the local Graphiti backing stack by restarting unhealthy containers. |
+| `@beep/repo-cli/test/Graphiti` | `runKgWithGraphitiProxy` | const | `packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyOps.ts:607` | Run a knowledge-graph CLI command with the local Graphiti proxy ensured first. |
+| `@beep/repo-cli/test/Graphiti` | `shouldRecoverGraphitiStackForTesting` | const | `packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyOps.ts:668` | Decide whether Graphiti recovery should restart the backing containers. |
 | `@beep/repo-cli/test/Laws` | `ALLOWLIST_PATH` | const | `packages/tooling/tool/cli/src/commands/Laws/AllowlistCheck.ts:33` | Relative path to the effect laws allowlist. |
 | `@beep/repo-cli/test/Laws` | `AllowlistCheckOptions` | class | `packages/tooling/tool/cli/src/commands/Laws/AllowlistCheck.ts:94` | Runtime options for allowlist integrity checks. |
 | `@beep/repo-cli/test/Laws` | `AllowlistCheckSummary` | class | `packages/tooling/tool/cli/src/commands/Laws/AllowlistCheck.ts:113` | Result of an allowlist integrity check. |
 | `@beep/repo-cli/test/Laws` | `collectNativeRuntimeViolationKeys` | const | `packages/tooling/tool/cli/src/commands/Laws/NoNativeRuntime.ts:489` | Collect normalized native-runtime violation keys for allowlist integrity checks. |
 | `@beep/repo-cli/test/Laws` | `DualArityInventoryEntry` | namespace | `packages/tooling/tool/cli/src/commands/Laws/DualArity.ts:113` | Namespace for {@link DualArityInventoryEntry} companion types. |
-| `@beep/repo-cli/test/Laws` | `DualArityInventoryReadError` | class | `packages/tooling/tool/cli/src/commands/Laws/Laws.errors.ts:18` |  |
+| `@beep/repo-cli/test/Laws` | `DualArityInventoryReadError` | class | `packages/tooling/tool/cli/src/commands/Laws/Laws.errors.ts:31` | Failure raised when the dual-arity inventory cannot be read or decoded. |
 | `@beep/repo-cli/test/Laws` | `DualArityRulesOptions` | class | `packages/tooling/tool/cli/src/commands/Laws/DualArity.ts:159` | Runtime options for public API dual-arity enforcement. |
 | `@beep/repo-cli/test/Laws` | `DualArityRulesSummary` | class | `packages/tooling/tool/cli/src/commands/Laws/DualArity.ts:189` | Summary of public API dual-arity inventory verification. |
 | `@beep/repo-cli/test/Laws` | `EffectFnDiagnostic` | class | `packages/tooling/tool/cli/src/commands/Laws/EffectFn.ts:100` | Single Effect.fn supplemental law diagnostic. |
 | `@beep/repo-cli/test/Laws` | `EffectFnRulesOptions` | class | `packages/tooling/tool/cli/src/commands/Laws/EffectFn.ts:62` | Runtime options for the Effect.fn supplemental law. |
 | `@beep/repo-cli/test/Laws` | `EffectFnRulesSummary` | class | `packages/tooling/tool/cli/src/commands/Laws/EffectFn.ts:134` | Summary of Effect.fn supplemental law results. |
 | `@beep/repo-cli/test/Laws` | `EffectImportRulesOptions` | class | `packages/tooling/tool/cli/src/commands/Laws/EffectImports.ts:31` | Runtime options for effect import law migration checks. |
-| `@beep/repo-cli/test/Laws` | `EffectImportRulesPersistenceError` | class | `packages/tooling/tool/cli/src/commands/Laws/Laws.errors.ts:36` |  |
+| `@beep/repo-cli/test/Laws` | `EffectImportRulesPersistenceError` | class | `packages/tooling/tool/cli/src/commands/Laws/Laws.errors.ts:62` | Failure raised when Effect import rule updates cannot be written. |
 | `@beep/repo-cli/test/Laws` | `EffectImportRulesSummary` | class | `packages/tooling/tool/cli/src/commands/Laws/EffectImports.ts:61` | Summary of effect import law migration results. |
 | `@beep/repo-cli/test/Laws` | `lawsCommand` | const | `packages/tooling/tool/cli/src/commands/Laws/Laws.command.ts:435` | Laws command group. |
 | `@beep/repo-cli/test/Laws` | `NativeRuntimeViolationKeyOptions` | class | `packages/tooling/tool/cli/src/commands/Laws/NoNativeRuntime.ts:208` | Options for collecting native-runtime allowlist lookup keys. |
 | `@beep/repo-cli/test/Laws` | `NoNativeRuntimeDiagnostic` | class | `packages/tooling/tool/cli/src/commands/Laws/NoNativeRuntime.ts:121` | Single repo-local native runtime diagnostic. |
 | `@beep/repo-cli/test/Laws` | `NoNativeRuntimeDiagnostic` | namespace | `packages/tooling/tool/cli/src/commands/Laws/NoNativeRuntime.ts:145` | Namespace for {@link NoNativeRuntimeDiagnostic} companion types. |
-| `@beep/repo-cli/test/Laws` | `NoNativeRuntimeRulesExecutionError` | class | `packages/tooling/tool/cli/src/commands/Laws/Laws.errors.ts:55` |  |
+| `@beep/repo-cli/test/Laws` | `NoNativeRuntimeRulesExecutionError` | class | `packages/tooling/tool/cli/src/commands/Laws/Laws.errors.ts:94` | Failure raised when native runtime enforcement cannot complete. |
 | `@beep/repo-cli/test/Laws` | `NoNativeRuntimeRulesOptions` | class | `packages/tooling/tool/cli/src/commands/Laws/NoNativeRuntime.ts:93` | Runtime options for repo-local native runtime checks. |
 | `@beep/repo-cli/test/Laws` | `NoNativeRuntimeRulesSummary` | class | `packages/tooling/tool/cli/src/commands/Laws/NoNativeRuntime.ts:169` | Summary of repo-local native runtime checks. |
 | `@beep/repo-cli/test/Laws` | `reportAllowlistCheckSummary` | const | `packages/tooling/tool/cli/src/commands/Laws/AllowlistCheck.ts:314` | Print allowlist integrity diagnostics to the console. |
 | `@beep/repo-cli/test/Laws` | `runAllowlistCheck` | const | `packages/tooling/tool/cli/src/commands/Laws/AllowlistCheck.ts:252` | Run the effect laws allowlist integrity check. |
-| `@beep/repo-cli/test/Laws` | `runDualArityRules` | const | `packages/tooling/tool/cli/src/commands/Laws/DualArity.ts:1388` | Run public API dual-arity inventory verification. |
+| `@beep/repo-cli/test/Laws` | `runDualArityRules` | const | `packages/tooling/tool/cli/src/commands/Laws/DualArity.ts:1425` | Run public API dual-arity inventory verification. |
 | `@beep/repo-cli/test/Laws` | `runEffectFnRules` | const | `packages/tooling/tool/cli/src/commands/Laws/EffectFn.ts:395` | Run the repo-local Effect.fn supplemental law. |
 | `@beep/repo-cli/test/Laws` | `runEffectImportRules` | const | `packages/tooling/tool/cli/src/commands/Laws/EffectImports.ts:111` | Run effect import style migration/check logic. |
 | `@beep/repo-cli/test/Laws` | `runNoNativeRuntimeRules` | const | `packages/tooling/tool/cli/src/commands/Laws/NoNativeRuntime.ts:514` | Run repo-local native runtime checks. |
 | `@beep/repo-cli/test/Laws` | `runTerseEffectRules` | const | `packages/tooling/tool/cli/src/commands/Laws/TerseEffect.ts:500` | Run terse Effect style migration/check logic. |
 | `@beep/repo-cli/test/Laws` | `TerseEffectRulesOptions` | class | `packages/tooling/tool/cli/src/commands/Laws/TerseEffect.ts:39` | Runtime options for terse Effect style migration checks. |
-| `@beep/repo-cli/test/Laws` | `TerseEffectRulesPersistenceError` | class | `packages/tooling/tool/cli/src/commands/Laws/Laws.errors.ts:74` |  |
+| `@beep/repo-cli/test/Laws` | `TerseEffectRulesPersistenceError` | class | `packages/tooling/tool/cli/src/commands/Laws/Laws.errors.ts:126` | Failure raised when terse Effect rule updates cannot be written. |
 | `@beep/repo-cli/test/Laws` | `TerseEffectRulesSummary` | class | `packages/tooling/tool/cli/src/commands/Laws/TerseEffect.ts:69` | Summary of terse Effect style migration results. |
 | `@beep/repo-cli/test/Quality` | `ChangesetGraphError` | class | `packages/tooling/tool/cli/src/commands/Quality/Quality.errors.ts:43` | Failure raised while validating changeset package references. |
-| `@beep/repo-cli/test/Quality` | `ChangesetGraphPackageReference` | class | `packages/tooling/tool/cli/src/commands/Quality/ChangesetGraph.ts:66` | A package name referenced by a changeset file. |
-| `@beep/repo-cli/test/Quality` | `ChangesetGraphSummary` | class | `packages/tooling/tool/cli/src/commands/Quality/ChangesetGraph.ts:96` | Summary emitted by the changeset package graph guard. |
-| `@beep/repo-cli/test/Quality` | `changesetPackageReferencesFromText` | const | `packages/tooling/tool/cli/src/commands/Quality/ChangesetGraph.ts:303` | Parse package references from one changeset Markdown document. |
-| `@beep/repo-cli/test/Quality` | `collectEffectTsgoDiagnosticLines` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:858` | Collect Effect tsgo diagnostics from command output regardless of process exit code. |
-| `@beep/repo-cli/test/Quality` | `collectStepOutput` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:1161` | Run a subprocess and capture all output. Exposed for focused unit tests. |
-| `@beep/repo-cli/test/Quality` | `findMissingChangesetPackageReferences` | const | `packages/tooling/tool/cli/src/commands/Quality/ChangesetGraph.ts:396` | Find changeset package references that are not in the workspace graph. |
-| `@beep/repo-cli/test/Quality` | `GithubCheckMode` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:130` | GitHub check mode handled by `beep quality github-checks`. |
-| `@beep/repo-cli/test/Quality` | `GithubCheckMode` | type | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:147` | GitHub check mode handled by `beep quality github-checks`. |
-| `@beep/repo-cli/test/Quality` | `makeChangesetGraphSummary` | const | `packages/tooling/tool/cli/src/commands/Quality/ChangesetGraph.ts:443` | Build a changeset graph summary from already-collected inputs. |
-| `@beep/repo-cli/test/Quality` | `PackageTaskProfile` | class | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:95` | Package-local script profile used by the quality task adapter. |
-| `@beep/repo-cli/test/Quality` | `parseQualityTaskInvocation` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:1055` | Parse a raw argv vector into a quality task invocation when the first token is |
-| `@beep/repo-cli/test/Quality` | `qualityCommand` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:1638` | Quality command group for repo operational checks. |
-| `@beep/repo-cli/test/Quality` | `QualityScriptCommandError` | class | `packages/tooling/tool/cli/src/commands/Quality/Quality.errors.ts:83` | Typed failure for repo operational commands. |
-| `@beep/repo-cli/test/Quality` | `QualityTaskConfigurationError` | class | `packages/tooling/tool/cli/src/commands/Quality/Quality.errors.ts:225` | Error raised when a quality task cannot resolve its required configuration. |
-| `@beep/repo-cli/test/Quality` | `QualityTaskFailed` | class | `packages/tooling/tool/cli/src/commands/Quality/Quality.errors.ts:134` | Error raised when a quality task subprocess exits unsuccessfully. |
-| `@beep/repo-cli/test/Quality` | `QualityTaskGroupFailed` | class | `packages/tooling/tool/cli/src/commands/Quality/Quality.errors.ts:183` | Error raised when a bounded quality task group completes with failed steps. |
-| `@beep/repo-cli/test/Quality` | `QualityTaskInvocation` | class | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:151` | Result of parsing a quality command invocation. |
-| `@beep/repo-cli/test/Quality` | `QualityTaskName` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:61` | Canonical quality task name. |
-| `@beep/repo-cli/test/Quality` | `QualityTaskName` | type | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:78` | Canonical quality task name. |
-| `@beep/repo-cli/test/Quality` | `QualityTaskStep` | class | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:122` | Planned subprocess invocation. |
-| `@beep/repo-cli/test/Quality` | `rootQualityStepsForTesting` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:952` | Build root quality task subprocess steps. Exposed for focused unit tests. |
-| `@beep/repo-cli/test/Quality` | `runBunAudit` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:350` | Run Bun's high-severity package audit with OSV ignores mirrored from config. |
-| `@beep/repo-cli/test/Quality` | `runChangesetGraphCheck` | const | `packages/tooling/tool/cli/src/commands/Quality/ChangesetGraph.ts:458` | Run the non-mutating changeset package graph guard. |
-| `@beep/repo-cli/test/Quality` | `runDtslintTsgoChecks` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:1195` | Run repo-wide tsgo diagnostics for dtslint files. |
-| `@beep/repo-cli/test/Quality` | `runGithubChecks` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:610` | Run a GitHub checks mode from the repository root. |
-| `@beep/repo-cli/test/Quality` | `runJSDocInventory` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:1515` | Run the JSDoc inventory generator now owned by repo-cli. |
-| `@beep/repo-cli/test/Quality` | `runJSDocModuleTagsCheck` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:1438` | Verify tracked fileoverview comments do not use the legacy `@module` tag. |
-| `@beep/repo-cli/test/Quality` | `runQualityTask` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:1099` | Run a parsed quality task in either repo-root or package-local mode. |
-| `@beep/repo-cli/test/Quality` | `runQualityTaskIfRequested` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:1129` | Run a quality task directly from a raw argv vector. |
-| `@beep/repo-cli/test/Quality` | `runQualityTaskStepGroupForTesting` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:1173` | Run a bounded quality task group. Exposed for focused unit tests. |
-| `@beep/repo-cli/test/Quality` | `runRepoExportsCatalog` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:1538` | Run the repo export catalog generator now owned by repo-cli. |
-| `@beep/repo-cli/test/Quality` | `runSqlIntegrationTestLaneForTesting` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:786` | Run the SQL integration lane with an injected resource and child command. |
-| `@beep/repo-cli/test/Quality` | `runTestTsgoChecks` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:1241` | Run repo-wide Effect diagnostics for test files. |
-| `@beep/repo-cli/test/Quality` | `runTsgoRulesCheck` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:1004` | Check that the root tsgo Effect diagnostics configuration enables every installed rule as an error. |
-| `@beep/repo-cli/test/Quality` | `runTsgoSmokeCheck` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:1337` | Verify that tsgo reports the Effect diagnostic expected by this repo. |
-| `@beep/repo-cli/test/Quality` | `sqlIntegrationConnectionUriFromEnvForTesting` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:795` | Resolve the SQL integration database connection URI from environment variables. |
-| `@beep/repo-cli/test/Quality` | `sqlIntegrationStepForTesting` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:772` | Build the SQL integration test subprocess step. Exposed for focused unit tests. |
-| `@beep/repo-cli/test/Quality` | `UnexpectedQualityTaskFailure` | class | `packages/tooling/tool/cli/src/commands/Quality/Quality.errors.ts:257` | Error raised when an unexpected quality task cause reaches the command boundary. |
+| `@beep/repo-cli/test/Quality` | `ChangesetGraphPackageReference` | class | `packages/tooling/tool/cli/src/commands/Quality/ChangesetGraph.ts:72` | A package name referenced by a changeset file. |
+| `@beep/repo-cli/test/Quality` | `ChangesetGraphSummary` | class | `packages/tooling/tool/cli/src/commands/Quality/ChangesetGraph.ts:102` | Summary emitted by the changeset package graph guard. |
+| `@beep/repo-cli/test/Quality` | `changesetPackageReferencesFromText` | const | `packages/tooling/tool/cli/src/commands/Quality/ChangesetGraph.ts:309` | Parse package references from one changeset Markdown document. |
+| `@beep/repo-cli/test/Quality` | `collectEffectTsgoDiagnosticLines` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:864` | Collect Effect tsgo diagnostics from command output regardless of process exit code. |
+| `@beep/repo-cli/test/Quality` | `collectStepOutput` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:1168` | Run a subprocess and capture all output. Exposed for focused unit tests. |
+| `@beep/repo-cli/test/Quality` | `findMissingChangesetPackageReferences` | const | `packages/tooling/tool/cli/src/commands/Quality/ChangesetGraph.ts:402` | Find changeset package references that are not in the workspace graph. |
+| `@beep/repo-cli/test/Quality` | `GithubCheckMode` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:136` | GitHub check mode handled by `beep quality github-checks`. |
+| `@beep/repo-cli/test/Quality` | `GithubCheckMode` | type | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:153` | GitHub check mode handled by `beep quality github-checks`. |
+| `@beep/repo-cli/test/Quality` | `makeChangesetGraphSummary` | const | `packages/tooling/tool/cli/src/commands/Quality/ChangesetGraph.ts:449` | Build a changeset graph summary from already-collected inputs. |
+| `@beep/repo-cli/test/Quality` | `PackageTaskProfile` | class | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:102` | Package-local script profile used by the quality task adapter. |
+| `@beep/repo-cli/test/Quality` | `parseQualityTaskInvocation` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:1062` | Parse a raw argv vector into a quality task invocation when the first token is |
+| `@beep/repo-cli/test/Quality` | `qualityCommand` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:1644` | Quality command group for repo operational checks. |
+| `@beep/repo-cli/test/Quality` | `QualityScriptCommandError` | class | `packages/tooling/tool/cli/src/commands/Quality/Quality.errors.ts:88` | Typed failure for repo operational commands. |
+| `@beep/repo-cli/test/Quality` | `QualityTaskConfigurationError` | class | `packages/tooling/tool/cli/src/commands/Quality/Quality.errors.ts:245` | Error raised when a quality task cannot resolve its required configuration. |
+| `@beep/repo-cli/test/Quality` | `QualityTaskFailed` | class | `packages/tooling/tool/cli/src/commands/Quality/Quality.errors.ts:144` | Error raised when a quality task subprocess exits unsuccessfully. |
+| `@beep/repo-cli/test/Quality` | `QualityTaskGroupFailed` | class | `packages/tooling/tool/cli/src/commands/Quality/Quality.errors.ts:198` | Error raised when a bounded quality task group completes with failed steps. |
+| `@beep/repo-cli/test/Quality` | `QualityTaskInvocation` | class | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:158` | Result of parsing a quality command invocation. |
+| `@beep/repo-cli/test/Quality` | `QualityTaskName` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:68` | Canonical quality task name. |
+| `@beep/repo-cli/test/Quality` | `QualityTaskName` | type | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:85` | Canonical quality task name. |
+| `@beep/repo-cli/test/Quality` | `QualityTaskStep` | class | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:129` | Planned subprocess invocation. |
+| `@beep/repo-cli/test/Quality` | `rootQualityStepsForTesting` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:959` | Build root quality task subprocess steps. Exposed for focused unit tests. |
+| `@beep/repo-cli/test/Quality` | `runBunAudit` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:356` | Run Bun's high-severity package audit with OSV ignores mirrored from config. |
+| `@beep/repo-cli/test/Quality` | `runChangesetGraphCheck` | const | `packages/tooling/tool/cli/src/commands/Quality/ChangesetGraph.ts:464` | Run the non-mutating changeset package graph guard. |
+| `@beep/repo-cli/test/Quality` | `runDtslintTsgoChecks` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:1201` | Run repo-wide tsgo diagnostics for dtslint files. |
+| `@beep/repo-cli/test/Quality` | `runGithubChecks` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:616` | Run a GitHub checks mode from the repository root. |
+| `@beep/repo-cli/test/Quality` | `runJSDocInventory` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:1521` | Run the JSDoc inventory generator now owned by repo-cli. |
+| `@beep/repo-cli/test/Quality` | `runJSDocModuleTagsCheck` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:1444` | Verify tracked fileoverview comments do not use the legacy `@module` tag. |
+| `@beep/repo-cli/test/Quality` | `runQualityTask` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:1106` | Run a parsed quality task in either repo-root or package-local mode. |
+| `@beep/repo-cli/test/Quality` | `runQualityTaskIfRequested` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:1136` | Run a quality task directly from a raw argv vector. |
+| `@beep/repo-cli/test/Quality` | `runQualityTaskStepGroupForTesting` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:1180` | Run a bounded quality task group. Exposed for focused unit tests. |
+| `@beep/repo-cli/test/Quality` | `runRepoExportsCatalog` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:1544` | Run the repo export catalog generator now owned by repo-cli. |
+| `@beep/repo-cli/test/Quality` | `runSqlIntegrationTestLaneForTesting` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:793` | Run the SQL integration lane with an injected resource and child command. |
+| `@beep/repo-cli/test/Quality` | `runTestTsgoChecks` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:1247` | Run repo-wide Effect diagnostics for test files. |
+| `@beep/repo-cli/test/Quality` | `runTsgoRulesCheck` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:1010` | Check that the root tsgo Effect diagnostics configuration enables every installed rule as an error. |
+| `@beep/repo-cli/test/Quality` | `runTsgoSmokeCheck` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:1343` | Verify that tsgo reports the Effect diagnostic expected by this repo. |
+| `@beep/repo-cli/test/Quality` | `sqlIntegrationConnectionUriFromEnvForTesting` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:802` | Resolve the SQL integration database connection URI from environment variables. |
+| `@beep/repo-cli/test/Quality` | `sqlIntegrationStepForTesting` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:779` | Build the SQL integration test subprocess step. Exposed for focused unit tests. |
+| `@beep/repo-cli/test/Quality` | `UnexpectedQualityTaskFailure` | class | `packages/tooling/tool/cli/src/commands/Quality/Quality.errors.ts:277` | Error raised when an unexpected quality task cause reaches the command boundary. |
 | `@beep/repo-cli/test/Reuse` | `CodexRunnerError` | class | `packages/tooling/tool/cli/src/commands/Reuse/Reuse.errors.ts:48` | Structured error emitted when the Codex SDK smoke path fails. |
 | `@beep/repo-cli/test/Reuse` | `CodexRunnerStage` | const | `packages/tooling/tool/cli/src/commands/Reuse/Reuse.errors.ts:26` | Lifecycle stages surfaced by the Codex smoke runner. |
 | `@beep/repo-cli/test/Reuse` | `CodexRunnerStage` | type | `packages/tooling/tool/cli/src/commands/Reuse/Reuse.errors.ts:40` | Runtime type for `CodexRunnerStage`. |
-| `@beep/repo-cli/test/Reuse` | `CodexSmokeResult` | class | `packages/tooling/tool/cli/src/commands/Reuse/internal/CodexRunner.ts:25` | Structured result for `beep reuse codex-smoke`. |
+| `@beep/repo-cli/test/Reuse` | `CodexSmokeResult` | class | `packages/tooling/tool/cli/src/commands/Reuse/internal/CodexRunner.ts:31` | Structured result for `beep reuse codex-smoke`. |
 | `@beep/repo-cli/test/Reuse` | `reuseCommand` | const | `packages/tooling/tool/cli/src/commands/Reuse/Reuse.command.ts:545` | Reuse-discovery command group. |
-| `@beep/repo-cli/test/Reuse` | `runCodexSmoke` | const | `packages/tooling/tool/cli/src/commands/Reuse/internal/CodexRunner.ts:46` | Validate the local Codex SDK adapter without running a reuse loop. |
+| `@beep/repo-cli/test/Reuse` | `runCodexSmoke` | const | `packages/tooling/tool/cli/src/commands/Reuse/internal/CodexRunner.ts:52` | Validate the local Codex SDK adapter without running a reuse loop. |
 | `@beep/repo-cli/test/Reuse` | `sanitizeTerminalText` | const | `packages/tooling/tool/cli/src/commands/Reuse/Reuse.command.ts:137` | Remove terminal control sequences from human-readable reuse output. |
 | `@beep/repo-cli/test/SyncDataToTs` | `ISO4217_SOURCE_URL` | const | `packages/tooling/tool/cli/src/commands/SyncDataToTs/targets/Iso4217.ts:27` | Official SIX XML source for ISO 4217 List One. |
 | `@beep/repo-cli/test/SyncDataToTs` | `iso4217Target` | const | `packages/tooling/tool/cli/src/commands/SyncDataToTs/targets/Iso4217.ts:276` | Checked-in sync target for the official SIX ISO 4217 List One XML feed. |
-| `@beep/repo-cli/test/SyncDataToTs` | `SyncDataRunMode` | const | `packages/tooling/tool/cli/src/commands/SyncDataToTs/internal/Models.ts:49` | Command execution mode for sync-data-to-ts. |
-| `@beep/repo-cli/test/SyncDataToTs` | `SyncDataRunMode` | type | `packages/tooling/tool/cli/src/commands/SyncDataToTs/internal/Models.ts:61` | Command execution mode for sync-data-to-ts. |
-| `@beep/repo-cli/test/SyncDataToTs` | `SyncDataSourceFormat` | const | `packages/tooling/tool/cli/src/commands/SyncDataToTs/internal/Models.ts:27` | Supported source formats for sync-data-to-ts targets. |
-| `@beep/repo-cli/test/SyncDataToTs` | `SyncDataSourceFormat` | type | `packages/tooling/tool/cli/src/commands/SyncDataToTs/internal/Models.ts:39` | Supported source formats for sync-data-to-ts targets. |
-| `@beep/repo-cli/test/SyncDataToTs` | `SyncDataTarget` | const | `packages/tooling/tool/cli/src/commands/SyncDataToTs/internal/Models.ts:135` | Checked-in sync target definition. |
-| `@beep/repo-cli/test/SyncDataToTs` | `SyncDataTarget` | type | `packages/tooling/tool/cli/src/commands/SyncDataToTs/internal/Models.ts:151` | {@inheritDoc SyncDataTarget} |
-| `@beep/repo-cli/test/SyncDataToTs` | `SyncDataTargetProjection` | class | `packages/tooling/tool/cli/src/commands/SyncDataToTs/internal/Models.ts:69` | Rendered target projection ready to compare or write to disk. |
-| `@beep/repo-cli/test/SyncDataToTs` | `SyncDataTargetResult` | class | `packages/tooling/tool/cli/src/commands/SyncDataToTs/internal/Models.ts:159` | Per-target command result after diffing or writing. |
+| `@beep/repo-cli/test/SyncDataToTs` | `SyncDataRunMode` | const | `packages/tooling/tool/cli/src/commands/SyncDataToTs/internal/Models.ts:55` | Command execution mode for sync-data-to-ts. |
+| `@beep/repo-cli/test/SyncDataToTs` | `SyncDataRunMode` | type | `packages/tooling/tool/cli/src/commands/SyncDataToTs/internal/Models.ts:67` | Command execution mode for sync-data-to-ts. |
+| `@beep/repo-cli/test/SyncDataToTs` | `SyncDataSourceFormat` | const | `packages/tooling/tool/cli/src/commands/SyncDataToTs/internal/Models.ts:33` | Supported source formats for sync-data-to-ts targets. |
+| `@beep/repo-cli/test/SyncDataToTs` | `SyncDataSourceFormat` | type | `packages/tooling/tool/cli/src/commands/SyncDataToTs/internal/Models.ts:45` | Supported source formats for sync-data-to-ts targets. |
+| `@beep/repo-cli/test/SyncDataToTs` | `SyncDataTarget` | const | `packages/tooling/tool/cli/src/commands/SyncDataToTs/internal/Models.ts:141` | Checked-in sync target definition. |
+| `@beep/repo-cli/test/SyncDataToTs` | `SyncDataTarget` | type | `packages/tooling/tool/cli/src/commands/SyncDataToTs/internal/Models.ts:157` | {@inheritDoc SyncDataTarget} |
+| `@beep/repo-cli/test/SyncDataToTs` | `SyncDataTargetProjection` | class | `packages/tooling/tool/cli/src/commands/SyncDataToTs/internal/Models.ts:75` | Rendered target projection ready to compare or write to disk. |
+| `@beep/repo-cli/test/SyncDataToTs` | `SyncDataTargetResult` | class | `packages/tooling/tool/cli/src/commands/SyncDataToTs/internal/Models.ts:165` | Per-target command result after diffing or writing. |
 | `@beep/repo-cli/test/SyncDataToTs` | `syncDataTargets` | const | `packages/tooling/tool/cli/src/commands/SyncDataToTs/targets/index.ts:16` | All checked-in sync targets supported by sync-data-to-ts. |
 | `@beep/repo-cli/test/SyncDataToTs` | `syncDataToTsCommand` | const | `packages/tooling/tool/cli/src/commands/SyncDataToTs/SyncDataToTs.command.ts:441` | CLI command for syncing official upstream datasets into checked-in TypeScript modules. |
-| `@beep/repo-cli/test/SyncDataToTs` | `SyncDataToTsDriftError` | class | `packages/tooling/tool/cli/src/commands/SyncDataToTs/SyncDataToTs.errors.ts:81` | Drift detected in check mode. |
+| `@beep/repo-cli/test/SyncDataToTs` | `SyncDataToTsDriftError` | class | `packages/tooling/tool/cli/src/commands/SyncDataToTs/SyncDataToTs.errors.ts:86` | Drift detected in check mode. |
 | `@beep/repo-cli/test/SyncDataToTs` | `SyncDataToTsError` | class | `packages/tooling/tool/cli/src/commands/SyncDataToTs/SyncDataToTs.errors.ts:35` | Operational error during source fetch, parsing, projection, or file writes. |
 | `@beep/repo-cli/test/VersionSync` | `BiomeSchemaState` | class | `packages/tooling/tool/cli/src/commands/VersionSync/internal/resolvers/BiomeResolver.ts:147` | Resolved Biome schema state. |
 | `@beep/repo-cli/test/VersionSync` | `buildBiomeReport` | const | `packages/tooling/tool/cli/src/commands/VersionSync/internal/resolvers/BiomeResolver.ts:218` | Build the Biome schema category report from resolved state. |
@@ -2286,7 +2298,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/test/VersionSync` | `BunVersionState` | class | `packages/tooling/tool/cli/src/commands/VersionSync/internal/resolvers/BunResolver.ts:255` | Resolved Bun version state. |
 | `@beep/repo-cli/test/VersionSync` | `DockerImageState` | class | `packages/tooling/tool/cli/src/commands/VersionSync/internal/resolvers/DockerResolver.ts:117` | Resolved Docker image state. |
 | `@beep/repo-cli/test/VersionSync` | `EffectCatalogState` | class | `packages/tooling/tool/cli/src/commands/VersionSync/internal/resolvers/EffectResolver.ts:61` | Resolved Effect catalog state derived from the root `package.json` catalog entries. |
-| `@beep/repo-cli/test/VersionSync` | `NetworkUnavailableError` | class | `packages/tooling/tool/cli/src/commands/VersionSync/VersionSync.errors.ts:74` | Network unavailable during upstream version resolution. |
+| `@beep/repo-cli/test/VersionSync` | `NetworkUnavailableError` | class | `packages/tooling/tool/cli/src/commands/VersionSync/VersionSync.errors.ts:79` | Network unavailable during upstream version resolution. |
 | `@beep/repo-cli/test/VersionSync` | `NodeVersionLocation` | class | `packages/tooling/tool/cli/src/commands/VersionSync/internal/resolvers/NodeResolver.ts:31` | A workflow file location with a `node-version` field. |
 | `@beep/repo-cli/test/VersionSync` | `NodeVersionState` | class | `packages/tooling/tool/cli/src/commands/VersionSync/internal/resolvers/NodeResolver.ts:50` | Resolved Node version state. |
 | `@beep/repo-cli/test/VersionSync` | `replaceNodeVersionWithFile` | const | `packages/tooling/tool/cli/src/commands/VersionSync/internal/updaters/YamlFileUpdater.ts:103` | Replace `node-version: <value>` with `node-version-file: .nvmrc` in a workflow YAML. |
@@ -2300,28 +2312,28 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/test/VersionSync` | `updatePackageManagerField` | const | `packages/tooling/tool/cli/src/commands/VersionSync/internal/updaters/PackageJsonUpdater.ts:38` | Update the `packageManager` field in `package.json` using `jsonc-parser`. |
 | `@beep/repo-cli/test/VersionSync` | `updatePlainTextFile` | const | `packages/tooling/tool/cli/src/commands/VersionSync/internal/updaters/PlainTextUpdater.ts:21` | Update a plain text version file (e.g. `.bun-version`). |
 | `@beep/repo-cli/test/VersionSync` | `updateYamlValue` | const | `packages/tooling/tool/cli/src/commands/VersionSync/internal/updaters/YamlFileUpdater.ts:52` | Update a value at a specific path in a YAML file, preserving comments and formatting. |
-| `@beep/repo-cli/test/VersionSync` | `VersionCategory` | const | `packages/tooling/tool/cli/src/commands/VersionSync/internal/Models.ts:55` | Version category for grouping drift items. |
-| `@beep/repo-cli/test/VersionSync` | `VersionCategory` | type | `packages/tooling/tool/cli/src/commands/VersionSync/internal/Models.ts:73` | Version category for grouping drift items. |
-| `@beep/repo-cli/test/VersionSync` | `VersionCategoryOptions` | const | `packages/tooling/tool/cli/src/commands/VersionSync/internal/Models.ts:66` | Literal option tuple for version categories. |
-| `@beep/repo-cli/test/VersionSync` | `VersionCategoryReport` | const | `packages/tooling/tool/cli/src/commands/VersionSync/internal/Models.ts:208` | Report for a single version category (bun, node, docker, biome, or effect). |
-| `@beep/repo-cli/test/VersionSync` | `VersionCategoryReport` | type | `packages/tooling/tool/cli/src/commands/VersionSync/internal/Models.ts:229` | Report for a single version category (bun, node, docker, or biome). |
-| `@beep/repo-cli/test/VersionSync` | `VersionCategoryStatus` | const | `packages/tooling/tool/cli/src/commands/VersionSync/internal/Models.ts:87` | Status of a version category. |
-| `@beep/repo-cli/test/VersionSync` | `VersionCategoryStatus` | type | `packages/tooling/tool/cli/src/commands/VersionSync/internal/Models.ts:119` | Status of a version category. |
-| `@beep/repo-cli/test/VersionSync` | `VersionCategoryStatusEnum` | const | `packages/tooling/tool/cli/src/commands/VersionSync/internal/Models.ts:105` | Enum mapping for version category status literals. |
-| `@beep/repo-cli/test/VersionSync` | `VersionCategoryStatusMatch` | const | `packages/tooling/tool/cli/src/commands/VersionSync/internal/Models.ts:98` | Pattern-matching helper for version category status literals. |
-| `@beep/repo-cli/test/VersionSync` | `VersionCategoryStatusThunk` | const | `packages/tooling/tool/cli/src/commands/VersionSync/internal/Models.ts:112` | Thunk helpers for version category status literals. |
-| `@beep/repo-cli/test/VersionSync` | `VersionDriftItem` | class | `packages/tooling/tool/cli/src/commands/VersionSync/internal/Models.ts:29` | A single version pin location with its current and expected values. |
+| `@beep/repo-cli/test/VersionSync` | `VersionCategory` | const | `packages/tooling/tool/cli/src/commands/VersionSync/internal/Models.ts:61` | Version category for grouping drift items. |
+| `@beep/repo-cli/test/VersionSync` | `VersionCategory` | type | `packages/tooling/tool/cli/src/commands/VersionSync/internal/Models.ts:79` | Version category for grouping drift items. |
+| `@beep/repo-cli/test/VersionSync` | `VersionCategoryOptions` | const | `packages/tooling/tool/cli/src/commands/VersionSync/internal/Models.ts:72` | Literal option tuple for version categories. |
+| `@beep/repo-cli/test/VersionSync` | `VersionCategoryReport` | const | `packages/tooling/tool/cli/src/commands/VersionSync/internal/Models.ts:214` | Report for a single version category (bun, node, docker, biome, or effect). |
+| `@beep/repo-cli/test/VersionSync` | `VersionCategoryReport` | type | `packages/tooling/tool/cli/src/commands/VersionSync/internal/Models.ts:235` | Report for a single version category (bun, node, docker, or biome). |
+| `@beep/repo-cli/test/VersionSync` | `VersionCategoryStatus` | const | `packages/tooling/tool/cli/src/commands/VersionSync/internal/Models.ts:93` | Status of a version category. |
+| `@beep/repo-cli/test/VersionSync` | `VersionCategoryStatus` | type | `packages/tooling/tool/cli/src/commands/VersionSync/internal/Models.ts:125` | Status of a version category. |
+| `@beep/repo-cli/test/VersionSync` | `VersionCategoryStatusEnum` | const | `packages/tooling/tool/cli/src/commands/VersionSync/internal/Models.ts:111` | Enum mapping for version category status literals. |
+| `@beep/repo-cli/test/VersionSync` | `VersionCategoryStatusMatch` | const | `packages/tooling/tool/cli/src/commands/VersionSync/internal/Models.ts:104` | Pattern-matching helper for version category status literals. |
+| `@beep/repo-cli/test/VersionSync` | `VersionCategoryStatusThunk` | const | `packages/tooling/tool/cli/src/commands/VersionSync/internal/Models.ts:118` | Thunk helpers for version category status literals. |
+| `@beep/repo-cli/test/VersionSync` | `VersionDriftItem` | class | `packages/tooling/tool/cli/src/commands/VersionSync/internal/Models.ts:35` | A single version pin location with its current and expected values. |
 | `@beep/repo-cli/test/VersionSync` | `versionSyncCommand` | const | `packages/tooling/tool/cli/src/commands/VersionSync/VersionSync.command.ts:48` | CLI command for synchronizing version pins across the monorepo. |
-| `@beep/repo-cli/test/VersionSync` | `VersionSyncDriftError` | class | `packages/tooling/tool/cli/src/commands/VersionSync/VersionSync.errors.ts:95` | Drift detected in check mode (non-zero exit). |
+| `@beep/repo-cli/test/VersionSync` | `VersionSyncDriftError` | class | `packages/tooling/tool/cli/src/commands/VersionSync/VersionSync.errors.ts:100` | Drift detected in check mode (non-zero exit). |
 | `@beep/repo-cli/test/VersionSync` | `VersionSyncError` | class | `packages/tooling/tool/cli/src/commands/VersionSync/VersionSync.errors.ts:35` | Operational error during version sync (file read/write, parse failures). |
-| `@beep/repo-cli/test/VersionSync` | `VersionSyncMode` | const | `packages/tooling/tool/cli/src/commands/VersionSync/internal/Models.ts:260` | Command execution mode. |
-| `@beep/repo-cli/test/VersionSync` | `VersionSyncMode` | type | `packages/tooling/tool/cli/src/commands/VersionSync/internal/Models.ts:279` | Command execution mode. |
-| `@beep/repo-cli/test/VersionSync` | `VersionSyncModeMatch` | const | `packages/tooling/tool/cli/src/commands/VersionSync/internal/Models.ts:271` | Pattern-matching helper for version-sync mode literals. |
-| `@beep/repo-cli/test/VersionSync` | `VersionSyncOptions` | const | `packages/tooling/tool/cli/src/commands/VersionSync/internal/Models.ts:338` | Resolved command options after flag parsing. |
-| `@beep/repo-cli/test/VersionSync` | `VersionSyncOptions` | type | `packages/tooling/tool/cli/src/commands/VersionSync/internal/Models.ts:354` | Resolved command options after flag parsing. |
-| `@beep/repo-cli/test/VersionSync` | `VersionSyncReport` | class | `packages/tooling/tool/cli/src/commands/VersionSync/internal/Models.ts:237` | Full version sync report across all categories. |
-| `@beep/repo-cli/test/VersionSync` | `VersionSyncResolution` | class | `packages/tooling/tool/cli/src/commands/VersionSync/internal/Models.ts:378` | Resolver output consumed by reporting and write-mode services. |
-| `@beep/repo-cli/test/VersionSync` | `VersionSyncUpdateLocation` | class | `packages/tooling/tool/cli/src/commands/VersionSync/internal/Models.ts:362` | YAML location to update in write mode. |
+| `@beep/repo-cli/test/VersionSync` | `VersionSyncMode` | const | `packages/tooling/tool/cli/src/commands/VersionSync/internal/Models.ts:266` | Command execution mode. |
+| `@beep/repo-cli/test/VersionSync` | `VersionSyncMode` | type | `packages/tooling/tool/cli/src/commands/VersionSync/internal/Models.ts:285` | Command execution mode. |
+| `@beep/repo-cli/test/VersionSync` | `VersionSyncModeMatch` | const | `packages/tooling/tool/cli/src/commands/VersionSync/internal/Models.ts:277` | Pattern-matching helper for version-sync mode literals. |
+| `@beep/repo-cli/test/VersionSync` | `VersionSyncOptions` | const | `packages/tooling/tool/cli/src/commands/VersionSync/internal/Models.ts:344` | Resolved command options after flag parsing. |
+| `@beep/repo-cli/test/VersionSync` | `VersionSyncOptions` | type | `packages/tooling/tool/cli/src/commands/VersionSync/internal/Models.ts:360` | Resolved command options after flag parsing. |
+| `@beep/repo-cli/test/VersionSync` | `VersionSyncReport` | class | `packages/tooling/tool/cli/src/commands/VersionSync/internal/Models.ts:243` | Full version sync report across all categories. |
+| `@beep/repo-cli/test/VersionSync` | `VersionSyncResolution` | class | `packages/tooling/tool/cli/src/commands/VersionSync/internal/Models.ts:384` | Resolver output consumed by reporting and write-mode services. |
+| `@beep/repo-cli/test/VersionSync` | `VersionSyncUpdateLocation` | class | `packages/tooling/tool/cli/src/commands/VersionSync/internal/Models.ts:368` | YAML location to update in write mode. |
 
 ### @beep/shared-server
 
@@ -4943,9 +4955,9 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/utils/DateTime` | `zoneToString` | const | `node_modules/effect/dist/DateTime.d.ts:1171` | Format a `TimeZone` as a string. |
 | `@beep/utils/Errors` | `ErrorMapper` | type | `packages/foundation/modeling/utils/src/Errors.ts:44` | Dual data-first/data-last mapper for converting an effect's error channel. |
 | `@beep/utils/Errors` | `mapCauseError` | const | `packages/foundation/modeling/utils/src/Errors.ts:95` | Builds a dual mapper that preserves the original failure as constructor input. |
-| `@beep/utils/Errors` | `mapToError` | function | `packages/foundation/modeling/utils/src/Errors.ts:159` | Builds a dual mapper that replaces the original failure with a target error. |
-| `@beep/utils/Errors` | `mapToError` | function | `packages/foundation/modeling/utils/src/Errors.ts:162` |  |
-| `@beep/utils/Errors` | `mapToError` | function | `packages/foundation/modeling/utils/src/Errors.ts:165` |  |
+| `@beep/utils/Errors` | `mapToError` | function | `packages/foundation/modeling/utils/src/Errors.ts:160` | Builds a dual mapper that replaces the original failure with a target error. |
+| `@beep/utils/Errors` | `mapToError` | function | `packages/foundation/modeling/utils/src/Errors.ts:163` |  |
+| `@beep/utils/Errors` | `mapToError` | function | `packages/foundation/modeling/utils/src/Errors.ts:166` |  |
 | `@beep/utils/Event` | `AnyEvent` | type | `node_modules/effect/dist/unstable/encoding/Sse.d.ts:243` | Union of SSE values that can be rendered by an `Encoder`: regular events and |
 | `@beep/utils/Event` | `decode` | const | `node_modules/effect/dist/unstable/encoding/Sse.d.ts:38` | Creates a channel that parses Server-Sent Events text chunks into `Event` values. |
 | `@beep/utils/Event` | `decodeDataSchema` | const | `node_modules/effect/dist/unstable/encoding/Sse.d.ts:66` | Creates an SSE decoder channel that JSON-decodes each event `data` field with a schema. |
@@ -9546,13 +9558,12 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 |---|---|---|---|---|
 | `@beep/schema` | `AbortSig` | const | `packages/foundation/modeling/schema/src/AbortSignal.ts:46` | Declared schema for `AbortSignal` instances. |
 | `@beep/schema` | `AbortSig` | type | `packages/foundation/modeling/schema/src/AbortSignal.ts:65` | {@inheritDoc AbortSig} |
-| `@beep/schema` | `addDays` | const | `packages/foundation/modeling/schema/src/LocalDate.ts:335` | Add days to a `LocalDate`. |
-| `@beep/schema` | `addMonths` | const | `packages/foundation/modeling/schema/src/LocalDate.ts:350` | Add months to a `LocalDate`. |
-| `@beep/schema` | `addYears` | const | `packages/foundation/modeling/schema/src/LocalDate.ts:365` | Add years to a `LocalDate`. |
-| `@beep/schema` | `Age` | const | `packages/foundation/modeling/schema/src/person/Age.ts:16` | The age of a person in years. |
-| `@beep/schema` | `Age` | type | `packages/foundation/modeling/schema/src/person/Age.ts:34` | {@inheritDoc Age} |
-| `@beep/schema` | `AnyFn` | const | `packages/foundation/modeling/schema/src/Fn.ts:413` | Schema for any runtime function value. |
-| `@beep/schema` | `AnyFn` | type | `packages/foundation/modeling/schema/src/Fn.ts:425` | Type for {@link AnyFn}. |
+| `@beep/schema` | `addDays` | const | `packages/foundation/modeling/schema/src/LocalDate/LocalDate.schema.ts:335` | Add days to a `LocalDate`. |
+| `@beep/schema` | `addMonths` | const | `packages/foundation/modeling/schema/src/LocalDate/LocalDate.schema.ts:350` | Add months to a `LocalDate`. |
+| `@beep/schema` | `addYears` | const | `packages/foundation/modeling/schema/src/LocalDate/LocalDate.schema.ts:365` | Add years to a `LocalDate`. |
+| `@beep/schema` | `Age` | SourceFile | `packages/foundation/modeling/schema/src/Age/index.ts:22` |  |
+| `@beep/schema` | `AnyFn` | const | `packages/foundation/modeling/schema/src/Fn/Fn.schema.ts:413` | Schema for any runtime function value. |
+| `@beep/schema` | `AnyFn` | type | `packages/foundation/modeling/schema/src/Fn/Fn.schema.ts:425` | Type for {@link AnyFn}. |
 | `@beep/schema` | `ApplicationFileExtension` | const | `packages/foundation/modeling/schema/src/FileExtension.ts:99` | Schema for file extensions associated with `application/*` mime types. |
 | `@beep/schema` | `ApplicationFileExtension` | type | `packages/foundation/modeling/schema/src/FileExtension.ts:121` | Union of literals accepted by {@link ApplicationFileExtension}. |
 | `@beep/schema` | `ApplicationMimeType` | const | `packages/foundation/modeling/schema/src/MimeType.ts:167` | Schema for `application/*` mime-type literals. |
@@ -9572,94 +9583,48 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/schema` | `BigDecimalFromNumber` | const | `packages/foundation/modeling/schema/src/BigDecimal.ts:33` | Schema that decodes a number into an Effect `BigDecimal` and encodes a |
 | `@beep/schema` | `BuffEncoding` | const | `packages/foundation/modeling/schema/src/BufferEncoding.ts:27` | Schema for Node.js `BufferEncoding` string literals (`"utf8"`, `"hex"`, `"base64"`, etc.). |
 | `@beep/schema` | `BufferEncoding` | type | `packages/foundation/modeling/schema/src/BufferEncoding.ts:59` | {@inheritDoc BuffEncoding} |
-| `@beep/schema` | `CardinalDirection` | const | `packages/foundation/modeling/schema/src/location/CardinalDirection.ts:16` | CardinalDirection - The cardinal directions |
-| `@beep/schema` | `CardinalDirection` | type | `packages/foundation/modeling/schema/src/location/CardinalDirection.ts:27` | {@inheritDoc CardinalDirection} |
-| `@beep/schema` | `CardinalDirectionAbbrev` | const | `packages/foundation/modeling/schema/src/location/CardinalDirection.ts:35` | CardinalDirectionAbbrev - The abbreviated version of the {@link CardinalDirection} |
-| `@beep/schema` | `CardinalDirectionAbbrev` | type | `packages/foundation/modeling/schema/src/location/CardinalDirection.ts:47` | {@inheritDoc CardinalDirectionAbbrev} |
-| `@beep/schema` | `CauseTaggedError` | const | `packages/foundation/modeling/schema/src/CauseTaggedError.ts:506` | Create a tagged error class that always carries a `message` and required defect `cause`. |
-| `@beep/schema` | `CauseTaggedErrorConstructor` | type | `packages/foundation/modeling/schema/src/CauseTaggedError.ts:248` | Callable constructor for creating cause-tagged error class factories. |
-| `@beep/schema` | `CauseTaggedErrorFactory` | interface | `packages/foundation/modeling/schema/src/CauseTaggedError.ts:209` | Factory returned by {@link CauseTaggedError} after an identity namespace has been selected. |
-| `@beep/schema` | `CauseTaggedErrorWithStatics` | type | `packages/foundation/modeling/schema/src/CauseTaggedError.ts:163` | Tagged error class returned by {@link CauseTaggedError}, including dual construction helpers. |
-| `@beep/schema` | `COEPResponseHeader` | class | `packages/foundation/modeling/schema/src/http/headers/CrossOriginEmbedderPolicy.ts:66` | Schema for the Cross-Origin-Embedder-Policy response header output. |
-| `@beep/schema` | `CoepValue` | const | `packages/foundation/modeling/schema/src/http/headers/CrossOriginEmbedderPolicy.ts:29` |  |
-| `@beep/schema` | `CoepValue` | type | `packages/foundation/modeling/schema/src/http/headers/CrossOriginEmbedderPolicy.ts:40` |  |
-| `@beep/schema` | `ColorAmount` | const | `packages/foundation/modeling/schema/src/color/Color.ts:879` | Shared finite amount used by color helper request schemas. |
-| `@beep/schema` | `ColorAmount` | type | `packages/foundation/modeling/schema/src/color/Color.ts:894` | Type for {@link ColorAmount}. |
+| `@beep/schema` | `CardinalDirection` | SourceFile | `packages/foundation/modeling/schema/src/CardinalDirection/index.ts:22` |  |
+| `@beep/schema` | `CauseTaggedError` | const | `packages/foundation/modeling/schema/src/CauseTaggedError/CauseTaggedError.errors.ts:506` | Create a tagged error class that always carries a `message` and required defect `cause`. |
+| `@beep/schema` | `CauseTaggedErrorConstructor` | type | `packages/foundation/modeling/schema/src/CauseTaggedError/CauseTaggedError.errors.ts:248` | Callable constructor for creating cause-tagged error class factories. |
+| `@beep/schema` | `CauseTaggedErrorFactory` | interface | `packages/foundation/modeling/schema/src/CauseTaggedError/CauseTaggedError.errors.ts:209` | Factory returned by {@link CauseTaggedError} after an identity namespace has been selected. |
+| `@beep/schema` | `CauseTaggedErrorWithStatics` | type | `packages/foundation/modeling/schema/src/CauseTaggedError/CauseTaggedError.errors.ts:163` | Tagged error class returned by {@link CauseTaggedError}, including dual construction helpers. |
+| `@beep/schema` | `ColorAmount` | const | `packages/foundation/modeling/schema/src/Color/Color.adjust.ts:106` | Shared finite amount used by color helper request schemas. |
+| `@beep/schema` | `ColorAmount` | type | `packages/foundation/modeling/schema/src/Color/Color.adjust.ts:121` | Type for {@link ColorAmount}. |
 | `@beep/schema` | `CommaSeparatedList` | const | `packages/foundation/modeling/schema/src/CommonTextSchemas.ts:81` | Schema that decodes a comma-separated string into a trimmed non-empty string array. |
 | `@beep/schema` | `CommaSeparatedList` | type | `packages/foundation/modeling/schema/src/CommonTextSchemas.ts:109` | Type for {@link CommaSeparatedList}. |
-| `@beep/schema` | `ContentSecurityPolicyHeader` | const | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:582` |  |
-| `@beep/schema` | `ContentSecurityPolicyHeader` | type | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:647` |  |
-| `@beep/schema` | `ContentSecurityPolicyHeaderName` | const | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:47` |  |
-| `@beep/schema` | `ContentSecurityPolicyHeaderName` | type | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:58` |  |
-| `@beep/schema` | `ContentSecurityPolicyOption` | const | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:482` |  |
-| `@beep/schema` | `ContentSecurityPolicyOption` | type | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:492` |  |
-| `@beep/schema` | `ContentSecurityPolicyOptionStruct` | class | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:450` |  |
-| `@beep/schema` | `ContentSecurityPolicyResponseHeader` | class | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:498` |  |
-| `@beep/schema` | `CoopValue` | const | `packages/foundation/modeling/schema/src/http/headers/CrossOriginOpenerPolicy.ts:38` | Schema for supported `Cross-Origin-Opener-Policy` header values. |
-| `@beep/schema` | `CoopValue` | type | `packages/foundation/modeling/schema/src/http/headers/CrossOriginOpenerPolicy.ts:51` | Type-level representation of {@link CoopValue}. |
-| `@beep/schema` | `CoreError` | class | `packages/foundation/modeling/schema/src/http/headers/SecureHeaderError.ts:187` |  |
-| `@beep/schema` | `CorpValue` | const | `packages/foundation/modeling/schema/src/http/headers/CrossOriginResourcePolicy.ts:27` |  |
-| `@beep/schema` | `CorpValue` | type | `packages/foundation/modeling/schema/src/http/headers/CrossOriginResourcePolicy.ts:38` |  |
-| `@beep/schema` | `createContentSecurityPolicyOptionHeaderValue` | const | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:556` |  |
-| `@beep/schema` | `createDirectiveValue` | const | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:116` | Creates a serialized directive value from a directive name and value list. |
-| `@beep/schema` | `createDOMRefSchema` | const | `packages/foundation/modeling/schema/src/dom/elements.ts:175` | Creates a Schema for React.Ref<T> where T extends HTMLElement |
-| `@beep/schema` | `createHeadersObject` | const | `packages/foundation/modeling/schema/src/http/headers/SecureHeaderOptions.ts:157` | Resolve secure-header options into a plain `Record<string, string>` header object. |
-| `@beep/schema` | `createSecureHeaders` | const | `packages/foundation/modeling/schema/src/http/headers/SecureHeaderOptions.ts:186` | Resolve secure-header options into an array of {@link SecureHeaderEntry} pairs. |
-| `@beep/schema` | `CrossOriginEmbedderPolicyError` | class | `packages/foundation/modeling/schema/src/http/headers/SecureHeaderError.ts:169` |  |
-| `@beep/schema` | `CrossOriginEmbedderPolicyHeader` | const | `packages/foundation/modeling/schema/src/http/headers/CrossOriginEmbedderPolicy.ts:88` | Schema for the Cross-Origin-Embedder-Policy response header. |
-| `@beep/schema` | `CrossOriginEmbedderPolicyHeader` | type | `packages/foundation/modeling/schema/src/http/headers/CrossOriginEmbedderPolicy.ts:165` |  |
-| `@beep/schema` | `CrossOriginEmbedderPolicyOption` | const | `packages/foundation/modeling/schema/src/http/headers/CrossOriginEmbedderPolicy.ts:48` |  |
-| `@beep/schema` | `CrossOriginEmbedderPolicyOption` | type | `packages/foundation/modeling/schema/src/http/headers/CrossOriginEmbedderPolicy.ts:59` |  |
-| `@beep/schema` | `CrossOriginOpenerPolicyError` | class | `packages/foundation/modeling/schema/src/http/headers/SecureHeaderError.ts:163` |  |
-| `@beep/schema` | `CrossOriginOpenerPolicyHeader` | const | `packages/foundation/modeling/schema/src/http/headers/CrossOriginOpenerPolicy.ts:132` | One-way schema that decodes COOP options into the `Cross-Origin-Opener-Policy` response header. |
-| `@beep/schema` | `CrossOriginOpenerPolicyHeader` | type | `packages/foundation/modeling/schema/src/http/headers/CrossOriginOpenerPolicy.ts:192` | Type-level representation of {@link CrossOriginOpenerPolicyHeader}. |
-| `@beep/schema` | `CrossOriginOpenerPolicyOption` | const | `packages/foundation/modeling/schema/src/http/headers/CrossOriginOpenerPolicy.ts:70` | Schema for `Cross-Origin-Opener-Policy` option values, including `false` to disable. |
-| `@beep/schema` | `CrossOriginOpenerPolicyOption` | type | `packages/foundation/modeling/schema/src/http/headers/CrossOriginOpenerPolicy.ts:83` | Type-level representation of {@link CrossOriginOpenerPolicyOption}. |
-| `@beep/schema` | `CrossOriginOpenerPolicyResponseHeader` | class | `packages/foundation/modeling/schema/src/http/headers/CrossOriginOpenerPolicy.ts:103` | Parsed `Cross-Origin-Opener-Policy` response header with name and optional value. |
-| `@beep/schema` | `CrossOriginResourcePolicyError` | class | `packages/foundation/modeling/schema/src/http/headers/SecureHeaderError.ts:175` |  |
-| `@beep/schema` | `CrossOriginResourcePolicyHeader` | const | `packages/foundation/modeling/schema/src/http/headers/CrossOriginResourcePolicy.ts:81` |  |
-| `@beep/schema` | `CrossOriginResourcePolicyHeader` | type | `packages/foundation/modeling/schema/src/http/headers/CrossOriginResourcePolicy.ts:139` |  |
-| `@beep/schema` | `CrossOriginResourcePolicyOption` | const | `packages/foundation/modeling/schema/src/http/headers/CrossOriginResourcePolicy.ts:46` |  |
-| `@beep/schema` | `CrossOriginResourcePolicyOption` | type | `packages/foundation/modeling/schema/src/http/headers/CrossOriginResourcePolicy.ts:57` |  |
-| `@beep/schema` | `CrossOriginResourcePolicyResponseHeader` | class | `packages/foundation/modeling/schema/src/http/headers/CrossOriginResourcePolicy.ts:63` |  |
-| `@beep/schema` | `CryptoTxnHash` | const | `packages/foundation/modeling/schema/src/blockchain/CryptoTxnHash.ts:60` | Branded schema for canonical mainnet blockchain transaction identifiers. |
-| `@beep/schema` | `CryptoTxnHash` | type | `packages/foundation/modeling/schema/src/blockchain/CryptoTxnHash.ts:75` | Type for {@link CryptoTxnHash}. |
-| `@beep/schema` | `CryptoTxnHashRedacted` | const | `packages/foundation/modeling/schema/src/blockchain/CryptoTxnHash.ts:83` | Redacted schema for canonical mainnet blockchain transaction identifiers. |
-| `@beep/schema` | `CryptoTxnHashRedacted` | type | `packages/foundation/modeling/schema/src/blockchain/CryptoTxnHash.ts:101` | Type for {@link CryptoTxnHashRedacted}. |
-| `@beep/schema` | `CryptoWalletAddress` | const | `packages/foundation/modeling/schema/src/blockchain/CryptoWalletAddress.ts:181` | Branded schema for canonical mainnet blockchain wallet addresses. |
-| `@beep/schema` | `CryptoWalletAddress` | type | `packages/foundation/modeling/schema/src/blockchain/CryptoWalletAddress.ts:196` | Type for {@link CryptoWalletAddress}. |
-| `@beep/schema` | `CryptoWalletAddressRedacted` | const | `packages/foundation/modeling/schema/src/blockchain/CryptoWalletAddress.ts:204` | Redacted Branded schema for canonical mainnet blockchain wallet addresses. |
-| `@beep/schema` | `CryptoWalletAddressRedacted` | type | `packages/foundation/modeling/schema/src/blockchain/CryptoWalletAddress.ts:223` | Type for {@link CryptoWalletAddressRedacted}. |
-| `@beep/schema` | `CspDirectives` | const | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:435` |  |
-| `@beep/schema` | `CspError` | class | `packages/foundation/modeling/schema/src/http/headers/SecureHeaderError.ts:109` |  |
-| `@beep/schema` | `CSV` | const | `packages/foundation/modeling/schema/src/csv/index.ts:275` | Schema factory for CSV documents whose rows are validated by the provided |
-| `@beep/schema` | `CsvCodecOptions` | class | `packages/foundation/modeling/schema/src/csv/CsvCodecOptions.ts:38` | Schema-backed CSV text codec options. |
-| `@beep/schema` | `CsvCodecOptionsArgs` | type | `packages/foundation/modeling/schema/src/csv/CsvCodecOptions.ts:105` | Encoded/raw constructor input for {@link CsvCodecOptions}. |
-| `@beep/schema` | `CsvCodecOptionsParseOptions` | const | `packages/foundation/modeling/schema/src/csv/CsvCodecOptions.ts:113` | Parse options used when normalizing raw CSV codec option input. |
-| `@beep/schema` | `csvError` | const | `packages/foundation/modeling/schema/src/csv/CsvError.ts:42` | Construct a {@link CsvError}. |
-| `@beep/schema` | `CsvError` | class | `packages/foundation/modeling/schema/src/csv/CsvError.ts:34` | Raised when CSV parsing, header validation, or formatting fails. |
-| `@beep/schema` | `CsvText` | type | `packages/foundation/modeling/schema/src/csv/index.ts:302` | Branded runtime type for CSV document text produced by encoding a `CSV` |
-| `@beep/schema` | `Darken` | const | `packages/foundation/modeling/schema/src/color/Color.ts:1145` | One-way schema for darkening a color. |
-| `@beep/schema` | `Darken` | type | `packages/foundation/modeling/schema/src/color/Color.ts:1163` | Type for {@link Darken}. |
-| `@beep/schema` | `DarkenInput` | class | `packages/foundation/modeling/schema/src/color/Color.ts:1129` | Request schema for darkening a color. |
-| `@beep/schema` | `DateTimeInput` | const | `packages/foundation/modeling/schema/src/DateTimeUtcFromValid.ts:418` | Union of raw and tagged values accepted by {@link DateTimeUtcFromValid}. |
-| `@beep/schema` | `DateTimeInput` | type | `packages/foundation/modeling/schema/src/DateTimeUtcFromValid.ts:449` | {@inheritDoc DateTimeInput} |
-| `@beep/schema` | `DateTimeInputDate` | const | `packages/foundation/modeling/schema/src/DateTimeUtcFromValid.ts:244` | Valid JavaScript `Date` input accepted by Effect `DateTime.make`. |
-| `@beep/schema` | `DateTimeInputDate` | type | `packages/foundation/modeling/schema/src/DateTimeUtcFromValid.ts:265` | {@inheritDoc DateTimeInputDate} |
-| `@beep/schema` | `DateTimeInputDateTime` | const | `packages/foundation/modeling/schema/src/DateTimeUtcFromValid.ts:286` | Existing Effect `DateTime` values accepted by {@link DateTimeUtcFromValid}. |
-| `@beep/schema` | `DateTimeInputDateTime` | type | `packages/foundation/modeling/schema/src/DateTimeUtcFromValid.ts:307` | {@inheritDoc DateTimeInputDateTime} |
-| `@beep/schema` | `DateTimeInputInstant` | class | `packages/foundation/modeling/schema/src/DateTimeUtcFromValid.ts:323` | Tagged Effect `DateTime.Instant` transport value. |
-| `@beep/schema` | `DateTimeInputInstantWithZone` | class | `packages/foundation/modeling/schema/src/DateTimeUtcFromValid.ts:350` | Tagged Effect `DateTime.InstantWithZone` transport value. |
-| `@beep/schema` | `DateTimeInputKind` | const | `packages/foundation/modeling/schema/src/DateTimeUtcFromValid.ts:34` | Literal discriminator values used by tagged date-time input representations. |
-| `@beep/schema` | `DateTimeInputKind` | type | `packages/foundation/modeling/schema/src/DateTimeUtcFromValid.ts:64` | {@inheritDoc DateTimeInputKind} |
-| `@beep/schema` | `DateTimeInputNumber` | const | `packages/foundation/modeling/schema/src/DateTimeUtcFromValid.ts:202` | Valid numeric epoch-millisecond input accepted by Effect `DateTime.make`. |
-| `@beep/schema` | `DateTimeInputNumber` | type | `packages/foundation/modeling/schema/src/DateTimeUtcFromValid.ts:223` | {@inheritDoc DateTimeInputNumber} |
-| `@beep/schema` | `DateTimeInputParts` | class | `packages/foundation/modeling/schema/src/DateTimeUtcFromValid.ts:383` | Tagged `Partial<DateTime.Parts>` transport value. |
-| `@beep/schema` | `DateTimeInputString` | const | `packages/foundation/modeling/schema/src/DateTimeUtcFromValid.ts:159` | Valid string input accepted by Effect `DateTime.make`. |
-| `@beep/schema` | `DateTimeInputString` | type | `packages/foundation/modeling/schema/src/DateTimeUtcFromValid.ts:180` | {@inheritDoc DateTimeInputString} |
-| `@beep/schema` | `DateTimeUtcFromValid` | const | `packages/foundation/modeling/schema/src/DateTimeUtcFromValid.ts:512` | Bidirectional schema transformation from valid DateTime input to `DateTime.Utc`. |
-| `@beep/schema` | `DateTimeUtcFromValid` | type | `packages/foundation/modeling/schema/src/DateTimeUtcFromValid.ts:540` | {@inheritDoc DateTimeUtcFromValid} |
-| `@beep/schema` | `daysInMonth` | const | `packages/foundation/modeling/schema/src/LocalDate.ts:456` | Get the number of days in a given month, accounting for leap years. |
+| `@beep/schema` | `createDOMRefSchema` | const | `packages/foundation/modeling/schema/src/DomReactNode/DomReactNode.schema.ts:77` | Creates a schema for React.Ref<T> where T extends HTMLElement. |
+| `@beep/schema` | `CrossOriginEmbedderPolicy` | SourceFile | `packages/foundation/modeling/schema/src/CrossOriginEmbedderPolicy/index.ts:20` |  |
+| `@beep/schema` | `CrossOriginOpenerPolicy` | SourceFile | `packages/foundation/modeling/schema/src/CrossOriginOpenerPolicy/index.ts:20` |  |
+| `@beep/schema` | `CrossOriginResourcePolicy` | SourceFile | `packages/foundation/modeling/schema/src/CrossOriginResourcePolicy/index.ts:20` |  |
+| `@beep/schema` | `CryptoTxnHash` | SourceFile | `packages/foundation/modeling/schema/src/CryptoTxnHash/index.ts:22` |  |
+| `@beep/schema` | `CryptoWalletAddress` | SourceFile | `packages/foundation/modeling/schema/src/CryptoWalletAddress/index.ts:22` |  |
+| `@beep/schema` | `Csp` | SourceFile | `packages/foundation/modeling/schema/src/Csp/index.ts:20` |  |
+| `@beep/schema` | `Csv` | const | `packages/foundation/modeling/schema/src/Csv/Csv.schema.ts:291` | Schema factory for CSV documents whose rows are validated by the provided |
+| `@beep/schema` | `CSV` | const | `packages/foundation/modeling/schema/src/Csv/Csv.schema.ts:291` | Schema factory for CSV documents whose rows are validated by the provided |
+| `@beep/schema` | `CSV` | type | `packages/foundation/modeling/schema/src/Csv/Csv.schema.ts:334` | Runtime type extracted from the {@link CSV} alias. |
+| `@beep/schema` | `CsvDocument` | type | `packages/foundation/modeling/schema/src/Csv/Csv.schema.ts:48` | Schema transformation returned by the CSV schema factory for a row schema. |
+| `@beep/schema` | `CsvText` | type | `packages/foundation/modeling/schema/src/Csv/Csv.schema.ts:318` | Branded runtime type for CSV document text produced by encoding a `CSV` |
+| `@beep/schema` | `Darken` | const | `packages/foundation/modeling/schema/src/Color/Color.adjust.ts:230` | One-way schema for darkening a color. |
+| `@beep/schema` | `Darken` | type | `packages/foundation/modeling/schema/src/Color/Color.adjust.ts:248` | Type for {@link Darken}. |
+| `@beep/schema` | `DarkenInput` | class | `packages/foundation/modeling/schema/src/Color/Color.adjust.ts:214` | Request schema for darkening a color. |
+| `@beep/schema` | `DateTimeInput` | const | `packages/foundation/modeling/schema/src/DateTimeUtcFromValid/DateTimeUtcFromValid.schema.ts:418` | Union of raw and tagged values accepted by {@link DateTimeUtcFromValid}. |
+| `@beep/schema` | `DateTimeInput` | type | `packages/foundation/modeling/schema/src/DateTimeUtcFromValid/DateTimeUtcFromValid.schema.ts:449` | {@inheritDoc DateTimeInput} |
+| `@beep/schema` | `DateTimeInputDate` | const | `packages/foundation/modeling/schema/src/DateTimeUtcFromValid/DateTimeUtcFromValid.schema.ts:244` | Valid JavaScript `Date` input accepted by Effect `DateTime.make`. |
+| `@beep/schema` | `DateTimeInputDate` | type | `packages/foundation/modeling/schema/src/DateTimeUtcFromValid/DateTimeUtcFromValid.schema.ts:265` | {@inheritDoc DateTimeInputDate} |
+| `@beep/schema` | `DateTimeInputDateTime` | const | `packages/foundation/modeling/schema/src/DateTimeUtcFromValid/DateTimeUtcFromValid.schema.ts:286` | Existing Effect `DateTime` values accepted by {@link DateTimeUtcFromValid}. |
+| `@beep/schema` | `DateTimeInputDateTime` | type | `packages/foundation/modeling/schema/src/DateTimeUtcFromValid/DateTimeUtcFromValid.schema.ts:307` | {@inheritDoc DateTimeInputDateTime} |
+| `@beep/schema` | `DateTimeInputInstant` | class | `packages/foundation/modeling/schema/src/DateTimeUtcFromValid/DateTimeUtcFromValid.schema.ts:323` | Tagged Effect `DateTime.Instant` transport value. |
+| `@beep/schema` | `DateTimeInputInstantWithZone` | class | `packages/foundation/modeling/schema/src/DateTimeUtcFromValid/DateTimeUtcFromValid.schema.ts:350` | Tagged Effect `DateTime.InstantWithZone` transport value. |
+| `@beep/schema` | `DateTimeInputKind` | const | `packages/foundation/modeling/schema/src/DateTimeUtcFromValid/DateTimeUtcFromValid.schema.ts:34` | Literal discriminator values used by tagged date-time input representations. |
+| `@beep/schema` | `DateTimeInputKind` | type | `packages/foundation/modeling/schema/src/DateTimeUtcFromValid/DateTimeUtcFromValid.schema.ts:64` | {@inheritDoc DateTimeInputKind} |
+| `@beep/schema` | `DateTimeInputNumber` | const | `packages/foundation/modeling/schema/src/DateTimeUtcFromValid/DateTimeUtcFromValid.schema.ts:202` | Valid numeric epoch-millisecond input accepted by Effect `DateTime.make`. |
+| `@beep/schema` | `DateTimeInputNumber` | type | `packages/foundation/modeling/schema/src/DateTimeUtcFromValid/DateTimeUtcFromValid.schema.ts:223` | {@inheritDoc DateTimeInputNumber} |
+| `@beep/schema` | `DateTimeInputParts` | class | `packages/foundation/modeling/schema/src/DateTimeUtcFromValid/DateTimeUtcFromValid.schema.ts:383` | Tagged `Partial<DateTime.Parts>` transport value. |
+| `@beep/schema` | `DateTimeInputString` | const | `packages/foundation/modeling/schema/src/DateTimeUtcFromValid/DateTimeUtcFromValid.schema.ts:159` | Valid string input accepted by Effect `DateTime.make`. |
+| `@beep/schema` | `DateTimeInputString` | type | `packages/foundation/modeling/schema/src/DateTimeUtcFromValid/DateTimeUtcFromValid.schema.ts:180` | {@inheritDoc DateTimeInputString} |
+| `@beep/schema` | `DateTimeUtcFromValid` | const | `packages/foundation/modeling/schema/src/DateTimeUtcFromValid/DateTimeUtcFromValid.schema.ts:512` | Bidirectional schema transformation from valid DateTime input to `DateTime.Utc`. |
+| `@beep/schema` | `DateTimeUtcFromValid` | type | `packages/foundation/modeling/schema/src/DateTimeUtcFromValid/DateTimeUtcFromValid.schema.ts:540` | {@inheritDoc DateTimeUtcFromValid} |
+| `@beep/schema` | `daysInMonth` | const | `packages/foundation/modeling/schema/src/LocalDate/LocalDate.schema.ts:456` | Get the number of days in a given month, accounting for leap years. |
 | `@beep/schema` | `decodeJsoncTextAs` | const | `packages/foundation/modeling/schema/src/Jsonc.ts:127` | Builds a decoder that parses JSONC text and then decodes the result through a |
 | `@beep/schema` | `decodeJsonlTextAs` | const | `packages/foundation/modeling/schema/src/Jsonl.ts:136` | Builds a decoder that parses JSONL text and then decodes the resulting value |
 | `@beep/schema` | `decodeJsonString` | const | `packages/foundation/modeling/schema/src/Json.ts:86` | Decodes a JSON string into an unknown JSON-compatible value. |
@@ -9668,33 +9633,62 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/schema` | `decodeXmlTextAs` | const | `packages/foundation/modeling/schema/src/Xml.ts:119` | Builds a decoder that parses XML text and then decodes the result through a |
 | `@beep/schema` | `decodeYamlTextAs` | const | `packages/foundation/modeling/schema/src/Yaml.ts:133` | Builds a decoder that parses YAML text and then decodes the result through a |
 | `@beep/schema` | `destructiveTransform` | const | `packages/foundation/modeling/schema/src/Transformations.ts:47` | Applies a lossy transform by inferring the target type from a callback result. |
-| `@beep/schema` | `diffInDays` | const | `packages/foundation/modeling/schema/src/LocalDate.ts:380` | Get the difference in whole days between two `LocalDate` values. |
+| `@beep/schema` | `diffInDays` | const | `packages/foundation/modeling/schema/src/LocalDate/LocalDate.schema.ts:380` | Get the difference in whole days between two `LocalDate` values. |
 | `@beep/schema` | `DirectedGraph` | const | `packages/foundation/modeling/schema/src/Graph/Graph.transforms.ts:159` | Schema for immutable directed graphs. |
 | `@beep/schema` | `DirectedGraph` | interface | `packages/foundation/modeling/schema/src/Graph/Graph.transforms.ts:26` | Schema for decoding encoded graph payloads into immutable directed graphs. |
 | `@beep/schema` | `DirectedGraphFromSelf` | const | `packages/foundation/modeling/schema/src/Graph/Graph.from-self.ts:264` | Schema for validating existing immutable directed Effect graphs. |
 | `@beep/schema` | `DirectedGraphFromSelf` | interface | `packages/foundation/modeling/schema/src/Graph/Graph.from-self.ts:46` | Schema for validating existing immutable directed Effect graphs. |
-| `@beep/schema` | `DirectiveSource` | const | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:25` |  |
-| `@beep/schema` | `DirectiveSource` | type | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:35` |  |
-| `@beep/schema` | `DocumentDirective` | class | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:301` |  |
 | `@beep/schema` | `DomainModel` | SourceFile | `packages/foundation/modeling/schema/src/DomainModel.ts:8` |  |
-| `@beep/schema` | `DOMCssProperties` | const | `packages/foundation/modeling/schema/src/dom/elements.ts:67` | A React.CSSProperties |
-| `@beep/schema` | `DOMDragEvent` | const | `packages/foundation/modeling/schema/src/dom/elements.ts:198` | A DragEvent |
-| `@beep/schema` | `DOMDragEvent` | type | `packages/foundation/modeling/schema/src/dom/elements.ts:210` | {@inheritDoc DOMDragEvent} |
-| `@beep/schema` | `DOMEvent` | const | `packages/foundation/modeling/schema/src/dom/events.ts:38` | A DOM event |
-| `@beep/schema` | `DOMEvent` | type | `packages/foundation/modeling/schema/src/dom/events.ts:50` | {@inheritDoc DOMEvent} |
-| `@beep/schema` | `DOMHtmlElement` | const | `packages/foundation/modeling/schema/src/dom/elements.ts:30` | An HTMLElement |
-| `@beep/schema` | `DOMHtmlElement` | type | `packages/foundation/modeling/schema/src/dom/elements.ts:42` | {@inheritDoc HTMLElement} |
-| `@beep/schema` | `DOMMouseEvent` | const | `packages/foundation/modeling/schema/src/dom/events.ts:58` | A DOM mouse event |
-| `@beep/schema` | `DOMMouseEvent` | type | `packages/foundation/modeling/schema/src/dom/events.ts:70` | {@inheritDoc DOMMouseEvent} |
-| `@beep/schema` | `DOMReactNode` | const | `packages/foundation/modeling/schema/src/dom/elements.ts:119` | A React.ReactNode |
-| `@beep/schema` | `DOMReactNode` | type | `packages/foundation/modeling/schema/src/dom/elements.ts:131` | {@inheritDoc DOMReactNode} |
-| `@beep/schema` | `DurationFromInput` | const | `packages/foundation/modeling/schema/src/Duration.ts:226` | One-way schema that decodes {@link DurationInput} into an Effect `Duration`. |
-| `@beep/schema` | `DurationFromInput` | type | `packages/foundation/modeling/schema/src/Duration.ts:246` | Decoded duration type extracted from {@link DurationFromInput}. |
-| `@beep/schema` | `DurationInput` | const | `packages/foundation/modeling/schema/src/Duration.ts:167` | Union schema for all duration input shapes accepted by {@link DurationFromInput}. |
-| `@beep/schema` | `DurationInput` | type | `packages/foundation/modeling/schema/src/Duration.ts:189` | Duration input type extracted from {@link DurationInput}. |
-| `@beep/schema` | `DurationObject` | class | `packages/foundation/modeling/schema/src/Duration.ts:127` | Structured duration input with additive unit fields. |
-| `@beep/schema` | `DurationUnit` | const | `packages/foundation/modeling/schema/src/Duration.ts:65` | Literal union of duration unit labels accepted by {@link DurationInput}. |
-| `@beep/schema` | `DurationUnit` | type | `packages/foundation/modeling/schema/src/Duration.ts:96` | Duration unit string type extracted from {@link DurationUnit}. |
+| `@beep/schema` | `DomCssProperties` | const | `packages/foundation/modeling/schema/src/DomCssProperties/DomCssProperties.schema.ts:33` | A React.CSSProperties object. |
+| `@beep/schema` | `DOMCssProperties` | const | `packages/foundation/modeling/schema/src/DomCssProperties/DomCssProperties.schema.ts:33` | A React.CSSProperties object. |
+| `@beep/schema` | `DomDragEvent` | const | `packages/foundation/modeling/schema/src/DomDragEvent/DomDragEvent.schema.ts:26` | A DragEvent. |
+| `@beep/schema` | `DomDragEvent` | type | `packages/foundation/modeling/schema/src/DomDragEvent/DomDragEvent.schema.ts:38` | Type for {@link DOMDragEvent}. |
+| `@beep/schema` | `DOMDragEvent` | const | `packages/foundation/modeling/schema/src/DomDragEvent/DomDragEvent.schema.ts:26` | A DragEvent. |
+| `@beep/schema` | `DOMDragEvent` | type | `packages/foundation/modeling/schema/src/DomDragEvent/DomDragEvent.schema.ts:38` | Type for {@link DOMDragEvent}. |
+| `@beep/schema` | `DOMDragEventValue` | const | `packages/foundation/modeling/schema/src/DomDragEvent/DomDragEvent.schema.ts:26` | A DragEvent. |
+| `@beep/schema` | `DOMDragEventValue` | type | `packages/foundation/modeling/schema/src/DomDragEvent/DomDragEvent.schema.ts:38` | Type for {@link DOMDragEvent}. |
+| `@beep/schema` | `DomEvent` | const | `packages/foundation/modeling/schema/src/DomEvent/DomEvent.schema.ts:26` | A DOM event. |
+| `@beep/schema` | `DomEvent` | type | `packages/foundation/modeling/schema/src/DomEvent/DomEvent.schema.ts:38` | Type for {@link DOMEvent}. |
+| `@beep/schema` | `DOMEvent` | const | `packages/foundation/modeling/schema/src/DomEvent/DomEvent.schema.ts:26` | A DOM event. |
+| `@beep/schema` | `DOMEvent` | type | `packages/foundation/modeling/schema/src/DomEvent/DomEvent.schema.ts:38` | Type for {@link DOMEvent}. |
+| `@beep/schema` | `DOMEventValue` | const | `packages/foundation/modeling/schema/src/DomEvent/DomEvent.schema.ts:26` | A DOM event. |
+| `@beep/schema` | `DOMEventValue` | type | `packages/foundation/modeling/schema/src/DomEvent/DomEvent.schema.ts:38` | Type for {@link DOMEvent}. |
+| `@beep/schema` | `DomHtmlElement` | const | `packages/foundation/modeling/schema/src/DomHtmlElement/DomHtmlElement.schema.ts:26` | An HTMLElement. |
+| `@beep/schema` | `DomHtmlElement` | type | `packages/foundation/modeling/schema/src/DomHtmlElement/DomHtmlElement.schema.ts:38` | Type for {@link DOMHtmlElement}. |
+| `@beep/schema` | `DOMHtmlElement` | const | `packages/foundation/modeling/schema/src/DomHtmlElement/DomHtmlElement.schema.ts:26` | An HTMLElement. |
+| `@beep/schema` | `DOMHtmlElement` | type | `packages/foundation/modeling/schema/src/DomHtmlElement/DomHtmlElement.schema.ts:38` | Type for {@link DOMHtmlElement}. |
+| `@beep/schema` | `DOMHtmlElementValue` | const | `packages/foundation/modeling/schema/src/DomHtmlElement/DomHtmlElement.schema.ts:26` | An HTMLElement. |
+| `@beep/schema` | `DOMHtmlElementValue` | type | `packages/foundation/modeling/schema/src/DomHtmlElement/DomHtmlElement.schema.ts:38` | Type for {@link DOMHtmlElement}. |
+| `@beep/schema` | `DomMouseEvent` | const | `packages/foundation/modeling/schema/src/DomMouseEvent/DomMouseEvent.schema.ts:26` | A DOM mouse event. |
+| `@beep/schema` | `DomMouseEvent` | type | `packages/foundation/modeling/schema/src/DomMouseEvent/DomMouseEvent.schema.ts:38` | Type for {@link DOMMouseEvent}. |
+| `@beep/schema` | `DOMMouseEvent` | const | `packages/foundation/modeling/schema/src/DomMouseEvent/DomMouseEvent.schema.ts:26` | A DOM mouse event. |
+| `@beep/schema` | `DOMMouseEvent` | type | `packages/foundation/modeling/schema/src/DomMouseEvent/DomMouseEvent.schema.ts:38` | Type for {@link DOMMouseEvent}. |
+| `@beep/schema` | `DOMMouseEventValue` | const | `packages/foundation/modeling/schema/src/DomMouseEvent/DomMouseEvent.schema.ts:26` | A DOM mouse event. |
+| `@beep/schema` | `DOMMouseEventValue` | type | `packages/foundation/modeling/schema/src/DomMouseEvent/DomMouseEvent.schema.ts:38` | Type for {@link DOMMouseEvent}. |
+| `@beep/schema` | `DomReactNode` | const | `packages/foundation/modeling/schema/src/DomReactNode/DomReactNode.schema.ts:40` | A React.ReactNode value. |
+| `@beep/schema` | `DomReactNode` | type | `packages/foundation/modeling/schema/src/DomReactNode/DomReactNode.schema.ts:52` | Type for {@link DOMReactNode}. |
+| `@beep/schema` | `DOMReactNode` | const | `packages/foundation/modeling/schema/src/DomReactNode/DomReactNode.schema.ts:40` | A React.ReactNode value. |
+| `@beep/schema` | `DOMReactNode` | type | `packages/foundation/modeling/schema/src/DomReactNode/DomReactNode.schema.ts:52` | Type for {@link DOMReactNode}. |
+| `@beep/schema` | `DOMReactNodeValue` | const | `packages/foundation/modeling/schema/src/DomReactNode/DomReactNode.schema.ts:40` | A React.ReactNode value. |
+| `@beep/schema` | `DOMReactNodeValue` | type | `packages/foundation/modeling/schema/src/DomReactNode/DomReactNode.schema.ts:52` | Type for {@link DOMReactNode}. |
+| `@beep/schema` | `Duration` | const | `packages/foundation/modeling/schema/src/Duration/Duration.schema.ts:41` | Compatibility alias for the primary Effect Duration schema. |
+| `@beep/schema` | `Duration` | type | `packages/foundation/modeling/schema/src/Duration/Duration.schema.ts:49` | Runtime type extracted from {@link Duration}. |
+| `@beep/schema` | `DurationFromInput` | const | `packages/foundation/modeling/schema/src/Duration/Duration.input.ts:226` | One-way schema that decodes {@link DurationInput} into an Effect `Duration`. |
+| `@beep/schema` | `DurationFromInput` | type | `packages/foundation/modeling/schema/src/Duration/Duration.input.ts:246` | Decoded duration type extracted from {@link DurationFromInput}. |
+| `@beep/schema` | `DurationFromInputValue` | const | `packages/foundation/modeling/schema/src/Duration/Duration.input.ts:226` | One-way schema that decodes {@link DurationInput} into an Effect `Duration`. |
+| `@beep/schema` | `DurationFromInputValue` | type | `packages/foundation/modeling/schema/src/Duration/Duration.input.ts:246` | Decoded duration type extracted from {@link DurationFromInput}. |
+| `@beep/schema` | `DurationInput` | const | `packages/foundation/modeling/schema/src/Duration/Duration.input.ts:167` | Union schema for all duration input shapes accepted by {@link DurationFromInput}. |
+| `@beep/schema` | `DurationInput` | type | `packages/foundation/modeling/schema/src/Duration/Duration.input.ts:189` | Duration input type extracted from {@link DurationInput}. |
+| `@beep/schema` | `DurationInputValue` | const | `packages/foundation/modeling/schema/src/Duration/Duration.input.ts:167` | Union schema for all duration input shapes accepted by {@link DurationFromInput}. |
+| `@beep/schema` | `DurationInputValue` | type | `packages/foundation/modeling/schema/src/Duration/Duration.input.ts:189` | Duration input type extracted from {@link DurationInput}. |
+| `@beep/schema` | `DurationObject` | class | `packages/foundation/modeling/schema/src/Duration/Duration.input.ts:127` | Structured duration input with additive unit fields. |
+| `@beep/schema` | `DurationUnit` | const | `packages/foundation/modeling/schema/src/Duration/Duration.input.ts:65` | Literal union of duration unit labels accepted by {@link DurationInput}. |
+| `@beep/schema` | `DurationUnit` | type | `packages/foundation/modeling/schema/src/Duration/Duration.input.ts:96` | Duration unit string type extracted from {@link DurationUnit}. |
+| `@beep/schema` | `DurationUnitAlias` | type | `packages/foundation/modeling/schema/src/Duration/Duration.input.ts:104` | Backwards-compatible alias for {@link DurationUnit}. |
+| `@beep/schema` | `DurationUnitValue` | const | `packages/foundation/modeling/schema/src/Duration/Duration.input.ts:65` | Literal union of duration unit labels accepted by {@link DurationInput}. |
+| `@beep/schema` | `DurationUnitValue` | type | `packages/foundation/modeling/schema/src/Duration/Duration.input.ts:96` | Duration unit string type extracted from {@link DurationUnit}. |
+| `@beep/schema` | `DurationValue` | const | `packages/foundation/modeling/schema/src/Duration/Duration.schema.ts:41` | Compatibility alias for the primary Effect Duration schema. |
+| `@beep/schema` | `DurationValue` | type | `packages/foundation/modeling/schema/src/Duration/Duration.schema.ts:49` | Runtime type extracted from {@link Duration}. |
 | `@beep/schema` | `Edge` | const | `packages/foundation/modeling/schema/src/Graph/Graph.edge.ts:180` | Schema for graph edges. This is an alias of {@link EdgeTransform}. |
 | `@beep/schema` | `Edge` | interface | `packages/foundation/modeling/schema/src/Graph/Graph.edge.ts:48` | Schema for graph edges. |
 | `@beep/schema` | `EdgeEncoded` | const | `packages/foundation/modeling/schema/src/Graph/Graph.encoded.ts:117` | Schema for encoded graph edges. |
@@ -9713,34 +9707,18 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/schema` | `Email` | const | `packages/foundation/modeling/schema/src/Email.ts:29` | RFC 5322 compliant email address schema. |
 | `@beep/schema` | `Email` | type | `packages/foundation/modeling/schema/src/Email.ts:48` | Branded, redacted email address type extracted from {@link Email}. |
 | `@beep/schema` | `encodeJsonString` | const | `packages/foundation/modeling/schema/src/Json.ts:104` | Encodes an unknown JSON-compatible value into a compact JSON string. |
-| `@beep/schema` | `endOfMonth` | const | `packages/foundation/modeling/schema/src/LocalDate.ts:409` | Return the last day of the month for the given `LocalDate`. |
-| `@beep/schema` | `endOfYear` | const | `packages/foundation/modeling/schema/src/LocalDate.ts:435` | Return December 31st for the year of the given `LocalDate`. |
+| `@beep/schema` | `endOfMonth` | const | `packages/foundation/modeling/schema/src/LocalDate/LocalDate.schema.ts:409` | Return the last day of the month for the given `LocalDate`. |
+| `@beep/schema` | `endOfYear` | const | `packages/foundation/modeling/schema/src/LocalDate/LocalDate.schema.ts:435` | Return December 31st for the year of the given `LocalDate`. |
 | `@beep/schema` | `EndsWithSeparator` | const | `packages/foundation/modeling/schema/src/FilePath/FilePath.guards.ts:150` | Branded schema for strings that end with a POSIX or Windows path separator. |
 | `@beep/schema` | `EndsWithSeparator` | type | `packages/foundation/modeling/schema/src/FilePath/FilePath.guards.ts:172` | Type for {@link EndsWithSeparator}. |
-| `@beep/schema` | `EntitySchema` | SourceFile | `packages/foundation/modeling/schema/src/EntitySchema.ts:7` |  |
-| `@beep/schema` | `equals` | const | `packages/foundation/modeling/schema/src/LocalDate.ts:320` | Dual predicate returning `true` when two `LocalDate` values represent the same calendar date. |
-| `@beep/schema` | `EthAmount` | const | `packages/foundation/modeling/schema/src/blockchain/EthAmount.ts:48` | ETH-denominated amount decoded from a non-negative JSON number into Effect |
-| `@beep/schema` | `EthAmount` | type | `packages/foundation/modeling/schema/src/blockchain/EthAmount.ts:66` | Type for {@link EthAmount}. |
-| `@beep/schema` | `EthereumValidatorPublicKey` | const | `packages/foundation/modeling/schema/src/blockchain/EthereumValidatorPublicKey.ts:41` | Branded schema for canonical Ethereum validator public keys. |
-| `@beep/schema` | `EthereumValidatorPublicKey` | type | `packages/foundation/modeling/schema/src/blockchain/EthereumValidatorPublicKey.ts:56` | Type for {@link EthereumValidatorPublicKey}. |
-| `@beep/schema` | `EthereumValidatorPublicKeyRedacted` | const | `packages/foundation/modeling/schema/src/blockchain/EthereumValidatorPublicKey.ts:64` | Redacted schema for canonical Ethereum validator public keys. |
-| `@beep/schema` | `EthereumValidatorPublicKeyRedacted` | type | `packages/foundation/modeling/schema/src/blockchain/EthereumValidatorPublicKey.ts:82` | Type for {@link EthereumValidatorPublicKeyRedacted}. |
-| `@beep/schema` | `EvmAddress` | const | `packages/foundation/modeling/schema/src/blockchain/EvmAddress.ts:78` | Branded schema for canonical mainnet EVM wallet addresses. |
-| `@beep/schema` | `EvmAddress` | type | `packages/foundation/modeling/schema/src/blockchain/EvmAddress.ts:93` | Type for {@link EvmAddress}. |
-| `@beep/schema` | `EvmAddressRedacted` | const | `packages/foundation/modeling/schema/src/blockchain/EvmAddress.ts:101` | Redacted schema for canonical mainnet EVM wallet addresses. |
-| `@beep/schema` | `EvmAddressRedacted` | type | `packages/foundation/modeling/schema/src/blockchain/EvmAddress.ts:119` | Type for {@link EvmAddressRedacted}. |
-| `@beep/schema` | `ExpectCTConfig` | class | `packages/foundation/modeling/schema/src/http/headers/ExpectCT.ts:27` |  |
-| `@beep/schema` | `ExpectCTEnabled` | const | `packages/foundation/modeling/schema/src/http/headers/ExpectCT.ts:42` |  |
-| `@beep/schema` | `ExpectCTEnabled` | type | `packages/foundation/modeling/schema/src/http/headers/ExpectCT.ts:52` |  |
-| `@beep/schema` | `ExpectCtError` | class | `packages/foundation/modeling/schema/src/http/headers/SecureHeaderError.ts:151` |  |
-| `@beep/schema` | `ExpectCTHeader` | const | `packages/foundation/modeling/schema/src/http/headers/ExpectCT.ts:150` |  |
-| `@beep/schema` | `ExpectCTHeader` | type | `packages/foundation/modeling/schema/src/http/headers/ExpectCT.ts:207` |  |
-| `@beep/schema` | `ExpectCTOption` | const | `packages/foundation/modeling/schema/src/http/headers/ExpectCT.ts:58` |  |
-| `@beep/schema` | `ExpectCTOption` | type | `packages/foundation/modeling/schema/src/http/headers/ExpectCT.ts:68` |  |
-| `@beep/schema` | `ExpectCTResponseHeader` | class | `packages/foundation/modeling/schema/src/http/headers/ExpectCT.ts:74` |  |
+| `@beep/schema` | `EntitySchema` | SourceFile | `packages/foundation/modeling/schema/src/EntitySchema/index.ts:14` |  |
+| `@beep/schema` | `equals` | const | `packages/foundation/modeling/schema/src/LocalDate/LocalDate.schema.ts:320` | Dual predicate returning `true` when two `LocalDate` values represent the same calendar date. |
+| `@beep/schema` | `EthAmount` | SourceFile | `packages/foundation/modeling/schema/src/EthAmount/index.ts:22` |  |
+| `@beep/schema` | `EthereumValidatorPublicKey` | SourceFile | `packages/foundation/modeling/schema/src/EthereumValidatorPublicKey/index.ts:22` |  |
+| `@beep/schema` | `EvmAddress` | SourceFile | `packages/foundation/modeling/schema/src/EvmAddress/index.ts:22` |  |
+| `@beep/schema` | `ExpectCt` | SourceFile | `packages/foundation/modeling/schema/src/ExpectCt/index.ts:20` |  |
 | `@beep/schema` | `extractMimeExtensions` | const | `packages/foundation/modeling/schema/src/FileExtension.ts:72` | Extracts the distinct file extensions from a mime-type dictionary. |
 | `@beep/schema` | `extractMimeTypes` | const | `packages/foundation/modeling/schema/src/MimeType.ts:65` | Extracts all mime-type keys from a mime-type dictionary as a deduplicated array. |
-| `@beep/schema` | `FetchDirective` | class | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:232` |  |
 | `@beep/schema` | `FileExtension` | const | `packages/foundation/modeling/schema/src/FileExtension.ts:332` | Schema for any supported file extension across all mime-type categories. |
 | `@beep/schema` | `FileExtension` | type | `packages/foundation/modeling/schema/src/FileExtension.ts:358` | Union of literals accepted by {@link FileExtension}. |
 | `@beep/schema` | `FileName` | const | `packages/foundation/modeling/schema/src/FileName.ts:100` |  |
@@ -9765,54 +9743,34 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/schema` | `Float64ArrayFromArray` | const | `packages/foundation/modeling/schema/src/Float64Array.ts:81` | Bidirectional schema that decodes arrays of numbers into `Float64Array` |
 | `@beep/schema` | `Float64ArrayFromArray` | namespace | `packages/foundation/modeling/schema/src/Float64Array.ts:110` | Namespace members for {@link Float64ArrayFromArray}. |
 | `@beep/schema` | `Float64ArrayFromArray` | type | `packages/foundation/modeling/schema/src/Float64Array.ts:102` | Type for {@link Float64ArrayFromArray}. |
-| `@beep/schema` | `Fn` | function | `packages/foundation/modeling/schema/src/Fn.ts:490` | Creates a zero-argument function schema whose result is validated against the |
-| `@beep/schema` | `Fn` | function | `packages/foundation/modeling/schema/src/Fn.ts:514` | Creates a zero-argument function schema that preserves an explicit |
-| `@beep/schema` | `Fn` | function | `packages/foundation/modeling/schema/src/Fn.ts:539` | Creates a zero-argument function schema that preserves an explicit |
-| `@beep/schema` | `Fn` | function | `packages/foundation/modeling/schema/src/Fn.ts:569` | Creates a unary function schema. Invocation helpers decode incoming payloads |
-| `@beep/schema` | `Fn` | function | `packages/foundation/modeling/schema/src/Fn.ts:581` | Public schema module export. |
-| `@beep/schema` | `FnSchema` | type | `packages/foundation/modeling/schema/src/Fn.ts:212` | Union schema type returned by {@link Fn}. Resolves to either |
-| `@beep/schema` | `FnSchemaNoArg` | interface | `packages/foundation/modeling/schema/src/Fn.ts:173` | Schema surface for zero-argument (thunk-like) functions created by {@link Fn}. |
-| `@beep/schema` | `FnSchemaStatics` | type | `packages/foundation/modeling/schema/src/Fn.ts:228` | Subset of the {@link FnSchema} surface exposing only the invocation helpers |
-| `@beep/schema` | `FnSchemaUnary` | interface | `packages/foundation/modeling/schema/src/Fn.ts:192` | Schema surface for unary functions created by {@link Fn}. Provides |
-| `@beep/schema` | `FnType` | type | `packages/foundation/modeling/schema/src/Fn.ts:129` | Function type helper used by {@link Fn}. Inputs modeled with `never`, |
-| `@beep/schema` | `ForceHttpsRedirectConfig` | class | `packages/foundation/modeling/schema/src/http/headers/ForceHttpsRedirect.ts:27` |  |
-| `@beep/schema` | `ForceHttpsRedirectEnabled` | const | `packages/foundation/modeling/schema/src/http/headers/ForceHttpsRedirect.ts:42` |  |
-| `@beep/schema` | `ForceHttpsRedirectEnabled` | type | `packages/foundation/modeling/schema/src/http/headers/ForceHttpsRedirect.ts:52` |  |
-| `@beep/schema` | `ForceHttpsRedirectError` | class | `packages/foundation/modeling/schema/src/http/headers/SecureHeaderError.ts:115` |  |
-| `@beep/schema` | `ForceHttpsRedirectHeader` | const | `packages/foundation/modeling/schema/src/http/headers/ForceHttpsRedirect.ts:103` |  |
-| `@beep/schema` | `ForceHttpsRedirectHeader` | type | `packages/foundation/modeling/schema/src/http/headers/ForceHttpsRedirect.ts:172` |  |
-| `@beep/schema` | `ForceHttpsRedirectOption` | const | `packages/foundation/modeling/schema/src/http/headers/ForceHttpsRedirect.ts:58` |  |
-| `@beep/schema` | `ForceHttpsRedirectOption` | type | `packages/foundation/modeling/schema/src/http/headers/ForceHttpsRedirect.ts:68` |  |
-| `@beep/schema` | `ForceHttpsRedirectResponseHeader` | class | `packages/foundation/modeling/schema/src/http/headers/ForceHttpsRedirect.ts:74` |  |
-| `@beep/schema` | `formatCsvDataRow` | const | `packages/foundation/modeling/schema/src/csv/format/CsvFormatter.ts:125` | Format a CSV data row. |
-| `@beep/schema` | `formatCsvDocument` | const | `packages/foundation/modeling/schema/src/csv/format/CsvFormatter.ts:152` | Format a whole CSV document. |
-| `@beep/schema` | `formatCsvHeaderRow` | const | `packages/foundation/modeling/schema/src/csv/format/CsvFormatter.ts:100` | Format a CSV header row. |
-| `@beep/schema` | `FrameGuardAllowFrom` | const | `packages/foundation/modeling/schema/src/http/headers/FrameGuard.ts:60` |  |
-| `@beep/schema` | `FrameGuardAllowFrom` | type | `packages/foundation/modeling/schema/src/http/headers/FrameGuard.ts:70` |  |
-| `@beep/schema` | `FrameGuardAllowFromConfig` | class | `packages/foundation/modeling/schema/src/http/headers/FrameGuard.ts:47` |  |
-| `@beep/schema` | `FrameGuardError` | class | `packages/foundation/modeling/schema/src/http/headers/SecureHeaderError.ts:145` |  |
-| `@beep/schema` | `FrameGuardHeader` | const | `packages/foundation/modeling/schema/src/http/headers/FrameGuard.ts:137` |  |
-| `@beep/schema` | `FrameGuardHeader` | type | `packages/foundation/modeling/schema/src/http/headers/FrameGuard.ts:211` |  |
-| `@beep/schema` | `FrameGuardMode` | const | `packages/foundation/modeling/schema/src/http/headers/FrameGuard.ts:30` |  |
-| `@beep/schema` | `FrameGuardMode` | type | `packages/foundation/modeling/schema/src/http/headers/FrameGuard.ts:41` |  |
-| `@beep/schema` | `FrameGuardOption` | const | `packages/foundation/modeling/schema/src/http/headers/FrameGuard.ts:76` |  |
-| `@beep/schema` | `FrameGuardOption` | type | `packages/foundation/modeling/schema/src/http/headers/FrameGuard.ts:86` |  |
-| `@beep/schema` | `FrameGuardResponseHeader` | class | `packages/foundation/modeling/schema/src/http/headers/FrameGuard.ts:92` |  |
-| `@beep/schema` | `fromDate` | const | `packages/foundation/modeling/schema/src/LocalDate.ts:231` | Create a `LocalDate` from a JavaScript `Date` using its UTC components. |
-| `@beep/schema` | `fromDateTime` | const | `packages/foundation/modeling/schema/src/LocalDate.ts:264` | Create a `LocalDate` from a `DateTime` by extracting its UTC date components. |
-| `@beep/schema` | `fromString` | const | `packages/foundation/modeling/schema/src/LocalDate.ts:208` | Parse a `YYYY-MM-DD` string into a `LocalDate`, returning an `Effect` that fails for invalid input. |
-| `@beep/schema` | `GenerateAlphaScale` | const | `packages/foundation/modeling/schema/src/color/Color.ts:1016` | One-way schema for generating an alpha-blended 12-step scale. |
-| `@beep/schema` | `GenerateAlphaScale` | type | `packages/foundation/modeling/schema/src/color/Color.ts:1036` | Type for {@link GenerateAlphaScale}. |
-| `@beep/schema` | `GenerateAlphaScaleInput` | class | `packages/foundation/modeling/schema/src/color/Color.ts:1000` | Request schema for generating an alpha-blended 12-step scale. |
-| `@beep/schema` | `GenerateNeutralScale` | const | `packages/foundation/modeling/schema/src/color/Color.ts:972` | One-way schema for generating a neutral 12-step scale. |
-| `@beep/schema` | `GenerateNeutralScale` | type | `packages/foundation/modeling/schema/src/color/Color.ts:992` | Type for {@link GenerateNeutralScale}. |
-| `@beep/schema` | `GenerateNeutralScaleInput` | class | `packages/foundation/modeling/schema/src/color/Color.ts:956` | Request schema for generating a neutral 12-step scale. |
-| `@beep/schema` | `GenerateScale` | const | `packages/foundation/modeling/schema/src/color/Color.ts:928` | One-way schema for generating a chromatic 12-step scale. |
-| `@beep/schema` | `GenerateScale` | type | `packages/foundation/modeling/schema/src/color/Color.ts:948` | Type for {@link GenerateScale}. |
-| `@beep/schema` | `GenerateScaleInput` | class | `packages/foundation/modeling/schema/src/color/Color.ts:912` | Request schema for generating a chromatic 12-step scale. |
-| `@beep/schema` | `getProperHeaderName` | const | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:92` | Get proper header name for CSP |
-| `@beep/schema` | `Glob` | const | `packages/foundation/modeling/schema/src/Glob.ts:105` | Branded schema for portable non-empty glob pattern strings. |
-| `@beep/schema` | `Glob` | type | `packages/foundation/modeling/schema/src/Glob.ts:120` | Type for {@link Glob}. |
+| `@beep/schema` | `Fn` | function | `packages/foundation/modeling/schema/src/Fn/Fn.schema.ts:490` | Creates a zero-argument function schema whose result is validated against the |
+| `@beep/schema` | `Fn` | function | `packages/foundation/modeling/schema/src/Fn/Fn.schema.ts:514` | Creates a zero-argument function schema that preserves an explicit |
+| `@beep/schema` | `Fn` | function | `packages/foundation/modeling/schema/src/Fn/Fn.schema.ts:539` | Creates a zero-argument function schema that preserves an explicit |
+| `@beep/schema` | `Fn` | function | `packages/foundation/modeling/schema/src/Fn/Fn.schema.ts:569` | Creates a unary function schema. Invocation helpers decode incoming payloads |
+| `@beep/schema` | `Fn` | function | `packages/foundation/modeling/schema/src/Fn/Fn.schema.ts:581` | Public schema module export. |
+| `@beep/schema` | `FnSchema` | type | `packages/foundation/modeling/schema/src/Fn/Fn.schema.ts:212` | Union schema type returned by {@link Fn}. Resolves to either |
+| `@beep/schema` | `FnSchemaNoArg` | interface | `packages/foundation/modeling/schema/src/Fn/Fn.schema.ts:173` | Schema surface for zero-argument (thunk-like) functions created by {@link Fn}. |
+| `@beep/schema` | `FnSchemaStatics` | type | `packages/foundation/modeling/schema/src/Fn/Fn.schema.ts:228` | Subset of the {@link FnSchema} surface exposing only the invocation helpers |
+| `@beep/schema` | `FnSchemaUnary` | interface | `packages/foundation/modeling/schema/src/Fn/Fn.schema.ts:192` | Schema surface for unary functions created by {@link Fn}. Provides |
+| `@beep/schema` | `FnType` | type | `packages/foundation/modeling/schema/src/Fn/Fn.schema.ts:129` | Function type helper used by {@link Fn}. Inputs modeled with `never`, |
+| `@beep/schema` | `ForceHttpsRedirect` | SourceFile | `packages/foundation/modeling/schema/src/ForceHttpsRedirect/index.ts:20` |  |
+| `@beep/schema` | `FrameGuard` | SourceFile | `packages/foundation/modeling/schema/src/FrameGuard/index.ts:20` |  |
+| `@beep/schema` | `fromDate` | const | `packages/foundation/modeling/schema/src/LocalDate/LocalDate.schema.ts:231` | Create a `LocalDate` from a JavaScript `Date` using its UTC components. |
+| `@beep/schema` | `fromDateTime` | const | `packages/foundation/modeling/schema/src/LocalDate/LocalDate.schema.ts:264` | Create a `LocalDate` from a `DateTime` by extracting its UTC date components. |
+| `@beep/schema` | `FromInput` | const | `packages/foundation/modeling/schema/src/Duration/Duration.input.ts:226` | One-way schema that decodes {@link DurationInput} into an Effect `Duration`. |
+| `@beep/schema` | `FromInput` | type | `packages/foundation/modeling/schema/src/Duration/Duration.input.ts:246` | Decoded duration type extracted from {@link DurationFromInput}. |
+| `@beep/schema` | `fromString` | const | `packages/foundation/modeling/schema/src/LocalDate/LocalDate.schema.ts:208` | Parse a `YYYY-MM-DD` string into a `LocalDate`, returning an `Effect` that fails for invalid input. |
+| `@beep/schema` | `GenerateAlphaScale` | const | `packages/foundation/modeling/schema/src/Color/Color.scale.ts:263` | One-way schema for generating an alpha-blended 12-step scale. |
+| `@beep/schema` | `GenerateAlphaScale` | type | `packages/foundation/modeling/schema/src/Color/Color.scale.ts:283` | Type for {@link GenerateAlphaScale}. |
+| `@beep/schema` | `GenerateAlphaScaleInput` | class | `packages/foundation/modeling/schema/src/Color/Color.scale.ts:247` | Request schema for generating an alpha-blended 12-step scale. |
+| `@beep/schema` | `GenerateNeutralScale` | const | `packages/foundation/modeling/schema/src/Color/Color.scale.ts:219` | One-way schema for generating a neutral 12-step scale. |
+| `@beep/schema` | `GenerateNeutralScale` | type | `packages/foundation/modeling/schema/src/Color/Color.scale.ts:239` | Type for {@link GenerateNeutralScale}. |
+| `@beep/schema` | `GenerateNeutralScaleInput` | class | `packages/foundation/modeling/schema/src/Color/Color.scale.ts:203` | Request schema for generating a neutral 12-step scale. |
+| `@beep/schema` | `GenerateScale` | const | `packages/foundation/modeling/schema/src/Color/Color.scale.ts:175` | One-way schema for generating a chromatic 12-step scale. |
+| `@beep/schema` | `GenerateScale` | type | `packages/foundation/modeling/schema/src/Color/Color.scale.ts:195` | Type for {@link GenerateScale}. |
+| `@beep/schema` | `GenerateScaleInput` | class | `packages/foundation/modeling/schema/src/Color/Color.scale.ts:159` | Request schema for generating a chromatic 12-step scale. |
+| `@beep/schema` | `Glob` | const | `packages/foundation/modeling/schema/src/Glob/Glob.schema.ts:105` | Branded schema for portable non-empty glob pattern strings. |
+| `@beep/schema` | `Glob` | type | `packages/foundation/modeling/schema/src/Glob/Glob.schema.ts:120` | Type for {@link Glob}. |
 | `@beep/schema` | `GraphEncoded` | const | `packages/foundation/modeling/schema/src/Graph/Graph.encoded.ts:140` | Schema for encoded graphs. |
 | `@beep/schema` | `GraphEncoded` | type | `packages/foundation/modeling/schema/src/Graph/Graph.encoded.ts:30` | Encoded graph representation used by graph codecs. |
 | `@beep/schema` | `GraphEncodedSchema` | interface | `packages/foundation/modeling/schema/src/Graph/Graph.encoded.ts:97` | Schema type for encoded graphs. |
@@ -9825,30 +9783,22 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/schema` | `HasLeafSegment` | type | `packages/foundation/modeling/schema/src/FilePath/FilePath.roots.ts:132` | Type for {@link HasLeafSegment}. |
 | `@beep/schema` | `HasNullByte` | const | `packages/foundation/modeling/schema/src/FilePath/FilePath.guards.ts:29` | Branded schema for strings that contain an embedded NUL byte. |
 | `@beep/schema` | `HasNullByte` | type | `packages/foundation/modeling/schema/src/FilePath/FilePath.guards.ts:51` | Branded string type containing an embedded NUL byte. |
-| `@beep/schema` | `HeaderArray` | const | `packages/foundation/modeling/schema/src/csv/parse/types.ts:20` | An array containing possibly nullish strings. |
-| `@beep/schema` | `HeaderArray` | type | `packages/foundation/modeling/schema/src/csv/parse/types.ts:35` | {@inheritDoc HeaderArray} |
-| `@beep/schema` | `HeaderTransformFunction` | const | `packages/foundation/modeling/schema/src/csv/parse/types.ts:44` | An identity function taking an array containing possibly nullish strings |
-| `@beep/schema` | `HeaderTransformFunction` | type | `packages/foundation/modeling/schema/src/csv/parse/types.ts:59` | {@inheritDoc HeaderTransformFunction} |
-| `@beep/schema` | `HeaderValueInput` | const | `packages/foundation/modeling/schema/src/csv/parse/ParserOptions.ts:60` | A parser header configuration input. |
-| `@beep/schema` | `HeaderValueInput` | type | `packages/foundation/modeling/schema/src/csv/parse/ParserOptions.ts:72` | {@inheritDoc HeaderValueInput} |
-| `@beep/schema` | `HexColor` | const | `packages/foundation/modeling/schema/src/color/Color.ts:407` | Canonical lowercase six-digit hex color schema. |
-| `@beep/schema` | `HexColor` | type | `packages/foundation/modeling/schema/src/color/Color.ts:422` | Type for {@link HexColor}. |
-| `@beep/schema` | `HexColorInput` | const | `packages/foundation/modeling/schema/src/color/Color.ts:385` | Boundary schema for hex color input strings. |
-| `@beep/schema` | `HexColorInput` | type | `packages/foundation/modeling/schema/src/color/Color.ts:399` | Type for {@link HexColorInput}. |
-| `@beep/schema` | `HexColorScale12` | const | `packages/foundation/modeling/schema/src/color/Color.ts:669` | Fixed-size 12-step canonical hex color scale. |
-| `@beep/schema` | `HexColorScale12` | type | `packages/foundation/modeling/schema/src/color/Color.ts:686` | Type for {@link HexColorScale12}. |
-| `@beep/schema` | `HexToOklch` | const | `packages/foundation/modeling/schema/src/color/Color.ts:824` | Transformation schema for decoding boundary hex input into canonical OKLCH. |
-| `@beep/schema` | `HexToOklch` | type | `packages/foundation/modeling/schema/src/color/Color.ts:845` | Type for {@link HexToOklch}. |
-| `@beep/schema` | `HexToRgb` | const | `packages/foundation/modeling/schema/src/color/Color.ts:717` | Transformation schema for decoding boundary hex input into normalized RGB. |
-| `@beep/schema` | `HexToRgb` | type | `packages/foundation/modeling/schema/src/color/Color.ts:738` | Type for {@link HexToRgb}. |
+| `@beep/schema` | `HexColor` | const | `packages/foundation/modeling/schema/src/Color/Color.hex.ts:126` | Canonical lowercase six-digit hex color schema. |
+| `@beep/schema` | `HexColor` | type | `packages/foundation/modeling/schema/src/Color/Color.hex.ts:141` | Type for {@link HexColor}. |
+| `@beep/schema` | `HexColorInput` | const | `packages/foundation/modeling/schema/src/Color/Color.hex.ts:104` | Boundary schema for hex color input strings. |
+| `@beep/schema` | `HexColorInput` | type | `packages/foundation/modeling/schema/src/Color/Color.hex.ts:118` | Type for {@link HexColorInput}. |
+| `@beep/schema` | `HexColorScale12` | const | `packages/foundation/modeling/schema/src/Color/Color.scale.ts:124` | Fixed-size 12-step canonical hex color scale. |
+| `@beep/schema` | `HexColorScale12` | type | `packages/foundation/modeling/schema/src/Color/Color.scale.ts:141` | Type for {@link HexColorScale12}. |
+| `@beep/schema` | `HexToOklch` | const | `packages/foundation/modeling/schema/src/Color/Color.transforms.ts:145` | Transformation schema for decoding boundary hex input into canonical OKLCH. |
+| `@beep/schema` | `HexToOklch` | type | `packages/foundation/modeling/schema/src/Color/Color.transforms.ts:166` | Type for {@link HexToOklch}. |
+| `@beep/schema` | `HexToRgb` | const | `packages/foundation/modeling/schema/src/Color/Color.transforms.ts:38` | Transformation schema for decoding boundary hex input into normalized RGB. |
+| `@beep/schema` | `HexToRgb` | type | `packages/foundation/modeling/schema/src/Color/Color.transforms.ts:59` | Type for {@link HexToRgb}. |
 | `@beep/schema` | `HtmlFragment` | const | `packages/foundation/modeling/schema/src/Html.ts:33` | Branded schema for trusted HTML fragment strings. |
 | `@beep/schema` | `HtmlFragment` | type | `packages/foundation/modeling/schema/src/Html.ts:55` | Type for {@link HtmlFragment}. |
-| `@beep/schema` | `HttpMethod` | const | `packages/foundation/modeling/schema/src/http/HttpMethod/HttpMethod.ts:49` |  |
-| `@beep/schema` | `HttpMethod` | type | `packages/foundation/modeling/schema/src/http/HttpMethod/HttpMethod.ts:79` |  |
-| `@beep/schema` | `HttpMethod_` | const | `packages/foundation/modeling/schema/src/http/HttpMethod/HttpMethod.ts:19` |  |
-| `@beep/schema` | `HttpProtocol` | const | `packages/foundation/modeling/schema/src/http/HttpProtocol.ts:18` | An HTTP protocol ("http" or "https") |
-| `@beep/schema` | `HttpProtocol` | type | `packages/foundation/modeling/schema/src/http/HttpProtocol.ts:30` | {@inheritDoc HttpProtocol} |
-| `@beep/schema` | `HttpStatus` | SourceFile | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:16` |  |
+| `@beep/schema` | `HttpHeaders` | SourceFile | `packages/foundation/modeling/schema/src/HttpHeaders/index.ts:20` |  |
+| `@beep/schema` | `HttpMethod` | SourceFile | `packages/foundation/modeling/schema/src/HttpMethod/index.ts:22` |  |
+| `@beep/schema` | `HttpProtocol` | SourceFile | `packages/foundation/modeling/schema/src/HttpProtocol/index.ts:22` |  |
+| `@beep/schema` | `HttpStatus` | SourceFile | `packages/foundation/modeling/schema/src/HttpStatus/index.ts:21` |  |
 | `@beep/schema` | `ImageFileExtension` | const | `packages/foundation/modeling/schema/src/FileExtension.ts:216` | Schema for file extensions associated with `image/*` mime types. |
 | `@beep/schema` | `ImageFileExtension` | type | `packages/foundation/modeling/schema/src/FileExtension.ts:238` | Union of literals accepted by {@link ImageFileExtension}. |
 | `@beep/schema` | `ImageMimeType` | const | `packages/foundation/modeling/schema/src/MimeType.ts:294` | Schema for `image/*` mime-type literals. |
@@ -9856,19 +9806,19 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/schema` | `Int` | const | `packages/foundation/modeling/schema/src/Int.ts:29` | Branded schema for finite integers. |
 | `@beep/schema` | `Int` | type | `packages/foundation/modeling/schema/src/Int.ts:55` | Type for {@link Int}. |
 | `@beep/schema` | `isAbortSignal` | const | `packages/foundation/modeling/schema/src/AbortSignal.ts:28` | Type guard that checks whether a value is an `AbortSignal` instance. |
-| `@beep/schema` | `isAfter` | const | `packages/foundation/modeling/schema/src/LocalDate.ts:309` | Dual predicate returning `true` when `self` is chronologically after `that`. |
-| `@beep/schema` | `isBefore` | const | `packages/foundation/modeling/schema/src/LocalDate.ts:298` | Dual predicate returning `true` when `self` is chronologically before `that`. |
-| `@beep/schema` | `isCSSProperties` | const | `packages/foundation/modeling/schema/src/dom/elements.ts:52` | Type guard for React.CSSProperties |
-| `@beep/schema` | `isDragEvent` | const | `packages/foundation/modeling/schema/src/dom/elements.ts:190` | Type guard for DragEvent |
+| `@beep/schema` | `isAfter` | const | `packages/foundation/modeling/schema/src/LocalDate/LocalDate.schema.ts:309` | Dual predicate returning `true` when `self` is chronologically after `that`. |
+| `@beep/schema` | `isBefore` | const | `packages/foundation/modeling/schema/src/LocalDate/LocalDate.schema.ts:298` | Dual predicate returning `true` when `self` is chronologically before `that`. |
+| `@beep/schema` | `isCSSProperties` | const | `packages/foundation/modeling/schema/src/DomCssProperties/DomCssProperties.schema.ts:20` | Type guard for React.CSSProperties. |
+| `@beep/schema` | `isDragEvent` | const | `packages/foundation/modeling/schema/src/DomDragEvent/DomDragEvent.schema.ts:18` | Type guard for DragEvent. |
 | `@beep/schema` | `isEdge` | const | `packages/foundation/modeling/schema/src/Graph/Graph.guards.ts:18` | Guard for Effect `Graph.Edge` values. |
 | `@beep/schema` | `isEffect` | const | `packages/foundation/modeling/schema/src/EffectSchema.ts:56` | Type guard that checks whether a value is an Effect runtime value. |
-| `@beep/schema` | `isEvent` | const | `packages/foundation/modeling/schema/src/dom/events.ts:20` | Type guard for Event |
+| `@beep/schema` | `isEvent` | const | `packages/foundation/modeling/schema/src/DomEvent/DomEvent.schema.ts:18` | Type guard for Event. |
 | `@beep/schema` | `isFloat16Array` | const | `packages/foundation/modeling/schema/src/Float16Array.ts:52` | Float16Array type guard. |
 | `@beep/schema` | `isGraph` | const | `packages/foundation/modeling/schema/src/Graph/Graph.guards.ts:28` | Guard for Effect graph values, including mutable variants. |
-| `@beep/schema` | `isHTMLElement` | const | `packages/foundation/modeling/schema/src/dom/elements.ts:22` | Type guard for HTMLElement |
-| `@beep/schema` | `isLeapYear` | const | `packages/foundation/modeling/schema/src/LocalDate.ts:448` | Check whether a year is a leap year. |
-| `@beep/schema` | `isLocalDate` | const | `packages/foundation/modeling/schema/src/LocalDate.ts:124` | Type guard for `LocalDate` instances. |
-| `@beep/schema` | `isMouseEvent` | const | `packages/foundation/modeling/schema/src/dom/events.ts:30` | Type guard for MouseEvent |
+| `@beep/schema` | `isHTMLElement` | const | `packages/foundation/modeling/schema/src/DomHtmlElement/DomHtmlElement.schema.ts:18` | Type guard for HTMLElement. |
+| `@beep/schema` | `isLeapYear` | const | `packages/foundation/modeling/schema/src/LocalDate/LocalDate.schema.ts:448` | Check whether a year is a leap year. |
+| `@beep/schema` | `isLocalDate` | const | `packages/foundation/modeling/schema/src/LocalDate/LocalDate.schema.ts:124` | Type guard for `LocalDate` instances. |
+| `@beep/schema` | `isMouseEvent` | const | `packages/foundation/modeling/schema/src/DomMouseEvent/DomMouseEvent.schema.ts:18` | Type guard for MouseEvent. |
 | `@beep/schema` | `isMutableHashMap` | const | `packages/foundation/modeling/schema/src/MutableHashMap.ts:136` | Type guard for Effect `MutableHashMap` values. |
 | `@beep/schema` | `isMutableHashSet` | const | `packages/foundation/modeling/schema/src/MutableHashSet.ts:101` | Type guard for Effect `MutableHashSet` values. |
 | `@beep/schema` | `isNegative` | const | `packages/foundation/modeling/schema/src/Number.ts:109` | Refinement that accepts negative numbers (less than zero). |
@@ -9877,8 +9827,8 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/schema` | `isPositive` | const | `packages/foundation/modeling/schema/src/Number.ts:29` | Refinement that accepts positive numbers (greater than zero). |
 | `@beep/schema` | `isPostgresSerialInt` | const | `packages/foundation/modeling/schema/src/Number.ts:47` | Refinement that accepts integers in PostgreSQL `serial` column range. |
 | `@beep/schema` | `isPromise` | const | `packages/foundation/modeling/schema/src/PromiseSchema.ts:64` | Type guard that checks whether a value is a native JavaScript `Promise`. |
-| `@beep/schema` | `isReactNode` | const | `packages/foundation/modeling/schema/src/dom/elements.ts:81` | Type guard for React.ReactNode |
-| `@beep/schema` | `isReactRef` | const | `packages/foundation/modeling/schema/src/dom/elements.ts:141` | Type guard for React.Ref<T> |
+| `@beep/schema` | `isReactNode` | const | `packages/foundation/modeling/schema/src/DomReactNode/DomReactNode.schema.ts:20` | Type guard for React.ReactNode. |
+| `@beep/schema` | `isReactRef` | const | `packages/foundation/modeling/schema/src/DomReactNode/DomReactNode.schema.ts:60` | Type guard for React.Ref<T>. |
 | `@beep/schema` | `JsonArray` | const | `packages/foundation/modeling/schema/src/Json.ts:56` | Schema for a JSON array (an array of JSON-compatible values). |
 | `@beep/schema` | `JsonArray` | type | `packages/foundation/modeling/schema/src/Json.ts:68` | Runtime type extracted from the {@link JsonArray} schema. |
 | `@beep/schema` | `JsoncParseDiagnostic` | class | `packages/foundation/modeling/schema/src/Jsonc.ts:32` | Typed representation of a single JSONC parse diagnostic produced by `jsonc-parser`. |
@@ -9888,43 +9838,43 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/schema` | `JsonObject` | type | `packages/foundation/modeling/schema/src/Json.ts:39` | Runtime type extracted from the {@link JsonObject} schema. |
 | `@beep/schema` | `KebabCaseStr` | const | `packages/foundation/modeling/schema/src/KebabStr.ts:28` | Branded kebab-case string schema with a lowercase leading letter. |
 | `@beep/schema` | `KebabCaseStr` | type | `packages/foundation/modeling/schema/src/KebabStr.ts:54` | Type for {@link KebabCaseStr}. |
-| `@beep/schema` | `Lighten` | const | `packages/foundation/modeling/schema/src/color/Color.ts:1103` | One-way schema for lightening a color. |
-| `@beep/schema` | `Lighten` | type | `packages/foundation/modeling/schema/src/color/Color.ts:1121` | Type for {@link Lighten}. |
-| `@beep/schema` | `LightenInput` | class | `packages/foundation/modeling/schema/src/color/Color.ts:1087` | Request schema for lightening a color. |
-| `@beep/schema` | `LiteralKit` | function | `packages/foundation/modeling/schema/src/LiteralKit.ts:703` | Builds a literal schema kit from a non-empty tuple of mixed literals. |
-| `@beep/schema` | `LiteralKit` | interface | `packages/foundation/modeling/schema/src/LiteralKit.ts:650` | Public schema module export. |
-| `@beep/schema` | `LiteralKitEnumMappingCoverageError` | class | `packages/foundation/modeling/schema/src/LiteralKit.ts:427` | Error thrown when a manual enum mapping does not exactly cover the provided |
-| `@beep/schema` | `LiteralKitEnumMappingDuplicateLiteralError` | class | `packages/foundation/modeling/schema/src/LiteralKit.ts:411` | Error thrown when the same source literal appears more than once in a manual |
-| `@beep/schema` | `LiteralKitKeyCollisionError` | class | `packages/foundation/modeling/schema/src/LiteralKit.ts:393` | Error thrown when different literals encode to the same helper key via |
-| `@beep/schema` | `LiteralKitTaggedUnionLiteralError` | class | `packages/foundation/modeling/schema/src/LiteralKit.ts:443` | Error thrown when `LiteralKit.toTaggedUnion` receives a literal that cannot |
-| `@beep/schema` | `LiteralNotInSetError` | class | `packages/foundation/modeling/schema/src/LiteralKit.ts:377` | Error thrown when an input value is not found in the provided literals |
-| `@beep/schema` | `LiteralToKey` | type | `packages/foundation/modeling/schema/src/LiteralKit.ts:36` | Maps a literal value to its string key representation used in `Enum`, `is`, |
-| `@beep/schema` | `LocalDate` | class | `packages/foundation/modeling/schema/src/LocalDate.ts:51` | Schema class representing a calendar date without time or timezone. |
-| `@beep/schema` | `LocalDateFromString` | const | `packages/foundation/modeling/schema/src/LocalDate.ts:485` | Schema that transforms ISO 8601 date strings (`YYYY-MM-DD`) into `LocalDate` instances. |
-| `@beep/schema` | `LocalDateFromString` | namespace | `packages/foundation/modeling/schema/src/LocalDate.ts:511` | Namespace members for {@link LocalDateFromString}. |
-| `@beep/schema` | `LocalDateFromString` | type | `packages/foundation/modeling/schema/src/LocalDate.ts:503` | Decoded `LocalDate` type extracted from {@link LocalDateFromString}. |
+| `@beep/schema` | `Lighten` | const | `packages/foundation/modeling/schema/src/Color/Color.adjust.ts:188` | One-way schema for lightening a color. |
+| `@beep/schema` | `Lighten` | type | `packages/foundation/modeling/schema/src/Color/Color.adjust.ts:206` | Type for {@link Lighten}. |
+| `@beep/schema` | `LightenInput` | class | `packages/foundation/modeling/schema/src/Color/Color.adjust.ts:172` | Request schema for lightening a color. |
+| `@beep/schema` | `LiteralKit` | function | `packages/foundation/modeling/schema/src/LiteralKit/LiteralKit.schema.ts:703` | Builds a literal schema kit from a non-empty tuple of mixed literals. |
+| `@beep/schema` | `LiteralKit` | interface | `packages/foundation/modeling/schema/src/LiteralKit/LiteralKit.schema.ts:650` | Public schema module export. |
+| `@beep/schema` | `LiteralKitEnumMappingCoverageError` | class | `packages/foundation/modeling/schema/src/LiteralKit/LiteralKit.schema.ts:427` | Error thrown when a manual enum mapping does not exactly cover the provided |
+| `@beep/schema` | `LiteralKitEnumMappingDuplicateLiteralError` | class | `packages/foundation/modeling/schema/src/LiteralKit/LiteralKit.schema.ts:411` | Error thrown when the same source literal appears more than once in a manual |
+| `@beep/schema` | `LiteralKitKeyCollisionError` | class | `packages/foundation/modeling/schema/src/LiteralKit/LiteralKit.schema.ts:393` | Error thrown when different literals encode to the same helper key via |
+| `@beep/schema` | `LiteralKitTaggedUnionLiteralError` | class | `packages/foundation/modeling/schema/src/LiteralKit/LiteralKit.schema.ts:443` | Error thrown when `LiteralKit.toTaggedUnion` receives a literal that cannot |
+| `@beep/schema` | `LiteralNotInSetError` | class | `packages/foundation/modeling/schema/src/LiteralKit/LiteralKit.schema.ts:377` | Error thrown when an input value is not found in the provided literals |
+| `@beep/schema` | `LiteralToKey` | type | `packages/foundation/modeling/schema/src/LiteralKit/LiteralKit.schema.ts:36` | Maps a literal value to its string key representation used in `Enum`, `is`, |
+| `@beep/schema` | `LocalDate` | class | `packages/foundation/modeling/schema/src/LocalDate/LocalDate.schema.ts:51` | Schema class representing a calendar date without time or timezone. |
+| `@beep/schema` | `LocalDateFromString` | const | `packages/foundation/modeling/schema/src/LocalDate/LocalDate.schema.ts:485` | Schema that transforms ISO 8601 date strings (`YYYY-MM-DD`) into `LocalDate` instances. |
+| `@beep/schema` | `LocalDateFromString` | namespace | `packages/foundation/modeling/schema/src/LocalDate/LocalDate.schema.ts:511` | Namespace members for {@link LocalDateFromString}. |
+| `@beep/schema` | `LocalDateFromString` | type | `packages/foundation/modeling/schema/src/LocalDate/LocalDate.schema.ts:503` | Decoded `LocalDate` type extracted from {@link LocalDateFromString}. |
 | `@beep/schema` | `LogLevel` | const | `packages/foundation/modeling/schema/src/Logs.ts:31` | Supported log levels including global enable-all and disable-all sentinels. |
 | `@beep/schema` | `LogLevel` | type | `packages/foundation/modeling/schema/src/Logs.ts:43` | Runtime type for `LogLevel`. |
 | `@beep/schema` | `LogSeverity` | const | `packages/foundation/modeling/schema/src/Logs.ts:62` | Supported log severities emitted by the logger (excludes `All` and `None`). |
 | `@beep/schema` | `LogSeverity` | type | `packages/foundation/modeling/schema/src/Logs.ts:74` | Runtime type for `LogSeverity`. |
 | `@beep/schema` | `makeStatusCauseError` | const | `packages/foundation/modeling/schema/src/StatusCauseError.ts:193` | Build a tagged error directly or derive a reusable `(message, status, cause?) => Error` builder. |
-| `@beep/schema` | `MappedLiteralDuplicateError` | class | `packages/foundation/modeling/schema/src/MappedLiteralKit.ts:100` | Error thrown when `MappedLiteralKit` receives duplicate literals on the |
-| `@beep/schema` | `MappedLiteralKit` | function | `packages/foundation/modeling/schema/src/MappedLiteralKit.ts:337` | Builds a mapped literal schema kit from a non-empty tuple of literal pairs. |
-| `@beep/schema` | `MappedLiteralKit` | interface | `packages/foundation/modeling/schema/src/MappedLiteralKit.ts:306` | Public schema module export. |
+| `@beep/schema` | `MappedLiteralDuplicateError` | class | `packages/foundation/modeling/schema/src/MappedLiteralKit/MappedLiteralKit.schema.ts:100` | Error thrown when `MappedLiteralKit` receives duplicate literals on the |
+| `@beep/schema` | `MappedLiteralKit` | function | `packages/foundation/modeling/schema/src/MappedLiteralKit/MappedLiteralKit.schema.ts:337` | Builds a mapped literal schema kit from a non-empty tuple of literal pairs. |
+| `@beep/schema` | `MappedLiteralKit` | interface | `packages/foundation/modeling/schema/src/MappedLiteralKit/MappedLiteralKit.schema.ts:306` | Public schema module export. |
 | `@beep/schema` | `Markdown` | const | `packages/foundation/modeling/schema/src/Markdown.ts:122` | Branded schema for Markdown document strings accepted by the active parser. |
 | `@beep/schema` | `Markdown` | type | `packages/foundation/modeling/schema/src/Markdown.ts:141` | Branded Markdown document string type extracted from {@link Markdown}. |
 | `@beep/schema` | `MarkdownTextToHtml` | const | `packages/foundation/modeling/schema/src/Markdown.ts:169` | Schema factory that renders Markdown text into HTML using `Bun.markdown.html`. |
-| `@beep/schema` | `matchLiteral` | const | `packages/foundation/modeling/schema/src/LiteralKit.ts:215` | Converts a literal value to its string key at runtime using the |
+| `@beep/schema` | `matchLiteral` | const | `packages/foundation/modeling/schema/src/LiteralKit/LiteralKit.schema.ts:215` | Converts a literal value to its string key at runtime using the |
 | `@beep/schema` | `MimeType` | const | `packages/foundation/modeling/schema/src/MimeType.ts:99` | Schema kit that covers all supported mime types with per-category sub-schemas. |
 | `@beep/schema` | `MimeType` | type | `packages/foundation/modeling/schema/src/MimeType.ts:148` | Union of supported mime-type literals. |
 | `@beep/schema` | `MiscFileExtension` | const | `packages/foundation/modeling/schema/src/FileExtension.ts:293` | Schema for file extensions associated with miscellaneous mime types. |
 | `@beep/schema` | `MiscFileExtension` | type | `packages/foundation/modeling/schema/src/FileExtension.ts:315` | Union of literals accepted by {@link MiscFileExtension}. |
 | `@beep/schema` | `MiscMimeType` | const | `packages/foundation/modeling/schema/src/MimeType.ts:378` | Schema for miscellaneous mime-type literals that do not fit standard categories. |
 | `@beep/schema` | `MiscMimeType` | type | `packages/foundation/modeling/schema/src/MimeType.ts:401` | Union of miscellaneous mime-type literals. |
-| `@beep/schema` | `MixColors` | const | `packages/foundation/modeling/schema/src/color/Color.ts:1061` | One-way schema for mixing two colors. |
-| `@beep/schema` | `MixColors` | type | `packages/foundation/modeling/schema/src/color/Color.ts:1079` | Type for {@link MixColors}. |
-| `@beep/schema` | `MixColorsInput` | class | `packages/foundation/modeling/schema/src/color/Color.ts:1044` | Request schema for mixing two colors. |
-| `@beep/schema` | `Model` | SourceFile | `packages/foundation/modeling/schema/src/Model.ts:7` |  |
+| `@beep/schema` | `MixColors` | const | `packages/foundation/modeling/schema/src/Color/Color.adjust.ts:146` | One-way schema for mixing two colors. |
+| `@beep/schema` | `MixColors` | type | `packages/foundation/modeling/schema/src/Color/Color.adjust.ts:164` | Type for {@link MixColors}. |
+| `@beep/schema` | `MixColorsInput` | class | `packages/foundation/modeling/schema/src/Color/Color.adjust.ts:129` | Request schema for mixing two colors. |
+| `@beep/schema` | `Model` | SourceFile | `packages/foundation/modeling/schema/src/Model/index.ts:14` |  |
 | `@beep/schema` | `MutableDirectedGraph` | const | `packages/foundation/modeling/schema/src/Graph/Graph.transforms.ts:207` | Schema for mutable directed graphs. |
 | `@beep/schema` | `MutableDirectedGraph` | interface | `packages/foundation/modeling/schema/src/Graph/Graph.transforms.ts:52` | Schema for decoding encoded graph payloads into mutable directed graphs. |
 | `@beep/schema` | `MutableDirectedGraphFromSelf` | const | `packages/foundation/modeling/schema/src/Graph/Graph.from-self.ts:324` | Schema for validating existing mutable directed Effect graphs. |
@@ -9946,7 +9896,6 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/schema` | `MutableUndirectedGraphFromSelf` | const | `packages/foundation/modeling/schema/src/Graph/Graph.from-self.ts:345` | Schema for validating existing mutable undirected Effect graphs. |
 | `@beep/schema` | `MutableUndirectedGraphFromSelf` | interface | `packages/foundation/modeling/schema/src/Graph/Graph.from-self.ts:118` | Schema for validating existing mutable undirected Effect graphs. |
 | `@beep/schema` | `NativePathToPosixPath` | const | `packages/foundation/modeling/schema/src/PosixPath.ts:70` | Schema transformation that converts native file-system paths (with backslashes) to POSIX separators. |
-| `@beep/schema` | `NavigationDirective` | class | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:345` |  |
 | `@beep/schema` | `NegInt` | const | `packages/foundation/modeling/schema/src/Int.ts:154` | Branded schema for negative integers (less than zero). |
 | `@beep/schema` | `NegInt` | type | `packages/foundation/modeling/schema/src/Int.ts:180` | Type for {@link NegInt}. |
 | `@beep/schema` | `NodeIndex` | const | `packages/foundation/modeling/schema/src/Graph/Graph.primitives.ts:30` | Branded schema for graph node indices. |
@@ -9968,85 +9917,38 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/schema` | `NonNegNum` | type | `packages/foundation/modeling/schema/src/Number.ts:163` | Type for {@link NonNegNum}. |
 | `@beep/schema` | `NonPositiveInt` | const | `packages/foundation/modeling/schema/src/Int.ts:197` | Branded schema for non-positive integers (zero or less). |
 | `@beep/schema` | `NonPositiveInt` | type | `packages/foundation/modeling/schema/src/Int.ts:223` | Type for {@link NonPositiveInt}. |
-| `@beep/schema` | `NoOpenError` | class | `packages/foundation/modeling/schema/src/http/headers/SecureHeaderError.ts:139` |  |
-| `@beep/schema` | `NoOpenHeader` | const | `packages/foundation/modeling/schema/src/http/headers/NoOpen.ts:80` |  |
-| `@beep/schema` | `NoOpenHeader` | type | `packages/foundation/modeling/schema/src/http/headers/NoOpen.ts:139` |  |
-| `@beep/schema` | `NoOpenOption` | const | `packages/foundation/modeling/schema/src/http/headers/NoOpen.ts:47` |  |
-| `@beep/schema` | `NoOpenOption` | type | `packages/foundation/modeling/schema/src/http/headers/NoOpen.ts:58` |  |
-| `@beep/schema` | `NoOpenResponseHeader` | class | `packages/foundation/modeling/schema/src/http/headers/NoOpen.ts:64` |  |
-| `@beep/schema` | `NoOpenValue` | const | `packages/foundation/modeling/schema/src/http/headers/NoOpen.ts:28` |  |
-| `@beep/schema` | `NoOpenValue` | type | `packages/foundation/modeling/schema/src/http/headers/NoOpen.ts:39` |  |
+| `@beep/schema` | `NoOpen` | SourceFile | `packages/foundation/modeling/schema/src/NoOpen/index.ts:20` |  |
 | `@beep/schema` | `NormalizedBooleanString` | const | `packages/foundation/modeling/schema/src/CommonTextSchemas.ts:126` | Schema that normalizes common boolean string spellings (`"true"`, `"1"`, `"yes"`, `"on"`, etc.) to `boolean`. |
 | `@beep/schema` | `NormalizedBooleanString` | type | `packages/foundation/modeling/schema/src/CommonTextSchemas.ts:154` | Type for {@link NormalizedBooleanString}. |
-| `@beep/schema` | `NormalizeHexColor` | const | `packages/foundation/modeling/schema/src/color/Color.ts:430` | Canonicalization schema from boundary hex input to canonical hex output. |
-| `@beep/schema` | `NormalizeHexColor` | type | `packages/foundation/modeling/schema/src/color/Color.ts:451` | Type for {@link NormalizeHexColor}. |
+| `@beep/schema` | `NormalizeHexColor` | const | `packages/foundation/modeling/schema/src/Color/Color.hex.ts:149` | Canonicalization schema from boundary hex input to canonical hex output. |
+| `@beep/schema` | `NormalizeHexColor` | type | `packages/foundation/modeling/schema/src/Color/Color.hex.ts:170` | Type for {@link NormalizeHexColor}. |
 | `@beep/schema` | `normalizePath` | const | `packages/foundation/modeling/schema/src/PosixPath.ts:104` | Normalize a file-system path string to POSIX separators. |
-| `@beep/schema` | `NoSniffError` | class | `packages/foundation/modeling/schema/src/http/headers/SecureHeaderError.ts:133` |  |
-| `@beep/schema` | `NoSniffHeader` | const | `packages/foundation/modeling/schema/src/http/headers/NoSniff.ts:128` | One-way schema that decodes `X-Content-Type-Options` options into the response header. |
-| `@beep/schema` | `NoSniffHeader` | type | `packages/foundation/modeling/schema/src/http/headers/NoSniff.ts:189` | Type-level representation of {@link NoSniffHeader}. |
-| `@beep/schema` | `NoSniffOption` | const | `packages/foundation/modeling/schema/src/http/headers/NoSniff.ts:71` | Schema for `X-Content-Type-Options` option values, including `false` to disable. |
-| `@beep/schema` | `NoSniffOption` | type | `packages/foundation/modeling/schema/src/http/headers/NoSniff.ts:84` | Type-level representation of {@link NoSniffOption}. |
-| `@beep/schema` | `NoSniffResponseHeader` | class | `packages/foundation/modeling/schema/src/http/headers/NoSniff.ts:101` | Parsed `X-Content-Type-Options` response header with name and optional value. |
-| `@beep/schema` | `NoSniffValue` | const | `packages/foundation/modeling/schema/src/http/headers/NoSniff.ts:39` | Schema for supported `X-Content-Type-Options` header values. |
-| `@beep/schema` | `NoSniffValue` | type | `packages/foundation/modeling/schema/src/http/headers/NoSniff.ts:52` | Type-level representation of {@link NoSniffValue}. |
+| `@beep/schema` | `NoSniff` | SourceFile | `packages/foundation/modeling/schema/src/NoSniff/index.ts:20` |  |
 | `@beep/schema` | `NullableStr` | const | `packages/foundation/modeling/schema/src/String.ts:104` | A nullable string schema that accepts `string \| null`. |
 | `@beep/schema` | `NullableStr` | type | `packages/foundation/modeling/schema/src/String.ts:124` | Type for {@link NullableStr}. |
-| `@beep/schema` | `OklchChroma` | const | `packages/foundation/modeling/schema/src/color/Color.ts:587` | Canonical OKLCH chroma component. |
-| `@beep/schema` | `OklchChroma` | type | `packages/foundation/modeling/schema/src/color/Color.ts:603` | Type for {@link OklchChroma}. |
-| `@beep/schema` | `OklchColor` | class | `packages/foundation/modeling/schema/src/color/Color.ts:652` | Canonical OKLCH color object. |
-| `@beep/schema` | `OklchCoordinate` | const | `packages/foundation/modeling/schema/src/color/Color.ts:540` | Branded finite OKLCH coordinate. |
-| `@beep/schema` | `OklchCoordinate` | type | `packages/foundation/modeling/schema/src/color/Color.ts:555` | Type for {@link OklchCoordinate}. |
-| `@beep/schema` | `OklchHue` | const | `packages/foundation/modeling/schema/src/color/Color.ts:611` | Canonical OKLCH hue component. |
-| `@beep/schema` | `OklchHue` | type | `packages/foundation/modeling/schema/src/color/Color.ts:627` | Type for {@link OklchHue}. |
-| `@beep/schema` | `OklchInput` | class | `packages/foundation/modeling/schema/src/color/Color.ts:635` | OKLCH object with finite coordinates. |
-| `@beep/schema` | `OklchLightness` | const | `packages/foundation/modeling/schema/src/color/Color.ts:563` | Canonical OKLCH lightness component. |
-| `@beep/schema` | `OklchLightness` | type | `packages/foundation/modeling/schema/src/color/Color.ts:579` | Type for {@link OklchLightness}. |
-| `@beep/schema` | `OklchToHex` | const | `packages/foundation/modeling/schema/src/color/Color.ts:853` | Transformation schema for encoding OKLCH coordinates into canonical hex. |
-| `@beep/schema` | `OklchToHex` | type | `packages/foundation/modeling/schema/src/color/Color.ts:871` | Type for {@link OklchToHex}. |
-| `@beep/schema` | `OklchToRgb` | const | `packages/foundation/modeling/schema/src/color/Color.ts:798` | Transformation schema for encoding OKLCH coordinates into RGB input values. |
-| `@beep/schema` | `OklchToRgb` | type | `packages/foundation/modeling/schema/src/color/Color.ts:816` | Type for {@link OklchToRgb}. |
+| `@beep/schema` | `OklchChroma` | const | `packages/foundation/modeling/schema/src/Color/Color.oklch.ts:177` | Canonical OKLCH chroma component. |
+| `@beep/schema` | `OklchChroma` | type | `packages/foundation/modeling/schema/src/Color/Color.oklch.ts:193` | Type for {@link OklchChroma}. |
+| `@beep/schema` | `OklchColor` | class | `packages/foundation/modeling/schema/src/Color/Color.oklch.ts:242` | Canonical OKLCH color object. |
+| `@beep/schema` | `OklchCoordinate` | const | `packages/foundation/modeling/schema/src/Color/Color.oklch.ts:130` | Branded finite OKLCH coordinate. |
+| `@beep/schema` | `OklchCoordinate` | type | `packages/foundation/modeling/schema/src/Color/Color.oklch.ts:145` | Type for {@link OklchCoordinate}. |
+| `@beep/schema` | `OklchHue` | const | `packages/foundation/modeling/schema/src/Color/Color.oklch.ts:201` | Canonical OKLCH hue component. |
+| `@beep/schema` | `OklchHue` | type | `packages/foundation/modeling/schema/src/Color/Color.oklch.ts:217` | Type for {@link OklchHue}. |
+| `@beep/schema` | `OklchInput` | class | `packages/foundation/modeling/schema/src/Color/Color.oklch.ts:225` | OKLCH object with finite coordinates. |
+| `@beep/schema` | `OklchLightness` | const | `packages/foundation/modeling/schema/src/Color/Color.oklch.ts:153` | Canonical OKLCH lightness component. |
+| `@beep/schema` | `OklchLightness` | type | `packages/foundation/modeling/schema/src/Color/Color.oklch.ts:169` | Type for {@link OklchLightness}. |
+| `@beep/schema` | `OklchToHex` | const | `packages/foundation/modeling/schema/src/Color/Color.transforms.ts:174` | Transformation schema for encoding OKLCH coordinates into canonical hex. |
+| `@beep/schema` | `OklchToHex` | type | `packages/foundation/modeling/schema/src/Color/Color.transforms.ts:192` | Type for {@link OklchToHex}. |
+| `@beep/schema` | `OklchToRgb` | const | `packages/foundation/modeling/schema/src/Color/Color.transforms.ts:119` | Transformation schema for encoding OKLCH coordinates into RGB input values. |
+| `@beep/schema` | `OklchToRgb` | type | `packages/foundation/modeling/schema/src/Color/Color.transforms.ts:137` | Type for {@link OklchToRgb}. |
 | `@beep/schema` | `OptionFromNullableStr` | const | `packages/foundation/modeling/schema/src/String.ts:141` | A nullable string that decodes to `Option<string>` using `S.OptionFromNullOr`. |
 | `@beep/schema` | `OptionFromNullableStr` | type | `packages/foundation/modeling/schema/src/String.ts:154` | Type for {@link OptionFromNullableStr}. |
 | `@beep/schema` | `OptionFromOptionalNullishKey` | const | `packages/foundation/modeling/schema/src/Options.ts:78` | Decodes an optional object key whose value may also be `null` or `undefined` |
-| `@beep/schema` | `Order` | const | `packages/foundation/modeling/schema/src/LocalDate.ts:279` | Chronological `Order` for `LocalDate` values. |
-| `@beep/schema` | `parseCsvRows` | const | `packages/foundation/modeling/schema/src/csv/parse/CsvParser.ts:379` | Parse full CSV text into raw row arrays using low-level parser options. |
-| `@beep/schema` | `ParsedField` | class | `packages/foundation/modeling/schema/src/csv/parse/CsvParser.ts:98` |  |
-| `@beep/schema` | `ParsedRow` | class | `packages/foundation/modeling/schema/src/csv/parse/CsvParser.ts:243` |  |
-| `@beep/schema` | `ParserOptions` | class | `packages/foundation/modeling/schema/src/csv/parse/ParserOptions.ts:107` | Schema-backed CSV parser options. |
-| `@beep/schema` | `ParserOptionsArgs` | type | `packages/foundation/modeling/schema/src/csv/parse/ParserOptions.ts:226` | Encoded/raw constructor input for {@link ParserOptions}. |
-| `@beep/schema` | `ParserOptionsError` | class | `packages/foundation/modeling/schema/src/csv/parse/ParserOptions.ts:80` | A parser options configuration error. |
+| `@beep/schema` | `Order` | const | `packages/foundation/modeling/schema/src/LocalDate/LocalDate.schema.ts:279` | Chronological `Order` for `LocalDate` values. |
 | `@beep/schema` | `parseYaml` | const | `packages/foundation/modeling/schema/src/Yaml.ts:73` | Parses a YAML string into a JavaScript value. Uses `Bun.YAML` when available |
 | `@beep/schema` | `PascalCaseStr` | const | `packages/foundation/modeling/schema/src/PascalStr.ts:28` | Branded PascalCase string schema. |
 | `@beep/schema` | `PascalCaseStr` | type | `packages/foundation/modeling/schema/src/PascalStr.ts:54` | Type for {@link PascalCaseStr}. |
-| `@beep/schema` | `PermissionsPolicyAllowlistedOrigin` | const | `packages/foundation/modeling/schema/src/http/headers/PermissionsPolicy.ts:138` |  |
-| `@beep/schema` | `PermissionsPolicyAllowlistedOrigin` | type | `packages/foundation/modeling/schema/src/http/headers/PermissionsPolicy.ts:148` |  |
-| `@beep/schema` | `PermissionsPolicyDirective` | const | `packages/foundation/modeling/schema/src/http/headers/PermissionsPolicy.ts:57` |  |
-| `@beep/schema` | `PermissionsPolicyDirective` | type | `packages/foundation/modeling/schema/src/http/headers/PermissionsPolicy.ts:68` |  |
-| `@beep/schema` | `PermissionsPolicyDirectiveKey` | const | `packages/foundation/modeling/schema/src/http/headers/PermissionsPolicy.ts:74` |  |
-| `@beep/schema` | `PermissionsPolicyDirectiveKey` | type | `packages/foundation/modeling/schema/src/http/headers/PermissionsPolicy.ts:91` |  |
-| `@beep/schema` | `PermissionsPolicyDirectives` | const | `packages/foundation/modeling/schema/src/http/headers/PermissionsPolicy.ts:174` |  |
-| `@beep/schema` | `PermissionsPolicyDirectives` | type | `packages/foundation/modeling/schema/src/http/headers/PermissionsPolicy.ts:187` |  |
-| `@beep/schema` | `PermissionsPolicyDirectiveValue` | const | `packages/foundation/modeling/schema/src/http/headers/PermissionsPolicy.ts:154` |  |
-| `@beep/schema` | `PermissionsPolicyDirectiveValue` | type | `packages/foundation/modeling/schema/src/http/headers/PermissionsPolicy.ts:168` |  |
-| `@beep/schema` | `PermissionsPolicyDirectiveValueSingle` | const | `packages/foundation/modeling/schema/src/http/headers/PermissionsPolicy.ts:121` |  |
-| `@beep/schema` | `PermissionsPolicyDirectiveValueSingle` | type | `packages/foundation/modeling/schema/src/http/headers/PermissionsPolicy.ts:132` |  |
-| `@beep/schema` | `PermissionsPolicyError` | class | `packages/foundation/modeling/schema/src/http/headers/SecureHeaderError.ts:157` |  |
-| `@beep/schema` | `PermissionsPolicyHeader` | const | `packages/foundation/modeling/schema/src/http/headers/PermissionsPolicy.ts:272` |  |
-| `@beep/schema` | `PermissionsPolicyHeader` | type | `packages/foundation/modeling/schema/src/http/headers/PermissionsPolicy.ts:333` |  |
-| `@beep/schema` | `PermissionsPolicyOption` | const | `packages/foundation/modeling/schema/src/http/headers/PermissionsPolicy.ts:208` |  |
-| `@beep/schema` | `PermissionsPolicyOption` | type | `packages/foundation/modeling/schema/src/http/headers/PermissionsPolicy.ts:218` |  |
-| `@beep/schema` | `PermissionsPolicyOptionStruct` | class | `packages/foundation/modeling/schema/src/http/headers/PermissionsPolicy.ts:193` |  |
-| `@beep/schema` | `PermissionsPolicyResponseHeader` | class | `packages/foundation/modeling/schema/src/http/headers/PermissionsPolicy.ts:224` |  |
-| `@beep/schema` | `PermittedCrossDomainPoliciesError` | class | `packages/foundation/modeling/schema/src/http/headers/SecureHeaderError.ts:181` |  |
-| `@beep/schema` | `PermittedCrossDomainPoliciesHeader` | const | `packages/foundation/modeling/schema/src/http/headers/PermittedCrossDomainPolicies.ts:88` |  |
-| `@beep/schema` | `PermittedCrossDomainPoliciesHeader` | type | `packages/foundation/modeling/schema/src/http/headers/PermittedCrossDomainPolicies.ts:150` |  |
-| `@beep/schema` | `PermittedCrossDomainPoliciesOption` | const | `packages/foundation/modeling/schema/src/http/headers/PermittedCrossDomainPolicies.ts:53` |  |
-| `@beep/schema` | `PermittedCrossDomainPoliciesOption` | type | `packages/foundation/modeling/schema/src/http/headers/PermittedCrossDomainPolicies.ts:64` |  |
-| `@beep/schema` | `PermittedCrossDomainPoliciesResponseHeader` | class | `packages/foundation/modeling/schema/src/http/headers/PermittedCrossDomainPolicies.ts:70` |  |
-| `@beep/schema` | `PermittedCrossDomainPoliciesValue` | const | `packages/foundation/modeling/schema/src/http/headers/PermittedCrossDomainPolicies.ts:34` |  |
-| `@beep/schema` | `PermittedCrossDomainPoliciesValue` | type | `packages/foundation/modeling/schema/src/http/headers/PermittedCrossDomainPolicies.ts:45` |  |
-| `@beep/schema` | `PluginTypes` | const | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:145` |  |
-| `@beep/schema` | `PluginTypes` | type | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:155` |  |
+| `@beep/schema` | `PermissionsPolicy` | SourceFile | `packages/foundation/modeling/schema/src/PermissionsPolicy/index.ts:20` |  |
+| `@beep/schema` | `PermittedCrossDomainPolicies` | SourceFile | `packages/foundation/modeling/schema/src/PermittedCrossDomainPolicies/index.ts:20` |  |
 | `@beep/schema` | `PosInt` | const | `packages/foundation/modeling/schema/src/Int.ts:72` | Branded schema for positive integers (greater than zero). |
 | `@beep/schema` | `PosInt` | type | `packages/foundation/modeling/schema/src/Int.ts:98` | Type for {@link PosInt}. |
 | `@beep/schema` | `PosixPath` | const | `packages/foundation/modeling/schema/src/PosixPath.ts:31` | Branded schema for path strings using only POSIX `/` separators. |
@@ -10057,51 +9959,35 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/schema` | `Primitive` | type | `packages/foundation/modeling/schema/src/Primitive.ts:47` | {@inheritDoc Primitive} |
 | `@beep/schema` | `PromiseSchema` | const | `packages/foundation/modeling/schema/src/PromiseSchema.ts:91` | Declared schema for native JavaScript `Promise` values. |
 | `@beep/schema` | `PromiseSchema` | type | `packages/foundation/modeling/schema/src/PromiseSchema.ts:112` | {@inheritDoc PromiseSchema} |
-| `@beep/schema` | `QuotedOrigin` | const | `packages/foundation/modeling/schema/src/http/headers/PermissionsPolicy.ts:97` |  |
-| `@beep/schema` | `QuotedOrigin` | type | `packages/foundation/modeling/schema/src/http/headers/PermissionsPolicy.ts:113` |  |
-| `@beep/schema` | `ReferrerPolicyError` | class | `packages/foundation/modeling/schema/src/http/headers/SecureHeaderError.ts:127` |  |
-| `@beep/schema` | `ReferrerPolicyHeader` | const | `packages/foundation/modeling/schema/src/http/headers/ReferrerPolicy.ts:126` |  |
-| `@beep/schema` | `ReferrerPolicyHeader` | type | `packages/foundation/modeling/schema/src/http/headers/ReferrerPolicy.ts:192` |  |
-| `@beep/schema` | `ReferrerPolicyOption` | const | `packages/foundation/modeling/schema/src/http/headers/ReferrerPolicy.ts:70` |  |
-| `@beep/schema` | `ReferrerPolicyOption` | type | `packages/foundation/modeling/schema/src/http/headers/ReferrerPolicy.ts:80` |  |
-| `@beep/schema` | `ReferrerPolicyResponseHeader` | class | `packages/foundation/modeling/schema/src/http/headers/ReferrerPolicy.ts:86` |  |
-| `@beep/schema` | `ReferrerPolicyValue` | const | `packages/foundation/modeling/schema/src/http/headers/ReferrerPolicy.ts:37` |  |
-| `@beep/schema` | `ReferrerPolicyValue` | type | `packages/foundation/modeling/schema/src/http/headers/ReferrerPolicy.ts:48` |  |
-| `@beep/schema` | `ReferrerPolicyValueList` | const | `packages/foundation/modeling/schema/src/http/headers/ReferrerPolicy.ts:54` |  |
-| `@beep/schema` | `ReferrerPolicyValueList` | type | `packages/foundation/modeling/schema/src/http/headers/ReferrerPolicy.ts:64` |  |
+| `@beep/schema` | `ReferrerPolicy` | SourceFile | `packages/foundation/modeling/schema/src/ReferrerPolicy/index.ts:20` |  |
 | `@beep/schema` | `RegExpFromStr` | const | `packages/foundation/modeling/schema/src/RegExp.ts:107` | One-way schema that decodes a valid pattern string into a JavaScript `RegExp` object. |
 | `@beep/schema` | `RegExpFromStr` | type | `packages/foundation/modeling/schema/src/RegExp.ts:135` | Type for {@link RegExpFromStr}. |
 | `@beep/schema` | `RegExpStr` | const | `packages/foundation/modeling/schema/src/RegExp.ts:58` | Branded schema for strings that can be converted directly to a JavaScript `RegExp`. |
 | `@beep/schema` | `RegExpStr` | type | `packages/foundation/modeling/schema/src/RegExp.ts:80` | Type for {@link RegExpStr}. |
-| `@beep/schema` | `ReportingDirective` | class | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:399` |  |
-| `@beep/schema` | `ReportURI` | const | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:389` |  |
-| `@beep/schema` | `Rgb` | class | `packages/foundation/modeling/schema/src/color/Color.ts:523` | RGB object with normalized channels. |
-| `@beep/schema` | `RgbaColorString` | const | `packages/foundation/modeling/schema/src/color/Color.ts:694` | CSS rgba color string produced by with-alpha helpers. |
-| `@beep/schema` | `RgbaColorString` | type | `packages/foundation/modeling/schema/src/color/Color.ts:709` | Type for {@link RgbaColorString}. |
-| `@beep/schema` | `RgbChannel` | const | `packages/foundation/modeling/schema/src/color/Color.ts:482` | Branded normalized RGB channel in the range 0 through 1. |
-| `@beep/schema` | `RgbChannel` | type | `packages/foundation/modeling/schema/src/color/Color.ts:498` | Type for {@link RgbChannel}. |
-| `@beep/schema` | `RgbInput` | class | `packages/foundation/modeling/schema/src/color/Color.ts:506` | RGB object with finite channel inputs. |
-| `@beep/schema` | `RgbInputChannel` | const | `packages/foundation/modeling/schema/src/color/Color.ts:459` | Branded finite RGB input channel. |
-| `@beep/schema` | `RgbInputChannel` | type | `packages/foundation/modeling/schema/src/color/Color.ts:474` | Type for {@link RgbInputChannel}. |
-| `@beep/schema` | `RgbToHex` | const | `packages/foundation/modeling/schema/src/color/Color.ts:746` | Transformation schema for encoding RGB input into canonical hex. |
-| `@beep/schema` | `RgbToHex` | type | `packages/foundation/modeling/schema/src/color/Color.ts:764` | Type for {@link RgbToHex}. |
-| `@beep/schema` | `RgbToOklch` | const | `packages/foundation/modeling/schema/src/color/Color.ts:772` | Transformation schema for decoding normalized RGB into canonical OKLCH. |
-| `@beep/schema` | `RgbToOklch` | type | `packages/foundation/modeling/schema/src/color/Color.ts:790` | Type for {@link RgbToOklch}. |
-| `@beep/schema` | `Sandbox` | const | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:178` |  |
-| `@beep/schema` | `Sandbox` | type | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:189` |  |
+| `@beep/schema` | `Rgb` | class | `packages/foundation/modeling/schema/src/Color/Color.rgb.ts:94` | RGB object with normalized channels. |
+| `@beep/schema` | `RgbaColorString` | const | `packages/foundation/modeling/schema/src/Color/Color.adjust.ts:83` | CSS rgba color string produced by with-alpha helpers. |
+| `@beep/schema` | `RgbaColorString` | type | `packages/foundation/modeling/schema/src/Color/Color.adjust.ts:98` | Type for {@link RgbaColorString}. |
+| `@beep/schema` | `RgbChannel` | const | `packages/foundation/modeling/schema/src/Color/Color.rgb.ts:53` | Branded normalized RGB channel in the range 0 through 1. |
+| `@beep/schema` | `RgbChannel` | type | `packages/foundation/modeling/schema/src/Color/Color.rgb.ts:69` | Type for {@link RgbChannel}. |
+| `@beep/schema` | `RgbInput` | class | `packages/foundation/modeling/schema/src/Color/Color.rgb.ts:77` | RGB object with finite channel inputs. |
+| `@beep/schema` | `RgbInputChannel` | const | `packages/foundation/modeling/schema/src/Color/Color.rgb.ts:30` | Branded finite RGB input channel. |
+| `@beep/schema` | `RgbInputChannel` | type | `packages/foundation/modeling/schema/src/Color/Color.rgb.ts:45` | Type for {@link RgbInputChannel}. |
+| `@beep/schema` | `RgbToHex` | const | `packages/foundation/modeling/schema/src/Color/Color.transforms.ts:67` | Transformation schema for encoding RGB input into canonical hex. |
+| `@beep/schema` | `RgbToHex` | type | `packages/foundation/modeling/schema/src/Color/Color.transforms.ts:85` | Type for {@link RgbToHex}. |
+| `@beep/schema` | `RgbToOklch` | const | `packages/foundation/modeling/schema/src/Color/Color.transforms.ts:93` | Transformation schema for decoding normalized RGB into canonical OKLCH. |
+| `@beep/schema` | `RgbToOklch` | type | `packages/foundation/modeling/schema/src/Color/Color.transforms.ts:111` | Type for {@link RgbToOklch}. |
+| `@beep/schema` | `RowSchemaWithFields` | type | `packages/foundation/modeling/schema/src/Csv/Csv.schema.ts:38` | Object-like row schema contract accepted by the CSV schema factory. |
+| `@beep/schema` | `Schema` | const | `packages/foundation/modeling/schema/src/Glob/Glob.schema.ts:128` | Primary glob schema role alias. |
+| `@beep/schema` | `Schema` | type | `packages/foundation/modeling/schema/src/Glob/Glob.schema.ts:136` | Runtime type extracted from {@link Schema}. |
 | `@beep/schema` | `SchemaUtils` | SourceFile | `packages/foundation/modeling/schema/src/SchemaUtils/index.ts:12` |  |
-| `@beep/schema` | `SecureHeader` | const | `packages/foundation/modeling/schema/src/http/headers/SecureHeader.ts:33` |  |
-| `@beep/schema` | `SecureHeader` | type | `packages/foundation/modeling/schema/src/http/headers/SecureHeader.ts:44` |  |
-| `@beep/schema` | `SecureHeaderEntry` | class | `packages/foundation/modeling/schema/src/http/headers/SecureHeaderOptions.ts:87` | A rendered secure header pair in `{ key, value }` format. |
-| `@beep/schema` | `SecureHeaderError` | const | `packages/foundation/modeling/schema/src/http/headers/SecureHeaderError.ts:193` |  |
-| `@beep/schema` | `SecureHeaderError` | type | `packages/foundation/modeling/schema/src/http/headers/SecureHeaderError.ts:221` |  |
-| `@beep/schema` | `SecureHeaderOptions` | class | `packages/foundation/modeling/schema/src/http/headers/SecureHeaderOptions.ts:52` | Aggregate input options for configuring all secure response headers. |
+| `@beep/schema` | `SecureHeader` | SourceFile | `packages/foundation/modeling/schema/src/SecureHeader/index.ts:22` |  |
+| `@beep/schema` | `SecureHeaderError` | SourceFile | `packages/foundation/modeling/schema/src/SecureHeaderError/index.ts:20` |  |
+| `@beep/schema` | `SecureHeaderOptions` | SourceFile | `packages/foundation/modeling/schema/src/SecureHeaderOptions/index.ts:20` |  |
 | `@beep/schema` | `SemanticVersion` | const | `packages/foundation/modeling/schema/src/SemanticVersion.ts:46` | A Semantic Versioning (SemVer) schema for validating `MAJOR.MINOR.PATCH` version strings. |
 | `@beep/schema` | `SemanticVersion` | type | `packages/foundation/modeling/schema/src/SemanticVersion.ts:75` | {@inheritDoc SemanticVersion} |
 | `@beep/schema` | `SeverityLevel` | const | `packages/foundation/modeling/schema/src/SeverityLevel.ts:30` | Generic four-level severity scale: `"low"`, `"medium"`, `"high"`, `"critical"`. |
 | `@beep/schema` | `SeverityLevel` | type | `packages/foundation/modeling/schema/src/SeverityLevel.ts:49` | Type for {@link SeverityLevel}. |
-| `@beep/schema` | `Sex` | const | `packages/foundation/modeling/schema/src/person/Sex.ts:16` | The sex of a person ("male" or "female"). |
-| `@beep/schema` | `Sex` | type | `packages/foundation/modeling/schema/src/person/Sex.ts:27` | {@inheritDoc Sex} |
+| `@beep/schema` | `Sex` | SourceFile | `packages/foundation/modeling/schema/src/Sex/index.ts:22` |  |
 | `@beep/schema` | `Sha256Hex` | const | `packages/foundation/modeling/schema/src/Sha256.ts:57` | Branded schema for canonical lowercase SHA-256 hex digests (64 hex characters). |
 | `@beep/schema` | `Sha256Hex` | type | `packages/foundation/modeling/schema/src/Sha256.ts:79` | Type for {@link Sha256Hex}. |
 | `@beep/schema` | `Sha256HexFromBytes` | const | `packages/foundation/modeling/schema/src/Sha256.ts:101` | One-way schema that decodes a byte array into a canonical lowercase SHA-256 |
@@ -10113,37 +9999,37 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/schema` | `SlugFromStr` | const | `packages/foundation/modeling/schema/src/Slug.ts:106` | Non-empty string schema used as the source input for {@link Slug}. |
 | `@beep/schema` | `SnakeCaseStr` | const | `packages/foundation/modeling/schema/src/SnakeStr.ts:28` | Branded snake_case string schema. |
 | `@beep/schema` | `SnakeCaseStr` | type | `packages/foundation/modeling/schema/src/SnakeStr.ts:54` | Type for {@link SnakeCaseStr}. |
-| `@beep/schema` | `startOfMonth` | const | `packages/foundation/modeling/schema/src/LocalDate.ts:396` | Return the first day of the month for the given `LocalDate`. |
-| `@beep/schema` | `startOfYear` | const | `packages/foundation/modeling/schema/src/LocalDate.ts:422` | Return January 1st for the year of the given `LocalDate`. |
+| `@beep/schema` | `startOfMonth` | const | `packages/foundation/modeling/schema/src/LocalDate/LocalDate.schema.ts:396` | Return the first day of the month for the given `LocalDate`. |
+| `@beep/schema` | `startOfYear` | const | `packages/foundation/modeling/schema/src/LocalDate/LocalDate.schema.ts:422` | Return January 1st for the year of the given `LocalDate`. |
 | `@beep/schema` | `StatusCauseFields` | const | `packages/foundation/modeling/schema/src/StatusCauseError.ts:39` | Shared field set for tagged errors that carry a message, HTTP status, and optional defect cause. |
 | `@beep/schema` | `statusCauseInput` | const | `packages/foundation/modeling/schema/src/StatusCauseError.ts:113` | Creates normalized status/cause input payloads. |
 | `@beep/schema` | `StatusCauseInput` | class | `packages/foundation/modeling/schema/src/StatusCauseError.ts:87` | Input payload shape produced by {@link statusCauseInput}. |
 | `@beep/schema` | `StatusCauseInputOptions` | class | `packages/foundation/modeling/schema/src/StatusCauseError.ts:62` | Build the payload object expected by errors using {@link StatusCauseFields}. |
-| `@beep/schema` | `StatusCauseTaggedErrorClass` | const | `packages/foundation/modeling/schema/src/StatusCauseTaggedErrorClass.ts:526` | Create a tagged error class that carries `message`, `status`, and optional defect `cause`. |
-| `@beep/schema` | `StatusCauseTaggedErrorClassConstructor` | type | `packages/foundation/modeling/schema/src/StatusCauseTaggedErrorClass.ts:264` | Callable constructor for creating status-cause tagged error class factories. |
-| `@beep/schema` | `StatusCauseTaggedErrorClassFactory` | interface | `packages/foundation/modeling/schema/src/StatusCauseTaggedErrorClass.ts:219` | Factory returned by {@link StatusCauseTaggedErrorClass} after an identity namespace has been selected. |
-| `@beep/schema` | `StatusCauseTaggedErrorClassWithStatics` | type | `packages/foundation/modeling/schema/src/StatusCauseTaggedErrorClass.ts:169` | Tagged error class returned by {@link StatusCauseTaggedErrorClass}, including dual status/cause helpers. |
+| `@beep/schema` | `StatusCauseTaggedErrorClass` | const | `packages/foundation/modeling/schema/src/StatusCauseTaggedErrorClass/StatusCauseTaggedErrorClass.errors.ts:526` | Create a tagged error class that carries `message`, `status`, and optional defect `cause`. |
+| `@beep/schema` | `StatusCauseTaggedErrorClassConstructor` | type | `packages/foundation/modeling/schema/src/StatusCauseTaggedErrorClass/StatusCauseTaggedErrorClass.errors.ts:264` | Callable constructor for creating status-cause tagged error class factories. |
+| `@beep/schema` | `StatusCauseTaggedErrorClassFactory` | interface | `packages/foundation/modeling/schema/src/StatusCauseTaggedErrorClass/StatusCauseTaggedErrorClass.errors.ts:219` | Factory returned by {@link StatusCauseTaggedErrorClass} after an identity namespace has been selected. |
+| `@beep/schema` | `StatusCauseTaggedErrorClassWithStatics` | type | `packages/foundation/modeling/schema/src/StatusCauseTaggedErrorClass/StatusCauseTaggedErrorClass.errors.ts:169` | Tagged error class returned by {@link StatusCauseTaggedErrorClass}, including dual status/cause helpers. |
 | `@beep/schema` | `SupportedPathFamily` | const | `packages/foundation/modeling/schema/src/FilePath/FilePath.schema.ts:31` | Literal union of file-path families recognized by {@link FilePath}. |
 | `@beep/schema` | `SupportedPathFamily` | type | `packages/foundation/modeling/schema/src/FilePath/FilePath.schema.ts:43` | Type for {@link SupportedPathFamily}. |
 | `@beep/schema` | `SupportedWindowsNamespace` | const | `packages/foundation/modeling/schema/src/FilePath/FilePath.guards.ts:60` | Branded schema for path strings that do not use unsupported Windows device |
 | `@beep/schema` | `SupportedWindowsNamespace` | type | `packages/foundation/modeling/schema/src/FilePath/FilePath.guards.ts:82` | Type for {@link SupportedWindowsNamespace}. |
-| `@beep/schema` | `TaggedErrorClass` | const | `packages/foundation/modeling/schema/src/TaggedErrorClass.ts:294` | Create a tagged error class with `_tag` discrimination and constructor input inferred from the schema. |
-| `@beep/schema` | `TaggedErrorClassConstructor` | type | `packages/foundation/modeling/schema/src/TaggedErrorClass.ts:244` | Callable constructor type for building tagged error classes. |
-| `@beep/schema` | `TaggedErrorClassFactory` | interface | `packages/foundation/modeling/schema/src/TaggedErrorClass.ts:208` | Factory interface returned by {@link TaggedErrorClass} that accepts a tag, fields, and optional annotations. |
-| `@beep/schema` | `TaggedErrorClassFromFields` | type | `packages/foundation/modeling/schema/src/TaggedErrorClass.ts:143` | Tagged error class type derived from a fields object. |
-| `@beep/schema` | `TaggedErrorClassFromSchema` | type | `packages/foundation/modeling/schema/src/TaggedErrorClass.ts:175` | Tagged error class type derived from a struct schema. |
-| `@beep/schema` | `TaggedErrorNewInput` | type | `packages/foundation/modeling/schema/src/TaggedErrorClass.ts:84` | Input type for constructing a tagged error, omitting the discriminator `_tag`. |
+| `@beep/schema` | `TaggedErrorClass` | const | `packages/foundation/modeling/schema/src/TaggedErrorClass/TaggedErrorClass.errors.ts:294` | Create a tagged error class with `_tag` discrimination and constructor input inferred from the schema. |
+| `@beep/schema` | `TaggedErrorClassConstructor` | type | `packages/foundation/modeling/schema/src/TaggedErrorClass/TaggedErrorClass.errors.ts:244` | Callable constructor type for building tagged error classes. |
+| `@beep/schema` | `TaggedErrorClassFactory` | interface | `packages/foundation/modeling/schema/src/TaggedErrorClass/TaggedErrorClass.errors.ts:208` | Factory interface returned by {@link TaggedErrorClass} that accepts a tag, fields, and optional annotations. |
+| `@beep/schema` | `TaggedErrorClassFromFields` | type | `packages/foundation/modeling/schema/src/TaggedErrorClass/TaggedErrorClass.errors.ts:143` | Tagged error class type derived from a fields object. |
+| `@beep/schema` | `TaggedErrorClassFromSchema` | type | `packages/foundation/modeling/schema/src/TaggedErrorClass/TaggedErrorClass.errors.ts:175` | Tagged error class type derived from a struct schema. |
+| `@beep/schema` | `TaggedErrorNewInput` | type | `packages/foundation/modeling/schema/src/TaggedErrorClass/TaggedErrorClass.errors.ts:84` | Input type for constructing a tagged error, omitting the discriminator `_tag`. |
 | `@beep/schema` | `TextFileExtension` | const | `packages/foundation/modeling/schema/src/FileExtension.ts:177` | Schema for file extensions associated with `text/*` mime types. |
 | `@beep/schema` | `TextFileExtension` | type | `packages/foundation/modeling/schema/src/FileExtension.ts:199` | Union of literals accepted by {@link TextFileExtension}. |
 | `@beep/schema` | `TextMimeType` | const | `packages/foundation/modeling/schema/src/MimeType.ts:252` | Schema for `text/*` mime-type literals. |
 | `@beep/schema` | `TextMimeType` | type | `packages/foundation/modeling/schema/src/MimeType.ts:275` | Union of text mime-type literals. |
-| `@beep/schema` | `ThunkOf` | function | `packages/foundation/modeling/schema/src/Fn.ts:449` | Creates a thunk schema whose invocation output is validated against the |
-| `@beep/schema` | `ThunkOf` | function | `packages/foundation/modeling/schema/src/Fn.ts:456` | Public schema module export. |
-| `@beep/schema` | `ThunkOf` | function | `packages/foundation/modeling/schema/src/Fn.ts:466` | Public schema module export. |
+| `@beep/schema` | `ThunkOf` | function | `packages/foundation/modeling/schema/src/Fn/Fn.schema.ts:449` | Creates a thunk schema whose invocation output is validated against the |
+| `@beep/schema` | `ThunkOf` | function | `packages/foundation/modeling/schema/src/Fn/Fn.schema.ts:456` | Public schema module export. |
+| `@beep/schema` | `ThunkOf` | function | `packages/foundation/modeling/schema/src/Fn/Fn.schema.ts:466` | Public schema module export. |
 | `@beep/schema` | `Timezone` | const | `packages/foundation/modeling/schema/src/Timezone.ts:28` | IANA timezone identifier schema covering standard regions and UTC offsets. |
 | `@beep/schema` | `Timezone` | type | `packages/foundation/modeling/schema/src/Timezone.ts:493` | Runtime type for {@link Timezone}. |
-| `@beep/schema` | `today` | const | `packages/foundation/modeling/schema/src/LocalDate.ts:245` | Get today's date in UTC. |
-| `@beep/schema` | `todayEffect` | const | `packages/foundation/modeling/schema/src/LocalDate.ts:253` | Get today's UTC date as an `Effect` using the Clock service, testable with `TestClock`. |
+| `@beep/schema` | `today` | const | `packages/foundation/modeling/schema/src/LocalDate/LocalDate.schema.ts:245` | Get today's date in UTC. |
+| `@beep/schema` | `todayEffect` | const | `packages/foundation/modeling/schema/src/LocalDate/LocalDate.schema.ts:253` | Get today's UTC date as an `Effect` using the Clock service, testable with `TestClock`. |
 | `@beep/schema` | `TomlTextToUnknown` | const | `packages/foundation/modeling/schema/src/Toml.ts:94` | Schema transformation that decodes TOML text into an unknown record using |
 | `@beep/schema` | `TrimmedNonEmptyText` | const | `packages/foundation/modeling/schema/src/CommonTextSchemas.ts:36` | Trimmed and non-empty text schema that strips whitespace and rejects empty results. |
 | `@beep/schema` | `TrimmedNonEmptyText` | type | `packages/foundation/modeling/schema/src/CommonTextSchemas.ts:64` | Type for {@link TrimmedNonEmptyText}. |
@@ -10151,9 +10037,8 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/schema` | `UndirectedGraph` | interface | `packages/foundation/modeling/schema/src/Graph/Graph.transforms.ts:39` | Schema for decoding encoded graph payloads into immutable undirected graphs. |
 | `@beep/schema` | `UndirectedGraphFromSelf` | const | `packages/foundation/modeling/schema/src/Graph/Graph.from-self.ts:285` | Schema for validating existing immutable undirected Effect graphs. |
 | `@beep/schema` | `UndirectedGraphFromSelf` | interface | `packages/foundation/modeling/schema/src/Graph/Graph.from-self.ts:64` | Schema for validating existing immutable undirected Effect graphs. |
-| `@beep/schema` | `Unit` | type | `packages/foundation/modeling/schema/src/Duration.ts:104` | Backwards-compatible alias for {@link DurationUnit}. |
-| `@beep/schema` | `UnknownRecord` | const | `packages/foundation/modeling/schema/src/Record.ts:29` | Schema for object records with string keys and unknown values. |
-| `@beep/schema` | `UnknownRecord` | type | `packages/foundation/modeling/schema/src/Record.ts:49` | Runtime type extracted from the {@link UnknownRecord} schema. |
+| `@beep/schema` | `UnknownRecord` | const | `packages/foundation/modeling/schema/src/Record/Record.schema.ts:29` | Schema for object records with string keys and unknown values. |
+| `@beep/schema` | `UnknownRecord` | type | `packages/foundation/modeling/schema/src/Record/Record.schema.ts:49` | Runtime type extracted from the {@link UnknownRecord} schema. |
 | `@beep/schema` | `URLStr` | const | `packages/foundation/modeling/schema/src/URL.ts:60` | A branded schema for URL-encoded strings validated against `new URL()`. |
 | `@beep/schema` | `URLStr` | type | `packages/foundation/modeling/schema/src/URL.ts:85` | {@inheritDoc URLStr} |
 | `@beep/schema` | `UsesPosixSeparator` | const | `packages/foundation/modeling/schema/src/FilePath/FilePath.guards.ts:90` | Branded schema for strings that contain a POSIX separator. |
@@ -10172,7 +10057,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/schema` | `ValidWindowsUncRest` | type | `packages/foundation/modeling/schema/src/FilePath/FilePath.segments.ts:192` | Type for {@link ValidWindowsUncRest}. |
 | `@beep/schema` | `ValidWindowsUncSegments` | const | `packages/foundation/modeling/schema/src/FilePath/FilePath.segments.ts:200` | Branded schema for a full UNC segment list `[server, share, ...rest]`. |
 | `@beep/schema` | `ValidWindowsUncSegments` | type | `packages/foundation/modeling/schema/src/FilePath/FilePath.segments.ts:218` | Type for {@link ValidWindowsUncSegments}. |
-| `@beep/schema` | `VariantSchema` | SourceFile | `packages/foundation/modeling/schema/src/VariantSchema.ts:7` |  |
+| `@beep/schema` | `VariantSchema` | SourceFile | `packages/foundation/modeling/schema/src/VariantSchema/index.ts:14` |  |
 | `@beep/schema` | `VERSION` | const | `packages/foundation/modeling/schema/src/index.ts:14` |  |
 | `@beep/schema` | `VideoFileExtension` | const | `packages/foundation/modeling/schema/src/FileExtension.ts:138` | Schema for file extensions associated with `video/*` mime types. |
 | `@beep/schema` | `VideoFileExtension` | type | `packages/foundation/modeling/schema/src/FileExtension.ts:160` | Union of literals accepted by {@link VideoFileExtension}. |
@@ -10192,29 +10077,19 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/schema` | `WindowsUncPath` | type | `packages/foundation/modeling/schema/src/FilePath/FilePath.windows.ts:148` | Type for {@link WindowsUncPath}. |
 | `@beep/schema` | `WindowsUncRoot` | const | `packages/foundation/modeling/schema/src/FilePath/FilePath.roots.ts:49` | Branded schema for UNC roots such as `\\\\server\\share`. |
 | `@beep/schema` | `WindowsUncRoot` | type | `packages/foundation/modeling/schema/src/FilePath/FilePath.roots.ts:71` | Type for {@link WindowsUncRoot}. |
-| `@beep/schema` | `WithAlpha` | const | `packages/foundation/modeling/schema/src/color/Color.ts:1187` | One-way schema for rendering an rgba string. |
-| `@beep/schema` | `WithAlpha` | type | `packages/foundation/modeling/schema/src/color/Color.ts:1205` | Type for {@link WithAlpha}. |
-| `@beep/schema` | `WithAlphaInput` | class | `packages/foundation/modeling/schema/src/color/Color.ts:1171` | Request schema for converting a color plus alpha to an rgba string. |
+| `@beep/schema` | `WithAlpha` | const | `packages/foundation/modeling/schema/src/Color/Color.adjust.ts:272` | One-way schema for rendering an rgba string. |
+| `@beep/schema` | `WithAlpha` | type | `packages/foundation/modeling/schema/src/Color/Color.adjust.ts:290` | Type for {@link WithAlpha}. |
+| `@beep/schema` | `WithAlphaInput` | class | `packages/foundation/modeling/schema/src/Color/Color.adjust.ts:256` | Request schema for converting a color plus alpha to an rgba string. |
 | `@beep/schema` | `XmlTextToUnknown` | const | `packages/foundation/modeling/schema/src/Xml.ts:79` | Schema transformation that decodes XML text into an unknown parsed document |
-| `@beep/schema` | `XssProtectionError` | class | `packages/foundation/modeling/schema/src/http/headers/SecureHeaderError.ts:121` |  |
-| `@beep/schema` | `XSSProtectionHeader` | const | `packages/foundation/modeling/schema/src/http/headers/XSSProtection.ts:144` |  |
-| `@beep/schema` | `XSSProtectionHeader` | type | `packages/foundation/modeling/schema/src/http/headers/XSSProtection.ts:195` |  |
-| `@beep/schema` | `XSSProtectionMode` | const | `packages/foundation/modeling/schema/src/http/headers/XSSProtection.ts:29` |  |
-| `@beep/schema` | `XSSProtectionMode` | type | `packages/foundation/modeling/schema/src/http/headers/XSSProtection.ts:40` |  |
-| `@beep/schema` | `XSSProtectionOption` | const | `packages/foundation/modeling/schema/src/http/headers/XSSProtection.ts:75` |  |
-| `@beep/schema` | `XSSProtectionOption` | type | `packages/foundation/modeling/schema/src/http/headers/XSSProtection.ts:85` |  |
-| `@beep/schema` | `XSSProtectionReport` | const | `packages/foundation/modeling/schema/src/http/headers/XSSProtection.ts:59` |  |
-| `@beep/schema` | `XSSProtectionReport` | type | `packages/foundation/modeling/schema/src/http/headers/XSSProtection.ts:69` |  |
-| `@beep/schema` | `XSSProtectionReportConfig` | class | `packages/foundation/modeling/schema/src/http/headers/XSSProtection.ts:46` |  |
-| `@beep/schema` | `XSSProtectionResponseHeader` | class | `packages/foundation/modeling/schema/src/http/headers/XSSProtection.ts:91` |  |
+| `@beep/schema` | `XssProtection` | SourceFile | `packages/foundation/modeling/schema/src/XssProtection/index.ts:20` |  |
 | `@beep/schema` | `YamlTextToUnknown` | const | `packages/foundation/modeling/schema/src/Yaml.ts:96` | Schema transformation that decodes YAML text into an unknown parsed value. |
 | `@beep/schema/AbortSignal` | `AbortSig` | const | `packages/foundation/modeling/schema/src/AbortSignal.ts:46` | Declared schema for `AbortSignal` instances. |
 | `@beep/schema/AbortSignal` | `AbortSig` | type | `packages/foundation/modeling/schema/src/AbortSignal.ts:65` | {@inheritDoc AbortSig} |
 | `@beep/schema/AbortSignal` | `isAbortSignal` | const | `packages/foundation/modeling/schema/src/AbortSignal.ts:28` | Type guard that checks whether a value is an `AbortSignal` instance. |
-| `@beep/schema/Age` | `Age` | const | `packages/foundation/modeling/schema/src/person/Age.ts:16` | The age of a person in years. |
-| `@beep/schema/Age` | `Age` | type | `packages/foundation/modeling/schema/src/person/Age.ts:34` | {@inheritDoc Age} |
-| `@beep/schema/Age` | `Schema` | const | `packages/foundation/modeling/schema/src/person/Age.ts:16` | The age of a person in years. |
-| `@beep/schema/Age` | `Schema` | type | `packages/foundation/modeling/schema/src/person/Age.ts:34` | {@inheritDoc Age} |
+| `@beep/schema/Age` | `Age` | const | `packages/foundation/modeling/schema/src/Age/Age.schema.ts:16` | The age of a person in years. |
+| `@beep/schema/Age` | `Age` | type | `packages/foundation/modeling/schema/src/Age/Age.schema.ts:34` | {@inheritDoc Age} |
+| `@beep/schema/Age` | `Schema` | const | `packages/foundation/modeling/schema/src/Age/Age.schema.ts:16` | The age of a person in years. |
+| `@beep/schema/Age` | `Schema` | type | `packages/foundation/modeling/schema/src/Age/Age.schema.ts:34` | {@inheritDoc Age} |
 | `@beep/schema/ArrayOf` | `ArrayOfInts` | const | `packages/foundation/modeling/schema/src/ArrayOf.ts:202` | Schema for arrays of integers. |
 | `@beep/schema/ArrayOf` | `ArrayOfInts` | type | `packages/foundation/modeling/schema/src/ArrayOf.ts:214` | Type for {@link ArrayOfInts}. |
 | `@beep/schema/ArrayOf` | `ArrayOfNonEmptyStrings` | const | `packages/foundation/modeling/schema/src/ArrayOf.ts:86` | Schema for arrays of `NonEmptyString` values. |
@@ -10237,534 +10112,202 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/schema/BinaryFileExtension` | `hasBinaryExtension` | function | `packages/foundation/modeling/schema/src/BinaryFileExtension.ts:238` | Detects whether a file path ends in a known binary file extension. |
 | `@beep/schema/BinaryFileExtension` | `isBinaryContent` | function | `packages/foundation/modeling/schema/src/BinaryFileExtension.ts:265` | Detects whether a byte sample looks like binary content. |
 | `@beep/schema/BinaryFileExtension` | `isBinaryFileExtension` | const | `packages/foundation/modeling/schema/src/BinaryFileExtension.ts:216` | Schema-derived guard for individual binary file extensions. |
-| `@beep/schema/Blockchain` | `CryptoTxnHash` | const | `packages/foundation/modeling/schema/src/blockchain/CryptoTxnHash.ts:60` | Branded schema for canonical mainnet blockchain transaction identifiers. |
-| `@beep/schema/Blockchain` | `CryptoTxnHash` | type | `packages/foundation/modeling/schema/src/blockchain/CryptoTxnHash.ts:75` | Type for {@link CryptoTxnHash}. |
-| `@beep/schema/Blockchain` | `CryptoTxnHashRedacted` | const | `packages/foundation/modeling/schema/src/blockchain/CryptoTxnHash.ts:83` | Redacted schema for canonical mainnet blockchain transaction identifiers. |
-| `@beep/schema/Blockchain` | `CryptoTxnHashRedacted` | type | `packages/foundation/modeling/schema/src/blockchain/CryptoTxnHash.ts:101` | Type for {@link CryptoTxnHashRedacted}. |
-| `@beep/schema/Blockchain` | `CryptoWalletAddress` | const | `packages/foundation/modeling/schema/src/blockchain/CryptoWalletAddress.ts:181` | Branded schema for canonical mainnet blockchain wallet addresses. |
-| `@beep/schema/Blockchain` | `CryptoWalletAddress` | type | `packages/foundation/modeling/schema/src/blockchain/CryptoWalletAddress.ts:196` | Type for {@link CryptoWalletAddress}. |
-| `@beep/schema/Blockchain` | `CryptoWalletAddressRedacted` | const | `packages/foundation/modeling/schema/src/blockchain/CryptoWalletAddress.ts:204` | Redacted Branded schema for canonical mainnet blockchain wallet addresses. |
-| `@beep/schema/Blockchain` | `CryptoWalletAddressRedacted` | type | `packages/foundation/modeling/schema/src/blockchain/CryptoWalletAddress.ts:223` | Type for {@link CryptoWalletAddressRedacted}. |
-| `@beep/schema/Blockchain` | `EthAmount` | const | `packages/foundation/modeling/schema/src/blockchain/EthAmount.ts:48` | ETH-denominated amount decoded from a non-negative JSON number into Effect |
-| `@beep/schema/Blockchain` | `EthAmount` | type | `packages/foundation/modeling/schema/src/blockchain/EthAmount.ts:66` | Type for {@link EthAmount}. |
-| `@beep/schema/Blockchain` | `EthereumValidatorPublicKey` | const | `packages/foundation/modeling/schema/src/blockchain/EthereumValidatorPublicKey.ts:41` | Branded schema for canonical Ethereum validator public keys. |
-| `@beep/schema/Blockchain` | `EthereumValidatorPublicKey` | type | `packages/foundation/modeling/schema/src/blockchain/EthereumValidatorPublicKey.ts:56` | Type for {@link EthereumValidatorPublicKey}. |
-| `@beep/schema/Blockchain` | `EthereumValidatorPublicKeyRedacted` | const | `packages/foundation/modeling/schema/src/blockchain/EthereumValidatorPublicKey.ts:64` | Redacted schema for canonical Ethereum validator public keys. |
-| `@beep/schema/Blockchain` | `EthereumValidatorPublicKeyRedacted` | type | `packages/foundation/modeling/schema/src/blockchain/EthereumValidatorPublicKey.ts:82` | Type for {@link EthereumValidatorPublicKeyRedacted}. |
-| `@beep/schema/Blockchain` | `EvmAddress` | const | `packages/foundation/modeling/schema/src/blockchain/EvmAddress.ts:78` | Branded schema for canonical mainnet EVM wallet addresses. |
-| `@beep/schema/Blockchain` | `EvmAddress` | type | `packages/foundation/modeling/schema/src/blockchain/EvmAddress.ts:93` | Type for {@link EvmAddress}. |
-| `@beep/schema/Blockchain` | `EvmAddressRedacted` | const | `packages/foundation/modeling/schema/src/blockchain/EvmAddress.ts:101` | Redacted schema for canonical mainnet EVM wallet addresses. |
-| `@beep/schema/Blockchain` | `EvmAddressRedacted` | type | `packages/foundation/modeling/schema/src/blockchain/EvmAddress.ts:119` | Type for {@link EvmAddressRedacted}. |
-| `@beep/schema/blockchain/CryptoTxnHash` | `CryptoTxnHash` | const | `packages/foundation/modeling/schema/src/blockchain/CryptoTxnHash.ts:60` | Branded schema for canonical mainnet blockchain transaction identifiers. |
-| `@beep/schema/blockchain/CryptoTxnHash` | `CryptoTxnHash` | type | `packages/foundation/modeling/schema/src/blockchain/CryptoTxnHash.ts:75` | Type for {@link CryptoTxnHash}. |
-| `@beep/schema/blockchain/CryptoTxnHash` | `CryptoTxnHashRedacted` | const | `packages/foundation/modeling/schema/src/blockchain/CryptoTxnHash.ts:83` | Redacted schema for canonical mainnet blockchain transaction identifiers. |
-| `@beep/schema/blockchain/CryptoTxnHash` | `CryptoTxnHashRedacted` | type | `packages/foundation/modeling/schema/src/blockchain/CryptoTxnHash.ts:101` | Type for {@link CryptoTxnHashRedacted}. |
-| `@beep/schema/blockchain/CryptoWalletAddress` | `CryptoWalletAddress` | const | `packages/foundation/modeling/schema/src/blockchain/CryptoWalletAddress.ts:181` | Branded schema for canonical mainnet blockchain wallet addresses. |
-| `@beep/schema/blockchain/CryptoWalletAddress` | `CryptoWalletAddress` | type | `packages/foundation/modeling/schema/src/blockchain/CryptoWalletAddress.ts:196` | Type for {@link CryptoWalletAddress}. |
-| `@beep/schema/blockchain/CryptoWalletAddress` | `CryptoWalletAddressRedacted` | const | `packages/foundation/modeling/schema/src/blockchain/CryptoWalletAddress.ts:204` | Redacted Branded schema for canonical mainnet blockchain wallet addresses. |
-| `@beep/schema/blockchain/CryptoWalletAddress` | `CryptoWalletAddressRedacted` | type | `packages/foundation/modeling/schema/src/blockchain/CryptoWalletAddress.ts:223` | Type for {@link CryptoWalletAddressRedacted}. |
-| `@beep/schema/blockchain/EthAmount` | `EthAmount` | const | `packages/foundation/modeling/schema/src/blockchain/EthAmount.ts:48` | ETH-denominated amount decoded from a non-negative JSON number into Effect |
-| `@beep/schema/blockchain/EthAmount` | `EthAmount` | type | `packages/foundation/modeling/schema/src/blockchain/EthAmount.ts:66` | Type for {@link EthAmount}. |
-| `@beep/schema/blockchain/EthereumValidatorPublicKey` | `EthereumValidatorPublicKey` | const | `packages/foundation/modeling/schema/src/blockchain/EthereumValidatorPublicKey.ts:41` | Branded schema for canonical Ethereum validator public keys. |
-| `@beep/schema/blockchain/EthereumValidatorPublicKey` | `EthereumValidatorPublicKey` | type | `packages/foundation/modeling/schema/src/blockchain/EthereumValidatorPublicKey.ts:56` | Type for {@link EthereumValidatorPublicKey}. |
-| `@beep/schema/blockchain/EthereumValidatorPublicKey` | `EthereumValidatorPublicKeyRedacted` | const | `packages/foundation/modeling/schema/src/blockchain/EthereumValidatorPublicKey.ts:64` | Redacted schema for canonical Ethereum validator public keys. |
-| `@beep/schema/blockchain/EthereumValidatorPublicKey` | `EthereumValidatorPublicKeyRedacted` | type | `packages/foundation/modeling/schema/src/blockchain/EthereumValidatorPublicKey.ts:82` | Type for {@link EthereumValidatorPublicKeyRedacted}. |
-| `@beep/schema/blockchain/EvmAddress` | `EvmAddress` | const | `packages/foundation/modeling/schema/src/blockchain/EvmAddress.ts:78` | Branded schema for canonical mainnet EVM wallet addresses. |
-| `@beep/schema/blockchain/EvmAddress` | `EvmAddress` | type | `packages/foundation/modeling/schema/src/blockchain/EvmAddress.ts:93` | Type for {@link EvmAddress}. |
-| `@beep/schema/blockchain/EvmAddress` | `EvmAddressRedacted` | const | `packages/foundation/modeling/schema/src/blockchain/EvmAddress.ts:101` | Redacted schema for canonical mainnet EVM wallet addresses. |
-| `@beep/schema/blockchain/EvmAddress` | `EvmAddressRedacted` | type | `packages/foundation/modeling/schema/src/blockchain/EvmAddress.ts:119` | Type for {@link EvmAddressRedacted}. |
-| `@beep/schema/blockchain/index` | `CryptoTxnHash` | const | `packages/foundation/modeling/schema/src/blockchain/CryptoTxnHash.ts:60` | Branded schema for canonical mainnet blockchain transaction identifiers. |
-| `@beep/schema/blockchain/index` | `CryptoTxnHash` | type | `packages/foundation/modeling/schema/src/blockchain/CryptoTxnHash.ts:75` | Type for {@link CryptoTxnHash}. |
-| `@beep/schema/blockchain/index` | `CryptoTxnHashRedacted` | const | `packages/foundation/modeling/schema/src/blockchain/CryptoTxnHash.ts:83` | Redacted schema for canonical mainnet blockchain transaction identifiers. |
-| `@beep/schema/blockchain/index` | `CryptoTxnHashRedacted` | type | `packages/foundation/modeling/schema/src/blockchain/CryptoTxnHash.ts:101` | Type for {@link CryptoTxnHashRedacted}. |
-| `@beep/schema/blockchain/index` | `CryptoWalletAddress` | const | `packages/foundation/modeling/schema/src/blockchain/CryptoWalletAddress.ts:181` | Branded schema for canonical mainnet blockchain wallet addresses. |
-| `@beep/schema/blockchain/index` | `CryptoWalletAddress` | type | `packages/foundation/modeling/schema/src/blockchain/CryptoWalletAddress.ts:196` | Type for {@link CryptoWalletAddress}. |
-| `@beep/schema/blockchain/index` | `CryptoWalletAddressRedacted` | const | `packages/foundation/modeling/schema/src/blockchain/CryptoWalletAddress.ts:204` | Redacted Branded schema for canonical mainnet blockchain wallet addresses. |
-| `@beep/schema/blockchain/index` | `CryptoWalletAddressRedacted` | type | `packages/foundation/modeling/schema/src/blockchain/CryptoWalletAddress.ts:223` | Type for {@link CryptoWalletAddressRedacted}. |
-| `@beep/schema/blockchain/index` | `EthAmount` | const | `packages/foundation/modeling/schema/src/blockchain/EthAmount.ts:48` | ETH-denominated amount decoded from a non-negative JSON number into Effect |
-| `@beep/schema/blockchain/index` | `EthAmount` | type | `packages/foundation/modeling/schema/src/blockchain/EthAmount.ts:66` | Type for {@link EthAmount}. |
-| `@beep/schema/blockchain/index` | `EthereumValidatorPublicKey` | const | `packages/foundation/modeling/schema/src/blockchain/EthereumValidatorPublicKey.ts:41` | Branded schema for canonical Ethereum validator public keys. |
-| `@beep/schema/blockchain/index` | `EthereumValidatorPublicKey` | type | `packages/foundation/modeling/schema/src/blockchain/EthereumValidatorPublicKey.ts:56` | Type for {@link EthereumValidatorPublicKey}. |
-| `@beep/schema/blockchain/index` | `EthereumValidatorPublicKeyRedacted` | const | `packages/foundation/modeling/schema/src/blockchain/EthereumValidatorPublicKey.ts:64` | Redacted schema for canonical Ethereum validator public keys. |
-| `@beep/schema/blockchain/index` | `EthereumValidatorPublicKeyRedacted` | type | `packages/foundation/modeling/schema/src/blockchain/EthereumValidatorPublicKey.ts:82` | Type for {@link EthereumValidatorPublicKeyRedacted}. |
-| `@beep/schema/blockchain/index` | `EvmAddress` | const | `packages/foundation/modeling/schema/src/blockchain/EvmAddress.ts:78` | Branded schema for canonical mainnet EVM wallet addresses. |
-| `@beep/schema/blockchain/index` | `EvmAddress` | type | `packages/foundation/modeling/schema/src/blockchain/EvmAddress.ts:93` | Type for {@link EvmAddress}. |
-| `@beep/schema/blockchain/index` | `EvmAddressRedacted` | const | `packages/foundation/modeling/schema/src/blockchain/EvmAddress.ts:101` | Redacted schema for canonical mainnet EVM wallet addresses. |
-| `@beep/schema/blockchain/index` | `EvmAddressRedacted` | type | `packages/foundation/modeling/schema/src/blockchain/EvmAddress.ts:119` | Type for {@link EvmAddressRedacted}. |
+| `@beep/schema/Blockchain` | `CryptoTxnHash` | SourceFile | `packages/foundation/modeling/schema/src/CryptoTxnHash/index.ts:22` |  |
+| `@beep/schema/Blockchain` | `CryptoWalletAddress` | SourceFile | `packages/foundation/modeling/schema/src/CryptoWalletAddress/index.ts:22` |  |
+| `@beep/schema/Blockchain` | `EthAmount` | SourceFile | `packages/foundation/modeling/schema/src/EthAmount/index.ts:22` |  |
+| `@beep/schema/Blockchain` | `EthereumValidatorPublicKey` | SourceFile | `packages/foundation/modeling/schema/src/EthereumValidatorPublicKey/index.ts:22` |  |
+| `@beep/schema/Blockchain` | `EvmAddress` | SourceFile | `packages/foundation/modeling/schema/src/EvmAddress/index.ts:22` |  |
 | `@beep/schema/BufferEncoding` | `BuffEncoding` | const | `packages/foundation/modeling/schema/src/BufferEncoding.ts:27` | Schema for Node.js `BufferEncoding` string literals (`"utf8"`, `"hex"`, `"base64"`, etc.). |
 | `@beep/schema/BufferEncoding` | `BufferEncoding` | type | `packages/foundation/modeling/schema/src/BufferEncoding.ts:59` | {@inheritDoc BuffEncoding} |
-| `@beep/schema/CardinalDirection` | `Abbrev` | const | `packages/foundation/modeling/schema/src/location/CardinalDirection.ts:35` | CardinalDirectionAbbrev - The abbreviated version of the {@link CardinalDirection} |
-| `@beep/schema/CardinalDirection` | `Abbrev` | type | `packages/foundation/modeling/schema/src/location/CardinalDirection.ts:47` | {@inheritDoc CardinalDirectionAbbrev} |
-| `@beep/schema/CardinalDirection` | `CardinalDirection` | const | `packages/foundation/modeling/schema/src/location/CardinalDirection.ts:16` | CardinalDirection - The cardinal directions |
-| `@beep/schema/CardinalDirection` | `CardinalDirection` | type | `packages/foundation/modeling/schema/src/location/CardinalDirection.ts:27` | {@inheritDoc CardinalDirection} |
-| `@beep/schema/CardinalDirection` | `CardinalDirectionAbbrev` | const | `packages/foundation/modeling/schema/src/location/CardinalDirection.ts:35` | CardinalDirectionAbbrev - The abbreviated version of the {@link CardinalDirection} |
-| `@beep/schema/CardinalDirection` | `CardinalDirectionAbbrev` | type | `packages/foundation/modeling/schema/src/location/CardinalDirection.ts:47` | {@inheritDoc CardinalDirectionAbbrev} |
-| `@beep/schema/CardinalDirection` | `Schema` | const | `packages/foundation/modeling/schema/src/location/CardinalDirection.ts:16` | CardinalDirection - The cardinal directions |
-| `@beep/schema/CardinalDirection` | `Schema` | type | `packages/foundation/modeling/schema/src/location/CardinalDirection.ts:27` | {@inheritDoc CardinalDirection} |
-| `@beep/schema/CauseTaggedError` | `CauseTaggedError` | const | `packages/foundation/modeling/schema/src/CauseTaggedError.ts:506` | Create a tagged error class that always carries a `message` and required defect `cause`. |
-| `@beep/schema/CauseTaggedError` | `CauseTaggedErrorConstructor` | type | `packages/foundation/modeling/schema/src/CauseTaggedError.ts:248` | Callable constructor for creating cause-tagged error class factories. |
-| `@beep/schema/CauseTaggedError` | `CauseTaggedErrorFactory` | interface | `packages/foundation/modeling/schema/src/CauseTaggedError.ts:209` | Factory returned by {@link CauseTaggedError} after an identity namespace has been selected. |
-| `@beep/schema/CauseTaggedError` | `CauseTaggedErrorWithStatics` | type | `packages/foundation/modeling/schema/src/CauseTaggedError.ts:163` | Tagged error class returned by {@link CauseTaggedError}, including dual construction helpers. |
-| `@beep/schema/color` | `ColorAmount` | const | `packages/foundation/modeling/schema/src/color/Color.ts:879` | Shared finite amount used by color helper request schemas. |
-| `@beep/schema/color` | `ColorAmount` | type | `packages/foundation/modeling/schema/src/color/Color.ts:894` | Type for {@link ColorAmount}. |
-| `@beep/schema/color` | `Darken` | const | `packages/foundation/modeling/schema/src/color/Color.ts:1145` | One-way schema for darkening a color. |
-| `@beep/schema/color` | `Darken` | type | `packages/foundation/modeling/schema/src/color/Color.ts:1163` | Type for {@link Darken}. |
-| `@beep/schema/color` | `DarkenInput` | class | `packages/foundation/modeling/schema/src/color/Color.ts:1129` | Request schema for darkening a color. |
-| `@beep/schema/color` | `GenerateAlphaScale` | const | `packages/foundation/modeling/schema/src/color/Color.ts:1016` | One-way schema for generating an alpha-blended 12-step scale. |
-| `@beep/schema/color` | `GenerateAlphaScale` | type | `packages/foundation/modeling/schema/src/color/Color.ts:1036` | Type for {@link GenerateAlphaScale}. |
-| `@beep/schema/color` | `GenerateAlphaScaleInput` | class | `packages/foundation/modeling/schema/src/color/Color.ts:1000` | Request schema for generating an alpha-blended 12-step scale. |
-| `@beep/schema/color` | `GenerateNeutralScale` | const | `packages/foundation/modeling/schema/src/color/Color.ts:972` | One-way schema for generating a neutral 12-step scale. |
-| `@beep/schema/color` | `GenerateNeutralScale` | type | `packages/foundation/modeling/schema/src/color/Color.ts:992` | Type for {@link GenerateNeutralScale}. |
-| `@beep/schema/color` | `GenerateNeutralScaleInput` | class | `packages/foundation/modeling/schema/src/color/Color.ts:956` | Request schema for generating a neutral 12-step scale. |
-| `@beep/schema/color` | `GenerateScale` | const | `packages/foundation/modeling/schema/src/color/Color.ts:928` | One-way schema for generating a chromatic 12-step scale. |
-| `@beep/schema/color` | `GenerateScale` | type | `packages/foundation/modeling/schema/src/color/Color.ts:948` | Type for {@link GenerateScale}. |
-| `@beep/schema/color` | `GenerateScaleInput` | class | `packages/foundation/modeling/schema/src/color/Color.ts:912` | Request schema for generating a chromatic 12-step scale. |
-| `@beep/schema/color` | `HexColor` | const | `packages/foundation/modeling/schema/src/color/Color.ts:407` | Canonical lowercase six-digit hex color schema. |
-| `@beep/schema/color` | `HexColor` | type | `packages/foundation/modeling/schema/src/color/Color.ts:422` | Type for {@link HexColor}. |
-| `@beep/schema/color` | `HexColorInput` | const | `packages/foundation/modeling/schema/src/color/Color.ts:385` | Boundary schema for hex color input strings. |
-| `@beep/schema/color` | `HexColorInput` | type | `packages/foundation/modeling/schema/src/color/Color.ts:399` | Type for {@link HexColorInput}. |
-| `@beep/schema/color` | `HexColorScale12` | const | `packages/foundation/modeling/schema/src/color/Color.ts:669` | Fixed-size 12-step canonical hex color scale. |
-| `@beep/schema/color` | `HexColorScale12` | type | `packages/foundation/modeling/schema/src/color/Color.ts:686` | Type for {@link HexColorScale12}. |
-| `@beep/schema/color` | `HexToOklch` | const | `packages/foundation/modeling/schema/src/color/Color.ts:824` | Transformation schema for decoding boundary hex input into canonical OKLCH. |
-| `@beep/schema/color` | `HexToOklch` | type | `packages/foundation/modeling/schema/src/color/Color.ts:845` | Type for {@link HexToOklch}. |
-| `@beep/schema/color` | `HexToRgb` | const | `packages/foundation/modeling/schema/src/color/Color.ts:717` | Transformation schema for decoding boundary hex input into normalized RGB. |
-| `@beep/schema/color` | `HexToRgb` | type | `packages/foundation/modeling/schema/src/color/Color.ts:738` | Type for {@link HexToRgb}. |
-| `@beep/schema/color` | `Lighten` | const | `packages/foundation/modeling/schema/src/color/Color.ts:1103` | One-way schema for lightening a color. |
-| `@beep/schema/color` | `Lighten` | type | `packages/foundation/modeling/schema/src/color/Color.ts:1121` | Type for {@link Lighten}. |
-| `@beep/schema/color` | `LightenInput` | class | `packages/foundation/modeling/schema/src/color/Color.ts:1087` | Request schema for lightening a color. |
-| `@beep/schema/color` | `MixColors` | const | `packages/foundation/modeling/schema/src/color/Color.ts:1061` | One-way schema for mixing two colors. |
-| `@beep/schema/color` | `MixColors` | type | `packages/foundation/modeling/schema/src/color/Color.ts:1079` | Type for {@link MixColors}. |
-| `@beep/schema/color` | `MixColorsInput` | class | `packages/foundation/modeling/schema/src/color/Color.ts:1044` | Request schema for mixing two colors. |
-| `@beep/schema/color` | `NormalizeHexColor` | const | `packages/foundation/modeling/schema/src/color/Color.ts:430` | Canonicalization schema from boundary hex input to canonical hex output. |
-| `@beep/schema/color` | `NormalizeHexColor` | type | `packages/foundation/modeling/schema/src/color/Color.ts:451` | Type for {@link NormalizeHexColor}. |
-| `@beep/schema/color` | `OklchChroma` | const | `packages/foundation/modeling/schema/src/color/Color.ts:587` | Canonical OKLCH chroma component. |
-| `@beep/schema/color` | `OklchChroma` | type | `packages/foundation/modeling/schema/src/color/Color.ts:603` | Type for {@link OklchChroma}. |
-| `@beep/schema/color` | `OklchColor` | class | `packages/foundation/modeling/schema/src/color/Color.ts:652` | Canonical OKLCH color object. |
-| `@beep/schema/color` | `OklchCoordinate` | const | `packages/foundation/modeling/schema/src/color/Color.ts:540` | Branded finite OKLCH coordinate. |
-| `@beep/schema/color` | `OklchCoordinate` | type | `packages/foundation/modeling/schema/src/color/Color.ts:555` | Type for {@link OklchCoordinate}. |
-| `@beep/schema/color` | `OklchHue` | const | `packages/foundation/modeling/schema/src/color/Color.ts:611` | Canonical OKLCH hue component. |
-| `@beep/schema/color` | `OklchHue` | type | `packages/foundation/modeling/schema/src/color/Color.ts:627` | Type for {@link OklchHue}. |
-| `@beep/schema/color` | `OklchInput` | class | `packages/foundation/modeling/schema/src/color/Color.ts:635` | OKLCH object with finite coordinates. |
-| `@beep/schema/color` | `OklchLightness` | const | `packages/foundation/modeling/schema/src/color/Color.ts:563` | Canonical OKLCH lightness component. |
-| `@beep/schema/color` | `OklchLightness` | type | `packages/foundation/modeling/schema/src/color/Color.ts:579` | Type for {@link OklchLightness}. |
-| `@beep/schema/color` | `OklchToHex` | const | `packages/foundation/modeling/schema/src/color/Color.ts:853` | Transformation schema for encoding OKLCH coordinates into canonical hex. |
-| `@beep/schema/color` | `OklchToHex` | type | `packages/foundation/modeling/schema/src/color/Color.ts:871` | Type for {@link OklchToHex}. |
-| `@beep/schema/color` | `OklchToRgb` | const | `packages/foundation/modeling/schema/src/color/Color.ts:798` | Transformation schema for encoding OKLCH coordinates into RGB input values. |
-| `@beep/schema/color` | `OklchToRgb` | type | `packages/foundation/modeling/schema/src/color/Color.ts:816` | Type for {@link OklchToRgb}. |
-| `@beep/schema/color` | `Rgb` | class | `packages/foundation/modeling/schema/src/color/Color.ts:523` | RGB object with normalized channels. |
-| `@beep/schema/color` | `RgbaColorString` | const | `packages/foundation/modeling/schema/src/color/Color.ts:694` | CSS rgba color string produced by with-alpha helpers. |
-| `@beep/schema/color` | `RgbaColorString` | type | `packages/foundation/modeling/schema/src/color/Color.ts:709` | Type for {@link RgbaColorString}. |
-| `@beep/schema/color` | `RgbChannel` | const | `packages/foundation/modeling/schema/src/color/Color.ts:482` | Branded normalized RGB channel in the range 0 through 1. |
-| `@beep/schema/color` | `RgbChannel` | type | `packages/foundation/modeling/schema/src/color/Color.ts:498` | Type for {@link RgbChannel}. |
-| `@beep/schema/color` | `RgbInput` | class | `packages/foundation/modeling/schema/src/color/Color.ts:506` | RGB object with finite channel inputs. |
-| `@beep/schema/color` | `RgbInputChannel` | const | `packages/foundation/modeling/schema/src/color/Color.ts:459` | Branded finite RGB input channel. |
-| `@beep/schema/color` | `RgbInputChannel` | type | `packages/foundation/modeling/schema/src/color/Color.ts:474` | Type for {@link RgbInputChannel}. |
-| `@beep/schema/color` | `RgbToHex` | const | `packages/foundation/modeling/schema/src/color/Color.ts:746` | Transformation schema for encoding RGB input into canonical hex. |
-| `@beep/schema/color` | `RgbToHex` | type | `packages/foundation/modeling/schema/src/color/Color.ts:764` | Type for {@link RgbToHex}. |
-| `@beep/schema/color` | `RgbToOklch` | const | `packages/foundation/modeling/schema/src/color/Color.ts:772` | Transformation schema for decoding normalized RGB into canonical OKLCH. |
-| `@beep/schema/color` | `RgbToOklch` | type | `packages/foundation/modeling/schema/src/color/Color.ts:790` | Type for {@link RgbToOklch}. |
-| `@beep/schema/color` | `WithAlpha` | const | `packages/foundation/modeling/schema/src/color/Color.ts:1187` | One-way schema for rendering an rgba string. |
-| `@beep/schema/color` | `WithAlpha` | type | `packages/foundation/modeling/schema/src/color/Color.ts:1205` | Type for {@link WithAlpha}. |
-| `@beep/schema/color` | `WithAlphaInput` | class | `packages/foundation/modeling/schema/src/color/Color.ts:1171` | Request schema for converting a color plus alpha to an rgba string. |
-| `@beep/schema/Color` | `ColorAmount` | const | `packages/foundation/modeling/schema/src/color/Color.ts:879` | Shared finite amount used by color helper request schemas. |
-| `@beep/schema/Color` | `ColorAmount` | type | `packages/foundation/modeling/schema/src/color/Color.ts:894` | Type for {@link ColorAmount}. |
-| `@beep/schema/Color` | `Darken` | const | `packages/foundation/modeling/schema/src/color/Color.ts:1145` | One-way schema for darkening a color. |
-| `@beep/schema/Color` | `Darken` | type | `packages/foundation/modeling/schema/src/color/Color.ts:1163` | Type for {@link Darken}. |
-| `@beep/schema/Color` | `DarkenInput` | class | `packages/foundation/modeling/schema/src/color/Color.ts:1129` | Request schema for darkening a color. |
-| `@beep/schema/Color` | `GenerateAlphaScale` | const | `packages/foundation/modeling/schema/src/color/Color.ts:1016` | One-way schema for generating an alpha-blended 12-step scale. |
-| `@beep/schema/Color` | `GenerateAlphaScale` | type | `packages/foundation/modeling/schema/src/color/Color.ts:1036` | Type for {@link GenerateAlphaScale}. |
-| `@beep/schema/Color` | `GenerateAlphaScaleInput` | class | `packages/foundation/modeling/schema/src/color/Color.ts:1000` | Request schema for generating an alpha-blended 12-step scale. |
-| `@beep/schema/Color` | `GenerateNeutralScale` | const | `packages/foundation/modeling/schema/src/color/Color.ts:972` | One-way schema for generating a neutral 12-step scale. |
-| `@beep/schema/Color` | `GenerateNeutralScale` | type | `packages/foundation/modeling/schema/src/color/Color.ts:992` | Type for {@link GenerateNeutralScale}. |
-| `@beep/schema/Color` | `GenerateNeutralScaleInput` | class | `packages/foundation/modeling/schema/src/color/Color.ts:956` | Request schema for generating a neutral 12-step scale. |
-| `@beep/schema/Color` | `GenerateScale` | const | `packages/foundation/modeling/schema/src/color/Color.ts:928` | One-way schema for generating a chromatic 12-step scale. |
-| `@beep/schema/Color` | `GenerateScale` | type | `packages/foundation/modeling/schema/src/color/Color.ts:948` | Type for {@link GenerateScale}. |
-| `@beep/schema/Color` | `GenerateScaleInput` | class | `packages/foundation/modeling/schema/src/color/Color.ts:912` | Request schema for generating a chromatic 12-step scale. |
-| `@beep/schema/Color` | `HexColor` | const | `packages/foundation/modeling/schema/src/color/Color.ts:407` | Canonical lowercase six-digit hex color schema. |
-| `@beep/schema/Color` | `HexColor` | type | `packages/foundation/modeling/schema/src/color/Color.ts:422` | Type for {@link HexColor}. |
-| `@beep/schema/Color` | `HexColorInput` | const | `packages/foundation/modeling/schema/src/color/Color.ts:385` | Boundary schema for hex color input strings. |
-| `@beep/schema/Color` | `HexColorInput` | type | `packages/foundation/modeling/schema/src/color/Color.ts:399` | Type for {@link HexColorInput}. |
-| `@beep/schema/Color` | `HexColorScale12` | const | `packages/foundation/modeling/schema/src/color/Color.ts:669` | Fixed-size 12-step canonical hex color scale. |
-| `@beep/schema/Color` | `HexColorScale12` | type | `packages/foundation/modeling/schema/src/color/Color.ts:686` | Type for {@link HexColorScale12}. |
-| `@beep/schema/Color` | `HexToOklch` | const | `packages/foundation/modeling/schema/src/color/Color.ts:824` | Transformation schema for decoding boundary hex input into canonical OKLCH. |
-| `@beep/schema/Color` | `HexToOklch` | type | `packages/foundation/modeling/schema/src/color/Color.ts:845` | Type for {@link HexToOklch}. |
-| `@beep/schema/Color` | `HexToRgb` | const | `packages/foundation/modeling/schema/src/color/Color.ts:717` | Transformation schema for decoding boundary hex input into normalized RGB. |
-| `@beep/schema/Color` | `HexToRgb` | type | `packages/foundation/modeling/schema/src/color/Color.ts:738` | Type for {@link HexToRgb}. |
-| `@beep/schema/Color` | `Lighten` | const | `packages/foundation/modeling/schema/src/color/Color.ts:1103` | One-way schema for lightening a color. |
-| `@beep/schema/Color` | `Lighten` | type | `packages/foundation/modeling/schema/src/color/Color.ts:1121` | Type for {@link Lighten}. |
-| `@beep/schema/Color` | `LightenInput` | class | `packages/foundation/modeling/schema/src/color/Color.ts:1087` | Request schema for lightening a color. |
-| `@beep/schema/Color` | `MixColors` | const | `packages/foundation/modeling/schema/src/color/Color.ts:1061` | One-way schema for mixing two colors. |
-| `@beep/schema/Color` | `MixColors` | type | `packages/foundation/modeling/schema/src/color/Color.ts:1079` | Type for {@link MixColors}. |
-| `@beep/schema/Color` | `MixColorsInput` | class | `packages/foundation/modeling/schema/src/color/Color.ts:1044` | Request schema for mixing two colors. |
-| `@beep/schema/Color` | `NormalizeHexColor` | const | `packages/foundation/modeling/schema/src/color/Color.ts:430` | Canonicalization schema from boundary hex input to canonical hex output. |
-| `@beep/schema/Color` | `NormalizeHexColor` | type | `packages/foundation/modeling/schema/src/color/Color.ts:451` | Type for {@link NormalizeHexColor}. |
-| `@beep/schema/Color` | `OklchChroma` | const | `packages/foundation/modeling/schema/src/color/Color.ts:587` | Canonical OKLCH chroma component. |
-| `@beep/schema/Color` | `OklchChroma` | type | `packages/foundation/modeling/schema/src/color/Color.ts:603` | Type for {@link OklchChroma}. |
-| `@beep/schema/Color` | `OklchColor` | class | `packages/foundation/modeling/schema/src/color/Color.ts:652` | Canonical OKLCH color object. |
-| `@beep/schema/Color` | `OklchCoordinate` | const | `packages/foundation/modeling/schema/src/color/Color.ts:540` | Branded finite OKLCH coordinate. |
-| `@beep/schema/Color` | `OklchCoordinate` | type | `packages/foundation/modeling/schema/src/color/Color.ts:555` | Type for {@link OklchCoordinate}. |
-| `@beep/schema/Color` | `OklchHue` | const | `packages/foundation/modeling/schema/src/color/Color.ts:611` | Canonical OKLCH hue component. |
-| `@beep/schema/Color` | `OklchHue` | type | `packages/foundation/modeling/schema/src/color/Color.ts:627` | Type for {@link OklchHue}. |
-| `@beep/schema/Color` | `OklchInput` | class | `packages/foundation/modeling/schema/src/color/Color.ts:635` | OKLCH object with finite coordinates. |
-| `@beep/schema/Color` | `OklchLightness` | const | `packages/foundation/modeling/schema/src/color/Color.ts:563` | Canonical OKLCH lightness component. |
-| `@beep/schema/Color` | `OklchLightness` | type | `packages/foundation/modeling/schema/src/color/Color.ts:579` | Type for {@link OklchLightness}. |
-| `@beep/schema/Color` | `OklchToHex` | const | `packages/foundation/modeling/schema/src/color/Color.ts:853` | Transformation schema for encoding OKLCH coordinates into canonical hex. |
-| `@beep/schema/Color` | `OklchToHex` | type | `packages/foundation/modeling/schema/src/color/Color.ts:871` | Type for {@link OklchToHex}. |
-| `@beep/schema/Color` | `OklchToRgb` | const | `packages/foundation/modeling/schema/src/color/Color.ts:798` | Transformation schema for encoding OKLCH coordinates into RGB input values. |
-| `@beep/schema/Color` | `OklchToRgb` | type | `packages/foundation/modeling/schema/src/color/Color.ts:816` | Type for {@link OklchToRgb}. |
-| `@beep/schema/Color` | `Rgb` | class | `packages/foundation/modeling/schema/src/color/Color.ts:523` | RGB object with normalized channels. |
-| `@beep/schema/Color` | `RgbaColorString` | const | `packages/foundation/modeling/schema/src/color/Color.ts:694` | CSS rgba color string produced by with-alpha helpers. |
-| `@beep/schema/Color` | `RgbaColorString` | type | `packages/foundation/modeling/schema/src/color/Color.ts:709` | Type for {@link RgbaColorString}. |
-| `@beep/schema/Color` | `RgbChannel` | const | `packages/foundation/modeling/schema/src/color/Color.ts:482` | Branded normalized RGB channel in the range 0 through 1. |
-| `@beep/schema/Color` | `RgbChannel` | type | `packages/foundation/modeling/schema/src/color/Color.ts:498` | Type for {@link RgbChannel}. |
-| `@beep/schema/Color` | `RgbInput` | class | `packages/foundation/modeling/schema/src/color/Color.ts:506` | RGB object with finite channel inputs. |
-| `@beep/schema/Color` | `RgbInputChannel` | const | `packages/foundation/modeling/schema/src/color/Color.ts:459` | Branded finite RGB input channel. |
-| `@beep/schema/Color` | `RgbInputChannel` | type | `packages/foundation/modeling/schema/src/color/Color.ts:474` | Type for {@link RgbInputChannel}. |
-| `@beep/schema/Color` | `RgbToHex` | const | `packages/foundation/modeling/schema/src/color/Color.ts:746` | Transformation schema for encoding RGB input into canonical hex. |
-| `@beep/schema/Color` | `RgbToHex` | type | `packages/foundation/modeling/schema/src/color/Color.ts:764` | Type for {@link RgbToHex}. |
-| `@beep/schema/Color` | `RgbToOklch` | const | `packages/foundation/modeling/schema/src/color/Color.ts:772` | Transformation schema for decoding normalized RGB into canonical OKLCH. |
-| `@beep/schema/Color` | `RgbToOklch` | type | `packages/foundation/modeling/schema/src/color/Color.ts:790` | Type for {@link RgbToOklch}. |
-| `@beep/schema/Color` | `WithAlpha` | const | `packages/foundation/modeling/schema/src/color/Color.ts:1187` | One-way schema for rendering an rgba string. |
-| `@beep/schema/Color` | `WithAlpha` | type | `packages/foundation/modeling/schema/src/color/Color.ts:1205` | Type for {@link WithAlpha}. |
-| `@beep/schema/Color` | `WithAlphaInput` | class | `packages/foundation/modeling/schema/src/color/Color.ts:1171` | Request schema for converting a color plus alpha to an rgba string. |
-| `@beep/schema/color/Color` | `ColorAmount` | const | `packages/foundation/modeling/schema/src/color/Color.ts:879` | Shared finite amount used by color helper request schemas. |
-| `@beep/schema/color/Color` | `ColorAmount` | type | `packages/foundation/modeling/schema/src/color/Color.ts:894` | Type for {@link ColorAmount}. |
-| `@beep/schema/color/Color` | `Darken` | const | `packages/foundation/modeling/schema/src/color/Color.ts:1145` | One-way schema for darkening a color. |
-| `@beep/schema/color/Color` | `Darken` | type | `packages/foundation/modeling/schema/src/color/Color.ts:1163` | Type for {@link Darken}. |
-| `@beep/schema/color/Color` | `DarkenInput` | class | `packages/foundation/modeling/schema/src/color/Color.ts:1129` | Request schema for darkening a color. |
-| `@beep/schema/color/Color` | `GenerateAlphaScale` | const | `packages/foundation/modeling/schema/src/color/Color.ts:1016` | One-way schema for generating an alpha-blended 12-step scale. |
-| `@beep/schema/color/Color` | `GenerateAlphaScale` | type | `packages/foundation/modeling/schema/src/color/Color.ts:1036` | Type for {@link GenerateAlphaScale}. |
-| `@beep/schema/color/Color` | `GenerateAlphaScaleInput` | class | `packages/foundation/modeling/schema/src/color/Color.ts:1000` | Request schema for generating an alpha-blended 12-step scale. |
-| `@beep/schema/color/Color` | `GenerateNeutralScale` | const | `packages/foundation/modeling/schema/src/color/Color.ts:972` | One-way schema for generating a neutral 12-step scale. |
-| `@beep/schema/color/Color` | `GenerateNeutralScale` | type | `packages/foundation/modeling/schema/src/color/Color.ts:992` | Type for {@link GenerateNeutralScale}. |
-| `@beep/schema/color/Color` | `GenerateNeutralScaleInput` | class | `packages/foundation/modeling/schema/src/color/Color.ts:956` | Request schema for generating a neutral 12-step scale. |
-| `@beep/schema/color/Color` | `GenerateScale` | const | `packages/foundation/modeling/schema/src/color/Color.ts:928` | One-way schema for generating a chromatic 12-step scale. |
-| `@beep/schema/color/Color` | `GenerateScale` | type | `packages/foundation/modeling/schema/src/color/Color.ts:948` | Type for {@link GenerateScale}. |
-| `@beep/schema/color/Color` | `GenerateScaleInput` | class | `packages/foundation/modeling/schema/src/color/Color.ts:912` | Request schema for generating a chromatic 12-step scale. |
-| `@beep/schema/color/Color` | `HexColor` | const | `packages/foundation/modeling/schema/src/color/Color.ts:407` | Canonical lowercase six-digit hex color schema. |
-| `@beep/schema/color/Color` | `HexColor` | type | `packages/foundation/modeling/schema/src/color/Color.ts:422` | Type for {@link HexColor}. |
-| `@beep/schema/color/Color` | `HexColorInput` | const | `packages/foundation/modeling/schema/src/color/Color.ts:385` | Boundary schema for hex color input strings. |
-| `@beep/schema/color/Color` | `HexColorInput` | type | `packages/foundation/modeling/schema/src/color/Color.ts:399` | Type for {@link HexColorInput}. |
-| `@beep/schema/color/Color` | `HexColorScale12` | const | `packages/foundation/modeling/schema/src/color/Color.ts:669` | Fixed-size 12-step canonical hex color scale. |
-| `@beep/schema/color/Color` | `HexColorScale12` | type | `packages/foundation/modeling/schema/src/color/Color.ts:686` | Type for {@link HexColorScale12}. |
-| `@beep/schema/color/Color` | `HexToOklch` | const | `packages/foundation/modeling/schema/src/color/Color.ts:824` | Transformation schema for decoding boundary hex input into canonical OKLCH. |
-| `@beep/schema/color/Color` | `HexToOklch` | type | `packages/foundation/modeling/schema/src/color/Color.ts:845` | Type for {@link HexToOklch}. |
-| `@beep/schema/color/Color` | `HexToRgb` | const | `packages/foundation/modeling/schema/src/color/Color.ts:717` | Transformation schema for decoding boundary hex input into normalized RGB. |
-| `@beep/schema/color/Color` | `HexToRgb` | type | `packages/foundation/modeling/schema/src/color/Color.ts:738` | Type for {@link HexToRgb}. |
-| `@beep/schema/color/Color` | `Lighten` | const | `packages/foundation/modeling/schema/src/color/Color.ts:1103` | One-way schema for lightening a color. |
-| `@beep/schema/color/Color` | `Lighten` | type | `packages/foundation/modeling/schema/src/color/Color.ts:1121` | Type for {@link Lighten}. |
-| `@beep/schema/color/Color` | `LightenInput` | class | `packages/foundation/modeling/schema/src/color/Color.ts:1087` | Request schema for lightening a color. |
-| `@beep/schema/color/Color` | `MixColors` | const | `packages/foundation/modeling/schema/src/color/Color.ts:1061` | One-way schema for mixing two colors. |
-| `@beep/schema/color/Color` | `MixColors` | type | `packages/foundation/modeling/schema/src/color/Color.ts:1079` | Type for {@link MixColors}. |
-| `@beep/schema/color/Color` | `MixColorsInput` | class | `packages/foundation/modeling/schema/src/color/Color.ts:1044` | Request schema for mixing two colors. |
-| `@beep/schema/color/Color` | `NormalizeHexColor` | const | `packages/foundation/modeling/schema/src/color/Color.ts:430` | Canonicalization schema from boundary hex input to canonical hex output. |
-| `@beep/schema/color/Color` | `NormalizeHexColor` | type | `packages/foundation/modeling/schema/src/color/Color.ts:451` | Type for {@link NormalizeHexColor}. |
-| `@beep/schema/color/Color` | `OklchChroma` | const | `packages/foundation/modeling/schema/src/color/Color.ts:587` | Canonical OKLCH chroma component. |
-| `@beep/schema/color/Color` | `OklchChroma` | type | `packages/foundation/modeling/schema/src/color/Color.ts:603` | Type for {@link OklchChroma}. |
-| `@beep/schema/color/Color` | `OklchColor` | class | `packages/foundation/modeling/schema/src/color/Color.ts:652` | Canonical OKLCH color object. |
-| `@beep/schema/color/Color` | `OklchCoordinate` | const | `packages/foundation/modeling/schema/src/color/Color.ts:540` | Branded finite OKLCH coordinate. |
-| `@beep/schema/color/Color` | `OklchCoordinate` | type | `packages/foundation/modeling/schema/src/color/Color.ts:555` | Type for {@link OklchCoordinate}. |
-| `@beep/schema/color/Color` | `OklchHue` | const | `packages/foundation/modeling/schema/src/color/Color.ts:611` | Canonical OKLCH hue component. |
-| `@beep/schema/color/Color` | `OklchHue` | type | `packages/foundation/modeling/schema/src/color/Color.ts:627` | Type for {@link OklchHue}. |
-| `@beep/schema/color/Color` | `OklchInput` | class | `packages/foundation/modeling/schema/src/color/Color.ts:635` | OKLCH object with finite coordinates. |
-| `@beep/schema/color/Color` | `OklchLightness` | const | `packages/foundation/modeling/schema/src/color/Color.ts:563` | Canonical OKLCH lightness component. |
-| `@beep/schema/color/Color` | `OklchLightness` | type | `packages/foundation/modeling/schema/src/color/Color.ts:579` | Type for {@link OklchLightness}. |
-| `@beep/schema/color/Color` | `OklchToHex` | const | `packages/foundation/modeling/schema/src/color/Color.ts:853` | Transformation schema for encoding OKLCH coordinates into canonical hex. |
-| `@beep/schema/color/Color` | `OklchToHex` | type | `packages/foundation/modeling/schema/src/color/Color.ts:871` | Type for {@link OklchToHex}. |
-| `@beep/schema/color/Color` | `OklchToRgb` | const | `packages/foundation/modeling/schema/src/color/Color.ts:798` | Transformation schema for encoding OKLCH coordinates into RGB input values. |
-| `@beep/schema/color/Color` | `OklchToRgb` | type | `packages/foundation/modeling/schema/src/color/Color.ts:816` | Type for {@link OklchToRgb}. |
-| `@beep/schema/color/Color` | `Rgb` | class | `packages/foundation/modeling/schema/src/color/Color.ts:523` | RGB object with normalized channels. |
-| `@beep/schema/color/Color` | `RgbaColorString` | const | `packages/foundation/modeling/schema/src/color/Color.ts:694` | CSS rgba color string produced by with-alpha helpers. |
-| `@beep/schema/color/Color` | `RgbaColorString` | type | `packages/foundation/modeling/schema/src/color/Color.ts:709` | Type for {@link RgbaColorString}. |
-| `@beep/schema/color/Color` | `RgbChannel` | const | `packages/foundation/modeling/schema/src/color/Color.ts:482` | Branded normalized RGB channel in the range 0 through 1. |
-| `@beep/schema/color/Color` | `RgbChannel` | type | `packages/foundation/modeling/schema/src/color/Color.ts:498` | Type for {@link RgbChannel}. |
-| `@beep/schema/color/Color` | `RgbInput` | class | `packages/foundation/modeling/schema/src/color/Color.ts:506` | RGB object with finite channel inputs. |
-| `@beep/schema/color/Color` | `RgbInputChannel` | const | `packages/foundation/modeling/schema/src/color/Color.ts:459` | Branded finite RGB input channel. |
-| `@beep/schema/color/Color` | `RgbInputChannel` | type | `packages/foundation/modeling/schema/src/color/Color.ts:474` | Type for {@link RgbInputChannel}. |
-| `@beep/schema/color/Color` | `RgbToHex` | const | `packages/foundation/modeling/schema/src/color/Color.ts:746` | Transformation schema for encoding RGB input into canonical hex. |
-| `@beep/schema/color/Color` | `RgbToHex` | type | `packages/foundation/modeling/schema/src/color/Color.ts:764` | Type for {@link RgbToHex}. |
-| `@beep/schema/color/Color` | `RgbToOklch` | const | `packages/foundation/modeling/schema/src/color/Color.ts:772` | Transformation schema for decoding normalized RGB into canonical OKLCH. |
-| `@beep/schema/color/Color` | `RgbToOklch` | type | `packages/foundation/modeling/schema/src/color/Color.ts:790` | Type for {@link RgbToOklch}. |
-| `@beep/schema/color/Color` | `WithAlpha` | const | `packages/foundation/modeling/schema/src/color/Color.ts:1187` | One-way schema for rendering an rgba string. |
-| `@beep/schema/color/Color` | `WithAlpha` | type | `packages/foundation/modeling/schema/src/color/Color.ts:1205` | Type for {@link WithAlpha}. |
-| `@beep/schema/color/Color` | `WithAlphaInput` | class | `packages/foundation/modeling/schema/src/color/Color.ts:1171` | Request schema for converting a color plus alpha to an rgba string. |
-| `@beep/schema/color/index` | `ColorAmount` | const | `packages/foundation/modeling/schema/src/color/Color.ts:879` | Shared finite amount used by color helper request schemas. |
-| `@beep/schema/color/index` | `ColorAmount` | type | `packages/foundation/modeling/schema/src/color/Color.ts:894` | Type for {@link ColorAmount}. |
-| `@beep/schema/color/index` | `Darken` | const | `packages/foundation/modeling/schema/src/color/Color.ts:1145` | One-way schema for darkening a color. |
-| `@beep/schema/color/index` | `Darken` | type | `packages/foundation/modeling/schema/src/color/Color.ts:1163` | Type for {@link Darken}. |
-| `@beep/schema/color/index` | `DarkenInput` | class | `packages/foundation/modeling/schema/src/color/Color.ts:1129` | Request schema for darkening a color. |
-| `@beep/schema/color/index` | `GenerateAlphaScale` | const | `packages/foundation/modeling/schema/src/color/Color.ts:1016` | One-way schema for generating an alpha-blended 12-step scale. |
-| `@beep/schema/color/index` | `GenerateAlphaScale` | type | `packages/foundation/modeling/schema/src/color/Color.ts:1036` | Type for {@link GenerateAlphaScale}. |
-| `@beep/schema/color/index` | `GenerateAlphaScaleInput` | class | `packages/foundation/modeling/schema/src/color/Color.ts:1000` | Request schema for generating an alpha-blended 12-step scale. |
-| `@beep/schema/color/index` | `GenerateNeutralScale` | const | `packages/foundation/modeling/schema/src/color/Color.ts:972` | One-way schema for generating a neutral 12-step scale. |
-| `@beep/schema/color/index` | `GenerateNeutralScale` | type | `packages/foundation/modeling/schema/src/color/Color.ts:992` | Type for {@link GenerateNeutralScale}. |
-| `@beep/schema/color/index` | `GenerateNeutralScaleInput` | class | `packages/foundation/modeling/schema/src/color/Color.ts:956` | Request schema for generating a neutral 12-step scale. |
-| `@beep/schema/color/index` | `GenerateScale` | const | `packages/foundation/modeling/schema/src/color/Color.ts:928` | One-way schema for generating a chromatic 12-step scale. |
-| `@beep/schema/color/index` | `GenerateScale` | type | `packages/foundation/modeling/schema/src/color/Color.ts:948` | Type for {@link GenerateScale}. |
-| `@beep/schema/color/index` | `GenerateScaleInput` | class | `packages/foundation/modeling/schema/src/color/Color.ts:912` | Request schema for generating a chromatic 12-step scale. |
-| `@beep/schema/color/index` | `HexColor` | const | `packages/foundation/modeling/schema/src/color/Color.ts:407` | Canonical lowercase six-digit hex color schema. |
-| `@beep/schema/color/index` | `HexColor` | type | `packages/foundation/modeling/schema/src/color/Color.ts:422` | Type for {@link HexColor}. |
-| `@beep/schema/color/index` | `HexColorInput` | const | `packages/foundation/modeling/schema/src/color/Color.ts:385` | Boundary schema for hex color input strings. |
-| `@beep/schema/color/index` | `HexColorInput` | type | `packages/foundation/modeling/schema/src/color/Color.ts:399` | Type for {@link HexColorInput}. |
-| `@beep/schema/color/index` | `HexColorScale12` | const | `packages/foundation/modeling/schema/src/color/Color.ts:669` | Fixed-size 12-step canonical hex color scale. |
-| `@beep/schema/color/index` | `HexColorScale12` | type | `packages/foundation/modeling/schema/src/color/Color.ts:686` | Type for {@link HexColorScale12}. |
-| `@beep/schema/color/index` | `HexToOklch` | const | `packages/foundation/modeling/schema/src/color/Color.ts:824` | Transformation schema for decoding boundary hex input into canonical OKLCH. |
-| `@beep/schema/color/index` | `HexToOklch` | type | `packages/foundation/modeling/schema/src/color/Color.ts:845` | Type for {@link HexToOklch}. |
-| `@beep/schema/color/index` | `HexToRgb` | const | `packages/foundation/modeling/schema/src/color/Color.ts:717` | Transformation schema for decoding boundary hex input into normalized RGB. |
-| `@beep/schema/color/index` | `HexToRgb` | type | `packages/foundation/modeling/schema/src/color/Color.ts:738` | Type for {@link HexToRgb}. |
-| `@beep/schema/color/index` | `Lighten` | const | `packages/foundation/modeling/schema/src/color/Color.ts:1103` | One-way schema for lightening a color. |
-| `@beep/schema/color/index` | `Lighten` | type | `packages/foundation/modeling/schema/src/color/Color.ts:1121` | Type for {@link Lighten}. |
-| `@beep/schema/color/index` | `LightenInput` | class | `packages/foundation/modeling/schema/src/color/Color.ts:1087` | Request schema for lightening a color. |
-| `@beep/schema/color/index` | `MixColors` | const | `packages/foundation/modeling/schema/src/color/Color.ts:1061` | One-way schema for mixing two colors. |
-| `@beep/schema/color/index` | `MixColors` | type | `packages/foundation/modeling/schema/src/color/Color.ts:1079` | Type for {@link MixColors}. |
-| `@beep/schema/color/index` | `MixColorsInput` | class | `packages/foundation/modeling/schema/src/color/Color.ts:1044` | Request schema for mixing two colors. |
-| `@beep/schema/color/index` | `NormalizeHexColor` | const | `packages/foundation/modeling/schema/src/color/Color.ts:430` | Canonicalization schema from boundary hex input to canonical hex output. |
-| `@beep/schema/color/index` | `NormalizeHexColor` | type | `packages/foundation/modeling/schema/src/color/Color.ts:451` | Type for {@link NormalizeHexColor}. |
-| `@beep/schema/color/index` | `OklchChroma` | const | `packages/foundation/modeling/schema/src/color/Color.ts:587` | Canonical OKLCH chroma component. |
-| `@beep/schema/color/index` | `OklchChroma` | type | `packages/foundation/modeling/schema/src/color/Color.ts:603` | Type for {@link OklchChroma}. |
-| `@beep/schema/color/index` | `OklchColor` | class | `packages/foundation/modeling/schema/src/color/Color.ts:652` | Canonical OKLCH color object. |
-| `@beep/schema/color/index` | `OklchCoordinate` | const | `packages/foundation/modeling/schema/src/color/Color.ts:540` | Branded finite OKLCH coordinate. |
-| `@beep/schema/color/index` | `OklchCoordinate` | type | `packages/foundation/modeling/schema/src/color/Color.ts:555` | Type for {@link OklchCoordinate}. |
-| `@beep/schema/color/index` | `OklchHue` | const | `packages/foundation/modeling/schema/src/color/Color.ts:611` | Canonical OKLCH hue component. |
-| `@beep/schema/color/index` | `OklchHue` | type | `packages/foundation/modeling/schema/src/color/Color.ts:627` | Type for {@link OklchHue}. |
-| `@beep/schema/color/index` | `OklchInput` | class | `packages/foundation/modeling/schema/src/color/Color.ts:635` | OKLCH object with finite coordinates. |
-| `@beep/schema/color/index` | `OklchLightness` | const | `packages/foundation/modeling/schema/src/color/Color.ts:563` | Canonical OKLCH lightness component. |
-| `@beep/schema/color/index` | `OklchLightness` | type | `packages/foundation/modeling/schema/src/color/Color.ts:579` | Type for {@link OklchLightness}. |
-| `@beep/schema/color/index` | `OklchToHex` | const | `packages/foundation/modeling/schema/src/color/Color.ts:853` | Transformation schema for encoding OKLCH coordinates into canonical hex. |
-| `@beep/schema/color/index` | `OklchToHex` | type | `packages/foundation/modeling/schema/src/color/Color.ts:871` | Type for {@link OklchToHex}. |
-| `@beep/schema/color/index` | `OklchToRgb` | const | `packages/foundation/modeling/schema/src/color/Color.ts:798` | Transformation schema for encoding OKLCH coordinates into RGB input values. |
-| `@beep/schema/color/index` | `OklchToRgb` | type | `packages/foundation/modeling/schema/src/color/Color.ts:816` | Type for {@link OklchToRgb}. |
-| `@beep/schema/color/index` | `Rgb` | class | `packages/foundation/modeling/schema/src/color/Color.ts:523` | RGB object with normalized channels. |
-| `@beep/schema/color/index` | `RgbaColorString` | const | `packages/foundation/modeling/schema/src/color/Color.ts:694` | CSS rgba color string produced by with-alpha helpers. |
-| `@beep/schema/color/index` | `RgbaColorString` | type | `packages/foundation/modeling/schema/src/color/Color.ts:709` | Type for {@link RgbaColorString}. |
-| `@beep/schema/color/index` | `RgbChannel` | const | `packages/foundation/modeling/schema/src/color/Color.ts:482` | Branded normalized RGB channel in the range 0 through 1. |
-| `@beep/schema/color/index` | `RgbChannel` | type | `packages/foundation/modeling/schema/src/color/Color.ts:498` | Type for {@link RgbChannel}. |
-| `@beep/schema/color/index` | `RgbInput` | class | `packages/foundation/modeling/schema/src/color/Color.ts:506` | RGB object with finite channel inputs. |
-| `@beep/schema/color/index` | `RgbInputChannel` | const | `packages/foundation/modeling/schema/src/color/Color.ts:459` | Branded finite RGB input channel. |
-| `@beep/schema/color/index` | `RgbInputChannel` | type | `packages/foundation/modeling/schema/src/color/Color.ts:474` | Type for {@link RgbInputChannel}. |
-| `@beep/schema/color/index` | `RgbToHex` | const | `packages/foundation/modeling/schema/src/color/Color.ts:746` | Transformation schema for encoding RGB input into canonical hex. |
-| `@beep/schema/color/index` | `RgbToHex` | type | `packages/foundation/modeling/schema/src/color/Color.ts:764` | Type for {@link RgbToHex}. |
-| `@beep/schema/color/index` | `RgbToOklch` | const | `packages/foundation/modeling/schema/src/color/Color.ts:772` | Transformation schema for decoding normalized RGB into canonical OKLCH. |
-| `@beep/schema/color/index` | `RgbToOklch` | type | `packages/foundation/modeling/schema/src/color/Color.ts:790` | Type for {@link RgbToOklch}. |
-| `@beep/schema/color/index` | `WithAlpha` | const | `packages/foundation/modeling/schema/src/color/Color.ts:1187` | One-way schema for rendering an rgba string. |
-| `@beep/schema/color/index` | `WithAlpha` | type | `packages/foundation/modeling/schema/src/color/Color.ts:1205` | Type for {@link WithAlpha}. |
-| `@beep/schema/color/index` | `WithAlphaInput` | class | `packages/foundation/modeling/schema/src/color/Color.ts:1171` | Request schema for converting a color plus alpha to an rgba string. |
+| `@beep/schema/CardinalDirection` | `Abbrev` | const | `packages/foundation/modeling/schema/src/CardinalDirection/CardinalDirection.schema.ts:35` | CardinalDirectionAbbrev - The abbreviated version of the {@link CardinalDirection} |
+| `@beep/schema/CardinalDirection` | `Abbrev` | type | `packages/foundation/modeling/schema/src/CardinalDirection/CardinalDirection.schema.ts:47` | {@inheritDoc CardinalDirectionAbbrev} |
+| `@beep/schema/CardinalDirection` | `CardinalDirection` | const | `packages/foundation/modeling/schema/src/CardinalDirection/CardinalDirection.schema.ts:16` | CardinalDirection - The cardinal directions |
+| `@beep/schema/CardinalDirection` | `CardinalDirection` | type | `packages/foundation/modeling/schema/src/CardinalDirection/CardinalDirection.schema.ts:27` | {@inheritDoc CardinalDirection} |
+| `@beep/schema/CardinalDirection` | `CardinalDirectionAbbrev` | const | `packages/foundation/modeling/schema/src/CardinalDirection/CardinalDirection.schema.ts:35` | CardinalDirectionAbbrev - The abbreviated version of the {@link CardinalDirection} |
+| `@beep/schema/CardinalDirection` | `CardinalDirectionAbbrev` | type | `packages/foundation/modeling/schema/src/CardinalDirection/CardinalDirection.schema.ts:47` | {@inheritDoc CardinalDirectionAbbrev} |
+| `@beep/schema/CardinalDirection` | `Schema` | const | `packages/foundation/modeling/schema/src/CardinalDirection/CardinalDirection.schema.ts:16` | CardinalDirection - The cardinal directions |
+| `@beep/schema/CardinalDirection` | `Schema` | type | `packages/foundation/modeling/schema/src/CardinalDirection/CardinalDirection.schema.ts:27` | {@inheritDoc CardinalDirection} |
+| `@beep/schema/CauseTaggedError` | `CauseTaggedError` | const | `packages/foundation/modeling/schema/src/CauseTaggedError/CauseTaggedError.errors.ts:506` | Create a tagged error class that always carries a `message` and required defect `cause`. |
+| `@beep/schema/CauseTaggedError` | `CauseTaggedErrorConstructor` | type | `packages/foundation/modeling/schema/src/CauseTaggedError/CauseTaggedError.errors.ts:248` | Callable constructor for creating cause-tagged error class factories. |
+| `@beep/schema/CauseTaggedError` | `CauseTaggedErrorFactory` | interface | `packages/foundation/modeling/schema/src/CauseTaggedError/CauseTaggedError.errors.ts:209` | Factory returned by {@link CauseTaggedError} after an identity namespace has been selected. |
+| `@beep/schema/CauseTaggedError` | `CauseTaggedErrorWithStatics` | type | `packages/foundation/modeling/schema/src/CauseTaggedError/CauseTaggedError.errors.ts:163` | Tagged error class returned by {@link CauseTaggedError}, including dual construction helpers. |
+| `@beep/schema/Color` | `ColorAmount` | const | `packages/foundation/modeling/schema/src/Color/Color.adjust.ts:106` | Shared finite amount used by color helper request schemas. |
+| `@beep/schema/Color` | `ColorAmount` | type | `packages/foundation/modeling/schema/src/Color/Color.adjust.ts:121` | Type for {@link ColorAmount}. |
+| `@beep/schema/Color` | `Darken` | const | `packages/foundation/modeling/schema/src/Color/Color.adjust.ts:230` | One-way schema for darkening a color. |
+| `@beep/schema/Color` | `Darken` | type | `packages/foundation/modeling/schema/src/Color/Color.adjust.ts:248` | Type for {@link Darken}. |
+| `@beep/schema/Color` | `DarkenInput` | class | `packages/foundation/modeling/schema/src/Color/Color.adjust.ts:214` | Request schema for darkening a color. |
+| `@beep/schema/Color` | `GenerateAlphaScale` | const | `packages/foundation/modeling/schema/src/Color/Color.scale.ts:263` | One-way schema for generating an alpha-blended 12-step scale. |
+| `@beep/schema/Color` | `GenerateAlphaScale` | type | `packages/foundation/modeling/schema/src/Color/Color.scale.ts:283` | Type for {@link GenerateAlphaScale}. |
+| `@beep/schema/Color` | `GenerateAlphaScaleInput` | class | `packages/foundation/modeling/schema/src/Color/Color.scale.ts:247` | Request schema for generating an alpha-blended 12-step scale. |
+| `@beep/schema/Color` | `GenerateNeutralScale` | const | `packages/foundation/modeling/schema/src/Color/Color.scale.ts:219` | One-way schema for generating a neutral 12-step scale. |
+| `@beep/schema/Color` | `GenerateNeutralScale` | type | `packages/foundation/modeling/schema/src/Color/Color.scale.ts:239` | Type for {@link GenerateNeutralScale}. |
+| `@beep/schema/Color` | `GenerateNeutralScaleInput` | class | `packages/foundation/modeling/schema/src/Color/Color.scale.ts:203` | Request schema for generating a neutral 12-step scale. |
+| `@beep/schema/Color` | `GenerateScale` | const | `packages/foundation/modeling/schema/src/Color/Color.scale.ts:175` | One-way schema for generating a chromatic 12-step scale. |
+| `@beep/schema/Color` | `GenerateScale` | type | `packages/foundation/modeling/schema/src/Color/Color.scale.ts:195` | Type for {@link GenerateScale}. |
+| `@beep/schema/Color` | `GenerateScaleInput` | class | `packages/foundation/modeling/schema/src/Color/Color.scale.ts:159` | Request schema for generating a chromatic 12-step scale. |
+| `@beep/schema/Color` | `HexColor` | const | `packages/foundation/modeling/schema/src/Color/Color.hex.ts:126` | Canonical lowercase six-digit hex color schema. |
+| `@beep/schema/Color` | `HexColor` | type | `packages/foundation/modeling/schema/src/Color/Color.hex.ts:141` | Type for {@link HexColor}. |
+| `@beep/schema/Color` | `HexColorInput` | const | `packages/foundation/modeling/schema/src/Color/Color.hex.ts:104` | Boundary schema for hex color input strings. |
+| `@beep/schema/Color` | `HexColorInput` | type | `packages/foundation/modeling/schema/src/Color/Color.hex.ts:118` | Type for {@link HexColorInput}. |
+| `@beep/schema/Color` | `HexColorScale12` | const | `packages/foundation/modeling/schema/src/Color/Color.scale.ts:124` | Fixed-size 12-step canonical hex color scale. |
+| `@beep/schema/Color` | `HexColorScale12` | type | `packages/foundation/modeling/schema/src/Color/Color.scale.ts:141` | Type for {@link HexColorScale12}. |
+| `@beep/schema/Color` | `HexToOklch` | const | `packages/foundation/modeling/schema/src/Color/Color.transforms.ts:145` | Transformation schema for decoding boundary hex input into canonical OKLCH. |
+| `@beep/schema/Color` | `HexToOklch` | type | `packages/foundation/modeling/schema/src/Color/Color.transforms.ts:166` | Type for {@link HexToOklch}. |
+| `@beep/schema/Color` | `HexToRgb` | const | `packages/foundation/modeling/schema/src/Color/Color.transforms.ts:38` | Transformation schema for decoding boundary hex input into normalized RGB. |
+| `@beep/schema/Color` | `HexToRgb` | type | `packages/foundation/modeling/schema/src/Color/Color.transforms.ts:59` | Type for {@link HexToRgb}. |
+| `@beep/schema/Color` | `Lighten` | const | `packages/foundation/modeling/schema/src/Color/Color.adjust.ts:188` | One-way schema for lightening a color. |
+| `@beep/schema/Color` | `Lighten` | type | `packages/foundation/modeling/schema/src/Color/Color.adjust.ts:206` | Type for {@link Lighten}. |
+| `@beep/schema/Color` | `LightenInput` | class | `packages/foundation/modeling/schema/src/Color/Color.adjust.ts:172` | Request schema for lightening a color. |
+| `@beep/schema/Color` | `MixColors` | const | `packages/foundation/modeling/schema/src/Color/Color.adjust.ts:146` | One-way schema for mixing two colors. |
+| `@beep/schema/Color` | `MixColors` | type | `packages/foundation/modeling/schema/src/Color/Color.adjust.ts:164` | Type for {@link MixColors}. |
+| `@beep/schema/Color` | `MixColorsInput` | class | `packages/foundation/modeling/schema/src/Color/Color.adjust.ts:129` | Request schema for mixing two colors. |
+| `@beep/schema/Color` | `NormalizeHexColor` | const | `packages/foundation/modeling/schema/src/Color/Color.hex.ts:149` | Canonicalization schema from boundary hex input to canonical hex output. |
+| `@beep/schema/Color` | `NormalizeHexColor` | type | `packages/foundation/modeling/schema/src/Color/Color.hex.ts:170` | Type for {@link NormalizeHexColor}. |
+| `@beep/schema/Color` | `OklchChroma` | const | `packages/foundation/modeling/schema/src/Color/Color.oklch.ts:177` | Canonical OKLCH chroma component. |
+| `@beep/schema/Color` | `OklchChroma` | type | `packages/foundation/modeling/schema/src/Color/Color.oklch.ts:193` | Type for {@link OklchChroma}. |
+| `@beep/schema/Color` | `OklchColor` | class | `packages/foundation/modeling/schema/src/Color/Color.oklch.ts:242` | Canonical OKLCH color object. |
+| `@beep/schema/Color` | `OklchCoordinate` | const | `packages/foundation/modeling/schema/src/Color/Color.oklch.ts:130` | Branded finite OKLCH coordinate. |
+| `@beep/schema/Color` | `OklchCoordinate` | type | `packages/foundation/modeling/schema/src/Color/Color.oklch.ts:145` | Type for {@link OklchCoordinate}. |
+| `@beep/schema/Color` | `OklchHue` | const | `packages/foundation/modeling/schema/src/Color/Color.oklch.ts:201` | Canonical OKLCH hue component. |
+| `@beep/schema/Color` | `OklchHue` | type | `packages/foundation/modeling/schema/src/Color/Color.oklch.ts:217` | Type for {@link OklchHue}. |
+| `@beep/schema/Color` | `OklchInput` | class | `packages/foundation/modeling/schema/src/Color/Color.oklch.ts:225` | OKLCH object with finite coordinates. |
+| `@beep/schema/Color` | `OklchLightness` | const | `packages/foundation/modeling/schema/src/Color/Color.oklch.ts:153` | Canonical OKLCH lightness component. |
+| `@beep/schema/Color` | `OklchLightness` | type | `packages/foundation/modeling/schema/src/Color/Color.oklch.ts:169` | Type for {@link OklchLightness}. |
+| `@beep/schema/Color` | `OklchToHex` | const | `packages/foundation/modeling/schema/src/Color/Color.transforms.ts:174` | Transformation schema for encoding OKLCH coordinates into canonical hex. |
+| `@beep/schema/Color` | `OklchToHex` | type | `packages/foundation/modeling/schema/src/Color/Color.transforms.ts:192` | Type for {@link OklchToHex}. |
+| `@beep/schema/Color` | `OklchToRgb` | const | `packages/foundation/modeling/schema/src/Color/Color.transforms.ts:119` | Transformation schema for encoding OKLCH coordinates into RGB input values. |
+| `@beep/schema/Color` | `OklchToRgb` | type | `packages/foundation/modeling/schema/src/Color/Color.transforms.ts:137` | Type for {@link OklchToRgb}. |
+| `@beep/schema/Color` | `Rgb` | class | `packages/foundation/modeling/schema/src/Color/Color.rgb.ts:94` | RGB object with normalized channels. |
+| `@beep/schema/Color` | `RgbaColorString` | const | `packages/foundation/modeling/schema/src/Color/Color.adjust.ts:83` | CSS rgba color string produced by with-alpha helpers. |
+| `@beep/schema/Color` | `RgbaColorString` | type | `packages/foundation/modeling/schema/src/Color/Color.adjust.ts:98` | Type for {@link RgbaColorString}. |
+| `@beep/schema/Color` | `RgbChannel` | const | `packages/foundation/modeling/schema/src/Color/Color.rgb.ts:53` | Branded normalized RGB channel in the range 0 through 1. |
+| `@beep/schema/Color` | `RgbChannel` | type | `packages/foundation/modeling/schema/src/Color/Color.rgb.ts:69` | Type for {@link RgbChannel}. |
+| `@beep/schema/Color` | `RgbInput` | class | `packages/foundation/modeling/schema/src/Color/Color.rgb.ts:77` | RGB object with finite channel inputs. |
+| `@beep/schema/Color` | `RgbInputChannel` | const | `packages/foundation/modeling/schema/src/Color/Color.rgb.ts:30` | Branded finite RGB input channel. |
+| `@beep/schema/Color` | `RgbInputChannel` | type | `packages/foundation/modeling/schema/src/Color/Color.rgb.ts:45` | Type for {@link RgbInputChannel}. |
+| `@beep/schema/Color` | `RgbToHex` | const | `packages/foundation/modeling/schema/src/Color/Color.transforms.ts:67` | Transformation schema for encoding RGB input into canonical hex. |
+| `@beep/schema/Color` | `RgbToHex` | type | `packages/foundation/modeling/schema/src/Color/Color.transforms.ts:85` | Type for {@link RgbToHex}. |
+| `@beep/schema/Color` | `RgbToOklch` | const | `packages/foundation/modeling/schema/src/Color/Color.transforms.ts:93` | Transformation schema for decoding normalized RGB into canonical OKLCH. |
+| `@beep/schema/Color` | `RgbToOklch` | type | `packages/foundation/modeling/schema/src/Color/Color.transforms.ts:111` | Type for {@link RgbToOklch}. |
+| `@beep/schema/Color` | `WithAlpha` | const | `packages/foundation/modeling/schema/src/Color/Color.adjust.ts:272` | One-way schema for rendering an rgba string. |
+| `@beep/schema/Color` | `WithAlpha` | type | `packages/foundation/modeling/schema/src/Color/Color.adjust.ts:290` | Type for {@link WithAlpha}. |
+| `@beep/schema/Color` | `WithAlphaInput` | class | `packages/foundation/modeling/schema/src/Color/Color.adjust.ts:256` | Request schema for converting a color plus alpha to an rgba string. |
 | `@beep/schema/CommonTextSchemas` | `CommaSeparatedList` | const | `packages/foundation/modeling/schema/src/CommonTextSchemas.ts:81` | Schema that decodes a comma-separated string into a trimmed non-empty string array. |
 | `@beep/schema/CommonTextSchemas` | `CommaSeparatedList` | type | `packages/foundation/modeling/schema/src/CommonTextSchemas.ts:109` | Type for {@link CommaSeparatedList}. |
 | `@beep/schema/CommonTextSchemas` | `NormalizedBooleanString` | const | `packages/foundation/modeling/schema/src/CommonTextSchemas.ts:126` | Schema that normalizes common boolean string spellings (`"true"`, `"1"`, `"yes"`, `"on"`, etc.) to `boolean`. |
 | `@beep/schema/CommonTextSchemas` | `NormalizedBooleanString` | type | `packages/foundation/modeling/schema/src/CommonTextSchemas.ts:154` | Type for {@link NormalizedBooleanString}. |
 | `@beep/schema/CommonTextSchemas` | `TrimmedNonEmptyText` | const | `packages/foundation/modeling/schema/src/CommonTextSchemas.ts:36` | Trimmed and non-empty text schema that strips whitespace and rejects empty results. |
 | `@beep/schema/CommonTextSchemas` | `TrimmedNonEmptyText` | type | `packages/foundation/modeling/schema/src/CommonTextSchemas.ts:64` | Type for {@link TrimmedNonEmptyText}. |
-| `@beep/schema/CrossOriginEmbedderPolicy` | `COEPResponseHeader` | class | `packages/foundation/modeling/schema/src/http/headers/CrossOriginEmbedderPolicy.ts:66` | Schema for the Cross-Origin-Embedder-Policy response header output. |
-| `@beep/schema/CrossOriginEmbedderPolicy` | `CoepValue` | const | `packages/foundation/modeling/schema/src/http/headers/CrossOriginEmbedderPolicy.ts:29` |  |
-| `@beep/schema/CrossOriginEmbedderPolicy` | `CoepValue` | type | `packages/foundation/modeling/schema/src/http/headers/CrossOriginEmbedderPolicy.ts:40` |  |
-| `@beep/schema/CrossOriginEmbedderPolicy` | `CrossOriginEmbedderPolicyHeader` | const | `packages/foundation/modeling/schema/src/http/headers/CrossOriginEmbedderPolicy.ts:88` | Schema for the Cross-Origin-Embedder-Policy response header. |
-| `@beep/schema/CrossOriginEmbedderPolicy` | `CrossOriginEmbedderPolicyHeader` | type | `packages/foundation/modeling/schema/src/http/headers/CrossOriginEmbedderPolicy.ts:165` |  |
-| `@beep/schema/CrossOriginEmbedderPolicy` | `CrossOriginEmbedderPolicyOption` | const | `packages/foundation/modeling/schema/src/http/headers/CrossOriginEmbedderPolicy.ts:48` |  |
-| `@beep/schema/CrossOriginEmbedderPolicy` | `CrossOriginEmbedderPolicyOption` | type | `packages/foundation/modeling/schema/src/http/headers/CrossOriginEmbedderPolicy.ts:59` |  |
-| `@beep/schema/CrossOriginEmbedderPolicy` | `Header` | const | `packages/foundation/modeling/schema/src/http/headers/CrossOriginEmbedderPolicy.ts:88` | Schema for the Cross-Origin-Embedder-Policy response header. |
-| `@beep/schema/CrossOriginEmbedderPolicy` | `Header` | type | `packages/foundation/modeling/schema/src/http/headers/CrossOriginEmbedderPolicy.ts:165` |  |
-| `@beep/schema/CrossOriginEmbedderPolicy` | `Option` | const | `packages/foundation/modeling/schema/src/http/headers/CrossOriginEmbedderPolicy.ts:48` |  |
-| `@beep/schema/CrossOriginEmbedderPolicy` | `Option` | type | `packages/foundation/modeling/schema/src/http/headers/CrossOriginEmbedderPolicy.ts:59` |  |
-| `@beep/schema/CrossOriginEmbedderPolicy` | `ResponseHeader` | class | `packages/foundation/modeling/schema/src/http/headers/CrossOriginEmbedderPolicy.ts:66` | Schema for the Cross-Origin-Embedder-Policy response header output. |
-| `@beep/schema/CrossOriginOpenerPolicy` | `CoopValue` | const | `packages/foundation/modeling/schema/src/http/headers/CrossOriginOpenerPolicy.ts:38` | Schema for supported `Cross-Origin-Opener-Policy` header values. |
-| `@beep/schema/CrossOriginOpenerPolicy` | `CoopValue` | type | `packages/foundation/modeling/schema/src/http/headers/CrossOriginOpenerPolicy.ts:51` | Type-level representation of {@link CoopValue}. |
-| `@beep/schema/CrossOriginOpenerPolicy` | `CrossOriginOpenerPolicyHeader` | const | `packages/foundation/modeling/schema/src/http/headers/CrossOriginOpenerPolicy.ts:132` | One-way schema that decodes COOP options into the `Cross-Origin-Opener-Policy` response header. |
-| `@beep/schema/CrossOriginOpenerPolicy` | `CrossOriginOpenerPolicyHeader` | type | `packages/foundation/modeling/schema/src/http/headers/CrossOriginOpenerPolicy.ts:192` | Type-level representation of {@link CrossOriginOpenerPolicyHeader}. |
-| `@beep/schema/CrossOriginOpenerPolicy` | `CrossOriginOpenerPolicyOption` | const | `packages/foundation/modeling/schema/src/http/headers/CrossOriginOpenerPolicy.ts:70` | Schema for `Cross-Origin-Opener-Policy` option values, including `false` to disable. |
-| `@beep/schema/CrossOriginOpenerPolicy` | `CrossOriginOpenerPolicyOption` | type | `packages/foundation/modeling/schema/src/http/headers/CrossOriginOpenerPolicy.ts:83` | Type-level representation of {@link CrossOriginOpenerPolicyOption}. |
-| `@beep/schema/CrossOriginOpenerPolicy` | `CrossOriginOpenerPolicyResponseHeader` | class | `packages/foundation/modeling/schema/src/http/headers/CrossOriginOpenerPolicy.ts:103` | Parsed `Cross-Origin-Opener-Policy` response header with name and optional value. |
-| `@beep/schema/CrossOriginOpenerPolicy` | `Header` | const | `packages/foundation/modeling/schema/src/http/headers/CrossOriginOpenerPolicy.ts:132` | One-way schema that decodes COOP options into the `Cross-Origin-Opener-Policy` response header. |
-| `@beep/schema/CrossOriginOpenerPolicy` | `Header` | type | `packages/foundation/modeling/schema/src/http/headers/CrossOriginOpenerPolicy.ts:192` | Type-level representation of {@link CrossOriginOpenerPolicyHeader}. |
-| `@beep/schema/CrossOriginOpenerPolicy` | `Option` | const | `packages/foundation/modeling/schema/src/http/headers/CrossOriginOpenerPolicy.ts:70` | Schema for `Cross-Origin-Opener-Policy` option values, including `false` to disable. |
-| `@beep/schema/CrossOriginOpenerPolicy` | `Option` | type | `packages/foundation/modeling/schema/src/http/headers/CrossOriginOpenerPolicy.ts:83` | Type-level representation of {@link CrossOriginOpenerPolicyOption}. |
-| `@beep/schema/CrossOriginOpenerPolicy` | `ResponseHeader` | class | `packages/foundation/modeling/schema/src/http/headers/CrossOriginOpenerPolicy.ts:103` | Parsed `Cross-Origin-Opener-Policy` response header with name and optional value. |
-| `@beep/schema/CrossOriginResourcePolicy` | `CorpValue` | const | `packages/foundation/modeling/schema/src/http/headers/CrossOriginResourcePolicy.ts:27` |  |
-| `@beep/schema/CrossOriginResourcePolicy` | `CorpValue` | type | `packages/foundation/modeling/schema/src/http/headers/CrossOriginResourcePolicy.ts:38` |  |
-| `@beep/schema/CrossOriginResourcePolicy` | `CrossOriginResourcePolicyHeader` | const | `packages/foundation/modeling/schema/src/http/headers/CrossOriginResourcePolicy.ts:81` |  |
-| `@beep/schema/CrossOriginResourcePolicy` | `CrossOriginResourcePolicyHeader` | type | `packages/foundation/modeling/schema/src/http/headers/CrossOriginResourcePolicy.ts:139` |  |
-| `@beep/schema/CrossOriginResourcePolicy` | `CrossOriginResourcePolicyOption` | const | `packages/foundation/modeling/schema/src/http/headers/CrossOriginResourcePolicy.ts:46` |  |
-| `@beep/schema/CrossOriginResourcePolicy` | `CrossOriginResourcePolicyOption` | type | `packages/foundation/modeling/schema/src/http/headers/CrossOriginResourcePolicy.ts:57` |  |
-| `@beep/schema/CrossOriginResourcePolicy` | `CrossOriginResourcePolicyResponseHeader` | class | `packages/foundation/modeling/schema/src/http/headers/CrossOriginResourcePolicy.ts:63` |  |
-| `@beep/schema/CrossOriginResourcePolicy` | `Header` | const | `packages/foundation/modeling/schema/src/http/headers/CrossOriginResourcePolicy.ts:81` |  |
-| `@beep/schema/CrossOriginResourcePolicy` | `Header` | type | `packages/foundation/modeling/schema/src/http/headers/CrossOriginResourcePolicy.ts:139` |  |
-| `@beep/schema/CrossOriginResourcePolicy` | `Option` | const | `packages/foundation/modeling/schema/src/http/headers/CrossOriginResourcePolicy.ts:46` |  |
-| `@beep/schema/CrossOriginResourcePolicy` | `Option` | type | `packages/foundation/modeling/schema/src/http/headers/CrossOriginResourcePolicy.ts:57` |  |
-| `@beep/schema/CrossOriginResourcePolicy` | `ResponseHeader` | class | `packages/foundation/modeling/schema/src/http/headers/CrossOriginResourcePolicy.ts:63` |  |
-| `@beep/schema/CryptoTxnHash` | `CryptoTxnHash` | const | `packages/foundation/modeling/schema/src/blockchain/CryptoTxnHash.ts:60` | Branded schema for canonical mainnet blockchain transaction identifiers. |
-| `@beep/schema/CryptoTxnHash` | `CryptoTxnHash` | type | `packages/foundation/modeling/schema/src/blockchain/CryptoTxnHash.ts:75` | Type for {@link CryptoTxnHash}. |
-| `@beep/schema/CryptoTxnHash` | `CryptoTxnHashRedacted` | const | `packages/foundation/modeling/schema/src/blockchain/CryptoTxnHash.ts:83` | Redacted schema for canonical mainnet blockchain transaction identifiers. |
-| `@beep/schema/CryptoTxnHash` | `CryptoTxnHashRedacted` | type | `packages/foundation/modeling/schema/src/blockchain/CryptoTxnHash.ts:101` | Type for {@link CryptoTxnHashRedacted}. |
-| `@beep/schema/CryptoTxnHash` | `Redacted` | const | `packages/foundation/modeling/schema/src/blockchain/CryptoTxnHash.ts:83` | Redacted schema for canonical mainnet blockchain transaction identifiers. |
-| `@beep/schema/CryptoTxnHash` | `Redacted` | type | `packages/foundation/modeling/schema/src/blockchain/CryptoTxnHash.ts:101` | Type for {@link CryptoTxnHashRedacted}. |
-| `@beep/schema/CryptoTxnHash` | `Schema` | const | `packages/foundation/modeling/schema/src/blockchain/CryptoTxnHash.ts:60` | Branded schema for canonical mainnet blockchain transaction identifiers. |
-| `@beep/schema/CryptoTxnHash` | `Schema` | type | `packages/foundation/modeling/schema/src/blockchain/CryptoTxnHash.ts:75` | Type for {@link CryptoTxnHash}. |
-| `@beep/schema/CryptoWalletAddress` | `CryptoWalletAddress` | const | `packages/foundation/modeling/schema/src/blockchain/CryptoWalletAddress.ts:181` | Branded schema for canonical mainnet blockchain wallet addresses. |
-| `@beep/schema/CryptoWalletAddress` | `CryptoWalletAddress` | type | `packages/foundation/modeling/schema/src/blockchain/CryptoWalletAddress.ts:196` | Type for {@link CryptoWalletAddress}. |
-| `@beep/schema/CryptoWalletAddress` | `CryptoWalletAddressRedacted` | const | `packages/foundation/modeling/schema/src/blockchain/CryptoWalletAddress.ts:204` | Redacted Branded schema for canonical mainnet blockchain wallet addresses. |
-| `@beep/schema/CryptoWalletAddress` | `CryptoWalletAddressRedacted` | type | `packages/foundation/modeling/schema/src/blockchain/CryptoWalletAddress.ts:223` | Type for {@link CryptoWalletAddressRedacted}. |
-| `@beep/schema/CryptoWalletAddress` | `Redacted` | const | `packages/foundation/modeling/schema/src/blockchain/CryptoWalletAddress.ts:204` | Redacted Branded schema for canonical mainnet blockchain wallet addresses. |
-| `@beep/schema/CryptoWalletAddress` | `Redacted` | type | `packages/foundation/modeling/schema/src/blockchain/CryptoWalletAddress.ts:223` | Type for {@link CryptoWalletAddressRedacted}. |
-| `@beep/schema/CryptoWalletAddress` | `Schema` | const | `packages/foundation/modeling/schema/src/blockchain/CryptoWalletAddress.ts:181` | Branded schema for canonical mainnet blockchain wallet addresses. |
-| `@beep/schema/CryptoWalletAddress` | `Schema` | type | `packages/foundation/modeling/schema/src/blockchain/CryptoWalletAddress.ts:196` | Type for {@link CryptoWalletAddress}. |
-| `@beep/schema/Csp` | `ContentSecurityPolicyHeader` | const | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:582` |  |
-| `@beep/schema/Csp` | `ContentSecurityPolicyHeader` | type | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:647` |  |
-| `@beep/schema/Csp` | `ContentSecurityPolicyHeaderName` | const | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:47` |  |
-| `@beep/schema/Csp` | `ContentSecurityPolicyHeaderName` | type | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:58` |  |
-| `@beep/schema/Csp` | `ContentSecurityPolicyOption` | const | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:482` |  |
-| `@beep/schema/Csp` | `ContentSecurityPolicyOption` | type | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:492` |  |
-| `@beep/schema/Csp` | `ContentSecurityPolicyOptionStruct` | class | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:450` |  |
-| `@beep/schema/Csp` | `ContentSecurityPolicyResponseHeader` | class | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:498` |  |
-| `@beep/schema/Csp` | `createContentSecurityPolicyOptionHeaderValue` | const | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:556` |  |
-| `@beep/schema/Csp` | `createDirectiveValue` | const | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:116` | Creates a serialized directive value from a directive name and value list. |
-| `@beep/schema/Csp` | `CspDirectives` | const | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:435` |  |
-| `@beep/schema/Csp` | `DirectiveSource` | const | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:25` |  |
-| `@beep/schema/Csp` | `DirectiveSource` | type | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:35` |  |
-| `@beep/schema/Csp` | `DocumentDirective` | class | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:301` |  |
-| `@beep/schema/Csp` | `FetchDirective` | class | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:232` |  |
-| `@beep/schema/Csp` | `getProperHeaderName` | const | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:92` | Get proper header name for CSP |
-| `@beep/schema/Csp` | `Header` | const | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:582` |  |
-| `@beep/schema/Csp` | `Header` | type | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:647` |  |
-| `@beep/schema/Csp` | `NavigationDirective` | class | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:345` |  |
-| `@beep/schema/Csp` | `Option` | const | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:482` |  |
-| `@beep/schema/Csp` | `Option` | type | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:492` |  |
-| `@beep/schema/Csp` | `PluginTypes` | const | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:145` |  |
-| `@beep/schema/Csp` | `PluginTypes` | type | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:155` |  |
-| `@beep/schema/Csp` | `ReportingDirective` | class | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:399` |  |
-| `@beep/schema/Csp` | `ReportURI` | const | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:389` |  |
-| `@beep/schema/Csp` | `ResponseHeader` | class | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:498` |  |
-| `@beep/schema/Csp` | `Sandbox` | const | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:178` |  |
-| `@beep/schema/Csp` | `Sandbox` | type | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:189` |  |
-| `@beep/schema/csv` | `CSV` | const | `packages/foundation/modeling/schema/src/csv/index.ts:275` | Schema factory for CSV documents whose rows are validated by the provided |
-| `@beep/schema/csv` | `CsvCodecOptions` | class | `packages/foundation/modeling/schema/src/csv/CsvCodecOptions.ts:38` | Schema-backed CSV text codec options. |
-| `@beep/schema/csv` | `CsvCodecOptionsArgs` | type | `packages/foundation/modeling/schema/src/csv/CsvCodecOptions.ts:105` | Encoded/raw constructor input for {@link CsvCodecOptions}. |
-| `@beep/schema/csv` | `CsvCodecOptionsParseOptions` | const | `packages/foundation/modeling/schema/src/csv/CsvCodecOptions.ts:113` | Parse options used when normalizing raw CSV codec option input. |
-| `@beep/schema/csv` | `csvError` | const | `packages/foundation/modeling/schema/src/csv/CsvError.ts:42` | Construct a {@link CsvError}. |
-| `@beep/schema/csv` | `CsvError` | class | `packages/foundation/modeling/schema/src/csv/CsvError.ts:34` | Raised when CSV parsing, header validation, or formatting fails. |
-| `@beep/schema/csv` | `CsvText` | type | `packages/foundation/modeling/schema/src/csv/index.ts:302` | Branded runtime type for CSV document text produced by encoding a `CSV` |
-| `@beep/schema/csv` | `formatCsvDataRow` | const | `packages/foundation/modeling/schema/src/csv/format/CsvFormatter.ts:125` | Format a CSV data row. |
-| `@beep/schema/csv` | `formatCsvDocument` | const | `packages/foundation/modeling/schema/src/csv/format/CsvFormatter.ts:152` | Format a whole CSV document. |
-| `@beep/schema/csv` | `formatCsvHeaderRow` | const | `packages/foundation/modeling/schema/src/csv/format/CsvFormatter.ts:100` | Format a CSV header row. |
-| `@beep/schema/csv` | `HeaderArray` | const | `packages/foundation/modeling/schema/src/csv/parse/types.ts:20` | An array containing possibly nullish strings. |
-| `@beep/schema/csv` | `HeaderArray` | type | `packages/foundation/modeling/schema/src/csv/parse/types.ts:35` | {@inheritDoc HeaderArray} |
-| `@beep/schema/csv` | `HeaderTransformFunction` | const | `packages/foundation/modeling/schema/src/csv/parse/types.ts:44` | An identity function taking an array containing possibly nullish strings |
-| `@beep/schema/csv` | `HeaderTransformFunction` | type | `packages/foundation/modeling/schema/src/csv/parse/types.ts:59` | {@inheritDoc HeaderTransformFunction} |
-| `@beep/schema/csv` | `HeaderValueInput` | const | `packages/foundation/modeling/schema/src/csv/parse/ParserOptions.ts:60` | A parser header configuration input. |
-| `@beep/schema/csv` | `HeaderValueInput` | type | `packages/foundation/modeling/schema/src/csv/parse/ParserOptions.ts:72` | {@inheritDoc HeaderValueInput} |
-| `@beep/schema/csv` | `parseCsvRows` | const | `packages/foundation/modeling/schema/src/csv/parse/CsvParser.ts:379` | Parse full CSV text into raw row arrays using low-level parser options. |
-| `@beep/schema/csv` | `ParsedField` | class | `packages/foundation/modeling/schema/src/csv/parse/CsvParser.ts:98` |  |
-| `@beep/schema/csv` | `ParsedRow` | class | `packages/foundation/modeling/schema/src/csv/parse/CsvParser.ts:243` |  |
-| `@beep/schema/csv` | `ParserOptions` | class | `packages/foundation/modeling/schema/src/csv/parse/ParserOptions.ts:107` | Schema-backed CSV parser options. |
-| `@beep/schema/csv` | `ParserOptionsArgs` | type | `packages/foundation/modeling/schema/src/csv/parse/ParserOptions.ts:226` | Encoded/raw constructor input for {@link ParserOptions}. |
-| `@beep/schema/csv` | `ParserOptionsError` | class | `packages/foundation/modeling/schema/src/csv/parse/ParserOptions.ts:80` | A parser options configuration error. |
-| `@beep/schema/Csv` | `CSV` | const | `packages/foundation/modeling/schema/src/csv/index.ts:275` | Schema factory for CSV documents whose rows are validated by the provided |
-| `@beep/schema/Csv` | `CsvCodecOptions` | class | `packages/foundation/modeling/schema/src/csv/CsvCodecOptions.ts:38` | Schema-backed CSV text codec options. |
-| `@beep/schema/Csv` | `CsvCodecOptionsArgs` | type | `packages/foundation/modeling/schema/src/csv/CsvCodecOptions.ts:105` | Encoded/raw constructor input for {@link CsvCodecOptions}. |
-| `@beep/schema/Csv` | `CsvCodecOptionsParseOptions` | const | `packages/foundation/modeling/schema/src/csv/CsvCodecOptions.ts:113` | Parse options used when normalizing raw CSV codec option input. |
-| `@beep/schema/Csv` | `csvError` | const | `packages/foundation/modeling/schema/src/csv/CsvError.ts:42` | Construct a {@link CsvError}. |
-| `@beep/schema/Csv` | `CsvError` | class | `packages/foundation/modeling/schema/src/csv/CsvError.ts:34` | Raised when CSV parsing, header validation, or formatting fails. |
-| `@beep/schema/Csv` | `CsvText` | type | `packages/foundation/modeling/schema/src/csv/index.ts:302` | Branded runtime type for CSV document text produced by encoding a `CSV` |
-| `@beep/schema/Csv` | `formatCsvDataRow` | const | `packages/foundation/modeling/schema/src/csv/format/CsvFormatter.ts:125` | Format a CSV data row. |
-| `@beep/schema/Csv` | `formatCsvDocument` | const | `packages/foundation/modeling/schema/src/csv/format/CsvFormatter.ts:152` | Format a whole CSV document. |
-| `@beep/schema/Csv` | `formatCsvHeaderRow` | const | `packages/foundation/modeling/schema/src/csv/format/CsvFormatter.ts:100` | Format a CSV header row. |
-| `@beep/schema/Csv` | `HeaderArray` | const | `packages/foundation/modeling/schema/src/csv/parse/types.ts:20` | An array containing possibly nullish strings. |
-| `@beep/schema/Csv` | `HeaderArray` | type | `packages/foundation/modeling/schema/src/csv/parse/types.ts:35` | {@inheritDoc HeaderArray} |
-| `@beep/schema/Csv` | `HeaderTransformFunction` | const | `packages/foundation/modeling/schema/src/csv/parse/types.ts:44` | An identity function taking an array containing possibly nullish strings |
-| `@beep/schema/Csv` | `HeaderTransformFunction` | type | `packages/foundation/modeling/schema/src/csv/parse/types.ts:59` | {@inheritDoc HeaderTransformFunction} |
-| `@beep/schema/Csv` | `HeaderValueInput` | const | `packages/foundation/modeling/schema/src/csv/parse/ParserOptions.ts:60` | A parser header configuration input. |
-| `@beep/schema/Csv` | `HeaderValueInput` | type | `packages/foundation/modeling/schema/src/csv/parse/ParserOptions.ts:72` | {@inheritDoc HeaderValueInput} |
-| `@beep/schema/Csv` | `parseCsvRows` | const | `packages/foundation/modeling/schema/src/csv/parse/CsvParser.ts:379` | Parse full CSV text into raw row arrays using low-level parser options. |
-| `@beep/schema/Csv` | `ParsedField` | class | `packages/foundation/modeling/schema/src/csv/parse/CsvParser.ts:98` |  |
-| `@beep/schema/Csv` | `ParsedRow` | class | `packages/foundation/modeling/schema/src/csv/parse/CsvParser.ts:243` |  |
-| `@beep/schema/Csv` | `ParserOptions` | class | `packages/foundation/modeling/schema/src/csv/parse/ParserOptions.ts:107` | Schema-backed CSV parser options. |
-| `@beep/schema/Csv` | `ParserOptionsArgs` | type | `packages/foundation/modeling/schema/src/csv/parse/ParserOptions.ts:226` | Encoded/raw constructor input for {@link ParserOptions}. |
-| `@beep/schema/Csv` | `ParserOptionsError` | class | `packages/foundation/modeling/schema/src/csv/parse/ParserOptions.ts:80` | A parser options configuration error. |
-| `@beep/schema/csv/CsvCodecOptions` | `CsvCodecOptions` | class | `packages/foundation/modeling/schema/src/csv/CsvCodecOptions.ts:38` | Schema-backed CSV text codec options. |
-| `@beep/schema/csv/CsvCodecOptions` | `CsvCodecOptionsArgs` | type | `packages/foundation/modeling/schema/src/csv/CsvCodecOptions.ts:105` | Encoded/raw constructor input for {@link CsvCodecOptions}. |
-| `@beep/schema/csv/CsvCodecOptions` | `CsvCodecOptionsParseOptions` | const | `packages/foundation/modeling/schema/src/csv/CsvCodecOptions.ts:113` | Parse options used when normalizing raw CSV codec option input. |
-| `@beep/schema/csv/CsvError` | `csvError` | const | `packages/foundation/modeling/schema/src/csv/CsvError.ts:42` | Construct a {@link CsvError}. |
-| `@beep/schema/csv/CsvError` | `CsvError` | class | `packages/foundation/modeling/schema/src/csv/CsvError.ts:34` | Raised when CSV parsing, header validation, or formatting fails. |
-| `@beep/schema/csv/format/CsvFormatter` | `formatCsvDataRow` | const | `packages/foundation/modeling/schema/src/csv/format/CsvFormatter.ts:125` | Format a CSV data row. |
-| `@beep/schema/csv/format/CsvFormatter` | `formatCsvDocument` | const | `packages/foundation/modeling/schema/src/csv/format/CsvFormatter.ts:152` | Format a whole CSV document. |
-| `@beep/schema/csv/format/CsvFormatter` | `formatCsvHeaderRow` | const | `packages/foundation/modeling/schema/src/csv/format/CsvFormatter.ts:100` | Format a CSV header row. |
-| `@beep/schema/csv/format/index` | `formatCsvDataRow` | const | `packages/foundation/modeling/schema/src/csv/format/CsvFormatter.ts:125` | Format a CSV data row. |
-| `@beep/schema/csv/format/index` | `formatCsvDocument` | const | `packages/foundation/modeling/schema/src/csv/format/CsvFormatter.ts:152` | Format a whole CSV document. |
-| `@beep/schema/csv/format/index` | `formatCsvHeaderRow` | const | `packages/foundation/modeling/schema/src/csv/format/CsvFormatter.ts:100` | Format a CSV header row. |
-| `@beep/schema/csv/index` | `CSV` | const | `packages/foundation/modeling/schema/src/csv/index.ts:275` | Schema factory for CSV documents whose rows are validated by the provided |
-| `@beep/schema/csv/index` | `CsvCodecOptions` | class | `packages/foundation/modeling/schema/src/csv/CsvCodecOptions.ts:38` | Schema-backed CSV text codec options. |
-| `@beep/schema/csv/index` | `CsvCodecOptionsArgs` | type | `packages/foundation/modeling/schema/src/csv/CsvCodecOptions.ts:105` | Encoded/raw constructor input for {@link CsvCodecOptions}. |
-| `@beep/schema/csv/index` | `CsvCodecOptionsParseOptions` | const | `packages/foundation/modeling/schema/src/csv/CsvCodecOptions.ts:113` | Parse options used when normalizing raw CSV codec option input. |
-| `@beep/schema/csv/index` | `csvError` | const | `packages/foundation/modeling/schema/src/csv/CsvError.ts:42` | Construct a {@link CsvError}. |
-| `@beep/schema/csv/index` | `CsvError` | class | `packages/foundation/modeling/schema/src/csv/CsvError.ts:34` | Raised when CSV parsing, header validation, or formatting fails. |
-| `@beep/schema/csv/index` | `CsvText` | type | `packages/foundation/modeling/schema/src/csv/index.ts:302` | Branded runtime type for CSV document text produced by encoding a `CSV` |
-| `@beep/schema/csv/index` | `formatCsvDataRow` | const | `packages/foundation/modeling/schema/src/csv/format/CsvFormatter.ts:125` | Format a CSV data row. |
-| `@beep/schema/csv/index` | `formatCsvDocument` | const | `packages/foundation/modeling/schema/src/csv/format/CsvFormatter.ts:152` | Format a whole CSV document. |
-| `@beep/schema/csv/index` | `formatCsvHeaderRow` | const | `packages/foundation/modeling/schema/src/csv/format/CsvFormatter.ts:100` | Format a CSV header row. |
-| `@beep/schema/csv/index` | `HeaderArray` | const | `packages/foundation/modeling/schema/src/csv/parse/types.ts:20` | An array containing possibly nullish strings. |
-| `@beep/schema/csv/index` | `HeaderArray` | type | `packages/foundation/modeling/schema/src/csv/parse/types.ts:35` | {@inheritDoc HeaderArray} |
-| `@beep/schema/csv/index` | `HeaderTransformFunction` | const | `packages/foundation/modeling/schema/src/csv/parse/types.ts:44` | An identity function taking an array containing possibly nullish strings |
-| `@beep/schema/csv/index` | `HeaderTransformFunction` | type | `packages/foundation/modeling/schema/src/csv/parse/types.ts:59` | {@inheritDoc HeaderTransformFunction} |
-| `@beep/schema/csv/index` | `HeaderValueInput` | const | `packages/foundation/modeling/schema/src/csv/parse/ParserOptions.ts:60` | A parser header configuration input. |
-| `@beep/schema/csv/index` | `HeaderValueInput` | type | `packages/foundation/modeling/schema/src/csv/parse/ParserOptions.ts:72` | {@inheritDoc HeaderValueInput} |
-| `@beep/schema/csv/index` | `parseCsvRows` | const | `packages/foundation/modeling/schema/src/csv/parse/CsvParser.ts:379` | Parse full CSV text into raw row arrays using low-level parser options. |
-| `@beep/schema/csv/index` | `ParsedField` | class | `packages/foundation/modeling/schema/src/csv/parse/CsvParser.ts:98` |  |
-| `@beep/schema/csv/index` | `ParsedRow` | class | `packages/foundation/modeling/schema/src/csv/parse/CsvParser.ts:243` |  |
-| `@beep/schema/csv/index` | `ParserOptions` | class | `packages/foundation/modeling/schema/src/csv/parse/ParserOptions.ts:107` | Schema-backed CSV parser options. |
-| `@beep/schema/csv/index` | `ParserOptionsArgs` | type | `packages/foundation/modeling/schema/src/csv/parse/ParserOptions.ts:226` | Encoded/raw constructor input for {@link ParserOptions}. |
-| `@beep/schema/csv/index` | `ParserOptionsError` | class | `packages/foundation/modeling/schema/src/csv/parse/ParserOptions.ts:80` | A parser options configuration error. |
-| `@beep/schema/csv/parse` | `HeaderArray` | const | `packages/foundation/modeling/schema/src/csv/parse/types.ts:20` | An array containing possibly nullish strings. |
-| `@beep/schema/csv/parse` | `HeaderArray` | type | `packages/foundation/modeling/schema/src/csv/parse/types.ts:35` | {@inheritDoc HeaderArray} |
-| `@beep/schema/csv/parse` | `HeaderTransformFunction` | const | `packages/foundation/modeling/schema/src/csv/parse/types.ts:44` | An identity function taking an array containing possibly nullish strings |
-| `@beep/schema/csv/parse` | `HeaderTransformFunction` | type | `packages/foundation/modeling/schema/src/csv/parse/types.ts:59` | {@inheritDoc HeaderTransformFunction} |
-| `@beep/schema/csv/parse` | `HeaderValueInput` | const | `packages/foundation/modeling/schema/src/csv/parse/ParserOptions.ts:60` | A parser header configuration input. |
-| `@beep/schema/csv/parse` | `HeaderValueInput` | type | `packages/foundation/modeling/schema/src/csv/parse/ParserOptions.ts:72` | {@inheritDoc HeaderValueInput} |
-| `@beep/schema/csv/parse` | `parseCsvRows` | const | `packages/foundation/modeling/schema/src/csv/parse/CsvParser.ts:379` | Parse full CSV text into raw row arrays using low-level parser options. |
-| `@beep/schema/csv/parse` | `ParsedField` | class | `packages/foundation/modeling/schema/src/csv/parse/CsvParser.ts:98` |  |
-| `@beep/schema/csv/parse` | `ParsedRow` | class | `packages/foundation/modeling/schema/src/csv/parse/CsvParser.ts:243` |  |
-| `@beep/schema/csv/parse` | `ParserOptions` | class | `packages/foundation/modeling/schema/src/csv/parse/ParserOptions.ts:107` | Schema-backed CSV parser options. |
-| `@beep/schema/csv/parse` | `ParserOptionsArgs` | type | `packages/foundation/modeling/schema/src/csv/parse/ParserOptions.ts:226` | Encoded/raw constructor input for {@link ParserOptions}. |
-| `@beep/schema/csv/parse` | `ParserOptionsError` | class | `packages/foundation/modeling/schema/src/csv/parse/ParserOptions.ts:80` | A parser options configuration error. |
-| `@beep/schema/csv/parse/CsvParser` | `parseCsvRows` | const | `packages/foundation/modeling/schema/src/csv/parse/CsvParser.ts:379` | Parse full CSV text into raw row arrays using low-level parser options. |
-| `@beep/schema/csv/parse/CsvParser` | `ParsedField` | class | `packages/foundation/modeling/schema/src/csv/parse/CsvParser.ts:98` |  |
-| `@beep/schema/csv/parse/CsvParser` | `ParsedRow` | class | `packages/foundation/modeling/schema/src/csv/parse/CsvParser.ts:243` |  |
-| `@beep/schema/csv/parse/index` | `HeaderArray` | const | `packages/foundation/modeling/schema/src/csv/parse/types.ts:20` | An array containing possibly nullish strings. |
-| `@beep/schema/csv/parse/index` | `HeaderArray` | type | `packages/foundation/modeling/schema/src/csv/parse/types.ts:35` | {@inheritDoc HeaderArray} |
-| `@beep/schema/csv/parse/index` | `HeaderTransformFunction` | const | `packages/foundation/modeling/schema/src/csv/parse/types.ts:44` | An identity function taking an array containing possibly nullish strings |
-| `@beep/schema/csv/parse/index` | `HeaderTransformFunction` | type | `packages/foundation/modeling/schema/src/csv/parse/types.ts:59` | {@inheritDoc HeaderTransformFunction} |
-| `@beep/schema/csv/parse/index` | `HeaderValueInput` | const | `packages/foundation/modeling/schema/src/csv/parse/ParserOptions.ts:60` | A parser header configuration input. |
-| `@beep/schema/csv/parse/index` | `HeaderValueInput` | type | `packages/foundation/modeling/schema/src/csv/parse/ParserOptions.ts:72` | {@inheritDoc HeaderValueInput} |
-| `@beep/schema/csv/parse/index` | `parseCsvRows` | const | `packages/foundation/modeling/schema/src/csv/parse/CsvParser.ts:379` | Parse full CSV text into raw row arrays using low-level parser options. |
-| `@beep/schema/csv/parse/index` | `ParsedField` | class | `packages/foundation/modeling/schema/src/csv/parse/CsvParser.ts:98` |  |
-| `@beep/schema/csv/parse/index` | `ParsedRow` | class | `packages/foundation/modeling/schema/src/csv/parse/CsvParser.ts:243` |  |
-| `@beep/schema/csv/parse/index` | `ParserOptions` | class | `packages/foundation/modeling/schema/src/csv/parse/ParserOptions.ts:107` | Schema-backed CSV parser options. |
-| `@beep/schema/csv/parse/index` | `ParserOptionsArgs` | type | `packages/foundation/modeling/schema/src/csv/parse/ParserOptions.ts:226` | Encoded/raw constructor input for {@link ParserOptions}. |
-| `@beep/schema/csv/parse/index` | `ParserOptionsError` | class | `packages/foundation/modeling/schema/src/csv/parse/ParserOptions.ts:80` | A parser options configuration error. |
-| `@beep/schema/csv/parse/ParserOptions` | `HeaderValueInput` | const | `packages/foundation/modeling/schema/src/csv/parse/ParserOptions.ts:60` | A parser header configuration input. |
-| `@beep/schema/csv/parse/ParserOptions` | `HeaderValueInput` | type | `packages/foundation/modeling/schema/src/csv/parse/ParserOptions.ts:72` | {@inheritDoc HeaderValueInput} |
-| `@beep/schema/csv/parse/ParserOptions` | `ParserOptions` | class | `packages/foundation/modeling/schema/src/csv/parse/ParserOptions.ts:107` | Schema-backed CSV parser options. |
-| `@beep/schema/csv/parse/ParserOptions` | `ParserOptionsArgs` | type | `packages/foundation/modeling/schema/src/csv/parse/ParserOptions.ts:226` | Encoded/raw constructor input for {@link ParserOptions}. |
-| `@beep/schema/csv/parse/ParserOptions` | `ParserOptionsError` | class | `packages/foundation/modeling/schema/src/csv/parse/ParserOptions.ts:80` | A parser options configuration error. |
-| `@beep/schema/csv/parse/types` | `HeaderArray` | const | `packages/foundation/modeling/schema/src/csv/parse/types.ts:20` | An array containing possibly nullish strings. |
-| `@beep/schema/csv/parse/types` | `HeaderArray` | type | `packages/foundation/modeling/schema/src/csv/parse/types.ts:35` | {@inheritDoc HeaderArray} |
-| `@beep/schema/csv/parse/types` | `HeaderTransformFunction` | const | `packages/foundation/modeling/schema/src/csv/parse/types.ts:44` | An identity function taking an array containing possibly nullish strings |
-| `@beep/schema/csv/parse/types` | `HeaderTransformFunction` | type | `packages/foundation/modeling/schema/src/csv/parse/types.ts:59` | {@inheritDoc HeaderTransformFunction} |
-| `@beep/schema/CsvCodecOptions` | `CsvCodecOptions` | class | `packages/foundation/modeling/schema/src/csv/CsvCodecOptions.ts:38` | Schema-backed CSV text codec options. |
-| `@beep/schema/CsvCodecOptions` | `CsvCodecOptionsArgs` | type | `packages/foundation/modeling/schema/src/csv/CsvCodecOptions.ts:105` | Encoded/raw constructor input for {@link CsvCodecOptions}. |
-| `@beep/schema/CsvCodecOptions` | `CsvCodecOptionsParseOptions` | const | `packages/foundation/modeling/schema/src/csv/CsvCodecOptions.ts:113` | Parse options used when normalizing raw CSV codec option input. |
-| `@beep/schema/CsvCodecOptions` | `ParseOptions` | const | `packages/foundation/modeling/schema/src/csv/CsvCodecOptions.ts:113` | Parse options used when normalizing raw CSV codec option input. |
-| `@beep/schema/CsvCodecOptions` | `Schema` | class | `packages/foundation/modeling/schema/src/csv/CsvCodecOptions.ts:38` | Schema-backed CSV text codec options. |
-| `@beep/schema/CsvError` | `csvError` | const | `packages/foundation/modeling/schema/src/csv/CsvError.ts:42` | Construct a {@link CsvError}. |
-| `@beep/schema/CsvError` | `CsvError` | class | `packages/foundation/modeling/schema/src/csv/CsvError.ts:34` | Raised when CSV parsing, header validation, or formatting fails. |
-| `@beep/schema/CsvError` | `Error` | class | `packages/foundation/modeling/schema/src/csv/CsvError.ts:34` | Raised when CSV parsing, header validation, or formatting fails. |
-| `@beep/schema/CsvError` | `make` | const | `packages/foundation/modeling/schema/src/csv/CsvError.ts:42` | Construct a {@link CsvError}. |
-| `@beep/schema/CsvFormatter` | `format` | const | `packages/foundation/modeling/schema/src/csv/format/CsvFormatter.ts:152` | Format a whole CSV document. |
-| `@beep/schema/CsvFormatter` | `formatCsvDataRow` | const | `packages/foundation/modeling/schema/src/csv/format/CsvFormatter.ts:125` | Format a CSV data row. |
-| `@beep/schema/CsvFormatter` | `formatCsvDocument` | const | `packages/foundation/modeling/schema/src/csv/format/CsvFormatter.ts:152` | Format a whole CSV document. |
-| `@beep/schema/CsvFormatter` | `formatCsvHeaderRow` | const | `packages/foundation/modeling/schema/src/csv/format/CsvFormatter.ts:100` | Format a CSV header row. |
-| `@beep/schema/CsvParser` | `parse` | const | `packages/foundation/modeling/schema/src/csv/parse/CsvParser.ts:379` | Parse full CSV text into raw row arrays using low-level parser options. |
-| `@beep/schema/CsvParser` | `parseCsvRows` | const | `packages/foundation/modeling/schema/src/csv/parse/CsvParser.ts:379` | Parse full CSV text into raw row arrays using low-level parser options. |
-| `@beep/schema/CsvParser` | `ParsedField` | class | `packages/foundation/modeling/schema/src/csv/parse/CsvParser.ts:98` |  |
-| `@beep/schema/CsvParser` | `ParsedRow` | class | `packages/foundation/modeling/schema/src/csv/parse/CsvParser.ts:243` |  |
+| `@beep/schema/CrossOriginEmbedderPolicy` | `COEPResponseHeader` | class | `packages/foundation/modeling/schema/src/CrossOriginEmbedderPolicy/CrossOriginEmbedderPolicy.schema.ts:66` | Schema for the Cross-Origin-Embedder-Policy response header output. |
+| `@beep/schema/CrossOriginEmbedderPolicy` | `CoepValue` | const | `packages/foundation/modeling/schema/src/CrossOriginEmbedderPolicy/CrossOriginEmbedderPolicy.schema.ts:29` |  |
+| `@beep/schema/CrossOriginEmbedderPolicy` | `CoepValue` | type | `packages/foundation/modeling/schema/src/CrossOriginEmbedderPolicy/CrossOriginEmbedderPolicy.schema.ts:40` |  |
+| `@beep/schema/CrossOriginEmbedderPolicy` | `CrossOriginEmbedderPolicyHeader` | const | `packages/foundation/modeling/schema/src/CrossOriginEmbedderPolicy/CrossOriginEmbedderPolicy.schema.ts:88` | Schema for the Cross-Origin-Embedder-Policy response header. |
+| `@beep/schema/CrossOriginEmbedderPolicy` | `CrossOriginEmbedderPolicyHeader` | type | `packages/foundation/modeling/schema/src/CrossOriginEmbedderPolicy/CrossOriginEmbedderPolicy.schema.ts:165` |  |
+| `@beep/schema/CrossOriginEmbedderPolicy` | `CrossOriginEmbedderPolicyOption` | const | `packages/foundation/modeling/schema/src/CrossOriginEmbedderPolicy/CrossOriginEmbedderPolicy.schema.ts:48` |  |
+| `@beep/schema/CrossOriginEmbedderPolicy` | `CrossOriginEmbedderPolicyOption` | type | `packages/foundation/modeling/schema/src/CrossOriginEmbedderPolicy/CrossOriginEmbedderPolicy.schema.ts:59` |  |
+| `@beep/schema/CrossOriginEmbedderPolicy` | `Header` | const | `packages/foundation/modeling/schema/src/CrossOriginEmbedderPolicy/CrossOriginEmbedderPolicy.schema.ts:88` | Schema for the Cross-Origin-Embedder-Policy response header. |
+| `@beep/schema/CrossOriginEmbedderPolicy` | `Header` | type | `packages/foundation/modeling/schema/src/CrossOriginEmbedderPolicy/CrossOriginEmbedderPolicy.schema.ts:165` |  |
+| `@beep/schema/CrossOriginEmbedderPolicy` | `Option` | const | `packages/foundation/modeling/schema/src/CrossOriginEmbedderPolicy/CrossOriginEmbedderPolicy.schema.ts:48` |  |
+| `@beep/schema/CrossOriginEmbedderPolicy` | `Option` | type | `packages/foundation/modeling/schema/src/CrossOriginEmbedderPolicy/CrossOriginEmbedderPolicy.schema.ts:59` |  |
+| `@beep/schema/CrossOriginEmbedderPolicy` | `ResponseHeader` | class | `packages/foundation/modeling/schema/src/CrossOriginEmbedderPolicy/CrossOriginEmbedderPolicy.schema.ts:66` | Schema for the Cross-Origin-Embedder-Policy response header output. |
+| `@beep/schema/CrossOriginOpenerPolicy` | `CoopValue` | const | `packages/foundation/modeling/schema/src/CrossOriginOpenerPolicy/CrossOriginOpenerPolicy.schema.ts:38` | Schema for supported `Cross-Origin-Opener-Policy` header values. |
+| `@beep/schema/CrossOriginOpenerPolicy` | `CoopValue` | type | `packages/foundation/modeling/schema/src/CrossOriginOpenerPolicy/CrossOriginOpenerPolicy.schema.ts:51` | Type-level representation of {@link CoopValue}. |
+| `@beep/schema/CrossOriginOpenerPolicy` | `CrossOriginOpenerPolicyHeader` | const | `packages/foundation/modeling/schema/src/CrossOriginOpenerPolicy/CrossOriginOpenerPolicy.schema.ts:132` | One-way schema that decodes COOP options into the `Cross-Origin-Opener-Policy` response header. |
+| `@beep/schema/CrossOriginOpenerPolicy` | `CrossOriginOpenerPolicyHeader` | type | `packages/foundation/modeling/schema/src/CrossOriginOpenerPolicy/CrossOriginOpenerPolicy.schema.ts:192` | Type-level representation of {@link CrossOriginOpenerPolicyHeader}. |
+| `@beep/schema/CrossOriginOpenerPolicy` | `CrossOriginOpenerPolicyOption` | const | `packages/foundation/modeling/schema/src/CrossOriginOpenerPolicy/CrossOriginOpenerPolicy.schema.ts:70` | Schema for `Cross-Origin-Opener-Policy` option values, including `false` to disable. |
+| `@beep/schema/CrossOriginOpenerPolicy` | `CrossOriginOpenerPolicyOption` | type | `packages/foundation/modeling/schema/src/CrossOriginOpenerPolicy/CrossOriginOpenerPolicy.schema.ts:83` | Type-level representation of {@link CrossOriginOpenerPolicyOption}. |
+| `@beep/schema/CrossOriginOpenerPolicy` | `CrossOriginOpenerPolicyResponseHeader` | class | `packages/foundation/modeling/schema/src/CrossOriginOpenerPolicy/CrossOriginOpenerPolicy.schema.ts:103` | Parsed `Cross-Origin-Opener-Policy` response header with name and optional value. |
+| `@beep/schema/CrossOriginOpenerPolicy` | `Header` | const | `packages/foundation/modeling/schema/src/CrossOriginOpenerPolicy/CrossOriginOpenerPolicy.schema.ts:132` | One-way schema that decodes COOP options into the `Cross-Origin-Opener-Policy` response header. |
+| `@beep/schema/CrossOriginOpenerPolicy` | `Header` | type | `packages/foundation/modeling/schema/src/CrossOriginOpenerPolicy/CrossOriginOpenerPolicy.schema.ts:192` | Type-level representation of {@link CrossOriginOpenerPolicyHeader}. |
+| `@beep/schema/CrossOriginOpenerPolicy` | `Option` | const | `packages/foundation/modeling/schema/src/CrossOriginOpenerPolicy/CrossOriginOpenerPolicy.schema.ts:70` | Schema for `Cross-Origin-Opener-Policy` option values, including `false` to disable. |
+| `@beep/schema/CrossOriginOpenerPolicy` | `Option` | type | `packages/foundation/modeling/schema/src/CrossOriginOpenerPolicy/CrossOriginOpenerPolicy.schema.ts:83` | Type-level representation of {@link CrossOriginOpenerPolicyOption}. |
+| `@beep/schema/CrossOriginOpenerPolicy` | `ResponseHeader` | class | `packages/foundation/modeling/schema/src/CrossOriginOpenerPolicy/CrossOriginOpenerPolicy.schema.ts:103` | Parsed `Cross-Origin-Opener-Policy` response header with name and optional value. |
+| `@beep/schema/CrossOriginResourcePolicy` | `CorpValue` | const | `packages/foundation/modeling/schema/src/CrossOriginResourcePolicy/CrossOriginResourcePolicy.schema.ts:27` |  |
+| `@beep/schema/CrossOriginResourcePolicy` | `CorpValue` | type | `packages/foundation/modeling/schema/src/CrossOriginResourcePolicy/CrossOriginResourcePolicy.schema.ts:38` |  |
+| `@beep/schema/CrossOriginResourcePolicy` | `CrossOriginResourcePolicyHeader` | const | `packages/foundation/modeling/schema/src/CrossOriginResourcePolicy/CrossOriginResourcePolicy.schema.ts:81` |  |
+| `@beep/schema/CrossOriginResourcePolicy` | `CrossOriginResourcePolicyHeader` | type | `packages/foundation/modeling/schema/src/CrossOriginResourcePolicy/CrossOriginResourcePolicy.schema.ts:139` |  |
+| `@beep/schema/CrossOriginResourcePolicy` | `CrossOriginResourcePolicyOption` | const | `packages/foundation/modeling/schema/src/CrossOriginResourcePolicy/CrossOriginResourcePolicy.schema.ts:46` |  |
+| `@beep/schema/CrossOriginResourcePolicy` | `CrossOriginResourcePolicyOption` | type | `packages/foundation/modeling/schema/src/CrossOriginResourcePolicy/CrossOriginResourcePolicy.schema.ts:57` |  |
+| `@beep/schema/CrossOriginResourcePolicy` | `CrossOriginResourcePolicyResponseHeader` | class | `packages/foundation/modeling/schema/src/CrossOriginResourcePolicy/CrossOriginResourcePolicy.schema.ts:63` |  |
+| `@beep/schema/CrossOriginResourcePolicy` | `Header` | const | `packages/foundation/modeling/schema/src/CrossOriginResourcePolicy/CrossOriginResourcePolicy.schema.ts:81` |  |
+| `@beep/schema/CrossOriginResourcePolicy` | `Header` | type | `packages/foundation/modeling/schema/src/CrossOriginResourcePolicy/CrossOriginResourcePolicy.schema.ts:139` |  |
+| `@beep/schema/CrossOriginResourcePolicy` | `Option` | const | `packages/foundation/modeling/schema/src/CrossOriginResourcePolicy/CrossOriginResourcePolicy.schema.ts:46` |  |
+| `@beep/schema/CrossOriginResourcePolicy` | `Option` | type | `packages/foundation/modeling/schema/src/CrossOriginResourcePolicy/CrossOriginResourcePolicy.schema.ts:57` |  |
+| `@beep/schema/CrossOriginResourcePolicy` | `ResponseHeader` | class | `packages/foundation/modeling/schema/src/CrossOriginResourcePolicy/CrossOriginResourcePolicy.schema.ts:63` |  |
+| `@beep/schema/CryptoTxnHash` | `CryptoTxnHash` | const | `packages/foundation/modeling/schema/src/CryptoTxnHash/CryptoTxnHash.schema.ts:60` | Branded schema for canonical mainnet blockchain transaction identifiers. |
+| `@beep/schema/CryptoTxnHash` | `CryptoTxnHash` | type | `packages/foundation/modeling/schema/src/CryptoTxnHash/CryptoTxnHash.schema.ts:75` | Type for {@link CryptoTxnHash}. |
+| `@beep/schema/CryptoTxnHash` | `CryptoTxnHashRedacted` | const | `packages/foundation/modeling/schema/src/CryptoTxnHash/CryptoTxnHash.schema.ts:83` | Redacted schema for canonical mainnet blockchain transaction identifiers. |
+| `@beep/schema/CryptoTxnHash` | `CryptoTxnHashRedacted` | type | `packages/foundation/modeling/schema/src/CryptoTxnHash/CryptoTxnHash.schema.ts:101` | Type for {@link CryptoTxnHashRedacted}. |
+| `@beep/schema/CryptoTxnHash` | `Redacted` | const | `packages/foundation/modeling/schema/src/CryptoTxnHash/CryptoTxnHash.schema.ts:83` | Redacted schema for canonical mainnet blockchain transaction identifiers. |
+| `@beep/schema/CryptoTxnHash` | `Redacted` | type | `packages/foundation/modeling/schema/src/CryptoTxnHash/CryptoTxnHash.schema.ts:101` | Type for {@link CryptoTxnHashRedacted}. |
+| `@beep/schema/CryptoTxnHash` | `Schema` | const | `packages/foundation/modeling/schema/src/CryptoTxnHash/CryptoTxnHash.schema.ts:60` | Branded schema for canonical mainnet blockchain transaction identifiers. |
+| `@beep/schema/CryptoTxnHash` | `Schema` | type | `packages/foundation/modeling/schema/src/CryptoTxnHash/CryptoTxnHash.schema.ts:75` | Type for {@link CryptoTxnHash}. |
+| `@beep/schema/CryptoWalletAddress` | `CryptoWalletAddress` | const | `packages/foundation/modeling/schema/src/CryptoWalletAddress/CryptoWalletAddress.schema.ts:181` | Branded schema for canonical mainnet blockchain wallet addresses. |
+| `@beep/schema/CryptoWalletAddress` | `CryptoWalletAddress` | type | `packages/foundation/modeling/schema/src/CryptoWalletAddress/CryptoWalletAddress.schema.ts:196` | Type for {@link CryptoWalletAddress}. |
+| `@beep/schema/CryptoWalletAddress` | `CryptoWalletAddressRedacted` | const | `packages/foundation/modeling/schema/src/CryptoWalletAddress/CryptoWalletAddress.schema.ts:204` | Redacted Branded schema for canonical mainnet blockchain wallet addresses. |
+| `@beep/schema/CryptoWalletAddress` | `CryptoWalletAddressRedacted` | type | `packages/foundation/modeling/schema/src/CryptoWalletAddress/CryptoWalletAddress.schema.ts:223` | Type for {@link CryptoWalletAddressRedacted}. |
+| `@beep/schema/CryptoWalletAddress` | `Redacted` | const | `packages/foundation/modeling/schema/src/CryptoWalletAddress/CryptoWalletAddress.schema.ts:204` | Redacted Branded schema for canonical mainnet blockchain wallet addresses. |
+| `@beep/schema/CryptoWalletAddress` | `Redacted` | type | `packages/foundation/modeling/schema/src/CryptoWalletAddress/CryptoWalletAddress.schema.ts:223` | Type for {@link CryptoWalletAddressRedacted}. |
+| `@beep/schema/CryptoWalletAddress` | `Schema` | const | `packages/foundation/modeling/schema/src/CryptoWalletAddress/CryptoWalletAddress.schema.ts:181` | Branded schema for canonical mainnet blockchain wallet addresses. |
+| `@beep/schema/CryptoWalletAddress` | `Schema` | type | `packages/foundation/modeling/schema/src/CryptoWalletAddress/CryptoWalletAddress.schema.ts:196` | Type for {@link CryptoWalletAddress}. |
+| `@beep/schema/Csp` | `ContentSecurityPolicyHeader` | const | `packages/foundation/modeling/schema/src/Csp/Csp.schema.ts:582` |  |
+| `@beep/schema/Csp` | `ContentSecurityPolicyHeader` | type | `packages/foundation/modeling/schema/src/Csp/Csp.schema.ts:647` |  |
+| `@beep/schema/Csp` | `ContentSecurityPolicyHeaderName` | const | `packages/foundation/modeling/schema/src/Csp/Csp.schema.ts:47` |  |
+| `@beep/schema/Csp` | `ContentSecurityPolicyHeaderName` | type | `packages/foundation/modeling/schema/src/Csp/Csp.schema.ts:58` |  |
+| `@beep/schema/Csp` | `ContentSecurityPolicyOption` | const | `packages/foundation/modeling/schema/src/Csp/Csp.schema.ts:482` |  |
+| `@beep/schema/Csp` | `ContentSecurityPolicyOption` | type | `packages/foundation/modeling/schema/src/Csp/Csp.schema.ts:492` |  |
+| `@beep/schema/Csp` | `ContentSecurityPolicyOptionStruct` | class | `packages/foundation/modeling/schema/src/Csp/Csp.schema.ts:450` |  |
+| `@beep/schema/Csp` | `ContentSecurityPolicyResponseHeader` | class | `packages/foundation/modeling/schema/src/Csp/Csp.schema.ts:498` |  |
+| `@beep/schema/Csp` | `createContentSecurityPolicyOptionHeaderValue` | const | `packages/foundation/modeling/schema/src/Csp/Csp.schema.ts:556` |  |
+| `@beep/schema/Csp` | `createDirectiveValue` | const | `packages/foundation/modeling/schema/src/Csp/Csp.schema.ts:116` | Creates a serialized directive value from a directive name and value list. |
+| `@beep/schema/Csp` | `CspDirectives` | const | `packages/foundation/modeling/schema/src/Csp/Csp.schema.ts:435` |  |
+| `@beep/schema/Csp` | `DirectiveSource` | const | `packages/foundation/modeling/schema/src/Csp/Csp.schema.ts:25` |  |
+| `@beep/schema/Csp` | `DirectiveSource` | type | `packages/foundation/modeling/schema/src/Csp/Csp.schema.ts:35` |  |
+| `@beep/schema/Csp` | `DocumentDirective` | class | `packages/foundation/modeling/schema/src/Csp/Csp.schema.ts:301` |  |
+| `@beep/schema/Csp` | `FetchDirective` | class | `packages/foundation/modeling/schema/src/Csp/Csp.schema.ts:232` |  |
+| `@beep/schema/Csp` | `getProperHeaderName` | const | `packages/foundation/modeling/schema/src/Csp/Csp.schema.ts:92` | Get proper header name for CSP |
+| `@beep/schema/Csp` | `Header` | const | `packages/foundation/modeling/schema/src/Csp/Csp.schema.ts:582` |  |
+| `@beep/schema/Csp` | `Header` | type | `packages/foundation/modeling/schema/src/Csp/Csp.schema.ts:647` |  |
+| `@beep/schema/Csp` | `NavigationDirective` | class | `packages/foundation/modeling/schema/src/Csp/Csp.schema.ts:345` |  |
+| `@beep/schema/Csp` | `Option` | const | `packages/foundation/modeling/schema/src/Csp/Csp.schema.ts:482` |  |
+| `@beep/schema/Csp` | `Option` | type | `packages/foundation/modeling/schema/src/Csp/Csp.schema.ts:492` |  |
+| `@beep/schema/Csp` | `PluginTypes` | const | `packages/foundation/modeling/schema/src/Csp/Csp.schema.ts:145` |  |
+| `@beep/schema/Csp` | `PluginTypes` | type | `packages/foundation/modeling/schema/src/Csp/Csp.schema.ts:155` |  |
+| `@beep/schema/Csp` | `ReportingDirective` | class | `packages/foundation/modeling/schema/src/Csp/Csp.schema.ts:399` |  |
+| `@beep/schema/Csp` | `ReportURI` | const | `packages/foundation/modeling/schema/src/Csp/Csp.schema.ts:389` |  |
+| `@beep/schema/Csp` | `ResponseHeader` | class | `packages/foundation/modeling/schema/src/Csp/Csp.schema.ts:498` |  |
+| `@beep/schema/Csp` | `Sandbox` | const | `packages/foundation/modeling/schema/src/Csp/Csp.schema.ts:178` |  |
+| `@beep/schema/Csp` | `Sandbox` | type | `packages/foundation/modeling/schema/src/Csp/Csp.schema.ts:189` |  |
+| `@beep/schema/Csv` | `Csv` | const | `packages/foundation/modeling/schema/src/Csv/Csv.schema.ts:291` | Schema factory for CSV documents whose rows are validated by the provided |
+| `@beep/schema/Csv` | `CSV` | const | `packages/foundation/modeling/schema/src/Csv/Csv.schema.ts:291` | Schema factory for CSV documents whose rows are validated by the provided |
+| `@beep/schema/Csv` | `CSV` | type | `packages/foundation/modeling/schema/src/Csv/Csv.schema.ts:334` | Runtime type extracted from the {@link CSV} alias. |
+| `@beep/schema/Csv` | `CsvCodecOptions` | SourceFile | `packages/foundation/modeling/schema/src/CsvCodecOptions/index.ts:21` |  |
+| `@beep/schema/Csv` | `CsvDocument` | type | `packages/foundation/modeling/schema/src/Csv/Csv.schema.ts:48` | Schema transformation returned by the CSV schema factory for a row schema. |
+| `@beep/schema/Csv` | `CsvError` | SourceFile | `packages/foundation/modeling/schema/src/CsvError/index.ts:21` |  |
+| `@beep/schema/Csv` | `CsvFormatter` | SourceFile | `packages/foundation/modeling/schema/src/CsvFormatter/index.ts:20` |  |
+| `@beep/schema/Csv` | `CsvParser` | SourceFile | `packages/foundation/modeling/schema/src/CsvParser/index.ts:20` |  |
+| `@beep/schema/Csv` | `CsvText` | type | `packages/foundation/modeling/schema/src/Csv/Csv.schema.ts:318` | Branded runtime type for CSV document text produced by encoding a `CSV` |
+| `@beep/schema/Csv` | `ParserOptions` | SourceFile | `packages/foundation/modeling/schema/src/ParserOptions/index.ts:21` |  |
+| `@beep/schema/Csv` | `RowSchemaWithFields` | type | `packages/foundation/modeling/schema/src/Csv/Csv.schema.ts:38` | Object-like row schema contract accepted by the CSV schema factory. |
+| `@beep/schema/Csv` | `Schema` | const | `packages/foundation/modeling/schema/src/Csv/Csv.schema.ts:291` | Schema factory for CSV documents whose rows are validated by the provided |
+| `@beep/schema/Csv` | `Schema` | type | `packages/foundation/modeling/schema/src/Csv/Csv.schema.ts:342` | Runtime type extracted from the {@link Schema} alias. |
+| `@beep/schema/CsvCodecOptions` | `CsvCodecOptions` | class | `packages/foundation/modeling/schema/src/CsvCodecOptions/CsvCodecOptions.schema.ts:38` | Schema-backed CSV text codec options. |
+| `@beep/schema/CsvCodecOptions` | `CsvCodecOptionsArgs` | type | `packages/foundation/modeling/schema/src/CsvCodecOptions/CsvCodecOptions.schema.ts:105` | Encoded/raw constructor input for {@link CsvCodecOptions}. |
+| `@beep/schema/CsvCodecOptions` | `CsvCodecOptionsParseOptions` | const | `packages/foundation/modeling/schema/src/CsvCodecOptions/CsvCodecOptions.schema.ts:113` | Parse options used when normalizing raw CSV codec option input. |
+| `@beep/schema/CsvCodecOptions` | `ParseOptions` | const | `packages/foundation/modeling/schema/src/CsvCodecOptions/CsvCodecOptions.schema.ts:113` | Parse options used when normalizing raw CSV codec option input. |
+| `@beep/schema/CsvCodecOptions` | `Schema` | class | `packages/foundation/modeling/schema/src/CsvCodecOptions/CsvCodecOptions.schema.ts:38` | Schema-backed CSV text codec options. |
+| `@beep/schema/CsvError` | `csvError` | const | `packages/foundation/modeling/schema/src/CsvError/CsvError.errors.ts:42` | Construct a {@link CsvError}. |
+| `@beep/schema/CsvError` | `CsvError` | class | `packages/foundation/modeling/schema/src/CsvError/CsvError.errors.ts:34` | Raised when CSV parsing, header validation, or formatting fails. |
+| `@beep/schema/CsvError` | `Error` | class | `packages/foundation/modeling/schema/src/CsvError/CsvError.errors.ts:34` | Raised when CSV parsing, header validation, or formatting fails. |
+| `@beep/schema/CsvError` | `make` | const | `packages/foundation/modeling/schema/src/CsvError/CsvError.errors.ts:42` | Construct a {@link CsvError}. |
+| `@beep/schema/CsvFormatter` | `format` | const | `packages/foundation/modeling/schema/src/CsvFormatter/CsvFormatter.formatter.ts:152` | Format a whole CSV document. |
+| `@beep/schema/CsvFormatter` | `formatCsvDataRow` | const | `packages/foundation/modeling/schema/src/CsvFormatter/CsvFormatter.formatter.ts:125` | Format a CSV data row. |
+| `@beep/schema/CsvFormatter` | `formatCsvDocument` | const | `packages/foundation/modeling/schema/src/CsvFormatter/CsvFormatter.formatter.ts:152` | Format a whole CSV document. |
+| `@beep/schema/CsvFormatter` | `formatCsvHeaderRow` | const | `packages/foundation/modeling/schema/src/CsvFormatter/CsvFormatter.formatter.ts:100` | Format a CSV header row. |
+| `@beep/schema/CsvParser` | `parse` | const | `packages/foundation/modeling/schema/src/CsvParser/CsvParser.parser.ts:379` | Parse full CSV text into raw row arrays using low-level parser options. |
+| `@beep/schema/CsvParser` | `parseCsvRows` | const | `packages/foundation/modeling/schema/src/CsvParser/CsvParser.parser.ts:379` | Parse full CSV text into raw row arrays using low-level parser options. |
+| `@beep/schema/CsvParser` | `ParsedField` | class | `packages/foundation/modeling/schema/src/CsvParser/CsvParser.parser.ts:98` |  |
+| `@beep/schema/CsvParser` | `ParsedRow` | class | `packages/foundation/modeling/schema/src/CsvParser/CsvParser.parser.ts:243` |  |
 | `@beep/schema/Cuid` | `cuid` | const | `packages/foundation/modeling/schema/src/Cuid.ts:117` | Effect that generates a branded {@link Cuid}. |
 | `@beep/schema/Cuid` | `Cuid` | const | `packages/foundation/modeling/schema/src/Cuid.ts:34` | Branded schema for canonical CUID strings. |
 | `@beep/schema/Cuid` | `Cuid` | type | `packages/foundation/modeling/schema/src/Cuid.ts:45` | Type for {@link Cuid}. |
@@ -10785,161 +10328,123 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/schema/CurrencyCode` | `JPY` | const | `packages/foundation/modeling/schema/src/CurrencyCode.ts:103` | ISO 4217 constant for Japanese Yen. |
 | `@beep/schema/CurrencyCode` | `SGD` | const | `packages/foundation/modeling/schema/src/CurrencyCode.ts:145` | ISO 4217 constant for Singapore Dollar. |
 | `@beep/schema/CurrencyCode` | `USD` | const | `packages/foundation/modeling/schema/src/CurrencyCode.ts:82` | ISO 4217 constant for United States Dollar. |
-| `@beep/schema/DateTimeUtcFromValid` | `DateTimeInput` | const | `packages/foundation/modeling/schema/src/DateTimeUtcFromValid.ts:418` | Union of raw and tagged values accepted by {@link DateTimeUtcFromValid}. |
-| `@beep/schema/DateTimeUtcFromValid` | `DateTimeInput` | type | `packages/foundation/modeling/schema/src/DateTimeUtcFromValid.ts:449` | {@inheritDoc DateTimeInput} |
-| `@beep/schema/DateTimeUtcFromValid` | `DateTimeInputDate` | const | `packages/foundation/modeling/schema/src/DateTimeUtcFromValid.ts:244` | Valid JavaScript `Date` input accepted by Effect `DateTime.make`. |
-| `@beep/schema/DateTimeUtcFromValid` | `DateTimeInputDate` | type | `packages/foundation/modeling/schema/src/DateTimeUtcFromValid.ts:265` | {@inheritDoc DateTimeInputDate} |
-| `@beep/schema/DateTimeUtcFromValid` | `DateTimeInputDateTime` | const | `packages/foundation/modeling/schema/src/DateTimeUtcFromValid.ts:286` | Existing Effect `DateTime` values accepted by {@link DateTimeUtcFromValid}. |
-| `@beep/schema/DateTimeUtcFromValid` | `DateTimeInputDateTime` | type | `packages/foundation/modeling/schema/src/DateTimeUtcFromValid.ts:307` | {@inheritDoc DateTimeInputDateTime} |
-| `@beep/schema/DateTimeUtcFromValid` | `DateTimeInputInstant` | class | `packages/foundation/modeling/schema/src/DateTimeUtcFromValid.ts:323` | Tagged Effect `DateTime.Instant` transport value. |
-| `@beep/schema/DateTimeUtcFromValid` | `DateTimeInputInstantWithZone` | class | `packages/foundation/modeling/schema/src/DateTimeUtcFromValid.ts:350` | Tagged Effect `DateTime.InstantWithZone` transport value. |
-| `@beep/schema/DateTimeUtcFromValid` | `DateTimeInputKind` | const | `packages/foundation/modeling/schema/src/DateTimeUtcFromValid.ts:34` | Literal discriminator values used by tagged date-time input representations. |
-| `@beep/schema/DateTimeUtcFromValid` | `DateTimeInputKind` | type | `packages/foundation/modeling/schema/src/DateTimeUtcFromValid.ts:64` | {@inheritDoc DateTimeInputKind} |
-| `@beep/schema/DateTimeUtcFromValid` | `DateTimeInputNumber` | const | `packages/foundation/modeling/schema/src/DateTimeUtcFromValid.ts:202` | Valid numeric epoch-millisecond input accepted by Effect `DateTime.make`. |
-| `@beep/schema/DateTimeUtcFromValid` | `DateTimeInputNumber` | type | `packages/foundation/modeling/schema/src/DateTimeUtcFromValid.ts:223` | {@inheritDoc DateTimeInputNumber} |
-| `@beep/schema/DateTimeUtcFromValid` | `DateTimeInputParts` | class | `packages/foundation/modeling/schema/src/DateTimeUtcFromValid.ts:383` | Tagged `Partial<DateTime.Parts>` transport value. |
-| `@beep/schema/DateTimeUtcFromValid` | `DateTimeInputString` | const | `packages/foundation/modeling/schema/src/DateTimeUtcFromValid.ts:159` | Valid string input accepted by Effect `DateTime.make`. |
-| `@beep/schema/DateTimeUtcFromValid` | `DateTimeInputString` | type | `packages/foundation/modeling/schema/src/DateTimeUtcFromValid.ts:180` | {@inheritDoc DateTimeInputString} |
-| `@beep/schema/DateTimeUtcFromValid` | `DateTimeUtcFromValid` | const | `packages/foundation/modeling/schema/src/DateTimeUtcFromValid.ts:512` | Bidirectional schema transformation from valid DateTime input to `DateTime.Utc`. |
-| `@beep/schema/DateTimeUtcFromValid` | `DateTimeUtcFromValid` | type | `packages/foundation/modeling/schema/src/DateTimeUtcFromValid.ts:540` | {@inheritDoc DateTimeUtcFromValid} |
-| `@beep/schema/dom` | `createDOMRefSchema` | const | `packages/foundation/modeling/schema/src/dom/elements.ts:175` | Creates a Schema for React.Ref<T> where T extends HTMLElement |
-| `@beep/schema/dom` | `DOMCssProperties` | const | `packages/foundation/modeling/schema/src/dom/elements.ts:67` | A React.CSSProperties |
-| `@beep/schema/dom` | `DOMDragEvent` | const | `packages/foundation/modeling/schema/src/dom/elements.ts:198` | A DragEvent |
-| `@beep/schema/dom` | `DOMDragEvent` | type | `packages/foundation/modeling/schema/src/dom/elements.ts:210` | {@inheritDoc DOMDragEvent} |
-| `@beep/schema/dom` | `DOMEvent` | const | `packages/foundation/modeling/schema/src/dom/events.ts:38` | A DOM event |
-| `@beep/schema/dom` | `DOMEvent` | type | `packages/foundation/modeling/schema/src/dom/events.ts:50` | {@inheritDoc DOMEvent} |
-| `@beep/schema/dom` | `DOMHtmlElement` | const | `packages/foundation/modeling/schema/src/dom/elements.ts:30` | An HTMLElement |
-| `@beep/schema/dom` | `DOMHtmlElement` | type | `packages/foundation/modeling/schema/src/dom/elements.ts:42` | {@inheritDoc HTMLElement} |
-| `@beep/schema/dom` | `DOMMouseEvent` | const | `packages/foundation/modeling/schema/src/dom/events.ts:58` | A DOM mouse event |
-| `@beep/schema/dom` | `DOMMouseEvent` | type | `packages/foundation/modeling/schema/src/dom/events.ts:70` | {@inheritDoc DOMMouseEvent} |
-| `@beep/schema/dom` | `DOMReactNode` | const | `packages/foundation/modeling/schema/src/dom/elements.ts:119` | A React.ReactNode |
-| `@beep/schema/dom` | `DOMReactNode` | type | `packages/foundation/modeling/schema/src/dom/elements.ts:131` | {@inheritDoc DOMReactNode} |
-| `@beep/schema/dom` | `isCSSProperties` | const | `packages/foundation/modeling/schema/src/dom/elements.ts:52` | Type guard for React.CSSProperties |
-| `@beep/schema/dom` | `isDragEvent` | const | `packages/foundation/modeling/schema/src/dom/elements.ts:190` | Type guard for DragEvent |
-| `@beep/schema/dom` | `isEvent` | const | `packages/foundation/modeling/schema/src/dom/events.ts:20` | Type guard for Event |
-| `@beep/schema/dom` | `isHTMLElement` | const | `packages/foundation/modeling/schema/src/dom/elements.ts:22` | Type guard for HTMLElement |
-| `@beep/schema/dom` | `isMouseEvent` | const | `packages/foundation/modeling/schema/src/dom/events.ts:30` | Type guard for MouseEvent |
-| `@beep/schema/dom` | `isReactNode` | const | `packages/foundation/modeling/schema/src/dom/elements.ts:81` | Type guard for React.ReactNode |
-| `@beep/schema/dom` | `isReactRef` | const | `packages/foundation/modeling/schema/src/dom/elements.ts:141` | Type guard for React.Ref<T> |
-| `@beep/schema/Dom` | `createDOMRefSchema` | const | `packages/foundation/modeling/schema/src/dom/elements.ts:175` | Creates a Schema for React.Ref<T> where T extends HTMLElement |
-| `@beep/schema/Dom` | `DOMCssProperties` | const | `packages/foundation/modeling/schema/src/dom/elements.ts:67` | A React.CSSProperties |
-| `@beep/schema/Dom` | `DOMDragEvent` | const | `packages/foundation/modeling/schema/src/dom/elements.ts:198` | A DragEvent |
-| `@beep/schema/Dom` | `DOMDragEvent` | type | `packages/foundation/modeling/schema/src/dom/elements.ts:210` | {@inheritDoc DOMDragEvent} |
-| `@beep/schema/Dom` | `DOMEvent` | const | `packages/foundation/modeling/schema/src/dom/events.ts:38` | A DOM event |
-| `@beep/schema/Dom` | `DOMEvent` | type | `packages/foundation/modeling/schema/src/dom/events.ts:50` | {@inheritDoc DOMEvent} |
-| `@beep/schema/Dom` | `DOMHtmlElement` | const | `packages/foundation/modeling/schema/src/dom/elements.ts:30` | An HTMLElement |
-| `@beep/schema/Dom` | `DOMHtmlElement` | type | `packages/foundation/modeling/schema/src/dom/elements.ts:42` | {@inheritDoc HTMLElement} |
-| `@beep/schema/Dom` | `DOMMouseEvent` | const | `packages/foundation/modeling/schema/src/dom/events.ts:58` | A DOM mouse event |
-| `@beep/schema/Dom` | `DOMMouseEvent` | type | `packages/foundation/modeling/schema/src/dom/events.ts:70` | {@inheritDoc DOMMouseEvent} |
-| `@beep/schema/Dom` | `DOMReactNode` | const | `packages/foundation/modeling/schema/src/dom/elements.ts:119` | A React.ReactNode |
-| `@beep/schema/Dom` | `DOMReactNode` | type | `packages/foundation/modeling/schema/src/dom/elements.ts:131` | {@inheritDoc DOMReactNode} |
-| `@beep/schema/Dom` | `isCSSProperties` | const | `packages/foundation/modeling/schema/src/dom/elements.ts:52` | Type guard for React.CSSProperties |
-| `@beep/schema/Dom` | `isDragEvent` | const | `packages/foundation/modeling/schema/src/dom/elements.ts:190` | Type guard for DragEvent |
-| `@beep/schema/Dom` | `isEvent` | const | `packages/foundation/modeling/schema/src/dom/events.ts:20` | Type guard for Event |
-| `@beep/schema/Dom` | `isHTMLElement` | const | `packages/foundation/modeling/schema/src/dom/elements.ts:22` | Type guard for HTMLElement |
-| `@beep/schema/Dom` | `isMouseEvent` | const | `packages/foundation/modeling/schema/src/dom/events.ts:30` | Type guard for MouseEvent |
-| `@beep/schema/Dom` | `isReactNode` | const | `packages/foundation/modeling/schema/src/dom/elements.ts:81` | Type guard for React.ReactNode |
-| `@beep/schema/Dom` | `isReactRef` | const | `packages/foundation/modeling/schema/src/dom/elements.ts:141` | Type guard for React.Ref<T> |
-| `@beep/schema/dom/elements` | `createDOMRefSchema` | const | `packages/foundation/modeling/schema/src/dom/elements.ts:175` | Creates a Schema for React.Ref<T> where T extends HTMLElement |
-| `@beep/schema/dom/elements` | `DOMCssProperties` | const | `packages/foundation/modeling/schema/src/dom/elements.ts:67` | A React.CSSProperties |
-| `@beep/schema/dom/elements` | `DOMDragEvent` | const | `packages/foundation/modeling/schema/src/dom/elements.ts:198` | A DragEvent |
-| `@beep/schema/dom/elements` | `DOMDragEvent` | type | `packages/foundation/modeling/schema/src/dom/elements.ts:210` | {@inheritDoc DOMDragEvent} |
-| `@beep/schema/dom/elements` | `DOMHtmlElement` | const | `packages/foundation/modeling/schema/src/dom/elements.ts:30` | An HTMLElement |
-| `@beep/schema/dom/elements` | `DOMHtmlElement` | type | `packages/foundation/modeling/schema/src/dom/elements.ts:42` | {@inheritDoc HTMLElement} |
-| `@beep/schema/dom/elements` | `DOMReactNode` | const | `packages/foundation/modeling/schema/src/dom/elements.ts:119` | A React.ReactNode |
-| `@beep/schema/dom/elements` | `DOMReactNode` | type | `packages/foundation/modeling/schema/src/dom/elements.ts:131` | {@inheritDoc DOMReactNode} |
-| `@beep/schema/dom/elements` | `isCSSProperties` | const | `packages/foundation/modeling/schema/src/dom/elements.ts:52` | Type guard for React.CSSProperties |
-| `@beep/schema/dom/elements` | `isDragEvent` | const | `packages/foundation/modeling/schema/src/dom/elements.ts:190` | Type guard for DragEvent |
-| `@beep/schema/dom/elements` | `isHTMLElement` | const | `packages/foundation/modeling/schema/src/dom/elements.ts:22` | Type guard for HTMLElement |
-| `@beep/schema/dom/elements` | `isReactNode` | const | `packages/foundation/modeling/schema/src/dom/elements.ts:81` | Type guard for React.ReactNode |
-| `@beep/schema/dom/elements` | `isReactRef` | const | `packages/foundation/modeling/schema/src/dom/elements.ts:141` | Type guard for React.Ref<T> |
-| `@beep/schema/dom/events` | `DOMEvent` | const | `packages/foundation/modeling/schema/src/dom/events.ts:38` | A DOM event |
-| `@beep/schema/dom/events` | `DOMEvent` | type | `packages/foundation/modeling/schema/src/dom/events.ts:50` | {@inheritDoc DOMEvent} |
-| `@beep/schema/dom/events` | `DOMMouseEvent` | const | `packages/foundation/modeling/schema/src/dom/events.ts:58` | A DOM mouse event |
-| `@beep/schema/dom/events` | `DOMMouseEvent` | type | `packages/foundation/modeling/schema/src/dom/events.ts:70` | {@inheritDoc DOMMouseEvent} |
-| `@beep/schema/dom/events` | `isEvent` | const | `packages/foundation/modeling/schema/src/dom/events.ts:20` | Type guard for Event |
-| `@beep/schema/dom/events` | `isMouseEvent` | const | `packages/foundation/modeling/schema/src/dom/events.ts:30` | Type guard for MouseEvent |
-| `@beep/schema/dom/index` | `createDOMRefSchema` | const | `packages/foundation/modeling/schema/src/dom/elements.ts:175` | Creates a Schema for React.Ref<T> where T extends HTMLElement |
-| `@beep/schema/dom/index` | `DOMCssProperties` | const | `packages/foundation/modeling/schema/src/dom/elements.ts:67` | A React.CSSProperties |
-| `@beep/schema/dom/index` | `DOMDragEvent` | const | `packages/foundation/modeling/schema/src/dom/elements.ts:198` | A DragEvent |
-| `@beep/schema/dom/index` | `DOMDragEvent` | type | `packages/foundation/modeling/schema/src/dom/elements.ts:210` | {@inheritDoc DOMDragEvent} |
-| `@beep/schema/dom/index` | `DOMEvent` | const | `packages/foundation/modeling/schema/src/dom/events.ts:38` | A DOM event |
-| `@beep/schema/dom/index` | `DOMEvent` | type | `packages/foundation/modeling/schema/src/dom/events.ts:50` | {@inheritDoc DOMEvent} |
-| `@beep/schema/dom/index` | `DOMHtmlElement` | const | `packages/foundation/modeling/schema/src/dom/elements.ts:30` | An HTMLElement |
-| `@beep/schema/dom/index` | `DOMHtmlElement` | type | `packages/foundation/modeling/schema/src/dom/elements.ts:42` | {@inheritDoc HTMLElement} |
-| `@beep/schema/dom/index` | `DOMMouseEvent` | const | `packages/foundation/modeling/schema/src/dom/events.ts:58` | A DOM mouse event |
-| `@beep/schema/dom/index` | `DOMMouseEvent` | type | `packages/foundation/modeling/schema/src/dom/events.ts:70` | {@inheritDoc DOMMouseEvent} |
-| `@beep/schema/dom/index` | `DOMReactNode` | const | `packages/foundation/modeling/schema/src/dom/elements.ts:119` | A React.ReactNode |
-| `@beep/schema/dom/index` | `DOMReactNode` | type | `packages/foundation/modeling/schema/src/dom/elements.ts:131` | {@inheritDoc DOMReactNode} |
-| `@beep/schema/dom/index` | `isCSSProperties` | const | `packages/foundation/modeling/schema/src/dom/elements.ts:52` | Type guard for React.CSSProperties |
-| `@beep/schema/dom/index` | `isDragEvent` | const | `packages/foundation/modeling/schema/src/dom/elements.ts:190` | Type guard for DragEvent |
-| `@beep/schema/dom/index` | `isEvent` | const | `packages/foundation/modeling/schema/src/dom/events.ts:20` | Type guard for Event |
-| `@beep/schema/dom/index` | `isHTMLElement` | const | `packages/foundation/modeling/schema/src/dom/elements.ts:22` | Type guard for HTMLElement |
-| `@beep/schema/dom/index` | `isMouseEvent` | const | `packages/foundation/modeling/schema/src/dom/events.ts:30` | Type guard for MouseEvent |
-| `@beep/schema/dom/index` | `isReactNode` | const | `packages/foundation/modeling/schema/src/dom/elements.ts:81` | Type guard for React.ReactNode |
-| `@beep/schema/dom/index` | `isReactRef` | const | `packages/foundation/modeling/schema/src/dom/elements.ts:141` | Type guard for React.Ref<T> |
+| `@beep/schema/DateTimeUtcFromValid` | `DateTimeInput` | const | `packages/foundation/modeling/schema/src/DateTimeUtcFromValid/DateTimeUtcFromValid.schema.ts:418` | Union of raw and tagged values accepted by {@link DateTimeUtcFromValid}. |
+| `@beep/schema/DateTimeUtcFromValid` | `DateTimeInput` | type | `packages/foundation/modeling/schema/src/DateTimeUtcFromValid/DateTimeUtcFromValid.schema.ts:449` | {@inheritDoc DateTimeInput} |
+| `@beep/schema/DateTimeUtcFromValid` | `DateTimeInputDate` | const | `packages/foundation/modeling/schema/src/DateTimeUtcFromValid/DateTimeUtcFromValid.schema.ts:244` | Valid JavaScript `Date` input accepted by Effect `DateTime.make`. |
+| `@beep/schema/DateTimeUtcFromValid` | `DateTimeInputDate` | type | `packages/foundation/modeling/schema/src/DateTimeUtcFromValid/DateTimeUtcFromValid.schema.ts:265` | {@inheritDoc DateTimeInputDate} |
+| `@beep/schema/DateTimeUtcFromValid` | `DateTimeInputDateTime` | const | `packages/foundation/modeling/schema/src/DateTimeUtcFromValid/DateTimeUtcFromValid.schema.ts:286` | Existing Effect `DateTime` values accepted by {@link DateTimeUtcFromValid}. |
+| `@beep/schema/DateTimeUtcFromValid` | `DateTimeInputDateTime` | type | `packages/foundation/modeling/schema/src/DateTimeUtcFromValid/DateTimeUtcFromValid.schema.ts:307` | {@inheritDoc DateTimeInputDateTime} |
+| `@beep/schema/DateTimeUtcFromValid` | `DateTimeInputInstant` | class | `packages/foundation/modeling/schema/src/DateTimeUtcFromValid/DateTimeUtcFromValid.schema.ts:323` | Tagged Effect `DateTime.Instant` transport value. |
+| `@beep/schema/DateTimeUtcFromValid` | `DateTimeInputInstantWithZone` | class | `packages/foundation/modeling/schema/src/DateTimeUtcFromValid/DateTimeUtcFromValid.schema.ts:350` | Tagged Effect `DateTime.InstantWithZone` transport value. |
+| `@beep/schema/DateTimeUtcFromValid` | `DateTimeInputKind` | const | `packages/foundation/modeling/schema/src/DateTimeUtcFromValid/DateTimeUtcFromValid.schema.ts:34` | Literal discriminator values used by tagged date-time input representations. |
+| `@beep/schema/DateTimeUtcFromValid` | `DateTimeInputKind` | type | `packages/foundation/modeling/schema/src/DateTimeUtcFromValid/DateTimeUtcFromValid.schema.ts:64` | {@inheritDoc DateTimeInputKind} |
+| `@beep/schema/DateTimeUtcFromValid` | `DateTimeInputNumber` | const | `packages/foundation/modeling/schema/src/DateTimeUtcFromValid/DateTimeUtcFromValid.schema.ts:202` | Valid numeric epoch-millisecond input accepted by Effect `DateTime.make`. |
+| `@beep/schema/DateTimeUtcFromValid` | `DateTimeInputNumber` | type | `packages/foundation/modeling/schema/src/DateTimeUtcFromValid/DateTimeUtcFromValid.schema.ts:223` | {@inheritDoc DateTimeInputNumber} |
+| `@beep/schema/DateTimeUtcFromValid` | `DateTimeInputParts` | class | `packages/foundation/modeling/schema/src/DateTimeUtcFromValid/DateTimeUtcFromValid.schema.ts:383` | Tagged `Partial<DateTime.Parts>` transport value. |
+| `@beep/schema/DateTimeUtcFromValid` | `DateTimeInputString` | const | `packages/foundation/modeling/schema/src/DateTimeUtcFromValid/DateTimeUtcFromValid.schema.ts:159` | Valid string input accepted by Effect `DateTime.make`. |
+| `@beep/schema/DateTimeUtcFromValid` | `DateTimeInputString` | type | `packages/foundation/modeling/schema/src/DateTimeUtcFromValid/DateTimeUtcFromValid.schema.ts:180` | {@inheritDoc DateTimeInputString} |
+| `@beep/schema/DateTimeUtcFromValid` | `DateTimeUtcFromValid` | const | `packages/foundation/modeling/schema/src/DateTimeUtcFromValid/DateTimeUtcFromValid.schema.ts:512` | Bidirectional schema transformation from valid DateTime input to `DateTime.Utc`. |
+| `@beep/schema/DateTimeUtcFromValid` | `DateTimeUtcFromValid` | type | `packages/foundation/modeling/schema/src/DateTimeUtcFromValid/DateTimeUtcFromValid.schema.ts:540` | {@inheritDoc DateTimeUtcFromValid} |
+| `@beep/schema/Dom` | `createDOMRefSchema` | const | `packages/foundation/modeling/schema/src/DomReactNode/DomReactNode.schema.ts:77` | Creates a schema for React.Ref<T> where T extends HTMLElement. |
+| `@beep/schema/Dom` | `DomCssProperties` | const | `packages/foundation/modeling/schema/src/DomCssProperties/DomCssProperties.schema.ts:33` | A React.CSSProperties object. |
+| `@beep/schema/Dom` | `DOMCssProperties` | const | `packages/foundation/modeling/schema/src/DomCssProperties/DomCssProperties.schema.ts:33` | A React.CSSProperties object. |
+| `@beep/schema/Dom` | `DomDragEvent` | const | `packages/foundation/modeling/schema/src/DomDragEvent/DomDragEvent.schema.ts:26` | A DragEvent. |
+| `@beep/schema/Dom` | `DomDragEvent` | type | `packages/foundation/modeling/schema/src/DomDragEvent/DomDragEvent.schema.ts:38` | Type for {@link DOMDragEvent}. |
+| `@beep/schema/Dom` | `DOMDragEvent` | const | `packages/foundation/modeling/schema/src/DomDragEvent/DomDragEvent.schema.ts:26` | A DragEvent. |
+| `@beep/schema/Dom` | `DOMDragEvent` | type | `packages/foundation/modeling/schema/src/DomDragEvent/DomDragEvent.schema.ts:38` | Type for {@link DOMDragEvent}. |
+| `@beep/schema/Dom` | `DOMDragEventValue` | const | `packages/foundation/modeling/schema/src/DomDragEvent/DomDragEvent.schema.ts:26` | A DragEvent. |
+| `@beep/schema/Dom` | `DOMDragEventValue` | type | `packages/foundation/modeling/schema/src/DomDragEvent/DomDragEvent.schema.ts:38` | Type for {@link DOMDragEvent}. |
+| `@beep/schema/Dom` | `DomEvent` | const | `packages/foundation/modeling/schema/src/DomEvent/DomEvent.schema.ts:26` | A DOM event. |
+| `@beep/schema/Dom` | `DomEvent` | type | `packages/foundation/modeling/schema/src/DomEvent/DomEvent.schema.ts:38` | Type for {@link DOMEvent}. |
+| `@beep/schema/Dom` | `DOMEvent` | const | `packages/foundation/modeling/schema/src/DomEvent/DomEvent.schema.ts:26` | A DOM event. |
+| `@beep/schema/Dom` | `DOMEvent` | type | `packages/foundation/modeling/schema/src/DomEvent/DomEvent.schema.ts:38` | Type for {@link DOMEvent}. |
+| `@beep/schema/Dom` | `DOMEventValue` | const | `packages/foundation/modeling/schema/src/DomEvent/DomEvent.schema.ts:26` | A DOM event. |
+| `@beep/schema/Dom` | `DOMEventValue` | type | `packages/foundation/modeling/schema/src/DomEvent/DomEvent.schema.ts:38` | Type for {@link DOMEvent}. |
+| `@beep/schema/Dom` | `DomHtmlElement` | const | `packages/foundation/modeling/schema/src/DomHtmlElement/DomHtmlElement.schema.ts:26` | An HTMLElement. |
+| `@beep/schema/Dom` | `DomHtmlElement` | type | `packages/foundation/modeling/schema/src/DomHtmlElement/DomHtmlElement.schema.ts:38` | Type for {@link DOMHtmlElement}. |
+| `@beep/schema/Dom` | `DOMHtmlElement` | const | `packages/foundation/modeling/schema/src/DomHtmlElement/DomHtmlElement.schema.ts:26` | An HTMLElement. |
+| `@beep/schema/Dom` | `DOMHtmlElement` | type | `packages/foundation/modeling/schema/src/DomHtmlElement/DomHtmlElement.schema.ts:38` | Type for {@link DOMHtmlElement}. |
+| `@beep/schema/Dom` | `DOMHtmlElementValue` | const | `packages/foundation/modeling/schema/src/DomHtmlElement/DomHtmlElement.schema.ts:26` | An HTMLElement. |
+| `@beep/schema/Dom` | `DOMHtmlElementValue` | type | `packages/foundation/modeling/schema/src/DomHtmlElement/DomHtmlElement.schema.ts:38` | Type for {@link DOMHtmlElement}. |
+| `@beep/schema/Dom` | `DomMouseEvent` | const | `packages/foundation/modeling/schema/src/DomMouseEvent/DomMouseEvent.schema.ts:26` | A DOM mouse event. |
+| `@beep/schema/Dom` | `DomMouseEvent` | type | `packages/foundation/modeling/schema/src/DomMouseEvent/DomMouseEvent.schema.ts:38` | Type for {@link DOMMouseEvent}. |
+| `@beep/schema/Dom` | `DOMMouseEvent` | const | `packages/foundation/modeling/schema/src/DomMouseEvent/DomMouseEvent.schema.ts:26` | A DOM mouse event. |
+| `@beep/schema/Dom` | `DOMMouseEvent` | type | `packages/foundation/modeling/schema/src/DomMouseEvent/DomMouseEvent.schema.ts:38` | Type for {@link DOMMouseEvent}. |
+| `@beep/schema/Dom` | `DOMMouseEventValue` | const | `packages/foundation/modeling/schema/src/DomMouseEvent/DomMouseEvent.schema.ts:26` | A DOM mouse event. |
+| `@beep/schema/Dom` | `DOMMouseEventValue` | type | `packages/foundation/modeling/schema/src/DomMouseEvent/DomMouseEvent.schema.ts:38` | Type for {@link DOMMouseEvent}. |
+| `@beep/schema/Dom` | `DomReactNode` | const | `packages/foundation/modeling/schema/src/DomReactNode/DomReactNode.schema.ts:40` | A React.ReactNode value. |
+| `@beep/schema/Dom` | `DomReactNode` | type | `packages/foundation/modeling/schema/src/DomReactNode/DomReactNode.schema.ts:52` | Type for {@link DOMReactNode}. |
+| `@beep/schema/Dom` | `DOMReactNode` | const | `packages/foundation/modeling/schema/src/DomReactNode/DomReactNode.schema.ts:40` | A React.ReactNode value. |
+| `@beep/schema/Dom` | `DOMReactNode` | type | `packages/foundation/modeling/schema/src/DomReactNode/DomReactNode.schema.ts:52` | Type for {@link DOMReactNode}. |
+| `@beep/schema/Dom` | `DOMReactNodeValue` | const | `packages/foundation/modeling/schema/src/DomReactNode/DomReactNode.schema.ts:40` | A React.ReactNode value. |
+| `@beep/schema/Dom` | `DOMReactNodeValue` | type | `packages/foundation/modeling/schema/src/DomReactNode/DomReactNode.schema.ts:52` | Type for {@link DOMReactNode}. |
+| `@beep/schema/Dom` | `isCSSProperties` | const | `packages/foundation/modeling/schema/src/DomCssProperties/DomCssProperties.schema.ts:20` | Type guard for React.CSSProperties. |
+| `@beep/schema/Dom` | `isDragEvent` | const | `packages/foundation/modeling/schema/src/DomDragEvent/DomDragEvent.schema.ts:18` | Type guard for DragEvent. |
+| `@beep/schema/Dom` | `isEvent` | const | `packages/foundation/modeling/schema/src/DomEvent/DomEvent.schema.ts:18` | Type guard for Event. |
+| `@beep/schema/Dom` | `isHTMLElement` | const | `packages/foundation/modeling/schema/src/DomHtmlElement/DomHtmlElement.schema.ts:18` | Type guard for HTMLElement. |
+| `@beep/schema/Dom` | `isMouseEvent` | const | `packages/foundation/modeling/schema/src/DomMouseEvent/DomMouseEvent.schema.ts:18` | Type guard for MouseEvent. |
+| `@beep/schema/Dom` | `isReactNode` | const | `packages/foundation/modeling/schema/src/DomReactNode/DomReactNode.schema.ts:20` | Type guard for React.ReactNode. |
+| `@beep/schema/Dom` | `isReactRef` | const | `packages/foundation/modeling/schema/src/DomReactNode/DomReactNode.schema.ts:60` | Type guard for React.Ref<T>. |
 | `@beep/schema/DomainModel` | `defaultFields` | const | `packages/foundation/modeling/schema/src/DomainModel.ts:33` | Default audit and bookkeeping fields for persisted domain models. |
 | `@beep/schema/DomainModel` | `DomainModel` | class | `packages/foundation/modeling/schema/src/DomainModel.ts:65` | Base class for persisted domain models that share audit metadata. |
-| `@beep/schema/DomCssProperties` | `DomCssProperties` | const | `packages/foundation/modeling/schema/src/dom/elements.ts:67` | A React.CSSProperties |
-| `@beep/schema/DomCssProperties` | `DOMCssProperties` | const | `packages/foundation/modeling/schema/src/dom/elements.ts:67` | A React.CSSProperties |
-| `@beep/schema/DomCssProperties` | `isCSSProperties` | const | `packages/foundation/modeling/schema/src/dom/elements.ts:52` | Type guard for React.CSSProperties |
-| `@beep/schema/DomCssProperties` | `Schema` | const | `packages/foundation/modeling/schema/src/dom/elements.ts:67` | A React.CSSProperties |
-| `@beep/schema/DomDragEvent` | `DomDragEvent` | const | `packages/foundation/modeling/schema/src/dom/elements.ts:198` | A DragEvent |
-| `@beep/schema/DomDragEvent` | `DomDragEvent` | type | `packages/foundation/modeling/schema/src/dom/elements.ts:210` | {@inheritDoc DOMDragEvent} |
-| `@beep/schema/DomDragEvent` | `DOMDragEvent` | const | `packages/foundation/modeling/schema/src/dom/elements.ts:198` | A DragEvent |
-| `@beep/schema/DomDragEvent` | `DOMDragEvent` | type | `packages/foundation/modeling/schema/src/dom/elements.ts:210` | {@inheritDoc DOMDragEvent} |
-| `@beep/schema/DomDragEvent` | `isDragEvent` | const | `packages/foundation/modeling/schema/src/dom/elements.ts:190` | Type guard for DragEvent |
-| `@beep/schema/DomDragEvent` | `Schema` | const | `packages/foundation/modeling/schema/src/dom/elements.ts:198` | A DragEvent |
-| `@beep/schema/DomDragEvent` | `Schema` | type | `packages/foundation/modeling/schema/src/dom/elements.ts:210` | {@inheritDoc DOMDragEvent} |
-| `@beep/schema/DomEvent` | `DomEvent` | const | `packages/foundation/modeling/schema/src/dom/events.ts:38` | A DOM event |
-| `@beep/schema/DomEvent` | `DomEvent` | type | `packages/foundation/modeling/schema/src/dom/events.ts:50` | {@inheritDoc DOMEvent} |
-| `@beep/schema/DomEvent` | `DOMEvent` | const | `packages/foundation/modeling/schema/src/dom/events.ts:38` | A DOM event |
-| `@beep/schema/DomEvent` | `DOMEvent` | type | `packages/foundation/modeling/schema/src/dom/events.ts:50` | {@inheritDoc DOMEvent} |
-| `@beep/schema/DomEvent` | `isEvent` | const | `packages/foundation/modeling/schema/src/dom/events.ts:20` | Type guard for Event |
-| `@beep/schema/DomEvent` | `Schema` | const | `packages/foundation/modeling/schema/src/dom/events.ts:38` | A DOM event |
-| `@beep/schema/DomEvent` | `Schema` | type | `packages/foundation/modeling/schema/src/dom/events.ts:50` | {@inheritDoc DOMEvent} |
-| `@beep/schema/DomHtmlElement` | `DomHtmlElement` | const | `packages/foundation/modeling/schema/src/dom/elements.ts:30` | An HTMLElement |
-| `@beep/schema/DomHtmlElement` | `DomHtmlElement` | type | `packages/foundation/modeling/schema/src/dom/elements.ts:42` | {@inheritDoc HTMLElement} |
-| `@beep/schema/DomHtmlElement` | `DOMHtmlElement` | const | `packages/foundation/modeling/schema/src/dom/elements.ts:30` | An HTMLElement |
-| `@beep/schema/DomHtmlElement` | `DOMHtmlElement` | type | `packages/foundation/modeling/schema/src/dom/elements.ts:42` | {@inheritDoc HTMLElement} |
-| `@beep/schema/DomHtmlElement` | `isHTMLElement` | const | `packages/foundation/modeling/schema/src/dom/elements.ts:22` | Type guard for HTMLElement |
-| `@beep/schema/DomHtmlElement` | `Schema` | const | `packages/foundation/modeling/schema/src/dom/elements.ts:30` | An HTMLElement |
-| `@beep/schema/DomHtmlElement` | `Schema` | type | `packages/foundation/modeling/schema/src/dom/elements.ts:42` | {@inheritDoc HTMLElement} |
-| `@beep/schema/DomMouseEvent` | `DomMouseEvent` | const | `packages/foundation/modeling/schema/src/dom/events.ts:58` | A DOM mouse event |
-| `@beep/schema/DomMouseEvent` | `DomMouseEvent` | type | `packages/foundation/modeling/schema/src/dom/events.ts:70` | {@inheritDoc DOMMouseEvent} |
-| `@beep/schema/DomMouseEvent` | `DOMMouseEvent` | const | `packages/foundation/modeling/schema/src/dom/events.ts:58` | A DOM mouse event |
-| `@beep/schema/DomMouseEvent` | `DOMMouseEvent` | type | `packages/foundation/modeling/schema/src/dom/events.ts:70` | {@inheritDoc DOMMouseEvent} |
-| `@beep/schema/DomMouseEvent` | `isMouseEvent` | const | `packages/foundation/modeling/schema/src/dom/events.ts:30` | Type guard for MouseEvent |
-| `@beep/schema/DomMouseEvent` | `Schema` | const | `packages/foundation/modeling/schema/src/dom/events.ts:58` | A DOM mouse event |
-| `@beep/schema/DomMouseEvent` | `Schema` | type | `packages/foundation/modeling/schema/src/dom/events.ts:70` | {@inheritDoc DOMMouseEvent} |
-| `@beep/schema/DomReactNode` | `createDOMRefSchema` | const | `packages/foundation/modeling/schema/src/dom/elements.ts:175` | Creates a Schema for React.Ref<T> where T extends HTMLElement |
-| `@beep/schema/DomReactNode` | `DomReactNode` | const | `packages/foundation/modeling/schema/src/dom/elements.ts:119` | A React.ReactNode |
-| `@beep/schema/DomReactNode` | `DomReactNode` | type | `packages/foundation/modeling/schema/src/dom/elements.ts:131` | {@inheritDoc DOMReactNode} |
-| `@beep/schema/DomReactNode` | `DOMReactNode` | const | `packages/foundation/modeling/schema/src/dom/elements.ts:119` | A React.ReactNode |
-| `@beep/schema/DomReactNode` | `DOMReactNode` | type | `packages/foundation/modeling/schema/src/dom/elements.ts:131` | {@inheritDoc DOMReactNode} |
-| `@beep/schema/DomReactNode` | `isReactNode` | const | `packages/foundation/modeling/schema/src/dom/elements.ts:81` | Type guard for React.ReactNode |
-| `@beep/schema/DomReactNode` | `isReactRef` | const | `packages/foundation/modeling/schema/src/dom/elements.ts:141` | Type guard for React.Ref<T> |
-| `@beep/schema/DomReactNode` | `Schema` | const | `packages/foundation/modeling/schema/src/dom/elements.ts:119` | A React.ReactNode |
-| `@beep/schema/DomReactNode` | `Schema` | type | `packages/foundation/modeling/schema/src/dom/elements.ts:131` | {@inheritDoc DOMReactNode} |
+| `@beep/schema/DomCssProperties` | `DomCssProperties` | const | `packages/foundation/modeling/schema/src/DomCssProperties/DomCssProperties.schema.ts:33` | A React.CSSProperties object. |
+| `@beep/schema/DomCssProperties` | `DOMCssProperties` | const | `packages/foundation/modeling/schema/src/DomCssProperties/DomCssProperties.schema.ts:33` | A React.CSSProperties object. |
+| `@beep/schema/DomCssProperties` | `isCSSProperties` | const | `packages/foundation/modeling/schema/src/DomCssProperties/DomCssProperties.schema.ts:20` | Type guard for React.CSSProperties. |
+| `@beep/schema/DomCssProperties` | `Schema` | const | `packages/foundation/modeling/schema/src/DomCssProperties/DomCssProperties.schema.ts:33` | A React.CSSProperties object. |
+| `@beep/schema/DomDragEvent` | `DomDragEvent` | const | `packages/foundation/modeling/schema/src/DomDragEvent/DomDragEvent.schema.ts:26` | A DragEvent. |
+| `@beep/schema/DomDragEvent` | `DomDragEvent` | type | `packages/foundation/modeling/schema/src/DomDragEvent/DomDragEvent.schema.ts:38` | Type for {@link DOMDragEvent}. |
+| `@beep/schema/DomDragEvent` | `DOMDragEvent` | const | `packages/foundation/modeling/schema/src/DomDragEvent/DomDragEvent.schema.ts:26` | A DragEvent. |
+| `@beep/schema/DomDragEvent` | `DOMDragEvent` | type | `packages/foundation/modeling/schema/src/DomDragEvent/DomDragEvent.schema.ts:38` | Type for {@link DOMDragEvent}. |
+| `@beep/schema/DomDragEvent` | `isDragEvent` | const | `packages/foundation/modeling/schema/src/DomDragEvent/DomDragEvent.schema.ts:18` | Type guard for DragEvent. |
+| `@beep/schema/DomDragEvent` | `Schema` | const | `packages/foundation/modeling/schema/src/DomDragEvent/DomDragEvent.schema.ts:26` | A DragEvent. |
+| `@beep/schema/DomDragEvent` | `Schema` | type | `packages/foundation/modeling/schema/src/DomDragEvent/DomDragEvent.schema.ts:38` | Type for {@link DOMDragEvent}. |
+| `@beep/schema/DomEvent` | `DomEvent` | const | `packages/foundation/modeling/schema/src/DomEvent/DomEvent.schema.ts:26` | A DOM event. |
+| `@beep/schema/DomEvent` | `DomEvent` | type | `packages/foundation/modeling/schema/src/DomEvent/DomEvent.schema.ts:38` | Type for {@link DOMEvent}. |
+| `@beep/schema/DomEvent` | `DOMEvent` | const | `packages/foundation/modeling/schema/src/DomEvent/DomEvent.schema.ts:26` | A DOM event. |
+| `@beep/schema/DomEvent` | `DOMEvent` | type | `packages/foundation/modeling/schema/src/DomEvent/DomEvent.schema.ts:38` | Type for {@link DOMEvent}. |
+| `@beep/schema/DomEvent` | `isEvent` | const | `packages/foundation/modeling/schema/src/DomEvent/DomEvent.schema.ts:18` | Type guard for Event. |
+| `@beep/schema/DomEvent` | `Schema` | const | `packages/foundation/modeling/schema/src/DomEvent/DomEvent.schema.ts:26` | A DOM event. |
+| `@beep/schema/DomEvent` | `Schema` | type | `packages/foundation/modeling/schema/src/DomEvent/DomEvent.schema.ts:38` | Type for {@link DOMEvent}. |
+| `@beep/schema/DomHtmlElement` | `DomHtmlElement` | const | `packages/foundation/modeling/schema/src/DomHtmlElement/DomHtmlElement.schema.ts:26` | An HTMLElement. |
+| `@beep/schema/DomHtmlElement` | `DomHtmlElement` | type | `packages/foundation/modeling/schema/src/DomHtmlElement/DomHtmlElement.schema.ts:38` | Type for {@link DOMHtmlElement}. |
+| `@beep/schema/DomHtmlElement` | `DOMHtmlElement` | const | `packages/foundation/modeling/schema/src/DomHtmlElement/DomHtmlElement.schema.ts:26` | An HTMLElement. |
+| `@beep/schema/DomHtmlElement` | `DOMHtmlElement` | type | `packages/foundation/modeling/schema/src/DomHtmlElement/DomHtmlElement.schema.ts:38` | Type for {@link DOMHtmlElement}. |
+| `@beep/schema/DomHtmlElement` | `isHTMLElement` | const | `packages/foundation/modeling/schema/src/DomHtmlElement/DomHtmlElement.schema.ts:18` | Type guard for HTMLElement. |
+| `@beep/schema/DomHtmlElement` | `Schema` | const | `packages/foundation/modeling/schema/src/DomHtmlElement/DomHtmlElement.schema.ts:26` | An HTMLElement. |
+| `@beep/schema/DomHtmlElement` | `Schema` | type | `packages/foundation/modeling/schema/src/DomHtmlElement/DomHtmlElement.schema.ts:38` | Type for {@link DOMHtmlElement}. |
+| `@beep/schema/DomMouseEvent` | `DomMouseEvent` | const | `packages/foundation/modeling/schema/src/DomMouseEvent/DomMouseEvent.schema.ts:26` | A DOM mouse event. |
+| `@beep/schema/DomMouseEvent` | `DomMouseEvent` | type | `packages/foundation/modeling/schema/src/DomMouseEvent/DomMouseEvent.schema.ts:38` | Type for {@link DOMMouseEvent}. |
+| `@beep/schema/DomMouseEvent` | `DOMMouseEvent` | const | `packages/foundation/modeling/schema/src/DomMouseEvent/DomMouseEvent.schema.ts:26` | A DOM mouse event. |
+| `@beep/schema/DomMouseEvent` | `DOMMouseEvent` | type | `packages/foundation/modeling/schema/src/DomMouseEvent/DomMouseEvent.schema.ts:38` | Type for {@link DOMMouseEvent}. |
+| `@beep/schema/DomMouseEvent` | `isMouseEvent` | const | `packages/foundation/modeling/schema/src/DomMouseEvent/DomMouseEvent.schema.ts:18` | Type guard for MouseEvent. |
+| `@beep/schema/DomMouseEvent` | `Schema` | const | `packages/foundation/modeling/schema/src/DomMouseEvent/DomMouseEvent.schema.ts:26` | A DOM mouse event. |
+| `@beep/schema/DomMouseEvent` | `Schema` | type | `packages/foundation/modeling/schema/src/DomMouseEvent/DomMouseEvent.schema.ts:38` | Type for {@link DOMMouseEvent}. |
+| `@beep/schema/DomReactNode` | `createDOMRefSchema` | const | `packages/foundation/modeling/schema/src/DomReactNode/DomReactNode.schema.ts:77` | Creates a schema for React.Ref<T> where T extends HTMLElement. |
+| `@beep/schema/DomReactNode` | `DomReactNode` | const | `packages/foundation/modeling/schema/src/DomReactNode/DomReactNode.schema.ts:40` | A React.ReactNode value. |
+| `@beep/schema/DomReactNode` | `DomReactNode` | type | `packages/foundation/modeling/schema/src/DomReactNode/DomReactNode.schema.ts:52` | Type for {@link DOMReactNode}. |
+| `@beep/schema/DomReactNode` | `DOMReactNode` | const | `packages/foundation/modeling/schema/src/DomReactNode/DomReactNode.schema.ts:40` | A React.ReactNode value. |
+| `@beep/schema/DomReactNode` | `DOMReactNode` | type | `packages/foundation/modeling/schema/src/DomReactNode/DomReactNode.schema.ts:52` | Type for {@link DOMReactNode}. |
+| `@beep/schema/DomReactNode` | `isReactNode` | const | `packages/foundation/modeling/schema/src/DomReactNode/DomReactNode.schema.ts:20` | Type guard for React.ReactNode. |
+| `@beep/schema/DomReactNode` | `isReactRef` | const | `packages/foundation/modeling/schema/src/DomReactNode/DomReactNode.schema.ts:60` | Type guard for React.Ref<T>. |
+| `@beep/schema/DomReactNode` | `Schema` | const | `packages/foundation/modeling/schema/src/DomReactNode/DomReactNode.schema.ts:40` | A React.ReactNode value. |
+| `@beep/schema/DomReactNode` | `Schema` | type | `packages/foundation/modeling/schema/src/DomReactNode/DomReactNode.schema.ts:52` | Type for {@link DOMReactNode}. |
 | `@beep/schema/Duration` | `Duration` | const | `packages/foundation/modeling/schema/src/Duration/Duration.schema.ts:41` | Compatibility alias for the primary Effect Duration schema. |
 | `@beep/schema/Duration` | `Duration` | type | `packages/foundation/modeling/schema/src/Duration/Duration.schema.ts:49` | Runtime type extracted from {@link Duration}. |
-| `@beep/schema/Duration` | `DurationFromInput` | const | `packages/foundation/modeling/schema/src/Duration.ts:226` | One-way schema that decodes {@link DurationInput} into an Effect `Duration`. |
-| `@beep/schema/Duration` | `DurationFromInput` | type | `packages/foundation/modeling/schema/src/Duration.ts:246` | Decoded duration type extracted from {@link DurationFromInput}. |
-| `@beep/schema/Duration` | `DurationInput` | const | `packages/foundation/modeling/schema/src/Duration.ts:167` | Union schema for all duration input shapes accepted by {@link DurationFromInput}. |
-| `@beep/schema/Duration` | `DurationInput` | type | `packages/foundation/modeling/schema/src/Duration.ts:189` | Duration input type extracted from {@link DurationInput}. |
-| `@beep/schema/Duration` | `DurationObject` | class | `packages/foundation/modeling/schema/src/Duration.ts:127` | Structured duration input with additive unit fields. |
-| `@beep/schema/Duration` | `DurationUnit` | const | `packages/foundation/modeling/schema/src/Duration.ts:65` | Literal union of duration unit labels accepted by {@link DurationInput}. |
-| `@beep/schema/Duration` | `DurationUnit` | type | `packages/foundation/modeling/schema/src/Duration.ts:96` | Duration unit string type extracted from {@link DurationUnit}. |
-| `@beep/schema/Duration` | `FromInput` | const | `packages/foundation/modeling/schema/src/Duration.ts:226` | One-way schema that decodes {@link DurationInput} into an Effect `Duration`. |
-| `@beep/schema/Duration` | `FromInput` | type | `packages/foundation/modeling/schema/src/Duration.ts:246` | Decoded duration type extracted from {@link DurationFromInput}. |
-| `@beep/schema/Duration` | `Input` | const | `packages/foundation/modeling/schema/src/Duration.ts:167` | Union schema for all duration input shapes accepted by {@link DurationFromInput}. |
-| `@beep/schema/Duration` | `Input` | type | `packages/foundation/modeling/schema/src/Duration.ts:189` | Duration input type extracted from {@link DurationInput}. |
-| `@beep/schema/Duration` | `Object` | class | `packages/foundation/modeling/schema/src/Duration.ts:127` | Structured duration input with additive unit fields. |
+| `@beep/schema/Duration` | `DurationFromInput` | const | `packages/foundation/modeling/schema/src/Duration/Duration.input.ts:226` | One-way schema that decodes {@link DurationInput} into an Effect `Duration`. |
+| `@beep/schema/Duration` | `DurationFromInput` | type | `packages/foundation/modeling/schema/src/Duration/Duration.input.ts:246` | Decoded duration type extracted from {@link DurationFromInput}. |
+| `@beep/schema/Duration` | `DurationInput` | const | `packages/foundation/modeling/schema/src/Duration/Duration.input.ts:167` | Union schema for all duration input shapes accepted by {@link DurationFromInput}. |
+| `@beep/schema/Duration` | `DurationInput` | type | `packages/foundation/modeling/schema/src/Duration/Duration.input.ts:189` | Duration input type extracted from {@link DurationInput}. |
+| `@beep/schema/Duration` | `DurationObject` | class | `packages/foundation/modeling/schema/src/Duration/Duration.input.ts:127` | Structured duration input with additive unit fields. |
+| `@beep/schema/Duration` | `DurationUnit` | const | `packages/foundation/modeling/schema/src/Duration/Duration.input.ts:65` | Literal union of duration unit labels accepted by {@link DurationInput}. |
+| `@beep/schema/Duration` | `DurationUnit` | type | `packages/foundation/modeling/schema/src/Duration/Duration.input.ts:96` | Duration unit string type extracted from {@link DurationUnit}. |
+| `@beep/schema/Duration` | `FromInput` | const | `packages/foundation/modeling/schema/src/Duration/Duration.input.ts:226` | One-way schema that decodes {@link DurationInput} into an Effect `Duration`. |
+| `@beep/schema/Duration` | `FromInput` | type | `packages/foundation/modeling/schema/src/Duration/Duration.input.ts:246` | Decoded duration type extracted from {@link DurationFromInput}. |
+| `@beep/schema/Duration` | `Input` | const | `packages/foundation/modeling/schema/src/Duration/Duration.input.ts:167` | Union schema for all duration input shapes accepted by {@link DurationFromInput}. |
+| `@beep/schema/Duration` | `Input` | type | `packages/foundation/modeling/schema/src/Duration/Duration.input.ts:189` | Duration input type extracted from {@link DurationInput}. |
+| `@beep/schema/Duration` | `Object` | class | `packages/foundation/modeling/schema/src/Duration/Duration.input.ts:127` | Structured duration input with additive unit fields. |
 | `@beep/schema/Duration` | `Schema` | const | `packages/foundation/modeling/schema/src/Duration/Duration.schema.ts:25` | Schema for Effect `Duration` values. |
 | `@beep/schema/Duration` | `Schema` | type | `packages/foundation/modeling/schema/src/Duration/Duration.schema.ts:33` | Runtime type extracted from {@link Schema}. |
-| `@beep/schema/Duration` | `Unit` | const | `packages/foundation/modeling/schema/src/Duration.ts:65` | Literal union of duration unit labels accepted by {@link DurationInput}. |
-| `@beep/schema/Duration` | `Unit` | type | `packages/foundation/modeling/schema/src/Duration.ts:96` | Duration unit string type extracted from {@link DurationUnit}. |
-| `@beep/schema/Duration` | `Unit` | type | `packages/foundation/modeling/schema/src/Duration.ts:104` | Backwards-compatible alias for {@link DurationUnit}. |
+| `@beep/schema/Duration` | `Unit` | type | `packages/foundation/modeling/schema/src/Duration/Duration.input.ts:104` | Backwards-compatible alias for {@link DurationUnit}. |
 | `@beep/schema/EffectSchema` | `EffectSchema` | const | `packages/foundation/modeling/schema/src/EffectSchema.ts:76` | Declared schema for Effect runtime values. |
 | `@beep/schema/EffectSchema` | `EffectSchema` | type | `packages/foundation/modeling/schema/src/EffectSchema.ts:98` | {@inheritDoc EffectSchema} |
 | `@beep/schema/EffectSchema` | `isEffect` | const | `packages/foundation/modeling/schema/src/EffectSchema.ts:56` | Type guard that checks whether a value is an Effect runtime value. |
@@ -11010,54 +10515,40 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/schema/EntitySchema` | `VariantFieldFor` | type | `packages/foundation/modeling/schema/src/EntitySchema/EntitySchema.definition.ts:157` | Variant field schema selected for a persisted field descriptor. |
 | `@beep/schema/EntitySchema` | `VariantFieldForInput` | type | `packages/foundation/modeling/schema/src/EntitySchema/EntitySchema.definition.ts:186` | Variant field schema selected for a field input and persisted descriptor. |
 | `@beep/schema/EntitySchema` | `VariantFieldsFor` | type | `packages/foundation/modeling/schema/src/EntitySchema/EntitySchema.definition.ts:197` | Variant field map derived from entity inputs and persistence descriptors. |
-| `@beep/schema/EthAmount` | `EthAmount` | const | `packages/foundation/modeling/schema/src/blockchain/EthAmount.ts:48` | ETH-denominated amount decoded from a non-negative JSON number into Effect |
-| `@beep/schema/EthAmount` | `EthAmount` | type | `packages/foundation/modeling/schema/src/blockchain/EthAmount.ts:66` | Type for {@link EthAmount}. |
-| `@beep/schema/EthAmount` | `Schema` | const | `packages/foundation/modeling/schema/src/blockchain/EthAmount.ts:48` | ETH-denominated amount decoded from a non-negative JSON number into Effect |
-| `@beep/schema/EthAmount` | `Schema` | type | `packages/foundation/modeling/schema/src/blockchain/EthAmount.ts:66` | Type for {@link EthAmount}. |
-| `@beep/schema/EthereumValidatorPublicKey` | `EthereumValidatorPublicKey` | const | `packages/foundation/modeling/schema/src/blockchain/EthereumValidatorPublicKey.ts:41` | Branded schema for canonical Ethereum validator public keys. |
-| `@beep/schema/EthereumValidatorPublicKey` | `EthereumValidatorPublicKey` | type | `packages/foundation/modeling/schema/src/blockchain/EthereumValidatorPublicKey.ts:56` | Type for {@link EthereumValidatorPublicKey}. |
-| `@beep/schema/EthereumValidatorPublicKey` | `EthereumValidatorPublicKeyRedacted` | const | `packages/foundation/modeling/schema/src/blockchain/EthereumValidatorPublicKey.ts:64` | Redacted schema for canonical Ethereum validator public keys. |
-| `@beep/schema/EthereumValidatorPublicKey` | `EthereumValidatorPublicKeyRedacted` | type | `packages/foundation/modeling/schema/src/blockchain/EthereumValidatorPublicKey.ts:82` | Type for {@link EthereumValidatorPublicKeyRedacted}. |
-| `@beep/schema/EthereumValidatorPublicKey` | `Redacted` | const | `packages/foundation/modeling/schema/src/blockchain/EthereumValidatorPublicKey.ts:64` | Redacted schema for canonical Ethereum validator public keys. |
-| `@beep/schema/EthereumValidatorPublicKey` | `Redacted` | type | `packages/foundation/modeling/schema/src/blockchain/EthereumValidatorPublicKey.ts:82` | Type for {@link EthereumValidatorPublicKeyRedacted}. |
-| `@beep/schema/EthereumValidatorPublicKey` | `Schema` | const | `packages/foundation/modeling/schema/src/blockchain/EthereumValidatorPublicKey.ts:41` | Branded schema for canonical Ethereum validator public keys. |
-| `@beep/schema/EthereumValidatorPublicKey` | `Schema` | type | `packages/foundation/modeling/schema/src/blockchain/EthereumValidatorPublicKey.ts:56` | Type for {@link EthereumValidatorPublicKey}. |
-| `@beep/schema/EvmAddress` | `EvmAddress` | const | `packages/foundation/modeling/schema/src/blockchain/EvmAddress.ts:78` | Branded schema for canonical mainnet EVM wallet addresses. |
-| `@beep/schema/EvmAddress` | `EvmAddress` | type | `packages/foundation/modeling/schema/src/blockchain/EvmAddress.ts:93` | Type for {@link EvmAddress}. |
-| `@beep/schema/EvmAddress` | `EvmAddressRedacted` | const | `packages/foundation/modeling/schema/src/blockchain/EvmAddress.ts:101` | Redacted schema for canonical mainnet EVM wallet addresses. |
-| `@beep/schema/EvmAddress` | `EvmAddressRedacted` | type | `packages/foundation/modeling/schema/src/blockchain/EvmAddress.ts:119` | Type for {@link EvmAddressRedacted}. |
-| `@beep/schema/EvmAddress` | `Redacted` | const | `packages/foundation/modeling/schema/src/blockchain/EvmAddress.ts:101` | Redacted schema for canonical mainnet EVM wallet addresses. |
-| `@beep/schema/EvmAddress` | `Redacted` | type | `packages/foundation/modeling/schema/src/blockchain/EvmAddress.ts:119` | Type for {@link EvmAddressRedacted}. |
-| `@beep/schema/EvmAddress` | `Schema` | const | `packages/foundation/modeling/schema/src/blockchain/EvmAddress.ts:78` | Branded schema for canonical mainnet EVM wallet addresses. |
-| `@beep/schema/EvmAddress` | `Schema` | type | `packages/foundation/modeling/schema/src/blockchain/EvmAddress.ts:93` | Type for {@link EvmAddress}. |
-| `@beep/schema/ExpectCt` | `Config` | class | `packages/foundation/modeling/schema/src/http/headers/ExpectCT.ts:27` |  |
-| `@beep/schema/ExpectCt` | `ExpectCTConfig` | class | `packages/foundation/modeling/schema/src/http/headers/ExpectCT.ts:27` |  |
-| `@beep/schema/ExpectCt` | `ExpectCTEnabled` | const | `packages/foundation/modeling/schema/src/http/headers/ExpectCT.ts:42` |  |
-| `@beep/schema/ExpectCt` | `ExpectCTEnabled` | type | `packages/foundation/modeling/schema/src/http/headers/ExpectCT.ts:52` |  |
-| `@beep/schema/ExpectCt` | `ExpectCTHeader` | const | `packages/foundation/modeling/schema/src/http/headers/ExpectCT.ts:150` |  |
-| `@beep/schema/ExpectCt` | `ExpectCTHeader` | type | `packages/foundation/modeling/schema/src/http/headers/ExpectCT.ts:207` |  |
-| `@beep/schema/ExpectCt` | `ExpectCTOption` | const | `packages/foundation/modeling/schema/src/http/headers/ExpectCT.ts:58` |  |
-| `@beep/schema/ExpectCt` | `ExpectCTOption` | type | `packages/foundation/modeling/schema/src/http/headers/ExpectCT.ts:68` |  |
-| `@beep/schema/ExpectCt` | `ExpectCTResponseHeader` | class | `packages/foundation/modeling/schema/src/http/headers/ExpectCT.ts:74` |  |
-| `@beep/schema/ExpectCt` | `Header` | const | `packages/foundation/modeling/schema/src/http/headers/ExpectCT.ts:150` |  |
-| `@beep/schema/ExpectCt` | `Header` | type | `packages/foundation/modeling/schema/src/http/headers/ExpectCT.ts:207` |  |
-| `@beep/schema/ExpectCt` | `Option` | const | `packages/foundation/modeling/schema/src/http/headers/ExpectCT.ts:58` |  |
-| `@beep/schema/ExpectCt` | `Option` | type | `packages/foundation/modeling/schema/src/http/headers/ExpectCT.ts:68` |  |
-| `@beep/schema/ExpectCt` | `ResponseHeader` | class | `packages/foundation/modeling/schema/src/http/headers/ExpectCT.ts:74` |  |
-| `@beep/schema/ExpectCT` | `Config` | class | `packages/foundation/modeling/schema/src/http/headers/ExpectCT.ts:27` |  |
-| `@beep/schema/ExpectCT` | `ExpectCTConfig` | class | `packages/foundation/modeling/schema/src/http/headers/ExpectCT.ts:27` |  |
-| `@beep/schema/ExpectCT` | `ExpectCTEnabled` | const | `packages/foundation/modeling/schema/src/http/headers/ExpectCT.ts:42` |  |
-| `@beep/schema/ExpectCT` | `ExpectCTEnabled` | type | `packages/foundation/modeling/schema/src/http/headers/ExpectCT.ts:52` |  |
-| `@beep/schema/ExpectCT` | `ExpectCTHeader` | const | `packages/foundation/modeling/schema/src/http/headers/ExpectCT.ts:150` |  |
-| `@beep/schema/ExpectCT` | `ExpectCTHeader` | type | `packages/foundation/modeling/schema/src/http/headers/ExpectCT.ts:207` |  |
-| `@beep/schema/ExpectCT` | `ExpectCTOption` | const | `packages/foundation/modeling/schema/src/http/headers/ExpectCT.ts:58` |  |
-| `@beep/schema/ExpectCT` | `ExpectCTOption` | type | `packages/foundation/modeling/schema/src/http/headers/ExpectCT.ts:68` |  |
-| `@beep/schema/ExpectCT` | `ExpectCTResponseHeader` | class | `packages/foundation/modeling/schema/src/http/headers/ExpectCT.ts:74` |  |
-| `@beep/schema/ExpectCT` | `Header` | const | `packages/foundation/modeling/schema/src/http/headers/ExpectCT.ts:150` |  |
-| `@beep/schema/ExpectCT` | `Header` | type | `packages/foundation/modeling/schema/src/http/headers/ExpectCT.ts:207` |  |
-| `@beep/schema/ExpectCT` | `Option` | const | `packages/foundation/modeling/schema/src/http/headers/ExpectCT.ts:58` |  |
-| `@beep/schema/ExpectCT` | `Option` | type | `packages/foundation/modeling/schema/src/http/headers/ExpectCT.ts:68` |  |
-| `@beep/schema/ExpectCT` | `ResponseHeader` | class | `packages/foundation/modeling/schema/src/http/headers/ExpectCT.ts:74` |  |
+| `@beep/schema/EthAmount` | `EthAmount` | const | `packages/foundation/modeling/schema/src/EthAmount/EthAmount.schema.ts:48` | ETH-denominated amount decoded from a non-negative JSON number into Effect |
+| `@beep/schema/EthAmount` | `EthAmount` | type | `packages/foundation/modeling/schema/src/EthAmount/EthAmount.schema.ts:66` | Type for {@link EthAmount}. |
+| `@beep/schema/EthAmount` | `Schema` | const | `packages/foundation/modeling/schema/src/EthAmount/EthAmount.schema.ts:48` | ETH-denominated amount decoded from a non-negative JSON number into Effect |
+| `@beep/schema/EthAmount` | `Schema` | type | `packages/foundation/modeling/schema/src/EthAmount/EthAmount.schema.ts:66` | Type for {@link EthAmount}. |
+| `@beep/schema/EthereumValidatorPublicKey` | `EthereumValidatorPublicKey` | const | `packages/foundation/modeling/schema/src/EthereumValidatorPublicKey/EthereumValidatorPublicKey.schema.ts:41` | Branded schema for canonical Ethereum validator public keys. |
+| `@beep/schema/EthereumValidatorPublicKey` | `EthereumValidatorPublicKey` | type | `packages/foundation/modeling/schema/src/EthereumValidatorPublicKey/EthereumValidatorPublicKey.schema.ts:56` | Type for {@link EthereumValidatorPublicKey}. |
+| `@beep/schema/EthereumValidatorPublicKey` | `EthereumValidatorPublicKeyRedacted` | const | `packages/foundation/modeling/schema/src/EthereumValidatorPublicKey/EthereumValidatorPublicKey.schema.ts:64` | Redacted schema for canonical Ethereum validator public keys. |
+| `@beep/schema/EthereumValidatorPublicKey` | `EthereumValidatorPublicKeyRedacted` | type | `packages/foundation/modeling/schema/src/EthereumValidatorPublicKey/EthereumValidatorPublicKey.schema.ts:82` | Type for {@link EthereumValidatorPublicKeyRedacted}. |
+| `@beep/schema/EthereumValidatorPublicKey` | `Redacted` | const | `packages/foundation/modeling/schema/src/EthereumValidatorPublicKey/EthereumValidatorPublicKey.schema.ts:64` | Redacted schema for canonical Ethereum validator public keys. |
+| `@beep/schema/EthereumValidatorPublicKey` | `Redacted` | type | `packages/foundation/modeling/schema/src/EthereumValidatorPublicKey/EthereumValidatorPublicKey.schema.ts:82` | Type for {@link EthereumValidatorPublicKeyRedacted}. |
+| `@beep/schema/EthereumValidatorPublicKey` | `Schema` | const | `packages/foundation/modeling/schema/src/EthereumValidatorPublicKey/EthereumValidatorPublicKey.schema.ts:41` | Branded schema for canonical Ethereum validator public keys. |
+| `@beep/schema/EthereumValidatorPublicKey` | `Schema` | type | `packages/foundation/modeling/schema/src/EthereumValidatorPublicKey/EthereumValidatorPublicKey.schema.ts:56` | Type for {@link EthereumValidatorPublicKey}. |
+| `@beep/schema/EvmAddress` | `EvmAddress` | const | `packages/foundation/modeling/schema/src/EvmAddress/EvmAddress.schema.ts:78` | Branded schema for canonical mainnet EVM wallet addresses. |
+| `@beep/schema/EvmAddress` | `EvmAddress` | type | `packages/foundation/modeling/schema/src/EvmAddress/EvmAddress.schema.ts:93` | Type for {@link EvmAddress}. |
+| `@beep/schema/EvmAddress` | `EvmAddressRedacted` | const | `packages/foundation/modeling/schema/src/EvmAddress/EvmAddress.schema.ts:101` | Redacted schema for canonical mainnet EVM wallet addresses. |
+| `@beep/schema/EvmAddress` | `EvmAddressRedacted` | type | `packages/foundation/modeling/schema/src/EvmAddress/EvmAddress.schema.ts:119` | Type for {@link EvmAddressRedacted}. |
+| `@beep/schema/EvmAddress` | `Redacted` | const | `packages/foundation/modeling/schema/src/EvmAddress/EvmAddress.schema.ts:101` | Redacted schema for canonical mainnet EVM wallet addresses. |
+| `@beep/schema/EvmAddress` | `Redacted` | type | `packages/foundation/modeling/schema/src/EvmAddress/EvmAddress.schema.ts:119` | Type for {@link EvmAddressRedacted}. |
+| `@beep/schema/EvmAddress` | `Schema` | const | `packages/foundation/modeling/schema/src/EvmAddress/EvmAddress.schema.ts:78` | Branded schema for canonical mainnet EVM wallet addresses. |
+| `@beep/schema/EvmAddress` | `Schema` | type | `packages/foundation/modeling/schema/src/EvmAddress/EvmAddress.schema.ts:93` | Type for {@link EvmAddress}. |
+| `@beep/schema/ExpectCt` | `Config` | class | `packages/foundation/modeling/schema/src/ExpectCt/ExpectCt.schema.ts:27` |  |
+| `@beep/schema/ExpectCt` | `ExpectCTConfig` | class | `packages/foundation/modeling/schema/src/ExpectCt/ExpectCt.schema.ts:27` |  |
+| `@beep/schema/ExpectCt` | `ExpectCTEnabled` | const | `packages/foundation/modeling/schema/src/ExpectCt/ExpectCt.schema.ts:42` |  |
+| `@beep/schema/ExpectCt` | `ExpectCTEnabled` | type | `packages/foundation/modeling/schema/src/ExpectCt/ExpectCt.schema.ts:52` |  |
+| `@beep/schema/ExpectCt` | `ExpectCTHeader` | const | `packages/foundation/modeling/schema/src/ExpectCt/ExpectCt.schema.ts:150` |  |
+| `@beep/schema/ExpectCt` | `ExpectCTHeader` | type | `packages/foundation/modeling/schema/src/ExpectCt/ExpectCt.schema.ts:207` |  |
+| `@beep/schema/ExpectCt` | `ExpectCTOption` | const | `packages/foundation/modeling/schema/src/ExpectCt/ExpectCt.schema.ts:58` |  |
+| `@beep/schema/ExpectCt` | `ExpectCTOption` | type | `packages/foundation/modeling/schema/src/ExpectCt/ExpectCt.schema.ts:68` |  |
+| `@beep/schema/ExpectCt` | `ExpectCTResponseHeader` | class | `packages/foundation/modeling/schema/src/ExpectCt/ExpectCt.schema.ts:74` |  |
+| `@beep/schema/ExpectCt` | `Header` | const | `packages/foundation/modeling/schema/src/ExpectCt/ExpectCt.schema.ts:150` |  |
+| `@beep/schema/ExpectCt` | `Header` | type | `packages/foundation/modeling/schema/src/ExpectCt/ExpectCt.schema.ts:207` |  |
+| `@beep/schema/ExpectCt` | `Option` | const | `packages/foundation/modeling/schema/src/ExpectCt/ExpectCt.schema.ts:58` |  |
+| `@beep/schema/ExpectCt` | `Option` | type | `packages/foundation/modeling/schema/src/ExpectCt/ExpectCt.schema.ts:68` |  |
+| `@beep/schema/ExpectCt` | `ResponseHeader` | class | `packages/foundation/modeling/schema/src/ExpectCt/ExpectCt.schema.ts:74` |  |
 | `@beep/schema/FileExtension` | `ApplicationFileExtension` | const | `packages/foundation/modeling/schema/src/FileExtension.ts:99` | Schema for file extensions associated with `application/*` mime types. |
 | `@beep/schema/FileExtension` | `ApplicationFileExtension` | type | `packages/foundation/modeling/schema/src/FileExtension.ts:121` | Union of literals accepted by {@link ApplicationFileExtension}. |
 | `@beep/schema/FileExtension` | `AudioFileExtension` | const | `packages/foundation/modeling/schema/src/FileExtension.ts:255` | Schema for file extensions associated with `audio/*` mime types. |
@@ -11134,56 +10625,56 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/schema/Float64Array` | `Float64ArrayFromArray` | const | `packages/foundation/modeling/schema/src/Float64Array.ts:81` | Bidirectional schema that decodes arrays of numbers into `Float64Array` |
 | `@beep/schema/Float64Array` | `Float64ArrayFromArray` | namespace | `packages/foundation/modeling/schema/src/Float64Array.ts:110` | Namespace members for {@link Float64ArrayFromArray}. |
 | `@beep/schema/Float64Array` | `Float64ArrayFromArray` | type | `packages/foundation/modeling/schema/src/Float64Array.ts:102` | Type for {@link Float64ArrayFromArray}. |
-| `@beep/schema/Fn` | `AnyFn` | const | `packages/foundation/modeling/schema/src/Fn.ts:413` | Schema for any runtime function value. |
-| `@beep/schema/Fn` | `AnyFn` | type | `packages/foundation/modeling/schema/src/Fn.ts:425` | Type for {@link AnyFn}. |
-| `@beep/schema/Fn` | `Fn` | function | `packages/foundation/modeling/schema/src/Fn.ts:490` | Creates a zero-argument function schema whose result is validated against the |
-| `@beep/schema/Fn` | `Fn` | function | `packages/foundation/modeling/schema/src/Fn.ts:514` | Creates a zero-argument function schema that preserves an explicit |
-| `@beep/schema/Fn` | `Fn` | function | `packages/foundation/modeling/schema/src/Fn.ts:539` | Creates a zero-argument function schema that preserves an explicit |
-| `@beep/schema/Fn` | `Fn` | function | `packages/foundation/modeling/schema/src/Fn.ts:569` | Creates a unary function schema. Invocation helpers decode incoming payloads |
-| `@beep/schema/Fn` | `Fn` | function | `packages/foundation/modeling/schema/src/Fn.ts:581` | Public schema module export. |
-| `@beep/schema/Fn` | `FnSchema` | type | `packages/foundation/modeling/schema/src/Fn.ts:212` | Union schema type returned by {@link Fn}. Resolves to either |
-| `@beep/schema/Fn` | `FnSchemaNoArg` | interface | `packages/foundation/modeling/schema/src/Fn.ts:173` | Schema surface for zero-argument (thunk-like) functions created by {@link Fn}. |
-| `@beep/schema/Fn` | `FnSchemaStatics` | type | `packages/foundation/modeling/schema/src/Fn.ts:228` | Subset of the {@link FnSchema} surface exposing only the invocation helpers |
-| `@beep/schema/Fn` | `FnSchemaUnary` | interface | `packages/foundation/modeling/schema/src/Fn.ts:192` | Schema surface for unary functions created by {@link Fn}. Provides |
-| `@beep/schema/Fn` | `FnType` | type | `packages/foundation/modeling/schema/src/Fn.ts:129` | Function type helper used by {@link Fn}. Inputs modeled with `never`, |
-| `@beep/schema/Fn` | `ThunkOf` | function | `packages/foundation/modeling/schema/src/Fn.ts:449` | Creates a thunk schema whose invocation output is validated against the |
-| `@beep/schema/Fn` | `ThunkOf` | function | `packages/foundation/modeling/schema/src/Fn.ts:456` | Public schema module export. |
-| `@beep/schema/Fn` | `ThunkOf` | function | `packages/foundation/modeling/schema/src/Fn.ts:466` | Public schema module export. |
-| `@beep/schema/ForceHttpsRedirect` | `Config` | class | `packages/foundation/modeling/schema/src/http/headers/ForceHttpsRedirect.ts:27` |  |
-| `@beep/schema/ForceHttpsRedirect` | `ForceHttpsRedirectConfig` | class | `packages/foundation/modeling/schema/src/http/headers/ForceHttpsRedirect.ts:27` |  |
-| `@beep/schema/ForceHttpsRedirect` | `ForceHttpsRedirectEnabled` | const | `packages/foundation/modeling/schema/src/http/headers/ForceHttpsRedirect.ts:42` |  |
-| `@beep/schema/ForceHttpsRedirect` | `ForceHttpsRedirectEnabled` | type | `packages/foundation/modeling/schema/src/http/headers/ForceHttpsRedirect.ts:52` |  |
-| `@beep/schema/ForceHttpsRedirect` | `ForceHttpsRedirectHeader` | const | `packages/foundation/modeling/schema/src/http/headers/ForceHttpsRedirect.ts:103` |  |
-| `@beep/schema/ForceHttpsRedirect` | `ForceHttpsRedirectHeader` | type | `packages/foundation/modeling/schema/src/http/headers/ForceHttpsRedirect.ts:172` |  |
-| `@beep/schema/ForceHttpsRedirect` | `ForceHttpsRedirectOption` | const | `packages/foundation/modeling/schema/src/http/headers/ForceHttpsRedirect.ts:58` |  |
-| `@beep/schema/ForceHttpsRedirect` | `ForceHttpsRedirectOption` | type | `packages/foundation/modeling/schema/src/http/headers/ForceHttpsRedirect.ts:68` |  |
-| `@beep/schema/ForceHttpsRedirect` | `ForceHttpsRedirectResponseHeader` | class | `packages/foundation/modeling/schema/src/http/headers/ForceHttpsRedirect.ts:74` |  |
-| `@beep/schema/ForceHttpsRedirect` | `Header` | const | `packages/foundation/modeling/schema/src/http/headers/ForceHttpsRedirect.ts:103` |  |
-| `@beep/schema/ForceHttpsRedirect` | `Header` | type | `packages/foundation/modeling/schema/src/http/headers/ForceHttpsRedirect.ts:172` |  |
-| `@beep/schema/ForceHttpsRedirect` | `Option` | const | `packages/foundation/modeling/schema/src/http/headers/ForceHttpsRedirect.ts:58` |  |
-| `@beep/schema/ForceHttpsRedirect` | `Option` | type | `packages/foundation/modeling/schema/src/http/headers/ForceHttpsRedirect.ts:68` |  |
-| `@beep/schema/ForceHttpsRedirect` | `ResponseHeader` | class | `packages/foundation/modeling/schema/src/http/headers/ForceHttpsRedirect.ts:74` |  |
-| `@beep/schema/FrameGuard` | `FrameGuardAllowFrom` | const | `packages/foundation/modeling/schema/src/http/headers/FrameGuard.ts:60` |  |
-| `@beep/schema/FrameGuard` | `FrameGuardAllowFrom` | type | `packages/foundation/modeling/schema/src/http/headers/FrameGuard.ts:70` |  |
-| `@beep/schema/FrameGuard` | `FrameGuardAllowFromConfig` | class | `packages/foundation/modeling/schema/src/http/headers/FrameGuard.ts:47` |  |
-| `@beep/schema/FrameGuard` | `FrameGuardHeader` | const | `packages/foundation/modeling/schema/src/http/headers/FrameGuard.ts:137` |  |
-| `@beep/schema/FrameGuard` | `FrameGuardHeader` | type | `packages/foundation/modeling/schema/src/http/headers/FrameGuard.ts:211` |  |
-| `@beep/schema/FrameGuard` | `FrameGuardMode` | const | `packages/foundation/modeling/schema/src/http/headers/FrameGuard.ts:30` |  |
-| `@beep/schema/FrameGuard` | `FrameGuardMode` | type | `packages/foundation/modeling/schema/src/http/headers/FrameGuard.ts:41` |  |
-| `@beep/schema/FrameGuard` | `FrameGuardOption` | const | `packages/foundation/modeling/schema/src/http/headers/FrameGuard.ts:76` |  |
-| `@beep/schema/FrameGuard` | `FrameGuardOption` | type | `packages/foundation/modeling/schema/src/http/headers/FrameGuard.ts:86` |  |
-| `@beep/schema/FrameGuard` | `FrameGuardResponseHeader` | class | `packages/foundation/modeling/schema/src/http/headers/FrameGuard.ts:92` |  |
-| `@beep/schema/FrameGuard` | `Header` | const | `packages/foundation/modeling/schema/src/http/headers/FrameGuard.ts:137` |  |
-| `@beep/schema/FrameGuard` | `Header` | type | `packages/foundation/modeling/schema/src/http/headers/FrameGuard.ts:211` |  |
-| `@beep/schema/FrameGuard` | `Mode` | const | `packages/foundation/modeling/schema/src/http/headers/FrameGuard.ts:30` |  |
-| `@beep/schema/FrameGuard` | `Mode` | type | `packages/foundation/modeling/schema/src/http/headers/FrameGuard.ts:41` |  |
-| `@beep/schema/FrameGuard` | `Option` | const | `packages/foundation/modeling/schema/src/http/headers/FrameGuard.ts:76` |  |
-| `@beep/schema/FrameGuard` | `Option` | type | `packages/foundation/modeling/schema/src/http/headers/FrameGuard.ts:86` |  |
-| `@beep/schema/FrameGuard` | `ResponseHeader` | class | `packages/foundation/modeling/schema/src/http/headers/FrameGuard.ts:92` |  |
-| `@beep/schema/Glob` | `Glob` | const | `packages/foundation/modeling/schema/src/Glob.ts:105` | Branded schema for portable non-empty glob pattern strings. |
-| `@beep/schema/Glob` | `Glob` | type | `packages/foundation/modeling/schema/src/Glob.ts:120` | Type for {@link Glob}. |
-| `@beep/schema/Glob` | `Schema` | const | `packages/foundation/modeling/schema/src/Glob.ts:105` | Branded schema for portable non-empty glob pattern strings. |
-| `@beep/schema/Glob` | `Schema` | type | `packages/foundation/modeling/schema/src/Glob.ts:120` | Type for {@link Glob}. |
+| `@beep/schema/Fn` | `AnyFn` | const | `packages/foundation/modeling/schema/src/Fn/Fn.schema.ts:413` | Schema for any runtime function value. |
+| `@beep/schema/Fn` | `AnyFn` | type | `packages/foundation/modeling/schema/src/Fn/Fn.schema.ts:425` | Type for {@link AnyFn}. |
+| `@beep/schema/Fn` | `Fn` | function | `packages/foundation/modeling/schema/src/Fn/Fn.schema.ts:490` | Creates a zero-argument function schema whose result is validated against the |
+| `@beep/schema/Fn` | `Fn` | function | `packages/foundation/modeling/schema/src/Fn/Fn.schema.ts:514` | Creates a zero-argument function schema that preserves an explicit |
+| `@beep/schema/Fn` | `Fn` | function | `packages/foundation/modeling/schema/src/Fn/Fn.schema.ts:539` | Creates a zero-argument function schema that preserves an explicit |
+| `@beep/schema/Fn` | `Fn` | function | `packages/foundation/modeling/schema/src/Fn/Fn.schema.ts:569` | Creates a unary function schema. Invocation helpers decode incoming payloads |
+| `@beep/schema/Fn` | `Fn` | function | `packages/foundation/modeling/schema/src/Fn/Fn.schema.ts:581` | Public schema module export. |
+| `@beep/schema/Fn` | `FnSchema` | type | `packages/foundation/modeling/schema/src/Fn/Fn.schema.ts:212` | Union schema type returned by {@link Fn}. Resolves to either |
+| `@beep/schema/Fn` | `FnSchemaNoArg` | interface | `packages/foundation/modeling/schema/src/Fn/Fn.schema.ts:173` | Schema surface for zero-argument (thunk-like) functions created by {@link Fn}. |
+| `@beep/schema/Fn` | `FnSchemaStatics` | type | `packages/foundation/modeling/schema/src/Fn/Fn.schema.ts:228` | Subset of the {@link FnSchema} surface exposing only the invocation helpers |
+| `@beep/schema/Fn` | `FnSchemaUnary` | interface | `packages/foundation/modeling/schema/src/Fn/Fn.schema.ts:192` | Schema surface for unary functions created by {@link Fn}. Provides |
+| `@beep/schema/Fn` | `FnType` | type | `packages/foundation/modeling/schema/src/Fn/Fn.schema.ts:129` | Function type helper used by {@link Fn}. Inputs modeled with `never`, |
+| `@beep/schema/Fn` | `ThunkOf` | function | `packages/foundation/modeling/schema/src/Fn/Fn.schema.ts:449` | Creates a thunk schema whose invocation output is validated against the |
+| `@beep/schema/Fn` | `ThunkOf` | function | `packages/foundation/modeling/schema/src/Fn/Fn.schema.ts:456` | Public schema module export. |
+| `@beep/schema/Fn` | `ThunkOf` | function | `packages/foundation/modeling/schema/src/Fn/Fn.schema.ts:466` | Public schema module export. |
+| `@beep/schema/ForceHttpsRedirect` | `Config` | class | `packages/foundation/modeling/schema/src/ForceHttpsRedirect/ForceHttpsRedirect.schema.ts:27` |  |
+| `@beep/schema/ForceHttpsRedirect` | `ForceHttpsRedirectConfig` | class | `packages/foundation/modeling/schema/src/ForceHttpsRedirect/ForceHttpsRedirect.schema.ts:27` |  |
+| `@beep/schema/ForceHttpsRedirect` | `ForceHttpsRedirectEnabled` | const | `packages/foundation/modeling/schema/src/ForceHttpsRedirect/ForceHttpsRedirect.schema.ts:42` |  |
+| `@beep/schema/ForceHttpsRedirect` | `ForceHttpsRedirectEnabled` | type | `packages/foundation/modeling/schema/src/ForceHttpsRedirect/ForceHttpsRedirect.schema.ts:52` |  |
+| `@beep/schema/ForceHttpsRedirect` | `ForceHttpsRedirectHeader` | const | `packages/foundation/modeling/schema/src/ForceHttpsRedirect/ForceHttpsRedirect.schema.ts:103` |  |
+| `@beep/schema/ForceHttpsRedirect` | `ForceHttpsRedirectHeader` | type | `packages/foundation/modeling/schema/src/ForceHttpsRedirect/ForceHttpsRedirect.schema.ts:172` |  |
+| `@beep/schema/ForceHttpsRedirect` | `ForceHttpsRedirectOption` | const | `packages/foundation/modeling/schema/src/ForceHttpsRedirect/ForceHttpsRedirect.schema.ts:58` |  |
+| `@beep/schema/ForceHttpsRedirect` | `ForceHttpsRedirectOption` | type | `packages/foundation/modeling/schema/src/ForceHttpsRedirect/ForceHttpsRedirect.schema.ts:68` |  |
+| `@beep/schema/ForceHttpsRedirect` | `ForceHttpsRedirectResponseHeader` | class | `packages/foundation/modeling/schema/src/ForceHttpsRedirect/ForceHttpsRedirect.schema.ts:74` |  |
+| `@beep/schema/ForceHttpsRedirect` | `Header` | const | `packages/foundation/modeling/schema/src/ForceHttpsRedirect/ForceHttpsRedirect.schema.ts:103` |  |
+| `@beep/schema/ForceHttpsRedirect` | `Header` | type | `packages/foundation/modeling/schema/src/ForceHttpsRedirect/ForceHttpsRedirect.schema.ts:172` |  |
+| `@beep/schema/ForceHttpsRedirect` | `Option` | const | `packages/foundation/modeling/schema/src/ForceHttpsRedirect/ForceHttpsRedirect.schema.ts:58` |  |
+| `@beep/schema/ForceHttpsRedirect` | `Option` | type | `packages/foundation/modeling/schema/src/ForceHttpsRedirect/ForceHttpsRedirect.schema.ts:68` |  |
+| `@beep/schema/ForceHttpsRedirect` | `ResponseHeader` | class | `packages/foundation/modeling/schema/src/ForceHttpsRedirect/ForceHttpsRedirect.schema.ts:74` |  |
+| `@beep/schema/FrameGuard` | `FrameGuardAllowFrom` | const | `packages/foundation/modeling/schema/src/FrameGuard/FrameGuard.schema.ts:60` |  |
+| `@beep/schema/FrameGuard` | `FrameGuardAllowFrom` | type | `packages/foundation/modeling/schema/src/FrameGuard/FrameGuard.schema.ts:70` |  |
+| `@beep/schema/FrameGuard` | `FrameGuardAllowFromConfig` | class | `packages/foundation/modeling/schema/src/FrameGuard/FrameGuard.schema.ts:47` |  |
+| `@beep/schema/FrameGuard` | `FrameGuardHeader` | const | `packages/foundation/modeling/schema/src/FrameGuard/FrameGuard.schema.ts:137` |  |
+| `@beep/schema/FrameGuard` | `FrameGuardHeader` | type | `packages/foundation/modeling/schema/src/FrameGuard/FrameGuard.schema.ts:211` |  |
+| `@beep/schema/FrameGuard` | `FrameGuardMode` | const | `packages/foundation/modeling/schema/src/FrameGuard/FrameGuard.schema.ts:30` |  |
+| `@beep/schema/FrameGuard` | `FrameGuardMode` | type | `packages/foundation/modeling/schema/src/FrameGuard/FrameGuard.schema.ts:41` |  |
+| `@beep/schema/FrameGuard` | `FrameGuardOption` | const | `packages/foundation/modeling/schema/src/FrameGuard/FrameGuard.schema.ts:76` |  |
+| `@beep/schema/FrameGuard` | `FrameGuardOption` | type | `packages/foundation/modeling/schema/src/FrameGuard/FrameGuard.schema.ts:86` |  |
+| `@beep/schema/FrameGuard` | `FrameGuardResponseHeader` | class | `packages/foundation/modeling/schema/src/FrameGuard/FrameGuard.schema.ts:92` |  |
+| `@beep/schema/FrameGuard` | `Header` | const | `packages/foundation/modeling/schema/src/FrameGuard/FrameGuard.schema.ts:137` |  |
+| `@beep/schema/FrameGuard` | `Header` | type | `packages/foundation/modeling/schema/src/FrameGuard/FrameGuard.schema.ts:211` |  |
+| `@beep/schema/FrameGuard` | `Mode` | const | `packages/foundation/modeling/schema/src/FrameGuard/FrameGuard.schema.ts:30` |  |
+| `@beep/schema/FrameGuard` | `Mode` | type | `packages/foundation/modeling/schema/src/FrameGuard/FrameGuard.schema.ts:41` |  |
+| `@beep/schema/FrameGuard` | `Option` | const | `packages/foundation/modeling/schema/src/FrameGuard/FrameGuard.schema.ts:76` |  |
+| `@beep/schema/FrameGuard` | `Option` | type | `packages/foundation/modeling/schema/src/FrameGuard/FrameGuard.schema.ts:86` |  |
+| `@beep/schema/FrameGuard` | `ResponseHeader` | class | `packages/foundation/modeling/schema/src/FrameGuard/FrameGuard.schema.ts:92` |  |
+| `@beep/schema/Glob` | `Glob` | const | `packages/foundation/modeling/schema/src/Glob/Glob.schema.ts:105` | Branded schema for portable non-empty glob pattern strings. |
+| `@beep/schema/Glob` | `Glob` | type | `packages/foundation/modeling/schema/src/Glob/Glob.schema.ts:120` | Type for {@link Glob}. |
+| `@beep/schema/Glob` | `Schema` | const | `packages/foundation/modeling/schema/src/Glob/Glob.schema.ts:128` | Primary glob schema role alias. |
+| `@beep/schema/Glob` | `Schema` | type | `packages/foundation/modeling/schema/src/Glob/Glob.schema.ts:136` | Runtime type extracted from {@link Schema}. |
 | `@beep/schema/Graph` | `DirectedGraph` | const | `packages/foundation/modeling/schema/src/Graph/Graph.transforms.ts:159` | Schema for immutable directed graphs. |
 | `@beep/schema/Graph` | `DirectedGraph` | interface | `packages/foundation/modeling/schema/src/Graph/Graph.transforms.ts:26` | Schema for decoding encoded graph payloads into immutable directed graphs. |
 | `@beep/schema/Graph` | `DirectedGraphFromSelf` | const | `packages/foundation/modeling/schema/src/Graph/Graph.from-self.ts:264` | Schema for validating existing immutable directed Effect graphs. |
@@ -11230,1826 +10721,223 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/schema/Graph` | `UndirectedGraphFromSelf` | interface | `packages/foundation/modeling/schema/src/Graph/Graph.from-self.ts:64` | Schema for validating existing immutable undirected Effect graphs. |
 | `@beep/schema/Html` | `HtmlFragment` | const | `packages/foundation/modeling/schema/src/Html.ts:33` | Branded schema for trusted HTML fragment strings. |
 | `@beep/schema/Html` | `HtmlFragment` | type | `packages/foundation/modeling/schema/src/Html.ts:55` | Type for {@link HtmlFragment}. |
-| `@beep/schema/Http` | `COEPResponseHeader` | class | `packages/foundation/modeling/schema/src/http/headers/CrossOriginEmbedderPolicy.ts:66` | Schema for the Cross-Origin-Embedder-Policy response header output. |
-| `@beep/schema/Http` | `CoepValue` | const | `packages/foundation/modeling/schema/src/http/headers/CrossOriginEmbedderPolicy.ts:29` |  |
-| `@beep/schema/Http` | `CoepValue` | type | `packages/foundation/modeling/schema/src/http/headers/CrossOriginEmbedderPolicy.ts:40` |  |
-| `@beep/schema/Http` | `ContentSecurityPolicyHeader` | const | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:582` |  |
-| `@beep/schema/Http` | `ContentSecurityPolicyHeader` | type | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:647` |  |
-| `@beep/schema/Http` | `ContentSecurityPolicyHeaderName` | const | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:47` |  |
-| `@beep/schema/Http` | `ContentSecurityPolicyHeaderName` | type | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:58` |  |
-| `@beep/schema/Http` | `ContentSecurityPolicyOption` | const | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:482` |  |
-| `@beep/schema/Http` | `ContentSecurityPolicyOption` | type | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:492` |  |
-| `@beep/schema/Http` | `ContentSecurityPolicyOptionStruct` | class | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:450` |  |
-| `@beep/schema/Http` | `ContentSecurityPolicyResponseHeader` | class | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:498` |  |
-| `@beep/schema/Http` | `CoopValue` | const | `packages/foundation/modeling/schema/src/http/headers/CrossOriginOpenerPolicy.ts:38` | Schema for supported `Cross-Origin-Opener-Policy` header values. |
-| `@beep/schema/Http` | `CoopValue` | type | `packages/foundation/modeling/schema/src/http/headers/CrossOriginOpenerPolicy.ts:51` | Type-level representation of {@link CoopValue}. |
-| `@beep/schema/Http` | `CoreError` | class | `packages/foundation/modeling/schema/src/http/headers/SecureHeaderError.ts:187` |  |
-| `@beep/schema/Http` | `CorpValue` | const | `packages/foundation/modeling/schema/src/http/headers/CrossOriginResourcePolicy.ts:27` |  |
-| `@beep/schema/Http` | `CorpValue` | type | `packages/foundation/modeling/schema/src/http/headers/CrossOriginResourcePolicy.ts:38` |  |
-| `@beep/schema/Http` | `createContentSecurityPolicyOptionHeaderValue` | const | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:556` |  |
-| `@beep/schema/Http` | `createDirectiveValue` | const | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:116` | Creates a serialized directive value from a directive name and value list. |
-| `@beep/schema/Http` | `createHeadersObject` | const | `packages/foundation/modeling/schema/src/http/headers/SecureHeaderOptions.ts:157` | Resolve secure-header options into a plain `Record<string, string>` header object. |
-| `@beep/schema/Http` | `createSecureHeaders` | const | `packages/foundation/modeling/schema/src/http/headers/SecureHeaderOptions.ts:186` | Resolve secure-header options into an array of {@link SecureHeaderEntry} pairs. |
-| `@beep/schema/Http` | `CrossOriginEmbedderPolicyError` | class | `packages/foundation/modeling/schema/src/http/headers/SecureHeaderError.ts:169` |  |
-| `@beep/schema/Http` | `CrossOriginEmbedderPolicyHeader` | const | `packages/foundation/modeling/schema/src/http/headers/CrossOriginEmbedderPolicy.ts:88` | Schema for the Cross-Origin-Embedder-Policy response header. |
-| `@beep/schema/Http` | `CrossOriginEmbedderPolicyHeader` | type | `packages/foundation/modeling/schema/src/http/headers/CrossOriginEmbedderPolicy.ts:165` |  |
-| `@beep/schema/Http` | `CrossOriginEmbedderPolicyOption` | const | `packages/foundation/modeling/schema/src/http/headers/CrossOriginEmbedderPolicy.ts:48` |  |
-| `@beep/schema/Http` | `CrossOriginEmbedderPolicyOption` | type | `packages/foundation/modeling/schema/src/http/headers/CrossOriginEmbedderPolicy.ts:59` |  |
-| `@beep/schema/Http` | `CrossOriginOpenerPolicyError` | class | `packages/foundation/modeling/schema/src/http/headers/SecureHeaderError.ts:163` |  |
-| `@beep/schema/Http` | `CrossOriginOpenerPolicyHeader` | const | `packages/foundation/modeling/schema/src/http/headers/CrossOriginOpenerPolicy.ts:132` | One-way schema that decodes COOP options into the `Cross-Origin-Opener-Policy` response header. |
-| `@beep/schema/Http` | `CrossOriginOpenerPolicyHeader` | type | `packages/foundation/modeling/schema/src/http/headers/CrossOriginOpenerPolicy.ts:192` | Type-level representation of {@link CrossOriginOpenerPolicyHeader}. |
-| `@beep/schema/Http` | `CrossOriginOpenerPolicyOption` | const | `packages/foundation/modeling/schema/src/http/headers/CrossOriginOpenerPolicy.ts:70` | Schema for `Cross-Origin-Opener-Policy` option values, including `false` to disable. |
-| `@beep/schema/Http` | `CrossOriginOpenerPolicyOption` | type | `packages/foundation/modeling/schema/src/http/headers/CrossOriginOpenerPolicy.ts:83` | Type-level representation of {@link CrossOriginOpenerPolicyOption}. |
-| `@beep/schema/Http` | `CrossOriginOpenerPolicyResponseHeader` | class | `packages/foundation/modeling/schema/src/http/headers/CrossOriginOpenerPolicy.ts:103` | Parsed `Cross-Origin-Opener-Policy` response header with name and optional value. |
-| `@beep/schema/Http` | `CrossOriginResourcePolicyError` | class | `packages/foundation/modeling/schema/src/http/headers/SecureHeaderError.ts:175` |  |
-| `@beep/schema/Http` | `CrossOriginResourcePolicyHeader` | const | `packages/foundation/modeling/schema/src/http/headers/CrossOriginResourcePolicy.ts:81` |  |
-| `@beep/schema/Http` | `CrossOriginResourcePolicyHeader` | type | `packages/foundation/modeling/schema/src/http/headers/CrossOriginResourcePolicy.ts:139` |  |
-| `@beep/schema/Http` | `CrossOriginResourcePolicyOption` | const | `packages/foundation/modeling/schema/src/http/headers/CrossOriginResourcePolicy.ts:46` |  |
-| `@beep/schema/Http` | `CrossOriginResourcePolicyOption` | type | `packages/foundation/modeling/schema/src/http/headers/CrossOriginResourcePolicy.ts:57` |  |
-| `@beep/schema/Http` | `CrossOriginResourcePolicyResponseHeader` | class | `packages/foundation/modeling/schema/src/http/headers/CrossOriginResourcePolicy.ts:63` |  |
-| `@beep/schema/Http` | `CspDirectives` | const | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:435` |  |
-| `@beep/schema/Http` | `CspError` | class | `packages/foundation/modeling/schema/src/http/headers/SecureHeaderError.ts:109` |  |
-| `@beep/schema/Http` | `DirectiveSource` | const | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:25` |  |
-| `@beep/schema/Http` | `DirectiveSource` | type | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:35` |  |
-| `@beep/schema/Http` | `DocumentDirective` | class | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:301` |  |
-| `@beep/schema/Http` | `ExpectCTConfig` | class | `packages/foundation/modeling/schema/src/http/headers/ExpectCT.ts:27` |  |
-| `@beep/schema/Http` | `ExpectCTEnabled` | const | `packages/foundation/modeling/schema/src/http/headers/ExpectCT.ts:42` |  |
-| `@beep/schema/Http` | `ExpectCTEnabled` | type | `packages/foundation/modeling/schema/src/http/headers/ExpectCT.ts:52` |  |
-| `@beep/schema/Http` | `ExpectCtError` | class | `packages/foundation/modeling/schema/src/http/headers/SecureHeaderError.ts:151` |  |
-| `@beep/schema/Http` | `ExpectCTHeader` | const | `packages/foundation/modeling/schema/src/http/headers/ExpectCT.ts:150` |  |
-| `@beep/schema/Http` | `ExpectCTHeader` | type | `packages/foundation/modeling/schema/src/http/headers/ExpectCT.ts:207` |  |
-| `@beep/schema/Http` | `ExpectCTOption` | const | `packages/foundation/modeling/schema/src/http/headers/ExpectCT.ts:58` |  |
-| `@beep/schema/Http` | `ExpectCTOption` | type | `packages/foundation/modeling/schema/src/http/headers/ExpectCT.ts:68` |  |
-| `@beep/schema/Http` | `ExpectCTResponseHeader` | class | `packages/foundation/modeling/schema/src/http/headers/ExpectCT.ts:74` |  |
-| `@beep/schema/Http` | `FetchDirective` | class | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:232` |  |
-| `@beep/schema/Http` | `ForceHttpsRedirectConfig` | class | `packages/foundation/modeling/schema/src/http/headers/ForceHttpsRedirect.ts:27` |  |
-| `@beep/schema/Http` | `ForceHttpsRedirectEnabled` | const | `packages/foundation/modeling/schema/src/http/headers/ForceHttpsRedirect.ts:42` |  |
-| `@beep/schema/Http` | `ForceHttpsRedirectEnabled` | type | `packages/foundation/modeling/schema/src/http/headers/ForceHttpsRedirect.ts:52` |  |
-| `@beep/schema/Http` | `ForceHttpsRedirectError` | class | `packages/foundation/modeling/schema/src/http/headers/SecureHeaderError.ts:115` |  |
-| `@beep/schema/Http` | `ForceHttpsRedirectHeader` | const | `packages/foundation/modeling/schema/src/http/headers/ForceHttpsRedirect.ts:103` |  |
-| `@beep/schema/Http` | `ForceHttpsRedirectHeader` | type | `packages/foundation/modeling/schema/src/http/headers/ForceHttpsRedirect.ts:172` |  |
-| `@beep/schema/Http` | `ForceHttpsRedirectOption` | const | `packages/foundation/modeling/schema/src/http/headers/ForceHttpsRedirect.ts:58` |  |
-| `@beep/schema/Http` | `ForceHttpsRedirectOption` | type | `packages/foundation/modeling/schema/src/http/headers/ForceHttpsRedirect.ts:68` |  |
-| `@beep/schema/Http` | `ForceHttpsRedirectResponseHeader` | class | `packages/foundation/modeling/schema/src/http/headers/ForceHttpsRedirect.ts:74` |  |
-| `@beep/schema/Http` | `FrameGuardAllowFrom` | const | `packages/foundation/modeling/schema/src/http/headers/FrameGuard.ts:60` |  |
-| `@beep/schema/Http` | `FrameGuardAllowFrom` | type | `packages/foundation/modeling/schema/src/http/headers/FrameGuard.ts:70` |  |
-| `@beep/schema/Http` | `FrameGuardAllowFromConfig` | class | `packages/foundation/modeling/schema/src/http/headers/FrameGuard.ts:47` |  |
-| `@beep/schema/Http` | `FrameGuardError` | class | `packages/foundation/modeling/schema/src/http/headers/SecureHeaderError.ts:145` |  |
-| `@beep/schema/Http` | `FrameGuardHeader` | const | `packages/foundation/modeling/schema/src/http/headers/FrameGuard.ts:137` |  |
-| `@beep/schema/Http` | `FrameGuardHeader` | type | `packages/foundation/modeling/schema/src/http/headers/FrameGuard.ts:211` |  |
-| `@beep/schema/Http` | `FrameGuardMode` | const | `packages/foundation/modeling/schema/src/http/headers/FrameGuard.ts:30` |  |
-| `@beep/schema/Http` | `FrameGuardMode` | type | `packages/foundation/modeling/schema/src/http/headers/FrameGuard.ts:41` |  |
-| `@beep/schema/Http` | `FrameGuardOption` | const | `packages/foundation/modeling/schema/src/http/headers/FrameGuard.ts:76` |  |
-| `@beep/schema/Http` | `FrameGuardOption` | type | `packages/foundation/modeling/schema/src/http/headers/FrameGuard.ts:86` |  |
-| `@beep/schema/Http` | `FrameGuardResponseHeader` | class | `packages/foundation/modeling/schema/src/http/headers/FrameGuard.ts:92` |  |
-| `@beep/schema/Http` | `getProperHeaderName` | const | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:92` | Get proper header name for CSP |
-| `@beep/schema/Http` | `HttpMethod` | const | `packages/foundation/modeling/schema/src/http/HttpMethod/HttpMethod.ts:49` |  |
-| `@beep/schema/Http` | `HttpMethod` | type | `packages/foundation/modeling/schema/src/http/HttpMethod/HttpMethod.ts:79` |  |
-| `@beep/schema/Http` | `HttpMethod_` | const | `packages/foundation/modeling/schema/src/http/HttpMethod/HttpMethod.ts:19` |  |
-| `@beep/schema/Http` | `HttpProtocol` | const | `packages/foundation/modeling/schema/src/http/HttpProtocol.ts:18` | An HTTP protocol ("http" or "https") |
-| `@beep/schema/Http` | `HttpProtocol` | type | `packages/foundation/modeling/schema/src/http/HttpProtocol.ts:30` | {@inheritDoc HttpProtocol} |
-| `@beep/schema/Http` | `HttpStatus` | SourceFile | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:16` |  |
-| `@beep/schema/Http` | `NavigationDirective` | class | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:345` |  |
-| `@beep/schema/Http` | `NoOpenError` | class | `packages/foundation/modeling/schema/src/http/headers/SecureHeaderError.ts:139` |  |
-| `@beep/schema/Http` | `NoOpenHeader` | const | `packages/foundation/modeling/schema/src/http/headers/NoOpen.ts:80` |  |
-| `@beep/schema/Http` | `NoOpenHeader` | type | `packages/foundation/modeling/schema/src/http/headers/NoOpen.ts:139` |  |
-| `@beep/schema/Http` | `NoOpenOption` | const | `packages/foundation/modeling/schema/src/http/headers/NoOpen.ts:47` |  |
-| `@beep/schema/Http` | `NoOpenOption` | type | `packages/foundation/modeling/schema/src/http/headers/NoOpen.ts:58` |  |
-| `@beep/schema/Http` | `NoOpenResponseHeader` | class | `packages/foundation/modeling/schema/src/http/headers/NoOpen.ts:64` |  |
-| `@beep/schema/Http` | `NoOpenValue` | const | `packages/foundation/modeling/schema/src/http/headers/NoOpen.ts:28` |  |
-| `@beep/schema/Http` | `NoOpenValue` | type | `packages/foundation/modeling/schema/src/http/headers/NoOpen.ts:39` |  |
-| `@beep/schema/Http` | `NoSniffError` | class | `packages/foundation/modeling/schema/src/http/headers/SecureHeaderError.ts:133` |  |
-| `@beep/schema/Http` | `NoSniffHeader` | const | `packages/foundation/modeling/schema/src/http/headers/NoSniff.ts:128` | One-way schema that decodes `X-Content-Type-Options` options into the response header. |
-| `@beep/schema/Http` | `NoSniffHeader` | type | `packages/foundation/modeling/schema/src/http/headers/NoSniff.ts:189` | Type-level representation of {@link NoSniffHeader}. |
-| `@beep/schema/Http` | `NoSniffOption` | const | `packages/foundation/modeling/schema/src/http/headers/NoSniff.ts:71` | Schema for `X-Content-Type-Options` option values, including `false` to disable. |
-| `@beep/schema/Http` | `NoSniffOption` | type | `packages/foundation/modeling/schema/src/http/headers/NoSniff.ts:84` | Type-level representation of {@link NoSniffOption}. |
-| `@beep/schema/Http` | `NoSniffResponseHeader` | class | `packages/foundation/modeling/schema/src/http/headers/NoSniff.ts:101` | Parsed `X-Content-Type-Options` response header with name and optional value. |
-| `@beep/schema/Http` | `NoSniffValue` | const | `packages/foundation/modeling/schema/src/http/headers/NoSniff.ts:39` | Schema for supported `X-Content-Type-Options` header values. |
-| `@beep/schema/Http` | `NoSniffValue` | type | `packages/foundation/modeling/schema/src/http/headers/NoSniff.ts:52` | Type-level representation of {@link NoSniffValue}. |
-| `@beep/schema/Http` | `PermissionsPolicyAllowlistedOrigin` | const | `packages/foundation/modeling/schema/src/http/headers/PermissionsPolicy.ts:138` |  |
-| `@beep/schema/Http` | `PermissionsPolicyAllowlistedOrigin` | type | `packages/foundation/modeling/schema/src/http/headers/PermissionsPolicy.ts:148` |  |
-| `@beep/schema/Http` | `PermissionsPolicyDirective` | const | `packages/foundation/modeling/schema/src/http/headers/PermissionsPolicy.ts:57` |  |
-| `@beep/schema/Http` | `PermissionsPolicyDirective` | type | `packages/foundation/modeling/schema/src/http/headers/PermissionsPolicy.ts:68` |  |
-| `@beep/schema/Http` | `PermissionsPolicyDirectiveKey` | const | `packages/foundation/modeling/schema/src/http/headers/PermissionsPolicy.ts:74` |  |
-| `@beep/schema/Http` | `PermissionsPolicyDirectiveKey` | type | `packages/foundation/modeling/schema/src/http/headers/PermissionsPolicy.ts:91` |  |
-| `@beep/schema/Http` | `PermissionsPolicyDirectives` | const | `packages/foundation/modeling/schema/src/http/headers/PermissionsPolicy.ts:174` |  |
-| `@beep/schema/Http` | `PermissionsPolicyDirectives` | type | `packages/foundation/modeling/schema/src/http/headers/PermissionsPolicy.ts:187` |  |
-| `@beep/schema/Http` | `PermissionsPolicyDirectiveValue` | const | `packages/foundation/modeling/schema/src/http/headers/PermissionsPolicy.ts:154` |  |
-| `@beep/schema/Http` | `PermissionsPolicyDirectiveValue` | type | `packages/foundation/modeling/schema/src/http/headers/PermissionsPolicy.ts:168` |  |
-| `@beep/schema/Http` | `PermissionsPolicyDirectiveValueSingle` | const | `packages/foundation/modeling/schema/src/http/headers/PermissionsPolicy.ts:121` |  |
-| `@beep/schema/Http` | `PermissionsPolicyDirectiveValueSingle` | type | `packages/foundation/modeling/schema/src/http/headers/PermissionsPolicy.ts:132` |  |
-| `@beep/schema/Http` | `PermissionsPolicyError` | class | `packages/foundation/modeling/schema/src/http/headers/SecureHeaderError.ts:157` |  |
-| `@beep/schema/Http` | `PermissionsPolicyHeader` | const | `packages/foundation/modeling/schema/src/http/headers/PermissionsPolicy.ts:272` |  |
-| `@beep/schema/Http` | `PermissionsPolicyHeader` | type | `packages/foundation/modeling/schema/src/http/headers/PermissionsPolicy.ts:333` |  |
-| `@beep/schema/Http` | `PermissionsPolicyOption` | const | `packages/foundation/modeling/schema/src/http/headers/PermissionsPolicy.ts:208` |  |
-| `@beep/schema/Http` | `PermissionsPolicyOption` | type | `packages/foundation/modeling/schema/src/http/headers/PermissionsPolicy.ts:218` |  |
-| `@beep/schema/Http` | `PermissionsPolicyOptionStruct` | class | `packages/foundation/modeling/schema/src/http/headers/PermissionsPolicy.ts:193` |  |
-| `@beep/schema/Http` | `PermissionsPolicyResponseHeader` | class | `packages/foundation/modeling/schema/src/http/headers/PermissionsPolicy.ts:224` |  |
-| `@beep/schema/Http` | `PermittedCrossDomainPoliciesError` | class | `packages/foundation/modeling/schema/src/http/headers/SecureHeaderError.ts:181` |  |
-| `@beep/schema/Http` | `PermittedCrossDomainPoliciesHeader` | const | `packages/foundation/modeling/schema/src/http/headers/PermittedCrossDomainPolicies.ts:88` |  |
-| `@beep/schema/Http` | `PermittedCrossDomainPoliciesHeader` | type | `packages/foundation/modeling/schema/src/http/headers/PermittedCrossDomainPolicies.ts:150` |  |
-| `@beep/schema/Http` | `PermittedCrossDomainPoliciesOption` | const | `packages/foundation/modeling/schema/src/http/headers/PermittedCrossDomainPolicies.ts:53` |  |
-| `@beep/schema/Http` | `PermittedCrossDomainPoliciesOption` | type | `packages/foundation/modeling/schema/src/http/headers/PermittedCrossDomainPolicies.ts:64` |  |
-| `@beep/schema/Http` | `PermittedCrossDomainPoliciesResponseHeader` | class | `packages/foundation/modeling/schema/src/http/headers/PermittedCrossDomainPolicies.ts:70` |  |
-| `@beep/schema/Http` | `PermittedCrossDomainPoliciesValue` | const | `packages/foundation/modeling/schema/src/http/headers/PermittedCrossDomainPolicies.ts:34` |  |
-| `@beep/schema/Http` | `PermittedCrossDomainPoliciesValue` | type | `packages/foundation/modeling/schema/src/http/headers/PermittedCrossDomainPolicies.ts:45` |  |
-| `@beep/schema/Http` | `PluginTypes` | const | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:145` |  |
-| `@beep/schema/Http` | `PluginTypes` | type | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:155` |  |
-| `@beep/schema/Http` | `QuotedOrigin` | const | `packages/foundation/modeling/schema/src/http/headers/PermissionsPolicy.ts:97` |  |
-| `@beep/schema/Http` | `QuotedOrigin` | type | `packages/foundation/modeling/schema/src/http/headers/PermissionsPolicy.ts:113` |  |
-| `@beep/schema/Http` | `ReferrerPolicyError` | class | `packages/foundation/modeling/schema/src/http/headers/SecureHeaderError.ts:127` |  |
-| `@beep/schema/Http` | `ReferrerPolicyHeader` | const | `packages/foundation/modeling/schema/src/http/headers/ReferrerPolicy.ts:126` |  |
-| `@beep/schema/Http` | `ReferrerPolicyHeader` | type | `packages/foundation/modeling/schema/src/http/headers/ReferrerPolicy.ts:192` |  |
-| `@beep/schema/Http` | `ReferrerPolicyOption` | const | `packages/foundation/modeling/schema/src/http/headers/ReferrerPolicy.ts:70` |  |
-| `@beep/schema/Http` | `ReferrerPolicyOption` | type | `packages/foundation/modeling/schema/src/http/headers/ReferrerPolicy.ts:80` |  |
-| `@beep/schema/Http` | `ReferrerPolicyResponseHeader` | class | `packages/foundation/modeling/schema/src/http/headers/ReferrerPolicy.ts:86` |  |
-| `@beep/schema/Http` | `ReferrerPolicyValue` | const | `packages/foundation/modeling/schema/src/http/headers/ReferrerPolicy.ts:37` |  |
-| `@beep/schema/Http` | `ReferrerPolicyValue` | type | `packages/foundation/modeling/schema/src/http/headers/ReferrerPolicy.ts:48` |  |
-| `@beep/schema/Http` | `ReferrerPolicyValueList` | const | `packages/foundation/modeling/schema/src/http/headers/ReferrerPolicy.ts:54` |  |
-| `@beep/schema/Http` | `ReferrerPolicyValueList` | type | `packages/foundation/modeling/schema/src/http/headers/ReferrerPolicy.ts:64` |  |
-| `@beep/schema/Http` | `ReportingDirective` | class | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:399` |  |
-| `@beep/schema/Http` | `ReportURI` | const | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:389` |  |
-| `@beep/schema/Http` | `Sandbox` | const | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:178` |  |
-| `@beep/schema/Http` | `Sandbox` | type | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:189` |  |
-| `@beep/schema/Http` | `SecureHeader` | const | `packages/foundation/modeling/schema/src/http/headers/SecureHeader.ts:33` |  |
-| `@beep/schema/Http` | `SecureHeader` | type | `packages/foundation/modeling/schema/src/http/headers/SecureHeader.ts:44` |  |
-| `@beep/schema/Http` | `SecureHeaderEntry` | class | `packages/foundation/modeling/schema/src/http/headers/SecureHeaderOptions.ts:87` | A rendered secure header pair in `{ key, value }` format. |
-| `@beep/schema/Http` | `SecureHeaderError` | const | `packages/foundation/modeling/schema/src/http/headers/SecureHeaderError.ts:193` |  |
-| `@beep/schema/Http` | `SecureHeaderError` | type | `packages/foundation/modeling/schema/src/http/headers/SecureHeaderError.ts:221` |  |
-| `@beep/schema/Http` | `SecureHeaderOptions` | class | `packages/foundation/modeling/schema/src/http/headers/SecureHeaderOptions.ts:52` | Aggregate input options for configuring all secure response headers. |
-| `@beep/schema/Http` | `XssProtectionError` | class | `packages/foundation/modeling/schema/src/http/headers/SecureHeaderError.ts:121` |  |
-| `@beep/schema/Http` | `XSSProtectionHeader` | const | `packages/foundation/modeling/schema/src/http/headers/XSSProtection.ts:144` |  |
-| `@beep/schema/Http` | `XSSProtectionHeader` | type | `packages/foundation/modeling/schema/src/http/headers/XSSProtection.ts:195` |  |
-| `@beep/schema/Http` | `XSSProtectionMode` | const | `packages/foundation/modeling/schema/src/http/headers/XSSProtection.ts:29` |  |
-| `@beep/schema/Http` | `XSSProtectionMode` | type | `packages/foundation/modeling/schema/src/http/headers/XSSProtection.ts:40` |  |
-| `@beep/schema/Http` | `XSSProtectionOption` | const | `packages/foundation/modeling/schema/src/http/headers/XSSProtection.ts:75` |  |
-| `@beep/schema/Http` | `XSSProtectionOption` | type | `packages/foundation/modeling/schema/src/http/headers/XSSProtection.ts:85` |  |
-| `@beep/schema/Http` | `XSSProtectionReport` | const | `packages/foundation/modeling/schema/src/http/headers/XSSProtection.ts:59` |  |
-| `@beep/schema/Http` | `XSSProtectionReport` | type | `packages/foundation/modeling/schema/src/http/headers/XSSProtection.ts:69` |  |
-| `@beep/schema/Http` | `XSSProtectionReportConfig` | class | `packages/foundation/modeling/schema/src/http/headers/XSSProtection.ts:46` |  |
-| `@beep/schema/Http` | `XSSProtectionResponseHeader` | class | `packages/foundation/modeling/schema/src/http/headers/XSSProtection.ts:91` |  |
-| `@beep/schema/http/headers/_internal/helpers` | `ArrayOfStrOrStr` | const | `packages/foundation/modeling/schema/src/http/headers/_internal/helpers.ts:22` |  |
-| `@beep/schema/http/headers/_internal/helpers` | `ArrayOfStrOrStr` | type | `packages/foundation/modeling/schema/src/http/headers/_internal/helpers.ts:32` |  |
-| `@beep/schema/http/headers/_internal/helpers` | `EncodedStrictURIFromStrOrURL` | const | `packages/foundation/modeling/schema/src/http/headers/_internal/helpers.ts:54` |  |
-| `@beep/schema/http/headers/_internal/helpers` | `EncodedStrictURIFromStrOrURL` | type | `packages/foundation/modeling/schema/src/http/headers/_internal/helpers.ts:78` |  |
-| `@beep/schema/http/headers/_internal/helpers` | `encodeStrictURI` | const | `packages/foundation/modeling/schema/src/http/headers/_internal/helpers.ts:87` |  |
-| `@beep/schema/http/headers/_internal/helpers` | `encodeStrictURIOption` | const | `packages/foundation/modeling/schema/src/http/headers/_internal/helpers.ts:94` |  |
-| `@beep/schema/http/headers/_internal/helpers` | `makeHeaderEncodeForbidden` | const | `packages/foundation/modeling/schema/src/http/headers/_internal/helpers.ts:121` |  |
-| `@beep/schema/http/headers/_internal/helpers` | `makeResponseHeader` | const | `packages/foundation/modeling/schema/src/http/headers/_internal/helpers.ts:134` |  |
-| `@beep/schema/http/headers/_internal/helpers` | `makeResponseHeaderOption` | const | `packages/foundation/modeling/schema/src/http/headers/_internal/helpers.ts:150` |  |
-| `@beep/schema/http/headers/_internal/helpers` | `ResponseHeader` | class | `packages/foundation/modeling/schema/src/http/headers/_internal/helpers.ts:107` |  |
-| `@beep/schema/http/headers/_internal/helpers` | `StringOrUrl` | const | `packages/foundation/modeling/schema/src/http/headers/_internal/helpers.ts:38` |  |
-| `@beep/schema/http/headers/_internal/helpers` | `StringOrUrl` | type | `packages/foundation/modeling/schema/src/http/headers/_internal/helpers.ts:48` |  |
-| `@beep/schema/http/headers/_internal/helpers` | `wrapArray` | const | `packages/foundation/modeling/schema/src/http/headers/_internal/helpers.ts:100` |  |
-| `@beep/schema/http/headers/_internal/index` | `ArrayOfStrOrStr` | const | `packages/foundation/modeling/schema/src/http/headers/_internal/helpers.ts:22` |  |
-| `@beep/schema/http/headers/_internal/index` | `ArrayOfStrOrStr` | type | `packages/foundation/modeling/schema/src/http/headers/_internal/helpers.ts:32` |  |
-| `@beep/schema/http/headers/_internal/index` | `EncodedStrictURIFromStrOrURL` | const | `packages/foundation/modeling/schema/src/http/headers/_internal/helpers.ts:54` |  |
-| `@beep/schema/http/headers/_internal/index` | `EncodedStrictURIFromStrOrURL` | type | `packages/foundation/modeling/schema/src/http/headers/_internal/helpers.ts:78` |  |
-| `@beep/schema/http/headers/_internal/index` | `encodeStrictURI` | const | `packages/foundation/modeling/schema/src/http/headers/_internal/helpers.ts:87` |  |
-| `@beep/schema/http/headers/_internal/index` | `encodeStrictURIOption` | const | `packages/foundation/modeling/schema/src/http/headers/_internal/helpers.ts:94` |  |
-| `@beep/schema/http/headers/_internal/index` | `makeHeaderEncodeForbidden` | const | `packages/foundation/modeling/schema/src/http/headers/_internal/helpers.ts:121` |  |
-| `@beep/schema/http/headers/_internal/index` | `makeResponseHeader` | const | `packages/foundation/modeling/schema/src/http/headers/_internal/helpers.ts:134` |  |
-| `@beep/schema/http/headers/_internal/index` | `makeResponseHeaderOption` | const | `packages/foundation/modeling/schema/src/http/headers/_internal/helpers.ts:150` |  |
-| `@beep/schema/http/headers/_internal/index` | `ResponseHeader` | class | `packages/foundation/modeling/schema/src/http/headers/_internal/helpers.ts:107` |  |
-| `@beep/schema/http/headers/_internal/index` | `StringOrUrl` | const | `packages/foundation/modeling/schema/src/http/headers/_internal/helpers.ts:38` |  |
-| `@beep/schema/http/headers/_internal/index` | `StringOrUrl` | type | `packages/foundation/modeling/schema/src/http/headers/_internal/helpers.ts:48` |  |
-| `@beep/schema/http/headers/_internal/index` | `wrapArray` | const | `packages/foundation/modeling/schema/src/http/headers/_internal/helpers.ts:100` |  |
-| `@beep/schema/http/headers/CrossOriginEmbedderPolicy` | `COEPResponseHeader` | class | `packages/foundation/modeling/schema/src/http/headers/CrossOriginEmbedderPolicy.ts:66` | Schema for the Cross-Origin-Embedder-Policy response header output. |
-| `@beep/schema/http/headers/CrossOriginEmbedderPolicy` | `CoepValue` | const | `packages/foundation/modeling/schema/src/http/headers/CrossOriginEmbedderPolicy.ts:29` |  |
-| `@beep/schema/http/headers/CrossOriginEmbedderPolicy` | `CoepValue` | type | `packages/foundation/modeling/schema/src/http/headers/CrossOriginEmbedderPolicy.ts:40` |  |
-| `@beep/schema/http/headers/CrossOriginEmbedderPolicy` | `CrossOriginEmbedderPolicyHeader` | const | `packages/foundation/modeling/schema/src/http/headers/CrossOriginEmbedderPolicy.ts:88` | Schema for the Cross-Origin-Embedder-Policy response header. |
-| `@beep/schema/http/headers/CrossOriginEmbedderPolicy` | `CrossOriginEmbedderPolicyHeader` | type | `packages/foundation/modeling/schema/src/http/headers/CrossOriginEmbedderPolicy.ts:165` |  |
-| `@beep/schema/http/headers/CrossOriginEmbedderPolicy` | `CrossOriginEmbedderPolicyOption` | const | `packages/foundation/modeling/schema/src/http/headers/CrossOriginEmbedderPolicy.ts:48` |  |
-| `@beep/schema/http/headers/CrossOriginEmbedderPolicy` | `CrossOriginEmbedderPolicyOption` | type | `packages/foundation/modeling/schema/src/http/headers/CrossOriginEmbedderPolicy.ts:59` |  |
-| `@beep/schema/http/headers/CrossOriginOpenerPolicy` | `CoopValue` | const | `packages/foundation/modeling/schema/src/http/headers/CrossOriginOpenerPolicy.ts:38` | Schema for supported `Cross-Origin-Opener-Policy` header values. |
-| `@beep/schema/http/headers/CrossOriginOpenerPolicy` | `CoopValue` | type | `packages/foundation/modeling/schema/src/http/headers/CrossOriginOpenerPolicy.ts:51` | Type-level representation of {@link CoopValue}. |
-| `@beep/schema/http/headers/CrossOriginOpenerPolicy` | `CrossOriginOpenerPolicyHeader` | const | `packages/foundation/modeling/schema/src/http/headers/CrossOriginOpenerPolicy.ts:132` | One-way schema that decodes COOP options into the `Cross-Origin-Opener-Policy` response header. |
-| `@beep/schema/http/headers/CrossOriginOpenerPolicy` | `CrossOriginOpenerPolicyHeader` | type | `packages/foundation/modeling/schema/src/http/headers/CrossOriginOpenerPolicy.ts:192` | Type-level representation of {@link CrossOriginOpenerPolicyHeader}. |
-| `@beep/schema/http/headers/CrossOriginOpenerPolicy` | `CrossOriginOpenerPolicyOption` | const | `packages/foundation/modeling/schema/src/http/headers/CrossOriginOpenerPolicy.ts:70` | Schema for `Cross-Origin-Opener-Policy` option values, including `false` to disable. |
-| `@beep/schema/http/headers/CrossOriginOpenerPolicy` | `CrossOriginOpenerPolicyOption` | type | `packages/foundation/modeling/schema/src/http/headers/CrossOriginOpenerPolicy.ts:83` | Type-level representation of {@link CrossOriginOpenerPolicyOption}. |
-| `@beep/schema/http/headers/CrossOriginOpenerPolicy` | `CrossOriginOpenerPolicyResponseHeader` | class | `packages/foundation/modeling/schema/src/http/headers/CrossOriginOpenerPolicy.ts:103` | Parsed `Cross-Origin-Opener-Policy` response header with name and optional value. |
-| `@beep/schema/http/headers/CrossOriginResourcePolicy` | `CorpValue` | const | `packages/foundation/modeling/schema/src/http/headers/CrossOriginResourcePolicy.ts:27` |  |
-| `@beep/schema/http/headers/CrossOriginResourcePolicy` | `CorpValue` | type | `packages/foundation/modeling/schema/src/http/headers/CrossOriginResourcePolicy.ts:38` |  |
-| `@beep/schema/http/headers/CrossOriginResourcePolicy` | `CrossOriginResourcePolicyHeader` | const | `packages/foundation/modeling/schema/src/http/headers/CrossOriginResourcePolicy.ts:81` |  |
-| `@beep/schema/http/headers/CrossOriginResourcePolicy` | `CrossOriginResourcePolicyHeader` | type | `packages/foundation/modeling/schema/src/http/headers/CrossOriginResourcePolicy.ts:139` |  |
-| `@beep/schema/http/headers/CrossOriginResourcePolicy` | `CrossOriginResourcePolicyOption` | const | `packages/foundation/modeling/schema/src/http/headers/CrossOriginResourcePolicy.ts:46` |  |
-| `@beep/schema/http/headers/CrossOriginResourcePolicy` | `CrossOriginResourcePolicyOption` | type | `packages/foundation/modeling/schema/src/http/headers/CrossOriginResourcePolicy.ts:57` |  |
-| `@beep/schema/http/headers/CrossOriginResourcePolicy` | `CrossOriginResourcePolicyResponseHeader` | class | `packages/foundation/modeling/schema/src/http/headers/CrossOriginResourcePolicy.ts:63` |  |
-| `@beep/schema/http/headers/Csp` | `ContentSecurityPolicyHeader` | const | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:582` |  |
-| `@beep/schema/http/headers/Csp` | `ContentSecurityPolicyHeader` | type | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:647` |  |
-| `@beep/schema/http/headers/Csp` | `ContentSecurityPolicyHeaderName` | const | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:47` |  |
-| `@beep/schema/http/headers/Csp` | `ContentSecurityPolicyHeaderName` | type | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:58` |  |
-| `@beep/schema/http/headers/Csp` | `ContentSecurityPolicyOption` | const | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:482` |  |
-| `@beep/schema/http/headers/Csp` | `ContentSecurityPolicyOption` | type | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:492` |  |
-| `@beep/schema/http/headers/Csp` | `ContentSecurityPolicyOptionStruct` | class | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:450` |  |
-| `@beep/schema/http/headers/Csp` | `ContentSecurityPolicyResponseHeader` | class | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:498` |  |
-| `@beep/schema/http/headers/Csp` | `createContentSecurityPolicyOptionHeaderValue` | const | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:556` |  |
-| `@beep/schema/http/headers/Csp` | `createDirectiveValue` | const | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:116` | Creates a serialized directive value from a directive name and value list. |
-| `@beep/schema/http/headers/Csp` | `CspDirectives` | const | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:435` |  |
-| `@beep/schema/http/headers/Csp` | `DirectiveSource` | const | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:25` |  |
-| `@beep/schema/http/headers/Csp` | `DirectiveSource` | type | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:35` |  |
-| `@beep/schema/http/headers/Csp` | `DocumentDirective` | class | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:301` |  |
-| `@beep/schema/http/headers/Csp` | `FetchDirective` | class | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:232` |  |
-| `@beep/schema/http/headers/Csp` | `getProperHeaderName` | const | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:92` | Get proper header name for CSP |
-| `@beep/schema/http/headers/Csp` | `NavigationDirective` | class | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:345` |  |
-| `@beep/schema/http/headers/Csp` | `PluginTypes` | const | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:145` |  |
-| `@beep/schema/http/headers/Csp` | `PluginTypes` | type | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:155` |  |
-| `@beep/schema/http/headers/Csp` | `ReportingDirective` | class | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:399` |  |
-| `@beep/schema/http/headers/Csp` | `ReportURI` | const | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:389` |  |
-| `@beep/schema/http/headers/Csp` | `Sandbox` | const | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:178` |  |
-| `@beep/schema/http/headers/Csp` | `Sandbox` | type | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:189` |  |
-| `@beep/schema/http/headers/ExpectCT` | `ExpectCTConfig` | class | `packages/foundation/modeling/schema/src/http/headers/ExpectCT.ts:27` |  |
-| `@beep/schema/http/headers/ExpectCT` | `ExpectCTEnabled` | const | `packages/foundation/modeling/schema/src/http/headers/ExpectCT.ts:42` |  |
-| `@beep/schema/http/headers/ExpectCT` | `ExpectCTEnabled` | type | `packages/foundation/modeling/schema/src/http/headers/ExpectCT.ts:52` |  |
-| `@beep/schema/http/headers/ExpectCT` | `ExpectCTHeader` | const | `packages/foundation/modeling/schema/src/http/headers/ExpectCT.ts:150` |  |
-| `@beep/schema/http/headers/ExpectCT` | `ExpectCTHeader` | type | `packages/foundation/modeling/schema/src/http/headers/ExpectCT.ts:207` |  |
-| `@beep/schema/http/headers/ExpectCT` | `ExpectCTOption` | const | `packages/foundation/modeling/schema/src/http/headers/ExpectCT.ts:58` |  |
-| `@beep/schema/http/headers/ExpectCT` | `ExpectCTOption` | type | `packages/foundation/modeling/schema/src/http/headers/ExpectCT.ts:68` |  |
-| `@beep/schema/http/headers/ExpectCT` | `ExpectCTResponseHeader` | class | `packages/foundation/modeling/schema/src/http/headers/ExpectCT.ts:74` |  |
-| `@beep/schema/http/headers/ForceHttpsRedirect` | `ForceHttpsRedirectConfig` | class | `packages/foundation/modeling/schema/src/http/headers/ForceHttpsRedirect.ts:27` |  |
-| `@beep/schema/http/headers/ForceHttpsRedirect` | `ForceHttpsRedirectEnabled` | const | `packages/foundation/modeling/schema/src/http/headers/ForceHttpsRedirect.ts:42` |  |
-| `@beep/schema/http/headers/ForceHttpsRedirect` | `ForceHttpsRedirectEnabled` | type | `packages/foundation/modeling/schema/src/http/headers/ForceHttpsRedirect.ts:52` |  |
-| `@beep/schema/http/headers/ForceHttpsRedirect` | `ForceHttpsRedirectHeader` | const | `packages/foundation/modeling/schema/src/http/headers/ForceHttpsRedirect.ts:103` |  |
-| `@beep/schema/http/headers/ForceHttpsRedirect` | `ForceHttpsRedirectHeader` | type | `packages/foundation/modeling/schema/src/http/headers/ForceHttpsRedirect.ts:172` |  |
-| `@beep/schema/http/headers/ForceHttpsRedirect` | `ForceHttpsRedirectOption` | const | `packages/foundation/modeling/schema/src/http/headers/ForceHttpsRedirect.ts:58` |  |
-| `@beep/schema/http/headers/ForceHttpsRedirect` | `ForceHttpsRedirectOption` | type | `packages/foundation/modeling/schema/src/http/headers/ForceHttpsRedirect.ts:68` |  |
-| `@beep/schema/http/headers/ForceHttpsRedirect` | `ForceHttpsRedirectResponseHeader` | class | `packages/foundation/modeling/schema/src/http/headers/ForceHttpsRedirect.ts:74` |  |
-| `@beep/schema/http/headers/FrameGuard` | `FrameGuardAllowFrom` | const | `packages/foundation/modeling/schema/src/http/headers/FrameGuard.ts:60` |  |
-| `@beep/schema/http/headers/FrameGuard` | `FrameGuardAllowFrom` | type | `packages/foundation/modeling/schema/src/http/headers/FrameGuard.ts:70` |  |
-| `@beep/schema/http/headers/FrameGuard` | `FrameGuardAllowFromConfig` | class | `packages/foundation/modeling/schema/src/http/headers/FrameGuard.ts:47` |  |
-| `@beep/schema/http/headers/FrameGuard` | `FrameGuardHeader` | const | `packages/foundation/modeling/schema/src/http/headers/FrameGuard.ts:137` |  |
-| `@beep/schema/http/headers/FrameGuard` | `FrameGuardHeader` | type | `packages/foundation/modeling/schema/src/http/headers/FrameGuard.ts:211` |  |
-| `@beep/schema/http/headers/FrameGuard` | `FrameGuardMode` | const | `packages/foundation/modeling/schema/src/http/headers/FrameGuard.ts:30` |  |
-| `@beep/schema/http/headers/FrameGuard` | `FrameGuardMode` | type | `packages/foundation/modeling/schema/src/http/headers/FrameGuard.ts:41` |  |
-| `@beep/schema/http/headers/FrameGuard` | `FrameGuardOption` | const | `packages/foundation/modeling/schema/src/http/headers/FrameGuard.ts:76` |  |
-| `@beep/schema/http/headers/FrameGuard` | `FrameGuardOption` | type | `packages/foundation/modeling/schema/src/http/headers/FrameGuard.ts:86` |  |
-| `@beep/schema/http/headers/FrameGuard` | `FrameGuardResponseHeader` | class | `packages/foundation/modeling/schema/src/http/headers/FrameGuard.ts:92` |  |
-| `@beep/schema/http/headers/index` | `COEPResponseHeader` | class | `packages/foundation/modeling/schema/src/http/headers/CrossOriginEmbedderPolicy.ts:66` | Schema for the Cross-Origin-Embedder-Policy response header output. |
-| `@beep/schema/http/headers/index` | `CoepValue` | const | `packages/foundation/modeling/schema/src/http/headers/CrossOriginEmbedderPolicy.ts:29` |  |
-| `@beep/schema/http/headers/index` | `CoepValue` | type | `packages/foundation/modeling/schema/src/http/headers/CrossOriginEmbedderPolicy.ts:40` |  |
-| `@beep/schema/http/headers/index` | `ContentSecurityPolicyHeader` | const | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:582` |  |
-| `@beep/schema/http/headers/index` | `ContentSecurityPolicyHeader` | type | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:647` |  |
-| `@beep/schema/http/headers/index` | `ContentSecurityPolicyHeaderName` | const | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:47` |  |
-| `@beep/schema/http/headers/index` | `ContentSecurityPolicyHeaderName` | type | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:58` |  |
-| `@beep/schema/http/headers/index` | `ContentSecurityPolicyOption` | const | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:482` |  |
-| `@beep/schema/http/headers/index` | `ContentSecurityPolicyOption` | type | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:492` |  |
-| `@beep/schema/http/headers/index` | `ContentSecurityPolicyOptionStruct` | class | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:450` |  |
-| `@beep/schema/http/headers/index` | `ContentSecurityPolicyResponseHeader` | class | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:498` |  |
-| `@beep/schema/http/headers/index` | `CoopValue` | const | `packages/foundation/modeling/schema/src/http/headers/CrossOriginOpenerPolicy.ts:38` | Schema for supported `Cross-Origin-Opener-Policy` header values. |
-| `@beep/schema/http/headers/index` | `CoopValue` | type | `packages/foundation/modeling/schema/src/http/headers/CrossOriginOpenerPolicy.ts:51` | Type-level representation of {@link CoopValue}. |
-| `@beep/schema/http/headers/index` | `CoreError` | class | `packages/foundation/modeling/schema/src/http/headers/SecureHeaderError.ts:187` |  |
-| `@beep/schema/http/headers/index` | `CorpValue` | const | `packages/foundation/modeling/schema/src/http/headers/CrossOriginResourcePolicy.ts:27` |  |
-| `@beep/schema/http/headers/index` | `CorpValue` | type | `packages/foundation/modeling/schema/src/http/headers/CrossOriginResourcePolicy.ts:38` |  |
-| `@beep/schema/http/headers/index` | `createContentSecurityPolicyOptionHeaderValue` | const | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:556` |  |
-| `@beep/schema/http/headers/index` | `createDirectiveValue` | const | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:116` | Creates a serialized directive value from a directive name and value list. |
-| `@beep/schema/http/headers/index` | `createHeadersObject` | const | `packages/foundation/modeling/schema/src/http/headers/SecureHeaderOptions.ts:157` | Resolve secure-header options into a plain `Record<string, string>` header object. |
-| `@beep/schema/http/headers/index` | `createSecureHeaders` | const | `packages/foundation/modeling/schema/src/http/headers/SecureHeaderOptions.ts:186` | Resolve secure-header options into an array of {@link SecureHeaderEntry} pairs. |
-| `@beep/schema/http/headers/index` | `CrossOriginEmbedderPolicyError` | class | `packages/foundation/modeling/schema/src/http/headers/SecureHeaderError.ts:169` |  |
-| `@beep/schema/http/headers/index` | `CrossOriginEmbedderPolicyHeader` | const | `packages/foundation/modeling/schema/src/http/headers/CrossOriginEmbedderPolicy.ts:88` | Schema for the Cross-Origin-Embedder-Policy response header. |
-| `@beep/schema/http/headers/index` | `CrossOriginEmbedderPolicyHeader` | type | `packages/foundation/modeling/schema/src/http/headers/CrossOriginEmbedderPolicy.ts:165` |  |
-| `@beep/schema/http/headers/index` | `CrossOriginEmbedderPolicyOption` | const | `packages/foundation/modeling/schema/src/http/headers/CrossOriginEmbedderPolicy.ts:48` |  |
-| `@beep/schema/http/headers/index` | `CrossOriginEmbedderPolicyOption` | type | `packages/foundation/modeling/schema/src/http/headers/CrossOriginEmbedderPolicy.ts:59` |  |
-| `@beep/schema/http/headers/index` | `CrossOriginOpenerPolicyError` | class | `packages/foundation/modeling/schema/src/http/headers/SecureHeaderError.ts:163` |  |
-| `@beep/schema/http/headers/index` | `CrossOriginOpenerPolicyHeader` | const | `packages/foundation/modeling/schema/src/http/headers/CrossOriginOpenerPolicy.ts:132` | One-way schema that decodes COOP options into the `Cross-Origin-Opener-Policy` response header. |
-| `@beep/schema/http/headers/index` | `CrossOriginOpenerPolicyHeader` | type | `packages/foundation/modeling/schema/src/http/headers/CrossOriginOpenerPolicy.ts:192` | Type-level representation of {@link CrossOriginOpenerPolicyHeader}. |
-| `@beep/schema/http/headers/index` | `CrossOriginOpenerPolicyOption` | const | `packages/foundation/modeling/schema/src/http/headers/CrossOriginOpenerPolicy.ts:70` | Schema for `Cross-Origin-Opener-Policy` option values, including `false` to disable. |
-| `@beep/schema/http/headers/index` | `CrossOriginOpenerPolicyOption` | type | `packages/foundation/modeling/schema/src/http/headers/CrossOriginOpenerPolicy.ts:83` | Type-level representation of {@link CrossOriginOpenerPolicyOption}. |
-| `@beep/schema/http/headers/index` | `CrossOriginOpenerPolicyResponseHeader` | class | `packages/foundation/modeling/schema/src/http/headers/CrossOriginOpenerPolicy.ts:103` | Parsed `Cross-Origin-Opener-Policy` response header with name and optional value. |
-| `@beep/schema/http/headers/index` | `CrossOriginResourcePolicyError` | class | `packages/foundation/modeling/schema/src/http/headers/SecureHeaderError.ts:175` |  |
-| `@beep/schema/http/headers/index` | `CrossOriginResourcePolicyHeader` | const | `packages/foundation/modeling/schema/src/http/headers/CrossOriginResourcePolicy.ts:81` |  |
-| `@beep/schema/http/headers/index` | `CrossOriginResourcePolicyHeader` | type | `packages/foundation/modeling/schema/src/http/headers/CrossOriginResourcePolicy.ts:139` |  |
-| `@beep/schema/http/headers/index` | `CrossOriginResourcePolicyOption` | const | `packages/foundation/modeling/schema/src/http/headers/CrossOriginResourcePolicy.ts:46` |  |
-| `@beep/schema/http/headers/index` | `CrossOriginResourcePolicyOption` | type | `packages/foundation/modeling/schema/src/http/headers/CrossOriginResourcePolicy.ts:57` |  |
-| `@beep/schema/http/headers/index` | `CrossOriginResourcePolicyResponseHeader` | class | `packages/foundation/modeling/schema/src/http/headers/CrossOriginResourcePolicy.ts:63` |  |
-| `@beep/schema/http/headers/index` | `CspDirectives` | const | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:435` |  |
-| `@beep/schema/http/headers/index` | `CspError` | class | `packages/foundation/modeling/schema/src/http/headers/SecureHeaderError.ts:109` |  |
-| `@beep/schema/http/headers/index` | `DirectiveSource` | const | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:25` |  |
-| `@beep/schema/http/headers/index` | `DirectiveSource` | type | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:35` |  |
-| `@beep/schema/http/headers/index` | `DocumentDirective` | class | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:301` |  |
-| `@beep/schema/http/headers/index` | `ExpectCTConfig` | class | `packages/foundation/modeling/schema/src/http/headers/ExpectCT.ts:27` |  |
-| `@beep/schema/http/headers/index` | `ExpectCTEnabled` | const | `packages/foundation/modeling/schema/src/http/headers/ExpectCT.ts:42` |  |
-| `@beep/schema/http/headers/index` | `ExpectCTEnabled` | type | `packages/foundation/modeling/schema/src/http/headers/ExpectCT.ts:52` |  |
-| `@beep/schema/http/headers/index` | `ExpectCtError` | class | `packages/foundation/modeling/schema/src/http/headers/SecureHeaderError.ts:151` |  |
-| `@beep/schema/http/headers/index` | `ExpectCTHeader` | const | `packages/foundation/modeling/schema/src/http/headers/ExpectCT.ts:150` |  |
-| `@beep/schema/http/headers/index` | `ExpectCTHeader` | type | `packages/foundation/modeling/schema/src/http/headers/ExpectCT.ts:207` |  |
-| `@beep/schema/http/headers/index` | `ExpectCTOption` | const | `packages/foundation/modeling/schema/src/http/headers/ExpectCT.ts:58` |  |
-| `@beep/schema/http/headers/index` | `ExpectCTOption` | type | `packages/foundation/modeling/schema/src/http/headers/ExpectCT.ts:68` |  |
-| `@beep/schema/http/headers/index` | `ExpectCTResponseHeader` | class | `packages/foundation/modeling/schema/src/http/headers/ExpectCT.ts:74` |  |
-| `@beep/schema/http/headers/index` | `FetchDirective` | class | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:232` |  |
-| `@beep/schema/http/headers/index` | `ForceHttpsRedirectConfig` | class | `packages/foundation/modeling/schema/src/http/headers/ForceHttpsRedirect.ts:27` |  |
-| `@beep/schema/http/headers/index` | `ForceHttpsRedirectEnabled` | const | `packages/foundation/modeling/schema/src/http/headers/ForceHttpsRedirect.ts:42` |  |
-| `@beep/schema/http/headers/index` | `ForceHttpsRedirectEnabled` | type | `packages/foundation/modeling/schema/src/http/headers/ForceHttpsRedirect.ts:52` |  |
-| `@beep/schema/http/headers/index` | `ForceHttpsRedirectError` | class | `packages/foundation/modeling/schema/src/http/headers/SecureHeaderError.ts:115` |  |
-| `@beep/schema/http/headers/index` | `ForceHttpsRedirectHeader` | const | `packages/foundation/modeling/schema/src/http/headers/ForceHttpsRedirect.ts:103` |  |
-| `@beep/schema/http/headers/index` | `ForceHttpsRedirectHeader` | type | `packages/foundation/modeling/schema/src/http/headers/ForceHttpsRedirect.ts:172` |  |
-| `@beep/schema/http/headers/index` | `ForceHttpsRedirectOption` | const | `packages/foundation/modeling/schema/src/http/headers/ForceHttpsRedirect.ts:58` |  |
-| `@beep/schema/http/headers/index` | `ForceHttpsRedirectOption` | type | `packages/foundation/modeling/schema/src/http/headers/ForceHttpsRedirect.ts:68` |  |
-| `@beep/schema/http/headers/index` | `ForceHttpsRedirectResponseHeader` | class | `packages/foundation/modeling/schema/src/http/headers/ForceHttpsRedirect.ts:74` |  |
-| `@beep/schema/http/headers/index` | `FrameGuardAllowFrom` | const | `packages/foundation/modeling/schema/src/http/headers/FrameGuard.ts:60` |  |
-| `@beep/schema/http/headers/index` | `FrameGuardAllowFrom` | type | `packages/foundation/modeling/schema/src/http/headers/FrameGuard.ts:70` |  |
-| `@beep/schema/http/headers/index` | `FrameGuardAllowFromConfig` | class | `packages/foundation/modeling/schema/src/http/headers/FrameGuard.ts:47` |  |
-| `@beep/schema/http/headers/index` | `FrameGuardError` | class | `packages/foundation/modeling/schema/src/http/headers/SecureHeaderError.ts:145` |  |
-| `@beep/schema/http/headers/index` | `FrameGuardHeader` | const | `packages/foundation/modeling/schema/src/http/headers/FrameGuard.ts:137` |  |
-| `@beep/schema/http/headers/index` | `FrameGuardHeader` | type | `packages/foundation/modeling/schema/src/http/headers/FrameGuard.ts:211` |  |
-| `@beep/schema/http/headers/index` | `FrameGuardMode` | const | `packages/foundation/modeling/schema/src/http/headers/FrameGuard.ts:30` |  |
-| `@beep/schema/http/headers/index` | `FrameGuardMode` | type | `packages/foundation/modeling/schema/src/http/headers/FrameGuard.ts:41` |  |
-| `@beep/schema/http/headers/index` | `FrameGuardOption` | const | `packages/foundation/modeling/schema/src/http/headers/FrameGuard.ts:76` |  |
-| `@beep/schema/http/headers/index` | `FrameGuardOption` | type | `packages/foundation/modeling/schema/src/http/headers/FrameGuard.ts:86` |  |
-| `@beep/schema/http/headers/index` | `FrameGuardResponseHeader` | class | `packages/foundation/modeling/schema/src/http/headers/FrameGuard.ts:92` |  |
-| `@beep/schema/http/headers/index` | `getProperHeaderName` | const | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:92` | Get proper header name for CSP |
-| `@beep/schema/http/headers/index` | `NavigationDirective` | class | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:345` |  |
-| `@beep/schema/http/headers/index` | `NoOpenError` | class | `packages/foundation/modeling/schema/src/http/headers/SecureHeaderError.ts:139` |  |
-| `@beep/schema/http/headers/index` | `NoOpenHeader` | const | `packages/foundation/modeling/schema/src/http/headers/NoOpen.ts:80` |  |
-| `@beep/schema/http/headers/index` | `NoOpenHeader` | type | `packages/foundation/modeling/schema/src/http/headers/NoOpen.ts:139` |  |
-| `@beep/schema/http/headers/index` | `NoOpenOption` | const | `packages/foundation/modeling/schema/src/http/headers/NoOpen.ts:47` |  |
-| `@beep/schema/http/headers/index` | `NoOpenOption` | type | `packages/foundation/modeling/schema/src/http/headers/NoOpen.ts:58` |  |
-| `@beep/schema/http/headers/index` | `NoOpenResponseHeader` | class | `packages/foundation/modeling/schema/src/http/headers/NoOpen.ts:64` |  |
-| `@beep/schema/http/headers/index` | `NoOpenValue` | const | `packages/foundation/modeling/schema/src/http/headers/NoOpen.ts:28` |  |
-| `@beep/schema/http/headers/index` | `NoOpenValue` | type | `packages/foundation/modeling/schema/src/http/headers/NoOpen.ts:39` |  |
-| `@beep/schema/http/headers/index` | `NoSniffError` | class | `packages/foundation/modeling/schema/src/http/headers/SecureHeaderError.ts:133` |  |
-| `@beep/schema/http/headers/index` | `NoSniffHeader` | const | `packages/foundation/modeling/schema/src/http/headers/NoSniff.ts:128` | One-way schema that decodes `X-Content-Type-Options` options into the response header. |
-| `@beep/schema/http/headers/index` | `NoSniffHeader` | type | `packages/foundation/modeling/schema/src/http/headers/NoSniff.ts:189` | Type-level representation of {@link NoSniffHeader}. |
-| `@beep/schema/http/headers/index` | `NoSniffOption` | const | `packages/foundation/modeling/schema/src/http/headers/NoSniff.ts:71` | Schema for `X-Content-Type-Options` option values, including `false` to disable. |
-| `@beep/schema/http/headers/index` | `NoSniffOption` | type | `packages/foundation/modeling/schema/src/http/headers/NoSniff.ts:84` | Type-level representation of {@link NoSniffOption}. |
-| `@beep/schema/http/headers/index` | `NoSniffResponseHeader` | class | `packages/foundation/modeling/schema/src/http/headers/NoSniff.ts:101` | Parsed `X-Content-Type-Options` response header with name and optional value. |
-| `@beep/schema/http/headers/index` | `NoSniffValue` | const | `packages/foundation/modeling/schema/src/http/headers/NoSniff.ts:39` | Schema for supported `X-Content-Type-Options` header values. |
-| `@beep/schema/http/headers/index` | `NoSniffValue` | type | `packages/foundation/modeling/schema/src/http/headers/NoSniff.ts:52` | Type-level representation of {@link NoSniffValue}. |
-| `@beep/schema/http/headers/index` | `PermissionsPolicyAllowlistedOrigin` | const | `packages/foundation/modeling/schema/src/http/headers/PermissionsPolicy.ts:138` |  |
-| `@beep/schema/http/headers/index` | `PermissionsPolicyAllowlistedOrigin` | type | `packages/foundation/modeling/schema/src/http/headers/PermissionsPolicy.ts:148` |  |
-| `@beep/schema/http/headers/index` | `PermissionsPolicyDirective` | const | `packages/foundation/modeling/schema/src/http/headers/PermissionsPolicy.ts:57` |  |
-| `@beep/schema/http/headers/index` | `PermissionsPolicyDirective` | type | `packages/foundation/modeling/schema/src/http/headers/PermissionsPolicy.ts:68` |  |
-| `@beep/schema/http/headers/index` | `PermissionsPolicyDirectiveKey` | const | `packages/foundation/modeling/schema/src/http/headers/PermissionsPolicy.ts:74` |  |
-| `@beep/schema/http/headers/index` | `PermissionsPolicyDirectiveKey` | type | `packages/foundation/modeling/schema/src/http/headers/PermissionsPolicy.ts:91` |  |
-| `@beep/schema/http/headers/index` | `PermissionsPolicyDirectives` | const | `packages/foundation/modeling/schema/src/http/headers/PermissionsPolicy.ts:174` |  |
-| `@beep/schema/http/headers/index` | `PermissionsPolicyDirectives` | type | `packages/foundation/modeling/schema/src/http/headers/PermissionsPolicy.ts:187` |  |
-| `@beep/schema/http/headers/index` | `PermissionsPolicyDirectiveValue` | const | `packages/foundation/modeling/schema/src/http/headers/PermissionsPolicy.ts:154` |  |
-| `@beep/schema/http/headers/index` | `PermissionsPolicyDirectiveValue` | type | `packages/foundation/modeling/schema/src/http/headers/PermissionsPolicy.ts:168` |  |
-| `@beep/schema/http/headers/index` | `PermissionsPolicyDirectiveValueSingle` | const | `packages/foundation/modeling/schema/src/http/headers/PermissionsPolicy.ts:121` |  |
-| `@beep/schema/http/headers/index` | `PermissionsPolicyDirectiveValueSingle` | type | `packages/foundation/modeling/schema/src/http/headers/PermissionsPolicy.ts:132` |  |
-| `@beep/schema/http/headers/index` | `PermissionsPolicyError` | class | `packages/foundation/modeling/schema/src/http/headers/SecureHeaderError.ts:157` |  |
-| `@beep/schema/http/headers/index` | `PermissionsPolicyHeader` | const | `packages/foundation/modeling/schema/src/http/headers/PermissionsPolicy.ts:272` |  |
-| `@beep/schema/http/headers/index` | `PermissionsPolicyHeader` | type | `packages/foundation/modeling/schema/src/http/headers/PermissionsPolicy.ts:333` |  |
-| `@beep/schema/http/headers/index` | `PermissionsPolicyOption` | const | `packages/foundation/modeling/schema/src/http/headers/PermissionsPolicy.ts:208` |  |
-| `@beep/schema/http/headers/index` | `PermissionsPolicyOption` | type | `packages/foundation/modeling/schema/src/http/headers/PermissionsPolicy.ts:218` |  |
-| `@beep/schema/http/headers/index` | `PermissionsPolicyOptionStruct` | class | `packages/foundation/modeling/schema/src/http/headers/PermissionsPolicy.ts:193` |  |
-| `@beep/schema/http/headers/index` | `PermissionsPolicyResponseHeader` | class | `packages/foundation/modeling/schema/src/http/headers/PermissionsPolicy.ts:224` |  |
-| `@beep/schema/http/headers/index` | `PermittedCrossDomainPoliciesError` | class | `packages/foundation/modeling/schema/src/http/headers/SecureHeaderError.ts:181` |  |
-| `@beep/schema/http/headers/index` | `PermittedCrossDomainPoliciesHeader` | const | `packages/foundation/modeling/schema/src/http/headers/PermittedCrossDomainPolicies.ts:88` |  |
-| `@beep/schema/http/headers/index` | `PermittedCrossDomainPoliciesHeader` | type | `packages/foundation/modeling/schema/src/http/headers/PermittedCrossDomainPolicies.ts:150` |  |
-| `@beep/schema/http/headers/index` | `PermittedCrossDomainPoliciesOption` | const | `packages/foundation/modeling/schema/src/http/headers/PermittedCrossDomainPolicies.ts:53` |  |
-| `@beep/schema/http/headers/index` | `PermittedCrossDomainPoliciesOption` | type | `packages/foundation/modeling/schema/src/http/headers/PermittedCrossDomainPolicies.ts:64` |  |
-| `@beep/schema/http/headers/index` | `PermittedCrossDomainPoliciesResponseHeader` | class | `packages/foundation/modeling/schema/src/http/headers/PermittedCrossDomainPolicies.ts:70` |  |
-| `@beep/schema/http/headers/index` | `PermittedCrossDomainPoliciesValue` | const | `packages/foundation/modeling/schema/src/http/headers/PermittedCrossDomainPolicies.ts:34` |  |
-| `@beep/schema/http/headers/index` | `PermittedCrossDomainPoliciesValue` | type | `packages/foundation/modeling/schema/src/http/headers/PermittedCrossDomainPolicies.ts:45` |  |
-| `@beep/schema/http/headers/index` | `PluginTypes` | const | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:145` |  |
-| `@beep/schema/http/headers/index` | `PluginTypes` | type | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:155` |  |
-| `@beep/schema/http/headers/index` | `QuotedOrigin` | const | `packages/foundation/modeling/schema/src/http/headers/PermissionsPolicy.ts:97` |  |
-| `@beep/schema/http/headers/index` | `QuotedOrigin` | type | `packages/foundation/modeling/schema/src/http/headers/PermissionsPolicy.ts:113` |  |
-| `@beep/schema/http/headers/index` | `ReferrerPolicyError` | class | `packages/foundation/modeling/schema/src/http/headers/SecureHeaderError.ts:127` |  |
-| `@beep/schema/http/headers/index` | `ReferrerPolicyHeader` | const | `packages/foundation/modeling/schema/src/http/headers/ReferrerPolicy.ts:126` |  |
-| `@beep/schema/http/headers/index` | `ReferrerPolicyHeader` | type | `packages/foundation/modeling/schema/src/http/headers/ReferrerPolicy.ts:192` |  |
-| `@beep/schema/http/headers/index` | `ReferrerPolicyOption` | const | `packages/foundation/modeling/schema/src/http/headers/ReferrerPolicy.ts:70` |  |
-| `@beep/schema/http/headers/index` | `ReferrerPolicyOption` | type | `packages/foundation/modeling/schema/src/http/headers/ReferrerPolicy.ts:80` |  |
-| `@beep/schema/http/headers/index` | `ReferrerPolicyResponseHeader` | class | `packages/foundation/modeling/schema/src/http/headers/ReferrerPolicy.ts:86` |  |
-| `@beep/schema/http/headers/index` | `ReferrerPolicyValue` | const | `packages/foundation/modeling/schema/src/http/headers/ReferrerPolicy.ts:37` |  |
-| `@beep/schema/http/headers/index` | `ReferrerPolicyValue` | type | `packages/foundation/modeling/schema/src/http/headers/ReferrerPolicy.ts:48` |  |
-| `@beep/schema/http/headers/index` | `ReferrerPolicyValueList` | const | `packages/foundation/modeling/schema/src/http/headers/ReferrerPolicy.ts:54` |  |
-| `@beep/schema/http/headers/index` | `ReferrerPolicyValueList` | type | `packages/foundation/modeling/schema/src/http/headers/ReferrerPolicy.ts:64` |  |
-| `@beep/schema/http/headers/index` | `ReportingDirective` | class | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:399` |  |
-| `@beep/schema/http/headers/index` | `ReportURI` | const | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:389` |  |
-| `@beep/schema/http/headers/index` | `Sandbox` | const | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:178` |  |
-| `@beep/schema/http/headers/index` | `Sandbox` | type | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:189` |  |
-| `@beep/schema/http/headers/index` | `SecureHeader` | const | `packages/foundation/modeling/schema/src/http/headers/SecureHeader.ts:33` |  |
-| `@beep/schema/http/headers/index` | `SecureHeader` | type | `packages/foundation/modeling/schema/src/http/headers/SecureHeader.ts:44` |  |
-| `@beep/schema/http/headers/index` | `SecureHeaderEntry` | class | `packages/foundation/modeling/schema/src/http/headers/SecureHeaderOptions.ts:87` | A rendered secure header pair in `{ key, value }` format. |
-| `@beep/schema/http/headers/index` | `SecureHeaderError` | const | `packages/foundation/modeling/schema/src/http/headers/SecureHeaderError.ts:193` |  |
-| `@beep/schema/http/headers/index` | `SecureHeaderError` | type | `packages/foundation/modeling/schema/src/http/headers/SecureHeaderError.ts:221` |  |
-| `@beep/schema/http/headers/index` | `SecureHeaderOptions` | class | `packages/foundation/modeling/schema/src/http/headers/SecureHeaderOptions.ts:52` | Aggregate input options for configuring all secure response headers. |
-| `@beep/schema/http/headers/index` | `XssProtectionError` | class | `packages/foundation/modeling/schema/src/http/headers/SecureHeaderError.ts:121` |  |
-| `@beep/schema/http/headers/index` | `XSSProtectionHeader` | const | `packages/foundation/modeling/schema/src/http/headers/XSSProtection.ts:144` |  |
-| `@beep/schema/http/headers/index` | `XSSProtectionHeader` | type | `packages/foundation/modeling/schema/src/http/headers/XSSProtection.ts:195` |  |
-| `@beep/schema/http/headers/index` | `XSSProtectionMode` | const | `packages/foundation/modeling/schema/src/http/headers/XSSProtection.ts:29` |  |
-| `@beep/schema/http/headers/index` | `XSSProtectionMode` | type | `packages/foundation/modeling/schema/src/http/headers/XSSProtection.ts:40` |  |
-| `@beep/schema/http/headers/index` | `XSSProtectionOption` | const | `packages/foundation/modeling/schema/src/http/headers/XSSProtection.ts:75` |  |
-| `@beep/schema/http/headers/index` | `XSSProtectionOption` | type | `packages/foundation/modeling/schema/src/http/headers/XSSProtection.ts:85` |  |
-| `@beep/schema/http/headers/index` | `XSSProtectionReport` | const | `packages/foundation/modeling/schema/src/http/headers/XSSProtection.ts:59` |  |
-| `@beep/schema/http/headers/index` | `XSSProtectionReport` | type | `packages/foundation/modeling/schema/src/http/headers/XSSProtection.ts:69` |  |
-| `@beep/schema/http/headers/index` | `XSSProtectionReportConfig` | class | `packages/foundation/modeling/schema/src/http/headers/XSSProtection.ts:46` |  |
-| `@beep/schema/http/headers/index` | `XSSProtectionResponseHeader` | class | `packages/foundation/modeling/schema/src/http/headers/XSSProtection.ts:91` |  |
-| `@beep/schema/http/headers/NoOpen` | `NoOpenHeader` | const | `packages/foundation/modeling/schema/src/http/headers/NoOpen.ts:80` |  |
-| `@beep/schema/http/headers/NoOpen` | `NoOpenHeader` | type | `packages/foundation/modeling/schema/src/http/headers/NoOpen.ts:139` |  |
-| `@beep/schema/http/headers/NoOpen` | `NoOpenOption` | const | `packages/foundation/modeling/schema/src/http/headers/NoOpen.ts:47` |  |
-| `@beep/schema/http/headers/NoOpen` | `NoOpenOption` | type | `packages/foundation/modeling/schema/src/http/headers/NoOpen.ts:58` |  |
-| `@beep/schema/http/headers/NoOpen` | `NoOpenResponseHeader` | class | `packages/foundation/modeling/schema/src/http/headers/NoOpen.ts:64` |  |
-| `@beep/schema/http/headers/NoOpen` | `NoOpenValue` | const | `packages/foundation/modeling/schema/src/http/headers/NoOpen.ts:28` |  |
-| `@beep/schema/http/headers/NoOpen` | `NoOpenValue` | type | `packages/foundation/modeling/schema/src/http/headers/NoOpen.ts:39` |  |
-| `@beep/schema/http/headers/NoSniff` | `NoSniffHeader` | const | `packages/foundation/modeling/schema/src/http/headers/NoSniff.ts:128` | One-way schema that decodes `X-Content-Type-Options` options into the response header. |
-| `@beep/schema/http/headers/NoSniff` | `NoSniffHeader` | type | `packages/foundation/modeling/schema/src/http/headers/NoSniff.ts:189` | Type-level representation of {@link NoSniffHeader}. |
-| `@beep/schema/http/headers/NoSniff` | `NoSniffOption` | const | `packages/foundation/modeling/schema/src/http/headers/NoSniff.ts:71` | Schema for `X-Content-Type-Options` option values, including `false` to disable. |
-| `@beep/schema/http/headers/NoSniff` | `NoSniffOption` | type | `packages/foundation/modeling/schema/src/http/headers/NoSniff.ts:84` | Type-level representation of {@link NoSniffOption}. |
-| `@beep/schema/http/headers/NoSniff` | `NoSniffResponseHeader` | class | `packages/foundation/modeling/schema/src/http/headers/NoSniff.ts:101` | Parsed `X-Content-Type-Options` response header with name and optional value. |
-| `@beep/schema/http/headers/NoSniff` | `NoSniffValue` | const | `packages/foundation/modeling/schema/src/http/headers/NoSniff.ts:39` | Schema for supported `X-Content-Type-Options` header values. |
-| `@beep/schema/http/headers/NoSniff` | `NoSniffValue` | type | `packages/foundation/modeling/schema/src/http/headers/NoSniff.ts:52` | Type-level representation of {@link NoSniffValue}. |
-| `@beep/schema/http/headers/PermissionsPolicy` | `PermissionsPolicyAllowlistedOrigin` | const | `packages/foundation/modeling/schema/src/http/headers/PermissionsPolicy.ts:138` |  |
-| `@beep/schema/http/headers/PermissionsPolicy` | `PermissionsPolicyAllowlistedOrigin` | type | `packages/foundation/modeling/schema/src/http/headers/PermissionsPolicy.ts:148` |  |
-| `@beep/schema/http/headers/PermissionsPolicy` | `PermissionsPolicyDirective` | const | `packages/foundation/modeling/schema/src/http/headers/PermissionsPolicy.ts:57` |  |
-| `@beep/schema/http/headers/PermissionsPolicy` | `PermissionsPolicyDirective` | type | `packages/foundation/modeling/schema/src/http/headers/PermissionsPolicy.ts:68` |  |
-| `@beep/schema/http/headers/PermissionsPolicy` | `PermissionsPolicyDirectiveKey` | const | `packages/foundation/modeling/schema/src/http/headers/PermissionsPolicy.ts:74` |  |
-| `@beep/schema/http/headers/PermissionsPolicy` | `PermissionsPolicyDirectiveKey` | type | `packages/foundation/modeling/schema/src/http/headers/PermissionsPolicy.ts:91` |  |
-| `@beep/schema/http/headers/PermissionsPolicy` | `PermissionsPolicyDirectives` | const | `packages/foundation/modeling/schema/src/http/headers/PermissionsPolicy.ts:174` |  |
-| `@beep/schema/http/headers/PermissionsPolicy` | `PermissionsPolicyDirectives` | type | `packages/foundation/modeling/schema/src/http/headers/PermissionsPolicy.ts:187` |  |
-| `@beep/schema/http/headers/PermissionsPolicy` | `PermissionsPolicyDirectiveValue` | const | `packages/foundation/modeling/schema/src/http/headers/PermissionsPolicy.ts:154` |  |
-| `@beep/schema/http/headers/PermissionsPolicy` | `PermissionsPolicyDirectiveValue` | type | `packages/foundation/modeling/schema/src/http/headers/PermissionsPolicy.ts:168` |  |
-| `@beep/schema/http/headers/PermissionsPolicy` | `PermissionsPolicyDirectiveValueSingle` | const | `packages/foundation/modeling/schema/src/http/headers/PermissionsPolicy.ts:121` |  |
-| `@beep/schema/http/headers/PermissionsPolicy` | `PermissionsPolicyDirectiveValueSingle` | type | `packages/foundation/modeling/schema/src/http/headers/PermissionsPolicy.ts:132` |  |
-| `@beep/schema/http/headers/PermissionsPolicy` | `PermissionsPolicyHeader` | const | `packages/foundation/modeling/schema/src/http/headers/PermissionsPolicy.ts:272` |  |
-| `@beep/schema/http/headers/PermissionsPolicy` | `PermissionsPolicyHeader` | type | `packages/foundation/modeling/schema/src/http/headers/PermissionsPolicy.ts:333` |  |
-| `@beep/schema/http/headers/PermissionsPolicy` | `PermissionsPolicyOption` | const | `packages/foundation/modeling/schema/src/http/headers/PermissionsPolicy.ts:208` |  |
-| `@beep/schema/http/headers/PermissionsPolicy` | `PermissionsPolicyOption` | type | `packages/foundation/modeling/schema/src/http/headers/PermissionsPolicy.ts:218` |  |
-| `@beep/schema/http/headers/PermissionsPolicy` | `PermissionsPolicyOptionStruct` | class | `packages/foundation/modeling/schema/src/http/headers/PermissionsPolicy.ts:193` |  |
-| `@beep/schema/http/headers/PermissionsPolicy` | `PermissionsPolicyResponseHeader` | class | `packages/foundation/modeling/schema/src/http/headers/PermissionsPolicy.ts:224` |  |
-| `@beep/schema/http/headers/PermissionsPolicy` | `QuotedOrigin` | const | `packages/foundation/modeling/schema/src/http/headers/PermissionsPolicy.ts:97` |  |
-| `@beep/schema/http/headers/PermissionsPolicy` | `QuotedOrigin` | type | `packages/foundation/modeling/schema/src/http/headers/PermissionsPolicy.ts:113` |  |
-| `@beep/schema/http/headers/PermittedCrossDomainPolicies` | `PermittedCrossDomainPoliciesHeader` | const | `packages/foundation/modeling/schema/src/http/headers/PermittedCrossDomainPolicies.ts:88` |  |
-| `@beep/schema/http/headers/PermittedCrossDomainPolicies` | `PermittedCrossDomainPoliciesHeader` | type | `packages/foundation/modeling/schema/src/http/headers/PermittedCrossDomainPolicies.ts:150` |  |
-| `@beep/schema/http/headers/PermittedCrossDomainPolicies` | `PermittedCrossDomainPoliciesOption` | const | `packages/foundation/modeling/schema/src/http/headers/PermittedCrossDomainPolicies.ts:53` |  |
-| `@beep/schema/http/headers/PermittedCrossDomainPolicies` | `PermittedCrossDomainPoliciesOption` | type | `packages/foundation/modeling/schema/src/http/headers/PermittedCrossDomainPolicies.ts:64` |  |
-| `@beep/schema/http/headers/PermittedCrossDomainPolicies` | `PermittedCrossDomainPoliciesResponseHeader` | class | `packages/foundation/modeling/schema/src/http/headers/PermittedCrossDomainPolicies.ts:70` |  |
-| `@beep/schema/http/headers/PermittedCrossDomainPolicies` | `PermittedCrossDomainPoliciesValue` | const | `packages/foundation/modeling/schema/src/http/headers/PermittedCrossDomainPolicies.ts:34` |  |
-| `@beep/schema/http/headers/PermittedCrossDomainPolicies` | `PermittedCrossDomainPoliciesValue` | type | `packages/foundation/modeling/schema/src/http/headers/PermittedCrossDomainPolicies.ts:45` |  |
-| `@beep/schema/http/headers/ReferrerPolicy` | `ReferrerPolicyHeader` | const | `packages/foundation/modeling/schema/src/http/headers/ReferrerPolicy.ts:126` |  |
-| `@beep/schema/http/headers/ReferrerPolicy` | `ReferrerPolicyHeader` | type | `packages/foundation/modeling/schema/src/http/headers/ReferrerPolicy.ts:192` |  |
-| `@beep/schema/http/headers/ReferrerPolicy` | `ReferrerPolicyOption` | const | `packages/foundation/modeling/schema/src/http/headers/ReferrerPolicy.ts:70` |  |
-| `@beep/schema/http/headers/ReferrerPolicy` | `ReferrerPolicyOption` | type | `packages/foundation/modeling/schema/src/http/headers/ReferrerPolicy.ts:80` |  |
-| `@beep/schema/http/headers/ReferrerPolicy` | `ReferrerPolicyResponseHeader` | class | `packages/foundation/modeling/schema/src/http/headers/ReferrerPolicy.ts:86` |  |
-| `@beep/schema/http/headers/ReferrerPolicy` | `ReferrerPolicyValue` | const | `packages/foundation/modeling/schema/src/http/headers/ReferrerPolicy.ts:37` |  |
-| `@beep/schema/http/headers/ReferrerPolicy` | `ReferrerPolicyValue` | type | `packages/foundation/modeling/schema/src/http/headers/ReferrerPolicy.ts:48` |  |
-| `@beep/schema/http/headers/ReferrerPolicy` | `ReferrerPolicyValueList` | const | `packages/foundation/modeling/schema/src/http/headers/ReferrerPolicy.ts:54` |  |
-| `@beep/schema/http/headers/ReferrerPolicy` | `ReferrerPolicyValueList` | type | `packages/foundation/modeling/schema/src/http/headers/ReferrerPolicy.ts:64` |  |
-| `@beep/schema/http/headers/SecureHeader` | `SecureHeader` | const | `packages/foundation/modeling/schema/src/http/headers/SecureHeader.ts:33` |  |
-| `@beep/schema/http/headers/SecureHeader` | `SecureHeader` | type | `packages/foundation/modeling/schema/src/http/headers/SecureHeader.ts:44` |  |
-| `@beep/schema/http/headers/SecureHeaderError` | `CoreError` | class | `packages/foundation/modeling/schema/src/http/headers/SecureHeaderError.ts:187` |  |
-| `@beep/schema/http/headers/SecureHeaderError` | `CrossOriginEmbedderPolicyError` | class | `packages/foundation/modeling/schema/src/http/headers/SecureHeaderError.ts:169` |  |
-| `@beep/schema/http/headers/SecureHeaderError` | `CrossOriginOpenerPolicyError` | class | `packages/foundation/modeling/schema/src/http/headers/SecureHeaderError.ts:163` |  |
-| `@beep/schema/http/headers/SecureHeaderError` | `CrossOriginResourcePolicyError` | class | `packages/foundation/modeling/schema/src/http/headers/SecureHeaderError.ts:175` |  |
-| `@beep/schema/http/headers/SecureHeaderError` | `CspError` | class | `packages/foundation/modeling/schema/src/http/headers/SecureHeaderError.ts:109` |  |
-| `@beep/schema/http/headers/SecureHeaderError` | `ExpectCtError` | class | `packages/foundation/modeling/schema/src/http/headers/SecureHeaderError.ts:151` |  |
-| `@beep/schema/http/headers/SecureHeaderError` | `ForceHttpsRedirectError` | class | `packages/foundation/modeling/schema/src/http/headers/SecureHeaderError.ts:115` |  |
-| `@beep/schema/http/headers/SecureHeaderError` | `FrameGuardError` | class | `packages/foundation/modeling/schema/src/http/headers/SecureHeaderError.ts:145` |  |
-| `@beep/schema/http/headers/SecureHeaderError` | `NoOpenError` | class | `packages/foundation/modeling/schema/src/http/headers/SecureHeaderError.ts:139` |  |
-| `@beep/schema/http/headers/SecureHeaderError` | `NoSniffError` | class | `packages/foundation/modeling/schema/src/http/headers/SecureHeaderError.ts:133` |  |
-| `@beep/schema/http/headers/SecureHeaderError` | `PermissionsPolicyError` | class | `packages/foundation/modeling/schema/src/http/headers/SecureHeaderError.ts:157` |  |
-| `@beep/schema/http/headers/SecureHeaderError` | `PermittedCrossDomainPoliciesError` | class | `packages/foundation/modeling/schema/src/http/headers/SecureHeaderError.ts:181` |  |
-| `@beep/schema/http/headers/SecureHeaderError` | `ReferrerPolicyError` | class | `packages/foundation/modeling/schema/src/http/headers/SecureHeaderError.ts:127` |  |
-| `@beep/schema/http/headers/SecureHeaderError` | `SecureHeaderError` | const | `packages/foundation/modeling/schema/src/http/headers/SecureHeaderError.ts:193` |  |
-| `@beep/schema/http/headers/SecureHeaderError` | `SecureHeaderError` | type | `packages/foundation/modeling/schema/src/http/headers/SecureHeaderError.ts:221` |  |
-| `@beep/schema/http/headers/SecureHeaderError` | `XssProtectionError` | class | `packages/foundation/modeling/schema/src/http/headers/SecureHeaderError.ts:121` |  |
-| `@beep/schema/http/headers/SecureHeaderOptions` | `createHeadersObject` | const | `packages/foundation/modeling/schema/src/http/headers/SecureHeaderOptions.ts:157` | Resolve secure-header options into a plain `Record<string, string>` header object. |
-| `@beep/schema/http/headers/SecureHeaderOptions` | `createSecureHeaders` | const | `packages/foundation/modeling/schema/src/http/headers/SecureHeaderOptions.ts:186` | Resolve secure-header options into an array of {@link SecureHeaderEntry} pairs. |
-| `@beep/schema/http/headers/SecureHeaderOptions` | `SecureHeaderEntry` | class | `packages/foundation/modeling/schema/src/http/headers/SecureHeaderOptions.ts:87` | A rendered secure header pair in `{ key, value }` format. |
-| `@beep/schema/http/headers/SecureHeaderOptions` | `SecureHeaderOptions` | class | `packages/foundation/modeling/schema/src/http/headers/SecureHeaderOptions.ts:52` | Aggregate input options for configuring all secure response headers. |
-| `@beep/schema/http/headers/XSSProtection` | `XSSProtectionHeader` | const | `packages/foundation/modeling/schema/src/http/headers/XSSProtection.ts:144` |  |
-| `@beep/schema/http/headers/XSSProtection` | `XSSProtectionHeader` | type | `packages/foundation/modeling/schema/src/http/headers/XSSProtection.ts:195` |  |
-| `@beep/schema/http/headers/XSSProtection` | `XSSProtectionMode` | const | `packages/foundation/modeling/schema/src/http/headers/XSSProtection.ts:29` |  |
-| `@beep/schema/http/headers/XSSProtection` | `XSSProtectionMode` | type | `packages/foundation/modeling/schema/src/http/headers/XSSProtection.ts:40` |  |
-| `@beep/schema/http/headers/XSSProtection` | `XSSProtectionOption` | const | `packages/foundation/modeling/schema/src/http/headers/XSSProtection.ts:75` |  |
-| `@beep/schema/http/headers/XSSProtection` | `XSSProtectionOption` | type | `packages/foundation/modeling/schema/src/http/headers/XSSProtection.ts:85` |  |
-| `@beep/schema/http/headers/XSSProtection` | `XSSProtectionReport` | const | `packages/foundation/modeling/schema/src/http/headers/XSSProtection.ts:59` |  |
-| `@beep/schema/http/headers/XSSProtection` | `XSSProtectionReport` | type | `packages/foundation/modeling/schema/src/http/headers/XSSProtection.ts:69` |  |
-| `@beep/schema/http/headers/XSSProtection` | `XSSProtectionReportConfig` | class | `packages/foundation/modeling/schema/src/http/headers/XSSProtection.ts:46` |  |
-| `@beep/schema/http/headers/XSSProtection` | `XSSProtectionResponseHeader` | class | `packages/foundation/modeling/schema/src/http/headers/XSSProtection.ts:91` |  |
-| `@beep/schema/http/HttpMethod/HttpMethod` | `HttpMethod` | const | `packages/foundation/modeling/schema/src/http/HttpMethod/HttpMethod.ts:49` |  |
-| `@beep/schema/http/HttpMethod/HttpMethod` | `HttpMethod` | type | `packages/foundation/modeling/schema/src/http/HttpMethod/HttpMethod.ts:79` |  |
-| `@beep/schema/http/HttpMethod/HttpMethod` | `HttpMethod_` | const | `packages/foundation/modeling/schema/src/http/HttpMethod/HttpMethod.ts:19` |  |
-| `@beep/schema/http/HttpMethod/index` | `HttpMethod` | const | `packages/foundation/modeling/schema/src/http/HttpMethod/HttpMethod.ts:49` |  |
-| `@beep/schema/http/HttpMethod/index` | `HttpMethod` | type | `packages/foundation/modeling/schema/src/http/HttpMethod/HttpMethod.ts:79` |  |
-| `@beep/schema/http/HttpMethod/index` | `HttpMethod_` | const | `packages/foundation/modeling/schema/src/http/HttpMethod/HttpMethod.ts:19` |  |
-| `@beep/schema/http/HttpProtocol` | `HttpProtocol` | const | `packages/foundation/modeling/schema/src/http/HttpProtocol.ts:18` | An HTTP protocol ("http" or "https") |
-| `@beep/schema/http/HttpProtocol` | `HttpProtocol` | type | `packages/foundation/modeling/schema/src/http/HttpProtocol.ts:30` | {@inheritDoc HttpProtocol} |
-| `@beep/schema/http/HttpStatus` | `Accepted` | const | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:264` | 202 “Accepted” – The server accepted the request but has not yet finished |
-| `@beep/schema/http/HttpStatus` | `Accepted` | type | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:278` | {@inheritDoc Accepted} |
-| `@beep/schema/http/HttpStatus` | `AlreadyReported` | const | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:407` | 208 “Already Reported” (WebDav) – This code indicates that the internal |
-| `@beep/schema/http/HttpStatus` | `AlreadyReported` | type | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:421` | {@inheritDoc AlreadyReported} |
-| `@beep/schema/http/HttpStatus` | `BadGateway` | const | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:1636` | 502 “Bad Gateway” – This error indicates that the server acted as a gateway |
-| `@beep/schema/http/HttpStatus` | `BadGateway` | type | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:1650` | {@inheritDoc BadGateway} |
-| `@beep/schema/http/HttpStatus` | `BadRequest` | const | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:785` | 400 “Bad Request” – The server can’t return a valid response due to an error |
-| `@beep/schema/http/HttpStatus` | `BadRequest` | type | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:799` | {@inheritDoc BadRequest} |
-| `@beep/schema/http/HttpStatus` | `ClientClosedRequest` | const | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:2025` | 499 “Client Closed Request” – The client terminated the request before the |
-| `@beep/schema/http/HttpStatus` | `ClientClosedRequest` | type | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:2039` | {@inheritDoc ClientClosedRequest} |
-| `@beep/schema/http/HttpStatus` | `Conflict` | const | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:1021` | 409 “Conflict” – This error occurs when a request can not be processed due |
-| `@beep/schema/http/HttpStatus` | `Conflict` | type | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:1035` | {@inheritDoc Conflict} |
-| `@beep/schema/http/HttpStatus` | `Continue` | const | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:79` | 100 “Continue” – The server has received the headers of the request. |
-| `@beep/schema/http/HttpStatus` | `Continue` | type | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:93` | {@inheritDoc Continue} |
-| `@beep/schema/http/HttpStatus` | `Created` | const | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:241` | 201 “Created” – The request was fulfilled, and the server created a new resource. |
-| `@beep/schema/http/HttpStatus` | `Created` | type | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:254` | {@inheritDoc Created} |
-| `@beep/schema/http/HttpStatus` | `EarlyHints` | const | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:149` | 103 “Early Hints” – The server returns some response headers before the |
-| `@beep/schema/http/HttpStatus` | `EarlyHints` | type | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:163` | {@inheritDoc EarlyHints} |
-| `@beep/schema/http/HttpStatus` | `ExpectationFailed` | const | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:1215` | 417 “Expectation Failed” – The server fails to meet the requirements set in |
-| `@beep/schema/http/HttpStatus` | `ExpectationFailed` | type | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:1229` | {@inheritDoc ExpectationFailed} |
-| `@beep/schema/http/HttpStatus` | `FailedDependency` | const | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:1329` | 424 “Failed Dependency” – The request failed because it depended on another |
-| `@beep/schema/http/HttpStatus` | `FailedDependency` | type | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:1343` | {@inheritDoc FailedDependency} |
-| `@beep/schema/http/HttpStatus` | `Forbidden` | const | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:873` | 403 “Forbidden” – The error indicates that the server denies access to the |
-| `@beep/schema/http/HttpStatus` | `Forbidden` | type | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:887` | {@inheritDoc Forbidden} |
-| `@beep/schema/http/HttpStatus` | `Found` | const | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:562` | 302 “Found” – Previously, this code was known as “Moved temporarily”. It |
-| `@beep/schema/http/HttpStatus` | `Found` | type | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:576` | {@inheritDoc Found} |
-| `@beep/schema/http/HttpStatus` | `GatewayTimeout` | const | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:1688` | 504 “Gateway Timeout” – The server acted as a gateway and did not receive a |
-| `@beep/schema/http/HttpStatus` | `GatewayTimeout` | type | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:1702` | {@inheritDoc GatewayTimeout} |
-| `@beep/schema/http/HttpStatus` | `Gone` | const | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:1047` | 410 “Gone” – The requested resource is not available and will not be |
-| `@beep/schema/http/HttpStatus` | `Gone` | type | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:1061` | {@inheritDoc Gone} |
-| `@beep/schema/http/HttpStatus` | `HttpStatus` | const | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:2198` | A MappedLiteralKit of all HTTP status codes. |
-| `@beep/schema/http/HttpStatus` | `HttpStatus` | namespace | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:2217` | A namespace for {@link HttpStatus} to contain the Encoded type |
-| `@beep/schema/http/HttpStatus` | `HttpStatus` | type | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:2233` | {@inheritDoc HttpStatus} |
-| `@beep/schema/http/HttpStatus` | `HttpStatus1XX` | const | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:173` | 1XX codes are informational responses from the website’s server. They do not |
-| `@beep/schema/http/HttpStatus` | `HttpStatus1XX` | namespace | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:191` | A namespace for {@link HttpStatus1XX} to contain the Encoded type |
-| `@beep/schema/http/HttpStatus` | `HttpStatus1XX` | type | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:207` | {@inheritDoc HttpStatus1XX} |
-| `@beep/schema/http/HttpStatus` | `HttpStatus2XX` | const | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:454` | The 2XX codes are the best responses you can receive. They indicate that the |
-| `@beep/schema/http/HttpStatus` | `HttpStatus2XX` | namespace | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:478` | A namespace for {@link HttpStatus2XX} to contain the Encoded type |
-| `@beep/schema/http/HttpStatus` | `HttpStatus2XX` | type | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:494` | {@inheritDoc HttpStatus2XX} |
-| `@beep/schema/http/HttpStatus` | `HttpStatus3XX` | const | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:732` | 3XX codes specify that there will be a redirection. {@link https://www.siteground.com/kb/domain-redirects/ \| Redirects} are |
-| `@beep/schema/http/HttpStatus` | `HttpStatus3XX` | namespace | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:763` | A namespace for {@link HttpStatus3XX} to contain the Encoded type |
-| `@beep/schema/http/HttpStatus` | `HttpStatus3XX` | type | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:755` | {@inheritDoc HttpStatus3XX} |
-| `@beep/schema/http/HttpStatus` | `HttpStatus4XX` | const | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:1508` | The 4XX codes are HTTP error status codes. They define errors as invalid |
-| `@beep/schema/http/HttpStatus` | `HttpStatus4XX` | namespace | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:1555` | A namespace for {@link HttpStatus4XX} to contain the Encoded type |
-| `@beep/schema/http/HttpStatus` | `HttpStatus4XX` | type | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:1571` | {@inheritDoc HttpStatus4XX} |
-| `@beep/schema/http/HttpStatus` | `HttpStatus5XX` | const | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:1854` | The 5XX HTTP codes indicate that there is a problem on the website’s server |
-| `@beep/schema/http/HttpStatus` | `HttpStatus5XX` | namespace | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:1879` | A namespace for {@link HttpStatus5XX} to contain the Encoded type |
-| `@beep/schema/http/HttpStatus` | `HttpStatus5XX` | type | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:1895` | {@inheritDoc HttpStatus5XX} |
-| `@beep/schema/http/HttpStatus` | `HttpStatusCategory` | const | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:38` | HttpStatusCategory - HTTP status code category |
-| `@beep/schema/http/HttpStatus` | `HttpStatusCategory` | type | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:66` | {@inheritDoc HttpStatusCategory} |
-| `@beep/schema/http/HttpStatus` | `HttpStatusUnofficial` | const | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:2146` | The codes above are officially recognized by IANA, but different platforms |
-| `@beep/schema/http/HttpStatus` | `HttpStatusUnofficial` | namespace | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:2170` | A namespace for {@link HttpStatusUnofficial} to contain the Encoded type |
-| `@beep/schema/http/HttpStatus` | `HttpStatusUnofficial` | type | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:2186` | {@inheritDoc HttpStatusUnofficial} |
-| `@beep/schema/http/HttpStatus` | `HttpVersionNotSupported` | const | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:1711` | 505 “HTTP Version Not Supported” – The server doesn’t support the HTTP |
-| `@beep/schema/http/HttpStatus` | `HttpVersionNotSupported` | type | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:1725` | {@inheritDoc HttpVersionNotSupported} |
-| `@beep/schema/http/HttpStatus` | `ImATeapot` | const | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:1238` | 418 “I’m a teapot.” – This error is returned by teapots requested to brew |
-| `@beep/schema/http/HttpStatus` | `ImATeapot` | type | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:1252` | {@inheritDoc ImATeapot} |
-| `@beep/schema/http/HttpStatus` | `ImUsed` | const | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:431` | 226 “IM Used” – The server fulfilled the request, and the response is a |
-| `@beep/schema/http/HttpStatus` | `ImUsed` | type | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:445` | {@inheritDoc ImUsed} |
-| `@beep/schema/http/HttpStatus` | `InsufficientStorage` | const | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:1760` | 507 “Insufficient Storage” (WebDAV) – The server is unable to store the |
-| `@beep/schema/http/HttpStatus` | `InsufficientStorage` | type | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:1774` | {@inheritDoc InsufficientStorage} |
-| `@beep/schema/http/HttpStatus` | `InternalServerError` | const | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:1588` | 500 “Internal Server Error” – This is a generic error that indicates the |
-| `@beep/schema/http/HttpStatus` | `InternalServerError` | type | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:1602` | {@inheritDoc InternalServerError} |
-| `@beep/schema/http/HttpStatus` | `InvalidSslCertificate` | const | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:2121` | 526 “Invalid SSL Certificate” – Another code mostly used by Cloudflare. |
-| `@beep/schema/http/HttpStatus` | `InvalidSslCertificate` | type | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:2135` | {@inheritDoc InvalidSslCertificate} |
-| `@beep/schema/http/HttpStatus` | `LengthRequired` | const | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:1070` | 411 “Length Required” – The length of the request’s content is not specified |
-| `@beep/schema/http/HttpStatus` | `LengthRequired` | type | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:1084` | {@inheritDoc LengthRequired} |
-| `@beep/schema/http/HttpStatus` | `Locked` | const | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:1307` | 423 “Locked” – The resource that is being accessed is locked. |
-| `@beep/schema/http/HttpStatus` | `Locked` | type | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:1320` | {@inheritDoc Locked} |
-| `@beep/schema/http/HttpStatus` | `LoginTimeout` | const | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:1933` | 440 “Login Time-out” – This code is used by Microsoft’s ISS (Internet |
-| `@beep/schema/http/HttpStatus` | `LoginTimeout` | type | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:1947` | {@inheritDoc LoginTimeout} |
-| `@beep/schema/http/HttpStatus` | `LoopDetected` | const | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:1783` | 508 “Loop Detected” (WebDAV) – The server detected an infinite loop while |
-| `@beep/schema/http/HttpStatus` | `LoopDetected` | type | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:1796` | {@inheritDoc LoopDetected} |
-| `@beep/schema/http/HttpStatus` | `MethodNotAllowed` | const | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:922` | 405 “Method Not Allowed” – The server understands the requested method, but |
-| `@beep/schema/http/HttpStatus` | `MethodNotAllowed` | type | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:936` | {@inheritDoc MethodNotAllowed} |
-| `@beep/schema/http/HttpStatus` | `MisdirectedRequest` | const | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:1261` | 421 “Misdirected Request” – The request was directed to a server unable to |
-| `@beep/schema/http/HttpStatus` | `MisdirectedRequest` | type | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:1274` | {@inheritDoc MisdirectedRequest} |
-| `@beep/schema/http/HttpStatus` | `MovedPermanently` | const | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:536` | 301 “Moved Permanently” – This is the code for a permanent redirect. It means that the URL of the requested resource is permanently replaced with a new address, and search engines should update the URL in their databases. |
-| `@beep/schema/http/HttpStatus` | `MovedPermanently` | type | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:550` | {@inheritDoc MovedPermanently} |
-| `@beep/schema/http/HttpStatus` | `MultipleChoices` | const | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:509` | 300 “Multiple Choices” – The server presents the client with a choice of |
-| `@beep/schema/http/HttpStatus` | `MultipleChoices` | type | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:527` | {@inheritDoc MultipleChoices} |
-| `@beep/schema/http/HttpStatus` | `MultiStatus` | const | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:383` | 207 “Multi-Status” – A code associated with WebDav when a compound request |
-| `@beep/schema/http/HttpStatus` | `MultiStatus` | type | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:397` | {@inheritDoc MultiStatus} |
-| `@beep/schema/http/HttpStatus` | `NetworkAuthenticationRequired` | const | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:1830` | 511 “Network Authentication Required” – This response is sent when you need |
-| `@beep/schema/http/HttpStatus` | `NetworkAuthenticationRequired` | type | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:1844` | {@inheritDoc NetworkAuthenticationRequired} |
-| `@beep/schema/http/HttpStatus` | `NoContent` | const | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:312` | 204 “No Content” – The server fulfilled the request but won’t return any |
-| `@beep/schema/http/HttpStatus` | `NoContent` | type | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:325` | {@inheritDoc NoContent} |
-| `@beep/schema/http/HttpStatus` | `NonAuthoritativeInformation` | const | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:289` | 203 “Non-Authoritative Information” – A code that usually appears when a |
-| `@beep/schema/http/HttpStatus` | `NonAuthoritativeInformation` | type | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:303` | {@inheritDoc NonAuthoritativeInformation} |
-| `@beep/schema/http/HttpStatus` | `NotAcceptable` | const | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:945` | 406 “Not Acceptable” – The requested resource generated content that doesn’t |
-| `@beep/schema/http/HttpStatus` | `NotAcceptable` | type | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:959` | {@inheritDoc NotAcceptable} |
-| `@beep/schema/http/HttpStatus` | `NotExtended` | const | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:1805` | 510 “Not Extended” – Further extensions to the request are required for the |
-| `@beep/schema/http/HttpStatus` | `NotExtended` | type | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:1819` | {@inheritDoc NotExtended} |
-| `@beep/schema/http/HttpStatus` | `NotFound` | const | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:899` | 404 “Not found” – This is the most frequent error users see online. It means |
-| `@beep/schema/http/HttpStatus` | `NotFound` | type | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:913` | {@inheritDoc NotFound} |
-| `@beep/schema/http/HttpStatus` | `NotImplemented` | const | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:1611` | 501 “Not Implemented” – The server doesn’t support the request method or |
-| `@beep/schema/http/HttpStatus` | `NotImplemented` | type | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:1625` | {@inheritDoc NotImplemented} |
-| `@beep/schema/http/HttpStatus` | `NotModified` | const | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:610` | 304 “Not Modified” – The server informs your browser that the resource |
-| `@beep/schema/http/HttpStatus` | `NotModified` | type | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:624` | {@inheritDoc NotModified} |
-| `@beep/schema/http/HttpStatus` | `Ok` | const | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:219` | 200 “OK” – The response for a successful HTTP request. The result will depend on the type of request. |
-| `@beep/schema/http/HttpStatus` | `Ok` | type | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:233` | {@inheritDoc Ok} |
-| `@beep/schema/http/HttpStatus` | `PartialContent` | const | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:359` | 206 “Partial Content” – The server returns only a portion of the requested |
-| `@beep/schema/http/HttpStatus` | `PartialContent` | type | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:373` | {@inheritDoc PartialContent} |
-| `@beep/schema/http/HttpStatus` | `PayloadTooLarge` | const | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:1120` | 413 “Payload too large” – The request is larger than the limits specified on |
-| `@beep/schema/http/HttpStatus` | `PayloadTooLarge` | type | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:1134` | {@inheritDoc PayloadTooLarge} |
-| `@beep/schema/http/HttpStatus` | `PaymentRequired` | const | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:844` | 402 “Payment Required” – This is not a standard code however it is reserved |
-| `@beep/schema/http/HttpStatus` | `PaymentRequired` | type | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:858` | {@inheritDoc PaymentRequired} |
-| `@beep/schema/http/HttpStatus` | `PermanentRedirect` | const | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:707` | 308 “Permanent Redirect” – The requested resource is permanently moved to |
-| `@beep/schema/http/HttpStatus` | `PermanentRedirect` | type | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:721` | {@inheritDoc PermanentRedirect} |
-| `@beep/schema/http/HttpStatus` | `PreconditionFailed` | const | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:1093` | 412 “Precondition failed” – The headers of the request specify certain |
-| `@beep/schema/http/HttpStatus` | `PreconditionFailed` | type | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:1107` | {@inheritDoc PreconditionFailed} |
-| `@beep/schema/http/HttpStatus` | `PreconditionRequired` | const | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:1402` | 428 “Precondition Required” – The server requires the request to be |
-| `@beep/schema/http/HttpStatus` | `PreconditionRequired` | type | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:1416` | {@inheritDoc PreconditionRequired} |
-| `@beep/schema/http/HttpStatus` | `Processing` | const | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:126` | 102 “Processing” – This is a response mainly associated with WebDAV |
-| `@beep/schema/http/HttpStatus` | `Processing` | type | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:140` | {@inheritDoc Processing} |
-| `@beep/schema/http/HttpStatus` | `ProxyAuthenticationRequired` | const | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:969` | 407 “Proxy Authentication Required” – There is a proxy server used in the |
-| `@beep/schema/http/HttpStatus` | `ProxyAuthenticationRequired` | type | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:983` | {@inheritDoc ProxyAuthenticationRequired} |
-| `@beep/schema/http/HttpStatus` | `RangeNotSatisfiable` | const | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:1192` | 416 “Range Not Satisfiable” – The request asked for a portion of the |
-| `@beep/schema/http/HttpStatus` | `RangeNotSatisfiable` | type | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:1206` | {@inheritDoc RangeNotSatisfiable} |
-| `@beep/schema/http/HttpStatus` | `RequestHeaderFieldsTooLarge` | const | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:1458` | 431 “Request Header Fields Too Large” – The server can’t process the request |
-| `@beep/schema/http/HttpStatus` | `RequestHeaderFieldsTooLarge` | type | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:1472` | {@inheritDoc RequestHeaderFieldsTooLarge} |
-| `@beep/schema/http/HttpStatus` | `RequestHeaderFieldsTooLargeShopify` | const | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:1909` | 430 “Request Header Fields Too Large” – This code is used by Shopify when |
-| `@beep/schema/http/HttpStatus` | `RequestHeaderFieldsTooLargeShopify` | type | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:1923` | {@inheritDoc RequestHeaderFieldsTooLargeShopify} |
-| `@beep/schema/http/HttpStatus` | `RequestHeaderTooLarge` | const | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:1956` | 494 “Request header too large” – used by NGINX. The client has sent too |
-| `@beep/schema/http/HttpStatus` | `RequestHeaderTooLarge` | type | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:1970` | {@inheritDoc RequestHeaderTooLarge} |
-| `@beep/schema/http/HttpStatus` | `RequestTimeout` | const | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:996` | 408 “Request Timeout” – The server closed due to a time-out while waiting |
-| `@beep/schema/http/HttpStatus` | `RequestTimeout` | type | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:1010` | {@inheritDoc RequestTimeout} |
-| `@beep/schema/http/HttpStatus` | `ResetContent` | const | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:334` | 205 “Reset Content” – The server fulfilled the request, and it won’t return |
-| `@beep/schema/http/HttpStatus` | `ResetContent` | type | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:348` | {@inheritDoc ResetContent} |
-| `@beep/schema/http/HttpStatus` | `SeeOther` | const | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:585` | 303 “See Other” – The server instructs the client that it found the |
-| `@beep/schema/http/HttpStatus` | `SeeOther` | type | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:599` | {@inheritDoc SeeOther} |
-| `@beep/schema/http/HttpStatus` | `ServiceUnavailable` | const | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:1661` | 503 “Service Unavailable” – The server can’t handle the request. This is |
-| `@beep/schema/http/HttpStatus` | `ServiceUnavailable` | type | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:1675` | {@inheritDoc ServiceUnavailable} |
-| `@beep/schema/http/HttpStatus` | `SslCertificateError` | const | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:1979` | 495 “SSL Certificate Error” – This is also a status code used by NGINX |
-| `@beep/schema/http/HttpStatus` | `SslCertificateError` | type | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:1993` | {@inheritDoc SslCertificateError} |
-| `@beep/schema/http/HttpStatus` | `SslCertificateRequired` | const | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:2002` | 496 “SSL Certificate Required” – used by NGINX. A client certificate is |
-| `@beep/schema/http/HttpStatus` | `SslCertificateRequired` | type | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:2016` | {@inheritDoc SslCertificateRequired} |
-| `@beep/schema/http/HttpStatus` | `SslHandshakeFailed` | const | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:2096` | 525 “SSL Handshake Failed” – Used by Cloudflare. Cloudflare is unable to |
-| `@beep/schema/http/HttpStatus` | `SslHandshakeFailed` | type | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:2110` | {@inheritDoc SslHandshakeFailed} |
-| `@beep/schema/http/HttpStatus` | `SwitchingProtocols` | const | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:102` | 101 “Switching Protocols” – The requesting client (browser) asked the server to |
-| `@beep/schema/http/HttpStatus` | `SwitchingProtocols` | type | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:116` | {@inheritDoc SwitchingProtocols} |
-| `@beep/schema/http/HttpStatus` | `SwitchProxy` | const | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:656` | 306 “Switch Proxy” – This code is no longer in use. It means that the |
-| `@beep/schema/http/HttpStatus` | `SwitchProxy` | type | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:670` | {@inheritDoc SwitchProxy} |
-| `@beep/schema/http/HttpStatus` | `TemporaryRedirect` | const | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:682` | 307 “Temporary redirect” – This is the new code for temporary redirects that |
-| `@beep/schema/http/HttpStatus` | `TemporaryRedirect` | type | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:696` | {@inheritDoc TemporaryRedirect} |
-| `@beep/schema/http/HttpStatus` | `TooEarly` | const | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:1352` | 425 “Too Early” – This error indicates that the server is unwilling to risk |
-| `@beep/schema/http/HttpStatus` | `TooEarly` | type | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:1366` | {@inheritDoc TooEarly} |
-| `@beep/schema/http/HttpStatus` | `TooManyRequests` | const | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:1434` | 429 “Too many requests” – The server responds with this code when the user |
-| `@beep/schema/http/HttpStatus` | `TooManyRequests` | type | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:1448` | {@inheritDoc TooManyRequests} |
-| `@beep/schema/http/HttpStatus` | `Unauthorized` | const | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:813` | 401 “Unauthorized” – This error appears when the client fails to provide |
-| `@beep/schema/http/HttpStatus` | `Unauthorized` | type | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:834` | {@inheritDoc Unauthorized} |
-| `@beep/schema/http/HttpStatus` | `UnavailableForLegalReasons` | const | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:1482` | 451 “Unavailable for Legal Reasons” – The client requests a resource for |
-| `@beep/schema/http/HttpStatus` | `UnavailableForLegalReasons` | type | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:1496` | {@inheritDoc UnavailableForLegalReasons} |
-| `@beep/schema/http/HttpStatus` | `UnprocessableEntity` | const | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:1285` | 422 “Unprocessable Entity” – The request from the client is well-formed but |
-| `@beep/schema/http/HttpStatus` | `UnprocessableEntity` | type | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:1299` | {@inheritDoc UnprocessableEntity} |
-| `@beep/schema/http/HttpStatus` | `UnsupportedMediaType` | const | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:1168` | 415 “Unsupported Media Type” – The request contains a media type that the |
-| `@beep/schema/http/HttpStatus` | `UnsupportedMediaType` | type | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:1182` | {@inheritDoc UnsupportedMediaType} |
-| `@beep/schema/http/HttpStatus` | `UpgradeRequired` | const | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:1376` | 426 “Upgrade Required” – The server refuses the request using the current |
-| `@beep/schema/http/HttpStatus` | `UpgradeRequired` | type | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:1390` | {@inheritDoc UpgradeRequired} |
-| `@beep/schema/http/HttpStatus` | `UriTooLong` | const | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:1144` | 414 “URI Too Long” – The length of the URI is too long and the server can’t |
-| `@beep/schema/http/HttpStatus` | `UriTooLong` | type | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:1158` | {@inheritDoc UriTooLong} |
-| `@beep/schema/http/HttpStatus` | `UseProxy` | const | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:633` | 305 “Use Proxy” – The requested resource is available only through a proxy. |
-| `@beep/schema/http/HttpStatus` | `UseProxy` | type | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:647` | {@inheritDoc UseProxy} |
-| `@beep/schema/http/HttpStatus` | `VariantAlsoNegotiates` | const | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:1737` | 506 “Variant Also Negotiates” – This error occurs when the client and the |
-| `@beep/schema/http/HttpStatus` | `VariantAlsoNegotiates` | type | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:1751` | {@inheritDoc VariantAlsoNegotiates} |
-| `@beep/schema/http/HttpStatus` | `WebServerIsDown` | const | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:2073` | 521 “Web Server is Down” – Another Cloudflare-specific error code. The |
-| `@beep/schema/http/HttpStatus` | `WebServerIsDown` | type | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:2087` | {@inheritDoc WebServerIsDown} |
-| `@beep/schema/http/HttpStatus` | `WebServerReturnedAnUnknownError` | const | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:2049` | 520 “Web Server Returned an Unknown Error” – This is a code used by |
-| `@beep/schema/http/HttpStatus` | `WebServerReturnedAnUnknownError` | type | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:2063` | {@inheritDoc WebServerReturnedAnUnknownError} |
-| `@beep/schema/http/index` | `COEPResponseHeader` | class | `packages/foundation/modeling/schema/src/http/headers/CrossOriginEmbedderPolicy.ts:66` | Schema for the Cross-Origin-Embedder-Policy response header output. |
-| `@beep/schema/http/index` | `CoepValue` | const | `packages/foundation/modeling/schema/src/http/headers/CrossOriginEmbedderPolicy.ts:29` |  |
-| `@beep/schema/http/index` | `CoepValue` | type | `packages/foundation/modeling/schema/src/http/headers/CrossOriginEmbedderPolicy.ts:40` |  |
-| `@beep/schema/http/index` | `ContentSecurityPolicyHeader` | const | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:582` |  |
-| `@beep/schema/http/index` | `ContentSecurityPolicyHeader` | type | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:647` |  |
-| `@beep/schema/http/index` | `ContentSecurityPolicyHeaderName` | const | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:47` |  |
-| `@beep/schema/http/index` | `ContentSecurityPolicyHeaderName` | type | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:58` |  |
-| `@beep/schema/http/index` | `ContentSecurityPolicyOption` | const | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:482` |  |
-| `@beep/schema/http/index` | `ContentSecurityPolicyOption` | type | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:492` |  |
-| `@beep/schema/http/index` | `ContentSecurityPolicyOptionStruct` | class | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:450` |  |
-| `@beep/schema/http/index` | `ContentSecurityPolicyResponseHeader` | class | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:498` |  |
-| `@beep/schema/http/index` | `CoopValue` | const | `packages/foundation/modeling/schema/src/http/headers/CrossOriginOpenerPolicy.ts:38` | Schema for supported `Cross-Origin-Opener-Policy` header values. |
-| `@beep/schema/http/index` | `CoopValue` | type | `packages/foundation/modeling/schema/src/http/headers/CrossOriginOpenerPolicy.ts:51` | Type-level representation of {@link CoopValue}. |
-| `@beep/schema/http/index` | `CoreError` | class | `packages/foundation/modeling/schema/src/http/headers/SecureHeaderError.ts:187` |  |
-| `@beep/schema/http/index` | `CorpValue` | const | `packages/foundation/modeling/schema/src/http/headers/CrossOriginResourcePolicy.ts:27` |  |
-| `@beep/schema/http/index` | `CorpValue` | type | `packages/foundation/modeling/schema/src/http/headers/CrossOriginResourcePolicy.ts:38` |  |
-| `@beep/schema/http/index` | `createContentSecurityPolicyOptionHeaderValue` | const | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:556` |  |
-| `@beep/schema/http/index` | `createDirectiveValue` | const | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:116` | Creates a serialized directive value from a directive name and value list. |
-| `@beep/schema/http/index` | `createHeadersObject` | const | `packages/foundation/modeling/schema/src/http/headers/SecureHeaderOptions.ts:157` | Resolve secure-header options into a plain `Record<string, string>` header object. |
-| `@beep/schema/http/index` | `createSecureHeaders` | const | `packages/foundation/modeling/schema/src/http/headers/SecureHeaderOptions.ts:186` | Resolve secure-header options into an array of {@link SecureHeaderEntry} pairs. |
-| `@beep/schema/http/index` | `CrossOriginEmbedderPolicyError` | class | `packages/foundation/modeling/schema/src/http/headers/SecureHeaderError.ts:169` |  |
-| `@beep/schema/http/index` | `CrossOriginEmbedderPolicyHeader` | const | `packages/foundation/modeling/schema/src/http/headers/CrossOriginEmbedderPolicy.ts:88` | Schema for the Cross-Origin-Embedder-Policy response header. |
-| `@beep/schema/http/index` | `CrossOriginEmbedderPolicyHeader` | type | `packages/foundation/modeling/schema/src/http/headers/CrossOriginEmbedderPolicy.ts:165` |  |
-| `@beep/schema/http/index` | `CrossOriginEmbedderPolicyOption` | const | `packages/foundation/modeling/schema/src/http/headers/CrossOriginEmbedderPolicy.ts:48` |  |
-| `@beep/schema/http/index` | `CrossOriginEmbedderPolicyOption` | type | `packages/foundation/modeling/schema/src/http/headers/CrossOriginEmbedderPolicy.ts:59` |  |
-| `@beep/schema/http/index` | `CrossOriginOpenerPolicyError` | class | `packages/foundation/modeling/schema/src/http/headers/SecureHeaderError.ts:163` |  |
-| `@beep/schema/http/index` | `CrossOriginOpenerPolicyHeader` | const | `packages/foundation/modeling/schema/src/http/headers/CrossOriginOpenerPolicy.ts:132` | One-way schema that decodes COOP options into the `Cross-Origin-Opener-Policy` response header. |
-| `@beep/schema/http/index` | `CrossOriginOpenerPolicyHeader` | type | `packages/foundation/modeling/schema/src/http/headers/CrossOriginOpenerPolicy.ts:192` | Type-level representation of {@link CrossOriginOpenerPolicyHeader}. |
-| `@beep/schema/http/index` | `CrossOriginOpenerPolicyOption` | const | `packages/foundation/modeling/schema/src/http/headers/CrossOriginOpenerPolicy.ts:70` | Schema for `Cross-Origin-Opener-Policy` option values, including `false` to disable. |
-| `@beep/schema/http/index` | `CrossOriginOpenerPolicyOption` | type | `packages/foundation/modeling/schema/src/http/headers/CrossOriginOpenerPolicy.ts:83` | Type-level representation of {@link CrossOriginOpenerPolicyOption}. |
-| `@beep/schema/http/index` | `CrossOriginOpenerPolicyResponseHeader` | class | `packages/foundation/modeling/schema/src/http/headers/CrossOriginOpenerPolicy.ts:103` | Parsed `Cross-Origin-Opener-Policy` response header with name and optional value. |
-| `@beep/schema/http/index` | `CrossOriginResourcePolicyError` | class | `packages/foundation/modeling/schema/src/http/headers/SecureHeaderError.ts:175` |  |
-| `@beep/schema/http/index` | `CrossOriginResourcePolicyHeader` | const | `packages/foundation/modeling/schema/src/http/headers/CrossOriginResourcePolicy.ts:81` |  |
-| `@beep/schema/http/index` | `CrossOriginResourcePolicyHeader` | type | `packages/foundation/modeling/schema/src/http/headers/CrossOriginResourcePolicy.ts:139` |  |
-| `@beep/schema/http/index` | `CrossOriginResourcePolicyOption` | const | `packages/foundation/modeling/schema/src/http/headers/CrossOriginResourcePolicy.ts:46` |  |
-| `@beep/schema/http/index` | `CrossOriginResourcePolicyOption` | type | `packages/foundation/modeling/schema/src/http/headers/CrossOriginResourcePolicy.ts:57` |  |
-| `@beep/schema/http/index` | `CrossOriginResourcePolicyResponseHeader` | class | `packages/foundation/modeling/schema/src/http/headers/CrossOriginResourcePolicy.ts:63` |  |
-| `@beep/schema/http/index` | `CspDirectives` | const | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:435` |  |
-| `@beep/schema/http/index` | `CspError` | class | `packages/foundation/modeling/schema/src/http/headers/SecureHeaderError.ts:109` |  |
-| `@beep/schema/http/index` | `DirectiveSource` | const | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:25` |  |
-| `@beep/schema/http/index` | `DirectiveSource` | type | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:35` |  |
-| `@beep/schema/http/index` | `DocumentDirective` | class | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:301` |  |
-| `@beep/schema/http/index` | `ExpectCTConfig` | class | `packages/foundation/modeling/schema/src/http/headers/ExpectCT.ts:27` |  |
-| `@beep/schema/http/index` | `ExpectCTEnabled` | const | `packages/foundation/modeling/schema/src/http/headers/ExpectCT.ts:42` |  |
-| `@beep/schema/http/index` | `ExpectCTEnabled` | type | `packages/foundation/modeling/schema/src/http/headers/ExpectCT.ts:52` |  |
-| `@beep/schema/http/index` | `ExpectCtError` | class | `packages/foundation/modeling/schema/src/http/headers/SecureHeaderError.ts:151` |  |
-| `@beep/schema/http/index` | `ExpectCTHeader` | const | `packages/foundation/modeling/schema/src/http/headers/ExpectCT.ts:150` |  |
-| `@beep/schema/http/index` | `ExpectCTHeader` | type | `packages/foundation/modeling/schema/src/http/headers/ExpectCT.ts:207` |  |
-| `@beep/schema/http/index` | `ExpectCTOption` | const | `packages/foundation/modeling/schema/src/http/headers/ExpectCT.ts:58` |  |
-| `@beep/schema/http/index` | `ExpectCTOption` | type | `packages/foundation/modeling/schema/src/http/headers/ExpectCT.ts:68` |  |
-| `@beep/schema/http/index` | `ExpectCTResponseHeader` | class | `packages/foundation/modeling/schema/src/http/headers/ExpectCT.ts:74` |  |
-| `@beep/schema/http/index` | `FetchDirective` | class | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:232` |  |
-| `@beep/schema/http/index` | `ForceHttpsRedirectConfig` | class | `packages/foundation/modeling/schema/src/http/headers/ForceHttpsRedirect.ts:27` |  |
-| `@beep/schema/http/index` | `ForceHttpsRedirectEnabled` | const | `packages/foundation/modeling/schema/src/http/headers/ForceHttpsRedirect.ts:42` |  |
-| `@beep/schema/http/index` | `ForceHttpsRedirectEnabled` | type | `packages/foundation/modeling/schema/src/http/headers/ForceHttpsRedirect.ts:52` |  |
-| `@beep/schema/http/index` | `ForceHttpsRedirectError` | class | `packages/foundation/modeling/schema/src/http/headers/SecureHeaderError.ts:115` |  |
-| `@beep/schema/http/index` | `ForceHttpsRedirectHeader` | const | `packages/foundation/modeling/schema/src/http/headers/ForceHttpsRedirect.ts:103` |  |
-| `@beep/schema/http/index` | `ForceHttpsRedirectHeader` | type | `packages/foundation/modeling/schema/src/http/headers/ForceHttpsRedirect.ts:172` |  |
-| `@beep/schema/http/index` | `ForceHttpsRedirectOption` | const | `packages/foundation/modeling/schema/src/http/headers/ForceHttpsRedirect.ts:58` |  |
-| `@beep/schema/http/index` | `ForceHttpsRedirectOption` | type | `packages/foundation/modeling/schema/src/http/headers/ForceHttpsRedirect.ts:68` |  |
-| `@beep/schema/http/index` | `ForceHttpsRedirectResponseHeader` | class | `packages/foundation/modeling/schema/src/http/headers/ForceHttpsRedirect.ts:74` |  |
-| `@beep/schema/http/index` | `FrameGuardAllowFrom` | const | `packages/foundation/modeling/schema/src/http/headers/FrameGuard.ts:60` |  |
-| `@beep/schema/http/index` | `FrameGuardAllowFrom` | type | `packages/foundation/modeling/schema/src/http/headers/FrameGuard.ts:70` |  |
-| `@beep/schema/http/index` | `FrameGuardAllowFromConfig` | class | `packages/foundation/modeling/schema/src/http/headers/FrameGuard.ts:47` |  |
-| `@beep/schema/http/index` | `FrameGuardError` | class | `packages/foundation/modeling/schema/src/http/headers/SecureHeaderError.ts:145` |  |
-| `@beep/schema/http/index` | `FrameGuardHeader` | const | `packages/foundation/modeling/schema/src/http/headers/FrameGuard.ts:137` |  |
-| `@beep/schema/http/index` | `FrameGuardHeader` | type | `packages/foundation/modeling/schema/src/http/headers/FrameGuard.ts:211` |  |
-| `@beep/schema/http/index` | `FrameGuardMode` | const | `packages/foundation/modeling/schema/src/http/headers/FrameGuard.ts:30` |  |
-| `@beep/schema/http/index` | `FrameGuardMode` | type | `packages/foundation/modeling/schema/src/http/headers/FrameGuard.ts:41` |  |
-| `@beep/schema/http/index` | `FrameGuardOption` | const | `packages/foundation/modeling/schema/src/http/headers/FrameGuard.ts:76` |  |
-| `@beep/schema/http/index` | `FrameGuardOption` | type | `packages/foundation/modeling/schema/src/http/headers/FrameGuard.ts:86` |  |
-| `@beep/schema/http/index` | `FrameGuardResponseHeader` | class | `packages/foundation/modeling/schema/src/http/headers/FrameGuard.ts:92` |  |
-| `@beep/schema/http/index` | `getProperHeaderName` | const | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:92` | Get proper header name for CSP |
-| `@beep/schema/http/index` | `HttpMethod` | const | `packages/foundation/modeling/schema/src/http/HttpMethod/HttpMethod.ts:49` |  |
-| `@beep/schema/http/index` | `HttpMethod` | type | `packages/foundation/modeling/schema/src/http/HttpMethod/HttpMethod.ts:79` |  |
-| `@beep/schema/http/index` | `HttpMethod_` | const | `packages/foundation/modeling/schema/src/http/HttpMethod/HttpMethod.ts:19` |  |
-| `@beep/schema/http/index` | `HttpProtocol` | const | `packages/foundation/modeling/schema/src/http/HttpProtocol.ts:18` | An HTTP protocol ("http" or "https") |
-| `@beep/schema/http/index` | `HttpProtocol` | type | `packages/foundation/modeling/schema/src/http/HttpProtocol.ts:30` | {@inheritDoc HttpProtocol} |
-| `@beep/schema/http/index` | `HttpStatus` | SourceFile | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:16` |  |
-| `@beep/schema/http/index` | `NavigationDirective` | class | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:345` |  |
-| `@beep/schema/http/index` | `NoOpenError` | class | `packages/foundation/modeling/schema/src/http/headers/SecureHeaderError.ts:139` |  |
-| `@beep/schema/http/index` | `NoOpenHeader` | const | `packages/foundation/modeling/schema/src/http/headers/NoOpen.ts:80` |  |
-| `@beep/schema/http/index` | `NoOpenHeader` | type | `packages/foundation/modeling/schema/src/http/headers/NoOpen.ts:139` |  |
-| `@beep/schema/http/index` | `NoOpenOption` | const | `packages/foundation/modeling/schema/src/http/headers/NoOpen.ts:47` |  |
-| `@beep/schema/http/index` | `NoOpenOption` | type | `packages/foundation/modeling/schema/src/http/headers/NoOpen.ts:58` |  |
-| `@beep/schema/http/index` | `NoOpenResponseHeader` | class | `packages/foundation/modeling/schema/src/http/headers/NoOpen.ts:64` |  |
-| `@beep/schema/http/index` | `NoOpenValue` | const | `packages/foundation/modeling/schema/src/http/headers/NoOpen.ts:28` |  |
-| `@beep/schema/http/index` | `NoOpenValue` | type | `packages/foundation/modeling/schema/src/http/headers/NoOpen.ts:39` |  |
-| `@beep/schema/http/index` | `NoSniffError` | class | `packages/foundation/modeling/schema/src/http/headers/SecureHeaderError.ts:133` |  |
-| `@beep/schema/http/index` | `NoSniffHeader` | const | `packages/foundation/modeling/schema/src/http/headers/NoSniff.ts:128` | One-way schema that decodes `X-Content-Type-Options` options into the response header. |
-| `@beep/schema/http/index` | `NoSniffHeader` | type | `packages/foundation/modeling/schema/src/http/headers/NoSniff.ts:189` | Type-level representation of {@link NoSniffHeader}. |
-| `@beep/schema/http/index` | `NoSniffOption` | const | `packages/foundation/modeling/schema/src/http/headers/NoSniff.ts:71` | Schema for `X-Content-Type-Options` option values, including `false` to disable. |
-| `@beep/schema/http/index` | `NoSniffOption` | type | `packages/foundation/modeling/schema/src/http/headers/NoSniff.ts:84` | Type-level representation of {@link NoSniffOption}. |
-| `@beep/schema/http/index` | `NoSniffResponseHeader` | class | `packages/foundation/modeling/schema/src/http/headers/NoSniff.ts:101` | Parsed `X-Content-Type-Options` response header with name and optional value. |
-| `@beep/schema/http/index` | `NoSniffValue` | const | `packages/foundation/modeling/schema/src/http/headers/NoSniff.ts:39` | Schema for supported `X-Content-Type-Options` header values. |
-| `@beep/schema/http/index` | `NoSniffValue` | type | `packages/foundation/modeling/schema/src/http/headers/NoSniff.ts:52` | Type-level representation of {@link NoSniffValue}. |
-| `@beep/schema/http/index` | `PermissionsPolicyAllowlistedOrigin` | const | `packages/foundation/modeling/schema/src/http/headers/PermissionsPolicy.ts:138` |  |
-| `@beep/schema/http/index` | `PermissionsPolicyAllowlistedOrigin` | type | `packages/foundation/modeling/schema/src/http/headers/PermissionsPolicy.ts:148` |  |
-| `@beep/schema/http/index` | `PermissionsPolicyDirective` | const | `packages/foundation/modeling/schema/src/http/headers/PermissionsPolicy.ts:57` |  |
-| `@beep/schema/http/index` | `PermissionsPolicyDirective` | type | `packages/foundation/modeling/schema/src/http/headers/PermissionsPolicy.ts:68` |  |
-| `@beep/schema/http/index` | `PermissionsPolicyDirectiveKey` | const | `packages/foundation/modeling/schema/src/http/headers/PermissionsPolicy.ts:74` |  |
-| `@beep/schema/http/index` | `PermissionsPolicyDirectiveKey` | type | `packages/foundation/modeling/schema/src/http/headers/PermissionsPolicy.ts:91` |  |
-| `@beep/schema/http/index` | `PermissionsPolicyDirectives` | const | `packages/foundation/modeling/schema/src/http/headers/PermissionsPolicy.ts:174` |  |
-| `@beep/schema/http/index` | `PermissionsPolicyDirectives` | type | `packages/foundation/modeling/schema/src/http/headers/PermissionsPolicy.ts:187` |  |
-| `@beep/schema/http/index` | `PermissionsPolicyDirectiveValue` | const | `packages/foundation/modeling/schema/src/http/headers/PermissionsPolicy.ts:154` |  |
-| `@beep/schema/http/index` | `PermissionsPolicyDirectiveValue` | type | `packages/foundation/modeling/schema/src/http/headers/PermissionsPolicy.ts:168` |  |
-| `@beep/schema/http/index` | `PermissionsPolicyDirectiveValueSingle` | const | `packages/foundation/modeling/schema/src/http/headers/PermissionsPolicy.ts:121` |  |
-| `@beep/schema/http/index` | `PermissionsPolicyDirectiveValueSingle` | type | `packages/foundation/modeling/schema/src/http/headers/PermissionsPolicy.ts:132` |  |
-| `@beep/schema/http/index` | `PermissionsPolicyError` | class | `packages/foundation/modeling/schema/src/http/headers/SecureHeaderError.ts:157` |  |
-| `@beep/schema/http/index` | `PermissionsPolicyHeader` | const | `packages/foundation/modeling/schema/src/http/headers/PermissionsPolicy.ts:272` |  |
-| `@beep/schema/http/index` | `PermissionsPolicyHeader` | type | `packages/foundation/modeling/schema/src/http/headers/PermissionsPolicy.ts:333` |  |
-| `@beep/schema/http/index` | `PermissionsPolicyOption` | const | `packages/foundation/modeling/schema/src/http/headers/PermissionsPolicy.ts:208` |  |
-| `@beep/schema/http/index` | `PermissionsPolicyOption` | type | `packages/foundation/modeling/schema/src/http/headers/PermissionsPolicy.ts:218` |  |
-| `@beep/schema/http/index` | `PermissionsPolicyOptionStruct` | class | `packages/foundation/modeling/schema/src/http/headers/PermissionsPolicy.ts:193` |  |
-| `@beep/schema/http/index` | `PermissionsPolicyResponseHeader` | class | `packages/foundation/modeling/schema/src/http/headers/PermissionsPolicy.ts:224` |  |
-| `@beep/schema/http/index` | `PermittedCrossDomainPoliciesError` | class | `packages/foundation/modeling/schema/src/http/headers/SecureHeaderError.ts:181` |  |
-| `@beep/schema/http/index` | `PermittedCrossDomainPoliciesHeader` | const | `packages/foundation/modeling/schema/src/http/headers/PermittedCrossDomainPolicies.ts:88` |  |
-| `@beep/schema/http/index` | `PermittedCrossDomainPoliciesHeader` | type | `packages/foundation/modeling/schema/src/http/headers/PermittedCrossDomainPolicies.ts:150` |  |
-| `@beep/schema/http/index` | `PermittedCrossDomainPoliciesOption` | const | `packages/foundation/modeling/schema/src/http/headers/PermittedCrossDomainPolicies.ts:53` |  |
-| `@beep/schema/http/index` | `PermittedCrossDomainPoliciesOption` | type | `packages/foundation/modeling/schema/src/http/headers/PermittedCrossDomainPolicies.ts:64` |  |
-| `@beep/schema/http/index` | `PermittedCrossDomainPoliciesResponseHeader` | class | `packages/foundation/modeling/schema/src/http/headers/PermittedCrossDomainPolicies.ts:70` |  |
-| `@beep/schema/http/index` | `PermittedCrossDomainPoliciesValue` | const | `packages/foundation/modeling/schema/src/http/headers/PermittedCrossDomainPolicies.ts:34` |  |
-| `@beep/schema/http/index` | `PermittedCrossDomainPoliciesValue` | type | `packages/foundation/modeling/schema/src/http/headers/PermittedCrossDomainPolicies.ts:45` |  |
-| `@beep/schema/http/index` | `PluginTypes` | const | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:145` |  |
-| `@beep/schema/http/index` | `PluginTypes` | type | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:155` |  |
-| `@beep/schema/http/index` | `QuotedOrigin` | const | `packages/foundation/modeling/schema/src/http/headers/PermissionsPolicy.ts:97` |  |
-| `@beep/schema/http/index` | `QuotedOrigin` | type | `packages/foundation/modeling/schema/src/http/headers/PermissionsPolicy.ts:113` |  |
-| `@beep/schema/http/index` | `ReferrerPolicyError` | class | `packages/foundation/modeling/schema/src/http/headers/SecureHeaderError.ts:127` |  |
-| `@beep/schema/http/index` | `ReferrerPolicyHeader` | const | `packages/foundation/modeling/schema/src/http/headers/ReferrerPolicy.ts:126` |  |
-| `@beep/schema/http/index` | `ReferrerPolicyHeader` | type | `packages/foundation/modeling/schema/src/http/headers/ReferrerPolicy.ts:192` |  |
-| `@beep/schema/http/index` | `ReferrerPolicyOption` | const | `packages/foundation/modeling/schema/src/http/headers/ReferrerPolicy.ts:70` |  |
-| `@beep/schema/http/index` | `ReferrerPolicyOption` | type | `packages/foundation/modeling/schema/src/http/headers/ReferrerPolicy.ts:80` |  |
-| `@beep/schema/http/index` | `ReferrerPolicyResponseHeader` | class | `packages/foundation/modeling/schema/src/http/headers/ReferrerPolicy.ts:86` |  |
-| `@beep/schema/http/index` | `ReferrerPolicyValue` | const | `packages/foundation/modeling/schema/src/http/headers/ReferrerPolicy.ts:37` |  |
-| `@beep/schema/http/index` | `ReferrerPolicyValue` | type | `packages/foundation/modeling/schema/src/http/headers/ReferrerPolicy.ts:48` |  |
-| `@beep/schema/http/index` | `ReferrerPolicyValueList` | const | `packages/foundation/modeling/schema/src/http/headers/ReferrerPolicy.ts:54` |  |
-| `@beep/schema/http/index` | `ReferrerPolicyValueList` | type | `packages/foundation/modeling/schema/src/http/headers/ReferrerPolicy.ts:64` |  |
-| `@beep/schema/http/index` | `ReportingDirective` | class | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:399` |  |
-| `@beep/schema/http/index` | `ReportURI` | const | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:389` |  |
-| `@beep/schema/http/index` | `Sandbox` | const | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:178` |  |
-| `@beep/schema/http/index` | `Sandbox` | type | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:189` |  |
-| `@beep/schema/http/index` | `SecureHeader` | const | `packages/foundation/modeling/schema/src/http/headers/SecureHeader.ts:33` |  |
-| `@beep/schema/http/index` | `SecureHeader` | type | `packages/foundation/modeling/schema/src/http/headers/SecureHeader.ts:44` |  |
-| `@beep/schema/http/index` | `SecureHeaderEntry` | class | `packages/foundation/modeling/schema/src/http/headers/SecureHeaderOptions.ts:87` | A rendered secure header pair in `{ key, value }` format. |
-| `@beep/schema/http/index` | `SecureHeaderError` | const | `packages/foundation/modeling/schema/src/http/headers/SecureHeaderError.ts:193` |  |
-| `@beep/schema/http/index` | `SecureHeaderError` | type | `packages/foundation/modeling/schema/src/http/headers/SecureHeaderError.ts:221` |  |
-| `@beep/schema/http/index` | `SecureHeaderOptions` | class | `packages/foundation/modeling/schema/src/http/headers/SecureHeaderOptions.ts:52` | Aggregate input options for configuring all secure response headers. |
-| `@beep/schema/http/index` | `XssProtectionError` | class | `packages/foundation/modeling/schema/src/http/headers/SecureHeaderError.ts:121` |  |
-| `@beep/schema/http/index` | `XSSProtectionHeader` | const | `packages/foundation/modeling/schema/src/http/headers/XSSProtection.ts:144` |  |
-| `@beep/schema/http/index` | `XSSProtectionHeader` | type | `packages/foundation/modeling/schema/src/http/headers/XSSProtection.ts:195` |  |
-| `@beep/schema/http/index` | `XSSProtectionMode` | const | `packages/foundation/modeling/schema/src/http/headers/XSSProtection.ts:29` |  |
-| `@beep/schema/http/index` | `XSSProtectionMode` | type | `packages/foundation/modeling/schema/src/http/headers/XSSProtection.ts:40` |  |
-| `@beep/schema/http/index` | `XSSProtectionOption` | const | `packages/foundation/modeling/schema/src/http/headers/XSSProtection.ts:75` |  |
-| `@beep/schema/http/index` | `XSSProtectionOption` | type | `packages/foundation/modeling/schema/src/http/headers/XSSProtection.ts:85` |  |
-| `@beep/schema/http/index` | `XSSProtectionReport` | const | `packages/foundation/modeling/schema/src/http/headers/XSSProtection.ts:59` |  |
-| `@beep/schema/http/index` | `XSSProtectionReport` | type | `packages/foundation/modeling/schema/src/http/headers/XSSProtection.ts:69` |  |
-| `@beep/schema/http/index` | `XSSProtectionReportConfig` | class | `packages/foundation/modeling/schema/src/http/headers/XSSProtection.ts:46` |  |
-| `@beep/schema/http/index` | `XSSProtectionResponseHeader` | class | `packages/foundation/modeling/schema/src/http/headers/XSSProtection.ts:91` |  |
-| `@beep/schema/HttpHeaders` | `COEPResponseHeader` | class | `packages/foundation/modeling/schema/src/http/headers/CrossOriginEmbedderPolicy.ts:66` | Schema for the Cross-Origin-Embedder-Policy response header output. |
-| `@beep/schema/HttpHeaders` | `CoepValue` | const | `packages/foundation/modeling/schema/src/http/headers/CrossOriginEmbedderPolicy.ts:29` |  |
-| `@beep/schema/HttpHeaders` | `CoepValue` | type | `packages/foundation/modeling/schema/src/http/headers/CrossOriginEmbedderPolicy.ts:40` |  |
-| `@beep/schema/HttpHeaders` | `ContentSecurityPolicyHeader` | const | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:582` |  |
-| `@beep/schema/HttpHeaders` | `ContentSecurityPolicyHeader` | type | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:647` |  |
-| `@beep/schema/HttpHeaders` | `ContentSecurityPolicyHeaderName` | const | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:47` |  |
-| `@beep/schema/HttpHeaders` | `ContentSecurityPolicyHeaderName` | type | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:58` |  |
-| `@beep/schema/HttpHeaders` | `ContentSecurityPolicyOption` | const | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:482` |  |
-| `@beep/schema/HttpHeaders` | `ContentSecurityPolicyOption` | type | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:492` |  |
-| `@beep/schema/HttpHeaders` | `ContentSecurityPolicyOptionStruct` | class | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:450` |  |
-| `@beep/schema/HttpHeaders` | `ContentSecurityPolicyResponseHeader` | class | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:498` |  |
-| `@beep/schema/HttpHeaders` | `CoopValue` | const | `packages/foundation/modeling/schema/src/http/headers/CrossOriginOpenerPolicy.ts:38` | Schema for supported `Cross-Origin-Opener-Policy` header values. |
-| `@beep/schema/HttpHeaders` | `CoopValue` | type | `packages/foundation/modeling/schema/src/http/headers/CrossOriginOpenerPolicy.ts:51` | Type-level representation of {@link CoopValue}. |
-| `@beep/schema/HttpHeaders` | `CoreError` | class | `packages/foundation/modeling/schema/src/http/headers/SecureHeaderError.ts:187` |  |
-| `@beep/schema/HttpHeaders` | `CorpValue` | const | `packages/foundation/modeling/schema/src/http/headers/CrossOriginResourcePolicy.ts:27` |  |
-| `@beep/schema/HttpHeaders` | `CorpValue` | type | `packages/foundation/modeling/schema/src/http/headers/CrossOriginResourcePolicy.ts:38` |  |
-| `@beep/schema/HttpHeaders` | `createContentSecurityPolicyOptionHeaderValue` | const | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:556` |  |
-| `@beep/schema/HttpHeaders` | `createDirectiveValue` | const | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:116` | Creates a serialized directive value from a directive name and value list. |
-| `@beep/schema/HttpHeaders` | `createHeadersObject` | const | `packages/foundation/modeling/schema/src/http/headers/SecureHeaderOptions.ts:157` | Resolve secure-header options into a plain `Record<string, string>` header object. |
-| `@beep/schema/HttpHeaders` | `createSecureHeaders` | const | `packages/foundation/modeling/schema/src/http/headers/SecureHeaderOptions.ts:186` | Resolve secure-header options into an array of {@link SecureHeaderEntry} pairs. |
-| `@beep/schema/HttpHeaders` | `CrossOriginEmbedderPolicyError` | class | `packages/foundation/modeling/schema/src/http/headers/SecureHeaderError.ts:169` |  |
-| `@beep/schema/HttpHeaders` | `CrossOriginEmbedderPolicyHeader` | const | `packages/foundation/modeling/schema/src/http/headers/CrossOriginEmbedderPolicy.ts:88` | Schema for the Cross-Origin-Embedder-Policy response header. |
-| `@beep/schema/HttpHeaders` | `CrossOriginEmbedderPolicyHeader` | type | `packages/foundation/modeling/schema/src/http/headers/CrossOriginEmbedderPolicy.ts:165` |  |
-| `@beep/schema/HttpHeaders` | `CrossOriginEmbedderPolicyOption` | const | `packages/foundation/modeling/schema/src/http/headers/CrossOriginEmbedderPolicy.ts:48` |  |
-| `@beep/schema/HttpHeaders` | `CrossOriginEmbedderPolicyOption` | type | `packages/foundation/modeling/schema/src/http/headers/CrossOriginEmbedderPolicy.ts:59` |  |
-| `@beep/schema/HttpHeaders` | `CrossOriginOpenerPolicyError` | class | `packages/foundation/modeling/schema/src/http/headers/SecureHeaderError.ts:163` |  |
-| `@beep/schema/HttpHeaders` | `CrossOriginOpenerPolicyHeader` | const | `packages/foundation/modeling/schema/src/http/headers/CrossOriginOpenerPolicy.ts:132` | One-way schema that decodes COOP options into the `Cross-Origin-Opener-Policy` response header. |
-| `@beep/schema/HttpHeaders` | `CrossOriginOpenerPolicyHeader` | type | `packages/foundation/modeling/schema/src/http/headers/CrossOriginOpenerPolicy.ts:192` | Type-level representation of {@link CrossOriginOpenerPolicyHeader}. |
-| `@beep/schema/HttpHeaders` | `CrossOriginOpenerPolicyOption` | const | `packages/foundation/modeling/schema/src/http/headers/CrossOriginOpenerPolicy.ts:70` | Schema for `Cross-Origin-Opener-Policy` option values, including `false` to disable. |
-| `@beep/schema/HttpHeaders` | `CrossOriginOpenerPolicyOption` | type | `packages/foundation/modeling/schema/src/http/headers/CrossOriginOpenerPolicy.ts:83` | Type-level representation of {@link CrossOriginOpenerPolicyOption}. |
-| `@beep/schema/HttpHeaders` | `CrossOriginOpenerPolicyResponseHeader` | class | `packages/foundation/modeling/schema/src/http/headers/CrossOriginOpenerPolicy.ts:103` | Parsed `Cross-Origin-Opener-Policy` response header with name and optional value. |
-| `@beep/schema/HttpHeaders` | `CrossOriginResourcePolicyError` | class | `packages/foundation/modeling/schema/src/http/headers/SecureHeaderError.ts:175` |  |
-| `@beep/schema/HttpHeaders` | `CrossOriginResourcePolicyHeader` | const | `packages/foundation/modeling/schema/src/http/headers/CrossOriginResourcePolicy.ts:81` |  |
-| `@beep/schema/HttpHeaders` | `CrossOriginResourcePolicyHeader` | type | `packages/foundation/modeling/schema/src/http/headers/CrossOriginResourcePolicy.ts:139` |  |
-| `@beep/schema/HttpHeaders` | `CrossOriginResourcePolicyOption` | const | `packages/foundation/modeling/schema/src/http/headers/CrossOriginResourcePolicy.ts:46` |  |
-| `@beep/schema/HttpHeaders` | `CrossOriginResourcePolicyOption` | type | `packages/foundation/modeling/schema/src/http/headers/CrossOriginResourcePolicy.ts:57` |  |
-| `@beep/schema/HttpHeaders` | `CrossOriginResourcePolicyResponseHeader` | class | `packages/foundation/modeling/schema/src/http/headers/CrossOriginResourcePolicy.ts:63` |  |
-| `@beep/schema/HttpHeaders` | `CspDirectives` | const | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:435` |  |
-| `@beep/schema/HttpHeaders` | `CspError` | class | `packages/foundation/modeling/schema/src/http/headers/SecureHeaderError.ts:109` |  |
-| `@beep/schema/HttpHeaders` | `DirectiveSource` | const | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:25` |  |
-| `@beep/schema/HttpHeaders` | `DirectiveSource` | type | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:35` |  |
-| `@beep/schema/HttpHeaders` | `DocumentDirective` | class | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:301` |  |
-| `@beep/schema/HttpHeaders` | `ExpectCTConfig` | class | `packages/foundation/modeling/schema/src/http/headers/ExpectCT.ts:27` |  |
-| `@beep/schema/HttpHeaders` | `ExpectCTEnabled` | const | `packages/foundation/modeling/schema/src/http/headers/ExpectCT.ts:42` |  |
-| `@beep/schema/HttpHeaders` | `ExpectCTEnabled` | type | `packages/foundation/modeling/schema/src/http/headers/ExpectCT.ts:52` |  |
-| `@beep/schema/HttpHeaders` | `ExpectCtError` | class | `packages/foundation/modeling/schema/src/http/headers/SecureHeaderError.ts:151` |  |
-| `@beep/schema/HttpHeaders` | `ExpectCTHeader` | const | `packages/foundation/modeling/schema/src/http/headers/ExpectCT.ts:150` |  |
-| `@beep/schema/HttpHeaders` | `ExpectCTHeader` | type | `packages/foundation/modeling/schema/src/http/headers/ExpectCT.ts:207` |  |
-| `@beep/schema/HttpHeaders` | `ExpectCTOption` | const | `packages/foundation/modeling/schema/src/http/headers/ExpectCT.ts:58` |  |
-| `@beep/schema/HttpHeaders` | `ExpectCTOption` | type | `packages/foundation/modeling/schema/src/http/headers/ExpectCT.ts:68` |  |
-| `@beep/schema/HttpHeaders` | `ExpectCTResponseHeader` | class | `packages/foundation/modeling/schema/src/http/headers/ExpectCT.ts:74` |  |
-| `@beep/schema/HttpHeaders` | `FetchDirective` | class | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:232` |  |
-| `@beep/schema/HttpHeaders` | `ForceHttpsRedirectConfig` | class | `packages/foundation/modeling/schema/src/http/headers/ForceHttpsRedirect.ts:27` |  |
-| `@beep/schema/HttpHeaders` | `ForceHttpsRedirectEnabled` | const | `packages/foundation/modeling/schema/src/http/headers/ForceHttpsRedirect.ts:42` |  |
-| `@beep/schema/HttpHeaders` | `ForceHttpsRedirectEnabled` | type | `packages/foundation/modeling/schema/src/http/headers/ForceHttpsRedirect.ts:52` |  |
-| `@beep/schema/HttpHeaders` | `ForceHttpsRedirectError` | class | `packages/foundation/modeling/schema/src/http/headers/SecureHeaderError.ts:115` |  |
-| `@beep/schema/HttpHeaders` | `ForceHttpsRedirectHeader` | const | `packages/foundation/modeling/schema/src/http/headers/ForceHttpsRedirect.ts:103` |  |
-| `@beep/schema/HttpHeaders` | `ForceHttpsRedirectHeader` | type | `packages/foundation/modeling/schema/src/http/headers/ForceHttpsRedirect.ts:172` |  |
-| `@beep/schema/HttpHeaders` | `ForceHttpsRedirectOption` | const | `packages/foundation/modeling/schema/src/http/headers/ForceHttpsRedirect.ts:58` |  |
-| `@beep/schema/HttpHeaders` | `ForceHttpsRedirectOption` | type | `packages/foundation/modeling/schema/src/http/headers/ForceHttpsRedirect.ts:68` |  |
-| `@beep/schema/HttpHeaders` | `ForceHttpsRedirectResponseHeader` | class | `packages/foundation/modeling/schema/src/http/headers/ForceHttpsRedirect.ts:74` |  |
-| `@beep/schema/HttpHeaders` | `FrameGuardAllowFrom` | const | `packages/foundation/modeling/schema/src/http/headers/FrameGuard.ts:60` |  |
-| `@beep/schema/HttpHeaders` | `FrameGuardAllowFrom` | type | `packages/foundation/modeling/schema/src/http/headers/FrameGuard.ts:70` |  |
-| `@beep/schema/HttpHeaders` | `FrameGuardAllowFromConfig` | class | `packages/foundation/modeling/schema/src/http/headers/FrameGuard.ts:47` |  |
-| `@beep/schema/HttpHeaders` | `FrameGuardError` | class | `packages/foundation/modeling/schema/src/http/headers/SecureHeaderError.ts:145` |  |
-| `@beep/schema/HttpHeaders` | `FrameGuardHeader` | const | `packages/foundation/modeling/schema/src/http/headers/FrameGuard.ts:137` |  |
-| `@beep/schema/HttpHeaders` | `FrameGuardHeader` | type | `packages/foundation/modeling/schema/src/http/headers/FrameGuard.ts:211` |  |
-| `@beep/schema/HttpHeaders` | `FrameGuardMode` | const | `packages/foundation/modeling/schema/src/http/headers/FrameGuard.ts:30` |  |
-| `@beep/schema/HttpHeaders` | `FrameGuardMode` | type | `packages/foundation/modeling/schema/src/http/headers/FrameGuard.ts:41` |  |
-| `@beep/schema/HttpHeaders` | `FrameGuardOption` | const | `packages/foundation/modeling/schema/src/http/headers/FrameGuard.ts:76` |  |
-| `@beep/schema/HttpHeaders` | `FrameGuardOption` | type | `packages/foundation/modeling/schema/src/http/headers/FrameGuard.ts:86` |  |
-| `@beep/schema/HttpHeaders` | `FrameGuardResponseHeader` | class | `packages/foundation/modeling/schema/src/http/headers/FrameGuard.ts:92` |  |
-| `@beep/schema/HttpHeaders` | `getProperHeaderName` | const | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:92` | Get proper header name for CSP |
-| `@beep/schema/HttpHeaders` | `NavigationDirective` | class | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:345` |  |
-| `@beep/schema/HttpHeaders` | `NoOpenError` | class | `packages/foundation/modeling/schema/src/http/headers/SecureHeaderError.ts:139` |  |
-| `@beep/schema/HttpHeaders` | `NoOpenHeader` | const | `packages/foundation/modeling/schema/src/http/headers/NoOpen.ts:80` |  |
-| `@beep/schema/HttpHeaders` | `NoOpenHeader` | type | `packages/foundation/modeling/schema/src/http/headers/NoOpen.ts:139` |  |
-| `@beep/schema/HttpHeaders` | `NoOpenOption` | const | `packages/foundation/modeling/schema/src/http/headers/NoOpen.ts:47` |  |
-| `@beep/schema/HttpHeaders` | `NoOpenOption` | type | `packages/foundation/modeling/schema/src/http/headers/NoOpen.ts:58` |  |
-| `@beep/schema/HttpHeaders` | `NoOpenResponseHeader` | class | `packages/foundation/modeling/schema/src/http/headers/NoOpen.ts:64` |  |
-| `@beep/schema/HttpHeaders` | `NoOpenValue` | const | `packages/foundation/modeling/schema/src/http/headers/NoOpen.ts:28` |  |
-| `@beep/schema/HttpHeaders` | `NoOpenValue` | type | `packages/foundation/modeling/schema/src/http/headers/NoOpen.ts:39` |  |
-| `@beep/schema/HttpHeaders` | `NoSniffError` | class | `packages/foundation/modeling/schema/src/http/headers/SecureHeaderError.ts:133` |  |
-| `@beep/schema/HttpHeaders` | `NoSniffHeader` | const | `packages/foundation/modeling/schema/src/http/headers/NoSniff.ts:128` | One-way schema that decodes `X-Content-Type-Options` options into the response header. |
-| `@beep/schema/HttpHeaders` | `NoSniffHeader` | type | `packages/foundation/modeling/schema/src/http/headers/NoSniff.ts:189` | Type-level representation of {@link NoSniffHeader}. |
-| `@beep/schema/HttpHeaders` | `NoSniffOption` | const | `packages/foundation/modeling/schema/src/http/headers/NoSniff.ts:71` | Schema for `X-Content-Type-Options` option values, including `false` to disable. |
-| `@beep/schema/HttpHeaders` | `NoSniffOption` | type | `packages/foundation/modeling/schema/src/http/headers/NoSniff.ts:84` | Type-level representation of {@link NoSniffOption}. |
-| `@beep/schema/HttpHeaders` | `NoSniffResponseHeader` | class | `packages/foundation/modeling/schema/src/http/headers/NoSniff.ts:101` | Parsed `X-Content-Type-Options` response header with name and optional value. |
-| `@beep/schema/HttpHeaders` | `NoSniffValue` | const | `packages/foundation/modeling/schema/src/http/headers/NoSniff.ts:39` | Schema for supported `X-Content-Type-Options` header values. |
-| `@beep/schema/HttpHeaders` | `NoSniffValue` | type | `packages/foundation/modeling/schema/src/http/headers/NoSniff.ts:52` | Type-level representation of {@link NoSniffValue}. |
-| `@beep/schema/HttpHeaders` | `PermissionsPolicyAllowlistedOrigin` | const | `packages/foundation/modeling/schema/src/http/headers/PermissionsPolicy.ts:138` |  |
-| `@beep/schema/HttpHeaders` | `PermissionsPolicyAllowlistedOrigin` | type | `packages/foundation/modeling/schema/src/http/headers/PermissionsPolicy.ts:148` |  |
-| `@beep/schema/HttpHeaders` | `PermissionsPolicyDirective` | const | `packages/foundation/modeling/schema/src/http/headers/PermissionsPolicy.ts:57` |  |
-| `@beep/schema/HttpHeaders` | `PermissionsPolicyDirective` | type | `packages/foundation/modeling/schema/src/http/headers/PermissionsPolicy.ts:68` |  |
-| `@beep/schema/HttpHeaders` | `PermissionsPolicyDirectiveKey` | const | `packages/foundation/modeling/schema/src/http/headers/PermissionsPolicy.ts:74` |  |
-| `@beep/schema/HttpHeaders` | `PermissionsPolicyDirectiveKey` | type | `packages/foundation/modeling/schema/src/http/headers/PermissionsPolicy.ts:91` |  |
-| `@beep/schema/HttpHeaders` | `PermissionsPolicyDirectives` | const | `packages/foundation/modeling/schema/src/http/headers/PermissionsPolicy.ts:174` |  |
-| `@beep/schema/HttpHeaders` | `PermissionsPolicyDirectives` | type | `packages/foundation/modeling/schema/src/http/headers/PermissionsPolicy.ts:187` |  |
-| `@beep/schema/HttpHeaders` | `PermissionsPolicyDirectiveValue` | const | `packages/foundation/modeling/schema/src/http/headers/PermissionsPolicy.ts:154` |  |
-| `@beep/schema/HttpHeaders` | `PermissionsPolicyDirectiveValue` | type | `packages/foundation/modeling/schema/src/http/headers/PermissionsPolicy.ts:168` |  |
-| `@beep/schema/HttpHeaders` | `PermissionsPolicyDirectiveValueSingle` | const | `packages/foundation/modeling/schema/src/http/headers/PermissionsPolicy.ts:121` |  |
-| `@beep/schema/HttpHeaders` | `PermissionsPolicyDirectiveValueSingle` | type | `packages/foundation/modeling/schema/src/http/headers/PermissionsPolicy.ts:132` |  |
-| `@beep/schema/HttpHeaders` | `PermissionsPolicyError` | class | `packages/foundation/modeling/schema/src/http/headers/SecureHeaderError.ts:157` |  |
-| `@beep/schema/HttpHeaders` | `PermissionsPolicyHeader` | const | `packages/foundation/modeling/schema/src/http/headers/PermissionsPolicy.ts:272` |  |
-| `@beep/schema/HttpHeaders` | `PermissionsPolicyHeader` | type | `packages/foundation/modeling/schema/src/http/headers/PermissionsPolicy.ts:333` |  |
-| `@beep/schema/HttpHeaders` | `PermissionsPolicyOption` | const | `packages/foundation/modeling/schema/src/http/headers/PermissionsPolicy.ts:208` |  |
-| `@beep/schema/HttpHeaders` | `PermissionsPolicyOption` | type | `packages/foundation/modeling/schema/src/http/headers/PermissionsPolicy.ts:218` |  |
-| `@beep/schema/HttpHeaders` | `PermissionsPolicyOptionStruct` | class | `packages/foundation/modeling/schema/src/http/headers/PermissionsPolicy.ts:193` |  |
-| `@beep/schema/HttpHeaders` | `PermissionsPolicyResponseHeader` | class | `packages/foundation/modeling/schema/src/http/headers/PermissionsPolicy.ts:224` |  |
-| `@beep/schema/HttpHeaders` | `PermittedCrossDomainPoliciesError` | class | `packages/foundation/modeling/schema/src/http/headers/SecureHeaderError.ts:181` |  |
-| `@beep/schema/HttpHeaders` | `PermittedCrossDomainPoliciesHeader` | const | `packages/foundation/modeling/schema/src/http/headers/PermittedCrossDomainPolicies.ts:88` |  |
-| `@beep/schema/HttpHeaders` | `PermittedCrossDomainPoliciesHeader` | type | `packages/foundation/modeling/schema/src/http/headers/PermittedCrossDomainPolicies.ts:150` |  |
-| `@beep/schema/HttpHeaders` | `PermittedCrossDomainPoliciesOption` | const | `packages/foundation/modeling/schema/src/http/headers/PermittedCrossDomainPolicies.ts:53` |  |
-| `@beep/schema/HttpHeaders` | `PermittedCrossDomainPoliciesOption` | type | `packages/foundation/modeling/schema/src/http/headers/PermittedCrossDomainPolicies.ts:64` |  |
-| `@beep/schema/HttpHeaders` | `PermittedCrossDomainPoliciesResponseHeader` | class | `packages/foundation/modeling/schema/src/http/headers/PermittedCrossDomainPolicies.ts:70` |  |
-| `@beep/schema/HttpHeaders` | `PermittedCrossDomainPoliciesValue` | const | `packages/foundation/modeling/schema/src/http/headers/PermittedCrossDomainPolicies.ts:34` |  |
-| `@beep/schema/HttpHeaders` | `PermittedCrossDomainPoliciesValue` | type | `packages/foundation/modeling/schema/src/http/headers/PermittedCrossDomainPolicies.ts:45` |  |
-| `@beep/schema/HttpHeaders` | `PluginTypes` | const | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:145` |  |
-| `@beep/schema/HttpHeaders` | `PluginTypes` | type | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:155` |  |
-| `@beep/schema/HttpHeaders` | `QuotedOrigin` | const | `packages/foundation/modeling/schema/src/http/headers/PermissionsPolicy.ts:97` |  |
-| `@beep/schema/HttpHeaders` | `QuotedOrigin` | type | `packages/foundation/modeling/schema/src/http/headers/PermissionsPolicy.ts:113` |  |
-| `@beep/schema/HttpHeaders` | `ReferrerPolicyError` | class | `packages/foundation/modeling/schema/src/http/headers/SecureHeaderError.ts:127` |  |
-| `@beep/schema/HttpHeaders` | `ReferrerPolicyHeader` | const | `packages/foundation/modeling/schema/src/http/headers/ReferrerPolicy.ts:126` |  |
-| `@beep/schema/HttpHeaders` | `ReferrerPolicyHeader` | type | `packages/foundation/modeling/schema/src/http/headers/ReferrerPolicy.ts:192` |  |
-| `@beep/schema/HttpHeaders` | `ReferrerPolicyOption` | const | `packages/foundation/modeling/schema/src/http/headers/ReferrerPolicy.ts:70` |  |
-| `@beep/schema/HttpHeaders` | `ReferrerPolicyOption` | type | `packages/foundation/modeling/schema/src/http/headers/ReferrerPolicy.ts:80` |  |
-| `@beep/schema/HttpHeaders` | `ReferrerPolicyResponseHeader` | class | `packages/foundation/modeling/schema/src/http/headers/ReferrerPolicy.ts:86` |  |
-| `@beep/schema/HttpHeaders` | `ReferrerPolicyValue` | const | `packages/foundation/modeling/schema/src/http/headers/ReferrerPolicy.ts:37` |  |
-| `@beep/schema/HttpHeaders` | `ReferrerPolicyValue` | type | `packages/foundation/modeling/schema/src/http/headers/ReferrerPolicy.ts:48` |  |
-| `@beep/schema/HttpHeaders` | `ReferrerPolicyValueList` | const | `packages/foundation/modeling/schema/src/http/headers/ReferrerPolicy.ts:54` |  |
-| `@beep/schema/HttpHeaders` | `ReferrerPolicyValueList` | type | `packages/foundation/modeling/schema/src/http/headers/ReferrerPolicy.ts:64` |  |
-| `@beep/schema/HttpHeaders` | `ReportingDirective` | class | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:399` |  |
-| `@beep/schema/HttpHeaders` | `ReportURI` | const | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:389` |  |
-| `@beep/schema/HttpHeaders` | `Sandbox` | const | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:178` |  |
-| `@beep/schema/HttpHeaders` | `Sandbox` | type | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:189` |  |
-| `@beep/schema/HttpHeaders` | `SecureHeader` | const | `packages/foundation/modeling/schema/src/http/headers/SecureHeader.ts:33` |  |
-| `@beep/schema/HttpHeaders` | `SecureHeader` | type | `packages/foundation/modeling/schema/src/http/headers/SecureHeader.ts:44` |  |
-| `@beep/schema/HttpHeaders` | `SecureHeaderEntry` | class | `packages/foundation/modeling/schema/src/http/headers/SecureHeaderOptions.ts:87` | A rendered secure header pair in `{ key, value }` format. |
-| `@beep/schema/HttpHeaders` | `SecureHeaderError` | const | `packages/foundation/modeling/schema/src/http/headers/SecureHeaderError.ts:193` |  |
-| `@beep/schema/HttpHeaders` | `SecureHeaderError` | type | `packages/foundation/modeling/schema/src/http/headers/SecureHeaderError.ts:221` |  |
-| `@beep/schema/HttpHeaders` | `SecureHeaderOptions` | class | `packages/foundation/modeling/schema/src/http/headers/SecureHeaderOptions.ts:52` | Aggregate input options for configuring all secure response headers. |
-| `@beep/schema/HttpHeaders` | `XssProtectionError` | class | `packages/foundation/modeling/schema/src/http/headers/SecureHeaderError.ts:121` |  |
-| `@beep/schema/HttpHeaders` | `XSSProtectionHeader` | const | `packages/foundation/modeling/schema/src/http/headers/XSSProtection.ts:144` |  |
-| `@beep/schema/HttpHeaders` | `XSSProtectionHeader` | type | `packages/foundation/modeling/schema/src/http/headers/XSSProtection.ts:195` |  |
-| `@beep/schema/HttpHeaders` | `XSSProtectionMode` | const | `packages/foundation/modeling/schema/src/http/headers/XSSProtection.ts:29` |  |
-| `@beep/schema/HttpHeaders` | `XSSProtectionMode` | type | `packages/foundation/modeling/schema/src/http/headers/XSSProtection.ts:40` |  |
-| `@beep/schema/HttpHeaders` | `XSSProtectionOption` | const | `packages/foundation/modeling/schema/src/http/headers/XSSProtection.ts:75` |  |
-| `@beep/schema/HttpHeaders` | `XSSProtectionOption` | type | `packages/foundation/modeling/schema/src/http/headers/XSSProtection.ts:85` |  |
-| `@beep/schema/HttpHeaders` | `XSSProtectionReport` | const | `packages/foundation/modeling/schema/src/http/headers/XSSProtection.ts:59` |  |
-| `@beep/schema/HttpHeaders` | `XSSProtectionReport` | type | `packages/foundation/modeling/schema/src/http/headers/XSSProtection.ts:69` |  |
-| `@beep/schema/HttpHeaders` | `XSSProtectionReportConfig` | class | `packages/foundation/modeling/schema/src/http/headers/XSSProtection.ts:46` |  |
-| `@beep/schema/HttpHeaders` | `XSSProtectionResponseHeader` | class | `packages/foundation/modeling/schema/src/http/headers/XSSProtection.ts:91` |  |
-| `@beep/schema/HttpMethod` | `HttpMethod` | const | `packages/foundation/modeling/schema/src/http/HttpMethod/HttpMethod.ts:49` |  |
-| `@beep/schema/HttpMethod` | `HttpMethod` | type | `packages/foundation/modeling/schema/src/http/HttpMethod/HttpMethod.ts:79` |  |
-| `@beep/schema/HttpMethod` | `Literal` | const | `packages/foundation/modeling/schema/src/http/HttpMethod/HttpMethod.ts:19` |  |
-| `@beep/schema/HttpMethod` | `Schema` | const | `packages/foundation/modeling/schema/src/http/HttpMethod/HttpMethod.ts:49` |  |
-| `@beep/schema/HttpMethod` | `Schema` | type | `packages/foundation/modeling/schema/src/http/HttpMethod/HttpMethod.ts:79` |  |
-| `@beep/schema/HttpProtocol` | `HttpProtocol` | const | `packages/foundation/modeling/schema/src/http/HttpProtocol.ts:18` | An HTTP protocol ("http" or "https") |
-| `@beep/schema/HttpProtocol` | `HttpProtocol` | type | `packages/foundation/modeling/schema/src/http/HttpProtocol.ts:30` | {@inheritDoc HttpProtocol} |
-| `@beep/schema/HttpProtocol` | `Schema` | const | `packages/foundation/modeling/schema/src/http/HttpProtocol.ts:18` | An HTTP protocol ("http" or "https") |
-| `@beep/schema/HttpProtocol` | `Schema` | type | `packages/foundation/modeling/schema/src/http/HttpProtocol.ts:30` | {@inheritDoc HttpProtocol} |
-| `@beep/schema/HttpStatus` | `Accepted` | const | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:264` | 202 “Accepted” – The server accepted the request but has not yet finished |
-| `@beep/schema/HttpStatus` | `Accepted` | type | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:278` | {@inheritDoc Accepted} |
-| `@beep/schema/HttpStatus` | `AlreadyReported` | const | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:407` | 208 “Already Reported” (WebDav) – This code indicates that the internal |
-| `@beep/schema/HttpStatus` | `AlreadyReported` | type | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:421` | {@inheritDoc AlreadyReported} |
-| `@beep/schema/HttpStatus` | `BadGateway` | const | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:1636` | 502 “Bad Gateway” – This error indicates that the server acted as a gateway |
-| `@beep/schema/HttpStatus` | `BadGateway` | type | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:1650` | {@inheritDoc BadGateway} |
-| `@beep/schema/HttpStatus` | `BadRequest` | const | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:785` | 400 “Bad Request” – The server can’t return a valid response due to an error |
-| `@beep/schema/HttpStatus` | `BadRequest` | type | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:799` | {@inheritDoc BadRequest} |
-| `@beep/schema/HttpStatus` | `ClientClosedRequest` | const | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:2025` | 499 “Client Closed Request” – The client terminated the request before the |
-| `@beep/schema/HttpStatus` | `ClientClosedRequest` | type | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:2039` | {@inheritDoc ClientClosedRequest} |
-| `@beep/schema/HttpStatus` | `Conflict` | const | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:1021` | 409 “Conflict” – This error occurs when a request can not be processed due |
-| `@beep/schema/HttpStatus` | `Conflict` | type | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:1035` | {@inheritDoc Conflict} |
-| `@beep/schema/HttpStatus` | `Continue` | const | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:79` | 100 “Continue” – The server has received the headers of the request. |
-| `@beep/schema/HttpStatus` | `Continue` | type | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:93` | {@inheritDoc Continue} |
-| `@beep/schema/HttpStatus` | `Created` | const | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:241` | 201 “Created” – The request was fulfilled, and the server created a new resource. |
-| `@beep/schema/HttpStatus` | `Created` | type | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:254` | {@inheritDoc Created} |
-| `@beep/schema/HttpStatus` | `EarlyHints` | const | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:149` | 103 “Early Hints” – The server returns some response headers before the |
-| `@beep/schema/HttpStatus` | `EarlyHints` | type | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:163` | {@inheritDoc EarlyHints} |
-| `@beep/schema/HttpStatus` | `ExpectationFailed` | const | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:1215` | 417 “Expectation Failed” – The server fails to meet the requirements set in |
-| `@beep/schema/HttpStatus` | `ExpectationFailed` | type | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:1229` | {@inheritDoc ExpectationFailed} |
-| `@beep/schema/HttpStatus` | `FailedDependency` | const | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:1329` | 424 “Failed Dependency” – The request failed because it depended on another |
-| `@beep/schema/HttpStatus` | `FailedDependency` | type | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:1343` | {@inheritDoc FailedDependency} |
-| `@beep/schema/HttpStatus` | `Forbidden` | const | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:873` | 403 “Forbidden” – The error indicates that the server denies access to the |
-| `@beep/schema/HttpStatus` | `Forbidden` | type | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:887` | {@inheritDoc Forbidden} |
-| `@beep/schema/HttpStatus` | `Found` | const | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:562` | 302 “Found” – Previously, this code was known as “Moved temporarily”. It |
-| `@beep/schema/HttpStatus` | `Found` | type | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:576` | {@inheritDoc Found} |
-| `@beep/schema/HttpStatus` | `GatewayTimeout` | const | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:1688` | 504 “Gateway Timeout” – The server acted as a gateway and did not receive a |
-| `@beep/schema/HttpStatus` | `GatewayTimeout` | type | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:1702` | {@inheritDoc GatewayTimeout} |
-| `@beep/schema/HttpStatus` | `Gone` | const | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:1047` | 410 “Gone” – The requested resource is not available and will not be |
-| `@beep/schema/HttpStatus` | `Gone` | type | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:1061` | {@inheritDoc Gone} |
-| `@beep/schema/HttpStatus` | `HttpStatus` | const | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:2198` | A MappedLiteralKit of all HTTP status codes. |
-| `@beep/schema/HttpStatus` | `HttpStatus` | namespace | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:2217` | A namespace for {@link HttpStatus} to contain the Encoded type |
-| `@beep/schema/HttpStatus` | `HttpStatus` | type | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:2233` | {@inheritDoc HttpStatus} |
-| `@beep/schema/HttpStatus` | `HttpStatus1XX` | const | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:173` | 1XX codes are informational responses from the website’s server. They do not |
-| `@beep/schema/HttpStatus` | `HttpStatus1XX` | namespace | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:191` | A namespace for {@link HttpStatus1XX} to contain the Encoded type |
-| `@beep/schema/HttpStatus` | `HttpStatus1XX` | type | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:207` | {@inheritDoc HttpStatus1XX} |
-| `@beep/schema/HttpStatus` | `HttpStatus2XX` | const | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:454` | The 2XX codes are the best responses you can receive. They indicate that the |
-| `@beep/schema/HttpStatus` | `HttpStatus2XX` | namespace | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:478` | A namespace for {@link HttpStatus2XX} to contain the Encoded type |
-| `@beep/schema/HttpStatus` | `HttpStatus2XX` | type | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:494` | {@inheritDoc HttpStatus2XX} |
-| `@beep/schema/HttpStatus` | `HttpStatus3XX` | const | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:732` | 3XX codes specify that there will be a redirection. {@link https://www.siteground.com/kb/domain-redirects/ \| Redirects} are |
-| `@beep/schema/HttpStatus` | `HttpStatus3XX` | namespace | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:763` | A namespace for {@link HttpStatus3XX} to contain the Encoded type |
-| `@beep/schema/HttpStatus` | `HttpStatus3XX` | type | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:755` | {@inheritDoc HttpStatus3XX} |
-| `@beep/schema/HttpStatus` | `HttpStatus4XX` | const | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:1508` | The 4XX codes are HTTP error status codes. They define errors as invalid |
-| `@beep/schema/HttpStatus` | `HttpStatus4XX` | namespace | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:1555` | A namespace for {@link HttpStatus4XX} to contain the Encoded type |
-| `@beep/schema/HttpStatus` | `HttpStatus4XX` | type | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:1571` | {@inheritDoc HttpStatus4XX} |
-| `@beep/schema/HttpStatus` | `HttpStatus5XX` | const | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:1854` | The 5XX HTTP codes indicate that there is a problem on the website’s server |
-| `@beep/schema/HttpStatus` | `HttpStatus5XX` | namespace | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:1879` | A namespace for {@link HttpStatus5XX} to contain the Encoded type |
-| `@beep/schema/HttpStatus` | `HttpStatus5XX` | type | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:1895` | {@inheritDoc HttpStatus5XX} |
-| `@beep/schema/HttpStatus` | `HttpStatusCategory` | const | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:38` | HttpStatusCategory - HTTP status code category |
-| `@beep/schema/HttpStatus` | `HttpStatusCategory` | type | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:66` | {@inheritDoc HttpStatusCategory} |
-| `@beep/schema/HttpStatus` | `HttpStatusUnofficial` | const | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:2146` | The codes above are officially recognized by IANA, but different platforms |
-| `@beep/schema/HttpStatus` | `HttpStatusUnofficial` | namespace | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:2170` | A namespace for {@link HttpStatusUnofficial} to contain the Encoded type |
-| `@beep/schema/HttpStatus` | `HttpStatusUnofficial` | type | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:2186` | {@inheritDoc HttpStatusUnofficial} |
-| `@beep/schema/HttpStatus` | `HttpVersionNotSupported` | const | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:1711` | 505 “HTTP Version Not Supported” – The server doesn’t support the HTTP |
-| `@beep/schema/HttpStatus` | `HttpVersionNotSupported` | type | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:1725` | {@inheritDoc HttpVersionNotSupported} |
-| `@beep/schema/HttpStatus` | `ImATeapot` | const | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:1238` | 418 “I’m a teapot.” – This error is returned by teapots requested to brew |
-| `@beep/schema/HttpStatus` | `ImATeapot` | type | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:1252` | {@inheritDoc ImATeapot} |
-| `@beep/schema/HttpStatus` | `ImUsed` | const | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:431` | 226 “IM Used” – The server fulfilled the request, and the response is a |
-| `@beep/schema/HttpStatus` | `ImUsed` | type | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:445` | {@inheritDoc ImUsed} |
-| `@beep/schema/HttpStatus` | `InsufficientStorage` | const | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:1760` | 507 “Insufficient Storage” (WebDAV) – The server is unable to store the |
-| `@beep/schema/HttpStatus` | `InsufficientStorage` | type | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:1774` | {@inheritDoc InsufficientStorage} |
-| `@beep/schema/HttpStatus` | `InternalServerError` | const | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:1588` | 500 “Internal Server Error” – This is a generic error that indicates the |
-| `@beep/schema/HttpStatus` | `InternalServerError` | type | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:1602` | {@inheritDoc InternalServerError} |
-| `@beep/schema/HttpStatus` | `InvalidSslCertificate` | const | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:2121` | 526 “Invalid SSL Certificate” – Another code mostly used by Cloudflare. |
-| `@beep/schema/HttpStatus` | `InvalidSslCertificate` | type | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:2135` | {@inheritDoc InvalidSslCertificate} |
-| `@beep/schema/HttpStatus` | `LengthRequired` | const | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:1070` | 411 “Length Required” – The length of the request’s content is not specified |
-| `@beep/schema/HttpStatus` | `LengthRequired` | type | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:1084` | {@inheritDoc LengthRequired} |
-| `@beep/schema/HttpStatus` | `Locked` | const | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:1307` | 423 “Locked” – The resource that is being accessed is locked. |
-| `@beep/schema/HttpStatus` | `Locked` | type | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:1320` | {@inheritDoc Locked} |
-| `@beep/schema/HttpStatus` | `LoginTimeout` | const | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:1933` | 440 “Login Time-out” – This code is used by Microsoft’s ISS (Internet |
-| `@beep/schema/HttpStatus` | `LoginTimeout` | type | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:1947` | {@inheritDoc LoginTimeout} |
-| `@beep/schema/HttpStatus` | `LoopDetected` | const | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:1783` | 508 “Loop Detected” (WebDAV) – The server detected an infinite loop while |
-| `@beep/schema/HttpStatus` | `LoopDetected` | type | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:1796` | {@inheritDoc LoopDetected} |
-| `@beep/schema/HttpStatus` | `MethodNotAllowed` | const | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:922` | 405 “Method Not Allowed” – The server understands the requested method, but |
-| `@beep/schema/HttpStatus` | `MethodNotAllowed` | type | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:936` | {@inheritDoc MethodNotAllowed} |
-| `@beep/schema/HttpStatus` | `MisdirectedRequest` | const | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:1261` | 421 “Misdirected Request” – The request was directed to a server unable to |
-| `@beep/schema/HttpStatus` | `MisdirectedRequest` | type | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:1274` | {@inheritDoc MisdirectedRequest} |
-| `@beep/schema/HttpStatus` | `MovedPermanently` | const | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:536` | 301 “Moved Permanently” – This is the code for a permanent redirect. It means that the URL of the requested resource is permanently replaced with a new address, and search engines should update the URL in their databases. |
-| `@beep/schema/HttpStatus` | `MovedPermanently` | type | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:550` | {@inheritDoc MovedPermanently} |
-| `@beep/schema/HttpStatus` | `MultipleChoices` | const | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:509` | 300 “Multiple Choices” – The server presents the client with a choice of |
-| `@beep/schema/HttpStatus` | `MultipleChoices` | type | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:527` | {@inheritDoc MultipleChoices} |
-| `@beep/schema/HttpStatus` | `MultiStatus` | const | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:383` | 207 “Multi-Status” – A code associated with WebDav when a compound request |
-| `@beep/schema/HttpStatus` | `MultiStatus` | type | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:397` | {@inheritDoc MultiStatus} |
-| `@beep/schema/HttpStatus` | `NetworkAuthenticationRequired` | const | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:1830` | 511 “Network Authentication Required” – This response is sent when you need |
-| `@beep/schema/HttpStatus` | `NetworkAuthenticationRequired` | type | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:1844` | {@inheritDoc NetworkAuthenticationRequired} |
-| `@beep/schema/HttpStatus` | `NoContent` | const | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:312` | 204 “No Content” – The server fulfilled the request but won’t return any |
-| `@beep/schema/HttpStatus` | `NoContent` | type | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:325` | {@inheritDoc NoContent} |
-| `@beep/schema/HttpStatus` | `NonAuthoritativeInformation` | const | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:289` | 203 “Non-Authoritative Information” – A code that usually appears when a |
-| `@beep/schema/HttpStatus` | `NonAuthoritativeInformation` | type | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:303` | {@inheritDoc NonAuthoritativeInformation} |
-| `@beep/schema/HttpStatus` | `NotAcceptable` | const | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:945` | 406 “Not Acceptable” – The requested resource generated content that doesn’t |
-| `@beep/schema/HttpStatus` | `NotAcceptable` | type | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:959` | {@inheritDoc NotAcceptable} |
-| `@beep/schema/HttpStatus` | `NotExtended` | const | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:1805` | 510 “Not Extended” – Further extensions to the request are required for the |
-| `@beep/schema/HttpStatus` | `NotExtended` | type | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:1819` | {@inheritDoc NotExtended} |
-| `@beep/schema/HttpStatus` | `NotFound` | const | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:899` | 404 “Not found” – This is the most frequent error users see online. It means |
-| `@beep/schema/HttpStatus` | `NotFound` | type | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:913` | {@inheritDoc NotFound} |
-| `@beep/schema/HttpStatus` | `NotImplemented` | const | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:1611` | 501 “Not Implemented” – The server doesn’t support the request method or |
-| `@beep/schema/HttpStatus` | `NotImplemented` | type | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:1625` | {@inheritDoc NotImplemented} |
-| `@beep/schema/HttpStatus` | `NotModified` | const | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:610` | 304 “Not Modified” – The server informs your browser that the resource |
-| `@beep/schema/HttpStatus` | `NotModified` | type | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:624` | {@inheritDoc NotModified} |
-| `@beep/schema/HttpStatus` | `Ok` | const | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:219` | 200 “OK” – The response for a successful HTTP request. The result will depend on the type of request. |
-| `@beep/schema/HttpStatus` | `Ok` | type | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:233` | {@inheritDoc Ok} |
-| `@beep/schema/HttpStatus` | `PartialContent` | const | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:359` | 206 “Partial Content” – The server returns only a portion of the requested |
-| `@beep/schema/HttpStatus` | `PartialContent` | type | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:373` | {@inheritDoc PartialContent} |
-| `@beep/schema/HttpStatus` | `PayloadTooLarge` | const | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:1120` | 413 “Payload too large” – The request is larger than the limits specified on |
-| `@beep/schema/HttpStatus` | `PayloadTooLarge` | type | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:1134` | {@inheritDoc PayloadTooLarge} |
-| `@beep/schema/HttpStatus` | `PaymentRequired` | const | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:844` | 402 “Payment Required” – This is not a standard code however it is reserved |
-| `@beep/schema/HttpStatus` | `PaymentRequired` | type | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:858` | {@inheritDoc PaymentRequired} |
-| `@beep/schema/HttpStatus` | `PermanentRedirect` | const | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:707` | 308 “Permanent Redirect” – The requested resource is permanently moved to |
-| `@beep/schema/HttpStatus` | `PermanentRedirect` | type | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:721` | {@inheritDoc PermanentRedirect} |
-| `@beep/schema/HttpStatus` | `PreconditionFailed` | const | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:1093` | 412 “Precondition failed” – The headers of the request specify certain |
-| `@beep/schema/HttpStatus` | `PreconditionFailed` | type | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:1107` | {@inheritDoc PreconditionFailed} |
-| `@beep/schema/HttpStatus` | `PreconditionRequired` | const | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:1402` | 428 “Precondition Required” – The server requires the request to be |
-| `@beep/schema/HttpStatus` | `PreconditionRequired` | type | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:1416` | {@inheritDoc PreconditionRequired} |
-| `@beep/schema/HttpStatus` | `Processing` | const | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:126` | 102 “Processing” – This is a response mainly associated with WebDAV |
-| `@beep/schema/HttpStatus` | `Processing` | type | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:140` | {@inheritDoc Processing} |
-| `@beep/schema/HttpStatus` | `ProxyAuthenticationRequired` | const | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:969` | 407 “Proxy Authentication Required” – There is a proxy server used in the |
-| `@beep/schema/HttpStatus` | `ProxyAuthenticationRequired` | type | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:983` | {@inheritDoc ProxyAuthenticationRequired} |
-| `@beep/schema/HttpStatus` | `RangeNotSatisfiable` | const | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:1192` | 416 “Range Not Satisfiable” – The request asked for a portion of the |
-| `@beep/schema/HttpStatus` | `RangeNotSatisfiable` | type | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:1206` | {@inheritDoc RangeNotSatisfiable} |
-| `@beep/schema/HttpStatus` | `RequestHeaderFieldsTooLarge` | const | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:1458` | 431 “Request Header Fields Too Large” – The server can’t process the request |
-| `@beep/schema/HttpStatus` | `RequestHeaderFieldsTooLarge` | type | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:1472` | {@inheritDoc RequestHeaderFieldsTooLarge} |
-| `@beep/schema/HttpStatus` | `RequestHeaderFieldsTooLargeShopify` | const | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:1909` | 430 “Request Header Fields Too Large” – This code is used by Shopify when |
-| `@beep/schema/HttpStatus` | `RequestHeaderFieldsTooLargeShopify` | type | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:1923` | {@inheritDoc RequestHeaderFieldsTooLargeShopify} |
-| `@beep/schema/HttpStatus` | `RequestHeaderTooLarge` | const | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:1956` | 494 “Request header too large” – used by NGINX. The client has sent too |
-| `@beep/schema/HttpStatus` | `RequestHeaderTooLarge` | type | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:1970` | {@inheritDoc RequestHeaderTooLarge} |
-| `@beep/schema/HttpStatus` | `RequestTimeout` | const | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:996` | 408 “Request Timeout” – The server closed due to a time-out while waiting |
-| `@beep/schema/HttpStatus` | `RequestTimeout` | type | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:1010` | {@inheritDoc RequestTimeout} |
-| `@beep/schema/HttpStatus` | `ResetContent` | const | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:334` | 205 “Reset Content” – The server fulfilled the request, and it won’t return |
-| `@beep/schema/HttpStatus` | `ResetContent` | type | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:348` | {@inheritDoc ResetContent} |
-| `@beep/schema/HttpStatus` | `Schema` | const | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:2198` | A MappedLiteralKit of all HTTP status codes. |
-| `@beep/schema/HttpStatus` | `Schema` | namespace | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:2217` | A namespace for {@link HttpStatus} to contain the Encoded type |
-| `@beep/schema/HttpStatus` | `Schema` | type | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:2233` | {@inheritDoc HttpStatus} |
-| `@beep/schema/HttpStatus` | `SeeOther` | const | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:585` | 303 “See Other” – The server instructs the client that it found the |
-| `@beep/schema/HttpStatus` | `SeeOther` | type | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:599` | {@inheritDoc SeeOther} |
-| `@beep/schema/HttpStatus` | `ServiceUnavailable` | const | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:1661` | 503 “Service Unavailable” – The server can’t handle the request. This is |
-| `@beep/schema/HttpStatus` | `ServiceUnavailable` | type | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:1675` | {@inheritDoc ServiceUnavailable} |
-| `@beep/schema/HttpStatus` | `SslCertificateError` | const | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:1979` | 495 “SSL Certificate Error” – This is also a status code used by NGINX |
-| `@beep/schema/HttpStatus` | `SslCertificateError` | type | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:1993` | {@inheritDoc SslCertificateError} |
-| `@beep/schema/HttpStatus` | `SslCertificateRequired` | const | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:2002` | 496 “SSL Certificate Required” – used by NGINX. A client certificate is |
-| `@beep/schema/HttpStatus` | `SslCertificateRequired` | type | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:2016` | {@inheritDoc SslCertificateRequired} |
-| `@beep/schema/HttpStatus` | `SslHandshakeFailed` | const | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:2096` | 525 “SSL Handshake Failed” – Used by Cloudflare. Cloudflare is unable to |
-| `@beep/schema/HttpStatus` | `SslHandshakeFailed` | type | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:2110` | {@inheritDoc SslHandshakeFailed} |
-| `@beep/schema/HttpStatus` | `SwitchingProtocols` | const | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:102` | 101 “Switching Protocols” – The requesting client (browser) asked the server to |
-| `@beep/schema/HttpStatus` | `SwitchingProtocols` | type | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:116` | {@inheritDoc SwitchingProtocols} |
-| `@beep/schema/HttpStatus` | `SwitchProxy` | const | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:656` | 306 “Switch Proxy” – This code is no longer in use. It means that the |
-| `@beep/schema/HttpStatus` | `SwitchProxy` | type | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:670` | {@inheritDoc SwitchProxy} |
-| `@beep/schema/HttpStatus` | `TemporaryRedirect` | const | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:682` | 307 “Temporary redirect” – This is the new code for temporary redirects that |
-| `@beep/schema/HttpStatus` | `TemporaryRedirect` | type | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:696` | {@inheritDoc TemporaryRedirect} |
-| `@beep/schema/HttpStatus` | `TooEarly` | const | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:1352` | 425 “Too Early” – This error indicates that the server is unwilling to risk |
-| `@beep/schema/HttpStatus` | `TooEarly` | type | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:1366` | {@inheritDoc TooEarly} |
-| `@beep/schema/HttpStatus` | `TooManyRequests` | const | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:1434` | 429 “Too many requests” – The server responds with this code when the user |
-| `@beep/schema/HttpStatus` | `TooManyRequests` | type | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:1448` | {@inheritDoc TooManyRequests} |
-| `@beep/schema/HttpStatus` | `Unauthorized` | const | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:813` | 401 “Unauthorized” – This error appears when the client fails to provide |
-| `@beep/schema/HttpStatus` | `Unauthorized` | type | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:834` | {@inheritDoc Unauthorized} |
-| `@beep/schema/HttpStatus` | `UnavailableForLegalReasons` | const | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:1482` | 451 “Unavailable for Legal Reasons” – The client requests a resource for |
-| `@beep/schema/HttpStatus` | `UnavailableForLegalReasons` | type | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:1496` | {@inheritDoc UnavailableForLegalReasons} |
-| `@beep/schema/HttpStatus` | `UnprocessableEntity` | const | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:1285` | 422 “Unprocessable Entity” – The request from the client is well-formed but |
-| `@beep/schema/HttpStatus` | `UnprocessableEntity` | type | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:1299` | {@inheritDoc UnprocessableEntity} |
-| `@beep/schema/HttpStatus` | `UnsupportedMediaType` | const | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:1168` | 415 “Unsupported Media Type” – The request contains a media type that the |
-| `@beep/schema/HttpStatus` | `UnsupportedMediaType` | type | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:1182` | {@inheritDoc UnsupportedMediaType} |
-| `@beep/schema/HttpStatus` | `UpgradeRequired` | const | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:1376` | 426 “Upgrade Required” – The server refuses the request using the current |
-| `@beep/schema/HttpStatus` | `UpgradeRequired` | type | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:1390` | {@inheritDoc UpgradeRequired} |
-| `@beep/schema/HttpStatus` | `UriTooLong` | const | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:1144` | 414 “URI Too Long” – The length of the URI is too long and the server can’t |
-| `@beep/schema/HttpStatus` | `UriTooLong` | type | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:1158` | {@inheritDoc UriTooLong} |
-| `@beep/schema/HttpStatus` | `UseProxy` | const | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:633` | 305 “Use Proxy” – The requested resource is available only through a proxy. |
-| `@beep/schema/HttpStatus` | `UseProxy` | type | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:647` | {@inheritDoc UseProxy} |
-| `@beep/schema/HttpStatus` | `VariantAlsoNegotiates` | const | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:1737` | 506 “Variant Also Negotiates” – This error occurs when the client and the |
-| `@beep/schema/HttpStatus` | `VariantAlsoNegotiates` | type | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:1751` | {@inheritDoc VariantAlsoNegotiates} |
-| `@beep/schema/HttpStatus` | `WebServerIsDown` | const | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:2073` | 521 “Web Server is Down” – Another Cloudflare-specific error code. The |
-| `@beep/schema/HttpStatus` | `WebServerIsDown` | type | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:2087` | {@inheritDoc WebServerIsDown} |
-| `@beep/schema/HttpStatus` | `WebServerReturnedAnUnknownError` | const | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:2049` | 520 “Web Server Returned an Unknown Error” – This is a code used by |
-| `@beep/schema/HttpStatus` | `WebServerReturnedAnUnknownError` | type | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:2063` | {@inheritDoc WebServerReturnedAnUnknownError} |
-| `@beep/schema/index` | `AbortSig` | const | `packages/foundation/modeling/schema/src/AbortSignal.ts:46` | Declared schema for `AbortSignal` instances. |
-| `@beep/schema/index` | `AbortSig` | type | `packages/foundation/modeling/schema/src/AbortSignal.ts:65` | {@inheritDoc AbortSig} |
-| `@beep/schema/index` | `addDays` | const | `packages/foundation/modeling/schema/src/LocalDate.ts:335` | Add days to a `LocalDate`. |
-| `@beep/schema/index` | `addMonths` | const | `packages/foundation/modeling/schema/src/LocalDate.ts:350` | Add months to a `LocalDate`. |
-| `@beep/schema/index` | `addYears` | const | `packages/foundation/modeling/schema/src/LocalDate.ts:365` | Add years to a `LocalDate`. |
-| `@beep/schema/index` | `Age` | const | `packages/foundation/modeling/schema/src/person/Age.ts:16` | The age of a person in years. |
-| `@beep/schema/index` | `Age` | type | `packages/foundation/modeling/schema/src/person/Age.ts:34` | {@inheritDoc Age} |
-| `@beep/schema/index` | `AnyFn` | const | `packages/foundation/modeling/schema/src/Fn.ts:413` | Schema for any runtime function value. |
-| `@beep/schema/index` | `AnyFn` | type | `packages/foundation/modeling/schema/src/Fn.ts:425` | Type for {@link AnyFn}. |
-| `@beep/schema/index` | `ApplicationFileExtension` | const | `packages/foundation/modeling/schema/src/FileExtension.ts:99` | Schema for file extensions associated with `application/*` mime types. |
-| `@beep/schema/index` | `ApplicationFileExtension` | type | `packages/foundation/modeling/schema/src/FileExtension.ts:121` | Union of literals accepted by {@link ApplicationFileExtension}. |
-| `@beep/schema/index` | `ApplicationMimeType` | const | `packages/foundation/modeling/schema/src/MimeType.ts:167` | Schema for `application/*` mime-type literals. |
-| `@beep/schema/index` | `ApplicationMimeType` | type | `packages/foundation/modeling/schema/src/MimeType.ts:191` | Union of application mime-type literals. |
-| `@beep/schema/index` | `ArrayOfInts` | const | `packages/foundation/modeling/schema/src/ArrayOf.ts:202` | Schema for arrays of integers. |
-| `@beep/schema/index` | `ArrayOfInts` | type | `packages/foundation/modeling/schema/src/ArrayOf.ts:214` | Type for {@link ArrayOfInts}. |
-| `@beep/schema/index` | `ArrayOfNonEmptyStrings` | const | `packages/foundation/modeling/schema/src/ArrayOf.ts:86` | Schema for arrays of `NonEmptyString` values. |
-| `@beep/schema/index` | `ArrayOfNonEmptyStrings` | type | `packages/foundation/modeling/schema/src/ArrayOf.ts:98` | Type for {@link ArrayOfNonEmptyStrings}. |
-| `@beep/schema/index` | `ArrayOfNumbers` | const | `packages/foundation/modeling/schema/src/ArrayOf.ts:144` | Schema for arrays of numbers. |
-| `@beep/schema/index` | `ArrayOfNumbers` | type | `packages/foundation/modeling/schema/src/ArrayOf.ts:156` | Type for {@link ArrayOfNumbers}. |
-| `@beep/schema/index` | `ArrayOfStrings` | const | `packages/foundation/modeling/schema/src/ArrayOf.ts:28` | Schema for `ReadonlyArray<string>`. |
-| `@beep/schema/index` | `ArrayOfStrings` | type | `packages/foundation/modeling/schema/src/ArrayOf.ts:40` | Type for {@link ArrayOfStrings}. |
-| `@beep/schema/index` | `AudioFileExtension` | const | `packages/foundation/modeling/schema/src/FileExtension.ts:255` | Schema for file extensions associated with `audio/*` mime types. |
-| `@beep/schema/index` | `AudioFileExtension` | type | `packages/foundation/modeling/schema/src/FileExtension.ts:277` | Union of literals accepted by {@link AudioFileExtension}. |
-| `@beep/schema/index` | `AudioMimeType` | const | `packages/foundation/modeling/schema/src/MimeType.ts:336` | Schema for `audio/*` mime-type literals. |
-| `@beep/schema/index` | `AudioMimeType` | type | `packages/foundation/modeling/schema/src/MimeType.ts:359` | Union of audio mime-type literals. |
-| `@beep/schema/index` | `BigDecimalFromNumber` | const | `packages/foundation/modeling/schema/src/BigDecimal.ts:33` | Schema that decodes a number into an Effect `BigDecimal` and encodes a |
-| `@beep/schema/index` | `BuffEncoding` | const | `packages/foundation/modeling/schema/src/BufferEncoding.ts:27` | Schema for Node.js `BufferEncoding` string literals (`"utf8"`, `"hex"`, `"base64"`, etc.). |
-| `@beep/schema/index` | `BufferEncoding` | type | `packages/foundation/modeling/schema/src/BufferEncoding.ts:59` | {@inheritDoc BuffEncoding} |
-| `@beep/schema/index` | `CardinalDirection` | const | `packages/foundation/modeling/schema/src/location/CardinalDirection.ts:16` | CardinalDirection - The cardinal directions |
-| `@beep/schema/index` | `CardinalDirection` | type | `packages/foundation/modeling/schema/src/location/CardinalDirection.ts:27` | {@inheritDoc CardinalDirection} |
-| `@beep/schema/index` | `CardinalDirectionAbbrev` | const | `packages/foundation/modeling/schema/src/location/CardinalDirection.ts:35` | CardinalDirectionAbbrev - The abbreviated version of the {@link CardinalDirection} |
-| `@beep/schema/index` | `CardinalDirectionAbbrev` | type | `packages/foundation/modeling/schema/src/location/CardinalDirection.ts:47` | {@inheritDoc CardinalDirectionAbbrev} |
-| `@beep/schema/index` | `CauseTaggedError` | const | `packages/foundation/modeling/schema/src/CauseTaggedError.ts:506` | Create a tagged error class that always carries a `message` and required defect `cause`. |
-| `@beep/schema/index` | `CauseTaggedErrorConstructor` | type | `packages/foundation/modeling/schema/src/CauseTaggedError.ts:248` | Callable constructor for creating cause-tagged error class factories. |
-| `@beep/schema/index` | `CauseTaggedErrorFactory` | interface | `packages/foundation/modeling/schema/src/CauseTaggedError.ts:209` | Factory returned by {@link CauseTaggedError} after an identity namespace has been selected. |
-| `@beep/schema/index` | `CauseTaggedErrorWithStatics` | type | `packages/foundation/modeling/schema/src/CauseTaggedError.ts:163` | Tagged error class returned by {@link CauseTaggedError}, including dual construction helpers. |
-| `@beep/schema/index` | `COEPResponseHeader` | class | `packages/foundation/modeling/schema/src/http/headers/CrossOriginEmbedderPolicy.ts:66` | Schema for the Cross-Origin-Embedder-Policy response header output. |
-| `@beep/schema/index` | `CoepValue` | const | `packages/foundation/modeling/schema/src/http/headers/CrossOriginEmbedderPolicy.ts:29` |  |
-| `@beep/schema/index` | `CoepValue` | type | `packages/foundation/modeling/schema/src/http/headers/CrossOriginEmbedderPolicy.ts:40` |  |
-| `@beep/schema/index` | `ColorAmount` | const | `packages/foundation/modeling/schema/src/color/Color.ts:879` | Shared finite amount used by color helper request schemas. |
-| `@beep/schema/index` | `ColorAmount` | type | `packages/foundation/modeling/schema/src/color/Color.ts:894` | Type for {@link ColorAmount}. |
-| `@beep/schema/index` | `CommaSeparatedList` | const | `packages/foundation/modeling/schema/src/CommonTextSchemas.ts:81` | Schema that decodes a comma-separated string into a trimmed non-empty string array. |
-| `@beep/schema/index` | `CommaSeparatedList` | type | `packages/foundation/modeling/schema/src/CommonTextSchemas.ts:109` | Type for {@link CommaSeparatedList}. |
-| `@beep/schema/index` | `ContentSecurityPolicyHeader` | const | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:582` |  |
-| `@beep/schema/index` | `ContentSecurityPolicyHeader` | type | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:647` |  |
-| `@beep/schema/index` | `ContentSecurityPolicyHeaderName` | const | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:47` |  |
-| `@beep/schema/index` | `ContentSecurityPolicyHeaderName` | type | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:58` |  |
-| `@beep/schema/index` | `ContentSecurityPolicyOption` | const | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:482` |  |
-| `@beep/schema/index` | `ContentSecurityPolicyOption` | type | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:492` |  |
-| `@beep/schema/index` | `ContentSecurityPolicyOptionStruct` | class | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:450` |  |
-| `@beep/schema/index` | `ContentSecurityPolicyResponseHeader` | class | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:498` |  |
-| `@beep/schema/index` | `CoopValue` | const | `packages/foundation/modeling/schema/src/http/headers/CrossOriginOpenerPolicy.ts:38` | Schema for supported `Cross-Origin-Opener-Policy` header values. |
-| `@beep/schema/index` | `CoopValue` | type | `packages/foundation/modeling/schema/src/http/headers/CrossOriginOpenerPolicy.ts:51` | Type-level representation of {@link CoopValue}. |
-| `@beep/schema/index` | `CoreError` | class | `packages/foundation/modeling/schema/src/http/headers/SecureHeaderError.ts:187` |  |
-| `@beep/schema/index` | `CorpValue` | const | `packages/foundation/modeling/schema/src/http/headers/CrossOriginResourcePolicy.ts:27` |  |
-| `@beep/schema/index` | `CorpValue` | type | `packages/foundation/modeling/schema/src/http/headers/CrossOriginResourcePolicy.ts:38` |  |
-| `@beep/schema/index` | `createContentSecurityPolicyOptionHeaderValue` | const | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:556` |  |
-| `@beep/schema/index` | `createDirectiveValue` | const | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:116` | Creates a serialized directive value from a directive name and value list. |
-| `@beep/schema/index` | `createDOMRefSchema` | const | `packages/foundation/modeling/schema/src/dom/elements.ts:175` | Creates a Schema for React.Ref<T> where T extends HTMLElement |
-| `@beep/schema/index` | `createHeadersObject` | const | `packages/foundation/modeling/schema/src/http/headers/SecureHeaderOptions.ts:157` | Resolve secure-header options into a plain `Record<string, string>` header object. |
-| `@beep/schema/index` | `createSecureHeaders` | const | `packages/foundation/modeling/schema/src/http/headers/SecureHeaderOptions.ts:186` | Resolve secure-header options into an array of {@link SecureHeaderEntry} pairs. |
-| `@beep/schema/index` | `CrossOriginEmbedderPolicyError` | class | `packages/foundation/modeling/schema/src/http/headers/SecureHeaderError.ts:169` |  |
-| `@beep/schema/index` | `CrossOriginEmbedderPolicyHeader` | const | `packages/foundation/modeling/schema/src/http/headers/CrossOriginEmbedderPolicy.ts:88` | Schema for the Cross-Origin-Embedder-Policy response header. |
-| `@beep/schema/index` | `CrossOriginEmbedderPolicyHeader` | type | `packages/foundation/modeling/schema/src/http/headers/CrossOriginEmbedderPolicy.ts:165` |  |
-| `@beep/schema/index` | `CrossOriginEmbedderPolicyOption` | const | `packages/foundation/modeling/schema/src/http/headers/CrossOriginEmbedderPolicy.ts:48` |  |
-| `@beep/schema/index` | `CrossOriginEmbedderPolicyOption` | type | `packages/foundation/modeling/schema/src/http/headers/CrossOriginEmbedderPolicy.ts:59` |  |
-| `@beep/schema/index` | `CrossOriginOpenerPolicyError` | class | `packages/foundation/modeling/schema/src/http/headers/SecureHeaderError.ts:163` |  |
-| `@beep/schema/index` | `CrossOriginOpenerPolicyHeader` | const | `packages/foundation/modeling/schema/src/http/headers/CrossOriginOpenerPolicy.ts:132` | One-way schema that decodes COOP options into the `Cross-Origin-Opener-Policy` response header. |
-| `@beep/schema/index` | `CrossOriginOpenerPolicyHeader` | type | `packages/foundation/modeling/schema/src/http/headers/CrossOriginOpenerPolicy.ts:192` | Type-level representation of {@link CrossOriginOpenerPolicyHeader}. |
-| `@beep/schema/index` | `CrossOriginOpenerPolicyOption` | const | `packages/foundation/modeling/schema/src/http/headers/CrossOriginOpenerPolicy.ts:70` | Schema for `Cross-Origin-Opener-Policy` option values, including `false` to disable. |
-| `@beep/schema/index` | `CrossOriginOpenerPolicyOption` | type | `packages/foundation/modeling/schema/src/http/headers/CrossOriginOpenerPolicy.ts:83` | Type-level representation of {@link CrossOriginOpenerPolicyOption}. |
-| `@beep/schema/index` | `CrossOriginOpenerPolicyResponseHeader` | class | `packages/foundation/modeling/schema/src/http/headers/CrossOriginOpenerPolicy.ts:103` | Parsed `Cross-Origin-Opener-Policy` response header with name and optional value. |
-| `@beep/schema/index` | `CrossOriginResourcePolicyError` | class | `packages/foundation/modeling/schema/src/http/headers/SecureHeaderError.ts:175` |  |
-| `@beep/schema/index` | `CrossOriginResourcePolicyHeader` | const | `packages/foundation/modeling/schema/src/http/headers/CrossOriginResourcePolicy.ts:81` |  |
-| `@beep/schema/index` | `CrossOriginResourcePolicyHeader` | type | `packages/foundation/modeling/schema/src/http/headers/CrossOriginResourcePolicy.ts:139` |  |
-| `@beep/schema/index` | `CrossOriginResourcePolicyOption` | const | `packages/foundation/modeling/schema/src/http/headers/CrossOriginResourcePolicy.ts:46` |  |
-| `@beep/schema/index` | `CrossOriginResourcePolicyOption` | type | `packages/foundation/modeling/schema/src/http/headers/CrossOriginResourcePolicy.ts:57` |  |
-| `@beep/schema/index` | `CrossOriginResourcePolicyResponseHeader` | class | `packages/foundation/modeling/schema/src/http/headers/CrossOriginResourcePolicy.ts:63` |  |
-| `@beep/schema/index` | `CryptoTxnHash` | const | `packages/foundation/modeling/schema/src/blockchain/CryptoTxnHash.ts:60` | Branded schema for canonical mainnet blockchain transaction identifiers. |
-| `@beep/schema/index` | `CryptoTxnHash` | type | `packages/foundation/modeling/schema/src/blockchain/CryptoTxnHash.ts:75` | Type for {@link CryptoTxnHash}. |
-| `@beep/schema/index` | `CryptoTxnHashRedacted` | const | `packages/foundation/modeling/schema/src/blockchain/CryptoTxnHash.ts:83` | Redacted schema for canonical mainnet blockchain transaction identifiers. |
-| `@beep/schema/index` | `CryptoTxnHashRedacted` | type | `packages/foundation/modeling/schema/src/blockchain/CryptoTxnHash.ts:101` | Type for {@link CryptoTxnHashRedacted}. |
-| `@beep/schema/index` | `CryptoWalletAddress` | const | `packages/foundation/modeling/schema/src/blockchain/CryptoWalletAddress.ts:181` | Branded schema for canonical mainnet blockchain wallet addresses. |
-| `@beep/schema/index` | `CryptoWalletAddress` | type | `packages/foundation/modeling/schema/src/blockchain/CryptoWalletAddress.ts:196` | Type for {@link CryptoWalletAddress}. |
-| `@beep/schema/index` | `CryptoWalletAddressRedacted` | const | `packages/foundation/modeling/schema/src/blockchain/CryptoWalletAddress.ts:204` | Redacted Branded schema for canonical mainnet blockchain wallet addresses. |
-| `@beep/schema/index` | `CryptoWalletAddressRedacted` | type | `packages/foundation/modeling/schema/src/blockchain/CryptoWalletAddress.ts:223` | Type for {@link CryptoWalletAddressRedacted}. |
-| `@beep/schema/index` | `CspDirectives` | const | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:435` |  |
-| `@beep/schema/index` | `CspError` | class | `packages/foundation/modeling/schema/src/http/headers/SecureHeaderError.ts:109` |  |
-| `@beep/schema/index` | `CSV` | const | `packages/foundation/modeling/schema/src/csv/index.ts:275` | Schema factory for CSV documents whose rows are validated by the provided |
-| `@beep/schema/index` | `CsvCodecOptions` | class | `packages/foundation/modeling/schema/src/csv/CsvCodecOptions.ts:38` | Schema-backed CSV text codec options. |
-| `@beep/schema/index` | `CsvCodecOptionsArgs` | type | `packages/foundation/modeling/schema/src/csv/CsvCodecOptions.ts:105` | Encoded/raw constructor input for {@link CsvCodecOptions}. |
-| `@beep/schema/index` | `CsvCodecOptionsParseOptions` | const | `packages/foundation/modeling/schema/src/csv/CsvCodecOptions.ts:113` | Parse options used when normalizing raw CSV codec option input. |
-| `@beep/schema/index` | `csvError` | const | `packages/foundation/modeling/schema/src/csv/CsvError.ts:42` | Construct a {@link CsvError}. |
-| `@beep/schema/index` | `CsvError` | class | `packages/foundation/modeling/schema/src/csv/CsvError.ts:34` | Raised when CSV parsing, header validation, or formatting fails. |
-| `@beep/schema/index` | `CsvText` | type | `packages/foundation/modeling/schema/src/csv/index.ts:302` | Branded runtime type for CSV document text produced by encoding a `CSV` |
-| `@beep/schema/index` | `Darken` | const | `packages/foundation/modeling/schema/src/color/Color.ts:1145` | One-way schema for darkening a color. |
-| `@beep/schema/index` | `Darken` | type | `packages/foundation/modeling/schema/src/color/Color.ts:1163` | Type for {@link Darken}. |
-| `@beep/schema/index` | `DarkenInput` | class | `packages/foundation/modeling/schema/src/color/Color.ts:1129` | Request schema for darkening a color. |
-| `@beep/schema/index` | `DateTimeInput` | const | `packages/foundation/modeling/schema/src/DateTimeUtcFromValid.ts:418` | Union of raw and tagged values accepted by {@link DateTimeUtcFromValid}. |
-| `@beep/schema/index` | `DateTimeInput` | type | `packages/foundation/modeling/schema/src/DateTimeUtcFromValid.ts:449` | {@inheritDoc DateTimeInput} |
-| `@beep/schema/index` | `DateTimeInputDate` | const | `packages/foundation/modeling/schema/src/DateTimeUtcFromValid.ts:244` | Valid JavaScript `Date` input accepted by Effect `DateTime.make`. |
-| `@beep/schema/index` | `DateTimeInputDate` | type | `packages/foundation/modeling/schema/src/DateTimeUtcFromValid.ts:265` | {@inheritDoc DateTimeInputDate} |
-| `@beep/schema/index` | `DateTimeInputDateTime` | const | `packages/foundation/modeling/schema/src/DateTimeUtcFromValid.ts:286` | Existing Effect `DateTime` values accepted by {@link DateTimeUtcFromValid}. |
-| `@beep/schema/index` | `DateTimeInputDateTime` | type | `packages/foundation/modeling/schema/src/DateTimeUtcFromValid.ts:307` | {@inheritDoc DateTimeInputDateTime} |
-| `@beep/schema/index` | `DateTimeInputInstant` | class | `packages/foundation/modeling/schema/src/DateTimeUtcFromValid.ts:323` | Tagged Effect `DateTime.Instant` transport value. |
-| `@beep/schema/index` | `DateTimeInputInstantWithZone` | class | `packages/foundation/modeling/schema/src/DateTimeUtcFromValid.ts:350` | Tagged Effect `DateTime.InstantWithZone` transport value. |
-| `@beep/schema/index` | `DateTimeInputKind` | const | `packages/foundation/modeling/schema/src/DateTimeUtcFromValid.ts:34` | Literal discriminator values used by tagged date-time input representations. |
-| `@beep/schema/index` | `DateTimeInputKind` | type | `packages/foundation/modeling/schema/src/DateTimeUtcFromValid.ts:64` | {@inheritDoc DateTimeInputKind} |
-| `@beep/schema/index` | `DateTimeInputNumber` | const | `packages/foundation/modeling/schema/src/DateTimeUtcFromValid.ts:202` | Valid numeric epoch-millisecond input accepted by Effect `DateTime.make`. |
-| `@beep/schema/index` | `DateTimeInputNumber` | type | `packages/foundation/modeling/schema/src/DateTimeUtcFromValid.ts:223` | {@inheritDoc DateTimeInputNumber} |
-| `@beep/schema/index` | `DateTimeInputParts` | class | `packages/foundation/modeling/schema/src/DateTimeUtcFromValid.ts:383` | Tagged `Partial<DateTime.Parts>` transport value. |
-| `@beep/schema/index` | `DateTimeInputString` | const | `packages/foundation/modeling/schema/src/DateTimeUtcFromValid.ts:159` | Valid string input accepted by Effect `DateTime.make`. |
-| `@beep/schema/index` | `DateTimeInputString` | type | `packages/foundation/modeling/schema/src/DateTimeUtcFromValid.ts:180` | {@inheritDoc DateTimeInputString} |
-| `@beep/schema/index` | `DateTimeUtcFromValid` | const | `packages/foundation/modeling/schema/src/DateTimeUtcFromValid.ts:512` | Bidirectional schema transformation from valid DateTime input to `DateTime.Utc`. |
-| `@beep/schema/index` | `DateTimeUtcFromValid` | type | `packages/foundation/modeling/schema/src/DateTimeUtcFromValid.ts:540` | {@inheritDoc DateTimeUtcFromValid} |
-| `@beep/schema/index` | `daysInMonth` | const | `packages/foundation/modeling/schema/src/LocalDate.ts:456` | Get the number of days in a given month, accounting for leap years. |
-| `@beep/schema/index` | `decodeJsoncTextAs` | const | `packages/foundation/modeling/schema/src/Jsonc.ts:127` | Builds a decoder that parses JSONC text and then decodes the result through a |
-| `@beep/schema/index` | `decodeJsonlTextAs` | const | `packages/foundation/modeling/schema/src/Jsonl.ts:136` | Builds a decoder that parses JSONL text and then decodes the resulting value |
-| `@beep/schema/index` | `decodeJsonString` | const | `packages/foundation/modeling/schema/src/Json.ts:86` | Decodes a JSON string into an unknown JSON-compatible value. |
-| `@beep/schema/index` | `decodeMarkdownTextAs` | const | `packages/foundation/modeling/schema/src/Markdown.ts:210` | Builds a decoder that renders Markdown text to HTML and then decodes the |
-| `@beep/schema/index` | `decodeTomlTextAs` | const | `packages/foundation/modeling/schema/src/Toml.ts:128` | Builds a decoder that parses TOML text and then decodes the result through a |
-| `@beep/schema/index` | `decodeXmlTextAs` | const | `packages/foundation/modeling/schema/src/Xml.ts:119` | Builds a decoder that parses XML text and then decodes the result through a |
-| `@beep/schema/index` | `decodeYamlTextAs` | const | `packages/foundation/modeling/schema/src/Yaml.ts:133` | Builds a decoder that parses YAML text and then decodes the result through a |
-| `@beep/schema/index` | `destructiveTransform` | const | `packages/foundation/modeling/schema/src/Transformations.ts:47` | Applies a lossy transform by inferring the target type from a callback result. |
-| `@beep/schema/index` | `diffInDays` | const | `packages/foundation/modeling/schema/src/LocalDate.ts:380` | Get the difference in whole days between two `LocalDate` values. |
-| `@beep/schema/index` | `DirectedGraph` | const | `packages/foundation/modeling/schema/src/Graph/Graph.transforms.ts:159` | Schema for immutable directed graphs. |
-| `@beep/schema/index` | `DirectedGraph` | interface | `packages/foundation/modeling/schema/src/Graph/Graph.transforms.ts:26` | Schema for decoding encoded graph payloads into immutable directed graphs. |
-| `@beep/schema/index` | `DirectedGraphFromSelf` | const | `packages/foundation/modeling/schema/src/Graph/Graph.from-self.ts:264` | Schema for validating existing immutable directed Effect graphs. |
-| `@beep/schema/index` | `DirectedGraphFromSelf` | interface | `packages/foundation/modeling/schema/src/Graph/Graph.from-self.ts:46` | Schema for validating existing immutable directed Effect graphs. |
-| `@beep/schema/index` | `DirectiveSource` | const | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:25` |  |
-| `@beep/schema/index` | `DirectiveSource` | type | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:35` |  |
-| `@beep/schema/index` | `DocumentDirective` | class | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:301` |  |
-| `@beep/schema/index` | `DomainModel` | SourceFile | `packages/foundation/modeling/schema/src/DomainModel.ts:8` |  |
-| `@beep/schema/index` | `DOMCssProperties` | const | `packages/foundation/modeling/schema/src/dom/elements.ts:67` | A React.CSSProperties |
-| `@beep/schema/index` | `DOMDragEvent` | const | `packages/foundation/modeling/schema/src/dom/elements.ts:198` | A DragEvent |
-| `@beep/schema/index` | `DOMDragEvent` | type | `packages/foundation/modeling/schema/src/dom/elements.ts:210` | {@inheritDoc DOMDragEvent} |
-| `@beep/schema/index` | `DOMEvent` | const | `packages/foundation/modeling/schema/src/dom/events.ts:38` | A DOM event |
-| `@beep/schema/index` | `DOMEvent` | type | `packages/foundation/modeling/schema/src/dom/events.ts:50` | {@inheritDoc DOMEvent} |
-| `@beep/schema/index` | `DOMHtmlElement` | const | `packages/foundation/modeling/schema/src/dom/elements.ts:30` | An HTMLElement |
-| `@beep/schema/index` | `DOMHtmlElement` | type | `packages/foundation/modeling/schema/src/dom/elements.ts:42` | {@inheritDoc HTMLElement} |
-| `@beep/schema/index` | `DOMMouseEvent` | const | `packages/foundation/modeling/schema/src/dom/events.ts:58` | A DOM mouse event |
-| `@beep/schema/index` | `DOMMouseEvent` | type | `packages/foundation/modeling/schema/src/dom/events.ts:70` | {@inheritDoc DOMMouseEvent} |
-| `@beep/schema/index` | `DOMReactNode` | const | `packages/foundation/modeling/schema/src/dom/elements.ts:119` | A React.ReactNode |
-| `@beep/schema/index` | `DOMReactNode` | type | `packages/foundation/modeling/schema/src/dom/elements.ts:131` | {@inheritDoc DOMReactNode} |
-| `@beep/schema/index` | `DurationFromInput` | const | `packages/foundation/modeling/schema/src/Duration.ts:226` | One-way schema that decodes {@link DurationInput} into an Effect `Duration`. |
-| `@beep/schema/index` | `DurationFromInput` | type | `packages/foundation/modeling/schema/src/Duration.ts:246` | Decoded duration type extracted from {@link DurationFromInput}. |
-| `@beep/schema/index` | `DurationInput` | const | `packages/foundation/modeling/schema/src/Duration.ts:167` | Union schema for all duration input shapes accepted by {@link DurationFromInput}. |
-| `@beep/schema/index` | `DurationInput` | type | `packages/foundation/modeling/schema/src/Duration.ts:189` | Duration input type extracted from {@link DurationInput}. |
-| `@beep/schema/index` | `DurationObject` | class | `packages/foundation/modeling/schema/src/Duration.ts:127` | Structured duration input with additive unit fields. |
-| `@beep/schema/index` | `DurationUnit` | const | `packages/foundation/modeling/schema/src/Duration.ts:65` | Literal union of duration unit labels accepted by {@link DurationInput}. |
-| `@beep/schema/index` | `DurationUnit` | type | `packages/foundation/modeling/schema/src/Duration.ts:96` | Duration unit string type extracted from {@link DurationUnit}. |
-| `@beep/schema/index` | `Edge` | const | `packages/foundation/modeling/schema/src/Graph/Graph.edge.ts:180` | Schema for graph edges. This is an alias of {@link EdgeTransform}. |
-| `@beep/schema/index` | `Edge` | interface | `packages/foundation/modeling/schema/src/Graph/Graph.edge.ts:48` | Schema for graph edges. |
-| `@beep/schema/index` | `EdgeEncoded` | const | `packages/foundation/modeling/schema/src/Graph/Graph.encoded.ts:117` | Schema for encoded graph edges. |
-| `@beep/schema/index` | `EdgeEncoded` | type | `packages/foundation/modeling/schema/src/Graph/Graph.encoded.ts:18` | Encoded edge representation used by graph codecs. |
-| `@beep/schema/index` | `EdgeEncodedSchema` | interface | `packages/foundation/modeling/schema/src/Graph/Graph.encoded.ts:80` | Schema type for encoded graph edges. |
-| `@beep/schema/index` | `EdgeFromSelf` | const | `packages/foundation/modeling/schema/src/Graph/Graph.edge.ts:59` | Schema for validating existing `Graph.Edge` instances while applying the |
-| `@beep/schema/index` | `EdgeFromSelf` | interface | `packages/foundation/modeling/schema/src/Graph/Graph.edge.ts:19` | Schema for validating existing `Graph.Edge` instances. |
-| `@beep/schema/index` | `EdgeIndex` | const | `packages/foundation/modeling/schema/src/Graph/Graph.primitives.ts:75` | Branded schema for graph edge indices. |
-| `@beep/schema/index` | `EdgeIndex` | type | `packages/foundation/modeling/schema/src/Graph/Graph.primitives.ts:88` | Branded edge index type extracted from {@link EdgeIndex}. |
-| `@beep/schema/index` | `EdgeIndexFromString` | const | `packages/foundation/modeling/schema/src/Graph/Graph.primitives.ts:96` | Decode a string-encoded graph edge index into a branded {@link EdgeIndex}. |
-| `@beep/schema/index` | `EdgeIso` | type | `packages/foundation/modeling/schema/src/Graph/Graph.encoded.ts:49` | Public schema module export. |
-| `@beep/schema/index` | `EdgeTransform` | const | `packages/foundation/modeling/schema/src/Graph/Graph.edge.ts:122` | Schema that transforms encoded edge objects into `Graph.Edge` instances and |
-| `@beep/schema/index` | `EdgeTransform` | interface | `packages/foundation/modeling/schema/src/Graph/Graph.edge.ts:36` | Schema for transforming encoded edge payloads into `Graph.Edge` instances. |
-| `@beep/schema/index` | `EffectSchema` | const | `packages/foundation/modeling/schema/src/EffectSchema.ts:76` | Declared schema for Effect runtime values. |
-| `@beep/schema/index` | `EffectSchema` | type | `packages/foundation/modeling/schema/src/EffectSchema.ts:98` | {@inheritDoc EffectSchema} |
-| `@beep/schema/index` | `Email` | const | `packages/foundation/modeling/schema/src/Email.ts:29` | RFC 5322 compliant email address schema. |
-| `@beep/schema/index` | `Email` | type | `packages/foundation/modeling/schema/src/Email.ts:48` | Branded, redacted email address type extracted from {@link Email}. |
-| `@beep/schema/index` | `encodeJsonString` | const | `packages/foundation/modeling/schema/src/Json.ts:104` | Encodes an unknown JSON-compatible value into a compact JSON string. |
-| `@beep/schema/index` | `endOfMonth` | const | `packages/foundation/modeling/schema/src/LocalDate.ts:409` | Return the last day of the month for the given `LocalDate`. |
-| `@beep/schema/index` | `endOfYear` | const | `packages/foundation/modeling/schema/src/LocalDate.ts:435` | Return December 31st for the year of the given `LocalDate`. |
-| `@beep/schema/index` | `EndsWithSeparator` | const | `packages/foundation/modeling/schema/src/FilePath/FilePath.guards.ts:150` | Branded schema for strings that end with a POSIX or Windows path separator. |
-| `@beep/schema/index` | `EndsWithSeparator` | type | `packages/foundation/modeling/schema/src/FilePath/FilePath.guards.ts:172` | Type for {@link EndsWithSeparator}. |
-| `@beep/schema/index` | `EntitySchema` | SourceFile | `packages/foundation/modeling/schema/src/EntitySchema.ts:7` |  |
-| `@beep/schema/index` | `equals` | const | `packages/foundation/modeling/schema/src/LocalDate.ts:320` | Dual predicate returning `true` when two `LocalDate` values represent the same calendar date. |
-| `@beep/schema/index` | `EthAmount` | const | `packages/foundation/modeling/schema/src/blockchain/EthAmount.ts:48` | ETH-denominated amount decoded from a non-negative JSON number into Effect |
-| `@beep/schema/index` | `EthAmount` | type | `packages/foundation/modeling/schema/src/blockchain/EthAmount.ts:66` | Type for {@link EthAmount}. |
-| `@beep/schema/index` | `EthereumValidatorPublicKey` | const | `packages/foundation/modeling/schema/src/blockchain/EthereumValidatorPublicKey.ts:41` | Branded schema for canonical Ethereum validator public keys. |
-| `@beep/schema/index` | `EthereumValidatorPublicKey` | type | `packages/foundation/modeling/schema/src/blockchain/EthereumValidatorPublicKey.ts:56` | Type for {@link EthereumValidatorPublicKey}. |
-| `@beep/schema/index` | `EthereumValidatorPublicKeyRedacted` | const | `packages/foundation/modeling/schema/src/blockchain/EthereumValidatorPublicKey.ts:64` | Redacted schema for canonical Ethereum validator public keys. |
-| `@beep/schema/index` | `EthereumValidatorPublicKeyRedacted` | type | `packages/foundation/modeling/schema/src/blockchain/EthereumValidatorPublicKey.ts:82` | Type for {@link EthereumValidatorPublicKeyRedacted}. |
-| `@beep/schema/index` | `EvmAddress` | const | `packages/foundation/modeling/schema/src/blockchain/EvmAddress.ts:78` | Branded schema for canonical mainnet EVM wallet addresses. |
-| `@beep/schema/index` | `EvmAddress` | type | `packages/foundation/modeling/schema/src/blockchain/EvmAddress.ts:93` | Type for {@link EvmAddress}. |
-| `@beep/schema/index` | `EvmAddressRedacted` | const | `packages/foundation/modeling/schema/src/blockchain/EvmAddress.ts:101` | Redacted schema for canonical mainnet EVM wallet addresses. |
-| `@beep/schema/index` | `EvmAddressRedacted` | type | `packages/foundation/modeling/schema/src/blockchain/EvmAddress.ts:119` | Type for {@link EvmAddressRedacted}. |
-| `@beep/schema/index` | `ExpectCTConfig` | class | `packages/foundation/modeling/schema/src/http/headers/ExpectCT.ts:27` |  |
-| `@beep/schema/index` | `ExpectCTEnabled` | const | `packages/foundation/modeling/schema/src/http/headers/ExpectCT.ts:42` |  |
-| `@beep/schema/index` | `ExpectCTEnabled` | type | `packages/foundation/modeling/schema/src/http/headers/ExpectCT.ts:52` |  |
-| `@beep/schema/index` | `ExpectCtError` | class | `packages/foundation/modeling/schema/src/http/headers/SecureHeaderError.ts:151` |  |
-| `@beep/schema/index` | `ExpectCTHeader` | const | `packages/foundation/modeling/schema/src/http/headers/ExpectCT.ts:150` |  |
-| `@beep/schema/index` | `ExpectCTHeader` | type | `packages/foundation/modeling/schema/src/http/headers/ExpectCT.ts:207` |  |
-| `@beep/schema/index` | `ExpectCTOption` | const | `packages/foundation/modeling/schema/src/http/headers/ExpectCT.ts:58` |  |
-| `@beep/schema/index` | `ExpectCTOption` | type | `packages/foundation/modeling/schema/src/http/headers/ExpectCT.ts:68` |  |
-| `@beep/schema/index` | `ExpectCTResponseHeader` | class | `packages/foundation/modeling/schema/src/http/headers/ExpectCT.ts:74` |  |
-| `@beep/schema/index` | `extractMimeExtensions` | const | `packages/foundation/modeling/schema/src/FileExtension.ts:72` | Extracts the distinct file extensions from a mime-type dictionary. |
-| `@beep/schema/index` | `extractMimeTypes` | const | `packages/foundation/modeling/schema/src/MimeType.ts:65` | Extracts all mime-type keys from a mime-type dictionary as a deduplicated array. |
-| `@beep/schema/index` | `FetchDirective` | class | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:232` |  |
-| `@beep/schema/index` | `FileExtension` | const | `packages/foundation/modeling/schema/src/FileExtension.ts:332` | Schema for any supported file extension across all mime-type categories. |
-| `@beep/schema/index` | `FileExtension` | type | `packages/foundation/modeling/schema/src/FileExtension.ts:358` | Union of literals accepted by {@link FileExtension}. |
-| `@beep/schema/index` | `FileName` | const | `packages/foundation/modeling/schema/src/FileName.ts:100` |  |
-| `@beep/schema/index` | `FileName` | type | `packages/foundation/modeling/schema/src/FileName.ts:118` | Type for {@link FileName}. |
-| `@beep/schema/index` | `FilePath` | const | `packages/foundation/modeling/schema/src/FilePath/FilePath.schema.ts:139` | Branded schema for file path strings that are valid on at least one major OS. |
-| `@beep/schema/index` | `FilePath` | type | `packages/foundation/modeling/schema/src/FilePath/FilePath.schema.ts:154` | Branded file path string type extracted from {@link FilePath}. |
-| `@beep/schema/index` | `Float16Arr` | const | `packages/foundation/modeling/schema/src/Float16Array.ts:74` | Schema that accepts native `Float16Array` instances. |
-| `@beep/schema/index` | `Float16Arr` | type | `packages/foundation/modeling/schema/src/Float16Array.ts:86` | Type for {@link Float16Arr}. |
-| `@beep/schema/index` | `Float16ArrayField` | const | `packages/foundation/modeling/schema/src/Float16Array.ts:179` | Model field helper for storing `Float16Array` values in variant-based model |
-| `@beep/schema/index` | `Float16ArrayFromArray` | const | `packages/foundation/modeling/schema/src/Float16Array.ts:113` | Bidirectional schema that decodes arrays of numbers into `Float16Array` |
-| `@beep/schema/index` | `Float16ArrayFromArray` | namespace | `packages/foundation/modeling/schema/src/Float16Array.ts:145` | Namespace members for {@link Float16ArrayFromArray}. |
-| `@beep/schema/index` | `Float16ArrayFromArray` | type | `packages/foundation/modeling/schema/src/Float16Array.ts:137` | Type for {@link Float16ArrayFromArray}. |
-| `@beep/schema/index` | `Float32Arr` | const | `packages/foundation/modeling/schema/src/Float32Array.ts:40` | Schema that accepts native `Float32Array` instances. |
-| `@beep/schema/index` | `Float32Arr` | type | `packages/foundation/modeling/schema/src/Float32Array.ts:54` | Type for {@link Float32Arr}. |
-| `@beep/schema/index` | `Float32ArrayField` | const | `packages/foundation/modeling/schema/src/Float32Array.ts:144` | Model field helper for storing `Float32Array` values in variant-based model |
-| `@beep/schema/index` | `Float32ArrayFromArray` | const | `packages/foundation/modeling/schema/src/Float32Array.ts:81` | Bidirectional schema that decodes arrays of numbers into `Float32Array` |
-| `@beep/schema/index` | `Float32ArrayFromArray` | namespace | `packages/foundation/modeling/schema/src/Float32Array.ts:110` | Namespace members for {@link Float32ArrayFromArray}. |
-| `@beep/schema/index` | `Float32ArrayFromArray` | type | `packages/foundation/modeling/schema/src/Float32Array.ts:102` | Type for {@link Float32ArrayFromArray}. |
-| `@beep/schema/index` | `Float64Arr` | const | `packages/foundation/modeling/schema/src/Float64Array.ts:40` | Schema that accepts native `Float64Array` instances. |
-| `@beep/schema/index` | `Float64Arr` | type | `packages/foundation/modeling/schema/src/Float64Array.ts:54` | Type for {@link Float64Arr}. |
-| `@beep/schema/index` | `Float64ArrayField` | const | `packages/foundation/modeling/schema/src/Float64Array.ts:144` | Model field helper for storing `Float64Array` values in variant-based model |
-| `@beep/schema/index` | `Float64ArrayFromArray` | const | `packages/foundation/modeling/schema/src/Float64Array.ts:81` | Bidirectional schema that decodes arrays of numbers into `Float64Array` |
-| `@beep/schema/index` | `Float64ArrayFromArray` | namespace | `packages/foundation/modeling/schema/src/Float64Array.ts:110` | Namespace members for {@link Float64ArrayFromArray}. |
-| `@beep/schema/index` | `Float64ArrayFromArray` | type | `packages/foundation/modeling/schema/src/Float64Array.ts:102` | Type for {@link Float64ArrayFromArray}. |
-| `@beep/schema/index` | `Fn` | function | `packages/foundation/modeling/schema/src/Fn.ts:490` | Creates a zero-argument function schema whose result is validated against the |
-| `@beep/schema/index` | `Fn` | function | `packages/foundation/modeling/schema/src/Fn.ts:514` | Creates a zero-argument function schema that preserves an explicit |
-| `@beep/schema/index` | `Fn` | function | `packages/foundation/modeling/schema/src/Fn.ts:539` | Creates a zero-argument function schema that preserves an explicit |
-| `@beep/schema/index` | `Fn` | function | `packages/foundation/modeling/schema/src/Fn.ts:569` | Creates a unary function schema. Invocation helpers decode incoming payloads |
-| `@beep/schema/index` | `Fn` | function | `packages/foundation/modeling/schema/src/Fn.ts:581` | Public schema module export. |
-| `@beep/schema/index` | `FnSchema` | type | `packages/foundation/modeling/schema/src/Fn.ts:212` | Union schema type returned by {@link Fn}. Resolves to either |
-| `@beep/schema/index` | `FnSchemaNoArg` | interface | `packages/foundation/modeling/schema/src/Fn.ts:173` | Schema surface for zero-argument (thunk-like) functions created by {@link Fn}. |
-| `@beep/schema/index` | `FnSchemaStatics` | type | `packages/foundation/modeling/schema/src/Fn.ts:228` | Subset of the {@link FnSchema} surface exposing only the invocation helpers |
-| `@beep/schema/index` | `FnSchemaUnary` | interface | `packages/foundation/modeling/schema/src/Fn.ts:192` | Schema surface for unary functions created by {@link Fn}. Provides |
-| `@beep/schema/index` | `FnType` | type | `packages/foundation/modeling/schema/src/Fn.ts:129` | Function type helper used by {@link Fn}. Inputs modeled with `never`, |
-| `@beep/schema/index` | `ForceHttpsRedirectConfig` | class | `packages/foundation/modeling/schema/src/http/headers/ForceHttpsRedirect.ts:27` |  |
-| `@beep/schema/index` | `ForceHttpsRedirectEnabled` | const | `packages/foundation/modeling/schema/src/http/headers/ForceHttpsRedirect.ts:42` |  |
-| `@beep/schema/index` | `ForceHttpsRedirectEnabled` | type | `packages/foundation/modeling/schema/src/http/headers/ForceHttpsRedirect.ts:52` |  |
-| `@beep/schema/index` | `ForceHttpsRedirectError` | class | `packages/foundation/modeling/schema/src/http/headers/SecureHeaderError.ts:115` |  |
-| `@beep/schema/index` | `ForceHttpsRedirectHeader` | const | `packages/foundation/modeling/schema/src/http/headers/ForceHttpsRedirect.ts:103` |  |
-| `@beep/schema/index` | `ForceHttpsRedirectHeader` | type | `packages/foundation/modeling/schema/src/http/headers/ForceHttpsRedirect.ts:172` |  |
-| `@beep/schema/index` | `ForceHttpsRedirectOption` | const | `packages/foundation/modeling/schema/src/http/headers/ForceHttpsRedirect.ts:58` |  |
-| `@beep/schema/index` | `ForceHttpsRedirectOption` | type | `packages/foundation/modeling/schema/src/http/headers/ForceHttpsRedirect.ts:68` |  |
-| `@beep/schema/index` | `ForceHttpsRedirectResponseHeader` | class | `packages/foundation/modeling/schema/src/http/headers/ForceHttpsRedirect.ts:74` |  |
-| `@beep/schema/index` | `formatCsvDataRow` | const | `packages/foundation/modeling/schema/src/csv/format/CsvFormatter.ts:125` | Format a CSV data row. |
-| `@beep/schema/index` | `formatCsvDocument` | const | `packages/foundation/modeling/schema/src/csv/format/CsvFormatter.ts:152` | Format a whole CSV document. |
-| `@beep/schema/index` | `formatCsvHeaderRow` | const | `packages/foundation/modeling/schema/src/csv/format/CsvFormatter.ts:100` | Format a CSV header row. |
-| `@beep/schema/index` | `FrameGuardAllowFrom` | const | `packages/foundation/modeling/schema/src/http/headers/FrameGuard.ts:60` |  |
-| `@beep/schema/index` | `FrameGuardAllowFrom` | type | `packages/foundation/modeling/schema/src/http/headers/FrameGuard.ts:70` |  |
-| `@beep/schema/index` | `FrameGuardAllowFromConfig` | class | `packages/foundation/modeling/schema/src/http/headers/FrameGuard.ts:47` |  |
-| `@beep/schema/index` | `FrameGuardError` | class | `packages/foundation/modeling/schema/src/http/headers/SecureHeaderError.ts:145` |  |
-| `@beep/schema/index` | `FrameGuardHeader` | const | `packages/foundation/modeling/schema/src/http/headers/FrameGuard.ts:137` |  |
-| `@beep/schema/index` | `FrameGuardHeader` | type | `packages/foundation/modeling/schema/src/http/headers/FrameGuard.ts:211` |  |
-| `@beep/schema/index` | `FrameGuardMode` | const | `packages/foundation/modeling/schema/src/http/headers/FrameGuard.ts:30` |  |
-| `@beep/schema/index` | `FrameGuardMode` | type | `packages/foundation/modeling/schema/src/http/headers/FrameGuard.ts:41` |  |
-| `@beep/schema/index` | `FrameGuardOption` | const | `packages/foundation/modeling/schema/src/http/headers/FrameGuard.ts:76` |  |
-| `@beep/schema/index` | `FrameGuardOption` | type | `packages/foundation/modeling/schema/src/http/headers/FrameGuard.ts:86` |  |
-| `@beep/schema/index` | `FrameGuardResponseHeader` | class | `packages/foundation/modeling/schema/src/http/headers/FrameGuard.ts:92` |  |
-| `@beep/schema/index` | `fromDate` | const | `packages/foundation/modeling/schema/src/LocalDate.ts:231` | Create a `LocalDate` from a JavaScript `Date` using its UTC components. |
-| `@beep/schema/index` | `fromDateTime` | const | `packages/foundation/modeling/schema/src/LocalDate.ts:264` | Create a `LocalDate` from a `DateTime` by extracting its UTC date components. |
-| `@beep/schema/index` | `fromString` | const | `packages/foundation/modeling/schema/src/LocalDate.ts:208` | Parse a `YYYY-MM-DD` string into a `LocalDate`, returning an `Effect` that fails for invalid input. |
-| `@beep/schema/index` | `GenerateAlphaScale` | const | `packages/foundation/modeling/schema/src/color/Color.ts:1016` | One-way schema for generating an alpha-blended 12-step scale. |
-| `@beep/schema/index` | `GenerateAlphaScale` | type | `packages/foundation/modeling/schema/src/color/Color.ts:1036` | Type for {@link GenerateAlphaScale}. |
-| `@beep/schema/index` | `GenerateAlphaScaleInput` | class | `packages/foundation/modeling/schema/src/color/Color.ts:1000` | Request schema for generating an alpha-blended 12-step scale. |
-| `@beep/schema/index` | `GenerateNeutralScale` | const | `packages/foundation/modeling/schema/src/color/Color.ts:972` | One-way schema for generating a neutral 12-step scale. |
-| `@beep/schema/index` | `GenerateNeutralScale` | type | `packages/foundation/modeling/schema/src/color/Color.ts:992` | Type for {@link GenerateNeutralScale}. |
-| `@beep/schema/index` | `GenerateNeutralScaleInput` | class | `packages/foundation/modeling/schema/src/color/Color.ts:956` | Request schema for generating a neutral 12-step scale. |
-| `@beep/schema/index` | `GenerateScale` | const | `packages/foundation/modeling/schema/src/color/Color.ts:928` | One-way schema for generating a chromatic 12-step scale. |
-| `@beep/schema/index` | `GenerateScale` | type | `packages/foundation/modeling/schema/src/color/Color.ts:948` | Type for {@link GenerateScale}. |
-| `@beep/schema/index` | `GenerateScaleInput` | class | `packages/foundation/modeling/schema/src/color/Color.ts:912` | Request schema for generating a chromatic 12-step scale. |
-| `@beep/schema/index` | `getProperHeaderName` | const | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:92` | Get proper header name for CSP |
-| `@beep/schema/index` | `Glob` | const | `packages/foundation/modeling/schema/src/Glob.ts:105` | Branded schema for portable non-empty glob pattern strings. |
-| `@beep/schema/index` | `Glob` | type | `packages/foundation/modeling/schema/src/Glob.ts:120` | Type for {@link Glob}. |
-| `@beep/schema/index` | `GraphEncoded` | const | `packages/foundation/modeling/schema/src/Graph/Graph.encoded.ts:140` | Schema for encoded graphs. |
-| `@beep/schema/index` | `GraphEncoded` | type | `packages/foundation/modeling/schema/src/Graph/Graph.encoded.ts:30` | Encoded graph representation used by graph codecs. |
-| `@beep/schema/index` | `GraphEncodedSchema` | interface | `packages/foundation/modeling/schema/src/Graph/Graph.encoded.ts:97` | Schema type for encoded graphs. |
-| `@beep/schema/index` | `GraphFromSelf` | const | `packages/foundation/modeling/schema/src/Graph/Graph.from-self.ts:246` | Schema for validating existing immutable Effect graphs. |
-| `@beep/schema/index` | `GraphFromSelf` | interface | `packages/foundation/modeling/schema/src/Graph/Graph.from-self.ts:28` | Schema for validating existing immutable Effect graphs. |
-| `@beep/schema/index` | `GraphIso` | type | `packages/foundation/modeling/schema/src/Graph/Graph.encoded.ts:62` | Public schema module export. |
-| `@beep/schema/index` | `GraphKind` | const | `packages/foundation/modeling/schema/src/Graph/Graph.primitives.ts:109` | Schema for graph kind discriminators. |
-| `@beep/schema/index` | `GraphKind` | type | `packages/foundation/modeling/schema/src/Graph/Graph.primitives.ts:121` | Graph kind discriminator type extracted from {@link GraphKind}. |
-| `@beep/schema/index` | `HasLeafSegment` | const | `packages/foundation/modeling/schema/src/FilePath/FilePath.roots.ts:83` | Branded schema for path strings that include a non-root leaf segment. |
-| `@beep/schema/index` | `HasLeafSegment` | type | `packages/foundation/modeling/schema/src/FilePath/FilePath.roots.ts:132` | Type for {@link HasLeafSegment}. |
-| `@beep/schema/index` | `HasNullByte` | const | `packages/foundation/modeling/schema/src/FilePath/FilePath.guards.ts:29` | Branded schema for strings that contain an embedded NUL byte. |
-| `@beep/schema/index` | `HasNullByte` | type | `packages/foundation/modeling/schema/src/FilePath/FilePath.guards.ts:51` | Branded string type containing an embedded NUL byte. |
-| `@beep/schema/index` | `HeaderArray` | const | `packages/foundation/modeling/schema/src/csv/parse/types.ts:20` | An array containing possibly nullish strings. |
-| `@beep/schema/index` | `HeaderArray` | type | `packages/foundation/modeling/schema/src/csv/parse/types.ts:35` | {@inheritDoc HeaderArray} |
-| `@beep/schema/index` | `HeaderTransformFunction` | const | `packages/foundation/modeling/schema/src/csv/parse/types.ts:44` | An identity function taking an array containing possibly nullish strings |
-| `@beep/schema/index` | `HeaderTransformFunction` | type | `packages/foundation/modeling/schema/src/csv/parse/types.ts:59` | {@inheritDoc HeaderTransformFunction} |
-| `@beep/schema/index` | `HeaderValueInput` | const | `packages/foundation/modeling/schema/src/csv/parse/ParserOptions.ts:60` | A parser header configuration input. |
-| `@beep/schema/index` | `HeaderValueInput` | type | `packages/foundation/modeling/schema/src/csv/parse/ParserOptions.ts:72` | {@inheritDoc HeaderValueInput} |
-| `@beep/schema/index` | `HexColor` | const | `packages/foundation/modeling/schema/src/color/Color.ts:407` | Canonical lowercase six-digit hex color schema. |
-| `@beep/schema/index` | `HexColor` | type | `packages/foundation/modeling/schema/src/color/Color.ts:422` | Type for {@link HexColor}. |
-| `@beep/schema/index` | `HexColorInput` | const | `packages/foundation/modeling/schema/src/color/Color.ts:385` | Boundary schema for hex color input strings. |
-| `@beep/schema/index` | `HexColorInput` | type | `packages/foundation/modeling/schema/src/color/Color.ts:399` | Type for {@link HexColorInput}. |
-| `@beep/schema/index` | `HexColorScale12` | const | `packages/foundation/modeling/schema/src/color/Color.ts:669` | Fixed-size 12-step canonical hex color scale. |
-| `@beep/schema/index` | `HexColorScale12` | type | `packages/foundation/modeling/schema/src/color/Color.ts:686` | Type for {@link HexColorScale12}. |
-| `@beep/schema/index` | `HexToOklch` | const | `packages/foundation/modeling/schema/src/color/Color.ts:824` | Transformation schema for decoding boundary hex input into canonical OKLCH. |
-| `@beep/schema/index` | `HexToOklch` | type | `packages/foundation/modeling/schema/src/color/Color.ts:845` | Type for {@link HexToOklch}. |
-| `@beep/schema/index` | `HexToRgb` | const | `packages/foundation/modeling/schema/src/color/Color.ts:717` | Transformation schema for decoding boundary hex input into normalized RGB. |
-| `@beep/schema/index` | `HexToRgb` | type | `packages/foundation/modeling/schema/src/color/Color.ts:738` | Type for {@link HexToRgb}. |
-| `@beep/schema/index` | `HtmlFragment` | const | `packages/foundation/modeling/schema/src/Html.ts:33` | Branded schema for trusted HTML fragment strings. |
-| `@beep/schema/index` | `HtmlFragment` | type | `packages/foundation/modeling/schema/src/Html.ts:55` | Type for {@link HtmlFragment}. |
-| `@beep/schema/index` | `HttpMethod` | const | `packages/foundation/modeling/schema/src/http/HttpMethod/HttpMethod.ts:49` |  |
-| `@beep/schema/index` | `HttpMethod` | type | `packages/foundation/modeling/schema/src/http/HttpMethod/HttpMethod.ts:79` |  |
-| `@beep/schema/index` | `HttpMethod_` | const | `packages/foundation/modeling/schema/src/http/HttpMethod/HttpMethod.ts:19` |  |
-| `@beep/schema/index` | `HttpProtocol` | const | `packages/foundation/modeling/schema/src/http/HttpProtocol.ts:18` | An HTTP protocol ("http" or "https") |
-| `@beep/schema/index` | `HttpProtocol` | type | `packages/foundation/modeling/schema/src/http/HttpProtocol.ts:30` | {@inheritDoc HttpProtocol} |
-| `@beep/schema/index` | `HttpStatus` | SourceFile | `packages/foundation/modeling/schema/src/http/HttpStatus.ts:16` |  |
-| `@beep/schema/index` | `ImageFileExtension` | const | `packages/foundation/modeling/schema/src/FileExtension.ts:216` | Schema for file extensions associated with `image/*` mime types. |
-| `@beep/schema/index` | `ImageFileExtension` | type | `packages/foundation/modeling/schema/src/FileExtension.ts:238` | Union of literals accepted by {@link ImageFileExtension}. |
-| `@beep/schema/index` | `ImageMimeType` | const | `packages/foundation/modeling/schema/src/MimeType.ts:294` | Schema for `image/*` mime-type literals. |
-| `@beep/schema/index` | `ImageMimeType` | type | `packages/foundation/modeling/schema/src/MimeType.ts:317` | Union of image mime-type literals. |
-| `@beep/schema/index` | `Int` | const | `packages/foundation/modeling/schema/src/Int.ts:29` | Branded schema for finite integers. |
-| `@beep/schema/index` | `Int` | type | `packages/foundation/modeling/schema/src/Int.ts:55` | Type for {@link Int}. |
-| `@beep/schema/index` | `isAbortSignal` | const | `packages/foundation/modeling/schema/src/AbortSignal.ts:28` | Type guard that checks whether a value is an `AbortSignal` instance. |
-| `@beep/schema/index` | `isAfter` | const | `packages/foundation/modeling/schema/src/LocalDate.ts:309` | Dual predicate returning `true` when `self` is chronologically after `that`. |
-| `@beep/schema/index` | `isBefore` | const | `packages/foundation/modeling/schema/src/LocalDate.ts:298` | Dual predicate returning `true` when `self` is chronologically before `that`. |
-| `@beep/schema/index` | `isCSSProperties` | const | `packages/foundation/modeling/schema/src/dom/elements.ts:52` | Type guard for React.CSSProperties |
-| `@beep/schema/index` | `isDragEvent` | const | `packages/foundation/modeling/schema/src/dom/elements.ts:190` | Type guard for DragEvent |
-| `@beep/schema/index` | `isEdge` | const | `packages/foundation/modeling/schema/src/Graph/Graph.guards.ts:18` | Guard for Effect `Graph.Edge` values. |
-| `@beep/schema/index` | `isEffect` | const | `packages/foundation/modeling/schema/src/EffectSchema.ts:56` | Type guard that checks whether a value is an Effect runtime value. |
-| `@beep/schema/index` | `isEvent` | const | `packages/foundation/modeling/schema/src/dom/events.ts:20` | Type guard for Event |
-| `@beep/schema/index` | `isFloat16Array` | const | `packages/foundation/modeling/schema/src/Float16Array.ts:52` | Float16Array type guard. |
-| `@beep/schema/index` | `isGraph` | const | `packages/foundation/modeling/schema/src/Graph/Graph.guards.ts:28` | Guard for Effect graph values, including mutable variants. |
-| `@beep/schema/index` | `isHTMLElement` | const | `packages/foundation/modeling/schema/src/dom/elements.ts:22` | Type guard for HTMLElement |
-| `@beep/schema/index` | `isLeapYear` | const | `packages/foundation/modeling/schema/src/LocalDate.ts:448` | Check whether a year is a leap year. |
-| `@beep/schema/index` | `isLocalDate` | const | `packages/foundation/modeling/schema/src/LocalDate.ts:124` | Type guard for `LocalDate` instances. |
-| `@beep/schema/index` | `isMouseEvent` | const | `packages/foundation/modeling/schema/src/dom/events.ts:30` | Type guard for MouseEvent |
-| `@beep/schema/index` | `isMutableHashMap` | const | `packages/foundation/modeling/schema/src/MutableHashMap.ts:136` | Type guard for Effect `MutableHashMap` values. |
-| `@beep/schema/index` | `isMutableHashSet` | const | `packages/foundation/modeling/schema/src/MutableHashSet.ts:101` | Type guard for Effect `MutableHashSet` values. |
-| `@beep/schema/index` | `isNegative` | const | `packages/foundation/modeling/schema/src/Number.ts:109` | Refinement that accepts negative numbers (less than zero). |
-| `@beep/schema/index` | `isNonNegative` | const | `packages/foundation/modeling/schema/src/Number.ts:91` | Refinement that accepts non-negative numbers (zero or greater). |
-| `@beep/schema/index` | `isNonPositive` | const | `packages/foundation/modeling/schema/src/Number.ts:127` | Refinement that accepts non-positive numbers (zero or less). |
-| `@beep/schema/index` | `isPositive` | const | `packages/foundation/modeling/schema/src/Number.ts:29` | Refinement that accepts positive numbers (greater than zero). |
-| `@beep/schema/index` | `isPostgresSerialInt` | const | `packages/foundation/modeling/schema/src/Number.ts:47` | Refinement that accepts integers in PostgreSQL `serial` column range. |
-| `@beep/schema/index` | `isPromise` | const | `packages/foundation/modeling/schema/src/PromiseSchema.ts:64` | Type guard that checks whether a value is a native JavaScript `Promise`. |
-| `@beep/schema/index` | `isReactNode` | const | `packages/foundation/modeling/schema/src/dom/elements.ts:81` | Type guard for React.ReactNode |
-| `@beep/schema/index` | `isReactRef` | const | `packages/foundation/modeling/schema/src/dom/elements.ts:141` | Type guard for React.Ref<T> |
-| `@beep/schema/index` | `JsonArray` | const | `packages/foundation/modeling/schema/src/Json.ts:56` | Schema for a JSON array (an array of JSON-compatible values). |
-| `@beep/schema/index` | `JsonArray` | type | `packages/foundation/modeling/schema/src/Json.ts:68` | Runtime type extracted from the {@link JsonArray} schema. |
-| `@beep/schema/index` | `JsoncParseDiagnostic` | class | `packages/foundation/modeling/schema/src/Jsonc.ts:32` | Typed representation of a single JSONC parse diagnostic produced by `jsonc-parser`. |
-| `@beep/schema/index` | `JsoncTextToUnknown` | const | `packages/foundation/modeling/schema/src/Jsonc.ts:90` | Schema transformation that decodes a JSONC string (JSON with comments and |
-| `@beep/schema/index` | `JsonlTextToUnknown` | const | `packages/foundation/modeling/schema/src/Jsonl.ts:102` | Schema transformation that decodes JSONL (JSON Lines) text into an array of |
-| `@beep/schema/index` | `JsonObject` | const | `packages/foundation/modeling/schema/src/Json.ts:27` | Schema for a JSON object (a record of string keys to JSON-compatible values). |
-| `@beep/schema/index` | `JsonObject` | type | `packages/foundation/modeling/schema/src/Json.ts:39` | Runtime type extracted from the {@link JsonObject} schema. |
-| `@beep/schema/index` | `KebabCaseStr` | const | `packages/foundation/modeling/schema/src/KebabStr.ts:28` | Branded kebab-case string schema with a lowercase leading letter. |
-| `@beep/schema/index` | `KebabCaseStr` | type | `packages/foundation/modeling/schema/src/KebabStr.ts:54` | Type for {@link KebabCaseStr}. |
-| `@beep/schema/index` | `Lighten` | const | `packages/foundation/modeling/schema/src/color/Color.ts:1103` | One-way schema for lightening a color. |
-| `@beep/schema/index` | `Lighten` | type | `packages/foundation/modeling/schema/src/color/Color.ts:1121` | Type for {@link Lighten}. |
-| `@beep/schema/index` | `LightenInput` | class | `packages/foundation/modeling/schema/src/color/Color.ts:1087` | Request schema for lightening a color. |
-| `@beep/schema/index` | `LiteralKit` | function | `packages/foundation/modeling/schema/src/LiteralKit.ts:703` | Builds a literal schema kit from a non-empty tuple of mixed literals. |
-| `@beep/schema/index` | `LiteralKit` | interface | `packages/foundation/modeling/schema/src/LiteralKit.ts:650` | Public schema module export. |
-| `@beep/schema/index` | `LiteralKitEnumMappingCoverageError` | class | `packages/foundation/modeling/schema/src/LiteralKit.ts:427` | Error thrown when a manual enum mapping does not exactly cover the provided |
-| `@beep/schema/index` | `LiteralKitEnumMappingDuplicateLiteralError` | class | `packages/foundation/modeling/schema/src/LiteralKit.ts:411` | Error thrown when the same source literal appears more than once in a manual |
-| `@beep/schema/index` | `LiteralKitKeyCollisionError` | class | `packages/foundation/modeling/schema/src/LiteralKit.ts:393` | Error thrown when different literals encode to the same helper key via |
-| `@beep/schema/index` | `LiteralKitTaggedUnionLiteralError` | class | `packages/foundation/modeling/schema/src/LiteralKit.ts:443` | Error thrown when `LiteralKit.toTaggedUnion` receives a literal that cannot |
-| `@beep/schema/index` | `LiteralNotInSetError` | class | `packages/foundation/modeling/schema/src/LiteralKit.ts:377` | Error thrown when an input value is not found in the provided literals |
-| `@beep/schema/index` | `LiteralToKey` | type | `packages/foundation/modeling/schema/src/LiteralKit.ts:36` | Maps a literal value to its string key representation used in `Enum`, `is`, |
-| `@beep/schema/index` | `LocalDate` | class | `packages/foundation/modeling/schema/src/LocalDate.ts:51` | Schema class representing a calendar date without time or timezone. |
-| `@beep/schema/index` | `LocalDateFromString` | const | `packages/foundation/modeling/schema/src/LocalDate.ts:485` | Schema that transforms ISO 8601 date strings (`YYYY-MM-DD`) into `LocalDate` instances. |
-| `@beep/schema/index` | `LocalDateFromString` | namespace | `packages/foundation/modeling/schema/src/LocalDate.ts:511` | Namespace members for {@link LocalDateFromString}. |
-| `@beep/schema/index` | `LocalDateFromString` | type | `packages/foundation/modeling/schema/src/LocalDate.ts:503` | Decoded `LocalDate` type extracted from {@link LocalDateFromString}. |
-| `@beep/schema/index` | `LogLevel` | const | `packages/foundation/modeling/schema/src/Logs.ts:31` | Supported log levels including global enable-all and disable-all sentinels. |
-| `@beep/schema/index` | `LogLevel` | type | `packages/foundation/modeling/schema/src/Logs.ts:43` | Runtime type for `LogLevel`. |
-| `@beep/schema/index` | `LogSeverity` | const | `packages/foundation/modeling/schema/src/Logs.ts:62` | Supported log severities emitted by the logger (excludes `All` and `None`). |
-| `@beep/schema/index` | `LogSeverity` | type | `packages/foundation/modeling/schema/src/Logs.ts:74` | Runtime type for `LogSeverity`. |
-| `@beep/schema/index` | `makeStatusCauseError` | const | `packages/foundation/modeling/schema/src/StatusCauseError.ts:193` | Build a tagged error directly or derive a reusable `(message, status, cause?) => Error` builder. |
-| `@beep/schema/index` | `MappedLiteralDuplicateError` | class | `packages/foundation/modeling/schema/src/MappedLiteralKit.ts:100` | Error thrown when `MappedLiteralKit` receives duplicate literals on the |
-| `@beep/schema/index` | `MappedLiteralKit` | function | `packages/foundation/modeling/schema/src/MappedLiteralKit.ts:337` | Builds a mapped literal schema kit from a non-empty tuple of literal pairs. |
-| `@beep/schema/index` | `MappedLiteralKit` | interface | `packages/foundation/modeling/schema/src/MappedLiteralKit.ts:306` | Public schema module export. |
-| `@beep/schema/index` | `Markdown` | const | `packages/foundation/modeling/schema/src/Markdown.ts:122` | Branded schema for Markdown document strings accepted by the active parser. |
-| `@beep/schema/index` | `Markdown` | type | `packages/foundation/modeling/schema/src/Markdown.ts:141` | Branded Markdown document string type extracted from {@link Markdown}. |
-| `@beep/schema/index` | `MarkdownTextToHtml` | const | `packages/foundation/modeling/schema/src/Markdown.ts:169` | Schema factory that renders Markdown text into HTML using `Bun.markdown.html`. |
-| `@beep/schema/index` | `matchLiteral` | const | `packages/foundation/modeling/schema/src/LiteralKit.ts:215` | Converts a literal value to its string key at runtime using the |
-| `@beep/schema/index` | `MimeType` | const | `packages/foundation/modeling/schema/src/MimeType.ts:99` | Schema kit that covers all supported mime types with per-category sub-schemas. |
-| `@beep/schema/index` | `MimeType` | type | `packages/foundation/modeling/schema/src/MimeType.ts:148` | Union of supported mime-type literals. |
-| `@beep/schema/index` | `MiscFileExtension` | const | `packages/foundation/modeling/schema/src/FileExtension.ts:293` | Schema for file extensions associated with miscellaneous mime types. |
-| `@beep/schema/index` | `MiscFileExtension` | type | `packages/foundation/modeling/schema/src/FileExtension.ts:315` | Union of literals accepted by {@link MiscFileExtension}. |
-| `@beep/schema/index` | `MiscMimeType` | const | `packages/foundation/modeling/schema/src/MimeType.ts:378` | Schema for miscellaneous mime-type literals that do not fit standard categories. |
-| `@beep/schema/index` | `MiscMimeType` | type | `packages/foundation/modeling/schema/src/MimeType.ts:401` | Union of miscellaneous mime-type literals. |
-| `@beep/schema/index` | `MixColors` | const | `packages/foundation/modeling/schema/src/color/Color.ts:1061` | One-way schema for mixing two colors. |
-| `@beep/schema/index` | `MixColors` | type | `packages/foundation/modeling/schema/src/color/Color.ts:1079` | Type for {@link MixColors}. |
-| `@beep/schema/index` | `MixColorsInput` | class | `packages/foundation/modeling/schema/src/color/Color.ts:1044` | Request schema for mixing two colors. |
-| `@beep/schema/index` | `Model` | SourceFile | `packages/foundation/modeling/schema/src/Model.ts:7` |  |
-| `@beep/schema/index` | `MutableDirectedGraph` | const | `packages/foundation/modeling/schema/src/Graph/Graph.transforms.ts:207` | Schema for mutable directed graphs. |
-| `@beep/schema/index` | `MutableDirectedGraph` | interface | `packages/foundation/modeling/schema/src/Graph/Graph.transforms.ts:52` | Schema for decoding encoded graph payloads into mutable directed graphs. |
-| `@beep/schema/index` | `MutableDirectedGraphFromSelf` | const | `packages/foundation/modeling/schema/src/Graph/Graph.from-self.ts:324` | Schema for validating existing mutable directed Effect graphs. |
-| `@beep/schema/index` | `MutableDirectedGraphFromSelf` | interface | `packages/foundation/modeling/schema/src/Graph/Graph.from-self.ts:100` | Schema for validating existing mutable directed Effect graphs. |
-| `@beep/schema/index` | `MutableGraphFromSelf` | const | `packages/foundation/modeling/schema/src/Graph/Graph.from-self.ts:306` | Schema for validating existing mutable Effect graphs. |
-| `@beep/schema/index` | `MutableGraphFromSelf` | interface | `packages/foundation/modeling/schema/src/Graph/Graph.from-self.ts:82` | Schema for validating existing mutable Effect graphs. |
-| `@beep/schema/index` | `MutableHashMap` | const | `packages/foundation/modeling/schema/src/MutableHashMap.ts:260` | Schema for decoding entry arrays into `MutableHashMap` instances and encoding |
-| `@beep/schema/index` | `MutableHashMap` | interface | `packages/foundation/modeling/schema/src/MutableHashMap.ts:109` | Schema for transforming entry arrays into `MutableHashMap` instances. |
-| `@beep/schema/index` | `MutableHashMapFromSelf` | const | `packages/foundation/modeling/schema/src/MutableHashMap.ts:161` | Schema for validating existing `MutableHashMap` instances while applying the |
-| `@beep/schema/index` | `MutableHashMapFromSelf` | interface | `packages/foundation/modeling/schema/src/MutableHashMap.ts:91` | Schema for validating an existing `MutableHashMap` instance. |
-| `@beep/schema/index` | `MutableHashMapIso` | type | `packages/foundation/modeling/schema/src/MutableHashMap.ts:81` | Serializable entry-array iso type for `MutableHashMap` schemas. |
-| `@beep/schema/index` | `MutableHashSet` | const | `packages/foundation/modeling/schema/src/MutableHashSet.ts:219` | Schema for decoding arrays into `MutableHashSet` instances and encoding sets |
-| `@beep/schema/index` | `MutableHashSet` | interface | `packages/foundation/modeling/schema/src/MutableHashSet.ts:78` | Schema for transforming arrays into `MutableHashSet` instances. |
-| `@beep/schema/index` | `MutableHashSetFromSelf` | const | `packages/foundation/modeling/schema/src/MutableHashSet.ts:126` | Schema for validating existing `MutableHashSet` instances while applying the |
-| `@beep/schema/index` | `MutableHashSetFromSelf` | interface | `packages/foundation/modeling/schema/src/MutableHashSet.ts:61` | Schema for validating an existing `MutableHashSet` instance. |
-| `@beep/schema/index` | `MutableHashSetIso` | type | `packages/foundation/modeling/schema/src/MutableHashSet.ts:53` | Iso representation (serializable value array) used by |
-| `@beep/schema/index` | `MutableUndirectedGraph` | const | `packages/foundation/modeling/schema/src/Graph/Graph.transforms.ts:231` | Schema for mutable undirected graphs. |
-| `@beep/schema/index` | `MutableUndirectedGraph` | interface | `packages/foundation/modeling/schema/src/Graph/Graph.transforms.ts:65` | Schema for decoding encoded graph payloads into mutable undirected graphs. |
-| `@beep/schema/index` | `MutableUndirectedGraphFromSelf` | const | `packages/foundation/modeling/schema/src/Graph/Graph.from-self.ts:345` | Schema for validating existing mutable undirected Effect graphs. |
-| `@beep/schema/index` | `MutableUndirectedGraphFromSelf` | interface | `packages/foundation/modeling/schema/src/Graph/Graph.from-self.ts:118` | Schema for validating existing mutable undirected Effect graphs. |
-| `@beep/schema/index` | `NativePathToPosixPath` | const | `packages/foundation/modeling/schema/src/PosixPath.ts:70` | Schema transformation that converts native file-system paths (with backslashes) to POSIX separators. |
-| `@beep/schema/index` | `NavigationDirective` | class | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:345` |  |
-| `@beep/schema/index` | `NegInt` | const | `packages/foundation/modeling/schema/src/Int.ts:154` | Branded schema for negative integers (less than zero). |
-| `@beep/schema/index` | `NegInt` | type | `packages/foundation/modeling/schema/src/Int.ts:180` | Type for {@link NegInt}. |
-| `@beep/schema/index` | `NodeIndex` | const | `packages/foundation/modeling/schema/src/Graph/Graph.primitives.ts:30` | Branded schema for graph node indices. |
-| `@beep/schema/index` | `NodeIndex` | type | `packages/foundation/modeling/schema/src/Graph/Graph.primitives.ts:43` | Branded node index type extracted from {@link NodeIndex}. |
-| `@beep/schema/index` | `NodeIndexFromString` | const | `packages/foundation/modeling/schema/src/Graph/Graph.primitives.ts:62` | Decode a string-encoded graph node index into a branded {@link NodeIndex}. |
-| `@beep/schema/index` | `NonEmptyArrayOfInts` | const | `packages/foundation/modeling/schema/src/ArrayOf.ts:231` | Schema for non-empty arrays of integers. |
-| `@beep/schema/index` | `NonEmptyArrayOfInts` | type | `packages/foundation/modeling/schema/src/ArrayOf.ts:243` | Type for {@link NonEmptyArrayOfInts}. |
-| `@beep/schema/index` | `NonEmptyArrayOfNonEmptyStrings` | const | `packages/foundation/modeling/schema/src/ArrayOf.ts:115` | Schema for non-empty arrays of `NonEmptyString` values. |
-| `@beep/schema/index` | `NonEmptyArrayOfNonEmptyStrings` | type | `packages/foundation/modeling/schema/src/ArrayOf.ts:127` | Type for {@link NonEmptyArrayOfNonEmptyStrings}. |
-| `@beep/schema/index` | `NonEmptyArrayOfNumbers` | const | `packages/foundation/modeling/schema/src/ArrayOf.ts:173` | Schema for non-empty arrays of numbers. |
-| `@beep/schema/index` | `NonEmptyArrayOfNumbers` | type | `packages/foundation/modeling/schema/src/ArrayOf.ts:185` | Type for {@link NonEmptyArrayOfNumbers}. |
-| `@beep/schema/index` | `NonEmptyArrayOfStrings` | const | `packages/foundation/modeling/schema/src/ArrayOf.ts:57` | Schema for non-empty arrays of strings. |
-| `@beep/schema/index` | `NonEmptyArrayOfStrings` | type | `packages/foundation/modeling/schema/src/ArrayOf.ts:69` | Type for {@link NonEmptyArrayOfStrings}. |
-| `@beep/schema/index` | `NonEmptyTrimmedStr` | const | `packages/foundation/modeling/schema/src/String.ts:28` | Branded non-empty trimmed string schema that strips whitespace and rejects empty results. |
-| `@beep/schema/index` | `NonEmptyTrimmedStr` | type | `packages/foundation/modeling/schema/src/String.ts:49` | Type for {@link NonEmptyTrimmedStr}. |
-| `@beep/schema/index` | `NonNegativeInt` | const | `packages/foundation/modeling/schema/src/Number.ts:180` | Branded schema for non-negative integers (zero or greater). |
-| `@beep/schema/index` | `NonNegativeInt` | type | `packages/foundation/modeling/schema/src/Number.ts:213` | Type for {@link NonNegativeInt}. |
-| `@beep/schema/index` | `NonNegNum` | const | `packages/foundation/modeling/schema/src/Number.ts:144` | Branded schema for non-negative number (zero or greater). |
-| `@beep/schema/index` | `NonNegNum` | type | `packages/foundation/modeling/schema/src/Number.ts:163` | Type for {@link NonNegNum}. |
-| `@beep/schema/index` | `NonPositiveInt` | const | `packages/foundation/modeling/schema/src/Int.ts:197` | Branded schema for non-positive integers (zero or less). |
-| `@beep/schema/index` | `NonPositiveInt` | type | `packages/foundation/modeling/schema/src/Int.ts:223` | Type for {@link NonPositiveInt}. |
-| `@beep/schema/index` | `NoOpenError` | class | `packages/foundation/modeling/schema/src/http/headers/SecureHeaderError.ts:139` |  |
-| `@beep/schema/index` | `NoOpenHeader` | const | `packages/foundation/modeling/schema/src/http/headers/NoOpen.ts:80` |  |
-| `@beep/schema/index` | `NoOpenHeader` | type | `packages/foundation/modeling/schema/src/http/headers/NoOpen.ts:139` |  |
-| `@beep/schema/index` | `NoOpenOption` | const | `packages/foundation/modeling/schema/src/http/headers/NoOpen.ts:47` |  |
-| `@beep/schema/index` | `NoOpenOption` | type | `packages/foundation/modeling/schema/src/http/headers/NoOpen.ts:58` |  |
-| `@beep/schema/index` | `NoOpenResponseHeader` | class | `packages/foundation/modeling/schema/src/http/headers/NoOpen.ts:64` |  |
-| `@beep/schema/index` | `NoOpenValue` | const | `packages/foundation/modeling/schema/src/http/headers/NoOpen.ts:28` |  |
-| `@beep/schema/index` | `NoOpenValue` | type | `packages/foundation/modeling/schema/src/http/headers/NoOpen.ts:39` |  |
-| `@beep/schema/index` | `NormalizedBooleanString` | const | `packages/foundation/modeling/schema/src/CommonTextSchemas.ts:126` | Schema that normalizes common boolean string spellings (`"true"`, `"1"`, `"yes"`, `"on"`, etc.) to `boolean`. |
-| `@beep/schema/index` | `NormalizedBooleanString` | type | `packages/foundation/modeling/schema/src/CommonTextSchemas.ts:154` | Type for {@link NormalizedBooleanString}. |
-| `@beep/schema/index` | `NormalizeHexColor` | const | `packages/foundation/modeling/schema/src/color/Color.ts:430` | Canonicalization schema from boundary hex input to canonical hex output. |
-| `@beep/schema/index` | `NormalizeHexColor` | type | `packages/foundation/modeling/schema/src/color/Color.ts:451` | Type for {@link NormalizeHexColor}. |
-| `@beep/schema/index` | `normalizePath` | const | `packages/foundation/modeling/schema/src/PosixPath.ts:104` | Normalize a file-system path string to POSIX separators. |
-| `@beep/schema/index` | `NoSniffError` | class | `packages/foundation/modeling/schema/src/http/headers/SecureHeaderError.ts:133` |  |
-| `@beep/schema/index` | `NoSniffHeader` | const | `packages/foundation/modeling/schema/src/http/headers/NoSniff.ts:128` | One-way schema that decodes `X-Content-Type-Options` options into the response header. |
-| `@beep/schema/index` | `NoSniffHeader` | type | `packages/foundation/modeling/schema/src/http/headers/NoSniff.ts:189` | Type-level representation of {@link NoSniffHeader}. |
-| `@beep/schema/index` | `NoSniffOption` | const | `packages/foundation/modeling/schema/src/http/headers/NoSniff.ts:71` | Schema for `X-Content-Type-Options` option values, including `false` to disable. |
-| `@beep/schema/index` | `NoSniffOption` | type | `packages/foundation/modeling/schema/src/http/headers/NoSniff.ts:84` | Type-level representation of {@link NoSniffOption}. |
-| `@beep/schema/index` | `NoSniffResponseHeader` | class | `packages/foundation/modeling/schema/src/http/headers/NoSniff.ts:101` | Parsed `X-Content-Type-Options` response header with name and optional value. |
-| `@beep/schema/index` | `NoSniffValue` | const | `packages/foundation/modeling/schema/src/http/headers/NoSniff.ts:39` | Schema for supported `X-Content-Type-Options` header values. |
-| `@beep/schema/index` | `NoSniffValue` | type | `packages/foundation/modeling/schema/src/http/headers/NoSniff.ts:52` | Type-level representation of {@link NoSniffValue}. |
-| `@beep/schema/index` | `NullableStr` | const | `packages/foundation/modeling/schema/src/String.ts:104` | A nullable string schema that accepts `string \| null`. |
-| `@beep/schema/index` | `NullableStr` | type | `packages/foundation/modeling/schema/src/String.ts:124` | Type for {@link NullableStr}. |
-| `@beep/schema/index` | `OklchChroma` | const | `packages/foundation/modeling/schema/src/color/Color.ts:587` | Canonical OKLCH chroma component. |
-| `@beep/schema/index` | `OklchChroma` | type | `packages/foundation/modeling/schema/src/color/Color.ts:603` | Type for {@link OklchChroma}. |
-| `@beep/schema/index` | `OklchColor` | class | `packages/foundation/modeling/schema/src/color/Color.ts:652` | Canonical OKLCH color object. |
-| `@beep/schema/index` | `OklchCoordinate` | const | `packages/foundation/modeling/schema/src/color/Color.ts:540` | Branded finite OKLCH coordinate. |
-| `@beep/schema/index` | `OklchCoordinate` | type | `packages/foundation/modeling/schema/src/color/Color.ts:555` | Type for {@link OklchCoordinate}. |
-| `@beep/schema/index` | `OklchHue` | const | `packages/foundation/modeling/schema/src/color/Color.ts:611` | Canonical OKLCH hue component. |
-| `@beep/schema/index` | `OklchHue` | type | `packages/foundation/modeling/schema/src/color/Color.ts:627` | Type for {@link OklchHue}. |
-| `@beep/schema/index` | `OklchInput` | class | `packages/foundation/modeling/schema/src/color/Color.ts:635` | OKLCH object with finite coordinates. |
-| `@beep/schema/index` | `OklchLightness` | const | `packages/foundation/modeling/schema/src/color/Color.ts:563` | Canonical OKLCH lightness component. |
-| `@beep/schema/index` | `OklchLightness` | type | `packages/foundation/modeling/schema/src/color/Color.ts:579` | Type for {@link OklchLightness}. |
-| `@beep/schema/index` | `OklchToHex` | const | `packages/foundation/modeling/schema/src/color/Color.ts:853` | Transformation schema for encoding OKLCH coordinates into canonical hex. |
-| `@beep/schema/index` | `OklchToHex` | type | `packages/foundation/modeling/schema/src/color/Color.ts:871` | Type for {@link OklchToHex}. |
-| `@beep/schema/index` | `OklchToRgb` | const | `packages/foundation/modeling/schema/src/color/Color.ts:798` | Transformation schema for encoding OKLCH coordinates into RGB input values. |
-| `@beep/schema/index` | `OklchToRgb` | type | `packages/foundation/modeling/schema/src/color/Color.ts:816` | Type for {@link OklchToRgb}. |
-| `@beep/schema/index` | `OptionFromNullableStr` | const | `packages/foundation/modeling/schema/src/String.ts:141` | A nullable string that decodes to `Option<string>` using `S.OptionFromNullOr`. |
-| `@beep/schema/index` | `OptionFromNullableStr` | type | `packages/foundation/modeling/schema/src/String.ts:154` | Type for {@link OptionFromNullableStr}. |
-| `@beep/schema/index` | `OptionFromOptionalNullishKey` | const | `packages/foundation/modeling/schema/src/Options.ts:78` | Decodes an optional object key whose value may also be `null` or `undefined` |
-| `@beep/schema/index` | `Order` | const | `packages/foundation/modeling/schema/src/LocalDate.ts:279` | Chronological `Order` for `LocalDate` values. |
-| `@beep/schema/index` | `parseCsvRows` | const | `packages/foundation/modeling/schema/src/csv/parse/CsvParser.ts:379` | Parse full CSV text into raw row arrays using low-level parser options. |
-| `@beep/schema/index` | `ParsedField` | class | `packages/foundation/modeling/schema/src/csv/parse/CsvParser.ts:98` |  |
-| `@beep/schema/index` | `ParsedRow` | class | `packages/foundation/modeling/schema/src/csv/parse/CsvParser.ts:243` |  |
-| `@beep/schema/index` | `ParserOptions` | class | `packages/foundation/modeling/schema/src/csv/parse/ParserOptions.ts:107` | Schema-backed CSV parser options. |
-| `@beep/schema/index` | `ParserOptionsArgs` | type | `packages/foundation/modeling/schema/src/csv/parse/ParserOptions.ts:226` | Encoded/raw constructor input for {@link ParserOptions}. |
-| `@beep/schema/index` | `ParserOptionsError` | class | `packages/foundation/modeling/schema/src/csv/parse/ParserOptions.ts:80` | A parser options configuration error. |
-| `@beep/schema/index` | `parseYaml` | const | `packages/foundation/modeling/schema/src/Yaml.ts:73` | Parses a YAML string into a JavaScript value. Uses `Bun.YAML` when available |
-| `@beep/schema/index` | `PascalCaseStr` | const | `packages/foundation/modeling/schema/src/PascalStr.ts:28` | Branded PascalCase string schema. |
-| `@beep/schema/index` | `PascalCaseStr` | type | `packages/foundation/modeling/schema/src/PascalStr.ts:54` | Type for {@link PascalCaseStr}. |
-| `@beep/schema/index` | `PermissionsPolicyAllowlistedOrigin` | const | `packages/foundation/modeling/schema/src/http/headers/PermissionsPolicy.ts:138` |  |
-| `@beep/schema/index` | `PermissionsPolicyAllowlistedOrigin` | type | `packages/foundation/modeling/schema/src/http/headers/PermissionsPolicy.ts:148` |  |
-| `@beep/schema/index` | `PermissionsPolicyDirective` | const | `packages/foundation/modeling/schema/src/http/headers/PermissionsPolicy.ts:57` |  |
-| `@beep/schema/index` | `PermissionsPolicyDirective` | type | `packages/foundation/modeling/schema/src/http/headers/PermissionsPolicy.ts:68` |  |
-| `@beep/schema/index` | `PermissionsPolicyDirectiveKey` | const | `packages/foundation/modeling/schema/src/http/headers/PermissionsPolicy.ts:74` |  |
-| `@beep/schema/index` | `PermissionsPolicyDirectiveKey` | type | `packages/foundation/modeling/schema/src/http/headers/PermissionsPolicy.ts:91` |  |
-| `@beep/schema/index` | `PermissionsPolicyDirectives` | const | `packages/foundation/modeling/schema/src/http/headers/PermissionsPolicy.ts:174` |  |
-| `@beep/schema/index` | `PermissionsPolicyDirectives` | type | `packages/foundation/modeling/schema/src/http/headers/PermissionsPolicy.ts:187` |  |
-| `@beep/schema/index` | `PermissionsPolicyDirectiveValue` | const | `packages/foundation/modeling/schema/src/http/headers/PermissionsPolicy.ts:154` |  |
-| `@beep/schema/index` | `PermissionsPolicyDirectiveValue` | type | `packages/foundation/modeling/schema/src/http/headers/PermissionsPolicy.ts:168` |  |
-| `@beep/schema/index` | `PermissionsPolicyDirectiveValueSingle` | const | `packages/foundation/modeling/schema/src/http/headers/PermissionsPolicy.ts:121` |  |
-| `@beep/schema/index` | `PermissionsPolicyDirectiveValueSingle` | type | `packages/foundation/modeling/schema/src/http/headers/PermissionsPolicy.ts:132` |  |
-| `@beep/schema/index` | `PermissionsPolicyError` | class | `packages/foundation/modeling/schema/src/http/headers/SecureHeaderError.ts:157` |  |
-| `@beep/schema/index` | `PermissionsPolicyHeader` | const | `packages/foundation/modeling/schema/src/http/headers/PermissionsPolicy.ts:272` |  |
-| `@beep/schema/index` | `PermissionsPolicyHeader` | type | `packages/foundation/modeling/schema/src/http/headers/PermissionsPolicy.ts:333` |  |
-| `@beep/schema/index` | `PermissionsPolicyOption` | const | `packages/foundation/modeling/schema/src/http/headers/PermissionsPolicy.ts:208` |  |
-| `@beep/schema/index` | `PermissionsPolicyOption` | type | `packages/foundation/modeling/schema/src/http/headers/PermissionsPolicy.ts:218` |  |
-| `@beep/schema/index` | `PermissionsPolicyOptionStruct` | class | `packages/foundation/modeling/schema/src/http/headers/PermissionsPolicy.ts:193` |  |
-| `@beep/schema/index` | `PermissionsPolicyResponseHeader` | class | `packages/foundation/modeling/schema/src/http/headers/PermissionsPolicy.ts:224` |  |
-| `@beep/schema/index` | `PermittedCrossDomainPoliciesError` | class | `packages/foundation/modeling/schema/src/http/headers/SecureHeaderError.ts:181` |  |
-| `@beep/schema/index` | `PermittedCrossDomainPoliciesHeader` | const | `packages/foundation/modeling/schema/src/http/headers/PermittedCrossDomainPolicies.ts:88` |  |
-| `@beep/schema/index` | `PermittedCrossDomainPoliciesHeader` | type | `packages/foundation/modeling/schema/src/http/headers/PermittedCrossDomainPolicies.ts:150` |  |
-| `@beep/schema/index` | `PermittedCrossDomainPoliciesOption` | const | `packages/foundation/modeling/schema/src/http/headers/PermittedCrossDomainPolicies.ts:53` |  |
-| `@beep/schema/index` | `PermittedCrossDomainPoliciesOption` | type | `packages/foundation/modeling/schema/src/http/headers/PermittedCrossDomainPolicies.ts:64` |  |
-| `@beep/schema/index` | `PermittedCrossDomainPoliciesResponseHeader` | class | `packages/foundation/modeling/schema/src/http/headers/PermittedCrossDomainPolicies.ts:70` |  |
-| `@beep/schema/index` | `PermittedCrossDomainPoliciesValue` | const | `packages/foundation/modeling/schema/src/http/headers/PermittedCrossDomainPolicies.ts:34` |  |
-| `@beep/schema/index` | `PermittedCrossDomainPoliciesValue` | type | `packages/foundation/modeling/schema/src/http/headers/PermittedCrossDomainPolicies.ts:45` |  |
-| `@beep/schema/index` | `PluginTypes` | const | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:145` |  |
-| `@beep/schema/index` | `PluginTypes` | type | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:155` |  |
-| `@beep/schema/index` | `PosInt` | const | `packages/foundation/modeling/schema/src/Int.ts:72` | Branded schema for positive integers (greater than zero). |
-| `@beep/schema/index` | `PosInt` | type | `packages/foundation/modeling/schema/src/Int.ts:98` | Type for {@link PosInt}. |
-| `@beep/schema/index` | `PosixPath` | const | `packages/foundation/modeling/schema/src/PosixPath.ts:31` | Branded schema for path strings using only POSIX `/` separators. |
-| `@beep/schema/index` | `PosixPath` | type | `packages/foundation/modeling/schema/src/PosixPath.ts:53` | Type for {@link PosixPath}. |
-| `@beep/schema/index` | `PostgresSerialInt` | const | `packages/foundation/modeling/schema/src/Int.ts:115` | Branded schema for PostgreSQL `serial` column values. |
-| `@beep/schema/index` | `PostgresSerialInt` | type | `packages/foundation/modeling/schema/src/Int.ts:137` | Type for {@link PostgresSerialInt}. |
-| `@beep/schema/index` | `Primitive` | const | `packages/foundation/modeling/schema/src/Primitive.ts:28` | Schema for JavaScript primitive types (`string \| number \| boolean \| bigint \| null \| undefined`). |
-| `@beep/schema/index` | `Primitive` | type | `packages/foundation/modeling/schema/src/Primitive.ts:47` | {@inheritDoc Primitive} |
-| `@beep/schema/index` | `PromiseSchema` | const | `packages/foundation/modeling/schema/src/PromiseSchema.ts:91` | Declared schema for native JavaScript `Promise` values. |
-| `@beep/schema/index` | `PromiseSchema` | type | `packages/foundation/modeling/schema/src/PromiseSchema.ts:112` | {@inheritDoc PromiseSchema} |
-| `@beep/schema/index` | `QuotedOrigin` | const | `packages/foundation/modeling/schema/src/http/headers/PermissionsPolicy.ts:97` |  |
-| `@beep/schema/index` | `QuotedOrigin` | type | `packages/foundation/modeling/schema/src/http/headers/PermissionsPolicy.ts:113` |  |
-| `@beep/schema/index` | `ReferrerPolicyError` | class | `packages/foundation/modeling/schema/src/http/headers/SecureHeaderError.ts:127` |  |
-| `@beep/schema/index` | `ReferrerPolicyHeader` | const | `packages/foundation/modeling/schema/src/http/headers/ReferrerPolicy.ts:126` |  |
-| `@beep/schema/index` | `ReferrerPolicyHeader` | type | `packages/foundation/modeling/schema/src/http/headers/ReferrerPolicy.ts:192` |  |
-| `@beep/schema/index` | `ReferrerPolicyOption` | const | `packages/foundation/modeling/schema/src/http/headers/ReferrerPolicy.ts:70` |  |
-| `@beep/schema/index` | `ReferrerPolicyOption` | type | `packages/foundation/modeling/schema/src/http/headers/ReferrerPolicy.ts:80` |  |
-| `@beep/schema/index` | `ReferrerPolicyResponseHeader` | class | `packages/foundation/modeling/schema/src/http/headers/ReferrerPolicy.ts:86` |  |
-| `@beep/schema/index` | `ReferrerPolicyValue` | const | `packages/foundation/modeling/schema/src/http/headers/ReferrerPolicy.ts:37` |  |
-| `@beep/schema/index` | `ReferrerPolicyValue` | type | `packages/foundation/modeling/schema/src/http/headers/ReferrerPolicy.ts:48` |  |
-| `@beep/schema/index` | `ReferrerPolicyValueList` | const | `packages/foundation/modeling/schema/src/http/headers/ReferrerPolicy.ts:54` |  |
-| `@beep/schema/index` | `ReferrerPolicyValueList` | type | `packages/foundation/modeling/schema/src/http/headers/ReferrerPolicy.ts:64` |  |
-| `@beep/schema/index` | `RegExpFromStr` | const | `packages/foundation/modeling/schema/src/RegExp.ts:107` | One-way schema that decodes a valid pattern string into a JavaScript `RegExp` object. |
-| `@beep/schema/index` | `RegExpFromStr` | type | `packages/foundation/modeling/schema/src/RegExp.ts:135` | Type for {@link RegExpFromStr}. |
-| `@beep/schema/index` | `RegExpStr` | const | `packages/foundation/modeling/schema/src/RegExp.ts:58` | Branded schema for strings that can be converted directly to a JavaScript `RegExp`. |
-| `@beep/schema/index` | `RegExpStr` | type | `packages/foundation/modeling/schema/src/RegExp.ts:80` | Type for {@link RegExpStr}. |
-| `@beep/schema/index` | `ReportingDirective` | class | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:399` |  |
-| `@beep/schema/index` | `ReportURI` | const | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:389` |  |
-| `@beep/schema/index` | `Rgb` | class | `packages/foundation/modeling/schema/src/color/Color.ts:523` | RGB object with normalized channels. |
-| `@beep/schema/index` | `RgbaColorString` | const | `packages/foundation/modeling/schema/src/color/Color.ts:694` | CSS rgba color string produced by with-alpha helpers. |
-| `@beep/schema/index` | `RgbaColorString` | type | `packages/foundation/modeling/schema/src/color/Color.ts:709` | Type for {@link RgbaColorString}. |
-| `@beep/schema/index` | `RgbChannel` | const | `packages/foundation/modeling/schema/src/color/Color.ts:482` | Branded normalized RGB channel in the range 0 through 1. |
-| `@beep/schema/index` | `RgbChannel` | type | `packages/foundation/modeling/schema/src/color/Color.ts:498` | Type for {@link RgbChannel}. |
-| `@beep/schema/index` | `RgbInput` | class | `packages/foundation/modeling/schema/src/color/Color.ts:506` | RGB object with finite channel inputs. |
-| `@beep/schema/index` | `RgbInputChannel` | const | `packages/foundation/modeling/schema/src/color/Color.ts:459` | Branded finite RGB input channel. |
-| `@beep/schema/index` | `RgbInputChannel` | type | `packages/foundation/modeling/schema/src/color/Color.ts:474` | Type for {@link RgbInputChannel}. |
-| `@beep/schema/index` | `RgbToHex` | const | `packages/foundation/modeling/schema/src/color/Color.ts:746` | Transformation schema for encoding RGB input into canonical hex. |
-| `@beep/schema/index` | `RgbToHex` | type | `packages/foundation/modeling/schema/src/color/Color.ts:764` | Type for {@link RgbToHex}. |
-| `@beep/schema/index` | `RgbToOklch` | const | `packages/foundation/modeling/schema/src/color/Color.ts:772` | Transformation schema for decoding normalized RGB into canonical OKLCH. |
-| `@beep/schema/index` | `RgbToOklch` | type | `packages/foundation/modeling/schema/src/color/Color.ts:790` | Type for {@link RgbToOklch}. |
-| `@beep/schema/index` | `Sandbox` | const | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:178` |  |
-| `@beep/schema/index` | `Sandbox` | type | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:189` |  |
-| `@beep/schema/index` | `SchemaUtils` | SourceFile | `packages/foundation/modeling/schema/src/SchemaUtils/index.ts:12` |  |
-| `@beep/schema/index` | `SecureHeader` | const | `packages/foundation/modeling/schema/src/http/headers/SecureHeader.ts:33` |  |
-| `@beep/schema/index` | `SecureHeader` | type | `packages/foundation/modeling/schema/src/http/headers/SecureHeader.ts:44` |  |
-| `@beep/schema/index` | `SecureHeaderEntry` | class | `packages/foundation/modeling/schema/src/http/headers/SecureHeaderOptions.ts:87` | A rendered secure header pair in `{ key, value }` format. |
-| `@beep/schema/index` | `SecureHeaderError` | const | `packages/foundation/modeling/schema/src/http/headers/SecureHeaderError.ts:193` |  |
-| `@beep/schema/index` | `SecureHeaderError` | type | `packages/foundation/modeling/schema/src/http/headers/SecureHeaderError.ts:221` |  |
-| `@beep/schema/index` | `SecureHeaderOptions` | class | `packages/foundation/modeling/schema/src/http/headers/SecureHeaderOptions.ts:52` | Aggregate input options for configuring all secure response headers. |
-| `@beep/schema/index` | `SemanticVersion` | const | `packages/foundation/modeling/schema/src/SemanticVersion.ts:46` | A Semantic Versioning (SemVer) schema for validating `MAJOR.MINOR.PATCH` version strings. |
-| `@beep/schema/index` | `SemanticVersion` | type | `packages/foundation/modeling/schema/src/SemanticVersion.ts:75` | {@inheritDoc SemanticVersion} |
-| `@beep/schema/index` | `SeverityLevel` | const | `packages/foundation/modeling/schema/src/SeverityLevel.ts:30` | Generic four-level severity scale: `"low"`, `"medium"`, `"high"`, `"critical"`. |
-| `@beep/schema/index` | `SeverityLevel` | type | `packages/foundation/modeling/schema/src/SeverityLevel.ts:49` | Type for {@link SeverityLevel}. |
-| `@beep/schema/index` | `Sex` | const | `packages/foundation/modeling/schema/src/person/Sex.ts:16` | The sex of a person ("male" or "female"). |
-| `@beep/schema/index` | `Sex` | type | `packages/foundation/modeling/schema/src/person/Sex.ts:27` | {@inheritDoc Sex} |
-| `@beep/schema/index` | `Sha256Hex` | const | `packages/foundation/modeling/schema/src/Sha256.ts:57` | Branded schema for canonical lowercase SHA-256 hex digests (64 hex characters). |
-| `@beep/schema/index` | `Sha256Hex` | type | `packages/foundation/modeling/schema/src/Sha256.ts:79` | Type for {@link Sha256Hex}. |
-| `@beep/schema/index` | `Sha256HexFromBytes` | const | `packages/foundation/modeling/schema/src/Sha256.ts:101` | One-way schema that decodes a byte array into a canonical lowercase SHA-256 |
-| `@beep/schema/index` | `Sha256HexFromBytes` | type | `packages/foundation/modeling/schema/src/Sha256.ts:126` | Type for {@link Sha256HexFromBytes}. |
-| `@beep/schema/index` | `Sha256HexFromHexBytes` | const | `packages/foundation/modeling/schema/src/Sha256.ts:147` | One-way schema that decodes a hex-encoded byte string into a canonical |
-| `@beep/schema/index` | `Sha256HexFromHexBytes` | type | `packages/foundation/modeling/schema/src/Sha256.ts:169` | Type for {@link Sha256HexFromHexBytes}. |
-| `@beep/schema/index` | `Slug` | const | `packages/foundation/modeling/schema/src/Slug.ts:83` | Branded schema for canonical lowercase kebab-case slugs. |
-| `@beep/schema/index` | `Slug` | type | `packages/foundation/modeling/schema/src/Slug.ts:98` | Branded slug string type extracted from {@link Slug}. |
-| `@beep/schema/index` | `SlugFromStr` | const | `packages/foundation/modeling/schema/src/Slug.ts:106` | Non-empty string schema used as the source input for {@link Slug}. |
-| `@beep/schema/index` | `SnakeCaseStr` | const | `packages/foundation/modeling/schema/src/SnakeStr.ts:28` | Branded snake_case string schema. |
-| `@beep/schema/index` | `SnakeCaseStr` | type | `packages/foundation/modeling/schema/src/SnakeStr.ts:54` | Type for {@link SnakeCaseStr}. |
-| `@beep/schema/index` | `startOfMonth` | const | `packages/foundation/modeling/schema/src/LocalDate.ts:396` | Return the first day of the month for the given `LocalDate`. |
-| `@beep/schema/index` | `startOfYear` | const | `packages/foundation/modeling/schema/src/LocalDate.ts:422` | Return January 1st for the year of the given `LocalDate`. |
-| `@beep/schema/index` | `StatusCauseFields` | const | `packages/foundation/modeling/schema/src/StatusCauseError.ts:39` | Shared field set for tagged errors that carry a message, HTTP status, and optional defect cause. |
-| `@beep/schema/index` | `statusCauseInput` | const | `packages/foundation/modeling/schema/src/StatusCauseError.ts:113` | Creates normalized status/cause input payloads. |
-| `@beep/schema/index` | `StatusCauseInput` | class | `packages/foundation/modeling/schema/src/StatusCauseError.ts:87` | Input payload shape produced by {@link statusCauseInput}. |
-| `@beep/schema/index` | `StatusCauseInputOptions` | class | `packages/foundation/modeling/schema/src/StatusCauseError.ts:62` | Build the payload object expected by errors using {@link StatusCauseFields}. |
-| `@beep/schema/index` | `StatusCauseTaggedErrorClass` | const | `packages/foundation/modeling/schema/src/StatusCauseTaggedErrorClass.ts:526` | Create a tagged error class that carries `message`, `status`, and optional defect `cause`. |
-| `@beep/schema/index` | `StatusCauseTaggedErrorClassConstructor` | type | `packages/foundation/modeling/schema/src/StatusCauseTaggedErrorClass.ts:264` | Callable constructor for creating status-cause tagged error class factories. |
-| `@beep/schema/index` | `StatusCauseTaggedErrorClassFactory` | interface | `packages/foundation/modeling/schema/src/StatusCauseTaggedErrorClass.ts:219` | Factory returned by {@link StatusCauseTaggedErrorClass} after an identity namespace has been selected. |
-| `@beep/schema/index` | `StatusCauseTaggedErrorClassWithStatics` | type | `packages/foundation/modeling/schema/src/StatusCauseTaggedErrorClass.ts:169` | Tagged error class returned by {@link StatusCauseTaggedErrorClass}, including dual status/cause helpers. |
-| `@beep/schema/index` | `SupportedPathFamily` | const | `packages/foundation/modeling/schema/src/FilePath/FilePath.schema.ts:31` | Literal union of file-path families recognized by {@link FilePath}. |
-| `@beep/schema/index` | `SupportedPathFamily` | type | `packages/foundation/modeling/schema/src/FilePath/FilePath.schema.ts:43` | Type for {@link SupportedPathFamily}. |
-| `@beep/schema/index` | `SupportedWindowsNamespace` | const | `packages/foundation/modeling/schema/src/FilePath/FilePath.guards.ts:60` | Branded schema for path strings that do not use unsupported Windows device |
-| `@beep/schema/index` | `SupportedWindowsNamespace` | type | `packages/foundation/modeling/schema/src/FilePath/FilePath.guards.ts:82` | Type for {@link SupportedWindowsNamespace}. |
-| `@beep/schema/index` | `TaggedErrorClass` | const | `packages/foundation/modeling/schema/src/TaggedErrorClass.ts:294` | Create a tagged error class with `_tag` discrimination and constructor input inferred from the schema. |
-| `@beep/schema/index` | `TaggedErrorClassConstructor` | type | `packages/foundation/modeling/schema/src/TaggedErrorClass.ts:244` | Callable constructor type for building tagged error classes. |
-| `@beep/schema/index` | `TaggedErrorClassFactory` | interface | `packages/foundation/modeling/schema/src/TaggedErrorClass.ts:208` | Factory interface returned by {@link TaggedErrorClass} that accepts a tag, fields, and optional annotations. |
-| `@beep/schema/index` | `TaggedErrorClassFromFields` | type | `packages/foundation/modeling/schema/src/TaggedErrorClass.ts:143` | Tagged error class type derived from a fields object. |
-| `@beep/schema/index` | `TaggedErrorClassFromSchema` | type | `packages/foundation/modeling/schema/src/TaggedErrorClass.ts:175` | Tagged error class type derived from a struct schema. |
-| `@beep/schema/index` | `TaggedErrorNewInput` | type | `packages/foundation/modeling/schema/src/TaggedErrorClass.ts:84` | Input type for constructing a tagged error, omitting the discriminator `_tag`. |
-| `@beep/schema/index` | `TextFileExtension` | const | `packages/foundation/modeling/schema/src/FileExtension.ts:177` | Schema for file extensions associated with `text/*` mime types. |
-| `@beep/schema/index` | `TextFileExtension` | type | `packages/foundation/modeling/schema/src/FileExtension.ts:199` | Union of literals accepted by {@link TextFileExtension}. |
-| `@beep/schema/index` | `TextMimeType` | const | `packages/foundation/modeling/schema/src/MimeType.ts:252` | Schema for `text/*` mime-type literals. |
-| `@beep/schema/index` | `TextMimeType` | type | `packages/foundation/modeling/schema/src/MimeType.ts:275` | Union of text mime-type literals. |
-| `@beep/schema/index` | `ThunkOf` | function | `packages/foundation/modeling/schema/src/Fn.ts:449` | Creates a thunk schema whose invocation output is validated against the |
-| `@beep/schema/index` | `ThunkOf` | function | `packages/foundation/modeling/schema/src/Fn.ts:456` | Public schema module export. |
-| `@beep/schema/index` | `ThunkOf` | function | `packages/foundation/modeling/schema/src/Fn.ts:466` | Public schema module export. |
-| `@beep/schema/index` | `Timezone` | const | `packages/foundation/modeling/schema/src/Timezone.ts:28` | IANA timezone identifier schema covering standard regions and UTC offsets. |
-| `@beep/schema/index` | `Timezone` | type | `packages/foundation/modeling/schema/src/Timezone.ts:493` | Runtime type for {@link Timezone}. |
-| `@beep/schema/index` | `today` | const | `packages/foundation/modeling/schema/src/LocalDate.ts:245` | Get today's date in UTC. |
-| `@beep/schema/index` | `todayEffect` | const | `packages/foundation/modeling/schema/src/LocalDate.ts:253` | Get today's UTC date as an `Effect` using the Clock service, testable with `TestClock`. |
-| `@beep/schema/index` | `TomlTextToUnknown` | const | `packages/foundation/modeling/schema/src/Toml.ts:94` | Schema transformation that decodes TOML text into an unknown record using |
-| `@beep/schema/index` | `TrimmedNonEmptyText` | const | `packages/foundation/modeling/schema/src/CommonTextSchemas.ts:36` | Trimmed and non-empty text schema that strips whitespace and rejects empty results. |
-| `@beep/schema/index` | `TrimmedNonEmptyText` | type | `packages/foundation/modeling/schema/src/CommonTextSchemas.ts:64` | Type for {@link TrimmedNonEmptyText}. |
-| `@beep/schema/index` | `UndirectedGraph` | const | `packages/foundation/modeling/schema/src/Graph/Graph.transforms.ts:183` | Schema for immutable undirected graphs. |
-| `@beep/schema/index` | `UndirectedGraph` | interface | `packages/foundation/modeling/schema/src/Graph/Graph.transforms.ts:39` | Schema for decoding encoded graph payloads into immutable undirected graphs. |
-| `@beep/schema/index` | `UndirectedGraphFromSelf` | const | `packages/foundation/modeling/schema/src/Graph/Graph.from-self.ts:285` | Schema for validating existing immutable undirected Effect graphs. |
-| `@beep/schema/index` | `UndirectedGraphFromSelf` | interface | `packages/foundation/modeling/schema/src/Graph/Graph.from-self.ts:64` | Schema for validating existing immutable undirected Effect graphs. |
-| `@beep/schema/index` | `Unit` | type | `packages/foundation/modeling/schema/src/Duration.ts:104` | Backwards-compatible alias for {@link DurationUnit}. |
-| `@beep/schema/index` | `UnknownRecord` | const | `packages/foundation/modeling/schema/src/Record.ts:29` | Schema for object records with string keys and unknown values. |
-| `@beep/schema/index` | `UnknownRecord` | type | `packages/foundation/modeling/schema/src/Record.ts:49` | Runtime type extracted from the {@link UnknownRecord} schema. |
-| `@beep/schema/index` | `URLStr` | const | `packages/foundation/modeling/schema/src/URL.ts:60` | A branded schema for URL-encoded strings validated against `new URL()`. |
-| `@beep/schema/index` | `URLStr` | type | `packages/foundation/modeling/schema/src/URL.ts:85` | {@inheritDoc URLStr} |
-| `@beep/schema/index` | `UsesPosixSeparator` | const | `packages/foundation/modeling/schema/src/FilePath/FilePath.guards.ts:90` | Branded schema for strings that contain a POSIX separator. |
-| `@beep/schema/index` | `UsesPosixSeparator` | type | `packages/foundation/modeling/schema/src/FilePath/FilePath.guards.ts:112` | Type for {@link UsesPosixSeparator}. |
-| `@beep/schema/index` | `UsesWindowsSeparator` | const | `packages/foundation/modeling/schema/src/FilePath/FilePath.guards.ts:120` | Branded schema for strings that contain a Windows separator. |
-| `@beep/schema/index` | `UsesWindowsSeparator` | type | `packages/foundation/modeling/schema/src/FilePath/FilePath.guards.ts:142` | Type for {@link UsesWindowsSeparator}. |
-| `@beep/schema/index` | `UUID` | const | `packages/foundation/modeling/schema/src/String.ts:66` | Branded UUID string schema that validates RFC 4122 format. |
-| `@beep/schema/index` | `UUID` | type | `packages/foundation/modeling/schema/src/String.ts:87` | Type for {@link UUID}. |
-| `@beep/schema/index` | `ValidWindowsPathSegment` | const | `packages/foundation/modeling/schema/src/FilePath/FilePath.segments.ts:130` | Branded schema for Windows path segments that may be either plain segments or |
-| `@beep/schema/index` | `ValidWindowsPathSegment` | type | `packages/foundation/modeling/schema/src/FilePath/FilePath.segments.ts:145` | Type for {@link ValidWindowsPathSegment}. |
-| `@beep/schema/index` | `ValidWindowsPlainPathSegment` | const | `packages/foundation/modeling/schema/src/FilePath/FilePath.segments.ts:46` | Branded schema for Windows path segments that are plain names rather than |
-| `@beep/schema/index` | `ValidWindowsPlainPathSegment` | type | `packages/foundation/modeling/schema/src/FilePath/FilePath.segments.ts:89` | Type for {@link ValidWindowsPlainPathSegment}. |
-| `@beep/schema/index` | `ValidWindowsRootSegment` | const | `packages/foundation/modeling/schema/src/FilePath/FilePath.segments.ts:99` | Branded schema for Windows root segments such as UNC server and share names. |
-| `@beep/schema/index` | `ValidWindowsRootSegment` | type | `packages/foundation/modeling/schema/src/FilePath/FilePath.segments.ts:121` | Type for {@link ValidWindowsRootSegment}. |
-| `@beep/schema/index` | `ValidWindowsUncRest` | const | `packages/foundation/modeling/schema/src/FilePath/FilePath.segments.ts:177` | Branded schema for the tail segment list of a UNC file path after the server |
-| `@beep/schema/index` | `ValidWindowsUncRest` | type | `packages/foundation/modeling/schema/src/FilePath/FilePath.segments.ts:192` | Type for {@link ValidWindowsUncRest}. |
-| `@beep/schema/index` | `ValidWindowsUncSegments` | const | `packages/foundation/modeling/schema/src/FilePath/FilePath.segments.ts:200` | Branded schema for a full UNC segment list `[server, share, ...rest]`. |
-| `@beep/schema/index` | `ValidWindowsUncSegments` | type | `packages/foundation/modeling/schema/src/FilePath/FilePath.segments.ts:218` | Type for {@link ValidWindowsUncSegments}. |
-| `@beep/schema/index` | `VariantSchema` | SourceFile | `packages/foundation/modeling/schema/src/VariantSchema.ts:7` |  |
-| `@beep/schema/index` | `VERSION` | const | `packages/foundation/modeling/schema/src/index.ts:14` |  |
-| `@beep/schema/index` | `VideoFileExtension` | const | `packages/foundation/modeling/schema/src/FileExtension.ts:138` | Schema for file extensions associated with `video/*` mime types. |
-| `@beep/schema/index` | `VideoFileExtension` | type | `packages/foundation/modeling/schema/src/FileExtension.ts:160` | Union of literals accepted by {@link VideoFileExtension}. |
-| `@beep/schema/index` | `VideoMimeType` | const | `packages/foundation/modeling/schema/src/MimeType.ts:210` | Schema for `video/*` mime-type literals. |
-| `@beep/schema/index` | `VideoMimeType` | type | `packages/foundation/modeling/schema/src/MimeType.ts:233` | Union of video mime-type literals. |
-| `@beep/schema/index` | `WindowsDotSegment` | const | `packages/foundation/modeling/schema/src/FilePath/FilePath.segments.ts:25` | Literal union for Windows dot-segment markers. |
-| `@beep/schema/index` | `WindowsDotSegment` | type | `packages/foundation/modeling/schema/src/FilePath/FilePath.segments.ts:37` | Type for {@link WindowsDotSegment}. |
-| `@beep/schema/index` | `WindowsDrivePath` | const | `packages/foundation/modeling/schema/src/FilePath/FilePath.windows.ts:35` | Branded schema for Windows drive paths with a leaf segment. |
-| `@beep/schema/index` | `WindowsDrivePath` | type | `packages/foundation/modeling/schema/src/FilePath/FilePath.windows.ts:84` | Type for {@link WindowsDrivePath}. |
-| `@beep/schema/index` | `WindowsDriveRoot` | const | `packages/foundation/modeling/schema/src/FilePath/FilePath.roots.ts:19` | Branded schema for Windows drive roots such as `C:` and `C:\\`. |
-| `@beep/schema/index` | `WindowsDriveRoot` | type | `packages/foundation/modeling/schema/src/FilePath/FilePath.roots.ts:41` | Type for {@link WindowsDriveRoot}. |
-| `@beep/schema/index` | `WindowsRelativePath` | const | `packages/foundation/modeling/schema/src/FilePath/FilePath.windows.ts:157` | Branded schema for Windows relative paths that use backslash separators and |
-| `@beep/schema/index` | `WindowsRelativePath` | type | `packages/foundation/modeling/schema/src/FilePath/FilePath.windows.ts:224` | Type for {@link WindowsRelativePath}. |
-| `@beep/schema/index` | `WindowsSegments` | const | `packages/foundation/modeling/schema/src/FilePath/FilePath.segments.ts:153` | Branded schema for a non-empty Windows path segment list. |
-| `@beep/schema/index` | `WindowsSegments` | type | `packages/foundation/modeling/schema/src/FilePath/FilePath.segments.ts:168` | Type for {@link WindowsSegments}. |
-| `@beep/schema/index` | `WindowsUncPath` | const | `packages/foundation/modeling/schema/src/FilePath/FilePath.windows.ts:93` | Branded schema for Windows UNC file paths with server, share, and leaf |
-| `@beep/schema/index` | `WindowsUncPath` | type | `packages/foundation/modeling/schema/src/FilePath/FilePath.windows.ts:148` | Type for {@link WindowsUncPath}. |
-| `@beep/schema/index` | `WindowsUncRoot` | const | `packages/foundation/modeling/schema/src/FilePath/FilePath.roots.ts:49` | Branded schema for UNC roots such as `\\\\server\\share`. |
-| `@beep/schema/index` | `WindowsUncRoot` | type | `packages/foundation/modeling/schema/src/FilePath/FilePath.roots.ts:71` | Type for {@link WindowsUncRoot}. |
-| `@beep/schema/index` | `WithAlpha` | const | `packages/foundation/modeling/schema/src/color/Color.ts:1187` | One-way schema for rendering an rgba string. |
-| `@beep/schema/index` | `WithAlpha` | type | `packages/foundation/modeling/schema/src/color/Color.ts:1205` | Type for {@link WithAlpha}. |
-| `@beep/schema/index` | `WithAlphaInput` | class | `packages/foundation/modeling/schema/src/color/Color.ts:1171` | Request schema for converting a color plus alpha to an rgba string. |
-| `@beep/schema/index` | `XmlTextToUnknown` | const | `packages/foundation/modeling/schema/src/Xml.ts:79` | Schema transformation that decodes XML text into an unknown parsed document |
-| `@beep/schema/index` | `XssProtectionError` | class | `packages/foundation/modeling/schema/src/http/headers/SecureHeaderError.ts:121` |  |
-| `@beep/schema/index` | `XSSProtectionHeader` | const | `packages/foundation/modeling/schema/src/http/headers/XSSProtection.ts:144` |  |
-| `@beep/schema/index` | `XSSProtectionHeader` | type | `packages/foundation/modeling/schema/src/http/headers/XSSProtection.ts:195` |  |
-| `@beep/schema/index` | `XSSProtectionMode` | const | `packages/foundation/modeling/schema/src/http/headers/XSSProtection.ts:29` |  |
-| `@beep/schema/index` | `XSSProtectionMode` | type | `packages/foundation/modeling/schema/src/http/headers/XSSProtection.ts:40` |  |
-| `@beep/schema/index` | `XSSProtectionOption` | const | `packages/foundation/modeling/schema/src/http/headers/XSSProtection.ts:75` |  |
-| `@beep/schema/index` | `XSSProtectionOption` | type | `packages/foundation/modeling/schema/src/http/headers/XSSProtection.ts:85` |  |
-| `@beep/schema/index` | `XSSProtectionReport` | const | `packages/foundation/modeling/schema/src/http/headers/XSSProtection.ts:59` |  |
-| `@beep/schema/index` | `XSSProtectionReport` | type | `packages/foundation/modeling/schema/src/http/headers/XSSProtection.ts:69` |  |
-| `@beep/schema/index` | `XSSProtectionReportConfig` | class | `packages/foundation/modeling/schema/src/http/headers/XSSProtection.ts:46` |  |
-| `@beep/schema/index` | `XSSProtectionResponseHeader` | class | `packages/foundation/modeling/schema/src/http/headers/XSSProtection.ts:91` |  |
-| `@beep/schema/index` | `YamlTextToUnknown` | const | `packages/foundation/modeling/schema/src/Yaml.ts:96` | Schema transformation that decodes YAML text into an unknown parsed value. |
+| `@beep/schema/Http` | `CrossOriginEmbedderPolicy` | SourceFile | `packages/foundation/modeling/schema/src/CrossOriginEmbedderPolicy/index.ts:20` |  |
+| `@beep/schema/Http` | `CrossOriginOpenerPolicy` | SourceFile | `packages/foundation/modeling/schema/src/CrossOriginOpenerPolicy/index.ts:20` |  |
+| `@beep/schema/Http` | `CrossOriginResourcePolicy` | SourceFile | `packages/foundation/modeling/schema/src/CrossOriginResourcePolicy/index.ts:20` |  |
+| `@beep/schema/Http` | `Csp` | SourceFile | `packages/foundation/modeling/schema/src/Csp/index.ts:20` |  |
+| `@beep/schema/Http` | `ExpectCt` | SourceFile | `packages/foundation/modeling/schema/src/ExpectCt/index.ts:20` |  |
+| `@beep/schema/Http` | `ForceHttpsRedirect` | SourceFile | `packages/foundation/modeling/schema/src/ForceHttpsRedirect/index.ts:20` |  |
+| `@beep/schema/Http` | `FrameGuard` | SourceFile | `packages/foundation/modeling/schema/src/FrameGuard/index.ts:20` |  |
+| `@beep/schema/Http` | `HttpHeaders` | SourceFile | `packages/foundation/modeling/schema/src/HttpHeaders/index.ts:20` |  |
+| `@beep/schema/Http` | `HttpMethod` | SourceFile | `packages/foundation/modeling/schema/src/HttpMethod/index.ts:22` |  |
+| `@beep/schema/Http` | `HttpProtocol` | SourceFile | `packages/foundation/modeling/schema/src/HttpProtocol/index.ts:22` |  |
+| `@beep/schema/Http` | `HttpStatus` | SourceFile | `packages/foundation/modeling/schema/src/HttpStatus/index.ts:21` |  |
+| `@beep/schema/Http` | `NoOpen` | SourceFile | `packages/foundation/modeling/schema/src/NoOpen/index.ts:20` |  |
+| `@beep/schema/Http` | `NoSniff` | SourceFile | `packages/foundation/modeling/schema/src/NoSniff/index.ts:20` |  |
+| `@beep/schema/Http` | `PermissionsPolicy` | SourceFile | `packages/foundation/modeling/schema/src/PermissionsPolicy/index.ts:20` |  |
+| `@beep/schema/Http` | `PermittedCrossDomainPolicies` | SourceFile | `packages/foundation/modeling/schema/src/PermittedCrossDomainPolicies/index.ts:20` |  |
+| `@beep/schema/Http` | `ReferrerPolicy` | SourceFile | `packages/foundation/modeling/schema/src/ReferrerPolicy/index.ts:20` |  |
+| `@beep/schema/Http` | `SecureHeader` | SourceFile | `packages/foundation/modeling/schema/src/SecureHeader/index.ts:22` |  |
+| `@beep/schema/Http` | `SecureHeaderError` | SourceFile | `packages/foundation/modeling/schema/src/SecureHeaderError/index.ts:20` |  |
+| `@beep/schema/Http` | `SecureHeaderOptions` | SourceFile | `packages/foundation/modeling/schema/src/SecureHeaderOptions/index.ts:20` |  |
+| `@beep/schema/Http` | `XssProtection` | SourceFile | `packages/foundation/modeling/schema/src/XssProtection/index.ts:20` |  |
+| `@beep/schema/HttpHeaders` | `CrossOriginEmbedderPolicy` | SourceFile | `packages/foundation/modeling/schema/src/CrossOriginEmbedderPolicy/index.ts:20` |  |
+| `@beep/schema/HttpHeaders` | `CrossOriginOpenerPolicy` | SourceFile | `packages/foundation/modeling/schema/src/CrossOriginOpenerPolicy/index.ts:20` |  |
+| `@beep/schema/HttpHeaders` | `CrossOriginResourcePolicy` | SourceFile | `packages/foundation/modeling/schema/src/CrossOriginResourcePolicy/index.ts:20` |  |
+| `@beep/schema/HttpHeaders` | `Csp` | SourceFile | `packages/foundation/modeling/schema/src/Csp/index.ts:20` |  |
+| `@beep/schema/HttpHeaders` | `ExpectCt` | SourceFile | `packages/foundation/modeling/schema/src/ExpectCt/index.ts:20` |  |
+| `@beep/schema/HttpHeaders` | `ForceHttpsRedirect` | SourceFile | `packages/foundation/modeling/schema/src/ForceHttpsRedirect/index.ts:20` |  |
+| `@beep/schema/HttpHeaders` | `FrameGuard` | SourceFile | `packages/foundation/modeling/schema/src/FrameGuard/index.ts:20` |  |
+| `@beep/schema/HttpHeaders` | `NoOpen` | SourceFile | `packages/foundation/modeling/schema/src/NoOpen/index.ts:20` |  |
+| `@beep/schema/HttpHeaders` | `NoSniff` | SourceFile | `packages/foundation/modeling/schema/src/NoSniff/index.ts:20` |  |
+| `@beep/schema/HttpHeaders` | `PermissionsPolicy` | SourceFile | `packages/foundation/modeling/schema/src/PermissionsPolicy/index.ts:20` |  |
+| `@beep/schema/HttpHeaders` | `PermittedCrossDomainPolicies` | SourceFile | `packages/foundation/modeling/schema/src/PermittedCrossDomainPolicies/index.ts:20` |  |
+| `@beep/schema/HttpHeaders` | `ReferrerPolicy` | SourceFile | `packages/foundation/modeling/schema/src/ReferrerPolicy/index.ts:20` |  |
+| `@beep/schema/HttpHeaders` | `SecureHeader` | SourceFile | `packages/foundation/modeling/schema/src/SecureHeader/index.ts:22` |  |
+| `@beep/schema/HttpHeaders` | `SecureHeaderError` | SourceFile | `packages/foundation/modeling/schema/src/SecureHeaderError/index.ts:20` |  |
+| `@beep/schema/HttpHeaders` | `SecureHeaderOptions` | SourceFile | `packages/foundation/modeling/schema/src/SecureHeaderOptions/index.ts:20` |  |
+| `@beep/schema/HttpHeaders` | `XssProtection` | SourceFile | `packages/foundation/modeling/schema/src/XssProtection/index.ts:20` |  |
+| `@beep/schema/HttpMethod` | `HttpMethod` | const | `packages/foundation/modeling/schema/src/HttpMethod/HttpMethod.schema.ts:49` |  |
+| `@beep/schema/HttpMethod` | `HttpMethod` | type | `packages/foundation/modeling/schema/src/HttpMethod/HttpMethod.schema.ts:79` |  |
+| `@beep/schema/HttpMethod` | `HttpMethod_` | const | `packages/foundation/modeling/schema/src/HttpMethod/HttpMethod.schema.ts:19` |  |
+| `@beep/schema/HttpMethod` | `Literal` | const | `packages/foundation/modeling/schema/src/HttpMethod/HttpMethod.schema.ts:19` |  |
+| `@beep/schema/HttpMethod` | `Schema` | const | `packages/foundation/modeling/schema/src/HttpMethod/HttpMethod.schema.ts:49` |  |
+| `@beep/schema/HttpMethod` | `Schema` | type | `packages/foundation/modeling/schema/src/HttpMethod/HttpMethod.schema.ts:79` |  |
+| `@beep/schema/HttpProtocol` | `HttpProtocol` | const | `packages/foundation/modeling/schema/src/HttpProtocol/HttpProtocol.schema.ts:18` | An HTTP protocol ("http" or "https") |
+| `@beep/schema/HttpProtocol` | `HttpProtocol` | type | `packages/foundation/modeling/schema/src/HttpProtocol/HttpProtocol.schema.ts:30` | {@inheritDoc HttpProtocol} |
+| `@beep/schema/HttpProtocol` | `Schema` | const | `packages/foundation/modeling/schema/src/HttpProtocol/HttpProtocol.schema.ts:18` | An HTTP protocol ("http" or "https") |
+| `@beep/schema/HttpProtocol` | `Schema` | type | `packages/foundation/modeling/schema/src/HttpProtocol/HttpProtocol.schema.ts:30` | {@inheritDoc HttpProtocol} |
+| `@beep/schema/HttpStatus` | `Accepted` | const | `packages/foundation/modeling/schema/src/HttpStatus/HttpStatus.success.ts:67` | 202 “Accepted” – The server accepted the request but has not yet finished |
+| `@beep/schema/HttpStatus` | `Accepted` | type | `packages/foundation/modeling/schema/src/HttpStatus/HttpStatus.success.ts:81` | {@inheritDoc Accepted} |
+| `@beep/schema/HttpStatus` | `AlreadyReported` | const | `packages/foundation/modeling/schema/src/HttpStatus/HttpStatus.success.ts:210` | 208 “Already Reported” (WebDav) – This code indicates that the internal |
+| `@beep/schema/HttpStatus` | `AlreadyReported` | type | `packages/foundation/modeling/schema/src/HttpStatus/HttpStatus.success.ts:224` | {@inheritDoc AlreadyReported} |
+| `@beep/schema/HttpStatus` | `BadGateway` | const | `packages/foundation/modeling/schema/src/HttpStatus/HttpStatus.server-error.ts:74` | 502 “Bad Gateway” – This error indicates that the server acted as a gateway |
+| `@beep/schema/HttpStatus` | `BadGateway` | type | `packages/foundation/modeling/schema/src/HttpStatus/HttpStatus.server-error.ts:88` | {@inheritDoc BadGateway} |
+| `@beep/schema/HttpStatus` | `BadRequest` | const | `packages/foundation/modeling/schema/src/HttpStatus/HttpStatus.client-error.core.ts:23` | 400 “Bad Request” – The server can’t return a valid response due to an error |
+| `@beep/schema/HttpStatus` | `BadRequest` | type | `packages/foundation/modeling/schema/src/HttpStatus/HttpStatus.client-error.core.ts:37` | {@inheritDoc BadRequest} |
+| `@beep/schema/HttpStatus` | `ClientClosedRequest` | const | `packages/foundation/modeling/schema/src/HttpStatus/HttpStatus.unofficial.ts:139` | 499 “Client Closed Request” – The client terminated the request before the |
+| `@beep/schema/HttpStatus` | `ClientClosedRequest` | type | `packages/foundation/modeling/schema/src/HttpStatus/HttpStatus.unofficial.ts:153` | {@inheritDoc ClientClosedRequest} |
+| `@beep/schema/HttpStatus` | `Conflict` | const | `packages/foundation/modeling/schema/src/HttpStatus/HttpStatus.client-error.core.ts:259` | 409 “Conflict” – This error occurs when a request can not be processed due |
+| `@beep/schema/HttpStatus` | `Conflict` | type | `packages/foundation/modeling/schema/src/HttpStatus/HttpStatus.client-error.core.ts:273` | {@inheritDoc Conflict} |
+| `@beep/schema/HttpStatus` | `Continue` | const | `packages/foundation/modeling/schema/src/HttpStatus/HttpStatus.informational.ts:23` | 100 “Continue” – The server has received the headers of the request. |
+| `@beep/schema/HttpStatus` | `Continue` | type | `packages/foundation/modeling/schema/src/HttpStatus/HttpStatus.informational.ts:37` | {@inheritDoc Continue} |
+| `@beep/schema/HttpStatus` | `Created` | const | `packages/foundation/modeling/schema/src/HttpStatus/HttpStatus.success.ts:44` | 201 “Created” – The request was fulfilled, and the server created a new resource. |
+| `@beep/schema/HttpStatus` | `Created` | type | `packages/foundation/modeling/schema/src/HttpStatus/HttpStatus.success.ts:57` | {@inheritDoc Created} |
+| `@beep/schema/HttpStatus` | `EarlyHints` | const | `packages/foundation/modeling/schema/src/HttpStatus/HttpStatus.informational.ts:93` | 103 “Early Hints” – The server returns some response headers before the |
+| `@beep/schema/HttpStatus` | `EarlyHints` | type | `packages/foundation/modeling/schema/src/HttpStatus/HttpStatus.informational.ts:107` | {@inheritDoc EarlyHints} |
+| `@beep/schema/HttpStatus` | `ExpectationFailed` | const | `packages/foundation/modeling/schema/src/HttpStatus/HttpStatus.client-error.resource.ts:189` | 417 “Expectation Failed” – The server fails to meet the requirements set in |
+| `@beep/schema/HttpStatus` | `ExpectationFailed` | type | `packages/foundation/modeling/schema/src/HttpStatus/HttpStatus.client-error.resource.ts:203` | {@inheritDoc ExpectationFailed} |
+| `@beep/schema/HttpStatus` | `FailedDependency` | const | `packages/foundation/modeling/schema/src/HttpStatus/HttpStatus.client-error.extended.ts:86` | 424 “Failed Dependency” – The request failed because it depended on another |
+| `@beep/schema/HttpStatus` | `FailedDependency` | type | `packages/foundation/modeling/schema/src/HttpStatus/HttpStatus.client-error.extended.ts:100` | {@inheritDoc FailedDependency} |
+| `@beep/schema/HttpStatus` | `Forbidden` | const | `packages/foundation/modeling/schema/src/HttpStatus/HttpStatus.client-error.core.ts:111` | 403 “Forbidden” – The error indicates that the server denies access to the |
+| `@beep/schema/HttpStatus` | `Forbidden` | type | `packages/foundation/modeling/schema/src/HttpStatus/HttpStatus.client-error.core.ts:125` | {@inheritDoc Forbidden} |
+| `@beep/schema/HttpStatus` | `Found` | const | `packages/foundation/modeling/schema/src/HttpStatus/HttpStatus.redirection.ts:78` | 302 “Found” – Previously, this code was known as “Moved temporarily”. It |
+| `@beep/schema/HttpStatus` | `Found` | type | `packages/foundation/modeling/schema/src/HttpStatus/HttpStatus.redirection.ts:92` | {@inheritDoc Found} |
+| `@beep/schema/HttpStatus` | `GatewayTimeout` | const | `packages/foundation/modeling/schema/src/HttpStatus/HttpStatus.server-error.ts:126` | 504 “Gateway Timeout” – The server acted as a gateway and did not receive a |
+| `@beep/schema/HttpStatus` | `GatewayTimeout` | type | `packages/foundation/modeling/schema/src/HttpStatus/HttpStatus.server-error.ts:140` | {@inheritDoc GatewayTimeout} |
+| `@beep/schema/HttpStatus` | `Gone` | const | `packages/foundation/modeling/schema/src/HttpStatus/HttpStatus.client-error.resource.ts:21` | 410 “Gone” – The requested resource is not available and will not be |
+| `@beep/schema/HttpStatus` | `Gone` | type | `packages/foundation/modeling/schema/src/HttpStatus/HttpStatus.client-error.resource.ts:35` | {@inheritDoc Gone} |
+| `@beep/schema/HttpStatus` | `HttpStatus` | const | `packages/foundation/modeling/schema/src/HttpStatus/HttpStatus.schema.ts:27` | A MappedLiteralKit of all HTTP status codes. |
+| `@beep/schema/HttpStatus` | `HttpStatus` | namespace | `packages/foundation/modeling/schema/src/HttpStatus/HttpStatus.schema.ts:46` | A namespace for {@link HttpStatus} to contain the Encoded type |
+| `@beep/schema/HttpStatus` | `HttpStatus` | type | `packages/foundation/modeling/schema/src/HttpStatus/HttpStatus.schema.ts:62` | {@inheritDoc HttpStatus} |
+| `@beep/schema/HttpStatus` | `HttpStatus1XX` | const | `packages/foundation/modeling/schema/src/HttpStatus/HttpStatus.informational.ts:117` | 1XX codes are informational responses from the website’s server. They do not |
+| `@beep/schema/HttpStatus` | `HttpStatus1XX` | namespace | `packages/foundation/modeling/schema/src/HttpStatus/HttpStatus.informational.ts:135` | A namespace for {@link HttpStatus1XX} to contain the Encoded type |
+| `@beep/schema/HttpStatus` | `HttpStatus1XX` | type | `packages/foundation/modeling/schema/src/HttpStatus/HttpStatus.informational.ts:151` | {@inheritDoc HttpStatus1XX} |
+| `@beep/schema/HttpStatus` | `HttpStatus2XX` | const | `packages/foundation/modeling/schema/src/HttpStatus/HttpStatus.success.ts:257` | The 2XX codes are the best responses you can receive. They indicate that the |
+| `@beep/schema/HttpStatus` | `HttpStatus2XX` | namespace | `packages/foundation/modeling/schema/src/HttpStatus/HttpStatus.success.ts:281` | A namespace for {@link HttpStatus2XX} to contain the Encoded type |
+| `@beep/schema/HttpStatus` | `HttpStatus2XX` | type | `packages/foundation/modeling/schema/src/HttpStatus/HttpStatus.success.ts:297` | {@inheritDoc HttpStatus2XX} |
+| `@beep/schema/HttpStatus` | `HttpStatus3XX` | const | `packages/foundation/modeling/schema/src/HttpStatus/HttpStatus.redirection.ts:248` | 3XX codes specify that there will be a redirection. {@link https://www.siteground.com/kb/domain-redirects/ \| Redirects} are |
+| `@beep/schema/HttpStatus` | `HttpStatus3XX` | namespace | `packages/foundation/modeling/schema/src/HttpStatus/HttpStatus.redirection.ts:279` | A namespace for {@link HttpStatus3XX} to contain the Encoded type |
+| `@beep/schema/HttpStatus` | `HttpStatus3XX` | type | `packages/foundation/modeling/schema/src/HttpStatus/HttpStatus.redirection.ts:271` | {@inheritDoc HttpStatus3XX} |
+| `@beep/schema/HttpStatus` | `HttpStatus4XX` | const | `packages/foundation/modeling/schema/src/HttpStatus/HttpStatus.client-error.ts:56` | The 4XX codes are HTTP error status codes. They define errors as invalid |
+| `@beep/schema/HttpStatus` | `HttpStatus4XX` | namespace | `packages/foundation/modeling/schema/src/HttpStatus/HttpStatus.client-error.ts:103` | A namespace for {@link HttpStatus4XX} to contain the Encoded type |
+| `@beep/schema/HttpStatus` | `HttpStatus4XX` | type | `packages/foundation/modeling/schema/src/HttpStatus/HttpStatus.client-error.ts:119` | {@inheritDoc HttpStatus4XX} |
+| `@beep/schema/HttpStatus` | `HttpStatus5XX` | const | `packages/foundation/modeling/schema/src/HttpStatus/HttpStatus.server-error.aggregate.ts:32` | The 5XX HTTP codes indicate that there is a problem on the website’s server |
+| `@beep/schema/HttpStatus` | `HttpStatus5XX` | namespace | `packages/foundation/modeling/schema/src/HttpStatus/HttpStatus.server-error.aggregate.ts:57` | A namespace for {@link HttpStatus5XX} to contain the Encoded type |
+| `@beep/schema/HttpStatus` | `HttpStatus5XX` | type | `packages/foundation/modeling/schema/src/HttpStatus/HttpStatus.server-error.aggregate.ts:73` | {@inheritDoc HttpStatus5XX} |
+| `@beep/schema/HttpStatus` | `HttpStatusCategory` | const | `packages/foundation/modeling/schema/src/HttpStatus/HttpStatus.category.ts:19` | HttpStatusCategory - HTTP status code category |
+| `@beep/schema/HttpStatus` | `HttpStatusCategory` | type | `packages/foundation/modeling/schema/src/HttpStatus/HttpStatus.category.ts:47` | {@inheritDoc HttpStatusCategory} |
+| `@beep/schema/HttpStatus` | `HttpStatusUnofficial` | const | `packages/foundation/modeling/schema/src/HttpStatus/HttpStatus.unofficial.aggregate.ts:32` | The codes above are officially recognized by IANA, but different platforms |
+| `@beep/schema/HttpStatus` | `HttpStatusUnofficial` | namespace | `packages/foundation/modeling/schema/src/HttpStatus/HttpStatus.unofficial.aggregate.ts:56` | A namespace for {@link HttpStatusUnofficial} to contain the Encoded type |
+| `@beep/schema/HttpStatus` | `HttpStatusUnofficial` | type | `packages/foundation/modeling/schema/src/HttpStatus/HttpStatus.unofficial.aggregate.ts:72` | {@inheritDoc HttpStatusUnofficial} |
+| `@beep/schema/HttpStatus` | `HttpVersionNotSupported` | const | `packages/foundation/modeling/schema/src/HttpStatus/HttpStatus.server-error.ts:149` | 505 “HTTP Version Not Supported” – The server doesn’t support the HTTP |
+| `@beep/schema/HttpStatus` | `HttpVersionNotSupported` | type | `packages/foundation/modeling/schema/src/HttpStatus/HttpStatus.server-error.ts:163` | {@inheritDoc HttpVersionNotSupported} |
+| `@beep/schema/HttpStatus` | `ImATeapot` | const | `packages/foundation/modeling/schema/src/HttpStatus/HttpStatus.client-error.resource.ts:212` | 418 “I’m a teapot.” – This error is returned by teapots requested to brew |
+| `@beep/schema/HttpStatus` | `ImATeapot` | type | `packages/foundation/modeling/schema/src/HttpStatus/HttpStatus.client-error.resource.ts:226` | {@inheritDoc ImATeapot} |
+| `@beep/schema/HttpStatus` | `ImUsed` | const | `packages/foundation/modeling/schema/src/HttpStatus/HttpStatus.success.ts:234` | 226 “IM Used” – The server fulfilled the request, and the response is a |
+| `@beep/schema/HttpStatus` | `ImUsed` | type | `packages/foundation/modeling/schema/src/HttpStatus/HttpStatus.success.ts:248` | {@inheritDoc ImUsed} |
+| `@beep/schema/HttpStatus` | `InsufficientStorage` | const | `packages/foundation/modeling/schema/src/HttpStatus/HttpStatus.server-error.ts:198` | 507 “Insufficient Storage” (WebDAV) – The server is unable to store the |
+| `@beep/schema/HttpStatus` | `InsufficientStorage` | type | `packages/foundation/modeling/schema/src/HttpStatus/HttpStatus.server-error.ts:212` | {@inheritDoc InsufficientStorage} |
+| `@beep/schema/HttpStatus` | `InternalServerError` | const | `packages/foundation/modeling/schema/src/HttpStatus/HttpStatus.server-error.ts:26` | 500 “Internal Server Error” – This is a generic error that indicates the |
+| `@beep/schema/HttpStatus` | `InternalServerError` | type | `packages/foundation/modeling/schema/src/HttpStatus/HttpStatus.server-error.ts:40` | {@inheritDoc InternalServerError} |
+| `@beep/schema/HttpStatus` | `InvalidSslCertificate` | const | `packages/foundation/modeling/schema/src/HttpStatus/HttpStatus.unofficial.ts:235` | 526 “Invalid SSL Certificate” – Another code mostly used by Cloudflare. |
+| `@beep/schema/HttpStatus` | `InvalidSslCertificate` | type | `packages/foundation/modeling/schema/src/HttpStatus/HttpStatus.unofficial.ts:249` | {@inheritDoc InvalidSslCertificate} |
+| `@beep/schema/HttpStatus` | `LengthRequired` | const | `packages/foundation/modeling/schema/src/HttpStatus/HttpStatus.client-error.resource.ts:44` | 411 “Length Required” – The length of the request’s content is not specified |
+| `@beep/schema/HttpStatus` | `LengthRequired` | type | `packages/foundation/modeling/schema/src/HttpStatus/HttpStatus.client-error.resource.ts:58` | {@inheritDoc LengthRequired} |
+| `@beep/schema/HttpStatus` | `Locked` | const | `packages/foundation/modeling/schema/src/HttpStatus/HttpStatus.client-error.extended.ts:64` | 423 “Locked” – The resource that is being accessed is locked. |
+| `@beep/schema/HttpStatus` | `Locked` | type | `packages/foundation/modeling/schema/src/HttpStatus/HttpStatus.client-error.extended.ts:77` | {@inheritDoc Locked} |
+| `@beep/schema/HttpStatus` | `LoginTimeout` | const | `packages/foundation/modeling/schema/src/HttpStatus/HttpStatus.unofficial.ts:47` | 440 “Login Time-out” – This code is used by Microsoft’s ISS (Internet |
+| `@beep/schema/HttpStatus` | `LoginTimeout` | type | `packages/foundation/modeling/schema/src/HttpStatus/HttpStatus.unofficial.ts:61` | {@inheritDoc LoginTimeout} |
+| `@beep/schema/HttpStatus` | `LoopDetected` | const | `packages/foundation/modeling/schema/src/HttpStatus/HttpStatus.server-error.ts:221` | 508 “Loop Detected” (WebDAV) – The server detected an infinite loop while |
+| `@beep/schema/HttpStatus` | `LoopDetected` | type | `packages/foundation/modeling/schema/src/HttpStatus/HttpStatus.server-error.ts:234` | {@inheritDoc LoopDetected} |
+| `@beep/schema/HttpStatus` | `MethodNotAllowed` | const | `packages/foundation/modeling/schema/src/HttpStatus/HttpStatus.client-error.core.ts:160` | 405 “Method Not Allowed” – The server understands the requested method, but |
+| `@beep/schema/HttpStatus` | `MethodNotAllowed` | type | `packages/foundation/modeling/schema/src/HttpStatus/HttpStatus.client-error.core.ts:174` | {@inheritDoc MethodNotAllowed} |
+| `@beep/schema/HttpStatus` | `MisdirectedRequest` | const | `packages/foundation/modeling/schema/src/HttpStatus/HttpStatus.client-error.extended.ts:18` | 421 “Misdirected Request” – The request was directed to a server unable to |
+| `@beep/schema/HttpStatus` | `MisdirectedRequest` | type | `packages/foundation/modeling/schema/src/HttpStatus/HttpStatus.client-error.extended.ts:31` | {@inheritDoc MisdirectedRequest} |
+| `@beep/schema/HttpStatus` | `MovedPermanently` | const | `packages/foundation/modeling/schema/src/HttpStatus/HttpStatus.redirection.ts:52` | 301 “Moved Permanently” – This is the code for a permanent redirect. It means that the URL of the requested resource is permanently replaced with a new address, and search engines should update the URL in their databases. |
+| `@beep/schema/HttpStatus` | `MovedPermanently` | type | `packages/foundation/modeling/schema/src/HttpStatus/HttpStatus.redirection.ts:66` | {@inheritDoc MovedPermanently} |
+| `@beep/schema/HttpStatus` | `MultipleChoices` | const | `packages/foundation/modeling/schema/src/HttpStatus/HttpStatus.redirection.ts:25` | 300 “Multiple Choices” – The server presents the client with a choice of |
+| `@beep/schema/HttpStatus` | `MultipleChoices` | type | `packages/foundation/modeling/schema/src/HttpStatus/HttpStatus.redirection.ts:43` | {@inheritDoc MultipleChoices} |
+| `@beep/schema/HttpStatus` | `MultiStatus` | const | `packages/foundation/modeling/schema/src/HttpStatus/HttpStatus.success.ts:186` | 207 “Multi-Status” – A code associated with WebDav when a compound request |
+| `@beep/schema/HttpStatus` | `MultiStatus` | type | `packages/foundation/modeling/schema/src/HttpStatus/HttpStatus.success.ts:200` | {@inheritDoc MultiStatus} |
+| `@beep/schema/HttpStatus` | `NetworkAuthenticationRequired` | const | `packages/foundation/modeling/schema/src/HttpStatus/HttpStatus.server-error.ts:268` | 511 “Network Authentication Required” – This response is sent when you need |
+| `@beep/schema/HttpStatus` | `NetworkAuthenticationRequired` | type | `packages/foundation/modeling/schema/src/HttpStatus/HttpStatus.server-error.ts:282` | {@inheritDoc NetworkAuthenticationRequired} |
+| `@beep/schema/HttpStatus` | `NoContent` | const | `packages/foundation/modeling/schema/src/HttpStatus/HttpStatus.success.ts:115` | 204 “No Content” – The server fulfilled the request but won’t return any |
+| `@beep/schema/HttpStatus` | `NoContent` | type | `packages/foundation/modeling/schema/src/HttpStatus/HttpStatus.success.ts:128` | {@inheritDoc NoContent} |
+| `@beep/schema/HttpStatus` | `NonAuthoritativeInformation` | const | `packages/foundation/modeling/schema/src/HttpStatus/HttpStatus.success.ts:92` | 203 “Non-Authoritative Information” – A code that usually appears when a |
+| `@beep/schema/HttpStatus` | `NonAuthoritativeInformation` | type | `packages/foundation/modeling/schema/src/HttpStatus/HttpStatus.success.ts:106` | {@inheritDoc NonAuthoritativeInformation} |
+| `@beep/schema/HttpStatus` | `NotAcceptable` | const | `packages/foundation/modeling/schema/src/HttpStatus/HttpStatus.client-error.core.ts:183` | 406 “Not Acceptable” – The requested resource generated content that doesn’t |
+| `@beep/schema/HttpStatus` | `NotAcceptable` | type | `packages/foundation/modeling/schema/src/HttpStatus/HttpStatus.client-error.core.ts:197` | {@inheritDoc NotAcceptable} |
+| `@beep/schema/HttpStatus` | `NotExtended` | const | `packages/foundation/modeling/schema/src/HttpStatus/HttpStatus.server-error.ts:243` | 510 “Not Extended” – Further extensions to the request are required for the |
+| `@beep/schema/HttpStatus` | `NotExtended` | type | `packages/foundation/modeling/schema/src/HttpStatus/HttpStatus.server-error.ts:257` | {@inheritDoc NotExtended} |
+| `@beep/schema/HttpStatus` | `NotFound` | const | `packages/foundation/modeling/schema/src/HttpStatus/HttpStatus.client-error.core.ts:137` | 404 “Not found” – This is the most frequent error users see online. It means |
+| `@beep/schema/HttpStatus` | `NotFound` | type | `packages/foundation/modeling/schema/src/HttpStatus/HttpStatus.client-error.core.ts:151` | {@inheritDoc NotFound} |
+| `@beep/schema/HttpStatus` | `NotImplemented` | const | `packages/foundation/modeling/schema/src/HttpStatus/HttpStatus.server-error.ts:49` | 501 “Not Implemented” – The server doesn’t support the request method or |
+| `@beep/schema/HttpStatus` | `NotImplemented` | type | `packages/foundation/modeling/schema/src/HttpStatus/HttpStatus.server-error.ts:63` | {@inheritDoc NotImplemented} |
+| `@beep/schema/HttpStatus` | `NotModified` | const | `packages/foundation/modeling/schema/src/HttpStatus/HttpStatus.redirection.ts:126` | 304 “Not Modified” – The server informs your browser that the resource |
+| `@beep/schema/HttpStatus` | `NotModified` | type | `packages/foundation/modeling/schema/src/HttpStatus/HttpStatus.redirection.ts:140` | {@inheritDoc NotModified} |
+| `@beep/schema/HttpStatus` | `Ok` | const | `packages/foundation/modeling/schema/src/HttpStatus/HttpStatus.success.ts:22` | 200 “OK” – The response for a successful HTTP request. The result will depend on the type of request. |
+| `@beep/schema/HttpStatus` | `Ok` | type | `packages/foundation/modeling/schema/src/HttpStatus/HttpStatus.success.ts:36` | {@inheritDoc Ok} |
+| `@beep/schema/HttpStatus` | `PartialContent` | const | `packages/foundation/modeling/schema/src/HttpStatus/HttpStatus.success.ts:162` | 206 “Partial Content” – The server returns only a portion of the requested |
+| `@beep/schema/HttpStatus` | `PartialContent` | type | `packages/foundation/modeling/schema/src/HttpStatus/HttpStatus.success.ts:176` | {@inheritDoc PartialContent} |
+| `@beep/schema/HttpStatus` | `PayloadTooLarge` | const | `packages/foundation/modeling/schema/src/HttpStatus/HttpStatus.client-error.resource.ts:94` | 413 “Payload too large” – The request is larger than the limits specified on |
+| `@beep/schema/HttpStatus` | `PayloadTooLarge` | type | `packages/foundation/modeling/schema/src/HttpStatus/HttpStatus.client-error.resource.ts:108` | {@inheritDoc PayloadTooLarge} |
+| `@beep/schema/HttpStatus` | `PaymentRequired` | const | `packages/foundation/modeling/schema/src/HttpStatus/HttpStatus.client-error.core.ts:82` | 402 “Payment Required” – This is not a standard code however it is reserved |
+| `@beep/schema/HttpStatus` | `PaymentRequired` | type | `packages/foundation/modeling/schema/src/HttpStatus/HttpStatus.client-error.core.ts:96` | {@inheritDoc PaymentRequired} |
+| `@beep/schema/HttpStatus` | `PermanentRedirect` | const | `packages/foundation/modeling/schema/src/HttpStatus/HttpStatus.redirection.ts:223` | 308 “Permanent Redirect” – The requested resource is permanently moved to |
+| `@beep/schema/HttpStatus` | `PermanentRedirect` | type | `packages/foundation/modeling/schema/src/HttpStatus/HttpStatus.redirection.ts:237` | {@inheritDoc PermanentRedirect} |
+| `@beep/schema/HttpStatus` | `PreconditionFailed` | const | `packages/foundation/modeling/schema/src/HttpStatus/HttpStatus.client-error.resource.ts:67` | 412 “Precondition failed” – The headers of the request specify certain |
+| `@beep/schema/HttpStatus` | `PreconditionFailed` | type | `packages/foundation/modeling/schema/src/HttpStatus/HttpStatus.client-error.resource.ts:81` | {@inheritDoc PreconditionFailed} |
+| `@beep/schema/HttpStatus` | `PreconditionRequired` | const | `packages/foundation/modeling/schema/src/HttpStatus/HttpStatus.client-error.extended.ts:159` | 428 “Precondition Required” – The server requires the request to be |
+| `@beep/schema/HttpStatus` | `PreconditionRequired` | type | `packages/foundation/modeling/schema/src/HttpStatus/HttpStatus.client-error.extended.ts:173` | {@inheritDoc PreconditionRequired} |
+| `@beep/schema/HttpStatus` | `Processing` | const | `packages/foundation/modeling/schema/src/HttpStatus/HttpStatus.informational.ts:70` | 102 “Processing” – This is a response mainly associated with WebDAV |
+| `@beep/schema/HttpStatus` | `Processing` | type | `packages/foundation/modeling/schema/src/HttpStatus/HttpStatus.informational.ts:84` | {@inheritDoc Processing} |
+| `@beep/schema/HttpStatus` | `ProxyAuthenticationRequired` | const | `packages/foundation/modeling/schema/src/HttpStatus/HttpStatus.client-error.core.ts:207` | 407 “Proxy Authentication Required” – There is a proxy server used in the |
+| `@beep/schema/HttpStatus` | `ProxyAuthenticationRequired` | type | `packages/foundation/modeling/schema/src/HttpStatus/HttpStatus.client-error.core.ts:221` | {@inheritDoc ProxyAuthenticationRequired} |
+| `@beep/schema/HttpStatus` | `RangeNotSatisfiable` | const | `packages/foundation/modeling/schema/src/HttpStatus/HttpStatus.client-error.resource.ts:166` | 416 “Range Not Satisfiable” – The request asked for a portion of the |
+| `@beep/schema/HttpStatus` | `RangeNotSatisfiable` | type | `packages/foundation/modeling/schema/src/HttpStatus/HttpStatus.client-error.resource.ts:180` | {@inheritDoc RangeNotSatisfiable} |
+| `@beep/schema/HttpStatus` | `RequestHeaderFieldsTooLarge` | const | `packages/foundation/modeling/schema/src/HttpStatus/HttpStatus.client-error.extended.ts:215` | 431 “Request Header Fields Too Large” – The server can’t process the request |
+| `@beep/schema/HttpStatus` | `RequestHeaderFieldsTooLarge` | type | `packages/foundation/modeling/schema/src/HttpStatus/HttpStatus.client-error.extended.ts:229` | {@inheritDoc RequestHeaderFieldsTooLarge} |
+| `@beep/schema/HttpStatus` | `RequestHeaderFieldsTooLargeShopify` | const | `packages/foundation/modeling/schema/src/HttpStatus/HttpStatus.unofficial.ts:23` | 430 “Request Header Fields Too Large” – This code is used by Shopify when |
+| `@beep/schema/HttpStatus` | `RequestHeaderFieldsTooLargeShopify` | type | `packages/foundation/modeling/schema/src/HttpStatus/HttpStatus.unofficial.ts:37` | {@inheritDoc RequestHeaderFieldsTooLargeShopify} |
+| `@beep/schema/HttpStatus` | `RequestHeaderTooLarge` | const | `packages/foundation/modeling/schema/src/HttpStatus/HttpStatus.unofficial.ts:70` | 494 “Request header too large” – used by NGINX. The client has sent too |
+| `@beep/schema/HttpStatus` | `RequestHeaderTooLarge` | type | `packages/foundation/modeling/schema/src/HttpStatus/HttpStatus.unofficial.ts:84` | {@inheritDoc RequestHeaderTooLarge} |
+| `@beep/schema/HttpStatus` | `RequestTimeout` | const | `packages/foundation/modeling/schema/src/HttpStatus/HttpStatus.client-error.core.ts:234` | 408 “Request Timeout” – The server closed due to a time-out while waiting |
+| `@beep/schema/HttpStatus` | `RequestTimeout` | type | `packages/foundation/modeling/schema/src/HttpStatus/HttpStatus.client-error.core.ts:248` | {@inheritDoc RequestTimeout} |
+| `@beep/schema/HttpStatus` | `ResetContent` | const | `packages/foundation/modeling/schema/src/HttpStatus/HttpStatus.success.ts:137` | 205 “Reset Content” – The server fulfilled the request, and it won’t return |
+| `@beep/schema/HttpStatus` | `ResetContent` | type | `packages/foundation/modeling/schema/src/HttpStatus/HttpStatus.success.ts:151` | {@inheritDoc ResetContent} |
+| `@beep/schema/HttpStatus` | `Schema` | const | `packages/foundation/modeling/schema/src/HttpStatus/HttpStatus.schema.ts:70` | Canonical alias for the complete HTTP status schema. |
+| `@beep/schema/HttpStatus` | `Schema` | type | `packages/foundation/modeling/schema/src/HttpStatus/HttpStatus.schema.ts:78` | Runtime type extracted from {@link Schema}. |
+| `@beep/schema/HttpStatus` | `SeeOther` | const | `packages/foundation/modeling/schema/src/HttpStatus/HttpStatus.redirection.ts:101` | 303 “See Other” – The server instructs the client that it found the |
+| `@beep/schema/HttpStatus` | `SeeOther` | type | `packages/foundation/modeling/schema/src/HttpStatus/HttpStatus.redirection.ts:115` | {@inheritDoc SeeOther} |
+| `@beep/schema/HttpStatus` | `ServiceUnavailable` | const | `packages/foundation/modeling/schema/src/HttpStatus/HttpStatus.server-error.ts:99` | 503 “Service Unavailable” – The server can’t handle the request. This is |
+| `@beep/schema/HttpStatus` | `ServiceUnavailable` | type | `packages/foundation/modeling/schema/src/HttpStatus/HttpStatus.server-error.ts:113` | {@inheritDoc ServiceUnavailable} |
+| `@beep/schema/HttpStatus` | `SslCertificateError` | const | `packages/foundation/modeling/schema/src/HttpStatus/HttpStatus.unofficial.ts:93` | 495 “SSL Certificate Error” – This is also a status code used by NGINX |
+| `@beep/schema/HttpStatus` | `SslCertificateError` | type | `packages/foundation/modeling/schema/src/HttpStatus/HttpStatus.unofficial.ts:107` | {@inheritDoc SslCertificateError} |
+| `@beep/schema/HttpStatus` | `SslCertificateRequired` | const | `packages/foundation/modeling/schema/src/HttpStatus/HttpStatus.unofficial.ts:116` | 496 “SSL Certificate Required” – used by NGINX. A client certificate is |
+| `@beep/schema/HttpStatus` | `SslCertificateRequired` | type | `packages/foundation/modeling/schema/src/HttpStatus/HttpStatus.unofficial.ts:130` | {@inheritDoc SslCertificateRequired} |
+| `@beep/schema/HttpStatus` | `SslHandshakeFailed` | const | `packages/foundation/modeling/schema/src/HttpStatus/HttpStatus.unofficial.ts:210` | 525 “SSL Handshake Failed” – Used by Cloudflare. Cloudflare is unable to |
+| `@beep/schema/HttpStatus` | `SslHandshakeFailed` | type | `packages/foundation/modeling/schema/src/HttpStatus/HttpStatus.unofficial.ts:224` | {@inheritDoc SslHandshakeFailed} |
+| `@beep/schema/HttpStatus` | `SwitchingProtocols` | const | `packages/foundation/modeling/schema/src/HttpStatus/HttpStatus.informational.ts:46` | 101 “Switching Protocols” – The requesting client (browser) asked the server to |
+| `@beep/schema/HttpStatus` | `SwitchingProtocols` | type | `packages/foundation/modeling/schema/src/HttpStatus/HttpStatus.informational.ts:60` | {@inheritDoc SwitchingProtocols} |
+| `@beep/schema/HttpStatus` | `SwitchProxy` | const | `packages/foundation/modeling/schema/src/HttpStatus/HttpStatus.redirection.ts:172` | 306 “Switch Proxy” – This code is no longer in use. It means that the |
+| `@beep/schema/HttpStatus` | `SwitchProxy` | type | `packages/foundation/modeling/schema/src/HttpStatus/HttpStatus.redirection.ts:186` | {@inheritDoc SwitchProxy} |
+| `@beep/schema/HttpStatus` | `TemporaryRedirect` | const | `packages/foundation/modeling/schema/src/HttpStatus/HttpStatus.redirection.ts:198` | 307 “Temporary redirect” – This is the new code for temporary redirects that |
+| `@beep/schema/HttpStatus` | `TemporaryRedirect` | type | `packages/foundation/modeling/schema/src/HttpStatus/HttpStatus.redirection.ts:212` | {@inheritDoc TemporaryRedirect} |
+| `@beep/schema/HttpStatus` | `TooEarly` | const | `packages/foundation/modeling/schema/src/HttpStatus/HttpStatus.client-error.extended.ts:109` | 425 “Too Early” – This error indicates that the server is unwilling to risk |
+| `@beep/schema/HttpStatus` | `TooEarly` | type | `packages/foundation/modeling/schema/src/HttpStatus/HttpStatus.client-error.extended.ts:123` | {@inheritDoc TooEarly} |
+| `@beep/schema/HttpStatus` | `TooManyRequests` | const | `packages/foundation/modeling/schema/src/HttpStatus/HttpStatus.client-error.extended.ts:191` | 429 “Too many requests” – The server responds with this code when the user |
+| `@beep/schema/HttpStatus` | `TooManyRequests` | type | `packages/foundation/modeling/schema/src/HttpStatus/HttpStatus.client-error.extended.ts:205` | {@inheritDoc TooManyRequests} |
+| `@beep/schema/HttpStatus` | `Unauthorized` | const | `packages/foundation/modeling/schema/src/HttpStatus/HttpStatus.client-error.core.ts:51` | 401 “Unauthorized” – This error appears when the client fails to provide |
+| `@beep/schema/HttpStatus` | `Unauthorized` | type | `packages/foundation/modeling/schema/src/HttpStatus/HttpStatus.client-error.core.ts:72` | {@inheritDoc Unauthorized} |
+| `@beep/schema/HttpStatus` | `UnavailableForLegalReasons` | const | `packages/foundation/modeling/schema/src/HttpStatus/HttpStatus.client-error.extended.ts:239` | 451 “Unavailable for Legal Reasons” – The client requests a resource for |
+| `@beep/schema/HttpStatus` | `UnavailableForLegalReasons` | type | `packages/foundation/modeling/schema/src/HttpStatus/HttpStatus.client-error.extended.ts:253` | {@inheritDoc UnavailableForLegalReasons} |
+| `@beep/schema/HttpStatus` | `UnprocessableEntity` | const | `packages/foundation/modeling/schema/src/HttpStatus/HttpStatus.client-error.extended.ts:42` | 422 “Unprocessable Entity” – The request from the client is well-formed but |
+| `@beep/schema/HttpStatus` | `UnprocessableEntity` | type | `packages/foundation/modeling/schema/src/HttpStatus/HttpStatus.client-error.extended.ts:56` | {@inheritDoc UnprocessableEntity} |
+| `@beep/schema/HttpStatus` | `UnsupportedMediaType` | const | `packages/foundation/modeling/schema/src/HttpStatus/HttpStatus.client-error.resource.ts:142` | 415 “Unsupported Media Type” – The request contains a media type that the |
+| `@beep/schema/HttpStatus` | `UnsupportedMediaType` | type | `packages/foundation/modeling/schema/src/HttpStatus/HttpStatus.client-error.resource.ts:156` | {@inheritDoc UnsupportedMediaType} |
+| `@beep/schema/HttpStatus` | `UpgradeRequired` | const | `packages/foundation/modeling/schema/src/HttpStatus/HttpStatus.client-error.extended.ts:133` | 426 “Upgrade Required” – The server refuses the request using the current |
+| `@beep/schema/HttpStatus` | `UpgradeRequired` | type | `packages/foundation/modeling/schema/src/HttpStatus/HttpStatus.client-error.extended.ts:147` | {@inheritDoc UpgradeRequired} |
+| `@beep/schema/HttpStatus` | `UriTooLong` | const | `packages/foundation/modeling/schema/src/HttpStatus/HttpStatus.client-error.resource.ts:118` | 414 “URI Too Long” – The length of the URI is too long and the server can’t |
+| `@beep/schema/HttpStatus` | `UriTooLong` | type | `packages/foundation/modeling/schema/src/HttpStatus/HttpStatus.client-error.resource.ts:132` | {@inheritDoc UriTooLong} |
+| `@beep/schema/HttpStatus` | `UseProxy` | const | `packages/foundation/modeling/schema/src/HttpStatus/HttpStatus.redirection.ts:149` | 305 “Use Proxy” – The requested resource is available only through a proxy. |
+| `@beep/schema/HttpStatus` | `UseProxy` | type | `packages/foundation/modeling/schema/src/HttpStatus/HttpStatus.redirection.ts:163` | {@inheritDoc UseProxy} |
+| `@beep/schema/HttpStatus` | `VariantAlsoNegotiates` | const | `packages/foundation/modeling/schema/src/HttpStatus/HttpStatus.server-error.ts:175` | 506 “Variant Also Negotiates” – This error occurs when the client and the |
+| `@beep/schema/HttpStatus` | `VariantAlsoNegotiates` | type | `packages/foundation/modeling/schema/src/HttpStatus/HttpStatus.server-error.ts:189` | {@inheritDoc VariantAlsoNegotiates} |
+| `@beep/schema/HttpStatus` | `WebServerIsDown` | const | `packages/foundation/modeling/schema/src/HttpStatus/HttpStatus.unofficial.ts:187` | 521 “Web Server is Down” – Another Cloudflare-specific error code. The |
+| `@beep/schema/HttpStatus` | `WebServerIsDown` | type | `packages/foundation/modeling/schema/src/HttpStatus/HttpStatus.unofficial.ts:201` | {@inheritDoc WebServerIsDown} |
+| `@beep/schema/HttpStatus` | `WebServerReturnedAnUnknownError` | const | `packages/foundation/modeling/schema/src/HttpStatus/HttpStatus.unofficial.ts:163` | 520 “Web Server Returned an Unknown Error” – This is a code used by |
+| `@beep/schema/HttpStatus` | `WebServerReturnedAnUnknownError` | type | `packages/foundation/modeling/schema/src/HttpStatus/HttpStatus.unofficial.ts:177` | {@inheritDoc WebServerReturnedAnUnknownError} |
 | `@beep/schema/Int` | `Int` | const | `packages/foundation/modeling/schema/src/Int.ts:29` | Branded schema for finite integers. |
 | `@beep/schema/Int` | `Int` | type | `packages/foundation/modeling/schema/src/Int.ts:55` | Type for {@link Int}. |
 | `@beep/schema/Int` | `NegInt` | const | `packages/foundation/modeling/schema/src/Int.ts:154` | Branded schema for negative integers (less than zero). |
@@ -13075,58 +10963,47 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/schema/Jsonl` | `JsonlTextToUnknown` | const | `packages/foundation/modeling/schema/src/Jsonl.ts:102` | Schema transformation that decodes JSONL (JSON Lines) text into an array of |
 | `@beep/schema/KebabStr` | `KebabCaseStr` | const | `packages/foundation/modeling/schema/src/KebabStr.ts:28` | Branded kebab-case string schema with a lowercase leading letter. |
 | `@beep/schema/KebabStr` | `KebabCaseStr` | type | `packages/foundation/modeling/schema/src/KebabStr.ts:54` | Type for {@link KebabCaseStr}. |
-| `@beep/schema/LiteralKit` | `LiteralKit` | function | `packages/foundation/modeling/schema/src/LiteralKit.ts:703` | Builds a literal schema kit from a non-empty tuple of mixed literals. |
-| `@beep/schema/LiteralKit` | `LiteralKit` | interface | `packages/foundation/modeling/schema/src/LiteralKit.ts:650` | Public schema module export. |
-| `@beep/schema/LiteralKit` | `LiteralKitEnumMappingCoverageError` | class | `packages/foundation/modeling/schema/src/LiteralKit.ts:427` | Error thrown when a manual enum mapping does not exactly cover the provided |
-| `@beep/schema/LiteralKit` | `LiteralKitEnumMappingDuplicateLiteralError` | class | `packages/foundation/modeling/schema/src/LiteralKit.ts:411` | Error thrown when the same source literal appears more than once in a manual |
-| `@beep/schema/LiteralKit` | `LiteralKitKeyCollisionError` | class | `packages/foundation/modeling/schema/src/LiteralKit.ts:393` | Error thrown when different literals encode to the same helper key via |
-| `@beep/schema/LiteralKit` | `LiteralKitTaggedUnionLiteralError` | class | `packages/foundation/modeling/schema/src/LiteralKit.ts:443` | Error thrown when `LiteralKit.toTaggedUnion` receives a literal that cannot |
-| `@beep/schema/LiteralKit` | `LiteralNotInSetError` | class | `packages/foundation/modeling/schema/src/LiteralKit.ts:377` | Error thrown when an input value is not found in the provided literals |
-| `@beep/schema/LiteralKit` | `LiteralToKey` | type | `packages/foundation/modeling/schema/src/LiteralKit.ts:36` | Maps a literal value to its string key representation used in `Enum`, `is`, |
-| `@beep/schema/LiteralKit` | `matchLiteral` | const | `packages/foundation/modeling/schema/src/LiteralKit.ts:215` | Converts a literal value to its string key at runtime using the |
-| `@beep/schema/LocalDate` | `addDays` | const | `packages/foundation/modeling/schema/src/LocalDate.ts:335` | Add days to a `LocalDate`. |
-| `@beep/schema/LocalDate` | `addMonths` | const | `packages/foundation/modeling/schema/src/LocalDate.ts:350` | Add months to a `LocalDate`. |
-| `@beep/schema/LocalDate` | `addYears` | const | `packages/foundation/modeling/schema/src/LocalDate.ts:365` | Add years to a `LocalDate`. |
-| `@beep/schema/LocalDate` | `daysInMonth` | const | `packages/foundation/modeling/schema/src/LocalDate.ts:456` | Get the number of days in a given month, accounting for leap years. |
-| `@beep/schema/LocalDate` | `diffInDays` | const | `packages/foundation/modeling/schema/src/LocalDate.ts:380` | Get the difference in whole days between two `LocalDate` values. |
-| `@beep/schema/LocalDate` | `endOfMonth` | const | `packages/foundation/modeling/schema/src/LocalDate.ts:409` | Return the last day of the month for the given `LocalDate`. |
-| `@beep/schema/LocalDate` | `endOfYear` | const | `packages/foundation/modeling/schema/src/LocalDate.ts:435` | Return December 31st for the year of the given `LocalDate`. |
-| `@beep/schema/LocalDate` | `equals` | const | `packages/foundation/modeling/schema/src/LocalDate.ts:320` | Dual predicate returning `true` when two `LocalDate` values represent the same calendar date. |
-| `@beep/schema/LocalDate` | `fromDate` | const | `packages/foundation/modeling/schema/src/LocalDate.ts:231` | Create a `LocalDate` from a JavaScript `Date` using its UTC components. |
-| `@beep/schema/LocalDate` | `fromDateTime` | const | `packages/foundation/modeling/schema/src/LocalDate.ts:264` | Create a `LocalDate` from a `DateTime` by extracting its UTC date components. |
-| `@beep/schema/LocalDate` | `fromString` | const | `packages/foundation/modeling/schema/src/LocalDate.ts:208` | Parse a `YYYY-MM-DD` string into a `LocalDate`, returning an `Effect` that fails for invalid input. |
-| `@beep/schema/LocalDate` | `isAfter` | const | `packages/foundation/modeling/schema/src/LocalDate.ts:309` | Dual predicate returning `true` when `self` is chronologically after `that`. |
-| `@beep/schema/LocalDate` | `isBefore` | const | `packages/foundation/modeling/schema/src/LocalDate.ts:298` | Dual predicate returning `true` when `self` is chronologically before `that`. |
-| `@beep/schema/LocalDate` | `isLeapYear` | const | `packages/foundation/modeling/schema/src/LocalDate.ts:448` | Check whether a year is a leap year. |
-| `@beep/schema/LocalDate` | `isLocalDate` | const | `packages/foundation/modeling/schema/src/LocalDate.ts:124` | Type guard for `LocalDate` instances. |
-| `@beep/schema/LocalDate` | `LocalDate` | class | `packages/foundation/modeling/schema/src/LocalDate.ts:51` | Schema class representing a calendar date without time or timezone. |
-| `@beep/schema/LocalDate` | `LocalDateFromString` | const | `packages/foundation/modeling/schema/src/LocalDate.ts:485` | Schema that transforms ISO 8601 date strings (`YYYY-MM-DD`) into `LocalDate` instances. |
-| `@beep/schema/LocalDate` | `LocalDateFromString` | namespace | `packages/foundation/modeling/schema/src/LocalDate.ts:511` | Namespace members for {@link LocalDateFromString}. |
-| `@beep/schema/LocalDate` | `LocalDateFromString` | type | `packages/foundation/modeling/schema/src/LocalDate.ts:503` | Decoded `LocalDate` type extracted from {@link LocalDateFromString}. |
-| `@beep/schema/LocalDate` | `Order` | const | `packages/foundation/modeling/schema/src/LocalDate.ts:279` | Chronological `Order` for `LocalDate` values. |
-| `@beep/schema/LocalDate` | `startOfMonth` | const | `packages/foundation/modeling/schema/src/LocalDate.ts:396` | Return the first day of the month for the given `LocalDate`. |
-| `@beep/schema/LocalDate` | `startOfYear` | const | `packages/foundation/modeling/schema/src/LocalDate.ts:422` | Return January 1st for the year of the given `LocalDate`. |
-| `@beep/schema/LocalDate` | `today` | const | `packages/foundation/modeling/schema/src/LocalDate.ts:245` | Get today's date in UTC. |
-| `@beep/schema/LocalDate` | `todayEffect` | const | `packages/foundation/modeling/schema/src/LocalDate.ts:253` | Get today's UTC date as an `Effect` using the Clock service, testable with `TestClock`. |
-| `@beep/schema/Location` | `CardinalDirection` | const | `packages/foundation/modeling/schema/src/location/CardinalDirection.ts:16` | CardinalDirection - The cardinal directions |
-| `@beep/schema/Location` | `CardinalDirection` | type | `packages/foundation/modeling/schema/src/location/CardinalDirection.ts:27` | {@inheritDoc CardinalDirection} |
-| `@beep/schema/Location` | `CardinalDirectionAbbrev` | const | `packages/foundation/modeling/schema/src/location/CardinalDirection.ts:35` | CardinalDirectionAbbrev - The abbreviated version of the {@link CardinalDirection} |
-| `@beep/schema/Location` | `CardinalDirectionAbbrev` | type | `packages/foundation/modeling/schema/src/location/CardinalDirection.ts:47` | {@inheritDoc CardinalDirectionAbbrev} |
-| `@beep/schema/location/CardinalDirection` | `CardinalDirection` | const | `packages/foundation/modeling/schema/src/location/CardinalDirection.ts:16` | CardinalDirection - The cardinal directions |
-| `@beep/schema/location/CardinalDirection` | `CardinalDirection` | type | `packages/foundation/modeling/schema/src/location/CardinalDirection.ts:27` | {@inheritDoc CardinalDirection} |
-| `@beep/schema/location/CardinalDirection` | `CardinalDirectionAbbrev` | const | `packages/foundation/modeling/schema/src/location/CardinalDirection.ts:35` | CardinalDirectionAbbrev - The abbreviated version of the {@link CardinalDirection} |
-| `@beep/schema/location/CardinalDirection` | `CardinalDirectionAbbrev` | type | `packages/foundation/modeling/schema/src/location/CardinalDirection.ts:47` | {@inheritDoc CardinalDirectionAbbrev} |
-| `@beep/schema/location/index` | `CardinalDirection` | const | `packages/foundation/modeling/schema/src/location/CardinalDirection.ts:16` | CardinalDirection - The cardinal directions |
-| `@beep/schema/location/index` | `CardinalDirection` | type | `packages/foundation/modeling/schema/src/location/CardinalDirection.ts:27` | {@inheritDoc CardinalDirection} |
-| `@beep/schema/location/index` | `CardinalDirectionAbbrev` | const | `packages/foundation/modeling/schema/src/location/CardinalDirection.ts:35` | CardinalDirectionAbbrev - The abbreviated version of the {@link CardinalDirection} |
-| `@beep/schema/location/index` | `CardinalDirectionAbbrev` | type | `packages/foundation/modeling/schema/src/location/CardinalDirection.ts:47` | {@inheritDoc CardinalDirectionAbbrev} |
+| `@beep/schema/LiteralKit` | `LiteralKit` | function | `packages/foundation/modeling/schema/src/LiteralKit/LiteralKit.schema.ts:703` | Builds a literal schema kit from a non-empty tuple of mixed literals. |
+| `@beep/schema/LiteralKit` | `LiteralKit` | interface | `packages/foundation/modeling/schema/src/LiteralKit/LiteralKit.schema.ts:650` | Public schema module export. |
+| `@beep/schema/LiteralKit` | `LiteralKitEnumMappingCoverageError` | class | `packages/foundation/modeling/schema/src/LiteralKit/LiteralKit.schema.ts:427` | Error thrown when a manual enum mapping does not exactly cover the provided |
+| `@beep/schema/LiteralKit` | `LiteralKitEnumMappingDuplicateLiteralError` | class | `packages/foundation/modeling/schema/src/LiteralKit/LiteralKit.schema.ts:411` | Error thrown when the same source literal appears more than once in a manual |
+| `@beep/schema/LiteralKit` | `LiteralKitKeyCollisionError` | class | `packages/foundation/modeling/schema/src/LiteralKit/LiteralKit.schema.ts:393` | Error thrown when different literals encode to the same helper key via |
+| `@beep/schema/LiteralKit` | `LiteralKitTaggedUnionLiteralError` | class | `packages/foundation/modeling/schema/src/LiteralKit/LiteralKit.schema.ts:443` | Error thrown when `LiteralKit.toTaggedUnion` receives a literal that cannot |
+| `@beep/schema/LiteralKit` | `LiteralNotInSetError` | class | `packages/foundation/modeling/schema/src/LiteralKit/LiteralKit.schema.ts:377` | Error thrown when an input value is not found in the provided literals |
+| `@beep/schema/LiteralKit` | `LiteralToKey` | type | `packages/foundation/modeling/schema/src/LiteralKit/LiteralKit.schema.ts:36` | Maps a literal value to its string key representation used in `Enum`, `is`, |
+| `@beep/schema/LiteralKit` | `matchLiteral` | const | `packages/foundation/modeling/schema/src/LiteralKit/LiteralKit.schema.ts:215` | Converts a literal value to its string key at runtime using the |
+| `@beep/schema/LocalDate` | `addDays` | const | `packages/foundation/modeling/schema/src/LocalDate/LocalDate.schema.ts:335` | Add days to a `LocalDate`. |
+| `@beep/schema/LocalDate` | `addMonths` | const | `packages/foundation/modeling/schema/src/LocalDate/LocalDate.schema.ts:350` | Add months to a `LocalDate`. |
+| `@beep/schema/LocalDate` | `addYears` | const | `packages/foundation/modeling/schema/src/LocalDate/LocalDate.schema.ts:365` | Add years to a `LocalDate`. |
+| `@beep/schema/LocalDate` | `daysInMonth` | const | `packages/foundation/modeling/schema/src/LocalDate/LocalDate.schema.ts:456` | Get the number of days in a given month, accounting for leap years. |
+| `@beep/schema/LocalDate` | `diffInDays` | const | `packages/foundation/modeling/schema/src/LocalDate/LocalDate.schema.ts:380` | Get the difference in whole days between two `LocalDate` values. |
+| `@beep/schema/LocalDate` | `endOfMonth` | const | `packages/foundation/modeling/schema/src/LocalDate/LocalDate.schema.ts:409` | Return the last day of the month for the given `LocalDate`. |
+| `@beep/schema/LocalDate` | `endOfYear` | const | `packages/foundation/modeling/schema/src/LocalDate/LocalDate.schema.ts:435` | Return December 31st for the year of the given `LocalDate`. |
+| `@beep/schema/LocalDate` | `equals` | const | `packages/foundation/modeling/schema/src/LocalDate/LocalDate.schema.ts:320` | Dual predicate returning `true` when two `LocalDate` values represent the same calendar date. |
+| `@beep/schema/LocalDate` | `fromDate` | const | `packages/foundation/modeling/schema/src/LocalDate/LocalDate.schema.ts:231` | Create a `LocalDate` from a JavaScript `Date` using its UTC components. |
+| `@beep/schema/LocalDate` | `fromDateTime` | const | `packages/foundation/modeling/schema/src/LocalDate/LocalDate.schema.ts:264` | Create a `LocalDate` from a `DateTime` by extracting its UTC date components. |
+| `@beep/schema/LocalDate` | `fromString` | const | `packages/foundation/modeling/schema/src/LocalDate/LocalDate.schema.ts:208` | Parse a `YYYY-MM-DD` string into a `LocalDate`, returning an `Effect` that fails for invalid input. |
+| `@beep/schema/LocalDate` | `isAfter` | const | `packages/foundation/modeling/schema/src/LocalDate/LocalDate.schema.ts:309` | Dual predicate returning `true` when `self` is chronologically after `that`. |
+| `@beep/schema/LocalDate` | `isBefore` | const | `packages/foundation/modeling/schema/src/LocalDate/LocalDate.schema.ts:298` | Dual predicate returning `true` when `self` is chronologically before `that`. |
+| `@beep/schema/LocalDate` | `isLeapYear` | const | `packages/foundation/modeling/schema/src/LocalDate/LocalDate.schema.ts:448` | Check whether a year is a leap year. |
+| `@beep/schema/LocalDate` | `isLocalDate` | const | `packages/foundation/modeling/schema/src/LocalDate/LocalDate.schema.ts:124` | Type guard for `LocalDate` instances. |
+| `@beep/schema/LocalDate` | `LocalDate` | class | `packages/foundation/modeling/schema/src/LocalDate/LocalDate.schema.ts:51` | Schema class representing a calendar date without time or timezone. |
+| `@beep/schema/LocalDate` | `LocalDateFromString` | const | `packages/foundation/modeling/schema/src/LocalDate/LocalDate.schema.ts:485` | Schema that transforms ISO 8601 date strings (`YYYY-MM-DD`) into `LocalDate` instances. |
+| `@beep/schema/LocalDate` | `LocalDateFromString` | namespace | `packages/foundation/modeling/schema/src/LocalDate/LocalDate.schema.ts:511` | Namespace members for {@link LocalDateFromString}. |
+| `@beep/schema/LocalDate` | `LocalDateFromString` | type | `packages/foundation/modeling/schema/src/LocalDate/LocalDate.schema.ts:503` | Decoded `LocalDate` type extracted from {@link LocalDateFromString}. |
+| `@beep/schema/LocalDate` | `Order` | const | `packages/foundation/modeling/schema/src/LocalDate/LocalDate.schema.ts:279` | Chronological `Order` for `LocalDate` values. |
+| `@beep/schema/LocalDate` | `startOfMonth` | const | `packages/foundation/modeling/schema/src/LocalDate/LocalDate.schema.ts:396` | Return the first day of the month for the given `LocalDate`. |
+| `@beep/schema/LocalDate` | `startOfYear` | const | `packages/foundation/modeling/schema/src/LocalDate/LocalDate.schema.ts:422` | Return January 1st for the year of the given `LocalDate`. |
+| `@beep/schema/LocalDate` | `today` | const | `packages/foundation/modeling/schema/src/LocalDate/LocalDate.schema.ts:245` | Get today's date in UTC. |
+| `@beep/schema/LocalDate` | `todayEffect` | const | `packages/foundation/modeling/schema/src/LocalDate/LocalDate.schema.ts:253` | Get today's UTC date as an `Effect` using the Clock service, testable with `TestClock`. |
+| `@beep/schema/Location` | `CardinalDirection` | SourceFile | `packages/foundation/modeling/schema/src/CardinalDirection/index.ts:22` |  |
 | `@beep/schema/Logs` | `LogLevel` | const | `packages/foundation/modeling/schema/src/Logs.ts:31` | Supported log levels including global enable-all and disable-all sentinels. |
 | `@beep/schema/Logs` | `LogLevel` | type | `packages/foundation/modeling/schema/src/Logs.ts:43` | Runtime type for `LogLevel`. |
 | `@beep/schema/Logs` | `LogSeverity` | const | `packages/foundation/modeling/schema/src/Logs.ts:62` | Supported log severities emitted by the logger (excludes `All` and `None`). |
 | `@beep/schema/Logs` | `LogSeverity` | type | `packages/foundation/modeling/schema/src/Logs.ts:74` | Runtime type for `LogSeverity`. |
-| `@beep/schema/MappedLiteralKit` | `MappedLiteralDuplicateError` | class | `packages/foundation/modeling/schema/src/MappedLiteralKit.ts:100` | Error thrown when `MappedLiteralKit` receives duplicate literals on the |
-| `@beep/schema/MappedLiteralKit` | `MappedLiteralKit` | function | `packages/foundation/modeling/schema/src/MappedLiteralKit.ts:337` | Builds a mapped literal schema kit from a non-empty tuple of literal pairs. |
-| `@beep/schema/MappedLiteralKit` | `MappedLiteralKit` | interface | `packages/foundation/modeling/schema/src/MappedLiteralKit.ts:306` | Public schema module export. |
+| `@beep/schema/MappedLiteralKit` | `MappedLiteralDuplicateError` | class | `packages/foundation/modeling/schema/src/MappedLiteralKit/MappedLiteralKit.schema.ts:100` | Error thrown when `MappedLiteralKit` receives duplicate literals on the |
+| `@beep/schema/MappedLiteralKit` | `MappedLiteralKit` | function | `packages/foundation/modeling/schema/src/MappedLiteralKit/MappedLiteralKit.schema.ts:337` | Builds a mapped literal schema kit from a non-empty tuple of literal pairs. |
+| `@beep/schema/MappedLiteralKit` | `MappedLiteralKit` | interface | `packages/foundation/modeling/schema/src/MappedLiteralKit/MappedLiteralKit.schema.ts:306` | Public schema module export. |
 | `@beep/schema/Markdown` | `decodeMarkdownTextAs` | const | `packages/foundation/modeling/schema/src/Markdown.ts:210` | Builds a decoder that renders Markdown text to HTML and then decodes the |
 | `@beep/schema/Markdown` | `Markdown` | const | `packages/foundation/modeling/schema/src/Markdown.ts:122` | Branded schema for Markdown document strings accepted by the active parser. |
 | `@beep/schema/Markdown` | `Markdown` | type | `packages/foundation/modeling/schema/src/Markdown.ts:141` | Branded Markdown document string type extracted from {@link Markdown}. |
@@ -13214,34 +11091,34 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/schema/MutableHashSet` | `MutableHashSetFromSelf` | const | `packages/foundation/modeling/schema/src/MutableHashSet.ts:126` | Schema for validating existing `MutableHashSet` instances while applying the |
 | `@beep/schema/MutableHashSet` | `MutableHashSetFromSelf` | interface | `packages/foundation/modeling/schema/src/MutableHashSet.ts:61` | Schema for validating an existing `MutableHashSet` instance. |
 | `@beep/schema/MutableHashSet` | `MutableHashSetIso` | type | `packages/foundation/modeling/schema/src/MutableHashSet.ts:53` | Iso representation (serializable value array) used by |
-| `@beep/schema/NoOpen` | `Header` | const | `packages/foundation/modeling/schema/src/http/headers/NoOpen.ts:80` |  |
-| `@beep/schema/NoOpen` | `Header` | type | `packages/foundation/modeling/schema/src/http/headers/NoOpen.ts:139` |  |
-| `@beep/schema/NoOpen` | `NoOpenHeader` | const | `packages/foundation/modeling/schema/src/http/headers/NoOpen.ts:80` |  |
-| `@beep/schema/NoOpen` | `NoOpenHeader` | type | `packages/foundation/modeling/schema/src/http/headers/NoOpen.ts:139` |  |
-| `@beep/schema/NoOpen` | `NoOpenOption` | const | `packages/foundation/modeling/schema/src/http/headers/NoOpen.ts:47` |  |
-| `@beep/schema/NoOpen` | `NoOpenOption` | type | `packages/foundation/modeling/schema/src/http/headers/NoOpen.ts:58` |  |
-| `@beep/schema/NoOpen` | `NoOpenResponseHeader` | class | `packages/foundation/modeling/schema/src/http/headers/NoOpen.ts:64` |  |
-| `@beep/schema/NoOpen` | `NoOpenValue` | const | `packages/foundation/modeling/schema/src/http/headers/NoOpen.ts:28` |  |
-| `@beep/schema/NoOpen` | `NoOpenValue` | type | `packages/foundation/modeling/schema/src/http/headers/NoOpen.ts:39` |  |
-| `@beep/schema/NoOpen` | `Option` | const | `packages/foundation/modeling/schema/src/http/headers/NoOpen.ts:47` |  |
-| `@beep/schema/NoOpen` | `Option` | type | `packages/foundation/modeling/schema/src/http/headers/NoOpen.ts:58` |  |
-| `@beep/schema/NoOpen` | `ResponseHeader` | class | `packages/foundation/modeling/schema/src/http/headers/NoOpen.ts:64` |  |
-| `@beep/schema/NoOpen` | `Value` | const | `packages/foundation/modeling/schema/src/http/headers/NoOpen.ts:28` |  |
-| `@beep/schema/NoOpen` | `Value` | type | `packages/foundation/modeling/schema/src/http/headers/NoOpen.ts:39` |  |
-| `@beep/schema/NoSniff` | `Header` | const | `packages/foundation/modeling/schema/src/http/headers/NoSniff.ts:128` | One-way schema that decodes `X-Content-Type-Options` options into the response header. |
-| `@beep/schema/NoSniff` | `Header` | type | `packages/foundation/modeling/schema/src/http/headers/NoSniff.ts:189` | Type-level representation of {@link NoSniffHeader}. |
-| `@beep/schema/NoSniff` | `NoSniffHeader` | const | `packages/foundation/modeling/schema/src/http/headers/NoSniff.ts:128` | One-way schema that decodes `X-Content-Type-Options` options into the response header. |
-| `@beep/schema/NoSniff` | `NoSniffHeader` | type | `packages/foundation/modeling/schema/src/http/headers/NoSniff.ts:189` | Type-level representation of {@link NoSniffHeader}. |
-| `@beep/schema/NoSniff` | `NoSniffOption` | const | `packages/foundation/modeling/schema/src/http/headers/NoSniff.ts:71` | Schema for `X-Content-Type-Options` option values, including `false` to disable. |
-| `@beep/schema/NoSniff` | `NoSniffOption` | type | `packages/foundation/modeling/schema/src/http/headers/NoSniff.ts:84` | Type-level representation of {@link NoSniffOption}. |
-| `@beep/schema/NoSniff` | `NoSniffResponseHeader` | class | `packages/foundation/modeling/schema/src/http/headers/NoSniff.ts:101` | Parsed `X-Content-Type-Options` response header with name and optional value. |
-| `@beep/schema/NoSniff` | `NoSniffValue` | const | `packages/foundation/modeling/schema/src/http/headers/NoSniff.ts:39` | Schema for supported `X-Content-Type-Options` header values. |
-| `@beep/schema/NoSniff` | `NoSniffValue` | type | `packages/foundation/modeling/schema/src/http/headers/NoSniff.ts:52` | Type-level representation of {@link NoSniffValue}. |
-| `@beep/schema/NoSniff` | `Option` | const | `packages/foundation/modeling/schema/src/http/headers/NoSniff.ts:71` | Schema for `X-Content-Type-Options` option values, including `false` to disable. |
-| `@beep/schema/NoSniff` | `Option` | type | `packages/foundation/modeling/schema/src/http/headers/NoSniff.ts:84` | Type-level representation of {@link NoSniffOption}. |
-| `@beep/schema/NoSniff` | `ResponseHeader` | class | `packages/foundation/modeling/schema/src/http/headers/NoSniff.ts:101` | Parsed `X-Content-Type-Options` response header with name and optional value. |
-| `@beep/schema/NoSniff` | `Value` | const | `packages/foundation/modeling/schema/src/http/headers/NoSniff.ts:39` | Schema for supported `X-Content-Type-Options` header values. |
-| `@beep/schema/NoSniff` | `Value` | type | `packages/foundation/modeling/schema/src/http/headers/NoSniff.ts:52` | Type-level representation of {@link NoSniffValue}. |
+| `@beep/schema/NoOpen` | `Header` | const | `packages/foundation/modeling/schema/src/NoOpen/NoOpen.schema.ts:80` |  |
+| `@beep/schema/NoOpen` | `Header` | type | `packages/foundation/modeling/schema/src/NoOpen/NoOpen.schema.ts:139` |  |
+| `@beep/schema/NoOpen` | `NoOpenHeader` | const | `packages/foundation/modeling/schema/src/NoOpen/NoOpen.schema.ts:80` |  |
+| `@beep/schema/NoOpen` | `NoOpenHeader` | type | `packages/foundation/modeling/schema/src/NoOpen/NoOpen.schema.ts:139` |  |
+| `@beep/schema/NoOpen` | `NoOpenOption` | const | `packages/foundation/modeling/schema/src/NoOpen/NoOpen.schema.ts:47` |  |
+| `@beep/schema/NoOpen` | `NoOpenOption` | type | `packages/foundation/modeling/schema/src/NoOpen/NoOpen.schema.ts:58` |  |
+| `@beep/schema/NoOpen` | `NoOpenResponseHeader` | class | `packages/foundation/modeling/schema/src/NoOpen/NoOpen.schema.ts:64` |  |
+| `@beep/schema/NoOpen` | `NoOpenValue` | const | `packages/foundation/modeling/schema/src/NoOpen/NoOpen.schema.ts:28` |  |
+| `@beep/schema/NoOpen` | `NoOpenValue` | type | `packages/foundation/modeling/schema/src/NoOpen/NoOpen.schema.ts:39` |  |
+| `@beep/schema/NoOpen` | `Option` | const | `packages/foundation/modeling/schema/src/NoOpen/NoOpen.schema.ts:47` |  |
+| `@beep/schema/NoOpen` | `Option` | type | `packages/foundation/modeling/schema/src/NoOpen/NoOpen.schema.ts:58` |  |
+| `@beep/schema/NoOpen` | `ResponseHeader` | class | `packages/foundation/modeling/schema/src/NoOpen/NoOpen.schema.ts:64` |  |
+| `@beep/schema/NoOpen` | `Value` | const | `packages/foundation/modeling/schema/src/NoOpen/NoOpen.schema.ts:28` |  |
+| `@beep/schema/NoOpen` | `Value` | type | `packages/foundation/modeling/schema/src/NoOpen/NoOpen.schema.ts:39` |  |
+| `@beep/schema/NoSniff` | `Header` | const | `packages/foundation/modeling/schema/src/NoSniff/NoSniff.schema.ts:128` | One-way schema that decodes `X-Content-Type-Options` options into the response header. |
+| `@beep/schema/NoSniff` | `Header` | type | `packages/foundation/modeling/schema/src/NoSniff/NoSniff.schema.ts:189` | Type-level representation of {@link NoSniffHeader}. |
+| `@beep/schema/NoSniff` | `NoSniffHeader` | const | `packages/foundation/modeling/schema/src/NoSniff/NoSniff.schema.ts:128` | One-way schema that decodes `X-Content-Type-Options` options into the response header. |
+| `@beep/schema/NoSniff` | `NoSniffHeader` | type | `packages/foundation/modeling/schema/src/NoSniff/NoSniff.schema.ts:189` | Type-level representation of {@link NoSniffHeader}. |
+| `@beep/schema/NoSniff` | `NoSniffOption` | const | `packages/foundation/modeling/schema/src/NoSniff/NoSniff.schema.ts:71` | Schema for `X-Content-Type-Options` option values, including `false` to disable. |
+| `@beep/schema/NoSniff` | `NoSniffOption` | type | `packages/foundation/modeling/schema/src/NoSniff/NoSniff.schema.ts:84` | Type-level representation of {@link NoSniffOption}. |
+| `@beep/schema/NoSniff` | `NoSniffResponseHeader` | class | `packages/foundation/modeling/schema/src/NoSniff/NoSniff.schema.ts:101` | Parsed `X-Content-Type-Options` response header with name and optional value. |
+| `@beep/schema/NoSniff` | `NoSniffValue` | const | `packages/foundation/modeling/schema/src/NoSniff/NoSniff.schema.ts:39` | Schema for supported `X-Content-Type-Options` header values. |
+| `@beep/schema/NoSniff` | `NoSniffValue` | type | `packages/foundation/modeling/schema/src/NoSniff/NoSniff.schema.ts:52` | Type-level representation of {@link NoSniffValue}. |
+| `@beep/schema/NoSniff` | `Option` | const | `packages/foundation/modeling/schema/src/NoSniff/NoSniff.schema.ts:71` | Schema for `X-Content-Type-Options` option values, including `false` to disable. |
+| `@beep/schema/NoSniff` | `Option` | type | `packages/foundation/modeling/schema/src/NoSniff/NoSniff.schema.ts:84` | Type-level representation of {@link NoSniffOption}. |
+| `@beep/schema/NoSniff` | `ResponseHeader` | class | `packages/foundation/modeling/schema/src/NoSniff/NoSniff.schema.ts:101` | Parsed `X-Content-Type-Options` response header with name and optional value. |
+| `@beep/schema/NoSniff` | `Value` | const | `packages/foundation/modeling/schema/src/NoSniff/NoSniff.schema.ts:39` | Schema for supported `X-Content-Type-Options` header values. |
+| `@beep/schema/NoSniff` | `Value` | type | `packages/foundation/modeling/schema/src/NoSniff/NoSniff.schema.ts:52` | Type-level representation of {@link NoSniffValue}. |
 | `@beep/schema/Number` | `isNegative` | const | `packages/foundation/modeling/schema/src/Number.ts:109` | Refinement that accepts negative numbers (less than zero). |
 | `@beep/schema/Number` | `isNonNegative` | const | `packages/foundation/modeling/schema/src/Number.ts:91` | Refinement that accepts non-negative numbers (zero or greater). |
 | `@beep/schema/Number` | `isNonPositive` | const | `packages/foundation/modeling/schema/src/Number.ts:127` | Refinement that accepts non-positive numbers (zero or less). |
@@ -13252,13 +11129,13 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/schema/Number` | `NonNegNum` | const | `packages/foundation/modeling/schema/src/Number.ts:144` | Branded schema for non-negative number (zero or greater). |
 | `@beep/schema/Number` | `NonNegNum` | type | `packages/foundation/modeling/schema/src/Number.ts:163` | Type for {@link NonNegNum}. |
 | `@beep/schema/Options` | `OptionFromOptionalNullishKey` | const | `packages/foundation/modeling/schema/src/Options.ts:78` | Decodes an optional object key whose value may also be `null` or `undefined` |
-| `@beep/schema/ParserOptions` | `Error` | class | `packages/foundation/modeling/schema/src/csv/parse/ParserOptions.ts:80` | A parser options configuration error. |
-| `@beep/schema/ParserOptions` | `HeaderValueInput` | const | `packages/foundation/modeling/schema/src/csv/parse/ParserOptions.ts:60` | A parser header configuration input. |
-| `@beep/schema/ParserOptions` | `HeaderValueInput` | type | `packages/foundation/modeling/schema/src/csv/parse/ParserOptions.ts:72` | {@inheritDoc HeaderValueInput} |
-| `@beep/schema/ParserOptions` | `ParserOptions` | class | `packages/foundation/modeling/schema/src/csv/parse/ParserOptions.ts:107` | Schema-backed CSV parser options. |
-| `@beep/schema/ParserOptions` | `ParserOptionsArgs` | type | `packages/foundation/modeling/schema/src/csv/parse/ParserOptions.ts:226` | Encoded/raw constructor input for {@link ParserOptions}. |
-| `@beep/schema/ParserOptions` | `ParserOptionsError` | class | `packages/foundation/modeling/schema/src/csv/parse/ParserOptions.ts:80` | A parser options configuration error. |
-| `@beep/schema/ParserOptions` | `Schema` | class | `packages/foundation/modeling/schema/src/csv/parse/ParserOptions.ts:107` | Schema-backed CSV parser options. |
+| `@beep/schema/ParserOptions` | `Error` | class | `packages/foundation/modeling/schema/src/ParserOptions/ParserOptions.schema.ts:80` | A parser options configuration error. |
+| `@beep/schema/ParserOptions` | `HeaderValueInput` | const | `packages/foundation/modeling/schema/src/ParserOptions/ParserOptions.schema.ts:60` | A parser header configuration input. |
+| `@beep/schema/ParserOptions` | `HeaderValueInput` | type | `packages/foundation/modeling/schema/src/ParserOptions/ParserOptions.schema.ts:72` | {@inheritDoc HeaderValueInput} |
+| `@beep/schema/ParserOptions` | `ParserOptions` | class | `packages/foundation/modeling/schema/src/ParserOptions/ParserOptions.schema.ts:107` | Schema-backed CSV parser options. |
+| `@beep/schema/ParserOptions` | `ParserOptionsArgs` | type | `packages/foundation/modeling/schema/src/ParserOptions/ParserOptions.schema.ts:226` | Encoded/raw constructor input for {@link ParserOptions}. |
+| `@beep/schema/ParserOptions` | `ParserOptionsError` | class | `packages/foundation/modeling/schema/src/ParserOptions/ParserOptions.schema.ts:80` | A parser options configuration error. |
+| `@beep/schema/ParserOptions` | `Schema` | class | `packages/foundation/modeling/schema/src/ParserOptions/ParserOptions.schema.ts:107` | Schema-backed CSV parser options. |
 | `@beep/schema/PascalStr` | `PascalCaseStr` | const | `packages/foundation/modeling/schema/src/PascalStr.ts:28` | Branded PascalCase string schema. |
 | `@beep/schema/PascalStr` | `PascalCaseStr` | type | `packages/foundation/modeling/schema/src/PascalStr.ts:54` | Type for {@link PascalCaseStr}. |
 | `@beep/schema/Percentage` | `complement` | const | `packages/foundation/modeling/schema/src/Percentage.ts:186` | Get the complement of a percentage (100 - value). |
@@ -13274,57 +11151,47 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/schema/Percentage` | `toDecimal` | const | `packages/foundation/modeling/schema/src/Percentage.ts:122` | Convert a percentage to its decimal representation (0-1 range). |
 | `@beep/schema/Percentage` | `TWENTY` | const | `packages/foundation/modeling/schema/src/Percentage.ts:93` | Percentage constant for 20%. |
 | `@beep/schema/Percentage` | `ZERO` | const | `packages/foundation/modeling/schema/src/Percentage.ts:86` | Percentage constant for 0%. |
-| `@beep/schema/PermissionsPolicy` | `Header` | const | `packages/foundation/modeling/schema/src/http/headers/PermissionsPolicy.ts:272` |  |
-| `@beep/schema/PermissionsPolicy` | `Header` | type | `packages/foundation/modeling/schema/src/http/headers/PermissionsPolicy.ts:333` |  |
-| `@beep/schema/PermissionsPolicy` | `Option` | const | `packages/foundation/modeling/schema/src/http/headers/PermissionsPolicy.ts:208` |  |
-| `@beep/schema/PermissionsPolicy` | `Option` | type | `packages/foundation/modeling/schema/src/http/headers/PermissionsPolicy.ts:218` |  |
-| `@beep/schema/PermissionsPolicy` | `PermissionsPolicyAllowlistedOrigin` | const | `packages/foundation/modeling/schema/src/http/headers/PermissionsPolicy.ts:138` |  |
-| `@beep/schema/PermissionsPolicy` | `PermissionsPolicyAllowlistedOrigin` | type | `packages/foundation/modeling/schema/src/http/headers/PermissionsPolicy.ts:148` |  |
-| `@beep/schema/PermissionsPolicy` | `PermissionsPolicyDirective` | const | `packages/foundation/modeling/schema/src/http/headers/PermissionsPolicy.ts:57` |  |
-| `@beep/schema/PermissionsPolicy` | `PermissionsPolicyDirective` | type | `packages/foundation/modeling/schema/src/http/headers/PermissionsPolicy.ts:68` |  |
-| `@beep/schema/PermissionsPolicy` | `PermissionsPolicyDirectiveKey` | const | `packages/foundation/modeling/schema/src/http/headers/PermissionsPolicy.ts:74` |  |
-| `@beep/schema/PermissionsPolicy` | `PermissionsPolicyDirectiveKey` | type | `packages/foundation/modeling/schema/src/http/headers/PermissionsPolicy.ts:91` |  |
-| `@beep/schema/PermissionsPolicy` | `PermissionsPolicyDirectives` | const | `packages/foundation/modeling/schema/src/http/headers/PermissionsPolicy.ts:174` |  |
-| `@beep/schema/PermissionsPolicy` | `PermissionsPolicyDirectives` | type | `packages/foundation/modeling/schema/src/http/headers/PermissionsPolicy.ts:187` |  |
-| `@beep/schema/PermissionsPolicy` | `PermissionsPolicyDirectiveValue` | const | `packages/foundation/modeling/schema/src/http/headers/PermissionsPolicy.ts:154` |  |
-| `@beep/schema/PermissionsPolicy` | `PermissionsPolicyDirectiveValue` | type | `packages/foundation/modeling/schema/src/http/headers/PermissionsPolicy.ts:168` |  |
-| `@beep/schema/PermissionsPolicy` | `PermissionsPolicyDirectiveValueSingle` | const | `packages/foundation/modeling/schema/src/http/headers/PermissionsPolicy.ts:121` |  |
-| `@beep/schema/PermissionsPolicy` | `PermissionsPolicyDirectiveValueSingle` | type | `packages/foundation/modeling/schema/src/http/headers/PermissionsPolicy.ts:132` |  |
-| `@beep/schema/PermissionsPolicy` | `PermissionsPolicyHeader` | const | `packages/foundation/modeling/schema/src/http/headers/PermissionsPolicy.ts:272` |  |
-| `@beep/schema/PermissionsPolicy` | `PermissionsPolicyHeader` | type | `packages/foundation/modeling/schema/src/http/headers/PermissionsPolicy.ts:333` |  |
-| `@beep/schema/PermissionsPolicy` | `PermissionsPolicyOption` | const | `packages/foundation/modeling/schema/src/http/headers/PermissionsPolicy.ts:208` |  |
-| `@beep/schema/PermissionsPolicy` | `PermissionsPolicyOption` | type | `packages/foundation/modeling/schema/src/http/headers/PermissionsPolicy.ts:218` |  |
-| `@beep/schema/PermissionsPolicy` | `PermissionsPolicyOptionStruct` | class | `packages/foundation/modeling/schema/src/http/headers/PermissionsPolicy.ts:193` |  |
-| `@beep/schema/PermissionsPolicy` | `PermissionsPolicyResponseHeader` | class | `packages/foundation/modeling/schema/src/http/headers/PermissionsPolicy.ts:224` |  |
-| `@beep/schema/PermissionsPolicy` | `QuotedOrigin` | const | `packages/foundation/modeling/schema/src/http/headers/PermissionsPolicy.ts:97` |  |
-| `@beep/schema/PermissionsPolicy` | `QuotedOrigin` | type | `packages/foundation/modeling/schema/src/http/headers/PermissionsPolicy.ts:113` |  |
-| `@beep/schema/PermissionsPolicy` | `ResponseHeader` | class | `packages/foundation/modeling/schema/src/http/headers/PermissionsPolicy.ts:224` |  |
-| `@beep/schema/PermittedCrossDomainPolicies` | `Header` | const | `packages/foundation/modeling/schema/src/http/headers/PermittedCrossDomainPolicies.ts:88` |  |
-| `@beep/schema/PermittedCrossDomainPolicies` | `Header` | type | `packages/foundation/modeling/schema/src/http/headers/PermittedCrossDomainPolicies.ts:150` |  |
-| `@beep/schema/PermittedCrossDomainPolicies` | `Option` | const | `packages/foundation/modeling/schema/src/http/headers/PermittedCrossDomainPolicies.ts:53` |  |
-| `@beep/schema/PermittedCrossDomainPolicies` | `Option` | type | `packages/foundation/modeling/schema/src/http/headers/PermittedCrossDomainPolicies.ts:64` |  |
-| `@beep/schema/PermittedCrossDomainPolicies` | `PermittedCrossDomainPoliciesHeader` | const | `packages/foundation/modeling/schema/src/http/headers/PermittedCrossDomainPolicies.ts:88` |  |
-| `@beep/schema/PermittedCrossDomainPolicies` | `PermittedCrossDomainPoliciesHeader` | type | `packages/foundation/modeling/schema/src/http/headers/PermittedCrossDomainPolicies.ts:150` |  |
-| `@beep/schema/PermittedCrossDomainPolicies` | `PermittedCrossDomainPoliciesOption` | const | `packages/foundation/modeling/schema/src/http/headers/PermittedCrossDomainPolicies.ts:53` |  |
-| `@beep/schema/PermittedCrossDomainPolicies` | `PermittedCrossDomainPoliciesOption` | type | `packages/foundation/modeling/schema/src/http/headers/PermittedCrossDomainPolicies.ts:64` |  |
-| `@beep/schema/PermittedCrossDomainPolicies` | `PermittedCrossDomainPoliciesResponseHeader` | class | `packages/foundation/modeling/schema/src/http/headers/PermittedCrossDomainPolicies.ts:70` |  |
-| `@beep/schema/PermittedCrossDomainPolicies` | `PermittedCrossDomainPoliciesValue` | const | `packages/foundation/modeling/schema/src/http/headers/PermittedCrossDomainPolicies.ts:34` |  |
-| `@beep/schema/PermittedCrossDomainPolicies` | `PermittedCrossDomainPoliciesValue` | type | `packages/foundation/modeling/schema/src/http/headers/PermittedCrossDomainPolicies.ts:45` |  |
-| `@beep/schema/PermittedCrossDomainPolicies` | `ResponseHeader` | class | `packages/foundation/modeling/schema/src/http/headers/PermittedCrossDomainPolicies.ts:70` |  |
-| `@beep/schema/PermittedCrossDomainPolicies` | `Value` | const | `packages/foundation/modeling/schema/src/http/headers/PermittedCrossDomainPolicies.ts:34` |  |
-| `@beep/schema/PermittedCrossDomainPolicies` | `Value` | type | `packages/foundation/modeling/schema/src/http/headers/PermittedCrossDomainPolicies.ts:45` |  |
-| `@beep/schema/Person` | `Age` | const | `packages/foundation/modeling/schema/src/person/Age.ts:16` | The age of a person in years. |
-| `@beep/schema/Person` | `Age` | type | `packages/foundation/modeling/schema/src/person/Age.ts:34` | {@inheritDoc Age} |
-| `@beep/schema/Person` | `Sex` | const | `packages/foundation/modeling/schema/src/person/Sex.ts:16` | The sex of a person ("male" or "female"). |
-| `@beep/schema/Person` | `Sex` | type | `packages/foundation/modeling/schema/src/person/Sex.ts:27` | {@inheritDoc Sex} |
-| `@beep/schema/person/Age` | `Age` | const | `packages/foundation/modeling/schema/src/person/Age.ts:16` | The age of a person in years. |
-| `@beep/schema/person/Age` | `Age` | type | `packages/foundation/modeling/schema/src/person/Age.ts:34` | {@inheritDoc Age} |
-| `@beep/schema/person/index` | `Age` | const | `packages/foundation/modeling/schema/src/person/Age.ts:16` | The age of a person in years. |
-| `@beep/schema/person/index` | `Age` | type | `packages/foundation/modeling/schema/src/person/Age.ts:34` | {@inheritDoc Age} |
-| `@beep/schema/person/index` | `Sex` | const | `packages/foundation/modeling/schema/src/person/Sex.ts:16` | The sex of a person ("male" or "female"). |
-| `@beep/schema/person/index` | `Sex` | type | `packages/foundation/modeling/schema/src/person/Sex.ts:27` | {@inheritDoc Sex} |
-| `@beep/schema/person/Sex` | `Sex` | const | `packages/foundation/modeling/schema/src/person/Sex.ts:16` | The sex of a person ("male" or "female"). |
-| `@beep/schema/person/Sex` | `Sex` | type | `packages/foundation/modeling/schema/src/person/Sex.ts:27` | {@inheritDoc Sex} |
+| `@beep/schema/PermissionsPolicy` | `Header` | const | `packages/foundation/modeling/schema/src/PermissionsPolicy/PermissionsPolicy.schema.ts:272` |  |
+| `@beep/schema/PermissionsPolicy` | `Header` | type | `packages/foundation/modeling/schema/src/PermissionsPolicy/PermissionsPolicy.schema.ts:333` |  |
+| `@beep/schema/PermissionsPolicy` | `Option` | const | `packages/foundation/modeling/schema/src/PermissionsPolicy/PermissionsPolicy.schema.ts:208` |  |
+| `@beep/schema/PermissionsPolicy` | `Option` | type | `packages/foundation/modeling/schema/src/PermissionsPolicy/PermissionsPolicy.schema.ts:218` |  |
+| `@beep/schema/PermissionsPolicy` | `PermissionsPolicyAllowlistedOrigin` | const | `packages/foundation/modeling/schema/src/PermissionsPolicy/PermissionsPolicy.schema.ts:138` |  |
+| `@beep/schema/PermissionsPolicy` | `PermissionsPolicyAllowlistedOrigin` | type | `packages/foundation/modeling/schema/src/PermissionsPolicy/PermissionsPolicy.schema.ts:148` |  |
+| `@beep/schema/PermissionsPolicy` | `PermissionsPolicyDirective` | const | `packages/foundation/modeling/schema/src/PermissionsPolicy/PermissionsPolicy.schema.ts:57` |  |
+| `@beep/schema/PermissionsPolicy` | `PermissionsPolicyDirective` | type | `packages/foundation/modeling/schema/src/PermissionsPolicy/PermissionsPolicy.schema.ts:68` |  |
+| `@beep/schema/PermissionsPolicy` | `PermissionsPolicyDirectiveKey` | const | `packages/foundation/modeling/schema/src/PermissionsPolicy/PermissionsPolicy.schema.ts:74` |  |
+| `@beep/schema/PermissionsPolicy` | `PermissionsPolicyDirectiveKey` | type | `packages/foundation/modeling/schema/src/PermissionsPolicy/PermissionsPolicy.schema.ts:91` |  |
+| `@beep/schema/PermissionsPolicy` | `PermissionsPolicyDirectives` | const | `packages/foundation/modeling/schema/src/PermissionsPolicy/PermissionsPolicy.schema.ts:174` |  |
+| `@beep/schema/PermissionsPolicy` | `PermissionsPolicyDirectives` | type | `packages/foundation/modeling/schema/src/PermissionsPolicy/PermissionsPolicy.schema.ts:187` |  |
+| `@beep/schema/PermissionsPolicy` | `PermissionsPolicyDirectiveValue` | const | `packages/foundation/modeling/schema/src/PermissionsPolicy/PermissionsPolicy.schema.ts:154` |  |
+| `@beep/schema/PermissionsPolicy` | `PermissionsPolicyDirectiveValue` | type | `packages/foundation/modeling/schema/src/PermissionsPolicy/PermissionsPolicy.schema.ts:168` |  |
+| `@beep/schema/PermissionsPolicy` | `PermissionsPolicyDirectiveValueSingle` | const | `packages/foundation/modeling/schema/src/PermissionsPolicy/PermissionsPolicy.schema.ts:121` |  |
+| `@beep/schema/PermissionsPolicy` | `PermissionsPolicyDirectiveValueSingle` | type | `packages/foundation/modeling/schema/src/PermissionsPolicy/PermissionsPolicy.schema.ts:132` |  |
+| `@beep/schema/PermissionsPolicy` | `PermissionsPolicyHeader` | const | `packages/foundation/modeling/schema/src/PermissionsPolicy/PermissionsPolicy.schema.ts:272` |  |
+| `@beep/schema/PermissionsPolicy` | `PermissionsPolicyHeader` | type | `packages/foundation/modeling/schema/src/PermissionsPolicy/PermissionsPolicy.schema.ts:333` |  |
+| `@beep/schema/PermissionsPolicy` | `PermissionsPolicyOption` | const | `packages/foundation/modeling/schema/src/PermissionsPolicy/PermissionsPolicy.schema.ts:208` |  |
+| `@beep/schema/PermissionsPolicy` | `PermissionsPolicyOption` | type | `packages/foundation/modeling/schema/src/PermissionsPolicy/PermissionsPolicy.schema.ts:218` |  |
+| `@beep/schema/PermissionsPolicy` | `PermissionsPolicyOptionStruct` | class | `packages/foundation/modeling/schema/src/PermissionsPolicy/PermissionsPolicy.schema.ts:193` |  |
+| `@beep/schema/PermissionsPolicy` | `PermissionsPolicyResponseHeader` | class | `packages/foundation/modeling/schema/src/PermissionsPolicy/PermissionsPolicy.schema.ts:224` |  |
+| `@beep/schema/PermissionsPolicy` | `QuotedOrigin` | const | `packages/foundation/modeling/schema/src/PermissionsPolicy/PermissionsPolicy.schema.ts:97` |  |
+| `@beep/schema/PermissionsPolicy` | `QuotedOrigin` | type | `packages/foundation/modeling/schema/src/PermissionsPolicy/PermissionsPolicy.schema.ts:113` |  |
+| `@beep/schema/PermissionsPolicy` | `ResponseHeader` | class | `packages/foundation/modeling/schema/src/PermissionsPolicy/PermissionsPolicy.schema.ts:224` |  |
+| `@beep/schema/PermittedCrossDomainPolicies` | `Header` | const | `packages/foundation/modeling/schema/src/PermittedCrossDomainPolicies/PermittedCrossDomainPolicies.schema.ts:88` |  |
+| `@beep/schema/PermittedCrossDomainPolicies` | `Header` | type | `packages/foundation/modeling/schema/src/PermittedCrossDomainPolicies/PermittedCrossDomainPolicies.schema.ts:150` |  |
+| `@beep/schema/PermittedCrossDomainPolicies` | `Option` | const | `packages/foundation/modeling/schema/src/PermittedCrossDomainPolicies/PermittedCrossDomainPolicies.schema.ts:53` |  |
+| `@beep/schema/PermittedCrossDomainPolicies` | `Option` | type | `packages/foundation/modeling/schema/src/PermittedCrossDomainPolicies/PermittedCrossDomainPolicies.schema.ts:64` |  |
+| `@beep/schema/PermittedCrossDomainPolicies` | `PermittedCrossDomainPoliciesHeader` | const | `packages/foundation/modeling/schema/src/PermittedCrossDomainPolicies/PermittedCrossDomainPolicies.schema.ts:88` |  |
+| `@beep/schema/PermittedCrossDomainPolicies` | `PermittedCrossDomainPoliciesHeader` | type | `packages/foundation/modeling/schema/src/PermittedCrossDomainPolicies/PermittedCrossDomainPolicies.schema.ts:150` |  |
+| `@beep/schema/PermittedCrossDomainPolicies` | `PermittedCrossDomainPoliciesOption` | const | `packages/foundation/modeling/schema/src/PermittedCrossDomainPolicies/PermittedCrossDomainPolicies.schema.ts:53` |  |
+| `@beep/schema/PermittedCrossDomainPolicies` | `PermittedCrossDomainPoliciesOption` | type | `packages/foundation/modeling/schema/src/PermittedCrossDomainPolicies/PermittedCrossDomainPolicies.schema.ts:64` |  |
+| `@beep/schema/PermittedCrossDomainPolicies` | `PermittedCrossDomainPoliciesResponseHeader` | class | `packages/foundation/modeling/schema/src/PermittedCrossDomainPolicies/PermittedCrossDomainPolicies.schema.ts:70` |  |
+| `@beep/schema/PermittedCrossDomainPolicies` | `PermittedCrossDomainPoliciesValue` | const | `packages/foundation/modeling/schema/src/PermittedCrossDomainPolicies/PermittedCrossDomainPolicies.schema.ts:34` |  |
+| `@beep/schema/PermittedCrossDomainPolicies` | `PermittedCrossDomainPoliciesValue` | type | `packages/foundation/modeling/schema/src/PermittedCrossDomainPolicies/PermittedCrossDomainPolicies.schema.ts:45` |  |
+| `@beep/schema/PermittedCrossDomainPolicies` | `ResponseHeader` | class | `packages/foundation/modeling/schema/src/PermittedCrossDomainPolicies/PermittedCrossDomainPolicies.schema.ts:70` |  |
+| `@beep/schema/PermittedCrossDomainPolicies` | `Value` | const | `packages/foundation/modeling/schema/src/PermittedCrossDomainPolicies/PermittedCrossDomainPolicies.schema.ts:34` |  |
+| `@beep/schema/PermittedCrossDomainPolicies` | `Value` | type | `packages/foundation/modeling/schema/src/PermittedCrossDomainPolicies/PermittedCrossDomainPolicies.schema.ts:45` |  |
+| `@beep/schema/Person` | `Age` | SourceFile | `packages/foundation/modeling/schema/src/Age/index.ts:22` |  |
+| `@beep/schema/Person` | `Sex` | SourceFile | `packages/foundation/modeling/schema/src/Sex/index.ts:22` |  |
 | `@beep/schema/PosixPath` | `NativePathToPosixPath` | const | `packages/foundation/modeling/schema/src/PosixPath.ts:70` | Schema transformation that converts native file-system paths (with backslashes) to POSIX separators. |
 | `@beep/schema/PosixPath` | `normalizePath` | const | `packages/foundation/modeling/schema/src/PosixPath.ts:104` | Normalize a file-system path string to POSIX separators. |
 | `@beep/schema/PosixPath` | `PosixPath` | const | `packages/foundation/modeling/schema/src/PosixPath.ts:31` | Branded schema for path strings using only POSIX `/` separators. |
@@ -13334,28 +11201,50 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/schema/PromiseSchema` | `isPromise` | const | `packages/foundation/modeling/schema/src/PromiseSchema.ts:64` | Type guard that checks whether a value is a native JavaScript `Promise`. |
 | `@beep/schema/PromiseSchema` | `PromiseSchema` | const | `packages/foundation/modeling/schema/src/PromiseSchema.ts:91` | Declared schema for native JavaScript `Promise` values. |
 | `@beep/schema/PromiseSchema` | `PromiseSchema` | type | `packages/foundation/modeling/schema/src/PromiseSchema.ts:112` | {@inheritDoc PromiseSchema} |
-| `@beep/schema/Record` | `UnknownRecord` | const | `packages/foundation/modeling/schema/src/Record.ts:29` | Schema for object records with string keys and unknown values. |
-| `@beep/schema/Record` | `UnknownRecord` | type | `packages/foundation/modeling/schema/src/Record.ts:49` | Runtime type extracted from the {@link UnknownRecord} schema. |
-| `@beep/schema/ReferrerPolicy` | `Header` | const | `packages/foundation/modeling/schema/src/http/headers/ReferrerPolicy.ts:126` |  |
-| `@beep/schema/ReferrerPolicy` | `Header` | type | `packages/foundation/modeling/schema/src/http/headers/ReferrerPolicy.ts:192` |  |
-| `@beep/schema/ReferrerPolicy` | `Option` | const | `packages/foundation/modeling/schema/src/http/headers/ReferrerPolicy.ts:70` |  |
-| `@beep/schema/ReferrerPolicy` | `Option` | type | `packages/foundation/modeling/schema/src/http/headers/ReferrerPolicy.ts:80` |  |
-| `@beep/schema/ReferrerPolicy` | `ReferrerPolicyHeader` | const | `packages/foundation/modeling/schema/src/http/headers/ReferrerPolicy.ts:126` |  |
-| `@beep/schema/ReferrerPolicy` | `ReferrerPolicyHeader` | type | `packages/foundation/modeling/schema/src/http/headers/ReferrerPolicy.ts:192` |  |
-| `@beep/schema/ReferrerPolicy` | `ReferrerPolicyOption` | const | `packages/foundation/modeling/schema/src/http/headers/ReferrerPolicy.ts:70` |  |
-| `@beep/schema/ReferrerPolicy` | `ReferrerPolicyOption` | type | `packages/foundation/modeling/schema/src/http/headers/ReferrerPolicy.ts:80` |  |
-| `@beep/schema/ReferrerPolicy` | `ReferrerPolicyResponseHeader` | class | `packages/foundation/modeling/schema/src/http/headers/ReferrerPolicy.ts:86` |  |
-| `@beep/schema/ReferrerPolicy` | `ReferrerPolicyValue` | const | `packages/foundation/modeling/schema/src/http/headers/ReferrerPolicy.ts:37` |  |
-| `@beep/schema/ReferrerPolicy` | `ReferrerPolicyValue` | type | `packages/foundation/modeling/schema/src/http/headers/ReferrerPolicy.ts:48` |  |
-| `@beep/schema/ReferrerPolicy` | `ReferrerPolicyValueList` | const | `packages/foundation/modeling/schema/src/http/headers/ReferrerPolicy.ts:54` |  |
-| `@beep/schema/ReferrerPolicy` | `ReferrerPolicyValueList` | type | `packages/foundation/modeling/schema/src/http/headers/ReferrerPolicy.ts:64` |  |
-| `@beep/schema/ReferrerPolicy` | `ResponseHeader` | class | `packages/foundation/modeling/schema/src/http/headers/ReferrerPolicy.ts:86` |  |
-| `@beep/schema/ReferrerPolicy` | `Value` | const | `packages/foundation/modeling/schema/src/http/headers/ReferrerPolicy.ts:37` |  |
-| `@beep/schema/ReferrerPolicy` | `Value` | type | `packages/foundation/modeling/schema/src/http/headers/ReferrerPolicy.ts:48` |  |
+| `@beep/schema/Record` | `UnknownRecord` | const | `packages/foundation/modeling/schema/src/Record/Record.schema.ts:29` | Schema for object records with string keys and unknown values. |
+| `@beep/schema/Record` | `UnknownRecord` | type | `packages/foundation/modeling/schema/src/Record/Record.schema.ts:49` | Runtime type extracted from the {@link UnknownRecord} schema. |
+| `@beep/schema/ReferrerPolicy` | `Header` | const | `packages/foundation/modeling/schema/src/ReferrerPolicy/ReferrerPolicy.schema.ts:126` |  |
+| `@beep/schema/ReferrerPolicy` | `Header` | type | `packages/foundation/modeling/schema/src/ReferrerPolicy/ReferrerPolicy.schema.ts:192` |  |
+| `@beep/schema/ReferrerPolicy` | `Option` | const | `packages/foundation/modeling/schema/src/ReferrerPolicy/ReferrerPolicy.schema.ts:70` |  |
+| `@beep/schema/ReferrerPolicy` | `Option` | type | `packages/foundation/modeling/schema/src/ReferrerPolicy/ReferrerPolicy.schema.ts:80` |  |
+| `@beep/schema/ReferrerPolicy` | `ReferrerPolicyHeader` | const | `packages/foundation/modeling/schema/src/ReferrerPolicy/ReferrerPolicy.schema.ts:126` |  |
+| `@beep/schema/ReferrerPolicy` | `ReferrerPolicyHeader` | type | `packages/foundation/modeling/schema/src/ReferrerPolicy/ReferrerPolicy.schema.ts:192` |  |
+| `@beep/schema/ReferrerPolicy` | `ReferrerPolicyOption` | const | `packages/foundation/modeling/schema/src/ReferrerPolicy/ReferrerPolicy.schema.ts:70` |  |
+| `@beep/schema/ReferrerPolicy` | `ReferrerPolicyOption` | type | `packages/foundation/modeling/schema/src/ReferrerPolicy/ReferrerPolicy.schema.ts:80` |  |
+| `@beep/schema/ReferrerPolicy` | `ReferrerPolicyResponseHeader` | class | `packages/foundation/modeling/schema/src/ReferrerPolicy/ReferrerPolicy.schema.ts:86` |  |
+| `@beep/schema/ReferrerPolicy` | `ReferrerPolicyValue` | const | `packages/foundation/modeling/schema/src/ReferrerPolicy/ReferrerPolicy.schema.ts:37` |  |
+| `@beep/schema/ReferrerPolicy` | `ReferrerPolicyValue` | type | `packages/foundation/modeling/schema/src/ReferrerPolicy/ReferrerPolicy.schema.ts:48` |  |
+| `@beep/schema/ReferrerPolicy` | `ReferrerPolicyValueList` | const | `packages/foundation/modeling/schema/src/ReferrerPolicy/ReferrerPolicy.schema.ts:54` |  |
+| `@beep/schema/ReferrerPolicy` | `ReferrerPolicyValueList` | type | `packages/foundation/modeling/schema/src/ReferrerPolicy/ReferrerPolicy.schema.ts:64` |  |
+| `@beep/schema/ReferrerPolicy` | `ResponseHeader` | class | `packages/foundation/modeling/schema/src/ReferrerPolicy/ReferrerPolicy.schema.ts:86` |  |
+| `@beep/schema/ReferrerPolicy` | `Value` | const | `packages/foundation/modeling/schema/src/ReferrerPolicy/ReferrerPolicy.schema.ts:37` |  |
+| `@beep/schema/ReferrerPolicy` | `Value` | type | `packages/foundation/modeling/schema/src/ReferrerPolicy/ReferrerPolicy.schema.ts:48` |  |
 | `@beep/schema/RegExp` | `RegExpFromStr` | const | `packages/foundation/modeling/schema/src/RegExp.ts:107` | One-way schema that decodes a valid pattern string into a JavaScript `RegExp` object. |
 | `@beep/schema/RegExp` | `RegExpFromStr` | type | `packages/foundation/modeling/schema/src/RegExp.ts:135` | Type for {@link RegExpFromStr}. |
 | `@beep/schema/RegExp` | `RegExpStr` | const | `packages/foundation/modeling/schema/src/RegExp.ts:58` | Branded schema for strings that can be converted directly to a JavaScript `RegExp`. |
 | `@beep/schema/RegExp` | `RegExpStr` | type | `packages/foundation/modeling/schema/src/RegExp.ts:80` | Type for {@link RegExpStr}. |
+| `@beep/schema/SchemaUtils` | `BoolDefaultFalse` | const | `packages/foundation/modeling/schema/src/SchemaUtils/withEncodeDefault.ts:101` | Boolean schema field that decodes missing keys as `false`. |
+| `@beep/schema/SchemaUtils` | `BoolDefaultFalse` | type | `packages/foundation/modeling/schema/src/SchemaUtils/withEncodeDefault.ts:121` | {@inheritDoc BoolDefaultFalse} |
+| `@beep/schema/SchemaUtils` | `BoolDefaultTrue` | const | `packages/foundation/modeling/schema/src/SchemaUtils/withEncodeDefault.ts:139` | Boolean schema field that decodes missing keys as `true`. |
+| `@beep/schema/SchemaUtils` | `BoolDefaultTrue` | type | `packages/foundation/modeling/schema/src/SchemaUtils/withEncodeDefault.ts:159` | {@inheritDoc BoolDefaultTrue} |
+| `@beep/schema/SchemaUtils` | `BoolKeyDefaultFalse` | const | `packages/foundation/modeling/schema/src/SchemaUtils/withKeyDefaults.ts:185` | Boolean schema field that defaults constructor input and missing keys to |
+| `@beep/schema/SchemaUtils` | `BoolKeyDefaultFalse` | type | `packages/foundation/modeling/schema/src/SchemaUtils/withKeyDefaults.ts:205` | {@inheritDoc BoolKeyDefaultFalse} |
+| `@beep/schema/SchemaUtils` | `BoolKeyDefaultTrue` | const | `packages/foundation/modeling/schema/src/SchemaUtils/withKeyDefaults.ts:224` | Boolean schema field that defaults constructor input and missing keys to |
+| `@beep/schema/SchemaUtils` | `BoolKeyDefaultTrue` | type | `packages/foundation/modeling/schema/src/SchemaUtils/withKeyDefaults.ts:244` | {@inheritDoc BoolKeyDefaultTrue} |
+| `@beep/schema/SchemaUtils` | `boolKeyWithDefault` | const | `packages/foundation/modeling/schema/src/SchemaUtils/withKeyDefaults.ts:166` | Create a boolean schema field with a shared constructor and missing-key |
+| `@beep/schema/SchemaUtils` | `boolWithDefault` | const | `packages/foundation/modeling/schema/src/SchemaUtils/withEncodeDefault.ts:83` | Create a boolean schema field with a lazy decoding default. |
+| `@beep/schema/SchemaUtils` | `DualEquivalence` | type | `packages/foundation/modeling/schema/src/SchemaUtils/toEquivalence.ts:32` | Dual-call equivalence function produced by {@link toEquivalence}. |
+| `@beep/schema/SchemaUtils` | `optionalKeyWithDefault` | const | `packages/foundation/modeling/schema/src/SchemaUtils/optionalKeyWithDefaults.ts:20` | Helper to create an optional key with a default value. |
+| `@beep/schema/SchemaUtils` | `pluck` | function | `packages/foundation/modeling/schema/src/SchemaUtils/pluck.ts:57` | Project a struct schema down to one field and expose that field as the |
+| `@beep/schema/SchemaUtils` | `split` | function | `packages/foundation/modeling/schema/src/SchemaUtils/split.ts:48` | Build a schema that decodes delimited text into a readonly string array. |
+| `@beep/schema/SchemaUtils` | `toEquivalence` | const | `packages/foundation/modeling/schema/src/SchemaUtils/toEquivalence.ts:64` | Create a schema-backed equivalence function with data-first and data-last |
+| `@beep/schema/SchemaUtils` | `withEmptyArrayDefaults` | function | `packages/foundation/modeling/schema/src/SchemaUtils/withKeyDefaults.ts:114` | Apply empty readonly-array defaults for constructor creation and missing |
+| `@beep/schema/SchemaUtils` | `withEmptyArrayDefaults` | function | `packages/foundation/modeling/schema/src/SchemaUtils/withKeyDefaults.ts:125` | Public schema module export. |
+| `@beep/schema/SchemaUtils` | `withEmptyArrayDefaults` | function | `packages/foundation/modeling/schema/src/SchemaUtils/withKeyDefaults.ts:136` | Public schema module export. |
+| `@beep/schema/SchemaUtils` | `withEncodeDefault` | const | `packages/foundation/modeling/schema/src/SchemaUtils/withEncodeDefault.ts:40` | Apply a decoding default to an optional encoded key. |
+| `@beep/schema/SchemaUtils` | `withKeyDefaults` | const | `packages/foundation/modeling/schema/src/SchemaUtils/withKeyDefaults.ts:50` | Applies a shared default value to a schema field for both constructor-time |
+| `@beep/schema/SchemaUtils` | `withLiteralKitStatics` | const | `packages/foundation/modeling/schema/src/SchemaUtils/withLiteralKitStatics.ts:24` | `LiteralKit` augments the underlying schema object with runtime helpers like |
+| `@beep/schema/SchemaUtils` | `withStatics` | const | `packages/foundation/modeling/schema/src/SchemaUtils/withStatics.ts:91` | Attach static methods to a schema object. Designed to be used with `.pipe()`. |
 | `@beep/schema/SchemaUtils/index` | `BoolDefaultFalse` | const | `packages/foundation/modeling/schema/src/SchemaUtils/withEncodeDefault.ts:101` | Boolean schema field that decodes missing keys as `false`. |
 | `@beep/schema/SchemaUtils/index` | `BoolDefaultFalse` | type | `packages/foundation/modeling/schema/src/SchemaUtils/withEncodeDefault.ts:121` | {@inheritDoc BoolDefaultFalse} |
 | `@beep/schema/SchemaUtils/index` | `BoolDefaultTrue` | const | `packages/foundation/modeling/schema/src/SchemaUtils/withEncodeDefault.ts:139` | Boolean schema field that decodes missing keys as `true`. |
@@ -13400,41 +11289,41 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/schema/SchemaUtils/withKeyDefaults` | `withKeyDefaults` | const | `packages/foundation/modeling/schema/src/SchemaUtils/withKeyDefaults.ts:50` | Applies a shared default value to a schema field for both constructor-time |
 | `@beep/schema/SchemaUtils/withLiteralKitStatics` | `withLiteralKitStatics` | const | `packages/foundation/modeling/schema/src/SchemaUtils/withLiteralKitStatics.ts:24` | `LiteralKit` augments the underlying schema object with runtime helpers like |
 | `@beep/schema/SchemaUtils/withStatics` | `withStatics` | const | `packages/foundation/modeling/schema/src/SchemaUtils/withStatics.ts:91` | Attach static methods to a schema object. Designed to be used with `.pipe()`. |
-| `@beep/schema/SecureHeader` | `Schema` | const | `packages/foundation/modeling/schema/src/http/headers/SecureHeader.ts:33` |  |
-| `@beep/schema/SecureHeader` | `Schema` | type | `packages/foundation/modeling/schema/src/http/headers/SecureHeader.ts:44` |  |
-| `@beep/schema/SecureHeader` | `SecureHeader` | const | `packages/foundation/modeling/schema/src/http/headers/SecureHeader.ts:33` |  |
-| `@beep/schema/SecureHeader` | `SecureHeader` | type | `packages/foundation/modeling/schema/src/http/headers/SecureHeader.ts:44` |  |
-| `@beep/schema/SecureHeaderError` | `CoreError` | class | `packages/foundation/modeling/schema/src/http/headers/SecureHeaderError.ts:187` |  |
-| `@beep/schema/SecureHeaderError` | `CrossOriginEmbedderPolicyError` | class | `packages/foundation/modeling/schema/src/http/headers/SecureHeaderError.ts:169` |  |
-| `@beep/schema/SecureHeaderError` | `CrossOriginOpenerPolicyError` | class | `packages/foundation/modeling/schema/src/http/headers/SecureHeaderError.ts:163` |  |
-| `@beep/schema/SecureHeaderError` | `CrossOriginResourcePolicyError` | class | `packages/foundation/modeling/schema/src/http/headers/SecureHeaderError.ts:175` |  |
-| `@beep/schema/SecureHeaderError` | `CspError` | class | `packages/foundation/modeling/schema/src/http/headers/SecureHeaderError.ts:109` |  |
-| `@beep/schema/SecureHeaderError` | `Error` | const | `packages/foundation/modeling/schema/src/http/headers/SecureHeaderError.ts:193` |  |
-| `@beep/schema/SecureHeaderError` | `Error` | type | `packages/foundation/modeling/schema/src/http/headers/SecureHeaderError.ts:221` |  |
-| `@beep/schema/SecureHeaderError` | `ExpectCtError` | class | `packages/foundation/modeling/schema/src/http/headers/SecureHeaderError.ts:151` |  |
-| `@beep/schema/SecureHeaderError` | `ForceHttpsRedirectError` | class | `packages/foundation/modeling/schema/src/http/headers/SecureHeaderError.ts:115` |  |
-| `@beep/schema/SecureHeaderError` | `FrameGuardError` | class | `packages/foundation/modeling/schema/src/http/headers/SecureHeaderError.ts:145` |  |
-| `@beep/schema/SecureHeaderError` | `NoOpenError` | class | `packages/foundation/modeling/schema/src/http/headers/SecureHeaderError.ts:139` |  |
-| `@beep/schema/SecureHeaderError` | `NoSniffError` | class | `packages/foundation/modeling/schema/src/http/headers/SecureHeaderError.ts:133` |  |
-| `@beep/schema/SecureHeaderError` | `PermissionsPolicyError` | class | `packages/foundation/modeling/schema/src/http/headers/SecureHeaderError.ts:157` |  |
-| `@beep/schema/SecureHeaderError` | `PermittedCrossDomainPoliciesError` | class | `packages/foundation/modeling/schema/src/http/headers/SecureHeaderError.ts:181` |  |
-| `@beep/schema/SecureHeaderError` | `ReferrerPolicyError` | class | `packages/foundation/modeling/schema/src/http/headers/SecureHeaderError.ts:127` |  |
-| `@beep/schema/SecureHeaderError` | `SecureHeaderError` | const | `packages/foundation/modeling/schema/src/http/headers/SecureHeaderError.ts:193` |  |
-| `@beep/schema/SecureHeaderError` | `SecureHeaderError` | type | `packages/foundation/modeling/schema/src/http/headers/SecureHeaderError.ts:221` |  |
-| `@beep/schema/SecureHeaderError` | `XssProtectionError` | class | `packages/foundation/modeling/schema/src/http/headers/SecureHeaderError.ts:121` |  |
-| `@beep/schema/SecureHeaderOptions` | `createHeadersObject` | const | `packages/foundation/modeling/schema/src/http/headers/SecureHeaderOptions.ts:157` | Resolve secure-header options into a plain `Record<string, string>` header object. |
-| `@beep/schema/SecureHeaderOptions` | `createSecureHeaders` | const | `packages/foundation/modeling/schema/src/http/headers/SecureHeaderOptions.ts:186` | Resolve secure-header options into an array of {@link SecureHeaderEntry} pairs. |
-| `@beep/schema/SecureHeaderOptions` | `Schema` | class | `packages/foundation/modeling/schema/src/http/headers/SecureHeaderOptions.ts:52` | Aggregate input options for configuring all secure response headers. |
-| `@beep/schema/SecureHeaderOptions` | `SecureHeaderEntry` | class | `packages/foundation/modeling/schema/src/http/headers/SecureHeaderOptions.ts:87` | A rendered secure header pair in `{ key, value }` format. |
-| `@beep/schema/SecureHeaderOptions` | `SecureHeaderOptions` | class | `packages/foundation/modeling/schema/src/http/headers/SecureHeaderOptions.ts:52` | Aggregate input options for configuring all secure response headers. |
+| `@beep/schema/SecureHeader` | `Schema` | const | `packages/foundation/modeling/schema/src/SecureHeader/SecureHeader.schema.ts:33` |  |
+| `@beep/schema/SecureHeader` | `Schema` | type | `packages/foundation/modeling/schema/src/SecureHeader/SecureHeader.schema.ts:44` |  |
+| `@beep/schema/SecureHeader` | `SecureHeader` | const | `packages/foundation/modeling/schema/src/SecureHeader/SecureHeader.schema.ts:33` |  |
+| `@beep/schema/SecureHeader` | `SecureHeader` | type | `packages/foundation/modeling/schema/src/SecureHeader/SecureHeader.schema.ts:44` |  |
+| `@beep/schema/SecureHeaderError` | `CoreError` | class | `packages/foundation/modeling/schema/src/SecureHeaderError/SecureHeaderError.errors.ts:187` |  |
+| `@beep/schema/SecureHeaderError` | `CrossOriginEmbedderPolicyError` | class | `packages/foundation/modeling/schema/src/SecureHeaderError/SecureHeaderError.errors.ts:169` |  |
+| `@beep/schema/SecureHeaderError` | `CrossOriginOpenerPolicyError` | class | `packages/foundation/modeling/schema/src/SecureHeaderError/SecureHeaderError.errors.ts:163` |  |
+| `@beep/schema/SecureHeaderError` | `CrossOriginResourcePolicyError` | class | `packages/foundation/modeling/schema/src/SecureHeaderError/SecureHeaderError.errors.ts:175` |  |
+| `@beep/schema/SecureHeaderError` | `CspError` | class | `packages/foundation/modeling/schema/src/SecureHeaderError/SecureHeaderError.errors.ts:109` |  |
+| `@beep/schema/SecureHeaderError` | `Error` | const | `packages/foundation/modeling/schema/src/SecureHeaderError/SecureHeaderError.errors.ts:193` |  |
+| `@beep/schema/SecureHeaderError` | `Error` | type | `packages/foundation/modeling/schema/src/SecureHeaderError/SecureHeaderError.errors.ts:221` |  |
+| `@beep/schema/SecureHeaderError` | `ExpectCtError` | class | `packages/foundation/modeling/schema/src/SecureHeaderError/SecureHeaderError.errors.ts:151` |  |
+| `@beep/schema/SecureHeaderError` | `ForceHttpsRedirectError` | class | `packages/foundation/modeling/schema/src/SecureHeaderError/SecureHeaderError.errors.ts:115` |  |
+| `@beep/schema/SecureHeaderError` | `FrameGuardError` | class | `packages/foundation/modeling/schema/src/SecureHeaderError/SecureHeaderError.errors.ts:145` |  |
+| `@beep/schema/SecureHeaderError` | `NoOpenError` | class | `packages/foundation/modeling/schema/src/SecureHeaderError/SecureHeaderError.errors.ts:139` |  |
+| `@beep/schema/SecureHeaderError` | `NoSniffError` | class | `packages/foundation/modeling/schema/src/SecureHeaderError/SecureHeaderError.errors.ts:133` |  |
+| `@beep/schema/SecureHeaderError` | `PermissionsPolicyError` | class | `packages/foundation/modeling/schema/src/SecureHeaderError/SecureHeaderError.errors.ts:157` |  |
+| `@beep/schema/SecureHeaderError` | `PermittedCrossDomainPoliciesError` | class | `packages/foundation/modeling/schema/src/SecureHeaderError/SecureHeaderError.errors.ts:181` |  |
+| `@beep/schema/SecureHeaderError` | `ReferrerPolicyError` | class | `packages/foundation/modeling/schema/src/SecureHeaderError/SecureHeaderError.errors.ts:127` |  |
+| `@beep/schema/SecureHeaderError` | `SecureHeaderError` | const | `packages/foundation/modeling/schema/src/SecureHeaderError/SecureHeaderError.errors.ts:193` |  |
+| `@beep/schema/SecureHeaderError` | `SecureHeaderError` | type | `packages/foundation/modeling/schema/src/SecureHeaderError/SecureHeaderError.errors.ts:221` |  |
+| `@beep/schema/SecureHeaderError` | `XssProtectionError` | class | `packages/foundation/modeling/schema/src/SecureHeaderError/SecureHeaderError.errors.ts:121` |  |
+| `@beep/schema/SecureHeaderOptions` | `createHeadersObject` | const | `packages/foundation/modeling/schema/src/SecureHeaderOptions/SecureHeaderOptions.schema.ts:163` | Resolve secure-header options into a plain `Record<string, string>` header object. |
+| `@beep/schema/SecureHeaderOptions` | `createSecureHeaders` | const | `packages/foundation/modeling/schema/src/SecureHeaderOptions/SecureHeaderOptions.schema.ts:192` | Resolve secure-header options into an array of {@link SecureHeaderEntry} pairs. |
+| `@beep/schema/SecureHeaderOptions` | `Schema` | class | `packages/foundation/modeling/schema/src/SecureHeaderOptions/SecureHeaderOptions.schema.ts:58` | Aggregate input options for configuring all secure response headers. |
+| `@beep/schema/SecureHeaderOptions` | `SecureHeaderEntry` | class | `packages/foundation/modeling/schema/src/SecureHeaderOptions/SecureHeaderOptions.schema.ts:93` | A rendered secure header pair in `{ key, value }` format. |
+| `@beep/schema/SecureHeaderOptions` | `SecureHeaderOptions` | class | `packages/foundation/modeling/schema/src/SecureHeaderOptions/SecureHeaderOptions.schema.ts:58` | Aggregate input options for configuring all secure response headers. |
 | `@beep/schema/SemanticVersion` | `SemanticVersion` | const | `packages/foundation/modeling/schema/src/SemanticVersion.ts:46` | A Semantic Versioning (SemVer) schema for validating `MAJOR.MINOR.PATCH` version strings. |
 | `@beep/schema/SemanticVersion` | `SemanticVersion` | type | `packages/foundation/modeling/schema/src/SemanticVersion.ts:75` | {@inheritDoc SemanticVersion} |
 | `@beep/schema/SeverityLevel` | `SeverityLevel` | const | `packages/foundation/modeling/schema/src/SeverityLevel.ts:30` | Generic four-level severity scale: `"low"`, `"medium"`, `"high"`, `"critical"`. |
 | `@beep/schema/SeverityLevel` | `SeverityLevel` | type | `packages/foundation/modeling/schema/src/SeverityLevel.ts:49` | Type for {@link SeverityLevel}. |
-| `@beep/schema/Sex` | `Schema` | const | `packages/foundation/modeling/schema/src/person/Sex.ts:16` | The sex of a person ("male" or "female"). |
-| `@beep/schema/Sex` | `Schema` | type | `packages/foundation/modeling/schema/src/person/Sex.ts:27` | {@inheritDoc Sex} |
-| `@beep/schema/Sex` | `Sex` | const | `packages/foundation/modeling/schema/src/person/Sex.ts:16` | The sex of a person ("male" or "female"). |
-| `@beep/schema/Sex` | `Sex` | type | `packages/foundation/modeling/schema/src/person/Sex.ts:27` | {@inheritDoc Sex} |
+| `@beep/schema/Sex` | `Schema` | const | `packages/foundation/modeling/schema/src/Sex/Sex.schema.ts:16` | The sex of a person ("male" or "female"). |
+| `@beep/schema/Sex` | `Schema` | type | `packages/foundation/modeling/schema/src/Sex/Sex.schema.ts:27` | {@inheritDoc Sex} |
+| `@beep/schema/Sex` | `Sex` | const | `packages/foundation/modeling/schema/src/Sex/Sex.schema.ts:16` | The sex of a person ("male" or "female"). |
+| `@beep/schema/Sex` | `Sex` | type | `packages/foundation/modeling/schema/src/Sex/Sex.schema.ts:27` | {@inheritDoc Sex} |
 | `@beep/schema/Sha256` | `Sha256Hex` | const | `packages/foundation/modeling/schema/src/Sha256.ts:57` | Branded schema for canonical lowercase SHA-256 hex digests (64 hex characters). |
 | `@beep/schema/Sha256` | `Sha256Hex` | type | `packages/foundation/modeling/schema/src/Sha256.ts:79` | Type for {@link Sha256Hex}. |
 | `@beep/schema/Sha256` | `Sha256HexFromBytes` | const | `packages/foundation/modeling/schema/src/Sha256.ts:101` | One-way schema that decodes a byte array into a canonical lowercase SHA-256 |
@@ -13451,10 +11340,10 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/schema/StatusCauseError` | `statusCauseInput` | const | `packages/foundation/modeling/schema/src/StatusCauseError.ts:113` | Creates normalized status/cause input payloads. |
 | `@beep/schema/StatusCauseError` | `StatusCauseInput` | class | `packages/foundation/modeling/schema/src/StatusCauseError.ts:87` | Input payload shape produced by {@link statusCauseInput}. |
 | `@beep/schema/StatusCauseError` | `StatusCauseInputOptions` | class | `packages/foundation/modeling/schema/src/StatusCauseError.ts:62` | Build the payload object expected by errors using {@link StatusCauseFields}. |
-| `@beep/schema/StatusCauseTaggedErrorClass` | `StatusCauseTaggedErrorClass` | const | `packages/foundation/modeling/schema/src/StatusCauseTaggedErrorClass.ts:526` | Create a tagged error class that carries `message`, `status`, and optional defect `cause`. |
-| `@beep/schema/StatusCauseTaggedErrorClass` | `StatusCauseTaggedErrorClassConstructor` | type | `packages/foundation/modeling/schema/src/StatusCauseTaggedErrorClass.ts:264` | Callable constructor for creating status-cause tagged error class factories. |
-| `@beep/schema/StatusCauseTaggedErrorClass` | `StatusCauseTaggedErrorClassFactory` | interface | `packages/foundation/modeling/schema/src/StatusCauseTaggedErrorClass.ts:219` | Factory returned by {@link StatusCauseTaggedErrorClass} after an identity namespace has been selected. |
-| `@beep/schema/StatusCauseTaggedErrorClass` | `StatusCauseTaggedErrorClassWithStatics` | type | `packages/foundation/modeling/schema/src/StatusCauseTaggedErrorClass.ts:169` | Tagged error class returned by {@link StatusCauseTaggedErrorClass}, including dual status/cause helpers. |
+| `@beep/schema/StatusCauseTaggedErrorClass` | `StatusCauseTaggedErrorClass` | const | `packages/foundation/modeling/schema/src/StatusCauseTaggedErrorClass/StatusCauseTaggedErrorClass.errors.ts:526` | Create a tagged error class that carries `message`, `status`, and optional defect `cause`. |
+| `@beep/schema/StatusCauseTaggedErrorClass` | `StatusCauseTaggedErrorClassConstructor` | type | `packages/foundation/modeling/schema/src/StatusCauseTaggedErrorClass/StatusCauseTaggedErrorClass.errors.ts:264` | Callable constructor for creating status-cause tagged error class factories. |
+| `@beep/schema/StatusCauseTaggedErrorClass` | `StatusCauseTaggedErrorClassFactory` | interface | `packages/foundation/modeling/schema/src/StatusCauseTaggedErrorClass/StatusCauseTaggedErrorClass.errors.ts:219` | Factory returned by {@link StatusCauseTaggedErrorClass} after an identity namespace has been selected. |
+| `@beep/schema/StatusCauseTaggedErrorClass` | `StatusCauseTaggedErrorClassWithStatics` | type | `packages/foundation/modeling/schema/src/StatusCauseTaggedErrorClass/StatusCauseTaggedErrorClass.errors.ts:169` | Tagged error class returned by {@link StatusCauseTaggedErrorClass}, including dual status/cause helpers. |
 | `@beep/schema/String` | `NonEmptyTrimmedStr` | const | `packages/foundation/modeling/schema/src/String.ts:28` | Branded non-empty trimmed string schema that strips whitespace and rejects empty results. |
 | `@beep/schema/String` | `NonEmptyTrimmedStr` | type | `packages/foundation/modeling/schema/src/String.ts:49` | Type for {@link NonEmptyTrimmedStr}. |
 | `@beep/schema/String` | `NullableStr` | const | `packages/foundation/modeling/schema/src/String.ts:104` | A nullable string schema that accepts `string \| null`. |
@@ -13463,12 +11352,12 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/schema/String` | `OptionFromNullableStr` | type | `packages/foundation/modeling/schema/src/String.ts:154` | Type for {@link OptionFromNullableStr}. |
 | `@beep/schema/String` | `UUID` | const | `packages/foundation/modeling/schema/src/String.ts:66` | Branded UUID string schema that validates RFC 4122 format. |
 | `@beep/schema/String` | `UUID` | type | `packages/foundation/modeling/schema/src/String.ts:87` | Type for {@link UUID}. |
-| `@beep/schema/TaggedErrorClass` | `TaggedErrorClass` | const | `packages/foundation/modeling/schema/src/TaggedErrorClass.ts:294` | Create a tagged error class with `_tag` discrimination and constructor input inferred from the schema. |
-| `@beep/schema/TaggedErrorClass` | `TaggedErrorClassConstructor` | type | `packages/foundation/modeling/schema/src/TaggedErrorClass.ts:244` | Callable constructor type for building tagged error classes. |
-| `@beep/schema/TaggedErrorClass` | `TaggedErrorClassFactory` | interface | `packages/foundation/modeling/schema/src/TaggedErrorClass.ts:208` | Factory interface returned by {@link TaggedErrorClass} that accepts a tag, fields, and optional annotations. |
-| `@beep/schema/TaggedErrorClass` | `TaggedErrorClassFromFields` | type | `packages/foundation/modeling/schema/src/TaggedErrorClass.ts:143` | Tagged error class type derived from a fields object. |
-| `@beep/schema/TaggedErrorClass` | `TaggedErrorClassFromSchema` | type | `packages/foundation/modeling/schema/src/TaggedErrorClass.ts:175` | Tagged error class type derived from a struct schema. |
-| `@beep/schema/TaggedErrorClass` | `TaggedErrorNewInput` | type | `packages/foundation/modeling/schema/src/TaggedErrorClass.ts:84` | Input type for constructing a tagged error, omitting the discriminator `_tag`. |
+| `@beep/schema/TaggedErrorClass` | `TaggedErrorClass` | const | `packages/foundation/modeling/schema/src/TaggedErrorClass/TaggedErrorClass.errors.ts:294` | Create a tagged error class with `_tag` discrimination and constructor input inferred from the schema. |
+| `@beep/schema/TaggedErrorClass` | `TaggedErrorClassConstructor` | type | `packages/foundation/modeling/schema/src/TaggedErrorClass/TaggedErrorClass.errors.ts:244` | Callable constructor type for building tagged error classes. |
+| `@beep/schema/TaggedErrorClass` | `TaggedErrorClassFactory` | interface | `packages/foundation/modeling/schema/src/TaggedErrorClass/TaggedErrorClass.errors.ts:208` | Factory interface returned by {@link TaggedErrorClass} that accepts a tag, fields, and optional annotations. |
+| `@beep/schema/TaggedErrorClass` | `TaggedErrorClassFromFields` | type | `packages/foundation/modeling/schema/src/TaggedErrorClass/TaggedErrorClass.errors.ts:143` | Tagged error class type derived from a fields object. |
+| `@beep/schema/TaggedErrorClass` | `TaggedErrorClassFromSchema` | type | `packages/foundation/modeling/schema/src/TaggedErrorClass/TaggedErrorClass.errors.ts:175` | Tagged error class type derived from a struct schema. |
+| `@beep/schema/TaggedErrorClass` | `TaggedErrorNewInput` | type | `packages/foundation/modeling/schema/src/TaggedErrorClass/TaggedErrorClass.errors.ts:84` | Input type for constructing a tagged error, omitting the discriminator `_tag`. |
 | `@beep/schema/Thunk` | `isThunkUnknown` | const | `packages/foundation/modeling/schema/src/Thunk.ts:107` | Type guard that checks whether a value satisfies the {@link ThunkUnknown} |
 | `@beep/schema/Thunk` | `make` | const | `packages/foundation/modeling/schema/src/Thunk.ts:131` | Builds a typed thunk schema from a type guard and a return-type schema |
 | `@beep/schema/Thunk` | `nominal` | const | `packages/foundation/modeling/schema/src/Thunk.ts:64` | Brand constructor that validates and brands a value as {@link ThunkUnknown}. |
@@ -13476,34 +11365,34 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/schema/Thunk` | `ThunkUnknown` | type | `packages/foundation/modeling/schema/src/Thunk.ts:46` | Branded thunk type -- a zero-argument function returning `A`, branded with |
 | `@beep/schema/Thunk` | `TypeId` | const | `packages/foundation/modeling/schema/src/Thunk.ts:29` | Unique brand identifier tag for {@link ThunkUnknown} values. |
 | `@beep/schema/Thunk` | `TypeId` | type | `packages/foundation/modeling/schema/src/Thunk.ts:37` | Type for {@link TypeId}. |
-| `@beep/schema/Timestamp` | `addDays` | const | `packages/foundation/modeling/schema/src/Timestamp.ts:400` | Add days to a timestamp |
-| `@beep/schema/Timestamp` | `addHours` | const | `packages/foundation/modeling/schema/src/Timestamp.ts:389` | Add hours to a timestamp |
-| `@beep/schema/Timestamp` | `addMillis` | const | `packages/foundation/modeling/schema/src/Timestamp.ts:356` | Add milliseconds to a timestamp |
-| `@beep/schema/Timestamp` | `addMinutes` | const | `packages/foundation/modeling/schema/src/Timestamp.ts:378` | Add minutes to a timestamp |
-| `@beep/schema/Timestamp` | `addSeconds` | const | `packages/foundation/modeling/schema/src/Timestamp.ts:367` | Add seconds to a timestamp |
-| `@beep/schema/Timestamp` | `diffInMillis` | const | `packages/foundation/modeling/schema/src/Timestamp.ts:411` | Get the difference in milliseconds between two timestamps |
-| `@beep/schema/Timestamp` | `diffInSeconds` | const | `packages/foundation/modeling/schema/src/Timestamp.ts:422` | Get the difference in seconds between two timestamps |
-| `@beep/schema/Timestamp` | `EPOCH` | const | `packages/foundation/modeling/schema/src/Timestamp.ts:455` | The Unix epoch timestamp representing `1970-01-01T00:00:00.000Z`. |
-| `@beep/schema/Timestamp` | `EpochMillis` | const | `packages/foundation/modeling/schema/src/Timestamp.ts:86` | Branded positive integer schema for epoch milliseconds since 1970-01-01T00:00:00.000Z. |
-| `@beep/schema/Timestamp` | `EpochMillis` | type | `packages/foundation/modeling/schema/src/Timestamp.ts:100` | Branded epoch milliseconds type extracted from {@link EpochMillis}. |
-| `@beep/schema/Timestamp` | `equals` | const | `packages/foundation/modeling/schema/src/Timestamp.ts:345` | Check whether two timestamps represent the same point in time. |
-| `@beep/schema/Timestamp` | `fromDate` | const | `packages/foundation/modeling/schema/src/Timestamp.ts:269` | Create a `Timestamp` from a JavaScript `Date`. |
-| `@beep/schema/Timestamp` | `fromDateTime` | const | `packages/foundation/modeling/schema/src/Timestamp.ts:260` | Create a `Timestamp` from a `DateTime.Utc`. |
-| `@beep/schema/Timestamp` | `fromString` | const | `packages/foundation/modeling/schema/src/Timestamp.ts:277` | Create a `Timestamp` from an ISO 8601 string, returning an `Effect` that fails for invalid input. |
-| `@beep/schema/Timestamp` | `isAfter` | const | `packages/foundation/modeling/schema/src/Timestamp.ts:334` | Dual predicate returning `true` when `self` is chronologically after `that`. |
-| `@beep/schema/Timestamp` | `isBefore` | const | `packages/foundation/modeling/schema/src/Timestamp.ts:323` | Dual predicate returning `true` when `self` is chronologically before `that`. |
-| `@beep/schema/Timestamp` | `ISOStr` | const | `packages/foundation/modeling/schema/src/Timestamp.ts:54` | Branded ISO 8601 datetime string schema. |
-| `@beep/schema/Timestamp` | `ISOStr` | type | `packages/foundation/modeling/schema/src/Timestamp.ts:67` | Branded ISO string type extracted from {@link ISOStr}. |
-| `@beep/schema/Timestamp` | `isTimestamp` | const | `packages/foundation/modeling/schema/src/Timestamp.ts:252` | Type guard for `Timestamp` instances. |
-| `@beep/schema/Timestamp` | `max` | const | `packages/foundation/modeling/schema/src/Timestamp.ts:444` | Get the maximum of two timestamps |
-| `@beep/schema/Timestamp` | `min` | const | `packages/foundation/modeling/schema/src/Timestamp.ts:433` | Get the minimum of two timestamps |
-| `@beep/schema/Timestamp` | `now` | const | `packages/foundation/modeling/schema/src/Timestamp.ts:292` | Create a `Timestamp` for the current wall-clock time. |
-| `@beep/schema/Timestamp` | `nowEffect` | const | `packages/foundation/modeling/schema/src/Timestamp.ts:300` | Get the current timestamp as an `Effect` using the Clock service, testable with `TestClock`. |
-| `@beep/schema/Timestamp` | `Order` | const | `packages/foundation/modeling/schema/src/Timestamp.ts:311` | Chronological `Order` for `Timestamp` values. |
-| `@beep/schema/Timestamp` | `Timestamp` | class | `packages/foundation/modeling/schema/src/Timestamp.ts:185` | Schema class wrapping `DateTime.Utc` as epoch milliseconds. |
-| `@beep/schema/Timestamp` | `ToIsoStr` | const | `packages/foundation/modeling/schema/src/Timestamp.ts:119` | Schema that normalizes numeric timestamps or ISO strings into ISO strings without fractional seconds. |
-| `@beep/schema/Timestamp` | `ToIsoStr` | namespace | `packages/foundation/modeling/schema/src/Timestamp.ts:147` | Namespace members for {@link ToIsoStr}. |
-| `@beep/schema/Timestamp` | `ToIsoString` | type | `packages/foundation/modeling/schema/src/Timestamp.ts:139` | Normalized ISO string type extracted from {@link ToIsoStr}. |
+| `@beep/schema/Timestamp` | `addDays` | const | `packages/foundation/modeling/schema/src/Timestamp/Timestamp.schema.ts:400` | Add days to a timestamp |
+| `@beep/schema/Timestamp` | `addHours` | const | `packages/foundation/modeling/schema/src/Timestamp/Timestamp.schema.ts:389` | Add hours to a timestamp |
+| `@beep/schema/Timestamp` | `addMillis` | const | `packages/foundation/modeling/schema/src/Timestamp/Timestamp.schema.ts:356` | Add milliseconds to a timestamp |
+| `@beep/schema/Timestamp` | `addMinutes` | const | `packages/foundation/modeling/schema/src/Timestamp/Timestamp.schema.ts:378` | Add minutes to a timestamp |
+| `@beep/schema/Timestamp` | `addSeconds` | const | `packages/foundation/modeling/schema/src/Timestamp/Timestamp.schema.ts:367` | Add seconds to a timestamp |
+| `@beep/schema/Timestamp` | `diffInMillis` | const | `packages/foundation/modeling/schema/src/Timestamp/Timestamp.schema.ts:411` | Get the difference in milliseconds between two timestamps |
+| `@beep/schema/Timestamp` | `diffInSeconds` | const | `packages/foundation/modeling/schema/src/Timestamp/Timestamp.schema.ts:422` | Get the difference in seconds between two timestamps |
+| `@beep/schema/Timestamp` | `EPOCH` | const | `packages/foundation/modeling/schema/src/Timestamp/Timestamp.schema.ts:455` | The Unix epoch timestamp representing `1970-01-01T00:00:00.000Z`. |
+| `@beep/schema/Timestamp` | `EpochMillis` | const | `packages/foundation/modeling/schema/src/Timestamp/Timestamp.schema.ts:86` | Branded positive integer schema for epoch milliseconds since 1970-01-01T00:00:00.000Z. |
+| `@beep/schema/Timestamp` | `EpochMillis` | type | `packages/foundation/modeling/schema/src/Timestamp/Timestamp.schema.ts:100` | Branded epoch milliseconds type extracted from {@link EpochMillis}. |
+| `@beep/schema/Timestamp` | `equals` | const | `packages/foundation/modeling/schema/src/Timestamp/Timestamp.schema.ts:345` | Check whether two timestamps represent the same point in time. |
+| `@beep/schema/Timestamp` | `fromDate` | const | `packages/foundation/modeling/schema/src/Timestamp/Timestamp.schema.ts:269` | Create a `Timestamp` from a JavaScript `Date`. |
+| `@beep/schema/Timestamp` | `fromDateTime` | const | `packages/foundation/modeling/schema/src/Timestamp/Timestamp.schema.ts:260` | Create a `Timestamp` from a `DateTime.Utc`. |
+| `@beep/schema/Timestamp` | `fromString` | const | `packages/foundation/modeling/schema/src/Timestamp/Timestamp.schema.ts:277` | Create a `Timestamp` from an ISO 8601 string, returning an `Effect` that fails for invalid input. |
+| `@beep/schema/Timestamp` | `isAfter` | const | `packages/foundation/modeling/schema/src/Timestamp/Timestamp.schema.ts:334` | Dual predicate returning `true` when `self` is chronologically after `that`. |
+| `@beep/schema/Timestamp` | `isBefore` | const | `packages/foundation/modeling/schema/src/Timestamp/Timestamp.schema.ts:323` | Dual predicate returning `true` when `self` is chronologically before `that`. |
+| `@beep/schema/Timestamp` | `ISOStr` | const | `packages/foundation/modeling/schema/src/Timestamp/Timestamp.schema.ts:54` | Branded ISO 8601 datetime string schema. |
+| `@beep/schema/Timestamp` | `ISOStr` | type | `packages/foundation/modeling/schema/src/Timestamp/Timestamp.schema.ts:67` | Branded ISO string type extracted from {@link ISOStr}. |
+| `@beep/schema/Timestamp` | `isTimestamp` | const | `packages/foundation/modeling/schema/src/Timestamp/Timestamp.schema.ts:252` | Type guard for `Timestamp` instances. |
+| `@beep/schema/Timestamp` | `max` | const | `packages/foundation/modeling/schema/src/Timestamp/Timestamp.schema.ts:444` | Get the maximum of two timestamps |
+| `@beep/schema/Timestamp` | `min` | const | `packages/foundation/modeling/schema/src/Timestamp/Timestamp.schema.ts:433` | Get the minimum of two timestamps |
+| `@beep/schema/Timestamp` | `now` | const | `packages/foundation/modeling/schema/src/Timestamp/Timestamp.schema.ts:292` | Create a `Timestamp` for the current wall-clock time. |
+| `@beep/schema/Timestamp` | `nowEffect` | const | `packages/foundation/modeling/schema/src/Timestamp/Timestamp.schema.ts:300` | Get the current timestamp as an `Effect` using the Clock service, testable with `TestClock`. |
+| `@beep/schema/Timestamp` | `Order` | const | `packages/foundation/modeling/schema/src/Timestamp/Timestamp.schema.ts:311` | Chronological `Order` for `Timestamp` values. |
+| `@beep/schema/Timestamp` | `Timestamp` | class | `packages/foundation/modeling/schema/src/Timestamp/Timestamp.schema.ts:185` | Schema class wrapping `DateTime.Utc` as epoch milliseconds. |
+| `@beep/schema/Timestamp` | `ToIsoStr` | const | `packages/foundation/modeling/schema/src/Timestamp/Timestamp.schema.ts:119` | Schema that normalizes numeric timestamps or ISO strings into ISO strings without fractional seconds. |
+| `@beep/schema/Timestamp` | `ToIsoStr` | namespace | `packages/foundation/modeling/schema/src/Timestamp/Timestamp.schema.ts:147` | Namespace members for {@link ToIsoStr}. |
+| `@beep/schema/Timestamp` | `ToIsoString` | type | `packages/foundation/modeling/schema/src/Timestamp/Timestamp.schema.ts:139` | Normalized ISO string type extracted from {@link ToIsoStr}. |
 | `@beep/schema/Timezone` | `Timezone` | const | `packages/foundation/modeling/schema/src/Timezone.ts:28` | IANA timezone identifier schema covering standard regions and UTC offsets. |
 | `@beep/schema/Timezone` | `Timezone` | type | `packages/foundation/modeling/schema/src/Timezone.ts:493` | Runtime type for {@link Timezone}. |
 | `@beep/schema/Toml` | `decodeTomlTextAs` | const | `packages/foundation/modeling/schema/src/Toml.ts:128` | Builds a decoder that parses TOML text and then decodes the result through a |
@@ -13532,40 +11421,23 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/schema/VariantSchema` | `Union` | namespace | `packages/foundation/modeling/schema/src/VariantSchema/VariantSchema.core.ts:353` |  |
 | `@beep/schema/Xml` | `decodeXmlTextAs` | const | `packages/foundation/modeling/schema/src/Xml.ts:119` | Builds a decoder that parses XML text and then decodes the result through a |
 | `@beep/schema/Xml` | `XmlTextToUnknown` | const | `packages/foundation/modeling/schema/src/Xml.ts:79` | Schema transformation that decodes XML text into an unknown parsed document |
-| `@beep/schema/XssProtection` | `Header` | const | `packages/foundation/modeling/schema/src/http/headers/XSSProtection.ts:144` |  |
-| `@beep/schema/XssProtection` | `Header` | type | `packages/foundation/modeling/schema/src/http/headers/XSSProtection.ts:195` |  |
-| `@beep/schema/XssProtection` | `Mode` | const | `packages/foundation/modeling/schema/src/http/headers/XSSProtection.ts:29` |  |
-| `@beep/schema/XssProtection` | `Mode` | type | `packages/foundation/modeling/schema/src/http/headers/XSSProtection.ts:40` |  |
-| `@beep/schema/XssProtection` | `Option` | const | `packages/foundation/modeling/schema/src/http/headers/XSSProtection.ts:75` |  |
-| `@beep/schema/XssProtection` | `Option` | type | `packages/foundation/modeling/schema/src/http/headers/XSSProtection.ts:85` |  |
-| `@beep/schema/XssProtection` | `ResponseHeader` | class | `packages/foundation/modeling/schema/src/http/headers/XSSProtection.ts:91` |  |
-| `@beep/schema/XssProtection` | `XSSProtectionHeader` | const | `packages/foundation/modeling/schema/src/http/headers/XSSProtection.ts:144` |  |
-| `@beep/schema/XssProtection` | `XSSProtectionHeader` | type | `packages/foundation/modeling/schema/src/http/headers/XSSProtection.ts:195` |  |
-| `@beep/schema/XssProtection` | `XSSProtectionMode` | const | `packages/foundation/modeling/schema/src/http/headers/XSSProtection.ts:29` |  |
-| `@beep/schema/XssProtection` | `XSSProtectionMode` | type | `packages/foundation/modeling/schema/src/http/headers/XSSProtection.ts:40` |  |
-| `@beep/schema/XssProtection` | `XSSProtectionOption` | const | `packages/foundation/modeling/schema/src/http/headers/XSSProtection.ts:75` |  |
-| `@beep/schema/XssProtection` | `XSSProtectionOption` | type | `packages/foundation/modeling/schema/src/http/headers/XSSProtection.ts:85` |  |
-| `@beep/schema/XssProtection` | `XSSProtectionReport` | const | `packages/foundation/modeling/schema/src/http/headers/XSSProtection.ts:59` |  |
-| `@beep/schema/XssProtection` | `XSSProtectionReport` | type | `packages/foundation/modeling/schema/src/http/headers/XSSProtection.ts:69` |  |
-| `@beep/schema/XssProtection` | `XSSProtectionReportConfig` | class | `packages/foundation/modeling/schema/src/http/headers/XSSProtection.ts:46` |  |
-| `@beep/schema/XssProtection` | `XSSProtectionResponseHeader` | class | `packages/foundation/modeling/schema/src/http/headers/XSSProtection.ts:91` |  |
-| `@beep/schema/XSSProtection` | `Header` | const | `packages/foundation/modeling/schema/src/http/headers/XSSProtection.ts:144` |  |
-| `@beep/schema/XSSProtection` | `Header` | type | `packages/foundation/modeling/schema/src/http/headers/XSSProtection.ts:195` |  |
-| `@beep/schema/XSSProtection` | `Mode` | const | `packages/foundation/modeling/schema/src/http/headers/XSSProtection.ts:29` |  |
-| `@beep/schema/XSSProtection` | `Mode` | type | `packages/foundation/modeling/schema/src/http/headers/XSSProtection.ts:40` |  |
-| `@beep/schema/XSSProtection` | `Option` | const | `packages/foundation/modeling/schema/src/http/headers/XSSProtection.ts:75` |  |
-| `@beep/schema/XSSProtection` | `Option` | type | `packages/foundation/modeling/schema/src/http/headers/XSSProtection.ts:85` |  |
-| `@beep/schema/XSSProtection` | `ResponseHeader` | class | `packages/foundation/modeling/schema/src/http/headers/XSSProtection.ts:91` |  |
-| `@beep/schema/XSSProtection` | `XSSProtectionHeader` | const | `packages/foundation/modeling/schema/src/http/headers/XSSProtection.ts:144` |  |
-| `@beep/schema/XSSProtection` | `XSSProtectionHeader` | type | `packages/foundation/modeling/schema/src/http/headers/XSSProtection.ts:195` |  |
-| `@beep/schema/XSSProtection` | `XSSProtectionMode` | const | `packages/foundation/modeling/schema/src/http/headers/XSSProtection.ts:29` |  |
-| `@beep/schema/XSSProtection` | `XSSProtectionMode` | type | `packages/foundation/modeling/schema/src/http/headers/XSSProtection.ts:40` |  |
-| `@beep/schema/XSSProtection` | `XSSProtectionOption` | const | `packages/foundation/modeling/schema/src/http/headers/XSSProtection.ts:75` |  |
-| `@beep/schema/XSSProtection` | `XSSProtectionOption` | type | `packages/foundation/modeling/schema/src/http/headers/XSSProtection.ts:85` |  |
-| `@beep/schema/XSSProtection` | `XSSProtectionReport` | const | `packages/foundation/modeling/schema/src/http/headers/XSSProtection.ts:59` |  |
-| `@beep/schema/XSSProtection` | `XSSProtectionReport` | type | `packages/foundation/modeling/schema/src/http/headers/XSSProtection.ts:69` |  |
-| `@beep/schema/XSSProtection` | `XSSProtectionReportConfig` | class | `packages/foundation/modeling/schema/src/http/headers/XSSProtection.ts:46` |  |
-| `@beep/schema/XSSProtection` | `XSSProtectionResponseHeader` | class | `packages/foundation/modeling/schema/src/http/headers/XSSProtection.ts:91` |  |
+| `@beep/schema/XssProtection` | `Header` | const | `packages/foundation/modeling/schema/src/XssProtection/XssProtection.schema.ts:144` |  |
+| `@beep/schema/XssProtection` | `Header` | type | `packages/foundation/modeling/schema/src/XssProtection/XssProtection.schema.ts:195` |  |
+| `@beep/schema/XssProtection` | `Mode` | const | `packages/foundation/modeling/schema/src/XssProtection/XssProtection.schema.ts:29` |  |
+| `@beep/schema/XssProtection` | `Mode` | type | `packages/foundation/modeling/schema/src/XssProtection/XssProtection.schema.ts:40` |  |
+| `@beep/schema/XssProtection` | `Option` | const | `packages/foundation/modeling/schema/src/XssProtection/XssProtection.schema.ts:75` |  |
+| `@beep/schema/XssProtection` | `Option` | type | `packages/foundation/modeling/schema/src/XssProtection/XssProtection.schema.ts:85` |  |
+| `@beep/schema/XssProtection` | `ResponseHeader` | class | `packages/foundation/modeling/schema/src/XssProtection/XssProtection.schema.ts:91` |  |
+| `@beep/schema/XssProtection` | `XSSProtectionHeader` | const | `packages/foundation/modeling/schema/src/XssProtection/XssProtection.schema.ts:144` |  |
+| `@beep/schema/XssProtection` | `XSSProtectionHeader` | type | `packages/foundation/modeling/schema/src/XssProtection/XssProtection.schema.ts:195` |  |
+| `@beep/schema/XssProtection` | `XSSProtectionMode` | const | `packages/foundation/modeling/schema/src/XssProtection/XssProtection.schema.ts:29` |  |
+| `@beep/schema/XssProtection` | `XSSProtectionMode` | type | `packages/foundation/modeling/schema/src/XssProtection/XssProtection.schema.ts:40` |  |
+| `@beep/schema/XssProtection` | `XSSProtectionOption` | const | `packages/foundation/modeling/schema/src/XssProtection/XssProtection.schema.ts:75` |  |
+| `@beep/schema/XssProtection` | `XSSProtectionOption` | type | `packages/foundation/modeling/schema/src/XssProtection/XssProtection.schema.ts:85` |  |
+| `@beep/schema/XssProtection` | `XSSProtectionReport` | const | `packages/foundation/modeling/schema/src/XssProtection/XssProtection.schema.ts:59` |  |
+| `@beep/schema/XssProtection` | `XSSProtectionReport` | type | `packages/foundation/modeling/schema/src/XssProtection/XssProtection.schema.ts:69` |  |
+| `@beep/schema/XssProtection` | `XSSProtectionReportConfig` | class | `packages/foundation/modeling/schema/src/XssProtection/XssProtection.schema.ts:46` |  |
+| `@beep/schema/XssProtection` | `XSSProtectionResponseHeader` | class | `packages/foundation/modeling/schema/src/XssProtection/XssProtection.schema.ts:91` |  |
 | `@beep/schema/Yaml` | `decodeYamlTextAs` | const | `packages/foundation/modeling/schema/src/Yaml.ts:133` | Builds a decoder that parses YAML text and then decodes the result through a |
 | `@beep/schema/Yaml` | `parseYaml` | const | `packages/foundation/modeling/schema/src/Yaml.ts:73` | Parses a YAML string into a JavaScript value. Uses `Bun.YAML` when available |
 | `@beep/schema/Yaml` | `YamlTextToUnknown` | const | `packages/foundation/modeling/schema/src/Yaml.ts:96` | Schema transformation that decodes YAML text into an unknown parsed value. |

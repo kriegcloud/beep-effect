@@ -6,7 +6,7 @@
  */
 import { Struct } from "@beep/utils";
 import * as S from "effect/Schema";
-import { LiteralKit } from "../LiteralKit.ts";
+import { LiteralKit } from "../LiteralKit/index.ts";
 import * as SchemaUtils from "../SchemaUtils/index.ts";
 import type { EntityFieldInput, EntityFieldInputs, SelectedFieldOf } from "./EntitySchema.fields.ts";
 import { $I } from "./EntitySchema.shared.ts";

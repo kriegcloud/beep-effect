@@ -1,4 +1,3 @@
-import { DurationFromInput, DurationInput, DurationObject } from "@beep/schema";
 import * as Duration from "@beep/schema/Duration";
 import { describe, expect, it } from "@effect/vitest";
 import * as D from "effect/Duration";
@@ -6,7 +5,7 @@ import * as O from "effect/Option";
 import * as S from "effect/Schema";
 
 describe("DurationInput", () => {
-  const decode = S.decodeUnknownSync(DurationInput);
+  const decode = S.decodeUnknownSync(Duration.Input);
 
   it("accepts additive duration objects with populated fields", () => {
     const decoded = decode({
@@ -14,8 +13,8 @@ describe("DurationInput", () => {
       seconds: 30,
     });
 
-    expect(decoded).toBeInstanceOf(DurationObject);
-    expect(decoded).toEqual(DurationObject.make({ minutes: 1, seconds: 30 }));
+    expect(decoded).toBeInstanceOf(Duration.Object);
+    expect(decoded).toEqual(Duration.Object.make({ minutes: 1, seconds: 30 }));
   });
 
   it("rejects empty duration objects", () => {
@@ -36,8 +35,8 @@ describe("Duration namespace module", () => {
 });
 
 describe("DurationFromInput", () => {
-  const decode = S.decodeUnknownSync(DurationFromInput);
-  const encode = S.encodeSync(DurationFromInput);
+  const decode = S.decodeUnknownSync(Duration.FromInput);
+  const encode = S.encodeSync(Duration.FromInput);
 
   it("passes through existing Duration values", () => {
     const input = D.seconds(2);
@@ -63,7 +62,7 @@ describe("DurationFromInput", () => {
 
   it("decodes additive duration objects", () => {
     const decoded = decode(
-      DurationObject.make({
+      Duration.Object.make({
         minutes: 1,
         seconds: 30,
         microseconds: 4,

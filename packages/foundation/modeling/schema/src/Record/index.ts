@@ -1,7 +1,12 @@
 /**
- * Namespace-first entry point for record schemas.
+ * Namespace-first public module for record schemas.
  *
+ * @packageDocumentation
  * @since 0.0.0
- * @category schemas
  */
-export * from "../Record.ts";
+
+/**
+ * @category schemas
+ * @since 0.0.0
+ */
+export * from "./Record.schema.ts";

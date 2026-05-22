@@ -8,7 +8,7 @@ import { Str, thunkTrue } from "@beep/utils";
 import { Match } from "effect";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
-import { LiteralKit } from "../LiteralKit.ts";
+import { LiteralKit } from "../LiteralKit/index.ts";
 import { HasNullByte, SupportedWindowsNamespace, UsesPosixSeparator, UsesWindowsSeparator } from "./FilePath.guards.ts";
 import { HasLeafSegment } from "./FilePath.roots.ts";
 import { $I, isWindowsDrivePrefix } from "./FilePath.shared.ts";
