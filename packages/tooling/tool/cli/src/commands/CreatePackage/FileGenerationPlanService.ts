@@ -8,7 +8,7 @@
 import { $RepoCliId } from "@beep/identity/packages";
 import { DomainError } from "@beep/repo-utils";
 import { LiteralKit, normalizePath, SchemaUtils } from "@beep/schema";
-import { A, Str, thunkFalse, thunkTrue } from "@beep/utils";
+import { A, Str, thunkEffectVoid, thunkFalse, thunkTrue } from "@beep/utils";
 import { Context, Effect, FileSystem, flow, Number as Num, Order, Path, pipe, Ref, Struct } from "effect";
 import * as Eq from "effect/Equal";
 import { dual } from "effect/Function";
@@ -578,9 +578,8 @@ export const createFileGenerationPlanService = (): FileGenerationPlanServiceShap
     const writeFileIfChanged = (absolutePath: string, content: string) =>
       ensureDirectoryFor(absolutePath).pipe(
         Effect.andThen(() => readIfExists(absolutePath)),
-        Effect.andThen((existingContent: O.Option<string>) =>
-          pipe(
-            existingContent,
+        Effect.andThen(
+          flow(
             O.filter(Str.equivalence(content)),
             O.map(() => countSkippedFileWrite),
             O.getOrElse(() => writeFile(absolutePath, content))
@@ -619,8 +618,8 @@ export const createFileGenerationPlanService = (): FileGenerationPlanServiceShap
     });
 
     const writeSymlinkForState: {
-      (exists: boolean, absolutePath: string, target: string): Effect.Effect<void, DomainError, never>;
-      (absolutePath: string, target: string): (exists: boolean) => Effect.Effect<void, DomainError, never>;
+      (exists: boolean, absolutePath: string, target: string): Effect.Effect<void, DomainError>;
+      (absolutePath: string, target: string): (exists: boolean) => Effect.Effect<void, DomainError>;
     } = dual(3, (exists: boolean, absolutePath: string, target: string) =>
       pipe(
         exists,
@@ -631,17 +630,13 @@ export const createFileGenerationPlanService = (): FileGenerationPlanServiceShap
     );
 
     const ensureSymlink: {
-      (absolutePath: string, target: string): Effect.Effect<void, DomainError, never>;
-      (target: string): (absolutePath: string) => Effect.Effect<void, DomainError, never>;
+      (absolutePath: string, target: string): Effect.Effect<void, DomainError>;
+      (target: string): (absolutePath: string) => Effect.Effect<void, DomainError>;
     } = dual(
       2,
       Effect.fn(function* (absolutePath: string, target: string) {
         return yield* ensureDirectoryFor(absolutePath).pipe(
-          Effect.andThen(
-            Effect.fnUntraced(function* () {
-              return yield* inspectSymlinkPath(absolutePath);
-            })
-          ),
+          Effect.andThen(() => inspectSymlinkPath(absolutePath)),
           Effect.andThen(
             Effect.fnUntraced(function* ({
               currentTarget,
@@ -692,8 +687,8 @@ export const createFileGenerationPlanService = (): FileGenerationPlanServiceShap
       });
 
       yield* GenerationAction.match(action, {
-        mkdir: () => Effect.void,
-        "write-file": () => Effect.void,
+        mkdir: thunkEffectVoid,
+        "write-file": thunkEffectVoid,
         symlink: ({ target }) => validateSymlinkTarget(absolutePath, target),
       });
 
@@ -704,13 +699,8 @@ export const createFileGenerationPlanService = (): FileGenerationPlanServiceShap
       plan.actions,
       (action) =>
         pipe(
-          action,
-          resolveActionPath,
-          Effect.andThen(
-            Effect.fnUntraced(function* (absolutePath: string) {
-              return yield* runAction(absolutePath, action);
-            })
-          )
+          resolveActionPath(action),
+          Effect.andThen((absolutePath: string) => runAction(absolutePath, action))
         ),
       { discard: true }
     );

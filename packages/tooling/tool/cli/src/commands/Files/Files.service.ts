@@ -381,11 +381,8 @@ const validateCreateCaptionFilesOptions = (
   options: CreateCaptionFilesOptions
 ): Effect.Effect<CreateCaptionFilesOptions, FilesCommandError> =>
   decodeCreateCaptionFilesOptions(options).pipe(
-    Effect.mapError((cause) =>
-      FilesCommandError.make({
-        message: "Invalid create-captions options. Expected a directory, caption text, and boolean flags.",
-        cause,
-      })
+    FilesCommandError.mapError(
+      "Invalid create-captions options. Expected a directory, caption text, and boolean flags."
     )
   );
 
@@ -393,12 +390,8 @@ const validateDetectBordersOptions = (
   options: DetectBordersOptions
 ): Effect.Effect<DetectBordersOptions, FilesCommandError> =>
   decodeDetectBordersOptions(options).pipe(
-    Effect.mapError((cause) =>
-      FilesCommandError.make({
-        message:
-          "Invalid detect-borders options. Expected --tolerance between 0 and 255, --min-solid-pct and --min-width-pct between greater than 0 and 100, and --max-scan-pct between greater than 0 and 50.",
-        cause,
-      })
+    FilesCommandError.mapError(
+      "Invalid detect-borders options. Expected --tolerance between 0 and 255, --min-solid-pct and --min-width-pct between greater than 0 and 100, and --max-scan-pct between greater than 0 and 50."
     ),
     Effect.flatMap((decoded) => {
       if (decoded.minWidthPct > decoded.maxScanPct) {
@@ -417,12 +410,8 @@ const validateDetectFacesOptions = (
   options: DetectFacesOptions
 ): Effect.Effect<DetectFacesOptions, FilesCommandError> =>
   decodeDetectFacesOptions(options).pipe(
-    Effect.mapError((cause) =>
-      FilesCommandError.make({
-        message:
-          "Invalid detect-faces options. Expected --model to point at a YuNet ONNX file, --min-confidence between 0 and 1, and face area/margin percentages between 0 and 100.",
-        cause,
-      })
+    FilesCommandError.mapError(
+      "Invalid detect-faces options. Expected --model to point at a YuNet ONNX file, --min-confidence between 0 and 1, and face area/margin percentages between 0 and 100."
     )
   );
 
@@ -440,7 +429,7 @@ const validateDetectFacesMoveNoFaceDirectory = Effect.fn("Files.validateDetectFa
   const noFaceDirectory = path.resolve(moveNoFaceTo.value);
 
   if (Str.equivalence(sourceDirectory, noFaceDirectory)) {
-    return yield* new FilesCommandError({
+    return yield* FilesCommandError.make({
       message: `Refusing to move no-face images into the source directory: "${noFaceDirectory}"`,
     });
   }
@@ -485,7 +474,7 @@ const validateDetectFacesMoveNoFaceDirectory = Effect.fn("Files.validateDetectFa
     );
 
   if (Str.equivalence(canonicalSource, canonicalNoFace)) {
-    return yield* new FilesCommandError({
+    return yield* FilesCommandError.make({
       message: `Refusing to move no-face images into the source directory: "${noFaceDirectory}"`,
     });
   }
@@ -497,12 +486,8 @@ const validateCropBordersOptions = (
   options: CropBordersOptions
 ): Effect.Effect<CropBordersOptions, FilesCommandError> =>
   decodeCropBordersOptions(options).pipe(
-    Effect.mapError((cause) =>
-      FilesCommandError.make({
-        message:
-          "Invalid crop-borders options. Expected --tolerance between 0 and 255, --min-solid-pct and --min-width-pct between greater than 0 and 100, and --max-scan-pct between greater than 0 and 50.",
-        cause,
-      })
+    FilesCommandError.mapError(
+      "Invalid crop-borders options. Expected --tolerance between 0 and 255, --min-solid-pct and --min-width-pct between greater than 0 and 100, and --max-scan-pct between greater than 0 and 50."
     ),
     Effect.flatMap((decoded) => {
       if (decoded.minWidthPct > decoded.maxScanPct) {
@@ -658,12 +643,8 @@ const validateArchivePoorCandidatesOptions = (
   options: ArchivePoorCandidatesOptions
 ): Effect.Effect<ArchivePoorCandidatesOptions, FilesCommandError> =>
   decodeArchivePoorCandidatesOptions(options).pipe(
-    Effect.mapError((cause) =>
-      FilesCommandError.make({
-        message:
-          "Invalid archive-poor-candidates options. Expected positive integer --target-resolution and --min-short-edge values plus --max-aspect and --max-upscale ratios greater than or equal to 1.",
-        cause,
-      })
+    FilesCommandError.mapError(
+      "Invalid archive-poor-candidates options. Expected positive integer --target-resolution and --min-short-edge values plus --max-aspect and --max-upscale ratios greater than or equal to 1."
     )
   );
 
@@ -683,13 +664,13 @@ const validateNormalizeDuplicateDirectory = Effect.fn("Files.validateNormalizeDu
   const duplicateDirectory = path.resolve(moveDuplicatesTo.value);
 
   if (Str.equivalence(directory, duplicateDirectory)) {
-    return yield* new FilesCommandError({
+    return yield* FilesCommandError.make({
       message: `Refusing to move duplicates into the source directory: "${duplicateDirectory}"`,
     });
   }
 
   if (Str.equivalence(outputDirectory, duplicateDirectory)) {
-    return yield* new FilesCommandError({
+    return yield* FilesCommandError.make({
       message: `Refusing to move duplicates into the normalize output directory: "${duplicateDirectory}"`,
     });
   }
@@ -729,13 +710,13 @@ const validateNormalizeDuplicateDirectory = Effect.fn("Files.validateNormalizeDu
     );
 
   if (Str.equivalence(canonicalDirectory, canonicalDuplicate)) {
-    return yield* new FilesCommandError({
+    return yield* FilesCommandError.make({
       message: `Refusing to move duplicates into the source directory: "${duplicateDirectory}"`,
     });
   }
 
   if (O.isSome(canonicalOutputDirectory) && Str.equivalence(canonicalOutputDirectory.value, canonicalDuplicate)) {
-    return yield* new FilesCommandError({
+    return yield* FilesCommandError.make({
       message: `Refusing to move duplicates into the normalize output directory: "${duplicateDirectory}"`,
     });
   }
@@ -791,14 +772,14 @@ const validateNormalizeDirectories = Effect.fn("Files.validateNormalizeDirectori
     canonicalOutputDirectory = O.some(canonicalOutput);
 
     if (Str.equivalence(canonicalDir, canonicalOutput)) {
-      return yield* new FilesCommandError({
+      return yield* FilesCommandError.make({
         message: `Refusing to normalize into the source directory: "${outputDirectory}"`,
       });
     }
   }
 
   if (Str.equivalence(directory, outputDirectory)) {
-    return yield* new FilesCommandError({
+    return yield* FilesCommandError.make({
       message: `Refusing to normalize into the source directory: "${outputDirectory}"`,
     });
   }
@@ -865,14 +846,14 @@ const validateArchiveDirectories = Effect.fn("Files.validateArchiveDirectories")
       );
 
     if (Str.equivalence(canonicalDir, canonicalArchive)) {
-      return yield* new FilesCommandError({
+      return yield* FilesCommandError.make({
         message: `Refusing to archive into the source directory: "${archiveDirectory}"`,
       });
     }
   }
 
   if (Str.equivalence(directory, archiveDirectory)) {
-    return yield* new FilesCommandError({
+    return yield* FilesCommandError.make({
       message: `Refusing to archive into the source directory: "${archiveDirectory}"`,
     });
   }
@@ -1797,11 +1778,7 @@ const probeImageDimensions = Effect.fn("Files.probeImageDimensions")(function* (
 ): Effect.fn.Return<MediaDimensions, FilesCommandError> {
   const rawMetadata = yield* Effect.tryPromise({
     try: () => imageSizeFromFile(file.sourcePath),
-    catch: (cause) =>
-      FilesCommandError.make({
-        message: `Failed to probe image dimensions for "${file.sourcePath}"`,
-        cause,
-      }),
+    catch: FilesCommandError.new(`Failed to probe image dimensions for "${file.sourcePath}"`),
   });
   const metadata = yield* decodeImageSizeMetadata(rawMetadata).pipe(
     Effect.mapError(() =>
@@ -1858,11 +1835,8 @@ const runFfprobe = Effect.fn("Files.runFfprobe")(function* (
       return { exitCode, stderr, stdout };
     })
   ).pipe(
-    Effect.mapError((cause) =>
-      FilesCommandError.make({
-        message: `Failed to run ffprobe for "${file.sourcePath}". Install ffprobe or run without --with-dimensions.`,
-        cause,
-      })
+    FilesCommandError.mapError(
+      `Failed to run ffprobe for "${file.sourcePath}". Install ffprobe or run without --with-dimensions.`
     )
   );
 
@@ -1957,11 +1931,7 @@ const readImagePixelsForBorderDetection = Effect.fn("Files.readImagePixelsForBor
         .toColorspace("srgb")
         .raw()
         .toBuffer({ resolveWithObject: true }),
-    catch: (cause) =>
-      FilesCommandError.make({
-        message: `Failed to decode image pixels for "${file.sourcePath}"`,
-        cause,
-      }),
+    catch: FilesCommandError.new(`Failed to decode image pixels for "${file.sourcePath}"`),
   });
 
   if (result.info.width < 1 || result.info.height < 1 || result.info.channels < 3) {
@@ -2571,11 +2541,7 @@ const normalizeImageToTemp = Effect.fn("Files.normalizeImageToTemp")(function* (
         : source;
       return resized.toFormat(sharpFormatForNormalize(entry.format)).toFile(tempPath);
     },
-    catch: (cause) =>
-      FilesCommandError.make({
-        message: `Failed to normalize image "${entry.sourcePath}"`,
-        cause,
-      }),
+    catch: FilesCommandError.new(`Failed to normalize image "${entry.sourcePath}"`),
   }).pipe(Effect.asVoid);
 });
 
@@ -2612,11 +2578,7 @@ const hashFileSha256 = Effect.fn("Files.hashFileSha256")(function* (
 
         return `sha256:${hex}`;
       }),
-    catch: (cause) =>
-      FilesCommandError.make({
-        message: `Failed to hash normalized file "${filePath}"`,
-        cause,
-      }),
+    catch: FilesCommandError.new(`Failed to hash normalized file "${filePath}"`),
   });
 });
 
@@ -2720,21 +2682,11 @@ const renderNormalizeManifest = Effect.fn("Files.renderNormalizeManifest")(funct
   manifest: NormalizeManifest
 ): Effect.fn.Return<string, FilesCommandError, Path.Path | ChildProcessSpawner.ChildProcessSpawner> {
   const encoded = yield* encodeNormalizeManifest(manifest).pipe(
-    Effect.mapError((cause) =>
-      FilesCommandError.make({
-        message: `Failed to encode normalize manifest for "${manifestPath}"`,
-        cause,
-      })
-    )
+    FilesCommandError.mapError(`Failed to encode normalize manifest for "${manifestPath}"`)
   );
 
   return yield* renderBiomeJson(manifestPath, encoded).pipe(
-    Effect.mapError((cause) =>
-      FilesCommandError.make({
-        message: `Failed to render normalize manifest for "${manifestPath}"`,
-        cause,
-      })
-    )
+    FilesCommandError.mapError(`Failed to render normalize manifest for "${manifestPath}"`)
   );
 });
 
@@ -2768,21 +2720,11 @@ const renderArchivePoorCandidatesManifest = Effect.fn("Files.renderArchivePoorCa
   manifest: ArchivePoorCandidatesManifest
 ): Effect.fn.Return<string, FilesCommandError, Path.Path | ChildProcessSpawner.ChildProcessSpawner> {
   const encoded = yield* encodeArchivePoorCandidatesManifest(manifest).pipe(
-    Effect.mapError((cause) =>
-      FilesCommandError.make({
-        message: `Failed to encode archive manifest for "${manifestPath}"`,
-        cause,
-      })
-    )
+    FilesCommandError.mapError(`Failed to encode archive manifest for "${manifestPath}"`)
   );
 
   return yield* renderBiomeJson(manifestPath, encoded).pipe(
-    Effect.mapError((cause) =>
-      FilesCommandError.make({
-        message: `Failed to render archive manifest for "${manifestPath}"`,
-        cause,
-      })
-    )
+    FilesCommandError.mapError(`Failed to render archive manifest for "${manifestPath}"`)
   );
 });
 
@@ -2790,21 +2732,11 @@ const renderDetectBordersReportJson = Effect.fn("Files.renderDetectBordersReport
   report: DetectBordersReport
 ): Effect.fn.Return<string, FilesCommandError, Path.Path | ChildProcessSpawner.ChildProcessSpawner> {
   const encoded = yield* encodeDetectBordersReport(report).pipe(
-    Effect.mapError((cause) =>
-      FilesCommandError.make({
-        message: "Failed to encode detect-borders report",
-        cause,
-      })
-    )
+    FilesCommandError.mapError("Failed to encode detect-borders report")
   );
 
   return yield* renderBiomeJson("detect-borders-report.json", encoded).pipe(
-    Effect.mapError((cause) =>
-      FilesCommandError.make({
-        message: "Failed to render detect-borders report",
-        cause,
-      })
-    )
+    FilesCommandError.mapError("Failed to render detect-borders report")
   );
 });
 
@@ -2813,21 +2745,11 @@ const renderDetectFacesReportJson = Effect.fn("Files.renderDetectFacesReportJson
   outputPath: string
 ): Effect.fn.Return<string, FilesCommandError, Path.Path | ChildProcessSpawner.ChildProcessSpawner> {
   const encoded = yield* encodeDetectFacesReport(report).pipe(
-    Effect.mapError((cause) =>
-      FilesCommandError.make({
-        message: `Failed to encode detect-faces report for "${outputPath}"`,
-        cause,
-      })
-    )
+    FilesCommandError.mapError(`Failed to encode detect-faces report for "${outputPath}"`)
   );
 
   return yield* renderBiomeJson(outputPath, encoded).pipe(
-    Effect.mapError((cause) =>
-      FilesCommandError.make({
-        message: `Failed to render detect-faces report for "${outputPath}"`,
-        cause,
-      })
-    )
+    FilesCommandError.mapError(`Failed to render detect-faces report for "${outputPath}"`)
   );
 });
 
@@ -3215,14 +3137,13 @@ const renameOrFail: (
 ) => Effect.Effect<void, FilesCommandError, FileSystem.FileSystem> = Effect.fn("Files.renameOrFail")(
   function* (sourcePath, targetPath, tempDir) {
     const fs = yield* FileSystem.FileSystem;
-    yield* fs.rename(sourcePath, targetPath).pipe(
-      Effect.mapError((cause) =>
-        FilesCommandError.make({
-          message: `Failed to rename "${sourcePath}" to "${targetPath}". Recovery temp directory: "${tempDir}"`,
-          cause,
-        })
-      )
-    );
+    yield* fs
+      .rename(sourcePath, targetPath)
+      .pipe(
+        FilesCommandError.mapError(
+          `Failed to rename "${sourcePath}" to "${targetPath}". Recovery temp directory: "${tempDir}"`
+        )
+      );
   }
 );
 
@@ -3423,11 +3344,7 @@ const stripImageMetadataToTemp = Effect.fn("Files.stripImageMetadataToTemp")(fun
 ): Effect.fn.Return<void, FilesCommandError> {
   yield* Effect.tryPromise({
     try: () => sharp(entry.sourcePath).rotate().toFile(tempPath),
-    catch: (cause) =>
-      FilesCommandError.make({
-        message: `Failed to normalize image metadata for "${entry.sourcePath}"`,
-        cause,
-      }),
+    catch: FilesCommandError.new(`Failed to normalize image metadata for "${entry.sourcePath}"`),
   }).pipe(Effect.asVoid);
 });
 
@@ -3446,11 +3363,7 @@ const cropImageBordersToTemp = Effect.fn("Files.cropImageBordersToTemp")(functio
           width: entry.cropWidth,
         })
         .toFile(tempPath),
-    catch: (cause) =>
-      FilesCommandError.make({
-        message: `Failed to crop detected borders for "${entry.sourcePath}"`,
-        cause,
-      }),
+    catch: FilesCommandError.new(`Failed to crop detected borders for "${entry.sourcePath}"`),
   }).pipe(Effect.asVoid);
 });
 
@@ -3504,17 +3417,14 @@ const runFfmpegStripMetadata = Effect.fn("Files.runFfmpegStripMetadata")(functio
       return { exitCode, stderr, stdout };
     })
   ).pipe(
-    Effect.mapError((cause) =>
-      FilesCommandError.make({
-        message: `Failed to run ffmpeg for "${entry.sourcePath}". Install ffmpeg or remove videos from the selection.`,
-        cause,
-      })
+    FilesCommandError.mapError(
+      `Failed to run ffmpeg for "${entry.sourcePath}". Install ffmpeg or remove videos from the selection.`
     )
   );
 
   if (result.exitCode !== 0) {
     const detail = Str.equivalence(result.stderr, "") ? result.stdout : result.stderr;
-    return yield* new FilesCommandError({
+    return yield* FilesCommandError.make({
       message: `ffmpeg could not strip video metadata for "${entry.sourcePath}": ${detail}`,
     });
   }

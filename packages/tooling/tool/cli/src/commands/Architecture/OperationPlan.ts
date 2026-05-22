@@ -148,7 +148,7 @@ export const ArchitectureOperationKind = LiteralKit([
   "write-package-json",
   "ensure-file",
   "ensure-absent-path",
-] as const).pipe(
+]).pipe(
   $I.annoteSchema("ArchitectureOperationKind", {
     description: "Operation discriminator emitted by schema-versioned architecture operation plans.",
   })
@@ -175,13 +175,7 @@ export type ArchitectureOperationKind = typeof ArchitectureOperationKind.Type;
  * @category models
  * @since 0.0.0
  */
-export const ArchitectureWriterKind = LiteralKit([
-  "template",
-  "json",
-  "jsonc",
-  "package-json",
-  "ts-morph",
-] as const).pipe(
+export const ArchitectureWriterKind = LiteralKit(["template", "json", "jsonc", "package-json", "ts-morph"]).pipe(
   $I.annoteSchema("ArchitectureWriterKind", {
     description: "Writer family selected for an architecture operation-plan file operation.",
   })
@@ -212,7 +206,7 @@ export const ArchitectureOperationWriteMode = LiteralKit([
   "write-if-missing",
   "ensure-present",
   "remove-if-present",
-] as const).pipe(
+]).pipe(
   $I.annoteSchema("ArchitectureOperationWriteMode", {
     description: "Filesystem write mode used by architecture operation-plan dry-run and check output.",
   })
@@ -250,7 +244,7 @@ export const ArchitectureOperationConflictPolicy = LiteralKit([
   "skip-identical-fail-different",
   "require-present",
   "remove-existing",
-] as const).pipe(
+]).pipe(
   $I.annoteSchema("ArchitectureOperationConflictPolicy", {
     description: "Conflict behavior declared by an architecture operation before it touches the filesystem.",
   })
@@ -289,7 +283,7 @@ export const ArchitectureOperationSource = LiteralKit([
   "package-shell",
   "legacy-cleanup",
   "legacy-plan",
-] as const).pipe(
+]).pipe(
   $I.annoteSchema("ArchitectureOperationSource", {
     description: "Origin of an architecture operation within the normalized plan factory.",
   })
@@ -329,7 +323,7 @@ export const ArchitectureOperationCheckStatus = LiteralKit([
   "differing",
   "unexpected",
   "absent",
-] as const).pipe(
+]).pipe(
   $I.annoteSchema("ArchitectureOperationCheckStatus", {
     description: "Result assigned to one architecture operation during idempotency validation.",
   })
@@ -749,15 +743,60 @@ const rolePackageFiles = (
   pipe(
     roleBasePath(role),
     O.map((basePath) => [
-      AcceptedProofFile.make({ role, stage, path: `${basePath}/AGENTS.md`, writer: "template" }),
-      AcceptedProofFile.make({ role, stage, path: `${basePath}/LICENSE`, writer: "template" }),
-      AcceptedProofFile.make({ role, stage, path: `${basePath}/README.md`, writer: "template" }),
-      AcceptedProofFile.make({ role, stage, path: `${basePath}/docgen.json`, writer: "json" }),
-      AcceptedProofFile.make({ role, stage, path: `${basePath}/package.json`, writer: "package-json" }),
-      AcceptedProofFile.make({ role, stage, path: `${basePath}/tsconfig.json`, writer: "jsonc" }),
-      AcceptedProofFile.make({ role, stage, path: `${basePath}/vitest.config.ts`, writer: "template" }),
-      AcceptedProofFile.make({ role, stage, path: `${basePath}/dtslint/.gitkeep`, writer: "template" }),
-      AcceptedProofFile.make({ role, stage, path: `${basePath}/test/.gitkeep`, writer: "template" }),
+      AcceptedProofFile.make({
+        role,
+        stage,
+        path: `${basePath}/AGENTS.md`,
+        writer: "template",
+      }),
+      AcceptedProofFile.make({
+        role,
+        stage,
+        path: `${basePath}/LICENSE`,
+        writer: "template",
+      }),
+      AcceptedProofFile.make({
+        role,
+        stage,
+        path: `${basePath}/README.md`,
+        writer: "template",
+      }),
+      AcceptedProofFile.make({
+        role,
+        stage,
+        path: `${basePath}/docgen.json`,
+        writer: "json",
+      }),
+      AcceptedProofFile.make({
+        role,
+        stage,
+        path: `${basePath}/package.json`,
+        writer: "package-json",
+      }),
+      AcceptedProofFile.make({
+        role,
+        stage,
+        path: `${basePath}/tsconfig.json`,
+        writer: "jsonc",
+      }),
+      AcceptedProofFile.make({
+        role,
+        stage,
+        path: `${basePath}/vitest.config.ts`,
+        writer: "template",
+      }),
+      AcceptedProofFile.make({
+        role,
+        stage,
+        path: `${basePath}/dtslint/.gitkeep`,
+        writer: "template",
+      }),
+      AcceptedProofFile.make({
+        role,
+        stage,
+        path: `${basePath}/test/.gitkeep`,
+        writer: "template",
+      }),
     ]),
     O.getOrElse(A.empty<AcceptedProofFile>)
   );

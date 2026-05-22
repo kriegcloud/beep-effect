@@ -11,7 +11,7 @@
 import { $RepoCliId } from "@beep/identity/packages";
 import { decodeJsoncTextAs } from "@beep/schema/Jsonc";
 import { A, Str } from "@beep/utils";
-import { Effect, FileSystem, Inspectable, identity, Path } from "effect";
+import { Effect, FileSystem, identity, Path } from "effect";
 import * as Bool from "effect/Boolean";
 import { dual } from "effect/Function";
 import * as O from "effect/Option";
@@ -296,34 +296,18 @@ export const resolveBunVersions: {
 
     // Read .bun-version
     const bunVersionPath = path.join(repoRoot, ".bun-version");
-    const bunVersionFile = yield* fs.readFileString(bunVersionPath).pipe(
-      Effect.map(Str.trim),
-      Effect.mapError((e) =>
-        VersionSyncError.make({
-          message: `Failed to read .bun-version: ${Inspectable.toStringUnknown(e, 0)}`,
-          file: ".bun-version",
-        })
-      )
-    );
+    const bunVersionFile = yield* fs
+      .readFileString(bunVersionPath)
+      .pipe(Effect.map(Str.trim), VersionSyncError.mapError("Failed to read .bun-version", ".bun-version"));
 
     // Read package.json packageManager field
     const pkgJsonPath = path.join(repoRoot, "package.json");
-    const pkgJsonContent = yield* fs.readFileString(pkgJsonPath).pipe(
-      Effect.mapError((e) =>
-        VersionSyncError.make({
-          message: `Failed to read package.json: ${Inspectable.toStringUnknown(e, 0)}`,
-          file: "package.json",
-        })
-      )
-    );
+    const pkgJsonContent = yield* fs
+      .readFileString(pkgJsonPath)
+      .pipe(VersionSyncError.mapError("Failed to read package.json", "package.json"));
 
     const pkgJson = yield* decodeJsoncTextAs(BunPackageJsonDocument)(pkgJsonContent).pipe(
-      Effect.mapError((e) =>
-        VersionSyncError.make({
-          message: `Failed to parse package.json: ${e.message}`,
-          file: "package.json",
-        })
-      )
+      VersionSyncError.mapError("Failed to parse package.json", "package.json")
     );
     const packageManagerField = extractPackageManagerVersion(pkgJson.packageManager);
 
@@ -359,19 +343,9 @@ const fetchLatestBunVersion = Effect.fn(function* (): Effect.fn.Return<
         Accept: "application/vnd.github+json",
       },
     })
-    .pipe(
-      Effect.mapError((e) =>
-        NetworkUnavailableError.make({
-          message: `GitHub API request failed: ${Inspectable.toStringUnknown(e, 0)}`,
-        })
-      )
-    );
+    .pipe(NetworkUnavailableError.mapError("GitHub API request failed"));
   const body = yield* HttpClientResponse.schemaBodyJson(BunRelease)(response).pipe(
-    Effect.mapError((e) =>
-      NetworkUnavailableError.make({
-        message: `Failed to parse GitHub API response: ${Inspectable.toStringUnknown(e, 0)}`,
-      })
-    )
+    NetworkUnavailableError.mapError("Failed to parse GitHub API response")
   );
   return extractBunVersion(body.tag_name);
 });

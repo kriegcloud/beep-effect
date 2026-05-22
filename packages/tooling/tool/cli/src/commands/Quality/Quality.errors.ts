@@ -6,10 +6,26 @@
  */
 import { $RepoCliId } from "@beep/identity/packages";
 import { TaggedErrorClass } from "@beep/schema";
-import { Runtime } from "effect";
+import { Err } from "@beep/utils";
+import { Inspectable, Runtime } from "effect";
+import { dual } from "effect/Function";
+import * as O from "effect/Option";
+import * as R from "effect/Record";
 import * as S from "effect/Schema";
 
-const $I = $RepoCliId.create("commands/Quality/Quality.errors"); /**
+const $I = $RepoCliId.create("commands/Quality/Quality.errors");
+
+const messageWithCause = (message: string, cause: unknown): string =>
+  `${message}: ${Inspectable.toStringUnknown(cause, 0)}`;
+
+type QualityScriptCommandErrorOptions =
+  | undefined
+  | {
+      readonly command?: undefined | string;
+      readonly exitCode?: undefined | number;
+    };
+
+/**
  * Failure raised while validating changeset package references.
  *
  * @example
@@ -29,12 +45,34 @@ export class ChangesetGraphError extends TaggedErrorClass<ChangesetGraphError>($
   {
     message: S.String,
     file: S.optionalKey(S.String),
-    cause: S.optionalKey(S.Defect),
+    cause: S.optionalKey(S.DefectWithStack),
   },
   $I.annote("ChangesetGraphError", {
     description: "Failure raised while validating changeset package references.",
   })
-) {}
+) {
+  /**
+   * Construct a changeset graph error from a cause and context.
+   *
+   * @category constructors
+   */
+  static readonly new: {
+    (cause: unknown, message: string, file?: string): ChangesetGraphError;
+    (message: string, file?: string): (cause: unknown) => ChangesetGraphError;
+  } = dual(
+    3,
+    (cause, message, file): ChangesetGraphError =>
+      ChangesetGraphError.make({
+        cause,
+        message,
+        ...R.getSomes({
+          file: O.fromUndefinedOr(file),
+        }),
+      })
+  );
+
+  static readonly mapError = Err.mapToError(this.new);
+}
 
 /**
  * Typed failure for repo operational commands.
@@ -55,7 +93,7 @@ export class QualityScriptCommandError extends TaggedErrorClass<QualityScriptCom
     message: S.String,
     command: S.optionalKey(S.String),
     exitCode: S.optionalKey(S.Number),
-    cause: S.optionalKey(S.Defect),
+    cause: S.optionalKey(S.DefectWithStack),
   },
   $I.annote("QualityScriptCommandError", {
     description: "Failure raised while running a migrated repo operational command.",
@@ -63,6 +101,29 @@ export class QualityScriptCommandError extends TaggedErrorClass<QualityScriptCom
 ) {
   /** Process exit code reported when this error reaches the runtime boundary. */
   override readonly [Runtime.errorExitCode] = this.exitCode ?? 1;
+
+  /**
+   * Construct a quality script command error from a cause and options.
+   *
+   * @category constructors
+   */
+  static readonly new: {
+    (cause: unknown, message: string, opts?: QualityScriptCommandErrorOptions): QualityScriptCommandError;
+    (message: string, opts?: QualityScriptCommandErrorOptions): (cause: unknown) => QualityScriptCommandError;
+  } = dual(
+    3,
+    (cause, message, { command, exitCode } = {}): QualityScriptCommandError =>
+      QualityScriptCommandError.make({
+        cause,
+        message,
+        ...R.getSomes({
+          command: O.fromUndefinedOr(command),
+          exitCode: O.fromUndefinedOr(exitCode),
+        }),
+      })
+  );
+
+  static readonly mapError = Err.mapToError(this.new);
 }
 
 /**
@@ -93,6 +154,24 @@ export class QualityTaskFailed extends TaggedErrorClass<QualityTaskFailed>($I`Qu
 ) {
   /** Process exit code reported when this error reaches the runtime boundary. */
   override readonly [Runtime.errorExitCode] = this.exitCode;
+
+  /**
+   * Construct a quality task failure from the subprocess result.
+   *
+   * @category constructors
+   */
+  static readonly new: {
+    (exitCode: number, label: string, command: string): QualityTaskFailed;
+    (label: string, command: string): (exitCode: number) => QualityTaskFailed;
+  } = dual(
+    3,
+    (exitCode: number, label: string, command: string): QualityTaskFailed =>
+      QualityTaskFailed.make({ label, command, exitCode })
+  );
+
+  static readonly mapError = Err.mapToError<QualityTaskFailed, [exitCode: number, label: string, command: string]>(
+    (exitCode, label, command) => QualityTaskFailed.new(exitCode, label, command)
+  );
 }
 
 /**
@@ -129,6 +208,25 @@ export class QualityTaskGroupFailed extends TaggedErrorClass<QualityTaskGroupFai
 ) {
   /** Process exit code reported when this error reaches the runtime boundary. */
   override readonly [Runtime.errorExitCode] = this.exitCode;
+
+  /**
+   * Construct a grouped quality task failure from failed subprocesses.
+   *
+   * @category constructors
+   */
+  static readonly new: {
+    (failures: ReadonlyArray<QualityTaskFailed>, label: string, exitCode: number): QualityTaskGroupFailed;
+    (label: string, exitCode: number): (failures: ReadonlyArray<QualityTaskFailed>) => QualityTaskGroupFailed;
+  } = dual(
+    3,
+    (failures: ReadonlyArray<QualityTaskFailed>, label: string, exitCode: number): QualityTaskGroupFailed =>
+      QualityTaskGroupFailed.make({ label, exitCode, failures })
+  );
+
+  static readonly mapError = Err.mapToError<
+    QualityTaskGroupFailed,
+    [failures: ReadonlyArray<QualityTaskFailed>, label: string, exitCode: number]
+  >((failures, label, exitCode) => QualityTaskGroupFailed.new(failures, label, exitCode));
 }
 
 /**
@@ -154,7 +252,14 @@ export class QualityTaskConfigurationError extends TaggedErrorClass<QualityTaskC
   $I.annote("QualityTaskConfigurationError", {
     description: "Quality task configuration could not be resolved.",
   })
-) {}
+) {
+  static readonly new = (message: string): QualityTaskConfigurationError =>
+    QualityTaskConfigurationError.make({ message });
+
+  static readonly mapError = Err.mapCauseError<QualityTaskConfigurationError, [message: string]>((cause, message) =>
+    QualityTaskConfigurationError.new(messageWithCause(message, cause))
+  );
+}
 
 /**
  * Error raised when an unexpected quality task cause reaches the command boundary.
@@ -179,4 +284,11 @@ export class UnexpectedQualityTaskFailure extends TaggedErrorClass<UnexpectedQua
   $I.annote("UnexpectedQualityTaskFailure", {
     description: "Unexpected quality task failure preserved for the process runtime boundary.",
   })
-) {}
+) {
+  static readonly new = (message: string): UnexpectedQualityTaskFailure =>
+    UnexpectedQualityTaskFailure.make({ message });
+
+  static readonly mapError = Err.mapCauseError<UnexpectedQualityTaskFailure, [message: string]>((cause, message) =>
+    UnexpectedQualityTaskFailure.new(messageWithCause(message, cause))
+  );
+}

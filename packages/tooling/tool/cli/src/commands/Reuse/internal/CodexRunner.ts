@@ -12,6 +12,12 @@ import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
 import { CodexRunnerError } from "../Reuse.errors.js";
 
+/**
+ * Public Codex runner smoke error exports.
+ *
+ * @category errors
+ * @since 0.0.0
+ */
 export { CodexRunnerError, CodexRunnerStage } from "../Reuse.errors.js";
 
 const $I = $RepoCliId.create("commands/Reuse/internal/CodexRunner");
@@ -45,29 +51,14 @@ const causeMessage = (cause: unknown, fallback: string): string => (P.isError(ca
  */
 export const runCodexSmoke: Effect.Effect<CodexSmokeResult, CodexRunnerError, FileSystem.FileSystem> = Effect.gen(
   function* () {
-    const repoRoot = yield* findRepoRoot().pipe(
-      Effect.mapError((cause) =>
-        CodexRunnerError.make({
-          stage: "findRepoRoot",
-          message: cause.message,
-        })
-      )
-    );
+    const repoRoot = yield* findRepoRoot().pipe(CodexRunnerError.mapError("findRepoRoot"));
     const sdkModule = yield* Effect.tryPromise({
       try: () => import("@openai/codex-sdk"),
-      catch: (cause) =>
-        CodexRunnerError.make({
-          stage: "import",
-          message: causeMessage(cause, "Failed to import @openai/codex-sdk"),
-        }),
+      catch: (cause) => CodexRunnerError.new("import", causeMessage(cause, "Failed to import @openai/codex-sdk")),
     });
     const codex = yield* Effect.try({
       try: () => new sdkModule.Codex(),
-      catch: (cause) =>
-        CodexRunnerError.make({
-          stage: "construct",
-          message: causeMessage(cause, "Failed to construct Codex SDK client"),
-        }),
+      catch: (cause) => CodexRunnerError.new("construct", causeMessage(cause, "Failed to construct Codex SDK client")),
     });
     const thread = yield* Effect.tryPromise({
       try: () =>
@@ -77,11 +68,7 @@ export const runCodexSmoke: Effect.Effect<CodexSmokeResult, CodexRunnerError, Fi
             skipGitRepoCheck: true,
           })
         ),
-      catch: (cause) =>
-        CodexRunnerError.make({
-          stage: "startThread",
-          message: causeMessage(cause, "Failed to start Codex SDK thread"),
-        }),
+      catch: (cause) => CodexRunnerError.new("startThread", causeMessage(cause, "Failed to start Codex SDK thread")),
     });
 
     return CodexSmokeResult.make({

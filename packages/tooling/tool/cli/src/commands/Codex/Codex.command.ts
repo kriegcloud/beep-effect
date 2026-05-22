@@ -46,9 +46,7 @@ initiative summary.
 export const runCodexQualityReviewFixLoop = Effect.fn("Codex.runCodexQualityReviewFixLoop")(function* (
   summaryParts: ReadonlyArray<string>
 ): Effect.fn.Return<void, CodexCommandError, FileSystem.FileSystem | ChildProcessSpawner.ChildProcessSpawner> {
-  const repoRoot = yield* findRepoRoot().pipe(
-    Effect.mapError((cause) => CodexCommandError.make({ message: "Failed to locate repository root.", cause }))
-  );
+  const repoRoot = yield* findRepoRoot().pipe(CodexCommandError.mapError("Failed to locate repository root."));
   const initiativeSummary = A.isReadonlyArrayEmpty(summaryParts) ? defaultInitiativeSummary : A.join(summaryParts, " ");
   const prompt = qualityReviewPrompt(initiativeSummary);
   const exitCode = yield* Effect.scoped(
@@ -62,14 +60,7 @@ export const runCodexQualityReviewFixLoop = Effect.fn("Codex.runCodexQualityRevi
 
       return yield* handle.exitCode;
     })
-  ).pipe(
-    Effect.mapError((cause) =>
-      CodexCommandError.make({
-        message: "Failed to spawn codex quality-review-fix-loop.",
-        cause,
-      })
-    )
-  );
+  ).pipe(CodexCommandError.mapError("Failed to spawn codex quality-review-fix-loop."));
 
   if (exitCode !== 0) {
     return yield* CodexCommandError.make({

@@ -161,10 +161,14 @@ const targetFlag = Flag.choiceWithValue("target", [
   ["local", AiMetricsDeployTarget.Enum.local],
   ["dankserver", AiMetricsDeployTarget.Enum.dankserver],
 ]).pipe(Flag.withDefault(AiMetricsDeployTarget.Enum.local), Flag.withDescription("Install or forwarder target"));
-const mirrorTargetFlag = Flag.choiceWithValue("target", [
-  ["local", AiMetricsDeployTarget.Enum.local],
-  ["dankserver", AiMetricsDeployTarget.Enum.dankserver],
-]).pipe(Flag.withDefault(AiMetricsDeployTarget.Enum.dankserver), Flag.withDescription("Mirror bundle target"));
+const mirrorTargetFlag = pipe(
+  Flag.choiceWithValue("target", [
+    ["local", AiMetricsDeployTarget.Enum.local],
+    ["dankserver", AiMetricsDeployTarget.Enum.dankserver],
+  ]),
+  Flag.withDefault(AiMetricsDeployTarget.Enum.dankserver),
+  Flag.withDescription("Mirror bundle target")
+);
 const sourceFlag = Flag.choiceWithValue("source", [
   ["codex", AiMetricsTranscriptSource.Enum.codex],
   ["claude", AiMetricsTranscriptSource.Enum.claude],
@@ -214,36 +218,47 @@ const qualityGateFlag = Flag.choiceWithValue("quality-gate", [
   ["not_run", AiMetricsQualityGateStatus.Enum.not_run],
   ["unknown", AiMetricsQualityGateStatus.Enum.unknown],
 ]).pipe(Flag.withDefault(AiMetricsQualityGateStatus.Enum.unknown), Flag.withDescription("Quality-gate outcome"));
+
 const noteFlag = Flag.string("note").pipe(Flag.withDescription("Optional redacted human note"), Flag.optional);
+
 const repoRootFlag = Flag.string("repo-root").pipe(Flag.withDescription("Repository root path"), Flag.optional);
+
 const homeDirFlag = Flag.string("home-dir").pipe(Flag.withDescription("Home directory to scan"), Flag.optional);
+
 const sinceFlag = Flag.string("since").pipe(
   Flag.withDescription("Only include files modified since this ISO timestamp or epoch milliseconds"),
   Flag.optional
 );
+
 const untilFlag = Flag.string("until").pipe(
   Flag.withDescription("Only include records before this ISO timestamp or epoch milliseconds"),
   Flag.optional
 );
+
 const beforeFlag = Flag.string("before").pipe(
   Flag.withDescription("Retention upper-bound ISO timestamp or epoch milliseconds"),
   Flag.optional
 );
+
 const allFlag = Flag.boolean("all").pipe(
   Flag.withDescription("Scan all matching source files instead of the default 7 days")
 );
+
 const maxFilesFlag = Flag.integer("max-files").pipe(
   Flag.withDefault(200),
   Flag.withDescription("Maximum files to report per transcript source")
 );
+
 const maxFileBytesFlag = Flag.integer("max-file-bytes").pipe(
   Flag.withDescription("Skip transcript source files larger than this byte count"),
   Flag.optional
 );
+
 const timerMaxFilesFlag = Flag.integer("max-files").pipe(
   Flag.withDefault(5),
   Flag.withDescription("Maximum files per transcript source for each scheduled forwarder run")
 );
+
 const timerMaxFileBytesFlag = Flag.integer("max-file-bytes").pipe(
   Flag.withDefault(8_388_608),
   Flag.withDescription("Maximum source-file byte size for each scheduled forwarder run")
@@ -286,14 +301,18 @@ const openClawUnitFlag = Flag.string("openclaw-unit").pipe(
   Flag.withDescription("OpenClaw user systemd unit path"),
   Flag.optional
 );
+
 const otlpFlag = Flag.boolean("otlp").pipe(Flag.withDescription("Enable explicit OTLP trace export for this command"));
+
 const dryRunFlag = Flag.boolean("dry-run").pipe(
   Flag.withDescription("Preview install apply steps without changing local or remote state")
 );
+
 const otlpBaseUrlFlag = Flag.string("otlp-base-url").pipe(
   Flag.withDescription("Override the install spec OTLP base URL"),
   Flag.optional
 );
+
 const ingestRunFlag = Flag.string("ingest-run").pipe(
   Flag.withDefault("latest"),
   Flag.withDescription("Derived ingest run id to export, or latest")
@@ -348,7 +367,7 @@ const runAiMetricsProgram = <A, R>(
 const readOptionalConfigString: (key: string) => Effect.Effect<O.Option<string>, AiMetricsCommandError> = Effect.fn(
   "AIMetrics.readOptionalConfigString"
 )((key) =>
-  ConfigProvider.ConfigProvider.use((provider) => Config.option(Config.string(key)).parse(provider)).pipe(
+  ConfigProvider.ConfigProvider.use(pipe(Config.string(key), Config.option).parse).pipe(
     AiMetricsCommandError.mapError(`Failed to read ${key} from the Effect config provider.`)
   )
 );
@@ -358,7 +377,7 @@ const readOptionalRedactedConfigString: (
 ) => Effect.Effect<O.Option<Redacted.Redacted<string>>, AiMetricsCommandError> = Effect.fn(
   "AIMetrics.readOptionalRedactedConfigString"
 )((key) =>
-  ConfigProvider.ConfigProvider.use((provider) => Config.option(Config.redacted(key)).parse(provider)).pipe(
+  ConfigProvider.ConfigProvider.use(pipe(key, Config.redacted, Config.option).parse).pipe(
     AiMetricsCommandError.mapError(`Failed to read ${key} from the Effect config provider.`)
   )
 );
@@ -579,7 +598,11 @@ const parseRetentionSelector = Effect.fn("AIMetrics.parseRetentionSelector")(fun
 
   return AiMetricsRetentionSelector.make({
     dataRoot: O.getOrElse(dataRoot, () => localCollectorDataRoot),
-    ...R.getSomes({ beforeEpochMillis, sinceEpochMillis, untilEpochMillis }),
+    ...R.getSomes({
+      beforeEpochMillis,
+      sinceEpochMillis,
+      untilEpochMillis,
+    }),
   });
 });
 
@@ -999,14 +1022,7 @@ const collectJsonlInputFiles = Effect.fn("AIMetrics.collectJsonlInputFiles")(fun
 ): Effect.fn.Return<ReadonlyArray<string>, AiMetricsCommandError, FileSystem.FileSystem | Path.Path> {
   const fs = yield* FileSystem.FileSystem;
   const path = yield* Path.Path;
-  const stat = yield* fs.stat(inputPath).pipe(
-    Effect.mapError((cause) =>
-      AiMetricsCommandError.make({
-        cause,
-        message: "Failed to inspect privacy input.",
-      })
-    )
-  );
+  const stat = yield* fs.stat(inputPath).pipe(AiMetricsCommandError.mapError("Failed to inspect privacy input."));
 
   if (stat.type === "File") {
     return [inputPath];
@@ -1054,15 +1070,7 @@ const readPrivacyInput = Effect.fn("AIMetrics.readPrivacyInput")(function* (inpu
   const files = yield* collectJsonlInputFiles(absolutePath);
   const chunks = yield* Effect.forEach(
     files,
-    (filePath) =>
-      fs.readFileString(filePath).pipe(
-        Effect.mapError((cause) =>
-          AiMetricsCommandError.make({
-            cause,
-            message: "Failed to read transcript input.",
-          })
-        )
-      ),
+    (filePath) => fs.readFileString(filePath).pipe(AiMetricsCommandError.mapError("Failed to read transcript input.")),
     { concurrency: 8 }
   );
 
@@ -1976,21 +1984,11 @@ const resolveMirrorBundleDir = Effect.fn("AIMetrics.resolveMirrorBundleDir")(fun
 
 const readMirrorManifest = Effect.fn("AIMetrics.readMirrorManifest")(function* (manifestPath: string) {
   const fs = yield* FileSystem.FileSystem;
-  const content = yield* fs.readFileString(manifestPath).pipe(
-    Effect.mapError((cause) =>
-      AiMetricsCommandError.make({
-        cause,
-        message: "Failed to read AI metrics mirror manifest JSON.",
-      })
-    )
-  );
+  const content = yield* fs
+    .readFileString(manifestPath)
+    .pipe(AiMetricsCommandError.mapError("Failed to read AI metrics mirror manifest JSON."));
   return yield* decodeMirrorManifestJson(content).pipe(
-    Effect.mapError((cause) =>
-      AiMetricsCommandError.make({
-        cause,
-        message: "Failed to parse AI metrics mirror manifest JSON.",
-      })
-    )
+    AiMetricsCommandError.mapError("Failed to parse AI metrics mirror manifest JSON.")
   );
 });
 
@@ -2052,14 +2050,9 @@ const listMirrorBundleFiles = Effect.fn("AIMetrics.listMirrorBundleFiles")(funct
   const walk = Effect.fnUntraced(function* (
     currentPath: string
   ): Effect.fn.Return<ReadonlyArray<string>, AiMetricsCommandError, FileSystem.FileSystem | Path.Path> {
-    const stat = yield* fs.stat(currentPath).pipe(
-      Effect.mapError((cause) =>
-        AiMetricsCommandError.make({
-          cause,
-          message: "Failed to inspect AI metrics mirror bundle file inventory.",
-        })
-      )
-    );
+    const stat = yield* fs
+      .stat(currentPath)
+      .pipe(AiMetricsCommandError.mapError("Failed to inspect AI metrics mirror bundle file inventory."));
     if (stat.type === "File") {
       return [pipe(path.relative(bundleDir, currentPath), Str.replace(/\\/gu, "/"))];
     }
@@ -2067,14 +2060,9 @@ const listMirrorBundleFiles = Effect.fn("AIMetrics.listMirrorBundleFiles")(funct
       return A.empty<string>();
     }
 
-    const entries = yield* fs.readDirectory(currentPath).pipe(
-      Effect.mapError((cause) =>
-        AiMetricsCommandError.make({
-          cause,
-          message: "Failed to read AI metrics mirror bundle file inventory.",
-        })
-      )
-    );
+    const entries = yield* fs
+      .readDirectory(currentPath)
+      .pipe(AiMetricsCommandError.mapError("Failed to read AI metrics mirror bundle file inventory."));
     const nested = yield* Effect.forEach(entries, (entry) => walk(path.join(currentPath, entry)), { concurrency: 8 });
     return A.flatten(nested);
   });
@@ -2256,12 +2244,7 @@ const makeMirrorStatusProgram = Effect.fn("AIMetrics.makeMirrorStatusProgram")(f
   const manifestPath = `${remoteRoot}/manifest.json`;
   const captured = yield* runCapturedCommand("ssh", [host, `cat ${shellQuote(manifestPath)}`]);
   const manifest = yield* decodeMirrorManifestJson(captured.stdout).pipe(
-    Effect.mapError((cause) =>
-      AiMetricsCommandError.make({
-        cause,
-        message: "Failed to parse remote AI metrics mirror manifest JSON.",
-      })
-    )
+    AiMetricsCommandError.mapError("Failed to parse remote AI metrics mirror manifest JSON.")
   );
   yield* requireSafeMirrorManifest({
     manifest,
@@ -2475,25 +2458,16 @@ const makeArchiveDrillProgram = Effect.fn("AIMetrics.makeArchiveDrillProgram")(f
           const duckdb = yield* DuckDb;
           const rows = yield* duckdb
             .query(`SELECT archive_object_id      AS "archiveObjectId",
-                         archive_path           AS "archivePath",
-                         plaintext_content_hash AS "plaintextContentHash"
-                  FROM ai_metrics_raw_archive_objects
-                  ORDER BY encrypted_at_epoch_ms DESC LIMIT 1`)
+                           archive_path           AS "archivePath",
+                           plaintext_content_hash AS "plaintextContentHash"
+                    FROM ai_metrics_raw_archive_objects
+                    ORDER BY encrypted_at_epoch_ms
+                      DESC LIMIT 1`)
             .pipe(
-              Effect.mapError((cause) =>
-                AiMetricsCommandError.make({
-                  cause,
-                  message: "Failed to select an AI metrics archive object for the decrypt drill.",
-                })
-              )
+              AiMetricsCommandError.mapError("Failed to select an AI metrics archive object for the decrypt drill.")
             );
           const decoded = yield* decodeArchiveDrillRows(rows).pipe(
-            Effect.mapError((cause) =>
-              AiMetricsCommandError.make({
-                cause,
-                message: "Failed to decode AI metrics archive drill rows.",
-              })
-            )
+            AiMetricsCommandError.mapError("Failed to decode AI metrics archive drill rows.")
           );
           const row = A.head(decoded);
           if (O.isNone(row)) {

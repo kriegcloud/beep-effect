@@ -6,9 +6,13 @@
  */
 import { $RepoCliId } from "@beep/identity/packages";
 import { TaggedErrorClass } from "@beep/schema";
+import { Err } from "@beep/utils";
+import { dual } from "effect/Function";
 import * as S from "effect/Schema";
 
-const $I = $RepoCliId.create("commands/TsconfigSync/TsconfigSync.errors"); /**
+const $I = $RepoCliId.create("commands/TsconfigSync/TsconfigSync.errors");
+
+/**
  * Drift error raised in check mode when changes are required.
  *
  * @category utilities
@@ -24,7 +28,28 @@ export class TsconfigSyncDriftError extends TaggedErrorClass<TsconfigSyncDriftEr
     title: "Tsconfig Sync Drift Error",
     description: "Raised when tsconfig-sync --check detects one or more files that are out of sync.",
   })
-) {}
+) {
+  /**
+   * Construct a tsconfig drift error from the changed file count.
+   *
+   * @category constructors
+   */
+  static readonly new: {
+    (fileCount: number, summary: string): TsconfigSyncDriftError;
+    (summary: string): (fileCount: number) => TsconfigSyncDriftError;
+  } = dual(
+    2,
+    (fileCount: number, summary: string): TsconfigSyncDriftError =>
+      TsconfigSyncDriftError.make({
+        fileCount,
+        summary,
+      })
+  );
+
+  static readonly mapError = Err.mapToError<TsconfigSyncDriftError, [fileCount: number, summary: string]>(
+    (fileCount, summary) => TsconfigSyncDriftError.new(fileCount, summary)
+  );
+}
 
 /**
  * Cycle error raised when workspace dependency cycles are detected.
@@ -42,7 +67,28 @@ export class TsconfigSyncCycleError extends TaggedErrorClass<TsconfigSyncCycleEr
     title: "Tsconfig Sync Cycle Error",
     description: "Raised when workspace dependency graph contains one or more cycles.",
   })
-) {}
+) {
+  /**
+   * Construct a tsconfig cycle error from detected workspace cycles.
+   *
+   * @category constructors
+   */
+  static readonly new: {
+    (cycles: string[][], message: string): TsconfigSyncCycleError;
+    (message: string): (cycles: string[][]) => TsconfigSyncCycleError;
+  } = dual(
+    2,
+    (cycles: string[][], message: string): TsconfigSyncCycleError =>
+      TsconfigSyncCycleError.make({
+        cycles,
+        message,
+      })
+  );
+
+  static readonly mapError = Err.mapToError<TsconfigSyncCycleError, [cycles: string[][], message: string]>(
+    (cycles, message) => TsconfigSyncCycleError.new(cycles, message)
+  );
+}
 
 /**
  * Filter error raised when `--filter` does not match any workspace package.
@@ -60,4 +106,25 @@ export class TsconfigSyncFilterError extends TaggedErrorClass<TsconfigSyncFilter
     title: "Tsconfig Sync Filter Error",
     description: "Raised when tsconfig-sync filter does not match any workspace package name or path.",
   })
-) {}
+) {
+  /**
+   * Construct a tsconfig filter error from the unmatched filter.
+   *
+   * @category constructors
+   */
+  static readonly new: {
+    (filter: string, message: string): TsconfigSyncFilterError;
+    (message: string): (filter: string) => TsconfigSyncFilterError;
+  } = dual(
+    2,
+    (filter: string, message: string): TsconfigSyncFilterError =>
+      TsconfigSyncFilterError.make({
+        filter,
+        message,
+      })
+  );
+
+  static readonly mapError = Err.mapToError<TsconfigSyncFilterError, [filter: string, message: string]>(
+    (filter, message) => TsconfigSyncFilterError.new(filter, message)
+  );
+}

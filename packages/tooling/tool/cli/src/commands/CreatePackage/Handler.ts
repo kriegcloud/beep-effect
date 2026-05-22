@@ -163,10 +163,15 @@ const decodeToolingKindEffect = (input: unknown) =>
 const PackageKind = S.Union([FoundationKind, ToolingKind]);
 type PackageKind = typeof PackageKind.Type;
 
-type BeepPackageMetadata = {
-  readonly family: PackageFamily;
-  readonly kind?: PackageKind;
-};
+class BeepPackageMetadata extends S.Class<BeepPackageMetadata>($I`BeepPackageMetadata`)(
+  {
+    family: PackageFamily,
+    kind: S.optionalKey(PackageKind),
+  },
+  $I.annote("BeepPackageMetadata", {
+    description: "Metadata for a Beep package, including its family and optional kind.",
+  })
+) {}
 
 const ParentDir = S.String.check(S.isPattern(PARENT_DIR_PATTERN)).pipe(
   S.brand("ParentDir"),
@@ -195,15 +200,33 @@ const isPackageName = S.is(PackageName);
  * @since 0.0.0
  */
 const TEMPLATE_SPECS: ReadonlyArray<TemplateSpec> = [
-  TemplateSpec.make({ templateName: "tsconfig.json.hbs", outputPath: "tsconfig.json" }),
-  TemplateSpec.make({ templateName: "tsconfig.test.json.hbs", outputPath: "tsconfig.test.json" }),
-  TemplateSpec.make({ templateName: "src-index.ts.hbs", outputPath: "src/index.ts" }),
+  TemplateSpec.make({
+    templateName: "tsconfig.json.hbs",
+    outputPath: "tsconfig.json",
+  }),
+  TemplateSpec.make({
+    templateName: "tsconfig.test.json.hbs",
+    outputPath: "tsconfig.test.json",
+  }),
+  TemplateSpec.make({
+    templateName: "src-index.ts.hbs",
+    outputPath: "src/index.ts",
+  }),
   TemplateSpec.make({ templateName: "LICENSE.hbs", outputPath: "LICENSE" }),
   TemplateSpec.make({ templateName: "README.md.hbs", outputPath: "README.md" }),
   TemplateSpec.make({ templateName: "AGENTS.md.hbs", outputPath: "AGENTS.md" }),
-  TemplateSpec.make({ templateName: "docgen.json.hbs", outputPath: "docgen.json" }),
-  TemplateSpec.make({ templateName: "vitest.config.ts.hbs", outputPath: "vitest.config.ts" }),
-  TemplateSpec.make({ templateName: "docs-index.md.hbs", outputPath: "docs/index.md" }),
+  TemplateSpec.make({
+    templateName: "docgen.json.hbs",
+    outputPath: "docgen.json",
+  }),
+  TemplateSpec.make({
+    templateName: "vitest.config.ts.hbs",
+    outputPath: "vitest.config.ts",
+  }),
+  TemplateSpec.make({
+    templateName: "docs-index.md.hbs",
+    outputPath: "docs/index.md",
+  }),
 ];
 
 /**
@@ -326,7 +349,12 @@ const readRootPackageJsonDocument = Effect.fn(function* (repoRoot: string) {
 });
 
 const workspacePatternsFromPackageJson = (
-  workspaces: O.Option<ReadonlyArray<string> | { readonly packages?: ReadonlyArray<string> }>
+  workspaces: O.Option<
+    | ReadonlyArray<string>
+    | {
+        readonly packages?: ReadonlyArray<string>;
+      }
+  >
 ): ReadonlyArray<string> => {
   if (O.isNone(workspaces)) {
     return A.empty();
@@ -351,7 +379,10 @@ const workspacePatternsFromPackageJson = (
 
 const pathSegments: (value: string) => ReadonlyArray<string> = flow(Str.split("/"), A.filter(Str.isNonEmpty));
 
-const matchesWorkspacePattern = (pattern: string, targetPath: string): boolean => {
+const matchesWorkspacePattern: {
+  (pattern: string, targetPath: string): boolean;
+  (targetPath: string): (pattern: string) => boolean;
+} = dual(2, (pattern: string, targetPath: string): boolean => {
   const patternSegments = pathSegments(pattern);
   const targetSegments = pathSegments(targetPath);
 
@@ -364,10 +395,10 @@ const matchesWorkspacePattern = (pattern: string, targetPath: string): boolean =
     ([patternSegment, targetSegment]) =>
       Str.equivalence(patternSegment, "*") || Str.equivalence(patternSegment, targetSegment)
   );
-};
+});
 
 const isPathCoveredByWorkspacePatterns = (patterns: ReadonlyArray<string>, targetPath: string): boolean =>
-  A.some(patterns, (pattern) => matchesWorkspacePattern(pattern, targetPath));
+  A.some(patterns, matchesWorkspacePattern(targetPath));
 
 const applyJsoncModification = (
   content: string,
@@ -492,7 +523,7 @@ const ensureIdentityPackageRegistration = Effect.fn(function* (identityPackagesF
       A.map((literal) => literal.getLiteralText())
     );
 
-    if (!A.some(existingSegments, (segment) => Str.equivalence(segment, packageName))) {
+    if (!A.some(existingSegments, Str.equivalence(packageName))) {
       composersCall.addArgument(`"${packageName}"`);
     }
 
@@ -786,8 +817,18 @@ export const createPackageCommand = Command.make(
         directories: PACKAGE_DIRECTORIES,
         files: pipe(
           A.make(
-            A.of(PlannedFile.make({ relativePath: "package.json", content: packageJson })),
-            A.map(templateFiles, (file) => PlannedFile.make({ relativePath: file.outputPath, content: file.content })),
+            A.of(
+              PlannedFile.make({
+                relativePath: "package.json",
+                content: packageJson,
+              })
+            ),
+            A.map(templateFiles, (file) =>
+              PlannedFile.make({
+                relativePath: file.outputPath,
+                content: file.content,
+              })
+            ),
             [
               PlannedFile.make({ relativePath: "test/.gitkeep", content: "" }),
               PlannedFile.make({ relativePath: "dtslint/.gitkeep", content: "" }),
@@ -795,7 +836,12 @@ export const createPackageCommand = Command.make(
           ),
           A.flatten
         ),
-        symlinks: A.of(PlannedSymlink.make({ relativePath: "CLAUDE.md", target: "AGENTS.md" })),
+        symlinks: A.of(
+          PlannedSymlink.make({
+            relativePath: "CLAUDE.md",
+            target: "AGENTS.md",
+          })
+        ),
       })
     );
 

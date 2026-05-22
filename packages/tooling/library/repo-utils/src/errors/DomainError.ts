@@ -33,7 +33,7 @@ export class DomainError extends TaggedErrorClass<DomainError>($I`DomainError`)(
   "DomainError",
   {
     message: S.String,
-    cause: S.optionalKey(S.Defect),
+    cause: S.optionalKey(S.DefectWithStack),
   },
   $I.annote("DomainError", {
     title: "Domain Error",

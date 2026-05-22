@@ -1348,12 +1348,7 @@ const resolveTargetWorkspacesForPackageSync = (
   });
 
   if (filter !== undefined && A.isArrayEmpty(targetWorkspaces)) {
-    return Effect.fail(
-      TsconfigSyncFilterError.make({
-        filter,
-        message: `No workspace matched filter "${filter}"`,
-      })
-    );
+    return Effect.fail(TsconfigSyncFilterError.new(filter, `No workspace matched filter "${filter}"`));
   }
 
   return Effect.succeed(targetWorkspaces);
@@ -1662,10 +1657,10 @@ export const syncTsconfigAtRoot: {
     const cycles = yield* detectCycles(adjacency);
 
     if (!A.isReadonlyArrayEmpty(cycles)) {
-      return yield* TsconfigSyncCycleError.make({
-        cycles: A.map(cycles, (cycle) => [...cycle]),
-        message: `Detected ${cycles.length} workspace dependency cycle(s)`,
-      });
+      return yield* TsconfigSyncCycleError.new(
+        A.map(cycles, (cycle) => [...cycle]),
+        `Detected ${cycles.length} workspace dependency cycle(s)`
+      );
     }
 
     const plannedChanges = A.empty<PlannedFileChange>();
@@ -1720,10 +1715,10 @@ export const syncTsconfigAtRoot: {
     yield* renderChanges(rootDir, options.mode, reportedChanges);
 
     if (tsconfigSyncModeEquivalence(options.mode, "check") && !A.isArrayEmpty(reportedChanges)) {
-      return yield* TsconfigSyncDriftError.make({
-        fileCount: reportedChanges.length,
-        summary: `Run "beep tsconfig-sync" to apply ${reportedChanges.length} change(s).`,
-      });
+      return yield* TsconfigSyncDriftError.new(
+        reportedChanges.length,
+        `Run "beep tsconfig-sync" to apply ${reportedChanges.length} change(s).`
+      );
     }
 
     const result: TsconfigSyncResult = TsconfigSyncModeMatch(options.mode, {

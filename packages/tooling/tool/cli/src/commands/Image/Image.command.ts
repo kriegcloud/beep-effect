@@ -75,11 +75,8 @@ const runExtractFramesCommand = Effect.fn("ImageCommand.runExtractFramesCommand"
   options: unknown
 ): Effect.fn.Return<void, FFmpegError | ImageCommandError, ImageCommandService> {
   const decoded = yield* decodeExtractFramesOptions(options).pipe(
-    Effect.mapError((cause) =>
-      ImageCommandError.make({
-        message: "Invalid image extract-frames options. Expected a video, output directory, and positive FPS.",
-        cause,
-      })
+    ImageCommandError.mapError(
+      "Invalid image extract-frames options. Expected a video, output directory, and positive FPS."
     )
   );
   const image = yield* ImageCommandService;
@@ -91,12 +88,7 @@ const runExtractFramesDirCommand = Effect.fn("ImageCommand.runExtractFramesDirCo
   options: unknown
 ): Effect.fn.Return<void, ImageCommandError, ImageCommandService> {
   const decoded = yield* decodeExtractFramesDirOptions(options).pipe(
-    Effect.mapError((cause) =>
-      ImageCommandError.make({
-        message: "Invalid image extract-frames-dir options. Expected a directory and positive FPS.",
-        cause,
-      })
-    )
+    ImageCommandError.mapError("Invalid image extract-frames-dir options. Expected a directory and positive FPS.")
   );
   const image = yield* ImageCommandService;
   const result = yield* image.extractFramesDir(decoded);

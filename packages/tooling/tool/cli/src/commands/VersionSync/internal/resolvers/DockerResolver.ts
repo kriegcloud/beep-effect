@@ -11,17 +11,7 @@
 import { $RepoCliId } from "@beep/identity/packages";
 import { decodeYamlTextAs } from "@beep/schema/Yaml";
 import { A, Str, thunkFalse } from "@beep/utils";
-import {
-  Effect,
-  FileSystem,
-  Inspectable,
-  identity,
-  Match,
-  Number as N,
-  Order,
-  Path,
-  SchemaTransformation,
-} from "effect";
+import { Effect, FileSystem, identity, Match, Number as N, Order, Path, SchemaTransformation } from "effect";
 import * as Bool from "effect/Boolean";
 import { dual } from "effect/Function";
 import * as O from "effect/Option";
@@ -344,22 +334,12 @@ export const resolveDockerImages: {
       return DockerImageState.make({});
     }
 
-    const content = yield* fs.readFileString(composePath).pipe(
-      Effect.mapError((e) =>
-        VersionSyncError.make({
-          message: `Failed to read docker-compose.yml: ${Inspectable.toStringUnknown(e, 0)}`,
-          file: "docker-compose.yml",
-        })
-      )
-    );
+    const content = yield* fs
+      .readFileString(composePath)
+      .pipe(VersionSyncError.mapError("Failed to read docker-compose.yml", "docker-compose.yml"));
 
     const composeDocument = yield* decodeYamlTextAs(DockerComposeDocument)(content).pipe(
-      Effect.mapError((e) =>
-        VersionSyncError.make({
-          message: `Failed to parse docker-compose.yml: ${e.message}`,
-          file: "docker-compose.yml",
-        })
-      )
+      VersionSyncError.mapError("Failed to parse docker-compose.yml", "docker-compose.yml")
     );
 
     let images = A.empty<DockerImageElement>();
@@ -401,20 +381,12 @@ const fetchLatestDockerTag: (
   const client = yield* HttpClient.HttpClient;
   const url = dockerHubTagsUrl(ref.repository);
 
-  const response = yield* client.get(url, { headers: { "User-Agent": "beep-cli/0.0.0" } }).pipe(
-    Effect.mapError((e) =>
-      NetworkUnavailableError.make({
-        message: `Docker Hub API request failed for ${ref.repository}: ${Inspectable.toStringUnknown(e, 0)}`,
-      })
-    )
-  );
+  const response = yield* client
+    .get(url, { headers: { "User-Agent": "beep-cli/0.0.0" } })
+    .pipe(NetworkUnavailableError.mapError(`Docker Hub API request failed for ${ref.repository}`));
 
   const body = yield* HttpClientResponse.schemaBodyJson(DockerTagsResponse)(response).pipe(
-    Effect.mapError((e) =>
-      NetworkUnavailableError.make({
-        message: `Failed to parse Docker Hub response for ${ref.repository}: ${Inspectable.toStringUnknown(e, 0)}`,
-      })
-    )
+    NetworkUnavailableError.mapError(`Failed to parse Docker Hub response for ${ref.repository}`)
   );
 
   const tagNames = A.map(body.results, (r) => r.name);
@@ -429,9 +401,7 @@ const fetchLatestDockerTag: (
   );
 
   if (O.isNone(result)) {
-    return yield* NetworkUnavailableError.make({
-      message: `No suitable tag found for ${ref.repository}`,
-    });
+    return yield* NetworkUnavailableError.new(`No suitable tag found for ${ref.repository}`);
   }
 
   return result.value;

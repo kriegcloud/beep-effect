@@ -12,6 +12,12 @@ import { Effect, Tuple } from "effect";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
 
+/**
+ * Public version-sync error exports.
+ *
+ * @category errors
+ * @since 0.0.0
+ */
 export { NetworkUnavailableError, VersionSyncDriftError, VersionSyncError } from "../VersionSync.errors.js";
 
 const $I = $RepoCliId.create("commands/VersionSync/internal/Models");

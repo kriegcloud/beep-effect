@@ -50,7 +50,32 @@ export * as Bool from "./Bool.ts";
  * @since 0.0.0
  */
 export * as DateTime from "./DateTime.ts";
-
+/**
+ * Error combinators for dual `Effect.mapError` wrappers.
+ *
+ * @example
+ * ```ts
+ * import { Err } from "@beep/utils"
+ * import { Effect } from "effect"
+ *
+ * class MyError {
+ *   readonly message: string
+ *
+ *   constructor(message: string) {
+ *     this.message = message
+ *   }
+ * }
+ *
+ * const mapMyError = Err.mapToError((message: string) => new MyError(message))
+ * const error = Effect.runSync(Effect.flip(mapMyError(Effect.fail("raw"), "Mapped failure.")))
+ *
+ * console.log(error.message)
+ * ```
+ *
+ * @category utilities
+ * @since 0.0.0
+ */
+export * as Err from "./Errors.ts";
 /**
  * File-system watch helpers built on `effect/FileSystem`.
  *
@@ -65,7 +90,6 @@ export * as DateTime from "./DateTime.ts";
  * @since 0.0.0
  */
 export * as FileSystem from "./FileSystem.ts";
-
 /**
  * HTML escaping helpers.
  *
@@ -81,7 +105,6 @@ export * as FileSystem from "./FileSystem.ts";
  * @since 0.0.0
  */
 export * as Html from "./Html.ts";
-
 /**
  * Number utilities extending `effect/Number`.
  *
@@ -141,7 +164,6 @@ export * as P from "./Predicate.ts";
  * @since 0.0.0
  */
 export * from "./Random.ts";
-
 /**
  * String utilities extending `effect/String` with typed case conversions.
  *

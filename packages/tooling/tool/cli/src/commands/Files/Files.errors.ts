@@ -7,6 +7,7 @@
 
 import { $RepoCliId } from "@beep/identity/packages";
 import { TaggedErrorClass } from "@beep/schema";
+import { Err } from "@beep/utils";
 import { Effect } from "effect";
 import { dual } from "effect/Function";
 import * as S from "effect/Schema";
@@ -44,7 +45,19 @@ export class FilesCommandError extends TaggedErrorClass<FilesCommandError>($I`Fi
   $I.annote("FilesCommandError", {
     description: "A failure raised while preparing or applying a file curation operation.",
   })
-) {}
+) {
+  /**
+   * Construct a file command error from an original cause and message.
+   *
+   * @category constructors
+   */
+  static readonly new: {
+    (cause: unknown, message: string): FilesCommandError;
+    (message: string): (cause: unknown) => FilesCommandError;
+  } = dual(2, (cause: unknown, message: string): FilesCommandError => FilesCommandError.make({ cause, message }));
+
+  static readonly mapError = Err.mapToError(this.new);
+}
 
 /**
  * Convert a platform failure into a file command error.

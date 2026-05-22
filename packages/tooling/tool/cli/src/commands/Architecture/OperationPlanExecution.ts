@@ -51,7 +51,7 @@ const checkStatusFor = (
   operation: ArchitectureOperation,
   status: ArchitectureOperationCheckStatus
 ): ArchitectureOperationCheck =>
-  new ArchitectureOperationCheck({
+  ArchitectureOperationCheck.make({
     operationId: Str.equivalence(operation.operationId, "legacy-operation")
       ? operationIdFor(operation.kind, operation.path)
       : operation.operationId,

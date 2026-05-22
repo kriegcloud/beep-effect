@@ -9,7 +9,7 @@ import { $RepoCliId } from "@beep/identity/packages";
 import type { DomainError } from "@beep/repo-utils";
 import { LiteralKit } from "@beep/schema";
 import { A } from "@beep/utils";
-import { Context, Effect, Tuple } from "effect";
+import { Context, Effect, flow, Tuple } from "effect";
 import * as S from "effect/Schema";
 
 const $I = $RepoCliId.create("commands/CreatePackage/TsMorphIntegrationService");
@@ -103,6 +103,7 @@ class TsMorphMutationWireDataAccess extends S.Class<TsMorphMutationWireDataAcces
 ) {
   static readonly thunkThis = () => TsMorphMutationWireDataAccess;
 }
+
 /**
  * Input descriptor for one AST mutation.
  *
@@ -117,13 +118,12 @@ export const TsMorphMutation = TsMorphMutationKind.mapMembers(
     TsMorphMutationWirePersistence.thunkThis,
     TsMorphMutationWireDataAccess.thunkThis,
   ])
-)
-  .annotate(
-    $I.annote("TsMorphMutation", {
-      description: "Input descriptor for one AST mutation.",
-    })
-  )
-  .pipe(S.toTaggedUnion("kind"));
+).pipe(
+  S.toTaggedUnion("kind"),
+  $I.annoteSchema("TsMorphMutation", {
+    description: "Input descriptor for one AST mutation.",
+  })
+);
 
 /**
  * Input descriptor for one AST mutation.
@@ -168,12 +168,12 @@ class TsMorphMutationOutcomeSkipped extends S.Class<TsMorphMutationOutcomeSkippe
  */
 const TsMorphMutationOutcome = LiteralKit(["applied", "skipped"])
   .mapMembers(Tuple.evolve([TsMorphMutationOutcomeApplied.thunkThis, TsMorphMutationOutcomeSkipped.thunkThis]))
-  .annotate(
-    $I.annote("TsMorphMutationOutcome", {
+  .pipe(
+    S.toTaggedUnion("status"),
+    $I.annoteSchema("TsMorphMutationOutcome", {
       description: "Outcome for one mutation.",
     })
-  )
-  .pipe(S.toTaggedUnion("status"));
+  );
 
 /**
  * Outcome for one mutation.
@@ -258,7 +258,5 @@ export const createTsMorphIntegrationService = (
   adapter: TsMorphMutationAdapter = UnsupportedTsMorphAdapter
 ): TsMorphIntegrationServiceShape => ({
   previewMutations: A.map((mutation) => `${mutation.kind} ${mutation.symbolName} in ${mutation.filePath}`),
-
-  applyMutations: (mutations) =>
-    Effect.forEach(mutations, adapter.applyMutation).pipe(Effect.map(TsMorphIntegrationResult.new)),
+  applyMutations: flow(Effect.forEach(adapter.applyMutation), Effect.map(TsMorphIntegrationResult.new)),
 });

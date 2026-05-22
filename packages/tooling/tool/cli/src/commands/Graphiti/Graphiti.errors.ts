@@ -6,10 +6,23 @@
  */
 import { $RepoCliId } from "@beep/identity/packages";
 import { TaggedErrorClass } from "@beep/schema";
+import { Err } from "@beep/utils";
 import { Runtime } from "effect";
+import { dual } from "effect/Function";
+import * as O from "effect/Option";
+import * as R from "effect/Record";
 import * as S from "effect/Schema";
 
-const $I = $RepoCliId.create("commands/Graphiti/Graphiti.errors"); /**
+const $I = $RepoCliId.create("commands/Graphiti/Graphiti.errors");
+
+type GraphitiProxyOpsErrorOptions =
+  | undefined
+  | {
+      readonly command?: undefined | string;
+      readonly exitCode?: undefined | number;
+    };
+
+/**
  * Raised when graphiti proxy configuration cannot be loaded.
  *
  * @example
@@ -25,17 +38,30 @@ export class GraphitiProxyConfigLoadError extends TaggedErrorClass<GraphitiProxy
   "GraphitiProxyConfigLoadError",
   {
     message: S.String,
-    cause: S.optionalKey(S.Defect),
+    cause: S.optionalKey(S.DefectWithStack),
   },
   $I.annote("GraphitiProxyConfigLoadError", {
     description: "Raised when graphiti proxy config cannot be decoded from Effect Config values.",
   })
 ) {
-  static readonly new = (message: string) => (cause: unknown) =>
-    new GraphitiProxyConfigLoadError({
-      message,
-      cause,
-    });
+  /**
+   * Construct a Graphiti proxy config load error from a cause and message.
+   *
+   * @category constructors
+   */
+  static readonly new: {
+    (cause: unknown, message: string): GraphitiProxyConfigLoadError;
+    (message: string): (cause: unknown) => GraphitiProxyConfigLoadError;
+  } = dual(
+    2,
+    (cause: unknown, message: string): GraphitiProxyConfigLoadError =>
+      GraphitiProxyConfigLoadError.make({
+        message,
+        cause,
+      })
+  );
+
+  static readonly mapError = Err.mapToError(this.new);
 }
 
 /**
@@ -55,7 +81,7 @@ export class GraphitiProxyOpsError extends TaggedErrorClass<GraphitiProxyOpsErro
     message: S.String,
     command: S.optionalKey(S.String),
     exitCode: S.optionalKey(S.Number),
-    cause: S.optionalKey(S.Defect),
+    cause: S.optionalKey(S.DefectWithStack),
   },
   $I.annote("GraphitiProxyOpsError", {
     description: "Failure raised while managing the local Graphiti proxy.",
@@ -63,4 +89,27 @@ export class GraphitiProxyOpsError extends TaggedErrorClass<GraphitiProxyOpsErro
 ) {
   /** Process exit code reported when this error reaches the runtime boundary. */
   override readonly [Runtime.errorExitCode] = this.exitCode ?? 1;
+
+  /**
+   * Construct a Graphiti proxy operations error from a cause and options.
+   *
+   * @category constructors
+   */
+  static readonly new: {
+    (cause: unknown, message: string, opts?: GraphitiProxyOpsErrorOptions): GraphitiProxyOpsError;
+    (message: string, opts?: GraphitiProxyOpsErrorOptions): (cause: unknown) => GraphitiProxyOpsError;
+  } = dual(
+    3,
+    (cause: unknown, message: string, { command, exitCode } = {}): GraphitiProxyOpsError =>
+      GraphitiProxyOpsError.make({
+        cause,
+        message,
+        ...R.getSomes({
+          command: O.fromUndefinedOr(command),
+          exitCode: O.fromUndefinedOr(exitCode),
+        }),
+      })
+  );
+
+  static readonly mapError = Err.mapToError(this.new);
 }

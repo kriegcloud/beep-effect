@@ -4,7 +4,12 @@
  * @packageDocumentation
  * @since 0.0.0
  */
-
+/**
+ * Public quality command export.
+ *
+ * @category cli-commands
+ * @since 0.0.0
+ */
 export { qualityCommand } from "./Quality.command.js";
 /**
  * Public command module export.

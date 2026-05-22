@@ -6,10 +6,22 @@
  */
 import { $RepoCliId } from "@beep/identity/packages";
 import { TaggedErrorClass } from "@beep/schema";
+import { Err } from "@beep/utils";
 import { Runtime } from "effect";
+import { dual } from "effect/Function";
+import * as O from "effect/Option";
+import * as R from "effect/Record";
 import * as S from "effect/Schema";
 
-const $I = $RepoCliId.create("commands/Codex/Codex.errors"); /**
+const $I = $RepoCliId.create("commands/Codex/Codex.errors");
+
+type CodexCommandErrorOptions =
+  | undefined
+  | {
+      readonly exitCode?: undefined | number;
+    };
+
+/**
  * Typed failure for Codex helper commands.
  *
  * @example
@@ -25,7 +37,7 @@ export class CodexCommandError extends TaggedErrorClass<CodexCommandError>($I`Co
   {
     message: S.String,
     exitCode: S.optionalKey(S.Number),
-    cause: S.optionalKey(S.Defect),
+    cause: S.optionalKey(S.DefectWithStack),
   },
   $I.annote("CodexCommandError", {
     description: "Failure raised by Codex helper commands.",
@@ -33,4 +45,24 @@ export class CodexCommandError extends TaggedErrorClass<CodexCommandError>($I`Co
 ) {
   /** Process exit code reported when this error reaches the runtime boundary. */
   override readonly [Runtime.errorExitCode] = this.exitCode ?? 1;
+
+  /**
+   * Construct a Codex command error from an original cause and options.
+   *
+   * @category constructors
+   */
+  static readonly new: {
+    (cause: unknown, message: string, opts?: CodexCommandErrorOptions): CodexCommandError;
+    (message: string, opts?: CodexCommandErrorOptions): (cause: unknown) => CodexCommandError;
+  } = dual(
+    3,
+    (cause: unknown, message: string, { exitCode } = {}): CodexCommandError =>
+      CodexCommandError.make({
+        cause,
+        message,
+        ...R.getSomes({ exitCode: O.fromUndefinedOr(exitCode) }),
+      })
+  );
+
+  static readonly mapError = Err.mapToError(this.new);
 }

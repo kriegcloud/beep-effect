@@ -136,10 +136,9 @@ export const resolveNodeVersions: (
 
   // Read .nvmrc
   const nvmrcPath = path.join(repoRoot, ".nvmrc");
-  const nvmrc = yield* fs.readFileString(nvmrcPath).pipe(
-    Effect.map(Str.trim),
-    Effect.mapError((e) => VersionSyncError.make({ message: `Failed to read .nvmrc: ${e}`, file: ".nvmrc" }))
-  );
+  const nvmrc = yield* fs
+    .readFileString(nvmrcPath)
+    .pipe(Effect.map(Str.trim), VersionSyncError.mapError("Failed to read .nvmrc", ".nvmrc"));
 
   // Scan workflow files
   const workflowDir = path.join(repoRoot, ".github", "workflows");
@@ -158,14 +157,9 @@ export const resolveNodeVersions: (
   for (const ymlFile of ymlFiles) {
     const relativeFile = `.github/workflows/${ymlFile}`;
     const filePath = path.join(workflowDir, ymlFile);
-    const content = yield* fs.readFileString(filePath).pipe(
-      Effect.mapError((e) =>
-        VersionSyncError.make({
-          message: `Failed to read workflow file: ${e}`,
-          file: relativeFile,
-        })
-      )
-    );
+    const content = yield* fs
+      .readFileString(filePath)
+      .pipe(VersionSyncError.mapError("Failed to read workflow file", relativeFile));
 
     const found = yield* findNodeVersionLocations(content, relativeFile);
     for (const loc of found) {
@@ -192,12 +186,7 @@ const findNodeVersionLocations: (
   let locations = A.empty<NodeVersionLocation>();
 
   const workflow = yield* decodeYamlTextAs(WorkflowDocument)(content).pipe(
-    Effect.mapError((e) =>
-      VersionSyncError.make({
-        message: `Failed to parse workflow YAML: ${e.message}`,
-        file: relativeFile,
-      })
-    )
+    VersionSyncError.mapError("Failed to parse workflow YAML", relativeFile)
   );
 
   for (const jobName of R.keys(workflow.jobs)) {

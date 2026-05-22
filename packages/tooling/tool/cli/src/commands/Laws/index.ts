@@ -4,7 +4,12 @@
  * @packageDocumentation
  * @since 0.0.0
  */
-
+/**
+ * Public laws command export.
+ *
+ * @category cli-commands
+ * @since 0.0.0
+ */
 export * from "./Laws.command.js";
 /**
  * Public command module export.

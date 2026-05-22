@@ -6,9 +6,28 @@
  */
 import { $RepoCliId } from "@beep/identity/packages";
 import { TaggedErrorClass } from "@beep/schema";
+import { Err } from "@beep/utils";
+import { Inspectable } from "effect";
 import * as S from "effect/Schema";
 
 const $I = $RepoCliId.create("commands/Laws/Laws.errors");
+
+const messageWithCause = (message: string, cause: unknown): string =>
+  `${message}: ${Inspectable.toStringUnknown(cause, 0)}`;
+
+/**
+ * Failure raised when the dual-arity inventory cannot be read or decoded.
+ *
+ * @example
+ * ```ts
+ * import { DualArityInventoryReadError } from "@beep/repo-cli/commands/Laws/Laws.errors"
+ *
+ * const error = DualArityInventoryReadError.new("Could not read standards/dual-arity.inventory.jsonc.")
+ * console.log(error.message)
+ * ```
+ * @category errors
+ * @since 0.0.0
+ */
 export class DualArityInventoryReadError extends TaggedErrorClass<DualArityInventoryReadError>(
   $I`DualArityInventoryReadError`
 )(
@@ -19,8 +38,27 @@ export class DualArityInventoryReadError extends TaggedErrorClass<DualArityInven
   $I.annote("DualArityInventoryReadError", {
     description: "Raised when the committed dual-arity inventory cannot be parsed or decoded.",
   })
-) {}
+) {
+  static readonly new = (message: string): DualArityInventoryReadError => DualArityInventoryReadError.make({ message });
 
+  static readonly mapError = Err.mapCauseError<DualArityInventoryReadError, [message: string]>((cause, message) =>
+    DualArityInventoryReadError.new(messageWithCause(message, cause))
+  );
+}
+
+/**
+ * Failure raised when Effect import rule updates cannot be written.
+ *
+ * @example
+ * ```ts
+ * import { EffectImportRulesPersistenceError } from "@beep/repo-cli/commands/Laws/Laws.errors"
+ *
+ * const error = EffectImportRulesPersistenceError.new("Could not write Effect import updates.")
+ * console.log(error.message)
+ * ```
+ * @category errors
+ * @since 0.0.0
+ */
 export class EffectImportRulesPersistenceError extends TaggedErrorClass<EffectImportRulesPersistenceError>(
   $I`EffectImportRulesPersistenceError`
 )(
@@ -31,8 +69,28 @@ export class EffectImportRulesPersistenceError extends TaggedErrorClass<EffectIm
   $I.annote("EffectImportRulesPersistenceError", {
     description: "Effect import rules could not be persisted to disk.",
   })
-) {}
+) {
+  static readonly new = (message: string): EffectImportRulesPersistenceError =>
+    EffectImportRulesPersistenceError.make({ message });
 
+  static readonly mapError = Err.mapCauseError<EffectImportRulesPersistenceError, [message: string]>((cause, message) =>
+    EffectImportRulesPersistenceError.new(messageWithCause(message, cause))
+  );
+}
+
+/**
+ * Failure raised when native runtime enforcement cannot complete.
+ *
+ * @example
+ * ```ts
+ * import { NoNativeRuntimeRulesExecutionError } from "@beep/repo-cli/commands/Laws/Laws.errors"
+ *
+ * const error = NoNativeRuntimeRulesExecutionError.new("Could not scan runtime usage.")
+ * console.log(error.message)
+ * ```
+ * @category errors
+ * @since 0.0.0
+ */
 export class NoNativeRuntimeRulesExecutionError extends TaggedErrorClass<NoNativeRuntimeRulesExecutionError>(
   $I`NoNativeRuntimeRulesExecutionError`
 )(
@@ -43,8 +101,28 @@ export class NoNativeRuntimeRulesExecutionError extends TaggedErrorClass<NoNativ
   $I.annote("NoNativeRuntimeRulesExecutionError", {
     description: "Repo-local native runtime checks failed unexpectedly.",
   })
-) {}
+) {
+  static readonly new = (message: string): NoNativeRuntimeRulesExecutionError =>
+    NoNativeRuntimeRulesExecutionError.make({ message });
 
+  static readonly mapError = Err.mapCauseError<NoNativeRuntimeRulesExecutionError, [message: string]>(
+    (cause, message) => NoNativeRuntimeRulesExecutionError.new(messageWithCause(message, cause))
+  );
+}
+
+/**
+ * Failure raised when terse Effect rule updates cannot be written.
+ *
+ * @example
+ * ```ts
+ * import { TerseEffectRulesPersistenceError } from "@beep/repo-cli/commands/Laws/Laws.errors"
+ *
+ * const error = TerseEffectRulesPersistenceError.new("Could not write terse Effect updates.")
+ * console.log(error.message)
+ * ```
+ * @category errors
+ * @since 0.0.0
+ */
 export class TerseEffectRulesPersistenceError extends TaggedErrorClass<TerseEffectRulesPersistenceError>(
   $I`TerseEffectRulesPersistenceError`
 )(
@@ -55,4 +133,11 @@ export class TerseEffectRulesPersistenceError extends TaggedErrorClass<TerseEffe
   $I.annote("TerseEffectRulesPersistenceError", {
     description: "Terse Effect rule updates could not be persisted to disk.",
   })
-) {}
+) {
+  static readonly new = (message: string): TerseEffectRulesPersistenceError =>
+    TerseEffectRulesPersistenceError.make({ message });
+
+  static readonly mapError = Err.mapCauseError<TerseEffectRulesPersistenceError, [message: string]>((cause, message) =>
+    TerseEffectRulesPersistenceError.new(messageWithCause(message, cause))
+  );
+}

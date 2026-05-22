@@ -6,9 +6,16 @@
  */
 import { $RepoCliId } from "@beep/identity/packages";
 import { LiteralKit, TaggedErrorClass } from "@beep/schema";
+import { Err } from "@beep/utils";
+import { Inspectable } from "effect";
+import { dual } from "effect/Function";
+import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
 
 const $I = $RepoCliId.create("commands/Reuse/Reuse.errors");
+
+const causeMessage = (cause: unknown): string =>
+  P.isError(cause) ? cause.message : Inspectable.toStringUnknown(cause, 0);
 
 /**
  * Lifecycle stages surfaced by the Codex smoke runner.
@@ -47,4 +54,24 @@ export class CodexRunnerError extends TaggedErrorClass<CodexRunnerError>($I`Code
   $I.annote("CodexRunnerError", {
     description: "Typed failure raised while validating the Codex SDK smoke path.",
   })
-) {}
+) {
+  /**
+   * Construct a Codex runner error for a lifecycle stage.
+   *
+   * @category constructors
+   */
+  static readonly new: {
+    (stage: CodexRunnerStage, message: string): CodexRunnerError;
+    (message: string): (stage: CodexRunnerStage) => CodexRunnerError;
+  } = dual(2, (stage: CodexRunnerStage, message: string) =>
+    CodexRunnerError.make({
+      stage,
+      message,
+    })
+  );
+
+  static readonly mapError = Err.mapCauseError<CodexRunnerError, [stage: CodexRunnerStage, message?: string]>(
+    (cause, stage, message) =>
+      CodexRunnerError.new(stage, message === undefined ? causeMessage(cause) : `${message}: ${causeMessage(cause)}`)
+  );
+}

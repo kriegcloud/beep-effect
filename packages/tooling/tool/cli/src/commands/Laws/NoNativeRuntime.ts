@@ -630,9 +630,9 @@ export const runNoNativeRuntimeRules = Effect.fn("runNoNativeRuntimeRules")(func
         }
       },
       catch: (cause) =>
-        NoNativeRuntimeRulesExecutionError.make({
-          message: `Failed to evaluate ${relativeFilePath}: ${Inspectable.toStringUnknown(cause, 0)}`,
-        }),
+        NoNativeRuntimeRulesExecutionError.new(
+          `Failed to evaluate ${relativeFilePath}: ${Inspectable.toStringUnknown(cause, 0)}`
+        ),
     });
 
     yield* scanSourceFile;

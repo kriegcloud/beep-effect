@@ -51,9 +51,16 @@ const DOCGEN_CONFIG_SCAN_IGNORES = [
   "**/node_modules/**",
 ] as const;
 
-type ResolveDocgenWorkspacePackageOptions = {
-  readonly rootDir?: string | undefined;
-};
+class ResolveDocgenWorkspacePackageOptions extends S.Class<ResolveDocgenWorkspacePackageOptions>(
+  $I`ResolveDocgenWorkspacePackageOptions`
+)(
+  {
+    rootDir: S.optionalKey(S.String),
+  },
+  $I.annote("ResolveDocgenWorkspacePackageOptions", {
+    description: "Resolved workspace package options for docgen",
+  })
+) {}
 
 const isResolveDocgenWorkspacePackageDataFirst = (args: IArguments): boolean =>
   (args.length === 1 && P.isString(args[0])) || args.length === 2;
@@ -85,8 +92,8 @@ export const DocgenPackageStatus = LiteralKit([
   "configured-and-generated",
   "configured-not-generated",
   "not-configured",
-]).annotate(
-  $I.annote("DocgenPackageStatus", {
+]).pipe(
+  $I.annoteSchema("DocgenPackageStatus", {
     description: "Workspace docgen status derived from config and generated output presence.",
   })
 );
@@ -98,8 +105,8 @@ export const DocgenPackageStatus = LiteralKit([
  */
 export type DocgenPackageStatus = typeof DocgenPackageStatus.Type;
 
-const DocgenJsonObject = S.Record(S.String, S.Unknown).annotate(
-  $I.annote("DocgenJsonObject", {
+const DocgenJsonObject = S.Json.pipe(
+  $I.annoteSchema("DocgenJsonObject", {
     description: "Generic JSON object payload used for docgen compiler option blocks.",
   })
 );
@@ -160,8 +167,8 @@ export class DocgenWorkspacePackage extends S.Class<DocgenWorkspacePackage>($I`D
  * @category models
  * @since 0.0.0
  */
-export const DocgenIssuePriority = LiteralKit(["high", "medium", "low"]).annotate(
-  $I.annote("DocgenIssuePriority", {
+export const DocgenIssuePriority = LiteralKit(["high", "medium", "low"]).pipe(
+  $I.annoteSchema("DocgenIssuePriority", {
     description: "Issue priority used by analysis findings.",
   })
 );
@@ -189,8 +196,8 @@ export const DocgenExportKind = LiteralKit([
   "enum",
   "re-export",
   "module-fileoverview",
-]).annotate(
-  $I.annote("DocgenExportKind", {
+]).pipe(
+  $I.annoteSchema("DocgenExportKind", {
     description: "Export kind surfaced by analysis.",
   })
 );
@@ -308,7 +315,7 @@ export class DocgenAggregateResult extends S.Class<DocgenAggregateResult>($I`Doc
 
 const decodeDocgenConfigDocument = S.decodeUnknownEffect(DocgenConfigDocument);
 
-const normalizeSlashes = (value: string): string => Str.replace(/\\/g, "/")(value);
+const normalizeSlashes = Str.replace(/\\/g, "/");
 
 const stringFromUnknown = (value: unknown): string => {
   if (P.isString(value)) {
@@ -506,21 +513,19 @@ const getJsDocs = (node: Node): ReadonlyArray<JSDoc> => {
   return A.empty();
 };
 
-const extractJsDocTags = (node: Node): ReadonlyArray<string> =>
-  pipe(
-    getJsDocs(node),
-    A.flatMap((doc) => A.map(doc.getTags(), (tag) => `@${tag.getTagName()}`))
-  );
+const extractJsDocTags = flow(
+  getJsDocs,
+  A.flatMap((doc) => A.map(doc.getTags(), (tag) => `@${tag.getTagName()}`))
+);
 
-const extractJsDocCategoryValues = (node: Node): ReadonlyArray<string> =>
-  pipe(
-    getJsDocs(node),
-    A.flatMap((doc) =>
-      A.flatMap(doc.getTags(), (tag) =>
-        tag.getTagName() === "category" ? [Str.trim(tag.getCommentText() ?? "")] : A.empty<string>()
-      )
+const extractJsDocCategoryValues = flow(
+  getJsDocs,
+  A.flatMap((doc) =>
+    A.flatMap(doc.getTags(), (tag) =>
+      tag.getTagName() === "category" ? [Str.trim(tag.getCommentText() ?? "")] : A.empty<string>()
     )
-  );
+  )
+);
 
 const getLeadingJsDocCommentText = (node: ExportDeclaration): O.Option<string> =>
   pipe(
@@ -530,36 +535,33 @@ const getLeadingJsDocCommentText = (node: ExportDeclaration): O.Option<string> =
     O.map((range) => range.getText())
   );
 
-const extractJsDocTagsFromText = (commentText: string): ReadonlyArray<string> =>
-  pipe(
-    Str.matchAll(/@([A-Za-z][\w-]*)/g)(commentText),
-    A.fromIterable,
-    A.flatMap((match) => (match[1] === undefined ? A.empty<string>() : [`@${match[1]}`]))
-  );
+const extractJsDocTagsFromText = flow(
+  Str.matchAll(/@([A-Za-z][\w-]*)/g),
+  A.fromIterable,
+  A.flatMap((match) => (match[1] === undefined ? A.empty<string>() : [`@${match[1]}`]))
+);
 
-const extractJsDocCategoryValuesFromText = (commentText: string): ReadonlyArray<string> =>
-  pipe(
-    Str.split(/\r?\n/)(commentText),
-    A.flatMap((line) => {
-      const match = /@category(?:\s+([^*]+?))?\s*(?:\*\/)?\s*$/.exec(line);
+const extractJsDocCategoryValuesFromText = flow(
+  Str.split(/\r?\n/),
+  A.flatMap((line) => {
+    const match = /@category(?:\s+([^*]+?))?\s*(?:\*\/)?\s*$/.exec(line);
 
-      return match === null ? A.empty<string>() : [Str.trim(match[1] ?? "")];
-    })
-  );
+    return match === null ? A.empty<string>() : [Str.trim(match[1] ?? "")];
+  })
+);
 
-const extractContext = (node: Node): undefined | string =>
-  pipe(
-    getJsDocs(node),
-    A.head,
-    O.flatMap((doc) => O.fromNullishOr(doc.getDescription())),
-    O.map((description) => Str.trim(description)),
-    O.filter((description) => description.length > 0),
-    O.map((description) => {
-      const [firstLine] = Str.split("\n")(description);
-      return firstLine === undefined ? description : firstLine;
-    }),
-    O.getOrUndefined
-  );
+const extractContext = flow(
+  getJsDocs,
+  A.head,
+  O.flatMap((doc) => O.fromNullishOr(doc.getDescription())),
+  O.map((description) => Str.trim(description)),
+  O.filter((description) => description.length > 0),
+  O.map((description) => {
+    const [firstLine] = Str.split("\n")(description);
+    return firstLine === undefined ? description : firstLine;
+  }),
+  O.getOrUndefined
+);
 
 const hasJsDocComment = (node: Node): boolean => getJsDocs(node).length > 0;
 

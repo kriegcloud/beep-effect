@@ -15,7 +15,7 @@ import { buildCanonicalAliasTargets } from "@beep/repo-utils/schemas/TsconfigAli
 import { SchemaUtils } from "@beep/schema";
 import { decodeJsoncTextAs } from "@beep/schema/Jsonc";
 import { A, Str, thunkNegative1 } from "@beep/utils";
-import { Effect, FileSystem, HashMap, Order, Path, pipe, SchemaTransformation } from "effect";
+import { Effect, FileSystem, flow, HashMap, Order, Path, pipe, SchemaTransformation } from "effect";
 import { dual } from "effect/Function";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
@@ -139,7 +139,7 @@ const PackagePathToTstychePattern = PackagePath.pipe(
     TstycheTestFileMatchPattern,
     SchemaTransformation.transform({
       decode: (packagePath) => `${packagePath}/dtslint/**/*.tst.*`,
-      encode: (pattern) => PackagePath.make(Str.replace(TSTYCHE_TEST_FILE_MATCH_PATTERN, Str.empty)(pattern)),
+      encode: flow(Str.replace(TSTYCHE_TEST_FILE_MATCH_PATTERN, Str.empty), PackagePath.make),
     })
   ),
   S.annotate(

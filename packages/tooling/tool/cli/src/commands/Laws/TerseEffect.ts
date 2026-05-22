@@ -615,9 +615,9 @@ export const runTerseEffectRules = Effect.fn(function* (options: TerseEffectRule
     yield* Effect.tryPromise({
       try: () => project.save(),
       catch: (cause) =>
-        TerseEffectRulesPersistenceError.make({
-          message: `Failed to persist terse Effect style updates: ${Inspectable.toStringUnknown(cause, 0)}`,
-        }),
+        TerseEffectRulesPersistenceError.new(
+          `Failed to persist terse Effect style updates: ${Inspectable.toStringUnknown(cause, 0)}`
+        ),
     });
   }
 

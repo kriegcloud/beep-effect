@@ -465,20 +465,21 @@ const isFastMcpRequestEnvelope = (envelope: GraphitiMcpJsonRpcRequest): boolean 
  * @returns Whether the request can use the fast proxy lane.
  * @example
  * ```ts
+ * import { isFastMcpRequestBody } from "@beep/repo-cli/commands/Graphiti/internal/ProxyServices"
+ * import * as O from "effect/Option"
+ *
  * console.log(isFastMcpRequestBody(O.none()))
  * ```
  * @category utilities
  * @since 0.0.0
  */
-export const isFastMcpRequestBody = (bodyBytes: O.Option<Uint8Array>): boolean =>
-  pipe(
-    bodyBytes,
-    O.match({
-      onNone: () => true,
-      onSome: (bytes) =>
-        pipe(utf8Decoder.decode(bytes), decodeGraphitiMcpJsonRpcRequest, O.exists(isFastMcpRequestEnvelope)),
-    })
-  );
+export const isFastMcpRequestBody: (bodyBytes: O.Option<Uint8Array>) => boolean = flow(
+  O.match({
+    onNone: () => true,
+    onSome: (bytes) =>
+      pipe(utf8Decoder.decode(bytes), decodeGraphitiMcpJsonRpcRequest, O.exists(isFastMcpRequestEnvelope)),
+  })
+);
 
 const addProxyHeaders = (
   response: HttpServerResponse.HttpServerResponse,

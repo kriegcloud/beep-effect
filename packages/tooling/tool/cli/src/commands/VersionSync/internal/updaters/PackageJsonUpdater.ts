@@ -6,7 +6,7 @@
  */
 
 import { A } from "@beep/utils";
-import { Effect, FileSystem, Inspectable } from "effect";
+import { Effect, FileSystem } from "effect";
 import { dual } from "effect/Function";
 import * as jsonc from "jsonc-parser";
 import { VersionSyncError } from "../Models.js";
@@ -43,14 +43,9 @@ export const updatePackageManagerField: {
   Effect.fn(function* (filePath: string, version: string) {
     const fs = yield* FileSystem.FileSystem;
 
-    const original = yield* fs.readFileString(filePath).pipe(
-      Effect.mapError((e) =>
-        VersionSyncError.make({
-          message: `Failed to read ${filePath}: ${Inspectable.toStringUnknown(e, 0)}`,
-          file: filePath,
-        })
-      )
-    );
+    const original = yield* fs
+      .readFileString(filePath)
+      .pipe(VersionSyncError.mapError(`Failed to read ${filePath}`, filePath));
 
     const newValue = `bun@${version}`;
 
@@ -68,14 +63,9 @@ export const updatePackageManagerField: {
       return false;
     }
 
-    yield* fs.writeFileString(filePath, updated).pipe(
-      Effect.mapError((e) =>
-        VersionSyncError.make({
-          message: `Failed to write ${filePath}: ${Inspectable.toStringUnknown(e, 0)}`,
-          file: filePath,
-        })
-      )
-    );
+    yield* fs
+      .writeFileString(filePath, updated)
+      .pipe(VersionSyncError.mapError(`Failed to write ${filePath}`, filePath));
 
     return true;
   })
@@ -104,14 +94,9 @@ export const updateCatalogEntry: {
   Effect.fn(function* (filePath: string, dependencyName: string, options: UpdateCatalogEntryOptions) {
     const fs = yield* FileSystem.FileSystem;
 
-    const original = yield* fs.readFileString(filePath).pipe(
-      Effect.mapError((e) =>
-        VersionSyncError.make({
-          message: `Failed to read ${filePath}: ${Inspectable.toStringUnknown(e, 0)}`,
-          file: filePath,
-        })
-      )
-    );
+    const original = yield* fs
+      .readFileString(filePath)
+      .pipe(VersionSyncError.mapError(`Failed to read ${filePath}`, filePath));
 
     const edits = jsonc.modify(original, ["catalog", dependencyName], options.versionSpecifier, {
       formattingOptions: FORMATTING_OPTIONS,
@@ -127,14 +112,9 @@ export const updateCatalogEntry: {
       return false;
     }
 
-    yield* fs.writeFileString(filePath, updated).pipe(
-      Effect.mapError((e) =>
-        VersionSyncError.make({
-          message: `Failed to write ${filePath}: ${Inspectable.toStringUnknown(e, 0)}`,
-          file: filePath,
-        })
-      )
-    );
+    yield* fs
+      .writeFileString(filePath, updated)
+      .pipe(VersionSyncError.mapError(`Failed to write ${filePath}`, filePath));
 
     return true;
   })

@@ -12,6 +12,12 @@ import { Effect, Tuple } from "effect";
 import * as S from "effect/Schema";
 import type { SyncDataToTsError } from "../SyncDataToTs.errors.js";
 
+/**
+ * Public sync-data-to-ts error exports.
+ *
+ * @category errors
+ * @since 0.0.0
+ */
 export { SyncDataToTsDriftError, SyncDataToTsError } from "../SyncDataToTs.errors.js";
 
 const $I = $RepoCliId.create("commands/SyncDataToTs/internal/Models");

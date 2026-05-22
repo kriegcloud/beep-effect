@@ -16,6 +16,7 @@ import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
 import { ChildProcess } from "effect/unstable/process";
 import type { ChildProcessSpawner } from "effect/unstable/process/ChildProcessSpawner";
+import { printLines } from "../../../internal/cli/Printer.ts";
 import {
   aggregateGeneratedDocs,
   analyzePackageDocumentation,
@@ -51,6 +52,7 @@ const DOCGEN_LOCAL_FULL_INPUT_PREFIXES = [
   "packages/tooling/tool/docgen/",
   "packages/tooling/tool/cli/src/commands/Docgen/",
 ] as const;
+
 class TurboDryRunTaskCache extends S.Class<TurboDryRunTaskCache>($I`TurboDryRunTaskCache`)(
   {
     source: S.optionalKey(S.String),
@@ -60,6 +62,7 @@ class TurboDryRunTaskCache extends S.Class<TurboDryRunTaskCache>($I`TurboDryRunT
     description: "Turbo dry-run cache metadata for one task.",
   })
 ) {}
+
 class TurboDryRunTask extends S.Class<TurboDryRunTask>($I`TurboDryRunTask`)(
   {
     cache: S.optionalKey(TurboDryRunTaskCache),
@@ -71,6 +74,7 @@ class TurboDryRunTask extends S.Class<TurboDryRunTask>($I`TurboDryRunTask`)(
     description: "Turbo dry-run task record decoded from JSON output.",
   })
 ) {}
+
 class TurboDryRunDocument extends S.Class<TurboDryRunDocument>($I`TurboDryRunDocument`)(
   {
     tasks: S.Array(TurboDryRunTask),
@@ -79,6 +83,7 @@ class TurboDryRunDocument extends S.Class<TurboDryRunDocument>($I`TurboDryRunDoc
     description: "Turbo dry-run JSON document.",
   })
 ) {}
+
 const decodeTurboDryRunDocument = S.decodeUnknownEffect(S.fromJsonString(TurboDryRunDocument));
 const encodeJson = S.encodeUnknownEffect(S.UnknownFromJsonString);
 
@@ -102,9 +107,9 @@ const bySelectedPackagePathAscending: Order.Order<DocgenLocalSelectedPackage> = 
   (pkg: DocgenLocalSelectedPackage) => pkg.path
 );
 const normalizeSlashes = (value: string): string => Str.replace(/\\/g, "/")(value);
-const normalizedFilePath = (value: string): string => normalizeSlashes(Str.trim(value));
+const normalizedFilePath = flow(Str.trim, normalizeSlashes);
 const packagePrefix = (pkg: DocgenWorkspacePackage): string => `${pkg.relativePath}/`;
-const isNonEmptyLine = (value: string): boolean => Str.isNonEmpty(Str.trim(value));
+const isNonEmptyLine = flow(Str.trim, Str.isNonEmpty);
 const localParallel = (parallel: number): number => Math.max(DEFAULT_LOCAL_PARALLEL, parallel);
 const turboFilterForPackage = (pkg: DocgenLocalSelectedPackage): string => `--filter=...${pkg.name}`;
 const hasPrefix = (prefixes: ReadonlyArray<string>, filePath: string): boolean =>
@@ -503,7 +508,8 @@ const runStep = Effect.fn("DocgenLocal.runStep")(function* (
   args: ReadonlyArray<string>,
   cwd: string
 ) {
-  yield* Console.log(`[docgen:local] ${label}: ${commandText(command, args)}`);
+  const cmdTxt = commandText(command, args);
+  yield* Console.log(`[docgen:local] ${label}: ${cmdTxt}`);
   const exitCode = yield* Effect.scoped(
     Effect.gen(function* () {
       const handle = yield* ChildProcess.make(command, [...args], {
@@ -514,7 +520,7 @@ const runStep = Effect.fn("DocgenLocal.runStep")(function* (
       });
       return yield* handle.exitCode;
     })
-  ).pipe(Effect.mapError(DomainError.newCause(`Failed to spawn ${commandText(command, args)}.`)));
+  ).pipe(Effect.mapError(DomainError.newCause(`Failed to spawn ${cmdTxt}.`)));
 
   if (exitCode !== 0) {
     return yield* DomainError.make({
@@ -626,12 +632,14 @@ const renderFullReasons = (reasons: ReadonlyArray<DocgenLocalFullReason>): strin
   );
 
 const renderPlan = Effect.fn("DocgenLocal.renderPlan")(function* (plan: DocgenLocalPlan) {
-  yield* Console.log("docgen:local plan");
-  yield* Console.log(`- mode: ${plan.mode}`);
-  yield* Console.log(`- base: ${plan.base}`);
-  yield* Console.log(`- head: ${plan.head}`);
-  yield* Console.log(`- package concurrency: ${plan.parallel}`);
-  yield* Console.log(`- selected packages: ${renderPackageList(plan.selectedPackages)}`);
+  yield* printLines([
+    "docgen:local plan",
+    `- mode: ${plan.mode}`,
+    `- base: ${plan.base}`,
+    `- head: ${plan.head}`,
+    `- package concurrency: ${plan.parallel}`,
+    `- selected packages: ${renderPackageList(plan.selectedPackages)}`,
+  ]);
   if (A.isReadonlyArrayNonEmpty(plan.turboArgs)) {
     yield* Console.log(`- turbo command: bunx ${A.join(plan.turboArgs, " ")}`);
   }
@@ -750,7 +758,7 @@ export const selectDocgenLocalPackagesForTesting: {
 } = dual(2, (packages: ReadonlyArray<DocgenWorkspacePackage>, changedFiles: ReadonlyArray<string>) =>
   pipe(
     packages,
-    A.map((pkg) => selectPackage(pkg, pipe(changedFiles, A.map(normalizedFilePath)))),
+    A.map((pkg) => selectPackage(pkg, A.map(changedFiles, normalizedFilePath))),
     collectOptions,
     A.sort(bySelectedPackagePathAscending)
   )

@@ -24,6 +24,12 @@ import {
   type UnexpectedQualityTaskFailure,
 } from "./Quality.errors.js";
 
+/**
+ * Public quality task error exports.
+ *
+ * @category errors
+ * @since 0.0.0
+ */
 export {
   QualityTaskConfigurationError,
   QualityTaskFailed,
@@ -302,20 +308,12 @@ const parseRootAuditSelection = (args: ReadonlyArray<string>): RootAuditSelectio
 
 const readJsonFile = Effect.fn("QualityTasks.readJsonFile")(function* (filePath: string) {
   const fs = yield* FileSystem.FileSystem;
-  const content = yield* fs.readFileString(filePath).pipe(
-    Effect.mapError((cause) =>
-      QualityTaskConfigurationError.make({
-        message: `Failed to read ${filePath}: ${String(cause)}`,
-      })
-    )
-  );
+  const content = yield* fs
+    .readFileString(filePath)
+    .pipe(QualityTaskConfigurationError.mapError(`Failed to read ${filePath}`));
 
   return yield* decodePackageJsonDocument(content).pipe(
-    Effect.mapError((cause) =>
-      QualityTaskConfigurationError.make({
-        message: `Failed to parse ${filePath}: ${String(cause)}`,
-      })
-    )
+    QualityTaskConfigurationError.mapError(`Failed to parse ${filePath}`)
   );
 });
 
@@ -343,9 +341,7 @@ const resolvePackageDir = Effect.fn("QualityTasks.resolvePackageDir")(function* 
 
     const parent = path.dirname(current);
     if (parent === current) {
-      return yield* QualityTaskConfigurationError.make({
-        message: `Could not find package.json between ${cwd} and ${repoRoot}.`,
-      });
+      return yield* QualityTaskConfigurationError.new(`Could not find package.json between ${cwd} and ${repoRoot}.`);
     }
     return yield* findPackageDir(parent);
   });
@@ -509,20 +505,10 @@ const runStep = Effect.fn("QualityTasks.runStep")(function* (step: QualityTaskSt
       });
       return yield* handle.exitCode;
     })
-  ).pipe(
-    Effect.mapError((cause) =>
-      QualityTaskConfigurationError.make({
-        message: `Failed to spawn ${commandText(resolved.command, resolved.args)}: ${String(cause)}`,
-      })
-    )
-  );
+  ).pipe(QualityTaskConfigurationError.mapError(`Failed to spawn ${commandText(resolved.command, resolved.args)}`));
 
   if (exitCode !== 0) {
-    return yield* QualityTaskFailed.make({
-      label: resolved.label,
-      command: commandText(resolved.command, resolved.args),
-      exitCode,
-    });
+    return yield* QualityTaskFailed.new(exitCode, resolved.label, commandText(resolved.command, resolved.args));
   }
 });
 
@@ -588,13 +574,7 @@ const collectResolvedStepOutput = Effect.fn("QualityTasks.collectResolvedStepOut
         exitCode,
       };
     })
-  ).pipe(
-    Effect.mapError((cause) =>
-      QualityTaskConfigurationError.make({
-        message: `Failed to spawn ${command}: ${cause.message}`,
-      })
-    )
-  );
+  ).pipe(QualityTaskConfigurationError.mapError(`Failed to spawn ${command}`));
 
   return {
     command,
@@ -618,11 +598,7 @@ const renderStepOutput = Effect.fn("QualityTasks.renderStepOutput")(function* (r
 });
 
 const failureFromOutput = (result: QualityTaskStepOutput) =>
-  QualityTaskFailed.make({
-    label: result.step.label,
-    command: result.command,
-    exitCode: result.exitCode,
-  });
+  QualityTaskFailed.new(result.exitCode, result.step.label, result.command);
 
 const failedStepOutputs: (results: ReadonlyArray<QualityTaskStepOutput>) => ReadonlyArray<QualityTaskFailed> = flow(
   A.filter((result) => result.exitCode !== 0),
@@ -650,11 +626,7 @@ const runStepGroup = Effect.fn("QualityTasks.runStepGroup")(function* (
   const failures = failedStepOutputs(results);
   const firstFailure = A.head(failures);
   if (O.isSome(firstFailure)) {
-    return yield* QualityTaskGroupFailed.make({
-      label,
-      failures,
-      exitCode: firstFailure.value.exitCode,
-    });
+    return yield* QualityTaskGroupFailed.new(failures, label, firstFailure.value.exitCode);
   }
 });
 
@@ -755,13 +727,7 @@ const sqlIntegrationStep = (
 
 const acquireTestcontainersSqlIntegrationResource = withRyukDisabledDuringAcquire(
   makePgliteTestcontainerResource()
-).pipe(
-  Effect.mapError((error) =>
-    QualityTaskConfigurationError.make({
-      message: `Failed to start shared PGLite SQL integration database: ${error.message}`,
-    })
-  )
-);
+).pipe(QualityTaskConfigurationError.mapError("Failed to start shared PGLite SQL integration database"));
 
 const acquireExternalSqlIntegrationResource = (connectionUri: string): Effect.Effect<SqlIntegrationLaneResource> =>
   Effect.succeed({ connectionUri });

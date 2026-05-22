@@ -11,7 +11,7 @@
 import { $RepoCliId } from "@beep/identity/packages";
 import { decodeJsoncTextAs } from "@beep/schema/Jsonc";
 import { A, Str, thunkEmptyStr } from "@beep/utils";
-import { Effect, FileSystem, Inspectable, identity, Path, SchemaTransformation } from "effect";
+import { Effect, FileSystem, identity, Path, SchemaTransformation } from "effect";
 import * as O from "effect/Option";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
@@ -172,22 +172,12 @@ export const resolveBiomeSchema = Effect.fn(function* (
 
   // Read biome.jsonc
   const biomePath = path.join(repoRoot, "biome.jsonc");
-  const biomeContent = yield* fs.readFileString(biomePath).pipe(
-    Effect.mapError((e) =>
-      VersionSyncError.make({
-        message: `Failed to read biome.jsonc: ${Inspectable.toStringUnknown(e, 0)}`,
-        file: "biome.jsonc",
-      })
-    )
-  );
+  const biomeContent = yield* fs
+    .readFileString(biomePath)
+    .pipe(VersionSyncError.mapError("Failed to read biome.jsonc", "biome.jsonc"));
 
   const biomeJson = yield* decodeJsoncTextAs(BiomeJsoncDocument)(biomeContent).pipe(
-    Effect.mapError((e) =>
-      VersionSyncError.make({
-        message: `Failed to parse biome.jsonc: ${e.message}`,
-        file: "biome.jsonc",
-      })
-    )
+    VersionSyncError.mapError("Failed to parse biome.jsonc", "biome.jsonc")
   );
 
   const schemaUrl = biomeJson.$schema;
@@ -195,22 +185,12 @@ export const resolveBiomeSchema = Effect.fn(function* (
 
   // Read installed version from root package.json catalog
   const pkgJsonPath = path.join(repoRoot, "package.json");
-  const pkgJsonContent = yield* fs.readFileString(pkgJsonPath).pipe(
-    Effect.mapError((e) =>
-      VersionSyncError.make({
-        message: `Failed to read package.json: ${Inspectable.toStringUnknown(e, 0)}`,
-        file: "package.json",
-      })
-    )
-  );
+  const pkgJsonContent = yield* fs
+    .readFileString(pkgJsonPath)
+    .pipe(VersionSyncError.mapError("Failed to read package.json", "package.json"));
 
   const pkgJson = yield* decodeJsoncTextAs(RootPackageJsonDocument)(pkgJsonContent).pipe(
-    Effect.mapError((e) =>
-      VersionSyncError.make({
-        message: `Failed to parse package.json: ${e.message}`,
-        file: "package.json",
-      })
-    )
+    VersionSyncError.mapError("Failed to parse package.json", "package.json")
   );
 
   const rawVersion = O.getOrElse(
@@ -286,14 +266,9 @@ export const updateBiomeSchema = Effect.fn("updateBiomeSchema")(function* (
 ): Effect.fn.Return<boolean, VersionSyncError, FileSystem.FileSystem> {
   const fs = yield* FileSystem.FileSystem;
 
-  const original = yield* fs.readFileString(filePath).pipe(
-    Effect.mapError((e) =>
-      VersionSyncError.make({
-        message: `Failed to read ${filePath}: ${Inspectable.toStringUnknown(e, 0)}`,
-        file: filePath,
-      })
-    )
-  );
+  const original = yield* fs
+    .readFileString(filePath)
+    .pipe(VersionSyncError.mapError(`Failed to read ${filePath}`, filePath));
 
   const newSchemaUrl = buildSchemaUrl(version);
 
@@ -314,14 +289,7 @@ export const updateBiomeSchema = Effect.fn("updateBiomeSchema")(function* (
     return false;
   }
 
-  yield* fs.writeFileString(filePath, updated).pipe(
-    Effect.mapError((e) =>
-      VersionSyncError.make({
-        message: `Failed to write ${filePath}: ${Inspectable.toStringUnknown(e, 0)}`,
-        file: filePath,
-      })
-    )
-  );
+  yield* fs.writeFileString(filePath, updated).pipe(VersionSyncError.mapError(`Failed to write ${filePath}`, filePath));
 
   return true;
 });

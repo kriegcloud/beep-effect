@@ -181,32 +181,17 @@ const fetchSourceText = Effect.fn("fetchSourceText")(function* (
   target: SyncDataTarget
 ): Effect.fn.Return<string, SyncDataToTsError, HttpClient.HttpClient> {
   const response = yield* HttpClient.get(target.sourceUrl).pipe(
-    Effect.mapError((cause) =>
-      SyncDataToTsError.make({
-        message: `Failed to fetch ${target.sourceUrl}: ${cause.message}`,
-        targetId: target.id,
-      })
-    ),
+    SyncDataToTsError.mapError(`Failed to fetch ${target.sourceUrl}`, target.id),
     Effect.flatMap(
       Effect.fnUntraced(function* (response) {
         return yield* HttpClientResponse.filterStatusOk(response);
       })
     ),
-    Effect.mapError((cause) =>
-      SyncDataToTsError.make({
-        message: `Received a non-2xx response from ${target.sourceUrl}: ${cause.message}`,
-        targetId: target.id,
-      })
-    )
+    SyncDataToTsError.mapError(`Received a non-2xx response from ${target.sourceUrl}`, target.id)
   );
 
   return yield* response.text.pipe(
-    Effect.mapError((cause) =>
-      SyncDataToTsError.make({
-        message: `Failed to read response body from ${target.sourceUrl}: ${cause.message}`,
-        targetId: target.id,
-      })
-    )
+    SyncDataToTsError.mapError(`Failed to read response body from ${target.sourceUrl}`, target.id)
   );
 });
 
@@ -237,37 +222,18 @@ const decodeCsvText = Effect.fn("SyncDataToTs.decodeCsvText")(function* (content
 });
 
 const parseCsvText = (content: string, target: SyncDataTarget): Effect.Effect<unknown, SyncDataToTsError> =>
-  decodeCsvText(content).pipe(
-    Effect.mapError((cause) =>
-      SyncDataToTsError.make({
-        message: `Failed to parse CSV payload for ${target.id}: ${cause.message}`,
-        targetId: target.id,
-        cause,
-      })
-    )
-  );
+  decodeCsvText(content).pipe(SyncDataToTsError.mapError(`Failed to parse CSV payload for ${target.id}`, target.id));
 
 const parseSourceText = (content: string, target: SyncDataTarget): Effect.Effect<unknown, SyncDataToTsError> =>
   SyncDataSourceFormat.$match(target.format, {
     json: () =>
       decodeJsonText(content).pipe(
-        Effect.mapError((cause) =>
-          SyncDataToTsError.make({
-            message: `Failed to parse JSON payload for ${target.id}: ${cause.message}`,
-            targetId: target.id,
-            cause,
-          })
-        )
+        SyncDataToTsError.mapError(`Failed to parse JSON payload for ${target.id}`, target.id)
       ),
     csv: () => parseCsvText(content, target),
     xml: () =>
       decodeXmlText(content).pipe(
-        Effect.mapError((cause) =>
-          SyncDataToTsError.make({
-            message: `Failed to parse XML payload for ${target.id}: ${cause.message}`,
-            targetId: target.id,
-          })
-        )
+        SyncDataToTsError.mapError(`Failed to parse XML payload for ${target.id}`, target.id)
       ),
   });
 
@@ -427,14 +393,14 @@ const failOnChangedTargets = (results: ReadonlyArray<SyncDataTargetResult>) => {
     onEmpty: thunkEffectVoid,
     onNonEmpty: (nonEmptyTargets) =>
       Effect.fail(
-        SyncDataToTsDriftError.make({
-          driftCount: A.length(nonEmptyTargets),
-          message: `Detected drift in ${A.length(nonEmptyTargets)} target(s): ${pipe(
+        SyncDataToTsDriftError.new(
+          A.length(nonEmptyTargets),
+          `Detected drift in ${A.length(nonEmptyTargets)} target(s): ${pipe(
             nonEmptyTargets,
             A.map((result) => result.targetId),
             A.join(", ")
-          )}. Run "bun run beep sync-data-to-ts --all" to refresh generated files.`,
-        })
+          )}. Run "bun run beep sync-data-to-ts --all" to refresh generated files.`
+        )
       ),
   });
 };
