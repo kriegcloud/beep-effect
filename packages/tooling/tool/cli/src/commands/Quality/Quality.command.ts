@@ -39,6 +39,7 @@ const effectTsgoDiagnosticsTableStartMarker = "<!-- diagnostics-table:start -->"
 const effectTsgoDiagnosticsTableEndMarker = "<!-- diagnostics-table:end -->";
 const effectDiagnosticsDirectivePrefix = "@effect-diagnostics";
 const effectDiagnosticsOffDirectivePattern = new RegExp(`${effectDiagnosticsDirectivePrefix}[^\\n]*:${"off"}\\b`, "u");
+const effectTsgoDiagnosticPattern = /\b(?:error|warning) TS\d+: .* effect\([^)]+\)/u;
 const decodeUnknownRecordOption = S.decodeUnknownOption(S.Record(S.String, S.Unknown));
 const decodeUnknownArrayOption = S.decodeUnknownOption(S.Array(S.Unknown));
 const effectTsgoReadmeParser = new XMLParser({
@@ -106,6 +107,9 @@ const decodeEffectTsgoRuleRowOption = S.decodeUnknownOption(EffectTsgoRuleRow);
 const decodeEffectTsgoDiagnosticsTableOption = S.decodeUnknownOption(EffectTsgoDiagnosticsTable);
 
 type QualityScriptEnvironment = FileSystem.FileSystem | Path.Path | ChildProcessSpawner.ChildProcessSpawner;
+type TsgoDiagnosticOutput = {
+  readonly output: string;
+};
 
 /**
  * GitHub check mode handled by `beep quality github-checks`.
@@ -883,6 +887,30 @@ const runTestTsgoPackageGroup = Effect.fn("QualityScriptCommands.runTestTsgoPack
   };
 });
 
+/**
+ * Collect Effect tsgo diagnostics from command output regardless of process exit code.
+ *
+ * @param results - Completed tsgo command outputs to scan.
+ * @returns Matching Effect diagnostic output lines.
+ * @example
+ * ```ts
+ * import { collectEffectTsgoDiagnosticLines } from "@beep/repo-cli/commands/Quality/Quality.command"
+ * const diagnostics = collectEffectTsgoDiagnosticLines([{ output: "warning TS90001: effect(service)\\n" }])
+ * ```
+ * @category utilities
+ * @since 0.0.0
+ */
+export const collectEffectTsgoDiagnosticLines = (results: ReadonlyArray<TsgoDiagnosticOutput>): ReadonlyArray<string> =>
+  pipe(
+    results,
+    A.flatMap((result) =>
+      pipe(
+        Str.split(result.output, "\n"),
+        A.filter((line) => effectTsgoDiagnosticPattern.test(line))
+      )
+    )
+  );
+
 const unknownRecordProperty = (value: unknown, key: string): O.Option<unknown> => {
   if (A.isArray(value)) {
     return O.none();
@@ -1331,15 +1359,7 @@ export const runTestTsgoChecks = Effect.fn("QualityScriptCommands.runTestTsgoChe
     { concurrency: 1 }
   ).pipe(Effect.ensuring(fs.remove(tempDir, { recursive: true, force: true }).pipe(Effect.ignore)));
   const failures = A.filter(results, (result) => result.exitCode !== 0);
-  const effectDiagnosticLines = pipe(
-    failures,
-    A.flatMap((result) =>
-      pipe(
-        Str.split(result.output, "\n"),
-        A.filter((line) => /\b(?:error|warning) TS\d+: .* effect\([^)]+\)/u.test(line))
-      )
-    )
-  );
+  const effectDiagnosticLines = collectEffectTsgoDiagnosticLines(results);
 
   if (A.isReadonlyArrayNonEmpty(effectDiagnosticLines)) {
     yield* Console.error(
@@ -1357,6 +1377,9 @@ export const runTestTsgoChecks = Effect.fn("QualityScriptCommands.runTestTsgoChe
         yield* Console.error(failure.output);
       }
     }
+  }
+
+  if (A.isReadonlyArrayNonEmpty(effectDiagnosticLines) || A.isReadonlyArrayNonEmpty(failures)) {
     return yield* withExitCode(
       "check:tsgo:tests",
       path.join(repoRoot, "node_modules", ".bin", "tsgo"),

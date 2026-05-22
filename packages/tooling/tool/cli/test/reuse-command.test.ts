@@ -1,4 +1,4 @@
-import { reuseCommand } from "@beep/repo-cli/commands/Reuse";
+import { reuseCommand, sanitizeTerminalText } from "@beep/repo-cli/commands/Reuse";
 import { CodexSmokeResult } from "@beep/repo-cli/test/Reuse";
 import { RepoCodegraphLookupResult } from "@beep/repo-codegraph";
 import {
@@ -295,6 +295,12 @@ describe("reuse command", () => {
       ),
     120_000
   );
+
+  it("sanitizes repeated unterminated OSC introducers without regex backtracking", () => {
+    const hostileText = `safe-prefix${"\u001b]".repeat(100_000)}unsafe-suffix`;
+
+    expect(sanitizeTerminalText(hostileText)).toBe("safe-prefix");
+  });
 
   it(
     "keeps machine-readable lookup JSON unsanitized for control-sequence input",

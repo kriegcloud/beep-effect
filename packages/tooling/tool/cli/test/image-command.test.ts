@@ -341,6 +341,41 @@ describe.sequential("image command", () => {
       )
     ));
 
+  it("rejects extract-frames-dir output paths escaped by special video stems", () =>
+    Effect.runPromise(
+      withTempDirectory((tmpDir) =>
+        Effect.gen(function* () {
+          const fs = yield* FileSystem.FileSystem;
+          const path = yield* Path.Path;
+          const binDir = path.join(tmpDir, "bin");
+          const argsPath = path.join(tmpDir, "ffmpeg-args.txt");
+          const videoDir = path.join(tmpDir, "videos");
+
+          yield* fs.makeDirectory(videoDir, { recursive: true });
+          yield* fs.writeFileString(path.join(videoDir, "...mp4"), "video");
+          yield* writeFfprobeShim(binDir);
+          yield* writeExtractFramesFfmpegShim(binDir, argsPath);
+          const exit = yield* Effect.exit(
+            withPathPrefix(binDir, runImageCommand(["extract-frames-dir", "--dir", videoDir, "--fps", "1"]))
+          );
+
+          expect(Exit.isFailure(exit)).toBe(true);
+          expect(yield* fs.exists(argsPath)).toBe(false);
+          expect(yield* fs.exists(path.join(tmpDir, "extract-frames-manifest.json"))).toBe(false);
+          if (Exit.isFailure(exit)) {
+            const failure = firstFailure(exit.cause);
+            expect(O.isSome(failure)).toBe(true);
+            if (O.isSome(failure)) {
+              expect(failure.value).toBeInstanceOf(ImageCommandError);
+              expect(failure.value.message).toBe(
+                'image extract-frames-dir: refusing unsafe output directory for "...mp4".'
+              );
+            }
+          }
+        })
+      )
+    ));
+
   it("continues through per-video failures and exits nonzero after the summary", () =>
     Effect.runPromise(
       withTempDirectory((tmpDir) =>
