@@ -54,6 +54,8 @@ intentionally preserved until a dedicated manifest migration is planned.
     coding-agent symbol discovery.
 - `stack-installer`
 - `trustgraph-doc-ontology`
+- `unified-ai-toolchain` — schema-first AI agent configuration contract packet
+  for Claude Code, Codex, Grok Build, JetBrains AI Assistant, and Junie.
 
 ## Reference Packets
 
