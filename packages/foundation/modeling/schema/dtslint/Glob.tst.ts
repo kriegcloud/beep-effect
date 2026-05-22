@@ -5,7 +5,7 @@ import { describe, expect, it } from "tstyche";
 
 describe("Glob", () => {
   it("preserves the branded schema surface", () => {
-    expect<typeof Glob.Type>().type.toBe<string & Brand.Brand<"Glob">>();
+    expect<Glob>().type.toBe<string & Brand.Brand<"Glob">>();
     expect<typeof Glob.Encoded>().type.toBe<string>();
     expect<GlobType>().type.toBe<string & Brand.Brand<"Glob">>();
   });

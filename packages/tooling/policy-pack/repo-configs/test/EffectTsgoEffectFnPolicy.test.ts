@@ -89,9 +89,7 @@ const bootstrapTsgoProject = Effect.fn(function* (projectDir: string) {
         "  });",
         "};",
         "",
-        "export const shortPlain = () => {",
-        "  return Effect.succeed(1);",
-        "};",
+        "export const shortPlain = (value: number) => value + 1;",
         "",
       ],
       A.join("\n")

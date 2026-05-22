@@ -575,7 +575,7 @@ export class XAiEndpoint extends S.Class<XAiEndpoint>($I`XAiEndpoint`)(
  * @category models
  * @since 0.0.0
  */
-export type XAiEndpointDescriptor = typeof XAiEndpoint.Type;
+export type XAiEndpointDescriptor = XAiEndpoint;
 
 const endpoint = (descriptor: XAiEndpointDescriptor): XAiEndpointDescriptor => new XAiEndpoint(descriptor);
 

@@ -1850,30 +1850,23 @@ export const tsconfigSyncCommand = Command.make(
     };
 
     yield* syncTsconfigAtRoot(rootDir, syncOptions).pipe(
-      Effect.catchTag(
-        "TsconfigSyncDriftError",
-        Effect.fn(function* (error) {
+      Effect.catchTags({
+        TsconfigSyncDriftError: Effect.fn(function* (error) {
           process.exitCode = 1;
           yield* Console.error(`tsconfig-sync: ${error.summary}`);
-        })
-      ),
-      Effect.catchTag(
-        "TsconfigSyncFilterError",
-        Effect.fn(function* (error) {
+        }),
+        TsconfigSyncFilterError: Effect.fn(function* (error) {
           process.exitCode = 1;
           yield* Console.error(`tsconfig-sync: ${error.message}`);
-        })
-      ),
-      Effect.catchTag(
-        "TsconfigSyncCycleError",
-        Effect.fn(function* (error) {
+        }),
+        TsconfigSyncCycleError: Effect.fn(function* (error) {
           process.exitCode = 1;
           yield* Console.error(`tsconfig-sync: ${error.message}`);
           for (const cycle of error.cycles) {
             yield* Console.error(`  cycle: ${A.join(cycle, " -> ")}`);
           }
-        })
-      )
+        }),
+      })
     );
   })
 ).pipe(

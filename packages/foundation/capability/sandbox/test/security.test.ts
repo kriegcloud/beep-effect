@@ -9,7 +9,7 @@ describe("@beep/sandbox security boundaries", () => {
     Effect.fnUntraced(function* () {
       const commands: Array<string> = [];
       const handle: BindMountSandboxHandle = {
-        close: () => Effect.void,
+        close: Effect.void,
         copyFileIn: () => Effect.void,
         copyFileOut: () => Effect.void,
         exec: (command) => {
@@ -32,7 +32,7 @@ describe("@beep/sandbox security boundaries", () => {
     Effect.fnUntraced(function* () {
       const commands: Array<string> = [];
       const handle: BindMountSandboxHandle = {
-        close: () => Effect.void,
+        close: Effect.void,
         copyFileIn: () => Effect.void,
         copyFileOut: () => Effect.void,
         exec: (command) => {

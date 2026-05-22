@@ -114,7 +114,7 @@ export const makeCanvasProjectUseCases = (repository: CanvasProjectRepositorySha
   }),
   list: Effect.fn("Canvas.CanvasProjectUseCases.list")(function* (query: ListCanvasProjectsQuery) {
     return yield* pipe(
-      repository.list(),
+      repository.list,
       Effect.map((canvasProjects) =>
         pipe(
           query.status,

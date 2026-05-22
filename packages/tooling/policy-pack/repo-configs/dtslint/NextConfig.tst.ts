@@ -11,7 +11,7 @@ import { describe, expect, it } from "tstyche";
 describe("NextConfig", () => {
   it("derives a model assignable to next.NextConfig", () => {
     expect<NextConfig>().type.toBeAssignableTo<NextConfigFromNext>();
-    expect<typeof NextConfigSchema.Type>().type.toBeAssignableTo<NextConfigFromNext>();
+    expect<NextConfigSchema>().type.toBeAssignableTo<NextConfigFromNext>();
   });
 
   it("accepts representative public Next.js config values", () => {

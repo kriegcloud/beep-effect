@@ -8,13 +8,13 @@ import {
 } from "@beep/workspace-domain";
 import { describe, expect, it } from "tstyche";
 
-declare const workspace: typeof WorkspaceEntity.Type;
+declare const workspace: WorkspaceEntity;
 
 describe("@beep/workspace-domain", () => {
   it("preserves exported value schema types", () => {
-    expect<typeof ApprovalDecision.Type>().type.toBe<ApprovalDecisionType>();
+    expect<ApprovalDecision>().type.toBe<ApprovalDecisionType>();
     expect<ApprovalDecisionType>().type.toBe<"pending">();
-    expect<typeof CandidateLifecycle.Type>().type.toBe<CandidateLifecycleType>();
+    expect<CandidateLifecycle>().type.toBe<CandidateLifecycleType>();
     expect<CandidateLifecycleType>().type.toBe<"candidate">();
   });
 

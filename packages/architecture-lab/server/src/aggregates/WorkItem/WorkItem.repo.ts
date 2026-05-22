@@ -61,10 +61,10 @@ export const makeInMemoryWorkItemRepository = Effect.fn("ArchitectureLab.WorkIte
       get: Effect.fn("ArchitectureLab.WorkItemRepository.get")(function* (id) {
         return yield* getStoredWorkItem(store, id);
       }),
-      list: Effect.fn("ArchitectureLab.WorkItemRepository.list")(function* () {
+      list: Effect.gen(function* () {
         const workItems = yield* Ref.get(store);
         return A.fromIterable(HashMap.values(workItems));
-      }),
+      }).pipe(Effect.withSpan("ArchitectureLab.WorkItemRepository.list")),
       save: Effect.fn("ArchitectureLab.WorkItemRepository.save")(function* (workItem) {
         yield* getStoredWorkItem(store, workItem.id);
         yield* Ref.update(store, (workItems) => HashMap.set(workItems, workItem.id, workItem));
@@ -153,10 +153,10 @@ export const makeDrizzleWorkItemRepository = Effect.fn("ArchitectureLab.WorkItem
     get: Effect.fn("ArchitectureLab.WorkItemRepository.drizzleGet")(function* (id) {
       return yield* getDrizzleWorkItem(db, id);
     }),
-    list: Effect.fn("ArchitectureLab.WorkItemRepository.drizzleList")(function* () {
+    list: Effect.gen(function* () {
       const rows = yield* db.select().from(workItemTable).pipe(repositoryUnavailable("list WorkItem"));
       return A.map(rows, fromWorkItemRow);
-    }),
+    }).pipe(Effect.withSpan("ArchitectureLab.WorkItemRepository.drizzleList")),
     save: Effect.fn("ArchitectureLab.WorkItemRepository.drizzleSave")(function* (workItem) {
       yield* getDrizzleWorkItem(db, workItem.id);
       const rows = yield* db

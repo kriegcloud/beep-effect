@@ -101,7 +101,7 @@ class Iso4217CurrencyEntry extends S.Class<Iso4217CurrencyEntry>($I`Iso4217Curre
   })
 ) {}
 
-type Iso4217CurrencyEntryType = typeof Iso4217CurrencyEntry.Type;
+type Iso4217CurrencyEntryType = Iso4217CurrencyEntry;
 const isIso4217CurrencyNameWithMetadata = S.is(Iso4217CurrencyNameWithMetadata);
 
 const encodeUnknownJsonResult = S.encodeUnknownResult(S.UnknownFromJsonString);

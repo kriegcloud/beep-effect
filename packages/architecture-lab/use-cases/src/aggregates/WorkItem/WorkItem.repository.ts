@@ -96,7 +96,7 @@ export interface WorkItemRepositoryShape {
   readonly get: (
     id: DomainWorkItem.WorkItemId
   ) => Effect.Effect<DomainWorkItem.WorkItem, WorkItemRepositoryNotFound | WorkItemRepositoryUnavailable>;
-  readonly list: () => Effect.Effect<ReadonlyArray<DomainWorkItem.WorkItem>, WorkItemRepositoryUnavailable>;
+  readonly list: Effect.Effect<ReadonlyArray<DomainWorkItem.WorkItem>, WorkItemRepositoryUnavailable>;
   readonly save: (
     workItem: DomainWorkItem.WorkItem
   ) => Effect.Effect<DomainWorkItem.WorkItem, WorkItemRepositoryNotFound | WorkItemRepositoryUnavailable>;

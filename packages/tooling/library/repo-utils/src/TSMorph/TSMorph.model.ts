@@ -1255,7 +1255,7 @@ export declare namespace Symbol {
    * @category models
    * @since 0.0.0
    */
-  export type Type = typeof Symbol.Type;
+  export type Type = Symbol;
   /**
    * Encoded representation of a `Symbol` value.
    *

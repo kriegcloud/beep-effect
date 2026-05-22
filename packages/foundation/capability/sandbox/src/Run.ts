@@ -677,7 +677,7 @@ const runInWorktree: <R>(
           })
         )
       ),
-    (sandbox) => sandbox.close()
+    (sandbox) => sandbox.close
   );
   const commits =
     options.branchStrategy._tag === "Head"

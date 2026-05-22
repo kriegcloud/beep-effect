@@ -323,9 +323,10 @@ export const makeHostDependencyServer = Effect.fn("InstallerServer.makeHostDepen
   const spawner = yield* ChildProcessSpawner.ChildProcessSpawner;
 
   return {
-    previewHostDependencies: () => Effect.succeed(plan),
-    validateRequiredCommands: () =>
-      Effect.forEach(p1CommandProbes, (probe) => probeCommand(spawner, probe), { concurrency: 4 }),
+    previewHostDependencies: Effect.succeed(plan),
+    validateRequiredCommands: Effect.forEach(p1CommandProbes, (probe) => probeCommand(spawner, probe), {
+      concurrency: 4,
+    }),
   };
 });
 
@@ -351,7 +352,7 @@ export const makeSecretReferenceServer = Effect.fn("InstallerServer.makeSecretRe
     );
 
   return {
-    previewSecretReferences: () => Effect.succeed(plan),
+    previewSecretReferences: Effect.succeed(plan),
     readSecretReference: Effect.fn("InstallerServer.readSecretReference")(function* (reference: OnePasswordReference) {
       if (!isApprovedReference(reference)) {
         return yield* new SecretReferenceReadError({
@@ -450,8 +451,8 @@ export const makeProviderAccountServer = Effect.fn("InstallerServer.makeProvider
   });
 
   return {
-    previewProviderAccounts: () => Effect.succeed(plan),
-    validateProviderAuths: () => Effect.forEach(p1ProviderAuthProviders, validateProvider, { concurrency: 2 }),
+    previewProviderAccounts: Effect.succeed(plan),
+    validateProviderAuths: Effect.forEach(p1ProviderAuthProviders, validateProvider, { concurrency: 2 }),
   };
 });
 
@@ -466,7 +467,7 @@ export const makeDiscordChannelServer = Effect.fn("InstallerServer.makeDiscordCh
   const discord = yield* Discord;
 
   return {
-    previewDiscordChannels: () => Effect.succeed(plan),
+    previewDiscordChannels: Effect.succeed(plan),
     validateDiscordChannel: Effect.fn("InstallerServer.validateDiscordChannel")(function* (
       rawRequest: DiscordLiveValidationRequest,
       botToken: Redacted.Redacted<string>
@@ -522,7 +523,7 @@ export const makeStackManifestServer = Effect.fn("InstallerServer.makeStackManif
   const plan = yield* decodeWorkspaceDryRunPlan(p1aWorkspaceDryRunPlanInput);
 
   return {
-    previewWorkspace: () => Effect.succeed(plan),
+    previewWorkspace: Effect.succeed(plan),
   };
 });
 
@@ -542,7 +543,7 @@ export const makeP1ManualProofWorkflow = Effect.fn("InstallerServer.makeP1Manual
     rawRequest: P1ManualProofRequest
   ) {
     const request = yield* decodeP1ManualProofRequest(rawRequest);
-    const dependencyValidations = yield* hostDependencies.validateRequiredCommands();
+    const dependencyValidations = yield* hostDependencies.validateRequiredCommands;
     const secretValidation = yield* secretReferences.validateSecretReference(
       new SecretReferenceValidationRequest({
         id: "discord-bot-token",
@@ -551,7 +552,7 @@ export const makeP1ManualProofWorkflow = Effect.fn("InstallerServer.makeP1Manual
         usedBy: "installer:discord-channel",
       })
     );
-    const providerValidations = yield* providerAccounts.validateProviderAuths();
+    const providerValidations = yield* providerAccounts.validateProviderAuths;
 
     return { dependencyValidations, providerValidations, request, secretValidation };
   });
@@ -593,7 +594,7 @@ export const makeP1ManualProofWorkflow = Effect.fn("InstallerServer.makeP1Manual
     preview: Effect.fn("InstallerServer.previewP1ManualProof")(function* (rawRequest: P1ManualProofRequest) {
       const { dependencyValidations, providerValidations, request, secretValidation } =
         yield* validateSharedInputs(rawRequest);
-      const channelPreview = yield* discordChannels.previewDiscordChannels();
+      const channelPreview = yield* discordChannels.previewDiscordChannels;
       const previewNotes = pipe(channelPreview.notes, A.join(" "));
       const manifest = manifestForRequest(request, providersForManifest(providerValidations), {
         discordSummary: Str.isNonEmpty(previewNotes)

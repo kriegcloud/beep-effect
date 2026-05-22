@@ -122,7 +122,7 @@ export const interactive: <R>(
         stdout: process.stdout,
       });
     }),
-    (sandbox) => sandbox.close()
+    (sandbox) => sandbox.close
   );
 
   return new InteractiveResult({ exitCode: result.exitCode });

@@ -80,7 +80,7 @@ export class ConfigurationSchema extends S.Class<ConfigurationSchema>($I`Configu
  * @category services
  * @since 0.0.0
  */
-export type ConfigurationDocument = typeof ConfigurationSchema.Type;
+export type ConfigurationDocument = ConfigurationSchema;
 
 /**
  * Fully resolved configuration values used while docgen executes.

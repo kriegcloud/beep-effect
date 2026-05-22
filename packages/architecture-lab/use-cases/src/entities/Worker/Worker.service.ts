@@ -70,7 +70,7 @@ export const makeWorkerUseCases = (repository: WorkerRepositoryShape): WorkerUse
   }),
   list: Effect.fn("ArchitectureLab.WorkerUseCases.list")(function* (query: ListWorkersQuery) {
     return yield* pipe(
-      repository.list(),
+      repository.list,
       Effect.map((workers) =>
         pipe(
           query.status,

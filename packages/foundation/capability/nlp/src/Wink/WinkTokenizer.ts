@@ -304,23 +304,26 @@ const makeWinkTokenization = Effect.gen(function* () {
       const documentId = yield* resolveDocumentId(rawDocumentId, "document");
       return buildDocument(text, documentId, tokens, sentences, doc, its);
     }),
-    sentences: Effect.fn("Nlp.Wink.WinkTokenizer.sentences")(function* (text: string) {
-      const doc = yield* engine.getWinkDoc(text).pipe(Effect.mapError(makeTokenizationError("sentences")));
-      const its = yield* engine.its.pipe(Effect.mapError(makeTokenizationError("sentences")));
-      const tokens = collectTokens(doc, its);
-      return yield* collectSentences(doc, tokens, its).pipe(
-        Effect.map(Chunk.toReadonlyArray),
-        Effect.mapError(makeTokenizationError("sentences"))
-      );
-    }),
+    sentences: Effect.fn("Nlp.Wink.WinkTokenizer.sentences")(
+      function* (text: string) {
+        const doc = yield* engine.getWinkDoc(text);
+        const its = yield* engine.its;
+        const tokens = collectTokens(doc, its);
+        return yield* collectSentences(doc, tokens, its).pipe(Effect.map(Chunk.toReadonlyArray));
+      },
+      Effect.mapError(makeTokenizationError("sentences"))
+    ),
     tokenCount: Effect.fn("Nlp.Wink.WinkTokenizer.tokenCount")(function* (text: string) {
       return yield* engine.getWinkTokenCount(text).pipe(Effect.mapError(makeTokenizationError("tokenCount")));
     }),
-    tokenize: Effect.fn("Nlp.Wink.WinkTokenizer.tokenize")(function* (text: string) {
-      const doc = yield* engine.getWinkDoc(text).pipe(Effect.mapError(makeTokenizationError("tokenize")));
-      const its = yield* engine.its.pipe(Effect.mapError(makeTokenizationError("tokenize")));
-      return Chunk.toReadonlyArray(collectTokens(doc, its));
-    }),
+    tokenize: Effect.fn("Nlp.Wink.WinkTokenizer.tokenize")(
+      function* (text: string) {
+        const doc = yield* engine.getWinkDoc(text);
+        const its = yield* engine.its;
+        return Chunk.toReadonlyArray(collectTokens(doc, its));
+      },
+      Effect.mapError(makeTokenizationError("tokenize"))
+    ),
   });
 }).pipe(Effect.withSpan("Nlp.Wink.WinkTokenizer.make"));
 

@@ -198,7 +198,7 @@ const readBody = (scenarioId: string): Promise<string> =>
 // TODO(effect-native-migration): model schema
 export const toPlain = <A>(value: A): unknown =>
   S.decodeUnknownSync(S.UnknownFromJsonString)(S.encodeUnknownSync(S.UnknownFromJsonString)(value));
-const toSnapshot = (value: unknown): typeof UnknownRecord.Type => S.decodeUnknownSync(UnknownRecord)(toPlain(value));
+const toSnapshot = (value: unknown): UnknownRecord => S.decodeUnknownSync(UnknownRecord)(toPlain(value));
 
 const decodeFixtureModel = <A>(schema: S.Top): ((input: unknown) => A) =>
   Reflect.apply(S.decodeUnknownSync, undefined, [schema]);

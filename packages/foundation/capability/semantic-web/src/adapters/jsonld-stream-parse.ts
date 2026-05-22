@@ -28,7 +28,7 @@ import {
 
 const decodeJsonLdDocumentFromJson = S.decodeUnknownEffect(S.fromJsonString(JsonLdDocument));
 
-const decodeNonNegativeInt = (value: number): Effect.Effect<typeof NonNegativeInt.Type, JsonLdStreamParseError> =>
+const decodeNonNegativeInt = (value: number): Effect.Effect<NonNegativeInt, JsonLdStreamParseError> =>
   S.decodeUnknownEffect(NonNegativeInt)(value).pipe(
     Effect.mapError(
       (cause) =>
@@ -57,7 +57,7 @@ const mapDocumentErrorToParseError = (error: JsonLdDocumentError): JsonLdStreamP
 
 const applyLoaderBaseIri = (
   document: JsonLdDocument,
-  loaderPolicy: O.Option<typeof JsonLdDocumentLoaderPolicy.Type>
+  loaderPolicy: O.Option<JsonLdDocumentLoaderPolicy>
 ): JsonLdDocument =>
   pipe(
     loaderPolicy,

@@ -481,26 +481,19 @@ export const syncDataToTsCommand = Command.make(
       yield* reportSummary(results, mode);
       yield* failOnCheckDrift(results, mode);
     },
-    Effect.catchTag(
-      "SyncDataToTsDriftError",
-      Effect.fn(function* (error) {
+    Effect.catchTags({
+      SyncDataToTsDriftError: Effect.fn(function* (error) {
         process.exitCode = 1;
         yield* Console.error(`sync-data-to-ts: ${error.message}`);
-      })
-    ),
-    Effect.catchTag(
-      "SyncDataToTsError",
-      Effect.fn(function* (error) {
+      }),
+      SyncDataToTsError: Effect.fn(function* (error) {
         process.exitCode = 1;
         yield* Console.error(renderSyncDataError(error));
-      })
-    ),
-    Effect.catchTag(
-      "NoSuchFileError",
-      Effect.fn(function* (error) {
+      }),
+      NoSuchFileError: Effect.fn(function* (error) {
         process.exitCode = 1;
         yield* Console.error(`sync-data-to-ts: ${error.message}`);
-      })
-    )
+      }),
+    })
   )
 ).pipe(Command.withDescription("Sync official upstream datasets into" + " checked-in TypeScript modules"));

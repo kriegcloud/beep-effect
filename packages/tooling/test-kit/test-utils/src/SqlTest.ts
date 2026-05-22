@@ -187,9 +187,7 @@ export class PgliteTestcontainersTestDriverConfig extends S.Class<PgliteTestcont
  * @category models
  * @since 0.0.0
  */
-export type PgliteTestcontainersTestDriverConfigInput =
-  | Partial<typeof PgliteTestcontainersTestDriverConfig.Type>
-  | undefined;
+export type PgliteTestcontainersTestDriverConfigInput = Partial<PgliteTestcontainersTestDriverConfig> | undefined;
 
 /**
  * Runtime configuration for an externally managed PostgreSQL-compatible SQL test driver.
@@ -240,7 +238,7 @@ export class PgExternalTestDriverConfig extends S.Class<PgExternalTestDriverConf
  * @category models
  * @since 0.0.0
  */
-export type PgExternalTestDriverConfigInput = Partial<typeof PgExternalTestDriverConfig.Type> | undefined;
+export type PgExternalTestDriverConfigInput = Partial<PgExternalTestDriverConfig> | undefined;
 
 /**
  * Mode selector for the public PGLite SQL test layer helper.

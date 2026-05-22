@@ -45,7 +45,7 @@ export class CreateWorktreeOptions extends S.Class<CreateWorktreeOptions>($I`Cre
  */
 export interface Worktree<R = never> {
   readonly branch: string;
-  readonly close: () => Effect.Effect<void, SandboxError, Path.Path | SandboxProcess>;
+  readonly close: Effect.Effect<void, SandboxError, Path.Path | SandboxProcess>;
   readonly path: string;
   readonly run: <RunEnv = R>(
     options: Omit<RunOptions<RunEnv>, "agent" | "branchStrategy" | "sandbox"> & {
@@ -93,7 +93,7 @@ export const createWorktree = Effect.fn("createWorktree.createWorktree")(functio
     })
   );
   const closedRef = yield* Ref.make(false);
-  const close = Effect.fn("createWorktree.close")(function* () {
+  const close = Effect.gen(function* () {
     const alreadyClosed = yield* Ref.getAndSet(closedRef, true);
 
     if (alreadyClosed) {
@@ -101,7 +101,7 @@ export const createWorktree = Effect.fn("createWorktree.createWorktree")(functio
     }
 
     yield* removeWorktree(info.path);
-  });
+  }).pipe(Effect.withSpan("createWorktree.close"));
 
   return {
     branch: info.branch,
@@ -125,5 +125,5 @@ export const createWorktree = Effect.fn("createWorktree.createWorktree")(functio
 export const createWorktreeScoped = Effect.fn("createWorktree.createWorktreeScoped")(function* <R = never>(
   options: CreateWorktreeOptions
 ): Effect.fn.Return<Worktree<R>, SandboxError, Path.Path | SandboxProcess | Scope.Scope> {
-  return yield* Effect.acquireRelease(createWorktree<R>(options), (worktree) => worktree.close().pipe(Effect.orDie));
+  return yield* Effect.acquireRelease(createWorktree<R>(options), (worktree) => worktree.close.pipe(Effect.orDie));
 });

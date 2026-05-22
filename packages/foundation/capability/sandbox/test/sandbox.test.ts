@@ -149,7 +149,7 @@ describe("@beep/sandbox", () => {
           A.appendInPlace(createdSandboxPaths, options.worktreePath);
 
           return Effect.succeed({
-            close: () => Effect.void,
+            close: Effect.void,
             copyFileOut: () => Effect.void,
             exec: () =>
               Effect.succeed(
@@ -185,8 +185,8 @@ describe("@beep/sandbox", () => {
         })
         .pipe(provideScopedLayer(TestLayer));
 
-      yield* worktree.close().pipe(provideScopedLayer(TestLayer));
-      yield* worktree.close().pipe(provideScopedLayer(TestLayer));
+      yield* worktree.close.pipe(provideScopedLayer(TestLayer));
+      yield* worktree.close.pipe(provideScopedLayer(TestLayer));
       yield* removePath(repoDir);
 
       expect(result.branch).toBe("feature/reuse");
@@ -513,10 +513,9 @@ describe("@beep/sandbox", () => {
         _tag: "None",
         create: ({ env, worktreePath }) =>
           Effect.succeed({
-            close: () =>
-              Effect.sync(() => {
-                closed = true;
-              }),
+            close: Effect.sync(() => {
+              closed = true;
+            }),
             copyFileOut: () => Effect.void,
             exec: () => Effect.succeed(new ExecResult({ exitCode: 0, stderr: "", stdout: "" })),
             interactiveExec: (args, options) =>
@@ -628,7 +627,7 @@ describe("@beep/sandbox", () => {
         parseStreamLine: () => [],
       };
       const sandbox: SandboxHandle = {
-        close: () => Effect.void,
+        close: Effect.void,
         copyFileOut: () => Effect.void,
         exec: Effect.fn("SilentSandbox.exec")(function* () {
           return yield* Effect.never;

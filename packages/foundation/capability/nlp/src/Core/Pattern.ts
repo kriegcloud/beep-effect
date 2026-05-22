@@ -479,7 +479,7 @@ export class Pattern extends S.TaggedClass<Pattern>($I`Pattern`)(
     SchemaUtils.withStatics(() => ({
       decode: (input: unknown) =>
         Result.getOrThrowWith(S.decodeUnknownResult(POSPatternElement)(input), schemaIssueToError),
-      encode: (input: typeof POSPatternElement.Type) =>
+      encode: (input: POSPatternElement) =>
         Result.getOrThrowWith(S.encodeResult(POSPatternElement)(input), schemaIssueToError),
       is: S.is(POSPatternElement),
       toBracketString: (value: POSPatternOption): string => renderBracketString(value),
@@ -493,7 +493,7 @@ export class Pattern extends S.TaggedClass<Pattern>($I`Pattern`)(
     SchemaUtils.withStatics(() => ({
       decode: (input: unknown) =>
         Result.getOrThrowWith(S.decodeUnknownResult(EntityPatternElement)(input), schemaIssueToError),
-      encode: (input: typeof EntityPatternElement.Type) =>
+      encode: (input: EntityPatternElement) =>
         Result.getOrThrowWith(S.encodeResult(EntityPatternElement)(input), schemaIssueToError),
       is: S.is(EntityPatternElement),
       toBracketString: (value: EntityPatternOption): string => renderBracketString(value),
@@ -507,7 +507,7 @@ export class Pattern extends S.TaggedClass<Pattern>($I`Pattern`)(
     SchemaUtils.withStatics(() => ({
       decode: (input: unknown) =>
         Result.getOrThrowWith(S.decodeUnknownResult(LiteralPatternElement)(input), schemaIssueToError),
-      encode: (input: typeof LiteralPatternElement.Type) =>
+      encode: (input: LiteralPatternElement) =>
         Result.getOrThrowWith(S.encodeResult(LiteralPatternElement)(input), schemaIssueToError),
       is: S.is(LiteralPatternElement),
       toBracketString: (value: LiteralPatternOption): string => renderBracketString(value),

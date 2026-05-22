@@ -251,7 +251,7 @@ export const thunkEffect = <T>(effect: T) => thunk(effect);
  * @category utilities
  * @since 0.0.0
  */
-export const thunkEffectVoid = thunkEffect(Effect.void);
+export const thunkEffectVoid = (..._: ReadonlyArray<unknown>) => Effect.void;
 
 /**
  * Creates a thunk that returns `Effect.succeed(a)`.
@@ -288,7 +288,7 @@ export const thunkEffectSucceed = <A>(a: A) => thunkEffect(Effect.succeed(a));
  * @category utilities
  * @since 0.0.0
  */
-export const thunkEffectSucceedNull = thunkEffectSucceed(null);
+export const thunkEffectSucceedNull = (..._: ReadonlyArray<unknown>) => Effect.succeed(null);
 
 /**
  * Returns `Effect.succeed(Option.none())`.
@@ -307,7 +307,7 @@ export const thunkEffectSucceedNull = thunkEffectSucceed(null);
  * @category constructors
  * @since 0.0.0
  */
-export const thunkEffectSucceedNone = <A = never>() => Effect.succeed(O.none<A>());
+export const thunkEffectSucceedNone = <A = never>(..._: ReadonlyArray<unknown>) => Effect.succeed(O.none<A>());
 
 /**
  * Returns a thunk that yields an empty record.

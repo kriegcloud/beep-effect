@@ -6,7 +6,7 @@ import { describe, expect, it } from "tstyche";
 describe("EffectSchema", () => {
   it("preserves the effect schema surface", () => {
     expect<EffectSchemaType>().type.toBe<Effect.Effect<unknown, unknown, unknown>>();
-    expect<typeof EffectSchema.Type>().type.toBe<EffectSchemaType>();
+    expect<EffectSchema>().type.toBe<EffectSchemaType>();
     expect<typeof EffectSchema.Encoded>().type.toBe<Effect.Effect<unknown, unknown, unknown>>();
   });
 

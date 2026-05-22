@@ -13,6 +13,7 @@ import * as R from "effect/Record";
 import * as S from "effect/Schema";
 import { FetchHttpClient } from "effect/unstable/http";
 import * as HttpClient from "effect/unstable/http/HttpClient";
+import type * as HttpClientError from "effect/unstable/http/HttpClientError";
 import * as HttpClientRequest from "effect/unstable/http/HttpClientRequest";
 import type * as HttpClientResponse from "effect/unstable/http/HttpClientResponse";
 import { SANITY_API_VERSION, SanityConfigInput } from "./Sanity.config.ts";
@@ -260,29 +261,25 @@ const ensureSuccess = Effect.fnUntraced(function* (
   });
 });
 
-const decodeResponse = Effect.fnUntraced(function* (
-  url: string,
-  response: HttpClientResponse.HttpClientResponse
-): Effect.fn.Return<SanityQueryResponse, SanityError> {
-  const body = yield* response.json.pipe(
-    Effect.mapError((cause) =>
-      SanityError.fromReason("response decoding", {
-        cause,
-        url,
-      })
-    )
-  );
+const decodeResponse = Effect.fnUntraced(
+  function* (
+    _url: string,
+    response: HttpClientResponse.HttpClientResponse
+  ): Effect.fn.Return<SanityQueryResponse, HttpClientError.HttpClientError | S.SchemaError> {
+    const body = yield* response.json;
 
-  return yield* pipe(
-    decodeQueryResponse(body),
-    Effect.mapError((cause) =>
-      SanityError.fromReason("response decoding", {
-        cause,
-        url,
-      })
+    return yield* decodeQueryResponse(body);
+  },
+  (effect, url) =>
+    effect.pipe(
+      Effect.mapError((cause) =>
+        SanityError.fromReason("response decoding", {
+          cause,
+          url,
+        })
+      )
     )
-  );
-});
+);
 
 const makeService = (client: HttpClient.HttpClient, config: ResolvedSanityConfig): SanityShape => ({
   fetch: Effect.fn("Sanity.fetch")(function* (request) {

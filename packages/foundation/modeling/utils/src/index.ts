@@ -83,21 +83,6 @@ export * as FileSystem from "./FileSystem.ts";
 export * as Html from "./Html.ts";
 
 /**
- * Prototype-pollution guard.
- *
- * @example
- * ```ts
- * import { isBlockedObjectKey } from "@beep/utils"
- *
- * const blocked = isBlockedObjectKey("__proto__")
- * console.log(blocked)
- * ```
- *
- * @category utilities
- * @since 0.0.0
- */
-export * from "./isBlockedObjectKey.ts";
-/**
  * Number utilities extending `effect/Number`.
  *
  * @example

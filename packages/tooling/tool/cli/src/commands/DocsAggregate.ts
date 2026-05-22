@@ -87,19 +87,15 @@ export const docsAggregateCommand = Command.make(
           return yield* aggregateDocs(selector, clean);
         })
       ),
-      Effect.catchTag(
-        "DomainError",
-        Effect.fn(function* (error) {
+      Effect.catchTags({
+        DomainError: Effect.fn(function* (error) {
           process.exitCode = 1;
           yield* Console.error(`docs aggregate: ${error.message}`);
-        })
-      ),
-      Effect.catchTag(
-        "NoSuchFileError",
-        Effect.fn(function* (error) {
+        }),
+        NoSuchFileError: Effect.fn(function* (error) {
           process.exitCode = 1;
           yield* Console.error(`docs aggregate: ${error.message}`);
-        })
-      )
+        }),
+      })
     )
 ).pipe(Command.withDescription("Aggregate generated docs into the current root docs layout"));

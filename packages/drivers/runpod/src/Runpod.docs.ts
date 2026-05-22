@@ -61,7 +61,7 @@ export class RunpodDocsIndex extends S.Class<RunpodDocsIndex>($I`RunpodDocsIndex
  * @since 0.1.0
  */
 interface RunpodDocsShape {
-  readonly fetchIndex: () => Effect.Effect<RunpodDocsIndex, RunpodDocsError>;
+  readonly fetchIndex: Effect.Effect<RunpodDocsIndex, RunpodDocsError>;
 }
 
 class ResolvedRunpodDocsConfig extends S.Class<ResolvedRunpodDocsConfig>($I`ResolvedRunpodDocsConfig`)(
@@ -232,10 +232,7 @@ const fetchIndex = Effect.fn("RunpodDocs.fetchIndex")(function* (
 const makeFetchIndex = (
   client: HttpClient.HttpClient,
   config: ResolvedRunpodDocsConfig
-): RunpodDocsShape["fetchIndex"] =>
-  Effect.fnUntraced(function* (): Effect.fn.Return<RunpodDocsIndex, RunpodDocsError> {
-    return yield* fetchIndex(client, config);
-  });
+): RunpodDocsShape["fetchIndex"] => fetchIndex(client, config);
 
 const makeRunpodDocsFromConfig = Effect.fn("RunpodDocs.makeRunpodDocsFromConfig")(function* (
   config: ResolvedRunpodDocsConfig

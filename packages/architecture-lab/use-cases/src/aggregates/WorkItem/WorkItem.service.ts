@@ -112,7 +112,7 @@ export const makeWorkItemUseCases = (repository: WorkItemRepositoryShape): WorkI
   }),
   list: Effect.fn("ArchitectureLab.WorkItemUseCases.list")(function* (query: ListWorkItemsQuery) {
     return yield* pipe(
-      repository.list(),
+      repository.list,
       Effect.map((workItems) =>
         pipe(
           query.status,

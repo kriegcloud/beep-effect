@@ -44,7 +44,7 @@ const decodeIriReference = (
   value: string,
   reason: JsonLdContextError["reason"],
   subject: string
-): Effect.Effect<typeof IRIReference.Type, JsonLdContextError> =>
+): Effect.Effect<IRIReference, JsonLdContextError> =>
   S.decodeUnknownEffect(IRIReference)(value).pipe(
     Effect.mapError((cause) =>
       makeContextError(reason, `Failed to decode JSON-LD IRI reference "${value}": ${String(cause)}`, subject)

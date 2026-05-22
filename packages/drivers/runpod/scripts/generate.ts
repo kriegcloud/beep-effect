@@ -303,7 +303,7 @@ const chooseResponse = (
       schemaExpression: schemaExpression(jsonSchema, schemaName),
       schemaName,
       status: selectedStatus,
-      typeExpression: `typeof ${schemaName}.Type`,
+      typeExpression: schemaName,
     };
   }
 

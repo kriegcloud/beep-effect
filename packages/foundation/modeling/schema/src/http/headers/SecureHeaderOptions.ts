@@ -95,7 +95,7 @@ export class SecureHeaderEntry extends S.Class<SecureHeaderEntry>($I`SecureHeade
 ) {}
 
 const resolveHeaders = Effect.fnUntraced(function* (
-  options: typeof SecureHeaderOptions.Type = {}
+  options: SecureHeaderOptions = {}
 ): Effect.fn.Return<ReadonlyArray<ResolvedHeader>, SecureHeaderError> {
   const headerEffects = A.make(
     ContentSecurityPolicyHeader.create(options.contentSecurityPolicy),
@@ -155,7 +155,7 @@ const resolveHeaders = Effect.fnUntraced(function* (
  * @category constructors
  */
 export const createHeadersObject = Effect.fn("SecureHeaderOptions.createHeadersObject")(function* (
-  options: typeof SecureHeaderOptions.Type = {}
+  options: SecureHeaderOptions = {}
 ): Effect.fn.Return<Record<string, string>, SecureHeaderError> {
   const headers = yield* resolveHeaders(options);
 
@@ -184,7 +184,7 @@ export const createHeadersObject = Effect.fn("SecureHeaderOptions.createHeadersO
  * @category constructors
  */
 export const createSecureHeaders = Effect.fn("SecureHeaderOptions.createSecureHeaders")(function* (
-  options: typeof SecureHeaderOptions.Type = {}
+  options: SecureHeaderOptions = {}
 ): Effect.fn.Return<ReadonlyArray<SecureHeaderEntry>, SecureHeaderError> {
   const headers = yield* resolveHeaders(options);
 

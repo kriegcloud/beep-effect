@@ -15,19 +15,19 @@ const knownDigest = "d01b7ce9154ef0264ce71e457ea81903b87a58d6cf2cd6be474886fdbc6
 
 describe("Sha256", () => {
   it("preserves the branded digest schema surface", () => {
-    expect<typeof Sha256Hex.Type>().type.toBe<string & Brand.Brand<"Sha256Hex">>();
+    expect<Sha256Hex>().type.toBe<string & Brand.Brand<"Sha256Hex">>();
     expect<typeof Sha256Hex.Encoded>().type.toBe<string>();
     expect<Sha256HexType>().type.toBe<string & Brand.Brand<"Sha256Hex">>();
   });
 
   it("tracks the one-way bytes-to-digest transformation types", () => {
-    expect<typeof Sha256HexFromBytes.Type>().type.toBe<Sha256HexType>();
+    expect<Sha256HexFromBytes>().type.toBe<Sha256HexType>();
     expect<typeof Sha256HexFromBytes.Encoded>().type.toBe<Uint8Array<ArrayBufferLike>>();
     expect<Sha256HexFromBytesType>().type.toBe<Sha256HexType>();
   });
 
   it("tracks the hex-byte transport schema types", () => {
-    expect<typeof Sha256HexFromHexBytes.Type>().type.toBe<Sha256HexType>();
+    expect<Sha256HexFromHexBytes>().type.toBe<Sha256HexType>();
     expect<typeof Sha256HexFromHexBytes.Encoded>().type.toBe<string>();
     expect<Sha256HexFromHexBytesType>().type.toBe<Sha256HexType>();
   });

@@ -6,7 +6,7 @@ import { describe, expect, it } from "tstyche";
 describe("PromiseSchema", () => {
   it("preserves the promise schema surface", () => {
     expect<PromiseSchemaType>().type.toBe<globalThis.Promise<unknown>>();
-    expect<typeof PromiseSchema.Type>().type.toBe<PromiseSchemaType>();
+    expect<PromiseSchema>().type.toBe<PromiseSchemaType>();
     expect<typeof PromiseSchema.Encoded>().type.toBe<globalThis.Promise<unknown>>();
   });
 

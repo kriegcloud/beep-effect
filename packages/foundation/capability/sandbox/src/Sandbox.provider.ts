@@ -219,7 +219,7 @@ export type BranchStrategy = typeof BranchStrategy.Type;
  * @since 0.0.0
  */
 export interface SandboxHandle<R = never> {
-  readonly close: () => Effect.Effect<void, SandboxError, R>;
+  readonly close: Effect.Effect<void, SandboxError, R>;
   readonly copyFileOut: (sandboxPath: string, hostPath: string) => Effect.Effect<void, SandboxError, R>;
   readonly exec: (command: string, options?: SandboxExecOptions) => Effect.Effect<ExecResult, SandboxError, R>;
   readonly interactiveExec?: (

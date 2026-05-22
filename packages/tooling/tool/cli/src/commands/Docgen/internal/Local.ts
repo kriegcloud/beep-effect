@@ -585,7 +585,7 @@ const decodeTurboDryRun = Effect.fn("DocgenLocal.decodeTurboDryRun")(function* (
   );
 });
 
-const summarizeTurboTasks = (output: typeof TurboDryRunDocument.Type): ReadonlyArray<DocgenLocalTurboTask> =>
+const summarizeTurboTasks = (output: TurboDryRunDocument): ReadonlyArray<DocgenLocalTurboTask> =>
   pipe(
     output.tasks,
     A.map((task) => {

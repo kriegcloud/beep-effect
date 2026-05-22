@@ -12,17 +12,17 @@ import {
 } from "@beep/wealth-management-domain";
 import { describe, expect, it } from "tstyche";
 
-declare const account: typeof Account.Type;
+declare const account: Account;
 
 describe("@beep/wealth-management-domain", () => {
   it("preserves exported value schema types", () => {
-    expect<typeof AccountType.Type>().type.toBe<AccountTypeType>();
+    expect<AccountType>().type.toBe<AccountTypeType>();
     expect<AccountTypeType>().type.toBe<"taxable_brokerage">();
-    expect<typeof HouseholdStatus.Type>().type.toBe<HouseholdStatusType>();
+    expect<HouseholdStatus>().type.toBe<HouseholdStatusType>();
     expect<HouseholdStatusType>().type.toBe<"active">();
-    expect<typeof PartyType.Type>().type.toBe<PartyTypeType>();
+    expect<PartyType>().type.toBe<PartyTypeType>();
     expect<PartyTypeType>().type.toBe<"person">();
-    expect<typeof WealthClientStatus.Type>().type.toBe<WealthClientStatusType>();
+    expect<WealthClientStatus>().type.toBe<WealthClientStatusType>();
     expect<WealthClientStatusType>().type.toBe<"active_client">();
   });
 

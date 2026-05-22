@@ -296,7 +296,7 @@ const isExtensionTierRecord = (record: ProvRecord): boolean =>
 const countRecords = (
   records: ReadonlyArray<ProvRecord>,
   predicate: (record: ProvRecord) => boolean
-): Effect.Effect<typeof NonNegativeInt.Type, ProvenanceServiceError> =>
+): Effect.Effect<NonNegativeInt, ProvenanceServiceError> =>
   decodeNonNegativeInt(
     pipe(
       records,
@@ -305,10 +305,7 @@ const countRecords = (
     "record count"
   );
 
-const decodeNonNegativeInt = (
-  value: number,
-  label: string
-): Effect.Effect<typeof NonNegativeInt.Type, ProvenanceServiceError> =>
+const decodeNonNegativeInt = (value: number, label: string): Effect.Effect<NonNegativeInt, ProvenanceServiceError> =>
   S.decodeUnknownEffect(NonNegativeInt)(value).pipe(
     Effect.mapError(
       (cause) =>

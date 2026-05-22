@@ -2,11 +2,11 @@ import { Agent, type AgentMode, type AgentMode as AgentModeType } from "@beep/ag
 import type * as AgentCapability from "@beep/shared-domain/identity/AgentCapability";
 import { describe, expect, it } from "tstyche";
 
-declare const agent: typeof Agent.Type;
+declare const agent: Agent;
 
 describe("@beep/agent-capability-domain", () => {
   it("preserves exported value schema types", () => {
-    expect<typeof AgentMode.Type>().type.toBe<AgentModeType>();
+    expect<AgentMode>().type.toBe<AgentModeType>();
     expect<AgentModeType>().type.toBe<"deterministic_fixture">();
   });
 

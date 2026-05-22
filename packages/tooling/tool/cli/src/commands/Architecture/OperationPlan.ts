@@ -1496,7 +1496,7 @@ const withOperationMetadata = (
   });
 };
 
-const normalizeInput = (input: Partial<typeof ArchitecturePlanTarget.Type> = {}): ArchitecturePlanTarget => {
+const normalizeInput = (input: Partial<ArchitecturePlanTarget> = {}): ArchitecturePlanTarget => {
   const boundedContext = input.boundedContext ?? defaultPlanTarget.boundedContext;
   const concept = input.concept ?? defaultPlanTarget.concept;
   const domainKind = input.domainKind ?? defaultPlanTarget.domainKind;
@@ -2372,7 +2372,7 @@ export const makeCanonicalSliceOperationPlan = (): CanonicalSliceOperationPlan =
  */
 export const makeArchitectureOperationPlan = Effect.fn(function* (
   repoRoot: string,
-  input: Partial<typeof ArchitecturePlanTarget.Type> = {},
+  input: Partial<ArchitecturePlanTarget> = {},
   roles: O.Option<ReadonlyArray<ArchitectureSliceRole>> = O.none()
 ) {
   const fs = yield* FileSystem.FileSystem;

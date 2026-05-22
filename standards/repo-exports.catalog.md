@@ -20,9 +20,9 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | packagesWithPublicExports | 77 |
 | packagesWithoutPublicExports | 1 |
 | missingWorkspaceMetadata | 0 |
-| importSpecifiers | 930 |
-| publicExportEntries | 13711 |
-| uniquePackageSymbols | 5480 |
+| importSpecifiers | 932 |
+| publicExportEntries | 13714 |
+| uniquePackageSymbols | 5482 |
 
 ## Seed Discovery Proof
 
@@ -88,7 +88,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | 49 | `@beep/workspace-tables` | `packages/workspace/tables` | has-public-exports | 4 | 7 | 5 |
 | 50 | `@beep/db-admin` | `packages/_internal/db-admin` | has-public-exports | 5 | 15 | 6 |
 | 51 | `@beep/architecture-lab-client` | `packages/architecture-lab/client` | has-public-exports | 2 | 6 | 6 |
-| 52 | `@beep/repo-cli` | `packages/tooling/tool/cli` | has-public-exports | 79 | 834 | 502 |
+| 52 | `@beep/repo-cli` | `packages/tooling/tool/cli` | has-public-exports | 81 | 837 | 504 |
 | 53 | `@beep/shared-server` | `packages/shared/server` | has-public-exports | 2 | 2 | 1 |
 | 54 | `@beep/canvas-server` | `packages/canvas/server` | has-public-exports | 4 | 18 | 16 |
 | 55 | `@beep/shared-config` | `packages/shared/config` | has-public-exports | 2 | 2 | 1 |
@@ -4720,67 +4720,67 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 
 | Import | Symbol | Kind | Source | Summary |
 |---|---|---|---|---|
-| `@beep/test-utils` | `BunSqliteTestDriver` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:963` | Fresh Bun SQLite integration-test driver backed by a scoped temp directory. |
-| `@beep/test-utils` | `makePgliteSqlTestLayer` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:1105` | Build the recommended PGLite SQL test layer for vertical-slice integration tests. |
-| `@beep/test-utils` | `makePgliteTestcontainerResource` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:679` | Start a scoped PGLite Testcontainers PostgreSQL wire-protocol resource. |
-| `@beep/test-utils` | `makeSqlTestLayer` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:508` | Build a fresh, scoped SQL integration-test layer for a concrete driver. |
-| `@beep/test-utils` | `NodeSqliteTestDriver` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:1013` | Fresh Node SQLite integration-test driver backed by a scoped temp directory. |
-| `@beep/test-utils` | `PgExternalTestDriver` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:1057` | External PostgreSQL-compatible integration-test driver backed by a caller-managed server. |
-| `@beep/test-utils` | `PgExternalTestDriverConfig` | class | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:208` | Runtime configuration for an externally managed PostgreSQL-compatible SQL test driver. |
-| `@beep/test-utils` | `PgExternalTestDriverConfigInput` | type | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:243` | Constructor input accepted by the external PostgreSQL SQL test driver. |
-| `@beep/test-utils` | `PgliteSqlTestLayerMode` | type | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:251` | Mode selector for the public PGLite SQL test layer helper. |
-| `@beep/test-utils` | `PgliteSqlTestLayerOptions` | interface | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:259` | Options for `makePgliteSqlTestLayer`. |
-| `@beep/test-utils` | `PgliteTestcontainerResource` | interface | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:440` | Scoped PGLite Testcontainers resource metadata. |
-| `@beep/test-utils` | `PgliteTestcontainersTestDriver` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:1035` | Fresh PGLite integration-test driver backed by a scoped Testcontainers PostgreSQL wire-protocol server. |
+| `@beep/test-utils` | `BunSqliteTestDriver` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:961` | Fresh Bun SQLite integration-test driver backed by a scoped temp directory. |
+| `@beep/test-utils` | `makePgliteSqlTestLayer` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:1103` | Build the recommended PGLite SQL test layer for vertical-slice integration tests. |
+| `@beep/test-utils` | `makePgliteTestcontainerResource` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:677` | Start a scoped PGLite Testcontainers PostgreSQL wire-protocol resource. |
+| `@beep/test-utils` | `makeSqlTestLayer` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:506` | Build a fresh, scoped SQL integration-test layer for a concrete driver. |
+| `@beep/test-utils` | `NodeSqliteTestDriver` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:1011` | Fresh Node SQLite integration-test driver backed by a scoped temp directory. |
+| `@beep/test-utils` | `PgExternalTestDriver` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:1055` | External PostgreSQL-compatible integration-test driver backed by a caller-managed server. |
+| `@beep/test-utils` | `PgExternalTestDriverConfig` | class | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:206` | Runtime configuration for an externally managed PostgreSQL-compatible SQL test driver. |
+| `@beep/test-utils` | `PgExternalTestDriverConfigInput` | type | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:241` | Constructor input accepted by the external PostgreSQL SQL test driver. |
+| `@beep/test-utils` | `PgliteSqlTestLayerMode` | type | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:249` | Mode selector for the public PGLite SQL test layer helper. |
+| `@beep/test-utils` | `PgliteSqlTestLayerOptions` | interface | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:257` | Options for `makePgliteSqlTestLayer`. |
+| `@beep/test-utils` | `PgliteTestcontainerResource` | interface | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:438` | Scoped PGLite Testcontainers resource metadata. |
+| `@beep/test-utils` | `PgliteTestcontainersTestDriver` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:1033` | Fresh PGLite integration-test driver backed by a scoped Testcontainers PostgreSQL wire-protocol server. |
 | `@beep/test-utils` | `PgliteTestcontainersTestDriverConfig` | class | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:150` | Runtime configuration for the PGLite Testcontainers SQL test driver. |
 | `@beep/test-utils` | `PgliteTestcontainersTestDriverConfigInput` | type | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:190` | Constructor input accepted by the PGLite Testcontainers SQL test driver. |
 | `@beep/test-utils` | `provideScopedLayer` | const | `packages/tooling/test-kit/test-utils/src/Layer.ts:30` | Provide a layer to an effect inside a scoped lifetime. |
-| `@beep/test-utils` | `SqlTestDriver` | interface | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:344` | Driver contract for reusable SQL integration-test layers. |
-| `@beep/test-utils` | `SqlTestHarnessError` | class | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:300` | Typed harness error surfaced while provisioning or preparing a test database. |
-| `@beep/test-utils` | `SqlTestHooks` | interface | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:325` | Optional database setup hooks executed after the driver layer has been built. |
-| `@beep/test-utils` | `TestDatabaseInfo` | class | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:278` | Runtime metadata for an ephemeral integration-test database instance. |
+| `@beep/test-utils` | `SqlTestDriver` | interface | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:342` | Driver contract for reusable SQL integration-test layers. |
+| `@beep/test-utils` | `SqlTestHarnessError` | class | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:298` | Typed harness error surfaced while provisioning or preparing a test database. |
+| `@beep/test-utils` | `SqlTestHooks` | interface | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:323` | Optional database setup hooks executed after the driver layer has been built. |
+| `@beep/test-utils` | `TestDatabaseInfo` | class | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:276` | Runtime metadata for an ephemeral integration-test database instance. |
 | `@beep/test-utils` | `TestDatabaseInfoShape` | class | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:120` | Runtime metadata for an ephemeral integration-test database instance. |
 | `@beep/test-utils` | `VERSION` | const | `packages/tooling/test-kit/test-utils/src/index.ts:36` | Package version marker for test utilities. |
-| `@beep/test-utils/index` | `BunSqliteTestDriver` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:963` | Fresh Bun SQLite integration-test driver backed by a scoped temp directory. |
-| `@beep/test-utils/index` | `makePgliteSqlTestLayer` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:1105` | Build the recommended PGLite SQL test layer for vertical-slice integration tests. |
-| `@beep/test-utils/index` | `makePgliteTestcontainerResource` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:679` | Start a scoped PGLite Testcontainers PostgreSQL wire-protocol resource. |
-| `@beep/test-utils/index` | `makeSqlTestLayer` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:508` | Build a fresh, scoped SQL integration-test layer for a concrete driver. |
-| `@beep/test-utils/index` | `NodeSqliteTestDriver` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:1013` | Fresh Node SQLite integration-test driver backed by a scoped temp directory. |
-| `@beep/test-utils/index` | `PgExternalTestDriver` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:1057` | External PostgreSQL-compatible integration-test driver backed by a caller-managed server. |
-| `@beep/test-utils/index` | `PgExternalTestDriverConfig` | class | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:208` | Runtime configuration for an externally managed PostgreSQL-compatible SQL test driver. |
-| `@beep/test-utils/index` | `PgExternalTestDriverConfigInput` | type | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:243` | Constructor input accepted by the external PostgreSQL SQL test driver. |
-| `@beep/test-utils/index` | `PgliteSqlTestLayerMode` | type | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:251` | Mode selector for the public PGLite SQL test layer helper. |
-| `@beep/test-utils/index` | `PgliteSqlTestLayerOptions` | interface | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:259` | Options for `makePgliteSqlTestLayer`. |
-| `@beep/test-utils/index` | `PgliteTestcontainerResource` | interface | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:440` | Scoped PGLite Testcontainers resource metadata. |
-| `@beep/test-utils/index` | `PgliteTestcontainersTestDriver` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:1035` | Fresh PGLite integration-test driver backed by a scoped Testcontainers PostgreSQL wire-protocol server. |
+| `@beep/test-utils/index` | `BunSqliteTestDriver` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:961` | Fresh Bun SQLite integration-test driver backed by a scoped temp directory. |
+| `@beep/test-utils/index` | `makePgliteSqlTestLayer` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:1103` | Build the recommended PGLite SQL test layer for vertical-slice integration tests. |
+| `@beep/test-utils/index` | `makePgliteTestcontainerResource` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:677` | Start a scoped PGLite Testcontainers PostgreSQL wire-protocol resource. |
+| `@beep/test-utils/index` | `makeSqlTestLayer` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:506` | Build a fresh, scoped SQL integration-test layer for a concrete driver. |
+| `@beep/test-utils/index` | `NodeSqliteTestDriver` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:1011` | Fresh Node SQLite integration-test driver backed by a scoped temp directory. |
+| `@beep/test-utils/index` | `PgExternalTestDriver` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:1055` | External PostgreSQL-compatible integration-test driver backed by a caller-managed server. |
+| `@beep/test-utils/index` | `PgExternalTestDriverConfig` | class | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:206` | Runtime configuration for an externally managed PostgreSQL-compatible SQL test driver. |
+| `@beep/test-utils/index` | `PgExternalTestDriverConfigInput` | type | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:241` | Constructor input accepted by the external PostgreSQL SQL test driver. |
+| `@beep/test-utils/index` | `PgliteSqlTestLayerMode` | type | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:249` | Mode selector for the public PGLite SQL test layer helper. |
+| `@beep/test-utils/index` | `PgliteSqlTestLayerOptions` | interface | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:257` | Options for `makePgliteSqlTestLayer`. |
+| `@beep/test-utils/index` | `PgliteTestcontainerResource` | interface | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:438` | Scoped PGLite Testcontainers resource metadata. |
+| `@beep/test-utils/index` | `PgliteTestcontainersTestDriver` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:1033` | Fresh PGLite integration-test driver backed by a scoped Testcontainers PostgreSQL wire-protocol server. |
 | `@beep/test-utils/index` | `PgliteTestcontainersTestDriverConfig` | class | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:150` | Runtime configuration for the PGLite Testcontainers SQL test driver. |
 | `@beep/test-utils/index` | `PgliteTestcontainersTestDriverConfigInput` | type | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:190` | Constructor input accepted by the PGLite Testcontainers SQL test driver. |
 | `@beep/test-utils/index` | `provideScopedLayer` | const | `packages/tooling/test-kit/test-utils/src/Layer.ts:30` | Provide a layer to an effect inside a scoped lifetime. |
-| `@beep/test-utils/index` | `SqlTestDriver` | interface | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:344` | Driver contract for reusable SQL integration-test layers. |
-| `@beep/test-utils/index` | `SqlTestHarnessError` | class | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:300` | Typed harness error surfaced while provisioning or preparing a test database. |
-| `@beep/test-utils/index` | `SqlTestHooks` | interface | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:325` | Optional database setup hooks executed after the driver layer has been built. |
-| `@beep/test-utils/index` | `TestDatabaseInfo` | class | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:278` | Runtime metadata for an ephemeral integration-test database instance. |
+| `@beep/test-utils/index` | `SqlTestDriver` | interface | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:342` | Driver contract for reusable SQL integration-test layers. |
+| `@beep/test-utils/index` | `SqlTestHarnessError` | class | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:298` | Typed harness error surfaced while provisioning or preparing a test database. |
+| `@beep/test-utils/index` | `SqlTestHooks` | interface | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:323` | Optional database setup hooks executed after the driver layer has been built. |
+| `@beep/test-utils/index` | `TestDatabaseInfo` | class | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:276` | Runtime metadata for an ephemeral integration-test database instance. |
 | `@beep/test-utils/index` | `TestDatabaseInfoShape` | class | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:120` | Runtime metadata for an ephemeral integration-test database instance. |
 | `@beep/test-utils/index` | `VERSION` | const | `packages/tooling/test-kit/test-utils/src/index.ts:36` | Package version marker for test utilities. |
 | `@beep/test-utils/Layer` | `provideScopedLayer` | const | `packages/tooling/test-kit/test-utils/src/Layer.ts:30` | Provide a layer to an effect inside a scoped lifetime. |
-| `@beep/test-utils/SqlTest` | `BunSqliteTestDriver` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:963` | Fresh Bun SQLite integration-test driver backed by a scoped temp directory. |
-| `@beep/test-utils/SqlTest` | `makePgliteSqlTestLayer` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:1105` | Build the recommended PGLite SQL test layer for vertical-slice integration tests. |
-| `@beep/test-utils/SqlTest` | `makePgliteTestcontainerResource` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:679` | Start a scoped PGLite Testcontainers PostgreSQL wire-protocol resource. |
-| `@beep/test-utils/SqlTest` | `makeSqlTestLayer` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:508` | Build a fresh, scoped SQL integration-test layer for a concrete driver. |
-| `@beep/test-utils/SqlTest` | `NodeSqliteTestDriver` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:1013` | Fresh Node SQLite integration-test driver backed by a scoped temp directory. |
-| `@beep/test-utils/SqlTest` | `PgExternalTestDriver` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:1057` | External PostgreSQL-compatible integration-test driver backed by a caller-managed server. |
-| `@beep/test-utils/SqlTest` | `PgExternalTestDriverConfig` | class | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:208` | Runtime configuration for an externally managed PostgreSQL-compatible SQL test driver. |
-| `@beep/test-utils/SqlTest` | `PgExternalTestDriverConfigInput` | type | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:243` | Constructor input accepted by the external PostgreSQL SQL test driver. |
-| `@beep/test-utils/SqlTest` | `PgliteSqlTestLayerMode` | type | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:251` | Mode selector for the public PGLite SQL test layer helper. |
-| `@beep/test-utils/SqlTest` | `PgliteSqlTestLayerOptions` | interface | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:259` | Options for `makePgliteSqlTestLayer`. |
-| `@beep/test-utils/SqlTest` | `PgliteTestcontainerResource` | interface | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:440` | Scoped PGLite Testcontainers resource metadata. |
-| `@beep/test-utils/SqlTest` | `PgliteTestcontainersTestDriver` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:1035` | Fresh PGLite integration-test driver backed by a scoped Testcontainers PostgreSQL wire-protocol server. |
+| `@beep/test-utils/SqlTest` | `BunSqliteTestDriver` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:961` | Fresh Bun SQLite integration-test driver backed by a scoped temp directory. |
+| `@beep/test-utils/SqlTest` | `makePgliteSqlTestLayer` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:1103` | Build the recommended PGLite SQL test layer for vertical-slice integration tests. |
+| `@beep/test-utils/SqlTest` | `makePgliteTestcontainerResource` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:677` | Start a scoped PGLite Testcontainers PostgreSQL wire-protocol resource. |
+| `@beep/test-utils/SqlTest` | `makeSqlTestLayer` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:506` | Build a fresh, scoped SQL integration-test layer for a concrete driver. |
+| `@beep/test-utils/SqlTest` | `NodeSqliteTestDriver` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:1011` | Fresh Node SQLite integration-test driver backed by a scoped temp directory. |
+| `@beep/test-utils/SqlTest` | `PgExternalTestDriver` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:1055` | External PostgreSQL-compatible integration-test driver backed by a caller-managed server. |
+| `@beep/test-utils/SqlTest` | `PgExternalTestDriverConfig` | class | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:206` | Runtime configuration for an externally managed PostgreSQL-compatible SQL test driver. |
+| `@beep/test-utils/SqlTest` | `PgExternalTestDriverConfigInput` | type | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:241` | Constructor input accepted by the external PostgreSQL SQL test driver. |
+| `@beep/test-utils/SqlTest` | `PgliteSqlTestLayerMode` | type | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:249` | Mode selector for the public PGLite SQL test layer helper. |
+| `@beep/test-utils/SqlTest` | `PgliteSqlTestLayerOptions` | interface | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:257` | Options for `makePgliteSqlTestLayer`. |
+| `@beep/test-utils/SqlTest` | `PgliteTestcontainerResource` | interface | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:438` | Scoped PGLite Testcontainers resource metadata. |
+| `@beep/test-utils/SqlTest` | `PgliteTestcontainersTestDriver` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:1033` | Fresh PGLite integration-test driver backed by a scoped Testcontainers PostgreSQL wire-protocol server. |
 | `@beep/test-utils/SqlTest` | `PgliteTestcontainersTestDriverConfig` | class | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:150` | Runtime configuration for the PGLite Testcontainers SQL test driver. |
 | `@beep/test-utils/SqlTest` | `PgliteTestcontainersTestDriverConfigInput` | type | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:190` | Constructor input accepted by the PGLite Testcontainers SQL test driver. |
-| `@beep/test-utils/SqlTest` | `SqlTestDriver` | interface | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:344` | Driver contract for reusable SQL integration-test layers. |
-| `@beep/test-utils/SqlTest` | `SqlTestHarnessError` | class | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:300` | Typed harness error surfaced while provisioning or preparing a test database. |
-| `@beep/test-utils/SqlTest` | `SqlTestHooks` | interface | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:325` | Optional database setup hooks executed after the driver layer has been built. |
-| `@beep/test-utils/SqlTest` | `TestDatabaseInfo` | class | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:278` | Runtime metadata for an ephemeral integration-test database instance. |
+| `@beep/test-utils/SqlTest` | `SqlTestDriver` | interface | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:342` | Driver contract for reusable SQL integration-test layers. |
+| `@beep/test-utils/SqlTest` | `SqlTestHarnessError` | class | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:298` | Typed harness error surfaced while provisioning or preparing a test database. |
+| `@beep/test-utils/SqlTest` | `SqlTestHooks` | interface | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:323` | Optional database setup hooks executed after the driver layer has been built. |
+| `@beep/test-utils/SqlTest` | `TestDatabaseInfo` | class | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:276` | Runtime metadata for an ephemeral integration-test database instance. |
 | `@beep/test-utils/SqlTest` | `TestDatabaseInfoShape` | class | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:120` | Runtime metadata for an ephemeral integration-test database instance. |
 
 ### @beep/installer-domain
@@ -8455,7 +8455,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/runpod` | `RUNPOD_MIN_CUDA_VERSION_VALUES` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1137` | Advisory minCudaVersion values observed in the checked-in Runpod OpenAPI document. |
 | `@beep/runpod` | `RUNPOD_OPERATION_SPECS` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2700` | Generated operation spec table for Runpod service construction. |
 | `@beep/runpod` | `RunpodConfigInput` | class | `packages/drivers/runpod/src/Runpod.config.ts:35` | Runtime configuration accepted by {@link Runpod.makeLayer}. |
-| `@beep/runpod` | `RunpodDocs` | class | `packages/drivers/runpod/src/Runpod.docs.ts:266` | Effect service for the Runpod LLM documentation index. |
+| `@beep/runpod` | `RunpodDocs` | class | `packages/drivers/runpod/src/Runpod.docs.ts:263` | Effect service for the Runpod LLM documentation index. |
 | `@beep/runpod` | `RunpodDocsConfigInput` | class | `packages/drivers/runpod/src/Runpod.config.ts:52` | Runtime configuration accepted by {@link RunpodDocs.makeLayer}. |
 | `@beep/runpod` | `RunpodDocsError` | class | `packages/drivers/runpod/src/Runpod.errors.ts:163` | Technical failure raised by the Runpod documentation index driver boundary. |
 | `@beep/runpod` | `RunpodDocsErrorOptions` | class | `packages/drivers/runpod/src/Runpod.errors.ts:237` | Options used when constructing Runpod documentation driver errors. |
@@ -8624,7 +8624,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/runpod/index` | `RUNPOD_MIN_CUDA_VERSION_VALUES` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1137` | Advisory minCudaVersion values observed in the checked-in Runpod OpenAPI document. |
 | `@beep/runpod/index` | `RUNPOD_OPERATION_SPECS` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2700` | Generated operation spec table for Runpod service construction. |
 | `@beep/runpod/index` | `RunpodConfigInput` | class | `packages/drivers/runpod/src/Runpod.config.ts:35` | Runtime configuration accepted by {@link Runpod.makeLayer}. |
-| `@beep/runpod/index` | `RunpodDocs` | class | `packages/drivers/runpod/src/Runpod.docs.ts:266` | Effect service for the Runpod LLM documentation index. |
+| `@beep/runpod/index` | `RunpodDocs` | class | `packages/drivers/runpod/src/Runpod.docs.ts:263` | Effect service for the Runpod LLM documentation index. |
 | `@beep/runpod/index` | `RunpodDocsConfigInput` | class | `packages/drivers/runpod/src/Runpod.config.ts:52` | Runtime configuration accepted by {@link RunpodDocs.makeLayer}. |
 | `@beep/runpod/index` | `RunpodDocsError` | class | `packages/drivers/runpod/src/Runpod.errors.ts:163` | Technical failure raised by the Runpod documentation index driver boundary. |
 | `@beep/runpod/index` | `RunpodDocsErrorOptions` | class | `packages/drivers/runpod/src/Runpod.errors.ts:237` | Options used when constructing Runpod documentation driver errors. |
@@ -8690,7 +8690,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/runpod/Runpod.config` | `RunpodConfigInput` | class | `packages/drivers/runpod/src/Runpod.config.ts:35` | Runtime configuration accepted by {@link Runpod.makeLayer}. |
 | `@beep/runpod/Runpod.config` | `RunpodDocsConfigInput` | class | `packages/drivers/runpod/src/Runpod.config.ts:52` | Runtime configuration accepted by {@link RunpodDocs.makeLayer}. |
 | `@beep/runpod/Runpod.docs` | `parseRunpodDocsIndex` | const | `packages/drivers/runpod/src/Runpod.docs.ts:170` | Parse Runpod's `llms.txt` Markdown index into a structured schema model. |
-| `@beep/runpod/Runpod.docs` | `RunpodDocs` | class | `packages/drivers/runpod/src/Runpod.docs.ts:266` | Effect service for the Runpod LLM documentation index. |
+| `@beep/runpod/Runpod.docs` | `RunpodDocs` | class | `packages/drivers/runpod/src/Runpod.docs.ts:263` | Effect service for the Runpod LLM documentation index. |
 | `@beep/runpod/Runpod.docs` | `RunpodDocsIndex` | class | `packages/drivers/runpod/src/Runpod.docs.ts:47` | Parsed Runpod documentation index. |
 | `@beep/runpod/Runpod.docs` | `RunpodDocsIndexEntry` | class | `packages/drivers/runpod/src/Runpod.docs.ts:29` | One Markdown documentation link parsed from Runpod's `llms.txt` index. |
 | `@beep/runpod/Runpod.errors` | `RunpodDocsError` | class | `packages/drivers/runpod/src/Runpod.errors.ts:163` | Technical failure raised by the Runpod documentation index driver boundary. |
@@ -9389,7 +9389,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/canvas-use-cases/aggregates/CanvasProject/server` | `CanvasProjectActionRejected` | class | `packages/canvas/use-cases/src/aggregates/CanvasProject/CanvasProject.errors.ts:73` | Public failure raised when the domain rejects a CanvasProject action. |
 | `@beep/canvas-use-cases/aggregates/CanvasProject/server` | `CanvasProjectConflict` | class | `packages/canvas/use-cases/src/aggregates/CanvasProject/CanvasProject.errors.ts:55` | Public failure raised when a command conflicts with persisted state. |
 | `@beep/canvas-use-cases/aggregates/CanvasProject/server` | `CanvasProjectNotFound` | class | `packages/canvas/use-cases/src/aggregates/CanvasProject/CanvasProject.errors.ts:38` | Public failure raised when a requested CanvasProject is absent. |
-| `@beep/canvas-use-cases/aggregates/CanvasProject/server` | `CanvasProjectRepository` | class | `packages/canvas/use-cases/src/aggregates/CanvasProject/CanvasProject.repository.ts:123` | CanvasProject repository service. |
+| `@beep/canvas-use-cases/aggregates/CanvasProject/server` | `CanvasProjectRepository` | class | `packages/canvas/use-cases/src/aggregates/CanvasProject/CanvasProject.repository.ts:120` | CanvasProject repository service. |
 | `@beep/canvas-use-cases/aggregates/CanvasProject/server` | `CanvasProjectRepositoryConflict` | class | `packages/canvas/use-cases/src/aggregates/CanvasProject/CanvasProject.repository.ts:42` | Persistence failure raised when a CanvasProject write conflicts. |
 | `@beep/canvas-use-cases/aggregates/CanvasProject/server` | `CanvasProjectRepositoryError` | type | `packages/canvas/use-cases/src/aggregates/CanvasProject/CanvasProject.repository.ts:81` | CanvasProject repository failure. |
 | `@beep/canvas-use-cases/aggregates/CanvasProject/server` | `CanvasProjectRepositoryNotFound` | class | `packages/canvas/use-cases/src/aggregates/CanvasProject/CanvasProject.repository.ts:23` | Persistence failure raised when a CanvasProject row is absent. |
@@ -9410,7 +9410,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 
 | Import | Symbol | Kind | Source | Summary |
 |---|---|---|---|---|
-| `@beep/hubspot` | `HubSpot` | class | `packages/drivers/hubspot/src/HubSpot.service.ts:466` | Effect service for HubSpot Forms API submissions. |
+| `@beep/hubspot` | `HubSpot` | class | `packages/drivers/hubspot/src/HubSpot.service.ts:465` | Effect service for HubSpot Forms API submissions. |
 | `@beep/hubspot` | `HUBSPOT_CRM_API_URL` | const | `packages/drivers/hubspot/src/HubSpot.config.ts:41` | Default HubSpot CRM API base URL. |
 | `@beep/hubspot` | `HUBSPOT_FORMS_API_URL` | const | `packages/drivers/hubspot/src/HubSpot.config.ts:26` | Default HubSpot Forms API base URL. |
 | `@beep/hubspot` | `HubSpotConfigInput` | class | `packages/drivers/hubspot/src/HubSpot.config.ts:61` | Runtime configuration accepted by {@link HubSpot.makeLayer}. |
@@ -9418,14 +9418,14 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/hubspot` | `HubSpotErrorOptions` | class | `packages/drivers/hubspot/src/HubSpot.errors.ts:147` | Options used when constructing HubSpot driver errors. |
 | `@beep/hubspot` | `HubSpotErrorReason` | const | `packages/drivers/hubspot/src/HubSpot.errors.ts:34` | Technical error reasons emitted by the HubSpot driver. |
 | `@beep/hubspot` | `HubSpotErrorReason` | type | `packages/drivers/hubspot/src/HubSpot.errors.ts:60` | Type for {@link HubSpotErrorReason}. |
-| `@beep/hubspot` | `HubSpotFormContext` | class | `packages/drivers/hubspot/src/HubSpot.service.ts:69` | HubSpot form submission context. |
-| `@beep/hubspot` | `HubSpotFormField` | class | `packages/drivers/hubspot/src/HubSpot.service.ts:41` | HubSpot form field submission value. |
-| `@beep/hubspot` | `HubSpotShape` | type | `packages/drivers/hubspot/src/HubSpot.service.ts:248` | Public HubSpot service shape. |
-| `@beep/hubspot` | `HubSpotSubmitFormRequest` | class | `packages/drivers/hubspot/src/HubSpot.service.ts:98` | HubSpot form submission request. |
-| `@beep/hubspot` | `HubSpotSubmitFormResponse` | class | `packages/drivers/hubspot/src/HubSpot.service.ts:127` | HubSpot form submission response. |
-| `@beep/hubspot` | `HubSpotUpsertContactRequest` | class | `packages/drivers/hubspot/src/HubSpot.service.ts:157` | HubSpot contact upsert request using email as the stable identifier. |
-| `@beep/hubspot` | `HubSpotUpsertContactResponse` | class | `packages/drivers/hubspot/src/HubSpot.service.ts:212` | HubSpot contact upsert response. |
-| `@beep/hubspot` | `HubSpotUpsertContactResult` | class | `packages/drivers/hubspot/src/HubSpot.service.ts:185` | HubSpot contact upsert result. |
+| `@beep/hubspot` | `HubSpotFormContext` | class | `packages/drivers/hubspot/src/HubSpot.service.ts:70` | HubSpot form submission context. |
+| `@beep/hubspot` | `HubSpotFormField` | class | `packages/drivers/hubspot/src/HubSpot.service.ts:42` | HubSpot form field submission value. |
+| `@beep/hubspot` | `HubSpotShape` | type | `packages/drivers/hubspot/src/HubSpot.service.ts:249` | Public HubSpot service shape. |
+| `@beep/hubspot` | `HubSpotSubmitFormRequest` | class | `packages/drivers/hubspot/src/HubSpot.service.ts:99` | HubSpot form submission request. |
+| `@beep/hubspot` | `HubSpotSubmitFormResponse` | class | `packages/drivers/hubspot/src/HubSpot.service.ts:128` | HubSpot form submission response. |
+| `@beep/hubspot` | `HubSpotUpsertContactRequest` | class | `packages/drivers/hubspot/src/HubSpot.service.ts:158` | HubSpot contact upsert request using email as the stable identifier. |
+| `@beep/hubspot` | `HubSpotUpsertContactResponse` | class | `packages/drivers/hubspot/src/HubSpot.service.ts:213` | HubSpot contact upsert response. |
+| `@beep/hubspot` | `HubSpotUpsertContactResult` | class | `packages/drivers/hubspot/src/HubSpot.service.ts:186` | HubSpot contact upsert result. |
 | `@beep/hubspot` | `VERSION` | const | `packages/drivers/hubspot/src/index.ts:43` | Package version. |
 | `@beep/hubspot/HubSpot.config` | `HUBSPOT_CRM_API_URL` | const | `packages/drivers/hubspot/src/HubSpot.config.ts:41` | Default HubSpot CRM API base URL. |
 | `@beep/hubspot/HubSpot.config` | `HUBSPOT_FORMS_API_URL` | const | `packages/drivers/hubspot/src/HubSpot.config.ts:26` | Default HubSpot Forms API base URL. |
@@ -9434,16 +9434,16 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/hubspot/HubSpot.errors` | `HubSpotErrorOptions` | class | `packages/drivers/hubspot/src/HubSpot.errors.ts:147` | Options used when constructing HubSpot driver errors. |
 | `@beep/hubspot/HubSpot.errors` | `HubSpotErrorReason` | const | `packages/drivers/hubspot/src/HubSpot.errors.ts:34` | Technical error reasons emitted by the HubSpot driver. |
 | `@beep/hubspot/HubSpot.errors` | `HubSpotErrorReason` | type | `packages/drivers/hubspot/src/HubSpot.errors.ts:60` | Type for {@link HubSpotErrorReason}. |
-| `@beep/hubspot/HubSpot.service` | `HubSpot` | class | `packages/drivers/hubspot/src/HubSpot.service.ts:466` | Effect service for HubSpot Forms API submissions. |
-| `@beep/hubspot/HubSpot.service` | `HubSpotFormContext` | class | `packages/drivers/hubspot/src/HubSpot.service.ts:69` | HubSpot form submission context. |
-| `@beep/hubspot/HubSpot.service` | `HubSpotFormField` | class | `packages/drivers/hubspot/src/HubSpot.service.ts:41` | HubSpot form field submission value. |
-| `@beep/hubspot/HubSpot.service` | `HubSpotShape` | type | `packages/drivers/hubspot/src/HubSpot.service.ts:248` | Public HubSpot service shape. |
-| `@beep/hubspot/HubSpot.service` | `HubSpotSubmitFormRequest` | class | `packages/drivers/hubspot/src/HubSpot.service.ts:98` | HubSpot form submission request. |
-| `@beep/hubspot/HubSpot.service` | `HubSpotSubmitFormResponse` | class | `packages/drivers/hubspot/src/HubSpot.service.ts:127` | HubSpot form submission response. |
-| `@beep/hubspot/HubSpot.service` | `HubSpotUpsertContactRequest` | class | `packages/drivers/hubspot/src/HubSpot.service.ts:157` | HubSpot contact upsert request using email as the stable identifier. |
-| `@beep/hubspot/HubSpot.service` | `HubSpotUpsertContactResponse` | class | `packages/drivers/hubspot/src/HubSpot.service.ts:212` | HubSpot contact upsert response. |
-| `@beep/hubspot/HubSpot.service` | `HubSpotUpsertContactResult` | class | `packages/drivers/hubspot/src/HubSpot.service.ts:185` | HubSpot contact upsert result. |
-| `@beep/hubspot/index` | `HubSpot` | class | `packages/drivers/hubspot/src/HubSpot.service.ts:466` | Effect service for HubSpot Forms API submissions. |
+| `@beep/hubspot/HubSpot.service` | `HubSpot` | class | `packages/drivers/hubspot/src/HubSpot.service.ts:465` | Effect service for HubSpot Forms API submissions. |
+| `@beep/hubspot/HubSpot.service` | `HubSpotFormContext` | class | `packages/drivers/hubspot/src/HubSpot.service.ts:70` | HubSpot form submission context. |
+| `@beep/hubspot/HubSpot.service` | `HubSpotFormField` | class | `packages/drivers/hubspot/src/HubSpot.service.ts:42` | HubSpot form field submission value. |
+| `@beep/hubspot/HubSpot.service` | `HubSpotShape` | type | `packages/drivers/hubspot/src/HubSpot.service.ts:249` | Public HubSpot service shape. |
+| `@beep/hubspot/HubSpot.service` | `HubSpotSubmitFormRequest` | class | `packages/drivers/hubspot/src/HubSpot.service.ts:99` | HubSpot form submission request. |
+| `@beep/hubspot/HubSpot.service` | `HubSpotSubmitFormResponse` | class | `packages/drivers/hubspot/src/HubSpot.service.ts:128` | HubSpot form submission response. |
+| `@beep/hubspot/HubSpot.service` | `HubSpotUpsertContactRequest` | class | `packages/drivers/hubspot/src/HubSpot.service.ts:158` | HubSpot contact upsert request using email as the stable identifier. |
+| `@beep/hubspot/HubSpot.service` | `HubSpotUpsertContactResponse` | class | `packages/drivers/hubspot/src/HubSpot.service.ts:213` | HubSpot contact upsert response. |
+| `@beep/hubspot/HubSpot.service` | `HubSpotUpsertContactResult` | class | `packages/drivers/hubspot/src/HubSpot.service.ts:186` | HubSpot contact upsert result. |
+| `@beep/hubspot/index` | `HubSpot` | class | `packages/drivers/hubspot/src/HubSpot.service.ts:465` | Effect service for HubSpot Forms API submissions. |
 | `@beep/hubspot/index` | `HUBSPOT_CRM_API_URL` | const | `packages/drivers/hubspot/src/HubSpot.config.ts:41` | Default HubSpot CRM API base URL. |
 | `@beep/hubspot/index` | `HUBSPOT_FORMS_API_URL` | const | `packages/drivers/hubspot/src/HubSpot.config.ts:26` | Default HubSpot Forms API base URL. |
 | `@beep/hubspot/index` | `HubSpotConfigInput` | class | `packages/drivers/hubspot/src/HubSpot.config.ts:61` | Runtime configuration accepted by {@link HubSpot.makeLayer}. |
@@ -9451,14 +9451,14 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/hubspot/index` | `HubSpotErrorOptions` | class | `packages/drivers/hubspot/src/HubSpot.errors.ts:147` | Options used when constructing HubSpot driver errors. |
 | `@beep/hubspot/index` | `HubSpotErrorReason` | const | `packages/drivers/hubspot/src/HubSpot.errors.ts:34` | Technical error reasons emitted by the HubSpot driver. |
 | `@beep/hubspot/index` | `HubSpotErrorReason` | type | `packages/drivers/hubspot/src/HubSpot.errors.ts:60` | Type for {@link HubSpotErrorReason}. |
-| `@beep/hubspot/index` | `HubSpotFormContext` | class | `packages/drivers/hubspot/src/HubSpot.service.ts:69` | HubSpot form submission context. |
-| `@beep/hubspot/index` | `HubSpotFormField` | class | `packages/drivers/hubspot/src/HubSpot.service.ts:41` | HubSpot form field submission value. |
-| `@beep/hubspot/index` | `HubSpotShape` | type | `packages/drivers/hubspot/src/HubSpot.service.ts:248` | Public HubSpot service shape. |
-| `@beep/hubspot/index` | `HubSpotSubmitFormRequest` | class | `packages/drivers/hubspot/src/HubSpot.service.ts:98` | HubSpot form submission request. |
-| `@beep/hubspot/index` | `HubSpotSubmitFormResponse` | class | `packages/drivers/hubspot/src/HubSpot.service.ts:127` | HubSpot form submission response. |
-| `@beep/hubspot/index` | `HubSpotUpsertContactRequest` | class | `packages/drivers/hubspot/src/HubSpot.service.ts:157` | HubSpot contact upsert request using email as the stable identifier. |
-| `@beep/hubspot/index` | `HubSpotUpsertContactResponse` | class | `packages/drivers/hubspot/src/HubSpot.service.ts:212` | HubSpot contact upsert response. |
-| `@beep/hubspot/index` | `HubSpotUpsertContactResult` | class | `packages/drivers/hubspot/src/HubSpot.service.ts:185` | HubSpot contact upsert result. |
+| `@beep/hubspot/index` | `HubSpotFormContext` | class | `packages/drivers/hubspot/src/HubSpot.service.ts:70` | HubSpot form submission context. |
+| `@beep/hubspot/index` | `HubSpotFormField` | class | `packages/drivers/hubspot/src/HubSpot.service.ts:42` | HubSpot form field submission value. |
+| `@beep/hubspot/index` | `HubSpotShape` | type | `packages/drivers/hubspot/src/HubSpot.service.ts:249` | Public HubSpot service shape. |
+| `@beep/hubspot/index` | `HubSpotSubmitFormRequest` | class | `packages/drivers/hubspot/src/HubSpot.service.ts:99` | HubSpot form submission request. |
+| `@beep/hubspot/index` | `HubSpotSubmitFormResponse` | class | `packages/drivers/hubspot/src/HubSpot.service.ts:128` | HubSpot form submission response. |
+| `@beep/hubspot/index` | `HubSpotUpsertContactRequest` | class | `packages/drivers/hubspot/src/HubSpot.service.ts:158` | HubSpot contact upsert request using email as the stable identifier. |
+| `@beep/hubspot/index` | `HubSpotUpsertContactResponse` | class | `packages/drivers/hubspot/src/HubSpot.service.ts:213` | HubSpot contact upsert response. |
+| `@beep/hubspot/index` | `HubSpotUpsertContactResult` | class | `packages/drivers/hubspot/src/HubSpot.service.ts:186` | HubSpot contact upsert result. |
 | `@beep/hubspot/index` | `VERSION` | const | `packages/drivers/hubspot/src/index.ts:43` | Package version. |
 
 ### @beep/ui
@@ -9995,31 +9995,31 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 
 | Import | Symbol | Kind | Source | Summary |
 |---|---|---|---|---|
-| `@beep/sanity` | `Sanity` | class | `packages/drivers/sanity/src/Sanity.service.ts:331` | Effect service for Sanity content API requests. |
+| `@beep/sanity` | `Sanity` | class | `packages/drivers/sanity/src/Sanity.service.ts:328` | Effect service for Sanity content API requests. |
 | `@beep/sanity` | `SANITY_API_VERSION` | const | `packages/drivers/sanity/src/Sanity.config.ts:44` | Default Sanity API version used when callers do not provide one. |
 | `@beep/sanity` | `SanityConfigInput` | class | `packages/drivers/sanity/src/Sanity.config.ts:65` | Runtime configuration accepted by {@link Sanity.makeLayer}. |
 | `@beep/sanity` | `SanityError` | class | `packages/drivers/sanity/src/Sanity.errors.ts:84` | Technical failure raised by the Sanity driver boundary. |
 | `@beep/sanity` | `SanityErrorOptions` | class | `packages/drivers/sanity/src/Sanity.errors.ts:146` | Options used when constructing Sanity driver errors. |
 | `@beep/sanity` | `SanityErrorReason` | const | `packages/drivers/sanity/src/Sanity.errors.ts:37` | Technical error reasons emitted by the Sanity driver. |
 | `@beep/sanity` | `SanityErrorReason` | type | `packages/drivers/sanity/src/Sanity.errors.ts:64` | Type for {@link SanityErrorReason}. |
-| `@beep/sanity` | `SanityQueryParamValue` | const | `packages/drivers/sanity/src/Sanity.service.ts:40` | Scalar JSON value accepted in Sanity query params. |
-| `@beep/sanity` | `SanityQueryParamValue` | type | `packages/drivers/sanity/src/Sanity.service.ts:65` | Type for {@link SanityQueryParamValue}. |
-| `@beep/sanity` | `SanityQueryRequest` | class | `packages/drivers/sanity/src/Sanity.service.ts:85` | Sanity GROQ query request. |
-| `@beep/sanity` | `SanityQueryResponse` | class | `packages/drivers/sanity/src/Sanity.service.ts:113` | Sanity query response. |
-| `@beep/sanity` | `SanityShape` | type | `packages/drivers/sanity/src/Sanity.service.ts:143` | Public Sanity service shape. |
+| `@beep/sanity` | `SanityQueryParamValue` | const | `packages/drivers/sanity/src/Sanity.service.ts:41` | Scalar JSON value accepted in Sanity query params. |
+| `@beep/sanity` | `SanityQueryParamValue` | type | `packages/drivers/sanity/src/Sanity.service.ts:66` | Type for {@link SanityQueryParamValue}. |
+| `@beep/sanity` | `SanityQueryRequest` | class | `packages/drivers/sanity/src/Sanity.service.ts:86` | Sanity GROQ query request. |
+| `@beep/sanity` | `SanityQueryResponse` | class | `packages/drivers/sanity/src/Sanity.service.ts:114` | Sanity query response. |
+| `@beep/sanity` | `SanityShape` | type | `packages/drivers/sanity/src/Sanity.service.ts:144` | Public Sanity service shape. |
 | `@beep/sanity` | `VERSION` | const | `packages/drivers/sanity/src/index.ts:43` | Package version. |
-| `@beep/sanity/index` | `Sanity` | class | `packages/drivers/sanity/src/Sanity.service.ts:331` | Effect service for Sanity content API requests. |
+| `@beep/sanity/index` | `Sanity` | class | `packages/drivers/sanity/src/Sanity.service.ts:328` | Effect service for Sanity content API requests. |
 | `@beep/sanity/index` | `SANITY_API_VERSION` | const | `packages/drivers/sanity/src/Sanity.config.ts:44` | Default Sanity API version used when callers do not provide one. |
 | `@beep/sanity/index` | `SanityConfigInput` | class | `packages/drivers/sanity/src/Sanity.config.ts:65` | Runtime configuration accepted by {@link Sanity.makeLayer}. |
 | `@beep/sanity/index` | `SanityError` | class | `packages/drivers/sanity/src/Sanity.errors.ts:84` | Technical failure raised by the Sanity driver boundary. |
 | `@beep/sanity/index` | `SanityErrorOptions` | class | `packages/drivers/sanity/src/Sanity.errors.ts:146` | Options used when constructing Sanity driver errors. |
 | `@beep/sanity/index` | `SanityErrorReason` | const | `packages/drivers/sanity/src/Sanity.errors.ts:37` | Technical error reasons emitted by the Sanity driver. |
 | `@beep/sanity/index` | `SanityErrorReason` | type | `packages/drivers/sanity/src/Sanity.errors.ts:64` | Type for {@link SanityErrorReason}. |
-| `@beep/sanity/index` | `SanityQueryParamValue` | const | `packages/drivers/sanity/src/Sanity.service.ts:40` | Scalar JSON value accepted in Sanity query params. |
-| `@beep/sanity/index` | `SanityQueryParamValue` | type | `packages/drivers/sanity/src/Sanity.service.ts:65` | Type for {@link SanityQueryParamValue}. |
-| `@beep/sanity/index` | `SanityQueryRequest` | class | `packages/drivers/sanity/src/Sanity.service.ts:85` | Sanity GROQ query request. |
-| `@beep/sanity/index` | `SanityQueryResponse` | class | `packages/drivers/sanity/src/Sanity.service.ts:113` | Sanity query response. |
-| `@beep/sanity/index` | `SanityShape` | type | `packages/drivers/sanity/src/Sanity.service.ts:143` | Public Sanity service shape. |
+| `@beep/sanity/index` | `SanityQueryParamValue` | const | `packages/drivers/sanity/src/Sanity.service.ts:41` | Scalar JSON value accepted in Sanity query params. |
+| `@beep/sanity/index` | `SanityQueryParamValue` | type | `packages/drivers/sanity/src/Sanity.service.ts:66` | Type for {@link SanityQueryParamValue}. |
+| `@beep/sanity/index` | `SanityQueryRequest` | class | `packages/drivers/sanity/src/Sanity.service.ts:86` | Sanity GROQ query request. |
+| `@beep/sanity/index` | `SanityQueryResponse` | class | `packages/drivers/sanity/src/Sanity.service.ts:114` | Sanity query response. |
+| `@beep/sanity/index` | `SanityShape` | type | `packages/drivers/sanity/src/Sanity.service.ts:144` | Public Sanity service shape. |
 | `@beep/sanity/index` | `VERSION` | const | `packages/drivers/sanity/src/index.ts:43` | Package version. |
 | `@beep/sanity/Sanity.config` | `SANITY_API_VERSION` | const | `packages/drivers/sanity/src/Sanity.config.ts:44` | Default Sanity API version used when callers do not provide one. |
 | `@beep/sanity/Sanity.config` | `SanityConfigInput` | class | `packages/drivers/sanity/src/Sanity.config.ts:65` | Runtime configuration accepted by {@link Sanity.makeLayer}. |
@@ -10027,12 +10027,12 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/sanity/Sanity.errors` | `SanityErrorOptions` | class | `packages/drivers/sanity/src/Sanity.errors.ts:146` | Options used when constructing Sanity driver errors. |
 | `@beep/sanity/Sanity.errors` | `SanityErrorReason` | const | `packages/drivers/sanity/src/Sanity.errors.ts:37` | Technical error reasons emitted by the Sanity driver. |
 | `@beep/sanity/Sanity.errors` | `SanityErrorReason` | type | `packages/drivers/sanity/src/Sanity.errors.ts:64` | Type for {@link SanityErrorReason}. |
-| `@beep/sanity/Sanity.service` | `Sanity` | class | `packages/drivers/sanity/src/Sanity.service.ts:331` | Effect service for Sanity content API requests. |
-| `@beep/sanity/Sanity.service` | `SanityQueryParamValue` | const | `packages/drivers/sanity/src/Sanity.service.ts:40` | Scalar JSON value accepted in Sanity query params. |
-| `@beep/sanity/Sanity.service` | `SanityQueryParamValue` | type | `packages/drivers/sanity/src/Sanity.service.ts:65` | Type for {@link SanityQueryParamValue}. |
-| `@beep/sanity/Sanity.service` | `SanityQueryRequest` | class | `packages/drivers/sanity/src/Sanity.service.ts:85` | Sanity GROQ query request. |
-| `@beep/sanity/Sanity.service` | `SanityQueryResponse` | class | `packages/drivers/sanity/src/Sanity.service.ts:113` | Sanity query response. |
-| `@beep/sanity/Sanity.service` | `SanityShape` | type | `packages/drivers/sanity/src/Sanity.service.ts:143` | Public Sanity service shape. |
+| `@beep/sanity/Sanity.service` | `Sanity` | class | `packages/drivers/sanity/src/Sanity.service.ts:328` | Effect service for Sanity content API requests. |
+| `@beep/sanity/Sanity.service` | `SanityQueryParamValue` | const | `packages/drivers/sanity/src/Sanity.service.ts:41` | Scalar JSON value accepted in Sanity query params. |
+| `@beep/sanity/Sanity.service` | `SanityQueryParamValue` | type | `packages/drivers/sanity/src/Sanity.service.ts:66` | Type for {@link SanityQueryParamValue}. |
+| `@beep/sanity/Sanity.service` | `SanityQueryRequest` | class | `packages/drivers/sanity/src/Sanity.service.ts:86` | Sanity GROQ query request. |
+| `@beep/sanity/Sanity.service` | `SanityQueryResponse` | class | `packages/drivers/sanity/src/Sanity.service.ts:114` | Sanity query response. |
+| `@beep/sanity/Sanity.service` | `SanityShape` | type | `packages/drivers/sanity/src/Sanity.service.ts:144` | Public Sanity service shape. |
 
 ### @beep/openai-compat
 
@@ -10183,39 +10183,39 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 
 | Import | Symbol | Kind | Source | Summary |
 |---|---|---|---|---|
-| `@beep/installer-server` | `DiscordChannelServerLive` | const | `packages/installer/server/src/Layer.ts:722` | Discord-channel concept layer. |
-| `@beep/installer-server` | `HostDependencyServerLive` | const | `packages/installer/server/src/Layer.ts:698` | Host-dependency concept layer. |
-| `@beep/installer-server` | `InstallerConceptServerLive` | const | `packages/installer/server/src/Layer.ts:738` | Concept-local installer services. |
-| `@beep/installer-server` | `InstallerServerLive` | const | `packages/installer/server/src/Layer.ts:760` | Complete installer server layer. |
-| `@beep/installer-server` | `makeDiscordChannelServer` | const | `packages/installer/server/src/Layer.ts:464` | Build the Discord-channel concept server. |
+| `@beep/installer-server` | `DiscordChannelServerLive` | const | `packages/installer/server/src/Layer.ts:723` | Discord-channel concept layer. |
+| `@beep/installer-server` | `HostDependencyServerLive` | const | `packages/installer/server/src/Layer.ts:699` | Host-dependency concept layer. |
+| `@beep/installer-server` | `InstallerConceptServerLive` | const | `packages/installer/server/src/Layer.ts:739` | Concept-local installer services. |
+| `@beep/installer-server` | `InstallerServerLive` | const | `packages/installer/server/src/Layer.ts:761` | Complete installer server layer. |
+| `@beep/installer-server` | `makeDiscordChannelServer` | const | `packages/installer/server/src/Layer.ts:465` | Build the Discord-channel concept server. |
 | `@beep/installer-server` | `makeHostDependencyServer` | const | `packages/installer/server/src/Layer.ts:321` | Build the host-dependency concept server. |
-| `@beep/installer-server` | `makeP1ManualProofWorkflow` | const | `packages/installer/server/src/Layer.ts:535` | Build the P1 Manual Mode proof workflow. |
-| `@beep/installer-server` | `makeProviderAccountServer` | const | `packages/installer/server/src/Layer.ts:422` | Build the provider-account concept server. |
-| `@beep/installer-server` | `makeSecretReferenceServer` | const | `packages/installer/server/src/Layer.ts:338` | Build the secret-reference concept server. |
-| `@beep/installer-server` | `makeStackManifestServer` | const | `packages/installer/server/src/Layer.ts:521` | Build the stack-manifest concept server. |
-| `@beep/installer-server` | `P1ManualProofWorkflowLive` | const | `packages/installer/server/src/Layer.ts:752` | P1 Manual Mode proof workflow layer. |
-| `@beep/installer-server` | `previewP1ManualProof` | const | `packages/installer/server/src/Layer.ts:781` | Preview the P1 Manual Mode proof without sending a Discord message. |
-| `@beep/installer-server` | `ProviderAccountServerLive` | const | `packages/installer/server/src/Layer.ts:714` | Provider-account concept layer. |
-| `@beep/installer-server` | `runP1ManualProof` | const | `packages/installer/server/src/Layer.ts:768` | Run the live P1 Manual Mode proof and return sanitized evidence. |
-| `@beep/installer-server` | `SecretReferenceServerLive` | const | `packages/installer/server/src/Layer.ts:706` | Secret-reference concept layer. |
-| `@beep/installer-server` | `StackManifestServerLive` | const | `packages/installer/server/src/Layer.ts:730` | Stack-manifest concept layer. |
+| `@beep/installer-server` | `makeP1ManualProofWorkflow` | const | `packages/installer/server/src/Layer.ts:536` | Build the P1 Manual Mode proof workflow. |
+| `@beep/installer-server` | `makeProviderAccountServer` | const | `packages/installer/server/src/Layer.ts:423` | Build the provider-account concept server. |
+| `@beep/installer-server` | `makeSecretReferenceServer` | const | `packages/installer/server/src/Layer.ts:339` | Build the secret-reference concept server. |
+| `@beep/installer-server` | `makeStackManifestServer` | const | `packages/installer/server/src/Layer.ts:522` | Build the stack-manifest concept server. |
+| `@beep/installer-server` | `P1ManualProofWorkflowLive` | const | `packages/installer/server/src/Layer.ts:753` | P1 Manual Mode proof workflow layer. |
+| `@beep/installer-server` | `previewP1ManualProof` | const | `packages/installer/server/src/Layer.ts:782` | Preview the P1 Manual Mode proof without sending a Discord message. |
+| `@beep/installer-server` | `ProviderAccountServerLive` | const | `packages/installer/server/src/Layer.ts:715` | Provider-account concept layer. |
+| `@beep/installer-server` | `runP1ManualProof` | const | `packages/installer/server/src/Layer.ts:769` | Run the live P1 Manual Mode proof and return sanitized evidence. |
+| `@beep/installer-server` | `SecretReferenceServerLive` | const | `packages/installer/server/src/Layer.ts:707` | Secret-reference concept layer. |
+| `@beep/installer-server` | `StackManifestServerLive` | const | `packages/installer/server/src/Layer.ts:731` | Stack-manifest concept layer. |
 | `@beep/installer-server` | `VERSION` | const | `packages/installer/server/src/index.ts:15` | Package version for `@beep/installer-server`. |
-| `@beep/installer-server/layer` | `DiscordChannelServerLive` | const | `packages/installer/server/src/Layer.ts:722` | Discord-channel concept layer. |
-| `@beep/installer-server/layer` | `HostDependencyServerLive` | const | `packages/installer/server/src/Layer.ts:698` | Host-dependency concept layer. |
-| `@beep/installer-server/layer` | `InstallerConceptServerLive` | const | `packages/installer/server/src/Layer.ts:738` | Concept-local installer services. |
-| `@beep/installer-server/layer` | `InstallerServerLive` | const | `packages/installer/server/src/Layer.ts:760` | Complete installer server layer. |
-| `@beep/installer-server/layer` | `makeDiscordChannelServer` | const | `packages/installer/server/src/Layer.ts:464` | Build the Discord-channel concept server. |
+| `@beep/installer-server/layer` | `DiscordChannelServerLive` | const | `packages/installer/server/src/Layer.ts:723` | Discord-channel concept layer. |
+| `@beep/installer-server/layer` | `HostDependencyServerLive` | const | `packages/installer/server/src/Layer.ts:699` | Host-dependency concept layer. |
+| `@beep/installer-server/layer` | `InstallerConceptServerLive` | const | `packages/installer/server/src/Layer.ts:739` | Concept-local installer services. |
+| `@beep/installer-server/layer` | `InstallerServerLive` | const | `packages/installer/server/src/Layer.ts:761` | Complete installer server layer. |
+| `@beep/installer-server/layer` | `makeDiscordChannelServer` | const | `packages/installer/server/src/Layer.ts:465` | Build the Discord-channel concept server. |
 | `@beep/installer-server/layer` | `makeHostDependencyServer` | const | `packages/installer/server/src/Layer.ts:321` | Build the host-dependency concept server. |
-| `@beep/installer-server/layer` | `makeP1ManualProofWorkflow` | const | `packages/installer/server/src/Layer.ts:535` | Build the P1 Manual Mode proof workflow. |
-| `@beep/installer-server/layer` | `makeProviderAccountServer` | const | `packages/installer/server/src/Layer.ts:422` | Build the provider-account concept server. |
-| `@beep/installer-server/layer` | `makeSecretReferenceServer` | const | `packages/installer/server/src/Layer.ts:338` | Build the secret-reference concept server. |
-| `@beep/installer-server/layer` | `makeStackManifestServer` | const | `packages/installer/server/src/Layer.ts:521` | Build the stack-manifest concept server. |
-| `@beep/installer-server/layer` | `P1ManualProofWorkflowLive` | const | `packages/installer/server/src/Layer.ts:752` | P1 Manual Mode proof workflow layer. |
-| `@beep/installer-server/layer` | `previewP1ManualProof` | const | `packages/installer/server/src/Layer.ts:781` | Preview the P1 Manual Mode proof without sending a Discord message. |
-| `@beep/installer-server/layer` | `ProviderAccountServerLive` | const | `packages/installer/server/src/Layer.ts:714` | Provider-account concept layer. |
-| `@beep/installer-server/layer` | `runP1ManualProof` | const | `packages/installer/server/src/Layer.ts:768` | Run the live P1 Manual Mode proof and return sanitized evidence. |
-| `@beep/installer-server/layer` | `SecretReferenceServerLive` | const | `packages/installer/server/src/Layer.ts:706` | Secret-reference concept layer. |
-| `@beep/installer-server/layer` | `StackManifestServerLive` | const | `packages/installer/server/src/Layer.ts:730` | Stack-manifest concept layer. |
+| `@beep/installer-server/layer` | `makeP1ManualProofWorkflow` | const | `packages/installer/server/src/Layer.ts:536` | Build the P1 Manual Mode proof workflow. |
+| `@beep/installer-server/layer` | `makeProviderAccountServer` | const | `packages/installer/server/src/Layer.ts:423` | Build the provider-account concept server. |
+| `@beep/installer-server/layer` | `makeSecretReferenceServer` | const | `packages/installer/server/src/Layer.ts:339` | Build the secret-reference concept server. |
+| `@beep/installer-server/layer` | `makeStackManifestServer` | const | `packages/installer/server/src/Layer.ts:522` | Build the stack-manifest concept server. |
+| `@beep/installer-server/layer` | `P1ManualProofWorkflowLive` | const | `packages/installer/server/src/Layer.ts:753` | P1 Manual Mode proof workflow layer. |
+| `@beep/installer-server/layer` | `previewP1ManualProof` | const | `packages/installer/server/src/Layer.ts:782` | Preview the P1 Manual Mode proof without sending a Discord message. |
+| `@beep/installer-server/layer` | `ProviderAccountServerLive` | const | `packages/installer/server/src/Layer.ts:715` | Provider-account concept layer. |
+| `@beep/installer-server/layer` | `runP1ManualProof` | const | `packages/installer/server/src/Layer.ts:769` | Run the live P1 Manual Mode proof and return sanitized evidence. |
+| `@beep/installer-server/layer` | `SecretReferenceServerLive` | const | `packages/installer/server/src/Layer.ts:707` | Secret-reference concept layer. |
+| `@beep/installer-server/layer` | `StackManifestServerLive` | const | `packages/installer/server/src/Layer.ts:731` | Stack-manifest concept layer. |
 | `@beep/installer-server/test` | `InstallerServerTest` | const | `packages/installer/server/src/test.ts:17` | Deterministic test layer for the installer slice. |
 
 ### @beep/law-practice-domain
@@ -10554,11 +10554,11 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli` | `codegenCommand` | const | `packages/tooling/tool/cli/src/commands/Codegen.ts:257` | CLI command that scans a package's `src/` directory and generates (or previews) |
 | `@beep/repo-cli` | `codexCommand` | const | `packages/tooling/tool/cli/src/commands/Codex.ts:128` | Codex helper command group. |
 | `@beep/repo-cli` | `createPackageCommand` | const | `packages/tooling/tool/cli/src/commands/CreatePackage/index.ts:16` | Package creation command. |
-| `@beep/repo-cli` | `docgenCommand` | const | `packages/tooling/tool/cli/src/commands/Docgen/index.ts:1184` | Human-first docgen command suite. |
+| `@beep/repo-cli` | `docgenCommand` | const | `packages/tooling/tool/cli/src/commands/Docgen/index.ts:1079` | Human-first docgen command suite. |
 | `@beep/repo-cli` | `docsCommand` | const | `packages/tooling/tool/cli/src/commands/Docs.ts:244` | Command-first docs discovery entrypoint used by agent config surfaces. |
 | `@beep/repo-cli` | `filesCommand` | const | `packages/tooling/tool/cli/src/commands/Files/Files.command.ts:437` | File curation command group. |
 | `@beep/repo-cli` | `graphitiCommand` | const | `packages/tooling/tool/cli/src/commands/Graphiti/index.ts:86` | Graphiti command group. |
-| `@beep/repo-cli` | `imageCommand` | const | `packages/tooling/tool/cli/src/commands/Image/index.ts:371` | Image and video curation command group. |
+| `@beep/repo-cli` | `imageCommand` | const | `packages/tooling/tool/cli/src/commands/Image/index.ts:364` | Image and video curation command group. |
 | `@beep/repo-cli` | `lawsCommand` | const | `packages/tooling/tool/cli/src/commands/Laws/index.ts:434` | Laws command group. |
 | `@beep/repo-cli` | `lintCommand` | const | `packages/tooling/tool/cli/src/commands/Lint/index.ts:607` | Lint command group. |
 | `@beep/repo-cli` | `purgeCommand` | const | `packages/tooling/tool/cli/src/commands/Purge.ts:258` | CLI command to purge workspace/root build artifacts. |
@@ -10708,7 +10708,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/commands/CreatePackage/TsMorphIntegrationService` | `TsMorphMutationKind` | const | `packages/tooling/tool/cli/src/commands/CreatePackage/TsMorphIntegrationService.ts:23` | Supported AST mutation categories required by create-package. |
 | `@beep/repo-cli/commands/CreatePackage/TsMorphIntegrationService` | `TsMorphMutationKind` | type | `packages/tooling/tool/cli/src/commands/CreatePackage/TsMorphIntegrationService.ts:39` | Supported AST mutation categories required by create-package. |
 | `@beep/repo-cli/commands/CreatePackage/TsMorphIntegrationService` | `TsMorphMutationOutcome` | type | `packages/tooling/tool/cli/src/commands/CreatePackage/TsMorphIntegrationService.ts:184` | Outcome for one mutation. |
-| `@beep/repo-cli/commands/Docgen/index` | `docgenCommand` | const | `packages/tooling/tool/cli/src/commands/Docgen/index.ts:1184` | Human-first docgen command suite. |
+| `@beep/repo-cli/commands/Docgen/index` | `docgenCommand` | const | `packages/tooling/tool/cli/src/commands/Docgen/index.ts:1079` | Human-first docgen command suite. |
 | `@beep/repo-cli/commands/Docgen/internal/Local` | `buildDocgenLocalPlan` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/Local.ts:866` | Build a local docgen plan from repository state and command options. |
 | `@beep/repo-cli/commands/Docgen/internal/Local` | `DocgenLocalFullReason` | class | `packages/tooling/tool/cli/src/commands/Docgen/internal/Local.ts:202` | Reason local docgen must escalate to the full proof. |
 | `@beep/repo-cli/commands/Docgen/internal/Local` | `docgenLocalFullReasonsForTesting` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/Local.ts:829` | Resolve changed files that require the full docgen proof. |
@@ -11180,9 +11180,12 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/commands/Graphiti/internal/ProxyServices` | `ProxyHealthPayload` | class | `packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyServices.ts:156` | Structured JSON payload for health endpoints. |
 | `@beep/repo-cli/commands/Graphiti/internal/ProxyServices` | `proxyHealthResponse` | const | `packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyServices.ts:293` | Build a structured proxy health HTTP response. |
 | `@beep/repo-cli/commands/Graphiti/internal/ProxyServices` | `ProxyQueueStats` | class | `packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyServices.ts:129` | Queue and processing counters for proxy introspection. |
+| `@beep/repo-cli/commands/Image/Image.config` | `Config` | class | `packages/tooling/tool/cli/src/commands/Image/Image.config.ts:53` | Image command configuration service tag. |
+| `@beep/repo-cli/commands/Image/Image.config` | `ConfigShape` | class | `packages/tooling/tool/cli/src/commands/Image/Image.config.ts:32` | Configuration Schema for the Image command. |
+| `@beep/repo-cli/commands/Image/Image.errors` | `ImageCommandError` | class | `packages/tooling/tool/cli/src/commands/Image/Image.errors.ts:25` | Error raised by image curation commands. |
 | `@beep/repo-cli/commands/Image/index` | `ExtractFramesDirFailure` | class | `packages/tooling/tool/cli/src/commands/Image/index.ts:90` | Failed video from a folder-based frame extraction run. |
 | `@beep/repo-cli/commands/Image/index` | `ExtractFramesDirVideo` | class | `packages/tooling/tool/cli/src/commands/Image/index.ts:72` | Direct video selected by `image extract-frames-dir`. |
-| `@beep/repo-cli/commands/Image/index` | `imageCommand` | const | `packages/tooling/tool/cli/src/commands/Image/index.ts:371` | Image and video curation command group. |
+| `@beep/repo-cli/commands/Image/index` | `imageCommand` | const | `packages/tooling/tool/cli/src/commands/Image/index.ts:364` | Image and video curation command group. |
 | `@beep/repo-cli/commands/Image/index` | `ImageCommandError` | class | `packages/tooling/tool/cli/src/commands/Image/index.ts:56` | Error raised by image curation commands. |
 | `@beep/repo-cli/commands/Laws/AllowlistCheck` | `ALLOWLIST_PATH` | const | `packages/tooling/tool/cli/src/commands/Laws/AllowlistCheck.ts:33` | Relative path to the effect laws allowlist. |
 | `@beep/repo-cli/commands/Laws/AllowlistCheck` | `AllowlistCheckOptions` | class | `packages/tooling/tool/cli/src/commands/Laws/AllowlistCheck.ts:94` | Runtime options for allowlist integrity checks. |
@@ -11368,11 +11371,11 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/index` | `codegenCommand` | const | `packages/tooling/tool/cli/src/commands/Codegen.ts:257` | CLI command that scans a package's `src/` directory and generates (or previews) |
 | `@beep/repo-cli/index` | `codexCommand` | const | `packages/tooling/tool/cli/src/commands/Codex.ts:128` | Codex helper command group. |
 | `@beep/repo-cli/index` | `createPackageCommand` | const | `packages/tooling/tool/cli/src/commands/CreatePackage/index.ts:16` | Package creation command. |
-| `@beep/repo-cli/index` | `docgenCommand` | const | `packages/tooling/tool/cli/src/commands/Docgen/index.ts:1184` | Human-first docgen command suite. |
+| `@beep/repo-cli/index` | `docgenCommand` | const | `packages/tooling/tool/cli/src/commands/Docgen/index.ts:1079` | Human-first docgen command suite. |
 | `@beep/repo-cli/index` | `docsCommand` | const | `packages/tooling/tool/cli/src/commands/Docs.ts:244` | Command-first docs discovery entrypoint used by agent config surfaces. |
 | `@beep/repo-cli/index` | `filesCommand` | const | `packages/tooling/tool/cli/src/commands/Files/Files.command.ts:437` | File curation command group. |
 | `@beep/repo-cli/index` | `graphitiCommand` | const | `packages/tooling/tool/cli/src/commands/Graphiti/index.ts:86` | Graphiti command group. |
-| `@beep/repo-cli/index` | `imageCommand` | const | `packages/tooling/tool/cli/src/commands/Image/index.ts:371` | Image and video curation command group. |
+| `@beep/repo-cli/index` | `imageCommand` | const | `packages/tooling/tool/cli/src/commands/Image/index.ts:364` | Image and video curation command group. |
 | `@beep/repo-cli/index` | `lawsCommand` | const | `packages/tooling/tool/cli/src/commands/Laws/index.ts:434` | Laws command group. |
 | `@beep/repo-cli/index` | `lintCommand` | const | `packages/tooling/tool/cli/src/commands/Lint/index.ts:607` | Lint command group. |
 | `@beep/repo-cli/index` | `purgeCommand` | const | `packages/tooling/tool/cli/src/commands/Purge.ts:258` | CLI command to purge workspace/root build artifacts. |
@@ -12570,7 +12573,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/semantic-web` | `VERSION` | const | `packages/foundation/capability/semantic-web/src/index.ts:23` | Package version constant. |
 | `@beep/semantic-web/adapters/canonicalization` | `CanonicalizationServiceLive` | const | `packages/foundation/capability/semantic-web/src/adapters/canonicalization.ts:258` | Canonicalization service live layer. |
 | `@beep/semantic-web/adapters/jsonld-context` | `JsonLdContextServiceLive` | const | `packages/foundation/capability/semantic-web/src/adapters/jsonld-context.ts:132` | JSON-LD context service live layer. |
-| `@beep/semantic-web/adapters/jsonld-document` | `JsonLdDocumentServiceLive` | const | `packages/foundation/capability/semantic-web/src/adapters/jsonld-document.ts:749` | JSON-LD document service live layer. |
+| `@beep/semantic-web/adapters/jsonld-document` | `JsonLdDocumentServiceLive` | const | `packages/foundation/capability/semantic-web/src/adapters/jsonld-document.ts:747` | JSON-LD document service live layer. |
 | `@beep/semantic-web/adapters/jsonld-stream-parse` | `JsonLdStreamParseServiceLive` | const | `packages/foundation/capability/semantic-web/src/adapters/jsonld-stream-parse.ts:105` | JSON-LD streaming parse service live layer. |
 | `@beep/semantic-web/adapters/jsonld-stream-serialize` | `JsonLdStreamSerializeServiceLive` | const | `packages/foundation/capability/semantic-web/src/adapters/jsonld-stream-serialize.ts:70` | JSON-LD streaming serialize service live layer. |
 | `@beep/semantic-web/adapters/shacl-engine` | `BoundedShaclValidationServiceLive` | const | `packages/foundation/capability/semantic-web/src/adapters/shacl-engine.ts:49` | Bounded SHACL-inspired validation service live layer. |
@@ -12768,7 +12771,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/semantic-web/services/provenance` | `ProvenanceExportProfile` | const | `packages/foundation/capability/semantic-web/src/services/provenance.ts:64` | Provenance export profile. |
 | `@beep/semantic-web/services/provenance` | `ProvenanceService` | class | `packages/foundation/capability/semantic-web/src/services/provenance.ts:262` | Provenance service tag. |
 | `@beep/semantic-web/services/provenance` | `ProvenanceServiceError` | class | `packages/foundation/capability/semantic-web/src/services/provenance.ts:213` | Typed provenance service error. |
-| `@beep/semantic-web/services/provenance` | `ProvenanceServiceLive` | const | `packages/foundation/capability/semantic-web/src/services/provenance.ts:357` | Live provenance service implementation for bounded projection and summary work. |
+| `@beep/semantic-web/services/provenance` | `ProvenanceServiceLive` | const | `packages/foundation/capability/semantic-web/src/services/provenance.ts:354` | Live provenance service implementation for bounded projection and summary work. |
 | `@beep/semantic-web/services/provenance` | `ProvenanceServiceShape` | interface | `packages/foundation/capability/semantic-web/src/services/provenance.ts:239` | Provenance service contract shape. |
 | `@beep/semantic-web/services/provenance` | `ProvenanceSummary` | class | `packages/foundation/capability/semantic-web/src/services/provenance.ts:186` | Provenance summary result. |
 | `@beep/semantic-web/services/provenance` | `SummarizeProvenanceRequest` | class | `packages/foundation/capability/semantic-web/src/services/provenance.ts:108` | Provenance summary request. |
@@ -12933,9 +12936,9 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 
 | Import | Symbol | Kind | Source | Summary |
 |---|---|---|---|---|
-| `@beep/stack-installer` | `P1ManualProofSliceLayer` | const | `packages/installer/server/src/Layer.ts:760` | Complete installer server layer. |
-| `@beep/stack-installer` | `previewP1ManualProof` | const | `packages/installer/server/src/Layer.ts:781` | Preview the P1 Manual Mode proof without sending a Discord message. |
-| `@beep/stack-installer` | `runP1ManualProof` | const | `packages/installer/server/src/Layer.ts:768` | Run the live P1 Manual Mode proof and return sanitized evidence. |
+| `@beep/stack-installer` | `P1ManualProofSliceLayer` | const | `packages/installer/server/src/Layer.ts:761` | Complete installer server layer. |
+| `@beep/stack-installer` | `previewP1ManualProof` | const | `packages/installer/server/src/Layer.ts:782` | Preview the P1 Manual Mode proof without sending a Discord message. |
+| `@beep/stack-installer` | `runP1ManualProof` | const | `packages/installer/server/src/Layer.ts:769` | Run the live P1 Manual Mode proof and return sanitized evidence. |
 | `@beep/stack-installer` | `VERSION` | const | `apps/stack-installer/src/index.ts:15` | App version marker. |
 
 ### @beep/professional-desktop
@@ -13849,9 +13852,9 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/nlp/Wink` | `WinkLayerLive` | const | `packages/foundation/capability/nlp/src/Wink/index.ts:33` | import { WinkLayerLive } from "@beep/nlp/Wink" |
 | `@beep/nlp/Wink` | `WinkSimilarity` | class | `packages/foundation/capability/nlp/src/Wink/WinkSimilarity.ts:284` | Wink similarity service. |
 | `@beep/nlp/Wink` | `WinkSimilarityLive` | const | `packages/foundation/capability/nlp/src/Wink/WinkSimilarity.ts:299` | Live wink similarity layer. |
-| `@beep/nlp/Wink` | `WinkTokenization` | const | `packages/foundation/capability/nlp/src/Wink/WinkTokenizer.ts:340` | Wink-backed tokenization layer. |
+| `@beep/nlp/Wink` | `WinkTokenization` | const | `packages/foundation/capability/nlp/src/Wink/WinkTokenizer.ts:343` | Wink-backed tokenization layer. |
 | `@beep/nlp/Wink` | `WinkTokenizationError` | class | `packages/foundation/capability/nlp/src/Wink/WinkErrors.ts:82` | Failure raised while reading or tokenizing text through wink. |
-| `@beep/nlp/Wink` | `WinkTokenizationLive` | const | `packages/foundation/capability/nlp/src/Wink/WinkTokenizer.ts:355` | Wink-backed tokenization layer with the live engine provided. |
+| `@beep/nlp/Wink` | `WinkTokenizationLive` | const | `packages/foundation/capability/nlp/src/Wink/WinkTokenizer.ts:358` | Wink-backed tokenization layer with the live engine provided. |
 | `@beep/nlp/Wink` | `WinkUtils` | class | `packages/foundation/capability/nlp/src/Wink/WinkUtils.ts:242` | Wink utility service. |
 | `@beep/nlp/Wink` | `WinkUtilsError` | class | `packages/foundation/capability/nlp/src/Wink/WinkUtils.ts:118` | Error raised while calling wink utility helpers. |
 | `@beep/nlp/Wink` | `WinkUtilsLive` | const | `packages/foundation/capability/nlp/src/Wink/WinkUtils.ts:257` | Live wink utility layer. |
@@ -13892,9 +13895,9 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/nlp/Wink/index` | `WinkLayerLive` | const | `packages/foundation/capability/nlp/src/Wink/index.ts:33` | import { WinkLayerLive } from "@beep/nlp/Wink" |
 | `@beep/nlp/Wink/index` | `WinkSimilarity` | class | `packages/foundation/capability/nlp/src/Wink/WinkSimilarity.ts:284` | Wink similarity service. |
 | `@beep/nlp/Wink/index` | `WinkSimilarityLive` | const | `packages/foundation/capability/nlp/src/Wink/WinkSimilarity.ts:299` | Live wink similarity layer. |
-| `@beep/nlp/Wink/index` | `WinkTokenization` | const | `packages/foundation/capability/nlp/src/Wink/WinkTokenizer.ts:340` | Wink-backed tokenization layer. |
+| `@beep/nlp/Wink/index` | `WinkTokenization` | const | `packages/foundation/capability/nlp/src/Wink/WinkTokenizer.ts:343` | Wink-backed tokenization layer. |
 | `@beep/nlp/Wink/index` | `WinkTokenizationError` | class | `packages/foundation/capability/nlp/src/Wink/WinkErrors.ts:82` | Failure raised while reading or tokenizing text through wink. |
-| `@beep/nlp/Wink/index` | `WinkTokenizationLive` | const | `packages/foundation/capability/nlp/src/Wink/WinkTokenizer.ts:355` | Wink-backed tokenization layer with the live engine provided. |
+| `@beep/nlp/Wink/index` | `WinkTokenizationLive` | const | `packages/foundation/capability/nlp/src/Wink/WinkTokenizer.ts:358` | Wink-backed tokenization layer with the live engine provided. |
 | `@beep/nlp/Wink/index` | `WinkUtils` | class | `packages/foundation/capability/nlp/src/Wink/WinkUtils.ts:242` | Wink utility service. |
 | `@beep/nlp/Wink/index` | `WinkUtilsError` | class | `packages/foundation/capability/nlp/src/Wink/WinkUtils.ts:118` | Error raised while calling wink utility helpers. |
 | `@beep/nlp/Wink/index` | `WinkUtilsLive` | const | `packages/foundation/capability/nlp/src/Wink/WinkUtils.ts:257` | Live wink utility layer. |
@@ -13940,8 +13943,8 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/nlp/Wink/WinkSimilarity` | `WinkSimilarity` | class | `packages/foundation/capability/nlp/src/Wink/WinkSimilarity.ts:284` | Wink similarity service. |
 | `@beep/nlp/Wink/WinkSimilarity` | `WinkSimilarityLive` | const | `packages/foundation/capability/nlp/src/Wink/WinkSimilarity.ts:299` | Live wink similarity layer. |
 | `@beep/nlp/Wink/WinkTokenizer` | `SentenceSpanFailure` | class | `packages/foundation/capability/nlp/src/Wink/WinkTokenizer.ts:44` | Failure raised when wink sentence spans cannot be derived from the token stream. |
-| `@beep/nlp/Wink/WinkTokenizer` | `WinkTokenization` | const | `packages/foundation/capability/nlp/src/Wink/WinkTokenizer.ts:340` | Wink-backed tokenization layer. |
-| `@beep/nlp/Wink/WinkTokenizer` | `WinkTokenizationLive` | const | `packages/foundation/capability/nlp/src/Wink/WinkTokenizer.ts:355` | Wink-backed tokenization layer with the live engine provided. |
+| `@beep/nlp/Wink/WinkTokenizer` | `WinkTokenization` | const | `packages/foundation/capability/nlp/src/Wink/WinkTokenizer.ts:343` | Wink-backed tokenization layer. |
+| `@beep/nlp/Wink/WinkTokenizer` | `WinkTokenizationLive` | const | `packages/foundation/capability/nlp/src/Wink/WinkTokenizer.ts:358` | Wink-backed tokenization layer with the live engine provided. |
 | `@beep/nlp/Wink/WinkUtils` | `WinkUtils` | class | `packages/foundation/capability/nlp/src/Wink/WinkUtils.ts:242` | Wink utility service. |
 | `@beep/nlp/Wink/WinkUtils` | `WinkUtilsError` | class | `packages/foundation/capability/nlp/src/Wink/WinkUtils.ts:118` | Error raised while calling wink utility helpers. |
 | `@beep/nlp/Wink/WinkUtils` | `WinkUtilsLive` | const | `packages/foundation/capability/nlp/src/Wink/WinkUtils.ts:257` | Live wink utility layer. |

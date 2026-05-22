@@ -58,10 +58,10 @@ export const makeInMemoryWorkerRepository = Effect.fn("ArchitectureLab.WorkerRep
     get: Effect.fn("ArchitectureLab.WorkerRepository.get")(function* (id) {
       return yield* getStoredWorker(store, id);
     }),
-    list: Effect.fn("ArchitectureLab.WorkerRepository.list")(function* () {
+    list: Effect.gen(function* () {
       const workers = yield* Ref.get(store);
       return A.fromIterable(HashMap.values(workers));
-    }),
+    }).pipe(Effect.withSpan("ArchitectureLab.WorkerRepository.list")),
   });
 });
 
@@ -144,10 +144,10 @@ export const makeDrizzleWorkerRepository = Effect.fn("ArchitectureLab.WorkerRepo
     get: Effect.fn("ArchitectureLab.WorkerRepository.drizzleGet")(function* (id) {
       return yield* getDrizzleWorker(db, id);
     }),
-    list: Effect.fn("ArchitectureLab.WorkerRepository.drizzleList")(function* () {
+    list: Effect.gen(function* () {
       const rows = yield* db.select().from(workerTable).pipe(repositoryUnavailable("list Worker"));
       return A.map(rows, fromWorkerRow);
-    }),
+    }).pipe(Effect.withSpan("ArchitectureLab.WorkerRepository.drizzleList")),
   });
 });
 

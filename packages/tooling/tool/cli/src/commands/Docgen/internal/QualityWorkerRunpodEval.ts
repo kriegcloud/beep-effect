@@ -599,7 +599,7 @@ const resolveTemplate = Effect.fn("DocgenQualityWorkerRunpodEval.resolveTemplate
   });
 });
 
-const ollamaTagsIncludeModel = (model: string, tags: typeof OllamaTagsResponse.Type): boolean =>
+const ollamaTagsIncludeModel = (model: string, tags: OllamaTagsResponse): boolean =>
   pipe(
     tags.models,
     A.some((entry) => entry.name === model || entry.model === model)

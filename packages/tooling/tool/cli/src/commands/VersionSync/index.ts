@@ -80,27 +80,20 @@ export const versionSyncCommand = Command.make(
       biomeOnly,
       effectOnly,
     }).pipe(
-      Effect.catchTag(
-        "VersionSyncDriftError",
-        Effect.fn(function* (error) {
+      Effect.catchTags({
+        VersionSyncDriftError: Effect.fn(function* (error) {
           process.exitCode = 1;
           yield* Console.error(`version-sync: ${error.message}`);
-        })
-      ),
-      Effect.catchTag(
-        "VersionSyncError",
-        Effect.fn(function* (error) {
+        }),
+        VersionSyncError: Effect.fn(function* (error) {
           process.exitCode = 1;
           yield* Console.error(`version-sync: ${error.message} (${error.file})`);
-        })
-      ),
-      Effect.catchTag(
-        "NoSuchFileError",
-        Effect.fn(function* (error) {
+        }),
+        NoSuchFileError: Effect.fn(function* (error) {
           process.exitCode = 1;
           yield* Console.error(`version-sync: ${error.message}`);
-        })
-      )
+        }),
+      })
     );
   })
 ).pipe(

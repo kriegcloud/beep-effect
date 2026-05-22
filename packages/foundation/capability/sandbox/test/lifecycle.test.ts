@@ -63,7 +63,7 @@ describe("@beep/sandbox lifecycle foundation", () => {
       const displayRef = yield* Ref.make<ReadonlyArray<DisplayEntry>>([]);
       const DisplayLayer = SilentDisplay.layer(displayRef);
       const sandbox: SandboxHandle = {
-        close: () => Effect.void,
+        close: Effect.void,
         copyFileOut: () => Effect.void,
         exec: (command, options) =>
           Effect.sync(() => {
@@ -127,7 +127,7 @@ describe("@beep/sandbox lifecycle foundation", () => {
         })
       );
       const sandbox: SandboxHandle = {
-        close: () => Effect.void,
+        close: Effect.void,
         copyFileOut: () => Effect.void,
         exec: (command, options) =>
           Effect.sync(() => {

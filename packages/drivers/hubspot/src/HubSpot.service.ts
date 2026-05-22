@@ -13,6 +13,7 @@ import * as R from "effect/Record";
 import * as S from "effect/Schema";
 import { FetchHttpClient } from "effect/unstable/http";
 import * as HttpClient from "effect/unstable/http/HttpClient";
+import type * as HttpClientError from "effect/unstable/http/HttpClientError";
 import * as HttpClientRequest from "effect/unstable/http/HttpClientRequest";
 import type * as HttpClientResponse from "effect/unstable/http/HttpClientResponse";
 import { HUBSPOT_CRM_API_URL, HUBSPOT_FORMS_API_URL, HubSpotConfigInput } from "./HubSpot.config.ts";
@@ -385,41 +386,39 @@ const ensureUpsertContactSuccess = Effect.fnUntraced(function* (
   return yield* HubSpotError.fromReason("response status", { email, status: response.status, url });
 });
 
-const decodeResponse = Effect.fnUntraced(function* (
-  formGuid: string,
-  url: string,
-  response: HttpClientResponse.HttpClientResponse
-): Effect.fn.Return<HubSpotSubmitFormResponse, HubSpotError> {
-  const contentType = response.headers["content-type"] ?? "";
+const decodeResponse = Effect.fnUntraced(
+  function* (
+    _formGuid: string,
+    _url: string,
+    response: HttpClientResponse.HttpClientResponse
+  ): Effect.fn.Return<HubSpotSubmitFormResponse, HttpClientError.HttpClientError | S.SchemaError> {
+    const contentType = response.headers["content-type"] ?? "";
 
-  if (!Str.includes("application/json")(contentType)) {
-    return new HubSpotSubmitFormResponse({});
-  }
+    if (!Str.includes("application/json")(contentType)) {
+      return new HubSpotSubmitFormResponse({});
+    }
 
-  const body = yield* response.json.pipe(
-    Effect.mapError((cause) => HubSpotError.fromReason("response decoding", { cause, formGuid, url }))
-  );
+    const body = yield* response.json;
 
-  return yield* pipe(
-    decodeSubmitFormResponse(body),
-    Effect.mapError((cause) => HubSpotError.fromReason("response decoding", { cause, formGuid, url }))
-  );
-});
+    return yield* decodeSubmitFormResponse(body);
+  },
+  (effect, formGuid, url) =>
+    effect.pipe(Effect.mapError((cause) => HubSpotError.fromReason("response decoding", { cause, formGuid, url })))
+);
 
-const decodeUpsertContact = Effect.fnUntraced(function* (
-  email: string,
-  url: string,
-  response: HttpClientResponse.HttpClientResponse
-): Effect.fn.Return<HubSpotUpsertContactResponse, HubSpotError> {
-  const body = yield* response.json.pipe(
-    Effect.mapError((cause) => HubSpotError.fromReason("response decoding", { cause, email, url }))
-  );
+const decodeUpsertContact = Effect.fnUntraced(
+  function* (
+    _email: string,
+    _url: string,
+    response: HttpClientResponse.HttpClientResponse
+  ): Effect.fn.Return<HubSpotUpsertContactResponse, HttpClientError.HttpClientError | S.SchemaError> {
+    const body = yield* response.json;
 
-  return yield* pipe(
-    decodeUpsertContactResponse(body),
-    Effect.mapError((cause) => HubSpotError.fromReason("response decoding", { cause, email, url }))
-  );
-});
+    return yield* decodeUpsertContactResponse(body);
+  },
+  (effect, email, url) =>
+    effect.pipe(Effect.mapError((cause) => HubSpotError.fromReason("response decoding", { cause, email, url })))
+);
 
 const makeService = (client: HttpClient.HttpClient, config: ResolvedHubSpotConfig): HubSpotShape => ({
   submitForm: Effect.fn("HubSpot.submitForm")(function* (request) {

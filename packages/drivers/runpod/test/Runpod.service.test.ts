@@ -359,7 +359,7 @@ describe("@beep/runpod", () => {
         );
 
         const docs = yield* RunpodDocs;
-        const fetched = yield* docs.fetchIndex();
+        const fetched = yield* docs.fetchIndex;
         const capture = yield* pipe(
           testHttp.captures,
           Effect.flatMap((captures) => captureAt(captures, 0, "docs capture"))

@@ -16,17 +16,17 @@ import { describe, expect, it } from "tstyche";
 describe("Duration", () => {
   it("preserves the DurationUnit alias surface", () => {
     expect<DurationUnitType>().type.toBe<Unit>();
-    expect<typeof DurationUnit.Type>().type.toBe<DurationUnitType>();
+    expect<DurationUnit>().type.toBe<DurationUnitType>();
   });
 
   it("tracks the one-way duration transformation schema types", () => {
-    expect<typeof DurationFromInput.Type>().type.toBe<D.Duration>();
+    expect<DurationFromInput>().type.toBe<D.Duration>();
     expect<typeof DurationFromInput.Encoded>().type.toBe<typeof DurationInput.Encoded>();
     expect<DurationFromInputType>().type.toBe<D.Duration>();
   });
 
   it("keeps the duration input boundary as the encoded surface", () => {
-    expect<DurationInputType>().type.toBe<typeof DurationInput.Type>();
+    expect<DurationInputType>().type.toBe<DurationInput>();
   });
 
   it("exposes decode and encode helpers with the expected effect types", () => {

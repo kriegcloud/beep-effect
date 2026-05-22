@@ -239,7 +239,7 @@ function renderMetaConst(name: string, value: string, description: string): stri
   );
 }
 
-type Json = typeof S.Json.Type;
+type Json = S.Json;
 
 function normalizeNullableTypes(value: Json): Json {
   if (A.isArray(value)) {

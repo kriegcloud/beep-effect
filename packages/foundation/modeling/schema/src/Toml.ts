@@ -17,7 +17,7 @@ const $I = $SchemaId.create("Toml");
 
 const decodeUnknownRecord = S.decodeUnknownEffect(UnknownRecord);
 
-const encodeUnsupported = (value: typeof UnknownRecord.Type): Effect.Effect<string, SchemaIssue.Issue> =>
+const encodeUnsupported = (value: UnknownRecord): Effect.Effect<string, SchemaIssue.Issue> =>
   Effect.fail(
     new SchemaIssue.InvalidValue(O.some(value), {
       message: "Encoding unknown values to TOML text is not supported by TomlTextToUnknown.",

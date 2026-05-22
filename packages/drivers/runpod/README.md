@@ -31,7 +31,7 @@ void layer
 
 The package exposes generated request/response models for all operations in the
 checked-in Runpod OpenAPI document, plus `Runpod.raw(...)` for ahead-of-spec REST
-paths and `RunpodDocs.fetchIndex()` for `https://docs.runpod.io/llms.txt`.
+paths and `RunpodDocs.fetchIndex` for `https://docs.runpod.io/llms.txt`.
 
 ## Development
 
