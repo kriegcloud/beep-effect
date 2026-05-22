@@ -47,21 +47,18 @@ const parseBracketValues = (input: string): O.Option<NonEmptyChoices<string>> =>
   });
 
 const decodePOSPatternElement = (input: string): O.Option<POSPatternElement> =>
-  O.map(
-    O.filter(parseBracketValues(input), S.is(POSPatternOption)),
-    (parts) => new POSPatternElement({ value: parts })
+  O.map(O.filter(parseBracketValues(input), S.is(POSPatternOption)), (parts) =>
+    POSPatternElement.make({ value: parts })
   );
 
 const decodeEntityPatternElement = (input: string): O.Option<EntityPatternElement> =>
-  O.map(
-    O.filter(parseBracketValues(input), S.is(EntityPatternOption)),
-    (parts) => new EntityPatternElement({ value: parts })
+  O.map(O.filter(parseBracketValues(input), S.is(EntityPatternOption)), (parts) =>
+    EntityPatternElement.make({ value: parts })
   );
 
 const decodeLiteralPatternElement = (input: string): O.Option<LiteralPatternElement> =>
-  O.map(
-    O.filter(parseBracketValues(input), S.is(LiteralPatternOption)),
-    (parts) => new LiteralPatternElement({ value: parts })
+  O.map(O.filter(parseBracketValues(input), S.is(LiteralPatternOption)), (parts) =>
+    LiteralPatternElement.make({ value: parts })
   );
 
 const succeedPatternElement = (element: PatternElementType) => Effect.succeed(element);

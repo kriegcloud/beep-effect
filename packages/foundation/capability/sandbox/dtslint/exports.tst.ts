@@ -28,13 +28,13 @@ describe("@beep/sandbox package exports", () => {
   it("resolves root exports through the package map", () => {
     const agent = claudeCode();
     const provider = noSandbox();
-    const result = new ExecResult({ exitCode: 0, stderr: "", stdout: "ok" });
-    const command = new ProcessCommand({ command: "git" });
-    const worktree = new WorktreeInfo({ branch: "main", path: "/repo" });
-    const managedWorktree = createWorktree(new CreateWorktreeOptions({ repoDir: "/repo" }));
-    const scopedWorktree = createWorktreeScoped(new CreateWorktreeOptions({ repoDir: "/repo" }));
+    const result = ExecResult.make({ exitCode: 0, stderr: "", stdout: "ok" });
+    const command = ProcessCommand.make({ command: "git" });
+    const worktree = WorktreeInfo.make({ branch: "main", path: "/repo" });
+    const managedWorktree = createWorktree(CreateWorktreeOptions.make({ repoDir: "/repo" }));
+    const scopedWorktree = createWorktreeScoped(CreateWorktreeOptions.make({ repoDir: "/repo" }));
     const failedStep: FailedStep = "diff";
-    const recoveryInput = new RecoveryInput({
+    const recoveryInput = RecoveryInput.make({
       failedStep,
       hasCommits: true,
       hasDiff: true,
@@ -43,7 +43,7 @@ describe("@beep/sandbox package exports", () => {
     });
     const textDeltaBuffer = new TextDeltaBuffer(
       () => undefined,
-      new TextDeltaBufferOptions({ debounceMs: 1, lengthThreshold: 8 })
+      TextDeltaBufferOptions.make({ debounceMs: 1, lengthThreshold: 8 })
     );
     const terminalHandler = makeTerminalCleanupHandler({ isTTY: false }, { write: () => true });
 
@@ -59,7 +59,7 @@ describe("@beep/sandbox package exports", () => {
     expect(recoveryInput.failedStep).type.toBe<FailedStep>();
     expect(buildRecoveryMessage(recoveryInput)).type.toBe<string>();
     expect(buildLogFilename("main")).type.toBe<string>();
-    expect(buildLogFilename("main", new LogFilenameOptions({}))).type.toBe<string>();
+    expect(buildLogFilename("main", LogFilenameOptions.make({}))).type.toBe<string>();
     expect(Display.key).type.toBeAssignableTo<string>();
     expect(SandboxProcess.key).type.toBeAssignableTo<string>();
     expect(textDeltaBuffer.write("hello")).type.toBe<void>();

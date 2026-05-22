@@ -83,7 +83,7 @@ const NodeSdkMetricTemporality = LiteralKit(["cumulative", "delta"]).pipe(
  * ```typescript
  * import { NodeSdkServerOptions } from "@beep/observability/server"
  *
- * const options = new NodeSdkServerOptions({
+ * const options = NodeSdkServerOptions.make({
  *   loggerMergeWithExisting: true
  * })
  * console.log(options.loggerMergeWithExisting)
@@ -118,7 +118,7 @@ const isServerObservabilityConfig = S.is(ServerObservabilityConfig);
  * ```typescript
  * import { ServerObservabilityConfig, toNodeSdkResource } from "@beep/observability/server"
  *
- * const config = new ServerObservabilityConfig({
+ * const config = ServerObservabilityConfig.make({
  *   devtoolsEnabled: false,
  *   devtoolsUrl: "ws://localhost:34437",
  *   environment: "test",
@@ -146,7 +146,7 @@ export const toNodeSdkResource = (config: ServerObservabilityConfig): NonNullabl
  * ```typescript
  * import { ServerObservabilityConfig, makeNodeSdkServerConfig } from "@beep/observability/server"
  *
- * const config = new ServerObservabilityConfig({
+ * const config = ServerObservabilityConfig.make({
  *   devtoolsEnabled: false,
  *   devtoolsUrl: "ws://localhost:34437",
  *   environment: "test",
@@ -230,7 +230,7 @@ export const makeNodeSdkServerConfig: {
  * ```typescript
  * import { ServerObservabilityConfig, makeNodeSdkServerTraceConfig } from "@beep/observability/server"
  *
- * const config = new ServerObservabilityConfig({
+ * const config = ServerObservabilityConfig.make({
  *   devtoolsEnabled: false,
  *   devtoolsUrl: "ws://localhost:34437",
  *   environment: "test",
@@ -268,7 +268,7 @@ export const makeNodeSdkServerTraceConfig: {
  * ```typescript
  * import { ServerObservabilityConfig, layerNodeSdkServer } from "@beep/observability/server"
  *
- * const config = new ServerObservabilityConfig({
+ * const config = ServerObservabilityConfig.make({
  *   devtoolsEnabled: false,
  *   devtoolsUrl: "ws://localhost:34437",
  *   environment: "test",
@@ -304,7 +304,7 @@ export const layerNodeSdkServer: {
  * ```typescript
  * import { ServerObservabilityConfig, layerNodeSdkServerTraces } from "@beep/observability/server"
  *
- * const config = new ServerObservabilityConfig({
+ * const config = ServerObservabilityConfig.make({
  *   devtoolsEnabled: false,
  *   devtoolsUrl: "ws://localhost:34437",
  *   environment: "test",

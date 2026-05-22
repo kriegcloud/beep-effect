@@ -158,7 +158,7 @@ export const CrossOriginOpenerPolicyHeader = S.Union([CrossOriginOpenerPolicyOpt
         return O.some(option);
       }
 
-      return yield* new CrossOriginOpenerPolicyError({
+      return yield* CrossOriginOpenerPolicyError.make({
         message: `Invalid value for ${headerName}: ${option}`,
         cause: O.none(),
       });

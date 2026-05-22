@@ -88,7 +88,7 @@ export type StyleName = ModifierStyleName | ForegroundStyleName | BackgroundStyl
  * ```ts
  * import { StylerEntry } from "./AnsiStyles.ts"
  *
- * const entry = new StylerEntry({ open: "\u001B[31m", close: "\u001B[39m" })
+ * const entry = StylerEntry.make({ open: "\u001B[31m", close: "\u001B[39m" })
  * console.log(entry.open)
  * ```
  *
@@ -177,7 +177,7 @@ const backgroundCodes: Record<BackgroundStyleName, AnsiCodePair> = {
 };
 
 const toStyleEntry = ([open, close]: AnsiCodePair): StylerEntry =>
-  new StylerEntry({
+  StylerEntry.make({
     open: `\u001B[${open}m`,
     close: `\u001B[${close}m`,
   });

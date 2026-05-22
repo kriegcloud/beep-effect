@@ -21,7 +21,7 @@ const SENTENCE_BOUNDARY_PATTERN = /[.!?] $/;
  * ```ts
  * import { TextDeltaBufferOptions } from "@beep/sandbox"
  *
- * const options = new TextDeltaBufferOptions({
+ * const options = TextDeltaBufferOptions.make({
  *   debounceMs: 50,
  *   lengthThreshold: 80,
  * })
@@ -40,7 +40,7 @@ export class TextDeltaBufferOptions extends S.Class<TextDeltaBufferOptions>($I`T
   })
 ) {}
 
-const defaultOptions = new TextDeltaBufferOptions({
+const defaultOptions = TextDeltaBufferOptions.make({
   debounceMs: 50,
   lengthThreshold: 80,
 });

@@ -15,7 +15,7 @@ describe("Worker table", () => {
       const id = yield* decodeWorkerId(1);
       const organizationId = yield* decodeOrganizationId(1);
       const worker = DomainWorker.create(
-        new DomainWorker.CreateWorkerInput({
+        DomainWorker.CreateWorkerInput.make({
           id,
           organizationId,
           displayName: "Ada Lovelace",

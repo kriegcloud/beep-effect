@@ -103,7 +103,7 @@ const formatReferrerPolicyValue = Effect.fn("ReferrerPolicy.formatReferrerPolicy
   const values = internal.wrapArray(option);
 
   if (A.some(values, (value) => value === ("unsafe-url" as never))) {
-    return yield* new ReferrerPolicyError({
+    return yield* ReferrerPolicyError.make({
       message: `Cannot specify a dangerous value for ${headerName}: unsafe-url`,
       cause: O.none(),
     });
@@ -113,7 +113,7 @@ const formatReferrerPolicyValue = Effect.fn("ReferrerPolicy.formatReferrerPolicy
     return A.join(values, ", ");
   }
 
-  return yield* new ReferrerPolicyError({
+  return yield* ReferrerPolicyError.make({
     message: `Invalid value for ${headerName}: ${String(option)}`,
     cause: O.none(),
   });

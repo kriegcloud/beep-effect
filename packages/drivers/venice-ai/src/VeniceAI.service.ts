@@ -269,7 +269,7 @@ export type VeniceAIQueryValue = typeof VeniceAIQueryValue.Type;
  * ```ts
  * import { VeniceAIRequestOptions } from "@beep/venice-ai"
  *
- * const request = new VeniceAIRequestOptions({
+ * const request = VeniceAIRequestOptions.make({
  *   body: { model: "venice-uncensored-1-2" },
  *   query: { limit: 10 }
  * })
@@ -302,7 +302,7 @@ export class VeniceAIRequestOptions extends S.Class<VeniceAIRequestOptions>($I`V
  * import { Redacted } from "effect"
  * import { VeniceAIConfigInput } from "@beep/venice-ai"
  *
- * const config = new VeniceAIConfigInput({
+ * const config = VeniceAIConfigInput.make({
  *   apiKey: Redacted.make("test-key"),
  *   baseUrl: "https://api.venice.ai/api/v1"
  * })
@@ -359,7 +359,7 @@ export class VeniceAIOperationDescriptor extends S.Class<VeniceAIOperationDescri
  * ```ts
  * import { VeniceAIJsonResponse } from "@beep/venice-ai"
  *
- * const response = new VeniceAIJsonResponse({
+ * const response = VeniceAIJsonResponse.make({
  *   body: { ok: true },
  *   headers: {},
  *   status: 200
@@ -391,7 +391,7 @@ export class VeniceAIJsonResponse extends S.TaggedClass<VeniceAIJsonResponse>($I
  * ```ts
  * import { VeniceAITextResponse } from "@beep/venice-ai"
  *
- * const response = new VeniceAITextResponse({
+ * const response = VeniceAITextResponse.make({
  *   contentType: "text/plain",
  *   headers: {},
  *   status: 200,
@@ -424,7 +424,7 @@ export class VeniceAITextResponse extends S.TaggedClass<VeniceAITextResponse>($I
  * ```ts
  * import { VeniceAIBinaryResponse } from "@beep/venice-ai"
  *
- * const response = new VeniceAIBinaryResponse({
+ * const response = VeniceAIBinaryResponse.make({
  *   bytes: new Uint8Array([1, 2, 3]),
  *   contentType: "image/png",
  *   headers: {},
@@ -494,7 +494,7 @@ export type VeniceAIResponse = typeof VeniceAIResponse.Type;
  * ```ts
  * import { VeniceAIServerSentEvent } from "@beep/venice-ai"
  *
- * const event = new VeniceAIServerSentEvent({
+ * const event = VeniceAIServerSentEvent.make({
  *   data: { delta: "hello" },
  *   done: false,
  *   index: 0
@@ -526,7 +526,7 @@ const isVeniceAIOperationDescriptor = S.is(VeniceAIOperationDescriptor);
  * ```ts
  * import { VeniceAIError } from "@beep/venice-ai"
  *
- * const error = new VeniceAIError({
+ * const error = VeniceAIError.make({
  *   method: "GET",
  *   operation: "listModels",
  *   path: "/models",
@@ -585,7 +585,7 @@ export class VeniceAIError extends TaggedErrorClass<VeniceAIError>($I`VeniceAIEr
       reason: VeniceAIErrorReason,
       options: VeniceAIErrorOptions = {}
     ): VeniceAIError =>
-      new VeniceAIError({
+      VeniceAIError.make({
         method: descriptor.method,
         operation: descriptor.operationId,
         path: descriptor.path,
@@ -614,7 +614,7 @@ export class VeniceAIError extends TaggedErrorClass<VeniceAIError>($I`VeniceAIEr
    * @since 0.0.0
    */
   static readonly config = (cause?: unknown): VeniceAIError =>
-    new VeniceAIError({
+    VeniceAIError.make({
       reason: "config",
       ...R.getSomes({
         cause: causeFromUnknown(cause),
@@ -726,7 +726,7 @@ class ChatCompletionTextResponse extends S.Class<ChatCompletionTextResponse>($I`
 const decodeChatCompletionTextResponse = S.decodeUnknownEffect(ChatCompletionTextResponse);
 const decodeSseJson = decodeJsonString;
 
-const createChatCompletionOperation = new VeniceAIOperationDescriptor({
+const createChatCompletionOperation = VeniceAIOperationDescriptor.make({
   method: "POST",
   operationId: "createChatCompletion",
   path: "/chat/completions",
@@ -735,7 +735,7 @@ const createChatCompletionOperation = new VeniceAIOperationDescriptor({
   tag: "Chat",
 });
 
-const createResponseOperation = new VeniceAIOperationDescriptor({
+const createResponseOperation = VeniceAIOperationDescriptor.make({
   method: "POST",
   operationId: "createResponse",
   path: "/responses",
@@ -744,7 +744,7 @@ const createResponseOperation = new VeniceAIOperationDescriptor({
   tag: "Responses (Alpha)",
 });
 
-const generateImageOperation = new VeniceAIOperationDescriptor({
+const generateImageOperation = VeniceAIOperationDescriptor.make({
   method: "POST",
   operationId: "generateImage",
   path: "/image/generate",
@@ -753,7 +753,7 @@ const generateImageOperation = new VeniceAIOperationDescriptor({
   tag: "Image",
 });
 
-const simpleGenerateImageOperation = new VeniceAIOperationDescriptor({
+const simpleGenerateImageOperation = VeniceAIOperationDescriptor.make({
   method: "POST",
   operationId: "simpleGenerateImage",
   path: "/images/generations",
@@ -762,7 +762,7 @@ const simpleGenerateImageOperation = new VeniceAIOperationDescriptor({
   tag: "Image",
 });
 
-const listImageStylesOperation = new VeniceAIOperationDescriptor({
+const listImageStylesOperation = VeniceAIOperationDescriptor.make({
   method: "GET",
   operationId: "listImageStyles",
   path: "/image/styles",
@@ -771,7 +771,7 @@ const listImageStylesOperation = new VeniceAIOperationDescriptor({
   tag: "Image",
 });
 
-const upscaleImageOperation = new VeniceAIOperationDescriptor({
+const upscaleImageOperation = VeniceAIOperationDescriptor.make({
   method: "POST",
   operationId: "upscaleImage",
   path: "/image/upscale",
@@ -780,7 +780,7 @@ const upscaleImageOperation = new VeniceAIOperationDescriptor({
   tag: "Image",
 });
 
-const editImageOperation = new VeniceAIOperationDescriptor({
+const editImageOperation = VeniceAIOperationDescriptor.make({
   method: "POST",
   operationId: "editImage",
   path: "/image/edit",
@@ -789,7 +789,7 @@ const editImageOperation = new VeniceAIOperationDescriptor({
   tag: "Image",
 });
 
-const multiEditImageOperation = new VeniceAIOperationDescriptor({
+const multiEditImageOperation = VeniceAIOperationDescriptor.make({
   method: "POST",
   operationId: "multiEditImage",
   path: "/image/multi-edit",
@@ -798,7 +798,7 @@ const multiEditImageOperation = new VeniceAIOperationDescriptor({
   tag: "Image",
 });
 
-const backgroundRemoveImageOperation = new VeniceAIOperationDescriptor({
+const backgroundRemoveImageOperation = VeniceAIOperationDescriptor.make({
   method: "POST",
   operationId: "backgroundRemoveImage",
   path: "/image/background-remove",
@@ -807,7 +807,7 @@ const backgroundRemoveImageOperation = new VeniceAIOperationDescriptor({
   tag: "Image",
 });
 
-const listModelsOperation = new VeniceAIOperationDescriptor({
+const listModelsOperation = VeniceAIOperationDescriptor.make({
   method: "GET",
   operationId: "listModels",
   path: "/models",
@@ -816,7 +816,7 @@ const listModelsOperation = new VeniceAIOperationDescriptor({
   tag: "Models",
 });
 
-const listModelTraitsOperation = new VeniceAIOperationDescriptor({
+const listModelTraitsOperation = VeniceAIOperationDescriptor.make({
   method: "GET",
   operationId: "listModelTraits",
   path: "/models/traits",
@@ -825,7 +825,7 @@ const listModelTraitsOperation = new VeniceAIOperationDescriptor({
   tag: "Models",
 });
 
-const listModelCompatibilityMappingOperation = new VeniceAIOperationDescriptor({
+const listModelCompatibilityMappingOperation = VeniceAIOperationDescriptor.make({
   method: "GET",
   operationId: "listModelCompatibilityMapping",
   path: "/models/compatibility_mapping",
@@ -834,7 +834,7 @@ const listModelCompatibilityMappingOperation = new VeniceAIOperationDescriptor({
   tag: "Models",
 });
 
-const getApiKeysOperation = new VeniceAIOperationDescriptor({
+const getApiKeysOperation = VeniceAIOperationDescriptor.make({
   method: "GET",
   operationId: "getApiKeys",
   path: "/api_keys",
@@ -843,7 +843,7 @@ const getApiKeysOperation = new VeniceAIOperationDescriptor({
   tag: "API Keys",
 });
 
-const deleteApiKeyOperation = new VeniceAIOperationDescriptor({
+const deleteApiKeyOperation = VeniceAIOperationDescriptor.make({
   method: "DELETE",
   operationId: "deleteApiKey",
   path: "/api_keys",
@@ -852,7 +852,7 @@ const deleteApiKeyOperation = new VeniceAIOperationDescriptor({
   tag: "API Keys",
 });
 
-const createApiKeyOperation = new VeniceAIOperationDescriptor({
+const createApiKeyOperation = VeniceAIOperationDescriptor.make({
   method: "POST",
   operationId: "createApiKey",
   path: "/api_keys",
@@ -861,7 +861,7 @@ const createApiKeyOperation = new VeniceAIOperationDescriptor({
   tag: "API Keys",
 });
 
-const updateApiKeyOperation = new VeniceAIOperationDescriptor({
+const updateApiKeyOperation = VeniceAIOperationDescriptor.make({
   method: "PATCH",
   operationId: "updateApiKey",
   path: "/api_keys",
@@ -870,7 +870,7 @@ const updateApiKeyOperation = new VeniceAIOperationDescriptor({
   tag: "API Keys",
 });
 
-const getApiKeyByIdOperation = new VeniceAIOperationDescriptor({
+const getApiKeyByIdOperation = VeniceAIOperationDescriptor.make({
   method: "GET",
   operationId: "getApiKeyById",
   path: "/api_keys/{id}",
@@ -879,7 +879,7 @@ const getApiKeyByIdOperation = new VeniceAIOperationDescriptor({
   tag: "API Keys",
 });
 
-const getApiKeyRateLimitsOperation = new VeniceAIOperationDescriptor({
+const getApiKeyRateLimitsOperation = VeniceAIOperationDescriptor.make({
   method: "GET",
   operationId: "getApiKeyRateLimits",
   path: "/api_keys/rate_limits",
@@ -888,7 +888,7 @@ const getApiKeyRateLimitsOperation = new VeniceAIOperationDescriptor({
   tag: "API Keys",
 });
 
-const getApiKeyRateLimitLogsOperation = new VeniceAIOperationDescriptor({
+const getApiKeyRateLimitLogsOperation = VeniceAIOperationDescriptor.make({
   method: "GET",
   operationId: "getApiKeyRateLimitLogs",
   path: "/api_keys/rate_limits/log",
@@ -897,7 +897,7 @@ const getApiKeyRateLimitLogsOperation = new VeniceAIOperationDescriptor({
   tag: "API Keys",
 });
 
-const getApiKeyGenerateWeb3KeyOperation = new VeniceAIOperationDescriptor({
+const getApiKeyGenerateWeb3KeyOperation = VeniceAIOperationDescriptor.make({
   authenticated: false,
   method: "GET",
   operationId: "getApiKeyGenerateWeb3Key",
@@ -907,7 +907,7 @@ const getApiKeyGenerateWeb3KeyOperation = new VeniceAIOperationDescriptor({
   tag: "API Keys",
 });
 
-const postApiKeyGenerateWeb3KeyOperation = new VeniceAIOperationDescriptor({
+const postApiKeyGenerateWeb3KeyOperation = VeniceAIOperationDescriptor.make({
   authenticated: false,
   method: "POST",
   operationId: "postApiKeyGenerateWeb3Key",
@@ -917,7 +917,7 @@ const postApiKeyGenerateWeb3KeyOperation = new VeniceAIOperationDescriptor({
   tag: "API Keys",
 });
 
-const listCharactersOperation = new VeniceAIOperationDescriptor({
+const listCharactersOperation = VeniceAIOperationDescriptor.make({
   method: "GET",
   operationId: "listCharacters",
   path: "/characters",
@@ -926,7 +926,7 @@ const listCharactersOperation = new VeniceAIOperationDescriptor({
   tag: "Characters",
 });
 
-const getCharacterBySlugOperation = new VeniceAIOperationDescriptor({
+const getCharacterBySlugOperation = VeniceAIOperationDescriptor.make({
   method: "GET",
   operationId: "getCharacterBySlug",
   path: "/characters/{slug}",
@@ -935,7 +935,7 @@ const getCharacterBySlugOperation = new VeniceAIOperationDescriptor({
   tag: "Characters",
 });
 
-const getCharacterReviewsOperation = new VeniceAIOperationDescriptor({
+const getCharacterReviewsOperation = VeniceAIOperationDescriptor.make({
   method: "GET",
   operationId: "getCharacterReviews",
   path: "/characters/{slug}/reviews",
@@ -944,7 +944,7 @@ const getCharacterReviewsOperation = new VeniceAIOperationDescriptor({
   tag: "Characters",
 });
 
-const createEmbeddingOperation = new VeniceAIOperationDescriptor({
+const createEmbeddingOperation = VeniceAIOperationDescriptor.make({
   method: "POST",
   operationId: "createEmbedding",
   path: "/embeddings",
@@ -953,7 +953,7 @@ const createEmbeddingOperation = new VeniceAIOperationDescriptor({
   tag: "Embeddings",
 });
 
-const createSpeechOperation = new VeniceAIOperationDescriptor({
+const createSpeechOperation = VeniceAIOperationDescriptor.make({
   method: "POST",
   operationId: "createSpeech",
   path: "/audio/speech",
@@ -970,7 +970,7 @@ const createSpeechOperation = new VeniceAIOperationDescriptor({
   tag: "Audio",
 });
 
-const createTranscriptionOperation = new VeniceAIOperationDescriptor({
+const createTranscriptionOperation = VeniceAIOperationDescriptor.make({
   method: "POST",
   operationId: "createTranscription",
   path: "/audio/transcriptions",
@@ -979,7 +979,7 @@ const createTranscriptionOperation = new VeniceAIOperationDescriptor({
   tag: "Audio",
 });
 
-const createClonedVoiceOperation = new VeniceAIOperationDescriptor({
+const createClonedVoiceOperation = VeniceAIOperationDescriptor.make({
   method: "POST",
   operationId: "createClonedVoice",
   path: "/audio/voices",
@@ -988,7 +988,7 @@ const createClonedVoiceOperation = new VeniceAIOperationDescriptor({
   tag: "Audio",
 });
 
-const completeVideoOperation = new VeniceAIOperationDescriptor({
+const completeVideoOperation = VeniceAIOperationDescriptor.make({
   method: "POST",
   operationId: "completeVideo",
   path: "/video/complete",
@@ -997,7 +997,7 @@ const completeVideoOperation = new VeniceAIOperationDescriptor({
   tag: "Video",
 });
 
-const queueVideoOperation = new VeniceAIOperationDescriptor({
+const queueVideoOperation = VeniceAIOperationDescriptor.make({
   method: "POST",
   operationId: "queueVideo",
   path: "/video/queue",
@@ -1006,7 +1006,7 @@ const queueVideoOperation = new VeniceAIOperationDescriptor({
   tag: "Video",
 });
 
-const quoteVideoOperation = new VeniceAIOperationDescriptor({
+const quoteVideoOperation = VeniceAIOperationDescriptor.make({
   method: "POST",
   operationId: "quoteVideo",
   path: "/video/quote",
@@ -1015,7 +1015,7 @@ const quoteVideoOperation = new VeniceAIOperationDescriptor({
   tag: "Video",
 });
 
-const retrieveVideoOperation = new VeniceAIOperationDescriptor({
+const retrieveVideoOperation = VeniceAIOperationDescriptor.make({
   method: "POST",
   operationId: "retrieveVideo",
   path: "/video/retrieve",
@@ -1024,7 +1024,7 @@ const retrieveVideoOperation = new VeniceAIOperationDescriptor({
   tag: "Video",
 });
 
-const createVideoTranscriptionOperation = new VeniceAIOperationDescriptor({
+const createVideoTranscriptionOperation = VeniceAIOperationDescriptor.make({
   method: "POST",
   operationId: "createVideoTranscription",
   path: "/video/transcriptions",
@@ -1033,7 +1033,7 @@ const createVideoTranscriptionOperation = new VeniceAIOperationDescriptor({
   tag: "Video",
 });
 
-const createTextParserOperation = new VeniceAIOperationDescriptor({
+const createTextParserOperation = VeniceAIOperationDescriptor.make({
   method: "POST",
   operationId: "createTextParser",
   path: "/augment/text-parser",
@@ -1042,7 +1042,7 @@ const createTextParserOperation = new VeniceAIOperationDescriptor({
   tag: "Augment",
 });
 
-const completeAudioOperation = new VeniceAIOperationDescriptor({
+const completeAudioOperation = VeniceAIOperationDescriptor.make({
   method: "POST",
   operationId: "completeAudio",
   path: "/audio/complete",
@@ -1051,7 +1051,7 @@ const completeAudioOperation = new VeniceAIOperationDescriptor({
   tag: "Audio",
 });
 
-const queueAudioOperation = new VeniceAIOperationDescriptor({
+const queueAudioOperation = VeniceAIOperationDescriptor.make({
   method: "POST",
   operationId: "queueAudio",
   path: "/audio/queue",
@@ -1060,7 +1060,7 @@ const queueAudioOperation = new VeniceAIOperationDescriptor({
   tag: "Audio",
 });
 
-const quoteAudioOperation = new VeniceAIOperationDescriptor({
+const quoteAudioOperation = VeniceAIOperationDescriptor.make({
   method: "POST",
   operationId: "quoteAudio",
   path: "/audio/quote",
@@ -1069,7 +1069,7 @@ const quoteAudioOperation = new VeniceAIOperationDescriptor({
   tag: "Audio",
 });
 
-const retrieveAudioOperation = new VeniceAIOperationDescriptor({
+const retrieveAudioOperation = VeniceAIOperationDescriptor.make({
   method: "POST",
   operationId: "retrieveAudio",
   path: "/audio/retrieve",
@@ -1078,7 +1078,7 @@ const retrieveAudioOperation = new VeniceAIOperationDescriptor({
   tag: "Audio",
 });
 
-const getBillingBalanceOperation = new VeniceAIOperationDescriptor({
+const getBillingBalanceOperation = VeniceAIOperationDescriptor.make({
   method: "GET",
   operationId: "getBillingBalance",
   path: "/billing/balance",
@@ -1087,7 +1087,7 @@ const getBillingBalanceOperation = new VeniceAIOperationDescriptor({
   tag: "Billing",
 });
 
-const getBillingUsageOperation = new VeniceAIOperationDescriptor({
+const getBillingUsageOperation = VeniceAIOperationDescriptor.make({
   method: "GET",
   operationId: "getBillingUsage",
   path: "/billing/usage",
@@ -1096,7 +1096,7 @@ const getBillingUsageOperation = new VeniceAIOperationDescriptor({
   tag: "Billing",
 });
 
-const getBillingUsageAnalyticsOperation = new VeniceAIOperationDescriptor({
+const getBillingUsageAnalyticsOperation = VeniceAIOperationDescriptor.make({
   method: "GET",
   operationId: "getBillingUsageAnalytics",
   path: "/billing/usage-analytics",
@@ -1105,7 +1105,7 @@ const getBillingUsageAnalyticsOperation = new VeniceAIOperationDescriptor({
   tag: "Billing",
 });
 
-const listCryptoRpcNetworksOperation = new VeniceAIOperationDescriptor({
+const listCryptoRpcNetworksOperation = VeniceAIOperationDescriptor.make({
   method: "GET",
   operationId: "listCryptoRpcNetworks",
   path: "/crypto/rpc/networks",
@@ -1114,7 +1114,7 @@ const listCryptoRpcNetworksOperation = new VeniceAIOperationDescriptor({
   tag: "Crypto RPC",
 });
 
-const cryptoRpcProxyOperation = new VeniceAIOperationDescriptor({
+const cryptoRpcProxyOperation = VeniceAIOperationDescriptor.make({
   method: "POST",
   operationId: "cryptoRpcProxy",
   path: "/crypto/rpc/{network}",
@@ -1123,7 +1123,7 @@ const cryptoRpcProxyOperation = new VeniceAIOperationDescriptor({
   tag: "Crypto RPC",
 });
 
-const getX402BalanceOperation = new VeniceAIOperationDescriptor({
+const getX402BalanceOperation = VeniceAIOperationDescriptor.make({
   method: "GET",
   operationId: "getX402Balance",
   path: "/x402/balance/{walletAddress}",
@@ -1132,7 +1132,7 @@ const getX402BalanceOperation = new VeniceAIOperationDescriptor({
   tag: "x402",
 });
 
-const topUpX402BalanceOperation = new VeniceAIOperationDescriptor({
+const topUpX402BalanceOperation = VeniceAIOperationDescriptor.make({
   authenticated: false,
   method: "POST",
   operationId: "topUpX402Balance",
@@ -1142,7 +1142,7 @@ const topUpX402BalanceOperation = new VeniceAIOperationDescriptor({
   tag: "x402",
 });
 
-const getX402TransactionsOperation = new VeniceAIOperationDescriptor({
+const getX402TransactionsOperation = VeniceAIOperationDescriptor.make({
   method: "GET",
   operationId: "getX402Transactions",
   path: "/x402/transactions/{walletAddress}",
@@ -1151,7 +1151,7 @@ const getX402TransactionsOperation = new VeniceAIOperationDescriptor({
   tag: "x402",
 });
 
-const webScrapeOperation = new VeniceAIOperationDescriptor({
+const webScrapeOperation = VeniceAIOperationDescriptor.make({
   method: "POST",
   operationId: "webScrape",
   path: "/augment/scrape",
@@ -1160,7 +1160,7 @@ const webScrapeOperation = new VeniceAIOperationDescriptor({
   tag: "Augment",
 });
 
-const webSearchOperation = new VeniceAIOperationDescriptor({
+const webSearchOperation = VeniceAIOperationDescriptor.make({
   method: "POST",
   operationId: "webSearch",
   path: "/augment/search",
@@ -1537,7 +1537,7 @@ const decodeResponse = Effect.fn("VeniceAI.decodeResponse")(function* (
       Effect.mapError((cause) => VeniceAIError.fromDescriptor(descriptor, "response decoding", { cause }))
     );
 
-    return new VeniceAIJsonResponse({
+    return VeniceAIJsonResponse.make({
       body,
       ...responseContext(successfulResponse),
     });
@@ -1548,7 +1548,7 @@ const decodeResponse = Effect.fn("VeniceAI.decodeResponse")(function* (
       Effect.mapError((cause) => VeniceAIError.fromDescriptor(descriptor, "response decoding", { cause }))
     );
 
-    return new VeniceAITextResponse({
+    return VeniceAITextResponse.make({
       text,
       ...responseContext(successfulResponse),
     });
@@ -1558,7 +1558,7 @@ const decodeResponse = Effect.fn("VeniceAI.decodeResponse")(function* (
     Effect.mapError((cause) => VeniceAIError.fromDescriptor(descriptor, "response decoding", { cause }))
   );
 
-  return new VeniceAIBinaryResponse({
+  return VeniceAIBinaryResponse.make({
     bytes: new Uint8Array(buffer),
     ...responseContext(successfulResponse),
   });
@@ -1570,7 +1570,7 @@ const executeOperation = (
   descriptor: VeniceAIOperationDescriptor
 ): VeniceAIMethod => {
   const operation = Effect.fn(`VeniceAI.${descriptor.operationId}`)(function* (
-    request = new VeniceAIRequestOptions({})
+    request = VeniceAIRequestOptions.make({})
   ) {
     const response = yield* executeRaw(client, config, descriptor, request);
     return yield* decodeResponse(descriptor, response);
@@ -1591,8 +1591,8 @@ const executeOperation = (
 
 const addStreamFlag = (body: unknown): unknown => (P.isObject(body) ? { ...body, stream: true } : { stream: true });
 
-const makeStreamingRequest = (request = new VeniceAIRequestOptions({})): VeniceAIRequestOptions =>
-  new VeniceAIRequestOptions({
+const makeStreamingRequest = (request = VeniceAIRequestOptions.make({})): VeniceAIRequestOptions =>
+  VeniceAIRequestOptions.make({
     ...request,
     accept: "text/event-stream",
     body: addStreamFlag(request.body),
@@ -1689,10 +1689,10 @@ const parseSseData = (
   index: number
 ): Effect.Effect<VeniceAIServerSentEvent, VeniceAIError> =>
   data === "[DONE]"
-    ? Effect.succeed(new VeniceAIServerSentEvent({ done: true, index }))
+    ? Effect.succeed(VeniceAIServerSentEvent.make({ done: true, index }))
     : pipe(
         decodeSseJson(data),
-        Effect.map((decoded) => new VeniceAIServerSentEvent({ data: decoded, done: false, index })),
+        Effect.map((decoded) => VeniceAIServerSentEvent.make({ data: decoded, done: false, index })),
         Effect.mapError((cause) => VeniceAIError.fromDescriptor(descriptor, "sse decoding", { cause }))
       );
 
@@ -1841,7 +1841,7 @@ export class VeniceAI extends Context.Service<VeniceAI, VeniceAIShape>()($I`Veni
    * import { Redacted } from "effect"
    * import { VeniceAI, VeniceAIConfigInput } from "@beep/venice-ai"
    *
-   * const layer = VeniceAI.makeLayer(new VeniceAIConfigInput({ apiKey: Redacted.make("test-key") }))
+   * const layer = VeniceAI.makeLayer(VeniceAIConfigInput.make({ apiKey: Redacted.make("test-key") }))
    * void layer
    * ```
    *
@@ -1849,7 +1849,7 @@ export class VeniceAI extends Context.Service<VeniceAI, VeniceAIShape>()($I`Veni
    * @since 0.0.0
    */
   static readonly makeLayer = (
-    config = new VeniceAIConfigInput({})
+    config = VeniceAIConfigInput.make({})
   ): Layer.Layer<VeniceAI, never, HttpClient.HttpClient> =>
     Layer.effect(
       VeniceAI,
@@ -1878,7 +1878,7 @@ export class VeniceAI extends Context.Service<VeniceAI, VeniceAIShape>()($I`Veni
     Effect.gen(function* () {
       const apiKey = yield* Config.redacted("AI_VENICE_API_KEY");
       const client = yield* HttpClient.HttpClient;
-      return VeniceAI.of(makeService(client, resolveConfig(new VeniceAIConfigInput({}), apiKey)));
+      return VeniceAI.of(makeService(client, resolveConfig(VeniceAIConfigInput.make({}), apiKey)));
     }).pipe(Effect.mapError(VeniceAIError.config))
   ).pipe(Layer.provide(FetchHttpClient.layer));
 }
@@ -1930,7 +1930,7 @@ export class VeniceAiChat extends Context.Service<
       return VeniceAiChat.of({
         chat: Effect.fn("VeniceAiChat.chat")(function* (message: string) {
           const response = yield* venice.createChatCompletion(
-            new VeniceAIRequestOptions({
+            VeniceAIRequestOptions.make({
               body: {
                 messages: [
                   {

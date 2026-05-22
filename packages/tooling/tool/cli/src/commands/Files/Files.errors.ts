@@ -7,15 +7,21 @@
 
 import { $RepoCliId } from "@beep/identity/packages";
 import { TaggedErrorClass } from "@beep/schema";
+import { Err } from "@beep/utils";
 import { Effect } from "effect";
 import { dual } from "effect/Function";
 import * as S from "effect/Schema";
 
 const $I = $RepoCliId.create("commands/Files/Files.errors");
 
-interface PlatformErrorOptions {
-  readonly cause: unknown;
-}
+class PlatformErrorOptions extends S.Class<PlatformErrorOptions>($I`PlatformErrorOptions`)(
+  {
+    cause: S.DefectWithStack,
+  },
+  $I.annote("PlatformErrorOptions", {
+    description: "Options for platform errors, including a cause.",
+  })
+) {}
 
 /**
  * Error raised by file curation commands.
@@ -24,7 +30,7 @@ interface PlatformErrorOptions {
  * ```ts
  * import { FilesCommandError } from "@beep/repo-cli/commands/Files/index"
  *
- * const error = new FilesCommandError({ message: "Invalid directory" })
+ * const error = FilesCommandError.make({ message: "Invalid directory" })
  * void error.message
  * ```
  * @category error-handling
@@ -39,7 +45,19 @@ export class FilesCommandError extends TaggedErrorClass<FilesCommandError>($I`Fi
   $I.annote("FilesCommandError", {
     description: "A failure raised while preparing or applying a file curation operation.",
   })
-) {}
+) {
+  /**
+   * Construct a file command error from an original cause and message.
+   *
+   * @category constructors
+   */
+  static readonly new: {
+    (cause: unknown, message: string): FilesCommandError;
+    (message: string): (cause: unknown) => FilesCommandError;
+  } = dual(2, (cause: unknown, message: string): FilesCommandError => FilesCommandError.make({ cause, message }));
+
+  static readonly mapError = Err.mapToError(this.new);
+}
 
 /**
  * Convert a platform failure into a file command error.
@@ -57,7 +75,7 @@ export const formatPlatformError: {
 } = dual(
   3,
   (operation: string, filePath: string, options: PlatformErrorOptions): FilesCommandError =>
-    new FilesCommandError({
+    FilesCommandError.make({
       message: `${operation}: "${filePath}"`,
       cause: options.cause,
     })
@@ -73,7 +91,7 @@ export const formatPlatformError: {
  */
 export const failOnExtensionlessFile = (filePath: string): Effect.Effect<never, FilesCommandError> =>
   Effect.fail(
-    new FilesCommandError({
+    FilesCommandError.make({
       message: `Cannot rename extensionless file: "${filePath}"`,
     })
   );

@@ -85,7 +85,7 @@ const runGitRaw = Effect.fn("Worktree.runGit")(function* (args: ReadonlyArray<st
   const process = yield* SandboxProcess;
   const result = yield* process
     .run(
-      new ProcessCommand({
+      ProcessCommand.make({
         args: [...args],
         command: "git",
         cwd,
@@ -192,7 +192,7 @@ export const createWorktreeInfo = Effect.fn("Worktree.createWorktreeInfo")(funct
 
   void output;
 
-  return new WorktreeInfo({ branch, path: worktreePath });
+  return WorktreeInfo.make({ branch, path: worktreePath });
 });
 
 /**

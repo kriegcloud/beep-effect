@@ -14,7 +14,7 @@ describe("DurationInput", () => {
     });
 
     expect(decoded).toBeInstanceOf(Duration.Object);
-    expect(decoded).toEqual(new Duration.Object({ minutes: 1, seconds: 30 }));
+    expect(decoded).toEqual(Duration.Object.make({ minutes: 1, seconds: 30 }));
   });
 
   it("rejects empty duration objects", () => {
@@ -29,7 +29,7 @@ describe("Duration namespace module", () => {
 
     const input = decodeInput({ seconds: 2 });
 
-    expect(input).toEqual(new Duration.Object({ seconds: 2 }));
+    expect(input).toEqual(Duration.Object.make({ seconds: 2 }));
     expect(D.toMillis(decodeDuration(input))).toBe(2_000);
   });
 });
@@ -62,7 +62,7 @@ describe("DurationFromInput", () => {
 
   it("decodes additive duration objects", () => {
     const decoded = decode(
-      new Duration.Object({
+      Duration.Object.make({
         minutes: 1,
         seconds: 30,
         microseconds: 4,

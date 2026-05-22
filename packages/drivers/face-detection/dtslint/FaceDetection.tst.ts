@@ -15,18 +15,18 @@ declare const detector: LoadedFaceDetector;
 
 describe("@beep/face-detection", () => {
   it("exports typed errors, model requests, and the service layer", () => {
-    const config = new FaceDetectionModelConfig({ modelPath: "./face_detection_yunet.onnx" });
-    const request = new FaceDetectionImageRequest({ imagePath: "./photo.jpg" });
+    const config = FaceDetectionModelConfig.make({ modelPath: "./face_detection_yunet.onnx" });
+    const request = FaceDetectionImageRequest.make({ imagePath: "./photo.jpg" });
 
     expect(config).type.toBe<FaceDetectionModelConfig>();
     expect(request).type.toBe<FaceDetectionImageRequest>();
-    expect(new FaceDetectionError({ message: "boom", operation: "detect" })).type.toBe<FaceDetectionError>();
+    expect(FaceDetectionError.make({ message: "boom", operation: "detect" })).type.toBe<FaceDetectionError>();
     expect(FaceDetectionService.makeLayer()).type.toBe<Layer.Layer<FaceDetectionService>>();
     expect(makeFaceDetectionService()).type.toBe<FaceDetectionServiceShape>();
   });
 
   it("exposes a loaded detector contract", () => {
-    expect(detector.detect(new FaceDetectionImageRequest({ imagePath: "./photo.jpg" }))).type.toBe<
+    expect(detector.detect(FaceDetectionImageRequest.make({ imagePath: "./photo.jpg" }))).type.toBe<
       Effect.Effect<FaceDetectionResult, FaceDetectionError>
     >();
   });

@@ -63,7 +63,7 @@ const DiscordTestHttpLayer = Layer.effect(
         yield* Ref.update(
           capturesRef,
           A.append(
-            new CapturedDiscordRequest({
+            CapturedDiscordRequest.make({
               headers: request.headers,
               method: request.method,
               url,
@@ -95,7 +95,7 @@ const TestHttpClientLayer = Layer.effect(
 );
 
 const makeLayer = () =>
-  Discord.makeLayer(new DiscordConfigInput({ baseUrl: "https://discord.example.test/api/v10" })).pipe(
+  Discord.makeLayer(DiscordConfigInput.make({ baseUrl: "https://discord.example.test/api/v10" })).pipe(
     Layer.provide(TestHttpClientLayer),
     Layer.provideMerge(DiscordTestHttpLayer)
   );
@@ -110,11 +110,11 @@ describe("@beep/discord", () => {
         yield* testHttp.reset;
 
         const channel = yield* discord.getChannel(
-          new DiscordChannelRequest({ channelId: "channel-1" }),
+          DiscordChannelRequest.make({ channelId: "channel-1" }),
           Redacted.make("bot-token")
         );
         const message = yield* discord.createMessage(
-          new DiscordCreateMessageRequest({ channelId: "channel-1", content: "P1 proof" }),
+          DiscordCreateMessageRequest.make({ channelId: "channel-1", content: "P1 proof" }),
           Redacted.make("bot-token")
         );
         const captures = yield* testHttp.captures;

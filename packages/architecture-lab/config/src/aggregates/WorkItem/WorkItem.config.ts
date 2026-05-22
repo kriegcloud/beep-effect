@@ -67,7 +67,7 @@ export class WorkItemSecretConfig extends S.Class<WorkItemSecretConfig>($I`WorkI
  * @category configuration
  * @since 0.0.0
  */
-export const defaultWorkItemPublicConfig = new WorkItemPublicConfig({
+export const defaultWorkItemPublicConfig = WorkItemPublicConfig.make({
   assignmentEnabled: true,
   reopenCompletedEnabled: true,
 });
@@ -78,7 +78,7 @@ export const defaultWorkItemPublicConfig = new WorkItemPublicConfig({
  * @category configuration
  * @since 0.0.0
  */
-export const defaultWorkItemServerConfig = new WorkItemServerConfig({
+export const defaultWorkItemServerConfig = WorkItemServerConfig.make({
   repositoryName: "architecture-lab-work-items",
   migrationSchemaName: "architecture_lab",
 });
@@ -89,6 +89,6 @@ export const defaultWorkItemServerConfig = new WorkItemServerConfig({
  * @category configuration
  * @since 0.0.0
  */
-export const defaultWorkItemSecretConfig = new WorkItemSecretConfig({
+export const defaultWorkItemSecretConfig = WorkItemSecretConfig.make({
   connectionName: "architecture-lab-proof",
 });

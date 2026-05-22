@@ -625,17 +625,16 @@ export const NlpToolkitLive: Layer.Layer<
           )
         );
 
-        const incoming = new WinkEngineCustomEntities({
+        const incoming = WinkEngineCustomEntities.make({
           name: EntityGroupName.make(groupName ?? "custom-entities"),
           patterns: pipe(
             entities,
-            A.map(
-              (entity) =>
-                new CustomEntityExample({
-                  mark: P.isUndefined(entity.mark) ? O.none() : O.some(entity.mark),
-                  name: entity.name,
-                  patterns: entity.patterns,
-                })
+            A.map((entity) =>
+              CustomEntityExample.make({
+                mark: P.isUndefined(entity.mark) ? O.none() : O.some(entity.mark),
+                name: entity.name,
+                patterns: entity.patterns,
+              })
             )
           ),
         });

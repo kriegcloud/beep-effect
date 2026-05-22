@@ -56,7 +56,7 @@ function assertStructHasStringKeys<T extends string>(
   return Match.value(S.is(NonEmptyStringKeys)(input)).pipe(
     Match.when(true, () => undefined),
     Match.orElse(() => {
-      throw new EmptyStructError({
+      throw EmptyStructError.make({
         input: source,
         cause: O.none(),
       });
@@ -71,7 +71,7 @@ function assertStructHasStringEntries<T>(
   return Match.value(A.isReadonlyArrayNonEmpty(input)).pipe(
     Match.when(true, () => undefined),
     Match.orElse(() => {
-      throw new EmptyStructError({
+      throw EmptyStructError.make({
         input: source,
         cause: O.none(),
       });

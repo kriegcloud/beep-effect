@@ -17,7 +17,7 @@ const $I = $ObservabilityId.create("web/Config");
  * ```typescript
  * import { WebObservabilityConfig } from "@beep/observability/web"
  *
- * const config = new WebObservabilityConfig({
+ * const config = WebObservabilityConfig.make({
  *   serviceName: "todox-web",
  *   serviceVersion: "0.0.0",
  *   environment: "development",
@@ -51,7 +51,7 @@ export class WebObservabilityConfig extends S.Class<WebObservabilityConfig>($I`W
  * ```typescript
  * import { WebObservabilityConfig, toWebResource } from "@beep/observability/web"
  *
- * const config = new WebObservabilityConfig({
+ * const config = WebObservabilityConfig.make({
  *   serviceName: "todox-web",
  *   serviceVersion: "0.0.0",
  *   environment: "development",

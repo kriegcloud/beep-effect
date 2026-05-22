@@ -80,7 +80,7 @@ export type HeaderValueInput = typeof HeaderValueInput.Type;
 export class ParserOptionsError extends ParserOptionsErrorBase {}
 
 const toParserOptionsError = (fallbackMessage: string, cause?: unknown): ParserOptionsError =>
-  new ParserOptionsError({
+  ParserOptionsError.make({
     cause: P.isError(cause) ? O.some(cause) : O.none(),
     message: P.isError(cause) ? cause.message : P.isUndefined(cause) ? fallbackMessage : String(cause),
   });

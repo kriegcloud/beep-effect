@@ -18,7 +18,7 @@ const $I = $AgentCapabilityUseCasesId.create("processes/ProfessionalRuntime/Prof
  * ```ts
  * import { ProfessionalRuntimeValidationError } from "@beep/agent-capability-use-cases/public"
  *
- * console.log(new ProfessionalRuntimeValidationError({ message: "invalid runtime proposal" }))
+ * console.log(ProfessionalRuntimeValidationError.make({ message: "invalid runtime proposal" }))
  * ```
  *
  * @category errors

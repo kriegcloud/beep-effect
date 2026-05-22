@@ -2,7 +2,7 @@
 
 ## Status
 
-**ACTIVE**
+**ACTIVE — P1/P2 complete**
 
 ## Owner
 
@@ -11,7 +11,7 @@
 ## Created / Updated
 
 - **Created:** 2026-05-16
-- **Updated:** 2026-05-16
+- **Updated:** 2026-05-21
 
 ## Mission
 
@@ -73,7 +73,7 @@ full `goals/canvas/PRD_REFERENCE.md` later.
    app or slice `ui`.
 7. **Tauri command policy**: app shell exposes explicit command surface (`health`,
    `scene` ops, persistence ops), not generic ad-hoc command strings.
-8. **PRD alignment**: where this initiative omits PRD features, defer intentionally
+8. **PRD alignment**: where this goal omits PRD features, defer intentionally
    with explicit evidence in PLAN and per-phase Exit Criteria.
 
 ## Canonical Topology
@@ -96,9 +96,12 @@ Each phase exits only when:
 
 ### Exit Criteria by PRD Alignment
 
-- **P0:** Initiative packet exists and defines bootstrap-surface reduction from PRD.
-- **P1:** Tauri shell and slice package topology compiles and runs in dev build.
+- **P0:** Goal packet exists and defines bootstrap-surface reduction from PRD.
+- **P1:** Tauri shell and slice package topology compile and run in dev build.
 - **P2:** A verified minimal command surface exists end-to-end (app -> Tauri ->
   app command layer -> use-cases -> domain) with explicit error translation tests.
-- **P3:** Proof checkpoint is captured in `history/` and initiative manifest points to
+- **P3:** Proof checkpoint is captured in `history/` and goal manifest points to
   the next phase with deferred PRD backlog.
+
+P1/P2 proof is recorded in `history/outputs/p1-p2-contract-proof.md`; PRD scope
+deferrals are recorded in `history/outputs/p1-prd-deferrals.md`.

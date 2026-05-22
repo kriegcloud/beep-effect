@@ -68,7 +68,7 @@ export class SandboxTemplateEntry extends S.Class<SandboxTemplateEntry>($I`Sandb
  * ```ts
  * import { SandboxTemplateFile } from "@beep/sandbox"
  *
- * const file = new SandboxTemplateFile({ content: "hello", path: "prompt.md" })
+ * const file = SandboxTemplateFile.make({ content: "hello", path: "prompt.md" })
  * console.log(file.path)
  * ```
  *
@@ -92,7 +92,7 @@ export class SandboxTemplateFile extends S.Class<SandboxTemplateFile>($I`Sandbox
  * ```ts
  * import { SandboxTemplateRenderContext } from "@beep/sandbox"
  *
- * const context = new SandboxTemplateRenderContext({
+ * const context = SandboxTemplateRenderContext.make({
  *   agentFactory: "claudeCode",
  *   agentModel: "claude-opus-4-6",
  *   imageName: "beep-sandbox:demo",
@@ -123,11 +123,11 @@ export class SandboxTemplateRenderContext extends S.Class<SandboxTemplateRenderC
 ) {}
 
 const sandboxTemplateEntries: ReadonlyArray<SandboxTemplateEntry> = [
-  new SandboxTemplateEntry({
+  SandboxTemplateEntry.make({
     description: "Bare scaffold for a prompt-driven sandbox run.",
     name: "blank",
   }),
-  new SandboxTemplateEntry({
+  SandboxTemplateEntry.make({
     description: "Small loop-oriented prompt scaffold for backlog-driven agent work.",
     name: "simple-loop",
   }),
@@ -191,7 +191,7 @@ const program = run({
   maxIterations: 1,
   promptFile: ".sandcastle/prompt.md",
   sandbox: {{PROVIDER_FACTORY}}(
-    new ContainerProviderOptions({
+    ContainerProviderOptions.make({
       imageName: "{{IMAGE_NAME}}"
     })
   )
@@ -217,11 +217,11 @@ const renderText = (content: string, context: SandboxTemplateRenderContext): str
   );
 
 const filesForTemplate = (context: SandboxTemplateRenderContext): ReadonlyArray<SandboxTemplateFile> => [
-  new SandboxTemplateFile({
+  SandboxTemplateFile.make({
     content: context.templateName === "simple-loop" ? simpleLoopPrompt : skeletonPrompt,
     path: "prompt.md",
   }),
-  new SandboxTemplateFile({
+  SandboxTemplateFile.make({
     content: renderText(mainTemplate, context),
     path: context.mainFilename,
   }),
@@ -268,7 +268,7 @@ export const getSandboxTemplate = (name: string): O.Option<SandboxTemplateEntry>
  * import { renderSandboxTemplateFiles, SandboxTemplateRenderContext } from "@beep/sandbox"
  *
  * const files = renderSandboxTemplateFiles(
- *   new SandboxTemplateRenderContext({
+ *   SandboxTemplateRenderContext.make({
  *     agentFactory: "claudeCode",
  *     agentModel: "claude-opus-4-6",
  *     imageName: "beep-sandbox:demo",

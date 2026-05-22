@@ -353,7 +353,7 @@ export class NamedDeclaration extends S.Class<NamedDeclaration>($I`NamedDeclarat
     2,
     (name: string, kind: SymbolKind): O.Option<NamedDeclaration> =>
       pipe(
-        new NamedDeclaration({
+        NamedDeclaration.make({
           name,
           kind,
         }),

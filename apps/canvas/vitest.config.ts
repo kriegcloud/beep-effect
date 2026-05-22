@@ -5,7 +5,8 @@ export default mergeConfig(
   shared,
   defineConfig({
     test: {
-      // Package-specific overrides
+      environment: "jsdom",
+      include: ["test/**/*.test.{ts,tsx}"],
     },
   })
 );

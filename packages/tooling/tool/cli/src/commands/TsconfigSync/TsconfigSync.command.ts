@@ -35,7 +35,7 @@ import {
   resolveSubpathExportTarget,
   resolveWildcardExportTarget,
 } from "@beep/repo-utils/schemas/TsconfigAliasTargets";
-import { LiteralKit, normalizePath, TaggedErrorClass } from "@beep/schema";
+import { LiteralKit, normalizePath } from "@beep/schema";
 import { decodeJsoncTextAs } from "@beep/schema/Jsonc";
 import { A, Str, thunkFalse, thunkUndefined } from "@beep/utils";
 import { Console, Effect, FileSystem, flow, HashMap, HashSet, Order, Path, pipe, Tuple } from "effect";
@@ -47,6 +47,7 @@ import * as S from "effect/Schema";
 import { Command, Flag } from "effect/unstable/cli";
 import type { ChildProcessSpawner } from "effect/unstable/process/ChildProcessSpawner";
 import * as jsonc from "jsonc-parser";
+import { TsconfigSyncCycleError, TsconfigSyncDriftError, TsconfigSyncFilterError } from "./TsconfigSync.errors.js";
 
 export {
   /**
@@ -132,7 +133,6 @@ const StringArray = S.Array(S.String).annotate(
 const isCanonicalAliasKey = S.is(CanonicalAliasKey);
 const isBeepScopedPackageName = S.is(BeepScopedPackageName);
 const isRootDepIndexKey = S.is(RootDepIndexKey);
-const stringEquivalence = Str.equivalence;
 const stringArrayEquivalence = S.toEquivalence(StringArray);
 const byStringAscending: Order.Order<string> = Str.orderAsc;
 const repoCliPackageName = "@beep/repo-cli" as const;
@@ -151,7 +151,7 @@ const buildSourceOnlySubpathAliasTargets = (
   packageName: string,
   packageRelativePath: string
 ): Readonly<Record<string, string>> => {
-  if (!stringEquivalence(packageName, repoCliPackageName)) {
+  if (!Str.equivalence(packageName, repoCliPackageName)) {
     return R.empty();
   }
 
@@ -161,60 +161,6 @@ const buildSourceOnlySubpathAliasTargets = (
     R.fromEntries
   );
 };
-
-/**
- * Drift error raised in check mode when changes are required.
- *
- * @category utilities
- * @since 0.0.0
- */
-export class TsconfigSyncDriftError extends TaggedErrorClass<TsconfigSyncDriftError>($I`TsconfigSyncDriftError`)(
-  "TsconfigSyncDriftError",
-  {
-    fileCount: S.Number,
-    summary: S.String,
-  },
-  $I.annote("TsconfigSyncDriftError", {
-    title: "Tsconfig Sync Drift Error",
-    description: "Raised when tsconfig-sync --check detects one or more files that are out of sync.",
-  })
-) {}
-
-/**
- * Cycle error raised when workspace dependency cycles are detected.
- *
- * @category utilities
- * @since 0.0.0
- */
-export class TsconfigSyncCycleError extends TaggedErrorClass<TsconfigSyncCycleError>($I`TsconfigSyncCycleError`)(
-  "TsconfigSyncCycleError",
-  {
-    cycles: S.String.pipe(S.Array, S.Array),
-    message: S.String,
-  },
-  $I.annote("TsconfigSyncCycleError", {
-    title: "Tsconfig Sync Cycle Error",
-    description: "Raised when workspace dependency graph contains one or more cycles.",
-  })
-) {}
-
-/**
- * Filter error raised when `--filter` does not match any workspace package.
- *
- * @category utilities
- * @since 0.0.0
- */
-export class TsconfigSyncFilterError extends TaggedErrorClass<TsconfigSyncFilterError>($I`TsconfigSyncFilterError`)(
-  "TsconfigSyncFilterError",
-  {
-    filter: S.String,
-    message: S.String,
-  },
-  $I.annote("TsconfigSyncFilterError", {
-    title: "Tsconfig Sync Filter Error",
-    description: "Raised when tsconfig-sync filter does not match any workspace package name or path.",
-  })
-) {}
 
 /**
  * Command execution mode.
@@ -889,7 +835,7 @@ const workspacePatternCoversPath: {
   }
 
   for (const [index, segment] of A.entries(patternSegments)) {
-    if (segment !== "*" && !stringEquivalence(segment, pathParts[index] ?? "")) {
+    if (segment !== "*" && !Str.equivalence(segment, pathParts[index] ?? "")) {
       return false;
     }
   }
@@ -924,7 +870,7 @@ const SYNC_SOURCE_ENTRY_PATTERN = /"([^"]+)"/g;
 const readSyncpackSources = (content: string): Effect.Effect<ReadonlyArray<string>, DomainError> => {
   const match = SYNCPACK_SOURCE_ARRAY_PATTERN.exec(content);
   if (match === null) {
-    return Effect.fail(new DomainError({ message: "Failed to read syncpack source array: source array not found" }));
+    return Effect.fail(DomainError.make({ message: "Failed to read syncpack source array: source array not found" }));
   }
 
   return Effect.succeed(
@@ -945,7 +891,7 @@ const renderSyncpackSourcesBlock = (sources: ReadonlyArray<string>): string =>
 const replaceSyncpackSources = (content: string, sources: ReadonlyArray<string>): Effect.Effect<string, DomainError> =>
   SYNCPACK_SOURCE_ARRAY_PATTERN.test(content)
     ? Effect.succeed(Str.replace(SYNCPACK_SOURCE_ARRAY_PATTERN, renderSyncpackSourcesBlock(sources))(content))
-    : Effect.fail(new DomainError({ message: "Failed to replace syncpack source array: source array not found" }));
+    : Effect.fail(DomainError.make({ message: "Failed to replace syncpack source array: source array not found" }));
 
 const buildCanonicalSyncpackSources = (workspacePatterns: ReadonlyArray<string>): ReadonlyArray<string> =>
   uniqueInInputOrder(["package.json", ...A.map(workspacePatterns, (pattern) => `${pattern}/package.json`)]);
@@ -968,7 +914,7 @@ const chooseOwnerTsconfig = (paths: ReadonlyArray<string>): string | undefined =
 const workspaceContainsPath = (workspace: WorkspaceDescriptor, targetPath: string): boolean => {
   const workspaceDir = toPosixPath(workspace.absoluteDir);
   const normalizedTarget = toPosixPath(targetPath);
-  return stringEquivalence(normalizedTarget, workspaceDir) || Str.startsWith(`${workspaceDir}/`)(normalizedTarget);
+  return Str.equivalence(normalizedTarget, workspaceDir) || Str.startsWith(`${workspaceDir}/`)(normalizedTarget);
 };
 
 const buildWorkspaceDescriptors = Effect.fn(function* (rootDir: string) {
@@ -1032,7 +978,7 @@ const buildWorkspaceDescriptors = Effect.fn(function* (rootDir: string) {
 
     A.appendInPlace(
       descriptors,
-      new WorkspaceDescriptor({
+      WorkspaceDescriptor.make({
         packageName,
         absoluteDir,
         relativeDir,
@@ -1127,7 +1073,7 @@ const planRootReferenceSync = Effect.fn(function* (rootDir: string, workspaces: 
   const nextContent = applyJsoncModification(original, ["references"], referenceEntries(expected));
 
   return O.some(
-    new PlannedFileChange.cases["root-references"]({
+    PlannedFileChange.cases["root-references"].make({
       filePath,
       summary: summaryCounts(current, expected, "references"),
       content: nextContent,
@@ -1149,7 +1095,7 @@ const planRootQualityReferenceSync = Effect.fn(function* (
     pipe(
       workspaces,
       A.flatMap((workspace) =>
-        workspace.hasProjectTsconfig && !stringEquivalence(workspace.relativeDir, "scratchpad")
+        workspace.hasProjectTsconfig && !Str.equivalence(workspace.relativeDir, "scratchpad")
           ? A.make(workspace.relativeDir)
           : A.empty<string>()
       )
@@ -1164,7 +1110,7 @@ const planRootQualityReferenceSync = Effect.fn(function* (
   const nextContent = applyJsoncModification(original, ["references"], referenceEntries(expected));
 
   return O.some(
-    new PlannedFileChange.cases["root-quality-references"]({
+    PlannedFileChange.cases["root-quality-references"].make({
       filePath,
       summary: summaryCounts(current, expected, "references"),
       content: nextContent,
@@ -1286,12 +1232,12 @@ const planRootAliasSync = Effect.fn(function* (rootDir: string, workspaces: Read
   }
 
   const additions = A.length(
-    A.filter(keysToSet, (key) => !A.some(currentCanonicalKeys, (current) => stringEquivalence(current, key)))
+    A.filter(keysToSet, (key) => !A.some(currentCanonicalKeys, (current) => Str.equivalence(current, key)))
   );
   const updates = A.length(keysToSet) - additions;
 
   return O.some(
-    new PlannedFileChange.cases["root-aliases"]({
+    PlannedFileChange.cases["root-aliases"].make({
       filePath,
       summary: `aliases: add ${additions}, update ${updates}, remove ${keysToRemove.length}`,
       content: nextContent,
@@ -1322,7 +1268,7 @@ const planRootTstycheSync = Effect.fn(function* (rootDir: string, workspaces: Re
   });
 
   return O.some(
-    new PlannedFileChange.cases["root-tstyche"]({
+    PlannedFileChange.cases["root-tstyche"].make({
       filePath,
       summary: summaryCounts(current, expected, "testFileMatch"),
       content: nextContent,
@@ -1345,7 +1291,7 @@ const planRootSyncpackSync = Effect.fn(function* (rootDir: string) {
 
   const nextContent = yield* replaceSyncpackSources(original, expected);
   return O.some(
-    new PlannedFileChange.cases["root-syncpack"]({
+    PlannedFileChange.cases["root-syncpack"].make({
       filePath: syncpackFilePath,
       summary: summaryCounts(current, expected, "sources"),
       content: nextContent,
@@ -1395,19 +1341,14 @@ const resolveTargetWorkspacesForPackageSync = (
 
     const packageNameMatchesFilter = O.match(O.fromUndefinedOr(filter), {
       onNone: thunkFalse,
-      onSome: (filterValue) => stringEquivalence(workspace.packageName, filterValue),
+      onSome: (filterValue) => Str.equivalence(workspace.packageName, filterValue),
     });
 
-    return packageNameMatchesFilter || stringEquivalence(workspace.relativeDir, normalizedFilter);
+    return packageNameMatchesFilter || Str.equivalence(workspace.relativeDir, normalizedFilter);
   });
 
   if (filter !== undefined && A.isArrayEmpty(targetWorkspaces)) {
-    return Effect.fail(
-      new TsconfigSyncFilterError({
-        filter,
-        message: `No workspace matched filter "${filter}"`,
-      })
-    );
+    return Effect.fail(TsconfigSyncFilterError.new(filter, `No workspace matched filter "${filter}"`));
   }
 
   return Effect.succeed(targetWorkspaces);
@@ -1431,14 +1372,14 @@ const canonicalizeExistingRefTarget = Effect.fn(function* (
   }
 
   const ownerWorkspace = A.findFirst(workspaces, (workspace) =>
-    stringEquivalence(workspace.packageName, sourceWorkspace.packageName)
+    Str.equivalence(workspace.packageName, sourceWorkspace.packageName)
   );
 
   const targetWorkspace = A.findFirst(workspaces, (workspace) => workspaceContainsPath(workspace, resolvedTarget));
   if (
     O.isSome(targetWorkspace) &&
     O.isSome(ownerWorkspace) &&
-    !stringEquivalence(targetWorkspace.value.packageName, ownerWorkspace.value.packageName)
+    !Str.equivalence(targetWorkspace.value.packageName, ownerWorkspace.value.packageName)
   ) {
     if (targetWorkspace.value.ownerTsconfigPath !== undefined) {
       return O.some(targetWorkspace.value.ownerTsconfigPath);
@@ -1446,7 +1387,7 @@ const canonicalizeExistingRefTarget = Effect.fn(function* (
   }
 
   const stat = yield* fs.stat(resolvedTarget).pipe(Effect.orElseSucceed(thunkUndefined));
-  if (stat !== undefined && stringEquivalence(stat.type, "Directory")) {
+  if (stat !== undefined && Str.equivalence(stat.type, "Directory")) {
     const nestedTsconfigPath = path.join(resolvedTarget, "tsconfig.json");
     const nestedTsconfigExists = yield* fs.exists(nestedTsconfigPath).pipe(Effect.orElseSucceed(thunkFalse));
     if (nestedTsconfigExists) {
@@ -1523,7 +1464,7 @@ const planPackageReferenceSync = Effect.fn(function* (
       );
       if (O.isSome(canonicalTarget)) {
         const normalizedTarget = toPosixPath(canonicalTarget.value);
-        if (!A.some(existingResolvedTargets, (existingTarget) => stringEquivalence(existingTarget, normalizedTarget))) {
+        if (!A.some(existingResolvedTargets, (existingTarget) => Str.equivalence(existingTarget, normalizedTarget))) {
           A.appendInPlace(existingResolvedTargets, normalizedTarget);
         }
       }
@@ -1546,14 +1487,14 @@ const planPackageReferenceSync = Effect.fn(function* (
     }
 
     const nextContent = applyJsoncModification(original, ["references"], referenceEntries(finalRefPaths));
-    if (stringEquivalence(nextContent, original)) {
+    if (Str.equivalence(nextContent, original)) {
       continue;
     }
 
     const summary = summaryCounts(currentResolvedRefPaths, finalRefPaths, "references");
     A.appendInPlace(
       plannedChanges,
-      new PlannedFileChange.cases["package-references"]({
+      PlannedFileChange.cases["package-references"].make({
         filePath: sourceOwnerTsconfigPath,
         summary,
         content: nextContent,
@@ -1580,15 +1521,13 @@ const planPackageDocgenSync = Effect.fn(function* (
 ) {
   const path = yield* Path.Path;
   const targetWorkspaces = yield* resolveTargetWorkspacesForPackageSync(workspaces, filter);
-  const workspaceAliasSources = A.map(
-    workspaces,
-    (workspace) =>
-      new DocgenAliasSource({
-        packageName: workspace.packageName,
-        rootAliasTarget: O.getOrUndefined(O.fromUndefinedOr(workspace.docgenRootAliasTarget)) ?? "",
-        wildcardAliasTarget: O.getOrUndefined(O.fromUndefinedOr(workspace.docgenWildcardAliasTarget)) ?? "",
-        subpathAliasTargets: O.getOrUndefined(O.fromUndefinedOr(workspace.docgenSubpathAliasTargets)) ?? R.empty(),
-      })
+  const workspaceAliasSources = A.map(workspaces, (workspace) =>
+    DocgenAliasSource.make({
+      packageName: workspace.packageName,
+      rootAliasTarget: O.getOrUndefined(O.fromUndefinedOr(workspace.docgenRootAliasTarget)) ?? "",
+      wildcardAliasTarget: O.getOrUndefined(O.fromUndefinedOr(workspace.docgenWildcardAliasTarget)) ?? "",
+      subpathAliasTargets: O.getOrUndefined(O.fromUndefinedOr(workspace.docgenSubpathAliasTargets)) ?? R.empty(),
+    })
   );
   const plannedChanges = A.empty<PlannedFileChange>();
 
@@ -1601,7 +1540,7 @@ const planPackageDocgenSync = Effect.fn(function* (
     const original = yield* readFileString(filePath);
     const parsed = yield* parseJsonObject(original, filePath);
     const canonicalConfig = yield* createCanonicalDocgenConfig(
-      new CanonicalDocgenConfigInput({
+      CanonicalDocgenConfigInput.make({
         rootDir,
         packageAbsolutePath: workspace.absoluteDir,
         packageRelativePath: workspace.relativeDir,
@@ -1613,13 +1552,13 @@ const planPackageDocgenSync = Effect.fn(function* (
     const nextDocument = mergeManagedDocgenConfig(parsed, canonicalConfig);
     const nextContent = yield* renderBiomeJson(filePath, nextDocument);
 
-    if (stringEquivalence(nextContent, original)) {
+    if (Str.equivalence(nextContent, original)) {
       continue;
     }
 
     A.appendInPlace(
       plannedChanges,
-      new PlannedFileChange.cases["package-docgen"]({
+      PlannedFileChange.cases["package-docgen"].make({
         filePath,
         summary: "managed docgen fields synchronized",
         content: nextContent,
@@ -1636,19 +1575,19 @@ const sortChanges = (changes: ReadonlyArray<PlannedFileChange>): ReadonlyArray<P
 const toReportedChange = (change: PlannedFileChange): TsconfigSyncChange =>
   PlannedFileChange.match(change, {
     "root-references": ({ filePath, summary }): TsconfigSyncChange =>
-      new TsconfigSyncChange.cases["root-references"]({ filePath, summary }),
+      TsconfigSyncChange.cases["root-references"].make({ filePath, summary }),
     "root-quality-references": ({ filePath, summary }): TsconfigSyncChange =>
-      new TsconfigSyncChange.cases["root-quality-references"]({ filePath, summary }),
+      TsconfigSyncChange.cases["root-quality-references"].make({ filePath, summary }),
     "root-aliases": ({ filePath, summary }): TsconfigSyncChange =>
-      new TsconfigSyncChange.cases["root-aliases"]({ filePath, summary }),
+      TsconfigSyncChange.cases["root-aliases"].make({ filePath, summary }),
     "root-tstyche": ({ filePath, summary }): TsconfigSyncChange =>
-      new TsconfigSyncChange.cases["root-tstyche"]({ filePath, summary }),
+      TsconfigSyncChange.cases["root-tstyche"].make({ filePath, summary }),
     "root-syncpack": ({ filePath, summary }): TsconfigSyncChange =>
-      new TsconfigSyncChange.cases["root-syncpack"]({ filePath, summary }),
+      TsconfigSyncChange.cases["root-syncpack"].make({ filePath, summary }),
     "package-references": ({ filePath, summary }): TsconfigSyncChange =>
-      new TsconfigSyncChange.cases["package-references"]({ filePath, summary }),
+      TsconfigSyncChange.cases["package-references"].make({ filePath, summary }),
     "package-docgen": ({ filePath, summary }): TsconfigSyncChange =>
-      new TsconfigSyncChange.cases["package-docgen"]({ filePath, summary }),
+      TsconfigSyncChange.cases["package-docgen"].make({ filePath, summary }),
   });
 
 const renderChanges = Effect.fn(function* (
@@ -1718,10 +1657,10 @@ export const syncTsconfigAtRoot: {
     const cycles = yield* detectCycles(adjacency);
 
     if (!A.isReadonlyArrayEmpty(cycles)) {
-      return yield* new TsconfigSyncCycleError({
-        cycles: A.map(cycles, (cycle) => [...cycle]),
-        message: `Detected ${cycles.length} workspace dependency cycle(s)`,
-      });
+      return yield* TsconfigSyncCycleError.new(
+        A.map(cycles, (cycle) => [...cycle]),
+        `Detected ${cycles.length} workspace dependency cycle(s)`
+      );
     }
 
     const plannedChanges = A.empty<PlannedFileChange>();
@@ -1776,27 +1715,27 @@ export const syncTsconfigAtRoot: {
     yield* renderChanges(rootDir, options.mode, reportedChanges);
 
     if (tsconfigSyncModeEquivalence(options.mode, "check") && !A.isArrayEmpty(reportedChanges)) {
-      return yield* new TsconfigSyncDriftError({
-        fileCount: reportedChanges.length,
-        summary: `Run "beep tsconfig-sync" to apply ${reportedChanges.length} change(s).`,
-      });
+      return yield* TsconfigSyncDriftError.new(
+        reportedChanges.length,
+        `Run "beep tsconfig-sync" to apply ${reportedChanges.length} change(s).`
+      );
     }
 
     const result: TsconfigSyncResult = TsconfigSyncModeMatch(options.mode, {
       sync: () =>
-        new TsconfigSyncResult.cases.sync({
+        TsconfigSyncResult.cases.sync.make({
           mode: "sync",
           changedFiles: A.length(reportedChanges),
           changes: reportedChanges,
         }),
       check: () =>
-        new TsconfigSyncResult.cases.check({
+        TsconfigSyncResult.cases.check.make({
           mode: "check",
           changedFiles: A.length(reportedChanges),
           changes: reportedChanges,
         }),
       "dry-run": () =>
-        new TsconfigSyncResult.cases["dry-run"]({
+        TsconfigSyncResult.cases["dry-run"].make({
           mode: "dry-run",
           changedFiles: A.length(reportedChanges),
           changes: reportedChanges,

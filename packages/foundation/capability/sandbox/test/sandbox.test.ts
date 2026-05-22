@@ -85,7 +85,7 @@ describe("@beep/sandbox", () => {
     expect(
       buildLogFilename(
         "feature/a",
-        new LogFilenameOptions({
+        LogFilenameOptions.make({
           name: "Claude 1",
           targetBranch: "target/main",
         })
@@ -93,7 +93,7 @@ describe("@beep/sandbox", () => {
     ).toBe("target-main-feature-a-claude-1.log");
     expect(
       buildRunSummaryRows(
-        new RunSummaryRowOptions({
+        RunSummaryRowOptions.make({
           agentName: "claude-code",
           branch: "feature/a",
           maxIterations: 1,
@@ -132,14 +132,14 @@ describe("@beep/sandbox", () => {
               }
 
               if (A.contains(command.args, "rev-parse")) {
-                return new ProcessResult({ exitCode: 0, stderr: "", stdout: "feature/reuse\n" });
+                return ProcessResult.make({ exitCode: 0, stderr: "", stdout: "feature/reuse\n" });
               }
             }
 
-            return new ProcessResult({ exitCode: 0, stderr: "", stdout: "" });
+            return ProcessResult.make({ exitCode: 0, stderr: "", stdout: "" });
           }),
           runShell: Effect.fn("SandboxProcess.runShell")(() =>
-            Effect.succeed(new ProcessResult({ exitCode: 0, stderr: "", stdout: "" }))
+            Effect.succeed(ProcessResult.make({ exitCode: 0, stderr: "", stdout: "" }))
           ),
         })
       );
@@ -153,7 +153,7 @@ describe("@beep/sandbox", () => {
             copyFileOut: () => Effect.void,
             exec: () =>
               Effect.succeed(
-                new ExecResult({
+                ExecResult.make({
                   exitCode: 0,
                   stderr: "",
                   stdout: '{"type":"item.completed","item":{"type":"agent_message","text":"done"}}\\nDONE',
@@ -173,7 +173,7 @@ describe("@beep/sandbox", () => {
         callbackAgentStreamEmitterLayer(() => undefined)
       );
 
-      const worktree = yield* createWorktree(new CreateWorktreeOptions({ branch: "feature/reuse", repoDir })).pipe(
+      const worktree = yield* createWorktree(CreateWorktreeOptions.make({ branch: "feature/reuse", repoDir })).pipe(
         provideScopedLayer(TestLayer)
       );
       const result = yield* worktree
@@ -296,7 +296,7 @@ describe("@beep/sandbox", () => {
 
   it("redacts formatted sandbox errors", () => {
     const rendered = formatErrorMessage(
-      new AgentError({
+      AgentError.make({
         cause: "OPENAI_API_KEY=sk-test-secret",
         message: "Authorization: Bearer secret-token-value",
       })
@@ -423,7 +423,7 @@ describe("@beep/sandbox", () => {
     ]);
     expect(
       codexProvider.buildPrintCommand(
-        new AgentCommandOptions({
+        AgentCommandOptions.make({
           dangerouslySkipPermissions: true,
           prompt: "hello",
         })
@@ -447,7 +447,7 @@ describe("@beep/sandbox", () => {
     ).toEqual([{ _tag: "Result", result: "final" }]);
     expect(
       piProvider.buildPrintCommand(
-        new AgentCommandOptions({
+        AgentCommandOptions.make({
           dangerouslySkipPermissions: true,
           prompt: "hello pi",
         })
@@ -457,7 +457,7 @@ describe("@beep/sandbox", () => {
       stdin: "hello pi",
     });
     expect(
-      opencodeProvider.buildPrintCommand(new AgentCommandOptions({ dangerouslySkipPermissions: true, prompt: "hi" }))
+      opencodeProvider.buildPrintCommand(AgentCommandOptions.make({ dangerouslySkipPermissions: true, prompt: "hi" }))
     ).toMatchObject({
       command: "opencode run --model 'qwen/qwen3-coder' 'hi'",
     });
@@ -467,7 +467,7 @@ describe("@beep/sandbox", () => {
     "fails typed env merges with overlapping provider keys",
     Effect.fnUntraced(function* () {
       const error = yield* mergeProviderEnv(
-        new MergeProviderEnvOptions({
+        MergeProviderEnvOptions.make({
           agentProviderEnv: { SHARED: "agent" },
           resolvedEnv: {},
           sandboxProviderEnv: { SHARED: "sandbox" },
@@ -480,7 +480,7 @@ describe("@beep/sandbox", () => {
   );
 
   it("keeps schema-backed exec results constructible", () => {
-    const result = new ExecResult({ exitCode: 0, stderr: "", stdout: "ok" });
+    const result = ExecResult.make({ exitCode: 0, stderr: "", stdout: "ok" });
 
     expect(result.stdout).toBe("ok");
   });
@@ -503,7 +503,7 @@ describe("@beep/sandbox", () => {
           options.prompt,
           options.dangerouslySkipPermissions ? "skip-permissions" : "ask-permissions",
         ],
-        buildPrintCommand: () => new PrintCommand({ command: "unused" }),
+        buildPrintCommand: () => PrintCommand.make({ command: "unused" }),
         captureSessions: false,
         env: { AGENT_ENV: "1" },
         name: "test-agent",
@@ -517,7 +517,7 @@ describe("@beep/sandbox", () => {
               closed = true;
             }),
             copyFileOut: () => Effect.void,
-            exec: () => Effect.succeed(new ExecResult({ exitCode: 0, stderr: "", stdout: "" })),
+            exec: () => Effect.succeed(ExecResult.make({ exitCode: 0, stderr: "", stdout: "" })),
             interactiveExec: (args, options) =>
               Effect.sync(() => {
                 capturedArgs = args;
@@ -527,7 +527,7 @@ describe("@beep/sandbox", () => {
                 capturedStdin = options.stdin;
                 capturedStdout = options.stdout;
 
-                return new InteractiveExecResult({ exitCode: 7 });
+                return InteractiveExecResult.make({ exitCode: 7 });
               }),
             worktreePath,
           }),
@@ -569,7 +569,7 @@ describe("@beep/sandbox", () => {
         const sandbox = yield* noSandbox().create({ env: {}, worktreePath: tempDir });
         const execResult = yield* sandbox.exec(
           "printf 'one\\ntwo\\npartial'",
-          new SandboxExecOptions({
+          SandboxExecOptions.make({
             onLine: (line: string) => {
               A.appendInPlace(lines, line);
             },
@@ -598,7 +598,7 @@ describe("@beep/sandbox", () => {
         const sandbox = yield* noSandbox().create({ env: {}, worktreePath: tempDir });
         const execResult = yield* sandbox.exec(
           "printf 'section1\\n\\nsection2\\n'",
-          new SandboxExecOptions({
+          SandboxExecOptions.make({
             onLine: (line: string) => {
               A.appendInPlace(lines, line);
             },
@@ -620,7 +620,7 @@ describe("@beep/sandbox", () => {
     Effect.fnUntraced(function* () {
       const displayRef = yield* Ref.make<ReadonlyArray<DisplayEntry>>([]);
       const provider: AgentProvider = {
-        buildPrintCommand: () => new PrintCommand({ command: "wait" }),
+        buildPrintCommand: () => PrintCommand.make({ command: "wait" }),
         captureSessions: false,
         env: {},
         name: "silent-agent",

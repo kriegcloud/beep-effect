@@ -453,7 +453,7 @@ export const makeQualityWorkerRunpodEvalPodCreateInput = ({
   readonly podName: string;
   readonly templateId?: string;
 }): PodCreateInput =>
-  new PodCreateInput({
+  PodCreateInput.make({
     cloudType: "COMMUNITY",
     computeType: "GPU",
     containerDiskInGb: 100,
@@ -482,7 +482,7 @@ const requirePodId = (pod: Pod): Effect.Effect<string, DomainError> =>
   pipe(
     podIdOption(pod),
     O.match({
-      onNone: () => Effect.fail(new DomainError({ message: "Runpod createPod returned a pod without an id." })),
+      onNone: () => Effect.fail(DomainError.make({ message: "Runpod createPod returned a pod without an id." })),
       onSome: Effect.succeed,
     })
   );
@@ -494,7 +494,7 @@ const findCreatedPodIdByName = Effect.fn("DocgenQualityWorkerRunpodEval.findCrea
 }) {
   const runpod = yield* Runpod;
   const pods = yield* runpod
-    .listPods(new ListPodsRequest({ name: podName }))
+    .listPods(ListPodsRequest.make({ name: podName }))
     .pipe(Effect.mapError(DomainError.newCause(`Failed to list Runpod pods named "${podName}".`)));
   const podId = pipe(
     pods,
@@ -505,7 +505,7 @@ const findCreatedPodIdByName = Effect.fn("DocgenQualityWorkerRunpodEval.findCrea
   return yield* pipe(
     podId,
     O.match({
-      onNone: () => Effect.fail(new DomainError({ message: `Runpod pod "${podName}" did not expose an id.` })),
+      onNone: () => Effect.fail(DomainError.make({ message: `Runpod pod "${podName}" did not expose an id.` })),
       onSome: Effect.succeed,
     })
   );
@@ -526,7 +526,7 @@ const fallbackTemplate = ({
   readonly searchIncludedPublicTemplates: boolean;
   readonly searchIncludedRunpodTemplates: boolean;
 }): DocgenQualityWorkerRunpodEvalTemplate =>
-  new DocgenQualityWorkerRunpodEvalTemplate({
+  DocgenQualityWorkerRunpodEvalTemplate.make({
     imageName: RUNPOD_PYTORCH_IMAGE,
     searchIncludedPublicTemplates,
     searchIncludedRunpodTemplates,
@@ -546,7 +546,7 @@ const resolveTemplate = Effect.fn("DocgenQualityWorkerRunpodEval.resolveTemplate
 }) {
   const normalizedTemplateId = templateId === undefined ? undefined : Str.trim(templateId);
   if (normalizedTemplateId !== undefined && Str.isNonEmpty(normalizedTemplateId)) {
-    return new DocgenQualityWorkerRunpodEvalTemplate({
+    return DocgenQualityWorkerRunpodEvalTemplate.make({
       imageName: RUNPOD_PYTORCH_IMAGE,
       searchIncludedPublicTemplates: false,
       searchIncludedRunpodTemplates: false,
@@ -566,7 +566,7 @@ const resolveTemplate = Effect.fn("DocgenQualityWorkerRunpodEval.resolveTemplate
   const runpod = yield* Runpod;
   const templates = yield* runpod
     .listTemplates(
-      new ListTemplatesRequest({
+      ListTemplatesRequest.make({
         includePublicTemplates: true,
         includeRunpodTemplates: true,
       })
@@ -575,7 +575,7 @@ const resolveTemplate = Effect.fn("DocgenQualityWorkerRunpodEval.resolveTemplate
   const selected = selectQualityWorkerRunpodTemplate(templates);
 
   if (O.isSome(selected)) {
-    return new DocgenQualityWorkerRunpodEvalTemplate({
+    return DocgenQualityWorkerRunpodEvalTemplate.make({
       imageName: selected.value.imageName ?? RUNPOD_PYTORCH_IMAGE,
       searchIncludedPublicTemplates: true,
       searchIncludedRunpodTemplates: true,
@@ -608,7 +608,7 @@ const ollamaReadyProbe = Effect.fn("DocgenQualityWorkerRunpodEval.ollamaReadyPro
   const tags = yield* client.execute(HttpClientRequest.get(`${baseUrl}/api/tags`)).pipe(
     Effect.filterOrFail(
       (response) => response.status >= 200 && response.status < 300,
-      () => new DomainError({ message: `Ollama tags endpoint is not ready at ${baseUrl}.` })
+      () => DomainError.make({ message: `Ollama tags endpoint is not ready at ${baseUrl}.` })
     ),
     Effect.flatMap((response) => response.json),
     Effect.flatMap(decodeOllamaTagsResponse),
@@ -636,13 +636,13 @@ const waitForOllamaReady = Effect.fn("DocgenQualityWorkerRunpodEval.waitForOllam
     Effect.flatMap((ready) =>
       ready
         ? Effect.succeed(true)
-        : Effect.fail(new DomainError({ message: `Ollama model "${model}" is not ready at ${baseUrl}.` }))
+        : Effect.fail(DomainError.make({ message: `Ollama model "${model}" is not ready at ${baseUrl}.` }))
     ),
     Effect.retry(Schedule.both(Schedule.spaced(Duration.seconds(5)), Schedule.recurs(attempts))),
     Effect.timeoutOrElse({
       duration: timeout,
       orElse: () =>
-        Effect.fail(new DomainError({ message: `Timed out waiting for Ollama model "${model}" at ${baseUrl}.` })),
+        Effect.fail(DomainError.make({ message: `Timed out waiting for Ollama model "${model}" at ${baseUrl}.` })),
     })
   );
 });
@@ -693,14 +693,14 @@ const acquireRunpodPod = Effect.fn("DocgenQualityWorkerRunpodEval.acquireRunpodP
   });
   const bootstrapHash = yield* hashPublicIdentifier(A.join(createInput.dockerStartCmd ?? [], "\n"));
   const created = yield* runpod
-    .createPod(new CreatePodRequest({ body: createInput }))
+    .createPod(CreatePodRequest.make({ body: createInput }))
     .pipe(Effect.mapError(DomainError.newCause("Failed to create Runpod worker eval pod.")));
   const podId = yield* requirePodId(created).pipe(Effect.catch(() => findCreatedPodIdByName({ podName })));
   const baseUrl = podProxyBaseUrl(podId);
   yield* Console.log(`docgen: created Runpod pod ${podId}; waiting on ${baseUrl}`);
   const pod = yield* runpod
     .getPod(
-      new GetPodRequest({
+      GetPodRequest.make({
         includeMachine: true,
         podId,
       })
@@ -708,13 +708,13 @@ const acquireRunpodPod = Effect.fn("DocgenQualityWorkerRunpodEval.acquireRunpodP
     .pipe(Effect.catch(() => Effect.succeed(created)));
 
   return {
-    bootstrap: new DocgenQualityWorkerRunpodEvalBootstrap({
+    bootstrap: DocgenQualityWorkerRunpodEvalBootstrap.make({
       dockerStartCmdHash: bootstrapHash,
       model,
       portMappings: [OLLAMA_PORT_MAPPING],
       readinessPath: "/api/tags",
     }),
-    pod: new DocgenQualityWorkerRunpodEvalPod({
+    pod: DocgenQualityWorkerRunpodEvalPod.make({
       baseUrl,
       codexBaseUrl: codexBaseUrlFor(baseUrl),
       gpuDisplayName: podGpuDisplayName(pod),
@@ -731,7 +731,7 @@ const acquireRunpodPod = Effect.fn("DocgenQualityWorkerRunpodEval.acquireRunpodP
 });
 
 const cleanupSkipped = (keepPod: boolean): DocgenQualityWorkerRunpodEvalCleanup =>
-  new DocgenQualityWorkerRunpodEvalCleanup({
+  DocgenQualityWorkerRunpodEvalCleanup.make({
     deleteStatus: keepPod ? "skipped-debug-keep" : "failed",
     durationMs: 0,
     error: keepPod ? null : "Runpod cleanup did not run.",
@@ -750,7 +750,7 @@ const cleanupRunpodPod = Effect.fn("DocgenQualityWorkerRunpodEval.cleanupRunpodP
 
   if (keepPod) {
     yield* Console.log(`docgen: keeping Runpod pod ${podId} for debugging`);
-    return new DocgenQualityWorkerRunpodEvalCleanup({
+    return DocgenQualityWorkerRunpodEvalCleanup.make({
       deleteStatus: "skipped-debug-keep",
       durationMs: durationMsSince(startedAtMs),
       error: null,
@@ -761,9 +761,9 @@ const cleanupRunpodPod = Effect.fn("DocgenQualityWorkerRunpodEval.cleanupRunpodP
 
   const runpod = yield* Runpod;
   yield* Console.log(`docgen: stopping Runpod pod ${podId}`);
-  const stopResult = yield* runpod.stopPod(new StopPodRequest({ podId })).pipe(Effect.result);
+  const stopResult = yield* runpod.stopPod(StopPodRequest.make({ podId })).pipe(Effect.result);
   yield* Console.log(`docgen: deleting Runpod pod ${podId}`);
-  const deleteResult = yield* runpod.deletePod(new DeletePodRequest({ podId })).pipe(Effect.result);
+  const deleteResult = yield* runpod.deletePod(DeletePodRequest.make({ podId })).pipe(Effect.result);
   const stopStatus = Result.isSuccess(stopResult) ? "completed" : "failed";
   const deleteStatus = Result.isSuccess(deleteResult) ? "completed" : "failed";
   const error = pipe(
@@ -778,7 +778,7 @@ const cleanupRunpodPod = Effect.fn("DocgenQualityWorkerRunpodEval.cleanupRunpodP
     })
   );
 
-  return new DocgenQualityWorkerRunpodEvalCleanup({
+  return DocgenQualityWorkerRunpodEvalCleanup.make({
     deleteStatus,
     durationMs: durationMsSince(startedAtMs),
     error,
@@ -788,7 +788,7 @@ const cleanupRunpodPod = Effect.fn("DocgenQualityWorkerRunpodEval.cleanupRunpodP
 });
 
 const disabledOtlp = (project: string): DocgenQualityWorkerRunpodEvalOtlp =>
-  new DocgenQualityWorkerRunpodEvalOtlp({
+  DocgenQualityWorkerRunpodEvalOtlp.make({
     baseUrl: null,
     error: null,
     exportedSpans: 0,
@@ -856,7 +856,7 @@ const emitRunpodEvalOtlp = Effect.fn("DocgenQualityWorkerRunpodEval.emitRunpodEv
   const exportResult = yield* Effect.scoped(
     Layer.build(
       layerNodeSdkServerTraces(
-        new ServerObservabilityConfig({
+        ServerObservabilityConfig.make({
           devtoolsEnabled: false,
           devtoolsUrl: "ws://127.0.0.1:34437",
           environment: "eval",
@@ -902,7 +902,7 @@ const emitRunpodEvalOtlp = Effect.fn("DocgenQualityWorkerRunpodEval.emitRunpodEv
   ).pipe(Effect.result);
 
   if (Result.isFailure(exportResult)) {
-    return new DocgenQualityWorkerRunpodEvalOtlp({
+    return DocgenQualityWorkerRunpodEvalOtlp.make({
       baseUrl,
       error: errorMessage(exportResult.failure),
       exportedSpans: 0,
@@ -912,7 +912,7 @@ const emitRunpodEvalOtlp = Effect.fn("DocgenQualityWorkerRunpodEval.emitRunpodEv
     });
   }
 
-  return new DocgenQualityWorkerRunpodEvalOtlp({
+  return DocgenQualityWorkerRunpodEvalOtlp.make({
     baseUrl,
     error: null,
     exportedSpans: spanCount,
@@ -929,25 +929,25 @@ const validateOptions = Effect.fn("DocgenQualityWorkerRunpodEval.validateOptions
   provider,
 }: RunDocgenQualityWorkerRunpodEvalOptions) {
   if (!confirmRunpodEval) {
-    return yield* new DomainError({
+    return yield* DomainError.make({
       message: "Runpod worker eval requires --confirm-runpod-eval because it creates a billable remote GPU pod.",
     });
   }
 
   if (provider !== "ollama") {
-    return yield* new DomainError({
+    return yield* DomainError.make({
       message: "Runpod worker eval v1 only supports --provider ollama.",
     });
   }
 
   if (model !== REQUIRED_RUNPOD_WORKER_MODEL) {
-    return yield* new DomainError({
+    return yield* DomainError.make({
       message: `Runpod worker eval v1 requires --model ${REQUIRED_RUNPOD_WORKER_MODEL}.`,
     });
   }
 
   if (packetLimit !== undefined && packetLimit < 0) {
-    return yield* new DomainError({
+    return yield* DomainError.make({
       message: "--packet-limit must be zero or greater; use 0 to suppress worker packet turns.",
     });
   }
@@ -1125,7 +1125,7 @@ export const runDocgenQualityWorkerRunpodEval = Effect.fn(
     workerEval,
   });
 
-  return new DocgenQualityWorkerRunpodEvalReport({
+  return DocgenQualityWorkerRunpodEvalReport.make({
     schemaVersion: QUALITY_WORKER_RUNPOD_EVAL_SCHEMA_VERSION,
     bootstrap: acquired.bootstrap,
     cleanup,
@@ -1136,7 +1136,7 @@ export const runDocgenQualityWorkerRunpodEval = Effect.fn(
     provider: options.provider,
     recommendation: recommendationFor(workerEval, cleanup, otlp),
     runId,
-    runtime: new DocgenQualityWorkerRunpodEvalRuntime({
+    runtime: DocgenQualityWorkerRunpodEvalRuntime.make({
       cleanupDurationMs: cleanup.durationMs,
       provisionDurationMs: acquired.provisionDurationMs,
       totalDurationMs: durationMsSince(totalStartedAtMs),

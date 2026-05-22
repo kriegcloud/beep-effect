@@ -57,7 +57,7 @@ describe("@beep/sandbox parity helpers", () => {
       const flushed: Array<string> = [];
       const buffer = new TextDeltaBuffer(
         (text) => A.appendInPlace(flushed, text),
-        new TextDeltaBufferOptions({ debounceMs: 50, lengthThreshold: 8 })
+        TextDeltaBufferOptions.make({ debounceMs: 50, lengthThreshold: 8 })
       );
 
       buffer.write("Hello. ");
@@ -88,7 +88,7 @@ describe("@beep/sandbox parity helpers", () => {
 
     it("builds git am recovery with remaining diff and untracked commands", () => {
       const message = buildRecoveryMessage(
-        new RecoveryInput({
+        RecoveryInput.make({
           failedStep: "commits",
           hasCommits: true,
           hasDiff: true,
@@ -105,7 +105,7 @@ describe("@beep/sandbox parity helpers", () => {
 
     it("builds branch worktree recovery with worktree-relative patch paths", () => {
       const message = buildRecoveryMessage(
-        new RecoveryInput({
+        RecoveryInput.make({
           branch: "feature/test",
           failedStep: "diff",
           hasCommits: true,

@@ -11,7 +11,7 @@ const decodeWorkerId = S.decodeUnknownEffect(Worker.WorkerId);
 
 const makeWorkItem = (id: WorkItem.WorkItemId) =>
   WorkItem.create(
-    new WorkItem.CreateWorkItemInput({
+    WorkItem.CreateWorkItemInput.make({
       id,
       title: "Document topology",
       priority: O.some(WorkPriority.WorkPriority.Enum.high),

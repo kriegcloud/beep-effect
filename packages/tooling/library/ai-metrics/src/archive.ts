@@ -23,7 +23,7 @@ const AES_GCM_NONCE_BYTES = 12;
  * @example
  * ```ts
  * import { AiMetricsArchiveError } from "@beep/repo-ai-metrics"
- * const error = new AiMetricsArchiveError({
+ * const error = AiMetricsArchiveError.make({
  *   cause: "boom",
  *   message: "Archive failed."
  * })
@@ -35,7 +35,7 @@ const AES_GCM_NONCE_BYTES = 12;
 export class AiMetricsArchiveError extends TaggedErrorClass<AiMetricsArchiveError>($I`AiMetricsArchiveError`)(
   "AiMetricsArchiveError",
   {
-    cause: S.Unknown,
+    cause: S.DefectWithStack,
     message: S.String,
   },
   $I.annote("AiMetricsArchiveError", {
@@ -138,7 +138,7 @@ const encodeArchiveEnvelope = S.encodeUnknownEffect(S.fromJsonString(AiMetricsEn
 const decodeArchiveEnvelope = S.decodeUnknownEffect(S.fromJsonString(AiMetricsEncryptedRawArchiveEnvelope));
 
 const archiveFailure = (message: string, cause: unknown): AiMetricsArchiveError =>
-  new AiMetricsArchiveError({ cause, message });
+  AiMetricsArchiveError.make({ cause, message });
 
 const decodeRawArchiveKey = (rawArchiveKey: AiMetricsRawArchiveKey): Effect.Effect<Uint8Array, AiMetricsArchiveError> =>
   Result.match(Encoding.decodeBase64(Str.trim(Redacted.value(rawArchiveKey))), {
@@ -198,7 +198,7 @@ const envelopeToObject = (
   envelope: AiMetricsEncryptedRawArchiveEnvelope,
   created: boolean
 ): AiMetricsRawArchiveObject =>
-  new AiMetricsRawArchiveObject({
+  AiMetricsRawArchiveObject.make({
     algorithm: envelope.algorithm,
     archiveObjectId: envelope.archiveObjectId,
     archivePath,
@@ -291,7 +291,7 @@ export const writeEncryptedRawArchiveObject = Effect.fn("AiMetrics.writeEncrypte
       catch: (cause) => archiveFailure("Failed to encrypt raw archive object.", cause),
     });
     const encryptedAtEpochMillis = yield* Clock.currentTimeMillis;
-    const envelope = new AiMetricsEncryptedRawArchiveEnvelope({
+    const envelope = AiMetricsEncryptedRawArchiveEnvelope.make({
       algorithm: "AES-256-GCM",
       archiveObjectId,
       ciphertextBase64: Encoding.encodeBase64(new Uint8Array(ciphertext)),
@@ -342,7 +342,7 @@ export const writeEncryptedRawArchiveObject = Effect.fn("AiMetrics.writeEncrypte
  * } from "@beep/repo-ai-metrics"
  * import { Redacted } from "effect"
  * const program = decryptEncryptedRawArchiveEnvelope({
- *   envelope: new AiMetricsEncryptedRawArchiveEnvelope({
+ *   envelope: AiMetricsEncryptedRawArchiveEnvelope.make({
  *     algorithm: "AES-256-GCM",
  *     archiveObjectId: "raw-example",
  *     ciphertextBase64: "ciphertext",

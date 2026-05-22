@@ -72,7 +72,7 @@ export declare namespace CanonicalJSDocSourceMetadata {
  * @since 0.0.0
  */
 export const make = (input: CanonicalJSDocSourceMetadata.Encoded) =>
-  new CanonicalJSDocSourceMetadata({
+  CanonicalJSDocSourceMetadata.make({
     name: input.name,
     url: new URL(input.url),
     retrievedAt: DateTime.makeUnsafe(input.retrievedAt),

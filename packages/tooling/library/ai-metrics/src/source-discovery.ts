@@ -226,7 +226,7 @@ export class AiMetricsSourceDiscoveryError extends TaggedErrorClass<AiMetricsSou
 )(
   "AiMetricsSourceDiscoveryError",
   {
-    cause: S.Unknown,
+    cause: S.DefectWithStack,
     message: S.String,
   },
   $I.annote("AiMetricsSourceDiscoveryError", {
@@ -261,7 +261,7 @@ const byCandidateModifiedDescending: Order.Order<SourceCandidateFile> = Order.ma
 );
 
 const fileSystemFailure = (message: string, cause: unknown): AiMetricsSourceDiscoveryError =>
-  new AiMetricsSourceDiscoveryError({ cause, message });
+  AiMetricsSourceDiscoveryError.make({ cause, message });
 
 const normalizedRelativePath = (pathApi: Path.Path, root: string, filePath: string): string =>
   pipe(pathApi.relative(root, filePath), Str.replace(/\\/gu, "/"));
@@ -350,7 +350,7 @@ const makeDiscoveredTranscriptFile = Effect.fn("AiMetrics.makeDiscoveredTranscri
   }).pipe(Effect.mapError((cause) => fileSystemFailure("Failed to derive AI metrics source attribution.", cause)));
   const fallbackSessionIdHash = yield* hashPrivateIdentifier(sessionIdFromPath(pathApi, sourcePath), hashSalt);
 
-  return new AiMetricsDiscoveredTranscriptFile({
+  return AiMetricsDiscoveredTranscriptFile.make({
     ...(attribution.agentNicknameHash === undefined ? {} : { agentNicknameHash: attribution.agentNicknameHash }),
     ...(attribution.agentRoleHash === undefined ? {} : { agentRoleHash: attribution.agentRoleHash }),
     ...(attribution.forkedFromIdHash === undefined ? {} : { forkedFromIdHash: attribution.forkedFromIdHash }),
@@ -392,7 +392,7 @@ const discoverJsonlSource = Effect.fn("AiMetrics.discoverJsonlSource")(function*
   const rootPathHash = yield* hashPrivateIdentifier(root, input.hashSalt);
 
   if (O.isNone(rootInfo)) {
-    return new AiMetricsDiscoveredSource({
+    return AiMetricsDiscoveredSource.make({
       fileCount: 0,
       files: [],
       message: "source root does not exist",
@@ -403,7 +403,7 @@ const discoverJsonlSource = Effect.fn("AiMetrics.discoverJsonlSource")(function*
   }
 
   if (rootInfo.value.type !== "Directory") {
-    return new AiMetricsDiscoveredSource({
+    return AiMetricsDiscoveredSource.make({
       fileCount: 0,
       files: [],
       message: "source root is not a directory",
@@ -463,7 +463,7 @@ const discoverJsonlSource = Effect.fn("AiMetrics.discoverJsonlSource")(function*
   );
   const includedFiles = pipe(files, A.sort(byPathHashAscending), A.sort(byModifiedDescending));
 
-  return new AiMetricsDiscoveredSource({
+  return AiMetricsDiscoveredSource.make({
     candidateFileCount: A.length(candidates),
     fileCount: A.length(includedFiles),
     files: includedFiles,
@@ -487,7 +487,7 @@ const discoverOpenClawSource = Effect.fn("AiMetrics.discoverOpenClawSource")(fun
   const rootPathHash = yield* hashPrivateIdentifier(unitPath, input.hashSalt);
 
   if (O.isNone(unitInfo)) {
-    return new AiMetricsDiscoveredSource({
+    return AiMetricsDiscoveredSource.make({
       fileCount: 0,
       files: [],
       message: "OpenClaw user systemd gateway unit was not found",
@@ -498,7 +498,7 @@ const discoverOpenClawSource = Effect.fn("AiMetrics.discoverOpenClawSource")(fun
   }
 
   if (unitInfo.value.type !== "File") {
-    return new AiMetricsDiscoveredSource({
+    return AiMetricsDiscoveredSource.make({
       fileCount: 0,
       files: [],
       message: "OpenClaw user systemd gateway path is not a file",
@@ -509,7 +509,7 @@ const discoverOpenClawSource = Effect.fn("AiMetrics.discoverOpenClawSource")(fun
   }
 
   if (!isWithinModifiedTimeWindow(input)(unitInfo.value)) {
-    return new AiMetricsDiscoveredSource({
+    return AiMetricsDiscoveredSource.make({
       candidateFileCount: 0,
       fileCount: 0,
       files: [],
@@ -523,7 +523,7 @@ const discoverOpenClawSource = Effect.fn("AiMetrics.discoverOpenClawSource")(fun
   }
 
   if (!isWithinSizeWindow(input)(unitInfo.value)) {
-    return new AiMetricsDiscoveredSource({
+    return AiMetricsDiscoveredSource.make({
       candidateFileCount: 0,
       fileCount: 0,
       files: [],
@@ -537,7 +537,7 @@ const discoverOpenClawSource = Effect.fn("AiMetrics.discoverOpenClawSource")(fun
     });
   }
 
-  const file = new AiMetricsDiscoveredTranscriptFile({
+  const file = AiMetricsDiscoveredTranscriptFile.make({
     modifiedAtMillis: modifiedAtMillis(unitInfo.value),
     sessionIdHash: yield* hashPrivateIdentifier("openclaw-gateway.service", input.hashSalt),
     sizeBytes: fileSizeBytes(unitInfo.value),
@@ -546,7 +546,7 @@ const discoverOpenClawSource = Effect.fn("AiMetrics.discoverOpenClawSource")(fun
     sourceRole: AiMetricsSourceRole.Enum.gateway_metadata,
   });
 
-  return new AiMetricsDiscoveredSource({
+  return AiMetricsDiscoveredSource.make({
     candidateFileCount: 1,
     fileCount: 1,
     files: [file],
@@ -598,7 +598,7 @@ export const discoverAiMetricsSources = Effect.fn("AiMetrics.discoverAiMetricsSo
     { concurrency: 3 }
   );
 
-  return new AiMetricsSourceDiscoveryResult({
+  return AiMetricsSourceDiscoveryResult.make({
     discoveredFileCount: pipe(
       sources,
       A.map((source) => source.fileCount),
@@ -633,12 +633,11 @@ export const sourceDiscoveryToJson: (
 ) => Effect.Effect<string, AiMetricsSourceDiscoveryError> = Effect.fn("AiMetrics.sourceDiscoveryToJson")(
   function* (result) {
     return yield* encodeSourceDiscoveryJson(result).pipe(
-      Effect.mapError(
-        (cause) =>
-          new AiMetricsSourceDiscoveryError({
-            cause,
-            message: "Failed to encode AI metrics source discovery result as JSON.",
-          })
+      Effect.mapError((cause) =>
+        AiMetricsSourceDiscoveryError.make({
+          cause,
+          message: "Failed to encode AI metrics source discovery result as JSON.",
+        })
       )
     );
   }

@@ -1930,7 +1930,7 @@ export class RunpodOperationDescriptor extends S.Class<RunpodOperationDescriptor
  * @category constants
  * @since 0.1.0
  */
-export const getOpenAPIOperation = new RunpodOperationDescriptor({
+export const getOpenAPIOperation = RunpodOperationDescriptor.make({
   authenticated: false,
   method: "GET",
   methodName: "getOpenAPI",
@@ -1950,7 +1950,7 @@ export const getOpenAPIOperation = new RunpodOperationDescriptor({
  * @category constants
  * @since 0.1.0
  */
-export const getDocsOperation = new RunpodOperationDescriptor({
+export const getDocsOperation = RunpodOperationDescriptor.make({
   authenticated: false,
   method: "GET",
   methodName: "getDocs",
@@ -1970,7 +1970,7 @@ export const getDocsOperation = new RunpodOperationDescriptor({
  * @category constants
  * @since 0.1.0
  */
-export const listPodsOperation = new RunpodOperationDescriptor({
+export const listPodsOperation = RunpodOperationDescriptor.make({
   authenticated: true,
   method: "GET",
   methodName: "listPods",
@@ -2007,7 +2007,7 @@ export const listPodsOperation = new RunpodOperationDescriptor({
  * @category constants
  * @since 0.1.0
  */
-export const createPodOperation = new RunpodOperationDescriptor({
+export const createPodOperation = RunpodOperationDescriptor.make({
   authenticated: true,
   method: "POST",
   methodName: "createPod",
@@ -2027,7 +2027,7 @@ export const createPodOperation = new RunpodOperationDescriptor({
  * @category constants
  * @since 0.1.0
  */
-export const getPodOperation = new RunpodOperationDescriptor({
+export const getPodOperation = RunpodOperationDescriptor.make({
   authenticated: true,
   method: "GET",
   methodName: "getPod",
@@ -2047,7 +2047,7 @@ export const getPodOperation = new RunpodOperationDescriptor({
  * @category constants
  * @since 0.1.0
  */
-export const updatePodOperation = new RunpodOperationDescriptor({
+export const updatePodOperation = RunpodOperationDescriptor.make({
   authenticated: true,
   method: "PATCH",
   methodName: "updatePod",
@@ -2067,7 +2067,7 @@ export const updatePodOperation = new RunpodOperationDescriptor({
  * @category constants
  * @since 0.1.0
  */
-export const deletePodOperation = new RunpodOperationDescriptor({
+export const deletePodOperation = RunpodOperationDescriptor.make({
   authenticated: true,
   method: "DELETE",
   methodName: "deletePod",
@@ -2087,7 +2087,7 @@ export const deletePodOperation = new RunpodOperationDescriptor({
  * @category constants
  * @since 0.1.0
  */
-export const updatePodViaPostOperation = new RunpodOperationDescriptor({
+export const updatePodViaPostOperation = RunpodOperationDescriptor.make({
   authenticated: true,
   method: "POST",
   methodName: "updatePodViaPost",
@@ -2107,7 +2107,7 @@ export const updatePodViaPostOperation = new RunpodOperationDescriptor({
  * @category constants
  * @since 0.1.0
  */
-export const startPodOperation = new RunpodOperationDescriptor({
+export const startPodOperation = RunpodOperationDescriptor.make({
   authenticated: true,
   method: "POST",
   methodName: "startPod",
@@ -2127,7 +2127,7 @@ export const startPodOperation = new RunpodOperationDescriptor({
  * @category constants
  * @since 0.1.0
  */
-export const stopPodOperation = new RunpodOperationDescriptor({
+export const stopPodOperation = RunpodOperationDescriptor.make({
   authenticated: true,
   method: "POST",
   methodName: "stopPod",
@@ -2147,7 +2147,7 @@ export const stopPodOperation = new RunpodOperationDescriptor({
  * @category constants
  * @since 0.1.0
  */
-export const resetPodOperation = new RunpodOperationDescriptor({
+export const resetPodOperation = RunpodOperationDescriptor.make({
   authenticated: true,
   method: "POST",
   methodName: "resetPod",
@@ -2167,7 +2167,7 @@ export const resetPodOperation = new RunpodOperationDescriptor({
  * @category constants
  * @since 0.1.0
  */
-export const restartPodOperation = new RunpodOperationDescriptor({
+export const restartPodOperation = RunpodOperationDescriptor.make({
   authenticated: true,
   method: "POST",
   methodName: "restartPod",
@@ -2187,7 +2187,7 @@ export const restartPodOperation = new RunpodOperationDescriptor({
  * @category constants
  * @since 0.1.0
  */
-export const listEndpointsOperation = new RunpodOperationDescriptor({
+export const listEndpointsOperation = RunpodOperationDescriptor.make({
   authenticated: true,
   method: "GET",
   methodName: "listEndpoints",
@@ -2207,7 +2207,7 @@ export const listEndpointsOperation = new RunpodOperationDescriptor({
  * @category constants
  * @since 0.1.0
  */
-export const createEndpointOperation = new RunpodOperationDescriptor({
+export const createEndpointOperation = RunpodOperationDescriptor.make({
   authenticated: true,
   method: "POST",
   methodName: "createEndpoint",
@@ -2227,7 +2227,7 @@ export const createEndpointOperation = new RunpodOperationDescriptor({
  * @category constants
  * @since 0.1.0
  */
-export const getEndpointOperation = new RunpodOperationDescriptor({
+export const getEndpointOperation = RunpodOperationDescriptor.make({
   authenticated: true,
   method: "GET",
   methodName: "getEndpoint",
@@ -2247,7 +2247,7 @@ export const getEndpointOperation = new RunpodOperationDescriptor({
  * @category constants
  * @since 0.1.0
  */
-export const updateEndpointOperation = new RunpodOperationDescriptor({
+export const updateEndpointOperation = RunpodOperationDescriptor.make({
   authenticated: true,
   method: "PATCH",
   methodName: "updateEndpoint",
@@ -2267,7 +2267,7 @@ export const updateEndpointOperation = new RunpodOperationDescriptor({
  * @category constants
  * @since 0.1.0
  */
-export const deleteEndpointOperation = new RunpodOperationDescriptor({
+export const deleteEndpointOperation = RunpodOperationDescriptor.make({
   authenticated: true,
   method: "DELETE",
   methodName: "deleteEndpoint",
@@ -2287,7 +2287,7 @@ export const deleteEndpointOperation = new RunpodOperationDescriptor({
  * @category constants
  * @since 0.1.0
  */
-export const updateEndpointViaPostOperation = new RunpodOperationDescriptor({
+export const updateEndpointViaPostOperation = RunpodOperationDescriptor.make({
   authenticated: true,
   method: "POST",
   methodName: "updateEndpointViaPost",
@@ -2307,7 +2307,7 @@ export const updateEndpointViaPostOperation = new RunpodOperationDescriptor({
  * @category constants
  * @since 0.1.0
  */
-export const listTemplatesOperation = new RunpodOperationDescriptor({
+export const listTemplatesOperation = RunpodOperationDescriptor.make({
   authenticated: true,
   method: "GET",
   methodName: "listTemplates",
@@ -2327,7 +2327,7 @@ export const listTemplatesOperation = new RunpodOperationDescriptor({
  * @category constants
  * @since 0.1.0
  */
-export const createTemplateOperation = new RunpodOperationDescriptor({
+export const createTemplateOperation = RunpodOperationDescriptor.make({
   authenticated: true,
   method: "POST",
   methodName: "createTemplate",
@@ -2347,7 +2347,7 @@ export const createTemplateOperation = new RunpodOperationDescriptor({
  * @category constants
  * @since 0.1.0
  */
-export const getTemplateOperation = new RunpodOperationDescriptor({
+export const getTemplateOperation = RunpodOperationDescriptor.make({
   authenticated: true,
   method: "GET",
   methodName: "getTemplate",
@@ -2367,7 +2367,7 @@ export const getTemplateOperation = new RunpodOperationDescriptor({
  * @category constants
  * @since 0.1.0
  */
-export const updateTemplateOperation = new RunpodOperationDescriptor({
+export const updateTemplateOperation = RunpodOperationDescriptor.make({
   authenticated: true,
   method: "PATCH",
   methodName: "updateTemplate",
@@ -2387,7 +2387,7 @@ export const updateTemplateOperation = new RunpodOperationDescriptor({
  * @category constants
  * @since 0.1.0
  */
-export const deleteTemplateOperation = new RunpodOperationDescriptor({
+export const deleteTemplateOperation = RunpodOperationDescriptor.make({
   authenticated: true,
   method: "DELETE",
   methodName: "deleteTemplate",
@@ -2407,7 +2407,7 @@ export const deleteTemplateOperation = new RunpodOperationDescriptor({
  * @category constants
  * @since 0.1.0
  */
-export const updateTemplateViaPostOperation = new RunpodOperationDescriptor({
+export const updateTemplateViaPostOperation = RunpodOperationDescriptor.make({
   authenticated: true,
   method: "POST",
   methodName: "updateTemplateViaPost",
@@ -2427,7 +2427,7 @@ export const updateTemplateViaPostOperation = new RunpodOperationDescriptor({
  * @category constants
  * @since 0.1.0
  */
-export const listNetworkVolumesOperation = new RunpodOperationDescriptor({
+export const listNetworkVolumesOperation = RunpodOperationDescriptor.make({
   authenticated: true,
   method: "GET",
   methodName: "listNetworkVolumes",
@@ -2447,7 +2447,7 @@ export const listNetworkVolumesOperation = new RunpodOperationDescriptor({
  * @category constants
  * @since 0.1.0
  */
-export const createNetworkVolumeOperation = new RunpodOperationDescriptor({
+export const createNetworkVolumeOperation = RunpodOperationDescriptor.make({
   authenticated: true,
   method: "POST",
   methodName: "createNetworkVolume",
@@ -2467,7 +2467,7 @@ export const createNetworkVolumeOperation = new RunpodOperationDescriptor({
  * @category constants
  * @since 0.1.0
  */
-export const getNetworkVolumeOperation = new RunpodOperationDescriptor({
+export const getNetworkVolumeOperation = RunpodOperationDescriptor.make({
   authenticated: true,
   method: "GET",
   methodName: "getNetworkVolume",
@@ -2487,7 +2487,7 @@ export const getNetworkVolumeOperation = new RunpodOperationDescriptor({
  * @category constants
  * @since 0.1.0
  */
-export const updateNetworkVolumeOperation = new RunpodOperationDescriptor({
+export const updateNetworkVolumeOperation = RunpodOperationDescriptor.make({
   authenticated: true,
   method: "PATCH",
   methodName: "updateNetworkVolume",
@@ -2507,7 +2507,7 @@ export const updateNetworkVolumeOperation = new RunpodOperationDescriptor({
  * @category constants
  * @since 0.1.0
  */
-export const deleteNetworkVolumeOperation = new RunpodOperationDescriptor({
+export const deleteNetworkVolumeOperation = RunpodOperationDescriptor.make({
   authenticated: true,
   method: "DELETE",
   methodName: "deleteNetworkVolume",
@@ -2527,7 +2527,7 @@ export const deleteNetworkVolumeOperation = new RunpodOperationDescriptor({
  * @category constants
  * @since 0.1.0
  */
-export const updateNetworkVolumeViaPostOperation = new RunpodOperationDescriptor({
+export const updateNetworkVolumeViaPostOperation = RunpodOperationDescriptor.make({
   authenticated: true,
   method: "POST",
   methodName: "updateNetworkVolumeViaPost",
@@ -2547,7 +2547,7 @@ export const updateNetworkVolumeViaPostOperation = new RunpodOperationDescriptor
  * @category constants
  * @since 0.1.0
  */
-export const listContainerRegistryAuthsOperation = new RunpodOperationDescriptor({
+export const listContainerRegistryAuthsOperation = RunpodOperationDescriptor.make({
   authenticated: true,
   method: "GET",
   methodName: "listContainerRegistryAuths",
@@ -2567,7 +2567,7 @@ export const listContainerRegistryAuthsOperation = new RunpodOperationDescriptor
  * @category constants
  * @since 0.1.0
  */
-export const createContainerRegistryAuthOperation = new RunpodOperationDescriptor({
+export const createContainerRegistryAuthOperation = RunpodOperationDescriptor.make({
   authenticated: true,
   method: "POST",
   methodName: "createContainerRegistryAuth",
@@ -2587,7 +2587,7 @@ export const createContainerRegistryAuthOperation = new RunpodOperationDescripto
  * @category constants
  * @since 0.1.0
  */
-export const getContainerRegistryAuthOperation = new RunpodOperationDescriptor({
+export const getContainerRegistryAuthOperation = RunpodOperationDescriptor.make({
   authenticated: true,
   method: "GET",
   methodName: "getContainerRegistryAuth",
@@ -2607,7 +2607,7 @@ export const getContainerRegistryAuthOperation = new RunpodOperationDescriptor({
  * @category constants
  * @since 0.1.0
  */
-export const deleteContainerRegistryAuthOperation = new RunpodOperationDescriptor({
+export const deleteContainerRegistryAuthOperation = RunpodOperationDescriptor.make({
   authenticated: true,
   method: "DELETE",
   methodName: "deleteContainerRegistryAuth",
@@ -2627,7 +2627,7 @@ export const deleteContainerRegistryAuthOperation = new RunpodOperationDescripto
  * @category constants
  * @since 0.1.0
  */
-export const podBillingOperation = new RunpodOperationDescriptor({
+export const podBillingOperation = RunpodOperationDescriptor.make({
   authenticated: true,
   method: "GET",
   methodName: "podBilling",
@@ -2647,7 +2647,7 @@ export const podBillingOperation = new RunpodOperationDescriptor({
  * @category constants
  * @since 0.1.0
  */
-export const endpointBillingOperation = new RunpodOperationDescriptor({
+export const endpointBillingOperation = RunpodOperationDescriptor.make({
   authenticated: true,
   method: "GET",
   methodName: "endpointBilling",
@@ -2677,7 +2677,7 @@ export const endpointBillingOperation = new RunpodOperationDescriptor({
  * @category constants
  * @since 0.1.0
  */
-export const networkVolumeBillingOperation = new RunpodOperationDescriptor({
+export const networkVolumeBillingOperation = RunpodOperationDescriptor.make({
   authenticated: true,
   method: "GET",
   methodName: "networkVolumeBilling",

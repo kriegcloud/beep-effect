@@ -41,7 +41,7 @@ const decodeOnePasswordReference = S.decodeUnknownEffect(OnePasswordReference);
 
 const onePasswordRunner = () =>
   Effect.succeed(
-    new OnePasswordCliProcessResult({
+    OnePasswordCliProcessResult.make({
       exitCode: 0,
       stderr: "",
       stdout: "raw-secret-value",
@@ -50,7 +50,7 @@ const onePasswordRunner = () =>
 
 const providerRunner = (provider: AiProviderCliProvider) =>
   Effect.succeed(
-    new AiProviderCliProcessResult({
+    AiProviderCliProcessResult.make({
       exitCode: 0,
       stderr: "",
       stdout: `${provider}-raw-provider-status-output`,
@@ -74,7 +74,7 @@ const TestHttpClientLayer = Layer.succeed(
 const DriverLayer = Layer.mergeAll(
   OnePasswordCli.makeLayerFromRunner(onePasswordRunner),
   AiProviderCli.makeLayerFromRunner(providerRunner),
-  Discord.makeLayer(new DiscordConfigInput({ baseUrl: "https://discord.example.test/api/v10" })).pipe(
+  Discord.makeLayer(DiscordConfigInput.make({ baseUrl: "https://discord.example.test/api/v10" })).pipe(
     Layer.provide(TestHttpClientLayer)
   )
 );
@@ -82,9 +82,9 @@ const DriverLayer = Layer.mergeAll(
 const TestDependenciesLayer = Layer.succeed(
   HostDependencyUseCases,
   HostDependencyUseCases.of({
-    previewHostDependencies: Effect.succeed(new HostDependencyPlan({ dependencies: [], notes: ["test"], verbs: [] })),
+    previewHostDependencies: Effect.succeed(HostDependencyPlan.make({ dependencies: [], notes: ["test"], verbs: [] })),
     validateRequiredCommands: Effect.succeed([
-      new HostDependencyValidationResult({
+      HostDependencyValidationResult.make({
         dependency: {
           detectedVersion: O.some("1.0.0"),
           id: "bun",
@@ -118,7 +118,7 @@ describe("P1 Manual Mode proof harness", () => {
       Effect.gen(function* () {
         const discordBotTokenReference = yield* decodeOnePasswordReference("op://Private/Discord Bot/token");
         const result = yield* runP1ManualProof(
-          new P1ManualProofRequest({
+          P1ManualProofRequest.make({
             discordBotTokenReference,
             discordChannelDisplayName: "proof-channel",
             discordChannelId: "channel-1",
@@ -143,7 +143,7 @@ describe("P1 Manual Mode proof harness", () => {
       Effect.gen(function* () {
         const discordBotTokenReference = yield* decodeOnePasswordReference("op://Private/Discord Bot/token");
         const result = yield* previewP1ManualProof(
-          new P1ManualProofRequest({
+          P1ManualProofRequest.make({
             discordBotTokenReference,
             discordChannelDisplayName: "proof-channel",
             discordChannelId: "channel-1",
@@ -173,7 +173,7 @@ describe("P1 Manual Mode proof harness", () => {
         const discordBotTokenReference = yield* decodeOnePasswordReference("op://Private/Other Discord Bot/token");
         const exit = yield* Effect.exit(
           runP1ManualProof(
-            new P1ManualProofRequest({
+            P1ManualProofRequest.make({
               discordBotTokenReference,
               discordChannelDisplayName: "proof-channel",
               discordChannelId: "channel-1",
@@ -193,7 +193,7 @@ describe("P1 Manual Mode proof harness", () => {
       Effect.gen(function* () {
         const discordBotTokenReference = yield* decodeOnePasswordReference("op://Private/Discord Bot/token");
         const commands = buildP1ProofCommandsText(
-          new P1ManualProofRequest({
+          P1ManualProofRequest.make({
             discordBotTokenReference,
             discordChannelDisplayName: "proof-channel",
             discordChannelId: "channel-1",
@@ -222,7 +222,7 @@ describe("P1 Manual Mode proof harness", () => {
       Effect.gen(function* () {
         const discordBotTokenReference = yield* decodeOnePasswordReference("op://Private/Discord Bot/token");
         const commands = buildP1ProofCommandsText(
-          new P1ManualProofRequest({
+          P1ManualProofRequest.make({
             discordBotTokenReference,
             discordChannelDisplayName: "proof-channel",
             discordChannelId: "channel-1",

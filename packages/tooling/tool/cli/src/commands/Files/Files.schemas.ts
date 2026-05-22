@@ -803,7 +803,7 @@ export type SafeFilePrefix = typeof SafeFilePrefix.Type;
  * ```ts
  * import { SortableFile } from "@beep/repo-cli/commands/Files/index"
  *
- * const file = new SortableFile({
+ * const file = SortableFile.make({
  *   canonicalPath: "/tmp/images/a.png",
  *   extension: ".png",
  *   name: "a.png",
@@ -881,7 +881,7 @@ export class SortAndRenameSummary extends S.Class<SortAndRenameSummary>($I`SortA
  * ```ts
  * import { StripMetadataPlanEntry } from "@beep/repo-cli/commands/Files/index"
  *
- * const entry = new StripMetadataPlanEntry({
+ * const entry = StripMetadataPlanEntry.make({
  *   extension: ".jpg",
  *   mediaKind: "image",
  *   size: 10n,
@@ -934,7 +934,7 @@ export class StripMetadataSummary extends S.Class<StripMetadataSummary>($I`Strip
  * ```ts
  * import { MediaDimensions } from "@beep/repo-cli/commands/Files/index"
  *
- * const dimensions = new MediaDimensions({ height: 1024, width: 1536 })
+ * const dimensions = MediaDimensions.make({ height: 1024, width: 1536 })
  * void dimensions.width
  * ```
  * @category models

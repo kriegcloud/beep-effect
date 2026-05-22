@@ -69,7 +69,7 @@ const makeDocumentError = (
   message: string,
   subject?: string
 ): JsonLdDocumentError =>
-  new JsonLdDocumentError({
+  JsonLdDocumentError.make({
     reason,
     message,
     subject: subject === undefined ? O.none() : O.some(subject),

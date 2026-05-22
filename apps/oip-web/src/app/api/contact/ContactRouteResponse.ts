@@ -15,7 +15,7 @@ import { ContactSubmissionResponse, contactResponseBody, submitContact } from ".
 
 type SubmitContact = (payload: unknown) => Effect.Effect<ContactSubmissionResponse>;
 
-const rejected = new ContactSubmissionResponse({
+const rejected = ContactSubmissionResponse.make({
   message: "The submission could not be accepted.",
   status: "rejected",
 });

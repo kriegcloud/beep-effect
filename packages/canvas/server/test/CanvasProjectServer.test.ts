@@ -19,7 +19,7 @@ describe("CanvasProject server", () => {
     "redacts unavailable details from HTTP failure bodies",
     Effect.fnUntraced(function* () {
       const id = yield* decodeCanvasProjectId("canvas-project-1");
-      const unavailable = new CanvasProjectUseCases.CanvasProjectActionFailed({
+      const unavailable = CanvasProjectUseCases.CanvasProjectActionFailed.make({
         reason: "select CanvasProject failed against canvas_project",
       });
       const failUnavailable = () => Effect.fail(unavailable);
@@ -30,9 +30,10 @@ describe("CanvasProject server", () => {
         get: failUnavailable,
         list: failUnavailable,
         removeNode: failUnavailable,
+        restore: failUnavailable,
       });
 
-      const response = yield* handlers.get(new CanvasProjectUseCases.GetCanvasProjectQuery({ id }));
+      const response = yield* handlers.get(CanvasProjectUseCases.GetCanvasProjectQuery.make({ id }));
       const body = response.body as CanvasProjectUseCases.CanvasProjectActionFailed;
 
       expect(response.status).toBe(503);
@@ -49,15 +50,15 @@ describe("CanvasProject server", () => {
       const id = yield* decodeCanvasProjectId("canvas-project-1");
       const nodeId = yield* decodeCanvasNodeId("node-1");
       const canvasProject = yield* server.create(
-        new CanvasProjectUseCases.CreateCanvasProjectCommand({
+        CanvasProjectUseCases.CreateCanvasProjectCommand.make({
           id,
           title: "Document topology",
         })
       );
       const withNode = yield* server.addNode(
-        new CanvasProjectUseCases.AddCanvasNodeCommand({
+        CanvasProjectUseCases.AddCanvasNodeCommand.make({
           id: canvasProject.id,
-          node: new DomainCanvasProject.CanvasNode({
+          node: DomainCanvasProject.CanvasNode.make({
             id: nodeId,
             kind: "note",
             label: "Opening note",

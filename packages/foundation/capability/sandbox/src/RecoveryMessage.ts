@@ -47,7 +47,7 @@ export type FailedStep = typeof FailedStep.Type;
  * ```ts
  * import { RecoveryInput } from "@beep/sandbox"
  *
- * const input = new RecoveryInput({
+ * const input = RecoveryInput.make({
  *   failedStep: "diff",
  *   hasCommits: true,
  *   hasDiff: true,
@@ -141,7 +141,7 @@ const formatCommandBlock = (commands: ReadonlyArray<string>): string =>
  * ```ts
  * import { buildRecoveryMessage, RecoveryInput } from "@beep/sandbox"
  *
- * const message = buildRecoveryMessage(new RecoveryInput({
+ * const message = buildRecoveryMessage(RecoveryInput.make({
  *   failedStep: "commits",
  *   hasCommits: true,
  *   hasDiff: true,

@@ -74,7 +74,7 @@ export const toWorkItemInsert = (workItem: DomainWorkItem.WorkItem): WorkItemIns
  * @since 0.0.0
  */
 export const fromWorkItemRow = (row: WorkItemRow): DomainWorkItem.WorkItem =>
-  new DomainWorkItem.WorkItem({
+  DomainWorkItem.WorkItem.make({
     id: row.id,
     title: row.title,
     status: row.status,

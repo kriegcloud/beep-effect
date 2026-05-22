@@ -568,7 +568,6 @@
       "@beep/konva": ["./packages/drivers/konva/src/index.ts"],
       "@beep/konva/*": ["./packages/drivers/konva/src/*"],
       "@beep/canvas": ["./apps/canvas/src/index.ts"],
-      "@beep/canvas/*": ["./apps/canvas/src/*"],
       "@beep/canvas-client": ["./packages/canvas/client/src/index.ts"],
       "@beep/canvas-domain": ["./packages/canvas/domain/src/index.ts"],
       "@beep/canvas-server": ["./packages/canvas/server/src/index.ts"],

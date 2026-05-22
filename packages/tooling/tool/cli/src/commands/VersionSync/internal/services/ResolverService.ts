@@ -27,7 +27,6 @@ import { buildNodeReport, resolveNodeVersions } from "../resolvers/NodeResolver.
 import { CategorySelectionService } from "./CategorySelectionService.js";
 
 const $I = $RepoCliId.create("commands/VersionSync/internal/services/ResolverService");
-const stringEquivalence = Str.equivalence;
 const versionCategoryStatusEquivalence = S.toEquivalence(VersionCategoryStatus);
 
 type ResolverEnvironment = FileSystem.FileSystem | Path.Path | HttpClient.HttpClient | CategorySelectionService;
@@ -64,7 +63,7 @@ const resolve: ResolverServiceShape["resolve"] = Effect.fn(function* (repoRoot, 
         "VersionSyncError",
         Effect.fn(function* (error) {
           yield* Effect.logWarning(`Bun resolution failed: ${error.message}`);
-          return new BunVersionState({});
+          return BunVersionState.make({});
         })
       )
     );
@@ -79,9 +78,9 @@ const resolve: ResolverServiceShape["resolve"] = Effect.fn(function* (repoRoot, 
     categories = A.append(categories, buildNodeReport(nodeState));
 
     nodeLocations = A.map(
-      A.filter(nodeState.workflowLocations, (location) => !stringEquivalence(location.currentValue, nodeState.nvmrc)),
+      A.filter(nodeState.workflowLocations, (location) => !Str.equivalence(location.currentValue, nodeState.nvmrc)),
       (location) =>
-        new VersionSyncUpdateLocation({
+        VersionSyncUpdateLocation.make({
           file: location.file,
           yamlPath: location.yamlPath,
         })
@@ -94,7 +93,7 @@ const resolve: ResolverServiceShape["resolve"] = Effect.fn(function* (repoRoot, 
         "VersionSyncError",
         Effect.fn(function* (error) {
           yield* Effect.logWarning(`Docker resolution failed: ${error.message}`);
-          return new DockerImageState({});
+          return DockerImageState.make({});
         })
       )
     );
@@ -108,7 +107,7 @@ const resolve: ResolverServiceShape["resolve"] = Effect.fn(function* (repoRoot, 
         "VersionSyncError",
         Effect.fn(function* (error) {
           yield* Effect.logWarning(`Biome schema resolution failed: ${error.message}`);
-          return new BiomeSchemaState({});
+          return BiomeSchemaState.make({});
         })
       )
     );
@@ -124,7 +123,7 @@ const resolve: ResolverServiceShape["resolve"] = Effect.fn(function* (repoRoot, 
         "VersionSyncError",
         Effect.fn(function* (error) {
           yield* Effect.logWarning(`Effect catalog resolution failed: ${error.message}`);
-          return new EffectCatalogState({});
+          return EffectCatalogState.make({});
         })
       )
     );
@@ -132,12 +131,12 @@ const resolve: ResolverServiceShape["resolve"] = Effect.fn(function* (repoRoot, 
     categories = A.append(categories, buildEffectReport(effectState));
   }
 
-  const report = new VersionSyncReport({
+  const report = VersionSyncReport.make({
     categories,
     hasDrift: A.some(categories, (category) => !versionCategoryStatusEquivalence(category.status, "ok")),
   });
 
-  return new VersionSyncResolution({
+  return VersionSyncResolution.make({
     report,
     nodeLocations,
   });

@@ -351,7 +351,7 @@ const countFromRow = (row: Record<string, unknown> | undefined): number => {
 const encodeJson = S.encodeUnknownEffect(S.UnknownFromJsonString);
 
 const mirrorFailure = (message: string, cause: unknown): AiMetricsMirrorError =>
-  new AiMetricsMirrorError({ cause, message });
+  AiMetricsMirrorError.make({ cause, message });
 
 /**
  * Error raised by the P7 AI metrics mirror bundle workflow.
@@ -367,7 +367,7 @@ const mirrorFailure = (message: string, cause: unknown): AiMetricsMirrorError =>
 export class AiMetricsMirrorError extends TaggedErrorClass<AiMetricsMirrorError>($I`AiMetricsMirrorError`)(
   "AiMetricsMirrorError",
   {
-    cause: S.Unknown,
+    cause: S.DefectWithStack,
     message: S.String,
   },
   $I.annote("AiMetricsMirrorError", {
@@ -393,7 +393,7 @@ const decodeLatestPointer = S.decodeUnknownEffect(S.fromJsonString(AiMetricsMirr
  * @example
  * ```ts
  * import { AiMetricsMirrorBundleInput } from "@beep/repo-ai-metrics"
- * console.log(new AiMetricsMirrorBundleInput({}).remoteRoot)
+ * console.log(AiMetricsMirrorBundleInput.make({}).remoteRoot)
  * ```
  * @category models
  * @since 0.0.0
@@ -585,7 +585,7 @@ const privacyProofFor = (
     A.map((token) => token.label)
   );
 
-  return new AiMetricsMirrorPrivacyProof({
+  return AiMetricsMirrorPrivacyProof.make({
     checkedTokens: A.map(checkedTokens, (token) => token.label),
     forbiddenMatches,
     omittedTables: A.fromIterable(omittedMirrorTables),
@@ -611,11 +611,11 @@ const buildMirrorTables = Effect.fn("AiMetrics.buildMirrorTables")(function* ({
     const rows = yield* duckdb.query(`SELECT count(*) AS count FROM ${projection.targetTable}`);
     const parquetPath = path.join(parquetDir, `${projection.targetTable}.parquet`);
     yield* duckdb.copyTableToParquet(
-      new DuckDbParquetExport({ filePath: parquetPath, tableName: projection.targetTable })
+      DuckDbParquetExport.make({ filePath: parquetPath, tableName: projection.targetTable })
     );
     exports = A.append(
       exports,
-      new AiMetricsMirrorTableExport({
+      AiMetricsMirrorTableExport.make({
         parquetPath,
         rowCount: countFromRow(rows[0]),
         tableName: projection.targetTable,
@@ -685,7 +685,7 @@ export const buildAiMetricsMirrorBundle = Effect.fn("AiMetrics.buildAiMetricsMir
     .pipe(Effect.mapError((cause) => mirrorFailure("Failed to create AI metrics mirror working directory.", cause)));
 
   const tables = yield* Effect.scoped(
-    Layer.build(DuckDb.makeNodeLayer(new DuckDbConnectionOptions({ databasePath: mirrorDuckDbPath }))).pipe(
+    Layer.build(DuckDb.makeNodeLayer(DuckDbConnectionOptions.make({ databasePath: mirrorDuckDbPath }))).pipe(
       Effect.flatMap((context) => buildMirrorTables({ parquetDir, sourceDuckDbPath }).pipe(Effect.provide(context)))
     )
   ).pipe(Effect.mapError((cause) => mirrorFailure("Failed to build AI metrics mirror tables.", cause)));
@@ -731,7 +731,7 @@ export const buildAiMetricsMirrorBundle = Effect.fn("AiMetrics.buildAiMetricsMir
     Effect.mapError((cause) => mirrorFailure("Failed to encode AI metrics mirror manifest probe JSON.", cause))
   );
   const privacyProof = privacyProofFor(`${statusJson}\n${manifestBaseJson}`, forbiddenLocalTokens);
-  const manifest = new AiMetricsMirrorBundleManifest({
+  const manifest = AiMetricsMirrorBundleManifest.make({
     ...manifestBase,
     privacyProof,
   });
@@ -761,7 +761,7 @@ export const buildAiMetricsMirrorBundle = Effect.fn("AiMetrics.buildAiMetricsMir
     .remove(mirrorWorkDir, { force: true, recursive: true })
     .pipe(Effect.mapError((cause) => mirrorFailure("Failed to clean up AI metrics mirror working directory.", cause)));
 
-  return new AiMetricsMirrorBundleResult({
+  return AiMetricsMirrorBundleResult.make({
     bundleDir,
     bundleId,
     manifest,

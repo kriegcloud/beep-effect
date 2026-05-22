@@ -1194,6 +1194,14 @@
       "reason": "S.Struct with non-identifier or spread keys stays tracked as an exception."
     },
     {
+      "file": "packages/foundation/modeling/utils/src/Errors.ts",
+      "symbol": "ErrorMapper",
+      "kind": "exported-type-literal",
+      "status": "exception",
+      "owner": "@beep/utils",
+      "reason": "Generic type alias requires manual modeling and is tracked as an exception."
+    },
+    {
       "file": "packages/foundation/modeling/utils/src/Event.ts",
       "symbol": "makeEventSchema",
       "kind": "object-struct-schema",

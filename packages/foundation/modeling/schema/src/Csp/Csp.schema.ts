@@ -515,7 +515,7 @@ const createContentSecurityPolicyValue = (
   Effect.try({
     try: () => createContentSecurityPolicyOptionHeaderValue(option),
     catch: (cause) =>
-      new CspError({
+      CspError.make({
         message: P.isError(cause) ? cause.message : `Invalid value for ${headerName}`,
         cause: O.none(),
       }),
@@ -601,12 +601,11 @@ export const ContentSecurityPolicyHeader = S.Union([ContentSecurityPolicyOption,
       }
 
       const decodedOption = yield* S.decodeUnknownEffect(ContentSecurityPolicyOptionStruct)(option).pipe(
-        Effect.mapError(
-          (cause) =>
-            new CspError({
-              message: cause.message,
-              cause: O.none(),
-            })
+        Effect.mapError((cause) =>
+          CspError.make({
+            message: cause.message,
+            cause: O.none(),
+          })
         )
       );
 
@@ -626,13 +625,11 @@ export const ContentSecurityPolicyHeader = S.Union([ContentSecurityPolicyOption,
 
       const value = yield* headerValueCreator(option);
 
-      return O.map(
-        value,
-        (headerValue) =>
-          new internal.ResponseHeader({
-            name: getProperHeaderName(Boolean(option.reportOnly)),
-            value: O.some(headerValue),
-          })
+      return O.map(value, (headerValue) =>
+        internal.ResponseHeader.make({
+          name: getProperHeaderName(Boolean(option.reportOnly)),
+          value: O.some(headerValue),
+        })
       );
     });
 

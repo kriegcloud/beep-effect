@@ -128,7 +128,7 @@ export class SandboxInitProviderEntry extends S.Class<SandboxInitProviderEntry>(
  * ```ts
  * import { InitSandboxOptions } from "@beep/sandbox"
  *
- * const options = new InitSandboxOptions({ repoDir: process.cwd() })
+ * const options = InitSandboxOptions.make({ repoDir: process.cwd() })
  * console.log(options.templateName)
  * ```
  *
@@ -156,7 +156,7 @@ export class InitSandboxOptions extends S.Class<InitSandboxOptions>($I`InitSandb
  * ```ts
  * import { InitSandboxResult } from "@beep/sandbox"
  *
- * const result = new InitSandboxResult({
+ * const result = InitSandboxResult.make({
  *   configDir: "/repo/.sandcastle",
  *   imageName: "beep-sandbox:repo",
  *   mainFilename: "main.ts",
@@ -220,7 +220,7 @@ const opencodeInstall = `RUN npm install -g opencode-ai@latest`;
 const piInstall = `RUN npm install -g @mariozechner/pi-coding-agent`;
 
 const sandboxAgents: ReadonlyArray<SandboxAgentEntry> = [
-  new SandboxAgentEntry({
+  SandboxAgentEntry.make({
     defaultModel: "claude-opus-4-6",
     dockerfileInstall: claudeCodeInstall,
     envExample: "# Anthropic API key\nANTHROPIC_API_KEY=",
@@ -228,7 +228,7 @@ const sandboxAgents: ReadonlyArray<SandboxAgentEntry> = [
     label: "Claude Code",
     name: "claude-code",
   }),
-  new SandboxAgentEntry({
+  SandboxAgentEntry.make({
     defaultModel: "gpt-5.4-mini",
     dockerfileInstall: codexInstall,
     envExample: "# OpenAI API key\nOPENAI_API_KEY=",
@@ -236,7 +236,7 @@ const sandboxAgents: ReadonlyArray<SandboxAgentEntry> = [
     label: "Codex",
     name: "codex",
   }),
-  new SandboxAgentEntry({
+  SandboxAgentEntry.make({
     defaultModel: "opencode/big-pickle",
     dockerfileInstall: opencodeInstall,
     envExample: "# OpenCode API key\nOPENCODE_API_KEY=",
@@ -244,7 +244,7 @@ const sandboxAgents: ReadonlyArray<SandboxAgentEntry> = [
     label: "OpenCode",
     name: "opencode",
   }),
-  new SandboxAgentEntry({
+  SandboxAgentEntry.make({
     defaultModel: "claude-sonnet-4-6",
     dockerfileInstall: piInstall,
     envExample: "# Anthropic API key\nANTHROPIC_API_KEY=",
@@ -255,13 +255,13 @@ const sandboxAgents: ReadonlyArray<SandboxAgentEntry> = [
 ];
 
 const sandboxInitProviders: ReadonlyArray<SandboxInitProviderEntry> = [
-  new SandboxInitProviderEntry({
+  SandboxInitProviderEntry.make({
     containerfileName: "Dockerfile",
     factoryImport: "docker",
     label: "Docker",
     name: "docker",
   }),
-  new SandboxInitProviderEntry({
+  SandboxInitProviderEntry.make({
     containerfileName: "Containerfile",
     factoryImport: "podman",
     label: "Podman",
@@ -295,7 +295,7 @@ const detectMainFilename = Effect.fn("Init.detectMainFilename")(function* (repoD
 
   const packageJson = yield* fs.readFileString(packageJsonPath).pipe(
     Effect.flatMap(decodePackageJsonModuleType),
-    Effect.orElseSucceed(() => new PackageJsonModuleType({}))
+    Effect.orElseSucceed(() => PackageJsonModuleType.make({}))
   );
 
   return packageJson.type === "module" ? "main.ts" : "main.mts";
@@ -454,7 +454,7 @@ export const ensureSandboxConfigDir: (
  * ```ts
  * import { initSandbox, InitSandboxOptions } from "@beep/sandbox"
  *
- * const program = initSandbox(new InitSandboxOptions({ repoDir: process.cwd() }))
+ * const program = initSandbox(InitSandboxOptions.make({ repoDir: process.cwd() }))
  * console.log(program)
  * ```
  *
@@ -483,7 +483,7 @@ export const initSandbox: (
     const imageName = options.imageName ?? defaultSandboxImageName(options.repoDir);
     const model = options.model ?? agent.defaultModel;
     const renderedFiles = yield* renderSandboxTemplateFiles(
-      new SandboxTemplateRenderContext({
+      SandboxTemplateRenderContext.make({
         agentFactory: agent.factoryImport,
         agentModel: model,
         imageName,
@@ -494,12 +494,11 @@ export const initSandbox: (
     );
 
     yield* fs.makeDirectory(configDir, { recursive: false }).pipe(
-      Effect.mapError(
-        (cause) =>
-          new InitError({
-            cause,
-            message: `Failed to create ${SANDBOX_CONFIG_DIR}/.`,
-          })
+      Effect.mapError((cause) =>
+        InitError.make({
+          cause,
+          message: `Failed to create ${SANDBOX_CONFIG_DIR}/.`,
+        })
       )
     );
 
@@ -521,18 +520,17 @@ export const initSandbox: (
       ],
       (file) =>
         fs.writeFileString(path.join(configDir, file.path), file.content).pipe(
-          Effect.mapError(
-            (cause) =>
-              new InitError({
-                cause,
-                message: `Failed to write ${SANDBOX_CONFIG_DIR}/${file.path}.`,
-              })
+          Effect.mapError((cause) =>
+            InitError.make({
+              cause,
+              message: `Failed to write ${SANDBOX_CONFIG_DIR}/${file.path}.`,
+            })
           )
         ),
       { discard: true }
     );
 
-    return new InitSandboxResult({
+    return InitSandboxResult.make({
       configDir,
       imageName,
       mainFilename,

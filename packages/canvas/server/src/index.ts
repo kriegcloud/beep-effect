@@ -19,7 +19,7 @@
  * @category handlers
  * @since 0.0.0
  */
-export const VERSION = "0.0.0" as const;
+export const VERSION = "0.0.1" as const;
 
 /**
  * Direct CanvasProject server namespace export.

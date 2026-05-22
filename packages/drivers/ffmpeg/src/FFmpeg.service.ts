@@ -162,7 +162,7 @@ class TempFrame extends S.Class<TempFrame>($I`TempFrame`)(
  * ```ts
  * import { PlannedFrameCommit } from "@beep/ffmpeg"
  *
- * const commit = new PlannedFrameCommit({
+ * const commit = PlannedFrameCommit.make({
  *   fileName: "frame-000001.png",
  *   index: 1,
  *   relativePath: "frame-000001.png",
@@ -195,7 +195,7 @@ export class PlannedFrameCommit extends S.Class<PlannedFrameCommit>($I`PlannedFr
  * ```ts
  * import { ProgressState } from "@beep/ffmpeg"
  *
- * const state = new ProgressState({
+ * const state = ProgressState.make({
  *   block: { frame: "1", progress: "continue" },
  *   buffer: "",
  *   stdout: "frame=1\nprogress=continue\n"
@@ -218,7 +218,7 @@ export class ProgressState extends S.Class<ProgressState>($I`ProgressState`)(
 ) {}
 
 const defaultConfig = (input?: FFmpegConfigInput | undefined): FFmpegConfig =>
-  new FFmpegConfig({
+  FFmpegConfig.make({
     ffmpegPath: input?.ffmpegPath ?? "ffmpeg",
     ffprobePath: input?.ffprobePath ?? "ffprobe",
     forceKillAfterMillis: input?.forceKillAfterMillis ?? 2000,
@@ -294,7 +294,7 @@ const probeFromOutput = (videoPath: string, output: FfprobeOutput): VideoProbe =
     optionToOptional
   );
 
-  return new VideoProbe({
+  return VideoProbe.make({
     videoPath,
     ...maybe("durationSeconds", durationSeconds),
     ...maybe("fps", fps),
@@ -340,7 +340,7 @@ export const formatFrameFileName = (options: {
  * ```ts
  * import { buildFfprobeArgs, ProbeVideoRequest } from "@beep/ffmpeg"
  *
- * const args = buildFfprobeArgs(new ProbeVideoRequest({ videoPath: "./clip.mp4" }))
+ * const args = buildFfprobeArgs(ProbeVideoRequest.make({ videoPath: "./clip.mp4" }))
  * void args
  * ```
  *
@@ -437,7 +437,7 @@ const parseProgressEvent = (
   const percent = expected <= 0 ? 0 : Math.min(100, Math.max(0, (frameCount.value / expected) * 100));
 
   return O.some(
-    new FFmpegProgressEvent({
+    FFmpegProgressEvent.make({
       frameCount: frameCount.value,
       kind: "progress",
       percent,
@@ -562,7 +562,7 @@ const ensureFile = Effect.fn("FFmpeg.ensureFile")(function* (
       )
     );
   if (stat.type !== "File") {
-    return yield* new FFmpegError({
+    return yield* FFmpegError.make({
       message: `Expected ${label} to be a file: "${filePath}"`,
       operation: "extractFrames",
     });
@@ -600,7 +600,7 @@ const ensureDirectory = Effect.fn("FFmpeg.ensureDirectory")(function* (
       )
     );
   if (stat.type !== "Directory") {
-    return yield* new FFmpegError({
+    return yield* FFmpegError.make({
       message: `Expected ${label} to be a directory: "${dirPath}"`,
       operation: "extractFrames",
     });
@@ -621,7 +621,7 @@ const preflightWritable = Effect.fn("FFmpeg.preflightWritable")(function* (
       )
     );
   if (exists && !overwrite) {
-    return yield* new FFmpegError({
+    return yield* FFmpegError.make({
       message: `Refusing to overwrite existing ${label}: "${filePath}"`,
       operation: "extractFrames",
     });
@@ -706,7 +706,7 @@ const readTempFrames = Effect.fn("FFmpeg.readTempFrames")(function* (
   );
 
   if (A.length(frames) === 0) {
-    return yield* new FFmpegError({
+    return yield* FFmpegError.make({
       message: "ffmpeg completed without producing any PNG frames.",
       operation: "extractFrames",
     });
@@ -716,10 +716,10 @@ const readTempFrames = Effect.fn("FFmpeg.readTempFrames")(function* (
 });
 
 const makeManifest = (context: ExtractContext, frames: ReadonlyArray<ExtractedFrame>): ExtractFramesManifest =>
-  new ExtractFramesManifest({
+  ExtractFramesManifest.make({
     frames,
     manifestPath: context.manifestPath,
-    options: new ExtractFramesManifestOptions({
+    options: ExtractFramesManifestOptions.make({
       fps: context.request.fps,
       overwrite: context.request.overwrite,
       prefix: context.prefix,
@@ -728,7 +728,7 @@ const makeManifest = (context: ExtractContext, frames: ReadonlyArray<ExtractedFr
     probe: context.probe,
     schemaVersion: "beep.ffmpeg.extract-frames.v1",
     sourceVideo: context.videoPath,
-    summary: new ExtractFramesManifestSummary({
+    summary: ExtractFramesManifestSummary.make({
       frameCount: A.length(frames),
     }),
   });
@@ -794,7 +794,7 @@ const commitFrames = Effect.fn("FFmpeg.commitFrames")(function* (
       );
     committed = A.append(
       committed,
-      new ExtractedFrame({
+      ExtractedFrame.make({
         fileName: frame.fileName,
         index: frame.index,
         path: frame.targetPath,
@@ -839,7 +839,7 @@ const makeService = Effect.fn("FFmpeg.make")(function* (configInput?: FFmpegConf
     );
     const videoPath = path.resolve(request.videoPath);
     yield* ensureFile(fs, videoPath, "video input");
-    const args = buildFfprobeArgs(new ProbeVideoRequest({ videoPath }));
+    const args = buildFfprobeArgs(ProbeVideoRequest.make({ videoPath }));
     const command = ChildProcess.make(config.ffprobePath, args, {
       forceKillAfter: `${config.forceKillAfterMillis} millis`,
       stdin: "ignore",
@@ -854,7 +854,7 @@ const makeService = Effect.fn("FFmpeg.make")(function* (configInput?: FFmpegConf
     );
 
     if (result.exitCode !== 0) {
-      return yield* new FFmpegError({
+      return yield* FFmpegError.make({
         command: config.ffprobePath,
         exitCode: result.exitCode,
         message: `ffprobe could not read video metadata for "${videoPath}".`,
@@ -897,8 +897,12 @@ const makeService = Effect.fn("FFmpeg.make")(function* (configInput?: FFmpegConf
     yield* ensureDirectory(fs, path.dirname(manifestPath), "manifest directory");
     yield* preflightWritable(fs, manifestPath, request.overwrite, "manifest");
 
-    const probe = yield* probeVideo(new ProbeVideoRequest({ videoPath }));
-    const context = yield* makeExtractContext(path, new ExtractFramesRequest({ ...request, outDir, videoPath }), probe);
+    const probe = yield* probeVideo(ProbeVideoRequest.make({ videoPath }));
+    const context = yield* makeExtractContext(
+      path,
+      ExtractFramesRequest.make({ ...request, outDir, videoPath }),
+      probe
+    );
 
     return yield* Effect.acquireUseRelease(
       fs
@@ -928,7 +932,7 @@ const makeService = Effect.fn("FFmpeg.make")(function* (configInput?: FFmpegConf
 
         yield* emitEvent(
           onEvent,
-          new FFmpegStartedEvent({
+          FFmpegStartedEvent.make({
             args,
             command: config.ffmpegPath,
             kind: "started",
@@ -939,7 +943,7 @@ const makeService = Effect.fn("FFmpeg.make")(function* (configInput?: FFmpegConf
 
         const result = yield* runExtractProcess(spawner, command, context.expectedFrameCount, onEvent);
         if (result.exitCode !== 0) {
-          return yield* new FFmpegError({
+          return yield* FFmpegError.make({
             command: config.ffmpegPath,
             exitCode: result.exitCode,
             message: `ffmpeg could not extract frames for "${context.videoPath}".`,
@@ -951,7 +955,7 @@ const makeService = Effect.fn("FFmpeg.make")(function* (configInput?: FFmpegConf
 
         const tempFrames = yield* readTempFrames(fs, path, tempDir, context.prefix);
         const frames = yield* commitFrames(fs, path, context, tempDir, tempFrames).pipe(Effect.uninterruptible);
-        const resultValue = new ExtractFramesResult({
+        const resultValue = ExtractFramesResult.make({
           frameCount: A.length(frames),
           frames,
           manifestPath: context.manifestPath,
@@ -960,7 +964,7 @@ const makeService = Effect.fn("FFmpeg.make")(function* (configInput?: FFmpegConf
         });
         yield* emitEvent(
           onEvent,
-          new FFmpegCompletedEvent({
+          FFmpegCompletedEvent.make({
             frameCount: resultValue.frameCount,
             kind: "completed",
             manifestPath: resultValue.manifestPath,

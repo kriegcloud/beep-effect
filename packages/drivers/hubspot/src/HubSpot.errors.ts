@@ -106,7 +106,7 @@ export class HubSpotError extends TaggedErrorClass<HubSpotError>($I`HubSpotError
    * @since 0.0.0
    */
   static readonly fromReason = (reason: HubSpotErrorReason, options: HubSpotErrorOptions = {}): HubSpotError =>
-    new HubSpotError({
+    HubSpotError.make({
       reason,
       ...R.getSomes({
         cause: causeFromUnknown(options.cause),
@@ -133,7 +133,7 @@ export class HubSpotError extends TaggedErrorClass<HubSpotError>($I`HubSpotError
  * ```ts
  * import { HubSpotErrorOptions } from "@beep/hubspot"
  *
- * const options = new HubSpotErrorOptions({
+ * const options = HubSpotErrorOptions.make({
  *   formGuid: "form-guid",
  *   status: 429
  * })
@@ -146,7 +146,7 @@ export class HubSpotError extends TaggedErrorClass<HubSpotError>($I`HubSpotError
  */
 export class HubSpotErrorOptions extends S.Class<HubSpotErrorOptions>($I`HubSpotErrorOptions`)(
   {
-    cause: S.optionalKey(S.Unknown),
+    cause: S.optionalKey(S.DefectWithStack),
     email: S.optionalKey(S.String),
     formGuid: S.optionalKey(S.String),
     status: S.optionalKey(S.Number),

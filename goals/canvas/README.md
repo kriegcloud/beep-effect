@@ -1,8 +1,8 @@
-# @beep/canvas Initiative
+# @beep/canvas Goal
 
 ## Status
 
-**ACTIVE — P0 complete; P1 ready**
+**ACTIVE — P1/P2 complete; P3 ready**
 
 ## Owner
 
@@ -11,11 +11,11 @@
 ## Created / Updated
 
 - **Created:** 2026-05-16
-- **Updated:** 2026-05-19
+- **Updated:** 2026-05-21
 
 ## Purpose
 
-This initiative creates a canonical `@beep/canvas` Tauri desktop app slice and a minimal
+This goal creates a canonical `@beep/canvas` Tauri desktop app slice and a minimal
 scene-graph runtime that is aligned with:
 
 - `goals/canvas/PRD_REFERENCE.md`
@@ -29,7 +29,7 @@ verified, doctrine-safe minimal surface that can be evolved toward the PRD inven
 
 - [SPEC.md](./SPEC.md) — normative contract, scope, and architecture boundaries
 - [PLAN.md](./PLAN.md) — ordered implementation plan and phase gates
-- [ops/manifest.json](./ops/manifest.json) — machine-readable initiative metadata
+- [ops/manifest.json](./ops/manifest.json) — machine-readable goal metadata
 
 ## Packet Scope
 
@@ -50,7 +50,8 @@ verified, doctrine-safe minimal surface that can be evolved toward the PRD inven
 ## Current Plan Phase
 
 - P0: complete — package-level bootstrap and architecture repair
-- P1: ready — slice + Tauri shell bootstrapping in repo
-- P2: blocked behind P1 — contract surfaces and minimal canvas behavior hardening
+- P1: complete — runnable Tauri + React shell and typed app command bridge
+- P2: complete — create/list/get/add/remove/save/load contract proof and boundary tests
+- P3: ready — next proof checkpoint or next PRD slice decision
 
-P1 starts with the minimal `apps/canvas` shell and typed Tauri command bridge.
+P1/P2 evidence is captured under `history/outputs`.

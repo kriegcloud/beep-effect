@@ -21,7 +21,7 @@ describe("Duration", () => {
   it("exposes decode and encode helpers with the expected effect types", () => {
     const decode = S.decodeUnknownEffect(Duration.FromInput);
     const encode = S.encodeEffect(Duration.FromInput);
-    const input = new Duration.Object({ seconds: 1 });
+    const input = Duration.Object.make({ seconds: 1 });
     const duration = S.decodeSync(Duration.FromInput)(input);
     const encoded = pipe(duration, encode);
 

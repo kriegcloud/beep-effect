@@ -7,16 +7,16 @@
 
 import { buildRepoDependencyIndex, findRepoRoot, topologicalSort, type WorkspaceDeps } from "@beep/repo-utils";
 import { A } from "@beep/utils";
-import { Console, Effect, HashMap, HashSet } from "effect";
+import { Console, Effect, HashMap, HashSet, pipe } from "effect";
 import * as R from "effect/Record";
 import { Command } from "effect/unstable/cli";
 
-const dependencyNames = (workspaceDeps: WorkspaceDeps): ReadonlyArray<string> => [
-  ...R.keys(workspaceDeps.workspace.dependencies),
-  ...R.keys(workspaceDeps.workspace.devDependencies),
-  ...R.keys(workspaceDeps.workspace.peerDependencies),
-  ...R.keys(workspaceDeps.workspace.optionalDependencies),
-];
+const dependencyNames = (workspaceDeps: WorkspaceDeps): ReadonlyArray<string> =>
+  pipe(
+    workspaceDeps.workspace,
+    R.toEntries,
+    A.map(([k]) => k)
+  );
 
 /**
  * CLI command that builds the workspace dependency graph and prints package names

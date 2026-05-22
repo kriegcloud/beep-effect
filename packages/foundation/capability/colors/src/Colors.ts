@@ -48,7 +48,7 @@ const $I = $ColorsId.create("Domain");
  * ```typescript
  * import { ProcessLikeStdout } from "@beep/colors"
  *
- * const stdout = new ProcessLikeStdout({ isTTY: true })
+ * const stdout = ProcessLikeStdout.make({ isTTY: true })
  * console.log(stdout.isTTY)
  * ```
  *
@@ -71,7 +71,7 @@ export class ProcessLikeStdout extends S.Class<ProcessLikeStdout>($I`ProcessLike
  * ```typescript
  * import { ProcessLike, supportsColor } from "@beep/colors"
  *
- * const processLike = new ProcessLike({ env: { FORCE_COLOR: "1" } })
+ * const processLike = ProcessLike.make({ env: { FORCE_COLOR: "1" } })
  * console.log(supportsColor(processLike))
  * ```
  *
@@ -94,7 +94,7 @@ const runtimeProcess = Reflect.get(globalThis, "process");
 const decodeProcessLike = S.decodeUnknownOption(ProcessLike);
 const runtimeProcessLike: ProcessLike = pipe(
   decodeProcessLike(runtimeProcess),
-  O.getOrElse(() => new ProcessLike({}))
+  O.getOrElse(() => ProcessLike.make({}))
 );
 const stringIdentity: FormatterType = String;
 
@@ -299,7 +299,7 @@ export class Colors extends S.Class<Colors>($I`Colors`)(
 export const createColors = (enabled: boolean = isColorSupported): Colors => {
   const makeFormatter: typeof formatter = enabled ? formatter : () => stringIdentity;
 
-  return new Colors({
+  return Colors.make({
     isColorSupported: enabled,
     reset: makeFormatter("\x1b[0m", "\x1b[0m"),
     bold: makeFormatter("\x1b[1m", "\x1b[22m", "\x1b[22m\x1b[1m"),

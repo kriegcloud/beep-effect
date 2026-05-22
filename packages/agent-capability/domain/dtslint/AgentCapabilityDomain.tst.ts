@@ -21,7 +21,7 @@ describe("@beep/agent-capability-domain", () => {
 
   it("preserves decode and constructor types", () => {
     expect<typeof Agent.Encoded>().type.toBeAssignableTo<typeof Agent.Encoded>();
-    expect(new Agent(agent)).type.toBe<Agent>();
+    expect(Agent.make(agent)).type.toBe<Agent>();
     expect<Agent["mode"]>().type.toBe<AgentModeType>();
   });
 });

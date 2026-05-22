@@ -9,7 +9,7 @@ const apiKey = pipe(Bun.env.AI_VENICE_API_KEY, O.fromUndefinedOr, O.filter(Str.i
 
 const makeLiveLayer = (key: string) =>
   VeniceAI.makeLayer(
-    new VeniceAIConfigInput({
+    VeniceAIConfigInput.make({
       apiKey: Redacted.make(key),
       baseUrl: VENICE_API_URL,
     })

@@ -5,7 +5,7 @@ declare const workerId: Worker.WorkerId;
 declare const organizationId: Worker.WorkerOrganizationId;
 
 const worker = Worker.create(
-  new Worker.CreateWorkerInput({
+  Worker.CreateWorkerInput.make({
     id: workerId,
     organizationId,
     displayName: "Ada Lovelace",

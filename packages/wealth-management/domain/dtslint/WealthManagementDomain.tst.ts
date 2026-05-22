@@ -37,7 +37,7 @@ describe("@beep/wealth-management-domain", () => {
 
   it("preserves decode and constructor types", () => {
     expect<typeof Account.Encoded>().type.toBeAssignableTo<typeof Account.Encoded>();
-    expect(new Account(account)).type.toBe<Account>();
+    expect(Account.make(account)).type.toBe<Account>();
     expect<Account["accountType"]>().type.toBe<AccountTypeType>();
   });
 });

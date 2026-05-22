@@ -50,4 +50,3 @@ and explicit public subpaths.
   in schema concept modules.
 - Compatibility aliases are transitional; new work should use canonical concept
   modules.
-

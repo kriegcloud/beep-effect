@@ -67,7 +67,7 @@ export const interactive: <R>(
   const hostRepoDir = yield* resolveCwd(options.cwd);
   const promptArgs = options.promptArgs ?? {};
   const resolvedPrompt = yield* resolvePrompt(
-    new ResolvePromptOptions({
+    ResolvePromptOptions.make({
       ...(options.prompt === undefined ? {} : { prompt: options.prompt }),
       ...(options.promptFile === undefined ? {} : { promptFile: options.promptFile }),
     })
@@ -91,7 +91,7 @@ export const interactive: <R>(
           BUILT_IN_PROMPT_ARG_KEY_SET
         );
   const args = options.agent.buildInteractiveArgs(
-    new AgentCommandOptions({
+    AgentCommandOptions.make({
       dangerouslySkipPermissions: true,
       prompt,
     })
@@ -125,5 +125,5 @@ export const interactive: <R>(
     (sandbox) => sandbox.close
   );
 
-  return new InteractiveResult({ exitCode: result.exitCode });
+  return InteractiveResult.make({ exitCode: result.exitCode });
 });

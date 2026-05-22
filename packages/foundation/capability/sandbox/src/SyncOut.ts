@@ -77,7 +77,7 @@ const runHostGitResult = Effect.fn("SyncOut.runHostGitResult")(function* (args: 
 
   return yield* process
     .run(
-      new ProcessCommand({
+      ProcessCommand.make({
         args: [...args],
         command: "git",
         cwd,
@@ -213,7 +213,7 @@ const copyCommittedPatchesFromSandbox = Effect.fn("SyncOut.copyCommittedPatchesF
   yield* execSandboxOk(
     handle,
     `git format-patch ${shellEscape(`${hostHead}..HEAD`)} -o ${shellEscape(sandboxPatchDir)}`,
-    new SandboxExecOptions({ cwd: handle.worktreePath })
+    SandboxExecOptions.make({ cwd: handle.worktreePath })
   );
 
   const patchNames = parseLineSeparatedPaths(
@@ -375,30 +375,30 @@ export const syncOut: {
   Effect.fn("SyncOut.syncOut")(function* <R>(
     hostRepoDir: string,
     handle: IsolatedSandboxHandle<R>,
-    options: SyncOutOptions = new SyncOutOptions({})
+    options: SyncOutOptions = SyncOutOptions.make({})
   ) {
     const path = yield* Path.Path;
     const hostHead = Str.trim(yield* runHostGit(["rev-parse", "HEAD"], hostRepoDir));
     const sandboxHead = Str.trim(
-      (yield* execSandboxOk(handle, "git rev-parse HEAD", new SandboxExecOptions({ cwd: handle.worktreePath }))).stdout
+      (yield* execSandboxOk(handle, "git rev-parse HEAD", SandboxExecOptions.make({ cwd: handle.worktreePath }))).stdout
     );
     const hasCommits = hostHead !== sandboxHead;
     const diffResult = yield* execSandbox(
       handle,
       "git diff HEAD",
-      new SandboxExecOptions({ cwd: handle.worktreePath })
+      SandboxExecOptions.make({ cwd: handle.worktreePath })
     );
     const hasDiff = diffResult.exitCode === 0 && Str.trim(diffResult.stdout).length > 0;
     const untrackedResult = yield* execSandbox(
       handle,
       "git ls-files --others --exclude-standard -z",
-      new SandboxExecOptions({ cwd: handle.worktreePath })
+      SandboxExecOptions.make({ cwd: handle.worktreePath })
     );
     const untrackedFiles = untrackedResult.exitCode === 0 ? parseNulSeparatedPaths(untrackedResult.stdout) : [];
     const hasUntracked = untrackedFiles.length > 0;
 
     if (!hasCommits && !hasDiff && !hasUntracked) {
-      return new SyncOutResult({
+      return SyncOutResult.make({
         applied: false,
         hasCommits,
         hasDiff,
@@ -440,7 +440,7 @@ export const syncOut: {
 
     if (failedStep !== undefined) {
       const recoveryMessage = buildRecoveryMessage(
-        new RecoveryInput({
+        RecoveryInput.make({
           ...(options.branch === undefined ? {} : { branch: options.branch }),
           failedStep,
           hasCommits: nonEmptyPatches.length > 0,
@@ -458,7 +458,7 @@ export const syncOut: {
 
     yield* cleanupPatchDir(patchDir);
 
-    return new SyncOutResult({
+    return SyncOutResult.make({
       applied: true,
       hasCommits: nonEmptyPatches.length > 0,
       hasDiff,

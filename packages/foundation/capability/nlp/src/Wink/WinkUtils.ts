@@ -118,7 +118,7 @@ const sanitizeNGramResult = (
 export class WinkUtilsError extends TaggedErrorClass<WinkUtilsError>($I`WinkUtilsError`)(
   "WinkUtilsError",
   {
-    cause: S.Unknown,
+    cause: S.DefectWithStack,
     message: S.String,
     operation: S.String,
   },
@@ -139,7 +139,7 @@ export class WinkUtilsError extends TaggedErrorClass<WinkUtilsError>($I`WinkUtil
   } = dual(
     2,
     (cause: unknown, operation: string): WinkUtilsError =>
-      new WinkUtilsError({
+      WinkUtilsError.make({
         cause,
         message: `Wink utility ${operation} failed: ${renderCause(cause)}`,
         operation,

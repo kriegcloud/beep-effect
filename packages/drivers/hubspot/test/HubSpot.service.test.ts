@@ -92,13 +92,13 @@ const TestHttpClientLayer = Layer.effect(
 );
 
 const TestLayer = HubSpot.makeLayer(
-  new HubSpotConfigInput({
+  HubSpotConfigInput.make({
     accessToken: Redacted.make("hubspot-service-key"),
     accountId: "12345",
   })
 ).pipe(Layer.provide(TestHttpClientLayer), Layer.provideMerge(HubSpotTestHttpLayer));
 
-const request = new HubSpotSubmitFormRequest({
+const request = HubSpotSubmitFormRequest.make({
   fields: [
     {
       name: "email",
@@ -157,7 +157,7 @@ describe("@beep/hubspot", () => {
 
         const hubspot = yield* HubSpot;
         const response = yield* hubspot.upsertContact(
-          new HubSpotUpsertContactRequest({
+          HubSpotUpsertContactRequest.make({
             email: "tom@example.com",
             properties: {
               email: "tom@example.com",
@@ -184,7 +184,7 @@ describe("@beep/hubspot", () => {
         const hubspot = yield* HubSpot;
         const exit = yield* Effect.exit(
           hubspot.upsertContact(
-            new HubSpotUpsertContactRequest({
+            HubSpotUpsertContactRequest.make({
               email: "tom@example.com",
               properties: {
                 email: "tom@example.com",

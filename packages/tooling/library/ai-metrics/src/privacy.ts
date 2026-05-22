@@ -210,7 +210,7 @@ export class AiMetricsPrivacyCheckResult extends S.Class<AiMetricsPrivacyCheckRe
 export class AiMetricsPrivacyError extends TaggedErrorClass<AiMetricsPrivacyError>($I`AiMetricsPrivacyError`)(
   "AiMetricsPrivacyError",
   {
-    cause: S.Unknown,
+    cause: S.DefectWithStack,
     message: S.String,
   },
   $I.annote("AiMetricsPrivacyError", {
@@ -330,7 +330,7 @@ export const hashPublicTextSha256: (value: string) => Effect.Effect<string, AiMe
   return yield* Effect.tryPromise({
     try: () => globalThis.crypto.subtle.digest("SHA-256", new TextEncoder().encode(value)),
     catch: (cause) =>
-      new AiMetricsPrivacyError({
+      AiMetricsPrivacyError.make({
         cause,
         message: "Failed to compute public SHA-256 digest.",
       }),
@@ -441,14 +441,14 @@ export const makeAiMetricsSourceAttribution = Effect.fn("AiMetrics.makeAiMetrics
   readonly sourcePath: string;
 }) {
   if (sourceKind === AiMetricsTranscriptSource.Enum.openclaw) {
-    return new AiMetricsSourceAttribution({
+    return AiMetricsSourceAttribution.make({
       sessionIdHash: yield* hashPrivateIdentifier("openclaw-gateway.service", hashSalt),
       sourceRole: AiMetricsSourceRole.Enum.gateway_metadata,
     });
   }
 
   if (sourceKind === AiMetricsTranscriptSource.Enum.claude) {
-    return new AiMetricsSourceAttribution({
+    return AiMetricsSourceAttribution.make({
       sessionIdHash: yield* hashPrivateIdentifier(sourcePath, hashSalt),
       sourceRole: pathRoleFor(relativePath),
     });
@@ -478,7 +478,7 @@ export const makeAiMetricsSourceAttribution = Effect.fn("AiMetrics.makeAiMetrics
     hashSalt
   );
 
-  return new AiMetricsSourceAttribution({
+  return AiMetricsSourceAttribution.make({
     ...(subagentValue?.thread_spawn === undefined ? {} : { threadSpawn: subagentValue.thread_spawn }),
     ...(agentNicknameHash === undefined ? {} : { agentNicknameHash }),
     ...(agentRoleHash === undefined ? {} : { agentRoleHash }),
@@ -520,7 +520,7 @@ const redactionResultFor = (content: string): AiMetricsRedactionResult => {
   const openAiKeyCount = countMatches(OPENAI_KEY_PATTERN, content);
   const secretAssignmentCount = countMatches(SECRET_ASSIGNMENT_PATTERN, content);
 
-  return new AiMetricsRedactionResult({
+  return AiMetricsRedactionResult.make({
     authHeaderCount,
     bearerTokenCount,
     excludedRawTextFieldCount: countMatches(/"message"|"payload"|"prompt"|"content"|"text"|"result"/gu, content),
@@ -566,7 +566,7 @@ const rawEventEnvelopes = Effect.fn("AiMetrics.rawEventEnvelopes")(function* ({
       }
 
       return O.some(
-        new AiMetricsRawEventEnvelope({
+        AiMetricsRawEventEnvelope.make({
           eventName: eventNameFor(sourceKind, decoded.value),
           lineNumber: index + 1,
           rawEventHash: yield* hashPrivateIdentifier(line, hashSalt),
@@ -622,7 +622,7 @@ export const makeSanitizedTranscript = Effect.fn("AiMetrics.makeSanitizedTranscr
     ...(hashSalt === undefined ? {} : { hashSalt }),
   });
 
-  return new AiMetricsSanitizedTranscript({
+  return AiMetricsSanitizedTranscript.make({
     acceptedEvents: summary.acceptedEvents,
     ...(attribution.agentNicknameHash === undefined ? {} : { agentNicknameHash: attribution.agentNicknameHash }),
     ...(attribution.agentRoleHash === undefined ? {} : { agentRoleHash: attribution.agentRoleHash }),
@@ -667,7 +667,7 @@ export const makeAiMetricsPrivacyCheckResult = Effect.fn("AiMetrics.makeAiMetric
   readonly sourcePath: string;
   readonly summary: TranscriptIngestSummary;
 }) {
-  return new AiMetricsPrivacyCheckResult({
+  return AiMetricsPrivacyCheckResult.make({
     hashSaltStatus: resolveAiMetricsHashSaltStatus(hashSalt),
     inputPathHash: yield* hashPrivateIdentifier(sourcePath, hashSalt),
     redaction: redactionResultFor(content),
@@ -696,12 +696,11 @@ export const makeAiMetricsPrivacyCheckResult = Effect.fn("AiMetrics.makeAiMetric
 export const privacyCheckToJson: (result: AiMetricsPrivacyCheckResult) => Effect.Effect<string, AiMetricsPrivacyError> =
   Effect.fn("AiMetrics.privacyCheckToJson")(function* (result) {
     return yield* encodePrivacyCheckJson(result).pipe(
-      Effect.mapError(
-        (cause) =>
-          new AiMetricsPrivacyError({
-            cause,
-            message: "Failed to encode AI metrics privacy check as JSON.",
-          })
+      Effect.mapError((cause) =>
+        AiMetricsPrivacyError.make({
+          cause,
+          message: "Failed to encode AI metrics privacy check as JSON.",
+        })
       )
     );
   });

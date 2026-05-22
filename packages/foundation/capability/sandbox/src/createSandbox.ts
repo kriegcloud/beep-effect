@@ -64,7 +64,7 @@ export const createSandbox: <R>(
 )(function* <R>(options: CreateSandboxOptions<R>) {
   const resolvedEnv = yield* resolveEnv(options.cwd);
   const env = yield* mergeProviderEnv(
-    new MergeProviderEnvOptions({
+    MergeProviderEnvOptions.make({
       agentProviderEnv: {},
       resolvedEnv,
       sandboxProviderEnv: {
@@ -76,7 +76,7 @@ export const createSandbox: <R>(
 
   if (P.isTagged(options.sandbox, "BindMount")) {
     return yield* options.sandbox.create(
-      new BindMountCreateOptions({
+      BindMountCreateOptions.make({
         env,
         hostRepoPath: options.cwd,
         mounts: [...(options.mounts ?? [])],
@@ -86,7 +86,7 @@ export const createSandbox: <R>(
   }
 
   if (P.isTagged(options.sandbox, "Isolated")) {
-    return yield* options.sandbox.create(new IsolatedCreateOptions({ env }));
+    return yield* options.sandbox.create(IsolatedCreateOptions.make({ env }));
   }
 
   return yield* options.sandbox.create({

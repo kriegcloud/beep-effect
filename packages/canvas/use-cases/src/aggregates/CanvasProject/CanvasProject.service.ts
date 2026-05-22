@@ -18,6 +18,7 @@ import type {
   GetCanvasProjectQuery,
   ListCanvasProjectsQuery,
   RemoveCanvasNodeCommand,
+  RestoreCanvasProjectCommand,
 } from "./CanvasProject.commands.js";
 import {
   CANVAS_PROJECT_ACTION_UNAVAILABLE_REASON,
@@ -44,6 +45,16 @@ const isRepositoryUnavailable = S.is(CanvasProjectRepositoryUnavailable);
 /**
  * Translate server and aggregate failures to public action failures.
  *
+ * @example
+ * ```ts
+ * import { CanvasProject as CanvasProjectServer } from "@beep/canvas-use-cases/server"
+ *
+ * const error = CanvasProjectServer.toCanvasProjectActionError(
+ *   CanvasProjectServer.CanvasProjectRepositoryUnavailable.make({ reason: "offline" })
+ * )
+ * console.log(error._tag)
+ * ```
+ *
  * @category use-cases
  * @since 0.0.0
  */
@@ -51,25 +62,21 @@ export const toCanvasProjectActionError = (
   error: CanvasProjectRepositoryError | DomainCanvasProject.CanvasProjectDomainError
 ): CanvasProjectActionError =>
   Match.value(error).pipe(
-    Match.when(isRepositoryNotFound, (error) => new CanvasProjectNotFound({ canvasProjectId: error.canvasProjectId })),
-    Match.when(
-      isRepositoryConflict,
-      (error) =>
-        new CanvasProjectConflict({
-          canvasProjectId: error.canvasProjectId,
-          reason: CANVAS_PROJECT_CONFLICT_REASON,
-        })
+    Match.when(isRepositoryNotFound, (error) => CanvasProjectNotFound.make({ canvasProjectId: error.canvasProjectId })),
+    Match.when(isRepositoryConflict, (error) =>
+      CanvasProjectConflict.make({
+        canvasProjectId: error.canvasProjectId,
+        reason: CANVAS_PROJECT_CONFLICT_REASON,
+      })
     ),
-    Match.when(
-      isRepositoryUnavailable,
-      () => new CanvasProjectActionFailed({ reason: CANVAS_PROJECT_ACTION_UNAVAILABLE_REASON })
+    Match.when(isRepositoryUnavailable, () =>
+      CanvasProjectActionFailed.make({ reason: CANVAS_PROJECT_ACTION_UNAVAILABLE_REASON })
     ),
-    Match.orElse(
-      (error) =>
-        new CanvasProjectActionRejected({
-          canvasProjectId: error.canvasProjectId,
-          reason: error._tag,
-        })
+    Match.orElse((error) =>
+      CanvasProjectActionRejected.make({
+        canvasProjectId: error.canvasProjectId,
+        reason: error._tag,
+      })
     )
   );
 
@@ -90,6 +97,15 @@ const mutateStoredCanvasProject = (
 /**
  * Build CanvasProject use-cases from the server repository port.
  *
+ * @example
+ * ```ts
+ * import { CanvasProject as CanvasProjectServer } from "@beep/canvas-use-cases/server"
+ *
+ * declare const repository: CanvasProjectServer.CanvasProjectRepositoryShape
+ * const useCases = CanvasProjectServer.makeCanvasProjectUseCases(repository)
+ * console.log(Object.keys(useCases))
+ * ```
+ *
  * @category use-cases
  * @since 0.0.0
  */
@@ -104,7 +120,7 @@ export const makeCanvasProjectUseCases = (repository: CanvasProjectRepositorySha
   }),
   create: Effect.fn("Canvas.CanvasProjectUseCases.create")(function* (command: CreateCanvasProjectCommand) {
     return yield* pipe(
-      Effect.succeed(DomainCanvasProject.create(new DomainCanvasProject.CreateCanvasProjectInput(command))),
+      Effect.succeed(DomainCanvasProject.create(DomainCanvasProject.CreateCanvasProjectInput.make(command))),
       Effect.flatMap(repository.create),
       Effect.mapError(toCanvasProjectActionError)
     );
@@ -130,6 +146,12 @@ export const makeCanvasProjectUseCases = (repository: CanvasProjectRepositorySha
   removeNode: Effect.fn("Canvas.CanvasProjectUseCases.removeNode")(function* (command: RemoveCanvasNodeCommand) {
     return yield* mutateStoredCanvasProject(repository, command.id, (canvasProject) =>
       DomainCanvasProject.removeNode(canvasProject, command.nodeId)
+    );
+  }),
+  restore: Effect.fn("Canvas.CanvasProjectUseCases.restore")(function* (command: RestoreCanvasProjectCommand) {
+    return yield* repository.save(command.scene).pipe(
+      Effect.catchTag("CanvasProjectRepositoryNotFound", () => repository.create(command.scene)),
+      Effect.mapError(toCanvasProjectActionError)
     );
   }),
 });

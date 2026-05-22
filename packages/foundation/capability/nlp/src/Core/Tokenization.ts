@@ -38,7 +38,7 @@ type TokenizationShape = {
 export class TokenizationError extends TaggedErrorClass<TokenizationError>($I`TokenizationError`)(
   "TokenizationError",
   {
-    cause: S.Unknown,
+    cause: S.DefectWithStack,
     operation: S.String,
   },
   $I.annote("TokenizationError", {

@@ -73,7 +73,7 @@ describe("allowlist-check", () => {
           );
 
           const summary = yield* runAllowlistCheck(
-            new AllowlistCheckOptions({
+            AllowlistCheckOptions.make({
               cwd: tmpDir,
             })
           );
@@ -113,7 +113,7 @@ describe("allowlist-check", () => {
           );
 
           const summary = yield* runAllowlistCheck(
-            new AllowlistCheckOptions({
+            AllowlistCheckOptions.make({
               cwd: tmpDir,
             })
           );
@@ -163,7 +163,7 @@ describe("allowlist-check", () => {
           );
 
           const summary = yield* runAllowlistCheck(
-            new AllowlistCheckOptions({
+            AllowlistCheckOptions.make({
               cwd: workingDir,
             })
           );

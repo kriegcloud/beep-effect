@@ -114,7 +114,7 @@ const rebuildSentence = (sentence: Sentence, sentenceTokens: A.NonEmptyReadonlyA
   const lastToken = A.reduce(remainingTokens, firstToken, (_, token) => token);
 
   return Result.succeed(
-    new Sentence({
+    Sentence.make({
       end: lastToken.index,
       importance: sentence.importance,
       index: sentence.index,
@@ -139,7 +139,7 @@ const filterSentence = (predicate: (token: Token) => boolean) => (sentence: Sent
   );
 
 const filterDocument = (document: Document, predicate: (token: Token) => boolean): Document =>
-  new Document({
+  Document.make({
     id: document.id,
     sentences: pipe(
       Chunk.toReadonlyArray(document.sentences),

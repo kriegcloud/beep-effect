@@ -92,7 +92,7 @@ export type EntityIdValueFor<TBrand extends string> = BrandNS.Branded<EntityIdVa
  * ```ts
  * import { Options } from "@beep/shared-domain/entity/EntityId"
  *
- * const options = new Options({ tableName: "shared_organization" })
+ * const options = Options.make({ tableName: "shared_organization" })
  * console.log(options.tableName)
  * ```
  *
@@ -430,7 +430,7 @@ const buildDefinition = <
   ResolvedEntityType<Slice, Name, Overrides>,
   ResolvedBrand<Slice, Name, Overrides>
 > => {
-  const overrides = new Options(input ?? {});
+  const overrides = Options.make(input ?? {});
   const defaultEntityType = Str.prefix(
     pipe(name, Str.snakeCase, Str.snakeToPascal),
     pipe(slice, Str.snakeCase, Str.snakeToPascal)
@@ -438,7 +438,7 @@ const buildDefinition = <
   const entityType = overrides.entityType ?? defaultEntityType;
   const brand = overrides.brand ?? Str.postfix(entityType, "Id");
   return literalDefinition<Slice, Name, Overrides>(
-    new Definition({
+    Definition.make({
       brand,
       description: overrides.description ?? `${entityType} entity identifier.`,
       entityType,

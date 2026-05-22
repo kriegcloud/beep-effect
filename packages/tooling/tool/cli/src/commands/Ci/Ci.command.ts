@@ -7,7 +7,7 @@
 
 import { $RepoCliId } from "@beep/identity/packages";
 import { findRepoRoot } from "@beep/repo-utils";
-import { TaggedErrorClass } from "@beep/schema";
+
 import { A, Str, thunkFalse } from "@beep/utils";
 import { Config, Console, Effect, FileSystem, Order, Path, pipe } from "effect";
 import * as O from "effect/Option";
@@ -15,6 +15,7 @@ import * as R from "effect/Record";
 import * as S from "effect/Schema";
 import { Argument, Command } from "effect/unstable/cli";
 import { printLines } from "../../internal/cli/Printer.js";
+import { CiCommandError } from "./Ci.errors.js";
 
 const $I = $RepoCliId.create("commands/Ci/Ci.command");
 
@@ -85,40 +86,28 @@ class TurboSummary extends S.Class<TurboSummary>($I`TurboSummary`)(
   })
 ) {}
 
-/**
- * Typed failure for CI helper commands.
- *
- * @example
- * ```ts
- * import { CiCommandError } from "@beep/repo-cli/commands/Ci"
- * const error = new CiCommandError({ message: "failed" })
- * ```
- * @category errors
- * @since 0.0.0
- */
-export class CiCommandError extends TaggedErrorClass<CiCommandError>($I`CiCommandError`)(
-  "CiCommandError",
+const decodeTurboSummary = S.decodeUnknownEffect(S.fromJsonString(TurboSummary));
+
+class SummaryCandidate extends S.Class<SummaryCandidate>($I`SummaryCandidate`)(
   {
-    message: S.String,
-    cause: S.optionalKey(S.Defect),
+    path: S.String,
+    mtimeMillis: S.Number,
   },
-  $I.annote("CiCommandError", {
-    description: "Failure raised by CI helper commands.",
+  $I.annote("SummaryCandidate", {
+    description: "Candidate file for Turbo summary parsing.",
   })
 ) {}
 
-const decodeTurboSummary = S.decodeUnknownEffect(S.fromJsonString(TurboSummary));
-
-type SummaryCandidate = {
-  readonly path: string;
-  readonly mtimeMillis: number;
-};
-
-type LongestTask = {
-  readonly taskId: string;
-  readonly durationMs: number;
-  readonly cacheStatus: string;
-};
+class LongestTask extends S.Class<LongestTask>($I`LongestTask`)(
+  {
+    taskId: S.String,
+    durationMs: S.Number,
+    cacheStatus: S.String,
+  },
+  $I.annote("LongestTask", {
+    description: "Task with the longest duration in a Turbo summary.",
+  })
+) {}
 
 const formatDuration = (durationMs: number): string => `${(durationMs / 1000).toFixed(2)}s`;
 
@@ -152,20 +141,12 @@ const appendToSummary = Effect.fn("Ci.appendToSummary")(function* (
 
   const exists = yield* fs.exists(summaryPath).pipe(Effect.orElseSucceed(thunkFalse));
   const previous = exists
-    ? yield* fs
-        .readFileString(summaryPath)
-        .pipe(Effect.mapError((cause) => new CiCommandError({ message: `Failed to read ${summaryPath}.`, cause })))
+    ? yield* fs.readFileString(summaryPath).pipe(CiCommandError.mapError(`Failed to read ${summaryPath}.`))
     : "";
 
-  yield* fs.writeFileString(summaryPath, `${previous}${renderedSummary}`).pipe(
-    Effect.mapError(
-      (cause) =>
-        new CiCommandError({
-          message: `Failed to append Turbo summary to ${summaryPath}.`,
-          cause,
-        })
-    )
-  );
+  yield* fs
+    .writeFileString(summaryPath, `${previous}${renderedSummary}`)
+    .pipe(CiCommandError.mapError(`Failed to append Turbo summary to ${summaryPath}.`));
 });
 
 const resolveSummaryPath = Effect.fn("Ci.resolveSummaryPath")(function* (
@@ -187,14 +168,12 @@ const resolveSummaryPath = Effect.fn("Ci.resolveSummaryPath")(function* (
 
   const entries = yield* fs
     .readDirectory(runDirectory)
-    .pipe(Effect.mapError((cause) => new CiCommandError({ message: `Failed to read ${runDirectory}.`, cause })));
+    .pipe(CiCommandError.mapError(`Failed to read ${runDirectory}.`));
   const candidates = yield* Effect.forEach(
     pipe(entries, A.filter(Str.endsWith(".json"))),
     Effect.fn(function* (entry) {
       const candidatePath = path.join(runDirectory, entry);
-      const stat = yield* fs
-        .stat(candidatePath)
-        .pipe(Effect.mapError((cause) => new CiCommandError({ message: `Failed to stat ${candidatePath}.`, cause })));
+      const stat = yield* fs.stat(candidatePath).pipe(CiCommandError.mapError(`Failed to stat ${candidatePath}.`));
       return O.some({
         path: candidatePath,
         mtimeMillis: pipe(
@@ -280,9 +259,7 @@ export const appendTurboSummary = Effect.fn("Ci.appendTurboSummary")(function* (
 ): Effect.fn.Return<void, CiCommandError, FileSystem.FileSystem | Path.Path> {
   const fs = yield* FileSystem.FileSystem;
   const path = yield* Path.Path;
-  const repoRoot = yield* findRepoRoot().pipe(
-    Effect.mapError((cause) => new CiCommandError({ message: "Failed to locate repository root.", cause }))
-  );
+  const repoRoot = yield* findRepoRoot().pipe(CiCommandError.mapError("Failed to locate repository root."));
   const summaryPath = yield* resolveSummaryPath(repoRoot, explicitPath);
 
   if (O.isNone(summaryPath)) {
@@ -298,10 +275,8 @@ export const appendTurboSummary = Effect.fn("Ci.appendTurboSummary")(function* (
 
   const content = yield* fs
     .readFileString(summaryPath.value)
-    .pipe(Effect.mapError((cause) => new CiCommandError({ message: `Failed to read ${summaryPath.value}.`, cause })));
-  const run = yield* decodeTurboSummary(content).pipe(
-    Effect.mapError((cause) => new CiCommandError({ message: `Failed to parse ${summaryPath.value}.`, cause }))
-  );
+    .pipe(CiCommandError.mapError(`Failed to read ${summaryPath.value}.`));
+  const run = yield* decodeTurboSummary(content).pipe(CiCommandError.mapError(`Failed to parse ${summaryPath.value}.`));
 
   yield* appendToSummary(renderTurboSummary(repoRoot, summaryPath.value, run, path));
 });
@@ -312,14 +287,13 @@ const appendTurboSummaryCommand = Command.make(
     summaryPath: Argument.string("summary-path").pipe(Argument.optional),
   },
   ({ summaryPath }) =>
-    appendTurboSummary(summaryPath).pipe(
-      Effect.catchTag(
-        "CiCommandError",
-        Effect.fn(function* (error) {
-          process.exitCode = 1;
-          yield* Console.error(`[ci] ${error.message}`);
-        })
-      )
+    pipe(
+      summaryPath,
+      appendTurboSummary,
+      Effect.catchTag("CiCommandError", (error) => {
+        process.exitCode = 1;
+        return Console.error(`[ci] ${error.message}`);
+      })
     )
 ).pipe(Command.withDescription("Append a Turbo run summary to GitHub step summary or stdout"));
 

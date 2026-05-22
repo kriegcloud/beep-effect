@@ -21,7 +21,7 @@ describe("@beep/epistemic-domain", () => {
 
   it("preserves decode and constructor types", () => {
     expect<typeof CandidateClaim.Encoded>().type.toBeAssignableTo<typeof CandidateClaim.Encoded>();
-    expect(new CandidateClaim(candidateClaim)).type.toBe<CandidateClaim>();
+    expect(CandidateClaim.make(candidateClaim)).type.toBe<CandidateClaim>();
     expect<CandidateClaim["lifecycle"]>().type.toBe<ClaimLifecycleType>();
   });
 });

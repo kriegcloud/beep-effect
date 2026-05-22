@@ -135,7 +135,7 @@ const validateMappings = <M extends MappedPairs>(mappings: M): void =>
       (state, [fromLiteral, toLiteral], index): SeenState => {
         const seenFrom = HashMap.get(state.from, fromLiteral);
         if (O.isSome(seenFrom)) {
-          throw new MappedLiteralDuplicateError({
+          throw MappedLiteralDuplicateError.make({
             side: "from",
             literal: fromLiteral,
             firstIndex: seenFrom.value,
@@ -145,7 +145,7 @@ const validateMappings = <M extends MappedPairs>(mappings: M): void =>
 
         const seenTo = HashMap.get(state.to, toLiteral);
         if (O.isSome(seenTo)) {
-          throw new MappedLiteralDuplicateError({
+          throw MappedLiteralDuplicateError.make({
             side: "to",
             literal: toLiteral,
             firstIndex: seenTo.value,
@@ -169,7 +169,7 @@ const validateHelperKeys = <L extends Literals>(literals: L): void =>
       const existing = HashMap.get(seen, key);
 
       if (O.isSome(existing) && !Object.is(existing.value, literal)) {
-        throw new LiteralKitKeyCollisionError({
+        throw LiteralKitKeyCollisionError.make({
           key,
           existing: existing.value,
           incoming: literal,

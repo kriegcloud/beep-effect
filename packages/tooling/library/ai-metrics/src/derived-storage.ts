@@ -461,7 +461,7 @@ const derivedStorageMigrations = [
  * @example
  * ```ts
  * import { AiMetricsDerivedStorageError } from "@beep/repo-ai-metrics"
- * const error = new AiMetricsDerivedStorageError({
+ * const error = AiMetricsDerivedStorageError.make({
  *   cause: "boom",
  *   message: "Projection failed."
  * })
@@ -475,7 +475,7 @@ export class AiMetricsDerivedStorageError extends TaggedErrorClass<AiMetricsDeri
 )(
   "AiMetricsDerivedStorageError",
   {
-    cause: S.Unknown,
+    cause: S.DefectWithStack,
     message: S.String,
   },
   $I.annote("AiMetricsDerivedStorageError", {
@@ -565,7 +565,7 @@ export class AiMetricsDerivedStorageWriteResult extends S.Class<AiMetricsDerived
 const encodeJson = S.encodeUnknownEffect(S.UnknownFromJsonString);
 
 const derivedFailure = (message: string, cause: unknown): AiMetricsDerivedStorageError =>
-  new AiMetricsDerivedStorageError({ cause, message });
+  AiMetricsDerivedStorageError.make({ cause, message });
 
 const jsonString = (value: unknown): Effect.Effect<string> => encodeJson(value).pipe(Effect.orDie);
 
@@ -1109,7 +1109,7 @@ export const writeAiMetricsDerivedStorage = Effect.fn("AiMetrics.writeAiMetricsD
       DERIVED_TABLES,
       (tableName) =>
         duckdb.copyTableToParquet(
-          new DuckDbParquetExport({
+          DuckDbParquetExport.make({
             filePath: pathApi.join(parquetExportDir, `${tableName}.parquet`),
             tableName,
           })
@@ -1117,7 +1117,7 @@ export const writeAiMetricsDerivedStorage = Effect.fn("AiMetrics.writeAiMetricsD
       { discard: true }
     ).pipe(Effect.mapError((cause) => derivedFailure("Failed to export AI metrics derived tables to Parquet.", cause)));
 
-    return new AiMetricsDerivedStorageWriteResult({
+    return AiMetricsDerivedStorageWriteResult.make({
       archiveObjectCount,
       duckDbPath: input.storage.duckDbPath,
       ingestRunId: input.ingestRunId,

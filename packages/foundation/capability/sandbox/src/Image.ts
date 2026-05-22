@@ -44,7 +44,7 @@ export type ContainerImageRuntime = typeof ContainerImageRuntime.Type;
  * ```ts
  * import { ContainerImageBuildOptions } from "@beep/sandbox"
  *
- * const options = new ContainerImageBuildOptions({
+ * const options = ContainerImageBuildOptions.make({
  *   contextDir: ".sandcastle",
  *   imageName: "beep-sandbox:demo",
  *   runtime: "docker"
@@ -74,7 +74,7 @@ export class ContainerImageBuildOptions extends S.Class<ContainerImageBuildOptio
  * ```ts
  * import { DockerImageBuildOptions } from "@beep/sandbox"
  *
- * const options = new DockerImageBuildOptions({ contextDir: ".sandcastle" })
+ * const options = DockerImageBuildOptions.make({ contextDir: ".sandcastle" })
  * console.log(options.contextDir)
  * ```
  *
@@ -98,7 +98,7 @@ export class DockerImageBuildOptions extends S.Class<DockerImageBuildOptions>($I
  * ```ts
  * import { PodmanImageBuildOptions } from "@beep/sandbox"
  *
- * const options = new PodmanImageBuildOptions({ contextDir: ".sandcastle" })
+ * const options = PodmanImageBuildOptions.make({ contextDir: ".sandcastle" })
  * console.log(options.contextDir)
  * ```
  *
@@ -122,7 +122,7 @@ export class PodmanImageBuildOptions extends S.Class<PodmanImageBuildOptions>($I
  * ```ts
  * import { ContainerImageRemoveOptions } from "@beep/sandbox"
  *
- * const options = new ContainerImageRemoveOptions({
+ * const options = ContainerImageRemoveOptions.make({
  *   imageName: "beep-sandbox:demo",
  *   runtime: "podman"
  * })
@@ -144,11 +144,11 @@ export class ContainerImageRemoveOptions extends S.Class<ContainerImageRemoveOpt
 
 const runtimeError = (runtime: ContainerImageRuntime, message: string, cause: unknown): DockerError | PodmanError =>
   runtime === "docker"
-    ? new DockerError({
+    ? DockerError.make({
         cause,
         message,
       })
-    : new PodmanError({
+    : PodmanError.make({
         cause,
         message,
       });
@@ -178,7 +178,7 @@ const runRuntimeCommand = Effect.fn("Image.runRuntimeCommand")(function* (
   const process = yield* SandboxProcess;
   const result = yield* process
     .run(
-      new ProcessCommand({
+      ProcessCommand.make({
         args,
         command: runtime,
       })
@@ -199,7 +199,7 @@ const optionalImageFileArgs = (file: string | undefined): ReadonlyArray<string> 
  * import { buildContainerImage, ContainerImageBuildOptions } from "@beep/sandbox"
  *
  * const program = buildContainerImage(
- *   new ContainerImageBuildOptions({
+ *   ContainerImageBuildOptions.make({
  *     contextDir: ".sandcastle",
  *     imageName: "beep-sandbox:demo",
  *     runtime: "docker"
@@ -237,7 +237,7 @@ export const buildContainerImage: (
  * import { removeContainerImage, ContainerImageRemoveOptions } from "@beep/sandbox"
  *
  * const program = removeContainerImage(
- *   new ContainerImageRemoveOptions({
+ *   ContainerImageRemoveOptions.make({
  *     imageName: "beep-sandbox:demo",
  *     runtime: "docker"
  *   })
@@ -265,7 +265,7 @@ export const removeContainerImage: (
  *
  * const program = buildDockerImage(
  *   "beep-sandbox:demo",
- *   new DockerImageBuildOptions({ contextDir: ".sandcastle" })
+ *   DockerImageBuildOptions.make({ contextDir: ".sandcastle" })
  * )
  * console.log(program)
  * ```
@@ -283,7 +283,7 @@ export const buildDockerImage: {
   ): (imageName: string) => Effect.Effect<void, DockerError | PodmanError, Path.Path | SandboxProcess>;
 } = dual(2, (imageName: string, options: DockerImageBuildOptions) =>
   buildContainerImage(
-    new ContainerImageBuildOptions({
+    ContainerImageBuildOptions.make({
       contextDir: options.contextDir,
       ...(P.isUndefined(options.dockerfile) ? {} : { file: options.dockerfile }),
       imageName,
@@ -308,7 +308,7 @@ export const buildDockerImage: {
  */
 export const removeDockerImage = (imageName: string): Effect.Effect<void, DockerError | PodmanError, SandboxProcess> =>
   removeContainerImage(
-    new ContainerImageRemoveOptions({
+    ContainerImageRemoveOptions.make({
       imageName,
       runtime: "docker",
     })
@@ -323,7 +323,7 @@ export const removeDockerImage = (imageName: string): Effect.Effect<void, Docker
  *
  * const program = buildPodmanImage(
  *   "beep-sandbox:demo",
- *   new PodmanImageBuildOptions({ contextDir: ".sandcastle" })
+ *   PodmanImageBuildOptions.make({ contextDir: ".sandcastle" })
  * )
  * console.log(program)
  * ```
@@ -341,7 +341,7 @@ export const buildPodmanImage: {
   ): (imageName: string) => Effect.Effect<void, DockerError | PodmanError, Path.Path | SandboxProcess>;
 } = dual(2, (imageName: string, options: PodmanImageBuildOptions) =>
   buildContainerImage(
-    new ContainerImageBuildOptions({
+    ContainerImageBuildOptions.make({
       contextDir: options.contextDir,
       ...(P.isUndefined(options.containerfile) ? {} : { file: options.containerfile }),
       imageName,
@@ -366,7 +366,7 @@ export const buildPodmanImage: {
  */
 export const removePodmanImage = (imageName: string): Effect.Effect<void, DockerError | PodmanError, SandboxProcess> =>
   removeContainerImage(
-    new ContainerImageRemoveOptions({
+    ContainerImageRemoveOptions.make({
       imageName,
       runtime: "podman",
     })

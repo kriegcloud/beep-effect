@@ -171,9 +171,9 @@ const lawsEffectImportsCommand = Command.make(
     ),
   },
   Effect.fn(function* ({ write, check, exclude }) {
-    const options = new EffectImportsCommandOptions({ write, check, exclude });
+    const options = EffectImportsCommandOptions.make({ write, check, exclude });
     const summary = yield* runEffectImportRules(
-      new EffectImportRulesOptions({
+      EffectImportRulesOptions.make({
         write: options.write,
         strictCheck: options.check,
         excludePaths: parseExcludePaths(options.exclude),
@@ -221,9 +221,9 @@ const lawsTerseEffectCommand = Command.make(
     ),
   },
   Effect.fn(function* ({ write, check, exclude }) {
-    const options = new TerseEffectCommandOptions({ write, check, exclude });
+    const options = TerseEffectCommandOptions.make({ write, check, exclude });
     const summary = yield* runTerseEffectRules(
-      new TerseEffectRulesOptions({
+      TerseEffectRulesOptions.make({
         write: options.write,
         strictCheck: options.check,
         excludePaths: parseExcludePaths(options.exclude),
@@ -284,9 +284,9 @@ const lawsDualArityCommand = Command.make(
     ),
   },
   Effect.fn(function* ({ write, check, exclude }) {
-    const options = new DualArityCommandOptions({ write, check, exclude });
+    const options = DualArityCommandOptions.make({ write, check, exclude });
     const summary = yield* runDualArityRules(
-      new DualArityRulesOptions({
+      DualArityRulesOptions.make({
         write: options.write,
         strictCheck: options.check,
         excludePaths: parseExcludePaths(options.exclude),
@@ -319,9 +319,9 @@ const lawsEffectFnCommand = Command.make(
     ),
   },
   Effect.fn(function* ({ check, exclude }) {
-    const options = new EffectFnCommandOptions({ check, exclude });
+    const options = EffectFnCommandOptions.make({ check, exclude });
     const summary = yield* runEffectFnRules(
-      new EffectFnRulesOptions({
+      EffectFnRulesOptions.make({
         strictCheck: options.check,
         excludePaths: parseExcludePaths(options.exclude),
       })
@@ -364,9 +364,9 @@ const lawsNativeRuntimeCommand = Command.make(
     ),
   },
   Effect.fn(function* ({ check, exclude }) {
-    const options = new NoNativeRuntimeCommandOptions({ check, exclude });
+    const options = NoNativeRuntimeCommandOptions.make({ check, exclude });
     const summary = yield* runNoNativeRuntimeRules(
-      new NoNativeRuntimeRulesOptions({
+      NoNativeRuntimeRulesOptions.make({
         strictCheck: options.check,
         excludePaths: parseExcludePaths(options.exclude),
       })
@@ -409,7 +409,7 @@ const lawsAllowlistCheckCommand = Command.make(
   {},
   Effect.fn(function* () {
     const summary = yield* runAllowlistCheck(
-      new AllowlistCheckOptions({
+      AllowlistCheckOptions.make({
         cwd: process.cwd(),
       })
     );

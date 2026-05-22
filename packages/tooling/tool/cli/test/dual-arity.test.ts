@@ -76,7 +76,7 @@ const runLaw = (
   }> = {}
 ) =>
   runDualArityRules(
-    new DualArityRulesOptions({
+    DualArityRulesOptions.make({
       write: options.write ?? false,
       strictCheck: options.strictCheck ?? true,
       excludePaths: options.excludePaths ?? [],

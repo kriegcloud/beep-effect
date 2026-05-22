@@ -64,7 +64,7 @@ export type XAiQueryValue = typeof XAiQueryValue.Type;
  * ```ts
  * import { XAiRequestOptions } from "@beep/xai"
  *
- * const request = new XAiRequestOptions({
+ * const request = XAiRequestOptions.make({
  *   body: { model: "grok-4", messages: [] },
  *   query: { limit: 10 }
  * })
@@ -267,7 +267,7 @@ export type XAiResponse = typeof XAiResponse.Type;
  * ```ts
  * import { XAiServerSentEvent } from "@beep/xai"
  *
- * const event = new XAiServerSentEvent({
+ * const event = XAiServerSentEvent.make({
  *   data: { delta: "hello" },
  *   done: false,
  *   index: 0

@@ -24,7 +24,7 @@ const catalogRelativePath = "standards/repo-exports.catalog.jsonc";
  * @example
  * ```ts
  * import { RepoCodegraphCatalogReadError } from "@beep/repo-codegraph"
- * const error = new RepoCodegraphCatalogReadError({
+ * const error = RepoCodegraphCatalogReadError.make({
  *   cause: "missing",
  *   message: "Catalog not found",
  *   operation: "read",
@@ -43,7 +43,7 @@ export class RepoCodegraphCatalogReadError extends TaggedErrorClass<RepoCodegrap
     operation: S.NonEmptyString,
     path: S.NonEmptyString,
     message: S.NonEmptyString,
-    cause: S.Unknown,
+    cause: S.DefectWithStack,
   },
   $I.annote("RepoCodegraphCatalogReadError", {
     description: "Typed failure raised while reading repo-codegraph catalog and package policy inputs.",
@@ -93,7 +93,7 @@ const catalogReadFailure = (
   message: string,
   cause: unknown
 ): RepoCodegraphCatalogReadError =>
-  new RepoCodegraphCatalogReadError({
+  RepoCodegraphCatalogReadError.make({
     cause,
     message,
     operation,
@@ -107,7 +107,7 @@ const firstParseErrorMessage = flow(
 );
 
 const parseJsoncUnknown = (path: string, content: string) => {
-  const errors: Array<ParseError> = [];
+  const errors = A.empty<ParseError>();
   const parsed: unknown = parse(content, errors, { allowTrailingComma: true });
 
   if (A.length(errors) > 0) {
@@ -136,13 +136,12 @@ const packageManifestPolicy = (
   pipe(
     manifest.beep,
     O.flatMap((beep) => beep.importPolicy),
-    O.map(
-      (policy) =>
-        new RepoCodegraphPackageImportPolicy({
-          packageName,
-          packagePath,
-          preferredImports: policy.preferredImports,
-        })
+    O.map((policy) =>
+      RepoCodegraphPackageImportPolicy.make({
+        packageName,
+        packagePath,
+        preferredImports: policy.preferredImports,
+      })
     )
   );
 

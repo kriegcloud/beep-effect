@@ -155,7 +155,7 @@ export const NoSniffHeader = S.Union([NoSniffOption, S.Undefined]).pipe(
           return O.some(option);
         }
 
-        return yield* new NoSniffError({
+        return yield* NoSniffError.make({
           message: `Invalid value for ${headerName}: ${option}`,
           cause: O.none(),
         });

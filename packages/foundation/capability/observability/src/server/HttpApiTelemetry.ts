@@ -42,7 +42,7 @@ const decodeStatusField = S.decodeUnknownOption(HttpApiStatusField);
  * import { HttpApiTelemetryDescriptor } from "@beep/observability/server"
  *
  * const successStatus = S.decodeUnknownSync(NonNegativeInt)(201)
- * const descriptor = new HttpApiTelemetryDescriptor({
+ * const descriptor = HttpApiTelemetryDescriptor.make({
  *   apiName: "TodoApi",
  *   endpointName: "createTodo",
  *   groupName: "todos",
@@ -272,17 +272,15 @@ export const makeHttpApiTelemetryDescriptor: {
     group: HttpApiGroup.AnyWithProps,
     endpoint: HttpApiEndpoint.AnyWithProps
   ): (apiName: string) => HttpApiTelemetryDescriptor;
-} = dual(
-  3,
-  (apiName: string, group: HttpApiGroup.AnyWithProps, endpoint: HttpApiEndpoint.AnyWithProps) =>
-    new HttpApiTelemetryDescriptor({
-      apiName,
-      groupName: group.identifier,
-      endpointName: endpoint.name,
-      method: endpoint.method,
-      route: endpoint.path,
-      successStatus: httpApiSuccessStatus(endpointSuccessSchemas(endpoint)[0]),
-    })
+} = dual(3, (apiName: string, group: HttpApiGroup.AnyWithProps, endpoint: HttpApiEndpoint.AnyWithProps) =>
+  HttpApiTelemetryDescriptor.make({
+    apiName,
+    groupName: group.identifier,
+    endpointName: endpoint.name,
+    method: endpoint.method,
+    route: endpoint.path,
+    successStatus: httpApiSuccessStatus(endpointSuccessSchemas(endpoint)[0]),
+  })
 );
 
 /**

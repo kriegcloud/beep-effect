@@ -140,7 +140,7 @@ export class IdentityInterpolationError extends S.TaggedErrorClass<IdentityInter
  * ```typescript
  * import { IdentitySegmentCountError } from "@beep/identity"
  *
- * const error = new IdentitySegmentCountError()
+ * const error = IdentitySegmentCountError.make()
  * console.log(error.message) // "Identity template tags must use a single literal segment."
  * ```
  *
@@ -945,20 +945,20 @@ const validateTemplateInterpolations = (values: ReadonlyArray<unknown>): void =>
   A.match(values, {
     onEmpty: Fn.constVoid,
     onNonEmpty: () => {
-      throw new IdentityInterpolationError();
+      throw IdentityInterpolationError.make({});
     },
   });
 
 const validateTemplateSegmentCount = (strings: TemplateStringsArray): void =>
   A.match(strings, {
     onEmpty: () => {
-      throw new IdentitySegmentCountError();
+      throw IdentitySegmentCountError.make({});
     },
     onNonEmpty: () =>
       A.match(A.drop(strings, 1), {
         onEmpty: Fn.constVoid,
         onNonEmpty: () => {
-          throw new IdentitySegmentCountError();
+          throw IdentitySegmentCountError.make({});
         },
       }),
   });

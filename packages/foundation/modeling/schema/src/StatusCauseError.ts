@@ -24,7 +24,7 @@ const $I = $SchemaId.create("StatusCauseError");
  *
  * class AppError extends TaggedErrorClass<AppError>()("AppError", StatusCauseFields) {}
  *
- * const error = new AppError({
+ * const error = AppError.make({
  *   message: "not found",
  *   status: 404,
  *   cause: O.none()

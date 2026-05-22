@@ -26,8 +26,6 @@ import { renderPackageJsonOperation } from "./OperationPlanPackageJson.js";
 type EnsureAbsentPathOperation = Extract<ArchitectureOperation, { readonly kind: "ensure-absent-path" }>;
 type EnsureFileOperation = Extract<ArchitectureOperation, { readonly kind: "ensure-file" }>;
 
-const stringEquivalence = Str.equivalence;
-
 const operationIdFor = (kind: ArchitectureOperation["kind"], operationPath: string): string =>
   `${kind}:${operationPath}`;
 
@@ -53,8 +51,8 @@ const checkStatusFor = (
   operation: ArchitectureOperation,
   status: ArchitectureOperationCheckStatus
 ): ArchitectureOperationCheck =>
-  new ArchitectureOperationCheck({
-    operationId: stringEquivalence(operation.operationId, "legacy-operation")
+  ArchitectureOperationCheck.make({
+    operationId: Str.equivalence(operation.operationId, "legacy-operation")
       ? operationIdFor(operation.kind, operation.path)
       : operation.operationId,
     kind: operation.kind,
@@ -84,7 +82,7 @@ const ensureWritableOperationMatches = Effect.fn("Architecture.ensureWritableOpe
 ) {
   const current = yield* readOperationFile(fs, operationPath, writableOperation.path);
 
-  if (!stringEquivalence(current, expected)) {
+  if (!Str.equivalence(current, expected)) {
     return yield* DomainError.newMessage(
       `Architecture operation would overwrite a differing file: ${writableOperation.path}`
     );
@@ -206,7 +204,7 @@ export const checkCanonicalSliceOperationPlan: {
         }
 
         const current = yield* readOperationFile(fs, operationPath, writableOperation.path);
-        if (!stringEquivalence(current, expected)) {
+        if (!Str.equivalence(current, expected)) {
           A.appendInPlace(differingPaths, writableOperation.path);
           A.appendInPlace(operationStatuses, checkStatusFor(writableOperation, "differing"));
         } else {
@@ -241,7 +239,7 @@ export const checkCanonicalSliceOperationPlan: {
       );
     }
 
-    return new OperationPlanCheckResult({
+    return OperationPlanCheckResult.make({
       idempotent: missingPaths.length === 0 && differingPaths.length === 0 && unexpectedPaths.length === 0,
       operationStatuses,
       missingPaths,
@@ -308,6 +306,6 @@ export const applyCanonicalSliceOperationPlan: {
       );
     }
 
-    return new OperationPlanApplyResult({ writtenPaths, skippedPaths, removedPaths });
+    return OperationPlanApplyResult.make({ writtenPaths, skippedPaths, removedPaths });
   })
 );

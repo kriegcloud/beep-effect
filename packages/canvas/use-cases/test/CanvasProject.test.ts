@@ -12,14 +12,18 @@ const makeRepository = (
   canvasProjectId: DomainCanvasProject.CanvasProjectId
 ): CanvasProjectServer.CanvasProject.CanvasProjectRepositoryShape => {
   const initial = DomainCanvasProject.create(
-    new DomainCanvasProject.CreateCanvasProjectInput({
+    DomainCanvasProject.CreateCanvasProjectInput.make({
       id: canvasProjectId,
       title: "Document topology",
     })
   );
   let current = initial;
   return {
-    create: (canvasProject) => Effect.succeed(canvasProject),
+    create: (canvasProject) =>
+      Effect.sync(() => {
+        current = canvasProject;
+        return canvasProject;
+      }),
     save: (canvasProject) =>
       canvasProject.id === current.id
         ? Effect.sync(() => {
@@ -27,12 +31,14 @@ const makeRepository = (
             return canvasProject;
           })
         : Effect.fail(
-            new CanvasProjectServer.CanvasProject.CanvasProjectRepositoryNotFound({ canvasProjectId: canvasProject.id })
+            CanvasProjectServer.CanvasProject.CanvasProjectRepositoryNotFound.make({
+              canvasProjectId: canvasProject.id,
+            })
           ),
     get: (id) =>
       id === current.id
         ? Effect.succeed(current)
-        : Effect.fail(new CanvasProjectServer.CanvasProject.CanvasProjectRepositoryNotFound({ canvasProjectId: id })),
+        : Effect.fail(CanvasProjectServer.CanvasProject.CanvasProjectRepositoryNotFound.make({ canvasProjectId: id })),
     list: Effect.sync(() => [current]),
   };
 };
@@ -45,24 +51,24 @@ describe("CanvasProject use-cases", () => {
       const useCases = CanvasProjectServer.CanvasProject.makeCanvasProjectUseCases({
         create: () =>
           Effect.fail(
-            new CanvasProjectServer.CanvasProject.CanvasProjectRepositoryUnavailable({
+            CanvasProjectServer.CanvasProject.CanvasProjectRepositoryUnavailable.make({
               reason: "insert CanvasProject failed against canvas_project",
             })
           ),
         get: () =>
           Effect.fail(
-            new CanvasProjectServer.CanvasProject.CanvasProjectRepositoryUnavailable({
+            CanvasProjectServer.CanvasProject.CanvasProjectRepositoryUnavailable.make({
               reason: "select CanvasProject failed against canvas_project",
             })
           ),
         list: Effect.fail(
-          new CanvasProjectServer.CanvasProject.CanvasProjectRepositoryUnavailable({
+          CanvasProjectServer.CanvasProject.CanvasProjectRepositoryUnavailable.make({
             reason: "list CanvasProject failed against canvas_project",
           })
         ),
         save: () =>
           Effect.fail(
-            new CanvasProjectServer.CanvasProject.CanvasProjectRepositoryUnavailable({
+            CanvasProjectServer.CanvasProject.CanvasProjectRepositoryUnavailable.make({
               reason: "update CanvasProject failed against canvas_project",
             })
           ),
@@ -70,7 +76,7 @@ describe("CanvasProject use-cases", () => {
 
       const error = yield* useCases
         .create(
-          new CanvasProject.CreateCanvasProjectCommand({
+          CanvasProject.CreateCanvasProjectCommand.make({
             id: canvasProjectId,
             title: "Document topology",
           })
@@ -92,21 +98,21 @@ describe("CanvasProject use-cases", () => {
       const useCases = CanvasProjectServer.CanvasProject.makeCanvasProjectUseCases({
         create: () =>
           Effect.fail(
-            new CanvasProjectServer.CanvasProject.CanvasProjectRepositoryConflict({
+            CanvasProjectServer.CanvasProject.CanvasProjectRepositoryConflict.make({
               canvasProjectId,
               reason: "canvas_project already contains canvas-project-1",
             })
           ),
         get: () =>
-          Effect.fail(new CanvasProjectServer.CanvasProject.CanvasProjectRepositoryNotFound({ canvasProjectId })),
+          Effect.fail(CanvasProjectServer.CanvasProject.CanvasProjectRepositoryNotFound.make({ canvasProjectId })),
         list: Effect.succeed([]),
         save: () =>
-          Effect.fail(new CanvasProjectServer.CanvasProject.CanvasProjectRepositoryNotFound({ canvasProjectId })),
+          Effect.fail(CanvasProjectServer.CanvasProject.CanvasProjectRepositoryNotFound.make({ canvasProjectId })),
       });
 
       const error = yield* useCases
         .create(
-          new CanvasProject.CreateCanvasProjectCommand({
+          CanvasProject.CreateCanvasProjectCommand.make({
             id: canvasProjectId,
             title: "Document topology",
           })
@@ -130,7 +136,7 @@ describe("CanvasProject use-cases", () => {
       const useCases = CanvasProjectServer.CanvasProject.makeCanvasProjectUseCases(makeRepository(canvasProjectId));
       const error = yield* useCases
         .get(
-          new CanvasProject.GetCanvasProjectQuery({
+          CanvasProject.GetCanvasProjectQuery.make({
             id: missingCanvasProjectId,
           })
         )
@@ -146,13 +152,13 @@ describe("CanvasProject use-cases", () => {
       const canvasProjectId = yield* decodeCanvasProjectId("canvas-project-1");
       const canvasNodeId = yield* decodeCanvasNodeId("node-1");
       const useCases = CanvasProjectServer.CanvasProject.makeCanvasProjectUseCases(makeRepository(canvasProjectId));
-      yield* useCases.archive(new CanvasProject.ArchiveCanvasProjectCommand({ id: canvasProjectId }));
+      yield* useCases.archive(CanvasProject.ArchiveCanvasProjectCommand.make({ id: canvasProjectId }));
 
       const error = yield* useCases
         .addNode(
-          new CanvasProject.AddCanvasNodeCommand({
+          CanvasProject.AddCanvasNodeCommand.make({
             id: canvasProjectId,
-            node: new DomainCanvasProject.CanvasNode({
+            node: DomainCanvasProject.CanvasNode.make({
               id: canvasNodeId,
               kind: "note",
               label: "Archived node",
@@ -161,6 +167,60 @@ describe("CanvasProject use-cases", () => {
         )
         .pipe(Effect.flip);
       expect(error._tag).toBe("CanvasProjectActionRejected");
+    })
+  );
+
+  it.effect(
+    "restores a CanvasProject snapshot through the public use-case contract",
+    Effect.fnUntraced(function* () {
+      const canvasProjectId = yield* decodeCanvasProjectId("canvas-project-1");
+      const canvasNodeId = yield* decodeCanvasNodeId("restored-node");
+      const useCases = CanvasProjectServer.CanvasProject.makeCanvasProjectUseCases(makeRepository(canvasProjectId));
+      const restoredScene = DomainCanvasProject.CanvasProject.make({
+        id: canvasProjectId,
+        nodes: [
+          DomainCanvasProject.CanvasNode.make({
+            id: canvasNodeId,
+            kind: "asset",
+            label: "Restored node",
+          }),
+        ],
+        status: "open",
+        title: "Restored scene",
+      });
+
+      const restored = yield* useCases.restore(
+        CanvasProject.RestoreCanvasProjectCommand.make({ scene: restoredScene })
+      );
+      const loaded = yield* useCases.get(CanvasProject.GetCanvasProjectQuery.make({ id: canvasProjectId }));
+
+      expect(restored.title).toBe("Restored scene");
+      expect(loaded.nodes.map((node) => node.id)).toEqual(["restored-node"]);
+    })
+  );
+
+  it.effect(
+    "imports a missing CanvasProject snapshot through restore",
+    Effect.fnUntraced(function* () {
+      const existingCanvasProjectId = yield* decodeCanvasProjectId("canvas-project-1");
+      const importedCanvasProjectId = yield* decodeCanvasProjectId("imported-scene");
+      const useCases = CanvasProjectServer.CanvasProject.makeCanvasProjectUseCases(
+        makeRepository(existingCanvasProjectId)
+      );
+      const importedScene = DomainCanvasProject.CanvasProject.make({
+        id: importedCanvasProjectId,
+        nodes: [],
+        status: "open",
+        title: "Imported scene",
+      });
+
+      const imported = yield* useCases.restore(
+        CanvasProject.RestoreCanvasProjectCommand.make({ scene: importedScene })
+      );
+      const loaded = yield* useCases.get(CanvasProject.GetCanvasProjectQuery.make({ id: importedCanvasProjectId }));
+
+      expect(imported.title).toBe("Imported scene");
+      expect(loaded.id).toBe("imported-scene");
     })
   );
 });

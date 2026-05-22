@@ -17,7 +17,7 @@ const $I = $ArchitectureLabServerId.create("aggregates/WorkItem/WorkItem.http");
 const isNotFound = S.is(WorkItemUseCases.WorkItemNotFound);
 const isConflict = S.is(WorkItemUseCases.WorkItemConflict);
 const isActionRejected = S.is(WorkItemUseCases.WorkItemActionRejected);
-const serviceUnavailableBody = new WorkItemUseCases.WorkItemActionFailed({
+const serviceUnavailableBody = WorkItemUseCases.WorkItemActionFailed.make({
   reason: WorkItemUseCases.WORK_ITEM_ACTION_UNAVAILABLE_REASON,
 });
 
@@ -67,21 +67,21 @@ export class WorkItemHttpResponse extends S.Class<WorkItemHttpResponse>($I`WorkI
  */
 export const toWorkItemHttpError = (error: WorkItemUseCases.WorkItemActionError): WorkItemHttpResponse => {
   if (isNotFound(error)) {
-    return new WorkItemHttpResponse({ status: 404, body: error });
+    return WorkItemHttpResponse.make({ status: 404, body: error });
   }
   if (isConflict(error)) {
-    return new WorkItemHttpResponse({ status: 409, body: error });
+    return WorkItemHttpResponse.make({ status: 409, body: error });
   }
   if (isActionRejected(error)) {
-    return new WorkItemHttpResponse({ status: 422, body: error });
+    return WorkItemHttpResponse.make({ status: 422, body: error });
   }
-  return new WorkItemHttpResponse({ status: 503, body: serviceUnavailableBody });
+  return WorkItemHttpResponse.make({ status: 503, body: serviceUnavailableBody });
 };
 
 const toSuccess =
   (status: 200 | 201) =>
   (body: unknown): WorkItemHttpResponse =>
-    new WorkItemHttpResponse({ status, body });
+    WorkItemHttpResponse.make({ status, body });
 
 /**
  * Build HTTP-style WorkItem handlers from the public use-case facade.

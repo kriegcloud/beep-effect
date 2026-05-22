@@ -40,15 +40,15 @@ const isRepositoryUnavailable = S.is(WorkerRepositoryUnavailable);
  */
 export const toWorkerActionError = (error: WorkerRepositoryError): WorkerActionError => {
   if (isRepositoryNotFound(error)) {
-    return new WorkerNotFound({ workerId: error.workerId });
+    return WorkerNotFound.make({ workerId: error.workerId });
   }
   if (isRepositoryConflict(error)) {
-    return new WorkerConflict({ workerId: error.workerId, reason: error.reason });
+    return WorkerConflict.make({ workerId: error.workerId, reason: error.reason });
   }
   if (isRepositoryUnavailable(error)) {
-    return new WorkerActionFailed({ reason: WORKER_ACTION_UNAVAILABLE_REASON });
+    return WorkerActionFailed.make({ reason: WORKER_ACTION_UNAVAILABLE_REASON });
   }
-  return new WorkerActionFailed({ reason: "Unknown Worker repository failure." });
+  return WorkerActionFailed.make({ reason: "Unknown Worker repository failure." });
 };
 
 /**
@@ -60,7 +60,7 @@ export const toWorkerActionError = (error: WorkerRepositoryError): WorkerActionE
 export const makeWorkerUseCases = (repository: WorkerRepositoryShape): WorkerUseCasesShape => ({
   create: Effect.fn("ArchitectureLab.WorkerUseCases.create")(function* (command: CreateWorkerCommand) {
     return yield* pipe(
-      Effect.succeed(DomainWorker.create(new DomainWorker.CreateWorkerInput(command))),
+      Effect.succeed(DomainWorker.create(DomainWorker.CreateWorkerInput.make(command))),
       Effect.flatMap(repository.create),
       Effect.mapError(toWorkerActionError)
     );

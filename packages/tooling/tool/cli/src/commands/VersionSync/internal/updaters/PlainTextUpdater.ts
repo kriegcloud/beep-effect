@@ -6,7 +6,7 @@
  */
 
 import { Str } from "@beep/utils";
-import { Effect, FileSystem, Inspectable } from "effect";
+import { Effect, FileSystem } from "effect";
 import { dual } from "effect/Function";
 import { VersionSyncError } from "../Models.js";
 
@@ -26,30 +26,18 @@ export const updatePlainTextFile: {
   Effect.fn(function* (filePath: string, version: string) {
     const fs = yield* FileSystem.FileSystem;
 
-    const original = yield* fs.readFileString(filePath).pipe(
-      Effect.mapError(
-        (e) =>
-          new VersionSyncError({
-            message: `Failed to read ${filePath}: ${Inspectable.toStringUnknown(e, 0)}`,
-            file: filePath,
-          })
-      )
-    );
+    const original = yield* fs
+      .readFileString(filePath)
+      .pipe(VersionSyncError.mapError(`Failed to read ${filePath}`, filePath));
 
     const currentValue = Str.trim(original);
     if (currentValue === version) {
       return false;
     }
 
-    yield* fs.writeFileString(filePath, `${version}\n`).pipe(
-      Effect.mapError(
-        (e) =>
-          new VersionSyncError({
-            message: `Failed to write ${filePath}: ${Inspectable.toStringUnknown(e, 0)}`,
-            file: filePath,
-          })
-      )
-    );
+    yield* fs
+      .writeFileString(filePath, `${version}\n`)
+      .pipe(VersionSyncError.mapError(`Failed to write ${filePath}`, filePath));
 
     return true;
   })

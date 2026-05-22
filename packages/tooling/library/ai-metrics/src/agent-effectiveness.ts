@@ -137,7 +137,7 @@ export type AgentEffectivenessAnnotationValue = typeof AgentEffectivenessAnnotat
 export class AgentEffectivenessError extends TaggedErrorClass<AgentEffectivenessError>($I`AgentEffectivenessError`)(
   "AgentEffectivenessError",
   {
-    cause: S.Unknown,
+    cause: S.DefectWithStack,
     message: S.String,
   },
   $I.annote("AgentEffectivenessError", {
@@ -151,7 +151,7 @@ export class AgentEffectivenessError extends TaggedErrorClass<AgentEffectiveness
  * @example
  * ```ts
  * import { AgentEffectivenessDoctorInput } from "@beep/repo-ai-metrics"
- * console.log(new AgentEffectivenessDoctorInput({}).target)
+ * console.log(AgentEffectivenessDoctorInput.make({}).target)
  * ```
  * @category models
  * @since 0.0.0
@@ -192,7 +192,7 @@ export class AgentEffectivenessDoctorInput extends S.Class<AgentEffectivenessDoc
  * @example
  * ```ts
  * import { AgentEffectivenessAnnotationPlanInput } from "@beep/repo-ai-metrics"
- * console.log(new AgentEffectivenessAnnotationPlanInput({}).annotationLimit)
+ * console.log(AgentEffectivenessAnnotationPlanInput.make({}).annotationLimit)
  * ```
  * @category models
  * @since 0.0.0
@@ -206,8 +206,8 @@ export class AgentEffectivenessAnnotationPlanInput extends S.Class<AgentEffectiv
       S.withDecodingDefaultKey(Effect.succeed(defaultAnnotationLimit))
     ),
     doctor: AgentEffectivenessDoctorInput.pipe(
-      S.withConstructorDefault(Effect.succeed(new AgentEffectivenessDoctorInput({}))),
-      S.withDecodingDefaultKey(Effect.succeed(new AgentEffectivenessDoctorInput({})))
+      S.withConstructorDefault(Effect.succeed(AgentEffectivenessDoctorInput.make({}))),
+      S.withDecodingDefaultKey(Effect.succeed(AgentEffectivenessDoctorInput.make({})))
     ),
   },
   $I.annote("AgentEffectivenessAnnotationPlanInput", {
@@ -653,7 +653,7 @@ export type AgentEffectivenessDatasetKind = typeof AgentEffectivenessDatasetKind
  * ```ts
  * import { AgentEffectivenessDatasetExample } from "@beep/repo-ai-metrics"
  *
- * const example = new AgentEffectivenessDatasetExample({ id: "loop", input: { status: "passed" } })
+ * const example = AgentEffectivenessDatasetExample.make({ id: "loop", input: { status: "passed" } })
  * console.log(example.id)
  * ```
  * @category models
@@ -690,7 +690,7 @@ export class AgentEffectivenessDatasetExample extends S.Class<AgentEffectiveness
  * ```ts
  * import { AgentEffectivenessDatasetSpec } from "@beep/repo-ai-metrics"
  *
- * const spec = new AgentEffectivenessDatasetSpec({
+ * const spec = AgentEffectivenessDatasetSpec.make({
  *   description: "Loop health.",
  *   examples: [],
  *   kind: "agent-loop-health",
@@ -722,7 +722,7 @@ export class AgentEffectivenessDatasetSpec extends S.Class<AgentEffectivenessDat
  * ```ts
  * import { AgentEffectivenessDatasetBundle } from "@beep/repo-ai-metrics"
  *
- * const bundle = new AgentEffectivenessDatasetBundle({
+ * const bundle = AgentEffectivenessDatasetBundle.make({
  *   datasets: [],
  *   generatedAt: "2026-05-20T00:00:00.000Z",
  *   projectName: "beep-agent-effectiveness",
@@ -780,7 +780,7 @@ export type AgentEffectivenessPromptRole = typeof AgentEffectivenessPromptRole.T
  * ```ts
  * import { AgentEffectivenessPromptMessage } from "@beep/repo-ai-metrics"
  *
- * const message = new AgentEffectivenessPromptMessage({ content: "Review {{caseId}}", role: "user" })
+ * const message = AgentEffectivenessPromptMessage.make({ content: "Review {{caseId}}", role: "user" })
  * console.log(message.role)
  * ```
  * @category models
@@ -805,7 +805,7 @@ export class AgentEffectivenessPromptMessage extends S.Class<AgentEffectivenessP
  * ```ts
  * import { AgentEffectivenessPromptSpec } from "@beep/repo-ai-metrics"
  *
- * const spec = new AgentEffectivenessPromptSpec({
+ * const spec = AgentEffectivenessPromptSpec.make({
  *   description: "Review evaluator.",
  *   messages: [],
  *   modelName: "gpt-4o-mini",
@@ -837,7 +837,7 @@ export class AgentEffectivenessPromptSpec extends S.Class<AgentEffectivenessProm
  * ```ts
  * import { AgentEffectivenessPromptBundle } from "@beep/repo-ai-metrics"
  *
- * const bundle = new AgentEffectivenessPromptBundle({
+ * const bundle = AgentEffectivenessPromptBundle.make({
  *   generatedAt: "2026-05-20T00:00:00.000Z",
  *   projectName: "beep-agent-effectiveness",
  *   prompts: [],
@@ -869,7 +869,7 @@ export class AgentEffectivenessPromptBundle extends S.Class<AgentEffectivenessPr
  * ```ts
  * import { AgentEffectivenessExperimentSpec } from "@beep/repo-ai-metrics"
  *
- * const spec = new AgentEffectivenessExperimentSpec({
+ * const spec = AgentEffectivenessExperimentSpec.make({
  *   datasetName: "agent-loop-health-v1",
  *   description: "Deterministic loop-health readback.",
  *   name: "agent-loop-health-deterministic-v1"
@@ -903,7 +903,7 @@ export class AgentEffectivenessExperimentSpec extends S.Class<AgentEffectiveness
  * ```ts
  * import { AgentEffectivenessExperimentBundle } from "@beep/repo-ai-metrics"
  *
- * const bundle = new AgentEffectivenessExperimentBundle({
+ * const bundle = AgentEffectivenessExperimentBundle.make({
  *   experiments: [],
  *   generatedAt: "2026-05-20T00:00:00.000Z",
  *   projectName: "beep-agent-effectiveness",
@@ -935,7 +935,7 @@ export class AgentEffectivenessExperimentBundle extends S.Class<AgentEffectivene
  * ```ts
  * import { AgentEffectivenessPhoenixSyncInput } from "@beep/repo-ai-metrics"
  *
- * const input = new AgentEffectivenessPhoenixSyncInput({ dryRun: true })
+ * const input = AgentEffectivenessPhoenixSyncInput.make({ dryRun: true })
  * console.log(input.dryRun)
  * ```
  * @category models
@@ -946,8 +946,8 @@ export class AgentEffectivenessPhoenixSyncInput extends S.Class<AgentEffectivene
 )(
   {
     annotationPlan: AgentEffectivenessAnnotationPlanInput.pipe(
-      S.withConstructorDefault(Effect.succeed(new AgentEffectivenessAnnotationPlanInput({}))),
-      S.withDecodingDefaultKey(Effect.succeed(new AgentEffectivenessAnnotationPlanInput({})))
+      S.withConstructorDefault(Effect.succeed(AgentEffectivenessAnnotationPlanInput.make({}))),
+      S.withDecodingDefaultKey(Effect.succeed(AgentEffectivenessAnnotationPlanInput.make({})))
     ),
     confirmToken: S.String.pipe(S.optionalKey),
     dryRun: S.Boolean.pipe(
@@ -968,7 +968,7 @@ export class AgentEffectivenessPhoenixSyncInput extends S.Class<AgentEffectivene
  * ```ts
  * import { AgentEffectivenessPhoenixSyncResult } from "@beep/repo-ai-metrics"
  *
- * const result = new AgentEffectivenessPhoenixSyncResult({
+ * const result = AgentEffectivenessPhoenixSyncResult.make({
  *   annotationCount: 0,
  *   datasetCount: 0,
  *   dryRun: true,
@@ -1338,7 +1338,7 @@ const aggregateSummary = (
       ? AgentEffectivenessStatus.Enum.warning
       : AgentEffectivenessStatus.Enum.passed;
 
-  return new AgentEffectivenessDoctorSummary({ ...folded, status });
+  return AgentEffectivenessDoctorSummary.make({ ...folded, status });
 };
 
 const firstOrNull: <A>(values: ReadonlyArray<A>) => A | null = flow(A.head, O.getOrNull);
@@ -1392,7 +1392,7 @@ const buildPhoenixUnavailable = (
   input: AgentEffectivenessDoctorInput,
   message: string
 ): AgentEffectivenessPhoenixSection =>
-  new AgentEffectivenessPhoenixSection({
+  AgentEffectivenessPhoenixSection.make({
     baseUrl: input.phoenixBaseUrl,
     datasetCount: 0,
     evaluatorCount: 0,
@@ -1459,17 +1459,16 @@ const probePhoenix = Effect.fn("AiMetrics.agentEffectiveness.probePhoenix")(func
   const data = inventory.value.data;
   const projectsList = pipe(
     data.projects.edges,
-    A.map(
-      (edge) =>
-        new AgentEffectivenessPhoenixProject({
-          hasTraces: edge.node.hasTraces,
-          name: edge.node.name,
-          recordCount: edge.node.recordCount,
-          spanAnnotationNames: edge.node.spanAnnotationNames,
-          sessionAnnotationNames: edge.node.sessionAnnotationNames,
-          traceAnnotationNames: edge.node.traceAnnotationsNames,
-          traceCount: edge.node.traceCount,
-        })
+    A.map((edge) =>
+      AgentEffectivenessPhoenixProject.make({
+        hasTraces: edge.node.hasTraces,
+        name: edge.node.name,
+        recordCount: edge.node.recordCount,
+        spanAnnotationNames: edge.node.spanAnnotationNames,
+        sessionAnnotationNames: edge.node.sessionAnnotationNames,
+        traceAnnotationNames: edge.node.traceAnnotationsNames,
+        traceCount: edge.node.traceCount,
+      })
     )
   );
   const hasTraceBearingProject = pipe(
@@ -1477,7 +1476,7 @@ const probePhoenix = Effect.fn("AiMetrics.agentEffectiveness.probePhoenix")(func
     A.some((project) => project.hasTraces)
   );
 
-  return new AgentEffectivenessPhoenixSection({
+  return AgentEffectivenessPhoenixSection.make({
     baseUrl: input.phoenixBaseUrl,
     datasetCount: data.datasetCount,
     evaluatorCount: data.evaluatorCount,
@@ -1562,7 +1561,7 @@ const queryAiMetricsSection = Effect.fn("AiMetrics.agentEffectiveness.queryAiMet
   const scorecard =
     latestScorecard === null
       ? null
-      : new AgentEffectivenessScorecardSummary({
+      : AgentEffectivenessScorecardSummary.make({
           benchmarkRunCount: latestScorecard.benchmarkRunCount,
           completionReady: latestScorecard.completionReady,
           configSnapshotId: latestScorecard.configSnapshotId,
@@ -1576,23 +1575,22 @@ const queryAiMetricsSection = Effect.fn("AiMetrics.agentEffectiveness.queryAiMet
         });
   const sourceCoverage = pipe(
     sourceRows,
-    A.map(
-      (row) =>
-        new AgentEffectivenessSourceCoverage({
-          acceptedEvents: row.acceptedEvents,
-          lastTimestamp: row.lastTimestamp,
-          rejectedLines: row.rejectedLines,
-          sourceFileCount: row.sourceFileCount,
-          sourceKind: row.sourceKind,
-          totalLines: row.totalLines,
-        })
+    A.map((row) =>
+      AgentEffectivenessSourceCoverage.make({
+        acceptedEvents: row.acceptedEvents,
+        lastTimestamp: row.lastTimestamp,
+        rejectedLines: row.rejectedLines,
+        sourceFileCount: row.sourceFileCount,
+        sourceKind: row.sourceKind,
+        totalLines: row.totalLines,
+      })
     )
   );
   const latestForwarderRow = firstOrNull(forwarderRows);
   const latestForwarder =
     latestForwarderRow === null
       ? null
-      : new AgentEffectivenessForwarderSummary({
+      : AgentEffectivenessForwarderSummary.make({
           archiveObjectCount: latestForwarderRow.archiveObjectCount,
           completedAtEpochMillis: latestForwarderRow.completedAtEpochMillis,
           configSnapshotId: latestForwarderRow.configSnapshotId,
@@ -1615,7 +1613,7 @@ const queryAiMetricsSection = Effect.fn("AiMetrics.agentEffectiveness.queryAiMet
           ...scorecard.coverageGaps,
         ];
 
-  return new AgentEffectivenessAiMetricsSection({
+  return AgentEffectivenessAiMetricsSection.make({
     benchmarkRunCount,
     dataRoot: input.dataRoot,
     derivedDuckDbPath: duckDbPath,
@@ -1645,7 +1643,7 @@ const buildAiMetricsSection = Effect.fn("AiMetrics.agentEffectiveness.buildAiMet
   const exists = yield* fs.exists(duckDbPath).pipe(Effect.orElseSucceed(() => false));
 
   if (!exists) {
-    return new AgentEffectivenessAiMetricsSection({
+    return AgentEffectivenessAiMetricsSection.make({
       benchmarkRunCount: 0,
       dataRoot: input.dataRoot,
       derivedDuckDbPath: duckDbPath,
@@ -1662,7 +1660,7 @@ const buildAiMetricsSection = Effect.fn("AiMetrics.agentEffectiveness.buildAiMet
   return yield* queryAiMetricsSection(input, duckDbPath).pipe(
     Effect.catch(() =>
       Effect.succeed(
-        new AgentEffectivenessAiMetricsSection({
+        AgentEffectivenessAiMetricsSection.make({
           benchmarkRunCount: 0,
           dataRoot: input.dataRoot,
           derivedDuckDbPath: duckDbPath,
@@ -1687,7 +1685,7 @@ const buildJsdocWorkerSection = Effect.fn("AiMetrics.agentEffectiveness.buildJsd
   const exists = yield* fs.exists(reportPath).pipe(Effect.orElseSucceed(() => false));
 
   if (!exists) {
-    return new AgentEffectivenessJsdocWorkerSection({
+    return AgentEffectivenessJsdocWorkerSection.make({
       cleanupDeleteStatus: null,
       cleanupStopStatus: null,
       completedPackets: 0,
@@ -1705,7 +1703,7 @@ const buildJsdocWorkerSection = Effect.fn("AiMetrics.agentEffectiveness.buildJsd
   const decoded = yield* readJsonFile(reportPath).pipe(Effect.flatMap(decodeRunpodWorkerEvalReportJson), Effect.option);
 
   if (decoded._tag === "None") {
-    return new AgentEffectivenessJsdocWorkerSection({
+    return AgentEffectivenessJsdocWorkerSection.make({
       cleanupDeleteStatus: null,
       cleanupStopStatus: null,
       completedPackets: 0,
@@ -1737,7 +1735,7 @@ const buildJsdocWorkerSection = Effect.fn("AiMetrics.agentEffectiveness.buildJsd
   const hasFailures = summary.failed > 0 || summary.timedOut > 0;
   const hasWarnings = A.isReadonlyArrayNonEmpty(policyViolationCodes);
 
-  return new AgentEffectivenessJsdocWorkerSection({
+  return AgentEffectivenessJsdocWorkerSection.make({
     cleanupDeleteStatus: decoded.value.cleanup.deleteStatus,
     cleanupStopStatus: decoded.value.cleanup.stopStatus,
     completedPackets: summary.completed,
@@ -1778,7 +1776,7 @@ export const makeAgentEffectivenessDoctorReport: (
   never,
   DuckDb | FileSystem.FileSystem | HttpClient.HttpClient | Path.Path
 > = Effect.fn("AiMetrics.makeAgentEffectivenessDoctorReport")(function* (
-  input: AgentEffectivenessDoctorInput = new AgentEffectivenessDoctorInput({})
+  input: AgentEffectivenessDoctorInput = AgentEffectivenessDoctorInput.make({})
 ) {
   const [phoenix, aiMetrics, jsdocWorkerEval] = yield* Effect.all(
     [probePhoenix(input), buildAiMetricsSection(input), buildJsdocWorkerSection(input)] as const,
@@ -1791,7 +1789,7 @@ export const makeAgentEffectivenessDoctorReport: (
   ]);
   const generatedAt = yield* currentIsoTimestamp;
 
-  return new AgentEffectivenessDoctorReport({
+  return AgentEffectivenessDoctorReport.make({
     aiMetrics,
     dataRoot: input.dataRoot,
     generatedAt,
@@ -1828,7 +1826,7 @@ const annotation = ({
     O.map((suffix) => `${baseAnnotationId}:${annotationIdSuffixPart(suffix)}`),
     O.getOrElse(() => baseAnnotationId)
   );
-  return new AgentEffectivenessPlannedAnnotation({
+  return AgentEffectivenessPlannedAnnotation.make({
     annotationId,
     metadata,
     name,
@@ -2107,7 +2105,7 @@ export const makeAgentEffectivenessAnnotationPlan: (
   never,
   DuckDb | FileSystem.FileSystem | HttpClient.HttpClient | Path.Path
 > = Effect.fn("AiMetrics.makeAgentEffectivenessAnnotationPlan")(function* (
-  input: AgentEffectivenessAnnotationPlanInput = new AgentEffectivenessAnnotationPlanInput({})
+  input: AgentEffectivenessAnnotationPlanInput = AgentEffectivenessAnnotationPlanInput.make({})
 ) {
   const doctor = yield* makeAgentEffectivenessDoctorReport(input.doctor);
   const storageAnnotations = yield* queryAnnotationRows(input, doctor).pipe(Effect.orElseSucceed(() => []));
@@ -2120,7 +2118,7 @@ export const makeAgentEffectivenessAnnotationPlan: (
   ];
   const generatedAt = yield* currentIsoTimestamp;
 
-  return new AgentEffectivenessAnnotationPlan({
+  return AgentEffectivenessAnnotationPlan.make({
     annotations,
     doctor,
     generatedAt,
@@ -2152,7 +2150,7 @@ const datasetExample = ({
   readonly output?: Record<string, unknown>;
   readonly split?: string;
 }): AgentEffectivenessDatasetExample =>
-  new AgentEffectivenessDatasetExample({
+  AgentEffectivenessDatasetExample.make({
     id,
     input,
     metadata,
@@ -2169,7 +2167,7 @@ const datasetSpec = ({
   readonly examples: ReadonlyArray<AgentEffectivenessDatasetExample>;
   readonly kind: AgentEffectivenessDatasetKind;
 }): AgentEffectivenessDatasetSpec =>
-  new AgentEffectivenessDatasetSpec({
+  AgentEffectivenessDatasetSpec.make({
     description,
     examples,
     kind,
@@ -2313,7 +2311,7 @@ const jsdocWorkerDataset = (doctor: AgentEffectivenessDoctorReport): AgentEffect
 export const makeAgentEffectivenessDatasetBundle: (
   doctor: AgentEffectivenessDoctorReport
 ) => AgentEffectivenessDatasetBundle = (doctor) =>
-  new AgentEffectivenessDatasetBundle({
+  AgentEffectivenessDatasetBundle.make({
     datasets: [
       loopHealthDataset(doctor),
       outcomesDataset(doctor),
@@ -2342,18 +2340,18 @@ export const makeAgentEffectivenessDatasetBundle: (
 export const makeAgentEffectivenessPromptBundle: (generatedAt: string) => AgentEffectivenessPromptBundle = (
   generatedAt
 ) =>
-  new AgentEffectivenessPromptBundle({
+  AgentEffectivenessPromptBundle.make({
     generatedAt,
     projectName: AGENT_EFFECTIVENESS_PHOENIX_PROJECT,
     prompts: [
-      new AgentEffectivenessPromptSpec({
+      AgentEffectivenessPromptSpec.make({
         description: "Repo-owned review prompt for deterministic agent-effectiveness case summaries.",
         messages: [
-          new AgentEffectivenessPromptMessage({
+          AgentEffectivenessPromptMessage.make({
             content: "You review sanitized aggregate agent-effectiveness evidence. Do not request raw transcripts.",
             role: "system",
           }),
-          new AgentEffectivenessPromptMessage({
+          AgentEffectivenessPromptMessage.make({
             content: "Evaluate {{datasetName}} example {{exampleId}} using only aggregate fields.",
             role: "user",
           }),
@@ -2361,14 +2359,14 @@ export const makeAgentEffectivenessPromptBundle: (generatedAt: string) => AgentE
         modelName: "gpt-4o-mini",
         name: "agent-effectiveness-review-evaluator-v1",
       }),
-      new AgentEffectivenessPromptSpec({
+      AgentEffectivenessPromptSpec.make({
         description: "Repo-owned prompt for source coverage review over sanitized source aggregates.",
         messages: [
-          new AgentEffectivenessPromptMessage({
+          AgentEffectivenessPromptMessage.make({
             content: "You review source coverage aggregates and identify coverage gaps.",
             role: "system",
           }),
-          new AgentEffectivenessPromptMessage({
+          AgentEffectivenessPromptMessage.make({
             content: "Review source kind {{sourceKind}} with accepted event count {{acceptedEvents}}.",
             role: "user",
           }),
@@ -2396,21 +2394,20 @@ export const makeAgentEffectivenessPromptBundle: (generatedAt: string) => AgentE
 export const makeAgentEffectivenessExperimentBundle: (
   datasetBundle: AgentEffectivenessDatasetBundle
 ) => AgentEffectivenessExperimentBundle = (datasetBundle) =>
-  new AgentEffectivenessExperimentBundle({
+  AgentEffectivenessExperimentBundle.make({
     experiments: pipe(
       datasetBundle.datasets,
-      A.map(
-        (dataset) =>
-          new AgentEffectivenessExperimentSpec({
-            datasetName: dataset.name,
-            description: `Deterministic readback experiment for ${dataset.name}.`,
-            metadata: {
-              datasetKind: dataset.kind,
-              projectName: datasetBundle.projectName,
-              source: "agent-effectiveness-loop",
-            },
-            name: `${dataset.kind}-deterministic-v1`,
-          })
+      A.map((dataset) =>
+        AgentEffectivenessExperimentSpec.make({
+          datasetName: dataset.name,
+          description: `Deterministic readback experiment for ${dataset.name}.`,
+          metadata: {
+            datasetKind: dataset.kind,
+            projectName: datasetBundle.projectName,
+            source: "agent-effectiveness-loop",
+          },
+          name: `${dataset.kind}-deterministic-v1`,
+        })
       )
     ),
     generatedAt: datasetBundle.generatedAt,
@@ -2419,26 +2416,25 @@ export const makeAgentEffectivenessExperimentBundle: (
   });
 
 const toPhoenixDatasetCreateInput = (dataset: AgentEffectivenessDatasetSpec): PhoenixDatasetCreateInput =>
-  new PhoenixDatasetCreateInput({
+  PhoenixDatasetCreateInput.make({
     description: dataset.description,
     examples: pipe(
       dataset.examples,
-      A.map(
-        (example) =>
-          new PhoenixDatasetExample({
-            id: example.id,
-            input: example.input,
-            metadata: example.metadata,
-            output: example.output,
-            splits: example.split,
-          })
+      A.map((example) =>
+        PhoenixDatasetExample.make({
+          id: example.id,
+          input: example.input,
+          metadata: example.metadata,
+          output: example.output,
+          splits: example.split,
+        })
       )
     ),
     name: dataset.name,
   });
 
 const datasetSelectorFor = (dataset: AgentEffectivenessDatasetSpec): PhoenixDatasetSelector =>
-  new PhoenixDatasetSelector({ kind: "dataset-name", value: dataset.name });
+  PhoenixDatasetSelector.make({ kind: "dataset-name", value: dataset.name });
 
 const phoenixNotFoundStatusPattern = /\b404\b/u;
 
@@ -2474,7 +2470,7 @@ const syncPhoenixDataset = Effect.fn("AiMetrics.syncPhoenixDataset")(function* (
 
   if (O.isSome(existing)) {
     const appended = yield* phoenix.appendDatasetExamples(
-      new PhoenixDatasetAppendInput({
+      PhoenixDatasetAppendInput.make({
         dataset: selector,
         examples: input.examples,
       })
@@ -2493,7 +2489,7 @@ const syncPhoenixDataset = Effect.fn("AiMetrics.syncPhoenixDataset")(function* (
 });
 
 const toPhoenixPromptCreateInput = (prompt: AgentEffectivenessPromptSpec): PhoenixPromptCreateInput =>
-  new PhoenixPromptCreateInput({
+  PhoenixPromptCreateInput.make({
     description: prompt.description,
     metadata: {
       projectName: AGENT_EFFECTIVENESS_PHOENIX_PROJECT,
@@ -2503,7 +2499,7 @@ const toPhoenixPromptCreateInput = (prompt: AgentEffectivenessPromptSpec): Phoen
     name: prompt.name,
     template: pipe(
       prompt.messages,
-      A.map((message) => new PhoenixPromptChatMessage({ content: message.content, role: message.role }))
+      A.map((message) => PhoenixPromptChatMessage.make({ content: message.content, role: message.role }))
     ),
     versionDescription: `${prompt.name} checked in by @beep/repo-ai-metrics.`,
   });
@@ -2525,7 +2521,7 @@ const plannedAnnotationToPhoenix = (
     : { label: P.isBoolean(annotation.value) ? (annotation.value ? "true" : "false") : annotation.value };
 
   return O.some(
-    new PhoenixAnnotationInput({
+    PhoenixAnnotationInput.make({
       identifier: annotation.annotationId,
       metadata: {
         optimization: annotation.optimization,
@@ -2559,7 +2555,7 @@ const unconfirmedSyncResult = ({
   readonly promptBundle: AgentEffectivenessPromptBundle;
   readonly status: AgentEffectivenessStatus;
 }): AgentEffectivenessPhoenixSyncResult =>
-  new AgentEffectivenessPhoenixSyncResult({
+  AgentEffectivenessPhoenixSyncResult.make({
     annotationCount: A.length(phoenixAnnotations),
     datasetCount: A.length(datasetBundle.datasets),
     dryRun,
@@ -2594,7 +2590,7 @@ export const syncAgentEffectivenessPhoenix: (
   AgentEffectivenessError,
   DuckDb | FileSystem.FileSystem | HttpClient.HttpClient | Path.Path | Phoenix
 > = Effect.fn("AiMetrics.syncAgentEffectivenessPhoenix")(function* (
-  input: AgentEffectivenessPhoenixSyncInput = new AgentEffectivenessPhoenixSyncInput({})
+  input: AgentEffectivenessPhoenixSyncInput = AgentEffectivenessPhoenixSyncInput.make({})
 ) {
   const plan = yield* makeAgentEffectivenessAnnotationPlan(input.annotationPlan);
   const datasetBundle = makeAgentEffectivenessDatasetBundle(plan.doctor);
@@ -2663,12 +2659,11 @@ export const syncAgentEffectivenessPhoenix: (
     (dataset) => syncPhoenixDataset(phoenix, dataset),
     { concurrency: 1 }
   ).pipe(
-    Effect.mapError(
-      (cause) =>
-        new AgentEffectivenessError({
-          cause,
-          message: "Failed to sync agent-effectiveness datasets to Phoenix.",
-        })
+    Effect.mapError((cause) =>
+      AgentEffectivenessError.make({
+        cause,
+        message: "Failed to sync agent-effectiveness datasets to Phoenix.",
+      })
     )
   );
   const promptResults = yield* Effect.forEach(
@@ -2676,12 +2671,11 @@ export const syncAgentEffectivenessPhoenix: (
     (prompt) => phoenix.createPrompt(toPhoenixPromptCreateInput(prompt)),
     { concurrency: 1 }
   ).pipe(
-    Effect.mapError(
-      (cause) =>
-        new AgentEffectivenessError({
-          cause,
-          message: "Failed to write agent-effectiveness prompts to Phoenix.",
-        })
+    Effect.mapError((cause) =>
+      AgentEffectivenessError.make({
+        cause,
+        message: "Failed to write agent-effectiveness prompts to Phoenix.",
+      })
     )
   );
   const experimentResults = yield* Effect.forEach(
@@ -2695,7 +2689,7 @@ export const syncAgentEffectivenessPhoenix: (
     ),
     ({ dataset, datasetId }) =>
       phoenix.createExperiment(
-        new PhoenixExperimentCreateInput({
+        PhoenixExperimentCreateInput.make({
           datasetId,
           experimentDescription: `Deterministic readback experiment for ${dataset.name}.`,
           experimentMetadata: {
@@ -2708,25 +2702,23 @@ export const syncAgentEffectivenessPhoenix: (
       ),
     { concurrency: 1 }
   ).pipe(
-    Effect.mapError(
-      (cause) =>
-        new AgentEffectivenessError({
-          cause,
-          message: "Failed to create agent-effectiveness Phoenix experiments.",
-        })
+    Effect.mapError((cause) =>
+      AgentEffectivenessError.make({
+        cause,
+        message: "Failed to create agent-effectiveness Phoenix experiments.",
+      })
     )
   );
   const annotationResults = yield* Effect.forEach(phoenixAnnotations, phoenix.addAnnotation, { concurrency: 1 }).pipe(
-    Effect.mapError(
-      (cause) =>
-        new AgentEffectivenessError({
-          cause,
-          message: "Failed to write resolved agent-effectiveness annotations to Phoenix.",
-        })
+    Effect.mapError((cause) =>
+      AgentEffectivenessError.make({
+        cause,
+        message: "Failed to write resolved agent-effectiveness annotations to Phoenix.",
+      })
     )
   );
 
-  return new AgentEffectivenessPhoenixSyncResult({
+  return AgentEffectivenessPhoenixSyncResult.make({
     annotationCount: A.length(annotationResults),
     datasetCount: A.length(datasetResults),
     dryRun: false,
@@ -2770,18 +2762,17 @@ const checkText = (
   pipe(
     forbiddenPatterns,
     A.filter((entry) => entry.pattern.test(value)),
-    A.map(
-      (entry) =>
-        new AgentEffectivenessAnnotationCheckFinding({
-          annotationId,
-          code: entry.code,
-          message: `${subject} contains forbidden ${entry.code} content.`,
-        })
+    A.map((entry) =>
+      AgentEffectivenessAnnotationCheckFinding.make({
+        annotationId,
+        code: entry.code,
+        message: `${subject} contains forbidden ${entry.code} content.`,
+      })
     )
   );
 
 const depthFinding = (subjectId: string, subject: string): ReadonlyArray<AgentEffectivenessAnnotationCheckFinding> => [
-  new AgentEffectivenessAnnotationCheckFinding({
+  AgentEffectivenessAnnotationCheckFinding.make({
     annotationId: subjectId,
     code: "max-nested-depth",
     message: `${subject} exceeds the maximum privacy scan depth.`,
@@ -2910,13 +2901,12 @@ const duplicateAnnotationIdFindings = (
   );
   return pipe(
     duplicatedIds,
-    A.map(
-      (annotationId) =>
-        new AgentEffectivenessAnnotationCheckFinding({
-          annotationId,
-          code: "duplicate-annotation-id",
-          message: "Annotation id must be unique within the local plan.",
-        })
+    A.map((annotationId) =>
+      AgentEffectivenessAnnotationCheckFinding.make({
+        annotationId,
+        code: "duplicate-annotation-id",
+        message: "Annotation id must be unique within the local plan.",
+      })
     )
   );
 };
@@ -2942,7 +2932,7 @@ export const makeAgentEffectivenessAnnotationCheckReport: (
     ...checkPlanPayload(plan),
     ...duplicateAnnotationIdFindings(plan.annotations),
   ];
-  return new AgentEffectivenessAnnotationCheckReport({
+  return AgentEffectivenessAnnotationCheckReport.make({
     annotationCount: A.length(plan.annotations),
     findings,
     generatedAt: plan.generatedAt,
@@ -2969,12 +2959,11 @@ export const agentEffectivenessDoctorReportToJson: (
 ) => Effect.Effect<string, AgentEffectivenessError> = Effect.fn("AiMetrics.agentEffectivenessDoctorReportToJson")(
   (report) =>
     encodeDoctorReportJson(report).pipe(
-      Effect.mapError(
-        (cause) =>
-          new AgentEffectivenessError({
-            cause,
-            message: "Failed to encode agent-effectiveness doctor report as JSON.",
-          })
+      Effect.mapError((cause) =>
+        AgentEffectivenessError.make({
+          cause,
+          message: "Failed to encode agent-effectiveness doctor report as JSON.",
+        })
       )
     )
 );
@@ -2995,12 +2984,11 @@ export const agentEffectivenessAnnotationPlanToJson: (
 ) => Effect.Effect<string, AgentEffectivenessError> = Effect.fn("AiMetrics.agentEffectivenessAnnotationPlanToJson")(
   (plan) =>
     encodeAnnotationPlanJson(plan).pipe(
-      Effect.mapError(
-        (cause) =>
-          new AgentEffectivenessError({
-            cause,
-            message: "Failed to encode agent-effectiveness annotation plan as JSON.",
-          })
+      Effect.mapError((cause) =>
+        AgentEffectivenessError.make({
+          cause,
+          message: "Failed to encode agent-effectiveness annotation plan as JSON.",
+        })
       )
     )
 );
@@ -3022,12 +3010,11 @@ export const agentEffectivenessAnnotationCheckReportToJson: (
   "AiMetrics.agentEffectivenessAnnotationCheckReportToJson"
 )((report) =>
   encodeAnnotationCheckJson(report).pipe(
-    Effect.mapError(
-      (cause) =>
-        new AgentEffectivenessError({
-          cause,
-          message: "Failed to encode agent-effectiveness annotation-check report as JSON.",
-        })
+    Effect.mapError((cause) =>
+      AgentEffectivenessError.make({
+        cause,
+        message: "Failed to encode agent-effectiveness annotation-check report as JSON.",
+      })
     )
   )
 );
@@ -3048,12 +3035,11 @@ export const agentEffectivenessDatasetBundleToJson: (
 ) => Effect.Effect<string, AgentEffectivenessError> = Effect.fn("AiMetrics.agentEffectivenessDatasetBundleToJson")(
   (bundle) =>
     encodeDatasetBundleJson(bundle).pipe(
-      Effect.mapError(
-        (cause) =>
-          new AgentEffectivenessError({
-            cause,
-            message: "Failed to encode agent-effectiveness dataset bundle as JSON.",
-          })
+      Effect.mapError((cause) =>
+        AgentEffectivenessError.make({
+          cause,
+          message: "Failed to encode agent-effectiveness dataset bundle as JSON.",
+        })
       )
     )
 );
@@ -3074,12 +3060,11 @@ export const agentEffectivenessPromptBundleToJson: (
 ) => Effect.Effect<string, AgentEffectivenessError> = Effect.fn("AiMetrics.agentEffectivenessPromptBundleToJson")(
   (bundle) =>
     encodePromptBundleJson(bundle).pipe(
-      Effect.mapError(
-        (cause) =>
-          new AgentEffectivenessError({
-            cause,
-            message: "Failed to encode agent-effectiveness prompt bundle as JSON.",
-          })
+      Effect.mapError((cause) =>
+        AgentEffectivenessError.make({
+          cause,
+          message: "Failed to encode agent-effectiveness prompt bundle as JSON.",
+        })
       )
     )
 );
@@ -3100,12 +3085,11 @@ export const agentEffectivenessExperimentBundleToJson: (
 ) => Effect.Effect<string, AgentEffectivenessError> = Effect.fn("AiMetrics.agentEffectivenessExperimentBundleToJson")(
   (bundle) =>
     encodeExperimentBundleJson(bundle).pipe(
-      Effect.mapError(
-        (cause) =>
-          new AgentEffectivenessError({
-            cause,
-            message: "Failed to encode agent-effectiveness experiment bundle as JSON.",
-          })
+      Effect.mapError((cause) =>
+        AgentEffectivenessError.make({
+          cause,
+          message: "Failed to encode agent-effectiveness experiment bundle as JSON.",
+        })
       )
     )
 );
@@ -3126,12 +3110,11 @@ export const agentEffectivenessPhoenixSyncResultToJson: (
 ) => Effect.Effect<string, AgentEffectivenessError> = Effect.fn("AiMetrics.agentEffectivenessPhoenixSyncResultToJson")(
   (result) =>
     encodePhoenixSyncResultJson(result).pipe(
-      Effect.mapError(
-        (cause) =>
-          new AgentEffectivenessError({
-            cause,
-            message: "Failed to encode agent-effectiveness Phoenix sync result as JSON.",
-          })
+      Effect.mapError((cause) =>
+        AgentEffectivenessError.make({
+          cause,
+          message: "Failed to encode agent-effectiveness Phoenix sync result as JSON.",
+        })
       )
     )
 );

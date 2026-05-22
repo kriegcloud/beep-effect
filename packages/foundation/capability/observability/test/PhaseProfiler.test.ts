@@ -51,7 +51,7 @@ describe("PhaseProfiler", () => {
               attributes: { run_kind: "index" },
               failed,
             },
-            Effect.fail(new TestPhaseError({ message: "boom" }))
+            Effect.fail(TestPhaseError.make({ message: "boom" }))
           )
         );
 

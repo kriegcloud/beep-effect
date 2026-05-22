@@ -1672,7 +1672,7 @@ const encodeTSConfigJsonStringEffect = S.encodeUnknownEffect(S.fromJsonString(TS
  * @since 0.0.0
  */
 export const decodeTSConfig = (input: unknown): TSConfig.Type =>
-  new TSConfig(Result.getOrThrow(decodeTSConfigSemanticUnknownResult(input, strictDecodeOptions)));
+  TSConfig.make(Result.getOrThrow(decodeTSConfigSemanticUnknownResult(input, strictDecodeOptions)));
 
 /**
  * Synchronously decode an unknown value into a strict `TSConfig`,
@@ -1692,7 +1692,7 @@ export const decodeTSConfig = (input: unknown): TSConfig.Type =>
 export const decodeTSConfigExit: (input: unknown) => Exit.Exit<TSConfig.Type, S.SchemaError> = (input) =>
   pipe(
     decodeTSConfigSemanticUnknownExit(input, strictDecodeOptions),
-    Exit.map((value) => new TSConfig(value))
+    Exit.map((value) => TSConfig.make(value))
   );
 
 /**
@@ -1710,7 +1710,7 @@ export const decodeTSConfigExit: (input: unknown) => Exit.Exit<TSConfig.Type, S.
  * @since 0.0.0
  */
 export const decodeTSConfigEffect: (input: unknown) => Effect.Effect<TSConfig.Type, S.SchemaError> = (input) =>
-  decodeTSConfigSemanticUnknownEffect(input, strictDecodeOptions).pipe(Effect.map((value) => new TSConfig(value)));
+  decodeTSConfigSemanticUnknownEffect(input, strictDecodeOptions).pipe(Effect.map((value) => TSConfig.make(value)));
 
 /**
  * Decode JSONC text into a strict `TSConfig`.
@@ -1736,7 +1736,7 @@ export const decodeTSConfigFromJsoncTextEffect: (input: string) => Effect.Effect
   Effect.fn("RepoUtils.TSConfig.decodeFromJsoncText")(function* (input) {
     const parsed = yield* decodeJsoncUnknownText(input);
     const decoded = yield* decodeTSConfigSemanticUnknownEffect(parsed, strictDecodeOptions);
-    return new TSConfig(decoded);
+    return TSConfig.make(decoded);
   });
 
 /**

@@ -38,7 +38,7 @@ describe("@beep/epistemic-domain", () => {
       lifecycle: "candidate",
       snapshot: { confidence: 0.92, label: "Patentability" },
     });
-    const constructed = new CandidateClaim(decoded);
+    const constructed = CandidateClaim.make(decoded);
 
     expect(decoded).toBeInstanceOf(CandidateClaim);
     expect(constructed).toBeInstanceOf(CandidateClaim);

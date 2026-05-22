@@ -78,7 +78,7 @@ export type ClassFactory<
 };
 
 const failEntityFieldInput = (field: string, message: string): never => {
-  throw new EntityFieldInputError({ field, message });
+  throw EntityFieldInputError.make({ field, message });
 };
 
 const modelVariantKeys = [
@@ -290,7 +290,7 @@ const attachDefinition = <
   if (hasAttachedDefinition(entityClass, definition)) {
     return entityClass;
   }
-  throw new EntitySchemaAttachmentError({ message: "Failed to attach EntitySchema definition metadata." });
+  throw EntitySchemaAttachmentError.make({ message: "Failed to attach EntitySchema definition metadata." });
 };
 
 const hasAttachedDefinition = <

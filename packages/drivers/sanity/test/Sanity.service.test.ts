@@ -86,7 +86,7 @@ const TestHttpClientLayer = Layer.effect(
 );
 
 const TestLayer = Sanity.makeLayer(
-  new SanityConfigInput({
+  SanityConfigInput.make({
     apiToken: Redacted.make("sanity-token"),
     dataset: "production",
     projectId: "oip",
@@ -99,7 +99,7 @@ describe("@beep/sanity", () => {
       "submits a GROQ query and decodes the result envelope",
       Effect.fnUntraced(function* () {
         const sanity = yield* Sanity;
-        const response = yield* sanity.fetch(new SanityQueryRequest({ query: "*[_type == 'oipSiteContent'][0]" }));
+        const response = yield* sanity.fetch(SanityQueryRequest.make({ query: "*[_type == 'oipSiteContent'][0]" }));
         const testHttp = yield* SanityTestHttp;
         const captures = yield* testHttp.captures;
 
@@ -117,7 +117,7 @@ describe("@beep/sanity", () => {
         yield* testHttp.respondWith(() => Effect.succeed(makeJsonResponse({ message: "nope" }, 500)));
 
         const sanity = yield* Sanity;
-        const exit = yield* Effect.exit(sanity.fetch(new SanityQueryRequest({ query: "*[]" })));
+        const exit = yield* Effect.exit(sanity.fetch(SanityQueryRequest.make({ query: "*[]" })));
 
         expect(Exit.isFailure(exit)).toBe(true);
         if (Exit.isFailure(exit)) {

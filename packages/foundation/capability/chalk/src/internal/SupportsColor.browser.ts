@@ -37,14 +37,14 @@ const hasUserAgentData = (browserNavigator: Navigator): browserNavigator is Brow
 
 const getBrowserNavigator = (): O.Option<Navigator> => pipe(globalThis.navigator, O.fromNullishOr);
 
-const trueColorBrowserSupport = new ColorSupport({
+const trueColorBrowserSupport = ColorSupport.make({
   has16m: true,
   has256: true,
   hasBasic: true,
   level: 3,
 });
 
-const basicBrowserSupport = new ColorSupport({
+const basicBrowserSupport = ColorSupport.make({
   has16m: false,
   has256: false,
   hasBasic: true,

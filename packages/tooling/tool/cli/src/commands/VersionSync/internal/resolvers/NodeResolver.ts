@@ -117,7 +117,6 @@ const UnknownNodeVersionValueToString = S.Unknown.pipe(
 
 const decodeNodeVersionString = S.decodeUnknownOption(UnknownNodeVersionValueToString);
 const nodeVersionString = (value: unknown): string => O.getOrElse(decodeNodeVersionString(value), () => `${value}`);
-const stringEquivalence = Str.equivalence;
 
 // ── Public API ──────────────────────────────────────────────────────────────
 
@@ -137,17 +136,16 @@ export const resolveNodeVersions: (
 
   // Read .nvmrc
   const nvmrcPath = path.join(repoRoot, ".nvmrc");
-  const nvmrc = yield* fs.readFileString(nvmrcPath).pipe(
-    Effect.map(Str.trim),
-    Effect.mapError((e) => new VersionSyncError({ message: `Failed to read .nvmrc: ${e}`, file: ".nvmrc" }))
-  );
+  const nvmrc = yield* fs
+    .readFileString(nvmrcPath)
+    .pipe(Effect.map(Str.trim), VersionSyncError.mapError("Failed to read .nvmrc", ".nvmrc"));
 
   // Scan workflow files
   const workflowDir = path.join(repoRoot, ".github", "workflows");
   const workflowDirExists = yield* fs.exists(workflowDir).pipe(Effect.orElseSucceed(thunkFalse));
 
   if (!workflowDirExists) {
-    return new NodeVersionState({ nvmrc, workflowLocations: A.empty<NodeVersionLocation>() });
+    return NodeVersionState.make({ nvmrc, workflowLocations: A.empty<NodeVersionLocation>() });
   }
 
   const entries = yield* fs.readDirectory(workflowDir).pipe(Effect.orElseSucceed(A.empty<string>));
@@ -159,15 +157,9 @@ export const resolveNodeVersions: (
   for (const ymlFile of ymlFiles) {
     const relativeFile = `.github/workflows/${ymlFile}`;
     const filePath = path.join(workflowDir, ymlFile);
-    const content = yield* fs.readFileString(filePath).pipe(
-      Effect.mapError(
-        (e) =>
-          new VersionSyncError({
-            message: `Failed to read workflow file: ${e}`,
-            file: relativeFile,
-          })
-      )
-    );
+    const content = yield* fs
+      .readFileString(filePath)
+      .pipe(VersionSyncError.mapError("Failed to read workflow file", relativeFile));
 
     const found = yield* findNodeVersionLocations(content, relativeFile);
     for (const loc of found) {
@@ -175,7 +167,7 @@ export const resolveNodeVersions: (
     }
   }
 
-  return new NodeVersionState({ nvmrc, workflowLocations: locations });
+  return NodeVersionState.make({ nvmrc, workflowLocations: locations });
 });
 
 /**
@@ -194,13 +186,7 @@ const findNodeVersionLocations: (
   let locations = A.empty<NodeVersionLocation>();
 
   const workflow = yield* decodeYamlTextAs(WorkflowDocument)(content).pipe(
-    Effect.mapError(
-      (e) =>
-        new VersionSyncError({
-          message: `Failed to parse workflow YAML: ${e.message}`,
-          file: relativeFile,
-        })
-    )
+    VersionSyncError.mapError("Failed to parse workflow YAML", relativeFile)
   );
 
   for (const jobName of R.keys(workflow.jobs)) {
@@ -220,7 +206,7 @@ const findNodeVersionLocations: (
       const nodeVersion = nodeVersionString(withBlock["node-version"]);
       locations = A.append(
         locations,
-        new NodeVersionLocation({
+        NodeVersionLocation.make({
           file: relativeFile,
           jobName,
           stepIndex: NonNegativeInt.make(stepIdx),
@@ -246,10 +232,10 @@ export const buildNodeReport: (state: NodeVersionState) => VersionCategoryReport
   let items = A.empty<VersionDriftItem>();
 
   for (const loc of state.workflowLocations) {
-    if (!stringEquivalence(loc.currentValue, state.nvmrc)) {
+    if (!Str.equivalence(loc.currentValue, state.nvmrc)) {
       items = A.append(
         items,
-        new VersionDriftItem({
+        VersionDriftItem.make({
           file: loc.file,
           field: `node-version (${loc.jobName}, step ${loc.stepIndex})`,
           current: loc.currentValue,
@@ -260,7 +246,7 @@ export const buildNodeReport: (state: NodeVersionState) => VersionCategoryReport
     }
   }
 
-  return new VersionCategoryReport.cases.node({
+  return VersionCategoryReport.cases.node.make({
     status: A.match(items, {
       onEmpty: VersionCategoryStatusThunk.ok,
       onNonEmpty: VersionCategoryStatusThunk.drift,

@@ -47,7 +47,7 @@ export const HUBSPOT_CRM_API_URL = "https://api.hubapi.com";
  * ```ts
  * import { HubSpotConfigInput } from "@beep/hubspot"
  *
- * const config = new HubSpotConfigInput({
+ * const config = HubSpotConfigInput.make({
  *   accountId: "12345",
  *   formsApiUrl: "https://api.hsforms.com"
  * })

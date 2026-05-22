@@ -22,7 +22,7 @@ import type { GetContextPacket } from "./ProfessionalRuntime.queries.js";
 import type { ProfessionalRuntimeSdk } from "./ProfessionalRuntime.service.js";
 
 const failValidation = (message: string): Effect.Effect<never, ProfessionalRuntimeValidationError> =>
-  Effect.fail(new ProfessionalRuntimeValidationError({ message }));
+  Effect.fail(ProfessionalRuntimeValidationError.make({ message }));
 
 const ensure = (condition: boolean, message: string): Effect.Effect<void, ProfessionalRuntimeValidationError> =>
   condition ? Effect.void : failValidation(message);

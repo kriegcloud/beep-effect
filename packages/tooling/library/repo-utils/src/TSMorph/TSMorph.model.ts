@@ -1361,7 +1361,7 @@ export const makeProjectCacheKey = (parts: {
  * @since 0.0.0
  */
 export const makeSymbol = (input: SymbolInit): Symbol =>
-  new Symbol({
+  Symbol.make({
     ...input,
     id:
       input.id ??
@@ -1385,7 +1385,7 @@ class TsMorphScopeEntrypointTsConfig extends S.Class<TsMorphScopeEntrypointTsCon
   })
 ) {
   static readonly new = (tsConfigPath: string) =>
-    new TsMorphScopeEntrypointTsConfig({ tsConfigPath: TsConfigFilePath.make(tsConfigPath) });
+    TsMorphScopeEntrypointTsConfig.make({ tsConfigPath: TsConfigFilePath.make(tsConfigPath) });
 }
 
 class TsMorphScopeEntrypointFile extends S.Class<TsMorphScopeEntrypointFile>($I`TsMorphScopeEntrypointFile`)(
@@ -1398,7 +1398,7 @@ class TsMorphScopeEntrypointFile extends S.Class<TsMorphScopeEntrypointFile>($I`
   })
 ) {
   static readonly new = (filePath: string) =>
-    new TsMorphScopeEntrypointFile({ filePath: S.decodeUnknownSync(TypeScriptFilePath)(filePath) });
+    TsMorphScopeEntrypointFile.make({ filePath: S.decodeUnknownSync(TypeScriptFilePath)(filePath) });
 }
 
 /**

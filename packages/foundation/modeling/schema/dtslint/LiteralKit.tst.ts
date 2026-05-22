@@ -348,7 +348,7 @@ describe("LiteralKit toTaggedUnion (number keys)", () => {
 
 describe("LiteralNotInSetError", () => {
   it("is constructible and exposes its tagged shape", () => {
-    const error = new LiteralNotInSetError({
+    const error = LiteralNotInSetError.make({
       literals: [1, "hello", true],
       input: [],
     });

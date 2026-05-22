@@ -63,7 +63,7 @@ export const findRepoRoot: (
     const parent = parentDir(current);
     if (parent === current) {
       // Reached filesystem root without finding a marker
-      return yield* new NoSuchFileError({
+      return yield* NoSuchFileError.make({
         path: start,
         message: `Could not find repository root (looked for ${A.join(", ")(ROOT_MARKERS)}) starting from "${start}"`,
       });

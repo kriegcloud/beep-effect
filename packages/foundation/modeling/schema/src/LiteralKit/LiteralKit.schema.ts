@@ -449,7 +449,7 @@ const validateLiteralKeys = <L extends Literals>(literals: L): void =>
       const key = matchLiteral(literal);
       const existing = HashMap.get(seen, key);
       if (O.isSome(existing) && !Object.is(existing.value, literal)) {
-        throw new LiteralKitKeyCollisionError({
+        throw LiteralKitKeyCollisionError.make({
           key,
           existing: existing.value,
           incoming: literal,
@@ -472,7 +472,7 @@ const validateEnumMapping = <L extends Literals>(
   enumMapping: ReadonlyArray<EnumMappingEntry<L[number]>>
 ): EnumMappings<L> => {
   if (!A.isReadonlyArrayNonEmpty(enumMapping)) {
-    throw new LiteralKitEnumMappingCoverageError({
+    throw LiteralKitEnumMappingCoverageError.make({
       literals,
       mappingLiterals: [],
       missing: literals,
@@ -490,7 +490,7 @@ const validateEnumMapping = <L extends Literals>(
       (state, [literal, mappedKey], index) => {
         const seenLiteral = HashMap.get(state.literals, literal);
         if (O.isSome(seenLiteral)) {
-          throw new LiteralKitEnumMappingDuplicateLiteralError({
+          throw LiteralKitEnumMappingDuplicateLiteralError.make({
             literal,
             firstIndex: seenLiteral.value,
             secondIndex: index,
@@ -499,7 +499,7 @@ const validateEnumMapping = <L extends Literals>(
 
         const existingKey = HashMap.get(state.keys, mappedKey);
         if (O.isSome(existingKey) && !Object.is(existingKey.value, literal)) {
-          throw new LiteralKitKeyCollisionError({
+          throw LiteralKitKeyCollisionError.make({
             key: mappedKey,
             existing: existingKey.value,
             incoming: literal,
@@ -528,7 +528,7 @@ const validateEnumMapping = <L extends Literals>(
   );
 
   if (A.isReadonlyArrayNonEmpty(missing) || A.isReadonlyArrayNonEmpty(unexpected)) {
-    throw new LiteralKitEnumMappingCoverageError({
+    throw LiteralKitEnumMappingCoverageError.make({
       literals,
       mappingLiterals,
       missing,
@@ -560,7 +560,7 @@ const makeOptionsFns = <L extends Literals>(
     const result = A.filter(literals, isExcluded);
 
     if (!isResult(result)) {
-      throw new LiteralNotInSetError({ literals, input: result });
+      throw LiteralNotInSetError.make({ literals, input: result });
     }
     return result;
   },
@@ -721,7 +721,7 @@ export function LiteralKit<const L extends Literals, const M extends EnumMapping
 
         return A.map(literalMembers, (member) => {
           if (!P.isPropertyKey(member.literal)) {
-            throw new LiteralKitTaggedUnionLiteralError({
+            throw LiteralKitTaggedUnionLiteralError.make({
               literal: member.literal,
             });
           }

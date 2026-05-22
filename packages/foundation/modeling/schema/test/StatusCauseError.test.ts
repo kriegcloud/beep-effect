@@ -11,7 +11,7 @@ class BeepStatusError extends TaggedErrorClass<BeepStatusError>("BeepStatusError
 
 describe("StatusCauseError", () => {
   it("reuses the shared field schema for tagged errors", () => {
-    const error = new BeepStatusError({
+    const error = BeepStatusError.make({
       message: "boom",
       status: 500,
       cause: O.none(),

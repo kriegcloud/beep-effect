@@ -63,7 +63,7 @@ type RetentionPlan = {
 };
 
 const retentionFailure = (message: string, cause: unknown): AiMetricsRetentionError =>
-  new AiMetricsRetentionError({ cause, message });
+  AiMetricsRetentionError.make({ cause, message });
 
 const childPath = (root: string, child: string): string => `${root}/${child}`;
 
@@ -167,7 +167,7 @@ const validateRawArchivePath = (
 export class AiMetricsRetentionError extends TaggedErrorClass<AiMetricsRetentionError>($I`AiMetricsRetentionError`)(
   "AiMetricsRetentionError",
   {
-    cause: S.Unknown,
+    cause: S.DefectWithStack,
     message: S.String,
   },
   $I.annote("AiMetricsRetentionError", {
@@ -181,7 +181,7 @@ export class AiMetricsRetentionError extends TaggedErrorClass<AiMetricsRetention
  * @example
  * ```ts
  * import { AiMetricsRetentionSelector } from "@beep/repo-ai-metrics"
- * console.log(new AiMetricsRetentionSelector({}).dataRoot)
+ * console.log(AiMetricsRetentionSelector.make({}).dataRoot)
  * ```
  * @category models
  * @since 0.0.0
@@ -537,35 +537,29 @@ const readRetentionPlan = Effect.fn("AiMetrics.retention.readPlan")(function* (i
 });
 
 const planToInventory = (input: AiMetricsRetentionSelector, plan: RetentionPlan): AiMetricsRetentionInventory =>
-  new AiMetricsRetentionInventory({
-    derivedExports: A.map(
-      plan.derivedExportItems,
-      (item) =>
-        new AiMetricsRetentionFileItem({
-          modifiedAtEpochMillis: item.modifiedAtEpochMillis,
-          relativePath: item.relativePath,
-        })
+  AiMetricsRetentionInventory.make({
+    derivedExports: A.map(plan.derivedExportItems, (item) =>
+      AiMetricsRetentionFileItem.make({
+        modifiedAtEpochMillis: item.modifiedAtEpochMillis,
+        relativePath: item.relativePath,
+      })
     ),
     explicitWindow: hasExplicitWindow(input),
-    rawArchiveObjects: A.map(
-      plan.rawArchiveItems,
-      (item) =>
-        new AiMetricsRetentionRawArchiveItem({
-          archiveObjectId: item.archiveObjectId,
-          encryptedAtEpochMillis: item.encryptedAtEpochMillis,
-          ingestRunId: item.ingestRunId,
-          plaintextContentHash: item.plaintextContentHash,
-          sourceKind: item.sourceKind,
-          sourcePathHash: item.sourcePathHash,
-        })
+    rawArchiveObjects: A.map(plan.rawArchiveItems, (item) =>
+      AiMetricsRetentionRawArchiveItem.make({
+        archiveObjectId: item.archiveObjectId,
+        encryptedAtEpochMillis: item.encryptedAtEpochMillis,
+        ingestRunId: item.ingestRunId,
+        plaintextContentHash: item.plaintextContentHash,
+        sourceKind: item.sourceKind,
+        sourcePathHash: item.sourcePathHash,
+      })
     ),
-    reports: A.map(
-      plan.reportItems,
-      (item) =>
-        new AiMetricsRetentionFileItem({
-          modifiedAtEpochMillis: item.modifiedAtEpochMillis,
-          relativePath: item.relativePath,
-        })
+    reports: A.map(plan.reportItems, (item) =>
+      AiMetricsRetentionFileItem.make({
+        modifiedAtEpochMillis: item.modifiedAtEpochMillis,
+        relativePath: item.relativePath,
+      })
     ),
     schemaVersion: retentionSchemaVersion,
     selectedDerivedExportCount: plan.derivedExportItems.length,
@@ -589,7 +583,7 @@ export const listAiMetricsRetentionInventory = Effect.fn("AiMetrics.listAiMetric
 ) {
   const duckDbPath = childPath(input.dataRoot, "derived/ai-metrics.duckdb");
   const plan = yield* Effect.scoped(
-    Layer.build(DuckDb.makeNodeLayer(new DuckDbConnectionOptions({ databasePath: duckDbPath }))).pipe(
+    Layer.build(DuckDb.makeNodeLayer(DuckDbConnectionOptions.make({ databasePath: duckDbPath }))).pipe(
       Effect.flatMap((context) => readRetentionPlan(input).pipe(Effect.provide(context)))
     )
   ).pipe(Effect.mapError((cause) => retentionFailure("Failed to read AI metrics retention inventory.", cause)));
@@ -697,7 +691,7 @@ const runRetentionMutation = Effect.fn("AiMetrics.retention.runMutation")(functi
 }) {
   const duckDbPath = childPath(input.dataRoot, "derived/ai-metrics.duckdb");
   const plan = yield* Effect.scoped(
-    Layer.build(DuckDb.makeNodeLayer(new DuckDbConnectionOptions({ databasePath: duckDbPath }))).pipe(
+    Layer.build(DuckDb.makeNodeLayer(DuckDbConnectionOptions.make({ databasePath: duckDbPath }))).pipe(
       Effect.flatMap((context) => readRetentionPlan(input).pipe(Effect.provide(context)))
     )
   ).pipe(Effect.mapError((cause) => retentionFailure("Failed to read AI metrics retention mutation plan.", cause)));
@@ -722,14 +716,14 @@ const runRetentionMutation = Effect.fn("AiMetrics.retention.runMutation")(functi
     if (mode === "delete") {
       yield* removeRawArchivePaths(input.dataRoot, plan.rawArchiveItems);
       yield* Effect.scoped(
-        Layer.build(DuckDb.makeNodeLayer(new DuckDbConnectionOptions({ databasePath: duckDbPath }))).pipe(
+        Layer.build(DuckDb.makeNodeLayer(DuckDbConnectionOptions.make({ databasePath: duckDbPath }))).pipe(
           Effect.flatMap((context) => deleteRowsForPlan(plan).pipe(Effect.provide(context)))
         )
       ).pipe(Effect.mapError((cause) => retentionFailure("Failed to delete selected AI metrics derived rows.", cause)));
     }
   }
 
-  return new AiMetricsRetentionMutationResult({
+  return AiMetricsRetentionMutationResult.make({
     deletedDerivedExportCount: plan.derivedExportItems.length,
     deletedRawArchiveObjectCount: mode === "delete" ? plan.rawArchiveItems.length : 0,
     deletedReportCount: plan.reportItems.length,
@@ -808,7 +802,7 @@ export const runAiMetricsRetentionRestoreDrill = Effect.fn("AiMetrics.runAiMetri
   const path = yield* Path.Path;
   const sourceDuckDbPath = childPath(input.selector.dataRoot, "derived/ai-metrics.duckdb");
   const plan = yield* Effect.scoped(
-    Layer.build(DuckDb.makeNodeLayer(new DuckDbConnectionOptions({ databasePath: sourceDuckDbPath }))).pipe(
+    Layer.build(DuckDb.makeNodeLayer(DuckDbConnectionOptions.make({ databasePath: sourceDuckDbPath }))).pipe(
       Effect.flatMap((context) => readRetentionPlan(input.selector).pipe(Effect.provide(context)))
     )
   ).pipe(Effect.mapError((cause) => retentionFailure("Failed to select archive objects for restore drill.", cause)));
@@ -824,12 +818,12 @@ export const runAiMetricsRetentionRestoreDrill = Effect.fn("AiMetrics.runAiMetri
     .makeDirectory(input.restoreRoot, { recursive: true })
     .pipe(Effect.mapError((cause) => retentionFailure("Failed to create AI metrics restore drill root.", cause)));
   const spec = yield* makeAiMetricsInstallSpec(
-    new AiMetricsInstallInput({
+    AiMetricsInstallInput.make({
       dataRoot: input.restoreRoot,
       target: AiMetricsDeployTarget.Enum.local,
     })
   ).pipe(Effect.mapError((cause) => retentionFailure("Failed to build restore drill storage layout.", cause)));
-  const configSnapshot = new ConfigSnapshot({
+  const configSnapshot = ConfigSnapshot.make({
     changedPaths: [],
     configHash: "restore-drill",
     includedPaths: [],
@@ -892,11 +886,11 @@ export const runAiMetricsRetentionRestoreDrill = Effect.fn("AiMetrics.runAiMetri
       sourceKind: item.sourceKind,
       sourcePath: restoreSourcePath,
     }).pipe(Effect.mapError((cause) => retentionFailure("Failed to write restore drill archive object.", cause)));
-    records = A.append(records, new AiMetricsDerivedTranscriptRecord({ archiveObject, privacy }));
+    records = A.append(records, AiMetricsDerivedTranscriptRecord.make({ archiveObject, privacy }));
   }
 
   yield* Effect.scoped(
-    Layer.build(DuckDb.makeNodeLayer(new DuckDbConnectionOptions({ databasePath: spec.storage.duckDbPath }))).pipe(
+    Layer.build(DuckDb.makeNodeLayer(DuckDbConnectionOptions.make({ databasePath: spec.storage.duckDbPath }))).pipe(
       Effect.flatMap((context) =>
         writeAiMetricsDerivedStorage({
           configSnapshot,
@@ -911,7 +905,7 @@ export const runAiMetricsRetentionRestoreDrill = Effect.fn("AiMetrics.runAiMetri
     )
   ).pipe(Effect.mapError((cause) => retentionFailure("Failed to write restore drill derived storage.", cause)));
 
-  return new AiMetricsRetentionRestoreDrillResult({
+  return AiMetricsRetentionRestoreDrillResult.make({
     derivedDuckDbPath: spec.storage.duckDbPath,
     hashMatches: true,
     replayedObjectCount: records.length,

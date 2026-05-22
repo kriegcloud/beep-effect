@@ -18,7 +18,7 @@ const $I = $DuckdbId.create("DuckDb.models");
  * ```ts
  * import { DuckDbConnectionOptions } from "@beep/duckdb"
  *
- * const options = new DuckDbConnectionOptions({
+ * const options = DuckDbConnectionOptions.make({
  *   databasePath: "metrics.duckdb"
  * })
  *
@@ -45,7 +45,7 @@ export class DuckDbConnectionOptions extends S.Class<DuckDbConnectionOptions>($I
  * ```ts
  * import { DuckDbParquetExport } from "@beep/duckdb"
  *
- * const request = new DuckDbParquetExport({
+ * const request = DuckDbParquetExport.make({
  *   filePath: "exports/table.parquet",
  *   tableName: "ai_metrics_ingest_runs"
  * })

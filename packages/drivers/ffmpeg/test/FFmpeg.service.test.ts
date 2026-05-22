@@ -119,7 +119,7 @@ describe("@beep/ffmpeg", () => {
         prefix: "clip_frame",
       })
     ).toBe("clip_frame_00007.png");
-    expect(buildFfprobeArgs(new ProbeVideoRequest({ videoPath: "./clip.mp4" }))).toContain("./clip.mp4");
+    expect(buildFfprobeArgs(ProbeVideoRequest.make({ videoPath: "./clip.mp4" }))).toContain("./clip.mp4");
     expect(
       buildExtractFramesArgs({
         fps: "1",
@@ -156,7 +156,7 @@ describe("@beep/ffmpeg", () => {
         yield* fs.writeFileString(videoPath, "video");
 
         const ffmpeg = yield* FFmpeg;
-        const probe = yield* ffmpeg.probeVideo(new ProbeVideoRequest({ videoPath }));
+        const probe = yield* ffmpeg.probeVideo(ProbeVideoRequest.make({ videoPath }));
 
         expect(probe.width).toBe(1920);
         expect(probe.height).toBe(1080);
@@ -184,7 +184,7 @@ describe("@beep/ffmpeg", () => {
 
           const ffmpeg = yield* FFmpeg;
           const result = yield* ffmpeg.extractFrames(
-            new ExtractFramesRequest({
+            ExtractFramesRequest.make({
               fps: 1,
               manifestPath: O.none(),
               outDir,
@@ -233,7 +233,7 @@ describe("@beep/ffmpeg", () => {
           const ffmpeg = yield* FFmpeg;
           const error = yield* Effect.flip(
             ffmpeg.extractFrames(
-              new ExtractFramesRequest({
+              ExtractFramesRequest.make({
                 fps: 1,
                 manifestPath: O.none(),
                 outDir,
@@ -268,7 +268,7 @@ describe("@beep/ffmpeg", () => {
           const ffmpeg = yield* FFmpeg;
           const error = yield* Effect.flip(
             ffmpeg.extractFrames(
-              new ExtractFramesRequest({
+              ExtractFramesRequest.make({
                 fps: 1,
                 manifestPath: O.none(),
                 outDir,

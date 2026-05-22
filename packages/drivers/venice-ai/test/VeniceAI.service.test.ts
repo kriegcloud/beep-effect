@@ -121,7 +121,7 @@ const readSwagger = Effect.gen(function* () {
   const raw = yield* Effect.tryPromise({
     try: () => Bun.file(swaggerFile).text(),
     catch: () =>
-      new VeniceAIError({
+      VeniceAIError.make({
         path: "swagger.yaml",
         reason: "request encoding",
       }),
@@ -232,7 +232,7 @@ const bodyContentTypeFor = (request: HttpClientRequest.HttpClientRequest): strin
   request.body._tag === "Empty" ? undefined : request.body.contentType;
 
 const testSetupError = (path: string): VeniceAIError =>
-  new VeniceAIError({
+  VeniceAIError.make({
     path,
     reason: "request encoding",
   });
@@ -313,7 +313,7 @@ const TestHttpClientLayer = Layer.effect(
 );
 
 const makeVeniceAIUnitLayer = (
-  config = new VeniceAIConfigInput({
+  config = VeniceAIConfigInput.make({
     apiKey: Redacted.make("test-key"),
     baseUrl: VENICE_API_URL,
   })
@@ -342,7 +342,7 @@ const requestFor = (descriptor: (typeof VENICE_AI_OPERATION_DESCRIPTORS)[number]
   const formData = new FormData();
   formData.append("file", new File(["hello"], "hello.txt", { type: "text/plain" }));
 
-  return new VeniceAIRequestOptions({
+  return VeniceAIRequestOptions.make({
     ...R.getSomes({
       body: pipe(descriptor.requestContentTypes, A.contains("application/json"), (hasJson) =>
         hasJson
@@ -479,7 +479,7 @@ describe("@beep/venice-ai", () => {
 
         yield* testHttp.reset;
         yield* venice.getCharacterBySlug(
-          new VeniceAIRequestOptions({
+          VeniceAIRequestOptions.make({
             accept: "text/csv",
             headers: { "x-test": "ok" },
             path: { slug: "ada lovelace" },
@@ -510,7 +510,7 @@ describe("@beep/venice-ai", () => {
 
         yield* testHttp.reset;
         const unsupportedJsonBodyError = yield* venice
-          .listModels(new VeniceAIRequestOptions({ body: { ignored: true } }))
+          .listModels(VeniceAIRequestOptions.make({ body: { ignored: true } }))
           .pipe(Effect.flip);
         const capturesAfterUnsupportedJsonBody = yield* testHttp.captures;
         expect(unsupportedJsonBodyError.reason).toBe("request encoding");
@@ -519,7 +519,7 @@ describe("@beep/venice-ai", () => {
 
         yield* testHttp.reset;
         const unsupportedMultipartBodyError = yield* venice
-          .listModels(new VeniceAIRequestOptions({ formData: new FormData() }))
+          .listModels(VeniceAIRequestOptions.make({ formData: new FormData() }))
           .pipe(Effect.flip);
         const capturesAfterUnsupportedMultipartBody = yield* testHttp.captures;
         expect(unsupportedMultipartBodyError.reason).toBe("request encoding");
@@ -528,7 +528,7 @@ describe("@beep/venice-ai", () => {
 
         yield* testHttp.reset;
         yield* venice.webSearch(
-          new VeniceAIRequestOptions({
+          VeniceAIRequestOptions.make({
             body: {
               model: "venice-uncensored-1-2",
               prompt: "hello",
@@ -553,7 +553,7 @@ describe("@beep/venice-ai", () => {
 
   layer(
     makeVeniceAIUnitLayer(
-      new VeniceAIConfigInput({
+      VeniceAIConfigInput.make({
         apiKey: Redacted.make("test-key"),
         baseUrl: "https://example.test/api/v1///",
       })

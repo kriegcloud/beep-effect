@@ -157,7 +157,7 @@ export class SimilarityScore extends S.Class<SimilarityScore>($I`SimilarityScore
 export class SimilarityError extends TaggedErrorClass<SimilarityError>($I`SimilarityError`)(
   "SimilarityError",
   {
-    cause: S.Unknown,
+    cause: S.DefectWithStack,
     message: S.String,
     operation: S.String,
   },
@@ -178,7 +178,7 @@ export class SimilarityError extends TaggedErrorClass<SimilarityError>($I`Simila
   } = dual(
     2,
     (cause: unknown, operation: string): SimilarityError =>
-      new SimilarityError({
+      SimilarityError.make({
         cause,
         message: `Wink similarity ${operation} failed: ${Inspectable.toStringUnknown(cause)}`,
         operation,

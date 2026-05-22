@@ -95,7 +95,7 @@ const ensureSuccess = (
 ): Effect.Effect<HttpClientResponse.HttpClientResponse, DiscordError> =>
   response.status >= 200 && response.status < 300
     ? Effect.succeed(response)
-    : Effect.fail(new DiscordError({ method, path, reason: "response-status", status: response.status }));
+    : Effect.fail(DiscordError.make({ method, path, reason: "response-status", status: response.status }));
 
 const executeJson = Effect.fn("Discord.executeJson")(function* (
   client: HttpClient.HttpClient,
@@ -109,8 +109,8 @@ const executeJson = Effect.fn("Discord.executeJson")(function* (
   const rawRequest = HttpClientRequest.make(method)(`${baseUrl}${fullPath}`);
   const request = yield* pipe(
     body === undefined ? Effect.succeed(rawRequest) : HttpClientRequest.bodyJson(rawRequest, body),
-    Effect.mapError(
-      (cause) => new DiscordError({ cause: errorCause(cause), method, path: fullPath, reason: "request" })
+    Effect.mapError((cause) =>
+      DiscordError.make({ cause: errorCause(cause), method, path: fullPath, reason: "request" })
     ),
     Effect.map((requestWithBody) => authRequest(requestWithBody, botToken))
   );
@@ -118,15 +118,15 @@ const executeJson = Effect.fn("Discord.executeJson")(function* (
   const response = yield* client
     .execute(request)
     .pipe(
-      Effect.mapError(
-        (cause) => new DiscordError({ cause: errorCause(cause), method, path: fullPath, reason: "transport" })
+      Effect.mapError((cause) =>
+        DiscordError.make({ cause: errorCause(cause), method, path: fullPath, reason: "transport" })
       )
     );
   const successful = yield* ensureSuccess(response, fullPath, method);
 
   return yield* successful.json.pipe(
-    Effect.mapError(
-      (cause) => new DiscordError({ cause: errorCause(cause), method, path: fullPath, reason: "response-decoding" })
+    Effect.mapError((cause) =>
+      DiscordError.make({ cause: errorCause(cause), method, path: fullPath, reason: "response-decoding" })
     )
   );
 });
@@ -137,7 +137,7 @@ const makeService = (client: HttpClient.HttpClient, config: DiscordConfigInput):
   return {
     createMessage: Effect.fn("Discord.createMessage")(function* (rawRequest, botToken) {
       const request = yield* decodeCreateMessageRequest(rawRequest).pipe(
-        Effect.mapError((cause) => new DiscordError({ cause: errorCause(cause), reason: "request" }))
+        Effect.mapError((cause) => DiscordError.make({ cause: errorCause(cause), reason: "request" }))
       );
       const body = {
         allowed_mentions: {
@@ -154,10 +154,10 @@ const makeService = (client: HttpClient.HttpClient, config: DiscordConfigInput):
         body
       );
       const decoded = yield* decodeRawMessage(raw).pipe(
-        Effect.mapError((cause) => new DiscordError({ cause: errorCause(cause), reason: "response-decoding" }))
+        Effect.mapError((cause) => DiscordError.make({ cause: errorCause(cause), reason: "response-decoding" }))
       );
 
-      return new DiscordMessageProof({
+      return DiscordMessageProof.make({
         channelId: decoded.channel_id,
         messageId: decoded.id,
         status: 200,
@@ -168,14 +168,14 @@ const makeService = (client: HttpClient.HttpClient, config: DiscordConfigInput):
     }),
     getChannel: Effect.fn("Discord.getChannel")(function* (rawRequest, botToken) {
       const request = yield* decodeChannelRequest(rawRequest).pipe(
-        Effect.mapError((cause) => new DiscordError({ cause: errorCause(cause), reason: "request" }))
+        Effect.mapError((cause) => DiscordError.make({ cause: errorCause(cause), reason: "request" }))
       );
       const raw = yield* executeJson(client, baseUrl, `/channels/${request.channelId}`, "GET", botToken);
       const decoded = yield* decodeRawChannel(raw).pipe(
-        Effect.mapError((cause) => new DiscordError({ cause: errorCause(cause), reason: "response-decoding" }))
+        Effect.mapError((cause) => DiscordError.make({ cause: errorCause(cause), reason: "response-decoding" }))
       );
 
-      return new DiscordChannelProof({
+      return DiscordChannelProof.make({
         channelId: decoded.id,
         status: 200,
         ...R.getSomes({
@@ -201,7 +201,7 @@ export class Discord extends Context.Service<Discord, DiscordShape>()($I`Discord
    * @since 0.0.0
    */
   static readonly makeLayer = (
-    config = new DiscordConfigInput({})
+    config = DiscordConfigInput.make({})
   ): Layer.Layer<Discord, never, HttpClient.HttpClient> =>
     Layer.effect(
       Discord,

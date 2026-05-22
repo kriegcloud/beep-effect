@@ -298,7 +298,7 @@ describe("architecture operation plan", () => {
       const plan = makeCanonicalSliceOperationPlan();
       const result = yield* checkCanonicalSliceOperationPlan(
         rootDir,
-        new CanonicalSliceOperationPlan({
+        CanonicalSliceOperationPlan.make({
           ...plan,
           operations: A.filter(plan.operations, (operation) => operation.path === requiredFile),
         })
@@ -397,10 +397,10 @@ describe("architecture operation plan", () => {
       yield* removePath(tempRoot);
       yield* removeFile(outsidePath);
       const plan = makeCanonicalSliceOperationPlan();
-      const escapedPlan = new CanonicalSliceOperationPlan({
+      const escapedPlan = CanonicalSliceOperationPlan.make({
         ...plan,
         operations: [
-          new WriteFileOperation({
+          WriteFileOperation.make({
             kind: "write-file",
             role: "domain",
             path: `../${outsideFileName}`,

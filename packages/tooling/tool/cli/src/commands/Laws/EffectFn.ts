@@ -49,7 +49,7 @@ const decodeProjectInspectionRequest = S.decodeUnknownEffect(TsMorphProjectInspe
  * ```ts
  * import { EffectFnRulesOptions } from "@beep/repo-cli/commands/Laws/EffectFn"
  *
- * const options = new EffectFnRulesOptions({
+ * const options = EffectFnRulesOptions.make({
  *   strictCheck: true,
  *   excludePaths: ["packages/demo/test/index.ts"],
  * })
@@ -82,7 +82,7 @@ export class EffectFnRulesOptions extends S.Class<EffectFnRulesOptions>($I`Effec
  * ```ts
  * import { EffectFnDiagnostic } from "@beep/repo-cli/commands/Laws/EffectFn"
  *
- * const diagnostic = new EffectFnDiagnostic({
+ * const diagnostic = EffectFnDiagnostic.make({
  *   file: "packages/demo/src/index.ts",
  *   line: 4,
  *   column: 42,
@@ -119,7 +119,7 @@ export class EffectFnDiagnostic extends S.Class<EffectFnDiagnostic>($I`EffectFnD
  * ```ts
  * import { EffectFnRulesSummary } from "@beep/repo-cli/commands/Laws/EffectFn"
  *
- * const summary = new EffectFnRulesSummary({
+ * const summary = EffectFnRulesSummary.make({
  *   scannedFiles: 12,
  *   touchedFiles: 1,
  *   violationCount: 1,
@@ -335,7 +335,7 @@ const makeDiagnostic = (
   const suggestedName =
     recommendation === "Effect.fn" ? ` named ${recommendation}("${ownerName}")` : ` ${recommendation}`;
 
-  return new EffectFnDiagnostic({
+  return EffectFnDiagnostic.make({
     file: relativeFilePath,
     line: position.line,
     column: position.column,
@@ -383,7 +383,7 @@ const collectEffectFnDiagnostics = (
  * import { runEffectFnRules, EffectFnRulesOptions } from "@beep/repo-cli/commands/Laws/EffectFn"
  *
  * const program = Effect.map(
- *   runEffectFnRules(new EffectFnRulesOptions({ strictCheck: true })),
+ *   runEffectFnRules(EffectFnRulesOptions.make({ strictCheck: true })),
  *   (summary) => summary.violationCount,
  * )
  *
@@ -447,7 +447,7 @@ export const runEffectFnRules = Effect.fn("EffectFn.runEffectFnRules")(function*
 
     const violationCount = A.length(diagnostics);
 
-    return new EffectFnRulesSummary({
+    return EffectFnRulesSummary.make({
       scannedFiles: A.length(scannedSourceFiles),
       touchedFiles: A.length(affectedFiles),
       violationCount,

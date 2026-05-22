@@ -71,7 +71,7 @@ describe("effect import laws", () => {
           );
 
           const summary = yield* runEffectImportRules(
-            new EffectImportRulesOptions({
+            EffectImportRulesOptions.make({
               write: false,
               strictCheck: true,
               excludePaths: [],
@@ -111,7 +111,7 @@ describe("effect import laws", () => {
           );
 
           const summary = yield* runEffectImportRules(
-            new EffectImportRulesOptions({
+            EffectImportRulesOptions.make({
               write: true,
               strictCheck: false,
               excludePaths: [],

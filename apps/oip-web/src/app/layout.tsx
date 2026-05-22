@@ -10,23 +10,30 @@ import { Config, Effect, pipe } from "effect";
 import * as O from "effect/Option";
 import type { Metadata } from "next";
 import { headers } from "next/headers";
-import Script from "next/script";
 import { connection } from "next/server";
 import { type ReactNode, use } from "react";
 import { oipSiteContent } from "../content";
 import "./globals.css";
 
 const { metadata: siteMetadata } = oipSiteContent;
-const REACT_GRAB_VERSION = "0.1.34";
-const REACT_GRAB_INTEGRITY = "sha384-J3uUkSxoVuSuDgef6b1qRkPjoviSf3OhttzqVTJd98rv0/hPenLy8KfgE7UEulp2";
+const REACT_GRAB_VERSION = "0.1.37";
+const REACT_GRAB_INTEGRITY = "sha384-bu1FPBrtnXa6EIFQzS/zbLFeLLKPK06RmfHZYCTbWTXxXVjiIGvjdMjo/jDi+fVu";
 const configStringOptionSync = (name: string): O.Option<string> => Effect.runSync(Config.option(Config.string(name)));
 const configStringEqualsSync = (name: string, expected: string): boolean =>
   pipe(
     configStringOptionSync(name),
     O.exists((value) => value === expected)
   );
+const configStringNotEqualsSync = (name: string, expected: string): boolean =>
+  pipe(
+    configStringOptionSync(name),
+    O.match({
+      onNone: () => true,
+      onSome: (value) => value !== expected,
+    })
+  );
 const shouldLoadReactGrab =
-  configStringEqualsSync("NODE_ENV", "development") && configStringEqualsSync("NEXT_PUBLIC_REACT_GRAB", "1");
+  configStringEqualsSync("NODE_ENV", "development") && configStringNotEqualsSync("NEXT_PUBLIC_REACT_GRAB", "0");
 const shouldLoadVercelInsights =
   configStringEqualsSync("VERCEL", "1") && configStringEqualsSync("NEXT_PUBLIC_ENABLE_VERCEL_INSIGHTS", "1");
 const oipThemeToggleScript = `
@@ -236,12 +243,12 @@ export default function RootLayout({
               dangerouslySetInnerHTML={{ __html: oipThemeToggleScript }}
             />
             {shouldLoadReactGrab && (
-              <Script
+              <script
                 src={`https://unpkg.com/react-grab@${REACT_GRAB_VERSION}/dist/index.global.js`}
                 crossOrigin="anonymous"
                 integrity={REACT_GRAB_INTEGRITY}
                 nonce={nonce}
-                strategy="beforeInteractive"
+                suppressHydrationWarning
               />
             )}
           </head>

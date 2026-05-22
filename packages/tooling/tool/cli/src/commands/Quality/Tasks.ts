@@ -7,16 +7,35 @@
 
 import { $RepoCliId } from "@beep/identity/packages";
 import { type DomainError, findRepoRoot, type NoSuchFileError } from "@beep/repo-utils";
-import { LiteralKit, TaggedErrorClass } from "@beep/schema";
+import { LiteralKit } from "@beep/schema";
 import { makePgliteTestcontainerResource, type PgliteTestcontainerResource } from "@beep/test-utils";
 import { A, Str, thunkFalse } from "@beep/utils";
-import { Console, Effect, FileSystem, flow, Match, Path, pipe, Runtime, type Scope, Stream } from "effect";
+import { Console, Effect, FileSystem, flow, Match, Path, pipe, type Scope, Stream } from "effect";
 import { dual } from "effect/Function";
 import * as O from "effect/Option";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
 import { ChildProcess, type ChildProcessSpawner } from "effect/unstable/process";
 import { configStringEqualsSync, configStringOption } from "./internal/Config.js";
+import {
+  QualityTaskConfigurationError,
+  QualityTaskFailed,
+  QualityTaskGroupFailed,
+  type UnexpectedQualityTaskFailure,
+} from "./Quality.errors.js";
+
+/**
+ * Public quality task error exports.
+ *
+ * @category errors
+ * @since 0.0.0
+ */
+export {
+  QualityTaskConfigurationError,
+  QualityTaskFailed,
+  QualityTaskGroupFailed,
+  UnexpectedQualityTaskFailure,
+} from "./Quality.errors.js";
 
 const $I = $RepoCliId.create("commands/Quality/Tasks");
 
@@ -71,7 +90,7 @@ export type QualityTaskName = typeof QualityTaskName.Type;
  * @example
  * ```ts
  * import { PackageTaskProfile } from "@beep/repo-cli/commands/Quality/Tasks"
- * const profile = new PackageTaskProfile({
+ * const profile = PackageTaskProfile.make({
  *   task: "lint",
  *   script: "beep:lint",
  *   fixScript: "beep:lint:fix"
@@ -97,7 +116,7 @@ export class PackageTaskProfile extends S.Class<PackageTaskProfile>($I`PackageTa
  * @example
  * ```ts
  * import { QualityTaskStep } from "@beep/repo-cli/commands/Quality/Tasks"
- * const step = new QualityTaskStep({
+ * const step = QualityTaskStep.make({
  *   label: "lint",
  *   command: "bunx",
  *   args: ["turbo", "run", "lint"],
@@ -127,7 +146,7 @@ export class QualityTaskStep extends S.Class<QualityTaskStep>($I`QualityTaskStep
  * @example
  * ```ts
  * import { QualityTaskInvocation } from "@beep/repo-cli/commands/Quality/Tasks"
- * const invocation = new QualityTaskInvocation({
+ * const invocation = QualityTaskInvocation.make({
  *   task: "lint",
  *   args: ["--filter=@beep/repo-cli"],
  *   fix: false
@@ -144,122 +163,6 @@ export class QualityTaskInvocation extends S.Class<QualityTaskInvocation>($I`Qua
   },
   $I.annote("QualityTaskInvocation", {
     description: "Result of parsing a quality command invocation.",
-  })
-) {}
-
-/**
- * Error raised when a quality task subprocess exits unsuccessfully.
- *
- * @example
- * ```ts
- * import { QualityTaskFailed } from "@beep/repo-cli/commands/Quality/Tasks"
- * const failure = new QualityTaskFailed({
- *   label: "lint",
- *   command: "bunx turbo run lint",
- *   exitCode: 1
- * })
- * ```
- * @category error-handling
- * @since 0.0.0
- */
-export class QualityTaskFailed extends TaggedErrorClass<QualityTaskFailed>($I`QualityTaskFailed`)(
-  "QualityTaskFailed",
-  {
-    label: S.String,
-    command: S.String,
-    exitCode: S.Number,
-  },
-  $I.annote("QualityTaskFailed", {
-    description: "A quality subprocess exited with a non-zero status code.",
-  })
-) {
-  /** Process exit code reported when this error reaches the runtime boundary. */
-  override readonly [Runtime.errorExitCode] = this.exitCode;
-}
-
-/**
- * Error raised when a bounded quality task group completes with failed steps.
- *
- * @example
- * ```ts
- * import { QualityTaskGroupFailed, QualityTaskFailed } from "@beep/repo-cli/commands/Quality/Tasks"
- * const failure = new QualityTaskGroupFailed({
- *   label: "lint:policies",
- *   exitCode: 1,
- *   failures: [
- *     new QualityTaskFailed({
- *       label: "lint:spell",
- *       command: "bunx cspell .",
- *       exitCode: 1
- *     })
- *   ]
- * })
- * ```
- * @category error-handling
- * @since 0.0.0
- */
-export class QualityTaskGroupFailed extends TaggedErrorClass<QualityTaskGroupFailed>($I`QualityTaskGroupFailed`)(
-  "QualityTaskGroupFailed",
-  {
-    label: S.String,
-    exitCode: S.Number,
-    failures: S.Array(QualityTaskFailed),
-  },
-  $I.annote("QualityTaskGroupFailed", {
-    description: "A bounded quality task group completed with one or more failed subprocesses.",
-  })
-) {
-  /** Process exit code reported when this error reaches the runtime boundary. */
-  override readonly [Runtime.errorExitCode] = this.exitCode;
-}
-
-/**
- * Error raised when a quality task cannot resolve its required configuration.
- *
- * @example
- * ```ts
- * import { QualityTaskConfigurationError } from "@beep/repo-cli/commands/Quality/Tasks"
- * const error = new QualityTaskConfigurationError({
- *   message: "Could not find package.json"
- * })
- * ```
- * @category error-handling
- * @since 0.0.0
- */
-export class QualityTaskConfigurationError extends TaggedErrorClass<QualityTaskConfigurationError>(
-  $I`QualityTaskConfigurationError`
-)(
-  "QualityTaskConfigurationError",
-  {
-    message: S.String,
-  },
-  $I.annote("QualityTaskConfigurationError", {
-    description: "Quality task configuration could not be resolved.",
-  })
-) {}
-
-/**
- * Error raised when an unexpected quality task cause reaches the command boundary.
- *
- * @example
- * ```ts
- * import { UnexpectedQualityTaskFailure } from "@beep/repo-cli/commands/Quality/Tasks"
- * const error = new UnexpectedQualityTaskFailure({
- *   message: "Unexpected quality task failure"
- * })
- * ```
- * @category error-handling
- * @since 0.0.0
- */
-export class UnexpectedQualityTaskFailure extends TaggedErrorClass<UnexpectedQualityTaskFailure>(
-  $I`UnexpectedQualityTaskFailure`
-)(
-  "UnexpectedQualityTaskFailure",
-  {
-    message: S.String,
-  },
-  $I.annote("UnexpectedQualityTaskFailure", {
-    description: "Unexpected quality task failure preserved for the process runtime boundary.",
   })
 ) {}
 
@@ -324,11 +227,11 @@ const emptyTestLaneSelection: TestLaneSelectionState = {
 };
 
 const profileByTask: Readonly<Record<QualityTaskName, PackageTaskProfile>> = {
-  build: new PackageTaskProfile({ task: "build", script: "beep:build" }),
-  check: new PackageTaskProfile({ task: "check", script: "beep:check" }),
-  test: new PackageTaskProfile({ task: "test", script: "beep:test" }),
-  lint: new PackageTaskProfile({ task: "lint", script: "beep:lint", fixScript: "beep:lint:fix" }),
-  audit: new PackageTaskProfile({ task: "audit", script: "beep:audit" }),
+  build: PackageTaskProfile.make({ task: "build", script: "beep:build" }),
+  check: PackageTaskProfile.make({ task: "check", script: "beep:check" }),
+  test: PackageTaskProfile.make({ task: "test", script: "beep:test" }),
+  lint: PackageTaskProfile.make({ task: "lint", script: "beep:lint", fixScript: "beep:lint:fix" }),
+  audit: PackageTaskProfile.make({ task: "audit", script: "beep:audit" }),
 };
 
 const isQualityTaskName = (value: string): value is QualityTaskName =>
@@ -406,22 +309,12 @@ const parseRootAuditSelection = (args: ReadonlyArray<string>): RootAuditSelectio
 
 const readJsonFile = Effect.fn("QualityTasks.readJsonFile")(function* (filePath: string) {
   const fs = yield* FileSystem.FileSystem;
-  const content = yield* fs.readFileString(filePath).pipe(
-    Effect.mapError(
-      (cause) =>
-        new QualityTaskConfigurationError({
-          message: `Failed to read ${filePath}: ${String(cause)}`,
-        })
-    )
-  );
+  const content = yield* fs
+    .readFileString(filePath)
+    .pipe(QualityTaskConfigurationError.mapError(`Failed to read ${filePath}`));
 
   return yield* decodePackageJsonDocument(content).pipe(
-    Effect.mapError(
-      (cause) =>
-        new QualityTaskConfigurationError({
-          message: `Failed to parse ${filePath}: ${String(cause)}`,
-        })
-    )
+    QualityTaskConfigurationError.mapError(`Failed to parse ${filePath}`)
   );
 });
 
@@ -449,9 +342,7 @@ const resolvePackageDir = Effect.fn("QualityTasks.resolvePackageDir")(function* 
 
     const parent = path.dirname(current);
     if (parent === current) {
-      return yield* new QualityTaskConfigurationError({
-        message: `Could not find package.json between ${cwd} and ${repoRoot}.`,
-      });
+      return yield* QualityTaskConfigurationError.new(`Could not find package.json between ${cwd} and ${repoRoot}.`);
     }
     return yield* findPackageDir(parent);
   });
@@ -588,7 +479,7 @@ const withLocalEnv = Effect.fn("QualityTasks.withLocalEnv")(function* (step: Qua
     return step;
   }
 
-  return new QualityTaskStep({
+  return QualityTaskStep.make({
     label: `${step.label} (op run)`,
     command: "op",
     args: ["run", "--env-file=.env", "--", step.command, ...step.args],
@@ -615,21 +506,10 @@ const runStep = Effect.fn("QualityTasks.runStep")(function* (step: QualityTaskSt
       });
       return yield* handle.exitCode;
     })
-  ).pipe(
-    Effect.mapError(
-      (cause) =>
-        new QualityTaskConfigurationError({
-          message: `Failed to spawn ${commandText(resolved.command, resolved.args)}: ${String(cause)}`,
-        })
-    )
-  );
+  ).pipe(QualityTaskConfigurationError.mapError(`Failed to spawn ${commandText(resolved.command, resolved.args)}`));
 
   if (exitCode !== 0) {
-    return yield* new QualityTaskFailed({
-      label: resolved.label,
-      command: commandText(resolved.command, resolved.args),
-      exitCode,
-    });
+    return yield* QualityTaskFailed.new(exitCode, resolved.label, commandText(resolved.command, resolved.args));
   }
 });
 
@@ -695,14 +575,7 @@ const collectResolvedStepOutput = Effect.fn("QualityTasks.collectResolvedStepOut
         exitCode,
       };
     })
-  ).pipe(
-    Effect.mapError(
-      (cause) =>
-        new QualityTaskConfigurationError({
-          message: `Failed to spawn ${command}: ${cause.message}`,
-        })
-    )
-  );
+  ).pipe(QualityTaskConfigurationError.mapError(`Failed to spawn ${command}`));
 
   return {
     command,
@@ -726,11 +599,7 @@ const renderStepOutput = Effect.fn("QualityTasks.renderStepOutput")(function* (r
 });
 
 const failureFromOutput = (result: QualityTaskStepOutput) =>
-  new QualityTaskFailed({
-    label: result.step.label,
-    command: result.command,
-    exitCode: result.exitCode,
-  });
+  QualityTaskFailed.new(result.exitCode, result.step.label, result.command);
 
 const failedStepOutputs: (results: ReadonlyArray<QualityTaskStepOutput>) => ReadonlyArray<QualityTaskFailed> = flow(
   A.filter((result) => result.exitCode !== 0),
@@ -758,17 +627,13 @@ const runStepGroup = Effect.fn("QualityTasks.runStepGroup")(function* (
   const failures = failedStepOutputs(results);
   const firstFailure = A.head(failures);
   if (O.isSome(firstFailure)) {
-    return yield* new QualityTaskGroupFailed({
-      label,
-      failures,
-      exitCode: firstFailure.value.exitCode,
-    });
+    return yield* QualityTaskGroupFailed.new(failures, label, firstFailure.value.exitCode);
   }
 });
 
 const turboStep = (cwd: string, label: string, tasks: ReadonlyArray<string>, args: ReadonlyArray<string>) => {
   const env = turboCoverageEnv(tasks, args);
-  return new QualityTaskStep({
+  return QualityTaskStep.make({
     label,
     command: "bunx",
     args: turboRunArgs(tasks, args),
@@ -778,7 +643,7 @@ const turboStep = (cwd: string, label: string, tasks: ReadonlyArray<string>, arg
 };
 
 const bunRunStep = (cwd: string, label: string, args: ReadonlyArray<string>) =>
-  new QualityTaskStep({
+  QualityTaskStep.make({
     label,
     command: "bun",
     args: ["run", ...args],
@@ -786,7 +651,7 @@ const bunRunStep = (cwd: string, label: string, args: ReadonlyArray<string>) =>
   });
 
 const bunxStep = (cwd: string, label: string, args: ReadonlyArray<string>) =>
-  new QualityTaskStep({
+  QualityTaskStep.make({
     label,
     command: "bunx",
     args,
@@ -853,7 +718,7 @@ const sqlIntegrationStep = (
   resource: SqlIntegrationLaneResource,
   childCommand: SqlIntegrationChildCommand = sqlIntegrationChildCommand(args)
 ) =>
-  new QualityTaskStep({
+  QualityTaskStep.make({
     label: "test:integration",
     command: childCommand.command,
     args: childCommand.args,
@@ -863,14 +728,7 @@ const sqlIntegrationStep = (
 
 const acquireTestcontainersSqlIntegrationResource = withRyukDisabledDuringAcquire(
   makePgliteTestcontainerResource()
-).pipe(
-  Effect.mapError(
-    (error) =>
-      new QualityTaskConfigurationError({
-        message: `Failed to start shared PGLite SQL integration database: ${error.message}`,
-      })
-  )
-);
+).pipe(QualityTaskConfigurationError.mapError("Failed to start shared PGLite SQL integration database"));
 
 const acquireExternalSqlIntegrationResource = (connectionUri: string): Effect.Effect<SqlIntegrationLaneResource> =>
   Effect.succeed({ connectionUri });
@@ -947,7 +805,7 @@ const optionalQualityTaskStep = ({ enabled, step }: OptionalQualityTaskStep): Re
   enabled ? A.of(step()) : A.empty();
 
 const rootBuildSteps = (repoRoot: string, args: ReadonlyArray<string>) => [
-  new QualityTaskStep({
+  QualityTaskStep.make({
     label: "build",
     command: "bunx",
     args: turboRunArgs(["build"], args),
@@ -1134,7 +992,7 @@ const runPackageTask = Effect.fn("QualityTasks.runPackageTask")(function* (
   }
 
   yield* runStep(
-    new QualityTaskStep({
+    QualityTaskStep.make({
       label: `${packageName} ${script}`,
       command: "bun",
       args: ["run", script, ...args],
@@ -1213,7 +1071,7 @@ export const parseQualityTaskInvocation = (argv: ReadonlyArray<string>): O.Optio
 
     const parsed = parseFixArgs(rawArgs);
     return O.some(
-      new QualityTaskInvocation({
+      QualityTaskInvocation.make({
         task: command,
         args: parsed.args,
         fix: command === "lint" && parsed.fix,
@@ -1235,7 +1093,7 @@ export const parseQualityTaskInvocation = (argv: ReadonlyArray<string>): O.Optio
  * ```ts
  * import { QualityTaskInvocation, runQualityTask } from "@beep/repo-cli/commands/Quality/Tasks"
  * const program = runQualityTask(
- *   new QualityTaskInvocation({
+ *   QualityTaskInvocation.make({
  *     task: "check",
  *     args: [],
  *     fix: false
@@ -1296,7 +1154,7 @@ export const runQualityTaskIfRequested: (
  * ```ts
  * import { collectStepOutput, QualityTaskStep } from "@beep/repo-cli/commands/Quality/Tasks"
  * const output = collectStepOutput(
- *   new QualityTaskStep({
+ *   QualityTaskStep.make({
  *     label: "version",
  *     command: "bun",
  *     args: ["--version"],

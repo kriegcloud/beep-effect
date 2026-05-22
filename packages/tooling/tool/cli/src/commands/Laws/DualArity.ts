@@ -10,7 +10,7 @@ import { renderBiomeJson } from "@beep/repo-utils/schemas/BiomeJson";
 import { isExcludedTypeScriptSourcePath, toPosixPath } from "@beep/repo-utils/schemas/TypeScriptSourceExclusions";
 import { TSMorphService, TsMorphProjectInspectionRequest } from "@beep/repo-utils/TSMorph/index";
 import { resolveWorkspaceDirs } from "@beep/repo-utils/Workspaces";
-import { LiteralKit, TaggedErrorClass } from "@beep/schema";
+import { LiteralKit } from "@beep/schema";
 import { A, Str } from "@beep/utils";
 import { Console, DateTime, Effect, FileSystem, HashMap, Match, MutableHashSet, Order, Path, pipe } from "effect";
 import * as O from "effect/Option";
@@ -32,6 +32,7 @@ import {
   type Type,
   type VariableDeclaration,
 } from "ts-morph";
+import { DualArityInventoryReadError } from "./Laws.errors.js";
 
 const $I = $RepoCliId.create("commands/Laws/DualArity");
 const INVENTORY_PATH = "standards/dual-arity.inventory.jsonc";
@@ -206,23 +207,13 @@ export class DualArityRulesSummary extends S.Class<DualArityRulesSummary>($I`Dua
   })
 ) {}
 
-class DualArityInventoryReadError extends TaggedErrorClass<DualArityInventoryReadError>(
-  $I`DualArityInventoryReadError`
-)(
-  "DualArityInventoryReadError",
-  {
-    message: S.String,
-  },
-  $I.annote("DualArityInventoryReadError", {
-    description: "Raised when the committed dual-arity inventory cannot be parsed or decoded.",
-  })
-) {}
-
 type ParameterOwner = ArrowFunction | FunctionDeclaration | FunctionExpression | MethodDeclaration;
 
 type DualBindingIndex = {
   readonly validNamed: MutableHashSet.MutableHashSet<string>;
   readonly validNamespaces: MutableHashSet.MutableHashSet<string>;
+  readonly validDualFactoryNamed: MutableHashSet.MutableHashSet<string>;
+  readonly validDualFactoryNamespaces: MutableHashSet.MutableHashSet<string>;
   readonly invalidNamed: MutableHashSet.MutableHashSet<string>;
   readonly invalidNamespaces: MutableHashSet.MutableHashSet<string>;
 };
@@ -354,6 +345,8 @@ const collectDualBindings = (sourceFile: SourceFile): DualBindingIndex => {
   const bindings: DualBindingIndex = {
     validNamed: MutableHashSet.empty<string>(),
     validNamespaces: MutableHashSet.empty<string>(),
+    validDualFactoryNamed: MutableHashSet.empty<string>(),
+    validDualFactoryNamespaces: MutableHashSet.empty<string>(),
     invalidNamed: MutableHashSet.empty<string>(),
     invalidNamespaces: MutableHashSet.empty<string>(),
   };
@@ -367,22 +360,44 @@ const collectDualBindings = (sourceFile: SourceFile): DualBindingIndex => {
     const namedTarget = moduleName === "effect/Function" ? bindings.validNamed : bindings.invalidNamed;
     const namespaceTarget = moduleName === "effect/Function" ? bindings.validNamespaces : bindings.invalidNamespaces;
     const namespaceImport = importDeclaration.getNamespaceImport();
+    const isErrFactoryModule = moduleName === "@beep/utils" || moduleName === "@beep/utils/Errors";
 
     if (P.isNotUndefined(namespaceImport)) {
       MutableHashSet.add(namespaceTarget, namespaceImport.getText());
+      if (isErrFactoryModule) {
+        MutableHashSet.add(bindings.validDualFactoryNamespaces, namespaceImport.getText());
+        MutableHashSet.add(bindings.validDualFactoryNamespaces, `${namespaceImport.getText()}.Err`);
+      }
     }
 
     for (const namedImport of importDeclaration.getNamedImports()) {
-      if (namedImport.isTypeOnly() || namedImport.getName() !== "dual") {
+      if (namedImport.isTypeOnly()) {
         continue;
       }
 
-      MutableHashSet.add(namedTarget, namedImport.getAliasNode()?.getText() ?? "dual");
+      const importedName = namedImport.getName();
+      const localName = namedImport.getAliasNode()?.getText() ?? importedName;
+
+      if (importedName === "dual") {
+        MutableHashSet.add(namedTarget, localName);
+      }
+
+      if (isErrFactoryModule && importedName === "Err") {
+        MutableHashSet.add(bindings.validDualFactoryNamespaces, localName);
+      }
+
+      if (isErrFactoryModule && (importedName === "mapCauseError" || importedName === "mapToError")) {
+        MutableHashSet.add(bindings.validDualFactoryNamed, localName);
+      }
     }
   }
 
   return bindings;
 };
+
+const DUAL_MAPPER_FACTORY_NAMES = ["mapCauseError", "mapToError"] as const;
+
+const isDualMapperFactoryName = (name: string): boolean => A.contains(DUAL_MAPPER_FACTORY_NAMES, name);
 
 const getDualCallInfo = (node: import("ts-morph").Node, bindings: DualBindingIndex): O.Option<DualCallInfo> => {
   const expression = unwrapExpression(node);
@@ -393,17 +408,28 @@ const getDualCallInfo = (node: import("ts-morph").Node, bindings: DualBindingInd
   const callee = expression.getExpression();
   let validSource = false;
   let dualLike = false;
+  let hasExplicitArityArgument = false;
 
   if (Node.isIdentifier(callee)) {
-    validSource = MutableHashSet.has(bindings.validNamed, callee.getText());
+    validSource =
+      MutableHashSet.has(bindings.validNamed, callee.getText()) ||
+      MutableHashSet.has(bindings.validDualFactoryNamed, callee.getText());
     dualLike =
       validSource || MutableHashSet.has(bindings.invalidNamed, callee.getText()) || callee.getText() === "dual";
+    hasExplicitArityArgument = callee.getText() === "dual" || MutableHashSet.has(bindings.validNamed, callee.getText());
   }
 
   if (Node.isPropertyAccessExpression(callee) && callee.getName() === "dual") {
     const receiverText = callee.getExpression().getText();
     validSource = MutableHashSet.has(bindings.validNamespaces, receiverText);
     dualLike = validSource || MutableHashSet.has(bindings.invalidNamespaces, receiverText);
+    hasExplicitArityArgument = true;
+  }
+
+  if (Node.isPropertyAccessExpression(callee) && isDualMapperFactoryName(callee.getName())) {
+    const receiverText = callee.getExpression().getText();
+    validSource = MutableHashSet.has(bindings.validDualFactoryNamespaces, receiverText);
+    dualLike = validSource;
   }
 
   if (!dualLike) {
@@ -416,7 +442,7 @@ const getDualCallInfo = (node: import("ts-morph").Node, bindings: DualBindingInd
   return O.some({
     callExpression: expression,
     validSource,
-    arity: pipe(A.get(argumentsList, 0), O.flatMap(parseNumericLiteral)),
+    arity: hasExplicitArityArgument ? pipe(A.get(argumentsList, 0), O.flatMap(parseNumericLiteral)) : O.none(),
     implementation,
   });
 };
@@ -1189,7 +1215,7 @@ const makeInventoryEntry = (
   }
 
   return O.some(
-    new DualArityInventoryEntry({
+    DualArityInventoryEntry.make({
       file: candidate.file,
       qualifiedName: candidate.qualifiedName,
       kind: candidate.kind,
@@ -1221,14 +1247,14 @@ const readInventoryDocument = Effect.fn(function* () {
   });
 
   if (!A.isReadonlyArrayEmpty(parseErrors)) {
-    return yield* new DualArityInventoryReadError({
-      message: pipe(
+    return yield* DualArityInventoryReadError.new(
+      pipe(
         parseErrors,
         A.map((error) => `${printParseErrorCode(error.error)}@${error.offset}:${error.length}`),
         A.join(", "),
         (details) => `Unable to parse ${INVENTORY_PATH}: ${details}`
-      ),
-    });
+      )
+    );
   }
 
   return yield* decodeInventoryDocument(parsed).pipe(Effect.map(O.some));
@@ -1296,7 +1322,7 @@ const scanDualArityInventory = Effect.fn("DualArity.scanDualArityInventory")(fun
   });
 
   return {
-    document: new DualArityInventoryDocument({
+    document: DualArityInventoryDocument.make({
       version: 1,
       generatedOn: todayYmd(),
       scope: A.fromIterable(INCLUDED_GLOBS),
@@ -1329,7 +1355,7 @@ const mergeInventory = (
         return entry;
       }
 
-      return new DualArityInventoryEntry({
+      return DualArityInventoryEntry.make({
         ...entry,
         status: existingEntry.value.status,
         owner: existingEntry.value.owner,
@@ -1339,7 +1365,7 @@ const mergeInventory = (
     })
   );
 
-  return new DualArityInventoryDocument({
+  return DualArityInventoryDocument.make({
     version: 1,
     generatedOn: liveDocument.generatedOn,
     scope: liveDocument.scope,
@@ -1463,7 +1489,7 @@ export const runDualArityRules = Effect.fn("runDualArityRules")(function* (optio
     yield* Console.error(`[dual-arity] ${diagnostic}`);
   }
 
-  return new DualArityRulesSummary({
+  return DualArityRulesSummary.make({
     liveEntries: liveDocument.entries.length,
     trackedEntries: mergedDocument.entries.length,
     missingEntries: missingEntries.length,

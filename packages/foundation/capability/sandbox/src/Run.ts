@@ -330,7 +330,7 @@ export const buildLogFilename: {
   (options: LogFilenameOptions): (resolvedBranch: string) => string;
 } = dual(
   (args) => P.isString(args[0]),
-  (resolvedBranch: string, options: LogFilenameOptions = new LogFilenameOptions({})): string => {
+  (resolvedBranch: string, options: LogFilenameOptions = LogFilenameOptions.make({})): string => {
     const sanitized = sanitizeBranchForFilename(resolvedBranch);
     const nameSuffix =
       options.name === undefined ? "" : `-${Str.replace(/[^a-z0-9_.-]/gu, "-")(Str.toLowerCase(options.name))}`;
@@ -495,7 +495,7 @@ const copyPathToWorktree = Effect.fn("Run.copyPathToWorktree")(function* (
   }
 
   const result = yield* process.run(
-    new ProcessCommand({
+    ProcessCommand.make({
       args: [
         "-lc",
         `mkdir -p ${shellEscape(path.dirname(destination))} && cp -R ${shellEscape(source)} ${shellEscape(destination)}`,
@@ -554,7 +554,7 @@ const copyPathsToWorktree = Effect.fn("Run.copyPathsToWorktree")(function* (
 const shellEscape = (value: string): string => `'${Str.replaceAll("'", "'\\''")(value)}'`;
 
 const defaultBranchStrategy = <R>(provider: SandboxProvider<R>): BranchStrategy =>
-  provider._tag === "Isolated" ? new MergeToHeadBranchStrategy({}) : new HeadBranchStrategy({});
+  provider._tag === "Isolated" ? MergeToHeadBranchStrategy.make({}) : HeadBranchStrategy.make({});
 
 const createSandboxHandle = <R>(
   provider: SandboxProvider<R>,
@@ -565,7 +565,7 @@ const createSandboxHandle = <R>(
 ): Effect.Effect<SandboxHandle<R>, SandboxError, R> => {
   if (provider._tag === "BindMount") {
     return provider.create(
-      new BindMountCreateOptions({
+      BindMountCreateOptions.make({
         env,
         hostRepoPath: hostRepoDir,
         mounts: [...mounts],
@@ -575,7 +575,7 @@ const createSandboxHandle = <R>(
   }
 
   if (provider._tag === "Isolated") {
-    return provider.create(new IsolatedCreateOptions({ env }));
+    return provider.create(IsolatedCreateOptions.make({ env }));
   }
 
   return provider.create({ env, worktreePath });
@@ -640,7 +640,7 @@ const runInWorktree: <R>(
   yield* runHostHooks(
     runOptions.hooks?.host?.onWorktreeReady ?? [],
     options.worktree.path,
-    new RunHostHooksOptions({ defaultTimeout: options.timeouts.hookMs })
+    RunHostHooksOptions.make({ defaultTimeout: options.timeouts.hookMs })
   );
 
   const result = yield* Effect.acquireUseRelease(
@@ -654,7 +654,7 @@ const runInWorktree: <R>(
     (sandbox) =>
       prepareSandboxLifecycle(
         sandbox,
-        new SandboxLifecycleSetupOptions({
+        SandboxLifecycleSetupOptions.make({
           gitSetupTimeoutMs: options.timeouts.gitSetupMs,
           hookTimeoutMs: options.timeouts.hookMs,
           ...(runOptions.hooks === undefined ? {} : { hooks: runOptions.hooks }),
@@ -684,7 +684,7 @@ const runInWorktree: <R>(
       ? result.commits
       : options.branchStrategy._tag === "MergeToHead"
         ? yield* mergeToHead(
-            new MergeToHeadOptions({
+            MergeToHeadOptions.make({
               baseHead: options.baseHead,
               hostRepoDir: options.hostRepoDir,
               sourceBranch: options.worktree.branch,
@@ -710,7 +710,7 @@ const runInWorktree: <R>(
           );
   const completion = buildCompletionMessage(result.completionSignal, result.iterations.length);
   const displayRows = buildRunSummaryRows(
-    new RunSummaryRowOptions({
+    RunSummaryRowOptions.make({
       agentName: runOptions.agent.name,
       branch: result.branch,
       maxIterations: options.maxIterations,
@@ -722,7 +722,7 @@ const runInWorktree: <R>(
   yield* display.summary("Run summary", displayRows);
   yield* display.status(completion.message, completion.severity);
 
-  return new RunResult({
+  return RunResult.make({
     branch: options.branchStrategy._tag === "MergeToHead" ? options.currentBranch : result.branch,
     commits,
     ...(result.completionSignal === undefined ? {} : { completionSignal: result.completionSignal }),
@@ -771,7 +771,7 @@ const runEffect: <R>(
   const baseHead = yield* getHostHead(hostRepoDir);
   const promptArgs = options.promptArgs ?? {};
   const resolvedPrompt = yield* resolvePrompt(
-    new ResolvePromptOptions({
+    ResolvePromptOptions.make({
       ...(options.prompt === undefined ? {} : { prompt: options.prompt }),
       ...(options.promptFile === undefined ? {} : { promptFile: options.promptFile }),
     })
@@ -793,7 +793,7 @@ const runEffect: <R>(
           )(
             buildLogFilename(
               currentBranch,
-              new LogFilenameOptions({
+              LogFilenameOptions.make({
                 ...(options.name === undefined ? {} : { name: options.name }),
               })
             )
@@ -815,13 +815,13 @@ const runEffect: <R>(
         );
   const resolvedEnv = yield* resolveEnv(hostRepoDir);
   const env = yield* mergeProviderEnv(
-    new MergeProviderEnvOptions({
+    MergeProviderEnvOptions.make({
       agentProviderEnv: options.agent.env,
       resolvedEnv,
       sandboxProviderEnv: options.sandbox.env,
     })
   );
-  const timeouts = options.timeouts ?? new Timeouts({});
+  const timeouts = options.timeouts ?? Timeouts.make({});
   const runOptions = {
     baseHead,
     branchStrategy,
@@ -846,7 +846,7 @@ const runEffect: <R>(
 
   return yield* Effect.acquireUseRelease(
     createWorktreeInfo(
-      new CreateWorktreeInfoOptions({
+      CreateWorktreeInfoOptions.make({
         ...(branchStrategy._tag === "Branch"
           ? {
               ...(branchStrategy.baseBranch === undefined ? {} : { baseBranch: branchStrategy.baseBranch }),
