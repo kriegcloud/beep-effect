@@ -1,6 +1,6 @@
 {
   "name": "@beep/discord",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "description": "Driver-level Discord REST capability wrapper for product-neutral channel liveness and message checks.",
   "license": "MIT",
   "private": true,

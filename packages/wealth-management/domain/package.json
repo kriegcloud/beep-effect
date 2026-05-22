@@ -1,6 +1,6 @@
 {
   "name": "@beep/wealth-management-domain",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "description": "Wealth-management context domain models for the runtime proof.",
   "license": "MIT",
   "private": true,

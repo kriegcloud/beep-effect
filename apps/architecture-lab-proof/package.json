@@ -1,6 +1,6 @@
 {
   "name": "@beep/architecture-lab-proof",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "description": "App-level contract harness for the architecture-lab WorkItem proof.",
   "license": "MIT",
   "private": true,

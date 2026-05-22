@@ -1,6 +1,6 @@
 {
   "name": "@beep/sandbox",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "description": "CLI for orchestrating AI agents in isolated sandbox environments",
   "license": "MIT",
   "private": true,

@@ -1,6 +1,6 @@
 {
   "name": "@beep/installer-server",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "description": "installer server adapter package.",
   "license": "MIT",
   "private": true,

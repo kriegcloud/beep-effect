@@ -1,6 +1,6 @@
 {
   "name": "@beep/architecture-lab-domain",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "description": "Architecture-lab domain package for the synthetic WorkItem aggregate.",
   "license": "MIT",
   "private": true,

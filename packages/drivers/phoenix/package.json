@@ -1,6 +1,6 @@
 {
   "name": "@beep/phoenix",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "description": "Phoenix API driver package",
   "license": "MIT",
   "private": true,
