@@ -19,3 +19,21 @@ Ship reliable code with effect first and schema first patterns.
   `standards/repo-exports.catalog.jsonc`; refresh with
   `bun run repo-exports:catalog` and verify with
   `bun run repo-exports:catalog:check`.
+
+## Prompt-cache discipline
+Claude Code auto-caches the stable conversation prefix (system prompt, tool
+definitions, this file, skills, prior turns); cache reads cost ~0.1x input and
+expire after a ~5-minute idle TTL. Preserve hit rates:
+- Keep the MCP/tool surface stable within a session. Adding, removing, or
+  reconnecting MCP servers (Graphiti and friends) changes the cached tool block
+  and forces a full cache miss next turn — settle `.mcp.json` and enabled tools
+  before working, not mid-task.
+- Treat always-loaded files as the cache prefix: batch edits to this file,
+  `.claude/skills/*` frontmatter, and settings instead of tweaking them
+  repeatedly mid-session, and keep them lean. Durable cross-session knowledge
+  belongs in file-memory (`memory/`) or Graphiti, not here.
+- Front-load stable context; let volatile, per-task detail arrive later in the
+  conversation rather than in always-loaded files.
+- Each subagent starts with a cold context window. For related follow-ups,
+  continue an existing agent via `SendMessage` rather than spawning a fresh one,
+  and avoid idle gaps over ~5 minutes that let the cache expire.
