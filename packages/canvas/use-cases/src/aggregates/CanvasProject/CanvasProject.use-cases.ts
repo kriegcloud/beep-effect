@@ -16,6 +16,7 @@ import type {
   GetCanvasProjectQuery,
   ListCanvasProjectsQuery,
   RemoveCanvasNodeCommand,
+  RestoreCanvasProjectCommand,
 } from "./CanvasProject.commands.js";
 import type { CanvasProjectActionError } from "./CanvasProject.errors.js";
 
@@ -23,6 +24,15 @@ const $I = $CanvasUseCasesId.create("aggregates/CanvasProject/CanvasProject.use-
 
 /**
  * Public CanvasProject use-case contract.
+ *
+ * @example
+ * ```ts
+ * import type { CanvasProject as CanvasProjectUseCases } from "@beep/canvas-use-cases/public"
+ *
+ * declare const useCases: CanvasProjectUseCases.CanvasProjectUseCasesShape
+ * const restore = useCases.restore
+ * console.log(typeof restore)
+ * ```
  *
  * @category use-cases
  * @since 0.0.0
@@ -46,10 +56,20 @@ export interface CanvasProjectUseCasesShape {
   readonly removeNode: (
     command: RemoveCanvasNodeCommand
   ) => Effect.Effect<DomainCanvasProject.CanvasProject, CanvasProjectActionError>;
+  readonly restore: (
+    command: RestoreCanvasProjectCommand
+  ) => Effect.Effect<DomainCanvasProject.CanvasProject, CanvasProjectActionError>;
 }
 
 /**
  * Public CanvasProject use-case service.
+ *
+ * @example
+ * ```ts
+ * import { CanvasProject } from "@beep/canvas-use-cases/public"
+ *
+ * console.log(CanvasProject.CanvasProjectUseCases)
+ * ```
  *
  * @category use-cases
  * @since 0.0.0

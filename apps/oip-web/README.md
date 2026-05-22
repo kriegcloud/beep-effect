@@ -25,10 +25,10 @@ bun run build:pwa
 
 ## React Grab
 
-React Grab is opt-in during development so normal theme and console QA stays
-quiet. Start with `NEXT_PUBLIC_REACT_GRAB=1 bun run dev`, hover an element, then
-press `Cmd+C` on macOS or `Ctrl+C` on Linux/Windows to copy source context for
-refinement work.
+React Grab loads during development. Start with `bun run dev`, hover an
+element, then press `Cmd+C` on macOS or `Ctrl+C` on Linux/Windows to copy source
+context for refinement work. Use `NEXT_PUBLIC_REACT_GRAB=0 bun run dev` when
+you need the dev overlay disabled for quiet browser QA.
 
 ## Launch Goal
 

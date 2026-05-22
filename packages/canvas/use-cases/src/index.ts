@@ -19,7 +19,7 @@
  * @category use-cases
  * @since 0.0.0
  */
-export const VERSION = "0.0.0" as const;
+export const VERSION = "0.0.1" as const;
 
 /**
  * Public use-case exports for the canvas package.

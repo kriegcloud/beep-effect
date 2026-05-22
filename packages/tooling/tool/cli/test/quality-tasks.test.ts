@@ -145,17 +145,21 @@ describe("quality task adapter", () => {
     });
   });
 
-  it("builds package-only audit steps by default and keeps turbo filters", () => {
-    const steps = rootQualityStepsForTesting("/repo", getInvocation(["audit", "--filter=@beep/schema", "--summarize"]));
+  it("builds package-only audit steps by default and keeps turbo filters", () =>
+    withEnvVar("CI", undefined, () => {
+      const steps = rootQualityStepsForTesting(
+        "/repo",
+        getInvocation(["audit", "--filter=@beep/schema", "--summarize"])
+      );
 
-    expect(steps).toHaveLength(1);
-    expect(steps[0]).toMatchObject({
-      label: "audit:packages",
-      command: "bunx",
-      args: expectedTurboArgs("audit", ["--filter=@beep/schema", "--summarize"]),
-      cwd: "/repo",
-    });
-  });
+      expect(steps).toHaveLength(1);
+      expect(steps[0]).toMatchObject({
+        label: "audit:packages",
+        command: "bunx",
+        args: expectedTurboArgs("audit", ["--filter=@beep/schema", "--summarize"]),
+        cwd: "/repo",
+      });
+    }));
 
   it("keeps package audit cacheable by default for local runs", () =>
     withEnvVar("CI", undefined, () => {
