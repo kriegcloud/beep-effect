@@ -632,9 +632,20 @@ canonical:
 | `foundation/ui-system`     | `components/`, `themes/`, `styles/`, `hooks/`, `index.ts`                        |
 | `drivers`                  | `*.service.ts`, `*.layer.ts`, `*.errors.ts`, `*.config.ts`, optional `*.browser.ts`, `*.test-layer.ts` |
 | `tooling/library`          | library modules plus `index.ts`                                                   |
-| `tooling/tool`             | `src/bin.ts`, `commands/`, `*.command.ts`, `*.service.ts`, `*.schema.ts`, `index.ts` |
+| `tooling/tool`             | `src/bin.ts`, `commands/`, `*.command.ts`, `*.service.ts`, `*.schemas.ts`, `index.ts` |
 | `tooling/policy-pack`      | `*.config.ts`, `*.policy.ts`, `index.ts`                                          |
 | `tooling/test-kit`         | `*.test-kit.ts`, optional `fixtures/`, `layers/`, `index.ts`                     |
+
+Repo CLI commands use thresholded role topology. Single-file leaf commands may
+stay flat while they have no schemas, service, renderers, or subcommands.
+Command groups and role-bearing commands live in `commands/<Group>/` with
+`<Group>.command.ts` for flags and the `Command` tree, `<Group>.schemas.ts`
+for command data, `<Group>.errors.ts` for the command-boundary tagged error,
+`<Group>.service.ts` for the `Context.Service` contract and default live layer,
+and `index.ts` as the curated public facade. Use earned semantic roles such as
+`<Group>.render.ts`, `<Group>.progress.ts`, or `<Group>.plan.ts`; reserve
+`<Group>.config.ts` for runtime/config-provider-backed settings and
+`<Group>.layer.ts` for non-trivial layer variants.
 
 Script-only pseudo-packages are not canonical. If an artifact matters enough to
 name in the architecture, it should have a real family/kind contract and a real

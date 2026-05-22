@@ -20,9 +20,9 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | packagesWithPublicExports | 77 |
 | packagesWithoutPublicExports | 1 |
 | missingWorkspaceMetadata | 0 |
-| importSpecifiers | 932 |
-| publicExportEntries | 13714 |
-| uniquePackageSymbols | 5482 |
+| importSpecifiers | 935 |
+| publicExportEntries | 13750 |
+| uniquePackageSymbols | 5503 |
 
 ## Seed Discovery Proof
 
@@ -39,7 +39,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 |---:|---|---|---|---:|---:|---:|
 | 1 | `@beep/types` | `packages/foundation/primitive/types` | has-public-exports | 6 | 14 | 10 |
 | 2 | `@beep/identity` | `packages/foundation/modeling/identity` | has-public-exports | 4 | 318 | 106 |
-| 3 | `@beep/utils` | `packages/foundation/modeling/utils` | has-public-exports | 21 | 738 | 558 |
+| 3 | `@beep/utils` | `packages/foundation/modeling/utils` | has-public-exports | 20 | 735 | 557 |
 | 4 | `@beep/data` | `packages/foundation/primitive/data` | has-public-exports | 8 | 44 | 38 |
 | 5 | `@beep/messages` | `packages/foundation/modeling/messages` | has-public-exports | 3 | 15 | 5 |
 | 6 | `@beep/schema` | `packages/foundation/modeling/schema` | has-public-exports | 136 | 3143 | 738 |
@@ -88,7 +88,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | 49 | `@beep/workspace-tables` | `packages/workspace/tables` | has-public-exports | 4 | 7 | 5 |
 | 50 | `@beep/db-admin` | `packages/_internal/db-admin` | has-public-exports | 5 | 15 | 6 |
 | 51 | `@beep/architecture-lab-client` | `packages/architecture-lab/client` | has-public-exports | 2 | 6 | 6 |
-| 52 | `@beep/repo-cli` | `packages/tooling/tool/cli` | has-public-exports | 81 | 837 | 504 |
+| 52 | `@beep/repo-cli` | `packages/tooling/tool/cli` | has-public-exports | 85 | 876 | 526 |
 | 53 | `@beep/shared-server` | `packages/shared/server` | has-public-exports | 2 | 2 | 1 |
 | 54 | `@beep/canvas-server` | `packages/canvas/server` | has-public-exports | 4 | 18 | 16 |
 | 55 | `@beep/shared-config` | `packages/shared/config` | has-public-exports | 2 | 2 | 1 |
@@ -469,7 +469,6 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/utils` | `DateTime` | SourceFile | `packages/foundation/modeling/utils/src/DateTime.ts:8` |  |
 | `@beep/utils` | `FileSystem` | SourceFile | `packages/foundation/modeling/utils/src/FileSystem.ts:8` |  |
 | `@beep/utils` | `Html` | SourceFile | `packages/foundation/modeling/utils/src/Html.ts:8` |  |
-| `@beep/utils` | `isBlockedObjectKey` | const | `packages/foundation/modeling/utils/src/isBlockedObjectKey.ts:36` | Returns `true` when `key` is a blocked prototype key (`__proto__`, |
 | `@beep/utils` | `Num` | SourceFile | `packages/foundation/modeling/utils/src/Number.ts:7` |  |
 | `@beep/utils` | `O` | SourceFile | `packages/foundation/modeling/utils/src/Option.ts:8` |  |
 | `@beep/utils` | `P` | SourceFile | `packages/foundation/modeling/utils/src/Predicate.ts:8` |  |
@@ -861,7 +860,6 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/utils/index` | `DateTime` | SourceFile | `packages/foundation/modeling/utils/src/DateTime.ts:8` |  |
 | `@beep/utils/index` | `FileSystem` | SourceFile | `packages/foundation/modeling/utils/src/FileSystem.ts:8` |  |
 | `@beep/utils/index` | `Html` | SourceFile | `packages/foundation/modeling/utils/src/Html.ts:8` |  |
-| `@beep/utils/index` | `isBlockedObjectKey` | const | `packages/foundation/modeling/utils/src/isBlockedObjectKey.ts:36` | Returns `true` when `key` is a blocked prototype key (`__proto__`, |
 | `@beep/utils/index` | `Num` | SourceFile | `packages/foundation/modeling/utils/src/Number.ts:7` |  |
 | `@beep/utils/index` | `O` | SourceFile | `packages/foundation/modeling/utils/src/Option.ts:8` |  |
 | `@beep/utils/index` | `P` | SourceFile | `packages/foundation/modeling/utils/src/Predicate.ts:8` |  |
@@ -895,7 +893,6 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/utils/index` | `thunkTrue` | const | `packages/foundation/modeling/utils/src/thunk.ts:106` | A thunk that always yields `true`. |
 | `@beep/utils/index` | `thunkUndefined` | const | `packages/foundation/modeling/utils/src/thunk.ts:70` | A thunk that always yields `undefined`. |
 | `@beep/utils/index` | `thunkVoid` | const | `packages/foundation/modeling/utils/src/thunk.ts:88` | A thunk that always yields `void 0` (equivalent to `undefined`). |
-| `@beep/utils/isBlockedObjectKey` | `isBlockedObjectKey` | const | `packages/foundation/modeling/utils/src/isBlockedObjectKey.ts:36` | Returns `true` when `key` is a blocked prototype key (`__proto__`, |
 | `@beep/utils/NodeUrl` | `fileURLToPath` | const | `packages/foundation/modeling/utils/src/NodeUrl.ts:127` | Converts a `file:` URL back into a platform path string. |
 | `@beep/utils/NodeUrl` | `fromFileUrl` | const | `packages/foundation/modeling/utils/src/NodeUrl.ts:53` | Converts a `file:` URL into a platform path string. |
 | `@beep/utils/NodeUrl` | `toFileUrl` | const | `packages/foundation/modeling/utils/src/NodeUrl.ts:102` | Converts a platform path string into a `file:` URL. |
@@ -1420,8 +1417,8 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/schema` | `DOMMouseEvent` | type | `packages/foundation/modeling/schema/src/dom/events.ts:70` | {@inheritDoc DOMMouseEvent} |
 | `@beep/schema` | `DOMReactNode` | const | `packages/foundation/modeling/schema/src/dom/elements.ts:119` | A React.ReactNode |
 | `@beep/schema` | `DOMReactNode` | type | `packages/foundation/modeling/schema/src/dom/elements.ts:131` | {@inheritDoc DOMReactNode} |
-| `@beep/schema` | `DurationFromInput` | const | `packages/foundation/modeling/schema/src/Duration.ts:229` | One-way schema that decodes {@link DurationInput} into an Effect `Duration`. |
-| `@beep/schema` | `DurationFromInput` | type | `packages/foundation/modeling/schema/src/Duration.ts:249` | Decoded duration type extracted from {@link DurationFromInput}. |
+| `@beep/schema` | `DurationFromInput` | const | `packages/foundation/modeling/schema/src/Duration.ts:226` | One-way schema that decodes {@link DurationInput} into an Effect `Duration`. |
+| `@beep/schema` | `DurationFromInput` | type | `packages/foundation/modeling/schema/src/Duration.ts:246` | Decoded duration type extracted from {@link DurationFromInput}. |
 | `@beep/schema` | `DurationInput` | const | `packages/foundation/modeling/schema/src/Duration.ts:167` | Union schema for all duration input shapes accepted by {@link DurationFromInput}. |
 | `@beep/schema` | `DurationInput` | type | `packages/foundation/modeling/schema/src/Duration.ts:189` | Duration input type extracted from {@link DurationInput}. |
 | `@beep/schema` | `DurationObject` | class | `packages/foundation/modeling/schema/src/Duration.ts:127` | Structured duration input with additive unit fields. |
@@ -2381,8 +2378,8 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/schema/dom/index` | `isReactRef` | const | `packages/foundation/modeling/schema/src/dom/elements.ts:141` | Type guard for React.Ref<T> |
 | `@beep/schema/DomainModel` | `defaultFields` | const | `packages/foundation/modeling/schema/src/DomainModel.ts:33` | Default audit and bookkeeping fields for persisted domain models. |
 | `@beep/schema/DomainModel` | `DomainModel` | class | `packages/foundation/modeling/schema/src/DomainModel.ts:65` | Base class for persisted domain models that share audit metadata. |
-| `@beep/schema/Duration` | `DurationFromInput` | const | `packages/foundation/modeling/schema/src/Duration.ts:229` | One-way schema that decodes {@link DurationInput} into an Effect `Duration`. |
-| `@beep/schema/Duration` | `DurationFromInput` | type | `packages/foundation/modeling/schema/src/Duration.ts:249` | Decoded duration type extracted from {@link DurationFromInput}. |
+| `@beep/schema/Duration` | `DurationFromInput` | const | `packages/foundation/modeling/schema/src/Duration.ts:226` | One-way schema that decodes {@link DurationInput} into an Effect `Duration`. |
+| `@beep/schema/Duration` | `DurationFromInput` | type | `packages/foundation/modeling/schema/src/Duration.ts:246` | Decoded duration type extracted from {@link DurationFromInput}. |
 | `@beep/schema/Duration` | `DurationInput` | const | `packages/foundation/modeling/schema/src/Duration.ts:167` | Union schema for all duration input shapes accepted by {@link DurationFromInput}. |
 | `@beep/schema/Duration` | `DurationInput` | type | `packages/foundation/modeling/schema/src/Duration.ts:189` | Duration input type extracted from {@link DurationInput}. |
 | `@beep/schema/Duration` | `DurationObject` | class | `packages/foundation/modeling/schema/src/Duration.ts:127` | Structured duration input with additive unit fields. |
@@ -3402,8 +3399,8 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/schema/index` | `DOMMouseEvent` | type | `packages/foundation/modeling/schema/src/dom/events.ts:70` | {@inheritDoc DOMMouseEvent} |
 | `@beep/schema/index` | `DOMReactNode` | const | `packages/foundation/modeling/schema/src/dom/elements.ts:119` | A React.ReactNode |
 | `@beep/schema/index` | `DOMReactNode` | type | `packages/foundation/modeling/schema/src/dom/elements.ts:131` | {@inheritDoc DOMReactNode} |
-| `@beep/schema/index` | `DurationFromInput` | const | `packages/foundation/modeling/schema/src/Duration.ts:229` | One-way schema that decodes {@link DurationInput} into an Effect `Duration`. |
-| `@beep/schema/index` | `DurationFromInput` | type | `packages/foundation/modeling/schema/src/Duration.ts:249` | Decoded duration type extracted from {@link DurationFromInput}. |
+| `@beep/schema/index` | `DurationFromInput` | const | `packages/foundation/modeling/schema/src/Duration.ts:226` | One-way schema that decodes {@link DurationInput} into an Effect `Duration`. |
+| `@beep/schema/index` | `DurationFromInput` | type | `packages/foundation/modeling/schema/src/Duration.ts:246` | Decoded duration type extracted from {@link DurationFromInput}. |
 | `@beep/schema/index` | `DurationInput` | const | `packages/foundation/modeling/schema/src/Duration.ts:167` | Union schema for all duration input shapes accepted by {@link DurationFromInput}. |
 | `@beep/schema/index` | `DurationInput` | type | `packages/foundation/modeling/schema/src/Duration.ts:189` | Duration input type extracted from {@link DurationInput}. |
 | `@beep/schema/index` | `DurationObject` | class | `packages/foundation/modeling/schema/src/Duration.ts:127` | Structured duration input with additive unit fields. |
@@ -10558,7 +10555,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli` | `docsCommand` | const | `packages/tooling/tool/cli/src/commands/Docs.ts:244` | Command-first docs discovery entrypoint used by agent config surfaces. |
 | `@beep/repo-cli` | `filesCommand` | const | `packages/tooling/tool/cli/src/commands/Files/Files.command.ts:437` | File curation command group. |
 | `@beep/repo-cli` | `graphitiCommand` | const | `packages/tooling/tool/cli/src/commands/Graphiti/index.ts:86` | Graphiti command group. |
-| `@beep/repo-cli` | `imageCommand` | const | `packages/tooling/tool/cli/src/commands/Image/index.ts:364` | Image and video curation command group. |
+| `@beep/repo-cli` | `imageCommand` | const | `packages/tooling/tool/cli/src/commands/Image/Image.command.ts:143` | Image and video curation command group. |
 | `@beep/repo-cli` | `lawsCommand` | const | `packages/tooling/tool/cli/src/commands/Laws/index.ts:434` | Laws command group. |
 | `@beep/repo-cli` | `lintCommand` | const | `packages/tooling/tool/cli/src/commands/Lint/index.ts:607` | Lint command group. |
 | `@beep/repo-cli` | `purgeCommand` | const | `packages/tooling/tool/cli/src/commands/Purge.ts:258` | CLI command to purge workspace/root build artifacts. |
@@ -11180,13 +11177,52 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/commands/Graphiti/internal/ProxyServices` | `ProxyHealthPayload` | class | `packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyServices.ts:156` | Structured JSON payload for health endpoints. |
 | `@beep/repo-cli/commands/Graphiti/internal/ProxyServices` | `proxyHealthResponse` | const | `packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyServices.ts:293` | Build a structured proxy health HTTP response. |
 | `@beep/repo-cli/commands/Graphiti/internal/ProxyServices` | `ProxyQueueStats` | class | `packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyServices.ts:129` | Queue and processing counters for proxy introspection. |
-| `@beep/repo-cli/commands/Image/Image.config` | `Config` | class | `packages/tooling/tool/cli/src/commands/Image/Image.config.ts:53` | Image command configuration service tag. |
-| `@beep/repo-cli/commands/Image/Image.config` | `ConfigShape` | class | `packages/tooling/tool/cli/src/commands/Image/Image.config.ts:32` | Configuration Schema for the Image command. |
-| `@beep/repo-cli/commands/Image/Image.errors` | `ImageCommandError` | class | `packages/tooling/tool/cli/src/commands/Image/Image.errors.ts:25` | Error raised by image curation commands. |
-| `@beep/repo-cli/commands/Image/index` | `ExtractFramesDirFailure` | class | `packages/tooling/tool/cli/src/commands/Image/index.ts:90` | Failed video from a folder-based frame extraction run. |
-| `@beep/repo-cli/commands/Image/index` | `ExtractFramesDirVideo` | class | `packages/tooling/tool/cli/src/commands/Image/index.ts:72` | Direct video selected by `image extract-frames-dir`. |
-| `@beep/repo-cli/commands/Image/index` | `imageCommand` | const | `packages/tooling/tool/cli/src/commands/Image/index.ts:364` | Image and video curation command group. |
-| `@beep/repo-cli/commands/Image/index` | `ImageCommandError` | class | `packages/tooling/tool/cli/src/commands/Image/index.ts:56` | Error raised by image curation commands. |
+| `@beep/repo-cli/commands/Image/Image.command` | `imageCommand` | const | `packages/tooling/tool/cli/src/commands/Image/Image.command.ts:143` | Image and video curation command group. |
+| `@beep/repo-cli/commands/Image/Image.errors` | `ImageCommandError` | class | `packages/tooling/tool/cli/src/commands/Image/Image.errors.ts:26` | Error raised by image curation commands. |
+| `@beep/repo-cli/commands/Image/Image.progress` | `makeExtractFramesEvents` | const | `packages/tooling/tool/cli/src/commands/Image/Image.progress.ts:52` | Build a TTY-only FFmpeg event sink. |
+| `@beep/repo-cli/commands/Image/Image.progress` | `renderExtractFramesEvent` | const | `packages/tooling/tool/cli/src/commands/Image/Image.progress.ts:23` | Render one FFmpeg event through the terminal service. |
+| `@beep/repo-cli/commands/Image/Image.render` | `renderCompletedProgress` | const | `packages/tooling/tool/cli/src/commands/Image/Image.render.ts:52` | Render a completed progress line. |
+| `@beep/repo-cli/commands/Image/Image.render` | `renderExtractFramesCommandSummary` | const | `packages/tooling/tool/cli/src/commands/Image/Image.render.ts:85` | Render the final `image extract-frames` output line. |
+| `@beep/repo-cli/commands/Image/Image.render` | `renderExtractFramesDirError` | const | `packages/tooling/tool/cli/src/commands/Image/Image.render.ts:145` | Render the aggregate directory extraction error message. |
+| `@beep/repo-cli/commands/Image/Image.render` | `renderExtractFramesDirFailure` | const | `packages/tooling/tool/cli/src/commands/Image/Image.render.ts:107` | Render one failed directory extraction outcome. |
+| `@beep/repo-cli/commands/Image/Image.render` | `renderExtractFramesDirOutcome` | const | `packages/tooling/tool/cli/src/commands/Image/Image.render.ts:118` | Render one directory extraction outcome. |
+| `@beep/repo-cli/commands/Image/Image.render` | `renderExtractFramesDirSuccess` | const | `packages/tooling/tool/cli/src/commands/Image/Image.render.ts:96` | Render one successful directory extraction outcome. |
+| `@beep/repo-cli/commands/Image/Image.render` | `renderExtractFramesDirSummary` | const | `packages/tooling/tool/cli/src/commands/Image/Image.render.ts:134` | Render the final directory extraction summary line. |
+| `@beep/repo-cli/commands/Image/Image.render` | `renderExtractFramesSummary` | const | `packages/tooling/tool/cli/src/commands/Image/Image.render.ts:74` | Render a frame extraction summary. |
+| `@beep/repo-cli/commands/Image/Image.render` | `renderInitialProgress` | const | `packages/tooling/tool/cli/src/commands/Image/Image.render.ts:63` | Render the initial progress line. |
+| `@beep/repo-cli/commands/Image/Image.render` | `renderProgressBar` | const | `packages/tooling/tool/cli/src/commands/Image/Image.render.ts:33` | Render the progress bar for one FFmpeg progress event. |
+| `@beep/repo-cli/commands/Image/Image.schemas` | `decodeExtractFramesDirOptions` | const | `packages/tooling/tool/cli/src/commands/Image/Image.schemas.ts:258` | Decode unknown directory frame extraction options. |
+| `@beep/repo-cli/commands/Image/Image.schemas` | `decodeExtractFramesOptions` | const | `packages/tooling/tool/cli/src/commands/Image/Image.schemas.ts:250` | Decode unknown single-video frame extraction options. |
+| `@beep/repo-cli/commands/Image/Image.schemas` | `ExtractFramesDirFailure` | class | `packages/tooling/tool/cli/src/commands/Image/Image.schemas.ts:182` | Failed video from a folder-based frame extraction run. |
+| `@beep/repo-cli/commands/Image/Image.schemas` | `ExtractFramesDirOptions` | class | `packages/tooling/tool/cli/src/commands/Image/Image.schemas.ts:79` | Options accepted by `image extract-frames-dir`. |
+| `@beep/repo-cli/commands/Image/Image.schemas` | `ExtractFramesDirOutcome` | const | `packages/tooling/tool/cli/src/commands/Image/Image.schemas.ts:200` | Ordered outcome for one `image extract-frames-dir` input video. |
+| `@beep/repo-cli/commands/Image/Image.schemas` | `ExtractFramesDirOutcome` | type | `packages/tooling/tool/cli/src/commands/Image/Image.schemas.ts:212` | Ordered outcome for one `image extract-frames-dir` input video. |
+| `@beep/repo-cli/commands/Image/Image.schemas` | `ExtractFramesDirResult` | class | `packages/tooling/tool/cli/src/commands/Image/Image.schemas.ts:232` | Result returned by `image extract-frames-dir`. |
+| `@beep/repo-cli/commands/Image/Image.schemas` | `ExtractFramesDirSuccess` | class | `packages/tooling/tool/cli/src/commands/Image/Image.schemas.ts:152` | Successful video from a folder-based frame extraction run. |
+| `@beep/repo-cli/commands/Image/Image.schemas` | `ExtractFramesDirVideo` | class | `packages/tooling/tool/cli/src/commands/Image/Image.schemas.ts:115` | Direct video selected by `image extract-frames-dir`. |
+| `@beep/repo-cli/commands/Image/Image.schemas` | `ExtractFramesOptions` | class | `packages/tooling/tool/cli/src/commands/Image/Image.schemas.ts:37` | Options accepted by `image extract-frames`. |
+| `@beep/repo-cli/commands/Image/Image.service` | `extractFrames` | const | `packages/tooling/tool/cli/src/commands/Image/Image.service.ts:287` | Extract PNG frames from a single video. |
+| `@beep/repo-cli/commands/Image/Image.service` | `extractFramesDir` | const | `packages/tooling/tool/cli/src/commands/Image/Image.service.ts:302` | Extract PNG frames from every direct video in a directory. |
+| `@beep/repo-cli/commands/Image/Image.service` | `ImageCommandService` | class | `packages/tooling/tool/cli/src/commands/Image/Image.service.ts:73` | Service tag for image and video curation operations. |
+| `@beep/repo-cli/commands/Image/Image.service` | `ImageCommandServiceLive` | const | `packages/tooling/tool/cli/src/commands/Image/Image.service.ts:276` | Live service layer for image and video curation operations. |
+| `@beep/repo-cli/commands/Image/Image.service` | `ImageCommandServiceShape` | interface | `packages/tooling/tool/cli/src/commands/Image/Image.service.ts:47` | Service contract for image and video curation commands. |
+| `@beep/repo-cli/commands/Image/index` | `decodeExtractFramesDirOptions` | const | `packages/tooling/tool/cli/src/commands/Image/Image.schemas.ts:258` | Decode unknown directory frame extraction options. |
+| `@beep/repo-cli/commands/Image/index` | `decodeExtractFramesOptions` | const | `packages/tooling/tool/cli/src/commands/Image/Image.schemas.ts:250` | Decode unknown single-video frame extraction options. |
+| `@beep/repo-cli/commands/Image/index` | `extractFrames` | const | `packages/tooling/tool/cli/src/commands/Image/Image.service.ts:287` | Extract PNG frames from a single video. |
+| `@beep/repo-cli/commands/Image/index` | `extractFramesDir` | const | `packages/tooling/tool/cli/src/commands/Image/Image.service.ts:302` | Extract PNG frames from every direct video in a directory. |
+| `@beep/repo-cli/commands/Image/index` | `ExtractFramesDirFailure` | class | `packages/tooling/tool/cli/src/commands/Image/Image.schemas.ts:182` | Failed video from a folder-based frame extraction run. |
+| `@beep/repo-cli/commands/Image/index` | `ExtractFramesDirOptions` | class | `packages/tooling/tool/cli/src/commands/Image/Image.schemas.ts:79` | Options accepted by `image extract-frames-dir`. |
+| `@beep/repo-cli/commands/Image/index` | `ExtractFramesDirOutcome` | const | `packages/tooling/tool/cli/src/commands/Image/Image.schemas.ts:200` | Ordered outcome for one `image extract-frames-dir` input video. |
+| `@beep/repo-cli/commands/Image/index` | `ExtractFramesDirOutcome` | type | `packages/tooling/tool/cli/src/commands/Image/Image.schemas.ts:212` | Ordered outcome for one `image extract-frames-dir` input video. |
+| `@beep/repo-cli/commands/Image/index` | `ExtractFramesDirResult` | class | `packages/tooling/tool/cli/src/commands/Image/Image.schemas.ts:232` | Result returned by `image extract-frames-dir`. |
+| `@beep/repo-cli/commands/Image/index` | `ExtractFramesDirSuccess` | class | `packages/tooling/tool/cli/src/commands/Image/Image.schemas.ts:152` | Successful video from a folder-based frame extraction run. |
+| `@beep/repo-cli/commands/Image/index` | `ExtractFramesDirVideo` | class | `packages/tooling/tool/cli/src/commands/Image/Image.schemas.ts:115` | Direct video selected by `image extract-frames-dir`. |
+| `@beep/repo-cli/commands/Image/index` | `ExtractFramesOptions` | class | `packages/tooling/tool/cli/src/commands/Image/Image.schemas.ts:37` | Options accepted by `image extract-frames`. |
+| `@beep/repo-cli/commands/Image/index` | `imageCommand` | const | `packages/tooling/tool/cli/src/commands/Image/Image.command.ts:143` | Image and video curation command group. |
+| `@beep/repo-cli/commands/Image/index` | `ImageCommandError` | class | `packages/tooling/tool/cli/src/commands/Image/Image.errors.ts:26` | Error raised by image curation commands. |
+| `@beep/repo-cli/commands/Image/index` | `ImageCommandService` | class | `packages/tooling/tool/cli/src/commands/Image/Image.service.ts:73` | Service tag for image and video curation operations. |
+| `@beep/repo-cli/commands/Image/index` | `ImageCommandServiceLive` | const | `packages/tooling/tool/cli/src/commands/Image/Image.service.ts:276` | Live service layer for image and video curation operations. |
+| `@beep/repo-cli/commands/Image/index` | `ImageCommandServiceShape` | interface | `packages/tooling/tool/cli/src/commands/Image/Image.service.ts:47` | Service contract for image and video curation commands. |
 | `@beep/repo-cli/commands/Laws/AllowlistCheck` | `ALLOWLIST_PATH` | const | `packages/tooling/tool/cli/src/commands/Laws/AllowlistCheck.ts:33` | Relative path to the effect laws allowlist. |
 | `@beep/repo-cli/commands/Laws/AllowlistCheck` | `AllowlistCheckOptions` | class | `packages/tooling/tool/cli/src/commands/Laws/AllowlistCheck.ts:94` | Runtime options for allowlist integrity checks. |
 | `@beep/repo-cli/commands/Laws/AllowlistCheck` | `AllowlistCheckSummary` | class | `packages/tooling/tool/cli/src/commands/Laws/AllowlistCheck.ts:113` | Result of an allowlist integrity check. |
@@ -11375,7 +11411,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/index` | `docsCommand` | const | `packages/tooling/tool/cli/src/commands/Docs.ts:244` | Command-first docs discovery entrypoint used by agent config surfaces. |
 | `@beep/repo-cli/index` | `filesCommand` | const | `packages/tooling/tool/cli/src/commands/Files/Files.command.ts:437` | File curation command group. |
 | `@beep/repo-cli/index` | `graphitiCommand` | const | `packages/tooling/tool/cli/src/commands/Graphiti/index.ts:86` | Graphiti command group. |
-| `@beep/repo-cli/index` | `imageCommand` | const | `packages/tooling/tool/cli/src/commands/Image/index.ts:364` | Image and video curation command group. |
+| `@beep/repo-cli/index` | `imageCommand` | const | `packages/tooling/tool/cli/src/commands/Image/Image.command.ts:143` | Image and video curation command group. |
 | `@beep/repo-cli/index` | `lawsCommand` | const | `packages/tooling/tool/cli/src/commands/Laws/index.ts:434` | Laws command group. |
 | `@beep/repo-cli/index` | `lintCommand` | const | `packages/tooling/tool/cli/src/commands/Lint/index.ts:607` | Lint command group. |
 | `@beep/repo-cli/index` | `purgeCommand` | const | `packages/tooling/tool/cli/src/commands/Purge.ts:258` | CLI command to purge workspace/root build artifacts. |

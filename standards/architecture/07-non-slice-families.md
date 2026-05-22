@@ -215,6 +215,30 @@ it is not permission to route reusable runtime substrate through `tooling`.
 Every such package must own the direct dependency and project reference it
 imports.
 
+## Repo CLI Command Topology
+
+`packages/tooling/tool/cli` is the canonical repo-operational CLI home. Its
+command topology is thresholded: tiny leaf commands may stay single-file, but
+command groups and commands with schemas, services, renderers, or multiple
+subcommands move into `commands/<Group>/`.
+
+Canonical command group roles:
+
+- `<Group>.command.ts`: flags, arguments, `Command.make`, and adapter glue.
+- `<Group>.schemas.ts`: option, result, report, and manifest schemas.
+- `<Group>.errors.ts`: one exported `<Group>CommandError` for command-boundary
+  failures.
+- `<Group>.service.ts`: `Context.Service` contract, constructor, and default
+  live layer.
+- `index.ts`: curated public facade for the command, public schemas/types,
+  command error, and service contract.
+
+Earned roles should be semantic: prefer `<Group>.render.ts`,
+`<Group>.progress.ts`, `<Group>.paths.ts`, or `<Group>.plan.ts` over
+`<Group>.utils.ts`. Use `<Group>.config.ts` only for runtime/config-provider
+settings, and add `<Group>.layer.ts` only when a command group has multiple or
+non-trivial layer variants.
+
 ## Worked Examples
 
 ```txt

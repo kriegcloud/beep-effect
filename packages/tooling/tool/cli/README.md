@@ -16,6 +16,37 @@ This is a private workspace package. Use it via:
 bunx @beep/repo-cli <command>
 ```
 
+## Command Topology
+
+`@beep/repo-cli` uses thresholded command topology. Tiny leaf commands can stay
+as `commands/<Name>.ts` while they have no schemas, services, renderers, or
+subcommands. Command groups and role-bearing commands live in
+`commands/<Group>/`.
+
+Canonical group roles:
+
+- `<Group>.command.ts`: flags, arguments, `Command.make`, and adapter glue.
+- `<Group>.schemas.ts`: command option, result, report, and manifest schemas.
+- `<Group>.errors.ts`: one exported `<Group>CommandError` for command-boundary
+  failures.
+- `<Group>.service.ts`: `Context.Service` contract, constructor, and default
+  live layer.
+- `<Group>.render.ts`: pure human or JSON output rendering when output is
+  non-trivial.
+- `index.ts`: curated public facade for the command, public schemas/types,
+  command error, and service contract.
+
+Optional roles are earned by complexity. Prefer semantic names such as
+`<Group>.progress.ts`, `<Group>.paths.ts`, or `<Group>.plan.ts`; keep
+`<Group>.utils.ts` transitional. Use `<Group>.config.ts` only for typed runtime
+configuration backed by `Config`/`ConfigProvider`, and add `<Group>.layer.ts`
+only for multiple or non-trivial layer variants.
+
+Package-local shared CLI support belongs under `src/internal/cli/`, not a
+package-local `foundation/` directory. Keep command services free of final
+terminal rendering: services return typed results/reports, command adapters
+render output and choose process-visible failure semantics.
+
 ## Commands
 
 ### `architecture`
@@ -298,6 +329,24 @@ bun run files crop-borders --dir ./dataset/images
 
 `crop-borders` uses the same tuning flags as `detect-borders`. It rewrites
 selected images in place, so use `--dry-run` before applying crops to a dataset.
+
+### `image`
+
+Curate videos for image datasets.
+
+```bash
+bun run beep image extract-frames --video ./clip.mp4 --out-dir ./frames --fps 1
+bun run beep image extract-frames-dir --dir ./videos --fps 1
+```
+
+`extract-frames` writes PNG frames plus
+`extract-frames-manifest.json` by default. Use `--manifest` to choose another
+manifest path, `--prefix` to override the generated frame prefix, and
+`--overwrite` to replace existing outputs.
+
+`extract-frames-dir` processes direct video files only. Each source writes to a
+sibling directory named after its stem, and same-stem videos fail during
+preflight before extraction begins.
 
 ### `sync-data-to-ts`
 
