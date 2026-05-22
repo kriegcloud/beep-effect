@@ -135,7 +135,24 @@
         "../../../packages/foundation/modeling/identity/src/packages.ts"
       ],
       "@beep/postgres": ["../../../packages/drivers/postgres/src/index.ts"],
-      "@beep/postgres/*": ["../../../packages/drivers/postgres/src/*.ts"],
+      "@beep/postgres/client": [
+        "../../../packages/drivers/postgres/src/PostgresClient.service.ts"
+      ],
+      "@beep/postgres/drizzle": [
+        "../../../packages/drivers/postgres/src/PostgresDrizzle.service.ts"
+      ],
+      "@beep/postgres/errors": [
+        "../../../packages/drivers/postgres/src/Postgres.errors.ts"
+      ],
+      "@beep/postgres/format": [
+        "../../../packages/drivers/postgres/src/PostgresDiagnostics.service.ts"
+      ],
+      "@beep/postgres/interop": [
+        "../../../packages/drivers/postgres/src/PostgresInterop.models.ts"
+      ],
+      "@beep/postgres/sqlstate": [
+        "../../../packages/drivers/postgres/src/PostgresSqlState.models.ts"
+      ],
       "@beep/schema": [
         "../../../packages/foundation/modeling/schema/src/index.ts"
       ],
@@ -211,6 +228,9 @@
       "@beep/schema/Duration": [
         "../../../packages/foundation/modeling/schema/src/Duration/index.ts"
       ],
+      "@beep/schema/EntitySchema": [
+        "../../../packages/foundation/modeling/schema/src/EntitySchema/index.ts"
+      ],
       "@beep/schema/EthAmount": [
         "../../../packages/foundation/modeling/schema/src/EthAmount/index.ts"
       ],
@@ -229,11 +249,20 @@
       "@beep/schema/ForceHttpsRedirect": [
         "../../../packages/foundation/modeling/schema/src/ForceHttpsRedirect/index.ts"
       ],
+      "@beep/schema/FilePath": [
+        "../../../packages/foundation/modeling/schema/src/FilePath/index.ts"
+      ],
+      "@beep/schema/Fn": [
+        "../../../packages/foundation/modeling/schema/src/Fn/index.ts"
+      ],
       "@beep/schema/FrameGuard": [
         "../../../packages/foundation/modeling/schema/src/FrameGuard/index.ts"
       ],
       "@beep/schema/Glob": [
         "../../../packages/foundation/modeling/schema/src/Glob/index.ts"
+      ],
+      "@beep/schema/Graph": [
+        "../../../packages/foundation/modeling/schema/src/Graph/index.ts"
       ],
       "@beep/schema/Http": [
         "../../../packages/foundation/modeling/schema/src/http/index.ts"
@@ -252,6 +281,15 @@
       ],
       "@beep/schema/Location": [
         "../../../packages/foundation/modeling/schema/src/location/index.ts"
+      ],
+      "@beep/schema/LiteralKit": [
+        "../../../packages/foundation/modeling/schema/src/LiteralKit/index.ts"
+      ],
+      "@beep/schema/MappedLiteralKit": [
+        "../../../packages/foundation/modeling/schema/src/MappedLiteralKit/index.ts"
+      ],
+      "@beep/schema/Model": [
+        "../../../packages/foundation/modeling/schema/src/Model/index.ts"
       ],
       "@beep/schema/NoOpen": [
         "../../../packages/foundation/modeling/schema/src/NoOpen/index.ts"
@@ -274,6 +312,9 @@
       "@beep/schema/ReferrerPolicy": [
         "../../../packages/foundation/modeling/schema/src/ReferrerPolicy/index.ts"
       ],
+      "@beep/schema/Record": [
+        "../../../packages/foundation/modeling/schema/src/Record/index.ts"
+      ],
       "@beep/schema/SecureHeader": [
         "../../../packages/foundation/modeling/schema/src/SecureHeader/index.ts"
       ],
@@ -291,6 +332,9 @@
       ],
       "@beep/schema/XssProtection": [
         "../../../packages/foundation/modeling/schema/src/XssProtection/index.ts"
+      ],
+      "@beep/schema/VariantSchema": [
+        "../../../packages/foundation/modeling/schema/src/VariantSchema/index.ts"
       ],
       "@beep/schema/color": [
         "../../../packages/foundation/modeling/schema/src/color/index.ts"

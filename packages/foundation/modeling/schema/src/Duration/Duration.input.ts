@@ -5,6 +5,12 @@
  * @since 0.0.0
  */
 
+/**
+ * Public schema module export.
+ *
+ * @category schemas
+ * @since 0.0.0
+ */
 export {
   DurationInput,
   DurationInput as Input,

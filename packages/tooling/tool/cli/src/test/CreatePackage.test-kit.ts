@@ -5,6 +5,6 @@
  * @since 0.0.0
  */
 
-export * from "../commands/CreatePackage/ConfigUpdater.js";
-export * from "../commands/CreatePackage/FileGenerationPlanService.js";
-export * from "../commands/CreatePackage/index.js";
+export * from "@beep/repo-cli/commands/CreatePackage/ConfigUpdater";
+export * from "@beep/repo-cli/commands/CreatePackage/FileGenerationPlanService";
+export * from "@beep/repo-cli/commands/CreatePackage/index";

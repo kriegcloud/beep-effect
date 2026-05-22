@@ -133,7 +133,7 @@ version, and row version into the schema class. Entity-specific `.model.ts`
 files inline their own rich fields plus `persisted` descriptors next to the
 schema so domain shape and persistence shape drift together at compile time.
 
-Drizzle tables are projected, not hand-mapped. `@beep/drizzle/EntityTable`
+Drizzle tables are projected, not hand-mapped. `@beep/drizzle` exposes the `EntityTable`
 owns the generic Drizzle projection and exposes `pgTableFrom(entity)`.
 Slice/shared `tables` packages may own concrete table metadata for their product
 language, but they do not own a second SQL DSL, live database execution,

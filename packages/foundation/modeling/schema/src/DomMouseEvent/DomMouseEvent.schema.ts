@@ -7,7 +7,7 @@
 /**
  * Canonical aliases for the DOM mouse event schema module.
  *
- * @category aliases
+ * @category schemas
  * @since 0.0.0
  */
 export {

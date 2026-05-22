@@ -1,6 +1,4 @@
-import * as AcpError from "@beep/acp/errors";
-import * as AcpProtocol from "@beep/acp/protocol";
-import * as AcpSchema from "@beep/acp/schema";
+import { Errors as AcpError, Protocol as AcpProtocol, Schema as AcpSchema } from "@beep/acp";
 import { A } from "@beep/utils";
 import * as NodeServices from "@effect/platform-node/NodeServices";
 import { assert, it } from "@effect/vitest";

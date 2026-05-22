@@ -74,9 +74,7 @@ export const buildRepoDependencyIndex: (
       return yield* DomainError.newMessage(`Failed to parse JSON at "${rootPkgPath}"`);
     }
     const rootPkg = yield* decodePackageJsonEffect(rawRootPkg.value).pipe(
-      Effect.mapError(
-        DomainError.newCause(`Failed to decode root package.json at "${rootPkgPath}"`)
-      )
+      Effect.mapError(DomainError.newCause(`Failed to decode root package.json at "${rootPkgPath}"`))
     );
     const rootDeps = extractWorkspaceDependencies(rootPkg, workspaceNames);
     result = HashMap.set(result, ROOT_KEY, { ...rootDeps, packageName: ROOT_KEY });
@@ -92,9 +90,7 @@ export const buildRepoDependencyIndex: (
         return yield* DomainError.newMessage(`Failed to parse JSON at "${pkgPath}"`);
       }
       const pkg = yield* decodePackageJsonEffect(rawPkg.value).pipe(
-        Effect.mapError(
-          DomainError.newCause(`Failed to decode package.json at "${pkgPath}"`)
-        )
+        Effect.mapError(DomainError.newCause(`Failed to decode package.json at "${pkgPath}"`))
       );
       const deps = extractWorkspaceDependencies(pkg, workspaceNames);
       result = HashMap.set(result, name, deps);

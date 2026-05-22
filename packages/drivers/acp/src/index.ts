@@ -21,6 +21,37 @@
 export const VERSION = "0.0.0" as const;
 
 /**
+ * ACP driver error exports.
+ *
+ * @example
+ * ```ts
+ * import { Errors } from "@beep/acp"
+ *
+ * const error = Errors.AcpRequestError.methodNotFound("x/test")
+ * console.log(error.code)
+ * ```
+ *
+ * @category errors
+ * @since 0.0.0
+ */
+export * as Errors from "./Acp.errors.ts";
+
+/**
+ * Generated ACP schema exports.
+ *
+ * @example
+ * ```ts
+ * import { Schema } from "@beep/acp"
+ *
+ * console.log(Schema.PROTOCOL_VERSION)
+ * ```
+ *
+ * @category schemas
+ * @since 0.0.0
+ */
+export * as Schema from "./Acp.models.ts";
+
+/**
  * Agent-side ACP service exports.
  *
  * @example
@@ -34,7 +65,7 @@ export const VERSION = "0.0.0" as const;
  * @category services
  * @since 0.0.0
  */
-export * as Agent from "./agent.ts";
+export * as Agent from "./AcpAgent.service.ts";
 
 /**
  * Client-side ACP service exports.
@@ -50,23 +81,7 @@ export * as Agent from "./agent.ts";
  * @category services
  * @since 0.0.0
  */
-export * as Client from "./client.ts";
-
-/**
- * ACP driver error exports.
- *
- * @example
- * ```ts
- * import { Errors } from "@beep/acp"
- *
- * const error = Errors.AcpRequestError.methodNotFound("x/test")
- * console.log(error.code)
- * ```
- *
- * @category errors
- * @since 0.0.0
- */
-export * as Errors from "./errors.ts";
+export * as Client from "./AcpClient.service.ts";
 
 /**
  * ACP transport protocol exports.
@@ -82,7 +97,7 @@ export * as Errors from "./errors.ts";
  * @category protocols
  * @since 0.0.0
  */
-export * as Protocol from "./protocol.ts";
+export * as Protocol from "./AcpProtocol.service.ts";
 
 /**
  * ACP RPC descriptor exports.
@@ -98,22 +113,7 @@ export * as Protocol from "./protocol.ts";
  * @category protocols
  * @since 0.0.0
  */
-export * as Rpc from "./rpc.ts";
-
-/**
- * Generated ACP schema exports.
- *
- * @example
- * ```ts
- * import { Schema } from "@beep/acp"
- *
- * console.log(Schema.PROTOCOL_VERSION)
- * ```
- *
- * @category schemas
- * @since 0.0.0
- */
-export * as Schema from "./schema.ts";
+export * as Rpc from "./AcpRpc.models.ts";
 
 /**
  * ACP terminal handle exports.
@@ -129,4 +129,4 @@ export * as Schema from "./schema.ts";
  * @category resources
  * @since 0.0.0
  */
-export * as Terminal from "./terminal.ts";
+export * as Terminal from "./AcpTerminal.models.ts";

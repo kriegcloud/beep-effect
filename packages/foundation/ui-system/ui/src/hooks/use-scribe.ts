@@ -21,7 +21,7 @@ import {
   type ScribeErrorMessage,
   type ScribeQuotaExceededErrorMessage,
 } from "@elevenlabs/client";
-import { Effect } from "effect";
+import { Data, Effect } from "effect";
 import * as P from "effect/Predicate";
 import { useCallback, useEffect, useRef, useState } from "react";
 
@@ -119,6 +119,13 @@ const unknownToError = (cause: unknown): Error =>
 const closeEventToError = (event: CloseEvent): Error =>
   makeScribeError(event.reason === "" ? `Scribe connection closed with code ${event.code}` : event.reason);
 
+class ScribeConnectionFailure extends Data.TaggedError("ScribeConnectionFailure")<{
+  readonly error: Error;
+}> {}
+
+const toScribeConnectionFailure = (cause: unknown): ScribeConnectionFailure =>
+  new ScribeConnectionFailure({ error: unknownToError(cause) });
+
 const toMicrophoneOptions = (
   microphone: undefined | UseScribeMicrophoneOptions
 ): undefined | MicrophoneOptions["microphone"] =>
@@ -162,60 +169,71 @@ export function useScribe(options: UseScribeOptions): UseScribeResult {
   }, []);
 
   const connect = useCallback(
-    async ({token}: ScribeConnectOptions): Promise<void> => {
-      disconnect();
-      setError(null);
-      setStatus("connecting");
-
+    ({ token }: ScribeConnectOptions): Promise<void> => {
       let handledError = false;
-      try {
-        const currentOptions = optionsRef.current;
-        const baseOptions = {
-          token,
-          modelId: currentOptions.modelId ?? defaultModelId, ...(currentOptions.baseUri === undefined
-            ? {}
-            : {baseUri: currentOptions.baseUri}), ...(currentOptions.commitStrategy === undefined
-            ? {}
-            : {commitStrategy: currentOptions.commitStrategy}), ...(currentOptions.languageCode === undefined
-            ? {}
-            : {languageCode: currentOptions.languageCode}), ...(currentOptions.minSilenceDurationMs === undefined
-            ? {}
-            : {minSilenceDurationMs: currentOptions.minSilenceDurationMs}), ...(currentOptions.minSpeechDurationMs === undefined
-            ? {}
-            : {minSpeechDurationMs: currentOptions.minSpeechDurationMs}), ...(currentOptions.vadSilenceThresholdSecs === undefined
-            ? {}
-            : {vadSilenceThresholdSecs: currentOptions.vadSilenceThresholdSecs}), ...(currentOptions.vadThreshold === undefined
-            ? {}
-            : {vadThreshold: currentOptions.vadThreshold}),
-        };
-        const {
-          audioFormat,
-          sampleRate,
-        } = currentOptions;
-        const hasManualAudio = audioFormat !== undefined || sampleRate !== undefined;
-
-        if (hasManualAudio && (audioFormat === undefined || sampleRate === undefined)) {
-          throw makeScribeError(
-            "audioFormat and sampleRate must be provided together for manual Scribe audio.");
+      const handleUnhandledError = (failure: ScribeConnectionFailure): Effect.Effect<never, Error> => {
+        const scribeError = failure.error;
+        if (!handledError) {
+          setError(scribeError.message);
+          setStatus("idle");
+          optionsRef.current.onError?.(scribeError);
         }
+        return Effect.fail(scribeError);
+      };
 
-        const microphoneOptions = toMicrophoneOptions(currentOptions.microphone);
-        const connection = hasManualAudio && audioFormat !== undefined && sampleRate !== undefined
-          ? Scribe.connect({
-            ...baseOptions,
-            audioFormat,
-            sampleRate,
-          })
-          : Scribe.connect({
-            ...baseOptions, ...(microphoneOptions === undefined
-              ? {}
-              : {microphone: microphoneOptions}),
+      return Effect.runPromise(
+        Effect.gen(function* () {
+          disconnect();
+          setError(null);
+          setStatus("connecting");
+
+          const connection = yield* Effect.try({
+            try: () => {
+              const currentOptions = optionsRef.current;
+              const baseOptions = {
+                token,
+                modelId: currentOptions.modelId ?? defaultModelId,
+                ...(currentOptions.baseUri === undefined ? {} : { baseUri: currentOptions.baseUri }),
+                ...(currentOptions.commitStrategy === undefined
+                  ? {}
+                  : { commitStrategy: currentOptions.commitStrategy }),
+                ...(currentOptions.languageCode === undefined ? {} : { languageCode: currentOptions.languageCode }),
+                ...(currentOptions.minSilenceDurationMs === undefined
+                  ? {}
+                  : { minSilenceDurationMs: currentOptions.minSilenceDurationMs }),
+                ...(currentOptions.minSpeechDurationMs === undefined
+                  ? {}
+                  : { minSpeechDurationMs: currentOptions.minSpeechDurationMs }),
+                ...(currentOptions.vadSilenceThresholdSecs === undefined
+                  ? {}
+                  : { vadSilenceThresholdSecs: currentOptions.vadSilenceThresholdSecs }),
+                ...(currentOptions.vadThreshold === undefined ? {} : { vadThreshold: currentOptions.vadThreshold }),
+              };
+              const { audioFormat, sampleRate } = currentOptions;
+              const hasManualAudio = audioFormat !== undefined || sampleRate !== undefined;
+
+              if (hasManualAudio && (audioFormat === undefined || sampleRate === undefined)) {
+                throw makeScribeError("audioFormat and sampleRate must be provided together for manual Scribe audio.");
+              }
+
+              const microphoneOptions = toMicrophoneOptions(currentOptions.microphone);
+              return hasManualAudio && audioFormat !== undefined && sampleRate !== undefined
+                ? Scribe.connect({
+                    ...baseOptions,
+                    audioFormat,
+                    sampleRate,
+                  })
+                : Scribe.connect({
+                    ...baseOptions,
+                    ...(microphoneOptions === undefined ? {} : { microphone: microphoneOptions }),
+                  });
+            },
+            catch: toScribeConnectionFailure,
           });
 
-        connectionRef.current = connection;
+          connectionRef.current = connection;
 
-        try {
-          return await Effect.runPromise(Effect.callback<void, Error>((resume) => {
+          yield* Effect.callback<void, ScribeConnectionFailure>((resume) => {
             let settled = false;
 
             const settleResolve = () => {
@@ -233,7 +251,7 @@ export function useScribe(options: UseScribeOptions): UseScribeResult {
               if (!settled) {
                 settled = true;
                 setStatus("idle");
-                resume(Effect.fail(scribeError_1));
+                resume(Effect.fail(new ScribeConnectionFailure({ error: scribeError_1 })));
               }
             };
 
@@ -247,10 +265,7 @@ export function useScribe(options: UseScribeOptions): UseScribeResult {
                 settleReject(closeEventToError(event_1));
               }
             });
-            connection.on(
-              RealtimeEvents.ERROR,
-              (data) => settleReject(messageToError(data)),
-            );
+            connection.on(RealtimeEvents.ERROR, (data) => settleReject(messageToError(data)));
             connection.on(RealtimeEvents.AUTH_ERROR, (data_2) => {
               optionsRef.current.onAuthError?.(data_2);
               settleReject(makeScribeError(data_2.error));
@@ -265,31 +280,12 @@ export function useScribe(options: UseScribeOptions): UseScribeResult {
             });
             connection.on(RealtimeEvents.COMMITTED_TRANSCRIPT, (data_5) => {
               setPartialTranscript("");
-              setCommittedTranscripts((transcripts) => A.append(
-                transcripts,
-                data_5,
-              ));
+              setCommittedTranscripts((transcripts) => A.append(transcripts, data_5));
               optionsRef.current.onCommittedTranscript?.(data_5);
             });
-          }));
-        } catch (cause) {
-          const scribeError_2 = unknownToError(cause);
-          if (!handledError) {
-            setError(scribeError_2.message);
-            setStatus("idle");
-            optionsRef.current.onError?.(scribeError_2);
-          }
-          throw scribeError_2;
-        }
-      } catch (cause) {
-        const scribeError = unknownToError(cause);
-        if (!handledError) {
-          setError(scribeError.message);
-          setStatus("idle");
-          optionsRef.current.onError?.(scribeError);
-        }
-        return Promise.reject(scribeError);
-      }
+          });
+        }).pipe(Effect.catch(handleUnhandledError))
+      );
     },
     [disconnect]
   );

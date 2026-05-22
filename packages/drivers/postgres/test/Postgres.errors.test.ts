@@ -6,6 +6,7 @@ import {
   getPgErrorAliases,
   getPgErrorName,
   migrate,
+  NativePgClient,
   PgErrorCanonicalNameByCode,
   PostgresClient,
   type PostgresClientValue,
@@ -13,7 +14,6 @@ import {
   PostgresError,
   PostgresErrorContext,
 } from "@beep/postgres";
-import { NativePgClient } from "@beep/postgres/interop";
 import { A } from "@beep/utils";
 import { assert, describe, expect, it } from "@effect/vitest";
 import { Cause, Effect, Layer } from "effect";

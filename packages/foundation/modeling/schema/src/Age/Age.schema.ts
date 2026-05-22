@@ -7,7 +7,7 @@
 /**
  * Canonical aliases for the age schema module.
  *
- * @category aliases
+ * @category schemas
  * @since 0.0.0
  */
 export { Age as Schema, Age } from "../person/Age.ts";

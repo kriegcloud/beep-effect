@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generatedOn": "2026-05-20",
+  "generatedOn": "2026-05-22",
   "scope": ["apps/**/*.{ts,tsx}", "packages/**/*.{ts,tsx}", "infra/**/*.ts"],
   "enforcedRoots": [
     "packages/tooling/tool/cli/src/commands/Laws/DualArity.ts",
@@ -20,6 +20,54 @@
       "column": 14,
       "parameterCount": 3,
       "diagnostics": ["invalid-dual-arity", "third-param-not-object-like"]
+    },
+    {
+      "file": "packages/foundation/modeling/schema/src/Graph/Graph.rebuild.ts",
+      "qualifiedName": "rebuildImmutableGraph",
+      "kind": "exported-const-function",
+      "status": "candidate",
+      "owner": "@beep/schema",
+      "reason": "Public 2-3 parameter helper APIs must be implemented with dual from effect/Function. Public 3-parameter helper APIs must use a strict ObjectLike third parameter.",
+      "line": 57,
+      "column": 14,
+      "parameterCount": 3,
+      "diagnostics": ["missing-dual", "third-param-not-object-like"]
+    },
+    {
+      "file": "packages/foundation/modeling/schema/src/Graph/Graph.rebuild.ts",
+      "qualifiedName": "rebuildMutableGraph",
+      "kind": "exported-const-function",
+      "status": "candidate",
+      "owner": "@beep/schema",
+      "reason": "Public 2-3 parameter helper APIs must be implemented with dual from effect/Function. Public 3-parameter helper APIs must use a strict ObjectLike third parameter.",
+      "line": 86,
+      "column": 14,
+      "parameterCount": 3,
+      "diagnostics": ["missing-dual", "third-param-not-object-like"]
+    },
+    {
+      "file": "packages/foundation/modeling/schema/src/Graph/Graph.shared.ts",
+      "qualifiedName": "formatGraph",
+      "kind": "exported-const-function",
+      "status": "candidate",
+      "owner": "@beep/schema",
+      "reason": "Public 2-3 parameter helper APIs must be implemented with dual from effect/Function. Public 3-parameter helper APIs must use a strict ObjectLike third parameter.",
+      "line": 172,
+      "column": 14,
+      "parameterCount": 3,
+      "diagnostics": ["missing-dual", "third-param-not-object-like"]
+    },
+    {
+      "file": "packages/foundation/modeling/schema/src/Graph/Graph.shared.ts",
+      "qualifiedName": "makeGraphEquivalence",
+      "kind": "exported-const-function",
+      "status": "candidate",
+      "owner": "@beep/schema",
+      "reason": "Public 2-3 parameter helper APIs must be implemented with dual from effect/Function.",
+      "line": 199,
+      "column": 14,
+      "parameterCount": 2,
+      "diagnostics": ["missing-dual"]
     },
     {
       "file": "packages/foundation/modeling/utils/src/Array.ts",
@@ -81,7 +129,7 @@
       "owner": "@beep/utils",
       "reason": "Central String.prototype.replaceAll callback wrapper intentionally mirrors the native positional replacer API while preserving the data-last overload required by the native String method sweep.",
       "issue": "UTILS-STR-CALLBACK-REPLACER",
-      "line": 658,
+      "line": 702,
       "column": 14,
       "parameterCount": 3,
       "diagnostics": ["third-param-not-object-like"]
@@ -94,7 +142,7 @@
       "owner": "@beep/utils",
       "reason": "Central String.prototype.replace callback wrapper intentionally mirrors the native positional replacer API while preserving the data-last overload required by the native String method sweep.",
       "issue": "UTILS-STR-CALLBACK-REPLACER",
-      "line": 617,
+      "line": 661,
       "column": 14,
       "parameterCount": 3,
       "diagnostics": ["third-param-not-object-like"]

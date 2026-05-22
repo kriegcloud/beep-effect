@@ -7,7 +7,7 @@
 /**
  * Canonical aliases for the secure header schema module.
  *
- * @category aliases
+ * @category schemas
  * @since 0.0.0
  */
 export { SecureHeader as Schema, SecureHeader } from "../http/headers/SecureHeader.ts";

@@ -12,4 +12,10 @@
  * @packageDocumentation
  * @since 0.0.0
  */
+/**
+ * Public schema module export.
+ *
+ * @category errors
+ * @since 0.0.0
+ */
 export * from "./CsvError.errors.ts";

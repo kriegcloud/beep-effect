@@ -5,5 +5,5 @@
  * @since 0.0.0
  */
 
-export * from "../commands/Reuse/index.js";
-export * from "../commands/Reuse/internal/CodexRunner.js";
+export * from "@beep/repo-cli/commands/Reuse/index";
+export * from "@beep/repo-cli/commands/Reuse/internal/CodexRunner";

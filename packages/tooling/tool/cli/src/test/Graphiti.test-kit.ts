@@ -5,7 +5,7 @@
  * @since 0.0.0
  */
 
-export * from "../commands/Graphiti/index.js";
-export * from "../commands/Graphiti/internal/ProxyConfig.js";
-export * from "../commands/Graphiti/internal/ProxyOps.js";
-export * from "../commands/Graphiti/internal/ProxyServices.js";
+export * from "@beep/repo-cli/commands/Graphiti/index";
+export * from "@beep/repo-cli/commands/Graphiti/internal/ProxyConfig";
+export * from "@beep/repo-cli/commands/Graphiti/internal/ProxyOps";
+export * from "@beep/repo-cli/commands/Graphiti/internal/ProxyServices";

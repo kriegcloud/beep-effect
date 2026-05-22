@@ -11,4 +11,10 @@
  * @packageDocumentation
  * @since 0.0.0
  */
+/**
+ * Public schema module export.
+ *
+ * @category parsing
+ * @since 0.0.0
+ */
 export * from "./CsvParser.parser.ts";

@@ -12,7 +12,7 @@ import * as O from "effect/Option";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
 
-const $I = $PostgresId.create("Postgres.sqlstate");
+const $I = $PostgresId.create("PostgresSqlState.models");
 
 /**
  * PostgreSQL SQLSTATE names mapped to five-character SQLSTATE codes.

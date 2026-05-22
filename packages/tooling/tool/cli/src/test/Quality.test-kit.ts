@@ -5,6 +5,6 @@
  * @since 0.0.0
  */
 
-export * from "../commands/Quality/ChangesetGraph.js";
-export * from "../commands/Quality/index.js";
-export * from "../commands/Quality/Tasks.js";
+export * from "@beep/repo-cli/commands/Quality/ChangesetGraph";
+export * from "@beep/repo-cli/commands/Quality/index";
+export * from "@beep/repo-cli/commands/Quality/Tasks";

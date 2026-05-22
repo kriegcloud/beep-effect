@@ -5,15 +5,15 @@
  * @since 0.0.0
  */
 
-import {$UtilsId} from "@beep/identity/packages";
-import {Context, Effect, flow, Layer, Match, Order, pipe} from "effect";
+import { fileURLToPath, pathToFileURL } from "node:url";
+import { $UtilsId } from "@beep/identity/packages";
+import { Context, Effect, flow, Layer, Match, Order, pipe } from "effect";
 import * as A from "effect/Array";
-import {dual} from "effect/Function";
+import { dual } from "effect/Function";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
-import {fileURLToPath, pathToFileURL} from "node:url";
 import picomatch from "picomatch";
-import {thunk} from "./thunk.ts";
+import { thunk } from "./thunk.ts";
 
 const $I = $UtilsId.create("Glob");
 
@@ -267,11 +267,14 @@ const toAbsolutePath =
   (relativePath: string): string =>
     fileURLToPath(new URL(normalizePathSeparators(relativePath), cwdUrl));
 
-const getBunGlobConstructor = (): undefined | BunGlobConstructor => (globalThis as typeof globalThis & {
-  readonly Bun?: {
-    readonly Glob?: BunGlobConstructor;
-  };
-}).Bun?.Glob;
+const getBunGlobConstructor = (): undefined | BunGlobConstructor =>
+  (
+    globalThis as typeof globalThis & {
+      readonly Bun?: {
+        readonly Glob?: BunGlobConstructor;
+      };
+    }
+  ).Bun?.Glob;
 
 const compileGlobs = (BunGlob: BunGlobConstructor, patterns: ReadonlyArray<string>): ReadonlyArray<BunGlobInstance> =>
   A.map(patterns, (pattern) => new BunGlob(pattern));

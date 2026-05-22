@@ -46,6 +46,6 @@ describe("Duration", () => {
     expect<Duration.Input>().type.toBe<DurationInput>();
     expect<Duration.FromInput>().type.toBe<D.Duration>();
     expect<typeof Duration.FromInput.Encoded>().type.toBe<typeof Duration.Input.Encoded>();
-    expect<typeof Duration.Schema.Type>().type.toBe<D.Duration>();
+    expect<Duration.Schema>().type.toBe<D.Duration>();
   });
 });

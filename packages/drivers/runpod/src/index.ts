@@ -20,19 +20,13 @@ export * from "./_generated/Runpod.generated.ts";
  */
 export * from "./Runpod.config.ts";
 /**
- * Runpod documentation index service.
- *
- * @category services
- * @since 0.1.0
- */
-export * from "./Runpod.docs.ts";
-/**
  * Typed Runpod driver errors.
  *
  * @category errors
  * @since 0.1.0
  */
 export * from "./Runpod.errors.ts";
+
 /**
  * Runpod REST API service.
  *
@@ -40,6 +34,14 @@ export * from "./Runpod.errors.ts";
  * @since 0.1.0
  */
 export * from "./Runpod.service.ts";
+
+/**
+ * Runpod documentation index service.
+ *
+ * @category services
+ * @since 0.1.0
+ */
+export * from "./RunpodDocs.service.ts";
 
 /**
  * Package version.

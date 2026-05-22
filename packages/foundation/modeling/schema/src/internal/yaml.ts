@@ -22,10 +22,22 @@ type YamlRuntime = {
 
 type YamlModule = typeof YamlPackage;
 
+/**
+ * Public schema module export.
+ *
+ * @category type-level
+ * @since 0.0.0
+ */
 export type YamlParseResult = Result.Result<unknown, ReadonlyArray<string>>;
 
 type YamlModuleLoader = () => YamlModule;
 
+/**
+ * Public schema module export.
+ *
+ * @category schemas
+ * @since 0.0.0
+ */
 export const loadYamlModule = (): YamlModule => YamlPackage;
 
 const yamlDocumentToResult = (document: {
@@ -66,9 +78,21 @@ const makeBunYamlParse = (parse: (input: string) => unknown) => ({
   },
 });
 
+/**
+ * Public schema module export.
+ *
+ * @category schemas
+ * @since 0.0.0
+ */
 export const getGlobalYamlRuntime = (): YamlRuntime =>
   getBunYamlParse(globalThis).pipe(O.map(makeBunYamlParse), O.getOrElse(thunkEmptyRecord));
 
+/**
+ * Public schema module export.
+ *
+ * @category constructors
+ * @since 0.0.0
+ */
 export const makeParseYaml: {
   (runtime: YamlRuntime, loadYaml: YamlModuleLoader): (input: string) => unknown;
   (loadYaml: YamlModuleLoader): (runtime: YamlRuntime) => (input: string) => unknown;
@@ -82,6 +106,12 @@ export const makeParseYaml: {
       )
 );
 
+/**
+ * Public schema module export.
+ *
+ * @category constructors
+ * @since 0.0.0
+ */
 export const makeParseYamlForSchema: {
   (runtime: YamlRuntime, loadYaml: YamlModuleLoader): (input: string) => YamlParseResult;
   (loadYaml: YamlModuleLoader): (runtime: YamlRuntime) => (input: string) => YamlParseResult;

@@ -13,10 +13,10 @@ import type { MigrationConfig } from "drizzle-orm/migrator";
 import type { AnyRelations, EmptyRelations } from "drizzle-orm/relations";
 import { Context, Effect, Layer } from "effect";
 import { dual } from "effect/Function";
-import type { NativeMigrationError } from "./interop.ts";
 import { PostgresError } from "./Postgres.errors.ts";
+import type { NativeMigrationError } from "./PostgresInterop.models.ts";
 
-const $I = $PostgresId.create("Postgres.drizzle");
+const $I = $PostgresId.create("PostgresDrizzle.service");
 
 declare const PostgresDrizzleSchema: unique symbol;
 

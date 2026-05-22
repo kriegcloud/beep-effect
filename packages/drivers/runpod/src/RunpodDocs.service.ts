@@ -18,7 +18,7 @@ import type * as HttpClientResponse from "effect/unstable/http/HttpClientRespons
 import { RUNPOD_DOCS_INDEX_URL, RunpodDocsConfigInput } from "./Runpod.config.ts";
 import { RunpodDocsError } from "./Runpod.errors.ts";
 
-const $I = $RunpodId.create("Runpod.docs");
+const $I = $RunpodId.create("RunpodDocs.service");
 
 /**
  * One Markdown documentation link parsed from Runpod's `llms.txt` index.

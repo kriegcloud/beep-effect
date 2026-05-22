@@ -1,4 +1,4 @@
-import * as AcpError from "@beep/acp/errors";
+import { Errors as AcpError } from "@beep/acp";
 import type * as Cause from "effect/Cause";
 import * as Effect from "effect/Effect";
 import * as Queue from "effect/Queue";

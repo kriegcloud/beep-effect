@@ -16,16 +16,16 @@ import * as RpcClient from "effect/unstable/rpc/RpcClient";
 import * as RpcServer from "effect/unstable/rpc/RpcServer";
 import { AGENT_METHODS, CLIENT_METHODS } from "./_generated/meta.gen.ts";
 import * as AcpSchema from "./_generated/schema.gen.ts";
-import * as AcpError from "./errors.ts";
+import * as AcpError from "./Acp.errors.ts";
+import * as AcpProtocol from "./AcpProtocol.service.ts";
+import * as AcpRpcs from "./AcpRpc.models.ts";
+import * as AcpTerminal from "./AcpTerminal.models.ts";
 import {
   callRpc,
   decodeExtNotificationRegistration,
   decodeExtRequestRegistration,
   runHandler,
 } from "./internal/shared.ts";
-import * as AcpProtocol from "./protocol.ts";
-import * as AcpRpcs from "./rpc.ts";
-import * as AcpTerminal from "./terminal.ts";
 
 const $I = $AcpId.create("agent");
 

@@ -7,7 +7,7 @@
 /**
  * Canonical aliases for the DOM CSS properties schema module.
  *
- * @category aliases
+ * @category schemas
  * @since 0.0.0
  */
 export {

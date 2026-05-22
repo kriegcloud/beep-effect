@@ -5,10 +5,10 @@
  * @since 0.0.0
  */
 
-export * from "../commands/Laws/AllowlistCheck.js";
-export * from "../commands/Laws/DualArity.js";
-export * from "../commands/Laws/EffectFn.js";
-export * from "../commands/Laws/EffectImports.js";
-export * from "../commands/Laws/index.js";
-export * from "../commands/Laws/NoNativeRuntime.js";
-export * from "../commands/Laws/TerseEffect.js";
+export * from "@beep/repo-cli/commands/Laws/AllowlistCheck";
+export * from "@beep/repo-cli/commands/Laws/DualArity";
+export * from "@beep/repo-cli/commands/Laws/EffectFn";
+export * from "@beep/repo-cli/commands/Laws/EffectImports";
+export * from "@beep/repo-cli/commands/Laws/index";
+export * from "@beep/repo-cli/commands/Laws/NoNativeRuntime";
+export * from "@beep/repo-cli/commands/Laws/TerseEffect";

@@ -447,10 +447,22 @@ export type AnyFn = typeof AnyFn.Type;
  * @category validation
  */
 export function ThunkOf<Output extends S.Top>(output: Output): FnSchema<typeof S.Never, Output, typeof S.Never>;
+/**
+ * Public schema module export.
+ *
+ * @category errors
+ * @since 0.0.0
+ */
 export function ThunkOf<Output extends S.Top, Error extends S.Top>(
   output: Output,
   error: Error
 ): FnSchema<typeof S.Never, Output, Error>;
+/**
+ * Public schema module export.
+ *
+ * @category errors
+ * @since 0.0.0
+ */
 export function ThunkOf<Output extends S.Top, Error extends S.Top>(output: Output, error?: Error) {
   return makeNoArgFnSchema(S.Never, output, error ?? S.Never);
 }
@@ -560,6 +572,12 @@ export function Fn<Input extends S.Top, Output extends S.Top, Error extends S.To
   readonly error?: Error;
 }): FnSchema<Input, Output, Error>;
 
+/**
+ * Public schema module export.
+ *
+ * @category errors
+ * @since 0.0.0
+ */
 export function Fn<Output extends S.Top, Error extends S.Top = typeof S.Never>(options: {
   readonly input?: S.Top;
   readonly output: Output;

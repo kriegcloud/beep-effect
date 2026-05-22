@@ -5,13 +5,13 @@
  * @since 0.0.0
  */
 
-export * from "../commands/VersionSync/index.js";
-export * from "../commands/VersionSync/internal/Models.js";
-export * from "../commands/VersionSync/internal/resolvers/BiomeResolver.js";
-export * from "../commands/VersionSync/internal/resolvers/BunResolver.js";
-export * from "../commands/VersionSync/internal/resolvers/DockerResolver.js";
-export * from "../commands/VersionSync/internal/resolvers/EffectResolver.js";
-export * from "../commands/VersionSync/internal/resolvers/NodeResolver.js";
-export * from "../commands/VersionSync/internal/updaters/PackageJsonUpdater.js";
-export * from "../commands/VersionSync/internal/updaters/PlainTextUpdater.js";
-export * from "../commands/VersionSync/internal/updaters/YamlFileUpdater.js";
+export * from "@beep/repo-cli/commands/VersionSync/index";
+export * from "@beep/repo-cli/commands/VersionSync/internal/Models";
+export * from "@beep/repo-cli/commands/VersionSync/internal/resolvers/BiomeResolver";
+export * from "@beep/repo-cli/commands/VersionSync/internal/resolvers/BunResolver";
+export * from "@beep/repo-cli/commands/VersionSync/internal/resolvers/DockerResolver";
+export * from "@beep/repo-cli/commands/VersionSync/internal/resolvers/EffectResolver";
+export * from "@beep/repo-cli/commands/VersionSync/internal/resolvers/NodeResolver";
+export * from "@beep/repo-cli/commands/VersionSync/internal/updaters/PackageJsonUpdater";
+export * from "@beep/repo-cli/commands/VersionSync/internal/updaters/PlainTextUpdater";
+export * from "@beep/repo-cli/commands/VersionSync/internal/updaters/YamlFileUpdater";

@@ -4,11 +4,17 @@
  * @packageDocumentation
  * @since 0.0.0
  */
+/**
+ * Public schema module export.
+ *
+ * @category schemas
+ * @since 0.0.0
+ */
 export * from "../http/headers/ForceHttpsRedirect.ts";
 /**
  * Canonical aliases for the Force HTTPS redirect module.
  *
- * @category aliases
+ * @category schemas
  * @since 0.0.0
  */
 export {

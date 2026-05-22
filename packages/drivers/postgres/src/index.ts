@@ -6,22 +6,6 @@
  */
 
 /**
- * Public Postgres client service exports.
- *
- * @since 0.0.0
- * @category clients
- */
-export * from "./Postgres.client.ts";
-
-/**
- * Public Postgres Drizzle composition exports.
- *
- * @since 0.0.0
- * @category services
- */
-export * from "./Postgres.drizzle.ts";
-
-/**
  * Public Postgres error exports.
  *
  * @since 0.0.0
@@ -30,12 +14,36 @@ export * from "./Postgres.drizzle.ts";
 export * from "./Postgres.errors.ts";
 
 /**
+ * Public Postgres client service exports.
+ *
+ * @since 0.0.0
+ * @category clients
+ */
+export * from "./PostgresClient.service.ts";
+
+/**
  * Public Postgres formatting exports.
  *
  * @since 0.0.0
  * @category formatting
  */
-export * from "./Postgres.format.ts";
+export * from "./PostgresDiagnostics.service.ts";
+
+/**
+ * Public Postgres Drizzle composition exports.
+ *
+ * @since 0.0.0
+ * @category services
+ */
+export * from "./PostgresDrizzle.service.ts";
+
+/**
+ * Public native Postgres/Drizzle interop type exports.
+ *
+ * @since 0.0.0
+ * @category models
+ */
+export * from "./PostgresInterop.models.ts";
 
 /**
  * Public PostgreSQL SQLSTATE exports.
@@ -43,7 +51,7 @@ export * from "./Postgres.format.ts";
  * @since 0.0.0
  * @category models
  */
-export * from "./Postgres.sqlstate.ts";
+export * from "./PostgresSqlState.models.ts";
 
 /**
  * Package version.

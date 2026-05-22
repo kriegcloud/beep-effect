@@ -41,13 +41,16 @@ This plan executes [SPEC.md](./SPEC.md) in staged compatibility-first slices.
 
 ## Phase 3 - Remaining High-Context Concept Migration
 
-Migrate high-context modules after the topical slice proves the pattern:
-
-1. `FilePath`
-2. `Graph`
-3. `EntitySchema`
-4. `Model`
-5. Other codec-heavy modules that still rely on wildcard exports
+- [x] Add explicit canonical exports for high-context public modules that were
+  previously reachable only through `./*`.
+- [x] Split `FilePath` into guard, segment, root, Windows-path, and primary
+  schema role files.
+- [x] Split `Graph` into primitive, guard, encoded, edge, rebuild,
+  from-self, and transform role files.
+- [x] Split `VariantSchema`, `Model`, and `EntitySchema` into concept folders
+  with role files while keeping same-name compatibility shims.
+- [x] Keep `Fn`, `LiteralKit`, `MappedLiteralKit`, and `Record` on explicit
+  concept indexes for Phase 4 hardening.
 
 ## Phase 4 - Consumer And Export Hardening
 

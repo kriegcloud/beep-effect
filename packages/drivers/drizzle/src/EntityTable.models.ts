@@ -46,7 +46,7 @@ import * as P from "effect/Predicate";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
 
-const $I = $DrizzleId.create("EntityTable");
+const $I = $DrizzleId.create("EntityTable.models");
 
 class EntityTableInvariantError extends TaggedErrorClass<EntityTableInvariantError>($I`EntityTableInvariantError`)(
   "EntityTableInvariantError",

@@ -5,7 +5,7 @@
  * @since 0.0.0
  */
 
-export * from "../commands/SyncDataToTs/index.js";
-export * from "../commands/SyncDataToTs/internal/Models.js";
-export * from "../commands/SyncDataToTs/targets/Iso4217.js";
-export * from "../commands/SyncDataToTs/targets/index.js";
+export * from "@beep/repo-cli/commands/SyncDataToTs/index";
+export * from "@beep/repo-cli/commands/SyncDataToTs/internal/Models";
+export * from "@beep/repo-cli/commands/SyncDataToTs/targets/Iso4217";
+export * from "@beep/repo-cli/commands/SyncDataToTs/targets/index";

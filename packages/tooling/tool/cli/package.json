@@ -44,8 +44,9 @@
     "./commands/TopoSort": "./src/commands/TopoSort/index.ts",
     "./commands/TsconfigSync": "./src/commands/TsconfigSync/index.ts",
     "./commands/VersionSync": "./src/commands/VersionSync/index.ts",
+    "./commands/*": "./src/commands/*.ts",
     "./internal/*": null,
-    "./test/*": null,
+    "./test/*": "./src/test/*.test-kit.ts",
     "./bin": null
   },
   "files": [

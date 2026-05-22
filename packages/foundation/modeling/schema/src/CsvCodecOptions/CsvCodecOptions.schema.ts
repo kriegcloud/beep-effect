@@ -5,11 +5,17 @@
  * @since 0.0.0
  */
 
+/**
+ * Public schema module export.
+ *
+ * @category type-level
+ * @since 0.0.0
+ */
 export type { CsvCodecOptionsArgs } from "../csv/CsvCodecOptions.ts";
 /**
  * Canonical aliases for the CSV codec options module.
  *
- * @category aliases
+ * @category schemas
  * @since 0.0.0
  */
 export {

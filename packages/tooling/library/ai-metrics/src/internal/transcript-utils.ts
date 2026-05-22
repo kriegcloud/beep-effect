@@ -4,10 +4,10 @@
  * @since 0.0.0
  */
 
-import {A, Str} from "@beep/utils";
-import {flow, pipe} from "effect";
+import { A, Str } from "@beep/utils";
+import { flow, pipe } from "effect";
 import * as O from "effect/Option";
-import {AiMetricsTranscriptSource} from "../models.ts";
+import { AiMetricsTranscriptSource } from "../models.ts";
 
 const codexEventNames = [
   "assistant_message",
@@ -63,7 +63,8 @@ export const transcriptLines: (content: string) => ReadonlyArray<string> = flow(
  * @category utilities
  * @since 0.0.0
  */
-export const firstString = (...values: ReadonlyArray<string | undefined>): O.Option<string> => pipe(values, A.map(O.fromNullishOr), A.getSomes, A.head)
+export const firstString = (...values: ReadonlyArray<string | undefined>): O.Option<string> =>
+  pipe(values, A.map(O.fromNullishOr), A.getSomes, A.head);
 
 /**
  * Build an optional timestamp object for schema class constructors.

@@ -33,7 +33,12 @@
   },
   "exports": {
     ".": "./src/index.ts",
-    "./*": "./src/*.ts",
+    "./client": "./src/PostgresClient.service.ts",
+    "./drizzle": "./src/PostgresDrizzle.service.ts",
+    "./errors": "./src/Postgres.errors.ts",
+    "./format": "./src/PostgresDiagnostics.service.ts",
+    "./interop": "./src/PostgresInterop.models.ts",
+    "./sqlstate": "./src/PostgresSqlState.models.ts",
     "./internal/*": null,
     "./package.json": "./package.json"
   },
@@ -50,7 +55,12 @@
     "provenance": true,
     "exports": {
       ".": "./dist/index.js",
-      "./*": "./dist/*.js",
+      "./client": "./dist/PostgresClient.service.js",
+      "./drizzle": "./dist/PostgresDrizzle.service.js",
+      "./errors": "./dist/Postgres.errors.js",
+      "./format": "./dist/PostgresDiagnostics.service.js",
+      "./interop": "./dist/PostgresInterop.models.js",
+      "./sqlstate": "./dist/PostgresSqlState.models.js",
       "./internal/*": null,
       "./package.json": "./package.json"
     }

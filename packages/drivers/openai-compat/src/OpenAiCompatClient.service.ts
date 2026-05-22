@@ -28,7 +28,7 @@ import {
   OpenAiCompatChatCompletionResponse,
 } from "./OpenAiCompat.models.ts";
 
-const $I = $OpenaiCompatId.create("OpenAiCompat.client");
+const $I = $OpenaiCompatId.create("OpenAiCompatClient.service");
 const moduleName = "OpenAiCompatClient";
 
 /**

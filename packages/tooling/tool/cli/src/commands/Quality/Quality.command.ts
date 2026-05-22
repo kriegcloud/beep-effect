@@ -112,7 +112,7 @@ type QualityScriptEnvironment = FileSystem.FileSystem | Path.Path | ChildProcess
  *
  * @example
  * ```ts
- * import { GithubCheckMode } from "@beep/repo-cli/commands/Quality/ScriptCommands"
+ * import { GithubCheckMode } from "@beep/repo-cli/commands/Quality/Quality.command"
  * const mode: GithubCheckMode = "repo-sanity"
  * ```
  * @category models
@@ -129,7 +129,7 @@ export const GithubCheckMode = LiteralKit(GITHUB_CHECK_MODES).annotate(
  *
  * @example
  * ```ts
- * import type { GithubCheckMode } from "@beep/repo-cli/commands/Quality/ScriptCommands"
+ * import type { GithubCheckMode } from "@beep/repo-cli/commands/Quality/Quality.command"
  * const mode: GithubCheckMode = "quality"
  * ```
  * @category models
@@ -142,7 +142,7 @@ export type GithubCheckMode = typeof GithubCheckMode.Type;
  *
  * @example
  * ```ts
- * import { QualityScriptCommandError } from "@beep/repo-cli/commands/Quality/ScriptCommands"
+ * import { QualityScriptCommandError } from "@beep/repo-cli/commands/Quality/Quality.command"
  * const error = new QualityScriptCommandError({ message: "failed" })
  * ```
  * @category errors
@@ -347,7 +347,7 @@ const runChangesetStatus = Effect.fn("QualityScriptCommands.runChangesetStatus")
  * @returns Effect that exits non-zero when audit fails.
  * @example
  * ```ts
- * import { runBunAudit } from "@beep/repo-cli/commands/Quality/ScriptCommands"
+ * import { runBunAudit } from "@beep/repo-cli/commands/Quality/Quality.command"
  * const program = runBunAudit("/repo")
  * ```
  * @category use-cases
@@ -616,7 +616,7 @@ const runNixChecks = Effect.fn("QualityScriptCommands.runNixChecks")(function* (
  * @returns Effect that executes the requested mode.
  * @example
  * ```ts
- * import { runGithubChecks } from "@beep/repo-cli/commands/Quality/ScriptCommands"
+ * import { runGithubChecks } from "@beep/repo-cli/commands/Quality/Quality.command"
  * const program = runGithubChecks("repo-sanity")
  * ```
  * @category use-cases
@@ -1025,7 +1025,7 @@ const renderTsgoRuleDiagnostics = (label: string, diagnostics: ReadonlyArray<str
  * @returns Effect that fails when tsgo rules drift or local source suppresses Effect diagnostics.
  * @example
  * ```ts
- * import { runTsgoRulesCheck } from "@beep/repo-cli/commands/Quality/ScriptCommands"
+ * import { runTsgoRulesCheck } from "@beep/repo-cli/commands/Quality/Quality.command"
  * const program = runTsgoRulesCheck()
  * ```
  * @category use-cases
@@ -1238,7 +1238,7 @@ const runTsgoWithSyntheticConfig = Effect.fn("QualityScriptCommands.runTsgoWithS
  * @returns Effect that runs the dtslint tsgo lane.
  * @example
  * ```ts
- * import { runDtslintTsgoChecks } from "@beep/repo-cli/commands/Quality/ScriptCommands"
+ * import { runDtslintTsgoChecks } from "@beep/repo-cli/commands/Quality/Quality.command"
  * const program = runDtslintTsgoChecks([])
  * ```
  * @category use-cases
@@ -1286,7 +1286,7 @@ export const runDtslintTsgoChecks = Effect.fn("QualityScriptCommands.runDtslintT
  * @returns Effect that runs the test-file tsgo lane.
  * @example
  * ```ts
- * import { runTestTsgoChecks } from "@beep/repo-cli/commands/Quality/ScriptCommands"
+ * import { runTestTsgoChecks } from "@beep/repo-cli/commands/Quality/Quality.command"
  * const program = runTestTsgoChecks([])
  * ```
  * @category use-cases
@@ -1381,7 +1381,7 @@ export const runTestTsgoChecks = Effect.fn("QualityScriptCommands.runTestTsgoChe
  * @returns Effect that performs the smoke check.
  * @example
  * ```ts
- * import { runTsgoSmokeCheck } from "@beep/repo-cli/commands/Quality/ScriptCommands"
+ * import { runTsgoSmokeCheck } from "@beep/repo-cli/commands/Quality/Quality.command"
  * const program = runTsgoSmokeCheck()
  * ```
  * @category use-cases
@@ -1489,7 +1489,7 @@ export const runTsgoSmokeCheck = Effect.fn("QualityScriptCommands.runTsgoSmokeCh
  * @returns Effect that performs the module-tag lint.
  * @example
  * ```ts
- * import { runJSDocModuleTagsCheck } from "@beep/repo-cli/commands/Quality/ScriptCommands"
+ * import { runJSDocModuleTagsCheck } from "@beep/repo-cli/commands/Quality/Quality.command"
  * const program = runJSDocModuleTagsCheck()
  * ```
  * @category use-cases
@@ -1567,7 +1567,7 @@ export const runJSDocModuleTagsCheck = Effect.fn("QualityScriptCommands.runJSDoc
  * @returns Effect that writes the tracked inventory artifacts.
  * @example
  * ```ts
- * import { runJSDocInventory } from "@beep/repo-cli/commands/Quality/ScriptCommands"
+ * import { runJSDocInventory } from "@beep/repo-cli/commands/Quality/Quality.command"
  * const program = runJSDocInventory()
  * ```
  * @category use-cases
@@ -1592,7 +1592,7 @@ export const runJSDocInventory = Effect.fn("QualityScriptCommands.runJSDocInvent
  * @returns Effect that writes or checks the tracked export catalog artifacts.
  * @example
  * ```ts
- * import { runRepoExportsCatalog } from "@beep/repo-cli/commands/Quality/ScriptCommands"
+ * import { runRepoExportsCatalog } from "@beep/repo-cli/commands/Quality/Quality.command"
  * const program = runRepoExportsCatalog(false)
  * ```
  * @category use-cases

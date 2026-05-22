@@ -570,7 +570,7 @@ time instead of through parallel mapping files.
 entity fields. It composes shared product invariants into concrete entity
 schemas, but it does not own the generic SQL projection.
 
-`@beep/drizzle/EntityTable.pgTableFrom` is the approved generic table
+`@beep/drizzle` `EntityTable.pgTableFrom` is the approved generic table
 projection for schema-first entity classes. Shared table packages may use it to
 publish metadata-only Drizzle table definitions for shared product tables, but
 they do not own live database execution, transactions, repository helpers,

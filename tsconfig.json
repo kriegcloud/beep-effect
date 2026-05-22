@@ -39,9 +39,7 @@
     "paths": {
       // Path aliases allow loading internal modules in tests and using workspace packages
       // These will be populated as packages are created
-      "@beep/repo-cli": [
-        "./packages/tooling/tool/cli/src/index.ts"
-      ],
+      "@beep/repo-cli": ["./packages/tooling/tool/cli/src/index.ts"],
       "@beep/repo-utils": [
         "./packages/tooling/library/repo-utils/src/index.ts"
       ],
@@ -216,7 +214,6 @@
       "@beep/ffmpeg": ["./packages/drivers/ffmpeg/src/index.ts"],
       "@beep/ffmpeg/*": ["./packages/drivers/ffmpeg/src/*"],
       "@beep/postgres": ["./packages/drivers/postgres/src/index.ts"],
-      "@beep/postgres/*": ["./packages/drivers/postgres/src/*"],
       "@beep/shared-domain/aggregates": [
         "./packages/shared/domain/src/aggregates.ts"
       ],
@@ -394,11 +391,8 @@
       "@beep/openai": ["./packages/drivers/openai/src/index.ts"],
       "@beep/openai/*": ["./packages/drivers/openai/src/*"],
       "@beep/openai-compat": ["./packages/drivers/openai-compat/src/index.ts"],
-      "@beep/openai-compat/*": ["./packages/drivers/openai-compat/src/*"],
       "@beep/venice-ai": ["./packages/drivers/venice-ai/src/index.ts"],
-      "@beep/venice-ai/*": ["./packages/drivers/venice-ai/src/*"],
       "@beep/xai": ["./packages/drivers/xai/src/index.ts"],
-      "@beep/xai/*": ["./packages/drivers/xai/src/*"],
       "@beep/repo-ai-metrics": [
         "./packages/tooling/library/ai-metrics/src/index.ts"
       ],
@@ -409,13 +403,6 @@
         "./packages/tooling/policy-pack/repo-configs/src/next/index.ts"
       ],
       "@beep/acp": ["./packages/drivers/acp/src/index.ts"],
-      "@beep/acp/agent": ["./packages/drivers/acp/src/agent.ts"],
-      "@beep/acp/client": ["./packages/drivers/acp/src/client.ts"],
-      "@beep/acp/errors": ["./packages/drivers/acp/src/errors.ts"],
-      "@beep/acp/protocol": ["./packages/drivers/acp/src/protocol.ts"],
-      "@beep/acp/rpc": ["./packages/drivers/acp/src/rpc.ts"],
-      "@beep/acp/schema": ["./packages/drivers/acp/src/schema.ts"],
-      "@beep/acp/terminal": ["./packages/drivers/acp/src/terminal.ts"],
       "@beep/duckdb": ["./packages/drivers/duckdb/src/index.ts"],
       "@beep/workspace-tables": ["./packages/workspace/tables/src/index.ts"],
       "@beep/workspace-tables/entities": [
@@ -539,7 +526,6 @@
         "./packages/architecture-lab/use-cases/src/entities/Worker/server.ts"
       ],
       "@beep/runpod": ["./packages/drivers/runpod/src/index.ts"],
-      "@beep/runpod/*": ["./packages/drivers/runpod/src/*"],
       "@beep/stack-installer": ["./apps/stack-installer/src/index.ts"],
       "@beep/shared-domain/values/OnePasswordReference": [
         "./packages/shared/domain/src/values/OnePasswordReference/index.ts"
@@ -903,6 +889,62 @@
       ],
       "@beep/schema/CrossOriginResourcePolicy": [
         "./packages/foundation/modeling/schema/src/CrossOriginResourcePolicy/index.ts"
+      ],
+      "@beep/schema/EntitySchema": [
+        "./packages/foundation/modeling/schema/src/EntitySchema/index.ts"
+      ],
+      "@beep/schema/FilePath": [
+        "./packages/foundation/modeling/schema/src/FilePath/index.ts"
+      ],
+      "@beep/schema/Fn": [
+        "./packages/foundation/modeling/schema/src/Fn/index.ts"
+      ],
+      "@beep/schema/Graph": [
+        "./packages/foundation/modeling/schema/src/Graph/index.ts"
+      ],
+      "@beep/schema/LiteralKit": [
+        "./packages/foundation/modeling/schema/src/LiteralKit/index.ts"
+      ],
+      "@beep/schema/MappedLiteralKit": [
+        "./packages/foundation/modeling/schema/src/MappedLiteralKit/index.ts"
+      ],
+      "@beep/schema/Model": [
+        "./packages/foundation/modeling/schema/src/Model/index.ts"
+      ],
+      "@beep/schema/Record": [
+        "./packages/foundation/modeling/schema/src/Record/index.ts"
+      ],
+      "@beep/schema/VariantSchema": [
+        "./packages/foundation/modeling/schema/src/VariantSchema/index.ts"
+      ],
+      "@beep/acp/agent": ["./packages/drivers/acp/src/AcpAgent.service.ts"],
+      "@beep/acp/client": ["./packages/drivers/acp/src/AcpClient.service.ts"],
+      "@beep/acp/errors": ["./packages/drivers/acp/src/Acp.errors.ts"],
+      "@beep/acp/protocol": [
+        "./packages/drivers/acp/src/AcpProtocol.service.ts"
+      ],
+      "@beep/acp/rpc": ["./packages/drivers/acp/src/AcpRpc.models.ts"],
+      "@beep/acp/schema": ["./packages/drivers/acp/src/Acp.models.ts"],
+      "@beep/acp/terminal": [
+        "./packages/drivers/acp/src/AcpTerminal.models.ts"
+      ],
+      "@beep/postgres/client": [
+        "./packages/drivers/postgres/src/PostgresClient.service.ts"
+      ],
+      "@beep/postgres/drizzle": [
+        "./packages/drivers/postgres/src/PostgresDrizzle.service.ts"
+      ],
+      "@beep/postgres/errors": [
+        "./packages/drivers/postgres/src/Postgres.errors.ts"
+      ],
+      "@beep/postgres/format": [
+        "./packages/drivers/postgres/src/PostgresDiagnostics.service.ts"
+      ],
+      "@beep/postgres/interop": [
+        "./packages/drivers/postgres/src/PostgresInterop.models.ts"
+      ],
+      "@beep/postgres/sqlstate": [
+        "./packages/drivers/postgres/src/PostgresSqlState.models.ts"
       ]
     }
   }

@@ -28,7 +28,7 @@ import {
   type VeniceAIShape,
 } from "./VeniceAI.service.ts";
 
-const $I = $VeniceAiId.create("VeniceAiLanguageModel");
+const $I = $VeniceAiId.create("VeniceAiLanguageModel.service");
 
 /**
  * Options accepted by the Venice Effect AI language-model adapter.
@@ -59,7 +59,7 @@ export class VeniceAiLanguageModelOptions extends S.Class<VeniceAiLanguageModelO
   })
 ) {}
 
-const moduleName = "VeniceAiLanguageModel";
+const moduleName = "VeniceAiLanguageModel.service";
 
 const makeAiError = (method: string, reason: AiError.AiErrorReason): AiError.AiError =>
   AiError.make({ method, module: moduleName, reason });

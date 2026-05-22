@@ -24,7 +24,7 @@ import type { XAiError } from "./XAi.errors.ts";
 import { XAiRequestOptions, XAiResponse, type XAiServerSentEvent } from "./XAi.models.ts";
 import { XAi, type XAiShape } from "./XAi.service.ts";
 
-const $I = $XaiId.create("XAiLanguageModel");
+const $I = $XaiId.create("XAiLanguageModel.service");
 
 /**
  * Options accepted by the xAI Effect AI language-model adapter.
@@ -53,7 +53,7 @@ export class XAiLanguageModelOptions extends S.Class<XAiLanguageModelOptions>($I
   })
 ) {}
 
-const moduleName = "XAiLanguageModel";
+const moduleName = "XAiLanguageModel.service";
 
 const makeAiError = (method: string, reason: AiError.AiErrorReason): AiError.AiError =>
   AiError.make({ method, module: moduleName, reason });

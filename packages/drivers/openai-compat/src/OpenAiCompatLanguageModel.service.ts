@@ -20,7 +20,6 @@ import { toCodecOpenAI } from "effect/unstable/ai/OpenAiStructuredOutput";
 import type * as Prompt from "effect/unstable/ai/Prompt";
 import * as Response from "effect/unstable/ai/Response";
 import * as Tool from "effect/unstable/ai/Tool";
-import { OpenAiCompatClient, type OpenAiCompatClientShape } from "./OpenAiCompat.client.ts";
 import {
   OpenAiCompatAssistantChatMessage,
   type OpenAiCompatChatCompletionChunk,
@@ -37,8 +36,9 @@ import {
   OpenAiCompatToolChatMessage,
   OpenAiCompatUserChatMessage,
 } from "./OpenAiCompat.models.ts";
+import { OpenAiCompatClient, type OpenAiCompatClientShape } from "./OpenAiCompatClient.service.ts";
 
-const $I = $OpenaiCompatId.create("OpenAiCompat.language-model");
+const $I = $OpenaiCompatId.create("OpenAiCompatLanguageModel.service");
 const decodeUnknownRecordOption = S.decodeUnknownOption(S.Record(S.String, S.Unknown));
 
 /**

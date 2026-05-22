@@ -67,6 +67,24 @@
     "Sex",
     "XssProtection"
   ],
+  "migratedHighContextConcepts": [
+    "EntitySchema",
+    "FilePath",
+    "Graph",
+    "Model",
+    "VariantSchema"
+  ],
+  "explicitHighContextConcepts": [
+    "EntitySchema",
+    "FilePath",
+    "Fn",
+    "Graph",
+    "LiteralKit",
+    "MappedLiteralKit",
+    "Model",
+    "Record",
+    "VariantSchema"
+  ],
   "phases": [
     {
       "id": "P0",
@@ -89,13 +107,13 @@
     {
       "id": "P3",
       "name": "Large concept family migration",
-      "status": "active",
+      "status": "completed",
       "exitCriteriaSummary": "Remaining high-context modules are split into role files without changing behavior."
     },
     {
       "id": "P4",
       "name": "Consumer and export hardening",
-      "status": "pending",
+      "status": "active",
       "exitCriteriaSummary": "Consumers prefer canonical imports and wildcard export reliance is removed."
     }
   ],

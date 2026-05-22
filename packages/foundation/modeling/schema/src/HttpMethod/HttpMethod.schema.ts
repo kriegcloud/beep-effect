@@ -7,7 +7,7 @@
 /**
  * Canonical aliases for the HTTP method schema module.
  *
- * @category aliases
+ * @category schemas
  * @since 0.0.0
  */
 export { HttpMethod as Schema, HttpMethod, HttpMethod_ as Literal } from "../http/HttpMethod/HttpMethod.ts";

@@ -4,7 +4,7 @@
  * @packageDocumentation
  * @since 0.0.0
  */
-import {$RepoUtilsId} from "@beep/identity/packages";
+import { $RepoUtilsId } from "@beep/identity/packages";
 import {
   ArrayOfNonEmptyStrings,
   FilePath,
@@ -14,12 +14,12 @@ import {
   Sha256Hex,
   Sha256HexFromBytes,
 } from "@beep/schema";
-import {Str} from "@beep/utils";
-import {Effect, Match, Result, SchemaGetter, Tuple} from "effect";
+import { Str } from "@beep/utils";
+import { Effect, Match, Result, SchemaGetter, Tuple } from "effect";
 
 import * as S from "effect/Schema";
-import {Project, SourceFile, Node as TsMorphNode} from "ts-morph";
-import {TSSyntaxKind} from "../TypeScript/index.ts";
+import { Project, SourceFile, Node as TsMorphNode } from "ts-morph";
+import { TSSyntaxKind } from "../TypeScript/index.ts";
 
 const $I = $RepoUtilsId.create("TSMorph/TSMorph.model");
 
@@ -29,61 +29,72 @@ const TYPE_SCRIPT_DECLARATION_FILE_PATTERN = /\.d\.(?:ts|mts|cts)$/;
 const SYMBOL_NAME_SEGMENT_PATTERN = /^[A-Za-z_$][A-Za-z0-9_$]*$/;
 const SYMBOL_QUALIFIED_NAME_PATTERN = /^[A-Za-z_$][A-Za-z0-9_$]*(?:\.[A-Za-z_$][A-Za-z0-9_$]*)*$/;
 
-const symbolIdSafePathChecks = S.makeFilterGroup([
-  S.makeFilter((value: string) => !Str.includes("::")(value), {
-    title: "noDoubleColonDelimiter",
-    description: 'a path without the "::" template-literal delimiter',
-    message: 'Path must not contain "::"',
-  }),
-  S.makeFilter((value: string) => !Str.includes("#")(value), {
-    title: "noHashDelimiter",
-    description: 'a path without the "#" template-literal delimiter',
-    message: 'Path must not contain "#"',
-  }),
-], {
-  title: "Template Literal Safe Path",
-  description: "A file path string that can be safely embedded into template-literal identities.",
-});
+const symbolIdSafePathChecks = S.makeFilterGroup(
+  [
+    S.makeFilter((value: string) => !Str.includes("::")(value), {
+      title: "noDoubleColonDelimiter",
+      description: 'a path without the "::" template-literal delimiter',
+      message: 'Path must not contain "::"',
+    }),
+    S.makeFilter((value: string) => !Str.includes("#")(value), {
+      title: "noHashDelimiter",
+      description: 'a path without the "#" template-literal delimiter',
+      message: 'Path must not contain "#"',
+    }),
+  ],
+  {
+    title: "Template Literal Safe Path",
+    description: "A file path string that can be safely embedded into template-literal identities.",
+  }
+);
 
-const tsConfigFilePathChecks = S.makeFilterGroup([
-  S.isPattern(TS_CONFIG_FILE_PATTERN, {
-    title: "isTsConfigFilePath",
-    description: "a tsconfig file path ending in tsconfig*.json",
-    message: "Path must point to a tsconfig*.json file",
-  }),
-  symbolIdSafePathChecks,
-], {
-  title: "TsConfig File Path",
-  description: "A tsconfig file path that is safe to embed in scope identities.",
-});
+const tsConfigFilePathChecks = S.makeFilterGroup(
+  [
+    S.isPattern(TS_CONFIG_FILE_PATTERN, {
+      title: "isTsConfigFilePath",
+      description: "a tsconfig file path ending in tsconfig*.json",
+      message: "Path must point to a tsconfig*.json file",
+    }),
+    symbolIdSafePathChecks,
+  ],
+  {
+    title: "TsConfig File Path",
+    description: "A tsconfig file path that is safe to embed in scope identities.",
+  }
+);
 
-const typeScriptImplementationFilePathChecks = S.makeFilterGroup([
-  S.isPattern(TYPE_SCRIPT_IMPLEMENTATION_FILE_PATTERN, {
-    title: "isTypeScriptImplementationFile",
-    description: "a TypeScript implementation file ending in .ts, .tsx, .mts, or .cts",
-    message: "Path must point to a TypeScript implementation file",
-  }),
-  S.makeFilter((value: string) => !TYPE_SCRIPT_DECLARATION_FILE_PATTERN.test(
-    value), {
-    title: "isNotTypeScriptDeclarationFile",
-    description: "a TypeScript implementation file path that is not a declaration file",
-    message: "Implementation file path must not be a declaration file",
-  }),
-], {
-  title: "TypeScript Implementation File Path",
-  description: "A TypeScript implementation file path for .ts, .tsx, .mts, or .cts files.",
-});
+const typeScriptImplementationFilePathChecks = S.makeFilterGroup(
+  [
+    S.isPattern(TYPE_SCRIPT_IMPLEMENTATION_FILE_PATTERN, {
+      title: "isTypeScriptImplementationFile",
+      description: "a TypeScript implementation file ending in .ts, .tsx, .mts, or .cts",
+      message: "Path must point to a TypeScript implementation file",
+    }),
+    S.makeFilter((value: string) => !TYPE_SCRIPT_DECLARATION_FILE_PATTERN.test(value), {
+      title: "isNotTypeScriptDeclarationFile",
+      description: "a TypeScript implementation file path that is not a declaration file",
+      message: "Implementation file path must not be a declaration file",
+    }),
+  ],
+  {
+    title: "TypeScript Implementation File Path",
+    description: "A TypeScript implementation file path for .ts, .tsx, .mts, or .cts files.",
+  }
+);
 
-const typeScriptDeclarationFilePathChecks = S.makeFilterGroup([
-  S.isPattern(TYPE_SCRIPT_DECLARATION_FILE_PATTERN, {
-    title: "isTypeScriptDeclarationFile",
-    description: "a TypeScript declaration file ending in .d.ts, .d.mts, or .d.cts",
-    message: "Path must point to a TypeScript declaration file",
-  }),
-], {
-  title: "TypeScript Declaration File Path",
-  description: "A TypeScript declaration file path for .d.ts, .d.mts, or .d.cts files.",
-});
+const typeScriptDeclarationFilePathChecks = S.makeFilterGroup(
+  [
+    S.isPattern(TYPE_SCRIPT_DECLARATION_FILE_PATTERN, {
+      title: "isTypeScriptDeclarationFile",
+      description: "a TypeScript declaration file ending in .d.ts, .d.mts, or .d.cts",
+      message: "Path must point to a TypeScript declaration file",
+    }),
+  ],
+  {
+    title: "TypeScript Declaration File Path",
+    description: "A TypeScript declaration file path for .d.ts, .d.mts, or .d.cts files.",
+  }
+);
 
 const symbolKindOptions = TSSyntaxKind.pickOptions([
   "FunctionDeclaration",
@@ -110,9 +121,11 @@ const symbolKindOptions = TSSyntaxKind.pickOptions([
  */
 export const RepoRootPath = FilePath.pipe(
   S.brand("RepoRootPath"),
-  S.annotate($I.annote("RepoRootPath", {
-    description: "Absolute or repo-anchored path representing the repository root directory.",
-  })),
+  S.annotate(
+    $I.annote("RepoRootPath", {
+      description: "Absolute or repo-anchored path representing the repository root directory.",
+    })
+  )
 );
 
 /**
@@ -141,9 +154,11 @@ export type RepoRootPath = typeof RepoRootPath.Type;
  */
 export const WorkspaceDirectoryPath = FilePath.pipe(
   S.brand("WorkspaceDirectoryPath"),
-  S.annotate($I.annote("WorkspaceDirectoryPath", {
-    description: "Directory path representing a workspace root inside the repository.",
-  })),
+  S.annotate(
+    $I.annote("WorkspaceDirectoryPath", {
+      description: "Directory path representing a workspace root inside the repository.",
+    })
+  )
 );
 
 /**
@@ -170,10 +185,14 @@ export type WorkspaceDirectoryPath = typeof WorkspaceDirectoryPath.Type;
  * @category models
  * @since 0.0.0
  */
-export const TsConfigFilePath = FilePath.check(tsConfigFilePathChecks)
-  .pipe(S.brand("TsConfigFilePath"), S.annotate($I.annote("TsConfigFilePath", {
-    description: "A tsconfig*.json file path that is safe to embed in TSMorph scope identities.",
-  })));
+export const TsConfigFilePath = FilePath.check(tsConfigFilePathChecks).pipe(
+  S.brand("TsConfigFilePath"),
+  S.annotate(
+    $I.annote("TsConfigFilePath", {
+      description: "A tsconfig*.json file path that is safe to embed in TSMorph scope identities.",
+    })
+  )
+);
 
 /**
  * Branded `tsconfig*.json` file path.
@@ -199,14 +218,14 @@ export type TsConfigFilePath = typeof TsConfigFilePath.Type;
  * @category models
  * @since 0.0.0
  */
-export const TypeScriptImplementationFilePath = FilePath.check(
-  typeScriptImplementationFilePathChecks)
-  .pipe(
-    S.brand("TypeScriptImplementationFilePath"),
-    S.annotate($I.annote("TypeScriptImplementationFilePath", {
+export const TypeScriptImplementationFilePath = FilePath.check(typeScriptImplementationFilePathChecks).pipe(
+  S.brand("TypeScriptImplementationFilePath"),
+  S.annotate(
+    $I.annote("TypeScriptImplementationFilePath", {
       description: "A TypeScript implementation file path for .ts, .tsx, .mts, or .cts files.",
-    })),
-  );
+    })
+  )
+);
 
 /**
  * Branded TypeScript implementation file path.
@@ -232,14 +251,14 @@ export type TypeScriptImplementationFilePath = typeof TypeScriptImplementationFi
  * @category models
  * @since 0.0.0
  */
-export const TypeScriptDeclarationFilePath = FilePath.check(
-  typeScriptDeclarationFilePathChecks)
-  .pipe(
-    S.brand("TypeScriptDeclarationFilePath"),
-    S.annotate($I.annote("TypeScriptDeclarationFilePath", {
+export const TypeScriptDeclarationFilePath = FilePath.check(typeScriptDeclarationFilePathChecks).pipe(
+  S.brand("TypeScriptDeclarationFilePath"),
+  S.annotate(
+    $I.annote("TypeScriptDeclarationFilePath", {
       description: "A TypeScript declaration file path for .d.ts, .d.mts, or .d.cts files.",
-    })),
-  );
+    })
+  )
+);
 
 /**
  * Branded TypeScript declaration file path.
@@ -265,12 +284,13 @@ export type TypeScriptDeclarationFilePath = typeof TypeScriptDeclarationFilePath
  * @category models
  * @since 0.0.0
  */
-export const TypeScriptFilePath = S.Union([
-  TypeScriptImplementationFilePath,
-  TypeScriptDeclarationFilePath,
-]).pipe(S.annotate($I.annote("TypeScriptFilePath", {
-  description: "A TypeScript source file path covering implementation and declaration files.",
-})));
+export const TypeScriptFilePath = S.Union([TypeScriptImplementationFilePath, TypeScriptDeclarationFilePath]).pipe(
+  S.annotate(
+    $I.annote("TypeScriptFilePath", {
+      description: "A TypeScript source file path covering implementation and declaration files.",
+    })
+  )
+);
 
 /**
  * Branded TypeScript source file path.
@@ -296,11 +316,14 @@ export type TypeScriptFilePath = typeof TypeScriptFilePath.Type;
  * @category models
  * @since 0.0.0
  */
-export const SymbolFilePath = TypeScriptImplementationFilePath.check(
-  symbolIdSafePathChecks)
-  .pipe(S.brand("SymbolFilePath"), S.annotate($I.annote("SymbolFilePath", {
-    description: "A TypeScript implementation file path that is safe to embed in symbol identities.",
-  })));
+export const SymbolFilePath = TypeScriptImplementationFilePath.check(symbolIdSafePathChecks).pipe(
+  S.brand("SymbolFilePath"),
+  S.annotate(
+    $I.annote("SymbolFilePath", {
+      description: "A TypeScript implementation file path that is safe to embed in symbol identities.",
+    })
+  )
+);
 
 /**
  * Branded symbol-safe implementation file path.
@@ -326,14 +349,14 @@ export type SymbolFilePath = typeof SymbolFilePath.Type;
  * @category models
  * @since 0.0.0
  */
-export const SymbolNameSegment = S.String.check(S.isPattern(
-  SYMBOL_NAME_SEGMENT_PATTERN))
-  .pipe(
-    S.brand("SymbolNameSegment"),
-    S.annotate($I.annote("SymbolNameSegment", {
+export const SymbolNameSegment = S.String.check(S.isPattern(SYMBOL_NAME_SEGMENT_PATTERN)).pipe(
+  S.brand("SymbolNameSegment"),
+  S.annotate(
+    $I.annote("SymbolNameSegment", {
       description: "A single identifier-like segment in a TypeScript symbol path.",
-    })),
-  );
+    })
+  )
+);
 
 /**
  * Branded single symbol name segment.
@@ -359,14 +382,14 @@ export type SymbolNameSegment = typeof SymbolNameSegment.Type;
  * @category models
  * @since 0.0.0
  */
-export const SymbolQualifiedName = S.String.check(S.isPattern(
-  SYMBOL_QUALIFIED_NAME_PATTERN))
-  .pipe(
-    S.brand("SymbolQualifiedName"),
-    S.annotate($I.annote("SymbolQualifiedName", {
+export const SymbolQualifiedName = S.String.check(S.isPattern(SYMBOL_QUALIFIED_NAME_PATTERN)).pipe(
+  S.brand("SymbolQualifiedName"),
+  S.annotate(
+    $I.annote("SymbolQualifiedName", {
       description: "Dot-delimited symbol path such as UserService.login.",
-    })),
-  );
+    })
+  )
+);
 
 /**
  * Branded qualified symbol name.
@@ -418,12 +441,7 @@ export type SymbolKind = typeof SymbolKind.Type;
  * @category models
  * @since 0.0.0
  */
-export const SymbolCategory = LiteralKit([
-  "function",
-  "class",
-  "member",
-  "type",
-] as const);
+export const SymbolCategory = LiteralKit(["function", "class", "member", "type"] as const);
 
 /**
  * Literal union of coarse TSMorph symbol categories.
@@ -472,12 +490,19 @@ export const symbolCategoryFromKind = SymbolKind.$match({
  * @category models
  * @since 0.0.0
  */
-export const SymbolKindToCategory = SymbolKind.pipe(S.decodeTo(SymbolCategory, {
-  decode: SchemaGetter.transform(symbolCategoryFromKind),
-  encode: SchemaGetter.forbidden(() => "Encoding SymbolCategory back to SymbolKind is not supported by SymbolKindToCategory."),
-}), S.annotate($I.annote("SymbolKindToCategory", {
-  description: "One-way schema transformation from exact TypeScript declaration kind to coarse symbol category.",
-})));
+export const SymbolKindToCategory = SymbolKind.pipe(
+  S.decodeTo(SymbolCategory, {
+    decode: SchemaGetter.transform(symbolCategoryFromKind),
+    encode: SchemaGetter.forbidden(
+      () => "Encoding SymbolCategory back to SymbolKind is not supported by SymbolKindToCategory."
+    ),
+  }),
+  S.annotate(
+    $I.annote("SymbolKindToCategory", {
+      description: "One-way schema transformation from exact TypeScript declaration kind to coarse symbol category.",
+    })
+  )
+);
 
 /**
  * Output type produced by `SymbolKindToCategory`.
@@ -505,9 +530,11 @@ export type SymbolKindToCategory = typeof SymbolKindToCategory.Type;
  */
 export const SourceText = S.NonEmptyString.pipe(
   S.brand("SourceText"),
-  S.annotate($I.annote("SourceText", {
-    description: "Non-empty source text extracted from a TypeScript file or declaration.",
-  })),
+  S.annotate(
+    $I.annote("SourceText", {
+      description: "Non-empty source text extracted from a TypeScript file or declaration.",
+    })
+  )
 );
 
 /**
@@ -534,10 +561,14 @@ export type SourceText = typeof SourceText.Type;
  * @category models
  * @since 0.0.0
  */
-export const LineNumber = S.Int.check(S.isGreaterThan(0))
-  .pipe(S.brand("LineNumber"), S.annotate($I.annote("LineNumber", {
-    description: "A positive 1-based line number.",
-  })));
+export const LineNumber = S.Int.check(S.isGreaterThan(0)).pipe(
+  S.brand("LineNumber"),
+  S.annotate(
+    $I.annote("LineNumber", {
+      description: "A positive 1-based line number.",
+    })
+  )
+);
 
 /**
  * Branded positive 1-based line number.
@@ -563,10 +594,14 @@ export type LineNumber = typeof LineNumber.Type;
  * @category models
  * @since 0.0.0
  */
-export const ColumnNumber = S.Int.check(S.isGreaterThan(0))
-  .pipe(S.brand("ColumnNumber"), S.annotate($I.annote("ColumnNumber", {
-    description: "A positive 1-based column number.",
-  })));
+export const ColumnNumber = S.Int.check(S.isGreaterThan(0)).pipe(
+  S.brand("ColumnNumber"),
+  S.annotate(
+    $I.annote("ColumnNumber", {
+      description: "A positive 1-based column number.",
+    })
+  )
+);
 
 /**
  * Branded positive 1-based column number.
@@ -594,9 +629,11 @@ export type ColumnNumber = typeof ColumnNumber.Type;
  */
 export const ByteOffset = NonNegativeInt.pipe(
   S.brand("ByteOffset"),
-  S.annotate($I.annote("ByteOffset", {
-    description: "A non-negative byte offset within a source file.",
-  })),
+  S.annotate(
+    $I.annote("ByteOffset", {
+      description: "A non-negative byte offset within a source file.",
+    })
+  )
 );
 
 /**
@@ -625,9 +662,11 @@ export type ByteOffset = typeof ByteOffset.Type;
  */
 export const ByteLength = NonNegativeInt.pipe(
   S.brand("ByteLength"),
-  S.annotate($I.annote("ByteLength", {
-    description: "A non-negative byte length for a source span.",
-  })),
+  S.annotate(
+    $I.annote("ByteLength", {
+      description: "A non-negative byte length for a source span.",
+    })
+  )
 );
 
 /**
@@ -656,9 +695,11 @@ export type ByteLength = typeof ByteLength.Type;
  */
 export const ContentHash = Sha256Hex.pipe(
   S.brand("ContentHash"),
-  S.annotate($I.annote("ContentHash", {
-    description: "Canonical SHA-256 digest for source text or symbol content.",
-  })),
+  S.annotate(
+    $I.annote("ContentHash", {
+      description: "Canonical SHA-256 digest for source text or symbol content.",
+    })
+  )
 );
 
 /**
@@ -685,10 +726,7 @@ export type ContentHash = typeof ContentHash.Type;
  * @category models
  * @since 0.0.0
  */
-export const TsMorphScopeMode = LiteralKit([
-  "syntax",
-  "semantic",
-] as const);
+export const TsMorphScopeMode = LiteralKit(["syntax", "semantic"] as const);
 
 /**
  * Literal union of ts-morph project scope modes.
@@ -714,10 +752,7 @@ export type TsMorphScopeMode = typeof TsMorphScopeMode.Type;
  * @category models
  * @since 0.0.0
  */
-export const TsMorphReferencePolicy = LiteralKit([
-  "workspaceOnly",
-  "followReferences",
-] as const);
+export const TsMorphReferencePolicy = LiteralKit(["workspaceOnly", "followReferences"] as const);
 
 /**
  * Literal union of ts-morph reference traversal policies.
@@ -751,10 +786,14 @@ const resolvedProjectIdentity = S.TemplateLiteral([
  * @category models
  * @since 0.0.0
  */
-export const ProjectScopeId = resolvedProjectIdentity.pipe(S.brand(
-  "ProjectScopeId"), S.annotate($I.annote("ProjectScopeId", {
-  description: "Stable resolved ts-morph scope identity string: tsconfig::mode#referencePolicy.",
-})));
+export const ProjectScopeId = resolvedProjectIdentity.pipe(
+  S.brand("ProjectScopeId"),
+  S.annotate(
+    $I.annote("ProjectScopeId", {
+      description: "Stable resolved ts-morph scope identity string: tsconfig::mode#referencePolicy.",
+    })
+  )
+);
 
 /**
  * Branded stable identity for a resolved ts-morph project scope.
@@ -786,9 +825,11 @@ export const ProjectScopeIdParts = S.TemplateLiteralParser([
   TsMorphScopeMode,
   "#",
   TsMorphReferencePolicy,
-]).annotate($I.annote("ProjectScopeIdParts", {
-  description: "Parsed project scope identity tuple for tsconfig path, scope mode, and reference policy.",
-}));
+]).annotate(
+  $I.annote("ProjectScopeIdParts", {
+    description: "Parsed project scope identity tuple for tsconfig path, scope mode, and reference policy.",
+  })
+);
 
 /**
  * Cache key schema for memoized ts-morph projects.
@@ -801,10 +842,14 @@ export const ProjectScopeIdParts = S.TemplateLiteralParser([
  * @category models
  * @since 0.0.0
  */
-export const ProjectCacheKey = resolvedProjectIdentity.pipe(S.brand(
-  "ProjectCacheKey"), S.annotate($I.annote("ProjectCacheKey", {
-  description: "Cache-key string for a memoized ts-morph project instance.",
-})));
+export const ProjectCacheKey = resolvedProjectIdentity.pipe(
+  S.brand("ProjectCacheKey"),
+  S.annotate(
+    $I.annote("ProjectCacheKey", {
+      description: "Cache-key string for a memoized ts-morph project instance.",
+    })
+  )
+);
 
 /**
  * Branded cache key for memoized ts-morph projects.
@@ -830,15 +875,14 @@ export type ProjectCacheKey = typeof ProjectCacheKey.Type;
  * @category models
  * @since 0.0.0
  */
-export const SymbolId = S.TemplateLiteral([
-  SymbolFilePath,
-  "::",
-  SymbolQualifiedName,
-  "#",
-  SymbolKind,
-]).pipe(S.brand("SymbolId"), S.annotate($I.annote("SymbolId", {
-  description: "Stable TypeScript symbol identity string: file::qualifiedName#kind",
-})));
+export const SymbolId = S.TemplateLiteral([SymbolFilePath, "::", SymbolQualifiedName, "#", SymbolKind]).pipe(
+  S.brand("SymbolId"),
+  S.annotate(
+    $I.annote("SymbolId", {
+      description: "Stable TypeScript symbol identity string: file::qualifiedName#kind",
+    })
+  )
+);
 
 /**
  * Branded stable symbol identity.
@@ -870,9 +914,11 @@ export const SymbolIdParts = S.TemplateLiteralParser([
   SymbolQualifiedName,
   "#",
   SymbolKind,
-]).annotate($I.annote("SymbolIdParts", {
-  description: "Parsed symbol id parts for file path, qualified name, and exact kind.",
-}));
+]).annotate(
+  $I.annote("SymbolIdParts", {
+    description: "Parsed symbol id parts for file path, qualified name, and exact kind.",
+  })
+);
 
 /**
  * Schema transformation from a generic file path to a `TsConfigFilePath`.
@@ -885,15 +931,17 @@ export const SymbolIdParts = S.TemplateLiteralParser([
  * @category models
  * @since 0.0.0
  */
-export const FilePathToTsConfigFilePath = FilePath.pipe(S.decodeTo(
-  TsConfigFilePath,
-  {
-    decode: SchemaGetter.passthrough({strict: false}),
-    encode: SchemaGetter.passthrough({strict: false}),
-  },
-), S.annotate($I.annote("FilePathToTsConfigFilePath", {
-  description: "Schema transformation from a generic file path to a validated tsconfig file path.",
-})));
+export const FilePathToTsConfigFilePath = FilePath.pipe(
+  S.decodeTo(TsConfigFilePath, {
+    decode: SchemaGetter.passthrough({ strict: false }),
+    encode: SchemaGetter.passthrough({ strict: false }),
+  }),
+  S.annotate(
+    $I.annote("FilePathToTsConfigFilePath", {
+      description: "Schema transformation from a generic file path to a validated tsconfig file path.",
+    })
+  )
+);
 
 /**
  * Schema transformation from a generic file path to a TypeScript implementation file path.
@@ -906,15 +954,17 @@ export const FilePathToTsConfigFilePath = FilePath.pipe(S.decodeTo(
  * @category models
  * @since 0.0.0
  */
-export const FilePathToTypeScriptImplementationFilePath = FilePath.pipe(S.decodeTo(
-  TypeScriptImplementationFilePath,
-  {
-    decode: SchemaGetter.passthrough({strict: false}),
-    encode: SchemaGetter.passthrough({strict: false}),
-  },
-), S.annotate($I.annote("FilePathToTypeScriptImplementationFilePath", {
-  description: "Schema transformation from a generic file path to a TypeScript implementation file path.",
-})));
+export const FilePathToTypeScriptImplementationFilePath = FilePath.pipe(
+  S.decodeTo(TypeScriptImplementationFilePath, {
+    decode: SchemaGetter.passthrough({ strict: false }),
+    encode: SchemaGetter.passthrough({ strict: false }),
+  }),
+  S.annotate(
+    $I.annote("FilePathToTypeScriptImplementationFilePath", {
+      description: "Schema transformation from a generic file path to a TypeScript implementation file path.",
+    })
+  )
+);
 
 /**
  * Schema transformation from a generic file path to a TypeScript declaration file path.
@@ -927,15 +977,17 @@ export const FilePathToTypeScriptImplementationFilePath = FilePath.pipe(S.decode
  * @category models
  * @since 0.0.0
  */
-export const FilePathToTypeScriptDeclarationFilePath = FilePath.pipe(S.decodeTo(
-  TypeScriptDeclarationFilePath,
-  {
-    decode: SchemaGetter.passthrough({strict: false}),
-    encode: SchemaGetter.passthrough({strict: false}),
-  },
-), S.annotate($I.annote("FilePathToTypeScriptDeclarationFilePath", {
-  description: "Schema transformation from a generic file path to a TypeScript declaration file path.",
-})));
+export const FilePathToTypeScriptDeclarationFilePath = FilePath.pipe(
+  S.decodeTo(TypeScriptDeclarationFilePath, {
+    decode: SchemaGetter.passthrough({ strict: false }),
+    encode: SchemaGetter.passthrough({ strict: false }),
+  }),
+  S.annotate(
+    $I.annote("FilePathToTypeScriptDeclarationFilePath", {
+      description: "Schema transformation from a generic file path to a TypeScript declaration file path.",
+    })
+  )
+);
 
 /**
  * Schema transformation from a generic file path to a TypeScript source file path.
@@ -948,15 +1000,17 @@ export const FilePathToTypeScriptDeclarationFilePath = FilePath.pipe(S.decodeTo(
  * @category models
  * @since 0.0.0
  */
-export const FilePathToTypeScriptFilePath = FilePath.pipe(S.decodeTo(
-  TypeScriptFilePath,
-  {
-    decode: SchemaGetter.passthrough({strict: false}),
-    encode: SchemaGetter.passthrough({strict: false}),
-  },
-), S.annotate($I.annote("FilePathToTypeScriptFilePath", {
-  description: "Schema transformation from a generic file path to a TypeScript source file path.",
-})));
+export const FilePathToTypeScriptFilePath = FilePath.pipe(
+  S.decodeTo(TypeScriptFilePath, {
+    decode: SchemaGetter.passthrough({ strict: false }),
+    encode: SchemaGetter.passthrough({ strict: false }),
+  }),
+  S.annotate(
+    $I.annote("FilePathToTypeScriptFilePath", {
+      description: "Schema transformation from a generic file path to a TypeScript source file path.",
+    })
+  )
+);
 
 /**
  * Schema transformation from a TypeScript implementation file path to a symbol-safe file path.
@@ -971,12 +1025,14 @@ export const FilePathToTypeScriptFilePath = FilePath.pipe(S.decodeTo(
  */
 export const TypeScriptImplementationFilePathToSymbolFilePath = TypeScriptImplementationFilePath.pipe(
   S.decodeTo(SymbolFilePath, {
-    decode: SchemaGetter.passthrough({strict: false}),
-    encode: SchemaGetter.passthrough({strict: false}),
+    decode: SchemaGetter.passthrough({ strict: false }),
+    encode: SchemaGetter.passthrough({ strict: false }),
   }),
-  S.annotate($I.annote("TypeScriptImplementationFilePathToSymbolFilePath", {
-    description: "Schema transformation from a TypeScript implementation file path to a symbol-id-safe file path.",
-  })),
+  S.annotate(
+    $I.annote("TypeScriptImplementationFilePathToSymbolFilePath", {
+      description: "Schema transformation from a TypeScript implementation file path to a symbol-id-safe file path.",
+    })
+  )
 );
 
 const decodeSymbolIdResult = S.decodeUnknownResult(SymbolId);
@@ -995,20 +1051,27 @@ const decodeSha256HexFromBytesEffect = S.decodeUnknownEffect(Sha256HexFromBytes)
  * @category models
  * @since 0.0.0
  */
-export const ContentHashFromBytes = S.Uint8Array.pipe(S.decodeTo(ContentHash, {
-  decode: SchemaGetter.transformOrFail((value) => decodeSha256HexFromBytesEffect(
-    value).pipe(
-    Effect.flatMap(decodeContentHashEffect),
-    Effect.mapError((error) => error.issue),
-  )),
-  encode: SchemaGetter.forbidden(() => "Encoding ContentHash back to original bytes is not supported by ContentHashFromBytes."),
-}), S.annotate($I.annote("ContentHashFromBytes", {
-  description: "Effectful one-way schema transformation from source bytes to a canonical content hash.",
-})));
+export const ContentHashFromBytes = S.Uint8Array.pipe(
+  S.decodeTo(ContentHash, {
+    decode: SchemaGetter.transformOrFail((value) =>
+      decodeSha256HexFromBytesEffect(value).pipe(
+        Effect.flatMap(decodeContentHashEffect),
+        Effect.mapError((error) => error.issue)
+      )
+    ),
+    encode: SchemaGetter.forbidden(
+      () => "Encoding ContentHash back to original bytes is not supported by ContentHashFromBytes."
+    ),
+  }),
+  S.annotate(
+    $I.annote("ContentHashFromBytes", {
+      description: "Effectful one-way schema transformation from source bytes to a canonical content hash.",
+    })
+  )
+);
 
 const textEncoder = new TextEncoder();
-const decodeContentHashFromBytesEffect = S.decodeUnknownEffect(
-  ContentHashFromBytes);
+const decodeContentHashFromBytesEffect = S.decodeUnknownEffect(ContentHashFromBytes);
 
 /**
  * Effectful one-way schema transformation from source text to a canonical content hash.
@@ -1021,16 +1084,21 @@ const decodeContentHashFromBytesEffect = S.decodeUnknownEffect(
  * @category models
  * @since 0.0.0
  */
-export const ContentHashFromSourceText = SourceText.pipe(S.decodeTo(
-  ContentHash,
-  {
-    decode: SchemaGetter.transformOrFail((value) => decodeContentHashFromBytesEffect(
-      textEncoder.encode(value)).pipe(Effect.mapError((error) => error.issue))),
-    encode: SchemaGetter.forbidden(() => "Encoding ContentHash back to original source text is not supported by ContentHashFromSourceText."),
-  },
-), S.annotate($I.annote("ContentHashFromSourceText", {
-  description: "Effectful one-way schema transformation from source text to a canonical content hash.",
-})));
+export const ContentHashFromSourceText = SourceText.pipe(
+  S.decodeTo(ContentHash, {
+    decode: SchemaGetter.transformOrFail((value) =>
+      decodeContentHashFromBytesEffect(textEncoder.encode(value)).pipe(Effect.mapError((error) => error.issue))
+    ),
+    encode: SchemaGetter.forbidden(
+      () => "Encoding ContentHash back to original source text is not supported by ContentHashFromSourceText."
+    ),
+  }),
+  S.annotate(
+    $I.annote("ContentHashFromSourceText", {
+      description: "Effectful one-way schema transformation from source text to a canonical content hash.",
+    })
+  )
+);
 
 /**
  * Internal runtime schemas.
@@ -1044,10 +1112,13 @@ export const ContentHashFromSourceText = SourceText.pipe(S.decodeTo(
  * @category models
  * @since 0.0.0
  */
-export const InternalTsMorphProject = S.instanceOf(Project)
-  .pipe(S.annotate($I.annote("InternalTsMorphProject", {
-    description: "Internal runtime schema for a live ts-morph Project instance.",
-  })));
+export const InternalTsMorphProject = S.instanceOf(Project).pipe(
+  S.annotate(
+    $I.annote("InternalTsMorphProject", {
+      description: "Internal runtime schema for a live ts-morph Project instance.",
+    })
+  )
+);
 
 /**
  * Internal runtime schema for a live ts-morph SourceFile instance.
@@ -1060,10 +1131,15 @@ export const InternalTsMorphProject = S.instanceOf(Project)
  * @category models
  * @since 0.0.0
  */
-export const InternalTsMorphSourceFile = S.declare<SourceFile>((value): value is SourceFile => value instanceof SourceFile)
-  .pipe(S.annotate($I.annote("InternalTsMorphSourceFile", {
-    description: "Internal runtime schema for a live ts-morph SourceFile instance.",
-  })));
+export const InternalTsMorphSourceFile = S.declare<SourceFile>(
+  (value): value is SourceFile => value instanceof SourceFile
+).pipe(
+  S.annotate(
+    $I.annote("InternalTsMorphSourceFile", {
+      description: "Internal runtime schema for a live ts-morph SourceFile instance.",
+    })
+  )
+);
 
 /**
  * Internal runtime schema for a live ts-morph Node instance.
@@ -1076,10 +1152,15 @@ export const InternalTsMorphSourceFile = S.declare<SourceFile>((value): value is
  * @category models
  * @since 0.0.0
  */
-export const InternalTsMorphNode = S.declare<TsMorphNode>((value): value is TsMorphNode => value instanceof TsMorphNode)
-  .pipe(S.annotate($I.annote("InternalTsMorphNode", {
-    description: "Internal runtime schema for a live ts-morph Node instance.",
-  })));
+export const InternalTsMorphNode = S.declare<TsMorphNode>(
+  (value): value is TsMorphNode => value instanceof TsMorphNode
+).pipe(
+  S.annotate(
+    $I.annote("InternalTsMorphNode", {
+      description: "Internal runtime schema for a live ts-morph Node instance.",
+    })
+  )
+);
 
 /**
  * TS-native symbol record with strict identity, kind, and source-location metadata.
@@ -1092,62 +1173,64 @@ export const InternalTsMorphNode = S.declare<TsMorphNode>((value): value is TsMo
  * @category models
  * @since 0.0.0
  */
-export class Symbol extends S.Class<Symbol>($I`Symbol`)({
-  id: SymbolId.annotateKey({
-    description: "Stable symbol identity string.",
-  }),
-  filePath: SymbolFilePath.annotateKey({
-    description: "Repo-relative path to the TypeScript implementation source file.",
-  }),
-  name: SymbolNameSegment.annotateKey({
-    description: "Leaf symbol name segment.",
-  }),
-  qualifiedName: SymbolQualifiedName.annotateKey({
-    description: "Dot-delimited symbol path including parent ownership.",
-  }),
-  kind: SymbolKind.annotateKey({
-    description: "Exact TypeScript declaration syntax kind.",
-  }),
-  category: SymbolCategory.annotateKey({
-    description: "Derived coarse category for search and presentation.",
-  }),
-  signature: S.NonEmptyString.annotateKey({
-    description: "Source signature text for the declaration.",
-  }),
-  docstring: S.OptionFromNullOr(S.NonEmptyString).annotateKey({
-    description: "Optional documentation block extracted from the symbol.",
-  }),
-  summary: S.OptionFromNullOr(S.NonEmptyString).annotateKey({
-    description: "Optional one-line summary for quick retrieval results.",
-  }),
-  decorators: ArrayOfNonEmptyStrings.annotateKey({
-    description: "Decorator names or decorator expressions applied to the symbol.",
-  }),
-  keywords: ArrayOfNonEmptyStrings.annotateKey({
-    description: "Search keywords derived from the symbol.",
-  }),
-  parentId: S.OptionFromNullOr(SymbolId).annotateKey({
-    description: "Optional parent symbol id for owned members.",
-  }),
-  startLine: LineNumber.annotateKey({
-    description: "1-based line number where the symbol starts.",
-  }),
-  endLine: LineNumber.annotateKey({
-    description: "1-based line number where the symbol ends.",
-  }),
-  byteOffset: ByteOffset.annotateKey({
-    description: "Byte offset of the symbol start within the source file.",
-  }),
-  byteLength: ByteLength.annotateKey({
-    description: "Byte length of the full symbol source.",
-  }),
-  contentHash: ContentHash.annotateKey({
-    description: "SHA-256 digest of the symbol source content.",
-  }),
-}, $I.annote("Symbol", {
-  description: "TS-native symbol record with strict identity, kind, and source-location metadata.",
-})) {
-}
+export class Symbol extends S.Class<Symbol>($I`Symbol`)(
+  {
+    id: SymbolId.annotateKey({
+      description: "Stable symbol identity string.",
+    }),
+    filePath: SymbolFilePath.annotateKey({
+      description: "Repo-relative path to the TypeScript implementation source file.",
+    }),
+    name: SymbolNameSegment.annotateKey({
+      description: "Leaf symbol name segment.",
+    }),
+    qualifiedName: SymbolQualifiedName.annotateKey({
+      description: "Dot-delimited symbol path including parent ownership.",
+    }),
+    kind: SymbolKind.annotateKey({
+      description: "Exact TypeScript declaration syntax kind.",
+    }),
+    category: SymbolCategory.annotateKey({
+      description: "Derived coarse category for search and presentation.",
+    }),
+    signature: S.NonEmptyString.annotateKey({
+      description: "Source signature text for the declaration.",
+    }),
+    docstring: S.OptionFromNullOr(S.NonEmptyString).annotateKey({
+      description: "Optional documentation block extracted from the symbol.",
+    }),
+    summary: S.OptionFromNullOr(S.NonEmptyString).annotateKey({
+      description: "Optional one-line summary for quick retrieval results.",
+    }),
+    decorators: ArrayOfNonEmptyStrings.annotateKey({
+      description: "Decorator names or decorator expressions applied to the symbol.",
+    }),
+    keywords: ArrayOfNonEmptyStrings.annotateKey({
+      description: "Search keywords derived from the symbol.",
+    }),
+    parentId: S.OptionFromNullOr(SymbolId).annotateKey({
+      description: "Optional parent symbol id for owned members.",
+    }),
+    startLine: LineNumber.annotateKey({
+      description: "1-based line number where the symbol starts.",
+    }),
+    endLine: LineNumber.annotateKey({
+      description: "1-based line number where the symbol ends.",
+    }),
+    byteOffset: ByteOffset.annotateKey({
+      description: "Byte offset of the symbol start within the source file.",
+    }),
+    byteLength: ByteLength.annotateKey({
+      description: "Byte length of the full symbol source.",
+    }),
+    contentHash: ContentHash.annotateKey({
+      description: "SHA-256 digest of the symbol source content.",
+    }),
+  },
+  $I.annote("Symbol", {
+    description: "TS-native symbol record with strict identity, kind, and source-location metadata.",
+  })
+) {}
 
 /**
  * Namespace helpers for normalized TSMorph symbols.
@@ -1198,9 +1281,7 @@ export declare namespace Symbol {
  * @category models
  * @since 0.0.0
  */
-export type SymbolInit =
-  Omit<Symbol.Type, "id" | "category">
-  & {
+export type SymbolInit = Omit<Symbol.Type, "id" | "category"> & {
   readonly id?: SymbolId | undefined;
   readonly category?: SymbolCategory | undefined;
 };
@@ -1241,7 +1322,8 @@ export const makeProjectScopeId = (parts: {
   readonly tsConfigPath: TsConfigFilePath;
   readonly mode: TsMorphScopeMode;
   readonly referencePolicy: TsMorphReferencePolicy;
-}): ProjectScopeId => Result.getOrThrow(decodeProjectScopeIdResult(`${parts.tsConfigPath}::${parts.mode}#${parts.referencePolicy}`));
+}): ProjectScopeId =>
+  Result.getOrThrow(decodeProjectScopeIdResult(`${parts.tsConfigPath}::${parts.mode}#${parts.referencePolicy}`));
 
 const decodeProjectCacheKeyResult = S.decodeUnknownResult(ProjectCacheKey);
 
@@ -1262,7 +1344,8 @@ export const makeProjectCacheKey = (parts: {
   readonly tsConfigPath: TsConfigFilePath;
   readonly mode: TsMorphScopeMode;
   readonly referencePolicy: TsMorphReferencePolicy;
-}): ProjectCacheKey => Result.getOrThrow(decodeProjectCacheKeyResult(`${parts.tsConfigPath}::${parts.mode}#${parts.referencePolicy}`));
+}): ProjectCacheKey =>
+  Result.getOrThrow(decodeProjectCacheKeyResult(`${parts.tsConfigPath}::${parts.mode}#${parts.referencePolicy}`));
 
 /**
  * Normalizes symbol input by deriving missing identity and category fields.
@@ -1277,27 +1360,32 @@ export const makeProjectCacheKey = (parts: {
  * @category utilities
  * @since 0.0.0
  */
-export const makeSymbol = (input: SymbolInit): Symbol => new Symbol({
-  ...input,
-  id: input.id ?? makeSymbolId({
-    filePath: input.filePath,
-    qualifiedName: input.qualifiedName,
-    kind: input.kind,
-  }),
-  category: input.category ?? symbolCategoryFromKind(input.kind),
-});
+export const makeSymbol = (input: SymbolInit): Symbol =>
+  new Symbol({
+    ...input,
+    id:
+      input.id ??
+      makeSymbolId({
+        filePath: input.filePath,
+        qualifiedName: input.qualifiedName,
+        kind: input.kind,
+      }),
+    category: input.category ?? symbolCategoryFromKind(input.kind),
+  });
 
 class TsMorphScopeEntrypointTsConfig extends S.Class<TsMorphScopeEntrypointTsConfig>(
-  $I`TsMorphScopeEntrypointTsConfig`)(
+  $I`TsMorphScopeEntrypointTsConfig`
+)(
   {
     _tag: S.tag("tsconfig"),
     tsConfigPath: TsConfigFilePath,
   },
   $I.annote("TsMorphScopeEntrypointTsConfig", {
     description: "Scope entrypoint that directly targets a tsconfig file.",
-  }),
+  })
 ) {
-  static readonly new = (tsConfigPath: string) => new TsMorphScopeEntrypointTsConfig({ tsConfigPath: TsConfigFilePath.make(tsConfigPath) })
+  static readonly new = (tsConfigPath: string) =>
+    new TsMorphScopeEntrypointTsConfig({ tsConfigPath: TsConfigFilePath.make(tsConfigPath) });
 }
 
 class TsMorphScopeEntrypointFile extends S.Class<TsMorphScopeEntrypointFile>($I`TsMorphScopeEntrypointFile`)(
@@ -1307,9 +1395,10 @@ class TsMorphScopeEntrypointFile extends S.Class<TsMorphScopeEntrypointFile>($I`
   },
   $I.annote("TsMorphScopeEntrypointFile", {
     description: "Scope entrypoint that resolves an owning tsconfig from a TypeScript file path.",
-  }),
+  })
 ) {
-  static readonly new = (filePath: string) => new TsMorphScopeEntrypointFile({ filePath: S.decodeUnknownSync(TypeScriptFilePath)(filePath) })
+  static readonly new = (filePath: string) =>
+    new TsMorphScopeEntrypointFile({ filePath: S.decodeUnknownSync(TypeScriptFilePath)(filePath) });
 }
 
 /**
@@ -1323,30 +1412,26 @@ class TsMorphScopeEntrypointFile extends S.Class<TsMorphScopeEntrypointFile>($I`
  * @category models
  * @since 0.0.0
  */
-export const TsMorphScopeEntrypoint = S.Union([
-  TsMorphScopeEntrypointTsConfig,
-  TsMorphScopeEntrypointFile,
-])
-  .annotate($I.annote("TsMorphScopeEntrypointBase", {
-    description: "Tagged union describing how a ts-morph scope should be resolved.",
-  }))
-  .pipe(S.toTaggedUnion("_tag"), SchemaUtils.withStatics(() => {
-    const make = Match.type<string>().pipe(
-      Match.when(
-        S.is(TsConfigFilePath),
-        TsMorphScopeEntrypointTsConfig.new,
-      ),
-      Match.when(
-        S.is(TypeScriptFilePath),
-        TsMorphScopeEntrypointFile.new
-      ),
-      Match.orElseAbsurd,
-    );
+export const TsMorphScopeEntrypoint = S.Union([TsMorphScopeEntrypointTsConfig, TsMorphScopeEntrypointFile])
+  .annotate(
+    $I.annote("TsMorphScopeEntrypointBase", {
+      description: "Tagged union describing how a ts-morph scope should be resolved.",
+    })
+  )
+  .pipe(
+    S.toTaggedUnion("_tag"),
+    SchemaUtils.withStatics(() => {
+      const make = Match.type<string>().pipe(
+        Match.when(S.is(TsConfigFilePath), TsMorphScopeEntrypointTsConfig.new),
+        Match.when(S.is(TypeScriptFilePath), TsMorphScopeEntrypointFile.new),
+        Match.orElseAbsurd
+      );
 
-    return {
-      make,
-    };
-  }));
+      return {
+        make,
+      };
+    })
+  );
 
 /**
  * Decoded ts-morph scope entrypoint union.
@@ -1372,8 +1457,7 @@ export type TsMorphScopeEntrypoint = typeof TsMorphScopeEntrypoint.Type;
  * @category models
  * @since 0.0.0
  */
-export class TsMorphProjectScopeRequest extends S.Class<TsMorphProjectScopeRequest>(
-  $I`TsMorphProjectScopeRequest`)(
+export class TsMorphProjectScopeRequest extends S.Class<TsMorphProjectScopeRequest>($I`TsMorphProjectScopeRequest`)(
   {
     entrypoint: TsMorphScopeEntrypoint,
     repoRootPath: S.OptionFromNullOr(RepoRootPath),
@@ -1382,9 +1466,8 @@ export class TsMorphProjectScopeRequest extends S.Class<TsMorphProjectScopeReque
   },
   $I.annote("TsMorphProjectScopeRequest", {
     description: "Request to resolve a ts-morph project scope from a file or tsconfig entrypoint.",
-  }),
-) {
-}
+  })
+) {}
 
 /**
  * Request schema for read-only ts-morph project inspection.
@@ -1398,7 +1481,8 @@ export class TsMorphProjectScopeRequest extends S.Class<TsMorphProjectScopeReque
  * @since 0.0.0
  */
 export class TsMorphProjectInspectionRequest extends S.Class<TsMorphProjectInspectionRequest>(
-  $I`TsMorphProjectInspectionRequest`)(
+  $I`TsMorphProjectInspectionRequest`
+)(
   {
     entrypoint: TsMorphScopeEntrypoint,
     repoRootPath: S.OptionFromNullOr(RepoRootPath),
@@ -1408,10 +1492,10 @@ export class TsMorphProjectInspectionRequest extends S.Class<TsMorphProjectInspe
     sourceFileGlobs: S.Array(S.NonEmptyString),
   },
   $I.annote("TsMorphProjectInspectionRequest", {
-    description: "Request to inspect a resolved ts-morph project with optional source file loading without persisting edits.",
-  }),
-) {
-}
+    description:
+      "Request to inspect a resolved ts-morph project with optional source file loading without persisting edits.",
+  })
+) {}
 
 /**
  * Resolved ts-morph project scope payload.
@@ -1436,9 +1520,8 @@ export class TsMorphProjectScope extends S.Class<TsMorphProjectScope>($I`TsMorph
   },
   $I.annote("TsMorphProjectScope", {
     description: "Resolved ts-morph project scope with stable identity and workspace boundaries.",
-  }),
-) {
-}
+  })
+) {}
 
 /**
  * Request schema for extracting a file outline.
@@ -1451,17 +1534,15 @@ export class TsMorphProjectScope extends S.Class<TsMorphProjectScope>($I`TsMorph
  * @category models
  * @since 0.0.0
  */
-export class TsMorphFileOutlineRequest extends S.Class<TsMorphFileOutlineRequest>(
-  $I`TsMorphFileOutlineRequest`)(
+export class TsMorphFileOutlineRequest extends S.Class<TsMorphFileOutlineRequest>($I`TsMorphFileOutlineRequest`)(
   {
     scopeId: ProjectScopeId,
     filePath: TypeScriptFilePath,
   },
   $I.annote("TsMorphFileOutlineRequest", {
     description: "Request to extract top-level outline symbols from a TypeScript file within a resolved scope.",
-  }),
-) {
-}
+  })
+) {}
 
 /**
  * File outline payload for a TypeScript source file.
@@ -1482,9 +1563,8 @@ export class TsMorphFileOutline extends S.Class<TsMorphFileOutline>($I`TsMorphFi
   },
   $I.annote("TsMorphFileOutline", {
     description: "Normalized file outline for a TypeScript source file.",
-  }),
-) {
-}
+  })
+) {}
 
 /**
  * Request schema for reading file source text.
@@ -1497,16 +1577,14 @@ export class TsMorphFileOutline extends S.Class<TsMorphFileOutline>($I`TsMorphFi
  * @category models
  * @since 0.0.0
  */
-export class TsMorphSourceTextRequest extends S.Class<TsMorphSourceTextRequest>(
-  $I`TsMorphSourceTextRequest`)(
+export class TsMorphSourceTextRequest extends S.Class<TsMorphSourceTextRequest>($I`TsMorphSourceTextRequest`)(
   {
     filePath: TypeScriptFilePath,
   },
   $I.annote("TsMorphSourceTextRequest", {
     description: "Request to read normalized source text for a TypeScript file.",
-  }),
-) {
-}
+  })
+) {}
 
 /**
  * Source text payload for a TypeScript file.
@@ -1527,9 +1605,8 @@ export class TsMorphSourceTextResult extends S.Class<TsMorphSourceTextResult>($I
   },
   $I.annote("TsMorphSourceTextResult", {
     description: "Source text payload and content hash for a TypeScript file.",
-  }),
-) {
-}
+  })
+) {}
 
 /**
  * Request schema for symbol lookup by stable identifier.
@@ -1542,17 +1619,15 @@ export class TsMorphSourceTextResult extends S.Class<TsMorphSourceTextResult>($I
  * @category models
  * @since 0.0.0
  */
-export class TsMorphSymbolLookupRequest extends S.Class<TsMorphSymbolLookupRequest>(
-  $I`TsMorphSymbolLookupRequest`)(
+export class TsMorphSymbolLookupRequest extends S.Class<TsMorphSymbolLookupRequest>($I`TsMorphSymbolLookupRequest`)(
   {
     scopeId: ProjectScopeId,
     symbolId: SymbolId,
   },
   $I.annote("TsMorphSymbolLookupRequest", {
     description: "Request to load a normalized symbol by its stable symbol id within a resolved scope.",
-  }),
-) {
-}
+  })
+) {}
 
 /**
  * Symbol lookup result payload.
@@ -1565,17 +1640,15 @@ export class TsMorphSymbolLookupRequest extends S.Class<TsMorphSymbolLookupReque
  * @category models
  * @since 0.0.0
  */
-export class TsMorphSymbolLookupResult extends S.Class<TsMorphSymbolLookupResult>(
-  $I`TsMorphSymbolLookupResult`)(
+export class TsMorphSymbolLookupResult extends S.Class<TsMorphSymbolLookupResult>($I`TsMorphSymbolLookupResult`)(
   {
     scopeId: ProjectScopeId,
     symbol: Symbol,
   },
   $I.annote("TsMorphSymbolLookupResult", {
     description: "Resolved normalized symbol payload for a symbol lookup request.",
-  }),
-) {
-}
+  })
+) {}
 
 /**
  * Positive result-limit schema for ts-morph search.
@@ -1588,13 +1661,14 @@ export class TsMorphSymbolLookupResult extends S.Class<TsMorphSymbolLookupResult
  * @category models
  * @since 0.0.0
  */
-export const TsMorphSearchLimit = S.Int.check(S.isGreaterThan(0))
-  .pipe(
-    S.brand("TsMorphSearchLimit"),
-    S.annotate($I.annote("TsMorphSearchLimit", {
+export const TsMorphSearchLimit = S.Int.check(S.isGreaterThan(0)).pipe(
+  S.brand("TsMorphSearchLimit"),
+  S.annotate(
+    $I.annote("TsMorphSearchLimit", {
       description: "Positive result limit for ts-morph-backed search operations.",
-    })),
-  );
+    })
+  )
+);
 
 /**
  * Branded positive result limit for ts-morph search.
@@ -1620,8 +1694,7 @@ export type TsMorphSearchLimit = typeof TsMorphSearchLimit.Type;
  * @category models
  * @since 0.0.0
  */
-export class TsMorphSymbolSearchRequest extends S.Class<TsMorphSymbolSearchRequest>(
-  $I`TsMorphSymbolSearchRequest`)(
+export class TsMorphSymbolSearchRequest extends S.Class<TsMorphSymbolSearchRequest>($I`TsMorphSymbolSearchRequest`)(
   {
     scopeId: ProjectScopeId,
     query: S.NonEmptyString,
@@ -1631,9 +1704,8 @@ export class TsMorphSymbolSearchRequest extends S.Class<TsMorphSymbolSearchReque
   },
   $I.annote("TsMorphSymbolSearchRequest", {
     description: "Request to search normalized symbols within a resolved ts-morph scope.",
-  }),
-) {
-}
+  })
+) {}
 
 /**
  * Symbol search result payload.
@@ -1646,8 +1718,7 @@ export class TsMorphSymbolSearchRequest extends S.Class<TsMorphSymbolSearchReque
  * @category models
  * @since 0.0.0
  */
-export class TsMorphSymbolSearchResult extends S.Class<TsMorphSymbolSearchResult>(
-  $I`TsMorphSymbolSearchResult`)(
+export class TsMorphSymbolSearchResult extends S.Class<TsMorphSymbolSearchResult>($I`TsMorphSymbolSearchResult`)(
   {
     scopeId: ProjectScopeId,
     query: S.NonEmptyString,
@@ -1657,9 +1728,8 @@ export class TsMorphSymbolSearchResult extends S.Class<TsMorphSymbolSearchResult
   },
   $I.annote("TsMorphSymbolSearchResult", {
     description: "Normalized symbol search results for a query within a resolved scope.",
-  }),
-) {
-}
+  })
+) {}
 
 /**
  * Request schema for reading symbol source text.
@@ -1672,17 +1742,15 @@ export class TsMorphSymbolSearchResult extends S.Class<TsMorphSymbolSearchResult
  * @category models
  * @since 0.0.0
  */
-export class TsMorphSymbolSourceRequest extends S.Class<TsMorphSymbolSourceRequest>(
-  $I`TsMorphSymbolSourceRequest`)(
+export class TsMorphSymbolSourceRequest extends S.Class<TsMorphSymbolSourceRequest>($I`TsMorphSymbolSourceRequest`)(
   {
     scopeId: ProjectScopeId,
     symbolId: SymbolId,
   },
   $I.annote("TsMorphSymbolSourceRequest", {
     description: "Request to read source text for a normalized symbol by its stable id.",
-  }),
-) {
-}
+  })
+) {}
 
 /**
  * Symbol source payload including extracted text.
@@ -1695,8 +1763,7 @@ export class TsMorphSymbolSourceRequest extends S.Class<TsMorphSymbolSourceReque
  * @category models
  * @since 0.0.0
  */
-export class TsMorphSymbolSourceResult extends S.Class<TsMorphSymbolSourceResult>(
-  $I`TsMorphSymbolSourceResult`)(
+export class TsMorphSymbolSourceResult extends S.Class<TsMorphSymbolSourceResult>($I`TsMorphSymbolSourceResult`)(
   {
     scopeId: ProjectScopeId,
     symbol: Symbol,
@@ -1705,9 +1772,8 @@ export class TsMorphSymbolSourceResult extends S.Class<TsMorphSymbolSourceResult
   },
   $I.annote("TsMorphSymbolSourceResult", {
     description: "Normalized symbol payload together with extracted source text.",
-  }),
-) {
-}
+  })
+) {}
 
 /**
  * Supported normalized diagnostic categories.
@@ -1720,12 +1786,7 @@ export class TsMorphSymbolSourceResult extends S.Class<TsMorphSymbolSourceResult
  * @category models
  * @since 0.0.0
  */
-export const TsMorphDiagnosticCategory = LiteralKit([
-  "error",
-  "warning",
-  "suggestion",
-  "message",
-] as const);
+export const TsMorphDiagnosticCategory = LiteralKit(["error", "warning", "suggestion", "message"] as const);
 
 /**
  * Literal union of normalized diagnostic categories.
@@ -1752,53 +1813,50 @@ class TsMorphDiagnosticBase extends S.Class<TsMorphDiagnosticBase>($I`TsMorphDia
   },
   $I.annote("TsMorphDiagnosticBase", {
     description: "Shared fields for normalized TypeScript diagnostics within a resolved scope.",
-  }),
-) {
-}
+  })
+) {}
 
-class TsMorphDiagnosticError extends TsMorphDiagnosticBase.extend<TsMorphDiagnosticError>(
-  $I`TsMorphDiagnosticError`)(
+class TsMorphDiagnosticError extends TsMorphDiagnosticBase.extend<TsMorphDiagnosticError>($I`TsMorphDiagnosticError`)(
   {
     category: S.tag("error"),
   },
   $I.annote("TsMorphDiagnosticError", {
     description: "Normalized TypeScript error diagnostic.",
-  }),
-) {
-}
+  })
+) {}
 
 class TsMorphDiagnosticWarning extends TsMorphDiagnosticBase.extend<TsMorphDiagnosticWarning>(
-  $I`TsMorphDiagnosticWarning`)(
+  $I`TsMorphDiagnosticWarning`
+)(
   {
     category: S.tag("warning"),
   },
   $I.annote("TsMorphDiagnosticWarning", {
     description: "Normalized TypeScript warning diagnostic.",
-  }),
-) {
-}
+  })
+) {}
 
 class TsMorphDiagnosticSuggestion extends TsMorphDiagnosticBase.extend<TsMorphDiagnosticSuggestion>(
-  $I`TsMorphDiagnosticSuggestion`)(
+  $I`TsMorphDiagnosticSuggestion`
+)(
   {
     category: S.tag("suggestion"),
   },
   $I.annote("TsMorphDiagnosticSuggestion", {
     description: "Normalized TypeScript suggestion diagnostic.",
-  }),
-) {
-}
+  })
+) {}
 
 class TsMorphDiagnosticMessage extends TsMorphDiagnosticBase.extend<TsMorphDiagnosticMessage>(
-  $I`TsMorphDiagnosticMessage`)(
+  $I`TsMorphDiagnosticMessage`
+)(
   {
     category: S.tag("message"),
   },
   $I.annote("TsMorphDiagnosticMessage", {
     description: "Normalized TypeScript message diagnostic.",
-  }),
-) {
-}
+  })
+) {}
 
 /**
  * Tagged union schema for normalized TypeScript diagnostics.
@@ -1812,16 +1870,19 @@ class TsMorphDiagnosticMessage extends TsMorphDiagnosticBase.extend<TsMorphDiagn
  * @category models
  * @since 0.0.0
  */
-export const TsMorphDiagnostic = TsMorphDiagnosticCategory.mapMembers(Tuple.evolve(
-  [
+export const TsMorphDiagnostic = TsMorphDiagnosticCategory.mapMembers(
+  Tuple.evolve([
     () => TsMorphDiagnosticError,
     () => TsMorphDiagnosticWarning,
     () => TsMorphDiagnosticSuggestion,
     () => TsMorphDiagnosticMessage,
-  ]))
-  .annotate($I.annote("TsMorphDiagnostic", {
-    description: "Tagged union of normalized TypeScript diagnostics keyed by category.",
-  }))
+  ])
+)
+  .annotate(
+    $I.annote("TsMorphDiagnostic", {
+      description: "Tagged union of normalized TypeScript diagnostics keyed by category.",
+    })
+  )
   .pipe(S.toTaggedUnion("category"));
 
 /**
@@ -1848,17 +1909,15 @@ export type TsMorphDiagnostic = typeof TsMorphDiagnostic.Type;
  * @category models
  * @since 0.0.0
  */
-export class TsMorphDiagnosticsRequest extends S.Class<TsMorphDiagnosticsRequest>(
-  $I`TsMorphDiagnosticsRequest`)(
+export class TsMorphDiagnosticsRequest extends S.Class<TsMorphDiagnosticsRequest>($I`TsMorphDiagnosticsRequest`)(
   {
     scopeId: ProjectScopeId,
     filePath: TypeScriptFilePath,
   },
   $I.annote("TsMorphDiagnosticsRequest", {
     description: "Request to compute normalized diagnostics for a TypeScript file within a resolved scope.",
-  }),
-) {
-}
+  })
+) {}
 
 /**
  * Diagnostics payload for a TypeScript file.
@@ -1871,8 +1930,7 @@ export class TsMorphDiagnosticsRequest extends S.Class<TsMorphDiagnosticsRequest
  * @category models
  * @since 0.0.0
  */
-export class TsMorphDiagnosticsResult extends S.Class<TsMorphDiagnosticsResult>(
-  $I`TsMorphDiagnosticsResult`)(
+export class TsMorphDiagnosticsResult extends S.Class<TsMorphDiagnosticsResult>($I`TsMorphDiagnosticsResult`)(
   {
     scopeId: ProjectScopeId,
     filePath: TypeScriptFilePath,
@@ -1880,6 +1938,5 @@ export class TsMorphDiagnosticsResult extends S.Class<TsMorphDiagnosticsResult>(
   },
   $I.annote("TsMorphDiagnosticsResult", {
     description: "Normalized diagnostics payload for a TypeScript file within a resolved scope.",
-  }),
-) {
-}
+  })
+) {}

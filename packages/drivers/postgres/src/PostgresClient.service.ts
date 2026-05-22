@@ -11,7 +11,7 @@ import { Context, Effect, Layer } from "effect";
 import * as SqlClient from "effect/unstable/sql/SqlClient";
 import { PostgresError } from "./Postgres.errors.ts";
 
-const $I = $PostgresId.create("Postgres.client");
+const $I = $PostgresId.create("PostgresClient.service");
 
 /**
  * Native Effect Postgres pool configuration.

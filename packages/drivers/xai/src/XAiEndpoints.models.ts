@@ -9,7 +9,7 @@ import { $XaiId } from "@beep/identity";
 import { LiteralKit } from "@beep/schema";
 import * as S from "effect/Schema";
 
-const $I = $XaiId.create("XAi.endpoints");
+const $I = $XaiId.create("XAiEndpoints.models");
 
 /**
  * Number of xAI endpoints represented in the manifest.

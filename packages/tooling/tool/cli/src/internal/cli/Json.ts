@@ -19,7 +19,7 @@ const encodeJson = S.encodeUnknownEffect(S.UnknownFromJsonString);
  * ```ts
  * import { CliJsonError } from "@beep/repo-cli/internal/cli/Json"
  *
- * const error = CliJsonError.new("Failed to encode JSON")(new Error("boom"))
+ * const error = CliJsonError.new("Failed to encode JSON")("boom")
  *
  * void error
  * ```

@@ -22,7 +22,7 @@ import * as RpcSerialization from "effect/unstable/rpc/RpcSerialization";
 import * as RpcServer from "effect/unstable/rpc/RpcServer";
 import { CLIENT_METHODS } from "./_generated/meta.gen.ts";
 import * as AcpSchema from "./_generated/schema.gen.ts";
-import * as AcpError from "./errors.ts";
+import * as AcpError from "./Acp.errors.ts";
 
 const $I = $AcpId.create("protocol");
 const isAcpError = S.is(AcpError.AcpError);

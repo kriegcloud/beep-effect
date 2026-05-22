@@ -4,11 +4,17 @@
  * @packageDocumentation
  * @since 0.0.0
  */
+/**
+ * Public schema module export.
+ *
+ * @category schemas
+ * @since 0.0.0
+ */
 export * from "../http/headers/Csp.ts";
 /**
  * Canonical aliases for the Content Security Policy module.
  *
- * @category aliases
+ * @category schemas
  * @since 0.0.0
  */
 export {
