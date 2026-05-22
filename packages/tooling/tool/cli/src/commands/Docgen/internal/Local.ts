@@ -162,7 +162,7 @@ export type DocgenLocalMode = typeof DocgenLocalMode.Type;
  * ```ts
  * import { DocgenLocalSelectedPackage } from "@beep/repo-cli/commands/Docgen/internal/Local"
  *
- * const selected = new DocgenLocalSelectedPackage({
+ * const selected = DocgenLocalSelectedPackage.make({
  *   name: "@beep/schema",
  *   path: "packages/foundation/modeling/schema",
  *   reasons: ["packages/foundation/modeling/schema/src/index.ts"]
@@ -190,7 +190,7 @@ export class DocgenLocalSelectedPackage extends S.Class<DocgenLocalSelectedPacka
  * ```ts
  * import { DocgenLocalFullReason } from "@beep/repo-cli/commands/Docgen/internal/Local"
  *
- * const reason = new DocgenLocalFullReason({
+ * const reason = DocgenLocalFullReason.make({
  *   filePath: "turbo.json",
  *   message: "Global docgen input changed"
  * })
@@ -216,7 +216,7 @@ export class DocgenLocalFullReason extends S.Class<DocgenLocalFullReason>($I`Doc
  * ```ts
  * import { DocgenLocalPlan } from "@beep/repo-cli/commands/Docgen/internal/Local"
  *
- * const plan = new DocgenLocalPlan({
+ * const plan = DocgenLocalPlan.make({
  *   base: "origin/main",
  *   changedFiles: [],
  *   fallbackCommand: "bun run docgen",
@@ -256,7 +256,7 @@ export class DocgenLocalPlan extends S.Class<DocgenLocalPlan>($I`DocgenLocalPlan
  * ```ts
  * import { DocgenLocalTurboTask } from "@beep/repo-cli/commands/Docgen/internal/Local"
  *
- * const task = new DocgenLocalTurboTask({
+ * const task = DocgenLocalTurboTask.make({
  *   cacheSource: "LOCAL",
  *   cacheStatus: "HIT",
  *   packageName: "@beep/schema",
@@ -294,7 +294,7 @@ const isPackageLocalDocgenInput = (relativePath: string): boolean =>
 const fullReasonForFile = (filePath: string): O.Option<DocgenLocalFullReason> => {
   if (isExactFile(DOCGEN_LOCAL_FULL_INPUT_FILES, filePath)) {
     return O.some(
-      new DocgenLocalFullReason({
+      DocgenLocalFullReason.make({
         filePath,
         message: "Global docgen or Turbo input changed.",
       })
@@ -303,7 +303,7 @@ const fullReasonForFile = (filePath: string): O.Option<DocgenLocalFullReason> =>
 
   if (hasPrefix(DOCGEN_LOCAL_FULL_INPUT_PREFIXES, filePath)) {
     return O.some(
-      new DocgenLocalFullReason({
+      DocgenLocalFullReason.make({
         filePath,
         message: "Docgen tooling changed.",
       })
@@ -336,7 +336,7 @@ const selectPackage = (
   }
 
   return O.some(
-    new DocgenLocalSelectedPackage({
+    DocgenLocalSelectedPackage.make({
       name: pkg.name,
       path: pkg.relativePath,
       reasons,
@@ -348,7 +348,7 @@ const selectedPackageFromWorkspacePackage = (
   pkg: DocgenWorkspacePackage,
   reasons: ReadonlyArray<string>
 ): DocgenLocalSelectedPackage =>
-  new DocgenLocalSelectedPackage({
+  DocgenLocalSelectedPackage.make({
     name: pkg.name,
     path: pkg.relativePath,
     reasons,
@@ -384,7 +384,7 @@ const runGitLines = Effect.fn("DocgenLocal.runGitLines")(function* (repoRoot: st
       const text = yield* collectText(handle.stdout);
       const exitCode = yield* handle.exitCode;
       if (exitCode !== 0) {
-        return yield* new DomainError({
+        return yield* DomainError.make({
           message: `git ${A.join(args, " ")} failed with exit code ${exitCode}: ${Str.trim(text)}`,
         });
       }
@@ -453,7 +453,7 @@ const buildPlanFromChangedFiles = Effect.fn("DocgenLocal.buildPlanFromChangedFil
         ? "noop"
         : "scoped";
 
-  return new DocgenLocalPlan({
+  return DocgenLocalPlan.make({
     base: options.base,
     changedFiles,
     fallbackCommand: DOCGEN_FULL_COMMAND,
@@ -469,12 +469,12 @@ const buildPlanFromChangedFiles = Effect.fn("DocgenLocal.buildPlanFromChangedFil
 const buildPlanFromPackage = Effect.fn("DocgenLocal.buildPlanFromPackage")(function* (options: DocgenLocalOptions) {
   const packageSelector = O.getOrUndefined(options.packageSelector);
   if (P.isUndefined(packageSelector)) {
-    return yield* new DomainError({ message: "Expected a package selector." });
+    return yield* DomainError.make({ message: "Expected a package selector." });
   }
 
   const target = yield* resolveDocgenWorkspacePackage(packageSelector);
   if (!target.hasDocgenConfig) {
-    return yield* new DomainError({
+    return yield* DomainError.make({
       message: `${target.relativePath} is missing docgen.json. Run "bun run beep docgen init -p ${target.relativePath}" first.`,
     });
   }
@@ -482,7 +482,7 @@ const buildPlanFromPackage = Effect.fn("DocgenLocal.buildPlanFromPackage")(funct
   const selectedPackages = [selectedPackageFromWorkspacePackage(target, [`--package ${packageSelector}`])] as const;
   const mode: DocgenLocalMode = options.full ? "full" : "scoped";
 
-  return new DocgenLocalPlan({
+  return DocgenLocalPlan.make({
     base: options.base,
     changedFiles: A.empty(),
     fallbackCommand: DOCGEN_FULL_COMMAND,
@@ -517,7 +517,7 @@ const runStep = Effect.fn("DocgenLocal.runStep")(function* (
   ).pipe(Effect.mapError(DomainError.newCause(`Failed to spawn ${commandText(command, args)}.`)));
 
   if (exitCode !== 0) {
-    return yield* new DomainError({
+    return yield* DomainError.make({
       message: `${label} failed with exit code ${exitCode}.`,
     });
   }
@@ -543,7 +543,7 @@ const collectStepOutput = Effect.fn("DocgenLocal.collectStepOutput")(function* (
       );
       if (exitCode !== 0) {
         const details = pipe([Str.trim(output), Str.trim(errorOutput)], A.filter(Str.isNonEmpty), A.join("\n"));
-        return yield* new DomainError({
+        return yield* DomainError.make({
           message:
             details.length > 0
               ? `${label} failed with exit code ${exitCode}: ${details}`
@@ -570,7 +570,7 @@ const summarizeTurboTasks = (output: TurboDryRunDocument): ReadonlyArray<DocgenL
       }
 
       return O.some(
-        new DocgenLocalTurboTask({
+        DocgenLocalTurboTask.make({
           packageName: task.package,
           taskId: task.taskId ?? `${task.package}#docgen`,
           ...(P.isUndefined(task.cache?.source) ? {} : { cacheSource: task.cache.source }),
@@ -678,7 +678,7 @@ const checkPackageDocumentation = Effect.fn("DocgenLocal.checkPackageDocumentati
   }
 
   if (A.isReadonlyArrayNonEmpty(failures)) {
-    return yield* new DomainError({
+    return yield* DomainError.make({
       message: `docgen:local JSDoc check failed for ${A.length(failures)} package(s).`,
     });
   }
@@ -873,7 +873,7 @@ export const runDocgenLocal: (
   "DocgenLocal.runDocgenLocal"
 )(function* (options) {
   if (options.json && !options.plan) {
-    return yield* new DomainError({
+    return yield* DomainError.make({
       message: "--json requires --plan for docgen:local so stdout remains machine-readable.",
     });
   }

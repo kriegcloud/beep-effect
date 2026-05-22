@@ -259,7 +259,7 @@ export const AIMetricsPulumiConfigValues = S.Class<AIMetricsPulumiConfigValues>(
  * ```ts
  * import { AIMetricsRemoteSshConfig } from "@beep/infra"
  *
- * console.log(new AIMetricsRemoteSshConfig({}).host)
+ * console.log(AIMetricsRemoteSshConfig.make({}).host)
  * ```
  *
  * @category models
@@ -289,7 +289,7 @@ export class AIMetricsRemoteSshConfig extends S.Class<AIMetricsRemoteSshConfig>(
  * ```ts
  * import { AIMetricsRemoteDeploymentConfig } from "@beep/infra"
  *
- * console.log(new AIMetricsRemoteDeploymentConfig({}).phoenixTailnetHttpsPort)
+ * console.log(AIMetricsRemoteDeploymentConfig.make({}).phoenixTailnetHttpsPort)
  * ```
  *
  * @category models
@@ -312,8 +312,8 @@ export class AIMetricsRemoteDeploymentConfig extends S.Class<AIMetricsRemoteDepl
       S.withDecodingDefaultKey(Effect.succeed(defaultRemoteMirrorRoot))
     ),
     ssh: AIMetricsRemoteSshConfig.pipe(
-      S.withConstructorDefault(Effect.succeed(new AIMetricsRemoteSshConfig({}))),
-      S.withDecodingDefaultKey(Effect.succeed(new AIMetricsRemoteSshConfig({})))
+      S.withConstructorDefault(Effect.succeed(AIMetricsRemoteSshConfig.make({}))),
+      S.withDecodingDefaultKey(Effect.succeed(AIMetricsRemoteSshConfig.make({})))
     ),
     tailnetFqdn: S.String.pipe(
       S.withConstructorDefault(Effect.succeed(defaultTailnetFqdn)),
@@ -342,8 +342,8 @@ export class AIMetricsStackArgs extends S.Class<AIMetricsStackArgs>($I`AIMetrics
   {
     install: AiMetricsInstallInput,
     remote: AIMetricsRemoteDeploymentConfig.pipe(
-      S.withConstructorDefault(Effect.succeed(new AIMetricsRemoteDeploymentConfig({}))),
-      S.withDecodingDefaultKey(Effect.succeed(new AIMetricsRemoteDeploymentConfig({})))
+      S.withConstructorDefault(Effect.succeed(AIMetricsRemoteDeploymentConfig.make({}))),
+      S.withDecodingDefaultKey(Effect.succeed(AIMetricsRemoteDeploymentConfig.make({})))
     ),
   },
   $I.annote("AIMetricsStackArgs", {
@@ -365,10 +365,10 @@ export class AIMetricsStackArgs extends S.Class<AIMetricsStackArgs>($I`AIMetrics
  * @since 0.0.0
  */
 export const makeAIMetricsStackArgs = (
-  install: AiMetricsInstallInput = new AiMetricsInstallInput({}),
-  remote: AIMetricsRemoteDeploymentConfig = new AIMetricsRemoteDeploymentConfig({})
+  install: AiMetricsInstallInput = AiMetricsInstallInput.make({}),
+  remote: AIMetricsRemoteDeploymentConfig = AIMetricsRemoteDeploymentConfig.make({})
 ): AIMetricsStackArgs =>
-  new AIMetricsStackArgs({
+  AIMetricsStackArgs.make({
     install,
     remote,
   });
@@ -403,11 +403,11 @@ export const makeAIMetricsStackArgsFromConfigValues = ({
   target,
 }: AIMetricsPulumiConfigValues = {}): AIMetricsStackArgs => {
   const resolvedTarget = targetFromPulumiConfig(target);
-  const remote = new AIMetricsRemoteDeploymentConfig({
+  const remote = AIMetricsRemoteDeploymentConfig.make({
     ...(phoenixTailnetHttpsPort === undefined ? {} : { phoenixTailnetHttpsPort }),
     ...(remoteConfigRoot === undefined ? {} : { remoteConfigRoot }),
     ...(remoteMirrorRoot === undefined ? {} : { remoteMirrorRoot }),
-    ssh: new AIMetricsRemoteSshConfig({
+    ssh: AIMetricsRemoteSshConfig.make({
       ...(sshAgentSocketPath === undefined ? {} : { agentSocketPath: sshAgentSocketPath }),
       ...(sshHost === undefined ? {} : { host: sshHost }),
       ...(sshUser === undefined ? {} : { user: sshUser }),
@@ -421,7 +421,7 @@ export const makeAIMetricsStackArgsFromConfigValues = ({
       : undefined);
 
   return makeAIMetricsStackArgs(
-    new AiMetricsInstallInput({
+    AiMetricsInstallInput.make({
       defaultTool: toolFromPulumiConfig(defaultTool),
       ...(dataRoot === undefined ? {} : { dataRoot }),
       ...(hashSaltSecretRef === undefined ? {} : { hashSaltSecretRef }),

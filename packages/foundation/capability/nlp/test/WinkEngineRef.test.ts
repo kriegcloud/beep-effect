@@ -13,10 +13,10 @@ const provideScopedLayer =
 
 const WinkEngineRefBundleLive = WinkEngineRefLive.pipe(Layer.provideMerge(WinkEngineLive));
 
-const moneyEntities = new WinkEngineCustomEntities({
+const moneyEntities = WinkEngineCustomEntities.make({
   name: EntityGroupName.make("money"),
   patterns: [
-    new CustomEntityExample({
+    CustomEntityExample.make({
       mark: O.none(),
       name: "MONEY_PATTERN",
       patterns: ["[$]", "[100|200]"],

@@ -71,7 +71,7 @@ const requireHashSaltSecretRef = Effect.fn("AiMetrics.requireHashSaltSecretRef")
     return ref;
   }
 
-  return yield* new AiMetricsInstallConfigurationError({
+  return yield* AiMetricsInstallConfigurationError.make({
     cause: { target },
     message:
       "AI metrics non-local installs require hashSaltSecretRef so private identifier hashing never uses the local smoke salt.",
@@ -87,7 +87,7 @@ const requireRawArchiveKeySecretRef = Effect.fn("AiMetrics.requireRawArchiveKeyS
     return ref;
   }
 
-  return yield* new AiMetricsInstallConfigurationError({
+  return yield* AiMetricsInstallConfigurationError.make({
     cause: { target },
     message:
       "AI metrics non-local installs require rawArchiveKeySecretRef so encrypted raw transcripts never depend on inline operator input.",
@@ -125,7 +125,7 @@ export class AiMetricsInstallConfigurationError extends TaggedErrorClass<AiMetri
  * @example
  * ```ts
  * import { AiMetricsInstallInput } from "@beep/repo-ai-metrics"
- * console.log(new AiMetricsInstallInput({}).target)
+ * console.log(AiMetricsInstallInput.make({}).target)
  * ```
  * @category models
  * @since 0.0.0
@@ -452,7 +452,7 @@ export class AiMetricsInstallDoctorCheck extends S.Class<AiMetricsInstallDoctorC
  * @example
  * ```ts
  * import { AiMetricsInstallDoctorInput } from "@beep/repo-ai-metrics"
- * console.log(new AiMetricsInstallDoctorInput({}))
+ * console.log(AiMetricsInstallDoctorInput.make({}))
  * ```
  * @category models
  * @since 0.0.0
@@ -460,8 +460,8 @@ export class AiMetricsInstallDoctorCheck extends S.Class<AiMetricsInstallDoctorC
 export class AiMetricsInstallDoctorInput extends S.Class<AiMetricsInstallDoctorInput>($I`AiMetricsInstallDoctorInput`)(
   {
     install: AiMetricsInstallInput.pipe(
-      S.withConstructorDefault(Effect.succeed(new AiMetricsInstallInput({}))),
-      S.withDecodingDefaultKey(Effect.succeed(new AiMetricsInstallInput({})))
+      S.withConstructorDefault(Effect.succeed(AiMetricsInstallInput.make({}))),
+      S.withDecodingDefaultKey(Effect.succeed(AiMetricsInstallInput.make({})))
     ),
     sourceDiscovery: S.optionalKey(AiMetricsSourceDiscoveryResult),
   },
@@ -522,7 +522,7 @@ export class AiMetricsInstallApplyDryRunResult extends S.Class<AiMetricsInstallA
 ) {}
 
 const makeStorageLayout = (dataRoot: string): AiMetricsStorageLayout =>
-  new AiMetricsStorageLayout({
+  AiMetricsStorageLayout.make({
     dataRoot,
     derivedDir: childPath(dataRoot, "derived"),
     duckDbPath: childPath(dataRoot, "derived/ai-metrics.duckdb"),
@@ -570,7 +570,7 @@ const makeOtlpEndpointSpec = (
   tool: AiMetricsTool,
   baseUrl: string
 ): AiMetricsOtlpEndpointSpec =>
-  new AiMetricsOtlpEndpointSpec({
+  AiMetricsOtlpEndpointSpec.make({
     baseUrl,
     protocol: AiMetricsOtlpProtocol.Enum["http/protobuf"],
     resourceAttributes: {
@@ -588,7 +588,7 @@ const makeServiceSpec =
     const internalUrl = `http://127.0.0.1:${servicePort(tool)}`;
     const publicUrl = servicePublicUrl(target, tool, internalUrl, publicBaseUrl);
 
-    return new AiMetricsServiceSpec({
+    return AiMetricsServiceSpec.make({
       composeServiceName: composeServiceName(tool),
       enabledByDefault: tool === defaultTool,
       healthUrl: publicUrl,
@@ -657,7 +657,7 @@ const planStep = ({
   readonly stepId: string;
   readonly title: string;
 }): AiMetricsInstallPlanStep =>
-  new AiMetricsInstallPlanStep({
+  AiMetricsInstallPlanStep.make({
     command,
     description,
     kind,
@@ -950,7 +950,7 @@ const encodeInstallContractJson =
     encoder(value).pipe(
       Effect.mapError(
         (cause) =>
-          new AiMetricsInstallConfigurationError({
+          AiMetricsInstallConfigurationError.make({
             cause,
             message: failureMessage,
           })
@@ -1003,7 +1003,7 @@ const check = ({
   readonly metadata?: Record<string, string>;
   readonly status: AiMetricsInstallDoctorCheckStatus;
 }): AiMetricsInstallDoctorCheck =>
-  new AiMetricsInstallDoctorCheck({
+  AiMetricsInstallDoctorCheck.make({
     checkId,
     message,
     metadata,
@@ -1029,7 +1029,7 @@ export const makeAiMetricsInstallSpec: (
   input?: AiMetricsInstallInput
 ) => Effect.Effect<AiMetricsInstallSpec, AiMetricsInstallConfigurationError> = Effect.fn(
   "AiMetrics.makeAiMetricsInstallSpec"
-)(function* (input: AiMetricsInstallInput = new AiMetricsInstallInput({})) {
+)(function* (input: AiMetricsInstallInput = AiMetricsInstallInput.make({})) {
   const dataRoot = input.dataRoot ?? defaultDataRoot(input.target);
   const publicBaseUrl = input.publicBaseUrl ?? defaultPublicBaseUrl(input.target);
   const hashSaltSecretRef = yield* requireHashSaltSecretRef(input.target, input.hashSaltSecretRef);
@@ -1040,9 +1040,9 @@ export const makeAiMetricsInstallSpec: (
     makeServiceSpec(input.target, input.defaultTool, publicBaseUrl, input.phoenixImage)
   );
 
-  return new AiMetricsInstallSpec({
+  return AiMetricsInstallSpec.make({
     candidateTools: input.candidateTools,
-    defaultScoreWeights: new AiMetricsScoreWeights({}),
+    defaultScoreWeights: AiMetricsScoreWeights.make({}),
     defaultTool: input.defaultTool,
     ...(O.isSome(hashSaltSecretRef) ? { hashSaltSecretRef: hashSaltSecretRef.value } : {}),
     litellmGatewayEnabled: input.litellmGatewayEnabled,
@@ -1080,13 +1080,13 @@ export const makeAiMetricsInstallPlan: (
   input?: AiMetricsInstallInput
 ) => Effect.Effect<AiMetricsInstallPlan, AiMetricsInstallConfigurationError> = Effect.fn(
   "AiMetrics.makeAiMetricsInstallPlan"
-)(function* (input: AiMetricsInstallInput = new AiMetricsInstallInput({})) {
+)(function* (input: AiMetricsInstallInput = AiMetricsInstallInput.make({})) {
   const spec = yield* makeAiMetricsInstallSpec(input);
   const hashSaltSecretRef = nonEmptyString(spec.hashSaltSecretRef);
   const rawArchiveKeySecretRef = nonEmptyString(spec.rawArchiveKeySecretRef);
   const steps = makeInstallPlanSteps(spec, hashSaltSecretRef, rawArchiveKeySecretRef);
 
-  return new AiMetricsInstallPlan({
+  return AiMetricsInstallPlan.make({
     defaultTool: spec.defaultTool,
     dryRunOnly: true,
     services: spec.services,
@@ -1121,7 +1121,7 @@ export const makeAiMetricsInstallDoctorResult: (
   input?: AiMetricsInstallDoctorInput
 ) => Effect.Effect<AiMetricsInstallDoctorResult, AiMetricsInstallConfigurationError> = Effect.fn(
   "AiMetrics.makeAiMetricsInstallDoctorResult"
-)(function* (input: AiMetricsInstallDoctorInput = new AiMetricsInstallDoctorInput({})) {
+)(function* (input: AiMetricsInstallDoctorInput = AiMetricsInstallDoctorInput.make({})) {
   const plan = yield* makeAiMetricsInstallPlan(input.install);
   const sourceCount = availableSourceCount(input.sourceDiscovery);
   const checks = [
@@ -1188,7 +1188,7 @@ export const makeAiMetricsInstallDoctorResult: (
     }),
   ];
 
-  return new AiMetricsInstallDoctorResult({
+  return AiMetricsInstallDoctorResult.make({
     availableSourceCount: sourceCount,
     checks,
     plan,
@@ -1220,10 +1220,10 @@ export const makeAiMetricsInstallApplyDryRunResult: (
   input?: AiMetricsInstallInput
 ) => Effect.Effect<AiMetricsInstallApplyDryRunResult, AiMetricsInstallConfigurationError> = Effect.fn(
   "AiMetrics.makeAiMetricsInstallApplyDryRunResult"
-)(function* (input: AiMetricsInstallInput = new AiMetricsInstallInput({})) {
+)(function* (input: AiMetricsInstallInput = AiMetricsInstallInput.make({})) {
   const plan = yield* makeAiMetricsInstallPlan(input);
 
-  return new AiMetricsInstallApplyDryRunResult({
+  return AiMetricsInstallApplyDryRunResult.make({
     dryRun: true,
     message: "CLI install apply is dry-run-only; run the Pulumi P5b stack for real remote mutation.",
     plan,

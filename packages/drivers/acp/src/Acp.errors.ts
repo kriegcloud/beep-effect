@@ -21,7 +21,7 @@ const $I = $AcpId.create("errors");
  * ```ts
  * import { AcpSpawnError } from "@beep/acp/errors"
  *
- * const error = new AcpSpawnError({ command: "acp-agent" })
+ * const error = AcpSpawnError.make({ command: "acp-agent" })
  * console.log(error.message)
  * ```
  *
@@ -52,7 +52,7 @@ export class AcpSpawnError extends TaggedErrorClass<AcpSpawnError>($I`AcpSpawnEr
  * ```ts
  * import { AcpProcessExitedError } from "@beep/acp/errors"
  *
- * const error = new AcpProcessExitedError({ code: 1 })
+ * const error = AcpProcessExitedError.make({ code: 1 })
  * console.log(error.message)
  * ```
  *
@@ -81,7 +81,7 @@ export class AcpProcessExitedError extends TaggedErrorClass<AcpProcessExitedErro
  * ```ts
  * import { AcpProtocolParseError } from "@beep/acp/errors"
  *
- * const error = new AcpProtocolParseError({ detail: "bad json" })
+ * const error = AcpProtocolParseError.make({ detail: "bad json" })
  * console.log(error.message)
  * ```
  *
@@ -110,7 +110,7 @@ export class AcpProtocolParseError extends TaggedErrorClass<AcpProtocolParseErro
  * ```ts
  * import { AcpTransportError } from "@beep/acp/errors"
  *
- * const error = new AcpTransportError({ detail: "stream closed" })
+ * const error = AcpTransportError.make({ detail: "stream closed" })
  * console.log(error.detail)
  * ```
  *
@@ -175,7 +175,7 @@ export class AcpRequestError extends TaggedErrorClass<AcpRequestError>($I`AcpReq
    * @since 0.0.0
    */
   static fromProtocolError(error: AcpSchema.Error) {
-    return new AcpRequestError({
+    return AcpRequestError.make({
       code: error.code,
       errorMessage: error.message,
       ...R.getSomes({
@@ -199,7 +199,7 @@ export class AcpRequestError extends TaggedErrorClass<AcpRequestError>($I`AcpReq
    * @since 0.0.0
    */
   static parseError(message = "Parse error", data?: unknown) {
-    return new AcpRequestError({
+    return AcpRequestError.make({
       code: -32700,
       errorMessage: message,
       ...R.getSomes({
@@ -223,7 +223,7 @@ export class AcpRequestError extends TaggedErrorClass<AcpRequestError>($I`AcpReq
    * @since 0.0.0
    */
   static invalidRequest(message = "Invalid request", data?: unknown) {
-    return new AcpRequestError({
+    return AcpRequestError.make({
       code: -32600,
       errorMessage: message,
       ...R.getSomes({
@@ -247,7 +247,7 @@ export class AcpRequestError extends TaggedErrorClass<AcpRequestError>($I`AcpReq
    * @since 0.0.0
    */
   static methodNotFound(method: string) {
-    return new AcpRequestError({
+    return AcpRequestError.make({
       code: -32601,
       errorMessage: `Method not found: ${method}`,
     });
@@ -268,7 +268,7 @@ export class AcpRequestError extends TaggedErrorClass<AcpRequestError>($I`AcpReq
    * @since 0.0.0
    */
   static invalidParams(message = "Invalid params", data?: unknown) {
-    return new AcpRequestError({
+    return AcpRequestError.make({
       code: -32602,
       errorMessage: message,
       ...R.getSomes({
@@ -292,7 +292,7 @@ export class AcpRequestError extends TaggedErrorClass<AcpRequestError>($I`AcpReq
    * @since 0.0.0
    */
   static internalError(message = "Internal error", data?: unknown) {
-    return new AcpRequestError({
+    return AcpRequestError.make({
       code: -32603,
       errorMessage: message,
       ...R.getSomes({
@@ -316,7 +316,7 @@ export class AcpRequestError extends TaggedErrorClass<AcpRequestError>($I`AcpReq
    * @since 0.0.0
    */
   static authRequired(message = "Authentication required", data?: unknown) {
-    return new AcpRequestError({
+    return AcpRequestError.make({
       code: -32000,
       errorMessage: message,
       ...R.getSomes({
@@ -340,7 +340,7 @@ export class AcpRequestError extends TaggedErrorClass<AcpRequestError>($I`AcpReq
    * @since 0.0.0
    */
   static resourceNotFound(message = "Resource not found", data?: unknown) {
-    return new AcpRequestError({
+    return AcpRequestError.make({
       code: -32002,
       errorMessage: message,
       ...R.getSomes({

@@ -107,7 +107,7 @@ export class AcpProtocolLogEvent extends S.Class<AcpProtocolLogEvent>($I`AcpProt
  * ```ts
  * import { AcpProtocolLoggingOptions } from "@beep/acp/protocol"
  *
- * const options = new AcpProtocolLoggingOptions({ logIncoming: true })
+ * const options = AcpProtocolLoggingOptions.make({ logIncoming: true })
  * console.log(options.logIncoming)
  * ```
  *
@@ -284,7 +284,7 @@ export const makeAcpPatchedProtocol = Effect.fn($I`makeAcpPatchedProtocol`)(func
     const encoded = yield* Effect.try({
       try: () => parser.encode(message),
       catch: (cause) =>
-        new AcpError.AcpProtocolParseError({
+        AcpError.AcpProtocolParseError.make({
           cause,
           detail: "Failed to encode ACP message",
         }),
@@ -349,8 +349,8 @@ export const makeAcpPatchedProtocol = Effect.fn($I`makeAcpPatchedProtocol`)(func
   const emitClientProtocolError = Effect.fn($I`emitClientProtocolError`)((error: AcpError.AcpError) =>
     Queue.offer(clientQueue, {
       _tag: "ClientProtocolError",
-      error: new RpcClientError.RpcClientError({
-        reason: new RpcClientError.RpcClientDefect({
+      error: RpcClientError.RpcClientError.make({
+        reason: RpcClientError.RpcClientDefect.make({
           cause: error,
           message: error.message,
         }),
@@ -435,7 +435,7 @@ export const makeAcpPatchedProtocol = Effect.fn($I`makeAcpPatchedProtocol`)(func
           ),
           Effect.mapError(
             (cause) =>
-              new AcpError.AcpProtocolParseError({
+              AcpError.AcpProtocolParseError.make({
                 cause,
                 detail: `Invalid ${CLIENT_METHODS.session_update} notification payload`,
               })
@@ -455,7 +455,7 @@ export const makeAcpPatchedProtocol = Effect.fn($I`makeAcpPatchedProtocol`)(func
           ),
           Effect.mapError(
             (cause) =>
-              new AcpError.AcpProtocolParseError({
+              AcpError.AcpProtocolParseError.make({
                 cause,
                 detail: `Invalid ${CLIENT_METHODS.session_elicitation_complete} notification payload`,
               })
@@ -550,7 +550,7 @@ export const makeAcpPatchedProtocol = Effect.fn($I`makeAcpPatchedProtocol`)(func
             try: () =>
               parser.decode(data) as ReadonlyArray<RpcMessage.FromClientEncoded | RpcMessage.FromServerEncoded>,
             catch: (cause) =>
-              new AcpError.AcpProtocolParseError({
+              AcpError.AcpProtocolParseError.make({
                 cause,
                 detail: "Failed to decode ACP wire message",
               }),
@@ -584,7 +584,7 @@ export const makeAcpPatchedProtocol = Effect.fn($I`makeAcpPatchedProtocol`)(func
       onFailure: (error) => {
         const normalized: AcpError.AcpError = isAcpError(error)
           ? error
-          : new AcpError.AcpTransportError({
+          : AcpError.AcpTransportError.make({
               cause: error,
               detail: Inspectable.toStringUnknown(error, 0),
             });
@@ -594,7 +594,7 @@ export const makeAcpPatchedProtocol = Effect.fn($I`makeAcpPatchedProtocol`)(func
         handleTermination(
           options.terminationError ??
             Effect.succeed(
-              new AcpError.AcpTransportError({
+              AcpError.AcpTransportError.make({
                 cause: "ACP input stream ended",
                 detail: "ACP input stream ended",
               })
@@ -684,8 +684,8 @@ function normalizeToRequestError(error: AcpError.AcpError): AcpError.AcpRequestE
 }
 
 function toRpcClientError(error: AcpError.AcpError): RpcClientError.RpcClientError {
-  return new RpcClientError.RpcClientError({
-    reason: new RpcClientError.RpcClientDefect({
+  return RpcClientError.RpcClientError.make({
+    reason: RpcClientError.RpcClientDefect.make({
       cause: error,
       message: error.message,
     }),

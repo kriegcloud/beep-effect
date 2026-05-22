@@ -33,7 +33,7 @@ export const PHOENIX_API_URL = "http://localhost:6006";
  * import { Redacted } from "effect"
  * import { PhoenixConfigInput } from "@beep/phoenix"
  *
- * const config = new PhoenixConfigInput({
+ * const config = PhoenixConfigInput.make({
  *   apiKey: Redacted.make("test-key"),
  *   baseUrl: "https://phoenix.test"
  * })

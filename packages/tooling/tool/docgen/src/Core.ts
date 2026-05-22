@@ -26,7 +26,7 @@ const globFiles = (pattern: string, exclude: ReadonlyArray<string> = []) =>
   }).pipe(
     Effect.mapError(
       () =>
-        new Domain.DocgenError({
+        Domain.DocgenError.make({
           message: `[Core.globFiles] Unable to execute glob pattern '${pattern}' excluding files matching '${exclude}'`,
         })
     )
@@ -47,7 +47,7 @@ const readSourceFiles = Effect.gen(function* () {
         Effect.map((content) => Domain.File.new(filePath, content, { isOverwritable: false })),
         Effect.mapError(
           (cause) =>
-            new Domain.DocgenError({
+            Domain.DocgenError.make({
               message: `[Core.readSourceFiles] Failed to read '${filePath}'\n${String(cause)}`,
             })
         )
@@ -66,7 +66,7 @@ const writeFileToOutDir = Effect.fn("writeFileToOutDir")(function* (file: Domain
   const exists = yield* fs.exists(file.path).pipe(
     Effect.mapError(
       (cause) =>
-        new Domain.DocgenError({
+        Domain.DocgenError.make({
           message: `[Core.writeFileToOutDir] Failed to check '${file.path}'\n${String(cause)}`,
         })
     )
@@ -84,7 +84,7 @@ const writeFileToOutDir = Effect.fn("writeFileToOutDir")(function* (file: Domain
   yield* fs.makeDirectory(path.dirname(file.path), { recursive: true }).pipe(
     Effect.mapError(
       (cause) =>
-        new Domain.DocgenError({
+        Domain.DocgenError.make({
           message: `[Core.writeFileToOutDir] Failed to create '${path.dirname(file.path)}'\n${String(cause)}`,
         })
     )
@@ -92,7 +92,7 @@ const writeFileToOutDir = Effect.fn("writeFileToOutDir")(function* (file: Domain
   yield* fs.writeFileString(file.path, file.content).pipe(
     Effect.mapError(
       (cause) =>
-        new Domain.DocgenError({
+        Domain.DocgenError.make({
           message: `[Core.writeFileToOutDir] Failed to write '${file.path}'\n${String(cause)}`,
         })
     )
@@ -106,7 +106,7 @@ const parseModules = (files: ReadonlyArray<Domain.File>) =>
   Parser.parseFiles(files).pipe(
     Effect.mapError(
       (errors) =>
-        new Domain.DocgenError({
+        Domain.DocgenError.make({
           message: `[Core.parseModules] The following error(s) occurred while parsing the TypeScript source files:\n${pipe(errors, A.map(A.join("\n")), A.join("\n"))}`,
         })
     )
@@ -335,7 +335,7 @@ const cleanupExamples = Effect.gen(function* () {
   yield* fs.remove(examplesDir, { recursive: true, force: true }).pipe(
     Effect.mapError(
       (cause) =>
-        new Domain.DocgenError({
+        Domain.DocgenError.make({
           message: `[Core.cleanupExamples] Failed to remove '${examplesDir}'\n${String(cause)}`,
         })
     )
@@ -374,14 +374,14 @@ const runTscOnExamples = Effect.gen(function* () {
   const { output, exitCode } = yield* collectCommandOutput(command).pipe(
     Effect.mapError(
       (cause) =>
-        new Domain.DocgenError({
+        Domain.DocgenError.make({
           message: `[Core.runTscOnExamples] Failed to run '${config.tscExecutable}'\n${String(cause)}`,
         })
     )
   );
 
   if (exitCode !== 0) {
-    return yield* new Domain.DocgenError({
+    return yield* Domain.DocgenError.make({
       message: `Something went wrong while running tsc on examples:\n\n${output}`,
     });
   }
@@ -404,14 +404,14 @@ const runBunOnExamples = Effect.gen(function* () {
   const { output, exitCode } = yield* collectCommandOutput(command).pipe(
     Effect.mapError(
       (cause) =>
-        new Domain.DocgenError({
+        Domain.DocgenError.make({
           message: `[Core.runBunOnExamples] Failed to run bun examples\n${String(cause)}`,
         })
     )
   );
 
   if (exitCode !== 0) {
-    return yield* new Domain.DocgenError({
+    return yield* Domain.DocgenError.make({
       message: `Something went wrong while running example files:\n\n${output}`,
     });
   }
@@ -434,7 +434,7 @@ const createExamplesTsConfigJson = Effect.gen(function* () {
   }).pipe(
     Effect.mapError(
       (cause) =>
-        new Domain.DocgenError({
+        Domain.DocgenError.make({
           message: `[Core.createExamplesTsConfigJson] Failed to encode examples tsconfig\n${String(cause)}`,
         })
     )
@@ -517,7 +517,7 @@ const getMarkdownConfigYML = Effect.fn("getMarkdownConfigYML")(function* () {
     const content = yield* fs.readFileString(configPath).pipe(
       Effect.mapError(
         (cause) =>
-          new Domain.DocgenError({
+          Domain.DocgenError.make({
             message: `[Core.getMarkdownConfigYML] Failed to read '${configPath}'\n${String(cause)}`,
           })
       )
@@ -584,7 +584,7 @@ const writeMarkdown = Effect.fn("writeMarkdown")(function* (files: ReadonlyArray
       fileSystem.remove(filePath, { recursive: true }).pipe(
         Effect.mapError(
           (cause) =>
-            new Domain.DocgenError({
+            Domain.DocgenError.make({
               message: `[Core.writeMarkdown] Failed to delete '${filePath}'\n${String(cause)}`,
             })
         )
@@ -621,7 +621,7 @@ export const program = Effect.gen(function* () {
         yield* Effect.logInfo("Checking modules...");
         const errors = yield* Checker.checkModules(modules);
         if (errors.length > 0) {
-          return yield* new Domain.DocgenError({
+          return yield* Domain.DocgenError.make({
             message: `The following errors occurred while checking the modules:\n\n${A.join("\n\n")(errors)}`,
           });
         }

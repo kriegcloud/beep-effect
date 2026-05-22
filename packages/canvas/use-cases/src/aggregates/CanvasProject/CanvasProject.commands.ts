@@ -27,7 +27,7 @@ const $I = $CanvasUseCasesId.create("aggregates/CanvasProject/CanvasProject.comm
  * const commandEffect = Effect.gen(function* () {
  *   const id = yield* S.decodeUnknownEffect(DomainCanvasProject.CanvasProjectId)("scene-1")
  *   const title = yield* S.decodeUnknownEffect(DomainCanvasProject.CanvasProjectTitle)("Scene 1")
- *   return new CanvasProject.CreateCanvasProjectCommand({ id, title })
+ *   return CanvasProject.CreateCanvasProjectCommand.make({ id, title })
  * })
  * ```
  *
@@ -58,8 +58,8 @@ export class CreateCanvasProjectCommand extends S.Class<CreateCanvasProjectComma
  * const commandEffect = Effect.gen(function* () {
  *   const id = yield* S.decodeUnknownEffect(DomainCanvasProject.CanvasProjectId)("scene-1")
  *   const title = yield* S.decodeUnknownEffect(DomainCanvasProject.CanvasProjectTitle)("Scene 1")
- *   const scene = new DomainCanvasProject.CanvasProject({ id, title, status: "open", nodes: [] })
- *   return new CanvasProject.RestoreCanvasProjectCommand({ scene })
+ *   const scene = DomainCanvasProject.CanvasProject.make({ id, title, status: "open", nodes: [] })
+ *   return CanvasProject.RestoreCanvasProjectCommand.make({ scene })
  * })
  * ```
  *
@@ -87,7 +87,7 @@ export class RestoreCanvasProjectCommand extends S.Class<RestoreCanvasProjectCom
  * import * as S from "effect/Schema"
  *
  * const commandEffect = S.decodeUnknownEffect(DomainCanvasProject.CanvasProjectId)("scene-1").pipe(
- *   Effect.map((id) => new CanvasProject.ArchiveCanvasProjectCommand({ id }))
+ *   Effect.map((id) => CanvasProject.ArchiveCanvasProjectCommand.make({ id }))
  * )
  * ```
  *
@@ -118,8 +118,8 @@ export class ArchiveCanvasProjectCommand extends S.Class<ArchiveCanvasProjectCom
  *   const id = yield* S.decodeUnknownEffect(DomainCanvasProject.CanvasProjectId)("scene-1")
  *   const nodeId = yield* S.decodeUnknownEffect(DomainCanvasProject.CanvasNodeId)("node-1")
  *   const label = yield* S.decodeUnknownEffect(DomainCanvasProject.CanvasNodeLabel)("Opening note")
- *   const node = new DomainCanvasProject.CanvasNode({ id: nodeId, kind: "note", label })
- *   return new CanvasProject.AddCanvasNodeCommand({ id, node })
+ *   const node = DomainCanvasProject.CanvasNode.make({ id: nodeId, kind: "note", label })
+ *   return CanvasProject.AddCanvasNodeCommand.make({ id, node })
  * })
  * ```
  *
@@ -150,7 +150,7 @@ export class AddCanvasNodeCommand extends S.Class<AddCanvasNodeCommand>($I`AddCa
  * const commandEffect = Effect.gen(function* () {
  *   const id = yield* S.decodeUnknownEffect(DomainCanvasProject.CanvasProjectId)("scene-1")
  *   const nodeId = yield* S.decodeUnknownEffect(DomainCanvasProject.CanvasNodeId)("node-1")
- *   return new CanvasProject.RemoveCanvasNodeCommand({ id, nodeId })
+ *   return CanvasProject.RemoveCanvasNodeCommand.make({ id, nodeId })
  * })
  * ```
  *
@@ -179,7 +179,7 @@ export class RemoveCanvasNodeCommand extends S.Class<RemoveCanvasNodeCommand>($I
  * import * as S from "effect/Schema"
  *
  * const queryEffect = S.decodeUnknownEffect(DomainCanvasProject.CanvasProjectId)("scene-1").pipe(
- *   Effect.map((id) => new CanvasProject.GetCanvasProjectQuery({ id }))
+ *   Effect.map((id) => CanvasProject.GetCanvasProjectQuery.make({ id }))
  * )
  * ```
  *
@@ -203,7 +203,7 @@ export class GetCanvasProjectQuery extends S.Class<GetCanvasProjectQuery>($I`Get
  * ```ts
  * import { CanvasProject } from "@beep/canvas-use-cases/public"
  *
- * const query = new CanvasProject.ListCanvasProjectsQuery({})
+ * const query = CanvasProject.ListCanvasProjectsQuery.make({})
  * ```
  *
  * @category commands

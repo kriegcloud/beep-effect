@@ -271,7 +271,7 @@ const experimentInfoResult = (experiment: {
   readonly repetitions: number;
   readonly successfulRunCount: number;
 }): PhoenixExperimentInfoResult =>
-  new PhoenixExperimentInfoResult({
+  PhoenixExperimentInfoResult.make({
     datasetId: experiment.datasetId,
     datasetVersionId: experiment.datasetVersionId,
     exampleCount: experiment.exampleCount,
@@ -424,7 +424,7 @@ const makePhoenixSdk = (config: ResolvedPhoenixConfig): PhoenixSdkShape => {
         )
         .then(
           (result) =>
-            new PhoenixAnnotationWriteResult({
+            PhoenixAnnotationWriteResult.make({
               annotationId: result?.id ?? null,
               name: input.name,
               targetId: input.targetId,
@@ -436,14 +436,14 @@ const makePhoenixSdk = (config: ResolvedPhoenixConfig): PhoenixSdkShape => {
         client,
         dataset: datasetSelectorToSdk(input.dataset),
         examples: pipe(input.examples, A.map(datasetExampleToSdk)),
-      }).then((result) => new PhoenixDatasetAppendResult(result)),
+      }).then((result) => PhoenixDatasetAppendResult.make(result)),
     createDataset: (input) =>
       createDataset({
         client,
         description: input.description,
         examples: pipe(input.examples, A.map(datasetExampleToSdk)),
         name: input.name,
-      }).then((result) => new PhoenixDatasetCreateResult(result)),
+      }).then((result) => PhoenixDatasetCreateResult.make(result)),
     createExperiment: (input) =>
       createExperiment({
         client,
@@ -464,7 +464,7 @@ const makePhoenixSdk = (config: ResolvedPhoenixConfig): PhoenixSdkShape => {
         ...optionalPromptDescription(input),
       }).then(
         (result) =>
-          new PhoenixPromptWriteResult({
+          PhoenixPromptWriteResult.make({
             name: input.name,
             promptVersionId: result.id,
           })
@@ -472,7 +472,7 @@ const makePhoenixSdk = (config: ResolvedPhoenixConfig): PhoenixSdkShape => {
     doctor: () =>
       client.getServerVersion().then(
         (version) =>
-          new PhoenixDoctorResult({
+          PhoenixDoctorResult.make({
             baseUrl: config.baseUrl,
             message: "Phoenix is reachable.",
             status: "passed",
@@ -482,12 +482,12 @@ const makePhoenixSdk = (config: ResolvedPhoenixConfig): PhoenixSdkShape => {
     getDatasetExamples: (selector) =>
       getDatasetExamples({ client, dataset: datasetSelectorToSdk(selector) }).then(
         (result) =>
-          new PhoenixDatasetExamplesResult({
+          PhoenixDatasetExamplesResult.make({
             examples: pipe(
               result.examples,
               A.map(
                 (example) =>
-                  new PhoenixDatasetExample({
+                  PhoenixDatasetExample.make({
                     id: example.id,
                     input: example.input,
                     metadata: example.metadata ?? {},
@@ -503,7 +503,7 @@ const makePhoenixSdk = (config: ResolvedPhoenixConfig): PhoenixSdkShape => {
     getDatasetInfo: (selector) =>
       getDatasetInfo({ client, dataset: datasetSelectorToSdk(selector) }).then(
         (result) =>
-          new PhoenixDatasetInfoResult({
+          PhoenixDatasetInfoResult.make({
             datasetId: result.id,
             description: result.description ?? null,
             metadata: result.metadata ?? {},
@@ -514,7 +514,7 @@ const makePhoenixSdk = (config: ResolvedPhoenixConfig): PhoenixSdkShape => {
     getPrompt: (selector) =>
       getPrompt({ client, prompt: promptSelectorToSdk(selector) }).then((result) => {
         const prompt = O.fromNullishOr(result);
-        return new PhoenixPromptReadResult({
+        return PhoenixPromptReadResult.make({
           exists: O.isSome(prompt),
           promptVersionId: pipe(
             prompt,
@@ -667,14 +667,14 @@ export class Phoenix extends Context.Service<Phoenix, PhoenixShape>()($I`Phoenix
    * ```ts
    * import { Phoenix, PhoenixConfigInput } from "@beep/phoenix"
    *
-   * const layer = Phoenix.makeLayer(new PhoenixConfigInput({ baseUrl: "https://phoenix.test" }))
+   * const layer = Phoenix.makeLayer(PhoenixConfigInput.make({ baseUrl: "https://phoenix.test" }))
    * console.log(layer)
    * ```
    *
    * @category layers
    * @since 0.0.0
    */
-  static readonly makeLayer = (config = new PhoenixConfigInput({})): Layer.Layer<Phoenix> =>
+  static readonly makeLayer = (config = PhoenixConfigInput.make({})): Layer.Layer<Phoenix> =>
     Layer.succeed(Phoenix, Phoenix.of(makeService(makePhoenixSdk(resolveConfig(config)))));
 
   /**

@@ -924,7 +924,7 @@ const SYNC_SOURCE_ENTRY_PATTERN = /"([^"]+)"/g;
 const readSyncpackSources = (content: string): Effect.Effect<ReadonlyArray<string>, DomainError> => {
   const match = SYNCPACK_SOURCE_ARRAY_PATTERN.exec(content);
   if (match === null) {
-    return Effect.fail(new DomainError({ message: "Failed to read syncpack source array: source array not found" }));
+    return Effect.fail(DomainError.make({ message: "Failed to read syncpack source array: source array not found" }));
   }
 
   return Effect.succeed(
@@ -945,7 +945,7 @@ const renderSyncpackSourcesBlock = (sources: ReadonlyArray<string>): string =>
 const replaceSyncpackSources = (content: string, sources: ReadonlyArray<string>): Effect.Effect<string, DomainError> =>
   SYNCPACK_SOURCE_ARRAY_PATTERN.test(content)
     ? Effect.succeed(Str.replace(SYNCPACK_SOURCE_ARRAY_PATTERN, renderSyncpackSourcesBlock(sources))(content))
-    : Effect.fail(new DomainError({ message: "Failed to replace syncpack source array: source array not found" }));
+    : Effect.fail(DomainError.make({ message: "Failed to replace syncpack source array: source array not found" }));
 
 const buildCanonicalSyncpackSources = (workspacePatterns: ReadonlyArray<string>): ReadonlyArray<string> =>
   uniqueInInputOrder(["package.json", ...A.map(workspacePatterns, (pattern) => `${pattern}/package.json`)]);
@@ -1032,7 +1032,7 @@ const buildWorkspaceDescriptors = Effect.fn(function* (rootDir: string) {
 
     A.appendInPlace(
       descriptors,
-      new WorkspaceDescriptor({
+      WorkspaceDescriptor.make({
         packageName,
         absoluteDir,
         relativeDir,
@@ -1127,7 +1127,7 @@ const planRootReferenceSync = Effect.fn(function* (rootDir: string, workspaces: 
   const nextContent = applyJsoncModification(original, ["references"], referenceEntries(expected));
 
   return O.some(
-    new PlannedFileChange.cases["root-references"]({
+    PlannedFileChange.cases["root-references"].make({
       filePath,
       summary: summaryCounts(current, expected, "references"),
       content: nextContent,
@@ -1164,7 +1164,7 @@ const planRootQualityReferenceSync = Effect.fn(function* (
   const nextContent = applyJsoncModification(original, ["references"], referenceEntries(expected));
 
   return O.some(
-    new PlannedFileChange.cases["root-quality-references"]({
+    PlannedFileChange.cases["root-quality-references"].make({
       filePath,
       summary: summaryCounts(current, expected, "references"),
       content: nextContent,
@@ -1291,7 +1291,7 @@ const planRootAliasSync = Effect.fn(function* (rootDir: string, workspaces: Read
   const updates = A.length(keysToSet) - additions;
 
   return O.some(
-    new PlannedFileChange.cases["root-aliases"]({
+    PlannedFileChange.cases["root-aliases"].make({
       filePath,
       summary: `aliases: add ${additions}, update ${updates}, remove ${keysToRemove.length}`,
       content: nextContent,
@@ -1322,7 +1322,7 @@ const planRootTstycheSync = Effect.fn(function* (rootDir: string, workspaces: Re
   });
 
   return O.some(
-    new PlannedFileChange.cases["root-tstyche"]({
+    PlannedFileChange.cases["root-tstyche"].make({
       filePath,
       summary: summaryCounts(current, expected, "testFileMatch"),
       content: nextContent,
@@ -1345,7 +1345,7 @@ const planRootSyncpackSync = Effect.fn(function* (rootDir: string) {
 
   const nextContent = yield* replaceSyncpackSources(original, expected);
   return O.some(
-    new PlannedFileChange.cases["root-syncpack"]({
+    PlannedFileChange.cases["root-syncpack"].make({
       filePath: syncpackFilePath,
       summary: summaryCounts(current, expected, "sources"),
       content: nextContent,
@@ -1403,7 +1403,7 @@ const resolveTargetWorkspacesForPackageSync = (
 
   if (filter !== undefined && A.isArrayEmpty(targetWorkspaces)) {
     return Effect.fail(
-      new TsconfigSyncFilterError({
+      TsconfigSyncFilterError.make({
         filter,
         message: `No workspace matched filter "${filter}"`,
       })
@@ -1553,7 +1553,7 @@ const planPackageReferenceSync = Effect.fn(function* (
     const summary = summaryCounts(currentResolvedRefPaths, finalRefPaths, "references");
     A.appendInPlace(
       plannedChanges,
-      new PlannedFileChange.cases["package-references"]({
+      PlannedFileChange.cases["package-references"].make({
         filePath: sourceOwnerTsconfigPath,
         summary,
         content: nextContent,
@@ -1583,7 +1583,7 @@ const planPackageDocgenSync = Effect.fn(function* (
   const workspaceAliasSources = A.map(
     workspaces,
     (workspace) =>
-      new DocgenAliasSource({
+      DocgenAliasSource.make({
         packageName: workspace.packageName,
         rootAliasTarget: O.getOrUndefined(O.fromUndefinedOr(workspace.docgenRootAliasTarget)) ?? "",
         wildcardAliasTarget: O.getOrUndefined(O.fromUndefinedOr(workspace.docgenWildcardAliasTarget)) ?? "",
@@ -1601,7 +1601,7 @@ const planPackageDocgenSync = Effect.fn(function* (
     const original = yield* readFileString(filePath);
     const parsed = yield* parseJsonObject(original, filePath);
     const canonicalConfig = yield* createCanonicalDocgenConfig(
-      new CanonicalDocgenConfigInput({
+      CanonicalDocgenConfigInput.make({
         rootDir,
         packageAbsolutePath: workspace.absoluteDir,
         packageRelativePath: workspace.relativeDir,
@@ -1619,7 +1619,7 @@ const planPackageDocgenSync = Effect.fn(function* (
 
     A.appendInPlace(
       plannedChanges,
-      new PlannedFileChange.cases["package-docgen"]({
+      PlannedFileChange.cases["package-docgen"].make({
         filePath,
         summary: "managed docgen fields synchronized",
         content: nextContent,
@@ -1636,19 +1636,19 @@ const sortChanges = (changes: ReadonlyArray<PlannedFileChange>): ReadonlyArray<P
 const toReportedChange = (change: PlannedFileChange): TsconfigSyncChange =>
   PlannedFileChange.match(change, {
     "root-references": ({ filePath, summary }): TsconfigSyncChange =>
-      new TsconfigSyncChange.cases["root-references"]({ filePath, summary }),
+      TsconfigSyncChange.cases["root-references"].make({ filePath, summary }),
     "root-quality-references": ({ filePath, summary }): TsconfigSyncChange =>
-      new TsconfigSyncChange.cases["root-quality-references"]({ filePath, summary }),
+      TsconfigSyncChange.cases["root-quality-references"].make({ filePath, summary }),
     "root-aliases": ({ filePath, summary }): TsconfigSyncChange =>
-      new TsconfigSyncChange.cases["root-aliases"]({ filePath, summary }),
+      TsconfigSyncChange.cases["root-aliases"].make({ filePath, summary }),
     "root-tstyche": ({ filePath, summary }): TsconfigSyncChange =>
-      new TsconfigSyncChange.cases["root-tstyche"]({ filePath, summary }),
+      TsconfigSyncChange.cases["root-tstyche"].make({ filePath, summary }),
     "root-syncpack": ({ filePath, summary }): TsconfigSyncChange =>
-      new TsconfigSyncChange.cases["root-syncpack"]({ filePath, summary }),
+      TsconfigSyncChange.cases["root-syncpack"].make({ filePath, summary }),
     "package-references": ({ filePath, summary }): TsconfigSyncChange =>
-      new TsconfigSyncChange.cases["package-references"]({ filePath, summary }),
+      TsconfigSyncChange.cases["package-references"].make({ filePath, summary }),
     "package-docgen": ({ filePath, summary }): TsconfigSyncChange =>
-      new TsconfigSyncChange.cases["package-docgen"]({ filePath, summary }),
+      TsconfigSyncChange.cases["package-docgen"].make({ filePath, summary }),
   });
 
 const renderChanges = Effect.fn(function* (
@@ -1718,7 +1718,7 @@ export const syncTsconfigAtRoot: {
     const cycles = yield* detectCycles(adjacency);
 
     if (!A.isReadonlyArrayEmpty(cycles)) {
-      return yield* new TsconfigSyncCycleError({
+      return yield* TsconfigSyncCycleError.make({
         cycles: A.map(cycles, (cycle) => [...cycle]),
         message: `Detected ${cycles.length} workspace dependency cycle(s)`,
       });
@@ -1776,7 +1776,7 @@ export const syncTsconfigAtRoot: {
     yield* renderChanges(rootDir, options.mode, reportedChanges);
 
     if (tsconfigSyncModeEquivalence(options.mode, "check") && !A.isArrayEmpty(reportedChanges)) {
-      return yield* new TsconfigSyncDriftError({
+      return yield* TsconfigSyncDriftError.make({
         fileCount: reportedChanges.length,
         summary: `Run "beep tsconfig-sync" to apply ${reportedChanges.length} change(s).`,
       });
@@ -1784,19 +1784,19 @@ export const syncTsconfigAtRoot: {
 
     const result: TsconfigSyncResult = TsconfigSyncModeMatch(options.mode, {
       sync: () =>
-        new TsconfigSyncResult.cases.sync({
+        TsconfigSyncResult.cases.sync.make({
           mode: "sync",
           changedFiles: A.length(reportedChanges),
           changes: reportedChanges,
         }),
       check: () =>
-        new TsconfigSyncResult.cases.check({
+        TsconfigSyncResult.cases.check.make({
           mode: "check",
           changedFiles: A.length(reportedChanges),
           changes: reportedChanges,
         }),
       "dry-run": () =>
-        new TsconfigSyncResult.cases["dry-run"]({
+        TsconfigSyncResult.cases["dry-run"].make({
           mode: "dry-run",
           changedFiles: A.length(reportedChanges),
           changes: reportedChanges,

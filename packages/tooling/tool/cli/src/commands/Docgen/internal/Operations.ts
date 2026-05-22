@@ -452,7 +452,7 @@ export const assertNoOrphanDocgenConfigPaths: (
   const orphanedPaths = yield* discoverOrphanDocgenConfigPaths(rootDir);
 
   if (A.isReadonlyArrayNonEmpty(orphanedPaths)) {
-    return yield* new DomainError({
+    return yield* DomainError.make({
       message: formatOrphanDocgenConfigMessage(orphanedPaths),
     });
   }
@@ -689,7 +689,7 @@ const makeExportAnalysis = (options: {
   readonly declarationSource: string;
   readonly context?: string | undefined;
 }): DocgenExportAnalysis =>
-  new DocgenExportAnalysis({
+  DocgenExportAnalysis.make({
     name: options.name,
     kind: options.kind,
     filePath: options.filePath,
@@ -962,7 +962,7 @@ const analyzeSourceFile = (
 };
 
 const computeAnalysisSummary = (analyses: ReadonlyArray<DocgenExportAnalysis>): DocgenAnalysisSummary =>
-  new DocgenAnalysisSummary({
+  DocgenAnalysisSummary.make({
     totalExports: analyses.length,
     fullyDocumented: A.filter(analyses, (analysis) => !hasAnalysisIssue(analysis)).length,
     missingDocumentation: A.filter(analyses, hasAnalysisIssue).length,
@@ -1119,7 +1119,7 @@ export const createDocgenConfigDocument: {
     const packageJson = yield* readPackageJson(targetPackage.absolutePath);
     const workspaceAliasSources = yield* loadWorkspaceDocgenAliasSources(rootDir);
     const canonicalConfig = yield* createCanonicalDocgenConfig(
-      new CanonicalDocgenConfigInput({
+      CanonicalDocgenConfigInput.make({
         rootDir,
         packageAbsolutePath: targetPackage.absolutePath,
         packageRelativePath: targetPackage.relativePath,
@@ -1130,7 +1130,7 @@ export const createDocgenConfigDocument: {
     );
     const canonicalConfigJson = toCanonicalDocgenConfigJson(canonicalConfig);
 
-    return new DocgenConfigDocument({
+    return DocgenConfigDocument.make({
       srcDir: "src",
       outDir: "docs",
       ...canonicalConfigJson,
@@ -1163,7 +1163,7 @@ export const discoverDocgenWorkspacePackages: (
       const hasDocgenConfig = yield* packageHasDocgenConfig(absolutePath);
       const hasGeneratedDocs = yield* packageHasGeneratedDocs(absolutePath);
 
-      return new DocgenWorkspacePackage({
+      return DocgenWorkspacePackage.make({
         name,
         relativePath,
         absolutePath,
@@ -1224,7 +1224,7 @@ export const resolveDocgenWorkspacePackage: {
 
     return yield* O.match(match, {
       onNone: () =>
-        new DomainError({
+        DomainError.make({
           message: `Could not resolve workspace package "${selector}". Use a package name like "@beep/schema" or a repo-relative path like "packages/foundation/modeling/schema".`,
         }),
       onSome: Effect.succeed,
@@ -1248,7 +1248,7 @@ export const analyzePackageDocumentation: (
   const path = yield* Path.Path;
   const config = targetPackage.hasDocgenConfig
     ? yield* loadDocgenConfigDocument(targetPackage.absolutePath)
-    : new DocgenConfigDocument({
+    : DocgenConfigDocument.make({
         srcDir: "src",
         exclude: A.empty(),
       });
@@ -1263,7 +1263,7 @@ export const analyzePackageDocumentation: (
   );
   const timestamp = yield* DateTime.now.pipe(Effect.map(DateTime.formatIso));
 
-  return new DocgenPackageAnalysis({
+  return DocgenPackageAnalysis.make({
     packageName: targetPackage.name,
     packagePath: targetPackage.relativePath,
     timestamp,
@@ -1439,7 +1439,7 @@ export const aggregateGeneratedDocs: (options?: {
       : A.empty();
 
   if (selectedPackage !== undefined && A.isReadonlyArrayEmpty(packages)) {
-    return yield* new DomainError({
+    return yield* DomainError.make({
       message: `Package "${selectedPackage.name}" does not have generated docs. Run "bun run beep docgen generate -p ${selectedPackage.relativePath}" first.`,
     });
   }
@@ -1461,7 +1461,7 @@ export const aggregateGeneratedDocs: (options?: {
     }
 
     if (MutableHashSet.size(duplicates) > 0) {
-      return yield* new DomainError({
+      return yield* DomainError.make({
         message: `Duplicate docs output paths detected: ${pipe(
           A.fromIterable(duplicates),
           A.sort(Order.String),
@@ -1503,7 +1503,7 @@ export const aggregateGeneratedDocs: (options?: {
       const hasDocs = yield* fs.exists(sourceDir).pipe(Effect.orElseSucceed(thunkFalse));
 
       if (!hasDocs) {
-        return yield* new DomainError({
+        return yield* DomainError.make({
           message: `Package "${pkg.name}" does not have generated docs. Run "bun run beep docgen generate -p ${pkg.relativePath}" first.`,
         });
       }
@@ -1517,7 +1517,7 @@ export const aggregateGeneratedDocs: (options?: {
       const expectedCanonicalSourceDir = path.join(canonicalPackageDir, ...DOCS_MODULES_SEGMENTS);
 
       if (canonicalSourceDir !== expectedCanonicalSourceDir) {
-        return yield* new DomainError({
+        return yield* DomainError.make({
           message: `Refusing to aggregate docs for package "${pkg.name}" because "${sourceDir}" resolves outside the package docs/modules tree.`,
         });
       }
@@ -1536,7 +1536,7 @@ export const aggregateGeneratedDocs: (options?: {
         )
         .pipe(Effect.mapError(DomainError.newCause(`Failed to write docs index for "${pkg.name}"`)));
 
-      return new DocgenAggregateResult({
+      return DocgenAggregateResult.make({
         packageName: pkg.name,
         packagePath: pkg.relativePath,
         docsOutputPath: pkg.docsOutputPath,
@@ -1600,7 +1600,7 @@ export const runDocgenForPackage: (
     );
 
     if (result.exitCode !== 0) {
-      return new DocgenGenerationResult({
+      return DocgenGenerationResult.make({
         packageName: targetPackage.name,
         packagePath: targetPackage.relativePath,
         success: false,
@@ -1623,7 +1623,7 @@ export const runDocgenForPackage: (
       )
     );
 
-    return new DocgenGenerationResult({
+    return DocgenGenerationResult.make({
       packageName: targetPackage.name,
       packagePath: targetPackage.relativePath,
       success: true,
@@ -1637,7 +1637,7 @@ export const runDocgenForPackage: (
       Effect.map(
         Result.match({
           onFailure: (cause) =>
-            new DocgenGenerationResult({
+            DocgenGenerationResult.make({
               packageName: targetPackage.name,
               packagePath: targetPackage.relativePath,
               success: false,

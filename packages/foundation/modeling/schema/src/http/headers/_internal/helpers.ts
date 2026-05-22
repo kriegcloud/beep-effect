@@ -137,7 +137,7 @@ export const makeResponseHeader: {
 } = dual(
   2,
   (name: string, value: string): ResponseHeader =>
-    new ResponseHeader({
+    ResponseHeader.make({
       name,
       value: Option.some(value),
     })

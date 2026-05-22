@@ -14,7 +14,7 @@ export const callRpc = <A>(
   effect.pipe(
     Effect.catchTag("RpcClientError", (error) =>
       Effect.fail(
-        new AcpError.AcpTransportError({
+        AcpError.AcpTransportError.make({
           detail: error.message,
           cause: error,
         })
@@ -79,7 +79,7 @@ export function decodeExtNotificationRegistration<A, I>({
     S.decodeUnknownEffect(payload)(params).pipe(
       Effect.mapError(
         (error) =>
-          new AcpError.AcpProtocolParseError({
+          AcpError.AcpProtocolParseError.make({
             detail: `Invalid ${method} notification payload: ${formatSchemaIssue(error.issue)}`,
             cause: error,
           })

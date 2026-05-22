@@ -90,7 +90,7 @@ export type CrossOriginOpenerPolicyOption = typeof CrossOriginOpenerPolicyOption
  * import * as Option from "effect/Option"
  * import { CrossOriginOpenerPolicyResponseHeader } from "@beep/schema/CrossOriginOpenerPolicy"
  *
- * const header = new CrossOriginOpenerPolicyResponseHeader({
+ * const header = CrossOriginOpenerPolicyResponseHeader.make({
  *   name: "Cross-Origin-Opener-Policy",
  *   value: Option.some("same-origin")
  * })
@@ -158,7 +158,7 @@ export const CrossOriginOpenerPolicyHeader = S.Union([CrossOriginOpenerPolicyOpt
         return O.some(option);
       }
 
-      return yield* new CrossOriginOpenerPolicyError({
+      return yield* CrossOriginOpenerPolicyError.make({
         message: `Invalid value for ${headerName}: ${option}`,
         cause: O.none(),
       });

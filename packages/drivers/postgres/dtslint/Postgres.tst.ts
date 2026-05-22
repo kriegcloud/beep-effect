@@ -36,14 +36,14 @@ describe("@beep/postgres", () => {
 
   it("exports Postgres errors and formatting helpers", () => {
     expect(
-      new PostgresErrorContext({ query: "select 1", sqlStateName: "UNIQUE_VIOLATION" })
+      PostgresErrorContext.make({ query: "select 1", sqlStateName: "UNIQUE_VIOLATION" })
     ).type.toBe<PostgresErrorContext>();
     expect(PostgresError.fromUnknown("query", new Error("boom"))).type.toBe<PostgresError>();
     expect(
       PostgresError.fromUnknown(
         "query",
         new Error("boom"),
-        new PostgresErrorContext({ query: "select 1", sqlStateName: "UNIQUE_VIOLATION" })
+        PostgresErrorContext.make({ query: "select 1", sqlStateName: "UNIQUE_VIOLATION" })
       )
     ).type.toBe<PostgresError>();
     expect(formatSql("select 1")).type.toBe<string>();

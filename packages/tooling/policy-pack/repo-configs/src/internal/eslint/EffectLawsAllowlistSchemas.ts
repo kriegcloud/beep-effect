@@ -118,7 +118,7 @@ export const normalizeAllowlistEntries: (
 ) => ReadonlyArray<EffectLawsAllowlistEntry> = flow(
   A.map(
     (entry) =>
-      new EffectLawsAllowlistEntry({
+      EffectLawsAllowlistEntry.make({
         ...entry,
         file: normalizePath(entry.file),
       })

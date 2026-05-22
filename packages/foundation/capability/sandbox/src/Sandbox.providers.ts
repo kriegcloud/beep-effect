@@ -31,7 +31,7 @@ const $I = $SandboxId.create("Sandbox.providers");
 const shellEscape = (value: string): string => `'${Str.replaceAll("'", "'\\''")(value)}'`;
 
 const toExecResult = (result: ProcessResult): ExecResult =>
-  new ExecResult({
+  ExecResult.make({
     exitCode: result.exitCode,
     stderr: result.stderr,
     stdout: result.stdout,
@@ -92,7 +92,7 @@ const processResultOrDockerError = (
   result.exitCode === 0
     ? Effect.succeed(result)
     : Effect.fail(
-        new DockerError({
+        DockerError.make({
           cause: processResultOutput(result),
           message: commandErrorMessage("Docker", action, result),
         })
@@ -105,7 +105,7 @@ const processResultOrPodmanError = (
   result.exitCode === 0
     ? Effect.succeed(result)
     : Effect.fail(
-        new PodmanError({
+        PodmanError.make({
           cause: processResultOutput(result),
           message: commandErrorMessage("Podman", action, result),
         })
@@ -115,7 +115,7 @@ const processResultOrCopyError = (action: string, result: ProcessResult): Effect
   result.exitCode === 0
     ? Effect.void
     : Effect.fail(
-        new CopyError({
+        CopyError.make({
           cause: processResultOutput(result),
           message: `${action} failed with exit code ${result.exitCode}: ${processResultOutput(result)}`,
         })
@@ -163,7 +163,7 @@ const makeContainerHandle = (
       const process = yield* SandboxProcess;
       const result = yield* process
         .run(
-          new ProcessCommand({
+          ProcessCommand.make({
             args: ["rm", "-f", containerName],
             command: runtime,
           })
@@ -180,7 +180,7 @@ const makeContainerHandle = (
       const process = yield* SandboxProcess;
       const result = yield* process
         .run(
-          new ProcessCommand({
+          ProcessCommand.make({
             args: ["cp", hostPath, `${containerName}:${sandboxPath}`],
             command: runtime,
           })
@@ -193,7 +193,7 @@ const makeContainerHandle = (
       const process = yield* SandboxProcess;
       const result = yield* process
         .run(
-          new ProcessCommand({
+          ProcessCommand.make({
             args: ["cp", `${containerName}:${sandboxPath}`, hostPath],
             command: runtime,
           })
@@ -204,7 +204,7 @@ const makeContainerHandle = (
     }),
     exec: Effect.fn("ContainerHandle.exec")(function* (command: string, options?: SandboxExecOptions) {
       const process = yield* SandboxProcess;
-      const processCommand = new ProcessCommand({
+      const processCommand = ProcessCommand.make({
         args: [...containerExecArgs(containerName, command, options)],
         command: runtime,
         ...(options?.onLine === undefined ? {} : { onLine: options.onLine }),
@@ -218,14 +218,14 @@ const makeContainerHandle = (
       const process = yield* SandboxProcess;
       const result = yield* process
         .run(
-          new ProcessCommand({
+          ProcessCommand.make({
             args: ["exec", "-it", containerName, ...args],
             command: runtime,
           })
         )
         .pipe(profileProviderAction(runtime, "interactive exec"));
 
-      return new InteractiveExecResult({ exitCode: result.exitCode });
+      return InteractiveExecResult.make({ exitCode: result.exitCode });
     }),
     worktreePath,
   });
@@ -258,7 +258,7 @@ const createContainerProvider = (
         "/dev/null",
       ];
       const result = yield* process
-        .run(new ProcessCommand({ args: runArgs, command: runtime }))
+        .run(ProcessCommand.make({ args: runArgs, command: runtime }))
         .pipe(profileProviderAction(runtime, "container start"));
 
       if (runtime === "docker") {
@@ -280,7 +280,7 @@ const createContainerProvider = (
  * @category constructors
  * @since 0.0.0
  */
-export const noSandbox = (options: NoSandboxOptions = new NoSandboxOptions({})): NoSandboxProvider<SandboxProcess> => ({
+export const noSandbox = (options: NoSandboxOptions = NoSandboxOptions.make({})): NoSandboxProvider<SandboxProcess> => ({
   _tag: "None",
   create: Effect.fn("NoSandboxProvider.create")(function* ({ env, worktreePath }) {
     return {
@@ -322,7 +322,7 @@ export const noSandbox = (options: NoSandboxOptions = new NoSandboxOptions({})):
           })
           .pipe(profileProviderAction("host", "interactive exec"));
 
-        return new InteractiveExecResult({ exitCode: result.exitCode });
+        return InteractiveExecResult.make({ exitCode: result.exitCode });
       }),
       worktreePath,
     } satisfies NoSandboxHandle<SandboxProcess>;

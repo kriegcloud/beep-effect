@@ -32,7 +32,7 @@ const provideScopedLayer =
 const okSdk: PhoenixSdkShape = {
   addAnnotation: (input) =>
     Promise.resolve(
-      new PhoenixAnnotationWriteResult({
+      PhoenixAnnotationWriteResult.make({
         annotationId: "annotation-id",
         name: input.name,
         targetId: input.targetId,
@@ -40,16 +40,16 @@ const okSdk: PhoenixSdkShape = {
       })
     ),
   appendDatasetExamples: () =>
-    Promise.resolve(new PhoenixDatasetAppendResult({ datasetId: "dataset-id", versionId: "version-id" })),
+    Promise.resolve(PhoenixDatasetAppendResult.make({ datasetId: "dataset-id", versionId: "version-id" })),
   createDataset: (input) =>
     Promise.resolve(
-      new PhoenixDatasetCreateResult({
+      PhoenixDatasetCreateResult.make({
         datasetId: `dataset:${input.name}:${A.length(input.examples)}`,
       })
     ),
   createExperiment: (input) =>
     Promise.resolve(
-      new PhoenixExperimentInfoResult({
+      PhoenixExperimentInfoResult.make({
         datasetId: input.datasetId,
         datasetVersionId: input.datasetVersionId ?? "latest",
         exampleCount: 1,
@@ -64,11 +64,11 @@ const okSdk: PhoenixSdkShape = {
     ),
   createPrompt: (input) =>
     Promise.resolve(
-      new PhoenixPromptWriteResult({ name: input.name, promptVersionId: `prompt-version-id:${input.modelProvider}` })
+      PhoenixPromptWriteResult.make({ name: input.name, promptVersionId: `prompt-version-id:${input.modelProvider}` })
     ),
   doctor: () =>
     Promise.resolve(
-      new PhoenixDoctorResult({
+      PhoenixDoctorResult.make({
         baseUrl: "https://phoenix.test",
         message: "Phoenix is reachable.",
         status: "passed",
@@ -77,14 +77,14 @@ const okSdk: PhoenixSdkShape = {
     ),
   getDatasetExamples: () =>
     Promise.resolve(
-      new PhoenixDatasetExamplesResult({
-        examples: [new PhoenixDatasetExample({ input: { task: "loop-health" } })],
+      PhoenixDatasetExamplesResult.make({
+        examples: [PhoenixDatasetExample.make({ input: { task: "loop-health" } })],
         versionId: "version-id",
       })
     ),
   getDatasetInfo: (selector) =>
     Promise.resolve(
-      new PhoenixDatasetInfoResult({
+      PhoenixDatasetInfoResult.make({
         datasetId: "dataset-id",
         description: "Dataset readback.",
         metadata: { selector: selector.value },
@@ -93,7 +93,7 @@ const okSdk: PhoenixSdkShape = {
     ),
   getExperimentInfo: (experimentId) =>
     Promise.resolve(
-      new PhoenixExperimentInfoResult({
+      PhoenixExperimentInfoResult.make({
         datasetId: "dataset-id",
         datasetVersionId: "version-id",
         exampleCount: 1,
@@ -104,7 +104,7 @@ const okSdk: PhoenixSdkShape = {
         successfulRunCount: 0,
       })
     ),
-  getPrompt: () => Promise.resolve(new PhoenixPromptReadResult({ exists: true, promptVersionId: "prompt-version-id" })),
+  getPrompt: () => Promise.resolve(PhoenixPromptReadResult.make({ exists: true, promptVersionId: "prompt-version-id" })),
 };
 
 const failingSdk: PhoenixSdkShape = {
@@ -121,17 +121,17 @@ describe("@beep/phoenix", () => {
 
         const doctor = yield* phoenix.doctor;
         const dataset = yield* phoenix.createDataset(
-          new PhoenixDatasetCreateInput({
+          PhoenixDatasetCreateInput.make({
             description: "Agent loop health examples.",
-            examples: [new PhoenixDatasetExample({ input: { task: "loop-health" } })],
+            examples: [PhoenixDatasetExample.make({ input: { task: "loop-health" } })],
             name: "agent-loop-health-v1",
           })
         );
         const prompt = yield* phoenix.createPrompt(
-          new PhoenixPromptCreateInput({
+          PhoenixPromptCreateInput.make({
             modelName: "gpt-4o-mini",
             name: "agent-effectiveness-review-evaluator-v1",
-            template: [new PhoenixPromptChatMessage({ content: "Review {{caseId}}", role: "user" })],
+            template: [PhoenixPromptChatMessage.make({ content: "Review {{caseId}}", role: "user" })],
           })
         );
 
@@ -149,7 +149,7 @@ describe("@beep/phoenix", () => {
       function* () {
         const phoenix = yield* Phoenix;
         const result = yield* phoenix.addAnnotation(
-          new PhoenixAnnotationInput({
+          PhoenixAnnotationInput.make({
             label: "passed",
             name: "agent.outcome",
             targetId: "trace-id",
@@ -185,13 +185,13 @@ describe("@beep/phoenix", () => {
     Effect.fnUntraced(
       function* () {
         const phoenix = yield* Phoenix;
-        const selector = new PhoenixDatasetSelector({ kind: "dataset-name", value: "agent-outcomes-v1" });
-        const promptSelector = new PhoenixPromptSelector({ name: "agent-effectiveness-review-evaluator-v1" });
+        const selector = PhoenixDatasetSelector.make({ kind: "dataset-name", value: "agent-outcomes-v1" });
+        const promptSelector = PhoenixPromptSelector.make({ name: "agent-effectiveness-review-evaluator-v1" });
         const dataset = yield* phoenix.getDatasetInfo(selector);
         const examples = yield* phoenix.getDatasetExamples(selector);
         const prompt = yield* phoenix.getPrompt(promptSelector);
         const experiment = yield* phoenix.createExperiment(
-          new PhoenixExperimentCreateInput({ datasetId: dataset.datasetId, experimentName: "deterministic-v1" })
+          PhoenixExperimentCreateInput.make({ datasetId: dataset.datasetId, experimentName: "deterministic-v1" })
         );
 
         expect(dataset.name).toBe("agent-outcomes-v1");
@@ -208,7 +208,7 @@ describe("@beep/phoenix", () => {
     Effect.fnUntraced(
       function* () {
         const phoenix = yield* Phoenix;
-        const error = yield* pipe(phoenix.getPrompt(new PhoenixPromptSelector({})), Effect.flip);
+        const error = yield* pipe(phoenix.getPrompt(PhoenixPromptSelector.make({})), Effect.flip);
 
         expect(error).toBeInstanceOf(PhoenixError);
         expect(error.operation).toBe("getPrompt");

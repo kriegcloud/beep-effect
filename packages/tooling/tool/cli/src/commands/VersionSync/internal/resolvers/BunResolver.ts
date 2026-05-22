@@ -300,7 +300,7 @@ export const resolveBunVersions: {
       Effect.map(Str.trim),
       Effect.mapError(
         (e) =>
-          new VersionSyncError({
+          VersionSyncError.make({
             message: `Failed to read .bun-version: ${Inspectable.toStringUnknown(e, 0)}`,
             file: ".bun-version",
           })
@@ -312,7 +312,7 @@ export const resolveBunVersions: {
     const pkgJsonContent = yield* fs.readFileString(pkgJsonPath).pipe(
       Effect.mapError(
         (e) =>
-          new VersionSyncError({
+          VersionSyncError.make({
             message: `Failed to read package.json: ${Inspectable.toStringUnknown(e, 0)}`,
             file: "package.json",
           })
@@ -322,7 +322,7 @@ export const resolveBunVersions: {
     const pkgJson = yield* decodeJsoncTextAs(BunPackageJsonDocument)(pkgJsonContent).pipe(
       Effect.mapError(
         (e) =>
-          new VersionSyncError({
+          VersionSyncError.make({
             message: `Failed to parse package.json: ${e.message}`,
             file: "package.json",
           })
@@ -335,7 +335,7 @@ export const resolveBunVersions: {
       onFalse: () => fetchLatestBunVersion().pipe(Effect.map(O.some), Effect.orElseSucceed(O.none<string>)),
     });
 
-    return new BunVersionState({
+    return BunVersionState.make({
       bunVersionFile,
       packageManagerField,
       latest,
@@ -365,7 +365,7 @@ const fetchLatestBunVersion = Effect.fn(function* (): Effect.fn.Return<
     .pipe(
       Effect.mapError(
         (e) =>
-          new NetworkUnavailableError({
+          NetworkUnavailableError.make({
             message: `GitHub API request failed: ${Inspectable.toStringUnknown(e, 0)}`,
           })
       )
@@ -373,7 +373,7 @@ const fetchLatestBunVersion = Effect.fn(function* (): Effect.fn.Return<
   const body = yield* HttpClientResponse.schemaBodyJson(BunRelease)(response).pipe(
     Effect.mapError(
       (e) =>
-        new NetworkUnavailableError({
+        NetworkUnavailableError.make({
           message: `Failed to parse GitHub API response: ${Inspectable.toStringUnknown(e, 0)}`,
         })
     )
@@ -400,7 +400,7 @@ export const buildBunReport: (state: BunVersionState) => VersionCategoryReport =
   if (state.bunVersionFile !== target) {
     items = A.append(
       items,
-      new VersionDriftItem({
+      VersionDriftItem.make({
         file: ".bun-version",
         field: "version",
         current: state.bunVersionFile,
@@ -413,7 +413,7 @@ export const buildBunReport: (state: BunVersionState) => VersionCategoryReport =
   if (state.packageManagerField !== target) {
     items = A.append(
       items,
-      new VersionDriftItem({
+      VersionDriftItem.make({
         file: "package.json",
         field: "packageManager",
         current: `bun@${state.packageManagerField}`,
@@ -426,7 +426,7 @@ export const buildBunReport: (state: BunVersionState) => VersionCategoryReport =
   const hasDrift = A.matchToBoolean(items);
   const hasInternalMismatch = state.bunVersionFile !== state.packageManagerField;
 
-  return new VersionCategoryReport.cases.bun({
+  return VersionCategoryReport.cases.bun.make({
     status: Bool.match(hasDrift || hasInternalMismatch, {
       onTrue: VersionCategoryStatusThunk.drift,
       onFalse: VersionCategoryStatusThunk.ok,

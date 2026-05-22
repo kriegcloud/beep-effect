@@ -11,7 +11,7 @@
  *
  * void classifyCause
  *
- * const config = new LoggingConfig({ format: "pretty", minLogLevel: "Info" })
+ * const config = LoggingConfig.make({ format: "pretty", minLogLevel: "Info" })
  * const program = Effect.log("hello").pipe(
  *
  * )

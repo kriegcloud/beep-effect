@@ -9,7 +9,7 @@
  * import { Effect, Layer } from "effect"
  * import { LoggingConfig, layerConsoleLogger } from "@beep/observability"
  *
- * const config = new LoggingConfig({ format: "pretty", minLogLevel: "Info" })
+ * const config = LoggingConfig.make({ format: "pretty", minLogLevel: "Info" })
  * const loggerLayer = layerConsoleLogger(config)
  *
  * const program = Effect.log("hello from pretty logger").pipe(
@@ -40,7 +40,7 @@ const $I = $ObservabilityId.create("Logging");
  * ```typescript
  * import { LoggingConfig, layerConsoleLogger } from "@beep/observability"
  *
- * const config = new LoggingConfig({ format: "json", minLogLevel: "Debug" })
+ * const config = LoggingConfig.make({ format: "json", minLogLevel: "Debug" })
  * void layerConsoleLogger(config)
  * ```
  *
@@ -76,7 +76,7 @@ export type LogFormat = typeof LogFormat.Type;
  * ```typescript
  * import { PrettyLoggerConfig } from "@beep/observability"
  *
- * const config = new PrettyLoggerConfig({ theme: "forest", bannerMode: "off" })
+ * const config = PrettyLoggerConfig.make({ theme: "forest", bannerMode: "off" })
  * void config.theme // "forest"
  * ```
  *
@@ -112,7 +112,7 @@ export type PrettyLogTheme = typeof PrettyLogTheme.Type;
  * ```typescript
  * import { PrettyLoggerConfig } from "@beep/observability"
  *
- * const config = new PrettyLoggerConfig({ theme: "ocean", bannerMode: "startup" })
+ * const config = PrettyLoggerConfig.make({ theme: "ocean", bannerMode: "startup" })
  * void config.bannerMode // "startup"
  * ```
  *
@@ -148,7 +148,7 @@ export type BannerMode = typeof BannerMode.Type;
  * ```typescript
  * import { PrettyLoggerConfig } from "@beep/observability"
  *
- * const config = new PrettyLoggerConfig({
+ * const config = PrettyLoggerConfig.make({
  *   theme: "forest",
  *   bannerMode: "off",
  * })
@@ -176,7 +176,7 @@ export class PrettyLoggerConfig extends S.Class<PrettyLoggerConfig>($I`PrettyLog
  * ```typescript
  * import { LoggingConfig } from "@beep/observability"
  *
- * const config = new LoggingConfig({
+ * const config = LoggingConfig.make({
  *   format: "structured",
  *   minLogLevel: "Info",
  * })
@@ -204,7 +204,7 @@ type MakePrettyPalette<T extends ReadonlyArray<string>> = {
 };
 type PrettyPalette = MakePrettyPalette<["accent", "dim", "trace", "debug", "info", "warn", "error", "fatal"]>;
 
-const defaultPrettyLoggerConfig = new PrettyLoggerConfig({
+const defaultPrettyLoggerConfig = PrettyLoggerConfig.make({
   theme: "ocean",
   bannerMode: "off",
 });
@@ -285,7 +285,7 @@ const renderBannerGlyph = (kind: "phase" | "startup"): string => (kind === "phas
  * ```typescript
  * import { renderLogBanner, PrettyLoggerConfig } from "@beep/observability"
  *
- * const pretty = new PrettyLoggerConfig({ theme: "ocean", bannerMode: "all" })
+ * const pretty = PrettyLoggerConfig.make({ theme: "ocean", bannerMode: "all" })
  * const banner = renderLogBanner("Server Ready", { kind: "startup", pretty })
  * console.log(banner)
  * ```
@@ -385,7 +385,7 @@ const resolveLogger = (format: LogFormat, pretty = defaultPrettyLoggerConfig) =>
  * import { Effect } from "effect"
  * import { LoggingConfig, layerConsoleLogger } from "@beep/observability"
  *
- * const config = new LoggingConfig({ format: "json", minLogLevel: "Info" })
+ * const config = LoggingConfig.make({ format: "json", minLogLevel: "Info" })
  * const layer = layerConsoleLogger(config)
  *
  * const program = Effect.log("structured output").pipe(

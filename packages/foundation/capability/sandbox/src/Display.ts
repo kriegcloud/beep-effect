@@ -237,7 +237,7 @@ export const SilentDisplay = {
         yield* Ref.update(
           ref,
           A.append(
-            new DisplayEntryIntro({
+            DisplayEntryIntro.make({
               title: sanitizeDisplayText(title),
             })
           )
@@ -247,7 +247,7 @@ export const SilentDisplay = {
         yield* Ref.update(
           ref,
           A.append(
-            new DisplayEntryStatus({
+            DisplayEntryStatus.make({
               message: sanitizeDisplayText(message),
               severity,
             })
@@ -259,7 +259,7 @@ export const SilentDisplay = {
         yield* Ref.update(
           ref,
           A.append(
-            new DisplayEntrySpinner({
+            DisplayEntrySpinner.make({
               message: sanitizeDisplayText(message),
             })
           )
@@ -272,7 +272,7 @@ export const SilentDisplay = {
         yield* Ref.update(
           ref,
           A.append(
-            new DisplayEntrySummary({
+            DisplayEntrySummary.make({
               title: sanitizeDisplayText(title),
               rows: sanitizeSummaryRows(rows),
             })
@@ -295,7 +295,7 @@ export const SilentDisplay = {
           Ref.update(
             ref,
             A.append(
-              new DisplayEntryTaskLog({
+              DisplayEntryTaskLog.make({
                 title: sanitizeDisplayText(title),
                 messages,
               })
@@ -308,7 +308,7 @@ export const SilentDisplay = {
         yield* Ref.update(
           ref,
           A.append(
-            new DisplayEntryText({
+            DisplayEntryText.make({
               message: sanitizeDisplayText(message),
             })
           )
@@ -318,7 +318,7 @@ export const SilentDisplay = {
         yield* Ref.update(
           ref,
           A.append(
-            new DisplayEntryToolCall({
+            DisplayEntryToolCall.make({
               formattedArgs: sanitizeDisplayText(formattedArgs),
               name: sanitizeDisplayText(name),
             })

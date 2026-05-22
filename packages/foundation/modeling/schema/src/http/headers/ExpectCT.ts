@@ -94,7 +94,7 @@ const formatExpectCTValue = Effect.fn("ExpectCT.formatExpectCTValue")(function* 
         yield* Effect.try({
           try: () => String(internal.encodeStrictURI(reportUriValue)),
           catch: () =>
-            new ExpectCtError({
+            ExpectCtError.make({
               message: `Invalid value for "reportURI" option in ${headerName}: ${String(reportUriValue)}`,
               cause: O.none(),
             }),
@@ -172,7 +172,7 @@ export const ExpectCTHeader = S.Union([ExpectCTOption, S.Undefined]).pipe(
         const enabled = yield* S.decodeUnknownEffect(ExpectCTEnabled)(option).pipe(
           Effect.mapError(
             (cause) =>
-              new ExpectCtError({
+              ExpectCtError.make({
                 message: cause.message,
                 cause: O.none(),
               })

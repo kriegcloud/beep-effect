@@ -24,7 +24,7 @@ interface PlatformErrorOptions {
  * ```ts
  * import { FilesCommandError } from "@beep/repo-cli/commands/Files/index"
  *
- * const error = new FilesCommandError({ message: "Invalid directory" })
+ * const error = FilesCommandError.make({ message: "Invalid directory" })
  * void error.message
  * ```
  * @category error-handling
@@ -57,7 +57,7 @@ export const formatPlatformError: {
 } = dual(
   3,
   (operation: string, filePath: string, options: PlatformErrorOptions): FilesCommandError =>
-    new FilesCommandError({
+    FilesCommandError.make({
       message: `${operation}: "${filePath}"`,
       cause: options.cause,
     })
@@ -73,7 +73,7 @@ export const formatPlatformError: {
  */
 export const failOnExtensionlessFile = (filePath: string): Effect.Effect<never, FilesCommandError> =>
   Effect.fail(
-    new FilesCommandError({
+    FilesCommandError.make({
       message: `Cannot rename extensionless file: "${filePath}"`,
     })
   );

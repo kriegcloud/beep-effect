@@ -107,7 +107,7 @@ export const CrossOriginResourcePolicyHeader = S.Union([CrossOriginResourcePolic
         return O.some(option);
       }
 
-      return yield* new CrossOriginResourcePolicyError({
+      return yield* CrossOriginResourcePolicyError.make({
         message: `Invalid value for ${headerName}: ${option}`,
         cause: O.none(),
       });

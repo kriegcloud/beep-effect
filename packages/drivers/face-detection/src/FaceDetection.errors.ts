@@ -36,7 +36,7 @@ const messageWithCause = (message: string, cause: unknown): string =>
  * ```ts
  * import { FaceDetectionErrorFromUnknownOptions } from "@beep/face-detection"
  *
- * const options = new FaceDetectionErrorFromUnknownOptions({ modelPath: "./yunet.onnx" })
+ * const options = FaceDetectionErrorFromUnknownOptions.make({ modelPath: "./yunet.onnx" })
  * void options
  * ```
  *
@@ -63,7 +63,7 @@ export class FaceDetectionErrorFromUnknownOptions extends S.Class<FaceDetectionE
  * ```ts
  * import { FaceDetectionError } from "@beep/face-detection"
  *
- * const error = new FaceDetectionError({ message: "model failed", operation: "loadModel" })
+ * const error = FaceDetectionError.make({ message: "model failed", operation: "loadModel" })
  * void error.message
  * ```
  *
@@ -107,7 +107,7 @@ export class FaceDetectionError extends TaggedErrorClass<FaceDetectionError>($I`
       return O.getOrElse(
         existingFaceDetectionError(cause),
         () =>
-          new FaceDetectionError({
+          FaceDetectionError.make({
             ...context,
             cause: causeFromUnknown(cause),
             message: messageWithCause(message, cause),

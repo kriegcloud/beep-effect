@@ -1189,7 +1189,7 @@ const makeInventoryEntry = (
   }
 
   return O.some(
-    new DualArityInventoryEntry({
+    DualArityInventoryEntry.make({
       file: candidate.file,
       qualifiedName: candidate.qualifiedName,
       kind: candidate.kind,
@@ -1221,7 +1221,7 @@ const readInventoryDocument = Effect.fn(function* () {
   });
 
   if (!A.isReadonlyArrayEmpty(parseErrors)) {
-    return yield* new DualArityInventoryReadError({
+    return yield* DualArityInventoryReadError.make({
       message: pipe(
         parseErrors,
         A.map((error) => `${printParseErrorCode(error.error)}@${error.offset}:${error.length}`),
@@ -1296,7 +1296,7 @@ const scanDualArityInventory = Effect.fn("DualArity.scanDualArityInventory")(fun
   });
 
   return {
-    document: new DualArityInventoryDocument({
+    document: DualArityInventoryDocument.make({
       version: 1,
       generatedOn: todayYmd(),
       scope: A.fromIterable(INCLUDED_GLOBS),
@@ -1329,7 +1329,7 @@ const mergeInventory = (
         return entry;
       }
 
-      return new DualArityInventoryEntry({
+      return DualArityInventoryEntry.make({
         ...entry,
         status: existingEntry.value.status,
         owner: existingEntry.value.owner,
@@ -1339,7 +1339,7 @@ const mergeInventory = (
     })
   );
 
-  return new DualArityInventoryDocument({
+  return DualArityInventoryDocument.make({
     version: 1,
     generatedOn: liveDocument.generatedOn,
     scope: liveDocument.scope,
@@ -1463,7 +1463,7 @@ export const runDualArityRules = Effect.fn("runDualArityRules")(function* (optio
     yield* Console.error(`[dual-arity] ${diagnostic}`);
   }
 
-  return new DualArityRulesSummary({
+  return DualArityRulesSummary.make({
     liveEntries: liveDocument.entries.length,
     trackedEntries: mergedDocument.entries.length,
     missingEntries: missingEntries.length,

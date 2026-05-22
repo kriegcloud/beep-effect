@@ -24,7 +24,7 @@ const catalogRelativePath = "standards/repo-exports.catalog.jsonc";
  * @example
  * ```ts
  * import { RepoCodegraphCatalogReadError } from "@beep/repo-codegraph"
- * const error = new RepoCodegraphCatalogReadError({
+ * const error = RepoCodegraphCatalogReadError.make({
  *   cause: "missing",
  *   message: "Catalog not found",
  *   operation: "read",
@@ -93,7 +93,7 @@ const catalogReadFailure = (
   message: string,
   cause: unknown
 ): RepoCodegraphCatalogReadError =>
-  new RepoCodegraphCatalogReadError({
+  RepoCodegraphCatalogReadError.make({
     cause,
     message,
     operation,
@@ -138,7 +138,7 @@ const packageManifestPolicy = (
     O.flatMap((beep) => beep.importPolicy),
     O.map(
       (policy) =>
-        new RepoCodegraphPackageImportPolicy({
+        RepoCodegraphPackageImportPolicy.make({
           packageName,
           packagePath,
           preferredImports: policy.preferredImports,

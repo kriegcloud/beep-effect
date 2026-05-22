@@ -46,7 +46,7 @@ const handleVersionSyncProgram = Effect.fn(function* (options: VersionSyncOption
       Num.sum(count, A.length(category.items))
     );
 
-    return yield* new VersionSyncDriftError({
+    return yield* VersionSyncDriftError.make({
       message: `Version drift detected: ${driftCount} item(s) need updating`,
       driftCount,
     });

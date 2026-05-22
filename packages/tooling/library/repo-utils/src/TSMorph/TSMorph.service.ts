@@ -404,7 +404,7 @@ const decodeRepoRelativePath = Effect.fn(function* (
   const relativePath = pathApi.normalize(pathApi.relative(repoRootPath, absolutePath));
 
   if (relativePath.length === 0 || pathApi.isAbsolute(relativePath) || Str.startsWith("..")(relativePath)) {
-    return yield* new TsMorphScopeResolutionError({
+    return yield* TsMorphScopeResolutionError.make({
       entrypoint: absolutePath,
       message: `Resolved path "${absolutePath}" is outside the repository root "${repoRootPath}".`,
     });
@@ -446,7 +446,7 @@ const createProjectPool = (pathApi: Path.Path): ProjectPool => {
           skipLoadingLibFiles: scope.mode === TsMorphScopeMode.Enum.syntax,
         }),
       catch: (cause) =>
-        new TsMorphProjectLoadError({
+        TsMorphProjectLoadError.make({
           scopeId: scope.scopeId,
           tsConfigPath: scope.tsConfigPath,
           message: `Failed to initialize ts-morph Project for "${scope.cacheKey}": ${schemaMessage(cause)}`,
@@ -486,7 +486,7 @@ const normalizeOutlineSymbol = Effect.fn("normalizeOutlineSymbol")(function* (
     decodeSourceText,
     Str.slice(startOffset, endOffset)(sourceFileText),
     (message) =>
-      new TsMorphSourceFileError({
+      TsMorphSourceFileError.make({
         scopeId: O.none(),
         filePath: S.decodeOption(TypeScriptFilePath)(symbolFilePath),
         message: `Failed to decode extracted symbol source for "${qualifiedName}": ${message}`,
@@ -495,7 +495,7 @@ const normalizeOutlineSymbol = Effect.fn("normalizeOutlineSymbol")(function* (
   const contentHash = yield* decodeContentHashFromSourceText(symbolText).pipe(
     Effect.mapError(
       (error) =>
-        new TsMorphSourceFileError({
+        TsMorphSourceFileError.make({
           scopeId: O.none(),
           filePath: S.decodeOption(TypeScriptFilePath)(symbolFilePath),
           message: `Failed to hash extracted symbol source for "${qualifiedName}": ${schemaMessage(error)}`,
@@ -511,7 +511,7 @@ const normalizeOutlineSymbol = Effect.fn("normalizeOutlineSymbol")(function* (
       decodeSymbolFilePath,
       symbolFilePath,
       (message) =>
-        new TsMorphSourceFileError({
+        TsMorphSourceFileError.make({
           scopeId: O.none(),
           filePath: S.decodeOption(TypeScriptFilePath)(symbolFilePath),
           message: `Failed to decode symbol file path for "${qualifiedName}": ${message}`,
@@ -521,7 +521,7 @@ const normalizeOutlineSymbol = Effect.fn("normalizeOutlineSymbol")(function* (
       decodeSymbolNameSegment,
       declarationName.value.name,
       (message) =>
-        new TsMorphSourceFileError({
+        TsMorphSourceFileError.make({
           scopeId: O.none(),
           filePath: S.decodeOption(TypeScriptFilePath)(symbolFilePath),
           message: `Failed to decode symbol name for "${qualifiedName}": ${message}`,
@@ -531,7 +531,7 @@ const normalizeOutlineSymbol = Effect.fn("normalizeOutlineSymbol")(function* (
       decodeSymbolQualifiedName,
       qualifiedName,
       (message) =>
-        new TsMorphSourceFileError({
+        TsMorphSourceFileError.make({
           scopeId: O.none(),
           filePath: S.decodeOption(TypeScriptFilePath)(symbolFilePath),
           message: `Failed to decode qualified name "${qualifiedName}": ${message}`,
@@ -548,7 +548,7 @@ const normalizeOutlineSymbol = Effect.fn("normalizeOutlineSymbol")(function* (
       decodeLineNumber,
       declaration.getStartLineNumber(true),
       (message) =>
-        new TsMorphSourceFileError({
+        TsMorphSourceFileError.make({
           scopeId: O.none(),
           filePath: S.decodeOption(TypeScriptFilePath)(symbolFilePath),
           message: `Failed to decode start line for "${qualifiedName}": ${message}`,
@@ -558,7 +558,7 @@ const normalizeOutlineSymbol = Effect.fn("normalizeOutlineSymbol")(function* (
       decodeLineNumber,
       declaration.getEndLineNumber(),
       (message) =>
-        new TsMorphSourceFileError({
+        TsMorphSourceFileError.make({
           scopeId: O.none(),
           filePath: S.decodeOption(TypeScriptFilePath)(symbolFilePath),
           message: `Failed to decode end line for "${qualifiedName}": ${message}`,
@@ -568,7 +568,7 @@ const normalizeOutlineSymbol = Effect.fn("normalizeOutlineSymbol")(function* (
       decodeByteOffset,
       bytePrefix.length,
       (message) =>
-        new TsMorphSourceFileError({
+        TsMorphSourceFileError.make({
           scopeId: O.none(),
           filePath: S.decodeOption(TypeScriptFilePath)(symbolFilePath),
           message: `Failed to decode byte offset for "${qualifiedName}": ${message}`,
@@ -578,7 +578,7 @@ const normalizeOutlineSymbol = Effect.fn("normalizeOutlineSymbol")(function* (
       decodeByteLength,
       byteSpan.length,
       (message) =>
-        new TsMorphSourceFileError({
+        TsMorphSourceFileError.make({
           scopeId: O.none(),
           filePath: S.decodeOption(TypeScriptFilePath)(symbolFilePath),
           message: `Failed to decode byte length for "${qualifiedName}": ${message}`,
@@ -602,7 +602,7 @@ const resolveSymbolFilePath = Effect.fn(function* (
     decodeTypeScriptImplementationFilePath,
     filePath,
     (message) =>
-      new TsMorphUnsupportedFileError({
+      TsMorphUnsupportedFileError.make({
         filePath,
         message: `File outlines currently support TypeScript implementation files only: ${message}`,
       })
@@ -612,7 +612,7 @@ const resolveSymbolFilePath = Effect.fn(function* (
     decodeTypeScriptImplementationToSymbolFilePath,
     implementationFilePath,
     (message) =>
-      new TsMorphUnsupportedFileError({
+      TsMorphUnsupportedFileError.make({
         filePath,
         message: `Failed to normalize implementation file path "${implementationFilePath}" for symbol ids: ${message}`,
       })
@@ -715,7 +715,7 @@ export const createTSMorphService = Effect.fn("createTSMorphService")(function* 
             : pathApi.resolve(process.cwd(), repoRootPath.value)
         ),
         (message) =>
-          new TsMorphScopeResolutionError({
+          TsMorphScopeResolutionError.make({
             entrypoint: repoRootPath.value,
             message: `Failed to normalize explicit repository root "${repoRootPath.value}": ${message}`,
           })
@@ -726,7 +726,7 @@ export const createTSMorphService = Effect.fn("createTSMorphService")(function* 
       Effect.provideService(FileSystem.FileSystem, fs),
       Effect.mapError(
         (error) =>
-          new TsMorphScopeResolutionError({
+          TsMorphScopeResolutionError.make({
             entrypoint: process.cwd(),
             message: error.message,
           })
@@ -737,7 +737,7 @@ export const createTSMorphService = Effect.fn("createTSMorphService")(function* 
       decodeRepoRootPath,
       pathApi.normalize(discoveredRepoRoot),
       (message) =>
-        new TsMorphScopeResolutionError({
+        TsMorphScopeResolutionError.make({
           entrypoint: discoveredRepoRoot,
           message: `Failed to normalize discovered repository root "${discoveredRepoRoot}": ${message}`,
         })
@@ -753,7 +753,7 @@ export const createTSMorphService = Effect.fn("createTSMorphService")(function* 
       fs,
       absoluteTsConfigPath,
       () =>
-        new TsMorphScopeResolutionError({
+        TsMorphScopeResolutionError.make({
           entrypoint: tsConfigPath,
           message: `No tsconfig file exists at "${absoluteTsConfigPath}".`,
         })
@@ -764,7 +764,7 @@ export const createTSMorphService = Effect.fn("createTSMorphService")(function* 
       decodeTsConfigFilePath,
       repoRelativeTsConfigPath,
       (message) =>
-        new TsMorphScopeResolutionError({
+        TsMorphScopeResolutionError.make({
           entrypoint: tsConfigPath,
           message: `Resolved tsconfig path "${repoRelativeTsConfigPath}" is not a valid TsConfigFilePath: ${message}`,
         })
@@ -786,7 +786,7 @@ export const createTSMorphService = Effect.fn("createTSMorphService")(function* 
       fs,
       absoluteFilePath,
       () =>
-        new TsMorphSourceFileError({
+        TsMorphSourceFileError.make({
           scopeId: O.none(),
           filePath: S.decodeOption(TypeScriptFilePath)(filePath),
           message: `No TypeScript file exists at "${absoluteFilePath}".`,
@@ -800,7 +800,7 @@ export const createTSMorphService = Effect.fn("createTSMorphService")(function* 
         decodeTypeScriptFilePath,
         repoRelativeFilePath,
         (message) =>
-          new TsMorphSourceFileError({
+          TsMorphSourceFileError.make({
             scopeId: O.none(),
             filePath: S.decodeOption(TypeScriptFilePath)(filePath),
             message: `Resolved file path "${repoRelativeFilePath}" is not a valid TypeScriptFilePath: ${message}`,
@@ -826,7 +826,7 @@ export const createTSMorphService = Effect.fn("createTSMorphService")(function* 
           decodeTsConfigFilePath,
           repoRelativeTsConfigPath,
           (message) =>
-            new TsMorphScopeResolutionError({
+            TsMorphScopeResolutionError.make({
               entrypoint: filePath,
               message: `Resolved tsconfig path "${repoRelativeTsConfigPath}" is not a valid TsConfigFilePath: ${message}`,
             })
@@ -844,7 +844,7 @@ export const createTSMorphService = Effect.fn("createTSMorphService")(function* 
       currentDirectory = parentDirectory;
     }
 
-    return yield* new TsMorphScopeResolutionError({
+    return yield* TsMorphScopeResolutionError.make({
       entrypoint: filePath,
       message: `No owning "${DEFAULT_TSCONFIG_FILE_NAME}" could be found for "${filePath}" within repository root "${repoRootPath}".`,
     });
@@ -861,7 +861,7 @@ export const createTSMorphService = Effect.fn("createTSMorphService")(function* 
       decodeWorkspaceDirectoryPath,
       pathApi.dirname(absoluteTsConfigPath),
       (message) =>
-        new TsMorphScopeResolutionError({
+        TsMorphScopeResolutionError.make({
           entrypoint: tsConfigPath,
           message: `Failed to normalize workspace directory for "${tsConfigPath}": ${message}`,
         })
@@ -873,7 +873,7 @@ export const createTSMorphService = Effect.fn("createTSMorphService")(function* 
       referencePolicy,
     });
 
-    const scope = new TsMorphProjectScope({
+    const scope = TsMorphProjectScope.make({
       scopeId,
       cacheKey: makeProjectCacheKey({
         tsConfigPath,
@@ -917,7 +917,7 @@ export const createTSMorphService = Effect.fn("createTSMorphService")(function* 
       decodeProjectScopeIdParts,
       scopeId,
       (message) =>
-        new TsMorphScopeResolutionError({
+        TsMorphScopeResolutionError.make({
           entrypoint: scopeId,
           message: `Failed to parse scope id "${scopeId}": ${message}`,
         })
@@ -947,7 +947,7 @@ export const createTSMorphService = Effect.fn("createTSMorphService")(function* 
       scope.referencePolicy === TsMorphReferencePolicy.Enum.workspaceOnly &&
       isOutsideAncestor(pathApi, scope.workspaceDirectoryPath, absoluteFilePath)
     ) {
-      return yield* new TsMorphSourceFileError({
+      return yield* TsMorphSourceFileError.make({
         scopeId: O.some(scope.scopeId),
         filePath: S.decodeOption(TypeScriptFilePath)(normalizedFilePath),
         message: `File "${normalizedFilePath}" is outside the workspace directory "${scope.workspaceDirectoryPath}" for scope "${scope.scopeId}".`,
@@ -959,7 +959,7 @@ export const createTSMorphService = Effect.fn("createTSMorphService")(function* 
     const sourceFile = existingSourceFile ?? project.addSourceFileAtPathIfExists(absoluteFilePath);
 
     if (sourceFile === undefined) {
-      return yield* new TsMorphSourceFileError({
+      return yield* TsMorphSourceFileError.make({
         scopeId: O.some(scope.scopeId),
         filePath: S.decodeOption(TypeScriptFilePath)(normalizedFilePath),
         message: `File "${normalizedFilePath}" could not be loaded into ts-morph project scope "${scope.scopeId}".`,
@@ -1053,7 +1053,7 @@ export const createTSMorphService = Effect.fn("createTSMorphService")(function* 
       return entry.value;
     }
 
-    return yield* new TsMorphSymbolNotFoundError({
+    return yield* TsMorphSymbolNotFoundError.make({
       scopeId: scope.scopeId,
       symbolId,
       message: `Symbol "${symbolId}" could not be resolved within scope "${scope.scopeId}".`,
@@ -1084,7 +1084,7 @@ export const createTSMorphService = Effect.fn("createTSMorphService")(function* 
       decodeSourceText,
       loadedSourceFile.sourceFile.getFullText(),
       (message) =>
-        new TsMorphSourceFileError({
+        TsMorphSourceFileError.make({
           scopeId: O.some(scope.scopeId),
           filePath: S.decodeOption(TypeScriptFilePath)(loadedSourceFile.filePath),
           message: `Failed to decode source text for "${loadedSourceFile.filePath}": ${message}`,
@@ -1093,7 +1093,7 @@ export const createTSMorphService = Effect.fn("createTSMorphService")(function* 
     const contentHash = yield* decodeContentHashFromSourceText(sourceText).pipe(
       Effect.mapError(
         (error) =>
-          new TsMorphSourceFileError({
+          TsMorphSourceFileError.make({
             scopeId: O.some(scope.scopeId),
             filePath: S.decodeOption(TypeScriptFilePath)(loadedSourceFile.filePath),
             message: `Failed to hash source text for "${loadedSourceFile.filePath}": ${schemaMessage(error)}`,
@@ -1101,7 +1101,7 @@ export const createTSMorphService = Effect.fn("createTSMorphService")(function* 
       )
     );
 
-    return new TsMorphSourceTextResult({
+    return TsMorphSourceTextResult.make({
       filePath: loadedSourceFile.filePath,
       sourceText,
       contentHash,
@@ -1114,7 +1114,7 @@ export const createTSMorphService = Effect.fn("createTSMorphService")(function* 
     const outlineEntries = yield* collectOutlineEntries(loadedSourceFile.filePath, loadedSourceFile.sourceFile);
     const symbols = A.map(outlineEntries, (entry) => entry.symbol);
 
-    return new TsMorphFileOutline({
+    return TsMorphFileOutline.make({
       scopeId: scope.scopeId,
       filePath: loadedSourceFile.filePath,
       symbols,
@@ -1125,7 +1125,7 @@ export const createTSMorphService = Effect.fn("createTSMorphService")(function* 
     const scope = yield* resolveScopeById(request.scopeId);
     const entry = yield* findScopeSymbolEntry(scope, request.symbolId);
 
-    return new TsMorphSymbolLookupResult({
+    return TsMorphSymbolLookupResult.make({
       scopeId: scope.scopeId,
       symbol: entry.symbol,
     });
@@ -1145,7 +1145,7 @@ export const createTSMorphService = Effect.fn("createTSMorphService")(function* 
       A.filter((entry) => Str.includes(normalizedQuery)(entry.searchText) && matchesRequestedFilters(entry))
     );
 
-    return new TsMorphSymbolSearchResult({
+    return TsMorphSymbolSearchResult.make({
       scopeId: scope.scopeId,
       query: request.query,
       limit: request.limit,
@@ -1157,7 +1157,7 @@ export const createTSMorphService = Effect.fn("createTSMorphService")(function* 
         decodeNonNegativeInt,
         A.length(filteredEntries),
         (message) =>
-          new TsMorphSourceFileError({
+          TsMorphSourceFileError.make({
             scopeId: O.some(scope.scopeId),
             filePath: O.none(),
             message: `Failed to decode symbol search total: ${message}`,
@@ -1170,7 +1170,7 @@ export const createTSMorphService = Effect.fn("createTSMorphService")(function* 
     const scope = yield* resolveScopeById(request.scopeId);
     const entry = yield* findScopeSymbolEntry(scope, request.symbolId);
 
-    return new TsMorphSymbolSourceResult({
+    return TsMorphSymbolSourceResult.make({
       scopeId: scope.scopeId,
       symbol: entry.symbol,
       sourceText: entry.sourceText,
@@ -1210,7 +1210,7 @@ export const createTSMorphService = Effect.fn("createTSMorphService")(function* 
               decode,
               value,
               (message) =>
-                new TsMorphSourceFileError({
+                TsMorphSourceFileError.make({
                   scopeId: O.some(scope.scopeId),
                   filePath: filePathOption,
                   message: `Failed to normalize diagnostic ${label} for "${loadedSourceFile.filePath}": ${message}`,
@@ -1230,7 +1230,7 @@ export const createTSMorphService = Effect.fn("createTSMorphService")(function* 
               endColumn: yield* decodeDiagnosticField(decodeColumnNumber, endPosition.column, "end column"),
             },
             (message) =>
-              new TsMorphSourceFileError({
+              TsMorphSourceFileError.make({
                 scopeId: O.some(scope.scopeId),
                 filePath: filePathOption,
                 message: `Failed to normalize diagnostic for "${loadedSourceFile.filePath}": ${message}`,
@@ -1241,7 +1241,7 @@ export const createTSMorphService = Effect.fn("createTSMorphService")(function* 
       Effect.map(A.sort(byNormalizedDiagnosticAscending))
     );
 
-    return new TsMorphDiagnosticsResult({
+    return TsMorphDiagnosticsResult.make({
       scopeId: scope.scopeId,
       filePath: loadedSourceFile.filePath,
       diagnostics,
@@ -1262,7 +1262,7 @@ export const createTSMorphService = Effect.fn("createTSMorphService")(function* 
         yield* Effect.try({
           try: () => project.addSourceFilesAtPaths(sourceFileGlob),
           catch: (cause) =>
-            new TsMorphSourceFileError({
+            TsMorphSourceFileError.make({
               scopeId: O.some(scope.scopeId),
               filePath: O.none(),
               message: `Failed to add source file glob "${sourceFileGlob}": ${
@@ -1298,7 +1298,7 @@ export const createTSMorphService = Effect.fn("createTSMorphService")(function* 
             sourceFiles,
           }),
         catch: (cause) =>
-          new TsMorphSourceFileError({
+          TsMorphSourceFileError.make({
             scopeId: O.some(scope.scopeId),
             filePath: O.none(),
             message: `Read-only project inspection failed for scope "${scope.scopeId}": ${schemaMessage(cause)}`,
@@ -1326,7 +1326,7 @@ export const createTSMorphService = Effect.fn("createTSMorphService")(function* 
       yield* Effect.try({
         try: () => update(loadedSourceFile.sourceFile, project),
         catch: (cause) =>
-          new TsMorphSourceFileError({
+          TsMorphSourceFileError.make({
             scopeId: O.some(scope.scopeId),
             filePath: S.decodeOption(TypeScriptFilePath)(loadedSourceFile.filePath),
             message: `Failed to update source file "${loadedSourceFile.filePath}": ${schemaMessage(cause)}`,
@@ -1341,7 +1341,7 @@ export const createTSMorphService = Effect.fn("createTSMorphService")(function* 
       yield* Effect.tryPromise({
         try: () => loadedSourceFile.sourceFile.save(),
         catch: (cause) =>
-          new TsMorphSourceFileError({
+          TsMorphSourceFileError.make({
             scopeId: O.some(scope.scopeId),
             filePath: S.decodeOption(TypeScriptFilePath)(loadedSourceFile.filePath),
             message: `Failed to save source file "${loadedSourceFile.filePath}": ${schemaMessage(cause)}`,

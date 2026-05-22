@@ -37,7 +37,7 @@ class ExtendedCauseError extends BeepError.extend<ExtendedCauseError>("ExtendedC
 
 describe("TaggedErrorClass", () => {
   it("creates tagged instances via the constructor", () => {
-    const error = new BeepError({ beep: "beep" });
+    const error = BeepError.make({ beep: "beep" });
 
     expect(error).toBeInstanceOf(BeepError);
     expect(error._tag).toBe("BeepError");
@@ -45,7 +45,7 @@ describe("TaggedErrorClass", () => {
   });
 
   it("supports struct-schema overloads via the constructor", () => {
-    const error = new StructuredBeepError({ beep: "boop", count: 2 });
+    const error = StructuredBeepError.make({ beep: "boop", count: 2 });
 
     expect(error).toBeInstanceOf(StructuredBeepError);
     expect(error._tag).toBe("StructuredBeepError");
@@ -56,13 +56,13 @@ describe("TaggedErrorClass", () => {
   it("validates constructor payloads eagerly", () => {
     const invalid: unknown = { beep: "boop", count: "wrong" };
 
-    expect(() => new StructuredBeepError(invalid as TaggedErrorNewInput<typeof StructuredBeepError>)).toThrow();
+    expect(() => StructuredBeepError.make(invalid as TaggedErrorNewInput<typeof StructuredBeepError>)).toThrow();
   });
 
   it("constructs cause-bearing errors from explicit payloads", () => {
     const cause = new Error("kapow");
-    const required = new RequiredCauseError({ cause, message: "boom" });
-    const optional = new OptionalCauseError({ cause, message: "boom" });
+    const required = RequiredCauseError.make({ cause, message: "boom" });
+    const optional = OptionalCauseError.make({ cause, message: "boom" });
 
     expect(required).toBeInstanceOf(RequiredCauseError);
     expect(required.cause).toBe(cause);
@@ -73,7 +73,7 @@ describe("TaggedErrorClass", () => {
   });
 
   it("supports optional-cause payloads", () => {
-    const error = new OptionalCauseError({ message: "boom" });
+    const error = OptionalCauseError.make({ message: "boom" });
 
     expect(error).toBeInstanceOf(OptionalCauseError);
     expect(error.message).toBe("boom");
@@ -81,7 +81,7 @@ describe("TaggedErrorClass", () => {
   });
 
   it("extends tagged errors with inherited fields", () => {
-    const error = new ExtendedBeepError({ beep: "boop", count: 2 });
+    const error = ExtendedBeepError.make({ beep: "boop", count: 2 });
 
     expect(error).toBeInstanceOf(BeepError);
     expect(error).toBeInstanceOf(ExtendedBeepError);
@@ -93,7 +93,7 @@ describe("TaggedErrorClass", () => {
 
   it("keeps constructor payload validation for extended cause-bearing errors", () => {
     const cause = new Error("kapow");
-    const error = new ExtendedCauseError({ cause, beep: "boop", count: 2 });
+    const error = ExtendedCauseError.make({ cause, beep: "boop", count: 2 });
 
     expect(error).toBeInstanceOf(BeepError);
     expect(error).toBeInstanceOf(ExtendedCauseError);

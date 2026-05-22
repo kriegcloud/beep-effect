@@ -32,7 +32,7 @@ const decodeNonNegativeInt = (value: number): Effect.Effect<NonNegativeInt, Json
   S.decodeUnknownEffect(NonNegativeInt)(value).pipe(
     Effect.mapError(
       (cause) =>
-        new JsonLdStreamParseError({
+        JsonLdStreamParseError.make({
           reason: "parseFailure",
           message: `Failed to decode JSON-LD stream chunk count: ${String(cause)}`,
         })
@@ -50,7 +50,7 @@ const decodeUtf8Chunks = (chunks: ReadonlyArray<Uint8Array>): string => {
 };
 
 const mapDocumentErrorToParseError = (error: JsonLdDocumentError): JsonLdStreamParseError =>
-  new JsonLdStreamParseError({
+  JsonLdStreamParseError.make({
     reason: error.reason === "loaderPolicyViolation" ? "loaderPolicyViolation" : "parseFailure",
     message: error.message,
   });
@@ -115,7 +115,7 @@ export const JsonLdStreamParseServiceLive = Layer.effect(
             O.exists((policy) => policy.allowRemoteDocuments)
           )
         ) {
-          return yield* new JsonLdStreamParseError({
+          return yield* JsonLdStreamParseError.make({
             reason: "loaderPolicyViolation",
             message: "Remote JSON-LD document loading is outside the bounded v1 stream-parse adapter surface.",
           });
@@ -130,7 +130,7 @@ export const JsonLdStreamParseServiceLive = Layer.effect(
           decodeJsonLdDocumentFromJson(sourceText),
           Effect.mapError(
             () =>
-              new JsonLdStreamParseError({
+              JsonLdStreamParseError.make({
                 reason: "parseFailure",
                 message: "Unable to decode bounded JSON-LD stream input.",
               })

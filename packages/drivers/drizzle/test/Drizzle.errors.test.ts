@@ -23,7 +23,7 @@ const makeClient = (execute: DrizzleClient["execute"]): DrizzleClient => {
 
 describe("DrizzleError", () => {
   it("constructs the single public tagged driver error", () => {
-    const error = new DrizzleError({
+    const error = DrizzleError.make({
       operation: "execute",
       cause: O.none(),
       query: O.none(),
@@ -51,7 +51,7 @@ describe("DrizzleError", () => {
     const error = DrizzleError.fromUnknown(
       "execute",
       new Error("driver failed"),
-      new DrizzleErrorContext({
+      DrizzleErrorContext.make({
         query: "select * from users where id = $1",
         params: [1],
       })
@@ -63,7 +63,7 @@ describe("DrizzleError", () => {
 
   it("returns existing DrizzleError values with redacted params", () => {
     const cause = new Error("driver failed");
-    const existing = new DrizzleError({
+    const existing = DrizzleError.make({
       operation: "execute",
       cause: O.some(cause),
       query: O.some("select * from accounts where slug = $1"),
@@ -232,7 +232,7 @@ describe("DrizzleError", () => {
 
   it("returns Cause.fail DrizzleError values with redacted params", () => {
     const cause = new Error("driver failed");
-    const existing = new DrizzleError({
+    const existing = DrizzleError.make({
       operation: "execute",
       cause: O.some(cause),
       query: O.some("select * from accounts where slug = $1"),

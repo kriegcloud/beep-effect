@@ -24,13 +24,13 @@ declare const command: ProposeCandidateOutputSet;
 describe("@beep/agent-capability-use-cases", () => {
   it("preserves public contract constructor and decode types", () => {
     expect(
-      new RuntimeScope({ organizationId: "org", threadId: "thread", workspaceId: "workspace" })
+      RuntimeScope.make({ organizationId: "org", threadId: "thread", workspaceId: "workspace" })
     ).type.toBe<RuntimeScope>();
     expect(S.decodeUnknownEffect(CandidateOutputSet)({})).type.toBe<
       Effect.Effect<CandidateOutputSet, S.SchemaError, never>
     >();
-    expect(new GetContextPacket(query)).type.toBe<GetContextPacket>();
-    expect(new ProposeCandidateOutputSet(command)).type.toBe<ProposeCandidateOutputSet>();
+    expect(GetContextPacket.make(query)).type.toBe<GetContextPacket>();
+    expect(ProposeCandidateOutputSet.make(command)).type.toBe<ProposeCandidateOutputSet>();
   });
 
   it("preserves fixture runner types", () => {

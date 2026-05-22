@@ -162,7 +162,7 @@ const checkedPixelCount = (
 
   if (!Number.isSafeInteger(pixels) || pixels > maxPixels) {
     return Effect.fail(
-      new FaceDetectionError({
+      FaceDetectionError.make({
         ...(imagePath === undefined ? {} : { imagePath }),
         message: `Face detection ${operation} dimensions exceed the ${maxPixels} pixel safety limit.`,
         operation: "preprocessImage",
@@ -190,7 +190,7 @@ const fixedInputDimensions = (
 
   if (!metadata.isTensor) {
     return Effect.fail(
-      new FaceDetectionError({
+      FaceDetectionError.make({
         message: `YuNet model input "${inputName}" is not a tensor.`,
         operation: "detect",
       })
@@ -205,7 +205,7 @@ const fixedInputDimensions = (
   }
 
   return checkedPixelCount("model input", undefined, width, height, MAX_FACE_DETECTION_TENSOR_PIXELS).pipe(
-    Effect.as(O.some(new ModelInputDimensions({ height, width })))
+    Effect.as(O.some(ModelInputDimensions.make({ height, width })))
   );
 };
 
@@ -227,7 +227,7 @@ const preprocessImage = Effect.fn("FaceDetection.preprocessImage")(function* (
   const imageBytes = metadata.size ?? 0;
 
   if (width < 1 || height < 1) {
-    return yield* new FaceDetectionError({
+    return yield* FaceDetectionError.make({
       imagePath,
       message: `Image metadata did not return usable dimensions for "${imagePath}"`,
       operation: "preprocessImage",
@@ -235,7 +235,7 @@ const preprocessImage = Effect.fn("FaceDetection.preprocessImage")(function* (
   }
 
   if (imageBytes > MAX_FACE_DETECTION_IMAGE_BYTES) {
-    return yield* new FaceDetectionError({
+    return yield* FaceDetectionError.make({
       imagePath,
       message: `Image file exceeds the ${MAX_FACE_DETECTION_IMAGE_BYTES} byte face-detection safety limit.`,
       operation: "preprocessImage",
@@ -294,7 +294,7 @@ const preprocessImage = Effect.fn("FaceDetection.preprocessImage")(function* (
   const channels = decoded.info.channels;
 
   if (decoded.info.width < 1 || decoded.info.height < 1 || channels < 3) {
-    return yield* new FaceDetectionError({
+    return yield* FaceDetectionError.make({
       imagePath,
       message: `Image decode did not return usable RGB pixels for "${imagePath}"`,
       operation: "preprocessImage",
@@ -321,7 +321,7 @@ const preprocessImage = Effect.fn("FaceDetection.preprocessImage")(function* (
     }
   }
 
-  return new PreprocessedImage({
+  return PreprocessedImage.make({
     height,
     offsetX,
     offsetY,
@@ -342,7 +342,7 @@ const tensorData = (tensor: OrtTensor, name: string): Effect.Effect<Float32Array
   }
 
   return Effect.fail(
-    new FaceDetectionError({
+    FaceDetectionError.make({
       message: `YuNet output "${name}" did not return Float32 tensor data.`,
       operation: "postprocess",
     })
@@ -358,7 +358,7 @@ const outputTensor = (
     O.match({
       onNone: () =>
         Effect.fail(
-          new FaceDetectionError({
+          FaceDetectionError.make({
             message: `YuNet model output "${name}" was not returned.`,
             operation: "postprocess",
           })
@@ -408,12 +408,12 @@ const suppressOverlappingFaces = (
   return kept;
 };
 
-const point = (x: number, y: number): FaceDetectionPoint => new FaceDetectionPoint({ x, y });
+const point = (x: number, y: number): FaceDetectionPoint => FaceDetectionPoint.make({ x, y });
 
 const clamp = (value: number, min: number, max: number): number => Math.min(max, Math.max(min, value));
 
 const scalePointToOriginal = (value: FaceDetectionPoint, image: PreprocessedImage): FaceDetectionPoint =>
-  new FaceDetectionPoint({
+  FaceDetectionPoint.make({
     x: clamp((value.x - image.offsetX) / image.scale, 0, image.width),
     y: clamp((value.y - image.offsetY) / image.scale, 0, image.height),
   });
@@ -424,15 +424,15 @@ const scaleFaceToOriginal = (face: FaceDetection, image: PreprocessedImage): Fac
   const right = clamp((face.box.x + face.box.width - image.offsetX) / image.scale, 0, image.width);
   const bottom = clamp((face.box.y + face.box.height - image.offsetY) / image.scale, 0, image.height);
 
-  return new FaceDetection({
-    box: new FaceDetectionBox({
+  return FaceDetection.make({
+    box: FaceDetectionBox.make({
       height: Math.max(0, bottom - top),
       width: Math.max(0, right - left),
       x: left,
       y: top,
     }),
     confidence: face.confidence,
-    landmarks: new FaceDetectionLandmarks({
+    landmarks: FaceDetectionLandmarks.make({
       leftEye: scalePointToOriginal(face.landmarks.leftEye, image),
       leftMouth: scalePointToOriginal(face.landmarks.leftMouth, image),
       nose: scalePointToOriginal(face.landmarks.nose, image),
@@ -480,15 +480,15 @@ const decodeStrideFaces = Effect.fn("FaceDetection.decodeStrideFaces")(function*
 
       faces = A.append(
         faces,
-        new FaceDetection({
-          box: new FaceDetectionBox({
+        FaceDetection.make({
+          box: FaceDetectionBox.make({
             height,
             width,
             x: centerX - width / 2,
             y: centerY - height / 2,
           }),
           confidence,
-          landmarks: new FaceDetectionLandmarks({
+          landmarks: FaceDetectionLandmarks.make({
             leftEye: point((kps[keypointOffset + 2] ?? 0) + col, (kps[keypointOffset + 3] ?? 0) + row),
             leftMouth: point((kps[keypointOffset + 8] ?? 0) + col, (kps[keypointOffset + 9] ?? 0) + row),
             nose: point((kps[keypointOffset + 4] ?? 0) + col, (kps[keypointOffset + 5] ?? 0) + row),
@@ -502,12 +502,12 @@ const decodeStrideFaces = Effect.fn("FaceDetection.decodeStrideFaces")(function*
 
   return A.map(faces, (face) => {
     const scalePoint = (value: FaceDetectionPoint): FaceDetectionPoint =>
-      new FaceDetectionPoint({ x: value.x * stride, y: value.y * stride });
+      FaceDetectionPoint.make({ x: value.x * stride, y: value.y * stride });
 
-    return new FaceDetection({
+    return FaceDetection.make({
       box: face.box,
       confidence: face.confidence,
-      landmarks: new FaceDetectionLandmarks({
+      landmarks: FaceDetectionLandmarks.make({
         leftEye: scalePoint(face.landmarks.leftEye),
         leftMouth: scalePoint(face.landmarks.leftMouth),
         nose: scalePoint(face.landmarks.nose),
@@ -537,7 +537,7 @@ const makeLoadedDetector = (ort: Ort, session: OrtSession): LoadedFaceDetector =
     const validatedRequest = yield* decodeFaceDetectionImageRequest(request).pipe(
       Effect.mapError(
         () =>
-          new FaceDetectionError({
+          FaceDetectionError.make({
             imagePath: request.imagePath,
             message: "Invalid face detection image request.",
             operation: "detect",
@@ -549,7 +549,7 @@ const makeLoadedDetector = (ort: Ort, session: OrtSession): LoadedFaceDetector =
       O.match({
         onNone: () =>
           Effect.fail(
-            new FaceDetectionError({
+            FaceDetectionError.make({
               message: "YuNet model did not expose an input tensor name.",
               operation: "detect",
             })
@@ -570,7 +570,7 @@ const makeLoadedDetector = (ort: Ort, session: OrtSession): LoadedFaceDetector =
     });
     const faces = yield* postprocess(outputs, image, validatedRequest);
 
-    return new FaceDetectionResult({
+    return FaceDetectionResult.make({
       faces,
       height: image.height,
       imagePath: validatedRequest.imagePath,
@@ -591,7 +591,7 @@ export const makeFaceDetectionService = (): FaceDetectionServiceShape =>
       const validatedConfig = yield* decodeFaceDetectionModelConfig(config).pipe(
         Effect.mapError(
           () =>
-            new FaceDetectionError({
+            FaceDetectionError.make({
               message: "Invalid face detection model config.",
               operation: "withDetector",
             })

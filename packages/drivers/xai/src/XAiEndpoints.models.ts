@@ -577,7 +577,7 @@ export class XAiEndpoint extends S.Class<XAiEndpoint>($I`XAiEndpoint`)(
  */
 export type XAiEndpointDescriptor = XAiEndpoint;
 
-const endpoint = (descriptor: XAiEndpointDescriptor): XAiEndpointDescriptor => new XAiEndpoint(descriptor);
+const endpoint = (descriptor: XAiEndpointDescriptor): XAiEndpointDescriptor => XAiEndpoint.make(descriptor);
 
 /**
  * Manifest of every xAI endpoint represented by the `XAi` service.

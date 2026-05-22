@@ -13,7 +13,7 @@ describe("Worker entity", () => {
       const id = yield* decodeWorkerId(1);
       const organizationId = yield* decodeOrganizationId(1);
       const worker = Worker.create(
-        new Worker.CreateWorkerInput({
+        Worker.CreateWorkerInput.make({
           id,
           organizationId,
           displayName: "Ada Lovelace",

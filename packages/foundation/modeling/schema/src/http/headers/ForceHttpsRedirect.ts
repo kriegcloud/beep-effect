@@ -137,7 +137,7 @@ export const ForceHttpsRedirectHeader = S.Union([ForceHttpsRedirectOption, S.Und
       const enabled = yield* S.decodeUnknownEffect(ForceHttpsRedirectEnabled)(option).pipe(
         Effect.mapError(
           (cause) =>
-            new ForceHttpsRedirectError({
+            ForceHttpsRedirectError.make({
               message: cause.message,
               cause: O.none(),
             })

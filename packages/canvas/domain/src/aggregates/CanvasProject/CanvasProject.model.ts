@@ -94,7 +94,7 @@ export class CreateCanvasProjectInput extends S.Class<CreateCanvasProjectInput>(
  * @since 0.0.0
  */
 export const create = (input: CreateCanvasProjectInput): CanvasProject =>
-  new CanvasProject({
+  CanvasProject.make({
     id: input.id,
     title: input.title,
     status: "open",
@@ -103,7 +103,7 @@ export const create = (input: CreateCanvasProjectInput): CanvasProject =>
 
 const requireMutable = (canvasProject: CanvasProject): Effect.Effect<void, CanvasProjectAlreadyArchived> =>
   canvasProject.status === "archived"
-    ? Effect.fail(new CanvasProjectAlreadyArchived({ canvasProjectId: canvasProject.id }))
+    ? Effect.fail(CanvasProjectAlreadyArchived.make({ canvasProjectId: canvasProject.id }))
     : Effect.void;
 
 const findNode = (canvasProject: CanvasProject, canvasNodeId: CanvasNodeId): O.Option<CanvasNode> =>
@@ -124,12 +124,12 @@ export const addNode = Effect.fn("CanvasProject.addNode")(function* (
 ) {
   yield* requireMutable(canvasProject);
   if (O.isSome(findNode(canvasProject, canvasNode.id))) {
-    return yield* new CanvasNodeAlreadyExists({
+    return yield* CanvasNodeAlreadyExists.make({
       canvasProjectId: canvasProject.id,
       canvasNodeId: canvasNode.id,
     });
   }
-  return new CanvasProject({
+  return CanvasProject.make({
     ...canvasProject,
     nodes: A.append(canvasProject.nodes, canvasNode),
   });
@@ -147,12 +147,12 @@ export const removeNode = Effect.fn("CanvasProject.removeNode")(function* (
 ) {
   yield* requireMutable(canvasProject);
   if (O.isNone(findNode(canvasProject, canvasNodeId))) {
-    return yield* new CanvasNodeNotFound({
+    return yield* CanvasNodeNotFound.make({
       canvasProjectId: canvasProject.id,
       canvasNodeId,
     });
   }
-  return new CanvasProject({
+  return CanvasProject.make({
     ...canvasProject,
     nodes: A.filter(canvasProject.nodes, (node) => node.id !== canvasNodeId),
   });
@@ -166,7 +166,7 @@ export const removeNode = Effect.fn("CanvasProject.removeNode")(function* (
  */
 export const archive = Effect.fn("CanvasProject.archive")(function* (canvasProject: CanvasProject) {
   yield* requireMutable(canvasProject);
-  return new CanvasProject({
+  return CanvasProject.make({
     ...canvasProject,
     status: "archived",
   });
@@ -186,7 +186,7 @@ export const reopen = Effect.fn("CanvasProject.reopen")(function* (canvasProject
       to: "open",
     });
   }
-  return new CanvasProject({
+  return CanvasProject.make({
     ...canvasProject,
     status: "open",
   });

@@ -46,7 +46,7 @@ export const updatePackageManagerField: {
     const original = yield* fs.readFileString(filePath).pipe(
       Effect.mapError(
         (e) =>
-          new VersionSyncError({
+          VersionSyncError.make({
             message: `Failed to read ${filePath}: ${Inspectable.toStringUnknown(e, 0)}`,
             file: filePath,
           })
@@ -72,7 +72,7 @@ export const updatePackageManagerField: {
     yield* fs.writeFileString(filePath, updated).pipe(
       Effect.mapError(
         (e) =>
-          new VersionSyncError({
+          VersionSyncError.make({
             message: `Failed to write ${filePath}: ${Inspectable.toStringUnknown(e, 0)}`,
             file: filePath,
           })
@@ -109,7 +109,7 @@ export const updateCatalogEntry: {
     const original = yield* fs.readFileString(filePath).pipe(
       Effect.mapError(
         (e) =>
-          new VersionSyncError({
+          VersionSyncError.make({
             message: `Failed to read ${filePath}: ${Inspectable.toStringUnknown(e, 0)}`,
             file: filePath,
           })
@@ -133,7 +133,7 @@ export const updateCatalogEntry: {
     yield* fs.writeFileString(filePath, updated).pipe(
       Effect.mapError(
         (e) =>
-          new VersionSyncError({
+          VersionSyncError.make({
             message: `Failed to write ${filePath}: ${Inspectable.toStringUnknown(e, 0)}`,
             file: filePath,
           })

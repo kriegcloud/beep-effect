@@ -51,7 +51,7 @@ class ChangesetGraphPackageJson extends S.Class<ChangesetGraphPackageJson>($I`Ch
  * ```ts
  * import { ChangesetGraphPackageReference } from "@beep/repo-cli/commands/Quality/ChangesetGraph"
  *
- * const reference = new ChangesetGraphPackageReference({
+ * const reference = ChangesetGraphPackageReference.make({
  *   file: ".changeset/example.md",
  *   packageName: "@beep/schema"
  * })
@@ -79,7 +79,7 @@ export class ChangesetGraphPackageReference extends S.Class<ChangesetGraphPackag
  * ```ts
  * import { ChangesetGraphSummary } from "@beep/repo-cli/commands/Quality/ChangesetGraph"
  *
- * const summary = new ChangesetGraphSummary({
+ * const summary = ChangesetGraphSummary.make({
  *   workspacePackages: 1,
  *   changesetFiles: 1,
  *   references: 1,
@@ -109,7 +109,7 @@ export class ChangesetGraphSummary extends S.Class<ChangesetGraphSummary>($I`Cha
  * ```ts
  * import { ChangesetGraphError } from "@beep/repo-cli/commands/Quality/ChangesetGraph"
  *
- * const error = new ChangesetGraphError({
+ * const error = ChangesetGraphError.make({
  *   message: "Changeset graph validation failed."
  * })
  * console.log(error.message)
@@ -194,7 +194,7 @@ const collectGitOutput = Effect.fn("ChangesetGraph.collectGitOutput")(function* 
       const exitCode = yield* handle.exitCode;
 
       if (exitCode !== 0) {
-        return yield* new ChangesetGraphError({
+        return yield* ChangesetGraphError.make({
           message: `git ${A.join(args, " ")} failed with exit code ${exitCode}.`,
         });
       }
@@ -204,7 +204,7 @@ const collectGitOutput = Effect.fn("ChangesetGraph.collectGitOutput")(function* 
   ).pipe(
     Effect.mapError(
       (cause) =>
-        new ChangesetGraphError({
+        ChangesetGraphError.make({
           message: `Failed to run git ${A.join(args, " ")}.`,
           cause,
         })
@@ -221,7 +221,7 @@ const readPackageJson = Effect.fn("ChangesetGraph.readPackageJson")(function* (
   const content = yield* fs.readFileString(filePath).pipe(
     Effect.mapError(
       (cause) =>
-        new ChangesetGraphError({
+        ChangesetGraphError.make({
           message: `Failed to read package manifest ${filePath}.`,
           file: filePath,
           cause,
@@ -232,7 +232,7 @@ const readPackageJson = Effect.fn("ChangesetGraph.readPackageJson")(function* (
   return yield* decodePackageJson(content).pipe(
     Effect.mapError(
       (cause) =>
-        new ChangesetGraphError({
+        ChangesetGraphError.make({
           message: `Failed to parse package manifest ${filePath}.`,
           file: filePath,
           cause,
@@ -282,7 +282,7 @@ const collectWorkspacePackageNames = Effect.fn("ChangesetGraph.collectWorkspaceP
     Effect.fn(function* (file) {
       const document = yield* readPackageJson(path.join(repoRoot, file));
       if (P.isUndefined(document.name)) {
-        return yield* new ChangesetGraphError({
+        return yield* ChangesetGraphError.make({
           message: `Workspace package manifest ${file} does not declare a package name.`,
           file,
         });
@@ -316,7 +316,7 @@ const collectChangesetFiles = Effect.fn("ChangesetGraph.collectChangesetFiles")(
       const exists = yield* fs.exists(path.join(repoRoot, file)).pipe(
         Effect.mapError(
           (cause) =>
-            new ChangesetGraphError({
+            ChangesetGraphError.make({
               message: `Failed to inspect changeset file ${file}.`,
               file,
               cause,
@@ -367,7 +367,7 @@ export const changesetPackageReferencesFromText = Effect.fn("ChangesetGraph.chan
     const document = yield* Effect.try({
       try: () => parseDocument(frontmatter.value),
       catch: (cause) =>
-        new ChangesetGraphError({
+        ChangesetGraphError.make({
           message: `Failed to parse changeset frontmatter in ${file}.`,
           file,
           cause,
@@ -380,7 +380,7 @@ export const changesetPackageReferencesFromText = Effect.fn("ChangesetGraph.chan
         O.map((error) => error.message),
         O.getOrElse(() => "YAML parser reported an unknown error.")
       );
-      return yield* new ChangesetGraphError({
+      return yield* ChangesetGraphError.make({
         message: `Invalid changeset frontmatter in ${file}: ${message}`,
         file,
       });
@@ -389,7 +389,7 @@ export const changesetPackageReferencesFromText = Effect.fn("ChangesetGraph.chan
     const value = yield* Effect.try({
       try: () => document.toJSON(),
       catch: (cause) =>
-        new ChangesetGraphError({
+        ChangesetGraphError.make({
           message: `Failed to read changeset frontmatter in ${file}.`,
           file,
           cause,
@@ -403,7 +403,7 @@ export const changesetPackageReferencesFromText = Effect.fn("ChangesetGraph.chan
     const decoded = yield* decodeChangesetFrontmatter(value).pipe(
       Effect.mapError(
         (cause) =>
-          new ChangesetGraphError({
+          ChangesetGraphError.make({
             message: `Changeset frontmatter in ${file} must be a package bump mapping.`,
             file,
             cause,
@@ -414,7 +414,7 @@ export const changesetPackageReferencesFromText = Effect.fn("ChangesetGraph.chan
     return pipe(
       R.keys(decoded),
       A.filter(Str.isNonEmpty),
-      A.map((packageName) => new ChangesetGraphPackageReference({ file, packageName })),
+      A.map((packageName) => ChangesetGraphPackageReference.make({ file, packageName })),
       A.sort(byReferenceKeyAscending)
     );
   }
@@ -436,7 +436,7 @@ const collectChangesetPackageReferences = Effect.fn("ChangesetGraph.collectChang
       const content = yield* fs.readFileString(path.join(repoRoot, file)).pipe(
         Effect.mapError(
           (cause) =>
-            new ChangesetGraphError({
+            ChangesetGraphError.make({
               message: `Failed to read changeset file ${file}.`,
               file,
               cause,
@@ -463,7 +463,7 @@ const collectChangesetPackageReferences = Effect.fn("ChangesetGraph.collectChang
  *
  * const missing = findMissingChangesetPackageReferences(
  *   ["@beep/schema"],
- *   [new ChangesetGraphPackageReference({ file: ".changeset/demo.md", packageName: "@beep/missing" })]
+ *   [ChangesetGraphPackageReference.make({ file: ".changeset/demo.md", packageName: "@beep/missing" })]
  * )
  * console.log(missing.length)
  * ```
@@ -497,7 +497,7 @@ const makeSummary = (
   changesetFiles: ReadonlyArray<string>,
   references: ReadonlyArray<ChangesetGraphPackageReference>
 ): ChangesetGraphSummary =>
-  new ChangesetGraphSummary({
+  ChangesetGraphSummary.make({
     workspacePackages: A.length(workspacePackageNames),
     changesetFiles: A.length(changesetFiles),
     references: A.length(references),
@@ -553,7 +553,7 @@ export const runChangesetGraphCheck = Effect.fn("ChangesetGraph.runChangesetGrap
     for (const reference of summary.missingReferences) {
       yield* Console.error(`- ${reference.file} :: ${reference.packageName}`);
     }
-    return yield* new ChangesetGraphError({
+    return yield* ChangesetGraphError.make({
       message: "Changeset package graph validation failed.",
     });
   }

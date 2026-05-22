@@ -104,7 +104,7 @@ const encodeReportUri = (value: internal.StringOrUrl): Effect.Effect<string, Xss
   Effect.try({
     try: () => internal.encodeStrictURI(value),
     catch: () =>
-      new XssProtectionError({
+      XssProtectionError.make({
         message: `Invalid value for ${headerName}: ${String(value)}`,
         cause: O.none(),
       }),
@@ -131,7 +131,7 @@ const formatXSSProtectionValue = Effect.fn("XSSProtection.formatXSSProtectionVal
     return `1; report=${uri}`;
   }
 
-  return yield* new XssProtectionError({
+  return yield* XssProtectionError.make({
     message: `Invalid value for ${headerName}: ${option}`,
     cause: O.none(),
   });

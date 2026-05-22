@@ -98,11 +98,11 @@ Patch package metadata.
       );
 
       expect(references).toEqual([
-        new ChangesetGraphPackageReference({
+        ChangesetGraphPackageReference.make({
           file: ".changeset/demo.md",
           packageName: "@beep/repo-cli",
         }),
-        new ChangesetGraphPackageReference({
+        ChangesetGraphPackageReference.make({
           file: ".changeset/demo.md",
           packageName: "@beep/schema",
         }),
@@ -130,11 +130,11 @@ Record a private workspace change.
     const missing = findMissingChangesetPackageReferences(
       ["@beep/schema"],
       [
-        new ChangesetGraphPackageReference({
+        ChangesetGraphPackageReference.make({
           file: ".changeset/demo.md",
           packageName: "@beep/schema",
         }),
-        new ChangesetGraphPackageReference({
+        ChangesetGraphPackageReference.make({
           file: ".changeset/demo.md",
           packageName: "@beep/missing",
         }),
@@ -142,7 +142,7 @@ Record a private workspace change.
     );
 
     expect(missing).toEqual([
-      new ChangesetGraphPackageReference({
+      ChangesetGraphPackageReference.make({
         file: ".changeset/demo.md",
         packageName: "@beep/missing",
       }),
@@ -154,7 +154,7 @@ Record a private workspace change.
       ["@beep/schema"],
       [".changeset/demo.md"],
       [
-        new ChangesetGraphPackageReference({
+        ChangesetGraphPackageReference.make({
           file: ".changeset/demo.md",
           packageName: "@beep/missing",
         }),
@@ -166,7 +166,7 @@ Record a private workspace change.
       changesetFiles: 1,
       references: 1,
       missingReferences: [
-        new ChangesetGraphPackageReference({
+        ChangesetGraphPackageReference.make({
           file: ".changeset/demo.md",
           packageName: "@beep/missing",
         }),

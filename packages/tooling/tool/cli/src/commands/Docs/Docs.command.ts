@@ -98,7 +98,7 @@ export const DocsSection = DocsSectionName.mapMembers(
 export type DocsSection = typeof DocsSection.Type;
 
 const DocsSections: ReadonlyArray<DocsSection> = [
-  new DocsSectionLaws({
+  DocsSectionLaws.make({
     name: "laws",
     title: "Codebase Laws",
     summary: "Effect-first quality law summary and validation entry points.",
@@ -116,7 +116,7 @@ const DocsSections: ReadonlyArray<DocsSection> = [
     ],
     keywords: ["effect", "law", "laws", "quality", "lint", "check", "test", "docgen"],
   }),
-  new DocsSectionSkills({
+  DocsSectionSkills.make({
     name: "skills",
     title: "Agent Skills",
     summary: "High-signal skills and usage expectations for coding agents.",
@@ -129,7 +129,7 @@ const DocsSections: ReadonlyArray<DocsSection> = [
     ],
     keywords: ["skill", "skills", "agent", "workflow", "context"],
   }),
-  new DocsSectionPolicies({
+  DocsSectionPolicies.make({
     name: "policies",
     title: "Policy Gates",
     summary: "Operational policy checks for agent output and repo hygiene.",

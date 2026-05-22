@@ -62,7 +62,7 @@ const errorDescription = (error: XAiError): string =>
   `xAI driver failed with ${error.reason}${error.methodName === undefined ? "" : ` during ${error.methodName}`}.`;
 
 const networkTransportError = (error: XAiError): AiError.NetworkError =>
-  new AiError.NetworkError({
+  AiError.NetworkError.make({
     description: errorDescription(error),
     reason: "TransportError",
     request: {
@@ -92,21 +92,21 @@ const mapXAiError =
       );
     }
     if (error.reason === "response decoding" || error.reason === "sse decoding") {
-      return makeAiError(method, new AiError.InvalidOutputError({ description: errorDescription(error) }));
+      return makeAiError(method, AiError.InvalidOutputError.make({ description: errorDescription(error) }));
     }
     if (error.reason === "request encoding" || error.reason === "multipart encoding" || error.reason === "config") {
-      return makeAiError(method, new AiError.InvalidRequestError({ description: errorDescription(error) }));
+      return makeAiError(method, AiError.InvalidRequestError.make({ description: errorDescription(error) }));
     }
     if (error.reason === "transport" || error.reason === "websocket") {
       return makeAiError(method, networkTransportError(error));
     }
-    return makeAiError(method, new AiError.UnknownError({ description: errorDescription(error) }));
+    return makeAiError(method, AiError.UnknownError.make({ description: errorDescription(error) }));
   };
 
 const nonJsonChatCompletionError = (responseTag: "Binary" | "NoBody" | "Text"): AiError.AiError =>
   makeAiError(
     "createChatCompletion",
-    new AiError.InvalidOutputError({
+    AiError.InvalidOutputError.make({
       description: `xAI chat completion returned a ${responseTag} response instead of JSON.`,
     })
   );
@@ -116,7 +116,7 @@ const createChatCompletion = (
   request: OpenAiCompatChatCompletionRequest
 ): Effect.Effect<OpenAiCompatChatCompletionResponse, AiError.AiError> =>
   pipe(
-    xai.createChatCompletion(new XAiRequestOptions({ body: request })),
+    xai.createChatCompletion(XAiRequestOptions.make({ body: request })),
     Effect.mapError(mapXAiError("createChatCompletion")),
     Effect.flatMap((response) =>
       XAiResponse.match(response, {
@@ -142,7 +142,7 @@ const streamChatCompletion = (
   xai: XAiShape,
   request: OpenAiCompatChatCompletionRequest
 ): Stream.Stream<OpenAiCompatChatCompletionChunk, AiError.AiError> =>
-  xai.streamChatCompletion(new XAiRequestOptions({ body: request })).pipe(
+  xai.streamChatCompletion(XAiRequestOptions.make({ body: request })).pipe(
     Stream.mapError(mapXAiError("streamChatCompletion")),
     Stream.flatMap((event) => (event.done ? Stream.empty : Stream.fromEffect(parseStreamEvent(event)))),
     Stream.withSpan("XAiLanguageModel.streamChatCompletion", {

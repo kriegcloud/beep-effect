@@ -72,7 +72,7 @@ describe("terse effect laws", () => {
           );
 
           const summary = yield* runTerseEffectRules(
-            new TerseEffectRulesOptions({
+            TerseEffectRulesOptions.make({
               write: false,
               strictCheck: true,
               excludePaths: [],
@@ -115,7 +115,7 @@ describe("terse effect laws", () => {
           );
 
           const summary = yield* runTerseEffectRules(
-            new TerseEffectRulesOptions({
+            TerseEffectRulesOptions.make({
               write: true,
               strictCheck: false,
               excludePaths: [],
@@ -157,7 +157,7 @@ describe("terse effect laws", () => {
           );
 
           const summary = yield* runTerseEffectRules(
-            new TerseEffectRulesOptions({
+            TerseEffectRulesOptions.make({
               write: false,
               strictCheck: true,
               excludePaths: [],
@@ -202,7 +202,7 @@ describe("terse effect laws", () => {
           );
 
           const summary = yield* runTerseEffectRules(
-            new TerseEffectRulesOptions({
+            TerseEffectRulesOptions.make({
               write: false,
               strictCheck: true,
               excludePaths: [],
@@ -249,7 +249,7 @@ describe("terse effect laws", () => {
           );
 
           const summary = yield* runTerseEffectRules(
-            new TerseEffectRulesOptions({
+            TerseEffectRulesOptions.make({
               write: true,
               strictCheck: false,
               excludePaths: [],
@@ -289,7 +289,7 @@ describe("terse effect laws", () => {
           );
 
           const summary = yield* runTerseEffectRules(
-            new TerseEffectRulesOptions({
+            TerseEffectRulesOptions.make({
               write: false,
               strictCheck: true,
               excludePaths: [],
@@ -338,7 +338,7 @@ describe("terse effect laws", () => {
           );
 
           const summary = yield* runTerseEffectRules(
-            new TerseEffectRulesOptions({
+            TerseEffectRulesOptions.make({
               write: false,
               strictCheck: true,
               excludePaths: [],
@@ -385,7 +385,7 @@ describe("terse effect laws", () => {
           );
 
           const summary = yield* runTerseEffectRules(
-            new TerseEffectRulesOptions({
+            TerseEffectRulesOptions.make({
               write: false,
               strictCheck: true,
               excludePaths: [],
@@ -433,7 +433,7 @@ describe("terse effect laws", () => {
           );
 
           const summary = yield* runTerseEffectRules(
-            new TerseEffectRulesOptions({
+            TerseEffectRulesOptions.make({
               write: false,
               strictCheck: true,
               excludePaths: [],
@@ -493,7 +493,7 @@ describe("terse effect laws", () => {
           );
 
           const summary = yield* runTerseEffectRules(
-            new TerseEffectRulesOptions({
+            TerseEffectRulesOptions.make({
               write: false,
               strictCheck: true,
               excludePaths: [],
@@ -544,7 +544,7 @@ describe("terse effect laws", () => {
           );
 
           const summary = yield* runTerseEffectRules(
-            new TerseEffectRulesOptions({
+            TerseEffectRulesOptions.make({
               write: false,
               strictCheck: true,
               excludePaths: [],
@@ -591,7 +591,7 @@ describe("terse effect laws", () => {
           );
 
           const summary = yield* runTerseEffectRules(
-            new TerseEffectRulesOptions({
+            TerseEffectRulesOptions.make({
               write: false,
               strictCheck: true,
               excludePaths: [],

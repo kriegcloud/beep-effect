@@ -86,7 +86,7 @@ export class OpenAiCompatLanguageModelConfig extends S.Class<OpenAiCompatLanguag
  * import { OpenAiCompatChatCompletionResponse, type OpenAiCompatProvider } from "@beep/openai-compat"
  *
  * const provider: OpenAiCompatProvider = {
- *   createChatCompletion: () => Effect.succeed(new OpenAiCompatChatCompletionResponse({ choices: [] })),
+ *   createChatCompletion: () => Effect.succeed(OpenAiCompatChatCompletionResponse.make({ choices: [] })),
  *   streamChatCompletion: () => Stream.empty
  * }
  *
@@ -107,7 +107,7 @@ export type OpenAiCompatProvider = OpenAiCompatClientShape;
  * import { OpenAiCompatChatCompletionResponse, type OpenAiCompatLanguageModelOptions } from "@beep/openai-compat"
  *
  * const provider: OpenAiCompatLanguageModelOptions["provider"] = {
- *   createChatCompletion: () => Effect.succeed(new OpenAiCompatChatCompletionResponse({ choices: [] })),
+ *   createChatCompletion: () => Effect.succeed(OpenAiCompatChatCompletionResponse.make({ choices: [] })),
  *   streamChatCompletion: () => Stream.empty
  * }
  *
@@ -186,13 +186,13 @@ const makeAiError = (moduleName: string, method: string, reason: AiError.AiError
   AiError.make({ method, module: moduleName, reason });
 
 const makeInvalidOutput = (moduleName: string, method: string, description: string): AiError.AiError =>
-  makeAiError(moduleName, method, new AiError.InvalidOutputError({ description }));
+  makeAiError(moduleName, method, AiError.InvalidOutputError.make({ description }));
 
 const makeInvalidUserInput = (moduleName: string, method: string, description: string): AiError.AiError =>
-  makeAiError(moduleName, method, new AiError.InvalidUserInputError({ description }));
+  makeAiError(moduleName, method, AiError.InvalidUserInputError.make({ description }));
 
 const makeUnsupportedSchema = (moduleName: string, method: string, description: string): AiError.AiError =>
-  makeAiError(moduleName, method, new AiError.UnsupportedSchemaError({ description }));
+  makeAiError(moduleName, method, AiError.UnsupportedSchemaError.make({ description }));
 
 const schemaConversionDescription = (context: string, error: unknown): string =>
   P.isError(error) ? `${context} ${error.message}` : context;
@@ -241,7 +241,7 @@ const usageFromCompat = (usage: OpenAiCompatChatCompletionResponse["usage"]): Re
     O.getOrUndefined
   );
 
-  return new Response.Usage({
+  return Response.Usage.make({
     inputTokens: {
       cacheRead: undefined,
       cacheWrite: undefined,
@@ -348,8 +348,8 @@ const assistantToolCall = (
     encodeToolParams(moduleName, "prepareMessages", part.params),
     Effect.map(
       (args) =>
-        new OpenAiCompatToolCall({
-          function: new OpenAiCompatToolCallFunction({
+        OpenAiCompatToolCall.make({
+          function: OpenAiCompatToolCallFunction.make({
             arguments: args,
             name: toolNameMapper.getProviderName(part.name),
           }),
@@ -388,7 +388,7 @@ const toolResultMessage = (
     encodeToolParams(moduleName, "prepareMessages", part.result),
     Effect.map(
       (content) =>
-        new OpenAiCompatToolChatMessage({
+        OpenAiCompatToolChatMessage.make({
           content,
           name: toolNameMapper.getProviderName(part.name),
           role: "tool",
@@ -404,20 +404,20 @@ const prepareMessage = (
   message: Prompt.Message
 ): Effect.Effect<ReadonlyArray<OpenAiCompatChatMessage>, AiError.AiError> => {
   if (message.role === "system") {
-    return Effect.succeed([new OpenAiCompatSystemChatMessage({ content: message.content, role: "system" })]);
+    return Effect.succeed([OpenAiCompatSystemChatMessage.make({ content: message.content, role: "system" })]);
   }
   if (message.role === "user") {
     return pipe(
       message.content,
       Effect.forEach((part) => userContentPart(moduleName, part)),
-      Effect.map((content) => [new OpenAiCompatUserChatMessage({ content, role: "user" })])
+      Effect.map((content) => [OpenAiCompatUserChatMessage.make({ content, role: "user" })])
     );
   }
   if (message.role === "assistant") {
     return pipe(
       assistantToolCalls(moduleName, toolNameMapper, message.content),
       Effect.map((toolCalls) => [
-        new OpenAiCompatAssistantChatMessage({
+        OpenAiCompatAssistantChatMessage.make({
           content: pipe(assistantTextContent(message.content), O.getOrNull),
           role: "assistant",
           ...R.getSomes({
@@ -443,7 +443,7 @@ const prepareMessages = (
     Effect.forEach((message) => prepareMessage(moduleName, toolNameMapper, message)),
     Effect.map(A.flatten),
     Effect.map((messages) =>
-      A.isReadonlyArrayNonEmpty(messages) ? messages : [new OpenAiCompatUserChatMessage({ content: "", role: "user" })]
+      A.isReadonlyArrayNonEmpty(messages) ? messages : [OpenAiCompatUserChatMessage.make({ content: "", role: "user" })]
     )
   );
 
@@ -462,7 +462,7 @@ const prepareTool = (
     try: () => {
       const name = Tool.isProviderDefined(tool) ? tool.providerName : tool.name;
       const parameters = Tool.getJsonSchema(tool, { transformer: toCodecOpenAI });
-      return new OpenAiCompatFunctionTool({
+      return OpenAiCompatFunctionTool.make({
         function: {
           description: pipe(Tool.getDescription(tool), O.fromUndefinedOr, O.getOrNull),
           name,
@@ -538,7 +538,7 @@ const prepareResponseFormat = (
       ),
     try: () =>
       O.some(
-        new OpenAiCompatJsonSchemaResponseFormat({
+        OpenAiCompatJsonSchemaResponseFormat.make({
           json_schema: {
             name: responseFormat.objectName,
             schema: jsonObjectOrEmpty(
@@ -563,7 +563,7 @@ const makeRequest = Effect.fn("OpenAiCompatLanguageModel.makeRequest")(function*
   const messages = yield* prepareMessages(moduleName, toolNameMapper, options.prompt);
   const tools = yield* prepareTools(moduleName, config, options);
   const responseFormat = yield* prepareResponseFormat(moduleName, config, options.responseFormat);
-  return new OpenAiCompatChatCompletionRequest({
+  return OpenAiCompatChatCompletionRequest.make({
     messages,
     model,
     ...R.getSomes({
@@ -834,7 +834,7 @@ const makeStreamResponse = (
  *   model: "gpt-compatible",
  *   moduleName: "ExampleLanguageModel",
  *   provider: {
- *     createChatCompletion: () => Effect.succeed(new OpenAiCompatChatCompletionResponse({ choices: [] })),
+ *     createChatCompletion: () => Effect.succeed(OpenAiCompatChatCompletionResponse.make({ choices: [] })),
  *     streamChatCompletion: () => Stream.empty
  *   }
  * })
@@ -847,7 +847,7 @@ const makeStreamResponse = (
  */
 export const makeFromProvider: (options: OpenAiCompatLanguageModelOptions) => Effect.Effect<LanguageModel.Service> =
   Effect.fn("OpenAiCompatLanguageModel.makeFromProvider")(function* (options) {
-    const { config = new OpenAiCompatLanguageModelConfig({}), model, moduleName, provider } = options;
+    const { config = OpenAiCompatLanguageModelConfig.make({}), model, moduleName, provider } = options;
 
     return yield* LanguageModel.make({
       codecTransformer: toCodecOpenAI,
@@ -882,7 +882,7 @@ export const makeFromProvider: (options: OpenAiCompatLanguageModelOptions) => Ef
  *   model: "gpt-compatible",
  *   moduleName: "ExampleLanguageModel",
  *   provider: {
- *     createChatCompletion: () => Effect.succeed(new OpenAiCompatChatCompletionResponse({ choices: [] })),
+ *     createChatCompletion: () => Effect.succeed(OpenAiCompatChatCompletionResponse.make({ choices: [] })),
  *     streamChatCompletion: () => Stream.empty
  *   }
  * })

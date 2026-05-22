@@ -36,7 +36,7 @@ export const buildAllowlistSnapshotFromJsoncText = (
     decodeAllowlistDocumentFromJsoncText(allowlistText),
     Effect.map(
       (document) =>
-        new EffectLawsAllowlistSnapshot({
+        EffectLawsAllowlistSnapshot.make({
           path: normalizedAllowlistPath,
           entries: normalizeAllowlistEntries(document.entries),
           diagnostics: EMPTY_DIAGNOSTICS,
@@ -44,7 +44,7 @@ export const buildAllowlistSnapshotFromJsoncText = (
     ),
     Effect.catch((error) =>
       Effect.succeed(
-        new EffectLawsAllowlistSnapshot({
+        EffectLawsAllowlistSnapshot.make({
           path: normalizedAllowlistPath,
           diagnostics: formatSchemaDiagnostics(error.issue),
         })

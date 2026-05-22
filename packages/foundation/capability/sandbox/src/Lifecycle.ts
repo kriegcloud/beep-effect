@@ -179,7 +179,7 @@ const sandboxExecOk = Effect.fn("Lifecycle.sandboxExecOk")(function* <R>(
   const result = yield* sandbox.exec(command, options);
 
   if (result.exitCode !== 0) {
-    return yield* new ExecError({
+    return yield* ExecError.make({
       cause: commandOutput(result),
       command,
       message: `Sandbox command failed with exit ${result.exitCode}: ${command}`,
@@ -197,7 +197,7 @@ const hostProcessOk = Effect.fn("Lifecycle.hostProcessOk")(function* (
   const renderedCommand = A.join([command.command, ...command.args], " ");
 
   if (result.exitCode !== 0) {
-    return yield* new ExecHostError({
+    return yield* ExecHostError.make({
       cause: commandOutput(result),
       command: renderedCommand,
       message: `Host command failed with exit ${result.exitCode}: ${renderedCommand}`,
@@ -215,7 +215,7 @@ const hostShellOk = Effect.fn("Lifecycle.hostShellOk")(function* (
   const result = yield* process.runShell(command, { cwd });
 
   if (result.exitCode !== 0) {
-    return yield* new ExecHostError({
+    return yield* ExecHostError.make({
       cause: commandOutput(result),
       command,
       message: `Host hook failed: ${command}`,
@@ -265,7 +265,7 @@ const runSandboxHook = Effect.fn("Lifecycle.runSandboxHook")(function* <R>(
   yield* sandboxExecOk(
     sandbox,
     hook.command,
-    new SandboxExecOptions({
+    SandboxExecOptions.make({
       cwd,
       sudo: hook.sudo === true,
     })
@@ -309,7 +309,7 @@ export const runHostHooks: {
   Effect.fn("Lifecycle.runHostHooks")(function* (
     hooks: ReadonlyArray<HostLifecycleHookCommand>,
     cwd: string,
-    options: RunHostHooksOptions = new RunHostHooksOptions({})
+    options: RunHostHooksOptions = RunHostHooksOptions.make({})
   ) {
     if (hooks.length === 0) {
       return;
@@ -354,7 +354,7 @@ const readHostGitConfig = Effect.fn("Lifecycle.readHostGitConfig")(function* (
   key: string
 ) {
   const result = yield* process.run(
-    new ProcessCommand({
+    ProcessCommand.make({
       args: ["config", key],
       command: "git",
       cwd: hostRepoDir,
@@ -373,7 +373,7 @@ const gitSetupCommand = <R>(
   sandboxExecOk(
     sandbox,
     command,
-    new SandboxExecOptions({
+    SandboxExecOptions.make({
       cwd: sandboxRepoDir,
     })
   ).pipe(
@@ -484,7 +484,7 @@ const hostGitOk = (
 ): Effect.Effect<ProcessResult, ExecHostError> =>
   hostProcessOk(
     process,
-    new ProcessCommand({
+    ProcessCommand.make({
       args: [...args],
       command: "git",
       cwd,
@@ -562,7 +562,7 @@ export const mergeToHead = Effect.fn("Lifecycle.mergeToHead")(function* (
         Effect.mapError((error) =>
           P.isTagged(error, "MergeToHostTimeoutError")
             ? error
-            : new SyncError({
+            : SyncError.make({
                 cause: error,
                 message: `Merge of '${options.sourceBranch}' onto '${options.targetBranch}' failed. The temporary branch '${options.sourceBranch}' has been preserved.`,
               })

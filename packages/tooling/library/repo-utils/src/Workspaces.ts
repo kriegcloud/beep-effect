@@ -97,13 +97,13 @@ export const resolveWorkspaceDirs: (
     const rootPkgPath = `${rootDir}/package.json`;
     const rawPkg = yield* fsUtils.readJson(rootPkgPath);
     if (O.isNone(rawPkg)) {
-      return yield* new DomainError({
+      return yield* DomainError.make({
         message: `Failed to parse JSON at "${rootPkgPath}"`,
       });
     }
     const rootPkg = yield* decodePackageJsonEffect(rawPkg.value).pipe(
       Effect.mapError(
-        (error) => new DomainError({ cause: error, message: `Failed to decode root package.json at "${rootPkgPath}"` })
+        (error) => DomainError.make({ cause: error, message: `Failed to decode root package.json at "${rootPkgPath}"` })
       )
     );
 
@@ -114,7 +114,7 @@ export const resolveWorkspaceDirs: (
 
     for (const workspaceGlob of workspaceGlobs) {
       if (!isSafeWorkspacePattern(workspaceGlob)) {
-        return yield* new DomainError({
+        return yield* DomainError.make({
           message: `Unsafe workspace glob "${workspaceGlob}" escapes the repository root.`,
         });
       }
@@ -140,7 +140,7 @@ export const resolveWorkspaceDirs: (
         .pipe(Effect.mapError(DomainError.newCause(`Failed to resolve workspace path "${dir}"`)));
 
       if (!isContainedCanonicalPath(canonicalRootDir, canonicalDir)) {
-        return yield* new DomainError({
+        return yield* DomainError.make({
           message: `Workspace path escapes repository root: "${dir}" -> "${canonicalDir}"`,
         });
       }
@@ -153,7 +153,7 @@ export const resolveWorkspaceDirs: (
         continue;
       }
       if (O.isNone(rawChildPkg)) {
-        return yield* new DomainError({
+        return yield* DomainError.make({
           message: `Failed to parse JSON at "${pkgJsonPath}"`,
         });
       }

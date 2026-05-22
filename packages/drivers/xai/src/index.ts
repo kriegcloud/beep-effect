@@ -27,7 +27,7 @@ export const VERSION = "0.0.0" as const;
  * ```ts
  * import { XAiConfigInput } from "@beep/xai"
  *
- * const config = new XAiConfigInput({})
+ * const config = XAiConfigInput.make({})
  * void config
  * ```
  *
@@ -59,7 +59,7 @@ export * from "./XAi.errors.ts";
  * ```ts
  * import { XAiRequestOptions } from "@beep/xai"
  *
- * const request = new XAiRequestOptions({})
+ * const request = XAiRequestOptions.make({})
  * void request
  * ```
  *

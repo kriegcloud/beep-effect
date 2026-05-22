@@ -89,7 +89,7 @@ export class Position extends S.Class<Position>($I`Position`)({
   static readonly new: {
     (line: number, column: number): Position;
     (column: number): (line: number) => Position;
-  } = dual(2, (line: number, column: number): Position => new Position({ column, line }));
+  } = dual(2, (line: number, column: number): Position => Position.make({ column, line }));
 }
 
 /**
@@ -135,7 +135,7 @@ export class Doc extends S.Class<Doc>($I`Doc`)({
   } = dual(
     2,
     (description: string | undefined, options: DocNewOptions): Doc =>
-      new Doc({
+      Doc.make({
         description,
         since: A.fromIterable(options.since),
         deprecated: A.fromIterable(options.deprecated),
@@ -210,7 +210,7 @@ export class DocEntry extends S.Class<DocEntry>($I`DocEntry`)({
   } = dual(
     3,
     (name: string, doc: Doc, options: SignaturePositionOptions): DocEntry =>
-      new DocEntry({ name, doc, signature: options.signature, position: options.position })
+      DocEntry.make({ name, doc, signature: options.signature, position: options.position })
   );
 }
 
@@ -265,7 +265,7 @@ export class Class extends S.Class<Class>($I`Class`)({
   } = dual(
     3,
     (name: string, doc: Doc, options: ClassNewOptions): Class =>
-      new Class({
+      Class.make({
         name,
         doc,
         signature: options.signature,
@@ -322,7 +322,7 @@ export class Interface extends S.Class<Interface>($I`Interface`)({
   } = dual(
     3,
     (name: string, doc: Doc, options: SignaturePositionOptions): Interface =>
-      new Interface({ name, doc, signature: options.signature, position: options.position })
+      Interface.make({ name, doc, signature: options.signature, position: options.position })
   );
 }
 
@@ -371,7 +371,7 @@ export class Function extends S.Class<Function>($I`Function`)({
   } = dual(
     3,
     (name: string, doc: Doc, options: SignaturePositionOptions): Function =>
-      new Function({ name, doc, signature: options.signature, position: options.position })
+      Function.make({ name, doc, signature: options.signature, position: options.position })
   );
 }
 
@@ -420,7 +420,7 @@ export class TypeAlias extends S.Class<TypeAlias>($I`TypeAlias`)({
   } = dual(
     3,
     (name: string, doc: Doc, options: SignaturePositionOptions): TypeAlias =>
-      new TypeAlias({ name, doc, signature: options.signature, position: options.position })
+      TypeAlias.make({ name, doc, signature: options.signature, position: options.position })
   );
 }
 
@@ -469,7 +469,7 @@ export class Constant extends S.Class<Constant>($I`Constant`)({
   } = dual(
     3,
     (name: string, doc: Doc, options: SignaturePositionOptions): Constant =>
-      new Constant({ name, doc, signature: options.signature, position: options.position })
+      Constant.make({ name, doc, signature: options.signature, position: options.position })
   );
 }
 
@@ -528,7 +528,7 @@ export class Export extends S.Class<Export>($I`Export`)({
   } = dual(
     3,
     (name: string, doc: Doc, options: ExportNewOptions): Export =>
-      new Export({
+      Export.make({
         name,
         doc,
         signature: options.signature,
@@ -589,7 +589,7 @@ export class Namespace extends S.Class<Namespace>($I`Namespace`)({
   } = dual(
     3,
     (name: string, doc: Doc, options: NamespaceNewOptions): Namespace =>
-      new Namespace({
+      Namespace.make({
         name,
         doc,
         position: options.position,
@@ -640,7 +640,7 @@ export class Module extends S.Class<Module>($I`Module`)({
   } = dual(
     3,
     (source: Parser.SourceShape, name: string, options: ModuleNewOptions): Module =>
-      new Module({
+      Module.make({
         source,
         name,
         doc: options.doc,
@@ -706,7 +706,7 @@ export class File extends S.Class<File>($I`File`)({
     (content: string, options: FileNewOptions): (path: string) => File;
   } = dual(3, (path: string, content: string, options: FileNewOptions): File => {
     const isOverwritable = options.isOverwritable ?? false;
-    return new File({ path, content, isOverwritable });
+    return File.make({ path, content, isOverwritable });
   });
 }
 
@@ -742,7 +742,7 @@ export type DocgenErrorTypeId = typeof DocgenErrorTypeId;
  * @example
  * ```ts
  * import { DocgenError } from "@beep/repo-docgen/Domain"
- * const error = new DocgenError({ message: "Unable to generate docs." })
+ * const error = DocgenError.make({ message: "Unable to generate docs." })
  * void error
  * ```
  * @category models

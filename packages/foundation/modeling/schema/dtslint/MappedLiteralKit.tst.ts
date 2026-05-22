@@ -67,7 +67,7 @@ describe("MappedLiteralKit", () => {
 
 describe("MappedLiteralDuplicateError", () => {
   it("is constructible with a tagged payload", () => {
-    const error = new MappedLiteralDuplicateError({
+    const error = MappedLiteralDuplicateError.make({
       side: "from",
       literal: "A",
       firstIndex: 0,

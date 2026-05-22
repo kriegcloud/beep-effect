@@ -91,7 +91,7 @@ export type PhaseOutcome = typeof PhaseOutcome.Type;
  * import { PhaseProfile } from "@beep/observability"
  *
  * const durationMs = S.decodeUnknownSync(NonNegativeInt)(42)
- * const profile = new PhaseProfile({
+ * const profile = PhaseProfile.make({
  *   attributes: {},
  *   durationMs,
  *   outcome: "completed",
@@ -209,7 +209,7 @@ const profilePhaseImpl = Effect.fn("profilePhaseImpl")(function* <A, E, R>(
                 Effect.fnUntraced(function* (endedAt) {
                   const durationMs = Math.max(0, endedAt - startedAt);
                   const outcome = toPhaseOutcome(exit);
-                  const profile = new PhaseProfile({
+                  const profile = PhaseProfile.make({
                     phase: options.phase,
                     outcome,
                     durationMs: decodeNonNegativeInt(durationMs),

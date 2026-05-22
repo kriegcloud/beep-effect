@@ -175,7 +175,7 @@ layer(NodeServices.layer)("VersionSync Effect Catalog", (it) => {
   describe("buildBunReport", () => {
     it("uses semver precedence instead of lexicographic string ordering for local Bun pins", () => {
       const report = buildBunReport(
-        new BunVersionState({
+        BunVersionState.make({
           bunVersionFile: "1.10.0",
           packageManagerField: "1.9.0",
           latest: O.none(),
@@ -190,7 +190,7 @@ layer(NodeServices.layer)("VersionSync Effect Catalog", (it) => {
 
     it("treats stable releases as newer than prereleases with the same core version", () => {
       const report = buildBunReport(
-        new BunVersionState({
+        BunVersionState.make({
           bunVersionFile: "1.10.0-beta.1",
           packageManagerField: "1.10.0",
           latest: O.none(),

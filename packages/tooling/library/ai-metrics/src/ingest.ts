@@ -59,7 +59,7 @@ type TranscriptTextSummaryInput = {
 };
 
 const codexTurn = (sourcePathHash: string, lineNumber: number, line: CodexTranscriptLine): AgentTurn =>
-  new AgentTurn({
+  AgentTurn.make({
     eventName: metricEventName({
       fallback: "event",
       sourceKind: AiMetricsTranscriptSource.Enum.codex,
@@ -72,7 +72,7 @@ const codexTurn = (sourcePathHash: string, lineNumber: number, line: CodexTransc
   });
 
 const claudeTurn = (sourcePathHash: string, lineNumber: number, line: ClaudeTranscriptLine): AgentTurn =>
-  new AgentTurn({
+  AgentTurn.make({
     eventName: metricEventName({
       fallback: "message",
       sourceKind: AiMetricsTranscriptSource.Enum.claude,
@@ -85,7 +85,7 @@ const claudeTurn = (sourcePathHash: string, lineNumber: number, line: ClaudeTran
   });
 
 const openClawTurn = (sourcePathHash: string, lineNumber: number, line: OpenClawTranscriptLine): AgentTurn =>
-  new AgentTurn({
+  AgentTurn.make({
     eventName: pipe(
       firstString(line.event, line.type),
       O.map((value) =>
@@ -181,7 +181,7 @@ export const summarizeTranscriptText: (
     const sourcePathHash = yield* hashPrivateIdentifier(sourcePath, hashSalt).pipe(
       Effect.mapError(
         (cause) =>
-          new AiMetricsIngestError({
+          AiMetricsIngestError.make({
             cause,
             message: "Failed to hash transcript source path.",
           })
@@ -195,7 +195,7 @@ export const summarizeTranscriptText: (
     );
     const events = A.getSomes(parsed);
 
-    return new TranscriptIngestSummary({
+    return TranscriptIngestSummary.make({
       acceptedEvents: A.length(events),
       eventNames: eventNameList(events),
       rejectedLines: A.length(lines) - A.length(events),
@@ -223,7 +223,7 @@ export const summaryToJson: (summary: TranscriptIngestSummary) => Effect.Effect<
     return yield* encodeTranscriptIngestSummaryJson(summary).pipe(
       Effect.mapError(
         (cause) =>
-          new AiMetricsIngestError({
+          AiMetricsIngestError.make({
             cause,
             message: "Failed to encode transcript ingest summary as JSON.",
           })

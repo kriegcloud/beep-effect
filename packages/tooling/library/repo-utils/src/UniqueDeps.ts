@@ -24,7 +24,7 @@ const $I = $RepoUtilsId.create("UniqueDeps");
  * @example
  * ```ts
  * import { UniqueNpmDeps } from "@beep/repo-utils/UniqueDeps"
- * const deps = new UniqueNpmDeps({
+ * const deps = UniqueNpmDeps.make({
  *   dependencies: ["effect"],
  *   devDependencies: ["vitest"]
  * })
@@ -93,7 +93,7 @@ export const collectUniqueNpmDependencies: (
     }
   }
 
-  return new UniqueNpmDeps({
+  return UniqueNpmDeps.make({
     dependencies: sortHashSet(depsSet),
     devDependencies: sortHashSet(devDepsSet),
   });

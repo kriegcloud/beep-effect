@@ -340,7 +340,7 @@ const readInputFile = Effect.fn("AIMetrics.readInputFile")(function* (input: str
   const content = yield* fs.readFileString(absolutePath).pipe(
     Effect.mapError(
       (cause) =>
-        new AiMetricsCommandError({
+        AiMetricsCommandError.make({
           cause,
           message: "Failed to read transcript input.",
         })
@@ -357,7 +357,7 @@ const encodeCommandJson = Effect.fn("AIMetrics.encodeCommandJson")(function* (va
   return yield* encodeJson(value).pipe(
     Effect.mapError(
       (cause) =>
-        new AiMetricsCommandError({
+        AiMetricsCommandError.make({
           cause,
           message: "Failed to encode AI metrics command output as JSON.",
         })
@@ -371,7 +371,7 @@ const encodeInstallSpecCommandJson = Effect.fn("AIMetrics.encodeInstallSpecComma
   return yield* encodeInstallSpecJson(spec).pipe(
     Effect.mapError(
       (cause) =>
-        new AiMetricsCommandError({
+        AiMetricsCommandError.make({
           cause,
           message: "Failed to encode AI metrics install spec as JSON.",
         })
@@ -404,7 +404,7 @@ const readOptionalConfigString: (key: string) => Effect.Effect<O.Option<string>,
   ConfigProvider.ConfigProvider.use((provider) => Config.option(Config.string(key)).parse(provider)).pipe(
     Effect.mapError(
       (cause) =>
-        new AiMetricsCommandError({
+        AiMetricsCommandError.make({
           cause,
           message: `Failed to read ${key} from the Effect config provider.`,
         })
@@ -420,7 +420,7 @@ const readOptionalRedactedConfigString: (
   ConfigProvider.ConfigProvider.use((provider) => Config.option(Config.redacted(key)).parse(provider)).pipe(
     Effect.mapError(
       (cause) =>
-        new AiMetricsCommandError({
+        AiMetricsCommandError.make({
           cause,
           message: `Failed to read ${key} from the Effect config provider.`,
         })
@@ -438,7 +438,7 @@ const resolveHomeDir = Effect.fn("AIMetrics.resolveHomeDir")(function* (homeDir:
     return envHome.value;
   }
 
-  return yield* new AiMetricsCommandError({
+  return yield* AiMetricsCommandError.make({
     cause: "HOME",
     message: "Unable to resolve a home directory. Pass --home-dir explicitly.",
   });
@@ -475,7 +475,7 @@ const resolveRawArchiveKey = Effect.fn("AIMetrics.resolveRawArchiveKey")(functio
     return envKey.value;
   }
 
-  return yield* new AiMetricsCommandError({
+  return yield* AiMetricsCommandError.make({
     cause: "BEEP_AI_METRICS_RAW_ARCHIVE_KEY",
     message: "AI metrics forwarder requires BEEP_AI_METRICS_RAW_ARCHIVE_KEY.",
   });
@@ -503,7 +503,7 @@ const requireHashSaltForTarget = Effect.fn("AIMetrics.requireHashSaltForTarget")
     return hashSalt;
   }
 
-  return yield* new AiMetricsCommandError({
+  return yield* AiMetricsCommandError.make({
     cause: target,
     message: "Non-local AI metrics commands require --hash-salt or BEEP_AI_METRICS_HASH_SALT.",
   });
@@ -523,7 +523,7 @@ const requireHashSaltSecretRefForTarget = Effect.fn("AIMetrics.requireHashSaltSe
     return hashSaltSecretRef;
   }
 
-  return yield* new AiMetricsCommandError({
+  return yield* AiMetricsCommandError.make({
     cause: target,
     message:
       "Non-local AI metrics install plans require --hash-salt-secret-ref or BEEP_AI_METRICS_HASH_SALT_SECRET_REF.",
@@ -545,7 +545,7 @@ const requireRawArchiveKeySecretRefForTarget = Effect.fn("AIMetrics.requireRawAr
       return rawArchiveKeySecretRef;
     }
 
-    return yield* new AiMetricsCommandError({
+    return yield* AiMetricsCommandError.make({
       cause: target,
       message:
         "Non-local AI metrics install plans require --raw-archive-key-secret-ref or BEEP_AI_METRICS_RAW_ARCHIVE_KEY_SECRET_REF.",
@@ -574,7 +574,7 @@ const parseSinceEpochMillis = Effect.fn("AIMetrics.parseSinceEpochMillis")(funct
     return parsed.value;
   }
 
-  return yield* new AiMetricsCommandError({
+  return yield* AiMetricsCommandError.make({
     cause: since.value,
     message: `Invalid --since value "${since.value}". Use an ISO timestamp or epoch milliseconds.`,
   });
@@ -591,7 +591,7 @@ const parseOptionalEpochMillis = Effect.fn("AIMetrics.parseOptionalEpochMillis")
   const parsed = parseEpochMillisOption(value.value);
   if (O.isSome(parsed)) return parsed;
 
-  return yield* new AiMetricsCommandError({
+  return yield* AiMetricsCommandError.make({
     cause: value.value,
     message: `Invalid --${flagName} value "${value.value}". Use an ISO timestamp or epoch milliseconds.`,
   });
@@ -618,7 +618,7 @@ const parseWindow = Effect.fn("AIMetrics.parseWindow")(function* ({
     };
   }
 
-  return yield* new AiMetricsCommandError({
+  return yield* AiMetricsCommandError.make({
     cause: {
       windowEndEpochMillis,
       windowStartEpochMillis,
@@ -642,7 +642,7 @@ const parseRetentionSelector = Effect.fn("AIMetrics.parseRetentionSelector")(fun
   const sinceEpochMillis = yield* parseOptionalEpochMillis("since", since);
   const untilEpochMillis = yield* parseOptionalEpochMillis("until", until);
 
-  return new AiMetricsRetentionSelector({
+  return AiMetricsRetentionSelector.make({
     dataRoot: O.getOrElse(dataRoot, () => localCollectorDataRoot),
     ...(O.isSome(beforeEpochMillis) ? { beforeEpochMillis: beforeEpochMillis.value } : {}),
     ...(O.isSome(sinceEpochMillis) ? { sinceEpochMillis: sinceEpochMillis.value } : {}),
@@ -694,7 +694,7 @@ const makeCommandInstallInput = Effect.fn("AIMetrics.makeCommandInstallInput")(f
     target,
   });
 
-  return new AiMetricsInstallInput({
+  return AiMetricsInstallInput.make({
     ...(resolvedDataRoot === undefined ? {} : { dataRoot: resolvedDataRoot }),
     ...(resolvedHashSaltSecretRef === undefined ? {} : { hashSaltSecretRef: resolvedHashSaltSecretRef }),
     ...(resolvedRawArchiveKeySecretRef === undefined ? {} : { rawArchiveKeySecretRef: resolvedRawArchiveKeySecretRef }),
@@ -752,7 +752,7 @@ const defaultServiceEndpoint = Effect.fn("AIMetrics.defaultServiceEndpoint")(fun
   );
 
   if (O.isNone(service)) {
-    return yield* new AiMetricsCommandError({
+    return yield* AiMetricsCommandError.make({
       cause: spec.defaultTool,
       message: "AI metrics install spec does not contain an enabled backend service.",
     });
@@ -763,7 +763,7 @@ const defaultServiceEndpoint = Effect.fn("AIMetrics.defaultServiceEndpoint")(fun
   }
 
   const baseUrl = pipe(otlpBaseUrl.value, Str.replace(/\/+$/u, ""));
-  return new AiMetricsOtlpEndpointSpec({
+  return AiMetricsOtlpEndpointSpec.make({
     baseUrl,
     protocol: service.value.otlp.protocol,
     resourceAttributes: service.value.otlp.resourceAttributes,
@@ -776,7 +776,7 @@ const serverObservabilityConfigFor = (
   target: AiMetricsDeployTarget,
   endpoint: AiMetricsOtlpEndpointSpec
 ): ServerObservabilityConfig =>
-  new ServerObservabilityConfig({
+  ServerObservabilityConfig.make({
     devtoolsEnabled: false,
     devtoolsUrl: "ws://localhost:34437",
     environment: target,
@@ -811,7 +811,7 @@ const makeInstallPreviewProgram = Effect.fn("AIMetrics.makeInstallPreviewProgram
     target,
   });
   const spec = yield* makeAiMetricsInstallSpec(
-    new AiMetricsInstallInput({
+    AiMetricsInstallInput.make({
       defaultTool: tool,
       ...(resolvedHashSaltSecretRef === undefined ? {} : { hashSaltSecretRef: resolvedHashSaltSecretRef }),
       ...(resolvedRawArchiveKeySecretRef === undefined
@@ -835,7 +835,7 @@ const makeInstallComposeProgram = Effect.fn("AIMetrics.makeInstallComposeProgram
   readonly tool: AiMetricsTool;
 }) {
   const spec = yield* makeAiMetricsInstallSpec(
-    new AiMetricsInstallInput({
+    AiMetricsInstallInput.make({
       defaultTool: tool,
       privacyMode: AiMetricsPrivacyMode.Enum.encrypted_raw_redacted_ui,
       target,
@@ -951,7 +951,7 @@ const makeInstallDoctorProgram = Effect.fn("AIMetrics.makeInstallDoctorProgram")
   const resolvedHashSalt = yield* resolveHashSalt(hashSalt);
   const sinceEpochMillis = all ? undefined : yield* parseSinceEpochMillis(since);
   const sourceDiscovery = yield* discoverAiMetricsSources(
-    new AiMetricsSourceDiscoveryInput({
+    AiMetricsSourceDiscoveryInput.make({
       homeDir: yield* resolveHomeDir(homeDir),
       includeAll: all,
       ...(O.isSome(maxFileBytes) ? { maxFileBytes: maxFileBytes.value } : {}),
@@ -964,7 +964,7 @@ const makeInstallDoctorProgram = Effect.fn("AIMetrics.makeInstallDoctorProgram")
     })
   );
   const result = yield* makeAiMetricsInstallDoctorResult(
-    new AiMetricsInstallDoctorInput({
+    AiMetricsInstallDoctorInput.make({
       install,
       sourceDiscovery,
     })
@@ -972,7 +972,7 @@ const makeInstallDoctorProgram = Effect.fn("AIMetrics.makeInstallDoctorProgram")
 
   yield* renderInstallDoctor(result, json);
   if (result.status === AiMetricsInstallDoctorStatus.Enum.failed) {
-    return yield* new AiMetricsStatusExit({
+    return yield* AiMetricsStatusExit.make({
       message: "AI metrics install doctor reported a failed status.",
     });
   }
@@ -994,7 +994,7 @@ const makeInstallApplyProgram = Effect.fn("AIMetrics.makeInstallApplyProgram")(f
   readonly target: AiMetricsDeployTarget;
 }) {
   if (!dryRun) {
-    return yield* new AiMetricsCommandError({
+    return yield* AiMetricsCommandError.make({
       cause: "install apply",
       message:
         "AI metrics CLI install apply is dry-run-only. Pass --dry-run; real dankserver mutation is owned by the Pulumi P5b stack.",
@@ -1068,7 +1068,7 @@ const collectJsonlInputFiles = Effect.fn("AIMetrics.collectJsonlInputFiles")(fun
   const stat = yield* fs.stat(inputPath).pipe(
     Effect.mapError(
       (cause) =>
-        new AiMetricsCommandError({
+        AiMetricsCommandError.make({
           cause,
           message: "Failed to inspect privacy input.",
         })
@@ -1080,7 +1080,7 @@ const collectJsonlInputFiles = Effect.fn("AIMetrics.collectJsonlInputFiles")(fun
   }
 
   if (stat.type !== "Directory") {
-    return yield* new AiMetricsCommandError({
+    return yield* AiMetricsCommandError.make({
       cause: stat.type,
       message: "Expected --input to be a transcript file or directory.",
     });
@@ -1125,7 +1125,7 @@ const readPrivacyInput = Effect.fn("AIMetrics.readPrivacyInput")(function* (inpu
       fs.readFileString(filePath).pipe(
         Effect.mapError(
           (cause) =>
-            new AiMetricsCommandError({
+            AiMetricsCommandError.make({
               cause,
               message: "Failed to read transcript input.",
             })
@@ -1169,7 +1169,7 @@ const makeSourcesDiscoverProgram = Effect.fn("AIMetrics.makeSourcesDiscoverProgr
   });
   const sinceEpochMillis = all ? undefined : yield* parseSinceEpochMillis(since);
   const result = yield* discoverAiMetricsSources(
-    new AiMetricsSourceDiscoveryInput({
+    AiMetricsSourceDiscoveryInput.make({
       homeDir: yield* resolveHomeDir(homeDir),
       includeAll: all,
       ...(O.isSome(maxFileBytes) ? { maxFileBytes: maxFileBytes.value } : {}),
@@ -1205,7 +1205,7 @@ const makeConfigSnapshotProgram = Effect.fn("AIMetrics.makeConfigSnapshotProgram
   readonly repoRoot: O.Option<string>;
 }) {
   const result = yield* makeAiMetricsConfigSnapshot(
-    new AiMetricsConfigSnapshotInput({
+    AiMetricsConfigSnapshotInput.make({
       repoRoot: yield* resolveRepoRoot(repoRoot),
     })
   );
@@ -1261,7 +1261,7 @@ const forwarderRunResultWithOtlpExport = (
   result: AiMetricsForwarderRunResult,
   otlpExport: AiMetricsForwarderOtlpExport
 ): AiMetricsForwarderRunResult =>
-  new AiMetricsForwarderRunResult({
+  AiMetricsForwarderRunResult.make({
     archiveObjectCount: result.archiveObjectCount,
     configSnapshotId: result.configSnapshotId,
     duckDbPath: result.duckDbPath,
@@ -1277,7 +1277,7 @@ const forwarderRunResultWithOtlpExport = (
   });
 
 const forwarderOtlpExported = (result: AiMetricsOtlpExportResult): AiMetricsForwarderOtlpExported =>
-  new AiMetricsForwarderOtlpExported({
+  AiMetricsForwarderOtlpExported.make({
     endpointTraceUrl: result.endpointTraceUrl,
     ingestRunId: result.ingestRunId,
     sessionSpanCount: result.sessionSpanCount,
@@ -1300,7 +1300,7 @@ const forwarderOtlpExportFailed = ({
   readonly message: string;
   readonly target: AiMetricsDeployTarget;
 }): AiMetricsForwarderOtlpExportFailed =>
-  new AiMetricsForwarderOtlpExportFailed({
+  AiMetricsForwarderOtlpExportFailed.make({
     endpointTraceUrl: endpoint.traceUrl,
     ingestRunId: forwarderResult.ingestRunId,
     message,
@@ -1318,7 +1318,7 @@ const exportForwarderDerivedOtlp = Effect.fn("AIMetrics.exportForwarderDerivedOt
   readonly target: AiMetricsDeployTarget;
 }) {
   return yield* runAiMetricsOtlpExport(
-    new AiMetricsOtlpExportInput({
+    AiMetricsOtlpExportInput.make({
       duckDbPath: forwarderResult.duckDbPath,
       endpoint,
       ingestRunId: forwarderResult.ingestRunId,
@@ -1389,7 +1389,7 @@ const makeForwarderRunProgram = Effect.fn("AIMetrics.makeForwarderRunProgram")(f
   });
   const resolvedDataRoot = O.getOrUndefined(p6aCollectorDataRoot(dataRoot, target));
   const spec = yield* makeAiMetricsInstallSpec(
-    new AiMetricsInstallInput({
+    AiMetricsInstallInput.make({
       ...(resolvedDataRoot === undefined ? {} : { dataRoot: resolvedDataRoot }),
       ...(resolvedHashSaltSecretRef === undefined ? {} : { hashSaltSecretRef: resolvedHashSaltSecretRef }),
       ...(resolvedRawArchiveKeySecretRef === undefined
@@ -1400,7 +1400,7 @@ const makeForwarderRunProgram = Effect.fn("AIMetrics.makeForwarderRunProgram")(f
   );
   const resolvedRawArchiveKey = yield* resolveRawArchiveKey();
   const sinceEpochMillis = all ? undefined : yield* parseSinceEpochMillis(since);
-  const forwarderInput = new AiMetricsForwarderInput({
+  const forwarderInput = AiMetricsForwarderInput.make({
     ...(resolvedDataRoot === undefined ? {} : { dataRoot: resolvedDataRoot }),
     ...(resolvedHashSalt === undefined ? {} : { hashSalt: resolvedHashSalt }),
     ...(resolvedHashSaltSecretRef === undefined ? {} : { hashSaltSecretRef: resolvedHashSaltSecretRef }),
@@ -1415,7 +1415,7 @@ const makeForwarderRunProgram = Effect.fn("AIMetrics.makeForwarderRunProgram")(f
     ...(sinceEpochMillis === undefined ? {} : { sinceEpochMillis }),
     target,
   });
-  const duckDbLayer = DuckDb.makeNodeLayer(new DuckDbConnectionOptions({ databasePath: spec.storage.duckDbPath }));
+  const duckDbLayer = DuckDb.makeNodeLayer(DuckDbConnectionOptions.make({ databasePath: spec.storage.duckDbPath }));
   const forwarderResult = yield* Effect.scoped(
     Layer.build(duckDbLayer).pipe(
       Effect.flatMap((context) => runAiMetricsForwarder(forwarderInput).pipe(Effect.provide(context)))
@@ -1528,7 +1528,7 @@ const makeForwarderTimerProgram = Effect.fn("AIMetrics.makeForwarderTimerProgram
   const otlpArgs =
     target === AiMetricsDeployTarget.Enum.dankserver ? ["--otlp", "--otlp-base-url", endpoint.baseUrl] : [];
   const plan = renderAiMetricsForwarderTimerPlan(
-    new AiMetricsForwarderTimerInput({
+    AiMetricsForwarderTimerInput.make({
       command: [
         process.execPath,
         "packages/tooling/tool/cli/src/bin.ts",
@@ -1604,7 +1604,7 @@ const makeOtlpExportProgram = Effect.fn("AIMetrics.makeOtlpExportProgram")(funct
     target,
   });
   const spec = yield* makeAiMetricsInstallSpec(
-    new AiMetricsInstallInput({
+    AiMetricsInstallInput.make({
       ...(resolvedDataRoot === undefined ? {} : { dataRoot: resolvedDataRoot }),
       ...(resolvedHashSaltSecretRef === undefined ? {} : { hashSaltSecretRef: resolvedHashSaltSecretRef }),
       ...(resolvedRawArchiveKeySecretRef === undefined
@@ -1617,13 +1617,13 @@ const makeOtlpExportProgram = Effect.fn("AIMetrics.makeOtlpExportProgram")(funct
   const result = yield* Effect.scoped(
     Layer.build(
       Layer.mergeAll(
-        DuckDb.makeNodeLayer(new DuckDbConnectionOptions({ databasePath: spec.storage.duckDbPath })),
+        DuckDb.makeNodeLayer(DuckDbConnectionOptions.make({ databasePath: spec.storage.duckDbPath })),
         layerNodeSdkServerTraces(serverObservabilityConfigFor(target, endpoint))
       )
     ).pipe(
       Effect.flatMap((context) =>
         runAiMetricsOtlpExport(
-          new AiMetricsOtlpExportInput({
+          AiMetricsOtlpExportInput.make({
             duckDbPath: spec.storage.duckDbPath,
             endpoint,
             ingestRunId,
@@ -1679,10 +1679,10 @@ const makeBenchmarkRunProgram = Effect.fn("AIMetrics.makeBenchmarkRunProgram")(f
     target,
   });
   const result = yield* Effect.scoped(
-    Layer.build(DuckDb.makeNodeLayer(new DuckDbConnectionOptions({ databasePath: spec.storage.duckDbPath }))).pipe(
+    Layer.build(DuckDb.makeNodeLayer(DuckDbConnectionOptions.make({ databasePath: spec.storage.duckDbPath }))).pipe(
       Effect.flatMap((context) =>
         recordAiMetricsBenchmarkRun(
-          new AiMetricsBenchmarkRunInput({
+          AiMetricsBenchmarkRunInput.make({
             benchmarkCaseId: caseId,
             configSnapshotId,
             elapsedMs,
@@ -1754,10 +1754,10 @@ const makeLabelQueueProgram = Effect.fn("AIMetrics.makeLabelQueueProgram")(funct
     until,
   });
   const result = yield* Effect.scoped(
-    Layer.build(DuckDb.makeNodeLayer(new DuckDbConnectionOptions({ databasePath: spec.storage.duckDbPath }))).pipe(
+    Layer.build(DuckDb.makeNodeLayer(DuckDbConnectionOptions.make({ databasePath: spec.storage.duckDbPath }))).pipe(
       Effect.flatMap((context) =>
         queueAiMetricsLabels(
-          new AiMetricsLabelQueueInput({
+          AiMetricsLabelQueueInput.make({
             limit,
             target,
             windowEndEpochMillis: window.windowEndEpochMillis,
@@ -1814,10 +1814,10 @@ const makeLabelAddProgram = Effect.fn("AIMetrics.makeLabelAddProgram")(function*
     target,
   });
   const result = yield* Effect.scoped(
-    Layer.build(DuckDb.makeNodeLayer(new DuckDbConnectionOptions({ databasePath: spec.storage.duckDbPath }))).pipe(
+    Layer.build(DuckDb.makeNodeLayer(DuckDbConnectionOptions.make({ databasePath: spec.storage.duckDbPath }))).pipe(
       Effect.flatMap((context) =>
         addAiMetricsOutcomeLabel(
-          new AiMetricsOutcomeLabelInput({
+          AiMetricsOutcomeLabelInput.make({
             agentTaskId: taskId,
             followUpFix,
             interventionCount: interventions,
@@ -1871,10 +1871,10 @@ const makeBenchmarkCaseAddProgram = Effect.fn("AIMetrics.makeBenchmarkCaseAddPro
     target,
   });
   const result = yield* Effect.scoped(
-    Layer.build(DuckDb.makeNodeLayer(new DuckDbConnectionOptions({ databasePath: spec.storage.duckDbPath }))).pipe(
+    Layer.build(DuckDb.makeNodeLayer(DuckDbConnectionOptions.make({ databasePath: spec.storage.duckDbPath }))).pipe(
       Effect.flatMap((context) =>
         upsertAiMetricsBenchmarkCase(
-          new AiMetricsBenchmarkCaseInput({
+          AiMetricsBenchmarkCaseInput.make({
             benchmarkCaseId: caseId,
             expectedChecks: parseChecks(checks),
             promptHash,
@@ -1915,7 +1915,7 @@ const makeBenchmarkCaseListProgram = Effect.fn("AIMetrics.makeBenchmarkCaseListP
     target,
   });
   const result = yield* Effect.scoped(
-    Layer.build(DuckDb.makeNodeLayer(new DuckDbConnectionOptions({ databasePath: spec.storage.duckDbPath }))).pipe(
+    Layer.build(DuckDb.makeNodeLayer(DuckDbConnectionOptions.make({ databasePath: spec.storage.duckDbPath }))).pipe(
       Effect.flatMap((context) => listAiMetricsBenchmarkCases.pipe(Effect.provide(context)))
     )
   );
@@ -1960,10 +1960,10 @@ const makeWeeklyReportProgram = Effect.fn("AIMetrics.makeWeeklyReportProgram")(f
     until,
   });
   const result = yield* Effect.scoped(
-    Layer.build(DuckDb.makeNodeLayer(new DuckDbConnectionOptions({ databasePath: spec.storage.duckDbPath }))).pipe(
+    Layer.build(DuckDb.makeNodeLayer(DuckDbConnectionOptions.make({ databasePath: spec.storage.duckDbPath }))).pipe(
       Effect.flatMap((context) =>
         generateAiMetricsWeeklyReport(
-          new AiMetricsWeeklyReportInput({
+          AiMetricsWeeklyReportInput.make({
             reportDir: path.join(spec.storage.dataRoot, "reports"),
             target,
             windowEndEpochMillis: window.windowEndEpochMillis,
@@ -2019,7 +2019,7 @@ const runCapturedCommand = Effect.fn("AIMetrics.runCapturedCommand")(function* (
     return captured;
   }
 
-  return yield* new AiMetricsCommandError({
+  return yield* AiMetricsCommandError.make({
     cause: captured,
     message: `Failed to run ${command} for AI metrics P7 mirror workflow.`,
   });
@@ -2047,7 +2047,7 @@ const readMirrorManifest = Effect.fn("AIMetrics.readMirrorManifest")(function* (
   const content = yield* fs.readFileString(manifestPath).pipe(
     Effect.mapError(
       (cause) =>
-        new AiMetricsCommandError({
+        AiMetricsCommandError.make({
           cause,
           message: "Failed to read AI metrics mirror manifest JSON.",
         })
@@ -2056,7 +2056,7 @@ const readMirrorManifest = Effect.fn("AIMetrics.readMirrorManifest")(function* (
   return yield* decodeMirrorManifestJson(content).pipe(
     Effect.mapError(
       (cause) =>
-        new AiMetricsCommandError({
+        AiMetricsCommandError.make({
           cause,
           message: "Failed to parse AI metrics mirror manifest JSON.",
         })
@@ -2074,37 +2074,37 @@ const requireSafeMirrorManifest = Effect.fn("AIMetrics.requireSafeMirrorManifest
   readonly target: AiMetricsDeployTarget;
 }) {
   if (manifest.schemaVersion !== p7MirrorSchemaVersion) {
-    return yield* new AiMetricsCommandError({
+    return yield* AiMetricsCommandError.make({
       cause: manifest.schemaVersion,
       message: `AI metrics mirror manifest schema must be "${p7MirrorSchemaVersion}".`,
     });
   }
   if (!manifest.privacyProof.safe) {
-    return yield* new AiMetricsCommandError({
+    return yield* AiMetricsCommandError.make({
       cause: manifest.privacyProof,
       message: "AI metrics mirror manifest privacy proof is not safe.",
     });
   }
   if (!A.contains(manifest.omittedTables, p7MirrorRawArchiveTable)) {
-    return yield* new AiMetricsCommandError({
+    return yield* AiMetricsCommandError.make({
       cause: manifest.omittedTables,
       message: "AI metrics mirror manifest must omit raw archive objects.",
     });
   }
   if (A.contains(manifest.includedTables, p7MirrorRawArchiveTable)) {
-    return yield* new AiMetricsCommandError({
+    return yield* AiMetricsCommandError.make({
       cause: manifest.includedTables,
       message: "AI metrics mirror manifest must not include raw archive objects.",
     });
   }
   if (manifest.remoteRoot !== remoteRoot) {
-    return yield* new AiMetricsCommandError({
+    return yield* AiMetricsCommandError.make({
       cause: manifest.remoteRoot,
       message: "AI metrics mirror manifest remote root does not match the command target.",
     });
   }
   if (manifest.target !== target) {
-    return yield* new AiMetricsCommandError({
+    return yield* AiMetricsCommandError.make({
       cause: manifest.target,
       message: "AI metrics mirror manifest deployment target does not match the command target.",
     });
@@ -2125,7 +2125,7 @@ const listMirrorBundleFiles = Effect.fn("AIMetrics.listMirrorBundleFiles")(funct
     const stat = yield* fs.stat(currentPath).pipe(
       Effect.mapError(
         (cause) =>
-          new AiMetricsCommandError({
+          AiMetricsCommandError.make({
             cause,
             message: "Failed to inspect AI metrics mirror bundle file inventory.",
           })
@@ -2141,7 +2141,7 @@ const listMirrorBundleFiles = Effect.fn("AIMetrics.listMirrorBundleFiles")(funct
     const entries = yield* fs.readDirectory(currentPath).pipe(
       Effect.mapError(
         (cause) =>
-          new AiMetricsCommandError({
+          AiMetricsCommandError.make({
             cause,
             message: "Failed to read AI metrics mirror bundle file inventory.",
           })
@@ -2167,7 +2167,7 @@ const validateLocalMirrorBundle = Effect.fn("AIMetrics.validateLocalMirrorBundle
   const files = yield* listMirrorBundleFiles(bundleDir);
   const disallowedFiles = A.filter(files, (file) => !isAllowedMirrorBundleFile(file));
   if (A.isReadonlyArrayNonEmpty(disallowedFiles)) {
-    return yield* new AiMetricsCommandError({
+    return yield* AiMetricsCommandError.make({
       cause: disallowedFiles,
       message: "AI metrics mirror bundle contains files outside the sanitized sync contract.",
     });
@@ -2188,7 +2188,7 @@ const validateLocalMirrorBundle = Effect.fn("AIMetrics.validateLocalMirrorBundle
     A.filter((file) => !A.contains(files, file))
   );
   if (A.isReadonlyArrayNonEmpty(missingParquetFiles)) {
-    return yield* new AiMetricsCommandError({
+    return yield* AiMetricsCommandError.make({
       cause: missingParquetFiles,
       message: "AI metrics mirror bundle is missing expected sanitized Parquet exports.",
     });
@@ -2198,7 +2198,7 @@ const validateLocalMirrorBundle = Effect.fn("AIMetrics.validateLocalMirrorBundle
     A.filter((file) => Str.startsWith("parquet/")(file) && !A.contains(expectedParquetFiles, file))
   );
   if (A.isReadonlyArrayNonEmpty(unexpectedParquetFiles)) {
-    return yield* new AiMetricsCommandError({
+    return yield* AiMetricsCommandError.make({
       cause: unexpectedParquetFiles,
       message: "AI metrics mirror bundle contains Parquet files not declared in the manifest.",
     });
@@ -2219,7 +2219,7 @@ const makeMirrorBuildProgram = Effect.fn("AIMetrics.makeMirrorBuildProgram")(fun
   readonly target: AiMetricsDeployTarget;
 }) {
   const result = yield* buildAiMetricsMirrorBundle(
-    new AiMetricsMirrorBundleInput({
+    AiMetricsMirrorBundleInput.make({
       dataRoot: O.getOrElse(dataRoot, () => localCollectorDataRoot),
       remoteRoot,
       target,
@@ -2266,7 +2266,7 @@ const makeMirrorSyncProgram = Effect.fn("AIMetrics.makeMirrorSyncProgram")(funct
   });
   const dryRun = O.isNone(confirm);
   if (O.isSome(confirm) && confirm.value !== p7MirrorConfirmToken) {
-    return yield* new AiMetricsCommandError({
+    return yield* AiMetricsCommandError.make({
       cause: confirm.value,
       message: `AI metrics mirror sync confirmation must be "${p7MirrorConfirmToken}".`,
     });
@@ -2330,7 +2330,7 @@ const makeMirrorStatusProgram = Effect.fn("AIMetrics.makeMirrorStatusProgram")(f
   const manifest = yield* decodeMirrorManifestJson(captured.stdout).pipe(
     Effect.mapError(
       (cause) =>
-        new AiMetricsCommandError({
+        AiMetricsCommandError.make({
           cause,
           message: "Failed to parse remote AI metrics mirror manifest JSON.",
         })
@@ -2370,21 +2370,21 @@ const confirmRetentionMutation = Effect.fn("AIMetrics.confirmRetentionMutation")
   }
 
   if (confirm.value !== p7RetentionConfirmToken) {
-    return yield* new AiMetricsCommandError({
+    return yield* AiMetricsCommandError.make({
       cause: confirm.value,
       message: `AI metrics retention confirmation must be "${p7RetentionConfirmToken}".`,
     });
   }
 
   if (!hasBoundedRetentionMutationWindow(selector)) {
-    return yield* new AiMetricsCommandError({
+    return yield* AiMetricsCommandError.make({
       cause: selector,
       message: "AI metrics retention writes require --before or a bounded --since/--until window.",
     });
   }
 
   if (!hasOrderedRetentionMutationWindow(selector)) {
-    return yield* new AiMetricsCommandError({
+    return yield* AiMetricsCommandError.make({
       cause: selector,
       message: "AI metrics retention write window lower bound must be before its upper bound.",
     });
@@ -2495,14 +2495,14 @@ const makeRetentionRestoreDrillProgram = Effect.fn("AIMetrics.makeRetentionResto
     until,
   });
   if (!hasRetentionWindow(selector)) {
-    return yield* new AiMetricsCommandError({
+    return yield* AiMetricsCommandError.make({
       cause: selector,
       message: "AI metrics restore drills require --before or an explicit --since/--until window.",
     });
   }
 
   const result = yield* runAiMetricsRetentionRestoreDrill(
-    new AiMetricsRetentionRestoreDrillInput({
+    AiMetricsRetentionRestoreDrillInput.make({
       ...(O.isSome(hashSalt) ? { hashSalt: hashSalt.value } : {}),
       maxObjects,
       rawArchiveKey: yield* resolveRawArchiveKey(),
@@ -2542,7 +2542,7 @@ const makeArchiveDrillProgram = Effect.fn("AIMetrics.makeArchiveDrillProgram")(f
   });
   const rawArchiveKey = yield* resolveRawArchiveKey();
   const result = yield* Effect.scoped(
-    Layer.build(DuckDb.makeNodeLayer(new DuckDbConnectionOptions({ databasePath: spec.storage.duckDbPath }))).pipe(
+    Layer.build(DuckDb.makeNodeLayer(DuckDbConnectionOptions.make({ databasePath: spec.storage.duckDbPath }))).pipe(
       Effect.flatMap((context) =>
         Effect.gen(function* () {
           const duckdb = yield* DuckDb;
@@ -2555,7 +2555,7 @@ const makeArchiveDrillProgram = Effect.fn("AIMetrics.makeArchiveDrillProgram")(f
             .pipe(
               Effect.mapError(
                 (cause) =>
-                  new AiMetricsCommandError({
+                  AiMetricsCommandError.make({
                     cause,
                     message: "Failed to select an AI metrics archive object for the decrypt drill.",
                   })
@@ -2564,7 +2564,7 @@ const makeArchiveDrillProgram = Effect.fn("AIMetrics.makeArchiveDrillProgram")(f
           const decoded = yield* decodeArchiveDrillRows(rows).pipe(
             Effect.mapError(
               (cause) =>
-                new AiMetricsCommandError({
+                AiMetricsCommandError.make({
                   cause,
                   message: "Failed to decode AI metrics archive drill rows.",
                 })
@@ -2572,7 +2572,7 @@ const makeArchiveDrillProgram = Effect.fn("AIMetrics.makeArchiveDrillProgram")(f
           );
           const row = A.head(decoded);
           if (O.isNone(row)) {
-            return yield* new AiMetricsCommandError({
+            return yield* AiMetricsCommandError.make({
               cause: "ai_metrics_raw_archive_objects",
               message: "No AI metrics raw archive object is available for a decrypt drill.",
             });
@@ -2586,7 +2586,7 @@ const makeArchiveDrillProgram = Effect.fn("AIMetrics.makeArchiveDrillProgram")(f
           const plaintextHash = yield* hashPublicTextSha256(plaintext);
           const plaintextHashMatches = plaintextHash === row.value.plaintextContentHash;
           if (!plaintextHashMatches) {
-            return yield* new AiMetricsCommandError({
+            return yield* AiMetricsCommandError.make({
               cause: row.value.archiveObjectId,
               message: "AI metrics archive decrypt drill failed plaintext hash verification.",
             });

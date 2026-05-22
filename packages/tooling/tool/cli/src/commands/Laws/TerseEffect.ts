@@ -626,7 +626,7 @@ export const runTerseEffectRules = Effect.fn(function* (options: TerseEffectRule
     yield* Effect.tryPromise({
       try: () => project.save(),
       catch: (cause) =>
-        new TerseEffectRulesPersistenceError({
+        TerseEffectRulesPersistenceError.make({
           message: `Failed to persist terse Effect style updates: ${Inspectable.toStringUnknown(cause, 0)}`,
         }),
     });
@@ -641,7 +641,7 @@ export const runTerseEffectRules = Effect.fn(function* (options: TerseEffectRule
       nestedBoolMatchCandidatesDetected > 0 ||
       dualOverloadCandidatesDetected > 0);
 
-  return new TerseEffectRulesSummary({
+  return TerseEffectRulesSummary.make({
     touchedFiles,
     helpersSimplified,
     thunkHelpersSimplified,

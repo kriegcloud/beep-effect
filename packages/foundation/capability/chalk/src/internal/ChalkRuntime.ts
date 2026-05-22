@@ -81,7 +81,7 @@ const getBuilderMeta = (builder: ChalkFunction): BuilderMeta => {
   const meta = builderMetaMap.get(builder);
 
   if (P.isUndefined(meta)) {
-    throw new MissingBuilderMetadataError({
+    throw MissingBuilderMetadataError.make({
       message: "Missing Chalk builder metadata.",
     });
   }

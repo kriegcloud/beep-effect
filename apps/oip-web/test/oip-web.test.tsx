@@ -294,7 +294,7 @@ describe.sequential("@beep/oip-web", () => {
   it("returns a JSON accepted response for valid contact route submissions", () => {
     const submit = () =>
       Effect.succeed(
-        new ContactSubmissionResponse({
+        ContactSubmissionResponse.make({
           message: "Your note was received.",
           status: "accepted",
         })
@@ -341,7 +341,7 @@ describe.sequential("@beep/oip-web", () => {
         }),
         () =>
           Effect.succeed(
-            new ContactSubmissionResponse({
+            ContactSubmissionResponse.make({
               message: "Should not submit.",
               status: "accepted",
             })

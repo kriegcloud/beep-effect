@@ -57,7 +57,7 @@ const printExtractFramesDirOutcome = Match.type<ExtractFramesDirOutcome>().pipe(
 const raiseOnFailedExtractFramesDir = (result: ExtractFramesDirResult): Effect.Effect<void, ImageCommandError> =>
   result.failedCount > 0
     ? Effect.fail(
-        new ImageCommandError({
+        ImageCommandError.make({
           message: renderExtractFramesDirError(result),
         })
       )
@@ -77,7 +77,7 @@ const runExtractFramesCommand = Effect.fn("ImageCommand.runExtractFramesCommand"
   const decoded = yield* decodeExtractFramesOptions(options).pipe(
     Effect.mapError(
       (cause) =>
-        new ImageCommandError({
+        ImageCommandError.make({
           message: "Invalid image extract-frames options. Expected a video, output directory, and positive FPS.",
           cause,
         })
@@ -94,7 +94,7 @@ const runExtractFramesDirCommand = Effect.fn("ImageCommand.runExtractFramesDirCo
   const decoded = yield* decodeExtractFramesDirOptions(options).pipe(
     Effect.mapError(
       (cause) =>
-        new ImageCommandError({
+        ImageCommandError.make({
           message: "Invalid image extract-frames-dir options. Expected a directory and positive FPS.",
           cause,
         })

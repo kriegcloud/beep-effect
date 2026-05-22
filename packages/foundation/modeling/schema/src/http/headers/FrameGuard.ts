@@ -105,7 +105,7 @@ const encodeAllowFromUri = (value: internal.StringOrUrl, message: string): Effec
   Effect.try({
     try: () => internal.encodeStrictURI(value),
     catch: () =>
-      new FrameGuardError({
+      FrameGuardError.make({
         message,
         cause: O.none(),
       }),
@@ -124,7 +124,7 @@ const formatFrameGuardValue = Effect.fn("FrameGuard.formatFrameGuardValue")(func
     return `${option[0]} ${uri}`;
   }
 
-  return yield* new FrameGuardError({
+  return yield* FrameGuardError.make({
     message: `Invalid value for ${headerName}: ${option}`,
     cause: O.none(),
   });

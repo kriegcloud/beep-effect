@@ -388,7 +388,7 @@ export const fromPromiseBindMountSandboxProvider = (config: PromiseBindMountProv
       Effect.tryPromise({
         try: () => config.create(options),
         catch: (cause) =>
-          new CopyError({
+          CopyError.make({
             cause,
             message: `Failed to create bind-mount sandbox provider "${config.name}".`,
           }),
@@ -409,7 +409,7 @@ export const fromPromiseIsolatedSandboxProvider = (config: PromiseIsolatedProvid
       Effect.tryPromise({
         try: () => config.create(options),
         catch: (cause) =>
-          new CopyError({
+          CopyError.make({
             cause,
             message: `Failed to create isolated sandbox provider "${config.name}".`,
           }),

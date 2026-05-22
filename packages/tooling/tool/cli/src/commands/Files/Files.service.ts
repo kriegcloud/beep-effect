@@ -221,7 +221,7 @@ const resolveTrustedMediaToolPath = Effect.fn("Files.resolveTrustedMediaToolPath
   );
 
   if (O.isSome(configuredPath) && !path.isAbsolute(configuredPath.value)) {
-    return yield* new FilesCommandError({
+    return yield* FilesCommandError.make({
       message: `${envVarName} must be an absolute path to a trusted ${toolName} binary.`,
     });
   }
@@ -237,7 +237,7 @@ const resolveTrustedMediaToolPath = Effect.fn("Files.resolveTrustedMediaToolPath
     }
   }
 
-  return yield* new FilesCommandError({
+  return yield* FilesCommandError.make({
     message: `Could not find a trusted ${toolName} binary. Install ${toolName} in a system tool directory or set ${envVarName} to an absolute path.`,
   });
 });
@@ -329,7 +329,7 @@ const validatePrefix = (prefix: string): Effect.Effect<SafeFilePrefix, FilesComm
   decodeSafeFilePrefix(prefix).pipe(
     Effect.mapError(
       () =>
-        new FilesCommandError({
+        FilesCommandError.make({
           message: `Invalid prefix "${prefix}". Use a non-empty stem without dots, path separators, or embedded NUL bytes.`,
         })
     )
@@ -350,7 +350,7 @@ const validateDirectory = Effect.fn("Files.validateDirectory")(function* (
     .pipe(Effect.mapError((cause) => formatPlatformError("Failed to stat directory", directory, { cause })));
 
   if (stat.type !== "Directory") {
-    return yield* new FilesCommandError({
+    return yield* FilesCommandError.make({
       message: `Expected --dir to be a directory: "${directory}"`,
     });
   }
@@ -372,7 +372,7 @@ const validateNormalizeMaxLongEdge: (
         Effect.map(O.some),
         Effect.mapError(
           () =>
-            new FilesCommandError({
+            FilesCommandError.make({
               message: `Expected --max-long-edge to be a positive integer: ${value}`,
             })
         )
@@ -386,7 +386,7 @@ const validateCreateCaptionFilesOptions = (
   decodeCreateCaptionFilesOptions(options).pipe(
     Effect.mapError(
       (cause) =>
-        new FilesCommandError({
+        FilesCommandError.make({
           message: "Invalid create-captions options. Expected a directory, caption text, and boolean flags.",
           cause,
         })
@@ -399,7 +399,7 @@ const validateDetectBordersOptions = (
   decodeDetectBordersOptions(options).pipe(
     Effect.mapError(
       (cause) =>
-        new FilesCommandError({
+        FilesCommandError.make({
           message:
             "Invalid detect-borders options. Expected --tolerance between 0 and 255, --min-solid-pct and --min-width-pct between greater than 0 and 100, and --max-scan-pct between greater than 0 and 50.",
           cause,
@@ -408,7 +408,7 @@ const validateDetectBordersOptions = (
     Effect.flatMap((decoded) => {
       if (decoded.minWidthPct > decoded.maxScanPct) {
         return Effect.fail(
-          new FilesCommandError({
+          FilesCommandError.make({
             message: `Expected --min-width-pct (${decoded.minWidthPct}) to be less than or equal to --max-scan-pct (${decoded.maxScanPct}).`,
           })
         );
@@ -424,7 +424,7 @@ const validateDetectFacesOptions = (
   decodeDetectFacesOptions(options).pipe(
     Effect.mapError(
       (cause) =>
-        new FilesCommandError({
+        FilesCommandError.make({
           message:
             "Invalid detect-faces options. Expected --model to point at a YuNet ONNX file, --min-confidence between 0 and 1, and face area/margin percentages between 0 and 100.",
           cause,
@@ -446,7 +446,7 @@ const validateDetectFacesMoveNoFaceDirectory = Effect.fn("Files.validateDetectFa
   const noFaceDirectory = path.resolve(moveNoFaceTo.value);
 
   if (stringEquivalence(sourceDirectory, noFaceDirectory)) {
-    return yield* new FilesCommandError({
+    return yield* FilesCommandError.make({
       message: `Refusing to move no-face images into the source directory: "${noFaceDirectory}"`,
     });
   }
@@ -472,7 +472,7 @@ const validateDetectFacesMoveNoFaceDirectory = Effect.fn("Files.validateDetectFa
     );
 
   if (stat.type !== "Directory") {
-    return yield* new FilesCommandError({
+    return yield* FilesCommandError.make({
       message: `Expected --move-no-face-to to be a directory or missing path: "${noFaceDirectory}"`,
     });
   }
@@ -491,7 +491,7 @@ const validateDetectFacesMoveNoFaceDirectory = Effect.fn("Files.validateDetectFa
     );
 
   if (stringEquivalence(canonicalSource, canonicalNoFace)) {
-    return yield* new FilesCommandError({
+    return yield* FilesCommandError.make({
       message: `Refusing to move no-face images into the source directory: "${noFaceDirectory}"`,
     });
   }
@@ -505,7 +505,7 @@ const validateCropBordersOptions = (
   decodeCropBordersOptions(options).pipe(
     Effect.mapError(
       (cause) =>
-        new FilesCommandError({
+        FilesCommandError.make({
           message:
             "Invalid crop-borders options. Expected --tolerance between 0 and 255, --min-solid-pct and --min-width-pct between greater than 0 and 100, and --max-scan-pct between greater than 0 and 50.",
           cause,
@@ -514,7 +514,7 @@ const validateCropBordersOptions = (
     Effect.flatMap((decoded) => {
       if (decoded.minWidthPct > decoded.maxScanPct) {
         return Effect.fail(
-          new FilesCommandError({
+          FilesCommandError.make({
             message: `Expected --min-width-pct (${decoded.minWidthPct}) to be less than or equal to --max-scan-pct (${decoded.maxScanPct}).`,
           })
         );
@@ -525,7 +525,7 @@ const validateCropBordersOptions = (
   );
 
 const cropBordersDetectionOptions = (options: CropBordersOptions): DetectBordersOptions =>
-  new DetectBordersOptions({
+  DetectBordersOptions.make({
     dir: options.dir,
     json: false,
     maxScanPct: options.maxScanPct,
@@ -541,7 +541,7 @@ const makeNormalizeManifestOptions = (
   moveDuplicatesTo: O.Option<string>,
   overwrite: boolean
 ): NormalizeManifestOptions =>
-  new NormalizeManifestOptions({
+  NormalizeManifestOptions.make({
     dedupe,
     format,
     ...(O.isSome(maxLongEdge) ? { maxLongEdge: maxLongEdge.value } : {}),
@@ -557,8 +557,8 @@ const makeNormalizeSkippedEntry = (
   message: string
 ): NormalizeSkippedEntry =>
   O.isSome(extension)
-    ? new NormalizeSkippedEntry({ extension: extension.value, message, reason, sourceName, sourcePath })
-    : new NormalizeSkippedEntry({ message, reason, sourceName, sourcePath });
+    ? NormalizeSkippedEntry.make({ extension: extension.value, message, reason, sourceName, sourcePath })
+    : NormalizeSkippedEntry.make({ message, reason, sourceName, sourcePath });
 
 const makeNormalizeDuplicateSkippedEntry = (
   entry: NormalizePlanEntry,
@@ -566,7 +566,7 @@ const makeNormalizeDuplicateSkippedEntry = (
   duplicateOf: NormalizePlanEntry,
   moveTarget: O.Option<{ readonly path: string; readonly relativePath: string }>
 ): NormalizeSkippedEntry =>
-  new NormalizeSkippedEntry({
+  NormalizeSkippedEntry.make({
     duplicateOfOutputRelativePath: duplicateOf.outputRelativePath,
     duplicateOfSourceRelativePath: duplicateOf.sourceRelativePath,
     ...(O.isSome(moveTarget)
@@ -588,7 +588,7 @@ const makeCreateCaptionFilesSkippedEntry = (
   reason: CreateCaptionFilesSkippedReason,
   message: string
 ): CreateCaptionFilesSkippedEntry =>
-  new CreateCaptionFilesSkippedEntry({
+  CreateCaptionFilesSkippedEntry.make({
     ...(O.isSome(captionName) ? { captionName: captionName.value } : {}),
     ...(O.isSome(extension) ? { extension: extension.value } : {}),
     message,
@@ -605,8 +605,8 @@ const makeDetectBordersSkippedEntry = (
   message: string
 ): DetectBordersSkippedEntry =>
   O.isSome(extension)
-    ? new DetectBordersSkippedEntry({ extension: extension.value, message, reason, sourceName, sourcePath })
-    : new DetectBordersSkippedEntry({ message, reason, sourceName, sourcePath });
+    ? DetectBordersSkippedEntry.make({ extension: extension.value, message, reason, sourceName, sourcePath })
+    : DetectBordersSkippedEntry.make({ message, reason, sourceName, sourcePath });
 
 const makeDetectFacesSkippedEntry = (
   sourceName: string,
@@ -616,8 +616,8 @@ const makeDetectFacesSkippedEntry = (
   message: string
 ): DetectFacesSkippedEntry =>
   O.isSome(extension)
-    ? new DetectFacesSkippedEntry({ extension: extension.value, message, reason, sourceName, sourcePath })
-    : new DetectFacesSkippedEntry({ message, reason, sourceName, sourcePath });
+    ? DetectFacesSkippedEntry.make({ extension: extension.value, message, reason, sourceName, sourcePath })
+    : DetectFacesSkippedEntry.make({ message, reason, sourceName, sourcePath });
 
 const makeArchivePoorCandidatesSkippedEntry = (
   sourceName: string,
@@ -627,8 +627,8 @@ const makeArchivePoorCandidatesSkippedEntry = (
   message: string
 ): ArchivePoorCandidatesSkippedEntry =>
   O.isSome(extension)
-    ? new ArchivePoorCandidatesSkippedEntry({ extension: extension.value, message, reason, sourceName, sourcePath })
-    : new ArchivePoorCandidatesSkippedEntry({ message, reason, sourceName, sourcePath });
+    ? ArchivePoorCandidatesSkippedEntry.make({ extension: extension.value, message, reason, sourceName, sourcePath })
+    : ArchivePoorCandidatesSkippedEntry.make({ message, reason, sourceName, sourcePath });
 
 const parseSidecarExtensions = (value: string): Effect.Effect<ReadonlyArray<string>, FilesCommandError> => {
   const normalized = pipe(value, Str.trim, Str.toLowerCase);
@@ -652,7 +652,7 @@ const parseSidecarExtensions = (value: string): Effect.Effect<ReadonlyArray<stri
 
   if (O.isSome(invalid) || !A.isReadonlyArrayNonEmpty(extensions)) {
     return Effect.fail(
-      new FilesCommandError({
+      FilesCommandError.make({
         message: `Invalid --sidecars value "${value}". Use none or a comma-separated list of bare extensions such as txt,json.`,
       })
     );
@@ -667,7 +667,7 @@ const validateArchivePoorCandidatesOptions = (
   decodeArchivePoorCandidatesOptions(options).pipe(
     Effect.mapError(
       (cause) =>
-        new FilesCommandError({
+        FilesCommandError.make({
           message:
             "Invalid archive-poor-candidates options. Expected positive integer --target-resolution and --min-short-edge values plus --max-aspect and --max-upscale ratios greater than or equal to 1.",
           cause,
@@ -691,13 +691,13 @@ const validateNormalizeDuplicateDirectory = Effect.fn("Files.validateNormalizeDu
   const duplicateDirectory = path.resolve(moveDuplicatesTo.value);
 
   if (stringEquivalence(directory, duplicateDirectory)) {
-    return yield* new FilesCommandError({
+    return yield* FilesCommandError.make({
       message: `Refusing to move duplicates into the source directory: "${duplicateDirectory}"`,
     });
   }
 
   if (stringEquivalence(outputDirectory, duplicateDirectory)) {
-    return yield* new FilesCommandError({
+    return yield* FilesCommandError.make({
       message: `Refusing to move duplicates into the normalize output directory: "${duplicateDirectory}"`,
     });
   }
@@ -723,7 +723,7 @@ const validateNormalizeDuplicateDirectory = Effect.fn("Files.validateNormalizeDu
     );
 
   if (duplicateStat.type !== "Directory") {
-    return yield* new FilesCommandError({
+    return yield* FilesCommandError.make({
       message: `Expected --move-duplicates-to to be a directory or missing path: "${duplicateDirectory}"`,
     });
   }
@@ -737,13 +737,13 @@ const validateNormalizeDuplicateDirectory = Effect.fn("Files.validateNormalizeDu
     );
 
   if (stringEquivalence(canonicalDirectory, canonicalDuplicate)) {
-    return yield* new FilesCommandError({
+    return yield* FilesCommandError.make({
       message: `Refusing to move duplicates into the source directory: "${duplicateDirectory}"`,
     });
   }
 
   if (O.isSome(canonicalOutputDirectory) && stringEquivalence(canonicalOutputDirectory.value, canonicalDuplicate)) {
-    return yield* new FilesCommandError({
+    return yield* FilesCommandError.make({
       message: `Refusing to move duplicates into the normalize output directory: "${duplicateDirectory}"`,
     });
   }
@@ -784,7 +784,7 @@ const validateNormalizeDirectories = Effect.fn("Files.validateNormalizeDirectori
       );
 
     if (outputStat.type !== "Directory") {
-      return yield* new FilesCommandError({
+      return yield* FilesCommandError.make({
         message: `Expected --out-dir to be a directory or missing path: "${outputDirectory}"`,
       });
     }
@@ -799,14 +799,14 @@ const validateNormalizeDirectories = Effect.fn("Files.validateNormalizeDirectori
     canonicalOutputDirectory = O.some(canonicalOutput);
 
     if (stringEquivalence(canonicalDir, canonicalOutput)) {
-      return yield* new FilesCommandError({
+      return yield* FilesCommandError.make({
         message: `Refusing to normalize into the source directory: "${outputDirectory}"`,
       });
     }
   }
 
   if (stringEquivalence(directory, outputDirectory)) {
-    return yield* new FilesCommandError({
+    return yield* FilesCommandError.make({
       message: `Refusing to normalize into the source directory: "${outputDirectory}"`,
     });
   }
@@ -859,7 +859,7 @@ const validateArchiveDirectories = Effect.fn("Files.validateArchiveDirectories")
       );
 
     if (archiveStat.type !== "Directory") {
-      return yield* new FilesCommandError({
+      return yield* FilesCommandError.make({
         message: `Expected --archive-dir to be a directory or missing path: "${archiveDirectory}"`,
       });
     }
@@ -873,14 +873,14 @@ const validateArchiveDirectories = Effect.fn("Files.validateArchiveDirectories")
       );
 
     if (stringEquivalence(canonicalDir, canonicalArchive)) {
-      return yield* new FilesCommandError({
+      return yield* FilesCommandError.make({
         message: `Refusing to archive into the source directory: "${archiveDirectory}"`,
       });
     }
   }
 
   if (stringEquivalence(directory, archiveDirectory)) {
-    return yield* new FilesCommandError({
+    return yield* FilesCommandError.make({
       message: `Refusing to archive into the source directory: "${archiveDirectory}"`,
     });
   }
@@ -935,7 +935,7 @@ const collectSortableFile = Effect.fn("Files.collectSortableFile")(function* (
 
   return {
     file: O.some(
-      new SortableFile({
+      SortableFile.make({
         canonicalPath: canonicalPath.value,
         extension,
         mediaKind,
@@ -969,7 +969,7 @@ const collectSortableFiles = Effect.fn("Files.collectSortableFiles")(function* (
   const files = A.flatMap(collectedEntries, (collected) => O.toArray(collected.file));
   const skippedCount = A.reduce(collectedEntries, 0, (count, collected) => count + collected.skippedCount);
 
-  return new SortableFileCollection({
+  return SortableFileCollection.make({
     files: A.sort(files, bySizeDescendingThenNameAscending),
     skippedCount,
   });
@@ -1069,7 +1069,7 @@ const collectNormalizeFile = Effect.fn("Files.collectNormalizeFile")(function* (
     );
   }
 
-  const file = new SortableFile({
+  const file = SortableFile.make({
     canonicalPath: canonicalPath.value,
     extension,
     mediaKind,
@@ -1344,7 +1344,7 @@ const buildCreateCaptionFilesPlan = Effect.fn("Files.buildCreateCaptionFilesPlan
       plannedCaptionNames = HashSet.add(plannedCaptionNames, captionName);
       entries = A.append(
         entries,
-        new CreateCaptionFilesPlanEntry({
+        CreateCaptionFilesPlanEntry.make({
           captionName,
           captionPath,
           captionRelativePath: path.relative(directory, captionPath),
@@ -1362,7 +1362,7 @@ const buildCreateCaptionFilesPlan = Effect.fn("Files.buildCreateCaptionFilesPlan
     }
   );
 
-  return new CreateCaptionFilesPlan({
+  return CreateCaptionFilesPlan.make({
     caption: options.caption,
     directory,
     entries: A.sort(
@@ -1516,7 +1516,7 @@ const collectDetectBordersFile = Effect.fn("Files.collectDetectBordersFile")(fun
     );
   }
 
-  const file = new SortableFile({
+  const file = SortableFile.make({
     canonicalPath: canonicalPath.value,
     extension,
     mediaKind,
@@ -1619,7 +1619,7 @@ const makeDetectFacesReportOptions = (
   options: DetectFacesOptions,
   moveNoFaceDirectory: O.Option<string>
 ): DetectFacesReportOptions =>
-  new DetectFacesReportOptions({
+  DetectFacesReportOptions.make({
     edgeMarginPct: options.edgeMarginPct,
     json: options.json,
     ...(O.isSome(options.manifest) ? { manifest: options.manifest.value } : {}),
@@ -1741,7 +1741,7 @@ const collectArchiveCandidateFile = Effect.fn("Files.collectArchiveCandidateFile
     );
   }
 
-  const file = new SortableFile({
+  const file = SortableFile.make({
     canonicalPath: canonicalPath.value,
     extension,
     mediaKind,
@@ -1806,7 +1806,7 @@ const probeImageDimensions = Effect.fn("Files.probeImageDimensions")(function* (
   const rawMetadata = yield* Effect.tryPromise({
     try: () => imageSizeFromFile(file.sourcePath),
     catch: (cause) =>
-      new FilesCommandError({
+      FilesCommandError.make({
         message: `Failed to probe image dimensions for "${file.sourcePath}"`,
         cause,
       }),
@@ -1814,12 +1814,12 @@ const probeImageDimensions = Effect.fn("Files.probeImageDimensions")(function* (
   const metadata = yield* decodeImageSizeMetadata(rawMetadata).pipe(
     Effect.mapError(
       () =>
-        new FilesCommandError({
+        FilesCommandError.make({
           message: `Image probe did not return usable dimensions for "${file.sourcePath}"`,
         })
     )
   );
-  const dimensions = new MediaDimensions({
+  const dimensions = MediaDimensions.make({
     height: metadata.height,
     width: metadata.width,
   });
@@ -1869,7 +1869,7 @@ const runFfprobe = Effect.fn("Files.runFfprobe")(function* (
   ).pipe(
     Effect.mapError(
       (cause) =>
-        new FilesCommandError({
+        FilesCommandError.make({
           message: `Failed to run ffprobe for "${file.sourcePath}". Install ffprobe or run without --with-dimensions.`,
           cause,
         })
@@ -1877,7 +1877,7 @@ const runFfprobe = Effect.fn("Files.runFfprobe")(function* (
   );
 
   if (result.exitCode !== 0) {
-    return yield* new FilesCommandError({
+    return yield* FilesCommandError.make({
       message: `ffprobe could not read video dimensions for "${file.sourcePath}": ${result.stderr}`,
     });
   }
@@ -1896,7 +1896,7 @@ const probeVideoDimensions = Effect.fn("Files.probeVideoDimensions")(function* (
   const output = yield* decodeFfprobeOutputJson(outputText).pipe(
     Effect.mapError(
       () =>
-        new FilesCommandError({
+        FilesCommandError.make({
           message: `ffprobe returned invalid JSON while probing "${file.sourcePath}"`,
         })
     )
@@ -1906,14 +1906,14 @@ const probeVideoDimensions = Effect.fn("Files.probeVideoDimensions")(function* (
     O.match({
       onNone: () =>
         Effect.fail(
-          new FilesCommandError({
+          FilesCommandError.make({
             message: `ffprobe did not return a video stream for "${file.sourcePath}"`,
           })
         ),
       onSome: Effect.succeed,
     })
   );
-  const dimensions = new MediaDimensions({
+  const dimensions = MediaDimensions.make({
     height: stream.height,
     width: stream.width,
   });
@@ -1934,7 +1934,7 @@ const probeMediaDimensions = Effect.fn("Files.probeMediaDimensions")(function* (
     O.match({
       onNone: () =>
         Effect.fail(
-          new FilesCommandError({
+          FilesCommandError.make({
             message: `Cannot probe dimensions for non-media file: "${file.sourcePath}"`,
           })
         ),
@@ -1969,14 +1969,14 @@ const readImagePixelsForBorderDetection = Effect.fn("Files.readImagePixelsForBor
         .raw()
         .toBuffer({ resolveWithObject: true }),
     catch: (cause) =>
-      new FilesCommandError({
+      FilesCommandError.make({
         message: `Failed to decode image pixels for "${file.sourcePath}"`,
         cause,
       }),
   });
 
   if (result.info.width < 1 || result.info.height < 1 || result.info.channels < 3) {
-    return yield* new FilesCommandError({
+    return yield* FilesCommandError.make({
       message: `Image decode did not return usable RGB pixels for "${file.sourcePath}"`,
     });
   }
@@ -1998,7 +1998,7 @@ const analyzeDetectBordersFile = Effect.fn("Files.analyzeDetectBordersFile")(fun
   const classification = classifyBorderSides(sides);
   const borderCount = A.length(A.filter(sides, (side) => side.matched));
 
-  return new DetectBordersEntry({
+  return DetectBordersEntry.make({
     borderCount,
     classification,
     extension: file.extension,
@@ -2062,7 +2062,7 @@ const analyzeDetectFacesFile = Effect.fn("Files.analyzeDetectFacesFile")(functio
 ): Effect.fn.Return<DetectFacesEntry, FilesCommandError> {
   const result = yield* detector
     .detect(
-      new FaceDetectionImageRequest({
+      FaceDetectionImageRequest.make({
         imagePath: file.sourcePath,
         minConfidence: options.minConfidence,
       })
@@ -2070,7 +2070,7 @@ const analyzeDetectFacesFile = Effect.fn("Files.analyzeDetectFacesFile")(functio
     .pipe(
       Effect.mapError(
         (cause) =>
-          new FilesCommandError({
+          FilesCommandError.make({
             message: cause.message,
             cause,
           })
@@ -2090,7 +2090,7 @@ const analyzeDetectFacesFile = Effect.fn("Files.analyzeDetectFacesFile")(functio
   );
   const flags = detectFacesFlags(result.faces, result.width, result.height, options);
 
-  return new DetectFacesEntry({
+  return DetectFacesEntry.make({
     extension: file.extension,
     faceCount: A.length(result.faces),
     faces: result.faces,
@@ -2147,7 +2147,7 @@ const buildCropBordersPlan = Effect.fn("Files.buildCropBordersPlan")(function* (
     entries = A.append(entries, cropEntry.value);
   }
 
-  return new CropBordersPlan({
+  return CropBordersPlan.make({
     analyzedCount,
     borderedCount,
     directory: collection.directory,
@@ -2241,7 +2241,7 @@ const buildNormalizePlan = Effect.fn("Files.buildNormalizePlan")(function* (
         Effect.map((inputDimensions) => {
           const outputDimensions = normalizeOutputDimensions(inputDimensions, options.maxLongEdge);
 
-          return new NormalizePlanEntry({
+          return NormalizePlanEntry.make({
             format: options.format,
             inputDimensions,
             outputDimensions,
@@ -2263,7 +2263,7 @@ const buildNormalizePlan = Effect.fn("Files.buildNormalizePlan")(function* (
     }
   );
 
-  return new NormalizePlan({
+  return NormalizePlan.make({
     duplicateDirectory,
     entries,
     manifestPath,
@@ -2321,7 +2321,7 @@ const collectArchiveSidecars = Effect.fn("Files.collectArchiveSidecars")(functio
     usedSources = HashSet.add(usedSources, sourcePath);
     sidecars = A.append(
       sidecars,
-      new ArchivedSidecarEntry({
+      ArchivedSidecarEntry.make({
         archivePath,
         archiveRelativePath: path.relative(archiveDirectory, archivePath),
         extension: `.${extension}`,
@@ -2354,7 +2354,7 @@ const buildArchivePoorCandidatesPlan = Effect.fn("Files.buildArchivePoorCandidat
     O.getOrElse(options.manifest, () => path.join(archiveDirectory, "archive-poor-candidates-manifest.json"))
   );
   const collection = yield* collectArchiveCandidateFiles(directory, canonicalDirectory);
-  const manifestOptions = new ArchivePoorCandidatesManifestOptions({
+  const manifestOptions = ArchivePoorCandidatesManifestOptions.make({
     maxAspect: options.maxAspect,
     maxUpscale: options.maxUpscale,
     minShortEdge: options.minShortEdge,
@@ -2402,7 +2402,7 @@ const buildArchivePoorCandidatesPlan = Effect.fn("Files.buildArchivePoorCandidat
     if (assessment.decision === "keep") {
       entries = A.append(
         entries,
-        new ArchivePoorCandidatesEntry({
+        ArchivePoorCandidatesEntry.make({
           decision: "keep",
           dimensions: dimensionsResult.success,
           extension: file.extension,
@@ -2434,7 +2434,7 @@ const buildArchivePoorCandidatesPlan = Effect.fn("Files.buildArchivePoorCandidat
 
     entries = A.append(
       entries,
-      new ArchivePoorCandidatesEntry({
+      ArchivePoorCandidatesEntry.make({
         archiveName: uniqueTarget.targetName,
         archivePath,
         archiveRelativePath: path.relative(archiveDirectory, archivePath),
@@ -2457,7 +2457,7 @@ const buildArchivePoorCandidatesPlan = Effect.fn("Files.buildArchivePoorCandidat
     (entry) => !HashSet.has(plannedSidecarSources, entry.sourcePath)
   );
 
-  return new ArchivePoorCandidatesPlan({
+  return ArchivePoorCandidatesPlan.make({
     archiveDirectory,
     entries,
     manifestPath,
@@ -2485,7 +2485,7 @@ const preflightOverwritableFile = Effect.fn("Files.preflightOverwritableFile")(f
   }
 
   if (!overwrite) {
-    return yield* new FilesCommandError({
+    return yield* FilesCommandError.make({
       message: `Refusing to overwrite existing ${description}: "${filePath}"`,
     });
   }
@@ -2495,7 +2495,7 @@ const preflightOverwritableFile = Effect.fn("Files.preflightOverwritableFile")(f
     .pipe(Effect.mapError((cause) => formatPlatformError(`Failed to stat ${description}`, filePath, { cause })));
 
   if (stat.type !== "File") {
-    return yield* new FilesCommandError({
+    return yield* FilesCommandError.make({
       message: `Refusing to overwrite non-file ${description}: "${filePath}"`,
     });
   }
@@ -2509,7 +2509,7 @@ const preflightNormalizeOutputs = Effect.fn("Files.preflightNormalizeOutputs")(f
 
   for (const entry of plan.entries) {
     if (HashSet.has(targetPaths, entry.outputPath)) {
-      return yield* new FilesCommandError({
+      return yield* FilesCommandError.make({
         message: `Refusing duplicate normalize output target: "${entry.outputPath}"`,
       });
     }
@@ -2518,7 +2518,7 @@ const preflightNormalizeOutputs = Effect.fn("Files.preflightNormalizeOutputs")(f
   }
 
   if (HashSet.has(targetPaths, plan.manifestPath)) {
-    return yield* new FilesCommandError({
+    return yield* FilesCommandError.make({
       message: `Refusing to write normalize manifest over an output image: "${plan.manifestPath}"`,
     });
   }
@@ -2537,7 +2537,7 @@ const preflightArchivePoorCandidatesOutputs = Effect.fn("Files.preflightArchiveP
 
     if (O.isSome(archivePath)) {
       if (HashSet.has(targetPaths, archivePath.value)) {
-        return yield* new FilesCommandError({
+        return yield* FilesCommandError.make({
           message: `Refusing duplicate archive target: "${archivePath.value}"`,
         });
       }
@@ -2547,7 +2547,7 @@ const preflightArchivePoorCandidatesOutputs = Effect.fn("Files.preflightArchiveP
 
     for (const sidecar of entry.sidecars) {
       if (HashSet.has(targetPaths, sidecar.archivePath)) {
-        return yield* new FilesCommandError({
+        return yield* FilesCommandError.make({
           message: `Refusing duplicate archive sidecar target: "${sidecar.archivePath}"`,
         });
       }
@@ -2557,7 +2557,7 @@ const preflightArchivePoorCandidatesOutputs = Effect.fn("Files.preflightArchiveP
   }
 
   if (HashSet.has(targetPaths, plan.manifestPath)) {
-    return yield* new FilesCommandError({
+    return yield* FilesCommandError.make({
       message: `Refusing to write archive manifest over an archived file: "${plan.manifestPath}"`,
     });
   }
@@ -2584,7 +2584,7 @@ const normalizeImageToTemp = Effect.fn("Files.normalizeImageToTemp")(function* (
       return resized.toFormat(sharpFormatForNormalize(entry.format)).toFile(tempPath);
     },
     catch: (cause) =>
-      new FilesCommandError({
+      FilesCommandError.make({
         message: `Failed to normalize image "${entry.sourcePath}"`,
         cause,
       }),
@@ -2625,7 +2625,7 @@ const hashFileSha256 = Effect.fn("Files.hashFileSha256")(function* (
         return `sha256:${hex}`;
       }),
     catch: (cause) =>
-      new FilesCommandError({
+      FilesCommandError.make({
         message: `Failed to hash normalized file "${filePath}"`,
         cause,
       }),
@@ -2692,8 +2692,8 @@ const withOutputMetadata = (
   };
 
   return O.isSome(outputHash)
-    ? new NormalizePlanEntry({ ...base, outputHash: outputHash.value })
-    : new NormalizePlanEntry(base);
+    ? NormalizePlanEntry.make({ ...base, outputHash: outputHash.value })
+    : NormalizePlanEntry.make(base);
 };
 
 const makeNormalizeManifest = (
@@ -2708,7 +2708,7 @@ const makeNormalizeManifest = (
     A.length
   );
 
-  return new NormalizeManifest({
+  return NormalizeManifest.make({
     entries: completedEntries,
     manifestPath: plan.manifestPath,
     options: plan.options,
@@ -2716,7 +2716,7 @@ const makeNormalizeManifest = (
     schemaVersion: "beep.files.normalize.v1",
     skipped,
     sourceDirectory: plan.sourceDirectory,
-    summary: new NormalizeManifestSummary({
+    summary: NormalizeManifestSummary.make({
       duplicateCount: A.length(duplicateSkippedEntries),
       movedDuplicateCount,
       normalizedCount: A.length(completedEntries),
@@ -2734,7 +2734,7 @@ const renderNormalizeManifest = Effect.fn("Files.renderNormalizeManifest")(funct
   const encoded = yield* encodeNormalizeManifest(manifest).pipe(
     Effect.mapError(
       (cause) =>
-        new FilesCommandError({
+        FilesCommandError.make({
           message: `Failed to encode normalize manifest for "${manifestPath}"`,
           cause,
         })
@@ -2744,7 +2744,7 @@ const renderNormalizeManifest = Effect.fn("Files.renderNormalizeManifest")(funct
   return yield* renderBiomeJson(manifestPath, encoded).pipe(
     Effect.mapError(
       (cause) =>
-        new FilesCommandError({
+        FilesCommandError.make({
           message: `Failed to render normalize manifest for "${manifestPath}"`,
           cause,
         })
@@ -2760,7 +2760,7 @@ const countMovedSidecars = (entries: ReadonlyArray<ArchivePoorCandidatesEntry>):
   A.reduce(entries, 0, (count, entry) => count + A.length(entry.sidecars));
 
 const makeArchivePoorCandidatesManifest = (plan: ArchivePoorCandidatesPlan): ArchivePoorCandidatesManifest =>
-  new ArchivePoorCandidatesManifest({
+  ArchivePoorCandidatesManifest.make({
     archiveDirectory: plan.archiveDirectory,
     entries: plan.entries,
     manifestPath: plan.manifestPath,
@@ -2768,7 +2768,7 @@ const makeArchivePoorCandidatesManifest = (plan: ArchivePoorCandidatesPlan): Arc
     schemaVersion: "beep.files.archive-poor-candidates.v1",
     skipped: plan.skipped,
     sourceDirectory: plan.sourceDirectory,
-    summary: new ArchivePoorCandidatesManifestSummary({
+    summary: ArchivePoorCandidatesManifestSummary.make({
       archivedCount: A.length(archivedEntries(plan.entries)),
       assessedCount: A.length(plan.entries),
       keptCount: A.length(A.filter(plan.entries, (entry) => entry.decision === "keep")),
@@ -2784,7 +2784,7 @@ const renderArchivePoorCandidatesManifest = Effect.fn("Files.renderArchivePoorCa
   const encoded = yield* encodeArchivePoorCandidatesManifest(manifest).pipe(
     Effect.mapError(
       (cause) =>
-        new FilesCommandError({
+        FilesCommandError.make({
           message: `Failed to encode archive manifest for "${manifestPath}"`,
           cause,
         })
@@ -2794,7 +2794,7 @@ const renderArchivePoorCandidatesManifest = Effect.fn("Files.renderArchivePoorCa
   return yield* renderBiomeJson(manifestPath, encoded).pipe(
     Effect.mapError(
       (cause) =>
-        new FilesCommandError({
+        FilesCommandError.make({
           message: `Failed to render archive manifest for "${manifestPath}"`,
           cause,
         })
@@ -2808,7 +2808,7 @@ const renderDetectBordersReportJson = Effect.fn("Files.renderDetectBordersReport
   const encoded = yield* encodeDetectBordersReport(report).pipe(
     Effect.mapError(
       (cause) =>
-        new FilesCommandError({
+        FilesCommandError.make({
           message: "Failed to encode detect-borders report",
           cause,
         })
@@ -2818,7 +2818,7 @@ const renderDetectBordersReportJson = Effect.fn("Files.renderDetectBordersReport
   return yield* renderBiomeJson("detect-borders-report.json", encoded).pipe(
     Effect.mapError(
       (cause) =>
-        new FilesCommandError({
+        FilesCommandError.make({
           message: "Failed to render detect-borders report",
           cause,
         })
@@ -2833,7 +2833,7 @@ const renderDetectFacesReportJson = Effect.fn("Files.renderDetectFacesReportJson
   const encoded = yield* encodeDetectFacesReport(report).pipe(
     Effect.mapError(
       (cause) =>
-        new FilesCommandError({
+        FilesCommandError.make({
           message: `Failed to encode detect-faces report for "${outputPath}"`,
           cause,
         })
@@ -2843,7 +2843,7 @@ const renderDetectFacesReportJson = Effect.fn("Files.renderDetectFacesReportJson
   return yield* renderBiomeJson(outputPath, encoded).pipe(
     Effect.mapError(
       (cause) =>
-        new FilesCommandError({
+        FilesCommandError.make({
           message: `Failed to render detect-faces report for "${outputPath}"`,
           cause,
         })
@@ -2975,7 +2975,7 @@ const applyNormalizePlan = Effect.fn("Files.applyNormalizePlan")(function* (
 
             if (O.isSome(moveTarget)) {
               if (HashSet.has(duplicateMoveTargets, moveTarget.value.path)) {
-                return yield* new FilesCommandError({
+                return yield* FilesCommandError.make({
                   message: `Refusing duplicate normalize duplicate move target: "${moveTarget.value.path}"`,
                 });
               }
@@ -3113,7 +3113,7 @@ const applyArchivePoorCandidatesPlan = Effect.fn("Files.applyArchivePoorCandidat
           const archivePath = O.fromUndefinedOr(entry.archivePath);
 
           if (O.isNone(archivePath)) {
-            return yield* new FilesCommandError({
+            return yield* FilesCommandError.make({
               message: `Missing archive target for selected source: "${entry.sourcePath}"`,
             });
           }
@@ -3170,7 +3170,7 @@ const buildRenamePlan = Effect.fn("Files.buildRenamePlan")(function* (
     const targetName = targetNameForEntry(prefix, { dimensions, file, index, width });
     plan = A.append(
       plan,
-      new RenamePlanEntry({
+      RenamePlanEntry.make({
         canonicalSourcePath: file.canonicalPath,
         dimensions,
         extension: file.extension,
@@ -3185,7 +3185,7 @@ const buildRenamePlan = Effect.fn("Files.buildRenamePlan")(function* (
     index += 1;
   }
 
-  return new RenamePlan({
+  return RenamePlan.make({
     entries: plan,
     skippedCount: collection.skippedCount,
   });
@@ -3215,7 +3215,7 @@ const preflightTargetCollisions = Effect.fn("Files.preflightTargetCollisions")(f
       );
 
     if (!HashSet.has(selected, canonicalTarget)) {
-      return yield* new FilesCommandError({
+      return yield* FilesCommandError.make({
         message: `Refusing to overwrite existing target outside the rename set: "${entry.targetPath}"`,
       });
     }
@@ -3238,7 +3238,7 @@ const renameOrFail: (
     yield* fs.rename(sourcePath, targetPath).pipe(
       Effect.mapError(
         (cause) =>
-          new FilesCommandError({
+          FilesCommandError.make({
             message: `Failed to rename "${sourcePath}" to "${targetPath}". Recovery temp directory: "${tempDir}"`,
             cause,
           })
@@ -3256,7 +3256,7 @@ const withDetectFacesMovedNoFaceTarget = (
   const primaryFace = O.fromUndefinedOr(entry.primaryFace);
   const primaryFaceAreaPct = O.fromUndefinedOr(entry.primaryFaceAreaPct);
 
-  return new DetectFacesEntry({
+  return DetectFacesEntry.make({
     extension: entry.extension,
     faceCount: entry.faceCount,
     faces: entry.faces,
@@ -3414,7 +3414,7 @@ const buildStripMetadataPlan = Effect.fn("Files.buildStripMetadataPlan")(functio
 
     entries = A.append(
       entries,
-      new StripMetadataPlanEntry({
+      StripMetadataPlanEntry.make({
         extension: file.extension,
         mediaKind,
         size: file.size,
@@ -3430,7 +3430,7 @@ const buildStripMetadataPlan = Effect.fn("Files.buildStripMetadataPlan")(functio
     }
   }
 
-  return new StripMetadataPlan({
+  return StripMetadataPlan.make({
     entries,
     imageCount,
     skippedCount,
@@ -3445,7 +3445,7 @@ const stripImageMetadataToTemp = Effect.fn("Files.stripImageMetadataToTemp")(fun
   yield* Effect.tryPromise({
     try: () => sharp(entry.sourcePath).rotate().toFile(tempPath),
     catch: (cause) =>
-      new FilesCommandError({
+      FilesCommandError.make({
         message: `Failed to normalize image metadata for "${entry.sourcePath}"`,
         cause,
       }),
@@ -3468,7 +3468,7 @@ const cropImageBordersToTemp = Effect.fn("Files.cropImageBordersToTemp")(functio
         })
         .toFile(tempPath),
     catch: (cause) =>
-      new FilesCommandError({
+      FilesCommandError.make({
         message: `Failed to crop detected borders for "${entry.sourcePath}"`,
         cause,
       }),
@@ -3527,7 +3527,7 @@ const runFfmpegStripMetadata = Effect.fn("Files.runFfmpegStripMetadata")(functio
   ).pipe(
     Effect.mapError(
       (cause) =>
-        new FilesCommandError({
+        FilesCommandError.make({
           message: `Failed to run ffmpeg for "${entry.sourcePath}". Install ffmpeg or remove videos from the selection.`,
           cause,
         })
@@ -3536,7 +3536,7 @@ const runFfmpegStripMetadata = Effect.fn("Files.runFfmpegStripMetadata")(functio
 
   if (result.exitCode !== 0) {
     const detail = stringEquivalence(result.stderr, "") ? result.stdout : result.stderr;
-    return yield* new FilesCommandError({
+    return yield* FilesCommandError.make({
       message: `ffmpeg could not strip video metadata for "${entry.sourcePath}": ${detail}`,
     });
   }
@@ -3768,7 +3768,7 @@ const createCaptionFilesImpl = Effect.fn("FilesCommandService.createCaptionFiles
 
     if (validatedOptions.dryRun) {
       yield* Console.log("files create-captions: dry run; no caption files written.");
-      return new CreateCaptionFilesSummary({
+      return CreateCaptionFilesSummary.make({
         createdCount: 0,
         directory: plan.directory,
         dryRun: true,
@@ -3790,7 +3790,7 @@ const createCaptionFilesImpl = Effect.fn("FilesCommandService.createCaptionFiles
       directory: plan.directory,
     });
 
-    return new CreateCaptionFilesSummary({
+    return CreateCaptionFilesSummary.make({
       createdCount: plannedCreateCount,
       directory: plan.directory,
       dryRun: false,
@@ -3845,7 +3845,7 @@ const archivePoorCandidatesImpl = Effect.fn("FilesCommandService.archivePoorCand
 
     if (validatedOptions.dryRun) {
       yield* Console.log("files archive-poor-candidates: dry run; no files moved.");
-      return new ArchivePoorCandidatesSummary({
+      return ArchivePoorCandidatesSummary.make({
         archivedCount,
         archiveDirectory: plan.archiveDirectory,
         assessedCount,
@@ -3875,7 +3875,7 @@ const archivePoorCandidatesImpl = Effect.fn("FilesCommandService.archivePoorCand
       manifestPath: plan.manifestPath,
     });
 
-    return new ArchivePoorCandidatesSummary({
+    return ArchivePoorCandidatesSummary.make({
       archivedCount,
       archiveDirectory: plan.archiveDirectory,
       assessedCount,
@@ -3913,7 +3913,7 @@ const cropBordersFilesImpl = Effect.fn("FilesCommandService.cropBordersFiles")(f
       yield* Console.log(
         `files crop-borders: 0 bordered image(s) planned in "${plan.directory}" (${plan.analyzedCount} analyzed, ${plan.skippedCount} skipped).`
       );
-      return new CropBordersSummary({
+      return CropBordersSummary.make({
         analyzedCount: plan.analyzedCount,
         borderedCount: plan.borderedCount,
         croppedCount: 0,
@@ -3939,7 +3939,7 @@ const cropBordersFilesImpl = Effect.fn("FilesCommandService.cropBordersFiles")(f
 
     if (options.dryRun) {
       yield* Console.log("files crop-borders: dry run; no files rewritten.");
-      return new CropBordersSummary({
+      return CropBordersSummary.make({
         analyzedCount: plan.analyzedCount,
         borderedCount: plan.borderedCount,
         croppedCount: 0,
@@ -3959,7 +3959,7 @@ const cropBordersFilesImpl = Effect.fn("FilesCommandService.cropBordersFiles")(f
       directory: plan.directory,
     });
 
-    return new CropBordersSummary({
+    return CropBordersSummary.make({
       analyzedCount: plan.analyzedCount,
       borderedCount: plan.borderedCount,
       croppedCount: plannedCount,
@@ -4021,14 +4021,14 @@ const detectBordersFilesImpl = Effect.fn("FilesCommandService.detectBordersFiles
 
     const borderedCount = A.length(A.filter(entries, (entry) => entry.hasBorder));
     const skippedCount = A.length(skipped);
-    const summary = new DetectBordersSummary({
+    const summary = DetectBordersSummary.make({
       analyzedCount: A.length(entries),
       borderedCount,
       directory: collection.directory,
       skippedCount,
       totalCount: A.length(entries) + skippedCount,
     });
-    const report = new DetectBordersReport({
+    const report = DetectBordersReport.make({
       directory: collection.directory,
       entries,
       options: validatedOptions,
@@ -4102,7 +4102,7 @@ const detectFacesFilesImpl = Effect.fn("FilesCommandService.detectFacesFiles")(f
 
     if (A.isReadonlyArrayNonEmpty(collection.files)) {
       yield* withDetector(
-        new FaceDetectionModelConfig({ modelPath: validatedOptions.modelPath }),
+        FaceDetectionModelConfig.make({ modelPath: validatedOptions.modelPath }),
         Effect.fnUntraced(function* (detector) {
           const analysisResults = yield* runFilesProgressForEach(
             collection.files,
@@ -4136,7 +4136,7 @@ const detectFacesFilesImpl = Effect.fn("FilesCommandService.detectFacesFiles")(f
         Effect.provideService(FaceDetectionService, makeFaceDetectionService()),
         Effect.mapError(
           (cause) =>
-            new FilesCommandError({
+            FilesCommandError.make({
               message: cause.message,
               cause,
             })
@@ -4151,7 +4151,7 @@ const detectFacesFilesImpl = Effect.fn("FilesCommandService.detectFacesFiles")(f
     const movedNoFaceCount = A.length(A.filter(entries, (entry) => O.isSome(O.fromUndefinedOr(entry.movedNoFacePath))));
     const reviewImageCount = A.length(A.filter(entries, (entry) => A.some(entry.flags, (flag) => flag !== "has-face")));
     const skippedCount = A.length(skipped);
-    const summary = new DetectFacesSummary({
+    const summary = DetectFacesSummary.make({
       analyzedCount: A.length(entries),
       directory: collection.directory,
       faceImageCount,
@@ -4165,7 +4165,7 @@ const detectFacesFilesImpl = Effect.fn("FilesCommandService.detectFacesFiles")(f
       skipped,
       Order.mapInput(Order.String, (entry: DetectFacesSkippedEntry) => entry.sourceName)
     );
-    const report = new DetectFacesReport({
+    const report = DetectFacesReport.make({
       directory: collection.directory,
       entries,
       manifestPath,
@@ -4223,7 +4223,7 @@ const normalizeFilesImpl = Effect.fn("FilesCommandService.normalizeFiles")(funct
   const program = Effect.gen(function* () {
     const maxLongEdge = yield* validateNormalizeMaxLongEdge(options.maxLongEdge);
     const dedupe = options.dedupe || O.isSome(options.moveDuplicatesTo);
-    const validatedOptions = new NormalizeFilesOptions({
+    const validatedOptions = NormalizeFilesOptions.make({
       dedupe,
       dir: options.dir,
       dryRun: options.dryRun,
@@ -4261,7 +4261,7 @@ const normalizeFilesImpl = Effect.fn("FilesCommandService.normalizeFiles")(funct
 
     if (options.dryRun) {
       yield* Console.log("files normalize: dry run; no files written.");
-      return new NormalizeSummary({
+      return NormalizeSummary.make({
         directory: plan.sourceDirectory,
         duplicateCount: 0,
         dryRun: true,
@@ -4298,7 +4298,7 @@ const normalizeFilesImpl = Effect.fn("FilesCommandService.normalizeFiles")(funct
       manifestPath: plan.manifestPath,
     });
 
-    return new NormalizeSummary({
+    return NormalizeSummary.make({
       directory: plan.sourceDirectory,
       duplicateCount,
       dryRun: false,
@@ -4346,7 +4346,7 @@ const sortAndRenameFilesImpl = Effect.fn("FilesCommandService.sortAndRenameFiles
     if (withDimensions === true && hasSkippedFiles(plan.skippedCount)) {
       yield* Console.log(`files sort-and-rename: skipped ${plan.skippedCount} non-media file(s).`);
     }
-    return new SortAndRenameSummary({
+    return SortAndRenameSummary.make({
       directory,
       dryRun,
       plannedCount: 0,
@@ -4365,7 +4365,7 @@ const sortAndRenameFilesImpl = Effect.fn("FilesCommandService.sortAndRenameFiles
 
   if (dryRun) {
     yield* Console.log("files sort-and-rename: dry run; no files renamed.");
-    return new SortAndRenameSummary({
+    return SortAndRenameSummary.make({
       directory,
       dryRun,
       plannedCount: A.length(entries),
@@ -4378,7 +4378,7 @@ const sortAndRenameFilesImpl = Effect.fn("FilesCommandService.sortAndRenameFiles
   yield* applyRenamePlan(directory, entries);
   yield* Console.log(`files sort-and-rename: renamed ${A.length(entries)} file(s).`);
 
-  return new SortAndRenameSummary({
+  return SortAndRenameSummary.make({
     directory,
     dryRun,
     plannedCount: A.length(entries),
@@ -4401,7 +4401,7 @@ const stripMetadataFilesImpl = Effect.fn("FilesCommandService.stripMetadataFiles
     if (hasSkippedFiles(plan.skippedCount)) {
       yield* Console.log(`files strip-metadata: skipped ${plan.skippedCount} unsupported or non-media file(s).`);
     }
-    return new StripMetadataSummary({
+    return StripMetadataSummary.make({
       directory,
       dryRun,
       imageCount: plan.imageCount,
@@ -4420,7 +4420,7 @@ const stripMetadataFilesImpl = Effect.fn("FilesCommandService.stripMetadataFiles
 
   if (dryRun) {
     yield* Console.log("files strip-metadata: dry run; no files rewritten.");
-    return new StripMetadataSummary({
+    return StripMetadataSummary.make({
       directory,
       dryRun,
       imageCount: plan.imageCount,
@@ -4436,7 +4436,7 @@ const stripMetadataFilesImpl = Effect.fn("FilesCommandService.stripMetadataFiles
     `files strip-metadata: stripped ${A.length(entries)} media file(s) (${plan.imageCount} image, ${plan.videoCount} video).`
   );
 
-  return new StripMetadataSummary({
+  return StripMetadataSummary.make({
     directory,
     dryRun,
     imageCount: plan.imageCount,

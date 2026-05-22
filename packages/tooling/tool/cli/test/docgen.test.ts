@@ -193,7 +193,7 @@ describe("Docgen operations", () => {
   it("builds changed-plus-dependent Turbo filters for local docgen", () => {
     const args = docgenLocalTurboArgsForTesting(
       [
-        new DocgenLocalSelectedPackage({
+        DocgenLocalSelectedPackage.make({
           name: "@beep/schema",
           path: "packages/foundation/modeling/schema",
           reasons: ["packages/foundation/modeling/schema/src/index.ts"],
@@ -801,12 +801,12 @@ describe("Docgen operations", () => {
     ));
 
   it("renders human-first report content without agent instructions", () => {
-    const analysis = new DocgenPackageAnalysis({
+    const analysis = DocgenPackageAnalysis.make({
       packageName: "@beep/schema",
       packagePath: "packages/foundation/modeling/schema",
       timestamp: "2026-03-08T00:00:00.000Z",
       exports: [
-        new DocgenExportAnalysis({
+        DocgenExportAnalysis.make({
           name: "Schema",
           kind: "class",
           filePath: "src/index.ts",
@@ -821,7 +821,7 @@ describe("Docgen operations", () => {
           context: "Primary schema export.",
         }),
       ],
-      summary: new DocgenAnalysisSummary({
+      summary: DocgenAnalysisSummary.make({
         totalExports: 1,
         fullyDocumented: 0,
         missingDocumentation: 1,
@@ -1208,7 +1208,7 @@ export default function (value: string): string {
  * \`\`\`ts
  * import DefaultValueHolder from "@beep/schema/DefaultClass"
  *
- * console.log(new DefaultValueHolder().value)
+ * console.log(DefaultValueHolder.make().value)
  * \`\`\`
  * @category models
  * @since 0.0.0
@@ -2066,12 +2066,12 @@ export const workerEvalValue = 1;
     Effect.runPromise(
       Effect.gen(function* () {
         const selected = selectQualityWorkerRunpodTemplate([
-          new Template({
+          Template.make({
             id: "template-z",
             imageName: "runpod/pytorch:latest",
             name: "Plain PyTorch",
           }),
-          new Template({
+          Template.make({
             id: "template-a",
             imageName: "ollama/ollama:latest",
             name: "Ollama CUDA",
@@ -2153,14 +2153,14 @@ export const parseValue = (value: string): string => value.trim();
           const RunpodTestLayer = Layer.succeed(
             Runpod,
             Runpod.of({
-              createPod: () => Effect.succeed(new Pod({ name: "created-without-id" })),
+              createPod: () => Effect.succeed(Pod.make({ name: "created-without-id" })),
               deletePod: (request: { readonly podId: string }) => Ref.update(deletedPodIds, A.append(request.podId)),
               getPod: (request: { readonly podId: string }) =>
-                Effect.succeed(new Pod({ id: request.podId, name: "recovered-pod" })),
+                Effect.succeed(Pod.make({ id: request.podId, name: "recovered-pod" })),
               listTemplates: () => Effect.die("unexpected public template search"),
               listPods: (request?: { readonly name?: string }) =>
                 Effect.succeed([
-                  new Pod(
+                  Pod.make(
                     request?.name === undefined ? { id: "pod-recovered" } : { id: "pod-recovered", name: request.name }
                   ),
                 ]),

@@ -41,7 +41,7 @@ const lawFixture: RuntimeFixtureInput = {
   },
 };
 
-const lawScope = new RuntimeScope({
+const lawScope = RuntimeScope.make({
   organizationId: lawFixture.seed.organization.organizationId,
   threadId: lawFixture.email.threadId,
   workspaceId: lawFixture.seed.workspace.workspaceId,
@@ -62,7 +62,7 @@ describe("@beep/agent-capability-use-cases", () => {
     Effect.gen(function* () {
       const sdk = makeInMemoryProfessionalRuntimeSdk([lawFixture]);
       const packet = yield* sdk.getContextPacket(
-        new GetContextPacket({
+        GetContextPacket.make({
           artifactId: lawFixture.email.artifactId,
           scenarioId: lawFixture.email.scenarioId,
           scope: lawScope,
@@ -78,7 +78,7 @@ describe("@beep/agent-capability-use-cases", () => {
       const sdk = makeInMemoryProfessionalRuntimeSdk([lawFixture]);
       const outputSet = yield* runRuntimeFixture(lawFixture);
       const accepted = yield* sdk.proposeCandidateOutputSet(
-        new ProposeCandidateOutputSet({
+        ProposeCandidateOutputSet.make({
           outputSet,
           producedByPrincipalId: "principal-agent-runtime-fixture",
           scope: lawScope,

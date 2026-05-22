@@ -771,7 +771,7 @@ const importCodexSdk = Effect.fn("DocgenQualityWorkerEval.importCodexSdk")(funct
   return yield* Effect.tryPromise({
     try: () => import("@openai/codex-sdk"),
     catch: (cause) =>
-      new DomainError({
+      DomainError.make({
         message: `Failed to import @openai/codex-sdk: ${errorMessage(cause)}`,
         cause,
       }),
@@ -784,7 +784,7 @@ const resolveCodexSdkVersion = Effect.fn("DocgenQualityWorkerEval.resolveCodexSd
   const resolvedMain = yield* Effect.try({
     try: () => import.meta.resolve("@openai/codex-sdk"),
     catch: (cause) =>
-      new DomainError({
+      DomainError.make({
         message: `Failed to resolve @openai/codex-sdk: ${errorMessage(cause)}`,
         cause,
       }),
@@ -878,7 +878,7 @@ const makeCodexRunner = (sdkModule: CodexSdkModule): DocgenQualityWorkerEvalRunn
     const codex = yield* Effect.try({
       try: () => new sdkModule.Codex(codexOptionsWithBaseUrl),
       catch: (cause) =>
-        new DomainError({
+        DomainError.make({
           message: `Failed to construct Codex SDK client for provider "${provider}" and model "${model}": ${errorMessage(cause)}`,
           cause,
         }),
@@ -895,7 +895,7 @@ const makeCodexRunner = (sdkModule: CodexSdkModule): DocgenQualityWorkerEvalRunn
           ...reasoningThreadOptions,
         }),
       catch: (cause) =>
-        new DomainError({
+        DomainError.make({
           message: `Failed to start Codex worker thread for provider "${provider}" and model "${model}": ${errorMessage(cause)} ${providerHint(provider)}`,
           cause,
         }),
@@ -903,7 +903,7 @@ const makeCodexRunner = (sdkModule: CodexSdkModule): DocgenQualityWorkerEvalRunn
     const turn = yield* Effect.tryPromise({
       try: (signal) => thread.run(prompt, { outputSchema: qualityWorkerEvalWorkerOutputJsonSchema, signal }),
       catch: (cause) =>
-        new DomainError({
+        DomainError.make({
           message: `Codex worker turn failed for provider "${provider}" and model "${model}": ${errorMessage(cause)} ${providerHint(provider)}`,
           cause,
         }),
@@ -958,7 +958,7 @@ const failedPacketResult = ({
   readonly error: string;
   readonly status: DocgenQualityWorkerEvalPacketStatus;
 }): DocgenQualityWorkerEvalPacketResult =>
-  new DocgenQualityWorkerEvalPacketResult({
+  DocgenQualityWorkerEvalPacketResult.make({
     packetId: candidate.packet.id,
     subjectId: candidate.packet.subjectId,
     sourceAnchor: candidate.sourceAnchor,
@@ -985,7 +985,7 @@ const completedPacketResult = ({
   readonly durationMs: number;
   readonly output: DocgenQualityWorkerEvalWorkerOutput;
 }): DocgenQualityWorkerEvalPacketResult =>
-  new DocgenQualityWorkerEvalPacketResult({
+  DocgenQualityWorkerEvalPacketResult.make({
     packetId: candidate.packet.id,
     subjectId: candidate.packet.subjectId,
     sourceAnchor: candidate.sourceAnchor,
@@ -1074,7 +1074,7 @@ const summarizePacketResults = (
   selectedPackets: number,
   packets: ReadonlyArray<DocgenQualityWorkerEvalPacketResult>
 ): DocgenQualityWorkerEvalSummary =>
-  new DocgenQualityWorkerEvalSummary({
+  DocgenQualityWorkerEvalSummary.make({
     packages: report.packages.length,
     sourcePackets: report.remediationPackets.length,
     selectedPackets,
@@ -1293,7 +1293,7 @@ export const analyzeDocgenQualityWorkerEval = Effect.fn("DocgenQualityWorkerEval
     }
     const summary = summarizePacketResults(report, selected.length, packets);
 
-    return new DocgenQualityWorkerEvalReport({
+    return DocgenQualityWorkerEvalReport.make({
       schemaVersion: QUALITY_WORKER_EVAL_SCHEMA_VERSION,
       generatedAt: timestampIso(),
       sourceQualityReport,
@@ -1305,7 +1305,7 @@ export const analyzeDocgenQualityWorkerEval = Effect.fn("DocgenQualityWorkerEval
       summary,
       packets,
       policyViolations: summarizePolicyViolations(packets),
-      runtime: new DocgenQualityWorkerEvalRuntime({
+      runtime: DocgenQualityWorkerEvalRuntime.make({
         totalDurationMs: durationMsSince(startedAtMs),
         packetTimeoutMs: Duration.toMillis(timeout),
       }),

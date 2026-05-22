@@ -39,7 +39,7 @@ describe("@beep/agent-capability-domain", () => {
       name: "Reviewer Agent",
       skillFixtureKey: "skill.review",
     });
-    const constructed = new Agent(decoded);
+    const constructed = Agent.make(decoded);
 
     expect(decoded).toBeInstanceOf(Agent);
     expect(constructed).toBeInstanceOf(Agent);

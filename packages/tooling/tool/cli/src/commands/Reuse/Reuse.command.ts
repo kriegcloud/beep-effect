@@ -235,7 +235,7 @@ const ensureRepoExportsCatalogFresh = Effect.fn("Reuse.ensureRepoExportsCatalogF
   ).pipe(Effect.mapError(DomainError.newCauseMessage("Failed to run repo-exports:catalog:check")));
 
   if (exitCode !== 0) {
-    return yield* new DomainError({
+    return yield* DomainError.make({
       message: `repo-exports:catalog:check failed with exit code ${exitCode}`,
     });
   }
@@ -395,7 +395,7 @@ const reuseLookupCommand = Command.make(
         const importPolicies = yield* readRepoCodegraphImportPolicies(repoRoot, catalog);
         const result = lookupRepoExports(
           catalog,
-          new RepoCodegraphLookupRequest({
+          RepoCodegraphLookupRequest.make({
             fromPackage: from,
             limit,
             query,

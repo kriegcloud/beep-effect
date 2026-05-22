@@ -85,7 +85,7 @@ export const runCodexSmoke: Effect.Effect<CodexSmokeResult, CodexRunnerError, Fi
     const repoRoot = yield* findRepoRoot().pipe(
       Effect.mapError(
         (cause) =>
-          new CodexRunnerError({
+          CodexRunnerError.make({
             stage: "findRepoRoot",
             message: cause.message,
           })
@@ -94,7 +94,7 @@ export const runCodexSmoke: Effect.Effect<CodexSmokeResult, CodexRunnerError, Fi
     const sdkModule = yield* Effect.tryPromise({
       try: () => import("@openai/codex-sdk"),
       catch: (cause) =>
-        new CodexRunnerError({
+        CodexRunnerError.make({
           stage: "import",
           message: causeMessage(cause, "Failed to import @openai/codex-sdk"),
         }),
@@ -102,7 +102,7 @@ export const runCodexSmoke: Effect.Effect<CodexSmokeResult, CodexRunnerError, Fi
     const codex = yield* Effect.try({
       try: () => new sdkModule.Codex(),
       catch: (cause) =>
-        new CodexRunnerError({
+        CodexRunnerError.make({
           stage: "construct",
           message: causeMessage(cause, "Failed to construct Codex SDK client"),
         }),
@@ -116,13 +116,13 @@ export const runCodexSmoke: Effect.Effect<CodexSmokeResult, CodexRunnerError, Fi
           })
         ),
       catch: (cause) =>
-        new CodexRunnerError({
+        CodexRunnerError.make({
           stage: "startThread",
           message: causeMessage(cause, "Failed to start Codex SDK thread"),
         }),
     });
 
-    return new CodexSmokeResult({
+    return CodexSmokeResult.make({
       sdkPackage: "@openai/codex-sdk",
       workingDirectory: repoRoot,
       threadCreated: true,

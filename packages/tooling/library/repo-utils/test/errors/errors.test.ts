@@ -6,7 +6,7 @@ describe("Error types", () => {
   describe("NoSuchFileError", () => {
     it.effect("should create with path and message", () =>
       Effect.sync(() => {
-        const error = new NoSuchFileError({
+        const error = NoSuchFileError.make({
           path: "/some/missing/file.ts",
           message: "File not found",
         });
@@ -19,7 +19,7 @@ describe("Error types", () => {
     it.effect(
       "should be catchable by tag in Effect",
       Effect.fn(function* () {
-        const result = yield* Effect.fail(new NoSuchFileError({ path: "/missing", message: "not found" })).pipe(
+        const result = yield* Effect.fail(NoSuchFileError.make({ path: "/missing", message: "not found" })).pipe(
           Effect.catchTag("NoSuchFileError", (e) => Effect.succeed(`caught: ${e.path}`))
         );
         expect(result).toBe("caught: /missing");
@@ -30,7 +30,7 @@ describe("Error types", () => {
   describe("DomainError", () => {
     it.effect("should create with message only", () =>
       Effect.sync(() => {
-        const error = new DomainError({ message: "Something failed" });
+        const error = DomainError.make({ message: "Something failed" });
         expect(error._tag).toBe("DomainError");
         expect(error.message).toBe("Something failed");
         expect(error.cause).toBeUndefined();
@@ -40,7 +40,7 @@ describe("Error types", () => {
     it.effect("should create with message and cause", () =>
       Effect.sync(() => {
         const underlying = new Error("root cause");
-        const error = new DomainError({
+        const error = DomainError.make({
           message: "Wrapper error",
           cause: underlying,
         });
@@ -53,7 +53,7 @@ describe("Error types", () => {
     it.effect(
       "should be catchable by tag in Effect",
       Effect.fn(function* () {
-        const result = yield* Effect.fail(new DomainError({ message: "domain fail" })).pipe(
+        const result = yield* Effect.fail(DomainError.make({ message: "domain fail" })).pipe(
           Effect.catchTag("DomainError", (e) => Effect.succeed(`caught: ${e.message}`))
         );
         expect(result).toBe("caught: domain fail");
@@ -64,7 +64,7 @@ describe("Error types", () => {
   describe("CyclicDependencyError", () => {
     it.effect("should create with message and cycles", () =>
       Effect.sync(() => {
-        const error = new CyclicDependencyError({
+        const error = CyclicDependencyError.make({
           message: "Cyclic dependencies detected",
           cycles: [["@beep/a", "@beep/b", "@beep/a"]],
         });
@@ -76,7 +76,7 @@ describe("Error types", () => {
 
     it.effect("should support multiple cycles", () =>
       Effect.sync(() => {
-        const error = new CyclicDependencyError({
+        const error = CyclicDependencyError.make({
           message: "Multiple cycles",
           cycles: [
             ["@beep/a", "@beep/b", "@beep/a"],
@@ -91,7 +91,7 @@ describe("Error types", () => {
       "should be catchable by tag in Effect",
       Effect.fn(function* () {
         const result = yield* Effect.fail(
-          new CyclicDependencyError({
+          CyclicDependencyError.make({
             message: "cycle",
             cycles: [["a", "b", "a"]],
           })

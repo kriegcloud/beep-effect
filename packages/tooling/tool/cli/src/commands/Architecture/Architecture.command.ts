@@ -128,7 +128,7 @@ const reportApplyResult = Effect.fn(function* (result: OperationPlanApplyResult)
 
 const ensureIdempotent = Effect.fn(function* (result: OperationPlanCheckResult) {
   if (!result.idempotent) {
-    return yield* new DomainError({
+    return yield* DomainError.make({
       message: Text.joinLines([
         "Architecture operation plan is not idempotent.",
         `missing=${A.join(result.missingPaths, ",")}`,

@@ -88,7 +88,7 @@ const resolveCanonicalPurgePath = Effect.fn(function* (target: string) {
 
     const parent = path.dirname(candidate);
     if (parent === candidate) {
-      return yield* new DomainError({
+      return yield* DomainError.make({
         message: `Failed to find an existing ancestor for purge path "${target}"`,
       });
     }
@@ -107,7 +107,7 @@ const ensureContainedPurgeTarget = Effect.fn(function* (rootDir: string, target:
     stringEquivalence(relativeFromRoot, "..") ||
     Str.startsWith("../")(relativeFromRoot)
   ) {
-    return yield* new DomainError({
+    return yield* DomainError.make({
       message: `Refusing to purge path outside repository root: "${target}"`,
     });
   }
@@ -229,7 +229,7 @@ export const purgeAtRoot: {
       `Purge complete: targeted ${A.length(safeTargets)} path(s), removed ${removedCount} existing path(s).`
     );
 
-    return new PurgeSummary({
+    return PurgeSummary.make({
       targetedCount: A.length(safeTargets),
       removedCount,
       workspaceCount,

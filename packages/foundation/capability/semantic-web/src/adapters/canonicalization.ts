@@ -67,7 +67,7 @@ const hashCanonicalText = Effect.fn("SemanticWeb.hashCanonicalText")(function* (
       );
     },
     catch: () =>
-      new CanonicalizationError({
+      CanonicalizationError.make({
         reason: "fingerprintFailure",
         message: "Failed to hash canonical dataset text.",
       }),
@@ -76,7 +76,7 @@ const hashCanonicalText = Effect.fn("SemanticWeb.hashCanonicalText")(function* (
   return yield* S.decodeUnknownEffect(Sha256Hex)(hex).pipe(
     Effect.mapError(
       () =>
-        new CanonicalizationError({
+        CanonicalizationError.make({
           reason: "fingerprintFailure",
           message: "Failed to decode SHA-256 dataset fingerprint.",
         })
@@ -90,7 +90,7 @@ const enforceWorkLimit = (
 ): Effect.Effect<void, CanonicalizationError> =>
   O.isSome(workLimit) && quads.length > workLimit.value
     ? Effect.fail(
-        new CanonicalizationError({
+        CanonicalizationError.make({
           reason: "workLimitExceeded",
           message: `Dataset contains ${quads.length} quads, exceeding the work limit of ${workLimit.value}.`,
         })
@@ -181,11 +181,11 @@ const mapCanonizeFailure = (error: unknown): CanonicalizationError => {
   const message = error instanceof Error ? error.message : "RDF dataset canonicalization failed.";
 
   return hasSemanticCanonicalizationBudgetFailureName(error) || isSemanticCanonicalizationBudgetFailure(message)
-    ? new CanonicalizationError({
+    ? CanonicalizationError.make({
         reason: "workLimitExceeded",
         message: semanticCanonicalizationBudgetMessage,
       })
-    : new CanonicalizationError({
+    : CanonicalizationError.make({
         reason: "canonicalizationFailure",
         message,
       });
@@ -236,7 +236,7 @@ const getCanonicalDataset = (
     : request.algorithm === "lexical-sort-v1"
       ? Effect.succeed(canonicalizeLexically(request.dataset.quads))
       : Effect.fail(
-          new CanonicalizationError({
+          CanonicalizationError.make({
             reason: "unsupportedAlgorithm",
             message: `Unsupported canonicalization algorithm: ${request.algorithm}`,
           })

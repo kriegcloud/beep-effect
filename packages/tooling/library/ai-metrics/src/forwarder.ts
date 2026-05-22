@@ -64,7 +64,7 @@ const AiMetricsForwarderTimerCommand = AiMetricsForwarderTimerCommandBase.pipe(
  * @example
  * ```ts
  * import { AiMetricsForwarderError } from "@beep/repo-ai-metrics"
- * const error = new AiMetricsForwarderError({
+ * const error = AiMetricsForwarderError.make({
  *   cause: "boom",
  *   message: "Forwarder failed."
  * })
@@ -361,7 +361,7 @@ type ForwarderSourceSelection = {
 };
 
 const forwarderFailure = (message: string, cause: unknown): AiMetricsForwarderError =>
-  new AiMetricsForwarderError({ cause, message });
+  AiMetricsForwarderError.make({ cause, message });
 
 const repoPathToClaudeProjectName: (repoRoot: string) => string = Str.replace(/[/\\]/gu, "-");
 
@@ -413,7 +413,7 @@ const shellCommandFromArgv: (argv: ReadonlyArray<string>) => string = flow(A.map
  * @since 0.0.0
  */
 export const renderAiMetricsForwarderTimerPlan = (input: AiMetricsForwarderTimerInput): AiMetricsForwarderTimerPlan => {
-  const timerInput = new AiMetricsForwarderTimerInput(input);
+  const timerInput = AiMetricsForwarderTimerInput.make(input);
   const serviceName = safeSystemdUnitNameStem(timerInput.serviceName);
   const serviceUnitName = `${serviceName}.service`;
   const timerUnitName = `${serviceName}.timer`;
@@ -487,7 +487,7 @@ export const renderAiMetricsForwarderTimerPlan = (input: AiMetricsForwarderTimer
         ]),
   ];
 
-  return new AiMetricsForwarderTimerPlan({
+  return AiMetricsForwarderTimerPlan.make({
     installCommands: [
       `mkdir -p ~/.config/systemd/user ~/.config/beep "$(dirname ${shellQuote(timerInput.statusPath)})"`,
       ...writeEnvFileCommands,
@@ -633,7 +633,7 @@ const selectSourceFiles = (
   const includedFiles = A.take(sortedFiles, maxFiles);
 
   return {
-    coverage: new AiMetricsForwarderSourceCoverage({
+    coverage: AiMetricsForwarderSourceCoverage.make({
       candidateFileCount: A.length(sortedFiles),
       includedFileCount: A.length(includedFiles),
       limitedByMaxFiles: A.length(sortedFiles) > A.length(includedFiles),
@@ -714,7 +714,7 @@ const processSourceFile = Effect.fn("AiMetrics.forwarder.processSourceFile")(
       summary,
     }).pipe(Effect.mapError((cause) => forwarderFailure("Failed to build AI metrics privacy projection.", cause)));
 
-    return new AiMetricsDerivedTranscriptRecord({ archiveObject, privacy });
+    return AiMetricsDerivedTranscriptRecord.make({ archiveObject, privacy });
   },
   (effect, _input, _rawArchiveDir, sourceFile) =>
     effect.pipe(
@@ -736,7 +736,7 @@ const processSourceFile = Effect.fn("AiMetrics.forwarder.processSourceFile")(
  *   runAiMetricsForwarder
  * } from "@beep/repo-ai-metrics"
  * import { Redacted } from "effect"
- * const input = new AiMetricsForwarderInput({
+ * const input = AiMetricsForwarderInput.make({
  *   homeDir: "/home/example",
  *   rawArchiveKey: Redacted.make("base64-32-byte-key"),
  *   repoRoot: "/work/repo"
@@ -752,7 +752,7 @@ export const runAiMetricsForwarder = Effect.fn("AiMetrics.runAiMetricsForwarder"
     const startedAtEpochMillis = yield* Clock.currentTimeMillis;
     yield* requireForwarderHashSalt(input);
     const installSpec = yield* makeAiMetricsInstallSpec(
-      new AiMetricsInstallInput({
+      AiMetricsInstallInput.make({
         ...(input.dataRoot === undefined ? {} : { dataRoot: input.dataRoot }),
         ...(input.hashSaltSecretRef === undefined ? {} : { hashSaltSecretRef: input.hashSaltSecretRef }),
         ...(input.rawArchiveKeySecretRef === undefined ? {} : { rawArchiveKeySecretRef: input.rawArchiveKeySecretRef }),
@@ -762,7 +762,7 @@ export const runAiMetricsForwarder = Effect.fn("AiMetrics.runAiMetricsForwarder"
     const pathApi = yield* Path.Path;
     const configSnapshotDir = pathApi.join(installSpec.storage.dataRoot, "config-snapshots");
     const configSnapshot = yield* makeAiMetricsConfigSnapshot(
-      new AiMetricsConfigSnapshotInput({
+      AiMetricsConfigSnapshotInput.make({
         previousSnapshotPath: pathApi.join(configSnapshotDir, "latest.json"),
         repoRoot: input.repoRoot,
       })
@@ -783,7 +783,7 @@ export const runAiMetricsForwarder = Effect.fn("AiMetrics.runAiMetricsForwarder"
     );
     const ingestRunId = `forwarder-${startedAtEpochMillis}`;
     const derived = yield* writeAiMetricsDerivedStorage(
-      new AiMetricsDerivedStorageWriteInput({
+      AiMetricsDerivedStorageWriteInput.make({
         configSnapshot: configSnapshot.snapshot,
         ingestRunId,
         records,
@@ -798,7 +798,7 @@ export const runAiMetricsForwarder = Effect.fn("AiMetrics.runAiMetricsForwarder"
       result: configSnapshot,
     }).pipe(Effect.mapError((cause) => forwarderFailure("Failed to commit latest AI metrics config snapshot.", cause)));
 
-    return new AiMetricsForwarderRunResult({
+    return AiMetricsForwarderRunResult.make({
       archiveObjectCount: derived.archiveObjectCount,
       configSnapshotId: configSnapshot.snapshot.snapshotId,
       duckDbPath: derived.duckDbPath,
@@ -833,7 +833,7 @@ export const runAiMetricsForwarder = Effect.fn("AiMetrics.runAiMetricsForwarder"
  *   AiMetricsForwarderRunResult,
  *   forwarderRunResultToJson
  * } from "@beep/repo-ai-metrics"
- * const result = new AiMetricsForwarderRunResult({
+ * const result = AiMetricsForwarderRunResult.make({
  *   archiveObjectCount: 0,
  *   configSnapshotId: "config-1",
  *   duckDbPath: ".ai-metrics/derived/ai-metrics.duckdb",

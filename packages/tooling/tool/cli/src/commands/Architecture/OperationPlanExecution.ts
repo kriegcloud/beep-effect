@@ -53,7 +53,7 @@ const checkStatusFor = (
   operation: ArchitectureOperation,
   status: ArchitectureOperationCheckStatus
 ): ArchitectureOperationCheck =>
-  new ArchitectureOperationCheck({
+  ArchitectureOperationCheck.make({
     operationId: stringEquivalence(operation.operationId, "legacy-operation")
       ? operationIdFor(operation.kind, operation.path)
       : operation.operationId,
@@ -241,7 +241,7 @@ export const checkCanonicalSliceOperationPlan: {
       );
     }
 
-    return new OperationPlanCheckResult({
+    return OperationPlanCheckResult.make({
       idempotent: missingPaths.length === 0 && differingPaths.length === 0 && unexpectedPaths.length === 0,
       operationStatuses,
       missingPaths,
@@ -308,6 +308,6 @@ export const applyCanonicalSliceOperationPlan: {
       );
     }
 
-    return new OperationPlanApplyResult({ writtenPaths, skippedPaths, removedPaths });
+    return OperationPlanApplyResult.make({ writtenPaths, skippedPaths, removedPaths });
   })
 );

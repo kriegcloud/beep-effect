@@ -50,7 +50,7 @@ export const SANITY_API_VERSION = "2025-05-14";
  * ```ts
  * import { SANITY_API_VERSION, SanityConfigInput } from "@beep/sanity"
  *
- * const config = new SanityConfigInput({
+ * const config = SanityConfigInput.make({
  *   apiVersion: SANITY_API_VERSION,
  *   dataset: "production",
  *   projectId: "content-project"

@@ -394,7 +394,7 @@ export class DuckDb extends Context.Service<DuckDb, DuckDbShape>()($I`DuckDb`) {
    * ```ts
    * import { DuckDb, DuckDbConnectionOptions } from "@beep/duckdb"
    *
-   * const client = DuckDb.makeNodeClient(new DuckDbConnectionOptions({
+   * const client = DuckDb.makeNodeClient(DuckDbConnectionOptions.make({
    *   databasePath: "metrics.duckdb"
    * }))
    *
@@ -413,7 +413,7 @@ export class DuckDb extends Context.Service<DuckDb, DuckDbShape>()($I`DuckDb`) {
    * ```ts
    * import { DuckDb, DuckDbConnectionOptions } from "@beep/duckdb"
    *
-   * const layer = DuckDb.makeNodeLayer(new DuckDbConnectionOptions({
+   * const layer = DuckDb.makeNodeLayer(DuckDbConnectionOptions.make({
    *   databasePath: "metrics.duckdb"
    * }))
    *

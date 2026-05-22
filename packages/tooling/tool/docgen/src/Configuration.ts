@@ -202,7 +202,7 @@ const readJsoncFile = <Schema extends S.Decoder<unknown, never>>(
     const content = yield* fs.readFileString(filePath).pipe(
       Effect.mapError(
         (cause) =>
-          new Domain.DocgenError({
+          Domain.DocgenError.make({
             message: `[Configuration.readJsoncFile] Failed to read '${filePath}'\n${String(cause)}`,
           })
       )
@@ -211,7 +211,7 @@ const readJsoncFile = <Schema extends S.Decoder<unknown, never>>(
     const parsed = yield* Effect.try({
       try: () => jsonc.parse(content),
       catch: (cause) =>
-        new Domain.DocgenError({
+        Domain.DocgenError.make({
           message: `[Configuration.readJsoncFile] Failed to parse '${filePath}'\n${String(cause)}`,
         }),
     });
@@ -219,7 +219,7 @@ const readJsoncFile = <Schema extends S.Decoder<unknown, never>>(
     return yield* S.decodeUnknownEffect(schema)(parsed).pipe(
       Effect.mapError(
         (cause) =>
-          new Domain.DocgenError({
+          Domain.DocgenError.make({
             message: `[Configuration.readJsoncFile] Failed to decode '${filePath}'\n${String(cause)}`,
           })
       )
@@ -235,7 +235,7 @@ const readDocgenConfig = Effect.fn("Configuration.readDocgenConfig")(function* (
   const exists = yield* fs.exists(filePath).pipe(
     Effect.mapError(
       (cause) =>
-        new Domain.DocgenError({
+        Domain.DocgenError.make({
           message: `[Configuration.readDocgenConfig] Failed to check '${filePath}'\n${String(cause)}`,
         })
     )
@@ -264,7 +264,7 @@ const readTSConfig = Effect.fn("Configuration.readTSConfig")(function* (
   const content = yield* fs.readFileString(resolved).pipe(
     Effect.mapError(
       (cause) =>
-        new Domain.DocgenError({
+        Domain.DocgenError.make({
           message: `[Configuration.readTSConfig] Failed to read TSConfig file '${resolved}'\n${String(cause)}`,
         })
     )
@@ -272,7 +272,7 @@ const readTSConfig = Effect.fn("Configuration.readTSConfig")(function* (
   const tsconfig = yield* decodeTSConfigFromJsoncTextEffect(content).pipe(
     Effect.mapError(
       (cause) =>
-        new Domain.DocgenError({
+        Domain.DocgenError.make({
           message: `[Configuration.readTSConfig] Failed to decode TSConfig file '${resolved}'\n${cause.message}`,
         })
     )
@@ -284,7 +284,7 @@ const readTSConfig = Effect.fn("Configuration.readTSConfig")(function* (
   return yield* encodeCompilerOptions(tsconfig.compilerOptions.value).pipe(
     Effect.mapError(
       (cause) =>
-        new Domain.DocgenError({
+        Domain.DocgenError.make({
           message: `[Configuration.readTSConfig] Failed to encode compiler options from '${resolved}'\n${cause.message}`,
         })
     )

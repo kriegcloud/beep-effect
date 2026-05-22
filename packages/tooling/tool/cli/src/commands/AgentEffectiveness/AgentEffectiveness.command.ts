@@ -104,7 +104,7 @@ const makeDoctorInput = ({
   readonly target: AiMetricsDeployTarget;
   readonly workerEvalReportPath: string;
 }): AgentEffectivenessDoctorInput =>
-  new AgentEffectivenessDoctorInput({
+  AgentEffectivenessDoctorInput.make({
     dataRoot,
     noPhoenix,
     phoenixBaseUrl,
@@ -124,7 +124,7 @@ const provideAgentEffectivenessLayers = Effect.fn("AgentEffectiveness.provideLay
   return yield* Effect.scoped(
     Layer.build(
       Layer.mergeAll(
-        DuckDb.makeNodeLayer(new DuckDbConnectionOptions({ databasePath: duckDbPath })),
+        DuckDb.makeNodeLayer(DuckDbConnectionOptions.make({ databasePath: duckDbPath })),
         FetchHttpClient.layer
       )
     ).pipe(Effect.flatMap((context) => effect.pipe(Effect.provide(context))))
@@ -149,9 +149,9 @@ const provideAgentEffectivenessPhoenixLayers = Effect.fn("AgentEffectiveness.pro
   return yield* Effect.scoped(
     Layer.build(
       Layer.mergeAll(
-        DuckDb.makeNodeLayer(new DuckDbConnectionOptions({ databasePath: duckDbPath })),
+        DuckDb.makeNodeLayer(DuckDbConnectionOptions.make({ databasePath: duckDbPath })),
         FetchHttpClient.layer,
-        Phoenix.makeLayer(new PhoenixConfigInput({ baseUrl: phoenixBaseUrl }))
+        Phoenix.makeLayer(PhoenixConfigInput.make({ baseUrl: phoenixBaseUrl }))
       )
     ).pipe(Effect.flatMap((context) => effect.pipe(Effect.provide(context))))
   );
@@ -325,7 +325,7 @@ const makeAnnotationPlanProgram = Effect.fn("AgentEffectiveness.makeAnnotationPl
   });
   const plan = yield* provideAgentEffectivenessLayers({
     dataRoot,
-    effect: makeAgentEffectivenessAnnotationPlan(new AgentEffectivenessAnnotationPlanInput({ doctor })),
+    effect: makeAgentEffectivenessAnnotationPlan(AgentEffectivenessAnnotationPlanInput.make({ doctor })),
   });
   yield* renderAnnotationPlan(plan, json);
 });
@@ -354,7 +354,7 @@ const makeAnnotationCheckProgram = Effect.fn("AgentEffectiveness.makeAnnotationC
   });
   const plan = yield* provideAgentEffectivenessLayers({
     dataRoot,
-    effect: makeAgentEffectivenessAnnotationPlan(new AgentEffectivenessAnnotationPlanInput({ doctor })),
+    effect: makeAgentEffectivenessAnnotationPlan(AgentEffectivenessAnnotationPlanInput.make({ doctor })),
   });
   const report = makeAgentEffectivenessAnnotationCheckReport(plan);
   yield* renderAnnotationCheck(report, json);
@@ -465,8 +465,8 @@ const makePhoenixSyncProgram = Effect.fn("AgentEffectiveness.makePhoenixSyncProg
   const result = yield* provideAgentEffectivenessPhoenixLayers({
     dataRoot,
     effect: syncAgentEffectivenessPhoenix(
-      new AgentEffectivenessPhoenixSyncInput({
-        annotationPlan: new AgentEffectivenessAnnotationPlanInput({ doctor }),
+      AgentEffectivenessPhoenixSyncInput.make({
+        annotationPlan: AgentEffectivenessAnnotationPlanInput.make({ doctor }),
         dryRun: !write,
         ...(O.isSome(confirmPhoenixWrite) ? { confirmToken: confirmPhoenixWrite.value } : {}),
       })

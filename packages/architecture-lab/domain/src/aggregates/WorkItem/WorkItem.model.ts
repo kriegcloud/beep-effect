@@ -64,7 +64,7 @@ export class CreateWorkItemInput extends S.Class<CreateWorkItemInput>($I`CreateW
  * @since 0.0.0
  */
 export const create = (input: CreateWorkItemInput): WorkItem =>
-  new WorkItem({
+  WorkItem.make({
     id: input.id,
     title: input.title,
     status: "open",
@@ -73,7 +73,7 @@ export const create = (input: CreateWorkItemInput): WorkItem =>
   });
 
 const requireMutable = (workItem: WorkItem): Effect.Effect<void, WorkItemAlreadyArchived> =>
-  workItem.status === "archived" ? Effect.fail(new WorkItemAlreadyArchived({ workItemId: workItem.id })) : Effect.void;
+  workItem.status === "archived" ? Effect.fail(WorkItemAlreadyArchived.make({ workItemId: workItem.id })) : Effect.void;
 
 /**
  * Assign an open WorkItem to a concrete assignee.
@@ -84,7 +84,7 @@ const requireMutable = (workItem: WorkItem): Effect.Effect<void, WorkItemAlready
 export const assign = Effect.fn("WorkItem.assign")(function* (workItem: WorkItem, assignee: WorkerId) {
   yield* requireMutable(workItem);
   if (assignee <= 0) {
-    return yield* new WorkItemAssigneeRequired({ workItemId: workItem.id });
+    return yield* WorkItemAssigneeRequired.make({ workItemId: workItem.id });
   }
   if (workItem.status !== "open" && workItem.status !== "assigned") {
     return yield* WorkItemInvalidTransition.fromStatus({
@@ -93,7 +93,7 @@ export const assign = Effect.fn("WorkItem.assign")(function* (workItem: WorkItem
       to: "assigned",
     });
   }
-  return new WorkItem({
+  return WorkItem.make({
     ...workItem,
     status: "assigned",
     assignee: O.some(assignee),
@@ -118,7 +118,7 @@ export const complete = Effect.fn("WorkItem.complete")(function* (workItem: Work
       to: "completed",
     });
   }
-  return new WorkItem({
+  return WorkItem.make({
     ...workItem,
     status: "completed",
   });
@@ -135,7 +135,7 @@ export const reopen = Effect.fn("WorkItem.reopen")(function* (workItem: WorkItem
   if (workItem.status !== "completed") {
     return yield* WorkItemInvalidTransition.fromStatus({ workItemId: workItem.id, from: workItem.status, to: "open" });
   }
-  return new WorkItem({
+  return WorkItem.make({
     ...workItem,
     status: "open",
     assignee: O.none(),
@@ -150,7 +150,7 @@ export const reopen = Effect.fn("WorkItem.reopen")(function* (workItem: WorkItem
  */
 export const archive = Effect.fn("WorkItem.archive")(function* (workItem: WorkItem) {
   yield* requireMutable(workItem);
-  return new WorkItem({
+  return WorkItem.make({
     ...workItem,
     status: "archived",
   });

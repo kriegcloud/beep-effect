@@ -175,7 +175,7 @@ export const resolveBiomeSchema = Effect.fn(function* (
   const biomeContent = yield* fs.readFileString(biomePath).pipe(
     Effect.mapError(
       (e) =>
-        new VersionSyncError({
+        VersionSyncError.make({
           message: `Failed to read biome.jsonc: ${Inspectable.toStringUnknown(e, 0)}`,
           file: "biome.jsonc",
         })
@@ -185,7 +185,7 @@ export const resolveBiomeSchema = Effect.fn(function* (
   const biomeJson = yield* decodeJsoncTextAs(BiomeJsoncDocument)(biomeContent).pipe(
     Effect.mapError(
       (e) =>
-        new VersionSyncError({
+        VersionSyncError.make({
           message: `Failed to parse biome.jsonc: ${e.message}`,
           file: "biome.jsonc",
         })
@@ -200,7 +200,7 @@ export const resolveBiomeSchema = Effect.fn(function* (
   const pkgJsonContent = yield* fs.readFileString(pkgJsonPath).pipe(
     Effect.mapError(
       (e) =>
-        new VersionSyncError({
+        VersionSyncError.make({
           message: `Failed to read package.json: ${Inspectable.toStringUnknown(e, 0)}`,
           file: "package.json",
         })
@@ -210,7 +210,7 @@ export const resolveBiomeSchema = Effect.fn(function* (
   const pkgJson = yield* decodeJsoncTextAs(RootPackageJsonDocument)(pkgJsonContent).pipe(
     Effect.mapError(
       (e) =>
-        new VersionSyncError({
+        VersionSyncError.make({
           message: `Failed to parse package.json: ${e.message}`,
           file: "package.json",
         })
@@ -224,7 +224,7 @@ export const resolveBiomeSchema = Effect.fn(function* (
 
   const installedVersion = exactVersionFromSpecifier(rawVersion);
 
-  return new BiomeSchemaState({
+  return BiomeSchemaState.make({
     schemaUrl,
     schemaVersion,
     installedVersion,
@@ -243,7 +243,7 @@ export const buildBiomeReport: (state: BiomeSchemaState) => VersionCategoryRepor
   let items = A.empty<VersionDriftItem>();
 
   if (Str.isEmpty(state.installedVersion)) {
-    return new VersionCategoryReport.cases.biome({
+    return VersionCategoryReport.cases.biome.make({
       status: VersionCategoryStatusEnum.ok,
       items,
       latest: O.none(),
@@ -257,7 +257,7 @@ export const buildBiomeReport: (state: BiomeSchemaState) => VersionCategoryRepor
   if (currentVersion !== expectedVersion) {
     items = A.append(
       items,
-      new VersionDriftItem({
+      VersionDriftItem.make({
         file: "biome.jsonc",
         field: "$schema version",
         current: currentVersion,
@@ -267,7 +267,7 @@ export const buildBiomeReport: (state: BiomeSchemaState) => VersionCategoryRepor
     );
   }
 
-  return new VersionCategoryReport.cases.biome({
+  return VersionCategoryReport.cases.biome.make({
     status: A.match(items, {
       onEmpty: VersionCategoryStatusThunk.ok,
       onNonEmpty: VersionCategoryStatusThunk.drift,
@@ -293,7 +293,7 @@ export const updateBiomeSchema = Effect.fn("updateBiomeSchema")(function* (
   const original = yield* fs.readFileString(filePath).pipe(
     Effect.mapError(
       (e) =>
-        new VersionSyncError({
+        VersionSyncError.make({
           message: `Failed to read ${filePath}: ${Inspectable.toStringUnknown(e, 0)}`,
           file: filePath,
         })
@@ -322,7 +322,7 @@ export const updateBiomeSchema = Effect.fn("updateBiomeSchema")(function* (
   yield* fs.writeFileString(filePath, updated).pipe(
     Effect.mapError(
       (e) =>
-        new VersionSyncError({
+        VersionSyncError.make({
           message: `Failed to write ${filePath}: ${Inspectable.toStringUnknown(e, 0)}`,
           file: filePath,
         })

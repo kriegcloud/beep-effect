@@ -47,9 +47,9 @@ export const csvError: {
   (args) => args.length === 2 || P.isString(args[0]),
   (message: string, offset?: number): CsvError =>
     P.isNumber(offset)
-      ? new CsvError({
+      ? CsvError.make({
           message,
           offset,
         })
-      : new CsvError({ message })
+      : CsvError.make({ message })
 );

@@ -118,9 +118,9 @@ export class AiMetricsOtlpExportError extends TaggedErrorClass<AiMetricsOtlpExpo
  * ```ts
  * import { AiMetricsOtlpExportInput, AiMetricsOtlpEndpointSpec } from "@beep/repo-ai-metrics"
  *
- * const input = new AiMetricsOtlpExportInput({
+ * const input = AiMetricsOtlpExportInput.make({
  *   duckDbPath: ".beep/ai-metrics/derived/ai-metrics.duckdb",
- *   endpoint: new AiMetricsOtlpEndpointSpec({
+ *   endpoint: AiMetricsOtlpEndpointSpec.make({
  *     baseUrl: "http://127.0.0.1:6006",
  *     protocol: "http/protobuf",
  *     resourceAttributes: {},
@@ -257,7 +257,7 @@ const decodeTurnRows = S.decodeUnknownEffect(S.Array(AiMetricsOtlpTurnExportRow)
 const encodeOtlpExportJson = S.encodeUnknownEffect(S.fromJsonString(AiMetricsOtlpExportResult));
 
 const exportFailure = (message: string, cause: unknown): AiMetricsOtlpExportError =>
-  new AiMetricsOtlpExportError({ cause, message });
+  AiMetricsOtlpExportError.make({ cause, message });
 
 const unknownMetadata = "unknown";
 
@@ -362,7 +362,7 @@ const readTurnRows = Effect.fn("AiMetrics.otlp.readTurnRows")(function* (ingestR
 });
 
 const sessionProjection = (row: AiMetricsOtlpTurnExportRow): AiMetricsOtlpSpanProjection =>
-  new AiMetricsOtlpSpanProjection({
+  AiMetricsOtlpSpanProjection.make({
     attributes: allowlistedAttributes({
       ...R.getSomes({
         "ai_metrics.agent_nickname_hash": O.fromNullishOr(row.agentNicknameHash),
@@ -387,7 +387,7 @@ const sessionProjection = (row: AiMetricsOtlpTurnExportRow): AiMetricsOtlpSpanPr
 const turnProjection = (row: AiMetricsOtlpTurnExportRow): AiMetricsOtlpSpanProjection => {
   const toolName = toolNameFor(row);
 
-  return new AiMetricsOtlpSpanProjection({
+  return AiMetricsOtlpSpanProjection.make({
     attributes: allowlistedAttributes({
       ...R.getSomes({
         "ai_metrics.timestamp": O.fromNullishOr(row.timestamp),
@@ -422,7 +422,7 @@ const spanProjectionsFor = (
   const sessionProjections = A.map(sessionRows, sessionProjection);
   const turnProjections = A.map(rows, turnProjection);
 
-  return new AiMetricsOtlpSpanProjectionBatch({
+  return AiMetricsOtlpSpanProjectionBatch.make({
     ingestRunId,
     projections: A.appendAll(sessionProjections, turnProjections),
     sessionSpanCount: A.length(sessionProjections),
@@ -480,7 +480,7 @@ export const runAiMetricsOtlpExport: (
     const batch = yield* readAiMetricsOtlpSpanProjections(input);
     yield* Effect.forEach(batch.projections, emitSpanProjection, { discard: true, concurrency: 8 });
 
-    return new AiMetricsOtlpExportResult({
+    return AiMetricsOtlpExportResult.make({
       endpointTraceUrl: input.endpoint.traceUrl,
       ingestRunId: batch.ingestRunId,
       sessionSpanCount: batch.sessionSpanCount,

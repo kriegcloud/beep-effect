@@ -801,7 +801,7 @@ Since v1.0.0`
     /**
       * @since 1.0.0
       */
-      export const empty = new A()`,
+      export const empty = A.make()`,
         `## empty
 
 **Signature**
@@ -1555,7 +1555,7 @@ Since v1.1.0`
         map(f: (a: number) => number): Test
         map(f: (a: string) => string): Test
         map(f: (a: any) => any): any {
-          return new Test(f(this.value))
+          return Test.make(f(this.value))
         }
       }`,
         `## ~~Test~~ (class)

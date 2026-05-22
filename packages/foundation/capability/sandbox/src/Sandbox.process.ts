@@ -60,7 +60,7 @@ const collectText = Effect.fnUntraced(function* <E>(
     ),
     Effect.mapError(
       (cause) =>
-        new ExecHostError({
+        ExecHostError.make({
           cause,
           command,
           message: `Failed to collect host command output: ${command}`,
@@ -82,7 +82,7 @@ const collectText = Effect.fnUntraced(function* <E>(
  * ```ts
  * import { ProcessResult } from "@beep/sandbox"
  *
- * const result = new ProcessResult({ exitCode: 0, stderr: "", stdout: "ok" })
+ * const result = ProcessResult.make({ exitCode: 0, stderr: "", stdout: "ok" })
  * console.log(result.stdout)
  * ```
  *
@@ -107,7 +107,7 @@ export class ProcessResult extends S.Class<ProcessResult>($I`ProcessResult`)(
  * ```ts
  * import { ProcessCommand } from "@beep/sandbox"
  *
- * const command = new ProcessCommand({ command: "git", args: ["status"] })
+ * const command = ProcessCommand.make({ command: "git", args: ["status"] })
  * console.log(command.command)
  * ```
  *
@@ -169,7 +169,7 @@ const spawnAndCollectProcess = Effect.fn("SandboxProcess.spawnAndCollectProcess"
   const handle = yield* spawner.spawn(child).pipe(
     Effect.mapError(
       (cause) =>
-        new ExecHostError({
+        ExecHostError.make({
           cause,
           command,
           message: `Failed to spawn host command: ${command}`,
@@ -181,7 +181,7 @@ const spawnAndCollectProcess = Effect.fn("SandboxProcess.spawnAndCollectProcess"
       exitCode: handle.exitCode.pipe(
         Effect.mapError(
           (cause) =>
-            new ExecHostError({
+            ExecHostError.make({
               cause,
               command,
               message: `Failed to wait for host command: ${command}`,
@@ -194,7 +194,7 @@ const spawnAndCollectProcess = Effect.fn("SandboxProcess.spawnAndCollectProcess"
     { concurrency: "unbounded" }
   );
 
-  return new ProcessResult(result);
+  return ProcessResult.make(result);
 });
 
 const makeSandboxProcess = Effect.fn("SandboxProcessLive.make")(function* () {
@@ -220,7 +220,7 @@ const makeSandboxProcess = Effect.fn("SandboxProcessLive.make")(function* () {
       );
     }),
     runShell: Effect.fn("SandboxProcess.runShell")(function* (command, options = {}) {
-      const processCommand = new ProcessCommand({
+      const processCommand = ProcessCommand.make({
         ...options,
         args: ["-lc", command],
         command: "sh",

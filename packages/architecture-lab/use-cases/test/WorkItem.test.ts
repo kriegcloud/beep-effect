@@ -9,7 +9,7 @@ const decodeWorkItemId = S.decodeUnknownEffect(DomainWorkItem.WorkItemId);
 
 const makeRepository = (workItemId: DomainWorkItem.WorkItemId): WorkItemServer.WorkItem.WorkItemRepositoryShape => {
   const initial = DomainWorkItem.create(
-    new DomainWorkItem.CreateWorkItemInput({
+    DomainWorkItem.CreateWorkItemInput.make({
       id: workItemId,
       title: "Document topology",
     })
@@ -24,7 +24,7 @@ const makeRepository = (workItemId: DomainWorkItem.WorkItemId): WorkItemServer.W
             return workItem;
           })
         : Effect.fail(
-            new WorkItemServer.WorkItem.WorkItemRepositoryNotFound({
+            WorkItemServer.WorkItem.WorkItemRepositoryNotFound.make({
               workItemId: workItem.id,
             })
           ),
@@ -32,7 +32,7 @@ const makeRepository = (workItemId: DomainWorkItem.WorkItemId): WorkItemServer.W
       id === current.id
         ? Effect.succeed(current)
         : Effect.fail(
-            new WorkItemServer.WorkItem.WorkItemRepositoryNotFound({
+            WorkItemServer.WorkItem.WorkItemRepositoryNotFound.make({
               workItemId: id,
             })
           ),
@@ -48,24 +48,24 @@ describe("WorkItem use-cases", () => {
       const useCases = WorkItemServer.WorkItem.makeWorkItemUseCases({
         create: () =>
           Effect.fail(
-            new WorkItemServer.WorkItem.WorkItemRepositoryUnavailable({
+            WorkItemServer.WorkItem.WorkItemRepositoryUnavailable.make({
               reason: "insert WorkItem failed against architecture_lab_work_item",
             })
           ),
         get: () =>
           Effect.fail(
-            new WorkItemServer.WorkItem.WorkItemRepositoryUnavailable({
+            WorkItemServer.WorkItem.WorkItemRepositoryUnavailable.make({
               reason: "select WorkItem failed against architecture_lab_work_item",
             })
           ),
         list: Effect.fail(
-          new WorkItemServer.WorkItem.WorkItemRepositoryUnavailable({
+          WorkItemServer.WorkItem.WorkItemRepositoryUnavailable.make({
             reason: "list WorkItem failed against architecture_lab_work_item",
           })
         ),
         save: () =>
           Effect.fail(
-            new WorkItemServer.WorkItem.WorkItemRepositoryUnavailable({
+            WorkItemServer.WorkItem.WorkItemRepositoryUnavailable.make({
               reason: "update WorkItem failed against architecture_lab_work_item",
             })
           ),
@@ -73,7 +73,7 @@ describe("WorkItem use-cases", () => {
 
       const error = yield* useCases
         .create(
-          new WorkItem.CreateWorkItemCommand({
+          WorkItem.CreateWorkItemCommand.make({
             id: workItemId,
             title: "Document topology",
           })
@@ -96,7 +96,7 @@ describe("WorkItem use-cases", () => {
       const useCases = WorkItemServer.WorkItem.makeWorkItemUseCases(makeRepository(workItemId));
       const error = yield* useCases
         .get(
-          new WorkItem.GetWorkItemQuery({
+          WorkItem.GetWorkItemQuery.make({
             id: missingWorkItemId,
           })
         )
@@ -111,9 +111,9 @@ describe("WorkItem use-cases", () => {
     Effect.fnUntraced(function* () {
       const workItemId = yield* decodeWorkItemId("work-item-1");
       const useCases = WorkItemServer.WorkItem.makeWorkItemUseCases(makeRepository(workItemId));
-      yield* useCases.archive(new WorkItem.ArchiveWorkItemCommand({ id: workItemId }));
+      yield* useCases.archive(WorkItem.ArchiveWorkItemCommand.make({ id: workItemId }));
 
-      const error = yield* useCases.reopen(new WorkItem.ReopenWorkItemCommand({ id: workItemId })).pipe(Effect.flip);
+      const error = yield* useCases.reopen(WorkItem.ReopenWorkItemCommand.make({ id: workItemId })).pipe(Effect.flip);
       expect(error._tag).toBe("WorkItemActionRejected");
     })
   );

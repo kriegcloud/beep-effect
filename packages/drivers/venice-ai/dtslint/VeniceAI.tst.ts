@@ -42,7 +42,7 @@ describe("VeniceAI", () => {
   });
 
   it("preserves service method signatures and error channels", () => {
-    const request = new VeniceAIRequestOptions({ query: { limit: 1 } });
+    const request = VeniceAIRequestOptions.make({ query: { limit: 1 } });
 
     expect(service.listModels).type.toBe<VeniceAIMethod>();
     expect(service.createChatCompletion(request)).type.toBeAssignableTo<
@@ -56,7 +56,7 @@ describe("VeniceAI", () => {
 
   it("preserves layer and descriptor types", () => {
     expect(VENICE_AI_OPERATION_DESCRIPTORS).type.toBeAssignableTo<ReadonlyArray<VeniceAIOperationDescriptor>>();
-    expect(VeniceAI.makeLayer(new VeniceAIConfigInput({ apiKey: Redacted.make("test-key") }))).type.toBeAssignableTo<
+    expect(VeniceAI.makeLayer(VeniceAIConfigInput.make({ apiKey: Redacted.make("test-key") }))).type.toBeAssignableTo<
       Layer.Layer<VeniceAI, never, HttpClient.HttpClient>
     >();
     expect(VeniceAI.layer).type.toBeAssignableTo<Layer.Layer<VeniceAI, VeniceAIError>>();
@@ -64,7 +64,7 @@ describe("VeniceAI", () => {
     expect(VeniceAiChat.layer).type.toBeAssignableTo<Layer.Layer<VeniceAiChat, VeniceAIError>>();
 
     // @ts-expect-error!
-    const invalidConfig = new VeniceAIConfigInput({ apiKey: "test-key" });
+    const invalidConfig = VeniceAIConfigInput.make({ apiKey: "test-key" });
     void invalidConfig;
   });
 

@@ -88,12 +88,12 @@ const runNative = (
         { concurrency: "unbounded" }
       );
 
-      return new AiProviderCliProcessResult({ exitCode, stderr, stdout });
+      return AiProviderCliProcessResult.make({ exitCode, stderr, stdout });
     })
   ).pipe(
     Effect.mapError(
       () =>
-        new AiProviderCliError({
+        AiProviderCliError.make({
           command: commandPath,
           message: "Failed to execute provider CLI status command.",
           operation: "checkAuth",
@@ -109,7 +109,7 @@ const makeService = (paths: AiProviderCliPaths, runner: AiProviderCliRunner): Ai
     const [command, args] = commandFor(paths, provider);
     const result = yield* runner(provider, command, args);
 
-    return new AiProviderCliAuthProbe({
+    return AiProviderCliAuthProbe.make({
       command,
       provider,
       status: result.exitCode === 0 ? "authenticated" : "not-authenticated",

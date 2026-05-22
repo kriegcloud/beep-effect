@@ -42,7 +42,7 @@ const makeWebHandlerClient = (handler: (request: Request) => Promise<Response>) 
   );
 
 const makeProxyConfig = () =>
-  new GraphitiProxyConfig({
+  GraphitiProxyConfig.make({
     upstream: "http://127.0.0.1:8000/mcp",
     dependencyHealthEnabled: false,
   });
@@ -99,7 +99,7 @@ layer(NodeServices.layer)("Graphiti proxy security", (it) => {
     Effect.fn(function* () {
       let capturedUrl = "";
       const forwarder = makeGraphitiProxyForwarderService(
-        new GraphitiProxyConfig({
+        GraphitiProxyConfig.make({
           upstream: "http://127.0.0.1:8000/mcp/",
           dependencyHealthEnabled: false,
         })

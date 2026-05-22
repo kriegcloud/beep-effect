@@ -21,7 +21,7 @@ const $I = $RepoUtilsId.create("errors/DomainError");
  * @example
  * ```ts
  * import { DomainError } from "@beep/repo-utils/errors/DomainError"
- * const error = new DomainError({
+ * const error = DomainError.make({
  *   message: "Operation failed"
  * })
  * void error.message
@@ -47,20 +47,20 @@ export class DomainError extends TaggedErrorClass<DomainError>($I`DomainError`)(
   } = dual(
     2,
     (cause: unknown, message: string) =>
-      new DomainError({
+      DomainError.make({
         message,
         cause,
       })
   );
 
-  static readonly newMessage = (message: string) => new DomainError({ message });
+  static readonly newMessage = (message: string) => DomainError.make({ message });
 
   static readonly newCauseMessage: {
     (cause: unknown, message: string): DomainError;
     (message: string): (cause: unknown) => DomainError;
   } = dual(2, (cause: unknown, message: string) => {
     const getMessage = (cause: unknown): string => (P.isError(cause) ? `${message}: ${cause.message}` : message);
-    return new DomainError({
+    return DomainError.make({
       message: getMessage(cause),
       cause,
     });

@@ -484,7 +484,7 @@ export const createFileGenerationPlanService = (): FileGenerationPlanServiceShap
     const mkdirActions = pipe(
       directoryCandidates,
       sortedDirectories,
-      A.map((relativePath) => new GenerationAction.cases.mkdir({ relativePath }))
+      A.map((relativePath) => GenerationAction.cases.mkdir.make({ relativePath }))
     );
 
     const writeActions = pipe(
@@ -492,7 +492,7 @@ export const createFileGenerationPlanService = (): FileGenerationPlanServiceShap
       sortedByRelativePath,
       A.map(
         (file) =>
-          new GenerationAction.cases["write-file"]({
+          GenerationAction.cases["write-file"].make({
             relativePath: toPosixPath(file.relativePath),
             content: file.content,
           })
@@ -504,7 +504,7 @@ export const createFileGenerationPlanService = (): FileGenerationPlanServiceShap
       sortedByRelativePath,
       A.map(
         (link) =>
-          new GenerationAction.cases.symlink({
+          GenerationAction.cases.symlink.make({
             relativePath: toPosixPath(link.relativePath),
             target: toPosixPath(link.target),
           })
@@ -517,7 +517,7 @@ export const createFileGenerationPlanService = (): FileGenerationPlanServiceShap
       A.appendAll(symlinkActions)
     );
 
-    return new FileGenerationPlan({
+    return FileGenerationPlan.make({
       outputDir: input.outputDir,
       actions,
     });
@@ -718,7 +718,7 @@ export const createFileGenerationPlanService = (): FileGenerationPlanServiceShap
       { discard: true }
     );
 
-    return new FileGenerationExecutionResult(
+    return FileGenerationExecutionResult.make(
       yield* Effect.all({
         createdDirectories: Ref.get(counterRefs.createdDirectories),
         writtenFiles: Ref.get(counterRefs.writtenFiles),

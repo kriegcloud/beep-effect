@@ -13,7 +13,7 @@ describe("WorkItem UI view model", () => {
     Effect.fnUntraced(function* () {
       const id = yield* decodeWorkItemId("work-item-1");
       const workItem = DomainWorkItem.create(
-        new DomainWorkItem.CreateWorkItemInput({
+        DomainWorkItem.CreateWorkItemInput.make({
           id,
           title: "Document topology",
         })
@@ -28,12 +28,12 @@ describe("WorkItem UI view model", () => {
     Effect.fnUntraced(function* () {
       const id = yield* decodeWorkItemId("work-item-1");
       const workItem = DomainWorkItem.create(
-        new DomainWorkItem.CreateWorkItemInput({
+        DomainWorkItem.CreateWorkItemInput.make({
           id,
           title: "Document topology",
         })
       );
-      const archived = new DomainWorkItem.WorkItem({
+      const archived = DomainWorkItem.WorkItem.make({
         ...workItem,
         status: "archived",
       });

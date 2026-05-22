@@ -94,7 +94,7 @@ export type { FsUtilsShape } from "./FsUtils.js";
  * @example
  * ```ts
  * import { GlobOptions } from "@beep/repo-utils"
- * const options = new GlobOptions({ cwd: "src" })
+ * const options = GlobOptions.make({ cwd: "src" })
  * void options.cwd
  * ```
  * @category models
@@ -387,7 +387,7 @@ export { collectUniqueNpmDependencies } from "./UniqueDeps.js";
  * @example
  * ```ts
  * import { UniqueNpmDeps } from "@beep/repo-utils"
- * const deps = new UniqueNpmDeps({
+ * const deps = UniqueNpmDeps.make({
  *   dependencies: ["effect"],
  *   devDependencies: ["vitest"]
  * })

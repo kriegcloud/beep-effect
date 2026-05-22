@@ -26,7 +26,7 @@ const decodeNonNegativeInt = (value: number): Effect.Effect<NonNegativeInt, Json
   S.decodeUnknownEffect(NonNegativeInt)(value).pipe(
     Effect.mapError(
       (cause) =>
-        new JsonLdStreamSerializeError({
+        JsonLdStreamSerializeError.make({
           reason: "serializeFailure",
           message: `Failed to decode JSON-LD stream chunk count: ${String(cause)}`,
         })
@@ -49,7 +49,7 @@ const chunkText = (value: string, maxChunkCharacters: O.Option<number>): Readonl
 };
 
 const mapDocumentErrorToSerializeError = (error: JsonLdDocumentError): JsonLdStreamSerializeError =>
-  new JsonLdStreamSerializeError({
+  JsonLdStreamSerializeError.make({
     reason: "serializeFailure",
     message: error.message,
   });
@@ -76,7 +76,7 @@ export const JsonLdStreamSerializeServiceLive = Layer.effect(
       serialize: Effect.fn(function* (request) {
         const maxChunkCharacters = request.maxChunkCharacters;
         if (O.isSome(maxChunkCharacters) && maxChunkCharacters.value <= 0) {
-          return yield* new JsonLdStreamSerializeError({
+          return yield* JsonLdStreamSerializeError.make({
             reason: "invalidChunkSize",
             message: "maxChunkCharacters must be greater than zero when provided.",
           });
@@ -95,7 +95,7 @@ export const JsonLdStreamSerializeServiceLive = Layer.effect(
         const documentText = yield* encodeJsonLdDocumentToJson(document.document).pipe(
           Effect.mapError(
             (cause) =>
-              new JsonLdStreamSerializeError({
+              JsonLdStreamSerializeError.make({
                 reason: "serializeFailure",
                 message: `Unable to encode bounded JSON-LD document output: ${String(cause)}`,
               })
@@ -112,7 +112,7 @@ export const JsonLdStreamSerializeServiceLive = Layer.effect(
           A.match({
             onEmpty: () =>
               Effect.fail(
-                new JsonLdStreamSerializeError({
+                JsonLdStreamSerializeError.make({
                   reason: "serializeFailure",
                   message: "Unable to produce JSON-LD output chunks from the bounded dataset.",
                 })

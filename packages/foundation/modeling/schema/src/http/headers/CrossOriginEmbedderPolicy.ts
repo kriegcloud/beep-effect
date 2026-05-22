@@ -122,7 +122,7 @@ export const CrossOriginEmbedderPolicyHeader = S.Union([CrossOriginEmbedderPolic
         return O.some(option);
       }
 
-      return yield* new CrossOriginEmbedderPolicyError({
+      return yield* CrossOriginEmbedderPolicyError.make({
         message: `Invalid value for ${headerName}: ${option}`,
         cause: O.none(),
       });
@@ -143,7 +143,7 @@ export const CrossOriginEmbedderPolicyHeader = S.Union([CrossOriginEmbedderPolic
           onNone: O.none<ResponseHeader>,
           onSome: (value) =>
             O.some(
-              new ResponseHeader({
+              ResponseHeader.make({
                 name: headerName,
                 value: O.some(value),
               })

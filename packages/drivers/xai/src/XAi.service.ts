@@ -88,7 +88,7 @@ export type XAiWebSocketEndpointMethodName = Extract<
  * import { XAiNoBodyResponse } from "@beep/xai"
  *
  * const method: XAiEndpointMethod = () =>
- *   Effect.succeed(new XAiNoBodyResponse({ headers: {}, status: 204 }))
+ *   Effect.succeed(XAiNoBodyResponse.make({ headers: {}, status: 204 }))
  *
  * void method
  * ```
@@ -440,7 +440,7 @@ const decodeResponse = Effect.fn("XAi.decodeResponse")(function* (
   const contentType = O.getOrElse(responseContentType(successfulResponse), thunkEmptyStr);
 
   if (descriptor.response === "none") {
-    return new XAiNoBodyResponse({
+    return XAiNoBodyResponse.make({
       ...responseContext(successfulResponse),
     });
   }
@@ -450,7 +450,7 @@ const decodeResponse = Effect.fn("XAi.decodeResponse")(function* (
       Effect.mapError((cause) => XAiError.fromDescriptor(descriptor, "response decoding", { cause }))
     );
 
-    return new XAiBinaryResponse({
+    return XAiBinaryResponse.make({
       bytes: new Uint8Array(buffer),
       ...responseContext(successfulResponse),
     });
@@ -461,7 +461,7 @@ const decodeResponse = Effect.fn("XAi.decodeResponse")(function* (
       Effect.mapError((cause) => XAiError.fromDescriptor(descriptor, "response decoding", { cause }))
     );
 
-    return new XAiTextResponse({
+    return XAiTextResponse.make({
       text,
       ...responseContext(successfulResponse),
     });
@@ -472,7 +472,7 @@ const decodeResponse = Effect.fn("XAi.decodeResponse")(function* (
       Effect.mapError((cause) => XAiError.fromDescriptor(descriptor, "response decoding", { cause }))
     );
 
-    return new XAiJsonResponse({
+    return XAiJsonResponse.make({
       body,
       ...responseContext(successfulResponse),
     });
@@ -482,7 +482,7 @@ const decodeResponse = Effect.fn("XAi.decodeResponse")(function* (
     Effect.mapError((cause) => XAiError.fromDescriptor(descriptor, "response decoding", { cause }))
   );
 
-  return new XAiBinaryResponse({
+  return XAiBinaryResponse.make({
     bytes: new Uint8Array(buffer),
     ...responseContext(successfulResponse),
   });
@@ -493,7 +493,7 @@ const executeOperation = (
   config: ResolvedXAiConfig,
   descriptor: XAiEndpointDescriptor
 ): XAiEndpointMethod => {
-  const operation = Effect.fn(`XAi.${descriptor.methodName}`)(function* (request = new XAiRequestOptions({})) {
+  const operation = Effect.fn(`XAi.${descriptor.methodName}`)(function* (request = XAiRequestOptions.make({})) {
     const response = yield* executeRaw(client, config, descriptor, request);
     return yield* decodeResponse(descriptor, response);
   });
@@ -513,8 +513,8 @@ const executeOperation = (
 
 const addStreamFlag = (body: unknown): unknown => (P.isObject(body) ? { ...body, stream: true } : { stream: true });
 
-const makeStreamingRequest = (request = new XAiRequestOptions({})): XAiRequestOptions =>
-  new XAiRequestOptions({
+const makeStreamingRequest = (request = XAiRequestOptions.make({})): XAiRequestOptions =>
+  XAiRequestOptions.make({
     ...request,
     accept: "text/event-stream",
     body: addStreamFlag(request.body),
@@ -538,10 +538,10 @@ const parseSseData = (
   index: number
 ): Effect.Effect<XAiServerSentEvent, XAiError> =>
   data === "[DONE]"
-    ? Effect.succeed(new XAiServerSentEvent({ done: true, index }))
+    ? Effect.succeed(XAiServerSentEvent.make({ done: true, index }))
     : pipe(
         decodeSseJson(data),
-        Effect.map((decoded) => new XAiServerSentEvent({ data: decoded, done: false, index })),
+        Effect.map((decoded) => XAiServerSentEvent.make({ data: decoded, done: false, index })),
         Effect.mapError((cause) => XAiError.fromDescriptor(descriptor, "sse decoding", { cause }))
       );
 
@@ -809,7 +809,7 @@ const encodeSocketJson = (descriptor: XAiEndpointDescriptor, body: unknown): Eff
   encodeJson(body).pipe(Effect.mapError((cause) => XAiError.fromDescriptor(descriptor, "websocket", { cause })));
 
 const websocketOperation = (config: ResolvedXAiConfig, descriptor: XAiEndpointDescriptor): XAiWebSocketMethod => {
-  const operation = Effect.fn(`XAi.${descriptor.methodName}`)(function* (request = new XAiRequestOptions({})) {
+  const operation = Effect.fn(`XAi.${descriptor.methodName}`)(function* (request = XAiRequestOptions.make({})) {
     yield* failUnexpectedRequestPayload(descriptor, request);
     const socket = yield* connectSocket(config, descriptor, request);
 
@@ -844,7 +844,7 @@ const endpointByMethodName = Effect.fn("XAi.endpointByMethodName")(function* (me
     XAI_ENDPOINTS,
     A.findFirst((descriptor) => descriptor.methodName === methodName),
     O.match({
-      onNone: () => Effect.fail(new XAiError({ methodName, reason: "config" })),
+      onNone: () => Effect.fail(XAiError.make({ methodName, reason: "config" })),
       onSome: Effect.succeed,
     })
   );
@@ -852,12 +852,12 @@ const endpointByMethodName = Effect.fn("XAi.endpointByMethodName")(function* (me
 
 const makeService = (client: HttpClient.HttpClient, config: ResolvedXAiConfig): XAiShape => {
   const httpByMethodName = (methodName: XAiHttpEndpointMethodName): XAiEndpointMethod =>
-    Effect.fn(`XAi.${methodName}`)(function* (request = new XAiRequestOptions({})) {
+    Effect.fn(`XAi.${methodName}`)(function* (request = XAiRequestOptions.make({})) {
       const descriptor = yield* endpointByMethodName(methodName);
       return yield* executeOperation(client, config, descriptor)(request);
     });
   const websocketByMethodName = (methodName: XAiWebSocketEndpointMethodName): XAiWebSocketMethod =>
-    Effect.fn(`XAi.${methodName}`)(function* (request = new XAiRequestOptions({})) {
+    Effect.fn(`XAi.${methodName}`)(function* (request = XAiRequestOptions.make({})) {
       const descriptor = yield* endpointByMethodName(methodName);
       return yield* websocketOperation(config, descriptor)(request);
     });
@@ -990,14 +990,14 @@ export class XAi extends Context.Service<XAi, XAiShape>()($I`XAi`) {
    * import { Redacted } from "effect"
    * import { XAi, XAiConfigInput } from "@beep/xai"
    *
-   * const layer = XAi.makeLayer(new XAiConfigInput({ apiKey: Redacted.make("test-key") }))
+   * const layer = XAi.makeLayer(XAiConfigInput.make({ apiKey: Redacted.make("test-key") }))
    * void layer
    * ```
    *
    * @category layers
    * @since 0.0.0
    */
-  static readonly makeLayer = (config = new XAiConfigInput({})): Layer.Layer<XAi, never, HttpClient.HttpClient> =>
+  static readonly makeLayer = (config = XAiConfigInput.make({})): Layer.Layer<XAi, never, HttpClient.HttpClient> =>
     Layer.effect(
       XAi,
       Effect.gen(function* () {

@@ -99,7 +99,7 @@ describe("PostgresError", () => {
     const error = PostgresError.fromUnknown(
       "query",
       cause,
-      new PostgresErrorContext({
+      PostgresErrorContext.make({
         query: "select * from users where email = $1",
         params: ["a@example.com"],
       })
@@ -132,7 +132,7 @@ describe("PostgresError", () => {
   });
 
   it("constructs schema-owned diagnostic context", () => {
-    const context = new PostgresErrorContext({
+    const context = PostgresErrorContext.make({
       query: "select 1",
       sqlStateName: "UNIQUE_VIOLATION",
     });

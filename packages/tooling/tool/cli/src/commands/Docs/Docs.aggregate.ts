@@ -38,7 +38,7 @@ const resolveAggregateSelector = Effect.fn("DocsAggregate.resolveAggregateSelect
     O.isSome(filterSelector) &&
     !stringEquivalence(packageSelector.value, filterSelector.value)
   ) {
-    return yield* new DomainError({
+    return yield* DomainError.make({
       message: `Received conflicting selectors --package=${packageSelector.value} and --filter=${filterSelector.value}.`,
     });
   }

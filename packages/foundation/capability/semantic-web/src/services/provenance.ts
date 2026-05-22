@@ -309,7 +309,7 @@ const decodeNonNegativeInt = (value: number, label: string): Effect.Effect<NonNe
   S.decodeUnknownEffect(NonNegativeInt)(value).pipe(
     Effect.mapError(
       (cause) =>
-        new ProvenanceServiceError({
+        ProvenanceServiceError.make({
           reason: "projectionLimit",
           message: `Failed to decode non-negative ${label}: ${String(cause)}`,
         })
@@ -356,7 +356,7 @@ export const ProvenanceServiceLive = Layer.succeed(
   ProvenanceService.of({
     project: Effect.fn(function* (request: ProjectProvenanceRequest) {
       if (request.bundle.records.length > 0 && request.anchors.length === 0) {
-        return yield* new ProvenanceServiceError({
+        return yield* ProvenanceServiceError.make({
           reason: "missingEvidenceAnchor",
           message: "Bounded provenance projections require explicit evidence anchors.",
         });
@@ -378,7 +378,7 @@ export const ProvenanceServiceLive = Layer.succeed(
     }),
     exportBundle: Effect.fn(function* (request: ExportProvenanceRequest) {
       if (request.profile === "prov-core-v1" && pipe(request.bundle.records, A.some(isExtensionTierRecord))) {
-        return yield* new ProvenanceServiceError({
+        return yield* ProvenanceServiceError.make({
           reason: "unsupportedProfile",
           message: "prov-core-v1 does not include extension-tier provenance records.",
         });

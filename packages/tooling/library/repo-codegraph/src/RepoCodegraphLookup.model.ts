@@ -113,7 +113,7 @@ export type RepoCodegraphBoundaryStatus = typeof RepoCodegraphBoundaryStatus.Typ
  * ```ts
  * import { RepoCodegraphLookupRequest } from "@beep/repo-codegraph"
  * import * as O from "effect/Option"
- * const request = new RepoCodegraphLookupRequest({
+ * const request = RepoCodegraphLookupRequest.make({
  *   fromPackage: O.none(),
  *   limit: 8,
  *   query: "UnknownRecord"
@@ -140,7 +140,7 @@ export class RepoCodegraphLookupRequest extends S.Class<RepoCodegraphLookupReque
  * @example
  * ```ts
  * import { RepoCodegraphLookupScore } from "@beep/repo-codegraph"
- * const score = new RepoCodegraphLookupScore({
+ * const score = RepoCodegraphLookupScore.make({
  *   boundary: 5,
  *   exact: 80,
  *   graph: 8,
@@ -174,7 +174,7 @@ export class RepoCodegraphLookupScore extends S.Class<RepoCodegraphLookupScore>(
  * ```ts
  * import { RepoCodegraphImportCandidate } from "@beep/repo-codegraph"
  * import * as O from "effect/Option"
- * const candidate = new RepoCodegraphImportCandidate({
+ * const candidate = RepoCodegraphImportCandidate.make({
  *   exportSubpath: ".",
  *   importSpecifier: "@beep/schema",
  *   isRecommended: true,
@@ -205,7 +205,7 @@ export class RepoCodegraphImportCandidate extends S.Class<RepoCodegraphImportCan
  * @example
  * ```ts
  * import { RepoCodegraphBoundaryAdvice } from "@beep/repo-codegraph"
- * const advice = new RepoCodegraphBoundaryAdvice({
+ * const advice = RepoCodegraphBoundaryAdvice.make({
  *   citations: ["standards/ARCHITECTURE.md"],
  *   reason: "No caller package was supplied.",
  *   status: "unknown"
@@ -265,7 +265,7 @@ export class RepoCodegraphLookupMatch extends S.Class<RepoCodegraphLookupMatch>(
  * @example
  * ```ts
  * import { RepoCodegraphLookupTotals } from "@beep/repo-codegraph"
- * const totals = new RepoCodegraphLookupTotals({
+ * const totals = RepoCodegraphLookupTotals.make({
  *   catalogEntries: 10,
  *   matchedEntries: 2,
  *   returnedMatches: 1
@@ -320,7 +320,7 @@ export class RepoCodegraphLookupResult extends S.Class<RepoCodegraphLookupResult
  * ```ts
  * import { RepoCodegraphPreferredImport } from "@beep/repo-codegraph"
  * import * as O from "effect/Option"
- * const preferred = new RepoCodegraphPreferredImport({
+ * const preferred = RepoCodegraphPreferredImport.make({
  *   importSpecifier: "@beep/schema",
  *   reason: O.some("Use the package root for public schemas."),
  *   symbols: ["UnknownRecord"]
@@ -352,7 +352,7 @@ export class RepoCodegraphPreferredImport extends S.Class<RepoCodegraphPreferred
  * @example
  * ```ts
  * import { RepoCodegraphPackageImportPolicy } from "@beep/repo-codegraph"
- * const policy = new RepoCodegraphPackageImportPolicy({
+ * const policy = RepoCodegraphPackageImportPolicy.make({
  *   packageName: "@beep/schema",
  *   packagePath: "packages/foundation/modeling/schema",
  *   preferredImports: []

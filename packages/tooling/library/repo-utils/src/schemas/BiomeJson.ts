@@ -49,7 +49,7 @@ export const renderBiomeJson: {
     const path = yield* Path.Path;
     const repoRoot = yield* findRepoRoot(moduleDir).pipe(
       Effect.mapError(
-        (cause) => new DomainError({ message: "Failed to locate the repo root for Biome formatting.", cause })
+        (cause) => DomainError.make({ message: "Failed to locate the repo root for Biome formatting.", cause })
       )
     );
     const biomeConfigPath = path.join(repoRoot, "biome.jsonc");
@@ -59,7 +59,7 @@ export const renderBiomeJson: {
         ? relativeToCwd
         : filePath;
     const encoded = yield* encodeJson(value).pipe(
-      Effect.mapError((cause) => new DomainError({ message: `Failed to encode JSON for "${filePath}".`, cause }))
+      Effect.mapError((cause) => DomainError.make({ message: `Failed to encode JSON for "${filePath}".`, cause }))
     );
     const command = ChildProcess.make(
       biomeExecutable,
@@ -79,11 +79,11 @@ export const renderBiomeJson: {
           exitCode: handle.exitCode,
         });
       })
-    ).pipe(Effect.mapError((cause) => new DomainError({ message: `Failed to run Biome for "${filePath}".`, cause })));
+    ).pipe(Effect.mapError((cause) => DomainError.make({ message: `Failed to run Biome for "${filePath}".`, cause })));
     const stderr = Str.trim(result.stderr);
 
     if (result.exitCode !== 0) {
-      return yield* new DomainError({
+      return yield* DomainError.make({
         message:
           stderr.length > 0
             ? `Biome failed to format "${filePath}": ${stderr}`

@@ -64,12 +64,12 @@ export const runArchitectureLabProof: Effect.Effect<
   const server = yield* WorkItemServer;
   const id = yield* decodeWorkItemId("architecture-lab-proof-1").pipe(Effect.orDie);
   const created = yield* server.create(
-    new WorkItemUseCases.CreateWorkItemCommand({
+    WorkItemUseCases.CreateWorkItemCommand.make({
       id,
       title: "Prove canonical slice topology",
     })
   );
-  return new ArchitectureLabProofResult({
+  return ArchitectureLabProofResult.make({
     created,
     summary: toWorkItemSummaryViewModel(created, defaultWorkItemPublicConfig),
   });

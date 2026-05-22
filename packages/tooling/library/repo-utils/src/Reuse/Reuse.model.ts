@@ -129,7 +129,7 @@ export type ReuseCandidateKind = typeof ReuseCandidateKind.Type;
  * @example
  * ```ts
  * import { ReuseSourceSymbolRef } from "@beep/repo-utils/Reuse/Reuse.model"
- * const ref = new ReuseSourceSymbolRef({
+ * const ref = ReuseSourceSymbolRef.make({
  *   filePath: "src/example.ts",
  *   symbolId: "src/example.ts#makeExample",
  *   symbolKind: "function",
@@ -159,7 +159,7 @@ export class ReuseSourceSymbolRef extends S.Class<ReuseSourceSymbolRef>($I`Reuse
  * ```ts
  * import { ReuseCatalogEntry } from "@beep/repo-utils/Reuse/Reuse.model"
  * import * as O from "effect/Option"
- * const entry = new ReuseCatalogEntry({
+ * const entry = ReuseCatalogEntry.make({
  *   applicability: ["schema models"],
  *   id: "repo-utils:ReuseCatalogEntry",
  *   keywords: ["reuse"],
@@ -200,7 +200,7 @@ export class ReuseCatalogEntry extends S.Class<ReuseCatalogEntry>($I`ReuseCatalo
  * @example
  * ```ts
  * import { ReuseWorkUnit } from "@beep/repo-utils/Reuse/Reuse.model"
- * const unit = new ReuseWorkUnit({
+ * const unit = ReuseWorkUnit.make({
  *   id: "scout:repo-utils",
  *   kind: "scout",
  *   label: "Repo utils scan",
@@ -235,7 +235,7 @@ export class ReuseWorkUnit extends S.Class<ReuseWorkUnit>($I`ReuseWorkUnit`)(
  * import * as S from "effect/Schema"
  *
  * const zero = S.decodeUnknownSync(NonNegativeInt)(0)
- * const plan = new ReusePartitionPlan({
+ * const plan = ReusePartitionPlan.make({
  *   catalogEntryCount: zero,
  *   scopeSelector: "packages/tooling/library/repo-utils"
  * })
@@ -268,7 +268,7 @@ export class ReusePartitionPlan extends S.Class<ReusePartitionPlan>($I`ReusePart
  * @example
  * ```ts
  * import { ReuseCandidate } from "@beep/repo-utils/Reuse/Reuse.model"
- * const candidate = new ReuseCandidate({
+ * const candidate = ReuseCandidate.make({
  *   blockingConcerns: [],
  *   candidateId: "candidate:extract-schema",
  *   catalogMatchIds: [],
@@ -321,7 +321,7 @@ export class ReuseCandidate extends S.Class<ReuseCandidate>($I`ReuseCandidate`)(
  * import * as S from "effect/Schema"
  *
  * const zero = S.decodeUnknownSync(NonNegativeInt)(0)
- * const inventory = new ReuseInventory({
+ * const inventory = ReuseInventory.make({
  *   candidateCount: zero,
  *   catalogEntryCount: zero,
  *   generatedAt: "2026-04-21T00:00:00.000Z",
@@ -354,7 +354,7 @@ export class ReuseInventory extends S.Class<ReuseInventory>($I`ReuseInventory`)(
  * @example
  * ```ts
  * import { ReuseCandidate, ReusePacket } from "@beep/repo-utils/Reuse/Reuse.model"
- * const candidate = new ReuseCandidate({
+ * const candidate = ReuseCandidate.make({
  *   blockingConcerns: [],
  *   candidateId: "candidate:extract-schema",
  *   catalogMatchIds: [],
@@ -370,7 +370,7 @@ export class ReuseInventory extends S.Class<ReuseInventory>($I`ReuseInventory`)(
  *   title: "Extract shared schema",
  *   verificationCommands: ["bun test"]
  * })
- * const packet = new ReusePacket({ candidate })
+ * const packet = ReusePacket.make({ candidate })
  * void packet.candidate
  * ```
  * @category models
@@ -396,7 +396,7 @@ export class ReusePacket extends S.Class<ReusePacket>($I`ReusePacket`)(
  * ```ts
  * import { ReuseFindResult } from "@beep/repo-utils/Reuse/Reuse.model"
  * import * as O from "effect/Option"
- * const result = new ReuseFindResult({
+ * const result = ReuseFindResult.make({
  *   filePath: "src/example.ts",
  *   query: O.some("schema"),
  *   symbolId: O.none()

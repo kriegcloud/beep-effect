@@ -230,7 +230,7 @@ const entityTypeOf = (model: EntityModel): string => {
   const entityId = model.definition.entityId;
 
   if (entityId === undefined) {
-    throw new MissingRuntimeEntityModelMetadataError({
+    throw MissingRuntimeEntityModelMetadataError.make({
       message: "Runtime proof entity model is missing entity-id metadata.",
     });
   }
@@ -267,7 +267,7 @@ const userEntityIdByFixtureKey = (users: ReadonlyArray<SeedUserFixture>, userId:
 const membershipRoleFrom = (role: string): "member" | "owner" => (role === "owner_attorney" ? "owner" : "member");
 
 const runtimeScopeFrom = (seed: SeedFixture, email: EmailFixture): RuntimeScope =>
-  new RuntimeScope({
+  RuntimeScope.make({
     organizationId: seed.organization.organizationId,
     threadId: email.threadId,
     workspaceId: seed.workspace.workspaceId,
@@ -280,7 +280,7 @@ const runtimeAgentPrincipalId = (seed: SeedFixture): string =>
     O.map((principal) => principal.principalId),
     O.getOrThrowWith(
       () =>
-        new MissingRuntimeAgentPrincipalError({
+        MissingRuntimeAgentPrincipalError.make({
           message: `${seed.scenarioId}: missing runtime agent principal`,
           scenarioId: seed.scenarioId,
         })
@@ -558,7 +558,7 @@ export const runProfessionalRuntimeScenario = (scenarioId: ScenarioId) =>
       const sdk = makeInMemoryProfessionalRuntimeSdk([input]);
 
       return Effect.runPromise(
-        sdk.getContextPacket(new GetContextPacket({ artifactId: email.artifactId, scenarioId, scope }))
+        sdk.getContextPacket(GetContextPacket.make({ artifactId: email.artifactId, scenarioId, scope }))
       ).then((contextPacket) => {
         const outputSet = decodeCandidateOutputSet({
           approvalGates: expectedApprovalGates.approvalGates,
@@ -572,7 +572,7 @@ export const runProfessionalRuntimeScenario = (scenarioId: ScenarioId) =>
 
         return Effect.runPromise(
           sdk.proposeCandidateOutputSet(
-            new ProposeCandidateOutputSet({
+            ProposeCandidateOutputSet.make({
               outputSet,
               producedByPrincipalId: runtimeAgentPrincipalId(seed),
               scope,

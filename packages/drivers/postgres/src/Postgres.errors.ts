@@ -25,7 +25,7 @@ const REDACTED_SQL_PARAMETER = "<redacted>";
  * ```ts
  * import { PostgresErrorContext } from "@beep/postgres"
  *
- * const context = new PostgresErrorContext({
+ * const context = PostgresErrorContext.make({
  *   query: "select 1",
  *   sqlStateName: "UNIQUE_VIOLATION"
  * })
@@ -353,7 +353,7 @@ export class PostgresError extends TaggedErrorClass<PostgresError>($I`PostgresEr
     const sqlStateName =
       context.sqlStateName ?? (sqlState === undefined ? undefined : O.getOrUndefined(getPgErrorName(sqlState)));
 
-    return new PostgresError({
+    return PostgresError.make({
       operation,
       cause: optionFromSafeDefect(cause),
       message: optionFrom(

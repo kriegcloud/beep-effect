@@ -29,7 +29,7 @@ export const updatePlainTextFile: {
     const original = yield* fs.readFileString(filePath).pipe(
       Effect.mapError(
         (e) =>
-          new VersionSyncError({
+          VersionSyncError.make({
             message: `Failed to read ${filePath}: ${Inspectable.toStringUnknown(e, 0)}`,
             file: filePath,
           })
@@ -44,7 +44,7 @@ export const updatePlainTextFile: {
     yield* fs.writeFileString(filePath, `${version}\n`).pipe(
       Effect.mapError(
         (e) =>
-          new VersionSyncError({
+          VersionSyncError.make({
             message: `Failed to write ${filePath}: ${Inspectable.toStringUnknown(e, 0)}`,
             file: filePath,
           })

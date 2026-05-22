@@ -42,7 +42,7 @@ type ResolvedHeader = {
  * ```ts
  * import { SecureHeaderOptions } from "@beep/schema/SecureHeaderOptions"
  *
- * const options = new SecureHeaderOptions({ nosniff: "nosniff" })
+ * const options = SecureHeaderOptions.make({ nosniff: "nosniff" })
  * void options
  * ```
  *
@@ -77,7 +77,7 @@ export class SecureHeaderOptions extends S.Class<SecureHeaderOptions>($I`SecureH
  * ```ts
  * import { SecureHeaderEntry } from "@beep/schema/SecureHeaderOptions"
  *
- * const entry = new SecureHeaderEntry({ key: "X-Content-Type-Options", value: "nosniff" })
+ * const entry = SecureHeaderEntry.make({ key: "X-Content-Type-Options", value: "nosniff" })
  * void entry
  * ```
  *
@@ -191,7 +191,7 @@ export const createSecureHeaders = Effect.fn("SecureHeaderOptions.createSecureHe
   return A.map(
     headers,
     (header) =>
-      new SecureHeaderEntry({
+      SecureHeaderEntry.make({
         key: header.name,
         value: header.value,
       })

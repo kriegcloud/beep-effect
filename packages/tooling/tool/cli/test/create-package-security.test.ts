@@ -35,9 +35,9 @@ const withTempDirectory = <A, E, R>(use: (tmpDir: string) => Effect.Effect<A, E,
   );
 
 const makeSymlinkPlan = (outputDir: string) =>
-  new FileGenerationPlan({
+  FileGenerationPlan.make({
     outputDir,
-    actions: [new GenerationAction.cases.symlink({ relativePath: "CLAUDE.md", target: "AGENTS.md" })],
+    actions: [GenerationAction.cases.symlink.make({ relativePath: "CLAUDE.md", target: "AGENTS.md" })],
   });
 
 const writeRootConfigFiles = Effect.fn(function* (rootDir: string) {
@@ -107,7 +107,7 @@ describe("create-package security", () => {
 
           const result = yield* checkConfigNeedsUpdate(
             tmpDir,
-            new ConfigUpdateTarget({
+            ConfigUpdateTarget.make({
               packageName: "identity",
               packagePath: "packages/foundation/modeling/identity",
             })
@@ -121,8 +121,8 @@ describe("create-package security", () => {
     ));
 
   it("rejects traversal paths at the schema boundary", () => {
-    expect(() => new PlannedFile({ relativePath: "../escape.txt", content: "owned\n" })).toThrow();
-    expect(() => new PlannedSymlink({ relativePath: "CLAUDE.md", target: "../AGENTS.md" })).toThrow();
+    expect(() => PlannedFile.make({ relativePath: "../escape.txt", content: "owned\n" })).toThrow();
+    expect(() => PlannedSymlink.make({ relativePath: "CLAUDE.md", target: "../AGENTS.md" })).toThrow();
   });
 
   it("executePlan rejects forged file writes that escape the output directory", () =>

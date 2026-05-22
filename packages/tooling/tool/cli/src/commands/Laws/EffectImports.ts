@@ -309,7 +309,7 @@ export const runEffectImportRules = Effect.fn(function* (options: EffectImportRu
     yield* Effect.tryPromise({
       try: () => project.save(),
       catch: (cause) =>
-        new EffectImportRulesPersistenceError({
+        EffectImportRulesPersistenceError.make({
           message: `Failed to persist effect import updates: ${Inspectable.toStringUnknown(cause, 0)}`,
         }),
     });
@@ -317,7 +317,7 @@ export const runEffectImportRules = Effect.fn(function* (options: EffectImportRu
 
   const strictFailure = options.strictCheck && (aliasRenamed > 0 || stableConverted > 0);
 
-  return new EffectImportRulesSummary({
+  return EffectImportRulesSummary.make({
     touchedFiles,
     aliasRenamed,
     stableConverted,

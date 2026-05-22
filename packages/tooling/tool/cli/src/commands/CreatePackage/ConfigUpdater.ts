@@ -442,7 +442,7 @@ const updateRootConfigsForTarget: {
     const tsconfigPackages = yield* updateTsconfigPackages(repoRoot, target.packagePath);
     const tsconfigPaths = yield* updateTsconfigPaths(repoRoot, target);
     const tstycheConfig = yield* updateTstycheConfig(repoRoot, target.packagePath);
-    return new ConfigUpdateResult({
+    return ConfigUpdateResult.make({
       tsconfigPackages,
       tsconfigPaths,
       tstycheConfig,
@@ -489,7 +489,7 @@ const checkConfigNeedsUpdateForTarget: {
     const testFileMatch = readTestFileMatch(tstycheParsed);
     const tstycheConfig = !isTstycheEntryCovered(testFileMatch, target.packagePath);
 
-    return new ConfigUpdateResult({
+    return ConfigUpdateResult.make({
       tsconfigPackages,
       tsconfigPaths,
       tstycheConfig,
@@ -523,14 +523,14 @@ export const updateRootConfigsForTargets: {
       Effect.map(
         updateRootConfigsForTarget(repoRoot, target),
         (result) =>
-          new ConfigUpdateTargetResult({
+          ConfigUpdateTargetResult.make({
             target,
             result,
           })
       )
     );
 
-    return new ConfigUpdateBatchResult({
+    return ConfigUpdateBatchResult.make({
       targets: targetResults,
       tsconfigPackages: A.some(targetResults, ({ result }) => result.tsconfigPackages),
       tsconfigPaths: A.some(targetResults, ({ result }) => result.tsconfigPaths),
@@ -565,14 +565,14 @@ export const checkConfigNeedsUpdateForTargets: {
       Effect.map(
         checkConfigNeedsUpdateForTarget(repoRoot, target),
         (result) =>
-          new ConfigUpdateTargetResult({
+          ConfigUpdateTargetResult.make({
             target,
             result,
           })
       )
     );
 
-    return new ConfigUpdateBatchResult({
+    return ConfigUpdateBatchResult.make({
       targets: targetResults,
       tsconfigPackages: A.some(targetResults, ({ result }) => result.tsconfigPackages),
       tsconfigPaths: A.some(targetResults, ({ result }) => result.tsconfigPaths),
@@ -605,7 +605,7 @@ export const updateRootConfigs: {
   2,
   Effect.fn(function* (repoRoot, target) {
     const batchResult = yield* updateRootConfigsForTargets(repoRoot, [target]);
-    return batchResult.targets[0]?.result ?? new ConfigUpdateResult({});
+    return batchResult.targets[0]?.result ?? ConfigUpdateResult.make({});
   })
 );
 
@@ -633,6 +633,6 @@ export const checkConfigNeedsUpdate: {
   2,
   Effect.fn(function* (repoRoot, target) {
     const batchResult = yield* checkConfigNeedsUpdateForTargets(repoRoot, [target]);
-    return batchResult.targets[0]?.result ?? new ConfigUpdateResult({});
+    return batchResult.targets[0]?.result ?? ConfigUpdateResult.make({});
   })
 );

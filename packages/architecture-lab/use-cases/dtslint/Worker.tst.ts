@@ -6,7 +6,7 @@ declare const workerId: DomainWorker.WorkerId;
 declare const organizationId: DomainWorker.WorkerOrganizationId;
 
 expect(
-  new Worker.CreateWorkerCommand({
+  Worker.CreateWorkerCommand.make({
     id: workerId,
     organizationId,
     displayName: "Ada Lovelace",

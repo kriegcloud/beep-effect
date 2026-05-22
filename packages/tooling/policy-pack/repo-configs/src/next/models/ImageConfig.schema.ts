@@ -60,7 +60,7 @@ export class ImageLoaderProps extends S.Class<ImageLoaderProps>($I`ImageLoaderPr
  * @example
  * ```ts
  * import { LocalPattern } from "@beep/repo-configs/next/models/ImageConfig.schema"
- * const pattern = new LocalPattern({ pathname: "/assets/**" })
+ * const pattern = LocalPattern.make({ pathname: "/assets/**" })
  * void pattern
  * ```
  * @category models
@@ -97,7 +97,7 @@ export class LocalPattern extends S.Class<LocalPattern>($I`LocalPattern`)(
  * @example
  * ```ts
  * import { RemotePattern } from "@beep/repo-configs/next/models/ImageConfig.schema"
- * const pattern = new RemotePattern({ hostname: "images.example.com" })
+ * const pattern = RemotePattern.make({ hostname: "images.example.com" })
  * void pattern
  * ```
  * @category models

@@ -80,7 +80,7 @@ export type EntityType = typeof EntityType.Type;
  * import { EntityRef, EntityType } from "@beep/shared-domain/entity/EntityRef"
  *
  * const program = Effect.gen(function* () {
- *   const ref = new EntityRef({
+ *   const ref = EntityRef.make({
  *     entityType: yield* S.decodeUnknownEffect(EntityType)("SharedOrganization"),
  *     id: yield* S.decodeUnknownEffect(EntityIdValue)(1),
  *   })
@@ -135,7 +135,7 @@ function assertEntityRefFor<const Entity extends EntityId.Any>(
   ref: EntityRef
 ): asserts ref is EntityRefFor<Entity> {
   if (!isEntityRefFor(entityId, ref)) {
-    throw new EntityRefInvariantError({
+    throw EntityRefInvariantError.make({
       actualEntityType: ref.entityType,
       actualId: ref.id,
       entityType: entityId.entityType,
@@ -182,7 +182,7 @@ export const makeResult: {
     pipe(
       decodeEntityTypeResult(entityId.entityType),
       Result.map((entityType) => {
-        const ref = new EntityRef({
+        const ref = EntityRef.make({
           entityType,
           id,
         });

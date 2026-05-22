@@ -201,7 +201,7 @@ const csvTarget: SyncDataTarget = {
       readonly columns?: ReadonlyArray<string>;
     };
 
-    return new SyncDataTargetProjection({
+    return SyncDataTargetProjection.make({
       content: encodeJson({
         columns: rows.columns ?? [],
         rows,

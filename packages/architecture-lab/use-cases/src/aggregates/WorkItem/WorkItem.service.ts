@@ -51,15 +51,15 @@ export const toWorkItemActionError = (
   error: WorkItemRepositoryError | DomainWorkItem.WorkItemDomainError
 ): WorkItemActionError => {
   if (isRepositoryNotFound(error)) {
-    return new WorkItemNotFound({ workItemId: error.workItemId });
+    return WorkItemNotFound.make({ workItemId: error.workItemId });
   }
   if (isRepositoryConflict(error)) {
-    return new WorkItemConflict({ workItemId: error.workItemId, reason: error.reason });
+    return WorkItemConflict.make({ workItemId: error.workItemId, reason: error.reason });
   }
   if (isRepositoryUnavailable(error)) {
-    return new WorkItemActionFailed({ reason: WORK_ITEM_ACTION_UNAVAILABLE_REASON });
+    return WorkItemActionFailed.make({ reason: WORK_ITEM_ACTION_UNAVAILABLE_REASON });
   }
-  return new WorkItemActionRejected({
+  return WorkItemActionRejected.make({
     workItemId: error.workItemId,
     reason: error._tag,
   });
@@ -88,7 +88,7 @@ const mutateStoredWorkItem = (
 export const makeWorkItemUseCases = (repository: WorkItemRepositoryShape): WorkItemUseCasesShape => ({
   create: Effect.fn("ArchitectureLab.WorkItemUseCases.create")(function* (command: CreateWorkItemCommand) {
     return yield* pipe(
-      Effect.succeed(DomainWorkItem.create(new DomainWorkItem.CreateWorkItemInput(command))),
+      Effect.succeed(DomainWorkItem.create(DomainWorkItem.CreateWorkItemInput.make(command))),
       Effect.flatMap(repository.create),
       Effect.mapError(toWorkItemActionError)
     );

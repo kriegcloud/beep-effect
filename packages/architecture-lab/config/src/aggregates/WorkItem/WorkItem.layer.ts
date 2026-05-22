@@ -72,10 +72,10 @@ const readWorkItemConfig = Effect.fn("ArchitectureLab.WorkItemConfig.read")(func
     Config.withDefault(defaultWorkItemSecretConfig.connectionName)
   );
 
-  return new WorkItemConfigValue({
-    publicConfig: new WorkItemPublicConfig({ assignmentEnabled, reopenCompletedEnabled }),
-    serverConfig: new WorkItemServerConfig({ repositoryName, migrationSchemaName }),
-    secretConfig: new WorkItemSecretConfig({ connectionName }),
+  return WorkItemConfigValue.make({
+    publicConfig: WorkItemPublicConfig.make({ assignmentEnabled, reopenCompletedEnabled }),
+    serverConfig: WorkItemServerConfig.make({ repositoryName, migrationSchemaName }),
+    secretConfig: WorkItemSecretConfig.make({ connectionName }),
   });
 });
 
@@ -85,7 +85,7 @@ const readWorkItemConfig = Effect.fn("ArchitectureLab.WorkItemConfig.read")(func
  * @category layers
  * @since 0.0.0
  */
-export const testWorkItemConfig = new WorkItemConfigValue({
+export const testWorkItemConfig = WorkItemConfigValue.make({
   publicConfig: defaultWorkItemPublicConfig,
   serverConfig: defaultWorkItemServerConfig,
   secretConfig: defaultWorkItemSecretConfig,

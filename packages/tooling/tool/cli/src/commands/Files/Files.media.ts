@@ -172,7 +172,7 @@ const sampleBorderColor = (image: RawImagePixelData, side: BorderSide, sampleWid
     }
   }
 
-  return new RgbColor({
+  return RgbColor.make({
     b: medianChannel(blue),
     g: medianChannel(green),
     r: medianChannel(red),
@@ -206,7 +206,7 @@ const borderLineStats = (
     distanceSum += distance;
   }
 
-  return new BorderLineStats({
+  return BorderLineStats.make({
     averageDistance: distanceSum / length,
     solidPct: (matched / length) * 100,
   });
@@ -240,7 +240,7 @@ const scanBorderSide = (
   const matched = acceptedWidth >= minWidthPx;
   const widthPx = matched ? acceptedWidth : 0;
 
-  return new DetectBorderSideMeasurement({
+  return DetectBorderSideMeasurement.make({
     color: edgeColor,
     colorHex: rgbToHex(edgeColor),
     matched,
@@ -408,7 +408,7 @@ export const maybeSwapDimensions: {
   2,
   (dimensions: MediaDimensions, swap: boolean): MediaDimensions =>
     swap
-      ? new MediaDimensions({
+      ? MediaDimensions.make({
           height: dimensions.width,
           width: dimensions.height,
         })
@@ -448,7 +448,7 @@ export const targetNameForEntry: {
   (options: TargetNameForEntryOptions): (prefix: SafeFilePrefix) => string;
   (prefix: SafeFilePrefix, options: TargetNameForEntryOptions): string;
 } = dual(2, (prefix: SafeFilePrefix, options: TargetNameForEntryOptions): string => {
-  const { dimensions, file, index, width } = new TargetNameForEntryOptions(options);
+  const { dimensions, file, index, width } = TargetNameForEntryOptions.make(options);
   const formattedIndex = formatIndex(index, width);
   return pipe(
     dimensions,
@@ -595,7 +595,7 @@ export const normalizeOutputDimensions: {
   }
 
   const scale = maxLongEdge.value / longEdge;
-  return new MediaDimensions({
+  return MediaDimensions.make({
     height: Math.max(1, Math.round(dimensions.height * scale)),
     width: Math.max(1, Math.round(dimensions.width * scale)),
   });
@@ -641,7 +641,7 @@ export const assessImageCandidate: {
   (thresholds: CandidateAssessmentThresholds): (dimensions: MediaDimensions) => CandidateAssessmentResult;
   (dimensions: MediaDimensions, thresholds: CandidateAssessmentThresholds): CandidateAssessmentResult;
 } = dual(2, (dimensions: MediaDimensions, thresholds: CandidateAssessmentThresholds): CandidateAssessmentResult => {
-  const candidateThresholds = new CandidateAssessmentThresholds(thresholds);
+  const candidateThresholds = CandidateAssessmentThresholds.make(thresholds);
   const shortEdge = Math.min(dimensions.width, dimensions.height);
   const longEdge = Math.max(dimensions.width, dimensions.height);
   const pixelArea = dimensions.width * dimensions.height;
@@ -662,9 +662,9 @@ export const assessImageCandidate: {
     reasons = A.append(reasons, "upscale-too-large");
   }
 
-  return new CandidateAssessmentResult({
+  return CandidateAssessmentResult.make({
     decision: A.isReadonlyArrayNonEmpty(reasons) ? "archive" : "keep",
-    metrics: new CandidateAssessmentMetrics({
+    metrics: CandidateAssessmentMetrics.make({
       aspectRatio: roundCandidateMetric(aspectRatio),
       pixelArea,
       shortEdge,
@@ -773,8 +773,8 @@ export const analyzeSolidBorders: {
 } = dual(
   2,
   (image: RawImagePixelData, thresholds: BorderDetectionThresholds): ReadonlyArray<DetectBorderSideMeasurement> => {
-    const rawImage = new RawImagePixelData(image);
-    const detectionThresholds = new BorderDetectionThresholds(thresholds);
+    const rawImage = RawImagePixelData.make(image);
+    const detectionThresholds = BorderDetectionThresholds.make(thresholds);
     return A.map(borderSides, (side) => scanBorderSide(rawImage, side, detectionThresholds));
   }
 );
@@ -873,7 +873,7 @@ export const cropBordersPlanEntryFromDetection = (entry: DetectBordersEntry): O.
   }
 
   return O.some(
-    new CropBordersPlanEntry({
+    CropBordersPlanEntry.make({
       borderCount: entry.borderCount,
       classification: entry.classification,
       cropHeight,
@@ -925,7 +925,7 @@ export const makeStripMetadataTempEntries: {
   A.map(
     plan,
     (entry, index) =>
-      new StripMetadataTempEntry({
+      StripMetadataTempEntry.make({
         entry,
         tempPath: path.join(tempDir, `${formatIndex(index, Str.length(`${A.length(plan)}`) + 1)}-${entry.sourceName}`),
       })

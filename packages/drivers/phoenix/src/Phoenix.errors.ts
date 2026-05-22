@@ -90,7 +90,7 @@ export type PhoenixErrorReason = typeof PhoenixErrorReason.Type;
  * ```ts
  * import { PhoenixErrorOptions } from "@beep/phoenix"
  *
- * const options = new PhoenixErrorOptions({ cause: "network" })
+ * const options = PhoenixErrorOptions.make({ cause: "network" })
  * console.log(options)
  * ```
  *
@@ -162,7 +162,7 @@ export class PhoenixError extends TaggedErrorClass<PhoenixError>($I`PhoenixError
       reason: PhoenixErrorReason,
       options: PhoenixErrorOptions | { readonly cause?: unknown } = {}
     ): PhoenixError =>
-      new PhoenixError({
+      PhoenixError.make({
         operation,
         reason,
         ...R.getSomes({

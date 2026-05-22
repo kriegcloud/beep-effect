@@ -135,7 +135,7 @@ const parseMinorUnits = (value: string, code: string): Effect.Effect<number, Syn
         const parsed = Number.parseInt(value, 10);
         return Number.isNaN(parsed)
           ? Effect.fail(
-              new SyncDataToTsError({
+              SyncDataToTsError.make({
                 message: `Failed to normalize ISO 4217 minor units for ${code}: invalid minor unit "${value}".`,
                 targetId: "iso4217",
               })
@@ -185,7 +185,7 @@ const projectIso4217Document: SyncDataTarget["project"] = Effect.fn("SyncDataToT
     const decoded = yield* S.decodeUnknownEffect(Iso4217Document)(document).pipe(
       Effect.mapError(
         (cause) =>
-          new SyncDataToTsError({
+          SyncDataToTsError.make({
             message: `Failed to decode the official ISO 4217 XML payload: ${cause.message}`,
             targetId: "iso4217",
           })
@@ -201,7 +201,7 @@ const projectIso4217Document: SyncDataTarget["project"] = Effect.fn("SyncDataToT
           continue;
         }
 
-        return yield* new SyncDataToTsError({
+        return yield* SyncDataToTsError.make({
           message: `Encountered an unexpected ISO 4217 row without complete currency fields for ${row.CtryNm}.`,
           targetId: "iso4217",
         });
@@ -216,7 +216,7 @@ const projectIso4217Document: SyncDataTarget["project"] = Effect.fn("SyncDataToT
         MutableHashMap.set(
           grouped,
           row.Ccy,
-          new Iso4217CurrencyEntry({
+          Iso4217CurrencyEntry.make({
             code: row.Ccy,
             number: row.CcyNbr,
             digits,
@@ -232,7 +232,7 @@ const projectIso4217Document: SyncDataTarget["project"] = Effect.fn("SyncDataToT
         existing.value.digits !== digits ||
         existing.value.currency !== currency
       ) {
-        return yield* new SyncDataToTsError({
+        return yield* SyncDataToTsError.make({
           message: `Encountered inconsistent ISO 4217 currency data for ${row.Ccy}.`,
           targetId: "iso4217",
         });
@@ -245,7 +245,7 @@ const projectIso4217Document: SyncDataTarget["project"] = Effect.fn("SyncDataToT
       MutableHashMap.set(
         grouped,
         row.Ccy,
-        new Iso4217CurrencyEntry({
+        Iso4217CurrencyEntry.make({
           ...existing.value,
           countries,
         })
@@ -256,7 +256,7 @@ const projectIso4217Document: SyncDataTarget["project"] = Effect.fn("SyncDataToT
       A.fromIterable(MutableHashMap.values(grouped)),
       A.map(
         (entry) =>
-          new Iso4217CurrencyEntry({
+          Iso4217CurrencyEntry.make({
             ...entry,
             countries: A.sort(entry.countries, Order.String),
           })

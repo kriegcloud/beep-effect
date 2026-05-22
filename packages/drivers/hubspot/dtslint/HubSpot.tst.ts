@@ -11,10 +11,10 @@ describe("@beep/hubspot", () => {
   it("exposes the typed public surface", () => {
     expect(VERSION).type.toBe<"0.0.0">();
     expect(HubSpot).type.not.toBe<never>();
-    expect(new HubSpotConfigInput({ accountId: "12345" })).type.toBe<HubSpotConfigInput>();
-    expect(new HubSpotSubmitFormRequest({ fields: [], formGuid: "form-guid" })).type.toBe<HubSpotSubmitFormRequest>();
+    expect(HubSpotConfigInput.make({ accountId: "12345" })).type.toBe<HubSpotConfigInput>();
+    expect(HubSpotSubmitFormRequest.make({ fields: [], formGuid: "form-guid" })).type.toBe<HubSpotSubmitFormRequest>();
     expect(
-      new HubSpotUpsertContactRequest({ email: "tom@example.com", properties: {} })
+      HubSpotUpsertContactRequest.make({ email: "tom@example.com", properties: {} })
     ).type.toBe<HubSpotUpsertContactRequest>();
   });
 });

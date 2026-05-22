@@ -143,7 +143,7 @@ export type GithubCheckMode = typeof GithubCheckMode.Type;
  * @example
  * ```ts
  * import { QualityScriptCommandError } from "@beep/repo-cli/commands/Quality/Quality.command"
- * const error = new QualityScriptCommandError({ message: "failed" })
+ * const error = QualityScriptCommandError.make({ message: "failed" })
  * ```
  * @category errors
  * @since 0.0.0
@@ -181,7 +181,7 @@ const normalizeExtraArgs = (args: unknown): ReadonlyArray<string> => {
 };
 
 const withExitCode = (label: string, command: string, args: ReadonlyArray<string>, exitCode: number) =>
-  new QualityScriptCommandError({
+  QualityScriptCommandError.make({
     message: `${label} failed with exit code ${exitCode}.`,
     command: commandText(command, args),
     exitCode,
@@ -206,7 +206,7 @@ const runStep = Effect.fn("QualityScriptCommands.runStep")(function* (
   ).pipe(
     Effect.mapError(
       (cause) =>
-        new QualityScriptCommandError({
+        QualityScriptCommandError.make({
           message: `Failed to spawn ${commandText(step.command, step.args)}.`,
           command: commandText(step.command, step.args),
           cause,
@@ -220,13 +220,13 @@ const runStep = Effect.fn("QualityScriptCommands.runStep")(function* (
 });
 
 const runBun = (repoRoot: string, label: string, args: ReadonlyArray<string>) =>
-  runStep(new QualityTaskStep({ label, command: "bun", args: ["run", ...args], cwd: repoRoot }));
+  runStep(QualityTaskStep.make({ label, command: "bun", args: ["run", ...args], cwd: repoRoot }));
 
 const runBunx = (repoRoot: string, label: string, args: ReadonlyArray<string>) =>
-  runStep(new QualityTaskStep({ label, command: "bunx", args, cwd: repoRoot }));
+  runStep(QualityTaskStep.make({ label, command: "bunx", args, cwd: repoRoot }));
 
 const runFixedStep = (repoRoot: string, label: string, command: string, args: ReadonlyArray<string>) =>
-  runStep(new QualityTaskStep({ label, command, args, cwd: repoRoot }));
+  runStep(QualityTaskStep.make({ label, command, args, cwd: repoRoot }));
 
 const collectOutput = Effect.fn("QualityScriptCommands.collectOutput")(function* (
   step: QualityTaskStep
@@ -260,7 +260,7 @@ const collectOutput = Effect.fn("QualityScriptCommands.collectOutput")(function*
   ).pipe(
     Effect.mapError(
       (cause) =>
-        new QualityScriptCommandError({
+        QualityScriptCommandError.make({
           message: `Failed to collect output from ${commandText(step.command, step.args)}.`,
           command: commandText(step.command, step.args),
           cause,
@@ -288,7 +288,7 @@ const currentBranch = Effect.fn("QualityScriptCommands.currentBranch")(function*
   repoRoot: string
 ): Effect.fn.Return<string, QualityScriptCommandError, ChildProcessSpawner.ChildProcessSpawner> {
   return yield* collectSuccessfulOutput(
-    new QualityTaskStep({
+    QualityTaskStep.make({
       label: "git:branch",
       command: "git",
       args: ["branch", "--show-current"],
@@ -302,7 +302,7 @@ const ensureOriginMain = Effect.fn("QualityScriptCommands.ensureOriginMain")(fun
 ): Effect.fn.Return<void, QualityScriptCommandError, ChildProcessSpawner.ChildProcessSpawner> {
   yield* Console.log("[github-checks] refreshing origin/main");
   const shallow = yield* collectSuccessfulOutput(
-    new QualityTaskStep({
+    QualityTaskStep.make({
       label: "git:shallow",
       command: "git",
       args: ["rev-parse", "--is-shallow-repository"],
@@ -366,7 +366,7 @@ export const runBunAudit = Effect.fn("QualityScriptCommands.runBunAudit")(functi
   const configText = yield* fs.readFileString(configPath).pipe(
     Effect.mapError(
       (cause) =>
-        new QualityScriptCommandError({
+        QualityScriptCommandError.make({
           message: `Failed to read ${configPath}.`,
           cause,
         })
@@ -394,7 +394,7 @@ const runRepoSanity = Effect.fn("QualityScriptCommands.runRepoSanity")(function*
   yield* runChangesetGraphCheck(repoRoot).pipe(
     Effect.mapError(
       (error) =>
-        new QualityScriptCommandError({
+        QualityScriptCommandError.make({
           message: error.message,
           command: "bun run beep quality changeset-graph",
           exitCode: 1,
@@ -450,7 +450,7 @@ const runSecretScan = Effect.fn("QualityScriptCommands.runSecretScan")(function*
   repoRoot: string
 ): Effect.fn.Return<void, QualityScriptCommandError, ChildProcessSpawner.ChildProcessSpawner> {
   const mergeBase = yield* collectSuccessfulOutput(
-    new QualityTaskStep({
+    QualityTaskStep.make({
       label: "secrets:merge-base",
       command: "git",
       args: ["merge-base", "origin/main", "HEAD"],
@@ -500,7 +500,7 @@ const runSastScan = Effect.fn("QualityScriptCommands.runSastScan")(function* (
   const fs = yield* FileSystem.FileSystem;
   const path = yield* Path.Path;
   const trackedFilesOutput = yield* collectSuccessfulOutput(
-    new QualityTaskStep({
+    QualityTaskStep.make({
       label: "sast:changed-files",
       command: "git",
       args: [
@@ -536,7 +536,7 @@ const runSastScan = Effect.fn("QualityScriptCommands.runSastScan")(function* (
 
       const symlinkTarget = yield* fs.readLink(absolutePath).pipe(Effect.option);
       if (O.isSome(symlinkTarget)) {
-        return yield* new QualityScriptCommandError({
+        return yield* QualityScriptCommandError.make({
           message: `Changed JavaScript/TypeScript symlink paths are not accepted by the SAST scan: ${filePath}`,
         });
       }
@@ -628,7 +628,7 @@ export const runGithubChecks = Effect.fn("QualityScriptCommands.runGithubChecks"
   const repoRoot = yield* findRepoRoot().pipe(
     Effect.mapError(
       (cause) =>
-        new QualityScriptCommandError({
+        QualityScriptCommandError.make({
           message: "Failed to locate repository root.",
           cause,
         })
@@ -679,7 +679,7 @@ const collectFiles = Effect.fn("QualityScriptCommands.collectFiles")(function* (
     const entries = yield* fs.readDirectory(currentPath).pipe(
       Effect.mapError(
         (cause) =>
-          new QualityScriptCommandError({
+          QualityScriptCommandError.make({
             message: `Failed to read directory ${currentPath}.`,
             cause,
           })
@@ -699,7 +699,7 @@ const collectFiles = Effect.fn("QualityScriptCommands.collectFiles")(function* (
       const stat = yield* fs.stat(childPath).pipe(
         Effect.mapError(
           (cause) =>
-            new QualityScriptCommandError({
+            QualityScriptCommandError.make({
               message: `Failed to stat ${childPath}.`,
               cause,
             })
@@ -858,7 +858,7 @@ const runTestTsgoPackageGroup = Effect.fn("QualityScriptCommands.runTestTsgoPack
   const configText = yield* jsonStringifyPretty(syntheticConfig).pipe(
     Effect.mapError(
       (cause) =>
-        new QualityScriptCommandError({
+        QualityScriptCommandError.make({
           message: `Failed to encode ${groupLabel} test tsconfig.`,
           cause,
         })
@@ -868,7 +868,7 @@ const runTestTsgoPackageGroup = Effect.fn("QualityScriptCommands.runTestTsgoPack
   yield* fs.writeFileString(syntheticConfigPath, `${configText}\n`).pipe(
     Effect.mapError(
       (cause) =>
-        new QualityScriptCommandError({
+        QualityScriptCommandError.make({
           message: `Failed to write ${syntheticConfigPath}.`,
           cause,
         })
@@ -876,7 +876,7 @@ const runTestTsgoPackageGroup = Effect.fn("QualityScriptCommands.runTestTsgoPack
   );
 
   const result = yield* collectOutput(
-    new QualityTaskStep({
+    QualityTaskStep.make({
       label: `check:tsgo:tests:${groupLabel}`,
       command: path.join(repoRoot, "node_modules", ".bin", "tsgo"),
       args: ["-p", syntheticConfigPath, "--pretty", "false", ...extraArgs],
@@ -1039,19 +1039,19 @@ export const runTsgoRulesCheck = Effect.fn("QualityScriptCommands.runTsgoRulesCh
   const fs = yield* FileSystem.FileSystem;
   const path = yield* Path.Path;
   const repoRoot = yield* findRepoRoot().pipe(
-    Effect.mapError((cause) => new QualityScriptCommandError({ message: "Failed to locate repository root.", cause }))
+    Effect.mapError((cause) => QualityScriptCommandError.make({ message: "Failed to locate repository root.", cause }))
   );
   const readmePath = path.join(repoRoot, "node_modules", "@effect", "tsgo", "README.md");
   const tsconfigPath = path.join(repoRoot, "tsconfig.base.json");
   const readmeText = yield* fs
     .readFileString(readmePath)
     .pipe(
-      Effect.mapError((cause) => new QualityScriptCommandError({ message: `Failed to read ${readmePath}.`, cause }))
+      Effect.mapError((cause) => QualityScriptCommandError.make({ message: `Failed to read ${readmePath}.`, cause }))
     );
   const installedRuleNames = extractEffectTsgoReadmeRuleNames(readmeText);
 
   if (A.isReadonlyArrayEmpty(installedRuleNames)) {
-    return yield* new QualityScriptCommandError({
+    return yield* QualityScriptCommandError.make({
       message: "Failed to discover @effect/tsgo diagnostic rules from the installed README.",
       exitCode: 1,
     });
@@ -1060,7 +1060,7 @@ export const runTsgoRulesCheck = Effect.fn("QualityScriptCommands.runTsgoRulesCh
   const configText = yield* fs
     .readFileString(tsconfigPath)
     .pipe(
-      Effect.mapError((cause) => new QualityScriptCommandError({ message: `Failed to read ${tsconfigPath}.`, cause }))
+      Effect.mapError((cause) => QualityScriptCommandError.make({ message: `Failed to read ${tsconfigPath}.`, cause }))
     );
   const parseErrors: Array<ParseError> = [];
   const config = parse(configText, parseErrors, {
@@ -1076,12 +1076,12 @@ export const runTsgoRulesCheck = Effect.fn("QualityScriptCommands.runTsgoRulesCh
         "\n"
       )
     );
-    return yield* new QualityScriptCommandError({ message: "tsconfig.base.json is not valid JSONC.", exitCode: 1 });
+    return yield* QualityScriptCommandError.make({ message: "tsconfig.base.json is not valid JSONC.", exitCode: 1 });
   }
 
   const plugin = findEffectLanguageServicePlugin(config);
   if (O.isNone(plugin)) {
-    return yield* new QualityScriptCommandError({
+    return yield* QualityScriptCommandError.make({
       message: "tsconfig.base.json is missing the @effect/language-service plugin.",
       exitCode: 1,
     });
@@ -1092,7 +1092,7 @@ export const runTsgoRulesCheck = Effect.fn("QualityScriptCommands.runTsgoRulesCh
     O.flatMap(decodeUnknownRecordOption)
   );
   if (O.isNone(diagnosticSeverity)) {
-    return yield* new QualityScriptCommandError({
+    return yield* QualityScriptCommandError.make({
       message: "tsconfig.base.json is missing the root @effect/language-service diagnosticSeverity map.",
       exitCode: 1,
     });
@@ -1132,7 +1132,7 @@ export const runTsgoRulesCheck = Effect.fn("QualityScriptCommands.runTsgoRulesCh
       const text = yield* fs
         .readFileString(filePath)
         .pipe(
-          Effect.mapError((cause) => new QualityScriptCommandError({ message: `Failed to read ${filePath}.`, cause }))
+          Effect.mapError((cause) => QualityScriptCommandError.make({ message: `Failed to read ${filePath}.`, cause }))
         );
       return pipe(
         Str.split(text, "\n"),
@@ -1156,7 +1156,7 @@ export const runTsgoRulesCheck = Effect.fn("QualityScriptCommands.runTsgoRulesCh
   if (A.isReadonlyArrayNonEmpty(diagnostics)) {
     yield* Console.error("[check:tsgo-rules] @effect/tsgo diagnostics are not globally enforced.");
     yield* Console.error(A.join(diagnostics, "\n"));
-    return yield* new QualityScriptCommandError({ message: "@effect/tsgo rule enforcement drift found.", exitCode: 1 });
+    return yield* QualityScriptCommandError.make({ message: "@effect/tsgo rule enforcement drift found.", exitCode: 1 });
   }
 
   yield* Console.log(
@@ -1198,7 +1198,7 @@ const runTsgoWithSyntheticConfig = Effect.fn("QualityScriptCommands.runTsgoWithS
   const configText = yield* jsonStringifyPretty(syntheticConfig).pipe(
     Effect.mapError(
       (cause) =>
-        new QualityScriptCommandError({
+        QualityScriptCommandError.make({
           message: `Failed to encode ${label} synthetic tsconfig.`,
           cause,
         })
@@ -1208,7 +1208,7 @@ const runTsgoWithSyntheticConfig = Effect.fn("QualityScriptCommands.runTsgoWithS
   yield* fs.makeDirectory(tempDir, { recursive: true }).pipe(
     Effect.mapError(
       (cause) =>
-        new QualityScriptCommandError({
+        QualityScriptCommandError.make({
           message: `Failed to create ${tempDir}.`,
           cause,
         })
@@ -1217,7 +1217,7 @@ const runTsgoWithSyntheticConfig = Effect.fn("QualityScriptCommands.runTsgoWithS
   yield* fs.writeFileString(syntheticConfigPath, `${configText}\n`).pipe(
     Effect.mapError(
       (cause) =>
-        new QualityScriptCommandError({
+        QualityScriptCommandError.make({
           message: `Failed to write ${syntheticConfigPath}.`,
           cause,
         })
@@ -1249,7 +1249,7 @@ export const runDtslintTsgoChecks = Effect.fn("QualityScriptCommands.runDtslintT
 ): Effect.fn.Return<void, QualityScriptCommandError, QualityScriptEnvironment> {
   const path = yield* Path.Path;
   const repoRoot = yield* findRepoRoot().pipe(
-    Effect.mapError((cause) => new QualityScriptCommandError({ message: "Failed to locate repository root.", cause }))
+    Effect.mapError((cause) => QualityScriptCommandError.make({ message: "Failed to locate repository root.", cause }))
   );
   const discoveredFiles = yield* Effect.forEach(
     dtslintSearchRoots,
@@ -1298,7 +1298,7 @@ export const runTestTsgoChecks = Effect.fn("QualityScriptCommands.runTestTsgoChe
   const fs = yield* FileSystem.FileSystem;
   const path = yield* Path.Path;
   const repoRoot = yield* findRepoRoot().pipe(
-    Effect.mapError((cause) => new QualityScriptCommandError({ message: "Failed to locate repository root.", cause }))
+    Effect.mapError((cause) => QualityScriptCommandError.make({ message: "Failed to locate repository root.", cause }))
   );
   const discoveredFiles = yield* Effect.forEach(
     testSearchRoots,
@@ -1328,7 +1328,7 @@ export const runTestTsgoChecks = Effect.fn("QualityScriptCommands.runTestTsgoChe
   yield* fs
     .makeDirectory(tempDir, { recursive: true })
     .pipe(
-      Effect.mapError((cause) => new QualityScriptCommandError({ message: `Failed to create ${tempDir}.`, cause }))
+      Effect.mapError((cause) => QualityScriptCommandError.make({ message: `Failed to create ${tempDir}.`, cause }))
     );
 
   yield* Console.log(
@@ -1395,13 +1395,13 @@ export const runTsgoSmokeCheck = Effect.fn("QualityScriptCommands.runTsgoSmokeCh
   const fs = yield* FileSystem.FileSystem;
   const path = yield* Path.Path;
   const repoRoot = yield* findRepoRoot().pipe(
-    Effect.mapError((cause) => new QualityScriptCommandError({ message: "Failed to locate repository root.", cause }))
+    Effect.mapError((cause) => QualityScriptCommandError.make({ message: "Failed to locate repository root.", cause }))
   );
   const tempRoot = path.join(repoRoot, "node_modules", ".tmp");
   const smokeDir = yield* fs
     .makeTempDirectory({ directory: tempRoot })
     .pipe(
-      Effect.mapError((cause) => new QualityScriptCommandError({ message: "Failed to create tsgo smoke dir.", cause }))
+      Effect.mapError((cause) => QualityScriptCommandError.make({ message: "Failed to create tsgo smoke dir.", cause }))
     );
   const srcDir = path.join(smokeDir, "src");
   const tsconfigPath = path.join(smokeDir, "tsconfig.json");
@@ -1410,7 +1410,7 @@ export const runTsgoSmokeCheck = Effect.fn("QualityScriptCommands.runTsgoSmokeCh
 
   yield* fs
     .makeDirectory(srcDir, { recursive: true })
-    .pipe(Effect.mapError((cause) => new QualityScriptCommandError({ message: `Failed to create ${srcDir}.`, cause })));
+    .pipe(Effect.mapError((cause) => QualityScriptCommandError.make({ message: `Failed to create ${srcDir}.`, cause })));
   yield* fs
     .writeFileString(
       sourcePath,
@@ -1430,7 +1430,7 @@ export const runTsgoSmokeCheck = Effect.fn("QualityScriptCommands.runTsgoSmokeCh
       )
     )
     .pipe(
-      Effect.mapError((cause) => new QualityScriptCommandError({ message: `Failed to write ${sourcePath}.`, cause }))
+      Effect.mapError((cause) => QualityScriptCommandError.make({ message: `Failed to write ${sourcePath}.`, cause }))
     );
   const configText = yield* jsonStringifyPretty({
     extends: path.join(repoRoot, "tsconfig.base.json"),
@@ -1442,16 +1442,16 @@ export const runTsgoSmokeCheck = Effect.fn("QualityScriptCommands.runTsgoSmokeCh
       noEmit: true,
     },
   }).pipe(
-    Effect.mapError((cause) => new QualityScriptCommandError({ message: "Failed to encode smoke config.", cause }))
+    Effect.mapError((cause) => QualityScriptCommandError.make({ message: "Failed to encode smoke config.", cause }))
   );
 
   yield* fs
     .writeFileString(tsconfigPath, `${configText}\n`)
     .pipe(
-      Effect.mapError((cause) => new QualityScriptCommandError({ message: `Failed to write ${tsconfigPath}.`, cause }))
+      Effect.mapError((cause) => QualityScriptCommandError.make({ message: `Failed to write ${tsconfigPath}.`, cause }))
     );
   const result = yield* collectOutput(
-    new QualityTaskStep({
+    QualityTaskStep.make({
       label: "check:tsgo:smoke",
       command: tsgoPath,
       args: ["-p", tsconfigPath, "--pretty", "false"],
@@ -1464,7 +1464,7 @@ export const runTsgoSmokeCheck = Effect.fn("QualityScriptCommands.runTsgoSmokeCh
     if (Str.isNonEmpty(result.output)) {
       yield* Console.error(result.output);
     }
-    return yield* new QualityScriptCommandError({ message: "tsgo smoke check unexpectedly passed.", exitCode: 1 });
+    return yield* QualityScriptCommandError.make({ message: "tsgo smoke check unexpectedly passed.", exitCode: 1 });
   }
 
   if (!Str.includes("effect(effectFnOpportunity)")(result.output)) {
@@ -1474,7 +1474,7 @@ export const runTsgoSmokeCheck = Effect.fn("QualityScriptCommands.runTsgoSmokeCh
     if (Str.isNonEmpty(result.output)) {
       yield* Console.error(result.output);
     }
-    return yield* new QualityScriptCommandError({
+    return yield* QualityScriptCommandError.make({
       message: "tsgo smoke check did not report effectFnOpportunity.",
       exitCode: 1,
     });
@@ -1500,10 +1500,10 @@ export const runJSDocModuleTagsCheck = Effect.fn("QualityScriptCommands.runJSDoc
     const fs = yield* FileSystem.FileSystem;
     const path = yield* Path.Path;
     const repoRoot = yield* findRepoRoot().pipe(
-      Effect.mapError((cause) => new QualityScriptCommandError({ message: "Failed to locate repository root.", cause }))
+      Effect.mapError((cause) => QualityScriptCommandError.make({ message: "Failed to locate repository root.", cause }))
     );
     const result = yield* collectOutput(
-      new QualityTaskStep({
+      QualityTaskStep.make({
         label: "lint:jsdoc-module-tags:git-ls-files",
         command: "git",
         args: ["ls-files"],
@@ -1535,7 +1535,7 @@ export const runJSDocModuleTagsCheck = Effect.fn("QualityScriptCommands.runJSDoc
           .readFileString(absolutePath)
           .pipe(
             Effect.mapError(
-              (cause) => new QualityScriptCommandError({ message: `Failed to read ${absolutePath}.`, cause })
+              (cause) => QualityScriptCommandError.make({ message: `Failed to read ${absolutePath}.`, cause })
             )
           );
         return pipe(
@@ -1554,7 +1554,7 @@ export const runJSDocModuleTagsCheck = Effect.fn("QualityScriptCommands.runJSDoc
       yield* Console.error("[check:jsdoc-module-tags] @module is not valid under the repo TSDoc policy.");
       yield* Console.error("[check:jsdoc-module-tags] Use @packageDocumentation for fileoverview JSDoc blocks.");
       yield* Console.error(A.join(violations, "\n"));
-      return yield* new QualityScriptCommandError({ message: "JSDoc module tag violations were found.", exitCode: 1 });
+      return yield* QualityScriptCommandError.make({ message: "JSDoc module tag violations were found.", exitCode: 1 });
     }
 
     yield* Console.log("[check:jsdoc-module-tags] verified tracked fileoverview comments do not use @module");
@@ -1579,7 +1579,7 @@ export const runJSDocInventory = Effect.fn("QualityScriptCommands.runJSDocInvent
   FileSystem.FileSystem | ChildProcessSpawner.ChildProcessSpawner
 > {
   const repoRoot = yield* findRepoRoot().pipe(
-    Effect.mapError((cause) => new QualityScriptCommandError({ message: "Failed to locate repository root.", cause }))
+    Effect.mapError((cause) => QualityScriptCommandError.make({ message: "Failed to locate repository root.", cause }))
   );
 
   yield* runBun(repoRoot, "quality:jsdoc-inventory", ["--filter=@beep/repo-cli", "beep:jsdoc-inventory"]);
@@ -1602,7 +1602,7 @@ export const runRepoExportsCatalog = Effect.fn("QualityScriptCommands.runRepoExp
   check: boolean
 ): Effect.fn.Return<void, QualityScriptCommandError, FileSystem.FileSystem | ChildProcessSpawner.ChildProcessSpawner> {
   const repoRoot = yield* findRepoRoot().pipe(
-    Effect.mapError((cause) => new QualityScriptCommandError({ message: "Failed to locate repository root.", cause }))
+    Effect.mapError((cause) => QualityScriptCommandError.make({ message: "Failed to locate repository root.", cause }))
   );
 
   const label = check ? "quality:repo-exports-catalog-check" : "quality:repo-exports-catalog";
@@ -1627,7 +1627,7 @@ const bunAuditCommand = Command.make("bun-audit", {}, () =>
   runQualityProgram(
     findRepoRoot().pipe(
       Effect.mapError(
-        (cause) => new QualityScriptCommandError({ message: "Failed to locate repository root.", cause })
+        (cause) => QualityScriptCommandError.make({ message: "Failed to locate repository root.", cause })
       ),
       Effect.flatMap(runBunAudit)
     )
@@ -1678,13 +1678,13 @@ const changesetGraphCommand = Command.make("changeset-graph", {}, () =>
   runQualityProgram(
     findRepoRoot().pipe(
       Effect.mapError(
-        (cause) => new QualityScriptCommandError({ message: "Failed to locate repository root.", cause })
+        (cause) => QualityScriptCommandError.make({ message: "Failed to locate repository root.", cause })
       ),
       Effect.flatMap((repoRoot) =>
         runChangesetGraphCheck(repoRoot).pipe(
           Effect.mapError(
             (error) =>
-              new QualityScriptCommandError({
+              QualityScriptCommandError.make({
                 message: error.message,
                 command: "bun run beep quality changeset-graph",
                 exitCode: 1,

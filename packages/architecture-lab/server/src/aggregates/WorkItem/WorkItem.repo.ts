@@ -30,7 +30,7 @@ const getStoredWorkItem = Effect.fn("ArchitectureLab.WorkItemRepository.getStore
   const workItems = yield* Ref.get(store);
   const found = HashMap.get(workItems, id);
   if (O.isNone(found)) {
-    return yield* new WorkItemUseCaseServer.WorkItem.WorkItemRepositoryNotFound({ workItemId: id });
+    return yield* WorkItemUseCaseServer.WorkItem.WorkItemRepositoryNotFound.make({ workItemId: id });
   }
   return found.value;
 });
@@ -50,7 +50,7 @@ export const makeInMemoryWorkItemRepository = Effect.fn("ArchitectureLab.WorkIte
       create: Effect.fn("ArchitectureLab.WorkItemRepository.create")(function* (workItem) {
         const workItems = yield* Ref.get(store);
         if (O.isSome(HashMap.get(workItems, workItem.id))) {
-          return yield* new WorkItemUseCaseServer.WorkItem.WorkItemRepositoryConflict({
+          return yield* WorkItemUseCaseServer.WorkItem.WorkItemRepositoryConflict.make({
             workItemId: workItem.id,
             reason: `${config.serverConfig.repositoryName} already contains ${WORK_ITEM_TABLE_NAME}`,
           });
@@ -87,7 +87,7 @@ const repositoryUnavailable =
       ),
       Effect.mapError(
         () =>
-          new WorkItemUseCaseServer.WorkItem.WorkItemRepositoryUnavailable({
+          WorkItemUseCaseServer.WorkItem.WorkItemRepositoryUnavailable.make({
             reason: `${operation} failed against ${WORK_ITEM_TABLE_NAME}`,
           })
       )
@@ -113,7 +113,7 @@ const getDrizzleWorkItem = Effect.fn("ArchitectureLab.WorkItemRepository.getDriz
 ) {
   const found = yield* findDrizzleWorkItem(db, id);
   if (O.isNone(found)) {
-    return yield* new WorkItemUseCaseServer.WorkItem.WorkItemRepositoryNotFound({ workItemId: id });
+    return yield* WorkItemUseCaseServer.WorkItem.WorkItemRepositoryNotFound.make({ workItemId: id });
   }
   return found.value;
 });
@@ -131,7 +131,7 @@ export const makeDrizzleWorkItemRepository = Effect.fn("ArchitectureLab.WorkItem
     create: Effect.fn("ArchitectureLab.WorkItemRepository.drizzleCreate")(function* (workItem) {
       const existing = yield* findDrizzleWorkItem(db, workItem.id);
       if (O.isSome(existing)) {
-        return yield* new WorkItemUseCaseServer.WorkItem.WorkItemRepositoryConflict({
+        return yield* WorkItemUseCaseServer.WorkItem.WorkItemRepositoryConflict.make({
           workItemId: workItem.id,
           reason: `${WORK_ITEM_TABLE_NAME} already contains ${workItem.id}`,
         });

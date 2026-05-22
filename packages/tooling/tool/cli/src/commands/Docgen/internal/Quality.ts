@@ -474,7 +474,7 @@ const runGitLines = Effect.fn("DocgenQuality.runGitLines")(function* (repoRoot: 
       );
       const exitCode = yield* handle.exitCode;
       if (exitCode !== 0) {
-        return yield* new DomainError({ message: `git ${A.join(args, " ")} failed with exit code ${exitCode}.` });
+        return yield* DomainError.make({ message: `git ${A.join(args, " ")} failed with exit code ${exitCode}.` });
       }
       return text;
     })
@@ -568,7 +568,7 @@ export const resolveDocgenQualityTargets = Effect.fn("DocgenQuality.resolveDocge
   yield* assertNoOrphanDocgenConfigPaths();
 
   if (countSelectedScopes(packageSelector, all, changedFiles) > 1) {
-    return yield* new DomainError({
+    return yield* DomainError.make({
       message: "Choose only one docgen quality scope: --package, --all, or --changed-files.",
     });
   }
@@ -948,7 +948,7 @@ const collectDiagnostics = (
       const source = diagnostic.getSourceFile();
       const start = diagnostic.getStart();
       const line = source === undefined || start === undefined ? startLine : source.getLineAndColumnAtPos(start).line;
-      return new DocgenQualityDiagnostic({
+      return DocgenQualityDiagnostic.make({
         category: diagnosticCategory(diagnostic.getCategory()),
         code: diagnostic.getCode(),
         line,
@@ -1160,7 +1160,7 @@ const finalizeSubject = Effect.fn("DocgenQuality.finalizeSubject")(function* (
   );
   const { hashSourceText: _hashSourceText, identityStem, ...subject } = candidate;
   void _hashSourceText;
-  return new DocgenQualitySubject({
+  return DocgenQualitySubject.make({
     ...subject,
     stableIdentity: `${identityStem}:${Str.slice(0, 12)(contentHash)}`,
     contentHash,
@@ -1181,7 +1181,7 @@ const collectPackageSubjectCandidates = Effect.fn("DocgenQuality.collectPackageS
   const path = yield* Path.Path;
   const config = target.hasDocgenConfig
     ? yield* loadDocgenConfigDocument(target.absolutePath)
-    : new DocgenConfigDocument({
+    : DocgenConfigDocument.make({
         srcDir: "src",
         exclude: A.empty(),
       });
@@ -1275,7 +1275,7 @@ const withGeneratedDocSnippets = Effect.fn("DocgenQuality.withGeneratedDocSnippe
     );
     return snippet === subject.generatedDocSnippet
       ? subject
-      : new DocgenQualitySubject({
+      : DocgenQualitySubject.make({
           ...subject,
           generatedDocSnippet: snippet,
         });
@@ -1344,7 +1344,7 @@ const makeFinding = ({
   readonly scoreImpact: number;
   readonly tier: DocgenQualityTier;
 }): DocgenQualityFinding =>
-  new DocgenQualityFinding({
+  DocgenQualityFinding.make({
     code,
     evidence,
     message,
@@ -1495,7 +1495,7 @@ const scoreSubject = (subject: DocgenQualitySubject): DocgenQualityReview => {
           " "
         );
 
-  return new DocgenQualityReview({
+  return DocgenQualityReview.make({
     subjectId: subject.stableIdentity,
     tier,
     score,
@@ -1510,7 +1510,7 @@ const summarizeReviews = (
   reviews: ReadonlyArray<DocgenQualityReview>,
   remediationPackets: number
 ): DocgenQualitySummary =>
-  new DocgenQualitySummary({
+  DocgenQualitySummary.make({
     packages,
     subjects,
     passing: A.filter(reviews, (review) => review.tier === "pass").length,
@@ -1532,7 +1532,7 @@ const emptyPackageReport = ({
   readonly target: DocgenWorkspacePackage;
   readonly timedOut: boolean;
 }): DocgenQualityPackageReport =>
-  new DocgenQualityPackageReport({
+  DocgenQualityPackageReport.make({
     packageName: target.name,
     packagePath: target.relativePath,
     status,
@@ -1568,7 +1568,7 @@ const makeRemediationPacket = (
   subject: DocgenQualitySubject,
   review: DocgenQualityReview
 ): DocgenQualityRemediationPacket =>
-  new DocgenQualityRemediationPacket({
+  DocgenQualityRemediationPacket.make({
     id: `${subject.contentHash}:jsdoc-quality`,
     subjectId: subject.stableIdentity,
     title: `Improve JSDoc for ${subject.exportName}`,
@@ -1628,7 +1628,7 @@ const withRemediationPacketCount = (
   remediationPackets: number,
   omittedPacketCount: number
 ): DocgenQualityPackageReport =>
-  new DocgenQualityPackageReport({
+  DocgenQualityPackageReport.make({
     ...pkg,
     omittedPacketCount,
     summary: summarizeReviews(1, pkg.subjects.length, pkg.reviews, remediationPackets),
@@ -1645,7 +1645,7 @@ const packageReport = (
   }
 ): DocgenQualityPackageReport => {
   const reviews = A.map(subjects, scoreSubject);
-  return new DocgenQualityPackageReport({
+  return DocgenQualityPackageReport.make({
     packageName: target.name,
     packagePath: target.relativePath,
     status: options.status,
@@ -1798,7 +1798,7 @@ export const analyzeDocgenQuality = Effect.fn("DocgenQuality.analyzeDocgenQualit
   );
   const remediationPackets = A.map(selectedCandidates, (candidate) => candidate.packet);
 
-  return new DocgenQualityReport({
+  return DocgenQualityReport.make({
     schemaVersion: QUALITY_SCHEMA_VERSION,
     rubricVersion: QUALITY_RUBRIC_VERSION,
     generatedAt: timestampIso(),

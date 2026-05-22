@@ -12,12 +12,12 @@ import { describe, expect, it } from "vitest";
 describe("@beep/infra AIMetrics", () => {
   it("keeps stack args import-safe and target-aware", () => {
     const args = makeAIMetricsStackArgs(
-      new AiMetricsInstallInput({
+      AiMetricsInstallInput.make({
         hashSaltSecretRef: "op://TBK/ai-metrics/hash-salt",
         rawArchiveKeySecretRef: "op://TBK/ai-metrics/raw-archive-key",
         target: AiMetricsDeployTarget.Enum.dankserver,
       }),
-      new AIMetricsRemoteDeploymentConfig({})
+      AIMetricsRemoteDeploymentConfig.make({})
     );
 
     expect(args.install.target).toBe("dankserver");

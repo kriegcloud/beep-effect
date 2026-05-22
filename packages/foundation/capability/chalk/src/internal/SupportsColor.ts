@@ -142,19 +142,19 @@ const decodeRuntimeProcessLike = S.decodeUnknownOption(RuntimeProcessLikeModel);
 const normalizeStreamLike = (stream: StreamLike): StreamLikeModel =>
   pipe(
     decodeStreamLike(stream),
-    O.getOrElse(() => new StreamLikeModel({}))
+    O.getOrElse(() => StreamLikeModel.make({}))
   );
 
 const normalizeSupportsColorOptions = (options: SupportsColorOptions): SupportsColorOptionsModel =>
   pipe(
     decodeSupportsColorOptions(options),
-    O.getOrElse(() => new SupportsColorOptionsModel({}))
+    O.getOrElse(() => SupportsColorOptionsModel.make({}))
   );
 
 const normalizeRuntimeProcessLike = (runtimeProcessLike: RuntimeProcessLike): RuntimeProcessLikeModel =>
   pipe(
     decodeRuntimeProcessLike(runtimeProcessLike),
-    O.getOrElse(() => new RuntimeProcessLikeModel({}))
+    O.getOrElse(() => RuntimeProcessLikeModel.make({}))
   );
 
 const level0: ColorSupportLevelType = 0;
@@ -293,7 +293,7 @@ const translateLevel = (level: ColorSupportLevel): ColorInfo =>
     Match.when(level0, () => false as const),
     Match.orElse(
       (enabledLevel) =>
-        new ColorSupport({
+        ColorSupport.make({
           has16m: enabledLevel >= 3,
           has256: enabledLevel >= 2,
           hasBasic: true,

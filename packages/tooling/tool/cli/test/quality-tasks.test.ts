@@ -102,7 +102,7 @@ const expectedTurboArgs = (task: string, args: ReadonlyArray<string>): ReadonlyA
   ...args,
 ];
 const bunScriptStep = (label: string, source: string) =>
-  new QualityTaskStep({
+  QualityTaskStep.make({
     label,
     command: "bun",
     args: ["-e", source],

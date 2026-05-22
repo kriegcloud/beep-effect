@@ -20,7 +20,7 @@ const $I = $FfmpegId.create("FFmpeg.errors");
  * ```ts
  * import { FFmpegErrorContext } from "@beep/ffmpeg"
  *
- * const context = new FFmpegErrorContext({ command: "ffmpeg", exitCode: 1 })
+ * const context = FFmpegErrorContext.make({ command: "ffmpeg", exitCode: 1 })
  * void context
  * ```
  *
@@ -51,7 +51,7 @@ const existingFfmpegError = (cause: unknown): O.Option<FFmpegError> =>
  * ```ts
  * import { FFmpegErrorFromUnknownOptions } from "@beep/ffmpeg"
  *
- * const options = new FFmpegErrorFromUnknownOptions({
+ * const options = FFmpegErrorFromUnknownOptions.make({
  *   command: "ffmpeg",
  *   exitCode: 1,
  *   stderr: "invalid input"
@@ -84,7 +84,7 @@ export class FFmpegErrorFromUnknownOptions extends S.Class<FFmpegErrorFromUnknow
  * ```ts
  * import { FFmpegError } from "@beep/ffmpeg"
  *
- * const error = new FFmpegError({ message: "ffmpeg failed", operation: "extractFrames" })
+ * const error = FFmpegError.make({ message: "ffmpeg failed", operation: "extractFrames" })
  * void error.message
  * ```
  *
@@ -128,7 +128,7 @@ export class FFmpegError extends TaggedErrorClass<FFmpegError>($I`FFmpegError`)(
     return O.getOrElse(
       existingFfmpegError(cause),
       () =>
-        new FFmpegError({
+        FFmpegError.make({
           ...context,
           cause: causeFromUnknown(cause),
           message,

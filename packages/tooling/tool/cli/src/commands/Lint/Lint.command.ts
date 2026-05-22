@@ -98,7 +98,7 @@ const lineNumberAt = (content: string, offset: number): number =>
 const toLintFileDiscoveryError =
   (root: string, currentPath: string, action: string) =>
   (cause: unknown): LintFileDiscoveryError =>
-    new LintFileDiscoveryError({
+    LintFileDiscoveryError.make({
       message: `${action} "${currentPath}" while collecting TypeScript files under "${root}": ${Inspectable.toStringUnknown(
         cause,
         0
@@ -357,7 +357,7 @@ const runLintToolingSchemaFirst = Effect.fn("runLintToolingSchemaFirst")(functio
     const pushViolation = (kind: string, detail: string, offset = 0): void => {
       violations = A.append(
         violations,
-        new LintViolation({
+        LintViolation.make({
           file,
           line: lineNumberAt(content, offset),
           kind,
@@ -472,7 +472,7 @@ const runLintToolingSchemaFirst = Effect.fn("runLintToolingSchemaFirst")(functio
       if (usesLiteralKitPattern && !usesTaggedUnionFallback) {
         violations = A.append(
           violations,
-          new LintViolation({
+          LintViolation.make({
             file,
             line: lineNumberAt(content, match.index),
             kind: "tagged-union-pattern",
@@ -486,7 +486,7 @@ const runLintToolingSchemaFirst = Effect.fn("runLintToolingSchemaFirst")(functio
     if (!found) {
       violations = A.append(
         violations,
-        new LintViolation({
+        LintViolation.make({
           file: TOOLING_ROOT,
           line: 1,
           kind: "missing-schema",
@@ -527,7 +527,7 @@ const runLintCircular = Effect.fn("runLintCircular")(function* () {
           detectiveOptions: { ts: { skipTypeImports: true } },
         }),
       catch: (cause) =>
-        new LintCircularAnalysisError({
+        LintCircularAnalysisError.make({
           message: `Failed to analyze circular deps in ${dir}: ${Inspectable.toStringUnknown(cause, 0)}`,
         }),
     });

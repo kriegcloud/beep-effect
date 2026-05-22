@@ -11,7 +11,7 @@
  * import { NotFoundError, makeBadRequestError } from "@beep/observability"
  *
  * const failNotFound = Effect.fail(
- *   new NotFoundError({ cause: Option.none(), message: "missing", status: 404 })
+ *   NotFoundError.make({ cause: Option.none(), message: "missing", status: 404 })
  * )
  *
  * const failBadReq = Effect.fail(makeBadRequestError("missing field"))
@@ -78,7 +78,7 @@ const statusFields = <Status extends S.Top>(status: Status) =>
  * import { Effect, Option } from "effect"
  * import { ClientHttpError } from "@beep/observability"
  *
- * const err = new ClientHttpError({
+ * const err = ClientHttpError.make({
  *   cause: Option.none(),
  *   message: "invalid input",
  *   status: 400
@@ -113,7 +113,7 @@ export class ClientHttpError extends TaggedErrorClass<ClientHttpError>($I`Client
  * import { Effect, Option } from "effect"
  * import { ServerHttpError } from "@beep/observability"
  *
- * const err = new ServerHttpError({
+ * const err = ServerHttpError.make({
  *   cause: Option.none(),
  *   message: "server failed",
  *   status: 500
@@ -148,7 +148,7 @@ export class ServerHttpError extends TaggedErrorClass<ServerHttpError>($I`Server
  * import { Effect, Option } from "effect"
  * import { BadRequestError } from "@beep/observability"
  *
- * const err = new BadRequestError({ cause: Option.none(), message: "invalid input", status: 400 })
+ * const err = BadRequestError.make({ cause: Option.none(), message: "invalid input", status: 400 })
  * void Effect.fail(err)
  * ```
  *
@@ -174,7 +174,7 @@ export class BadRequestError extends TaggedErrorClass<BadRequestError>($I`BadReq
  * import { Effect, Option } from "effect"
  * import { UnauthorizedError } from "@beep/observability"
  *
- * const err = new UnauthorizedError({ cause: Option.none(), message: "token expired", status: 401 })
+ * const err = UnauthorizedError.make({ cause: Option.none(), message: "token expired", status: 401 })
  * void Effect.fail(err)
  * ```
  *
@@ -200,7 +200,7 @@ export class UnauthorizedError extends TaggedErrorClass<UnauthorizedError>($I`Un
  * import { Effect, Option } from "effect"
  * import { ForbiddenError } from "@beep/observability"
  *
- * const err = new ForbiddenError({ cause: Option.none(), message: "access denied", status: 403 })
+ * const err = ForbiddenError.make({ cause: Option.none(), message: "access denied", status: 403 })
  * void Effect.fail(err)
  * ```
  *
@@ -226,7 +226,7 @@ export class ForbiddenError extends TaggedErrorClass<ForbiddenError>($I`Forbidde
  * import { Effect, Option } from "effect"
  * import { NotFoundError } from "@beep/observability"
  *
- * const err = new NotFoundError({ cause: Option.none(), message: "user not found", status: 404 })
+ * const err = NotFoundError.make({ cause: Option.none(), message: "user not found", status: 404 })
  * void Effect.fail(err)
  * ```
  *
@@ -252,7 +252,7 @@ export class NotFoundError extends TaggedErrorClass<NotFoundError>($I`NotFoundEr
  * import { Effect, Option } from "effect"
  * import { ConflictError } from "@beep/observability"
  *
- * const err = new ConflictError({ cause: Option.none(), message: "duplicate entry", status: 409 })
+ * const err = ConflictError.make({ cause: Option.none(), message: "duplicate entry", status: 409 })
  * void Effect.fail(err)
  * ```
  *
@@ -278,7 +278,7 @@ export class ConflictError extends TaggedErrorClass<ConflictError>($I`ConflictEr
  * import { Effect, Option } from "effect"
  * import { UnprocessableEntityError } from "@beep/observability"
  *
- * const err = new UnprocessableEntityError({ cause: Option.none(), message: "validation failed", status: 422 })
+ * const err = UnprocessableEntityError.make({ cause: Option.none(), message: "validation failed", status: 422 })
  * void Effect.fail(err)
  * ```
  *
@@ -304,7 +304,7 @@ export class UnprocessableEntityError extends TaggedErrorClass<UnprocessableEnti
  * import { Effect, Option } from "effect"
  * import { TooManyRequestsError } from "@beep/observability"
  *
- * const err = new TooManyRequestsError({ cause: Option.none(), message: "rate limit exceeded", status: 429 })
+ * const err = TooManyRequestsError.make({ cause: Option.none(), message: "rate limit exceeded", status: 429 })
  * void Effect.fail(err)
  * ```
  *
@@ -330,7 +330,7 @@ export class TooManyRequestsError extends TaggedErrorClass<TooManyRequestsError>
  * import { Effect, Option } from "effect"
  * import { InternalServerErrorError } from "@beep/observability"
  *
- * const err = new InternalServerErrorError({ cause: Option.none(), message: "unexpected failure", status: 500 })
+ * const err = InternalServerErrorError.make({ cause: Option.none(), message: "unexpected failure", status: 500 })
  * void Effect.fail(err)
  * ```
  *
@@ -356,7 +356,7 @@ export class InternalServerErrorError extends TaggedErrorClass<InternalServerErr
  * import { Effect, Option } from "effect"
  * import { BadGatewayError } from "@beep/observability"
  *
- * const err = new BadGatewayError({ cause: Option.none(), message: "upstream unavailable", status: 502 })
+ * const err = BadGatewayError.make({ cause: Option.none(), message: "upstream unavailable", status: 502 })
  * void Effect.fail(err)
  * ```
  *
@@ -382,7 +382,7 @@ export class BadGatewayError extends TaggedErrorClass<BadGatewayError>($I`BadGat
  * import { Effect, Option } from "effect"
  * import { ServiceUnavailableError } from "@beep/observability"
  *
- * const err = new ServiceUnavailableError({ cause: Option.none(), message: "service down", status: 503 })
+ * const err = ServiceUnavailableError.make({ cause: Option.none(), message: "service down", status: 503 })
  * void Effect.fail(err)
  * ```
  *
@@ -408,7 +408,7 @@ export class ServiceUnavailableError extends TaggedErrorClass<ServiceUnavailable
  * import { Effect, Option } from "effect"
  * import { GatewayTimeoutError } from "@beep/observability"
  *
- * const err = new GatewayTimeoutError({ cause: Option.none(), message: "upstream timed out", status: 504 })
+ * const err = GatewayTimeoutError.make({ cause: Option.none(), message: "upstream timed out", status: 504 })
  * void Effect.fail(err)
  * ```
  *

@@ -223,7 +223,7 @@ const probeCommand = (
       const output = Str.trim(`${stdout}${stderr}`);
       const present = exitCode === 0;
 
-      return new HostDependencyValidationResult({
+      return HostDependencyValidationResult.make({
         dependency: {
           detectedVersion: present && Str.isNonEmpty(output) ? O.some(output) : O.none(),
           id: probe.id,
@@ -239,7 +239,7 @@ const probeCommand = (
   ).pipe(
     Effect.catch(() =>
       Effect.succeed(
-        new HostDependencyValidationResult({
+        HostDependencyValidationResult.make({
           dependency: {
             detectedVersion: O.none(),
             id: probe.id,
@@ -257,17 +257,17 @@ const probeCommand = (
 
 const proofCapabilities = (discordSummary: string) =>
   [
-    new ManifestCapability({
+    ManifestCapability.make({
       id: "provider-claude",
       label: "Claude Provider",
       summary: "Claude local-session status was validated in Manual Mode.",
     }),
-    new ManifestCapability({
+    ManifestCapability.make({
       id: "provider-codex",
       label: "Codex Provider",
       summary: "Codex local-session status was validated in Manual Mode.",
     }),
-    new ManifestCapability({
+    ManifestCapability.make({
       id: "channel-discord",
       label: "Discord Channel",
       summary: discordSummary,
@@ -281,7 +281,7 @@ const validationEvent = (
   subject: string,
   message: string
 ) =>
-  new ValidationEvent({
+  ValidationEvent.make({
     id,
     message,
     status,
@@ -297,10 +297,10 @@ const manifestForRequest = (
     readonly dryRunOnly: boolean;
   }
 ) =>
-  new AIStackManifest({
+  AIStackManifest.make({
     capabilities: proofCapabilities(options.discordSummary),
     credentialReferences: [request.discordBotTokenReference],
-    discordChannel: new ManifestDiscordChannel({
+    discordChannel: ManifestDiscordChannel.make({
       channelId: request.discordChannelId,
       displayName: request.discordChannelDisplayName,
       guildId: request.discordGuildId,
@@ -355,7 +355,7 @@ export const makeSecretReferenceServer = Effect.fn("InstallerServer.makeSecretRe
     previewSecretReferences: Effect.succeed(plan),
     readSecretReference: Effect.fn("InstallerServer.readSecretReference")(function* (reference: OnePasswordReference) {
       if (!isApprovedReference(reference)) {
-        return yield* new SecretReferenceReadError({
+        return yield* SecretReferenceReadError.make({
           message: "Refusing to resolve unapproved 1Password reference.",
           reference,
         });
@@ -364,7 +364,7 @@ export const makeSecretReferenceServer = Effect.fn("InstallerServer.makeSecretRe
       return yield* onePassword.read(reference).pipe(
         Effect.mapError(
           () =>
-            new SecretReferenceReadError({
+            SecretReferenceReadError.make({
               message: "Unable to resolve approved 1Password reference.",
               reference,
             })
@@ -378,7 +378,7 @@ export const makeSecretReferenceServer = Effect.fn("InstallerServer.makeSecretRe
       const approved = approvedValidationRequest(request);
 
       if (O.isNone(approved)) {
-        return new SecretReferenceValidationResult({
+        return SecretReferenceValidationResult.make({
           message: "1Password reference is not approved for this installer proof.",
           purpose: request.purpose,
           reference: request.reference,
@@ -390,7 +390,7 @@ export const makeSecretReferenceServer = Effect.fn("InstallerServer.makeSecretRe
       return yield* onePassword.probeReference(request.reference).pipe(
         Effect.match({
           onFailure: () =>
-            new SecretReferenceValidationResult({
+            SecretReferenceValidationResult.make({
               message: "1Password reference could not be resolved.",
               purpose: request.purpose,
               reference: request.reference,
@@ -398,7 +398,7 @@ export const makeSecretReferenceServer = Effect.fn("InstallerServer.makeSecretRe
               usedBy: request.usedBy,
             }),
           onSuccess: (probe) =>
-            new SecretReferenceValidationResult({
+            SecretReferenceValidationResult.make({
               message: "1Password reference resolved without exposing its value.",
               purpose: request.purpose,
               reference: request.reference,
@@ -428,7 +428,7 @@ export const makeProviderAccountServer = Effect.fn("InstallerServer.makeProvider
     return yield* providerCli.checkAuth(provider).pipe(
       Effect.match({
         onFailure: () =>
-          new ProviderAuthValidationResult({
+          ProviderAuthValidationResult.make({
             authMode: "existing-local-session",
             command: provider,
             message: "Provider CLI status command could not run.",
@@ -436,7 +436,7 @@ export const makeProviderAccountServer = Effect.fn("InstallerServer.makeProvider
             status: "missing",
           }),
         onSuccess: (probe) =>
-          new ProviderAuthValidationResult({
+          ProviderAuthValidationResult.make({
             authMode: "existing-local-session",
             command: probe.command,
             message:
@@ -475,16 +475,16 @@ export const makeDiscordChannelServer = Effect.fn("InstallerServer.makeDiscordCh
       const request = yield* decodeDiscordLiveValidationRequest(rawRequest);
 
       return yield* Effect.gen(function* () {
-        yield* discord.getChannel(new DiscordChannelRequest({ channelId: request.channel.channelId }), botToken);
+        yield* discord.getChannel(DiscordChannelRequest.make({ channelId: request.channel.channelId }), botToken);
         const message = yield* discord.createMessage(
-          new DiscordCreateMessageRequest({
+          DiscordCreateMessageRequest.make({
             channelId: request.channel.channelId,
             content: request.testMessageContent,
           }),
           botToken
         );
 
-        return new DiscordLiveValidationResult({
+        return DiscordLiveValidationResult.make({
           channel: {
             ...request.channel,
             status: "configured",
@@ -498,7 +498,7 @@ export const makeDiscordChannelServer = Effect.fn("InstallerServer.makeDiscordCh
       }).pipe(
         Effect.match({
           onFailure: () =>
-            new DiscordLiveValidationResult({
+            DiscordLiveValidationResult.make({
               channel: {
                 ...request.channel,
                 status: "missing",
@@ -545,7 +545,7 @@ export const makeP1ManualProofWorkflow = Effect.fn("InstallerServer.makeP1Manual
     const request = yield* decodeP1ManualProofRequest(rawRequest);
     const dependencyValidations = yield* hostDependencies.validateRequiredCommands;
     const secretValidation = yield* secretReferences.validateSecretReference(
-      new SecretReferenceValidationRequest({
+      SecretReferenceValidationRequest.make({
         id: "discord-bot-token",
         purpose: "discord-bot-token",
         reference: request.discordBotTokenReference,
@@ -561,7 +561,7 @@ export const makeP1ManualProofWorkflow = Effect.fn("InstallerServer.makeP1Manual
     A.map(
       providerValidations,
       (provider) =>
-        new ManifestProvider({
+        ManifestProvider.make({
           authMode: provider.authMode,
           provider: provider.provider,
           status: provider.status,
@@ -603,8 +603,8 @@ export const makeP1ManualProofWorkflow = Effect.fn("InstallerServer.makeP1Manual
         dryRunOnly: true,
       });
 
-      return new P1ManualProofResult({
-        snapshot: new P1LiveProofSnapshot({
+      return P1ManualProofResult.make({
+        snapshot: P1LiveProofSnapshot.make({
           generatedBy: `@beep/stack-installer:${request.operatorLabel}`,
           manifest,
           validationEvents: [
@@ -634,7 +634,7 @@ export const makeP1ManualProofWorkflow = Effect.fn("InstallerServer.makeP1Manual
       const { dependencyValidations, providerValidations, request, secretValidation } =
         yield* validateSharedInputs(rawRequest);
       const botToken = yield* secretReferences.readSecretReference(request.discordBotTokenReference);
-      const channel = new DiscordChannel({
+      const channel = DiscordChannel.make({
         botTokenReference: request.discordBotTokenReference,
         channelId: request.discordChannelId,
         displayName: request.discordChannelDisplayName,
@@ -644,7 +644,7 @@ export const makeP1ManualProofWorkflow = Effect.fn("InstallerServer.makeP1Manual
         status: "unchecked",
       });
       const discordValidation = yield* discordChannels.validateDiscordChannel(
-        new DiscordLiveValidationRequest({
+        DiscordLiveValidationRequest.make({
           channel,
           testMessageContent: request.testMessageContent,
         }),
@@ -662,8 +662,8 @@ export const makeP1ManualProofWorkflow = Effect.fn("InstallerServer.makeP1Manual
         dryRunOnly: false,
       });
 
-      return new P1ManualProofResult({
-        snapshot: new P1LiveProofSnapshot({
+      return P1ManualProofResult.make({
+        snapshot: P1LiveProofSnapshot.make({
           generatedBy: `@beep/stack-installer:${request.operatorLabel}`,
           manifest,
           validationEvents: [

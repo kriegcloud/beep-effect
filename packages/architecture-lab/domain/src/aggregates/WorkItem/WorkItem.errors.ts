@@ -62,7 +62,7 @@ export class WorkItemInvalidTransition extends TaggedErrorClass<WorkItemInvalidT
     readonly from: WorkItemStatus;
     readonly to: WorkItemStatus;
   }) {
-    return new WorkItemInvalidTransition({
+    return WorkItemInvalidTransition.make({
       workItemId: input.workItemId,
       from: input.from,
       to: input.to,

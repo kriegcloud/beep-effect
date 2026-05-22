@@ -69,7 +69,7 @@ describe("@beep/sandbox lifecycle foundation", () => {
           Effect.sync(() => {
             appendCommandCwd(commands, command, options?.cwd);
 
-            return new ExecResult({
+            return ExecResult.make({
               exitCode: 0,
               stderr: "",
               stdout: command === "echo sandbox" ? "sandbox\n" : "unexpected\n",
@@ -82,7 +82,7 @@ describe("@beep/sandbox lifecycle foundation", () => {
       }).pipe(provideScopedLayer(DisplayLayer));
       const expanded = yield* expandPromptShellExpressions(
         sandbox,
-        new ExpandPromptShellExpressionsOptions({
+        ExpandPromptShellExpressionsOptions.make({
           cwd: "/sandbox/repo",
           prompt,
         })
@@ -105,7 +105,7 @@ describe("@beep/sandbox lifecycle foundation", () => {
         SandboxProcess.of({
           run: Effect.fn("SandboxProcess.run")((command) =>
             Effect.succeed(
-              new ProcessResult({
+              ProcessResult.make({
                 exitCode: 0,
                 stderr: "",
                 stdout:
@@ -121,7 +121,7 @@ describe("@beep/sandbox lifecycle foundation", () => {
             Effect.sync(() => {
               appendCommandCwd(hostShellCalls, command, options?.cwd);
 
-              return new ProcessResult({ exitCode: 0, stderr: "", stdout: "" });
+              return ProcessResult.make({ exitCode: 0, stderr: "", stdout: "" });
             })
           ),
         })
@@ -137,21 +137,21 @@ describe("@beep/sandbox lifecycle foundation", () => {
               A.appendInPlace(sandboxExecCalls, { command, options });
             }
 
-            return new ExecResult({ exitCode: 0, stderr: "", stdout: "" });
+            return ExecResult.make({ exitCode: 0, stderr: "", stdout: "" });
           }),
         worktreePath: "/sandbox/repo",
       };
 
       yield* prepareSandboxLifecycle(
         sandbox,
-        new SandboxLifecycleSetupOptions({
-          hooks: new SandboxHooks({
-            host: new HostLifecycleHooks({
-              onSandboxReady: [new HostLifecycleHookCommand({ command: "echo host-ready > marker" })],
+        SandboxLifecycleSetupOptions.make({
+          hooks: SandboxHooks.make({
+            host: HostLifecycleHooks.make({
+              onSandboxReady: [HostLifecycleHookCommand.make({ command: "echo host-ready > marker" })],
             }),
-            sandbox: new SandboxLifecycleHooks({
+            sandbox: SandboxLifecycleHooks.make({
               onSandboxReady: [
-                new SandboxLifecycleHookCommand({
+                SandboxLifecycleHookCommand.make({
                   command: "apt-get install -y git",
                   sudo: true,
                 }),
@@ -182,13 +182,13 @@ describe("@beep/sandbox lifecycle foundation", () => {
         SandboxProcess,
         SandboxProcess.of({
           run: Effect.fn("SandboxProcess.run")(() =>
-            Effect.succeed(new ProcessResult({ exitCode: 0, stderr: "", stdout: "" }))
+            Effect.succeed(ProcessResult.make({ exitCode: 0, stderr: "", stdout: "" }))
           ),
           runShell: Effect.fn("SandboxProcess.runShell")(() => Effect.never),
         })
       );
       const fiber = yield* runHostHooks(
-        [new HostLifecycleHookCommand({ command: "slow-hook", timeoutMs: Duration.millis(5) })],
+        [HostLifecycleHookCommand.make({ command: "slow-hook", timeoutMs: Duration.millis(5) })],
         "/repo"
       ).pipe(Effect.flip, provideScopedLayer(ProcessLayer), Effect.forkChild);
 
@@ -217,7 +217,7 @@ describe("@beep/sandbox lifecycle foundation", () => {
             Effect.sync(() => {
               appendArgsCwd(gitCalls, command.args, command.cwd);
 
-              return new ProcessResult({
+              return ProcessResult.make({
                 exitCode: 0,
                 stderr: "",
                 stdout: A.contains(command.args, "--count") ? "1\n" : "",
@@ -225,12 +225,12 @@ describe("@beep/sandbox lifecycle foundation", () => {
             })
           ),
           runShell: Effect.fn("SandboxProcess.runShell")(() =>
-            Effect.succeed(new ProcessResult({ exitCode: 0, stderr: "", stdout: "" }))
+            Effect.succeed(ProcessResult.make({ exitCode: 0, stderr: "", stdout: "" }))
           ),
         })
       );
       const merged = yield* mergeToHead(
-        new MergeToHeadOptions({
+        MergeToHeadOptions.make({
           baseHead: "base",
           hostRepoDir: "/host/repo",
           sourceBranch: "sandcastle/test",

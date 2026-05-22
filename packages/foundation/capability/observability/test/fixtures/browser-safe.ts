@@ -17,12 +17,12 @@ const coreConfig = {
   minLogLevel: "Info",
 } satisfies ObservabilityCoreConfig;
 
-const loggingConfig = new LoggingConfig({
+const loggingConfig = LoggingConfig.make({
   format: "pretty",
   minLogLevel: "Info",
 });
 
-const webConfig = new WebObservabilityConfig({
+const webConfig = WebObservabilityConfig.make({
   serviceName: "beep-web",
   serviceVersion: "0.0.0",
   environment: "test",
@@ -33,10 +33,10 @@ const webConfig = new WebObservabilityConfig({
 void coreConfig;
 void loggingConfig;
 void layerWebSdk(webConfig);
-void new PrettyLoggerConfig({ theme: "ocean", bannerMode: "all" });
+void PrettyLoggerConfig.make({ theme: "ocean", bannerMode: "all" });
 void renderLogBanner("Browser Safe", {
   kind: "startup",
-  pretty: new PrettyLoggerConfig({ theme: "ocean", bannerMode: "all" }),
+  pretty: PrettyLoggerConfig.make({ theme: "ocean", bannerMode: "all" }),
 });
 void statusClass(200);
 void summarizeCause(Cause.fail(new Error("fixture")));

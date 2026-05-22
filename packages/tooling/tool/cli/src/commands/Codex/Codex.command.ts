@@ -24,7 +24,7 @@ const textEncoder = new TextEncoder();
  * @example
  * ```ts
  * import { CodexCommandError } from "@beep/repo-cli/commands/Codex"
- * const error = new CodexCommandError({ message: "failed" })
+ * const error = CodexCommandError.make({ message: "failed" })
  * ```
  * @category errors
  * @since 0.0.0
@@ -75,7 +75,7 @@ export const runCodexQualityReviewFixLoop = Effect.fn("Codex.runCodexQualityRevi
   summaryParts: ReadonlyArray<string>
 ): Effect.fn.Return<void, CodexCommandError, FileSystem.FileSystem | ChildProcessSpawner.ChildProcessSpawner> {
   const repoRoot = yield* findRepoRoot().pipe(
-    Effect.mapError((cause) => new CodexCommandError({ message: "Failed to locate repository root.", cause }))
+    Effect.mapError((cause) => CodexCommandError.make({ message: "Failed to locate repository root.", cause }))
   );
   const initiativeSummary = A.isReadonlyArrayEmpty(summaryParts) ? defaultInitiativeSummary : A.join(summaryParts, " ");
   const prompt = qualityReviewPrompt(initiativeSummary);
@@ -93,7 +93,7 @@ export const runCodexQualityReviewFixLoop = Effect.fn("Codex.runCodexQualityRevi
   ).pipe(
     Effect.mapError(
       (cause) =>
-        new CodexCommandError({
+        CodexCommandError.make({
           message: "Failed to spawn codex quality-review-fix-loop.",
           cause,
         })
@@ -101,7 +101,7 @@ export const runCodexQualityReviewFixLoop = Effect.fn("Codex.runCodexQualityRevi
   );
 
   if (exitCode !== 0) {
-    return yield* new CodexCommandError({
+    return yield* CodexCommandError.make({
       message: `codex quality-review-fix-loop failed with exit code ${exitCode}.`,
       exitCode,
     });

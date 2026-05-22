@@ -64,7 +64,7 @@ export class CanvasProjectInvalidTransition extends TaggedErrorClass<CanvasProje
     readonly from: CanvasProjectStatus;
     readonly to: CanvasProjectStatus;
   }) {
-    return new CanvasProjectInvalidTransition({
+    return CanvasProjectInvalidTransition.make({
       canvasProjectId: input.canvasProjectId,
       from: input.from,
       to: input.to,

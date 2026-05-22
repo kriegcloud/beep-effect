@@ -150,13 +150,13 @@ function collectSchemaEntries(chunk: string): ReadonlyArray<SchemaEntry> {
 
     const constLine = lines[index + 1];
     if (!P.isString(constLine) || !Str.startsWith("export const ")(constLine)) {
-      throw new AcpGeneratorOutputError({ message: `Malformed generator output near: ${typeLine}` });
+      throw AcpGeneratorOutputError.make({ message: `Malformed generator output near: ${typeLine}` });
     }
 
     const match = /^export type ([A-Za-z0-9_]+)/.exec(typeLine);
     const schemaName = match?.[1];
     if (schemaName === undefined) {
-      throw new AcpGeneratorOutputError({ message: `Could not extract schema name from: ${typeLine}` });
+      throw AcpGeneratorOutputError.make({ message: `Could not extract schema name from: ${typeLine}` });
     }
 
     entries = A.append(entries, {

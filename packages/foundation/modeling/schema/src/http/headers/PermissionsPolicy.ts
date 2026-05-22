@@ -298,7 +298,7 @@ export const PermissionsPolicyHeader = S.Union([PermissionsPolicyOption, S.Undef
       const decodedOption = yield* S.decodeUnknownEffect(PermissionsPolicyOptionStruct)(option).pipe(
         Effect.mapError(
           (cause) =>
-            new PermissionsPolicyError({
+            PermissionsPolicyError.make({
               message: cause.message,
               cause: O.none(),
             })

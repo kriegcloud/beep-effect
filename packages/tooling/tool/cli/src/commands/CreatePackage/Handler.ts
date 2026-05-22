@@ -86,7 +86,7 @@ export const resolveCreatePackageTemplateDir = Effect.fn(function* (
     }
   }
 
-  return yield* new DomainError({
+  return yield* DomainError.make({
     message: `Unable to resolve create-package templates. Checked:\n${Text.joinLines(
       A.map(candidates, (candidate) => `  - ${candidate}`)
     )}`,
@@ -196,15 +196,15 @@ const isPackageName = S.is(PackageName);
  * @since 0.0.0
  */
 const TEMPLATE_SPECS: ReadonlyArray<TemplateSpec> = [
-  new TemplateSpec({ templateName: "tsconfig.json.hbs", outputPath: "tsconfig.json" }),
-  new TemplateSpec({ templateName: "tsconfig.test.json.hbs", outputPath: "tsconfig.test.json" }),
-  new TemplateSpec({ templateName: "src-index.ts.hbs", outputPath: "src/index.ts" }),
-  new TemplateSpec({ templateName: "LICENSE.hbs", outputPath: "LICENSE" }),
-  new TemplateSpec({ templateName: "README.md.hbs", outputPath: "README.md" }),
-  new TemplateSpec({ templateName: "AGENTS.md.hbs", outputPath: "AGENTS.md" }),
-  new TemplateSpec({ templateName: "docgen.json.hbs", outputPath: "docgen.json" }),
-  new TemplateSpec({ templateName: "vitest.config.ts.hbs", outputPath: "vitest.config.ts" }),
-  new TemplateSpec({ templateName: "docs-index.md.hbs", outputPath: "docs/index.md" }),
+  TemplateSpec.make({ templateName: "tsconfig.json.hbs", outputPath: "tsconfig.json" }),
+  TemplateSpec.make({ templateName: "tsconfig.test.json.hbs", outputPath: "tsconfig.test.json" }),
+  TemplateSpec.make({ templateName: "src-index.ts.hbs", outputPath: "src/index.ts" }),
+  TemplateSpec.make({ templateName: "LICENSE.hbs", outputPath: "LICENSE" }),
+  TemplateSpec.make({ templateName: "README.md.hbs", outputPath: "README.md" }),
+  TemplateSpec.make({ templateName: "AGENTS.md.hbs", outputPath: "AGENTS.md" }),
+  TemplateSpec.make({ templateName: "docgen.json.hbs", outputPath: "docgen.json" }),
+  TemplateSpec.make({ templateName: "vitest.config.ts.hbs", outputPath: "vitest.config.ts" }),
+  TemplateSpec.make({ templateName: "docs-index.md.hbs", outputPath: "docs/index.md" }),
 ];
 
 /**
@@ -474,7 +474,7 @@ const resolveIdentityPackagesFilePath = Effect.fn(function* (repoRoot: string) {
   const identityWorkspaceDir = yield* getWorkspaceDir(repoRoot, IDENTITY_PACKAGE_NAME);
 
   if (O.isNone(identityWorkspaceDir)) {
-    return yield* new DomainError({
+    return yield* DomainError.make({
       message: `Unable to resolve ${IDENTITY_PACKAGE_NAME} workspace for package identity registration.`,
     });
   }
@@ -574,7 +574,7 @@ export const createPackageCommand = Command.make(
 
     // ── Validate type ──────────────────────────────────────────────────
     if (!isPackageType(type)) {
-      return yield* new DomainError({
+      return yield* DomainError.make({
         message: `Invalid package type "${type}". Must be one of: ${A.join(VALID_TYPES, ", ")}`,
       });
     }
@@ -582,7 +582,7 @@ export const createPackageCommand = Command.make(
 
     // ── Validate family/kind ──────────────────────────────────────────
     if (Str.isNonEmpty(familyOption) && P.not(isPackageFamily)(familyOption)) {
-      return yield* new DomainError({
+      return yield* DomainError.make({
         message: `Invalid package family "${familyOption}". Must be one of: ${A.join(VALID_FAMILIES, ", ")}`,
       });
     }
@@ -591,7 +591,7 @@ export const createPackageCommand = Command.make(
       : O.none();
 
     if (O.isNone(requestedPackageFamily) && Str.isNonEmpty(kindOption)) {
-      return yield* new DomainError({
+      return yield* DomainError.make({
         message: `Package kind "${kindOption}" requires --family foundation or --family tooling.`,
       });
     }
@@ -601,7 +601,7 @@ export const createPackageCommand = Command.make(
       packageFamilyEquivalence(requestedPackageFamily.value, "foundation") &&
       !isFoundationKind(kindOption)
     ) {
-      return yield* new DomainError({
+      return yield* DomainError.make({
         message: `Invalid foundation kind "${kindOption}". Must be one of: ${A.join(VALID_FOUNDATION_KINDS, ", ")}`,
       });
     }
@@ -614,7 +614,7 @@ export const createPackageCommand = Command.make(
       packageFamilyEquivalence(requestedPackageFamily.value, "tooling") &&
       !isToolingKind(kindOption)
     ) {
-      return yield* new DomainError({
+      return yield* DomainError.make({
         message: `Invalid tooling kind "${kindOption}". Must be one of: ${A.join(VALID_TOOLING_KINDS, ", ")}`,
       });
     }
@@ -627,7 +627,7 @@ export const createPackageCommand = Command.make(
       packageFamilyEquivalence(requestedPackageFamily.value, "drivers") &&
       Str.isNonEmpty(kindOption)
     ) {
-      return yield* new DomainError({
+      return yield* DomainError.make({
         message: `Drivers packages are a flat family and do not accept --kind.`,
       });
     }
@@ -649,7 +649,7 @@ export const createPackageCommand = Command.make(
 
     // ── Validate package name ─────────────────────────────────────────
     if (!isPackageName(name)) {
-      return yield* new DomainError({
+      return yield* DomainError.make({
         message: `Invalid package name "${name}". Must start with a lowercase letter or underscore, contain only [a-z0-9._-].`,
       });
     }
@@ -657,7 +657,7 @@ export const createPackageCommand = Command.make(
     // ── Resolve directory name ─────────────────────────────────────────
     const dirName = Str.isNonEmpty(dirNameOverride) ? dirNameOverride : name;
     if (Str.isNonEmpty(dirNameOverride) && !isPackageName(dirName)) {
-      return yield* new DomainError({
+      return yield* DomainError.make({
         message: `Invalid dir name "${dirName}". Must start with a lowercase letter or underscore, contain only [a-z0-9._-].`,
       });
     }
@@ -665,7 +665,7 @@ export const createPackageCommand = Command.make(
     // ── Resolve parent directory ───────────────────────────────────────
     if (O.isSome(requestedPackageFamily) && Str.isNonEmpty(parentDirOverride)) {
       const kindHint = O.isSome(packageKind) ? ` --kind ${packageKind.value}` : "";
-      return yield* new DomainError({
+      return yield* DomainError.make({
         message: `${requestedPackageFamily.value} package paths are derived from --family ${requestedPackageFamily.value}${kindHint}; omit --parent-dir.`,
       });
     }
@@ -681,7 +681,7 @@ export const createPackageCommand = Command.make(
             : "packages/tooling/library";
     const parentDir = Str.isNonEmpty(parentDirOverride) ? parentDirOverride : defaultParentDir;
     if (!isParentDir(parentDir)) {
-      return yield* new DomainError({
+      return yield* DomainError.make({
         message: `Invalid parent dir "${parentDir}". Use a repo-relative path like "packages/tooling/library", "apps", or "packages/shared".`,
       });
     }
@@ -702,7 +702,7 @@ export const createPackageCommand = Command.make(
     if (!dryRun) {
       const alreadyExists = yield* fs.exists(outputDir).pipe(Effect.orElseSucceed(thunkFalse));
       if (alreadyExists) {
-        return yield* new DomainError({
+        return yield* DomainError.make({
           message: `Directory already exists: ${outputDir}\nRemove it first or choose a different package name.`,
         });
       }
@@ -747,7 +747,7 @@ export const createPackageCommand = Command.make(
 
     // ── Build template context ─────────────────────────────────────────
     const currentYear = `${DateTime.getPartUtc(DateTime.nowUnsafe(), "year")}`;
-    const ctx = new TemplateContext({
+    const ctx = TemplateContext.make({
       name,
       scopedName: `@beep/${name}`,
       type: packageType,
@@ -766,7 +766,7 @@ export const createPackageCommand = Command.make(
     // ── Render templates and generate plan ─────────────────────────────
     const templateDir = yield* resolveCreatePackageTemplateDir();
     const templateFiles = yield* templateService.renderTemplates(
-      new TemplateRenderRequest({
+      TemplateRenderRequest.make({
         templateDir,
         templates: TEMPLATE_SPECS,
         context: { ...ctx },
@@ -782,21 +782,21 @@ export const createPackageCommand = Command.make(
     const packageJson = yield* generatePackageJson(name, packageType, description, packagePath, packageMetadata);
 
     const plan = fileGenerationPlanService.createPlan(
-      new FileGenerationPlanInput({
+      FileGenerationPlanInput.make({
         outputDir,
         directories: PACKAGE_DIRECTORIES,
         files: pipe(
           A.make(
-            A.of(new PlannedFile({ relativePath: "package.json", content: packageJson })),
-            A.map(templateFiles, (file) => new PlannedFile({ relativePath: file.outputPath, content: file.content })),
+            A.of(PlannedFile.make({ relativePath: "package.json", content: packageJson })),
+            A.map(templateFiles, (file) => PlannedFile.make({ relativePath: file.outputPath, content: file.content })),
             [
-              new PlannedFile({ relativePath: "test/.gitkeep", content: "" }),
-              new PlannedFile({ relativePath: "dtslint/.gitkeep", content: "" }),
+              PlannedFile.make({ relativePath: "test/.gitkeep", content: "" }),
+              PlannedFile.make({ relativePath: "dtslint/.gitkeep", content: "" }),
             ]
           ),
           A.flatten
         ),
-        symlinks: A.of(new PlannedSymlink({ relativePath: "CLAUDE.md", target: "AGENTS.md" })),
+        symlinks: A.of(PlannedSymlink.make({ relativePath: "CLAUDE.md", target: "AGENTS.md" })),
       })
     );
 

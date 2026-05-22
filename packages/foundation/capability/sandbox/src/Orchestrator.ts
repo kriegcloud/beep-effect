@@ -117,7 +117,7 @@ const runAgentIteration: <R>(
   yield* display.status(label(`Iteration ${index}/${options.iterations}`), "Info");
   const prompt = yield* expandPromptShellExpressions(
     options.sandbox,
-    new ExpandPromptShellExpressionsOptions({
+    ExpandPromptShellExpressionsOptions.make({
       cwd: options.sandboxRepoDir,
       prompt: options.prompt,
       ...(P.isUndefined(options.promptExpansionTimeoutMs) ? {} : { timeoutMs: options.promptExpansionTimeoutMs }),
@@ -134,7 +134,7 @@ const runAgentIteration: <R>(
   };
   const exec = options.sandbox.exec(
     command.command,
-    new SandboxExecOptions({
+    SandboxExecOptions.make({
       cwd: options.sandboxRepoDir,
       onLine,
       ...(P.isUndefined(command.stdin) ? {} : { stdin: command.stdin }),
@@ -242,14 +242,14 @@ export const orchestrate: <R>(
       }
     }
 
-    A.appendInPlace(iterations, new IterationResult({ ...(sessionId === undefined ? {} : { sessionId }) }));
+    A.appendInPlace(iterations, IterationResult.make({ ...(sessionId === undefined ? {} : { sessionId }) }));
     completionSignal = firstMatchedSignal(stdout, signals);
     if (P.isNotUndefined(completionSignal)) {
       break;
     }
   }
 
-  return new OrchestrateResult({
+  return OrchestrateResult.make({
     branch: options.branch,
     commits: [],
     ...(P.isUndefined(completionSignal) ? {} : { completionSignal }),

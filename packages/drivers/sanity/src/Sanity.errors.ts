@@ -111,7 +111,7 @@ export class SanityError extends TaggedErrorClass<SanityError>($I`SanityError`)(
    * @since 0.0.0
    */
   static readonly fromReason = (reason: SanityErrorReason, options: SanityErrorOptions = {}): SanityError =>
-    new SanityError({
+    SanityError.make({
       reason,
       ...R.getSomes({
         cause: causeFromUnknown(options.cause),
@@ -132,7 +132,7 @@ export class SanityError extends TaggedErrorClass<SanityError>($I`SanityError`)(
  * ```ts
  * import { SanityErrorOptions } from "@beep/sanity"
  *
- * const options = new SanityErrorOptions({
+ * const options = SanityErrorOptions.make({
  *   status: 500,
  *   url: "https://api.sanity.io/v2025-05-14/data/query/production"
  * })

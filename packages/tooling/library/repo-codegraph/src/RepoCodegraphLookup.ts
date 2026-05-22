@@ -184,7 +184,7 @@ const scoreEntry = (
   const graph = graphScore(entry);
   const boundaryComponent = boundaryScore(boundary.status);
 
-  return new RepoCodegraphLookupScore({
+  return RepoCodegraphLookupScore.make({
     boundary: boundaryComponent,
     exact,
     graph,
@@ -292,7 +292,7 @@ const boundaryAdvice = (
       O.map((selector) => `Caller package selector "${selector}" did not match any catalog package.`),
       O.getOrElse(() => "No caller package was supplied; lookup can only show legal public exports.")
     );
-    return new RepoCodegraphBoundaryAdvice({
+    return RepoCodegraphBoundaryAdvice.make({
       citations: [],
       reason,
       status: "unknown",
@@ -300,7 +300,7 @@ const boundaryAdvice = (
   }
 
   if (fromPackage.package.value.packageName === target.packageName) {
-    return new RepoCodegraphBoundaryAdvice({
+    return RepoCodegraphBoundaryAdvice.make({
       citations: [...boundaryCitations],
       reason: "Caller and target are the same package.",
       status: "allowed",
@@ -311,7 +311,7 @@ const boundaryAdvice = (
   const targetFamily = packageFamily(target.packagePath);
 
   if (targetFamily === "foundation") {
-    return new RepoCodegraphBoundaryAdvice({
+    return RepoCodegraphBoundaryAdvice.make({
       citations: [...boundaryCitations],
       reason: "Foundation packages are the shared low-level surface for higher packages.",
       status: "allowed",
@@ -322,7 +322,7 @@ const boundaryAdvice = (
     sourceFamily === "foundation" &&
     (targetFamily === "tooling" || targetFamily === "drivers" || targetFamily === "app")
   ) {
-    return new RepoCodegraphBoundaryAdvice({
+    return RepoCodegraphBoundaryAdvice.make({
       citations: [...boundaryCitations],
       reason: "Foundation packages should not depend upward into tooling, drivers, or apps.",
       status: "blocked",
@@ -330,7 +330,7 @@ const boundaryAdvice = (
   }
 
   if (sourceFamily === "tooling") {
-    return new RepoCodegraphBoundaryAdvice({
+    return RepoCodegraphBoundaryAdvice.make({
       citations: [...boundaryCitations],
       reason:
         "Tooling may consume public tooling, foundation, and driver surfaces when the package dependency allows it.",
@@ -339,14 +339,14 @@ const boundaryAdvice = (
   }
 
   if ((sourceFamily === "domain" || sourceFamily === "use-cases") && targetFamily === "drivers") {
-    return new RepoCodegraphBoundaryAdvice({
+    return RepoCodegraphBoundaryAdvice.make({
       citations: [...boundaryCitations],
       reason: "Domain and use-case packages should keep external driver dependencies at explicit boundaries.",
       status: "blocked",
     });
   }
 
-  return new RepoCodegraphBoundaryAdvice({
+  return RepoCodegraphBoundaryAdvice.make({
     citations: [...boundaryCitations],
     reason: `No precise boundary rule was encoded for ${sourceFamily} -> ${targetFamily}; treat this as advisory.`,
     status: "advisory",
@@ -460,7 +460,7 @@ const legalImportCandidates = (
     entries,
     A.map((candidate) => {
       const isRecommended = candidate.importSpecifier === recommendedEntry.importSpecifier;
-      return new RepoCodegraphImportCandidate({
+      return RepoCodegraphImportCandidate.make({
         exportSubpath: candidate.exportSubpath,
         importSpecifier: candidate.importSpecifier,
         isRecommended,
@@ -482,7 +482,7 @@ const toLookupMatch = (
     A.head,
     O.getOrElse(
       () =>
-        new RepoCodegraphImportCandidate({
+        RepoCodegraphImportCandidate.make({
           exportSubpath: scored.entry.exportSubpath,
           importSpecifier: scored.entry.importSpecifier,
           isRecommended: true,
@@ -492,7 +492,7 @@ const toLookupMatch = (
   );
   const summary = Str.isNonEmpty(Str.trim(scored.entry.summary)) ? O.some(scored.entry.summary) : O.none<string>();
 
-  return new RepoCodegraphLookupMatch({
+  return RepoCodegraphLookupMatch.make({
     boundary: scored.boundary,
     exportKind: scored.entry.exportKind,
     legalImports,
@@ -559,14 +559,14 @@ const lookupRepoExportsBody = (
   const warnings =
     freshnessStatus === "unchecked" ? [defaultFreshnessWarning, ...fromPackageWarning] : fromPackageWarning;
 
-  return new RepoCodegraphLookupResult({
+  return RepoCodegraphLookupResult.make({
     freshnessStatus,
     fromPackage: request.fromPackage,
     limit: request.limit,
     matches,
     query: request.query,
     schemaVersion: "repo-codegraph.lookup/v1",
-    totals: new RepoCodegraphLookupTotals({
+    totals: RepoCodegraphLookupTotals.make({
       catalogEntries: A.length(entries),
       matchedEntries: A.length(scored),
       returnedMatches: A.length(matches),

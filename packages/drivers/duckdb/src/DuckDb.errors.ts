@@ -28,7 +28,7 @@ const existingDuckDbError = (cause: unknown): O.Option<DuckDbError> =>
  * ```ts
  * import { DuckDbErrorFromUnknownOptions } from "@beep/duckdb"
  *
- * const options = new DuckDbErrorFromUnknownOptions({
+ * const options = DuckDbErrorFromUnknownOptions.make({
  *   databasePath: "metrics.duckdb",
  *   statement: "select 1"
  * })
@@ -59,7 +59,7 @@ export class DuckDbErrorFromUnknownOptions extends S.Class<DuckDbErrorFromUnknow
  * ```ts
  * import { DuckDbError } from "@beep/duckdb"
  *
- * const error = new DuckDbError({
+ * const error = DuckDbError.make({
  *   message: "DuckDB query failed.",
  *   operation: "query"
  * })
@@ -109,7 +109,7 @@ export class DuckDbError extends TaggedErrorClass<DuckDbError>($I`DuckDbError`)(
       O.getOrElse(
         existingDuckDbError(cause),
         () =>
-          new DuckDbError({
+          DuckDbError.make({
             ...R.getSomes({ cause: O.fromUndefinedOr(causeFromUnknown(cause)) }),
             ...R.getSomes({ databasePath: O.fromUndefinedOr(options.databasePath) }),
             message: options.message ?? "DuckDB operation failed.",

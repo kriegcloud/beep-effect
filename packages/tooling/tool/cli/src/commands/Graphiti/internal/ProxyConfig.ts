@@ -194,7 +194,7 @@ export class GraphitiProxyConfigLoadError extends TaggedErrorClass<GraphitiProxy
   })
 ) {
   static readonly new = (message: string) => (cause: unknown) =>
-    new GraphitiProxyConfigLoadError({
+    GraphitiProxyConfigLoadError.make({
       message,
       cause,
     });
@@ -227,7 +227,7 @@ export const loadGraphitiProxyConfig = Effect.gen(function* () {
   const graphitiContainer = yield* Config.option(Config.string("GRAPHITI_PROXY_GRAPHITI_CONTAINER"));
   const upstream = yield* Config.option(Config.string("GRAPHITI_PROXY_UPSTREAM"));
 
-  const raw = new GraphitiProxyConfigInput(
+  const raw = GraphitiProxyConfigInput.make(
     R.getSomes({
       listenHost,
       listenPort,

@@ -27,21 +27,21 @@ describe("@beep/sandbox types", () => {
   it("keeps provider constructors and run typed", () => {
     const agent = claudeCode();
     const codexAgent = codex("gpt-5.4");
-    const piAgent = pi("sonnet-4.5", new PiOptions({ env: { PI_API_KEY: "test" } }));
-    const opencodeAgent = opencode("qwen/qwen3-coder", new OpenCodeOptions({ env: { OPEN_CODE: "1" } }));
-    const sandbox = noSandbox(new NoSandboxOptions({}));
-    const dockerProvider = docker(new ContainerProviderOptions({ imageName: "sandbox:latest" }));
-    const podmanProvider = podman(new ContainerProviderOptions({ imageName: "sandbox:latest" }));
+    const piAgent = pi("sonnet-4.5", PiOptions.make({ env: { PI_API_KEY: "test" } }));
+    const opencodeAgent = opencode("qwen/qwen3-coder", OpenCodeOptions.make({ env: { OPEN_CODE: "1" } }));
+    const sandbox = noSandbox(NoSandboxOptions.make({}));
+    const dockerProvider = docker(ContainerProviderOptions.make({ imageName: "sandbox:latest" }));
+    const podmanProvider = podman(ContainerProviderOptions.make({ imageName: "sandbox:latest" }));
     const program = run({
       agent,
-      branchStrategy: new HeadBranchStrategy({}),
+      branchStrategy: HeadBranchStrategy.make({}),
       prompt: "hello",
       sandbox,
-      timeouts: new Timeouts({ copyToWorktreeMs: Duration.millis(1) }),
+      timeouts: Timeouts.make({ copyToWorktreeMs: Duration.millis(1) }),
     });
 
     expect(
-      codexAgent.buildPrintCommand(new AgentCommandOptions({ dangerouslySkipPermissions: true, prompt: "x" }))
+      codexAgent.buildPrintCommand(AgentCommandOptions.make({ dangerouslySkipPermissions: true, prompt: "x" }))
     ).type.toBeAssignableTo<{
       readonly command: string;
     }>();

@@ -225,7 +225,7 @@ const parseImageRef = (service: string, image: string, yamlPath: ReadonlyArray<s
   // Detect official images (no slash) vs namespaced
   const registry = slashIdx < 0 ? "library" : "";
 
-  return new DockerImageRef({ service, fullImage: image, registry, repository, tag, yamlPath });
+  return DockerImageRef.make({ service, fullImage: image, registry, repository, tag, yamlPath });
 };
 
 const dockerHubTagsUrl = (repository: string): string => {
@@ -342,13 +342,13 @@ export const resolveDockerImages: {
     const composeExists = yield* fs.exists(composePath).pipe(Effect.orElseSucceed(thunkFalse));
 
     if (!composeExists) {
-      return new DockerImageState({});
+      return DockerImageState.make({});
     }
 
     const content = yield* fs.readFileString(composePath).pipe(
       Effect.mapError(
         (e) =>
-          new VersionSyncError({
+          VersionSyncError.make({
             message: `Failed to read docker-compose.yml: ${Inspectable.toStringUnknown(e, 0)}`,
             file: "docker-compose.yml",
           })
@@ -358,7 +358,7 @@ export const resolveDockerImages: {
     const composeDocument = yield* decodeYamlTextAs(DockerComposeDocument)(content).pipe(
       Effect.mapError(
         (e) =>
-          new VersionSyncError({
+          VersionSyncError.make({
             message: `Failed to parse docker-compose.yml: ${e.message}`,
             file: "docker-compose.yml",
           })
@@ -378,17 +378,17 @@ export const resolveDockerImages: {
       const ref = parseImageRef(serviceName, imageStr, yamlPath);
 
       if (skipNetwork) {
-        images = A.append(images, new DockerImageElement({ ...ref, latest: O.none() }));
+        images = A.append(images, DockerImageElement.make({ ...ref, latest: O.none() }));
         continue;
       }
 
       // Fetch latest tag from Docker Hub
       const latest = yield* fetchLatestDockerTag(ref).pipe(Effect.map(O.some), Effect.orElseSucceed(O.none<string>));
 
-      images = A.append(images, new DockerImageElement({ ...ref, latest }));
+      images = A.append(images, DockerImageElement.make({ ...ref, latest }));
     }
 
-    return new DockerImageState({ images });
+    return DockerImageState.make({ images });
   })
 );
 
@@ -407,7 +407,7 @@ const fetchLatestDockerTag: (
   const response = yield* client.get(url, { headers: { "User-Agent": "beep-cli/0.0.0" } }).pipe(
     Effect.mapError(
       (e) =>
-        new NetworkUnavailableError({
+        NetworkUnavailableError.make({
           message: `Docker Hub API request failed for ${ref.repository}: ${Inspectable.toStringUnknown(e, 0)}`,
         })
     )
@@ -416,7 +416,7 @@ const fetchLatestDockerTag: (
   const body = yield* HttpClientResponse.schemaBodyJson(DockerTagsResponse)(response).pipe(
     Effect.mapError(
       (e) =>
-        new NetworkUnavailableError({
+        NetworkUnavailableError.make({
           message: `Failed to parse Docker Hub response for ${ref.repository}: ${Inspectable.toStringUnknown(e, 0)}`,
         })
     )
@@ -434,7 +434,7 @@ const fetchLatestDockerTag: (
   );
 
   if (O.isNone(result)) {
-    return yield* new NetworkUnavailableError({
+    return yield* NetworkUnavailableError.make({
       message: `No suitable tag found for ${ref.repository}`,
     });
   }
@@ -465,7 +465,7 @@ export const buildDockerReport: (state: DockerImageState) => VersionCategoryRepo
     if (O.isSome(img.latest) && !stringEquivalence(img.tag, img.latest.value)) {
       items = A.append(
         items,
-        new VersionDriftItem({
+        VersionDriftItem.make({
           file: "docker-compose.yml",
           field: `image (${img.service})`,
           current: img.fullImage,
@@ -477,7 +477,7 @@ export const buildDockerReport: (state: DockerImageState) => VersionCategoryRepo
       // Tag is "latest" but we couldn't resolve — still report as unpinned
       items = A.append(
         items,
-        new VersionDriftItem({
+        VersionDriftItem.make({
           file: "docker-compose.yml",
           field: `image (${img.service})`,
           current: img.fullImage,
@@ -488,7 +488,7 @@ export const buildDockerReport: (state: DockerImageState) => VersionCategoryRepo
     } else if (isMajorOnly && O.isNone(img.latest)) {
       items = A.append(
         items,
-        new VersionDriftItem({
+        VersionDriftItem.make({
           file: "docker-compose.yml",
           field: `image (${img.service})`,
           current: img.fullImage,
@@ -499,7 +499,7 @@ export const buildDockerReport: (state: DockerImageState) => VersionCategoryRepo
     }
   }
 
-  return new VersionCategoryReport.cases.docker({
+  return VersionCategoryReport.cases.docker.make({
     status: A.match(items, {
       onEmpty: VersionCategoryStatusThunk.ok,
       onNonEmpty: () =>

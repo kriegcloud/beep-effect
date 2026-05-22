@@ -197,7 +197,7 @@ export class TsMorphIntegrationResult extends S.Class<TsMorphIntegrationResult>(
     description: "Batch mutation result.",
   })
 ) {
-  static readonly new = (outcomes: ReadonlyArray<TsMorphMutationOutcome>) => new TsMorphIntegrationResult({ outcomes });
+  static readonly new = (outcomes: ReadonlyArray<TsMorphMutationOutcome>) => TsMorphIntegrationResult.make({ outcomes });
 }
 
 /**
@@ -237,7 +237,7 @@ export class TsMorphIntegrationService extends Context.Service<
 const UnsupportedTsMorphAdapter: TsMorphMutationAdapter = {
   applyMutation: (mutation) =>
     Effect.succeed(
-      new TsMorphMutationOutcome.cases.skipped({
+      TsMorphMutationOutcome.cases.skipped.make({
         mutation,
         detail:
           "No ts-morph-morph adapter configured. Provide a TsMorphMutationAdapter before executing AST mutations.",

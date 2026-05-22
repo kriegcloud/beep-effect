@@ -68,7 +68,7 @@ export const updateYamlValue: {
     const original = yield* fs.readFileString(filePath).pipe(
       Effect.mapError(
         (e) =>
-          new VersionSyncError({
+          VersionSyncError.make({
             message: `Failed to read ${filePath}: ${Inspectable.toStringUnknown(e, 0)}`,
             file: filePath,
           })
@@ -92,7 +92,7 @@ export const updateYamlValue: {
     yield* fs.writeFileString(filePath, updated).pipe(
       Effect.mapError(
         (e) =>
-          new VersionSyncError({
+          VersionSyncError.make({
             message: `Failed to write ${filePath}: ${Inspectable.toStringUnknown(e, 0)}`,
             file: filePath,
           })
@@ -132,7 +132,7 @@ export const replaceNodeVersionWithFile: {
     const original = yield* fs.readFileString(filePath).pipe(
       Effect.mapError(
         (e) =>
-          new VersionSyncError({
+          VersionSyncError.make({
             message: `Failed to read ${filePath}: ${Inspectable.toStringUnknown(e, 0)}`,
             file: filePath,
           })
@@ -174,7 +174,7 @@ export const replaceNodeVersionWithFile: {
     yield* fs.writeFileString(filePath, updated).pipe(
       Effect.mapError(
         (e) =>
-          new VersionSyncError({
+          VersionSyncError.make({
             message: `Failed to write ${filePath}: ${Inspectable.toStringUnknown(e, 0)}`,
             file: filePath,
           })

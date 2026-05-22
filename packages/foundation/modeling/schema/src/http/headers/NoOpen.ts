@@ -107,7 +107,7 @@ export const NoOpenHeader = S.UndefinedOr(NoOpenOption).pipe(
           return O.some(option);
         }
 
-        return yield* new NoOpenError({
+        return yield* NoOpenError.make({
           message: `Invalid value for ${headerName}: ${option}`,
           cause: O.none(),
         });

@@ -18,12 +18,12 @@ declare const service: DrizzleShape;
 describe("@beep/drizzle", () => {
   it("exports the single public DrizzleError shape", () => {
     expect(
-      new DrizzleError({ operation: "execute", cause: O.none(), query: O.none(), params: O.none() })
+      DrizzleError.make({ operation: "execute", cause: O.none(), query: O.none(), params: O.none() })
     ).type.toBe<DrizzleError>();
-    expect(new DrizzleErrorContext({ query: "select 1", params: [] })).type.toBe<DrizzleErrorContext>();
+    expect(DrizzleErrorContext.make({ query: "select 1", params: [] })).type.toBe<DrizzleErrorContext>();
     expect(DrizzleError.fromUnknown("execute")).type.toBe<DrizzleError>();
     expect(DrizzleError.fromUnknown("execute", new Error("boom"))).type.toBe<DrizzleError>();
-    expect(DrizzleError.fromUnknown("execute", new Error("boom"), new DrizzleErrorContext())).type.toBe<DrizzleError>();
+    expect(DrizzleError.fromUnknown("execute", new Error("boom"), DrizzleErrorContext.make())).type.toBe<DrizzleError>();
     expect<DrizzleError["_tag"]>().type.toBe<"DrizzleError">();
     expect<DrizzleError["operation"]>().type.toBe<string>();
     expect<DrizzleError["cause"]>().type.toBe<O.Option<unknown>>();
@@ -31,10 +31,10 @@ describe("@beep/drizzle", () => {
     expect<DrizzleError["params"]>().type.toBe<O.Option<ReadonlyArray<unknown>>>();
 
     // @ts-expect-error!
-    new DrizzleError({ cause: O.none() });
+    DrizzleError.make({ cause: O.none() });
 
     // @ts-expect-error!
-    new DrizzleError({ operation: "execute", cause: new Error("boom"), query: O.none(), params: O.none() });
+    DrizzleError.make({ operation: "execute", cause: new Error("boom"), query: O.none(), params: O.none() });
   });
 
   it("exports the product-neutral service and adapter types", () => {

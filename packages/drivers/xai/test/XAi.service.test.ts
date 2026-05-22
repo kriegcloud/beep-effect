@@ -75,7 +75,7 @@ const realtimeVoiceDescriptor = (): Effect.Effect<XAiEndpointDescriptor, XAiErro
     XAI_ENDPOINTS,
     A.findFirst((descriptor) => descriptor.methodName === "connectRealtimeVoice"),
     O.match({
-      onNone: () => Effect.fail(new XAiError({ reason: "request encoding" })),
+      onNone: () => Effect.fail(XAiError.make({ reason: "request encoding" })),
       onSome: Effect.succeed,
     })
   );
@@ -143,7 +143,7 @@ const TestHttpClientLayer = Layer.effect(
 
 const makeXAiUnitLayer = (): Layer.Layer<XAi | XAiTestHttp> =>
   XAi.makeLayer(
-    new XAiConfigInput({
+    XAiConfigInput.make({
       apiKey: Redacted.make("api-test-key"),
       apiUrl: XAI_API_URL,
       managementApiKey: Redacted.make("management-test-key"),
@@ -153,7 +153,7 @@ const makeXAiUnitLayer = (): Layer.Layer<XAi | XAiTestHttp> =>
 
 const makeInvalidWebSocketUrlLayer = (): Layer.Layer<XAi | XAiTestHttp> =>
   XAi.makeLayer(
-    new XAiConfigInput({
+    XAiConfigInput.make({
       apiKey: Redacted.make("api-test-key"),
       websocketUrl: "not a url",
     })
@@ -201,21 +201,21 @@ const requestFor = (descriptor: XAiEndpointDescriptor): XAiRequestOptions => {
   } satisfies ConstructorParameters<typeof XAiRequestOptions>[0];
 
   if (descriptor.body === "json") {
-    return new XAiRequestOptions({
+    return XAiRequestOptions.make({
       ...baseRequest,
       body: { model: "grok-4", prompt: "hello" },
     });
   }
 
   if (descriptor.body === "binary") {
-    return new XAiRequestOptions({
+    return XAiRequestOptions.make({
       ...baseRequest,
       bytes: new Uint8Array([1, 2, 3]),
       contentType: "application/octet-stream",
     });
   }
 
-  return new XAiRequestOptions({
+  return XAiRequestOptions.make({
     ...baseRequest,
     ...R.getSomes({
       formData: descriptor.body === "multipart" ? O.some(formData) : O.none(),
@@ -322,7 +322,7 @@ describe("@beep/xai", () => {
           Effect.succeed(new Response("data: nope\n\n", { headers: { "content-type": "text/event-stream" } }))
         );
         const sseError = yield* xai
-          .streamChatCompletion(new XAiRequestOptions({ body: { messages: [], model: "grok-4" } }))
+          .streamChatCompletion(XAiRequestOptions.make({ body: { messages: [], model: "grok-4" } }))
           .pipe(Stream.runCollect, Effect.flip);
 
         yield* testHttp.reset;
@@ -330,7 +330,7 @@ describe("@beep/xai", () => {
           Effect.succeed(new Response("ok", { headers: { "content-type": "text/plain" } }))
         );
         const nonSseError = yield* xai
-          .streamChatCompletion(new XAiRequestOptions({ body: { messages: [], model: "grok-4" } }))
+          .streamChatCompletion(XAiRequestOptions.make({ body: { messages: [], model: "grok-4" } }))
           .pipe(Stream.runCollect, Effect.flip);
 
         yield* testHttp.reset;
@@ -342,7 +342,7 @@ describe("@beep/xai", () => {
           )
         );
         const spoofedContentTypeError = yield* xai
-          .streamChatCompletion(new XAiRequestOptions({ body: { messages: [], model: "grok-4" } }))
+          .streamChatCompletion(XAiRequestOptions.make({ body: { messages: [], model: "grok-4" } }))
           .pipe(Stream.runCollect, Effect.flip);
 
         expect(statusError).toBeInstanceOf(XAiError);
@@ -490,14 +490,14 @@ describe("@beep/xai", () => {
       Effect.fnUntraced(function* () {
         const xai = yield* XAi;
 
-        const noneBodyError = yield* xai.listModels(new XAiRequestOptions({ body: {} })).pipe(Effect.flip);
+        const noneBodyError = yield* xai.listModels(XAiRequestOptions.make({ body: {} })).pipe(Effect.flip);
         const jsonBodyError = yield* xai
-          .createChatCompletion(new XAiRequestOptions({ bytes: new Uint8Array([1, 2, 3]) }))
+          .createChatCompletion(XAiRequestOptions.make({ bytes: new Uint8Array([1, 2, 3]) }))
           .pipe(Effect.flip);
-        const binaryBodyError = yield* xai.uploadFileChunks(new XAiRequestOptions({ body: {} })).pipe(Effect.flip);
-        const multipartBodyError = yield* xai.uploadFile(new XAiRequestOptions({ body: {} })).pipe(Effect.flip);
+        const binaryBodyError = yield* xai.uploadFileChunks(XAiRequestOptions.make({ body: {} })).pipe(Effect.flip);
+        const multipartBodyError = yield* xai.uploadFile(XAiRequestOptions.make({ body: {} })).pipe(Effect.flip);
         const websocketBodyError = yield* xai
-          .connectRealtimeVoice(new XAiRequestOptions({ body: {} }))
+          .connectRealtimeVoice(XAiRequestOptions.make({ body: {} }))
           .pipe(Effect.flip);
 
         expect(noneBodyError.reason).toBe("request encoding");
@@ -538,16 +538,16 @@ describe("@beep/xai", () => {
         );
 
         const chatEvents = yield* xai
-          .streamChatCompletion(new XAiRequestOptions({ body: { messages: [], model: "grok-4" } }))
+          .streamChatCompletion(XAiRequestOptions.make({ body: { messages: [], model: "grok-4" } }))
           .pipe(Stream.runCollect);
         const responseEvents = yield* xai
-          .streamResponse(new XAiRequestOptions({ body: { input: "hello", model: "grok-4" } }))
+          .streamResponse(XAiRequestOptions.make({ body: { input: "hello", model: "grok-4" } }))
           .pipe(Stream.runCollect);
         const legacyEvents = yield* xai
-          .streamLegacyCompletion(new XAiRequestOptions({ body: { model: "grok-2", prompt: "hello" } }))
+          .streamLegacyCompletion(XAiRequestOptions.make({ body: { model: "grok-2", prompt: "hello" } }))
           .pipe(Stream.runCollect);
         const anthropicEvents = yield* xai
-          .streamAnthropicMessage(new XAiRequestOptions({ body: { max_tokens: 8, messages: [], model: "grok-4" } }))
+          .streamAnthropicMessage(XAiRequestOptions.make({ body: { max_tokens: 8, messages: [], model: "grok-4" } }))
           .pipe(Stream.runCollect);
 
         expect(A.fromIterable(chatEvents)).toHaveLength(2);

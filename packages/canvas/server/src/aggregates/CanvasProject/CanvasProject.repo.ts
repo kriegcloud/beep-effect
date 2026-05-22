@@ -23,7 +23,7 @@ const getStoredCanvasProject = Effect.fn("Canvas.CanvasProjectRepository.getStor
   const canvasProjects = yield* Ref.get(store);
   const found = HashMap.get(canvasProjects, id);
   if (O.isNone(found)) {
-    return yield* new CanvasProjectUseCaseServer.CanvasProject.CanvasProjectRepositoryNotFound({ canvasProjectId: id });
+    return yield* CanvasProjectUseCaseServer.CanvasProject.CanvasProjectRepositoryNotFound.make({ canvasProjectId: id });
   }
   return found.value;
 });
@@ -49,7 +49,7 @@ export const makeInMemoryCanvasProjectRepository = Effect.fn("Canvas.CanvasProje
           return [O.some(canvasProject), HashMap.set(current, canvasProject.id, canvasProject)] as const;
         });
         if (O.isNone(inserted)) {
-          return yield* new CanvasProjectUseCaseServer.CanvasProject.CanvasProjectRepositoryConflict({
+          return yield* CanvasProjectUseCaseServer.CanvasProject.CanvasProjectRepositoryConflict.make({
             canvasProjectId: canvasProject.id,
             reason: `${CANVAS_PROJECT_STORE_NAME} already contains ${canvasProject.id}`,
           });

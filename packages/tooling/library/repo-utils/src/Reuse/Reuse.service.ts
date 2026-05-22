@@ -104,7 +104,7 @@ class WorkspacePackageManifest extends S.Class<WorkspacePackageManifest>($I`Work
  * @example
  * ```ts
  * import { ReuseAnalysisError } from "@beep/repo-utils/Reuse/Reuse.service"
- * const error = new ReuseAnalysisError({
+ * const error = ReuseAnalysisError.make({
  *   message: "Inventory scan failed",
  *   operation: "buildInventory"
  * })
@@ -130,7 +130,7 @@ export class ReuseAnalysisError extends TaggedErrorClass<ReuseAnalysisError>($I`
  * @example
  * ```ts
  * import { ReuseCandidateNotFoundError } from "@beep/repo-utils/Reuse/Reuse.service"
- * const error = new ReuseCandidateNotFoundError({
+ * const error = ReuseCandidateNotFoundError.make({
  *   candidateId: "candidate:missing",
  *   scopeSelector: "packages/tooling/library/repo-utils"
  * })
@@ -178,7 +178,7 @@ const WORKSPACE_PACKAGE_PATTERNS = [
 ] as const;
 
 const CURATED_EFFECT_V4_ENTRIES = [
-  new ReuseCatalogEntry({
+  ReuseCatalogEntry.make({
     id: "effect-v4-curated:Array",
     origin: "effect-v4-curated",
     packageName: "effect",
@@ -190,7 +190,7 @@ const CURATED_EFFECT_V4_ENTRIES = [
     keywords: ["array", "collections", "sort", "map", "filter", "partition"],
     applicability: ["collection-ops", "high-signal-effect-reuse"],
   }),
-  new ReuseCatalogEntry({
+  ReuseCatalogEntry.make({
     id: "effect-v4-curated:Option",
     origin: "effect-v4-curated",
     packageName: "effect",
@@ -202,7 +202,7 @@ const CURATED_EFFECT_V4_ENTRIES = [
     keywords: ["option", "absence", "nullable", "find", "lookup"],
     applicability: ["absence-handling", "high-signal-effect-reuse"],
   }),
-  new ReuseCatalogEntry({
+  ReuseCatalogEntry.make({
     id: "effect-v4-curated:Schema",
     origin: "effect-v4-curated",
     packageName: "effect",
@@ -214,7 +214,7 @@ const CURATED_EFFECT_V4_ENTRIES = [
     keywords: ["schema", "json", "decode", "encode", "class", "tagged"],
     applicability: ["schema-first", "json-boundaries", "high-signal-effect-reuse"],
   }),
-  new ReuseCatalogEntry({
+  ReuseCatalogEntry.make({
     id: "effect-v4-curated:String",
     origin: "effect-v4-curated",
     packageName: "effect",
@@ -340,7 +340,7 @@ const formatCauseMessage = (cause: unknown): string =>
   cause instanceof Error ? cause.message : Inspectable.toStringUnknown(cause, 2);
 
 const mkAnalysisError = (operation: string, message: string): ReuseAnalysisError =>
-  new ReuseAnalysisError({
+  ReuseAnalysisError.make({
     operation,
     message,
   });
@@ -479,7 +479,7 @@ const stableSourceSymbols = (symbols: ReadonlyArray<ReuseSourceSymbolRef>): Read
 };
 
 const sourceSymbolFromTsMorph = (symbol: TsMorphSymbol): ReuseSourceSymbolRef =>
-  new ReuseSourceSymbolRef({
+  ReuseSourceSymbolRef.make({
     symbolId: symbol.id,
     filePath: symbol.filePath,
     symbolName: symbol.name,
@@ -527,7 +527,7 @@ const candidateFromPattern = (
     A.map((entry) => entry.id)
   );
 
-  return new ReuseCandidate({
+  return ReuseCandidate.make({
     candidateId: `reuse-pattern:${pattern.id}`,
     kind: pattern.kind,
     title: pattern.title,
@@ -560,7 +560,7 @@ const scopeSelectorLabel = (scopeSelector: O.Option<string>, scopes: ReadonlyArr
 };
 
 const buildCatalogEntry = (scope: WorkspaceScope, symbol: TsMorphSymbol): ReuseCatalogEntry =>
-  new ReuseCatalogEntry({
+  ReuseCatalogEntry.make({
     id: `repo:${symbol.id}`,
     origin: Str.startsWith("packages/foundation/")(scope.packagePath) ? "repo-foundation" : "repo-tooling",
     packageName: scope.packageName,
@@ -642,7 +642,7 @@ const countPatternsInText = (text: string): PatternMatchCountsById => {
 };
 
 const makeScoutWorkUnit = (scope: WorkspaceScope): ReuseWorkUnit =>
-  new ReuseWorkUnit({
+  ReuseWorkUnit.make({
     id: `reuse:scout:${scope.packagePath}`,
     kind: "scout",
     label: scope.packageName,
@@ -651,7 +651,7 @@ const makeScoutWorkUnit = (scope: WorkspaceScope): ReuseWorkUnit =>
   });
 
 const makeSpecialistWorkUnit = (label: string, selectors: ReadonlyArray<string>, rationale: string): ReuseWorkUnit =>
-  new ReuseWorkUnit({
+  ReuseWorkUnit.make({
     id: `reuse:specialist:${pipe(label, Str.toLowerCase, Str.replace(/\s+/gu, "-"))}`,
     kind: "specialist",
     label,
@@ -1224,7 +1224,7 @@ export const ReusePartitionPlannerServiceLive = Layer.effect(
         A.map((hotspot) => makeSpecialistWorkUnit(hotspot.label, hotspot.selectors, hotspot.rationale))
       );
 
-      return new ReusePartitionPlan({
+      return ReusePartitionPlan.make({
         scopeSelector: scopeSelectorLabel(scopeSelector, scopes),
         scoutUnits,
         specialistUnits,
@@ -1402,7 +1402,7 @@ export const ReuseDiscoveryServiceLive = Layer.effect(
         queryKeywords = A.appendAll(queryKeywords, lowerKeywords(normalizedFilePath));
       }
 
-      return new ReuseFindResult({
+      return ReuseFindResult.make({
         filePath: normalizedFilePath,
         query,
         symbolId,
@@ -1448,7 +1448,7 @@ export const ReuseInventoryServiceLive = Layer.effect(
         Effect.map((date) => date.toISOString())
       );
 
-      return new ReuseInventory({
+      return ReuseInventory.make({
         scopeSelector: scopeSelectorLabel(scopeSelector, scopes),
         generatedAt,
         catalogEntryCount: yield* decodeNonNegativeInt(catalogEntries.length).pipe(
@@ -1472,7 +1472,7 @@ export const ReuseInventoryServiceLive = Layer.effect(
       );
 
       if (O.isNone(candidateOption)) {
-        return yield* new ReuseCandidateNotFoundError({
+        return yield* ReuseCandidateNotFoundError.make({
           candidateId,
           scopeSelector: inventory.scopeSelector,
         });
@@ -1485,7 +1485,7 @@ export const ReuseInventoryServiceLive = Layer.effect(
         A.filter((entry) => A.contains(candidate.catalogMatchIds, entry.id))
       );
 
-      return new ReusePacket({
+      return ReusePacket.make({
         candidate,
         catalogMatches,
       });

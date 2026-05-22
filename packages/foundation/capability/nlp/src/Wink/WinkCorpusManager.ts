@@ -283,7 +283,7 @@ export class CorpusManagerError extends TaggedErrorClass<CorpusManagerError>($I`
   } = dual(
     3,
     (cause: unknown, message: string, options: { readonly corpusId?: string | undefined }): CorpusManagerError =>
-      new CorpusManagerError({
+      CorpusManagerError.make({
         cause,
         corpusId: toCorpusIdOption(options.corpusId),
         message,
@@ -298,7 +298,7 @@ export class CorpusManagerError extends TaggedErrorClass<CorpusManagerError>($I`
    * @returns A typed corpus-manager error value without an external cause.
    */
   static fromMessage(message: string, corpusId?: string): CorpusManagerError {
-    return new CorpusManagerError({
+    return CorpusManagerError.make({
       cause: undefined,
       corpusId: toCorpusIdOption(corpusId),
       message,

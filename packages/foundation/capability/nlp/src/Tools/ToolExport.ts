@@ -106,7 +106,7 @@ export class ExportedToolError extends TaggedErrorClass<ExportedToolError>($I`Ex
   } = dual(
     3,
     (cause: unknown, toolName: string, options: { readonly message: string }): ExportedToolError =>
-      new ExportedToolError({
+      ExportedToolError.make({
         cause,
         message: options.message,
         toolName,

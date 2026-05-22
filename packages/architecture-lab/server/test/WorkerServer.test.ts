@@ -22,7 +22,7 @@ describe("Worker server", () => {
       const id = yield* decodeWorkerId(1);
       const organizationId = yield* decodeOrganizationId(1);
       const worker = yield* server.create(
-        new WorkerUseCases.CreateWorkerCommand({
+        WorkerUseCases.CreateWorkerCommand.make({
           id,
           organizationId,
           displayName: "Ada Lovelace",

@@ -575,7 +575,7 @@ export const runNoNativeRuntimeRules = Effect.fn("runNoNativeRuntimeRules")(func
     errorCount += 1;
     diagnostics = A.append(
       diagnostics,
-      new NoNativeRuntimeDiagnostic({
+      NoNativeRuntimeDiagnostic.make({
         severity: "error",
         file: ALLOWLIST_PATH,
         line: 1,
@@ -618,7 +618,7 @@ export const runNoNativeRuntimeRules = Effect.fn("runNoNativeRuntimeRules")(func
 
     diagnostics = A.append(
       diagnostics,
-      new NoNativeRuntimeDiagnostic({
+      NoNativeRuntimeDiagnostic.make({
         severity,
         file: relativeFilePath,
         line,
@@ -641,7 +641,7 @@ export const runNoNativeRuntimeRules = Effect.fn("runNoNativeRuntimeRules")(func
         }
       },
       catch: (cause) =>
-        new NoNativeRuntimeRulesExecutionError({
+        NoNativeRuntimeRulesExecutionError.make({
           message: `Failed to evaluate ${relativeFilePath}: ${Inspectable.toStringUnknown(cause, 0)}`,
         }),
     });
@@ -653,7 +653,7 @@ export const runNoNativeRuntimeRules = Effect.fn("runNoNativeRuntimeRules")(func
     }
   }
 
-  return new NoNativeRuntimeRulesSummary({
+  return NoNativeRuntimeRulesSummary.make({
     scannedFiles: sourceFiles.length,
     touchedFiles: affectedFiles.length,
     warningCount,

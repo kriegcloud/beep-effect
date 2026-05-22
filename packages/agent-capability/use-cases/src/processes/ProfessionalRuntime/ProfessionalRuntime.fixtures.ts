@@ -62,7 +62,7 @@ export class RuntimeFixtureInput extends S.Class<RuntimeFixtureInput>($I`Runtime
 const decodeOutputSet = S.decodeUnknownSync(CandidateOutputSet);
 
 const failValidation = (message: string): never => {
-  throw new ProfessionalRuntimeValidationError({ message });
+  throw ProfessionalRuntimeValidationError.make({ message });
 };
 
 const assertScenario = (input: RuntimeFixtureInput): void => {
@@ -674,6 +674,6 @@ export const runRuntimeFixture = Effect.fn("RuntimeFixture.run")((input: Runtime
     catch: (error) =>
       S.is(ProfessionalRuntimeValidationError)(error)
         ? error
-        : new ProfessionalRuntimeValidationError({ message: String(error) }),
+        : ProfessionalRuntimeValidationError.make({ message: String(error) }),
   })
 );

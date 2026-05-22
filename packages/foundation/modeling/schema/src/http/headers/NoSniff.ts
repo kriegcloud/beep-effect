@@ -91,7 +91,7 @@ export type NoSniffOption = typeof NoSniffOption.Type;
  * import * as Option from "effect/Option"
  * import { NoSniffResponseHeader } from "@beep/schema/NoSniff"
  *
- * const header = new NoSniffResponseHeader({ name: "X-Content-Type-Options", value: Option.none() })
+ * const header = NoSniffResponseHeader.make({ name: "X-Content-Type-Options", value: Option.none() })
  * void header
  * ```
  *
@@ -155,7 +155,7 @@ export const NoSniffHeader = S.Union([NoSniffOption, S.Undefined]).pipe(
           return O.some(option);
         }
 
-        return yield* new NoSniffError({
+        return yield* NoSniffError.make({
           message: `Invalid value for ${headerName}: ${option}`,
           cause: O.none(),
         });

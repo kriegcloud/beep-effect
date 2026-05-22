@@ -15,7 +15,7 @@ describe("@beep/sandbox security boundaries", () => {
         exec: (command) => {
           A.appendInPlace(commands, command);
 
-          return Effect.succeed(new ExecResult({ exitCode: 0, stderr: "", stdout: "" }));
+          return Effect.succeed(ExecResult.make({ exitCode: 0, stderr: "", stdout: "" }));
         },
         worktreePath: "/repo",
       };
@@ -38,7 +38,7 @@ describe("@beep/sandbox security boundaries", () => {
         exec: (command) => {
           A.appendInPlace(commands, command);
 
-          return Effect.succeed(new ExecResult({ exitCode: 0, stderr: "", stdout: "" }));
+          return Effect.succeed(ExecResult.make({ exitCode: 0, stderr: "", stdout: "" }));
         },
         worktreePath: "/repo/with ' quote",
       };

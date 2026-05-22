@@ -156,7 +156,7 @@ export type FaceDetectionTopK = typeof FaceDetectionTopK.Type;
  * ```ts
  * import { FaceDetectionModelConfig } from "@beep/face-detection"
  *
- * const config = new FaceDetectionModelConfig({ modelPath: "./face_detection_yunet_2023mar.onnx" })
+ * const config = FaceDetectionModelConfig.make({ modelPath: "./face_detection_yunet_2023mar.onnx" })
  * void config
  * ```
  *
@@ -179,7 +179,7 @@ export class FaceDetectionModelConfig extends S.Class<FaceDetectionModelConfig>(
  * ```ts
  * import { FaceDetectionImageRequest } from "@beep/face-detection"
  *
- * const request = new FaceDetectionImageRequest({ imagePath: "./photo.jpg" })
+ * const request = FaceDetectionImageRequest.make({ imagePath: "./photo.jpg" })
  * void request
  * ```
  *

@@ -456,7 +456,7 @@ it.layer(NodeServices.layer)("effect-acp protocol", (it) => {
       const { stdio, input, output } = yield* makeInMemoryStdio();
       const transport = yield* AcpProtocol.makeAcpPatchedProtocol({
         stdio,
-        terminationError: Effect.succeed(new AcpError.AcpProcessExitedError({ code: 0 })),
+        terminationError: Effect.succeed(AcpError.AcpProcessExitedError.make({ code: 0 })),
         serverRequestMethods: HashSet.empty(),
       });
 

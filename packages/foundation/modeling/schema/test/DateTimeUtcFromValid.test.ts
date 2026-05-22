@@ -65,18 +65,18 @@ describe("DateTimeInput primitive schemas", () => {
 
 describe("DateTimeInput tagged object schemas", () => {
   it("decodes Instant and InstantWithZone transport objects", () => {
-    expect(decodeInput(new DateTimeInputInstant({ epochMilliseconds }))).toEqual(
-      new DateTimeInputInstant({ epochMilliseconds })
+    expect(decodeInput(DateTimeInputInstant.make({ epochMilliseconds }))).toEqual(
+      DateTimeInputInstant.make({ epochMilliseconds })
     );
     expect(
       decodeInput(
-        new DateTimeInputInstantWithZone({
+        DateTimeInputInstantWithZone.make({
           epochMilliseconds,
           timeZoneId: "Europe/London",
         })
       )
     ).toEqual(
-      new DateTimeInputInstantWithZone({
+      DateTimeInputInstantWithZone.make({
         epochMilliseconds,
         timeZoneId: "Europe/London",
       })
@@ -96,7 +96,7 @@ describe("DateTimeInput tagged object schemas", () => {
   it("decodes partial Parts transport objects", () => {
     expect(
       decodeInput(
-        new DateTimeInputParts({
+        DateTimeInputParts.make({
           year: 2024,
           month: 1,
           day: 2,
@@ -107,7 +107,7 @@ describe("DateTimeInput tagged object schemas", () => {
         })
       )
     ).toEqual(
-      new DateTimeInputParts({
+      DateTimeInputParts.make({
         year: 2024,
         month: 1,
         day: 2,
@@ -145,10 +145,10 @@ describe("DateTimeUtcFromValid", () => {
   });
 
   it("decodes Instant and InstantWithZone into UTC", () => {
-    expectEpochMillis(decodeUtc(new DateTimeInputInstant({ epochMilliseconds })), epochMilliseconds);
+    expectEpochMillis(decodeUtc(DateTimeInputInstant.make({ epochMilliseconds })), epochMilliseconds);
     expectEpochMillis(
       decodeUtc(
-        new DateTimeInputInstantWithZone({
+        DateTimeInputInstantWithZone.make({
           epochMilliseconds,
           timeZoneId: "UTC",
         })
@@ -159,7 +159,7 @@ describe("DateTimeUtcFromValid", () => {
 
   it("decodes partial Parts into UTC", () => {
     const decoded = decodeUtc(
-      new DateTimeInputParts({
+      DateTimeInputParts.make({
         year: 2024,
         month: 1,
         day: 2,
@@ -178,7 +178,7 @@ describe("DateTimeUtcFromValid", () => {
   });
 
   it("rejects input that passes the shape schema but cannot become a DateTime.Utc", () => {
-    expect(() => decodeUtc(new DateTimeInputParts({ year: 1e100 }))).toThrow(
+    expect(() => decodeUtc(DateTimeInputParts.make({ year: 1e100 }))).toThrow(
       "Expected a valid Effect DateTime.Input value"
     );
   });

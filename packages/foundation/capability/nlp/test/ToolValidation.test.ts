@@ -73,10 +73,10 @@ describe("Tool validation", () => {
   it("rejects invalid custom-entity bracket patterns during engine learning", () =>
     Effect.runPromise(
       Effect.gen(function* () {
-        const brokenEntities = new WinkEngineCustomEntities({
+        const brokenEntities = WinkEngineCustomEntities.make({
           name: EntityGroupName.make("custom-entities"),
           patterns: [
-            new CustomEntityExample({
+            CustomEntityExample.make({
               mark: O.none(),
               name: "BROKEN_ENTITY",
               patterns: ["[NOT_A_TAG]"],

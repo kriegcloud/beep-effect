@@ -47,7 +47,7 @@ type HeadingBlock = H1 | H2 | H3 | H4 | H5 | H6;
  * ```ts
  * import { RenderError } from "@beep/md/Md.render"
  *
- * const error = new RenderError({
+ * const error = RenderError.make({
  *   adapter: "markdown",
  *   message: "Render adapter markdown failed.",
  *   cause: "boom"
@@ -188,7 +188,7 @@ const causeMessage = (cause: unknown): string =>
 const toRenderError =
   (adapter: string) =>
   (cause: unknown): RenderError =>
-    new RenderError({
+    RenderError.make({
       adapter,
       message: `Render adapter ${adapter} failed. ${causeMessage(cause)}`,
       cause,

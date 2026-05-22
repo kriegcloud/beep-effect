@@ -204,5 +204,5 @@ export class SyncDataTargetResult extends S.Class<SyncDataTargetResult>($I`SyncD
     description: "Per-target sync result after diffing or writing.",
   })
 ) {
-  static readonly new = (params: SyncDataTargetResult) => new SyncDataTargetResult(params);
+  static readonly new = (params: SyncDataTargetResult) => SyncDataTargetResult.make(params);
 }

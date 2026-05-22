@@ -412,7 +412,7 @@ const encodeBenchmarkRunJson = S.encodeUnknownEffect(S.fromJsonString(BenchmarkR
 const encodeWeeklyReportJson = S.encodeUnknownEffect(S.fromJsonString(AiMetricsWeeklyReportResult));
 
 const scorecardFailure = (message: string, cause: unknown): AiMetricsScorecardError =>
-  new AiMetricsScorecardError({ cause, message });
+  AiMetricsScorecardError.make({ cause, message });
 
 const boundedUnit = (value: number): number => globalThis.Math.min(1, globalThis.Math.max(0, value));
 
@@ -571,7 +571,7 @@ export const queueAiMetricsLabels: (
       Effect.mapError((cause) => scorecardFailure("Failed to decode AI metrics label queue.", cause))
     );
 
-    return new AiMetricsLabelQueueResult({
+    return AiMetricsLabelQueueResult.make({
       items: decoded,
       target: input.target,
       windowEndEpochMillis: input.windowEndEpochMillis,
@@ -610,7 +610,7 @@ export const addAiMetricsOutcomeLabel: (
     yield* ensureTaskExists(input.agentTaskId);
 
     const labeledAtEpochMillis = input.labeledAtEpochMillis ?? (yield* Clock.currentTimeMillis);
-    const label = new OutcomeLabel({
+    const label = OutcomeLabel.make({
       agentTaskId: input.agentTaskId,
       followUpFix: input.followUpFix,
       interventionCount: input.interventionCount,
@@ -685,7 +685,7 @@ export const upsertAiMetricsBenchmarkCase: (
 )(function* (input) {
   yield* ensureScorecardStorage;
   const expectedChecksJson = yield* jsonString(input.expectedChecks);
-  const benchmarkCase = new BenchmarkCase({
+  const benchmarkCase = BenchmarkCase.make({
     benchmarkCaseId: input.benchmarkCaseId,
     expectedChecks: input.expectedChecks,
     promptHash: input.promptHash,
@@ -733,7 +733,7 @@ const caseFromRow = Effect.fn("AiMetrics.scorecard.caseFromRow")(function* (row:
     Effect.mapError((cause) => scorecardFailure("Failed to decode AI metrics benchmark expected checks.", cause))
   );
 
-  return new BenchmarkCase({
+  return BenchmarkCase.make({
     benchmarkCaseId: row.benchmarkCaseId,
     expectedChecks,
     promptHash: row.promptHash,
@@ -779,7 +779,7 @@ export const listAiMetricsBenchmarkCases: Effect.Effect<
     Effect.mapError((cause) => scorecardFailure("Failed to decode AI metrics benchmark cases.", cause))
   );
   const cases = yield* Effect.forEach(decoded, caseFromRow, { concurrency: 8 });
-  return new AiMetricsBenchmarkCaseListResult({ cases });
+  return AiMetricsBenchmarkCaseListResult.make({ cases });
 }).pipe(Effect.withSpan("AiMetrics.listAiMetricsBenchmarkCases"));
 
 /**
@@ -802,7 +802,7 @@ export const recordAiMetricsBenchmarkRun: (
     yield* ensureBenchmarkCaseExists(input.benchmarkCaseId);
 
     const recordedAtEpochMillis = input.recordedAtEpochMillis ?? (yield* Clock.currentTimeMillis);
-    const run = new BenchmarkRun({
+    const run = BenchmarkRun.make({
       benchmarkCaseId: input.benchmarkCaseId,
       benchmarkRunId: yield* rowId("benchmark-run", [
         input.benchmarkCaseId,
@@ -950,7 +950,7 @@ const readCoverageCounts: Effect.Effect<CoverageCountsRow, AiMetricsScorecardErr
     return head.value;
   }
 
-  return new CoverageCountsRow({ modelCallCount: 0, toolInvocationCount: 0 });
+  return CoverageCountsRow.make({ modelCallCount: 0, toolInvocationCount: 0 });
 }).pipe(Effect.withSpan("AiMetrics.scorecard.readCoverageCounts"));
 
 const byConfigSnapshotId: Order.Order<string> = Order.String;
@@ -1067,7 +1067,7 @@ const scorecardFor = Effect.fn("AiMetrics.scorecard.scorecardFor")(function* ({
   readonly windowEndEpochMillis: number;
   readonly windowStartEpochMillis: number;
 }) {
-  const weights = new AiMetricsScoreWeights({});
+  const weights = AiMetricsScoreWeights.make({});
   const outcomeScore = combinedOutcomeScore(task, benchmark);
   const nextFlowScore = flowScore(task);
   const costScore = 0.5;
@@ -1077,7 +1077,7 @@ const scorecardFor = Effect.fn("AiMetrics.scorecard.scorecardFor")(function* ({
   const coverageGaps = coverageGapsFor({ benchmarkRunCount, coverage, labelCount, taskCount });
   const completionReady = scorecardCompletionReady({ benchmarkRunCount, labelCount, taskCount });
 
-  return new Scorecard({
+  return Scorecard.make({
     benchmarkRunCount,
     completionReady,
     configSnapshotId,
@@ -1270,16 +1270,16 @@ export const generateAiMetricsWeeklyReport: (
         A.dedupe,
         A.sort(Order.String)
       );
-      const document = new AiMetricsWeeklyReportDocument({
+      const document = AiMetricsWeeklyReportDocument.make({
         coverageGaps,
         generatedAtEpochMillis: yield* Clock.currentTimeMillis,
-        scores: A.map(scorecards, (scorecard) => new AiMetricsWeeklyConfigScore({ scorecard })),
+        scores: A.map(scorecards, (scorecard) => AiMetricsWeeklyConfigScore.make({ scorecard })),
         target: input.target,
         windowEndEpochMillis: input.windowEndEpochMillis,
         windowStartEpochMillis: input.windowStartEpochMillis,
       });
       const paths = yield* writeWeeklyArtifacts({ document, input });
-      return new AiMetricsWeeklyReportResult({
+      return AiMetricsWeeklyReportResult.make({
         document,
         jsonPath: paths.jsonPath,
         markdownPath: paths.markdownPath,

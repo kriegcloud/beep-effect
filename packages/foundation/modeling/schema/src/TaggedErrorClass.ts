@@ -73,7 +73,7 @@ type TaggedErrorInstance<ErrorClass extends TaggedErrorClassLike> = ErrorClass e
  * const input: TaggedErrorNewInput<typeof NotFound> = {
  *   message: "User not found"
  * }
- * const error = new NotFound(input)
+ * const error = NotFound.make(input)
  *
  * void error
  * ```
@@ -195,7 +195,7 @@ export type TaggedErrorClassFromSchema<
  * const SameShapeError = factory("SameShapeError", {
  *   message: S.String
  * })
- * const original = new NotFound({ message: "User not found" })
+ * const original = NotFound.make({ message: "User not found" })
  * const error = new SameShapeError({ message: "User not found" })
  *
  * void original
@@ -233,7 +233,7 @@ export interface TaggedErrorClassFactory<Self, Brand = {}> {
  *   message: S.String
  * }) {}
  *
- * const error = new NotFound({ message: "User not found" })
+ * const error = NotFound.make({ message: "User not found" })
  *
  * void error
  * ```
@@ -263,7 +263,7 @@ type UnsafeTaggedErrorClassFactory = TaggedErrorClassFactory<TUnsafe.Any, TUnsaf
  *   message: S.String
  * }) {}
  *
- * const err = new NotFound({ message: "User not found" })
+ * const err = NotFound.make({ message: "User not found" })
  *
  * const program = Effect.fail(err)
  *
@@ -282,7 +282,7 @@ type UnsafeTaggedErrorClassFactory = TaggedErrorClassFactory<TUnsafe.Any, TUnsaf
  *
  * const program = Effect.try({
  *   try: () => "ok",
- *   catch: () => new DbError({ query: "select 1" })
+ *   catch: () => DbError.make({ query: "select 1" })
  * })
  *
  * void program

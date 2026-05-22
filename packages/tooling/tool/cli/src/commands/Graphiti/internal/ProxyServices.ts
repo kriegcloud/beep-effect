@@ -269,7 +269,7 @@ export const proxyErrorResponse: {
     options: ProxyErrorResponseOptions
   ): HttpServerResponse.HttpServerResponse =>
     HttpServerResponse.jsonUnsafe(
-      new ProxyErrorPayload({
+      ProxyErrorPayload.make({
         error,
         message,
       }),
@@ -367,9 +367,9 @@ export class GraphitiProxyQueueService extends Context.Service<
 >()($I`GraphitiProxyQueueService`) {}
 
 const unknownDependencySnapshot = () =>
-  new DependencyHealthSnapshot({
+  DependencyHealthSnapshot.make({
     status: "unknown",
-    details: new DependencyHealthDetails({
+    details: DependencyHealthDetails.make({
       falkor: "unknown",
       graphiti: "unknown",
     }),
@@ -443,9 +443,9 @@ export const makeGraphitiDependencyHealthService: (
     const status =
       config.dependencyHealthEnabled && (falkor !== "healthy" || graphiti !== "healthy") ? "degraded" : "ok";
 
-    const nextSnapshot = new DependencyHealthSnapshot({
+    const nextSnapshot = DependencyHealthSnapshot.make({
       status,
-      details: new DependencyHealthDetails({
+      details: DependencyHealthDetails.make({
         falkor,
         graphiti,
       }),
@@ -710,7 +710,7 @@ export const makeGraphitiProxyQueueService: {
       const failed = yield* Ref.get(failedRef);
       const rejected = yield* Ref.get(rejectedRef);
 
-      return new ProxyQueueStats({
+      return ProxyQueueStats.make({
         active,
         queued,
         peakQueueDepth,

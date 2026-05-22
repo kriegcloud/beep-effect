@@ -139,7 +139,7 @@ export const resolveNodeVersions: (
   const nvmrcPath = path.join(repoRoot, ".nvmrc");
   const nvmrc = yield* fs.readFileString(nvmrcPath).pipe(
     Effect.map(Str.trim),
-    Effect.mapError((e) => new VersionSyncError({ message: `Failed to read .nvmrc: ${e}`, file: ".nvmrc" }))
+    Effect.mapError((e) => VersionSyncError.make({ message: `Failed to read .nvmrc: ${e}`, file: ".nvmrc" }))
   );
 
   // Scan workflow files
@@ -147,7 +147,7 @@ export const resolveNodeVersions: (
   const workflowDirExists = yield* fs.exists(workflowDir).pipe(Effect.orElseSucceed(thunkFalse));
 
   if (!workflowDirExists) {
-    return new NodeVersionState({ nvmrc, workflowLocations: A.empty<NodeVersionLocation>() });
+    return NodeVersionState.make({ nvmrc, workflowLocations: A.empty<NodeVersionLocation>() });
   }
 
   const entries = yield* fs.readDirectory(workflowDir).pipe(Effect.orElseSucceed(A.empty<string>));
@@ -162,7 +162,7 @@ export const resolveNodeVersions: (
     const content = yield* fs.readFileString(filePath).pipe(
       Effect.mapError(
         (e) =>
-          new VersionSyncError({
+          VersionSyncError.make({
             message: `Failed to read workflow file: ${e}`,
             file: relativeFile,
           })
@@ -175,7 +175,7 @@ export const resolveNodeVersions: (
     }
   }
 
-  return new NodeVersionState({ nvmrc, workflowLocations: locations });
+  return NodeVersionState.make({ nvmrc, workflowLocations: locations });
 });
 
 /**
@@ -196,7 +196,7 @@ const findNodeVersionLocations: (
   const workflow = yield* decodeYamlTextAs(WorkflowDocument)(content).pipe(
     Effect.mapError(
       (e) =>
-        new VersionSyncError({
+        VersionSyncError.make({
           message: `Failed to parse workflow YAML: ${e.message}`,
           file: relativeFile,
         })
@@ -220,7 +220,7 @@ const findNodeVersionLocations: (
       const nodeVersion = nodeVersionString(withBlock["node-version"]);
       locations = A.append(
         locations,
-        new NodeVersionLocation({
+        NodeVersionLocation.make({
           file: relativeFile,
           jobName,
           stepIndex: NonNegativeInt.make(stepIdx),
@@ -249,7 +249,7 @@ export const buildNodeReport: (state: NodeVersionState) => VersionCategoryReport
     if (!stringEquivalence(loc.currentValue, state.nvmrc)) {
       items = A.append(
         items,
-        new VersionDriftItem({
+        VersionDriftItem.make({
           file: loc.file,
           field: `node-version (${loc.jobName}, step ${loc.stepIndex})`,
           current: loc.currentValue,
@@ -260,7 +260,7 @@ export const buildNodeReport: (state: NodeVersionState) => VersionCategoryReport
     }
   }
 
-  return new VersionCategoryReport.cases.node({
+  return VersionCategoryReport.cases.node.make({
     status: A.match(items, {
       onEmpty: VersionCategoryStatusThunk.ok,
       onNonEmpty: VersionCategoryStatusThunk.drift,

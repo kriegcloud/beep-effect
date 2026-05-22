@@ -18,7 +18,7 @@ const isNotFound = S.is(CanvasProjectUseCases.CanvasProjectNotFound);
 const isConflict = S.is(CanvasProjectUseCases.CanvasProjectConflict);
 const isActionRejected = S.is(CanvasProjectUseCases.CanvasProjectActionRejected);
 const isActionFailed = S.is(CanvasProjectUseCases.CanvasProjectActionFailed);
-const serviceUnavailableBody = new CanvasProjectUseCases.CanvasProjectActionFailed({
+const serviceUnavailableBody = CanvasProjectUseCases.CanvasProjectActionFailed.make({
   reason: CanvasProjectUseCases.CANVAS_PROJECT_ACTION_UNAVAILABLE_REASON,
 });
 
@@ -66,7 +66,7 @@ export type CanvasProjectHttpStatus = typeof CanvasProjectHttpStatus.Type;
  * ```ts
  * import { CanvasProject } from "@beep/canvas-server"
  *
- * const response = new CanvasProject.CanvasProjectHttpResponse({ status: 200, body: { ok: true } })
+ * const response = CanvasProject.CanvasProjectHttpResponse.make({ status: 200, body: { ok: true } })
  * console.log(response.status)
  * ```
  *
@@ -93,7 +93,7 @@ export class CanvasProjectHttpResponse extends S.Class<CanvasProjectHttpResponse
  * import { CanvasProject as CanvasProjectUseCases } from "@beep/canvas-use-cases/public"
  *
  * const response = CanvasProject.toCanvasProjectHttpError(
- *   new CanvasProjectUseCases.CanvasProjectActionFailed({
+ *   CanvasProjectUseCases.CanvasProjectActionFailed.make({
  *     reason: CanvasProjectUseCases.CANVAS_PROJECT_ACTION_UNAVAILABLE_REASON,
  *   })
  * )
@@ -107,17 +107,17 @@ export const toCanvasProjectHttpError = (
   error: CanvasProjectUseCases.CanvasProjectActionError
 ): CanvasProjectHttpResponse =>
   Match.value(error).pipe(
-    Match.when(isNotFound, (error) => new CanvasProjectHttpResponse({ status: 404, body: error })),
-    Match.when(isConflict, (error) => new CanvasProjectHttpResponse({ status: 409, body: error })),
-    Match.when(isActionRejected, (error) => new CanvasProjectHttpResponse({ status: 422, body: error })),
-    Match.when(isActionFailed, () => new CanvasProjectHttpResponse({ status: 503, body: serviceUnavailableBody })),
-    Match.orElse(() => new CanvasProjectHttpResponse({ status: 503, body: serviceUnavailableBody }))
+    Match.when(isNotFound, (error) => CanvasProjectHttpResponse.make({ status: 404, body: error })),
+    Match.when(isConflict, (error) => CanvasProjectHttpResponse.make({ status: 409, body: error })),
+    Match.when(isActionRejected, (error) => CanvasProjectHttpResponse.make({ status: 422, body: error })),
+    Match.when(isActionFailed, () => CanvasProjectHttpResponse.make({ status: 503, body: serviceUnavailableBody })),
+    Match.orElse(() => CanvasProjectHttpResponse.make({ status: 503, body: serviceUnavailableBody }))
   );
 
 const toSuccess =
   (status: 200 | 201) =>
   (body: unknown): CanvasProjectHttpResponse =>
-    new CanvasProjectHttpResponse({ status, body });
+    CanvasProjectHttpResponse.make({ status, body });
 
 /**
  * Build HTTP-style CanvasProject handlers from the public use-case facade.

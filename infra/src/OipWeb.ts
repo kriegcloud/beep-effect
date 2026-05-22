@@ -143,7 +143,7 @@ export const OipWebPulumiConfigValues = S.Class<OipWebPulumiConfigValues>($I`Oip
  * ```ts
  * import { OipPulumiStateBackendConfig } from "@beep/infra"
  *
- * console.log(new OipPulumiStateBackendConfig({}).bucketName)
+ * console.log(OipPulumiStateBackendConfig.make({}).bucketName)
  * ```
  *
  * @category models
@@ -184,7 +184,7 @@ export class OipPulumiStateBackendConfig extends S.Class<OipPulumiStateBackendCo
  * ```ts
  * import { OipAssetsBucketConfig } from "@beep/infra"
  *
- * console.log(new OipAssetsBucketConfig({}).bucketName)
+ * console.log(OipAssetsBucketConfig.make({}).bucketName)
  * ```
  *
  * @category models
@@ -217,7 +217,7 @@ export class OipAssetsBucketConfig extends S.Class<OipAssetsBucketConfig>($I`Oip
  * ```ts
  * import { OipDnsConfig } from "@beep/infra"
  *
- * console.log(new OipDnsConfig({}).productionDomain)
+ * console.log(OipDnsConfig.make({}).productionDomain)
  * ```
  *
  * @category models
@@ -283,7 +283,7 @@ export class OipDnsConfig extends S.Class<OipDnsConfig>($I`OipDnsConfig`)(
  * ```ts
  * import { OipVercelProjectConfig } from "@beep/infra"
  *
- * console.log(new OipVercelProjectConfig({}).projectName)
+ * console.log(OipVercelProjectConfig.make({}).projectName)
  * ```
  *
  * @category models
@@ -357,7 +357,7 @@ export type OipWebRuntimeSecrets = {
  * ```ts
  * import { OipWebStackArgs } from "@beep/infra"
  *
- * console.log(new OipWebStackArgs({}).vercel.projectName)
+ * console.log(OipWebStackArgs.make({}).vercel.projectName)
  * ```
  *
  * @category models
@@ -366,20 +366,20 @@ export type OipWebRuntimeSecrets = {
 export class OipWebStackArgs extends S.Class<OipWebStackArgs>($I`OipWebStackArgs`)(
   {
     assets: OipAssetsBucketConfig.pipe(
-      S.withConstructorDefault(Effect.succeed(new OipAssetsBucketConfig({}))),
-      S.withDecodingDefaultKey(Effect.succeed(new OipAssetsBucketConfig({})))
+      S.withConstructorDefault(Effect.succeed(OipAssetsBucketConfig.make({}))),
+      S.withDecodingDefaultKey(Effect.succeed(OipAssetsBucketConfig.make({})))
     ),
     dns: OipDnsConfig.pipe(
-      S.withConstructorDefault(Effect.succeed(new OipDnsConfig({}))),
-      S.withDecodingDefaultKey(Effect.succeed(new OipDnsConfig({})))
+      S.withConstructorDefault(Effect.succeed(OipDnsConfig.make({}))),
+      S.withDecodingDefaultKey(Effect.succeed(OipDnsConfig.make({})))
     ),
     state: OipPulumiStateBackendConfig.pipe(
-      S.withConstructorDefault(Effect.succeed(new OipPulumiStateBackendConfig({}))),
-      S.withDecodingDefaultKey(Effect.succeed(new OipPulumiStateBackendConfig({})))
+      S.withConstructorDefault(Effect.succeed(OipPulumiStateBackendConfig.make({}))),
+      S.withDecodingDefaultKey(Effect.succeed(OipPulumiStateBackendConfig.make({})))
     ),
     vercel: OipVercelProjectConfig.pipe(
-      S.withConstructorDefault(Effect.succeed(new OipVercelProjectConfig({}))),
-      S.withDecodingDefaultKey(Effect.succeed(new OipVercelProjectConfig({})))
+      S.withConstructorDefault(Effect.succeed(OipVercelProjectConfig.make({}))),
+      S.withDecodingDefaultKey(Effect.succeed(OipVercelProjectConfig.make({})))
     ),
   },
   $I.annote("OipWebStackArgs", {
@@ -439,12 +439,12 @@ export const makeOipWebStackArgsFromConfigValues = ({
   vercelTeamId,
   wwwDomain,
 }: OipWebPulumiConfigValues = {}): OipWebStackArgs =>
-  new OipWebStackArgs({
-    assets: new OipAssetsBucketConfig({
+  OipWebStackArgs.make({
+    assets: OipAssetsBucketConfig.make({
       ...(assetsBucketName === undefined ? {} : { bucketName: assetsBucketName }),
       ...(awsRegion === undefined ? {} : { region: awsRegion }),
     }),
-    dns: new OipDnsConfig({
+    dns: OipDnsConfig.make({
       ...(attachProductionDomains === undefined ? {} : { attachProductionDomains }),
       ...(attachStagingDomain === undefined ? {} : { attachStagingDomain }),
       ...(cloudflareZoneId === undefined ? {} : { cloudflareZoneId }),
@@ -461,13 +461,13 @@ export const makeOipWebStackArgsFromConfigValues = ({
       ...(vercelCnameTarget === undefined ? {} : { vercelCnameTarget }),
       ...(wwwDomain === undefined ? {} : { wwwDomain }),
     }),
-    state: new OipPulumiStateBackendConfig({
+    state: OipPulumiStateBackendConfig.make({
       ...(awsRegion === undefined ? {} : { region: awsRegion }),
       ...(createDynamoDbLockTable === undefined ? {} : { createDynamoDbLockTable }),
       ...(pulumiStateBucketName === undefined ? {} : { bucketName: pulumiStateBucketName }),
       ...(pulumiStateBucketName === undefined ? {} : { lockTableName: `${pulumiStateBucketName}-locks` }),
     }),
-    vercel: new OipVercelProjectConfig({
+    vercel: OipVercelProjectConfig.make({
       ...(hubSpotAccountId === undefined ? {} : { hubSpotAccountId }),
       ...(hubSpotFormGuid === undefined ? {} : { hubSpotFormGuid }),
       ...(projectName === undefined ? {} : { projectName }),
@@ -775,7 +775,7 @@ export class OipWebStack extends pulumi.ComponentResource {
 
   public constructor(
     name: string,
-    args: OipWebStackArgs = new OipWebStackArgs({}),
+    args: OipWebStackArgs = OipWebStackArgs.make({}),
     secrets: OipWebRuntimeSecrets = {},
     opts?: pulumi.ComponentResourceOptions
   ) {

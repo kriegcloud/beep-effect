@@ -118,7 +118,7 @@ export const PermittedCrossDomainPoliciesHeader = S.Union([PermittedCrossDomainP
         return O.some(option);
       }
 
-      return yield* new PermittedCrossDomainPoliciesError({
+      return yield* PermittedCrossDomainPoliciesError.make({
         message: `Invalid value for ${headerName}: ${option}`,
         cause: O.none(),
       });

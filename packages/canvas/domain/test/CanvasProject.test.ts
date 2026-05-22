@@ -8,7 +8,7 @@ const decodeCanvasNodeId = S.decodeUnknownEffect(CanvasProject.CanvasNodeId);
 
 const makeCanvasProject = (id: CanvasProject.CanvasProjectId) =>
   CanvasProject.create(
-    new CanvasProject.CreateCanvasProjectInput({
+    CanvasProject.CreateCanvasProjectInput.make({
       id,
       title: "Document topology",
     })
@@ -20,7 +20,7 @@ describe("CanvasProject aggregate", () => {
     Effect.fnUntraced(function* () {
       const canvasProjectId = yield* decodeCanvasProjectId("canvas-project-1");
       const canvasNodeId = yield* decodeCanvasNodeId("node-1");
-      const node = new CanvasProject.CanvasNode({
+      const node = CanvasProject.CanvasNode.make({
         id: canvasNodeId,
         kind: "note",
         label: "Opening note",
@@ -43,7 +43,7 @@ describe("CanvasProject aggregate", () => {
       const archived = yield* CanvasProject.archive(makeCanvasProject(canvasProjectId));
       const exit = yield* CanvasProject.addNode(
         archived,
-        new CanvasProject.CanvasNode({
+        CanvasProject.CanvasNode.make({
           id: canvasNodeId,
           kind: "shape",
           label: "Archived node",

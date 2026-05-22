@@ -29,7 +29,7 @@ const decodedAllowlistSnapshot = pipe(
   }),
   Result.match({
     onFailure: (diagnostics) =>
-      new EffectLawsAllowlistSnapshot({
+      EffectLawsAllowlistSnapshot.make({
         path: fallbackAllowlistPath,
         diagnostics,
       }),
@@ -107,7 +107,7 @@ export const isViolationAllowlisted = (input: unknown): boolean =>
     O.match({
       onNone: thunkFalse,
       onSome: (normalizedInput) => {
-        const normalizedLookupKey = new EffectLawsAllowlistLookupKey({
+        const normalizedLookupKey = EffectLawsAllowlistLookupKey.make({
           rule: normalizedInput.ruleId,
           file: normalizePath(normalizedInput.filePath),
           kind: normalizedInput.kind,
@@ -116,7 +116,7 @@ export const isViolationAllowlisted = (input: unknown): boolean =>
         return A.some(decodedAllowlistSnapshot.entries, (entry) =>
           areLookupKeysEquivalent(
             normalizedLookupKey,
-            new EffectLawsAllowlistLookupKey({
+            EffectLawsAllowlistLookupKey.make({
               rule: entry.rule,
               file: normalizePath(entry.file),
               kind: entry.kind,

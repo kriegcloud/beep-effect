@@ -251,7 +251,7 @@ export type PhoenixPromptModelProvider = typeof PhoenixPromptModelProvider.Type;
  * ```ts
  * import { PhoenixDoctorResult } from "@beep/phoenix"
  *
- * const result = new PhoenixDoctorResult({
+ * const result = PhoenixDoctorResult.make({
  *   baseUrl: "https://phoenix.test",
  *   message: "Phoenix is reachable.",
  *   status: "passed",
@@ -282,7 +282,7 @@ export class PhoenixDoctorResult extends S.Class<PhoenixDoctorResult>($I`Phoenix
  * ```ts
  * import { PhoenixDatasetSelector } from "@beep/phoenix"
  *
- * const selector = new PhoenixDatasetSelector({ kind: "dataset-name", value: "agent-loop-health-v1" })
+ * const selector = PhoenixDatasetSelector.make({ kind: "dataset-name", value: "agent-loop-health-v1" })
  * console.log(selector.value)
  * ```
  *
@@ -308,7 +308,7 @@ export class PhoenixDatasetSelector extends S.Class<PhoenixDatasetSelector>($I`P
  * ```ts
  * import { PhoenixDatasetExample } from "@beep/phoenix"
  *
- * const example = new PhoenixDatasetExample({
+ * const example = PhoenixDatasetExample.make({
  *   input: { task: "score-loop-health" },
  *   metadata: { suite: "agent-effectiveness" }
  * })
@@ -342,9 +342,9 @@ export class PhoenixDatasetExample extends S.Class<PhoenixDatasetExample>($I`Pho
  * ```ts
  * import { PhoenixDatasetCreateInput, PhoenixDatasetExample } from "@beep/phoenix"
  *
- * const input = new PhoenixDatasetCreateInput({
+ * const input = PhoenixDatasetCreateInput.make({
  *   description: "Agent loop health examples.",
- *   examples: [new PhoenixDatasetExample({ input: { task: "loop-health" } })],
+ *   examples: [PhoenixDatasetExample.make({ input: { task: "loop-health" } })],
  *   name: "agent-loop-health-v1"
  * })
  * console.log(input.name)
@@ -371,7 +371,7 @@ export class PhoenixDatasetCreateInput extends S.Class<PhoenixDatasetCreateInput
  * ```ts
  * import { PhoenixDatasetCreateResult } from "@beep/phoenix"
  *
- * const result = new PhoenixDatasetCreateResult({ datasetId: "dataset-id" })
+ * const result = PhoenixDatasetCreateResult.make({ datasetId: "dataset-id" })
  * console.log(result.datasetId)
  * ```
  *
@@ -394,9 +394,9 @@ export class PhoenixDatasetCreateResult extends S.Class<PhoenixDatasetCreateResu
  * ```ts
  * import { PhoenixDatasetAppendInput, PhoenixDatasetExample, PhoenixDatasetSelector } from "@beep/phoenix"
  *
- * const input = new PhoenixDatasetAppendInput({
- *   dataset: new PhoenixDatasetSelector({ kind: "dataset-name", value: "agent-outcomes-v1" }),
- *   examples: [new PhoenixDatasetExample({ input: { task: "outcome" } })]
+ * const input = PhoenixDatasetAppendInput.make({
+ *   dataset: PhoenixDatasetSelector.make({ kind: "dataset-name", value: "agent-outcomes-v1" }),
+ *   examples: [PhoenixDatasetExample.make({ input: { task: "outcome" } })]
  * })
  * console.log(input.dataset.kind)
  * ```
@@ -421,7 +421,7 @@ export class PhoenixDatasetAppendInput extends S.Class<PhoenixDatasetAppendInput
  * ```ts
  * import { PhoenixDatasetAppendResult } from "@beep/phoenix"
  *
- * const result = new PhoenixDatasetAppendResult({ datasetId: "dataset-id", versionId: "version-id" })
+ * const result = PhoenixDatasetAppendResult.make({ datasetId: "dataset-id", versionId: "version-id" })
  * console.log(result.versionId)
  * ```
  *
@@ -445,7 +445,7 @@ export class PhoenixDatasetAppendResult extends S.Class<PhoenixDatasetAppendResu
  * ```ts
  * import { PhoenixDatasetInfoResult } from "@beep/phoenix"
  *
- * const result = new PhoenixDatasetInfoResult({ datasetId: "dataset-id", name: "agent-outcomes-v1" })
+ * const result = PhoenixDatasetInfoResult.make({ datasetId: "dataset-id", name: "agent-outcomes-v1" })
  * console.log(result.name)
  * ```
  *
@@ -477,7 +477,7 @@ export class PhoenixDatasetInfoResult extends S.Class<PhoenixDatasetInfoResult>(
  * ```ts
  * import { PhoenixDatasetExamplesResult } from "@beep/phoenix"
  *
- * const result = new PhoenixDatasetExamplesResult({ examples: [], versionId: "version-id" })
+ * const result = PhoenixDatasetExamplesResult.make({ examples: [], versionId: "version-id" })
  * console.log(result.examples.length)
  * ```
  *
@@ -503,7 +503,7 @@ export class PhoenixDatasetExamplesResult extends S.Class<PhoenixDatasetExamples
  * ```ts
  * import { PhoenixPromptChatMessage } from "@beep/phoenix"
  *
- * const message = new PhoenixPromptChatMessage({ content: "Score {{caseId}}", role: "user" })
+ * const message = PhoenixPromptChatMessage.make({ content: "Score {{caseId}}", role: "user" })
  * console.log(message.role)
  * ```
  *
@@ -527,11 +527,11 @@ export class PhoenixPromptChatMessage extends S.Class<PhoenixPromptChatMessage>(
  * ```ts
  * import { PhoenixPromptChatMessage, PhoenixPromptCreateInput } from "@beep/phoenix"
  *
- * const input = new PhoenixPromptCreateInput({
+ * const input = PhoenixPromptCreateInput.make({
  *   modelName: "gpt-4o-mini",
  *   modelProvider: "OPENAI",
  *   name: "agent-effectiveness-review-evaluator-v1",
- *   template: [new PhoenixPromptChatMessage({ content: "Review {{caseId}}", role: "user" })]
+ *   template: [PhoenixPromptChatMessage.make({ content: "Review {{caseId}}", role: "user" })]
  * })
  * console.log(input.name)
  * ```
@@ -571,7 +571,7 @@ export class PhoenixPromptCreateInput extends S.Class<PhoenixPromptCreateInput>(
  * ```ts
  * import { PhoenixPromptWriteResult } from "@beep/phoenix"
  *
- * const result = new PhoenixPromptWriteResult({ name: "prompt", promptVersionId: "version-id" })
+ * const result = PhoenixPromptWriteResult.make({ name: "prompt", promptVersionId: "version-id" })
  * console.log(result.promptVersionId)
  * ```
  *
@@ -595,7 +595,7 @@ export class PhoenixPromptWriteResult extends S.Class<PhoenixPromptWriteResult>(
  * ```ts
  * import { PhoenixPromptSelector } from "@beep/phoenix"
  *
- * const selector = new PhoenixPromptSelector({ name: "agent-effectiveness-review-evaluator-v1" })
+ * const selector = PhoenixPromptSelector.make({ name: "agent-effectiveness-review-evaluator-v1" })
  * console.log(selector.name)
  * ```
  *
@@ -621,7 +621,7 @@ export class PhoenixPromptSelector extends S.Class<PhoenixPromptSelector>($I`Pho
  * ```ts
  * import { PhoenixPromptReadResult } from "@beep/phoenix"
  *
- * const result = new PhoenixPromptReadResult({ exists: true, promptVersionId: "version-id" })
+ * const result = PhoenixPromptReadResult.make({ exists: true, promptVersionId: "version-id" })
  * console.log(result.exists)
  * ```
  *
@@ -645,7 +645,7 @@ export class PhoenixPromptReadResult extends S.Class<PhoenixPromptReadResult>($I
  * ```ts
  * import { PhoenixExperimentCreateInput } from "@beep/phoenix"
  *
- * const input = new PhoenixExperimentCreateInput({
+ * const input = PhoenixExperimentCreateInput.make({
  *   datasetId: "dataset-id",
  *   experimentName: "agent-effectiveness-deterministic-v1"
  * })
@@ -685,7 +685,7 @@ export class PhoenixExperimentCreateInput extends S.Class<PhoenixExperimentCreat
  * ```ts
  * import { PhoenixExperimentInfoResult } from "@beep/phoenix"
  *
- * const result = new PhoenixExperimentInfoResult({
+ * const result = PhoenixExperimentInfoResult.make({
  *   datasetId: "dataset-id",
  *   datasetVersionId: "version-id",
  *   exampleCount: 1,
@@ -732,7 +732,7 @@ export class PhoenixExperimentInfoResult extends S.Class<PhoenixExperimentInfoRe
  * ```ts
  * import { PhoenixAnnotationInput } from "@beep/phoenix"
  *
- * const input = new PhoenixAnnotationInput({
+ * const input = PhoenixAnnotationInput.make({
  *   label: "passed",
  *   name: "agent.outcome",
  *   targetId: "trace-id",
@@ -778,7 +778,7 @@ export class PhoenixAnnotationInput extends S.Class<PhoenixAnnotationInput>($I`P
  * ```ts
  * import { PhoenixAnnotationWriteResult } from "@beep/phoenix"
  *
- * const result = new PhoenixAnnotationWriteResult({
+ * const result = PhoenixAnnotationWriteResult.make({
  *   annotationId: "annotation-id",
  *   name: "agent.outcome",
  *   targetId: "trace-id",

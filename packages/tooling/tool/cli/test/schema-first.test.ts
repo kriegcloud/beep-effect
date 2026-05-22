@@ -22,7 +22,7 @@ describe("packages/tooling/tool/cli schema-first models", () => {
   });
 
   it("uses tagged-union helpers for GenerationAction", () => {
-    const action = new GenerationAction.cases["write-file"]({
+    const action = GenerationAction.cases["write-file"].make({
       relativePath: "src/index.ts",
       content: "export const x = 1;\n",
     });
@@ -39,14 +39,14 @@ describe("packages/tooling/tool/cli schema-first models", () => {
   it("creates deterministic plans via schema-backed input", () => {
     const service = createFileGenerationPlanService();
     const plan = service.createPlan(
-      new FileGenerationPlanInput({
+      FileGenerationPlanInput.make({
         outputDir: "/tmp/demo",
         directories: ["src", "docs", "src"],
         files: [
-          new PlannedFile({ relativePath: "src/index.ts", content: "export {};\n" }),
-          new PlannedFile({ relativePath: "docs/index.md", content: "# docs\n" }),
+          PlannedFile.make({ relativePath: "src/index.ts", content: "export {};\n" }),
+          PlannedFile.make({ relativePath: "docs/index.md", content: "# docs\n" }),
         ],
-        symlinks: [new PlannedSymlink({ relativePath: "CLAUDE.md", target: "AGENTS.md" })],
+        symlinks: [PlannedSymlink.make({ relativePath: "CLAUDE.md", target: "AGENTS.md" })],
       })
     );
 
@@ -58,7 +58,7 @@ describe("packages/tooling/tool/cli schema-first models", () => {
   });
 
   it("exposes toTaggedUnion helpers for VersionSyncOptions", () => {
-    const option = new VersionSyncOptions.cases["dry-run"]({
+    const option = VersionSyncOptions.cases["dry-run"].make({
       skipNetwork: true,
       bunOnly: false,
       nodeOnly: false,

@@ -5,7 +5,7 @@ import * as A from "effect/Array";
 
 const successRunner = (_command: string, args: ReadonlyArray<string>) =>
   Effect.succeed(
-    new OnePasswordCliProcessResult({
+    OnePasswordCliProcessResult.make({
       exitCode: 0,
       stderr: "",
       stdout: A.contains(args, "whoami") ? "example.1password.com\n" : "discord-token-value",
@@ -14,7 +14,7 @@ const successRunner = (_command: string, args: ReadonlyArray<string>) =>
 
 const missingRunner = (_command: string, _args: ReadonlyArray<string>) =>
   Effect.succeed(
-    new OnePasswordCliProcessResult({
+    OnePasswordCliProcessResult.make({
       exitCode: 1,
       stderr: "secret not found",
       stdout: "",

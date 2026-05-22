@@ -91,7 +91,7 @@ class TurboSummary extends S.Class<TurboSummary>($I`TurboSummary`)(
  * @example
  * ```ts
  * import { CiCommandError } from "@beep/repo-cli/commands/Ci"
- * const error = new CiCommandError({ message: "failed" })
+ * const error = CiCommandError.make({ message: "failed" })
  * ```
  * @category errors
  * @since 0.0.0
@@ -154,13 +154,13 @@ const appendToSummary = Effect.fn("Ci.appendToSummary")(function* (
   const previous = exists
     ? yield* fs
         .readFileString(summaryPath)
-        .pipe(Effect.mapError((cause) => new CiCommandError({ message: `Failed to read ${summaryPath}.`, cause })))
+        .pipe(Effect.mapError((cause) => CiCommandError.make({ message: `Failed to read ${summaryPath}.`, cause })))
     : "";
 
   yield* fs.writeFileString(summaryPath, `${previous}${renderedSummary}`).pipe(
     Effect.mapError(
       (cause) =>
-        new CiCommandError({
+        CiCommandError.make({
           message: `Failed to append Turbo summary to ${summaryPath}.`,
           cause,
         })
@@ -187,14 +187,14 @@ const resolveSummaryPath = Effect.fn("Ci.resolveSummaryPath")(function* (
 
   const entries = yield* fs
     .readDirectory(runDirectory)
-    .pipe(Effect.mapError((cause) => new CiCommandError({ message: `Failed to read ${runDirectory}.`, cause })));
+    .pipe(Effect.mapError((cause) => CiCommandError.make({ message: `Failed to read ${runDirectory}.`, cause })));
   const candidates = yield* Effect.forEach(
     pipe(entries, A.filter(Str.endsWith(".json"))),
     Effect.fn(function* (entry) {
       const candidatePath = path.join(runDirectory, entry);
       const stat = yield* fs
         .stat(candidatePath)
-        .pipe(Effect.mapError((cause) => new CiCommandError({ message: `Failed to stat ${candidatePath}.`, cause })));
+        .pipe(Effect.mapError((cause) => CiCommandError.make({ message: `Failed to stat ${candidatePath}.`, cause })));
       return O.some({
         path: candidatePath,
         mtimeMillis: pipe(
@@ -281,7 +281,7 @@ export const appendTurboSummary = Effect.fn("Ci.appendTurboSummary")(function* (
   const fs = yield* FileSystem.FileSystem;
   const path = yield* Path.Path;
   const repoRoot = yield* findRepoRoot().pipe(
-    Effect.mapError((cause) => new CiCommandError({ message: "Failed to locate repository root.", cause }))
+    Effect.mapError((cause) => CiCommandError.make({ message: "Failed to locate repository root.", cause }))
   );
   const summaryPath = yield* resolveSummaryPath(repoRoot, explicitPath);
 
@@ -298,9 +298,9 @@ export const appendTurboSummary = Effect.fn("Ci.appendTurboSummary")(function* (
 
   const content = yield* fs
     .readFileString(summaryPath.value)
-    .pipe(Effect.mapError((cause) => new CiCommandError({ message: `Failed to read ${summaryPath.value}.`, cause })));
+    .pipe(Effect.mapError((cause) => CiCommandError.make({ message: `Failed to read ${summaryPath.value}.`, cause })));
   const run = yield* decodeTurboSummary(content).pipe(
-    Effect.mapError((cause) => new CiCommandError({ message: `Failed to parse ${summaryPath.value}.`, cause }))
+    Effect.mapError((cause) => CiCommandError.make({ message: `Failed to parse ${summaryPath.value}.`, cause }))
   );
 
   yield* appendToSummary(renderTurboSummary(repoRoot, summaryPath.value, run, path));
