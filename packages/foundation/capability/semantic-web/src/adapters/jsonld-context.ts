@@ -34,7 +34,7 @@ const makeContextError = (
   message: string,
   subject?: string
 ): JsonLdContextError =>
-  new JsonLdContextError({
+  JsonLdContextError.make({
     reason,
     message,
     subject: subject === undefined ? O.none() : O.some(subject),

@@ -1,5 +1,5 @@
 import { $SchemaId } from "@beep/identity";
-import { CSV } from "@beep/schema";
+import { CSV } from "@beep/schema/Csv";
 import { describe, expect, it } from "@effect/vitest";
 import { Cause, Effect, Exit } from "effect";
 import * as S from "effect/Schema";
@@ -127,7 +127,7 @@ describe("CSV", () => {
     Effect.fnUntraced(function* () {
       const csv = CSV(UserRow);
       const rows = [
-        new UserRow({
+        UserRow.make({
           address: "London, UK",
           first_name: "Ada",
           id: 1,
@@ -150,7 +150,7 @@ describe("CSV", () => {
     Effect.fnUntraced(function* () {
       const csv = CSV(OptionalUserRow);
       const rows = [
-        new OptionalUserRow({
+        OptionalUserRow.make({
           first_name: "Ada",
           id: 1,
         }),
@@ -167,7 +167,7 @@ describe("CSV", () => {
     Effect.fnUntraced(function* () {
       const csv = CSV(NullableUserRow);
       const rows = [
-        new NullableUserRow({
+        NullableUserRow.make({
           id: 1,
           nickname: null,
         }),
@@ -286,7 +286,7 @@ describe("CSV", () => {
     "fails to encode non-string-compatible field output",
     Effect.fnUntraced(function* () {
       const csv = CSV(InvalidNumberRow);
-      const rows = [new InvalidNumberRow({ id: 1, name: "Ada" })];
+      const rows = [InvalidNumberRow.make({ id: 1, name: "Ada" })];
       const result = yield* Effect.exit(S.encodeEffect(csv)(rows));
 
       expect(Exit.isFailure(result)).toBe(true);

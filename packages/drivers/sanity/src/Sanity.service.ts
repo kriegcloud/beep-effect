@@ -72,7 +72,7 @@ export type SanityQueryParamValue = typeof SanityQueryParamValue.Type;
  * ```ts
  * import { SanityQueryRequest } from "@beep/sanity"
  *
- * const request = new SanityQueryRequest({
+ * const request = SanityQueryRequest.make({
  *   params: { slug: "home" },
  *   query: "*[_type == 'page' && slug.current == $slug][0]"
  * })
@@ -100,7 +100,7 @@ export class SanityQueryRequest extends S.Class<SanityQueryRequest>($I`SanityQue
  * ```ts
  * import { SanityQueryResponse } from "@beep/sanity"
  *
- * const response = new SanityQueryResponse({
+ * const response = SanityQueryResponse.make({
  *   ms: 7,
  *   result: { title: "Home" }
  * })
@@ -130,7 +130,7 @@ export class SanityQueryResponse extends S.Class<SanityQueryResponse>($I`SanityQ
  * import { Effect } from "effect"
  *
  * const service: SanityShape = {
- *   fetch: () => Effect.succeed(new SanityQueryResponse({ result: [] }))
+ *   fetch: () => Effect.succeed(SanityQueryResponse.make({ result: [] }))
  * }
  *
  * const program = service.fetch({ query: "*[]" })
@@ -181,7 +181,7 @@ const resolveConfig = Effect.fn("Sanity.resolveConfig")(function* (
     })
   );
 
-  return new ResolvedSanityConfig({
+  return ResolvedSanityConfig.make({
     apiHost: normalizeBaseUrl(input.apiHost ?? "https://api.sanity.io"),
     apiToken: O.fromUndefinedOr(input.apiToken),
     apiVersion: input.apiVersion ?? SANITY_API_VERSION,
@@ -308,7 +308,7 @@ const makeService = (client: HttpClient.HttpClient, config: ResolvedSanityConfig
  * import { FetchHttpClient } from "effect/unstable/http"
  *
  * const layer = Sanity.makeLayer(
- *   new SanityConfigInput({
+ *   SanityConfigInput.make({
  *     dataset: "production",
  *     projectId: "content-project"
  *   })
@@ -316,7 +316,7 @@ const makeService = (client: HttpClient.HttpClient, config: ResolvedSanityConfig
  *
  * const program = Effect.gen(function* () {
  *   const sanity = yield* Sanity
- *   return yield* sanity.fetch(new SanityQueryRequest({ query: "*[]" }))
+ *   return yield* sanity.fetch(SanityQueryRequest.make({ query: "*[]" }))
  * }).pipe(Effect.provide(layer))
  *
  * console.log(Effect.isEffect(program)) // true
@@ -336,7 +336,7 @@ export class Sanity extends Context.Service<Sanity, SanityShape>()($I`Sanity`) {
    * import { FetchHttpClient } from "effect/unstable/http"
    *
    * const layer = Sanity.makeLayer(
-   *   new SanityConfigInput({
+   *   SanityConfigInput.make({
    *     dataset: "production",
    *     projectId: "content-project"
    *   })
@@ -383,7 +383,7 @@ export class Sanity extends Context.Service<Sanity, SanityShape>()($I`Sanity`) {
 
       const client = yield* HttpClient.HttpClient;
       const resolved = yield* resolveConfig(
-        new SanityConfigInput(
+        SanityConfigInput.make(
           R.getSomes({
             apiHost,
             projectId,

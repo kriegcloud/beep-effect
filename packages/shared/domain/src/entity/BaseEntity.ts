@@ -208,7 +208,7 @@ const replaceClass = <Base extends object>(base: Base): Omit<Base, "Class"> & { 
   if (hasReplacementClass(base)) {
     return base;
   }
-  throw new BaseEntityAttachmentError({ message: "Failed to attach BaseEntity Class factory." });
+  throw BaseEntityAttachmentError.make({ message: "Failed to attach BaseEntity Class factory." });
 };
 
 const hasReplacementClass = <Base extends object>(base: Base): base is Base & { readonly Class: typeof Class } =>

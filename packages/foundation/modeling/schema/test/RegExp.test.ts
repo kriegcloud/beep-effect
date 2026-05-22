@@ -1,4 +1,4 @@
-import { RegExpFromStr, RegExpStr } from "@beep/schema";
+import { RegExpFromStr, RegExpStr } from "@beep/schema/RegExp";
 import { describe, expect, it } from "@effect/vitest";
 import * as S from "effect/Schema";
 

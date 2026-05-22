@@ -1,19 +1,4 @@
-import {
-  DirectedGraph,
-  DirectedGraphFromSelf,
-  EdgeEncoded,
-  type EdgeEncoded as EdgeEncodedType,
-  EdgeFromSelf,
-  type EdgeIndex,
-  type EdgeIndex as EdgeIndexType,
-  GraphEncoded,
-  type GraphEncoded as GraphEncodedType,
-  type GraphKind,
-  type GraphKind as GraphKindType,
-  MutableDirectedGraph,
-  type NodeIndex,
-  type NodeIndex as NodeIndexType,
-} from "@beep/schema";
+import * as GraphSchema from "@beep/schema/Graph";
 import type * as Brand from "effect/Brand";
 import * as Graph_ from "effect/Graph";
 import * as S from "effect/Schema";
@@ -21,30 +6,30 @@ import { describe, expect, it } from "tstyche";
 
 describe("Graph primitives", () => {
   it("brands node and edge indices", () => {
-    expect<NodeIndex>().type.toBe<number & Brand.Brand<"NodeIndex">>();
-    expect<NodeIndexType>().type.toBe<number & Brand.Brand<"NodeIndex">>();
+    expect<GraphSchema.NodeIndex>().type.toBe<number & Brand.Brand<"NodeIndex">>();
+    expect<GraphSchema.NodeIndex>().type.toBe<number & Brand.Brand<"NodeIndex">>();
 
-    expect<EdgeIndex>().type.toBe<number & Brand.Brand<"EdgeIndex">>();
-    expect<EdgeIndexType>().type.toBe<number & Brand.Brand<"EdgeIndex">>();
+    expect<GraphSchema.EdgeIndex>().type.toBe<number & Brand.Brand<"EdgeIndex">>();
+    expect<GraphSchema.EdgeIndex>().type.toBe<number & Brand.Brand<"EdgeIndex">>();
   });
 
   it("preserves the graph kind union", () => {
-    expect<GraphKind>().type.toBe<"directed" | "undirected">();
-    expect<GraphKindType>().type.toBe<"directed" | "undirected">();
+    expect<GraphSchema.GraphKind>().type.toBe<"directed" | "undirected">();
+    expect<GraphSchema.GraphKind>().type.toBe<"directed" | "undirected">();
   });
 });
 
 describe("Graph edge schemas", () => {
   it("preserves encoded edge schema types", () => {
-    const schema = EdgeEncoded(S.NumberFromString);
+    const schema = GraphSchema.EdgeEncoded(S.NumberFromString);
 
     expect(schema.data).type.toBe<typeof S.NumberFromString>();
-    expect<typeof schema.Type>().type.toBe<EdgeEncodedType<number>>();
-    expect<typeof schema.Encoded>().type.toBe<EdgeEncodedType<string>>();
+    expect<typeof schema.Type>().type.toBe<GraphSchema.EdgeEncoded<number>>();
+    expect<typeof schema.Encoded>().type.toBe<GraphSchema.EdgeEncoded<string>>();
   });
 
   it("preserves runtime edge schema types", () => {
-    const schema = EdgeFromSelf(S.NumberFromString);
+    const schema = GraphSchema.EdgeFromSelf(S.NumberFromString);
     const decode = S.decodeUnknownSync(schema);
     const decoded = decode(new Graph_.Edge({ source: 0, target: 1, data: "1" }));
 
@@ -57,16 +42,16 @@ describe("Graph edge schemas", () => {
 
 describe("Graph schemas", () => {
   it("preserves the encoded graph schema surface", () => {
-    const schema = GraphEncoded(S.NumberFromString, S.String);
+    const schema = GraphSchema.GraphEncoded(S.NumberFromString, S.String);
 
     expect(schema.node).type.toBe<typeof S.NumberFromString>();
     expect(schema.edge).type.toBe<typeof S.String>();
-    expect<typeof schema.Type>().type.toBe<GraphEncodedType<number, string>>();
-    expect<typeof schema.Encoded>().type.toBe<GraphEncodedType<string, string>>();
+    expect<typeof schema.Type>().type.toBe<GraphSchema.GraphEncoded<number, string>>();
+    expect<typeof schema.Encoded>().type.toBe<GraphSchema.GraphEncoded<string, string>>();
   });
 
   it("preserves immutable directed graph transform types", () => {
-    const schema = DirectedGraph({
+    const schema = GraphSchema.DirectedGraph({
       node: S.NumberFromString,
       edge: S.String,
     });
@@ -81,22 +66,22 @@ describe("Graph schemas", () => {
     expect(schema.node).type.toBe<typeof S.NumberFromString>();
     expect(schema.edge).type.toBe<typeof S.String>();
     expect<typeof schema.Type>().type.toBe<Graph_.DirectedGraph<number, string>>();
-    expect<typeof schema.Encoded>().type.toBe<GraphEncodedType<string, string>>();
+    expect<typeof schema.Encoded>().type.toBe<GraphSchema.GraphEncoded<string, string>>();
     expect(decoded).type.toBe<Graph_.DirectedGraph<number, string>>();
   });
 
   it("preserves mutable directed graph transform types", () => {
-    const schema = MutableDirectedGraph({
+    const schema = GraphSchema.MutableDirectedGraph({
       node: S.NumberFromString,
       edge: S.String,
     });
 
     expect<typeof schema.Type>().type.toBe<Graph_.MutableDirectedGraph<number, string>>();
-    expect<typeof schema.Encoded>().type.toBe<GraphEncodedType<string, string>>();
+    expect<typeof schema.Encoded>().type.toBe<GraphSchema.GraphEncoded<string, string>>();
   });
 
   it("preserves immutable directed graph FromSelf types", () => {
-    const schema = DirectedGraphFromSelf({
+    const schema = GraphSchema.DirectedGraphFromSelf({
       node: S.NumberFromString,
       edge: S.String,
     });

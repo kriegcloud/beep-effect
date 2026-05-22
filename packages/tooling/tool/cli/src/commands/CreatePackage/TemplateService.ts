@@ -143,7 +143,7 @@ export const createTemplateService = (): TemplateServiceShape => {
           );
 
         const compile = hbs.compile(raw, { noEscape: true });
-        return new RenderedTemplate({
+        return RenderedTemplate.make({
           outputPath,
           content: compile(request.context),
         });

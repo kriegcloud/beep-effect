@@ -14,7 +14,7 @@ const provideScopedLayer =
   <A, E, R>(effect: Effect.Effect<A, E, R>): Effect.Effect<A, E | E2, RIn | Exclude<R, ROut>> =>
     Effect.scoped(Layer.build(layer).pipe(Effect.flatMap((context) => effect.pipe(Effect.provide(context)))));
 
-const serverConfig = new ServerObservabilityConfig({
+const serverConfig = ServerObservabilityConfig.make({
   serviceName: "beep-server",
   serviceVersion: "0.0.0",
   environment: "test",
@@ -90,7 +90,7 @@ describe("NodeSdk", () => {
                   Effect.withSpan("node-sdk-protobuf-export-test"),
                   provideScopedLayer(
                     layerNodeSdkServerTraces(
-                      new ServerObservabilityConfig({
+                      ServerObservabilityConfig.make({
                         devtoolsEnabled: false,
                         devtoolsUrl: "ws://localhost:34437",
                         environment: "test",

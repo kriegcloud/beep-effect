@@ -22,7 +22,7 @@ describe("@beep/oip-web", () => {
     expect(submitContact({})).type.toBe<Effect.Effect<ContactSubmissionResponse>>();
     expect(
       contactResponseBody(
-        new ContactSubmissionResponse({
+        ContactSubmissionResponse.make({
           message: "ok",
           status: "accepted",
         })

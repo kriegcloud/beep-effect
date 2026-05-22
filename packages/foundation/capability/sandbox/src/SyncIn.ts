@@ -50,7 +50,7 @@ const runHostGit = Effect.fn("SyncIn.runHostGit")(function* (args: ReadonlyArray
   const command = hostGitCommandLabel(args);
   const result = yield* process
     .run(
-      new ProcessCommand({
+      ProcessCommand.make({
         args: [...args],
         command: "git",
         cwd,
@@ -140,11 +140,11 @@ const syncBundleToSandbox = Effect.fn("SyncIn.syncBundleToSandbox")(function* <R
   yield* execSandboxOk(
     handle,
     branch === "HEAD" ? `git checkout --detach ${shellEscape(hostHead)}` : `git checkout ${shellEscape(branch)}`,
-    new SandboxExecOptions({ cwd: worktreePath })
+    SandboxExecOptions.make({ cwd: worktreePath })
   );
 
   const sandboxHead = Str.trim(
-    (yield* execSandboxOk(handle, "git rev-parse HEAD", new SandboxExecOptions({ cwd: worktreePath }))).stdout
+    (yield* execSandboxOk(handle, "git rev-parse HEAD", SandboxExecOptions.make({ cwd: worktreePath }))).stdout
   );
 
   if (hostHead !== sandboxHead) {
@@ -204,6 +204,6 @@ export const syncIn: {
       Effect.ensuring(fs.remove(bundleDir, { force: true, recursive: true }).pipe(Effect.ignore))
     );
 
-    return new SyncInResult({ branch });
+    return SyncInResult.make({ branch });
   })
 );

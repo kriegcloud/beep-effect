@@ -32,7 +32,7 @@ describe("OpenAiCompat", () => {
       Stream.Stream<OpenAiCompatChatCompletionChunk, AiError.AiError>
     >();
     expect(
-      OpenAiCompatClient.makeLayer(new OpenAiCompatClientOptions({ apiKey: Redacted.make("test-key") }))
+      OpenAiCompatClient.makeLayer(OpenAiCompatClientOptions.make({ apiKey: Redacted.make("test-key") }))
     ).type.toBe<Layer.Layer<OpenAiCompatClient, never, HttpClient.HttpClient>>();
   });
 

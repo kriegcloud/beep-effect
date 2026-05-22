@@ -214,7 +214,7 @@ describe("SqlTest", () => {
   it.effect(
     "uses a generated PGLite Testcontainers password by default",
     Effect.fnUntraced(function* () {
-      const config = new PgliteTestcontainersTestDriverConfig({});
+      const config = PgliteTestcontainersTestDriverConfig.make({});
 
       expect(config.username).toBe("postgres");
       expect(config.database).toBe("postgres");

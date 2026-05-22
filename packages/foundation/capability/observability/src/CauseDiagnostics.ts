@@ -116,7 +116,7 @@ export type ExitOutcome = typeof ExitOutcome.Type;
  * ```typescript
  * import { CauseFingerprint } from "@beep/observability"
  *
- * const fp = new CauseFingerprint({ value: "failure:fail:1:error:boom" })
+ * const fp = CauseFingerprint.make({ value: "failure:fail:1:error:boom" })
  * console.log(fp.value) // "failure:fail:1:error:boom"
  * ```
  *
@@ -420,7 +420,7 @@ export const classifyCause = flow(summarizeReasonCounts, classifyReasonCounts);
  * @category diagnostics
  */
 export const fingerprintCause = (cause: Cause.Cause<unknown>): CauseFingerprint =>
-  new CauseFingerprint({
+  CauseFingerprint.make({
     value: pipe(cause, fingerprintValue(classifyCause(cause))),
   });
 
@@ -447,7 +447,7 @@ export const summarizeCause = (cause: Cause.Cause<unknown>): CauseSummary => {
   const counts = summarizeReasonCounts(cause);
   const classification = classifyReasonCounts(counts);
   const fields = {
-    fingerprint: new CauseFingerprint({
+    fingerprint: CauseFingerprint.make({
       value: fingerprintValue(cause, classification),
     }),
     reasonCount: decodeNonNegativeInt(counts.reasonCount),
@@ -496,7 +496,7 @@ export const summarizeExit = <A, E>(exit: Exit.Exit<A, E>): ObservedExitSummary 
     onSuccess: () =>
       ObservedExitSummaryTagged.cases.empty.make({
         outcome: ExitOutcome.Enum.success,
-        fingerprint: new CauseFingerprint({ value: "success" }),
+        fingerprint: CauseFingerprint.make({ value: "success" }),
         interrupted: false,
         reasonCount: decodeNonNegativeInt(0),
         primaryMessage: "success",

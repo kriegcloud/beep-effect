@@ -154,7 +154,7 @@ export const makeDevToolsRelayService: Effect.Effect<
         onSome: (snapshot) => snapshot.metrics.length,
       });
 
-      return new DevToolsSnapshot({
+      return DevToolsSnapshot.make({
         spanCount: decodeNonNegativeInt(HashMap.size(current.spans)),
         spanEventCount: decodeNonNegativeInt(current.spanEvents.length),
         metricCount: decodeNonNegativeInt(metricCount),

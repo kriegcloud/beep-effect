@@ -155,7 +155,7 @@ export class ConnectorAccountPrincipal extends S.Class<ConnectorAccountPrincipal
  * ```ts
  * import { SystemPrincipal } from "@beep/shared-domain/entity/Principal"
  *
- * const principal = new SystemPrincipal({
+ * const principal = SystemPrincipal.make({
  *   kind: "System",
  *   component: "Runtime",
  * })

@@ -16,7 +16,6 @@ import { printLines } from "../../internal/cli/Printer.js";
 import { docsAggregateCommand } from "./Docs.aggregate.js";
 
 const $I = $RepoCliId.create("docs");
-const stringEquivalence = Str.equivalence;
 
 const DocsSectionName = LiteralKit(["laws", "skills", "policies"]).annotate(
   $I.annote("DocsSectionName", {
@@ -98,7 +97,7 @@ export const DocsSection = DocsSectionName.mapMembers(
 export type DocsSection = typeof DocsSection.Type;
 
 const DocsSections: ReadonlyArray<DocsSection> = [
-  new DocsSectionLaws({
+  DocsSectionLaws.make({
     name: "laws",
     title: "Codebase Laws",
     summary: "Effect-first quality law summary and validation entry points.",
@@ -116,7 +115,7 @@ const DocsSections: ReadonlyArray<DocsSection> = [
     ],
     keywords: ["effect", "law", "laws", "quality", "lint", "check", "test", "docgen"],
   }),
-  new DocsSectionSkills({
+  DocsSectionSkills.make({
     name: "skills",
     title: "Agent Skills",
     summary: "High-signal skills and usage expectations for coding agents.",
@@ -129,7 +128,7 @@ const DocsSections: ReadonlyArray<DocsSection> = [
     ],
     keywords: ["skill", "skills", "agent", "workflow", "context"],
   }),
-  new DocsSectionPolicies({
+  DocsSectionPolicies.make({
     name: "policies",
     title: "Policy Gates",
     summary: "Operational policy checks for agent output and repo hygiene.",
@@ -160,7 +159,7 @@ const printDocsIndex = () =>
   ]);
 
 const findSectionByName = (name: DocsSectionName): O.Option<DocsSection> =>
-  A.findFirst(DocsSections, (entry) => stringEquivalence(entry.name, name));
+  A.findFirst(DocsSections, (entry) => Str.equivalence(entry.name, name));
 
 const printSectionByName = (name: DocsSectionName) =>
   pipe(

@@ -68,7 +68,7 @@ const errorDescription = (error: VeniceAIError): string =>
   `Venice AI driver failed with ${error.reason}${error.operation === undefined ? "" : ` during ${error.operation}`}.`;
 
 const networkTransportError = (error: VeniceAIError): AiError.NetworkError =>
-  new AiError.NetworkError({
+  AiError.NetworkError.make({
     description: errorDescription(error),
     reason: "TransportError",
     request: {
@@ -98,15 +98,15 @@ const mapVeniceError =
       );
     }
     if (error.reason === "response decoding" || error.reason === "sse decoding") {
-      return makeAiError(method, new AiError.InvalidOutputError({ description: errorDescription(error) }));
+      return makeAiError(method, AiError.InvalidOutputError.make({ description: errorDescription(error) }));
     }
     if (error.reason === "request encoding" || error.reason === "multipart encoding" || error.reason === "config") {
-      return makeAiError(method, new AiError.InvalidRequestError({ description: errorDescription(error) }));
+      return makeAiError(method, AiError.InvalidRequestError.make({ description: errorDescription(error) }));
     }
     if (error.reason === "transport") {
       return makeAiError(method, networkTransportError(error));
     }
-    return makeAiError(method, new AiError.UnknownError({ description: errorDescription(error) }));
+    return makeAiError(method, AiError.UnknownError.make({ description: errorDescription(error) }));
   };
 
 const createChatCompletion = (
@@ -114,7 +114,7 @@ const createChatCompletion = (
   request: OpenAiCompatChatCompletionRequest
 ): Effect.Effect<OpenAiCompatChatCompletionResponse, AiError.AiError> =>
   pipe(
-    venice.createChatCompletion(new VeniceAIRequestOptions({ body: request })),
+    venice.createChatCompletion(VeniceAIRequestOptions.make({ body: request })),
     Effect.mapError(mapVeniceError("createChatCompletion")),
     Effect.flatMap((response) =>
       response._tag === "Json"
@@ -122,7 +122,7 @@ const createChatCompletion = (
         : Effect.fail(
             makeAiError(
               "createChatCompletion",
-              new AiError.InvalidOutputError({ description: "Venice chat completion did not return a JSON response." })
+              AiError.InvalidOutputError.make({ description: "Venice chat completion did not return a JSON response." })
             )
           )
     ),
@@ -143,7 +143,7 @@ const streamChatCompletion = (
   venice: VeniceAIShape,
   request: OpenAiCompatChatCompletionRequest
 ): Stream.Stream<OpenAiCompatChatCompletionChunk, AiError.AiError> =>
-  venice.streamChatCompletion(new VeniceAIRequestOptions({ body: request })).pipe(
+  venice.streamChatCompletion(VeniceAIRequestOptions.make({ body: request })).pipe(
     Stream.mapError(mapVeniceError("streamChatCompletion")),
     Stream.flatMap((event) => (event.done ? Stream.empty : Stream.fromEffect(parseStreamEvent(event)))),
     Stream.withSpan("VeniceAiLanguageModel.streamChatCompletion", {

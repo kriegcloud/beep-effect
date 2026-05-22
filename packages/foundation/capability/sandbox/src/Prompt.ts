@@ -193,7 +193,7 @@ export const resolvePrompt = Effect.fn("Prompt.resolvePrompt")(function* (option
   }
 
   if (options.prompt !== undefined) {
-    return new ResolvedPrompt({ source: "Inline", text: options.prompt });
+    return ResolvedPrompt.make({ source: "Inline", text: options.prompt });
   }
 
   if (options.promptFile === undefined) {
@@ -205,7 +205,7 @@ export const resolvePrompt = Effect.fn("Prompt.resolvePrompt")(function* (option
     .readFileString(options.promptFile)
     .pipe(PromptError.mapError(`Failed to read prompt from ${options.promptFile}`));
 
-  return new ResolvedPrompt({ source: "Template", text });
+  return ResolvedPrompt.make({ source: "Template", text });
 });
 
 /**

@@ -78,7 +78,7 @@ if (!shouldRunPgliteIntegration) {
           const id = yield* decodeWorkItemId("drizzle-work-item-1");
           const title = yield* decodeWorkItemTitle("Prove Drizzle repository");
           const created = DomainWorkItem.create(
-            new DomainWorkItem.CreateWorkItemInput({
+            DomainWorkItem.CreateWorkItemInput.make({
               id,
               title,
               priority: O.some(WorkPriority.WorkPriority.Enum.high),
@@ -112,7 +112,7 @@ if (!shouldRunPgliteIntegration) {
           const id = yield* decodeWorkerId(1);
           const organizationId = yield* decodeOrganizationId(1);
           const created = DomainWorker.create(
-            new DomainWorker.CreateWorkerInput({
+            DomainWorker.CreateWorkerInput.make({
               id,
               organizationId,
               displayName: "Ada Lovelace",

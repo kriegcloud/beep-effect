@@ -177,7 +177,7 @@ export class WinkEngineCustomEntities extends S.Class<WinkEngineCustomEntities>(
       const groupName = P.isString(name) ? EntityGroupName.make(name) : name;
       const entries = Chunk.isChunk(patterns) ? Chunk.toReadonlyArray(patterns) : patterns;
 
-      return new WinkEngineCustomEntities({
+      return WinkEngineCustomEntities.make({
         name: groupName,
         patterns: pipe(
           entries,
@@ -187,7 +187,7 @@ export class WinkEngineCustomEntities extends S.Class<WinkEngineCustomEntities>(
             return head === undefined
               ? Result.failVoid
               : Result.succeed(
-                  new CustomEntityExample({
+                  CustomEntityExample.make({
                     mark: pattern.mark,
                     name: groupName,
                     patterns: [head, ...tail],
@@ -234,7 +234,7 @@ export class WinkEngineCustomEntities extends S.Class<WinkEngineCustomEntities>(
    * @returns A merged collection with duplicate examples removed.
    */
   merge(other: WinkEngineCustomEntities, newName: EntityGroupName | string = this.name): WinkEngineCustomEntities {
-    return new WinkEngineCustomEntities({
+    return WinkEngineCustomEntities.make({
       name: P.isString(newName) ? EntityGroupName.make(newName) : newName,
       patterns: pipe(
         this.patterns,

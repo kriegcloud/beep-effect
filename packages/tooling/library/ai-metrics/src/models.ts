@@ -142,7 +142,7 @@ export type AiMetricsSourceRole = typeof AiMetricsSourceRole.Type;
  * @example
  * ```ts
  * import { AiMetricsSourceAttribution } from "@beep/repo-ai-metrics"
- * console.log(new AiMetricsSourceAttribution({ sourceRole: "primary" }).sourceRole)
+ * console.log(AiMetricsSourceAttribution.make({ sourceRole: "primary" }).sourceRole)
  * ```
  * @category models
  * @since 0.0.0
@@ -321,7 +321,7 @@ export class AiMetricsOtlpEndpointSpec extends S.Class<AiMetricsOtlpEndpointSpec
  * @example
  * ```ts
  * import { AiMetricsScoreWeights } from "@beep/repo-ai-metrics"
- * console.log(new AiMetricsScoreWeights({}).outcome)
+ * console.log(AiMetricsScoreWeights.make({}).outcome)
  * ```
  * @category models
  * @since 0.0.0
@@ -660,7 +660,7 @@ export class TranscriptIngestSummary extends S.Class<TranscriptIngestSummary>($I
  * @example
  * ```ts
  * import { CodexTranscriptLine } from "@beep/repo-ai-metrics"
- * const line = new CodexTranscriptLine({ type: "session_meta" })
+ * const line = CodexTranscriptLine.make({ type: "session_meta" })
  * console.log(line.type)
  * ```
  * @category models
@@ -683,7 +683,7 @@ export class CodexTranscriptLine extends S.Class<CodexTranscriptLine>($I`CodexTr
  * @example
  * ```ts
  * import { ClaudeTranscriptLine } from "@beep/repo-ai-metrics"
- * const line = new ClaudeTranscriptLine({ type: "message" })
+ * const line = ClaudeTranscriptLine.make({ type: "message" })
  * console.log(line.type)
  * ```
  * @category models
@@ -708,7 +708,7 @@ export class ClaudeTranscriptLine extends S.Class<ClaudeTranscriptLine>($I`Claud
  * @example
  * ```ts
  * import { OpenClawTranscriptLine } from "@beep/repo-ai-metrics"
- * const line = new OpenClawTranscriptLine({ event: "gateway_metadata" })
+ * const line = OpenClawTranscriptLine.make({ event: "gateway_metadata" })
  * console.log(line.event)
  * ```
  * @category models

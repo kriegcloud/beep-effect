@@ -105,7 +105,7 @@ export class RunpodError extends TaggedErrorClass<RunpodError>($I`RunpodError`)(
   } = dual(
     (args) => args.length >= 2 && isRunpodOperationDescriptor(args[0]),
     (descriptor: RunpodOperationDescriptor, reason: RunpodErrorReason, options: RunpodErrorOptions = {}) =>
-      new RunpodError({
+      RunpodError.make({
         method: descriptor.method,
         methodName: descriptor.methodName,
         operationId: descriptor.operationId,
@@ -127,7 +127,7 @@ export class RunpodError extends TaggedErrorClass<RunpodError>($I`RunpodError`)(
    * @since 0.1.0
    */
   static readonly config = (cause?: unknown): RunpodError =>
-    new RunpodError({
+    RunpodError.make({
       reason: "config",
       ...R.getSomes({
         cause: causeFromUnknown(cause),
@@ -141,7 +141,7 @@ export class RunpodError extends TaggedErrorClass<RunpodError>($I`RunpodError`)(
    * @since 0.1.0
    */
   static readonly raw = (options: RunpodRawErrorOptions): RunpodError =>
-    new RunpodError({
+    RunpodError.make({
       method: options.method,
       path: options.path,
       reason: options.reason,
@@ -179,7 +179,7 @@ export class RunpodDocsError extends TaggedErrorClass<RunpodDocsError>($I`Runpod
    * @since 0.1.0
    */
   static readonly fromReason = (reason: RunpodDocsErrorReason, options: RunpodDocsErrorOptions = {}): RunpodDocsError =>
-    new RunpodDocsError({
+    RunpodDocsError.make({
       reason,
       ...R.getSomes({
         cause: causeFromUnknown(options.cause),
@@ -201,7 +201,7 @@ export class RunpodDocsError extends TaggedErrorClass<RunpodDocsError>($I`Runpod
  */
 export class RunpodErrorOptions extends S.Class<RunpodErrorOptions>($I`RunpodErrorOptions`)(
   {
-    cause: S.optionalKey(S.Unknown),
+    cause: S.optionalKey(S.DefectWithStack),
     status: S.optionalKey(S.Number),
   },
   $I.annote("RunpodErrorOptions", {
@@ -217,7 +217,7 @@ export class RunpodErrorOptions extends S.Class<RunpodErrorOptions>($I`RunpodErr
  */
 export class RunpodRawErrorOptions extends S.Class<RunpodRawErrorOptions>($I`RunpodRawErrorOptions`)(
   {
-    cause: S.optionalKey(S.Unknown),
+    cause: S.optionalKey(S.DefectWithStack),
     method: RunpodHttpMethod,
     path: S.String,
     reason: RunpodErrorReason,
@@ -236,7 +236,7 @@ export class RunpodRawErrorOptions extends S.Class<RunpodRawErrorOptions>($I`Run
  */
 export class RunpodDocsErrorOptions extends S.Class<RunpodDocsErrorOptions>($I`RunpodDocsErrorOptions`)(
   {
-    cause: S.optionalKey(S.Unknown),
+    cause: S.optionalKey(S.DefectWithStack),
     status: S.optionalKey(S.Number),
     url: S.optionalKey(S.String),
   },

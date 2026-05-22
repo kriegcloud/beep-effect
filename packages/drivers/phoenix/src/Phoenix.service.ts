@@ -271,7 +271,7 @@ const experimentInfoResult = (experiment: {
   readonly repetitions: number;
   readonly successfulRunCount: number;
 }): PhoenixExperimentInfoResult =>
-  new PhoenixExperimentInfoResult({
+  PhoenixExperimentInfoResult.make({
     datasetId: experiment.datasetId,
     datasetVersionId: experiment.datasetVersionId,
     exampleCount: experiment.exampleCount,
@@ -422,28 +422,27 @@ const makePhoenixSdk = (config: ResolvedPhoenixConfig): PhoenixSdkShape => {
           ),
           Match.exhaustive
         )
-        .then(
-          (result) =>
-            new PhoenixAnnotationWriteResult({
-              annotationId: result?.id ?? null,
-              name: input.name,
-              targetId: input.targetId,
-              targetKind: input.targetKind,
-            })
+        .then((result) =>
+          PhoenixAnnotationWriteResult.make({
+            annotationId: result?.id ?? null,
+            name: input.name,
+            targetId: input.targetId,
+            targetKind: input.targetKind,
+          })
         ),
     appendDatasetExamples: (input) =>
       appendDatasetExamples({
         client,
         dataset: datasetSelectorToSdk(input.dataset),
         examples: pipe(input.examples, A.map(datasetExampleToSdk)),
-      }).then((result) => new PhoenixDatasetAppendResult(result)),
+      }).then((result) => PhoenixDatasetAppendResult.make(result)),
     createDataset: (input) =>
       createDataset({
         client,
         description: input.description,
         examples: pipe(input.examples, A.map(datasetExampleToSdk)),
         name: input.name,
-      }).then((result) => new PhoenixDatasetCreateResult(result)),
+      }).then((result) => PhoenixDatasetCreateResult.make(result)),
     createExperiment: (input) =>
       createExperiment({
         client,
@@ -462,59 +461,54 @@ const makePhoenixSdk = (config: ResolvedPhoenixConfig): PhoenixSdkShape => {
         name: input.name,
         version: promptVersionForProvider(input),
         ...optionalPromptDescription(input),
-      }).then(
-        (result) =>
-          new PhoenixPromptWriteResult({
-            name: input.name,
-            promptVersionId: result.id,
-          })
+      }).then((result) =>
+        PhoenixPromptWriteResult.make({
+          name: input.name,
+          promptVersionId: result.id,
+        })
       ),
     doctor: () =>
-      client.getServerVersion().then(
-        (version) =>
-          new PhoenixDoctorResult({
-            baseUrl: config.baseUrl,
-            message: "Phoenix is reachable.",
-            status: "passed",
-            version: semanticVersionToString(version),
-          })
+      client.getServerVersion().then((version) =>
+        PhoenixDoctorResult.make({
+          baseUrl: config.baseUrl,
+          message: "Phoenix is reachable.",
+          status: "passed",
+          version: semanticVersionToString(version),
+        })
       ),
     getDatasetExamples: (selector) =>
-      getDatasetExamples({ client, dataset: datasetSelectorToSdk(selector) }).then(
-        (result) =>
-          new PhoenixDatasetExamplesResult({
-            examples: pipe(
-              result.examples,
-              A.map(
-                (example) =>
-                  new PhoenixDatasetExample({
-                    id: example.id,
-                    input: example.input,
-                    metadata: example.metadata ?? {},
-                    output: example.output ?? null,
-                    spanId: example.spanId ?? null,
-                    splits: example.splits ?? null,
-                  })
-              )
-            ),
-            versionId: result.versionId,
-          })
+      getDatasetExamples({ client, dataset: datasetSelectorToSdk(selector) }).then((result) =>
+        PhoenixDatasetExamplesResult.make({
+          examples: pipe(
+            result.examples,
+            A.map((example) =>
+              PhoenixDatasetExample.make({
+                id: example.id,
+                input: example.input,
+                metadata: example.metadata ?? {},
+                output: example.output ?? null,
+                spanId: example.spanId ?? null,
+                splits: example.splits ?? null,
+              })
+            )
+          ),
+          versionId: result.versionId,
+        })
       ),
     getDatasetInfo: (selector) =>
-      getDatasetInfo({ client, dataset: datasetSelectorToSdk(selector) }).then(
-        (result) =>
-          new PhoenixDatasetInfoResult({
-            datasetId: result.id,
-            description: result.description ?? null,
-            metadata: result.metadata ?? {},
-            name: result.name,
-          })
+      getDatasetInfo({ client, dataset: datasetSelectorToSdk(selector) }).then((result) =>
+        PhoenixDatasetInfoResult.make({
+          datasetId: result.id,
+          description: result.description ?? null,
+          metadata: result.metadata ?? {},
+          name: result.name,
+        })
       ),
     getExperimentInfo: (experimentId) => getExperimentInfo({ client, experimentId }).then(experimentInfoResult),
     getPrompt: (selector) =>
       getPrompt({ client, prompt: promptSelectorToSdk(selector) }).then((result) => {
         const prompt = O.fromNullishOr(result);
-        return new PhoenixPromptReadResult({
+        return PhoenixPromptReadResult.make({
           exists: O.isSome(prompt),
           promptVersionId: pipe(
             prompt,
@@ -667,14 +661,14 @@ export class Phoenix extends Context.Service<Phoenix, PhoenixShape>()($I`Phoenix
    * ```ts
    * import { Phoenix, PhoenixConfigInput } from "@beep/phoenix"
    *
-   * const layer = Phoenix.makeLayer(new PhoenixConfigInput({ baseUrl: "https://phoenix.test" }))
+   * const layer = Phoenix.makeLayer(PhoenixConfigInput.make({ baseUrl: "https://phoenix.test" }))
    * console.log(layer)
    * ```
    *
    * @category layers
    * @since 0.0.0
    */
-  static readonly makeLayer = (config = new PhoenixConfigInput({})): Layer.Layer<Phoenix> =>
+  static readonly makeLayer = (config = PhoenixConfigInput.make({})): Layer.Layer<Phoenix> =>
     Layer.succeed(Phoenix, Phoenix.of(makeService(makePhoenixSdk(resolveConfig(config)))));
 
   /**

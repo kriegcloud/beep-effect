@@ -62,14 +62,14 @@ const makePattern = (
   elements: ReadonlyArray<PatternElement>,
   mark: O.Option<MarkRange> = O.none()
 ): Pattern =>
-  new Pattern({
+  Pattern.make({
     elements: Chunk.fromIterable(elements),
     id: Pattern.Id(id),
     mark,
   });
 
 const rebuildPattern = (pattern: Pattern, changes: Partial<Pick<Pattern, "elements" | "id" | "mark">>): Pattern =>
-  new Pattern({
+  Pattern.make({
     elements: changes.elements ?? pattern.elements,
     id: changes.id ?? pattern.id,
     mark: changes.mark ?? (P.isUndefined(changes.elements) ? pattern.mark : O.none()),
@@ -103,7 +103,7 @@ export function pos(
   ...rest: ReadonlyArray<WinkPOSTag | "">
 ): POSPatternElement {
   const tags = isPosChoiceArray(firstOrTags) ? firstOrTags : [firstOrTags, ...rest];
-  return new POSPatternElement({
+  return POSPatternElement.make({
     value: ensureNonEmpty(tags, ""),
   });
 }
@@ -128,7 +128,7 @@ export function entity(
   ...rest: ReadonlyArray<WinkEntityType | "">
 ): EntityPatternElement {
   const types = isEntityChoiceArray(firstOrTypes) ? firstOrTypes : [firstOrTypes, ...rest];
-  return new EntityPatternElement({
+  return EntityPatternElement.make({
     value: ensureNonEmpty(types, ""),
   });
 }
@@ -150,7 +150,7 @@ export function literal(first: string, ...rest: ReadonlyArray<string>): LiteralP
 export function literal(values: ReadonlyArray<string>): LiteralPatternElement;
 export function literal(firstOrValues: string | ReadonlyArray<string>, ...rest: ReadonlyArray<string>) {
   const values = isLiteralValueArray(firstOrValues) ? firstOrValues : [firstOrValues, ...rest];
-  return new LiteralPatternElement({
+  return LiteralPatternElement.make({
     value: normalizeLiteralValues(values),
   });
 }
@@ -175,7 +175,7 @@ export function optionalPos(
   ...rest: ReadonlyArray<WinkPOSTag>
 ): POSPatternElement {
   const tags = isRequiredPosChoiceArray(firstOrTags) ? firstOrTags : [firstOrTags, ...rest];
-  return new POSPatternElement({
+  return POSPatternElement.make({
     value: prependEmptyChoice(tags),
   });
 }
@@ -200,7 +200,7 @@ export function optionalEntity(
   ...rest: ReadonlyArray<WinkEntityType>
 ): EntityPatternElement {
   const types = isRequiredEntityChoiceArray(firstOrTypes) ? firstOrTypes : [firstOrTypes, ...rest];
-  return new EntityPatternElement({
+  return EntityPatternElement.make({
     value: prependEmptyChoice(types),
   });
 }
@@ -228,7 +228,7 @@ export function optionalLiteral(
     isLiteralValueArray(firstOrValues) ? firstOrValues : [firstOrValues, ...rest],
     Str.isNonEmpty
   );
-  return new LiteralPatternElement({
+  return LiteralPatternElement.make({
     value: prependEmptyChoice(values),
   });
 }

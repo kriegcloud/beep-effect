@@ -305,7 +305,7 @@ export const buildDocgenAliasSource: {
   });
   const subpathAliasTargets = buildDocgenSubpathAliasTargets(packageName, packageRelativePath, exportsField);
 
-  return new DocgenAliasSource({
+  return DocgenAliasSource.make({
     packageName,
     rootAliasTarget: aliasTargets.rootAliasTarget,
     wildcardAliasTarget: hasWildcardExport ? aliasTargets.wildcardAliasTarget : "",
@@ -417,11 +417,11 @@ export const createCanonicalDocgenConfig = Effect.fn("createCanonicalDocgenConfi
     rootRelativePrefix
   );
 
-  return new CanonicalDocgenConfig({
+  return CanonicalDocgenConfig.make({
     $schema: `${rootRelativePrefix}packages/tooling/tool/docgen/schema.json`,
     exclude: [...DEFAULT_DOCGEN_EXCLUDE],
     srcLink: `https://github.com/kriegcloud/beep-effect/tree/main/${input.packageRelativePath}/src/`,
-    examplesCompilerOptions: new CanonicalDocgenExamplesCompilerOptions({
+    examplesCompilerOptions: CanonicalDocgenExamplesCompilerOptions.make({
       noEmit: true,
       strict: true,
       skipLibCheck: true,

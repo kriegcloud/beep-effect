@@ -29,7 +29,7 @@ const getStoredWorker = Effect.fn("ArchitectureLab.WorkerRepository.getStored")(
   const workers = yield* Ref.get(store);
   const found = HashMap.get(workers, id);
   if (O.isNone(found)) {
-    return yield* new WorkerUseCaseServer.Worker.WorkerRepositoryNotFound({ workerId: id });
+    return yield* WorkerUseCaseServer.Worker.WorkerRepositoryNotFound.make({ workerId: id });
   }
   return found.value;
 });
@@ -47,7 +47,7 @@ export const makeInMemoryWorkerRepository = Effect.fn("ArchitectureLab.WorkerRep
     create: Effect.fn("ArchitectureLab.WorkerRepository.create")(function* (worker) {
       const workers = yield* Ref.get(store);
       if (O.isSome(HashMap.get(workers, worker.id))) {
-        return yield* new WorkerUseCaseServer.Worker.WorkerRepositoryConflict({
+        return yield* WorkerUseCaseServer.Worker.WorkerRepositoryConflict.make({
           workerId: worker.id,
           reason: `${WORKER_TABLE_NAME} already contains ${worker.id}`,
         });
@@ -76,11 +76,10 @@ const repositoryUnavailable =
           Effect.annotateLogs({ operation, table: WORKER_TABLE_NAME, cause })
         )
       ),
-      Effect.mapError(
-        () =>
-          new WorkerUseCaseServer.Worker.WorkerRepositoryUnavailable({
-            reason: `${operation} failed against ${WORKER_TABLE_NAME}`,
-          })
+      Effect.mapError(() =>
+        WorkerUseCaseServer.Worker.WorkerRepositoryUnavailable.make({
+          reason: `${operation} failed against ${WORKER_TABLE_NAME}`,
+        })
       )
     );
 
@@ -104,7 +103,7 @@ const getDrizzleWorker = Effect.fn("ArchitectureLab.WorkerRepository.getDrizzle"
 ) {
   const found = yield* findDrizzleWorker(db, id);
   if (O.isNone(found)) {
-    return yield* new WorkerUseCaseServer.Worker.WorkerRepositoryNotFound({ workerId: id });
+    return yield* WorkerUseCaseServer.Worker.WorkerRepositoryNotFound.make({ workerId: id });
   }
   return found.value;
 });
@@ -122,7 +121,7 @@ export const makeDrizzleWorkerRepository = Effect.fn("ArchitectureLab.WorkerRepo
     create: Effect.fn("ArchitectureLab.WorkerRepository.drizzleCreate")(function* (worker) {
       const existing = yield* findDrizzleWorker(db, worker.id);
       if (O.isSome(existing)) {
-        return yield* new WorkerUseCaseServer.Worker.WorkerRepositoryConflict({
+        return yield* WorkerUseCaseServer.Worker.WorkerRepositoryConflict.make({
           workerId: worker.id,
           reason: `${WORKER_TABLE_NAME} already contains ${worker.id}`,
         });

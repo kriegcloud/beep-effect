@@ -66,7 +66,7 @@ export class OnePasswordCliError extends TaggedErrorClass<OnePasswordCliError>($
     const { cause, ...context } = options;
     const normalizedCause = S.is(S.DefectWithStack)(cause) ? O.some(cause) : O.none();
 
-    return new OnePasswordCliError({
+    return OnePasswordCliError.make({
       ...context,
       message,
       operation,

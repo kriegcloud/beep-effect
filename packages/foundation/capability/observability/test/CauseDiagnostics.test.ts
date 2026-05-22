@@ -16,15 +16,15 @@ class TestCauseError extends TaggedErrorClass<TestCauseError>()("TestCauseError"
 
 describe("CauseDiagnostics", () => {
   it("classifies failure, defect, and mixed causes", () => {
-    expect(classifyCause(Cause.fail(new TestCauseError({ message: "boom" })))).toBe("failure");
+    expect(classifyCause(Cause.fail(TestCauseError.make({ message: "boom" })))).toBe("failure");
     expect(classifyCause(Cause.die("kapow"))).toBe("defect");
-    expect(classifyCause(Cause.combine(Cause.fail(new TestCauseError({ message: "boom" })), Cause.die("kapow")))).toBe(
+    expect(classifyCause(Cause.combine(Cause.fail(TestCauseError.make({ message: "boom" })), Cause.die("kapow")))).toBe(
       "mixed"
     );
   });
 
   it("creates stable fingerprints and summaries", () => {
-    const cause = Cause.fail(new TestCauseError({ message: "boom" }));
+    const cause = Cause.fail(TestCauseError.make({ message: "boom" }));
     const fingerprint = fingerprintCause(cause);
     const summary = summarizeCause(cause);
 
@@ -35,7 +35,7 @@ describe("CauseDiagnostics", () => {
 
   it("summarizes success and failure exits", () => {
     const success = summarizeExit(Exit.succeed("ok"));
-    const failure = summarizeExit(Exit.failCause(Cause.fail(new TestCauseError({ message: "boom" }))));
+    const failure = summarizeExit(Exit.failCause(Cause.fail(TestCauseError.make({ message: "boom" }))));
 
     expect(success.outcome).toBe("success");
     expect(failure.outcome).toBe("failure");

@@ -50,7 +50,7 @@ class OipContentLoadError extends TaggedErrorClass<OipContentLoadError>($I`OipCo
     reason: OipContentLoadErrorReason,
     options: OipContentLoadErrorOptions = {}
   ): OipContentLoadError =>
-    new OipContentLoadError({
+    OipContentLoadError.make({
       reason,
       ...R.getSomes({
         provider: O.fromUndefinedOr(options.provider),
@@ -92,7 +92,7 @@ const sanityConfig = Effect.fn("OipContent.sanityConfig")(function* () {
   }
 
   return O.some(
-    new SanityConfigInput({
+    SanityConfigInput.make({
       ...R.getSomes({ projectId, dataset }),
       ...R.getSomes({ apiHost: yield* readTextConfigOption("SANITY_API_HOST") }),
       ...R.getSomes({ apiVersion: yield* readTextConfigOption("SANITY_API_VERSION") }),
@@ -107,7 +107,7 @@ const loadFromSanity = (config: SanityConfigInput): Effect.Effect<OipSiteContent
       Effect.flatMap((context) =>
         Effect.gen(function* () {
           const sanity = yield* Sanity;
-          const response = yield* sanity.fetch(new SanityQueryRequest({ query }));
+          const response = yield* sanity.fetch(SanityQueryRequest.make({ query }));
           return yield* decodeOipSiteContent(response.result).pipe(
             Effect.mapError(() => OipContentLoadError.fromReason("decode", { provider: "sanity" }))
           );

@@ -6,7 +6,7 @@
  */
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
-import { LiteralKit } from "../LiteralKit.ts";
+import { LiteralKit } from "../LiteralKit/index.ts";
 import {
   $I,
   windowsInvalidSegmentCharacterRegExp,

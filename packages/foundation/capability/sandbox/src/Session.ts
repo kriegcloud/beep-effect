@@ -110,13 +110,12 @@ const decodeSessionId = S.decodeUnknownEffect(SessionId);
 
 const validateSessionId = Effect.fn("Session.validateSessionId")(function* (sessionId: string) {
   return yield* decodeSessionId(sessionId).pipe(
-    Effect.mapError(
-      (cause) =>
-        new SessionCaptureError({
-          cause,
-          message: `Invalid session id: ${sessionId}`,
-          sessionId,
-        })
+    Effect.mapError((cause) =>
+      SessionCaptureError.make({
+        cause,
+        message: `Invalid session id: ${sessionId}`,
+        sessionId,
+      })
     )
   );
 });
@@ -207,7 +206,7 @@ export const sandboxSessionStore = (
     const file = shellEscape(sessionFilePath(repoDir, projectsDir, safeSessionId));
 
     yield* handle
-      .exec(`mkdir -p ${dir} && cat > ${file}`, new SandboxExecOptions({ stdin: content }))
+      .exec(`mkdir -p ${dir} && cat > ${file}`, SandboxExecOptions.make({ stdin: content }))
       .pipe(Effect.asVoid, SessionCaptureError.mapError(`Failed to write sandbox session ${sessionId}`, { sessionId }));
   }),
 });
@@ -226,5 +225,5 @@ export const transferSession = Effect.fn("Session.transferSession")(function* (
   const content = yield* from.read(sessionId);
   yield* to.write(sessionId, content);
 
-  return new SessionTransferResult({ sessionId });
+  return SessionTransferResult.make({ sessionId });
 });

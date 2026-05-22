@@ -148,7 +148,7 @@ export const ArchitectureOperationKind = LiteralKit([
   "write-package-json",
   "ensure-file",
   "ensure-absent-path",
-] as const).pipe(
+]).pipe(
   $I.annoteSchema("ArchitectureOperationKind", {
     description: "Operation discriminator emitted by schema-versioned architecture operation plans.",
   })
@@ -175,13 +175,7 @@ export type ArchitectureOperationKind = typeof ArchitectureOperationKind.Type;
  * @category models
  * @since 0.0.0
  */
-export const ArchitectureWriterKind = LiteralKit([
-  "template",
-  "json",
-  "jsonc",
-  "package-json",
-  "ts-morph",
-] as const).pipe(
+export const ArchitectureWriterKind = LiteralKit(["template", "json", "jsonc", "package-json", "ts-morph"]).pipe(
   $I.annoteSchema("ArchitectureWriterKind", {
     description: "Writer family selected for an architecture operation-plan file operation.",
   })
@@ -212,7 +206,7 @@ export const ArchitectureOperationWriteMode = LiteralKit([
   "write-if-missing",
   "ensure-present",
   "remove-if-present",
-] as const).pipe(
+]).pipe(
   $I.annoteSchema("ArchitectureOperationWriteMode", {
     description: "Filesystem write mode used by architecture operation-plan dry-run and check output.",
   })
@@ -250,7 +244,7 @@ export const ArchitectureOperationConflictPolicy = LiteralKit([
   "skip-identical-fail-different",
   "require-present",
   "remove-existing",
-] as const).pipe(
+]).pipe(
   $I.annoteSchema("ArchitectureOperationConflictPolicy", {
     description: "Conflict behavior declared by an architecture operation before it touches the filesystem.",
   })
@@ -289,7 +283,7 @@ export const ArchitectureOperationSource = LiteralKit([
   "package-shell",
   "legacy-cleanup",
   "legacy-plan",
-] as const).pipe(
+]).pipe(
   $I.annoteSchema("ArchitectureOperationSource", {
     description: "Origin of an architecture operation within the normalized plan factory.",
   })
@@ -329,7 +323,7 @@ export const ArchitectureOperationCheckStatus = LiteralKit([
   "differing",
   "unexpected",
   "absent",
-] as const).pipe(
+]).pipe(
   $I.annoteSchema("ArchitectureOperationCheckStatus", {
     description: "Result assigned to one architecture operation during idempotency validation.",
   })
@@ -451,7 +445,7 @@ export class WriteFileOperation extends S.Class<WriteFileOperation>($I`WriteFile
  * ```ts
  * import { WritePackageJsonOperation } from "@beep/repo-cli/commands/Architecture/index"
  *
- * const operation = new WritePackageJsonOperation({
+ * const operation = WritePackageJsonOperation.make({
  *   kind: "write-package-json",
  *   role: "domain",
  *   path: "packages/research-lab/domain/package.json",
@@ -561,7 +555,7 @@ export type ArchitectureOperation = typeof ArchitectureOperation.Type;
  * ```ts
  * import { ArchitectureOperationCheck } from "@beep/repo-cli/commands/Architecture/index"
  *
- * const status = new ArchitectureOperationCheck({
+ * const status = ArchitectureOperationCheck.make({
  *   operationId: "ensure-file:packages/architecture-lab/domain/src/index.ts",
  *   kind: "ensure-file",
  *   path: "packages/architecture-lab/domain/src/index.ts",
@@ -683,7 +677,7 @@ class AcceptedProofFile extends S.Class<AcceptedProofFile>($I`AcceptedProofFile`
  * @category models
  * @since 0.0.0
  */
-export const defaultArchitecturePlanTarget = new ArchitecturePlanTarget({
+export const defaultArchitecturePlanTarget = ArchitecturePlanTarget.make({
   boundedContext: "architecture-lab",
   concept: "WorkItem",
   conceptPath: "aggregates/WorkItem",
@@ -693,9 +687,8 @@ export const defaultArchitecturePlanTarget = new ArchitecturePlanTarget({
 const defaultPlanTarget = defaultArchitecturePlanTarget;
 
 const stageOrder: ReadonlyArray<ArchitecturePlanStage> = ["core", "persistence", "protocol", "client", "full"];
-const stringEquivalence = SchemaUtils.toEquivalence(S.String);
 const stageRank = (stage: ArchitecturePlanStage): number =>
-  pipe(stageOrder, A.findFirstIndex(stringEquivalence(stage)), O.getOrElse(thunk0));
+  pipe(stageOrder, A.findFirstIndex(Str.equivalence(stage)), O.getOrElse(thunk0));
 
 const isStageIncluded: {
   (requested: ArchitecturePlanStage, fileStage: ArchitecturePlanStage): boolean;
@@ -703,7 +696,7 @@ const isStageIncluded: {
 } = dual(
   2,
   (requested: ArchitecturePlanStage, fileStage: ArchitecturePlanStage): boolean =>
-    stringEquivalence(requested, "full") || stageRank(fileStage) <= stageRank(requested)
+    Str.equivalence(requested, "full") || stageRank(fileStage) <= stageRank(requested)
 );
 
 const aggregateRoles: ReadonlyArray<ArchitectureSliceRole> = [
@@ -730,9 +723,9 @@ const roleAllowedForDomainKind = (domainKind: ArchitectureDomainKind, role: Arch
   pipe(rolesForDomainKind(domainKind), A.contains(role));
 
 const dbAdminProofTargetAllowed = (target: ArchitecturePlanTarget): boolean =>
-  stringEquivalence(target.boundedContext, defaultPlanTarget.boundedContext) &&
-  ((stringEquivalence(target.domainKind, "aggregates") && stringEquivalence(target.concept, "WorkItem")) ||
-    (stringEquivalence(target.domainKind, "entities") && stringEquivalence(target.concept, "Worker")));
+  Str.equivalence(target.boundedContext, defaultPlanTarget.boundedContext) &&
+  ((Str.equivalence(target.domainKind, "aggregates") && Str.equivalence(target.concept, "WorkItem")) ||
+    (Str.equivalence(target.domainKind, "entities") && Str.equivalence(target.concept, "Worker")));
 
 const roleAllowedForTarget = (target: ArchitecturePlanTarget, role: ArchitectureSliceRole): boolean =>
   roleAllowedForDomainKind(target.domainKind, role) && (role !== "db-admin" || dbAdminProofTargetAllowed(target));
@@ -750,142 +743,187 @@ const rolePackageFiles = (
   pipe(
     roleBasePath(role),
     O.map((basePath) => [
-      new AcceptedProofFile({ role, stage, path: `${basePath}/AGENTS.md`, writer: "template" }),
-      new AcceptedProofFile({ role, stage, path: `${basePath}/LICENSE`, writer: "template" }),
-      new AcceptedProofFile({ role, stage, path: `${basePath}/README.md`, writer: "template" }),
-      new AcceptedProofFile({ role, stage, path: `${basePath}/docgen.json`, writer: "json" }),
-      new AcceptedProofFile({ role, stage, path: `${basePath}/package.json`, writer: "package-json" }),
-      new AcceptedProofFile({ role, stage, path: `${basePath}/tsconfig.json`, writer: "jsonc" }),
-      new AcceptedProofFile({ role, stage, path: `${basePath}/vitest.config.ts`, writer: "template" }),
-      new AcceptedProofFile({ role, stage, path: `${basePath}/dtslint/.gitkeep`, writer: "template" }),
-      new AcceptedProofFile({ role, stage, path: `${basePath}/test/.gitkeep`, writer: "template" }),
+      AcceptedProofFile.make({
+        role,
+        stage,
+        path: `${basePath}/AGENTS.md`,
+        writer: "template",
+      }),
+      AcceptedProofFile.make({
+        role,
+        stage,
+        path: `${basePath}/LICENSE`,
+        writer: "template",
+      }),
+      AcceptedProofFile.make({
+        role,
+        stage,
+        path: `${basePath}/README.md`,
+        writer: "template",
+      }),
+      AcceptedProofFile.make({
+        role,
+        stage,
+        path: `${basePath}/docgen.json`,
+        writer: "json",
+      }),
+      AcceptedProofFile.make({
+        role,
+        stage,
+        path: `${basePath}/package.json`,
+        writer: "package-json",
+      }),
+      AcceptedProofFile.make({
+        role,
+        stage,
+        path: `${basePath}/tsconfig.json`,
+        writer: "jsonc",
+      }),
+      AcceptedProofFile.make({
+        role,
+        stage,
+        path: `${basePath}/vitest.config.ts`,
+        writer: "template",
+      }),
+      AcceptedProofFile.make({
+        role,
+        stage,
+        path: `${basePath}/dtslint/.gitkeep`,
+        writer: "template",
+      }),
+      AcceptedProofFile.make({
+        role,
+        stage,
+        path: `${basePath}/test/.gitkeep`,
+        writer: "template",
+      }),
     ]),
     O.getOrElse(A.empty<AcceptedProofFile>)
   );
 
 const acceptedProofFiles: ReadonlyArray<AcceptedProofFile> = [
   ...rolePackageFiles("domain", "core"),
-  new AcceptedProofFile({
+  AcceptedProofFile.make({
     role: "domain",
     stage: "core",
     path: "packages/architecture-lab/domain/src/index.ts",
     writer: "ts-morph",
   }),
-  new AcceptedProofFile({
+  AcceptedProofFile.make({
     role: "domain",
     stage: "core",
     path: "packages/architecture-lab/domain/src/aggregates/index.ts",
     writer: "ts-morph",
   }),
-  new AcceptedProofFile({
+  AcceptedProofFile.make({
     role: "domain",
     stage: "core",
     path: "packages/architecture-lab/domain/src/aggregates/WorkItem/index.ts",
     writer: "ts-morph",
   }),
-  new AcceptedProofFile({
+  AcceptedProofFile.make({
     role: "domain",
     stage: "core",
     path: "packages/architecture-lab/domain/src/aggregates/WorkItem/WorkItem.errors.ts",
     writer: "template",
   }),
-  new AcceptedProofFile({
+  AcceptedProofFile.make({
     role: "domain",
     stage: "core",
     path: "packages/architecture-lab/domain/src/aggregates/WorkItem/WorkItem.model.ts",
     writer: "template",
   }),
-  new AcceptedProofFile({
+  AcceptedProofFile.make({
     role: "domain",
     stage: "core",
     path: "packages/architecture-lab/domain/src/aggregates/WorkItem/WorkItem.values.ts",
     writer: "template",
   }),
-  new AcceptedProofFile({
+  AcceptedProofFile.make({
     role: "domain",
     stage: "core",
     path: "packages/architecture-lab/domain/test/WorkItem.test.ts",
     writer: "template",
   }),
-  new AcceptedProofFile({
+  AcceptedProofFile.make({
     role: "domain",
     stage: "core",
     path: "packages/architecture-lab/domain/dtslint/WorkItem.tst.ts",
     writer: "template",
   }),
-  new AcceptedProofFile({
+  AcceptedProofFile.make({
     role: "domain",
     stage: "core",
     path: "packages/architecture-lab/domain/src/identity/index.ts",
     writer: "ts-morph",
   }),
-  new AcceptedProofFile({
+  AcceptedProofFile.make({
     role: "domain",
     stage: "core",
     path: "packages/architecture-lab/domain/src/identity/ArchitectureLab.ts",
     writer: "template",
   }),
-  new AcceptedProofFile({
+  AcceptedProofFile.make({
     role: "domain",
     stage: "core",
     path: "packages/architecture-lab/domain/src/entities/index.ts",
     writer: "ts-morph",
   }),
-  new AcceptedProofFile({
+  AcceptedProofFile.make({
     role: "domain",
     stage: "core",
     path: "packages/architecture-lab/domain/src/entities/Worker/index.ts",
     writer: "ts-morph",
   }),
-  new AcceptedProofFile({
+  AcceptedProofFile.make({
     role: "domain",
     stage: "core",
     path: "packages/architecture-lab/domain/src/entities/Worker/Worker.model.ts",
     writer: "template",
   }),
-  new AcceptedProofFile({
+  AcceptedProofFile.make({
     role: "domain",
     stage: "core",
     path: "packages/architecture-lab/domain/test/Worker.test.ts",
     writer: "template",
   }),
-  new AcceptedProofFile({
+  AcceptedProofFile.make({
     role: "domain",
     stage: "core",
     path: "packages/architecture-lab/domain/dtslint/Worker.tst.ts",
     writer: "template",
   }),
-  new AcceptedProofFile({
+  AcceptedProofFile.make({
     role: "domain",
     stage: "core",
     path: "packages/architecture-lab/domain/src/values/index.ts",
     writer: "ts-morph",
   }),
-  new AcceptedProofFile({
+  AcceptedProofFile.make({
     role: "domain",
     stage: "core",
     path: "packages/architecture-lab/domain/src/values/WorkPriority/index.ts",
     writer: "ts-morph",
   }),
-  new AcceptedProofFile({
+  AcceptedProofFile.make({
     role: "domain",
     stage: "core",
     path: "packages/architecture-lab/domain/src/values/WorkPriority/WorkPriority.model.ts",
     writer: "template",
   }),
-  new AcceptedProofFile({
+  AcceptedProofFile.make({
     role: "domain",
     stage: "core",
     path: "packages/architecture-lab/domain/src/values/WorkPriority/WorkPriority.behavior.ts",
     writer: "template",
   }),
-  new AcceptedProofFile({
+  AcceptedProofFile.make({
     role: "domain",
     stage: "core",
     path: "packages/architecture-lab/domain/test/WorkPriority.test.ts",
     writer: "template",
   }),
-  new AcceptedProofFile({
+  AcceptedProofFile.make({
     role: "domain",
     stage: "core",
     path: "packages/architecture-lab/domain/dtslint/WorkPriority.tst.ts",
@@ -893,133 +931,133 @@ const acceptedProofFiles: ReadonlyArray<AcceptedProofFile> = [
   }),
 
   ...rolePackageFiles("use-cases", "core"),
-  new AcceptedProofFile({
+  AcceptedProofFile.make({
     role: "use-cases",
     stage: "core",
     path: "packages/architecture-lab/use-cases/src/index.ts",
     writer: "ts-morph",
   }),
-  new AcceptedProofFile({
+  AcceptedProofFile.make({
     role: "use-cases",
     stage: "core",
     path: "packages/architecture-lab/use-cases/src/public.ts",
     writer: "ts-morph",
   }),
-  new AcceptedProofFile({
+  AcceptedProofFile.make({
     role: "use-cases",
     stage: "core",
     path: "packages/architecture-lab/use-cases/src/server.ts",
     writer: "ts-morph",
   }),
-  new AcceptedProofFile({
+  AcceptedProofFile.make({
     role: "use-cases",
     stage: "core",
     path: "packages/architecture-lab/use-cases/src/aggregates/WorkItem/index.ts",
     writer: "ts-morph",
   }),
-  new AcceptedProofFile({
+  AcceptedProofFile.make({
     role: "use-cases",
     stage: "core",
     path: "packages/architecture-lab/use-cases/src/aggregates/WorkItem/server.ts",
     writer: "ts-morph",
   }),
-  new AcceptedProofFile({
+  AcceptedProofFile.make({
     role: "use-cases",
     stage: "core",
     path: "packages/architecture-lab/use-cases/src/aggregates/WorkItem/WorkItem.commands.ts",
     writer: "template",
   }),
-  new AcceptedProofFile({
+  AcceptedProofFile.make({
     role: "use-cases",
     stage: "core",
     path: "packages/architecture-lab/use-cases/src/aggregates/WorkItem/WorkItem.errors.ts",
     writer: "template",
   }),
-  new AcceptedProofFile({
+  AcceptedProofFile.make({
     role: "use-cases",
     stage: "core",
     path: "packages/architecture-lab/use-cases/src/aggregates/WorkItem/WorkItem.repository.ts",
     writer: "template",
   }),
-  new AcceptedProofFile({
+  AcceptedProofFile.make({
     role: "use-cases",
     stage: "core",
     path: "packages/architecture-lab/use-cases/src/aggregates/WorkItem/WorkItem.use-cases.ts",
     writer: "template",
   }),
-  new AcceptedProofFile({
+  AcceptedProofFile.make({
     role: "use-cases",
     stage: "core",
     path: "packages/architecture-lab/use-cases/src/aggregates/WorkItem/WorkItem.service.ts",
     writer: "template",
   }),
-  new AcceptedProofFile({
+  AcceptedProofFile.make({
     role: "use-cases",
     stage: "core",
     path: "packages/architecture-lab/use-cases/test/WorkItem.test.ts",
     writer: "template",
   }),
-  new AcceptedProofFile({
+  AcceptedProofFile.make({
     role: "use-cases",
     stage: "core",
     path: "packages/architecture-lab/use-cases/dtslint/WorkItem.tst.ts",
     writer: "template",
   }),
-  new AcceptedProofFile({
+  AcceptedProofFile.make({
     role: "use-cases",
     stage: "core",
     path: "packages/architecture-lab/use-cases/src/entities/index.ts",
     writer: "ts-morph",
   }),
-  new AcceptedProofFile({
+  AcceptedProofFile.make({
     role: "use-cases",
     stage: "core",
     path: "packages/architecture-lab/use-cases/src/entities/Worker/index.ts",
     writer: "ts-morph",
   }),
-  new AcceptedProofFile({
+  AcceptedProofFile.make({
     role: "use-cases",
     stage: "core",
     path: "packages/architecture-lab/use-cases/src/entities/Worker/server.ts",
     writer: "ts-morph",
   }),
-  new AcceptedProofFile({
+  AcceptedProofFile.make({
     role: "use-cases",
     stage: "core",
     path: "packages/architecture-lab/use-cases/src/entities/Worker/Worker.commands.ts",
     writer: "template",
   }),
-  new AcceptedProofFile({
+  AcceptedProofFile.make({
     role: "use-cases",
     stage: "core",
     path: "packages/architecture-lab/use-cases/src/entities/Worker/Worker.errors.ts",
     writer: "template",
   }),
-  new AcceptedProofFile({
+  AcceptedProofFile.make({
     role: "use-cases",
     stage: "core",
     path: "packages/architecture-lab/use-cases/src/entities/Worker/Worker.repository.ts",
     writer: "template",
   }),
-  new AcceptedProofFile({
+  AcceptedProofFile.make({
     role: "use-cases",
     stage: "core",
     path: "packages/architecture-lab/use-cases/src/entities/Worker/Worker.use-cases.ts",
     writer: "template",
   }),
-  new AcceptedProofFile({
+  AcceptedProofFile.make({
     role: "use-cases",
     stage: "core",
     path: "packages/architecture-lab/use-cases/src/entities/Worker/Worker.service.ts",
     writer: "template",
   }),
-  new AcceptedProofFile({
+  AcceptedProofFile.make({
     role: "use-cases",
     stage: "core",
     path: "packages/architecture-lab/use-cases/test/Worker.test.ts",
     writer: "template",
   }),
-  new AcceptedProofFile({
+  AcceptedProofFile.make({
     role: "use-cases",
     stage: "core",
     path: "packages/architecture-lab/use-cases/dtslint/Worker.tst.ts",
@@ -1027,109 +1065,109 @@ const acceptedProofFiles: ReadonlyArray<AcceptedProofFile> = [
   }),
 
   ...rolePackageFiles("server", "core"),
-  new AcceptedProofFile({
+  AcceptedProofFile.make({
     role: "server",
     stage: "core",
     path: "packages/architecture-lab/server/src/index.ts",
     writer: "ts-morph",
   }),
-  new AcceptedProofFile({
+  AcceptedProofFile.make({
     role: "server",
     stage: "core",
     path: "packages/architecture-lab/server/src/Layer.ts",
     writer: "template",
   }),
-  new AcceptedProofFile({
+  AcceptedProofFile.make({
     role: "server",
     stage: "core",
     path: "packages/architecture-lab/server/src/test.ts",
     writer: "template",
   }),
-  new AcceptedProofFile({
+  AcceptedProofFile.make({
     role: "server",
     stage: "core",
     path: "packages/architecture-lab/server/src/aggregates/WorkItem/index.ts",
     writer: "ts-morph",
   }),
-  new AcceptedProofFile({
+  AcceptedProofFile.make({
     role: "server",
     stage: "core",
     path: "packages/architecture-lab/server/src/aggregates/WorkItem/WorkItem.layer.ts",
     writer: "template",
   }),
-  new AcceptedProofFile({
+  AcceptedProofFile.make({
     role: "server",
     stage: "core",
     path: "packages/architecture-lab/server/src/aggregates/WorkItem/WorkItem.repo.ts",
     writer: "template",
   }),
-  new AcceptedProofFile({
+  AcceptedProofFile.make({
     role: "server",
     stage: "core",
     path: "packages/architecture-lab/server/test/WorkItemServer.test.ts",
     writer: "template",
   }),
-  new AcceptedProofFile({
+  AcceptedProofFile.make({
     role: "server",
     stage: "core",
     path: "packages/architecture-lab/server/dtslint/WorkItemServer.tst.ts",
     writer: "template",
   }),
-  new AcceptedProofFile({
+  AcceptedProofFile.make({
     role: "server",
     stage: "persistence",
     path: "packages/architecture-lab/server/test/integration/WorkItemDrizzleRepository.pglite.test.ts",
     writer: "template",
   }),
-  new AcceptedProofFile({
+  AcceptedProofFile.make({
     role: "server",
     stage: "protocol",
     path: "packages/architecture-lab/server/src/aggregates/WorkItem/WorkItem.http.ts",
     writer: "template",
   }),
-  new AcceptedProofFile({
+  AcceptedProofFile.make({
     role: "server",
     stage: "protocol",
     path: "packages/architecture-lab/server/src/aggregates/WorkItem/WorkItem.rpc.ts",
     writer: "template",
   }),
-  new AcceptedProofFile({
+  AcceptedProofFile.make({
     role: "server",
     stage: "protocol",
     path: "packages/architecture-lab/server/src/aggregates/WorkItem/WorkItem.tools.ts",
     writer: "template",
   }),
-  new AcceptedProofFile({
+  AcceptedProofFile.make({
     role: "server",
     stage: "core",
     path: "packages/architecture-lab/server/src/entities/index.ts",
     writer: "ts-morph",
   }),
-  new AcceptedProofFile({
+  AcceptedProofFile.make({
     role: "server",
     stage: "core",
     path: "packages/architecture-lab/server/src/entities/Worker/index.ts",
     writer: "ts-morph",
   }),
-  new AcceptedProofFile({
+  AcceptedProofFile.make({
     role: "server",
     stage: "core",
     path: "packages/architecture-lab/server/src/entities/Worker/Worker.layer.ts",
     writer: "template",
   }),
-  new AcceptedProofFile({
+  AcceptedProofFile.make({
     role: "server",
     stage: "core",
     path: "packages/architecture-lab/server/src/entities/Worker/Worker.repo.ts",
     writer: "template",
   }),
-  new AcceptedProofFile({
+  AcceptedProofFile.make({
     role: "server",
     stage: "core",
     path: "packages/architecture-lab/server/test/WorkerServer.test.ts",
     writer: "template",
   }),
-  new AcceptedProofFile({
+  AcceptedProofFile.make({
     role: "server",
     stage: "core",
     path: "packages/architecture-lab/server/dtslint/WorkerServer.tst.ts",
@@ -1137,67 +1175,67 @@ const acceptedProofFiles: ReadonlyArray<AcceptedProofFile> = [
   }),
 
   ...rolePackageFiles("config", "persistence"),
-  new AcceptedProofFile({
+  AcceptedProofFile.make({
     role: "config",
     stage: "persistence",
     path: "packages/architecture-lab/config/src/index.ts",
     writer: "ts-morph",
   }),
-  new AcceptedProofFile({
+  AcceptedProofFile.make({
     role: "config",
     stage: "persistence",
     path: "packages/architecture-lab/config/src/public.ts",
     writer: "ts-morph",
   }),
-  new AcceptedProofFile({
+  AcceptedProofFile.make({
     role: "config",
     stage: "persistence",
     path: "packages/architecture-lab/config/src/server.ts",
     writer: "ts-morph",
   }),
-  new AcceptedProofFile({
+  AcceptedProofFile.make({
     role: "config",
     stage: "persistence",
     path: "packages/architecture-lab/config/src/secrets.ts",
     writer: "ts-morph",
   }),
-  new AcceptedProofFile({
+  AcceptedProofFile.make({
     role: "config",
     stage: "persistence",
     path: "packages/architecture-lab/config/src/layer.ts",
     writer: "ts-morph",
   }),
-  new AcceptedProofFile({
+  AcceptedProofFile.make({
     role: "config",
     stage: "persistence",
     path: "packages/architecture-lab/config/src/test.ts",
     writer: "ts-morph",
   }),
-  new AcceptedProofFile({
+  AcceptedProofFile.make({
     role: "config",
     stage: "persistence",
     path: "packages/architecture-lab/config/src/aggregates/WorkItem/index.ts",
     writer: "ts-morph",
   }),
-  new AcceptedProofFile({
+  AcceptedProofFile.make({
     role: "config",
     stage: "persistence",
     path: "packages/architecture-lab/config/src/aggregates/WorkItem/WorkItem.config.ts",
     writer: "template",
   }),
-  new AcceptedProofFile({
+  AcceptedProofFile.make({
     role: "config",
     stage: "persistence",
     path: "packages/architecture-lab/config/src/aggregates/WorkItem/WorkItem.layer.ts",
     writer: "template",
   }),
-  new AcceptedProofFile({
+  AcceptedProofFile.make({
     role: "config",
     stage: "persistence",
     path: "packages/architecture-lab/config/test/WorkItemConfig.test.ts",
     writer: "template",
   }),
-  new AcceptedProofFile({
+  AcceptedProofFile.make({
     role: "config",
     stage: "persistence",
     path: "packages/architecture-lab/config/dtslint/WorkItemConfig.tst.ts",
@@ -1205,67 +1243,67 @@ const acceptedProofFiles: ReadonlyArray<AcceptedProofFile> = [
   }),
 
   ...rolePackageFiles("tables", "persistence"),
-  new AcceptedProofFile({
+  AcceptedProofFile.make({
     role: "tables",
     stage: "persistence",
     path: "packages/architecture-lab/tables/src/index.ts",
     writer: "ts-morph",
   }),
-  new AcceptedProofFile({
+  AcceptedProofFile.make({
     role: "tables",
     stage: "persistence",
     path: "packages/architecture-lab/tables/src/tables.ts",
     writer: "template",
   }),
-  new AcceptedProofFile({
+  AcceptedProofFile.make({
     role: "tables",
     stage: "persistence",
     path: "packages/architecture-lab/tables/src/aggregates/WorkItem/index.ts",
     writer: "ts-morph",
   }),
-  new AcceptedProofFile({
+  AcceptedProofFile.make({
     role: "tables",
     stage: "persistence",
     path: "packages/architecture-lab/tables/src/aggregates/WorkItem/WorkItem.table.ts",
     writer: "template",
   }),
-  new AcceptedProofFile({
+  AcceptedProofFile.make({
     role: "tables",
     stage: "persistence",
     path: "packages/architecture-lab/tables/test/WorkItemTable.test.ts",
     writer: "template",
   }),
-  new AcceptedProofFile({
+  AcceptedProofFile.make({
     role: "tables",
     stage: "persistence",
     path: "packages/architecture-lab/tables/dtslint/WorkItemTable.tst.ts",
     writer: "template",
   }),
-  new AcceptedProofFile({
+  AcceptedProofFile.make({
     role: "tables",
     stage: "persistence",
     path: "packages/architecture-lab/tables/src/entities/index.ts",
     writer: "ts-morph",
   }),
-  new AcceptedProofFile({
+  AcceptedProofFile.make({
     role: "tables",
     stage: "persistence",
     path: "packages/architecture-lab/tables/src/entities/Worker/index.ts",
     writer: "ts-morph",
   }),
-  new AcceptedProofFile({
+  AcceptedProofFile.make({
     role: "tables",
     stage: "persistence",
     path: "packages/architecture-lab/tables/src/entities/Worker/Worker.table.ts",
     writer: "template",
   }),
-  new AcceptedProofFile({
+  AcceptedProofFile.make({
     role: "tables",
     stage: "persistence",
     path: "packages/architecture-lab/tables/test/WorkerTable.test.ts",
     writer: "template",
   }),
-  new AcceptedProofFile({
+  AcceptedProofFile.make({
     role: "tables",
     stage: "persistence",
     path: "packages/architecture-lab/tables/dtslint/WorkerTable.tst.ts",
@@ -1273,31 +1311,31 @@ const acceptedProofFiles: ReadonlyArray<AcceptedProofFile> = [
   }),
 
   ...rolePackageFiles("client", "client"),
-  new AcceptedProofFile({
+  AcceptedProofFile.make({
     role: "client",
     stage: "client",
     path: "packages/architecture-lab/client/src/index.ts",
     writer: "ts-morph",
   }),
-  new AcceptedProofFile({
+  AcceptedProofFile.make({
     role: "client",
     stage: "client",
     path: "packages/architecture-lab/client/src/aggregates/WorkItem/index.ts",
     writer: "ts-morph",
   }),
-  new AcceptedProofFile({
+  AcceptedProofFile.make({
     role: "client",
     stage: "client",
     path: "packages/architecture-lab/client/src/aggregates/WorkItem/WorkItem.client.ts",
     writer: "template",
   }),
-  new AcceptedProofFile({
+  AcceptedProofFile.make({
     role: "client",
     stage: "client",
     path: "packages/architecture-lab/client/test/WorkItemClient.test.ts",
     writer: "template",
   }),
-  new AcceptedProofFile({
+  AcceptedProofFile.make({
     role: "client",
     stage: "client",
     path: "packages/architecture-lab/client/dtslint/WorkItemClient.tst.ts",
@@ -1305,31 +1343,31 @@ const acceptedProofFiles: ReadonlyArray<AcceptedProofFile> = [
   }),
 
   ...rolePackageFiles("ui", "client"),
-  new AcceptedProofFile({
+  AcceptedProofFile.make({
     role: "ui",
     stage: "client",
     path: "packages/architecture-lab/ui/src/index.ts",
     writer: "ts-morph",
   }),
-  new AcceptedProofFile({
+  AcceptedProofFile.make({
     role: "ui",
     stage: "client",
     path: "packages/architecture-lab/ui/src/aggregates/WorkItem/index.ts",
     writer: "ts-morph",
   }),
-  new AcceptedProofFile({
+  AcceptedProofFile.make({
     role: "ui",
     stage: "client",
     path: "packages/architecture-lab/ui/src/aggregates/WorkItem/WorkItem.view-model.ts",
     writer: "template",
   }),
-  new AcceptedProofFile({
+  AcceptedProofFile.make({
     role: "ui",
     stage: "client",
     path: "packages/architecture-lab/ui/test/WorkItemViewModel.test.ts",
     writer: "template",
   }),
-  new AcceptedProofFile({
+  AcceptedProofFile.make({
     role: "ui",
     stage: "client",
     path: "packages/architecture-lab/ui/dtslint/WorkItemViewModel.tst.ts",
@@ -1337,19 +1375,19 @@ const acceptedProofFiles: ReadonlyArray<AcceptedProofFile> = [
   }),
 
   ...rolePackageFiles("proof-app", "client"),
-  new AcceptedProofFile({
+  AcceptedProofFile.make({
     role: "proof-app",
     stage: "client",
     path: "apps/architecture-lab-proof/src/index.ts",
     writer: "template",
   }),
-  new AcceptedProofFile({
+  AcceptedProofFile.make({
     role: "proof-app",
     stage: "client",
     path: "apps/architecture-lab-proof/test/ArchitectureLabProof.test.ts",
     writer: "template",
   }),
-  new AcceptedProofFile({
+  AcceptedProofFile.make({
     role: "proof-app",
     stage: "client",
     path: "apps/architecture-lab-proof/dtslint/ArchitectureLabProof.tst.ts",
@@ -1357,73 +1395,73 @@ const acceptedProofFiles: ReadonlyArray<AcceptedProofFile> = [
   }),
 
   ...rolePackageFiles("db-admin", "persistence"),
-  new AcceptedProofFile({
+  AcceptedProofFile.make({
     role: "db-admin",
     stage: "persistence",
     path: "packages/_internal/db-admin/drizzle.config.ts",
     writer: "template",
   }),
-  new AcceptedProofFile({
+  AcceptedProofFile.make({
     role: "db-admin",
     stage: "persistence",
     path: "packages/_internal/db-admin/tsconfig.drizzle.json",
     writer: "jsonc",
   }),
-  new AcceptedProofFile({
+  AcceptedProofFile.make({
     role: "db-admin",
     stage: "persistence",
     path: "packages/_internal/db-admin/src/index.ts",
     writer: "ts-morph",
   }),
-  new AcceptedProofFile({
+  AcceptedProofFile.make({
     role: "db-admin",
     stage: "persistence",
     path: "packages/_internal/db-admin/src/schema.ts",
     writer: "ts-morph",
   }),
-  new AcceptedProofFile({
+  AcceptedProofFile.make({
     role: "db-admin",
     stage: "persistence",
     path: "packages/_internal/db-admin/src/targets.ts",
     writer: "template",
   }),
-  new AcceptedProofFile({
+  AcceptedProofFile.make({
     role: "db-admin",
     stage: "persistence",
     path: "packages/_internal/db-admin/src/migrations/ArchitectureLab.ts",
     writer: "template",
   }),
-  new AcceptedProofFile({
+  AcceptedProofFile.make({
     role: "db-admin",
     stage: "persistence",
     path: "packages/_internal/db-admin/drizzle/20260512000000_architecture_lab_work_item/migration.sql",
     writer: "template",
   }),
-  new AcceptedProofFile({
+  AcceptedProofFile.make({
     role: "db-admin",
     stage: "persistence",
     path: "packages/_internal/db-admin/drizzle/20260512001000_architecture_lab_worker_archetype/migration.sql",
     writer: "template",
   }),
-  new AcceptedProofFile({
+  AcceptedProofFile.make({
     role: "db-admin",
     stage: "persistence",
     path: "packages/_internal/db-admin/test/ArchitectureLabMigrationTarget.test.ts",
     writer: "template",
   }),
-  new AcceptedProofFile({
+  AcceptedProofFile.make({
     role: "db-admin",
     stage: "persistence",
     path: "packages/_internal/db-admin/test/index.test.ts",
     writer: "template",
   }),
-  new AcceptedProofFile({
+  AcceptedProofFile.make({
     role: "db-admin",
     stage: "persistence",
     path: "packages/_internal/db-admin/test/integration/ArchitectureLabMigration.pglite.test.ts",
     writer: "template",
   }),
-  new AcceptedProofFile({
+  AcceptedProofFile.make({
     role: "db-admin",
     stage: "persistence",
     path: "packages/_internal/db-admin/dtslint/ArchitectureLabMigrationTarget.tst.ts",
@@ -1461,7 +1499,7 @@ const withOperationMetadata = (
   const writeMode = writeModeForKind(operation.kind);
   const conflictPolicy = conflictPolicyForKind(operation.kind);
   if (operation.kind === "write-file") {
-    return new WriteFileOperation({
+    return WriteFileOperation.make({
       ...operation,
       operationId,
       writeMode,
@@ -1470,7 +1508,7 @@ const withOperationMetadata = (
     });
   }
   if (operation.kind === "write-package-json") {
-    return new WritePackageJsonOperation({
+    return WritePackageJsonOperation.make({
       ...operation,
       operationId,
       writeMode,
@@ -1479,7 +1517,7 @@ const withOperationMetadata = (
     });
   }
   if (operation.kind === "ensure-file") {
-    return new EnsureFileOperation({
+    return EnsureFileOperation.make({
       ...operation,
       operationId,
       writeMode,
@@ -1487,7 +1525,7 @@ const withOperationMetadata = (
       operationSource,
     });
   }
-  return new EnsureAbsentPathOperation({
+  return EnsureAbsentPathOperation.make({
     ...operation,
     operationId,
     writeMode,
@@ -1500,7 +1538,7 @@ const normalizeInput = (input: Partial<ArchitecturePlanTarget> = {}): Architectu
   const boundedContext = input.boundedContext ?? defaultPlanTarget.boundedContext;
   const concept = input.concept ?? defaultPlanTarget.concept;
   const domainKind = input.domainKind ?? defaultPlanTarget.domainKind;
-  return new ArchitecturePlanTarget({
+  return ArchitecturePlanTarget.make({
     boundedContext,
     concept,
     domainKind,
@@ -1533,7 +1571,7 @@ const exportsForRole = (target: ArchitecturePlanTarget, role: ArchitectureSliceR
 };
 
 const rolePlanFor = (target: ArchitecturePlanTarget, role: ArchitectureSliceRole): ArchitectureSliceRolePlan =>
-  new ArchitectureSliceRolePlan({
+  ArchitectureSliceRolePlan.make({
     role,
     packageName: packageNameForRole(target, role),
     path: pathForRole(target, role),
@@ -1541,7 +1579,7 @@ const rolePlanFor = (target: ArchitecturePlanTarget, role: ArchitectureSliceRole
   });
 
 const packageShellTargetFor = (boundedContext: string): ArchitecturePlanTarget =>
-  new ArchitecturePlanTarget({
+  ArchitecturePlanTarget.make({
     boundedContext,
     concept: "PackageShell",
     conceptPath: "aggregates/PackageShell",
@@ -1580,7 +1618,7 @@ const packageShellRolePlanFor = (
   target: ArchitecturePlanTarget,
   role: ArchitecturePackageRole
 ): ArchitectureSliceRolePlan =>
-  new ArchitectureSliceRolePlan({
+  ArchitectureSliceRolePlan.make({
     role,
     packageName: packageNameForRole(target, role),
     path: pathForRole(target, role),
@@ -1680,7 +1718,7 @@ const shellPackageJsonOperationFor = (
   target: ArchitecturePlanTarget,
   role: ArchitecturePackageRole
 ): WritePackageJsonOperation =>
-  new WritePackageJsonOperation({
+  WritePackageJsonOperation.make({
     kind: "write-package-json",
     role,
     path: `${pathForRole(target, role)}/package.json`,
@@ -1898,7 +1936,7 @@ const packageShellFileOperationsFor = (
 ): ReadonlyArray<WriteFileOperation> => {
   const basePath = pathForRole(target, role);
   const commonFiles = [
-    new WriteFileOperation({
+    WriteFileOperation.make({
       kind: "write-file",
       role,
       path: `${basePath}/AGENTS.md`,
@@ -1906,7 +1944,7 @@ const packageShellFileOperationsFor = (
       content: packageShellAgentsContent(target, role),
       description: `Write ${role} package agent guidance.`,
     }),
-    new WriteFileOperation({
+    WriteFileOperation.make({
       kind: "write-file",
       role,
       path: `${basePath}/LICENSE`,
@@ -1914,7 +1952,7 @@ const packageShellFileOperationsFor = (
       content: "MIT\n",
       description: `Write ${role} package license marker.`,
     }),
-    new WriteFileOperation({
+    WriteFileOperation.make({
       kind: "write-file",
       role,
       path: `${basePath}/README.md`,
@@ -1922,7 +1960,7 @@ const packageShellFileOperationsFor = (
       content: packageShellReadmeContent(target, role),
       description: `Write ${role} package README.`,
     }),
-    new WriteFileOperation({
+    WriteFileOperation.make({
       kind: "write-file",
       role,
       path: `${basePath}/docgen.json`,
@@ -1930,7 +1968,7 @@ const packageShellFileOperationsFor = (
       content: packageShellDocgenContent(target, role),
       description: `Write ${role} package docgen configuration.`,
     }),
-    new WriteFileOperation({
+    WriteFileOperation.make({
       kind: "write-file",
       role,
       path: `${basePath}/tsconfig.json`,
@@ -1938,7 +1976,7 @@ const packageShellFileOperationsFor = (
       content: packageShellTsconfigContent(),
       description: `Write ${role} package TypeScript configuration.`,
     }),
-    new WriteFileOperation({
+    WriteFileOperation.make({
       kind: "write-file",
       role,
       path: `${basePath}/tsconfig.test.json`,
@@ -1946,7 +1984,7 @@ const packageShellFileOperationsFor = (
       content: packageShellTestTsconfigContent(),
       description: `Write ${role} package test TypeScript configuration.`,
     }),
-    new WriteFileOperation({
+    WriteFileOperation.make({
       kind: "write-file",
       role,
       path: `${basePath}/vitest.config.ts`,
@@ -1954,7 +1992,7 @@ const packageShellFileOperationsFor = (
       content: packageShellVitestContent(),
       description: `Write ${role} package Vitest configuration.`,
     }),
-    new WriteFileOperation({
+    WriteFileOperation.make({
       kind: "write-file",
       role,
       path: `${basePath}/dtslint/.gitkeep`,
@@ -1962,7 +2000,7 @@ const packageShellFileOperationsFor = (
       content: "",
       description: `Create ${role} package dtslint directory.`,
     }),
-    new WriteFileOperation({
+    WriteFileOperation.make({
       kind: "write-file",
       role,
       path: `${basePath}/test/.gitkeep`,
@@ -1970,7 +2008,7 @@ const packageShellFileOperationsFor = (
       content: "",
       description: `Create ${role} package test directory.`,
     }),
-    new WriteFileOperation({
+    WriteFileOperation.make({
       kind: "write-file",
       role,
       path: `${basePath}/src/index.ts`,
@@ -1983,7 +2021,7 @@ const packageShellFileOperationsFor = (
   if (role === "domain") {
     return [
       ...commonFiles,
-      new WriteFileOperation({
+      WriteFileOperation.make({
         kind: "write-file",
         role,
         path: `${basePath}/src/aggregates/index.ts`,
@@ -1991,7 +2029,7 @@ const packageShellFileOperationsFor = (
         content: packageShellEmptyModuleContent(`${target.boundedContext} aggregate exports`, "aggregates"),
         description: "Write aggregate namespace shell.",
       }),
-      new WriteFileOperation({
+      WriteFileOperation.make({
         kind: "write-file",
         role,
         path: `${basePath}/src/entities/index.ts`,
@@ -1999,7 +2037,7 @@ const packageShellFileOperationsFor = (
         content: packageShellEmptyModuleContent(`${target.boundedContext} entity exports`, "entities"),
         description: "Write entity namespace shell.",
       }),
-      new WriteFileOperation({
+      WriteFileOperation.make({
         kind: "write-file",
         role,
         path: `${basePath}/src/identity/index.ts`,
@@ -2007,7 +2045,7 @@ const packageShellFileOperationsFor = (
         content: packageShellEmptyModuleContent(`${target.boundedContext} identity exports`, "entity-ids"),
         description: "Write identity namespace shell.",
       }),
-      new WriteFileOperation({
+      WriteFileOperation.make({
         kind: "write-file",
         role,
         path: `${basePath}/src/values/index.ts`,
@@ -2021,7 +2059,7 @@ const packageShellFileOperationsFor = (
   if (role === "use-cases") {
     return [
       ...commonFiles,
-      new WriteFileOperation({
+      WriteFileOperation.make({
         kind: "write-file",
         role,
         path: `${basePath}/src/public.ts`,
@@ -2029,7 +2067,7 @@ const packageShellFileOperationsFor = (
         content: packageShellEmptyModuleContent(`${target.boundedContext} public use-case exports`, "use-cases"),
         description: "Write public use-case shell.",
       }),
-      new WriteFileOperation({
+      WriteFileOperation.make({
         kind: "write-file",
         role,
         path: `${basePath}/src/server.ts`,
@@ -2043,22 +2081,20 @@ const packageShellFileOperationsFor = (
   if (role === "config") {
     return [
       ...commonFiles,
-      ...A.map(
-        ["public", "server", "secrets"] as const,
-        (surface) =>
-          new WriteFileOperation({
-            kind: "write-file",
-            role,
-            path: `${basePath}/src/${surface}.ts`,
-            writer: "ts-morph",
-            content: packageShellEmptyModuleContent(
-              `${target.boundedContext} ${surface} config exports`,
-              "configuration"
-            ),
-            description: `Write ${surface} config shell.`,
-          })
+      ...A.map(["public", "server", "secrets"] as const, (surface) =>
+        WriteFileOperation.make({
+          kind: "write-file",
+          role,
+          path: `${basePath}/src/${surface}.ts`,
+          writer: "ts-morph",
+          content: packageShellEmptyModuleContent(
+            `${target.boundedContext} ${surface} config exports`,
+            "configuration"
+          ),
+          description: `Write ${surface} config shell.`,
+        })
       ),
-      new WriteFileOperation({
+      WriteFileOperation.make({
         kind: "write-file",
         role,
         path: `${basePath}/src/layer.ts`,
@@ -2066,7 +2102,7 @@ const packageShellFileOperationsFor = (
         content: packageShellLayerContent(target, "config"),
         description: "Write config layer shell.",
       }),
-      new WriteFileOperation({
+      WriteFileOperation.make({
         kind: "write-file",
         role,
         path: `${basePath}/src/test.ts`,
@@ -2080,7 +2116,7 @@ const packageShellFileOperationsFor = (
   if (role === "server") {
     return [
       ...commonFiles,
-      new WriteFileOperation({
+      WriteFileOperation.make({
         kind: "write-file",
         role,
         path: `${basePath}/src/Layer.ts`,
@@ -2088,7 +2124,7 @@ const packageShellFileOperationsFor = (
         content: packageShellLayerContent(target, "server"),
         description: "Write server layer shell.",
       }),
-      new WriteFileOperation({
+      WriteFileOperation.make({
         kind: "write-file",
         role,
         path: `${basePath}/src/test.ts`,
@@ -2102,7 +2138,7 @@ const packageShellFileOperationsFor = (
   if (role === "tables") {
     return [
       ...commonFiles,
-      new WriteFileOperation({
+      WriteFileOperation.make({
         kind: "write-file",
         role,
         path: `${basePath}/src/tables.ts`,
@@ -2117,9 +2153,9 @@ const packageShellFileOperationsFor = (
 };
 
 const isDefaultPlanTarget = (target: ArchitecturePlanTarget): boolean =>
-  stringEquivalence(target.boundedContext, defaultPlanTarget.boundedContext) &&
-  stringEquivalence(target.concept, defaultPlanTarget.concept) &&
-  stringEquivalence(target.domainKind, defaultPlanTarget.domainKind);
+  Str.equivalence(target.boundedContext, defaultPlanTarget.boundedContext) &&
+  Str.equivalence(target.concept, defaultPlanTarget.concept) &&
+  Str.equivalence(target.domainKind, defaultPlanTarget.domainKind);
 
 const sourceConceptForPath = (sourcePath: string): string => {
   const lowerPath = Str.toLowerCase(sourcePath);
@@ -2131,9 +2167,9 @@ const sourceConceptForPath = (sourcePath: string): string => {
 
 const sourceDomainKindForPath = (sourcePath: string): O.Option<ArchitectureDomainKind> => {
   const sourceConcept = sourceConceptForPath(sourcePath);
-  if (Str.includes("/values/")(sourcePath) || stringEquivalence(sourceConcept, "WorkPriority")) return O.some("values");
-  if (Str.includes("/entities/")(sourcePath) || stringEquivalence(sourceConcept, "Worker")) return O.some("entities");
-  if (Str.includes("/aggregates/")(sourcePath) || stringEquivalence(sourceConcept, "WorkItem"))
+  if (Str.includes("/values/")(sourcePath) || Str.equivalence(sourceConcept, "WorkPriority")) return O.some("values");
+  if (Str.includes("/entities/")(sourcePath) || Str.equivalence(sourceConcept, "Worker")) return O.some("entities");
+  if (Str.includes("/aggregates/")(sourcePath) || Str.equivalence(sourceConcept, "WorkItem"))
     return O.some("aggregates");
   return O.none();
 };
@@ -2177,7 +2213,7 @@ const isPackageLevelFile = (sourcePath: string): boolean =>
 const proofFileMatchesDomainKind = (target: ArchitecturePlanTarget, file: AcceptedProofFile): boolean => {
   if (isDefaultPlanTarget(target)) return true;
   if (isPackageLevelFile(file.path)) return true;
-  return pipe(sourceDomainKindForPath(file.path), O.map(stringEquivalence(target.domainKind)), O.getOrElse(thunkFalse));
+  return pipe(sourceDomainKindForPath(file.path), O.map(Str.equivalence(target.domainKind)), O.getOrElse(thunkFalse));
 };
 
 const sourceConceptPathFor = (sourcePath: string): string =>
@@ -2326,7 +2362,7 @@ const decodeOperationPlanJson = S.decodeUnknownEffect(S.fromJsonString(Canonical
  * @since 0.0.0
  */
 export const makeCanonicalSliceOperationPlan = (): CanonicalSliceOperationPlan =>
-  new CanonicalSliceOperationPlan({
+  CanonicalSliceOperationPlan.make({
     schemaVersion: "architecture-operation-plan/v1",
     target: defaultPlanTarget,
     roles: pipe(
@@ -2338,7 +2374,7 @@ export const makeCanonicalSliceOperationPlan = (): CanonicalSliceOperationPlan =
         acceptedProofFiles,
         A.map((file) =>
           withOperationMetadata(
-            new EnsureFileOperation({
+            EnsureFileOperation.make({
               kind: "ensure-file",
               role: file.role,
               path: file.path,
@@ -2352,7 +2388,7 @@ export const makeCanonicalSliceOperationPlan = (): CanonicalSliceOperationPlan =
         legacyFixturePaths,
         A.map((path) =>
           withOperationMetadata(
-            new EnsureAbsentPathOperation({
+            EnsureAbsentPathOperation.make({
               kind: "ensure-absent-path",
               path,
               description: "Remove the legacy fixture-lab Specimen proof surface.",
@@ -2394,7 +2430,7 @@ export const makeArchitectureOperationPlan = Effect.fn(function* (
         .pipe(Effect.mapError(DomainError.newCause(`Failed to read architecture file "${contentPath}"`)));
 
       return withOperationMetadata(
-        new WriteFileOperation({
+        WriteFileOperation.make({
           kind: "write-file",
           role: file.role,
           path: operationPath,
@@ -2409,7 +2445,7 @@ export const makeArchitectureOperationPlan = Effect.fn(function* (
     })
   );
 
-  return new CanonicalSliceOperationPlan({
+  return CanonicalSliceOperationPlan.make({
     schemaVersion: "architecture-operation-plan/v1",
     target,
     roles: rolePlansForFiles(target, selectedFiles),
@@ -2419,7 +2455,7 @@ export const makeArchitectureOperationPlan = Effect.fn(function* (
         legacyFixturePaths,
         A.map((path) =>
           withOperationMetadata(
-            new EnsureAbsentPathOperation({
+            EnsureAbsentPathOperation.make({
               kind: "ensure-absent-path",
               path,
               description: "Remove the legacy fixture-lab Specimen proof surface.",
@@ -2456,7 +2492,7 @@ export const makeArchitecturePackageOperationPlan = Effect.fn(function* (input: 
   const target = packageShellTargetFor(input.boundedContext);
   const rolePlan = packageShellRolePlanFor(target, input.role);
 
-  return new CanonicalSliceOperationPlan({
+  return CanonicalSliceOperationPlan.make({
     schemaVersion: "architecture-operation-plan/v1",
     target,
     roles: [rolePlan],

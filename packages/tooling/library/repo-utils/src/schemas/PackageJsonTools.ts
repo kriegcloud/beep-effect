@@ -238,7 +238,7 @@ const renderIssuePath = (path: StandardSchemaV1.Issue["path"]): ReadonlyArray<st
  * @example
  * ```ts
  * import { PackageJsonValidationIssue } from "@beep/repo-utils/schemas/PackageJsonTools"
- * const issue = new PackageJsonValidationIssue({
+ * const issue = PackageJsonValidationIssue.make({
  *   message: "Expected string",
  *   path: ["name"],
  *   pointer: "/name"
@@ -383,7 +383,7 @@ export const applyPackageJsonPatchEffect: {
     const decodedBase = yield* decodePackageJsonEffect(base);
     return yield* Effect.try({
       try: () => packageJsonDiffer.patch(decodedBase, patch),
-      catch: (cause) => new DomainError({ cause, message: "Failed to apply package.json JSON Patch" }),
+      catch: (cause) => DomainError.make({ cause, message: "Failed to apply package.json JSON Patch" }),
     });
   })
 );
@@ -411,7 +411,7 @@ export const getPackageJsonSchemaIssues = (error: S.SchemaError): ReadonlyArray<
     SchemaIssue.makeFormatterStandardSchemaV1()(error.issue).issues,
     A.map(({ path, message }) => {
       const renderedPath = renderIssuePath(path);
-      return new PackageJsonValidationIssue({
+      return PackageJsonValidationIssue.make({
         path: renderedPath,
         pointer: toPointer(renderedPath),
         message,

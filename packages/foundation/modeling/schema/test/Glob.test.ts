@@ -1,5 +1,5 @@
-import { Glob } from "@beep/schema";
 import * as GlobModule from "@beep/schema/Glob";
+import { Glob } from "@beep/schema/Glob";
 import { describe, expect, it } from "@effect/vitest";
 import * as S from "effect/Schema";
 

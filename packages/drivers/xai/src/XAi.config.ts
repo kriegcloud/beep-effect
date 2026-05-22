@@ -63,7 +63,7 @@ export const XAI_WEBSOCKET_URL = "wss://api.x.ai";
  * import { Redacted } from "effect"
  * import { XAiConfigInput } from "@beep/xai"
  *
- * const config = new XAiConfigInput({
+ * const config = XAiConfigInput.make({
  *   apiKey: Redacted.make("test-key"),
  *   managementApiKey: Redacted.make("management-test-key")
  * })

@@ -18,7 +18,7 @@ declare const sink: FFmpegEventSink;
 
 describe("@beep/ffmpeg", () => {
   it("exports typed errors and the service layer", () => {
-    expect(new FFmpegError({ message: "boom", operation: "extractFrames" })).type.toBe<FFmpegError>();
+    expect(FFmpegError.make({ message: "boom", operation: "extractFrames" })).type.toBe<FFmpegError>();
     expect(FFmpegError.fromUnknown("probeVideo", "boom", { cause: new Error("nope") })).type.toBe<FFmpegError>();
     expect(FFmpeg.makeLayer()).type.toBe<
       Layer.Layer<
@@ -30,7 +30,7 @@ describe("@beep/ffmpeg", () => {
   });
 
   it("exports request, result, and event types", () => {
-    const request = new ExtractFramesRequest({
+    const request = ExtractFramesRequest.make({
       fps: 1,
       manifestPath: O.none(),
       outDir: "./frames",
@@ -39,7 +39,7 @@ describe("@beep/ffmpeg", () => {
       videoPath: "./clip.mp4",
     });
 
-    expect(service.probeVideo(new ProbeVideoRequest({ videoPath: "./clip.mp4" }))).type.toBe<
+    expect(service.probeVideo(ProbeVideoRequest.make({ videoPath: "./clip.mp4" }))).type.toBe<
       Effect.Effect<VideoProbe, FFmpegError>
     >();
     expect(service.extractFrames(request, sink)).type.toBe<Effect.Effect<ExtractFramesResult, FFmpegError>>();

@@ -7,34 +7,20 @@
 
 import { $RepoCliId } from "@beep/identity/packages";
 import { findRepoRoot } from "@beep/repo-utils";
-import { LiteralKit, TaggedErrorClass } from "@beep/schema";
 import { Effect, type FileSystem } from "effect";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
+import { CodexRunnerError } from "../Reuse.errors.js";
+
+/**
+ * Public Codex runner smoke error exports.
+ *
+ * @category errors
+ * @since 0.0.0
+ */
+export { CodexRunnerError, CodexRunnerStage } from "../Reuse.errors.js";
 
 const $I = $RepoCliId.create("commands/Reuse/internal/CodexRunner");
-
-/**
- * Lifecycle stages surfaced by the Codex smoke runner.
- *
- * @category models
- * @since 0.0.0
- */
-export const CodexRunnerStage = LiteralKit(["findRepoRoot", "import", "construct", "startThread"]).pipe(
-  S.annotate(
-    $I.annote("CodexRunnerStage", {
-      description: "Bounded lifecycle stage used when the Codex smoke path fails.",
-    })
-  )
-);
-
-/**
- * Runtime type for `CodexRunnerStage`.
- *
- * @category models
- * @since 0.0.0
- */
-export type CodexRunnerStage = typeof CodexRunnerStage.Type;
 
 /**
  * Structured result for `beep reuse codex-smoke`.
@@ -55,23 +41,6 @@ export class CodexSmokeResult extends S.Class<CodexSmokeResult>($I`CodexSmokeRes
   })
 ) {}
 
-/**
- * Structured error emitted when the Codex SDK smoke path fails.
- *
- * @category models
- * @since 0.0.0
- */
-export class CodexRunnerError extends TaggedErrorClass<CodexRunnerError>($I`CodexRunnerError`)(
-  "CodexRunnerError",
-  {
-    stage: CodexRunnerStage,
-    message: S.NonEmptyString,
-  },
-  $I.annote("CodexRunnerError", {
-    description: "Typed failure raised while validating the Codex SDK smoke path.",
-  })
-) {}
-
 const causeMessage = (cause: unknown, fallback: string): string => (P.isError(cause) ? cause.message : fallback);
 
 /**
@@ -82,30 +51,14 @@ const causeMessage = (cause: unknown, fallback: string): string => (P.isError(ca
  */
 export const runCodexSmoke: Effect.Effect<CodexSmokeResult, CodexRunnerError, FileSystem.FileSystem> = Effect.gen(
   function* () {
-    const repoRoot = yield* findRepoRoot().pipe(
-      Effect.mapError(
-        (cause) =>
-          new CodexRunnerError({
-            stage: "findRepoRoot",
-            message: cause.message,
-          })
-      )
-    );
+    const repoRoot = yield* findRepoRoot().pipe(CodexRunnerError.mapError("findRepoRoot"));
     const sdkModule = yield* Effect.tryPromise({
       try: () => import("@openai/codex-sdk"),
-      catch: (cause) =>
-        new CodexRunnerError({
-          stage: "import",
-          message: causeMessage(cause, "Failed to import @openai/codex-sdk"),
-        }),
+      catch: (cause) => CodexRunnerError.new("import", causeMessage(cause, "Failed to import @openai/codex-sdk")),
     });
     const codex = yield* Effect.try({
       try: () => new sdkModule.Codex(),
-      catch: (cause) =>
-        new CodexRunnerError({
-          stage: "construct",
-          message: causeMessage(cause, "Failed to construct Codex SDK client"),
-        }),
+      catch: (cause) => CodexRunnerError.new("construct", causeMessage(cause, "Failed to construct Codex SDK client")),
     });
     const thread = yield* Effect.tryPromise({
       try: () =>
@@ -115,14 +68,10 @@ export const runCodexSmoke: Effect.Effect<CodexSmokeResult, CodexRunnerError, Fi
             skipGitRepoCheck: true,
           })
         ),
-      catch: (cause) =>
-        new CodexRunnerError({
-          stage: "startThread",
-          message: causeMessage(cause, "Failed to start Codex SDK thread"),
-        }),
+      catch: (cause) => CodexRunnerError.new("startThread", causeMessage(cause, "Failed to start Codex SDK thread")),
     });
 
-    return new CodexSmokeResult({
+    return CodexSmokeResult.make({
       sdkPackage: "@openai/codex-sdk",
       workingDirectory: repoRoot,
       threadCreated: true,

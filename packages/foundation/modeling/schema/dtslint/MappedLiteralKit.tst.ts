@@ -1,4 +1,4 @@
-import { MappedLiteralDuplicateError, MappedLiteralKit } from "@beep/schema";
+import { MappedLiteralDuplicateError, MappedLiteralKit } from "@beep/schema/MappedLiteralKit";
 import { describe, expect, it } from "tstyche";
 
 describe("MappedLiteralKit", () => {
@@ -67,7 +67,7 @@ describe("MappedLiteralKit", () => {
 
 describe("MappedLiteralDuplicateError", () => {
   it("is constructible with a tagged payload", () => {
-    const error = new MappedLiteralDuplicateError({
+    const error = MappedLiteralDuplicateError.make({
       side: "from",
       literal: "A",
       firstIndex: 0,

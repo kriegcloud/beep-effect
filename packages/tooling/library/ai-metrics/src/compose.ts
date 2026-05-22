@@ -17,7 +17,7 @@ const $I = $RepoAiMetricsId.create("compose");
 void $I;
 
 const composeFailure = (message: string, cause: unknown): AiMetricsInstallConfigurationError =>
-  new AiMetricsInstallConfigurationError({ cause, message });
+  AiMetricsInstallConfigurationError.make({ cause, message });
 
 const phoenixService = (spec: AiMetricsInstallSpec): O.Option<AiMetricsServiceSpec> =>
   pipe(

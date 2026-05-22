@@ -39,7 +39,7 @@ describe("@beep/law-practice-domain", () => {
 
   it("preserves decode and constructor types", () => {
     expect<typeof Matter.Encoded>().type.toBeAssignableTo<typeof Matter.Encoded>();
-    expect(new Matter(matter)).type.toBe<Matter>();
+    expect(Matter.make(matter)).type.toBe<Matter>();
     expect<Matter["matterType"]>().type.toBe<MatterTypeType>();
   });
 });

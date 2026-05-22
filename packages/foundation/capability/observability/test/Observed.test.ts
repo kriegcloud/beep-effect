@@ -10,7 +10,7 @@ class TestObservedError extends TaggedErrorClass<TestObservedError>()("TestObser
 
 describe("Observed", () => {
   it("round-trips a failed Cause through the observed schema", () => {
-    const cause = Cause.fail(new TestObservedError({ message: "boom" }));
+    const cause = Cause.fail(TestObservedError.make({ message: "boom" }));
     const encoded = S.encodeSync(S.toCodecJson(ObservedCause))(cause);
     const encodedReasons = S.decodeUnknownSync(
       S.Array(
@@ -31,7 +31,7 @@ describe("Observed", () => {
   });
 
   it("round-trips a failed Exit through the observed schema", () => {
-    const exit = Exit.failCause(Cause.fail(new TestObservedError({ message: "kapow" })));
+    const exit = Exit.failCause(Cause.fail(TestObservedError.make({ message: "kapow" })));
     const encoded = S.encodeSync(S.toCodecJson(ObservedExit))(exit);
     const encodedTag = S.decodeUnknownSync(
       S.Struct({

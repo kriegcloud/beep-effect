@@ -42,7 +42,7 @@ describe("@beep/workspace-domain", () => {
       organizationFixtureKey: "org.acme",
       ownerPrincipalFixtureKey: "principal.owner",
     });
-    const constructed = new WorkspaceEntity(decoded);
+    const constructed = WorkspaceEntity.make(decoded);
 
     expect(decoded).toBeInstanceOf(WorkspaceEntity);
     expect(constructed).toBeInstanceOf(WorkspaceEntity);

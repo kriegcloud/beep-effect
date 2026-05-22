@@ -191,7 +191,7 @@ const columnMethods = <Builder extends AnyPgColumnBuilder>(column: Builder): Col
   if (hasColumnMethods(column)) {
     return column;
   }
-  throw new EntityTableInvariantError({
+  throw EntityTableInvariantError.make({
     message: "Drizzle column builder is missing the expected fluent column methods.",
   });
 };
@@ -412,7 +412,7 @@ const attachTableMetadata = <const Entity extends EntitySchema.EntityClass.Any>(
   if (hasAttachedTableMetadata(table, definition, entitySchema)) {
     return table;
   }
-  throw new EntityTableInvariantError({
+  throw EntityTableInvariantError.make({
     message: `Failed to attach EntitySchema metadata to table '${definition.tableName}'.`,
   });
 };

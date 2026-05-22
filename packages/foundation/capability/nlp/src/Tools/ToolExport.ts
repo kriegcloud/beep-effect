@@ -84,7 +84,7 @@ const parameterNamesForTool = (tool: NlpTool): ReadonlyArray<string> => {
 export class ExportedToolError extends TaggedErrorClass<ExportedToolError>($I`ExportedToolError`)(
   "ExportedToolError",
   {
-    cause: S.Unknown,
+    cause: S.DefectWithStack,
     message: S.String,
     toolName: S.String,
   },
@@ -106,7 +106,7 @@ export class ExportedToolError extends TaggedErrorClass<ExportedToolError>($I`Ex
   } = dual(
     3,
     (cause: unknown, toolName: string, options: { readonly message: string }): ExportedToolError =>
-      new ExportedToolError({
+      ExportedToolError.make({
         cause,
         message: options.message,
         toolName,

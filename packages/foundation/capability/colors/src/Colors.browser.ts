@@ -98,7 +98,7 @@ export const supportsColor = thunkFalse;
  * @since 0.0.0
  */
 export const createColors = (_enabled?: undefined | boolean): Colors =>
-  new Colors({
+  Colors.make({
     isColorSupported: false,
     reset: identity,
     bold: identity,

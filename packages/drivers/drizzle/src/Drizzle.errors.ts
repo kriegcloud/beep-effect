@@ -24,7 +24,7 @@ const REDACTED_SQL_PARAMETER = "<redacted>";
  * ```ts
  * import { DrizzleErrorContext } from "@beep/drizzle"
  *
- * const context = new DrizzleErrorContext({
+ * const context = DrizzleErrorContext.make({
  *   query: "select 1",
  *   params: []
  * })
@@ -172,7 +172,7 @@ const extractCauseContext = (cause: Cause.Cause<unknown>, seen: ReadonlyArray<ob
 };
 
 const redactedExistingDrizzleError = (error: DrizzleError): DrizzleError =>
-  new DrizzleError({
+  DrizzleError.make({
     operation: error.operation,
     cause: error.cause,
     query: error.query,
@@ -223,7 +223,7 @@ const extractNativeQueryContext = (cause: unknown, seen: ReadonlyArray<object> =
  * import { DrizzleError } from "@beep/drizzle"
  * import * as O from "effect/Option"
  *
- * const error = new DrizzleError({
+ * const error = DrizzleError.make({
  *   operation: "execute",
  *   cause: O.none(),
  *   query: O.none(),
@@ -269,7 +269,7 @@ export class DrizzleError extends TaggedErrorClass<DrizzleError>($I`DrizzleError
   static readonly fromUnknown = (operation: string, cause?: unknown, context: DrizzleErrorContext = {}): DrizzleError =>
     O.getOrElse(O.map(existingDrizzleErrorFromUnknown(cause), redactedExistingDrizzleError), () => {
       const nativeContext = extractNativeQueryContext(cause);
-      return new DrizzleError({
+      return DrizzleError.make({
         operation,
         cause: optionFromSafeDefect(cause),
         query: O.fromUndefinedOr(context.query ?? nativeContext.query),

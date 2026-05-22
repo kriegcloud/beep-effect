@@ -38,7 +38,7 @@ import { describe, expect, it } from "tstyche";
 
 describe("Files command", () => {
   it("returns the create-captions summary through the files service", () => {
-    const options = new CreateCaptionFilesOptions({
+    const options = CreateCaptionFilesOptions.make({
       caption: "trigger token",
       dir: "./dataset/images",
       dryRun: true,
@@ -67,7 +67,7 @@ describe("Files command", () => {
   });
 
   it("returns the archive-poor-candidates summary through the files service", () => {
-    const options = new ArchivePoorCandidatesOptions({
+    const options = ArchivePoorCandidatesOptions.make({
       archiveDir: "./rejected",
       dir: "./raw",
       dryRun: true,
@@ -102,7 +102,7 @@ describe("Files command", () => {
   });
 
   it("returns the crop-borders summary through the files service", () => {
-    const options = new CropBordersOptions({
+    const options = CropBordersOptions.make({
       dir: "./raw",
       dryRun: true,
       maxScanPct: 45,
@@ -117,7 +117,7 @@ describe("Files command", () => {
   });
 
   it("returns the detect-borders report through the files service", () => {
-    const options = new DetectBordersOptions({
+    const options = DetectBordersOptions.make({
       dir: "./raw",
       json: true,
       maxScanPct: 45,
@@ -144,7 +144,7 @@ describe("Files command", () => {
   });
 
   it("returns the normalize summary through the files service", () => {
-    const options = new NormalizeFilesOptions({
+    const options = NormalizeFilesOptions.make({
       dedupe: true,
       dir: "./raw",
       dryRun: true,

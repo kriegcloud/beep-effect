@@ -366,7 +366,7 @@ export const normalizeJSDocCategory = (value: string): JSDocCategoryNormalizatio
   const original = Str.trim(value);
 
   if (Str.length(original) > MAX_JSDOC_CATEGORY_LENGTH) {
-    return new JSDocCategoryNormalization({
+    return JSDocCategoryNormalization.make({
       original: `${Str.slice(0, MAX_JSDOC_CATEGORY_LENGTH)(original)}...`,
       normalized: "",
       status: "rejected",
@@ -377,7 +377,7 @@ export const normalizeJSDocCategory = (value: string): JSDocCategoryNormalizatio
   const normalized = normalizeJSDocCategoryKey(original);
 
   if (normalized === "") {
-    return new JSDocCategoryNormalization({
+    return JSDocCategoryNormalization.make({
       original,
       normalized,
       status: "unknown",
@@ -389,7 +389,7 @@ export const normalizeJSDocCategory = (value: string): JSDocCategoryNormalizatio
 
   if (O.isSome(canonical)) {
     if (original === canonical.value) {
-      return new JSDocCategoryNormalization({
+      return JSDocCategoryNormalization.make({
         original,
         normalized,
         canonical: canonical.value,
@@ -397,7 +397,7 @@ export const normalizeJSDocCategory = (value: string): JSDocCategoryNormalizatio
       });
     }
 
-    return new JSDocCategoryNormalization({
+    return JSDocCategoryNormalization.make({
       original,
       normalized,
       canonical: canonical.value,
@@ -408,7 +408,7 @@ export const normalizeJSDocCategory = (value: string): JSDocCategoryNormalizatio
 
   const alias = aliasedCategoryOption(normalized);
   if (O.isSome(alias)) {
-    return new JSDocCategoryNormalization({
+    return JSDocCategoryNormalization.make({
       original,
       normalized,
       canonical: alias.value,
@@ -419,7 +419,7 @@ export const normalizeJSDocCategory = (value: string): JSDocCategoryNormalizatio
 
   const rejected = rejectedCategoryMessageOption(normalized);
   if (O.isSome(rejected)) {
-    return new JSDocCategoryNormalization({
+    return JSDocCategoryNormalization.make({
       original,
       normalized,
       status: "rejected",
@@ -427,7 +427,7 @@ export const normalizeJSDocCategory = (value: string): JSDocCategoryNormalizatio
     });
   }
 
-  return new JSDocCategoryNormalization({
+  return JSDocCategoryNormalization.make({
     original,
     normalized,
     status: "unknown",

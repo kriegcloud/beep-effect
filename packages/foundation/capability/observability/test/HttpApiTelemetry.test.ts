@@ -23,7 +23,7 @@ describe("HttpApiTelemetry", () => {
       Effect.gen(function* () {
         const requestsTotal = Metric.counter("test_http_api_requests_total");
         const requestDuration = Metric.timer("test_http_api_request_duration_ms");
-        const descriptor = new HttpApiTelemetryDescriptor({
+        const descriptor = HttpApiTelemetryDescriptor.make({
           apiName: "test-api",
           groupName: "system",
           endpointName: "health",

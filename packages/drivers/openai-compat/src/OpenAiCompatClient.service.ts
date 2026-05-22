@@ -39,7 +39,7 @@ const moduleName = "OpenAiCompatClient";
  * import { Redacted } from "effect"
  * import { OpenAiCompatClientOptions } from "@beep/openai-compat"
  *
- * const options = new OpenAiCompatClientOptions({
+ * const options = OpenAiCompatClientOptions.make({
  *   apiKey: Redacted.make("test-key"),
  *   apiUrl: "https://provider.example/v1"
  * })
@@ -74,7 +74,7 @@ export class OpenAiCompatClientOptions extends S.Class<OpenAiCompatClientOptions
  *
  * const client: OpenAiCompatClientShape = {
  *   createChatCompletion: () =>
- *     Effect.succeed(new OpenAiCompatChatCompletionResponse({ choices: [] })),
+ *     Effect.succeed(OpenAiCompatChatCompletionResponse.make({ choices: [] })),
  *   streamChatCompletion: () => Stream.empty
  * }
  *
@@ -108,7 +108,7 @@ const mapBodyEncodingError =
   (cause: HttpBody.HttpBodyError): AiError.AiError =>
     makeAiError(
       method,
-      new AiError.InvalidRequestError({
+      AiError.InvalidRequestError.make({
         description: `Unable to encode OpenAI-compatible chat completion request body (${cause.reason._tag}).`,
       })
     );
@@ -147,7 +147,7 @@ const mapHttpClientError = (
         error.reason._tag === "EncodeError" ||
         error.reason._tag === "InvalidUrlError"
       ? Effect.fail(makeAiError(method, AiError.NetworkError.fromRequestError(error.reason)))
-      : Effect.fail(makeAiError(method, new AiError.InvalidOutputError({ description: error.message })));
+      : Effect.fail(makeAiError(method, AiError.InvalidOutputError.make({ description: error.message })));
 
 const logClientFailure =
   (method: string) =>
@@ -183,7 +183,7 @@ const postChatCompletionRequest = (
   );
 
 const makeStreamingRequest = (request: OpenAiCompatChatCompletionRequest): OpenAiCompatChatCompletionRequest =>
-  new OpenAiCompatChatCompletionRequest({
+  OpenAiCompatChatCompletionRequest.make({
     ...request,
     // The client can be used directly, so it asserts streaming fields even when the language-model adapter set them.
     stream: true,
@@ -215,7 +215,7 @@ const ensureSseContentType =
           Effect.fail(
             makeAiError(
               method,
-              new AiError.InvalidOutputError({
+              AiError.InvalidOutputError.make({
                 description: "OpenAI-compatible stream response did not use text/event-stream.",
               })
             )
@@ -227,7 +227,7 @@ const ensureSseContentType =
 const mapSseRetry = (method: string): AiError.AiError =>
   makeAiError(
     method,
-    new AiError.InvalidOutputError({
+    AiError.InvalidOutputError.make({
       description: "OpenAI-compatible stream response included an unsupported SSE retry directive.",
     })
   );
@@ -331,7 +331,7 @@ export class OpenAiCompatClient extends Context.Service<OpenAiCompatClient, Open
    * import { OpenAiCompatClient, OpenAiCompatClientOptions } from "@beep/openai-compat"
    *
    * const layer = OpenAiCompatClient.makeLayer(
-   *   new OpenAiCompatClientOptions({ apiKey: Redacted.make("test-key") })
+   *   OpenAiCompatClientOptions.make({ apiKey: Redacted.make("test-key") })
    * )
    *
    * void layer
@@ -341,7 +341,7 @@ export class OpenAiCompatClient extends Context.Service<OpenAiCompatClient, Open
    * @since 0.0.0
    */
   static readonly makeLayer = (
-    options = new OpenAiCompatClientOptions({})
+    options = OpenAiCompatClientOptions.make({})
   ): Layer.Layer<OpenAiCompatClient, never, HttpClient.HttpClient> =>
     Layer.effect(
       OpenAiCompatClient,

@@ -4,11 +4,17 @@
  * @packageDocumentation
  * @since 0.0.0
  */
-
+/**
+ * Public CI command export.
+ *
+ * @category cli-commands
+ * @since 0.0.0
+ */
+export * from "./Ci.command.js";
 /**
  * Public command module export.
  *
  * @category cli-commands
  * @since 0.0.0
  */
-export * from "./Ci.command.js";
+export * from "./Ci.errors.js";

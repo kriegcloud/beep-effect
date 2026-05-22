@@ -61,7 +61,7 @@ const isString = S.is(S.String);
 const messageFromUnknown = (error: unknown, fallback: string): string =>
   isCanvasCommandError(error) ? error.message : isString(error) ? error : fallback;
 const rejectMessage = (message: string): Effect.Effect<never, CanvasCommandError> =>
-  Effect.fail(new CanvasCommandError({ message }));
+  Effect.fail(CanvasCommandError.make({ message }));
 
 /**
  * Canvas desktop shell root component.

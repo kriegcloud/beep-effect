@@ -1,32 +1,11 @@
-import {
-  EndsWithSeparator,
-  FilePath,
-  HasLeafSegment,
-  HasNullByte,
-  SupportedPathFamily,
-  SupportedWindowsNamespace,
-  UsesPosixSeparator,
-  UsesWindowsSeparator,
-  ValidWindowsPathSegment,
-  ValidWindowsPlainPathSegment,
-  ValidWindowsRootSegment,
-  ValidWindowsUncRest,
-  ValidWindowsUncSegments,
-  WindowsDotSegment,
-  WindowsDrivePath,
-  WindowsDriveRoot,
-  WindowsRelativePath,
-  WindowsSegments,
-  WindowsUncPath,
-  WindowsUncRoot,
-} from "@beep/schema";
+import * as FilePathSchema from "@beep/schema/FilePath";
 import { describe, expect, it } from "@effect/vitest";
 import * as S from "effect/Schema";
 
 describe("FilePath part schemas", () => {
   it("decodes the literal family unions", () => {
-    const decodeFamily = S.decodeUnknownSync(SupportedPathFamily);
-    const decodeDot = S.decodeUnknownSync(WindowsDotSegment);
+    const decodeFamily = S.decodeUnknownSync(FilePathSchema.SupportedPathFamily);
+    const decodeDot = S.decodeUnknownSync(FilePathSchema.WindowsDotSegment);
 
     expect(decodeFamily("windowsDrive")).toBe("windowsDrive");
     expect(decodeDot(".")).toBe(".");
@@ -36,10 +15,10 @@ describe("FilePath part schemas", () => {
   });
 
   it("detects null bytes and supported namespaces", () => {
-    expect(S.is(HasNullByte)(`bad\u0000path.txt`)).toBe(true);
-    expect(S.is(HasNullByte)("plain.txt")).toBe(false);
+    expect(S.is(FilePathSchema.HasNullByte)(`bad\u0000path.txt`)).toBe(true);
+    expect(S.is(FilePathSchema.HasNullByte)("plain.txt")).toBe(false);
 
-    const decode = S.decodeUnknownSync(SupportedWindowsNamespace);
+    const decode = S.decodeUnknownSync(FilePathSchema.SupportedWindowsNamespace);
 
     expect(decode("C:\\file.txt")).toBe("C:\\file.txt");
     expect(() => decode("\\\\?\\C:\\file.txt")).toThrow();
@@ -47,20 +26,20 @@ describe("FilePath part schemas", () => {
   });
 
   it("detects separator usage and trailing separators", () => {
-    expect(S.is(UsesPosixSeparator)("foo/bar")).toBe(true);
-    expect(S.is(UsesPosixSeparator)("foo\\bar")).toBe(false);
+    expect(S.is(FilePathSchema.UsesPosixSeparator)("foo/bar")).toBe(true);
+    expect(S.is(FilePathSchema.UsesPosixSeparator)("foo\\bar")).toBe(false);
 
-    expect(S.is(UsesWindowsSeparator)("foo\\bar")).toBe(true);
-    expect(S.is(UsesWindowsSeparator)("foo/bar")).toBe(false);
+    expect(S.is(FilePathSchema.UsesWindowsSeparator)("foo\\bar")).toBe(true);
+    expect(S.is(FilePathSchema.UsesWindowsSeparator)("foo/bar")).toBe(false);
 
-    expect(S.is(EndsWithSeparator)("foo/")).toBe(true);
-    expect(S.is(EndsWithSeparator)("foo\\")).toBe(true);
-    expect(S.is(EndsWithSeparator)("foo")).toBe(false);
+    expect(S.is(FilePathSchema.EndsWithSeparator)("foo/")).toBe(true);
+    expect(S.is(FilePathSchema.EndsWithSeparator)("foo\\")).toBe(true);
+    expect(S.is(FilePathSchema.EndsWithSeparator)("foo")).toBe(false);
   });
 
   it("validates Windows roots", () => {
-    const decodeDriveRoot = S.decodeUnknownSync(WindowsDriveRoot);
-    const decodeUncRoot = S.decodeUnknownSync(WindowsUncRoot);
+    const decodeDriveRoot = S.decodeUnknownSync(FilePathSchema.WindowsDriveRoot);
+    const decodeUncRoot = S.decodeUnknownSync(FilePathSchema.WindowsUncRoot);
 
     expect(decodeDriveRoot("C:")).toBe("C:");
     expect(decodeDriveRoot("C:\\")).toBe("C:\\");
@@ -72,9 +51,9 @@ describe("FilePath part schemas", () => {
   });
 
   it("validates Windows path segments", () => {
-    const decodePlainSegment = S.decodeUnknownSync(ValidWindowsPlainPathSegment);
-    const decodeRootSegment = S.decodeUnknownSync(ValidWindowsRootSegment);
-    const decodePathSegment = S.decodeUnknownSync(ValidWindowsPathSegment);
+    const decodePlainSegment = S.decodeUnknownSync(FilePathSchema.ValidWindowsPlainPathSegment);
+    const decodeRootSegment = S.decodeUnknownSync(FilePathSchema.ValidWindowsRootSegment);
+    const decodePathSegment = S.decodeUnknownSync(FilePathSchema.ValidWindowsPathSegment);
 
     expect(decodePlainSegment("file.txt")).toBe("file.txt");
     expect(() => decodePlainSegment("bad|name")).toThrow();
@@ -92,9 +71,9 @@ describe("FilePath part schemas", () => {
   });
 
   it("validates Windows segment collections", () => {
-    const decodeSegments = S.decodeUnknownSync(WindowsSegments);
-    const decodeUncRest = S.decodeUnknownSync(ValidWindowsUncRest);
-    const decodeUncSegments = S.decodeUnknownSync(ValidWindowsUncSegments);
+    const decodeSegments = S.decodeUnknownSync(FilePathSchema.WindowsSegments);
+    const decodeUncRest = S.decodeUnknownSync(FilePathSchema.ValidWindowsUncRest);
+    const decodeUncSegments = S.decodeUnknownSync(FilePathSchema.ValidWindowsUncSegments);
 
     expect(decodeSegments(["folder", "..", "file.txt"])).toEqual(["folder", "..", "file.txt"]);
     expect(() => decodeSegments([])).toThrow();
@@ -108,7 +87,7 @@ describe("FilePath part schemas", () => {
   });
 
   it("detects whether a path includes a leaf segment", () => {
-    const decode = S.decodeUnknownSync(HasLeafSegment);
+    const decode = S.decodeUnknownSync(FilePathSchema.HasLeafSegment);
 
     expect(decode("/usr/bin/env")).toBe("/usr/bin/env");
     expect(decode("folder\\file.txt")).toBe("folder\\file.txt");
@@ -120,7 +99,7 @@ describe("FilePath part schemas", () => {
   });
 
   it("validates Windows drive paths", () => {
-    const decode = S.decodeUnknownSync(WindowsDrivePath);
+    const decode = S.decodeUnknownSync(FilePathSchema.WindowsDrivePath);
 
     expect(decode("C:\\Users\\test\\file.txt")).toBe("C:\\Users\\test\\file.txt");
     expect(decode("C:/Users/test/file.txt")).toBe("C:/Users/test/file.txt");
@@ -132,7 +111,7 @@ describe("FilePath part schemas", () => {
   });
 
   it("validates Windows UNC paths", () => {
-    const decode = S.decodeUnknownSync(WindowsUncPath);
+    const decode = S.decodeUnknownSync(FilePathSchema.WindowsUncPath);
 
     expect(decode("\\\\server\\share\\folder\\file.txt")).toBe("\\\\server\\share\\folder\\file.txt");
     expect(() => decode("\\\\server\\share")).toThrow();
@@ -142,7 +121,7 @@ describe("FilePath part schemas", () => {
   });
 
   it("validates Windows relative paths without accepting UNC or drive-prefixed inputs", () => {
-    const decode = S.decodeUnknownSync(WindowsRelativePath);
+    const decode = S.decodeUnknownSync(FilePathSchema.WindowsRelativePath);
 
     expect(decode("folder\\file.txt")).toBe("folder\\file.txt");
     expect(decode(".\\file.txt")).toBe(".\\file.txt");
@@ -155,7 +134,7 @@ describe("FilePath part schemas", () => {
 });
 
 describe("FilePath", () => {
-  const decode = S.decodeUnknownSync(FilePath);
+  const decode = S.decodeUnknownSync(FilePathSchema.FilePath);
 
   it("accepts valid POSIX file paths", () => {
     expect(decode("/usr/bin/env")).toBe("/usr/bin/env");
@@ -185,7 +164,7 @@ describe("FilePath", () => {
   });
 
   it("supports guard-style schema checks", () => {
-    const isFilePath = S.is(FilePath);
+    const isFilePath = S.is(FilePathSchema.FilePath);
 
     expect(isFilePath("./foo/bar.txt")).toBe(true);
     expect(isFilePath("foo/")).toBe(false);
@@ -241,7 +220,7 @@ describe("FilePath", () => {
 
   it("reports nested field failures at the filePath key", () => {
     const Payload = S.Struct({
-      filePath: FilePath,
+      filePath: FilePathSchema.FilePath,
     });
 
     expect(() => S.decodeUnknownSync(Payload)({ filePath: "foo/" })).toThrow(`at ["filePath"]`);
@@ -249,7 +228,7 @@ describe("FilePath", () => {
 
   it("decodes object schemas with a filePath property", () => {
     const Payload = S.Struct({
-      filePath: FilePath,
+      filePath: FilePathSchema.FilePath,
     });
     const input = { filePath: "./folder/file.txt" };
 

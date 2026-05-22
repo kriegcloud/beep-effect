@@ -90,7 +90,7 @@ export const toWorkItemSummaryViewModel: {
 } = dual(
   2,
   (workItem: DomainWorkItem.WorkItem, config: WorkItemPublicConfig): WorkItemSummaryViewModel =>
-    new WorkItemSummaryViewModel({
+    WorkItemSummaryViewModel.make({
       id: workItem.id,
       title: workItem.title,
       status: workItem.status,

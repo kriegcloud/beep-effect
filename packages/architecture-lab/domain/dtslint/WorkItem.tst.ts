@@ -6,7 +6,7 @@ import { expect } from "tstyche";
 declare const workItemId: WorkItem.WorkItemId;
 
 const workItem = WorkItem.create(
-  new WorkItem.CreateWorkItemInput({
+  WorkItem.CreateWorkItemInput.make({
     id: workItemId,
     title: "Document topology",
     priority: O.some(WorkPriority.WorkPriority.Enum.normal),

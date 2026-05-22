@@ -7,7 +7,6 @@
 
 import { $RepoCodegraphId } from "@beep/identity/packages";
 import { LiteralKit } from "@beep/schema";
-import { Effect } from "effect";
 import * as S from "effect/Schema";
 
 const $I = $RepoCodegraphId.create("RepoExportsCatalog.model");
@@ -80,7 +79,7 @@ export type RepoExportsCatalogSchemaVersion = typeof RepoExportsCatalogSchemaVer
  * @example
  * ```ts
  * import { RepoExportsCatalogAuthority } from "@beep/repo-codegraph"
- * const authority = new RepoExportsCatalogAuthority({
+ * const authority = RepoExportsCatalogAuthority.make({
  *   boundaryDoctrine: ["standards/ARCHITECTURE.md"],
  *   canonicalStatus: "not-evaluated",
  *   note: "Descriptive export metadata.",
@@ -109,7 +108,7 @@ export class RepoExportsCatalogAuthority extends S.Class<RepoExportsCatalogAutho
  * @example
  * ```ts
  * import { RepoExportsCatalogSource } from "@beep/repo-codegraph"
- * const source = new RepoExportsCatalogSource({
+ * const source = RepoExportsCatalogSource.make({
  *   generator: "bun run beep quality repo-exports-catalog",
  *   inputs: ["package.json exports"],
  *   packageUniverseCommand: "bun run topo-sort"
@@ -136,7 +135,7 @@ export class RepoExportsCatalogSource extends S.Class<RepoExportsCatalogSource>(
  * @example
  * ```ts
  * import { RepoExportsCatalogTotals } from "@beep/repo-codegraph"
- * const totals = new RepoExportsCatalogTotals({
+ * const totals = RepoExportsCatalogTotals.make({
  *   importSpecifiers: 1,
  *   missingWorkspaceMetadata: 0,
  *   packages: 1,
@@ -171,7 +170,7 @@ export class RepoExportsCatalogTotals extends S.Class<RepoExportsCatalogTotals>(
  * @example
  * ```ts
  * import { RepoExportsCatalogPackageCounts } from "@beep/repo-codegraph"
- * const counts = new RepoExportsCatalogPackageCounts({
+ * const counts = RepoExportsCatalogPackageCounts.make({
  *   publicExportEntries: 1,
  *   sourceFiles: 1,
  *   uniqueSymbols: 1
@@ -200,7 +199,7 @@ export class RepoExportsCatalogPackageCounts extends S.Class<RepoExportsCatalogP
  * @example
  * ```ts
  * import { RepoExportsCatalogEntry } from "@beep/repo-codegraph"
- * const entry = new RepoExportsCatalogEntry({
+ * const entry = RepoExportsCatalogEntry.make({
  *   categories: ["schemas"],
  *   exportKind: "const",
  *   exportSubpath: ".",
@@ -252,8 +251,8 @@ export class RepoExportsCatalogEntry extends S.Class<RepoExportsCatalogEntry>($I
  * ```ts
  * import { RepoExportsCatalogPackage } from "@beep/repo-codegraph"
  * import { RepoExportsCatalogPackageCounts } from "@beep/repo-codegraph"
- * const pkg = new RepoExportsCatalogPackage({
- *   counts: new RepoExportsCatalogPackageCounts({
+ * const pkg = RepoExportsCatalogPackage.make({
+ *   counts: RepoExportsCatalogPackageCounts.make({
  *     publicExportEntries: 0,
  *     sourceFiles: 0,
  *     uniqueSymbols: 0
@@ -323,32 +322,3 @@ export class RepoExportsCatalog extends S.Class<RepoExportsCatalog>($I`RepoExpor
  * @since 0.0.0
  */
 export const decodeRepoExportsCatalog = S.decodeUnknownEffect(RepoExportsCatalog);
-
-/**
- * Encode a repo export catalog into its JSON-safe representation.
- *
- * @example
- * ```ts
- * import { encodeRepoExportsCatalog } from "@beep/repo-codegraph"
- * console.log(encodeRepoExportsCatalog)
- * ```
- * @category schemas
- * @since 0.0.0
- */
-export const encodeRepoExportsCatalog = S.encodeEffect(RepoExportsCatalog);
-
-/**
- * Decode JSON text into a generated repo export catalog.
- *
- * @param content - JSON text containing a generated repo export catalog.
- * @returns Effect that decodes the JSON text into a catalog model.
- * @example
- * ```ts
- * import { decodeRepoExportsCatalogJson } from "@beep/repo-codegraph"
- * console.log(decodeRepoExportsCatalogJson)
- * ```
- * @category schemas
- * @since 0.0.0
- */
-export const decodeRepoExportsCatalogJson = (content: string) =>
-  S.decodeUnknownEffect(S.UnknownFromJsonString)(content).pipe(Effect.flatMap(decodeRepoExportsCatalog));

@@ -12,7 +12,7 @@ import { DomainError, findRepoRoot } from "@beep/repo-utils";
 import { renderBiomeJson } from "@beep/repo-utils/schemas/BiomeJson";
 import { Runpod, RunpodConfigInput } from "@beep/runpod";
 import { A, Str } from "@beep/utils";
-import { Config, Console, Effect, FileSystem, Layer, Match, Path, pipe } from "effect";
+import { Config, Console, Effect, FileSystem, flow, Layer, Match, Path, pipe } from "effect";
 import * as O from "effect/Option";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
@@ -265,7 +265,7 @@ const resolveGenerateTargets = Effect.fn("Docgen.resolveGenerateTargets")(functi
   if (O.isSome(selector)) {
     const target = yield* resolveDocgenWorkspacePackage(selector.value);
     if (!target.hasDocgenConfig) {
-      return yield* new DomainError({
+      return yield* DomainError.make({
         message: `${target.relativePath} is missing docgen.json. Run "bun run beep docgen init -p ${target.relativePath}" first.`,
       });
     }
@@ -294,7 +294,7 @@ const resolvePackageSelector = Effect.fn("Docgen.resolvePackageSelector")(functi
   filterSelector: O.Option<string>
 ) {
   if (O.isSome(packageSelector) && O.isSome(filterSelector) && packageSelector.value !== filterSelector.value) {
-    return yield* new DomainError({
+    return yield* DomainError.make({
       message: `Received conflicting selectors --package=${packageSelector.value} and --filter=${filterSelector.value}.`,
     });
   }
@@ -302,8 +302,11 @@ const resolvePackageSelector = Effect.fn("Docgen.resolvePackageSelector")(functi
   return O.isSome(packageSelector) ? packageSelector : filterSelector;
 });
 
-const splitCommaSeparatedFlag = (value: string): ReadonlyArray<string> =>
-  pipe(Str.split(",")(value), A.map(Str.trim), A.filter(Str.isNonEmpty));
+const splitCommaSeparatedFlag: (value: string) => ReadonlyArray<string> = flow(
+  Str.split(","),
+  A.map(Str.trim),
+  A.filter(Str.isNonEmpty)
+);
 
 const resolveQualityWorkerEvalSource = Effect.fn("Docgen.resolveQualityWorkerEvalSource")(function* ({
   all,
@@ -333,7 +336,7 @@ const resolveQualityWorkerEvalSource = Effect.fn("Docgen.resolveQualityWorkerEva
   });
 
   if (targets.length === 0) {
-    return yield* new DomainError({
+    return yield* DomainError.make({
       message: "No packages selected for docgen quality worker eval.",
     });
   }
@@ -782,7 +785,7 @@ const docgenQualityCommand = Command.make(
       }
 
       if (packetLimit < 0) {
-        return yield* new DomainError({
+        return yield* DomainError.make({
           message: "--packet-limit must be zero or greater; use 0 to suppress packets",
         });
       }
@@ -865,19 +868,19 @@ const docgenQualityWorkerEvalCommand = Command.make(
       );
 
       if (sourceCount !== 1) {
-        return yield* new DomainError({
+        return yield* DomainError.make({
           message: "Choose exactly one docgen quality-worker-eval source: --input, --package, or --all.",
         });
       }
 
       if (packetLimit < 0) {
-        return yield* new DomainError({
+        return yield* DomainError.make({
           message: "--packet-limit must be zero or greater; use 0 to suppress worker packet turns",
         });
       }
 
       if (Str.trim(model).length === 0) {
-        return yield* new DomainError({
+        return yield* DomainError.make({
           message: "--model is required for docgen quality-worker-eval.",
         });
       }
@@ -966,43 +969,43 @@ const docgenQualityWorkerRunpodEvalCommand = Command.make(
       const sourceCount = (O.isSome(input) ? 1 : 0) + (O.isSome(packageSelector) ? 1 : 0) + (all ? 1 : 0);
 
       if (sourceCount !== 1) {
-        return yield* new DomainError({
+        return yield* DomainError.make({
           message: "Choose exactly one docgen quality-worker-eval-runpod source: --input, --package, or --all.",
         });
       }
 
       if (packetLimit < 0) {
-        return yield* new DomainError({
+        return yield* DomainError.make({
           message: "--packet-limit must be zero or greater; use 0 to suppress worker packet turns.",
         });
       }
 
       if (readinessTimeoutMs <= 0) {
-        return yield* new DomainError({
+        return yield* DomainError.make({
           message: "--readiness-timeout-ms must be greater than zero.",
         });
       }
 
       if (skipTemplateSearch && allowPublicTemplateSearch) {
-        return yield* new DomainError({
+        return yield* DomainError.make({
           message: "Choose at most one template-search mode: --skip-template-search or --allow-public-template-search.",
         });
       }
 
       if (provider !== "ollama") {
-        return yield* new DomainError({
+        return yield* DomainError.make({
           message: "docgen quality-worker-eval-runpod v1 only supports --provider ollama.",
         });
       }
 
       if (model !== requiredQualityWorkerRunpodEvalModel()) {
-        return yield* new DomainError({
+        return yield* DomainError.make({
           message: `docgen quality-worker-eval-runpod v1 requires --model ${requiredQualityWorkerRunpodEvalModel()}.`,
         });
       }
 
       if (!confirmRunpodEval) {
-        return yield* new DomainError({
+        return yield* DomainError.make({
           message:
             "docgen quality-worker-eval-runpod creates a billable remote GPU pod; pass --confirm-runpod-eval to continue.",
         });
@@ -1042,7 +1045,7 @@ const docgenQualityWorkerRunpodEvalCommand = Command.make(
         ...(O.isSome(templateId) ? { templateId: templateId.value } : {}),
       }).pipe((effect) =>
         Effect.scoped(
-          Layer.build(Runpod.makeLayer(new RunpodConfigInput({ apiKey: runpodApiKey }))).pipe(
+          Layer.build(Runpod.makeLayer(RunpodConfigInput.make({ apiKey: runpodApiKey }))).pipe(
             Effect.flatMap((context) => effect.pipe(Effect.provide(context)))
           )
         )

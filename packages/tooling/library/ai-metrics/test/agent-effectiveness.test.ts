@@ -195,7 +195,7 @@ const runtimeLayer = (duckDbPath: string) =>
   Layer.mergeAll(
     NodeServices.layer,
     FetchHttpClient.layer,
-    DuckDb.makeNodeLayer(new DuckDbConnectionOptions({ databasePath: duckDbPath }))
+    DuckDb.makeNodeLayer(DuckDbConnectionOptions.make({ databasePath: duckDbPath }))
   );
 
 const phoenixInventoryHttpLayer = Layer.succeed(
@@ -250,7 +250,7 @@ const phoenixRuntimeLayer = (duckDbPath: string) =>
   Layer.mergeAll(
     NodeServices.layer,
     phoenixInventoryHttpLayer,
-    DuckDb.makeNodeLayer(new DuckDbConnectionOptions({ databasePath: duckDbPath }))
+    DuckDb.makeNodeLayer(DuckDbConnectionOptions.make({ databasePath: duckDbPath }))
   );
 
 const phoenixWriteSdk = (
@@ -269,7 +269,7 @@ const phoenixWriteSdk = (
   addAnnotation: (input) => {
     calls.annotations.push(input.name);
     return Promise.resolve(
-      new PhoenixAnnotationWriteResult({
+      PhoenixAnnotationWriteResult.make({
         annotationId: `annotation:${input.name}`,
         name: input.name,
         targetId: input.targetId,
@@ -280,7 +280,7 @@ const phoenixWriteSdk = (
   appendDatasetExamples: (input) => {
     calls.appends.push(input.dataset.value);
     return Promise.resolve(
-      new PhoenixDatasetAppendResult({
+      PhoenixDatasetAppendResult.make({
         datasetId: `dataset:${input.dataset.value}`,
         versionId: "version-id",
       })
@@ -288,13 +288,13 @@ const phoenixWriteSdk = (
   },
   createDataset: (input) => {
     calls.datasets.push(input.name);
-    return Promise.resolve(new PhoenixDatasetCreateResult({ datasetId: `dataset:${input.name}` }));
+    return Promise.resolve(PhoenixDatasetCreateResult.make({ datasetId: `dataset:${input.name}` }));
   },
   createExperiment: (input) => {
     const experimentId = input.experimentName ?? `experiment:${input.datasetId}`;
     calls.experiments.push(experimentId);
     return Promise.resolve(
-      new PhoenixExperimentInfoResult({
+      PhoenixExperimentInfoResult.make({
         datasetId: input.datasetId,
         datasetVersionId: input.datasetVersionId ?? "latest",
         exampleCount: 1,
@@ -311,7 +311,7 @@ const phoenixWriteSdk = (
   createPrompt: (input) => {
     calls.prompts.push(input.name);
     return Promise.resolve(
-      new PhoenixPromptWriteResult({
+      PhoenixPromptWriteResult.make({
         name: input.name,
         promptVersionId: `prompt-version:${input.name}`,
       })
@@ -319,7 +319,7 @@ const phoenixWriteSdk = (
   },
   doctor: () =>
     Promise.resolve(
-      new PhoenixDoctorResult({
+      PhoenixDoctorResult.make({
         baseUrl: "https://phoenix.test",
         message: "Phoenix is reachable.",
         status: "passed",
@@ -328,7 +328,7 @@ const phoenixWriteSdk = (
     ),
   getDatasetExamples: () =>
     Promise.resolve(
-      new PhoenixDatasetExamplesResult({
+      PhoenixDatasetExamplesResult.make({
         examples: [],
         versionId: "version-id",
       })
@@ -348,7 +348,7 @@ const phoenixWriteSdk = (
     }
 
     return Promise.resolve(
-      new PhoenixDatasetInfoResult({
+      PhoenixDatasetInfoResult.make({
         datasetId: `dataset:${selector.value}`,
         description: null,
         metadata: {},
@@ -358,7 +358,7 @@ const phoenixWriteSdk = (
   },
   getExperimentInfo: (experimentId) =>
     Promise.resolve(
-      new PhoenixExperimentInfoResult({
+      PhoenixExperimentInfoResult.make({
         datasetId: "dataset-id",
         datasetVersionId: "version-id",
         exampleCount: 1,
@@ -371,7 +371,7 @@ const phoenixWriteSdk = (
     ),
   getPrompt: () =>
     Promise.resolve(
-      new PhoenixPromptReadResult({
+      PhoenixPromptReadResult.make({
         exists: true,
         promptVersionId: "prompt-version-id",
       })
@@ -386,7 +386,7 @@ describe("@beep/repo-ai-metrics agent-effectiveness", () => {
         yield* Effect.gen(function* () {
           const dataRoot = path.join(tmpDir, "metrics");
           const report = yield* makeAgentEffectivenessDoctorReport(
-            new AgentEffectivenessDoctorInput({
+            AgentEffectivenessDoctorInput.make({
               dataRoot,
               noPhoenix: true,
               workerEvalReportPath: path.join(tmpDir, "missing-worker-report.json"),
@@ -409,7 +409,7 @@ describe("@beep/repo-ai-metrics agent-effectiveness", () => {
         yield* Effect.gen(function* () {
           const dataRoot = path.join(tmpDir, "metrics");
           const report = yield* makeAgentEffectivenessDoctorReport(
-            new AgentEffectivenessDoctorInput({
+            AgentEffectivenessDoctorInput.make({
               dataRoot,
               noPhoenix: false,
               phoenixBaseUrl: "https://phoenix.test",
@@ -447,7 +447,7 @@ describe("@beep/repo-ai-metrics agent-effectiveness", () => {
           );
 
           const report = yield* makeAgentEffectivenessDoctorReport(
-            new AgentEffectivenessDoctorInput({
+            AgentEffectivenessDoctorInput.make({
               dataRoot,
               noPhoenix: true,
               workerEvalReportPath: manifestPath,
@@ -472,8 +472,8 @@ describe("@beep/repo-ai-metrics agent-effectiveness", () => {
           yield* writeText(workerReportPath, workerReportJson);
 
           const plan = yield* makeAgentEffectivenessAnnotationPlan(
-            new AgentEffectivenessAnnotationPlanInput({
-              doctor: new AgentEffectivenessDoctorInput({
+            AgentEffectivenessAnnotationPlanInput.make({
+              doctor: AgentEffectivenessDoctorInput.make({
                 dataRoot,
                 noPhoenix: true,
                 workerEvalReportPath: workerReportPath,
@@ -509,8 +509,8 @@ describe("@beep/repo-ai-metrics agent-effectiveness", () => {
           yield* seedScorecardWithCoverageGaps(`["no_labels","no_benchmark_runs"]`);
 
           const plan = yield* makeAgentEffectivenessAnnotationPlan(
-            new AgentEffectivenessAnnotationPlanInput({
-              doctor: new AgentEffectivenessDoctorInput({
+            AgentEffectivenessAnnotationPlanInput.make({
+              doctor: AgentEffectivenessDoctorInput.make({
                 dataRoot,
                 noPhoenix: true,
                 workerEvalReportPath: workerReportPath,
@@ -563,8 +563,8 @@ describe("@beep/repo-ai-metrics agent-effectiveness", () => {
           });
 
           const plan = yield* makeAgentEffectivenessAnnotationPlan(
-            new AgentEffectivenessAnnotationPlanInput({
-              doctor: new AgentEffectivenessDoctorInput({
+            AgentEffectivenessAnnotationPlanInput.make({
+              doctor: AgentEffectivenessDoctorInput.make({
                 dataRoot,
                 noPhoenix: true,
                 workerEvalReportPath: path.join(tmpDir, "missing-worker-report.json"),
@@ -606,8 +606,8 @@ describe("@beep/repo-ai-metrics agent-effectiveness", () => {
           yield* writeText(workerReportPath, workerReportJson);
 
           const plan = yield* makeAgentEffectivenessAnnotationPlan(
-            new AgentEffectivenessAnnotationPlanInput({
-              doctor: new AgentEffectivenessDoctorInput({
+            AgentEffectivenessAnnotationPlanInput.make({
+              doctor: AgentEffectivenessDoctorInput.make({
                 dataRoot,
                 noPhoenix: true,
                 workerEvalReportPath: workerReportPath,
@@ -654,8 +654,8 @@ describe("@beep/repo-ai-metrics agent-effectiveness", () => {
         yield* Effect.gen(function* () {
           const dataRoot = path.join(tmpDir, "metrics");
           const workerReportPath = path.join(tmpDir, "worker-eval.json");
-          const annotationPlan = new AgentEffectivenessAnnotationPlanInput({
-            doctor: new AgentEffectivenessDoctorInput({
+          const annotationPlan = AgentEffectivenessAnnotationPlanInput.make({
+            doctor: AgentEffectivenessDoctorInput.make({
               dataRoot,
               noPhoenix: true,
               workerEvalReportPath: workerReportPath,
@@ -664,16 +664,16 @@ describe("@beep/repo-ai-metrics agent-effectiveness", () => {
           yield* writeText(workerReportPath, workerReportJson);
 
           const dryRun = yield* syncAgentEffectivenessPhoenix(
-            new AgentEffectivenessPhoenixSyncInput({ annotationPlan })
+            AgentEffectivenessPhoenixSyncInput.make({ annotationPlan })
           );
           const blocked = yield* syncAgentEffectivenessPhoenix(
-            new AgentEffectivenessPhoenixSyncInput({
+            AgentEffectivenessPhoenixSyncInput.make({
               annotationPlan,
               dryRun: false,
             })
           );
           const written = yield* syncAgentEffectivenessPhoenix(
-            new AgentEffectivenessPhoenixSyncInput({
+            AgentEffectivenessPhoenixSyncInput.make({
               annotationPlan,
               confirmToken: AGENT_EFFECTIVENESS_PHOENIX_WRITE_CONFIRMATION,
               dryRun: false,
@@ -723,8 +723,8 @@ describe("@beep/repo-ai-metrics agent-effectiveness", () => {
         yield* Effect.gen(function* () {
           const dataRoot = path.join(tmpDir, "metrics");
           const workerReportPath = path.join(tmpDir, "worker-eval.json");
-          const annotationPlan = new AgentEffectivenessAnnotationPlanInput({
-            doctor: new AgentEffectivenessDoctorInput({
+          const annotationPlan = AgentEffectivenessAnnotationPlanInput.make({
+            doctor: AgentEffectivenessDoctorInput.make({
               dataRoot,
               noPhoenix: true,
               workerEvalReportPath: workerReportPath,
@@ -733,7 +733,7 @@ describe("@beep/repo-ai-metrics agent-effectiveness", () => {
           yield* writeText(workerReportPath, workerReportJson);
 
           const result = yield* syncAgentEffectivenessPhoenix(
-            new AgentEffectivenessPhoenixSyncInput({
+            AgentEffectivenessPhoenixSyncInput.make({
               annotationPlan,
               confirmToken: AGENT_EFFECTIVENESS_PHOENIX_WRITE_CONFIRMATION,
               dryRun: false,
@@ -790,8 +790,8 @@ describe("@beep/repo-ai-metrics agent-effectiveness", () => {
         yield* Effect.gen(function* () {
           const dataRoot = path.join(tmpDir, "metrics");
           const workerReportPath = path.join(tmpDir, "worker-eval.json");
-          const annotationPlan = new AgentEffectivenessAnnotationPlanInput({
-            doctor: new AgentEffectivenessDoctorInput({
+          const annotationPlan = AgentEffectivenessAnnotationPlanInput.make({
+            doctor: AgentEffectivenessDoctorInput.make({
               dataRoot,
               noPhoenix: true,
               workerEvalReportPath: workerReportPath,
@@ -801,7 +801,7 @@ describe("@beep/repo-ai-metrics agent-effectiveness", () => {
 
           const error = yield* pipe(
             syncAgentEffectivenessPhoenix(
-              new AgentEffectivenessPhoenixSyncInput({
+              AgentEffectivenessPhoenixSyncInput.make({
                 annotationPlan,
                 confirmToken: AGENT_EFFECTIVENESS_PHOENIX_WRITE_CONFIRMATION,
                 dryRun: false,
@@ -839,17 +839,17 @@ describe("@beep/repo-ai-metrics agent-effectiveness", () => {
         yield* Effect.gen(function* () {
           const dataRoot = path.join(tmpDir, "metrics");
           const basePlan = yield* makeAgentEffectivenessAnnotationPlan(
-            new AgentEffectivenessAnnotationPlanInput({
-              doctor: new AgentEffectivenessDoctorInput({
+            AgentEffectivenessAnnotationPlanInput.make({
+              doctor: AgentEffectivenessDoctorInput.make({
                 dataRoot,
                 noPhoenix: true,
                 workerEvalReportPath: path.join(tmpDir, "missing-worker-report.json"),
               }),
             })
           );
-          const plan = new AgentEffectivenessAnnotationPlan({
+          const plan = AgentEffectivenessAnnotationPlan.make({
             annotations: [
-              new AgentEffectivenessPlannedAnnotation({
+              AgentEffectivenessPlannedAnnotation.make({
                 annotationId: "bad",
                 metadata: { path: "/home/elpresidank/private.txt" },
                 name: "agent.outcome.note",
@@ -859,7 +859,7 @@ describe("@beep/repo-ai-metrics agent-effectiveness", () => {
                 targetRef: "task",
                 value: "api_key=oops",
               }),
-              new AgentEffectivenessPlannedAnnotation({
+              AgentEffectivenessPlannedAnnotation.make({
                 annotationId: "bad",
                 metadata: {},
                 name: "agent.outcome.note",
@@ -908,8 +908,8 @@ describe("@beep/repo-ai-metrics agent-effectiveness", () => {
         function* (tmpDir) {
           void tmpDir;
           const plan = yield* makeAgentEffectivenessAnnotationPlan(
-            new AgentEffectivenessAnnotationPlanInput({
-              doctor: new AgentEffectivenessDoctorInput({
+            AgentEffectivenessAnnotationPlanInput.make({
+              doctor: AgentEffectivenessDoctorInput.make({
                 dataRoot: "/home/beep-private/metrics",
                 noPhoenix: true,
                 workerEvalReportPath: "/home/beep-private/worker-eval.json",
@@ -952,8 +952,8 @@ describe("@beep/repo-ai-metrics agent-effectiveness", () => {
         yield* Effect.gen(function* () {
           const dataRoot = path.join(tmpDir, "metrics");
           const workerReportPath = path.join(tmpDir, "worker-eval.json");
-          const annotationPlan = new AgentEffectivenessAnnotationPlanInput({
-            doctor: new AgentEffectivenessDoctorInput({
+          const annotationPlan = AgentEffectivenessAnnotationPlanInput.make({
+            doctor: AgentEffectivenessDoctorInput.make({
               dataRoot,
               noPhoenix: true,
               workerEvalReportPath: workerReportPath,
@@ -962,7 +962,7 @@ describe("@beep/repo-ai-metrics agent-effectiveness", () => {
           yield* writeText(workerReportPath, unsafeWorkerReportJson);
 
           const blocked = yield* syncAgentEffectivenessPhoenix(
-            new AgentEffectivenessPhoenixSyncInput({
+            AgentEffectivenessPhoenixSyncInput.make({
               annotationPlan,
               confirmToken: AGENT_EFFECTIVENESS_PHOENIX_WRITE_CONFIRMATION,
               dryRun: false,
@@ -1000,8 +1000,8 @@ describe("@beep/repo-ai-metrics agent-effectiveness", () => {
           prompts: [] as string[],
         };
         yield* Effect.gen(function* () {
-          const annotationPlan = new AgentEffectivenessAnnotationPlanInput({
-            doctor: new AgentEffectivenessDoctorInput({
+          const annotationPlan = AgentEffectivenessAnnotationPlanInput.make({
+            doctor: AgentEffectivenessDoctorInput.make({
               dataRoot: "/home/alice/.beep/ai-metrics",
               noPhoenix: true,
               workerEvalReportPath: path.join(tmpDir, "missing-worker-report.json"),
@@ -1009,7 +1009,7 @@ describe("@beep/repo-ai-metrics agent-effectiveness", () => {
           });
 
           const blocked = yield* syncAgentEffectivenessPhoenix(
-            new AgentEffectivenessPhoenixSyncInput({
+            AgentEffectivenessPhoenixSyncInput.make({
               annotationPlan,
               confirmToken: AGENT_EFFECTIVENESS_PHOENIX_WRITE_CONFIRMATION,
               dryRun: false,

@@ -7,13 +7,14 @@
 
 import { $RepoCliId } from "@beep/identity/packages";
 import { isExcludedTypeScriptSourcePath, toPosixPath } from "@beep/repo-utils/schemas/TypeScriptSourceExclusions";
-import { TaggedErrorClass } from "@beep/schema";
+
 import { A, Str } from "@beep/utils";
 import { Effect, Inspectable, MutableHashSet, Path, pipe } from "effect";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
 import { Project } from "ts-morph";
+import { EffectImportRulesPersistenceError } from "./Laws.errors.js";
 
 const $I = $RepoCliId.create("commands/Laws/EffectImports");
 
@@ -70,18 +71,6 @@ export class EffectImportRulesSummary extends S.Class<EffectImportRulesSummary>(
   },
   $I.annote("EffectImportRulesSummary", {
     description: "Summary of effect import law migration results.",
-  })
-) {}
-
-class EffectImportRulesPersistenceError extends TaggedErrorClass<EffectImportRulesPersistenceError>(
-  $I`EffectImportRulesPersistenceError`
-)(
-  "EffectImportRulesPersistenceError",
-  {
-    message: S.String,
-  },
-  $I.annote("EffectImportRulesPersistenceError", {
-    description: "Effect import rules could not be persisted to disk.",
   })
 ) {}
 
@@ -309,15 +298,15 @@ export const runEffectImportRules = Effect.fn(function* (options: EffectImportRu
     yield* Effect.tryPromise({
       try: () => project.save(),
       catch: (cause) =>
-        new EffectImportRulesPersistenceError({
-          message: `Failed to persist effect import updates: ${Inspectable.toStringUnknown(cause, 0)}`,
-        }),
+        EffectImportRulesPersistenceError.new(
+          `Failed to persist effect import updates: ${Inspectable.toStringUnknown(cause, 0)}`
+        ),
     });
   }
 
   const strictFailure = options.strictCheck && (aliasRenamed > 0 || stableConverted > 0);
 
-  return new EffectImportRulesSummary({
+  return EffectImportRulesSummary.make({
     touchedFiles,
     aliasRenamed,
     stableConverted,

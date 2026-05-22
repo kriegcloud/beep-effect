@@ -1,4 +1,5 @@
 import {
+  collectEffectTsgoDiagnosticLines,
   parseQualityTaskInvocation,
   QualityTaskFailed,
   QualityTaskGroupFailed,
@@ -102,7 +103,7 @@ const expectedTurboArgs = (task: string, args: ReadonlyArray<string>): ReadonlyA
   ...args,
 ];
 const bunScriptStep = (label: string, source: string) =>
-  new QualityTaskStep({
+  QualityTaskStep.make({
     label,
     command: "bun",
     args: ["-e", source],
@@ -245,6 +246,19 @@ describe("quality task adapter", () => {
         args: ["run", "beep", "quality", "tsgo-smoke"],
       }),
     ]);
+  });
+
+  it("collects Effect tsgo warnings from successful package results", () => {
+    const diagnostics = collectEffectTsgoDiagnosticLines([
+      {
+        output: [
+          "src/example.test.ts:1:1 - warning TS90001: unsafe effect(service) usage",
+          "src/example.test.ts:2:1 - warning TS99999: unrelated diagnostic",
+        ].join("\n"),
+      },
+    ]);
+
+    expect(diagnostics).toEqual(["src/example.test.ts:1:1 - warning TS90001: unsafe effect(service) usage"]);
   });
 
   it("skips repo-level tsgo diagnostics only for explicit package filters", () => {

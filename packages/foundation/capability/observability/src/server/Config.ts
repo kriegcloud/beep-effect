@@ -17,7 +17,7 @@ const $I = $ObservabilityId.create("server/Config");
  * ```typescript
  * import { ServerObservabilityConfig } from "@beep/observability/server"
  *
- * const config = new ServerObservabilityConfig({
+ * const config = ServerObservabilityConfig.make({
  *   devtoolsEnabled: false,
  *   devtoolsUrl: "ws://localhost:34437",
  *   environment: "test",

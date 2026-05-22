@@ -40,7 +40,7 @@ import {
   syncAgentEffectivenessPhoenix,
 } from "@beep/repo-ai-metrics";
 import { A } from "@beep/utils";
-import { Console, DateTime, Effect, Layer, Path, pipe } from "effect";
+import { Console, DateTime, Effect, flow, Layer, Path, pipe } from "effect";
 import * as O from "effect/Option";
 import { Command, Flag } from "effect/unstable/cli";
 import { FetchHttpClient } from "effect/unstable/http";
@@ -91,27 +91,6 @@ const runAgentEffectivenessProgram = <A, R>(
   effect: Effect.Effect<A, AgentEffectivenessProgramError, R>
 ): Effect.Effect<void, AgentEffectivenessProgramError, R> => effect.pipe(Effect.asVoid);
 
-const makeDoctorInput = ({
-  dataRoot,
-  noPhoenix,
-  phoenixBaseUrl,
-  target,
-  workerEvalReportPath,
-}: {
-  readonly dataRoot: string;
-  readonly noPhoenix: boolean;
-  readonly phoenixBaseUrl: string;
-  readonly target: AiMetricsDeployTarget;
-  readonly workerEvalReportPath: string;
-}): AgentEffectivenessDoctorInput =>
-  new AgentEffectivenessDoctorInput({
-    dataRoot,
-    noPhoenix,
-    phoenixBaseUrl,
-    target,
-    workerEvalReportPath,
-  });
-
 const provideAgentEffectivenessLayers = Effect.fn("AgentEffectiveness.provideLayers")(function* <A, E, R>({
   dataRoot,
   effect,
@@ -124,7 +103,7 @@ const provideAgentEffectivenessLayers = Effect.fn("AgentEffectiveness.provideLay
   return yield* Effect.scoped(
     Layer.build(
       Layer.mergeAll(
-        DuckDb.makeNodeLayer(new DuckDbConnectionOptions({ databasePath: duckDbPath })),
+        DuckDb.makeNodeLayer(DuckDbConnectionOptions.make({ databasePath: duckDbPath })),
         FetchHttpClient.layer
       )
     ).pipe(Effect.flatMap((context) => effect.pipe(Effect.provide(context))))
@@ -149,9 +128,9 @@ const provideAgentEffectivenessPhoenixLayers = Effect.fn("AgentEffectiveness.pro
   return yield* Effect.scoped(
     Layer.build(
       Layer.mergeAll(
-        DuckDb.makeNodeLayer(new DuckDbConnectionOptions({ databasePath: duckDbPath })),
+        DuckDb.makeNodeLayer(DuckDbConnectionOptions.make({ databasePath: duckDbPath })),
         FetchHttpClient.layer,
-        Phoenix.makeLayer(new PhoenixConfigInput({ baseUrl: phoenixBaseUrl }))
+        Phoenix.makeLayer(PhoenixConfigInput.make({ baseUrl: phoenixBaseUrl }))
       )
     ).pipe(Effect.flatMap((context) => effect.pipe(Effect.provide(context))))
   );
@@ -287,7 +266,7 @@ const makeDoctorProgram = Effect.fn("AgentEffectiveness.makeDoctorProgram")(func
   readonly target: AiMetricsDeployTarget;
   readonly workerEvalReportPath: string;
 }) {
-  const input = makeDoctorInput({
+  const input = AgentEffectivenessDoctorInput.make({
     dataRoot,
     noPhoenix,
     phoenixBaseUrl,
@@ -316,7 +295,7 @@ const makeAnnotationPlanProgram = Effect.fn("AgentEffectiveness.makeAnnotationPl
   readonly target: AiMetricsDeployTarget;
   readonly workerEvalReportPath: string;
 }) {
-  const doctor = makeDoctorInput({
+  const doctor = AgentEffectivenessDoctorInput.make({
     dataRoot,
     noPhoenix,
     phoenixBaseUrl,
@@ -325,7 +304,7 @@ const makeAnnotationPlanProgram = Effect.fn("AgentEffectiveness.makeAnnotationPl
   });
   const plan = yield* provideAgentEffectivenessLayers({
     dataRoot,
-    effect: makeAgentEffectivenessAnnotationPlan(new AgentEffectivenessAnnotationPlanInput({ doctor })),
+    effect: makeAgentEffectivenessAnnotationPlan(AgentEffectivenessAnnotationPlanInput.make({ doctor })),
   });
   yield* renderAnnotationPlan(plan, json);
 });
@@ -345,7 +324,7 @@ const makeAnnotationCheckProgram = Effect.fn("AgentEffectiveness.makeAnnotationC
   readonly target: AiMetricsDeployTarget;
   readonly workerEvalReportPath: string;
 }) {
-  const doctor = makeDoctorInput({
+  const doctor = AgentEffectivenessDoctorInput.make({
     dataRoot,
     noPhoenix,
     phoenixBaseUrl,
@@ -354,7 +333,7 @@ const makeAnnotationCheckProgram = Effect.fn("AgentEffectiveness.makeAnnotationC
   });
   const plan = yield* provideAgentEffectivenessLayers({
     dataRoot,
-    effect: makeAgentEffectivenessAnnotationPlan(new AgentEffectivenessAnnotationPlanInput({ doctor })),
+    effect: makeAgentEffectivenessAnnotationPlan(AgentEffectivenessAnnotationPlanInput.make({ doctor })),
   });
   const report = makeAgentEffectivenessAnnotationCheckReport(plan);
   yield* renderAnnotationCheck(report, json);
@@ -378,7 +357,7 @@ const makeDatasetBundleProgram = Effect.fn("AgentEffectiveness.makeDatasetBundle
   readonly target: AiMetricsDeployTarget;
   readonly workerEvalReportPath: string;
 }) {
-  const input = makeDoctorInput({
+  const input = AgentEffectivenessDoctorInput.make({
     dataRoot,
     noPhoenix,
     phoenixBaseUrl,
@@ -421,7 +400,7 @@ const makeExperimentBundleProgram = Effect.fn("AgentEffectiveness.makeExperiment
   readonly target: AiMetricsDeployTarget;
   readonly workerEvalReportPath: string;
 }) {
-  const input = makeDoctorInput({
+  const input = AgentEffectivenessDoctorInput.make({
     dataRoot,
     noPhoenix,
     phoenixBaseUrl,
@@ -455,7 +434,7 @@ const makePhoenixSyncProgram = Effect.fn("AgentEffectiveness.makePhoenixSyncProg
   readonly workerEvalReportPath: string;
   readonly write: boolean;
 }) {
-  const doctor = makeDoctorInput({
+  const doctor = AgentEffectivenessDoctorInput.make({
     dataRoot,
     noPhoenix,
     phoenixBaseUrl,
@@ -465,8 +444,8 @@ const makePhoenixSyncProgram = Effect.fn("AgentEffectiveness.makePhoenixSyncProg
   const result = yield* provideAgentEffectivenessPhoenixLayers({
     dataRoot,
     effect: syncAgentEffectivenessPhoenix(
-      new AgentEffectivenessPhoenixSyncInput({
-        annotationPlan: new AgentEffectivenessAnnotationPlanInput({ doctor }),
+      AgentEffectivenessPhoenixSyncInput.make({
+        annotationPlan: AgentEffectivenessAnnotationPlanInput.make({ doctor }),
         dryRun: !write,
         ...(O.isSome(confirmPhoenixWrite) ? { confirmToken: confirmPhoenixWrite.value } : {}),
       })
@@ -489,17 +468,7 @@ const doctorCommand = Command.make(
     target: targetFlag,
     workerEvalReportPath: workerEvalReportFlag,
   },
-  ({ dataRoot, json, noPhoenix, phoenixBaseUrl, target, workerEvalReportPath }) =>
-    runAgentEffectivenessProgram(
-      makeDoctorProgram({
-        dataRoot,
-        json,
-        noPhoenix,
-        phoenixBaseUrl,
-        target,
-        workerEvalReportPath,
-      })
-    )
+  flow(makeDoctorProgram, runAgentEffectivenessProgram)
 ).pipe(Command.withDescription("Render the local no-mutation agent-effectiveness trust gate"));
 
 const annotationsPlanCommand = Command.make(
@@ -512,17 +481,7 @@ const annotationsPlanCommand = Command.make(
     target: targetFlag,
     workerEvalReportPath: workerEvalReportFlag,
   },
-  ({ dataRoot, json, noPhoenix, phoenixBaseUrl, target, workerEvalReportPath }) =>
-    runAgentEffectivenessProgram(
-      makeAnnotationPlanProgram({
-        dataRoot,
-        json,
-        noPhoenix,
-        phoenixBaseUrl,
-        target,
-        workerEvalReportPath,
-      })
-    )
+  flow(makeAnnotationPlanProgram, runAgentEffectivenessProgram)
 ).pipe(Command.withDescription("Render a sanitized local-only Phoenix annotation plan"));
 
 const annotationsCheckCommand = Command.make(
@@ -535,17 +494,7 @@ const annotationsCheckCommand = Command.make(
     target: targetFlag,
     workerEvalReportPath: workerEvalReportFlag,
   },
-  ({ dataRoot, json, noPhoenix, phoenixBaseUrl, target, workerEvalReportPath }) =>
-    runAgentEffectivenessProgram(
-      makeAnnotationCheckProgram({
-        dataRoot,
-        json,
-        noPhoenix,
-        phoenixBaseUrl,
-        target,
-        workerEvalReportPath,
-      })
-    )
+  flow(makeAnnotationCheckProgram, runAgentEffectivenessProgram)
 ).pipe(Command.withDescription("Check a local annotation plan for schema and privacy safety"));
 
 const annotationsCommand = Command.make("annotations", {}, () =>
@@ -565,17 +514,7 @@ const datasetsBundleCommand = Command.make(
     target: targetFlag,
     workerEvalReportPath: workerEvalReportFlag,
   },
-  ({ dataRoot, json, noPhoenix, phoenixBaseUrl, target, workerEvalReportPath }) =>
-    runAgentEffectivenessProgram(
-      makeDatasetBundleProgram({
-        dataRoot,
-        json,
-        noPhoenix,
-        phoenixBaseUrl,
-        target,
-        workerEvalReportPath,
-      })
-    )
+  flow(makeDatasetBundleProgram, runAgentEffectivenessProgram)
 ).pipe(Command.withDescription("Render the sanitized Phoenix dataset bundle"));
 
 const datasetsCommand = Command.make("datasets", {}, () =>
@@ -595,17 +534,7 @@ const promptsBundleCommand = Command.make(
     target: targetFlag,
     workerEvalReportPath: workerEvalReportFlag,
   },
-  ({ dataRoot, json, noPhoenix, phoenixBaseUrl, target, workerEvalReportPath }) =>
-    runAgentEffectivenessProgram(
-      makePromptBundleProgram({
-        dataRoot,
-        json,
-        noPhoenix,
-        phoenixBaseUrl,
-        target,
-        workerEvalReportPath,
-      })
-    )
+  flow(makePromptBundleProgram, runAgentEffectivenessProgram)
 ).pipe(Command.withDescription("Render the repo-owned Phoenix prompt bundle"));
 
 const promptsCommand = Command.make("prompts", {}, () =>
@@ -625,17 +554,7 @@ const experimentsBundleCommand = Command.make(
     target: targetFlag,
     workerEvalReportPath: workerEvalReportFlag,
   },
-  ({ dataRoot, json, noPhoenix, phoenixBaseUrl, target, workerEvalReportPath }) =>
-    runAgentEffectivenessProgram(
-      makeExperimentBundleProgram({
-        dataRoot,
-        json,
-        noPhoenix,
-        phoenixBaseUrl,
-        target,
-        workerEvalReportPath,
-      })
-    )
+  flow(makeExperimentBundleProgram, runAgentEffectivenessProgram)
 ).pipe(Command.withDescription("Render deterministic Phoenix experiment specs"));
 
 const experimentsCommand = Command.make("experiments", {}, () =>
@@ -657,19 +576,7 @@ const phoenixSyncCommand = Command.make(
     workerEvalReportPath: workerEvalReportFlag,
     write: writeFlag,
   },
-  ({ confirmPhoenixWrite, dataRoot, json, noPhoenix, phoenixBaseUrl, target, workerEvalReportPath, write }) =>
-    runAgentEffectivenessProgram(
-      makePhoenixSyncProgram({
-        confirmPhoenixWrite,
-        dataRoot,
-        json,
-        noPhoenix,
-        phoenixBaseUrl,
-        target,
-        workerEvalReportPath,
-        write,
-      })
-    )
+  flow(makePhoenixSyncProgram, runAgentEffectivenessProgram)
 ).pipe(Command.withDescription("Dry-run or confirmed-write agent-effectiveness specs to Phoenix"));
 
 const phoenixCommand = Command.make("phoenix", {}, () =>

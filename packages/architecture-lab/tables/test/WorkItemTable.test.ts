@@ -17,14 +17,14 @@ describe("WorkItem table", () => {
       const workerId = yield* decodeWorkerId(1);
       const id = yield* decodeWorkItemId("work-item-1");
       const workItem = DomainWorkItem.create(
-        new DomainWorkItem.CreateWorkItemInput({
+        DomainWorkItem.CreateWorkItemInput.make({
           id,
           title: "Document topology",
           priority: O.some(WorkPriority.WorkPriority.Enum.high),
         })
       );
 
-      const row = toWorkItemInsert(new DomainWorkItem.WorkItem({ ...workItem, assignee: O.some(workerId) }));
+      const row = toWorkItemInsert(DomainWorkItem.WorkItem.make({ ...workItem, assignee: O.some(workerId) }));
 
       expect(getTableName(workItemTable)).toBe("architecture_lab_work_item");
       expect(row.assigneeId).toBe(workerId);

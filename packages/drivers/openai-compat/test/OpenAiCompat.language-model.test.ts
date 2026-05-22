@@ -65,7 +65,7 @@ const makeHttpClientLayer = (respond: TestRespond): Layer.Layer<HttpClient.HttpC
   );
 
 const makeOpenAiCompatClientLayer = (respond: TestRespond) =>
-  OpenAiCompatClient.makeLayer(new OpenAiCompatClientOptions({ apiKey: Redacted.make("test-key") })).pipe(
+  OpenAiCompatClient.makeLayer(OpenAiCompatClientOptions.make({ apiKey: Redacted.make("test-key") })).pipe(
     Layer.provide(makeHttpClientLayer(respond))
   );
 
@@ -477,7 +477,7 @@ layer(Layer.empty as Layer.Layer<TUnsafe.Any>)("OpenAiCompat language model", (i
   it.effect(
     "maps JSON body encoding failures to AiError",
     Effect.fnUntraced(function* () {
-      const request = new OpenAiCompatChatCompletionRequest({
+      const request = OpenAiCompatChatCompletionRequest.make({
         messages: [],
         model: "compat-model",
         stream_options: {
@@ -502,7 +502,7 @@ layer(Layer.empty as Layer.Layer<TUnsafe.Any>)("OpenAiCompat language model", (i
   it.effect(
     "maps non-2xx client responses without exposing response bodies",
     Effect.fnUntraced(function* () {
-      const request = new OpenAiCompatChatCompletionRequest({
+      const request = OpenAiCompatChatCompletionRequest.make({
         messages: [],
         model: "compat-model",
       });
@@ -533,7 +533,7 @@ layer(Layer.empty as Layer.Layer<TUnsafe.Any>)("OpenAiCompat language model", (i
   it.effect(
     "rejects stream responses whose leading content type is not text/event-stream",
     Effect.fnUntraced(function* () {
-      const request = new OpenAiCompatChatCompletionRequest({
+      const request = OpenAiCompatChatCompletionRequest.make({
         messages: [],
         model: "compat-model",
       });
@@ -569,7 +569,7 @@ layer(Layer.empty as Layer.Layer<TUnsafe.Any>)("OpenAiCompat language model", (i
       const jsonBody =
         '{"choices":[{"finish_reason":"stop","index":0,"message":{"content":"ok","role":"assistant","tool_calls":[]}}],"usage":{"completion_tokens":2,"prompt_tokens":1,"total_tokens":3}}';
       const defaultLayer = OpenAiCompatClient.makeLayer(
-        new OpenAiCompatClientOptions({ apiKey: Redacted.make("test-key") })
+        OpenAiCompatClientOptions.make({ apiKey: Redacted.make("test-key") })
       ).pipe(
         Layer.provide(
           makeHttpClientLayer((request) =>
@@ -588,7 +588,7 @@ layer(Layer.empty as Layer.Layer<TUnsafe.Any>)("OpenAiCompat language model", (i
           )
         )
       );
-      const request = new OpenAiCompatChatCompletionRequest({
+      const request = OpenAiCompatChatCompletionRequest.make({
         messages: [],
         model: "compat-model",
       });
@@ -608,7 +608,7 @@ layer(Layer.empty as Layer.Layer<TUnsafe.Any>)("OpenAiCompat language model", (i
 
       const overrideHeaders = yield* Ref.make<ReadonlyArray<Record<string, string>>>([]);
       const overrideLayer = OpenAiCompatClient.makeLayer(
-        new OpenAiCompatClientOptions({
+        OpenAiCompatClientOptions.make({
           apiKey: Redacted.make("test-key"),
           headers: { Accept: "application/vnd.compat+json" },
         })
@@ -643,7 +643,7 @@ layer(Layer.empty as Layer.Layer<TUnsafe.Any>)("OpenAiCompat language model", (i
   it.effect(
     "maps SSE retry directives to typed AiError",
     Effect.fnUntraced(function* () {
-      const request = new OpenAiCompatChatCompletionRequest({
+      const request = OpenAiCompatChatCompletionRequest.make({
         messages: [],
         model: "compat-model",
       });

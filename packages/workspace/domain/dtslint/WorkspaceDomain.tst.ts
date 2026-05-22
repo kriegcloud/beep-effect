@@ -30,7 +30,7 @@ describe("@beep/workspace-domain", () => {
 
   it("preserves decode and constructor types", () => {
     expect<typeof WorkspaceEntity.Encoded>().type.toBeAssignableTo<typeof WorkspaceEntity.Encoded>();
-    expect(new WorkspaceEntity(workspace)).type.toBe<WorkspaceEntity>();
+    expect(WorkspaceEntity.make(workspace)).type.toBe<WorkspaceEntity>();
     expect<WorkspaceEntity["ownerPrincipalFixtureKey"]>().type.toBe<string>();
   });
 });

@@ -42,7 +42,7 @@ describe("@beep/law-practice-domain", () => {
       legalClientFixtureKey: "legal-client.acme",
       matterType: "patent_application",
     });
-    const constructed = new Matter(decoded);
+    const constructed = Matter.make(decoded);
 
     expect(decoded).toBeInstanceOf(Matter);
     expect(constructed).toBeInstanceOf(Matter);

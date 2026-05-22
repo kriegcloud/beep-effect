@@ -21,28 +21,28 @@ declare const runpod: RunpodShape;
 
 describe("Runpod", () => {
   it("preserves layer and service method types", () => {
-    expect(Runpod.makeLayer(new RunpodConfigInput({ apiKey: Redacted.make("test-key") }))).type.toBeAssignableTo<
+    expect(Runpod.makeLayer(RunpodConfigInput.make({ apiKey: Redacted.make("test-key") }))).type.toBeAssignableTo<
       Layer.Layer<Runpod, never, HttpClient.HttpClient>
     >();
     expect(Runpod.layer).type.toBeAssignableTo<Layer.Layer<Runpod, RunpodError>>();
-    expect(RunpodDocs.makeLayer(new RunpodDocsConfigInput({}))).type.toBeAssignableTo<
+    expect(RunpodDocs.makeLayer(RunpodDocsConfigInput.make({}))).type.toBeAssignableTo<
       Layer.Layer<RunpodDocs, never, HttpClient.HttpClient>
     >();
     expect(RunpodDocs.layer).type.toBeAssignableTo<Layer.Layer<RunpodDocs, RunpodDocsError>>();
 
-    expect(runpod.listPods(new ListPodsRequest({ includeMachine: true }))).type.toBeAssignableTo<
+    expect(runpod.listPods(ListPodsRequest.make({ includeMachine: true }))).type.toBeAssignableTo<
       Effect.Effect<Pods, RunpodError>
     >();
     expect(
       runpod.createPod(
-        new CreatePodRequest({
-          body: new PodCreateInput({ name: "demo" }),
+        CreatePodRequest.make({
+          body: PodCreateInput.make({ name: "demo" }),
         })
       )
     ).type.toBeAssignableTo<Effect.Effect<unknown, RunpodError>>();
     expect(
       runpod.raw(
-        new RunpodRawRequest({
+        RunpodRawRequest.make({
           method: "GET",
           path: "/future",
         })
@@ -52,9 +52,9 @@ describe("Runpod", () => {
 
   it("rejects invalid construction shapes", () => {
     // @ts-expect-error!
-    const invalidConfig = new RunpodConfigInput({ apiKey: "test-key" });
+    const invalidConfig = RunpodConfigInput.make({ apiKey: "test-key" });
     // @ts-expect-error!
-    const missingBody = new CreatePodRequest({});
+    const missingBody = CreatePodRequest.make({});
 
     void invalidConfig;
     void missingBody;

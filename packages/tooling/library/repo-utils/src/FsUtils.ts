@@ -24,7 +24,7 @@ const decodeJsonString = S.decodeUnknownOption(S.fromJsonString(S.Json));
  * @example
  * ```ts
  * import { GlobOptions } from "@beep/repo-utils/FsUtils"
- * const options = new GlobOptions({
+ * const options = GlobOptions.make({
  *   cwd: "src",
  *   ignore: ["*.test.ts"]
  * })
@@ -195,8 +195,8 @@ export const FsUtilsLive: Layer.Layer<FsUtils, never, FileSystem.FileSystem | Pa
       return yield* globUtils
         .glob(pattern, sharedGlobOptions)
         .pipe(
-          Effect.mapError(
-            (error) => new DomainError({ cause: error, message: `Glob failed for pattern "${String(pattern)}"` })
+          Effect.mapError((error) =>
+            DomainError.make({ cause: error, message: `Glob failed for pattern "${String(pattern)}"` })
           )
         );
     });
@@ -207,7 +207,7 @@ export const FsUtilsLive: Layer.Layer<FsUtils, never, FileSystem.FileSystem | Pa
 
     const readJson: FsUtilsShape["readJson"] = Effect.fn(function* (filePath) {
       return yield* fs.readFileString(filePath).pipe(
-        Effect.mapError((e) => new NoSuchFileError({ path: filePath, message: `Failed to read file: ${e.message}` })),
+        Effect.mapError((e) => NoSuchFileError.make({ path: filePath, message: `Failed to read file: ${e.message}` })),
         Effect.map(decodeJsonString)
       );
     });
@@ -216,16 +216,15 @@ export const FsUtilsLive: Layer.Layer<FsUtils, never, FileSystem.FileSystem | Pa
       const content = yield* jsonStringifyPretty(json);
       yield* fs
         .writeFileString(filePath, `${content}\n`)
-        .pipe(Effect.mapError((e) => new DomainError({ cause: e, message: `Failed to write JSON to "${filePath}"` })));
+        .pipe(Effect.mapError((e) => DomainError.make({ cause: e, message: `Failed to write JSON to "${filePath}"` })));
     });
 
     const modifyFile: FsUtilsShape["modifyFile"] = Effect.fn(function* (filePath, transform) {
       const original = yield* fs
         .readFileString(filePath)
         .pipe(
-          Effect.mapError(
-            (e) =>
-              new NoSuchFileError({ path: filePath, message: `Failed to read file for modification: ${e.message}` })
+          Effect.mapError((e) =>
+            NoSuchFileError.make({ path: filePath, message: `Failed to read file for modification: ${e.message}` })
           )
         );
       const transformed = transform(original);
@@ -235,19 +234,18 @@ export const FsUtilsLive: Layer.Layer<FsUtils, never, FileSystem.FileSystem | Pa
       yield* fs
         .writeFileString(filePath, transformed)
         .pipe(
-          Effect.mapError((e) => new DomainError({ cause: e, message: `Failed to write modified file "${filePath}"` }))
+          Effect.mapError((e) => DomainError.make({ cause: e, message: `Failed to write modified file "${filePath}"` }))
         );
       return true;
     });
 
     const realPath: FsUtilsShape["realPath"] = Effect.fn(function* (filePath) {
       return yield* fs.realPath(filePath).pipe(
-        Effect.mapError(
-          (e) =>
-            new NoSuchFileError({
-              path: filePath,
-              message: `Failed to resolve canonical path for "${filePath}": ${e.message}`,
-            })
+        Effect.mapError((e) =>
+          NoSuchFileError.make({
+            path: filePath,
+            message: `Failed to resolve canonical path for "${filePath}": ${e.message}`,
+          })
         )
       );
     });
@@ -256,12 +254,12 @@ export const FsUtilsLive: Layer.Layer<FsUtils, never, FileSystem.FileSystem | Pa
       const exists = yield* fs
         .exists(filePath)
         .pipe(
-          Effect.mapError(
-            () => new NoSuchFileError({ path: filePath, message: `Unable to check existence of "${filePath}"` })
+          Effect.mapError(() =>
+            NoSuchFileError.make({ path: filePath, message: `Unable to check existence of "${filePath}"` })
           )
         );
       if (!exists) {
-        return yield* new NoSuchFileError({
+        return yield* NoSuchFileError.make({
           path: filePath,
           message: `Path does not exist: "${filePath}"`,
         });
@@ -273,7 +271,7 @@ export const FsUtilsLive: Layer.Layer<FsUtils, never, FileSystem.FileSystem | Pa
         return yield* fs
           .stat(filePath)
           .pipe(
-            Effect.mapError(() => new NoSuchFileError({ path: filePath, message: `Failed to stat "${filePath}"` }))
+            Effect.mapError(() => NoSuchFileError.make({ path: filePath, message: `Failed to stat "${filePath}"` }))
           );
       }
     );

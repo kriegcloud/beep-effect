@@ -1,5 +1,6 @@
 import {
   GraphitiProxyConfig,
+  isFastMcpRequestBody,
   makeGraphitiProxyForwarderService,
   shouldRecoverGraphitiStackForTesting,
 } from "@beep/repo-cli/test/Graphiti";
@@ -7,6 +8,7 @@ import { NodeServices } from "@effect/platform-node";
 import { expect, layer } from "@effect/vitest";
 import { Duration, Effect } from "effect";
 import * as O from "effect/Option";
+import * as S from "effect/Schema";
 import {
   HttpClient,
   HttpClientError,
@@ -42,7 +44,7 @@ const makeWebHandlerClient = (handler: (request: Request) => Promise<Response>) 
   );
 
 const makeProxyConfig = () =>
-  new GraphitiProxyConfig({
+  GraphitiProxyConfig.make({
     upstream: "http://127.0.0.1:8000/mcp",
     dependencyHealthEnabled: false,
   });
@@ -50,6 +52,8 @@ const makeProxyConfig = () =>
 const makeServerRequest = (url: string) => HttpServerRequest.fromWeb(new Request(`http://proxy.local${url}`));
 const readResponseText = (response: HttpServerResponse.HttpServerResponse) =>
   Effect.promise(() => HttpServerResponse.toWeb(response).text());
+const encodeJson = S.encodeUnknownEffect(S.UnknownFromJsonString);
+const utf8Encoder = new TextEncoder();
 const provideWebHandlerClient =
   (handler: (request: Request) => Promise<Response>) =>
   <A, E, R>(effect: Effect.Effect<A, E, R>): Effect.Effect<A, E, Exclude<R, HttpClient.HttpClient>> =>
@@ -99,7 +103,7 @@ layer(NodeServices.layer)("Graphiti proxy security", (it) => {
     Effect.fn(function* () {
       let capturedUrl = "";
       const forwarder = makeGraphitiProxyForwarderService(
-        new GraphitiProxyConfig({
+        GraphitiProxyConfig.make({
           upstream: "http://127.0.0.1:8000/mcp/",
           dependencyHealthEnabled: false,
         })
@@ -149,6 +153,43 @@ layer(NodeServices.layer)("Graphiti proxy security", (it) => {
       if (O.isSome(result)) {
         expect(result.value.status).toBe(200);
       }
+    })
+  );
+
+  it.effect(
+    "classifies startup and status MCP bodies for the fast lane",
+    Effect.fn(function* () {
+      const slowBody = yield* encodeJson({
+        id: 1,
+        jsonrpc: "2.0",
+        method: "tools/call",
+        params: {
+          arguments: {
+            query: "slow",
+          },
+          name: "search_memory_facts",
+        },
+      });
+      const initializeBody = yield* encodeJson({
+        id: 2,
+        jsonrpc: "2.0",
+        method: "initialize",
+        params: {},
+      });
+      const statusBody = yield* encodeJson({
+        id: 3,
+        jsonrpc: "2.0",
+        method: "tools/call",
+        params: {
+          arguments: {},
+          name: "get_status",
+        },
+      });
+
+      expect(isFastMcpRequestBody(O.some(utf8Encoder.encode(slowBody)))).toBe(false);
+      expect(isFastMcpRequestBody(O.some(utf8Encoder.encode(initializeBody)))).toBe(true);
+      expect(isFastMcpRequestBody(O.some(utf8Encoder.encode(statusBody)))).toBe(true);
+      expect(isFastMcpRequestBody(O.none())).toBe(true);
     })
   );
 

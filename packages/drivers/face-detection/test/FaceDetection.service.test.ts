@@ -16,12 +16,12 @@ const provideScopedLayer =
   <A, E, R>(effect: Effect.Effect<A, E, R>): Effect.Effect<A, E | E2, RIn | Exclude<R, ROut>> =>
     Effect.scoped(Layer.build(layer).pipe(Effect.flatMap((context) => effect.pipe(Effect.provide(context)))));
 
-const point = new FaceDetectionPoint({ x: 1, y: 2 });
+const point = FaceDetectionPoint.make({ x: 1, y: 2 });
 
-const fakeFace = new FaceDetection({
-  box: new FaceDetectionBox({ height: 24, width: 20, x: 10, y: 12 }),
+const fakeFace = FaceDetection.make({
+  box: FaceDetectionBox.make({ height: 24, width: 20, x: 10, y: 12 }),
   confidence: 0.9,
-  landmarks: new FaceDetectionLandmarks({
+  landmarks: FaceDetectionLandmarks.make({
     leftEye: point,
     leftMouth: point,
     nose: point,
@@ -37,7 +37,7 @@ const fakeLayer = Layer.succeed(
       use({
         detect: Effect.fn("LoadedFaceDetector.detect")((request) =>
           Effect.succeed(
-            new FaceDetectionResult({
+            FaceDetectionResult.make({
               faces: [fakeFace],
               height: 100,
               imagePath: request.imagePath,
@@ -53,7 +53,7 @@ const fakeLayer = Layer.succeed(
 describe("@beep/face-detection", () => {
   it.effect("runs workflows through the service contract", () =>
     withDetector({ modelPath: "./model.onnx" }, (detector) =>
-      detector.detect(new FaceDetectionImageRequest({ imagePath: "./photo.jpg" }))
+      detector.detect(FaceDetectionImageRequest.make({ imagePath: "./photo.jpg" }))
     ).pipe(
       Effect.map((result) => {
         expect(result.faces).toEqual([fakeFace]);

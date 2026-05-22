@@ -845,6 +845,40 @@ large source files. Small role files under concept folders preserve the
 architecture's context-compression benefits for coding agents and reviewers,
 especially because `@beep/schema` carries heavy documentation.
 
+## 2026-05-22: Close `@beep/schema` Topology Compatibility
+
+- **Status:** Active
+
+Decision:
+
+The `@beep/schema` topology migration is closed around PascalCase exact concept
+modules. Lowercase topical source directories and public subpaths are retired:
+do not restore paths such as `src/color/`, `src/http/`,
+`@beep/schema/color`, or `@beep/schema/http/headers`. Public package exports for
+schema concepts point at concept indexes only; role files under
+`src/<Concept>/` are private source topology. Legacy acronym casing subpaths
+such as `@beep/schema/ExpectCT` and `@beep/schema/XSSProtection` are retired in
+favor of canonical concept casing (`ExpectCt`, `XssProtection`).
+
+The package root remains a curated flat facade for common helpers and migration
+aliases. Purposeful repeated names may remain inside canonical concept modules
+when they keep current consumers clear during migration, such as
+`Duration.DurationInput` beside `Duration.Input`. The broad package wildcard and
+lowercase topical compatibility paths are not compatibility surfaces.
+
+The repo enforces this closure with `bun run beep lint schema-topology`, which
+checks `@beep/schema` source directories, package exports, public role-file
+targets, retired casing aliases, and root `tsconfig` alias drift.
+
+Rationale:
+
+The compatibility-first phase let the repo introduce canonical modules without
+blocking downstream consumers. Once the package exposed exact PascalCase concept
+subpaths and tests/dtslint covered role-file privacy, keeping lowercase suite
+paths became pure topology debt. Removing them makes `ls src` match the public
+mental model, prevents case-only ambiguity, and gives agents a much smaller
+navigation surface.
+
 ## Known Unknowns
 
 Areas the doctrine does not yet cover and which the authors expect to revise as the architecture is load-tested:

@@ -346,7 +346,7 @@ export const previewHealth: CanvasHealth = {
  * ```ts
  * import { CanvasCommandError } from "@beep/canvas"
  *
- * const error = new CanvasCommandError({ message: "Canvas bridge is offline." })
+ * const error = CanvasCommandError.make({ message: "Canvas bridge is offline." })
  * ```
  *
  * @category errors
@@ -403,68 +403,68 @@ const publicErrorMessage = (error: CanvasProjectUseCases.CanvasProjectActionErro
     : `${error._tag}: ${"reason" in error ? error.reason : "canvasProjectId" in error ? error.canvasProjectId : "unknown"}`;
 
 const toCommandError = (error: CanvasProjectUseCases.CanvasProjectActionError): CanvasCommandError =>
-  new CanvasCommandError({ message: publicErrorMessage(error) });
+  CanvasCommandError.make({ message: publicErrorMessage(error) });
 
 const decodeCanvasScene = (scene: unknown): Effect.Effect<CanvasScene, CanvasCommandError> =>
   S.decodeUnknownEffect(DomainCanvasProject.CanvasProject)(scene).pipe(
-    Effect.mapError((error) => new CanvasCommandError({ message: error.message }))
+    Effect.mapError((error) => CanvasCommandError.make({ message: error.message }))
   );
 
 const decodeCanvasHealth = (health: unknown): Effect.Effect<CanvasHealth, CanvasCommandError> =>
   S.decodeUnknownEffect(CanvasHealth)(health).pipe(
-    Effect.mapError((error) => new CanvasCommandError({ message: error.message }))
+    Effect.mapError((error) => CanvasCommandError.make({ message: error.message }))
   );
 
 const decodeSceneSaveRequest = (request: unknown): Effect.Effect<SceneSaveRequest, CanvasCommandError> =>
   S.decodeUnknownEffect(SceneSaveRequest)(request).pipe(
-    Effect.mapError((error) => new CanvasCommandError({ message: error.message }))
+    Effect.mapError((error) => CanvasCommandError.make({ message: error.message }))
   );
 
 const decodeSceneLoadRequest = (request: unknown): Effect.Effect<SceneLoadRequest, CanvasCommandError> =>
   S.decodeUnknownEffect(SceneLoadRequest)(request).pipe(
-    Effect.mapError((error) => new CanvasCommandError({ message: error.message }))
+    Effect.mapError((error) => CanvasCommandError.make({ message: error.message }))
   );
 
 const decodeCreateCanvasProjectCommand = (
   command: unknown
 ): Effect.Effect<CanvasProjectUseCases.CreateCanvasProjectCommand, CanvasCommandError> =>
   S.decodeUnknownEffect(CanvasProjectUseCases.CreateCanvasProjectCommand)(command).pipe(
-    Effect.mapError((error) => new CanvasCommandError({ message: error.message }))
+    Effect.mapError((error) => CanvasCommandError.make({ message: error.message }))
   );
 
 const decodeArchiveCanvasProjectCommand = (
   command: unknown
 ): Effect.Effect<CanvasProjectUseCases.ArchiveCanvasProjectCommand, CanvasCommandError> =>
   S.decodeUnknownEffect(CanvasProjectUseCases.ArchiveCanvasProjectCommand)(command).pipe(
-    Effect.mapError((error) => new CanvasCommandError({ message: error.message }))
+    Effect.mapError((error) => CanvasCommandError.make({ message: error.message }))
   );
 
 const decodeAddCanvasNodeCommand = (
   command: unknown
 ): Effect.Effect<CanvasProjectUseCases.AddCanvasNodeCommand, CanvasCommandError> =>
   S.decodeUnknownEffect(CanvasProjectUseCases.AddCanvasNodeCommand)(command).pipe(
-    Effect.mapError((error) => new CanvasCommandError({ message: error.message }))
+    Effect.mapError((error) => CanvasCommandError.make({ message: error.message }))
   );
 
 const decodeRemoveCanvasNodeCommand = (
   command: unknown
 ): Effect.Effect<CanvasProjectUseCases.RemoveCanvasNodeCommand, CanvasCommandError> =>
   S.decodeUnknownEffect(CanvasProjectUseCases.RemoveCanvasNodeCommand)(command).pipe(
-    Effect.mapError((error) => new CanvasCommandError({ message: error.message }))
+    Effect.mapError((error) => CanvasCommandError.make({ message: error.message }))
   );
 
 const decodeGetCanvasProjectQuery = (
   query: unknown
 ): Effect.Effect<CanvasProjectUseCases.GetCanvasProjectQuery, CanvasCommandError> =>
   S.decodeUnknownEffect(CanvasProjectUseCases.GetCanvasProjectQuery)(query).pipe(
-    Effect.mapError((error) => new CanvasCommandError({ message: error.message }))
+    Effect.mapError((error) => CanvasCommandError.make({ message: error.message }))
   );
 
 const decodeListCanvasProjectsQuery = (
   query: unknown
 ): Effect.Effect<CanvasProjectUseCases.ListCanvasProjectsQuery, CanvasCommandError> =>
   S.decodeUnknownEffect(CanvasProjectUseCases.ListCanvasProjectsQuery)(query).pipe(
-    Effect.mapError((error) => new CanvasCommandError({ message: error.message }))
+    Effect.mapError((error) => CanvasCommandError.make({ message: error.message }))
   );
 
 const runAppEffect = <A>(
@@ -508,7 +508,7 @@ export const decodeCanvasProjectId = (
   id: string
 ): Effect.Effect<DomainCanvasProject.CanvasProjectId, CanvasCommandError> =>
   S.decodeUnknownEffect(DomainCanvasProject.CanvasProjectId)(id).pipe(
-    Effect.mapError((error) => new CanvasCommandError({ message: error.message }))
+    Effect.mapError((error) => CanvasCommandError.make({ message: error.message }))
   );
 
 /**
@@ -526,7 +526,7 @@ export const decodeCanvasProjectId = (
  */
 export const decodeCanvasNodeId = (id: string): Effect.Effect<DomainCanvasProject.CanvasNodeId, CanvasCommandError> =>
   S.decodeUnknownEffect(DomainCanvasProject.CanvasNodeId)(id).pipe(
-    Effect.mapError((error) => new CanvasCommandError({ message: error.message }))
+    Effect.mapError((error) => CanvasCommandError.make({ message: error.message }))
   );
 
 /**
@@ -546,7 +546,7 @@ export const decodeCanvasNodeKind = (
   kind: unknown
 ): Effect.Effect<DomainCanvasProject.CanvasNodeKind, CanvasCommandError> =>
   S.decodeUnknownEffect(DomainCanvasProject.CanvasNodeKind)(kind).pipe(
-    Effect.mapError((error) => new CanvasCommandError({ message: error.message }))
+    Effect.mapError((error) => CanvasCommandError.make({ message: error.message }))
   );
 
 /**
@@ -573,7 +573,7 @@ export const makePreviewCanvasCommandBridge: CanvasCommandBridgeEffect = Effect.
         Effect.flatMap((scenes) =>
           O.match(HashMap.get(scenes, path), {
             onNone: () =>
-              Effect.fail(new CanvasCommandError({ message: `No preview scene has been saved at ${path}.` })),
+              Effect.fail(CanvasCommandError.make({ message: `No preview scene has been saved at ${path}.` })),
             onSome: Effect.succeed,
           })
         )
@@ -591,7 +591,7 @@ const loadThroughUseCases = (
 ): Effect.Effect<CanvasScene, CanvasCommandError> =>
   decodeCanvasScene(scene).pipe(
     Effect.flatMap((decoded) =>
-      runAppEffect(useCases.restore(new CanvasProjectUseCases.RestoreCanvasProjectCommand({ scene: decoded })))
+      runAppEffect(useCases.restore(CanvasProjectUseCases.RestoreCanvasProjectCommand.make({ scene: decoded })))
     )
   );
 
@@ -639,7 +639,7 @@ const invokeNativeEffect = (
 ): Effect.Effect<unknown, CanvasCommandError> =>
   Effect.tryPromise({
     try: () => invoke(command, args),
-    catch: (error) => new CanvasCommandError({ message: errorMessage(error) }),
+    catch: (error) => CanvasCommandError.make({ message: errorMessage(error) }),
   });
 
 /**

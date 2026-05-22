@@ -215,19 +215,22 @@ without taking product-domain dependencies.
 A flat public `@beep/schema/<Concept>` module that owns one reusable
 domain-agnostic schema concept or concept family. Consumers import it as a
 namespace and use role members such as `Schema`, `Input`, or `FromInput`.
+Concept modules use PascalCase exact subpaths; retired lowercase topical
+subpaths such as `@beep/schema/color` are not compatibility surfaces.
 
 ## Schema Flat Facade
 
 The curated `@beep/schema` package root. It re-exports common schema helpers and
 legacy flat names for convenience and compatibility, but it is not the canonical
-home for full schema concept namespaces.
+home for full schema concept namespaces or retired topical paths.
 
 ## Schema Role File
 
 A source file under `packages/foundation/modeling/schema/src/<Concept>/` whose
 suffix names its responsibility, such as `.schema.ts`, `.input.ts`, or
 `.transforms.ts`. Schema role files are source topology; public consumers import
-the concept index.
+the concept index. Package exports must point at concept indexes, not role
+files.
 
 ## Schema Utility Namespace
 

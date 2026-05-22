@@ -151,7 +151,7 @@ describe("canvas command bridge", () => {
       if (command === "scene_load" && savedScene !== undefined) {
         return Promise.resolve(savedScene);
       }
-      return Promise.reject(new CanvasCommandError({ message: `Unexpected native command: ${command}` }));
+      return Promise.reject(CanvasCommandError.make({ message: `Unexpected native command: ${command}` }));
     };
 
     return runCanvasEffect(

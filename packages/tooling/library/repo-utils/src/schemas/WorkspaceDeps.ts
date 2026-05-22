@@ -101,15 +101,15 @@ export class WorkspaceDeps extends S.Class<WorkspaceDeps>($I`WorkspaceDeps`)(
  * @since 0.0.0
  */
 export const emptyWorkspaceDeps = (packageName: string): WorkspaceDeps =>
-  new WorkspaceDeps({
+  WorkspaceDeps.make({
     packageName,
-    workspace: new WorkspaceDependencyBuckets({
+    workspace: WorkspaceDependencyBuckets.make({
       dependencies: {},
       devDependencies: {},
       peerDependencies: {},
       optionalDependencies: {},
     }),
-    npm: new WorkspaceDependencyBuckets({
+    npm: WorkspaceDependencyBuckets.make({
       dependencies: {},
       devDependencies: {},
       peerDependencies: {},

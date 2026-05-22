@@ -195,7 +195,7 @@ layer(NodeServices.layer as Layer.Layer<TUnsafe.Any>)("@beep/repo-ai-metrics", (
 
           yield* Effect.gen(function* () {
             const result = yield* runAiMetricsForwarder(
-              new AiMetricsForwarderInput({
+              AiMetricsForwarderInput.make({
                 claudeProjectsRoot: claudeRoot,
                 codexSessionsRoot: codexRoot,
                 dataRoot,
@@ -238,7 +238,7 @@ layer(NodeServices.layer as Layer.Layer<TUnsafe.Any>)("@beep/repo-ai-metrics", (
             const envelope = yield* readEncryptedRawArchiveEnvelope(archivePath);
             const plaintext = yield* decryptEncryptedRawArchiveEnvelope({ envelope, rawArchiveKey });
             expect(plaintext).toContain("secret-value");
-          }).pipe(provideScopedLayer(DuckDb.makeNodeLayer(new DuckDbConnectionOptions({ databasePath: duckDbPath }))));
+          }).pipe(provideScopedLayer(DuckDb.makeNodeLayer(DuckDbConnectionOptions.make({ databasePath: duckDbPath }))));
         })
       ).pipe(provideScopedLayer(NodeServices.layer));
     })
@@ -278,7 +278,7 @@ layer(NodeServices.layer as Layer.Layer<TUnsafe.Any>)("@beep/repo-ai-metrics", (
 
           yield* Effect.gen(function* () {
             const result = yield* runAiMetricsForwarder(
-              new AiMetricsForwarderInput({
+              AiMetricsForwarderInput.make({
                 claudeProjectsRoot: claudeRoot,
                 codexSessionsRoot: codexRoot,
                 dataRoot,
@@ -309,7 +309,7 @@ layer(NodeServices.layer as Layer.Layer<TUnsafe.Any>)("@beep/repo-ai-metrics", (
                 }),
               ])
             );
-          }).pipe(provideScopedLayer(DuckDb.makeNodeLayer(new DuckDbConnectionOptions({ databasePath: duckDbPath }))));
+          }).pipe(provideScopedLayer(DuckDb.makeNodeLayer(DuckDbConnectionOptions.make({ databasePath: duckDbPath }))));
         })
       ).pipe(provideScopedLayer(NodeServices.layer));
     }),
@@ -343,18 +343,18 @@ layer(NodeServices.layer as Layer.Layer<TUnsafe.Any>)("@beep/repo-ai-metrics", (
               summary,
             });
             const installSpec = yield* makeAiMetricsInstallSpec(
-              new AiMetricsInstallInput({
+              AiMetricsInstallInput.make({
                 dataRoot,
                 target: AiMetricsDeployTarget.Enum.local,
               })
             );
             const configSnapshot = yield* makeAiMetricsConfigSnapshot(
-              new AiMetricsConfigSnapshotInput({
+              AiMetricsConfigSnapshotInput.make({
                 repoRoot: path.join(tmpDir, "repo"),
               })
             );
-            const record = new AiMetricsDerivedTranscriptRecord({
-              archiveObject: new AiMetricsRawArchiveObject({
+            const record = AiMetricsDerivedTranscriptRecord.make({
+              archiveObject: AiMetricsRawArchiveObject.make({
                 algorithm: "AES-256-GCM",
                 archiveObjectId: "raw-content-addressed-object",
                 archivePath: path.join(dataRoot, "raw/codex/raw-content-addressed-object.json"),
@@ -376,25 +376,25 @@ layer(NodeServices.layer as Layer.Layer<TUnsafe.Any>)("@beep/repo-ai-metrics", (
             };
 
             yield* writeAiMetricsDerivedStorage(
-              new AiMetricsDerivedStorageWriteInput({
+              AiMetricsDerivedStorageWriteInput.make({
                 ...baseInput,
                 ingestRunId: "forwarder-1",
               })
             );
             yield* writeAiMetricsDerivedStorage(
-              new AiMetricsDerivedStorageWriteInput({
+              AiMetricsDerivedStorageWriteInput.make({
                 ...baseInput,
                 ingestRunId: "forwarder-2",
               })
             );
             yield* writeText(path.join(tmpDir, "repo", "AGENTS.md"), "# Changed agent guide\n");
             const changedConfigSnapshot = yield* makeAiMetricsConfigSnapshot(
-              new AiMetricsConfigSnapshotInput({
+              AiMetricsConfigSnapshotInput.make({
                 repoRoot: path.join(tmpDir, "repo"),
               })
             );
             yield* writeAiMetricsDerivedStorage(
-              new AiMetricsDerivedStorageWriteInput({
+              AiMetricsDerivedStorageWriteInput.make({
                 ...baseInput,
                 configSnapshot: changedConfigSnapshot.snapshot,
                 ingestRunId: "forwarder-3",
@@ -426,7 +426,7 @@ layer(NodeServices.layer as Layer.Layer<TUnsafe.Any>)("@beep/repo-ai-metrics", (
             expect(agentTaskRows).toEqual([{ configSnapshotCount: 2, count: "2" }]);
             expect(sessionRows).toEqual([{ count: "3" }]);
             expect(turnRows).toEqual([{ count: "3" }]);
-          }).pipe(provideScopedLayer(DuckDb.makeNodeLayer(new DuckDbConnectionOptions({ databasePath: duckDbPath }))));
+          }).pipe(provideScopedLayer(DuckDb.makeNodeLayer(DuckDbConnectionOptions.make({ databasePath: duckDbPath }))));
         })
       ).pipe(provideScopedLayer(NodeServices.layer));
     })
@@ -460,7 +460,7 @@ layer(NodeServices.layer as Layer.Layer<TUnsafe.Any>)("@beep/repo-ai-metrics", (
 
           yield* Effect.gen(function* () {
             const forwarder = yield* runAiMetricsForwarder(
-              new AiMetricsForwarderInput({
+              AiMetricsForwarderInput.make({
                 codexSessionsRoot: path.join(homeDir, ".codex/sessions"),
                 dataRoot,
                 hashSalt: "test-salt",
@@ -472,7 +472,7 @@ layer(NodeServices.layer as Layer.Layer<TUnsafe.Any>)("@beep/repo-ai-metrics", (
               })
             );
             const queue = yield* queueAiMetricsLabels(
-              new AiMetricsLabelQueueInput({
+              AiMetricsLabelQueueInput.make({
                 limit: 10,
                 target: AiMetricsDeployTarget.Enum.local,
                 windowEndEpochMillis: 4_102_444_800_000,
@@ -485,7 +485,7 @@ layer(NodeServices.layer as Layer.Layer<TUnsafe.Any>)("@beep/repo-ai-metrics", (
               return;
             }
             const label = yield* addAiMetricsOutcomeLabel(
-              new AiMetricsOutcomeLabelInput({
+              AiMetricsOutcomeLabelInput.make({
                 agentTaskId: firstTask.value.agentTaskId,
                 followUpFix: false,
                 interventionCount: 1,
@@ -496,7 +496,7 @@ layer(NodeServices.layer as Layer.Layer<TUnsafe.Any>)("@beep/repo-ai-metrics", (
               })
             );
             const benchmarkCase = yield* upsertAiMetricsBenchmarkCase(
-              new AiMetricsBenchmarkCaseInput({
+              AiMetricsBenchmarkCaseInput.make({
                 benchmarkCaseId: "case-p4",
                 expectedChecks: ["bun run check"],
                 promptHash: "prompt-hash-only",
@@ -505,7 +505,7 @@ layer(NodeServices.layer as Layer.Layer<TUnsafe.Any>)("@beep/repo-ai-metrics", (
               })
             );
             const benchmarkRun = yield* recordAiMetricsBenchmarkRun(
-              new AiMetricsBenchmarkRunInput({
+              AiMetricsBenchmarkRunInput.make({
                 benchmarkCaseId: benchmarkCase.benchmarkCaseId,
                 configSnapshotId: forwarder.configSnapshotId,
                 elapsedMs: 1200,
@@ -515,7 +515,7 @@ layer(NodeServices.layer as Layer.Layer<TUnsafe.Any>)("@beep/repo-ai-metrics", (
               })
             );
             const report = yield* generateAiMetricsWeeklyReport(
-              new AiMetricsWeeklyReportInput({
+              AiMetricsWeeklyReportInput.make({
                 reportDir,
                 target: AiMetricsDeployTarget.Enum.local,
                 windowEndEpochMillis: 4_102_444_800_000,
@@ -537,7 +537,7 @@ layer(NodeServices.layer as Layer.Layer<TUnsafe.Any>)("@beep/repo-ai-metrics", (
             expect(reportJson).not.toContain("secret-scorecard-fixture");
             expect(reportJson).not.toContain(tmpDir);
             expect(reportMarkdown).toContain("AI Metrics Weekly Config-Impact Report");
-          }).pipe(provideScopedLayer(DuckDb.makeNodeLayer(new DuckDbConnectionOptions({ databasePath: duckDbPath }))));
+          }).pipe(provideScopedLayer(DuckDb.makeNodeLayer(DuckDbConnectionOptions.make({ databasePath: duckDbPath }))));
         })
       ).pipe(provideScopedLayer(NodeServices.layer));
     }),
@@ -548,7 +548,7 @@ layer(NodeServices.layer as Layer.Layer<TUnsafe.Any>)("@beep/repo-ai-metrics", (
     "resolves the dankserver install target",
     Effect.fn(function* () {
       const spec = yield* makeAiMetricsInstallSpec(
-        new AiMetricsInstallInput({
+        AiMetricsInstallInput.make({
           defaultTool: AiMetricsTool.Enum.phoenix,
           hashSaltSecretRef: "op://TBK/ai-metrics/hash-salt",
           privacyMode: AiMetricsPrivacyMode.Enum.encrypted_raw_redacted_ui,
@@ -606,7 +606,7 @@ layer(NodeServices.layer as Layer.Layer<TUnsafe.Any>)("@beep/repo-ai-metrics", (
           const path = yield* Path.Path;
           const homeDir = path.join(tmpDir, "home");
           const repoRoot = path.join(tmpDir, "repo");
-          const install = new AiMetricsInstallInput({
+          const install = AiMetricsInstallInput.make({
             hashSaltSecretRef: "op://TBK/ai-metrics/hash-salt",
             rawArchiveKeySecretRef: "op://TBK/ai-metrics/raw-archive-key",
             target: AiMetricsDeployTarget.Enum.dankserver,
@@ -618,7 +618,7 @@ layer(NodeServices.layer as Layer.Layer<TUnsafe.Any>)("@beep/repo-ai-metrics", (
           );
 
           const discovery = yield* discoverAiMetricsSources(
-            new AiMetricsSourceDiscoveryInput({
+            AiMetricsSourceDiscoveryInput.make({
               hashSalt: "test-salt",
               homeDir,
               includeAll: true,
@@ -628,7 +628,7 @@ layer(NodeServices.layer as Layer.Layer<TUnsafe.Any>)("@beep/repo-ai-metrics", (
           );
           const plan = yield* makeAiMetricsInstallPlan(install);
           const doctor = yield* makeAiMetricsInstallDoctorResult(
-            new AiMetricsInstallDoctorInput({
+            AiMetricsInstallDoctorInput.make({
               install,
               sourceDiscovery: discovery,
             })
@@ -664,7 +664,7 @@ layer(NodeServices.layer as Layer.Layer<TUnsafe.Any>)("@beep/repo-ai-metrics", (
     "renders a workstation forwarder timer with lock, retry, status, and journal commands",
     Effect.fn(function* () {
       const plan = renderAiMetricsForwarderTimerPlan(
-        new AiMetricsForwarderTimerInput({
+        AiMetricsForwarderTimerInput.make({
           command: [
             "/home/example/.bun/bin/bun",
             "run",
@@ -718,7 +718,7 @@ layer(NodeServices.layer as Layer.Layer<TUnsafe.Any>)("@beep/repo-ai-metrics", (
     "sanitizes timer unit fields and shell-quotes command arguments",
     Effect.fn(function* () {
       const plan = renderAiMetricsForwarderTimerPlan(
-        new AiMetricsForwarderTimerInput({
+        AiMetricsForwarderTimerInput.make({
           command: ["/bin/bun", "run", "beep", "--data-root", "/tmp/metrics; touch /tmp/pwn"],
           intervalMinutes: 15,
           lockPath: "%t/beep-ai-metrics-forwarder.lock",
@@ -740,14 +740,13 @@ layer(NodeServices.layer as Layer.Layer<TUnsafe.Any>)("@beep/repo-ai-metrics", (
   it.effect(
     "rejects relative timer executable paths",
     Effect.fn(function* () {
-      expect(
-        () =>
-          new AiMetricsForwarderTimerInput({
-            command: ["bun", "run", "beep"],
-            lockPath: "%t/beep-ai-metrics-forwarder.lock",
-            statusPath: ".beep/ai-metrics/forwarder/status/latest.json",
-            workingDirectory: "/repo/beep-effect",
-          })
+      expect(() =>
+        AiMetricsForwarderTimerInput.make({
+          command: ["bun", "run", "beep"],
+          lockPath: "%t/beep-ai-metrics-forwarder.lock",
+          statusPath: ".beep/ai-metrics/forwarder/status/latest.json",
+          workingDirectory: "/repo/beep-effect",
+        })
       ).toThrow("absolute executable path");
     })
   );
@@ -788,7 +787,7 @@ volumes:
     "allows the Phoenix image to be overridden by the install input",
     Effect.fn(function* () {
       const spec = yield* makeAiMetricsInstallSpec(
-        new AiMetricsInstallInput({
+        AiMetricsInstallInput.make({
           phoenixImage: "arizephoenix/phoenix:latest-p5b",
         })
       );
@@ -838,18 +837,18 @@ volumes:
               summary,
             });
             const installSpec = yield* makeAiMetricsInstallSpec(
-              new AiMetricsInstallInput({
+              AiMetricsInstallInput.make({
                 dataRoot,
                 target: AiMetricsDeployTarget.Enum.local,
               })
             );
             const configSnapshot = yield* makeAiMetricsConfigSnapshot(
-              new AiMetricsConfigSnapshotInput({
+              AiMetricsConfigSnapshotInput.make({
                 repoRoot: path.join(tmpDir, "repo"),
               })
             );
-            const record = new AiMetricsDerivedTranscriptRecord({
-              archiveObject: new AiMetricsRawArchiveObject({
+            const record = AiMetricsDerivedTranscriptRecord.make({
+              archiveObject: AiMetricsRawArchiveObject.make({
                 algorithm: "AES-256-GCM",
                 archiveObjectId: "raw-content-addressed-object",
                 archivePath: path.join(dataRoot, "raw/codex/raw-content-addressed-object.json"),
@@ -862,7 +861,7 @@ volumes:
               privacy,
             });
             yield* writeAiMetricsDerivedStorage(
-              new AiMetricsDerivedStorageWriteInput({
+              AiMetricsDerivedStorageWriteInput.make({
                 configSnapshot: configSnapshot.snapshot,
                 ingestRunId: "forwarder-otlp",
                 records: [record],
@@ -878,7 +877,7 @@ volumes:
             if (O.isNone(phoenix)) {
               return;
             }
-            const input = new AiMetricsOtlpExportInput({
+            const input = AiMetricsOtlpExportInput.make({
               duckDbPath,
               endpoint: phoenix.value.otlp,
               ingestRunId: "latest",
@@ -924,7 +923,7 @@ volumes:
             expect(json).not.toContain("private-model-output");
             expect(json).not.toContain("private-output");
             expect(json).not.toContain(tmpDir);
-          }).pipe(provideScopedLayer(DuckDb.makeNodeLayer(new DuckDbConnectionOptions({ databasePath: duckDbPath }))));
+          }).pipe(provideScopedLayer(DuckDb.makeNodeLayer(DuckDbConnectionOptions.make({ databasePath: duckDbPath }))));
         })
       ).pipe(provideScopedLayer(NodeServices.layer));
     })
@@ -935,7 +934,7 @@ volumes:
     Effect.fn(function* () {
       const error = yield* Effect.flip(
         makeAiMetricsInstallSpec(
-          new AiMetricsInstallInput({
+          AiMetricsInstallInput.make({
             target: AiMetricsDeployTarget.Enum.dankserver,
           })
         )
@@ -950,7 +949,7 @@ volumes:
     Effect.fn(function* () {
       const error = yield* Effect.flip(
         runAiMetricsForwarder(
-          new AiMetricsForwarderInput({
+          AiMetricsForwarderInput.make({
             dataRoot: ".beep/ai-metrics",
             hashSaltSecretRef: "op://TBK/ai-metrics/hash-salt",
             homeDir: "/tmp/home",
@@ -1056,13 +1055,13 @@ volumes:
               summary,
             });
             const installSpec = yield* makeAiMetricsInstallSpec(
-              new AiMetricsInstallInput({
+              AiMetricsInstallInput.make({
                 dataRoot,
                 target: AiMetricsDeployTarget.Enum.local,
               })
             );
             const configSnapshot = yield* makeAiMetricsConfigSnapshot(
-              new AiMetricsConfigSnapshotInput({
+              AiMetricsConfigSnapshotInput.make({
                 repoRoot: path.join(tmpDir, "repo"),
               })
             );
@@ -1075,12 +1074,12 @@ volumes:
             expect(privacy.sanitized.rawEventEnvelopes[0]?.sourceRole).toBe("subagent");
 
             yield* writeAiMetricsDerivedStorage(
-              new AiMetricsDerivedStorageWriteInput({
+              AiMetricsDerivedStorageWriteInput.make({
                 configSnapshot: configSnapshot.snapshot,
                 ingestRunId: "forwarder-subagent",
                 records: [
-                  new AiMetricsDerivedTranscriptRecord({
-                    archiveObject: new AiMetricsRawArchiveObject({
+                  AiMetricsDerivedTranscriptRecord.make({
+                    archiveObject: AiMetricsRawArchiveObject.make({
                       algorithm: "AES-256-GCM",
                       archiveObjectId: "raw-subagent",
                       archivePath: path.join(dataRoot, "raw/codex/raw-subagent.json"),
@@ -1114,7 +1113,7 @@ volumes:
               }),
             ]);
             expect(turnRows).toEqual([{ sourceRole: "subagent" }]);
-          }).pipe(provideScopedLayer(DuckDb.makeNodeLayer(new DuckDbConnectionOptions({ databasePath: duckDbPath }))));
+          }).pipe(provideScopedLayer(DuckDb.makeNodeLayer(DuckDbConnectionOptions.make({ databasePath: duckDbPath }))));
         })
       ).pipe(provideScopedLayer(NodeServices.layer));
     })
@@ -1152,7 +1151,7 @@ volumes:
 
             expect(sourceRows).toEqual([{ sourceRole: "primary" }]);
             expect(scorecardRows).toEqual([{ completionReady: false, coverageGapsJson: "[]" }]);
-          }).pipe(provideScopedLayer(DuckDb.makeNodeLayer(new DuckDbConnectionOptions({ databasePath: duckDbPath }))));
+          }).pipe(provideScopedLayer(DuckDb.makeNodeLayer(DuckDbConnectionOptions.make({ databasePath: duckDbPath }))));
         })
       ).pipe(provideScopedLayer(NodeServices.layer));
     })
@@ -1292,7 +1291,7 @@ volumes:
             expect(sessionRows).toEqual([{ agentTaskId: currentTaskId }]);
             expect(labelRows).toEqual([{ agentTaskId: currentTaskId }]);
             expect(migrationRows).toEqual([{ migrationId: "ai-metrics-agent-task-id-v2" }]);
-          }).pipe(provideScopedLayer(DuckDb.makeNodeLayer(new DuckDbConnectionOptions({ databasePath: duckDbPath }))));
+          }).pipe(provideScopedLayer(DuckDb.makeNodeLayer(DuckDbConnectionOptions.make({ databasePath: duckDbPath }))));
         })
       ).pipe(provideScopedLayer(NodeServices.layer));
     })
@@ -1357,7 +1356,7 @@ volumes:
                 )}`,
               },
             ]);
-          }).pipe(provideScopedLayer(DuckDb.makeNodeLayer(new DuckDbConnectionOptions({ databasePath: duckDbPath }))));
+          }).pipe(provideScopedLayer(DuckDb.makeNodeLayer(DuckDbConnectionOptions.make({ databasePath: duckDbPath }))));
         })
       ).pipe(provideScopedLayer(NodeServices.layer));
     })
@@ -1400,9 +1399,9 @@ volumes:
           yield* writeText(path.join(tmpDir, "node_modules/pkg/CLAUDE.md"), "dependency guide\n");
 
           const snapshotDir = path.join(tmpDir, ".beep/ai-metrics/config-snapshots");
-          const result = yield* makeAiMetricsConfigSnapshot(new AiMetricsConfigSnapshotInput({ repoRoot: tmpDir }));
+          const result = yield* makeAiMetricsConfigSnapshot(AiMetricsConfigSnapshotInput.make({ repoRoot: tmpDir }));
           yield* writeAiMetricsConfigSnapshotArtifacts({ outputDir: snapshotDir, result });
-          const again = yield* makeAiMetricsConfigSnapshot(new AiMetricsConfigSnapshotInput({ repoRoot: tmpDir }));
+          const again = yield* makeAiMetricsConfigSnapshot(AiMetricsConfigSnapshotInput.make({ repoRoot: tmpDir }));
           const json = yield* configSnapshotToJson(result);
 
           expect(relativeSnapshotPaths(result.files)).toEqual([
@@ -1421,7 +1420,7 @@ volumes:
 
           yield* writeText(path.join(tmpDir, ".codex/config.toml"), 'model = "gpt-5.1"\n');
           const changed = yield* makeAiMetricsConfigSnapshot(
-            new AiMetricsConfigSnapshotInput({
+            AiMetricsConfigSnapshotInput.make({
               previousSnapshotPath: path.join(snapshotDir, "latest.json"),
               repoRoot: tmpDir,
             })
@@ -1460,7 +1459,7 @@ volumes:
           );
 
           const result = yield* makeAiMetricsConfigSnapshot(
-            new AiMetricsConfigSnapshotInput({
+            AiMetricsConfigSnapshotInput.make({
               previousSnapshotPath: path.join(tmpDir, ".beep/ai-metrics/config-snapshots/latest.json"),
               repoRoot: tmpDir,
             })
@@ -1484,7 +1483,7 @@ volumes:
 
           const error = yield* Effect.flip(
             makeAiMetricsConfigSnapshot(
-              new AiMetricsConfigSnapshotInput({
+              AiMetricsConfigSnapshotInput.make({
                 previousSnapshotPath: path.join(tmpDir, ".beep/ai-metrics/config-snapshots/latest.json"),
                 repoRoot: tmpDir,
               })
@@ -1517,7 +1516,7 @@ volumes:
 
           const error = yield* Effect.flip(
             runAiMetricsForwarder(
-              new AiMetricsForwarderInput({
+              AiMetricsForwarderInput.make({
                 codexSessionsRoot: codexRoot,
                 dataRoot,
                 hashSalt: "test-salt",
@@ -1562,7 +1561,7 @@ volumes:
           yield* writeText(openClawUnitPath, "[Service]\nEnvironment=OPENCLAW_GATEWAY_TOKEN=super-secret-token\n");
 
           const result = yield* discoverAiMetricsSources(
-            new AiMetricsSourceDiscoveryInput({
+            AiMetricsSourceDiscoveryInput.make({
               hashSalt: "test-salt",
               homeDir,
               includeAll: true,
@@ -1605,7 +1604,7 @@ volumes:
           yield* fs.chmod(claudePath, 0);
 
           const result = yield* discoverAiMetricsSources(
-            new AiMetricsSourceDiscoveryInput({
+            AiMetricsSourceDiscoveryInput.make({
               claudeProjectsRoot: claudeRoot,
               hashSalt: "test-salt",
               homeDir,
@@ -1649,7 +1648,7 @@ volumes:
           yield* fs.chmod(unreadablePath, 0);
 
           const result = yield* discoverAiMetricsSources(
-            new AiMetricsSourceDiscoveryInput({
+            AiMetricsSourceDiscoveryInput.make({
               codexSessionsRoot: codexRoot,
               hashSalt: "test-salt",
               homeDir,
@@ -1696,7 +1695,7 @@ volumes:
           yield* writeText(path.join(repoRoot, "AGENTS.md"), "root agent guide\n");
 
           const result = yield* discoverAiMetricsSources(
-            new AiMetricsSourceDiscoveryInput({
+            AiMetricsSourceDiscoveryInput.make({
               codexSessionsRoot: codexRoot,
               hashSalt: "test-salt",
               homeDir,
@@ -1742,7 +1741,7 @@ volumes:
           yield* writeText(path.join(repoRoot, "AGENTS.md"), "root agent guide\n");
 
           const result = yield* discoverAiMetricsSources(
-            new AiMetricsSourceDiscoveryInput({
+            AiMetricsSourceDiscoveryInput.make({
               codexSessionsRoot: codexRoot,
               hashSalt: "test-salt",
               homeDir,
@@ -1824,7 +1823,7 @@ volumes:
           yield* writeText(path.join(repoRoot, "AGENTS.md"), "# Test agent guide\n");
 
           yield* runAiMetricsForwarder(
-            new AiMetricsForwarderInput({
+            AiMetricsForwarderInput.make({
               codexSessionsRoot: codexRoot,
               dataRoot,
               hashSalt: "test-salt",
@@ -1834,10 +1833,10 @@ volumes:
               repoRoot,
               target: AiMetricsDeployTarget.Enum.local,
             })
-          ).pipe(provideScopedLayer(DuckDb.makeNodeLayer(new DuckDbConnectionOptions({ databasePath: duckDbPath }))));
+          ).pipe(provideScopedLayer(DuckDb.makeNodeLayer(DuckDbConnectionOptions.make({ databasePath: duckDbPath }))));
 
           const bundle = yield* buildAiMetricsMirrorBundle(
-            new AiMetricsMirrorBundleInput({
+            AiMetricsMirrorBundleInput.make({
               dataRoot,
               remoteRoot: "/srv/data/ai-metrics/p7-derived-mirror",
               target: AiMetricsDeployTarget.Enum.dankserver,
@@ -1853,7 +1852,7 @@ volumes:
               )})`
             );
             return A.map(rows, (row) => globalThis.String(row.column_name));
-          }).pipe(provideScopedLayer(DuckDb.makeNodeLayer(new DuckDbConnectionOptions({ databasePath: ":memory:" }))));
+          }).pipe(provideScopedLayer(DuckDb.makeNodeLayer(DuckDbConnectionOptions.make({ databasePath: ":memory:" }))));
           const labelColumns = yield* Effect.gen(function* () {
             const duckdb = yield* DuckDb;
             const rows = yield* duckdb.query(
@@ -1862,7 +1861,7 @@ volumes:
               )})`
             );
             return A.map(rows, (row) => globalThis.String(row.column_name));
-          }).pipe(provideScopedLayer(DuckDb.makeNodeLayer(new DuckDbConnectionOptions({ databasePath: ":memory:" }))));
+          }).pipe(provideScopedLayer(DuckDb.makeNodeLayer(DuckDbConnectionOptions.make({ databasePath: ":memory:" }))));
 
           expect(bundle.manifest.privacyProof.safe).toBe(true);
           expect(bundle.manifest.omittedTables).toContain("ai_metrics_raw_archive_objects");
@@ -1908,7 +1907,7 @@ volumes:
           yield* writeText(path.join(repoRoot, "AGENTS.md"), "# Test agent guide\n");
 
           yield* runAiMetricsForwarder(
-            new AiMetricsForwarderInput({
+            AiMetricsForwarderInput.make({
               codexSessionsRoot: codexRoot,
               dataRoot,
               hashSalt: "test-salt",
@@ -1918,17 +1917,17 @@ volumes:
               repoRoot,
               target: AiMetricsDeployTarget.Enum.local,
             })
-          ).pipe(provideScopedLayer(DuckDb.makeNodeLayer(new DuckDbConnectionOptions({ databasePath: duckDbPath }))));
+          ).pipe(provideScopedLayer(DuckDb.makeNodeLayer(DuckDbConnectionOptions.make({ databasePath: duckDbPath }))));
 
           yield* writeText(path.join(dataRoot, "reports/weekly.md"), "# report\n");
 
-          const selector = new AiMetricsRetentionSelector({
+          const selector = AiMetricsRetentionSelector.make({
             beforeEpochMillis: 4_102_444_800_000,
             dataRoot,
           });
           const inventory = yield* listAiMetricsRetentionInventory(selector);
           const drill = yield* runAiMetricsRetentionRestoreDrill(
-            new AiMetricsRetentionRestoreDrillInput({
+            AiMetricsRetentionRestoreDrillInput.make({
               hashSalt: "test-salt",
               maxObjects: 1,
               rawArchiveKey,
@@ -1970,7 +1969,7 @@ volumes:
           yield* writeText(path.join(repoRoot, "AGENTS.md"), "# Test agent guide\n");
 
           yield* runAiMetricsForwarder(
-            new AiMetricsForwarderInput({
+            AiMetricsForwarderInput.make({
               codexSessionsRoot: codexRoot,
               dataRoot,
               hashSalt: "test-salt",
@@ -1980,26 +1979,26 @@ volumes:
               repoRoot,
               target: AiMetricsDeployTarget.Enum.local,
             })
-          ).pipe(provideScopedLayer(DuckDb.makeNodeLayer(new DuckDbConnectionOptions({ databasePath: duckDbPath }))));
+          ).pipe(provideScopedLayer(DuckDb.makeNodeLayer(DuckDbConnectionOptions.make({ databasePath: duckDbPath }))));
           const originalArchivePath = yield* Effect.gen(function* () {
             const duckdb = yield* DuckDb;
             const rows = yield* duckdb.query("SELECT archive_path FROM ai_metrics_raw_archive_objects LIMIT 1");
             return globalThis.String(rows[0]?.archive_path);
-          }).pipe(provideScopedLayer(DuckDb.makeNodeLayer(new DuckDbConnectionOptions({ databasePath: duckDbPath }))));
+          }).pipe(provideScopedLayer(DuckDb.makeNodeLayer(DuckDbConnectionOptions.make({ databasePath: duckDbPath }))));
           yield* Effect.gen(function* () {
             const duckdb = yield* DuckDb;
             yield* duckdb.run(
               `UPDATE ai_metrics_raw_archive_objects SET archive_path = ${sqlString(path.join(tmpDir, "outside.json"))}`
             );
-          }).pipe(provideScopedLayer(DuckDb.makeNodeLayer(new DuckDbConnectionOptions({ databasePath: duckDbPath }))));
+          }).pipe(provideScopedLayer(DuckDb.makeNodeLayer(DuckDbConnectionOptions.make({ databasePath: duckDbPath }))));
 
-          const selector = new AiMetricsRetentionSelector({
+          const selector = AiMetricsRetentionSelector.make({
             beforeEpochMillis: 4_102_444_800_000,
             dataRoot,
           });
           const invalidPathExit = yield* Effect.exit(
             runAiMetricsRetentionRestoreDrill(
-              new AiMetricsRetentionRestoreDrillInput({
+              AiMetricsRetentionRestoreDrillInput.make({
                 hashSalt: "test-salt",
                 maxObjects: 1,
                 rawArchiveKey,
@@ -2017,10 +2016,10 @@ volumes:
                   SET archive_path = ${sqlString(originalArchivePath)},
                       plaintext_content_hash = 'mismatch'`
             );
-          }).pipe(provideScopedLayer(DuckDb.makeNodeLayer(new DuckDbConnectionOptions({ databasePath: duckDbPath }))));
+          }).pipe(provideScopedLayer(DuckDb.makeNodeLayer(DuckDbConnectionOptions.make({ databasePath: duckDbPath }))));
           const exit = yield* Effect.exit(
             runAiMetricsRetentionRestoreDrill(
-              new AiMetricsRetentionRestoreDrillInput({
+              AiMetricsRetentionRestoreDrillInput.make({
                 hashSalt: "test-salt",
                 maxObjects: 1,
                 rawArchiveKey,
@@ -2058,7 +2057,7 @@ volumes:
           yield* writeText(path.join(repoRoot, "AGENTS.md"), "# Test agent guide\n");
 
           yield* runAiMetricsForwarder(
-            new AiMetricsForwarderInput({
+            AiMetricsForwarderInput.make({
               codexSessionsRoot: codexRoot,
               dataRoot,
               hashSalt: "test-salt",
@@ -2068,7 +2067,7 @@ volumes:
               repoRoot,
               target: AiMetricsDeployTarget.Enum.local,
             })
-          ).pipe(provideScopedLayer(DuckDb.makeNodeLayer(new DuckDbConnectionOptions({ databasePath: duckDbPath }))));
+          ).pipe(provideScopedLayer(DuckDb.makeNodeLayer(DuckDbConnectionOptions.make({ databasePath: duckDbPath }))));
 
           yield* writeText(path.join(dataRoot, "reports/weekly.md"), "# report\n");
 
@@ -2076,7 +2075,7 @@ volumes:
             const duckdb = yield* DuckDb;
             const rows = yield* duckdb.query("SELECT agent_task_id FROM ai_metrics_agent_tasks LIMIT 1");
             return globalThis.String(rows[0]?.agent_task_id);
-          }).pipe(provideScopedLayer(DuckDb.makeNodeLayer(new DuckDbConnectionOptions({ databasePath: duckDbPath }))));
+          }).pipe(provideScopedLayer(DuckDb.makeNodeLayer(DuckDbConnectionOptions.make({ databasePath: duckDbPath }))));
           yield* Effect.gen(function* () {
             const duckdb = yield* DuckDb;
             yield* duckdb.run(
@@ -2098,9 +2097,9 @@ volumes:
                   beforeEpochMillis + 1
                 })`
             );
-          }).pipe(provideScopedLayer(DuckDb.makeNodeLayer(new DuckDbConnectionOptions({ databasePath: duckDbPath }))));
+          }).pipe(provideScopedLayer(DuckDb.makeNodeLayer(DuckDbConnectionOptions.make({ databasePath: duckDbPath }))));
 
-          const selector = new AiMetricsRetentionSelector({ beforeEpochMillis, dataRoot });
+          const selector = AiMetricsRetentionSelector.make({ beforeEpochMillis, dataRoot });
           const compactResult = yield* runAiMetricsRetentionCompact(selector, false);
           expect(compactResult.dryRun).toBe(false);
           expect(compactResult.deletedDerivedExportCount).toBe(1);
@@ -2109,7 +2108,7 @@ volumes:
           expect(yield* fs.exists(path.join(dataRoot, "reports/weekly.md"))).toBe(false);
 
           const deleteResult = yield* runAiMetricsRetentionDelete(selector, false).pipe(
-            provideScopedLayer(DuckDb.makeNodeLayer(new DuckDbConnectionOptions({ databasePath: duckDbPath })))
+            provideScopedLayer(DuckDb.makeNodeLayer(DuckDbConnectionOptions.make({ databasePath: duckDbPath })))
           );
           expect(deleteResult.dryRun).toBe(false);
           expect(deleteResult.deletedRawArchiveObjectCount).toBe(1);
@@ -2135,7 +2134,7 @@ volumes:
               sourceFiles: globalThis.Number(sourceFiles[0]?.count),
               turns: globalThis.Number(turns[0]?.count),
             };
-          }).pipe(provideScopedLayer(DuckDb.makeNodeLayer(new DuckDbConnectionOptions({ databasePath: duckDbPath }))));
+          }).pipe(provideScopedLayer(DuckDb.makeNodeLayer(DuckDbConnectionOptions.make({ databasePath: duckDbPath }))));
           expect(tableCounts).toEqual({
             agentTasks: 1,
             ingestRuns: 0,
@@ -2146,13 +2145,13 @@ volumes:
             turns: 0,
           });
 
-          const labelOnlySelector = new AiMetricsRetentionSelector({
+          const labelOnlySelector = AiMetricsRetentionSelector.make({
             dataRoot,
             sinceEpochMillis: beforeEpochMillis,
             untilEpochMillis: beforeEpochMillis + 2,
           });
           const labelOnlyDelete = yield* runAiMetricsRetentionDelete(labelOnlySelector, false).pipe(
-            provideScopedLayer(DuckDb.makeNodeLayer(new DuckDbConnectionOptions({ databasePath: duckDbPath })))
+            provideScopedLayer(DuckDb.makeNodeLayer(DuckDbConnectionOptions.make({ databasePath: duckDbPath })))
           );
           expect(labelOnlyDelete.deletedRawArchiveObjectCount).toBe(0);
           const labelOnlyCounts = yield* Effect.gen(function* () {
@@ -2163,7 +2162,7 @@ volumes:
               agentTasks: globalThis.Number(agentTasks[0]?.count),
               labels: globalThis.Number(labels[0]?.count),
             };
-          }).pipe(provideScopedLayer(DuckDb.makeNodeLayer(new DuckDbConnectionOptions({ databasePath: duckDbPath }))));
+          }).pipe(provideScopedLayer(DuckDb.makeNodeLayer(DuckDbConnectionOptions.make({ databasePath: duckDbPath }))));
           expect(labelOnlyCounts).toEqual({ agentTasks: 0, labels: 0 });
         })
       ).pipe(provideScopedLayer(NodeServices.layer));

@@ -23,7 +23,7 @@ const $I = $NlpId.create("Wink/WinkTokenizer");
 const makeTokenizationError =
   (operation: string) =>
   (cause: unknown): TokenizationError =>
-    new TokenizationError({
+    TokenizationError.make({
       cause,
       operation,
     });
@@ -207,7 +207,7 @@ const collectSentences = (
 
     if (O.isNone(maybeFirstToken)) {
       failure = O.some(
-        new SentenceSpanFailure({
+        SentenceSpanFailure.make({
           reason: "Resolved sentence span produced no tokens.",
           sentenceIndex: index,
           sentenceText: sentence.out(),
@@ -269,7 +269,7 @@ const resolveDocumentId = (
   O.match(decodeDocumentIdOption(rawId), {
     onNone: () =>
       Effect.fail(
-        new TokenizationError({
+        TokenizationError.make({
           cause: {
             input: rawId,
             reason: "Document ids must be non-empty strings.",

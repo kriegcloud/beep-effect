@@ -120,7 +120,7 @@ export class XAiError extends TaggedErrorClass<XAiError>($I`XAiError`)(
   } = dual(
     (args) => args.length >= 2 && isXAiEndpointDescriptor(args[0]),
     (descriptor: XAiEndpointDescriptor, reason: XAiErrorReason, options: XAiErrorOptions = {}): XAiError =>
-      new XAiError({
+      XAiError.make({
         endpoint: descriptor.id,
         method: descriptor.method,
         methodName: descriptor.methodName,
@@ -150,7 +150,7 @@ export class XAiError extends TaggedErrorClass<XAiError>($I`XAiError`)(
    * @since 0.0.0
    */
   static readonly config = (cause?: unknown): XAiError =>
-    new XAiError({
+    XAiError.make({
       reason: "config",
       ...R.getSomes({
         cause: causeFromUnknown(cause),
@@ -202,7 +202,7 @@ const causeFromUnknown = (cause: unknown): O.Option<string> =>
  * ```ts
  * import { XAiErrorOptions } from "@beep/xai"
  *
- * const options = new XAiErrorOptions({ status: 500 })
+ * const options = XAiErrorOptions.make({ status: 500 })
  * void options
  * ```
  *
@@ -211,7 +211,7 @@ const causeFromUnknown = (cause: unknown): O.Option<string> =>
  */
 export class XAiErrorOptions extends S.Class<XAiErrorOptions>($I`XAiErrorOptions`)(
   {
-    cause: S.optionalKey(S.Unknown),
+    cause: S.optionalKey(S.DefectWithStack),
     status: S.optionalKey(S.Number),
   },
   $I.annote("XAiErrorOptions", {

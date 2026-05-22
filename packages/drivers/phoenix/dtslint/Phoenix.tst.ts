@@ -19,7 +19,7 @@ declare const sdk: PhoenixSdkShape;
 
 describe("Phoenix", () => {
   it("preserves layer and service method types", () => {
-    expect(Phoenix.makeLayer(new PhoenixConfigInput({ apiKey: Redacted.make("test-key") }))).type.toBeAssignableTo<
+    expect(Phoenix.makeLayer(PhoenixConfigInput.make({ apiKey: Redacted.make("test-key") }))).type.toBeAssignableTo<
       Layer.Layer<Phoenix>
     >();
     expect(Phoenix.makeLayerWithSdk(sdk)).type.toBeAssignableTo<Layer.Layer<Phoenix>>();
@@ -28,16 +28,16 @@ describe("Phoenix", () => {
     expect(phoenix.doctor).type.toBeAssignableTo<Effect.Effect<PhoenixDoctorResult, PhoenixError>>();
     expect(
       phoenix.createDataset(
-        new PhoenixDatasetCreateInput({
+        PhoenixDatasetCreateInput.make({
           description: "Agent loop health examples.",
-          examples: [new PhoenixDatasetExample({ input: { task: "loop-health" } })],
+          examples: [PhoenixDatasetExample.make({ input: { task: "loop-health" } })],
           name: "agent-loop-health-v1",
         })
       )
     ).type.toBeAssignableTo<Effect.Effect<PhoenixDatasetCreateResult, PhoenixError>>();
     expect(
       phoenix.addAnnotation(
-        new PhoenixAnnotationInput({
+        PhoenixAnnotationInput.make({
           label: "passed",
           name: "agent.outcome",
           targetId: "trace-id",
@@ -49,9 +49,9 @@ describe("Phoenix", () => {
 
   it("rejects invalid construction shapes", () => {
     // @ts-expect-error!
-    const invalidConfig = new PhoenixConfigInput({ apiKey: "test-key" });
+    const invalidConfig = PhoenixConfigInput.make({ apiKey: "test-key" });
     // @ts-expect-error!
-    const missingDatasetName = new PhoenixDatasetCreateInput({ description: "missing", examples: [] });
+    const missingDatasetName = PhoenixDatasetCreateInput.make({ description: "missing", examples: [] });
 
     void invalidConfig;
     void missingDatasetName;

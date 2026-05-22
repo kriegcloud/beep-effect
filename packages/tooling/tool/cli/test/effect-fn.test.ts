@@ -138,7 +138,7 @@ describe("effect fn laws", () => {
           );
 
           const summary = yield* runEffectFnRules(
-            new EffectFnRulesOptions({
+            EffectFnRulesOptions.make({
               strictCheck: true,
               excludePaths: [],
             })
@@ -216,7 +216,7 @@ describe("effect fn laws", () => {
           );
 
           const summary = yield* runEffectFnRules(
-            new EffectFnRulesOptions({
+            EffectFnRulesOptions.make({
               strictCheck: true,
               excludePaths: [],
             })
@@ -253,7 +253,7 @@ describe("effect fn laws", () => {
           );
 
           const summary = yield* runEffectFnRules(
-            new EffectFnRulesOptions({
+            EffectFnRulesOptions.make({
               strictCheck: true,
               excludePaths: ["packages/demo/src/index.ts"],
             })

@@ -18,7 +18,7 @@ describe("WorkItem server", () => {
     "redacts unavailable details from HTTP failure bodies",
     Effect.fnUntraced(function* () {
       const id = yield* decodeWorkItemId("work-item-1");
-      const unavailable = new WorkItemUseCases.WorkItemActionFailed({
+      const unavailable = WorkItemUseCases.WorkItemActionFailed.make({
         reason: "select WorkItem failed against architecture_lab_work_item",
       });
       const failUnavailable = () => Effect.fail(unavailable);
@@ -32,7 +32,7 @@ describe("WorkItem server", () => {
         reopen: failUnavailable,
       });
 
-      const response = yield* handlers.get(new WorkItemUseCases.GetWorkItemQuery({ id }));
+      const response = yield* handlers.get(WorkItemUseCases.GetWorkItemQuery.make({ id }));
       const body = response.body as WorkItemUseCases.WorkItemActionFailed;
 
       expect(response.status).toBe(503);
@@ -48,7 +48,7 @@ describe("WorkItem server", () => {
       const server = yield* WorkItemServer;
       const id = yield* decodeWorkItemId("work-item-1");
       const workItem = yield* server.create(
-        new WorkItemUseCases.CreateWorkItemCommand({
+        WorkItemUseCases.CreateWorkItemCommand.make({
           id,
           title: "Document topology",
         })

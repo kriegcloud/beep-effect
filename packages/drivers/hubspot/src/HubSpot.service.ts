@@ -28,7 +28,7 @@ const $I = $HubspotId.create("HubSpot.service");
  * ```ts
  * import { HubSpotFormField } from "@beep/hubspot"
  *
- * const field = new HubSpotFormField({
+ * const field = HubSpotFormField.make({
  *   name: "email",
  *   value: "tom@example.com"
  * })
@@ -56,7 +56,7 @@ export class HubSpotFormField extends S.Class<HubSpotFormField>($I`HubSpotFormFi
  * ```ts
  * import { HubSpotFormContext } from "@beep/hubspot"
  *
- * const context = new HubSpotFormContext({
+ * const context = HubSpotFormContext.make({
  *   pageName: "Contact",
  *   pageUri: "https://example.com/contact"
  * })
@@ -85,7 +85,7 @@ export class HubSpotFormContext extends S.Class<HubSpotFormContext>($I`HubSpotFo
  * ```ts
  * import { HubSpotSubmitFormRequest } from "@beep/hubspot"
  *
- * const request = new HubSpotSubmitFormRequest({
+ * const request = HubSpotSubmitFormRequest.make({
  *   fields: [{ name: "email", value: "tom@example.com" }],
  *   formGuid: "form-guid"
  * })
@@ -115,7 +115,7 @@ export class HubSpotSubmitFormRequest extends S.Class<HubSpotSubmitFormRequest>(
  * ```ts
  * import { HubSpotSubmitFormResponse } from "@beep/hubspot"
  *
- * const response = new HubSpotSubmitFormResponse({
+ * const response = HubSpotSubmitFormResponse.make({
  *   inlineMessage: "Thanks"
  * })
  *
@@ -142,7 +142,7 @@ export class HubSpotSubmitFormResponse extends S.Class<HubSpotSubmitFormResponse
  * ```ts
  * import { HubSpotUpsertContactRequest } from "@beep/hubspot"
  *
- * const request = new HubSpotUpsertContactRequest({
+ * const request = HubSpotUpsertContactRequest.make({
  *   email: "tom@example.com",
  *   properties: {
  *     firstname: "Tom"
@@ -173,7 +173,7 @@ export class HubSpotUpsertContactRequest extends S.Class<HubSpotUpsertContactReq
  * ```ts
  * import { HubSpotUpsertContactResult } from "@beep/hubspot"
  *
- * const result = new HubSpotUpsertContactResult({
+ * const result = HubSpotUpsertContactResult.make({
  *   id: "contact-id"
  * })
  *
@@ -199,7 +199,7 @@ export class HubSpotUpsertContactResult extends S.Class<HubSpotUpsertContactResu
  * ```ts
  * import { HubSpotUpsertContactResponse } from "@beep/hubspot"
  *
- * const response = new HubSpotUpsertContactResponse({
+ * const response = HubSpotUpsertContactResponse.make({
  *   results: [{ id: "contact-id" }],
  *   status: "COMPLETE"
  * })
@@ -235,9 +235,9 @@ export class HubSpotUpsertContactResponse extends S.Class<HubSpotUpsertContactRe
  * import { Effect } from "effect"
  *
  * const service = {
- *   submitForm: () => Effect.succeed(new HubSpotSubmitFormResponse({ inlineMessage: "Thanks" })),
+ *   submitForm: () => Effect.succeed(HubSpotSubmitFormResponse.make({ inlineMessage: "Thanks" })),
  *   upsertContact: () =>
- *     Effect.succeed(new HubSpotUpsertContactResponse({ results: [{ id: "contact-id" }] }))
+ *     Effect.succeed(HubSpotUpsertContactResponse.make({ results: [{ id: "contact-id" }] }))
  * } satisfies HubSpotShape
  *
  * console.log(service)
@@ -283,7 +283,7 @@ const resolveConfig = Effect.fn("HubSpot.resolveConfig")(function* (
     })
   );
 
-  return new ResolvedHubSpotConfig({
+  return ResolvedHubSpotConfig.make({
     accountId,
     accessToken: O.fromUndefinedOr(input.accessToken),
     crmApiUrl: normalizeBaseUrl(input.crmApiUrl ?? HUBSPOT_CRM_API_URL),
@@ -395,7 +395,7 @@ const decodeResponse = Effect.fnUntraced(
     const contentType = response.headers["content-type"] ?? "";
 
     if (!Str.includes("application/json")(contentType)) {
-      return new HubSpotSubmitFormResponse({});
+      return HubSpotSubmitFormResponse.make({});
     }
 
     const body = yield* response.json;
@@ -451,7 +451,7 @@ const makeService = (client: HttpClient.HttpClient, config: ResolvedHubSpotConfi
  * import { HubSpot, HubSpotConfigInput } from "@beep/hubspot"
  *
  * const layer = HubSpot.makeLayer(
- *   new HubSpotConfigInput({
+ *   HubSpotConfigInput.make({
  *     accountId: "12345"
  *   })
  * )
@@ -471,7 +471,7 @@ export class HubSpot extends Context.Service<HubSpot, HubSpotShape>()($I`HubSpot
    * import { HubSpot, HubSpotConfigInput } from "@beep/hubspot"
    *
    * const layer = HubSpot.makeLayer(
-   *   new HubSpotConfigInput({
+   *   HubSpotConfigInput.make({
    *     accountId: "12345"
    *   })
    * )
@@ -514,7 +514,7 @@ export class HubSpot extends Context.Service<HubSpot, HubSpotShape>()($I`HubSpot
       const formsApiUrl = yield* Config.string("HUBSPOT_FORMS_API_URL").pipe(Config.option);
       const client = yield* HttpClient.HttpClient;
       const resolved = yield* resolveConfig(
-        new HubSpotConfigInput({
+        HubSpotConfigInput.make({
           ...R.getSomes({ accessToken }),
           ...R.getSomes({ accountId }),
           ...R.getSomes({ crmApiUrl }),

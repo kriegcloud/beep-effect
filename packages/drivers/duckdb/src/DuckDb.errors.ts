@@ -28,7 +28,7 @@ const existingDuckDbError = (cause: unknown): O.Option<DuckDbError> =>
  * ```ts
  * import { DuckDbErrorFromUnknownOptions } from "@beep/duckdb"
  *
- * const options = new DuckDbErrorFromUnknownOptions({
+ * const options = DuckDbErrorFromUnknownOptions.make({
  *   databasePath: "metrics.duckdb",
  *   statement: "select 1"
  * })
@@ -59,7 +59,7 @@ export class DuckDbErrorFromUnknownOptions extends S.Class<DuckDbErrorFromUnknow
  * ```ts
  * import { DuckDbError } from "@beep/duckdb"
  *
- * const error = new DuckDbError({
+ * const error = DuckDbError.make({
  *   message: "DuckDB query failed.",
  *   operation: "query"
  * })
@@ -106,16 +106,14 @@ export class DuckDbError extends TaggedErrorClass<DuckDbError>($I`DuckDbError`)(
   } = dual(
     (args) => args.length >= 2 && P.isString(args[0]),
     (operation: string, cause: unknown, options: DuckDbErrorFromUnknownOptions = {}): DuckDbError =>
-      O.getOrElse(
-        existingDuckDbError(cause),
-        () =>
-          new DuckDbError({
-            ...R.getSomes({ cause: O.fromUndefinedOr(causeFromUnknown(cause)) }),
-            ...R.getSomes({ databasePath: O.fromUndefinedOr(options.databasePath) }),
-            message: options.message ?? "DuckDB operation failed.",
-            operation,
-            ...R.getSomes({ statement: O.fromUndefinedOr(options.statement) }),
-          })
+      O.getOrElse(existingDuckDbError(cause), () =>
+        DuckDbError.make({
+          ...R.getSomes({ cause: O.fromUndefinedOr(causeFromUnknown(cause)) }),
+          ...R.getSomes({ databasePath: O.fromUndefinedOr(options.databasePath) }),
+          message: options.message ?? "DuckDB operation failed.",
+          operation,
+          ...R.getSomes({ statement: O.fromUndefinedOr(options.statement) }),
+        })
       )
   );
 }

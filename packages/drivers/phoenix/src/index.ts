@@ -27,7 +27,7 @@ export const VERSION = "0.0.0" as const;
  * ```ts
  * import { PhoenixConfigInput } from "@beep/phoenix"
  *
- * const config = new PhoenixConfigInput({})
+ * const config = PhoenixConfigInput.make({})
  * console.log(config)
  * ```
  *
@@ -59,7 +59,7 @@ export * from "./Phoenix.errors.ts";
  * ```ts
  * import { PhoenixDatasetSelector } from "@beep/phoenix"
  *
- * const selector = new PhoenixDatasetSelector({ kind: "dataset-name", value: "agent-loop-health-v1" })
+ * const selector = PhoenixDatasetSelector.make({ kind: "dataset-name", value: "agent-loop-health-v1" })
  * console.log(selector.value)
  * ```
  *

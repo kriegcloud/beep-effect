@@ -112,7 +112,7 @@ export type OpenAiCompatFinishReason = typeof OpenAiCompatFinishReason.Type;
  * ```ts
  * import { OpenAiCompatToolCallFunction } from "@beep/openai-compat"
  *
- * const call = new OpenAiCompatToolCallFunction({
+ * const call = OpenAiCompatToolCallFunction.make({
  *   arguments: "{\"city\":\"Austin\"}",
  *   name: "weather"
  * })
@@ -142,7 +142,7 @@ export class OpenAiCompatToolCallFunction extends S.Class<OpenAiCompatToolCallFu
  * ```ts
  * import { OpenAiCompatToolCall } from "@beep/openai-compat"
  *
- * const call = new OpenAiCompatToolCall({
+ * const call = OpenAiCompatToolCall.make({
  *   function: { arguments: "{}", name: "noop" },
  *   id: "call_1",
  *   type: "function"
@@ -173,7 +173,7 @@ export class OpenAiCompatToolCall extends S.Class<OpenAiCompatToolCall>($I`OpenA
  * ```ts
  * import { OpenAiCompatToolCallFunctionDelta } from "@beep/openai-compat"
  *
- * const delta = new OpenAiCompatToolCallFunctionDelta({
+ * const delta = OpenAiCompatToolCallFunctionDelta.make({
  *   arguments: "{\"city\""
  * })
  *
@@ -202,7 +202,7 @@ export class OpenAiCompatToolCallFunctionDelta extends S.Class<OpenAiCompatToolC
  * ```ts
  * import { OpenAiCompatToolCallDelta } from "@beep/openai-compat"
  *
- * const delta = new OpenAiCompatToolCallDelta({
+ * const delta = OpenAiCompatToolCallDelta.make({
  *   function: { arguments: "{\"city\"" },
  *   index: 0
  * })
@@ -232,7 +232,7 @@ export class OpenAiCompatToolCallDelta extends S.Class<OpenAiCompatToolCallDelta
  * ```ts
  * import { OpenAiCompatFunctionToolDefinition } from "@beep/openai-compat"
  *
- * const definition = new OpenAiCompatFunctionToolDefinition({
+ * const definition = OpenAiCompatFunctionToolDefinition.make({
  *   name: "noop",
  *   parameters: { type: "object" }
  * })
@@ -264,7 +264,7 @@ export class OpenAiCompatFunctionToolDefinition extends S.Class<OpenAiCompatFunc
  * ```ts
  * import { OpenAiCompatFunctionTool } from "@beep/openai-compat"
  *
- * const tool = new OpenAiCompatFunctionTool({
+ * const tool = OpenAiCompatFunctionTool.make({
  *   function: { name: "noop", parameters: { type: "object" } },
  *   type: "function"
  * })
@@ -298,7 +298,7 @@ const OpenAiCompatChatContent = S.Union([S.String, S.Array(S.Record(S.String, S.
  * ```ts
  * import { OpenAiCompatSystemChatMessage } from "@beep/openai-compat"
  *
- * const message = new OpenAiCompatSystemChatMessage({
+ * const message = OpenAiCompatSystemChatMessage.make({
  *   content: "You are concise.",
  *   role: "system"
  * })
@@ -329,7 +329,7 @@ export class OpenAiCompatSystemChatMessage extends S.Class<OpenAiCompatSystemCha
  * ```ts
  * import { OpenAiCompatUserChatMessage } from "@beep/openai-compat"
  *
- * const message = new OpenAiCompatUserChatMessage({
+ * const message = OpenAiCompatUserChatMessage.make({
  *   content: "Hello",
  *   role: "user"
  * })
@@ -358,7 +358,7 @@ export class OpenAiCompatUserChatMessage extends S.Class<OpenAiCompatUserChatMes
  * ```ts
  * import { OpenAiCompatAssistantChatMessage } from "@beep/openai-compat"
  *
- * const message = new OpenAiCompatAssistantChatMessage({
+ * const message = OpenAiCompatAssistantChatMessage.make({
  *   content: "Hi there",
  *   role: "assistant"
  * })
@@ -390,7 +390,7 @@ export class OpenAiCompatAssistantChatMessage extends S.Class<OpenAiCompatAssist
  * ```ts
  * import { OpenAiCompatToolChatMessage } from "@beep/openai-compat"
  *
- * const message = new OpenAiCompatToolChatMessage({
+ * const message = OpenAiCompatToolChatMessage.make({
  *   content: "{}",
  *   role: "tool",
  *   tool_call_id: "call_1"
@@ -473,7 +473,7 @@ export type OpenAiCompatChatMessage = typeof OpenAiCompatChatMessage.Type;
  * ```ts
  * import { OpenAiCompatJsonSchemaDefinition } from "@beep/openai-compat"
  *
- * const definition = new OpenAiCompatJsonSchemaDefinition({
+ * const definition = OpenAiCompatJsonSchemaDefinition.make({
  *   name: "Answer",
  *   schema: { type: "object" },
  *   strict: true
@@ -506,7 +506,7 @@ export class OpenAiCompatJsonSchemaDefinition extends S.Class<OpenAiCompatJsonSc
  * ```ts
  * import { OpenAiCompatJsonSchemaResponseFormat } from "@beep/openai-compat"
  *
- * const format = new OpenAiCompatJsonSchemaResponseFormat({
+ * const format = OpenAiCompatJsonSchemaResponseFormat.make({
  *   json_schema: { name: "Answer", schema: { type: "object" }, strict: true },
  *   type: "json_schema"
  * })
@@ -574,7 +574,7 @@ export type OpenAiCompatResponseFormatKind = typeof OpenAiCompatResponseFormatKi
  * ```ts
  * import { OpenAiCompatTextResponseFormat } from "@beep/openai-compat"
  *
- * const format = new OpenAiCompatTextResponseFormat({ type: "text" })
+ * const format = OpenAiCompatTextResponseFormat.make({ type: "text" })
  *
  * void format
  * ```
@@ -600,7 +600,7 @@ export class OpenAiCompatTextResponseFormat extends S.Class<OpenAiCompatTextResp
  * ```ts
  * import { OpenAiCompatJsonObjectResponseFormat } from "@beep/openai-compat"
  *
- * const format = new OpenAiCompatJsonObjectResponseFormat({ type: "json_object" })
+ * const format = OpenAiCompatJsonObjectResponseFormat.make({ type: "json_object" })
  *
  * void format
  * ```
@@ -671,7 +671,7 @@ export type OpenAiCompatResponseFormat = typeof OpenAiCompatResponseFormat.Type;
  * ```ts
  * import { OpenAiCompatChatCompletionRequest } from "@beep/openai-compat"
  *
- * const request = new OpenAiCompatChatCompletionRequest({
+ * const request = OpenAiCompatChatCompletionRequest.make({
  *   messages: [{ content: "Hello", role: "user" }],
  *   model: "gpt-compatible"
  * })
@@ -716,7 +716,7 @@ export class OpenAiCompatChatCompletionRequest extends S.Class<OpenAiCompatChatC
  * import * as O from "effect/Option"
  * import { OpenAiCompatAssistantMessage } from "@beep/openai-compat"
  *
- * const message = new OpenAiCompatAssistantMessage({
+ * const message = OpenAiCompatAssistantMessage.make({
  *   content: O.some("Done"),
  *   role: "assistant"
  * })
@@ -752,7 +752,7 @@ export class OpenAiCompatAssistantMessage extends S.Class<OpenAiCompatAssistantM
  * import * as O from "effect/Option"
  * import { OpenAiCompatAssistantDelta } from "@beep/openai-compat"
  *
- * const delta = new OpenAiCompatAssistantDelta({
+ * const delta = OpenAiCompatAssistantDelta.make({
  *   content: O.some("Hi "),
  *   role: "assistant"
  * })
@@ -786,7 +786,7 @@ export class OpenAiCompatAssistantDelta extends S.Class<OpenAiCompatAssistantDel
  * import * as O from "effect/Option"
  * import { OpenAiCompatUsage } from "@beep/openai-compat"
  *
- * const usage = new OpenAiCompatUsage({
+ * const usage = OpenAiCompatUsage.make({
  *   completion_tokens: O.some(2),
  *   prompt_tokens: O.some(1),
  *   total_tokens: O.some(3)
@@ -818,10 +818,10 @@ export class OpenAiCompatUsage extends S.Class<OpenAiCompatUsage>($I`OpenAiCompa
  * import * as O from "effect/Option"
  * import { OpenAiCompatAssistantMessage, OpenAiCompatChatCompletionChoice } from "@beep/openai-compat"
  *
- * const choice = new OpenAiCompatChatCompletionChoice({
+ * const choice = OpenAiCompatChatCompletionChoice.make({
  *   finish_reason: O.some("stop"),
  *   index: 0,
- *   message: O.some(new OpenAiCompatAssistantMessage({ content: O.some("Hello"), role: "assistant" }))
+ *   message: O.some(OpenAiCompatAssistantMessage.make({ content: O.some("Hello"), role: "assistant" }))
  * })
  *
  * void choice
@@ -857,12 +857,12 @@ export class OpenAiCompatChatCompletionChoice extends S.Class<OpenAiCompatChatCo
  *   OpenAiCompatChatCompletionResponse
  * } from "@beep/openai-compat"
  *
- * const response = new OpenAiCompatChatCompletionResponse({
+ * const response = OpenAiCompatChatCompletionResponse.make({
  *   choices: [
- *     new OpenAiCompatChatCompletionChoice({
+ *     OpenAiCompatChatCompletionChoice.make({
  *       finish_reason: O.some("stop"),
  *       index: 0,
- *       message: O.some(new OpenAiCompatAssistantMessage({ content: O.some("Hello") }))
+ *       message: O.some(OpenAiCompatAssistantMessage.make({ content: O.some("Hello") }))
  *     })
  *   ]
  * })
@@ -897,8 +897,8 @@ export class OpenAiCompatChatCompletionResponse extends S.Class<OpenAiCompatChat
  * import * as O from "effect/Option"
  * import { OpenAiCompatAssistantDelta, OpenAiCompatChatCompletionChunkChoice } from "@beep/openai-compat"
  *
- * const choice = new OpenAiCompatChatCompletionChunkChoice({
- *   delta: O.some(new OpenAiCompatAssistantDelta({ content: O.some("Hi ") })),
+ * const choice = OpenAiCompatChatCompletionChunkChoice.make({
+ *   delta: O.some(OpenAiCompatAssistantDelta.make({ content: O.some("Hi ") })),
  *   index: 0
  * })
  *
@@ -935,10 +935,10 @@ export class OpenAiCompatChatCompletionChunkChoice extends S.Class<OpenAiCompatC
  *   OpenAiCompatChatCompletionChunkChoice
  * } from "@beep/openai-compat"
  *
- * const chunk = new OpenAiCompatChatCompletionChunk({
+ * const chunk = OpenAiCompatChatCompletionChunk.make({
  *   choices: [
- *     new OpenAiCompatChatCompletionChunkChoice({
- *       delta: O.some(new OpenAiCompatAssistantDelta({ content: O.some("Hi ") })),
+ *     OpenAiCompatChatCompletionChunkChoice.make({
+ *       delta: O.some(OpenAiCompatAssistantDelta.make({ content: O.some("Hi ") })),
  *       index: 0
  *     })
  *   ]

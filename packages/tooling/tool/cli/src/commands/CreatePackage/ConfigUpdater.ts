@@ -15,7 +15,7 @@ import { buildCanonicalAliasTargets } from "@beep/repo-utils/schemas/TsconfigAli
 import { SchemaUtils } from "@beep/schema";
 import { decodeJsoncTextAs } from "@beep/schema/Jsonc";
 import { A, Str, thunkNegative1 } from "@beep/utils";
-import { Effect, FileSystem, HashMap, Order, Path, pipe, SchemaTransformation } from "effect";
+import { Effect, FileSystem, flow, HashMap, Order, Path, pipe, SchemaTransformation } from "effect";
 import { dual } from "effect/Function";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
@@ -139,7 +139,7 @@ const PackagePathToTstychePattern = PackagePath.pipe(
     TstycheTestFileMatchPattern,
     SchemaTransformation.transform({
       decode: (packagePath) => `${packagePath}/dtslint/**/*.tst.*`,
-      encode: (pattern) => PackagePath.make(Str.replace(TSTYCHE_TEST_FILE_MATCH_PATTERN, Str.empty)(pattern)),
+      encode: flow(Str.replace(TSTYCHE_TEST_FILE_MATCH_PATTERN, Str.empty), PackagePath.make),
     })
   ),
   S.annotate(
@@ -157,7 +157,6 @@ const toTstychePattern = (packagePath: string): string =>
     O.getOrElse(() => fallbackTstychePattern(packagePath))
   );
 const isPackagePath = S.is(PackagePath);
-const stringEquivalence = Str.equivalence;
 const stringArrayEquivalence = S.toEquivalence(S.Array(S.String));
 const JsoncUnknownObject = S.Record(S.String, S.Unknown).annotate(
   $I.annote("JsoncUnknownObject", {
@@ -186,7 +185,7 @@ const hasReferencePath: {
 } = dual(
   2,
   (entry: unknown, target: string): boolean =>
-    P.isObject(entry) && P.isString(entry.path) && stringEquivalence(entry.path, target)
+    P.isObject(entry) && P.isString(entry.path) && Str.equivalence(entry.path, target)
 );
 
 const readPathsRecord = (parsed: Record<string, unknown>): Record<string, unknown> => {
@@ -215,12 +214,12 @@ const isTstycheEntryCovered: {
 } = dual(2, (testFileMatch: ReadonlyArray<unknown>, packagePath: string): boolean => {
   if (!isPackagePath(packagePath)) return false;
   const candidatePattern = toTstychePattern(packagePath);
-  if (A.some(testFileMatch, (entry) => P.isString(entry) && stringEquivalence(entry, candidatePattern))) return true;
+  if (A.some(testFileMatch, (entry) => P.isString(entry) && Str.equivalence(entry, candidatePattern))) return true;
   const lastSlash = pipe(packagePath, Str.lastIndexOf("/"), O.getOrElse(thunkNegative1));
   if (lastSlash < 0) return false;
   const parentDir = Str.substring(0, lastSlash)(packagePath);
   const parentWildcard = `${parentDir}/*/dtslint/**/*.tst.*`;
-  return A.some(testFileMatch, (entry) => P.isString(entry) && stringEquivalence(entry, parentWildcard));
+  return A.some(testFileMatch, (entry) => P.isString(entry) && Str.equivalence(entry, parentWildcard));
 });
 
 const byPackagePathAscending: Order.Order<ConfigUpdateTarget> = Order.mapInput(
@@ -280,7 +279,7 @@ const modifyFileString: {
       .readFileString(filePath)
       .pipe(Effect.mapError(DomainError.newCauseMessage(`Failed to read ${filePath}`)));
     const transformed = yield* transform(original);
-    if (stringEquivalence(transformed, original)) return false;
+    if (Str.equivalence(transformed, original)) return false;
     yield* fs
       .writeFileString(filePath, transformed)
       .pipe(Effect.mapError(DomainError.newCauseMessage(`Failed to write ${filePath}`)));
@@ -442,7 +441,7 @@ const updateRootConfigsForTarget: {
     const tsconfigPackages = yield* updateTsconfigPackages(repoRoot, target.packagePath);
     const tsconfigPaths = yield* updateTsconfigPaths(repoRoot, target);
     const tstycheConfig = yield* updateTstycheConfig(repoRoot, target.packagePath);
-    return new ConfigUpdateResult({
+    return ConfigUpdateResult.make({
       tsconfigPackages,
       tsconfigPaths,
       tstycheConfig,
@@ -489,7 +488,7 @@ const checkConfigNeedsUpdateForTarget: {
     const testFileMatch = readTestFileMatch(tstycheParsed);
     const tstycheConfig = !isTstycheEntryCovered(testFileMatch, target.packagePath);
 
-    return new ConfigUpdateResult({
+    return ConfigUpdateResult.make({
       tsconfigPackages,
       tsconfigPaths,
       tstycheConfig,
@@ -520,17 +519,15 @@ export const updateRootConfigsForTargets: {
   Effect.fn(function* (repoRoot, targets) {
     const normalizedTargets = normalizeTargets(targets);
     const targetResults = yield* Effect.forEach(normalizedTargets, (target) =>
-      Effect.map(
-        updateRootConfigsForTarget(repoRoot, target),
-        (result) =>
-          new ConfigUpdateTargetResult({
-            target,
-            result,
-          })
+      Effect.map(updateRootConfigsForTarget(repoRoot, target), (result) =>
+        ConfigUpdateTargetResult.make({
+          target,
+          result,
+        })
       )
     );
 
-    return new ConfigUpdateBatchResult({
+    return ConfigUpdateBatchResult.make({
       targets: targetResults,
       tsconfigPackages: A.some(targetResults, ({ result }) => result.tsconfigPackages),
       tsconfigPaths: A.some(targetResults, ({ result }) => result.tsconfigPaths),
@@ -562,17 +559,15 @@ export const checkConfigNeedsUpdateForTargets: {
   Effect.fn(function* (repoRoot, targets) {
     const normalizedTargets = normalizeTargets(targets);
     const targetResults = yield* Effect.forEach(normalizedTargets, (target) =>
-      Effect.map(
-        checkConfigNeedsUpdateForTarget(repoRoot, target),
-        (result) =>
-          new ConfigUpdateTargetResult({
-            target,
-            result,
-          })
+      Effect.map(checkConfigNeedsUpdateForTarget(repoRoot, target), (result) =>
+        ConfigUpdateTargetResult.make({
+          target,
+          result,
+        })
       )
     );
 
-    return new ConfigUpdateBatchResult({
+    return ConfigUpdateBatchResult.make({
       targets: targetResults,
       tsconfigPackages: A.some(targetResults, ({ result }) => result.tsconfigPackages),
       tsconfigPaths: A.some(targetResults, ({ result }) => result.tsconfigPaths),
@@ -605,7 +600,7 @@ export const updateRootConfigs: {
   2,
   Effect.fn(function* (repoRoot, target) {
     const batchResult = yield* updateRootConfigsForTargets(repoRoot, [target]);
-    return batchResult.targets[0]?.result ?? new ConfigUpdateResult({});
+    return batchResult.targets[0]?.result ?? ConfigUpdateResult.make({});
   })
 );
 
@@ -633,6 +628,6 @@ export const checkConfigNeedsUpdate: {
   2,
   Effect.fn(function* (repoRoot, target) {
     const batchResult = yield* checkConfigNeedsUpdateForTargets(repoRoot, [target]);
-    return batchResult.targets[0]?.result ?? new ConfigUpdateResult({});
+    return batchResult.targets[0]?.result ?? ConfigUpdateResult.make({});
   })
 );

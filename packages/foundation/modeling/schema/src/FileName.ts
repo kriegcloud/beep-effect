@@ -24,7 +24,7 @@ import { $SchemaId } from "@beep/identity/packages";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
 import { FileExtension } from "./FileExtension.ts";
-import { HasNullByte, UsesPosixSeparator, UsesWindowsSeparator } from "./FilePath.ts";
+import { HasNullByte, UsesPosixSeparator, UsesWindowsSeparator } from "./FilePath/index.ts";
 
 const $I = $SchemaId.create("FileName");
 

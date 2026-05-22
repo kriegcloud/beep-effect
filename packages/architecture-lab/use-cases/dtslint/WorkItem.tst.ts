@@ -5,7 +5,7 @@ import { expect } from "tstyche";
 declare const workItemId: DomainWorkItem.WorkItemId;
 
 expect(
-  new WorkItem.CreateWorkItemCommand({
+  WorkItem.CreateWorkItemCommand.make({
     id: workItemId,
     title: "Document topology",
   })

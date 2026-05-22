@@ -3,14 +3,14 @@
   "initiative": {
     "id": "beep-schema-topology",
     "title": "@beep/schema Topology",
-    "status": "active",
+    "status": "completed",
     "created": "2026-05-22",
     "updated": "2026-05-22",
     "packetAnchorDocument": "SPEC.md"
   },
-  "mission": "Canonize and migrate @beep/schema to namespace-first concept modules with small role files and compatibility-first exports.",
+  "mission": "Canonize and migrate @beep/schema to namespace-first concept modules with small role files, exact PascalCase public subpaths, and lint-enforced topology closure.",
   "currentSourceOfTruth": "SPEC.md",
-  "currentTargetPhase": "P4",
+  "currentTargetPhase": "complete",
   "package": {
     "name": "@beep/schema",
     "path": "packages/foundation/modeling/schema",
@@ -68,10 +68,21 @@
     "XssProtection"
   ],
   "migratedHighContextConcepts": [
+    "CauseTaggedError",
+    "DateTimeUtcFromValid",
     "EntitySchema",
     "FilePath",
+    "Fn",
+    "Glob",
     "Graph",
+    "LiteralKit",
+    "LocalDate",
+    "MappedLiteralKit",
     "Model",
+    "Record",
+    "StatusCauseTaggedErrorClass",
+    "TaggedErrorClass",
+    "Timestamp",
     "VariantSchema"
   ],
   "explicitHighContextConcepts": [
@@ -102,7 +113,7 @@
       "id": "P2",
       "name": "Simple concept migration",
       "status": "completed",
-      "exitCriteriaSummary": "Targeted topical concepts expose canonical exact subpaths, with case-colliding suites mapped to existing lower-case source indexes."
+      "exitCriteriaSummary": "Targeted topical concepts expose canonical exact subpaths from PascalCase source directories; Sql and sqlite remain deleted."
     },
     {
       "id": "P3",
@@ -113,16 +124,55 @@
     {
       "id": "P4",
       "name": "Consumer and export hardening",
-      "status": "active",
-      "exitCriteriaSummary": "Consumers prefer canonical imports and wildcard export reliance is removed."
+      "status": "completed",
+      "exitCriteriaSummary": "Package-local consumers and type tests prefer concept imports, handwritten lowercase topical imports are gone, and root-facade cleanup continues on touch."
+    },
+    {
+      "id": "P5",
+      "name": "Exact export closure",
+      "status": "completed",
+      "exitCriteriaSummary": "Every public schema subpath is explicit; SchemaUtils helper leaves remain public; the broad package wildcard is removed."
+    },
+    {
+      "id": "P6",
+      "name": "Remaining source topology cleanup",
+      "status": "completed",
+      "exitCriteriaSummary": "Lowercase suite directories are removed; remaining high-context concepts have canonical folders and only future value-adding splits remain."
+    },
+    {
+      "id": "P7",
+      "name": "Enforcement automation",
+      "status": "completed",
+      "exitCriteriaSummary": "bun run beep lint schema-topology prevents lowercase topology, public role-file exports, retired casing aliases, and root alias drift."
     }
   ],
   "verification": [
     "bun run --cwd packages/foundation/modeling/schema check",
     "bun run --cwd packages/foundation/modeling/schema test",
+    "bunx tstyche packages/foundation/modeling/schema/dtslint/Topology.tst.ts packages/foundation/modeling/schema/dtslint/Duration.tst.ts packages/foundation/modeling/schema/dtslint/Glob.tst.ts",
+    "bun run beep lint schema-topology",
+    "bun run --cwd packages/tooling/tool/cli check",
+    "bun run --cwd packages/tooling/tool/cli test -- test/schema-topology.test.ts",
     "bun run --cwd packages/foundation/modeling/schema docgen",
     "bun run docgen:local",
     "bun run repo-exports:catalog",
     "bun run repo-exports:catalog:check"
-  ]
+  ],
+  "exportClosure": {
+    "broadPackageWildcardRemoved": true,
+    "generatedWildcardAliasRemoved": true,
+    "schemaUtilsHelperLeavesRemainPublic": true,
+    "conceptRoleFilesPrivate": true,
+    "legacyTopicalSubpathsRemoved": true,
+    "legacyAcronymCasingAliasesRemoved": true,
+    "schemaTopologyLint": true
+  },
+  "sourceTopologyCleanup": {
+    "httpStatusSplit": true,
+    "colorSplit": true,
+    "lowercaseSuiteDirectoriesPreserved": false,
+    "roleFilesPrivate": true,
+    "pendingEvaluationCandidates": [],
+    "lowercaseSuiteDirectoriesRemoved": true
+  }
 }

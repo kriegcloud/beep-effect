@@ -7,4 +7,5 @@
 
 export * from "@beep/repo-cli/commands/Quality/ChangesetGraph";
 export * from "@beep/repo-cli/commands/Quality/index";
+export * from "@beep/repo-cli/commands/Quality/Quality.command";
 export * from "@beep/repo-cli/commands/Quality/Tasks";

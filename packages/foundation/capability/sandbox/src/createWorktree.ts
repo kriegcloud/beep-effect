@@ -85,7 +85,7 @@ export const createWorktree = Effect.fn("createWorktree.createWorktree")(functio
   options: CreateWorktreeOptions
 ): Effect.fn.Return<Worktree<R>, SandboxError, Path.Path | SandboxProcess> {
   const info: WorktreeInfo = yield* createWorktreeInfo(
-    new CreateWorktreeInfoOptions({
+    CreateWorktreeInfoOptions.make({
       ...(options.baseBranch === undefined ? {} : { baseBranch: options.baseBranch }),
       ...(options.branch === undefined ? {} : { branch: options.branch }),
       ...(options.name === undefined ? {} : { name: options.name }),
@@ -110,7 +110,7 @@ export const createWorktree = Effect.fn("createWorktree.createWorktree")(functio
     run: (runOptions) =>
       run({
         ...runOptions,
-        branchStrategy: new HeadBranchStrategy({}),
+        branchStrategy: HeadBranchStrategy.make({}),
         cwd: info.path,
       }),
   };

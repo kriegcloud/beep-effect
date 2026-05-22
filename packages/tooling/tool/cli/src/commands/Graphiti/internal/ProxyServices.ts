@@ -86,6 +86,34 @@ const ProxyHealthStatus = LiteralKit(["ok", "degraded"]).annotate(
   })
 );
 
+const ProxyLane = LiteralKit(["queued", "fast"]).annotate(
+  $I.annote("ProxyLane", {
+    description: "Graphiti proxy forwarding lanes.",
+  })
+);
+type ProxyLane = typeof ProxyLane.Type;
+
+const GraphitiProxyFastMcpMethod = LiteralKit([
+  "initialize",
+  "notifications/initialized",
+  "ping",
+  "prompts/list",
+  "resources/list",
+  "tools/list",
+]).annotate(
+  $I.annote("GraphitiProxyFastMcpMethod", {
+    description: "Cheap MCP methods allowed to bypass serialized Graphiti memory work.",
+  })
+);
+const isGraphitiProxyFastMcpMethod = S.is(GraphitiProxyFastMcpMethod);
+
+const GraphitiProxyFastMcpToolName = LiteralKit(["get_status"]).annotate(
+  $I.annote("GraphitiProxyFastMcpToolName", {
+    description: "Cheap Graphiti MCP tools allowed to bypass serialized Graphiti memory work.",
+  })
+);
+const isGraphitiProxyFastMcpToolName = S.is(GraphitiProxyFastMcpToolName);
+
 class DependencyHealthDetails extends S.Class<DependencyHealthDetails>($I`DependencyHealthDetails`)(
   {
     falkor: ContainerHealthState,
@@ -182,6 +210,25 @@ class ProxyErrorPayload extends S.Class<ProxyErrorPayload>($I`ProxyErrorPayload`
   })
 ) {}
 
+class GraphitiMcpToolCallParams extends S.Class<GraphitiMcpToolCallParams>($I`GraphitiMcpToolCallParams`)(
+  {
+    name: S.optionalKey(S.String),
+  },
+  $I.annote("GraphitiMcpToolCallParams", {
+    description: "Subset of MCP tools/call params needed for proxy lane selection.",
+  })
+) {}
+
+class GraphitiMcpJsonRpcRequest extends S.Class<GraphitiMcpJsonRpcRequest>($I`GraphitiMcpJsonRpcRequest`)(
+  {
+    method: S.String,
+    params: S.optionalKey(GraphitiMcpToolCallParams),
+  },
+  $I.annote("GraphitiMcpJsonRpcRequest", {
+    description: "Subset of a JSON-RPC MCP request needed for Graphiti proxy lane selection.",
+  })
+) {}
+
 const urlSearchParamsSchema = S.instanceOf(URLSearchParams).pipe(
   S.decodeTo(
     UrlParams.UrlParamsSchema,
@@ -205,8 +252,10 @@ const urlSearchParamsSchema = S.instanceOf(URLSearchParams).pipe(
 
 const decodeUrlSearchParams = S.decodeUnknownEffect(urlSearchParamsSchema);
 const decodeContainerHealthState = S.decodeUnknownOption(ContainerHealthState);
+const decodeGraphitiMcpJsonRpcRequest = S.decodeUnknownOption(S.fromJsonString(GraphitiMcpJsonRpcRequest));
 const unknownContainerHealthState: S.Schema.Type<typeof ContainerHealthState> = "unknown";
 const absoluteRequestTargetPattern = /^(?:[a-zA-Z][a-zA-Z\d+.-]*:|\/\/)/;
+const utf8Decoder = new TextDecoder("utf-8");
 
 const normalizeEndpointPath = (value: string): string => {
   const normalized = pipe(value, Str.replace(/\/+$/, ""));
@@ -269,7 +318,7 @@ export const proxyErrorResponse: {
     options: ProxyErrorResponseOptions
   ): HttpServerResponse.HttpServerResponse =>
     HttpServerResponse.jsonUnsafe(
-      new ProxyErrorPayload({
+      ProxyErrorPayload.make({
         error,
         message,
       }),
@@ -308,7 +357,8 @@ type GraphitiDependencyHealthServiceShape = {
 
 type GraphitiProxyForwarderServiceShape = {
   readonly forward: (
-    request: HttpServerRequest.HttpServerRequest
+    request: HttpServerRequest.HttpServerRequest,
+    bodyBytes?: O.Option<Uint8Array>
   ) => Effect.Effect<HttpServerResponse.HttpServerResponse, never, HttpClient.HttpClient>;
 };
 
@@ -366,10 +416,15 @@ export class GraphitiProxyQueueService extends Context.Service<
   GraphitiProxyQueueServiceShape
 >()($I`GraphitiProxyQueueService`) {}
 
+type BufferedProxyRequest = {
+  readonly bodyBytes: O.Option<Uint8Array>;
+  readonly request: HttpServerRequest.HttpServerRequest;
+};
+
 const unknownDependencySnapshot = () =>
-  new DependencyHealthSnapshot({
+  DependencyHealthSnapshot.make({
     status: "unknown",
-    details: new DependencyHealthDetails({
+    details: DependencyHealthDetails.make({
       falkor: "unknown",
       graphiti: "unknown",
     }),
@@ -379,6 +434,66 @@ const parseContainerHealth = (value: string): S.Schema.Type<typeof ContainerHeal
   pipe(
     decodeContainerHealthState(pipe(value, Str.trim, Str.toLowerCase)),
     O.getOrElse(() => unknownContainerHealthState)
+  );
+
+const readRequestBodyBytes = Effect.fnUntraced(function* (request: HttpServerRequest.HttpServerRequest) {
+  const method = HttpMethod.isHttpMethod(request.method) ? request.method : "GET";
+  if (!HttpMethod.hasBody(method)) {
+    return Result.succeed(O.none<Uint8Array>());
+  }
+
+  const requestBodyResult = yield* request.arrayBuffer.pipe(
+    Effect.map((buffer) => O.some(new Uint8Array(buffer))),
+    Effect.result
+  );
+
+  return requestBodyResult;
+});
+
+const isFastMcpRequestEnvelope = (envelope: GraphitiMcpJsonRpcRequest): boolean =>
+  isGraphitiProxyFastMcpMethod(envelope.method) ||
+  pipe(
+    O.fromUndefinedOr(envelope.params),
+    O.flatMap((params) => O.fromUndefinedOr(params.name)),
+    O.exists(isGraphitiProxyFastMcpToolName)
+  );
+
+/**
+ * Determine whether an MCP request body is cheap enough to bypass the serialized memory-work queue.
+ *
+ * @param bodyBytes - Optional UTF-8 JSON-RPC request body bytes.
+ * @returns Whether the request can use the fast proxy lane.
+ * @example
+ * ```ts
+ * import { isFastMcpRequestBody } from "@beep/repo-cli/commands/Graphiti/internal/ProxyServices"
+ * import * as O from "effect/Option"
+ *
+ * console.log(isFastMcpRequestBody(O.none()))
+ * ```
+ * @category utilities
+ * @since 0.0.0
+ */
+export const isFastMcpRequestBody: (bodyBytes: O.Option<Uint8Array>) => boolean = flow(
+  O.match({
+    onNone: () => true,
+    onSome: (bytes) =>
+      pipe(utf8Decoder.decode(bytes), decodeGraphitiMcpJsonRpcRequest, O.exists(isFastMcpRequestEnvelope)),
+  })
+);
+
+const addProxyHeaders = (
+  response: HttpServerResponse.HttpServerResponse,
+  options: {
+    readonly active: number;
+    readonly lane: ProxyLane;
+    readonly queued: number;
+  }
+): HttpServerResponse.HttpServerResponse =>
+  pipe(
+    response,
+    HttpServerResponse.setHeader("x-graphiti-proxy-queued", `${options.queued}`),
+    HttpServerResponse.setHeader("x-graphiti-proxy-active", `${options.active}`),
+    HttpServerResponse.setHeader("x-graphiti-proxy-lane", options.lane)
   );
 
 const readContainerHealth: (
@@ -443,9 +558,9 @@ export const makeGraphitiDependencyHealthService: (
     const status =
       config.dependencyHealthEnabled && (falkor !== "healthy" || graphiti !== "healthy") ? "degraded" : "ok";
 
-    const nextSnapshot = new DependencyHealthSnapshot({
+    const nextSnapshot = DependencyHealthSnapshot.make({
       status,
-      details: new DependencyHealthDetails({
+      details: DependencyHealthDetails.make({
         falkor,
         graphiti,
       }),
@@ -483,9 +598,10 @@ export const makeGraphitiProxyForwarderService = (
   const allowedEndpointPath = normalizeEndpointPath(upstreamBase.pathname);
 
   const forward: (
-    request: HttpServerRequest.HttpServerRequest
+    request: HttpServerRequest.HttpServerRequest,
+    bodyBytes?: O.Option<Uint8Array>
   ) => Effect.Effect<HttpServerResponse.HttpServerResponse, never, HttpClient.HttpClient> = Effect.fnUntraced(
-    function* (request) {
+    function* (request, bodyBytes = O.none<Uint8Array>()) {
       if (isAbsoluteRequestTarget(request.url)) {
         return proxyErrorResponse("upstream_failure", "Graphiti proxy rejects absolute-form request targets.", {
           status: 400,
@@ -528,18 +644,23 @@ export const makeGraphitiProxyForwarderService = (
       });
 
       if (hasBody) {
-        const requestBodyResult = yield* request.arrayBuffer.pipe(Effect.result);
+        const requestBodyResult = O.isSome(bodyBytes)
+          ? Result.succeed(bodyBytes.value)
+          : yield* request.arrayBuffer.pipe(
+              Effect.map((buffer) => new Uint8Array(buffer)),
+              Effect.result
+            );
         if (Result.isFailure(requestBodyResult)) {
           return proxyErrorResponse("upstream_failure", Inspectable.toStringUnknown(requestBodyResult.failure, 0), {
             status: 400,
           });
         }
-        const bodyBytes = new Uint8Array(requestBodyResult.success);
+        const requestBodyBytes = requestBodyResult.success;
         const contentTypeOption = Headers.get(headers, "content-type");
         const body = pipe(
           contentTypeOption,
-          O.map((contentType) => HttpBody.uint8Array(bodyBytes, contentType)),
-          O.getOrElse(() => HttpBody.uint8Array(bodyBytes))
+          O.map((contentType) => HttpBody.uint8Array(requestBodyBytes, contentType)),
+          O.getOrElse(() => HttpBody.uint8Array(requestBodyBytes))
         );
         upstreamRequest = HttpClientRequest.setBody(upstreamRequest, body);
       }
@@ -604,8 +725,9 @@ export const makeGraphitiProxyQueueService: {
     config: GraphitiProxyConfig,
     forwarderService: GraphitiProxyForwarderService["Service"]
   ): Effect.fn.Return<GraphitiProxyQueueService["Service"], never, HttpClient.HttpClient | Scope.Scope> {
+    const httpClient = yield* HttpClient.HttpClient;
     const queue = yield* Queue.dropping<{
-      readonly request: HttpServerRequest.HttpServerRequest;
+      readonly proxyRequest: BufferedProxyRequest;
       readonly responseDeferred: Deferred.Deferred<HttpServerResponse.HttpServerResponse>;
     }>(config.maxQueue);
 
@@ -617,6 +739,17 @@ export const makeGraphitiProxyQueueService: {
     const rejectedRef = yield* Ref.make(0);
     const drainDeferred = yield* Deferred.make<void>();
 
+    const forwardProxyRequest = (proxyRequest: BufferedProxyRequest) =>
+      forwarderService.forward(proxyRequest.request, proxyRequest.bodyBytes).pipe(
+        Effect.provideService(HttpClient.HttpClient, httpClient),
+        Effect.catchDefect(
+          Effect.fnUntraced(function* (cause) {
+            yield* Ref.update(failedRef, (failed) => failed + 1);
+            return proxyErrorResponse("upstream_failure", Inspectable.toStringUnknown(cause, 0), { status: 502 });
+          })
+        )
+      );
+
     const checkDrain = Effect.fnUntraced(function* () {
       const accepting = yield* Ref.get(acceptingRef);
       if (accepting) {
@@ -626,6 +759,7 @@ export const makeGraphitiProxyQueueService: {
       const active = yield* Ref.get(activeRef);
       const queued = yield* Queue.size(queue);
       if (active === 0 && queued === 0) {
+        yield* Queue.shutdown(queue).pipe(Effect.ignore);
         yield* Deferred.succeed(drainDeferred, undefined).pipe(Effect.ignore);
       }
     });
@@ -635,23 +769,12 @@ export const makeGraphitiProxyQueueService: {
         const job = yield* Queue.take(queue);
         yield* Ref.update(activeRef, (active) => active + 1);
 
-        const response = yield* forwarderService.forward(job.request).pipe(
-          Effect.catchDefect(
-            Effect.fnUntraced(function* (cause) {
-              yield* Ref.update(failedRef, (failed) => failed + 1);
-              return proxyErrorResponse("upstream_failure", Inspectable.toStringUnknown(cause, 0), { status: 502 });
-            })
-          )
-        );
+        const response = yield* forwardProxyRequest(job.proxyRequest);
 
         const queued = yield* Queue.size(queue);
         const active = yield* Ref.get(activeRef);
 
-        const responseWithHeaders = pipe(
-          response,
-          HttpServerResponse.setHeader("x-graphiti-proxy-queued", `${queued}`),
-          HttpServerResponse.setHeader("x-graphiti-proxy-active", `${active}`)
-        );
+        const responseWithHeaders = addProxyHeaders(response, { active, lane: "queued", queued });
 
         yield* Deferred.succeed(job.responseDeferred, responseWithHeaders).pipe(Effect.ignore);
         yield* Ref.update(processedRef, (processed) => processed + 1);
@@ -680,9 +803,28 @@ export const makeGraphitiProxyQueueService: {
         });
       }
 
+      const bodyResult = yield* readRequestBodyBytes(request);
+      if (Result.isFailure(bodyResult)) {
+        return proxyErrorResponse("upstream_failure", Inspectable.toStringUnknown(bodyResult.failure, 0), {
+          status: 400,
+        });
+      }
+      const proxyRequest: BufferedProxyRequest = {
+        bodyBytes: bodyResult.success,
+        request,
+      };
+
+      if (isFastMcpRequestBody(proxyRequest.bodyBytes)) {
+        const response = yield* forwardProxyRequest(proxyRequest);
+        yield* Ref.update(processedRef, (processed) => processed + 1);
+        const queued = yield* Queue.size(queue);
+        const active = yield* Ref.get(activeRef);
+        return addProxyHeaders(response, { active, lane: "fast", queued });
+      }
+
       const responseDeferred = yield* Deferred.make<HttpServerResponse.HttpServerResponse>();
       const offered = yield* Queue.offer(queue, {
-        request,
+        proxyRequest,
         responseDeferred,
       });
 
@@ -710,7 +852,7 @@ export const makeGraphitiProxyQueueService: {
       const failed = yield* Ref.get(failedRef);
       const rejected = yield* Ref.get(rejectedRef);
 
-      return new ProxyQueueStats({
+      return ProxyQueueStats.make({
         active,
         queued,
         peakQueueDepth,

@@ -40,7 +40,7 @@ describe("@beep/duckdb", () => {
   });
 
   it("preserves existing DuckDB errors and supports the data-last normalizer form", () => {
-    const existing = new DuckDbError({
+    const existing = DuckDbError.make({
       message: "Already normalized.",
       operation: "run",
     });
@@ -79,13 +79,13 @@ describe("@beep/duckdb", () => {
             expect(rows).toEqual([{ id: "run-1", value: 42 }]);
 
             yield* duckdb.copyTableToParquet(
-              new DuckDbParquetExport({
+              DuckDbParquetExport.make({
                 filePath: parquetPath,
                 tableName: "events",
               })
             );
             expect(yield* fs.exists(parquetPath)).toBe(true);
-          }).pipe(provideScopedLayer(DuckDb.makeNodeLayer(new DuckDbConnectionOptions({ databasePath }))));
+          }).pipe(provideScopedLayer(DuckDb.makeNodeLayer(DuckDbConnectionOptions.make({ databasePath }))));
         })
       ).pipe(provideScopedLayer(NodeServices.layer));
     })
@@ -101,7 +101,7 @@ describe("@beep/duckdb", () => {
 
         const rows = yield* duckdb.query("SELECT id, value FROM memory_events ORDER BY id");
         expect(rows).toEqual([{ id: "memory-1", value: 7 }]);
-      }).pipe(provideScopedLayer(DuckDb.makeNodeLayer(new DuckDbConnectionOptions({ databasePath: ":memory:" }))));
+      }).pipe(provideScopedLayer(DuckDb.makeNodeLayer(DuckDbConnectionOptions.make({ databasePath: ":memory:" }))));
     })
   );
 
@@ -122,7 +122,7 @@ describe("@beep/duckdb", () => {
                 Effect.fnUntraced(function* (transaction) {
                   yield* transaction.run("INSERT INTO tx_events VALUES ('outer')");
                   yield* transaction.withTransaction((nested) => nested.run("INSERT INTO tx_events VALUES ('inner')"));
-                  return yield* new DuckDbError({
+                  return yield* DuckDbError.make({
                     message: "force rollback",
                     operation: "test",
                   });
@@ -133,7 +133,7 @@ describe("@beep/duckdb", () => {
             expect(Exit.isFailure(exit)).toBe(true);
             const rows = yield* duckdb.query("SELECT count(*) AS count FROM tx_events");
             expect(rows).toEqual([{ count: "0" }]);
-          }).pipe(provideScopedLayer(DuckDb.makeNodeLayer(new DuckDbConnectionOptions({ databasePath }))));
+          }).pipe(provideScopedLayer(DuckDb.makeNodeLayer(DuckDbConnectionOptions.make({ databasePath }))));
         })
       ).pipe(provideScopedLayer(NodeServices.layer));
     })

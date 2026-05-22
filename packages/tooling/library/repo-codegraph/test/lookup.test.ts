@@ -14,7 +14,7 @@ import * as A from "effect/Array";
 import * as O from "effect/Option";
 import { describe, expect, it } from "vitest";
 
-const unknownRecordEntry = new RepoExportsCatalogEntry({
+const unknownRecordEntry = RepoExportsCatalogEntry.make({
   categories: ["schemas"],
   exportKind: "const",
   exportSubpath: ".",
@@ -33,14 +33,14 @@ const unknownRecordEntry = new RepoExportsCatalogEntry({
   topoOrder: 6,
 });
 
-const unknownRecordSubpathEntry = new RepoExportsCatalogEntry({
+const unknownRecordSubpathEntry = RepoExportsCatalogEntry.make({
   ...unknownRecordEntry,
   exportSubpath: "./Record",
   exportedFromPath: "packages/foundation/modeling/schema/src/Record.ts",
   importSpecifier: "@beep/schema/Record",
 });
 
-const reusePacketEntry = new RepoExportsCatalogEntry({
+const reusePacketEntry = RepoExportsCatalogEntry.make({
   categories: ["models"],
   exportKind: "class",
   exportSubpath: ".",
@@ -58,7 +58,7 @@ const reusePacketEntry = new RepoExportsCatalogEntry({
   topoOrder: 20,
 });
 
-const sharedDomainEntry = new RepoExportsCatalogEntry({
+const sharedDomainEntry = RepoExportsCatalogEntry.make({
   categories: ["models"],
   exportKind: "class",
   exportSubpath: ".",
@@ -76,7 +76,7 @@ const sharedDomainEntry = new RepoExportsCatalogEntry({
   topoOrder: 10,
 });
 
-const driverEntry = new RepoExportsCatalogEntry({
+const driverEntry = RepoExportsCatalogEntry.make({
   categories: ["services"],
   exportKind: "class",
   exportSubpath: ".",
@@ -95,8 +95,8 @@ const driverEntry = new RepoExportsCatalogEntry({
   topoOrder: 30,
 });
 
-const catalog = new RepoExportsCatalog({
-  authority: new RepoExportsCatalogAuthority({
+const catalog = RepoExportsCatalog.make({
+  authority: RepoExportsCatalogAuthority.make({
     boundaryDoctrine: ["standards/ARCHITECTURE.md"],
     canonicalStatus: "not-evaluated",
     note: "Fixture catalog.",
@@ -104,8 +104,8 @@ const catalog = new RepoExportsCatalog({
   }),
   deterministic: true,
   packages: [
-    new RepoExportsCatalogPackage({
-      counts: new RepoExportsCatalogPackageCounts({
+    RepoExportsCatalogPackage.make({
+      counts: RepoExportsCatalogPackageCounts.make({
         publicExportEntries: 2,
         sourceFiles: 1,
         uniqueSymbols: 1,
@@ -117,8 +117,8 @@ const catalog = new RepoExportsCatalog({
       status: "has-public-exports",
       topoOrder: 6,
     }),
-    new RepoExportsCatalogPackage({
-      counts: new RepoExportsCatalogPackageCounts({
+    RepoExportsCatalogPackage.make({
+      counts: RepoExportsCatalogPackageCounts.make({
         publicExportEntries: 1,
         sourceFiles: 1,
         uniqueSymbols: 1,
@@ -130,8 +130,8 @@ const catalog = new RepoExportsCatalog({
       status: "has-public-exports",
       topoOrder: 20,
     }),
-    new RepoExportsCatalogPackage({
-      counts: new RepoExportsCatalogPackageCounts({
+    RepoExportsCatalogPackage.make({
+      counts: RepoExportsCatalogPackageCounts.make({
         publicExportEntries: 1,
         sourceFiles: 1,
         uniqueSymbols: 1,
@@ -143,8 +143,8 @@ const catalog = new RepoExportsCatalog({
       status: "has-public-exports",
       topoOrder: 10,
     }),
-    new RepoExportsCatalogPackage({
-      counts: new RepoExportsCatalogPackageCounts({
+    RepoExportsCatalogPackage.make({
+      counts: RepoExportsCatalogPackageCounts.make({
         publicExportEntries: 1,
         sourceFiles: 1,
         uniqueSymbols: 1,
@@ -158,13 +158,13 @@ const catalog = new RepoExportsCatalog({
     }),
   ],
   schemaVersion: "repo-exports-catalog/v1",
-  source: new RepoExportsCatalogSource({
+  source: RepoExportsCatalogSource.make({
     generator: "fixture",
     inputs: ["fixture"],
     packageUniverseCommand: "fixture",
   }),
   standard: "repo-exports-catalog",
-  totals: new RepoExportsCatalogTotals({
+  totals: RepoExportsCatalogTotals.make({
     importSpecifiers: 5,
     missingWorkspaceMetadata: 0,
     packages: 4,
@@ -179,7 +179,7 @@ describe("lookupRepoExports", () => {
   it("finds existing public exports by exact symbol name", () => {
     const result = lookupRepoExports(
       catalog,
-      new RepoCodegraphLookupRequest({
+      RepoCodegraphLookupRequest.make({
         fromPackage: O.some("packages/tooling/library/repo-utils"),
         limit: 8,
         query: "UnknownRecord",
@@ -198,7 +198,7 @@ describe("lookupRepoExports", () => {
   it("finds existing public exports by descriptive intent", () => {
     const result = lookupRepoExports(
       catalog,
-      new RepoCodegraphLookupRequest({
+      RepoCodegraphLookupRequest.make({
         fromPackage: O.none(),
         limit: 8,
         query: "object records with string keys",
@@ -215,7 +215,7 @@ describe("lookupRepoExports", () => {
   it("blocks shared domain lookups that would depend on driver packages", () => {
     const result = lookupRepoExports(
       catalog,
-      new RepoCodegraphLookupRequest({
+      RepoCodegraphLookupRequest.make({
         fromPackage: O.some("packages/shared/domain"),
         limit: 8,
         query: "DriverAdapter",
@@ -234,7 +234,7 @@ describe("lookupRepoExports", () => {
   it("warns when a caller package selector does not match the catalog", () => {
     const result = lookupRepoExports(
       catalog,
-      new RepoCodegraphLookupRequest({
+      RepoCodegraphLookupRequest.make({
         fromPackage: O.some("packages/missing/domain"),
         limit: 8,
         query: "UnknownRecord",
@@ -254,7 +254,7 @@ describe("lookupRepoExports", () => {
   it("normalizes repo-relative caller file selectors before boundary checks", () => {
     const result = lookupRepoExports(
       catalog,
-      new RepoCodegraphLookupRequest({
+      RepoCodegraphLookupRequest.make({
         fromPackage: O.some("./packages/tooling/library/repo-utils/src/Reuse/../index.ts"),
         limit: 8,
         query: "UnknownRecord",
@@ -269,7 +269,7 @@ describe("lookupRepoExports", () => {
   it("does not normalize caller selectors that traverse above the repo root into in-repo packages", () => {
     const result = lookupRepoExports(
       catalog,
-      new RepoCodegraphLookupRequest({
+      RepoCodegraphLookupRequest.make({
         fromPackage: O.some("../../packages/foundation/modeling/schema/src/Record.ts"),
         limit: 8,
         query: "UnknownRecord",
@@ -287,7 +287,7 @@ describe("lookupRepoExports", () => {
     const result = pipe(
       catalog,
       lookupRepoExports(
-        new RepoCodegraphLookupRequest({
+        RepoCodegraphLookupRequest.make({
           fromPackage: O.some("packages/tooling/library/repo-utils"),
           limit: 8,
           query: "UnknownRecord",

@@ -322,7 +322,7 @@ export class TermFrequency extends S.Class<TermFrequency>($I`TermFrequency`)(
 export class VectorizerError extends TaggedErrorClass<VectorizerError>($I`VectorizerError`)(
   "VectorizerError",
   {
-    cause: S.Unknown,
+    cause: S.DefectWithStack,
     message: S.String,
     operation: S.String,
   },
@@ -343,7 +343,7 @@ export class VectorizerError extends TaggedErrorClass<VectorizerError>($I`Vector
   } = dual(
     2,
     (cause: unknown, operation: string): VectorizerError =>
-      new VectorizerError({
+      VectorizerError.make({
         cause,
         message: `Wink vectorizer ${operation} failed: ${Inspectable.toStringUnknown(cause)}`,
         operation,
@@ -363,7 +363,7 @@ export class VectorizerError extends TaggedErrorClass<VectorizerError>($I`Vector
   } = dual(
     2,
     (message: string, operation: string): VectorizerError =>
-      new VectorizerError({
+      VectorizerError.make({
         cause: undefined,
         message,
         operation,

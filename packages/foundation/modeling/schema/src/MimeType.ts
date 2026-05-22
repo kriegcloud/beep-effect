@@ -9,7 +9,7 @@ import { MimeTypesData } from "@beep/data";
 import { $SchemaId } from "@beep/identity/packages";
 import { A, Struct } from "@beep/utils";
 import { Function as Fn, flow, pipe } from "effect";
-import { LiteralKit, type LiteralKit as LiteralKitSchema } from "./LiteralKit.ts";
+import { LiteralKit, type LiteralKit as LiteralKitSchema } from "./LiteralKit/index.ts";
 
 const $I = $SchemaId.create("MimeType");
 

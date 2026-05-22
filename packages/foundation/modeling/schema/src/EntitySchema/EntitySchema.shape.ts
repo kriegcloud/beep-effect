@@ -8,7 +8,7 @@ import { A, P, Struct } from "@beep/utils";
 import { SchemaAST as AST, Match, pipe, Tuple } from "effect";
 import { dual } from "effect/Function";
 import * as S from "effect/Schema";
-import { TaggedErrorClass } from "../TaggedErrorClass.ts";
+import { TaggedErrorClass } from "../TaggedErrorClass/index.ts";
 import type { EncodedAbsenceKind } from "./EntitySchema.persist.ts";
 import { EncodedAbsenceKind as EncodedAbsenceKindSchema } from "./EntitySchema.persist.ts";
 import { $I } from "./EntitySchema.shared.ts";
@@ -241,7 +241,7 @@ export const selectedRowFieldShape: {
 } = dual(2, (key: string, field: S.Top): EncodedFieldShape => {
   const shape = encodedFieldShape(field);
   if (shape.isAmbiguous || shape.isOptional || shape.allowsUndefined) {
-    throw new SelectedRowFieldShapeError({
+    throw SelectedRowFieldShapeError.make({
       field: key,
       message: `Persisted selected-row field '${key}' must encode SQL absence as null, not undefined, a missing key, or an ambiguous declared schema.`,
     });

@@ -62,7 +62,7 @@ export const runGraphitiProxy = Effect.scoped(
       const statusCode = status === "ok" ? 200 : 503;
 
       return proxyHealthResponse(
-        new ProxyHealthPayload({
+        ProxyHealthPayload.make({
           status,
           active: queueStats.active,
           queued: queueStats.queued,

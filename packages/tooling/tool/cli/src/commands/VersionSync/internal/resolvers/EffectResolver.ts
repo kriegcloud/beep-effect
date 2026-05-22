@@ -11,7 +11,7 @@
 import { $RepoCliId } from "@beep/identity/packages";
 import { decodeJsoncTextAs } from "@beep/schema/Jsonc";
 import { A, Str, thunkEmptyStr } from "@beep/utils";
-import { Effect, FileSystem, Inspectable, Number as N, Order, Path } from "effect";
+import { Effect, FileSystem, Number as N, Order, Path } from "effect";
 import * as O from "effect/Option";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
@@ -151,24 +151,12 @@ export const resolveEffectCatalog: (
     const path = yield* Path.Path;
     const pkgJsonPath = path.join(repoRoot, "package.json");
 
-    const pkgJsonContent = yield* fs.readFileString(pkgJsonPath).pipe(
-      Effect.mapError(
-        (e) =>
-          new VersionSyncError({
-            message: `Failed to read package.json: ${Inspectable.toStringUnknown(e, 0)}`,
-            file: "package.json",
-          })
-      )
-    );
+    const pkgJsonContent = yield* fs
+      .readFileString(pkgJsonPath)
+      .pipe(VersionSyncError.mapError("Failed to read package.json", "package.json"));
 
     const pkgJson = yield* decodeJsoncTextAs(RootPackageJsonDocument)(pkgJsonContent).pipe(
-      Effect.mapError(
-        (e) =>
-          new VersionSyncError({
-            message: `Failed to parse package.json: ${e.message}`,
-            file: "package.json",
-          })
-      )
+      VersionSyncError.mapError("Failed to parse package.json", "package.json")
     );
 
     const canonicalSpecifier = O.getOrElse(R.get(pkgJson.catalog, "effect"), thunkEmptyStr);
@@ -193,10 +181,10 @@ export const resolveEffectCatalog: (
         continue;
       }
 
-      packages = A.append(packages, new EffectCatalogPackage({ name: packageName, versionSpecifier }));
+      packages = A.append(packages, EffectCatalogPackage.make({ name: packageName, versionSpecifier }));
     }
 
-    return new EffectCatalogState({ canonicalSpecifier, packages });
+    return EffectCatalogState.make({ canonicalSpecifier, packages });
   }
 );
 
@@ -210,7 +198,7 @@ export const resolveEffectCatalog: (
  */
 export const buildEffectReport: (state: EffectCatalogState) => VersionCategoryReport = (state) => {
   if (Str.isEmpty(state.canonicalSpecifier)) {
-    return new VersionCategoryReport.cases.effect({
+    return VersionCategoryReport.cases.effect.make({
       status: VersionCategoryStatusEnum.error,
       items: A.empty(),
       latest: O.none(),
@@ -222,7 +210,7 @@ export const buildEffectReport: (state: EffectCatalogState) => VersionCategoryRe
     O.isNone(splitVersionSpecifier(state.canonicalSpecifier)) &&
     O.isNone(splitSnapshotSpecifier(state.canonicalSpecifier))
   ) {
-    return new VersionCategoryReport.cases.effect({
+    return VersionCategoryReport.cases.effect.make({
       status: VersionCategoryStatusEnum.error,
       items: A.empty(),
       latest: O.some(state.canonicalSpecifier),
@@ -245,7 +233,7 @@ export const buildEffectReport: (state: EffectCatalogState) => VersionCategoryRe
 
     items = A.append(
       items,
-      new VersionDriftItem({
+      VersionDriftItem.make({
         file: "package.json",
         field: `catalog.${pkg.name}`,
         current: pkg.versionSpecifier,
@@ -255,7 +243,7 @@ export const buildEffectReport: (state: EffectCatalogState) => VersionCategoryRe
     );
   }
 
-  return new VersionCategoryReport.cases.effect({
+  return VersionCategoryReport.cases.effect.make({
     status: A.match(items, {
       onEmpty: VersionCategoryStatusThunk.ok,
       onNonEmpty: VersionCategoryStatusThunk.drift,

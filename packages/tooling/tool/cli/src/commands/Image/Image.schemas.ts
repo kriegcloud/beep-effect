@@ -21,7 +21,7 @@ const $I = $RepoCliId.create("commands/Image/Image.schemas");
  * import { ExtractFramesOptions } from "@beep/repo-cli/commands/Image/index"
  * import * as O from "effect/Option"
  *
- * const options = new ExtractFramesOptions({
+ * const options = ExtractFramesOptions.make({
  *   fps: 1,
  *   manifest: O.none(),
  *   outDir: "./frames",
@@ -65,7 +65,7 @@ export class ExtractFramesOptions extends S.Class<ExtractFramesOptions>($I`Extra
  * import { ExtractFramesDirOptions } from "@beep/repo-cli/commands/Image/index"
  * import * as O from "effect/Option"
  *
- * const options = new ExtractFramesDirOptions({
+ * const options = ExtractFramesDirOptions.make({
  *   dir: "./videos",
  *   fps: 1,
  *   overwrite: false,
@@ -101,7 +101,7 @@ export class ExtractFramesDirOptions extends S.Class<ExtractFramesDirOptions>($I
  * ```ts
  * import { ExtractFramesDirVideo } from "@beep/repo-cli/commands/Image/index"
  *
- * const video = new ExtractFramesDirVideo({
+ * const video = ExtractFramesDirVideo.make({
  *   outDir: "./videos/clip",
  *   sourceName: "clip.mp4",
  *   sourcePath: "./videos/clip.mp4",
@@ -132,8 +132,8 @@ export class ExtractFramesDirVideo extends S.Class<ExtractFramesDirVideo>($I`Ext
  * import { ExtractFramesDirSuccess } from "@beep/repo-cli/commands/Image/index"
  * import { ExtractFramesResult } from "@beep/ffmpeg"
  *
- * const success = new ExtractFramesDirSuccess({
- *   result: new ExtractFramesResult({
+ * const success = ExtractFramesDirSuccess.make({
+ *   result: ExtractFramesResult.make({
  *     frameCount: 0,
  *     frames: [],
  *     manifestPath: "./videos/clip/extract-frames-manifest.json",
@@ -168,7 +168,7 @@ export class ExtractFramesDirSuccess extends S.Class<ExtractFramesDirSuccess>($I
  * ```ts
  * import { ExtractFramesDirFailure } from "@beep/repo-cli/commands/Image/index"
  *
- * const failure = new ExtractFramesDirFailure({
+ * const failure = ExtractFramesDirFailure.make({
  *   message: "ffmpeg failed",
  *   sourceName: "clip.mp4",
  *   sourcePath: "./videos/clip.mp4",
@@ -218,7 +218,7 @@ export type ExtractFramesDirOutcome = typeof ExtractFramesDirOutcome.Type;
  * ```ts
  * import { ExtractFramesDirResult } from "@beep/repo-cli/commands/Image/index"
  *
- * const result = new ExtractFramesDirResult({
+ * const result = ExtractFramesDirResult.make({
  *   completedCount: 0,
  *   failedCount: 0,
  *   outcomes: [],

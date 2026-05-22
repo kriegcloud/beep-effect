@@ -37,7 +37,7 @@ const getEntityNameOption = (options: { readonly entityName?: string | undefined
 export class WinkEngineError extends TaggedErrorClass<WinkEngineError>($I`WinkEngineError`)(
   "WinkEngineError",
   {
-    cause: S.Unknown,
+    cause: S.DefectWithStack,
     message: S.String,
     operation: S.String,
   },
@@ -58,7 +58,7 @@ export class WinkEngineError extends TaggedErrorClass<WinkEngineError>($I`WinkEn
   } = dual(
     2,
     (cause: unknown, operation: string): WinkEngineError =>
-      new WinkEngineError({
+      WinkEngineError.make({
         cause,
         message: `Wink runtime ${operation} failed: ${renderCause(cause)}`,
         operation,
@@ -82,7 +82,7 @@ export class WinkEngineError extends TaggedErrorClass<WinkEngineError>($I`WinkEn
 export class WinkTokenizationError extends TaggedErrorClass<WinkTokenizationError>($I`WinkTokenizationError`)(
   "WinkTokenizationError",
   {
-    cause: S.Unknown,
+    cause: S.DefectWithStack,
     message: S.String,
     operation: S.String,
     text: S.OptionFromOptionalKey(S.String),
@@ -106,7 +106,7 @@ export class WinkTokenizationError extends TaggedErrorClass<WinkTokenizationErro
   } = dual(
     3,
     (cause: unknown, operation: string, options: { readonly text?: string | undefined }): WinkTokenizationError =>
-      new WinkTokenizationError({
+      WinkTokenizationError.make({
         cause,
         message: `Wink tokenization ${operation} failed: ${renderCause(cause)}`,
         operation,
@@ -131,7 +131,7 @@ export class WinkTokenizationError extends TaggedErrorClass<WinkTokenizationErro
 export class WinkEntityError extends TaggedErrorClass<WinkEntityError>($I`WinkEntityError`)(
   "WinkEntityError",
   {
-    cause: S.Unknown,
+    cause: S.DefectWithStack,
     entityName: S.OptionFromOptionalKey(S.String),
     message: S.String,
     operation: S.String,
@@ -155,7 +155,7 @@ export class WinkEntityError extends TaggedErrorClass<WinkEntityError>($I`WinkEn
   } = dual(
     3,
     (cause: unknown, operation: string, options: { readonly entityName?: string | undefined }): WinkEntityError =>
-      new WinkEntityError({
+      WinkEntityError.make({
         cause,
         entityName: getEntityNameOption(options),
         message: `Wink entity ${operation} failed: ${renderCause(cause)}`,

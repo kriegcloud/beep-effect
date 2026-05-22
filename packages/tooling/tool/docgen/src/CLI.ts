@@ -84,11 +84,10 @@ const tscExecutable = Flag.string("tscExecutable").pipe(
 
 const decodeCompilerOptionsText = (value: string) =>
   decodeCompilerOptions(value).pipe(
-    Effect.mapError(
-      (cause) =>
-        new Domain.DocgenError({
-          message: `[CLI.decodeCompilerOptionsText] Invalid compiler options JSON\n${cause.message}`,
-        })
+    Effect.mapError((cause) =>
+      Domain.DocgenError.make({
+        message: `[CLI.decodeCompilerOptionsText] Invalid compiler options JSON\n${cause.message}`,
+      })
     )
   );
 
@@ -172,7 +171,7 @@ export const docgenCommand = Command.make(
     ).pipe(
       Effect.catchTag("DocgenError", (error) =>
         Effect.fail(
-          new Domain.DocgenError({
+          Domain.DocgenError.make({
             message: `[${config.projectName}] ${error.message}`,
           })
         )

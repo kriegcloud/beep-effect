@@ -13,7 +13,7 @@ describe("WorkItem client", () => {
     Effect.fnUntraced(function* () {
       const id = yield* decodeWorkItemId("work-item-1");
       const created = DomainWorkItem.create(
-        new DomainWorkItem.CreateWorkItemInput({
+        DomainWorkItem.CreateWorkItemInput.make({
           id,
           title: "Document topology",
         })
@@ -28,7 +28,7 @@ describe("WorkItem client", () => {
         list: () => Effect.succeed([created]),
       });
 
-      const workItem = yield* client.get(new WorkItemUseCases.GetWorkItemQuery({ id: created.id }));
+      const workItem = yield* client.get(WorkItemUseCases.GetWorkItemQuery.make({ id: created.id }));
       expect(workItem.assignee).toStrictEqual(O.none());
     })
   );

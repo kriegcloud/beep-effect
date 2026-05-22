@@ -4,7 +4,7 @@ import { expect } from "tstyche";
 declare const canvasProjectId: CanvasProject.CanvasProjectId;
 
 const canvasProject = CanvasProject.create(
-  new CanvasProject.CreateCanvasProjectInput({
+  CanvasProject.CreateCanvasProjectInput.make({
     id: canvasProjectId,
     title: "Document topology",
   })

@@ -205,7 +205,7 @@ const filesCreateCaptionsCommand = Command.make(
   Effect.fn(function* ({ caption, dir, dryRun, overwrite }) {
     yield* runFilesProgram(
       createCaptionFiles(
-        new CreateCaptionFilesOptions({
+        CreateCaptionFilesOptions.make({
           caption,
           dir,
           dryRun,
@@ -249,7 +249,7 @@ const filesArchivePoorCandidatesCommand = Command.make(
   }) {
     yield* runFilesProgram(
       archivePoorCandidates(
-        new ArchivePoorCandidatesOptions({
+        ArchivePoorCandidatesOptions.make({
           archiveDir,
           dir,
           dryRun,
@@ -283,7 +283,7 @@ const filesDetectBordersCommand = Command.make(
   Effect.fn(function* ({ dir, json, maxScanPct, minSolidPct, minWidthPct, tolerance }) {
     yield* runFilesProgram(
       detectBordersFiles(
-        new DetectBordersOptions({
+        DetectBordersOptions.make({
           dir,
           json,
           maxScanPct,
@@ -312,7 +312,7 @@ const filesCropBordersCommand = Command.make(
   Effect.fn(function* ({ dir, dryRun, maxScanPct, minSolidPct, minWidthPct, tolerance }) {
     yield* runFilesProgram(
       cropBordersFiles(
-        new CropBordersOptions({
+        CropBordersOptions.make({
           dir,
           dryRun,
           maxScanPct,
@@ -343,7 +343,7 @@ const filesDetectFacesCommand = Command.make(
   Effect.fn(function* ({ dir, edgeMarginPct, json, manifest, minConfidence, minFaceAreaPct, modelPath, moveNoFaceTo }) {
     yield* runFilesProgram(
       detectFacesFiles(
-        new DetectFacesOptions({
+        DetectFacesOptions.make({
           dir,
           edgeMarginPct,
           json,
@@ -379,7 +379,7 @@ const filesNormalizeCommand = Command.make(
 
     yield* runFilesProgram(
       normalizeFiles(
-        new NormalizeFilesOptions({
+        NormalizeFilesOptions.make({
           dedupe: effectiveDedupe,
           dir,
           dryRun,

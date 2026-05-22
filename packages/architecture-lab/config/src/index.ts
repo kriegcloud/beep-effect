@@ -31,7 +31,7 @@ export const VERSION = "0.0.0" as const;
  *   WorkItemPublicConfig,
  * } from "@beep/architecture-lab-config"
  *
- * const config = new WorkItemPublicConfig({
+ * const config = WorkItemPublicConfig.make({
  *   assignmentEnabled: defaultWorkItemPublicConfig.assignmentEnabled,
  *   reopenCompletedEnabled: true,
  * })

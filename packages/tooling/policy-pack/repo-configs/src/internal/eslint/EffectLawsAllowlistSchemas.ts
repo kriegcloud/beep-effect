@@ -116,12 +116,11 @@ export const areLookupKeysEquivalent = S.toEquivalence(EffectLawsAllowlistLookup
 export const normalizeAllowlistEntries: (
   entries: ReadonlyArray<EffectLawsAllowlistEntry>
 ) => ReadonlyArray<EffectLawsAllowlistEntry> = flow(
-  A.map(
-    (entry) =>
-      new EffectLawsAllowlistEntry({
-        ...entry,
-        file: normalizePath(entry.file),
-      })
+  A.map((entry) =>
+    EffectLawsAllowlistEntry.make({
+      ...entry,
+      file: normalizePath(entry.file),
+    })
   )
 );
 

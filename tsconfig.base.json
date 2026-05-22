@@ -104,6 +104,7 @@
           "multipleEffectProvide": "error",
           "nestedEffectGenYield": "error",
           "newPromise": "error",
+          "newSchemaClass": "error",
           "nodeBuiltinImport": "error",
           "nonObjectEffectServiceType": "error",
           "outdatedApi": "error",

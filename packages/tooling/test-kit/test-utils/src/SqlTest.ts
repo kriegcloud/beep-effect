@@ -100,7 +100,7 @@ const PgExternalSchemaPrefix = S.String.check(
  * ```ts
  * import { TestDatabaseInfoShape } from "@beep/test-utils"
  * import * as O from "effect/Option"
- * const info = new TestDatabaseInfoShape({
+ * const info = TestDatabaseInfoShape.make({
  *   connectionUri: O.none(),
  *   containerId: O.none(),
  *   database: O.none(),
@@ -141,7 +141,7 @@ export class TestDatabaseInfoShape extends S.Class<TestDatabaseInfoShape>($I`Tes
  * @example
  * ```ts
  * import { PgliteTestcontainersTestDriverConfig } from "@beep/test-utils"
- * const config = new PgliteTestcontainersTestDriverConfig({})
+ * const config = PgliteTestcontainersTestDriverConfig.make({})
  * void config.maxConnections
  * ```
  * @category models
@@ -195,7 +195,7 @@ export type PgliteTestcontainersTestDriverConfigInput = Partial<PgliteTestcontai
  * @example
  * ```ts
  * import { PgExternalTestDriverConfig } from "@beep/test-utils"
- * const config = new PgExternalTestDriverConfig({
+ * const config = PgExternalTestDriverConfig.make({
  *   connectionUri: "postgres://postgres:postgres@127.0.0.1:5432/postgres"
  * })
  * void config.isolation
@@ -284,7 +284,7 @@ export class TestDatabaseInfo extends Context.Service<TestDatabaseInfo, TestData
  * ```ts
  * import { SqlTestHarnessError } from "@beep/test-utils"
  * import * as O from "effect/Option"
- * const error = new SqlTestHarnessError({
+ * const error = SqlTestHarnessError.make({
  *   cause: O.none(),
  *   driver: "node-sqlite",
  *   message: "setup failed",
@@ -351,7 +351,7 @@ const toHarnessError = (
   message: string,
   cause?: unknown
 ): SqlTestHarnessError =>
-  new SqlTestHarnessError({
+  SqlTestHarnessError.make({
     cause: O.fromUndefinedOr(cause),
     driver,
     message,
@@ -847,8 +847,8 @@ const buildPgExternalLayer: (
                   .then(() => client);
               },
               catch: (cause) =>
-                new SqlError({
-                  reason: new ConnectionError({
+                SqlError.make({
+                  reason: ConnectionError.make({
                     cause,
                     message: "PgExternalTestDriver: Failed to connect",
                     operation: "connect",

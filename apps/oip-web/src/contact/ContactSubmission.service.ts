@@ -60,7 +60,7 @@ class ContactSubmissionError extends TaggedErrorClass<ContactSubmissionError>($I
     reason: ContactSubmissionErrorReason,
     options: ContactSubmissionErrorOptions = {}
   ): ContactSubmissionError =>
-    new ContactSubmissionError({
+    ContactSubmissionError.make({
       reason,
       ...R.getSomes({
         provider: O.fromUndefinedOr(options.provider),
@@ -121,7 +121,7 @@ const hubSpotConfig = Effect.fn("OipContact.hubSpotConfig")(function* (): Effect
   }
 
   return {
-    config: new HubSpotConfigInput({
+    config: HubSpotConfigInput.make({
       accountId: accountId.value,
       accessToken: accessToken.value,
     }),
@@ -136,7 +136,7 @@ const textField = (name: string, value: O.Option<string>): ReadonlyArray<HubSpot
     O.filter(Str.isNonEmpty),
     O.match({
       onNone: A.empty,
-      onSome: (fieldValue) => [new HubSpotFormField({ name, value: fieldValue })],
+      onSome: (fieldValue) => [HubSpotFormField.make({ name, value: fieldValue })],
     })
   );
 
@@ -182,12 +182,12 @@ const contactProperties = (submission: ContactSubmission): Readonly<Record<strin
   }),
 });
 
-const accepted = new ContactSubmissionResponse({
+const accepted = ContactSubmissionResponse.make({
   message: "Your note was received.",
   status: "accepted",
 });
 
-const rejected = new ContactSubmissionResponse({
+const rejected = ContactSubmissionResponse.make({
   message: "The submission could not be accepted.",
   status: "rejected",
 });
@@ -224,7 +224,7 @@ const submitConfiguredContact = (
           const hubspot = yield* HubSpot;
           if (O.isSome(settings.formGuid)) {
             return yield* hubspot.submitForm(
-              new HubSpotSubmitFormRequest({
+              HubSpotSubmitFormRequest.make({
                 fields: submissionFields(submission),
                 formGuid: settings.formGuid.value,
                 submittedAt: submission.submittedAt,
@@ -237,7 +237,7 @@ const submitConfiguredContact = (
           }
 
           return yield* hubspot.upsertContact(
-            new HubSpotUpsertContactRequest({
+            HubSpotUpsertContactRequest.make({
               email: submission.email,
               objectWriteTraceId: "oip-contact-form",
               properties: contactProperties(submission),
@@ -322,7 +322,7 @@ export const submitContact: (input: unknown) => Effect.Effect<ContactSubmissionR
  * ```ts
  * import { ContactSubmissionResponse, contactResponseBody } from "@beep/oip-web/contact"
  *
- * const body = contactResponseBody(new ContactSubmissionResponse({
+ * const body = contactResponseBody(ContactSubmissionResponse.make({
  *   message: "Your note was received.",
  *   status: "accepted"
  * }))

@@ -75,9 +75,9 @@ export const makeTerminationError = (
 ): Effect.Effect<AcpError.AcpError> =>
   Effect.match(handle.exitCode, {
     onFailure: (cause) =>
-      new AcpError.AcpTransportError({
+      AcpError.AcpTransportError.make({
         detail: "Failed to determine ACP process exit status",
         cause,
       }),
-    onSuccess: (code) => new AcpError.AcpProcessExitedError({ code }),
+    onSuccess: (code) => AcpError.AcpProcessExitedError.make({ code }),
   });

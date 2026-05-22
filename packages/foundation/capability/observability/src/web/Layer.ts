@@ -16,7 +16,7 @@ import { toWebResource, type WebObservabilityConfig } from "./Config.ts";
  * import { WebObservabilityConfig } from "@beep/observability/web"
  * import { layerWebSdk } from "@beep/observability/web"
  *
- * const config = new WebObservabilityConfig({
+ * const config = WebObservabilityConfig.make({
  *   serviceName: "todox-web",
  *   serviceVersion: "0.0.0",
  *   environment: "development",

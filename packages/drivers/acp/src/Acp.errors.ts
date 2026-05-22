@@ -21,7 +21,7 @@ const $I = $AcpId.create("errors");
  * ```ts
  * import { AcpSpawnError } from "@beep/acp/errors"
  *
- * const error = new AcpSpawnError({ command: "acp-agent" })
+ * const error = AcpSpawnError.make({ command: "acp-agent" })
  * console.log(error.message)
  * ```
  *
@@ -31,7 +31,7 @@ const $I = $AcpId.create("errors");
 export class AcpSpawnError extends TaggedErrorClass<AcpSpawnError>($I`AcpSpawnError`)(
   "AcpSpawnError",
   {
-    cause: S.optionalKey(S.Unknown),
+    cause: S.optionalKey(S.DefectWithStack),
     command: S.optionalKey(S.String),
   },
   $I.annote("AcpSpawnError", {
@@ -52,7 +52,7 @@ export class AcpSpawnError extends TaggedErrorClass<AcpSpawnError>($I`AcpSpawnEr
  * ```ts
  * import { AcpProcessExitedError } from "@beep/acp/errors"
  *
- * const error = new AcpProcessExitedError({ code: 1 })
+ * const error = AcpProcessExitedError.make({ code: 1 })
  * console.log(error.message)
  * ```
  *
@@ -62,7 +62,7 @@ export class AcpSpawnError extends TaggedErrorClass<AcpSpawnError>($I`AcpSpawnEr
 export class AcpProcessExitedError extends TaggedErrorClass<AcpProcessExitedError>($I`AcpProcessExitedError`)(
   "AcpProcessExitedError",
   {
-    cause: S.optionalKey(S.Unknown),
+    cause: S.optionalKey(S.DefectWithStack),
     code: S.optionalKey(S.Number),
   },
   $I.annote("AcpProcessExitedError", {
@@ -81,7 +81,7 @@ export class AcpProcessExitedError extends TaggedErrorClass<AcpProcessExitedErro
  * ```ts
  * import { AcpProtocolParseError } from "@beep/acp/errors"
  *
- * const error = new AcpProtocolParseError({ detail: "bad json" })
+ * const error = AcpProtocolParseError.make({ detail: "bad json" })
  * console.log(error.message)
  * ```
  *
@@ -91,7 +91,7 @@ export class AcpProcessExitedError extends TaggedErrorClass<AcpProcessExitedErro
 export class AcpProtocolParseError extends TaggedErrorClass<AcpProtocolParseError>($I`AcpProtocolParseError`)(
   "AcpProtocolParseError",
   {
-    cause: S.optionalKey(S.Unknown),
+    cause: S.optionalKey(S.DefectWithStack),
     detail: S.String,
   },
   $I.annote("AcpProtocolParseError", {
@@ -110,7 +110,7 @@ export class AcpProtocolParseError extends TaggedErrorClass<AcpProtocolParseErro
  * ```ts
  * import { AcpTransportError } from "@beep/acp/errors"
  *
- * const error = new AcpTransportError({ detail: "stream closed" })
+ * const error = AcpTransportError.make({ detail: "stream closed" })
  * console.log(error.detail)
  * ```
  *
@@ -120,7 +120,7 @@ export class AcpProtocolParseError extends TaggedErrorClass<AcpProtocolParseErro
 export class AcpTransportError extends TaggedErrorClass<AcpTransportError>($I`AcpTransportError`)(
   "AcpTransportError",
   {
-    cause: S.optionalKey(S.Unknown),
+    cause: S.optionalKey(S.DefectWithStack),
     detail: S.String,
   },
   $I.annote("AcpTransportError", {
@@ -175,7 +175,7 @@ export class AcpRequestError extends TaggedErrorClass<AcpRequestError>($I`AcpReq
    * @since 0.0.0
    */
   static fromProtocolError(error: AcpSchema.Error) {
-    return new AcpRequestError({
+    return AcpRequestError.make({
       code: error.code,
       errorMessage: error.message,
       ...R.getSomes({
@@ -199,7 +199,7 @@ export class AcpRequestError extends TaggedErrorClass<AcpRequestError>($I`AcpReq
    * @since 0.0.0
    */
   static parseError(message = "Parse error", data?: unknown) {
-    return new AcpRequestError({
+    return AcpRequestError.make({
       code: -32700,
       errorMessage: message,
       ...R.getSomes({
@@ -223,7 +223,7 @@ export class AcpRequestError extends TaggedErrorClass<AcpRequestError>($I`AcpReq
    * @since 0.0.0
    */
   static invalidRequest(message = "Invalid request", data?: unknown) {
-    return new AcpRequestError({
+    return AcpRequestError.make({
       code: -32600,
       errorMessage: message,
       ...R.getSomes({
@@ -247,7 +247,7 @@ export class AcpRequestError extends TaggedErrorClass<AcpRequestError>($I`AcpReq
    * @since 0.0.0
    */
   static methodNotFound(method: string) {
-    return new AcpRequestError({
+    return AcpRequestError.make({
       code: -32601,
       errorMessage: `Method not found: ${method}`,
     });
@@ -268,7 +268,7 @@ export class AcpRequestError extends TaggedErrorClass<AcpRequestError>($I`AcpReq
    * @since 0.0.0
    */
   static invalidParams(message = "Invalid params", data?: unknown) {
-    return new AcpRequestError({
+    return AcpRequestError.make({
       code: -32602,
       errorMessage: message,
       ...R.getSomes({
@@ -292,7 +292,7 @@ export class AcpRequestError extends TaggedErrorClass<AcpRequestError>($I`AcpReq
    * @since 0.0.0
    */
   static internalError(message = "Internal error", data?: unknown) {
-    return new AcpRequestError({
+    return AcpRequestError.make({
       code: -32603,
       errorMessage: message,
       ...R.getSomes({
@@ -316,7 +316,7 @@ export class AcpRequestError extends TaggedErrorClass<AcpRequestError>($I`AcpReq
    * @since 0.0.0
    */
   static authRequired(message = "Authentication required", data?: unknown) {
-    return new AcpRequestError({
+    return AcpRequestError.make({
       code: -32000,
       errorMessage: message,
       ...R.getSomes({
@@ -340,7 +340,7 @@ export class AcpRequestError extends TaggedErrorClass<AcpRequestError>($I`AcpReq
    * @since 0.0.0
    */
   static resourceNotFound(message = "Resource not found", data?: unknown) {
-    return new AcpRequestError({
+    return AcpRequestError.make({
       code: -32002,
       errorMessage: message,
       ...R.getSomes({

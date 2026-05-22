@@ -10,7 +10,7 @@ import {
   DateTimeInputString,
   DateTimeUtcFromValid,
   type DateTimeUtcFromValid as DateTimeUtcFromValidType,
-} from "@beep/schema";
+} from "@beep/schema/DateTimeUtcFromValid";
 import { type Effect, pipe } from "effect";
 import type * as DateTime from "effect/DateTime";
 import * as S from "effect/Schema";

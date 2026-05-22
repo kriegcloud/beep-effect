@@ -84,8 +84,31 @@ const isVideoFileName: {
   pipe(name, path.extname, normalizeBareExtension, videoExtensionGuard)
 );
 
+const resolveExtractFramesDirOutDir = Effect.fn("ImageCommandService.resolveExtractFramesDirOutDir")(function* (
+  path: Path.Path,
+  directory: string,
+  sourceName: string,
+  stem: string
+) {
+  const outDir = path.resolve(directory, stem);
+  const relativeOutDir = path.relative(directory, outDir);
+
+  if (
+    relativeOutDir === "" ||
+    relativeOutDir === ".." ||
+    path.isAbsolute(relativeOutDir) ||
+    Str.startsWith(`..${path.sep}`)(relativeOutDir)
+  ) {
+    return yield* ImageCommandError.make({
+      message: `image extract-frames-dir: refusing unsafe output directory for "${sourceName}".`,
+    });
+  }
+
+  return outDir;
+});
+
 const makeExtractFramesRequest = (options: ExtractFramesOptions): ExtractFramesRequest =>
-  new ExtractFramesRequest({
+  ExtractFramesRequest.make({
     fps: options.fps,
     manifestPath: options.manifest,
     outDir: options.outDir,
@@ -98,12 +121,8 @@ const validateExtractFramesOptions = (
   options: ExtractFramesOptions
 ): Effect.Effect<ExtractFramesOptions, ImageCommandError> =>
   decodeExtractFramesOptions(options).pipe(
-    Effect.mapError(
-      (cause) =>
-        new ImageCommandError({
-          message: "Invalid image extract-frames options. Expected a video, output directory, and positive FPS.",
-          cause,
-        })
+    ImageCommandError.mapError(
+      "Invalid image extract-frames options. Expected a video, output directory, and positive FPS."
     )
   );
 
@@ -111,13 +130,7 @@ const validateExtractFramesDirOptions = (
   options: ExtractFramesDirOptions
 ): Effect.Effect<ExtractFramesDirOptions, ImageCommandError> =>
   decodeExtractFramesDirOptions(options).pipe(
-    Effect.mapError(
-      (cause) =>
-        new ImageCommandError({
-          message: "Invalid image extract-frames-dir options. Expected a directory and positive FPS.",
-          cause,
-        })
-    )
+    ImageCommandError.mapError("Invalid image extract-frames-dir options. Expected a directory and positive FPS.")
   );
 
 const extractCauseMessage = (cause: Cause.Cause<unknown>): string => {
@@ -145,15 +158,9 @@ const collectExtractFramesDirVideos = Effect.fn("ImageCommandService.collectExtr
   const fs = yield* FileSystem.FileSystem;
   const path = yield* Path.Path;
   const directory = path.resolve(dir);
-  const entries = yield* fs.readDirectory(directory).pipe(
-    Effect.mapError(
-      (cause) =>
-        new ImageCommandError({
-          message: `Failed to read video directory: "${directory}"`,
-          cause,
-        })
-    )
-  );
+  const entries = yield* fs
+    .readDirectory(directory)
+    .pipe(ImageCommandError.mapError(`Failed to read video directory: "${directory}"`));
   let videos = A.empty<ExtractFramesDirVideo>();
 
   for (const entry of entries) {
@@ -165,10 +172,11 @@ const collectExtractFramesDirVideos = Effect.fn("ImageCommandService.collectExtr
 
     const extension = path.extname(entry);
     const stem = path.basename(entry, extension);
+    const outDir = yield* resolveExtractFramesDirOutDir(path, directory, entry, stem);
     videos = A.append(
       videos,
-      new ExtractFramesDirVideo({
-        outDir: path.join(directory, stem),
+      ExtractFramesDirVideo.make({
+        outDir,
         sourceName: entry,
         sourcePath,
         stem,
@@ -186,13 +194,13 @@ const preflightExtractFramesDirVideos = Effect.fn("ImageCommandService.preflight
   videos: ReadonlyArray<ExtractFramesDirVideo>
 ): Effect.fn.Return<void, ImageCommandError> {
   if (A.length(videos) === 0) {
-    return yield* new ImageCommandError({ message: "image extract-frames-dir: no direct video files found." });
+    return yield* ImageCommandError.make({ message: "image extract-frames-dir: no direct video files found." });
   }
 
   let stems = A.empty<string>();
   for (const video of videos) {
     if (A.contains(stems, video.stem)) {
-      return yield* new ImageCommandError({
+      return yield* ImageCommandError.make({
         message: `image extract-frames-dir: multiple videos would write to "${video.outDir}".`,
       });
     }
@@ -211,7 +219,7 @@ const runExtractFramesDirImpl = Effect.fn("ImageCommandService.extractFramesDir"
   let outcomes = A.empty<ExtractFramesDirSuccess | ExtractFramesDirFailure>();
 
   for (const video of videos) {
-    const request = new ExtractFramesOptions({
+    const request = ExtractFramesOptions.make({
       fps: decoded.fps,
       manifest: O.none(),
       outDir: video.outDir,
@@ -225,7 +233,7 @@ const runExtractFramesDirImpl = Effect.fn("ImageCommandService.extractFramesDir"
       completedCount += 1;
       outcomes = A.append(
         outcomes,
-        new ExtractFramesDirSuccess({
+        ExtractFramesDirSuccess.make({
           result: exit.value,
           sourceName: video.sourceName,
           sourcePath: video.sourcePath,
@@ -236,7 +244,7 @@ const runExtractFramesDirImpl = Effect.fn("ImageCommandService.extractFramesDir"
       failedCount += 1;
       outcomes = A.append(
         outcomes,
-        new ExtractFramesDirFailure({
+        ExtractFramesDirFailure.make({
           message: extractCauseMessage(exit.cause),
           sourceName: video.sourceName,
           sourcePath: video.sourcePath,
@@ -246,7 +254,7 @@ const runExtractFramesDirImpl = Effect.fn("ImageCommandService.extractFramesDir"
     }
   }
 
-  return new ExtractFramesDirResult({
+  return ExtractFramesDirResult.make({
     completedCount,
     failedCount,
     outcomes,

@@ -61,7 +61,7 @@ const makeSqlBackedDrizzleClient = (sqlClient: SqlClient.SqlClient): DrizzleClie
           DrizzleError.fromUnknown(
             "execute",
             cause,
-            new DrizzleErrorContext({
+            DrizzleErrorContext.make({
               params: parameters,
               query: statement,
             })

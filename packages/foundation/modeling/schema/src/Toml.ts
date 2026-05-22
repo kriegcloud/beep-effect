@@ -11,7 +11,7 @@ import { dual } from "effect/Function";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
-import { UnknownRecord } from "./Record.ts";
+import { UnknownRecord } from "./Record/index.ts";
 
 const $I = $SchemaId.create("Toml");
 

@@ -163,7 +163,7 @@ export const buildCanonicalAliasTargets: {
     O.getOrElse(() => -1)
   );
 
-  return new CanonicalAliasTargets({
+  return CanonicalAliasTargets.make({
     rootAliasTarget,
     wildcardAliasTarget: lastSlash < 0 ? `./${packagePath}/*` : `${pipe(rootAliasTarget, Str.slice(0, lastSlash))}/*`,
   });
@@ -211,7 +211,7 @@ export const buildDocgenAliasTargets: {
     ""
   )(options.wildcardExportTarget ?? deriveDocgenWildcardTarget(options.rootExportTarget));
 
-  return new CanonicalAliasTargets({
+  return CanonicalAliasTargets.make({
     rootAliasTarget: `./${packagePath}/${normalizedRootExportTarget}`,
     wildcardAliasTarget: `./${packagePath}/${normalizedWildcardExportTarget}`,
   });

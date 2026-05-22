@@ -52,7 +52,7 @@ describe("native runtime laws", () => {
           yield* writeProjectFile("packages/demo/src/index.ts", "export const value = new Date();\n");
 
           const summary = yield* runNoNativeRuntimeRules(
-            new NoNativeRuntimeRulesOptions({
+            NoNativeRuntimeRulesOptions.make({
               strictCheck: true,
               excludePaths: [],
             })
@@ -80,7 +80,7 @@ describe("native runtime laws", () => {
           );
 
           const summary = yield* runNoNativeRuntimeRules(
-            new NoNativeRuntimeRulesOptions({
+            NoNativeRuntimeRulesOptions.make({
               strictCheck: true,
               excludePaths: [],
             })
@@ -118,7 +118,7 @@ describe("native runtime laws", () => {
           );
 
           const summary = yield* runNoNativeRuntimeRules(
-            new NoNativeRuntimeRulesOptions({
+            NoNativeRuntimeRulesOptions.make({
               strictCheck: true,
               excludePaths: [],
             })
@@ -145,7 +145,7 @@ describe("native runtime laws", () => {
           );
 
           const summary = yield* runNoNativeRuntimeRules(
-            new NoNativeRuntimeRulesOptions({
+            NoNativeRuntimeRulesOptions.make({
               strictCheck: true,
               excludePaths: [],
             })

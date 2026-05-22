@@ -50,7 +50,7 @@ const isRepositoryUnavailable = S.is(CanvasProjectRepositoryUnavailable);
  * import { CanvasProject as CanvasProjectServer } from "@beep/canvas-use-cases/server"
  *
  * const error = CanvasProjectServer.toCanvasProjectActionError(
- *   new CanvasProjectServer.CanvasProjectRepositoryUnavailable({ reason: "offline" })
+ *   CanvasProjectServer.CanvasProjectRepositoryUnavailable.make({ reason: "offline" })
  * )
  * console.log(error._tag)
  * ```
@@ -62,25 +62,21 @@ export const toCanvasProjectActionError = (
   error: CanvasProjectRepositoryError | DomainCanvasProject.CanvasProjectDomainError
 ): CanvasProjectActionError =>
   Match.value(error).pipe(
-    Match.when(isRepositoryNotFound, (error) => new CanvasProjectNotFound({ canvasProjectId: error.canvasProjectId })),
-    Match.when(
-      isRepositoryConflict,
-      (error) =>
-        new CanvasProjectConflict({
-          canvasProjectId: error.canvasProjectId,
-          reason: CANVAS_PROJECT_CONFLICT_REASON,
-        })
+    Match.when(isRepositoryNotFound, (error) => CanvasProjectNotFound.make({ canvasProjectId: error.canvasProjectId })),
+    Match.when(isRepositoryConflict, (error) =>
+      CanvasProjectConflict.make({
+        canvasProjectId: error.canvasProjectId,
+        reason: CANVAS_PROJECT_CONFLICT_REASON,
+      })
     ),
-    Match.when(
-      isRepositoryUnavailable,
-      () => new CanvasProjectActionFailed({ reason: CANVAS_PROJECT_ACTION_UNAVAILABLE_REASON })
+    Match.when(isRepositoryUnavailable, () =>
+      CanvasProjectActionFailed.make({ reason: CANVAS_PROJECT_ACTION_UNAVAILABLE_REASON })
     ),
-    Match.orElse(
-      (error) =>
-        new CanvasProjectActionRejected({
-          canvasProjectId: error.canvasProjectId,
-          reason: error._tag,
-        })
+    Match.orElse((error) =>
+      CanvasProjectActionRejected.make({
+        canvasProjectId: error.canvasProjectId,
+        reason: error._tag,
+      })
     )
   );
 
@@ -124,7 +120,7 @@ export const makeCanvasProjectUseCases = (repository: CanvasProjectRepositorySha
   }),
   create: Effect.fn("Canvas.CanvasProjectUseCases.create")(function* (command: CreateCanvasProjectCommand) {
     return yield* pipe(
-      Effect.succeed(DomainCanvasProject.create(new DomainCanvasProject.CreateCanvasProjectInput(command))),
+      Effect.succeed(DomainCanvasProject.create(DomainCanvasProject.CreateCanvasProjectInput.make(command))),
       Effect.flatMap(repository.create),
       Effect.mapError(toCanvasProjectActionError)
     );

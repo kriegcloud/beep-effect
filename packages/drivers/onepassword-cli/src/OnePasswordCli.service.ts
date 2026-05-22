@@ -68,7 +68,7 @@ const runNative = (
         { concurrency: "unbounded" }
       );
 
-      return new OnePasswordCliProcessResult({ exitCode, stderr, stdout });
+      return OnePasswordCliProcessResult.make({ exitCode, stderr, stdout });
     })
   ).pipe(
     Effect.mapError((cause) =>
@@ -84,7 +84,7 @@ const failExit = (
   message: string
 ): Effect.Effect<never, OnePasswordCliError> =>
   Effect.fail(
-    new OnePasswordCliError({
+    OnePasswordCliError.make({
       command,
       exitCode: result.exitCode,
       message,
@@ -101,7 +101,7 @@ const makeService = (commandPath: string, runner: OnePasswordCliRunner): OnePass
       return yield* failExit("whoami", commandPath, result, "1Password CLI is not signed in.");
     }
 
-    return new OnePasswordCliAccount({
+    return OnePasswordCliAccount.make({
       account: Str.trim(result.stdout),
       signedIn: true,
     });
@@ -118,7 +118,7 @@ const makeService = (commandPath: string, runner: OnePasswordCliRunner): OnePass
 
   const probeReference = Effect.fn("OnePasswordCli.probeReference")(function* (reference: string) {
     const value = yield* read(reference);
-    return new OnePasswordReferenceProbe({
+    return OnePasswordReferenceProbe.make({
       byteLength: new TextEncoder().encode(Redacted.value(value)).byteLength,
       reference,
       status: "resolved",

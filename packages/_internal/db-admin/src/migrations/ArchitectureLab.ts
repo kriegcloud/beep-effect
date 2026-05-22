@@ -39,7 +39,7 @@ export class DbAdminMigrationTarget extends S.Class<DbAdminMigrationTarget>($I`D
  * @category configuration
  * @since 0.0.0
  */
-export const ArchitectureLabMigrationTarget: DbAdminMigrationTarget = new DbAdminMigrationTarget({
+export const ArchitectureLabMigrationTarget: DbAdminMigrationTarget = DbAdminMigrationTarget.make({
   name: "architecture-lab",
   schemaName: "architecture_lab",
   tables: [WORK_ITEM_TABLE_NAME, WORKER_TABLE_NAME],

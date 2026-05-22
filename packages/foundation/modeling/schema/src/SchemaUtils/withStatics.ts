@@ -44,7 +44,7 @@ const attachStatics = <S extends object, M extends Record<string, unknown>>(
       }
 
       if (existing.configurable === false) {
-        throw new WithStaticsStaticRedefinitionError({
+        throw WithStaticsStaticRedefinitionError.make({
           key,
           message: `Cannot redefine non-configurable static '${key}'.`,
         });

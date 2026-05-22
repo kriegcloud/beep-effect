@@ -264,7 +264,7 @@ const decodeCodexJsonLine = S.decodeUnknownOption(S.fromJsonString(CodexStreamLi
 const decodePiJsonLine = S.decodeUnknownOption(S.fromJsonString(PiStreamLine));
 
 const claudeUsageToIterationUsage = (usage: ClaudeUsage): IterationUsage =>
-  new IterationUsage({
+  IterationUsage.make({
     cacheCreationInputTokens: usage.cache_creation_input_tokens,
     cacheReadInputTokens: usage.cache_read_input_tokens,
     inputTokens: usage.input_tokens,
@@ -757,14 +757,14 @@ const parseClaudeSessionUsage = (content: string): O.Option<IterationUsage> =>
  * @category constructors
  * @since 0.0.0
  */
-export const codex = (model: string, options: CodexOptions = new CodexOptions({})): AgentProvider => ({
+export const codex = (model: string, options: CodexOptions = CodexOptions.make({})): AgentProvider => ({
   buildInteractiveArgs: ({ prompt }) =>
     prompt.length > 0 ? ["codex", "--model", model, prompt] : ["codex", "--model", model],
   buildPrintCommand: ({ prompt }) => {
     const effortFlag =
       options.effort === undefined ? "" : ` -c ${shellEscape(`model_reasoning_effort="${options.effort}"`)}`;
 
-    return new PrintCommand({
+    return PrintCommand.make({
       command: `codex exec --json --dangerously-bypass-approvals-and-sandbox -m ${shellEscape(model)}${effortFlag}`,
       stdin: prompt,
     });
@@ -781,11 +781,11 @@ export const codex = (model: string, options: CodexOptions = new CodexOptions({}
  * @category constructors
  * @since 0.0.0
  */
-export const pi = (model: string, options: PiOptions = new PiOptions({})): AgentProvider => ({
+export const pi = (model: string, options: PiOptions = PiOptions.make({})): AgentProvider => ({
   buildInteractiveArgs: ({ prompt }) =>
     prompt.length > 0 ? ["pi", "--model", model, prompt] : ["pi", "--model", model],
   buildPrintCommand: ({ prompt }) =>
-    new PrintCommand({
+    PrintCommand.make({
       command: `pi -p --mode json --no-session --model ${shellEscape(model)}`,
       stdin: prompt,
     }),
@@ -801,11 +801,11 @@ export const pi = (model: string, options: PiOptions = new PiOptions({})): Agent
  * @category constructors
  * @since 0.0.0
  */
-export const opencode = (model: string, options: OpenCodeOptions = new OpenCodeOptions({})): AgentProvider => ({
+export const opencode = (model: string, options: OpenCodeOptions = OpenCodeOptions.make({})): AgentProvider => ({
   buildInteractiveArgs: ({ prompt }) =>
     prompt.length > 0 ? ["opencode", "--model", model, "-p", prompt] : ["opencode", "--model", model],
   buildPrintCommand: ({ prompt }) =>
-    new PrintCommand({
+    PrintCommand.make({
       command: `opencode run --model ${shellEscape(model)} ${shellEscape(prompt)}`,
     }),
   captureSessions: false,
@@ -822,7 +822,7 @@ export const opencode = (model: string, options: OpenCodeOptions = new OpenCodeO
  */
 export const claudeCode = (
   model: string = DEFAULT_CLAUDE_MODEL,
-  options: ClaudeCodeOptions = new ClaudeCodeOptions({})
+  options: ClaudeCodeOptions = ClaudeCodeOptions.make({})
 ): AgentProvider => ({
   buildInteractiveArgs: ({ dangerouslySkipPermissions, prompt }) => [
     "claude",
@@ -837,7 +837,7 @@ export const claudeCode = (
     const effortFlag = options.effort === undefined ? "" : ` --effort ${options.effort}`;
     const resumeFlag = resumeSession === undefined ? "" : ` --resume ${shellEscape(resumeSession)}`;
 
-    return new PrintCommand({
+    return PrintCommand.make({
       command: `claude --print --verbose${skipPermissions} --output-format stream-json --model ${shellEscape(
         model
       )}${effortFlag}${resumeFlag} -p -`,

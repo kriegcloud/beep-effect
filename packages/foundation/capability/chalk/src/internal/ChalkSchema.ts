@@ -184,7 +184,7 @@ export type ColorSupportLevel = typeof ColorSupportLevel.Type;
  * ```ts
  * import { ColorSupport } from "@beep/chalk"
  *
- * const support = new ColorSupport({ has16m: true, has256: true, hasBasic: true, level: 3 })
+ * const support = ColorSupport.make({ has16m: true, has256: true, hasBasic: true, level: 3 })
  * console.log(support.level)
  * ```
  *
@@ -247,7 +247,7 @@ export type ColorInfo = typeof ColorInfo.Type;
  * ```ts
  * import { ChalkOptions } from "@beep/chalk"
  *
- * const options = new ChalkOptions({ level: 3 })
+ * const options = ChalkOptions.make({ level: 3 })
  * console.log(options.level)
  * ```
  *

@@ -199,7 +199,7 @@ const validateEntriesStillMatchViolations = Effect.fn(function* (
 
     const violationKeys = collectNativeRuntimeViolationKeys(
       sourceFile,
-      new NativeRuntimeViolationKeyOptions({
+      NativeRuntimeViolationKeyOptions.make({
         inHotspotScope: isNoNativeRuntimeExtraCheckHotspot(entry.file),
         relativeFilePath: entry.file,
       })
@@ -257,7 +257,7 @@ export const runAllowlistCheck = Effect.fn(function* (options: AllowlistCheckOpt
 
   const exists = yield* fs.exists(absolutePath);
   if (!exists) {
-    return new AllowlistCheckSummary({
+    return AllowlistCheckSummary.make({
       ok: false,
       diagnostics: A.make(`missing file: ${ALLOWLIST_PATH}`),
     });
@@ -267,7 +267,7 @@ export const runAllowlistCheck = Effect.fn(function* (options: AllowlistCheckOpt
   const parsedResult = parseAllowlistText(text);
 
   if (Result.isFailure(parsedResult)) {
-    return new AllowlistCheckSummary({
+    return AllowlistCheckSummary.make({
       ok: false,
       diagnostics: parsedResult.failure,
     });
@@ -284,7 +284,7 @@ export const runAllowlistCheck = Effect.fn(function* (options: AllowlistCheckOpt
   );
 
   if (Result.isFailure(decodedResult)) {
-    return new AllowlistCheckSummary({
+    return AllowlistCheckSummary.make({
       ok: false,
       diagnostics: decodedResult.failure,
     });
@@ -295,7 +295,7 @@ export const runAllowlistCheck = Effect.fn(function* (options: AllowlistCheckOpt
   const snapshotDiagnostics = yield* validateGeneratedSnapshotSync(repoRoot, text);
   const diagnostics = pipe(fileDiagnostics, A.appendAll(usageDiagnostics), A.appendAll(snapshotDiagnostics));
 
-  return new AllowlistCheckSummary({
+  return AllowlistCheckSummary.make({
     ok: pipe(A.length(diagnostics), Eq.equals(0)),
     diagnostics,
   });

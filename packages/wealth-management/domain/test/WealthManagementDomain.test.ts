@@ -42,7 +42,7 @@ describe("@beep/wealth-management-domain", () => {
       fixtureKey: "account.taxable",
       householdFixtureKey: "household.acme",
     });
-    const constructed = new Account(decoded);
+    const constructed = Account.make(decoded);
 
     expect(decoded).toBeInstanceOf(Account);
     expect(constructed).toBeInstanceOf(Account);

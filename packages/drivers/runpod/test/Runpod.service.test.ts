@@ -84,7 +84,7 @@ const bodyContentTypeFor = (request: HttpClientRequest.HttpClientRequest): strin
   request.body._tag === "Empty" ? undefined : request.body.contentType;
 
 const testError = (path: string): RunpodError =>
-  new RunpodError({
+  RunpodError.make({
     path,
     reason: "request encoding",
   });
@@ -164,14 +164,14 @@ const TestHttpClientLayer = Layer.effect(
 );
 
 const makeRunpodUnitLayer = (
-  config = new RunpodConfigInput({
+  config = RunpodConfigInput.make({
     apiKey: Redacted.make("test-key"),
     apiUrl: "https://example.test/api/v1///",
   })
 ) => Runpod.makeLayer(config).pipe(Layer.provide(TestHttpClientLayer), Layer.provideMerge(RunpodTestHttpLayer));
 
 const makeRunpodDocsUnitLayer = (
-  config = new RunpodDocsConfigInput({
+  config = RunpodDocsConfigInput.make({
     indexUrl: "https://docs.example.test/llms.txt",
   })
 ) => RunpodDocs.makeLayer(config).pipe(Layer.provide(TestHttpClientLayer), Layer.provideMerge(RunpodTestHttpLayer));
@@ -208,19 +208,19 @@ describe("@beep/runpod", () => {
 
         yield* runpod.getOpenAPI();
         yield* runpod.listPods(
-          new ListPodsRequest({
+          ListPodsRequest.make({
             gpuTypeId: ["NVIDIA L4"],
             includeMachine: true,
           })
         );
         yield* runpod.createPod(
-          new CreatePodRequest({
-            body: new PodCreateInput({
+          CreatePodRequest.make({
+            body: PodCreateInput.make({
               name: "demo-pod",
             }),
           })
         );
-        yield* runpod.deletePod(new DeletePodRequest({ podId: "pod 1" }));
+        yield* runpod.deletePod(DeletePodRequest.make({ podId: "pod 1" }));
 
         const captures = yield* testHttp.captures;
         const openApiCapture = yield* captureAt(captures, 0, "openapi capture");
@@ -313,7 +313,7 @@ describe("@beep/runpod", () => {
         yield* testHttp.reset;
 
         const response = yield* runpod.raw(
-          new RunpodRawRequest({
+          RunpodRawRequest.make({
             authenticated: false,
             method: "GET",
             path: "future",

@@ -5,7 +5,7 @@ import * as A from "effect/Array";
 
 const runner = (provider: AiProviderCliProvider, _command: string, args: ReadonlyArray<string>) =>
   Effect.succeed(
-    new AiProviderCliProcessResult({
+    AiProviderCliProcessResult.make({
       exitCode: provider === "claude" ? 0 : 1,
       stderr: provider === "claude" ? "" : "not logged in",
       stdout: A.join(args, " "),

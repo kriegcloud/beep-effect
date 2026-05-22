@@ -257,7 +257,7 @@ export const UnsupportedSparqlQueryServiceLive = Layer.succeed(
   SparqlQueryService.of({
     execute: Effect.fn("SparqlQueryService.execute")(() =>
       Effect.fail(
-        new SparqlQueryError({
+        SparqlQueryError.make({
           reason: "unimplemented",
           message: "No SPARQL engine is wired into the v1 semantic-web package.",
         })

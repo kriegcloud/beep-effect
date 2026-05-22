@@ -7,7 +7,7 @@
 
 import { $RepoCliId } from "@beep/identity/packages";
 import { A, Str } from "@beep/utils";
-import { Effect, FileSystem, Inspectable, SchemaTransformation } from "effect";
+import { Effect, FileSystem, SchemaTransformation } from "effect";
 import { dual } from "effect/Function";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
@@ -35,7 +35,6 @@ const YamlNodeValueAsString = S.Unknown.pipe(
 const decodeYamlNodeValueAsString = S.decodeUnknownOption(YamlNodeValueAsString);
 const yamlNodeValueAsString = (value: unknown): string =>
   O.getOrElse(decodeYamlNodeValueAsString(value), () => `${value}`);
-const stringEquivalence = Str.equivalence;
 
 type UpdateYamlValueOptions = {
   readonly value: string;
@@ -65,39 +64,27 @@ export const updateYamlValue: {
   Effect.fn(function* (filePath: string, yamlPath: ReadonlyArray<string | number>, options: UpdateYamlValueOptions) {
     const fs = yield* FileSystem.FileSystem;
 
-    const original = yield* fs.readFileString(filePath).pipe(
-      Effect.mapError(
-        (e) =>
-          new VersionSyncError({
-            message: `Failed to read ${filePath}: ${Inspectable.toStringUnknown(e, 0)}`,
-            file: filePath,
-          })
-      )
-    );
+    const original = yield* fs
+      .readFileString(filePath)
+      .pipe(VersionSyncError.mapError(`Failed to read ${filePath}`, filePath));
 
     const doc = parseDocument(original);
     const currentValue = doc.getIn(yamlPath);
 
-    if (stringEquivalence(yamlNodeValueAsString(currentValue), options.value)) {
+    if (Str.equivalence(yamlNodeValueAsString(currentValue), options.value)) {
       return false;
     }
 
     doc.setIn(yamlPath, options.value);
     const updated = doc.toString();
 
-    if (stringEquivalence(updated, original)) {
+    if (Str.equivalence(updated, original)) {
       return false;
     }
 
-    yield* fs.writeFileString(filePath, updated).pipe(
-      Effect.mapError(
-        (e) =>
-          new VersionSyncError({
-            message: `Failed to write ${filePath}: ${Inspectable.toStringUnknown(e, 0)}`,
-            file: filePath,
-          })
-      )
-    );
+    yield* fs
+      .writeFileString(filePath, updated)
+      .pipe(VersionSyncError.mapError(`Failed to write ${filePath}`, filePath));
 
     return true;
   })
@@ -129,15 +116,9 @@ export const replaceNodeVersionWithFile: {
   ) {
     const fs = yield* FileSystem.FileSystem;
 
-    const original = yield* fs.readFileString(filePath).pipe(
-      Effect.mapError(
-        (e) =>
-          new VersionSyncError({
-            message: `Failed to read ${filePath}: ${Inspectable.toStringUnknown(e, 0)}`,
-            file: filePath,
-          })
-      )
-    );
+    const original = yield* fs
+      .readFileString(filePath)
+      .pipe(VersionSyncError.mapError(`Failed to read ${filePath}`, filePath));
 
     const doc = parseDocument(original);
     let changed = false;
@@ -167,19 +148,13 @@ export const replaceNodeVersionWithFile: {
 
     const updated = doc.toString();
 
-    if (stringEquivalence(updated, original)) {
+    if (Str.equivalence(updated, original)) {
       return false;
     }
 
-    yield* fs.writeFileString(filePath, updated).pipe(
-      Effect.mapError(
-        (e) =>
-          new VersionSyncError({
-            message: `Failed to write ${filePath}: ${Inspectable.toStringUnknown(e, 0)}`,
-            file: filePath,
-          })
-      )
-    );
+    yield* fs
+      .writeFileString(filePath, updated)
+      .pipe(VersionSyncError.mapError(`Failed to write ${filePath}`, filePath));
 
     return true;
   })

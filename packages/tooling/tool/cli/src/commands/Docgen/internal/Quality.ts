@@ -11,17 +11,31 @@
 
 import { $RepoCliId } from "@beep/identity/packages";
 import { parseComment } from "@beep/repo-docgen/Parser";
-import { DomainError, findRepoRoot } from "@beep/repo-utils";
+import { ContentHashFromSourceText, DomainError, findRepoRoot } from "@beep/repo-utils";
 import { normalizeJSDocCategory } from "@beep/repo-utils/schemas/JSDocCategories";
-import { ContentHashFromSourceText } from "@beep/repo-utils/TSMorph/index";
 import { LiteralKit } from "@beep/schema";
-import { A, Str, thunkEmptyStr } from "@beep/utils";
-import { DateTime, Duration, Effect, FileSystem, flow, Match, Order, Path, pipe, Result, Stream } from "effect";
+import { A, Str, Struct, thunkEmptyStr } from "@beep/utils";
+import {
+  DateTime,
+  Duration,
+  Effect,
+  FileSystem,
+  flow,
+  identity,
+  Match,
+  Order,
+  Path,
+  pipe,
+  Result,
+  Stream,
+} from "effect";
+import { dual } from "effect/Function";
 import * as O from "effect/Option";
+import type * as PlatformError from "effect/PlatformError";
 import * as P from "effect/Predicate";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
-import { ChildProcess } from "effect/unstable/process";
+import { ChildProcess, type ChildProcessSpawner } from "effect/unstable/process";
 import * as jsonc from "jsonc-parser";
 import { type Diagnostic, type JSDoc, Node, Project, type SourceFile } from "ts-morph";
 import {
@@ -394,10 +408,16 @@ export class DocgenQualityReport extends S.Class<DocgenQualityReport>($I`DocgenQ
   })
 ) {}
 
-type DocgenQualitySubjectCandidate = Omit<DocgenQualitySubject, "contentHash" | "stableIdentity"> & {
-  readonly hashSourceText: string;
-  readonly identityStem: string;
-};
+class DocgenQualitySubjectCandidate extends S.Class<DocgenQualitySubjectCandidate>($I`DocgenQualitySubjectCandidate`)(
+  {
+    hashSourceText: S.String,
+    identityStem: S.String,
+    ...DocgenQualitySubject.mapFields(Struct.omit(["contentHash", "stableIdentity"])).fields,
+  },
+  $I.annote("DocgenQualitySubjectCandidate", {
+    description: "Subject candidate for docgen quality analysis",
+  })
+) {}
 
 const byPackagePathAscending: Order.Order<DocgenWorkspacePackage> = Order.mapInput(
   Order.String,
@@ -458,29 +478,42 @@ const renderJson = Effect.fn("DocgenQuality.renderJson")(function* (value: unkno
   return `${jsonc.applyEdits(encoded, edits)}\n`;
 });
 
-const runGitLines = Effect.fn("DocgenQuality.runGitLines")(function* (repoRoot: string, args: ReadonlyArray<string>) {
-  const process = ChildProcess.make("git", [...args], {
-    cwd: repoRoot,
-    stderr: "ignore",
-    stdout: "pipe",
-  });
-  const output = yield* Effect.scoped(
-    Effect.gen(function* () {
-      const handle = yield* process;
-      const text = yield* handle.stdout.pipe(
-        Stream.decodeText(),
-        // Effect v4 Stream.runFold takes a LazyArg initializer; the named thunk keeps the runtime value empty.
-        Stream.runFold(thunkEmptyStr, (acc: string, chunk: string) => `${acc}${chunk}`)
-      );
-      const exitCode = yield* handle.exitCode;
-      if (exitCode !== 0) {
-        return yield* new DomainError({ message: `git ${A.join(args, " ")} failed with exit code ${exitCode}.` });
-      }
-      return text;
-    })
-  );
-  return pipe(Str.split(/\r?\n/)(output), A.map(Str.trim), A.filter(Str.isNonEmpty));
-});
+const runGitLines: {
+  (
+    repoRoot: string,
+    args: readonly string[]
+  ): Effect.Effect<string[], DomainError | PlatformError.PlatformError, ChildProcessSpawner.ChildProcessSpawner>;
+  (
+    args: readonly string[]
+  ): (
+    repoRoot: string
+  ) => Effect.Effect<string[], DomainError | PlatformError.PlatformError, ChildProcessSpawner.ChildProcessSpawner>;
+} = dual(
+  2,
+  Effect.fn("DocgenQuality.runGitLines")(function* (repoRoot: string, args: ReadonlyArray<string>) {
+    const process = ChildProcess.make("git", [...args], {
+      cwd: repoRoot,
+      stderr: "ignore",
+      stdout: "pipe",
+    });
+    const output = yield* Effect.scoped(
+      Effect.gen(function* () {
+        const handle = yield* process;
+        const text = yield* handle.stdout.pipe(
+          Stream.decodeText(),
+          // Effect v4 Stream.runFold takes a LazyArg initializer; the named thunk keeps the runtime value empty.
+          Stream.runFold(thunkEmptyStr, (acc: string, chunk: string) => `${acc}${chunk}`)
+        );
+        const exitCode = yield* handle.exitCode;
+        if (exitCode !== 0) {
+          return yield* DomainError.make({ message: `git ${A.join(args, " ")} failed with exit code ${exitCode}.` });
+        }
+        return text;
+      })
+    );
+    return pipe(Str.split(/\r?\n/)(output), A.map(Str.trim), A.filter(Str.isNonEmpty));
+  })
+);
 
 const collectWorkingTreeChangedFiles = Effect.fn("DocgenQuality.collectWorkingTreeChangedFiles")(function* (
   repoRoot: string
@@ -568,7 +601,7 @@ export const resolveDocgenQualityTargets = Effect.fn("DocgenQuality.resolveDocge
   yield* assertNoOrphanDocgenConfigPaths();
 
   if (countSelectedScopes(packageSelector, all, changedFiles) > 1) {
-    return yield* new DomainError({
+    return yield* DomainError.make({
       message: "Choose only one docgen quality scope: --package, --all, or --changed-files.",
     });
   }
@@ -913,17 +946,22 @@ const declarationText = (node: Node): string =>
     2_000
   );
 
-const diagnosticCategory = (category: number): string =>
-  Match.value(category).pipe(
-    Match.when(0, () => "warning"),
-    Match.when(1, () => "error"),
-    Match.when(2, () => "suggestion"),
-    Match.when(3, () => "message"),
-    Match.orElse(() => "unknown")
-  );
+const diagnosticCategory = Match.type<number>().pipe(
+  Match.withReturnType<string>(),
+  Match.when(0, () => "warning"),
+  Match.when(1, () => "error"),
+  Match.when(2, () => "suggestion"),
+  Match.when(3, () => "message"),
+  Match.orElse(() => "unknown")
+);
 
-const diagnosticMessageText = (message: string | { getMessageText: () => string }): string =>
-  P.isString(message) ? message : message.getMessageText();
+const diagnosticMessageText = (
+  message:
+    | string
+    | {
+        getMessageText: () => string;
+      }
+): string => (P.isString(message) ? message : message.getMessageText());
 
 const collectDiagnostics = (
   diagnostics: ReadonlyArray<Diagnostic>,
@@ -948,7 +986,7 @@ const collectDiagnostics = (
       const source = diagnostic.getSourceFile();
       const start = diagnostic.getStart();
       const line = source === undefined || start === undefined ? startLine : source.getLineAndColumnAtPos(start).line;
-      return new DocgenQualityDiagnostic({
+      return DocgenQualityDiagnostic.make({
         category: diagnosticCategory(diagnostic.getCategory()),
         code: diagnostic.getCode(),
         line,
@@ -1160,19 +1198,24 @@ const finalizeSubject = Effect.fn("DocgenQuality.finalizeSubject")(function* (
   );
   const { hashSourceText: _hashSourceText, identityStem, ...subject } = candidate;
   void _hashSourceText;
-  return new DocgenQualitySubject({
+  return DocgenQualitySubject.make({
     ...subject,
     stableIdentity: `${identityStem}:${Str.slice(0, 12)(contentHash)}`,
     contentHash,
   });
 });
 
-type PackageSubjectCandidateResult = {
-  readonly candidates: ReadonlyArray<DocgenQualitySubjectCandidate>;
-  readonly error: string | null;
-  readonly status: DocgenQualityPackageStatus;
-  readonly timedOut: boolean;
-};
+class PackageSubjectCandidateResult extends S.Class<PackageSubjectCandidateResult>($I`PackageSubjectCandidateResult`)(
+  {
+    candidates: S.Array(DocgenQualitySubjectCandidate),
+    error: S.NullOr(S.String),
+    status: DocgenQualityPackageStatus,
+    timedOut: S.Boolean,
+  },
+  $I.annote("PackageSubjectCandidateResult", {
+    description: "Result of collecting package subject candidates for docgen quality analysis",
+  })
+) {}
 
 const collectPackageSubjectCandidates = Effect.fn("DocgenQuality.collectPackageSubjectCandidates")(function* (
   target: DocgenWorkspacePackage,
@@ -1181,7 +1224,7 @@ const collectPackageSubjectCandidates = Effect.fn("DocgenQuality.collectPackageS
   const path = yield* Path.Path;
   const config = target.hasDocgenConfig
     ? yield* loadDocgenConfigDocument(target.absolutePath)
-    : new DocgenConfigDocument({
+    : DocgenConfigDocument.make({
         srcDir: "src",
         exclude: A.empty(),
       });
@@ -1229,7 +1272,13 @@ const collectPackageSubjectCandidates = Effect.fn("DocgenQuality.collectPackageS
 
         subjects = [
           ...subjects,
-          ...pipe(collectModuleSubject(payload), O.match({ onNone: A.empty, onSome: (subject) => [subject] })),
+          ...pipe(
+            collectModuleSubject(payload),
+            O.match({
+              onNone: A.empty,
+              onSome: (subject) => [subject],
+            })
+          ),
           ...collectReExportSubjects(),
           ...collectDirectExportSubjects(payload),
         ];
@@ -1275,7 +1324,7 @@ const withGeneratedDocSnippets = Effect.fn("DocgenQuality.withGeneratedDocSnippe
     );
     return snippet === subject.generatedDocSnippet
       ? subject
-      : new DocgenQualitySubject({
+      : DocgenQualitySubject.make({
           ...subject,
           generatedDocSnippet: snippet,
         });
@@ -1344,7 +1393,7 @@ const makeFinding = ({
   readonly scoreImpact: number;
   readonly tier: DocgenQualityTier;
 }): DocgenQualityFinding =>
-  new DocgenQualityFinding({
+  DocgenQualityFinding.make({
     code,
     evidence,
     message,
@@ -1463,7 +1512,7 @@ const scoreSubject = (subject: DocgenQualitySubject): DocgenQualityReview => {
     );
   }
 
-  if (/Effect(\.|<)/.test(subject.signature) && !hasTag(subject.tags, "@effects")) {
+  if (/Effect([.<])/.test(subject.signature) && !hasTag(subject.tags, "@effects")) {
     findings = addFinding(
       findings,
       makeFinding({
@@ -1495,7 +1544,7 @@ const scoreSubject = (subject: DocgenQualitySubject): DocgenQualityReview => {
           " "
         );
 
-  return new DocgenQualityReview({
+  return DocgenQualityReview.make({
     subjectId: subject.stableIdentity,
     tier,
     score,
@@ -1510,7 +1559,7 @@ const summarizeReviews = (
   reviews: ReadonlyArray<DocgenQualityReview>,
   remediationPackets: number
 ): DocgenQualitySummary =>
-  new DocgenQualitySummary({
+  DocgenQualitySummary.make({
     packages,
     subjects,
     passing: A.filter(reviews, (review) => review.tier === "pass").length,
@@ -1532,7 +1581,7 @@ const emptyPackageReport = ({
   readonly target: DocgenWorkspacePackage;
   readonly timedOut: boolean;
 }): DocgenQualityPackageReport =>
-  new DocgenQualityPackageReport({
+  DocgenQualityPackageReport.make({
     packageName: target.name,
     packagePath: target.relativePath,
     status,
@@ -1568,7 +1617,7 @@ const makeRemediationPacket = (
   subject: DocgenQualitySubject,
   review: DocgenQualityReview
 ): DocgenQualityRemediationPacket =>
-  new DocgenQualityRemediationPacket({
+  DocgenQualityRemediationPacket.make({
     id: `${subject.contentHash}:jsdoc-quality`,
     subjectId: subject.stableIdentity,
     title: `Improve JSDoc for ${subject.exportName}`,
@@ -1577,13 +1626,18 @@ const makeRemediationPacket = (
     verificationArgv: ["bun", "run", "beep", "docgen", "quality", "-p", subject.packagePath, "--json"],
   });
 
-type RemediationPacketCandidate = {
-  readonly impact: number;
-  readonly isFail: boolean;
-  readonly packagePath: string;
-  readonly packet: DocgenQualityRemediationPacket;
-  readonly subjectId: string;
-};
+class RemediationPacketCandidate extends S.Class<RemediationPacketCandidate>($I`RemediationPacketCandidate`)(
+  {
+    impact: S.Number,
+    isFail: S.Boolean,
+    packagePath: S.String,
+    packet: DocgenQualityRemediationPacket,
+    subjectId: S.String,
+  },
+  $I.annote("RemediationPacketCandidate", {
+    description: "Candidate for remediation packet generation",
+  })
+) {}
 
 const packetCandidateOrder: Order.Order<RemediationPacketCandidate> = Order.combine(
   Order.mapInput(Order.Number, (candidate) => (candidate.isFail ? 0 : 1)),
@@ -1628,24 +1682,31 @@ const withRemediationPacketCount = (
   remediationPackets: number,
   omittedPacketCount: number
 ): DocgenQualityPackageReport =>
-  new DocgenQualityPackageReport({
+  DocgenQualityPackageReport.make({
     ...pkg,
     omittedPacketCount,
     summary: summarizeReviews(1, pkg.subjects.length, pkg.reviews, remediationPackets),
   });
 
+class PackageReportOptions extends S.Class<PackageReportOptions>($I`PackageReportOptions`)(
+  {
+    durationMs: S.Number,
+    error: S.NullOr(S.String),
+    status: DocgenQualityPackageStatus,
+    timedOut: S.Boolean,
+  },
+  $I.annote("PackageReportOptions", {
+    description: "Options for generating a package quality report",
+  })
+) {}
+
 const packageReport = (
   target: DocgenWorkspacePackage,
   subjects: ReadonlyArray<DocgenQualitySubject>,
-  options: {
-    readonly durationMs: number;
-    readonly error: string | null;
-    readonly status: DocgenQualityPackageStatus;
-    readonly timedOut: boolean;
-  }
+  options: PackageReportOptions
 ): DocgenQualityPackageReport => {
   const reviews = A.map(subjects, scoreSubject);
-  return new DocgenQualityPackageReport({
+  return DocgenQualityPackageReport.make({
     packageName: target.name,
     packagePath: target.relativePath,
     status: options.status,
@@ -1717,15 +1778,16 @@ export const analyzePackageQuality = Effect.fn("DocgenQuality.analyzePackageQual
     Effect.result,
     Effect.map(
       Result.match({
-        onFailure: (error) =>
+        onFailure: flow(errorMessage, (error) =>
           emptyPackageReport({
             durationMs: budgetDurationMs(budget),
-            error: errorMessage(error),
+            error: error,
             status: "failed",
             target,
             timedOut: false,
-          }),
-        onSuccess: (report) => report,
+          })
+        ),
+        onSuccess: identity,
       })
     )
   );
@@ -1798,7 +1860,7 @@ export const analyzeDocgenQuality = Effect.fn("DocgenQuality.analyzeDocgenQualit
   );
   const remediationPackets = A.map(selectedCandidates, (candidate) => candidate.packet);
 
-  return new DocgenQualityReport({
+  return DocgenQualityReport.make({
     schemaVersion: QUALITY_SCHEMA_VERSION,
     rubricVersion: QUALITY_RUBRIC_VERSION,
     generatedAt: timestampIso(),

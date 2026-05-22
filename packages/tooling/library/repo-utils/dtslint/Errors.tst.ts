@@ -16,7 +16,7 @@ describe("Errors", () => {
     });
 
     it("is constructible", () => {
-      const err = new NoSuchFileError({ path: "/foo", message: "not found" });
+      const err = NoSuchFileError.make({ path: "/foo", message: "not found" });
       expect(err).type.toBeAssignableTo<NoSuchFileError>();
     });
   });
@@ -31,7 +31,7 @@ describe("Errors", () => {
     });
 
     it("is constructible with optional cause", () => {
-      const err = new DomainError({ message: "failed" });
+      const err = DomainError.make({ message: "failed" });
       expect(err).type.toBeAssignableTo<DomainError>();
     });
   });

@@ -1,27 +1,234 @@
 /**
- * Primary schemas for CSV parser options.
+ * The \@beep/schema/ParserOptions parser options configuration.
  *
  * @packageDocumentation
  * @since 0.0.0
  */
 
+import { $SchemaId } from "@beep/identity";
+import { Effect, Number as Num, pipe, RegExp as Regex, Result } from "effect";
+import * as O from "effect/Option";
+import * as P from "effect/Predicate";
+import * as S from "effect/Schema";
+import { BuffEncoding } from "../BufferEncoding.ts";
+import { NonNegativeInt } from "../Int.ts";
+import { RegExpFromStr } from "../RegExp.ts";
+import { TaggedErrorClass, type TaggedErrorClassFromFields } from "../TaggedErrorClass/index.ts";
+import { HeaderArray, HeaderTransformFunction } from "./ParserOptions.types.ts";
+
+const $I = $SchemaId.create("ParserOptions");
+
+const parserOptionsParseOptions = {
+  exact: true as const,
+  onExcessProperty: "error" as const,
+};
+
+const SingleCharacterText = S.String.check(
+  S.isLengthBetween(1, 1, {
+    description: "A string that must contain exactly one character.",
+    message: "delimiter option must be one character long",
+  })
+).annotate(
+  $I.annote("SingleCharacterText", {
+    description: "A string that must contain exactly one character.",
+  })
+);
+
+const decodeRegExpResult = S.decodeResult(RegExpFromStr);
+const ParserOptionsErrorFields = {
+  cause: S.OptionFromOptionalKey(S.DefectWithStack),
+  message: S.String,
+} satisfies S.Struct.Fields;
+const ParserOptionsErrorBase: TaggedErrorClassFromFields<
+  ParserOptionsError,
+  "ParserOptionsError",
+  typeof ParserOptionsErrorFields
+> = TaggedErrorClass<ParserOptionsError>($I.make("ParserOptionsError"))(
+  "ParserOptionsError",
+  ParserOptionsErrorFields,
+  $I.annote("ParserOptionsError", {
+    description: "Raised when CSV parser options cannot be decoded or normalized.",
+  })
+);
+
 /**
- * Public schema module export.
+ * A parser header configuration input.
  *
- * @category type-level
+ * @category configuration
  * @since 0.0.0
  */
-export type { ParserOptionsArgs } from "../csv/parse/ParserOptions.ts";
+export const HeaderValueInput = S.Union([S.Boolean, HeaderArray, HeaderTransformFunction]).pipe(
+  $I.annoteSchema("HeaderValueInput", {
+    description: "A parser header configuration input.",
+  })
+);
+
 /**
- * Canonical aliases for the parser options module.
+ * {@inheritDoc HeaderValueInput}
+ *
+ * @category configuration
+ * @since 0.0.0
+ */
+export type HeaderValueInput = typeof HeaderValueInput.Type;
+
+/**
+ * A parser options configuration error.
+ *
+ * @category validation
+ * @since 0.0.0
+ */
+export class ParserOptionsError extends ParserOptionsErrorBase {}
+
+const toParserOptionsError = (fallbackMessage: string, cause?: unknown): ParserOptionsError =>
+  ParserOptionsError.make({
+    cause: P.isError(cause) ? O.some(cause) : O.none(),
+    message: P.isError(cause) ? cause.message : P.isUndefined(cause) ? fallbackMessage : String(cause),
+  });
+
+const buildNextTokenRegExp = (escapedDelimiter: string): globalThis.RegExp =>
+  pipe(
+    decodeRegExpResult(`([^\\s]|\\r\\n|\\n|\\r|${escapedDelimiter})`),
+    Result.getOrThrowWith((cause) =>
+      toParserOptionsError("Failed to build parser next-token regular expression.", cause)
+    )
+  );
+
+/**
+ * Schema-backed CSV parser options.
+ *
+ * Derived runtime fields from the original implementation such as
+ * `escapedDelimiter`, `escapeChar`, `supportsComments`, `limitRows`, and
+ * `NEXT_TOKEN_REGEXP` are exposed as getters so the schema stays focused on the
+ * true input/configuration surface.
+ *
+ * @category configuration
+ * @since 0.0.0
+ */
+export class ParserOptions extends S.Class<ParserOptions>($I`ParserOptions`)(
+  {
+    objectMode: S.Boolean.pipe(
+      S.withConstructorDefault(Effect.succeed(true)),
+      S.withDecodingDefaultKey(Effect.succeed(true))
+    ),
+    delimiter: SingleCharacterText.pipe(
+      S.withConstructorDefault(Effect.succeed(",")),
+      S.withDecodingDefaultKey(Effect.succeed(","))
+    ),
+    ignoreEmpty: S.Boolean.pipe(
+      S.withConstructorDefault(Effect.succeed(false)),
+      S.withDecodingDefaultKey(Effect.succeed(false))
+    ),
+    quote: S.OptionFromNullOr(S.String).pipe(
+      S.withConstructorDefault(Effect.succeed(O.some('"'))),
+      S.withDecodingDefaultKey(Effect.succeed('"'))
+    ),
+    escape: S.OptionFromNullOr(S.String).pipe(
+      S.withConstructorDefault(Effect.succeed(O.none<string>())),
+      S.withDecodingDefaultKey(Effect.succeed(null))
+    ),
+    comment: S.OptionFromNullOr(S.String).pipe(
+      S.withConstructorDefault(Effect.succeed(O.none<string>())),
+      S.withDecodingDefaultKey(Effect.succeed(null))
+    ),
+    ltrim: S.Boolean.pipe(
+      S.withConstructorDefault(Effect.succeed(false)),
+      S.withDecodingDefaultKey(Effect.succeed(false))
+    ),
+    rtrim: S.Boolean.pipe(
+      S.withConstructorDefault(Effect.succeed(false)),
+      S.withDecodingDefaultKey(Effect.succeed(false))
+    ),
+    trim: S.Boolean.pipe(
+      S.withConstructorDefault(Effect.succeed(false)),
+      S.withDecodingDefaultKey(Effect.succeed(false))
+    ),
+    headers: S.OptionFromNullOr(HeaderValueInput).pipe(
+      S.withConstructorDefault(Effect.succeed(O.none<HeaderValueInput>())),
+      S.withDecodingDefaultKey(Effect.succeed(null))
+    ),
+    renameHeaders: S.Boolean.pipe(
+      S.withConstructorDefault(Effect.succeed(false)),
+      S.withDecodingDefaultKey(Effect.succeed(false))
+    ),
+    strictColumnHandling: S.Boolean.pipe(
+      S.withConstructorDefault(Effect.succeed(false)),
+      S.withDecodingDefaultKey(Effect.succeed(false))
+    ),
+    discardUnmappedColumns: S.Boolean.pipe(
+      S.withConstructorDefault(Effect.succeed(false)),
+      S.withDecodingDefaultKey(Effect.succeed(false))
+    ),
+    carriageReturn: S.String.pipe(
+      S.withConstructorDefault(Effect.succeed("\r")),
+      S.withDecodingDefaultKey(Effect.succeed("\r"))
+    ),
+    encoding: BuffEncoding.pipe(
+      S.withConstructorDefault(Effect.succeed(BuffEncoding.Enum.utf8)),
+      S.withDecodingDefaultKey(Effect.succeed(BuffEncoding.Enum.utf8))
+    ),
+    maxRows: NonNegativeInt.pipe(
+      S.withConstructorDefault(Effect.succeed(0)),
+      S.withDecodingDefaultKey(Effect.succeed(0))
+    ),
+    skipLines: NonNegativeInt.pipe(
+      S.withConstructorDefault(Effect.succeed(0)),
+      S.withDecodingDefaultKey(Effect.succeed(0))
+    ),
+    skipRows: NonNegativeInt.pipe(
+      S.withConstructorDefault(Effect.succeed(0)),
+      S.withDecodingDefaultKey(Effect.succeed(0))
+    ),
+  },
+  $I.annote("ParserOptions", {
+    description: "Schema-backed CSV parser options.",
+    parseOptions: parserOptionsParseOptions,
+  })
+) {
+  /**
+   * Decode raw parser option input into a normalized {@link ParserOptions}
+   * instance.
+   */
+  static readonly new = (input?: ParserOptionsArgs): ParserOptions =>
+    pipe(
+      decodeParserOptionsUnknownResult(input ?? {}, parserOptionsParseOptions),
+      Result.getOrThrowWith((cause) => toParserOptionsError("Failed to decode parser options.", cause))
+    );
+
+  get escapedDelimiter(): string {
+    return Regex.escape(this.delimiter);
+  }
+
+  get escapeChar(): O.Option<string> {
+    return O.orElse(() => this.quote)(this.escape);
+  }
+
+  get supportsComments(): boolean {
+    return O.isSome(this.comment);
+  }
+
+  get limitRows(): boolean {
+    return Num.isGreaterThan(0)(this.maxRows);
+  }
+
+  get NEXT_TOKEN_REGEXP(): globalThis.RegExp {
+    return buildNextTokenRegExp(this.escapedDelimiter);
+  }
+}
+
+const decodeParserOptionsUnknownResult = S.decodeUnknownResult(ParserOptions);
+
+/**
+ * Encoded/raw constructor input for {@link ParserOptions}.
+ *
+ * @category configuration
+ * @since 0.0.0
+ */
+export type ParserOptionsArgs = typeof ParserOptions.Encoded;
+
+/**
+ * Public aliases for concise namespace roles.
  *
  * @category schemas
  * @since 0.0.0
  */
-export {
-  HeaderValueInput,
-  ParserOptions as Schema,
-  ParserOptions,
-  ParserOptionsError as Error,
-  ParserOptionsError,
-} from "../csv/parse/ParserOptions.ts";
+export { ParserOptions as Schema, ParserOptionsError as Error };

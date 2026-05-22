@@ -3,6 +3,16 @@
     "graphiti-memory": {
       "type": "http",
       "url": "http://localhost:8123/mcp"
+    },
+    "serena": {
+      "type": "stdio",
+      "command": "serena",
+      "args": [
+        "start-mcp-server",
+        "--context", "claude-code",
+        "--language-backend", "JetBrains",
+        "--project-from-cwd"
+      ]
     }
   }
 }

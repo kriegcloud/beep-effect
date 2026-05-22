@@ -9,7 +9,7 @@
 
 import { $RepoCliId } from "@beep/identity/packages";
 import { isExcludedTypeScriptSourcePath } from "@beep/repo-utils/schemas/TypeScriptSourceExclusions";
-import { normalizePath, TaggedErrorClass } from "@beep/schema";
+import { normalizePath } from "@beep/schema";
 import { A, Str, thunkEmptyStr } from "@beep/utils";
 import { Console, Effect, FileSystem, HashSet, Inspectable, MutableHashSet, Order, Path, pipe } from "effect";
 import * as O from "effect/Option";
@@ -17,8 +17,10 @@ import * as S from "effect/Schema";
 import { Command } from "effect/unstable/cli";
 import madge from "madge";
 import { printLines } from "../../internal/cli/Printer.js";
+import { LintCircularAnalysisError, LintFileDiscoveryError } from "./Lint.errors.js";
 import { lintPackageTestImportsCommand } from "./PackageTestImports.js";
 import { lintSchemaFirstCommand } from "./SchemaFirst.ts";
+import { lintSchemaTopologyCommand } from "./SchemaTopology.ts";
 
 const $I = $RepoCliId.create("commands/Lint/Lint.command");
 
@@ -70,42 +72,8 @@ class LintViolation extends S.Class<LintViolation>($I`LintViolation`)(
   })
 ) {}
 
-class LintCircularAnalysisError extends TaggedErrorClass<LintCircularAnalysisError>($I`LintCircularAnalysisError`)(
-  "LintCircularAnalysisError",
-  {
-    message: S.String,
-  },
-  $I.annote("LintCircularAnalysisError", {
-    description: "Circular dependency analysis failed for a target directory.",
-  })
-) {}
-
-class LintFileDiscoveryError extends TaggedErrorClass<LintFileDiscoveryError>($I`LintFileDiscoveryError`)(
-  "LintFileDiscoveryError",
-  {
-    message: S.String,
-    root: S.String,
-    path: S.String,
-  },
-  $I.annote("LintFileDiscoveryError", {
-    description: "TypeScript file discovery failed for a lint root.",
-  })
-) {}
-
 const lineNumberAt = (content: string, offset: number): number =>
   pipe(content, Str.slice(0, offset), Str.split("\n"), A.length);
-
-const toLintFileDiscoveryError =
-  (root: string, currentPath: string, action: string) =>
-  (cause: unknown): LintFileDiscoveryError =>
-    new LintFileDiscoveryError({
-      message: `${action} "${currentPath}" while collecting TypeScript files under "${root}": ${Inspectable.toStringUnknown(
-        cause,
-        0
-      )}`,
-      root,
-      path: currentPath,
-    });
 
 const isContainedLintPath = (path: Path.Path, root: string, candidate: string): boolean => {
   const relativeFromRoot = normalizePath(path.relative(root, candidate));
@@ -134,9 +102,7 @@ export const collectTypeScriptFiles = Effect.fn("Lint.collectTypeScriptFiles")(f
 ): Effect.fn.Return<ReadonlyArray<string>, LintFileDiscoveryError, FileSystem.FileSystem | Path.Path> {
   const fs = yield* FileSystem.FileSystem;
   const path = yield* Path.Path;
-  const exists = yield* fs
-    .exists(root)
-    .pipe(Effect.mapError(toLintFileDiscoveryError(root, root, "Failed to check directory")));
+  const exists = yield* fs.exists(root).pipe(LintFileDiscoveryError.mapError(root, root, "Failed to check directory"));
 
   if (!exists) {
     return A.empty<string>();
@@ -145,7 +111,7 @@ export const collectTypeScriptFiles = Effect.fn("Lint.collectTypeScriptFiles")(f
   const rootResolvedPath = path.resolve(root);
   const canonicalRoot = yield* fs
     .realPath(root)
-    .pipe(Effect.mapError(toLintFileDiscoveryError(root, root, "Failed to resolve canonical root path")));
+    .pipe(LintFileDiscoveryError.mapError(root, root, "Failed to resolve canonical root path"));
 
   if (rootResolvedPath !== canonicalRoot) {
     return A.empty<string>();
@@ -158,7 +124,7 @@ export const collectTypeScriptFiles = Effect.fn("Lint.collectTypeScriptFiles")(f
   ): Effect.fn.Return<ReadonlyArray<string>, LintFileDiscoveryError, FileSystem.FileSystem | Path.Path> {
     const canonicalCurrentPath = yield* fs
       .realPath(currentPath)
-      .pipe(Effect.mapError(toLintFileDiscoveryError(root, currentPath, "Failed to resolve canonical path")));
+      .pipe(LintFileDiscoveryError.mapError(root, currentPath, "Failed to resolve canonical path"));
 
     if (!isContainedLintPath(path, canonicalRoot, canonicalCurrentPath)) {
       return A.empty<string>();
@@ -176,7 +142,7 @@ export const collectTypeScriptFiles = Effect.fn("Lint.collectTypeScriptFiles")(f
 
     const entries = yield* fs
       .readDirectory(currentPath)
-      .pipe(Effect.mapError(toLintFileDiscoveryError(root, currentPath, "Failed to read directory")));
+      .pipe(LintFileDiscoveryError.mapError(root, currentPath, "Failed to read directory"));
 
     let results = A.empty<string>();
 
@@ -184,10 +150,10 @@ export const collectTypeScriptFiles = Effect.fn("Lint.collectTypeScriptFiles")(f
       const candidate = path.join(currentPath, entry);
       const canonicalCandidate = yield* fs
         .realPath(candidate)
-        .pipe(Effect.mapError(toLintFileDiscoveryError(root, candidate, "Failed to resolve canonical path")));
+        .pipe(LintFileDiscoveryError.mapError(root, candidate, "Failed to resolve canonical path"));
       const stat = yield* fs
         .stat(candidate)
-        .pipe(Effect.mapError(toLintFileDiscoveryError(root, candidate, "Failed to stat path")));
+        .pipe(LintFileDiscoveryError.mapError(root, candidate, "Failed to stat path"));
 
       if (!isContainedLintPath(path, canonicalRoot, canonicalCandidate)) {
         continue;
@@ -227,7 +193,7 @@ const collectToolingSourceRoots = Effect.fn("Lint.collectToolingSourceRoots")(fu
   const toolingRoot = path.join("packages", "tooling");
   const exists = yield* fs
     .exists(toolingRoot)
-    .pipe(Effect.mapError(toLintFileDiscoveryError(toolingRoot, toolingRoot, "Failed to check directory")));
+    .pipe(LintFileDiscoveryError.mapError(toolingRoot, toolingRoot, "Failed to check directory"));
 
   if (!exists) {
     return A.empty<string>();
@@ -235,7 +201,7 @@ const collectToolingSourceRoots = Effect.fn("Lint.collectToolingSourceRoots")(fu
 
   const kindEntries = yield* fs
     .readDirectory(toolingRoot)
-    .pipe(Effect.mapError(toLintFileDiscoveryError(toolingRoot, toolingRoot, "Failed to read directory")));
+    .pipe(LintFileDiscoveryError.mapError(toolingRoot, toolingRoot, "Failed to read directory"));
 
   let roots = A.empty<string>();
 
@@ -243,13 +209,13 @@ const collectToolingSourceRoots = Effect.fn("Lint.collectToolingSourceRoots")(fu
     const kindRoot = path.join(toolingRoot, kindEntry);
     const packageEntries = yield* fs
       .readDirectory(kindRoot)
-      .pipe(Effect.mapError(toLintFileDiscoveryError(toolingRoot, kindRoot, "Failed to read directory")));
+      .pipe(LintFileDiscoveryError.mapError(toolingRoot, kindRoot, "Failed to read directory"));
 
     for (const packageEntry of packageEntries) {
       const sourceRoot = path.join(kindRoot, packageEntry, "src");
       const sourceRootExists = yield* fs
         .exists(sourceRoot)
-        .pipe(Effect.mapError(toLintFileDiscoveryError(toolingRoot, sourceRoot, "Failed to check directory")));
+        .pipe(LintFileDiscoveryError.mapError(toolingRoot, sourceRoot, "Failed to check directory"));
 
       if (sourceRootExists) {
         roots = A.append(roots, sourceRoot);
@@ -297,7 +263,7 @@ const runLintToolingTaggedErrors = Effect.fn("runLintToolingTaggedErrors")(funct
     const content = yield* fs
       .readFileString(file)
       .pipe(
-        Effect.mapError(toLintFileDiscoveryError(file, file, "Failed to read file")),
+        LintFileDiscoveryError.mapError(file, file, "Failed to read file"),
         Effect.catchTag("LintFileDiscoveryError", recoverLintFileDiscovery("check-tooling-tagged-errors", ""))
       );
 
@@ -357,7 +323,7 @@ const runLintToolingSchemaFirst = Effect.fn("runLintToolingSchemaFirst")(functio
     const pushViolation = (kind: string, detail: string, offset = 0): void => {
       violations = A.append(
         violations,
-        new LintViolation({
+        LintViolation.make({
           file,
           line: lineNumberAt(content, offset),
           kind,
@@ -472,7 +438,7 @@ const runLintToolingSchemaFirst = Effect.fn("runLintToolingSchemaFirst")(functio
       if (usesLiteralKitPattern && !usesTaggedUnionFallback) {
         violations = A.append(
           violations,
-          new LintViolation({
+          LintViolation.make({
             file,
             line: lineNumberAt(content, match.index),
             kind: "tagged-union-pattern",
@@ -486,7 +452,7 @@ const runLintToolingSchemaFirst = Effect.fn("runLintToolingSchemaFirst")(functio
     if (!found) {
       violations = A.append(
         violations,
-        new LintViolation({
+        LintViolation.make({
           file: TOOLING_ROOT,
           line: 1,
           kind: "missing-schema",
@@ -527,9 +493,9 @@ const runLintCircular = Effect.fn("runLintCircular")(function* () {
           detectiveOptions: { ts: { skipTypeImports: true } },
         }),
       catch: (cause) =>
-        new LintCircularAnalysisError({
-          message: `Failed to analyze circular deps in ${dir}: ${Inspectable.toStringUnknown(cause, 0)}`,
-        }),
+        LintCircularAnalysisError.new(
+          `Failed to analyze circular deps in ${dir}: ${Inspectable.toStringUnknown(cause, 0)}`
+        ),
     });
 
     const circular = result.circular();
@@ -611,6 +577,7 @@ export const lintCommand = Command.make("lint", {}, () =>
     "- bun run beep lint circular",
     "- bun run beep lint package-test-imports",
     "- bun run beep lint schema-first",
+    "- bun run beep lint schema-topology",
     "- bun run beep lint tooling-tagged-errors",
     "- bun run beep lint tooling-schema-first",
   ])
@@ -620,6 +587,7 @@ export const lintCommand = Command.make("lint", {}, () =>
     lintCircularCommand,
     lintPackageTestImportsCommand,
     lintSchemaFirstCommand,
+    lintSchemaTopologyCommand,
     lintToolingTaggedErrorsCommand,
     lintToolingSchemaFirstCommand,
   ])

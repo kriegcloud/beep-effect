@@ -196,7 +196,7 @@ export type SafeFramePrefix = typeof SafeFramePrefix.Type;
  * ```ts
  * import { FFmpegConfigInput } from "@beep/ffmpeg"
  *
- * const config = new FFmpegConfigInput({ ffmpegPath: "ffmpeg", ffprobePath: "ffprobe" })
+ * const config = FFmpegConfigInput.make({ ffmpegPath: "ffmpeg", ffprobePath: "ffprobe" })
  * void config
  * ```
  *
@@ -221,7 +221,7 @@ export class FFmpegConfigInput extends S.Class<FFmpegConfigInput>($I`FFmpegConfi
  * ```ts
  * import { FFmpegConfig } from "@beep/ffmpeg"
  *
- * const config = new FFmpegConfig({
+ * const config = FFmpegConfig.make({
  *   ffmpegPath: "ffmpeg",
  *   ffprobePath: "ffprobe",
  *   forceKillAfterMillis: 2000
@@ -250,7 +250,7 @@ export class FFmpegConfig extends S.Class<FFmpegConfig>($I`FFmpegConfig`)(
  * ```ts
  * import { ProbeVideoRequest } from "@beep/ffmpeg"
  *
- * const request = new ProbeVideoRequest({ videoPath: "./clip.mp4" })
+ * const request = ProbeVideoRequest.make({ videoPath: "./clip.mp4" })
  * void request
  * ```
  *
@@ -273,7 +273,7 @@ export class ProbeVideoRequest extends S.Class<ProbeVideoRequest>($I`ProbeVideoR
  * ```ts
  * import { VideoProbe } from "@beep/ffmpeg"
  *
- * const probe = new VideoProbe({ videoPath: "./clip.mp4", durationSeconds: 3 })
+ * const probe = VideoProbe.make({ videoPath: "./clip.mp4", durationSeconds: 3 })
  * void probe
  * ```
  *
@@ -302,7 +302,7 @@ export class VideoProbe extends S.Class<VideoProbe>($I`VideoProbe`)(
  * import { ExtractFramesRequest } from "@beep/ffmpeg"
  * import * as O from "effect/Option"
  *
- * const request = new ExtractFramesRequest({
+ * const request = ExtractFramesRequest.make({
  *   fps: 1,
  *   manifestPath: O.none(),
  *   outDir: "./frames",
@@ -346,7 +346,7 @@ export class ExtractFramesRequest extends S.Class<ExtractFramesRequest>($I`Extra
  * ```ts
  * import { ExtractedFrame } from "@beep/ffmpeg"
  *
- * const frame = new ExtractedFrame({
+ * const frame = ExtractedFrame.make({
  *   fileName: "clip_frame_00000.png",
  *   index: 0,
  *   path: "./frames/clip_frame_00000.png",
@@ -377,7 +377,7 @@ export class ExtractedFrame extends S.Class<ExtractedFrame>($I`ExtractedFrame`)(
  * ```ts
  * import { ExtractFramesManifestOptions } from "@beep/ffmpeg"
  *
- * const options = new ExtractFramesManifestOptions({ fps: 1, overwrite: false, prefix: "clip_frame" })
+ * const options = ExtractFramesManifestOptions.make({ fps: 1, overwrite: false, prefix: "clip_frame" })
  * void options
  * ```
  *
@@ -404,7 +404,7 @@ export class ExtractFramesManifestOptions extends S.Class<ExtractFramesManifestO
  * ```ts
  * import { ExtractFramesManifestSummary } from "@beep/ffmpeg"
  *
- * const summary = new ExtractFramesManifestSummary({ frameCount: 3 })
+ * const summary = ExtractFramesManifestSummary.make({ frameCount: 3 })
  * void summary
  * ```
  *
@@ -429,15 +429,15 @@ export class ExtractFramesManifestSummary extends S.Class<ExtractFramesManifestS
  * ```ts
  * import { ExtractFramesManifest, ExtractFramesManifestOptions, ExtractFramesManifestSummary } from "@beep/ffmpeg"
  *
- * const manifest = new ExtractFramesManifest({
+ * const manifest = ExtractFramesManifest.make({
  *   frames: [],
  *   manifestPath: "./frames/extract-frames-manifest.json",
- *   options: new ExtractFramesManifestOptions({ fps: 1, overwrite: false, prefix: "clip_frame" }),
+ *   options: ExtractFramesManifestOptions.make({ fps: 1, overwrite: false, prefix: "clip_frame" }),
  *   outputDirectory: "./frames",
  *   probe: { videoPath: "./clip.mp4" },
  *   schemaVersion: "beep.ffmpeg.extract-frames.v1",
  *   sourceVideo: "./clip.mp4",
- *   summary: new ExtractFramesManifestSummary({ frameCount: 0 })
+ *   summary: ExtractFramesManifestSummary.make({ frameCount: 0 })
  * })
  * void manifest
  * ```
@@ -468,7 +468,7 @@ export class ExtractFramesManifest extends S.Class<ExtractFramesManifest>($I`Ext
  * ```ts
  * import { ExtractFramesResult } from "@beep/ffmpeg"
  *
- * const result = new ExtractFramesResult({
+ * const result = ExtractFramesResult.make({
  *   frameCount: 0,
  *   frames: [],
  *   manifestPath: "./frames/extract-frames-manifest.json",
@@ -501,7 +501,7 @@ export class ExtractFramesResult extends S.Class<ExtractFramesResult>($I`Extract
  * ```ts
  * import { FFmpegStartedEvent } from "@beep/ffmpeg"
  *
- * const event = new FFmpegStartedEvent({
+ * const event = FFmpegStartedEvent.make({
  *   args: [],
  *   command: "ffmpeg",
  *   kind: "started",
@@ -534,7 +534,7 @@ export class FFmpegStartedEvent extends S.Class<FFmpegStartedEvent>($I`FFmpegSta
  * ```ts
  * import { FFmpegProgressEvent } from "@beep/ffmpeg"
  *
- * const event = new FFmpegProgressEvent({ frameCount: 1, kind: "progress", percent: 50, progress: "continue" })
+ * const event = FFmpegProgressEvent.make({ frameCount: 1, kind: "progress", percent: 50, progress: "continue" })
  * void event
  * ```
  *
@@ -562,7 +562,7 @@ export class FFmpegProgressEvent extends S.Class<FFmpegProgressEvent>($I`FFmpegP
  * ```ts
  * import { FFmpegCompletedEvent } from "@beep/ffmpeg"
  *
- * const event = new FFmpegCompletedEvent({
+ * const event = FFmpegCompletedEvent.make({
  *   frameCount: 1,
  *   kind: "completed",
  *   manifestPath: "./frames/extract-frames-manifest.json",
@@ -662,15 +662,15 @@ export const decodeProbeVideoRequest = S.decodeUnknownEffect(ProbeVideoRequest);
  * ```ts
  * import { encodeExtractFramesManifest, ExtractFramesManifest, ExtractFramesManifestOptions, ExtractFramesManifestSummary } from "@beep/ffmpeg"
  *
- * const encoded = encodeExtractFramesManifest(new ExtractFramesManifest({
+ * const encoded = encodeExtractFramesManifest(ExtractFramesManifest.make({
  *   frames: [],
  *   manifestPath: "./frames/extract-frames-manifest.json",
- *   options: new ExtractFramesManifestOptions({ fps: 1, overwrite: false, prefix: "clip_frame" }),
+ *   options: ExtractFramesManifestOptions.make({ fps: 1, overwrite: false, prefix: "clip_frame" }),
  *   outputDirectory: "./frames",
  *   probe: { videoPath: "./clip.mp4" },
  *   schemaVersion: "beep.ffmpeg.extract-frames.v1",
  *   sourceVideo: "./clip.mp4",
- *   summary: new ExtractFramesManifestSummary({ frameCount: 0 })
+ *   summary: ExtractFramesManifestSummary.make({ frameCount: 0 })
  * }))
  * void encoded
  * ```

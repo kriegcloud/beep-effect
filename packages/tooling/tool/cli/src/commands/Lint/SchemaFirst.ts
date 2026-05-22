@@ -330,7 +330,7 @@ const scanSchemaFirstInventory = Effect.fn(function* () {
   ) =>
     void A.appendInPlace(
       entries,
-      new SchemaFirstInventoryEntry({
+      SchemaFirstInventoryEntry.make({
         file,
         symbol,
         kind,
@@ -407,7 +407,7 @@ const scanSchemaFirstInventory = Effect.fn(function* () {
     }
   }
 
-  return new SchemaFirstInventoryDocument({
+  return SchemaFirstInventoryDocument.make({
     version: 1,
     generatedOn: todayYmd(),
     scope: A.fromIterable(INCLUDED_GLOBS),
@@ -435,7 +435,7 @@ const mergeInventory = (
     A.map((entry) => O.getOrElse(HashMap.get(existingByKey, makeEntryKey(entry)), () => entry))
   );
 
-  return new SchemaFirstInventoryDocument({
+  return SchemaFirstInventoryDocument.make({
     version: 1,
     generatedOn: liveDocument.generatedOn,
     scope: liveDocument.scope,
@@ -528,7 +528,7 @@ export const runSchemaFirstLint = Effect.fn(function* (options: SchemaFirstLintO
     process.exitCode = 1;
   }
 
-  return new SchemaFirstLintSummary({
+  return SchemaFirstLintSummary.make({
     liveEntries: liveDocument.entries.length,
     trackedEntries: mergedDocument.entries.length,
     missingEntries: missingEntries.length,
@@ -554,6 +554,6 @@ export const lintSchemaFirstCommand = Command.make(
     write: Flag.boolean("write").pipe(Flag.withDescription("Refresh standards/schema-first.inventory.jsonc")),
   },
   Effect.fn(function* ({ write }) {
-    yield* runSchemaFirstLint(new SchemaFirstLintOptions({ write }));
+    yield* runSchemaFirstLint(SchemaFirstLintOptions.make({ write }));
   })
 ).pipe(Command.withDescription("Verify the repo-wide schema-first inventory baseline"));

@@ -186,7 +186,7 @@ const makePacket = (
   encoding: OtlpPacketEncoding,
   body: HttpBody.HttpBody
 ): OtlpPacket =>
-  new OtlpPacket({
+  OtlpPacket.make({
     kind,
     encoding,
     capturedAtMs: decodeNonNegativeInt(clock.currentTimeMillisUnsafe()),

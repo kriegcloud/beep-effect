@@ -1,18 +1,90 @@
 /**
- * Primary schemas for Ethereum validator public keys.
+ * Branded schema for canonical Ethereum validator public keys.
  *
- * @packageDocumentation
+ * Accepts lowercase `0x`-prefixed compressed BLS12-381 public keys.
+ *
  * @since 0.0.0
+ * @packageDocumentation
  */
+
+import { $SchemaId } from "@beep/identity/packages";
+import { flow, Redacted } from "effect";
+import * as S from "effect/Schema";
+import * as SchemaUtils from "../SchemaUtils/index.ts";
+
+const $I = $SchemaId.create("EthereumValidatorPublicKey");
+
+const ethereumValidatorPublicKeyPattern = /^0x[0-9a-f]{96}$/;
+
+const EthereumValidatorPublicKeyChecks = S.makeFilterGroup(
+  [
+    S.isPattern(ethereumValidatorPublicKeyPattern, {
+      identifier: $I`EthereumValidatorPublicKeyPatternCheck`,
+      title: "Ethereum Validator Public Key Pattern",
+      description: "A lowercase 0x-prefixed 48-byte compressed BLS12-381 public key.",
+      message: "EthereumValidatorPublicKey must be a lowercase 0x-prefixed 48-byte public key",
+    }),
+  ],
+  {
+    identifier: $I`EthereumValidatorPublicKeyChecks`,
+    title: "EthereumValidatorPublicKey",
+    description: "Checks for canonical Ethereum validator public keys.",
+  }
+);
+
 /**
- * Canonical aliases for the validator public key schema module.
+ * Branded schema for canonical Ethereum validator public keys.
+ *
+ * @since 0.0.0
+ * @category validation
+ */
+export const EthereumValidatorPublicKey = S.String.check(EthereumValidatorPublicKeyChecks).pipe(
+  S.brand("EthereumValidatorPublicKey"),
+  S.annotate(
+    $I.annote("EthereumValidatorPublicKey", {
+      description: "Canonical lowercase 0x-prefixed compressed Ethereum validator public key.",
+    })
+  )
+);
+
+/**
+ * Type for {@link EthereumValidatorPublicKey}.
+ *
+ * @since 0.0.0
+ * @category models
+ */
+export type EthereumValidatorPublicKey = typeof EthereumValidatorPublicKey.Type;
+
+/**
+ * Redacted schema for canonical Ethereum validator public keys.
+ *
+ * @since 0.0.0
+ * @category validation
+ */
+export const EthereumValidatorPublicKeyRedacted = EthereumValidatorPublicKey.pipe(
+  S.RedactedFromValue,
+  SchemaUtils.withStatics(() => ({
+    makeRedacted: flow(EthereumValidatorPublicKey.make, Redacted.make),
+  })),
+  S.annotate(
+    $I.annote("EthereumValidatorPublicKeyRedacted", {
+      description: "Redacted canonical lowercase 0x-prefixed compressed Ethereum validator public key.",
+    })
+  )
+);
+
+/**
+ * Type for {@link EthereumValidatorPublicKeyRedacted}.
+ *
+ * @since 0.0.0
+ * @category models
+ */
+export type EthereumValidatorPublicKeyRedacted = typeof EthereumValidatorPublicKeyRedacted.Type;
+
+/**
+ * Public aliases for concise namespace roles.
  *
  * @category schemas
  * @since 0.0.0
  */
-export {
-  EthereumValidatorPublicKey as Schema,
-  EthereumValidatorPublicKey,
-  EthereumValidatorPublicKeyRedacted as Redacted,
-  EthereumValidatorPublicKeyRedacted,
-} from "../blockchain/EthereumValidatorPublicKey.ts";
+export { EthereumValidatorPublicKey as Schema, EthereumValidatorPublicKeyRedacted as Redacted };

@@ -13,12 +13,12 @@ import { Cause, Effect, Metric } from "effect";
 import * as S from "effect/Schema";
 import { HttpApiSchema } from "effect/unstable/httpapi";
 
-const loggingConfig = new LoggingConfig({
+const loggingConfig = LoggingConfig.make({
   format: "json",
   minLogLevel: "Info",
 });
 
-const serverConfig = new ServerObservabilityConfig({
+const serverConfig = ServerObservabilityConfig.make({
   serviceName: "beep-server",
   serviceVersion: "0.0.0",
   environment: "test",
@@ -33,7 +33,7 @@ const serverConfig = new ServerObservabilityConfig({
 
 const started = Metric.counter("fixture_started_total");
 const httpMetrics = makeHttpApiMetrics("fixture_http_api");
-const httpDescriptor = new HttpApiTelemetryDescriptor({
+const httpDescriptor = HttpApiTelemetryDescriptor.make({
   apiName: "fixture-api",
   groupName: "fixture-group",
   endpointName: "health",
@@ -47,7 +47,7 @@ void layerLocalLgtmServer(serverConfig);
 void layerNodeSdkServer(serverConfig);
 void renderLogBanner("Server Safe", {
   kind: "phase",
-  pretty: new PrettyLoggerConfig({ theme: "forest", bannerMode: "phase" }),
+  pretty: PrettyLoggerConfig.make({ theme: "forest", bannerMode: "phase" }),
 });
 void observeWorkflow(
   {
