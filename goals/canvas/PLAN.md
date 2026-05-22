@@ -4,6 +4,10 @@
 
 This plan executes [SPEC.md](./SPEC.md) for bootstrap only.
 
+P1 and P2 are complete as of 2026-05-21. Evidence is recorded in
+`history/outputs/p1-p2-contract-proof.md` and
+`history/outputs/p1-prd-deferrals.md`.
+
 ## A. Preflight Review (Architectural Convergence)
 
 - [x] Read `goals/canvas/PRD_REFERENCE.md` and map bootstrap scope.
@@ -125,9 +129,9 @@ Goal: ship a runnable shell with typed Tauri command bridges.
 
 ### D.4 Exit Criteria for P1
 
-- [ ] `apps/canvas` starts successfully with `bun run dev` (or documented equivalent).
-- [ ] Tauri command invocations return typed responses and map through command contracts.
-- [ ] Health/status command proves app identity and returns deterministic fields.
+- [x] `apps/canvas` starts successfully with `bun run dev` (or documented equivalent).
+- [x] Tauri command invocations return typed responses and map through command contracts.
+- [x] Health/status command proves app identity and returns deterministic fields.
 
 ## E. Phase 2 — Minimal End-to-End Contract Proof
 
@@ -157,18 +161,18 @@ Goal: confirm the app + command layer + use-cases + domain contract is coherent.
 
 ### E.4 Exit Criteria for P2
 
-- [ ] At least one full create/modify/save/load roundtrip works end-to-end.
-- [ ] Boundary translation tests pass.
-- [ ] PRD-deferral list is explicit and reviewable.
+- [x] At least one full create/modify/save/load roundtrip works end-to-end.
+- [x] Boundary translation tests pass.
+- [x] PRD-deferral list is explicit and reviewable.
 
 ## Gates and Checks
 
 Run in this order before phase declaration:
 
-1. `bun run check --filter @beep/canvas-domain @beep/canvas-use-cases @beep/canvas-server @beep/canvas-client @beep/canvas-ui`
-2. `bun run test --filter @beep/canvas-domain @beep/canvas-use-cases @beep/canvas-server`
-3. `bun run lint --filter @beep/canvas-domain @beep/canvas-use-cases @beep/canvas-server`
-4. `cd apps/canvas && bun run build`
+1. `bunx turbo run check --filter=@beep/canvas --filter=@beep/canvas-domain --filter=@beep/canvas-use-cases --filter=@beep/canvas-server --filter=@beep/canvas-client --filter=@beep/canvas-ui`
+2. `bunx turbo run test --filter=@beep/canvas-domain --filter=@beep/canvas-use-cases --filter=@beep/canvas-server --filter=@beep/canvas`
+3. `bunx turbo run lint --filter=@beep/canvas --filter=@beep/canvas-domain --filter=@beep/canvas-use-cases --filter=@beep/canvas-server --filter=@beep/canvas-client --filter=@beep/canvas-ui`
+4. `bunx turbo run build --filter=@beep/canvas --filter=@beep/canvas-domain --filter=@beep/canvas-use-cases --filter=@beep/canvas-server --filter=@beep/canvas-client --filter=@beep/canvas-ui`
 5. `cd apps/canvas/src-tauri && cargo check`
 
 No later-phase implementation before both P0 and P1 exit criteria are met.

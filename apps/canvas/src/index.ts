@@ -1,11 +1,22 @@
 /**
  * Package entry point for `@beep/canvas`.
  *
+ * @packageDocumentation
+ * @category components
  * @since 0.0.0
  */
 
 /**
+ * Canvas app component exports.
+ *
+ * @category components
  * @since 0.0.0
- * @category Configuration
  */
-export const VERSION = "0.0.0" as const;
+export * from "./App.js";
+/**
+ * Canvas command bridge exports.
+ *
+ * @category commands
+ * @since 0.0.0
+ */
+export * from "./commandBridge.js";

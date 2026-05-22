@@ -1,0 +1,9 @@
+# OSV Scanner configuration shared by the GitHub security workflow and local
+# repo sanity checks.
+#
+# Keep this file present even when there are no accepted vulnerability ignores:
+# the workflow passes it explicitly with `--config=osv-scanner.toml`, and the
+# local Bun audit wrapper mirrors ignored vulnerability ids found here.
+#
+# Add ignored vulnerabilities only after review, with a reason and expiry date.
+# No vulnerability ids are ignored by default.

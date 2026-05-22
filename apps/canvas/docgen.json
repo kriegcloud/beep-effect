@@ -30,7 +30,92 @@
     "jsx": "react-jsx",
     "paths": {
       "@beep/canvas": ["../../apps/canvas/src/index.ts"],
-      "@beep/canvas/*": ["../../apps/canvas/src/*.ts"]
+      "@beep/canvas-domain": ["../../packages/canvas/domain/src/index.ts"],
+      "@beep/canvas-domain/aggregates": [
+        "../../packages/canvas/domain/src/aggregates/index.ts"
+      ],
+      "@beep/canvas-domain/aggregates/CanvasProject": [
+        "../../packages/canvas/domain/src/aggregates/CanvasProject/index.ts"
+      ],
+      "@beep/canvas-domain/identity": [
+        "../../packages/canvas/domain/src/identity/index.ts"
+      ],
+      "@beep/canvas-domain/identity/Canvas": [
+        "../../packages/canvas/domain/src/identity/Canvas.ts"
+      ],
+      "@beep/canvas-server": ["../../packages/canvas/server/src/index.ts"],
+      "@beep/canvas-server/layer": [
+        "../../packages/canvas/server/src/Layer.ts"
+      ],
+      "@beep/canvas-server/test": ["../../packages/canvas/server/src/test.ts"],
+      "@beep/canvas-server/aggregates/CanvasProject": [
+        "../../packages/canvas/server/src/aggregates/CanvasProject/index.ts"
+      ],
+      "@beep/canvas-use-cases": [
+        "../../packages/canvas/use-cases/src/index.ts"
+      ],
+      "@beep/canvas-use-cases/public": [
+        "../../packages/canvas/use-cases/src/public.ts"
+      ],
+      "@beep/canvas-use-cases/server": [
+        "../../packages/canvas/use-cases/src/server.ts"
+      ],
+      "@beep/canvas-use-cases/aggregates/CanvasProject": [
+        "../../packages/canvas/use-cases/src/aggregates/CanvasProject/index.ts"
+      ],
+      "@beep/canvas-use-cases/aggregates/CanvasProject/server": [
+        "../../packages/canvas/use-cases/src/aggregates/CanvasProject/server.ts"
+      ],
+      "@beep/identity": [
+        "../../packages/foundation/modeling/identity/src/index.ts"
+      ],
+      "@beep/identity/*": [
+        "../../packages/foundation/modeling/identity/src/*.ts"
+      ],
+      "@beep/identity/packages": [
+        "../../packages/foundation/modeling/identity/src/packages.ts"
+      ],
+      "@beep/schema": [
+        "../../packages/foundation/modeling/schema/src/index.ts"
+      ],
+      "@beep/schema/*": ["../../packages/foundation/modeling/schema/src/*.ts"],
+      "@beep/schema/color": [
+        "../../packages/foundation/modeling/schema/src/color/index.ts"
+      ],
+      "@beep/schema/csv/parse": [
+        "../../packages/foundation/modeling/schema/src/csv/parse/index.ts"
+      ],
+      "@beep/schema/dom": [
+        "../../packages/foundation/modeling/schema/src/dom/index.ts"
+      ],
+      "@beep/schema/internal/markdown": [
+        "../../packages/foundation/modeling/schema/src/internal/markdown.ts"
+      ],
+      "@beep/schema/internal/yaml": [
+        "../../packages/foundation/modeling/schema/src/internal/yaml.ts"
+      ],
+      "@beep/ui": ["../../packages/foundation/ui-system/ui/src/index.ts"],
+      "@beep/ui/themes": [
+        "../../packages/foundation/ui-system/ui/src/themes/index.ts"
+      ],
+      "@beep/ui/themes/theme-init-script": [
+        "../../packages/foundation/ui-system/ui/src/themes/theme-init-script.tsx"
+      ],
+      "@beep/ui/styles/globals.css": [
+        "../../packages/foundation/ui-system/ui/src/styles/globals.css"
+      ],
+      "@beep/ui/postcss.config": [
+        "../../packages/foundation/ui-system/ui/postcss.config.mjs"
+      ],
+      "@beep/ui/components/blocks/editor-00/editor": [
+        "../../packages/foundation/ui-system/ui/src/components/blocks/editor-00/editor.tsx"
+      ],
+      "@beep/ui/components/editor/editor-ui/content-editable": [
+        "../../packages/foundation/ui-system/ui/src/components/editor/editor-ui/content-editable.tsx"
+      ],
+      "@beep/ui/components/editor/themes/editor-theme": [
+        "../../packages/foundation/ui-system/ui/src/components/editor/themes/editor-theme.ts"
+      ]
     }
   }
 }
