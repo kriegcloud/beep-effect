@@ -6,6 +6,7 @@
  */
 
 import { $InfraId } from "@beep/identity/packages";
+import { LiteralKit } from "@beep/schema";
 import { A, Str, Struct } from "@beep/utils";
 import * as aws from "@pulumi/aws";
 import * as cloudflare from "@pulumi/cloudflare";
@@ -75,14 +76,13 @@ type OipWebPulumiConfigValues = {
   readonly wwwDomain?: string | undefined;
 };
 
-const VercelAuthenticationDeploymentType = S.Union([
-  S.Literal("standardProtectionNew"),
-  S.Literal("standardProtection"),
-  S.Literal("allDeployments"),
-  S.Literal("onlyPreviewDeployments"),
-  S.Literal("none"),
+const VercelAuthenticationDeploymentType = LiteralKit([
+  "standardProtectionNew",
+  "standardProtection",
+  "allDeployments",
+  "onlyPreviewDeployments",
+  "none",
 ]);
-
 type VercelAuthenticationDeploymentType = typeof VercelAuthenticationDeploymentType.Type;
 
 /**

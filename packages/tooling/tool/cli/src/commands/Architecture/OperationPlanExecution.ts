@@ -23,6 +23,9 @@ import {
 } from "./OperationPlan.js";
 import { renderPackageJsonOperation } from "./OperationPlanPackageJson.js";
 
+type EnsureAbsentPathOperation = Extract<ArchitectureOperation, { readonly kind: "ensure-absent-path" }>;
+type EnsureFileOperation = Extract<ArchitectureOperation, { readonly kind: "ensure-file" }>;
+
 const stringEquivalence = Str.equivalence;
 
 const operationIdFor = (kind: ArchitectureOperation["kind"], operationPath: string): string =>
@@ -65,6 +68,96 @@ const renderWritableOperation = (
   if (operation.kind === "write-file") return Effect.succeed(operation.content);
   return renderPackageJsonOperation(operation);
 };
+
+const readOperationFile = (
+  fs: FileSystem.FileSystem,
+  operationPath: string,
+  sourcePath: string
+): Effect.Effect<string, DomainError> =>
+  fs.readFileString(operationPath).pipe(Effect.mapError(DomainError.newCause(`Failed to read "${sourcePath}"`)));
+
+const ensureWritableOperationMatches = Effect.fn("Architecture.ensureWritableOperationMatches")(function* (
+  fs: FileSystem.FileSystem,
+  operationPath: string,
+  writableOperation: WriteFileOperation | WritePackageJsonOperation,
+  expected: string
+) {
+  const current = yield* readOperationFile(fs, operationPath, writableOperation.path);
+
+  if (!stringEquivalence(current, expected)) {
+    return yield* DomainError.newMessage(
+      `Architecture operation would overwrite a differing file: ${writableOperation.path}`
+    );
+  }
+});
+
+const writeMissingWritableOperation = Effect.fn("Architecture.writeMissingWritableOperation")(function* (
+  fs: FileSystem.FileSystem,
+  path: Path.Path,
+  operationPath: string,
+  writableOperation: WriteFileOperation | WritePackageJsonOperation,
+  expected: string
+) {
+  yield* fs
+    .makeDirectory(path.dirname(operationPath), { recursive: true })
+    .pipe(Effect.mapError(DomainError.newCause(`Failed to create parent directory for "${writableOperation.path}"`)));
+  yield* fs
+    .writeFileString(operationPath, expected)
+    .pipe(Effect.mapError(DomainError.newCause(`Failed to write "${writableOperation.path}"`)));
+});
+
+const applyWritableOperation = Effect.fn("Architecture.applyWritableOperation")(function* (
+  fs: FileSystem.FileSystem,
+  path: Path.Path,
+  operationPath: string,
+  exists: boolean,
+  writtenPaths: Array<string>,
+  skippedPaths: Array<string>,
+  writableOperation: WriteFileOperation | WritePackageJsonOperation
+) {
+  const expected = yield* renderWritableOperation(writableOperation);
+
+  if (exists) {
+    yield* ensureWritableOperationMatches(fs, operationPath, writableOperation, expected);
+    A.appendInPlace(skippedPaths, writableOperation.path);
+    return;
+  }
+
+  yield* writeMissingWritableOperation(fs, path, operationPath, writableOperation, expected);
+  A.appendInPlace(writtenPaths, writableOperation.path);
+});
+
+const applyEnsureFileOperation = Effect.fn("Architecture.applyEnsureFileOperation")(function* (
+  exists: boolean,
+  skippedPaths: Array<string>,
+  ensureFileOperation: EnsureFileOperation
+) {
+  if (exists) {
+    A.appendInPlace(skippedPaths, ensureFileOperation.path);
+    return;
+  }
+
+  return yield* DomainError.newMessage(`Required architecture file is missing: ${ensureFileOperation.path}`);
+});
+
+const applyEnsureAbsentPathOperation = Effect.fn("Architecture.applyEnsureAbsentPathOperation")(function* (
+  fs: FileSystem.FileSystem,
+  operationPath: string,
+  exists: boolean,
+  removedPaths: Array<string>,
+  skippedPaths: Array<string>,
+  ensureAbsentPathOperation: EnsureAbsentPathOperation
+) {
+  if (!exists) {
+    A.appendInPlace(skippedPaths, ensureAbsentPathOperation.path);
+    return;
+  }
+
+  yield* fs
+    .remove(operationPath, { force: true, recursive: true })
+    .pipe(Effect.mapError(DomainError.newCause(`Failed to remove "${ensureAbsentPathOperation.path}"`)));
+  A.appendInPlace(removedPaths, ensureAbsentPathOperation.path);
+});
 
 /**
  * Validate a decoded operation plan against a repository root.
@@ -112,9 +205,7 @@ export const checkCanonicalSliceOperationPlan: {
           return;
         }
 
-        const current = yield* fs
-          .readFileString(operationPath)
-          .pipe(Effect.mapError((cause) => DomainError.newCause(cause, `Failed to read "${writableOperation.path}"`)));
+        const current = yield* readOperationFile(fs, operationPath, writableOperation.path);
         if (!stringEquivalence(current, expected)) {
           A.appendInPlace(differingPaths, writableOperation.path);
           A.appendInPlace(operationStatuses, checkStatusFor(writableOperation, "differing"));
@@ -196,67 +287,23 @@ export const applyCanonicalSliceOperationPlan: {
     for (const operation of plan.operations) {
       const operationPath = yield* resolveOperationPath(rootDir, operation.path);
       const exists = yield* pathExists(operationPath);
-      const applyWritableOperation = Effect.fn("applyWritableOperation")(function* (
-        writableOperation: WriteFileOperation | WritePackageJsonOperation
-      ) {
-        const expected = yield* renderWritableOperation(writableOperation);
-        if (exists) {
-          const current = yield* fs
-            .readFileString(operationPath)
-            .pipe(
-              Effect.mapError((cause) => DomainError.newCause(cause, `Failed to read "${writableOperation.path}"`))
-            );
-          if (stringEquivalence(current, expected)) {
-            A.appendInPlace(skippedPaths, writableOperation.path);
-          } else {
-            return yield* DomainError.newMessage(
-              `Architecture operation would overwrite a differing file: ${writableOperation.path}`
-            );
-          }
-          return;
-        }
-
-        yield* fs
-          .makeDirectory(path.dirname(operationPath), { recursive: true })
-          .pipe(
-            Effect.mapError((cause) =>
-              DomainError.newCause(cause, `Failed to create parent directory for "${writableOperation.path}"`)
-            )
-          );
-        yield* fs
-          .writeFileString(operationPath, expected)
-          .pipe(Effect.mapError((cause) => DomainError.newCause(cause, `Failed to write "${writableOperation.path}"`)));
-        A.appendInPlace(writtenPaths, writableOperation.path);
-      });
-
       yield* Match.value(operation).pipe(
         Match.withReturnType<Effect.Effect<void, DomainError>>(),
         Match.discriminatorsExhaustive("kind")({
-          "ensure-file": Effect.fn("applyEnsureFileOperation")(function* (ensureFileOperation) {
-            if (exists) {
-              A.appendInPlace(skippedPaths, ensureFileOperation.path);
-            } else {
-              return yield* DomainError.newMessage(
-                `Required architecture file is missing: ${ensureFileOperation.path}`
-              );
-            }
-          }),
-          "ensure-absent-path": Effect.fn("applyEnsureAbsentPathOperation")(function* (ensureAbsentPathOperation) {
-            if (exists) {
-              yield* fs
-                .remove(operationPath, { force: true, recursive: true })
-                .pipe(
-                  Effect.mapError((cause) =>
-                    DomainError.newCause(cause, `Failed to remove "${ensureAbsentPathOperation.path}"`)
-                  )
-                );
-              A.appendInPlace(removedPaths, ensureAbsentPathOperation.path);
-            } else {
-              A.appendInPlace(skippedPaths, ensureAbsentPathOperation.path);
-            }
-          }),
-          "write-file": applyWritableOperation,
-          "write-package-json": applyWritableOperation,
+          "ensure-file": (ensureFileOperation) => applyEnsureFileOperation(exists, skippedPaths, ensureFileOperation),
+          "ensure-absent-path": (ensureAbsentPathOperation) =>
+            applyEnsureAbsentPathOperation(
+              fs,
+              operationPath,
+              exists,
+              removedPaths,
+              skippedPaths,
+              ensureAbsentPathOperation
+            ),
+          "write-file": (writableOperation) =>
+            applyWritableOperation(fs, path, operationPath, exists, writtenPaths, skippedPaths, writableOperation),
+          "write-package-json": (writableOperation) =>
+            applyWritableOperation(fs, path, operationPath, exists, writtenPaths, skippedPaths, writableOperation),
         })
       );
     }

@@ -260,7 +260,7 @@ const encodeCsvRowsEffect = <RowSchema extends RowSchemaWithFields>(
  * ```ts
  * import { Effect } from "effect"
  * import * as S from "effect/Schema"
- * import { CSV } from "@beep/schema/csv"
+ * import { CSV } from "@beep/schema/Csv"
  *
  * const Row = S.Struct({ name: S.String, age: S.NumberFromString })
  * const CsvSchema = CSV(Row)

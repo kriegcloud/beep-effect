@@ -1,0 +1,20 @@
+/**
+ * Namespace-first public module for DOM drag event schemas.
+ *
+ * @example
+ * ```ts
+ * import * as DomDragEvent from "@beep/schema/DomDragEvent"
+ *
+ * console.log(DomDragEvent.Schema)
+ * ```
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
+/**
+ * Public schema module export.
+ *
+ * @category schemas
+ * @since 0.0.0
+ */
+export * from "./DomDragEvent.schema.ts";

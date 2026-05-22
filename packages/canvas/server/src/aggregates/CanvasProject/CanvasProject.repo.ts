@@ -59,10 +59,10 @@ export const makeInMemoryCanvasProjectRepository = Effect.fn("Canvas.CanvasProje
       get: Effect.fn("Canvas.CanvasProjectRepository.get")(function* (id) {
         return yield* getStoredCanvasProject(store, id);
       }),
-      list: Effect.fn("Canvas.CanvasProjectRepository.list")(function* () {
+      list: Effect.gen(function* () {
         const canvasProjects = yield* Ref.get(store);
         return A.fromIterable(HashMap.values(canvasProjects));
-      }),
+      }).pipe(Effect.withSpan("Canvas.CanvasProjectRepository.list")),
       save: Effect.fn("Canvas.CanvasProjectRepository.save")(function* (canvasProject) {
         yield* getStoredCanvasProject(store, canvasProject.id);
         yield* Ref.update(store, (canvasProjects) => HashMap.set(canvasProjects, canvasProject.id, canvasProject));

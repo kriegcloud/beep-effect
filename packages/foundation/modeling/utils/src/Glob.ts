@@ -267,17 +267,14 @@ const toAbsolutePath =
   (relativePath: string): string =>
     fileURLToPath(new URL(normalizePathSeparators(relativePath), cwdUrl));
 
-const getBunGlobConstructor = (): undefined | BunGlobConstructor => {
-  const BunGlob = (
+const getBunGlobConstructor = (): undefined | BunGlobConstructor =>
+  (
     globalThis as typeof globalThis & {
       readonly Bun?: {
         readonly Glob?: BunGlobConstructor;
       };
     }
   ).Bun?.Glob;
-
-  return BunGlob;
-};
 
 const compileGlobs = (BunGlob: BunGlobConstructor, patterns: ReadonlyArray<string>): ReadonlyArray<BunGlobInstance> =>
   A.map(patterns, (pattern) => new BunGlob(pattern));

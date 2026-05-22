@@ -1,4 +1,4 @@
-import { EffectImportRulesOptions, runEffectImportRules } from "@beep/repo-cli/commands/Laws/EffectImports";
+import { EffectImportRulesOptions, runEffectImportRules } from "@beep/repo-cli/test/Laws";
 import { A } from "@beep/utils";
 import { NodeServices } from "@effect/platform-node";
 import { Effect, FileSystem, Layer, Path } from "effect";

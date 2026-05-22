@@ -31,7 +31,7 @@ const $I = $ChalkId.create("Domain");
  * @category models
  * @since 0.0.0
  */
-export type ModifierStyleName = typeof ModifierName.Type;
+export type ModifierStyleName = ModifierName;
 
 /**
  * Foreground color style names accepted by the Chalk runtime.
@@ -47,7 +47,7 @@ export type ModifierStyleName = typeof ModifierName.Type;
  * @category models
  * @since 0.0.0
  */
-export type ForegroundStyleName = typeof ForegroundColorName.Type;
+export type ForegroundStyleName = ForegroundColorName;
 
 /**
  * Background color style names accepted by the Chalk runtime.
@@ -63,7 +63,7 @@ export type ForegroundStyleName = typeof ForegroundColorName.Type;
  * @category models
  * @since 0.0.0
  */
-export type BackgroundStyleName = typeof BackgroundColorName.Type;
+export type BackgroundStyleName = BackgroundColorName;
 
 /**
  * Any supported Chalk style name.

@@ -65,7 +65,7 @@ export {
    * @since 0.0.0
    */
   ciCommand,
-} from "./commands/Ci.js";
+} from "./commands/Ci/index.js";
 /**
  * Code generation command for workspace barrels and exports.
  *
@@ -80,7 +80,7 @@ export {
    * @since 0.0.0
    */
   codegenCommand,
-} from "./commands/Codegen.js";
+} from "./commands/Codegen/index.js";
 /**
  * Codex helper command group.
  *
@@ -107,7 +107,7 @@ export {
    * @since 0.0.0
    */
   codexCommand,
-} from "./commands/Codex.js";
+} from "./commands/Codex/index.js";
 /**
  * Package scaffolding command for creating new workspace packages.
  *
@@ -152,7 +152,7 @@ export {
    * @since 0.0.0
    */
   docsCommand,
-} from "./commands/Docs.js";
+} from "./commands/Docs/index.js";
 /**
  * Dataset file curation command group.
  *
@@ -242,7 +242,7 @@ export {
    * @since 0.0.0
    */
   purgeCommand,
-} from "./commands/Purge.js";
+} from "./commands/Purge/index.js";
 /**
  * Repository operational quality command group.
  *
@@ -269,7 +269,7 @@ export {
    * @since 0.0.0
    */
   qualityCommand,
-} from "./commands/Quality/ScriptCommands.js";
+} from "./commands/Quality/index.js";
 /**
  * Reuse-discovery command group.
  *
@@ -329,7 +329,7 @@ export {
    * @since 0.0.0
    */
   topoSortCommand,
-} from "./commands/TopoSort.js";
+} from "./commands/TopoSort/index.js";
 /**
  * Tsconfig sync command for workspace tsconfig references and root aliases.
  *
@@ -344,7 +344,7 @@ export {
    * @since 0.0.0
    */
   tsconfigSyncCommand,
-} from "./commands/TsconfigSync.js";
+} from "./commands/TsconfigSync/index.js";
 /**
  * Version sync command for detecting and fixing version drift.
  *

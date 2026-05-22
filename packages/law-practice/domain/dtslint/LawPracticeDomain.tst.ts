@@ -12,17 +12,17 @@ import {
 import type * as LawPractice from "@beep/shared-domain/identity/LawPractice";
 import { describe, expect, it } from "tstyche";
 
-declare const matter: typeof Matter.Type;
+declare const matter: Matter;
 
 describe("@beep/law-practice-domain", () => {
   it("preserves exported value schema types", () => {
-    expect<typeof LegalClientStatus.Type>().type.toBe<LegalClientStatusType>();
+    expect<LegalClientStatus>().type.toBe<LegalClientStatusType>();
     expect<LegalClientStatusType>().type.toBe<"active_client">();
-    expect<typeof LegalContactRole.Type>().type.toBe<LegalContactRoleType>();
+    expect<LegalContactRole>().type.toBe<LegalContactRoleType>();
     expect<LegalContactRoleType>().type.toBe<"founder">();
-    expect<typeof MatterType.Type>().type.toBe<MatterTypeType>();
+    expect<MatterType>().type.toBe<MatterTypeType>();
     expect<MatterTypeType>().type.toBe<"patent_application">();
-    expect<typeof PatentAssetStatus.Type>().type.toBe<PatentAssetStatusType>();
+    expect<PatentAssetStatus>().type.toBe<PatentAssetStatusType>();
     expect<PatentAssetStatusType>().type.toBe<"pre_filing">();
   });
 

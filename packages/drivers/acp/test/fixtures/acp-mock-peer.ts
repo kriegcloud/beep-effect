@@ -1,4 +1,4 @@
-import * as AcpAgent from "@beep/acp/agent";
+import { Agent as AcpAgent } from "@beep/acp";
 import * as NodeRuntime from "@effect/platform-node/NodeRuntime";
 
 import * as NodeServices from "@effect/platform-node/NodeServices";

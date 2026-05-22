@@ -37,21 +37,6 @@ export const VERSION = "0.0.0" as const;
 export * from "./XAi.config.ts";
 
 /**
- * Endpoint manifest exports for the xAI driver.
- *
- * @example
- * ```ts
- * import { XAI_ENDPOINTS } from "@beep/xai"
- *
- * console.log(XAI_ENDPOINTS.length)
- * ```
- *
- * @category utilities
- * @since 0.0.0
- */
-export * from "./XAi.endpoints.ts";
-
-/**
  * Error exports for the xAI driver.
  *
  * @example
@@ -100,6 +85,21 @@ export * from "./XAi.models.ts";
 export * from "./XAi.service.ts";
 
 /**
+ * Endpoint manifest exports for the xAI driver.
+ *
+ * @example
+ * ```ts
+ * import { XAI_ENDPOINTS } from "@beep/xai"
+ *
+ * console.log(XAI_ENDPOINTS.length)
+ * ```
+ *
+ * @category utilities
+ * @since 0.0.0
+ */
+export * from "./XAiEndpoints.models.ts";
+
+/**
  * Effect AI language-model adapter exports for xAI chat completions.
  *
  * @example
@@ -113,4 +113,4 @@ export * from "./XAi.service.ts";
  * @category utilities
  * @since 0.0.0
  */
-export * as XAiLanguageModel from "./XAiLanguageModel.ts";
+export * as XAiLanguageModel from "./XAiLanguageModel.service.ts";

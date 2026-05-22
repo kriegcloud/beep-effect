@@ -1,4 +1,4 @@
-import { createPackageCommand } from "@beep/repo-cli/commands/CreatePackage/index";
+import { createPackageCommand } from "@beep/repo-cli/commands/CreatePackage";
 import { FsUtilsLive, TSMorphServiceLive } from "@beep/repo-utils";
 import { A, Str } from "@beep/utils";
 import { NodeServices } from "@effect/platform-node";

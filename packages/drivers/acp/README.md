@@ -14,15 +14,12 @@ bun add @beep/acp
 ## Usage
 
 ```ts
-import { VERSION } from "@beep/acp"
-import { AcpClient } from "@beep/acp/client"
-import { AcpAgent } from "@beep/acp/agent"
-import { InitializeRequest } from "@beep/acp/schema"
+import { Agent, Client, Schema, VERSION } from "@beep/acp"
 
 const version = VERSION
-const clientTag = AcpClient
-const agentTag = AcpAgent
-const request = InitializeRequest.make({
+const clientTag = Client.AcpClient
+const agentTag = Agent.AcpAgent
+const request = Schema.InitializeRequest.make({
   clientCapabilities: {
     fs: { readTextFile: false, writeTextFile: false },
     terminal: false
@@ -35,19 +32,12 @@ const request = InitializeRequest.make({
 Product-specific agent behavior belongs in the owning slice or shared
 use-case contracts. Keep this package product-neutral.
 
-## Public Subpaths
+## Public Surface
 
 - `@beep/acp`
-- `@beep/acp/agent`
-- `@beep/acp/client`
-- `@beep/acp/errors`
-- `@beep/acp/protocol`
-- `@beep/acp/rpc`
-- `@beep/acp/schema`
-- `@beep/acp/terminal`
 
 Generated ACP schema and metadata live under `src/_generated`, but callers
-should use `@beep/acp/schema`; `_generated/*` and `internal/*` are not package
+should use the `Schema` namespace from `@beep/acp`; `_generated/*` and `internal/*` are not package
 exports.
 
 ## Code Generation

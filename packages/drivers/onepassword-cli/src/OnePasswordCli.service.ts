@@ -46,7 +46,7 @@ export type OnePasswordCliRunner = (
 interface OnePasswordCliShape {
   readonly probeReference: (reference: string) => Effect.Effect<OnePasswordReferenceProbe, OnePasswordCliError>;
   readonly read: (reference: string) => Effect.Effect<Redacted.Redacted<string>, OnePasswordCliError>;
-  readonly whoami: () => Effect.Effect<OnePasswordCliAccount, OnePasswordCliError>;
+  readonly whoami: Effect.Effect<OnePasswordCliAccount, OnePasswordCliError>;
 }
 
 const runNative = (
@@ -95,7 +95,7 @@ const failExit = (
   );
 
 const makeService = (commandPath: string, runner: OnePasswordCliRunner): OnePasswordCliShape => {
-  const whoami = Effect.fn("OnePasswordCli.whoami")(function* () {
+  const whoami = Effect.gen(function* () {
     const result = yield* runner(commandPath, ["whoami"]);
     if (result.exitCode !== 0) {
       return yield* failExit("whoami", commandPath, result, "1Password CLI is not signed in.");
@@ -105,7 +105,7 @@ const makeService = (commandPath: string, runner: OnePasswordCliRunner): OnePass
       account: Str.trim(result.stdout),
       signedIn: true,
     });
-  });
+  }).pipe(Effect.withSpan("OnePasswordCli.whoami"));
 
   const read = Effect.fn("OnePasswordCli.read")(function* (reference: string) {
     const result = yield* runner(commandPath, ["read", reference, "--no-newline"]);

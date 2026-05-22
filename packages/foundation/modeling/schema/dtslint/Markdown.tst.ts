@@ -8,7 +8,7 @@ declare const markdown: MarkdownType;
 
 describe("Markdown", () => {
   it("preserves the branded schema surface", () => {
-    expect<typeof Markdown.Type>().type.toBe<string & Brand.Brand<"Markdown">>();
+    expect<Markdown>().type.toBe<string & Brand.Brand<"Markdown">>();
     expect<typeof Markdown.Encoded>().type.toBe<string>();
     expect<MarkdownType>().type.toBe<string & Brand.Brand<"Markdown">>();
   });

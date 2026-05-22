@@ -89,7 +89,7 @@ export interface WorkerRepositoryShape {
   readonly get: (
     id: DomainWorker.WorkerId
   ) => Effect.Effect<DomainWorker.Worker, WorkerRepositoryNotFound | WorkerRepositoryUnavailable>;
-  readonly list: () => Effect.Effect<ReadonlyArray<DomainWorker.Worker>, WorkerRepositoryUnavailable>;
+  readonly list: Effect.Effect<ReadonlyArray<DomainWorker.Worker>, WorkerRepositoryUnavailable>;
 }
 
 /**

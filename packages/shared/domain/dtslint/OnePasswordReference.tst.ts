@@ -11,7 +11,7 @@ describe("OnePasswordReference", () => {
   it("preserves the branded reference type", () => {
     const decode = S.decodeUnknownEffect(OnePasswordReference);
 
-    expect<OnePasswordReferenceType>().type.toBe<typeof OnePasswordReference.Type>();
+    expect<OnePasswordReferenceType>().type.toBe<OnePasswordReference>();
     expect<typeof OnePasswordReference.Encoded>().type.toBe<string>();
     expect(decode("op://Private/Discord Bot/token")).type.toBe<
       Effect.Effect<OnePasswordReferenceType, S.SchemaError, never>

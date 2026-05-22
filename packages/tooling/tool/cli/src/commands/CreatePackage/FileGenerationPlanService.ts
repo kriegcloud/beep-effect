@@ -319,7 +319,7 @@ const parentDirectoriesForEntries = <
 const failDomainMessage = (message: string): Effect.Effect<never, DomainError> =>
   Effect.fail(DomainError.newMessage(message));
 
-const mapFsError = (message: string) => Effect.mapError((cause: unknown) => DomainError.newCause(cause, message));
+const mapFsError = (message: string) => Effect.mapError(DomainError.newCause(message));
 
 const failWhen: {
   (condition: boolean, effect: Effect.Effect<never, DomainError>): Effect.Effect<void, DomainError>;
@@ -580,20 +580,14 @@ export const createFileGenerationPlanService = (): FileGenerationPlanServiceShap
 
     const writeFileIfChanged = (absolutePath: string, content: string) =>
       ensureDirectoryFor(absolutePath).pipe(
-        Effect.andThen(
-          Effect.fnUntraced(function* () {
-            return yield* readIfExists(absolutePath);
-          })
-        ),
-        Effect.andThen(
-          Effect.fnUntraced(function* (existingContent: O.Option<string>) {
-            return yield* pipe(
-              existingContent,
-              O.filter(stringEquivalence(content)),
-              O.map(() => countSkippedFileWrite),
-              O.getOrElse(() => writeFile(absolutePath, content))
-            );
-          })
+        Effect.andThen(() => readIfExists(absolutePath)),
+        Effect.andThen((existingContent: O.Option<string>) =>
+          pipe(
+            existingContent,
+            O.filter(stringEquivalence(content)),
+            O.map(() => countSkippedFileWrite),
+            O.getOrElse(() => writeFile(absolutePath, content))
+          )
         )
       );
 
@@ -611,13 +605,7 @@ export const createFileGenerationPlanService = (): FileGenerationPlanServiceShap
         .pipe(mapFsError(`Failed to remove existing path "${absolutePath}"`));
 
     const replaceWithSymlink = (absolutePath: string, target: string) =>
-      removeExistingPath(absolutePath).pipe(
-        Effect.andThen(
-          Effect.fnUntraced(function* () {
-            return yield* createSymlink(absolutePath, target);
-          })
-        )
-      );
+      removeExistingPath(absolutePath).pipe(Effect.andThen(() => createSymlink(absolutePath, target)));
 
     const inspectSymlinkPath = Effect.fn("inspectSymlinkPath")(function* (absolutePath: string) {
       const currentTarget = yield* Effect.option(fs.readLink(absolutePath));

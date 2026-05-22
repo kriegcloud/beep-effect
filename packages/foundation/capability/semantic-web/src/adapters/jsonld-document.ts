@@ -50,8 +50,8 @@ const schemePrefix = /^[A-Za-z][A-Za-z0-9+.-]*:/;
 const isReferenceValue = S.is(JsonLdReferenceValue);
 
 type MutableNode = {
-  readonly id: typeof JsonLdNodeIdentifier.Type;
-  readonly types: ReadonlyArray<typeof IRIReference.Type>;
+  readonly id: JsonLdNodeIdentifier;
+  readonly types: ReadonlyArray<IRIReference>;
   readonly properties: Record<string, ReadonlyArray<JsonLdPropertyValue>>;
 };
 
@@ -91,7 +91,7 @@ const decodeIriReference = (
   value: string,
   reason: JsonLdDocumentError["reason"],
   subject: string = value
-): Effect.Effect<typeof IRIReference.Type, JsonLdDocumentError> =>
+): Effect.Effect<IRIReference, JsonLdDocumentError> =>
   S.decodeUnknownEffect(IRIReference)(value).pipe(
     Effect.mapError((cause) =>
       makeDocumentError(reason, `Failed to decode JSON-LD IRI reference "${value}": ${String(cause)}`, subject)
@@ -102,7 +102,7 @@ const decodeJsonLdNodeIdentifier = (
   value: string,
   reason: JsonLdDocumentError["reason"],
   subject: string = value
-): Effect.Effect<typeof JsonLdNodeIdentifier.Type, JsonLdDocumentError> =>
+): Effect.Effect<JsonLdNodeIdentifier, JsonLdDocumentError> =>
   S.decodeUnknownEffect(JsonLdNodeIdentifier)(value).pipe(
     Effect.mapError((cause) =>
       makeDocumentError(reason, `Failed to decode JSON-LD node identifier "${value}": ${String(cause)}`, subject)
@@ -169,19 +169,17 @@ const makeQuadEffect = (
 
 const compactIriReference =
   (context: ContextOption, reason: JsonLdDocumentError["reason"]) =>
-  (identifier: string): Effect.Effect<typeof IRIReference.Type, JsonLdDocumentError> =>
+  (identifier: string): Effect.Effect<IRIReference, JsonLdDocumentError> =>
     decodeIriReference(compactIdentifier(context, identifier), reason, identifier);
 
 const compactNodeIdentifier =
   (context: ContextOption, reason: JsonLdDocumentError["reason"]) =>
-  (identifier: string): Effect.Effect<typeof JsonLdNodeIdentifier.Type, JsonLdDocumentError> =>
+  (identifier: string): Effect.Effect<JsonLdNodeIdentifier, JsonLdDocumentError> =>
     decodeJsonLdNodeIdentifier(compactIdentifier(context, identifier), reason, identifier);
 
 const compactIriReferenceValues =
   (context: ContextOption, reason: JsonLdDocumentError["reason"]) =>
-  (
-    values: ReadonlyArray<typeof IRIReference.Type>
-  ): Effect.Effect<ReadonlyArray<typeof IRIReference.Type>, JsonLdDocumentError> =>
+  (values: ReadonlyArray<IRIReference>): Effect.Effect<ReadonlyArray<IRIReference>, JsonLdDocumentError> =>
     Effect.forEach(values, compactIriReference(context, reason));
 
 const expandCompactIdentifier = (context: ContextOption, value: string): string => {
@@ -478,7 +476,7 @@ const normalizeJsonLdDocumentStructure = (document: JsonLdDocument): JsonLdDocum
   });
 
 const resolveDocumentBase = (
-  loaderPolicy: O.Option<typeof JsonLdDocumentLoaderPolicy.Type>,
+  loaderPolicy: O.Option<JsonLdDocumentLoaderPolicy>,
   context: ContextOption
 ): O.Option<string> =>
   pipe(
@@ -488,8 +486,8 @@ const resolveDocumentBase = (
   );
 
 const validateLoaderPolicy = (
-  loaderPolicy: O.Option<typeof JsonLdDocumentLoaderPolicy.Type>
-): Effect.Effect<O.Option<typeof JsonLdDocumentLoaderPolicy.Type>, JsonLdDocumentError> =>
+  loaderPolicy: O.Option<JsonLdDocumentLoaderPolicy>
+): Effect.Effect<O.Option<JsonLdDocumentLoaderPolicy>, JsonLdDocumentError> =>
   O.isSome(loaderPolicy) && loaderPolicy.value.allowRemoteDocuments
     ? Effect.fail(
         makeDocumentError(
@@ -571,7 +569,7 @@ const expandJsonLdNode = Effect.fn("JsonLdDocument.expandJsonLdNode")(function* 
 
 const expandJsonLdDocument = Effect.fn("JsonLdDocument.expandJsonLdDocument")(function* (
   document: JsonLdDocument,
-  loaderPolicy: O.Option<typeof JsonLdDocumentLoaderPolicy.Type>
+  loaderPolicy: O.Option<JsonLdDocumentLoaderPolicy>
 ): Effect.fn.Return<JsonLdDocument, JsonLdDocumentError> {
   yield* validateLoaderPolicy(loaderPolicy);
   const context = document["@context"];
@@ -717,7 +715,7 @@ const literalValueFromRdf = Effect.fn("JsonLdDocument.literalValueFromRdf")(func
 
   const type =
     object.datatype.value === XSD_STRING.value
-      ? O.none<typeof IRIReference.Type>()
+      ? O.none<IRIReference>()
       : O.some(
           yield* decodeIriReference(
             compactIdentifier(context, object.datatype.value),
@@ -892,7 +890,7 @@ export const JsonLdDocumentServiceLive = Layer.succeed(
             const type = yield* pipe(
               node.types,
               A.match({
-                onEmpty: () => Effect.succeed(O.none<ReadonlyArray<typeof IRIReference.Type>>()),
+                onEmpty: () => Effect.succeed(O.none<ReadonlyArray<IRIReference>>()),
                 onNonEmpty: (values) =>
                   Effect.map(compactIriReferenceValues(request.context, "bridgingFailure")(values), O.some),
               })

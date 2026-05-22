@@ -20,7 +20,7 @@ import {
   XAiEndpointId,
   XAiEndpointMethodName,
   XAiHttpMethod,
-} from "./XAi.endpoints.ts";
+} from "./XAiEndpoints.models.ts";
 
 const $I = $XaiId.create("XAi.errors");
 

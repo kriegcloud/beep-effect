@@ -1,0 +1,128 @@
+{
+  "schemaVersion": "initiative-manifest/v1",
+  "initiative": {
+    "id": "beep-schema-topology",
+    "title": "@beep/schema Topology",
+    "status": "active",
+    "created": "2026-05-22",
+    "updated": "2026-05-22",
+    "packetAnchorDocument": "SPEC.md"
+  },
+  "mission": "Canonize and migrate @beep/schema to namespace-first concept modules with small role files and compatibility-first exports.",
+  "currentSourceOfTruth": "SPEC.md",
+  "currentTargetPhase": "P4",
+  "package": {
+    "name": "@beep/schema",
+    "path": "packages/foundation/modeling/schema",
+    "family": "foundation",
+    "kind": "modeling"
+  },
+  "canonicalImport": "import * as Duration from \"@beep/schema/Duration\"",
+  "pilotConcepts": ["Duration", "Glob"],
+  "migratedTopicalConcepts": [
+    "Age",
+    "Blockchain",
+    "CardinalDirection",
+    "Color",
+    "CryptoTxnHash",
+    "CryptoWalletAddress",
+    "Csv",
+    "CsvCodecOptions",
+    "CsvError",
+    "CsvFormatter",
+    "CsvParser",
+    "Csp",
+    "CrossOriginEmbedderPolicy",
+    "CrossOriginOpenerPolicy",
+    "CrossOriginResourcePolicy",
+    "Dom",
+    "DomCssProperties",
+    "DomDragEvent",
+    "DomEvent",
+    "DomHtmlElement",
+    "DomMouseEvent",
+    "DomReactNode",
+    "EthAmount",
+    "EthereumValidatorPublicKey",
+    "EvmAddress",
+    "ExpectCt",
+    "ForceHttpsRedirect",
+    "FrameGuard",
+    "Http",
+    "HttpHeaders",
+    "HttpMethod",
+    "HttpProtocol",
+    "HttpStatus",
+    "Location",
+    "NoOpen",
+    "NoSniff",
+    "ParserOptions",
+    "PermissionsPolicy",
+    "PermittedCrossDomainPolicies",
+    "Person",
+    "ReferrerPolicy",
+    "SecureHeader",
+    "SecureHeaderError",
+    "SecureHeaderOptions",
+    "Sex",
+    "XssProtection"
+  ],
+  "migratedHighContextConcepts": [
+    "EntitySchema",
+    "FilePath",
+    "Graph",
+    "Model",
+    "VariantSchema"
+  ],
+  "explicitHighContextConcepts": [
+    "EntitySchema",
+    "FilePath",
+    "Fn",
+    "Graph",
+    "LiteralKit",
+    "MappedLiteralKit",
+    "Model",
+    "Record",
+    "VariantSchema"
+  ],
+  "phases": [
+    {
+      "id": "P0",
+      "name": "Doctrine and goal packet",
+      "status": "completed",
+      "exitCriteriaSummary": "Architecture docs, package README, and goal packet agree on canonical topology."
+    },
+    {
+      "id": "P1",
+      "name": "Pilot concept modules",
+      "status": "completed",
+      "exitCriteriaSummary": "Duration and Glob expose canonical concept indexes while old imports remain compatible."
+    },
+    {
+      "id": "P2",
+      "name": "Simple concept migration",
+      "status": "completed",
+      "exitCriteriaSummary": "Targeted topical concepts expose canonical exact subpaths, with case-colliding suites mapped to existing lower-case source indexes."
+    },
+    {
+      "id": "P3",
+      "name": "Large concept family migration",
+      "status": "completed",
+      "exitCriteriaSummary": "Remaining high-context modules are split into role files without changing behavior."
+    },
+    {
+      "id": "P4",
+      "name": "Consumer and export hardening",
+      "status": "active",
+      "exitCriteriaSummary": "Consumers prefer canonical imports and wildcard export reliance is removed."
+    }
+  ],
+  "verification": [
+    "bun run --cwd packages/foundation/modeling/schema check",
+    "bun run --cwd packages/foundation/modeling/schema test",
+    "bun run --cwd packages/foundation/modeling/schema docgen",
+    "bun run docgen:local",
+    "bun run repo-exports:catalog",
+    "bun run repo-exports:catalog:check"
+  ]
+}

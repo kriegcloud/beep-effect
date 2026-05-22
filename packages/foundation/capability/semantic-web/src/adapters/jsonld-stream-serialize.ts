@@ -22,7 +22,7 @@ import {
 
 const encodeJsonLdDocumentToJson = S.encodeEffect(S.fromJsonString(JsonLdDocument));
 
-const decodeNonNegativeInt = (value: number): Effect.Effect<typeof NonNegativeInt.Type, JsonLdStreamSerializeError> =>
+const decodeNonNegativeInt = (value: number): Effect.Effect<NonNegativeInt, JsonLdStreamSerializeError> =>
   S.decodeUnknownEffect(NonNegativeInt)(value).pipe(
     Effect.mapError(
       (cause) =>

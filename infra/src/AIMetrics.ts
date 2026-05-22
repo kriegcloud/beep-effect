@@ -177,7 +177,7 @@ const renderRemoteApplyCommand = (remote: AIMetricsRemoteDeploymentConfig, servi
     )
   )}`;
 
-const renderRemoteHealthCommand = (remote: AIMetricsRemoteDeploymentConfig, service: AiMetricsServiceSpec): string =>
+const renderRemoteHealthCommand = (_remote: AIMetricsRemoteDeploymentConfig, service: AiMetricsServiceSpec): string =>
   `/bin/bash -lc ${shellQuote(
     A.join(
       [

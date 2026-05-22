@@ -1210,7 +1210,7 @@ const readInventoryDocument = Effect.fn(function* () {
   const absolutePath = path.resolve(process.cwd(), INVENTORY_PATH);
 
   if (!(yield* fs.exists(absolutePath))) {
-    return O.none<typeof DualArityInventoryDocument.Type>();
+    return O.none<DualArityInventoryDocument>();
   }
 
   const content = yield* fs.readFileString(absolutePath);

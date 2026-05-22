@@ -1,11 +1,7 @@
 {
   "version": 1,
-  "generatedOn": "2026-05-21",
-  "scope": [
-    "apps/**/*.{ts,tsx}",
-    "packages/**/*.{ts,tsx}",
-    "infra/**/*.ts"
-  ],
+  "generatedOn": "2026-05-22",
+  "scope": ["apps/**/*.{ts,tsx}", "packages/**/*.{ts,tsx}", "infra/**/*.ts"],
   "enforcedRoots": [
     "packages/tooling/tool/cli/src",
     "packages/tooling/library/repo-utils/src/FsUtils.ts",
@@ -102,15 +98,15 @@
       "reason": "Interface contains non-schema signals such as function members or runtime handles."
     },
     {
-      "file": "packages/drivers/acp/src/agent.ts",
+      "file": "packages/drivers/acp/src/AcpAgent.service.ts",
       "symbol": "AcpAgentOptions",
       "kind": "exported-interface",
       "status": "exception",
       "owner": "@beep/acp",
-      "reason": "Interface contains non-schema signals such as function members or runtime handles."
+      "reason": "Derived interface with extends clauses is tracked as an exception."
     },
     {
-      "file": "packages/drivers/acp/src/agent.ts",
+      "file": "packages/drivers/acp/src/AcpAgent.service.ts",
       "symbol": "AcpAgentShape",
       "kind": "exported-interface",
       "status": "exception",
@@ -118,15 +114,15 @@
       "reason": "Interface contains non-schema signals such as function members or runtime handles."
     },
     {
-      "file": "packages/drivers/acp/src/client.ts",
+      "file": "packages/drivers/acp/src/AcpClient.service.ts",
       "symbol": "AcpClientOptions",
       "kind": "exported-interface",
       "status": "exception",
       "owner": "@beep/acp",
-      "reason": "Interface contains non-schema signals such as function members or runtime handles."
+      "reason": "Derived interface with extends clauses is tracked as an exception."
     },
     {
-      "file": "packages/drivers/acp/src/client.ts",
+      "file": "packages/drivers/acp/src/AcpClient.service.ts",
       "symbol": "AcpClientShape",
       "kind": "exported-interface",
       "status": "exception",
@@ -134,7 +130,7 @@
       "reason": "Interface contains non-schema signals such as function members or runtime handles."
     },
     {
-      "file": "packages/drivers/acp/src/protocol.ts",
+      "file": "packages/drivers/acp/src/AcpProtocol.service.ts",
       "symbol": "AcpPatchedProtocol",
       "kind": "exported-interface",
       "status": "exception",
@@ -142,15 +138,15 @@
       "reason": "Interface contains non-schema signals such as function members or runtime handles."
     },
     {
-      "file": "packages/drivers/acp/src/protocol.ts",
+      "file": "packages/drivers/acp/src/AcpProtocol.service.ts",
       "symbol": "AcpPatchedProtocolOptions",
       "kind": "exported-interface",
       "status": "exception",
       "owner": "@beep/acp",
-      "reason": "Interface contains non-schema signals such as function members or runtime handles."
+      "reason": "Derived interface with extends clauses is tracked as an exception."
     },
     {
-      "file": "packages/drivers/acp/src/terminal.ts",
+      "file": "packages/drivers/acp/src/AcpTerminal.models.ts",
       "symbol": "AcpTerminal",
       "kind": "exported-interface",
       "status": "exception",
@@ -158,7 +154,7 @@
       "reason": "Interface contains non-schema signals such as function members or runtime handles."
     },
     {
-      "file": "packages/drivers/acp/src/terminal.ts",
+      "file": "packages/drivers/acp/src/AcpTerminal.models.ts",
       "symbol": "MakeTerminalOptions",
       "kind": "exported-interface",
       "status": "exception",
@@ -230,7 +226,7 @@
       "reason": "Type alias contains non-schema signals such as function members or runtime handles."
     },
     {
-      "file": "packages/drivers/openai-compat/src/OpenAiCompat.client.ts",
+      "file": "packages/drivers/openai-compat/src/OpenAiCompatClient.service.ts",
       "symbol": "OpenAiCompatClientShape",
       "kind": "exported-interface",
       "status": "exception",
@@ -758,7 +754,7 @@
       "reason": "Type alias contains non-schema signals such as function members or runtime handles."
     },
     {
-      "file": "packages/foundation/modeling/schema/src/EntitySchema.ts",
+      "file": "packages/foundation/modeling/schema/src/EntitySchema/EntitySchema.definition.ts",
       "symbol": "AssignedEntityParts",
       "kind": "exported-type-literal",
       "status": "exception",
@@ -766,7 +762,7 @@
       "reason": "Generic type alias requires manual modeling and is tracked as an exception."
     },
     {
-      "file": "packages/foundation/modeling/schema/src/EntitySchema.ts",
+      "file": "packages/foundation/modeling/schema/src/EntitySchema/EntitySchema.definition.ts",
       "symbol": "ClassInput",
       "kind": "exported-type-literal",
       "status": "exception",
@@ -774,7 +770,7 @@
       "reason": "Generic type alias requires manual modeling and is tracked as an exception."
     },
     {
-      "file": "packages/foundation/modeling/schema/src/EntitySchema.ts",
+      "file": "packages/foundation/modeling/schema/src/EntitySchema/EntitySchema.persist.ts",
       "symbol": "PersistOptions",
       "kind": "exported-type-literal",
       "status": "exception",
@@ -798,23 +794,7 @@
       "reason": "Generic interface requires manual modeling and is tracked as an exception."
     },
     {
-      "file": "packages/foundation/modeling/schema/src/Graph.ts",
-      "symbol": "DirectedGraph",
-      "kind": "exported-interface",
-      "status": "exception",
-      "owner": "@beep/schema",
-      "reason": "Generic interface requires manual modeling and is tracked as an exception."
-    },
-    {
-      "file": "packages/foundation/modeling/schema/src/Graph.ts",
-      "symbol": "DirectedGraphFromSelf",
-      "kind": "exported-interface",
-      "status": "exception",
-      "owner": "@beep/schema",
-      "reason": "Generic interface requires manual modeling and is tracked as an exception."
-    },
-    {
-      "file": "packages/foundation/modeling/schema/src/Graph.ts",
+      "file": "packages/foundation/modeling/schema/src/Graph/Graph.edge.ts",
       "symbol": "Edge",
       "kind": "exported-interface",
       "status": "exception",
@@ -822,15 +802,7 @@
       "reason": "Generic interface requires manual modeling and is tracked as an exception."
     },
     {
-      "file": "packages/foundation/modeling/schema/src/Graph.ts",
-      "symbol": "EdgeEncodedSchema",
-      "kind": "exported-interface",
-      "status": "exception",
-      "owner": "@beep/schema",
-      "reason": "Generic interface requires manual modeling and is tracked as an exception."
-    },
-    {
-      "file": "packages/foundation/modeling/schema/src/Graph.ts",
+      "file": "packages/foundation/modeling/schema/src/Graph/Graph.edge.ts",
       "symbol": "EdgeFromSelf",
       "kind": "exported-interface",
       "status": "exception",
@@ -838,7 +810,7 @@
       "reason": "Generic interface requires manual modeling and is tracked as an exception."
     },
     {
-      "file": "packages/foundation/modeling/schema/src/Graph.ts",
+      "file": "packages/foundation/modeling/schema/src/Graph/Graph.edge.ts",
       "symbol": "EdgeTransform",
       "kind": "exported-interface",
       "status": "exception",
@@ -846,7 +818,15 @@
       "reason": "Generic interface requires manual modeling and is tracked as an exception."
     },
     {
-      "file": "packages/foundation/modeling/schema/src/Graph.ts",
+      "file": "packages/foundation/modeling/schema/src/Graph/Graph.encoded.ts",
+      "symbol": "EdgeEncodedSchema",
+      "kind": "exported-interface",
+      "status": "exception",
+      "owner": "@beep/schema",
+      "reason": "Generic interface requires manual modeling and is tracked as an exception."
+    },
+    {
+      "file": "packages/foundation/modeling/schema/src/Graph/Graph.encoded.ts",
       "symbol": "GraphEncodedSchema",
       "kind": "exported-interface",
       "status": "exception",
@@ -854,7 +834,15 @@
       "reason": "Generic interface requires manual modeling and is tracked as an exception."
     },
     {
-      "file": "packages/foundation/modeling/schema/src/Graph.ts",
+      "file": "packages/foundation/modeling/schema/src/Graph/Graph.from-self.ts",
+      "symbol": "DirectedGraphFromSelf",
+      "kind": "exported-interface",
+      "status": "exception",
+      "owner": "@beep/schema",
+      "reason": "Generic interface requires manual modeling and is tracked as an exception."
+    },
+    {
+      "file": "packages/foundation/modeling/schema/src/Graph/Graph.from-self.ts",
       "symbol": "GraphFromSelf",
       "kind": "exported-interface",
       "status": "exception",
@@ -862,15 +850,7 @@
       "reason": "Generic interface requires manual modeling and is tracked as an exception."
     },
     {
-      "file": "packages/foundation/modeling/schema/src/Graph.ts",
-      "symbol": "MutableDirectedGraph",
-      "kind": "exported-interface",
-      "status": "exception",
-      "owner": "@beep/schema",
-      "reason": "Generic interface requires manual modeling and is tracked as an exception."
-    },
-    {
-      "file": "packages/foundation/modeling/schema/src/Graph.ts",
+      "file": "packages/foundation/modeling/schema/src/Graph/Graph.from-self.ts",
       "symbol": "MutableDirectedGraphFromSelf",
       "kind": "exported-interface",
       "status": "exception",
@@ -878,7 +858,7 @@
       "reason": "Generic interface requires manual modeling and is tracked as an exception."
     },
     {
-      "file": "packages/foundation/modeling/schema/src/Graph.ts",
+      "file": "packages/foundation/modeling/schema/src/Graph/Graph.from-self.ts",
       "symbol": "MutableGraphFromSelf",
       "kind": "exported-interface",
       "status": "exception",
@@ -886,15 +866,7 @@
       "reason": "Generic interface requires manual modeling and is tracked as an exception."
     },
     {
-      "file": "packages/foundation/modeling/schema/src/Graph.ts",
-      "symbol": "MutableUndirectedGraph",
-      "kind": "exported-interface",
-      "status": "exception",
-      "owner": "@beep/schema",
-      "reason": "Generic interface requires manual modeling and is tracked as an exception."
-    },
-    {
-      "file": "packages/foundation/modeling/schema/src/Graph.ts",
+      "file": "packages/foundation/modeling/schema/src/Graph/Graph.from-self.ts",
       "symbol": "MutableUndirectedGraphFromSelf",
       "kind": "exported-interface",
       "status": "exception",
@@ -902,16 +874,40 @@
       "reason": "Generic interface requires manual modeling and is tracked as an exception."
     },
     {
-      "file": "packages/foundation/modeling/schema/src/Graph.ts",
-      "symbol": "UndirectedGraph",
+      "file": "packages/foundation/modeling/schema/src/Graph/Graph.from-self.ts",
+      "symbol": "UndirectedGraphFromSelf",
       "kind": "exported-interface",
       "status": "exception",
       "owner": "@beep/schema",
       "reason": "Generic interface requires manual modeling and is tracked as an exception."
     },
     {
-      "file": "packages/foundation/modeling/schema/src/Graph.ts",
-      "symbol": "UndirectedGraphFromSelf",
+      "file": "packages/foundation/modeling/schema/src/Graph/Graph.transforms.ts",
+      "symbol": "DirectedGraph",
+      "kind": "exported-interface",
+      "status": "exception",
+      "owner": "@beep/schema",
+      "reason": "Generic interface requires manual modeling and is tracked as an exception."
+    },
+    {
+      "file": "packages/foundation/modeling/schema/src/Graph/Graph.transforms.ts",
+      "symbol": "MutableDirectedGraph",
+      "kind": "exported-interface",
+      "status": "exception",
+      "owner": "@beep/schema",
+      "reason": "Generic interface requires manual modeling and is tracked as an exception."
+    },
+    {
+      "file": "packages/foundation/modeling/schema/src/Graph/Graph.transforms.ts",
+      "symbol": "MutableUndirectedGraph",
+      "kind": "exported-interface",
+      "status": "exception",
+      "owner": "@beep/schema",
+      "reason": "Generic interface requires manual modeling and is tracked as an exception."
+    },
+    {
+      "file": "packages/foundation/modeling/schema/src/Graph/Graph.transforms.ts",
+      "symbol": "UndirectedGraph",
       "kind": "exported-interface",
       "status": "exception",
       "owner": "@beep/schema",
@@ -942,95 +938,7 @@
       "reason": "Generic interface requires manual modeling and is tracked as an exception."
     },
     {
-      "file": "packages/foundation/modeling/schema/src/Model.ts",
-      "symbol": "BooleanSqlite",
-      "kind": "exported-interface",
-      "status": "exception",
-      "owner": "@beep/schema",
-      "reason": "Derived interface with extends clauses is tracked as an exception."
-    },
-    {
-      "file": "packages/foundation/modeling/schema/src/Model.ts",
-      "symbol": "Date",
-      "kind": "exported-interface",
-      "status": "exception",
-      "owner": "@beep/schema",
-      "reason": "Derived interface with extends clauses is tracked as an exception."
-    },
-    {
-      "file": "packages/foundation/modeling/schema/src/Model.ts",
-      "symbol": "DateTimeInsert",
-      "kind": "exported-interface",
-      "status": "exception",
-      "owner": "@beep/schema",
-      "reason": "Derived interface with extends clauses is tracked as an exception."
-    },
-    {
-      "file": "packages/foundation/modeling/schema/src/Model.ts",
-      "symbol": "DateTimeInsertFromDate",
-      "kind": "exported-interface",
-      "status": "exception",
-      "owner": "@beep/schema",
-      "reason": "Derived interface with extends clauses is tracked as an exception."
-    },
-    {
-      "file": "packages/foundation/modeling/schema/src/Model.ts",
-      "symbol": "DateTimeInsertFromNumber",
-      "kind": "exported-interface",
-      "status": "exception",
-      "owner": "@beep/schema",
-      "reason": "Derived interface with extends clauses is tracked as an exception."
-    },
-    {
-      "file": "packages/foundation/modeling/schema/src/Model.ts",
-      "symbol": "DateTimeUpdate",
-      "kind": "exported-interface",
-      "status": "exception",
-      "owner": "@beep/schema",
-      "reason": "Derived interface with extends clauses is tracked as an exception."
-    },
-    {
-      "file": "packages/foundation/modeling/schema/src/Model.ts",
-      "symbol": "DateTimeUpdateFromDate",
-      "kind": "exported-interface",
-      "status": "exception",
-      "owner": "@beep/schema",
-      "reason": "Derived interface with extends clauses is tracked as an exception."
-    },
-    {
-      "file": "packages/foundation/modeling/schema/src/Model.ts",
-      "symbol": "DateTimeUpdateFromNumber",
-      "kind": "exported-interface",
-      "status": "exception",
-      "owner": "@beep/schema",
-      "reason": "Derived interface with extends clauses is tracked as an exception."
-    },
-    {
-      "file": "packages/foundation/modeling/schema/src/Model.ts",
-      "symbol": "FieldOption",
-      "kind": "exported-interface",
-      "status": "exception",
-      "owner": "@beep/schema",
-      "reason": "Generic interface requires manual modeling and is tracked as an exception."
-    },
-    {
-      "file": "packages/foundation/modeling/schema/src/Model.ts",
-      "symbol": "Generated",
-      "kind": "exported-interface",
-      "status": "exception",
-      "owner": "@beep/schema",
-      "reason": "Generic interface requires manual modeling and is tracked as an exception."
-    },
-    {
-      "file": "packages/foundation/modeling/schema/src/Model.ts",
-      "symbol": "GeneratedByApp",
-      "kind": "exported-interface",
-      "status": "exception",
-      "owner": "@beep/schema",
-      "reason": "Generic interface requires manual modeling and is tracked as an exception."
-    },
-    {
-      "file": "packages/foundation/modeling/schema/src/Model.ts",
+      "file": "packages/foundation/modeling/schema/src/Model/Model.codecs.ts",
       "symbol": "JsonFromString",
       "kind": "exported-interface",
       "status": "exception",
@@ -1038,23 +946,87 @@
       "reason": "Generic interface requires manual modeling and is tracked as an exception."
     },
     {
-      "file": "packages/foundation/modeling/schema/src/Model.ts",
-      "symbol": "Overridable",
+      "file": "packages/foundation/modeling/schema/src/Model/Model.datetime.ts",
+      "symbol": "Date",
+      "kind": "exported-interface",
+      "status": "exception",
+      "owner": "@beep/schema",
+      "reason": "Derived interface with extends clauses is tracked as an exception."
+    },
+    {
+      "file": "packages/foundation/modeling/schema/src/Model/Model.datetime.ts",
+      "symbol": "DateTimeInsert",
+      "kind": "exported-interface",
+      "status": "exception",
+      "owner": "@beep/schema",
+      "reason": "Derived interface with extends clauses is tracked as an exception."
+    },
+    {
+      "file": "packages/foundation/modeling/schema/src/Model/Model.datetime.ts",
+      "symbol": "DateTimeInsertFromDate",
+      "kind": "exported-interface",
+      "status": "exception",
+      "owner": "@beep/schema",
+      "reason": "Derived interface with extends clauses is tracked as an exception."
+    },
+    {
+      "file": "packages/foundation/modeling/schema/src/Model/Model.datetime.ts",
+      "symbol": "DateTimeInsertFromNumber",
+      "kind": "exported-interface",
+      "status": "exception",
+      "owner": "@beep/schema",
+      "reason": "Derived interface with extends clauses is tracked as an exception."
+    },
+    {
+      "file": "packages/foundation/modeling/schema/src/Model/Model.datetime.ts",
+      "symbol": "DateTimeUpdate",
+      "kind": "exported-interface",
+      "status": "exception",
+      "owner": "@beep/schema",
+      "reason": "Derived interface with extends clauses is tracked as an exception."
+    },
+    {
+      "file": "packages/foundation/modeling/schema/src/Model/Model.datetime.ts",
+      "symbol": "DateTimeUpdateFromDate",
+      "kind": "exported-interface",
+      "status": "exception",
+      "owner": "@beep/schema",
+      "reason": "Derived interface with extends clauses is tracked as an exception."
+    },
+    {
+      "file": "packages/foundation/modeling/schema/src/Model/Model.datetime.ts",
+      "symbol": "DateTimeUpdateFromNumber",
+      "kind": "exported-interface",
+      "status": "exception",
+      "owner": "@beep/schema",
+      "reason": "Derived interface with extends clauses is tracked as an exception."
+    },
+    {
+      "file": "packages/foundation/modeling/schema/src/Model/Model.fields.ts",
+      "symbol": "FieldOption",
       "kind": "exported-interface",
       "status": "exception",
       "owner": "@beep/schema",
       "reason": "Generic interface requires manual modeling and is tracked as an exception."
     },
     {
-      "file": "packages/foundation/modeling/schema/src/Model.ts",
-      "symbol": "Overrideable",
+      "file": "packages/foundation/modeling/schema/src/Model/Model.fields.ts",
+      "symbol": "Generated",
       "kind": "exported-interface",
       "status": "exception",
       "owner": "@beep/schema",
       "reason": "Generic interface requires manual modeling and is tracked as an exception."
     },
     {
-      "file": "packages/foundation/modeling/schema/src/Model.ts",
+      "file": "packages/foundation/modeling/schema/src/Model/Model.fields.ts",
+      "symbol": "GeneratedByApp",
+      "kind": "exported-interface",
+      "status": "exception",
+      "owner": "@beep/schema",
+      "reason": "Generic interface requires manual modeling and is tracked as an exception."
+    },
+    {
+      "file": "packages/foundation/modeling/schema/src/Model/Model.fields.ts",
       "symbol": "Sensitive",
       "kind": "exported-interface",
       "status": "exception",
@@ -1062,7 +1034,23 @@
       "reason": "Generic interface requires manual modeling and is tracked as an exception."
     },
     {
-      "file": "packages/foundation/modeling/schema/src/Model.ts",
+      "file": "packages/foundation/modeling/schema/src/Model/Model.fields.ts",
+      "symbol": "optionalOption",
+      "kind": "exported-interface",
+      "status": "exception",
+      "owner": "@beep/schema",
+      "reason": "Generic interface requires manual modeling and is tracked as an exception."
+    },
+    {
+      "file": "packages/foundation/modeling/schema/src/Model/Model.sqlite.ts",
+      "symbol": "BooleanSqlite",
+      "kind": "exported-interface",
+      "status": "exception",
+      "owner": "@beep/schema",
+      "reason": "Derived interface with extends clauses is tracked as an exception."
+    },
+    {
+      "file": "packages/foundation/modeling/schema/src/Model/Model.uuid.ts",
       "symbol": "UuidV4Insert",
       "kind": "exported-interface",
       "status": "exception",
@@ -1070,8 +1058,16 @@
       "reason": "Generic interface requires manual modeling and is tracked as an exception."
     },
     {
-      "file": "packages/foundation/modeling/schema/src/Model.ts",
-      "symbol": "optionalOption",
+      "file": "packages/foundation/modeling/schema/src/Model/Model.variants.ts",
+      "symbol": "Overridable",
+      "kind": "exported-interface",
+      "status": "exception",
+      "owner": "@beep/schema",
+      "reason": "Generic interface requires manual modeling and is tracked as an exception."
+    },
+    {
+      "file": "packages/foundation/modeling/schema/src/Model/Model.variants.ts",
+      "symbol": "Overrideable",
       "kind": "exported-interface",
       "status": "exception",
       "owner": "@beep/schema",
@@ -1118,22 +1114,6 @@
       "reason": "Generic type alias requires manual modeling and is tracked as an exception."
     },
     {
-      "file": "packages/foundation/modeling/schema/src/Sql/Sql.ts",
-      "symbol": "MakeOptions",
-      "kind": "exported-interface",
-      "status": "exception",
-      "owner": "@beep/schema",
-      "reason": "Generic interface requires manual modeling and is tracked as an exception."
-    },
-    {
-      "file": "packages/foundation/modeling/schema/src/Sql/Sql.ts",
-      "symbol": "MakeReturn",
-      "kind": "exported-interface",
-      "status": "exception",
-      "owner": "@beep/schema",
-      "reason": "Generic interface requires manual modeling and is tracked as an exception."
-    },
-    {
       "file": "packages/foundation/modeling/schema/src/StatusCauseTaggedErrorClass.ts",
       "symbol": "StatusCauseTaggedErrorClassFactory",
       "kind": "exported-interface",
@@ -1150,7 +1130,7 @@
       "reason": "Generic interface requires manual modeling and is tracked as an exception."
     },
     {
-      "file": "packages/foundation/modeling/schema/src/VariantSchema.ts",
+      "file": "packages/foundation/modeling/schema/src/VariantSchema/VariantSchema.core.ts",
       "symbol": "Class",
       "kind": "exported-interface",
       "status": "exception",
@@ -1158,7 +1138,7 @@
       "reason": "Generic interface requires manual modeling and is tracked as an exception."
     },
     {
-      "file": "packages/foundation/modeling/schema/src/VariantSchema.ts",
+      "file": "packages/foundation/modeling/schema/src/VariantSchema/VariantSchema.core.ts",
       "symbol": "Field",
       "kind": "exported-interface",
       "status": "exception",
@@ -1166,23 +1146,7 @@
       "reason": "Generic interface requires manual modeling and is tracked as an exception."
     },
     {
-      "file": "packages/foundation/modeling/schema/src/VariantSchema.ts",
-      "symbol": "Overridable",
-      "kind": "exported-interface",
-      "status": "exception",
-      "owner": "@beep/schema",
-      "reason": "Generic interface requires manual modeling and is tracked as an exception."
-    },
-    {
-      "file": "packages/foundation/modeling/schema/src/VariantSchema.ts",
-      "symbol": "Overrideable",
-      "kind": "exported-interface",
-      "status": "exception",
-      "owner": "@beep/schema",
-      "reason": "Generic interface requires manual modeling and is tracked as an exception."
-    },
-    {
-      "file": "packages/foundation/modeling/schema/src/VariantSchema.ts",
+      "file": "packages/foundation/modeling/schema/src/VariantSchema/VariantSchema.core.ts",
       "symbol": "Struct",
       "kind": "exported-interface",
       "status": "exception",
@@ -1190,7 +1154,7 @@
       "reason": "Generic interface requires manual modeling and is tracked as an exception."
     },
     {
-      "file": "packages/foundation/modeling/schema/src/VariantSchema.ts",
+      "file": "packages/foundation/modeling/schema/src/VariantSchema/VariantSchema.core.ts",
       "symbol": "Union",
       "kind": "exported-interface",
       "status": "exception",
@@ -1198,12 +1162,28 @@
       "reason": "Generic interface requires manual modeling and is tracked as an exception."
     },
     {
-      "file": "packages/foundation/modeling/schema/src/VariantSchema.ts",
+      "file": "packages/foundation/modeling/schema/src/VariantSchema/VariantSchema.core.ts",
       "symbol": "extract",
       "kind": "object-struct-schema",
       "status": "exception",
       "owner": "@beep/schema",
       "reason": "S.Struct usage without a plain object literal stays tracked as an exception."
+    },
+    {
+      "file": "packages/foundation/modeling/schema/src/VariantSchema/VariantSchema.overridable.ts",
+      "symbol": "Overridable",
+      "kind": "exported-interface",
+      "status": "exception",
+      "owner": "@beep/schema",
+      "reason": "Generic interface requires manual modeling and is tracked as an exception."
+    },
+    {
+      "file": "packages/foundation/modeling/schema/src/VariantSchema/VariantSchema.overridable.ts",
+      "symbol": "Overrideable",
+      "kind": "exported-interface",
+      "status": "exception",
+      "owner": "@beep/schema",
+      "reason": "Generic interface requires manual modeling and is tracked as an exception."
     },
     {
       "file": "packages/foundation/modeling/schema/src/http/headers/Csp.ts",
@@ -1494,12 +1474,12 @@
       "reason": "Interface contains non-schema signals such as function members or runtime handles."
     },
     {
-      "file": "packages/tooling/tool/cli/src/commands/SyncDataToTs/index.ts",
-      "symbol": "rowSchema",
-      "kind": "object-struct-schema",
+      "file": "packages/tooling/tool/cli/src/commands/Image/Image.service.ts",
+      "symbol": "ImageCommandServiceShape",
+      "kind": "exported-interface",
       "status": "exception",
       "owner": "@beep/repo-cli",
-      "reason": "S.Struct usage without a plain object literal stays tracked as an exception."
+      "reason": "Interface contains non-schema signals such as function members or runtime handles."
     },
     {
       "file": "packages/tooling/tool/cli/src/commands/VersionSync/internal/services/CategorySelectionService.ts",

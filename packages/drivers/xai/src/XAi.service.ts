@@ -19,12 +19,6 @@ import * as HttpClientRequest from "effect/unstable/http/HttpClientRequest";
 import type * as HttpClientResponse from "effect/unstable/http/HttpClientResponse";
 import WebSocket from "ws";
 import { XAI_API_URL, XAI_MANAGEMENT_API_URL, XAI_WEBSOCKET_URL, XAiConfigInput } from "./XAi.config.ts";
-import {
-  XAI_ENDPOINTS,
-  type XAiEndpointBase,
-  type XAiEndpointDescriptor,
-  type XAiEndpointMethodName,
-} from "./XAi.endpoints.ts";
 import { XAiError } from "./XAi.errors.ts";
 import {
   XAiBinaryResponse,
@@ -37,6 +31,12 @@ import {
   XAiTextResponse,
   type XAiWebSocketEvent,
 } from "./XAi.models.ts";
+import {
+  XAI_ENDPOINTS,
+  type XAiEndpointBase,
+  type XAiEndpointDescriptor,
+  type XAiEndpointMethodName,
+} from "./XAiEndpoints.models.ts";
 
 const $I = $XaiId.create("XAi.service");
 

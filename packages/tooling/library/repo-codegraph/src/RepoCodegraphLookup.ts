@@ -5,54 +5,96 @@
  * @since 0.0.0
  */
 
+import { $RepoCodegraphId } from "@beep/identity/packages";
 import { A, Str } from "@beep/utils";
 import { flow, Order, pipe } from "effect";
 import { dual } from "effect/Function";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
+import * as S from "effect/Schema";
 import {
   RepoCodegraphBoundaryAdvice,
   type RepoCodegraphBoundaryStatus,
-  type RepoCodegraphFreshnessStatus,
+  RepoCodegraphFreshnessStatus,
   RepoCodegraphImportCandidate,
   RepoCodegraphLookupMatch,
   type RepoCodegraphLookupRequest,
   RepoCodegraphLookupResult,
   RepoCodegraphLookupScore,
   RepoCodegraphLookupTotals,
-  type RepoCodegraphPackageImportPolicy,
+  RepoCodegraphPackageImportPolicy,
   type RepoCodegraphPreferredImport,
 } from "./RepoCodegraphLookup.model.ts";
-import type {
-  RepoExportsCatalog,
+import {
+  type RepoExportsCatalog,
   RepoExportsCatalogEntry,
   RepoExportsCatalogPackage,
 } from "./RepoExportsCatalog.model.ts";
+
+const $I = $RepoCodegraphId.create("RepoCodegraphLookup");
 
 const defaultFreshnessWarning =
   "Catalog freshness was not checked; run with --strict or `bun run repo-exports:catalog:check`.";
 const boundaryCitations = ["standards/ARCHITECTURE.md", "standards/architecture/07-non-slice-families.md"] as const;
 
-type ScoredEntry = {
-  readonly entry: RepoExportsCatalogEntry;
-  readonly score: RepoCodegraphLookupScore;
-  readonly boundary: RepoCodegraphBoundaryAdvice;
-};
+class ScoredEntry extends S.Class<ScoredEntry>($I`ScoredEntry`)(
+  {
+    entry: RepoExportsCatalogEntry,
+    score: RepoCodegraphLookupScore,
+    boundary: RepoCodegraphBoundaryAdvice,
+  },
+  $I.annote("ScoredEntry", {
+    description: "A scored entry from the repo exports catalog",
+  })
+) {}
 
-type FromPackageResolution = {
-  readonly package: O.Option<RepoExportsCatalogPackage>;
-  readonly selector: O.Option<string>;
-};
+/**
+ * Resolved package and selector details for a lookup request.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class FromPackageResolution extends S.Class<FromPackageResolution>($I`FromPackageResolution`)(
+  {
+    package: S.Option(RepoExportsCatalogPackage),
+    selector: S.Option(S.String),
+  },
+  $I.annote("FromPackageResolution", {
+    description: "A package resolution from the repo exports catalog",
+  })
+) {}
 
-type LookupOptions = {
-  readonly freshnessStatus?: RepoCodegraphFreshnessStatus;
-  readonly importPolicies?: ReadonlyArray<RepoCodegraphPackageImportPolicy>;
-};
+/**
+ * Optional freshness and import-policy inputs for repo codegraph lookup.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class LookupOptions extends S.Class<LookupOptions>($I`LookupOptions`)(
+  {
+    freshnessStatus: S.optionalKey(RepoCodegraphFreshnessStatus),
+    importPolicies: RepoCodegraphPackageImportPolicy.pipe(S.Array, S.optionalKey),
+  },
+  $I.annote("LookupOptions", {
+    description: "Options for the repo codegraph lookup",
+  })
+) {}
 
-type NormalizedPathLikeSelector = {
-  readonly escapedRoot: boolean;
-  readonly segments: ReadonlyArray<string>;
-};
+/**
+ * Normalized path-like selector tokens used for catalog matching.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class NormalizedPathLikeSelector extends S.Class<NormalizedPathLikeSelector>($I`NormalizedPathLikeSelector`)(
+  {
+    escapedRoot: S.Boolean,
+    segments: S.Array(S.String),
+  },
+  $I.annote("NormalizedPathLikeSelector", {
+    description: "A normalized path-like selector for repo codegraph lookup",
+  })
+) {}
 
 const normalizeCamelCase = Str.replace(/([a-z0-9])([A-Z])/gu, "$1 $2");
 const normalizeSearchText = flow(normalizeCamelCase, Str.toLowerCase, Str.replace(/[^a-z0-9@/._-]+/gu, " "), Str.trim);
@@ -190,18 +232,33 @@ const normalizePathLikeSelector = (selector: string): string => {
   const state = pipe(
     normalized,
     Str.split("/"),
-    A.reduce<NormalizedPathLikeSelector, string>({ escapedRoot: false, segments: A.empty() }, (state, segment) => {
-      if (state.escapedRoot || segment === "" || segment === ".") {
-        return state;
-      }
-      if (segment === "..") {
-        if (A.isReadonlyArrayNonEmpty(state.segments)) {
-          return { escapedRoot: false, segments: A.dropRight(state.segments, 1) };
+    A.reduce<NormalizedPathLikeSelector, string>(
+      {
+        escapedRoot: false,
+        segments: A.empty(),
+      },
+      (state, segment) => {
+        if (state.escapedRoot || segment === "" || segment === ".") {
+          return state;
         }
-        return { escapedRoot: true, segments: state.segments };
+        if (segment === "..") {
+          if (A.isReadonlyArrayNonEmpty(state.segments)) {
+            return {
+              escapedRoot: false,
+              segments: A.dropRight(state.segments, 1),
+            };
+          }
+          return {
+            escapedRoot: true,
+            segments: state.segments,
+          };
+        }
+        return {
+          escapedRoot: false,
+          segments: A.append(state.segments, segment),
+        };
       }
-      return { escapedRoot: false, segments: A.append(state.segments, segment) };
-    })
+    )
   );
   return state.escapedRoot ? normalized : pipe(state.segments, A.join("/"));
 };

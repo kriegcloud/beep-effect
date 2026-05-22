@@ -297,6 +297,12 @@ type MappedLiteralKitBase<M extends MappedPairs> = ForwardDirectionalKit<M> & {
 /**
  * @since 0.0.0
  */
+/**
+ * Public schema module export.
+ *
+ * @category schemas
+ * @since 0.0.0
+ */
 export interface MappedLiteralKit<M extends MappedPairs> extends MappedLiteralKitBase<M> {
   annotate(annotations: S.Annotations.Bottom<this["Type"], this["~type.parameters"]>): MappedLiteralKit<M>;
   readonly Rebuild: MappedLiteralKit<M>;

@@ -8,8 +8,9 @@
 import { $RepoCliId } from "@beep/identity/packages";
 import { findRepoRoot } from "@beep/repo-utils";
 import { TaggedErrorClass } from "@beep/schema";
-import { A, Str, thunkFalse } from "@beep/utils";
+import { A, Str, thunkEmptyStr, thunkFalse } from "@beep/utils";
 import { Clock, Config, Console, Duration, Effect, FileSystem, Path, pipe, Runtime, Stream } from "effect";
+import { dual } from "effect/Function";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import { ChildProcess, type ChildProcessSpawner } from "effect/unstable/process";
@@ -46,32 +47,56 @@ export class GraphitiProxyOpsError extends TaggedErrorClass<GraphitiProxyOpsErro
   override readonly [Runtime.errorExitCode] = this.exitCode ?? 1;
 }
 
-type ProxyEnsureConfig = {
-  readonly falkorContainer: string;
-  readonly graphitiContainer: string;
-  readonly healthUrl: string;
-  readonly logFile: string;
-  readonly pidFile: string;
-  readonly port: string;
-  readonly recoverOnUnhealthy: boolean;
-  readonly recoveryMcpUrl: string;
-  readonly recoveryVerifyGroup: string;
-  readonly stateDir: string;
-  readonly timeoutSeconds: number;
-  readonly waitSeconds: number;
-};
+class ProxyEnsureConfig extends S.Class<ProxyEnsureConfig>($I`ProxyEnsureConfig`)(
+  {
+    falkorContainer: S.String,
+    graphitiContainer: S.String,
+    healthUrl: S.String,
+    logFile: S.String,
+    pidFile: S.String,
+    port: S.String,
+    recoverOnUnhealthy: S.Boolean,
+    recoveryMcpUrl: S.String,
+    recoveryVerifyGroup: S.String,
+    stateDir: S.String,
+    timeoutSeconds: S.Number,
+    waitSeconds: S.Number,
+  },
+  $I.annote("ProxyEnsureConfig", {
+    description: "Configuration for ensuring the Graphiti proxy service is running.",
+  })
+) {}
 
-type ProxyServiceConfig = {
-  readonly serviceFile: string;
-  readonly serviceName: string;
-  readonly stateDir: string;
-  readonly systemdUserDir: string;
-};
+/**
+ * Configuration for installing and managing the Graphiti proxy user service.
+ *
+ * @example
+ * ```ts
+ * import { ProxyServiceConfig } from "@beep/repo-cli/commands/Graphiti/internal/ProxyOps"
+ *
+ * const serviceName: ProxyServiceConfig["serviceName"] = "beep-graphiti-proxy.service"
+ * ```
+ * @category models
+ * @since 0.0.0
+ */
+export class ProxyServiceConfig extends S.Class<ProxyServiceConfig>($I`ProxyServiceConfig`)(
+  {
+    serviceFile: S.String,
+    serviceName: S.String,
+    stateDir: S.String,
+    systemdUserDir: S.String,
+  },
+  $I.annote("ProxyServiceConfig", {
+    description: "Configuration for managing the Graphiti proxy service.",
+  })
+) {}
 
 const DEFAULT_PROXY_MCP_URL = "http://127.0.0.1:8123/mcp";
-const emptyString = () => "";
 
-const commandText = (command: string, args: ReadonlyArray<string>) => A.join([command, ...args], " ");
+const commandText: {
+  (command: string, args: ReadonlyArray<string>): string;
+  (args: ReadonlyArray<string>): (command: string) => string;
+} = dual(2, (command: string, args: ReadonlyArray<string>): string => A.join([command, ...args], " "));
 
 const shellQuote = (value: string): string => `'${Str.replaceAll("'", "'\"'\"'")(value)}'`;
 
@@ -83,19 +108,29 @@ const homeDirectory = (): string =>
     O.getOrElse(() => process.cwd())
   );
 
-const envValue = (name: string, fallback: string): string =>
+const envValue: {
+  (name: string, fallback: string): string;
+  (fallback: string): (name: string) => string;
+} = dual(2, (name: string, fallback: string): string =>
   pipe(
     configStringOptionSync(name),
     O.filter(Str.isNonEmpty),
     O.getOrElse(() => fallback)
-  );
+  )
+);
 
-const intEnvValue = (name: string, fallback: number): number => {
+const intEnvValue: {
+  (name: string, fallback: number): number;
+  (fallback: number): (name: string) => number;
+} = dual(2, (name: string, fallback: number): number => {
   const parsed = Number.parseInt(envValue(name, ""), 10);
   return Number.isFinite(parsed) && parsed > 0 ? parsed : fallback;
-};
+});
 
-const booleanEnvValue = (name: string, fallback: boolean): boolean => {
+const booleanEnvValue: {
+  (name: string, fallback: boolean): boolean;
+  (fallback: boolean): (name: string) => boolean;
+} = dual(2, (name: string, fallback: boolean): boolean => {
   const normalized = Str.toLowerCase(Str.trim(envValue(name, "")));
   if (normalized === "true" || normalized === "1" || normalized === "yes") {
     return true;
@@ -104,7 +139,7 @@ const booleanEnvValue = (name: string, fallback: boolean): boolean => {
     return false;
   }
   return fallback;
-};
+});
 
 const proxyPortFromUrl = (healthUrl: string): string => {
   try {
@@ -166,7 +201,7 @@ const collectStepOutput = (step: QualityTaskStep) =>
       });
       const output = yield* handle.all.pipe(
         Stream.decodeText(),
-        Stream.runFold(emptyString, (acc, chunk) => acc + chunk)
+        Stream.runFold(thunkEmptyStr, (acc, chunk) => acc + chunk)
       );
       const exitCode = yield* handle.exitCode;
       return {
@@ -252,7 +287,15 @@ const checkProxyHealth = Effect.fn("GraphitiProxyOps.checkProxyHealth")(function
 });
 
 const collectOptionalOutput = (step: QualityTaskStep) =>
-  collectStepOutput(step).pipe(Effect.orElseSucceed(() => ({ exitCode: 1, output: "" }) as const));
+  collectStepOutput(step).pipe(
+    Effect.orElseSucceed(
+      () =>
+        ({
+          exitCode: 1,
+          output: "",
+        }) as const
+    )
+  );
 
 const dockerAvailable = Effect.fn("GraphitiProxyOps.dockerAvailable")(function* (
   repoRoot: string
@@ -268,60 +311,83 @@ const dockerAvailable = Effect.fn("GraphitiProxyOps.dockerAvailable")(function* 
   return result.exitCode === 0;
 });
 
-const containerExists = Effect.fn("GraphitiProxyOps.containerExists")(function* (
-  repoRoot: string,
-  container: string
-): Effect.fn.Return<boolean, never, ChildProcessSpawner.ChildProcessSpawner> {
-  const result = yield* collectOptionalOutput(
-    new QualityTaskStep({
-      label: "graphiti-recover:docker-inspect",
-      command: "docker",
-      args: ["inspect", container],
-      cwd: repoRoot,
-    })
-  );
-  return result.exitCode === 0;
-});
+const containerExists: {
+  (repoRoot: string, container: string): Effect.Effect<boolean, never, ChildProcessSpawner.ChildProcessSpawner>;
+  (container: string): (repoRoot: string) => Effect.Effect<boolean, never, ChildProcessSpawner.ChildProcessSpawner>;
+} = dual(
+  2,
+  Effect.fn("GraphitiProxyOps.containerExists")(function* (
+    repoRoot: string,
+    container: string
+  ): Effect.fn.Return<boolean, never, ChildProcessSpawner.ChildProcessSpawner> {
+    const result = yield* collectOptionalOutput(
+      new QualityTaskStep({
+        label: "graphiti-recover:docker-inspect",
+        command: "docker",
+        args: ["inspect", container],
+        cwd: repoRoot,
+      })
+    );
+    return result.exitCode === 0;
+  })
+);
 
-const containerHealth = Effect.fn("GraphitiProxyOps.containerHealth")(function* (
-  repoRoot: string,
-  container: string
-): Effect.fn.Return<string, never, ChildProcessSpawner.ChildProcessSpawner> {
-  const result = yield* collectOptionalOutput(
-    new QualityTaskStep({
-      label: "graphiti-recover:container-health",
-      command: "docker",
-      args: ["inspect", "--format", "{{.State.Health.Status}}", container],
-      cwd: repoRoot,
-    })
-  );
-  return result.exitCode === 0 && Str.isNonEmpty(result.output) ? result.output : "unknown";
-});
+const containerHealth: {
+  (repoRoot: string, container: string): Effect.Effect<string, never, ChildProcessSpawner.ChildProcessSpawner>;
+  (container: string): (repoRoot: string) => Effect.Effect<string, never, ChildProcessSpawner.ChildProcessSpawner>;
+} = dual(
+  2,
+  Effect.fn("GraphitiProxyOps.containerHealth")(function* (
+    repoRoot: string,
+    container: string
+  ): Effect.fn.Return<string, never, ChildProcessSpawner.ChildProcessSpawner> {
+    const result = yield* collectOptionalOutput(
+      new QualityTaskStep({
+        label: "graphiti-recover:container-health",
+        command: "docker",
+        args: ["inspect", "--format", "{{.State.Health.Status}}", container],
+        cwd: repoRoot,
+      })
+    );
+    return result.exitCode === 0 && Str.isNonEmpty(result.output) ? result.output : "unknown";
+  })
+);
 
-const waitForHealthyContainers = Effect.fn("GraphitiProxyOps.waitForHealthyContainers")(function* (
-  repoRoot: string,
-  config: ProxyEnsureConfig
-): Effect.fn.Return<void, GraphitiProxyOpsError, ChildProcessSpawner.ChildProcessSpawner> {
-  const start = yield* Clock.currentTimeMillis;
-  const deadline = start + config.waitSeconds * 1000;
+const waitForHealthyContainers: {
+  (
+    repoRoot: string,
+    config: ProxyEnsureConfig
+  ): Effect.Effect<void, GraphitiProxyOpsError, ChildProcessSpawner.ChildProcessSpawner>;
+  (
+    config: ProxyEnsureConfig
+  ): (repoRoot: string) => Effect.Effect<void, GraphitiProxyOpsError, ChildProcessSpawner.ChildProcessSpawner>;
+} = dual(
+  2,
+  Effect.fn("GraphitiProxyOps.waitForHealthyContainers")(function* (
+    repoRoot: string,
+    config: ProxyEnsureConfig
+  ): Effect.fn.Return<void, GraphitiProxyOpsError, ChildProcessSpawner.ChildProcessSpawner> {
+    const start = yield* Clock.currentTimeMillis;
+    const deadline = start + config.waitSeconds * 1000;
 
-  while ((yield* Clock.currentTimeMillis) <= deadline) {
-    const falkor = yield* containerHealth(repoRoot, config.falkorContainer);
-    const graphiti = yield* containerHealth(repoRoot, config.graphitiContainer);
-    yield* Console.log(`[graphiti-recover] health falkor=${falkor} graphiti=${graphiti}`);
+    while ((yield* Clock.currentTimeMillis) <= deadline) {
+      const falkor = yield* containerHealth(repoRoot, config.falkorContainer);
+      const graphiti = yield* containerHealth(repoRoot, config.graphitiContainer);
+      yield* Console.log(`[graphiti-recover] health falkor=${falkor} graphiti=${graphiti}`);
 
-    if (falkor === "healthy" && graphiti === "healthy") {
-      return;
+      if (falkor === "healthy" && graphiti === "healthy") {
+        return;
+      }
+
+      yield* Effect.sleep(Duration.seconds(5));
     }
 
-    yield* Effect.sleep(Duration.seconds(5));
-  }
-
-  return yield* new GraphitiProxyOpsError({
-    message: "Timed out waiting for Graphiti backing containers to become healthy.",
-    exitCode: 1,
-  });
-});
+    return yield* new GraphitiProxyOpsError({
+      message: "Timed out waiting for Graphiti backing containers to become healthy.",
+      exitCode: 1,
+    });
+  })
+);
 
 const recoverGraphitiStackInternal = Effect.fn("GraphitiProxyOps.recoverGraphitiStackInternal")(function* (
   repoRoot: string,
@@ -391,7 +457,7 @@ const readLivePid = Effect.fn("GraphitiProxyOps.readLivePid")(function* (
     return O.none<string>();
   }
 
-  const pid = yield* fs.readFileString(config.pidFile).pipe(Effect.orElseSucceed(emptyString), Effect.map(Str.trim));
+  const pid = yield* fs.readFileString(config.pidFile).pipe(Effect.orElseSucceed(thunkEmptyStr), Effect.map(Str.trim));
   if (Str.isEmpty(pid)) {
     yield* fs.remove(config.pidFile).pipe(Effect.ignore);
     return O.none<string>();
@@ -413,53 +479,74 @@ const readLivePid = Effect.fn("GraphitiProxyOps.readLivePid")(function* (
   return O.some(pid);
 });
 
-const startProxyDetached = Effect.fn("GraphitiProxyOps.startProxyDetached")(function* (
-  repoRoot: string,
-  config: ProxyEnsureConfig
-): Effect.fn.Return<
-  void,
-  GraphitiProxyOpsError,
-  FileSystem.FileSystem | Path.Path | ChildProcessSpawner.ChildProcessSpawner
-> {
-  const fs = yield* FileSystem.FileSystem;
-  const path = yield* Path.Path;
+const startProxyDetached: {
+  (
+    repoRoot: string,
+    config: ProxyEnsureConfig
+  ): Effect.Effect<
+    void,
+    GraphitiProxyOpsError,
+    ChildProcessSpawner.ChildProcessSpawner | FileSystem.FileSystem | Path.Path
+  >;
+  (
+    config: ProxyEnsureConfig
+  ): (
+    repoRoot: string
+  ) => Effect.Effect<
+    void,
+    GraphitiProxyOpsError,
+    ChildProcessSpawner.ChildProcessSpawner | FileSystem.FileSystem | Path.Path
+  >;
+} = dual(
+  2,
+  Effect.fn("GraphitiProxyOps.startProxyDetached")(function* (
+    repoRoot: string,
+    config: ProxyEnsureConfig
+  ): Effect.fn.Return<
+    void,
+    GraphitiProxyOpsError,
+    FileSystem.FileSystem | Path.Path | ChildProcessSpawner.ChildProcessSpawner
+  > {
+    const fs = yield* FileSystem.FileSystem;
+    const path = yield* Path.Path;
 
-  yield* fs.makeDirectory(config.stateDir, { recursive: true }).pipe(
-    Effect.mapError(
-      (cause) =>
-        new GraphitiProxyOpsError({
-          message: `Failed to create ${config.stateDir}.`,
-          cause,
-        })
-    )
-  );
-  yield* fs.makeDirectory(path.dirname(config.pidFile), { recursive: true }).pipe(Effect.ignore);
+    yield* fs.makeDirectory(config.stateDir, { recursive: true }).pipe(
+      Effect.mapError(
+        (cause) =>
+          new GraphitiProxyOpsError({
+            message: `Failed to create ${config.stateDir}.`,
+            cause,
+          })
+      )
+    );
+    yield* fs.makeDirectory(path.dirname(config.pidFile), { recursive: true }).pipe(Effect.ignore);
 
-  yield* Console.log(
-    `[graphiti-proxy:ensure] Starting proxy via 'bun run beep graphiti proxy' (log: ${config.logFile}).`
-  );
-  const launchScript = A.join(
-    [
-      `mkdir -p ${shellQuote(config.stateDir)} ${shellQuote(path.dirname(config.pidFile))}`,
-      "if command -v setsid >/dev/null 2>&1; then",
-      `  setsid bun run beep graphiti proxy >> ${shellQuote(config.logFile)} 2>&1 < /dev/null &`,
-      "else",
-      `  nohup bun run beep graphiti proxy >> ${shellQuote(config.logFile)} 2>&1 < /dev/null &`,
-      "fi",
-      `echo "$!" > ${shellQuote(config.pidFile)}`,
-    ],
-    "\n"
-  );
+    yield* Console.log(
+      `[graphiti-proxy:ensure] Starting proxy via 'bun run beep graphiti proxy' (log: ${config.logFile}).`
+    );
+    const launchScript = A.join(
+      [
+        `mkdir -p ${shellQuote(config.stateDir)} ${shellQuote(path.dirname(config.pidFile))}`,
+        "if command -v setsid >/dev/null 2>&1; then",
+        `  setsid bun run beep graphiti proxy >> ${shellQuote(config.logFile)} 2>&1 < /dev/null &`,
+        "else",
+        `  nohup bun run beep graphiti proxy >> ${shellQuote(config.logFile)} 2>&1 < /dev/null &`,
+        "fi",
+        `echo "$!" > ${shellQuote(config.pidFile)}`,
+      ],
+      "\n"
+    );
 
-  yield* runInheritedStep(
-    new QualityTaskStep({
-      label: "graphiti-proxy:start-detached",
-      command: "sh",
-      args: ["-c", launchScript],
-      cwd: repoRoot,
-    })
-  );
-});
+    yield* runInheritedStep(
+      new QualityTaskStep({
+        label: "graphiti-proxy:start-detached",
+        command: "sh",
+        args: ["-c", launchScript],
+        cwd: repoRoot,
+      })
+    );
+  })
+);
 
 const tailLog = Effect.fn("GraphitiProxyOps.tailLog")(function* (
   config: ProxyEnsureConfig
@@ -470,7 +557,7 @@ const tailLog = Effect.fn("GraphitiProxyOps.tailLog")(function* (
     return;
   }
 
-  const text = yield* fs.readFileString(config.logFile).pipe(Effect.orElseSucceed(emptyString));
+  const text = yield* fs.readFileString(config.logFile).pipe(Effect.orElseSucceed(thunkEmptyStr));
   const tail = pipe(Str.split(text, "\n"), A.takeRight(40), A.join("\n"));
   if (Str.isNonEmpty(tail)) {
     yield* Console.error("[graphiti-proxy:ensure] Recent proxy log tail:");
@@ -498,25 +585,32 @@ export const ensureGraphitiProxy = Effect.fn("GraphitiProxyOps.ensureGraphitiPro
   const path = yield* Path.Path;
   const fs = yield* FileSystem.FileSystem;
   const repoRoot = yield* findRepoRoot().pipe(
-    Effect.mapError((cause) => new GraphitiProxyOpsError({ message: "Failed to locate repository root.", cause }))
+    Effect.mapError(
+      (cause) =>
+        new GraphitiProxyOpsError({
+          message: "Failed to locate repository root.",
+          cause,
+        })
+    )
   );
   const config = proxyEnsureConfig(path);
   const start = yield* Clock.currentTimeMillis;
   const deadline = start + config.timeoutSeconds * 1000;
 
-  yield* fs
-    .makeDirectory(config.stateDir, { recursive: true })
-    .pipe(
-      Effect.mapError((cause) => new GraphitiProxyOpsError({ message: `Failed to create ${config.stateDir}.`, cause }))
-    );
+  yield* fs.makeDirectory(config.stateDir, { recursive: true }).pipe(
+    Effect.mapError(
+      (cause) =>
+        new GraphitiProxyOpsError({
+          message: `Failed to create ${config.stateDir}.`,
+          cause,
+        })
+    )
+  );
   yield* fs.makeDirectory(path.dirname(config.pidFile), { recursive: true }).pipe(Effect.ignore);
 
   yield* recoverGraphitiStackInternal(repoRoot, config, false, false).pipe(
-    Effect.catchTag(
-      "GraphitiProxyOpsError",
-      Effect.fn(function* (error) {
-        yield* Console.error(`[graphiti-proxy:ensure] ${error.message}; continuing ensure loop.`);
-      })
+    Effect.catchTag("GraphitiProxyOpsError", (error) =>
+      Console.error(`[graphiti-proxy:ensure] ${error.message}; continuing ensure loop.`)
     )
   );
 
@@ -562,7 +656,13 @@ export const runKgWithGraphitiProxy = Effect.fn("GraphitiProxyOps.runKgWithGraph
   args: ReadonlyArray<string>
 ): Effect.fn.Return<void, GraphitiProxyOpsError, GraphitiProxyOpsEnvironment> {
   const repoRoot = yield* findRepoRoot().pipe(
-    Effect.mapError((cause) => new GraphitiProxyOpsError({ message: "Failed to locate repository root.", cause }))
+    Effect.mapError(
+      (cause) =>
+        new GraphitiProxyOpsError({
+          message: "Failed to locate repository root.",
+          cause,
+        })
+    )
   );
 
   yield* ensureGraphitiProxy();
@@ -598,7 +698,13 @@ export const recoverGraphitiStack = Effect.fn("GraphitiProxyOps.recoverGraphitiS
 }): Effect.fn.Return<void, GraphitiProxyOpsError, GraphitiProxyOpsEnvironment> {
   const path = yield* Path.Path;
   const repoRoot = yield* findRepoRoot().pipe(
-    Effect.mapError((cause) => new GraphitiProxyOpsError({ message: "Failed to locate repository root.", cause }))
+    Effect.mapError(
+      (cause) =>
+        new GraphitiProxyOpsError({
+          message: "Failed to locate repository root.",
+          cause,
+        })
+    )
   );
   const config = proxyEnsureConfig(path);
   yield* recoverGraphitiStackInternal(repoRoot, config, options?.force ?? false, options?.dryRun ?? false);
@@ -649,6 +755,7 @@ const renderServiceUnit = (repoRoot: string, bunBin: string, config: ProxyServic
       "Environment=GRAPHITI_PROXY_HOST=127.0.0.1",
       "Environment=GRAPHITI_PROXY_PORT=8123",
       "Environment=GRAPHITI_PROXY_UPSTREAM=http://127.0.0.1:8000/mcp",
+      "Environment=GRAPHITI_PROXY_SERVER_IDLE_TIMEOUT_SECONDS=75",
       `StandardOutput=append:${config.stateDir}/graphiti-proxy.log`,
       `StandardError=append:${config.stateDir}/graphiti-proxy.err.log`,
       "",
@@ -676,11 +783,22 @@ export const installGraphitiProxyService = Effect.fn("GraphitiProxyOps.installGr
     const fs = yield* FileSystem.FileSystem;
     const path = yield* Path.Path;
     const repoRoot = yield* findRepoRoot().pipe(
-      Effect.mapError((cause) => new GraphitiProxyOpsError({ message: "Failed to locate repository root.", cause }))
+      Effect.mapError(
+        (cause) =>
+          new GraphitiProxyOpsError({
+            message: "Failed to locate repository root.",
+            cause,
+          })
+      )
     );
     const config = proxyServiceConfig(path);
     const bunBin = yield* collectSuccessfulOutput(
-      new QualityTaskStep({ label: "which:bun", command: "which", args: ["bun"], cwd: repoRoot })
+      new QualityTaskStep({
+        label: "which:bun",
+        command: "which",
+        args: ["bun"],
+        cwd: repoRoot,
+      })
     );
 
     yield* fs.makeDirectory(config.systemdUserDir, { recursive: true }).pipe(
@@ -725,6 +843,14 @@ export const installGraphitiProxyService = Effect.fn("GraphitiProxyOps.installGr
         label: "systemctl:enable-now",
         command: "systemctl",
         args: ["--user", "enable", "--now", config.serviceName],
+        cwd: repoRoot,
+      })
+    );
+    yield* runInheritedStep(
+      new QualityTaskStep({
+        label: "systemctl:restart",
+        command: "systemctl",
+        args: ["--user", "restart", config.serviceName],
         cwd: repoRoot,
       })
     );

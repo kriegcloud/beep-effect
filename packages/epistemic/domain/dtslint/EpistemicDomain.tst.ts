@@ -2,11 +2,11 @@ import { CandidateClaim, type ClaimLifecycle, type ClaimLifecycle as ClaimLifecy
 import type * as Epistemic from "@beep/shared-domain/identity/Epistemic";
 import { describe, expect, it } from "tstyche";
 
-declare const candidateClaim: typeof CandidateClaim.Type;
+declare const candidateClaim: CandidateClaim;
 
 describe("@beep/epistemic-domain", () => {
   it("preserves exported value schema types", () => {
-    expect<typeof ClaimLifecycle.Type>().type.toBe<ClaimLifecycleType>();
+    expect<ClaimLifecycle>().type.toBe<ClaimLifecycleType>();
     expect<ClaimLifecycleType>().type.toBe<"candidate">();
   });
 

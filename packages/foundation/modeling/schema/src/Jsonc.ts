@@ -22,11 +22,7 @@ const $I = $SchemaId.create("Jsonc");
  * import { JsoncParseDiagnostic } from "@beep/schema/Jsonc"
  * import * as S from "effect/Schema"
  *
- * const diag = S.decodeUnknownSync(JsoncParseDiagnostic)({
- *
- *
- *
- * })
+ * const diag = S.decodeUnknownSync(JsoncParseDiagnostic)({})
  * void diag
  * ```
  *
@@ -84,12 +80,7 @@ const decodeJsoncUnknown = Effect.fn("Jsonc.decodeJsoncUnknown")(function* (cont
  * import * as S from "effect/Schema"
  * import { JsoncTextToUnknown } from "@beep/schema/Jsonc"
  *
- * const program = Effect.gen(function* () {
- *
- *
- *
- *
- * })
+ * const program = Effect.gen(function* () {})
  * void program
  * ```
  *
@@ -124,10 +115,7 @@ export const JsoncTextToUnknown = S.String.pipe(
  * const Config = S.Struct({ port: S.Number, host: S.String })
  * const decodeConfig = decodeJsoncTextAs(Config)
  *
- * const program = Effect.gen(function* () {
- *
- *
- * })
+ * const program = Effect.gen(function* () {})
  * void program
  * ```
  *

@@ -1,4 +1,4 @@
-import { EffectFnRulesOptions, runEffectFnRules } from "@beep/repo-cli/commands/Laws/EffectFn";
+import { EffectFnRulesOptions, runEffectFnRules } from "@beep/repo-cli/test/Laws";
 import { TSMorphServiceLive } from "@beep/repo-utils/TSMorph/index";
 import { A } from "@beep/utils";
 import { NodeChildProcessSpawner, NodeServices } from "@effect/platform-node";

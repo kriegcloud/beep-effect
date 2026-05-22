@@ -13,7 +13,7 @@ import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
-import { getPgErrorName, PgErrorName } from "./Postgres.sqlstate.ts";
+import { getPgErrorName, PgErrorName } from "./PostgresSqlState.models.ts";
 
 const $I = $PostgresId.create("Postgres.errors");
 const REDACTED_SQL_PARAMETER = "<redacted>";

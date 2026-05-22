@@ -4,7 +4,7 @@ import {
   findMissingChangesetPackageReferences,
   makeChangesetGraphSummary,
   runChangesetGraphCheck,
-} from "@beep/repo-cli/commands/Quality/ChangesetGraph";
+} from "@beep/repo-cli/test/Quality";
 import { NodeChildProcessSpawner, NodeServices } from "@effect/platform-node";
 import { describe, expect, it } from "@effect/vitest";
 import { Effect, FileSystem, Layer, Path } from "effect";

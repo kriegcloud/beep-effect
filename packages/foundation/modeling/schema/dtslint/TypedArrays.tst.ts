@@ -21,7 +21,7 @@ describe("Float16Array schemas", () => {
   it("preserve the typed-array schema surface", () => {
     expect<Float16ArrType>().type.toBe<Float16ArrayFromArrayType>();
     expect<Float16ArrayFromArray.Encoded>().type.toBe<ReadonlyArray<number>>();
-    expect<typeof Float16ArrayFromArray.Type>().type.toBe<Float16ArrayFromArrayType>();
+    expect<Float16ArrayFromArray>().type.toBe<Float16ArrayFromArrayType>();
   });
 
   it("exposes decode and encode helpers with the expected effect types", () => {
@@ -38,7 +38,7 @@ describe("Float32Array schemas", () => {
   it("preserve the typed-array schema surface", () => {
     expect<Float32ArrType>().type.toBe<Float32ArrayFromArrayType>();
     expect<Float32ArrayFromArray.Encoded>().type.toBe<ReadonlyArray<number>>();
-    expect<typeof Float32ArrayFromArray.Type>().type.toBe<Float32ArrayFromArrayType>();
+    expect<Float32ArrayFromArray>().type.toBe<Float32ArrayFromArrayType>();
   });
 
   it("exposes decode and encode helpers with the expected effect types", () => {
@@ -55,7 +55,7 @@ describe("Float64Array schemas", () => {
   it("preserve the typed-array schema surface", () => {
     expect<Float64ArrType>().type.toBe<Float64ArrayFromArrayType>();
     expect<Float64ArrayFromArray.Encoded>().type.toBe<ReadonlyArray<number>>();
-    expect<typeof Float64ArrayFromArray.Type>().type.toBe<Float64ArrayFromArrayType>();
+    expect<Float64ArrayFromArray>().type.toBe<Float64ArrayFromArrayType>();
   });
 
   it("exposes decode and encode helpers with the expected effect types", () => {

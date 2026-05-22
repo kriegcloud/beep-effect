@@ -37,7 +37,7 @@ const makeRepository = (
       id === current.id
         ? Effect.succeed(current)
         : Effect.fail(new CanvasProjectServer.CanvasProject.CanvasProjectRepositoryNotFound({ canvasProjectId: id })),
-    list: () => Effect.succeed([current]),
+    list: Effect.sync(() => [current]),
   };
 };
 
@@ -59,12 +59,11 @@ describe("CanvasProject use-cases", () => {
               reason: "select CanvasProject failed against canvas_project",
             })
           ),
-        list: () =>
-          Effect.fail(
-            new CanvasProjectServer.CanvasProject.CanvasProjectRepositoryUnavailable({
-              reason: "list CanvasProject failed against canvas_project",
-            })
-          ),
+        list: Effect.fail(
+          new CanvasProjectServer.CanvasProject.CanvasProjectRepositoryUnavailable({
+            reason: "list CanvasProject failed against canvas_project",
+          })
+        ),
         save: () =>
           Effect.fail(
             new CanvasProjectServer.CanvasProject.CanvasProjectRepositoryUnavailable({
@@ -104,7 +103,7 @@ describe("CanvasProject use-cases", () => {
           ),
         get: () =>
           Effect.fail(new CanvasProjectServer.CanvasProject.CanvasProjectRepositoryNotFound({ canvasProjectId })),
-        list: () => Effect.succeed([]),
+        list: Effect.succeed([]),
         save: () =>
           Effect.fail(new CanvasProjectServer.CanvasProject.CanvasProjectRepositoryNotFound({ canvasProjectId })),
       });

@@ -445,7 +445,7 @@ const timestampIso = (): string => DateTime.formatIso(DateTime.nowUnsafe());
 
 const renderJson = Effect.fn("DocgenQuality.renderJson")(function* (value: unknown) {
   const encoded = yield* encodeJson(value).pipe(
-    Effect.mapError((cause) => new DomainError({ message: "Failed to encode docgen quality JSON.", cause }))
+    Effect.mapError(DomainError.newCause("Failed to encode docgen quality JSON."))
   );
   if (encoded.length > JSON_FORMAT_MAX_LENGTH) {
     return `${encoded}\n`;
@@ -503,12 +503,9 @@ const collectChangedFiles = Effect.fn("DocgenQuality.collectChangedFiles")(funct
 
   const baseChanged = yield* runGitLines(repoRoot, REPO_BASE_CHANGED_FILE_COMMAND).pipe(
     Effect.mapError(
-      (cause) =>
-        new DomainError({
-          message:
-            "Unable to resolve affected docgen quality scope from origin/main...HEAD. Use --changed-files, --all, or --package explicitly, or refresh origin/main.",
-          cause,
-        })
+      DomainError.newCause(
+        "Unable to resolve affected docgen quality scope from origin/main...HEAD. Use --changed-files, --all, or --package explicitly, or refresh origin/main."
+      )
     )
   );
   const workingTreeChanged = yield* collectWorkingTreeChangedFiles(repoRoot);
@@ -1159,7 +1156,7 @@ const finalizeSubject = Effect.fn("DocgenQuality.finalizeSubject")(function* (
   candidate: DocgenQualitySubjectCandidate
 ) {
   const contentHash = yield* decodeContentHashFromSourceText(candidate.hashSourceText).pipe(
-    Effect.mapError((cause) => new DomainError({ message: "Failed to compute JSDoc quality subject hash.", cause }))
+    Effect.mapError(DomainError.newCause("Failed to compute JSDoc quality subject hash."))
   );
   const { hashSourceText: _hashSourceText, identityStem, ...subject } = candidate;
   void _hashSourceText;
@@ -1245,11 +1242,7 @@ const collectPackageSubjectCandidates = Effect.fn("DocgenQuality.collectPackageS
         timedOut: false,
       } satisfies PackageSubjectCandidateResult;
     },
-    catch: (cause) =>
-      new DomainError({
-        message: `Failed to inspect ${target.relativePath} source files for JSDoc quality.`,
-        cause,
-      }),
+    catch: DomainError.newCause(`Failed to inspect ${target.relativePath} source files for JSDoc quality.`),
   });
 });
 

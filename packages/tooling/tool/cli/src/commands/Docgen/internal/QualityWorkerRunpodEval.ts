@@ -310,7 +310,7 @@ const errorMessage = (error: unknown): string =>
 
 const renderJson = Effect.fn("DocgenQualityWorkerRunpodEval.renderJson")(function* (value: unknown) {
   const encoded = yield* encodeJson(value).pipe(
-    Effect.mapError((cause) => new DomainError({ message: "Failed to encode docgen Runpod worker eval JSON.", cause }))
+    Effect.mapError(DomainError.newCause("Failed to encode docgen Runpod worker eval JSON."))
   );
 
   if (encoded.length > JSON_FORMAT_MAX_LENGTH) {
@@ -325,9 +325,7 @@ const renderJson = Effect.fn("DocgenQualityWorkerRunpodEval.renderJson")(functio
 });
 
 const hashPublicIdentifier = (value: string): Effect.Effect<string, DomainError> =>
-  hashPublicTextSha256(value).pipe(
-    Effect.mapError((cause) => new DomainError({ message: "Failed to hash Runpod eval metadata.", cause }))
-  );
+  hashPublicTextSha256(value).pipe(Effect.mapError(DomainError.newCause("Failed to hash Runpod eval metadata.")));
 
 const shellQuote = (value: string): string => `'${Str.replaceAll("'", "'\"'\"'")(value)}'`;
 
@@ -497,9 +495,7 @@ const findCreatedPodIdByName = Effect.fn("DocgenQualityWorkerRunpodEval.findCrea
   const runpod = yield* Runpod;
   const pods = yield* runpod
     .listPods(new ListPodsRequest({ name: podName }))
-    .pipe(
-      Effect.mapError((cause) => new DomainError({ message: `Failed to list Runpod pods named "${podName}".`, cause }))
-    );
+    .pipe(Effect.mapError(DomainError.newCause(`Failed to list Runpod pods named "${podName}".`)));
   const podId = pipe(
     pods,
     A.findFirst((pod) => pod.name === podName),
@@ -575,11 +571,7 @@ const resolveTemplate = Effect.fn("DocgenQualityWorkerRunpodEval.resolveTemplate
         includeRunpodTemplates: true,
       })
     )
-    .pipe(
-      Effect.mapError(
-        (cause) => new DomainError({ message: "Failed to list Runpod templates for worker eval.", cause })
-      )
-    );
+    .pipe(Effect.mapError(DomainError.newCause("Failed to list Runpod templates for worker eval.")));
   const selected = selectQualityWorkerRunpodTemplate(templates);
 
   if (O.isSome(selected)) {
@@ -599,7 +591,7 @@ const resolveTemplate = Effect.fn("DocgenQualityWorkerRunpodEval.resolveTemplate
   });
 });
 
-const ollamaTagsIncludeModel = (model: string, tags: typeof OllamaTagsResponse.Type): boolean =>
+const ollamaTagsIncludeModel = (model: string, tags: OllamaTagsResponse): boolean =>
   pipe(
     tags.models,
     A.some((entry) => entry.name === model || entry.model === model)
@@ -702,7 +694,7 @@ const acquireRunpodPod = Effect.fn("DocgenQualityWorkerRunpodEval.acquireRunpodP
   const bootstrapHash = yield* hashPublicIdentifier(A.join(createInput.dockerStartCmd ?? [], "\n"));
   const created = yield* runpod
     .createPod(new CreatePodRequest({ body: createInput }))
-    .pipe(Effect.mapError((cause) => new DomainError({ message: "Failed to create Runpod worker eval pod.", cause })));
+    .pipe(Effect.mapError(DomainError.newCause("Failed to create Runpod worker eval pod.")));
   const podId = yield* requirePodId(created).pipe(Effect.catch(() => findCreatedPodIdByName({ podName })));
   const baseUrl = podProxyBaseUrl(podId);
   yield* Console.log(`docgen: created Runpod pod ${podId}; waiting on ${baseUrl}`);

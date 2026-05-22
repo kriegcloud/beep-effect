@@ -36,7 +36,7 @@ const makeRepository = (workItemId: DomainWorkItem.WorkItemId): WorkItemServer.W
               workItemId: id,
             })
           ),
-    list: () => Effect.succeed([current]),
+    list: Effect.sync(() => [current]),
   };
 };
 
@@ -58,12 +58,11 @@ describe("WorkItem use-cases", () => {
               reason: "select WorkItem failed against architecture_lab_work_item",
             })
           ),
-        list: () =>
-          Effect.fail(
-            new WorkItemServer.WorkItem.WorkItemRepositoryUnavailable({
-              reason: "list WorkItem failed against architecture_lab_work_item",
-            })
-          ),
+        list: Effect.fail(
+          new WorkItemServer.WorkItem.WorkItemRepositoryUnavailable({
+            reason: "list WorkItem failed against architecture_lab_work_item",
+          })
+        ),
         save: () =>
           Effect.fail(
             new WorkItemServer.WorkItem.WorkItemRepositoryUnavailable({

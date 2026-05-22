@@ -4,7 +4,7 @@
  * @category cli-commands
  * @since 0.0.0
  */
-export * from "./Command.js";
+export * from "./Architecture.command.js";
 /**
  * Architecture operation-plan exports.
  *

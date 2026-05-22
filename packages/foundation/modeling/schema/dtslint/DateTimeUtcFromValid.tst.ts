@@ -18,10 +18,10 @@ import { describe, expect, it } from "tstyche";
 
 describe("DateTimeUtcFromValid", () => {
   it("tracks primitive input schema types", () => {
-    expect<typeof DateTimeInputString.Type>().type.toBe<string>();
-    expect<typeof DateTimeInputNumber.Type>().type.toBe<number>();
-    expect<typeof DateTimeInputDate.Type>().type.toBe<Date>();
-    expect<typeof DateTimeInputDateTime.Type>().type.toBe<DateTime.DateTime>();
+    expect<DateTimeInputString>().type.toBe<string>();
+    expect<DateTimeInputNumber>().type.toBe<number>();
+    expect<DateTimeInputDate>().type.toBe<Date>();
+    expect<DateTimeInputDateTime>().type.toBe<DateTime.DateTime>();
   });
 
   it("tracks tagged primitive helper types", () => {
@@ -44,17 +44,17 @@ describe("DateTimeUtcFromValid", () => {
   });
 
   it("tracks tagged object input schema types", () => {
-    expect<typeof DateTimeInputInstant.Type>().type.toBe<DateTimeInputInstant>();
-    expect<typeof DateTimeInputInstantWithZone.Type>().type.toBe<DateTimeInputInstantWithZone>();
-    expect<typeof DateTimeInputParts.Type>().type.toBe<DateTimeInputParts>();
+    expect<DateTimeInputInstant>().type.toBe<DateTimeInputInstant>();
+    expect<DateTimeInputInstantWithZone>().type.toBe<DateTimeInputInstantWithZone>();
+    expect<DateTimeInputParts>().type.toBe<DateTimeInputParts>();
   });
 
   it("keeps the full input and UTC transformation types aligned", () => {
     expect<DateTimeInputKind>().type.toBe<
       "number" | "string" | "Date" | "DateTime" | "Parts" | "Instant" | "InstantWithZone"
     >();
-    expect<typeof DateTimeInput.Type>().type.toBe<DateTimeInput>();
-    expect<typeof DateTimeUtcFromValid.Type>().type.toBe<DateTime.Utc>();
+    expect<DateTimeInput>().type.toBe<DateTimeInput>();
+    expect<DateTimeUtcFromValid>().type.toBe<DateTime.Utc>();
     expect<DateTimeUtcFromValidType>().type.toBe<DateTime.Utc>();
     expect<typeof DateTimeUtcFromValid.Encoded>().type.toBe<typeof DateTimeInput.Encoded>();
   });

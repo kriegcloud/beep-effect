@@ -36,8 +36,8 @@ const $I = $InstallerUseCasesId.create("server");
  * @since 0.0.0
  */
 interface HostDependencyUseCasesShape {
-  readonly previewHostDependencies: () => Effect.Effect<HostDependencyPlan, S.SchemaError>;
-  readonly validateRequiredCommands: () => Effect.Effect<ReadonlyArray<HostDependencyValidationResult>, S.SchemaError>;
+  readonly previewHostDependencies: Effect.Effect<HostDependencyPlan, S.SchemaError>;
+  readonly validateRequiredCommands: Effect.Effect<ReadonlyArray<HostDependencyValidationResult>, S.SchemaError>;
 }
 
 /**
@@ -57,7 +57,7 @@ export class HostDependencyUseCases extends Context.Service<HostDependencyUseCas
  * @since 0.0.0
  */
 interface SecretReferenceUseCasesShape {
-  readonly previewSecretReferences: () => Effect.Effect<SecretReferencePlan, S.SchemaError>;
+  readonly previewSecretReferences: Effect.Effect<SecretReferencePlan, S.SchemaError>;
   readonly readSecretReference: (
     reference: OnePasswordReference
   ) => Effect.Effect<Redacted.Redacted<string>, S.SchemaError | SecretReferenceReadError>;
@@ -83,8 +83,8 @@ export class SecretReferenceUseCases extends Context.Service<SecretReferenceUseC
  * @since 0.0.0
  */
 interface ProviderAccountUseCasesShape {
-  readonly previewProviderAccounts: () => Effect.Effect<ProviderAccountPlan, S.SchemaError>;
-  readonly validateProviderAuths: () => Effect.Effect<ReadonlyArray<ProviderAuthValidationResult>, S.SchemaError>;
+  readonly previewProviderAccounts: Effect.Effect<ProviderAccountPlan, S.SchemaError>;
+  readonly validateProviderAuths: Effect.Effect<ReadonlyArray<ProviderAuthValidationResult>, S.SchemaError>;
 }
 
 /**
@@ -104,7 +104,7 @@ export class ProviderAccountUseCases extends Context.Service<ProviderAccountUseC
  * @since 0.0.0
  */
 interface DiscordChannelUseCasesShape {
-  readonly previewDiscordChannels: () => Effect.Effect<DiscordChannelPlan, S.SchemaError>;
+  readonly previewDiscordChannels: Effect.Effect<DiscordChannelPlan, S.SchemaError>;
   readonly validateDiscordChannel: (
     request: DiscordLiveValidationRequest,
     botToken: Redacted.Redacted<string>
@@ -128,7 +128,7 @@ export class DiscordChannelUseCases extends Context.Service<DiscordChannelUseCas
  * @since 0.0.0
  */
 interface StackManifestUseCasesShape {
-  readonly previewWorkspace: () => Effect.Effect<WorkspaceDryRunPlan, S.SchemaError>;
+  readonly previewWorkspace: Effect.Effect<WorkspaceDryRunPlan, S.SchemaError>;
 }
 
 /**

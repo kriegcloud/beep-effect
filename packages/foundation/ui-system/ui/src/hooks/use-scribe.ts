@@ -21,7 +21,7 @@ import {
   type ScribeErrorMessage,
   type ScribeQuotaExceededErrorMessage,
 } from "@elevenlabs/client";
-import { Effect } from "effect";
+import { Data, Effect } from "effect";
 import * as P from "effect/Predicate";
 import { useCallback, useEffect, useRef, useState } from "react";
 
@@ -119,6 +119,13 @@ const unknownToError = (cause: unknown): Error =>
 const closeEventToError = (event: CloseEvent): Error =>
   makeScribeError(event.reason === "" ? `Scribe connection closed with code ${event.code}` : event.reason);
 
+class ScribeConnectionFailure extends Data.TaggedError("ScribeConnectionFailure")<{
+  readonly error: Error;
+}> {}
+
+const toScribeConnectionFailure = (cause: unknown): ScribeConnectionFailure =>
+  new ScribeConnectionFailure({ error: unknownToError(cause) });
+
 const toMicrophoneOptions = (
   microphone: undefined | UseScribeMicrophoneOptions
 ): undefined | MicrophoneOptions["microphone"] =>
@@ -163,54 +170,70 @@ export function useScribe(options: UseScribeOptions): UseScribeResult {
 
   const connect = useCallback(
     ({ token }: ScribeConnectOptions): Promise<void> => {
-      disconnect();
-      setError(null);
-      setStatus("connecting");
-
       let handledError = false;
-      try {
-        const currentOptions = optionsRef.current;
-        const baseOptions = {
-          token,
-          modelId: currentOptions.modelId ?? defaultModelId,
-          ...(currentOptions.baseUri === undefined ? {} : { baseUri: currentOptions.baseUri }),
-          ...(currentOptions.commitStrategy === undefined ? {} : { commitStrategy: currentOptions.commitStrategy }),
-          ...(currentOptions.languageCode === undefined ? {} : { languageCode: currentOptions.languageCode }),
-          ...(currentOptions.minSilenceDurationMs === undefined
-            ? {}
-            : { minSilenceDurationMs: currentOptions.minSilenceDurationMs }),
-          ...(currentOptions.minSpeechDurationMs === undefined
-            ? {}
-            : { minSpeechDurationMs: currentOptions.minSpeechDurationMs }),
-          ...(currentOptions.vadSilenceThresholdSecs === undefined
-            ? {}
-            : { vadSilenceThresholdSecs: currentOptions.vadSilenceThresholdSecs }),
-          ...(currentOptions.vadThreshold === undefined ? {} : { vadThreshold: currentOptions.vadThreshold }),
-        };
-        const { audioFormat, sampleRate } = currentOptions;
-        const hasManualAudio = audioFormat !== undefined || sampleRate !== undefined;
-
-        if (hasManualAudio && (audioFormat === undefined || sampleRate === undefined)) {
-          throw makeScribeError("audioFormat and sampleRate must be provided together for manual Scribe audio.");
+      const handleUnhandledError = (failure: ScribeConnectionFailure): Effect.Effect<never, Error> => {
+        const scribeError = failure.error;
+        if (!handledError) {
+          setError(scribeError.message);
+          setStatus("idle");
+          optionsRef.current.onError?.(scribeError);
         }
+        return Effect.fail(scribeError);
+      };
 
-        const microphoneOptions = toMicrophoneOptions(currentOptions.microphone);
-        const connection =
-          hasManualAudio && audioFormat !== undefined && sampleRate !== undefined
-            ? Scribe.connect({
-                ...baseOptions,
-                audioFormat,
-                sampleRate,
-              })
-            : Scribe.connect({
-                ...baseOptions,
-                ...(microphoneOptions === undefined ? {} : { microphone: microphoneOptions }),
-              });
+      return Effect.runPromise(
+        Effect.gen(function* () {
+          disconnect();
+          setError(null);
+          setStatus("connecting");
 
-        connectionRef.current = connection;
+          const connection = yield* Effect.try({
+            try: () => {
+              const currentOptions = optionsRef.current;
+              const baseOptions = {
+                token,
+                modelId: currentOptions.modelId ?? defaultModelId,
+                ...(currentOptions.baseUri === undefined ? {} : { baseUri: currentOptions.baseUri }),
+                ...(currentOptions.commitStrategy === undefined
+                  ? {}
+                  : { commitStrategy: currentOptions.commitStrategy }),
+                ...(currentOptions.languageCode === undefined ? {} : { languageCode: currentOptions.languageCode }),
+                ...(currentOptions.minSilenceDurationMs === undefined
+                  ? {}
+                  : { minSilenceDurationMs: currentOptions.minSilenceDurationMs }),
+                ...(currentOptions.minSpeechDurationMs === undefined
+                  ? {}
+                  : { minSpeechDurationMs: currentOptions.minSpeechDurationMs }),
+                ...(currentOptions.vadSilenceThresholdSecs === undefined
+                  ? {}
+                  : { vadSilenceThresholdSecs: currentOptions.vadSilenceThresholdSecs }),
+                ...(currentOptions.vadThreshold === undefined ? {} : { vadThreshold: currentOptions.vadThreshold }),
+              };
+              const { audioFormat, sampleRate } = currentOptions;
+              const hasManualAudio = audioFormat !== undefined || sampleRate !== undefined;
 
-        return Effect.runPromise(
-          Effect.callback<void, Error>((resume) => {
+              if (hasManualAudio && (audioFormat === undefined || sampleRate === undefined)) {
+                throw makeScribeError("audioFormat and sampleRate must be provided together for manual Scribe audio.");
+              }
+
+              const microphoneOptions = toMicrophoneOptions(currentOptions.microphone);
+              return hasManualAudio && audioFormat !== undefined && sampleRate !== undefined
+                ? Scribe.connect({
+                    ...baseOptions,
+                    audioFormat,
+                    sampleRate,
+                  })
+                : Scribe.connect({
+                    ...baseOptions,
+                    ...(microphoneOptions === undefined ? {} : { microphone: microphoneOptions }),
+                  });
+            },
+            catch: toScribeConnectionFailure,
+          });
+
+          connectionRef.current = connection;
+
+          yield* Effect.callback<void, ScribeConnectionFailure>((resume) => {
             let settled = false;
 
             const settleResolve = () => {
@@ -221,64 +244,48 @@ export function useScribe(options: UseScribeOptions): UseScribeResult {
               }
             };
 
-            const settleReject = (scribeError: Error) => {
+            const settleReject = (scribeError_1: Error) => {
               handledError = true;
-              setError(scribeError.message);
-              optionsRef.current.onError?.(scribeError);
+              setError(scribeError_1.message);
+              optionsRef.current.onError?.(scribeError_1);
               if (!settled) {
                 settled = true;
                 setStatus("idle");
-                resume(Effect.fail(scribeError));
+                resume(Effect.fail(new ScribeConnectionFailure({ error: scribeError_1 })));
               }
             };
 
             connection.on(RealtimeEvents.OPEN, settleResolve);
-            connection.on(RealtimeEvents.CLOSE, (event) => {
+            connection.on(RealtimeEvents.CLOSE, (event_1) => {
               if (connectionRef.current === connection) {
                 connectionRef.current = null;
               }
               setStatus("idle");
               if (!settled) {
-                settleReject(closeEventToError(event));
+                settleReject(closeEventToError(event_1));
               }
             });
             connection.on(RealtimeEvents.ERROR, (data) => settleReject(messageToError(data)));
-            connection.on(RealtimeEvents.AUTH_ERROR, (data) => {
-              optionsRef.current.onAuthError?.(data);
-              settleReject(makeScribeError(data.error));
+            connection.on(RealtimeEvents.AUTH_ERROR, (data_2) => {
+              optionsRef.current.onAuthError?.(data_2);
+              settleReject(makeScribeError(data_2.error));
             });
-            connection.on(RealtimeEvents.QUOTA_EXCEEDED, (data) => {
-              optionsRef.current.onQuotaExceededError?.(data);
-              settleReject(makeScribeError(data.error));
+            connection.on(RealtimeEvents.QUOTA_EXCEEDED, (data_3) => {
+              optionsRef.current.onQuotaExceededError?.(data_3);
+              settleReject(makeScribeError(data_3.error));
             });
-            connection.on(RealtimeEvents.PARTIAL_TRANSCRIPT, (data) => {
-              setPartialTranscript(data.text);
-              optionsRef.current.onPartialTranscript?.(data);
+            connection.on(RealtimeEvents.PARTIAL_TRANSCRIPT, (data_4) => {
+              setPartialTranscript(data_4.text);
+              optionsRef.current.onPartialTranscript?.(data_4);
             });
-            connection.on(RealtimeEvents.COMMITTED_TRANSCRIPT, (data) => {
+            connection.on(RealtimeEvents.COMMITTED_TRANSCRIPT, (data_5) => {
               setPartialTranscript("");
-              setCommittedTranscripts((transcripts) => A.append(transcripts, data));
-              optionsRef.current.onCommittedTranscript?.(data);
+              setCommittedTranscripts((transcripts) => A.append(transcripts, data_5));
+              optionsRef.current.onCommittedTranscript?.(data_5);
             });
-          })
-        ).catch((cause: unknown) => {
-          const scribeError = unknownToError(cause);
-          if (!handledError) {
-            setError(scribeError.message);
-            setStatus("idle");
-            optionsRef.current.onError?.(scribeError);
-          }
-          throw scribeError;
-        });
-      } catch (cause) {
-        const scribeError = unknownToError(cause);
-        if (!handledError) {
-          setError(scribeError.message);
-          setStatus("idle");
-          optionsRef.current.onError?.(scribeError);
-        }
-        return Promise.reject(scribeError);
-      }
+          });
+        }).pipe(Effect.catch(handleUnhandledError))
+      );
     },
     [disconnect]
   );

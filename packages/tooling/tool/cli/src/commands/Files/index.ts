@@ -21,6 +21,13 @@ export * from "./Files.command.js";
  */
 export * from "./Files.errors.js";
 /**
+ * Media planning and rendering helpers for dataset file curation.
+ *
+ * @category utilities
+ * @since 0.0.0
+ */
+export * from "./Files.media.js";
+/**
  * Progress helpers for dataset file curation.
  *
  * @category utilities
@@ -41,10 +48,3 @@ export * from "./Files.schemas.js";
  * @since 0.0.0
  */
 export * from "./Files.service.js";
-/**
- * Reusable utilities for dataset file curation.
- *
- * @category utilities
- * @since 0.0.0
- */
-export * from "./Files.utils.js";

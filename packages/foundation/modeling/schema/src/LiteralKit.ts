@@ -641,6 +641,12 @@ type LiteralKitBase<L extends Literals, M extends EnumMappings<L> | undefined = 
 /**
  * @since 0.0.0
  */
+/**
+ * Public schema module export.
+ *
+ * @category schemas
+ * @since 0.0.0
+ */
 export interface LiteralKit<L extends Literals, M extends EnumMappings<L> | undefined = undefined>
   extends LiteralKitBase<L, M> {
   readonly Rebuild: LiteralKit<L, M>;

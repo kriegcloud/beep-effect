@@ -1255,7 +1255,7 @@ export declare namespace Symbol {
    * @category models
    * @since 0.0.0
    */
-  export type Type = typeof Symbol.Type;
+  export type Type = Symbol;
   /**
    * Encoded representation of a `Symbol` value.
    *
@@ -1383,7 +1383,10 @@ class TsMorphScopeEntrypointTsConfig extends S.Class<TsMorphScopeEntrypointTsCon
   $I.annote("TsMorphScopeEntrypointTsConfig", {
     description: "Scope entrypoint that directly targets a tsconfig file.",
   })
-) {}
+) {
+  static readonly new = (tsConfigPath: string) =>
+    new TsMorphScopeEntrypointTsConfig({ tsConfigPath: TsConfigFilePath.make(tsConfigPath) });
+}
 
 class TsMorphScopeEntrypointFile extends S.Class<TsMorphScopeEntrypointFile>($I`TsMorphScopeEntrypointFile`)(
   {
@@ -1393,7 +1396,10 @@ class TsMorphScopeEntrypointFile extends S.Class<TsMorphScopeEntrypointFile>($I`
   $I.annote("TsMorphScopeEntrypointFile", {
     description: "Scope entrypoint that resolves an owning tsconfig from a TypeScript file path.",
   })
-) {}
+) {
+  static readonly new = (filePath: string) =>
+    new TsMorphScopeEntrypointFile({ filePath: S.decodeUnknownSync(TypeScriptFilePath)(filePath) });
+}
 
 /**
  * Tagged union schema for ts-morph scope resolution entrypoints.
@@ -1415,12 +1421,11 @@ export const TsMorphScopeEntrypoint = S.Union([TsMorphScopeEntrypointTsConfig, T
   .pipe(
     S.toTaggedUnion("_tag"),
     SchemaUtils.withStatics(() => {
-      const make = (path: string) =>
-        Match.value(path).pipe(
-          Match.when(S.is(TsConfigFilePath), (path) => new TsMorphScopeEntrypointTsConfig({ tsConfigPath: path })),
-          Match.when(S.is(TypeScriptFilePath), (path) => new TsMorphScopeEntrypointFile({ filePath: path })),
-          Match.orElseAbsurd
-        );
+      const make = Match.type<string>().pipe(
+        Match.when(S.is(TsConfigFilePath), TsMorphScopeEntrypointTsConfig.new),
+        Match.when(S.is(TypeScriptFilePath), TsMorphScopeEntrypointFile.new),
+        Match.orElseAbsurd
+      );
 
       return {
         make,

@@ -217,10 +217,7 @@ const decodeDurationInput = (input: DurationInput): Effect.Effect<D.Duration, Sc
  * import * as S from "effect/Schema"
  * import { DurationFromInput } from "@beep/schema/Duration"
  *
- * const program = Effect.gen(function* () {
- *
- *
- * })
+ * const program = Effect.gen(function* () {})
  * ```
  *
  * @since 0.0.0

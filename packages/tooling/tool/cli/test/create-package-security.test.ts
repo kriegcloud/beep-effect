@@ -1,15 +1,13 @@
 import {
   ConfigUpdateTarget,
   checkConfigNeedsUpdate,
-  updateTsconfigPackages,
-} from "@beep/repo-cli/commands/CreatePackage/ConfigUpdater";
-import {
   createFileGenerationPlanService,
   FileGenerationPlan,
   GenerationAction,
   PlannedFile,
   PlannedSymlink,
-} from "@beep/repo-cli/commands/CreatePackage/FileGenerationPlanService";
+  updateTsconfigPackages,
+} from "@beep/repo-cli/test/CreatePackage";
 import { NodeServices } from "@effect/platform-node";
 import { Effect, FileSystem, Layer, Path } from "effect";
 import * as jsonc from "jsonc-parser";

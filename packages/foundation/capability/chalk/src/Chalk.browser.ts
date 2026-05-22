@@ -112,7 +112,7 @@ export const BackgroundColorName = BackgroundColorNameDefinition;
  * @since 0.0.0
  * @category models
  */
-export type BackgroundColorName = typeof BackgroundColorNameDefinition.Type;
+export type BackgroundColorName = BackgroundColorNameDefinition;
 
 /**
  * Schema for constructor options accepted by {@link Chalk}.
@@ -144,7 +144,7 @@ export const ChalkOptions = ChalkOptionsDefinition;
  * @since 0.0.0
  * @category models
  */
-export type ChalkOptions = typeof ChalkOptionsDefinition.Type;
+export type ChalkOptions = ChalkOptionsDefinition;
 
 /**
  * Schema for detected color support information.
@@ -160,7 +160,7 @@ export const ColorInfo = ColorInfoDefinition;
  * @since 0.0.0
  * @category models
  */
-export type ColorInfo = typeof ColorInfoDefinition.Type;
+export type ColorInfo = ColorInfoDefinition;
 
 /**
  * Schema for all supported Chalk color names.
@@ -176,7 +176,7 @@ export const ColorName = ColorNameDefinition;
  * @since 0.0.0
  * @category models
  */
-export type ColorName = typeof ColorNameDefinition.Type;
+export type ColorName = ColorNameDefinition;
 
 /**
  * Schema for terminal color support metadata.
@@ -192,7 +192,7 @@ export const ColorSupport = ColorSupportDefinition;
  * @since 0.0.0
  * @category models
  */
-export type ColorSupport = typeof ColorSupportDefinition.Type;
+export type ColorSupport = ColorSupportDefinition;
 
 /**
  * Schema for Chalk color support levels.
@@ -208,7 +208,7 @@ export const ColorSupportLevel = ColorSupportLevelDefinition;
  * @since 0.0.0
  * @category models
  */
-export type ColorSupportLevel = typeof ColorSupportLevelDefinition.Type;
+export type ColorSupportLevel = ColorSupportLevelDefinition;
 
 /**
  * Schema for broad numeric color support level input.
@@ -240,7 +240,7 @@ export const ForegroundColorName = ForegroundColorNameDefinition;
  * @since 0.0.0
  * @category models
  */
-export type ForegroundColorName = typeof ForegroundColorNameDefinition.Type;
+export type ForegroundColorName = ForegroundColorNameDefinition;
 
 /**
  * Schema for supported Chalk text modifier names.
@@ -256,7 +256,7 @@ export const ModifierName = ModifierNameDefinition;
  * @since 0.0.0
  * @category models
  */
-export type ModifierName = typeof ModifierNameDefinition.Type;
+export type ModifierName = ModifierNameDefinition;
 
 /**
  * Readonly tuple of all supported modifier name strings.

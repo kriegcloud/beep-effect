@@ -28,7 +28,7 @@ describe("@beep/onepassword-cli", () => {
       Effect.fnUntraced(function* () {
         const onePassword = yield* OnePasswordCli;
 
-        const account = yield* onePassword.whoami();
+        const account = yield* onePassword.whoami;
         const value = yield* onePassword.read("op://Private/Discord Bot/token");
         const probe = yield* onePassword.probeReference("op://Private/Discord Bot/token");
 

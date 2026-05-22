@@ -90,6 +90,7 @@
           "globalTimersInEffect": "error",
           "instanceOfSchema": "error",
           "layerMergeAllWithDependencies": "error",
+          "lazyEffect": "error",
           "lazyPromiseInEffectSync": "error",
           "leakingRequirements": "error",
           "missedPipeableOpportunity": "error",
@@ -99,6 +100,7 @@
           "missingLayerContext": "error",
           "missingReturnYieldStar": "error",
           "missingStarInYieldEffectGen": "error",
+          "multipleCatchTag": "error",
           "multipleEffectProvide": "error",
           "nestedEffectGenYield": "error",
           "newPromise": "error",
@@ -109,6 +111,7 @@
           "preferSchemaOverJson": "error",
           "processEnv": "error",
           "processEnvInEffect": "error",
+          "redundantMapError": "error",
           "redundantSchemaTagIdentifier": "error",
           "returnEffectInGen": "error",
           "runEffectInsideEffect": "error",
@@ -126,6 +129,7 @@
           "unnecessaryFailYieldableError": "error",
           "unnecessaryPipe": "error",
           "unnecessaryPipeChain": "error",
+          "unnecessaryTypeofType": "error",
           "unsafeEffectTypeAssertion": "error"
         }
       }

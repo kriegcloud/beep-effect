@@ -116,11 +116,23 @@ export function withEmptyArrayDefaults<TValue>(): <
 >(
   self: TSchema
 ) => S.withDecodingDefaultType<S.withConstructorDefault<TSchema>>;
+/**
+ * Public schema module export.
+ *
+ * @category schemas
+ * @since 0.0.0
+ */
 export function withEmptyArrayDefaults<
   TValue,
   const TSchema extends S.$Array<S.Schema<TValue>> & S.WithoutConstructorDefault = S.$Array<S.Schema<TValue>> &
     S.WithoutConstructorDefault,
 >(self: TSchema): S.withDecodingDefaultType<S.withConstructorDefault<TSchema>>;
+/**
+ * Public schema module export.
+ *
+ * @category schemas
+ * @since 0.0.0
+ */
 export function withEmptyArrayDefaults<
   TValue,
   const TSchema extends S.$Array<S.Schema<TValue>> & S.WithoutConstructorDefault,

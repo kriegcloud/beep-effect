@@ -25,6 +25,7 @@ import {
 import { summarizeTranscriptText } from "./ingest.ts";
 import { AiMetricsInstallInput, makeAiMetricsInstallSpec } from "./install.ts";
 import { fileSizeBytes } from "./internal/file-info.ts";
+import { collectJsonlFiles, statOption } from "./internal/jsonl-discovery.ts";
 import { AiMetricsDeployTarget, AiMetricsTranscriptSource } from "./models.ts";
 import { hashPrivateIdentifier, makeAiMetricsPrivacyCheckResult } from "./privacy.ts";
 import { shellQuote } from "./shell.ts";
@@ -506,11 +507,6 @@ export const renderAiMetricsForwarderTimerPlan = (input: AiMetricsForwarderTimer
   });
 };
 
-const statOption = Effect.fn("AiMetrics.forwarder.statOption")(function* (pathName: string) {
-  const fs = yield* FileSystem.FileSystem;
-  return yield* fs.stat(pathName).pipe(Effect.option);
-});
-
 const modifiedAtMillis = (info: FileSystem.File.Info): number =>
   pipe(
     info.mtime,
@@ -540,45 +536,6 @@ const sourcePathHashForDiagnostics = Effect.fn("AiMetrics.forwarder.sourcePathHa
       })
     )
   );
-});
-
-const collectJsonlFiles = Effect.fn("AiMetrics.forwarder.collectJsonlFiles")(function* (
-  root: string
-): Effect.fn.Return<ReadonlyArray<string>, never, FileSystem.FileSystem | Path.Path> {
-  const fs = yield* FileSystem.FileSystem;
-  const pathApi = yield* Path.Path;
-  const rootInfo = yield* statOption(root);
-
-  if (O.isNone(rootInfo) || rootInfo.value.type !== "Directory") {
-    return A.empty<string>();
-  }
-
-  const walk = Effect.fnUntraced(function* (
-    currentPath: string
-  ): Effect.fn.Return<ReadonlyArray<string>, never, FileSystem.FileSystem | Path.Path> {
-    const info = yield* statOption(currentPath);
-    if (O.isNone(info)) {
-      return A.empty<string>();
-    }
-
-    if (info.value.type === "File") {
-      return Str.endsWith(".jsonl")(currentPath) ? A.of(currentPath) : A.empty<string>();
-    }
-
-    if (info.value.type !== "Directory") {
-      return A.empty<string>();
-    }
-
-    const entries = yield* fs.readDirectory(currentPath).pipe(Effect.orElseSucceed(A.empty<string>));
-    let files = A.empty<string>();
-    for (const entry of entries) {
-      files = A.appendAll(files, yield* walk(pathApi.join(currentPath, entry)));
-    }
-
-    return files;
-  });
-
-  return yield* walk(root);
 });
 
 const jsonlSourceFiles = Effect.fn("AiMetrics.forwarder.jsonlSourceFiles")(function* (

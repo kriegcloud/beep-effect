@@ -1,6 +1,4 @@
-import * as AcpClient from "@beep/acp/client";
-import * as AcpError from "@beep/acp/errors";
-import * as AcpSchema from "@beep/acp/schema";
+import { Client as AcpClient, Errors as AcpError, Schema as AcpSchema } from "@beep/acp";
 import * as NodeServices from "@effect/platform-node/NodeServices";
 import { assert, it } from "@effect/vitest";
 import * as Cause from "effect/Cause";

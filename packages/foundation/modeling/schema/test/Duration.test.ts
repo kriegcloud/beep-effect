@@ -1,4 +1,5 @@
 import { DurationFromInput, DurationInput, DurationObject } from "@beep/schema";
+import * as Duration from "@beep/schema/Duration";
 import { describe, expect, it } from "@effect/vitest";
 import * as D from "effect/Duration";
 import * as O from "effect/Option";
@@ -19,6 +20,18 @@ describe("DurationInput", () => {
 
   it("rejects empty duration objects", () => {
     expect(() => decode({})).toThrow("Duration object must include at least one populated unit field.");
+  });
+});
+
+describe("Duration namespace module", () => {
+  it("exposes concise role names for the canonical concept import", () => {
+    const decodeInput = S.decodeUnknownSync(Duration.Input);
+    const decodeDuration = S.decodeUnknownSync(Duration.FromInput);
+
+    const input = decodeInput({ seconds: 2 });
+
+    expect(input).toEqual(new Duration.Object({ seconds: 2 }));
+    expect(D.toMillis(decodeDuration(input))).toBe(2_000);
   });
 });
 

@@ -1,41 +1,33 @@
-import { docgenCommand } from "@beep/repo-cli/commands/Docgen/index";
-import {
-  buildDocgenLocalPlan,
-  DocgenLocalSelectedPackage,
-  docgenLocalFullReasonsForTesting,
-  docgenLocalTurboArgsForTesting,
-  selectDocgenLocalPackagesForTesting,
-} from "@beep/repo-cli/commands/Docgen/internal/Local";
+import { docgenCommand } from "@beep/repo-cli/commands/Docgen";
 import {
   aggregateGeneratedDocs,
+  analyzeDocgenQuality,
+  analyzeDocgenQualityWorkerEval,
   analyzePackageDocumentation,
+  analyzePackageQuality,
+  buildDocgenLocalPlan,
   createDocgenConfigDocument,
   DocgenAnalysisSummary,
   DocgenExportAnalysis,
+  DocgenLocalSelectedPackage,
   DocgenPackageAnalysis,
-  discoverDocgenWorkspacePackages,
-  discoverOrphanDocgenConfigPaths,
-  generateAnalysisReport,
-  loadDocgenConfigDocument,
-} from "@beep/repo-cli/commands/Docgen/internal/Operations";
-import {
-  analyzeDocgenQuality,
-  analyzePackageQuality,
-  generateQualityJson,
-  generateQualityReport,
-} from "@beep/repo-cli/commands/Docgen/internal/Quality";
-import {
-  analyzeDocgenQualityWorkerEval,
   DocgenQualityWorkerEvalReport,
   type DocgenQualityWorkerEvalRunner,
+  discoverDocgenWorkspacePackages,
+  discoverOrphanDocgenConfigPaths,
+  docgenLocalFullReasonsForTesting,
+  docgenLocalTurboArgsForTesting,
+  generateAnalysisReport,
+  generateQualityJson,
+  generateQualityReport,
   generateQualityWorkerEvalJson,
-} from "@beep/repo-cli/commands/Docgen/internal/QualityWorkerEval";
-import {
+  loadDocgenConfigDocument,
   makeQualityWorkerRunpodEvalPodCreateInput,
   requiredQualityWorkerRunpodEvalModel,
   runDocgenQualityWorkerRunpodEval,
+  selectDocgenLocalPackagesForTesting,
   selectQualityWorkerRunpodTemplate,
-} from "@beep/repo-cli/commands/Docgen/internal/QualityWorkerRunpodEval";
+} from "@beep/repo-cli/test/Docgen";
 import { FsUtilsLive, TSMorphServiceLive } from "@beep/repo-utils";
 import { Pod, Runpod, Template } from "@beep/runpod";
 import { A, O } from "@beep/utils";

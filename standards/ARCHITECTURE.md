@@ -133,7 +133,7 @@ version, and row version into the schema class. Entity-specific `.model.ts`
 files inline their own rich fields plus `persisted` descriptors next to the
 schema so domain shape and persistence shape drift together at compile time.
 
-Drizzle tables are projected, not hand-mapped. `@beep/drizzle/EntityTable`
+Drizzle tables are projected, not hand-mapped. `@beep/drizzle` exposes the `EntityTable`
 owns the generic Drizzle projection and exposes `pgTableFrom(entity)`.
 Slice/shared `tables` packages may own concrete table metadata for their product
 language, but they do not own a second SQL DSL, live database execution,
@@ -627,14 +627,76 @@ canonical:
 | Family/kind                | Canonical anchors                                                                 |
 |----------------------------|-----------------------------------------------------------------------------------|
 | `foundation/primitive`     | flat modules plus `index.ts`; optional environment entrypoints such as `*.browser.ts` |
-| `foundation/modeling`      | `*.schema.ts`, `*.brand.ts`, `*.codec.ts`, `index.ts`                            |
+| `foundation/modeling`      | concept modules with `*.schema.ts`, `*.brand.ts`, `*.codec.ts`, `index.ts`; package-specific role files when canonized |
 | `foundation/capability`    | `*.service.ts`, `*.layer.ts`, `*.schema.ts`, `*.errors.ts`, optional `*.client.ts` |
 | `foundation/ui-system`     | `components/`, `themes/`, `styles/`, `hooks/`, `index.ts`                        |
 | `drivers`                  | `*.service.ts`, `*.layer.ts`, `*.errors.ts`, `*.config.ts`, optional `*.browser.ts`, `*.test-layer.ts` |
 | `tooling/library`          | library modules plus `index.ts`                                                   |
-| `tooling/tool`             | `src/bin.ts`, `commands/`, `*.command.ts`, `*.service.ts`, `*.schema.ts`, `index.ts` |
+| `tooling/tool`             | `src/bin.ts`, `commands/`, `*.command.ts`, `*.service.ts`, `*.schemas.ts`, `index.ts` |
 | `tooling/policy-pack`      | `*.config.ts`, `*.policy.ts`, `index.ts`                                          |
 | `tooling/test-kit`         | `*.test-kit.ts`, optional `fixtures/`, `layers/`, `index.ts`                     |
+
+Repo CLI commands use thresholded role topology. Single-file leaf commands may
+stay flat while they have no schemas, service, renderers, or subcommands.
+Command groups and role-bearing commands live in `commands/<Group>/` with
+`<Group>.command.ts` for flags and the `Command` tree, `<Group>.schemas.ts`
+for command data, `<Group>.errors.ts` for the command-boundary tagged error,
+`<Group>.service.ts` for the `Context.Service` contract and default live layer,
+and `index.ts` as the curated public facade. Use earned semantic roles such as
+`<Group>.render.ts`, `<Group>.progress.ts`, `<Group>.media.ts`, or
+`<Group>.plan.ts`; reserve `<Group>.config.ts` for runtime/config-provider
+backed settings and `<Group>.layer.ts` for non-trivial layer variants.
+`@beep/repo-cli` exposes package root and explicit
+`@beep/repo-cli/commands/<Group>` facades only; deep role files are private, and
+package-local tests use source-only `@beep/repo-cli/test/<Group>` aliases rather
+than package exports.
+
+`@beep/schema` uses namespace-first schema concept modules. Reusable schema
+concepts publish flat public subpaths such as `@beep/schema/Duration`,
+`@beep/schema/Glob`, `@beep/schema/Color`, and `@beep/schema/HttpStatus`.
+Consumers import the concept namespace and use concise role members:
+
+```ts
+import * as Duration from "@beep/schema/Duration"
+import * as Glob from "@beep/schema/Glob"
+
+Duration.Input
+Duration.FromInput
+Glob.Schema
+```
+
+The package root `@beep/schema` remains a curated flat facade for convenience
+and migration compatibility. It is not the canonical home for full concept
+namespaces. Concept role files live under `src/<Concept>/` and use small,
+reviewable role suffixes:
+
+```txt
+src/Duration/
+  Duration.schema.ts
+  Duration.input.ts
+  Duration.transforms.ts
+  index.ts
+```
+
+Only `@beep/schema/<Concept>` is public for concept modules. Role files are
+source topology, not public import paths. Compatibility suite modules with
+existing lower-case source directories may map their canonical public subpath to
+the current lower-case source index, for example `@beep/schema/Color` to
+`src/color/index.ts`; do not create case-only sibling directories such as
+`src/Color/` beside `src/color/`. `SchemaUtils` and similar utility namespaces
+may expose helper leaves when the helper itself is the public concept, for
+example `@beep/schema/SchemaUtils/pluck`.
+
+Core schema role suffixes are `.schema.ts`, `.input.ts`, `.transforms.ts`,
+`.constructors.ts`, `.guards.ts`, `.errors.ts`, and `.types.ts`. Earned
+semantic roles are allowed when they are clearer than forcing the core set,
+such as parser, formatter, SQL projection, or color-conversion roles.
+
+Inside a concept namespace, concise role names are canonical: `Schema`,
+`Input`, `FromInput`, `Object`, and `Unit`. Legacy full names such as
+`DurationInput` and `DurationFromInput` may remain as aliases during migration.
+Prefer promoted source concepts over per-symbol modules: `HttpStatus` is one
+concept module even though it exports many status literal schemas.
 
 Script-only pseudo-packages are not canonical. If an artifact matters enough to
 name in the architecture, it should have a real family/kind contract and a real

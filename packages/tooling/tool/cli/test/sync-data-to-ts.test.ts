@@ -1,7 +1,10 @@
-import { syncDataToTsCommand } from "@beep/repo-cli/commands/SyncDataToTs/index";
-import { type SyncDataTarget, SyncDataTargetProjection } from "@beep/repo-cli/commands/SyncDataToTs/internal/Models";
-import { ISO4217_SOURCE_URL } from "@beep/repo-cli/commands/SyncDataToTs/targets/Iso4217";
-import { syncDataTargets } from "@beep/repo-cli/commands/SyncDataToTs/targets/index";
+import { syncDataToTsCommand } from "@beep/repo-cli/commands/SyncDataToTs";
+import {
+  ISO4217_SOURCE_URL,
+  type SyncDataTarget,
+  SyncDataTargetProjection,
+  syncDataTargets,
+} from "@beep/repo-cli/test/SyncDataToTs";
 import { A, O } from "@beep/utils";
 import { NodeServices } from "@effect/platform-node";
 import { Effect, FileSystem, Layer, Path } from "effect";

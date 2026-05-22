@@ -1,4 +1,4 @@
-import { ParserOptions, ParserOptionsError } from "@beep/schema/csv/parse/ParserOptions";
+import { ParserOptions, ParserOptionsError } from "@beep/schema/ParserOptions";
 import { describe, expect, it } from "@effect/vitest";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";

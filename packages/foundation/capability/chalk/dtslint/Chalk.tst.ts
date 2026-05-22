@@ -55,7 +55,7 @@ describe("@beep/chalk", () => {
     expect<ChalkConstructorOptionsType["level"]>().type.toBe<number | undefined>();
     expect<typeof ChalkConstructorOptions.Encoded>().type.toBeAssignableTo<ChalkConstructorOptionsType>();
     expect<ChalkConstructorOptionsType>().type.toBeAssignableTo<typeof ChalkConstructorOptions.Encoded>();
-    expect<typeof ColorSupportLevelInput.Type>().type.toBe<ColorSupportLevelInputType>();
+    expect<ColorSupportLevelInput>().type.toBe<ColorSupportLevelInputType>();
     expect<typeof ColorSupportLevelInput>().type.toBeAssignableTo<S.Top>();
     expect<ColorSupportLevel>().type.toBe<0 | 1 | 2 | 3>();
     expect<ColorSupport>().type.toBe<{

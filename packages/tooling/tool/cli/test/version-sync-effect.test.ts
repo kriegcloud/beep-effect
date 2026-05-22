@@ -1,13 +1,12 @@
-import { BunVersionState, buildBunReport } from "@beep/repo-cli/commands/VersionSync/internal/resolvers/BunResolver";
 import {
+  BunVersionState,
+  buildBunReport,
   buildEffectReport,
-  resolveEffectCatalog,
-} from "@beep/repo-cli/commands/VersionSync/internal/resolvers/EffectResolver";
-import {
   buildNodeReport,
+  resolveEffectCatalog,
   resolveNodeVersions,
-} from "@beep/repo-cli/commands/VersionSync/internal/resolvers/NodeResolver";
-import { updateCatalogEntry } from "@beep/repo-cli/commands/VersionSync/internal/updaters/PackageJsonUpdater";
+  updateCatalogEntry,
+} from "@beep/repo-cli/test/VersionSync";
 import { A } from "@beep/utils";
 import { NodeServices } from "@effect/platform-node";
 import { describe, expect, layer } from "@effect/vitest";

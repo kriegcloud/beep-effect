@@ -9,6 +9,12 @@ import * as S from "effect/Schema";
  *
  * @since 0.0.0
  */
+/**
+ * Public schema module export.
+ *
+ * @category symbols
+ * @since 0.0.0
+ */
 export const ipv4RegExp: RegExp =
   /^(?:(?:25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]|[0-9])\.){3}(?:25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]|[0-9])$/;
 

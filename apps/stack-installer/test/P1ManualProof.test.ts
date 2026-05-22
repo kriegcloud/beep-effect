@@ -82,25 +82,21 @@ const DriverLayer = Layer.mergeAll(
 const TestDependenciesLayer = Layer.succeed(
   HostDependencyUseCases,
   HostDependencyUseCases.of({
-    previewHostDependencies: Effect.fn("TestDependencies.previewHostDependencies")(function* () {
-      return yield* Effect.succeed(new HostDependencyPlan({ dependencies: [], notes: ["test"], verbs: [] }));
-    }),
-    validateRequiredCommands: Effect.fn("TestDependencies.validateRequiredCommands")(function* () {
-      return yield* Effect.succeed([
-        new HostDependencyValidationResult({
-          dependency: {
-            detectedVersion: O.some("1.0.0"),
-            id: "bun",
-            installHint: "Install Bun.",
-            kind: "cli-tool",
-            name: "bun",
-            requiredVersion: O.none(),
-            status: "present",
-          },
-          message: "bun command is available.",
-        }),
-      ]);
-    }),
+    previewHostDependencies: Effect.succeed(new HostDependencyPlan({ dependencies: [], notes: ["test"], verbs: [] })),
+    validateRequiredCommands: Effect.succeed([
+      new HostDependencyValidationResult({
+        dependency: {
+          detectedVersion: O.some("1.0.0"),
+          id: "bun",
+          installHint: "Install Bun.",
+          kind: "cli-tool",
+          name: "bun",
+          requiredVersion: O.none(),
+          status: "present",
+        },
+        message: "bun command is available.",
+      }),
+    ]),
   })
 );
 

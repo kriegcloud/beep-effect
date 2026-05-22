@@ -102,10 +102,7 @@ export interface CanvasProjectRepositoryShape {
     DomainCanvasProject.CanvasProject,
     CanvasProjectRepositoryNotFound | CanvasProjectRepositoryUnavailable
   >;
-  readonly list: () => Effect.Effect<
-    ReadonlyArray<DomainCanvasProject.CanvasProject>,
-    CanvasProjectRepositoryUnavailable
-  >;
+  readonly list: Effect.Effect<ReadonlyArray<DomainCanvasProject.CanvasProject>, CanvasProjectRepositoryUnavailable>;
   readonly save: (
     canvasProject: DomainCanvasProject.CanvasProject
   ) => Effect.Effect<

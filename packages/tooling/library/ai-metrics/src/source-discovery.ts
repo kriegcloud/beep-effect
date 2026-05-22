@@ -12,6 +12,7 @@ import { Clock, Effect, FileSystem, flow, Order, Path, pipe, Stream } from "effe
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import { fileSizeBytes } from "./internal/file-info.ts";
+import { collectJsonlFiles, statOption } from "./internal/jsonl-discovery.ts";
 import { transcriptLines } from "./internal/transcript-utils.ts";
 import {
   AiMetricsDeployTarget,
@@ -319,50 +320,6 @@ const isWithinSizeWindow =
 
 const sessionIdFromPath = (pathApi: Path.Path, sourcePath: string): string =>
   pipe(pathApi.basename(sourcePath), Str.replace(/\.jsonl$/u, ""));
-
-const statOption = Effect.fn("AiMetrics.statOption")(function* (pathName: string) {
-  const fs = yield* FileSystem.FileSystem;
-  return yield* fs.stat(pathName).pipe(Effect.option);
-});
-
-const collectJsonlFiles = Effect.fn("AiMetrics.collectJsonlFiles")(function* (
-  root: string
-): Effect.fn.Return<ReadonlyArray<string>, never, FileSystem.FileSystem | Path.Path> {
-  const fs = yield* FileSystem.FileSystem;
-  const pathApi = yield* Path.Path;
-  const info = yield* statOption(root);
-
-  if (O.isNone(info) || info.value.type !== "Directory") {
-    return A.empty<string>();
-  }
-
-  const walk = Effect.fnUntraced(function* (
-    currentPath: string
-  ): Effect.fn.Return<ReadonlyArray<string>, never, FileSystem.FileSystem | Path.Path> {
-    const currentInfo = yield* statOption(currentPath);
-    if (O.isNone(currentInfo)) {
-      return A.empty<string>();
-    }
-
-    if (currentInfo.value.type === "File") {
-      return Str.endsWith(".jsonl")(currentPath) ? A.of(currentPath) : A.empty<string>();
-    }
-
-    if (currentInfo.value.type !== "Directory") {
-      return A.empty<string>();
-    }
-
-    const entries = yield* fs.readDirectory(currentPath).pipe(Effect.orElseSucceed(A.empty<string>));
-    let files = A.empty<string>();
-    for (const entry of entries) {
-      files = A.appendAll(files, yield* walk(pathApi.join(currentPath, entry)));
-    }
-
-    return files;
-  });
-
-  return yield* walk(root);
-});
 
 const makeDiscoveredTranscriptFile = Effect.fn("AiMetrics.makeDiscoveredTranscriptFile")(function* ({
   hashSalt,

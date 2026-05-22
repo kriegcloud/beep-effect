@@ -1,4 +1,5 @@
 import { Glob } from "@beep/schema";
+import * as GlobModule from "@beep/schema/Glob";
 import { describe, expect, it } from "@effect/vitest";
 import * as S from "effect/Schema";
 
@@ -41,5 +42,10 @@ describe("Glob", () => {
     });
 
     expect(() => S.decodeUnknownSync(Payload)({ glob: "src\\**\\*.ts" })).toThrow(`at ["glob"]`);
+  });
+
+  it("exposes the canonical namespace module schema role", () => {
+    expect(S.decodeUnknownSync(GlobModule.Schema)("src/**/*.ts")).toBe("src/**/*.ts");
+    expect(GlobModule.Glob).toBe(GlobModule.Schema);
   });
 });

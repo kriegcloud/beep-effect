@@ -27,4 +27,4 @@ export * from "./Drizzle.service.ts";
  * @since 0.0.0
  * @category tables
  */
-export * as EntityTable from "./EntityTable.ts";
+export * as EntityTable from "./EntityTable.models.ts";

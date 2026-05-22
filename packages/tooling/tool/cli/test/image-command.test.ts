@@ -1,6 +1,6 @@
 import { ExtractFramesManifest, FFmpegError } from "@beep/ffmpeg";
 import { imageCommand } from "@beep/repo-cli";
-import { ImageCommandError } from "@beep/repo-cli/commands/Image/index";
+import { ImageCommandError } from "@beep/repo-cli/commands/Image";
 import { A, Str } from "@beep/utils";
 import { NodeChildProcessSpawner, NodeServices } from "@effect/platform-node";
 import { Cause, Effect, Exit, FileSystem, Layer, Order, Path, pipe } from "effect";

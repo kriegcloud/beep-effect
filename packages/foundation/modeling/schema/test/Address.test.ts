@@ -1,4 +1,4 @@
-import { CryptoWalletAddress } from "@beep/schema/blockchain/CryptoWalletAddress";
+import { CryptoWalletAddress } from "@beep/schema/CryptoWalletAddress";
 import { Str } from "@beep/utils";
 import { describe, expect, it } from "@effect/vitest";
 import { sha256 } from "@noble/hashes/sha2.js";

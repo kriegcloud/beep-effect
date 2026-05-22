@@ -40,7 +40,7 @@ type ResolvedHeader = {
  *
  * @example
  * ```ts
- * import { SecureHeaderOptions } from "@beep/schema/http/headers/SecureHeaderOptions"
+ * import { SecureHeaderOptions } from "@beep/schema/SecureHeaderOptions"
  *
  * const options = new SecureHeaderOptions({ nosniff: "nosniff" })
  * void options
@@ -75,7 +75,7 @@ export class SecureHeaderOptions extends S.Class<SecureHeaderOptions>($I`SecureH
  *
  * @example
  * ```ts
- * import { SecureHeaderEntry } from "@beep/schema/http/headers/SecureHeaderOptions"
+ * import { SecureHeaderEntry } from "@beep/schema/SecureHeaderOptions"
  *
  * const entry = new SecureHeaderEntry({ key: "X-Content-Type-Options", value: "nosniff" })
  * void entry
@@ -95,7 +95,7 @@ export class SecureHeaderEntry extends S.Class<SecureHeaderEntry>($I`SecureHeade
 ) {}
 
 const resolveHeaders = Effect.fnUntraced(function* (
-  options: typeof SecureHeaderOptions.Type = {}
+  options: SecureHeaderOptions = {}
 ): Effect.fn.Return<ReadonlyArray<ResolvedHeader>, SecureHeaderError> {
   const headerEffects = A.make(
     ContentSecurityPolicyHeader.create(options.contentSecurityPolicy),
@@ -145,7 +145,7 @@ const resolveHeaders = Effect.fnUntraced(function* (
  * @example
  * ```ts
  * import { Effect } from "effect"
- * import { createHeadersObject } from "@beep/schema/http/headers/SecureHeaderOptions"
+ * import { createHeadersObject } from "@beep/schema/SecureHeaderOptions"
  *
  * const program = createHeadersObject({ nosniff: "nosniff" })
  * void program
@@ -155,7 +155,7 @@ const resolveHeaders = Effect.fnUntraced(function* (
  * @category constructors
  */
 export const createHeadersObject = Effect.fn("SecureHeaderOptions.createHeadersObject")(function* (
-  options: typeof SecureHeaderOptions.Type = {}
+  options: SecureHeaderOptions = {}
 ): Effect.fn.Return<Record<string, string>, SecureHeaderError> {
   const headers = yield* resolveHeaders(options);
 
@@ -174,7 +174,7 @@ export const createHeadersObject = Effect.fn("SecureHeaderOptions.createHeadersO
  * @example
  * ```ts
  * import { Effect } from "effect"
- * import { createSecureHeaders } from "@beep/schema/http/headers/SecureHeaderOptions"
+ * import { createSecureHeaders } from "@beep/schema/SecureHeaderOptions"
  *
  * const program = createSecureHeaders({ nosniff: "nosniff" })
  * void program
@@ -184,7 +184,7 @@ export const createHeadersObject = Effect.fn("SecureHeaderOptions.createHeadersO
  * @category constructors
  */
 export const createSecureHeaders = Effect.fn("SecureHeaderOptions.createSecureHeaders")(function* (
-  options: typeof SecureHeaderOptions.Type = {}
+  options: SecureHeaderOptions = {}
 ): Effect.fn.Return<ReadonlyArray<SecureHeaderEntry>, SecureHeaderError> {
   const headers = yield* resolveHeaders(options);
 

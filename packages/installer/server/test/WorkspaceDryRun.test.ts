@@ -48,7 +48,7 @@ describe("Installer workspace dry-run server", () => {
     "provides a deterministic manifest snapshot",
     Effect.fnUntraced(function* () {
       const workspace = yield* StackManifestUseCases;
-      const plan = yield* workspace.previewWorkspace();
+      const plan = yield* workspace.previewWorkspace;
 
       expect(plan.snapshot.manifest.dryRunOnly).toBe(true);
       expect(A.map(plan.snapshot.manifest.providers, (provider) => provider.provider)).toEqual(["claude", "codex"]);
@@ -62,7 +62,7 @@ describe("Installer workspace dry-run server", () => {
     Effect.fnUntraced(
       function* () {
         const hostDependencies = yield* HostDependencyUseCases;
-        const results = yield* hostDependencies.validateRequiredCommands();
+        const results = yield* hostDependencies.validateRequiredCommands;
 
         expect(
           A.map(results, (result) => ({

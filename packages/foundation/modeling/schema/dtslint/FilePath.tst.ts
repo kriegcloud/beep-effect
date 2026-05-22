@@ -20,7 +20,7 @@ import { describe, expect, it } from "tstyche";
 
 describe("FilePath", () => {
   it("preserves the branded schema surface", () => {
-    expect<typeof FilePath.Type>().type.toBe<string & Brand.Brand<"FilePath">>();
+    expect<FilePath>().type.toBe<string & Brand.Brand<"FilePath">>();
     expect<typeof FilePath.Encoded>().type.toBe<string>();
     expect<FilePathType>().type.toBe<string & Brand.Brand<"FilePath">>();
   });
@@ -56,19 +56,19 @@ describe("FilePath", () => {
 
 describe("FilePath part schema surfaces", () => {
   it("keeps literal unions unbranded", () => {
-    expect<typeof SupportedPathFamily.Type>().type.toBe<
+    expect<SupportedPathFamily>().type.toBe<
       "posixAbsolute" | "posixRelative" | "windowsDrive" | "windowsUnc" | "windowsRelative"
     >();
     expect<SupportedPathFamilyType>().type.toBe<
       "posixAbsolute" | "posixRelative" | "windowsDrive" | "windowsUnc" | "windowsRelative"
     >();
 
-    expect<typeof WindowsDotSegment.Type>().type.toBe<"." | "..">();
+    expect<WindowsDotSegment>().type.toBe<"." | "..">();
     expect<WindowsDotSegmentType>().type.toBe<"." | "..">();
   });
 
   it("brands the Windows path string schemas", () => {
-    expect<typeof WindowsDrivePath.Type>().type.toBe<string & Brand.Brand<"WindowsDrivePath">>();
+    expect<WindowsDrivePath>().type.toBe<string & Brand.Brand<"WindowsDrivePath">>();
     expect<WindowsDrivePathType>().type.toBe<string & Brand.Brand<"WindowsDrivePath">>();
 
     const decode = S.decodeSync(WindowsDrivePath);
@@ -78,7 +78,7 @@ describe("FilePath part schema surfaces", () => {
   });
 
   it("brands the Windows segment collection schemas", () => {
-    expect<typeof WindowsSegments.Type>().type.toBe<
+    expect<WindowsSegments>().type.toBe<
       readonly [ValidWindowsPathSegmentType, ...Array<ValidWindowsPathSegmentType>] & Brand.Brand<"WindowsSegments">
     >();
     expect<WindowsSegmentsType>().type.toBe<
@@ -87,7 +87,7 @@ describe("FilePath part schema surfaces", () => {
   });
 
   it("brands the UNC segment tuple schema", () => {
-    expect<typeof ValidWindowsUncSegments.Type>().type.toBe<
+    expect<ValidWindowsUncSegments>().type.toBe<
       readonly [
         ValidWindowsRootSegmentType,
         ValidWindowsRootSegmentType,

@@ -1,16 +1,14 @@
 /**
- * Package creation command - scaffold new packages following Effect v4 conventions.
+ * Create-package command facade.
  *
  * @packageDocumentation
  * @since 0.0.0
  */
 
-import { createPackageCommand as createPackageCommandFromHandler } from "./Handler.js";
-
 /**
- * Package creation command.
+ * Public command module export.
  *
- * @category use-cases
+ * @category cli-commands
  * @since 0.0.0
  */
-export const createPackageCommand = createPackageCommandFromHandler;
+export * from "./CreatePackage.command.js";

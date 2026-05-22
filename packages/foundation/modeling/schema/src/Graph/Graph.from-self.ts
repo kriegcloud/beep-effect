@@ -1,0 +1,356 @@
+/**
+ * Internal schema module support.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
+import { Effect, type Graph as Graph_, Option, SchemaIssue, SchemaParser } from "effect";
+import * as S from "effect/Schema";
+import { GraphEncoded as GraphEncodedSchemaFactory, type GraphIso } from "./Graph.encoded.ts";
+import { rebuildImmutableGraph, rebuildMutableGraph } from "./Graph.rebuild.ts";
+import {
+  $I,
+  formatGraph,
+  type GraphKindValue,
+  isImmutableGraphValue,
+  isMutableGraphValue,
+  makeGraphEquivalence,
+  toRawGraphEncoded,
+  trimGraphDescription,
+} from "./Graph.shared.ts";
+
+/**
+ * Schema for validating existing immutable Effect graphs.
+ *
+ * @since 0.0.0
+ * @category validation
+ */
+export interface GraphFromSelf<Node extends S.Top, Edge extends S.Top>
+  extends S.declareConstructor<
+    Graph_.Graph<Node["Type"], Edge["Type"], GraphKindValue>,
+    Graph_.Graph<Node["Encoded"], Edge["Encoded"], GraphKindValue>,
+    readonly [Node, Edge],
+    GraphIso<Node, Edge>
+  > {
+  readonly edge: Edge;
+  readonly node: Node;
+  readonly Rebuild: this;
+}
+
+/**
+ * Schema for validating existing immutable directed Effect graphs.
+ *
+ * @since 0.0.0
+ * @category validation
+ */
+export interface DirectedGraphFromSelf<Node extends S.Top, Edge extends S.Top>
+  extends S.declareConstructor<
+    Graph_.DirectedGraph<Node["Type"], Edge["Type"]>,
+    Graph_.DirectedGraph<Node["Encoded"], Edge["Encoded"]>,
+    readonly [Node, Edge],
+    GraphIso<Node, Edge, "directed">
+  > {
+  readonly edge: Edge;
+  readonly node: Node;
+  readonly Rebuild: this;
+}
+
+/**
+ * Schema for validating existing immutable undirected Effect graphs.
+ *
+ * @since 0.0.0
+ * @category validation
+ */
+export interface UndirectedGraphFromSelf<Node extends S.Top, Edge extends S.Top>
+  extends S.declareConstructor<
+    Graph_.UndirectedGraph<Node["Type"], Edge["Type"]>,
+    Graph_.UndirectedGraph<Node["Encoded"], Edge["Encoded"]>,
+    readonly [Node, Edge],
+    GraphIso<Node, Edge, "undirected">
+  > {
+  readonly edge: Edge;
+  readonly node: Node;
+  readonly Rebuild: this;
+}
+
+/**
+ * Schema for validating existing mutable Effect graphs.
+ *
+ * @since 0.0.0
+ * @category validation
+ */
+export interface MutableGraphFromSelf<Node extends S.Top, Edge extends S.Top>
+  extends S.declareConstructor<
+    Graph_.MutableGraph<Node["Type"], Edge["Type"], GraphKindValue>,
+    Graph_.MutableGraph<Node["Encoded"], Edge["Encoded"], GraphKindValue>,
+    readonly [Node, Edge],
+    GraphIso<Node, Edge>
+  > {
+  readonly edge: Edge;
+  readonly node: Node;
+  readonly Rebuild: this;
+}
+
+/**
+ * Schema for validating existing mutable directed Effect graphs.
+ *
+ * @since 0.0.0
+ * @category validation
+ */
+export interface MutableDirectedGraphFromSelf<Node extends S.Top, Edge extends S.Top>
+  extends S.declareConstructor<
+    Graph_.MutableDirectedGraph<Node["Type"], Edge["Type"]>,
+    Graph_.MutableDirectedGraph<Node["Encoded"], Edge["Encoded"]>,
+    readonly [Node, Edge],
+    GraphIso<Node, Edge, "directed">
+  > {
+  readonly edge: Edge;
+  readonly node: Node;
+  readonly Rebuild: this;
+}
+
+/**
+ * Schema for validating existing mutable undirected Effect graphs.
+ *
+ * @since 0.0.0
+ * @category validation
+ */
+export interface MutableUndirectedGraphFromSelf<Node extends S.Top, Edge extends S.Top>
+  extends S.declareConstructor<
+    Graph_.MutableUndirectedGraph<Node["Type"], Edge["Type"]>,
+    Graph_.MutableUndirectedGraph<Node["Encoded"], Edge["Encoded"]>,
+    readonly [Node, Edge],
+    GraphIso<Node, Edge, "undirected">
+  > {
+  readonly edge: Edge;
+  readonly node: Node;
+  readonly Rebuild: this;
+}
+
+const makeImmutableGraphFromSelf = <Node extends S.Top, Edge extends S.Top>(
+  name: "GraphFromSelf" | "DirectedGraphFromSelf" | "UndirectedGraphFromSelf",
+  options: {
+    readonly node: Node;
+    readonly edge: Edge;
+  },
+  expectedType?: GraphKindValue
+) =>
+  S.declareConstructor<
+    Graph_.Graph<Node["Type"], Edge["Type"], GraphKindValue>,
+    Graph_.Graph<Node["Encoded"], Edge["Encoded"], GraphKindValue>,
+    GraphIso<Node, Edge>
+  >()(
+    [options.node, options.edge],
+    ([node, edge]) => {
+      const encoded = GraphEncodedSchemaFactory(node, edge);
+
+      return (input, ast, parseOptions) => {
+        if (!isImmutableGraphValue(input) || (expectedType !== undefined && input.type !== expectedType)) {
+          return Effect.fail(new SchemaIssue.InvalidType(ast, Option.some(input)));
+        }
+
+        return Effect.flatMap(
+          SchemaParser.decodeUnknownEffect(encoded)(toRawGraphEncoded(input), parseOptions),
+          Effect.fnUntraced(function* (graph) {
+            return yield* rebuildImmutableGraph(graph, input, expectedType);
+          })
+        );
+      };
+    },
+    {
+      typeConstructor: {
+        _tag: "effect/Graph",
+      },
+      generation: {
+        runtime: `${name}(?, ?)`,
+        Type:
+          expectedType === undefined
+            ? "Graph.Graph<?, ?, ? extends directed | undirected>"
+            : expectedType === "directed"
+              ? "Graph.DirectedGraph<?, ?>"
+              : "Graph.UndirectedGraph<?, ?>",
+        importDeclaration: 'import * as Graph from "effect/Graph"',
+      },
+      expected: name,
+      description: trimGraphDescription(`Schema for existing ${expectedType ?? ""} Effect graph values.`),
+      toEquivalence: ([node, edge]) => makeGraphEquivalence(node, edge),
+      toFormatter:
+        ([node, edge]) =>
+        (graph) =>
+          formatGraph(graph, node, edge),
+    }
+  );
+
+const makeMutableGraphFromSelf = <Node extends S.Top, Edge extends S.Top>(
+  name: "MutableGraphFromSelf" | "MutableDirectedGraphFromSelf" | "MutableUndirectedGraphFromSelf",
+  options: {
+    readonly node: Node;
+    readonly edge: Edge;
+  },
+  expectedType?: GraphKindValue
+) =>
+  S.declareConstructor<
+    Graph_.MutableGraph<Node["Type"], Edge["Type"], GraphKindValue>,
+    Graph_.MutableGraph<Node["Encoded"], Edge["Encoded"], GraphKindValue>,
+    GraphIso<Node, Edge>
+  >()(
+    [options.node, options.edge],
+    ([node, edge]) => {
+      const encoded = GraphEncodedSchemaFactory(node, edge);
+
+      return (input, ast, parseOptions) => {
+        if (!isMutableGraphValue(input) || (expectedType !== undefined && input.type !== expectedType)) {
+          return Effect.fail(new SchemaIssue.InvalidType(ast, Option.some(input)));
+        }
+
+        return Effect.flatMap(
+          SchemaParser.decodeUnknownEffect(encoded)(toRawGraphEncoded(input), parseOptions),
+          Effect.fnUntraced(function* (graph) {
+            return yield* rebuildMutableGraph(graph, input, expectedType);
+          })
+        );
+      };
+    },
+    {
+      typeConstructor: {
+        _tag: "effect/Graph.MutableGraph",
+      },
+      generation: {
+        runtime: `${name}(?, ?)`,
+        Type:
+          expectedType === undefined
+            ? "Graph.MutableGraph<?, ?, ? extends directed | undirected>"
+            : expectedType === "directed"
+              ? "Graph.MutableDirectedGraph<?, ?>"
+              : "Graph.MutableUndirectedGraph<?, ?>",
+        importDeclaration: 'import * as Graph from "effect/Graph"',
+      },
+      expected: name,
+      description: trimGraphDescription(`Schema for existing mutable ${expectedType ?? ""} Effect graph values.`),
+      toEquivalence: ([node, edge]) => makeGraphEquivalence(node, edge),
+      toFormatter:
+        ([node, edge]) =>
+        (graph) =>
+          formatGraph(graph, node, edge),
+    }
+  );
+
+/**
+ * Schema for validating existing immutable Effect graphs.
+ *
+ * @param options - Schemas for node and edge payloads.
+ * @returns Immutable graph validator schema.
+ * @since 0.0.0
+ * @category validation
+ */
+export const GraphFromSelf = <Node extends S.Top, Edge extends S.Top>(options: {
+  readonly node: Node;
+  readonly edge: Edge;
+}): GraphFromSelf<Node, Edge> =>
+  S.make<GraphFromSelf<Node, Edge>>(makeImmutableGraphFromSelf("GraphFromSelf", options).ast, options).pipe(
+    $I.annoteSchema("GraphFromSelf", {
+      description: "Schema for validating existing immutable Effect graph values.",
+    })
+  );
+
+/**
+ * Schema for validating existing immutable directed Effect graphs.
+ *
+ * @param options - Schemas for node and edge payloads.
+ * @returns Immutable directed graph validator schema.
+ * @since 0.0.0
+ * @category validation
+ */
+export const DirectedGraphFromSelf = <Node extends S.Top, Edge extends S.Top>(options: {
+  readonly node: Node;
+  readonly edge: Edge;
+}): DirectedGraphFromSelf<Node, Edge> =>
+  S.make<DirectedGraphFromSelf<Node, Edge>>(
+    makeImmutableGraphFromSelf("DirectedGraphFromSelf", options, "directed").ast,
+    options
+  ).pipe(
+    $I.annoteSchema("DirectedGraphFromSelf", {
+      description: "Schema for validating existing immutable directed Effect graph values.",
+    })
+  );
+
+/**
+ * Schema for validating existing immutable undirected Effect graphs.
+ *
+ * @param options - Schemas for node and edge payloads.
+ * @returns Immutable undirected graph validator schema.
+ * @since 0.0.0
+ * @category validation
+ */
+export const UndirectedGraphFromSelf = <Node extends S.Top, Edge extends S.Top>(options: {
+  readonly node: Node;
+  readonly edge: Edge;
+}): UndirectedGraphFromSelf<Node, Edge> =>
+  S.make<UndirectedGraphFromSelf<Node, Edge>>(
+    makeImmutableGraphFromSelf("UndirectedGraphFromSelf", options, "undirected").ast,
+    options
+  ).pipe(
+    $I.annoteSchema("UndirectedGraphFromSelf", {
+      description: "Schema for validating existing immutable undirected Effect graph values.",
+    })
+  );
+
+/**
+ * Schema for validating existing mutable Effect graphs.
+ *
+ * @param options - Schemas for node and edge payloads.
+ * @returns Mutable graph validator schema.
+ * @since 0.0.0
+ * @category validation
+ */
+export const MutableGraphFromSelf = <Node extends S.Top, Edge extends S.Top>(options: {
+  readonly node: Node;
+  readonly edge: Edge;
+}): MutableGraphFromSelf<Node, Edge> =>
+  S.make<MutableGraphFromSelf<Node, Edge>>(makeMutableGraphFromSelf("MutableGraphFromSelf", options).ast, options).pipe(
+    $I.annoteSchema("MutableGraphFromSelf", {
+      description: "Schema for validating existing mutable Effect graph values.",
+    })
+  );
+
+/**
+ * Schema for validating existing mutable directed Effect graphs.
+ *
+ * @param options - Schemas for node and edge payloads.
+ * @returns Mutable directed graph validator schema.
+ * @since 0.0.0
+ * @category validation
+ */
+export const MutableDirectedGraphFromSelf = <Node extends S.Top, Edge extends S.Top>(options: {
+  readonly node: Node;
+  readonly edge: Edge;
+}): MutableDirectedGraphFromSelf<Node, Edge> =>
+  S.make<MutableDirectedGraphFromSelf<Node, Edge>>(
+    makeMutableGraphFromSelf("MutableDirectedGraphFromSelf", options, "directed").ast,
+    options
+  ).pipe(
+    $I.annoteSchema("MutableDirectedGraphFromSelf", {
+      description: "Schema for validating existing mutable directed Effect graph values.",
+    })
+  );
+
+/**
+ * Schema for validating existing mutable undirected Effect graphs.
+ *
+ * @param options - Schemas for node and edge payloads.
+ * @returns Mutable undirected graph validator schema.
+ * @since 0.0.0
+ * @category validation
+ */
+export const MutableUndirectedGraphFromSelf = <Node extends S.Top, Edge extends S.Top>(options: {
+  readonly node: Node;
+  readonly edge: Edge;
+}): MutableUndirectedGraphFromSelf<Node, Edge> =>
+  S.make<MutableUndirectedGraphFromSelf<Node, Edge>>(
+    makeMutableGraphFromSelf("MutableUndirectedGraphFromSelf", options, "undirected").ast,
+    options
+  ).pipe(
+    $I.annoteSchema("MutableUndirectedGraphFromSelf", {
+      description: "Schema for validating existing mutable undirected Effect graph values.",
+    })
+  );

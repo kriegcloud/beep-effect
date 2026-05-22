@@ -1,6 +1,12 @@
 import { fileURLToPath } from "node:url";
-import { makeDrizzle, makeDrizzleLayer, migrate, PostgresClient, PostgresDrizzle } from "@beep/postgres";
-import { NativePgClient } from "@beep/postgres/interop";
+import {
+  makeDrizzle,
+  makeDrizzleLayer,
+  migrate,
+  NativePgClient,
+  PostgresClient,
+  PostgresDrizzle,
+} from "@beep/postgres";
 import { makePgliteSqlTestLayer, type SqlTestHooks, TestDatabaseInfo } from "@beep/test-utils";
 import { A, Str } from "@beep/utils";
 import { describe, expect, layer } from "@effect/vitest";

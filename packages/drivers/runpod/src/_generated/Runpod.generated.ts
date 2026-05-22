@@ -2902,7 +2902,7 @@ export interface RunpodOperationsShape<E> {
   readonly getDocs: (request?: GetDocsRequest) => Effect.Effect<string, E>;
   readonly getEndpoint: (request: GetEndpointRequest) => Effect.Effect<Endpoint, E>;
   readonly getNetworkVolume: (request: GetNetworkVolumeRequest) => Effect.Effect<NetworkVolume, E>;
-  readonly getOpenAPI: (request?: GetOpenAPIRequest) => Effect.Effect<typeof GetOpenAPIStatus200Response.Type, E>;
+  readonly getOpenAPI: (request?: GetOpenAPIRequest) => Effect.Effect<GetOpenAPIStatus200Response, E>;
   readonly getPod: (request: GetPodRequest) => Effect.Effect<Pod, E>;
   readonly getTemplate: (request: GetTemplateRequest) => Effect.Effect<Template, E>;
   readonly listContainerRegistryAuths: (

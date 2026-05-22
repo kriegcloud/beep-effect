@@ -26,7 +26,7 @@ const CoopValueBase = LiteralKit(["unsafe-none", "same-origin-allow-popups", "sa
  * @example
  * ```ts
  * import * as S from "effect/Schema"
- * import { CoopValue } from "@beep/schema/http/headers/CrossOriginOpenerPolicy"
+ * import { CoopValue } from "@beep/schema/CrossOriginOpenerPolicy"
  *
  * const decoded = S.decodeUnknownSync(CoopValue)("same-origin")
  * void decoded
@@ -58,7 +58,7 @@ const CrossOriginOpenerPolicyOptionBase = LiteralKit([false, ...CoopValueBase.Op
  * @example
  * ```ts
  * import * as S from "effect/Schema"
- * import { CrossOriginOpenerPolicyOption } from "@beep/schema/http/headers/CrossOriginOpenerPolicy"
+ * import { CrossOriginOpenerPolicyOption } from "@beep/schema/CrossOriginOpenerPolicy"
  *
  * const decoded = S.decodeUnknownSync(CrossOriginOpenerPolicyOption)(false)
  * void decoded
@@ -88,7 +88,7 @@ export type CrossOriginOpenerPolicyOption = typeof CrossOriginOpenerPolicyOption
  * @example
  * ```ts
  * import * as Option from "effect/Option"
- * import { CrossOriginOpenerPolicyResponseHeader } from "@beep/schema/http/headers/CrossOriginOpenerPolicy"
+ * import { CrossOriginOpenerPolicyResponseHeader } from "@beep/schema/CrossOriginOpenerPolicy"
  *
  * const header = new CrossOriginOpenerPolicyResponseHeader({
  *   name: "Cross-Origin-Opener-Policy",
@@ -120,7 +120,7 @@ type CrossOriginOpenerPolicyResponseHeaderEncoded = typeof CrossOriginOpenerPoli
  * @example
  * ```ts
  * import { Effect } from "effect"
- * import { CrossOriginOpenerPolicyHeader } from "@beep/schema/http/headers/CrossOriginOpenerPolicy"
+ * import { CrossOriginOpenerPolicyHeader } from "@beep/schema/CrossOriginOpenerPolicy"
  *
  * const program = CrossOriginOpenerPolicyHeader.create("same-origin")
  * void program

@@ -10,17 +10,10 @@
 ## Surface Map
 | Surface | Key exports | Notes |
 | --- | --- | --- |
-| `@beep/acp` | `VERSION`, public module namespaces | package entry point |
-| `@beep/acp/agent` | `AcpAgent`, `make`, `layer`, `layerStdio` | agent-side ACP service and stdio layer |
-| `@beep/acp/client` | `AcpClient`, `make`, `layerChildProcess` | client-side ACP service and child-process layer |
-| `@beep/acp/errors` | `AcpError`, `AcpRequestError`, process/transport/protocol errors | technical driver error channel |
-| `@beep/acp/protocol` | `makeAcpPatchedProtocol`, protocol event/notification types | patched JSON-RPC/NDJSON transport |
-| `@beep/acp/rpc` | ACP RPC definitions and `AgentRpcs` / `ClientRpcs` | Effect RPC wiring over generated schemas |
-| `@beep/acp/schema` | generated ACP schema and metadata exports | public gateway for `src/_generated/*` |
-| `@beep/acp/terminal` | `AcpTerminal`, `makeTerminal` | terminal handle helpers |
+| `@beep/acp` | `Agent`, `Client`, `Errors`, `Protocol`, `Rpc`, `Schema`, `Terminal`, `VERSION` | package entry point and only public import surface |
 
 `src/internal/*` and `src/_generated/*` are package-private. Do not add package
-exports for them; route generated schema/meta access through `schema.ts`.
+exports for them; route generated schema/meta access through the root `Schema` namespace.
 
 ## Generator Notes
 - ACP schema release is pinned to `v0.11.3`.
@@ -42,12 +35,10 @@ exports for them; route generated schema/meta access through `schema.ts`.
 
 ## Quick Recipes
 ```ts
-import { VERSION } from "@beep/acp"
-import { AcpClient } from "@beep/acp/client"
-import { InitializeRequest } from "@beep/acp/schema"
+import { Client, Schema, VERSION } from "@beep/acp"
 
-const clientTag = AcpClient
-const request = InitializeRequest.make({
+const clientTag = Client.AcpClient
+const request = Schema.InitializeRequest.make({
   clientCapabilities: {
     fs: { readTextFile: false, writeTextFile: false },
     terminal: false

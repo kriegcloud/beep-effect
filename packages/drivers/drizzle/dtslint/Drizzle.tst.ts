@@ -39,7 +39,7 @@ describe("@beep/drizzle", () => {
 
   it("exports the product-neutral service and adapter types", () => {
     expect(S.decodeUnknownSync(DrizzleRows)([])).type.toBe<DrizzleRowsType>();
-    expect<typeof DrizzleRows.Type>().type.toBe<DrizzleRowsType>();
+    expect<DrizzleRows>().type.toBe<DrizzleRowsType>();
     expect(Drizzle.makeLayer(client)).type.toBe<Layer.Layer<Drizzle>>();
     expect(service.execute("select 1", [])).type.toBe<Effect.Effect<DrizzleRowsType, DrizzleError>>();
     expect(service.withTransaction((transaction) => transaction.execute("select 1", []))).type.toBe<

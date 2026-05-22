@@ -1,5 +1,4 @@
-import * as AcpAgent from "@beep/acp/agent";
-import * as AcpSchema from "@beep/acp/schema";
+import { Agent as AcpAgent, Schema as AcpSchema } from "@beep/acp";
 import { assert, it } from "@effect/vitest";
 import * as Deferred from "effect/Deferred";
 import * as Effect from "effect/Effect";

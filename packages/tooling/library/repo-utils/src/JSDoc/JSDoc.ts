@@ -13,7 +13,7 @@ import { JSDocTagDefinition } from "./models/index.js";
 
 const $I = $RepoUtilsId.create("JSDoc/JSDocTagDb");
 
-type JSDocTagMember<Tag extends string> = typeof JSDocTagDefinition.JSDocTagDefinition.Type & {
+type JSDocTagMember<Tag extends string> = JSDocTagDefinition.JSDocTagDefinition & {
   readonly _tag: Tag;
 };
 

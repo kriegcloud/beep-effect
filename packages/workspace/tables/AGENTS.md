@@ -34,7 +34,7 @@
 ## Laws
 
 - Keep table meaning tied to workspace domain language.
-- Generic projection belongs in `@beep/drizzle/EntityTable`; this package only
+- Generic projection belongs in `@beep/drizzle`; this package only
   publishes concrete workspace tables.
 - In `test/` and `dtslint/`, import package source through
   `@beep/workspace-tables` or other `@beep/*` package aliases; keep relative

@@ -1,4 +1,5 @@
-import { ParserOptions, parseCsvRows } from "@beep/schema/csv/parse";
+import { parseCsvRows } from "@beep/schema/CsvParser";
+import { ParserOptions } from "@beep/schema/ParserOptions";
 import { expect, layer } from "@effect/vitest";
 import { Cause, Effect, Exit, Layer } from "effect";
 

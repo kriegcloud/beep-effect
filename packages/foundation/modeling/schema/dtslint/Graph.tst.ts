@@ -21,15 +21,15 @@ import { describe, expect, it } from "tstyche";
 
 describe("Graph primitives", () => {
   it("brands node and edge indices", () => {
-    expect<typeof NodeIndex.Type>().type.toBe<number & Brand.Brand<"NodeIndex">>();
+    expect<NodeIndex>().type.toBe<number & Brand.Brand<"NodeIndex">>();
     expect<NodeIndexType>().type.toBe<number & Brand.Brand<"NodeIndex">>();
 
-    expect<typeof EdgeIndex.Type>().type.toBe<number & Brand.Brand<"EdgeIndex">>();
+    expect<EdgeIndex>().type.toBe<number & Brand.Brand<"EdgeIndex">>();
     expect<EdgeIndexType>().type.toBe<number & Brand.Brand<"EdgeIndex">>();
   });
 
   it("preserves the graph kind union", () => {
-    expect<typeof GraphKind.Type>().type.toBe<"directed" | "undirected">();
+    expect<GraphKind>().type.toBe<"directed" | "undirected">();
     expect<GraphKindType>().type.toBe<"directed" | "undirected">();
   });
 });

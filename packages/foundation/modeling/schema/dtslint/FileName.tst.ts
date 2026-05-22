@@ -4,7 +4,7 @@ import { describe, expect, it } from "tstyche";
 
 describe("FileName", () => {
   it("preserves the simplified template-literal schema surface", () => {
-    expect<typeof FileName.Type>().type.toBeAssignableTo<`${string}.${string}`>();
+    expect<FileName>().type.toBeAssignableTo<`${string}.${string}`>();
     expect<typeof FileName.Encoded>().type.toBeAssignableTo<`${string}.${string}`>();
     expect<FileNameType>().type.toBeAssignableTo<`${string}.${string}`>();
   });

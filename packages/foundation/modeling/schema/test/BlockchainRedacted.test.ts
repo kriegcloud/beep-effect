@@ -1,7 +1,7 @@
-import { CryptoTxnHashRedacted } from "@beep/schema/blockchain/CryptoTxnHash";
-import { CryptoWalletAddressRedacted } from "@beep/schema/blockchain/CryptoWalletAddress";
-import { EthereumValidatorPublicKeyRedacted } from "@beep/schema/blockchain/EthereumValidatorPublicKey";
-import { EvmAddressRedacted } from "@beep/schema/blockchain/EvmAddress";
+import { CryptoTxnHashRedacted } from "@beep/schema/CryptoTxnHash";
+import { CryptoWalletAddressRedacted } from "@beep/schema/CryptoWalletAddress";
+import { EthereumValidatorPublicKeyRedacted } from "@beep/schema/EthereumValidatorPublicKey";
+import { EvmAddressRedacted } from "@beep/schema/EvmAddress";
 import { describe, expect, it } from "@effect/vitest";
 import { Redacted } from "effect";
 import * as S from "effect/Schema";

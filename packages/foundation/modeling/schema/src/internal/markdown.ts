@@ -32,6 +32,12 @@ type MarkdownParserOptions = {
   readonly loadMarkdownGfm: MarkdownGfmModuleLoader;
 };
 
+/**
+ * Public schema module export.
+ *
+ * @category type-level
+ * @since 0.0.0
+ */
 export type MarkdownParseResult =
   | {
       readonly _tag: "success";
@@ -42,8 +48,20 @@ export type MarkdownParseResult =
       readonly message: string;
     };
 
+/**
+ * Public schema module export.
+ *
+ * @category schemas
+ * @since 0.0.0
+ */
 export const loadMarkdownModule = (): MarkdownModule => MarkdownPackage;
 
+/**
+ * Public schema module export.
+ *
+ * @category schemas
+ * @since 0.0.0
+ */
 export const loadMarkdownGfmModule = (): MarkdownGfmModule => MarkdownGfmPackage;
 
 const invalidMarkdownOutput = "Invalid Markdown input (Expected HTML string output).";
@@ -92,6 +110,12 @@ const toMarkdownParseResult: (result: Result.Result<unknown, unknown>) => Markdo
   })
 );
 
+/**
+ * Public schema module export.
+ *
+ * @category schemas
+ * @since 0.0.0
+ */
 export const getGlobalMarkdownRuntime = (): MarkdownRuntime =>
   pipe(
     getBunMarkdownHtml(globalThis),
@@ -105,6 +129,12 @@ export const getGlobalMarkdownRuntime = (): MarkdownRuntime =>
     O.getOrElse(thunkEmptyRecord)
   );
 
+/**
+ * Public schema module export.
+ *
+ * @category constructors
+ * @since 0.0.0
+ */
 export const makeParseMarkdownForSchema: {
   (
     runtime: MarkdownRuntime,

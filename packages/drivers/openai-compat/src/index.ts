@@ -23,38 +23,6 @@
 export const VERSION = "0.0.0" as const;
 
 /**
- * OpenAI-compatible HTTP client exports.
- *
- * @example
- * ```ts
- * import { OpenAiCompatClient } from "@beep/openai-compat"
- *
- * const service = OpenAiCompatClient
- * void service
- * ```
- *
- * @category utilities
- * @since 0.0.0
- */
-export * from "./OpenAiCompat.client.ts";
-
-/**
- * Effect AI language-model adapter exports for OpenAI-compatible chat completions.
- *
- * @example
- * ```ts
- * import { model } from "@beep/openai-compat"
- *
- * const aiModel = model("compat-model")
- * void aiModel
- * ```
- *
- * @category utilities
- * @since 0.0.0
- */
-export * from "./OpenAiCompat.language-model.ts";
-
-/**
  * OpenAI-compatible schema model exports.
  *
  * @example
@@ -72,3 +40,35 @@ export * from "./OpenAiCompat.language-model.ts";
  * @since 0.0.0
  */
 export * from "./OpenAiCompat.models.ts";
+
+/**
+ * OpenAI-compatible HTTP client exports.
+ *
+ * @example
+ * ```ts
+ * import { OpenAiCompatClient } from "@beep/openai-compat"
+ *
+ * const service = OpenAiCompatClient
+ * void service
+ * ```
+ *
+ * @category utilities
+ * @since 0.0.0
+ */
+export * from "./OpenAiCompatClient.service.ts";
+
+/**
+ * Effect AI language-model adapter exports for OpenAI-compatible chat completions.
+ *
+ * @example
+ * ```ts
+ * import { model } from "@beep/openai-compat"
+ *
+ * const aiModel = model("compat-model")
+ * void aiModel
+ * ```
+ *
+ * @category utilities
+ * @since 0.0.0
+ */
+export * from "./OpenAiCompatLanguageModel.service.ts";

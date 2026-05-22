@@ -63,7 +63,7 @@ describe("LocalDate", () => {
     const decode = S.decodeUnknownEffect(LocalDateFromString);
     const encode = S.encodeEffect(LocalDateFromString);
 
-    expect<typeof LocalDateFromString.Type>().type.toBe<Model>();
+    expect<LocalDateFromString>().type.toBe<Model>();
     expect<typeof LocalDateFromString.Encoded>().type.toBe<string>();
     expect<LocalDateFromStringType>().type.toBe<Model>();
     expect<LocalDateFromString.Encoded>().type.toBe<string>();

@@ -169,7 +169,7 @@ const readInventoryDocument = Effect.fn(function* () {
   const absolutePath = path.resolve(process.cwd(), INVENTORY_PATH);
 
   if (!(yield* fs.exists(absolutePath))) {
-    return O.none<typeof SchemaFirstInventoryDocument.Type>();
+    return O.none<SchemaFirstInventoryDocument>();
   }
 
   const content = yield* fs.readFileString(absolutePath);

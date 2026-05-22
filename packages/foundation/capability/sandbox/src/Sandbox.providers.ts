@@ -159,7 +159,7 @@ const makeContainerHandle = (
   worktreePath: string
 ): Effect.Effect<BindMountSandboxHandle<SandboxProcess>, never> =>
   Effect.succeed({
-    close: Effect.fn("ContainerHandle.close")(function* () {
+    close: Effect.gen(function* () {
       const process = yield* SandboxProcess;
       const result = yield* process
         .run(
@@ -175,7 +175,7 @@ const makeContainerHandle = (
       } else {
         yield* processResultOrPodmanError("container removal", result);
       }
-    }),
+    }).pipe(Effect.withSpan("ContainerHandle.close")),
     copyFileIn: Effect.fn("ContainerHandle.copyFileIn")(function* (hostPath: string, sandboxPath: string) {
       const process = yield* SandboxProcess;
       const result = yield* process
@@ -284,7 +284,7 @@ export const noSandbox = (options: NoSandboxOptions = new NoSandboxOptions({})):
   _tag: "None",
   create: Effect.fn("NoSandboxProvider.create")(function* ({ env, worktreePath }) {
     return {
-      close: Effect.fn("NoSandboxHandle.close")(() => Effect.void),
+      close: Effect.void,
       copyFileOut: Effect.fn("NoSandboxHandle.copyFileOut")(function* (sandboxPath: string, hostPath: string) {
         const process = yield* SandboxProcess;
         const result = yield* process

@@ -38,7 +38,48 @@ import * as O from "effect/Option";
 import { ChildProcess, type ChildProcessSpawner } from "effect/unstable/process";
 import { imageSizeFromFile } from "image-size/fromFile";
 import sharp from "sharp";
+import { printLines } from "../../internal/cli/Printer.js";
 import { FilesCommandError, failOnExtensionlessFile, formatPlatformError } from "./Files.errors.js";
+import {
+  analyzeSolidBorders,
+  assessImageCandidate,
+  byNameAscending,
+  bySizeDescendingThenNameAscending,
+  classifyBorderSides,
+  collectText,
+  cropBordersPlanEntryFromDetection,
+  formatIndex,
+  hasSkippedFiles,
+  isExifOrientationRotated,
+  isImageFileExtension,
+  isQuarterTurnRotation,
+  isSupportedMetadataImageFile,
+  makeStripMetadataTempEntries,
+  maybeSwapDimensions,
+  mediaDimensionsChanged,
+  mediaKindFromExtension,
+  normalizeBareExtension,
+  normalizeOutputDimensions,
+  normalizeOutputExtension,
+  renderArchivePoorCandidatesEntry,
+  renderArchivePoorCandidatesSkippedEntry,
+  renderCreateCaptionFilesPlanEntry,
+  renderCreateCaptionFilesSkippedEntry,
+  renderCropBordersPlanEntry,
+  renderDetectBordersEntry,
+  renderDetectFacesEntry,
+  renderDetectFacesSkippedEntry,
+  renderNormalizePlanEntry,
+  renderNormalizeSkippedEntry,
+  renderPlanEntry,
+  renderStripMetadataPlanEntry,
+  rotationFromStream,
+  roundCandidateMetric,
+  selectedCanonicalPathSet,
+  sharpFormatForNormalize,
+  stringEquivalence,
+  targetNameForEntry,
+} from "./Files.media.js";
 import { FilesConcurrency, runFilesProgressForEach } from "./Files.progress.js";
 import {
   ArchivedSidecarEntry,
@@ -112,46 +153,6 @@ import {
   StripMetadataPlanEntry,
   StripMetadataSummary,
 } from "./Files.schemas.js";
-import {
-  analyzeSolidBorders,
-  assessImageCandidate,
-  byNameAscending,
-  bySizeDescendingThenNameAscending,
-  classifyBorderSides,
-  collectText,
-  cropBordersPlanEntryFromDetection,
-  formatIndex,
-  hasSkippedFiles,
-  isExifOrientationRotated,
-  isImageFileExtension,
-  isQuarterTurnRotation,
-  isSupportedMetadataImageFile,
-  makeStripMetadataTempEntries,
-  maybeSwapDimensions,
-  mediaDimensionsChanged,
-  mediaKindFromExtension,
-  normalizeBareExtension,
-  normalizeOutputDimensions,
-  normalizeOutputExtension,
-  renderArchivePoorCandidatesEntry,
-  renderArchivePoorCandidatesSkippedEntry,
-  renderCreateCaptionFilesPlanEntry,
-  renderCreateCaptionFilesSkippedEntry,
-  renderCropBordersPlanEntry,
-  renderDetectBordersEntry,
-  renderDetectFacesEntry,
-  renderDetectFacesSkippedEntry,
-  renderNormalizePlanEntry,
-  renderNormalizeSkippedEntry,
-  renderPlanEntry,
-  renderStripMetadataPlanEntry,
-  rotationFromStream,
-  roundCandidateMetric,
-  selectedCanonicalPathSet,
-  sharpFormatForNormalize,
-  stringEquivalence,
-  targetNameForEntry,
-} from "./Files.utils.js";
 
 const $I = $RepoCliId.create("commands/Files/Files.service");
 
@@ -3724,19 +3725,19 @@ const logCropBordersPlan = Effect.fn("Files.logCropBordersPlan")(function* (plan
  * @category use-cases
  * @since 0.0.0
  */
-export const printFilesIndex = Effect.fn("Files.printFilesIndex")(function* () {
-  yield* Console.log("Files commands:");
-  yield* Console.log("- bun run files sort-and-rename --prefix image --dir ./tmp");
-  yield* Console.log("- bun run files sort-and-rename --prefix image --dir ./tmp --with-dimensions");
-  yield* Console.log("- bun run files strip-metadata --dir ./tmp");
-  yield* Console.log("- bun run files normalize --dir ./raw --out-dir ./dataset/images --format png");
-  yield* Console.log("- bun run files normalize --dir ./raw --out-dir ./dataset/images --format png --dedupe");
-  yield* Console.log("- bun run files create-captions --dir ./dataset/images");
-  yield* Console.log("- bun run files archive-poor-candidates --dir ./dataset/images --archive-dir ./dataset/rejected");
-  yield* Console.log("- bun run files detect-borders --dir ./tmp");
-  yield* Console.log("- bun run files detect-faces --dir ./dataset/images --model ./face_detection_yunet.onnx");
-  yield* Console.log("- bun run files crop-borders --dir ./tmp --dry-run");
-});
+export const printFilesIndex = printLines([
+  "Files commands:",
+  "- bun run files sort-and-rename --prefix image --dir ./tmp",
+  "- bun run files sort-and-rename --prefix image --dir ./tmp --with-dimensions",
+  "- bun run files strip-metadata --dir ./tmp",
+  "- bun run files normalize --dir ./raw --out-dir ./dataset/images --format png",
+  "- bun run files normalize --dir ./raw --out-dir ./dataset/images --format png --dedupe",
+  "- bun run files create-captions --dir ./dataset/images",
+  "- bun run files archive-poor-candidates --dir ./dataset/images --archive-dir ./dataset/rejected",
+  "- bun run files detect-borders --dir ./tmp",
+  "- bun run files detect-faces --dir ./dataset/images --model ./face_detection_yunet.onnx",
+  "- bun run files crop-borders --dir ./tmp --dry-run",
+]);
 
 const createCaptionFilesImpl = Effect.fn("FilesCommandService.createCaptionFiles")(function* (
   options: CreateCaptionFilesOptions

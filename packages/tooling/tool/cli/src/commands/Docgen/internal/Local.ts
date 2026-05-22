@@ -402,11 +402,9 @@ const collectChangedFiles = Effect.fn("DocgenLocal.collectChangedFiles")(functio
 ) {
   const baseChanged = yield* runGitLines(repoRoot, ["diff", "--name-only", `${base}...${head}`]).pipe(
     Effect.mapError(
-      (cause) =>
-        new DomainError({
-          message: `Unable to resolve local docgen base range ${base}...${head}. Pass --package, --full, or refresh ${base}.`,
-          cause,
-        })
+      DomainError.newCause(
+        `Unable to resolve local docgen base range ${base}...${head}. Pass --package, --full, or refresh ${base}.`
+      )
     )
   );
   const workingTreeChanged = yield* Effect.forEach(
@@ -516,15 +514,7 @@ const runStep = Effect.fn("DocgenLocal.runStep")(function* (
       });
       return yield* handle.exitCode;
     })
-  ).pipe(
-    Effect.mapError(
-      (cause) =>
-        new DomainError({
-          message: `Failed to spawn ${commandText(command, args)}.`,
-          cause,
-        })
-    )
-  );
+  ).pipe(Effect.mapError(DomainError.newCause(`Failed to spawn ${commandText(command, args)}.`)));
 
   if (exitCode !== 0) {
     return yield* new DomainError({
@@ -562,30 +552,16 @@ const collectStepOutput = Effect.fn("DocgenLocal.collectStepOutput")(function* (
       }
       return output;
     })
-  ).pipe(
-    Effect.mapError(
-      (cause) =>
-        new DomainError({
-          message: `Failed to collect ${label} output.`,
-          cause,
-        })
-    )
-  );
+  ).pipe(Effect.mapError(DomainError.newCause(`Failed to collect ${label} output.`)));
 });
 
 const decodeTurboDryRun = Effect.fn("DocgenLocal.decodeTurboDryRun")(function* (output: string) {
   return yield* decodeTurboDryRunDocument(output).pipe(
-    Effect.mapError(
-      (cause) =>
-        new DomainError({
-          message: `Failed to decode Turbo docgen dry-run JSON: ${cause.message}`,
-          cause,
-        })
-    )
+    Effect.mapError(DomainError.newCauseMessage("Failed to decode Turbo docgen dry-run JSON"))
   );
 });
 
-const summarizeTurboTasks = (output: typeof TurboDryRunDocument.Type): ReadonlyArray<DocgenLocalTurboTask> =>
+const summarizeTurboTasks = (output: TurboDryRunDocument): ReadonlyArray<DocgenLocalTurboTask> =>
   pipe(
     output.tasks,
     A.map((task) => {
@@ -667,13 +643,7 @@ const renderPlan = Effect.fn("DocgenLocal.renderPlan")(function* (plan: DocgenLo
 
 const renderPlanJson = Effect.fn("DocgenLocal.renderPlanJson")(function* (plan: DocgenLocalPlan) {
   const json = yield* encodeJson(plan).pipe(
-    Effect.mapError(
-      (cause) =>
-        new DomainError({
-          message: `Failed to encode docgen:local plan JSON: ${cause.message}`,
-          cause,
-        })
-    )
+    Effect.mapError(DomainError.newCauseMessage("Failed to encode docgen:local plan JSON"))
   );
   yield* Console.log(`${json}\n`);
 });

@@ -9,7 +9,7 @@ import {
   AiMetricsSourceDiscoveryResult,
   AiMetricsWeeklyReportResult,
 } from "@beep/repo-ai-metrics";
-import { aiMetricsCommand } from "@beep/repo-cli/commands/AIMetrics/index";
+import { aiMetricsCommand } from "@beep/repo-cli/commands/AIMetrics";
 import { A, Str } from "@beep/utils";
 import { NodeServices } from "@effect/platform-node";
 import {

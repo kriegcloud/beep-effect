@@ -570,7 +570,7 @@ time instead of through parallel mapping files.
 entity fields. It composes shared product invariants into concrete entity
 schemas, but it does not own the generic SQL projection.
 
-`@beep/drizzle/EntityTable.pgTableFrom` is the approved generic table
+`@beep/drizzle` `EntityTable.pgTableFrom` is the approved generic table
 projection for schema-first entity classes. Shared table packages may use it to
 publish metadata-only Drizzle table definitions for shared product tables, but
 they do not own live database execution, transactions, repository helpers,
@@ -804,6 +804,46 @@ adds package coordination and migration surface without proving separate
 bounded contexts. One installer slice keeps the domain/use-case/server boundary
 strict while letting the future promote a category only when it earns a
 separate lifecycle.
+
+## 2026-05-22: Canonize Namespace-First `@beep/schema` Concept Modules
+
+- **Status:** Active
+
+Decision:
+
+`@beep/schema` uses namespace-first concept modules as the canonical topology
+for reusable schema concepts. Public concept subpaths are flat, for example
+`@beep/schema/Duration`, `@beep/schema/Glob`, `@beep/schema/Color`, and
+`@beep/schema/HttpStatus`. Consumers import those modules as namespaces and use
+concise role members such as `Schema`, `Input`, `FromInput`, `Object`, and
+`Unit`.
+
+The package root remains a curated flat facade for convenience and migration
+compatibility. It is not the canonical namespace surface. Concept role files
+live under `packages/foundation/modeling/schema/src/<Concept>/` and are source
+topology only; public consumers import the concept index. Utility namespaces
+such as `SchemaUtils` may expose helper leaves when the helper is itself the
+public concept.
+
+Compatibility suite modules with existing lower-case source directories may map
+their canonical public subpath to the current lower-case source index instead
+of creating case-only source siblings. Promote source concepts rather than
+every exported symbol; for example, `HttpStatus` remains one concept module
+rather than a public subpath per status literal.
+
+Migration is compatibility-first. Legacy root exports, full repeated names such
+as `DurationInput`, and existing nested paths may remain while consumers move
+to canonical flat concept modules. Broad `./*` wildcard export reliance should
+be retired only after explicit canonical and compatibility subpaths exist.
+
+Rationale:
+
+Effect-style module consistency is valuable because it lets reusable modules
+share names like `map`, `Schema`, `Input`, or `FromInput` without forcing global
+symbol uniqueness. The repo should keep that consistency without adopting very
+large source files. Small role files under concept folders preserve the
+architecture's context-compression benefits for coding agents and reviewers,
+especially because `@beep/schema` carries heavy documentation.
 
 ## Known Unknowns
 

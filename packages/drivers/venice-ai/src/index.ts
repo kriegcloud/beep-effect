@@ -35,7 +35,7 @@ export * from "./VeniceAI.service.ts";
  * @category utilities
  * @since 0.0.0
  */
-export * as VeniceAiLanguageModel from "./VeniceAiLanguageModel.ts";
+export * as VeniceAiLanguageModel from "./VeniceAiLanguageModel.service.ts";
 
 /**
  * Current version of the `@beep/venice-ai` package.

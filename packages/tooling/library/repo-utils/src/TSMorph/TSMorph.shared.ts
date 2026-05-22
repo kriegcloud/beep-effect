@@ -4,11 +4,14 @@
  * @packageDocumentation
  * @since 0.0.0
  */
+
+import { $RepoUtilsId } from "@beep/identity";
 import { A, Str, Text, thunkEmptyStr } from "@beep/utils";
 import { flow, Match, Order, pipe } from "effect";
 import { dual } from "effect/Function";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
+import * as S from "effect/Schema";
 import {
   type ClassDeclaration,
   type ConstructorDeclaration,
@@ -23,8 +26,10 @@ import {
   type SetAccessorDeclaration,
   type TypeAliasDeclaration,
 } from "ts-morph";
-import type { SourceText, SymbolKind, TsMorphDiagnostic, Symbol as TsMorphSymbol } from "./TSMorph.model.js";
-import { symbolCategoryFromKind } from "./TSMorph.model.js";
+import type { SourceText, TsMorphDiagnostic, Symbol as TsMorphSymbol } from "./TSMorph.model.js";
+import { SymbolKind, symbolCategoryFromKind } from "./TSMorph.model.js";
+
+const $I = $RepoUtilsId.create("TSMorph/TSMorph.shared");
 
 /**
  * Supported declaration nodes for normalized TSMorph symbol extraction.
@@ -209,12 +214,28 @@ export const makeSummary = (docstring: O.Option<string>): O.Option<string> => do
  * @since 0.0.0
  */
 export const makeKeywords: {
-  (qualifiedName: string, options: { readonly kind: SymbolKind }): (name: string) => ReadonlyArray<string>;
-  (name: string, qualifiedName: string, options: { readonly kind: SymbolKind }): ReadonlyArray<string>;
+  (
+    qualifiedName: string,
+    options: {
+      readonly kind: SymbolKind;
+    }
+  ): (name: string) => ReadonlyArray<string>;
+  (
+    name: string,
+    qualifiedName: string,
+    options: {
+      readonly kind: SymbolKind;
+    }
+  ): ReadonlyArray<string>;
 } = dual(
   3,
-  (name: string, qualifiedName: string, options: { readonly kind: SymbolKind }): ReadonlyArray<string> =>
-    A.make(name, qualifiedName, options.kind, symbolCategoryFromKind(options.kind))
+  (
+    name: string,
+    qualifiedName: string,
+    options: {
+      readonly kind: SymbolKind;
+    }
+  ): ReadonlyArray<string> => A.make(name, qualifiedName, options.kind, symbolCategoryFromKind(options.kind))
 );
 
 /**
@@ -311,6 +332,37 @@ export const normalizeDiagnosticCategory = (category: DiagnosticCategory): TsMor
   normalizeDiagnosticCategoryMatcher(category);
 
 /**
+ * Named declaration summary discovered from a TypeScript source file.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class NamedDeclaration extends S.Class<NamedDeclaration>($I`NamedDeclaration`)(
+  {
+    name: S.String,
+    kind: SymbolKind,
+  },
+  $I.annote("NamedDeclaration", {
+    description: "Represents a named declaration with a name and kind",
+  })
+) {
+  static readonly newOption: {
+    (name: string, kind: SymbolKind): O.Option<NamedDeclaration>;
+    (kind: SymbolKind): (name: string) => O.Option<NamedDeclaration>;
+  } = dual(
+    2,
+    (name: string, kind: SymbolKind): O.Option<NamedDeclaration> =>
+      pipe(
+        new NamedDeclaration({
+          name,
+          kind,
+        }),
+        O.some
+      )
+  );
+}
+
+/**
  * Read the normalized name and kind for a supported declaration node.
  *
  * @param declaration - Supported declaration node to inspect.
@@ -323,66 +375,48 @@ export const normalizeDiagnosticCategory = (category: DiagnosticCategory): TsMor
  * @category utilities
  * @since 0.0.0
  */
-export const getDeclarationName = (
-  declaration: OutlineDeclaration
-): O.Option<{
-  readonly name: string;
-  readonly kind: SymbolKind;
-}> => {
-  const makeNamedDeclaration = (name: string, kind: SymbolKind) =>
-    O.some({
-      name,
-      kind,
-    });
-
+export const getDeclarationName = (declaration: OutlineDeclaration): O.Option<NamedDeclaration> => {
   if (Node.isConstructorDeclaration(declaration)) {
-    return makeNamedDeclaration("constructor", "Constructor");
+    return NamedDeclaration.newOption("constructor", "Constructor");
   }
 
   if (Node.isFunctionDeclaration(declaration)) {
-    return pipe(
-      O.fromUndefinedOr(declaration.getName()),
-      O.flatMap((name) => makeNamedDeclaration(name, "FunctionDeclaration"))
-    );
+    return pipe(declaration.getName(), O.fromUndefinedOr, O.flatMap(NamedDeclaration.newOption("FunctionDeclaration")));
   }
 
   if (Node.isClassDeclaration(declaration)) {
-    return pipe(
-      O.fromUndefinedOr(declaration.getName()),
-      O.flatMap((name) => makeNamedDeclaration(name, "ClassDeclaration"))
-    );
+    return pipe(declaration.getName(), O.fromUndefinedOr, O.flatMap(NamedDeclaration.newOption("ClassDeclaration")));
   }
 
   if (Node.isMethodDeclaration(declaration)) {
-    return makeNamedDeclaration(declaration.getName(), "MethodDeclaration");
+    return NamedDeclaration.newOption(declaration.getName(), "MethodDeclaration");
   }
 
   if (Node.isGetAccessorDeclaration(declaration)) {
-    return makeNamedDeclaration(declaration.getName(), "GetAccessor");
+    return NamedDeclaration.newOption(declaration.getName(), "GetAccessor");
   }
 
   if (Node.isSetAccessorDeclaration(declaration)) {
-    return makeNamedDeclaration(declaration.getName(), "SetAccessor");
+    return NamedDeclaration.newOption(declaration.getName(), "SetAccessor");
   }
 
   if (Node.isInterfaceDeclaration(declaration)) {
     return pipe(
-      O.fromUndefinedOr(declaration.getName()),
-      O.flatMap((name) => makeNamedDeclaration(name, "InterfaceDeclaration"))
+      declaration.getName(),
+      O.fromUndefinedOr,
+      O.flatMap(NamedDeclaration.newOption("InterfaceDeclaration"))
     );
   }
 
   if (Node.isTypeAliasDeclaration(declaration)) {
     return pipe(
-      O.fromUndefinedOr(declaration.getName()),
-      O.flatMap((name) => makeNamedDeclaration(name, "TypeAliasDeclaration"))
+      declaration.getName(),
+      O.fromUndefinedOr,
+      O.flatMap(NamedDeclaration.newOption("TypeAliasDeclaration"))
     );
   }
 
-  return pipe(
-    O.fromUndefinedOr(declaration.getName()),
-    O.flatMap((name) => makeNamedDeclaration(name, "EnumDeclaration"))
-  );
+  return pipe(declaration.getName(), O.fromUndefinedOr, O.flatMap(NamedDeclaration.newOption("EnumDeclaration")));
 };
 
 /**

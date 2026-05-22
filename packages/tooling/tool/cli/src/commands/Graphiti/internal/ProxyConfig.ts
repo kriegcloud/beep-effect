@@ -7,7 +7,7 @@
 
 import { $RepoCliId } from "@beep/identity/packages";
 import { NormalizedBooleanString, TaggedErrorClass } from "@beep/schema";
-import { Config, Effect, SchemaGetter } from "effect";
+import { Config, Effect, identity, pipe, SchemaGetter } from "effect";
 import * as O from "effect/Option";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
@@ -21,7 +21,7 @@ const makeDefaultedStringField = (name: string, fallback: string, description: s
       decode: SchemaGetter.transform((value: string | undefined) =>
         O.getOrElse(O.fromUndefinedOr(value), () => fallback)
       ),
-      encode: SchemaGetter.transform((value: string) => value),
+      encode: SchemaGetter.transform(identity),
     }),
     S.withConstructorDefault(Effect.succeed(fallback)),
     S.withDecodingDefault(Effect.succeed(fallback)),
@@ -78,6 +78,7 @@ class GraphitiProxyConfigInput extends S.Class<GraphitiProxyConfigInput>($I`Grap
     concurrency: S.optionalKey(S.String),
     maxQueue: S.optionalKey(S.String),
     requestTimeoutMs: S.optionalKey(S.String),
+    serverIdleTimeoutSeconds: S.optionalKey(S.String),
     shutdownDrainTimeoutMs: S.optionalKey(S.String),
     verbose: S.optionalKey(S.String),
     dependencyHealthEnabled: S.optionalKey(S.String),
@@ -127,6 +128,11 @@ export class GraphitiProxyConfig extends S.Class<GraphitiProxyConfig>($I`Graphit
       "GraphitiProxyRequestTimeoutMs",
       60_000,
       "Request timeout in milliseconds for upstream forwarding."
+    ),
+    serverIdleTimeoutSeconds: makeDefaultedPositiveIntField(
+      "GraphitiProxyServerIdleTimeoutSeconds",
+      75,
+      "Bun server idle timeout in seconds for slow or streaming MCP requests."
     ),
     shutdownDrainTimeoutMs: makeDefaultedPositiveIntField(
       "GraphitiProxyShutdownDrainTimeoutMs",
@@ -186,7 +192,13 @@ export class GraphitiProxyConfigLoadError extends TaggedErrorClass<GraphitiProxy
   $I.annote("GraphitiProxyConfigLoadError", {
     description: "Raised when graphiti proxy config cannot be decoded from Effect Config values.",
   })
-) {}
+) {
+  static readonly new = (message: string) => (cause: unknown) =>
+    new GraphitiProxyConfigLoadError({
+      message,
+      cause,
+    });
+}
 
 const decodeGraphitiProxyConfig = S.decodeUnknownEffect(GraphitiProxyConfig);
 
@@ -206,6 +218,7 @@ export const loadGraphitiProxyConfig = Effect.gen(function* () {
   const concurrency = yield* Config.option(Config.string("GRAPHITI_PROXY_CONCURRENCY"));
   const maxQueue = yield* Config.option(Config.string("GRAPHITI_PROXY_MAX_QUEUE"));
   const requestTimeoutMs = yield* Config.option(Config.string("GRAPHITI_PROXY_REQUEST_TIMEOUT_MS"));
+  const serverIdleTimeoutSeconds = yield* Config.option(Config.string("GRAPHITI_PROXY_SERVER_IDLE_TIMEOUT_SECONDS"));
   const shutdownDrainTimeoutMs = yield* Config.option(Config.string("GRAPHITI_PROXY_SHUTDOWN_DRAIN_TIMEOUT_MS"));
   const verbose = yield* Config.option(Config.string("GRAPHITI_PROXY_VERBOSE"));
   const dependencyHealthEnabled = yield* Config.option(Config.string("GRAPHITI_PROXY_DEPENDENCY_HEALTH_ENABLED"));
@@ -221,6 +234,7 @@ export const loadGraphitiProxyConfig = Effect.gen(function* () {
       concurrency,
       maxQueue,
       requestTimeoutMs,
+      serverIdleTimeoutSeconds,
       shutdownDrainTimeoutMs,
       verbose,
       dependencyHealthEnabled,
@@ -231,13 +245,9 @@ export const loadGraphitiProxyConfig = Effect.gen(function* () {
     })
   );
 
-  return yield* decodeGraphitiProxyConfig(raw).pipe(
-    Effect.mapError(
-      (cause) =>
-        new GraphitiProxyConfigLoadError({
-          message: "Failed to decode graphiti proxy config.",
-          cause,
-        })
-    )
+  return yield* pipe(
+    raw,
+    decodeGraphitiProxyConfig,
+    Effect.mapError(GraphitiProxyConfigLoadError.new("Failed to decode graphiti proxy config."))
   );
 });

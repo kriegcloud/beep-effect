@@ -34,7 +34,7 @@ const makeRepository = (): WorkerServer.Worker.WorkerRepositoryShape => {
           onSome: Effect.succeed,
         })
       ),
-    list: () => Effect.succeed(A.fromIterable(HashMap.values(workers))),
+    list: Effect.sync(() => A.fromIterable(HashMap.values(workers))),
   };
 };
 

@@ -89,7 +89,7 @@ if (!shouldRunPgliteIntegration) {
           const assigned = yield* DomainWorkItem.assign(inserted, workerId);
           const saved = yield* repository.save(assigned);
           const found = yield* repository.get(saved.id);
-          const all = yield* repository.list();
+          const all = yield* repository.list;
 
           expect(found.status).toBe("assigned");
           expect(O.getOrThrow(found.assignee)).toBe(workerId);
@@ -121,7 +121,7 @@ if (!shouldRunPgliteIntegration) {
 
           const inserted = yield* repository.create(created);
           const found = yield* repository.get(inserted.id);
-          const all = yield* repository.list();
+          const all = yield* repository.list;
 
           expect(found.displayName).toBe("Ada Lovelace");
           expect(
