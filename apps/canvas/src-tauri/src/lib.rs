@@ -117,11 +117,8 @@ fn ensure_local_scene_name(path: &str) -> CommandResult<&str> {
         return Err(CanvasCommandError::invalid_request("Scene path must be non-empty."));
     }
     let requested = Path::new(trimmed);
-    if requested.is_absolute()
-        || requested
-            .components()
-            .any(|component| !matches!(component, Component::Normal(_)))
-    {
+    let mut components = requested.components();
+    if !matches!((components.next(), components.next()), (Some(Component::Normal(_)), None)) {
         return Err(CanvasCommandError::invalid_request(
             "Scene path must be a local file name, not an absolute or nested path.",
         ));
@@ -179,7 +176,6 @@ fn scene_save(app: AppHandle, request: SceneSaveRequest) -> CommandResult<Canvas
 }
 
 fn save_scene_with_app<R: Runtime>(app: &AppHandle<R>, request: SceneSaveRequest) -> CommandResult<CanvasScene> {
-    validate_scene(&request.scene)?;
     let storage_dir = scene_storage_dir(app)?;
     save_scene_in_dir(&storage_dir, request)
 }
@@ -215,7 +211,11 @@ fn load_scene_with_app<R: Runtime>(app: &AppHandle<R>, request: SceneLoadRequest
 fn load_scene_from_dir(storage_dir: &Path, request: SceneLoadRequest) -> CommandResult<CanvasScene> {
     let path = resolve_scene_path_in_dir(storage_dir, &request.path)?;
     let json = fs::read_to_string(path).map_err(|error| {
-        unavailable_with_cause("read scene json", "Unable to load canvas scene JSON.", error)
+        if error.kind() == std::io::ErrorKind::NotFound {
+            invalid_request_with_cause("read scene json", "Scene file not found.", error)
+        } else {
+            unavailable_with_cause("read scene json", "Unable to load canvas scene JSON.", error)
+        }
     })?;
     let scene: CanvasScene = serde_json::from_str(&json).map_err(|error| {
         invalid_request_with_cause(
@@ -252,6 +252,7 @@ mod tests {
         assert!(resolve_scene_path_in_dir(&storage_dir, "scene-test.json").is_ok());
         assert!(resolve_scene_path_in_dir(&storage_dir, "../scene-test.json").is_err());
         assert!(resolve_scene_path_in_dir(&storage_dir, "/tmp/scene-test.json").is_err());
+        assert!(resolve_scene_path_in_dir(&storage_dir, "nested/scene-test.json").is_err());
         assert!(resolve_scene_path_in_dir(&storage_dir, "scene-test.txt").is_err());
     }
 
@@ -271,6 +272,21 @@ mod tests {
         let error = result.expect_err("invalid scene should fail");
 
         assert_eq!(error.tag, "CanvasCommandInvalidRequest");
+    }
+
+    #[test]
+    fn load_reports_missing_scene_as_invalid_request() {
+        let storage_dir = std::env::temp_dir().join("beep-canvas-test-missing");
+        let result = load_scene_from_dir(
+            &storage_dir,
+            SceneLoadRequest {
+                path: "missing-scene.json".to_string(),
+            },
+        );
+        let error = result.expect_err("missing scene should fail");
+
+        assert_eq!(error.tag, "CanvasCommandInvalidRequest");
+        assert_eq!(error.message, "Scene file not found.");
     }
 
     #[test]

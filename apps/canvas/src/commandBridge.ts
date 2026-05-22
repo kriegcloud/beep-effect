@@ -11,7 +11,7 @@ import { CanvasProjectServer, CanvasServerLive } from "@beep/canvas-server/layer
 import { CanvasProject as CanvasProjectUseCases } from "@beep/canvas-use-cases/public";
 import { $CanvasId } from "@beep/identity/packages";
 import { LiteralKit } from "@beep/schema";
-import { Effect, ManagedRuntime } from "effect";
+import { Effect, HashMap, ManagedRuntime, Ref } from "effect";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
 
@@ -558,28 +558,30 @@ export const decodeCanvasNodeKind = (
  * @category commands
  * @since 0.0.0
  */
-export const makePreviewCanvasCommandBridge = (): CanvasCommandBridgeEffect =>
-  Effect.map(CanvasProjectServer, (useCases) => {
-    let savedScene: CanvasScene | undefined;
+export const makePreviewCanvasCommandBridge: () => CanvasCommandBridgeEffect = Effect.fn(
+  "Canvas.makePreviewCanvasCommandBridge"
+)(function* () {
+  const useCases = yield* CanvasProjectServer;
+  const savedScenes = yield* Ref.make(HashMap.empty<string, CanvasScene>());
 
-    return makeUseCaseCanvasCommandBridge(useCases, {
-      canvasHealth: () => Effect.succeed(previewHealth),
-      loadScene: () => {
-        if (savedScene === undefined) {
-          return Effect.fail(new CanvasCommandError({ message: "No preview scene has been saved." }));
-        }
-        return Effect.succeed(savedScene);
-      },
-      saveScene: ({ scene }) =>
-        decodeCanvasScene(scene).pipe(
-          Effect.tap((decoded) =>
-            Effect.sync(() => {
-              savedScene = decoded;
-            })
-          )
-        ),
-    });
+  return makeUseCaseCanvasCommandBridge(useCases, {
+    canvasHealth: () => Effect.succeed(previewHealth),
+    loadScene: ({ path }) =>
+      Ref.get(savedScenes).pipe(
+        Effect.flatMap((scenes) =>
+          O.match(HashMap.get(scenes, path), {
+            onNone: () =>
+              Effect.fail(new CanvasCommandError({ message: `No preview scene has been saved at ${path}.` })),
+            onSome: (scene) => Effect.succeed(scene),
+          })
+        )
+      ),
+    saveScene: ({ path, scene }) =>
+      decodeCanvasScene(scene).pipe(
+        Effect.tap((decoded) => Ref.update(savedScenes, (scenes) => HashMap.set(scenes, path, decoded)))
+      ),
   });
+});
 
 const loadThroughUseCases = (
   useCases: CanvasProjectUseCases.CanvasProjectUseCasesShape,

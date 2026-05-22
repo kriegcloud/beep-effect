@@ -76,6 +76,39 @@ describe("canvas command bridge", () => {
       })
     ));
 
+  it("loads preview scene contents from the requested path", () =>
+    runCanvasEffect(
+      Effect.gen(function* () {
+        const bridge = yield* makePreviewCanvasCommandBridge();
+        const alphaSceneId = yield* decodeCanvasProjectId("preview-alpha");
+        const betaSceneId = yield* decodeCanvasProjectId("preview-beta");
+        const alphaNodeId = yield* decodeCanvasNodeId("preview-alpha-node");
+        const betaNodeId = yield* decodeCanvasNodeId("preview-beta-node");
+
+        const alpha = yield* bridge.sceneCreate({ id: alphaSceneId, title: "Preview Alpha" });
+        const savedAlpha = yield* bridge.sceneNodeAdd({
+          id: alpha.id,
+          node: { id: alphaNodeId, kind: "note", label: "Alpha Node" },
+        });
+        yield* bridge.sceneSave({ path: "preview-alpha.json", scene: savedAlpha });
+
+        const beta = yield* bridge.sceneCreate({ id: betaSceneId, title: "Preview Beta" });
+        const savedBeta = yield* bridge.sceneNodeAdd({
+          id: beta.id,
+          node: { id: betaNodeId, kind: "shape", label: "Beta Node" },
+        });
+        yield* bridge.sceneSave({ path: "preview-beta.json", scene: savedBeta });
+
+        const loadedAlpha = yield* bridge.sceneLoad({ path: "preview-alpha.json" });
+        const loadedBeta = yield* bridge.sceneLoad({ path: "preview-beta.json" });
+
+        expect(loadedAlpha.title).toBe("Preview Alpha");
+        expect(loadedAlpha.nodes.map((node) => node.id)).toEqual(["preview-alpha-node"]);
+        expect(loadedBeta.title).toBe("Preview Beta");
+        expect(loadedBeta.nodes.map((node) => node.id)).toEqual(["preview-beta-node"]);
+      })
+    ));
+
   it("translates public action failures from the app bridge", () =>
     expect(
       runCanvasEffect(
