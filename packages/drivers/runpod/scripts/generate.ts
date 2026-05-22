@@ -626,7 +626,7 @@ const renderOperationDescriptor = (operation: Operation): string => {
  * @category constants
  * @since 0.1.0
  */
-export const ${operation.descriptorName} = new RunpodOperationDescriptor({
+export const ${operation.descriptorName} = RunpodOperationDescriptor.make({
   authenticated: ${operation.operationId === "GetOpenAPI" || operation.operationId === "GetDocs" ? "false" : "true"},
   method: "${operation.method}",
   methodName: "${operation.methodName}",
