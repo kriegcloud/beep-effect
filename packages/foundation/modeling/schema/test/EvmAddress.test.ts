@@ -1,4 +1,4 @@
-import { EvmAddress } from "@beep/schema/blockchain/EvmAddress";
+import { EvmAddress } from "@beep/schema/EvmAddress";
 import { Str } from "@beep/utils";
 import { describe, expect, it } from "@effect/vitest";
 import * as S from "effect/Schema";

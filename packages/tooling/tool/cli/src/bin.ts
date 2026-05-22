@@ -65,7 +65,7 @@ const renderCliFailure = (exit: Exit.Exit<unknown, unknown>) => {
   }
 
   const error = Cause.squash(exit.cause);
-  if (Runtime.getErrorReported(error) === false) {
+  if (!Runtime.getErrorReported(error)) {
     return;
   }
 

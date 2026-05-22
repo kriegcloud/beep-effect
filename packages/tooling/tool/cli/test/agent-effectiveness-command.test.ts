@@ -5,7 +5,7 @@ import {
   AgentEffectivenessPhoenixSyncResult,
   AgentEffectivenessPromptBundle,
 } from "@beep/repo-ai-metrics";
-import { agentEffectivenessCommand } from "@beep/repo-cli/commands/AgentEffectiveness/index";
+import { agentEffectivenessCommand } from "@beep/repo-cli/commands/AgentEffectiveness";
 import { A } from "@beep/utils";
 import { NodeServices } from "@effect/platform-node";
 import { describe, expect, it } from "@effect/vitest";

@@ -1,0 +1,8 @@
+/**
+ * Topological-sort command facade.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
+
+export * from "./TopoSort.command.js";

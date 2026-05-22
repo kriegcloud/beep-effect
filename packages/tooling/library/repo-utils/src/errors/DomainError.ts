@@ -11,6 +11,7 @@ import { $RepoUtilsId } from "@beep/identity/packages";
 import { TaggedErrorClass } from "@beep/schema";
 import { dual } from "effect/Function";
 import * as S from "effect/Schema";
+import * as P from "effect/Predicate";
 
 const $I = $RepoUtilsId.create("errors/DomainError");
 
@@ -53,4 +54,19 @@ export class DomainError extends TaggedErrorClass<DomainError>($I`DomainError`)(
   );
 
   static readonly newMessage = (message: string) => new DomainError({ message });
+
+  static readonly newCauseMessage: {
+    (cause: unknown, message: string): DomainError;
+    (message: string): (cause: unknown) => DomainError;
+  } = dual(
+    2,
+    (cause: unknown, message: string) =>
+    {
+      const getMessage = (cause: unknown): string => P.isError(cause) ? `${message}: ${cause.message}` : message
+      return new DomainError({
+        message: getMessage(cause),
+        cause,
+      })
+    }
+  );
 }

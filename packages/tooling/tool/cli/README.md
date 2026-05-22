@@ -19,9 +19,8 @@ bunx @beep/repo-cli <command>
 ## Command Topology
 
 `@beep/repo-cli` uses thresholded command topology. Tiny leaf commands can stay
-as `commands/<Name>.ts` while they have no schemas, services, renderers, or
-subcommands. Command groups and role-bearing commands live in
-`commands/<Group>/`.
+flat while they have no schemas, services, renderers, or subcommands. Command
+groups and role-bearing commands live in `commands/<Group>/`.
 
 Canonical group roles:
 
@@ -37,15 +36,21 @@ Canonical group roles:
   command error, and service contract.
 
 Optional roles are earned by complexity. Prefer semantic names such as
-`<Group>.progress.ts`, `<Group>.paths.ts`, or `<Group>.plan.ts`; keep
-`<Group>.utils.ts` transitional. Use `<Group>.config.ts` only for typed runtime
-configuration backed by `Config`/`ConfigProvider`, and add `<Group>.layer.ts`
-only for multiple or non-trivial layer variants.
+`<Group>.progress.ts`, `<Group>.paths.ts`, `<Group>.media.ts`, or
+`<Group>.plan.ts`; do not add new `<Group>.utils.ts` modules. Use
+`<Group>.config.ts` only for typed runtime configuration backed by
+`Config`/`ConfigProvider`, and add `<Group>.layer.ts` only for multiple or
+non-trivial layer variants.
 
 Package-local shared CLI support belongs under `src/internal/cli/`, not a
 package-local `foundation/` directory. Keep command services free of final
 terminal rendering: services return typed results/reports, command adapters
 render output and choose process-visible failure semantics.
+
+Public imports are explicit: use `@beep/repo-cli` or
+`@beep/repo-cli/commands/<Group>`. Deep role files are private. Package tests
+that need internal seams use source-only `@beep/repo-cli/test/<Group>` aliases;
+those aliases are not package exports.
 
 ## Commands
 

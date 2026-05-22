@@ -27,7 +27,7 @@ const NoSniffValueBase = LiteralKit([defaultValue]);
  * @example
  * ```ts
  * import * as S from "effect/Schema"
- * import { NoSniffValue } from "@beep/schema/http/headers/NoSniff"
+ * import { NoSniffValue } from "@beep/schema/NoSniff"
  *
  * const decoded = S.decodeUnknownSync(NoSniffValue)("nosniff")
  * void decoded
@@ -59,7 +59,7 @@ const NoSniffOptionBase = LiteralKit([false, ...NoSniffValueBase.Options]);
  * @example
  * ```ts
  * import * as S from "effect/Schema"
- * import { NoSniffOption } from "@beep/schema/http/headers/NoSniff"
+ * import { NoSniffOption } from "@beep/schema/NoSniff"
  *
  * const decoded = S.decodeUnknownSync(NoSniffOption)(false)
  * void decoded
@@ -89,7 +89,7 @@ export type NoSniffOption = typeof NoSniffOption.Type;
  * @example
  * ```ts
  * import * as Option from "effect/Option"
- * import { NoSniffResponseHeader } from "@beep/schema/http/headers/NoSniff"
+ * import { NoSniffResponseHeader } from "@beep/schema/NoSniff"
  *
  * const header = new NoSniffResponseHeader({ name: "X-Content-Type-Options", value: Option.none() })
  * void header
@@ -116,7 +116,7 @@ type NoSniffResponseHeaderEncoded = typeof NoSniffResponseHeader.Encoded;
  * @example
  * ```ts
  * import { Effect } from "effect"
- * import { NoSniffHeader } from "@beep/schema/http/headers/NoSniff"
+ * import { NoSniffHeader } from "@beep/schema/NoSniff"
  *
  * const program = NoSniffHeader.create()
  * void program

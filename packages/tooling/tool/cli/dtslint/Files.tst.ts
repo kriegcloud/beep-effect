@@ -31,7 +31,7 @@ import {
   type NormalizeSkippedEntry,
   type NormalizeSummary,
   normalizeFiles,
-} from "@beep/repo-cli/commands/Files/index";
+} from "@beep/repo-cli/commands/Files";
 import type { Effect } from "effect";
 import * as O from "effect/Option";
 import { describe, expect, it } from "tstyche";

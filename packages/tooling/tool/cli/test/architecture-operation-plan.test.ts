@@ -12,7 +12,7 @@ import {
   makeCanonicalSliceOperationPlan,
   WriteFileOperation,
   WritePackageJsonOperation,
-} from "@beep/repo-cli/commands/Architecture/index";
+} from "@beep/repo-cli/commands/Architecture";
 import { A, Str } from "@beep/utils";
 import { NodeServices } from "@effect/platform-node";
 import { describe, expect, it } from "@effect/vitest";

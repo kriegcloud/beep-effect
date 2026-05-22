@@ -1,6 +1,8 @@
-import { GraphitiProxyConfig } from "@beep/repo-cli/commands/Graphiti/internal/ProxyConfig";
-import { shouldRecoverGraphitiStackForTesting } from "@beep/repo-cli/commands/Graphiti/internal/ProxyOps";
-import { makeGraphitiProxyForwarderService } from "@beep/repo-cli/commands/Graphiti/internal/ProxyServices";
+import {
+  GraphitiProxyConfig,
+  makeGraphitiProxyForwarderService,
+  shouldRecoverGraphitiStackForTesting,
+} from "@beep/repo-cli/test/Graphiti";
 import { NodeServices } from "@effect/platform-node";
 import { expect, layer } from "@effect/vitest";
 import { Duration, Effect } from "effect";

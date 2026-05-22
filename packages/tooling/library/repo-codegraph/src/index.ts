@@ -6,19 +6,6 @@
  */
 
 /**
- * Package version for `@beep/repo-codegraph`.
- *
- * @example
- * ```ts
- * import { VERSION } from "@beep/repo-codegraph"
- * console.log(VERSION)
- * ```
- * @category configuration
- * @since 0.0.0
- */
-export const VERSION = "0.0.0" as const;
-
-/**
  * Lookup request and response models.
  *
  * @example

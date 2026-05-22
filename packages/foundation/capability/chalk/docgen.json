@@ -50,6 +50,156 @@
       "@beep/schema/*": [
         "../../../../packages/foundation/modeling/schema/src/*.ts"
       ],
+      "@beep/schema/Age": [
+        "../../../../packages/foundation/modeling/schema/src/Age/index.ts"
+      ],
+      "@beep/schema/Blockchain": [
+        "../../../../packages/foundation/modeling/schema/src/blockchain/index.ts"
+      ],
+      "@beep/schema/CardinalDirection": [
+        "../../../../packages/foundation/modeling/schema/src/CardinalDirection/index.ts"
+      ],
+      "@beep/schema/Color": [
+        "../../../../packages/foundation/modeling/schema/src/color/index.ts"
+      ],
+      "@beep/schema/CryptoTxnHash": [
+        "../../../../packages/foundation/modeling/schema/src/CryptoTxnHash/index.ts"
+      ],
+      "@beep/schema/CryptoWalletAddress": [
+        "../../../../packages/foundation/modeling/schema/src/CryptoWalletAddress/index.ts"
+      ],
+      "@beep/schema/Csv": [
+        "../../../../packages/foundation/modeling/schema/src/csv/index.ts"
+      ],
+      "@beep/schema/CsvCodecOptions": [
+        "../../../../packages/foundation/modeling/schema/src/CsvCodecOptions/index.ts"
+      ],
+      "@beep/schema/CsvError": [
+        "../../../../packages/foundation/modeling/schema/src/CsvError/index.ts"
+      ],
+      "@beep/schema/CsvFormatter": [
+        "../../../../packages/foundation/modeling/schema/src/CsvFormatter/index.ts"
+      ],
+      "@beep/schema/CsvParser": [
+        "../../../../packages/foundation/modeling/schema/src/CsvParser/index.ts"
+      ],
+      "@beep/schema/Csp": [
+        "../../../../packages/foundation/modeling/schema/src/Csp/index.ts"
+      ],
+      "@beep/schema/CrossOriginEmbedderPolicy": [
+        "../../../../packages/foundation/modeling/schema/src/CrossOriginEmbedderPolicy/index.ts"
+      ],
+      "@beep/schema/CrossOriginOpenerPolicy": [
+        "../../../../packages/foundation/modeling/schema/src/CrossOriginOpenerPolicy/index.ts"
+      ],
+      "@beep/schema/CrossOriginResourcePolicy": [
+        "../../../../packages/foundation/modeling/schema/src/CrossOriginResourcePolicy/index.ts"
+      ],
+      "@beep/schema/Dom": [
+        "../../../../packages/foundation/modeling/schema/src/dom/index.ts"
+      ],
+      "@beep/schema/DomCssProperties": [
+        "../../../../packages/foundation/modeling/schema/src/DomCssProperties/index.ts"
+      ],
+      "@beep/schema/DomDragEvent": [
+        "../../../../packages/foundation/modeling/schema/src/DomDragEvent/index.ts"
+      ],
+      "@beep/schema/DomEvent": [
+        "../../../../packages/foundation/modeling/schema/src/DomEvent/index.ts"
+      ],
+      "@beep/schema/DomHtmlElement": [
+        "../../../../packages/foundation/modeling/schema/src/DomHtmlElement/index.ts"
+      ],
+      "@beep/schema/DomMouseEvent": [
+        "../../../../packages/foundation/modeling/schema/src/DomMouseEvent/index.ts"
+      ],
+      "@beep/schema/DomReactNode": [
+        "../../../../packages/foundation/modeling/schema/src/DomReactNode/index.ts"
+      ],
+      "@beep/schema/Duration": [
+        "../../../../packages/foundation/modeling/schema/src/Duration/index.ts"
+      ],
+      "@beep/schema/EthAmount": [
+        "../../../../packages/foundation/modeling/schema/src/EthAmount/index.ts"
+      ],
+      "@beep/schema/EthereumValidatorPublicKey": [
+        "../../../../packages/foundation/modeling/schema/src/EthereumValidatorPublicKey/index.ts"
+      ],
+      "@beep/schema/EvmAddress": [
+        "../../../../packages/foundation/modeling/schema/src/EvmAddress/index.ts"
+      ],
+      "@beep/schema/ExpectCT": [
+        "../../../../packages/foundation/modeling/schema/src/ExpectCt/index.ts"
+      ],
+      "@beep/schema/ExpectCt": [
+        "../../../../packages/foundation/modeling/schema/src/ExpectCt/index.ts"
+      ],
+      "@beep/schema/ForceHttpsRedirect": [
+        "../../../../packages/foundation/modeling/schema/src/ForceHttpsRedirect/index.ts"
+      ],
+      "@beep/schema/FrameGuard": [
+        "../../../../packages/foundation/modeling/schema/src/FrameGuard/index.ts"
+      ],
+      "@beep/schema/Glob": [
+        "../../../../packages/foundation/modeling/schema/src/Glob/index.ts"
+      ],
+      "@beep/schema/Http": [
+        "../../../../packages/foundation/modeling/schema/src/http/index.ts"
+      ],
+      "@beep/schema/HttpHeaders": [
+        "../../../../packages/foundation/modeling/schema/src/HttpHeaders/index.ts"
+      ],
+      "@beep/schema/HttpMethod": [
+        "../../../../packages/foundation/modeling/schema/src/HttpMethod/index.ts"
+      ],
+      "@beep/schema/HttpProtocol": [
+        "../../../../packages/foundation/modeling/schema/src/HttpProtocol/index.ts"
+      ],
+      "@beep/schema/HttpStatus": [
+        "../../../../packages/foundation/modeling/schema/src/HttpStatus/index.ts"
+      ],
+      "@beep/schema/Location": [
+        "../../../../packages/foundation/modeling/schema/src/location/index.ts"
+      ],
+      "@beep/schema/NoOpen": [
+        "../../../../packages/foundation/modeling/schema/src/NoOpen/index.ts"
+      ],
+      "@beep/schema/NoSniff": [
+        "../../../../packages/foundation/modeling/schema/src/NoSniff/index.ts"
+      ],
+      "@beep/schema/ParserOptions": [
+        "../../../../packages/foundation/modeling/schema/src/ParserOptions/index.ts"
+      ],
+      "@beep/schema/PermissionsPolicy": [
+        "../../../../packages/foundation/modeling/schema/src/PermissionsPolicy/index.ts"
+      ],
+      "@beep/schema/PermittedCrossDomainPolicies": [
+        "../../../../packages/foundation/modeling/schema/src/PermittedCrossDomainPolicies/index.ts"
+      ],
+      "@beep/schema/Person": [
+        "../../../../packages/foundation/modeling/schema/src/person/index.ts"
+      ],
+      "@beep/schema/ReferrerPolicy": [
+        "../../../../packages/foundation/modeling/schema/src/ReferrerPolicy/index.ts"
+      ],
+      "@beep/schema/SecureHeader": [
+        "../../../../packages/foundation/modeling/schema/src/SecureHeader/index.ts"
+      ],
+      "@beep/schema/SecureHeaderError": [
+        "../../../../packages/foundation/modeling/schema/src/SecureHeaderError/index.ts"
+      ],
+      "@beep/schema/SecureHeaderOptions": [
+        "../../../../packages/foundation/modeling/schema/src/SecureHeaderOptions/index.ts"
+      ],
+      "@beep/schema/Sex": [
+        "../../../../packages/foundation/modeling/schema/src/Sex/index.ts"
+      ],
+      "@beep/schema/XSSProtection": [
+        "../../../../packages/foundation/modeling/schema/src/XssProtection/index.ts"
+      ],
+      "@beep/schema/XssProtection": [
+        "../../../../packages/foundation/modeling/schema/src/XssProtection/index.ts"
+      ],
       "@beep/schema/color": [
         "../../../../packages/foundation/modeling/schema/src/color/index.ts"
       ],

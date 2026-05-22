@@ -1,0 +1,14 @@
+/**
+ * Namespace-first public module for Cross-Origin-Opener-Policy schemas.
+ *
+ * @example
+ * ```ts
+ * import * as CrossOriginOpenerPolicy from "@beep/schema/CrossOriginOpenerPolicy"
+ *
+ * console.log(CrossOriginOpenerPolicy.Header)
+ * ```
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
+export * from "./CrossOriginOpenerPolicy.schema.ts";

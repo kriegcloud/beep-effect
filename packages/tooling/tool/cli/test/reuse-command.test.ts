@@ -1,5 +1,5 @@
-import { reuseCommand } from "@beep/repo-cli/commands/Reuse/index";
-import { CodexSmokeResult } from "@beep/repo-cli/commands/Reuse/internal/CodexRunner";
+import { reuseCommand } from "@beep/repo-cli/commands/Reuse";
+import { CodexSmokeResult } from "@beep/repo-cli/test/Reuse";
 import { RepoCodegraphLookupResult } from "@beep/repo-codegraph";
 import {
   FsUtilsLive,

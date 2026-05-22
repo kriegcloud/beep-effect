@@ -215,12 +215,76 @@ it is not permission to route reusable runtime substrate through `tooling`.
 Every such package must own the direct dependency and project reference it
 imports.
 
+## `@beep/schema` Concept Module Topology
+
+`@beep/schema` is the canonical `foundation/modeling` home for reusable Effect
+Schema schemas, codecs, schema combinators, and schema-adjacent helpers. It is
+domain-agnostic substrate, not shared-kernel product language.
+
+The package follows an Effect-inspired public module style while avoiding
+Effect-sized source files. Public schema concepts use flat concept subpaths:
+
+```ts
+import * as Duration from "@beep/schema/Duration"
+import * as Glob from "@beep/schema/Glob"
+
+Duration.Input
+Duration.FromInput
+Glob.Schema
+```
+
+The package root remains a curated flat facade for convenience and migration:
+
+```ts
+import { DurationInput, Glob, TaggedErrorClass } from "@beep/schema"
+```
+
+Root exports are not the canonical place for full concept namespaces. New
+examples and new internal package code should prefer `@beep/schema/<Concept>`
+when consuming a reusable schema concept with adjacent input, transform,
+constructor, guard, or type-level members.
+
+Concept source topology is role-file based:
+
+```txt
+packages/foundation/modeling/schema/src/Duration/
+  Duration.schema.ts
+  Duration.input.ts
+  Duration.transforms.ts
+  index.ts
+```
+
+Only the concept index is public. Role files are source topology. Public
+consumers should not import `@beep/schema/Duration/Input` or similar role
+subpaths. Utility namespaces such as `SchemaUtils` are the exception: when a
+helper is itself the public concept, helper leaves may stay public.
+Compatibility suite modules with existing lower-case source directories may map
+their canonical public subpath to the current lower-case source index, for
+example `@beep/schema/Color` to `src/color/index.ts`; do not create case-only
+source siblings such as `src/Color/` beside `src/color/`.
+
+Core role suffixes are `.schema.ts`, `.input.ts`, `.transforms.ts`,
+`.constructors.ts`, `.guards.ts`, `.errors.ts`, and `.types.ts`. Earned
+semantic roles are allowed for clearer specialized modules such as parser,
+formatter, SQL projection, or color-conversion roles.
+
+Inside the namespace, concise role names are canonical. Prefer
+`Duration.Input`, `Duration.FromInput`, and `Glob.Schema` over repeated names
+such as `Duration.DurationInput` in new code. Legacy full names may remain as
+aliases while consumers migrate.
+Promote source concepts rather than individual exported symbols; for example,
+`HttpStatus` remains one concept module rather than a public subpath per status
+literal.
+
 ## Repo CLI Command Topology
 
 `packages/tooling/tool/cli` is the canonical repo-operational CLI home. Its
 command topology is thresholded: tiny leaf commands may stay single-file, but
 command groups and commands with schemas, services, renderers, or multiple
-subcommands move into `commands/<Group>/`.
+subcommands move into `commands/<Group>/`. The `commands/` namespace is for
+registered command surfaces and command-owned private roles; non-command helper
+models belong under `src/internal/cli/` or the package that owns the reusable
+substrate.
 
 Canonical command group roles:
 
@@ -234,10 +298,16 @@ Canonical command group roles:
   command error, and service contract.
 
 Earned roles should be semantic: prefer `<Group>.render.ts`,
-`<Group>.progress.ts`, `<Group>.paths.ts`, or `<Group>.plan.ts` over
-`<Group>.utils.ts`. Use `<Group>.config.ts` only for runtime/config-provider
-settings, and add `<Group>.layer.ts` only when a command group has multiple or
-non-trivial layer variants.
+`<Group>.progress.ts`, `<Group>.paths.ts`, `<Group>.media.ts`, or
+`<Group>.plan.ts` over `<Group>.utils.ts`. Use `<Group>.config.ts` only for
+runtime/config-provider settings, and add `<Group>.layer.ts` only when a
+command group has multiple or non-trivial layer variants.
+
+Only package root and explicit `@beep/repo-cli/commands/<Group>` facades are
+public command import surfaces. Deep role files, `internal/`, and command-owned
+shards are private. Package-local tests that need internals use source-only
+`@beep/repo-cli/test/<Group>` aliases; those aliases are not package exports and
+must not appear in the public export catalog.
 
 ## Worked Examples
 

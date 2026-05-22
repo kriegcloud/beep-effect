@@ -94,6 +94,7 @@ export const runGraphitiProxy = Effect.scoped(
       Layer.provideMerge(
         BunHttpServer.layer({
           hostname: config.listenHost,
+          idleTimeout: config.serverIdleTimeoutSeconds,
           port: config.listenPort,
         })
       ),
@@ -152,6 +153,7 @@ export const runGraphitiProxy = Effect.scoped(
     yield* logger.info(
       `queue settings concurrency=${config.concurrency} maxQueue=${config.maxQueue} timeoutMs=${config.requestTimeoutMs}`
     );
+    yield* logger.info(`server idle timeout=${config.serverIdleTimeoutSeconds}s`);
     yield* logger.info(`shutdown drain timeout=${config.shutdownDrainTimeoutMs}ms`);
     yield* logger.info("health endpoints: /healthz, /metrics");
     yield* logger.debug("server launched");

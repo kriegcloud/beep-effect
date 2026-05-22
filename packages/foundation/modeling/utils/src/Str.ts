@@ -830,3 +830,19 @@ export const truncate: {
   }
   return `${Str.slice(0, maxLength)(trimmed)}...`;
 });
+
+/**
+ * Returns an empty string if the provided input is null or undefined
+ *
+ * @example
+ * ```ts
+ * import { Str } from "@beep/utils";
+ *
+ * const fn = (someStr: string | null | undefined) => console.log(Str.orEmpty(someStr)) // "" if null or undefined
+ * ```
+ *
+ * @category combinators
+ * @param str - The nullish string
+ * @since 0.0.0
+ */
+export const orEmpty = (str: string | null | undefined): string => str ?? "";

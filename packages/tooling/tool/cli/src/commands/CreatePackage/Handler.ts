@@ -30,7 +30,7 @@ import * as S from "effect/Schema";
 import { Argument, Command, Flag } from "effect/unstable/cli";
 import * as jsonc from "jsonc-parser";
 import { SyntaxKind } from "ts-morph";
-import { syncTsconfigAtRoot } from "../TsconfigSync.js";
+import { syncTsconfigAtRoot } from "../TsconfigSync/index.js";
 import {
   createFileGenerationPlanService,
   FileGenerationPlanInput,
@@ -126,11 +126,7 @@ const isPackageFamily = S.is(PackageFamily);
 const decodePackageFamilyEffect = (input: unknown) =>
   S.decodeUnknownEffect(PackageFamily)(input).pipe(
     Effect.mapError(
-      (cause) =>
-        new DomainError({
-          message: `Invalid package family "${input}". Must be one of: ${A.join(VALID_FAMILIES, ", ")}`,
-          cause,
-        })
+      DomainError.newCause(`Invalid package family "${input}". Must be one of: ${A.join(VALID_FAMILIES, ", ")}`)
     )
   );
 const packageFamilyEquivalence = S.toEquivalence(PackageFamily);
@@ -145,11 +141,9 @@ const isFoundationKind = S.is(FoundationKind);
 const decodeFoundationKindEffect = (input: unknown) =>
   S.decodeUnknownEffect(FoundationKind)(input).pipe(
     Effect.mapError(
-      (cause) =>
-        new DomainError({
-          message: `Invalid foundation kind "${input}". Must be one of: ${A.join(VALID_FOUNDATION_KINDS, ", ")}`,
-          cause,
-        })
+      DomainError.newCause(
+        `Invalid foundation kind "${input}". Must be one of: ${A.join(VALID_FOUNDATION_KINDS, ", ")}`
+      )
     )
   );
 
@@ -163,11 +157,7 @@ const isToolingKind = S.is(ToolingKind);
 const decodeToolingKindEffect = (input: unknown) =>
   S.decodeUnknownEffect(ToolingKind)(input).pipe(
     Effect.mapError(
-      (cause) =>
-        new DomainError({
-          message: `Invalid tooling kind "${input}". Must be one of: ${A.join(VALID_TOOLING_KINDS, ", ")}`,
-          cause,
-        })
+      DomainError.newCause(`Invalid tooling kind "${input}". Must be one of: ${A.join(VALID_TOOLING_KINDS, ", ")}`)
     )
   );
 
@@ -312,13 +302,7 @@ const parseJsonDocument: {
   2,
   Effect.fn(function* (content: string, filePath: string) {
     return yield* S.decodeUnknownEffect(S.fromJsonString(S.Unknown))(content).pipe(
-      Effect.mapError(
-        (cause) =>
-          new DomainError({
-            message: `Failed to parse JSON in "${filePath}"`,
-            cause,
-          })
-      )
+      Effect.mapError(DomainError.newCause(`Failed to parse JSON in "${filePath}"`))
     );
   })
 );
@@ -329,16 +313,10 @@ const readRootPackageJsonDocument = Effect.fn(function* (repoRoot: string) {
   const filePath = path.join(repoRoot, "package.json");
   const content = yield* fs
     .readFileString(filePath)
-    .pipe(Effect.mapError((cause) => new DomainError({ message: `Failed to read "${filePath}"`, cause })));
+    .pipe(Effect.mapError(DomainError.newCause(`Failed to read "${filePath}"`)));
   const parsed = yield* parseJsonDocument(content, filePath);
   const packageJson = yield* decodePackageJsonEffect(parsed).pipe(
-    Effect.mapError(
-      (cause) =>
-        new DomainError({
-          message: `Failed to decode package.json at "${filePath}"`,
-          cause,
-        })
-    )
+    Effect.mapError(DomainError.newCause(`Failed to decode package.json at "${filePath}"`))
   );
 
   return {
@@ -457,7 +435,7 @@ const ensureRootWorkspaceEntry = Effect.fn(function* (repoRoot: string, packageP
 
   yield* fs
     .writeFileString(filePath, nextContent)
-    .pipe(Effect.mapError((cause) => new DomainError({ message: `Failed to write "${filePath}"`, cause })));
+    .pipe(Effect.mapError(DomainError.newCause(`Failed to write "${filePath}"`)));
   return true;
 });
 
@@ -536,7 +514,7 @@ const identityPackageRegistrationNeeded = Effect.fn(function* (
   const filePath = path.join(repoRoot, identityPackagesFilePath);
   const content = yield* fs
     .readFileString(filePath)
-    .pipe(Effect.mapError((cause) => new DomainError({ message: `Failed to read "${filePath}"`, cause })));
+    .pipe(Effect.mapError(DomainError.newCause(`Failed to read "${filePath}"`)));
 
   const accessorName = toIdentityAccessorName(packageName);
   return !Str.includes(`"${packageName}"`)(content) || !Str.includes(`export const ${accessorName}`)(content);

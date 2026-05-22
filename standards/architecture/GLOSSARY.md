@@ -210,6 +210,32 @@ A `foundation` kind for reusable schemas, brands, identity contracts, and
 modeling vocabulary that higher-level foundation packages and slices may reuse
 without taking product-domain dependencies.
 
+## Schema Concept Module
+
+A flat public `@beep/schema/<Concept>` module that owns one reusable
+domain-agnostic schema concept or concept family. Consumers import it as a
+namespace and use role members such as `Schema`, `Input`, or `FromInput`.
+
+## Schema Flat Facade
+
+The curated `@beep/schema` package root. It re-exports common schema helpers and
+legacy flat names for convenience and compatibility, but it is not the canonical
+home for full schema concept namespaces.
+
+## Schema Role File
+
+A source file under `packages/foundation/modeling/schema/src/<Concept>/` whose
+suffix names its responsibility, such as `.schema.ts`, `.input.ts`, or
+`.transforms.ts`. Schema role files are source topology; public consumers import
+the concept index.
+
+## Schema Utility Namespace
+
+A utility-oriented `@beep/schema` namespace whose public concept is a helper or
+combinator rather than a reusable data schema. `SchemaUtils` may expose helper
+leaves such as `@beep/schema/SchemaUtils/pluck` when direct helper imports are
+the intended API.
+
 ## Port
 
 A product-language capability required by use-cases. Ports live in

@@ -134,15 +134,13 @@ export const createTemplateService = (): TemplateServiceShape => {
     return yield* Effect.forEach(
       request.templates,
       Effect.fn(function* ({ templateName, outputPath }) {
-        const raw = yield* fs.readFileString(`${request.templateDir}/${templateName}`).pipe(
-          Effect.mapError(
-            (cause) =>
-              new DomainError({
-                message: `Failed to read template "${templateName}" from "${request.templateDir}"`,
-                cause,
-              })
-          )
-        );
+        const raw = yield* fs
+          .readFileString(`${request.templateDir}/${templateName}`)
+          .pipe(
+            Effect.mapError(
+              DomainError.newCause(`Failed to read template "${templateName}" from "${request.templateDir}"`)
+            )
+          );
 
         const compile = hbs.compile(raw, { noEscape: true });
         return new RenderedTemplate({

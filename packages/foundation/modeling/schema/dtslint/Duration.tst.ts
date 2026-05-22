@@ -8,6 +8,7 @@ import {
   type DurationUnit as DurationUnitType,
   type Unit,
 } from "@beep/schema";
+import type * as Duration from "@beep/schema/Duration";
 import { type Effect, pipe } from "effect";
 import type * as D from "effect/Duration";
 import * as S from "effect/Schema";
@@ -39,5 +40,12 @@ describe("Duration", () => {
     expect(duration).type.toBe<D.Duration>();
     expect(decode(input)).type.toBe<Effect.Effect<D.Duration, S.SchemaError, never>>();
     expect(encoded).type.toBe<Effect.Effect<typeof DurationInput.Encoded, S.SchemaError, never>>();
+  });
+
+  it("exposes concise role names from the canonical namespace import", () => {
+    expect<Duration.Input>().type.toBe<DurationInput>();
+    expect<Duration.FromInput>().type.toBe<D.Duration>();
+    expect<typeof Duration.FromInput.Encoded>().type.toBe<typeof Duration.Input.Encoded>();
+    expect<typeof Duration.Schema.Type>().type.toBe<D.Duration>();
   });
 });

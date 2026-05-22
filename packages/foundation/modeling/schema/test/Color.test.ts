@@ -1,4 +1,4 @@
-import * as Color from "@beep/schema/color";
+import * as Color from "@beep/schema/Color";
 import { describe, expect, it } from "@effect/vitest";
 import * as S from "effect/Schema";
 

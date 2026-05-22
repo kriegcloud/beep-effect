@@ -1,0 +1,14 @@
+/**
+ * Namespace-first public module for DOM mouse event schemas.
+ *
+ * @example
+ * ```ts
+ * import * as DomMouseEvent from "@beep/schema/DomMouseEvent"
+ *
+ * console.log(DomMouseEvent.Schema)
+ * ```
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
+export * from "./DomMouseEvent.schema.ts";

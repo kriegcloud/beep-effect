@@ -2391,9 +2391,7 @@ export const makeArchitectureOperationPlan = Effect.fn(function* (
       const contentPath = targetFileExists ? operationPath : file.path;
       const content = yield* fs
         .readFileString(path.join(repoRoot, contentPath))
-        .pipe(
-          Effect.mapError((cause) => DomainError.newCause(cause, `Failed to read architecture file "${contentPath}"`))
-        );
+        .pipe(Effect.mapError(DomainError.newCause(`Failed to read architecture file "${contentPath}"`)));
 
       return withOperationMetadata(
         new WriteFileOperation({

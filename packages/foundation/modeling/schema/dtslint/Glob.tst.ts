@@ -1,4 +1,5 @@
 import { Glob, type Glob as GlobType } from "@beep/schema";
+import type * as GlobModule from "@beep/schema/Glob";
 import type * as Brand from "effect/Brand";
 import * as S from "effect/Schema";
 import { describe, expect, it } from "tstyche";
@@ -36,5 +37,11 @@ describe("Glob", () => {
     expect<typeof Payload.Type>().type.toBe<Readonly<{ glob: GlobType }>>();
     expect<typeof Payload.Encoded>().type.toBe<Readonly<{ glob: string }>>();
     expect(payload).type.toBe<Readonly<{ glob: GlobType }>>();
+  });
+
+  it("exposes the canonical namespace schema role", () => {
+    expect<GlobModule.Schema>().type.toBe<GlobType>();
+    expect<typeof GlobModule.Schema.Encoded>().type.toBe<string>();
+    expect<typeof GlobModule.Glob>().type.toBe<typeof GlobModule.Schema>();
   });
 });

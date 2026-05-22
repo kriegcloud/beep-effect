@@ -1,4 +1,4 @@
-import { DualArityRulesOptions, runDualArityRules } from "@beep/repo-cli/commands/Laws/DualArity";
+import { DualArityRulesOptions, runDualArityRules } from "@beep/repo-cli/test/Laws";
 import { FsUtilsLive } from "@beep/repo-utils";
 import { TSMorphServiceLive } from "@beep/repo-utils/TSMorph/index";
 import { A, Str } from "@beep/utils";

@@ -1,4 +1,4 @@
-import { EthereumValidatorPublicKey } from "@beep/schema/blockchain/EthereumValidatorPublicKey";
+import { EthereumValidatorPublicKey } from "@beep/schema/EthereumValidatorPublicKey";
 import { Str } from "@beep/utils";
 import { describe, expect, it } from "@effect/vitest";
 import * as S from "effect/Schema";

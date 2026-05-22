@@ -11,7 +11,7 @@ import {
   isHTMLElement,
   isReactNode,
   isReactRef,
-} from "@beep/schema/dom";
+} from "@beep/schema/Dom";
 import { describe, expect, it } from "@effect/vitest";
 import { DateTime } from "effect";
 import * as S from "effect/Schema";

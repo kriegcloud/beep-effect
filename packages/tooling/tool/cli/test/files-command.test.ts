@@ -7,7 +7,7 @@ import {
   DetectFacesReport,
   NormalizeManifest,
   renderFilesProgressBar,
-} from "@beep/repo-cli/commands/Files/index";
+} from "@beep/repo-cli/commands/Files";
 import { A, O, Str } from "@beep/utils";
 import { NodeChildProcessSpawner, NodeServices } from "@effect/platform-node";
 import { Cause, ConfigProvider, Data, Effect, Exit, FileSystem, Layer, Order, Path, pipe } from "effect";

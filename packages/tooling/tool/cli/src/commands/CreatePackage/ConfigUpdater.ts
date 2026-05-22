@@ -172,13 +172,7 @@ const parseJsoncObject: {
   2,
   Effect.fn(function* (content, filePath) {
     return yield* decodeJsoncTextAs(JsoncUnknownObject)(content).pipe(
-      Effect.mapError(
-        (cause) =>
-          new DomainError({
-            message: `Invalid JSONC in ${filePath}: ${cause.message}`,
-            cause,
-          })
-      )
+      Effect.mapError(DomainError.newCauseMessage(`Invalid JSONC in ${filePath}`))
     );
   })
 );
@@ -282,26 +276,14 @@ const modifyFileString: {
   2,
   Effect.fn(function* (filePath, transform) {
     const fs = yield* FileSystem.FileSystem;
-    const original = yield* fs.readFileString(filePath).pipe(
-      Effect.mapError(
-        (e) =>
-          new DomainError({
-            message: `Failed to read ${filePath}: ${e}`,
-            cause: e,
-          })
-      )
-    );
+    const original = yield* fs
+      .readFileString(filePath)
+      .pipe(Effect.mapError(DomainError.newCauseMessage(`Failed to read ${filePath}`)));
     const transformed = yield* transform(original);
     if (stringEquivalence(transformed, original)) return false;
-    yield* fs.writeFileString(filePath, transformed).pipe(
-      Effect.mapError(
-        (e) =>
-          new DomainError({
-            message: `Failed to write ${filePath}: ${e}`,
-            cause: e,
-          })
-      )
-    );
+    yield* fs
+      .writeFileString(filePath, transformed)
+      .pipe(Effect.mapError(DomainError.newCauseMessage(`Failed to write ${filePath}`)));
     return true;
   })
 );
@@ -336,7 +318,7 @@ export const updateTsconfigPackages: {
         const references = readReferences(parsed);
 
         // Idempotency: skip if reference already present
-        if (A.some(references, (ref) => hasReferencePath(ref, packagePath))) {
+        if (A.some(references, hasReferencePath(packagePath))) {
           return content;
         }
 
@@ -484,14 +466,14 @@ const checkConfigNeedsUpdateForTarget: {
 
     const pkgsContent = yield* fs
       .readFileString(path.join(repoRoot, "tsconfig.packages.json"))
-      .pipe(Effect.mapError((e) => new DomainError({ message: `Failed to read tsconfig.packages.json: ${e}` })));
+      .pipe(Effect.mapError(DomainError.newCauseMessage("Failed to read tsconfig.packages.json")));
     const pkgsParsed = yield* parseJsoncObject(pkgsContent, "tsconfig.packages.json");
     const references = readReferences(pkgsParsed);
-    const tsconfigPackages = !A.some(references, (ref) => hasReferencePath(ref, target.packagePath));
+    const tsconfigPackages = !A.some(references, hasReferencePath(target.packagePath));
 
     const rootContent = yield* fs
       .readFileString(path.join(repoRoot, "tsconfig.json"))
-      .pipe(Effect.mapError((e) => new DomainError({ message: `Failed to read tsconfig.json: ${e}` })));
+      .pipe(Effect.mapError(DomainError.newCauseMessage("Failed to read tsconfig.json")));
     const rootParsed = yield* parseJsoncObject(rootContent, "tsconfig.json");
     const paths = readPathsRecord(rootParsed);
     const alias = `@beep/${target.packageName}`;
@@ -502,7 +484,7 @@ const checkConfigNeedsUpdateForTarget: {
 
     const tstycheContent = yield* fs
       .readFileString(path.join(repoRoot, "tstyche.json"))
-      .pipe(Effect.mapError((e) => new DomainError({ message: `Failed to read tstyche.json: ${e}` })));
+      .pipe(Effect.mapError(DomainError.newCauseMessage("Failed to read tstyche.json")));
     const tstycheParsed = yield* parseJsoncObject(tstycheContent, "tstyche.json");
     const testFileMatch = readTestFileMatch(tstycheParsed);
     const tstycheConfig = !isTstycheEntryCovered(testFileMatch, target.packagePath);

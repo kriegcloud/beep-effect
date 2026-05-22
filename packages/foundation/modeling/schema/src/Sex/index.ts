@@ -1,0 +1,16 @@
+/**
+ * Namespace-first public module for sex schemas.
+ *
+ * @example
+ * ```ts
+ * import * as Sex from "@beep/schema/Sex"
+ * import * as S from "effect/Schema"
+ *
+ * const decode = S.decodeUnknownOption(Sex.Schema)
+ * console.log(decode)
+ * ```
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
+export * from "./Sex.schema.ts";

@@ -1,4 +1,4 @@
-import { collectTypeScriptFiles } from "@beep/repo-cli/commands/Lint/index";
+import { collectTypeScriptFiles } from "@beep/repo-cli/commands/Lint";
 import { NodeServices } from "@effect/platform-node";
 import { describe, expect, layer } from "@effect/vitest";
 import { Effect, FileSystem, Path } from "effect";

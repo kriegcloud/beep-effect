@@ -332,23 +332,11 @@ const jsonText = (value: unknown): string => {
 
 const readUnknownJsonFile = Effect.fn("DocgenOperations.readUnknownJsonFile")(function* (filePath: string) {
   const fs = yield* FileSystem.FileSystem;
-  const content = yield* fs.readFileString(filePath).pipe(
-    Effect.mapError(
-      (cause) =>
-        new DomainError({
-          message: `Failed to read "${filePath}"`,
-          cause,
-        })
-    )
-  );
+  const content = yield* fs
+    .readFileString(filePath)
+    .pipe(Effect.mapError(DomainError.newCause(`Failed to read "${filePath}"`)));
   const parsed = yield* parseJsonText(content).pipe(
-    Effect.mapError(
-      (cause) =>
-        new DomainError({
-          message: `Invalid JSON in "${filePath}"`,
-          cause,
-        })
-    )
+    Effect.mapError(DomainError.newCause(`Invalid JSON in "${filePath}"`))
   );
   return parsed;
 });
@@ -358,13 +346,7 @@ const readPackageJson = Effect.fn("DocgenOperations.readPackageJson")(function* 
   const packageJsonPath = path.join(absolutePackagePath, "package.json");
   const parsed = yield* readUnknownJsonFile(packageJsonPath);
   return yield* decodePackageJsonEffect(parsed).pipe(
-    Effect.mapError(
-      (cause) =>
-        new DomainError({
-          message: `Invalid package.json at "${packageJsonPath}"`,
-          cause,
-        })
-    )
+    Effect.mapError(DomainError.newCause(`Invalid package.json at "${packageJsonPath}"`))
   );
 });
 
@@ -1036,79 +1018,43 @@ const copyDocsTree: (
     const fs = yield* FileSystem.FileSystem;
     const path = yield* Path.Path;
 
-    yield* fs.makeDirectory(destinationDir, { recursive: true }).pipe(
-      Effect.mapError(
-        (cause) =>
-          new DomainError({
-            message: `Failed to create "${destinationDir}"`,
-            cause,
-          })
-      )
-    );
+    yield* fs
+      .makeDirectory(destinationDir, { recursive: true })
+      .pipe(Effect.mapError(DomainError.newCause(`Failed to create "${destinationDir}"`)));
 
-    const entries = yield* fs.readDirectory(sourceDir).pipe(
-      Effect.mapError(
-        (cause) =>
-          new DomainError({
-            message: `Failed to read "${sourceDir}"`,
-            cause,
-          })
-      )
-    );
+    const entries = yield* fs
+      .readDirectory(sourceDir)
+      .pipe(Effect.mapError(DomainError.newCause(`Failed to read "${sourceDir}"`)));
 
     let copiedFiles = 0;
 
     for (const entry of entries) {
       const sourcePath = path.join(sourceDir, entry);
       const destinationPath = path.join(destinationDir, entry);
-      const canonicalSourcePath = yield* fs.realPath(sourcePath).pipe(
-        Effect.mapError(
-          (cause) =>
-            new DomainError({
-              message: `Failed to resolve "${sourcePath}"`,
-              cause,
-            })
-        )
-      );
+      const canonicalSourcePath = yield* fs
+        .realPath(sourcePath)
+        .pipe(Effect.mapError(DomainError.newCause(`Failed to resolve "${sourcePath}"`)));
 
       if (canonicalSourcePath !== expectedCanonicalDocgenPath(path, sourceRoot, canonicalSourceRoot, sourcePath)) {
         continue;
       }
 
-      const stat = yield* fs.stat(sourcePath).pipe(
-        Effect.mapError(
-          (cause) =>
-            new DomainError({
-              message: `Failed to stat "${sourcePath}"`,
-              cause,
-            })
-        )
-      );
+      const stat = yield* fs
+        .stat(sourcePath)
+        .pipe(Effect.mapError(DomainError.newCause(`Failed to stat "${sourcePath}"`)));
 
       if (stat.type === "Directory") {
         copiedFiles += yield* copyDocsTree(sourcePath, destinationPath, packageName, sourceRoot, canonicalSourceRoot);
         continue;
       }
 
-      const content = yield* fs.readFileString(sourcePath).pipe(
-        Effect.mapError(
-          (cause) =>
-            new DomainError({
-              message: `Failed to read "${sourcePath}"`,
-              cause,
-            })
-        )
-      );
+      const content = yield* fs
+        .readFileString(sourcePath)
+        .pipe(Effect.mapError(DomainError.newCause(`Failed to read "${sourcePath}"`)));
       const rewritten = Str.replace(/^parent: Modules$/m, `parent: "${packageName}"`)(content);
-      yield* fs.writeFileString(destinationPath, rewritten).pipe(
-        Effect.mapError(
-          (cause) =>
-            new DomainError({
-              message: `Failed to write "${destinationPath}"`,
-              cause,
-            })
-        )
-      );
+      yield* fs
+        .writeFileString(destinationPath, rewritten)
+        .pipe(Effect.mapError(DomainError.newCause(`Failed to write "${destinationPath}"`)));
       copiedFiles += 1;
     }
 
@@ -1144,13 +1090,7 @@ export const loadDocgenConfigDocument: (
   const configPath = path.join(absolutePackagePath, DOCGEN_CONFIG_FILENAME);
   const parsed = yield* readUnknownJsonFile(configPath);
   return yield* decodeDocgenConfigDocument(parsed).pipe(
-    Effect.mapError(
-      (cause) =>
-        new DomainError({
-          message: `Invalid JSON shape in "${configPath}": ${cause.message}`,
-          cause,
-        })
-    )
+    Effect.mapError(DomainError.newCauseMessage(`Invalid JSON shape in "${configPath}"`))
   );
 });
 
@@ -1587,15 +1527,7 @@ export const aggregateGeneratedDocs: (options?: {
           recursive: true,
           force: true,
         })
-        .pipe(
-          Effect.mapError(
-            (cause) =>
-              new DomainError({
-                message: `Failed to reset "${destinationDir}"`,
-                cause,
-              })
-          )
-        );
+        .pipe(Effect.mapError(DomainError.newCause(`Failed to reset "${destinationDir}"`)));
       const fileCount = yield* copyDocsTree(sourceDir, destinationDir, pkg.name, sourceDir, canonicalSourceDir);
       yield* fs
         .writeFileString(

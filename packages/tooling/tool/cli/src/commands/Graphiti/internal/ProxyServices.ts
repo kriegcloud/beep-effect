@@ -222,17 +222,20 @@ type ProxyErrorResponseOptions = {
   readonly headers?: Headers.Input | undefined;
   readonly status: number;
 };
-
+const matchHttpClientErrorToRes = Match.type<HttpClientError.HttpClientError["reason"]>().pipe(
+  Match.withReturnType<HttpServerResponse.HttpServerResponse>(),
+  Match.tags({
+    TransportError: (error) => proxyErrorResponse("upstream_failure", error.message, { status: 502 }),
+    EncodeError: (error) => proxyErrorResponse("upstream_failure", error.message, { status: 502 }),
+    InvalidUrlError: (error) => proxyErrorResponse("upstream_failure", error.message, { status: 500 }),
+    StatusCodeError: (error) => proxyErrorResponse("upstream_failure", error.message, { status: 502 }),
+    DecodeError: (error) => proxyErrorResponse("upstream_failure", error.message, { status: 502 }),
+    EmptyBodyError: (error) => proxyErrorResponse("upstream_failure", error.message, { status: 502 }),
+  }),
+  Match.orElse(() => proxyErrorResponse("upstream_failure", "Unknown error", { status: 502 }))
+);
 const mapHttpClientErrorToResponse = (error: HttpClientError.HttpClientError): HttpServerResponse.HttpServerResponse =>
-  Match.value(error.reason._tag).pipe(
-    Match.when("TransportError", () => proxyErrorResponse("upstream_failure", error.message, { status: 502 })),
-    Match.when("EncodeError", () => proxyErrorResponse("upstream_failure", error.message, { status: 502 })),
-    Match.when("InvalidUrlError", () => proxyErrorResponse("upstream_failure", error.message, { status: 500 })),
-    Match.when("StatusCodeError", () => proxyErrorResponse("upstream_failure", error.message, { status: 502 })),
-    Match.when("DecodeError", () => proxyErrorResponse("upstream_failure", error.message, { status: 502 })),
-    Match.when("EmptyBodyError", () => proxyErrorResponse("upstream_failure", error.message, { status: 502 })),
-    Match.orElse(() => proxyErrorResponse("upstream_failure", error.message, { status: 502 }))
-  );
+  matchHttpClientErrorToRes(error.reason);
 
 /**
  * Build a structured proxy error HTTP response.
@@ -678,7 +681,10 @@ export const makeGraphitiProxyQueueService: {
       }
 
       const responseDeferred = yield* Deferred.make<HttpServerResponse.HttpServerResponse>();
-      const offered = yield* Queue.offer(queue, { request, responseDeferred });
+      const offered = yield* Queue.offer(queue, {
+        request,
+        responseDeferred,
+      });
 
       if (!offered) {
         yield* Ref.update(rejectedRef, (rejected) => rejected + 1);

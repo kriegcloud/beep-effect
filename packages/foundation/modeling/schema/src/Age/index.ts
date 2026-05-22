@@ -1,0 +1,16 @@
+/**
+ * Namespace-first public module for age schemas.
+ *
+ * @example
+ * ```ts
+ * import * as Age from "@beep/schema/Age"
+ * import * as S from "effect/Schema"
+ *
+ * const decode = S.decodeUnknownOption(Age.Schema)
+ * console.log(decode)
+ * ```
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
+export * from "./Age.schema.ts";

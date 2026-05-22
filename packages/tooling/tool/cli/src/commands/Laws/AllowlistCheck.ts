@@ -44,7 +44,7 @@ const NonEmptyString = S.String.check(
 );
 
 const DateYmdString = S.String.check(
-  S.makeFilter((value) => /^[0-9]{4}-[0-9]{2}-[0-9]{2}$/.test(value) || "Expected YYYY-MM-DD date string format.")
+  S.makeFilter(/^[0-9]{4}-[0-9]{2}-[0-9]{2}$/.test || "Expected YYYY-MM-DD date string format.")
 ).annotate(
   $I.annote("DateYmdString", {
     description: "Calendar date string in YYYY-MM-DD format for allowlist expiration.",

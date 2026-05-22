@@ -4,11 +4,14 @@
  * @packageDocumentation
  * @since 0.0.0
  */
-import { A, Str, Text, thunkEmptyStr } from "@beep/utils";
-import { flow, Match, Order, pipe } from "effect";
-import { dual } from "effect/Function";
+
+import {$RepoUtilsId} from "@beep/identity";
+import {A, Str, Text, thunkEmptyStr} from "@beep/utils";
+import {flow, Match, Order, pipe} from "effect";
+import {dual} from "effect/Function";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
+import * as S from "effect/Schema";
 import {
   type ClassDeclaration,
   type ConstructorDeclaration,
@@ -23,8 +26,12 @@ import {
   type SetAccessorDeclaration,
   type TypeAliasDeclaration,
 } from "ts-morph";
-import type { SourceText, SymbolKind, TsMorphDiagnostic, Symbol as TsMorphSymbol } from "./TSMorph.model.js";
-import { symbolCategoryFromKind } from "./TSMorph.model.js";
+import type {
+  SourceText, TsMorphDiagnostic, Symbol as TsMorphSymbol,
+} from "./TSMorph.model.js";
+import {SymbolKind, symbolCategoryFromKind} from "./TSMorph.model.js";
+
+const $I = $RepoUtilsId.create("TSMorph/TSMorph.shared");
 
 /**
  * Supported declaration nodes for normalized TSMorph symbol extraction.
@@ -48,11 +55,15 @@ export type OutlineDeclaration =
   | SetAccessorDeclaration
   | TypeAliasDeclaration;
 
-const bySymbolNameAscending: Order.Order<TsMorphSymbol> = Order.mapInput(Order.String, (symbol) => symbol.name);
-const bySymbolFilePathAscending: Order.Order<TsMorphSymbol> = Order.mapInput(Order.String, (symbol) => symbol.filePath);
-const bySymbolStartLineAscending: Order.Order<TsMorphSymbol> = Order.mapInput(
-  Order.Number,
-  (symbol) => symbol.startLine
+const bySymbolNameAscending: Order.Order<TsMorphSymbol> = Order.mapInput(
+  Order.String,
+  (symbol) => symbol.name,
+);
+const bySymbolFilePathAscending: Order.Order<TsMorphSymbol> = Order.mapInput(Order.String,
+  (symbol) => symbol.filePath,
+);
+const bySymbolStartLineAscending: Order.Order<TsMorphSymbol> = Order.mapInput(Order.Number,
+  (symbol) => symbol.startLine,
 );
 
 /**
@@ -68,20 +79,17 @@ const bySymbolStartLineAscending: Order.Order<TsMorphSymbol> = Order.mapInput(
  */
 export const byTsMorphSymbolAscending: Order.Order<TsMorphSymbol> = Order.combine(
   bySymbolNameAscending,
-  Order.combine(bySymbolFilePathAscending, bySymbolStartLineAscending)
+  Order.combine(bySymbolFilePathAscending, bySymbolStartLineAscending),
 );
 
-const byDiagnosticStartLineAscending: Order.Order<TsMorphDiagnostic> = Order.mapInput(
-  Order.Number,
-  (diagnostic) => diagnostic.startLine
+const byDiagnosticStartLineAscending: Order.Order<TsMorphDiagnostic> = Order.mapInput(Order.Number,
+  (diagnostic) => diagnostic.startLine,
 );
-const byDiagnosticStartColumnAscending: Order.Order<TsMorphDiagnostic> = Order.mapInput(
-  Order.Number,
-  (diagnostic) => diagnostic.startColumn
+const byDiagnosticStartColumnAscending: Order.Order<TsMorphDiagnostic> = Order.mapInput(Order.Number,
+  (diagnostic) => diagnostic.startColumn,
 );
-const byDiagnosticCodeAscending: Order.Order<TsMorphDiagnostic> = Order.mapInput(
-  Order.Number,
-  (diagnostic) => diagnostic.code
+const byDiagnosticCodeAscending: Order.Order<TsMorphDiagnostic> = Order.mapInput(Order.Number,
+  (diagnostic) => diagnostic.code,
 );
 
 /**
@@ -97,16 +105,15 @@ const byDiagnosticCodeAscending: Order.Order<TsMorphDiagnostic> = Order.mapInput
  */
 export const byNormalizedDiagnosticAscending: Order.Order<TsMorphDiagnostic> = Order.combine(
   byDiagnosticStartLineAscending,
-  Order.combine(byDiagnosticStartColumnAscending, byDiagnosticCodeAscending)
+  Order.combine(byDiagnosticStartColumnAscending, byDiagnosticCodeAscending),
 );
 
-const firstSignatureLine = (text: string): string =>
-  pipe(
-    Str.split("\n")(text),
-    A.map(Str.trim),
-    A.findFirst(Str.isNonEmpty),
-    O.getOrElse(() => Str.trim(text))
-  );
+const firstSignatureLine = (text: string): string => pipe(
+  Str.split("\n")(text),
+  A.map(Str.trim),
+  A.findFirst(Str.isNonEmpty),
+  O.getOrElse(() => Str.trim(text)),
+);
 
 /**
  * Read the normalized JSDoc description text attached to a declaration.
@@ -130,10 +137,12 @@ export const readDocstring = (node: OutlineDeclaration): O.Option<string> => {
     node.getJsDocs(),
     A.map(flow((jsDoc) => jsDoc.getDescription(), Str.trim)),
     A.filter(Str.isNonEmpty),
-    A.join("\n\n")
+    A.join("\n\n"),
   );
 
-  return Str.isNonEmpty(descriptions) ? O.some(descriptions) : O.none();
+  return Str.isNonEmpty(descriptions)
+    ? O.some(descriptions)
+    : O.none();
 };
 
 /**
@@ -149,10 +158,14 @@ export const readDocstring = (node: OutlineDeclaration): O.Option<string> => {
  * @category utilities
  * @since 0.0.0
  */
-export const readDecorators = (node: OutlineDeclaration): ReadonlyArray<string> =>
-  Node.isDecoratable(node)
-    ? pipe(node.getDecorators(), A.map(flow((decorator) => decorator.getText(), Str.trim)), A.filter(Str.isNonEmpty))
-    : A.empty();
+export const readDecorators = (node: OutlineDeclaration): ReadonlyArray<string> => Node.isDecoratable(
+  node)
+  ? pipe(
+    node.getDecorators(),
+    A.map(flow((decorator) => decorator.getText(), Str.trim)),
+    A.filter(Str.isNonEmpty),
+  )
+  : A.empty();
 
 /**
  * Read the first non-empty signature line for a declaration.
@@ -169,10 +182,16 @@ export const readDecorators = (node: OutlineDeclaration): ReadonlyArray<string> 
  */
 export const readSignature = (node: OutlineDeclaration): string => {
   const signatureSourceText = pipe(
-    Node.isDecoratable(node) ? node.getDecorators() : A.empty(),
+    Node.isDecoratable(node)
+      ? node.getDecorators()
+      : A.empty(),
     A.last,
-    O.map((decorator) => Str.slice(decorator.getEnd(), node.getEnd())(node.getSourceFile().getFullText())),
-    O.getOrElse(() => node.getText())
+    O.map((decorator) => Str.slice(
+      decorator.getEnd(),
+      node.getEnd(),
+    )(
+      node.getSourceFile().getFullText())),
+    O.getOrElse(() => node.getText()),
   );
 
   return firstSignatureLine(signatureSourceText);
@@ -209,13 +228,20 @@ export const makeSummary = (docstring: O.Option<string>): O.Option<string> => do
  * @since 0.0.0
  */
 export const makeKeywords: {
-  (qualifiedName: string, options: { readonly kind: SymbolKind }): (name: string) => ReadonlyArray<string>;
-  (name: string, qualifiedName: string, options: { readonly kind: SymbolKind }): ReadonlyArray<string>;
-} = dual(
-  3,
-  (name: string, qualifiedName: string, options: { readonly kind: SymbolKind }): ReadonlyArray<string> =>
-    A.make(name, qualifiedName, options.kind, symbolCategoryFromKind(options.kind))
-);
+  (qualifiedName: string, options: {
+    readonly kind: SymbolKind
+  }): (name: string) => ReadonlyArray<string>;
+  (name: string, qualifiedName: string, options: {
+    readonly kind: SymbolKind
+  }): ReadonlyArray<string>;
+} = dual(3, (name: string, qualifiedName: string, options: {
+  readonly kind: SymbolKind
+}): ReadonlyArray<string> => A.make(
+  name,
+  qualifiedName,
+  options.kind,
+  symbolCategoryFromKind(options.kind),
+));
 
 /**
  * Build deterministic lowercased search text for a normalized symbol entry.
@@ -234,37 +260,36 @@ export const makeKeywords: {
 export const makeScopeSymbolSearchText: {
   (sourceText: SourceText): (symbol: TsMorphSymbol) => string;
   (symbol: TsMorphSymbol, sourceText: SourceText): string;
-} = dual(2, (symbol: TsMorphSymbol, sourceText: SourceText): string =>
-  pipe(
-    A.make(
-      symbol.name,
-      symbol.qualifiedName,
-      symbol.signature,
-      O.getOrElse(symbol.summary, thunkEmptyStr),
-      O.getOrElse(symbol.docstring, thunkEmptyStr),
-      sourceText
-    ),
-    A.map(Str.trim),
-    A.filter(Str.isNonEmpty),
-    A.join(" "),
-    Str.toLowerCase
-  )
+} = dual(
+  2,
+  (
+    symbol: TsMorphSymbol,
+    sourceText: SourceText,
+  ): string => pipe(A.make(
+    symbol.name,
+    symbol.qualifiedName,
+    symbol.signature,
+    O.getOrElse(symbol.summary, thunkEmptyStr),
+    O.getOrElse(symbol.docstring, thunkEmptyStr),
+    sourceText,
+  ), A.map(Str.trim), A.filter(Str.isNonEmpty), A.join(" "), Str.toLowerCase),
 );
 
-const flattenDiagnosticMessageTextMatcher = Match.type<string | DiagnosticMessageChain>().pipe(
-  Match.when(P.isString, (text) => text),
-  Match.orElse((messageChain) =>
-    pipe(
+const flattenDiagnosticMessageTextMatcher = Match.type<string | DiagnosticMessageChain>()
+  .pipe(
+    Match.when(P.isString, (text) => text),
+    Match.orElse((messageChain) => pipe(
       messageChain.getNext() ?? A.empty<DiagnosticMessageChain>(),
       A.reduce(A.make(messageChain.getMessageText()), (lines, next) => {
         const nextText = flattenDiagnosticMessageText(next);
-        return Str.isNonEmpty(nextText) ? A.append(lines, nextText) : lines;
+        return Str.isNonEmpty(nextText)
+          ? A.append(lines, nextText)
+          : lines;
       }),
       A.filter(Str.isNonEmpty),
-      Text.joinLines
-    )
-  )
-);
+      Text.joinLines,
+    )),
+  );
 
 /**
  * Flatten a TypeScript diagnostic message chain into normalized text.
@@ -279,20 +304,24 @@ const flattenDiagnosticMessageTextMatcher = Match.type<string | DiagnosticMessag
  * @category utilities
  * @since 0.0.0
  */
-export const flattenDiagnosticMessageText = (message: string | DiagnosticMessageChain): string =>
-  flattenDiagnosticMessageTextMatcher(message);
+export const flattenDiagnosticMessageText = (message: string | DiagnosticMessageChain): string => flattenDiagnosticMessageTextMatcher(
+  message);
 
 const errorDiagnosticCategory: TsMorphDiagnostic["category"] = "error";
 const warningDiagnosticCategory: TsMorphDiagnostic["category"] = "warning";
 const suggestionDiagnosticCategory: TsMorphDiagnostic["category"] = "suggestion";
 const messageDiagnosticCategory: TsMorphDiagnostic["category"] = "message";
 
-const normalizeDiagnosticCategoryMatcher = Match.type<DiagnosticCategory>().pipe(
-  Match.when(DiagnosticCategory.Error, () => errorDiagnosticCategory),
-  Match.when(DiagnosticCategory.Warning, () => warningDiagnosticCategory),
-  Match.when(DiagnosticCategory.Suggestion, () => suggestionDiagnosticCategory),
-  Match.orElse(() => messageDiagnosticCategory)
-);
+const normalizeDiagnosticCategoryMatcher = Match.type<DiagnosticCategory>()
+  .pipe(
+    Match.when(DiagnosticCategory.Error, () => errorDiagnosticCategory),
+    Match.when(DiagnosticCategory.Warning, () => warningDiagnosticCategory),
+    Match.when(
+      DiagnosticCategory.Suggestion,
+      () => suggestionDiagnosticCategory,
+    ),
+    Match.orElse(() => messageDiagnosticCategory),
+  );
 
 /**
  * Normalize TypeScript diagnostic categories into the public service literal domain.
@@ -307,8 +336,28 @@ const normalizeDiagnosticCategoryMatcher = Match.type<DiagnosticCategory>().pipe
  * @category utilities
  * @since 0.0.0
  */
-export const normalizeDiagnosticCategory = (category: DiagnosticCategory): TsMorphDiagnostic["category"] =>
-  normalizeDiagnosticCategoryMatcher(category);
+export const normalizeDiagnosticCategory = (category: DiagnosticCategory): TsMorphDiagnostic["category"] => normalizeDiagnosticCategoryMatcher(
+  category);
+
+export class NamedDeclaration extends S.Class<NamedDeclaration>($I`NamedDeclaration`)({
+    name: S.String,
+    kind: SymbolKind,
+  },
+  $I.annote("NamedDeclaration", {
+    description: "Represents a named declaration with a name and kind",
+  }),
+) {
+  static readonly newOption: {
+    (name: string, kind: SymbolKind): O.Option<NamedDeclaration>,
+    (kind: SymbolKind): (name: string) => O.Option<NamedDeclaration>
+  } = dual(2, (
+    name: string,
+    kind: SymbolKind,
+  ): O.Option<NamedDeclaration> => pipe(new NamedDeclaration({
+    name,
+    kind,
+  }), O.some))
+}
 
 /**
  * Read the normalized name and kind for a supported declaration node.
@@ -323,65 +372,63 @@ export const normalizeDiagnosticCategory = (category: DiagnosticCategory): TsMor
  * @category utilities
  * @since 0.0.0
  */
-export const getDeclarationName = (
-  declaration: OutlineDeclaration
-): O.Option<{
-  readonly name: string;
-  readonly kind: SymbolKind;
-}> => {
-  const makeNamedDeclaration = (name: string, kind: SymbolKind) =>
-    O.some({
-      name,
-      kind,
-    });
+export const getDeclarationName = (declaration: OutlineDeclaration): O.Option<NamedDeclaration> => {
 
   if (Node.isConstructorDeclaration(declaration)) {
-    return makeNamedDeclaration("constructor", "Constructor");
+    return NamedDeclaration.newOption("constructor", "Constructor");
   }
 
   if (Node.isFunctionDeclaration(declaration)) {
     return pipe(
-      O.fromUndefinedOr(declaration.getName()),
-      O.flatMap((name) => makeNamedDeclaration(name, "FunctionDeclaration"))
+      declaration.getName(),
+      O.fromUndefinedOr,
+      O.flatMap(NamedDeclaration.newOption("FunctionDeclaration")),
     );
   }
 
   if (Node.isClassDeclaration(declaration)) {
     return pipe(
-      O.fromUndefinedOr(declaration.getName()),
-      O.flatMap((name) => makeNamedDeclaration(name, "ClassDeclaration"))
+      declaration.getName(),
+      O.fromUndefinedOr,
+      O.flatMap(NamedDeclaration.newOption("ClassDeclaration")),
     );
   }
 
   if (Node.isMethodDeclaration(declaration)) {
-    return makeNamedDeclaration(declaration.getName(), "MethodDeclaration");
+    return NamedDeclaration.newOption(
+      declaration.getName(),
+      "MethodDeclaration",
+    );
   }
 
   if (Node.isGetAccessorDeclaration(declaration)) {
-    return makeNamedDeclaration(declaration.getName(), "GetAccessor");
+    return NamedDeclaration.newOption(declaration.getName(), "GetAccessor");
   }
 
   if (Node.isSetAccessorDeclaration(declaration)) {
-    return makeNamedDeclaration(declaration.getName(), "SetAccessor");
+    return NamedDeclaration.newOption(declaration.getName(), "SetAccessor");
   }
 
   if (Node.isInterfaceDeclaration(declaration)) {
     return pipe(
-      O.fromUndefinedOr(declaration.getName()),
-      O.flatMap((name) => makeNamedDeclaration(name, "InterfaceDeclaration"))
+      declaration.getName(),
+      O.fromUndefinedOr,
+      O.flatMap(NamedDeclaration.newOption("InterfaceDeclaration")),
     );
   }
 
   if (Node.isTypeAliasDeclaration(declaration)) {
     return pipe(
-      O.fromUndefinedOr(declaration.getName()),
-      O.flatMap((name) => makeNamedDeclaration(name, "TypeAliasDeclaration"))
+      declaration.getName(),
+      O.fromUndefinedOr,
+      O.flatMap(NamedDeclaration.newOption("TypeAliasDeclaration")),
     );
   }
 
   return pipe(
-    O.fromUndefinedOr(declaration.getName()),
-    O.flatMap((name) => makeNamedDeclaration(name, "EnumDeclaration"))
+    declaration.getName(),
+    O.fromUndefinedOr,
+    O.flatMap(NamedDeclaration.newOption("EnumDeclaration")),
   );
 };
 
@@ -402,6 +449,10 @@ export const getDeclarationName = (
 export const pipeQualifiedName: {
   (name: string): (parentSymbol: O.Option<TsMorphSymbol>) => string;
   (parentSymbol: O.Option<TsMorphSymbol>, name: string): string;
-} = dual(2, (parentSymbol: O.Option<TsMorphSymbol>, name: string): string =>
-  O.isSome(parentSymbol) ? `${parentSymbol.value.qualifiedName}.${name}` : name
+} = dual(
+  2,
+  (parentSymbol: O.Option<TsMorphSymbol>, name: string): string => O.isSome(
+    parentSymbol)
+    ? `${parentSymbol.value.qualifiedName}.${name}`
+    : name,
 );

@@ -71,7 +71,7 @@ const unwrapDirectiveValue = <T>(value: undefined | T | O.Option<T>): T | undefi
  * ```ts
  * import {
  *   getProperHeaderName
- * } from "@beep/schema/http/headers/Csp";
+ * } from "@beep/schema/Csp";
  *
  * // Get standard CSP header name
  * const standardHeader = getProperHeaderName();

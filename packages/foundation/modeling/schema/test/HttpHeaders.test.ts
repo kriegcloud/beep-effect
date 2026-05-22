@@ -1,6 +1,6 @@
-import { CrossOriginEmbedderPolicyHeader } from "@beep/schema/http/headers/CrossOriginEmbedderPolicy";
-import { CrossOriginOpenerPolicyHeader } from "@beep/schema/http/headers/CrossOriginOpenerPolicy";
-import { CrossOriginResourcePolicyHeader } from "@beep/schema/http/headers/CrossOriginResourcePolicy";
+import { CrossOriginEmbedderPolicyHeader } from "@beep/schema/CrossOriginEmbedderPolicy";
+import { CrossOriginOpenerPolicyHeader } from "@beep/schema/CrossOriginOpenerPolicy";
+import { CrossOriginResourcePolicyHeader } from "@beep/schema/CrossOriginResourcePolicy";
 import {
   ContentSecurityPolicyHeader,
   type ContentSecurityPolicyOption,
@@ -11,17 +11,17 @@ import {
   getProperHeaderName,
   NavigationDirective,
   ReportingDirective,
-} from "@beep/schema/http/headers/Csp";
-import { ExpectCTHeader } from "@beep/schema/http/headers/ExpectCT";
-import { ForceHttpsRedirectHeader } from "@beep/schema/http/headers/ForceHttpsRedirect";
-import { FrameGuardHeader } from "@beep/schema/http/headers/FrameGuard";
-import { NoOpenHeader } from "@beep/schema/http/headers/NoOpen";
-import { NoSniffHeader } from "@beep/schema/http/headers/NoSniff";
-import { PermissionsPolicyHeader } from "@beep/schema/http/headers/PermissionsPolicy";
-import { PermittedCrossDomainPoliciesHeader } from "@beep/schema/http/headers/PermittedCrossDomainPolicies";
-import { ReferrerPolicyHeader } from "@beep/schema/http/headers/ReferrerPolicy";
-import { createHeadersObject, createSecureHeaders } from "@beep/schema/http/headers/SecureHeaderOptions";
-import { XSSProtectionHeader } from "@beep/schema/http/headers/XSSProtection";
+} from "@beep/schema/Csp";
+import { ExpectCTHeader } from "@beep/schema/ExpectCt";
+import { ForceHttpsRedirectHeader } from "@beep/schema/ForceHttpsRedirect";
+import { FrameGuardHeader } from "@beep/schema/FrameGuard";
+import { NoOpenHeader } from "@beep/schema/NoOpen";
+import { NoSniffHeader } from "@beep/schema/NoSniff";
+import { PermissionsPolicyHeader } from "@beep/schema/PermissionsPolicy";
+import { PermittedCrossDomainPoliciesHeader } from "@beep/schema/PermittedCrossDomainPolicies";
+import { ReferrerPolicyHeader } from "@beep/schema/ReferrerPolicy";
+import { createHeadersObject, createSecureHeaders } from "@beep/schema/SecureHeaderOptions";
+import { XSSProtectionHeader } from "@beep/schema/XssProtection";
 import { A } from "@beep/utils";
 import { describe, expect, it } from "@effect/vitest";
 import { Effect, Exit, pipe } from "effect";

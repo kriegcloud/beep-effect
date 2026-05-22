@@ -568,7 +568,7 @@ const providerHint = (provider: DocgenQualityWorkerEvalProvider): string =>
 
 const renderJson = Effect.fn("DocgenQualityWorkerEval.renderJson")(function* (value: unknown) {
   const encoded = yield* encodeJson(value).pipe(
-    Effect.mapError((cause) => new DomainError({ message: "Failed to encode docgen worker eval JSON.", cause }))
+    Effect.mapError(DomainError.newCause("Failed to encode docgen worker eval JSON."))
   );
 
   if (encoded.length > JSON_FORMAT_MAX_LENGTH) {
@@ -790,17 +790,15 @@ const resolveCodexSdkVersion = Effect.fn("DocgenQualityWorkerEval.resolveCodexSd
       }),
   });
   const packageJsonPath = path.join(path.dirname(path.dirname(fileUrlPath(resolvedMain))), "package.json");
-  const content = yield* fs.readFileString(packageJsonPath).pipe(
-    Effect.mapError(
-      (cause) =>
-        new DomainError({
-          message: `Failed to read @openai/codex-sdk package metadata from ${packageJsonPath}.`,
-          cause,
-        })
-    )
-  );
+  const content = yield* fs
+    .readFileString(packageJsonPath)
+    .pipe(
+      Effect.mapError(
+        DomainError.newCause(`Failed to read @openai/codex-sdk package metadata from ${packageJsonPath}.`)
+      )
+    );
   const metadata = yield* decodeCodexSdkPackageMetadataJson(content).pipe(
-    Effect.mapError((cause) => new DomainError({ message: "Failed to decode @openai/codex-sdk metadata.", cause }))
+    Effect.mapError(DomainError.newCause("Failed to decode @openai/codex-sdk metadata."))
   );
 
   return metadata.version;
@@ -925,15 +923,9 @@ const makeIsolatedWorkerEvalDirectory = Effect.fn("DocgenQualityWorkerEval.makeI
   function* () {
     const fs = yield* FileSystem.FileSystem;
     const path = yield* Path.Path;
-    const directory = yield* fs.makeTempDirectory({ prefix: "beep-docgen-worker-eval-" }).pipe(
-      Effect.mapError(
-        (cause) =>
-          new DomainError({
-            message: "Failed to create isolated docgen worker eval directory.",
-            cause,
-          })
-      )
-    );
+    const directory = yield* fs
+      .makeTempDirectory({ prefix: "beep-docgen-worker-eval-" })
+      .pipe(Effect.mapError(DomainError.newCause("Failed to create isolated docgen worker eval directory.")));
     yield* fs
       .writeFileString(
         path.join(directory, "README.md"),
@@ -941,13 +933,7 @@ const makeIsolatedWorkerEvalDirectory = Effect.fn("DocgenQualityWorkerEval.makeI
       )
       .pipe(
         Effect.tapError(() => fs.remove(directory, { recursive: true, force: true }).pipe(Effect.ignore)),
-        Effect.mapError(
-          (cause) =>
-            new DomainError({
-              message: "Failed to write isolated docgen worker eval directory marker.",
-              cause,
-            })
-        )
+        Effect.mapError(DomainError.newCause("Failed to write isolated docgen worker eval directory marker."))
       );
     return directory;
   }
@@ -959,9 +945,7 @@ const removeIsolatedWorkerEvalDirectory = (directory: string): Effect.Effect<voi
   );
 
 const decodeWorkerOutput = (value: string): Effect.Effect<DocgenQualityWorkerEvalWorkerOutput, DomainError> =>
-  decodeWorkerOutputJson(value).pipe(
-    Effect.mapError((cause) => new DomainError({ message: "Worker returned invalid eval JSON.", cause }))
-  );
+  decodeWorkerOutputJson(value).pipe(Effect.mapError(DomainError.newCause("Worker returned invalid eval JSON.")));
 
 const failedPacketResult = ({
   candidate,
@@ -1162,7 +1146,7 @@ export const decodeDocgenQualityReportForWorkerEval = (
   content: string
 ): Effect.Effect<DocgenQualityReport, DomainError> =>
   decodeQualityReportJson(content).pipe(
-    Effect.mapError((cause) => new DomainError({ message: "Failed to decode docgen quality JSON report.", cause }))
+    Effect.mapError(DomainError.newCause("Failed to decode docgen quality JSON report."))
   );
 
 /**

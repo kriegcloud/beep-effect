@@ -1,4 +1,4 @@
-import { EthAmount } from "@beep/schema/blockchain/EthAmount";
+import { EthAmount } from "@beep/schema/EthAmount";
 import { describe, expect, it } from "@effect/vitest";
 import { BigDecimal } from "effect";
 import * as S from "effect/Schema";

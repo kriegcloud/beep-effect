@@ -85,4 +85,4 @@ export type * as TUnsafe from "./TUnsafe.types.js";
  * @category utilities
  * @since 0.0.0
  */
-export type * as TUtils from "./TUtils.js";
+export type * as TUtils from "./TUtils.types.js";

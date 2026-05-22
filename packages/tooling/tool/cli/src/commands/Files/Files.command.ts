@@ -434,7 +434,7 @@ const filesStripMetadataCommand = Command.make(
  * @category use-cases
  * @since 0.0.0
  */
-export const filesCommand = Command.make("files", {}, printFilesIndex).pipe(
+export const filesCommand = Command.make("files", {}, () => printFilesIndex).pipe(
   Command.withDescription("Dataset file curation commands"),
   Command.withSubcommands([
     filesArchivePoorCandidatesCommand,

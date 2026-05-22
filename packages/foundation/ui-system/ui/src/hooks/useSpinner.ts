@@ -102,19 +102,7 @@ function useUnmountEffect(fn: () => void, deps: React.DependencyList = []) {
  * import React from "react"
  * import { useSpinner } from "@beep/ui/hooks/useSpinner"
  *
- * function Example() {
- *
- *
- *
- *
- *
- *
- *
- *
- *
- *
- *
- * }
+ * function Example() {}
  *
  * void Example
  * ```

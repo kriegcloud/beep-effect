@@ -9,6 +9,7 @@ import type { FFmpegError } from "@beep/ffmpeg";
 import { A } from "@beep/utils";
 import { Console, Effect, Match } from "effect";
 import { Command, Flag } from "effect/unstable/cli";
+import { printLines } from "../../internal/cli/Printer.js";
 import { ImageCommandError } from "./Image.errors.js";
 import {
   renderExtractFramesCommandSummary,
@@ -43,7 +44,7 @@ const overwriteFlag = Flag.boolean("overwrite").pipe(
   Flag.withDescription("Overwrite existing frame outputs and manifest")
 );
 
-const printImageIndex = () => Console.log("image commands: extract-frames, extract-frames-dir");
+const printImageIndex = () => printLines(["image commands: extract-frames, extract-frames-dir"]);
 
 const printExtractFramesDirOutcome = Match.type<ExtractFramesDirOutcome>().pipe(
   Match.discriminators("status")({
