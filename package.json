@@ -307,7 +307,7 @@
     "@tauri-apps/cli": "^2.11.2",
     "effect": "4.0.0-beta.70",
     "@types/ws": "^8.18.1",
-    "ws": "^8.20.1",
+    "ws": "^8.21.0",
     "wink-eng-lite-web-model": "^1.8.1",
     "wink-nlp": "^2.4.0",
     "wink-nlp-utils": "^2.1.0",
