@@ -1,7 +1,7 @@
 {
   "name": "@beep/canvas",
   "version": "0.0.0",
-  "description": "",
+  "description": "Tauri and React shell for the canvas bootstrap goal.",
   "license": "MIT",
   "private": true,
   "type": "module",
@@ -13,13 +13,15 @@
   },
   "scripts": {
     "audit": "bun run --if-present beep:audit",
-    "babel": "babel dist --plugins annotate-pure-calls --out-dir dist --source-maps",
+    "codegen": "echo 'no codegen needed'",
+    "dev": "vite --host 127.0.0.1",
+    "dev:tauri": "tauri dev",
     "beep:audit": "bun run beep:build && bun run beep:check && bun run beep:test && bun run beep:test:integration && bun run beep:lint",
-    "beep:build": "tsc -b tsconfig.json && bun run babel",
+    "beep:build": "vite build",
     "beep:check": "tsgo -b tsconfig.json",
-    "beep:lint": "biome check .",
-    "beep:lint:fix": "biome check . --write",
-    "beep:test": "bunx --bun vitest run --passWithNoTests --exclude=test/integration/**",
+    "beep:lint": "biome check package.json postcss.config.mjs tsconfig.json vite.config.ts vitest.config.ts index.html src test src-tauri/tauri.conf.json src-tauri/capabilities/default.json",
+    "beep:lint:fix": "biome check package.json postcss.config.mjs tsconfig.json vite.config.ts vitest.config.ts index.html src test src-tauri/tauri.conf.json src-tauri/capabilities/default.json --write",
+    "beep:test": "bunx --bun vitest run",
     "beep:test:integration": "bunx --bun vitest run test/integration --passWithNoTests",
     "build": "bun run beep:build",
     "check": "bun run beep:check",
@@ -32,33 +34,50 @@
   },
   "exports": {
     ".": "./src/index.ts",
-    "./*": "./src/*.ts",
-    "./internal/*": null,
     "./package.json": "./package.json"
   },
   "files": [
     "src/**/*.ts",
-    "dist/**/*.js",
-    "dist/**/*.js.map",
-    "dist/**/*.d.ts",
-    "dist/**/*.d.ts.map"
+    "src/**/*.tsx",
+    "src/**/*.css",
+    "src-tauri/**/*"
   ],
-  "sideEffects": [],
+  "sideEffects": [
+    "**/*.css"
+  ],
   "publishConfig": {
     "access": "public",
     "provenance": true,
     "exports": {
       ".": "./dist/index.js",
-      "./*": "./dist/*.js",
-      "./internal/*": null,
       "./package.json": "./package.json"
     }
   },
   "dependencies": {
-    "effect": "catalog:"
+    "@beep/canvas-domain": "workspace:^",
+    "@beep/canvas-server": "workspace:^",
+    "@beep/canvas-use-cases": "workspace:^",
+    "@beep/identity": "workspace:^",
+    "@beep/schema": "workspace:^",
+    "@beep/ui": "workspace:^",
+    "@phosphor-icons/react": "catalog:",
+    "@tauri-apps/api": "catalog:",
+    "effect": "catalog:",
+    "react": "catalog:",
+    "react-dom": "catalog:"
   },
   "devDependencies": {
     "@effect/vitest": "catalog:",
-    "@types/node": "catalog:"
+    "@tauri-apps/cli": "catalog:",
+    "@testing-library/dom": "catalog:",
+    "@testing-library/jest-dom": "catalog:",
+    "@testing-library/react": "catalog:",
+    "@types/node": "catalog:",
+    "@types/react": "catalog:",
+    "@types/react-dom": "catalog:",
+    "@vitejs/plugin-react": "catalog:",
+    "jsdom": "catalog:",
+    "typescript": "catalog:",
+    "vite": "catalog:"
   }
 }

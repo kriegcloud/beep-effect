@@ -30,6 +30,7 @@ describe("CanvasProject server", () => {
         get: failUnavailable,
         list: failUnavailable,
         removeNode: failUnavailable,
+        restore: failUnavailable,
       });
 
       const response = yield* handlers.get(new CanvasProjectUseCases.GetCanvasProjectQuery({ id }));

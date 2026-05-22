@@ -3,13 +3,13 @@
   "initiative": {
     "id": "canvas",
     "title": "@beep/canvas",
-    "status": "active-p1",
+    "status": "active-p3-ready",
     "created": "2026-05-16",
-    "updated": "2026-05-19",
+    "updated": "2026-05-21",
     "packetAnchorDocument": "SPEC.md"
   },
   "currentSourceOfTruth": "SPEC.md",
-  "currentTargetPhase": "P1",
+  "currentTargetPhase": "P3",
   "reportDirectory": "research",
   "rawOutputDirectory": "history/outputs",
   "completionEvidence": {
@@ -19,13 +19,19 @@
       "summary": "Canvas package roles, exports, aliases, in-memory server repository, protocol handlers, and focused contract tests are coherent with the P0 scaffold scope."
     },
     "p1": {
-      "status": "pending",
-      "output": "apps/canvas shell not yet implemented",
-      "summary": "Ready to implement the minimal Tauri shell and typed command bridge."
+      "status": "completed",
+      "output": "apps/canvas",
+      "summary": "Minimal Tauri 2 + React shell, typed app command bridge, explicit canvas command surface, health command, and confined local JSON save/load bridge are implemented."
     },
     "p2": {
-      "status": "blocked",
-      "summary": "Waiting on end-to-end contract proof after shell and server slice wiring."
+      "status": "completed",
+      "output": "history/outputs/p1-p2-contract-proof.md",
+      "summary": "Create/list/get/add/remove/save/load app command roundtrip, desktop bridge IO routing, confined native persistence, and public error translation are covered by focused app, Rust, and canvas package tests."
+    },
+    "prdDeferrals": {
+      "status": "completed",
+      "output": "history/outputs/p1-prd-deferrals.md",
+      "summary": "Deferred PRD capabilities are explicitly tagged for later phases."
     }
   },
   "targets": {
@@ -71,15 +77,15 @@
     {
       "id": "P1",
       "name": "Tauri shell bootstrap",
-      "status": "pending",
-      "output": "goals/canvas/PLAN.md",
+      "status": "completed",
+      "output": "apps/canvas",
       "exitCriteriaSummary": "apps/canvas bootstraps and exposes typed scene commands."
     },
     {
       "id": "P2",
       "name": "End-to-end contract proof",
-      "status": "blocked",
-      "output": "history/outputs/p1-protocol-proof.md",
+      "status": "completed",
+      "output": "history/outputs/p1-p2-contract-proof.md",
       "exitCriteriaSummary": "Roundtrip create/list/get/save/load works through boundary translations."
     }
   ],
@@ -93,14 +99,15 @@
     "p1": [
       "cd apps/canvas && bun run build",
       "cd apps/canvas/src-tauri && cargo check",
-      "bunx turbo run lint --filter=@beep/canvas --filter=@beep/canvas-domain --filter=@beep/canvas-use-cases --filter=@beep/canvas-server",
-      "bunx turbo run check --filter=@beep/canvas --filter=@beep/canvas-domain --filter=@beep/canvas-use-cases --filter=@beep/canvas-server",
-      "bunx turbo run test --filter=@beep/canvas-domain --filter=@beep/canvas-use-cases --filter=@beep/canvas-server"
+      "cd apps/canvas/src-tauri && cargo test",
+      "bunx turbo run lint --filter=@beep/canvas --filter=@beep/canvas-domain --filter=@beep/canvas-use-cases --filter=@beep/canvas-server --filter=@beep/canvas-client --filter=@beep/canvas-ui",
+      "bunx turbo run check --filter=@beep/canvas --filter=@beep/canvas-domain --filter=@beep/canvas-use-cases --filter=@beep/canvas-server --filter=@beep/canvas-client --filter=@beep/canvas-ui",
+      "bunx turbo run test --filter=@beep/canvas-domain --filter=@beep/canvas-use-cases --filter=@beep/canvas-server --filter=@beep/canvas"
     ],
     "p2": [
-      "p1 command-contract proof via app+Tauri command invocation",
+      "p1 command-contract proof via app command bridge and Tauri command surface",
       "boundary translation tests for at least one domain error and one repository error"
     ]
   },
-  "nextAction": "Implement the minimal Tauri shell + command bridge in `apps/canvas` for P1."
+  "nextAction": "Review P3 scope or select the next PRD slice to promote beyond the bootstrap shell."
 }
