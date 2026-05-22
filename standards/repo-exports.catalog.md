@@ -13457,8 +13457,8 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/oip-web/content` | `SiteAsset` | class | `apps/oip-web/src/content/OipContent.model.ts:124` | Runtime asset reference served from the OIP app public folder. |
 | `@beep/oip-web/content` | `SiteMetadataContent` | class | `apps/oip-web/src/content/OipContent.model.ts:159` | Top-level metadata used by Next.js and JSON-LD generation. |
 | `@beep/oip-web/mdx-components` | `useMDXComponents` | function | `apps/oip-web/src/mdx-components.tsx:26` | Returns the MDX component overrides used by oip web. |
-| `@beep/oip-web/proxy` | `config` | const | `apps/oip-web/src/proxy.ts:102` | Route matcher for the OIP CSP proxy. |
-| `@beep/oip-web/proxy` | `proxy` | function | `apps/oip-web/src/proxy.ts:71` | Adds a per-request CSP nonce to OIP document responses. |
+| `@beep/oip-web/proxy` | `config` | const | `apps/oip-web/src/proxy.ts:106` | Route matcher for the OIP CSP proxy. |
+| `@beep/oip-web/proxy` | `proxy` | function | `apps/oip-web/src/proxy.ts:75` | Adds a per-request CSP nonce to OIP document responses. |
 
 ### @beep/shared-tables
 

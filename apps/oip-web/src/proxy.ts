@@ -20,7 +20,11 @@ const configStringEqualsSync = (name: string, expected: string): boolean =>
   );
 const isDevelopment = !configStringEqualsSync("NODE_ENV", "production");
 const developmentScriptSources = isDevelopment ? " 'unsafe-eval' https://unpkg.com" : "";
-const developmentConnectSources = isDevelopment ? " http://localhost:* https://*.localhost:* ws: wss:" : "";
+const developmentStyleSources = isDevelopment ? " https://fonts.googleapis.com" : "";
+const developmentFontSources = isDevelopment ? " https://fonts.gstatic.com" : "";
+const developmentConnectSources = isDevelopment
+  ? " http://localhost:* https://*.localhost:* ws: wss: https://react-grab.com https://www.react-grab.com"
+  : "";
 const vercelLiveSource = " https://vercel.live";
 
 const buildCspHeader = (nonce: string): string =>
@@ -30,10 +34,10 @@ const buildCspHeader = (nonce: string): string =>
       `script-src 'self' 'nonce-${nonce}'${developmentScriptSources}`,
       `script-src-elem 'self' 'nonce-${nonce}'${vercelLiveSource}${developmentScriptSources}`,
       "style-src 'self' 'unsafe-inline'",
-      "style-src-elem 'self' 'unsafe-inline'",
+      `style-src-elem 'self' 'unsafe-inline'${developmentStyleSources}`,
       "style-src-attr 'unsafe-inline'",
       `img-src 'self' data: blob:${vercelLiveSource}`,
-      "font-src 'self' data:",
+      `font-src 'self' data:${developmentFontSources}`,
       "media-src 'self'",
       `connect-src 'self' https://vitals.vercel-insights.com https://*.vercel-insights.com${vercelLiveSource} https://api.sanity.io https://*.api.sanity.io https://*.apicdn.sanity.io https://api.hsforms.com https://forms.hsforms.com https://api.hubapi.com${developmentConnectSources}`,
       "manifest-src 'self'",

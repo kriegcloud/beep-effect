@@ -576,7 +576,7 @@ export const makePreviewCanvasCommandBridge: () => CanvasCommandBridgeEffect = E
           O.match(HashMap.get(scenes, path), {
             onNone: () =>
               Effect.fail(new CanvasCommandError({ message: `No preview scene has been saved at ${path}.` })),
-            onSome: (scene) => Effect.succeed(scene),
+            onSome: Effect.succeed,
           })
         )
       ),
