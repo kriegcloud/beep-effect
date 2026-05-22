@@ -1,4 +1,4 @@
-import { MappedLiteralDuplicateError, MappedLiteralKit } from "@beep/schema";
+import { MappedLiteralDuplicateError, MappedLiteralKit } from "@beep/schema/MappedLiteralKit";
 import { describe, expect, it } from "tstyche";
 
 describe("MappedLiteralKit", () => {

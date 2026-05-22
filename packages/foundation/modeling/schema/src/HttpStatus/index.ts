@@ -13,10 +13,69 @@
  * @packageDocumentation
  * @since 0.0.0
  */
+
 /**
- * Public schema module export.
- *
- * @category schemas
+ * @category validation
+ * @since 0.0.0
+ */
+export * from "./HttpStatus.category.ts";
+/**
+ * @category validation
+ * @since 0.0.0
+ */
+export * from "./HttpStatus.client-error.core.ts";
+/**
+ * @category validation
+ * @since 0.0.0
+ */
+export * from "./HttpStatus.client-error.extended.ts";
+/**
+ * @category validation
+ * @since 0.0.0
+ */
+export * from "./HttpStatus.client-error.resource.ts";
+/**
+ * @category validation
+ * @since 0.0.0
+ */
+export * from "./HttpStatus.client-error.ts";
+/**
+ * @category validation
+ * @since 0.0.0
+ */
+export * from "./HttpStatus.informational.ts";
+/**
+ * @category validation
+ * @since 0.0.0
+ */
+export * from "./HttpStatus.redirection.ts";
+/**
+ * @category validation
  * @since 0.0.0
  */
 export * from "./HttpStatus.schema.ts";
+/**
+ * @category validation
+ * @since 0.0.0
+ */
+export * from "./HttpStatus.server-error.aggregate.ts";
+/**
+ * @category validation
+ * @since 0.0.0
+ */
+export * from "./HttpStatus.server-error.ts";
+/**
+ * @category validation
+ * @since 0.0.0
+ */
+export * from "./HttpStatus.success.ts";
+/**
+ * @category validation
+ * @since 0.0.0
+ */
+export * from "./HttpStatus.unofficial.aggregate.ts";
+/**
+ * @category validation
+ * @since 0.0.0
+ */
+export * from "./HttpStatus.unofficial.ts";

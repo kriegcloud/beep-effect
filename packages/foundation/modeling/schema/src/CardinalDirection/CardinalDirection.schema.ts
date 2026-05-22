@@ -1,18 +1,55 @@
 /**
- * Primary schemas for cardinal directions.
- *
  * @packageDocumentation
  * @since 0.0.0
  */
+import { $SchemaId } from "@beep/identity";
+import { LiteralKit } from "../LiteralKit/index.ts";
+
+const $I = $SchemaId.create("person/CardinalDirection");
+
 /**
- * Canonical aliases for the cardinal direction schema module.
+ * CardinalDirection - The cardinal directions
+ *
+ * @since 0.0.0
+ * @category validation
+ */
+export const CardinalDirection = LiteralKit(["north", "south", "east", "west"]).pipe(
+  $I.annoteSchema("CardinalDirection", {
+    description: "CardinalDirection - The cardinal directions",
+  })
+);
+/**
+ * {@inheritDoc CardinalDirection}
+ *
+ * @category validation
+ * @since 0.0.0
+ */
+export type CardinalDirection = typeof CardinalDirection.Type;
+
+/**
+ * CardinalDirectionAbbrev - The abbreviated version of the {@link CardinalDirection}
+ *
+ * @category validation
+ * @since 0.0.0
+ */
+export const CardinalDirectionAbbrev = LiteralKit(["N", "S", "E", "W"]).pipe(
+  $I.annoteSchema("CardinalDirectionAbbrev", {
+    description: "CardinalDirectionAbbrev - The abbreviated version of the CardinalDirection",
+  })
+);
+
+/**
+ * {@inheritDoc CardinalDirectionAbbrev}
+ *
+ * @category validation
+ * @since 0.0.0
+ */
+export type CardinalDirectionAbbrev = typeof CardinalDirectionAbbrev.Type;
+
+/**
+ * Public aliases for concise namespace roles.
  *
  * @category schemas
  * @since 0.0.0
  */
-export {
-  CardinalDirection as Schema,
-  CardinalDirection,
-  CardinalDirectionAbbrev as Abbrev,
-  CardinalDirectionAbbrev,
-} from "../location/CardinalDirection.ts";
+export { CardinalDirection as Schema, CardinalDirectionAbbrev as Abbrev };

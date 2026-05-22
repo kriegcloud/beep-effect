@@ -1,4 +1,4 @@
-import { FileName } from "@beep/schema";
+import { FileName } from "@beep/schema/FileName";
 import { describe, expect, it } from "@effect/vitest";
 import * as S from "effect/Schema";
 

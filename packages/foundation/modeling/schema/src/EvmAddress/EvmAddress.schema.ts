@@ -1,18 +1,127 @@
 /**
- * Primary schemas for EVM addresses.
+ * Branded schema for canonical mainnet EVM wallet addresses.
  *
- * @packageDocumentation
+ * Accepts lowercase or EIP-55 checksummed addresses.
+ *
  * @since 0.0.0
+ * @packageDocumentation
  */
+
+import { $SchemaId } from "@beep/identity/packages";
+import { Str } from "@beep/utils";
+import { keccak_256 } from "@noble/hashes/sha3.js";
+import { Encoding, flow, Redacted } from "effect";
+import * as Eq from "effect/Equal";
+import * as S from "effect/Schema";
+import * as SchemaUtils from "../SchemaUtils/index.ts";
+
+const $I = $SchemaId.create("EvmAddress");
+
+const evmAddressPattern = /^0x[0-9a-fA-F]{40}$/;
+
+const isCanonicalEvmAddress = (input: string): boolean => {
+  if (!evmAddressPattern.test(input)) {
+    return false;
+  }
+
+  const addressBody = Str.slice(2)(input);
+  const lowercaseAddressBody = Str.toLowerCase(addressBody);
+
+  if (addressBody === lowercaseAddressBody) {
+    return true;
+  }
+
+  const checksum = Encoding.encodeHex(keccak_256(new TextEncoder().encode(lowercaseAddressBody)));
+
+  for (let index = 0; index < addressBody.length; index += 1) {
+    const character = addressBody[index]!;
+    const lowercaseCharacter = Str.toLowerCase(character);
+    const uppercaseCharacter = Str.toUpperCase(character);
+
+    if (Eq.equals(lowercaseCharacter, uppercaseCharacter)) {
+      continue;
+    }
+
+    const checksumNibble = Number.parseInt(checksum[index]!, 16);
+    const shouldBeUppercase = checksumNibble >= 8;
+
+    if (shouldBeUppercase ? character !== uppercaseCharacter : character !== lowercaseCharacter) {
+      return false;
+    }
+  }
+
+  return true;
+};
+
+const EvmAddressChecks = S.makeFilterGroup(
+  [
+    S.makeFilter(isCanonicalEvmAddress, {
+      identifier: $I`EvmAddressFormatCheck`,
+      title: "EVM Address Format",
+      description: "A canonical mainnet EVM address in lowercase or valid EIP-55 checksum form.",
+      message: "EvmAddress must be a canonical mainnet EVM address",
+    }),
+  ],
+  {
+    identifier: $I`EvmAddressChecks`,
+    title: "EvmAddress",
+    description: "Checks for canonical mainnet EVM addresses.",
+  }
+);
+
 /**
- * Canonical aliases for the EVM address schema module.
+ * Branded schema for canonical mainnet EVM wallet addresses.
+ *
+ * @since 0.0.0
+ * @category validation
+ */
+export const EvmAddress = S.NonEmptyString.check(EvmAddressChecks).pipe(
+  S.brand("EvmAddress"),
+  S.annotate(
+    $I.annote("EvmAddress", {
+      description: "Canonical mainnet EVM address in lowercase or valid EIP-55 checksum form.",
+    })
+  )
+);
+
+/**
+ * Type for {@link EvmAddress}.
+ *
+ * @since 0.0.0
+ * @category models
+ */
+export type EvmAddress = typeof EvmAddress.Type;
+
+/**
+ * Redacted schema for canonical mainnet EVM wallet addresses.
+ *
+ * @since 0.0.0
+ * @category validation
+ */
+export const EvmAddressRedacted = EvmAddress.pipe(
+  S.RedactedFromValue,
+  SchemaUtils.withStatics(() => ({
+    makeRedacted: flow(EvmAddress.make, Redacted.make),
+  })),
+  S.annotate(
+    $I.annote("EvmAddressRedacted", {
+      description: "Redacted canonical mainnet EVM address in lowercase or valid EIP-55 checksum form.",
+    })
+  )
+);
+
+/**
+ * Type for {@link EvmAddressRedacted}.
+ *
+ * @since 0.0.0
+ * @category models
+ */
+export type EvmAddressRedacted = typeof EvmAddressRedacted.Type;
+
+/**
+ * Public aliases for concise namespace roles.
  *
  * @category schemas
  * @since 0.0.0
  */
-export {
-  EvmAddress as Schema,
-  EvmAddress,
-  EvmAddressRedacted as Redacted,
-  EvmAddressRedacted,
-} from "../blockchain/EvmAddress.ts";
+export { EvmAddress as Schema, EvmAddressRedacted as Redacted };

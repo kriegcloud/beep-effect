@@ -1,4 +1,4 @@
-import { isMutableHashSet, MutableHashSet, MutableHashSetFromSelf } from "@beep/schema";
+import { isMutableHashSet, MutableHashSet, MutableHashSetFromSelf } from "@beep/schema/MutableHashSet";
 import * as MutableHashSet_ from "effect/MutableHashSet";
 import * as S from "effect/Schema";
 import { describe, expect, it } from "tstyche";

@@ -2,7 +2,8 @@
 
 ## Status
 
-This plan executes [SPEC.md](./SPEC.md) in staged compatibility-first slices.
+This plan executes [SPEC.md](./SPEC.md). The migration is complete; future work
+is maintenance under the topology lint.
 
 ## Phase 0 - Doctrine And Goal Packet
 
@@ -54,11 +55,48 @@ This plan executes [SPEC.md](./SPEC.md) in staged compatibility-first slices.
 
 ## Phase 4 - Consumer And Export Hardening
 
-- [ ] Move repo consumers and examples toward namespace-first concept imports.
-- [ ] Replace legacy topical paths with flat concept subpaths.
-- [ ] Replace wildcard export reliance with explicit canonical and compatibility
+- [x] Move package-local tests, dtslint, and examples for migrated concepts
+  toward namespace-first concept imports.
+- [x] Keep root-facade imports available for simple scalar helpers and
+  compatibility while treating concept subpaths as canonical.
+- [x] Replace handwritten legacy topical paths with flat concept subpaths.
+- [x] Replace wildcard export reliance with explicit canonical and compatibility
   subpaths.
-- [ ] Refresh the repo export catalog.
+- [x] Prove concept role files are private with dtslint.
+- [x] Refresh generated path maps.
+- [x] Continue opportunistic downstream root-facade cleanup for concept helpers
+  when touching those packages.
+
+## Phase 5 - Exact Export Closure
+
+- [x] Add exact public subpaths for remaining single-file schema modules.
+- [x] Preserve intentional `SchemaUtils` helper-leaf imports without reopening
+  concept role files.
+- [x] Remove legacy suite leaf compatibility subpaths after canonical leaf
+  modules are available.
+- [x] Remove the broad `./*` package export and generated
+  `@beep/schema/*` path alias.
+- [x] Refresh the repo export catalog.
+
+## Phase 6 - Remaining Source Topology Cleanup
+
+- [x] Split the largest remaining outliers where the topology win is
+  meaningful: `http/HttpStatus.ts` and `color/Color.ts`.
+- [x] Keep canonical public imports stable while physically moving old
+  lower-case suite files into PascalCase concept and suite folders.
+- [x] Prove new role files remain private with dtslint.
+- [x] Evaluate `LiteralKit`, `Fn`, and `MappedLiteralKit`; keep them as concept
+  folders and split further only if a future role topology materially improves
+  navigation.
+- [x] Remove lower-case suite directories and forbid restoring them.
+
+## Phase 7 - Enforcement Automation
+
+- [x] Add or extend repo checks for new concept role-file imports outside the
+  package.
+- [x] Add or extend repo checks for new lowercase legacy `@beep/schema`
+  topical imports.
+- [x] Keep dtslint coverage for exact subpaths and private role files.
 
 ## Verification
 

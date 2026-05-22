@@ -1,4 +1,4 @@
-import { OptionFromOptionalNullishKey } from "@beep/schema";
+import { OptionFromOptionalNullishKey } from "@beep/schema/Options";
 import { describe, expect, it } from "@effect/vitest";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";

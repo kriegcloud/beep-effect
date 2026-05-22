@@ -28,6 +28,7 @@ const LINT_POLICY_SUBCOMMANDS = [
   "circular",
   "package-test-imports",
   "schema-first",
+  "schema-topology",
   "tooling-tagged-errors",
   "tooling-schema-first",
 ] as const;

@@ -19,6 +19,7 @@ import madge from "madge";
 import { printLines } from "../../internal/cli/Printer.js";
 import { lintPackageTestImportsCommand } from "./PackageTestImports.js";
 import { lintSchemaFirstCommand } from "./SchemaFirst.ts";
+import { lintSchemaTopologyCommand } from "./SchemaTopology.ts";
 
 const $I = $RepoCliId.create("commands/Lint/Lint.command");
 
@@ -611,6 +612,7 @@ export const lintCommand = Command.make("lint", {}, () =>
     "- bun run beep lint circular",
     "- bun run beep lint package-test-imports",
     "- bun run beep lint schema-first",
+    "- bun run beep lint schema-topology",
     "- bun run beep lint tooling-tagged-errors",
     "- bun run beep lint tooling-schema-first",
   ])
@@ -620,6 +622,7 @@ export const lintCommand = Command.make("lint", {}, () =>
     lintCircularCommand,
     lintPackageTestImportsCommand,
     lintSchemaFirstCommand,
+    lintSchemaTopologyCommand,
     lintToolingTaggedErrorsCommand,
     lintToolingSchemaFirstCommand,
   ])

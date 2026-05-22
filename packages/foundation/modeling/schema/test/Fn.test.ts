@@ -1,4 +1,4 @@
-import { AnyFn, Fn, ThunkOf } from "@beep/schema";
+import { AnyFn, Fn, ThunkOf } from "@beep/schema/Fn";
 import { Str } from "@beep/utils";
 import { describe, expect, it } from "@effect/vitest";
 import { Effect } from "effect";

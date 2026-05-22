@@ -1,4 +1,4 @@
-import { Sha256Hex, Sha256HexFromBytes, Sha256HexFromHexBytes } from "@beep/schema";
+import { Sha256Hex, Sha256HexFromBytes, Sha256HexFromHexBytes } from "@beep/schema/Sha256";
 import { Str } from "@beep/utils";
 import { describe, expect, it } from "@effect/vitest";
 import { Effect } from "effect";

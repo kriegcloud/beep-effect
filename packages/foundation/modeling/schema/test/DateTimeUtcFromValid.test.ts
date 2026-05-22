@@ -8,7 +8,7 @@ import {
   DateTimeInputParts,
   DateTimeInputString,
   DateTimeUtcFromValid,
-} from "@beep/schema";
+} from "@beep/schema/DateTimeUtcFromValid";
 import { describe, expect, it } from "@effect/vitest";
 import * as DateTime from "effect/DateTime";
 import * as S from "effect/Schema";

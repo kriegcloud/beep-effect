@@ -6,7 +6,7 @@ import {
   type FnSchemaStatics,
   type FnType,
   ThunkOf,
-} from "@beep/schema";
+} from "@beep/schema/Fn";
 import { Effect } from "effect";
 import * as S from "effect/Schema";
 import type * as SchemaIssue from "effect/SchemaIssue";

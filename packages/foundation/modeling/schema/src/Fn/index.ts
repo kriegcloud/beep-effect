@@ -1,7 +1,12 @@
 /**
- * Namespace-first entry point for function schemas.
+ * Namespace-first public module for function schemas.
  *
+ * @packageDocumentation
  * @since 0.0.0
- * @category schemas
  */
-export * from "../Fn.ts";
+
+/**
+ * @category schemas
+ * @since 0.0.0
+ */
+export * from "./Fn.schema.ts";

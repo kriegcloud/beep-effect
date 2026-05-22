@@ -5,7 +5,7 @@
  * @since 0.0.0
  */
 import { $SchemaId } from "@beep/identity";
-import { LiteralKit } from "./LiteralKit.ts";
+import { LiteralKit } from "./LiteralKit/index.ts";
 
 const $I = $SchemaId.create("BufferEncoding");
 

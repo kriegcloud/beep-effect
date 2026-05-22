@@ -257,11 +257,11 @@ packages/foundation/modeling/schema/src/Duration/
 Only the concept index is public. Role files are source topology. Public
 consumers should not import `@beep/schema/Duration/Input` or similar role
 subpaths. Utility namespaces such as `SchemaUtils` are the exception: when a
-helper is itself the public concept, helper leaves may stay public.
-Compatibility suite modules with existing lower-case source directories may map
-their canonical public subpath to the current lower-case source index, for
-example `@beep/schema/Color` to `src/color/index.ts`; do not create case-only
-source siblings such as `src/Color/` beside `src/color/`.
+helper is itself the public concept, helper leaves may stay public. Topical
+schema suites use PascalCase source directories and flat exact public subpaths.
+Lowercase topical source and public paths such as `src/color/`,
+`src/http/`, `@beep/schema/color`, and `@beep/schema/http/headers` are retired
+topology, not compatibility surfaces.
 
 Core role suffixes are `.schema.ts`, `.input.ts`, `.transforms.ts`,
 `.constructors.ts`, `.guards.ts`, `.errors.ts`, and `.types.ts`. Earned
@@ -275,6 +275,9 @@ aliases while consumers migrate.
 Promote source concepts rather than individual exported symbols; for example,
 `HttpStatus` remains one concept module rather than a public subpath per status
 literal.
+The repo enforces the closed topology with
+`bun run beep lint schema-topology`, which checks `@beep/schema` source
+directories, package exports, role-file privacy, and root alias drift.
 
 ## Repo CLI Command Topology
 

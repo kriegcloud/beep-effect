@@ -34,8 +34,7 @@ home for full concept namespaces.
 
 ## Concept Folder Topology
 
-Leaf concept modules live under `src/<Concept>/` when that does not create a
-case-only sibling of existing source:
+Leaf concept modules live under `src/<Concept>/`:
 
 ```txt
 src/Duration/
@@ -55,19 +54,19 @@ import * as Duration from "@beep/schema/Duration"
 Do not make public consumers import role files such as
 `@beep/schema/Duration/Input`.
 
-Suite aggregators with existing lower-case source directories publish the
-canonical public subpath directly from the existing suite index until the
-underlying source is physically moved:
+Suite aggregators also live under PascalCase source directories and publish
+flat exact public subpaths:
 
 ```jsonc
-"./Color": "./src/color/index.ts",
-"./Csv": "./src/csv/index.ts",
-"./Dom": "./src/dom/index.ts"
+"./Color": "./src/Color/index.ts",
+"./Csv": "./src/Csv/index.ts",
+"./Dom": "./src/Dom/index.ts"
 ```
 
-Do not create `src/Color/` beside `src/color/`, `src/Http/` beside
-`src/http/`, or any other case-only sibling. TypeScript treats those paths as a
-single casing contract even on case-sensitive filesystems.
+Do not create or restore lowercase topical source directories such as
+`src/color/`, `src/http/`, `src/csv/`, or `src/person/`. Do not publish
+lowercase topical subpaths such as `@beep/schema/color` or nested legacy topical
+paths such as `@beep/schema/http/headers`.
 
 Do not create a module for every exported symbol. Promote source concepts:
 schemas, schema suites, codecs, parser/formatter helpers, and typed errors.
@@ -117,18 +116,18 @@ Glob.Schema
 Glob.Glob
 ```
 
-## Compatibility Policy
+## Closed Compatibility Policy
 
-Migration is compatibility-first:
+The migration is closed around the canonical topology:
 
-- Add canonical concept subpaths before removing old paths.
 - Keep the root flat facade for current consumers.
-- Keep legacy nested paths until their consumers and docs are migrated.
-- Keep legacy acronym spellings as compatibility aliases where they already
-  exist or are likely entrypoints, for example `ExpectCT` to `ExpectCt` and
-  `XSSProtection` to `XssProtection`.
-- Remove `./*` wildcard export reliance only after explicit canonical and
-  compatibility subpaths exist.
+- Keep purposeful repeated names inside canonical modules when they aid
+  migration, for example `Duration.DurationInput` beside `Duration.Input`.
+- Retire lowercase topical source directories and public subpaths.
+- Retire legacy acronym casing subpaths such as `@beep/schema/ExpectCT` and
+  `@beep/schema/XSSProtection`; use `ExpectCt` and `XssProtection`.
+- Keep concept role files private and publish only concept indexes.
+- Keep the broad package wildcard removed.
 
 ## Acceptance Criteria
 
@@ -136,5 +135,6 @@ Migration is compatibility-first:
 - New examples use namespace-first concept imports.
 - Existing root imports continue to compile.
 - Tests and dtslint cover canonical imports and root compatibility.
+- `bun run beep lint schema-topology` passes.
 - `standards/ARCHITECTURE.md`, the architecture rationale packet, and this
   package's README agree on the topology.
