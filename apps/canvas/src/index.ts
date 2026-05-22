@@ -7,6 +7,21 @@
  */
 
 /**
+ * Package version for `@beep/canvas`.
+ *
+ * @example
+ * ```ts
+ * import { VERSION } from "@beep/canvas"
+ *
+ * console.log(VERSION)
+ * ```
+ *
+ * @category components
+ * @since 0.0.0
+ */
+export const VERSION = "0.0.0" as const;
+
+/**
  * Canvas app component exports.
  *
  * @category components

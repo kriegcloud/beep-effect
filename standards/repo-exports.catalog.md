@@ -21,8 +21,8 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | packagesWithoutPublicExports | 1 |
 | missingWorkspaceMetadata | 0 |
 | importSpecifiers | 929 |
-| publicExportEntries | 13728 |
-| uniquePackageSymbols | 5495 |
+| publicExportEntries | 13733 |
+| uniquePackageSymbols | 5497 |
 
 ## Seed Discovery Proof
 
@@ -54,7 +54,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | 15 | `@beep/repo-utils` | `packages/tooling/library/repo-utils` | has-public-exports | 65 | 1615 | 503 |
 | 16 | `@beep/phoenix` | `packages/drivers/phoenix` | has-public-exports | 6 | 137 | 36 |
 | 17 | `@beep/duckdb` | `packages/drivers/duckdb` | has-public-exports | 1 | 12 | 10 |
-| 18 | `@beep/canvas-use-cases` | `packages/canvas/use-cases` | has-public-exports | 5 | 44 | 25 |
+| 18 | `@beep/canvas-use-cases` | `packages/canvas/use-cases` | has-public-exports | 5 | 46 | 26 |
 | 19 | `@beep/discord` | `packages/drivers/discord` | has-public-exports | 5 | 27 | 8 |
 | 20 | `@beep/ai-provider-cli` | `packages/drivers/ai-provider-cli` | has-public-exports | 5 | 27 | 7 |
 | 21 | `@beep/installer-use-cases` | `packages/installer/use-cases` | has-public-exports | 3 | 51 | 29 |
@@ -75,7 +75,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | 36 | `@beep/hubspot` | `packages/drivers/hubspot` | has-public-exports | 5 | 50 | 16 |
 | 37 | `@beep/ui` | `packages/foundation/ui-system/ui` | has-public-exports | 114 | 525 | 445 |
 | 38 | `@beep/sanity` | `packages/drivers/sanity` | has-public-exports | 5 | 38 | 11 |
-| 39 | `@beep/canvas-server` | `packages/canvas/server` | has-public-exports | 4 | 18 | 16 |
+| 39 | `@beep/canvas-server` | `packages/canvas/server` | has-public-exports | 4 | 20 | 16 |
 | 40 | `@beep/openai-compat` | `packages/drivers/openai-compat` | has-public-exports | 5 | 140 | 42 |
 | 41 | `@beep/installer-server` | `packages/installer/server` | has-public-exports | 3 | 34 | 18 |
 | 42 | `@beep/law-practice-domain` | `packages/law-practice/domain` | has-public-exports | 6 | 36 | 8 |
@@ -97,7 +97,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | 58 | `@beep/oip-web` | `apps/oip-web` | has-public-exports | 12 | 42 | 38 |
 | 59 | `@beep/shared-tables` | `packages/shared/tables` | has-public-exports | 14 | 19 | 7 |
 | 60 | `@beep/md` | `packages/foundation/capability/md` | has-public-exports | 5 | 253 | 97 |
-| 61 | `@beep/canvas` | `apps/canvas` | has-public-exports | 1 | 22 | 19 |
+| 61 | `@beep/canvas` | `apps/canvas` | has-public-exports | 1 | 23 | 20 |
 | 62 | `@beep/semantic-web` | `packages/foundation/capability/semantic-web` | has-public-exports | 30 | 272 | 219 |
 | 63 | `@beep/venice-ai` | `packages/drivers/venice-ai` | has-public-exports | 4 | 92 | 28 |
 | 64 | `@beep/stack-installer` | `apps/stack-installer` | has-public-exports | 1 | 4 | 4 |
@@ -6953,8 +6953,8 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 |---|---|---|---|---|
 | `@beep/canvas-use-cases` | `CanvasProject` | SourceFile | `packages/canvas/use-cases/src/aggregates/CanvasProject/index.ts:7` |  |
 | `@beep/canvas-use-cases` | `VERSION` | const | `packages/canvas/use-cases/src/index.ts:22` | Package version for the canvas use-case role. |
-| `@beep/canvas-use-cases/aggregates/CanvasProject` | `AddCanvasNodeCommand` | class | `packages/canvas/use-cases/src/aggregates/CanvasProject/CanvasProject.commands.ts:56` | Add CanvasNode command. |
-| `@beep/canvas-use-cases/aggregates/CanvasProject` | `ArchiveCanvasProjectCommand` | class | `packages/canvas/use-cases/src/aggregates/CanvasProject/CanvasProject.commands.ts:40` | Archive CanvasProject command. |
+| `@beep/canvas-use-cases/aggregates/CanvasProject` | `AddCanvasNodeCommand` | class | `packages/canvas/use-cases/src/aggregates/CanvasProject/CanvasProject.commands.ts:129` | Add CanvasNode command. |
+| `@beep/canvas-use-cases/aggregates/CanvasProject` | `ArchiveCanvasProjectCommand` | class | `packages/canvas/use-cases/src/aggregates/CanvasProject/CanvasProject.commands.ts:97` | Archive CanvasProject command. |
 | `@beep/canvas-use-cases/aggregates/CanvasProject` | `CANVAS_PROJECT_ACTION_UNAVAILABLE_REASON` | const | `packages/canvas/use-cases/src/aggregates/CanvasProject/CanvasProject.errors.ts:22` | Generic public reason used when internal CanvasProject repository details are redacted. |
 | `@beep/canvas-use-cases/aggregates/CanvasProject` | `CANVAS_PROJECT_CONFLICT_REASON` | const | `packages/canvas/use-cases/src/aggregates/CanvasProject/CanvasProject.errors.ts:30` | Generic public reason used when internal CanvasProject conflict details are redacted. |
 | `@beep/canvas-use-cases/aggregates/CanvasProject` | `CanvasProjectActionError` | const | `packages/canvas/use-cases/src/aggregates/CanvasProject/CanvasProject.errors.ts:124` | Public CanvasProject use-case failure schema. |
@@ -6963,14 +6963,15 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/canvas-use-cases/aggregates/CanvasProject` | `CanvasProjectActionRejected` | class | `packages/canvas/use-cases/src/aggregates/CanvasProject/CanvasProject.errors.ts:73` | Public failure raised when the domain rejects a CanvasProject action. |
 | `@beep/canvas-use-cases/aggregates/CanvasProject` | `CanvasProjectConflict` | class | `packages/canvas/use-cases/src/aggregates/CanvasProject/CanvasProject.errors.ts:55` | Public failure raised when a command conflicts with persisted state. |
 | `@beep/canvas-use-cases/aggregates/CanvasProject` | `CanvasProjectNotFound` | class | `packages/canvas/use-cases/src/aggregates/CanvasProject/CanvasProject.errors.ts:38` | Public failure raised when a requested CanvasProject is absent. |
-| `@beep/canvas-use-cases/aggregates/CanvasProject` | `CanvasProjectUseCases` | class | `packages/canvas/use-cases/src/aggregates/CanvasProject/CanvasProject.use-cases.ts:57` | Public CanvasProject use-case service. |
-| `@beep/canvas-use-cases/aggregates/CanvasProject` | `CanvasProjectUseCasesShape` | interface | `packages/canvas/use-cases/src/aggregates/CanvasProject/CanvasProject.use-cases.ts:30` | Public CanvasProject use-case contract. |
-| `@beep/canvas-use-cases/aggregates/CanvasProject` | `CreateCanvasProjectCommand` | class | `packages/canvas/use-cases/src/aggregates/CanvasProject/CanvasProject.commands.ts:23` | Create CanvasProject command. |
-| `@beep/canvas-use-cases/aggregates/CanvasProject` | `GetCanvasProjectQuery` | class | `packages/canvas/use-cases/src/aggregates/CanvasProject/CanvasProject.commands.ts:90` | Get CanvasProject query. |
-| `@beep/canvas-use-cases/aggregates/CanvasProject` | `ListCanvasProjectsQuery` | class | `packages/canvas/use-cases/src/aggregates/CanvasProject/CanvasProject.commands.ts:106` | List CanvasProjects query. |
-| `@beep/canvas-use-cases/aggregates/CanvasProject` | `RemoveCanvasNodeCommand` | class | `packages/canvas/use-cases/src/aggregates/CanvasProject/CanvasProject.commands.ts:73` | Remove CanvasNode command. |
-| `@beep/canvas-use-cases/aggregates/CanvasProject/server` | `AddCanvasNodeCommand` | class | `packages/canvas/use-cases/src/aggregates/CanvasProject/CanvasProject.commands.ts:56` | Add CanvasNode command. |
-| `@beep/canvas-use-cases/aggregates/CanvasProject/server` | `ArchiveCanvasProjectCommand` | class | `packages/canvas/use-cases/src/aggregates/CanvasProject/CanvasProject.commands.ts:40` | Archive CanvasProject command. |
+| `@beep/canvas-use-cases/aggregates/CanvasProject` | `CanvasProjectUseCases` | class | `packages/canvas/use-cases/src/aggregates/CanvasProject/CanvasProject.use-cases.ts:77` | Public CanvasProject use-case service. |
+| `@beep/canvas-use-cases/aggregates/CanvasProject` | `CanvasProjectUseCasesShape` | interface | `packages/canvas/use-cases/src/aggregates/CanvasProject/CanvasProject.use-cases.ts:40` | Public CanvasProject use-case contract. |
+| `@beep/canvas-use-cases/aggregates/CanvasProject` | `CreateCanvasProjectCommand` | class | `packages/canvas/use-cases/src/aggregates/CanvasProject/CanvasProject.commands.ts:37` | Create CanvasProject command. |
+| `@beep/canvas-use-cases/aggregates/CanvasProject` | `GetCanvasProjectQuery` | class | `packages/canvas/use-cases/src/aggregates/CanvasProject/CanvasProject.commands.ts:189` | Get CanvasProject query. |
+| `@beep/canvas-use-cases/aggregates/CanvasProject` | `ListCanvasProjectsQuery` | class | `packages/canvas/use-cases/src/aggregates/CanvasProject/CanvasProject.commands.ts:212` | List CanvasProjects query. |
+| `@beep/canvas-use-cases/aggregates/CanvasProject` | `RemoveCanvasNodeCommand` | class | `packages/canvas/use-cases/src/aggregates/CanvasProject/CanvasProject.commands.ts:160` | Remove CanvasNode command. |
+| `@beep/canvas-use-cases/aggregates/CanvasProject` | `RestoreCanvasProjectCommand` | class | `packages/canvas/use-cases/src/aggregates/CanvasProject/CanvasProject.commands.ts:69` | Restore CanvasProject command. |
+| `@beep/canvas-use-cases/aggregates/CanvasProject/server` | `AddCanvasNodeCommand` | class | `packages/canvas/use-cases/src/aggregates/CanvasProject/CanvasProject.commands.ts:129` | Add CanvasNode command. |
+| `@beep/canvas-use-cases/aggregates/CanvasProject/server` | `ArchiveCanvasProjectCommand` | class | `packages/canvas/use-cases/src/aggregates/CanvasProject/CanvasProject.commands.ts:97` | Archive CanvasProject command. |
 | `@beep/canvas-use-cases/aggregates/CanvasProject/server` | `CANVAS_PROJECT_ACTION_UNAVAILABLE_REASON` | const | `packages/canvas/use-cases/src/aggregates/CanvasProject/CanvasProject.errors.ts:22` | Generic public reason used when internal CanvasProject repository details are redacted. |
 | `@beep/canvas-use-cases/aggregates/CanvasProject/server` | `CANVAS_PROJECT_CONFLICT_REASON` | const | `packages/canvas/use-cases/src/aggregates/CanvasProject/CanvasProject.errors.ts:30` | Generic public reason used when internal CanvasProject conflict details are redacted. |
 | `@beep/canvas-use-cases/aggregates/CanvasProject/server` | `CanvasProjectActionError` | const | `packages/canvas/use-cases/src/aggregates/CanvasProject/CanvasProject.errors.ts:124` | Public CanvasProject use-case failure schema. |
@@ -6985,14 +6986,15 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/canvas-use-cases/aggregates/CanvasProject/server` | `CanvasProjectRepositoryNotFound` | class | `packages/canvas/use-cases/src/aggregates/CanvasProject/CanvasProject.repository.ts:23` | Persistence failure raised when a CanvasProject row is absent. |
 | `@beep/canvas-use-cases/aggregates/CanvasProject/server` | `CanvasProjectRepositoryShape` | interface | `packages/canvas/use-cases/src/aggregates/CanvasProject/CanvasProject.repository.ts:92` | CanvasProject repository contract. |
 | `@beep/canvas-use-cases/aggregates/CanvasProject/server` | `CanvasProjectRepositoryUnavailable` | class | `packages/canvas/use-cases/src/aggregates/CanvasProject/CanvasProject.repository.ts:62` | Persistence failure raised when the CanvasProject repository is unavailable. |
-| `@beep/canvas-use-cases/aggregates/CanvasProject/server` | `CanvasProjectUseCases` | class | `packages/canvas/use-cases/src/aggregates/CanvasProject/CanvasProject.use-cases.ts:57` | Public CanvasProject use-case service. |
-| `@beep/canvas-use-cases/aggregates/CanvasProject/server` | `CanvasProjectUseCasesShape` | interface | `packages/canvas/use-cases/src/aggregates/CanvasProject/CanvasProject.use-cases.ts:30` | Public CanvasProject use-case contract. |
-| `@beep/canvas-use-cases/aggregates/CanvasProject/server` | `CreateCanvasProjectCommand` | class | `packages/canvas/use-cases/src/aggregates/CanvasProject/CanvasProject.commands.ts:23` | Create CanvasProject command. |
-| `@beep/canvas-use-cases/aggregates/CanvasProject/server` | `GetCanvasProjectQuery` | class | `packages/canvas/use-cases/src/aggregates/CanvasProject/CanvasProject.commands.ts:90` | Get CanvasProject query. |
-| `@beep/canvas-use-cases/aggregates/CanvasProject/server` | `ListCanvasProjectsQuery` | class | `packages/canvas/use-cases/src/aggregates/CanvasProject/CanvasProject.commands.ts:106` | List CanvasProjects query. |
-| `@beep/canvas-use-cases/aggregates/CanvasProject/server` | `makeCanvasProjectUseCases` | const | `packages/canvas/use-cases/src/aggregates/CanvasProject/CanvasProject.service.ts:96` | Build CanvasProject use-cases from the server repository port. |
-| `@beep/canvas-use-cases/aggregates/CanvasProject/server` | `RemoveCanvasNodeCommand` | class | `packages/canvas/use-cases/src/aggregates/CanvasProject/CanvasProject.commands.ts:73` | Remove CanvasNode command. |
-| `@beep/canvas-use-cases/aggregates/CanvasProject/server` | `toCanvasProjectActionError` | const | `packages/canvas/use-cases/src/aggregates/CanvasProject/CanvasProject.service.ts:50` | Translate server and aggregate failures to public action failures. |
+| `@beep/canvas-use-cases/aggregates/CanvasProject/server` | `CanvasProjectUseCases` | class | `packages/canvas/use-cases/src/aggregates/CanvasProject/CanvasProject.use-cases.ts:77` | Public CanvasProject use-case service. |
+| `@beep/canvas-use-cases/aggregates/CanvasProject/server` | `CanvasProjectUseCasesShape` | interface | `packages/canvas/use-cases/src/aggregates/CanvasProject/CanvasProject.use-cases.ts:40` | Public CanvasProject use-case contract. |
+| `@beep/canvas-use-cases/aggregates/CanvasProject/server` | `CreateCanvasProjectCommand` | class | `packages/canvas/use-cases/src/aggregates/CanvasProject/CanvasProject.commands.ts:37` | Create CanvasProject command. |
+| `@beep/canvas-use-cases/aggregates/CanvasProject/server` | `GetCanvasProjectQuery` | class | `packages/canvas/use-cases/src/aggregates/CanvasProject/CanvasProject.commands.ts:189` | Get CanvasProject query. |
+| `@beep/canvas-use-cases/aggregates/CanvasProject/server` | `ListCanvasProjectsQuery` | class | `packages/canvas/use-cases/src/aggregates/CanvasProject/CanvasProject.commands.ts:212` | List CanvasProjects query. |
+| `@beep/canvas-use-cases/aggregates/CanvasProject/server` | `makeCanvasProjectUseCases` | const | `packages/canvas/use-cases/src/aggregates/CanvasProject/CanvasProject.service.ts:116` | Build CanvasProject use-cases from the server repository port. |
+| `@beep/canvas-use-cases/aggregates/CanvasProject/server` | `RemoveCanvasNodeCommand` | class | `packages/canvas/use-cases/src/aggregates/CanvasProject/CanvasProject.commands.ts:160` | Remove CanvasNode command. |
+| `@beep/canvas-use-cases/aggregates/CanvasProject/server` | `RestoreCanvasProjectCommand` | class | `packages/canvas/use-cases/src/aggregates/CanvasProject/CanvasProject.commands.ts:69` | Restore CanvasProject command. |
+| `@beep/canvas-use-cases/aggregates/CanvasProject/server` | `toCanvasProjectActionError` | const | `packages/canvas/use-cases/src/aggregates/CanvasProject/CanvasProject.service.ts:61` | Translate server and aggregate failures to public action failures. |
 | `@beep/canvas-use-cases/public` | `CanvasProject` | SourceFile | `packages/canvas/use-cases/src/aggregates/CanvasProject/index.ts:7` |  |
 | `@beep/canvas-use-cases/server` | `CanvasProject` | SourceFile | `packages/canvas/use-cases/src/aggregates/CanvasProject/server.ts:14` |  |
 
@@ -10039,22 +10041,24 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | Import | Symbol | Kind | Source | Summary |
 |---|---|---|---|---|
 | `@beep/canvas-server` | `CanvasProject` | SourceFile | `packages/canvas/server/src/aggregates/CanvasProject/index.ts:7` |  |
-| `@beep/canvas-server` | `CanvasServerLive` | const | `packages/canvas/server/src/Layer.ts:17` | Live canvas server layer. |
+| `@beep/canvas-server` | `CanvasProjectServer` | class | `packages/canvas/server/src/aggregates/CanvasProject/CanvasProject.layer.ts:35` | CanvasProject server facade service. |
+| `@beep/canvas-server` | `CanvasServerLive` | const | `packages/canvas/server/src/Layer.ts:39` | Live canvas server layer. |
 | `@beep/canvas-server` | `VERSION` | const | `packages/canvas/server/src/index.ts:22` | Package version for the canvas server role. |
-| `@beep/canvas-server/aggregates/CanvasProject` | `CanvasProjectHttpResponse` | class | `packages/canvas/server/src/aggregates/CanvasProject/CanvasProject.http.ts:51` | Minimal HTTP response envelope used by the canvas bootstrap proof. |
-| `@beep/canvas-server/aggregates/CanvasProject` | `CanvasProjectHttpStatus` | const | `packages/canvas/server/src/aggregates/CanvasProject/CanvasProject.http.ts:30` | HTTP status values emitted by the CanvasProject bootstrap adapter. |
-| `@beep/canvas-server/aggregates/CanvasProject` | `CanvasProjectHttpStatus` | type | `packages/canvas/server/src/aggregates/CanvasProject/CanvasProject.http.ts:43` | Runtime type for {@link CanvasProjectHttpStatus}. |
+| `@beep/canvas-server/aggregates/CanvasProject` | `CanvasProjectHttpResponse` | class | `packages/canvas/server/src/aggregates/CanvasProject/CanvasProject.http.ts:76` | Minimal HTTP response envelope used by the canvas bootstrap proof. |
+| `@beep/canvas-server/aggregates/CanvasProject` | `CanvasProjectHttpStatus` | const | `packages/canvas/server/src/aggregates/CanvasProject/CanvasProject.http.ts:39` | HTTP status values emitted by the CanvasProject bootstrap adapter. |
+| `@beep/canvas-server/aggregates/CanvasProject` | `CanvasProjectHttpStatus` | type | `packages/canvas/server/src/aggregates/CanvasProject/CanvasProject.http.ts:60` | Runtime type for {@link CanvasProjectHttpStatus}. |
 | `@beep/canvas-server/aggregates/CanvasProject` | `CanvasProjectServer` | class | `packages/canvas/server/src/aggregates/CanvasProject/CanvasProject.layer.ts:35` | CanvasProject server facade service. |
 | `@beep/canvas-server/aggregates/CanvasProject` | `CanvasProjectServerLayer` | const | `packages/canvas/server/src/aggregates/CanvasProject/CanvasProject.layer.ts:46` | Config-dependent CanvasProject server layer. |
-| `@beep/canvas-server/aggregates/CanvasProject` | `CanvasProjectToolNames` | const | `packages/canvas/server/src/aggregates/CanvasProject/CanvasProject.tools.ts:17` | CanvasProject tool names exposed by the canvas bootstrap proof. |
-| `@beep/canvas-server/aggregates/CanvasProject` | `makeCanvasProjectHttpHandlers` | const | `packages/canvas/server/src/aggregates/CanvasProject/CanvasProject.http.ts:89` | Build HTTP-style CanvasProject handlers from the public use-case facade. |
+| `@beep/canvas-server/aggregates/CanvasProject` | `CanvasProjectToolNames` | const | `packages/canvas/server/src/aggregates/CanvasProject/CanvasProject.tools.ts:24` | CanvasProject tool names exposed by the canvas bootstrap proof. |
+| `@beep/canvas-server/aggregates/CanvasProject` | `makeCanvasProjectHttpHandlers` | const | `packages/canvas/server/src/aggregates/CanvasProject/CanvasProject.http.ts:138` | Build HTTP-style CanvasProject handlers from the public use-case facade. |
 | `@beep/canvas-server/aggregates/CanvasProject` | `makeCanvasProjectRepository` | const | `packages/canvas/server/src/aggregates/CanvasProject/CanvasProject.repo.ts:81` | Build the default CanvasProject repository for normal slice tests. |
-| `@beep/canvas-server/aggregates/CanvasProject` | `makeCanvasProjectRpcHandlers` | const | `packages/canvas/server/src/aggregates/CanvasProject/CanvasProject.rpc.ts:17` | Build RPC-style CanvasProject handlers from the public use-case facade. |
+| `@beep/canvas-server/aggregates/CanvasProject` | `makeCanvasProjectRpcHandlers` | const | `packages/canvas/server/src/aggregates/CanvasProject/CanvasProject.rpc.ts:27` | Build RPC-style CanvasProject handlers from the public use-case facade. |
 | `@beep/canvas-server/aggregates/CanvasProject` | `makeCanvasProjectServer` | const | `packages/canvas/server/src/aggregates/CanvasProject/CanvasProject.layer.ts:24` | Build the CanvasProject server facade. |
-| `@beep/canvas-server/aggregates/CanvasProject` | `makeCanvasProjectToolHandlers` | const | `packages/canvas/server/src/aggregates/CanvasProject/CanvasProject.tools.ts:32` | Build tool-style CanvasProject handlers from the public use-case facade. |
+| `@beep/canvas-server/aggregates/CanvasProject` | `makeCanvasProjectToolHandlers` | const | `packages/canvas/server/src/aggregates/CanvasProject/CanvasProject.tools.ts:50` | Build tool-style CanvasProject handlers from the public use-case facade. |
 | `@beep/canvas-server/aggregates/CanvasProject` | `makeInMemoryCanvasProjectRepository` | const | `packages/canvas/server/src/aggregates/CanvasProject/CanvasProject.repo.ts:37` | Build the in-memory CanvasProject repository used by the fast canvas proof. |
-| `@beep/canvas-server/aggregates/CanvasProject` | `toCanvasProjectHttpError` | const | `packages/canvas/server/src/aggregates/CanvasProject/CanvasProject.http.ts:68` | Convert a public CanvasProject failure to an HTTP response envelope. |
-| `@beep/canvas-server/layer` | `CanvasServerLive` | const | `packages/canvas/server/src/Layer.ts:17` | Live canvas server layer. |
+| `@beep/canvas-server/aggregates/CanvasProject` | `toCanvasProjectHttpError` | const | `packages/canvas/server/src/aggregates/CanvasProject/CanvasProject.http.ts:106` | Convert a public CanvasProject failure to an HTTP response envelope. |
+| `@beep/canvas-server/layer` | `CanvasProjectServer` | class | `packages/canvas/server/src/aggregates/CanvasProject/CanvasProject.layer.ts:35` | CanvasProject server facade service. |
+| `@beep/canvas-server/layer` | `CanvasServerLive` | const | `packages/canvas/server/src/Layer.ts:39` | Live canvas server layer. |
 | `@beep/canvas-server/test` | `CanvasServerTest` | const | `packages/canvas/server/src/test.ts:17` | Test canvas server layer. |
 
 ### @beep/openai-compat
@@ -12549,28 +12553,29 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 
 | Import | Symbol | Kind | Source | Summary |
 |---|---|---|---|---|
-| `@beep/canvas` | `App` | function | `apps/canvas/src/App.tsx:71` | Canvas desktop shell root component. |
-| `@beep/canvas` | `CanvasCommandBridgeEffect` | type | `apps/canvas/src/commandBridge.ts:255` | Effect that builds or runs against the app-local canvas command bridge. |
-| `@beep/canvas` | `CanvasCommandError` | class | `apps/canvas/src/commandBridge.ts:215` | App command bridge failure. |
-| `@beep/canvas` | `CanvasCommandName` | const | `apps/canvas/src/commandBridge.ts:59` | Native command name schema for the canvas app shell. |
-| `@beep/canvas` | `CanvasCommandName` | type | `apps/canvas/src/commandBridge.ts:71` | Type for {@link CanvasCommandName}. |
-| `@beep/canvas` | `CanvasCommandRuntime` | type | `apps/canvas/src/commandBridge.ts:33` | Runtime returned by {@link makeCanvasCommandRuntime}. |
-| `@beep/canvas` | `CanvasHealth` | class | `apps/canvas/src/commandBridge.ts:85` | Canvas shell health payload. |
-| `@beep/canvas` | `CanvasScene` | const | `apps/canvas/src/commandBridge.ts:105` | Serializable scene shape crossing the app command bridge. |
-| `@beep/canvas` | `CanvasScene` | type | `apps/canvas/src/commandBridge.ts:113` | Type for {@link CanvasScene}. |
-| `@beep/canvas` | `CanvasSceneNode` | const | `apps/canvas/src/commandBridge.ts:121` | Serializable node shape crossing the app command bridge. |
-| `@beep/canvas` | `CanvasSceneNode` | type | `apps/canvas/src/commandBridge.ts:129` | Type for {@link CanvasSceneNode}. |
-| `@beep/canvas` | `commandSurface` | const | `apps/canvas/src/commandBridge.ts:41` | Native command names exposed by the canvas app shell. |
-| `@beep/canvas` | `decodeCanvasNodeId` | const | `apps/canvas/src/commandBridge.ts:276` | Decode a user-provided string into a canvas node identifier. |
-| `@beep/canvas` | `decodeCanvasProjectId` | const | `apps/canvas/src/commandBridge.ts:267` | Decode a user-provided string into a canvas project identifier. |
-| `@beep/canvas` | `makeCanvasCommandBridge` | const | `apps/canvas/src/commandBridge.ts:389` | Build the default app command bridge. |
-| `@beep/canvas` | `makeCanvasCommandRuntime` | const | `apps/canvas/src/commandBridge.ts:25` | Managed runtime for app-local canvas command effects. |
-| `@beep/canvas` | `makeNativeCanvasCommandBridge` | const | `apps/canvas/src/commandBridge.ts:374` | Build the desktop bridge: Tauri owns only app-local OS/file IO while scene |
-| `@beep/canvas` | `makePreviewCanvasCommandBridge` | const | `apps/canvas/src/commandBridge.ts:285` | Build a browser-safe preview bridge backed by the public CanvasProject use-case contract. |
-| `@beep/canvas` | `previewHealth` | const | `apps/canvas/src/commandBridge.ts:202` | Browser preview health payload. |
-| `@beep/canvas` | `SceneLoadRequest` | class | `apps/canvas/src/commandBridge.ts:154` | Scene load request. |
-| `@beep/canvas` | `SceneSaveRequest` | class | `apps/canvas/src/commandBridge.ts:137` | Scene save request. |
-| `@beep/canvas` | `VERSION` | const | `apps/canvas/src/index.ts:30` | Package version for `@beep/canvas`. |
+| `@beep/canvas` | `App` | function | `apps/canvas/src/App.tsx:79` | Canvas desktop shell root component. |
+| `@beep/canvas` | `CanvasCommandBridgeEffect` | type | `apps/canvas/src/commandBridge.ts:484` | Effect that builds or runs against the app-local canvas command bridge. |
+| `@beep/canvas` | `CanvasCommandError` | class | `apps/canvas/src/commandBridge.ts:355` | App command bridge failure. |
+| `@beep/canvas` | `CanvasCommandName` | const | `apps/canvas/src/commandBridge.ts:92` | Native command name schema for the canvas app shell. |
+| `@beep/canvas` | `CanvasCommandName` | type | `apps/canvas/src/commandBridge.ts:111` | Type for {@link CanvasCommandName}. |
+| `@beep/canvas` | `CanvasCommandRuntime` | type | `apps/canvas/src/commandBridge.ts:51` | Runtime returned by {@link makeCanvasCommandRuntime}. |
+| `@beep/canvas` | `CanvasHealth` | class | `apps/canvas/src/commandBridge.ts:137` | Canvas shell health payload. |
+| `@beep/canvas` | `CanvasScene` | const | `apps/canvas/src/commandBridge.ts:165` | Serializable scene shape crossing the app command bridge. |
+| `@beep/canvas` | `CanvasScene` | type | `apps/canvas/src/commandBridge.ts:190` | Type for {@link CanvasScene}. |
+| `@beep/canvas` | `CanvasSceneNode` | const | `apps/canvas/src/commandBridge.ts:206` | Serializable node shape crossing the app command bridge. |
+| `@beep/canvas` | `CanvasSceneNode` | type | `apps/canvas/src/commandBridge.ts:230` | Type for {@link CanvasSceneNode}. |
+| `@beep/canvas` | `commandSurface` | const | `apps/canvas/src/commandBridge.ts:66` | Native command names exposed by the canvas app shell. |
+| `@beep/canvas` | `decodeCanvasNodeId` | const | `apps/canvas/src/commandBridge.ts:523` | Decode a user-provided string into a canvas node identifier. |
+| `@beep/canvas` | `decodeCanvasNodeKind` | const | `apps/canvas/src/commandBridge.ts:541` | Decode a user-provided value into a canvas node kind. |
+| `@beep/canvas` | `decodeCanvasProjectId` | const | `apps/canvas/src/commandBridge.ts:503` | Decode a user-provided string into a canvas project identifier. |
+| `@beep/canvas` | `makeCanvasCommandBridge` | const | `apps/canvas/src/commandBridge.ts:679` | Build the default app command bridge. |
+| `@beep/canvas` | `makeCanvasCommandRuntime` | const | `apps/canvas/src/commandBridge.ts:34` | Managed runtime for app-local canvas command effects. |
+| `@beep/canvas` | `makeNativeCanvasCommandBridge` | const | `apps/canvas/src/commandBridge.ts:655` | Build the desktop bridge: Tauri owns only app-local OS/file IO while scene |
+| `@beep/canvas` | `makePreviewCanvasCommandBridge` | const | `apps/canvas/src/commandBridge.ts:561` | Build a browser-safe preview bridge backed by the public CanvasProject use-case contract. |
+| `@beep/canvas` | `previewHealth` | const | `apps/canvas/src/commandBridge.ts:335` | Browser preview health payload. |
+| `@beep/canvas` | `SceneLoadRequest` | class | `apps/canvas/src/commandBridge.ts:280` | Scene load request. |
+| `@beep/canvas` | `SceneSaveRequest` | class | `apps/canvas/src/commandBridge.ts:256` | Scene save request. |
+| `@beep/canvas` | `VERSION` | const | `apps/canvas/src/index.ts:22` | Package version for `@beep/canvas`. |
 
 ### @beep/semantic-web
 

@@ -1,5 +1,3 @@
-import { Effect } from "effect";
-import { describe, expect, it } from "vitest";
 import {
   type CanvasCommandBridgeEffect,
   CanvasCommandError,
@@ -9,7 +7,9 @@ import {
   makeCanvasCommandRuntime,
   makeNativeCanvasCommandBridge,
   makePreviewCanvasCommandBridge,
-} from "../src/commandBridge.js";
+} from "@beep/canvas";
+import { Effect } from "effect";
+import { describe, expect, it } from "vitest";
 
 const runCanvasEffect = <A>(effect: CanvasCommandBridgeEffect<A>): Promise<A> => {
   const runtime = makeCanvasCommandRuntime();
@@ -22,14 +22,16 @@ describe("canvas command bridge", () => {
       Effect.gen(function* () {
         const bridge = yield* makePreviewCanvasCommandBridge();
         const health = yield* bridge.canvasHealth();
+        const sceneId = yield* decodeCanvasProjectId("scene-test");
+        const nodeId = yield* decodeCanvasNodeId("node-test");
         expect(health.app).toBe("@beep/canvas");
 
-        const created = yield* bridge.sceneCreate({ id: decodeCanvasProjectId("scene-test"), title: "Scene Test" });
+        const created = yield* bridge.sceneCreate({ id: sceneId, title: "Scene Test" });
         expect(created.nodes).toHaveLength(0);
 
         const added = yield* bridge.sceneNodeAdd({
           id: created.id,
-          node: { id: decodeCanvasNodeId("node-test"), kind: "note", label: "Node Test" },
+          node: { id: nodeId, kind: "note", label: "Node Test" },
         });
         const listed = yield* bridge.sceneList();
         expect(added.nodes).toHaveLength(1);
@@ -42,8 +44,35 @@ describe("canvas command bridge", () => {
         const loaded = yield* bridge.sceneLoad({ path: "ignored-in-preview.json" });
         expect(loaded.nodes.map((node) => node.id)).toContain("node-test");
 
-        const removed = yield* bridge.sceneNodeRemove({ id: loaded.id, nodeId: decodeCanvasNodeId("node-test") });
+        const removed = yield* bridge.sceneNodeRemove({ id: loaded.id, nodeId });
         expect(removed.nodes).toHaveLength(0);
+      })
+    ));
+
+  it("restores saved scene contents when in-memory state diverges", () =>
+    runCanvasEffect(
+      Effect.gen(function* () {
+        const bridge = yield* makePreviewCanvasCommandBridge();
+        const sceneId = yield* decodeCanvasProjectId("restore-scene");
+        const savedNodeId = yield* decodeCanvasNodeId("restore-node-saved");
+        const divergentNodeId = yield* decodeCanvasNodeId("restore-node-divergent");
+
+        const created = yield* bridge.sceneCreate({ id: sceneId, title: "Restore Scene" });
+        const saved = yield* bridge.sceneNodeAdd({
+          id: created.id,
+          node: { id: savedNodeId, kind: "note", label: "Saved Node" },
+        });
+        yield* bridge.sceneSave({ path: "restore-scene.json", scene: saved });
+        yield* bridge.sceneNodeAdd({
+          id: created.id,
+          node: { id: divergentNodeId, kind: "shape", label: "Divergent Node" },
+        });
+
+        const loaded = yield* bridge.sceneLoad({ path: "restore-scene.json" });
+        const reloaded = yield* bridge.sceneGet({ id: sceneId });
+
+        expect(loaded.nodes.map((node) => node.id)).toEqual(["restore-node-saved"]);
+        expect(reloaded.nodes.map((node) => node.id)).toEqual(["restore-node-saved"]);
       })
     ));
 
@@ -52,7 +81,8 @@ describe("canvas command bridge", () => {
       runCanvasEffect(
         Effect.gen(function* () {
           const bridge = yield* makePreviewCanvasCommandBridge();
-          return yield* bridge.sceneGet({ id: decodeCanvasProjectId("missing-scene") });
+          const sceneId = yield* decodeCanvasProjectId("missing-scene");
+          return yield* bridge.sceneGet({ id: sceneId });
         })
       )
     ).rejects.toThrow("CanvasProjectNotFound"));
@@ -60,7 +90,7 @@ describe("canvas command bridge", () => {
   it("keeps native Tauri IO behind the domain-backed app command bridge", () => {
     const nativeCalls: Array<string> = [];
     let savedScene: CanvasScene | undefined;
-    const invoke = <A>(command: string, args?: Record<string, unknown>): Promise<A> => {
+    const invoke = (command: string, args?: Record<string, unknown>): Promise<unknown> => {
       nativeCalls.push(command);
       if (command === "canvas_health") {
         return Promise.resolve({
@@ -79,14 +109,14 @@ describe("canvas command bridge", () => {
           nativeCommandSurface: ["canvas_health", "scene_save", "scene_load"],
           persistence: "app-local-json",
           status: "ready",
-        } as A);
+        });
       }
       if (command === "scene_save") {
         savedScene = (args?.request as { readonly scene: CanvasScene }).scene;
-        return Promise.resolve(savedScene as A);
+        return Promise.resolve(savedScene);
       }
       if (command === "scene_load" && savedScene !== undefined) {
-        return Promise.resolve(savedScene as A);
+        return Promise.resolve(savedScene);
       }
       return Promise.reject(new CanvasCommandError({ message: `Unexpected native command: ${command}` }));
     };
@@ -94,14 +124,16 @@ describe("canvas command bridge", () => {
     return runCanvasEffect(
       Effect.gen(function* () {
         const bridge = yield* makeNativeCanvasCommandBridge(invoke);
+        const sceneId = yield* decodeCanvasProjectId("native-scene");
+        const nodeId = yield* decodeCanvasNodeId("native-node");
         const health = yield* bridge.canvasHealth();
         expect(health.commandSurface).toContain("scene_create");
         expect(health.nativeCommandSurface).toEqual(["canvas_health", "scene_save", "scene_load"]);
 
-        const created = yield* bridge.sceneCreate({ id: decodeCanvasProjectId("native-scene"), title: "Native Scene" });
+        const created = yield* bridge.sceneCreate({ id: sceneId, title: "Native Scene" });
         const withNode = yield* bridge.sceneNodeAdd({
           id: created.id,
-          node: { id: decodeCanvasNodeId("native-node"), kind: "note", label: "Native Node" },
+          node: { id: nodeId, kind: "note", label: "Native Node" },
         });
         yield* bridge.sceneSave({ path: "native-scene.json", scene: withNode });
         const loaded = yield* bridge.sceneLoad({ path: "native-scene.json" });
@@ -111,4 +143,54 @@ describe("canvas command bridge", () => {
       })
     );
   });
+
+  it("decodes native success payloads and preserves native command error messages", () => {
+    const invoke = (command: string): Promise<unknown> => {
+      if (command === "canvas_health") {
+        return Promise.resolve({ app: "wrong" });
+      }
+      return Promise.reject({
+        message: "Scene path must use the .json extension.",
+        tag: "CanvasCommandInvalidRequest",
+      });
+    };
+
+    return runCanvasEffect(
+      Effect.gen(function* () {
+        const bridge = yield* makeNativeCanvasCommandBridge(invoke);
+        const healthError = yield* bridge.canvasHealth().pipe(
+          Effect.match({
+            onFailure: (error) => error,
+            onSuccess: () => new CanvasCommandError({ message: "Expected native health decode to fail." }),
+          })
+        );
+        const loadError = yield* bridge.sceneLoad({ path: "bad.txt" }).pipe(
+          Effect.match({
+            onFailure: (error) => error,
+            onSuccess: () => new CanvasCommandError({ message: "Expected native load to fail." }),
+          })
+        );
+
+        expect(healthError.message).not.toBe("Canvas command failed.");
+        expect(loadError.message).toBe("Scene path must use the .json extension.");
+      })
+    );
+  });
+
+  it("decodes malformed scene save requests before persistence", () =>
+    runCanvasEffect(
+      Effect.gen(function* () {
+        const bridge = yield* makePreviewCanvasCommandBridge();
+        const saveUnknown = bridge.sceneSave as (request: unknown) => Effect.Effect<CanvasScene, CanvasCommandError>;
+        const error = yield* saveUnknown(undefined).pipe(
+          Effect.match({
+            onFailure: (error) => error,
+            onSuccess: () => new CanvasCommandError({ message: "Expected scene save decode to fail." }),
+          })
+        );
+
+        expect(error).toBeInstanceOf(CanvasCommandError);
+        expect(error.message).not.toContain("Cannot destructure");
+      })
+    ));
 });

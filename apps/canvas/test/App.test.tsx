@@ -1,9 +1,8 @@
 import "@testing-library/jest-dom/vitest";
+import { App, CanvasCommandError, makePreviewCanvasCommandBridge } from "@beep/canvas";
 import { cleanup, render, screen, waitFor } from "@testing-library/react";
 import { Effect } from "effect";
 import { afterEach, describe, expect, it } from "vitest";
-import { App } from "../src/App.js";
-import { CanvasCommandError, makePreviewCanvasCommandBridge } from "../src/commandBridge.js";
 
 describe.sequential("Canvas app", () => {
   afterEach(cleanup);

@@ -1,4 +1,5 @@
 use serde::{Deserialize, Serialize};
+use std::fmt;
 use std::fs;
 use std::path::{Component, Path, PathBuf};
 use tauri::{AppHandle, Manager, Runtime};
@@ -26,6 +27,24 @@ impl CanvasCommandError {
             message: message.into(),
         }
     }
+}
+
+fn unavailable_with_cause(
+    context: &'static str,
+    public_message: &'static str,
+    error: impl fmt::Display,
+) -> CanvasCommandError {
+    eprintln!("canvas native command unavailable: {context}: {error}");
+    CanvasCommandError::unavailable(public_message)
+}
+
+fn invalid_request_with_cause(
+    context: &'static str,
+    public_message: &'static str,
+    error: impl fmt::Display,
+) -> CanvasCommandError {
+    eprintln!("canvas native command invalid request: {context}: {error}");
+    CanvasCommandError::invalid_request(public_message)
 }
 
 #[derive(Clone, Serialize)]
@@ -119,7 +138,13 @@ fn scene_storage_dir<R: Runtime>(app: &AppHandle<R>) -> CommandResult<PathBuf> {
     app.path()
         .app_data_dir()
         .map(|path| path.join("scenes"))
-        .map_err(|_| CanvasCommandError::unavailable("Unable to resolve canvas app data directory."))
+        .map_err(|error| {
+            unavailable_with_cause(
+                "resolve app data directory",
+                "Unable to resolve canvas app data directory.",
+                error,
+            )
+        })
 }
 
 fn resolve_scene_path_in_dir(base_dir: &Path, path: &str) -> CommandResult<PathBuf> {
@@ -162,12 +187,19 @@ fn save_scene_with_app<R: Runtime>(app: &AppHandle<R>, request: SceneSaveRequest
 fn save_scene_in_dir(storage_dir: &Path, request: SceneSaveRequest) -> CommandResult<CanvasScene> {
     validate_scene(&request.scene)?;
     let path = resolve_scene_path_in_dir(storage_dir, &request.path)?;
-    fs::create_dir_all(storage_dir)
-        .map_err(|_| CanvasCommandError::unavailable("Unable to prepare canvas scene storage."))?;
-    let json =
-        serde_json::to_string_pretty(&request.scene).map_err(|_| CanvasCommandError::unavailable("Unable to encode canvas scene JSON."))?;
-    fs::write(path, format!("{json}\n"))
-        .map_err(|_| CanvasCommandError::unavailable("Unable to save canvas scene JSON."))?;
+    fs::create_dir_all(storage_dir).map_err(|error| {
+        unavailable_with_cause(
+            "create scene storage directory",
+            "Unable to prepare canvas scene storage.",
+            error,
+        )
+    })?;
+    let json = serde_json::to_string_pretty(&request.scene).map_err(|error| {
+        unavailable_with_cause("encode scene json", "Unable to encode canvas scene JSON.", error)
+    })?;
+    fs::write(path, format!("{json}\n")).map_err(|error| {
+        unavailable_with_cause("write scene json", "Unable to save canvas scene JSON.", error)
+    })?;
     Ok(request.scene)
 }
 
@@ -182,10 +214,16 @@ fn load_scene_with_app<R: Runtime>(app: &AppHandle<R>, request: SceneLoadRequest
 
 fn load_scene_from_dir(storage_dir: &Path, request: SceneLoadRequest) -> CommandResult<CanvasScene> {
     let path = resolve_scene_path_in_dir(storage_dir, &request.path)?;
-    let json = fs::read_to_string(path)
-        .map_err(|_| CanvasCommandError::unavailable("Unable to load canvas scene JSON."))?;
-    let scene: CanvasScene =
-        serde_json::from_str(&json).map_err(|_| CanvasCommandError::invalid_request("Unable to decode canvas scene JSON."))?;
+    let json = fs::read_to_string(path).map_err(|error| {
+        unavailable_with_cause("read scene json", "Unable to load canvas scene JSON.", error)
+    })?;
+    let scene: CanvasScene = serde_json::from_str(&json).map_err(|error| {
+        invalid_request_with_cause(
+            "decode scene json",
+            "Unable to decode canvas scene JSON.",
+            error,
+        )
+    })?;
     validate_scene(&scene)?;
     Ok(scene)
 }

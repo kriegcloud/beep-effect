@@ -1,12 +1,13 @@
 # @beep/canvas Agent Guide
 
 ## Purpose & Fit
--
+- Private repo-local Tauri 2 + React shell for the canvas bootstrap goal.
 
 ## Surface Map
 | Surface | Key exports | Notes |
 | --- | --- | --- |
-| entry module | VERSION | package entry point |
+| entry module | App, VERSION, command bridge factories | package entry point |
+| Tauri shell | canvas_health, scene_save, scene_load | native command surface |
 
 ## Laws
 - Follow repository laws through command discovery.
@@ -17,7 +18,10 @@
 
 ## Quick Recipes
 ```ts
-import { VERSION } from "@beep/canvas"
+import { makeCanvasCommandBridge, makeCanvasCommandRuntime } from "@beep/canvas"
+
+const runtime = makeCanvasCommandRuntime()
+const bridge = await runtime.runPromise(makeCanvasCommandBridge())
 ```
 
 ## Verifications

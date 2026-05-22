@@ -19,7 +19,11 @@ const makeRepository = (
   );
   let current = initial;
   return {
-    create: (canvasProject) => Effect.succeed(canvasProject),
+    create: (canvasProject) =>
+      Effect.sync(() => {
+        current = canvasProject;
+        return canvasProject;
+      }),
     save: (canvasProject) =>
       canvasProject.id === current.id
         ? Effect.sync(() => {
@@ -162,6 +166,56 @@ describe("CanvasProject use-cases", () => {
         )
         .pipe(Effect.flip);
       expect(error._tag).toBe("CanvasProjectActionRejected");
+    })
+  );
+
+  it.effect(
+    "restores a CanvasProject snapshot through the public use-case contract",
+    Effect.fnUntraced(function* () {
+      const canvasProjectId = yield* decodeCanvasProjectId("canvas-project-1");
+      const canvasNodeId = yield* decodeCanvasNodeId("restored-node");
+      const useCases = CanvasProjectServer.CanvasProject.makeCanvasProjectUseCases(makeRepository(canvasProjectId));
+      const restoredScene = new DomainCanvasProject.CanvasProject({
+        id: canvasProjectId,
+        nodes: [
+          new DomainCanvasProject.CanvasNode({
+            id: canvasNodeId,
+            kind: "asset",
+            label: "Restored node",
+          }),
+        ],
+        status: "open",
+        title: "Restored scene",
+      });
+
+      const restored = yield* useCases.restore(new CanvasProject.RestoreCanvasProjectCommand({ scene: restoredScene }));
+      const loaded = yield* useCases.get(new CanvasProject.GetCanvasProjectQuery({ id: canvasProjectId }));
+
+      expect(restored.title).toBe("Restored scene");
+      expect(loaded.nodes.map((node) => node.id)).toEqual(["restored-node"]);
+    })
+  );
+
+  it.effect(
+    "imports a missing CanvasProject snapshot through restore",
+    Effect.fnUntraced(function* () {
+      const existingCanvasProjectId = yield* decodeCanvasProjectId("canvas-project-1");
+      const importedCanvasProjectId = yield* decodeCanvasProjectId("imported-scene");
+      const useCases = CanvasProjectServer.CanvasProject.makeCanvasProjectUseCases(
+        makeRepository(existingCanvasProjectId)
+      );
+      const importedScene = new DomainCanvasProject.CanvasProject({
+        id: importedCanvasProjectId,
+        nodes: [],
+        status: "open",
+        title: "Imported scene",
+      });
+
+      const imported = yield* useCases.restore(new CanvasProject.RestoreCanvasProjectCommand({ scene: importedScene }));
+      const loaded = yield* useCases.get(new CanvasProject.GetCanvasProjectQuery({ id: importedCanvasProjectId }));
+
+      expect(imported.title).toBe("Imported scene");
+      expect(loaded.id).toBe("imported-scene");
     })
   );
 });

@@ -35,6 +35,7 @@ import {
   type CanvasSceneNode,
   CanvasScene as CanvasSceneSchema,
   decodeCanvasNodeId,
+  decodeCanvasNodeKind,
   decodeCanvasProjectId,
   makeCanvasCommandBridge,
   makeCanvasCommandRuntime,
@@ -64,6 +65,13 @@ const rejectMessage = (message: string): Effect.Effect<never, CanvasCommandError
 
 /**
  * Canvas desktop shell root component.
+ *
+ * @example
+ * ```tsx
+ * import { App } from "@beep/canvas"
+ *
+ * export const CanvasPreview = () => <App />
+ * ```
  *
  * @category components
  * @since 0.0.0
@@ -173,8 +181,11 @@ export function App({
   const createScene = () =>
     runCommand(
       () =>
-        bridge?.sceneCreate({ id: decodeCanvasProjectId(newId("scene")), title: sceneTitle }) ??
-        rejectMessage("Canvas bridge is not ready."),
+        decodeCanvasProjectId(newId("scene")).pipe(
+          Effect.flatMap(
+            (id) => bridge?.sceneCreate({ id, title: sceneTitle }) ?? rejectMessage("Canvas bridge is not ready.")
+          )
+        ),
       "Scene created"
     );
   const addNode = () =>
@@ -182,19 +193,23 @@ export function App({
       ? setMessage("Create a scene first.")
       : runCommand(
           () =>
-            bridge?.sceneNodeAdd({
-              id: selectedScene.id,
-              node: { id: decodeCanvasNodeId(newId("node")), kind: nodeKind, label: nodeLabel },
-            }) ?? rejectMessage("Canvas bridge is not ready."),
+            decodeCanvasNodeId(newId("node")).pipe(
+              Effect.flatMap(
+                (id) =>
+                  bridge?.sceneNodeAdd({
+                    id: selectedScene.id,
+                    node: { id, kind: nodeKind, label: nodeLabel },
+                  }) ?? rejectMessage("Canvas bridge is not ready.")
+              )
+            ),
           "Node added"
         );
-  const removeNode = (nodeId: string) =>
+  const removeNode = (nodeId: CanvasSceneNode["id"]) =>
     selectedScene === undefined
       ? setMessage("Create a scene first.")
       : runCommand(
           () =>
-            bridge?.sceneNodeRemove({ id: selectedScene.id, nodeId: decodeCanvasNodeId(nodeId) }) ??
-            rejectMessage("Canvas bridge is not ready."),
+            bridge?.sceneNodeRemove({ id: selectedScene.id, nodeId }) ?? rejectMessage("Canvas bridge is not ready."),
           "Node removed"
         );
   const archiveScene = () =>
@@ -317,7 +332,15 @@ export function App({
                     </div>
                     <div className="space-y-2">
                       <Label>Kind</Label>
-                      <Select value={nodeKind} onValueChange={(value) => setNodeKind(value as CanvasSceneNode["kind"])}>
+                      <Select
+                        value={nodeKind}
+                        onValueChange={(value) => {
+                          void runtime
+                            .runPromise(decodeCanvasNodeKind(value))
+                            .then(setNodeKind)
+                            .catch((error) => setMessage(messageFromUnknown(error, "Invalid node kind.")));
+                        }}
+                      >
                         <SelectTrigger>
                           <SelectValue />
                         </SelectTrigger>

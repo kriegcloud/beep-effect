@@ -73,28 +73,98 @@ already dirty and unrelated to the canvas closure work.
 - `acceptance`: `bun run changeset:status:since-main` and the final full
   `bun run audit:github quality` passed.
 
+### Read-Only Reviewer Round 1
+
+- `status`: fixed
+- `evidence`: six read-only reviewers found required issues across testing,
+  Effect boundaries, schema-first decoding, architecture boundaries, generated
+  docs, and final quality readiness.
+- `required findings`:
+  - saved scene payloads were returned from native load but not restored into
+    the in-memory use-case repository when a scene already existed.
+  - native success and failure payloads crossed the Tauri boundary as trusted
+    unknown values, and Rust `{ tag, message }` errors lost their message.
+  - scene-load recovery treated all use-case `get` failures as not-found
+    recovery instead of narrowing recovery to repository not-found.
+  - React select/id decoding used synchronous decoders and an unsafe node-kind
+    cast outside the Effect error channel.
+  - Rust JSON/file failures returned redacted public errors but dropped the
+    original cause without a local diagnostic.
+  - `@beep/canvas-server` was imported through the package root instead of the
+    canonical layer subpath.
+  - app tests imported local `src` files instead of the package alias.
+  - public app exports and generated export catalog/docs were stale or missing
+    required examples, and the app README still looked like a package template.
+- `fix`: added `RestoreCanvasProjectCommand` and a `restore` use-case/server
+  surface, restored native load payloads through that use-case, decoded every
+  unknown native/app boundary payload through schemas, preserved structured
+  native error messages, moved React decode work into `ManagedRuntime` effects,
+  logged redacted Rust causes locally, switched server wiring to
+  `@beep/canvas-server/layer`, switched tests to `@beep/canvas`, restored the
+  `VERSION` export, expanded README/AGENTS, refreshed public export catalog
+  data, and added docgen examples for the app surface.
+- `acceptance`: focused Turbo check/lint/test/type-test, Rust tests, schema-first
+  lint, effect-import law check, docgen check, docgen quality, config-sync
+  check, changeset status, `bun run docgen:local -- --full`, and repo export
+  catalog check passed after the fixes.
+
+### Local Docgen Full-Proof Drift
+
+- `status`: fixed
+- `evidence`: `bun run docgen:local` correctly refused bounded mode because
+  `bun.lock` and root `tsconfig.json` are global docgen/Turbo inputs changed by
+  this branch.
+- `fix`: used the repo-local full-proof lane,
+  `bun run docgen:local -- --full`. The first run caught a missing `@since`
+  annotation on the new `CanvasProjectServer` layer re-export; the export was
+  documented and the catalog was regenerated. A later full-proof run caught a
+  JSDoc example import mismatch in the canvas use-case commands; the examples
+  now import the canvas domain namespace instead of aliasing the `CanvasProject`
+  class.
+- `acceptance`: `bun run docgen:local -- --full` passed with `77 successful`,
+  `77 total`, and aggregated `apps/canvas`, `packages/canvas/server`, and
+  `packages/canvas/use-cases` into `docs/canvas`.
+
+### Read-Only Reviewer Round 2
+
+- `status`: fixed, pending final audit rerun
+- `evidence`: second-pass reviewers found the remaining PR-readiness blockers:
+  restored package changelogs were still untracked, final audit evidence was
+  pending, and public `VERSION` constants in `@beep/canvas-server` and
+  `@beep/canvas-use-cases` still reported `0.0.0` while package manifests and
+  changelogs reported `0.0.1`.
+- `fix`: updated both public `VERSION` exports to `0.0.1`, regenerated the
+  export catalog, reran package docgen checks and docgen quality for server and
+  use-cases, and included the restored changelogs in the final canvas closure
+  scope.
+- `acceptance`: focused server/use-cases type check passed, server/use-cases
+  package docgen checks and quality scoring passed, `bun run repo-exports:catalog`
+  and `bun run repo-exports:catalog:check` passed, and
+  `bun run docgen:local -- --full` passed again after the `VERSION` fix.
+
 ## Final Verification
 
 Focused app gates:
 
-- `cd apps/canvas && bun run lint`
-- `cd apps/canvas && bun run check`
-- `cd apps/canvas && bun run test`
-- `cd apps/canvas && bun run build`
+- `bunx turbo run check lint test type-test --filter=@beep/canvas
+  --filter=@beep/canvas-use-cases --filter=@beep/canvas-server`
 
 Focused repo policy gates:
 
 - `bun run beep lint schema-first`
 - `bun run beep laws effect-imports --check`
-- `bun run beep docgen check`
+- `bun run beep docgen check -p apps/canvas`
+- `bun run beep docgen quality -p apps/canvas --json --score codex --output
+  /tmp/beep-canvas-docgen-quality.json`
+- `bun run docgen:local -- --full`
 - `bun run config-sync -- --check`
-- `bun run beep quality repo-exports-catalog --check`
+- `bun run repo-exports:catalog`
+- `bun run repo-exports:catalog:check`
 - `bun run changeset:status:since-main`
 
 Native Tauri gates:
 
-- `cd apps/canvas/src-tauri && cargo check`
-- `cd apps/canvas/src-tauri && cargo test`
+- `cargo test --manifest-path apps/canvas/src-tauri/Cargo.toml`
 
 Full closure gate:
 
@@ -102,13 +172,14 @@ Full closure gate:
 
 Result:
 
-- All focused TypeScript, policy, docgen, catalog, changeset, and app gates
-  passed.
-- Tauri `cargo check` passed.
+- Focused TypeScript check/lint/test/type-test passed across `@beep/canvas`,
+  `@beep/canvas-use-cases`, and `@beep/canvas-server`.
+- Schema-first, effect-import law, app docgen check, app docgen quality,
+  server/use-cases docgen checks and quality, config-sync, repo export catalog,
+  changeset status, and local full-proof docgen passed.
 - Tauri `cargo test` passed with `3 passed`.
-- Final full `bun run audit:github quality` passed, including build, type-check,
-  lint/policy, docgen generate/aggregate, repo export catalog, unit tests, type
-  tests, integration tests, repo sanity, bun audit, and changeset status.
+- Final full `bun run audit:github quality` is rerun after the reviewer fixes
+  before PR handoff.
 
 ## Residual Risks And Warnings
 
@@ -123,5 +194,5 @@ Result:
 
 ## Current Closure Status
 
-The baseline quality gate is green. The next closure step is the read-only
-reviewer panel required by the quality-review-fix loop.
+The round-1 and round-2 required reviewer findings are fixed and focused gates
+are green. The final closure step is the rerun of `bun run audit:github quality`.

@@ -7,11 +7,12 @@
  */
 
 import * as DomainCanvasProject from "@beep/canvas-domain/aggregates/CanvasProject";
-import { CanvasProject as CanvasProjectServer } from "@beep/canvas-server";
+import { CanvasProjectServer, CanvasServerLive } from "@beep/canvas-server/layer";
 import { CanvasProject as CanvasProjectUseCases } from "@beep/canvas-use-cases/public";
 import { $CanvasId } from "@beep/identity/packages";
 import { LiteralKit } from "@beep/schema";
-import { Effect, ManagedRuntime, Match } from "effect";
+import { Effect, ManagedRuntime } from "effect";
+import * as O from "effect/Option";
 import * as S from "effect/Schema";
 
 const $I = $CanvasId.create("commandBridge");
@@ -19,13 +20,30 @@ const $I = $CanvasId.create("commandBridge");
 /**
  * Managed runtime for app-local canvas command effects.
  *
+ * @example
+ * ```ts
+ * import { makeCanvasCommandRuntime } from "@beep/canvas"
+ *
+ * const runtime = makeCanvasCommandRuntime()
+ * void runtime.dispose()
+ * ```
+ *
  * @category commands
  * @since 0.0.0
  */
-export const makeCanvasCommandRuntime = () => ManagedRuntime.make(CanvasProjectServer.CanvasProjectServerLayer);
+export const makeCanvasCommandRuntime = () => ManagedRuntime.make(CanvasServerLive);
 
 /**
  * Runtime returned by {@link makeCanvasCommandRuntime}.
+ *
+ * @example
+ * ```ts
+ * import { makeCanvasCommandRuntime } from "@beep/canvas"
+ * import type { CanvasCommandRuntime } from "@beep/canvas"
+ *
+ * const runtime: CanvasCommandRuntime = makeCanvasCommandRuntime()
+ * void runtime.dispose()
+ * ```
  *
  * @category commands
  * @since 0.0.0
@@ -34,6 +52,13 @@ export type CanvasCommandRuntime = ReturnType<typeof makeCanvasCommandRuntime>;
 
 /**
  * Native command names exposed by the canvas app shell.
+ *
+ * @example
+ * ```ts
+ * import { commandSurface } from "@beep/canvas"
+ *
+ * const exposesSave = commandSurface.includes("scene_save")
+ * ```
  *
  * @category commands
  * @since 0.0.0
@@ -53,6 +78,14 @@ export const commandSurface = [
 /**
  * Native command name schema for the canvas app shell.
  *
+ * @example
+ * ```ts
+ * import { CanvasCommandName } from "@beep/canvas"
+ * import * as S from "effect/Schema"
+ *
+ * const decodeCommandName = S.decodeUnknownEffect(CanvasCommandName)
+ * ```
+ *
  * @category commands
  * @since 0.0.0
  */
@@ -64,6 +97,13 @@ export const CanvasCommandName = LiteralKit(commandSurface).pipe(
 
 /**
  * Type for {@link CanvasCommandName}.
+ *
+ * @example
+ * ```ts
+ * import type { CanvasCommandName } from "@beep/canvas"
+ *
+ * const commandName: CanvasCommandName = "canvas_health"
+ * ```
  *
  * @category models
  * @since 0.0.0
@@ -78,6 +118,18 @@ const CanvasHealthStatus = LiteralKit(["preview", "ready"] as const).pipe(
 
 /**
  * Canvas shell health payload.
+ *
+ * @example
+ * ```ts
+ * import { CanvasHealth } from "@beep/canvas"
+ *
+ * const health = new CanvasHealth({
+ *   app: "@beep/canvas",
+ *   commandSurface: ["canvas_health"],
+ *   persistence: "app-local-json",
+ *   status: "preview",
+ * })
+ * ```
  *
  * @category models
  * @since 0.0.0
@@ -99,6 +151,14 @@ export class CanvasHealth extends S.Class<CanvasHealth>($I`CanvasHealth`)(
 /**
  * Serializable scene shape crossing the app command bridge.
  *
+ * @example
+ * ```ts
+ * import { CanvasScene } from "@beep/canvas"
+ * import * as S from "effect/Schema"
+ *
+ * const decodeScene = S.decodeUnknownEffect(CanvasScene)
+ * ```
+ *
  * @category models
  * @since 0.0.0
  */
@@ -106,6 +166,23 @@ export const CanvasScene = DomainCanvasProject.CanvasProject;
 
 /**
  * Type for {@link CanvasScene}.
+ *
+ * @example
+ * ```ts
+ * import { decodeCanvasProjectId } from "@beep/canvas"
+ * import type { CanvasScene } from "@beep/canvas"
+ * import { Effect } from "effect"
+ *
+ * const sceneEffect = Effect.gen(function* () {
+ *   const id = yield* decodeCanvasProjectId("scene-1")
+ *   return {
+ *     id,
+ *     title: "Scene 1",
+ *     status: "open",
+ *     nodes: [],
+ *   } satisfies CanvasScene
+ * })
+ * ```
  *
  * @category models
  * @since 0.0.0
@@ -115,6 +192,14 @@ export type CanvasScene = typeof CanvasScene.Type;
 /**
  * Serializable node shape crossing the app command bridge.
  *
+ * @example
+ * ```ts
+ * import { CanvasSceneNode } from "@beep/canvas"
+ * import * as S from "effect/Schema"
+ *
+ * const decodeNode = S.decodeUnknownEffect(CanvasSceneNode)
+ * ```
+ *
  * @category models
  * @since 0.0.0
  */
@@ -123,6 +208,22 @@ export const CanvasSceneNode = DomainCanvasProject.CanvasNode;
 /**
  * Type for {@link CanvasSceneNode}.
  *
+ * @example
+ * ```ts
+ * import { decodeCanvasNodeId } from "@beep/canvas"
+ * import type { CanvasSceneNode } from "@beep/canvas"
+ * import { Effect } from "effect"
+ *
+ * const nodeEffect = Effect.gen(function* () {
+ *   const id = yield* decodeCanvasNodeId("node-1")
+ *   return {
+ *     id,
+ *     kind: "note",
+ *     label: "Opening note",
+ *   } satisfies CanvasSceneNode
+ * })
+ * ```
+ *
  * @category models
  * @since 0.0.0
  */
@@ -130,6 +231,24 @@ export type CanvasSceneNode = typeof CanvasSceneNode.Type;
 
 /**
  * Scene save request.
+ *
+ * @example
+ * ```ts
+ * import { decodeCanvasProjectId, SceneSaveRequest } from "@beep/canvas"
+ * import type { CanvasScene } from "@beep/canvas"
+ * import { Effect } from "effect"
+ *
+ * const requestEffect = Effect.gen(function* () {
+ *   const id = yield* decodeCanvasProjectId("scene-1")
+ *   const scene = {
+ *     id,
+ *     title: "Scene 1",
+ *     status: "open",
+ *     nodes: [],
+ *   } satisfies CanvasScene
+ *   return new SceneSaveRequest({ path: "scene-1.json", scene })
+ * })
+ * ```
  *
  * @category models
  * @since 0.0.0
@@ -147,6 +266,13 @@ export class SceneSaveRequest extends S.Class<SceneSaveRequest>($I`SceneSaveRequ
 
 /**
  * Scene load request.
+ *
+ * @example
+ * ```ts
+ * import { SceneLoadRequest } from "@beep/canvas"
+ *
+ * const request = new SceneLoadRequest({ path: "scene-1.json" })
+ * ```
  *
  * @category models
  * @since 0.0.0
@@ -191,10 +317,17 @@ type CanvasCommandBridge = {
   readonly sceneSave: (request: SceneSaveRequest) => Effect.Effect<CanvasScene, CanvasCommandError>;
 };
 
-type NativeInvoke = <A>(command: string, args?: Record<string, unknown>) => Promise<A>;
+type NativeInvoke = (command: string, args?: Record<string, unknown>) => Promise<unknown>;
 
 /**
  * Browser preview health payload.
+ *
+ * @example
+ * ```ts
+ * import { previewHealth } from "@beep/canvas"
+ *
+ * console.log(previewHealth.status)
+ * ```
  *
  * @category commands
  * @since 0.0.0
@@ -209,6 +342,13 @@ export const previewHealth: CanvasHealth = {
 /**
  * App command bridge failure.
  *
+ * @example
+ * ```ts
+ * import { CanvasCommandError } from "@beep/canvas"
+ *
+ * const error = new CanvasCommandError({ message: "Canvas bridge is offline." })
+ * ```
+ *
  * @category errors
  * @since 0.0.0
  */
@@ -216,20 +356,44 @@ export class CanvasCommandError extends S.TaggedErrorClass<CanvasCommandError>($
   "CanvasCommandError",
   {
     message: S.String,
-  }
+  },
+  $I.annote("CanvasCommandError", {
+    title: "Canvas command error",
+    description: "Typed app command bridge failure.",
+  })
 ) {}
 
+class NativeCanvasCommandError extends S.Class<NativeCanvasCommandError>($I`NativeCanvasCommandError`)(
+  {
+    message: S.String,
+    tag: S.String,
+  },
+  $I.annote("NativeCanvasCommandError", {
+    title: "Native canvas command error",
+    description: "Wire error payload returned by native Tauri canvas commands.",
+  })
+) {}
 const isCanvasCommandError = S.is(CanvasCommandError);
 const isString = S.is(S.String);
+const decodeNativeCanvasCommandErrorOption = S.decodeUnknownOption(NativeCanvasCommandError);
 
 const isDesktopShellRuntime = (): boolean => "__TAURI__" in globalThis || "__TAURI_INTERNALS__" in globalThis;
 
-const errorMessage = (error: unknown): string =>
-  Match.value(error).pipe(
-    Match.when(isString, (value) => value),
-    Match.when(isCanvasCommandError, (value) => value.message),
-    Match.orElse(() => "Canvas command failed.")
-  );
+const nativeCanvasCommandErrorMessage = (error: unknown): string | undefined =>
+  O.match(decodeNativeCanvasCommandErrorOption(error), {
+    onNone: () => undefined,
+    onSome: (value) => value.message,
+  });
+
+const errorMessage = (error: unknown): string => {
+  if (isString(error)) {
+    return error;
+  }
+  if (isCanvasCommandError(error)) {
+    return error.message;
+  }
+  return nativeCanvasCommandErrorMessage(error) ?? "Canvas command failed.";
+};
 
 const publicErrorMessage = (error: CanvasProjectUseCases.CanvasProjectActionError): string =>
   `${error._tag}: ${"reason" in error ? error.reason : "canvasProjectId" in error ? error.canvasProjectId : "unknown"}`;
@@ -242,6 +406,63 @@ const decodeCanvasScene = (scene: unknown): Effect.Effect<CanvasScene, CanvasCom
     Effect.mapError((error) => new CanvasCommandError({ message: error.message }))
   );
 
+const decodeCanvasHealth = (health: unknown): Effect.Effect<CanvasHealth, CanvasCommandError> =>
+  S.decodeUnknownEffect(CanvasHealth)(health).pipe(
+    Effect.mapError((error) => new CanvasCommandError({ message: error.message }))
+  );
+
+const decodeSceneSaveRequest = (request: unknown): Effect.Effect<SceneSaveRequest, CanvasCommandError> =>
+  S.decodeUnknownEffect(SceneSaveRequest)(request).pipe(
+    Effect.mapError((error) => new CanvasCommandError({ message: error.message }))
+  );
+
+const decodeSceneLoadRequest = (request: unknown): Effect.Effect<SceneLoadRequest, CanvasCommandError> =>
+  S.decodeUnknownEffect(SceneLoadRequest)(request).pipe(
+    Effect.mapError((error) => new CanvasCommandError({ message: error.message }))
+  );
+
+const decodeCreateCanvasProjectCommand = (
+  command: unknown
+): Effect.Effect<CanvasProjectUseCases.CreateCanvasProjectCommand, CanvasCommandError> =>
+  S.decodeUnknownEffect(CanvasProjectUseCases.CreateCanvasProjectCommand)(command).pipe(
+    Effect.mapError((error) => new CanvasCommandError({ message: error.message }))
+  );
+
+const decodeArchiveCanvasProjectCommand = (
+  command: unknown
+): Effect.Effect<CanvasProjectUseCases.ArchiveCanvasProjectCommand, CanvasCommandError> =>
+  S.decodeUnknownEffect(CanvasProjectUseCases.ArchiveCanvasProjectCommand)(command).pipe(
+    Effect.mapError((error) => new CanvasCommandError({ message: error.message }))
+  );
+
+const decodeAddCanvasNodeCommand = (
+  command: unknown
+): Effect.Effect<CanvasProjectUseCases.AddCanvasNodeCommand, CanvasCommandError> =>
+  S.decodeUnknownEffect(CanvasProjectUseCases.AddCanvasNodeCommand)(command).pipe(
+    Effect.mapError((error) => new CanvasCommandError({ message: error.message }))
+  );
+
+const decodeRemoveCanvasNodeCommand = (
+  command: unknown
+): Effect.Effect<CanvasProjectUseCases.RemoveCanvasNodeCommand, CanvasCommandError> =>
+  S.decodeUnknownEffect(CanvasProjectUseCases.RemoveCanvasNodeCommand)(command).pipe(
+    Effect.mapError((error) => new CanvasCommandError({ message: error.message }))
+  );
+
+const decodeGetCanvasProjectQuery = (
+  query: unknown
+): Effect.Effect<CanvasProjectUseCases.GetCanvasProjectQuery, CanvasCommandError> =>
+  S.decodeUnknownEffect(CanvasProjectUseCases.GetCanvasProjectQuery)(query).pipe(
+    Effect.mapError((error) => new CanvasCommandError({ message: error.message }))
+  );
+
+const decodeListCanvasProjectsQuery = (
+  query: unknown
+): Effect.Effect<CanvasProjectUseCases.ListCanvasProjectsQuery, CanvasCommandError> =>
+  S.decodeUnknownEffect(CanvasProjectUseCases.ListCanvasProjectsQuery)(query).pipe(
+    Effect.mapError((error) => new CanvasCommandError({ message: error.message }))
+  );
+
 const runAppEffect = <A>(
   effect: Effect.Effect<A, CanvasProjectUseCases.CanvasProjectActionError>
 ): Effect.Effect<A, CanvasCommandError> => effect.pipe(Effect.mapError(toCommandError));
@@ -249,41 +470,96 @@ const runAppEffect = <A>(
 /**
  * Effect that builds or runs against the app-local canvas command bridge.
  *
+ * @example
+ * ```ts
+ * import { makePreviewCanvasCommandBridge } from "@beep/canvas"
+ * import type { CanvasCommandBridgeEffect } from "@beep/canvas"
+ *
+ * const bridgeEffect: CanvasCommandBridgeEffect = makePreviewCanvasCommandBridge()
+ * ```
+ *
  * @category commands
  * @since 0.0.0
  */
 export type CanvasCommandBridgeEffect<A = CanvasCommandBridge> = Effect.Effect<
   A,
   CanvasCommandError,
-  CanvasProjectServer.CanvasProjectServer
+  CanvasProjectServer
 >;
 
 /**
  * Decode a user-provided string into a canvas project identifier.
  *
- * @category commands
- * @since 0.0.0
- */
-export const decodeCanvasProjectId = (id: string): DomainCanvasProject.CanvasProjectId =>
-  S.decodeUnknownSync(DomainCanvasProject.CanvasProjectId)(id);
-
-/**
- * Decode a user-provided string into a canvas node identifier.
+ * @example
+ * ```ts
+ * import { decodeCanvasProjectId } from "@beep/canvas"
+ *
+ * const idEffect = decodeCanvasProjectId("scene-1")
+ * ```
  *
  * @category commands
  * @since 0.0.0
  */
-export const decodeCanvasNodeId = (id: string): DomainCanvasProject.CanvasNodeId =>
-  S.decodeUnknownSync(DomainCanvasProject.CanvasNodeId)(id);
+export const decodeCanvasProjectId = (
+  id: string
+): Effect.Effect<DomainCanvasProject.CanvasProjectId, CanvasCommandError> =>
+  S.decodeUnknownEffect(DomainCanvasProject.CanvasProjectId)(id).pipe(
+    Effect.mapError((error) => new CanvasCommandError({ message: error.message }))
+  );
+
+/**
+ * Decode a user-provided string into a canvas node identifier.
+ *
+ * @example
+ * ```ts
+ * import { decodeCanvasNodeId } from "@beep/canvas"
+ *
+ * const idEffect = decodeCanvasNodeId("node-1")
+ * ```
+ *
+ * @category commands
+ * @since 0.0.0
+ */
+export const decodeCanvasNodeId = (id: string): Effect.Effect<DomainCanvasProject.CanvasNodeId, CanvasCommandError> =>
+  S.decodeUnknownEffect(DomainCanvasProject.CanvasNodeId)(id).pipe(
+    Effect.mapError((error) => new CanvasCommandError({ message: error.message }))
+  );
+
+/**
+ * Decode a user-provided value into a canvas node kind.
+ *
+ * @example
+ * ```ts
+ * import { decodeCanvasNodeKind } from "@beep/canvas"
+ *
+ * const kindEffect = decodeCanvasNodeKind("note")
+ * ```
+ *
+ * @category commands
+ * @since 0.0.0
+ */
+export const decodeCanvasNodeKind = (
+  kind: unknown
+): Effect.Effect<DomainCanvasProject.CanvasNodeKind, CanvasCommandError> =>
+  S.decodeUnknownEffect(DomainCanvasProject.CanvasNodeKind)(kind).pipe(
+    Effect.mapError((error) => new CanvasCommandError({ message: error.message }))
+  );
 
 /**
  * Build a browser-safe preview bridge backed by the public CanvasProject use-case contract.
+ *
+ * @example
+ * ```ts
+ * import { makePreviewCanvasCommandBridge } from "@beep/canvas"
+ *
+ * const bridgeEffect = makePreviewCanvasCommandBridge()
+ * ```
  *
  * @category commands
  * @since 0.0.0
  */
 export const makePreviewCanvasCommandBridge = (): CanvasCommandBridgeEffect =>
-  Effect.map(CanvasProjectServer.CanvasProjectServer, (useCases) => {
+  Effect.map(CanvasProjectServer, (useCases) => {
     let savedScene: CanvasScene | undefined;
 
     return makeUseCaseCanvasCommandBridge(useCases, {
@@ -311,22 +587,7 @@ const loadThroughUseCases = (
 ): Effect.Effect<CanvasScene, CanvasCommandError> =>
   decodeCanvasScene(scene).pipe(
     Effect.flatMap((decoded) =>
-      runAppEffect(useCases.get({ id: decoded.id })).pipe(
-        Effect.catch(() =>
-          runAppEffect(useCases.create({ id: decoded.id, title: decoded.title })).pipe(
-            Effect.flatMap(() =>
-              Effect.forEach(decoded.nodes, (node) => runAppEffect(useCases.addNode({ id: decoded.id, node })), {
-                concurrency: 1,
-              })
-            ),
-            Effect.flatMap(() =>
-              decoded.status === "archived"
-                ? runAppEffect(useCases.archive({ id: decoded.id }))
-                : Effect.succeed(decoded)
-            )
-          )
-        )
-      )
+      runAppEffect(useCases.restore(new CanvasProjectUseCases.RestoreCanvasProjectCommand({ scene: decoded })))
     )
   );
 
@@ -339,28 +600,41 @@ const makeUseCaseCanvasCommandBridge = (
   }
 ): CanvasCommandBridge => ({
   canvasHealth: persistence.canvasHealth,
-  sceneArchive: (command) => runAppEffect(useCases.archive(command)),
-  sceneCreate: (command) => runAppEffect(useCases.create(command)),
-  sceneGet: (query) => runAppEffect(useCases.get(query)),
-  sceneList: (query = new CanvasProjectUseCases.ListCanvasProjectsQuery({})) => runAppEffect(useCases.list(query)),
+  sceneArchive: (command) =>
+    decodeArchiveCanvasProjectCommand(command).pipe(
+      Effect.flatMap((decoded) => runAppEffect(useCases.archive(decoded)))
+    ),
+  sceneCreate: (command) =>
+    decodeCreateCanvasProjectCommand(command).pipe(Effect.flatMap((decoded) => runAppEffect(useCases.create(decoded)))),
+  sceneGet: (query) =>
+    decodeGetCanvasProjectQuery(query).pipe(Effect.flatMap((decoded) => runAppEffect(useCases.get(decoded)))),
+  sceneList: (query) =>
+    decodeListCanvasProjectsQuery(query ?? {}).pipe(Effect.flatMap((decoded) => runAppEffect(useCases.list(decoded)))),
   sceneLoad: (request) =>
-    persistence.loadScene(request).pipe(Effect.flatMap((scene) => loadThroughUseCases(useCases, scene))),
-  sceneNodeAdd: (command) => runAppEffect(useCases.addNode(command)),
-  sceneNodeRemove: (command) => runAppEffect(useCases.removeNode(command)),
-  sceneSave: ({ path, scene }) =>
-    decodeCanvasScene(scene).pipe(Effect.flatMap((decoded) => persistence.saveScene({ path, scene: decoded }))),
+    decodeSceneLoadRequest(request).pipe(
+      Effect.flatMap(persistence.loadScene),
+      Effect.flatMap((scene) => loadThroughUseCases(useCases, scene))
+    ),
+  sceneNodeAdd: (command) =>
+    decodeAddCanvasNodeCommand(command).pipe(Effect.flatMap((decoded) => runAppEffect(useCases.addNode(decoded)))),
+  sceneNodeRemove: (command) =>
+    decodeRemoveCanvasNodeCommand(command).pipe(
+      Effect.flatMap((decoded) => runAppEffect(useCases.removeNode(decoded)))
+    ),
+  sceneSave: (request) =>
+    decodeSceneSaveRequest(request).pipe(Effect.flatMap((decoded) => persistence.saveScene(decoded))),
 });
 
-const invokeNative = <A>(command: string, args?: Record<string, unknown>): Promise<A> =>
-  import("@tauri-apps/api/core").then(({ invoke }) => invoke<A>(command, args));
+const invokeNative = (command: string, args?: Record<string, unknown>): Promise<unknown> =>
+  import("@tauri-apps/api/core").then(({ invoke }) => invoke(command, args));
 
-const invokeNativeEffect = <A>(
+const invokeNativeEffect = (
   invoke: NativeInvoke,
   command: string,
   args?: Record<string, unknown>
-): Effect.Effect<A, CanvasCommandError> =>
+): Effect.Effect<unknown, CanvasCommandError> =>
   Effect.tryPromise({
-    try: () => invoke<A>(command, args),
+    try: () => invoke(command, args),
     catch: (error) => new CanvasCommandError({ message: errorMessage(error) }),
   });
 
@@ -368,20 +642,36 @@ const invokeNativeEffect = <A>(
  * Build the desktop bridge: Tauri owns only app-local OS/file IO while scene
  * mutations stay in the public CanvasProject use-case contract.
  *
+ * @example
+ * ```ts
+ * import { makeNativeCanvasCommandBridge } from "@beep/canvas"
+ *
+ * const bridgeEffect = makeNativeCanvasCommandBridge()
+ * ```
+ *
  * @category commands
  * @since 0.0.0
  */
 export const makeNativeCanvasCommandBridge = (invoke: NativeInvoke = invokeNative): CanvasCommandBridgeEffect =>
-  Effect.map(CanvasProjectServer.CanvasProjectServer, (useCases) =>
+  Effect.map(CanvasProjectServer, (useCases) =>
     makeUseCaseCanvasCommandBridge(useCases, {
-      canvasHealth: () => invokeNativeEffect(invoke, "canvas_health"),
-      loadScene: (request) => invokeNativeEffect(invoke, "scene_load", { request }),
-      saveScene: (request) => invokeNativeEffect(invoke, "scene_save", { request }),
+      canvasHealth: () => invokeNativeEffect(invoke, "canvas_health").pipe(Effect.flatMap(decodeCanvasHealth)),
+      loadScene: (request) =>
+        invokeNativeEffect(invoke, "scene_load", { request }).pipe(Effect.flatMap(decodeCanvasScene)),
+      saveScene: (request) =>
+        invokeNativeEffect(invoke, "scene_save", { request }).pipe(Effect.flatMap(decodeCanvasScene)),
     })
   );
 
 /**
  * Build the default app command bridge.
+ *
+ * @example
+ * ```ts
+ * import { makeCanvasCommandBridge } from "@beep/canvas"
+ *
+ * const bridgeEffect = makeCanvasCommandBridge()
+ * ```
  *
  * @category commands
  * @since 0.0.0
