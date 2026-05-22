@@ -127,7 +127,7 @@ already dirty and unrelated to the canvas closure work.
 
 ### Read-Only Reviewer Round 2
 
-- `status`: fixed, pending final audit rerun
+- `status`: fixed
 - `evidence`: second-pass reviewers found the remaining PR-readiness blockers:
   restored package changelogs were still untracked, final audit evidence was
   pending, and public `VERSION` constants in `@beep/canvas-server` and
@@ -140,7 +140,8 @@ already dirty and unrelated to the canvas closure work.
 - `acceptance`: focused server/use-cases type check passed, server/use-cases
   package docgen checks and quality scoring passed, `bun run repo-exports:catalog`
   and `bun run repo-exports:catalog:check` passed, and
-  `bun run docgen:local -- --full` passed again after the `VERSION` fix.
+  `bun run docgen:local -- --full` passed again after the `VERSION` fix. After
+  merging `origin/main`, the final full `bun run audit:github quality` passed.
 
 ## Final Verification
 
@@ -178,8 +179,8 @@ Result:
   server/use-cases docgen checks and quality, config-sync, repo export catalog,
   changeset status, and local full-proof docgen passed.
 - Tauri `cargo test` passed with `3 passed`.
-- Final full `bun run audit:github quality` is rerun after the reviewer fixes
-  before PR handoff.
+- Final full `bun run audit:github quality` passed on the merged PR head before
+  PR handoff.
 
 ## Residual Risks And Warnings
 
@@ -194,5 +195,6 @@ Result:
 
 ## Current Closure Status
 
-The round-1 and round-2 required reviewer findings are fixed and focused gates
-are green. The final closure step is the rerun of `bun run audit:github quality`.
+The round-1 and round-2 required reviewer findings are fixed, focused gates are
+green, the branch is merged with `origin/main`, and the final full
+`bun run audit:github quality` passed. The canvas PR is ready for review.
