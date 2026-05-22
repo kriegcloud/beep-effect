@@ -234,7 +234,7 @@ export * as Cache from "./Cache.ts"
  *
  * ## Gotchas
  *
- * - `findError`/`findDefect` return `Filter.fail` (not `Option.none`) when no match is
+ * - `findError`/`findDefect` return `Result.fail` (not `Option.none`) when no match is
  *   found. Use {@link findErrorOption} if you need an `Option`.
  * - `squash` picks the first `Fail` error, then the first `Die` defect, then falls back
  *   to a generic "interrupted" / "empty" error. It is lossy — use `prettyErrors` or
@@ -261,21 +261,19 @@ export * as Cache from "./Cache.ts"
  *   const errors = cause.reasons
  *     .filter(Cause.isFailReason)
  *     .map((r) => r.error)
+ *     .sort()
  *
  *   const defects = cause.reasons
  *     .filter(Cause.isDieReason)
- *     .map((r) => r.defect)
+ *     .map((r) => String(r.defect))
+ *     .sort()
  *
- *   console.log(errors)  // ["err1", "err2"]  (order may vary)
- *   console.log(defects) // ["defect"]
+ *   console.log(errors.join(",")) // "err1,err2"
+ *   console.log(defects.join(",")) // "defect"
  * })
  *
  * Effect.runPromise(program)
  * ```
- *
- * @see {@link Cause} — the core interface
- * @see {@link Reason} — the union of failure kinds
- * @see {@link pretty} — human-readable rendering
  *
  * @since 2.0.0
  */
@@ -1573,7 +1571,7 @@ export * as ExecutionPlan from "./ExecutionPlan.ts"
  *
  * - A `Failure` wraps a `Cause<E>`, not a bare `E`. Use Cause utilities to drill into it.
  * - {@link mapError} and {@link mapBoth} only transform typed errors (Fail reasons in the Cause). If the Cause contains only defects or interruptions, the original failure passes through unchanged.
- * - Filter-based APIs ({@link filterSuccess}, {@link filterValue}, etc.) return `Filter.fail` markers for pipeline composition. They are not `Option` values or Effect failures.
+ * - Filter-based APIs ({@link filterSuccess}, {@link filterValue}, etc.) return `Result.fail` values for pipeline composition. They are not `Option` values or Effect failures.
  * - {@link findError} and {@link findDefect} return only the first matching reason from the Cause.
  *
  * ## Quickstart
@@ -2595,17 +2593,28 @@ export * as Latch from "./Latch.ts"
  * application. Services can be injected into effects via
  * `Effect.provideService`. Effects can require services via `Effect.service`.
  *
- * Layer can be thought of as recipes for producing bundles of services, given
- * their dependencies (other services).
+ * A layer is a recipe for producing services from their dependencies:
  *
- * Construction of services can be effectful and utilize resources that must be
- * acquired and safely released when the services are done being utilized.
+ * - `ROut` is what the layer provides.
+ * - `E` is what can fail while building the layer.
+ * - `RIn` is what the layer needs in order to build.
  *
- * By default layers are shared, meaning that if the same layer is used twice
- * the layer will only be allocated a single time.
+ * Normal application code should ask for services. Layer code should create
+ * services. The application entry point should provide the final layer once.
+ * Keeping this boundary clear makes programs easier to reuse with production,
+ * test, or mock implementations.
+ *
+ * Construction of services can be effectful and can acquire resources that must
+ * be safely released when the services are no longer used. For example, a layer
+ * can open a database pool during acquisition and close it in a finalizer.
+ *
+ * Layers are lazy: they do not build anything until they are provided to a
+ * program or explicitly built. By default layers are shared, meaning that if the
+ * same layer value is used twice, it is allocated only once and both users share
+ * the same service instance.
  *
  * Because of their excellent composition properties, layers are the idiomatic
- * way in Effect-TS to create services that depend on other services.
+ * way in Effect to create services that depend on other services.
  *
  * @since 2.0.0
  */
