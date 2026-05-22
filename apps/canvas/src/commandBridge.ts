@@ -395,8 +395,12 @@ const errorMessage = (error: unknown): string => {
   return nativeCanvasCommandErrorMessage(error) ?? "Canvas command failed.";
 };
 
+const isActionFailed = S.is(CanvasProjectUseCases.CanvasProjectActionFailed);
+
 const publicErrorMessage = (error: CanvasProjectUseCases.CanvasProjectActionError): string =>
-  `${error._tag}: ${"reason" in error ? error.reason : "canvasProjectId" in error ? error.canvasProjectId : "unknown"}`;
+  isActionFailed(error)
+    ? `${error._tag}: ${CanvasProjectUseCases.CANVAS_PROJECT_ACTION_UNAVAILABLE_REASON}`
+    : `${error._tag}: ${"reason" in error ? error.reason : "canvasProjectId" in error ? error.canvasProjectId : "unknown"}`;
 
 const toCommandError = (error: CanvasProjectUseCases.CanvasProjectActionError): CanvasCommandError =>
   new CanvasCommandError({ message: publicErrorMessage(error) });

@@ -23,7 +23,7 @@ import {
   MinusCircleIcon,
   PlusCircleIcon,
 } from "@phosphor-icons/react";
-import { Effect } from "effect";
+import { Effect, Random } from "effect";
 import * as S from "effect/Schema";
 import { useEffect, useMemo, useState } from "react";
 import {
@@ -48,11 +48,11 @@ type LoadState =
   | { readonly _tag: "loaded"; readonly bridge: CanvasCommandBridge; readonly health: CanvasHealth }
   | { readonly _tag: "failed"; readonly message: string };
 
-let nextLocalId = 0;
-const newId = (prefix: string): string => {
-  nextLocalId += 1;
-  return `${prefix}-${nextLocalId.toString(36)}`;
-};
+const newId = (prefix: string): Effect.Effect<string> =>
+  Effect.all([
+    Random.nextIntBetween(0, 0x100000000, { halfOpen: true }),
+    Random.nextIntBetween(0, 0x100000000, { halfOpen: true }),
+  ]).pipe(Effect.map(([left, right]) => `${prefix}-${left.toString(36)}-${right.toString(36)}`));
 const firstOpenScene = (scenes: ReadonlyArray<CanvasScene>): CanvasScene | undefined =>
   scenes.find((scene) => scene.status === "open") ?? scenes[0];
 const isCanvasSceneList = S.is(CanvasSceneSchema.pipe(S.Array));
@@ -181,7 +181,8 @@ export function App({
   const createScene = () =>
     runCommand(
       () =>
-        decodeCanvasProjectId(newId("scene")).pipe(
+        newId("scene").pipe(
+          Effect.flatMap(decodeCanvasProjectId),
           Effect.flatMap(
             (id) => bridge?.sceneCreate({ id, title: sceneTitle }) ?? rejectMessage("Canvas bridge is not ready.")
           )
@@ -193,7 +194,8 @@ export function App({
       ? setMessage("Create a scene first.")
       : runCommand(
           () =>
-            decodeCanvasNodeId(newId("node")).pipe(
+            newId("node").pipe(
+              Effect.flatMap(decodeCanvasNodeId),
               Effect.flatMap(
                 (id) =>
                   bridge?.sceneNodeAdd({

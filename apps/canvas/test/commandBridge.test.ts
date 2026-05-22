@@ -194,13 +194,17 @@ describe("canvas command bridge", () => {
         const healthError = yield* bridge.canvasHealth().pipe(
           Effect.match({
             onFailure: (error) => error,
-            onSuccess: () => new CanvasCommandError({ message: "Expected native health decode to fail." }),
+            onSuccess: () => {
+              throw new Error("Expected native health decode to fail.");
+            },
           })
         );
         const loadError = yield* bridge.sceneLoad({ path: "bad.txt" }).pipe(
           Effect.match({
             onFailure: (error) => error,
-            onSuccess: () => new CanvasCommandError({ message: "Expected native load to fail." }),
+            onSuccess: () => {
+              throw new Error("Expected native load to fail.");
+            },
           })
         );
 
@@ -218,7 +222,9 @@ describe("canvas command bridge", () => {
         const error = yield* saveUnknown(undefined).pipe(
           Effect.match({
             onFailure: (error) => error,
-            onSuccess: () => new CanvasCommandError({ message: "Expected scene save decode to fail." }),
+            onSuccess: () => {
+              throw new Error("Expected scene save decode to fail.");
+            },
           })
         );
 

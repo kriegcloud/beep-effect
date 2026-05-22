@@ -12557,7 +12557,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | Import | Symbol | Kind | Source | Summary |
 |---|---|---|---|---|
 | `@beep/canvas` | `App` | function | `apps/canvas/src/App.tsx:79` | Canvas desktop shell root component. |
-| `@beep/canvas` | `CanvasCommandBridgeEffect` | type | `apps/canvas/src/commandBridge.ts:484` | Effect that builds or runs against the app-local canvas command bridge. |
+| `@beep/canvas` | `CanvasCommandBridgeEffect` | type | `apps/canvas/src/commandBridge.ts:488` | Effect that builds or runs against the app-local canvas command bridge. |
 | `@beep/canvas` | `CanvasCommandError` | class | `apps/canvas/src/commandBridge.ts:355` | App command bridge failure. |
 | `@beep/canvas` | `CanvasCommandName` | const | `apps/canvas/src/commandBridge.ts:92` | Native command name schema for the canvas app shell. |
 | `@beep/canvas` | `CanvasCommandName` | type | `apps/canvas/src/commandBridge.ts:111` | Type for {@link CanvasCommandName}. |
@@ -12568,13 +12568,13 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/canvas` | `CanvasSceneNode` | const | `apps/canvas/src/commandBridge.ts:206` | Serializable node shape crossing the app command bridge. |
 | `@beep/canvas` | `CanvasSceneNode` | type | `apps/canvas/src/commandBridge.ts:230` | Type for {@link CanvasSceneNode}. |
 | `@beep/canvas` | `commandSurface` | const | `apps/canvas/src/commandBridge.ts:66` | Native command names exposed by the canvas app shell. |
-| `@beep/canvas` | `decodeCanvasNodeId` | const | `apps/canvas/src/commandBridge.ts:523` | Decode a user-provided string into a canvas node identifier. |
-| `@beep/canvas` | `decodeCanvasNodeKind` | const | `apps/canvas/src/commandBridge.ts:541` | Decode a user-provided value into a canvas node kind. |
-| `@beep/canvas` | `decodeCanvasProjectId` | const | `apps/canvas/src/commandBridge.ts:503` | Decode a user-provided string into a canvas project identifier. |
-| `@beep/canvas` | `makeCanvasCommandBridge` | const | `apps/canvas/src/commandBridge.ts:681` | Build the default app command bridge. |
+| `@beep/canvas` | `decodeCanvasNodeId` | const | `apps/canvas/src/commandBridge.ts:527` | Decode a user-provided string into a canvas node identifier. |
+| `@beep/canvas` | `decodeCanvasNodeKind` | const | `apps/canvas/src/commandBridge.ts:545` | Decode a user-provided value into a canvas node kind. |
+| `@beep/canvas` | `decodeCanvasProjectId` | const | `apps/canvas/src/commandBridge.ts:507` | Decode a user-provided string into a canvas project identifier. |
+| `@beep/canvas` | `makeCanvasCommandBridge` | const | `apps/canvas/src/commandBridge.ts:685` | Build the default app command bridge. |
 | `@beep/canvas` | `makeCanvasCommandRuntime` | const | `apps/canvas/src/commandBridge.ts:34` | Managed runtime for app-local canvas command effects. |
-| `@beep/canvas` | `makeNativeCanvasCommandBridge` | const | `apps/canvas/src/commandBridge.ts:657` | Build the desktop bridge: Tauri owns only app-local OS/file IO while scene |
-| `@beep/canvas` | `makePreviewCanvasCommandBridge` | const | `apps/canvas/src/commandBridge.ts:561` | Build a browser-safe preview bridge backed by the public CanvasProject use-case contract. |
+| `@beep/canvas` | `makeNativeCanvasCommandBridge` | const | `apps/canvas/src/commandBridge.ts:661` | Build the desktop bridge: Tauri owns only app-local OS/file IO while scene |
+| `@beep/canvas` | `makePreviewCanvasCommandBridge` | const | `apps/canvas/src/commandBridge.ts:565` | Build a browser-safe preview bridge backed by the public CanvasProject use-case contract. |
 | `@beep/canvas` | `previewHealth` | const | `apps/canvas/src/commandBridge.ts:335` | Browser preview health payload. |
 | `@beep/canvas` | `SceneLoadRequest` | class | `apps/canvas/src/commandBridge.ts:280` | Scene load request. |
 | `@beep/canvas` | `SceneSaveRequest` | class | `apps/canvas/src/commandBridge.ts:256` | Scene save request. |
