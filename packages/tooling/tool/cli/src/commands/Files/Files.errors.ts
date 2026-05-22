@@ -13,9 +13,14 @@ import * as S from "effect/Schema";
 
 const $I = $RepoCliId.create("commands/Files/Files.errors");
 
-interface PlatformErrorOptions {
-  readonly cause: unknown;
-}
+class PlatformErrorOptions extends S.Class<PlatformErrorOptions>($I`PlatformErrorOptions`)(
+  {
+    cause: S.DefectWithStack,
+  },
+  $I.annote("PlatformErrorOptions", {
+    description: "Options for platform errors, including a cause.",
+  })
+) {}
 
 /**
  * Error raised by file curation commands.

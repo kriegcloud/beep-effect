@@ -35,7 +35,7 @@ const AES_GCM_NONCE_BYTES = 12;
 export class AiMetricsArchiveError extends TaggedErrorClass<AiMetricsArchiveError>($I`AiMetricsArchiveError`)(
   "AiMetricsArchiveError",
   {
-    cause: S.Unknown,
+    cause: S.DefectWithStack,
     message: S.String,
   },
   $I.annote("AiMetricsArchiveError", {

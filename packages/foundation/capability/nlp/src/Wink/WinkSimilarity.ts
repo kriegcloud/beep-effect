@@ -157,7 +157,7 @@ export class SimilarityScore extends S.Class<SimilarityScore>($I`SimilarityScore
 export class SimilarityError extends TaggedErrorClass<SimilarityError>($I`SimilarityError`)(
   "SimilarityError",
   {
-    cause: S.Unknown,
+    cause: S.DefectWithStack,
     message: S.String,
     operation: S.String,
   },

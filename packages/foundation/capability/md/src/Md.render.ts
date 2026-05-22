@@ -63,7 +63,7 @@ export class RenderError extends TaggedErrorClass<RenderError>($I`RenderError`)(
   {
     adapter: S.String,
     message: S.String,
-    cause: S.Unknown,
+    cause: S.DefectWithStack,
   },
   $I.annote("RenderError", {
     description: "Typed error raised when a Markdown render adapter fails.",

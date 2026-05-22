@@ -693,9 +693,8 @@ export const defaultArchitecturePlanTarget = ArchitecturePlanTarget.make({
 const defaultPlanTarget = defaultArchitecturePlanTarget;
 
 const stageOrder: ReadonlyArray<ArchitecturePlanStage> = ["core", "persistence", "protocol", "client", "full"];
-const stringEquivalence = SchemaUtils.toEquivalence(S.String);
 const stageRank = (stage: ArchitecturePlanStage): number =>
-  pipe(stageOrder, A.findFirstIndex(stringEquivalence(stage)), O.getOrElse(thunk0));
+  pipe(stageOrder, A.findFirstIndex(Str.equivalence(stage)), O.getOrElse(thunk0));
 
 const isStageIncluded: {
   (requested: ArchitecturePlanStage, fileStage: ArchitecturePlanStage): boolean;
@@ -703,7 +702,7 @@ const isStageIncluded: {
 } = dual(
   2,
   (requested: ArchitecturePlanStage, fileStage: ArchitecturePlanStage): boolean =>
-    stringEquivalence(requested, "full") || stageRank(fileStage) <= stageRank(requested)
+    Str.equivalence(requested, "full") || stageRank(fileStage) <= stageRank(requested)
 );
 
 const aggregateRoles: ReadonlyArray<ArchitectureSliceRole> = [
@@ -730,9 +729,9 @@ const roleAllowedForDomainKind = (domainKind: ArchitectureDomainKind, role: Arch
   pipe(rolesForDomainKind(domainKind), A.contains(role));
 
 const dbAdminProofTargetAllowed = (target: ArchitecturePlanTarget): boolean =>
-  stringEquivalence(target.boundedContext, defaultPlanTarget.boundedContext) &&
-  ((stringEquivalence(target.domainKind, "aggregates") && stringEquivalence(target.concept, "WorkItem")) ||
-    (stringEquivalence(target.domainKind, "entities") && stringEquivalence(target.concept, "Worker")));
+  Str.equivalence(target.boundedContext, defaultPlanTarget.boundedContext) &&
+  ((Str.equivalence(target.domainKind, "aggregates") && Str.equivalence(target.concept, "WorkItem")) ||
+    (Str.equivalence(target.domainKind, "entities") && Str.equivalence(target.concept, "Worker")));
 
 const roleAllowedForTarget = (target: ArchitecturePlanTarget, role: ArchitectureSliceRole): boolean =>
   roleAllowedForDomainKind(target.domainKind, role) && (role !== "db-admin" || dbAdminProofTargetAllowed(target));
@@ -2115,9 +2114,9 @@ const packageShellFileOperationsFor = (
 };
 
 const isDefaultPlanTarget = (target: ArchitecturePlanTarget): boolean =>
-  stringEquivalence(target.boundedContext, defaultPlanTarget.boundedContext) &&
-  stringEquivalence(target.concept, defaultPlanTarget.concept) &&
-  stringEquivalence(target.domainKind, defaultPlanTarget.domainKind);
+  Str.equivalence(target.boundedContext, defaultPlanTarget.boundedContext) &&
+  Str.equivalence(target.concept, defaultPlanTarget.concept) &&
+  Str.equivalence(target.domainKind, defaultPlanTarget.domainKind);
 
 const sourceConceptForPath = (sourcePath: string): string => {
   const lowerPath = Str.toLowerCase(sourcePath);
@@ -2129,9 +2128,9 @@ const sourceConceptForPath = (sourcePath: string): string => {
 
 const sourceDomainKindForPath = (sourcePath: string): O.Option<ArchitectureDomainKind> => {
   const sourceConcept = sourceConceptForPath(sourcePath);
-  if (Str.includes("/values/")(sourcePath) || stringEquivalence(sourceConcept, "WorkPriority")) return O.some("values");
-  if (Str.includes("/entities/")(sourcePath) || stringEquivalence(sourceConcept, "Worker")) return O.some("entities");
-  if (Str.includes("/aggregates/")(sourcePath) || stringEquivalence(sourceConcept, "WorkItem"))
+  if (Str.includes("/values/")(sourcePath) || Str.equivalence(sourceConcept, "WorkPriority")) return O.some("values");
+  if (Str.includes("/entities/")(sourcePath) || Str.equivalence(sourceConcept, "Worker")) return O.some("entities");
+  if (Str.includes("/aggregates/")(sourcePath) || Str.equivalence(sourceConcept, "WorkItem"))
     return O.some("aggregates");
   return O.none();
 };
@@ -2175,7 +2174,7 @@ const isPackageLevelFile = (sourcePath: string): boolean =>
 const proofFileMatchesDomainKind = (target: ArchitecturePlanTarget, file: AcceptedProofFile): boolean => {
   if (isDefaultPlanTarget(target)) return true;
   if (isPackageLevelFile(file.path)) return true;
-  return pipe(sourceDomainKindForPath(file.path), O.map(stringEquivalence(target.domainKind)), O.getOrElse(thunkFalse));
+  return pipe(sourceDomainKindForPath(file.path), O.map(Str.equivalence(target.domainKind)), O.getOrElse(thunkFalse));
 };
 
 const sourceConceptPathFor = (sourcePath: string): string =>

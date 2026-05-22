@@ -9,21 +9,21 @@ import { DuckDb, DuckDbConnectionOptions } from "@beep/duckdb";
 import { $RepoCliId } from "@beep/identity/packages";
 import { layerNodeSdkServerTraces, ServerObservabilityConfig } from "@beep/observability/server";
 import {
-  type AiMetricsArchiveError,
+  AiMetricsArchiveError,
   AiMetricsBenchmarkCaseInput,
   AiMetricsBenchmarkRunInput,
-  type AiMetricsConfigSnapshotError,
+  AiMetricsConfigSnapshotError,
   AiMetricsConfigSnapshotInput,
   AiMetricsDeployTarget,
-  type AiMetricsForwarderError,
+  AiMetricsForwarderError,
   AiMetricsForwarderInput,
   type AiMetricsForwarderOtlpExport,
   AiMetricsForwarderOtlpExported,
   AiMetricsForwarderOtlpExportFailed,
   AiMetricsForwarderRunResult,
   AiMetricsForwarderTimerInput,
-  type AiMetricsIngestError,
-  type AiMetricsInstallConfigurationError,
+  AiMetricsIngestError,
+  AiMetricsInstallConfigurationError,
   AiMetricsInstallDoctorInput,
   type AiMetricsInstallDoctorResult,
   AiMetricsInstallDoctorStatus,
@@ -33,20 +33,20 @@ import {
   AiMetricsLabelQueueInput,
   AiMetricsMirrorBundleInput,
   AiMetricsMirrorBundleManifest,
-  type AiMetricsMirrorError,
+  AiMetricsMirrorError,
   AiMetricsOtlpEndpointSpec,
-  type AiMetricsOtlpExportError,
+  AiMetricsOtlpExportError,
   AiMetricsOtlpExportInput,
   type AiMetricsOtlpExportResult,
   AiMetricsOutcomeLabelInput,
-  type AiMetricsPrivacyError,
+  AiMetricsPrivacyError,
   AiMetricsPrivacyMode,
   AiMetricsQualityGateStatus,
-  type AiMetricsRetentionError,
+  AiMetricsRetentionError,
   AiMetricsRetentionRestoreDrillInput,
   AiMetricsRetentionSelector,
-  type AiMetricsScorecardError,
-  type AiMetricsSourceDiscoveryError,
+  AiMetricsScorecardError,
+  AiMetricsSourceDiscoveryError,
   AiMetricsSourceDiscoveryInput,
   AiMetricsTool,
   AiMetricsTranscriptSource,
@@ -100,7 +100,6 @@ import {
   summaryToJson,
   upsertAiMetricsBenchmarkCase,
 } from "@beep/repo-ai-metrics";
-import { TaggedErrorClass } from "@beep/schema";
 import { A, Str } from "@beep/utils";
 import {
   Clock,
@@ -112,18 +111,20 @@ import {
   Effect,
   Exit,
   FileSystem,
+  flow,
   Layer,
   Order,
   Path,
   pipe,
   Redacted,
-  Runtime,
 } from "effect";
 import * as O from "effect/Option";
+import * as R from "effect/Record";
 import * as S from "effect/Schema";
 import { Command, Flag } from "effect/unstable/cli";
 import { jsonFlag } from "../../internal/cli/Flags.js";
 import { printLines } from "../../internal/cli/Printer.js";
+import { AiMetricsCommandError, AiMetricsStatusExit } from "./AIMetrics.errors.js";
 
 const $I = $RepoCliId.create("commands/AIMetrics/AIMetrics.command");
 
@@ -138,41 +139,6 @@ const p7MirrorConfirmToken = "p7-derived-mirror";
 const p7MirrorSchemaVersion = "beep.ai_metrics.mirror_bundle.v1";
 const p7MirrorRawArchiveTable = "ai_metrics_raw_archive_objects";
 const p7RetentionConfirmToken = "p7-retention-window";
-
-/**
- * Error raised by the AI metrics CLI.
- *
- * @example
- * ```ts
- * import { aiMetricsCommand } from "@beep/repo-cli/commands/AIMetrics/index"
- * console.log(aiMetricsCommand)
- * ```
- * @category errors
- * @since 0.0.0
- */
-export class AiMetricsCommandError extends TaggedErrorClass<AiMetricsCommandError>($I`AiMetricsCommandError`)(
-  "AiMetricsCommandError",
-  {
-    cause: S.Unknown,
-    message: S.String,
-  },
-  $I.annote("AiMetricsCommandError", {
-    description: "User-facing failure raised by the AI metrics CLI command suite.",
-  })
-) {}
-
-class AiMetricsStatusExit extends TaggedErrorClass<AiMetricsStatusExit>($I`AiMetricsStatusExit`)(
-  "AiMetricsStatusExit",
-  {
-    message: S.String,
-  },
-  $I.annote("AiMetricsStatusExit", {
-    description: "Silent non-zero process exit requested after a command has already rendered its result.",
-  })
-) {
-  override readonly [Runtime.errorExitCode] = 1;
-  override readonly [Runtime.errorReported] = false;
-}
 
 class AiMetricsArchiveDrillRow extends S.Class<AiMetricsArchiveDrillRow>($I`AiMetricsArchiveDrillRow`)(
   {
@@ -337,14 +303,9 @@ const readInputFile = Effect.fn("AIMetrics.readInputFile")(function* (input: str
   const fs = yield* FileSystem.FileSystem;
   const path = yield* Path.Path;
   const absolutePath = path.resolve(input);
-  const content = yield* fs.readFileString(absolutePath).pipe(
-    Effect.mapError((cause) =>
-      AiMetricsCommandError.make({
-        cause,
-        message: "Failed to read transcript input.",
-      })
-    )
-  );
+  const content = yield* fs
+    .readFileString(absolutePath)
+    .pipe(AiMetricsCommandError.mapError("Failed to read transcript input."));
 
   return {
     absolutePath,
@@ -352,44 +313,33 @@ const readInputFile = Effect.fn("AIMetrics.readInputFile")(function* (input: str
   };
 });
 
-const encodeCommandJson = Effect.fn("AIMetrics.encodeCommandJson")(function* (value: unknown) {
-  return yield* encodeJson(value).pipe(
-    Effect.mapError((cause) =>
-      AiMetricsCommandError.make({
-        cause,
-        message: "Failed to encode AI metrics command output as JSON.",
-      })
-    )
-  );
-});
+const encodeCommandJson = flow(
+  encodeJson,
+  AiMetricsCommandError.mapError("Failed to encode AI metrics command output as JSON.")
+);
 
-const encodeInstallSpecCommandJson = Effect.fn("AIMetrics.encodeInstallSpecCommandJson")(function* (
-  spec: AiMetricsInstallSpec
-) {
-  return yield* encodeInstallSpecJson(spec).pipe(
-    Effect.mapError((cause) =>
-      AiMetricsCommandError.make({
-        cause,
-        message: "Failed to encode AI metrics install spec as JSON.",
-      })
-    )
-  );
-});
+const encodeInstallSpecCommandJson = flow(
+  encodeInstallSpecJson,
+  AiMetricsCommandError.mapError("Failed to encode AI metrics install spec as JSON.")
+);
 
-type AiMetricsProgramError =
-  | AiMetricsArchiveError
-  | AiMetricsCommandError
-  | AiMetricsConfigSnapshotError
-  | AiMetricsForwarderError
-  | AiMetricsIngestError
-  | AiMetricsInstallConfigurationError
-  | AiMetricsMirrorError
-  | AiMetricsOtlpExportError
-  | AiMetricsPrivacyError
-  | AiMetricsRetentionError
-  | AiMetricsScorecardError
-  | AiMetricsSourceDiscoveryError
-  | AiMetricsStatusExit;
+const AiMetricsProgramError = S.Union([
+  AiMetricsArchiveError,
+  AiMetricsCommandError,
+  AiMetricsConfigSnapshotError,
+  AiMetricsForwarderError,
+  AiMetricsIngestError,
+  AiMetricsInstallConfigurationError,
+  AiMetricsMirrorError,
+  AiMetricsOtlpExportError,
+  AiMetricsPrivacyError,
+  AiMetricsRetentionError,
+  AiMetricsScorecardError,
+  AiMetricsSourceDiscoveryError,
+  AiMetricsStatusExit,
+]).pipe(S.toTaggedUnion("_tag"));
+
+type AiMetricsProgramError = typeof AiMetricsProgramError.Type;
 
 const runAiMetricsProgram = <A, R>(
   effect: Effect.Effect<A, AiMetricsProgramError, R>
@@ -399,12 +349,7 @@ const readOptionalConfigString: (key: string) => Effect.Effect<O.Option<string>,
   "AIMetrics.readOptionalConfigString"
 )((key) =>
   ConfigProvider.ConfigProvider.use((provider) => Config.option(Config.string(key)).parse(provider)).pipe(
-    Effect.mapError((cause) =>
-      AiMetricsCommandError.make({
-        cause,
-        message: `Failed to read ${key} from the Effect config provider.`,
-      })
-    )
+    AiMetricsCommandError.mapError(`Failed to read ${key} from the Effect config provider.`)
   )
 );
 
@@ -414,12 +359,7 @@ const readOptionalRedactedConfigString: (
   "AIMetrics.readOptionalRedactedConfigString"
 )((key) =>
   ConfigProvider.ConfigProvider.use((provider) => Config.option(Config.redacted(key)).parse(provider)).pipe(
-    Effect.mapError((cause) =>
-      AiMetricsCommandError.make({
-        cause,
-        message: `Failed to read ${key} from the Effect config provider.`,
-      })
-    )
+    AiMetricsCommandError.mapError(`Failed to read ${key} from the Effect config provider.`)
   )
 );
 
@@ -639,9 +579,7 @@ const parseRetentionSelector = Effect.fn("AIMetrics.parseRetentionSelector")(fun
 
   return AiMetricsRetentionSelector.make({
     dataRoot: O.getOrElse(dataRoot, () => localCollectorDataRoot),
-    ...(O.isSome(beforeEpochMillis) ? { beforeEpochMillis: beforeEpochMillis.value } : {}),
-    ...(O.isSome(sinceEpochMillis) ? { sinceEpochMillis: sinceEpochMillis.value } : {}),
-    ...(O.isSome(untilEpochMillis) ? { untilEpochMillis: untilEpochMillis.value } : {}),
+    ...R.getSomes({ beforeEpochMillis, sinceEpochMillis, untilEpochMillis }),
   });
 });
 
@@ -727,14 +665,15 @@ const renderInstallSpec = Effect.fn("AIMetrics.renderInstallSpec")(function* (
     return;
   }
 
-  yield* Console.log(`AI metrics install preview: ${spec.stackName}`);
-  yield* Console.log(`target: ${spec.target}`);
-  yield* Console.log(`data root: ${spec.storage.dataRoot}`);
-  yield* Console.log(`raw archive: ${spec.storage.rawArchiveDir}`);
-  const duckDbLocation = spec.storage.duckDbPath;
-  yield* Console.log(`derived duckdb: ${duckDbLocation}`);
-  yield* Console.log(`privacy: ${spec.privacyMode}`);
-  yield* Console.log(`default tool: ${spec.defaultTool}`);
+  yield* printLines([
+    `AI metrics install preview: ${spec.stackName}`,
+    `target: ${spec.target}`,
+    `data root: ${spec.storage.dataRoot}`,
+    `raw archive: ${spec.storage.rawArchiveDir}`,
+    `derived duckdb: ${spec.storage.duckDbPath}`,
+    `privacy: ${spec.privacyMode}`,
+    `default tool: ${spec.defaultTool}`,
+  ]);
 });
 
 const defaultServiceEndpoint = Effect.fn("AIMetrics.defaultServiceEndpoint")(function* (
@@ -861,12 +800,12 @@ const renderInstallPlan = Effect.fn("AIMetrics.renderInstallPlan")(function* (
     return;
   }
 
-  yield* Console.log(`ai-metrics install plan: target=${plan.target}`);
-  yield* Console.log(`stack: ${plan.stackName}`);
-  yield* Console.log(`dry-run-only: ${plan.dryRunOnly}`);
-  for (const step of plan.steps) {
-    yield* Console.log(`${step.order}. ${step.stepId}: ${step.command}`);
-  }
+  yield* printLines([
+    `ai-metrics install plan: target=${plan.target}`,
+    `stack: ${plan.stackName}`,
+    `dry-run-only: ${plan.dryRunOnly}`,
+    ...A.map(plan.steps, (step) => `${step.order}. ${step.stepId}: ${step.command}`),
+  ]);
 });
 
 const makeInstallPlanProgram = Effect.fn("AIMetrics.makeInstallPlanProgram")(function* ({

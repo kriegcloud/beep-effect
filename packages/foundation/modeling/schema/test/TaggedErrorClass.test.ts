@@ -1,3 +1,4 @@
+import { CauseTaggedError } from "@beep/schema/CauseTaggedError";
 import { TaggedErrorClass, type TaggedErrorNewInput } from "@beep/schema/TaggedErrorClass";
 import { describe, expect, it } from "@effect/vitest";
 import * as S from "effect/Schema";
@@ -16,10 +17,7 @@ class StructuredBeepError extends TaggedErrorClass<StructuredBeepError>("Structu
   BeepPayload
 ) {}
 
-class RequiredCauseError extends TaggedErrorClass<RequiredCauseError>("RequiredCauseError")("RequiredCauseError", {
-  cause: S.DefectWithStack,
-  message: S.String,
-}) {}
+class RequiredCauseError extends CauseTaggedError<RequiredCauseError>("RequiredCauseError")("RequiredCauseError") {}
 
 class OptionalCauseError extends TaggedErrorClass<OptionalCauseError>("OptionalCauseError")("OptionalCauseError", {
   cause: S.optionalKey(S.DefectWithStack),

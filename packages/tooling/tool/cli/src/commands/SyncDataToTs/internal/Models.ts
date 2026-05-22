@@ -6,10 +6,13 @@
  */
 
 import { $RepoCliId } from "@beep/identity/packages";
-import { Fn, LiteralKit, TaggedErrorClass } from "@beep/schema";
+import { Fn, LiteralKit } from "@beep/schema";
 
 import { Effect, Tuple } from "effect";
 import * as S from "effect/Schema";
+import type { SyncDataToTsError } from "../SyncDataToTs.errors.js";
+
+export { SyncDataToTsDriftError, SyncDataToTsError } from "../SyncDataToTs.errors.js";
 
 const $I = $RepoCliId.create("commands/SyncDataToTs/internal/Models");
 
@@ -56,44 +59,6 @@ export const SyncDataRunMode = SyncDataRunModeKit.annotate(
  * @since 0.0.0
  */
 export type SyncDataRunMode = typeof SyncDataRunMode.Type;
-
-/**
- * Operational error during source fetch, parsing, projection, or file writes.
- *
- * @category utilities
- * @since 0.0.0
- */
-export class SyncDataToTsError extends TaggedErrorClass<SyncDataToTsError>($I`SyncDataToTsError`)(
-  "SyncDataToTsError",
-  {
-    message: S.String,
-    targetId: S.optionalKey(S.String),
-    file: S.optionalKey(S.String),
-    cause: S.optionalKey(S.Defect),
-  },
-  $I.annote("SyncDataToTsError", {
-    title: "Sync Data To TypeScript Error",
-    description: "Failed to fetch, decode, normalize, render, or write synced data.",
-  })
-) {}
-
-/**
- * Drift detected in check mode.
- *
- * @category utilities
- * @since 0.0.0
- */
-export class SyncDataToTsDriftError extends TaggedErrorClass<SyncDataToTsDriftError>($I`SyncDataToTsDriftError`)(
-  "SyncDataToTsDriftError",
-  {
-    message: S.String,
-    driftCount: S.Number,
-  },
-  $I.annote("SyncDataToTsDriftError", {
-    title: "Sync Data To TypeScript Drift Error",
-    description: "Generated data drift was detected while running in check mode.",
-  })
-) {}
 
 /**
  * Rendered target projection ready to compare or write to disk.

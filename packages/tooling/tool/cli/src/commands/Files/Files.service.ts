@@ -77,7 +77,6 @@ import {
   roundCandidateMetric,
   selectedCanonicalPathSet,
   sharpFormatForNormalize,
-  stringEquivalence,
   targetNameForEntry,
 } from "./Files.media.js";
 import { FilesConcurrency, runFilesProgressForEach } from "./Files.progress.js";
@@ -440,8 +439,8 @@ const validateDetectFacesMoveNoFaceDirectory = Effect.fn("Files.validateDetectFa
   const sourceDirectory = path.resolve(directory);
   const noFaceDirectory = path.resolve(moveNoFaceTo.value);
 
-  if (stringEquivalence(sourceDirectory, noFaceDirectory)) {
-    return yield* FilesCommandError.make({
+  if (Str.equivalence(sourceDirectory, noFaceDirectory)) {
+    return yield* new FilesCommandError({
       message: `Refusing to move no-face images into the source directory: "${noFaceDirectory}"`,
     });
   }
@@ -485,8 +484,8 @@ const validateDetectFacesMoveNoFaceDirectory = Effect.fn("Files.validateDetectFa
       )
     );
 
-  if (stringEquivalence(canonicalSource, canonicalNoFace)) {
-    return yield* FilesCommandError.make({
+  if (Str.equivalence(canonicalSource, canonicalNoFace)) {
+    return yield* new FilesCommandError({
       message: `Refusing to move no-face images into the source directory: "${noFaceDirectory}"`,
     });
   }
@@ -627,7 +626,7 @@ const makeArchivePoorCandidatesSkippedEntry = (
 const parseSidecarExtensions = (value: string): Effect.Effect<ReadonlyArray<string>, FilesCommandError> => {
   const normalized = pipe(value, Str.trim, Str.toLowerCase);
 
-  if (stringEquivalence(normalized, "none")) {
+  if (Str.equivalence(normalized, "none")) {
     return Effect.succeed(A.empty<string>());
   }
 
@@ -683,14 +682,14 @@ const validateNormalizeDuplicateDirectory = Effect.fn("Files.validateNormalizeDu
   const path = yield* Path.Path;
   const duplicateDirectory = path.resolve(moveDuplicatesTo.value);
 
-  if (stringEquivalence(directory, duplicateDirectory)) {
-    return yield* FilesCommandError.make({
+  if (Str.equivalence(directory, duplicateDirectory)) {
+    return yield* new FilesCommandError({
       message: `Refusing to move duplicates into the source directory: "${duplicateDirectory}"`,
     });
   }
 
-  if (stringEquivalence(outputDirectory, duplicateDirectory)) {
-    return yield* FilesCommandError.make({
+  if (Str.equivalence(outputDirectory, duplicateDirectory)) {
+    return yield* new FilesCommandError({
       message: `Refusing to move duplicates into the normalize output directory: "${duplicateDirectory}"`,
     });
   }
@@ -729,14 +728,14 @@ const validateNormalizeDuplicateDirectory = Effect.fn("Files.validateNormalizeDu
       )
     );
 
-  if (stringEquivalence(canonicalDirectory, canonicalDuplicate)) {
-    return yield* FilesCommandError.make({
+  if (Str.equivalence(canonicalDirectory, canonicalDuplicate)) {
+    return yield* new FilesCommandError({
       message: `Refusing to move duplicates into the source directory: "${duplicateDirectory}"`,
     });
   }
 
-  if (O.isSome(canonicalOutputDirectory) && stringEquivalence(canonicalOutputDirectory.value, canonicalDuplicate)) {
-    return yield* FilesCommandError.make({
+  if (O.isSome(canonicalOutputDirectory) && Str.equivalence(canonicalOutputDirectory.value, canonicalDuplicate)) {
+    return yield* new FilesCommandError({
       message: `Refusing to move duplicates into the normalize output directory: "${duplicateDirectory}"`,
     });
   }
@@ -791,15 +790,15 @@ const validateNormalizeDirectories = Effect.fn("Files.validateNormalizeDirectori
       );
     canonicalOutputDirectory = O.some(canonicalOutput);
 
-    if (stringEquivalence(canonicalDir, canonicalOutput)) {
-      return yield* FilesCommandError.make({
+    if (Str.equivalence(canonicalDir, canonicalOutput)) {
+      return yield* new FilesCommandError({
         message: `Refusing to normalize into the source directory: "${outputDirectory}"`,
       });
     }
   }
 
-  if (stringEquivalence(directory, outputDirectory)) {
-    return yield* FilesCommandError.make({
+  if (Str.equivalence(directory, outputDirectory)) {
+    return yield* new FilesCommandError({
       message: `Refusing to normalize into the source directory: "${outputDirectory}"`,
     });
   }
@@ -865,15 +864,15 @@ const validateArchiveDirectories = Effect.fn("Files.validateArchiveDirectories")
         )
       );
 
-    if (stringEquivalence(canonicalDir, canonicalArchive)) {
-      return yield* FilesCommandError.make({
+    if (Str.equivalence(canonicalDir, canonicalArchive)) {
+      return yield* new FilesCommandError({
         message: `Refusing to archive into the source directory: "${archiveDirectory}"`,
       });
     }
   }
 
-  if (stringEquivalence(directory, archiveDirectory)) {
-    return yield* FilesCommandError.make({
+  if (Str.equivalence(directory, archiveDirectory)) {
+    return yield* new FilesCommandError({
       message: `Refusing to archive into the source directory: "${archiveDirectory}"`,
     });
   }
@@ -900,7 +899,7 @@ const collectSortableFile = Effect.fn("Files.collectSortableFile")(function* (
     return { file: O.none<SortableFile>(), skippedCount: 0 };
   }
 
-  if (!stringEquivalence(canonicalPath.value, path.join(canonicalDir, entry))) {
+  if (!Str.equivalence(canonicalPath.value, path.join(canonicalDir, entry))) {
     return { file: O.none<SortableFile>(), skippedCount: 0 };
   }
 
@@ -913,7 +912,7 @@ const collectSortableFile = Effect.fn("Files.collectSortableFile")(function* (
   }
 
   const extension = path.extname(entry);
-  if (stringEquivalence(extension, "") || stringEquivalence(extension, ".")) {
+  if (Str.equivalence(extension, "") || Str.equivalence(extension, ".")) {
     if (mediaOnly) {
       return { file: O.none<SortableFile>(), skippedCount: 1 };
     }
@@ -994,7 +993,7 @@ const collectNormalizeFile = Effect.fn("Files.collectNormalizeFile")(function* (
     );
   }
 
-  if (!stringEquivalence(canonicalPath.value, path.join(canonicalDirectory, entry))) {
+  if (!Str.equivalence(canonicalPath.value, path.join(canonicalDirectory, entry))) {
     return normalizeCollectedSkipped(
       makeNormalizeSkippedEntry(entry, sourcePath, O.none<string>(), "symlink", "Symlink entries are not normalized.")
     );
@@ -1023,7 +1022,7 @@ const collectNormalizeFile = Effect.fn("Files.collectNormalizeFile")(function* (
   }
 
   const extension = path.extname(entry);
-  if (stringEquivalence(extension, "") || stringEquivalence(extension, ".")) {
+  if (Str.equivalence(extension, "") || Str.equivalence(extension, ".")) {
     return normalizeCollectedSkipped(
       makeNormalizeSkippedEntry(
         entry,
@@ -1154,7 +1153,7 @@ const buildCreateCaptionFilesPlan = Effect.fn("Files.buildCreateCaptionFilesPlan
         return;
       }
 
-      if (!stringEquivalence(canonicalPath.value, path.join(canonicalDir, sourceName))) {
+      if (!Str.equivalence(canonicalPath.value, path.join(canonicalDir, sourceName))) {
         skipped = A.append(
           skipped,
           makeCreateCaptionFilesSkippedEntry(
@@ -1204,7 +1203,7 @@ const buildCreateCaptionFilesPlan = Effect.fn("Files.buildCreateCaptionFilesPlan
       }
 
       const extension = path.extname(sourceName);
-      if (stringEquivalence(extension, "") || stringEquivalence(extension, ".")) {
+      if (Str.equivalence(extension, "") || Str.equivalence(extension, ".")) {
         skipped = A.append(
           skipped,
           makeCreateCaptionFilesSkippedEntry(
@@ -1279,7 +1278,7 @@ const buildCreateCaptionFilesPlan = Effect.fn("Files.buildCreateCaptionFilesPlan
         const captionCanonicalPath = yield* fs.realPath(captionPath).pipe(Effect.option);
         if (
           O.isNone(captionCanonicalPath) ||
-          !stringEquivalence(captionCanonicalPath.value, path.join(canonicalDir, captionName))
+          !Str.equivalence(captionCanonicalPath.value, path.join(canonicalDir, captionName))
         ) {
           skipped = A.append(
             skipped,
@@ -1443,7 +1442,7 @@ const collectDetectBordersFile = Effect.fn("Files.collectDetectBordersFile")(fun
     );
   }
 
-  if (!stringEquivalence(canonicalPath.value, path.join(canonicalDirectory, entry))) {
+  if (!Str.equivalence(canonicalPath.value, path.join(canonicalDirectory, entry))) {
     return detectBordersCollectedSkipped(
       makeDetectBordersSkippedEntry(entry, sourcePath, O.none<string>(), "symlink", "Symlink entries are not analyzed.")
     );
@@ -1472,7 +1471,7 @@ const collectDetectBordersFile = Effect.fn("Files.collectDetectBordersFile")(fun
   }
 
   const extension = path.extname(entry);
-  if (stringEquivalence(extension, "") || stringEquivalence(extension, ".")) {
+  if (Str.equivalence(extension, "") || Str.equivalence(extension, ".")) {
     return detectBordersCollectedSkipped(
       makeDetectBordersSkippedEntry(
         entry,
@@ -1656,7 +1655,7 @@ const collectArchiveCandidateFile = Effect.fn("Files.collectArchiveCandidateFile
     );
   }
 
-  if (!stringEquivalence(canonicalPath.value, path.join(canonicalDirectory, entry))) {
+  if (!Str.equivalence(canonicalPath.value, path.join(canonicalDirectory, entry))) {
     return archiveCandidateCollectedSkipped(
       makeArchivePoorCandidatesSkippedEntry(
         entry,
@@ -1697,7 +1696,7 @@ const collectArchiveCandidateFile = Effect.fn("Files.collectArchiveCandidateFile
   }
 
   const extension = path.extname(entry);
-  if (stringEquivalence(extension, "") || stringEquivalence(extension, ".")) {
+  if (Str.equivalence(extension, "") || Str.equivalence(extension, ".")) {
     return archiveCandidateCollectedSkipped(
       makeArchivePoorCandidatesSkippedEntry(
         entry,
@@ -3514,8 +3513,8 @@ const runFfmpegStripMetadata = Effect.fn("Files.runFfmpegStripMetadata")(functio
   );
 
   if (result.exitCode !== 0) {
-    const detail = stringEquivalence(result.stderr, "") ? result.stdout : result.stderr;
-    return yield* FilesCommandError.make({
+    const detail = Str.equivalence(result.stderr, "") ? result.stdout : result.stderr;
+    return yield* new FilesCommandError({
       message: `ffmpeg could not strip video metadata for "${entry.sourcePath}": ${detail}`,
     });
   }

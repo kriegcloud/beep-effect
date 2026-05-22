@@ -7,16 +7,29 @@
 
 import { $RepoCliId } from "@beep/identity/packages";
 import { type DomainError, findRepoRoot, type NoSuchFileError } from "@beep/repo-utils";
-import { LiteralKit, TaggedErrorClass } from "@beep/schema";
+import { LiteralKit } from "@beep/schema";
 import { makePgliteTestcontainerResource, type PgliteTestcontainerResource } from "@beep/test-utils";
 import { A, Str, thunkFalse } from "@beep/utils";
-import { Console, Effect, FileSystem, flow, Match, Path, pipe, Runtime, type Scope, Stream } from "effect";
+import { Console, Effect, FileSystem, flow, Match, Path, pipe, type Scope, Stream } from "effect";
 import { dual } from "effect/Function";
 import * as O from "effect/Option";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
 import { ChildProcess, type ChildProcessSpawner } from "effect/unstable/process";
 import { configStringEqualsSync, configStringOption } from "./internal/Config.js";
+import {
+  QualityTaskConfigurationError,
+  QualityTaskFailed,
+  QualityTaskGroupFailed,
+  type UnexpectedQualityTaskFailure,
+} from "./Quality.errors.js";
+
+export {
+  QualityTaskConfigurationError,
+  QualityTaskFailed,
+  QualityTaskGroupFailed,
+  UnexpectedQualityTaskFailure,
+} from "./Quality.errors.js";
 
 const $I = $RepoCliId.create("commands/Quality/Tasks");
 
@@ -143,122 +156,6 @@ export class QualityTaskInvocation extends S.Class<QualityTaskInvocation>($I`Qua
   },
   $I.annote("QualityTaskInvocation", {
     description: "Result of parsing a quality command invocation.",
-  })
-) {}
-
-/**
- * Error raised when a quality task subprocess exits unsuccessfully.
- *
- * @example
- * ```ts
- * import { QualityTaskFailed } from "@beep/repo-cli/commands/Quality/Tasks"
- * const failure = QualityTaskFailed.make({
- *   label: "lint",
- *   command: "bunx turbo run lint",
- *   exitCode: 1
- * })
- * ```
- * @category error-handling
- * @since 0.0.0
- */
-export class QualityTaskFailed extends TaggedErrorClass<QualityTaskFailed>($I`QualityTaskFailed`)(
-  "QualityTaskFailed",
-  {
-    label: S.String,
-    command: S.String,
-    exitCode: S.Number,
-  },
-  $I.annote("QualityTaskFailed", {
-    description: "A quality subprocess exited with a non-zero status code.",
-  })
-) {
-  /** Process exit code reported when this error reaches the runtime boundary. */
-  override readonly [Runtime.errorExitCode] = this.exitCode;
-}
-
-/**
- * Error raised when a bounded quality task group completes with failed steps.
- *
- * @example
- * ```ts
- * import { QualityTaskGroupFailed, QualityTaskFailed } from "@beep/repo-cli/commands/Quality/Tasks"
- * const failure = QualityTaskGroupFailed.make({
- *   label: "lint:policies",
- *   exitCode: 1,
- *   failures: [
- *     QualityTaskFailed.make({
- *       label: "lint:spell",
- *       command: "bunx cspell .",
- *       exitCode: 1
- *     })
- *   ]
- * })
- * ```
- * @category error-handling
- * @since 0.0.0
- */
-export class QualityTaskGroupFailed extends TaggedErrorClass<QualityTaskGroupFailed>($I`QualityTaskGroupFailed`)(
-  "QualityTaskGroupFailed",
-  {
-    label: S.String,
-    exitCode: S.Number,
-    failures: S.Array(QualityTaskFailed),
-  },
-  $I.annote("QualityTaskGroupFailed", {
-    description: "A bounded quality task group completed with one or more failed subprocesses.",
-  })
-) {
-  /** Process exit code reported when this error reaches the runtime boundary. */
-  override readonly [Runtime.errorExitCode] = this.exitCode;
-}
-
-/**
- * Error raised when a quality task cannot resolve its required configuration.
- *
- * @example
- * ```ts
- * import { QualityTaskConfigurationError } from "@beep/repo-cli/commands/Quality/Tasks"
- * const error = QualityTaskConfigurationError.make({
- *   message: "Could not find package.json"
- * })
- * ```
- * @category error-handling
- * @since 0.0.0
- */
-export class QualityTaskConfigurationError extends TaggedErrorClass<QualityTaskConfigurationError>(
-  $I`QualityTaskConfigurationError`
-)(
-  "QualityTaskConfigurationError",
-  {
-    message: S.String,
-  },
-  $I.annote("QualityTaskConfigurationError", {
-    description: "Quality task configuration could not be resolved.",
-  })
-) {}
-
-/**
- * Error raised when an unexpected quality task cause reaches the command boundary.
- *
- * @example
- * ```ts
- * import { UnexpectedQualityTaskFailure } from "@beep/repo-cli/commands/Quality/Tasks"
- * const error = UnexpectedQualityTaskFailure.make({
- *   message: "Unexpected quality task failure"
- * })
- * ```
- * @category error-handling
- * @since 0.0.0
- */
-export class UnexpectedQualityTaskFailure extends TaggedErrorClass<UnexpectedQualityTaskFailure>(
-  $I`UnexpectedQualityTaskFailure`
-)(
-  "UnexpectedQualityTaskFailure",
-  {
-    message: S.String,
-  },
-  $I.annote("UnexpectedQualityTaskFailure", {
-    description: "Unexpected quality task failure preserved for the process runtime boundary.",
   })
 ) {}
 

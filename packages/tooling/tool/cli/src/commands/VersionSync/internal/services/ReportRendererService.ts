@@ -20,7 +20,6 @@ import {
 } from "../Models.js";
 
 const $I = $RepoCliId.create("commands/VersionSync/internal/services/ReportRendererService");
-const stringEquivalence = Str.equivalence;
 
 /**
  * Service contract for rendering a version-sync report to console.
@@ -72,7 +71,7 @@ const renderCategoryReport: ReportRendererServiceShape["renderCategoryReport"] =
     onEmpty: () => Effect.succeed(false),
     onNonEmpty: (items) =>
       Effect.forEach(items, (item) => {
-        const arrow = stringEquivalence(item.current, item.expected) ? "" : ` -> ${item.expected}`;
+        const arrow = Str.equivalence(item.current, item.expected) ? "" : ` -> ${item.expected}`;
         return Console.log(`  ${item.file} ${item.field}: ${item.current}${arrow}`);
       }).pipe(Effect.as(true)),
   });

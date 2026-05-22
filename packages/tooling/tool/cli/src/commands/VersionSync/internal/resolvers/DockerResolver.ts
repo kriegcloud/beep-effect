@@ -162,7 +162,6 @@ const LatestDockerTag = S.Literal("latest").annotate(
   })
 );
 const isLatestDockerTag = S.is(LatestDockerTag);
-const stringEquivalence = Str.equivalence;
 
 const UnknownDockerImageValueToString = S.Unknown.pipe(
   S.decodeTo(
@@ -253,7 +252,7 @@ const findLatestForRedis = (tags: ReadonlyArray<string>): O.Option<string> => {
     }
   }
 
-  return stringEquivalence(bestTag, Str.empty) ? O.none() : O.some(bestTag);
+  return Str.equivalence(bestTag, Str.empty) ? O.none() : O.some(bestTag);
 };
 
 const VERSION_PATTERN = /v?(\d+)\.(\d+)\.(\d+)/;
@@ -311,7 +310,7 @@ const findLatestSemver = (tags: ReadonlyArray<string>): O.Option<string> => {
     }
   }
 
-  return stringEquivalence(bestTag, Str.empty) ? O.none() : O.some(bestTag);
+  return Str.equivalence(bestTag, Str.empty) ? O.none() : O.some(bestTag);
 };
 
 // ── Public API ──────────────────────────────────────────────────────────────
@@ -458,7 +457,7 @@ export const buildDockerReport: (state: DockerImageState) => VersionCategoryRepo
       hasUnpinned = true;
     }
 
-    if (O.isSome(img.latest) && !stringEquivalence(img.tag, img.latest.value)) {
+    if (O.isSome(img.latest) && !Str.equivalence(img.tag, img.latest.value)) {
       items = A.append(
         items,
         VersionDriftItem.make({

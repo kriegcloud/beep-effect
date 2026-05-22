@@ -7,34 +7,14 @@
 
 import { $RepoCliId } from "@beep/identity/packages";
 import { findRepoRoot } from "@beep/repo-utils";
-import { LiteralKit, TaggedErrorClass } from "@beep/schema";
 import { Effect, type FileSystem } from "effect";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
+import { CodexRunnerError } from "../Reuse.errors.js";
+
+export { CodexRunnerError, CodexRunnerStage } from "../Reuse.errors.js";
 
 const $I = $RepoCliId.create("commands/Reuse/internal/CodexRunner");
-
-/**
- * Lifecycle stages surfaced by the Codex smoke runner.
- *
- * @category models
- * @since 0.0.0
- */
-export const CodexRunnerStage = LiteralKit(["findRepoRoot", "import", "construct", "startThread"]).pipe(
-  S.annotate(
-    $I.annote("CodexRunnerStage", {
-      description: "Bounded lifecycle stage used when the Codex smoke path fails.",
-    })
-  )
-);
-
-/**
- * Runtime type for `CodexRunnerStage`.
- *
- * @category models
- * @since 0.0.0
- */
-export type CodexRunnerStage = typeof CodexRunnerStage.Type;
 
 /**
  * Structured result for `beep reuse codex-smoke`.
@@ -52,23 +32,6 @@ export class CodexSmokeResult extends S.Class<CodexSmokeResult>($I`CodexSmokeRes
   },
   $I.annote("CodexSmokeResult", {
     description: "Smoke-test result for the Codex SDK adapter used by reuse tooling.",
-  })
-) {}
-
-/**
- * Structured error emitted when the Codex SDK smoke path fails.
- *
- * @category models
- * @since 0.0.0
- */
-export class CodexRunnerError extends TaggedErrorClass<CodexRunnerError>($I`CodexRunnerError`)(
-  "CodexRunnerError",
-  {
-    stage: CodexRunnerStage,
-    message: S.NonEmptyString,
-  },
-  $I.annote("CodexRunnerError", {
-    description: "Typed failure raised while validating the Codex SDK smoke path.",
   })
 ) {}
 

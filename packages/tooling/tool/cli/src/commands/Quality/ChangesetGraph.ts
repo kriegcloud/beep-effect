@@ -6,7 +6,7 @@
  */
 
 import { $RepoCliId } from "@beep/identity/packages";
-import { TaggedErrorClass } from "@beep/schema";
+
 import { A, Str } from "@beep/utils";
 import { Console, Effect, FileSystem, flow, Order, Path, pipe, Stream } from "effect";
 import { dual } from "effect/Function";
@@ -16,6 +16,9 @@ import * as R from "effect/Record";
 import * as S from "effect/Schema";
 import { ChildProcess, type ChildProcessSpawner } from "effect/unstable/process";
 import { parseDocument } from "yaml";
+import { ChangesetGraphError } from "./Quality.errors.js";
+
+export { ChangesetGraphError } from "./Quality.errors.js";
 
 const $I = $RepoCliId.create("commands/Quality/ChangesetGraph");
 
@@ -99,33 +102,6 @@ export class ChangesetGraphSummary extends S.Class<ChangesetGraphSummary>($I`Cha
   },
   $I.annote("ChangesetGraphSummary", {
     description: "Aggregate result emitted by the changeset package graph guard.",
-  })
-) {}
-
-/**
- * Failure raised while validating changeset package references.
- *
- * @example
- * ```ts
- * import { ChangesetGraphError } from "@beep/repo-cli/commands/Quality/ChangesetGraph"
- *
- * const error = ChangesetGraphError.make({
- *   message: "Changeset graph validation failed."
- * })
- * console.log(error.message)
- * ```
- * @category error-handling
- * @since 0.0.0
- */
-export class ChangesetGraphError extends TaggedErrorClass<ChangesetGraphError>($I`ChangesetGraphError`)(
-  "ChangesetGraphError",
-  {
-    message: S.String,
-    file: S.optionalKey(S.String),
-    cause: S.optionalKey(S.Defect),
-  },
-  $I.annote("ChangesetGraphError", {
-    description: "Failure raised while validating changeset package references.",
   })
 ) {}
 

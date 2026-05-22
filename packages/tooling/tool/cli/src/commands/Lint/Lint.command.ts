@@ -9,7 +9,7 @@
 
 import { $RepoCliId } from "@beep/identity/packages";
 import { isExcludedTypeScriptSourcePath } from "@beep/repo-utils/schemas/TypeScriptSourceExclusions";
-import { normalizePath, TaggedErrorClass } from "@beep/schema";
+import { normalizePath } from "@beep/schema";
 import { A, Str, thunkEmptyStr } from "@beep/utils";
 import { Console, Effect, FileSystem, HashSet, Inspectable, MutableHashSet, Order, Path, pipe } from "effect";
 import * as O from "effect/Option";
@@ -17,6 +17,7 @@ import * as S from "effect/Schema";
 import { Command } from "effect/unstable/cli";
 import madge from "madge";
 import { printLines } from "../../internal/cli/Printer.js";
+import { LintCircularAnalysisError, LintFileDiscoveryError } from "./Lint.errors.js";
 import { lintPackageTestImportsCommand } from "./PackageTestImports.js";
 import { lintSchemaFirstCommand } from "./SchemaFirst.ts";
 
@@ -67,28 +68,6 @@ class LintViolation extends S.Class<LintViolation>($I`LintViolation`)(
   },
   $I.annote("LintViolation", {
     description: "Lint violation report row.",
-  })
-) {}
-
-class LintCircularAnalysisError extends TaggedErrorClass<LintCircularAnalysisError>($I`LintCircularAnalysisError`)(
-  "LintCircularAnalysisError",
-  {
-    message: S.String,
-  },
-  $I.annote("LintCircularAnalysisError", {
-    description: "Circular dependency analysis failed for a target directory.",
-  })
-) {}
-
-class LintFileDiscoveryError extends TaggedErrorClass<LintFileDiscoveryError>($I`LintFileDiscoveryError`)(
-  "LintFileDiscoveryError",
-  {
-    message: S.String,
-    root: S.String,
-    path: S.String,
-  },
-  $I.annote("LintFileDiscoveryError", {
-    description: "TypeScript file discovery failed for a lint root.",
   })
 ) {}
 

@@ -10,7 +10,7 @@ import { renderBiomeJson } from "@beep/repo-utils/schemas/BiomeJson";
 import { isExcludedTypeScriptSourcePath, toPosixPath } from "@beep/repo-utils/schemas/TypeScriptSourceExclusions";
 import { TSMorphService, TsMorphProjectInspectionRequest } from "@beep/repo-utils/TSMorph/index";
 import { resolveWorkspaceDirs } from "@beep/repo-utils/Workspaces";
-import { LiteralKit, TaggedErrorClass } from "@beep/schema";
+import { LiteralKit } from "@beep/schema";
 import { A, Str } from "@beep/utils";
 import { Console, DateTime, Effect, FileSystem, HashMap, Match, MutableHashSet, Order, Path, pipe } from "effect";
 import * as O from "effect/Option";
@@ -32,6 +32,7 @@ import {
   type Type,
   type VariableDeclaration,
 } from "ts-morph";
+import { DualArityInventoryReadError } from "./Laws.errors.js";
 
 const $I = $RepoCliId.create("commands/Laws/DualArity");
 const INVENTORY_PATH = "standards/dual-arity.inventory.jsonc";
@@ -203,18 +204,6 @@ export class DualArityRulesSummary extends S.Class<DualArityRulesSummary>($I`Dua
   },
   $I.annote("DualArityRulesSummary", {
     description: "Summary of public API dual-arity inventory verification.",
-  })
-) {}
-
-class DualArityInventoryReadError extends TaggedErrorClass<DualArityInventoryReadError>(
-  $I`DualArityInventoryReadError`
-)(
-  "DualArityInventoryReadError",
-  {
-    message: S.String,
-  },
-  $I.annote("DualArityInventoryReadError", {
-    description: "Raised when the committed dual-arity inventory cannot be parsed or decoded.",
   })
 ) {}
 

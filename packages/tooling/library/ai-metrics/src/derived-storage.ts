@@ -475,7 +475,7 @@ export class AiMetricsDerivedStorageError extends TaggedErrorClass<AiMetricsDeri
 )(
   "AiMetricsDerivedStorageError",
   {
-    cause: S.Unknown,
+    cause: S.DefectWithStack,
     message: S.String,
   },
   $I.annote("AiMetricsDerivedStorageError", {

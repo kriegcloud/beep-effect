@@ -35,7 +35,7 @@ import {
   resolveSubpathExportTarget,
   resolveWildcardExportTarget,
 } from "@beep/repo-utils/schemas/TsconfigAliasTargets";
-import { LiteralKit, normalizePath, TaggedErrorClass } from "@beep/schema";
+import { LiteralKit, normalizePath } from "@beep/schema";
 import { decodeJsoncTextAs } from "@beep/schema/Jsonc";
 import { A, Str, thunkFalse, thunkUndefined } from "@beep/utils";
 import { Console, Effect, FileSystem, flow, HashMap, HashSet, Order, Path, pipe, Tuple } from "effect";
@@ -47,6 +47,7 @@ import * as S from "effect/Schema";
 import { Command, Flag } from "effect/unstable/cli";
 import type { ChildProcessSpawner } from "effect/unstable/process/ChildProcessSpawner";
 import * as jsonc from "jsonc-parser";
+import { TsconfigSyncCycleError, TsconfigSyncDriftError, TsconfigSyncFilterError } from "./TsconfigSync.errors.js";
 
 export {
   /**
@@ -132,7 +133,6 @@ const StringArray = S.Array(S.String).annotate(
 const isCanonicalAliasKey = S.is(CanonicalAliasKey);
 const isBeepScopedPackageName = S.is(BeepScopedPackageName);
 const isRootDepIndexKey = S.is(RootDepIndexKey);
-const stringEquivalence = Str.equivalence;
 const stringArrayEquivalence = S.toEquivalence(StringArray);
 const byStringAscending: Order.Order<string> = Str.orderAsc;
 const repoCliPackageName = "@beep/repo-cli" as const;
@@ -151,7 +151,7 @@ const buildSourceOnlySubpathAliasTargets = (
   packageName: string,
   packageRelativePath: string
 ): Readonly<Record<string, string>> => {
-  if (!stringEquivalence(packageName, repoCliPackageName)) {
+  if (!Str.equivalence(packageName, repoCliPackageName)) {
     return R.empty();
   }
 
@@ -161,60 +161,6 @@ const buildSourceOnlySubpathAliasTargets = (
     R.fromEntries
   );
 };
-
-/**
- * Drift error raised in check mode when changes are required.
- *
- * @category utilities
- * @since 0.0.0
- */
-export class TsconfigSyncDriftError extends TaggedErrorClass<TsconfigSyncDriftError>($I`TsconfigSyncDriftError`)(
-  "TsconfigSyncDriftError",
-  {
-    fileCount: S.Number,
-    summary: S.String,
-  },
-  $I.annote("TsconfigSyncDriftError", {
-    title: "Tsconfig Sync Drift Error",
-    description: "Raised when tsconfig-sync --check detects one or more files that are out of sync.",
-  })
-) {}
-
-/**
- * Cycle error raised when workspace dependency cycles are detected.
- *
- * @category utilities
- * @since 0.0.0
- */
-export class TsconfigSyncCycleError extends TaggedErrorClass<TsconfigSyncCycleError>($I`TsconfigSyncCycleError`)(
-  "TsconfigSyncCycleError",
-  {
-    cycles: S.String.pipe(S.Array, S.Array),
-    message: S.String,
-  },
-  $I.annote("TsconfigSyncCycleError", {
-    title: "Tsconfig Sync Cycle Error",
-    description: "Raised when workspace dependency graph contains one or more cycles.",
-  })
-) {}
-
-/**
- * Filter error raised when `--filter` does not match any workspace package.
- *
- * @category utilities
- * @since 0.0.0
- */
-export class TsconfigSyncFilterError extends TaggedErrorClass<TsconfigSyncFilterError>($I`TsconfigSyncFilterError`)(
-  "TsconfigSyncFilterError",
-  {
-    filter: S.String,
-    message: S.String,
-  },
-  $I.annote("TsconfigSyncFilterError", {
-    title: "Tsconfig Sync Filter Error",
-    description: "Raised when tsconfig-sync filter does not match any workspace package name or path.",
-  })
-) {}
 
 /**
  * Command execution mode.
@@ -889,7 +835,7 @@ const workspacePatternCoversPath: {
   }
 
   for (const [index, segment] of A.entries(patternSegments)) {
-    if (segment !== "*" && !stringEquivalence(segment, pathParts[index] ?? "")) {
+    if (segment !== "*" && !Str.equivalence(segment, pathParts[index] ?? "")) {
       return false;
     }
   }
@@ -968,7 +914,7 @@ const chooseOwnerTsconfig = (paths: ReadonlyArray<string>): string | undefined =
 const workspaceContainsPath = (workspace: WorkspaceDescriptor, targetPath: string): boolean => {
   const workspaceDir = toPosixPath(workspace.absoluteDir);
   const normalizedTarget = toPosixPath(targetPath);
-  return stringEquivalence(normalizedTarget, workspaceDir) || Str.startsWith(`${workspaceDir}/`)(normalizedTarget);
+  return Str.equivalence(normalizedTarget, workspaceDir) || Str.startsWith(`${workspaceDir}/`)(normalizedTarget);
 };
 
 const buildWorkspaceDescriptors = Effect.fn(function* (rootDir: string) {
@@ -1149,7 +1095,7 @@ const planRootQualityReferenceSync = Effect.fn(function* (
     pipe(
       workspaces,
       A.flatMap((workspace) =>
-        workspace.hasProjectTsconfig && !stringEquivalence(workspace.relativeDir, "scratchpad")
+        workspace.hasProjectTsconfig && !Str.equivalence(workspace.relativeDir, "scratchpad")
           ? A.make(workspace.relativeDir)
           : A.empty<string>()
       )
@@ -1286,7 +1232,7 @@ const planRootAliasSync = Effect.fn(function* (rootDir: string, workspaces: Read
   }
 
   const additions = A.length(
-    A.filter(keysToSet, (key) => !A.some(currentCanonicalKeys, (current) => stringEquivalence(current, key)))
+    A.filter(keysToSet, (key) => !A.some(currentCanonicalKeys, (current) => Str.equivalence(current, key)))
   );
   const updates = A.length(keysToSet) - additions;
 
@@ -1395,10 +1341,10 @@ const resolveTargetWorkspacesForPackageSync = (
 
     const packageNameMatchesFilter = O.match(O.fromUndefinedOr(filter), {
       onNone: thunkFalse,
-      onSome: (filterValue) => stringEquivalence(workspace.packageName, filterValue),
+      onSome: (filterValue) => Str.equivalence(workspace.packageName, filterValue),
     });
 
-    return packageNameMatchesFilter || stringEquivalence(workspace.relativeDir, normalizedFilter);
+    return packageNameMatchesFilter || Str.equivalence(workspace.relativeDir, normalizedFilter);
   });
 
   if (filter !== undefined && A.isArrayEmpty(targetWorkspaces)) {
@@ -1431,14 +1377,14 @@ const canonicalizeExistingRefTarget = Effect.fn(function* (
   }
 
   const ownerWorkspace = A.findFirst(workspaces, (workspace) =>
-    stringEquivalence(workspace.packageName, sourceWorkspace.packageName)
+    Str.equivalence(workspace.packageName, sourceWorkspace.packageName)
   );
 
   const targetWorkspace = A.findFirst(workspaces, (workspace) => workspaceContainsPath(workspace, resolvedTarget));
   if (
     O.isSome(targetWorkspace) &&
     O.isSome(ownerWorkspace) &&
-    !stringEquivalence(targetWorkspace.value.packageName, ownerWorkspace.value.packageName)
+    !Str.equivalence(targetWorkspace.value.packageName, ownerWorkspace.value.packageName)
   ) {
     if (targetWorkspace.value.ownerTsconfigPath !== undefined) {
       return O.some(targetWorkspace.value.ownerTsconfigPath);
@@ -1446,7 +1392,7 @@ const canonicalizeExistingRefTarget = Effect.fn(function* (
   }
 
   const stat = yield* fs.stat(resolvedTarget).pipe(Effect.orElseSucceed(thunkUndefined));
-  if (stat !== undefined && stringEquivalence(stat.type, "Directory")) {
+  if (stat !== undefined && Str.equivalence(stat.type, "Directory")) {
     const nestedTsconfigPath = path.join(resolvedTarget, "tsconfig.json");
     const nestedTsconfigExists = yield* fs.exists(nestedTsconfigPath).pipe(Effect.orElseSucceed(thunkFalse));
     if (nestedTsconfigExists) {
@@ -1523,7 +1469,7 @@ const planPackageReferenceSync = Effect.fn(function* (
       );
       if (O.isSome(canonicalTarget)) {
         const normalizedTarget = toPosixPath(canonicalTarget.value);
-        if (!A.some(existingResolvedTargets, (existingTarget) => stringEquivalence(existingTarget, normalizedTarget))) {
+        if (!A.some(existingResolvedTargets, (existingTarget) => Str.equivalence(existingTarget, normalizedTarget))) {
           A.appendInPlace(existingResolvedTargets, normalizedTarget);
         }
       }
@@ -1546,7 +1492,7 @@ const planPackageReferenceSync = Effect.fn(function* (
     }
 
     const nextContent = applyJsoncModification(original, ["references"], referenceEntries(finalRefPaths));
-    if (stringEquivalence(nextContent, original)) {
+    if (Str.equivalence(nextContent, original)) {
       continue;
     }
 
@@ -1611,7 +1557,7 @@ const planPackageDocgenSync = Effect.fn(function* (
     const nextDocument = mergeManagedDocgenConfig(parsed, canonicalConfig);
     const nextContent = yield* renderBiomeJson(filePath, nextDocument);
 
-    if (stringEquivalence(nextContent, original)) {
+    if (Str.equivalence(nextContent, original)) {
       continue;
     }
 

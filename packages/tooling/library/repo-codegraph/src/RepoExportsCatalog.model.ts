@@ -7,7 +7,6 @@
 
 import { $RepoCodegraphId } from "@beep/identity/packages";
 import { LiteralKit } from "@beep/schema";
-import { Effect } from "effect";
 import * as S from "effect/Schema";
 
 const $I = $RepoCodegraphId.create("RepoExportsCatalog.model");
@@ -323,32 +322,3 @@ export class RepoExportsCatalog extends S.Class<RepoExportsCatalog>($I`RepoExpor
  * @since 0.0.0
  */
 export const decodeRepoExportsCatalog = S.decodeUnknownEffect(RepoExportsCatalog);
-
-/**
- * Encode a repo export catalog into its JSON-safe representation.
- *
- * @example
- * ```ts
- * import { encodeRepoExportsCatalog } from "@beep/repo-codegraph"
- * console.log(encodeRepoExportsCatalog)
- * ```
- * @category schemas
- * @since 0.0.0
- */
-export const encodeRepoExportsCatalog = S.encodeEffect(RepoExportsCatalog);
-
-/**
- * Decode JSON text into a generated repo export catalog.
- *
- * @param content - JSON text containing a generated repo export catalog.
- * @returns Effect that decodes the JSON text into a catalog model.
- * @example
- * ```ts
- * import { decodeRepoExportsCatalogJson } from "@beep/repo-codegraph"
- * console.log(decodeRepoExportsCatalogJson)
- * ```
- * @category schemas
- * @since 0.0.0
- */
-export const decodeRepoExportsCatalogJson = (content: string) =>
-  S.decodeUnknownEffect(S.UnknownFromJsonString)(content).pipe(Effect.flatMap(decodeRepoExportsCatalog));

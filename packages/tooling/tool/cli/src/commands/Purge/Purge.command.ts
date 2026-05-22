@@ -15,7 +15,6 @@ import * as S from "effect/Schema";
 import { Command, Flag } from "effect/unstable/cli";
 
 const $I = $RepoCliId.create("purge");
-const stringEquivalence = Str.equivalence;
 /**
  * Workspace-local artifact names to purge.
  *
@@ -81,7 +80,7 @@ const resolveCanonicalPurgePath = Effect.fn(function* (target: string) {
         .realPath(candidate)
         .pipe(Effect.mapError(DomainError.newCause(`Failed to resolve purge path "${candidate}"`)));
       const relativeSuffix = normalizePath(path.relative(candidate, resolvedTarget));
-      return stringEquivalence(relativeSuffix, ".")
+      return Str.equivalence(relativeSuffix, ".")
         ? canonicalCandidate
         : path.resolve(canonicalCandidate, relativeSuffix);
     }
@@ -104,7 +103,7 @@ const ensureContainedPurgeTarget = Effect.fn(function* (rootDir: string, target:
 
   if (
     path.isAbsolute(relativeFromRoot) ||
-    stringEquivalence(relativeFromRoot, "..") ||
+    Str.equivalence(relativeFromRoot, "..") ||
     Str.startsWith("../")(relativeFromRoot)
   ) {
     return yield* DomainError.make({
