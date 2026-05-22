@@ -20,7 +20,7 @@ describe("canvas command bridge", () => {
   it("roundtrips create/list/get/add/remove/save/load through the preview command bridge", () =>
     runCanvasEffect(
       Effect.gen(function* () {
-        const bridge = yield* makePreviewCanvasCommandBridge();
+        const bridge = yield* makePreviewCanvasCommandBridge;
         const health = yield* bridge.canvasHealth();
         const sceneId = yield* decodeCanvasProjectId("scene-test");
         const nodeId = yield* decodeCanvasNodeId("node-test");
@@ -52,7 +52,7 @@ describe("canvas command bridge", () => {
   it("restores saved scene contents when in-memory state diverges", () =>
     runCanvasEffect(
       Effect.gen(function* () {
-        const bridge = yield* makePreviewCanvasCommandBridge();
+        const bridge = yield* makePreviewCanvasCommandBridge;
         const sceneId = yield* decodeCanvasProjectId("restore-scene");
         const savedNodeId = yield* decodeCanvasNodeId("restore-node-saved");
         const divergentNodeId = yield* decodeCanvasNodeId("restore-node-divergent");
@@ -79,7 +79,7 @@ describe("canvas command bridge", () => {
   it("loads preview scene contents from the requested path", () =>
     runCanvasEffect(
       Effect.gen(function* () {
-        const bridge = yield* makePreviewCanvasCommandBridge();
+        const bridge = yield* makePreviewCanvasCommandBridge;
         const alphaSceneId = yield* decodeCanvasProjectId("preview-alpha");
         const betaSceneId = yield* decodeCanvasProjectId("preview-beta");
         const alphaNodeId = yield* decodeCanvasNodeId("preview-alpha-node");
@@ -113,7 +113,7 @@ describe("canvas command bridge", () => {
     expect(
       runCanvasEffect(
         Effect.gen(function* () {
-          const bridge = yield* makePreviewCanvasCommandBridge();
+          const bridge = yield* makePreviewCanvasCommandBridge;
           const sceneId = yield* decodeCanvasProjectId("missing-scene");
           return yield* bridge.sceneGet({ id: sceneId });
         })
@@ -217,7 +217,7 @@ describe("canvas command bridge", () => {
   it("decodes malformed scene save requests before persistence", () =>
     runCanvasEffect(
       Effect.gen(function* () {
-        const bridge = yield* makePreviewCanvasCommandBridge();
+        const bridge = yield* makePreviewCanvasCommandBridge;
         const saveUnknown = bridge.sceneSave as (request: unknown) => Effect.Effect<CanvasScene, CanvasCommandError>;
         const error = yield* saveUnknown(undefined).pipe(
           Effect.match({

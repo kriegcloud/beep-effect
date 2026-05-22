@@ -19,7 +19,7 @@ describe.sequential("Canvas app", () => {
   });
 
   it("renders bridge failures", () => {
-    render(<App loadBridge={() => Effect.fail(new CanvasCommandError({ message: "canvas bridge offline" }))} />);
+    render(<App loadBridge={Effect.fail(new CanvasCommandError({ message: "canvas bridge offline" }))} />);
 
     return waitFor(() => expect(screen.getByText("canvas bridge offline")).toBeInTheDocument());
   });

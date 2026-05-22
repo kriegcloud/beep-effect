@@ -22,7 +22,7 @@ bun run dev:tauri
 import { makeCanvasCommandBridge, makeCanvasCommandRuntime } from "@beep/canvas"
 
 const runtime = makeCanvasCommandRuntime()
-const bridge = await runtime.runPromise(makeCanvasCommandBridge())
+const bridge = await runtime.runPromise(makeCanvasCommandBridge)
 const health = await runtime.runPromise(bridge.canvasHealth())
 
 console.log(health.app)

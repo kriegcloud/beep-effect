@@ -479,7 +479,7 @@ const runAppEffect = <A>(
  * import { makePreviewCanvasCommandBridge } from "@beep/canvas"
  * import type { CanvasCommandBridgeEffect } from "@beep/canvas"
  *
- * const bridgeEffect: CanvasCommandBridgeEffect = makePreviewCanvasCommandBridge()
+ * const bridgeEffect: CanvasCommandBridgeEffect = makePreviewCanvasCommandBridge
  * ```
  *
  * @category commands
@@ -556,15 +556,13 @@ export const decodeCanvasNodeKind = (
  * ```ts
  * import { makePreviewCanvasCommandBridge } from "@beep/canvas"
  *
- * const bridgeEffect = makePreviewCanvasCommandBridge()
+ * const bridgeEffect = makePreviewCanvasCommandBridge
  * ```
  *
  * @category commands
  * @since 0.0.0
  */
-export const makePreviewCanvasCommandBridge: () => CanvasCommandBridgeEffect = Effect.fn(
-  "Canvas.makePreviewCanvasCommandBridge"
-)(function* () {
+export const makePreviewCanvasCommandBridge: CanvasCommandBridgeEffect = Effect.gen(function* () {
   const useCases = yield* CanvasProjectServer;
   const savedScenes = yield* Ref.make(HashMap.empty<string, CanvasScene>());
 
@@ -676,16 +674,16 @@ export const makeNativeCanvasCommandBridge = (invoke: NativeInvoke = invokeNativ
  * ```ts
  * import { makeCanvasCommandBridge } from "@beep/canvas"
  *
- * const bridgeEffect = makeCanvasCommandBridge()
+ * const bridgeEffect = makeCanvasCommandBridge
  * ```
  *
  * @category commands
  * @since 0.0.0
  */
-export const makeCanvasCommandBridge = (): CanvasCommandBridgeEffect => {
+export const makeCanvasCommandBridge: CanvasCommandBridgeEffect = Effect.suspend(() => {
   if (!isDesktopShellRuntime()) {
-    return makePreviewCanvasCommandBridge();
+    return makePreviewCanvasCommandBridge;
   }
 
   return makeNativeCanvasCommandBridge();
-};
+});

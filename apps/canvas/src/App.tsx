@@ -41,7 +41,7 @@ import {
   makeCanvasCommandRuntime,
 } from "./commandBridge.js";
 
-type CanvasCommandBridge = Effect.Success<ReturnType<typeof makeCanvasCommandBridge>>;
+type CanvasCommandBridge = Effect.Success<CanvasCommandBridgeEffect>;
 
 type LoadState =
   | { readonly _tag: "loading" }
@@ -80,7 +80,7 @@ export function App({
   loadBridge = makeCanvasCommandBridge,
   runtime: providedRuntime,
 }: {
-  readonly loadBridge?: () => CanvasCommandBridgeEffect;
+  readonly loadBridge?: CanvasCommandBridgeEffect;
   readonly runtime?: CanvasCommandRuntime;
 }) {
   const [runtime] = useState(() => providedRuntime ?? makeCanvasCommandRuntime());
@@ -107,7 +107,7 @@ export function App({
 
     void runtime
       .runPromise(
-        loadBridge().pipe(
+        loadBridge.pipe(
           Effect.flatMap((bridge) =>
             Effect.all([bridge.canvasHealth(), bridge.sceneList()], { concurrency: 2 }).pipe(
               Effect.map(([health, loadedScenes]) => ({
