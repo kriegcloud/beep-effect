@@ -27,6 +27,7 @@ import type { OipSiteContent, SocialPlatform } from "../content";
 import { BackToTop } from "./BackToTop";
 import { ContactForm } from "./ContactForm";
 import { HeroVideo } from "./HeroVideo";
+import { MattersCarousel } from "./MattersCarousel";
 import { ThemeModeToggle } from "./ThemeModeToggle";
 
 const sectionShell = "mx-auto w-full max-w-7xl px-5 sm:px-8 lg:px-12";
@@ -277,7 +278,7 @@ function Matters({ content }: { readonly content: OipSiteContent }) {
             Public records, practical machinery.
           </h2>
         </header>
-        <div className="mt-10 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+        <MattersCarousel>
           {A.map(content.matters, (matter) => (
             <a
               key={matter.id}
@@ -317,7 +318,7 @@ function Matters({ content }: { readonly content: OipSiteContent }) {
               </div>
             </a>
           ))}
-        </div>
+        </MattersCarousel>
       </div>
     </section>
   );

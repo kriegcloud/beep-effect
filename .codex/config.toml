@@ -10,7 +10,7 @@ command = "npx"
 args = ["-y", "shadcn@4.7.0", "mcp"]
 
 [mcp_servers.serena]
-command = ["serena"]
+command = "serena"
 args = [
   "start-mcp-server",
   "--context", "codex",

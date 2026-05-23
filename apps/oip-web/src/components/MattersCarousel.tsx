@@ -41,7 +41,7 @@ export function MattersCarousel({ children }: { readonly children: React.ReactNo
     <Carousel className="mt-10" opts={{ align: "start", loop: false }} aria-label="Selected matters">
       <CarouselContent className="-ml-5">
         {React.Children.map(children, (child) => (
-          <CarouselItem className="basis-[86%] pl-5 sm:basis-1/2 lg:basis-1/3">{child}</CarouselItem>
+          <CarouselItem className="basis-full pl-5 sm:basis-1/2 lg:basis-1/3">{child}</CarouselItem>
         ))}
       </CarouselContent>
       <CarouselPrevious className={`left-1 sm:left-2 ${navButton}`} />
