@@ -22,7 +22,7 @@
  */
 
 import { P } from "@beep/utils";
-import { Clock, Duration, Effect, Exit, Metric, pipe } from "effect";
+import { Clock, Duration, Effect, Exit, Match, Metric, pipe } from "effect";
 import { dual } from "effect/Function";
 
 interface TrackDurationOptions {
@@ -270,17 +270,16 @@ const observeWorkflowImpl = Effect.fn("observeWorkflowImpl")(function* <A, E, R>
                 Effect.flatMap(
                   Effect.fnUntraced(function* (endedAt) {
                     const durationMs = Math.max(0, endedAt - startedAt);
-                    const outcome = Exit.isSuccess(exit)
-                      ? "completed"
-                      : Exit.hasInterrupts(exit)
-                        ? "interrupted"
-                        : "failed";
-                    const outcomeEffect =
-                      outcome === "completed"
-                        ? incrementCounter(options.completed, options.attributes)
-                        : outcome === "interrupted"
-                          ? incrementCounter(options.interrupted, options.attributes)
-                          : incrementCounter(options.failed, options.attributes);
+                    const outcome = Match.value(exit).pipe(
+                      Match.when(Exit.isSuccess, () => "completed" as const),
+                      Match.when(Exit.hasInterrupts, () => "interrupted" as const),
+                      Match.orElse(() => "failed" as const)
+                    );
+                    const outcomeEffect = Match.value(outcome).pipe(
+                      Match.when("completed", () => incrementCounter(options.completed, options.attributes)),
+                      Match.when("interrupted", () => incrementCounter(options.interrupted, options.attributes)),
+                      Match.orElse(() => incrementCounter(options.failed, options.attributes))
+                    );
                     const durationEffect = P.isUndefined(options.duration)
                       ? Effect.void
                       : Metric.update(

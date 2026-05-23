@@ -8,7 +8,7 @@
 import { $RepoCliId } from "@beep/identity/packages";
 import { ImageFileExtension, VideoFileExtension } from "@beep/schema";
 import { A, Str } from "@beep/utils";
-import { Effect, flow, HashSet, Order, type Path, pipe, Stream } from "effect";
+import { Effect, flow, HashSet, Match, Order, type Path, pipe, Stream } from "effect";
 import { dual } from "effect/Function";
 import * as O from "effect/Option";
 import * as R from "effect/Record";
@@ -153,6 +153,20 @@ const sampleAxisLength = (image: RawImagePixelData, side: BorderSide): number =>
 const scanLineLength = (image: RawImagePixelData, side: BorderSide): number =>
   side === "left" || side === "right" ? image.height : image.width;
 
+const borderX = (image: RawImagePixelData, side: BorderSide, axis: number, line: number): number =>
+  Match.value(side).pipe(
+    Match.when("left", () => axis),
+    Match.when("right", () => image.width - 1 - axis),
+    Match.orElse(() => line)
+  );
+
+const borderY = (image: RawImagePixelData, side: BorderSide, axis: number, line: number): number =>
+  Match.value(side).pipe(
+    Match.when("top", () => axis),
+    Match.when("bottom", () => image.height - 1 - axis),
+    Match.orElse(() => line)
+  );
+
 const sampleBorderColor = (image: RawImagePixelData, side: BorderSide, sampleWidth: number): RgbColor => {
   const red: number[] = [];
   const green: number[] = [];
@@ -162,8 +176,8 @@ const sampleBorderColor = (image: RawImagePixelData, side: BorderSide, sampleWid
 
   for (let axis = 0; axis < axisLimit; axis += 1) {
     for (let line = 0; line < lineLimit; line += 1) {
-      const x = side === "left" ? axis : side === "right" ? image.width - 1 - axis : line;
-      const y = side === "top" ? axis : side === "bottom" ? image.height - 1 - axis : line;
+      const x = borderX(image, side, axis, line);
+      const y = borderY(image, side, axis, line);
       const offset = pixelOffset(image, x, y);
 
       A.appendInPlace(red, byteAt(image.data, offset));
@@ -191,8 +205,8 @@ const borderLineStats = (
   let distanceSum = 0;
 
   for (let line = 0; line < length; line += 1) {
-    const x = side === "left" ? offsetFromEdge : side === "right" ? image.width - 1 - offsetFromEdge : line;
-    const y = side === "top" ? offsetFromEdge : side === "bottom" ? image.height - 1 - offsetFromEdge : line;
+    const x = borderX(image, side, offsetFromEdge, line);
+    const y = borderY(image, side, offsetFromEdge, line);
     const pixel = pixelOffset(image, x, y);
     const distance = Math.max(
       Math.abs(byteAt(image.data, pixel) - edgeColor.r),

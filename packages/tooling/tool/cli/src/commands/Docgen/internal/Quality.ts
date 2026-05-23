@@ -1420,7 +1420,11 @@ const scoreSubject = (subject: DocgenQualitySubject): DocgenQualityReview => {
   }
 
   for (const tag of subject.deterministicMissingTags) {
-    const code = tag === "@example" ? "missing-example" : tag === "@category" ? "missing-category" : "missing-since";
+    const code = Match.value(tag).pipe(
+      Match.when("@example", () => "missing-example" as const),
+      Match.when("@category", () => "missing-category" as const),
+      Match.orElse(() => "missing-since" as const)
+    );
     findings = addFinding(
       findings,
       makeFinding({
@@ -1527,11 +1531,18 @@ const scoreSubject = (subject: DocgenQualitySubject): DocgenQualityReview => {
   }
 
   const score = Math.max(1, 10 - A.reduce(findings, 0, (total, finding) => total + finding.scoreImpact));
-  const tier: DocgenQualityTier = A.some(findings, (finding) => finding.tier === "fail")
-    ? "fail"
-    : score < 8 || findings.length > 0
-      ? "warn"
-      : "pass";
+  const tier: DocgenQualityTier = pipe(
+    [
+      pipe(
+        A.some(findings, (finding) => finding.tier === "fail"),
+        O.liftPredicate(P.isTruthy),
+        O.as("fail" as const)
+      ),
+      pipe(score < 8 || A.isReadonlyArrayNonEmpty(findings), O.liftPredicate(P.isTruthy), O.as("warn" as const)),
+    ] satisfies ReadonlyArray<O.Option<DocgenQualityTier>>,
+    O.firstSomeOf,
+    O.getOrElse(() => "pass" as const)
+  );
   const rationale =
     findings.length === 0
       ? "JSDoc block supplies the required tags, useful description, and a meaningful example."

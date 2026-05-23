@@ -54,14 +54,15 @@ const validateOutputSync = <Output extends S.Top>(outputSchema: Output, output: 
 const validateFailReasonEffect = <Error extends S.Top>(
   errorSchema: Error,
   reason: Cause.Reason<Error["Type"]>
-): Effect.Effect<Cause.Reason<Error["Type"]>, SchemaIssue.Issue> =>
-  !Cause.isFailReason(reason)
-    ? Effect.succeed(reason)
-    : isNeverKeyword(errorSchema.ast)
-      ? Effect.succeed(reason)
-      : Effect.map(validateErrorEffect(errorSchema, reason.error), (error) =>
-          Cause.makeFailReason(error).annotate(Cause.reasonAnnotations(reason))
-        );
+): Effect.Effect<Cause.Reason<Error["Type"]>, SchemaIssue.Issue> => {
+  if (!Cause.isFailReason(reason) || isNeverKeyword(errorSchema.ast)) {
+    return Effect.succeed(reason);
+  }
+
+  return Effect.map(validateErrorEffect(errorSchema, reason.error), (error) =>
+    Cause.makeFailReason(error).annotate(Cause.reasonAnnotations(reason))
+  );
+};
 
 const validateErrorCauseEffect = <Error extends S.Top>(
   errorSchema: Error,

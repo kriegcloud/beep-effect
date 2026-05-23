@@ -94,8 +94,17 @@ export interface OrchestrateOptions<R = never> {
   readonly sandboxRepoDir: string;
 }
 
-const completionSignals = (input: string | ReadonlyArray<string> | undefined): ReadonlyArray<string> =>
-  P.isUndefined(input) ? [DEFAULT_COMPLETION_SIGNAL] : P.isString(input) ? [input] : input;
+const completionSignals = (input: string | ReadonlyArray<string> | undefined): ReadonlyArray<string> => {
+  if (P.isUndefined(input)) {
+    return A.make(DEFAULT_COMPLETION_SIGNAL);
+  }
+
+  if (P.isString(input)) {
+    return A.of(input);
+  }
+
+  return input;
+};
 
 const firstMatchedSignal = (output: string, signals: ReadonlyArray<string>): string | undefined =>
   pipe(

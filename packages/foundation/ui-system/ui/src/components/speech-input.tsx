@@ -19,6 +19,18 @@ import {
 import { cn } from "../lib/index.ts";
 import { requireReactContext } from "../lib/react-invariant.ts";
 
+const previewDisplayText = (transcript: string, partialTranscript: string, placeholder: string): string => {
+  if (transcript !== "") {
+    return transcript;
+  }
+
+  if (partialTranscript !== "") {
+    return partialTranscript;
+  }
+
+  return placeholder;
+};
+
 const buttonVariants = cva("!px-0", {
   variants: {
     size: {
@@ -360,12 +372,7 @@ const SpeechInputPreview = forwardRef<HTMLDivElement, SpeechInputPreviewProps>(f
 ) {
   const speechInput = useSpeechInput();
 
-  const displayText =
-    speechInput.transcript !== ""
-      ? speechInput.transcript
-      : speechInput.partialTranscript !== ""
-        ? speechInput.partialTranscript
-        : placeholder;
+  const displayText = previewDisplayText(speechInput.transcript, speechInput.partialTranscript, placeholder);
   const showPlaceholder = Str.trim(speechInput.transcript) === "";
 
   return (

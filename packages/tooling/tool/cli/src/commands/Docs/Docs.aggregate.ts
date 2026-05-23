@@ -14,6 +14,7 @@ import { Console, Effect } from "effect";
 import * as O from "effect/Option";
 import * as R from "effect/Record";
 import { Command, Flag } from "effect/unstable/cli";
+import { failWithReportedExit } from "../../internal/cli/ExitCodeError.js";
 import { aggregateGeneratedDocs } from "../Docgen/internal/Operations.js";
 
 const packageFlag = Flag.string("package").pipe(
@@ -87,12 +88,12 @@ export const docsAggregateCommand = Command.make(
       ),
       Effect.catchTags({
         DomainError: Effect.fn(function* (error) {
-          process.exitCode = 1;
           yield* Console.error(`docs aggregate: ${error.message}`);
+          return yield* failWithReportedExit(`docs aggregate: ${error.message}`);
         }),
         NoSuchFileError: Effect.fn(function* (error) {
-          process.exitCode = 1;
           yield* Console.error(`docs aggregate: ${error.message}`);
+          return yield* failWithReportedExit(`docs aggregate: ${error.message}`);
         }),
       })
     )

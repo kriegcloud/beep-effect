@@ -1,9 +1,12 @@
 export * from "effect/Schema";
 
+import * as A from "effect/Array";
 import * as Cause from "effect/Cause";
 import * as Effect from "effect/Effect";
 import * as Exit from "effect/Exit";
+import * as Match from "effect/Match";
 import * as O from "effect/Option";
+import * as P from "effect/Predicate";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
 import type * as AST from "effect/SchemaAST";
@@ -46,11 +49,12 @@ const isFilterIssueArray = (output: CompatFilterOutput): output is ReadonlyArray
   Array.isArray(output);
 
 const normalizeFilterOutput = (output: CompatFilterOutput): S.FilterOutput =>
-  isFilterIssueArray(output)
-    ? output.map(normalizeFilterIssue)
-    : output === undefined || typeof output === "boolean"
-      ? output
-      : normalizeFilterIssue(output);
+  Match.value(output).pipe(
+    Match.when(isFilterIssueArray, (issues) => A.map(issues, normalizeFilterIssue)),
+    Match.when(P.isUndefined, (value) => value),
+    Match.when(P.isBoolean, (value) => value),
+    Match.orElse((issue) => normalizeFilterIssue(issue))
+  );
 
 const makeFilterIssue = (input: unknown, entry: CompatFilterIssue): SchemaIssue.Issue => {
   const normalizedEntry = normalizeFilterIssue(entry);

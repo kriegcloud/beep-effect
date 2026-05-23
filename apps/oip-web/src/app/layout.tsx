@@ -5,7 +5,6 @@
  * @packageDocumentation
  */
 
-import { AppThemeInitScript } from "@beep/ui/themes/theme-init-script";
 import { Config, Effect, pipe } from "effect";
 import * as O from "effect/Option";
 import type { Metadata } from "next";
@@ -238,7 +237,6 @@ export default function RootLayout({
       return (
         <html lang="en" className="h-full antialiased" suppressHydrationWarning>
           <head>
-            <AppThemeInitScript attribute="class" defaultMode="light" modeStorageKey="mui-mode" nonce={nonce} />
             <script
               nonce={nonce}
               suppressHydrationWarning

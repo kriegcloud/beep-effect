@@ -8,7 +8,7 @@
 import { $SandboxId } from "@beep/identity";
 import { Fn, LiteralKit } from "@beep/schema";
 import { A, Str } from "@beep/utils";
-import { Duration, Effect, FileSystem, Path } from "effect";
+import { Duration, Effect, FileSystem, Match, Path } from "effect";
 import { dual } from "effect/Function";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
@@ -679,35 +679,39 @@ const runInWorktree: <R>(
       ),
     (sandbox) => sandbox.close
   );
-  const commits =
-    options.branchStrategy._tag === "Head"
-      ? result.commits
-      : options.branchStrategy._tag === "MergeToHead"
-        ? yield* mergeToHead(
-            MergeToHeadOptions.make({
-              baseHead: options.baseHead,
-              hostRepoDir: options.hostRepoDir,
-              sourceBranch: options.worktree.branch,
-              targetBranch: options.currentBranch,
-              timeoutMs: options.timeouts.mergeToHeadMs,
-              worktreePath: options.worktree.path,
-            })
-          ).pipe(
-            Effect.andThen(
-              collectRunCommits(
-                options.hostRepoDir,
-                options.baseHead,
-                options.currentBranch,
-                options.timeouts.commitCollectionMs
-              )
+  const commits = yield* Match.value(options.branchStrategy).pipe(
+    Match.tags({
+      Head: () => Effect.succeed(result.commits),
+      MergeToHead: () =>
+        mergeToHead(
+          MergeToHeadOptions.make({
+            baseHead: options.baseHead,
+            hostRepoDir: options.hostRepoDir,
+            sourceBranch: options.worktree.branch,
+            targetBranch: options.currentBranch,
+            timeoutMs: options.timeouts.mergeToHeadMs,
+            worktreePath: options.worktree.path,
+          })
+        ).pipe(
+          Effect.andThen(
+            collectRunCommits(
+              options.hostRepoDir,
+              options.baseHead,
+              options.currentBranch,
+              options.timeouts.commitCollectionMs
             )
           )
-        : yield* collectRunCommits(
-            options.hostRepoDir,
-            options.currentBranch,
-            options.worktree.branch,
-            options.timeouts.commitCollectionMs
-          );
+        ),
+    }),
+    Match.orElse(() =>
+      collectRunCommits(
+        options.hostRepoDir,
+        options.currentBranch,
+        options.worktree.branch,
+        options.timeouts.commitCollectionMs
+      )
+    )
+  );
   const completion = buildCompletionMessage(result.completionSignal, result.iterations.length);
   const displayRows = buildRunSummaryRows(
     RunSummaryRowOptions.make({
@@ -782,22 +786,25 @@ const runEffect: <R>(
     yield* validateNoArgsWithInlinePrompt(promptArgs);
   }
 
-  const resolvedBranch =
-    branchStrategy._tag === "Branch"
-      ? branchStrategy.branch
-      : branchStrategy._tag === "Head"
-        ? currentBranch
-        : Str.replace(
-            /\.log$/u,
-            ""
-          )(
-            buildLogFilename(
-              currentBranch,
-              LogFilenameOptions.make({
-                ...(options.name === undefined ? {} : { name: options.name }),
-              })
-            )
-          );
+  const resolvedBranch = Match.value(branchStrategy).pipe(
+    Match.tags({
+      Branch: (strategy) => strategy.branch,
+      Head: () => currentBranch,
+    }),
+    Match.orElse(() =>
+      Str.replace(
+        /\.log$/u,
+        ""
+      )(
+        buildLogFilename(
+          currentBranch,
+          LogFilenameOptions.make({
+            ...(options.name === undefined ? {} : { name: options.name }),
+          })
+        )
+      )
+    )
+  );
   const builtInArgs = {
     SOURCE_BRANCH: resolvedBranch,
     TARGET_BRANCH: currentBranch,

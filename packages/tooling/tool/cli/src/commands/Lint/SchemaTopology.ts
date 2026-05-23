@@ -13,6 +13,7 @@ import * as P from "effect/Predicate";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
 import { Command } from "effect/unstable/cli";
+import { failWithReportedExit } from "../../internal/cli/ExitCodeError.js";
 
 const $I = $RepoCliId.create("commands/Lint/SchemaTopology");
 
@@ -343,8 +344,7 @@ export const runSchemaTopologyLint = Effect.fn("SchemaTopology.runSchemaTopology
       yield* Console.error(`${violation.file} ${violation.detail}`);
     }
 
-    process.exitCode = 1;
-    return;
+    return yield* failWithReportedExit("schema-topology: topology violations found.");
   }
 
   yield* Console.log("[schema-topology] OK: @beep/schema topology is canonical.");

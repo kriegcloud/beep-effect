@@ -8,7 +8,7 @@
 import { $OpenaiCompatId } from "@beep/identity";
 import { decodeJsonString } from "@beep/schema/Json";
 import { A, Str } from "@beep/utils";
-import { Context, Effect, flow, Layer, pipe, Stream } from "effect";
+import { Context, Effect, flow, Layer, Match, pipe, Stream } from "effect";
 import { identity } from "effect/Function";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
@@ -141,13 +141,17 @@ const mapHttpClientError = (
   method: string,
   error: HttpClientError.HttpClientError
 ): Effect.Effect<never, AiError.AiError> =>
-  error.reason._tag === "StatusCodeError"
-    ? mapStatusError(method, error.reason)
-    : error.reason._tag === "TransportError" ||
-        error.reason._tag === "EncodeError" ||
-        error.reason._tag === "InvalidUrlError"
-      ? Effect.fail(makeAiError(method, AiError.NetworkError.fromRequestError(error.reason)))
-      : Effect.fail(makeAiError(method, AiError.InvalidOutputError.make({ description: error.message })));
+  Match.value(error.reason).pipe(
+    Match.tags({
+      StatusCodeError: (reason) => mapStatusError(method, reason),
+      TransportError: (reason) => Effect.fail(makeAiError(method, AiError.NetworkError.fromRequestError(reason))),
+      EncodeError: (reason) => Effect.fail(makeAiError(method, AiError.NetworkError.fromRequestError(reason))),
+      InvalidUrlError: (reason) => Effect.fail(makeAiError(method, AiError.NetworkError.fromRequestError(reason))),
+    }),
+    Match.orElse(() =>
+      Effect.fail(makeAiError(method, AiError.InvalidOutputError.make({ description: error.message })))
+    )
+  );
 
 const logClientFailure =
   (method: string) =>

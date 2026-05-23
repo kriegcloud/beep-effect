@@ -4,7 +4,7 @@
  * @packageDocumentation
  * @since 0.0.0
  */
-import { Effect, type Graph as Graph_, Option, SchemaIssue, SchemaParser } from "effect";
+import { Effect, type Graph as Graph_, Match, Option, SchemaIssue, SchemaParser } from "effect";
 import * as S from "effect/Schema";
 import { GraphEncoded as GraphEncodedSchemaFactory, type GraphIso } from "./Graph.encoded.ts";
 import { rebuildImmutableGraph, rebuildMutableGraph } from "./Graph.rebuild.ts";
@@ -163,12 +163,11 @@ const makeImmutableGraphFromSelf = <Node extends S.Top, Edge extends S.Top>(
       },
       generation: {
         runtime: `${name}(?, ?)`,
-        Type:
-          expectedType === undefined
-            ? "Graph.Graph<?, ?, ? extends directed | undirected>"
-            : expectedType === "directed"
-              ? "Graph.DirectedGraph<?, ?>"
-              : "Graph.UndirectedGraph<?, ?>",
+        Type: Match.value(expectedType).pipe(
+          Match.when("directed", () => "Graph.DirectedGraph<?, ?>"),
+          Match.when("undirected", () => "Graph.UndirectedGraph<?, ?>"),
+          Match.orElse(() => "Graph.Graph<?, ?, ? extends directed | undirected>")
+        ),
         importDeclaration: 'import * as Graph from "effect/Graph"',
       },
       expected: name,
@@ -217,12 +216,11 @@ const makeMutableGraphFromSelf = <Node extends S.Top, Edge extends S.Top>(
       },
       generation: {
         runtime: `${name}(?, ?)`,
-        Type:
-          expectedType === undefined
-            ? "Graph.MutableGraph<?, ?, ? extends directed | undirected>"
-            : expectedType === "directed"
-              ? "Graph.MutableDirectedGraph<?, ?>"
-              : "Graph.MutableUndirectedGraph<?, ?>",
+        Type: Match.value(expectedType).pipe(
+          Match.when("directed", () => "Graph.MutableDirectedGraph<?, ?>"),
+          Match.when("undirected", () => "Graph.MutableUndirectedGraph<?, ?>"),
+          Match.orElse(() => "Graph.MutableGraph<?, ?, ? extends directed | undirected>")
+        ),
         importDeclaration: 'import * as Graph from "effect/Graph"',
       },
       expected: name,

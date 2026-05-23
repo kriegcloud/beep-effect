@@ -93,18 +93,18 @@ export const profileSandboxPhase: {
     effect: Effect.Effect<A, E, R> | SandboxPhaseOptions,
     options: SandboxPhaseOptions | Effect.Effect<A, E, R> | undefined
   ): Effect.Effect<A, E, R> => {
-    const run =
-      Effect.isEffect(effect) && options !== undefined && !Effect.isEffect(options)
-        ? {
-            effect,
-            options,
-          }
-        : !Effect.isEffect(effect) && Effect.isEffect(options)
-          ? {
-              effect: options,
-              options: effect,
-            }
-          : undefined;
+    let run:
+      | {
+          readonly effect: Effect.Effect<A, E, R>;
+          readonly options: SandboxPhaseOptions;
+        }
+      | undefined;
+
+    if (Effect.isEffect(effect) && options !== undefined && !Effect.isEffect(options)) {
+      run = { effect, options };
+    } else if (!Effect.isEffect(effect) && Effect.isEffect(options)) {
+      run = { effect: options, options: effect };
+    }
 
     if (run === undefined) {
       return Effect.die("Invalid profileSandboxPhase arguments");

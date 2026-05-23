@@ -8,7 +8,7 @@
 import { $NlpId } from "@beep/identity";
 import { TaggedErrorClass } from "@beep/schema";
 import { A, Struct } from "@beep/utils";
-import { Cause, Effect, Inspectable, SchemaParser, Stream } from "effect";
+import { Cause, Effect, Inspectable, pipe, SchemaParser, Stream } from "effect";
 import { dual } from "effect/Function";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
@@ -61,11 +61,18 @@ const hasStructFields = (
 
 const parameterNamesForTool = (tool: NlpTool): ReadonlyArray<string> => {
   const overridden = TOOL_PARAMETER_NAMES[tool.name];
-  return P.isNotUndefined(overridden)
-    ? overridden
-    : hasStructFields(tool.parametersSchema)
-      ? Struct.keys(tool.parametersSchema.fields)
-      : A.empty();
+  return pipe(
+    [
+      O.fromUndefinedOr(overridden),
+      pipe(
+        tool.parametersSchema,
+        O.liftPredicate(hasStructFields),
+        O.map((schema) => Struct.keys(schema.fields))
+      ),
+    ] satisfies ReadonlyArray<O.Option<ReadonlyArray<string>>>,
+    O.firstSomeOf,
+    O.getOrElse(() => A.empty<string>())
+  );
 };
 
 /**

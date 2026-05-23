@@ -13,6 +13,7 @@ import { A, Str, thunkFalse } from "@beep/utils";
 import { Console, Effect, FileSystem, flow, Match, Path, pipe, type Scope, Stream } from "effect";
 import { dual } from "effect/Function";
 import * as O from "effect/Option";
+import * as P from "effect/Predicate";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
 import { ChildProcess, type ChildProcessSpawner } from "effect/unstable/process";
@@ -881,13 +882,26 @@ const rootLintFixPolicySteps = (repoRoot: string): ReadonlyArray<QualityTaskStep
   repoCliStep(repoRoot, "lint:effect-imports:fix", ["laws", "effect-imports", "--write"]),
 ];
 
+const rootLintPolicySteps = (
+  repoRoot: string,
+  args: ReadonlyArray<string>,
+  fix: boolean
+): ReadonlyArray<QualityTaskStep> => {
+  const shouldRunRepoWide = shouldRunRepoWideSteps(args);
+
+  return pipe(
+    [
+      pipe(shouldRunRepoWide && fix, O.liftPredicate(P.isTruthy), O.as(rootLintFixPolicySteps(repoRoot))),
+      pipe(shouldRunRepoWide, O.liftPredicate(P.isTruthy), O.as(rootRepoLintPolicySteps(repoRoot))),
+    ] satisfies ReadonlyArray<O.Option<ReadonlyArray<QualityTaskStep>>>,
+    O.firstSomeOf,
+    O.getOrElse(() => A.empty<QualityTaskStep>())
+  );
+};
+
 const rootLintSteps = (repoRoot: string, args: ReadonlyArray<string>, fix: boolean) => [
   fix ? turboStep(repoRoot, "lint:fix", ["lint:fix"], args) : turboStep(repoRoot, "lint", ["lint"], args),
-  ...(shouldRunRepoWideSteps(args)
-    ? fix
-      ? rootLintFixPolicySteps(repoRoot)
-      : rootRepoLintPolicySteps(repoRoot)
-    : A.empty<QualityTaskStep>()),
+  ...rootLintPolicySteps(repoRoot, args, fix),
 ];
 
 const runRootLintTask = Effect.fn("QualityTasks.runRootLintTask")(function* (

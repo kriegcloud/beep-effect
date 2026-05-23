@@ -25,6 +25,7 @@ import {
 import { LiteralKit, TaggedErrorClass, UnknownRecord } from "@beep/schema";
 import { A, O, P, Str } from "@beep/utils";
 import { DateTime, Effect, FileSystem, flow, Match, Path, pipe } from "effect";
+import { dual } from "effect/Function";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
 import * as HttpClient from "effect/unstable/http/HttpClient";
@@ -213,7 +214,12 @@ export class AgentEffectivenessAnnotationPlanInput extends S.Class<AgentEffectiv
   $I.annote("AgentEffectivenessAnnotationPlanInput", {
     description: "Input used to render a sanitized, local-only Phoenix annotation plan.",
   })
-) {}
+) {
+  static readonly new = (doctor: AgentEffectivenessDoctorInput) =>
+    AgentEffectivenessAnnotationPlanInput.make({
+      doctor,
+    });
+}
 
 /**
  * Summary for one Phoenix project.
@@ -959,7 +965,25 @@ export class AgentEffectivenessPhoenixSyncInput extends S.Class<AgentEffectivene
     description:
       "Input for guarded Phoenix sync of agent-effectiveness datasets, prompts, experiments, and annotations.",
   })
-) {}
+) {
+  static readonly new: {
+    (
+      annotationPlan: AgentEffectivenessAnnotationPlanInput,
+      dryRun: boolean,
+      confirmToken?: undefined | string
+    ): AgentEffectivenessPhoenixSyncInput;
+    (
+      dryRun: boolean,
+      confirmToken?: undefined | string
+    ): (annotationPlan: AgentEffectivenessAnnotationPlanInput) => AgentEffectivenessPhoenixSyncInput;
+  } = dual(3, (annotationPlan, dryRun, confirmToken) =>
+    AgentEffectivenessPhoenixSyncInput.make({
+      annotationPlan,
+      dryRun,
+      ...(P.isUndefined(confirmToken) ? {} : { confirmToken }),
+    })
+  );
+}
 
 /**
  * Result from a guarded Phoenix sync attempt.
@@ -1320,7 +1344,11 @@ const aggregateSummary = (
   const folded = pipe(
     sections,
     A.reduce(
-      { failures: A.empty<string>(), unavailable: A.empty<string>(), warnings: A.empty<string>() },
+      {
+        failures: A.empty<string>(),
+        unavailable: A.empty<string>(),
+        warnings: A.empty<string>(),
+      },
       (acc, section) => {
         const current = sectionStatus(section.status, section.label, section.message);
         return {
@@ -1332,11 +1360,17 @@ const aggregateSummary = (
     )
   );
 
-  const status = A.isReadonlyArrayNonEmpty(folded.failures)
-    ? AgentEffectivenessStatus.Enum.failed
-    : A.isReadonlyArrayNonEmpty(folded.warnings) || A.isReadonlyArrayNonEmpty(folded.unavailable)
-      ? AgentEffectivenessStatus.Enum.warning
-      : AgentEffectivenessStatus.Enum.passed;
+  const status = Match.value(folded).pipe(
+    Match.when(
+      ({ failures }) => A.isReadonlyArrayNonEmpty(failures),
+      () => AgentEffectivenessStatus.Enum.failed
+    ),
+    Match.when(
+      ({ unavailable, warnings }) => A.isReadonlyArrayNonEmpty(warnings) || A.isReadonlyArrayNonEmpty(unavailable),
+      () => AgentEffectivenessStatus.Enum.warning
+    ),
+    Match.orElse(() => AgentEffectivenessStatus.Enum.passed)
+  );
 
   return AgentEffectivenessDoctorSummary.make({ ...folded, status });
 };
@@ -1503,52 +1537,39 @@ const queryAiMetricsSection = Effect.fn("AiMetrics.agentEffectiveness.queryAiMet
   const sourceRows = yield* duckdb
     .query(
       `SELECT source_kind AS "sourceKind",
-              count(*)::INTEGER AS "sourceFileCount",
-              sum(total_lines)::INTEGER AS "totalLines",
-              sum(accepted_events)::INTEGER AS "acceptedEvents",
-              sum(rejected_lines)::INTEGER AS "rejectedLines",
-              max(last_timestamp) AS "lastTimestamp"
-         FROM ai_metrics_source_files
-        GROUP BY source_kind
-        ORDER BY source_kind`
+              count(*)::INTEGER AS "sourceFileCount", sum(total_lines)::INTEGER AS "totalLines", sum(accepted_events)::INTEGER AS "acceptedEvents", sum(rejected_lines)::INTEGER AS "rejectedLines", max(last_timestamp) AS "lastTimestamp"
+       FROM ai_metrics_source_files
+       GROUP BY source_kind
+       ORDER BY source_kind`
     )
     .pipe(Effect.flatMap(decodeSourceCoverageRows));
   const forwarderRows = yield* duckdb
     .query(
-      `SELECT ingest_run_id AS "ingestRunId",
-              target AS "target",
+      `SELECT ingest_run_id      AS "ingestRunId",
+              target             AS "target",
               config_snapshot_id AS "configSnapshotId",
-              completed_at_epoch_ms::DOUBLE AS "completedAtEpochMillis",
-              source_file_count::INTEGER AS "sourceFileCount",
-              archive_object_count::INTEGER AS "archiveObjectCount",
-              turn_count::INTEGER AS "turnCount"
-         FROM ai_metrics_ingest_runs
-        ORDER BY completed_at_epoch_ms DESC
-        LIMIT 1`
+              completed_at_epoch_ms::DOUBLE AS "completedAtEpochMillis", source_file_count::INTEGER AS "sourceFileCount", archive_object_count::INTEGER AS "archiveObjectCount", turn_count::INTEGER AS "turnCount"
+       FROM ai_metrics_ingest_runs
+       ORDER BY completed_at_epoch_ms DESC LIMIT 1`
     )
     .pipe(Effect.flatMap(decodeForwarderSummaryRows));
   const scorecardRows = yield* duckdb
     .query(
-      `SELECT scorecard_id AS "scorecardId",
+      `SELECT scorecard_id       AS "scorecardId",
               config_snapshot_id AS "configSnapshotId",
-              window_start_epoch_ms::DOUBLE AS "windowStartEpochMillis",
-              window_end_epoch_ms::DOUBLE AS "windowEndEpochMillis",
-              total_score::DOUBLE AS "totalScore",
-              task_count::INTEGER AS "taskCount",
-              label_count::INTEGER AS "labelCount",
-              benchmark_run_count::INTEGER AS "benchmarkRunCount",
-              completion_ready AS "completionReady",
+              window_start_epoch_ms::DOUBLE AS "windowStartEpochMillis", window_end_epoch_ms::DOUBLE AS "windowEndEpochMillis", total_score::DOUBLE AS "totalScore", task_count::INTEGER AS "taskCount", label_count::INTEGER AS "labelCount", benchmark_run_count::INTEGER AS "benchmarkRunCount", completion_ready AS "completionReady",
               coverage_gaps_json AS "coverageGapsJson"
-         FROM ai_metrics_scorecards
-        ORDER BY window_end_epoch_ms DESC
-        LIMIT 1`
+       FROM ai_metrics_scorecards
+       ORDER BY window_end_epoch_ms DESC LIMIT 1`
     )
     .pipe(Effect.flatMap(decodeScorecardSummaryRows));
   const labelCountRows = yield* duckdb
-    .query(`SELECT count(*)::INTEGER AS "count" FROM ai_metrics_outcome_labels`)
+    .query(`SELECT count(*) ::INTEGER AS "count"
+            FROM ai_metrics_outcome_labels`)
     .pipe(Effect.flatMap(decodeCountRows));
   const benchmarkCountRows = yield* duckdb
-    .query(`SELECT count(*)::INTEGER AS "count" FROM ai_metrics_benchmark_runs`)
+    .query(`SELECT count(*) ::INTEGER AS "count"
+            FROM ai_metrics_benchmark_runs`)
     .pipe(Effect.flatMap(decodeCountRows));
 
   const latestScorecard = firstOrNull(scorecardRows);
@@ -1620,11 +1641,22 @@ const queryAiMetricsSection = Effect.fn("AiMetrics.agentEffectiveness.queryAiMet
     labelCount,
     latestForwarder,
     latestScorecard: scorecard,
-    message: missingCore
-      ? "AI-metrics derived storage is present but core evidence is incomplete."
-      : A.isReadonlyArrayNonEmpty(readinessWarnings)
-        ? `AI-metrics evidence is present with readiness warnings: ${A.join(readinessWarnings, ", ")}.`
-        : "AI-metrics derived evidence is present and completion-ready.",
+    message: pipe(
+      [
+        pipe(
+          missingCore,
+          O.liftPredicate(P.isTruthy),
+          O.as("AI-metrics derived storage is present but core evidence is incomplete.")
+        ),
+        pipe(
+          readinessWarnings,
+          O.liftPredicate(A.isReadonlyArrayNonEmpty),
+          O.as(`AI-metrics evidence is present with readiness warnings: ${A.join(readinessWarnings, ", ")}.`)
+        ),
+      ],
+      O.firstSomeOf,
+      O.getOrElse(() => "AI-metrics derived evidence is present and completion-ready.")
+    ),
     sourceCoverage,
     status:
       missingCore || A.isReadonlyArrayNonEmpty(readinessWarnings)
@@ -1740,20 +1772,30 @@ const buildJsdocWorkerSection = Effect.fn("AiMetrics.agentEffectiveness.buildJsd
     cleanupStopStatus: decoded.value.cleanup.stopStatus,
     completedPackets: summary.completed,
     failedPackets: summary.failed,
-    message: hasFailures
-      ? "JSDoc worker-eval contains failed or timed-out packets."
-      : hasWarnings
-        ? `JSDoc worker-eval completed with policy warnings: ${A.join(policyViolationCodes, ", ")}.`
-        : "JSDoc worker-eval completed without policy violations.",
+    message: pipe(
+      [
+        pipe(hasFailures, O.liftPredicate(P.isTruthy), O.as("JSDoc worker-eval contains failed or timed-out packets.")),
+        pipe(
+          hasWarnings,
+          O.liftPredicate(P.isTruthy),
+          O.as(`JSDoc worker-eval completed with policy warnings: ${A.join(policyViolationCodes, ", ")}.`)
+        ),
+      ],
+      O.firstSomeOf,
+      O.getOrElse(() => "JSDoc worker-eval completed without policy violations.")
+    ),
     otlpStatus: decoded.value.otlp.status,
     policyViolationCodes,
     reportPath,
     selectedPackets: summary.selectedPackets,
-    status: hasFailures
-      ? AgentEffectivenessStatus.Enum.failed
-      : hasWarnings
-        ? AgentEffectivenessStatus.Enum.warning
-        : AgentEffectivenessStatus.Enum.passed,
+    status: pipe(
+      [
+        pipe(hasFailures, O.liftPredicate(P.isTruthy), O.as(AgentEffectivenessStatus.Enum.failed)),
+        pipe(hasWarnings, O.liftPredicate(P.isTruthy), O.as(AgentEffectivenessStatus.Enum.warning)),
+      ],
+      O.firstSomeOf,
+      O.getOrElse(() => AgentEffectivenessStatus.Enum.passed)
+    ),
     timedOutPackets: summary.timedOut,
   });
 });
@@ -1785,7 +1827,11 @@ export const makeAgentEffectivenessDoctorReport: (
   const summary = aggregateSummary([
     { label: "phoenix", message: phoenix.message, status: phoenix.status },
     { label: "aiMetrics", message: aiMetrics.message, status: aiMetrics.status },
-    { label: "jsdocWorkerEval", message: jsdocWorkerEval.message, status: jsdocWorkerEval.status },
+    {
+      label: "jsdocWorkerEval",
+      message: jsdocWorkerEval.message,
+      status: jsdocWorkerEval.status,
+    },
   ]);
   const generatedAt = yield* currentIsoTimestamp;
 
@@ -1988,30 +2034,27 @@ const queryAnnotationRows = Effect.fn("AiMetrics.agentEffectiveness.queryAnnotat
   const duckdb = yield* DuckDb;
   const labelRows = yield* duckdb
     .query(
-      `SELECT label_id AS "labelId",
+      `SELECT label_id      AS "labelId",
               agent_task_id AS "agentTaskId",
-              rating::DOUBLE AS "rating",
-              passed AS "passed",
-              quality_gate AS "qualityGate",
-              intervention_count::INTEGER AS "interventionCount",
-              follow_up_fix AS "followUpFix"
-         FROM ai_metrics_outcome_labels
-        ORDER BY labeled_at_epoch_ms DESC
-        LIMIT $limit`,
+              rating::DOUBLE AS "rating", passed AS "passed",
+              quality_gate  AS "qualityGate",
+              intervention_count::INTEGER AS "interventionCount", follow_up_fix AS "followUpFix"
+       FROM ai_metrics_outcome_labels
+       ORDER BY labeled_at_epoch_ms DESC
+         LIMIT $limit`,
       { limit: input.annotationLimit }
     )
     .pipe(Effect.flatMap(decodeOutcomeLabelAnnotationRows));
   const benchmarkRows = yield* duckdb
     .query(
-      `SELECT benchmark_run_id AS "benchmarkRunId",
-              benchmark_case_id AS "benchmarkCaseId",
+      `SELECT benchmark_run_id   AS "benchmarkRunId",
+              benchmark_case_id  AS "benchmarkCaseId",
               config_snapshot_id AS "configSnapshotId",
-              elapsed_ms::DOUBLE AS "elapsedMs",
-              passed AS "passed",
-              quality_gate AS "qualityGate"
-         FROM ai_metrics_benchmark_runs
-        ORDER BY recorded_at_epoch_ms DESC
-        LIMIT $limit`,
+              elapsed_ms::DOUBLE AS "elapsedMs", passed AS "passed",
+              quality_gate       AS "qualityGate"
+       FROM ai_metrics_benchmark_runs
+       ORDER BY recorded_at_epoch_ms DESC
+         LIMIT $limit`,
       { limit: input.annotationLimit }
     )
     .pipe(Effect.flatMap(decodeBenchmarkRunAnnotationRows));
@@ -2064,7 +2107,10 @@ const queryAnnotationRows = Effect.fn("AiMetrics.agentEffectiveness.queryAnnotat
     benchmarkRows,
     A.flatMap((row) => [
       annotation({
-        metadata: { benchmarkCaseId: row.benchmarkCaseId, configSnapshotId: row.configSnapshotId },
+        metadata: {
+          benchmarkCaseId: row.benchmarkCaseId,
+          configSnapshotId: row.configSnapshotId,
+        },
         name: "benchmark.passed",
         optimization: "maximize",
         source: "ai-metrics",
@@ -2073,7 +2119,10 @@ const queryAnnotationRows = Effect.fn("AiMetrics.agentEffectiveness.queryAnnotat
         value: row.passed,
       }),
       annotation({
-        metadata: { benchmarkCaseId: row.benchmarkCaseId, configSnapshotId: row.configSnapshotId },
+        metadata: {
+          benchmarkCaseId: row.benchmarkCaseId,
+          configSnapshotId: row.configSnapshotId,
+        },
         name: "benchmark.elapsed_ms",
         optimization: "minimize",
         source: "ai-metrics",
@@ -2499,7 +2548,12 @@ const toPhoenixPromptCreateInput = (prompt: AgentEffectivenessPromptSpec): Phoen
     name: prompt.name,
     template: pipe(
       prompt.messages,
-      A.map((message) => PhoenixPromptChatMessage.make({ content: message.content, role: message.role }))
+      A.map((message) =>
+        PhoenixPromptChatMessage.make({
+          content: message.content,
+          role: message.role,
+        })
+      )
     ),
     versionDescription: `${prompt.name} checked in by @beep/repo-ai-metrics.`,
   });
@@ -2683,7 +2737,12 @@ export const syncAgentEffectivenessPhoenix: (
       datasetBundle.datasets,
       A.zip(datasetResults),
       A.map(([dataset, result]) =>
-        result.createExperiment ? O.some({ dataset, datasetId: result.datasetId }) : O.none()
+        result.createExperiment
+          ? O.some({
+              dataset,
+              datasetId: result.datasetId,
+            })
+          : O.none()
       ),
       A.getSomes
     ),
@@ -2747,7 +2806,10 @@ const forbiddenPatterns = [
   { code: "onepassword-ref", pattern: /op:\/\//u },
   // Deliberately require assignment-shaped labels or key-like values here. Standalone words like TOKEN can appear
   // in benign policy/status labels, and broader matching produced false positives on metrics such as provider_model_token_cost.
-  { code: "secret-shaped-value", pattern: /(?:\b(?:SECRET|TOKEN|API[_-]?KEY)\b\s*[=:]|sk-[A-Za-z0-9_-]{12,})/iu },
+  {
+    code: "secret-shaped-value",
+    pattern: /(?:\b(?:SECRET|TOKEN|API[_-]?KEY)\b\s*[=:]|sk-[A-Za-z0-9_-]{12,})/iu,
+  },
   { code: "raw-worker-draft", pattern: /draftJsDoc|@example|```ts/u },
 ] as const;
 

@@ -5,10 +5,17 @@
  * @since 0.0.0
  */
 
-import { $RepoCliId } from "@beep/identity/packages";
-import { DomainError } from "@beep/repo-utils";
-import { Str, thunkEmptyRecord, thunkEmptyStr } from "@beep/utils";
-import { Context, Effect, FileSystem, flow, identity, pipe, SchemaTransformation } from "effect";
+import {$RepoCliId} from "@beep/identity/packages";
+import {DomainError} from "@beep/repo-utils";
+import {Str, thunkEmptyRecord, thunkEmptyStr} from "@beep/utils";
+import {
+  Context,
+  Effect,
+  FileSystem,
+  flow,
+  identity,
+  SchemaTransformation
+} from "effect";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import Handlebars from "handlebars";
@@ -29,7 +36,8 @@ export class TemplateSpec extends S.Class<TemplateSpec>($I`TemplateSpec`)(
   $I.annote("TemplateSpec", {
     description: "Mapping between template source file and output file path.",
   })
-) {}
+) {
+}
 
 /**
  * Rendered template output.
@@ -45,7 +53,8 @@ export class RenderedTemplate extends S.Class<RenderedTemplate>($I`RenderedTempl
   $I.annote("RenderedTemplate", {
     description: "Rendered template output.",
   })
-) {}
+) {
+}
 
 /**
  * Request payload for template rendering.
@@ -65,7 +74,8 @@ export class TemplateRenderRequest extends S.Class<TemplateRenderRequest>($I`Tem
   $I.annote("TemplateRenderRequest", {
     description: "Request payload for template rendering.",
   })
-) {}
+) {
+}
 
 /**
  * Service contract for template rendering.
@@ -85,7 +95,8 @@ export type TemplateServiceShape = {
  * @category ports
  * @since 0.0.0
  */
-export class TemplateService extends Context.Service<TemplateService, TemplateServiceShape>()($I`TemplateService`) {}
+export class TemplateService extends Context.Service<TemplateService, TemplateServiceShape>()($I`TemplateService`) {
+}
 
 const UnknownToTemplateHelperString = S.Unknown.pipe(
   S.decodeTo(
@@ -103,7 +114,7 @@ const UnknownToTemplateHelperString = S.Unknown.pipe(
 );
 
 const decodeTemplateHelperString = S.decodeUnknownOption(UnknownToTemplateHelperString);
-const toHelperValue = (value: unknown): string => pipe(decodeTemplateHelperString(value), O.getOrElse(thunkEmptyStr));
+const toHelperValue = flow(decodeTemplateHelperString, O.getOrElse(thunkEmptyStr));
 
 const createHandlebarsEnvironment = () => {
   const hbs = Handlebars.create();
@@ -133,7 +144,7 @@ export const createTemplateService = (): TemplateServiceShape => {
 
     return yield* Effect.forEach(
       request.templates,
-      Effect.fn(function* ({ templateName, outputPath }) {
+      Effect.fn(function* ({templateName, outputPath}) {
         const raw = yield* fs
           .readFileString(`${request.templateDir}/${templateName}`)
           .pipe(
@@ -142,7 +153,7 @@ export const createTemplateService = (): TemplateServiceShape => {
             )
           );
 
-        const compile = hbs.compile(raw, { noEscape: true });
+        const compile = hbs.compile(raw, {noEscape: true});
         return RenderedTemplate.make({
           outputPath,
           content: compile(request.context),

@@ -19,6 +19,7 @@ import * as R from "effect/Record";
 import * as S from "effect/Schema";
 import { Command, Flag } from "effect/unstable/cli";
 import { HttpClient, HttpClientResponse } from "effect/unstable/http";
+import { failWithReportedExit } from "../../internal/cli/ExitCodeError.js";
 import {
   SyncDataRunMode,
   type SyncDataRunMode as SyncDataRunModeType,
@@ -464,16 +465,17 @@ export const syncDataToTsCommand = Command.make(
     },
     Effect.catchTags({
       SyncDataToTsDriftError: Effect.fn(function* (error) {
-        process.exitCode = 1;
         yield* Console.error(`sync-data-to-ts: ${error.message}`);
+        return yield* failWithReportedExit(`sync-data-to-ts: ${error.message}`);
       }),
       SyncDataToTsError: Effect.fn(function* (error) {
-        process.exitCode = 1;
-        yield* Console.error(renderSyncDataError(error));
+        const message = renderSyncDataError(error);
+        yield* Console.error(message);
+        return yield* failWithReportedExit(message);
       }),
       NoSuchFileError: Effect.fn(function* (error) {
-        process.exitCode = 1;
         yield* Console.error(`sync-data-to-ts: ${error.message}`);
+        return yield* failWithReportedExit(`sync-data-to-ts: ${error.message}`);
       }),
     })
   )

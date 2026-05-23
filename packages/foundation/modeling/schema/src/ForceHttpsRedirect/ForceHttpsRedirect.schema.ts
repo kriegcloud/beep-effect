@@ -7,7 +7,7 @@
 
 import { $SchemaId } from "@beep/identity";
 import { A } from "@beep/utils";
-import { Effect, pipe, SchemaTransformation } from "effect";
+import { Effect, Match, pipe, SchemaTransformation } from "effect";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
@@ -107,12 +107,12 @@ export const ForceHttpsRedirectHeader = S.Union([ForceHttpsRedirectOption, S.Und
       decode: (input): Effect.Effect<ForceHttpsRedirectResponseHeaderEncoded> =>
         Effect.succeed({
           name: headerName,
-          value:
-            P.isUndefined(input) || input === true
-              ? `max-age=${defaultMaxAge}`
-              : input === false
-                ? undefined
-                : formatForceHttpsRedirectValue(input[1]),
+          value: Match.value(input).pipe(
+            Match.when(P.isUndefined, () => `max-age=${defaultMaxAge}`),
+            Match.when(true, () => `max-age=${defaultMaxAge}`),
+            Match.when(false, () => undefined),
+            Match.orElse((value) => formatForceHttpsRedirectValue(value[1]))
+          ),
         }),
       encode: internal.makeHeaderEncodeForbidden("ForceHttpsRedirectHeader"),
     })

@@ -14,6 +14,7 @@ import * as O from "effect/Option";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
 import { Argument, Command } from "effect/unstable/cli";
+import { failWithReportedExit } from "../../internal/cli/ExitCodeError.js";
 import { printLines } from "../../internal/cli/Printer.js";
 import { CiCommandError } from "./Ci.errors.js";
 
@@ -290,10 +291,9 @@ const appendTurboSummaryCommand = Command.make(
     pipe(
       summaryPath,
       appendTurboSummary,
-      Effect.catchTag("CiCommandError", (error) => {
-        process.exitCode = 1;
-        return Console.error(`[ci] ${error.message}`);
-      })
+      Effect.catchTag("CiCommandError", (error) =>
+        Console.error(`[ci] ${error.message}`).pipe(Effect.andThen(failWithReportedExit(`[ci] ${error.message}`)))
+      )
     )
 ).pipe(Command.withDescription("Append a Turbo run summary to GitHub step summary or stdout"));
 

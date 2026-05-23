@@ -213,6 +213,63 @@ export function LinkPreview({ href, children, className, metadata }: LinkPreview
     return null;
   }
 
+  let tooltipContent: ReactNode = (
+    <div className="flex w-full flex-col gap-2">
+      {websiteImage !== undefined && (
+        <div className="relative aspect-video w-full overflow-hidden rounded-lg">
+          <img
+            alt="Website preview"
+            className="h-full w-full rounded-lg object-cover"
+            src={websiteImage}
+            onError={() => setValidImage(false)}
+          />
+        </div>
+      )}
+
+      {hasSiteMeta && (
+        <div className="flex items-center gap-2">
+          {favicon !== undefined ? (
+            <img
+              width={20}
+              height={20}
+              alt="Favicon"
+              className="size-5 rounded-full"
+              src={favicon}
+              onError={() => setValidFavicon(false)}
+            />
+          ) : (
+            <ArrowSquareOutIcon size={18} className="text-zinc-400" />
+          )}
+
+          {websiteName !== undefined && <div className="truncate text-sm font-semibold">{websiteName}</div>}
+        </div>
+      )}
+
+      {title !== undefined && <div className="truncate text-sm font-medium text-white">{title}</div>}
+
+      {description !== undefined && <div className="line-clamp-3 w-full text-xs text-gray-400">{description}</div>}
+
+      <div className="truncate text-xs text-primary">
+        {pipe(href, Str.replace("https://", ""), Str.replace("http://", ""))}
+      </div>
+    </div>
+  );
+
+  if (isLoading) {
+    tooltipContent = (
+      <div className="flex justify-center p-5">
+        <div className="size-5 animate-spin rounded-full border-2 border-zinc-700 border-t-white" />
+      </div>
+    );
+  } else if (error !== null || !isValidUrl) {
+    tooltipContent = (
+      <div className="flex items-center gap-2 p-3 text-red-400">
+        <InfoIcon size={16} weight="fill" />
+        <span className="text-sm">{errorMessage}</span>
+      </div>
+    );
+  }
+
   return (
     <Tooltip>
       <TooltipTrigger>
@@ -231,58 +288,7 @@ export function LinkPreview({ href, children, className, metadata }: LinkPreview
       </TooltipTrigger>
 
       <TooltipContent className="max-w-[280px] border border-zinc-700 bg-zinc-900 p-3 text-white shadow-lg">
-        {isLoading ? (
-          <div className="flex justify-center p-5">
-            <div className="size-5 animate-spin rounded-full border-2 border-zinc-700 border-t-white" />
-          </div>
-        ) : error !== null || !isValidUrl ? (
-          <div className="flex items-center gap-2 p-3 text-red-400">
-            <InfoIcon size={16} weight="fill" />
-            <span className="text-sm">{errorMessage}</span>
-          </div>
-        ) : (
-          <div className="flex w-full flex-col gap-2">
-            {websiteImage !== undefined && (
-              <div className="relative aspect-video w-full overflow-hidden rounded-lg">
-                <img
-                  alt="Website preview"
-                  className="h-full w-full rounded-lg object-cover"
-                  src={websiteImage}
-                  onError={() => setValidImage(false)}
-                />
-              </div>
-            )}
-
-            {hasSiteMeta && (
-              <div className="flex items-center gap-2">
-                {favicon !== undefined ? (
-                  <img
-                    width={20}
-                    height={20}
-                    alt="Favicon"
-                    className="size-5 rounded-full"
-                    src={favicon}
-                    onError={() => setValidFavicon(false)}
-                  />
-                ) : (
-                  <ArrowSquareOutIcon size={18} className="text-zinc-400" />
-                )}
-
-                {websiteName !== undefined && <div className="truncate text-sm font-semibold">{websiteName}</div>}
-              </div>
-            )}
-
-            {title !== undefined && <div className="truncate text-sm font-medium text-white">{title}</div>}
-
-            {description !== undefined && (
-              <div className="line-clamp-3 w-full text-xs text-gray-400">{description}</div>
-            )}
-
-            <div className="truncate text-xs text-primary">
-              {pipe(href, Str.replace("https://", ""), Str.replace("http://", ""))}
-            </div>
-          </div>
-        )}
+        {tooltipContent}
       </TooltipContent>
     </Tooltip>
   );

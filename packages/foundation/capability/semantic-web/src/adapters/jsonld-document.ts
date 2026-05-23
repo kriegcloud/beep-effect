@@ -706,12 +706,11 @@ const literalValueFromRdf = Effect.fn("JsonLdDocument.literalValueFromRdf")(func
     });
   }
 
-  const scalar =
-    object.datatype.value === XSD_BOOLEAN.value
-      ? object.value === "true"
-      : object.datatype.value === XSD_INTEGER.value || object.datatype.value === XSD_DOUBLE.value
-        ? Number(object.value)
-        : object.value;
+  const scalar = Match.value(object.datatype.value).pipe(
+    Match.when(XSD_BOOLEAN.value, () => object.value === "true"),
+    Match.whenOr(XSD_INTEGER.value, XSD_DOUBLE.value, () => Number(object.value)),
+    Match.orElse(() => object.value)
+  );
 
   const type =
     object.datatype.value === XSD_STRING.value

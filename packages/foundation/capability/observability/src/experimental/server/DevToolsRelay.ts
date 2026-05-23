@@ -7,7 +7,7 @@
 import { $ObservabilityId } from "@beep/identity/packages";
 import { NonNegativeInt } from "@beep/schema";
 import { A, thunk0 } from "@beep/utils";
-import { Clock, Context, Effect, HashMap, Layer, MutableRef, Queue, Result } from "effect";
+import { Clock, Context, Effect, HashMap, Layer, Match, MutableRef, Queue, Result } from "effect";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import type * as DevToolsSchema from "effect/unstable/devtools/DevToolsSchema";
@@ -121,24 +121,25 @@ export const makeDevToolsRelayService: Effect.Effect<
         Effect.fnUntraced(function* (lastUpdatedAtMs) {
           return yield* Effect.sync(() => {
             const current = MutableRef.get(state);
-            const next: RelayState =
-              request._tag === "Span"
-                ? {
-                    ...current,
-                    spans: HashMap.set(current.spans, toSpanKey(request), request),
-                    lastUpdatedAtMs,
-                  }
-                : request._tag === "SpanEvent"
-                  ? {
-                      ...current,
-                      spanEvents: pipeAppendLimited(current.spanEvents, request),
-                      lastUpdatedAtMs,
-                    }
-                  : {
-                      ...current,
-                      metrics: O.some(request),
-                      lastUpdatedAtMs,
-                    };
+            const next: RelayState = Match.value(request).pipe(
+              Match.tags({
+                Span: (span) => ({
+                  ...current,
+                  spans: HashMap.set(current.spans, toSpanKey(span), span),
+                  lastUpdatedAtMs,
+                }),
+                SpanEvent: (spanEvent) => ({
+                  ...current,
+                  spanEvents: pipeAppendLimited(current.spanEvents, spanEvent),
+                  lastUpdatedAtMs,
+                }),
+              }),
+              Match.orElse((metrics) => ({
+                ...current,
+                metrics: O.some(metrics),
+                lastUpdatedAtMs,
+              }))
+            );
 
             MutableRef.set(state, next);
           });

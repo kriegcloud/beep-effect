@@ -23,7 +23,7 @@ import {
   MinusCircleIcon,
   PlusCircleIcon,
 } from "@phosphor-icons/react";
-import { Effect, Random } from "effect";
+import { Effect, Match, Random } from "effect";
 import * as S from "effect/Schema";
 import { useEffect, useMemo, useState } from "react";
 import {
@@ -59,7 +59,11 @@ const isCanvasSceneList = S.is(CanvasSceneSchema.pipe(S.Array));
 const isCanvasCommandError = S.is(CanvasCommandError);
 const isString = S.is(S.String);
 const messageFromUnknown = (error: unknown, fallback: string): string =>
-  isCanvasCommandError(error) ? error.message : isString(error) ? error : fallback;
+  Match.value(error).pipe(
+    Match.when(isCanvasCommandError, (commandError) => commandError.message),
+    Match.when(isString, (message) => message),
+    Match.orElse(() => fallback)
+  );
 const rejectMessage = (message: string): Effect.Effect<never, CanvasCommandError> =>
   Effect.fail(CanvasCommandError.make({ message }));
 

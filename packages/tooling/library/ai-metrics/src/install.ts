@@ -8,8 +8,9 @@
 import { $RepoAiMetricsId } from "@beep/identity/packages";
 import { LiteralKit, TaggedErrorClass } from "@beep/schema";
 import { A, Str } from "@beep/utils";
-import { Effect, flow, pipe } from "effect";
+import { Effect, flow, Match, pipe } from "effect";
 import * as O from "effect/Option";
+import * as P from "effect/Predicate";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
 import {
@@ -1158,12 +1159,14 @@ export const makeAiMetricsInstallDoctorResult: (
     }),
     check({
       checkId: "sources.available",
-      message:
-        input.sourceDiscovery === undefined
-          ? "Source discovery evidence was not provided to the install doctor."
-          : sourceCount === 0
-            ? "No local Codex, Claude Code, or OpenClaw sources are available."
-            : "At least one local AI source is available for live collection.",
+      message: Match.value(input.sourceDiscovery).pipe(
+        Match.when(P.isUndefined, () => "Source discovery evidence was not provided to the install doctor."),
+        Match.when(
+          () => sourceCount === 0,
+          () => "No local Codex, Claude Code, or OpenClaw sources are available."
+        ),
+        Match.orElse(() => "At least one local AI source is available for live collection.")
+      ),
       metadata:
         input.sourceDiscovery === undefined
           ? {}
@@ -1171,14 +1174,18 @@ export const makeAiMetricsInstallDoctorResult: (
               availableSourceCount: `${sourceCount}`,
               ...sourceStatusMetadata(input.sourceDiscovery),
             },
-      status:
-        input.sourceDiscovery === undefined
-          ? AiMetricsInstallDoctorCheckStatus.Enum.warning
-          : sourceCount === 0
-            ? AiMetricsInstallDoctorCheckStatus.Enum.failed
-            : sourceCount < A.length(input.sourceDiscovery.sources)
-              ? AiMetricsInstallDoctorCheckStatus.Enum.warning
-              : AiMetricsInstallDoctorCheckStatus.Enum.passed,
+      status: Match.value(input.sourceDiscovery).pipe(
+        Match.when(P.isUndefined, () => AiMetricsInstallDoctorCheckStatus.Enum.warning),
+        Match.when(
+          () => sourceCount === 0,
+          () => AiMetricsInstallDoctorCheckStatus.Enum.failed
+        ),
+        Match.when(
+          (sourceDiscovery) => sourceCount < A.length(sourceDiscovery.sources),
+          () => AiMetricsInstallDoctorCheckStatus.Enum.warning
+        ),
+        Match.orElse(() => AiMetricsInstallDoctorCheckStatus.Enum.passed)
+      ),
     }),
     check({
       checkId: "apply.mode",

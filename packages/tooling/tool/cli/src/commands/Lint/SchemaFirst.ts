@@ -16,6 +16,7 @@ import * as S from "effect/Schema";
 import { Command, Flag } from "effect/unstable/cli";
 import { parse } from "jsonc-parser";
 import { Node, Project, SyntaxKind, type TypeElementTypes } from "ts-morph";
+import { failWithReportedExit } from "../../internal/cli/ExitCodeError.js";
 
 const $I = $RepoCliId.create("commands/Lint/SchemaFirst");
 const INVENTORY_PATH = "standards/schema-first.inventory.jsonc";
@@ -525,7 +526,7 @@ export const runSchemaFirstLint = Effect.fn(function* (options: SchemaFirstLintO
     ? enforcedCandidates.length > 0
     : missingEntries.length > 0 || staleEntries.length > 0 || enforcedCandidates.length > 0;
   if (hasFailures) {
-    process.exitCode = 1;
+    return yield* failWithReportedExit("schema-first: inventory enforcement failed.");
   }
 
   return SchemaFirstLintSummary.make({

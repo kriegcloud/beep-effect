@@ -34,7 +34,7 @@ import { A, O } from "@beep/utils";
 import { NodeChildProcessSpawner, NodeServices } from "@effect/platform-node";
 import * as NodeFileSystem from "@effect/platform-node/NodeFileSystem";
 import * as NodePath from "@effect/platform-node/NodePath";
-import { Duration, Effect, Exit, FileSystem, Layer, Path, pipe, Ref } from "effect";
+import { Cause, Duration, Effect, Exit, FileSystem, Layer, Path, pipe, Ref, Runtime } from "effect";
 import * as S from "effect/Schema";
 import * as TestConsole from "effect/testing/TestConsole";
 import { Command } from "effect/unstable/cli";
@@ -69,6 +69,15 @@ const decodeWorkerEvalReportJson = S.decodeUnknownSync(S.fromJsonString(DocgenQu
 const isString = (value: unknown): value is string => typeof value === "string";
 const DOCGEN_COMMAND_TEST_TIMEOUT = 30_000;
 
+const expectReportedExit = (exit: Exit.Exit<unknown, unknown>, exitCode = 1) => {
+  expect(Exit.isFailure(exit)).toBe(true);
+  if (Exit.isFailure(exit)) {
+    const error = Cause.squash(exit.cause);
+    expect(Runtime.getErrorExitCode(error)).toBe(exitCode);
+    expect(Runtime.getErrorReported(error)).toBe(false);
+  }
+};
+
 const runCommand = (command: string, args: ReadonlyArray<string>, cwd: string) =>
   Effect.scoped(
     Effect.gen(function* () {
@@ -89,19 +98,16 @@ const withTempRepo = <A, E, R>(use: Effect.Effect<A, E, R>) =>
       const path = yield* Path.Path;
       const tmpDir = yield* fs.makeTempDirectory();
       const previousCwd = process.cwd();
-      const previousExitCode = process.exitCode;
 
       process.chdir(tmpDir);
-      process.exitCode = 0;
       yield* fs.makeDirectory(path.join(tmpDir, ".git"), { recursive: true });
 
-      return { fs, path, previousCwd, previousExitCode, tmpDir } as const;
+      return { fs, path, previousCwd, tmpDir } as const;
     }),
     () => use,
-    ({ fs, previousCwd, previousExitCode, tmpDir }) =>
+    ({ fs, previousCwd, tmpDir }) =>
       Effect.gen(function* () {
         process.chdir(previousCwd);
-        process.exitCode = previousExitCode ?? 0;
         yield* fs.remove(tmpDir, { recursive: true });
       })
   ).pipe(provideScopedLayer(TestLayer));
@@ -113,19 +119,16 @@ const withTempRepoCommand = <A, E, R>(use: Effect.Effect<A, E, R>) =>
       const path = yield* Path.Path;
       const tmpDir = yield* fs.makeTempDirectory();
       const previousCwd = process.cwd();
-      const previousExitCode = process.exitCode;
 
       process.chdir(tmpDir);
-      process.exitCode = 0;
       yield* fs.makeDirectory(path.join(tmpDir, ".git"), { recursive: true });
 
-      return { fs, previousCwd, previousExitCode, tmpDir } as const;
+      return { fs, previousCwd, tmpDir } as const;
     }),
     () => use,
-    ({ fs, previousCwd, previousExitCode, tmpDir }) =>
+    ({ fs, previousCwd, tmpDir }) =>
       Effect.gen(function* () {
         process.chdir(previousCwd);
-        process.exitCode = previousExitCode ?? 0;
         yield* fs.remove(tmpDir, { recursive: true });
       })
   ).pipe(provideScopedLayer(CommandTestLayer));
@@ -289,7 +292,7 @@ describe("Docgen operations", () => {
             expect(output).toContain("docgen:local plan");
             expect(output).toContain("- mode: scoped");
             expect(output).toContain("--filter=...@beep/schema");
-            expect(process.exitCode).toBe(0);
+            expect(process.exitCode ?? 0).toBe(0);
           })
         )
       )
@@ -304,13 +307,13 @@ describe("Docgen operations", () => {
       Effect.runPromise(
         withTempRepoCommand(
           Effect.gen(function* () {
-            yield* runDocgenCommand(["local", "--json"]);
+            const exit = yield* Effect.exit(runDocgenCommand(["local", "--json"]));
 
             expect(yield* TestConsole.logLines).toEqual([]);
             expect(A.join(A.filter(yield* TestConsole.errorLines, isString), "\n")).toContain(
               "--json requires --plan for docgen:local so stdout remains machine-readable."
             );
-            expect(process.exitCode).toBe(1);
+            expectReportedExit(exit);
           })
         )
       )
@@ -2196,21 +2199,23 @@ export const parseValue = (value: string): string => value.trim();
     Effect.runPromise(
       withTempRepoCommand(
         Effect.gen(function* () {
-          yield* runDocgenCommand([
-            "quality-worker-eval-runpod",
-            "--all",
-            "--provider",
-            "ollama",
-            "--model",
-            requiredQualityWorkerRunpodEvalModel(),
-            "--gpu-type",
-            "NVIDIA RTX A6000",
-            "--readiness-timeout-ms",
-            "1",
-          ]);
+          const exit = yield* Effect.exit(
+            runDocgenCommand([
+              "quality-worker-eval-runpod",
+              "--all",
+              "--provider",
+              "ollama",
+              "--model",
+              requiredQualityWorkerRunpodEvalModel(),
+              "--gpu-type",
+              "NVIDIA RTX A6000",
+              "--readiness-timeout-ms",
+              "1",
+            ])
+          );
 
           expect((yield* TestConsole.errorLines).join("\n")).toContain("--confirm-runpod-eval");
-          expect(process.exitCode).toBe(1);
+          expectReportedExit(exit);
         })
       )
     )
@@ -2220,20 +2225,22 @@ export const parseValue = (value: string): string => value.trim();
     Effect.runPromise(
       withTempRepoCommand(
         Effect.gen(function* () {
-          yield* runDocgenCommand([
-            "quality-worker-eval-runpod",
-            "--all",
-            "--provider",
-            "ollama",
-            "--model",
-            requiredQualityWorkerRunpodEvalModel(),
-            "--readiness-timeout-ms",
-            "0",
-            "--confirm-runpod-eval",
-          ]);
+          const exit = yield* Effect.exit(
+            runDocgenCommand([
+              "quality-worker-eval-runpod",
+              "--all",
+              "--provider",
+              "ollama",
+              "--model",
+              requiredQualityWorkerRunpodEvalModel(),
+              "--readiness-timeout-ms",
+              "0",
+              "--confirm-runpod-eval",
+            ])
+          );
 
           expect((yield* TestConsole.errorLines).join("\n")).toContain("--readiness-timeout-ms");
-          expect(process.exitCode).toBe(1);
+          expectReportedExit(exit);
         })
       )
     )
@@ -2283,12 +2290,14 @@ export const parseValue = (value: string): string => value.trim();
 `
           );
 
-          yield* runDocgenCommand(["quality", "-p", "packages/foundation/modeling/schema", "--packet-limit=-1"]);
+          const exit = yield* Effect.exit(
+            runDocgenCommand(["quality", "-p", "packages/foundation/modeling/schema", "--packet-limit=-1"])
+          );
 
           expect(A.join(A.filter(yield* TestConsole.errorLines, isString), "\n")).toContain(
             "--packet-limit must be zero or greater"
           );
-          expect(process.exitCode).toBe(1);
+          expectReportedExit(exit);
         })
       )
     )
@@ -2364,7 +2373,7 @@ export const parseValue = (value: string): string => value.trim();
             `export const MissingMetadata = "nope";\n`
           );
 
-          yield* runDocgenCommand(["check", "-p", "packages/foundation/modeling/schema"]);
+          const exit = yield* Effect.exit(runDocgenCommand(["check", "-p", "packages/foundation/modeling/schema"]));
 
           const errorLines = A.filter(yield* TestConsole.errorLines, isString);
           const wroteMarkdown = yield* fs.exists(path.join(packageDir, "JSDOC_ANALYSIS.md"));
@@ -2375,7 +2384,7 @@ export const parseValue = (value: string): string => value.trim();
           expect(A.join(errorLines, "\n")).toContain("MissingMetadata missing @category, @since");
           expect(wroteMarkdown).toBe(false);
           expect(wroteJson).toBe(false);
-          expect(process.exitCode).toBe(1);
+          expectReportedExit(exit);
         })
       )
     )
@@ -2431,7 +2440,7 @@ export const RejectedCategory = "nope";
 `
             );
 
-            yield* runDocgenCommand(["check", "-p", "packages/foundation/modeling/schema"]);
+            const exit = yield* Effect.exit(runDocgenCommand(["check", "-p", "packages/foundation/modeling/schema"]));
 
             const errorText = A.join(A.filter(yield* TestConsole.errorLines, isString), "\n");
             const wroteMarkdown = yield* fs.exists(path.join(packageDir, "JSDOC_ANALYSIS.md"));
@@ -2442,7 +2451,7 @@ export const RejectedCategory = "nope";
             expect(errorText).not.toContain("RejectedCategory missing");
             expect(wroteMarkdown).toBe(false);
             expect(wroteJson).toBe(false);
-            expect(process.exitCode).toBe(1);
+            expectReportedExit(exit);
           })
         )
       )
@@ -2528,7 +2537,7 @@ export const parseValue = (value: string): string => value.trim();
             expect(decoded.scorer).toBe("codex-advisory-packet-v1");
             expect(decoded.remediationPackets?.[0]?.prompt).toContain("Keep @example mandatory");
             expect(logText).toContain("docgen: wrote");
-            expect(process.exitCode).toBe(0);
+            expect(process.exitCode ?? 0).toBe(0);
           })
         )
       )
@@ -2696,14 +2705,16 @@ export const ValidExport = packageDocAnchor;
               })
             );
 
-            yield* runDocgenCommand(["generate", "-p", "packages/foundation/modeling/schema"]);
+            const exit = yield* Effect.exit(
+              runDocgenCommand(["generate", "-p", "packages/foundation/modeling/schema"])
+            );
 
             const errorLines = yield* TestConsole.errorLines;
 
             expect(errorLines).toEqual([
               'docgen: packages/foundation/modeling/schema is missing docgen.json. Run "bun run beep docgen init -p packages/foundation/modeling/schema" first.',
             ]);
-            expect(process.exitCode).toBe(1);
+            expectReportedExit(exit);
           })
         )
       )
@@ -2740,14 +2751,16 @@ export const ValidExport = packageDocAnchor;
               })
             );
 
-            yield* runDocgenCommand(["generate", "--filter", "packages/foundation/modeling/schema"]);
+            const exit = yield* Effect.exit(
+              runDocgenCommand(["generate", "--filter", "packages/foundation/modeling/schema"])
+            );
 
             const errorLines = yield* TestConsole.errorLines;
 
             expect(errorLines).toEqual([
               'docgen: packages/foundation/modeling/schema is missing docgen.json. Run "bun run beep docgen init -p packages/foundation/modeling/schema" first.',
             ]);
-            expect(process.exitCode).toBe(1);
+            expectReportedExit(exit);
           })
         )
       )
@@ -2769,20 +2782,22 @@ export const ValidExport = packageDocAnchor;
             })
           );
 
-          yield* runDocgenCommand([
-            "generate",
-            "--package",
-            "packages/foundation/modeling/schema",
-            "--filter",
-            "@beep/schema",
-          ]);
+          const exit = yield* Effect.exit(
+            runDocgenCommand([
+              "generate",
+              "--package",
+              "packages/foundation/modeling/schema",
+              "--filter",
+              "@beep/schema",
+            ])
+          );
 
           const errorLines = yield* TestConsole.errorLines;
 
           expect(errorLines).toEqual([
             "docgen: Received conflicting selectors --package=packages/foundation/modeling/schema and --filter=@beep/schema.",
           ]);
-          expect(process.exitCode).toBe(1);
+          expectReportedExit(exit);
         })
       )
     )

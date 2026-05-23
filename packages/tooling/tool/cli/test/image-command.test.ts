@@ -38,7 +38,6 @@ const withTempDirectory = <A, E, R>(use: (tmpDir: string) => Effect.Effect<A, E,
       const previousCwd = process.cwd();
 
       process.chdir(tmpDir);
-      process.exitCode = 0;
 
       return { fs, previousCwd, tmpDir } as const;
     }),
@@ -46,7 +45,6 @@ const withTempDirectory = <A, E, R>(use: (tmpDir: string) => Effect.Effect<A, E,
     ({ fs, previousCwd, tmpDir }) =>
       Effect.gen(function* () {
         process.chdir(previousCwd);
-        process.exitCode = 0;
         yield* fs.remove(tmpDir, { recursive: true, force: true });
       })
   ).pipe(provideScopedLayer(testLayer));

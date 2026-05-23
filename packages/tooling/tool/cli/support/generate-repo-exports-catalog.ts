@@ -19,7 +19,17 @@ const conditionPreference = ["types", "import", "default", "require"];
 const conditionNames = new Set(conditionPreference);
 const checkMode = A.contains(process.argv, "--check");
 const compareText = (left: string, right: string): Ordering.Ordering => Str.localeCompare(right)(left);
-const compareNumber = (left: number, right: number): Ordering.Ordering => (left < right ? -1 : left > right ? 1 : 0);
+const compareNumber = (left: number, right: number): Ordering.Ordering => {
+  if (left < right) {
+    return -1;
+  }
+
+  if (left > right) {
+    return 1;
+  }
+
+  return 0;
+};
 
 const readText = (filePath) => readFileSync(filePath, "utf8");
 
@@ -752,8 +762,7 @@ const writeOrCheck = (jsonContent, markdownContent) => {
         console.error(`- ${finding}`);
       }
       console.error("[repo-exports-catalog] run `bun run beep quality repo-exports-catalog` to refresh them.");
-      process.exitCode = 1;
-      return;
+      process.exit(1);
     }
 
     console.log("[repo-exports-catalog] generated artifacts are current");

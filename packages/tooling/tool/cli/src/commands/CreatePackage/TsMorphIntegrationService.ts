@@ -25,8 +25,8 @@ export const TsMorphMutationKind = LiteralKit([
   "add-entity-id-export",
   "wire-persistence",
   "wire-data-access",
-]).annotate(
-  $I.annote("TsMorphMutationKind", {
+]).pipe(
+  $I.annoteSchema("TsMorphMutationKind", {
     description: "Supported AST mutation categories required by create-package.",
   })
 );

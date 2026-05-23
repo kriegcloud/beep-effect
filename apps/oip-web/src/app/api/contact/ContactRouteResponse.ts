@@ -6,7 +6,7 @@
  */
 
 import { Str } from "@beep/utils";
-import { Effect, Exit } from "effect";
+import { Effect, Exit, Match } from "effect";
 import { dual } from "effect/Function";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
@@ -105,7 +105,14 @@ export const contactRequestResponseWithSubmit: {
     }
 
     return NextResponse.json(contactResponseBody(response), {
-      status: Exit.isFailure(exit) ? 500 : response.status === "accepted" ? 202 : 400,
+      status: Match.value(response.status).pipe(
+        Match.when(
+          () => Exit.isFailure(exit),
+          () => 500
+        ),
+        Match.when("accepted", () => 202),
+        Match.orElse(() => 400)
+      ),
     });
   })
 );

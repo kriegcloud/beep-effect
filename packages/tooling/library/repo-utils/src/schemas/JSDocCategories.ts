@@ -8,7 +8,7 @@
 import { $RepoUtilsId } from "@beep/identity/packages";
 import { LiteralKit } from "@beep/schema";
 import { A, Str } from "@beep/utils";
-import { pipe } from "effect";
+import { Match, pipe } from "effect";
 import * as O from "effect/Option";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
@@ -308,11 +308,11 @@ export const normalizeJSDocCategoryKey = (value: string): string => {
     );
 
     if (isUpperAscii(character) || isLowerAscii(character) || isDigitAscii(character)) {
-      const currentKind: CategoryCharacterKind = isDigitAscii(character)
-        ? "digit"
-        : isUpperAscii(character)
-          ? "upper"
-          : "lower";
+      const currentKind: CategoryCharacterKind = Match.value(character).pipe(
+        Match.when(isDigitAscii, () => "digit" as const),
+        Match.when(isUpperAscii, () => "upper" as const),
+        Match.orElse(() => "lower" as const)
+      );
       const startsNewWord =
         currentKind === "upper" &&
         output !== "" &&

@@ -16,6 +16,7 @@ import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
 import { ChildProcess } from "effect/unstable/process";
 import type { ChildProcessSpawner } from "effect/unstable/process/ChildProcessSpawner";
+import { type CliReportedExit, failWithReportedExit } from "../../../internal/cli/ExitCodeError.ts";
 import { printLines } from "../../../internal/cli/Printer.ts";
 import {
   aggregateGeneratedDocs,
@@ -450,13 +451,15 @@ const buildPlanFromChangedFiles = Effect.fn("DocgenLocal.buildPlanFromChangedFil
   );
   const fullReasons = pipe(changedFiles, A.map(fullReasonForFile), collectOptions);
   const sortedSelectedPackages = A.sort(selectedPackages, bySelectedPackagePathAscending);
-  const mode: DocgenLocalMode = options.full
-    ? "full"
-    : A.isReadonlyArrayNonEmpty(fullReasons)
-      ? "full-required"
-      : A.isReadonlyArrayEmpty(sortedSelectedPackages)
-        ? "noop"
-        : "scoped";
+  const mode: DocgenLocalMode = pipe(
+    [
+      pipe(options.full, O.liftPredicate(P.isTruthy), O.as("full" as const)),
+      pipe(fullReasons, O.liftPredicate(A.isReadonlyArrayNonEmpty), O.as("full-required" as const)),
+      pipe(sortedSelectedPackages, O.liftPredicate(A.isReadonlyArrayEmpty), O.as("noop" as const)),
+    ] satisfies ReadonlyArray<O.Option<DocgenLocalMode>>,
+    O.firstSomeOf,
+    O.getOrElse(() => "scoped" as const)
+  );
 
   return DocgenLocalPlan.make({
     base: options.base,
@@ -877,49 +880,45 @@ export const buildDocgenLocalPlan: (
  */
 export const runDocgenLocal: (
   options: DocgenLocalOptions
-) => Effect.Effect<DocgenLocalPlan, DomainError | NoSuchFileError, DocgenLocalEnvironment> = Effect.fn(
-  "DocgenLocal.runDocgenLocal"
-)(function* (options) {
-  if (options.json && !options.plan) {
-    return yield* DomainError.make({
-      message: "--json requires --plan for docgen:local so stdout remains machine-readable.",
-    });
-  }
-
-  const repoRoot = yield* findRepoRoot();
-  const plan = yield* buildDocgenLocalPlanWithRepoRoot(options, repoRoot);
-
-  if (options.json) {
-    yield* renderPlanJson(plan);
-  } else {
-    yield* renderPlan(plan);
-  }
-
-  if (options.plan) {
-    if (plan.mode === "full-required") {
-      process.exitCode = 1;
-    } else {
-      process.exitCode = 0;
+) => Effect.Effect<DocgenLocalPlan, CliReportedExit | DomainError | NoSuchFileError, DocgenLocalEnvironment> =
+  Effect.fn("DocgenLocal.runDocgenLocal")(function* (options) {
+    if (options.json && !options.plan) {
+      return yield* DomainError.make({
+        message: "--json requires --plan for docgen:local so stdout remains machine-readable.",
+      });
     }
-    return plan;
-  }
 
-  if (plan.mode === "full-required") {
-    process.exitCode = 1;
-    yield* Console.error('docgen:local: full docgen proof required; re-run with "--full" to execute it.');
-    return plan;
-  }
+    const repoRoot = yield* findRepoRoot();
+    const plan = yield* buildDocgenLocalPlanWithRepoRoot(options, repoRoot);
 
-  if (plan.mode === "noop") {
-    yield* Console.log("docgen:local: no package-local docgen inputs changed");
-    return plan;
-  }
+    if (options.json) {
+      yield* renderPlanJson(plan);
+    } else {
+      yield* renderPlan(plan);
+    }
 
-  if (plan.mode === "full") {
-    yield* runFullDocgen(repoRoot);
-    return plan;
-  }
+    if (options.plan) {
+      if (plan.mode === "full-required") {
+        return yield* failWithReportedExit("docgen:local: full docgen proof required.");
+      }
+      return plan;
+    }
 
-  yield* runScopedDocgen(plan, repoRoot);
-  return plan;
-});
+    if (plan.mode === "full-required") {
+      yield* Console.error('docgen:local: full docgen proof required; re-run with "--full" to execute it.');
+      return yield* failWithReportedExit("docgen:local: full docgen proof required.");
+    }
+
+    if (plan.mode === "noop") {
+      yield* Console.log("docgen:local: no package-local docgen inputs changed");
+      return plan;
+    }
+
+    if (plan.mode === "full") {
+      yield* runFullDocgen(repoRoot);
+      return plan;
+    }
+
+    yield* runScopedDocgen(plan, repoRoot);
+    return plan;
+  });

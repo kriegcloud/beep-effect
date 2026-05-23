@@ -32,6 +32,18 @@ export type LiveWaveformProps = HTMLAttributes<HTMLDivElement> & {
   readonly onStreamEnd?: undefined | (() => void);
 };
 
+const waveformAriaLabel = (active: boolean, processing: boolean): string => {
+  if (active) {
+    return "Live audio waveform";
+  }
+
+  if (processing) {
+    return "Processing audio";
+  }
+
+  return "Audio waveform idle";
+};
+
 /**
  * @category components
  * @since 0.0.0
@@ -388,13 +400,8 @@ export const LiveWaveform = ({
       // Draw bars based on mode
       if (mode === "static") {
         // Static mode - bars in fixed positions
-        const dataToRender = processing
-          ? staticBarsRef.current
-          : active
-            ? staticBarsRef.current
-            : A.length(staticBarsRef.current) > 0
-              ? staticBarsRef.current
-              : A.empty();
+        const dataToRender =
+          processing || active || A.length(staticBarsRef.current) > 0 ? staticBarsRef.current : A.empty();
 
         for (let i = 0; i < barCount && i < A.length(dataToRender); i++) {
           const value = dataToRender[i] ?? 0.1;
@@ -495,7 +502,7 @@ export const LiveWaveform = ({
       className={cn("relative h-full w-full", className)}
       ref={containerRef}
       style={{ height: heightStyle }}
-      aria-label={active ? "Live audio waveform" : processing ? "Processing audio" : "Audio waveform idle"}
+      aria-label={waveformAriaLabel(active, processing)}
       role="img"
       {...props}
     >

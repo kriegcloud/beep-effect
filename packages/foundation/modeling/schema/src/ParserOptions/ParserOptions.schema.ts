@@ -6,7 +6,7 @@
  */
 
 import { $SchemaId } from "@beep/identity";
-import { Effect, Number as Num, pipe, RegExp as Regex, Result } from "effect";
+import { Effect, Match, Number as Num, pipe, RegExp as Regex, Result } from "effect";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
@@ -82,7 +82,11 @@ export class ParserOptionsError extends ParserOptionsErrorBase {}
 const toParserOptionsError = (fallbackMessage: string, cause?: unknown): ParserOptionsError =>
   ParserOptionsError.make({
     cause: P.isError(cause) ? O.some(cause) : O.none(),
-    message: P.isError(cause) ? cause.message : P.isUndefined(cause) ? fallbackMessage : String(cause),
+    message: Match.value(cause).pipe(
+      Match.when(P.isError, (error) => error.message),
+      Match.when(P.isUndefined, () => fallbackMessage),
+      Match.orElse((value) => String(value))
+    ),
   });
 
 const buildNextTokenRegExp = (escapedDelimiter: string): globalThis.RegExp =>
