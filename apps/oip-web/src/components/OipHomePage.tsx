@@ -478,13 +478,14 @@ const socialIcon: Record<SocialPlatform, Icon> = {
 };
 
 function SocialLinks({ socials }: { readonly socials: OipSiteContent["socials"] }) {
-  if (!A.matchToBoolean(socials)) {
+  const visible = A.filter(socials, (social) => social.active);
+  if (!A.matchToBoolean(visible)) {
     return null;
   }
 
   return (
     <ul aria-label="OIP social media" className="flex flex-wrap items-center gap-1 md:justify-end">
-      {A.map(socials, (social) => {
+      {A.map(visible, (social) => {
         const Glyph = socialIcon[social.platform];
 
         return (
