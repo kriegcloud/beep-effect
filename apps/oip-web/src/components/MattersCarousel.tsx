@@ -44,8 +44,8 @@ export function MattersCarousel({ children }: { readonly children: React.ReactNo
           <CarouselItem className="basis-full pl-5 sm:basis-1/2 lg:basis-1/3">{child}</CarouselItem>
         ))}
       </CarouselContent>
-      <CarouselPrevious className={`left-1 sm:left-2 ${navButton}`} />
-      <CarouselNext className={`right-1 sm:right-2 ${navButton}`} />
+      <CarouselPrevious className={`left-2 top-1/2 -translate-y-1/2 lg:hidden ${navButton}`} />
+      <CarouselNext className={`right-2 top-1/2 -translate-y-1/2 lg:hidden ${navButton}`} />
     </Carousel>
   );
 }
