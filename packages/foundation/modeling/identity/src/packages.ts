@@ -139,7 +139,8 @@ const composers = $I.compose(
   "phoenix",
   "konva",
   "canvas",
-  "repo-codegraph", "form"
+  "repo-codegraph",
+  "form"
 );
 
 // --- foundation ---

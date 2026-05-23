@@ -1,8 +1,17 @@
+/**
+ * React component factories and hooks for schema-backed forms.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
 import type { TUnsafe } from "@beep/types";
 import { RegistryContext, useAtom, useAtomMount, useAtomSet, useAtomValue } from "@effect/atom-react";
+import { Layer } from "effect";
 import type * as Effect from "effect/Effect";
-import * as Layer from "effect/Layer";
+import { dual } from "effect/Function";
 import * as O from "effect/Option";
+import * as P from "effect/Predicate";
+import * as R from "effect/Record";
 import type * as S from "effect/Schema";
 import * as Atom from "effect/unstable/reactivity/Atom";
 import type * as AtomRegistry from "effect/unstable/reactivity/AtomRegistry";
@@ -15,19 +24,108 @@ import type * as FormBuilder from "../core/FormBuilder.ts";
 import type * as Mode from "../core/Mode.ts";
 import { getNestedValue } from "../core/Path.ts";
 
+/**
+ * Render value type for a schema-backed field.
+ *
+ * @example
+ * ```ts
+ * import type { FieldValue } from "@beep/form/react/FormReact"
+ * import * as S from "effect/Schema"
+ *
+ * const value: FieldValue<typeof S.String> = "Ada"
+ * console.log(value) // "Ada"
+ * ```
+ *
+ * @category type-level
+ * @since 0.0.0
+ */
 export type FieldValue<T> = FieldStateModule.FieldValue<T>;
 
+/**
+ * React-facing state for one field.
+ *
+ * @example
+ * ```ts
+ * import type { FieldState } from "@beep/form/react/FormReact"
+ *
+ * type FieldPath = FieldState<string>["path"]
+ * const path: FieldPath = "name"
+ * console.log(path) // "name"
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
 export type FieldState<E> = FieldStateModule.FieldState<E>;
 
+/**
+ * React-facing array operations for array field render props.
+ *
+ * @example
+ * ```ts
+ * import type { ArrayFieldOperations } from "@beep/form/react/FormReact"
+ *
+ * type Items = ArrayFieldOperations<string>["items"]
+ * const items: Items = ["A"]
+ * console.log(items.length) // 1
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
 export type ArrayFieldOperations<TItem> = FieldStateModule.ArrayFieldOperations<TItem>;
 
+/**
+ * Props received by a field component.
+ *
+ * @example
+ * ```ts
+ * import type { FieldComponentProps } from "@beep/form/react/FormReact"
+ *
+ * type Props = FieldComponentProps<string, { readonly label: string }>["props"]
+ * const props: Props = { label: "Name" }
+ * console.log(props.label) // "Name"
+ * ```
+ *
+ * @category components
+ * @since 0.0.0
+ */
 export interface FieldComponentProps<E, P = Record<string, never>> {
   readonly field: FieldState<E>;
   readonly props: P;
 }
 
+/**
+ * React component type accepted for scalar fields.
+ *
+ * @example
+ * ```tsx
+ * import type { FieldComponent } from "@beep/form/react/FormReact"
+ *
+ * const Name: FieldComponent<string> = ({ field }) => <input value={field.value} onChange={(event) => field.onChange(event.currentTarget.value)} />
+ * console.log(typeof Name) // "function"
+ * ```
+ *
+ * @category components
+ * @since 0.0.0
+ */
 export type FieldComponent<T, P = Record<string, never>> = React.FC<FieldComponentProps<FieldValue<T>, P>>;
 
+/**
+ * Extracts extra props from a field component.
+ *
+ * @example
+ * ```ts
+ * import type { ExtractExtraProps, FieldComponent } from "@beep/form/react/FormReact"
+ *
+ * type Props = ExtractExtraProps<FieldComponent<string, { readonly label: string }>>
+ * const props: Props = { label: "Name" }
+ * console.log(props.label) // "Name"
+ * ```
+ *
+ * @category type-level
+ * @since 0.0.0
+ */
 export type ExtractExtraProps<C> =
   C extends React.FC<FieldComponentProps<TUnsafe.Any, infer P>> ? P : Record<string, never>;
 
@@ -38,6 +136,22 @@ type StructFieldsFromSchema<S> =
       ? StructFieldsFromSchema<From>
       : never;
 
+/**
+ * Component map accepted for one array field item.
+ *
+ * @example
+ * ```ts
+ * import type { ArrayItemComponentMap } from "@beep/form/react/FormReact"
+ * import * as S from "effect/Schema"
+ *
+ * type ItemMap = ArrayItemComponentMap<typeof S.String>
+ * const key: keyof { readonly Item: ItemMap } = "Item"
+ * console.log(key) // "Item"
+ * ```
+ *
+ * @category components
+ * @since 0.0.0
+ */
 export type ArrayItemComponentMap<Schema extends S.Top> =
   StructFieldsFromSchema<Schema> extends S.Struct.Fields
     ? {
@@ -47,6 +161,24 @@ export type ArrayItemComponentMap<Schema extends S.Top> =
       }
     : React.FC<FieldComponentProps<S.Codec.Encoded<Schema>, TUnsafe.Any>>;
 
+/**
+ * Component map accepted by the React form factory.
+ *
+ * @example
+ * ```ts
+ * import type { FieldComponentMap } from "@beep/form/react/FormReact"
+ * import { makeField } from "@beep/form/core/Field"
+ * import * as S from "effect/Schema"
+ *
+ * const fields = { name: makeField("name", S.String) }
+ * type Components = FieldComponentMap<typeof fields>
+ * const key: keyof Components = "name"
+ * console.log(key) // "name"
+ * ```
+ *
+ * @category components
+ * @since 0.0.0
+ */
 export type FieldComponentMap<TFields extends Field.FieldsRecord> = {
   readonly [K in keyof TFields]: TFields[K] extends Field.FieldDef<string, infer Schema>
     ? React.FC<FieldComponentProps<S.Codec.Encoded<Schema>, TUnsafe.Any>>
@@ -55,8 +187,42 @@ export type FieldComponentMap<TFields extends Field.FieldsRecord> = {
       : never;
 };
 
+/**
+ * Field references exposed by a built React form.
+ *
+ * @example
+ * ```ts
+ * import type { FieldRefs } from "@beep/form/react/FormReact"
+ * import { makeField } from "@beep/form/core/Field"
+ * import * as S from "effect/Schema"
+ *
+ * const fields = { name: makeField("name", S.String) }
+ * type Refs = FieldRefs<typeof fields>
+ * const key: keyof Refs = "name"
+ * console.log(key) // "name"
+ * ```
+ *
+ * @category type-level
+ * @since 0.0.0
+ */
 export type FieldRefs<TFields extends Field.FieldsRecord> = FormAtoms.FieldRefs<TFields>;
 
+/**
+ * React form object returned from {@link make}.
+ *
+ * @example
+ * ```ts
+ * import type { BuiltForm } from "@beep/form/react/FormReact"
+ * import type { FieldsRecord } from "@beep/form/core/Field"
+ *
+ * type Form = BuiltForm<FieldsRecord, never>
+ * const key: keyof Form = "Initialize"
+ * console.log(key) // "Initialize"
+ * ```
+ *
+ * @category forms
+ * @since 0.0.0
+ */
 export type BuiltForm<
   TFields extends Field.FieldsRecord,
   R,
@@ -223,23 +389,29 @@ const makeArrayFieldComponent = <Schema extends S.Top>(
       [fieldPath, setFormState]
     );
 
-    const swap = React.useCallback(
-      (indexA: number, indexB: number) => {
+    const swap: {
+      (indexA: number, indexB: number): void;
+      (indexB: number): (indexA: number) => void;
+    } = React.useCallback(
+      dual(2, (indexA: number, indexB: number) => {
         setFormState((prev) => {
           if (O.isNone(prev)) return prev;
           return O.some(operations.swapArrayItems(prev.value, fieldPath, indexA, indexB));
         });
-      },
+      }),
       [fieldPath, setFormState]
     );
 
-    const move = React.useCallback(
-      (from: number, to: number) => {
+    const move: {
+      (from: number, to: number): void;
+      (to: number): (from: number) => void;
+    } = React.useCallback(
+      dual(2, (from: number, to: number) => {
         setFormState((prev) => {
           if (O.isNone(prev)) return prev;
           return O.some(operations.moveArrayItem(prev.value, fieldPath, from, to));
         });
-      },
+      }),
       [fieldPath, setFormState]
     );
 
@@ -265,12 +437,12 @@ const makeArrayFieldComponent = <Schema extends S.Top>(
 
     return (
       <ArrayItemContext.Provider value={{ index, parentPath: itemPath }}>
-        {typeof children === "function" ? children({ remove }) : children}
+        {P.isFunction(children) ? children({ remove }) : children}
       </ArrayItemContext.Provider>
     );
   };
 
-  const itemFieldComponents: Record<string, React.FC> = {};
+  const itemFieldComponents = R.empty<string, React.FC>();
 
   const subFieldDefs = Field.extractStructFieldDefs(def.itemSchema);
   if (subFieldDefs !== undefined) {
@@ -311,9 +483,9 @@ const makeFieldComponents = <TFields extends Field.FieldsRecord, CM extends Fiel
   componentMap: CM,
   onBlurSubmitAtom: Atom.Writable<void, void>
 ): FieldComponents<TFields, CM> => {
-  const components: Record<string, TUnsafe.Any> = {};
+  const components = R.empty<string, TUnsafe.Any>();
 
-  for (const [key, def] of Object.entries(fields)) {
+  for (const [key, def] of R.toEntries(fields)) {
     if (Field.isArrayFieldDef(def)) {
       const arrayComponentMap = (componentMap as Record<string, TUnsafe.Any>)[key];
       components[key] = makeArrayFieldComponent(
@@ -336,6 +508,21 @@ const makeFieldComponents = <TFields extends Field.FieldsRecord, CM extends Fiel
   return components as FieldComponents<TFields, CM>;
 };
 
+/**
+ * Creates React components and atoms from a form builder.
+ *
+ * @example
+ * ```tsx
+ * import { make } from "@beep/form/react/FormReact"
+ * import { empty } from "@beep/form/core/FormBuilder"
+ *
+ * const form = make(empty, { fields: {}, onSubmit: () => undefined })
+ * console.log(typeof form.Initialize) // "function"
+ * ```
+ *
+ * @category constructors
+ * @since 0.0.0
+ */
 export const make: {
   <
     TFields extends Field.FieldsRecord,

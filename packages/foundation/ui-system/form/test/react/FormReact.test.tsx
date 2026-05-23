@@ -1,7 +1,9 @@
 import { Field, FormBuilder, FormReact } from "@beep/form/react";
+import type { TUnsafe } from "@beep/types";
 import { useAtomSet, useAtomSubscribe, useAtomValue } from "@effect/atom-react";
 import { render, screen, waitFor } from "@testing-library/react";
 import { userEvent } from "@testing-library/user-event";
+import * as Data from "effect/Data";
 import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
 import * as AsyncResult from "effect/unstable/reactivity/AsyncResult";
@@ -12,6 +14,9 @@ import { describe, expect, expectTypeOf, it, vi } from "vitest";
 import * as Context from "../helpers/ContextCompat.ts";
 import * as Effect from "../helpers/EffectCompat.ts";
 import * as S from "../helpers/SchemaCompat.ts";
+
+const effectTest = (name: string, body: () => Generator<TUnsafe.Any, void, TUnsafe.Any>) =>
+  it(name, () => Effect.runPromise(Effect.gen(body) as TUnsafe.Any));
 
 const TextInput: FormReact.FieldComponent<string> = ({ field }) => (
   <div>
@@ -62,7 +67,7 @@ describe("FormReact.make", () => {
   });
 
   describe("Field Component", () => {
-    it("updates value on change", async () => {
+    effectTest("updates value on change", function* () {
       const user = userEvent.setup();
 
       const NameField = Field.makeField("name", S.String);
@@ -82,12 +87,12 @@ describe("FormReact.make", () => {
       );
 
       const input = screen.getByTestId("text-input");
-      await user.type(input, "Jane");
+      yield* Effect.promise(() => user.type(input, "Jane"));
 
       expect(input).toHaveValue("Jane");
     });
 
-    it("shows validation error after touch (onBlur mode)", async () => {
+    effectTest("shows validation error after touch (onBlur mode)", function* () {
       const user = userEvent.setup();
 
       const NonEmpty = S.String.check(S.isMinLength(1, { message: "Required" }));
@@ -109,12 +114,14 @@ describe("FormReact.make", () => {
       );
 
       const input = screen.getByTestId("text-input");
-      await user.click(input);
-      await user.tab();
+      yield* Effect.promise(() => user.click(input));
+      yield* Effect.promise(() => user.tab());
 
-      await waitFor(() => {
-        expect(screen.getByTestId("error")).toHaveTextContent("Required");
-      });
+      yield* Effect.promise(() =>
+        waitFor(() => {
+          expect(screen.getByTestId("error")).toHaveTextContent("Required");
+        })
+      );
     });
   });
 
@@ -153,7 +160,7 @@ describe("FormReact.make", () => {
       expect(isDirty).toBe(false);
     });
 
-    it("returns isDirty = true when values differ from initial", async () => {
+    effectTest("returns isDirty = true when values differ from initial", function* () {
       const user = userEvent.setup();
 
       const NameField = Field.makeField("name", S.String);
@@ -187,12 +194,12 @@ describe("FormReact.make", () => {
       );
 
       const input = screen.getByTestId("text-input");
-      await user.type(input, "changed");
+      yield* Effect.promise(() => user.type(input, "changed"));
 
       expect(isDirty).toBe(true);
     });
 
-    it("submit calls onSubmit with decoded values", async () => {
+    effectTest("submit calls onSubmit with decoded values", function* () {
       const user = userEvent.setup();
       const submitHandler = vi.fn();
 
@@ -225,16 +232,18 @@ describe("FormReact.make", () => {
         </form.Initialize>
       );
 
-      await user.click(screen.getByTestId("submit"));
+      yield* Effect.promise(() => user.click(screen.getByTestId("submit")));
 
-      await waitFor(() => {
-        expect(submitHandler).toHaveBeenCalledWith({ name: "John", age: 42 });
-      });
+      yield* Effect.promise(() =>
+        waitFor(() => {
+          expect(submitHandler).toHaveBeenCalledWith({ name: "John", age: 42 });
+        })
+      );
     });
   });
 
   describe("multiple fields", () => {
-    it("renders multiple fields correctly", async () => {
+    effectTest("renders multiple fields correctly", function* () {
       const user = userEvent.setup();
 
       const FirstNameField = Field.makeField("firstName", S.String);
@@ -276,8 +285,8 @@ describe("FormReact.make", () => {
         </form.Initialize>
       );
 
-      await user.type(screen.getByTestId("firstName"), "John");
-      await user.type(screen.getByTestId("lastName"), "Doe");
+      yield* Effect.promise(() => user.type(screen.getByTestId("firstName"), "John"));
+      yield* Effect.promise(() => user.type(screen.getByTestId("lastName"), "Doe"));
 
       expect(screen.getByTestId("firstName")).toHaveValue("John");
       expect(screen.getByTestId("lastName")).toHaveValue("Doe");
@@ -285,7 +294,7 @@ describe("FormReact.make", () => {
   });
 
   describe("array fields", () => {
-    it("renders array field with items", async () => {
+    effectTest("renders array field with items", function* () {
       const user = userEvent.setup();
 
       const TitleField = Field.makeField("title", S.String);
@@ -345,14 +354,16 @@ describe("FormReact.make", () => {
       expect(screen.getByTestId("title")).toHaveValue("My List");
       expect(screen.getByTestId("item-name")).toHaveValue("Item 1");
 
-      await user.click(screen.getByTestId("add"));
+      yield* Effect.promise(() => user.click(screen.getByTestId("add")));
 
-      await waitFor(() => {
-        expect(screen.getAllByTestId("item-name")).toHaveLength(2);
-      });
+      yield* Effect.promise(() =>
+        waitFor(() => {
+          expect(screen.getAllByTestId("item-name")).toHaveLength(2);
+        })
+      );
     });
 
-    it("renders array item subfields when item schema uses filterEffect", async () => {
+    effectTest("renders array item subfields when item schema uses filterEffect", function* () {
       const user = userEvent.setup();
 
       const ItemSchema = S.Struct({ name: S.String }).pipe(S.filterEffect(() => Effect.succeed(true)));
@@ -392,12 +403,12 @@ describe("FormReact.make", () => {
 
       expect((screen.getByTestId("item-name") as HTMLInputElement).value).toBe("First");
 
-      await user.type(screen.getByTestId("item-name"), "A");
+      yield* Effect.promise(() => user.type(screen.getByTestId("item-name"), "A"));
 
       expect((screen.getByTestId("item-name") as HTMLInputElement).value).toBe("FirstA");
     });
 
-    it("remove() removes item at specified index", async () => {
+    effectTest("remove() removes item at specified index", function* () {
       const user = userEvent.setup();
 
       const ItemsArrayField = Field.makeArrayField("items", S.Struct({ name: S.String }));
@@ -447,17 +458,19 @@ describe("FormReact.make", () => {
       expect(inputs[1].value).toBe("B");
       expect(inputs[2].value).toBe("C");
 
-      await user.click(screen.getByTestId("remove-1"));
+      yield* Effect.promise(() => user.click(screen.getByTestId("remove-1")));
 
-      await waitFor(() => {
-        expect(screen.getAllByTestId("item-name")).toHaveLength(2);
-        const updatedInputs = screen.getAllByTestId("item-name") as Array<HTMLInputElement>;
-        expect(updatedInputs[0].value).toBe("A");
-        expect(updatedInputs[1].value).toBe("C");
-      });
+      yield* Effect.promise(() =>
+        waitFor(() => {
+          expect(screen.getAllByTestId("item-name")).toHaveLength(2);
+          const updatedInputs = screen.getAllByTestId("item-name") as Array<HTMLInputElement>;
+          expect(updatedInputs[0].value).toBe("A");
+          expect(updatedInputs[1].value).toBe("C");
+        })
+      );
     });
 
-    it("swap() exchanges items at two indices", async () => {
+    effectTest("swap() exchanges items at two indices", function* () {
       const user = userEvent.setup();
 
       const ItemsArrayField = Field.makeArrayField("items", S.Struct({ name: S.String }));
@@ -504,17 +517,19 @@ describe("FormReact.make", () => {
       expect(initialInputs[1].value).toBe("Second");
       expect(initialInputs[2].value).toBe("Third");
 
-      await user.click(screen.getByTestId("swap"));
+      yield* Effect.promise(() => user.click(screen.getByTestId("swap")));
 
-      await waitFor(() => {
-        const swappedInputs = screen.getAllByTestId("item-name") as Array<HTMLInputElement>;
-        expect(swappedInputs[0].value).toBe("Third");
-        expect(swappedInputs[1].value).toBe("Second");
-        expect(swappedInputs[2].value).toBe("First");
-      });
+      yield* Effect.promise(() =>
+        waitFor(() => {
+          const swappedInputs = screen.getAllByTestId("item-name") as Array<HTMLInputElement>;
+          expect(swappedInputs[0].value).toBe("Third");
+          expect(swappedInputs[1].value).toBe("Second");
+          expect(swappedInputs[2].value).toBe("First");
+        })
+      );
     });
 
-    it("move() relocates item from one index to another", async () => {
+    effectTest("move() relocates item from one index to another", function* () {
       const user = userEvent.setup();
 
       const ItemsArrayField = Field.makeArrayField("items", S.Struct({ name: S.String }));
@@ -559,15 +574,17 @@ describe("FormReact.make", () => {
       const initialInputs = screen.getAllByTestId("item-name") as Array<HTMLInputElement>;
       expect(initialInputs.map((i) => i.value)).toEqual(["A", "B", "C", "D"]);
 
-      await user.click(screen.getByTestId("move"));
+      yield* Effect.promise(() => user.click(screen.getByTestId("move")));
 
-      await waitFor(() => {
-        const movedInputs = screen.getAllByTestId("item-name") as Array<HTMLInputElement>;
-        expect(movedInputs.map((i) => i.value)).toEqual(["B", "C", "A", "D"]);
-      });
+      yield* Effect.promise(() =>
+        waitFor(() => {
+          const movedInputs = screen.getAllByTestId("item-name") as Array<HTMLInputElement>;
+          expect(movedInputs.map((i) => i.value)).toEqual(["B", "C", "A", "D"]);
+        })
+      );
     });
 
-    it("Item render prop provides remove function", async () => {
+    effectTest("Item render prop provides remove function", function* () {
       const user = userEvent.setup();
 
       const ItemsArrayField = Field.makeArrayField("items", S.Struct({ name: S.String }));
@@ -615,12 +632,14 @@ describe("FormReact.make", () => {
 
       expect(screen.getAllByTestId("item-name")).toHaveLength(2);
 
-      await user.click(screen.getByTestId("item-remove-0"));
+      yield* Effect.promise(() => user.click(screen.getByTestId("item-remove-0")));
 
-      await waitFor(() => {
-        expect(screen.getAllByTestId("item-name")).toHaveLength(1);
-        expect((screen.getByTestId("item-name") as HTMLInputElement).value).toBe("Item 2");
-      });
+      yield* Effect.promise(() =>
+        waitFor(() => {
+          expect(screen.getAllByTestId("item-name")).toHaveLength(1);
+          expect((screen.getByTestId("item-name") as HTMLInputElement).value).toBe("Item 2");
+        })
+      );
     });
   });
 
@@ -684,7 +703,7 @@ describe("FormReact.make", () => {
   });
 
   describe("async validation", () => {
-    it("submit works with async schema validation (filterEffect)", async () => {
+    effectTest("submit works with async schema validation (filterEffect)", function* () {
       const user = userEvent.setup();
       const submitHandler = vi.fn();
 
@@ -707,17 +726,19 @@ describe("FormReact.make", () => {
         </form.Initialize>
       );
 
-      await user.click(screen.getByTestId("submit"));
+      yield* Effect.promise(() => user.click(screen.getByTestId("submit")));
 
-      await waitFor(
-        () => {
-          expect(submitHandler).toHaveBeenCalledWith({ email: "test@example.com" });
-        },
-        { timeout: 1000 }
+      yield* Effect.promise(() =>
+        waitFor(
+          () => {
+            expect(submitHandler).toHaveBeenCalledWith({ email: "test@example.com" });
+          },
+          { timeout: 1000 }
+        )
       );
     });
 
-    it("exposes isValidating state during async validation", async () => {
+    effectTest("exposes isValidating state during async validation", function* () {
       const user = userEvent.setup();
 
       const AsyncField = S.String.pipe(S.filterEffect(() => Effect.succeed(true).pipe(Effect.delay("100 millis"))));
@@ -755,24 +776,28 @@ describe("FormReact.make", () => {
       expect(screen.getByTestId("is-validating")).toHaveTextContent("false");
 
       const input = screen.getByTestId("async-input");
-      await user.type(input, "test");
-      await user.tab();
+      yield* Effect.promise(() => user.type(input, "test"));
+      yield* Effect.promise(() => user.tab());
 
-      await waitFor(() => {
-        expect(screen.getByTestId("is-validating")).toHaveTextContent("true");
-      });
+      yield* Effect.promise(() =>
+        waitFor(() => {
+          expect(screen.getByTestId("is-validating")).toHaveTextContent("true");
+        })
+      );
 
-      await waitFor(
-        () => {
-          expect(screen.getByTestId("is-validating")).toHaveTextContent("false");
-        },
-        { timeout: 200 }
+      yield* Effect.promise(() =>
+        waitFor(
+          () => {
+            expect(screen.getByTestId("is-validating")).toHaveTextContent("false");
+          },
+          { timeout: 200 }
+        )
       );
     });
   });
 
   describe("cross-field validation", () => {
-    it("FormBuilder.refine validates across fields and routes error to specific field", async () => {
+    effectTest("FormBuilder.refine validates across fields and routes error to specific field", function* () {
       const user = userEvent.setup();
 
       const PasswordInput: FormReact.FieldComponent<string> = ({ field }) => (
@@ -832,16 +857,18 @@ describe("FormReact.make", () => {
         </form.Initialize>
       );
 
-      await user.click(screen.getByTestId("submit"));
+      yield* Effect.promise(() => user.click(screen.getByTestId("submit")));
 
-      await waitFor(() => {
-        expect(screen.getByTestId("confirm-password-error")).toHaveTextContent("Passwords must match");
-      });
+      yield* Effect.promise(() =>
+        waitFor(() => {
+          expect(screen.getByTestId("confirm-password-error")).toHaveTextContent("Passwords must match");
+        })
+      );
 
       expect(screen.queryByTestId("password-error")).not.toBeInTheDocument();
     });
 
-    it("refineEffect performs async cross-field validation", async () => {
+    effectTest("refineEffect performs async cross-field validation", function* () {
       const user = userEvent.setup();
 
       const UsernameInput: FormReact.FieldComponent<string> = ({ field }) => (
@@ -883,17 +910,19 @@ describe("FormReact.make", () => {
         </form.Initialize>
       );
 
-      await user.click(screen.getByTestId("submit"));
+      yield* Effect.promise(() => user.click(screen.getByTestId("submit")));
 
-      await waitFor(
-        () => {
-          expect(screen.getByTestId("username-error")).toHaveTextContent("Username is already taken");
-        },
-        { timeout: 200 }
+      yield* Effect.promise(() =>
+        waitFor(
+          () => {
+            expect(screen.getByTestId("username-error")).toHaveTextContent("Username is already taken");
+          },
+          { timeout: 200 }
+        )
       );
     });
 
-    it("refineEffect works with Effect services from runtime", async () => {
+    effectTest("refineEffect works with Effect services from runtime", function* () {
       const user = userEvent.setup();
 
       class UsernameValidator extends Context.Tag("UsernameValidator")<
@@ -902,7 +931,7 @@ describe("FormReact.make", () => {
       >() {}
 
       const UsernameValidatorLive = Layer.succeed(UsernameValidator, {
-        isTaken: (username) => Effect.succeed(username === "taken"),
+        isTaken: Effect.fn("UsernameValidator.isTaken")((username) => Effect.succeed(username === "taken")),
       });
 
       const UsernameInput: FormReact.FieldComponent<string> = ({ field }) => (
@@ -950,14 +979,16 @@ describe("FormReact.make", () => {
         </form.Initialize>
       );
 
-      await user.click(screen.getByTestId("submit"));
+      yield* Effect.promise(() => user.click(screen.getByTestId("submit")));
 
-      await waitFor(() => {
-        expect(screen.getByTestId("username-error")).toHaveTextContent("Username is already taken");
-      });
+      yield* Effect.promise(() =>
+        waitFor(() => {
+          expect(screen.getByTestId("username-error")).toHaveTextContent("Username is already taken");
+        })
+      );
     });
 
-    it("multiple chained refine() calls are all executed", async () => {
+    effectTest("multiple chained refine() calls are all executed", function* () {
       const user = userEvent.setup();
 
       const FieldInput: FormReact.FieldComponent<string, { testId: string }> = ({ field, props }) => (
@@ -1013,11 +1044,13 @@ describe("FormReact.make", () => {
         </form.Initialize>
       );
 
-      await user.click(screen.getByTestId("submit"));
+      yield* Effect.promise(() => user.click(screen.getByTestId("submit")));
 
-      await waitFor(() => {
-        expect(screen.getByTestId("fieldA-error")).toHaveTextContent("First validation failed");
-      });
+      yield* Effect.promise(() =>
+        waitFor(() => {
+          expect(screen.getByTestId("fieldA-error")).toHaveTextContent("First validation failed");
+        })
+      );
       expect(screen.queryByTestId("fieldB-error")).not.toBeInTheDocument();
 
       rerender(
@@ -1028,15 +1061,17 @@ describe("FormReact.make", () => {
         </form.Initialize>
       );
 
-      await user.click(screen.getByTestId("submit"));
+      yield* Effect.promise(() => user.click(screen.getByTestId("submit")));
 
-      await waitFor(() => {
-        expect(screen.getByTestId("fieldB-error")).toHaveTextContent("Second validation failed");
-      });
+      yield* Effect.promise(() =>
+        waitFor(() => {
+          expect(screen.getByTestId("fieldB-error")).toHaveTextContent("Second validation failed");
+        })
+      );
       expect(screen.queryByTestId("fieldA-error")).not.toBeInTheDocument();
     });
 
-    it("cross-field error persists when typing after failed submit (still invalid)", async () => {
+    effectTest("cross-field error persists when typing after failed submit (still invalid)", function* () {
       const user = userEvent.setup();
 
       const FieldInput: FormReact.FieldComponent<string, { testId: string }> = ({ field, props }) => (
@@ -1087,20 +1122,22 @@ describe("FormReact.make", () => {
         </form.Initialize>
       );
 
-      await user.click(screen.getByTestId("submit"));
+      yield* Effect.promise(() => user.click(screen.getByTestId("submit")));
 
-      await waitFor(() => {
-        expect(screen.getByTestId("confirm-error")).toHaveTextContent("Passwords must match");
-      });
+      yield* Effect.promise(() =>
+        waitFor(() => {
+          expect(screen.getByTestId("confirm-error")).toHaveTextContent("Passwords must match");
+        })
+      );
 
       const confirmInput = screen.getByTestId("confirm");
-      await user.type(confirmInput, "x");
+      yield* Effect.promise(() => user.type(confirmInput, "x"));
 
-      await new Promise((r) => setTimeout(r, 50));
+      yield* Effect.sleep("50 millis");
       expect(screen.getByTestId("confirm-error")).toHaveTextContent("Passwords must match");
     });
 
-    it("cross-field error clears when fixed and resubmitted", async () => {
+    effectTest("cross-field error clears when fixed and resubmitted", function* () {
       const user = userEvent.setup();
 
       const FieldInput: FormReact.FieldComponent<string, { testId: string }> = ({ field, props }) => (
@@ -1151,26 +1188,30 @@ describe("FormReact.make", () => {
         </form.Initialize>
       );
 
-      await user.click(screen.getByTestId("submit"));
+      yield* Effect.promise(() => user.click(screen.getByTestId("submit")));
 
-      await waitFor(() => {
-        expect(screen.getByTestId("confirm-error")).toHaveTextContent("Passwords must match");
-      });
+      yield* Effect.promise(() =>
+        waitFor(() => {
+          expect(screen.getByTestId("confirm-error")).toHaveTextContent("Passwords must match");
+        })
+      );
 
       const confirmInput = screen.getByTestId("confirm");
-      await user.clear(confirmInput);
-      await user.type(confirmInput, "secret");
+      yield* Effect.promise(() => user.clear(confirmInput));
+      yield* Effect.promise(() => user.type(confirmInput, "secret"));
 
       expect(screen.getByTestId("confirm-error")).toHaveTextContent("Passwords must match");
 
-      await user.click(screen.getByTestId("submit"));
+      yield* Effect.promise(() => user.click(screen.getByTestId("submit")));
 
-      await waitFor(() => {
-        expect(screen.queryByTestId("confirm-error")).not.toBeInTheDocument();
-      });
+      yield* Effect.promise(() =>
+        waitFor(() => {
+          expect(screen.queryByTestId("confirm-error")).not.toBeInTheDocument();
+        })
+      );
     });
 
-    it("routes cross-field errors to nested array item fields", async () => {
+    effectTest("routes cross-field errors to nested array item fields", function* () {
       const user = userEvent.setup();
 
       const ItemNameInput: FormReact.FieldComponent<string> = ({ field }) => (
@@ -1219,16 +1260,18 @@ describe("FormReact.make", () => {
         </form.Initialize>
       );
 
-      await user.click(screen.getByTestId("submit"));
+      yield* Effect.promise(() => user.click(screen.getByTestId("submit")));
 
-      await waitFor(() => {
-        expect(screen.getByTestId("item-name-error")).toHaveTextContent("Name must be at least 3 characters");
-      });
+      yield* Effect.promise(() =>
+        waitFor(() => {
+          expect(screen.getByTestId("item-name-error")).toHaveTextContent("Name must be at least 3 characters");
+        })
+      );
     });
   });
 
   describe("validation modes", () => {
-    it("onSubmit mode shows errors after submit attempt", async () => {
+    effectTest("onSubmit mode shows errors after submit attempt", function* () {
       const user = userEvent.setup();
 
       const NonEmpty = S.String.pipe(S.minLength(1, { message: () => "Required" }));
@@ -1254,14 +1297,16 @@ describe("FormReact.make", () => {
 
       expect(screen.queryByTestId("error")).not.toBeInTheDocument();
 
-      await user.click(screen.getByTestId("submit"));
+      yield* Effect.promise(() => user.click(screen.getByTestId("submit")));
 
-      await waitFor(() => {
-        expect(screen.getByTestId("error")).toHaveTextContent("Required");
-      });
+      yield* Effect.promise(() =>
+        waitFor(() => {
+          expect(screen.getByTestId("error")).toHaveTextContent("Required");
+        })
+      );
     });
 
-    it("onChange mode shows errors immediately without needing blur", async () => {
+    effectTest("onChange mode shows errors immediately without needing blur", function* () {
       const user = userEvent.setup();
 
       const MinLength = S.String.pipe(S.minLength(3, { message: () => "Min 3 chars" }));
@@ -1282,20 +1327,24 @@ describe("FormReact.make", () => {
 
       const input = screen.getByTestId("text-input");
 
-      await user.type(input, "ab");
+      yield* Effect.promise(() => user.type(input, "ab"));
 
-      await waitFor(() => {
-        expect(screen.getByTestId("error")).toHaveTextContent("Min 3 chars");
-      });
+      yield* Effect.promise(() =>
+        waitFor(() => {
+          expect(screen.getByTestId("error")).toHaveTextContent("Min 3 chars");
+        })
+      );
 
-      await user.type(input, "c");
+      yield* Effect.promise(() => user.type(input, "c"));
 
-      await waitFor(() => {
-        expect(screen.queryByTestId("error")).not.toBeInTheDocument();
-      });
+      yield* Effect.promise(() =>
+        waitFor(() => {
+          expect(screen.queryByTestId("error")).not.toBeInTheDocument();
+        })
+      );
     });
 
-    it("onSubmit mode keeps errors when typing still-invalid values after failed submit", async () => {
+    effectTest("onSubmit mode keeps errors when typing still-invalid values after failed submit", function* () {
       const user = userEvent.setup();
 
       const MinLength = S.String.pipe(S.minLength(8, { message: () => "Min 8 chars" }));
@@ -1319,21 +1368,23 @@ describe("FormReact.make", () => {
 
       const input = screen.getByTestId("text-input");
 
-      await user.type(input, "short");
+      yield* Effect.promise(() => user.type(input, "short"));
 
-      await user.click(screen.getByTestId("submit"));
+      yield* Effect.promise(() => user.click(screen.getByTestId("submit")));
 
-      await waitFor(() => {
-        expect(screen.getByTestId("error")).toHaveTextContent("Min 8 chars");
-      });
+      yield* Effect.promise(() =>
+        waitFor(() => {
+          expect(screen.getByTestId("error")).toHaveTextContent("Min 8 chars");
+        })
+      );
 
-      await user.type(input, "x");
+      yield* Effect.promise(() => user.type(input, "x"));
 
-      await new Promise((r) => setTimeout(r, 50));
+      yield* Effect.sleep("50 millis");
       expect(screen.getByTestId("error")).toHaveTextContent("Min 8 chars");
     });
 
-    it("onSubmit mode clears errors when typing valid values after failed submit", async () => {
+    effectTest("onSubmit mode clears errors when typing valid values after failed submit", function* () {
       const user = userEvent.setup();
 
       const MinLength = S.String.pipe(S.minLength(8, { message: () => "Min 8 chars" }));
@@ -1357,22 +1408,26 @@ describe("FormReact.make", () => {
 
       const input = screen.getByTestId("text-input");
 
-      await user.type(input, "short");
+      yield* Effect.promise(() => user.type(input, "short"));
 
-      await user.click(screen.getByTestId("submit"));
+      yield* Effect.promise(() => user.click(screen.getByTestId("submit")));
 
-      await waitFor(() => {
-        expect(screen.getByTestId("error")).toHaveTextContent("Min 8 chars");
-      });
+      yield* Effect.promise(() =>
+        waitFor(() => {
+          expect(screen.getByTestId("error")).toHaveTextContent("Min 8 chars");
+        })
+      );
 
-      await user.type(input, "123");
+      yield* Effect.promise(() => user.type(input, "123"));
 
-      await waitFor(() => {
-        expect(screen.queryByTestId("error")).not.toBeInTheDocument();
-      });
+      yield* Effect.promise(() =>
+        waitFor(() => {
+          expect(screen.queryByTestId("error")).not.toBeInTheDocument();
+        })
+      );
     });
 
-    it("cross-field refinement errors persist until re-submit", async () => {
+    effectTest("cross-field refinement errors persist until re-submit", function* () {
       const user = userEvent.setup();
 
       const PasswordField = Field.makeField("password", S.String.pipe(S.minLength(4)));
@@ -1417,28 +1472,32 @@ describe("FormReact.make", () => {
         </form.Initialize>
       );
 
-      await user.click(screen.getByTestId("submit"));
+      yield* Effect.promise(() => user.click(screen.getByTestId("submit")));
 
-      await waitFor(() => {
-        expect(screen.getByTestId("confirm-error")).toHaveTextContent("Passwords must match");
-      });
+      yield* Effect.promise(() =>
+        waitFor(() => {
+          expect(screen.getByTestId("confirm-error")).toHaveTextContent("Passwords must match");
+        })
+      );
 
-      await user.clear(screen.getByTestId("confirm-input"));
-      await user.type(screen.getByTestId("confirm-input"), "test");
+      yield* Effect.promise(() => user.clear(screen.getByTestId("confirm-input")));
+      yield* Effect.promise(() => user.type(screen.getByTestId("confirm-input"), "test"));
 
-      await new Promise((r) => setTimeout(r, 100));
+      yield* Effect.sleep("100 millis");
 
       // Refinement errors persist until re-submit
       expect(screen.getByTestId("confirm-error")).toHaveTextContent("Passwords must match");
 
-      await user.click(screen.getByTestId("submit"));
+      yield* Effect.promise(() => user.click(screen.getByTestId("submit")));
 
-      await waitFor(() => {
-        expect(screen.queryByTestId("confirm-error")).not.toBeInTheDocument();
-      });
+      yield* Effect.promise(() =>
+        waitFor(() => {
+          expect(screen.queryByTestId("confirm-error")).not.toBeInTheDocument();
+        })
+      );
     });
 
-    it("per-field errors clear on valid input while refinement errors persist", async () => {
+    effectTest("per-field errors clear on valid input while refinement errors persist", function* () {
       const user = userEvent.setup();
 
       const PasswordField = Field.makeField(
@@ -1486,40 +1545,48 @@ describe("FormReact.make", () => {
         </form.Initialize>
       );
 
-      await user.click(screen.getByTestId("submit"));
+      yield* Effect.promise(() => user.click(screen.getByTestId("submit")));
 
-      await waitFor(() => {
-        expect(screen.getByTestId("error")).toHaveTextContent("Min 8 chars");
-      });
+      yield* Effect.promise(() =>
+        waitFor(() => {
+          expect(screen.getByTestId("error")).toHaveTextContent("Min 8 chars");
+        })
+      );
 
-      await user.type(screen.getByTestId("text-input"), "1234");
+      yield* Effect.promise(() => user.type(screen.getByTestId("text-input"), "1234"));
 
-      await waitFor(() => {
-        expect(screen.queryByTestId("error")).not.toBeInTheDocument();
-      });
+      yield* Effect.promise(() =>
+        waitFor(() => {
+          expect(screen.queryByTestId("error")).not.toBeInTheDocument();
+        })
+      );
 
-      await user.click(screen.getByTestId("submit"));
+      yield* Effect.promise(() => user.click(screen.getByTestId("submit")));
 
-      await waitFor(() => {
-        expect(screen.getByTestId("confirm-error")).toHaveTextContent("Must match password");
-      });
+      yield* Effect.promise(() =>
+        waitFor(() => {
+          expect(screen.getByTestId("confirm-error")).toHaveTextContent("Must match password");
+        })
+      );
 
-      await user.clear(screen.getByTestId("confirm-input"));
-      await user.type(screen.getByTestId("confirm-input"), "short1234");
+      yield* Effect.promise(() => user.clear(screen.getByTestId("confirm-input")));
+      yield* Effect.promise(() => user.type(screen.getByTestId("confirm-input"), "short1234"));
 
-      await new Promise((r) => setTimeout(r, 100));
+      yield* Effect.sleep("100 millis");
 
       // Refinement errors persist until re-submit
       expect(screen.getByTestId("confirm-error")).toHaveTextContent("Must match password");
 
-      await user.click(screen.getByTestId("submit"));
+      yield* Effect.promise(() => user.click(screen.getByTestId("submit")));
 
-      await waitFor(() => {
-        expect(screen.queryByTestId("confirm-error")).not.toBeInTheDocument();
-      });
+      yield* Effect.promise(() =>
+        waitFor(() => {
+          expect(screen.queryByTestId("confirm-error")).not.toBeInTheDocument();
+        })
+      );
     });
 
-    it("hides stored field error while async validation is pending (async gap)", async () => {
+    effectTest("hides stored field error while async validation is pending (async gap)", function* () {
       const user = userEvent.setup();
 
       const AsyncMinLength = S.String.pipe(
@@ -1549,21 +1616,25 @@ describe("FormReact.make", () => {
         </form.Initialize>
       );
 
-      await user.click(screen.getByTestId("submit"));
+      yield* Effect.promise(() => user.click(screen.getByTestId("submit")));
 
-      await waitFor(() => {
-        expect(screen.getByTestId("error")).toHaveTextContent("Too short");
-      });
+      yield* Effect.promise(() =>
+        waitFor(() => {
+          expect(screen.getByTestId("error")).toHaveTextContent("Too short");
+        })
+      );
 
-      await user.type(screen.getByTestId("text-input"), "1234567");
+      yield* Effect.promise(() => user.type(screen.getByTestId("text-input"), "1234567"));
 
       // Stored field error hidden while async validation pending (isValidating = true)
-      await waitFor(() => {
-        expect(screen.queryByTestId("error")).not.toBeInTheDocument();
-      });
+      yield* Effect.promise(() =>
+        waitFor(() => {
+          expect(screen.queryByTestId("error")).not.toBeInTheDocument();
+        })
+      );
     });
 
-    it("persists refinement errors across field unmount/remount", async () => {
+    effectTest("persists refinement errors across field unmount/remount", function* () {
       const user = userEvent.setup();
 
       const PasswordField = Field.makeField("password", S.String);
@@ -1616,16 +1687,18 @@ describe("FormReact.make", () => {
 
       render(<ToggleableForm />);
 
-      await user.click(screen.getByTestId("submit"));
+      yield* Effect.promise(() => user.click(screen.getByTestId("submit")));
 
-      await waitFor(() => {
-        expect(screen.getByTestId("confirm-error")).toHaveTextContent("Passwords must match");
-      });
+      yield* Effect.promise(() =>
+        waitFor(() => {
+          expect(screen.getByTestId("confirm-error")).toHaveTextContent("Passwords must match");
+        })
+      );
 
-      await user.click(screen.getByTestId("toggle"));
+      yield* Effect.promise(() => user.click(screen.getByTestId("toggle")));
       expect(screen.queryByTestId("confirm-input")).not.toBeInTheDocument();
 
-      await user.click(screen.getByTestId("toggle"));
+      yield* Effect.promise(() => user.click(screen.getByTestId("toggle")));
       expect(screen.getByTestId("confirm-input")).toBeInTheDocument();
 
       // Error persists across unmount/remount (stored in atoms, not component state)
@@ -1634,13 +1707,17 @@ describe("FormReact.make", () => {
   });
 
   describe("error handling", () => {
-    it("captures error when onSubmit Effect fails", async () => {
+    effectTest("captures error when onSubmit Effect fails", function* () {
       const user = userEvent.setup();
 
       const NameField = Field.makeField("name", S.String);
       const formBuilder = FormBuilder.empty.addField(NameField);
 
-      const onSubmit = () => Effect.fail(new Error("Submission failed"));
+      class SubmitFailure extends Data.TaggedError("SubmitFailure")<{
+        readonly message: string;
+      }> {}
+
+      const onSubmit = () => Effect.fail(new SubmitFailure({ message: "Submission failed" }));
 
       const form = FormReact.make(formBuilder, {
         fields: { name: TextInput },
@@ -1669,12 +1746,14 @@ describe("FormReact.make", () => {
 
       expect(screen.getByTestId("result-tag")).toHaveTextContent("Initial");
 
-      await user.click(screen.getByTestId("submit"));
+      yield* Effect.promise(() => user.click(screen.getByTestId("submit")));
 
-      await waitFor(() => {
-        expect(screen.getByTestId("result-tag")).toHaveTextContent("Failure");
-        expect(screen.getByTestId("result-waiting")).toHaveTextContent("false");
-      });
+      yield* Effect.promise(() =>
+        waitFor(() => {
+          expect(screen.getByTestId("result-tag")).toHaveTextContent("Failure");
+          expect(screen.getByTestId("result-waiting")).toHaveTextContent("false");
+        })
+      );
     });
   });
 
@@ -1722,7 +1801,7 @@ describe("FormReact.make", () => {
       expect(AsyncResult.isInitial(capturedSubmitResult!)).toBe(true);
     });
 
-    it("exposes submitResult.waiting during submission", async () => {
+    effectTest("exposes submitResult.waiting during submission", function* () {
       const user = userEvent.setup();
 
       const NameField = Field.makeField("name", S.String);
@@ -1753,23 +1832,27 @@ describe("FormReact.make", () => {
         </form.Initialize>
       );
 
-      await user.click(screen.getByTestId("submit"));
+      yield* Effect.promise(() => user.click(screen.getByTestId("submit")));
 
-      await waitFor(() => {
-        expect(states.some((s) => s.waiting)).toBe(true);
-      });
+      yield* Effect.promise(() =>
+        waitFor(() => {
+          expect(states.some((s) => s.waiting)).toBe(true);
+        })
+      );
 
-      await waitFor(
-        () => {
-          const lastState = states[states.length - 1];
-          expect(lastState.tag).toBe("Success");
-          expect(lastState.waiting).toBe(false);
-        },
-        { timeout: 1000 }
+      yield* Effect.promise(() =>
+        waitFor(
+          () => {
+            const lastState = states[states.length - 1];
+            expect(lastState.tag).toBe("Success");
+            expect(lastState.waiting).toBe(false);
+          },
+          { timeout: 1000 }
+        )
       );
     });
 
-    it("exposes submitResult with failure on validation error", async () => {
+    effectTest("exposes submitResult with failure on validation error", function* () {
       const user = userEvent.setup();
 
       const NonEmpty = S.String.pipe(S.minLength(1, { message: () => "Required" }));
@@ -1806,15 +1889,17 @@ describe("FormReact.make", () => {
         </form.Initialize>
       );
 
-      await user.click(screen.getByTestId("submit"));
+      yield* Effect.promise(() => user.click(screen.getByTestId("submit")));
 
-      await waitFor(() => {
-        expect(capturedResult).toBeDefined();
-        expect(AsyncResult.isFailure(capturedResult!)).toBe(true);
-      });
+      yield* Effect.promise(() =>
+        waitFor(() => {
+          expect(capturedResult).toBeDefined();
+          expect(AsyncResult.isFailure(capturedResult!)).toBe(true);
+        })
+      );
     });
 
-    it("updates isDirty when values change", async () => {
+    effectTest("updates isDirty when values change", function* () {
       const user = userEvent.setup();
 
       const NameField = Field.makeField("name", S.String);
@@ -1845,15 +1930,15 @@ describe("FormReact.make", () => {
       expect(dirtyStates[dirtyStates.length - 1]).toBe(false);
 
       const input = screen.getByTestId("text-input");
-      await user.clear(input);
-      await user.type(input, "changed");
+      yield* Effect.promise(() => user.clear(input));
+      yield* Effect.promise(() => user.type(input, "changed"));
 
       expect(dirtyStates[dirtyStates.length - 1]).toBe(true);
     });
   });
 
   describe("isDirty lifecycle", () => {
-    it("form does not reinitialize on rerender (mount-only initialization)", async () => {
+    effectTest("form does not reinitialize on rerender (mount-only initialization)", function* () {
       const user = userEvent.setup();
 
       const NameField = Field.makeField("name", S.String);
@@ -1891,8 +1976,8 @@ describe("FormReact.make", () => {
       expect(isDirty).toBe(false);
 
       const input = screen.getByTestId("text-input");
-      await user.clear(input);
-      await user.type(input, "modified");
+      yield* Effect.promise(() => user.clear(input));
+      yield* Effect.promise(() => user.type(input, "modified"));
 
       expect(isDirty).toBe(true);
 
@@ -1902,7 +1987,7 @@ describe("FormReact.make", () => {
       expect(isDirty).toBe(true);
     });
 
-    it("form reinitializes when using React key to force remount", async () => {
+    effectTest("form reinitializes when using React key to force remount", function* () {
       const user = userEvent.setup();
 
       const NameField = Field.makeField("name", S.String);
@@ -1940,20 +2025,22 @@ describe("FormReact.make", () => {
       expect(isDirty).toBe(false);
 
       const input = screen.getByTestId("text-input");
-      await user.clear(input);
-      await user.type(input, "modified");
+      yield* Effect.promise(() => user.clear(input));
+      yield* Effect.promise(() => user.type(input, "modified"));
 
       expect(isDirty).toBe(true);
 
       rerender(<FormWrapper defaultName="new-initial" formKey="2" />);
 
-      await waitFor(() => {
-        expect(screen.getByTestId("text-input")).toHaveValue("new-initial");
-        expect(isDirty).toBe(false);
-      });
+      yield* Effect.promise(() =>
+        waitFor(() => {
+          expect(screen.getByTestId("text-input")).toHaveValue("new-initial");
+          expect(isDirty).toBe(false);
+        })
+      );
     });
 
-    it("key-change remount with parent subscription does not render stale values", async () => {
+    effectTest("key-change remount with parent subscription does not render stale values", function* () {
       const NameField = Field.makeField("name", S.String);
       const formBuilder = FormBuilder.empty.addField(NameField);
 
@@ -1984,22 +2071,26 @@ describe("FormReact.make", () => {
 
       const { rerender } = render(<Parent variantId="1" defaultName="alice" />);
 
-      await waitFor(() => {
-        expect(screen.getByTestId("text-input")).toHaveValue("alice");
-      });
+      yield* Effect.promise(() =>
+        waitFor(() => {
+          expect(screen.getByTestId("text-input")).toHaveValue("alice");
+        })
+      );
 
       renderedValues.length = 0;
 
       rerender(<Parent variantId="2" defaultName="bob" />);
 
-      await waitFor(() => {
-        expect(screen.getByTestId("text-input")).toHaveValue("bob");
-      });
+      yield* Effect.promise(() =>
+        waitFor(() => {
+          expect(screen.getByTestId("text-input")).toHaveValue("bob");
+        })
+      );
 
       expect(renderedValues.every((v) => v === "bob")).toBe(true);
     });
 
-    it("isDirty becomes false when value returns to initial", async () => {
+    effectTest("isDirty becomes false when value returns to initial", function* () {
       const user = userEvent.setup();
 
       const NameField = Field.makeField("name", S.String);
@@ -2035,16 +2126,16 @@ describe("FormReact.make", () => {
       expect(isDirty).toBe(false);
 
       const input = screen.getByTestId("text-input");
-      await user.clear(input);
-      await user.type(input, "changed");
+      yield* Effect.promise(() => user.clear(input));
+      yield* Effect.promise(() => user.type(input, "changed"));
       expect(isDirty).toBe(true);
 
-      await user.clear(input);
-      await user.type(input, "initial");
+      yield* Effect.promise(() => user.clear(input));
+      yield* Effect.promise(() => user.type(input, "initial"));
       expect(isDirty).toBe(false);
     });
 
-    it("isDirty remains after successful submission", async () => {
+    effectTest("isDirty remains after successful submission", function* () {
       const user = userEvent.setup();
 
       const NameField = Field.makeField("name", S.String);
@@ -2078,18 +2169,20 @@ describe("FormReact.make", () => {
       );
 
       const input = screen.getByTestId("text-input");
-      await user.clear(input);
-      await user.type(input, "changed");
+      yield* Effect.promise(() => user.clear(input));
+      yield* Effect.promise(() => user.type(input, "changed"));
       expect(screen.getByTestId("isDirty")).toHaveTextContent("true");
 
-      await user.click(screen.getByTestId("submit"));
+      yield* Effect.promise(() => user.click(screen.getByTestId("submit")));
 
-      await waitFor(() => {
-        expect(screen.getByTestId("isDirty")).toHaveTextContent("true");
-      });
+      yield* Effect.promise(() =>
+        waitFor(() => {
+          expect(screen.getByTestId("isDirty")).toHaveTextContent("true");
+        })
+      );
     });
 
-    it("reset() restores form to initial values", async () => {
+    effectTest("reset() restores form to initial values", function* () {
       const user = userEvent.setup();
 
       const NameField = Field.makeField("name", S.String);
@@ -2132,29 +2225,33 @@ describe("FormReact.make", () => {
       expect(screen.getByTestId("submitResultTag")).toHaveTextContent("Initial");
 
       const input = screen.getByTestId("text-input");
-      await user.clear(input);
-      await user.type(input, "modified");
+      yield* Effect.promise(() => user.clear(input));
+      yield* Effect.promise(() => user.type(input, "modified"));
       expect(screen.getByTestId("isDirty")).toHaveTextContent("true");
       expect(screen.getByTestId("text-input")).toHaveValue("modified");
 
-      await user.click(screen.getByTestId("submit"));
+      yield* Effect.promise(() => user.click(screen.getByTestId("submit")));
 
-      await waitFor(() => {
-        expect(screen.getByTestId("submitResultTag")).toHaveTextContent("Success");
-      });
+      yield* Effect.promise(() =>
+        waitFor(() => {
+          expect(screen.getByTestId("submitResultTag")).toHaveTextContent("Success");
+        })
+      );
 
-      await user.click(screen.getByTestId("reset"));
+      yield* Effect.promise(() => user.click(screen.getByTestId("reset")));
 
-      await waitFor(() => {
-        expect(screen.getByTestId("text-input")).toHaveValue("initial");
-        expect(screen.getByTestId("isDirty")).toHaveTextContent("false");
-        expect(screen.getByTestId("submitResultTag")).toHaveTextContent("Initial");
-      });
+      yield* Effect.promise(() =>
+        waitFor(() => {
+          expect(screen.getByTestId("text-input")).toHaveValue("initial");
+          expect(screen.getByTestId("isDirty")).toHaveTextContent("false");
+          expect(screen.getByTestId("submitResultTag")).toHaveTextContent("Initial");
+        })
+      );
     });
   });
 
   describe("reactivity", () => {
-    it("reactivityKeys triggers invalidation after successful submit", async () => {
+    effectTest("reactivityKeys triggers invalidation after successful submit", function* () {
       const user = userEvent.setup();
 
       let rebuilds = 0;
@@ -2184,18 +2281,22 @@ describe("FormReact.make", () => {
         </form.Initialize>
       );
 
-      await waitFor(() => {
-        expect(screen.getByTestId("rebuild-count")).toHaveTextContent("0");
-      });
+      yield* Effect.promise(() =>
+        waitFor(() => {
+          expect(screen.getByTestId("rebuild-count")).toHaveTextContent("0");
+        })
+      );
 
-      await user.click(screen.getByTestId("submit"));
+      yield* Effect.promise(() => user.click(screen.getByTestId("submit")));
 
-      await waitFor(() => {
-        expect(screen.getByTestId("rebuild-count")).toHaveTextContent("1");
-      });
+      yield* Effect.promise(() =>
+        waitFor(() => {
+          expect(screen.getByTestId("rebuild-count")).toHaveTextContent("1");
+        })
+      );
     });
 
-    it("no invalidation when reactivityKeys is not provided", async () => {
+    effectTest("no invalidation when reactivityKeys is not provided", function* () {
       const user = userEvent.setup();
       const submitHandler = vi.fn();
 
@@ -2225,20 +2326,24 @@ describe("FormReact.make", () => {
         </form.Initialize>
       );
 
-      await waitFor(() => {
-        expect(screen.getByTestId("rebuild-count")).toHaveTextContent("0");
-      });
+      yield* Effect.promise(() =>
+        waitFor(() => {
+          expect(screen.getByTestId("rebuild-count")).toHaveTextContent("0");
+        })
+      );
 
-      await user.click(screen.getByTestId("submit"));
+      yield* Effect.promise(() => user.click(screen.getByTestId("submit")));
 
-      await waitFor(() => {
-        expect(submitHandler).toHaveBeenCalled();
-      });
+      yield* Effect.promise(() =>
+        waitFor(() => {
+          expect(submitHandler).toHaveBeenCalled();
+        })
+      );
 
       expect(screen.getByTestId("rebuild-count")).toHaveTextContent("0");
     });
 
-    it("no invalidation on validation failure", async () => {
+    effectTest("no invalidation on validation failure", function* () {
       const user = userEvent.setup();
 
       let rebuilds = 0;
@@ -2272,15 +2377,19 @@ describe("FormReact.make", () => {
         </form.Initialize>
       );
 
-      await waitFor(() => {
-        expect(screen.getByTestId("rebuild-count")).toHaveTextContent("0");
-      });
+      yield* Effect.promise(() =>
+        waitFor(() => {
+          expect(screen.getByTestId("rebuild-count")).toHaveTextContent("0");
+        })
+      );
 
-      await user.click(screen.getByTestId("submit"));
+      yield* Effect.promise(() => user.click(screen.getByTestId("submit")));
 
-      await waitFor(() => {
-        expect(screen.getByTestId("error")).toHaveTextContent("Required");
-      });
+      yield* Effect.promise(() =>
+        waitFor(() => {
+          expect(screen.getByTestId("error")).toHaveTextContent("Required");
+        })
+      );
 
       expect(screen.getByTestId("rebuild-count")).toHaveTextContent("0");
     });
@@ -2338,7 +2447,7 @@ describe("FormReact.make", () => {
       <DebounceTextInput field={field} props={{ testId: "age-input" }} />
     );
 
-    const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+    const delay = (ms: number) => Effect.sleep(`${ms} millis`);
 
     const NameField = Field.makeField("name", S.String);
     const NameFieldMinLength = Field.makeField(
@@ -2347,7 +2456,7 @@ describe("FormReact.make", () => {
     );
     const AgeField = Field.makeField("age", S.String);
 
-    it("debounces validation updates in onChange mode", async () => {
+    effectTest("debounces validation updates in onChange mode", function* () {
       const user = userEvent.setup();
 
       const formBuilder = FormBuilder.empty.addField(NameFieldMinLength);
@@ -2366,21 +2475,23 @@ describe("FormReact.make", () => {
       );
 
       const input = screen.getByTestId("text-input");
-      await user.clear(input);
-      await user.type(input, "Bad");
-      await user.tab();
+      yield* Effect.promise(() => user.clear(input));
+      yield* Effect.promise(() => user.type(input, "Bad"));
+      yield* Effect.promise(() => user.tab());
 
       expect(screen.queryByTestId("text-input-error")).not.toBeInTheDocument();
 
-      await waitFor(
-        () => {
-          expect(screen.getByTestId("text-input-error")).toHaveTextContent("Must be at least 5 characters");
-        },
-        { timeout: 500 }
+      yield* Effect.promise(() =>
+        waitFor(
+          () => {
+            expect(screen.getByTestId("text-input-error")).toHaveTextContent("Must be at least 5 characters");
+          },
+          { timeout: 500 }
+        )
       );
     });
 
-    it("does NOT auto-submit on initial mount without changes", async () => {
+    effectTest("does NOT auto-submit on initial mount without changes", function* () {
       const submitHandler = vi.fn();
 
       const formBuilder = FormBuilder.empty.addField(NameField);
@@ -2398,12 +2509,12 @@ describe("FormReact.make", () => {
         </form.Initialize>
       );
 
-      await delay(120);
+      yield* delay(120);
 
       expect(submitHandler).not.toHaveBeenCalled();
     });
 
-    it("auto-submits valid form data after debounce", async () => {
+    effectTest("auto-submits valid form data after debounce", function* () {
       const user = userEvent.setup();
       const submitHandler = vi.fn();
 
@@ -2424,19 +2535,21 @@ describe("FormReact.make", () => {
 
       const input = screen.getByTestId("text-input");
 
-      await user.type(input, "Lucas");
+      yield* Effect.promise(() => user.type(input, "Lucas"));
 
       expect(submitHandler).not.toHaveBeenCalled();
 
-      await waitFor(
-        () => {
-          expect(submitHandler).toHaveBeenCalledWith({ name: "Lucas" });
-        },
-        { timeout: 300 }
+      yield* Effect.promise(() =>
+        waitFor(
+          () => {
+            expect(submitHandler).toHaveBeenCalledWith({ name: "Lucas" });
+          },
+          { timeout: 300 }
+        )
       );
     });
 
-    it("does NOT re-trigger auto-submit after submission completes", async () => {
+    effectTest("does NOT re-trigger auto-submit after submission completes", function* () {
       const user = userEvent.setup();
       const submitHandler = vi.fn();
 
@@ -2446,10 +2559,10 @@ describe("FormReact.make", () => {
         runtime: createRuntime(),
         fields: { name: DebounceTextInput },
         mode: { validation: "onChange", debounce: "50 millis", autoSubmit: true },
-        onSubmit: async (_: void, { decoded }) => {
-          await delay(50);
+        onSubmit: Effect.fn("FormReactAutoSubmitTest.onSubmit")(function* (_: void, { decoded }) {
+          yield* delay(50);
           submitHandler(decoded);
-        },
+        }),
       });
 
       render(
@@ -2459,22 +2572,24 @@ describe("FormReact.make", () => {
       );
 
       const input = screen.getByTestId("text-input");
-      await user.type(input, "Lucas");
+      yield* Effect.promise(() => user.type(input, "Lucas"));
 
-      await waitFor(
-        () => {
-          expect(submitHandler).toHaveBeenCalledTimes(1);
-        },
-        { timeout: 300 }
+      yield* Effect.promise(() =>
+        waitFor(
+          () => {
+            expect(submitHandler).toHaveBeenCalledTimes(1);
+          },
+          { timeout: 300 }
+        )
       );
 
-      await delay(200);
+      yield* delay(200);
 
       expect(submitHandler).toHaveBeenCalledTimes(1);
       expect(submitHandler).toHaveBeenCalledWith({ name: "Lucas" });
     });
 
-    it("batches updates from multiple fields into a single auto-submission", async () => {
+    effectTest("batches updates from multiple fields into a single auto-submission", function* () {
       const user = userEvent.setup();
       const submitHandler = vi.fn();
 
@@ -2496,22 +2611,24 @@ describe("FormReact.make", () => {
 
       const nameInput = screen.getByTestId("name-input");
       const ageInput = screen.getByTestId("age-input");
-      await user.type(nameInput, "Lucas");
-      await user.type(ageInput, "30");
+      yield* Effect.promise(() => user.type(nameInput, "Lucas"));
+      yield* Effect.promise(() => user.type(ageInput, "30"));
 
-      await delay(50);
+      yield* delay(50);
       expect(submitHandler).not.toHaveBeenCalled();
 
-      await waitFor(
-        () => {
-          expect(submitHandler).toHaveBeenCalledTimes(1);
-          expect(submitHandler).toHaveBeenCalledWith({ name: "Lucas", age: "30" });
-        },
-        { timeout: 300 }
+      yield* Effect.promise(() =>
+        waitFor(
+          () => {
+            expect(submitHandler).toHaveBeenCalledTimes(1);
+            expect(submitHandler).toHaveBeenCalledWith({ name: "Lucas", age: "30" });
+          },
+          { timeout: 300 }
+        )
       );
     });
 
-    it("does NOT auto-submit if validation fails", async () => {
+    effectTest("does NOT auto-submit if validation fails", function* () {
       const user = userEvent.setup();
       const submitHandler = vi.fn();
 
@@ -2532,22 +2649,24 @@ describe("FormReact.make", () => {
 
       const input = screen.getByTestId("text-input");
 
-      await user.type(input, "Bad");
-      await user.tab();
+      yield* Effect.promise(() => user.type(input, "Bad"));
+      yield* Effect.promise(() => user.tab());
 
-      await waitFor(
-        () => {
-          expect(screen.getByTestId("text-input-error")).toHaveTextContent("Must be at least 5 characters");
-        },
-        { timeout: 200 }
+      yield* Effect.promise(() =>
+        waitFor(
+          () => {
+            expect(screen.getByTestId("text-input-error")).toHaveTextContent("Must be at least 5 characters");
+          },
+          { timeout: 200 }
+        )
       );
 
-      await delay(100);
+      yield* delay(100);
 
       expect(submitHandler).not.toHaveBeenCalled();
     });
 
-    it("cancels pending submission on unmount", async () => {
+    effectTest("cancels pending submission on unmount", function* () {
       const user = userEvent.setup();
       const submitHandler = vi.fn();
 
@@ -2568,16 +2687,16 @@ describe("FormReact.make", () => {
 
       const input = screen.getByTestId("text-input");
 
-      await user.type(input, "Lucas");
+      yield* Effect.promise(() => user.type(input, "Lucas"));
 
       unmount();
 
-      await delay(200);
+      yield* delay(200);
 
       expect(submitHandler).not.toHaveBeenCalled();
     });
 
-    it("auto-submits on blur when mode is onBlur with autoSubmit", async () => {
+    effectTest("auto-submits on blur when mode is onBlur with autoSubmit", function* () {
       const user = userEvent.setup();
       const submitHandler = vi.fn();
 
@@ -2598,21 +2717,23 @@ describe("FormReact.make", () => {
 
       const input = screen.getByTestId("text-input");
 
-      await user.type(input, "Lucas");
+      yield* Effect.promise(() => user.type(input, "Lucas"));
 
       expect(submitHandler).not.toHaveBeenCalled();
 
-      await user.tab();
+      yield* Effect.promise(() => user.tab());
 
-      await waitFor(
-        () => {
-          expect(submitHandler).toHaveBeenCalledWith({ name: "Lucas" });
-        },
-        { timeout: 200 }
+      yield* Effect.promise(() =>
+        waitFor(
+          () => {
+            expect(submitHandler).toHaveBeenCalledWith({ name: "Lucas" });
+          },
+          { timeout: 200 }
+        )
       );
     });
 
-    it("does NOT re-submit on blur if values unchanged since last submission", async () => {
+    effectTest("does NOT re-submit on blur if values unchanged since last submission", function* () {
       const user = userEvent.setup();
       const submitHandler = vi.fn();
 
@@ -2633,25 +2754,27 @@ describe("FormReact.make", () => {
 
       const input = screen.getByTestId("text-input");
 
-      await user.type(input, "Lucas");
-      await user.tab();
+      yield* Effect.promise(() => user.type(input, "Lucas"));
+      yield* Effect.promise(() => user.tab());
 
-      await waitFor(
-        () => {
-          expect(submitHandler).toHaveBeenCalledTimes(1);
-        },
-        { timeout: 200 }
+      yield* Effect.promise(() =>
+        waitFor(
+          () => {
+            expect(submitHandler).toHaveBeenCalledTimes(1);
+          },
+          { timeout: 200 }
+        )
       );
 
-      await user.click(input);
-      await user.tab();
+      yield* Effect.promise(() => user.click(input));
+      yield* Effect.promise(() => user.tab());
 
-      await delay(100);
+      yield* delay(100);
 
       expect(submitHandler).toHaveBeenCalledTimes(1);
     });
 
-    it("validates immediately in onChange mode without debounce config", async () => {
+    effectTest("validates immediately in onChange mode without debounce config", function* () {
       const user = userEvent.setup();
 
       const formBuilder = FormBuilder.empty.addField(NameFieldMinLength);
@@ -2671,18 +2794,20 @@ describe("FormReact.make", () => {
 
       const input = screen.getByTestId("text-input");
 
-      await user.clear(input);
-      await user.type(input, "Bad");
-      await user.tab();
+      yield* Effect.promise(() => user.clear(input));
+      yield* Effect.promise(() => user.type(input, "Bad"));
+      yield* Effect.promise(() => user.tab());
 
-      await waitFor(() => {
-        expect(screen.getByTestId("text-input-error")).toHaveTextContent("Must be at least 5 characters");
-      });
+      yield* Effect.promise(() =>
+        waitFor(() => {
+          expect(screen.getByTestId("text-input-error")).toHaveTextContent("Must be at least 5 characters");
+        })
+      );
     });
   });
 
   describe("validate", () => {
-    it("shows field errors immediately with validateOnInit + invalid defaults", async () => {
+    effectTest("shows field errors immediately with validateOnInit + invalid defaults", function* () {
       const NameField = Field.makeField("name", S.String.pipe(S.minLength(5, { message: () => "Too short" })));
       const formBuilder = FormBuilder.empty.addField(NameField);
 
@@ -2703,14 +2828,16 @@ describe("FormReact.make", () => {
         </form.Initialize>
       );
 
-      await waitFor(() => {
-        expect(screen.getByTestId("error")).toHaveTextContent("Too short");
-      });
+      yield* Effect.promise(() =>
+        waitFor(() => {
+          expect(screen.getByTestId("error")).toHaveTextContent("Too short");
+        })
+      );
 
       expect(screen.getByTestId("submit-count")).toHaveTextContent("0");
     });
 
-    it("shows no errors with validateOnInit + valid defaults", async () => {
+    effectTest("shows no errors with validateOnInit + valid defaults", function* () {
       const NameField = Field.makeField("name", S.String.pipe(S.minLength(5, { message: () => "Too short" })));
       const formBuilder = FormBuilder.empty.addField(NameField);
 
@@ -2725,11 +2852,11 @@ describe("FormReact.make", () => {
         </form.Initialize>
       );
 
-      await new Promise((r) => setTimeout(r, 100));
+      yield* Effect.sleep("100 millis");
       expect(screen.queryByTestId("error")).not.toBeInTheDocument();
     });
 
-    it("shows refinement errors with validateOnInit", async () => {
+    effectTest("shows refinement errors with validateOnInit", function* () {
       const PasswordInput: FormReact.FieldComponent<string> = ({ field }) => (
         <div>
           <input
@@ -2779,12 +2906,14 @@ describe("FormReact.make", () => {
         </form.Initialize>
       );
 
-      await waitFor(() => {
-        expect(screen.getByTestId("confirm-error")).toHaveTextContent("Passwords must match");
-      });
+      yield* Effect.promise(() =>
+        waitFor(() => {
+          expect(screen.getByTestId("confirm-error")).toHaveTextContent("Passwords must match");
+        })
+      );
     });
 
-    it("errors clear when user fixes the field in onChange mode", async () => {
+    effectTest("errors clear when user fixes the field in onChange mode", function* () {
       const user = userEvent.setup();
 
       const NameField = Field.makeField("name", S.String.pipe(S.minLength(5, { message: () => "Too short" })));
@@ -2802,19 +2931,23 @@ describe("FormReact.make", () => {
         </form.Initialize>
       );
 
-      await waitFor(() => {
-        expect(screen.getByTestId("error")).toHaveTextContent("Too short");
-      });
+      yield* Effect.promise(() =>
+        waitFor(() => {
+          expect(screen.getByTestId("error")).toHaveTextContent("Too short");
+        })
+      );
 
-      await user.clear(screen.getByTestId("text-input"));
-      await user.type(screen.getByTestId("text-input"), "Valid Value");
+      yield* Effect.promise(() => user.clear(screen.getByTestId("text-input")));
+      yield* Effect.promise(() => user.type(screen.getByTestId("text-input"), "Valid Value"));
 
-      await waitFor(() => {
-        expect(screen.queryByTestId("error")).not.toBeInTheDocument();
-      });
+      yield* Effect.promise(() =>
+        waitFor(() => {
+          expect(screen.queryByTestId("error")).not.toBeInTheDocument();
+        })
+      );
     });
 
-    it("reset clears validate errors and validationCount", async () => {
+    effectTest("reset clears validate errors and validationCount", function* () {
       const NameField = Field.makeField("name", S.String.pipe(S.minLength(5, { message: () => "Too short" })));
       const formBuilder = FormBuilder.empty.addField(NameField);
 
@@ -2843,21 +2976,25 @@ describe("FormReact.make", () => {
         </form.Initialize>
       );
 
-      await waitFor(() => {
-        expect(screen.getByTestId("error")).toHaveTextContent("Too short");
-      });
+      yield* Effect.promise(() =>
+        waitFor(() => {
+          expect(screen.getByTestId("error")).toHaveTextContent("Too short");
+        })
+      );
 
       expect(screen.getByTestId("validation-count")).toHaveTextContent("1");
 
-      await userEvent.click(screen.getByTestId("reset"));
+      yield* Effect.promise(() => userEvent.click(screen.getByTestId("reset")));
 
-      await waitFor(() => {
-        expect(screen.queryByTestId("error")).not.toBeInTheDocument();
-        expect(screen.getByTestId("validation-count")).toHaveTextContent("0");
-      });
+      yield* Effect.promise(() =>
+        waitFor(() => {
+          expect(screen.queryByTestId("error")).not.toBeInTheDocument();
+          expect(screen.getByTestId("validation-count")).toHaveTextContent("0");
+        })
+      );
     });
 
-    it("does not re-validate when KeepAlive preserves state", async () => {
+    effectTest("does not re-validate when KeepAlive preserves state", function* () {
       const NameField = Field.makeField("name", S.String.pipe(S.minLength(5, { message: () => "Too short" })));
       const formBuilder = FormBuilder.empty.addField(NameField);
 
@@ -2891,25 +3028,29 @@ describe("FormReact.make", () => {
 
       render(<ToggleableForm />);
 
-      await waitFor(() => {
-        expect(screen.getByTestId("error")).toHaveTextContent("Too short");
-        expect(screen.getByTestId("validation-count")).toHaveTextContent("1");
-      });
+      yield* Effect.promise(() =>
+        waitFor(() => {
+          expect(screen.getByTestId("error")).toHaveTextContent("Too short");
+          expect(screen.getByTestId("validation-count")).toHaveTextContent("1");
+        })
+      );
 
-      await userEvent.click(screen.getByTestId("toggle"));
+      yield* Effect.promise(() => userEvent.click(screen.getByTestId("toggle")));
 
       expect(screen.queryByTestId("text-input")).not.toBeInTheDocument();
 
-      await userEvent.click(screen.getByTestId("toggle"));
+      yield* Effect.promise(() => userEvent.click(screen.getByTestId("toggle")));
 
-      await waitFor(() => {
-        expect(screen.getByTestId("error")).toHaveTextContent("Too short");
-      });
+      yield* Effect.promise(() =>
+        waitFor(() => {
+          expect(screen.getByTestId("error")).toHaveTextContent("Too short");
+        })
+      );
 
       expect(screen.getByTestId("validation-count")).toHaveTextContent("1");
     });
 
-    it("works with onSubmit mode", async () => {
+    effectTest("works with onSubmit mode", function* () {
       const user = userEvent.setup();
 
       const NameField = Field.makeField("name", S.String.pipe(S.minLength(5, { message: () => "Too short" })));
@@ -2927,19 +3068,23 @@ describe("FormReact.make", () => {
         </form.Initialize>
       );
 
-      await waitFor(() => {
-        expect(screen.getByTestId("error")).toHaveTextContent("Too short");
-      });
+      yield* Effect.promise(() =>
+        waitFor(() => {
+          expect(screen.getByTestId("error")).toHaveTextContent("Too short");
+        })
+      );
 
-      await user.clear(screen.getByTestId("text-input"));
-      await user.type(screen.getByTestId("text-input"), "Valid Value");
+      yield* Effect.promise(() => user.clear(screen.getByTestId("text-input")));
+      yield* Effect.promise(() => user.type(screen.getByTestId("text-input"), "Valid Value"));
 
-      await waitFor(() => {
-        expect(screen.queryByTestId("error")).not.toBeInTheDocument();
-      });
+      yield* Effect.promise(() =>
+        waitFor(() => {
+          expect(screen.queryByTestId("error")).not.toBeInTheDocument();
+        })
+      );
     });
 
-    it("imperative validate shows errors after programmatic setValues", async () => {
+    effectTest("imperative validate shows errors after programmatic setValues", function* () {
       const NameField = Field.makeField("name", S.String.pipe(S.minLength(5, { message: () => "Too short" })));
       const formBuilder = FormBuilder.empty.addField(NameField);
 
@@ -2976,14 +3121,16 @@ describe("FormReact.make", () => {
 
       expect(screen.queryByTestId("error")).not.toBeInTheDocument();
 
-      await userEvent.click(screen.getByTestId("set-invalid"));
+      yield* Effect.promise(() => userEvent.click(screen.getByTestId("set-invalid")));
 
-      await waitFor(() => {
-        expect(screen.getByTestId("error")).toHaveTextContent("Too short");
-      });
+      yield* Effect.promise(() =>
+        waitFor(() => {
+          expect(screen.getByTestId("error")).toHaveTextContent("Too short");
+        })
+      );
     });
 
-    it("imperative validate clears previous errors when values are now valid", async () => {
+    effectTest("imperative validate clears previous errors when values are now valid", function* () {
       const NameField = Field.makeField("name", S.String.pipe(S.minLength(5, { message: () => "Too short" })));
       const formBuilder = FormBuilder.empty.addField(NameField);
 
@@ -3018,18 +3165,22 @@ describe("FormReact.make", () => {
         </form.Initialize>
       );
 
-      await waitFor(() => {
-        expect(screen.getByTestId("error")).toHaveTextContent("Too short");
-      });
+      yield* Effect.promise(() =>
+        waitFor(() => {
+          expect(screen.getByTestId("error")).toHaveTextContent("Too short");
+        })
+      );
 
-      await userEvent.click(screen.getByTestId("set-valid"));
+      yield* Effect.promise(() => userEvent.click(screen.getByTestId("set-valid")));
 
-      await waitFor(() => {
-        expect(screen.queryByTestId("error")).not.toBeInTheDocument();
-      });
+      yield* Effect.promise(() =>
+        waitFor(() => {
+          expect(screen.queryByTestId("error")).not.toBeInTheDocument();
+        })
+      );
     });
 
-    it("calling validate multiple times reflects latest state each time", async () => {
+    effectTest("calling validate multiple times reflects latest state each time", function* () {
       const NameField = Field.makeField("name", S.String.pipe(S.minLength(5, { message: () => "Too short" })));
       const formBuilder = FormBuilder.empty.addField(NameField);
 
@@ -3086,26 +3237,32 @@ describe("FormReact.make", () => {
 
       expect(screen.queryByTestId("error")).not.toBeInTheDocument();
 
-      await userEvent.click(screen.getByTestId("set-invalid"));
+      yield* Effect.promise(() => userEvent.click(screen.getByTestId("set-invalid")));
 
-      await waitFor(() => {
-        expect(screen.getByTestId("error")).toHaveTextContent("Too short");
-      });
+      yield* Effect.promise(() =>
+        waitFor(() => {
+          expect(screen.getByTestId("error")).toHaveTextContent("Too short");
+        })
+      );
 
-      await userEvent.click(screen.getByTestId("set-valid"));
+      yield* Effect.promise(() => userEvent.click(screen.getByTestId("set-valid")));
 
-      await waitFor(() => {
-        expect(screen.queryByTestId("error")).not.toBeInTheDocument();
-      });
+      yield* Effect.promise(() =>
+        waitFor(() => {
+          expect(screen.queryByTestId("error")).not.toBeInTheDocument();
+        })
+      );
 
-      await userEvent.click(screen.getByTestId("set-invalid2"));
+      yield* Effect.promise(() => userEvent.click(screen.getByTestId("set-invalid2")));
 
-      await waitFor(() => {
-        expect(screen.getByTestId("error")).toHaveTextContent("Too short");
-      });
+      yield* Effect.promise(() =>
+        waitFor(() => {
+          expect(screen.getByTestId("error")).toHaveTextContent("Too short");
+        })
+      );
     });
 
-    it("validate does not interfere with submitCount", async () => {
+    effectTest("validate does not interfere with submitCount", function* () {
       const user = userEvent.setup();
 
       const NameField = Field.makeField("name", S.String.pipe(S.minLength(5, { message: () => "Too short" })));
@@ -3141,30 +3298,36 @@ describe("FormReact.make", () => {
         </form.Initialize>
       );
 
-      await waitFor(() => {
-        expect(screen.getByTestId("error")).toHaveTextContent("Too short");
-      });
+      yield* Effect.promise(() =>
+        waitFor(() => {
+          expect(screen.getByTestId("error")).toHaveTextContent("Too short");
+        })
+      );
 
       expect(screen.getByTestId("submit-count")).toHaveTextContent("0");
       expect(screen.getByTestId("validation-count")).toHaveTextContent("1");
 
-      await user.click(screen.getByTestId("submit"));
+      yield* Effect.promise(() => user.click(screen.getByTestId("submit")));
 
-      await waitFor(() => {
-        expect(screen.getByTestId("submit-count")).toHaveTextContent("1");
-      });
+      yield* Effect.promise(() =>
+        waitFor(() => {
+          expect(screen.getByTestId("submit-count")).toHaveTextContent("1");
+        })
+      );
 
       expect(screen.getByTestId("validation-count")).toHaveTextContent("1");
 
-      await user.click(screen.getByTestId("reset"));
+      yield* Effect.promise(() => user.click(screen.getByTestId("reset")));
 
-      await waitFor(() => {
-        expect(screen.getByTestId("submit-count")).toHaveTextContent("0");
-        expect(screen.getByTestId("validation-count")).toHaveTextContent("0");
-      });
+      yield* Effect.promise(() =>
+        waitFor(() => {
+          expect(screen.getByTestId("submit-count")).toHaveTextContent("0");
+          expect(screen.getByTestId("validation-count")).toHaveTextContent("0");
+        })
+      );
     });
 
-    it("validate does not overwrite user typing during async validation", async () => {
+    effectTest("validate does not overwrite user typing during async validation", function* () {
       const user = userEvent.setup();
 
       const NameField = Field.makeField("name", S.String);
@@ -3192,19 +3355,19 @@ describe("FormReact.make", () => {
         </form.Initialize>
       );
 
-      await userEvent.click(screen.getByTestId("validate"));
+      yield* Effect.promise(() => userEvent.click(screen.getByTestId("validate")));
 
-      await user.clear(screen.getByTestId("text-input"));
-      await user.type(screen.getByTestId("text-input"), "typed");
+      yield* Effect.promise(() => user.clear(screen.getByTestId("text-input")));
+      yield* Effect.promise(() => user.type(screen.getByTestId("text-input"), "typed"));
 
-      await new Promise((r) => setTimeout(r, 100));
+      yield* Effect.sleep("100 millis");
 
       expect(screen.getByTestId("text-input")).toHaveValue("typed");
     });
   });
 
   describe("per-field validate", () => {
-    it("shows error for that field only in onSubmit mode", async () => {
+    effectTest("shows error for that field only in onSubmit mode", function* () {
       const NameInput: FormReact.FieldComponent<string> = ({ field }) => (
         <div>
           <input
@@ -3258,16 +3421,18 @@ describe("FormReact.make", () => {
       expect(screen.queryByTestId("name-error")).not.toBeInTheDocument();
       expect(screen.queryByTestId("email-error")).not.toBeInTheDocument();
 
-      await userEvent.click(screen.getByTestId("validate-name"));
+      yield* Effect.promise(() => userEvent.click(screen.getByTestId("validate-name")));
 
-      await waitFor(() => {
-        expect(screen.getByTestId("name-error")).toHaveTextContent("Name too short");
-      });
+      yield* Effect.promise(() =>
+        waitFor(() => {
+          expect(screen.getByTestId("name-error")).toHaveTextContent("Name too short");
+        })
+      );
 
       expect(screen.queryByTestId("email-error")).not.toBeInTheDocument();
     });
 
-    it("works in onBlur mode", async () => {
+    effectTest("works in onBlur mode", function* () {
       const user = userEvent.setup();
 
       const NameField = Field.makeField("name", S.String.pipe(S.minLength(5, { message: () => "Too short" })));
@@ -3298,21 +3463,25 @@ describe("FormReact.make", () => {
 
       expect(screen.queryByTestId("error")).not.toBeInTheDocument();
 
-      await userEvent.click(screen.getByTestId("validate-name"));
+      yield* Effect.promise(() => userEvent.click(screen.getByTestId("validate-name")));
 
-      await waitFor(() => {
-        expect(screen.getByTestId("error")).toHaveTextContent("Too short");
-      });
+      yield* Effect.promise(() =>
+        waitFor(() => {
+          expect(screen.getByTestId("error")).toHaveTextContent("Too short");
+        })
+      );
 
-      await user.clear(screen.getByTestId("text-input"));
-      await user.type(screen.getByTestId("text-input"), "Valid Value");
+      yield* Effect.promise(() => user.clear(screen.getByTestId("text-input")));
+      yield* Effect.promise(() => user.type(screen.getByTestId("text-input"), "Valid Value"));
 
-      await waitFor(() => {
-        expect(screen.queryByTestId("error")).not.toBeInTheDocument();
-      });
+      yield* Effect.promise(() =>
+        waitFor(() => {
+          expect(screen.queryByTestId("error")).not.toBeInTheDocument();
+        })
+      );
     });
 
-    it("works in onChange mode", async () => {
+    effectTest("works in onChange mode", function* () {
       const NameField = Field.makeField("name", S.String.check(S.isMinLength(5, { message: "Too short" })));
       const formBuilder = FormBuilder.empty.addField(NameField);
 
@@ -3347,19 +3516,21 @@ describe("FormReact.make", () => {
 
       expect(screen.queryByTestId("error")).not.toBeInTheDocument();
 
-      await userEvent.click(screen.getByTestId("validate-name"));
+      yield* Effect.promise(() => userEvent.click(screen.getByTestId("validate-name")));
 
-      await new Promise((r) => setTimeout(r, 100));
+      yield* Effect.sleep("100 millis");
       expect(screen.queryByTestId("error")).not.toBeInTheDocument();
 
-      await userEvent.click(screen.getByTestId("set-invalid"));
+      yield* Effect.promise(() => userEvent.click(screen.getByTestId("set-invalid")));
 
-      await waitFor(() => {
-        expect(screen.getByTestId("error")).toHaveTextContent("Too short");
-      });
+      yield* Effect.promise(() =>
+        waitFor(() => {
+          expect(screen.getByTestId("error")).toHaveTextContent("Too short");
+        })
+      );
     });
 
-    it("reset clears per-field validation state", async () => {
+    effectTest("reset clears per-field validation state", function* () {
       const NameField = Field.makeField("name", S.String.check(S.isMinLength(5, { message: "Too short" })));
       const formBuilder = FormBuilder.empty.addField(NameField);
 
@@ -3391,20 +3562,24 @@ describe("FormReact.make", () => {
         </form.Initialize>
       );
 
-      await userEvent.click(screen.getByTestId("validate-name"));
+      yield* Effect.promise(() => userEvent.click(screen.getByTestId("validate-name")));
 
-      await waitFor(() => {
-        expect(screen.getByTestId("error")).toHaveTextContent("Too short");
-      });
+      yield* Effect.promise(() =>
+        waitFor(() => {
+          expect(screen.getByTestId("error")).toHaveTextContent("Too short");
+        })
+      );
 
-      await userEvent.click(screen.getByTestId("reset"));
+      yield* Effect.promise(() => userEvent.click(screen.getByTestId("reset")));
 
-      await waitFor(() => {
-        expect(screen.queryByTestId("error")).not.toBeInTheDocument();
-      });
+      yield* Effect.promise(() =>
+        waitFor(() => {
+          expect(screen.queryByTestId("error")).not.toBeInTheDocument();
+        })
+      );
     });
 
-    it("per-field validate works after reset", async () => {
+    effectTest("per-field validate works after reset", function* () {
       const NameField = Field.makeField("name", S.String.check(S.isMinLength(5, { message: "Too short" })));
       const formBuilder = FormBuilder.empty.addField(NameField);
 
@@ -3436,26 +3611,32 @@ describe("FormReact.make", () => {
         </form.Initialize>
       );
 
-      await userEvent.click(screen.getByTestId("validate-name"));
+      yield* Effect.promise(() => userEvent.click(screen.getByTestId("validate-name")));
 
-      await waitFor(() => {
-        expect(screen.getByTestId("error")).toHaveTextContent("Too short");
-      });
+      yield* Effect.promise(() =>
+        waitFor(() => {
+          expect(screen.getByTestId("error")).toHaveTextContent("Too short");
+        })
+      );
 
-      await userEvent.click(screen.getByTestId("reset"));
+      yield* Effect.promise(() => userEvent.click(screen.getByTestId("reset")));
 
-      await waitFor(() => {
-        expect(screen.queryByTestId("error")).not.toBeInTheDocument();
-      });
+      yield* Effect.promise(() =>
+        waitFor(() => {
+          expect(screen.queryByTestId("error")).not.toBeInTheDocument();
+        })
+      );
 
-      await userEvent.click(screen.getByTestId("validate-name"));
+      yield* Effect.promise(() => userEvent.click(screen.getByTestId("validate-name")));
 
-      await waitFor(() => {
-        expect(screen.getByTestId("error")).toHaveTextContent("Too short");
-      });
+      yield* Effect.promise(() =>
+        waitFor(() => {
+          expect(screen.getByTestId("error")).toHaveTextContent("Too short");
+        })
+      );
     });
 
-    it("does not affect form-level validationCount or submitCount", async () => {
+    effectTest("does not affect form-level validationCount or submitCount", function* () {
       const NameField = Field.makeField("name", S.String.check(S.isMinLength(5, { message: "Too short" })));
       const formBuilder = FormBuilder.empty.addField(NameField);
 
@@ -3487,17 +3668,19 @@ describe("FormReact.make", () => {
         </form.Initialize>
       );
 
-      await userEvent.click(screen.getByTestId("validate-name"));
+      yield* Effect.promise(() => userEvent.click(screen.getByTestId("validate-name")));
 
-      await waitFor(() => {
-        expect(screen.getByTestId("error")).toHaveTextContent("Too short");
-      });
+      yield* Effect.promise(() =>
+        waitFor(() => {
+          expect(screen.getByTestId("error")).toHaveTextContent("Too short");
+        })
+      );
 
       expect(screen.getByTestId("submit-count")).toHaveTextContent("0");
       expect(screen.getByTestId("validation-count")).toHaveTextContent("0");
     });
 
-    it("multiple fields can be validated independently", async () => {
+    effectTest("multiple fields can be validated independently", function* () {
       const NameInput: FormReact.FieldComponent<string> = ({ field }) => (
         <div>
           <input
@@ -3568,13 +3751,15 @@ describe("FormReact.make", () => {
         </form.Initialize>
       );
 
-      await userEvent.click(screen.getByTestId("validate-name"));
-      await userEvent.click(screen.getByTestId("validate-age"));
+      yield* Effect.promise(() => userEvent.click(screen.getByTestId("validate-name")));
+      yield* Effect.promise(() => userEvent.click(screen.getByTestId("validate-age")));
 
-      await waitFor(() => {
-        expect(screen.getByTestId("name-error")).toHaveTextContent("Name too short");
-        expect(screen.getByTestId("age-error")).toHaveTextContent("Age too short");
-      });
+      yield* Effect.promise(() =>
+        waitFor(() => {
+          expect(screen.getByTestId("name-error")).toHaveTextContent("Name too short");
+          expect(screen.getByTestId("age-error")).toHaveTextContent("Age too short");
+        })
+      );
 
       expect(screen.queryByTestId("email-error")).not.toBeInTheDocument();
     });

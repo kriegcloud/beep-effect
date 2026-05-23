@@ -1,7 +1,15 @@
-import { Cause, Effect } from "effect";
-import * as Duration from "effect/Duration";
+/**
+ * Atom graph construction for schema-backed forms.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
+import { Cause, Duration, Effect, HashMap, HashSet, Number as N } from "effect";
+import * as A from "effect/Array";
 import { pipe } from "effect/Function";
 import * as O from "effect/Option";
+import * as P from "effect/Predicate";
+import * as R from "effect/Record";
 import * as S from "effect/Schema";
 import * as Atom from "effect/unstable/reactivity/Atom";
 import * as Field from "./Field.ts";
@@ -12,6 +20,21 @@ import * as Mode from "./Mode.ts";
 import { getNestedValue, isPathOrParentDirty, setNestedValue } from "./Path.ts";
 import * as Validation from "./Validation.ts";
 
+/**
+ * Internal atom bundle backing a single field path.
+ *
+ * @example
+ * ```ts
+ * import type { FieldAtoms } from "@beep/form/core/FormAtoms"
+ *
+ * type FieldAtomKeys = keyof FieldAtoms
+ * const key: FieldAtomKeys = "valueAtom"
+ * console.log(key) // "valueAtom"
+ * ```
+ *
+ * @category atoms
+ * @since 0.0.0
+ */
 export interface FieldAtoms {
   readonly displayErrorAtom: Atom.Atom<O.Option<string>>;
   readonly errorAtom: Atom.Atom<O.Option<Validation.ErrorEntry>>;
@@ -25,6 +48,21 @@ export interface FieldAtoms {
   readonly valueAtom: Atom.Writable<unknown, unknown>;
 }
 
+/**
+ * Public atom bundle exposed to field components.
+ *
+ * @example
+ * ```ts
+ * import type { PublicFieldAtoms } from "@beep/form/core/FormAtoms"
+ *
+ * type PublicFieldAtomKeys = keyof PublicFieldAtoms<string>
+ * const key: PublicFieldAtomKeys = "value"
+ * console.log(key) // "value"
+ * ```
+ *
+ * @category atoms
+ * @since 0.0.0
+ */
 export interface PublicFieldAtoms<E> {
   readonly error: Atom.Atom<O.Option<string>>;
   readonly isDirty: Atom.Atom<boolean>;
@@ -36,6 +74,22 @@ export interface PublicFieldAtoms<E> {
   readonly value: Atom.Atom<O.Option<E>>;
 }
 
+/**
+ * Configuration accepted by {@link make}.
+ *
+ * @example
+ * ```ts
+ * import type { FormAtomsConfig } from "@beep/form/core/FormAtoms"
+ * import type { FieldsRecord } from "@beep/form/core/Field"
+ *
+ * type Config = FormAtomsConfig<FieldsRecord, never, void, never>
+ * const key: keyof Config = "formBuilder"
+ * console.log(key) // "formBuilder"
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
 export interface FormAtomsConfig<TFields extends Field.FieldsRecord, R, A, E, SubmitArgs = void> {
   readonly formBuilder: FormBuilder.FormBuilder<TFields, R>;
   readonly mode?: Mode.FormMode;
@@ -51,6 +105,24 @@ export interface FormAtomsConfig<TFields extends Field.FieldsRecord, R, A, E, Su
   readonly runtime: Atom.AtomRuntime<R>;
 }
 
+/**
+ * Field references derived from a form field record.
+ *
+ * @example
+ * ```ts
+ * import type { FieldRefs } from "@beep/form/core/FormAtoms"
+ * import { makeField } from "@beep/form/core/Field"
+ * import * as S from "effect/Schema"
+ *
+ * const fields = { name: makeField("name", S.String) }
+ * type Refs = FieldRefs<typeof fields>
+ * const key: keyof Refs = "name"
+ * console.log(key) // "name"
+ * ```
+ *
+ * @category type-level
+ * @since 0.0.0
+ */
 export type FieldRefs<TFields extends Field.FieldsRecord> = {
   readonly [K in keyof TFields]: TFields[K] extends Field.FieldDef<string, S.Codec<unknown, infer Encoded>>
     ? FormBuilder.FieldRef<Encoded>
@@ -59,6 +131,22 @@ export type FieldRefs<TFields extends Field.FieldsRecord> = {
       : never;
 };
 
+/**
+ * Complete atom graph for a form.
+ *
+ * @example
+ * ```ts
+ * import type { FormAtoms } from "@beep/form/core/FormAtoms"
+ * import type { FieldsRecord } from "@beep/form/core/Field"
+ *
+ * type Atoms = FormAtoms<FieldsRecord, never>
+ * const key: keyof Atoms = "submitAtom"
+ * console.log(key) // "submitAtom"
+ * ```
+ *
+ * @category atoms
+ * @since 0.0.0
+ */
 export interface FormAtoms<TFields extends Field.FieldsRecord, R, A = void, E = never, SubmitArgs = void> {
   /**
    * Root anchor atom for the form's dependency graph.
@@ -79,11 +167,14 @@ export interface FormAtoms<TFields extends Field.FieldsRecord, R, A = void, E = 
    * ```
    */
   readonly autoSubmitAtom: Atom.Atom<void>;
-  readonly changedSinceSubmitFieldsAtom: Atom.Atom<ReadonlySet<string>>;
+  readonly changedSinceSubmitFieldsAtom: Atom.Atom<HashSet.HashSet<string>>;
 
   readonly combinedSchema: S.Codec<Field.DecodedFromFields<TFields>, Field.EncodedFromFields<TFields>, R>;
-  readonly dirtyFieldsAtom: Atom.Atom<ReadonlySet<string>>;
-  readonly errorsAtom: Atom.Writable<Map<string, Validation.ErrorEntry>, Map<string, Validation.ErrorEntry>>;
+  readonly dirtyFieldsAtom: Atom.Atom<HashSet.HashSet<string>>;
+  readonly errorsAtom: Atom.Writable<
+    HashMap.HashMap<string, Validation.ErrorEntry>,
+    HashMap.HashMap<string, Validation.ErrorEntry>
+  >;
   readonly fieldAtomsRegistry: WeakRegistry<FieldAtoms>;
 
   readonly fieldRefs: FieldRefs<TFields>;
@@ -117,13 +208,29 @@ export interface FormAtoms<TFields extends Field.FieldsRecord, R, A = void, E = 
 
   readonly submitAtom: Atom.AtomResultFn<SubmitArgs, A, E | S.SchemaError>;
   readonly submitCountAtom: Atom.Atom<number>;
-  readonly validateAtom: Atom.AtomResultFn<void, void, never>;
+  readonly validateAtom: Atom.AtomResultFn<void, void>;
 
   readonly validationAtomsRegistry: WeakRegistry<Atom.AtomResultFn<unknown, void, S.SchemaError>>;
   readonly validationCountAtom: Atom.Atom<number>;
   readonly valuesAtom: Atom.Atom<O.Option<Field.EncodedFromFields<TFields>>>;
 }
 
+/**
+ * Pure state transition helpers used by the atom graph.
+ *
+ * @example
+ * ```ts
+ * import type { FormOperations } from "@beep/form/core/FormAtoms"
+ * import type { FieldsRecord } from "@beep/form/core/Field"
+ *
+ * type OperationKeys = keyof FormOperations<FieldsRecord>
+ * const key: OperationKeys = "setFieldValue"
+ * console.log(key) // "setFieldValue"
+ * ```
+ *
+ * @category utilities
+ * @since 0.0.0
+ */
 export interface FormOperations<TFields extends Field.FieldsRecord> {
   readonly appendArrayItem: (
     state: FormBuilder.FormState<TFields>,
@@ -177,6 +284,23 @@ export interface FormOperations<TFields extends Field.FieldsRecord> {
   ) => FormBuilder.FormState<TFields>;
 }
 
+/**
+ * Creates a form atom graph from a form builder and runtime.
+ *
+ * @example
+ * ```ts
+ * import { make } from "@beep/form/core/FormAtoms"
+ * import { empty } from "@beep/form/core/FormBuilder"
+ * import { Layer } from "effect"
+ * import * as Atom from "effect/unstable/reactivity/Atom"
+ *
+ * const atoms = make({ runtime: Atom.runtime(Layer.empty), formBuilder: empty, onSubmit: () => undefined })
+ * console.log(atoms.fieldRefs)
+ * ```
+ *
+ * @category constructors
+ * @since 0.0.0
+ */
 export const make = <TFields extends Field.FieldsRecord, R, A, E, SubmitArgs = void>(
   config: FormAtomsConfig<TFields, R, A, E, SubmitArgs>
 ): FormAtoms<TFields, R, A, E, SubmitArgs> => {
@@ -187,19 +311,23 @@ export const make = <TFields extends Field.FieldsRecord, R, A, E, SubmitArgs = v
   const combinedSchema = FormBuilder.buildSchema(formBuilder);
 
   const stateAtom = Atom.make(O.none<FormBuilder.FormState<TFields>>()).pipe(Atom.setIdleTTL(0));
-  const errorsAtom = Atom.make<Map<string, Validation.ErrorEntry>>(new Map()).pipe(Atom.setIdleTTL(0));
+  const errorsAtom = Atom.make<HashMap.HashMap<string, Validation.ErrorEntry>>(
+    HashMap.empty<string, Validation.ErrorEntry>()
+  ).pipe(Atom.setIdleTTL(0));
 
   const rootErrorAtom = Atom.readable((get) => {
     const errors = get(errorsAtom);
-    const entry = errors.get("");
-    return entry !== undefined ? O.some(entry.message) : O.none<string>();
+    return pipe(
+      HashMap.get(errors, ""),
+      O.map((entry) => entry.message)
+    );
   }).pipe(Atom.setIdleTTL(0));
 
   const valuesAtom = Atom.readable((get) => O.map(get(stateAtom), (state) => state.values)).pipe(Atom.setIdleTTL(0));
 
   const dirtyFieldsAtom = Atom.readable((get) =>
     O.match(get(stateAtom), {
-      onNone: () => new Set<string>(),
+      onNone: () => HashSet.empty<string>(),
       onSome: (state) => state.dirtyFields,
     })
   ).pipe(Atom.setIdleTTL(0));
@@ -207,7 +335,7 @@ export const make = <TFields extends Field.FieldsRecord, R, A, E, SubmitArgs = v
   const isDirtyAtom = Atom.readable((get) =>
     O.match(get(stateAtom), {
       onNone: () => false,
-      onSome: (state) => state.dirtyFields.size > 0,
+      onSome: (state) => HashSet.size(state.dirtyFields) > 0,
     })
   ).pipe(Atom.setIdleTTL(0));
 
@@ -230,14 +358,23 @@ export const make = <TFields extends Field.FieldsRecord, R, A, E, SubmitArgs = v
   ).pipe(Atom.setIdleTTL(0));
 
   const changedSinceSubmitFieldsAtom = Atom.readable((get) =>
-    O.match(get(stateAtom), {
-      onNone: () => new Set<string>(),
-      onSome: (state) =>
-        O.match(state.lastSubmittedValues, {
-          onNone: () => new Set<string>(),
-          onSome: (lastSubmitted) => recalculateDirtySubtree(new Set(), lastSubmitted.encoded, state.values, ""),
-        }),
-    })
+    pipe(
+      get(stateAtom),
+      O.flatMap((state) =>
+        pipe(
+          state.lastSubmittedValues,
+          O.map((lastSubmitted) =>
+            recalculateDirtySubtree({
+              currentDirty: HashSet.empty<string>(),
+              allInitial: lastSubmitted.encoded,
+              allValues: state.values,
+              rootPath: "",
+            })
+          )
+        )
+      ),
+      O.getOrElse(() => HashSet.empty<string>())
+    )
   ).pipe(Atom.setIdleTTL(0));
 
   const hasChangedSinceSubmitAtom = Atom.readable((get) =>
@@ -246,7 +383,7 @@ export const make = <TFields extends Field.FieldsRecord, R, A, E, SubmitArgs = v
       onSome: (state) => {
         if (O.isNone(state.lastSubmittedValues)) return false;
         if (state.values === state.lastSubmittedValues.value.encoded) return false;
-        return get(changedSinceSubmitFieldsAtom).size > 0;
+        return HashSet.size(get(changedSinceSubmitFieldsAtom)) > 0;
       },
     })
   ).pipe(Atom.setIdleTTL(0));
@@ -254,16 +391,16 @@ export const make = <TFields extends Field.FieldsRecord, R, A, E, SubmitArgs = v
   const validationAtomsRegistry = createWeakRegistry<Atom.AtomResultFn<unknown, void, S.SchemaError>>();
   const fieldAtomsRegistry = createWeakRegistry<FieldAtoms>();
   const publicFieldAtomsRegistry = createWeakRegistry<PublicFieldAtoms<unknown>>();
-  const validationSchemaRegistry = new Map<string, S.Top>();
-  const fieldSchemaRegistry = new Map<string, S.Top>();
+  let validationSchemaRegistry = HashMap.empty<string, S.Top>();
+  let fieldSchemaRegistry = HashMap.empty<string, S.Top>();
   const isDirtyAtomsRegistry = createWeakRegistry<Atom.Atom<boolean>>();
 
-  const fieldSchemasByKey = new Map<string, S.Top>();
-  for (const [key, def] of Object.entries(fields)) {
+  let fieldSchemasByKey = HashMap.empty<string, S.Top>();
+  for (const [key, def] of R.toEntries(fields)) {
     if (Field.isArrayFieldDef(def)) {
-      fieldSchemasByKey.set(key, S.Array(def.itemSchema));
+      fieldSchemasByKey = HashMap.set(fieldSchemasByKey, key, S.Array(def.itemSchema));
     } else if (Field.isFieldDef(def)) {
-      fieldSchemasByKey.set(key, def.schema);
+      fieldSchemasByKey = HashMap.set(fieldSchemasByKey, key, def.schema);
     }
   }
 
@@ -272,8 +409,8 @@ export const make = <TFields extends Field.FieldsRecord, R, A, E, SubmitArgs = v
     schema: S.Top
   ): Atom.AtomResultFn<unknown, void, S.SchemaError> => {
     const existing = validationAtomsRegistry.get(fieldPath);
-    const existingSchema = validationSchemaRegistry.get(fieldPath);
-    if (existing !== undefined && existingSchema === schema) return existing;
+    const existingSchema = HashMap.get(validationSchemaRegistry, fieldPath);
+    if (existing !== undefined && O.contains(existingSchema, schema)) return existing;
 
     const validationAtom = runtime
       .fn<unknown>()((value: unknown) =>
@@ -282,14 +419,14 @@ export const make = <TFields extends Field.FieldsRecord, R, A, E, SubmitArgs = v
       .pipe(Atom.setIdleTTL(0)) as Atom.AtomResultFn<unknown, void, S.SchemaError>;
 
     validationAtomsRegistry.set(fieldPath, validationAtom);
-    validationSchemaRegistry.set(fieldPath, schema);
+    validationSchemaRegistry = HashMap.set(validationSchemaRegistry, fieldPath, schema);
     return validationAtom;
   };
 
   const getOrCreateFieldAtoms = (fieldPath: string, schema: S.Top): FieldAtoms => {
     const existing = fieldAtomsRegistry.get(fieldPath);
-    const existingSchema = fieldSchemaRegistry.get(fieldPath);
-    if (existing !== undefined && existingSchema === schema) return existing;
+    const existingSchema = HashMap.get(fieldSchemaRegistry, fieldPath);
+    if (existing !== undefined && O.contains(existingSchema, schema)) return existing;
 
     const valueAtom = Atom.writable(
       (get) => getNestedValue(O.getOrThrow(get(stateAtom)).values, fieldPath),
@@ -311,7 +448,7 @@ export const make = <TFields extends Field.FieldsRecord, R, A, E, SubmitArgs = v
           stateAtom,
           O.some({
             ...currentState,
-            touched: setNestedValue(currentState.touched, fieldPath, value),
+            touched: setNestedValue(currentState.touched, { path: fieldPath, value }),
           })
         );
       }
@@ -319,8 +456,7 @@ export const make = <TFields extends Field.FieldsRecord, R, A, E, SubmitArgs = v
 
     const errorAtom = Atom.readable((get) => {
       const errors = get(errorsAtom);
-      const entry = errors.get(fieldPath);
-      return entry !== undefined ? O.some(entry) : O.none<Validation.ErrorEntry>();
+      return HashMap.get(errors, fieldPath);
     }).pipe(Atom.setIdleTTL(0));
 
     const existingIsDirtyAtom = isDirtyAtomsRegistry.get(fieldPath);
@@ -329,7 +465,7 @@ export const make = <TFields extends Field.FieldsRecord, R, A, E, SubmitArgs = v
       Atom.readable((get) =>
         isPathOrParentDirty(
           O.match(get(stateAtom), {
-            onNone: () => new Set<string>(),
+            onNone: () => HashSet.empty<string>(),
             onSome: (state) => state.dirtyFields,
           }),
           fieldPath
@@ -459,7 +595,7 @@ export const make = <TFields extends Field.FieldsRecord, R, A, E, SubmitArgs = v
       triggerValidationAtom,
     };
     fieldAtomsRegistry.set(fieldPath, atoms);
-    fieldSchemaRegistry.set(fieldPath, schema);
+    fieldSchemaRegistry = HashMap.set(fieldSchemaRegistry, fieldPath, schema);
     return atoms;
   };
 
@@ -472,82 +608,86 @@ export const make = <TFields extends Field.FieldsRecord, R, A, E, SubmitArgs = v
     }
   };
 
+  const runSubmit = Effect.fnUntraced(function* (args: SubmitArgs, get: Atom.FnContext) {
+    const state = get(stateAtom);
+    if (O.isNone(state)) return yield* Effect.die("Form not initialized");
+    const values = state.value.values;
+    get.set(errorsAtom, HashMap.empty<string, Validation.ErrorEntry>());
+    const decoded = yield* pipe(
+      S.decodeUnknownEffect(combinedSchema)(values, { errors: "all" }) as Effect.Effect<
+        Field.DecodedFromFields<TFields>,
+        S.SchemaError,
+        R
+      >,
+      Effect.tapError((parseError) =>
+        Effect.sync(() => {
+          const routedErrors = Validation.routeErrorsWithSource(parseError);
+          get.set(errorsAtom, routedErrors);
+          get.set(stateAtom, O.some(operations.createSubmitState(state.value)));
+        })
+      )
+    );
+    const submitState = operations.createSubmitState(state.value);
+    get.set(
+      stateAtom,
+      O.some({
+        ...submitState,
+        lastSubmittedValues: O.some({ encoded: values, decoded }),
+      })
+    );
+    const result = config.onSubmit(args, { decoded, encoded: values, get });
+    if (Effect.isEffect(result)) {
+      return yield* result as Effect.Effect<A, E, R>;
+    }
+    return result as A;
+  });
+
+  const runValidate = Effect.fnUntraced(function* (_: void, get: Atom.FnContext) {
+    const state = get(stateAtom);
+    if (O.isNone(state)) return;
+    const values = state.value.values;
+    get.set(errorsAtom, HashMap.empty<string, Validation.ErrorEntry>());
+    yield* pipe(
+      S.decodeUnknownEffect(combinedSchema, { errors: "all" })(values) as Effect.Effect<
+        Field.DecodedFromFields<TFields>,
+        S.SchemaError,
+        R
+      >,
+      Effect.catchTag("SchemaError", (parseError) =>
+        Effect.sync(() => {
+          const routedErrors = Validation.routeErrorsWithSource(parseError);
+          get.set(errorsAtom, routedErrors);
+        })
+      )
+    );
+    const currentState = get(stateAtom);
+    if (O.isSome(currentState)) {
+      get.set(
+        stateAtom,
+        O.some({
+          ...currentState.value,
+          validationCount: currentState.value.validationCount + 1,
+        })
+      );
+    }
+  });
+
   const submitAtom = runtime
     .fn<SubmitArgs>()(
-      (args, get) =>
-        Effect.gen(function* () {
-          const state = get(stateAtom);
-          if (O.isNone(state)) return yield* Effect.die("Form not initialized");
-          const values = state.value.values;
-          get.set(errorsAtom, new Map());
-          const decoded = yield* pipe(
-            S.decodeUnknownEffect(combinedSchema)(values, { errors: "all" }) as Effect.Effect<
-              Field.DecodedFromFields<TFields>,
-              S.SchemaError,
-              R
-            >,
-            Effect.tapError((parseError) =>
-              Effect.sync(() => {
-                const routedErrors = Validation.routeErrorsWithSource(parseError);
-                get.set(errorsAtom, routedErrors);
-                get.set(stateAtom, O.some(operations.createSubmitState(state.value)));
-              })
-            )
-          );
-          const submitState = operations.createSubmitState(state.value);
-          get.set(
-            stateAtom,
-            O.some({
-              ...submitState,
-              lastSubmittedValues: O.some({ encoded: values, decoded }),
-            })
-          );
-          const result = config.onSubmit(args, { decoded, encoded: values, get });
-          if (Effect.isEffect(result)) {
-            return yield* result as Effect.Effect<A, E, R>;
-          }
-          return result as A;
-        }),
+      (args, get) => runSubmit(args, get),
       config.reactivityKeys !== undefined ? { reactivityKeys: config.reactivityKeys } : undefined
     )
     .pipe(Atom.setIdleTTL(0)) as Atom.AtomResultFn<SubmitArgs, A, E | S.SchemaError>;
 
   const validateAtom = runtime
-    .fn<void>()((_: void, get) =>
-      Effect.gen(function* () {
-        const state = get(stateAtom);
-        if (O.isNone(state)) return;
-        const values = state.value.values;
-        get.set(errorsAtom, new Map());
-        yield* pipe(
-          S.decodeUnknownEffect(combinedSchema, { errors: "all" })(values) as Effect.Effect<
-            Field.DecodedFromFields<TFields>,
-            S.SchemaError,
-            R
-          >,
-          Effect.catchTag("SchemaError", (parseError) =>
-            Effect.sync(() => {
-              const routedErrors = Validation.routeErrorsWithSource(parseError);
-              get.set(errorsAtom, routedErrors);
-            })
-          )
-        );
-        const currentState = get(stateAtom);
-        if (O.isSome(currentState)) {
-          get.set(
-            stateAtom,
-            O.some({
-              ...currentState.value,
-              validationCount: currentState.value.validationCount + 1,
-            })
-          );
-        }
-      })
-    )
+    .fn<void>()((args, get) => runValidate(args, get))
     .pipe(Atom.setIdleTTL(0)) as Atom.AtomResultFn<void, void, never>;
 
-  const fieldRefs = Object.fromEntries(
-    Object.keys(fields).map((key) => [key, FormBuilder.makeFieldRef(key)])
+  const fieldRefs = R.fromEntries(
+    pipe(
+      R.keys(fields),
+      A.map((key) => [key, FormBuilder.makeFieldRef(key)] as const)
+    )
   ) as FieldRefs<TFields>;
 
   const operations: FormOperations<TFields> = {
@@ -558,7 +698,7 @@ export const make = <TFields extends Field.FieldsRecord, R, A, E, SubmitArgs = v
       touched: Field.createTouchedRecord(fields, false) as { readonly [K in keyof TFields]: boolean },
       submitCount: 0,
       validationCount: 0,
-      dirtyFields: new Set(),
+      dirtyFields: HashSet.empty<string>(),
     }),
 
     createResetState: (state) => ({
@@ -568,7 +708,7 @@ export const make = <TFields extends Field.FieldsRecord, R, A, E, SubmitArgs = v
       touched: Field.createTouchedRecord(fields, false) as { readonly [K in keyof TFields]: boolean },
       submitCount: 0,
       validationCount: 0,
-      dirtyFields: new Set(),
+      dirtyFields: HashSet.empty<string>(),
     }),
 
     createSubmitState: (state) => ({
@@ -578,8 +718,13 @@ export const make = <TFields extends Field.FieldsRecord, R, A, E, SubmitArgs = v
     }),
 
     setFieldValue: (state, fieldPath, value) => {
-      const newValues = setNestedValue(state.values, fieldPath, value);
-      const newDirtyFields = recalculateDirtySubtree(state.dirtyFields, state.initialValues, newValues, fieldPath);
+      const newValues = setNestedValue(state.values, { path: fieldPath, value });
+      const newDirtyFields = recalculateDirtySubtree({
+        currentDirty: state.dirtyFields,
+        allInitial: state.initialValues,
+        allValues: newValues,
+        rootPath: fieldPath,
+      });
       return {
         ...state,
         values: newValues as Field.EncodedFromFields<TFields>,
@@ -588,7 +733,12 @@ export const make = <TFields extends Field.FieldsRecord, R, A, E, SubmitArgs = v
     },
 
     setFormValues: (state, values) => {
-      const newDirtyFields = recalculateDirtySubtree(state.dirtyFields, state.initialValues, values, "");
+      const newDirtyFields = recalculateDirtySubtree({
+        currentDirty: state.dirtyFields,
+        allInitial: state.initialValues,
+        allValues: values,
+        rootPath: "",
+      });
       return {
         ...state,
         values,
@@ -598,27 +748,39 @@ export const make = <TFields extends Field.FieldsRecord, R, A, E, SubmitArgs = v
 
     setFieldTouched: (state, fieldPath, touched) => ({
       ...state,
-      touched: setNestedValue(state.touched, fieldPath, touched) as { readonly [K in keyof TFields]: boolean },
+      touched: setNestedValue(state.touched, { path: fieldPath, value: touched }) as {
+        readonly [K in keyof TFields]: boolean;
+      },
     }),
 
     appendArrayItem: (state, arrayPath, itemSchema, value) => {
       const newItem = value ?? Field.getDefaultFromSchema(itemSchema);
       const currentItems = (getNestedValue(state.values, arrayPath) ?? []) as ReadonlyArray<unknown>;
-      const newItems = [...currentItems, newItem];
+      const newItems = pipe(currentItems, A.append(newItem));
       return {
         ...state,
-        values: setNestedValue(state.values, arrayPath, newItems) as Field.EncodedFromFields<TFields>,
-        dirtyFields: recalculateDirtyFieldsForArray(state.dirtyFields, state.initialValues, arrayPath, newItems),
+        values: setNestedValue(state.values, { path: arrayPath, value: newItems }) as Field.EncodedFromFields<TFields>,
+        dirtyFields: recalculateDirtyFieldsForArray({
+          dirtyFields: state.dirtyFields,
+          initialValues: state.initialValues,
+          arrayPath,
+          newItems,
+        }),
       };
     },
 
     removeArrayItem: (state, arrayPath, index) => {
       const currentItems = (getNestedValue(state.values, arrayPath) ?? []) as ReadonlyArray<unknown>;
-      const newItems = currentItems.filter((_, i) => i !== index);
+      const newItems = A.remove(currentItems, index);
       return {
         ...state,
-        values: setNestedValue(state.values, arrayPath, newItems) as Field.EncodedFromFields<TFields>,
-        dirtyFields: recalculateDirtyFieldsForArray(state.dirtyFields, state.initialValues, arrayPath, newItems),
+        values: setNestedValue(state.values, { path: arrayPath, value: newItems }) as Field.EncodedFromFields<TFields>,
+        dirtyFields: recalculateDirtyFieldsForArray({
+          dirtyFields: state.dirtyFields,
+          initialValues: state.initialValues,
+          arrayPath,
+          newItems,
+        }),
       };
     },
 
@@ -626,21 +788,33 @@ export const make = <TFields extends Field.FieldsRecord, R, A, E, SubmitArgs = v
       const currentItems = (getNestedValue(state.values, arrayPath) ?? []) as ReadonlyArray<unknown>;
       if (
         indexA < 0 ||
-        indexA >= currentItems.length ||
+        indexA >= A.length(currentItems) ||
         indexB < 0 ||
-        indexB >= currentItems.length ||
+        indexB >= A.length(currentItems) ||
         indexA === indexB
       ) {
         return state;
       }
-      const newItems = [...currentItems];
-      const temp = newItems[indexA];
-      newItems[indexA] = newItems[indexB];
-      newItems[indexB] = temp;
+      const itemA = currentItems[indexA];
+      const itemB = currentItems[indexB];
+      const newItems =
+        itemA === undefined || itemB === undefined
+          ? currentItems
+          : pipe(
+              currentItems,
+              A.replace(indexA, itemB),
+              O.flatMap(A.replace(indexB, itemA)),
+              O.getOrElse(() => currentItems)
+            );
       return {
         ...state,
-        values: setNestedValue(state.values, arrayPath, newItems) as Field.EncodedFromFields<TFields>,
-        dirtyFields: recalculateDirtyFieldsForArray(state.dirtyFields, state.initialValues, arrayPath, newItems),
+        values: setNestedValue(state.values, { path: arrayPath, value: newItems }) as Field.EncodedFromFields<TFields>,
+        dirtyFields: recalculateDirtyFieldsForArray({
+          dirtyFields: state.dirtyFields,
+          initialValues: state.initialValues,
+          arrayPath,
+          newItems,
+        }),
       };
     },
 
@@ -648,20 +822,33 @@ export const make = <TFields extends Field.FieldsRecord, R, A, E, SubmitArgs = v
       const currentItems = (getNestedValue(state.values, arrayPath) ?? []) as ReadonlyArray<unknown>;
       if (
         fromIndex < 0 ||
-        fromIndex >= currentItems.length ||
+        fromIndex >= A.length(currentItems) ||
         toIndex < 0 ||
-        toIndex > currentItems.length ||
+        toIndex > A.length(currentItems) ||
         fromIndex === toIndex
       ) {
         return state;
       }
-      const newItems = [...currentItems];
-      const [item] = newItems.splice(fromIndex, 1);
-      newItems.splice(toIndex, 0, item);
+      const item = currentItems[fromIndex];
+      const newItems =
+        item === undefined
+          ? currentItems
+          : pipe(A.remove(currentItems, fromIndex), (withoutItem) =>
+              pipe(
+                withoutItem,
+                A.insertAt(N.min(toIndex, A.length(withoutItem)), item),
+                O.getOrElse(() => currentItems)
+              )
+            );
       return {
         ...state,
-        values: setNestedValue(state.values, arrayPath, newItems) as Field.EncodedFromFields<TFields>,
-        dirtyFields: recalculateDirtyFieldsForArray(state.dirtyFields, state.initialValues, arrayPath, newItems),
+        values: setNestedValue(state.values, { path: arrayPath, value: newItems }) as Field.EncodedFromFields<TFields>,
+        dirtyFields: recalculateDirtyFieldsForArray({
+          dirtyFields: state.dirtyFields,
+          initialValues: state.initialValues,
+          arrayPath,
+          newItems,
+        }),
       };
     },
 
@@ -675,7 +862,12 @@ export const make = <TFields extends Field.FieldsRecord, R, A, E, SubmitArgs = v
         return state;
       }
 
-      const newDirtyFields = recalculateDirtySubtree(state.dirtyFields, state.initialValues, lastEncoded, "");
+      const newDirtyFields = recalculateDirtySubtree({
+        currentDirty: state.dirtyFields,
+        allInitial: state.initialValues,
+        allValues: lastEncoded,
+        rootPath: "",
+      });
 
       return {
         ...state,
@@ -690,7 +882,7 @@ export const make = <TFields extends Field.FieldsRecord, R, A, E, SubmitArgs = v
       const state = get(stateAtom);
       if (O.isNone(state)) return;
       get.set(stateAtom, O.some(operations.createResetState(state.value)));
-      get.set(errorsAtom, new Map());
+      get.set(errorsAtom, HashMap.empty<string, Validation.ErrorEntry>());
       resetValidationAtoms(get);
       get.set(submitAtom, Atom.Reset);
       get.set(validateAtom, Atom.Reset);
@@ -703,7 +895,7 @@ export const make = <TFields extends Field.FieldsRecord, R, A, E, SubmitArgs = v
       const state = get(stateAtom);
       if (O.isNone(state)) return;
       get.set(stateAtom, O.some(operations.revertToLastSubmit(state.value)));
-      get.set(errorsAtom, new Map());
+      get.set(errorsAtom, HashMap.empty<string, Validation.ErrorEntry>());
     },
     { initialValue: undefined as void }
   ).pipe(Atom.setIdleTTL(0));
@@ -719,23 +911,25 @@ export const make = <TFields extends Field.FieldsRecord, R, A, E, SubmitArgs = v
       const state = ctx.get(stateAtom);
       if (O.isNone(state)) return;
       ctx.set(stateAtom, O.some(operations.setFormValues(state.value, values)));
-      ctx.set(errorsAtom, new Map());
+      ctx.set(errorsAtom, HashMap.empty<string, Validation.ErrorEntry>());
     }
   ).pipe(Atom.setIdleTTL(0));
 
   const setValueAtomsRegistry = createWeakRegistry<Atom.Writable<void, never>>();
 
-  const setValue = <S>(field: FormBuilder.FieldRef<S>): Atom.Writable<void, S | ((prev: S) => S)> => {
+  const setValue = <Value>(
+    field: FormBuilder.FieldRef<Value>
+  ): Atom.Writable<void, Value | ((prev: Value) => Value)> => {
     const cached = setValueAtomsRegistry.get(field.key);
-    if (cached !== undefined) return cached as Atom.Writable<void, S | ((prev: S) => S)>;
+    if (cached !== undefined) return cached as Atom.Writable<void, Value | ((prev: Value) => Value)>;
 
-    const atom = Atom.fnSync<S | ((prev: S) => S)>()(
+    const atom = Atom.fnSync<Value | ((prev: Value) => Value)>()(
       (update, get) => {
         const state = get(stateAtom);
         if (O.isNone(state)) return;
 
-        const currentValue = getNestedValue(state.value.values, field.key) as S;
-        const newValue = typeof update === "function" ? (update as (prev: S) => S)(currentValue) : update;
+        const currentValue = getNestedValue(state.value.values, field.key) as Value;
+        const newValue = P.isFunction(update) ? update(currentValue) : update;
 
         get.set(stateAtom, O.some(operations.setFieldValue(state.value, field.key, newValue)));
         // Don't clear errors - display logic handles showing/hiding based on source + validation state
@@ -757,7 +951,7 @@ export const make = <TFields extends Field.FieldsRecord, R, A, E, SubmitArgs = v
     const atom = Atom.readable((get) =>
       isPathOrParentDirty(
         O.match(get(stateAtom), {
-          onNone: () => new Set<string>(),
+          onNone: () => HashSet.empty<string>(),
           onSome: (state) => state.dirtyFields,
         }),
         field.key
@@ -772,8 +966,10 @@ export const make = <TFields extends Field.FieldsRecord, R, A, E, SubmitArgs = v
     const cached = publicFieldAtomsRegistry.get(field.key);
     if (cached !== undefined) return cached as PublicFieldAtoms<S>;
 
-    const schema = fieldSchemasByKey.get(field.key);
-    if (schema === undefined) throw new Error(`No schema found for field "${field.key}"`);
+    const schema = pipe(
+      HashMap.get(fieldSchemasByKey, field.key),
+      O.getOrElse(() => S.Unknown)
+    );
 
     const internal = getOrCreateFieldAtoms(field.key, schema);
 
@@ -783,7 +979,7 @@ export const make = <TFields extends Field.FieldsRecord, R, A, E, SubmitArgs = v
 
     const error = Atom.readable((get) =>
       O.match(get(stateAtom), {
-        onNone: () => O.none<string>(),
+        onNone: O.none<string>,
         onSome: () => get(internal.displayErrorAtom),
       })
     ).pipe(Atom.setIdleTTL(0));

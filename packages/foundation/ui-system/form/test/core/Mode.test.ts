@@ -1,5 +1,5 @@
+import { parse } from "@beep/form/core/Mode";
 import { describe, expect, it } from "vitest";
-import { parse } from "../../src/core/Mode.js";
 
 describe("Mode", () => {
   describe("parse", () => {

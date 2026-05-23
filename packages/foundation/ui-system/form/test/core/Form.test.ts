@@ -1,7 +1,11 @@
 import { Field, FormBuilder } from "@beep/form/core";
+import type { TUnsafe } from "@beep/types";
 import { Effect, SchemaIssue } from "effect";
 import { describe, expect, it } from "vitest";
 import * as S from "../helpers/SchemaCompat.ts";
+
+const effectTest = (name: string, body: () => Generator<TUnsafe.Any, void, TUnsafe.Any>) =>
+  it(name, () => Effect.runPromise(Effect.gen(body) as TUnsafe.Any));
 
 describe("Form", () => {
   describe("FormBuilder", () => {
@@ -173,7 +177,7 @@ describe("Form", () => {
       });
     });
 
-    it("applies async refinements with refineEffect", async () => {
+    effectTest("applies async refinements with refineEffect", function* () {
       const UsernameField = Field.makeField("username", S.String);
 
       const builder = FormBuilder.empty.addField(UsernameField).refineEffect((values) =>
@@ -187,9 +191,13 @@ describe("Form", () => {
 
       const schema = FormBuilder.buildSchema(builder);
 
-      await expect(Effect.runPromise(S.decodeUnknownEffect(schema)({ username: "taken" }))).rejects.toThrow();
+      yield* Effect.promise(() =>
+        expect(Effect.runPromise(S.decodeUnknownEffect(schema)({ username: "taken" }))).rejects.toThrow()
+      );
 
-      const result = await Effect.runPromise(S.decodeUnknownEffect(schema)({ username: "available" }));
+      const result = yield* Effect.promise(() =>
+        Effect.runPromise(S.decodeUnknownEffect(schema)({ username: "available" }))
+      );
       expect(result).toEqual({ username: "available" });
     });
 

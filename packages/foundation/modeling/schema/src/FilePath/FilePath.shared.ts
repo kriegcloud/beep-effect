@@ -83,7 +83,7 @@ export const windowsInvalidTrailingSegmentRegExp = /^(?!.*[ .]$).+$/;
  * @category guards
  * @since 0.0.0
  */
-export const matchesPattern =
+const matchesPattern =
   (pattern: RegExp) =>
   (value: string): boolean =>
     O.isSome(Str.match(pattern)(value));

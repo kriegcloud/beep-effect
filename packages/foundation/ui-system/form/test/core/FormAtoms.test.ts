@@ -2,6 +2,10 @@ import * as Field from "@beep/form/core/Field";
 import * as FormAtoms from "@beep/form/core/FormAtoms";
 import * as FormBuilder from "@beep/form/core/FormBuilder";
 import { isPathOrParentDirty } from "@beep/form/core/Path";
+import { ErrorEntry } from "@beep/form/core/Validation";
+import type { TUnsafe } from "@beep/types";
+import * as HashMap from "effect/HashMap";
+import * as HashSet from "effect/HashSet";
 import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
 import * as Atom from "effect/unstable/reactivity/Atom";
@@ -10,6 +14,12 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import * as Context from "../helpers/ContextCompat.ts";
 import * as Effect from "../helpers/EffectCompat.ts";
 import * as S from "../helpers/SchemaCompat.ts";
+
+const effectTest = (name: string, body: () => Generator<TUnsafe.Any, void, TUnsafe.Any>) =>
+  it(name, () => Effect.runPromise(Effect.gen(body) as TUnsafe.Any));
+
+const makeFormError = (message: string, source: "field" | "refinement" = "field"): ErrorEntry =>
+  ErrorEntry.make({ message, source });
 
 const makeTestForm = () => {
   const NameField = Field.makeField("name", S.String);
@@ -54,7 +64,7 @@ describe("FormAtoms", () => {
       expect(O.isNone(state.lastSubmittedValues)).toBe(true);
       expect(state.touched).toEqual({ name: false, email: false });
       expect(state.submitCount).toBe(0);
-      expect(state.dirtyFields.size).toBe(0);
+      expect(HashSet.size(state.dirtyFields)).toBe(0);
     });
 
     it("creates initial state for array form", () => {
@@ -103,7 +113,7 @@ describe("FormAtoms", () => {
       expect(O.isNone(resetState.lastSubmittedValues)).toBe(true);
       expect(resetState.touched).toEqual({ name: false, email: false });
       expect(resetState.submitCount).toBe(0);
-      expect(resetState.dirtyFields.size).toBe(0);
+      expect(HashSet.size(resetState.dirtyFields)).toBe(0);
     });
   });
 
@@ -178,8 +188,8 @@ describe("FormAtoms", () => {
 
       expect(newState.values.name).toBe("Jane");
       expect(newState.values.email).toBe("john@test.com");
-      expect(newState.dirtyFields.has("name")).toBe(true);
-      expect(newState.dirtyFields.has("email")).toBe(false);
+      expect(HashSet.has(newState.dirtyFields, "name")).toBe(true);
+      expect(HashSet.has(newState.dirtyFields, "email")).toBe(false);
     });
 
     it("removes field from dirty set when value matches initial", () => {
@@ -193,10 +203,10 @@ describe("FormAtoms", () => {
       });
 
       let state = atoms.operations.setFieldValue(initialState, "name", "Jane");
-      expect(state.dirtyFields.has("name")).toBe(true);
+      expect(HashSet.has(state.dirtyFields, "name")).toBe(true);
 
       state = atoms.operations.setFieldValue(state, "name", "John");
-      expect(state.dirtyFields.has("name")).toBe(false);
+      expect(HashSet.has(state.dirtyFields, "name")).toBe(false);
     });
 
     it("updates nested array field values", () => {
@@ -231,8 +241,8 @@ describe("FormAtoms", () => {
       const newState = atoms.operations.setFormValues(initialState, newValues);
 
       expect(newState.values).toEqual(newValues);
-      expect(newState.dirtyFields.has("name")).toBe(true);
-      expect(newState.dirtyFields.has("email")).toBe(false);
+      expect(HashSet.has(newState.dirtyFields, "name")).toBe(true);
+      expect(HashSet.has(newState.dirtyFields, "email")).toBe(false);
     });
 
     it("clears dirty fields when values match initial", () => {
@@ -247,10 +257,10 @@ describe("FormAtoms", () => {
         name: "Jane",
         email: "jane@test.com",
       });
-      expect(state.dirtyFields.size).toBe(2);
+      expect(HashSet.size(state.dirtyFields)).toBe(2);
 
       state = atoms.operations.setFormValues(state, initialValues);
-      expect(state.dirtyFields.size).toBe(0);
+      expect(HashSet.size(state.dirtyFields)).toBe(0);
     });
   });
 
@@ -308,7 +318,7 @@ describe("FormAtoms", () => {
 
       expect(newState.values.items).toHaveLength(1);
       expect(newState.values.items[0]).toEqual({ name: "New Item" });
-      expect(newState.dirtyFields.has("items")).toBe(true);
+      expect(HashSet.has(newState.dirtyFields, "items")).toBe(true);
     });
 
     it("uses default values when no value provided", () => {
@@ -421,7 +431,7 @@ describe("FormAtoms", () => {
 
       expect(isPathOrParentDirty(swappedBack.dirtyFields, "items[0].name")).toBe(false);
       expect(isPathOrParentDirty(swappedBack.dirtyFields, "items[1].name")).toBe(false);
-      expect(swappedBack.dirtyFields.size).toBe(0);
+      expect(HashSet.size(swappedBack.dirtyFields)).toBe(0);
     });
   });
 
@@ -558,12 +568,12 @@ describe("FormAtoms", () => {
       };
       state = atoms.operations.setFieldValue(state, "name", "Bob");
       expect(state.values.name).toBe("Bob");
-      expect(state.dirtyFields.has("name")).toBe(true);
+      expect(HashSet.has(state.dirtyFields, "name")).toBe(true);
 
       const revertedState = atoms.operations.revertToLastSubmit(state);
 
       expect(revertedState.values.name).toBe("Jane");
-      expect(revertedState.dirtyFields.has("name")).toBe(true);
+      expect(HashSet.has(revertedState.dirtyFields, "name")).toBe(true);
     });
 
     it("clears dirtyFields when reverting makes values match initial", () => {
@@ -585,12 +595,12 @@ describe("FormAtoms", () => {
         }),
       };
       state = atoms.operations.setFieldValue(state, "name", "Jane");
-      expect(state.dirtyFields.has("name")).toBe(true);
+      expect(HashSet.has(state.dirtyFields, "name")).toBe(true);
 
       const revertedState = atoms.operations.revertToLastSubmit(state);
 
       expect(revertedState.values.name).toBe("John");
-      expect(revertedState.dirtyFields.has("name")).toBe(false);
+      expect(HashSet.has(revertedState.dirtyFields, "name")).toBe(false);
     });
   });
 
@@ -710,11 +720,11 @@ describe("FormAtoms", () => {
       });
 
       registry.set(atoms.stateAtom, O.some(initialState));
-      expect(registry.get(atoms.dirtyFieldsAtom).size).toBe(0);
+      expect(HashSet.size(registry.get(atoms.dirtyFieldsAtom))).toBe(0);
 
       const modifiedState = atoms.operations.setFieldValue(initialState, "name", "Jane");
       registry.set(atoms.stateAtom, O.some(modifiedState));
-      expect(registry.get(atoms.dirtyFieldsAtom).has("name")).toBe(true);
+      expect(HashSet.has(registry.get(atoms.dirtyFieldsAtom), "name")).toBe(true);
     });
 
     it("isDirtyAtom reflects dirty state", () => {
@@ -871,8 +881,8 @@ describe("FormAtoms", () => {
       registry.set(atoms.stateAtom, O.some(state));
 
       const changedFields = registry.get(atoms.changedSinceSubmitFieldsAtom);
-      expect(changedFields.has("name")).toBe(true);
-      expect(changedFields.has("email")).toBe(false);
+      expect(HashSet.has(changedFields, "name")).toBe(true);
+      expect(HashSet.has(changedFields, "email")).toBe(false);
     });
 
     it("changedSinceSubmitFieldsAtom tracks array item changes after submit", () => {
@@ -898,9 +908,9 @@ describe("FormAtoms", () => {
       registry.set(atoms.stateAtom, O.some(state));
 
       const changedFields = registry.get(atoms.changedSinceSubmitFieldsAtom);
-      expect(changedFields.has("items[1].name")).toBe(true);
-      expect(changedFields.has("items[0].name")).toBe(false);
-      expect(changedFields.has("title")).toBe(false);
+      expect(HashSet.has(changedFields, "items[1].name")).toBe(true);
+      expect(HashSet.has(changedFields, "items[0].name")).toBe(false);
+      expect(HashSet.has(changedFields, "title")).toBe(false);
     });
 
     it("hasChangedSinceSubmitAtom detects array append after submit", () => {
@@ -994,7 +1004,7 @@ describe("FormAtoms", () => {
       registry.set(atoms.stateAtom, O.some(state));
 
       expect(registry.get(atoms.hasChangedSinceSubmitAtom)).toBe(true);
-      expect(registry.get(atoms.changedSinceSubmitFieldsAtom).has("items[0].name")).toBe(true);
+      expect(HashSet.has(registry.get(atoms.changedSinceSubmitFieldsAtom), "items[0].name")).toBe(true);
     });
   });
 
@@ -1021,11 +1031,11 @@ describe("FormAtoms", () => {
         }),
       };
       registry.set(atoms.stateAtom, O.some(state));
-      registry.set(atoms.errorsAtom, new Map([["name", { message: "Some error", source: "field" }]]));
+      registry.set(atoms.errorsAtom, HashMap.make(["name", makeFormError("Some error", "field")]));
 
       expect(registry.get(atoms.stateAtom).pipe(O.getOrThrow).values.name).toBe("Jane");
       expect(O.isSome(registry.get(atoms.stateAtom).pipe(O.getOrThrow).lastSubmittedValues)).toBe(true);
-      expect(registry.get(atoms.errorsAtom).size).toBe(1);
+      expect(HashMap.size(registry.get(atoms.errorsAtom))).toBe(1);
 
       registry.mount(atoms.resetAtom);
       registry.set(atoms.resetAtom, undefined);
@@ -1034,7 +1044,7 @@ describe("FormAtoms", () => {
       expect(resetState.values.name).toBe("John");
       expect(O.isNone(resetState.lastSubmittedValues)).toBe(true);
       expect(resetState.submitCount).toBe(0);
-      expect(registry.get(atoms.errorsAtom).size).toBe(0);
+      expect(HashMap.size(registry.get(atoms.errorsAtom))).toBe(0);
     });
   });
 
@@ -1062,7 +1072,7 @@ describe("FormAtoms", () => {
 
       state = atoms.operations.setFieldValue(state, "name", "Bob");
       registry.set(atoms.stateAtom, O.some(state));
-      registry.set(atoms.errorsAtom, new Map([["name", { message: "Validation error", source: "field" }]]));
+      registry.set(atoms.errorsAtom, HashMap.make(["name", makeFormError("Validation error", "field")]));
 
       expect(registry.get(atoms.stateAtom).pipe(O.getOrThrow).values.name).toBe("Bob");
 
@@ -1071,7 +1081,7 @@ describe("FormAtoms", () => {
 
       const revertedState = registry.get(atoms.stateAtom).pipe(O.getOrThrow);
       expect(revertedState.values.name).toBe("Jane");
-      expect(registry.get(atoms.errorsAtom).size).toBe(0);
+      expect(HashMap.size(registry.get(atoms.errorsAtom))).toBe(0);
     });
   });
 
@@ -1087,7 +1097,7 @@ describe("FormAtoms", () => {
         email: "john@test.com",
       });
       registry.set(atoms.stateAtom, O.some(initialState));
-      registry.set(atoms.errorsAtom, new Map([["email", { message: "Invalid email", source: "field" }]]));
+      registry.set(atoms.errorsAtom, HashMap.make(["email", makeFormError("Invalid email", "field")]));
 
       registry.mount(atoms.setValuesAtom);
       registry.set(atoms.setValuesAtom, { name: "Alice", email: "alice@test.com" });
@@ -1095,9 +1105,9 @@ describe("FormAtoms", () => {
       const newState = registry.get(atoms.stateAtom).pipe(O.getOrThrow);
       expect(newState.values.name).toBe("Alice");
       expect(newState.values.email).toBe("alice@test.com");
-      expect(newState.dirtyFields.has("name")).toBe(true);
-      expect(newState.dirtyFields.has("email")).toBe(true);
-      expect(registry.get(atoms.errorsAtom).size).toBe(0);
+      expect(HashSet.has(newState.dirtyFields, "name")).toBe(true);
+      expect(HashSet.has(newState.dirtyFields, "email")).toBe(true);
+      expect(HashMap.size(registry.get(atoms.errorsAtom))).toBe(0);
     });
 
     it("accepts an updater function that receives current values", () => {
@@ -1111,7 +1121,7 @@ describe("FormAtoms", () => {
         email: "john@test.com",
       });
       registry.set(atoms.stateAtom, O.some(initialState));
-      registry.set(atoms.errorsAtom, new Map([["email", { message: "Invalid email", source: "field" }]]));
+      registry.set(atoms.errorsAtom, HashMap.make(["email", makeFormError("Invalid email", "field")]));
 
       registry.mount(atoms.setValuesAtom);
       registry.update(atoms.setValuesAtom, (prev) => ({ ...prev, name: "Alice" }));
@@ -1119,9 +1129,9 @@ describe("FormAtoms", () => {
       const newState = registry.get(atoms.stateAtom).pipe(O.getOrThrow);
       expect(newState.values.name).toBe("Alice");
       expect(newState.values.email).toBe("john@test.com");
-      expect(newState.dirtyFields.has("name")).toBe(true);
-      expect(newState.dirtyFields.has("email")).toBe(false);
-      expect(registry.get(atoms.errorsAtom).size).toBe(0);
+      expect(HashSet.has(newState.dirtyFields, "name")).toBe(true);
+      expect(HashSet.has(newState.dirtyFields, "email")).toBe(false);
+      expect(HashMap.size(registry.get(atoms.errorsAtom))).toBe(0);
     });
   });
 
@@ -1147,8 +1157,8 @@ describe("FormAtoms", () => {
         const newState = registry.get(atoms.stateAtom).pipe(O.getOrThrow);
         expect(newState.values.name).toBe("Alice");
         expect(newState.values.email).toBe("john@test.com");
-        expect(newState.dirtyFields.has("name")).toBe(true);
-        expect(newState.dirtyFields.has("email")).toBe(false);
+        expect(HashSet.has(newState.dirtyFields, "name")).toBe(true);
+        expect(HashSet.has(newState.dirtyFields, "email")).toBe(false);
       });
 
       it("supports functional updates", () => {
@@ -1186,12 +1196,12 @@ describe("FormAtoms", () => {
 
         registry.set(
           atoms.errorsAtom,
-          new Map([
-            ["items", { message: "Array error", source: "field" as const }],
-            ["items[0]", { message: "Item error", source: "field" as const }],
-            ["items[0].name", { message: "Name error", source: "field" as const }],
-            ["title", { message: "Title error", source: "field" as const }],
-          ])
+          HashMap.make(
+            ["items", makeFormError("Array error")],
+            ["items[0]", makeFormError("Item error")],
+            ["items[0].name", makeFormError("Name error")],
+            ["title", makeFormError("Title error")]
+          )
         );
 
         const setItemsAtom = atoms.getFieldAtoms(atoms.fieldRefs.items).setValue;
@@ -1200,10 +1210,10 @@ describe("FormAtoms", () => {
         registry.set(setItemsAtom, [{ name: "Updated Item" }]);
 
         const errors = registry.get(atoms.errorsAtom);
-        expect(errors.has("items")).toBe(true);
-        expect(errors.has("items[0]")).toBe(true);
-        expect(errors.has("items[0].name")).toBe(true);
-        expect(errors.has("title")).toBe(true);
+        expect(HashMap.has(errors, "items")).toBe(true);
+        expect(HashMap.has(errors, "items[0]")).toBe(true);
+        expect(HashMap.has(errors, "items[0].name")).toBe(true);
+        expect(HashMap.has(errors, "title")).toBe(true);
       });
     });
 
@@ -1460,7 +1470,7 @@ describe("FormAtoms", () => {
   });
 
   describe("submitAtom", () => {
-    it("does not set lastSubmittedValues on validation failure", async () => {
+    effectTest("does not set lastSubmittedValues on validation failure", function* () {
       const runtime = Atom.runtime(Layer.empty);
       const EmailField = Field.makeField("email", S.String.check(S.isNonEmpty({ message: "Email is required" })));
       const form = FormBuilder.empty.addField(EmailField);
@@ -1478,14 +1488,14 @@ describe("FormAtoms", () => {
       registry.mount(atoms.submitAtom);
       registry.set(atoms.submitAtom, undefined);
 
-      await new Promise((resolve) => setTimeout(resolve, 50));
+      yield* Effect.sleep("50 millis");
 
       expect(onSubmit).not.toHaveBeenCalled();
       const stateAfter = registry.get(atoms.stateAtom).pipe(O.getOrThrow);
       expect(O.isNone(stateAfter.lastSubmittedValues)).toBe(true);
     });
 
-    it("sets lastSubmittedValues with encoded and decoded on successful validation", async () => {
+    effectTest("sets lastSubmittedValues with encoded and decoded on successful validation", function* () {
       const runtime = Atom.runtime(Layer.empty);
       const EmailField = Field.makeField("email", S.String.check(S.isNonEmpty({ message: "Email is required" })));
       const form = FormBuilder.empty.addField(EmailField);
@@ -1502,7 +1512,7 @@ describe("FormAtoms", () => {
       registry.mount(atoms.submitAtom);
       registry.set(atoms.submitAtom, undefined);
 
-      await new Promise((resolve) => setTimeout(resolve, 50));
+      yield* Effect.sleep("50 millis");
 
       expect(onSubmit).toHaveBeenCalledWith(
         undefined,
@@ -1514,7 +1524,7 @@ describe("FormAtoms", () => {
       expect(O.isSome(registry.get(atoms.stateAtom).pipe(O.getOrThrow).lastSubmittedValues)).toBe(true);
     });
 
-    it("collects all validation errors on submit, not just the first", async () => {
+    effectTest("collects all validation errors on submit, not just the first", function* () {
       const runtime = Atom.runtime(Layer.empty);
       const NameField = Field.makeField("name", S.String.check(S.isNonEmpty({ message: "Name is required" })));
       const EmailField = Field.makeField("email", S.String.check(S.isNonEmpty({ message: "Email is required" })));
@@ -1531,17 +1541,17 @@ describe("FormAtoms", () => {
       registry.mount(atoms.submitAtom);
       registry.set(atoms.submitAtom, undefined);
 
-      await new Promise((resolve) => setTimeout(resolve, 50));
+      yield* Effect.sleep("50 millis");
 
       expect(onSubmit).not.toHaveBeenCalled();
       const errors = registry.get(atoms.errorsAtom);
-      expect(errors.size).toBe(3);
-      expect(errors.has("name")).toBe(true);
-      expect(errors.has("email")).toBe(true);
-      expect(errors.has("age")).toBe(true);
+      expect(HashMap.size(errors)).toBe(3);
+      expect(HashMap.has(errors, "name")).toBe(true);
+      expect(HashMap.has(errors, "email")).toBe(true);
+      expect(HashMap.has(errors, "age")).toBe(true);
     });
 
-    it("preserves previous lastSubmittedValues when subsequent submit fails", async () => {
+    effectTest("preserves previous lastSubmittedValues when subsequent submit fails", function* () {
       const runtime = Atom.runtime(Layer.empty);
       const EmailField = Field.makeField("email", S.String.check(S.isNonEmpty({ message: "Email is required" })));
       const form = FormBuilder.empty.addField(EmailField);
@@ -1555,7 +1565,7 @@ describe("FormAtoms", () => {
       registry.mount(atoms.submitAtom);
       registry.set(atoms.submitAtom, undefined);
 
-      await new Promise((resolve) => setTimeout(resolve, 50));
+      yield* Effect.sleep("50 millis");
 
       expect(onSubmit).toHaveBeenCalledTimes(1);
       state = registry.get(atoms.stateAtom).pipe(O.getOrThrow);
@@ -1567,7 +1577,7 @@ describe("FormAtoms", () => {
       registry.set(atoms.stateAtom, O.some(state));
       registry.set(atoms.submitAtom, undefined);
 
-      await new Promise((resolve) => setTimeout(resolve, 50));
+      yield* Effect.sleep("50 millis");
 
       expect(onSubmit).toHaveBeenCalledTimes(1);
       const finalState = registry.get(atoms.stateAtom).pipe(O.getOrThrow);
@@ -1591,10 +1601,10 @@ describe("FormAtoms", () => {
 
       registry.set(
         atoms.errorsAtom,
-        new Map([
-          ["", { message: "Form-level validation failed", source: "refinement" as const }],
-          ["name", { message: "Name error", source: "field" as const }],
-        ])
+        HashMap.make(
+          ["", makeFormError("Form-level validation failed", "refinement")],
+          ["name", makeFormError("Name error")]
+        )
       );
 
       const formError = registry.get(atoms.rootErrorAtom);
@@ -1614,7 +1624,7 @@ describe("FormAtoms", () => {
       });
       registry.set(atoms.stateAtom, O.some(initialState));
 
-      registry.set(atoms.errorsAtom, new Map([["name", { message: "Name error", source: "field" as const }]]));
+      registry.set(atoms.errorsAtom, HashMap.make(["name", makeFormError("Name error", "field")]));
 
       const formError = registry.get(atoms.rootErrorAtom);
       expect(O.isNone(formError)).toBe(true);
@@ -1644,7 +1654,7 @@ describe("FormAtoms", () => {
       expect(registry.get(fieldAtoms.displayErrorAtom)).toEqual(O.none());
     });
 
-    it("returns live per-field error when validation fails", () => {
+    effectTest("returns live per-field error when validation fails", function* () {
       const runtime = Atom.runtime(Layer.empty);
       const NameField = Field.makeField("name", S.String.check(S.isNonEmpty({ message: "Name is required" })));
       const EmailField = Field.makeField("email", S.String);
@@ -1666,14 +1676,10 @@ describe("FormAtoms", () => {
       registry.mount(fieldAtoms.validationAtom);
       registry.set(fieldAtoms.validationAtom, "");
 
-      return new Promise<void>((resolve) =>
-        setTimeout(() => {
-          const error = registry.get(fieldAtoms.displayErrorAtom);
-          expect(O.isSome(error)).toBe(true);
-          expect(O.getOrThrow(error)).toBe("Name is required");
-          resolve();
-        }, 50)
-      );
+      yield* Effect.sleep("50 millis");
+      const error = registry.get(fieldAtoms.displayErrorAtom);
+      expect(O.isSome(error)).toBe(true);
+      expect(O.getOrThrow(error)).toBe("Name is required");
     });
 
     it("returns stored error when no live error exists", () => {
@@ -1690,7 +1696,7 @@ describe("FormAtoms", () => {
       let state = atoms.operations.createInitialState({ name: "John", email: "test@test.com" });
       state = atoms.operations.createSubmitState(state);
       registry.set(atoms.stateAtom, O.some(state));
-      registry.set(atoms.errorsAtom, new Map([["name", { message: "Server error", source: "refinement" as const }]]));
+      registry.set(atoms.errorsAtom, HashMap.make(["name", makeFormError("Server error", "refinement")]));
 
       const fieldAtoms = atoms.getOrCreateFieldAtoms("name", S.String);
       registry.mount(fieldAtoms.displayErrorAtom);
@@ -1700,7 +1706,7 @@ describe("FormAtoms", () => {
       expect(O.getOrThrow(error)).toBe("Server error");
     });
 
-    it("surfaces filterEffect errors from field schemas", () => {
+    effectTest("surfaces filterEffect errors from field schemas", function* () {
       const runtime = Atom.runtime(Layer.empty);
       const NameField = Field.makeField("name", S.String.pipe(S.filterEffect(() => Effect.succeed("Name is invalid"))));
       const form = FormBuilder.empty.addField(NameField);
@@ -1721,24 +1727,20 @@ describe("FormAtoms", () => {
       registry.mount(fieldAtoms.validationAtom);
       registry.set(fieldAtoms.validationAtom, "bad");
 
-      return new Promise<void>((resolve) =>
-        setTimeout(() => {
-          const error = registry.get(fieldAtoms.displayErrorAtom);
-          expect(O.isSome(error)).toBe(true);
-          expect(O.getOrThrow(error)).toBe("Name is invalid");
-          resolve();
-        }, 50)
-      );
+      yield* Effect.sleep("50 millis");
+      const error = registry.get(fieldAtoms.displayErrorAtom);
+      expect(O.isSome(error)).toBe(true);
+      expect(O.getOrThrow(error)).toBe("Name is invalid");
     });
 
-    it("uses runtime services in field-level filterEffect", () => {
+    effectTest("uses runtime services in field-level filterEffect", function* () {
       class NameValidator extends Context.Tag("NameValidator")<
         NameValidator,
         { readonly isInvalid: (name: string) => Effect.Effect<boolean> }
       >() {}
 
       const NameValidatorLive = Layer.succeed(NameValidator, {
-        isInvalid: (name) => Effect.succeed(name === "taken"),
+        isInvalid: Effect.fn("NameValidator.isInvalid")((name) => Effect.succeed(name === "taken")),
       });
 
       const runtime = Atom.runtime(NameValidatorLive);
@@ -1772,17 +1774,13 @@ describe("FormAtoms", () => {
       registry.mount(fieldAtoms.validationAtom);
       registry.set(fieldAtoms.validationAtom, "taken");
 
-      return new Promise<void>((resolve) =>
-        setTimeout(() => {
-          const error = registry.get(fieldAtoms.displayErrorAtom);
-          expect(O.isSome(error)).toBe(true);
-          expect(O.getOrThrow(error)).toBe("Name is already taken");
-          resolve();
-        }, 50)
-      );
+      yield* Effect.sleep("50 millis");
+      const error = registry.get(fieldAtoms.displayErrorAtom);
+      expect(O.isSome(error)).toBe(true);
+      expect(O.getOrThrow(error)).toBe("Name is already taken");
     });
 
-    it("hides stored field-source error when validation passes", () => {
+    effectTest("hides stored field-source error when validation passes", function* () {
       const runtime = Atom.runtime(Layer.empty);
       const form = makeTestForm();
       const atoms = FormAtoms.make({
@@ -1796,23 +1794,19 @@ describe("FormAtoms", () => {
       let state = atoms.operations.createInitialState({ name: "John", email: "test@test.com" });
       state = atoms.operations.createSubmitState(state);
       registry.set(atoms.stateAtom, O.some(state));
-      registry.set(atoms.errorsAtom, new Map([["name", { message: "Name error", source: "field" as const }]]));
+      registry.set(atoms.errorsAtom, HashMap.make(["name", makeFormError("Name error", "field")]));
 
       const fieldAtoms = atoms.getOrCreateFieldAtoms("name", S.String);
       registry.mount(fieldAtoms.displayErrorAtom);
       registry.mount(fieldAtoms.validationAtom);
       registry.set(fieldAtoms.validationAtom, "John");
 
-      return new Promise<void>((resolve) =>
-        setTimeout(() => {
-          const error = registry.get(fieldAtoms.displayErrorAtom);
-          expect(O.isNone(error)).toBe(true);
-          resolve();
-        }, 50)
-      );
+      yield* Effect.sleep("50 millis");
+      const error = registry.get(fieldAtoms.displayErrorAtom);
+      expect(O.isNone(error)).toBe(true);
     });
 
-    it("keeps stored refinement error even when validation passes", () => {
+    effectTest("keeps stored refinement error even when validation passes", function* () {
       const runtime = Atom.runtime(Layer.empty);
       const form = makeTestForm();
       const atoms = FormAtoms.make({
@@ -1826,27 +1820,20 @@ describe("FormAtoms", () => {
       let state = atoms.operations.createInitialState({ name: "John", email: "test@test.com" });
       state = atoms.operations.createSubmitState(state);
       registry.set(atoms.stateAtom, O.some(state));
-      registry.set(
-        atoms.errorsAtom,
-        new Map([["name", { message: "Must match confirm", source: "refinement" as const }]])
-      );
+      registry.set(atoms.errorsAtom, HashMap.make(["name", makeFormError("Must match confirm", "refinement")]));
 
       const fieldAtoms = atoms.getOrCreateFieldAtoms("name", S.String);
       registry.mount(fieldAtoms.displayErrorAtom);
       registry.mount(fieldAtoms.validationAtom);
       registry.set(fieldAtoms.validationAtom, "John");
 
-      return new Promise<void>((resolve) =>
-        setTimeout(() => {
-          const error = registry.get(fieldAtoms.displayErrorAtom);
-          expect(O.isSome(error)).toBe(true);
-          expect(O.getOrThrow(error)).toBe("Must match confirm");
-          resolve();
-        }, 50)
-      );
+      yield* Effect.sleep("50 millis");
+      const error = registry.get(fieldAtoms.displayErrorAtom);
+      expect(O.isSome(error)).toBe(true);
+      expect(O.getOrThrow(error)).toBe("Must match confirm");
     });
 
-    it("only shows error after submitCount > 0 in onSubmit mode", () => {
+    effectTest("only shows error after submitCount > 0 in onSubmit mode", function* () {
       const runtime = Atom.runtime(Layer.empty);
       const NameField = Field.makeField("name", S.String.check(S.isNonEmpty({ message: "Name is required" })));
       const EmailField = Field.makeField("email", S.String);
@@ -1867,15 +1854,11 @@ describe("FormAtoms", () => {
       registry.mount(fieldAtoms.validationAtom);
       registry.set(fieldAtoms.validationAtom, "");
 
-      return new Promise<void>((resolve) =>
-        setTimeout(() => {
-          expect(O.isNone(registry.get(fieldAtoms.displayErrorAtom))).toBe(true);
-          resolve();
-        }, 50)
-      );
+      yield* Effect.sleep("50 millis");
+      expect(O.isNone(registry.get(fieldAtoms.displayErrorAtom))).toBe(true);
     });
 
-    it("shows error when isTouched in onBlur mode", () => {
+    effectTest("shows error when isTouched in onBlur mode", function* () {
       const runtime = Atom.runtime(Layer.empty);
       const NameField = Field.makeField("name", S.String.check(S.isNonEmpty({ message: "Name is required" })));
       const EmailField = Field.makeField("email", S.String);
@@ -1892,17 +1875,13 @@ describe("FormAtoms", () => {
       registry.mount(fieldAtoms.validationAtom);
       registry.set(fieldAtoms.validationAtom, "");
 
-      return new Promise<void>((resolve) =>
-        setTimeout(() => {
-          const error = registry.get(fieldAtoms.displayErrorAtom);
-          expect(O.isSome(error)).toBe(true);
-          expect(O.getOrThrow(error)).toBe("Name is required");
-          resolve();
-        }, 50)
-      );
+      yield* Effect.sleep("50 millis");
+      const error = registry.get(fieldAtoms.displayErrorAtom);
+      expect(O.isSome(error)).toBe(true);
+      expect(O.getOrThrow(error)).toBe("Name is required");
     });
 
-    it("shows error when isDirty in onChange mode", () => {
+    effectTest("shows error when isDirty in onChange mode", function* () {
       const runtime = Atom.runtime(Layer.empty);
       const NameField = Field.makeField("name", S.String.check(S.isNonEmpty({ message: "Name is required" })));
       const EmailField = Field.makeField("email", S.String);
@@ -1924,17 +1903,13 @@ describe("FormAtoms", () => {
       registry.mount(fieldAtoms.validationAtom);
       registry.set(fieldAtoms.validationAtom, "");
 
-      return new Promise<void>((resolve) =>
-        setTimeout(() => {
-          const error = registry.get(fieldAtoms.displayErrorAtom);
-          expect(O.isSome(error)).toBe(true);
-          expect(O.getOrThrow(error)).toBe("Name is required");
-          resolve();
-        }, 50)
-      );
+      yield* Effect.sleep("50 millis");
+      const error = registry.get(fieldAtoms.displayErrorAtom);
+      expect(O.isSome(error)).toBe(true);
+      expect(O.getOrThrow(error)).toBe("Name is required");
     });
 
-    it("does not show error when not dirty and submitCount is 0 in onChange mode", () => {
+    effectTest("does not show error when not dirty and submitCount is 0 in onChange mode", function* () {
       const runtime = Atom.runtime(Layer.empty);
       const NameField = Field.makeField("name", S.String.check(S.isNonEmpty({ message: "Name is required" })));
       const EmailField = Field.makeField("email", S.String);
@@ -1955,12 +1930,8 @@ describe("FormAtoms", () => {
       registry.mount(fieldAtoms.validationAtom);
       registry.set(fieldAtoms.validationAtom, "");
 
-      return new Promise<void>((resolve) =>
-        setTimeout(() => {
-          expect(O.isNone(registry.get(fieldAtoms.displayErrorAtom))).toBe(true);
-          resolve();
-        }, 50)
-      );
+      yield* Effect.sleep("50 millis");
+      expect(O.isNone(registry.get(fieldAtoms.displayErrorAtom))).toBe(true);
     });
   });
 
@@ -1969,7 +1940,7 @@ describe("FormAtoms", () => {
       vi.useRealTimers();
     });
 
-    it("triggers validation on value change in onChange mode", () => {
+    effectTest("triggers validation on value change in onChange mode", function* () {
       const runtime = Atom.runtime(Layer.empty);
       const form = makeTestForm();
       const atoms = FormAtoms.make({
@@ -1996,15 +1967,11 @@ describe("FormAtoms", () => {
       const newState = atoms.operations.setFieldValue(state, "name", "Jane");
       registry.set(atoms.stateAtom, O.some(newState));
 
-      return new Promise<void>((resolve) =>
-        setTimeout(() => {
-          expect(validationResults.length).toBeGreaterThan(0);
-          resolve();
-        }, 50)
-      );
+      yield* Effect.sleep("50 millis");
+      expect(validationResults.length).toBeGreaterThan(0);
     });
 
-    it("debounces validation in onChange mode with debounce", async () => {
+    effectTest("debounces validation in onChange mode with debounce", function* () {
       vi.useFakeTimers();
 
       const runtime = Atom.runtime(Layer.empty);
@@ -2041,12 +2008,12 @@ describe("FormAtoms", () => {
 
       const countBefore = validationResults.length;
 
-      await vi.advanceTimersByTimeAsync(300);
+      yield* Effect.promise(() => vi.advanceTimersByTimeAsync(300));
 
       expect(validationResults.length).toBeGreaterThan(countBefore);
     });
 
-    it("triggers validation on blur in onBlur mode", () => {
+    effectTest("triggers validation on blur in onBlur mode", function* () {
       const runtime = Atom.runtime(Layer.empty);
       const form = makeTestForm();
       const atoms = FormAtoms.make({ runtime, formBuilder: form, onSubmit: () => {}, mode: { validation: "onBlur" } });
@@ -2069,15 +2036,11 @@ describe("FormAtoms", () => {
       const touched = atoms.operations.setFieldTouched(state, "name", true);
       registry.set(atoms.stateAtom, O.some(touched));
 
-      return new Promise<void>((resolve) =>
-        setTimeout(() => {
-          expect(validationResults.length).toBeGreaterThan(0);
-          resolve();
-        }, 50)
-      );
+      yield* Effect.sleep("50 millis");
+      expect(validationResults.length).toBeGreaterThan(0);
     });
 
-    it("triggers validation on value change in onSubmit mode when submitCount > 0", () => {
+    effectTest("triggers validation on value change in onSubmit mode when submitCount > 0", function* () {
       const runtime = Atom.runtime(Layer.empty);
       const form = makeTestForm();
       const atoms = FormAtoms.make({
@@ -2105,15 +2068,11 @@ describe("FormAtoms", () => {
       const newState = atoms.operations.setFieldValue(state, "name", "Jane");
       registry.set(atoms.stateAtom, O.some(newState));
 
-      return new Promise<void>((resolve) =>
-        setTimeout(() => {
-          expect(validationResults.length).toBeGreaterThan(0);
-          resolve();
-        }, 50)
-      );
+      yield* Effect.sleep("50 millis");
+      expect(validationResults.length).toBeGreaterThan(0);
     });
 
-    it("does NOT trigger validation on value change in onSubmit mode when submitCount === 0", () => {
+    effectTest("does NOT trigger validation on value change in onSubmit mode when submitCount === 0", function* () {
       const runtime = Atom.runtime(Layer.empty);
       const form = makeTestForm();
       const atoms = FormAtoms.make({
@@ -2138,13 +2097,9 @@ describe("FormAtoms", () => {
       const newState = atoms.operations.setFieldValue(state, "name", "Jane");
       registry.set(atoms.stateAtom, O.some(newState));
 
-      return new Promise<void>((resolve) =>
-        setTimeout(() => {
-          const result = registry.get(fieldAtoms.validationAtom);
-          expect(result._tag).toBe("Initial");
-          resolve();
-        }, 50)
-      );
+      yield* Effect.sleep("50 millis");
+      const result = registry.get(fieldAtoms.validationAtom);
+      expect(result._tag).toBe("Initial");
     });
   });
 
@@ -2157,7 +2112,7 @@ describe("FormAtoms", () => {
       vi.useRealTimers();
     });
 
-    it("triggers submit when values change in onChange auto-submit mode", async () => {
+    effectTest("triggers submit when values change in onChange auto-submit mode", function* () {
       const runtime = Atom.runtime(Layer.empty);
       const form = makeTestForm();
       const onSubmit = vi.fn();
@@ -2178,12 +2133,12 @@ describe("FormAtoms", () => {
       const newState = atoms.operations.setFieldValue(state, "name", "Jane");
       registry.set(atoms.stateAtom, O.some(newState));
 
-      await vi.advanceTimersByTimeAsync(350);
+      yield* Effect.promise(() => vi.advanceTimersByTimeAsync(350));
 
       expect(onSubmit).toHaveBeenCalled();
     });
 
-    it("does not interrupt an in-flight submit when debounce fires", async () => {
+    effectTest("does not interrupt an in-flight submit when debounce fires", function* () {
       const runtime = Atom.runtime(Layer.empty);
       const form = makeTestForm();
       const completions = vi.fn();
@@ -2215,15 +2170,15 @@ describe("FormAtoms", () => {
       registry.set(atoms.submitAtom, undefined);
       expect(onSubmit).toHaveBeenCalledTimes(1);
 
-      await vi.advanceTimersByTimeAsync(60);
+      yield* Effect.promise(() => vi.advanceTimersByTimeAsync(60));
       expect(onSubmit).toHaveBeenCalledTimes(1);
 
       resolveSubmit!();
-      await vi.advanceTimersByTimeAsync(0);
+      yield* Effect.promise(() => vi.advanceTimersByTimeAsync(0));
       expect(completions).toHaveBeenCalledTimes(1);
     });
 
-    it("does not trigger submit when values have not changed", async () => {
+    effectTest("does not trigger submit when values have not changed", function* () {
       const runtime = Atom.runtime(Layer.empty);
       const form = makeTestForm();
       const onSubmit = vi.fn();
@@ -2243,12 +2198,12 @@ describe("FormAtoms", () => {
 
       registry.set(atoms.stateAtom, O.some(state));
 
-      await vi.advanceTimersByTimeAsync(350);
+      yield* Effect.promise(() => vi.advanceTimersByTimeAsync(350));
 
       expect(onSubmit).not.toHaveBeenCalled();
     });
 
-    it("is a no-op when auto-submit is disabled", async () => {
+    effectTest("is a no-op when auto-submit is disabled", function* () {
       const runtime = Atom.runtime(Layer.empty);
       const form = makeTestForm();
       const onSubmit = vi.fn();
@@ -2269,14 +2224,14 @@ describe("FormAtoms", () => {
       const newState = atoms.operations.setFieldValue(state, "name", "Jane");
       registry.set(atoms.stateAtom, O.some(newState));
 
-      await vi.advanceTimersByTimeAsync(500);
+      yield* Effect.promise(() => vi.advanceTimersByTimeAsync(500));
 
       expect(onSubmit).not.toHaveBeenCalled();
     });
   });
 
   describe("onBlurSubmitAtom", () => {
-    it("triggers submit when values differ from last submitted", async () => {
+    effectTest("triggers submit when values differ from last submitted", function* () {
       const runtime = Atom.runtime(Layer.empty);
       const form = makeTestForm();
       const onSubmit = vi.fn();
@@ -2305,12 +2260,12 @@ describe("FormAtoms", () => {
 
       registry.set(atoms.onBlurSubmitAtom, undefined);
 
-      await new Promise((resolve) => setTimeout(resolve, 50));
+      yield* Effect.sleep("50 millis");
 
       expect(onSubmit).toHaveBeenCalled();
     });
 
-    it("does not trigger submit when values match last submitted", async () => {
+    effectTest("does not trigger submit when values match last submitted", function* () {
       const runtime = Atom.runtime(Layer.empty);
       const form = makeTestForm();
       const onSubmit = vi.fn();
@@ -2338,12 +2293,12 @@ describe("FormAtoms", () => {
 
       registry.set(atoms.onBlurSubmitAtom, undefined);
 
-      await new Promise((resolve) => setTimeout(resolve, 50));
+      yield* Effect.sleep("50 millis");
 
       expect(onSubmit).not.toHaveBeenCalled();
     });
 
-    it("is a no-op when auto-submit is disabled", async () => {
+    effectTest("is a no-op when auto-submit is disabled", function* () {
       const runtime = Atom.runtime(Layer.empty);
       const form = makeTestForm();
       const onSubmit = vi.fn();
@@ -2364,7 +2319,7 @@ describe("FormAtoms", () => {
 
       registry.set(atoms.onBlurSubmitAtom, undefined);
 
-      await new Promise((resolve) => setTimeout(resolve, 50));
+      yield* Effect.sleep("50 millis");
 
       expect(onSubmit).not.toHaveBeenCalled();
     });

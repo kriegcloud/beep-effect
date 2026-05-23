@@ -105,6 +105,12 @@ export * as Err from "./Errors.ts";
  * @since 0.0.0
  */
 export * as FileSystem from "./FileSystem.ts";
+/**
+ * Global singleton value helper.
+ *
+ * @category utilities
+ * @since 0.0.0
+ */
 export * from "./GlobalValue.ts";
 /**
  * HTML escaping helpers.
@@ -255,4 +261,10 @@ export * as Text from "./Text.ts";
  */
 export * from "./thunk.ts";
 
+/**
+ * Miscellaneous runtime utilities re-exported from `effect/Utils`.
+ *
+ * @category utilities
+ * @since 0.0.0
+ */
 export * as Utils from "./Utils.ts";

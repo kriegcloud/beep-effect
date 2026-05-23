@@ -1,6 +1,6 @@
+import * as Field from "@beep/form/core/Field";
 import { identity, SchemaTransformation } from "effect";
 import { describe, expect, it } from "vitest";
-import * as Field from "../../src/core/Field.js";
 import * as S from "../helpers/SchemaCompat.ts";
 
 describe("Field", () => {

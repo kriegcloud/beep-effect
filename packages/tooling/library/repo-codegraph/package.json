@@ -66,7 +66,6 @@
     "jsonc-parser": "catalog:"
   },
   "devDependencies": {
-    "@effect/platform-node": "catalog:",
     "@effect/vitest": "catalog:",
     "@types/node": "catalog:"
   }

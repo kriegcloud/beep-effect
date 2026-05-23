@@ -1,9 +1,17 @@
 import { extractFirstError, routeErrors, routeErrorsWithSource } from "@beep/form/core/Validation";
+import type { TUnsafe } from "@beep/types";
+import * as HashMap from "effect/HashMap";
 import * as O from "effect/Option";
 import * as SchemaIssue from "effect/SchemaIssue";
 import { describe, expect, it } from "vitest";
 import * as Effect from "../helpers/EffectCompat.ts";
 import * as S from "../helpers/SchemaCompat.ts";
+
+const effectTest = (name: string, body: () => Generator<TUnsafe.Any, void, TUnsafe.Any>) =>
+  it(name, () => Effect.runPromise(Effect.gen(body) as TUnsafe.Any));
+
+const errorAt = <A>(errors: HashMap.HashMap<string, A>, path: string): A | undefined =>
+  HashMap.get(errors, path).pipe(O.getOrUndefined);
 
 describe("Validation", () => {
   describe("extractFirstError", () => {
@@ -92,8 +100,8 @@ describe("Validation", () => {
       }
 
       const errors = routeErrors(result.left);
-      expect(errors.get("email")).toBe("Invalid email");
-      expect(errors.size).toBe(1);
+      expect(errorAt(errors, "email")).toBe("Invalid email");
+      expect(HashMap.size(errors)).toBe(1);
     });
 
     it("routes first error when schema short-circuits", () => {
@@ -108,8 +116,8 @@ describe("Validation", () => {
       }
 
       const errors = routeErrors(result.left);
-      expect(errors.size).toBe(1);
-      expect(errors.has("name")).toBe(true);
+      expect(HashMap.size(errors)).toBe(1);
+      expect(HashMap.has(errors, "name")).toBe(true);
     });
 
     it("routes nested field errors with dot notation", () => {
@@ -127,7 +135,7 @@ describe("Validation", () => {
       }
 
       const errors = routeErrors(result.left);
-      expect(errors.get("user.profile.email")).toBe("Invalid email");
+      expect(errorAt(errors, "user.profile.email")).toBe("Invalid email");
     });
 
     it("routes array field errors with bracket notation", () => {
@@ -145,7 +153,7 @@ describe("Validation", () => {
       }
 
       const errors = routeErrors(result.left);
-      expect(errors.get("items[0].name")).toBe("Name required");
+      expect(errorAt(errors, "items[0].name")).toBe("Name required");
     });
 
     it("routes first array item error when schema short-circuits", () => {
@@ -165,8 +173,8 @@ describe("Validation", () => {
       }
 
       const errors = routeErrors(result.left);
-      expect(errors.size).toBe(1);
-      expect(errors.has("items[0].name")).toBe(true);
+      expect(HashMap.size(errors)).toBe(1);
+      expect(HashMap.has(errors, "items[0].name")).toBe(true);
     });
 
     it("keeps first error when multiple errors exist for same path", () => {
@@ -183,8 +191,8 @@ describe("Validation", () => {
       }
 
       const errors = routeErrors(result.left);
-      expect(errors.size).toBe(1);
-      expect(errors.get("password")).toBe("Password too short");
+      expect(HashMap.size(errors)).toBe(1);
+      expect(errorAt(errors, "password")).toBe("Password too short");
     });
 
     it("handles deeply nested array errors", () => {
@@ -208,10 +216,10 @@ describe("Validation", () => {
       }
 
       const errors = routeErrors(result.left);
-      expect(errors.get("users[0].addresses[0].city")).toBe("City too short");
+      expect(errorAt(errors, "users[0].addresses[0].city")).toBe("City too short");
     });
 
-    it("handles refinement errors with path", async () => {
+    effectTest("handles refinement errors with path", function* () {
       const schema = S.Struct({
         password: S.String,
         confirmPassword: S.String,
@@ -226,8 +234,8 @@ describe("Validation", () => {
         })
       );
 
-      const result = await Effect.runPromise(
-        S.decodeUnknown(schema)({ password: "abc", confirmPassword: "xyz" }).pipe(Effect.either)
+      const result = yield* Effect.promise(() =>
+        Effect.runPromise(S.decodeUnknown(schema)({ password: "abc", confirmPassword: "xyz" }).pipe(Effect.either))
       );
 
       if (result._tag === "Right") {
@@ -235,7 +243,7 @@ describe("Validation", () => {
       }
 
       const errors = routeErrors(result.left);
-      expect(errors.get("confirmPassword")).toBe("Passwords must match");
+      expect(errorAt(errors, "confirmPassword")).toBe("Passwords must match");
     });
 
     it("handles type errors at field level", () => {
@@ -249,7 +257,7 @@ describe("Validation", () => {
       }
 
       const errors = routeErrors(result.left);
-      expect(errors.has("age")).toBe(true);
+      expect(HashMap.has(errors, "age")).toBe(true);
     });
   });
 
@@ -265,13 +273,13 @@ describe("Validation", () => {
       }
 
       const errors = routeErrorsWithSource(result.left);
-      const entry = errors.get("password");
+      const entry = errorAt(errors, "password");
       expect(entry).toBeDefined();
       expect(entry?.source).toBe("field");
       expect(entry?.message).toBe("Too short");
     });
 
-    it("tags Struct refinement errors as 'refinement'", async () => {
+    effectTest("tags Struct refinement errors as 'refinement'", function* () {
       const schema = S.Struct({
         password: S.String,
         confirm: S.String,
@@ -283,8 +291,8 @@ describe("Validation", () => {
         })
       );
 
-      const result = await Effect.runPromise(
-        S.decodeUnknown(schema)({ password: "abc", confirm: "xyz" }).pipe(Effect.either)
+      const result = yield* Effect.promise(() =>
+        Effect.runPromise(S.decodeUnknown(schema)({ password: "abc", confirm: "xyz" }).pipe(Effect.either))
       );
 
       if (result._tag === "Right") {
@@ -292,13 +300,13 @@ describe("Validation", () => {
       }
 
       const errors = routeErrorsWithSource(result.left);
-      const entry = errors.get("confirm");
+      const entry = errorAt(errors, "confirm");
       expect(entry).toBeDefined();
       expect(entry?.source).toBe("refinement");
       expect(entry?.message).toBe("Must match");
     });
 
-    it("tags Union refinement errors as 'refinement'", async () => {
+    effectTest("tags Union refinement errors as 'refinement'", function* () {
       const OptionA = S.Struct({ type: S.Literal("a"), value: S.String });
       const OptionB = S.Struct({ type: S.Literal("b"), count: S.Number });
       const schema = S.Union(OptionA, OptionB).pipe(
@@ -309,19 +317,21 @@ describe("Validation", () => {
         })
       );
 
-      const result = await Effect.runPromise(S.decodeUnknown(schema)({ type: "a", value: "ab" }).pipe(Effect.either));
+      const result = yield* Effect.promise(() =>
+        Effect.runPromise(S.decodeUnknown(schema)({ type: "a", value: "ab" }).pipe(Effect.either))
+      );
 
       if (result._tag === "Right") {
         throw new Error("Expected Left");
       }
 
       const errors = routeErrorsWithSource(result.left);
-      const entry = errors.get("value");
+      const entry = errorAt(errors, "value");
       expect(entry).toBeDefined();
       expect(entry?.source).toBe("refinement");
     });
 
-    it("tags Class refinement errors as 'refinement'", async () => {
+    effectTest("tags Class refinement errors as 'refinement'", function* () {
       class PasswordForm extends S.Class<PasswordForm>("PasswordForm")({
         password: S.String,
         confirm: S.String,
@@ -335,8 +345,8 @@ describe("Validation", () => {
         })
       );
 
-      const result = await Effect.runPromise(
-        S.decodeUnknown(schema)({ password: "abc", confirm: "xyz" }).pipe(Effect.either)
+      const result = yield* Effect.promise(() =>
+        Effect.runPromise(S.decodeUnknown(schema)({ password: "abc", confirm: "xyz" }).pipe(Effect.either))
       );
 
       if (result._tag === "Right") {
@@ -344,13 +354,13 @@ describe("Validation", () => {
       }
 
       const errors = routeErrorsWithSource(result.left);
-      const entry = errors.get("confirm");
+      const entry = errorAt(errors, "confirm");
       expect(entry).toBeDefined();
       expect(entry?.source).toBe("refinement");
       expect(entry?.message).toBe("Passwords must match");
     });
 
-    it("tags filterEffect (async) refinement errors as 'refinement'", async () => {
+    effectTest("tags filterEffect (async) refinement errors as 'refinement'", function* () {
       const schema = S.Struct({
         username: S.String.pipe(S.minLength(3)),
       }).pipe(
@@ -364,20 +374,22 @@ describe("Validation", () => {
         )
       );
 
-      const result = await Effect.runPromise(S.decodeUnknown(schema)({ username: "admin" }).pipe(Effect.either));
+      const result = yield* Effect.promise(() =>
+        Effect.runPromise(S.decodeUnknown(schema)({ username: "admin" }).pipe(Effect.either))
+      );
 
       if (result._tag === "Right") {
         throw new Error("Expected Left");
       }
 
       const errors = routeErrorsWithSource(result.left);
-      const entry = errors.get("username");
+      const entry = errorAt(errors, "username");
       expect(entry).toBeDefined();
       expect(entry?.source).toBe("refinement");
       expect(entry?.message).toBe("Username is reserved");
     });
 
-    it("routes root-level refinement errors to empty string key", async () => {
+    effectTest("routes root-level refinement errors to empty string key", function* () {
       const schema = S.Struct({
         a: S.String,
         b: S.String,
@@ -389,20 +401,22 @@ describe("Validation", () => {
         })
       );
 
-      const result = await Effect.runPromise(S.decodeUnknown(schema)({ a: "same", b: "same" }).pipe(Effect.either));
+      const result = yield* Effect.promise(() =>
+        Effect.runPromise(S.decodeUnknown(schema)({ a: "same", b: "same" }).pipe(Effect.either))
+      );
 
       if (result._tag === "Right") {
         throw new Error("Expected Left");
       }
 
       const errors = routeErrorsWithSource(result.left);
-      const entry = errors.get("");
+      const entry = errorAt(errors, "");
       expect(entry).toBeDefined();
       expect(entry?.source).toBe("refinement");
       expect(entry?.message).toBe("Values must be different");
     });
 
-    it("tags nested struct filter errors as 'field' (not top-level refinement)", async () => {
+    effectTest("tags nested struct filter errors as 'field' (not top-level refinement)", function* () {
       const AddressSchema = S.Struct({
         street: S.String,
         city: S.String,
@@ -419,8 +433,10 @@ describe("Validation", () => {
         address: AddressSchema,
       });
 
-      const result = await Effect.runPromise(
-        S.decodeUnknown(schema)({ name: "John", address: { street: "", city: "" } }).pipe(Effect.either)
+      const result = yield* Effect.promise(() =>
+        Effect.runPromise(
+          S.decodeUnknown(schema)({ name: "John", address: { street: "", city: "" } }).pipe(Effect.either)
+        )
       );
 
       if (result._tag === "Right") {
@@ -428,13 +444,13 @@ describe("Validation", () => {
       }
 
       const errors = routeErrorsWithSource(result.left);
-      const entry = errors.get("address");
+      const entry = errorAt(errors, "address");
       expect(entry).toBeDefined();
       expect(entry?.source).toBe("field");
       expect(entry?.message).toBe("At least one address field is required");
     });
 
-    it("tags nested struct filterEffect errors as 'field' (not top-level refinement)", async () => {
+    effectTest("tags nested struct filterEffect errors as 'field' (not top-level refinement)", function* () {
       const AddressSchema = S.Struct({
         street: S.String,
         city: S.String,
@@ -453,8 +469,10 @@ describe("Validation", () => {
         address: AddressSchema,
       });
 
-      const result = await Effect.runPromise(
-        S.decodeUnknown(schema)({ name: "John", address: { street: "", city: "" } }).pipe(Effect.either)
+      const result = yield* Effect.promise(() =>
+        Effect.runPromise(
+          S.decodeUnknown(schema)({ name: "John", address: { street: "", city: "" } }).pipe(Effect.either)
+        )
       );
 
       if (result._tag === "Right") {
@@ -462,7 +480,7 @@ describe("Validation", () => {
       }
 
       const errors = routeErrorsWithSource(result.left);
-      const entry = errors.get("address");
+      const entry = errorAt(errors, "address");
       expect(entry).toBeDefined();
       expect(entry?.source).toBe("field");
       expect(entry?.message).toBe("Address validation failed");
@@ -485,7 +503,7 @@ describe("Validation", () => {
       const error = new S.SchemaError(composite);
 
       const errors = routeErrorsWithSource(error);
-      const entry = errors.get("age");
+      const entry = errorAt(errors, "age");
 
       expect(entry).toBeDefined();
       expect(entry?.source).toBe("refinement");

@@ -9,6 +9,15 @@
 command = "npx"
 args = ["-y", "shadcn@4.7.0", "mcp"]
 
+[mcp_servers.serena]
+command = ["serena"]
+args = [
+  "start-mcp-server",
+  "--context", "codex",
+  "--language-backend", "JetBrains",
+  "--project-from-cwd"
+]
+
 [skills]
 include_instructions = true
 

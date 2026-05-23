@@ -12,11 +12,13 @@
  *
  * @since 2.0.0
  */
-const globalStoreId = `effect/GlobalValue`;
-
 import type { TUnsafe } from "@beep/types";
+import { HashMap } from "effect";
+import { dual } from "effect/Function";
+import * as O from "effect/Option";
 
-let globalStore: Map<unknown, TUnsafe.Any>;
+const globalStoreId = `effect/GlobalValue`;
+type GlobalStore = HashMap.HashMap<unknown, TUnsafe.Any>;
 
 /**
  * Retrieves or computes a global value associated with the given `id`. If the value for this `id`
@@ -29,7 +31,7 @@ let globalStore: Map<unknown, TUnsafe.Any>;
  *
  * @example
  * ```ts
- * import { globalValue } from "effect/GlobalValue"
+ * import { globalValue } from "@beep/utils"
  *
  * // This cache will persist as long as the module is running,
  * // even if reloaded or imported elsewhere
@@ -39,17 +41,20 @@ let globalStore: Map<unknown, TUnsafe.Any>;
  * )
  * ```
  *
+ * @category utilities
  * @since 2.0.0
  */
-export const globalValue = <A>(id: unknown, compute: () => A): A => {
-  if (!globalStore) {
-    // @ts-expect-error
-    globalThis[globalStoreId] ??= new Map();
-    // @ts-expect-error
-    globalStore = globalThis[globalStoreId] as Map<unknown, TUnsafe.Any>;
+export const globalValue: {
+  <A>(compute: () => A): (id: unknown) => A;
+  <A>(id: unknown, compute: () => A): A;
+} = dual(2, <A>(id: unknown, compute: () => A): A => {
+  const globalScope = globalThis as typeof globalThis & Record<string, GlobalStore | undefined>;
+  const store = globalScope[globalStoreId] ?? HashMap.empty<unknown, TUnsafe.Any>();
+  const existing = HashMap.get(store, id);
+  if (O.isSome(existing)) {
+    return existing.value as A;
   }
-  if (!globalStore.has(id)) {
-    globalStore.set(id, compute());
-  }
-  return globalStore.get(id)!;
-};
+  const value = compute();
+  globalScope[globalStoreId] = HashMap.set(store, id, value);
+  return value;
+});

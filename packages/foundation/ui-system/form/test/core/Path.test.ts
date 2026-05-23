@@ -1,4 +1,5 @@
 import { getNestedValue, isPathOrParentDirty, schemaPathToFieldPath, setNestedValue } from "@beep/form/core/Path";
+import * as HashSet from "effect/HashSet";
 import { describe, expect, it } from "vitest";
 
 describe("path utilities", () => {
@@ -25,9 +26,9 @@ describe("path utilities", () => {
       expect(schemaPathToFieldPath(["data", 0, "nested", 2, "value"])).toBe("data[0].nested[2].value");
     });
 
-    it("handles symbol segments by converting to string", () => {
+    it("handles symbol segments by using the symbol description", () => {
       const sym = Symbol("test");
-      expect(schemaPathToFieldPath([sym])).toBe("Symbol(test)");
+      expect(schemaPathToFieldPath([sym])).toBe("test");
     });
 
     it("handles mixed path types", () => {
@@ -37,52 +38,52 @@ describe("path utilities", () => {
 
   describe("isPathOrParentDirty", () => {
     it("returns true when exact path is dirty", () => {
-      const dirtyFields = new Set(["name", "email"]);
+      const dirtyFields = HashSet.make("name", "email");
       expect(isPathOrParentDirty(dirtyFields, "name")).toBe(true);
       expect(isPathOrParentDirty(dirtyFields, "email")).toBe(true);
     });
 
     it("returns false when path is not dirty", () => {
-      const dirtyFields = new Set(["name"]);
+      const dirtyFields = HashSet.make("name");
       expect(isPathOrParentDirty(dirtyFields, "email")).toBe(false);
     });
 
     it("returns true when parent path with dot is dirty", () => {
-      const dirtyFields = new Set(["user"]);
+      const dirtyFields = HashSet.make("user");
       expect(isPathOrParentDirty(dirtyFields, "user.name")).toBe(true);
       expect(isPathOrParentDirty(dirtyFields, "user.profile.email")).toBe(true);
     });
 
     it("returns true when parent path with bracket is dirty", () => {
-      const dirtyFields = new Set(["items"]);
+      const dirtyFields = HashSet.make("items");
       expect(isPathOrParentDirty(dirtyFields, "items[0]")).toBe(true);
       expect(isPathOrParentDirty(dirtyFields, "items[0].name")).toBe(true);
     });
 
     it("returns true when intermediate parent is dirty", () => {
-      const dirtyFields = new Set(["users[0]"]);
+      const dirtyFields = HashSet.make("users[0]");
       expect(isPathOrParentDirty(dirtyFields, "users[0].profile")).toBe(true);
       expect(isPathOrParentDirty(dirtyFields, "users[0].profile.name")).toBe(true);
     });
 
     it("returns false when only child is dirty", () => {
-      const dirtyFields = new Set(["user.name"]);
+      const dirtyFields = HashSet.make("user.name");
       expect(isPathOrParentDirty(dirtyFields, "user")).toBe(false);
     });
 
     it("returns false for unrelated paths", () => {
-      const dirtyFields = new Set(["users[0].name"]);
+      const dirtyFields = HashSet.make("users[0].name");
       expect(isPathOrParentDirty(dirtyFields, "users[1].name")).toBe(false);
       expect(isPathOrParentDirty(dirtyFields, "items[0].name")).toBe(false);
     });
 
     it("handles empty dirty set", () => {
-      const dirtyFields = new Set<string>();
+      const dirtyFields = HashSet.empty<string>();
       expect(isPathOrParentDirty(dirtyFields, "anything")).toBe(false);
     });
 
     it("handles deeply nested paths", () => {
-      const dirtyFields = new Set(["a.b"]);
+      const dirtyFields = HashSet.make("a.b");
       expect(isPathOrParentDirty(dirtyFields, "a.b.c.d.e")).toBe(true);
     });
   });
@@ -154,7 +155,7 @@ describe("path utilities", () => {
   describe("setNestedValue", () => {
     it("sets top-level property immutably", () => {
       const original = { name: "John", age: 30 };
-      const result = setNestedValue(original, "name", "Jane");
+      const result = setNestedValue(original, { path: "name", value: "Jane" });
 
       expect(result).toEqual({ name: "Jane", age: 30 });
       expect(original).toEqual({ name: "John", age: 30 });
@@ -163,7 +164,7 @@ describe("path utilities", () => {
 
     it("sets nested property immutably", () => {
       const original = { user: { profile: { name: "John" } } };
-      const result = setNestedValue(original, "user.profile.name", "Jane");
+      const result = setNestedValue(original, { path: "user.profile.name", value: "Jane" });
 
       expect(result).toEqual({ user: { profile: { name: "Jane" } } });
       expect(original).toEqual({ user: { profile: { name: "John" } } });
@@ -173,7 +174,7 @@ describe("path utilities", () => {
 
     it("sets array element immutably", () => {
       const original = { items: ["a", "b", "c"] };
-      const result = setNestedValue(original, "items[1]", "B");
+      const result = setNestedValue(original, { path: "items[1]", value: "B" });
 
       expect(result).toEqual({ items: ["a", "B", "c"] });
       expect(original).toEqual({ items: ["a", "b", "c"] });
@@ -182,7 +183,7 @@ describe("path utilities", () => {
 
     it("sets nested property in array element immutably", () => {
       const original = { items: [{ name: "A" }, { name: "B" }] };
-      const result = setNestedValue(original, "items[0].name", "Updated");
+      const result = setNestedValue(original, { path: "items[0].name", value: "Updated" });
 
       expect(result).toEqual({ items: [{ name: "Updated" }, { name: "B" }] });
       expect(original).toEqual({ items: [{ name: "A" }, { name: "B" }] });
@@ -195,7 +196,7 @@ describe("path utilities", () => {
       const original = {
         users: [{ addresses: [{ city: "NYC" }, { city: "LA" }] }, { addresses: [{ city: "SF" }] }],
       };
-      const result = setNestedValue(original, "users[0].addresses[1].city", "Boston");
+      const result = setNestedValue(original, { path: "users[0].addresses[1].city", value: "Boston" });
 
       expect(result.users[0].addresses[1].city).toBe("Boston");
       expect(original.users[0].addresses[1].city).toBe("LA");
@@ -204,27 +205,27 @@ describe("path utilities", () => {
 
     it("preserves other properties when setting nested value", () => {
       const original = { user: { name: "John", age: 30 } };
-      const result = setNestedValue(original, "user.name", "Jane");
+      const result = setNestedValue(original, { path: "user.name", value: "Jane" });
 
       expect(result).toEqual({ user: { name: "Jane", age: 30 } });
     });
 
     it("handles setting to null or undefined", () => {
       const original = { name: "John" };
-      expect(setNestedValue(original, "name", null)).toEqual({ name: null });
-      expect(setNestedValue(original, "name", undefined)).toEqual({ name: undefined });
+      expect(setNestedValue(original, { path: "name", value: null })).toEqual({ name: null });
+      expect(setNestedValue(original, { path: "name", value: undefined })).toEqual({ name: undefined });
     });
 
     it("handles setting object values", () => {
       const original = { user: { profile: {} } };
-      const result = setNestedValue(original, "user.profile", { name: "John", age: 30 });
+      const result = setNestedValue(original, { path: "user.profile", value: { name: "John", age: 30 } });
 
       expect(result).toEqual({ user: { profile: { name: "John", age: 30 } } });
     });
 
     it("handles setting array values", () => {
       const original = { items: [] };
-      const result = setNestedValue(original, "items", [1, 2, 3]);
+      const result = setNestedValue(original, { path: "items", value: [1, 2, 3] });
 
       expect(result).toEqual({ items: [1, 2, 3] });
     });
@@ -232,7 +233,7 @@ describe("path utilities", () => {
     it("returns value as new root for empty path", () => {
       const original = { name: "John" };
       const newValue = { name: "Jane", age: 30 };
-      const result = setNestedValue(original, "", newValue);
+      const result = setNestedValue(original, { path: "", value: newValue });
 
       expect(result).toBe(newValue);
     });

@@ -5,7 +5,6 @@
  * @since 0.0.0
  */
 
-
 /**
  * Re-export of all helpers from `effect/Equal`.
  *

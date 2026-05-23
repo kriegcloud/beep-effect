@@ -1,10 +1,10 @@
 /**
- * Module for number utilities.
+ * Numeric predicates and `effect/Number` re-exports.
  *
  * @packageDocumentation
  * @since 0.0.0
  */
-import * as N from "effect/Number";
+import { Number as N } from "effect";
 
 /**
  * Determines if the given input is a number and is positive (greater than or equal to 0).
@@ -32,7 +32,7 @@ import * as N from "effect/Number";
  * }
  * ```
  *
- * @see Num.isGreaterThanOrEqualTo for comparison implementation details.
+ * @see N.isGreaterThanOrEqualTo for comparison implementation details.
  * @param u - The value to check.
  * @returns True if the value is a number and is positive, false otherwise.
  * @category validation
@@ -61,15 +61,15 @@ export * from "effect/Number";
  *
  * @example
  * ```ts
- * import { Num } from "@beep/utils"
+ * import { N } from "@beep/utils"
  *
- * const whole = Num.isInteger(42)
+ * const whole = N.isInteger(42)
  * // true
  *
- * const fractional = Num.isInteger(3.14)
+ * const fractional = N.isInteger(3.14)
  * // false
  *
- * const notNum = Num.isInteger("42")
+ * const notNum = N.isInteger("42")
  * // false
  *
  * console.log(whole)
@@ -81,4 +81,4 @@ export * from "effect/Number";
  * @since 0.0.0
  */
 export const isInteger: (u: unknown) => u is number = (u: unknown): u is number =>
-  N.isNumber(u) && Number.isInteger(u);
+  N.isNumber(u) && N.remainder(1)(u) === 0;

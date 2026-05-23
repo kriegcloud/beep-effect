@@ -48,7 +48,7 @@ export class CliJsonError extends CauseTaggedError<CliJsonError>($I`CliJsonError
  * @category rendering
  * @since 0.0.0
  */
-export const encodeCommandJson = Effect.fn("RepoCli.Json.encodeCommandJson")(function* (
+const encodeCommandJson = Effect.fn("RepoCli.Json.encodeCommandJson")(function* (
   value: unknown
 ): Effect.fn.Return<string, CliJsonError> {
   return yield* encodeJson(value).pipe(CliJsonError.mapError("Failed to encode command JSON output."));

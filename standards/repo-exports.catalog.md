@@ -20,9 +20,9 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | packagesWithPublicExports | 78 |
 | packagesWithoutPublicExports | 1 |
 | missingWorkspaceMetadata | 4 |
-| importSpecifiers | 977 |
-| publicExportEntries | 12829 |
-| uniquePackageSymbols | 5599 |
+| importSpecifiers | 974 |
+| publicExportEntries | 12839 |
+| uniquePackageSymbols | 5604 |
 
 ## Seed Discovery Proof
 
@@ -68,7 +68,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | 29 | `@beep/canvas-use-cases` | `packages/canvas/use-cases` | has-public-exports | 5 | 46 | 26 |
 | 30 | `@beep/test-utils` | `packages/tooling/test-kit/test-utils` | has-public-exports | 4 | 62 | 21 |
 | 31 | `@beep/types` | `packages/foundation/primitive/types` | has-public-exports | 6 | 14 | 10 |
-| 32 | `@beep/oip-web` | `apps/oip-web` | has-public-exports | 12 | 42 | 38 |
+| 32 | `@beep/oip-web` | `apps/oip-web` | has-public-exports | 12 | 46 | 41 |
 | 33 | `@beep/agent-capability-domain` | `packages/agent-capability/domain` | has-public-exports | 4 | 13 | 4 |
 | 34 | `@beep/shared-tables` | `packages/shared/tables` | has-public-exports | 14 | 19 | 7 |
 | 35 | `@beep/md` | `packages/foundation/capability/md` | has-public-exports | 5 | 253 | 97 |
@@ -79,7 +79,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | 40 | `@beep/repo-ai-metrics` | `packages/tooling/library/ai-metrics` | has-public-exports | 18 | 702 | 214 |
 | 41 | `@beep/architecture-lab-tables` | `packages/architecture-lab/tables` | has-public-exports | 4 | 19 | 16 |
 | 42 | `@beep/venice-ai` | `packages/drivers/venice-ai` | has-public-exports | 1 | 30 | 24 |
-| 43 | `@beep/form` | `packages/foundation/ui-system/form` | has-public-exports | 15 | 91 | 61 |
+| 43 | `@beep/form` | `packages/foundation/ui-system/form` | has-public-exports | 12 | 97 | 63 |
 | 44 | `@beep/identity` | `packages/foundation/modeling/identity` | has-public-exports | 4 | 321 | 107 |
 | 45 | `@beep/drizzle` | `packages/drivers/drizzle` | has-public-exports | 1 | 8 | 7 |
 | 46 | `@beep/openai-compat` | `packages/drivers/openai-compat` | has-public-exports | 1 | 47 | 42 |
@@ -1783,22 +1783,22 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/commands/Laws/TerseEffect` | `runTerseEffectRules` | const | `packages/tooling/tool/cli/src/commands/Laws/TerseEffect.ts:500` | Run terse Effect style migration/check logic. |
 | `@beep/repo-cli/commands/Laws/TerseEffect` | `TerseEffectRulesOptions` | class | `packages/tooling/tool/cli/src/commands/Laws/TerseEffect.ts:39` | Runtime options for terse Effect style migration checks. |
 | `@beep/repo-cli/commands/Laws/TerseEffect` | `TerseEffectRulesSummary` | class | `packages/tooling/tool/cli/src/commands/Laws/TerseEffect.ts:69` | Summary of terse Effect style migration results. |
-| `@beep/repo-cli/commands/Lint` | `collectSchemaTopologyViolations` | const | `packages/tooling/tool/cli/src/commands/Lint/SchemaTopology.ts:294` | Collect schema topology violations without mutating process state. |
+| `@beep/repo-cli/commands/Lint` | `collectSchemaTopologyViolations` | const | `packages/tooling/tool/cli/src/commands/Lint/SchemaTopology.ts:304` | Collect schema topology violations without mutating process state. |
 | `@beep/repo-cli/commands/Lint` | `collectTypeScriptFiles` | const | `packages/tooling/tool/cli/src/commands/Lint/Lint.command.ts:100` | Collect TypeScript source files under a lint root without following symlink escapes. |
 | `@beep/repo-cli/commands/Lint` | `LintCircularAnalysisError` | class | `packages/tooling/tool/cli/src/commands/Lint/Lint.errors.ts:32` | Failure raised when circular dependency analysis cannot complete. |
 | `@beep/repo-cli/commands/Lint` | `lintCommand` | const | `packages/tooling/tool/cli/src/commands/Lint/Lint.command.ts:574` | Lint command group. |
 | `@beep/repo-cli/commands/Lint` | `LintFileDiscoveryError` | class | `packages/tooling/tool/cli/src/commands/Lint/Lint.errors.ts:63` | Failure raised when lint file discovery cannot read a source root. |
-| `@beep/repo-cli/commands/Lint` | `lintSchemaTopologyCommand` | const | `packages/tooling/tool/cli/src/commands/Lint/SchemaTopology.ts:353` | Lint command for enforcing canonical `@beep/schema` topology. |
-| `@beep/repo-cli/commands/Lint` | `runSchemaTopologyLint` | const | `packages/tooling/tool/cli/src/commands/Lint/SchemaTopology.ts:326` | Run the schema topology lint command. |
-| `@beep/repo-cli/commands/Lint` | `SchemaTopologyViolation` | class | `packages/tooling/tool/cli/src/commands/Lint/SchemaTopology.ts:58` | Schema topology lint violation. |
-| `@beep/repo-cli/commands/Lint/index` | `collectSchemaTopologyViolations` | const | `packages/tooling/tool/cli/src/commands/Lint/SchemaTopology.ts:294` | Collect schema topology violations without mutating process state. |
+| `@beep/repo-cli/commands/Lint` | `lintSchemaTopologyCommand` | const | `packages/tooling/tool/cli/src/commands/Lint/SchemaTopology.ts:363` | Lint command for enforcing canonical `@beep/schema` topology. |
+| `@beep/repo-cli/commands/Lint` | `runSchemaTopologyLint` | const | `packages/tooling/tool/cli/src/commands/Lint/SchemaTopology.ts:336` | Run the schema topology lint command. |
+| `@beep/repo-cli/commands/Lint` | `SchemaTopologyViolation` | class | `packages/tooling/tool/cli/src/commands/Lint/SchemaTopology.ts:60` | Schema topology lint violation. |
+| `@beep/repo-cli/commands/Lint/index` | `collectSchemaTopologyViolations` | const | `packages/tooling/tool/cli/src/commands/Lint/SchemaTopology.ts:304` | Collect schema topology violations without mutating process state. |
 | `@beep/repo-cli/commands/Lint/index` | `collectTypeScriptFiles` | const | `packages/tooling/tool/cli/src/commands/Lint/Lint.command.ts:100` | Collect TypeScript source files under a lint root without following symlink escapes. |
 | `@beep/repo-cli/commands/Lint/index` | `LintCircularAnalysisError` | class | `packages/tooling/tool/cli/src/commands/Lint/Lint.errors.ts:32` | Failure raised when circular dependency analysis cannot complete. |
 | `@beep/repo-cli/commands/Lint/index` | `lintCommand` | const | `packages/tooling/tool/cli/src/commands/Lint/Lint.command.ts:574` | Lint command group. |
 | `@beep/repo-cli/commands/Lint/index` | `LintFileDiscoveryError` | class | `packages/tooling/tool/cli/src/commands/Lint/Lint.errors.ts:63` | Failure raised when lint file discovery cannot read a source root. |
-| `@beep/repo-cli/commands/Lint/index` | `lintSchemaTopologyCommand` | const | `packages/tooling/tool/cli/src/commands/Lint/SchemaTopology.ts:353` | Lint command for enforcing canonical `@beep/schema` topology. |
-| `@beep/repo-cli/commands/Lint/index` | `runSchemaTopologyLint` | const | `packages/tooling/tool/cli/src/commands/Lint/SchemaTopology.ts:326` | Run the schema topology lint command. |
-| `@beep/repo-cli/commands/Lint/index` | `SchemaTopologyViolation` | class | `packages/tooling/tool/cli/src/commands/Lint/SchemaTopology.ts:58` | Schema topology lint violation. |
+| `@beep/repo-cli/commands/Lint/index` | `lintSchemaTopologyCommand` | const | `packages/tooling/tool/cli/src/commands/Lint/SchemaTopology.ts:363` | Lint command for enforcing canonical `@beep/schema` topology. |
+| `@beep/repo-cli/commands/Lint/index` | `runSchemaTopologyLint` | const | `packages/tooling/tool/cli/src/commands/Lint/SchemaTopology.ts:336` | Run the schema topology lint command. |
+| `@beep/repo-cli/commands/Lint/index` | `SchemaTopologyViolation` | class | `packages/tooling/tool/cli/src/commands/Lint/SchemaTopology.ts:60` | Schema topology lint violation. |
 | `@beep/repo-cli/commands/Lint/Lint.command` | `collectTypeScriptFiles` | const | `packages/tooling/tool/cli/src/commands/Lint/Lint.command.ts:100` | Collect TypeScript source files under a lint root without following symlink escapes. |
 | `@beep/repo-cli/commands/Lint/Lint.command` | `lintCommand` | const | `packages/tooling/tool/cli/src/commands/Lint/Lint.command.ts:574` | Lint command group. |
 | `@beep/repo-cli/commands/Lint/Lint.errors` | `LintCircularAnalysisError` | class | `packages/tooling/tool/cli/src/commands/Lint/Lint.errors.ts:32` | Failure raised when circular dependency analysis cannot complete. |
@@ -1807,10 +1807,10 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/commands/Lint/SchemaFirst` | `lintSchemaFirstCommand` | const | `packages/tooling/tool/cli/src/commands/Lint/SchemaFirst.ts:551` | Repo-wide schema-first lint command. |
 | `@beep/repo-cli/commands/Lint/SchemaFirst` | `runSchemaFirstLint` | const | `packages/tooling/tool/cli/src/commands/Lint/SchemaFirst.ts:457` | Run schema-first inventory verification against the committed baseline. |
 | `@beep/repo-cli/commands/Lint/SchemaFirst` | `SchemaFirstInventoryEntry` | namespace | `packages/tooling/tool/cli/src/commands/Lint/SchemaFirst.ts:76` | Namespace for {@link SchemaFirstInventoryEntry} companion types. |
-| `@beep/repo-cli/commands/Lint/SchemaTopology` | `collectSchemaTopologyViolations` | const | `packages/tooling/tool/cli/src/commands/Lint/SchemaTopology.ts:294` | Collect schema topology violations without mutating process state. |
-| `@beep/repo-cli/commands/Lint/SchemaTopology` | `lintSchemaTopologyCommand` | const | `packages/tooling/tool/cli/src/commands/Lint/SchemaTopology.ts:353` | Lint command for enforcing canonical `@beep/schema` topology. |
-| `@beep/repo-cli/commands/Lint/SchemaTopology` | `runSchemaTopologyLint` | const | `packages/tooling/tool/cli/src/commands/Lint/SchemaTopology.ts:326` | Run the schema topology lint command. |
-| `@beep/repo-cli/commands/Lint/SchemaTopology` | `SchemaTopologyViolation` | class | `packages/tooling/tool/cli/src/commands/Lint/SchemaTopology.ts:58` | Schema topology lint violation. |
+| `@beep/repo-cli/commands/Lint/SchemaTopology` | `collectSchemaTopologyViolations` | const | `packages/tooling/tool/cli/src/commands/Lint/SchemaTopology.ts:304` | Collect schema topology violations without mutating process state. |
+| `@beep/repo-cli/commands/Lint/SchemaTopology` | `lintSchemaTopologyCommand` | const | `packages/tooling/tool/cli/src/commands/Lint/SchemaTopology.ts:363` | Lint command for enforcing canonical `@beep/schema` topology. |
+| `@beep/repo-cli/commands/Lint/SchemaTopology` | `runSchemaTopologyLint` | const | `packages/tooling/tool/cli/src/commands/Lint/SchemaTopology.ts:336` | Run the schema topology lint command. |
+| `@beep/repo-cli/commands/Lint/SchemaTopology` | `SchemaTopologyViolation` | class | `packages/tooling/tool/cli/src/commands/Lint/SchemaTopology.ts:60` | Schema topology lint violation. |
 | `@beep/repo-cli/commands/Purge` | `purgeAtRoot` | const | `packages/tooling/tool/cli/src/commands/Purge/Purge.command.ts:192` | Purge root/workspace artifacts under a specific root directory. |
 | `@beep/repo-cli/commands/Purge` | `purgeCommand` | const | `packages/tooling/tool/cli/src/commands/Purge/Purge.command.ts:249` | CLI command to purge workspace/root build artifacts. |
 | `@beep/repo-cli/commands/Purge` | `PurgeSummary` | class | `packages/tooling/tool/cli/src/commands/Purge/Purge.command.ts:127` | Summary statistics returned after a purge run. |
@@ -3971,29 +3971,33 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/oip-web/contact` | `ContactSubmissionStatus` | type | `apps/oip-web/src/contact/ContactSubmission.model.ts:102` | Type for {@link ContactSubmissionStatus}. |
 | `@beep/oip-web/contact` | `decodeContactSubmission` | const | `apps/oip-web/src/contact/ContactSubmission.model.ts:193` | Decodes unknown input into a contact submission. |
 | `@beep/oip-web/contact` | `submitContact` | const | `apps/oip-web/src/contact/ContactSubmission.service.ts:284` | Submits an OIP contact payload to HubSpot when runtime config is present. |
-| `@beep/oip-web/content` | `AboutPanel` | class | `apps/oip-web/src/content/OipContent.model.ts:260` | Biographical bridge panel. |
-| `@beep/oip-web/content` | `ClientLogo` | class | `apps/oip-web/src/content/OipContent.model.ts:364` | Client logo reference. |
-| `@beep/oip-web/content` | `ContactContent` | class | `apps/oip-web/src/content/OipContent.model.ts:433` | Public contact and legal notice content. |
-| `@beep/oip-web/content` | `decodeOipSiteContent` | const | `apps/oip-web/src/content/OipContent.model.ts:509` | Decodes unknown input into {@link OipSiteContent} in an Effect workflow. |
-| `@beep/oip-web/content` | `decodeOipSiteContentResult` | const | `apps/oip-web/src/content/OipContent.model.ts:492` | Decodes unknown input into {@link OipSiteContent}. |
-| `@beep/oip-web/content` | `ExternalLink` | class | `apps/oip-web/src/content/OipContent.model.ts:96` | External link displayed by the public site. |
+| `@beep/oip-web/content` | `AboutPanel` | class | `apps/oip-web/src/content/OipContent.model.ts:327` | Biographical bridge panel. |
+| `@beep/oip-web/content` | `ClientLogo` | class | `apps/oip-web/src/content/OipContent.model.ts:431` | Client logo reference. |
+| `@beep/oip-web/content` | `ContactContent` | class | `apps/oip-web/src/content/OipContent.model.ts:500` | Public contact and legal notice content. |
+| `@beep/oip-web/content` | `decodeOipSiteContent` | const | `apps/oip-web/src/content/OipContent.model.ts:580` | Decodes unknown input into {@link OipSiteContent} in an Effect workflow. |
+| `@beep/oip-web/content` | `decodeOipSiteContentResult` | const | `apps/oip-web/src/content/OipContent.model.ts:563` | Decodes unknown input into {@link OipSiteContent}. |
+| `@beep/oip-web/content` | `ExternalLink` | class | `apps/oip-web/src/content/OipContent.model.ts:97` | External link displayed by the public site. |
 | `@beep/oip-web/content` | `getOipSiteContent` | const | `apps/oip-web/src/content/OipContent.runtime.ts:188` | Promise boundary for Next.js server components. |
-| `@beep/oip-web/content` | `HeroContent` | class | `apps/oip-web/src/content/OipContent.model.ts:223` | Hero citation and opening claim. |
-| `@beep/oip-web/content` | `launchReviewGates` | const | `apps/oip-web/src/content/OipContent.data.ts:330` | Review gate statuses that must be closed before public launch. |
+| `@beep/oip-web/content` | `HeroContent` | class | `apps/oip-web/src/content/OipContent.model.ts:290` | Hero citation and opening claim. |
+| `@beep/oip-web/content` | `launchReviewGates` | const | `apps/oip-web/src/content/OipContent.data.ts:352` | Review gate statuses that must be closed before public launch. |
 | `@beep/oip-web/content` | `loadOipSiteContent` | const | `apps/oip-web/src/content/OipContent.runtime.ts:163` | Loads OIP site content from Sanity when configured, falling back to the |
-| `@beep/oip-web/content` | `makeJsonLdGraph` | const | `apps/oip-web/src/content/OipSeo.ts:25` | Builds conservative JSON-LD graph data for the OIP website. |
-| `@beep/oip-web/content` | `makeLlmsText` | const | `apps/oip-web/src/content/OipSeo.ts:79` | Builds `llms.txt` content from reviewed OIP site content. |
-| `@beep/oip-web/content` | `MatterItem` | class | `apps/oip-web/src/content/OipContent.model.ts:327` | Selected matter summary. |
-| `@beep/oip-web/content` | `NavItem` | class | `apps/oip-web/src/content/OipContent.model.ts:187` | Anchor navigation item. |
-| `@beep/oip-web/content` | `oipSiteContent` | const | `apps/oip-web/src/content/OipContent.data.ts:315` | Decoded OIP launch content. |
-| `@beep/oip-web/content` | `OipSiteContent` | class | `apps/oip-web/src/content/OipContent.model.ts:460` | Complete content contract for the OIP public site. |
-| `@beep/oip-web/content` | `PracticeArea` | class | `apps/oip-web/src/content/OipContent.model.ts:292` | Practice-area summary. |
-| `@beep/oip-web/content` | `PressItem` | class | `apps/oip-web/src/content/OipContent.model.ts:398` | Press item summary. |
-| `@beep/oip-web/content` | `ReviewGate` | class | `apps/oip-web/src/content/OipContent.model.ts:68` | Review note attached to a public website claim. |
-| `@beep/oip-web/content` | `ReviewStatus` | const | `apps/oip-web/src/content/OipContent.model.ts:28` | Review state for public claims that need launch approval. |
-| `@beep/oip-web/content` | `ReviewStatus` | type | `apps/oip-web/src/content/OipContent.model.ts:48` | Runtime type for {@link ReviewStatus}. |
-| `@beep/oip-web/content` | `SiteAsset` | class | `apps/oip-web/src/content/OipContent.model.ts:124` | Runtime asset reference served from the OIP app public folder. |
-| `@beep/oip-web/content` | `SiteMetadataContent` | class | `apps/oip-web/src/content/OipContent.model.ts:159` | Top-level metadata used by Next.js and JSON-LD generation. |
+| `@beep/oip-web/content` | `makeJsonLdGraph` | const | `apps/oip-web/src/content/OipSeo.ts:27` | Builds conservative JSON-LD graph data for the OIP website. |
+| `@beep/oip-web/content` | `makeLlmsText` | const | `apps/oip-web/src/content/OipSeo.ts:106` | Builds `llms.txt` content from reviewed OIP site content. |
+| `@beep/oip-web/content` | `MatterItem` | class | `apps/oip-web/src/content/OipContent.model.ts:394` | Selected matter summary. |
+| `@beep/oip-web/content` | `NavItem` | class | `apps/oip-web/src/content/OipContent.model.ts:254` | Anchor navigation item. |
+| `@beep/oip-web/content` | `oipSiteContent` | const | `apps/oip-web/src/content/OipContent.data.ts:337` | Decoded OIP launch content. |
+| `@beep/oip-web/content` | `OipSiteContent` | class | `apps/oip-web/src/content/OipContent.model.ts:527` | Complete content contract for the OIP public site. |
+| `@beep/oip-web/content` | `oipTwitterHandle` | const | `apps/oip-web/src/content/OipSeo.ts:83` | Derives the firm's X/Twitter handle (e.g. `@opiplaw`) from the social links, |
+| `@beep/oip-web/content` | `PracticeArea` | class | `apps/oip-web/src/content/OipContent.model.ts:359` | Practice-area summary. |
+| `@beep/oip-web/content` | `PressItem` | class | `apps/oip-web/src/content/OipContent.model.ts:465` | Press item summary. |
+| `@beep/oip-web/content` | `ReviewGate` | class | `apps/oip-web/src/content/OipContent.model.ts:69` | Review note attached to a public website claim. |
+| `@beep/oip-web/content` | `ReviewStatus` | const | `apps/oip-web/src/content/OipContent.model.ts:29` | Review state for public claims that need launch approval. |
+| `@beep/oip-web/content` | `ReviewStatus` | type | `apps/oip-web/src/content/OipContent.model.ts:49` | Runtime type for {@link ReviewStatus}. |
+| `@beep/oip-web/content` | `SiteAsset` | class | `apps/oip-web/src/content/OipContent.model.ts:191` | Runtime asset reference served from the OIP app public folder. |
+| `@beep/oip-web/content` | `SiteMetadataContent` | class | `apps/oip-web/src/content/OipContent.model.ts:226` | Top-level metadata used by Next.js and JSON-LD generation. |
+| `@beep/oip-web/content` | `SocialLink` | class | `apps/oip-web/src/content/OipContent.model.ts:162` | Public social media profile link for the OIP firm. |
+| `@beep/oip-web/content` | `SocialPlatform` | const | `apps/oip-web/src/content/OipContent.model.ts:121` | Social platform the OIP firm maintains a public profile on. |
+| `@beep/oip-web/content` | `SocialPlatform` | type | `apps/oip-web/src/content/OipContent.model.ts:141` | Runtime type for {@link SocialPlatform}. |
 | `@beep/oip-web/mdx-components` | `useMDXComponents` | function | `apps/oip-web/src/mdx-components.tsx:26` | Returns the MDX component overrides used by oip web. |
 | `@beep/oip-web/proxy` | `config` | const | `apps/oip-web/src/proxy.ts:106` | Route matcher for the OIP CSP proxy. |
 | `@beep/oip-web/proxy` | `proxy` | function | `apps/oip-web/src/proxy.ts:75` | Adds a per-request CSP nonce to OIP document responses. |
@@ -4650,10 +4654,10 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/utils` | `A` | SourceFile | `packages/foundation/modeling/utils/src/Array.ts:8` |  |
 | `@beep/utils` | `Bool` | SourceFile | `packages/foundation/modeling/utils/src/Bool.ts:17` |  |
 | `@beep/utils` | `DateTime` | SourceFile | `packages/foundation/modeling/utils/src/DateTime.ts:8` |  |
-| `@beep/utils` | `Eq` | SourceFile | `packages/foundation/modeling/utils/src/Equal.ts:22` |  |
+| `@beep/utils` | `Eq` | SourceFile | `packages/foundation/modeling/utils/src/Equal.ts:21` |  |
 | `@beep/utils` | `Err` | SourceFile | `packages/foundation/modeling/utils/src/Errors.ts:7` |  |
 | `@beep/utils` | `FileSystem` | SourceFile | `packages/foundation/modeling/utils/src/FileSystem.ts:8` |  |
-| `@beep/utils` | `globalValue` | const | `packages/foundation/modeling/utils/src/GlobalValue.ts:44` | Retrieves or computes a global value associated with the given `id`. If the value for this `id` |
+| `@beep/utils` | `globalValue` | const | `packages/foundation/modeling/utils/src/GlobalValue.ts:47` | Retrieves or computes a global value associated with the given `id`. If the value for this `id` |
 | `@beep/utils` | `Html` | SourceFile | `packages/foundation/modeling/utils/src/Html.ts:8` |  |
 | `@beep/utils` | `N` | SourceFile | `packages/foundation/modeling/utils/src/Number.ts:7` |  |
 | `@beep/utils` | `O` | SourceFile | `packages/foundation/modeling/utils/src/Option.ts:8` |  |
@@ -4688,7 +4692,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/utils` | `thunkTrue` | const | `packages/foundation/modeling/utils/src/thunk.ts:106` | A thunk that always yields `true`. |
 | `@beep/utils` | `thunkUndefined` | const | `packages/foundation/modeling/utils/src/thunk.ts:70` | A thunk that always yields `undefined`. |
 | `@beep/utils` | `thunkVoid` | const | `packages/foundation/modeling/utils/src/thunk.ts:88` | A thunk that always yields `void 0` (equivalent to `undefined`). |
-| `@beep/utils` | `Utils` | SourceFile | `packages/foundation/modeling/utils/src/Utils.ts:1` |  |
+| `@beep/utils` | `Utils` | SourceFile | `packages/foundation/modeling/utils/src/Utils.ts:7` |  |
 | `@beep/utils/Array` | `allocate` | const | `node_modules/effect/dist/Array.d.ts:138` | Creates a new `Array` of the specified length with all slots uninitialized. |
 | `@beep/utils/Array` | `append` | const | `node_modules/effect/dist/Array.d.ts:902` | Adds a single element to the end of an iterable, returning a `NonEmptyArray`. |
 | `@beep/utils/Array` | `appendAll` | const | `node_modules/effect/dist/Array.d.ts:975` | Concatenates two iterables into a single array. |
@@ -5053,16 +5057,16 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/utils/Glob` | `layer` | const | `packages/foundation/modeling/utils/src/Glob.ts:529` | Live `Layer` providing the {@link Glob} service backed by `Bun.Glob` when |
 | `@beep/utils/Glob` | `Pattern` | const | `packages/foundation/modeling/utils/src/Glob.ts:34` | Schema for a glob pattern: either a single string or an array of strings. |
 | `@beep/utils/Glob` | `Pattern` | type | `packages/foundation/modeling/utils/src/Glob.ts:54` | A glob pattern: either a single string or an array of strings. |
-| `@beep/utils/GlobalValue` | `globalValue` | const | `packages/foundation/modeling/utils/src/GlobalValue.ts:44` | Retrieves or computes a global value associated with the given `id`. If the value for this `id` |
+| `@beep/utils/GlobalValue` | `globalValue` | const | `packages/foundation/modeling/utils/src/GlobalValue.ts:47` | Retrieves or computes a global value associated with the given `id`. If the value for this `id` |
 | `@beep/utils/Html` | `escapeHtml` | const | `packages/foundation/modeling/utils/src/Html.ts:27` | Escapes the HTML-sensitive characters in `text`. |
 | `@beep/utils/Html` | `escapeHtmlMultiline` | const | `packages/foundation/modeling/utils/src/Html.ts:51` | Escapes HTML-sensitive characters and converts newlines to `<br />`. |
 | `@beep/utils/index` | `A` | SourceFile | `packages/foundation/modeling/utils/src/Array.ts:8` |  |
 | `@beep/utils/index` | `Bool` | SourceFile | `packages/foundation/modeling/utils/src/Bool.ts:17` |  |
 | `@beep/utils/index` | `DateTime` | SourceFile | `packages/foundation/modeling/utils/src/DateTime.ts:8` |  |
-| `@beep/utils/index` | `Eq` | SourceFile | `packages/foundation/modeling/utils/src/Equal.ts:22` |  |
+| `@beep/utils/index` | `Eq` | SourceFile | `packages/foundation/modeling/utils/src/Equal.ts:21` |  |
 | `@beep/utils/index` | `Err` | SourceFile | `packages/foundation/modeling/utils/src/Errors.ts:7` |  |
 | `@beep/utils/index` | `FileSystem` | SourceFile | `packages/foundation/modeling/utils/src/FileSystem.ts:8` |  |
-| `@beep/utils/index` | `globalValue` | const | `packages/foundation/modeling/utils/src/GlobalValue.ts:44` | Retrieves or computes a global value associated with the given `id`. If the value for this `id` |
+| `@beep/utils/index` | `globalValue` | const | `packages/foundation/modeling/utils/src/GlobalValue.ts:47` | Retrieves or computes a global value associated with the given `id`. If the value for this `id` |
 | `@beep/utils/index` | `Html` | SourceFile | `packages/foundation/modeling/utils/src/Html.ts:8` |  |
 | `@beep/utils/index` | `N` | SourceFile | `packages/foundation/modeling/utils/src/Number.ts:7` |  |
 | `@beep/utils/index` | `O` | SourceFile | `packages/foundation/modeling/utils/src/Option.ts:8` |  |
@@ -5097,7 +5101,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/utils/index` | `thunkTrue` | const | `packages/foundation/modeling/utils/src/thunk.ts:106` | A thunk that always yields `true`. |
 | `@beep/utils/index` | `thunkUndefined` | const | `packages/foundation/modeling/utils/src/thunk.ts:70` | A thunk that always yields `undefined`. |
 | `@beep/utils/index` | `thunkVoid` | const | `packages/foundation/modeling/utils/src/thunk.ts:88` | A thunk that always yields `void 0` (equivalent to `undefined`). |
-| `@beep/utils/index` | `Utils` | SourceFile | `packages/foundation/modeling/utils/src/Utils.ts:1` |  |
+| `@beep/utils/index` | `Utils` | SourceFile | `packages/foundation/modeling/utils/src/Utils.ts:7` |  |
 | `@beep/utils/NodeUrl` | `fileURLToPath` | const | `packages/foundation/modeling/utils/src/NodeUrl.ts:127` | Converts a `file:` URL back into a platform path string. |
 | `@beep/utils/NodeUrl` | `fromFileUrl` | const | `packages/foundation/modeling/utils/src/NodeUrl.ts:53` | Converts a `file:` URL into a platform path string. |
 | `@beep/utils/NodeUrl` | `toFileUrl` | const | `packages/foundation/modeling/utils/src/NodeUrl.ts:102` | Converts a platform path string into a `file:` URL. |
@@ -5407,8 +5411,8 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/utils/thunk` | `thunkVoid` | const | `packages/foundation/modeling/utils/src/thunk.ts:88` | A thunk that always yields `void 0` (equivalent to `undefined`). |
 | `@beep/utils/Utils` | `Gen` | type | `node_modules/effect/dist/Utils.d.ts:187` | Type-level signature for generator-based monadic composition over any |
 | `@beep/utils/Utils` | `SingleShotGen` | class | `node_modules/effect/dist/Utils.d.ts:100` | An `IterableIterator` that yields its wrapped value exactly once. |
-| `@beep/utils/Utils` | `structuralRegion` | const | `packages/foundation/modeling/utils/src/Utils.ts:23` | Note: this is an experimental feature made available to allow custom matchers in tests, not to be directly used yet in user code |
-| `@beep/utils/Utils` | `structuralRegionState` | const | `packages/foundation/modeling/utils/src/Utils.ts:9` | Note: this is an experimental feature made available to allow custom matchers in tests, not to be directly used yet in user code |
+| `@beep/utils/Utils` | `structuralRegion` | const | `packages/foundation/modeling/utils/src/Utils.ts:29` | Note: this is an experimental feature made available to allow custom matchers in tests, not to be directly used yet in user code |
+| `@beep/utils/Utils` | `structuralRegionState` | const | `packages/foundation/modeling/utils/src/Utils.ts:15` | Note: this is an experimental feature made available to allow custom matchers in tests, not to be directly used yet in user code |
 | `@beep/utils/Utils` | `Variance` | interface | `node_modules/effect/dist/Utils.d.ts:151` | Type-level marker encoding the variance of a `TypeLambda`'s type |
 
 ### @beep/repo-ai-metrics
@@ -6181,188 +6185,194 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 
 | Import | Symbol | Kind | Source | Summary |
 |---|---|---|---|---|
-| `@beep/form` | `VERSION` | const | `packages/foundation/ui-system/form/src/index.ts:11` |  |
-| `@beep/form/core` | `Field` | SourceFile | `packages/foundation/ui-system/form/src/core/Field.ts:1` |  |
-| `@beep/form/core` | `FieldState` | SourceFile | `packages/foundation/ui-system/form/src/core/FieldState.ts:1` |  |
-| `@beep/form/core` | `FormAtoms` | SourceFile | `packages/foundation/ui-system/form/src/core/FormAtoms.ts:1` |  |
-| `@beep/form/core` | `FormBuilder` | SourceFile | `packages/foundation/ui-system/form/src/core/FormBuilder.ts:1` |  |
-| `@beep/form/core` | `Mode` | SourceFile | `packages/foundation/ui-system/form/src/core/Mode.ts:1` |  |
-| `@beep/form/core` | `Path` | SourceFile | `packages/foundation/ui-system/form/src/core/Path.ts:1` |  |
-| `@beep/form/core` | `Validation` | SourceFile | `packages/foundation/ui-system/form/src/core/Validation.ts:1` |  |
-| `@beep/form/core/Field` | `AnyFieldDef` | type | `packages/foundation/ui-system/form/src/core/Field.ts:28` |  |
-| `@beep/form/core/Field` | `ArrayFieldDef` | interface | `packages/foundation/ui-system/form/src/core/Field.ts:22` |  |
-| `@beep/form/core/Field` | `createTouchedRecord` | const | `packages/foundation/ui-system/form/src/core/Field.ts:143` |  |
-| `@beep/form/core/Field` | `DecodedFromFields` | type | `packages/foundation/ui-system/form/src/core/Field.ts:60` |  |
-| `@beep/form/core/Field` | `EncodedFromFields` | type | `packages/foundation/ui-system/form/src/core/Field.ts:52` |  |
-| `@beep/form/core/Field` | `extractStructFieldDefs` | const | `packages/foundation/ui-system/form/src/core/Field.ts:151` |  |
-| `@beep/form/core/Field` | `FieldDef` | interface | `packages/foundation/ui-system/form/src/core/Field.ts:16` |  |
-| `@beep/form/core/Field` | `FieldsRecord` | type | `packages/foundation/ui-system/form/src/core/Field.ts:30` |  |
-| `@beep/form/core/Field` | `getDefaultEncodedValues` | const | `packages/foundation/ui-system/form/src/core/Field.ts:131` |  |
-| `@beep/form/core/Field` | `getDefaultFromSchema` | const | `packages/foundation/ui-system/form/src/core/Field.ts:129` |  |
-| `@beep/form/core/Field` | `isArrayFieldDef` | const | `packages/foundation/ui-system/form/src/core/Field.ts:32` |  |
-| `@beep/form/core/Field` | `isFieldDef` | const | `packages/foundation/ui-system/form/src/core/Field.ts:35` |  |
-| `@beep/form/core/Field` | `makeArrayField` | const | `packages/foundation/ui-system/form/src/core/Field.ts:43` |  |
-| `@beep/form/core/Field` | `makeField` | const | `packages/foundation/ui-system/form/src/core/Field.ts:37` |  |
-| `@beep/form/core/Field` | `TypeId` | const | `packages/foundation/ui-system/form/src/core/Field.ts:12` |  |
-| `@beep/form/core/Field` | `TypeId` | type | `packages/foundation/ui-system/form/src/core/Field.ts:14` |  |
-| `@beep/form/core/FieldState` | `ArrayFieldOperations` | interface | `packages/foundation/ui-system/form/src/core/FieldState.ts:17` |  |
-| `@beep/form/core/FieldState` | `FieldState` | interface | `packages/foundation/ui-system/form/src/core/FieldState.ts:6` |  |
-| `@beep/form/core/FieldState` | `FieldValue` | type | `packages/foundation/ui-system/form/src/core/FieldState.ts:4` |  |
-| `@beep/form/core/FormAtoms` | `FieldAtoms` | interface | `packages/foundation/ui-system/form/src/core/FormAtoms.ts:15` |  |
-| `@beep/form/core/FormAtoms` | `FieldRefs` | type | `packages/foundation/ui-system/form/src/core/FormAtoms.ts:54` |  |
-| `@beep/form/core/FormAtoms` | `FormAtoms` | interface | `packages/foundation/ui-system/form/src/core/FormAtoms.ts:62` |  |
-| `@beep/form/core/FormAtoms` | `FormAtomsConfig` | interface | `packages/foundation/ui-system/form/src/core/FormAtoms.ts:39` |  |
-| `@beep/form/core/FormAtoms` | `FormOperations` | interface | `packages/foundation/ui-system/form/src/core/FormAtoms.ts:127` |  |
-| `@beep/form/core/FormAtoms` | `make` | const | `packages/foundation/ui-system/form/src/core/FormAtoms.ts:180` |  |
-| `@beep/form/core/FormAtoms` | `PublicFieldAtoms` | interface | `packages/foundation/ui-system/form/src/core/FormAtoms.ts:28` |  |
-| `@beep/form/core/FormBuilder` | `buildSchema` | const | `packages/foundation/ui-system/form/src/core/FormBuilder.ts:225` |  |
-| `@beep/form/core/FormBuilder` | `empty` | const | `packages/foundation/ui-system/form/src/core/FormBuilder.ts:218` |  |
-| `@beep/form/core/FormBuilder` | `FieldRef` | interface | `packages/foundation/ui-system/form/src/core/FormBuilder.ts:29` |  |
-| `@beep/form/core/FormBuilder` | `FieldTypeId` | const | `packages/foundation/ui-system/form/src/core/FormBuilder.ts:25` |  |
-| `@beep/form/core/FormBuilder` | `FieldTypeId` | type | `packages/foundation/ui-system/form/src/core/FormBuilder.ts:27` |  |
-| `@beep/form/core/FormBuilder` | `FormBuilder` | interface | `packages/foundation/ui-system/form/src/core/FormBuilder.ts:75` |  |
-| `@beep/form/core/FormBuilder` | `FormFilterIssue` | type | `packages/foundation/ui-system/form/src/core/FormBuilder.ts:59` |  |
-| `@beep/form/core/FormBuilder` | `FormFilterOutput` | type | `packages/foundation/ui-system/form/src/core/FormBuilder.ts:61` |  |
-| `@beep/form/core/FormBuilder` | `FormState` | interface | `packages/foundation/ui-system/form/src/core/FormBuilder.ts:44` |  |
-| `@beep/form/core/FormBuilder` | `isFormBuilder` | const | `packages/foundation/ui-system/form/src/core/FormBuilder.ts:215` |  |
-| `@beep/form/core/FormBuilder` | `LegacyFilterIssue` | type | `packages/foundation/ui-system/form/src/core/FormBuilder.ts:54` |  |
-| `@beep/form/core/FormBuilder` | `makeFieldRef` | const | `packages/foundation/ui-system/form/src/core/FormBuilder.ts:35` |  |
-| `@beep/form/core/FormBuilder` | `SubmittedValues` | interface | `packages/foundation/ui-system/form/src/core/FormBuilder.ts:20` |  |
-| `@beep/form/core/FormBuilder` | `TypeId` | const | `packages/foundation/ui-system/form/src/core/FormBuilder.ts:40` |  |
-| `@beep/form/core/FormBuilder` | `TypeId` | type | `packages/foundation/ui-system/form/src/core/FormBuilder.ts:42` |  |
-| `@beep/form/core/index` | `Field` | SourceFile | `packages/foundation/ui-system/form/src/core/Field.ts:1` |  |
-| `@beep/form/core/index` | `FieldState` | SourceFile | `packages/foundation/ui-system/form/src/core/FieldState.ts:1` |  |
-| `@beep/form/core/index` | `FormAtoms` | SourceFile | `packages/foundation/ui-system/form/src/core/FormAtoms.ts:1` |  |
-| `@beep/form/core/index` | `FormBuilder` | SourceFile | `packages/foundation/ui-system/form/src/core/FormBuilder.ts:1` |  |
-| `@beep/form/core/index` | `Mode` | SourceFile | `packages/foundation/ui-system/form/src/core/Mode.ts:1` |  |
-| `@beep/form/core/index` | `Path` | SourceFile | `packages/foundation/ui-system/form/src/core/Path.ts:1` |  |
-| `@beep/form/core/index` | `Validation` | SourceFile | `packages/foundation/ui-system/form/src/core/Validation.ts:1` |  |
-| `@beep/form/core/internal/dirty` | `recalculateDirtyFieldsForArray` | const | `packages/foundation/ui-system/form/src/core/internal/dirty.ts:4` |  |
-| `@beep/form/core/internal/dirty` | `recalculateDirtySubtree` | const | `packages/foundation/ui-system/form/src/core/internal/dirty.ts:42` |  |
-| `@beep/form/core/internal/weak-registry` | `createWeakRegistry` | const | `packages/foundation/ui-system/form/src/core/internal/weak-registry.ts:9` |  |
-| `@beep/form/core/internal/weak-registry` | `WeakRegistry` | interface | `packages/foundation/ui-system/form/src/core/internal/weak-registry.ts:1` |  |
-| `@beep/form/core/Mode` | `FormMode` | type | `packages/foundation/ui-system/form/src/core/Mode.ts:3` |  |
-| `@beep/form/core/Mode` | `FormModeWithoutAutoSubmit` | type | `packages/foundation/ui-system/form/src/core/Mode.ts:8` |  |
-| `@beep/form/core/Mode` | `parse` | const | `packages/foundation/ui-system/form/src/core/Mode.ts:19` |  |
-| `@beep/form/core/Mode` | `ParsedMode` | interface | `packages/foundation/ui-system/form/src/core/Mode.ts:13` |  |
-| `@beep/form/core/Path` | `getNestedValue` | const | `packages/foundation/ui-system/form/src/core/Path.ts:52` |  |
-| `@beep/form/core/Path` | `isPathOrParentDirty` | const | `packages/foundation/ui-system/form/src/core/Path.ts:34` |  |
-| `@beep/form/core/Path` | `isPathUnderRoot` | const | `packages/foundation/ui-system/form/src/core/Path.ts:31` |  |
-| `@beep/form/core/Path` | `schemaPathToFieldPath` | const | `packages/foundation/ui-system/form/src/core/Path.ts:10` |  |
-| `@beep/form/core/Path` | `setNestedValue` | const | `packages/foundation/ui-system/form/src/core/Path.ts:63` |  |
-| `@beep/form/core/Validation` | `ErrorEntry` | interface | `packages/foundation/ui-system/form/src/core/Validation.ts:8` |  |
-| `@beep/form/core/Validation` | `ErrorSource` | type | `packages/foundation/ui-system/form/src/core/Validation.ts:6` |  |
-| `@beep/form/core/Validation` | `extractFirstError` | const | `packages/foundation/ui-system/form/src/core/Validation.ts:64` |  |
-| `@beep/form/core/Validation` | `routeErrors` | const | `packages/foundation/ui-system/form/src/core/Validation.ts:72` |  |
-| `@beep/form/core/Validation` | `routeErrorsWithSource` | const | `packages/foundation/ui-system/form/src/core/Validation.ts:86` |  |
-| `@beep/form/index` | `VERSION` | const | `packages/foundation/ui-system/form/src/index.ts:11` |  |
-| `@beep/form/react` | `Field` | SourceFile | `packages/foundation/ui-system/form/src/core/Field.ts:1` |  |
-| `@beep/form/react` | `FieldState` | SourceFile | `packages/foundation/ui-system/form/src/core/FieldState.ts:1` |  |
-| `@beep/form/react` | `FormAtoms` | SourceFile | `packages/foundation/ui-system/form/src/core/FormAtoms.ts:1` |  |
-| `@beep/form/react` | `FormBuilder` | SourceFile | `packages/foundation/ui-system/form/src/core/FormBuilder.ts:1` |  |
-| `@beep/form/react` | `FormReact` | SourceFile | `packages/foundation/ui-system/form/src/react/FormReact.tsx:1` |  |
-| `@beep/form/react` | `Mode` | SourceFile | `packages/foundation/ui-system/form/src/core/Mode.ts:1` |  |
-| `@beep/form/react` | `Path` | SourceFile | `packages/foundation/ui-system/form/src/core/Path.ts:1` |  |
-| `@beep/form/react` | `Validation` | SourceFile | `packages/foundation/ui-system/form/src/core/Validation.ts:1` |  |
-| `@beep/form/react/index` | `Field` | SourceFile | `packages/foundation/ui-system/form/src/core/Field.ts:1` |  |
-| `@beep/form/react/index` | `FieldState` | SourceFile | `packages/foundation/ui-system/form/src/core/FieldState.ts:1` |  |
-| `@beep/form/react/index` | `FormAtoms` | SourceFile | `packages/foundation/ui-system/form/src/core/FormAtoms.ts:1` |  |
-| `@beep/form/react/index` | `FormBuilder` | SourceFile | `packages/foundation/ui-system/form/src/core/FormBuilder.ts:1` |  |
-| `@beep/form/react/index` | `FormReact` | SourceFile | `packages/foundation/ui-system/form/src/react/FormReact.tsx:1` |  |
-| `@beep/form/react/index` | `Mode` | SourceFile | `packages/foundation/ui-system/form/src/core/Mode.ts:1` |  |
-| `@beep/form/react/index` | `Path` | SourceFile | `packages/foundation/ui-system/form/src/core/Path.ts:1` |  |
-| `@beep/form/react/index` | `Validation` | SourceFile | `packages/foundation/ui-system/form/src/core/Validation.ts:1` |  |
+| `@beep/form` | `Field` | SourceFile | `packages/foundation/ui-system/form/src/core/Field.ts:7` |  |
+| `@beep/form` | `FieldState` | SourceFile | `packages/foundation/ui-system/form/src/core/FieldState.ts:7` |  |
+| `@beep/form` | `FormAtoms` | SourceFile | `packages/foundation/ui-system/form/src/core/FormAtoms.ts:7` |  |
+| `@beep/form` | `FormBuilder` | SourceFile | `packages/foundation/ui-system/form/src/core/FormBuilder.ts:7` |  |
+| `@beep/form` | `Mode` | SourceFile | `packages/foundation/ui-system/form/src/core/Mode.ts:7` |  |
+| `@beep/form` | `Path` | SourceFile | `packages/foundation/ui-system/form/src/core/Path.ts:7` |  |
+| `@beep/form` | `Validation` | SourceFile | `packages/foundation/ui-system/form/src/core/Validation.ts:7` |  |
+| `@beep/form` | `VERSION` | const | `packages/foundation/ui-system/form/src/index.ts:30` | Package version for `@beep/form`. |
+| `@beep/form/core` | `Field` | SourceFile | `packages/foundation/ui-system/form/src/core/Field.ts:7` |  |
+| `@beep/form/core` | `FieldState` | SourceFile | `packages/foundation/ui-system/form/src/core/FieldState.ts:7` |  |
+| `@beep/form/core` | `FormAtoms` | SourceFile | `packages/foundation/ui-system/form/src/core/FormAtoms.ts:7` |  |
+| `@beep/form/core` | `FormBuilder` | SourceFile | `packages/foundation/ui-system/form/src/core/FormBuilder.ts:7` |  |
+| `@beep/form/core` | `Mode` | SourceFile | `packages/foundation/ui-system/form/src/core/Mode.ts:7` |  |
+| `@beep/form/core` | `Path` | SourceFile | `packages/foundation/ui-system/form/src/core/Path.ts:7` |  |
+| `@beep/form/core` | `Validation` | SourceFile | `packages/foundation/ui-system/form/src/core/Validation.ts:7` |  |
+| `@beep/form/core/Field` | `AnyFieldDef` | type | `packages/foundation/ui-system/form/src/core/Field.ts:110` | Union of scalar and array field definitions accepted by a form builder. |
+| `@beep/form/core/Field` | `ArrayFieldDef` | interface | `packages/foundation/ui-system/form/src/core/Field.ts:89` | Array field definition pairing a stable form key with an item schema. |
+| `@beep/form/core/Field` | `createTouchedRecord` | const | `packages/foundation/ui-system/form/src/core/Field.ts:354` | Creates a touched-state record for every field. |
+| `@beep/form/core/Field` | `DecodedFromFields` | type | `packages/foundation/ui-system/form/src/core/Field.ts:246` | Decoded form value shape derived from field definitions. |
+| `@beep/form/core/Field` | `EncodedFromFields` | type | `packages/foundation/ui-system/form/src/core/Field.ts:222` | Encoded form value shape derived from field definitions. |
+| `@beep/form/core/Field` | `extractStructFieldDefs` | const | `packages/foundation/ui-system/form/src/core/Field.ts:372` | Extracts field definitions from a struct-like schema. |
+| `@beep/form/core/Field` | `FieldDef` | interface | `packages/foundation/ui-system/form/src/core/Field.ts:68` | Scalar field definition pairing a stable form key with an Effect schema. |
+| `@beep/form/core/Field` | `FieldsRecord` | type | `packages/foundation/ui-system/form/src/core/Field.ts:127` | Record of form field definitions keyed by form path segment. |
+| `@beep/form/core/Field` | `getDefaultEncodedValues` | const | `packages/foundation/ui-system/form/src/core/Field.ts:334` | Builds encoded defaults for every field in a field record. |
+| `@beep/form/core/Field` | `getDefaultFromSchema` | const | `packages/foundation/ui-system/form/src/core/Field.ts:316` | Produces a best-effort encoded default value for a schema. |
+| `@beep/form/core/Field` | `isArrayFieldDef` | const | `packages/foundation/ui-system/form/src/core/Field.ts:143` | Detects array field definitions. |
+| `@beep/form/core/Field` | `isFieldDef` | const | `packages/foundation/ui-system/form/src/core/Field.ts:159` | Detects scalar field definitions. |
+| `@beep/form/core/Field` | `makeArrayField` | const | `packages/foundation/ui-system/form/src/core/Field.ts:197` | Creates an array field definition. |
+| `@beep/form/core/Field` | `makeField` | const | `packages/foundation/ui-system/form/src/core/Field.ts:176` | Creates a scalar field definition. |
+| `@beep/form/core/Field` | `TypeId` | const | `packages/foundation/ui-system/form/src/core/Field.ts:35` | Runtime marker for field definition values. |
+| `@beep/form/core/Field` | `TypeId` | type | `packages/foundation/ui-system/form/src/core/Field.ts:51` | Type of the field definition runtime marker. |
+| `@beep/form/core/FieldState` | `ArrayFieldOperations` | interface | `packages/foundation/ui-system/form/src/core/FieldState.ts:76` | Render-facing operations for array fields. |
+| `@beep/form/core/FieldState` | `FieldState` | interface | `packages/foundation/ui-system/form/src/core/FieldState.ts:51` | Render-facing state and handlers for a single form field. |
+| `@beep/form/core/FieldState` | `FieldValue` | type | `packages/foundation/ui-system/form/src/core/FieldState.ts:25` | Encoded value type for either a schema or an already-materialized value. |
+| `@beep/form/core/FormAtoms` | `FieldAtoms` | interface | `packages/foundation/ui-system/form/src/core/FormAtoms.ts:38` | Internal atom bundle backing a single field path. |
+| `@beep/form/core/FormAtoms` | `FieldRefs` | type | `packages/foundation/ui-system/form/src/core/FormAtoms.ts:126` | Field references derived from a form field record. |
+| `@beep/form/core/FormAtoms` | `FormAtoms` | interface | `packages/foundation/ui-system/form/src/core/FormAtoms.ts:150` | Complete atom graph for a form. |
+| `@beep/form/core/FormAtoms` | `FormAtomsConfig` | interface | `packages/foundation/ui-system/form/src/core/FormAtoms.ts:93` | Configuration accepted by {@link make}. |
+| `@beep/form/core/FormAtoms` | `FormOperations` | interface | `packages/foundation/ui-system/form/src/core/FormAtoms.ts:234` | Pure state transition helpers used by the atom graph. |
+| `@beep/form/core/FormAtoms` | `make` | const | `packages/foundation/ui-system/form/src/core/FormAtoms.ts:304` | Creates a form atom graph from a form builder and runtime. |
+| `@beep/form/core/FormAtoms` | `PublicFieldAtoms` | interface | `packages/foundation/ui-system/form/src/core/FormAtoms.ts:66` | Public atom bundle exposed to field components. |
+| `@beep/form/core/FormBuilder` | `buildSchema` | const | `packages/foundation/ui-system/form/src/core/FormBuilder.ts:443` | Builds the combined schema for a form builder. |
+| `@beep/form/core/FormBuilder` | `empty` | const | `packages/foundation/ui-system/form/src/core/FormBuilder.ts:425` | Empty form builder. |
+| `@beep/form/core/FormBuilder` | `FieldRef` | interface | `packages/foundation/ui-system/form/src/core/FormBuilder.ts:89` | Stable reference to a field by key and encoded value type. |
+| `@beep/form/core/FormBuilder` | `FieldTypeId` | const | `packages/foundation/ui-system/form/src/core/FormBuilder.ts:57` | Runtime marker for field references. |
+| `@beep/form/core/FormBuilder` | `FieldTypeId` | type | `packages/foundation/ui-system/form/src/core/FormBuilder.ts:73` | Type of the field reference runtime marker. |
+| `@beep/form/core/FormBuilder` | `FormBuilder` | interface | `packages/foundation/ui-system/form/src/core/FormBuilder.ts:256` | Immutable builder used to collect fields and form-level refinements. |
+| `@beep/form/core/FormBuilder` | `FormFilterIssue` | type | `packages/foundation/ui-system/form/src/core/FormBuilder.ts:209` | Issue shape accepted from synchronous and Effect-based form refinements. |
+| `@beep/form/core/FormBuilder` | `FormFilterOutput` | type | `packages/foundation/ui-system/form/src/core/FormBuilder.ts:225` | Return shape accepted from form-level refinement callbacks. |
+| `@beep/form/core/FormBuilder` | `FormState` | interface | `packages/foundation/ui-system/form/src/core/FormBuilder.ts:161` | Runtime state held by a form atom graph. |
+| `@beep/form/core/FormBuilder` | `isFormBuilder` | const | `packages/foundation/ui-system/form/src/core/FormBuilder.ts:410` | Detects form builder values. |
+| `@beep/form/core/FormBuilder` | `LegacyFilterIssue` | class | `packages/foundation/ui-system/form/src/core/FormBuilder.ts:185` | Legacy refinement issue object accepted by builder refinements. |
+| `@beep/form/core/FormBuilder` | `makeFieldRef` | const | `packages/foundation/ui-system/form/src/core/FormBuilder.ts:109` | Creates a typed field reference from a field key. |
+| `@beep/form/core/FormBuilder` | `SubmittedValues` | interface | `packages/foundation/ui-system/form/src/core/FormBuilder.ts:39` | Encoded and decoded value snapshot captured after successful submission. |
+| `@beep/form/core/FormBuilder` | `TypeId` | const | `packages/foundation/ui-system/form/src/core/FormBuilder.ts:127` | Runtime marker for form builders. |
+| `@beep/form/core/FormBuilder` | `TypeId` | type | `packages/foundation/ui-system/form/src/core/FormBuilder.ts:143` | Type of the form builder runtime marker. |
+| `@beep/form/core/index` | `Field` | SourceFile | `packages/foundation/ui-system/form/src/core/Field.ts:7` |  |
+| `@beep/form/core/index` | `FieldState` | SourceFile | `packages/foundation/ui-system/form/src/core/FieldState.ts:7` |  |
+| `@beep/form/core/index` | `FormAtoms` | SourceFile | `packages/foundation/ui-system/form/src/core/FormAtoms.ts:7` |  |
+| `@beep/form/core/index` | `FormBuilder` | SourceFile | `packages/foundation/ui-system/form/src/core/FormBuilder.ts:7` |  |
+| `@beep/form/core/index` | `Mode` | SourceFile | `packages/foundation/ui-system/form/src/core/Mode.ts:7` |  |
+| `@beep/form/core/index` | `Path` | SourceFile | `packages/foundation/ui-system/form/src/core/Path.ts:7` |  |
+| `@beep/form/core/index` | `Validation` | SourceFile | `packages/foundation/ui-system/form/src/core/Validation.ts:7` |  |
+| `@beep/form/core/Mode` | `FormMode` | type | `packages/foundation/ui-system/form/src/core/Mode.ts:27` | User-facing form validation mode configuration. |
+| `@beep/form/core/Mode` | `FormModeWithoutAutoSubmit` | type | `packages/foundation/ui-system/form/src/core/Mode.ts:46` | Validation mode configuration with auto-submit disabled at the type level. |
+| `@beep/form/core/Mode` | `parse` | const | `packages/foundation/ui-system/form/src/core/Mode.ts:96` | Normalizes optional mode input into a parsed mode. |
+| `@beep/form/core/Mode` | `ParsedMode` | class | `packages/foundation/ui-system/form/src/core/Mode.ts:71` | Normalized validation mode consumed by the atom runtime. |
+| `@beep/form/core/Path` | `getNestedValue` | const | `packages/foundation/ui-system/form/src/core/Path.ts:146` | Reads a value from a dot-and-bracket path. |
+| `@beep/form/core/Path` | `isPathOrParentDirty` | const | `packages/foundation/ui-system/form/src/core/Path.ts:104` | Tests whether a path or one of its parents is marked dirty. |
+| `@beep/form/core/Path` | `isPathUnderRoot` | const | `packages/foundation/ui-system/form/src/core/Path.ts:79` | Tests whether a path is equal to or nested below a root path. |
+| `@beep/form/core/Path` | `schemaPathToFieldPath` | const | `packages/foundation/ui-system/form/src/core/Path.ts:43` | Converts a schema issue path into dot-and-bracket form field notation. |
+| `@beep/form/core/Path` | `setNestedValue` | const | `packages/foundation/ui-system/form/src/core/Path.ts:177` | Sets a value at a dot-and-bracket path while copying touched containers. |
+| `@beep/form/core/Validation` | `ErrorEntry` | class | `packages/foundation/ui-system/form/src/core/Validation.ts:66` | Renderable validation error with source metadata. |
+| `@beep/form/core/Validation` | `ErrorSource` | const | `packages/foundation/ui-system/form/src/core/Validation.ts:30` | Validation error source literal schema. |
+| `@beep/form/core/Validation` | `ErrorSource` | type | `packages/foundation/ui-system/form/src/core/Validation.ts:50` | Runtime type extracted from {@link ErrorSource}. |
+| `@beep/form/core/Validation` | `extractFirstError` | const | `packages/foundation/ui-system/form/src/core/Validation.ts:146` | Extracts the first user-facing message from a schema error. |
+| `@beep/form/core/Validation` | `routeErrors` | const | `packages/foundation/ui-system/form/src/core/Validation.ts:168` | Routes schema error messages to form field paths. |
+| `@beep/form/core/Validation` | `routeErrorsWithSource` | const | `packages/foundation/ui-system/form/src/core/Validation.ts:199` | Routes schema error messages to form field paths with source metadata. |
+| `@beep/form/react` | `Field` | SourceFile | `packages/foundation/ui-system/form/src/core/Field.ts:7` |  |
+| `@beep/form/react` | `FieldState` | SourceFile | `packages/foundation/ui-system/form/src/core/FieldState.ts:7` |  |
+| `@beep/form/react` | `FormAtoms` | SourceFile | `packages/foundation/ui-system/form/src/core/FormAtoms.ts:7` |  |
+| `@beep/form/react` | `FormBuilder` | SourceFile | `packages/foundation/ui-system/form/src/core/FormBuilder.ts:7` |  |
+| `@beep/form/react` | `FormReact` | SourceFile | `packages/foundation/ui-system/form/src/react/FormReact.tsx:7` |  |
+| `@beep/form/react` | `Mode` | SourceFile | `packages/foundation/ui-system/form/src/core/Mode.ts:7` |  |
+| `@beep/form/react` | `Path` | SourceFile | `packages/foundation/ui-system/form/src/core/Path.ts:7` |  |
+| `@beep/form/react` | `Validation` | SourceFile | `packages/foundation/ui-system/form/src/core/Validation.ts:7` |  |
+| `@beep/form/react/FormReact` | `ArrayFieldOperations` | type | `packages/foundation/ui-system/form/src/react/FormReact.tsx:76` | React-facing array operations for array field render props. |
+| `@beep/form/react/FormReact` | `ArrayItemComponentMap` | type | `packages/foundation/ui-system/form/src/react/FormReact.tsx:155` | Component map accepted for one array field item. |
+| `@beep/form/react/FormReact` | `BuiltForm` | type | `packages/foundation/ui-system/form/src/react/FormReact.tsx:226` | React form object returned from {@link make}. |
+| `@beep/form/react/FormReact` | `ExtractExtraProps` | type | `packages/foundation/ui-system/form/src/react/FormReact.tsx:129` | Extracts extra props from a field component. |
+| `@beep/form/react/FormReact` | `FieldComponent` | type | `packages/foundation/ui-system/form/src/react/FormReact.tsx:112` | React component type accepted for scalar fields. |
+| `@beep/form/react/FormReact` | `FieldComponentMap` | type | `packages/foundation/ui-system/form/src/react/FormReact.tsx:182` | Component map accepted by the React form factory. |
+| `@beep/form/react/FormReact` | `FieldComponentProps` | interface | `packages/foundation/ui-system/form/src/react/FormReact.tsx:93` | Props received by a field component. |
+| `@beep/form/react/FormReact` | `FieldRefs` | type | `packages/foundation/ui-system/form/src/react/FormReact.tsx:208` | Field references exposed by a built React form. |
+| `@beep/form/react/FormReact` | `FieldState` | type | `packages/foundation/ui-system/form/src/react/FormReact.tsx:59` | React-facing state for one field. |
+| `@beep/form/react/FormReact` | `FieldValue` | type | `packages/foundation/ui-system/form/src/react/FormReact.tsx:42` | Render value type for a schema-backed field. |
+| `@beep/form/react/FormReact` | `make` | const | `packages/foundation/ui-system/form/src/react/FormReact.tsx:526` | Creates React components and atoms from a form builder. |
 
 ### @beep/identity
 
 | Import | Symbol | Kind | Source | Summary |
 |---|---|---|---|---|
-| `@beep/identity` | `$AcpId` | const | `packages/foundation/modeling/identity/src/packages.ts:916` | Identity composer for `@beep/acp`. |
-| `@beep/identity` | `$AgentCapabilityDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:588` | Identity composer for the `@beep/agent-capability-domain` package. |
-| `@beep/identity` | `$AgentCapabilityUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:604` | Identity composer for the `@beep/agent-capability-use-cases` package. |
-| `@beep/identity` | `$AiProviderCliId` | const | `packages/foundation/modeling/identity/src/packages.ts:1191` | Identity composer for `@beep/ai-provider-cli`. |
-| `@beep/identity` | `$ArchitectureLabClientId` | const | `packages/foundation/modeling/identity/src/packages.ts:1049` | Identity composer for `@beep/architecture-lab-client`. |
-| `@beep/identity` | `$ArchitectureLabConfigId` | const | `packages/foundation/modeling/identity/src/packages.ts:998` | Identity composer for `@beep/architecture-lab-config`. |
-| `@beep/identity` | `$ArchitectureLabDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:964` | Identity composer for `@beep/architecture-lab-domain`. |
-| `@beep/identity` | `$ArchitectureLabProofId` | const | `packages/foundation/modeling/identity/src/packages.ts:1083` | Identity composer for `@beep/architecture-lab-proof`. |
-| `@beep/identity` | `$ArchitectureLabServerId` | const | `packages/foundation/modeling/identity/src/packages.ts:1015` | Identity composer for `@beep/architecture-lab-server`. |
-| `@beep/identity` | `$ArchitectureLabTablesId` | const | `packages/foundation/modeling/identity/src/packages.ts:1032` | Identity composer for `@beep/architecture-lab-tables`. |
-| `@beep/identity` | `$ArchitectureLabUiId` | const | `packages/foundation/modeling/identity/src/packages.ts:1066` | Identity composer for `@beep/architecture-lab-ui`. |
-| `@beep/identity` | `$ArchitectureLabUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:981` | Identity composer for `@beep/architecture-lab-use-cases`. |
-| `@beep/identity` | `$BillingDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:744` | Identity composer for the `@beep/billing-domain` package. |
-| `@beep/identity` | `$BillingServerId` | const | `packages/foundation/modeling/identity/src/packages.ts:761` | Identity composer for the `@beep/billing-server` package. |
-| `@beep/identity` | `$BillingUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:778` | Identity composer for the `@beep/billing-use-cases` package. |
-| `@beep/identity` | `$CanvasClientId` | const | `packages/foundation/modeling/identity/src/packages.ts:1319` | Identity composer for `@beep/canvas-client`. |
-| `@beep/identity` | `$CanvasDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:1271` | Identity composer for `@beep/canvas-domain`. |
-| `@beep/identity` | `$CanvasId` | const | `packages/foundation/modeling/identity/src/packages.ts:1351` | Identity composer for `@beep/canvas`. |
-| `@beep/identity` | `$CanvasServerId` | const | `packages/foundation/modeling/identity/src/packages.ts:1303` | Identity composer for `@beep/canvas-server`. |
-| `@beep/identity` | `$CanvasUiId` | const | `packages/foundation/modeling/identity/src/packages.ts:1335` | Identity composer for `@beep/canvas-ui`. |
-| `@beep/identity` | `$CanvasUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:1287` | Identity composer for `@beep/canvas-use-cases`. |
-| `@beep/identity` | `$ChalkId` | const | `packages/foundation/modeling/identity/src/packages.ts:496` | Identity composer for the `@beep/chalk` package. |
-| `@beep/identity` | `$CodedankWebId` | const | `packages/foundation/modeling/identity/src/packages.ts:689` |  |
-| `@beep/identity` | `$ColorsId` | const | `packages/foundation/modeling/identity/src/packages.ts:481` | Identity composer for the `@beep/colors` package. |
-| `@beep/identity` | `$DataId` | const | `packages/foundation/modeling/identity/src/packages.ts:160` | Identity composer for the `@beep/data` package. |
-| `@beep/identity` | `$DiscordId` | const | `packages/foundation/modeling/identity/src/packages.ts:1175` | Identity composer for `@beep/discord`. |
-| `@beep/identity` | `$DrizzleId` | const | `packages/foundation/modeling/identity/src/packages.ts:701` |  |
-| `@beep/identity` | `$DuckdbId` | const | `packages/foundation/modeling/identity/src/packages.ts:707` |  |
-| `@beep/identity` | `$EpistemicDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:573` | Identity composer for the `@beep/epistemic-domain` package. |
-| `@beep/identity` | `$FaceDetectionId` | const | `packages/foundation/modeling/identity/src/packages.ts:713` |  |
-| `@beep/identity` | `$FfmpegId` | const | `packages/foundation/modeling/identity/src/packages.ts:719` |  |
-| `@beep/identity` | `$FormId` | const | `packages/foundation/modeling/identity/src/packages.ts:1384` | Identity composer for `@beep/form`. |
-| `@beep/identity` | `$HubspotId` | const | `packages/foundation/modeling/identity/src/packages.ts:1223` | Identity composer for `@beep/hubspot`. |
+| `@beep/identity` | `$AcpId` | const | `packages/foundation/modeling/identity/src/packages.ts:917` | Identity composer for `@beep/acp`. |
+| `@beep/identity` | `$AgentCapabilityDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:589` | Identity composer for the `@beep/agent-capability-domain` package. |
+| `@beep/identity` | `$AgentCapabilityUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:605` | Identity composer for the `@beep/agent-capability-use-cases` package. |
+| `@beep/identity` | `$AiProviderCliId` | const | `packages/foundation/modeling/identity/src/packages.ts:1192` | Identity composer for `@beep/ai-provider-cli`. |
+| `@beep/identity` | `$ArchitectureLabClientId` | const | `packages/foundation/modeling/identity/src/packages.ts:1050` | Identity composer for `@beep/architecture-lab-client`. |
+| `@beep/identity` | `$ArchitectureLabConfigId` | const | `packages/foundation/modeling/identity/src/packages.ts:999` | Identity composer for `@beep/architecture-lab-config`. |
+| `@beep/identity` | `$ArchitectureLabDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:965` | Identity composer for `@beep/architecture-lab-domain`. |
+| `@beep/identity` | `$ArchitectureLabProofId` | const | `packages/foundation/modeling/identity/src/packages.ts:1084` | Identity composer for `@beep/architecture-lab-proof`. |
+| `@beep/identity` | `$ArchitectureLabServerId` | const | `packages/foundation/modeling/identity/src/packages.ts:1016` | Identity composer for `@beep/architecture-lab-server`. |
+| `@beep/identity` | `$ArchitectureLabTablesId` | const | `packages/foundation/modeling/identity/src/packages.ts:1033` | Identity composer for `@beep/architecture-lab-tables`. |
+| `@beep/identity` | `$ArchitectureLabUiId` | const | `packages/foundation/modeling/identity/src/packages.ts:1067` | Identity composer for `@beep/architecture-lab-ui`. |
+| `@beep/identity` | `$ArchitectureLabUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:982` | Identity composer for `@beep/architecture-lab-use-cases`. |
+| `@beep/identity` | `$BillingDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:745` | Identity composer for the `@beep/billing-domain` package. |
+| `@beep/identity` | `$BillingServerId` | const | `packages/foundation/modeling/identity/src/packages.ts:762` | Identity composer for the `@beep/billing-server` package. |
+| `@beep/identity` | `$BillingUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:779` | Identity composer for the `@beep/billing-use-cases` package. |
+| `@beep/identity` | `$CanvasClientId` | const | `packages/foundation/modeling/identity/src/packages.ts:1320` | Identity composer for `@beep/canvas-client`. |
+| `@beep/identity` | `$CanvasDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:1272` | Identity composer for `@beep/canvas-domain`. |
+| `@beep/identity` | `$CanvasId` | const | `packages/foundation/modeling/identity/src/packages.ts:1352` | Identity composer for `@beep/canvas`. |
+| `@beep/identity` | `$CanvasServerId` | const | `packages/foundation/modeling/identity/src/packages.ts:1304` | Identity composer for `@beep/canvas-server`. |
+| `@beep/identity` | `$CanvasUiId` | const | `packages/foundation/modeling/identity/src/packages.ts:1336` | Identity composer for `@beep/canvas-ui`. |
+| `@beep/identity` | `$CanvasUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:1288` | Identity composer for `@beep/canvas-use-cases`. |
+| `@beep/identity` | `$ChalkId` | const | `packages/foundation/modeling/identity/src/packages.ts:497` | Identity composer for the `@beep/chalk` package. |
+| `@beep/identity` | `$CodedankWebId` | const | `packages/foundation/modeling/identity/src/packages.ts:690` |  |
+| `@beep/identity` | `$ColorsId` | const | `packages/foundation/modeling/identity/src/packages.ts:482` | Identity composer for the `@beep/colors` package. |
+| `@beep/identity` | `$DataId` | const | `packages/foundation/modeling/identity/src/packages.ts:161` | Identity composer for the `@beep/data` package. |
+| `@beep/identity` | `$DiscordId` | const | `packages/foundation/modeling/identity/src/packages.ts:1176` | Identity composer for `@beep/discord`. |
+| `@beep/identity` | `$DrizzleId` | const | `packages/foundation/modeling/identity/src/packages.ts:702` |  |
+| `@beep/identity` | `$DuckdbId` | const | `packages/foundation/modeling/identity/src/packages.ts:708` |  |
+| `@beep/identity` | `$EpistemicDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:574` | Identity composer for the `@beep/epistemic-domain` package. |
+| `@beep/identity` | `$FaceDetectionId` | const | `packages/foundation/modeling/identity/src/packages.ts:714` |  |
+| `@beep/identity` | `$FfmpegId` | const | `packages/foundation/modeling/identity/src/packages.ts:720` |  |
+| `@beep/identity` | `$FormId` | const | `packages/foundation/modeling/identity/src/packages.ts:1385` | Identity composer for `@beep/form`. |
+| `@beep/identity` | `$HubspotId` | const | `packages/foundation/modeling/identity/src/packages.ts:1224` | Identity composer for `@beep/hubspot`. |
 | `@beep/identity` | `$I` | const | `packages/foundation/modeling/identity/src/packages.ts:40` | Root identity composer for the `@beep` namespace. |
-| `@beep/identity` | `$IamDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:797` | Identity composer for the `@beep/iam-domain` package. |
-| `@beep/identity` | `$IamServerId` | const | `packages/foundation/modeling/identity/src/packages.ts:814` | Identity composer for the `@beep/iam-server` package. |
-| `@beep/identity` | `$IamTablesId` | const | `packages/foundation/modeling/identity/src/packages.ts:831` | Identity composer for the `@beep/iam-tables` package. |
-| `@beep/identity` | `$IamUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:848` | Identity composer for the `@beep/iam-use-cases` package. |
-| `@beep/identity` | `$IdentityId` | const | `packages/foundation/modeling/identity/src/packages.ts:175` | Identity composer for the `@beep/identity` package. |
-| `@beep/identity` | `$InfraId` | const | `packages/foundation/modeling/identity/src/packages.ts:526` | Identity composer for the `@beep/infra` package. |
-| `@beep/identity` | `$InstallerDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:1110` | Identity composer for `@beep/installer-domain`. |
-| `@beep/identity` | `$InstallerServerId` | const | `packages/foundation/modeling/identity/src/packages.ts:1127` | Identity composer for `@beep/installer-server`. |
-| `@beep/identity` | `$InstallerUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:1118` | Identity composer for `@beep/installer-use-cases`. |
-| `@beep/identity` | `$KonvaId` | const | `packages/foundation/modeling/identity/src/packages.ts:1255` | Identity composer for `@beep/konva`. |
-| `@beep/identity` | `$LawPracticeDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:620` | Identity composer for the `@beep/law-practice-domain` package. |
-| `@beep/identity` | `$MdId` | const | `packages/foundation/modeling/identity/src/packages.ts:683` |  |
-| `@beep/identity` | `$MessagesId` | const | `packages/foundation/modeling/identity/src/packages.ts:190` | Identity composer for the `@beep/messages` package. |
-| `@beep/identity` | `$NlpId` | const | `packages/foundation/modeling/identity/src/packages.ts:451` | Identity composer for the `@beep/nlp` package. |
-| `@beep/identity` | `$ObservabilityId` | const | `packages/foundation/modeling/identity/src/packages.ts:466` | Identity composer for the `@beep/observability` package. |
-| `@beep/identity` | `$OipWebId` | const | `packages/foundation/modeling/identity/src/packages.ts:695` |  |
-| `@beep/identity` | `$OnepasswordCliId` | const | `packages/foundation/modeling/identity/src/packages.ts:1159` | Identity composer for `@beep/onepassword-cli`. |
-| `@beep/identity` | `$OpenaiCompatId` | const | `packages/foundation/modeling/identity/src/packages.ts:932` | Identity composer for `@beep/openai-compat`. |
-| `@beep/identity` | `$OpenaiId` | const | `packages/foundation/modeling/identity/src/packages.ts:888` |  |
-| `@beep/identity` | `$PhoenixId` | const | `packages/foundation/modeling/identity/src/packages.ts:1239` | Identity composer for `@beep/phoenix`. |
-| `@beep/identity` | `$PostgresId` | const | `packages/foundation/modeling/identity/src/packages.ts:725` |  |
-| `@beep/identity` | `$ProfessionalDesktopId` | const | `packages/foundation/modeling/identity/src/packages.ts:652` | Identity composer for the `@beep/professional-desktop` package. |
-| `@beep/identity` | `$ProfessionalRuntimeProofId` | const | `packages/foundation/modeling/identity/src/packages.ts:668` | Identity composer for the `@beep/professional-runtime-proof` package. |
-| `@beep/identity` | `$RepoAiMetricsId` | const | `packages/foundation/modeling/identity/src/packages.ts:269` | Identity composer for the `@beep/repo-ai-metrics` package. |
-| `@beep/identity` | `$RepoCliId` | const | `packages/foundation/modeling/identity/src/packages.ts:284` | Identity composer for the `@beep/repo-cli` package. |
-| `@beep/identity` | `$RepoCodegraphId` | const | `packages/foundation/modeling/identity/src/packages.ts:1368` | Identity composer for `@beep/repo-codegraph`. |
-| `@beep/identity` | `$RepoConfigsId` | const | `packages/foundation/modeling/identity/src/packages.ts:299` | Identity composer for the `@beep/repo-configs` package. |
-| `@beep/identity` | `$RepoDocgenId` | const | `packages/foundation/modeling/identity/src/packages.ts:511` | Identity composer for the `@beep/repo-docgen` package. |
-| `@beep/identity` | `$RepoUtilsId` | const | `packages/foundation/modeling/identity/src/packages.ts:314` | Identity composer for the `@beep/repo-utils` package. |
-| `@beep/identity` | `$RunpodId` | const | `packages/foundation/modeling/identity/src/packages.ts:1143` | Identity composer for `@beep/runpod`. |
-| `@beep/identity` | `$SandboxId` | const | `packages/foundation/modeling/identity/src/packages.ts:882` | Identity composer for the `@beep/sandbox` package. |
-| `@beep/identity` | `$SanityId` | const | `packages/foundation/modeling/identity/src/packages.ts:1207` | Identity composer for `@beep/sanity`. |
-| `@beep/identity` | `$SchemaId` | const | `packages/foundation/modeling/identity/src/packages.ts:205` | Identity composer for the `@beep/schema` package. |
-| `@beep/identity` | `$ScratchpadId` | const | `packages/foundation/modeling/identity/src/packages.ts:865` | Identity composer for the `@beep/scratchpad` package. |
-| `@beep/identity` | `$SemanticWebId` | const | `packages/foundation/modeling/identity/src/packages.ts:436` | Identity composer for the `@beep/semantic-web` package. |
-| `@beep/identity` | `$SharedClientId` | const | `packages/foundation/modeling/identity/src/packages.ts:376` | Identity composer for the `@beep/shared-client` package. |
-| `@beep/identity` | `$SharedConfigId` | const | `packages/foundation/modeling/identity/src/packages.ts:421` | Identity composer for the `@beep/shared-config` package. |
-| `@beep/identity` | `$SharedDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:346` | Identity composer for the `@beep/shared-domain` package. |
-| `@beep/identity` | `$SharedServerId` | const | `packages/foundation/modeling/identity/src/packages.ts:391` | Identity composer for the `@beep/shared-server` package. |
-| `@beep/identity` | `$SharedTablesId` | const | `packages/foundation/modeling/identity/src/packages.ts:361` | Identity composer for the `@beep/shared-tables` package. |
-| `@beep/identity` | `$SharedUiId` | const | `packages/foundation/modeling/identity/src/packages.ts:406` | Identity composer for the `@beep/shared-ui` package. |
-| `@beep/identity` | `$SharedUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:541` | Identity composer for the `@beep/shared-use-cases` package. |
-| `@beep/identity` | `$StackInstallerId` | const | `packages/foundation/modeling/identity/src/packages.ts:1102` | Identity composer for `@beep/stack-installer`. |
-| `@beep/identity` | `$TestUtilsId` | const | `packages/foundation/modeling/identity/src/packages.ts:329` | Identity composer for the `@beep/test-utils` package. |
-| `@beep/identity` | `$TypesId` | const | `packages/foundation/modeling/identity/src/packages.ts:220` | Identity composer for the `@beep/types` package. |
-| `@beep/identity` | `$UiId` | const | `packages/foundation/modeling/identity/src/packages.ts:252` | Identity composer for the `@beep/ui` package. |
-| `@beep/identity` | `$UtilsId` | const | `packages/foundation/modeling/identity/src/packages.ts:235` | Identity composer for the `@beep/utils` package. |
-| `@beep/identity` | `$VeniceAiId` | const | `packages/foundation/modeling/identity/src/packages.ts:894` |  |
-| `@beep/identity` | `$WealthManagementDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:636` | Identity composer for the `@beep/wealth-management-domain` package. |
-| `@beep/identity` | `$WorkspaceDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:558` | Identity composer for the `@beep/workspace-domain` package. |
-| `@beep/identity` | `$WorkspaceTablesId` | const | `packages/foundation/modeling/identity/src/packages.ts:948` | Identity composer for `@beep/workspace-tables`. |
-| `@beep/identity` | `$XaiId` | const | `packages/foundation/modeling/identity/src/packages.ts:900` |  |
+| `@beep/identity` | `$IamDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:798` | Identity composer for the `@beep/iam-domain` package. |
+| `@beep/identity` | `$IamServerId` | const | `packages/foundation/modeling/identity/src/packages.ts:815` | Identity composer for the `@beep/iam-server` package. |
+| `@beep/identity` | `$IamTablesId` | const | `packages/foundation/modeling/identity/src/packages.ts:832` | Identity composer for the `@beep/iam-tables` package. |
+| `@beep/identity` | `$IamUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:849` | Identity composer for the `@beep/iam-use-cases` package. |
+| `@beep/identity` | `$IdentityId` | const | `packages/foundation/modeling/identity/src/packages.ts:176` | Identity composer for the `@beep/identity` package. |
+| `@beep/identity` | `$InfraId` | const | `packages/foundation/modeling/identity/src/packages.ts:527` | Identity composer for the `@beep/infra` package. |
+| `@beep/identity` | `$InstallerDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:1111` | Identity composer for `@beep/installer-domain`. |
+| `@beep/identity` | `$InstallerServerId` | const | `packages/foundation/modeling/identity/src/packages.ts:1128` | Identity composer for `@beep/installer-server`. |
+| `@beep/identity` | `$InstallerUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:1119` | Identity composer for `@beep/installer-use-cases`. |
+| `@beep/identity` | `$KonvaId` | const | `packages/foundation/modeling/identity/src/packages.ts:1256` | Identity composer for `@beep/konva`. |
+| `@beep/identity` | `$LawPracticeDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:621` | Identity composer for the `@beep/law-practice-domain` package. |
+| `@beep/identity` | `$MdId` | const | `packages/foundation/modeling/identity/src/packages.ts:684` |  |
+| `@beep/identity` | `$MessagesId` | const | `packages/foundation/modeling/identity/src/packages.ts:191` | Identity composer for the `@beep/messages` package. |
+| `@beep/identity` | `$NlpId` | const | `packages/foundation/modeling/identity/src/packages.ts:452` | Identity composer for the `@beep/nlp` package. |
+| `@beep/identity` | `$ObservabilityId` | const | `packages/foundation/modeling/identity/src/packages.ts:467` | Identity composer for the `@beep/observability` package. |
+| `@beep/identity` | `$OipWebId` | const | `packages/foundation/modeling/identity/src/packages.ts:696` |  |
+| `@beep/identity` | `$OnepasswordCliId` | const | `packages/foundation/modeling/identity/src/packages.ts:1160` | Identity composer for `@beep/onepassword-cli`. |
+| `@beep/identity` | `$OpenaiCompatId` | const | `packages/foundation/modeling/identity/src/packages.ts:933` | Identity composer for `@beep/openai-compat`. |
+| `@beep/identity` | `$OpenaiId` | const | `packages/foundation/modeling/identity/src/packages.ts:889` |  |
+| `@beep/identity` | `$PhoenixId` | const | `packages/foundation/modeling/identity/src/packages.ts:1240` | Identity composer for `@beep/phoenix`. |
+| `@beep/identity` | `$PostgresId` | const | `packages/foundation/modeling/identity/src/packages.ts:726` |  |
+| `@beep/identity` | `$ProfessionalDesktopId` | const | `packages/foundation/modeling/identity/src/packages.ts:653` | Identity composer for the `@beep/professional-desktop` package. |
+| `@beep/identity` | `$ProfessionalRuntimeProofId` | const | `packages/foundation/modeling/identity/src/packages.ts:669` | Identity composer for the `@beep/professional-runtime-proof` package. |
+| `@beep/identity` | `$RepoAiMetricsId` | const | `packages/foundation/modeling/identity/src/packages.ts:270` | Identity composer for the `@beep/repo-ai-metrics` package. |
+| `@beep/identity` | `$RepoCliId` | const | `packages/foundation/modeling/identity/src/packages.ts:285` | Identity composer for the `@beep/repo-cli` package. |
+| `@beep/identity` | `$RepoCodegraphId` | const | `packages/foundation/modeling/identity/src/packages.ts:1369` | Identity composer for `@beep/repo-codegraph`. |
+| `@beep/identity` | `$RepoConfigsId` | const | `packages/foundation/modeling/identity/src/packages.ts:300` | Identity composer for the `@beep/repo-configs` package. |
+| `@beep/identity` | `$RepoDocgenId` | const | `packages/foundation/modeling/identity/src/packages.ts:512` | Identity composer for the `@beep/repo-docgen` package. |
+| `@beep/identity` | `$RepoUtilsId` | const | `packages/foundation/modeling/identity/src/packages.ts:315` | Identity composer for the `@beep/repo-utils` package. |
+| `@beep/identity` | `$RunpodId` | const | `packages/foundation/modeling/identity/src/packages.ts:1144` | Identity composer for `@beep/runpod`. |
+| `@beep/identity` | `$SandboxId` | const | `packages/foundation/modeling/identity/src/packages.ts:883` | Identity composer for the `@beep/sandbox` package. |
+| `@beep/identity` | `$SanityId` | const | `packages/foundation/modeling/identity/src/packages.ts:1208` | Identity composer for `@beep/sanity`. |
+| `@beep/identity` | `$SchemaId` | const | `packages/foundation/modeling/identity/src/packages.ts:206` | Identity composer for the `@beep/schema` package. |
+| `@beep/identity` | `$ScratchpadId` | const | `packages/foundation/modeling/identity/src/packages.ts:866` | Identity composer for the `@beep/scratchpad` package. |
+| `@beep/identity` | `$SemanticWebId` | const | `packages/foundation/modeling/identity/src/packages.ts:437` | Identity composer for the `@beep/semantic-web` package. |
+| `@beep/identity` | `$SharedClientId` | const | `packages/foundation/modeling/identity/src/packages.ts:377` | Identity composer for the `@beep/shared-client` package. |
+| `@beep/identity` | `$SharedConfigId` | const | `packages/foundation/modeling/identity/src/packages.ts:422` | Identity composer for the `@beep/shared-config` package. |
+| `@beep/identity` | `$SharedDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:347` | Identity composer for the `@beep/shared-domain` package. |
+| `@beep/identity` | `$SharedServerId` | const | `packages/foundation/modeling/identity/src/packages.ts:392` | Identity composer for the `@beep/shared-server` package. |
+| `@beep/identity` | `$SharedTablesId` | const | `packages/foundation/modeling/identity/src/packages.ts:362` | Identity composer for the `@beep/shared-tables` package. |
+| `@beep/identity` | `$SharedUiId` | const | `packages/foundation/modeling/identity/src/packages.ts:407` | Identity composer for the `@beep/shared-ui` package. |
+| `@beep/identity` | `$SharedUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:542` | Identity composer for the `@beep/shared-use-cases` package. |
+| `@beep/identity` | `$StackInstallerId` | const | `packages/foundation/modeling/identity/src/packages.ts:1103` | Identity composer for `@beep/stack-installer`. |
+| `@beep/identity` | `$TestUtilsId` | const | `packages/foundation/modeling/identity/src/packages.ts:330` | Identity composer for the `@beep/test-utils` package. |
+| `@beep/identity` | `$TypesId` | const | `packages/foundation/modeling/identity/src/packages.ts:221` | Identity composer for the `@beep/types` package. |
+| `@beep/identity` | `$UiId` | const | `packages/foundation/modeling/identity/src/packages.ts:253` | Identity composer for the `@beep/ui` package. |
+| `@beep/identity` | `$UtilsId` | const | `packages/foundation/modeling/identity/src/packages.ts:236` | Identity composer for the `@beep/utils` package. |
+| `@beep/identity` | `$VeniceAiId` | const | `packages/foundation/modeling/identity/src/packages.ts:895` |  |
+| `@beep/identity` | `$WealthManagementDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:637` | Identity composer for the `@beep/wealth-management-domain` package. |
+| `@beep/identity` | `$WorkspaceDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:559` | Identity composer for the `@beep/workspace-domain` package. |
+| `@beep/identity` | `$WorkspaceTablesId` | const | `packages/foundation/modeling/identity/src/packages.ts:949` | Identity composer for `@beep/workspace-tables`. |
+| `@beep/identity` | `$XaiId` | const | `packages/foundation/modeling/identity/src/packages.ts:901` |  |
 | `@beep/identity` | `HttpAnnotationExtras` | type | `packages/foundation/modeling/identity/src/Id.ts:481` | Annotation fields accepted by `annoteHttp`, extending schema extras with HTTP API metadata. |
 | `@beep/identity` | `HttpApiEncoding` | type | `packages/foundation/modeling/identity/src/Id.ts:454` | Mirrors the raw HTTP encoding annotation shape used by Effect's HttpApiSchema. |
 | `@beep/identity` | `IdentityAnnotation` | type | `packages/foundation/modeling/identity/src/Id.ts:525` | Fully resolved identity annotation record applied to Effect schemas. |
@@ -6377,7 +6387,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/identity` | `make` | const | `packages/foundation/modeling/identity/src/Id.ts:1215` | Create a root identity composer for a `@beep` package namespace. |
 | `@beep/identity` | `ModuleAccessor` | type | `packages/foundation/modeling/identity/src/Id.ts:349` | Derive a PascalCase accessor name suffixed with `Id` from a module segment. |
 | `@beep/identity` | `ModuleSegmentValue` | type | `packages/foundation/modeling/identity/src/Id.ts:331` | Type-level constraint for module-safe identity segments. |
-| `@beep/identity` | `RepoPkgs` | const | `packages/foundation/modeling/identity/src/packages.ts:677` | RepoPkgs - export object containing all package IdentityComposer's |
+| `@beep/identity` | `RepoPkgs` | const | `packages/foundation/modeling/identity/src/packages.ts:678` | RepoPkgs - export object containing all package IdentityComposer's |
 | `@beep/identity` | `SchemaAnnotationExtras` | type | `packages/foundation/modeling/identity/src/Id.ts:418` | Additional schema annotation fields that identity annotation helpers accept. |
 | `@beep/identity` | `SegmentValue` | type | `packages/foundation/modeling/identity/src/Id.ts:203` | Type-level constraint ensuring an identity segment does not start or end with a slash. |
 | `@beep/identity` | `TaggedAccessor` | type | `packages/foundation/modeling/identity/src/Id.ts:366` | Derive a `$`-prefixed PascalCase accessor key from a module segment. |
@@ -6404,92 +6414,92 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/identity/Id` | `TaggedModuleRecord` | type | `packages/foundation/modeling/identity/src/Id.ts:580` | Record mapping `$`-prefixed accessor keys to child {@link IdentityComposer} instances, |
 | `@beep/identity/Id` | `TitleFromIdentifier` | type | `packages/foundation/modeling/identity/src/Id.ts:291` | Derive a human-readable title from a kebab-case or snake_case identifier. |
 | `@beep/identity/Id` | `VERSION` | const | `packages/foundation/modeling/identity/src/Id.ts:184` | Current version of the `@beep/identity` package. |
-| `@beep/identity/index` | `$AcpId` | const | `packages/foundation/modeling/identity/src/packages.ts:916` | Identity composer for `@beep/acp`. |
-| `@beep/identity/index` | `$AgentCapabilityDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:588` | Identity composer for the `@beep/agent-capability-domain` package. |
-| `@beep/identity/index` | `$AgentCapabilityUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:604` | Identity composer for the `@beep/agent-capability-use-cases` package. |
-| `@beep/identity/index` | `$AiProviderCliId` | const | `packages/foundation/modeling/identity/src/packages.ts:1191` | Identity composer for `@beep/ai-provider-cli`. |
-| `@beep/identity/index` | `$ArchitectureLabClientId` | const | `packages/foundation/modeling/identity/src/packages.ts:1049` | Identity composer for `@beep/architecture-lab-client`. |
-| `@beep/identity/index` | `$ArchitectureLabConfigId` | const | `packages/foundation/modeling/identity/src/packages.ts:998` | Identity composer for `@beep/architecture-lab-config`. |
-| `@beep/identity/index` | `$ArchitectureLabDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:964` | Identity composer for `@beep/architecture-lab-domain`. |
-| `@beep/identity/index` | `$ArchitectureLabProofId` | const | `packages/foundation/modeling/identity/src/packages.ts:1083` | Identity composer for `@beep/architecture-lab-proof`. |
-| `@beep/identity/index` | `$ArchitectureLabServerId` | const | `packages/foundation/modeling/identity/src/packages.ts:1015` | Identity composer for `@beep/architecture-lab-server`. |
-| `@beep/identity/index` | `$ArchitectureLabTablesId` | const | `packages/foundation/modeling/identity/src/packages.ts:1032` | Identity composer for `@beep/architecture-lab-tables`. |
-| `@beep/identity/index` | `$ArchitectureLabUiId` | const | `packages/foundation/modeling/identity/src/packages.ts:1066` | Identity composer for `@beep/architecture-lab-ui`. |
-| `@beep/identity/index` | `$ArchitectureLabUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:981` | Identity composer for `@beep/architecture-lab-use-cases`. |
-| `@beep/identity/index` | `$BillingDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:744` | Identity composer for the `@beep/billing-domain` package. |
-| `@beep/identity/index` | `$BillingServerId` | const | `packages/foundation/modeling/identity/src/packages.ts:761` | Identity composer for the `@beep/billing-server` package. |
-| `@beep/identity/index` | `$BillingUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:778` | Identity composer for the `@beep/billing-use-cases` package. |
-| `@beep/identity/index` | `$CanvasClientId` | const | `packages/foundation/modeling/identity/src/packages.ts:1319` | Identity composer for `@beep/canvas-client`. |
-| `@beep/identity/index` | `$CanvasDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:1271` | Identity composer for `@beep/canvas-domain`. |
-| `@beep/identity/index` | `$CanvasId` | const | `packages/foundation/modeling/identity/src/packages.ts:1351` | Identity composer for `@beep/canvas`. |
-| `@beep/identity/index` | `$CanvasServerId` | const | `packages/foundation/modeling/identity/src/packages.ts:1303` | Identity composer for `@beep/canvas-server`. |
-| `@beep/identity/index` | `$CanvasUiId` | const | `packages/foundation/modeling/identity/src/packages.ts:1335` | Identity composer for `@beep/canvas-ui`. |
-| `@beep/identity/index` | `$CanvasUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:1287` | Identity composer for `@beep/canvas-use-cases`. |
-| `@beep/identity/index` | `$ChalkId` | const | `packages/foundation/modeling/identity/src/packages.ts:496` | Identity composer for the `@beep/chalk` package. |
-| `@beep/identity/index` | `$CodedankWebId` | const | `packages/foundation/modeling/identity/src/packages.ts:689` |  |
-| `@beep/identity/index` | `$ColorsId` | const | `packages/foundation/modeling/identity/src/packages.ts:481` | Identity composer for the `@beep/colors` package. |
-| `@beep/identity/index` | `$DataId` | const | `packages/foundation/modeling/identity/src/packages.ts:160` | Identity composer for the `@beep/data` package. |
-| `@beep/identity/index` | `$DiscordId` | const | `packages/foundation/modeling/identity/src/packages.ts:1175` | Identity composer for `@beep/discord`. |
-| `@beep/identity/index` | `$DrizzleId` | const | `packages/foundation/modeling/identity/src/packages.ts:701` |  |
-| `@beep/identity/index` | `$DuckdbId` | const | `packages/foundation/modeling/identity/src/packages.ts:707` |  |
-| `@beep/identity/index` | `$EpistemicDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:573` | Identity composer for the `@beep/epistemic-domain` package. |
-| `@beep/identity/index` | `$FaceDetectionId` | const | `packages/foundation/modeling/identity/src/packages.ts:713` |  |
-| `@beep/identity/index` | `$FfmpegId` | const | `packages/foundation/modeling/identity/src/packages.ts:719` |  |
-| `@beep/identity/index` | `$FormId` | const | `packages/foundation/modeling/identity/src/packages.ts:1384` | Identity composer for `@beep/form`. |
-| `@beep/identity/index` | `$HubspotId` | const | `packages/foundation/modeling/identity/src/packages.ts:1223` | Identity composer for `@beep/hubspot`. |
+| `@beep/identity/index` | `$AcpId` | const | `packages/foundation/modeling/identity/src/packages.ts:917` | Identity composer for `@beep/acp`. |
+| `@beep/identity/index` | `$AgentCapabilityDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:589` | Identity composer for the `@beep/agent-capability-domain` package. |
+| `@beep/identity/index` | `$AgentCapabilityUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:605` | Identity composer for the `@beep/agent-capability-use-cases` package. |
+| `@beep/identity/index` | `$AiProviderCliId` | const | `packages/foundation/modeling/identity/src/packages.ts:1192` | Identity composer for `@beep/ai-provider-cli`. |
+| `@beep/identity/index` | `$ArchitectureLabClientId` | const | `packages/foundation/modeling/identity/src/packages.ts:1050` | Identity composer for `@beep/architecture-lab-client`. |
+| `@beep/identity/index` | `$ArchitectureLabConfigId` | const | `packages/foundation/modeling/identity/src/packages.ts:999` | Identity composer for `@beep/architecture-lab-config`. |
+| `@beep/identity/index` | `$ArchitectureLabDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:965` | Identity composer for `@beep/architecture-lab-domain`. |
+| `@beep/identity/index` | `$ArchitectureLabProofId` | const | `packages/foundation/modeling/identity/src/packages.ts:1084` | Identity composer for `@beep/architecture-lab-proof`. |
+| `@beep/identity/index` | `$ArchitectureLabServerId` | const | `packages/foundation/modeling/identity/src/packages.ts:1016` | Identity composer for `@beep/architecture-lab-server`. |
+| `@beep/identity/index` | `$ArchitectureLabTablesId` | const | `packages/foundation/modeling/identity/src/packages.ts:1033` | Identity composer for `@beep/architecture-lab-tables`. |
+| `@beep/identity/index` | `$ArchitectureLabUiId` | const | `packages/foundation/modeling/identity/src/packages.ts:1067` | Identity composer for `@beep/architecture-lab-ui`. |
+| `@beep/identity/index` | `$ArchitectureLabUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:982` | Identity composer for `@beep/architecture-lab-use-cases`. |
+| `@beep/identity/index` | `$BillingDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:745` | Identity composer for the `@beep/billing-domain` package. |
+| `@beep/identity/index` | `$BillingServerId` | const | `packages/foundation/modeling/identity/src/packages.ts:762` | Identity composer for the `@beep/billing-server` package. |
+| `@beep/identity/index` | `$BillingUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:779` | Identity composer for the `@beep/billing-use-cases` package. |
+| `@beep/identity/index` | `$CanvasClientId` | const | `packages/foundation/modeling/identity/src/packages.ts:1320` | Identity composer for `@beep/canvas-client`. |
+| `@beep/identity/index` | `$CanvasDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:1272` | Identity composer for `@beep/canvas-domain`. |
+| `@beep/identity/index` | `$CanvasId` | const | `packages/foundation/modeling/identity/src/packages.ts:1352` | Identity composer for `@beep/canvas`. |
+| `@beep/identity/index` | `$CanvasServerId` | const | `packages/foundation/modeling/identity/src/packages.ts:1304` | Identity composer for `@beep/canvas-server`. |
+| `@beep/identity/index` | `$CanvasUiId` | const | `packages/foundation/modeling/identity/src/packages.ts:1336` | Identity composer for `@beep/canvas-ui`. |
+| `@beep/identity/index` | `$CanvasUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:1288` | Identity composer for `@beep/canvas-use-cases`. |
+| `@beep/identity/index` | `$ChalkId` | const | `packages/foundation/modeling/identity/src/packages.ts:497` | Identity composer for the `@beep/chalk` package. |
+| `@beep/identity/index` | `$CodedankWebId` | const | `packages/foundation/modeling/identity/src/packages.ts:690` |  |
+| `@beep/identity/index` | `$ColorsId` | const | `packages/foundation/modeling/identity/src/packages.ts:482` | Identity composer for the `@beep/colors` package. |
+| `@beep/identity/index` | `$DataId` | const | `packages/foundation/modeling/identity/src/packages.ts:161` | Identity composer for the `@beep/data` package. |
+| `@beep/identity/index` | `$DiscordId` | const | `packages/foundation/modeling/identity/src/packages.ts:1176` | Identity composer for `@beep/discord`. |
+| `@beep/identity/index` | `$DrizzleId` | const | `packages/foundation/modeling/identity/src/packages.ts:702` |  |
+| `@beep/identity/index` | `$DuckdbId` | const | `packages/foundation/modeling/identity/src/packages.ts:708` |  |
+| `@beep/identity/index` | `$EpistemicDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:574` | Identity composer for the `@beep/epistemic-domain` package. |
+| `@beep/identity/index` | `$FaceDetectionId` | const | `packages/foundation/modeling/identity/src/packages.ts:714` |  |
+| `@beep/identity/index` | `$FfmpegId` | const | `packages/foundation/modeling/identity/src/packages.ts:720` |  |
+| `@beep/identity/index` | `$FormId` | const | `packages/foundation/modeling/identity/src/packages.ts:1385` | Identity composer for `@beep/form`. |
+| `@beep/identity/index` | `$HubspotId` | const | `packages/foundation/modeling/identity/src/packages.ts:1224` | Identity composer for `@beep/hubspot`. |
 | `@beep/identity/index` | `$I` | const | `packages/foundation/modeling/identity/src/packages.ts:40` | Root identity composer for the `@beep` namespace. |
-| `@beep/identity/index` | `$IamDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:797` | Identity composer for the `@beep/iam-domain` package. |
-| `@beep/identity/index` | `$IamServerId` | const | `packages/foundation/modeling/identity/src/packages.ts:814` | Identity composer for the `@beep/iam-server` package. |
-| `@beep/identity/index` | `$IamTablesId` | const | `packages/foundation/modeling/identity/src/packages.ts:831` | Identity composer for the `@beep/iam-tables` package. |
-| `@beep/identity/index` | `$IamUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:848` | Identity composer for the `@beep/iam-use-cases` package. |
-| `@beep/identity/index` | `$IdentityId` | const | `packages/foundation/modeling/identity/src/packages.ts:175` | Identity composer for the `@beep/identity` package. |
-| `@beep/identity/index` | `$InfraId` | const | `packages/foundation/modeling/identity/src/packages.ts:526` | Identity composer for the `@beep/infra` package. |
-| `@beep/identity/index` | `$InstallerDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:1110` | Identity composer for `@beep/installer-domain`. |
-| `@beep/identity/index` | `$InstallerServerId` | const | `packages/foundation/modeling/identity/src/packages.ts:1127` | Identity composer for `@beep/installer-server`. |
-| `@beep/identity/index` | `$InstallerUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:1118` | Identity composer for `@beep/installer-use-cases`. |
-| `@beep/identity/index` | `$KonvaId` | const | `packages/foundation/modeling/identity/src/packages.ts:1255` | Identity composer for `@beep/konva`. |
-| `@beep/identity/index` | `$LawPracticeDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:620` | Identity composer for the `@beep/law-practice-domain` package. |
-| `@beep/identity/index` | `$MdId` | const | `packages/foundation/modeling/identity/src/packages.ts:683` |  |
-| `@beep/identity/index` | `$MessagesId` | const | `packages/foundation/modeling/identity/src/packages.ts:190` | Identity composer for the `@beep/messages` package. |
-| `@beep/identity/index` | `$NlpId` | const | `packages/foundation/modeling/identity/src/packages.ts:451` | Identity composer for the `@beep/nlp` package. |
-| `@beep/identity/index` | `$ObservabilityId` | const | `packages/foundation/modeling/identity/src/packages.ts:466` | Identity composer for the `@beep/observability` package. |
-| `@beep/identity/index` | `$OipWebId` | const | `packages/foundation/modeling/identity/src/packages.ts:695` |  |
-| `@beep/identity/index` | `$OnepasswordCliId` | const | `packages/foundation/modeling/identity/src/packages.ts:1159` | Identity composer for `@beep/onepassword-cli`. |
-| `@beep/identity/index` | `$OpenaiCompatId` | const | `packages/foundation/modeling/identity/src/packages.ts:932` | Identity composer for `@beep/openai-compat`. |
-| `@beep/identity/index` | `$OpenaiId` | const | `packages/foundation/modeling/identity/src/packages.ts:888` |  |
-| `@beep/identity/index` | `$PhoenixId` | const | `packages/foundation/modeling/identity/src/packages.ts:1239` | Identity composer for `@beep/phoenix`. |
-| `@beep/identity/index` | `$PostgresId` | const | `packages/foundation/modeling/identity/src/packages.ts:725` |  |
-| `@beep/identity/index` | `$ProfessionalDesktopId` | const | `packages/foundation/modeling/identity/src/packages.ts:652` | Identity composer for the `@beep/professional-desktop` package. |
-| `@beep/identity/index` | `$ProfessionalRuntimeProofId` | const | `packages/foundation/modeling/identity/src/packages.ts:668` | Identity composer for the `@beep/professional-runtime-proof` package. |
-| `@beep/identity/index` | `$RepoAiMetricsId` | const | `packages/foundation/modeling/identity/src/packages.ts:269` | Identity composer for the `@beep/repo-ai-metrics` package. |
-| `@beep/identity/index` | `$RepoCliId` | const | `packages/foundation/modeling/identity/src/packages.ts:284` | Identity composer for the `@beep/repo-cli` package. |
-| `@beep/identity/index` | `$RepoCodegraphId` | const | `packages/foundation/modeling/identity/src/packages.ts:1368` | Identity composer for `@beep/repo-codegraph`. |
-| `@beep/identity/index` | `$RepoConfigsId` | const | `packages/foundation/modeling/identity/src/packages.ts:299` | Identity composer for the `@beep/repo-configs` package. |
-| `@beep/identity/index` | `$RepoDocgenId` | const | `packages/foundation/modeling/identity/src/packages.ts:511` | Identity composer for the `@beep/repo-docgen` package. |
-| `@beep/identity/index` | `$RepoUtilsId` | const | `packages/foundation/modeling/identity/src/packages.ts:314` | Identity composer for the `@beep/repo-utils` package. |
-| `@beep/identity/index` | `$RunpodId` | const | `packages/foundation/modeling/identity/src/packages.ts:1143` | Identity composer for `@beep/runpod`. |
-| `@beep/identity/index` | `$SandboxId` | const | `packages/foundation/modeling/identity/src/packages.ts:882` | Identity composer for the `@beep/sandbox` package. |
-| `@beep/identity/index` | `$SanityId` | const | `packages/foundation/modeling/identity/src/packages.ts:1207` | Identity composer for `@beep/sanity`. |
-| `@beep/identity/index` | `$SchemaId` | const | `packages/foundation/modeling/identity/src/packages.ts:205` | Identity composer for the `@beep/schema` package. |
-| `@beep/identity/index` | `$ScratchpadId` | const | `packages/foundation/modeling/identity/src/packages.ts:865` | Identity composer for the `@beep/scratchpad` package. |
-| `@beep/identity/index` | `$SemanticWebId` | const | `packages/foundation/modeling/identity/src/packages.ts:436` | Identity composer for the `@beep/semantic-web` package. |
-| `@beep/identity/index` | `$SharedClientId` | const | `packages/foundation/modeling/identity/src/packages.ts:376` | Identity composer for the `@beep/shared-client` package. |
-| `@beep/identity/index` | `$SharedConfigId` | const | `packages/foundation/modeling/identity/src/packages.ts:421` | Identity composer for the `@beep/shared-config` package. |
-| `@beep/identity/index` | `$SharedDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:346` | Identity composer for the `@beep/shared-domain` package. |
-| `@beep/identity/index` | `$SharedServerId` | const | `packages/foundation/modeling/identity/src/packages.ts:391` | Identity composer for the `@beep/shared-server` package. |
-| `@beep/identity/index` | `$SharedTablesId` | const | `packages/foundation/modeling/identity/src/packages.ts:361` | Identity composer for the `@beep/shared-tables` package. |
-| `@beep/identity/index` | `$SharedUiId` | const | `packages/foundation/modeling/identity/src/packages.ts:406` | Identity composer for the `@beep/shared-ui` package. |
-| `@beep/identity/index` | `$SharedUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:541` | Identity composer for the `@beep/shared-use-cases` package. |
-| `@beep/identity/index` | `$StackInstallerId` | const | `packages/foundation/modeling/identity/src/packages.ts:1102` | Identity composer for `@beep/stack-installer`. |
-| `@beep/identity/index` | `$TestUtilsId` | const | `packages/foundation/modeling/identity/src/packages.ts:329` | Identity composer for the `@beep/test-utils` package. |
-| `@beep/identity/index` | `$TypesId` | const | `packages/foundation/modeling/identity/src/packages.ts:220` | Identity composer for the `@beep/types` package. |
-| `@beep/identity/index` | `$UiId` | const | `packages/foundation/modeling/identity/src/packages.ts:252` | Identity composer for the `@beep/ui` package. |
-| `@beep/identity/index` | `$UtilsId` | const | `packages/foundation/modeling/identity/src/packages.ts:235` | Identity composer for the `@beep/utils` package. |
-| `@beep/identity/index` | `$VeniceAiId` | const | `packages/foundation/modeling/identity/src/packages.ts:894` |  |
-| `@beep/identity/index` | `$WealthManagementDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:636` | Identity composer for the `@beep/wealth-management-domain` package. |
-| `@beep/identity/index` | `$WorkspaceDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:558` | Identity composer for the `@beep/workspace-domain` package. |
-| `@beep/identity/index` | `$WorkspaceTablesId` | const | `packages/foundation/modeling/identity/src/packages.ts:948` | Identity composer for `@beep/workspace-tables`. |
-| `@beep/identity/index` | `$XaiId` | const | `packages/foundation/modeling/identity/src/packages.ts:900` |  |
+| `@beep/identity/index` | `$IamDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:798` | Identity composer for the `@beep/iam-domain` package. |
+| `@beep/identity/index` | `$IamServerId` | const | `packages/foundation/modeling/identity/src/packages.ts:815` | Identity composer for the `@beep/iam-server` package. |
+| `@beep/identity/index` | `$IamTablesId` | const | `packages/foundation/modeling/identity/src/packages.ts:832` | Identity composer for the `@beep/iam-tables` package. |
+| `@beep/identity/index` | `$IamUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:849` | Identity composer for the `@beep/iam-use-cases` package. |
+| `@beep/identity/index` | `$IdentityId` | const | `packages/foundation/modeling/identity/src/packages.ts:176` | Identity composer for the `@beep/identity` package. |
+| `@beep/identity/index` | `$InfraId` | const | `packages/foundation/modeling/identity/src/packages.ts:527` | Identity composer for the `@beep/infra` package. |
+| `@beep/identity/index` | `$InstallerDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:1111` | Identity composer for `@beep/installer-domain`. |
+| `@beep/identity/index` | `$InstallerServerId` | const | `packages/foundation/modeling/identity/src/packages.ts:1128` | Identity composer for `@beep/installer-server`. |
+| `@beep/identity/index` | `$InstallerUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:1119` | Identity composer for `@beep/installer-use-cases`. |
+| `@beep/identity/index` | `$KonvaId` | const | `packages/foundation/modeling/identity/src/packages.ts:1256` | Identity composer for `@beep/konva`. |
+| `@beep/identity/index` | `$LawPracticeDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:621` | Identity composer for the `@beep/law-practice-domain` package. |
+| `@beep/identity/index` | `$MdId` | const | `packages/foundation/modeling/identity/src/packages.ts:684` |  |
+| `@beep/identity/index` | `$MessagesId` | const | `packages/foundation/modeling/identity/src/packages.ts:191` | Identity composer for the `@beep/messages` package. |
+| `@beep/identity/index` | `$NlpId` | const | `packages/foundation/modeling/identity/src/packages.ts:452` | Identity composer for the `@beep/nlp` package. |
+| `@beep/identity/index` | `$ObservabilityId` | const | `packages/foundation/modeling/identity/src/packages.ts:467` | Identity composer for the `@beep/observability` package. |
+| `@beep/identity/index` | `$OipWebId` | const | `packages/foundation/modeling/identity/src/packages.ts:696` |  |
+| `@beep/identity/index` | `$OnepasswordCliId` | const | `packages/foundation/modeling/identity/src/packages.ts:1160` | Identity composer for `@beep/onepassword-cli`. |
+| `@beep/identity/index` | `$OpenaiCompatId` | const | `packages/foundation/modeling/identity/src/packages.ts:933` | Identity composer for `@beep/openai-compat`. |
+| `@beep/identity/index` | `$OpenaiId` | const | `packages/foundation/modeling/identity/src/packages.ts:889` |  |
+| `@beep/identity/index` | `$PhoenixId` | const | `packages/foundation/modeling/identity/src/packages.ts:1240` | Identity composer for `@beep/phoenix`. |
+| `@beep/identity/index` | `$PostgresId` | const | `packages/foundation/modeling/identity/src/packages.ts:726` |  |
+| `@beep/identity/index` | `$ProfessionalDesktopId` | const | `packages/foundation/modeling/identity/src/packages.ts:653` | Identity composer for the `@beep/professional-desktop` package. |
+| `@beep/identity/index` | `$ProfessionalRuntimeProofId` | const | `packages/foundation/modeling/identity/src/packages.ts:669` | Identity composer for the `@beep/professional-runtime-proof` package. |
+| `@beep/identity/index` | `$RepoAiMetricsId` | const | `packages/foundation/modeling/identity/src/packages.ts:270` | Identity composer for the `@beep/repo-ai-metrics` package. |
+| `@beep/identity/index` | `$RepoCliId` | const | `packages/foundation/modeling/identity/src/packages.ts:285` | Identity composer for the `@beep/repo-cli` package. |
+| `@beep/identity/index` | `$RepoCodegraphId` | const | `packages/foundation/modeling/identity/src/packages.ts:1369` | Identity composer for `@beep/repo-codegraph`. |
+| `@beep/identity/index` | `$RepoConfigsId` | const | `packages/foundation/modeling/identity/src/packages.ts:300` | Identity composer for the `@beep/repo-configs` package. |
+| `@beep/identity/index` | `$RepoDocgenId` | const | `packages/foundation/modeling/identity/src/packages.ts:512` | Identity composer for the `@beep/repo-docgen` package. |
+| `@beep/identity/index` | `$RepoUtilsId` | const | `packages/foundation/modeling/identity/src/packages.ts:315` | Identity composer for the `@beep/repo-utils` package. |
+| `@beep/identity/index` | `$RunpodId` | const | `packages/foundation/modeling/identity/src/packages.ts:1144` | Identity composer for `@beep/runpod`. |
+| `@beep/identity/index` | `$SandboxId` | const | `packages/foundation/modeling/identity/src/packages.ts:883` | Identity composer for the `@beep/sandbox` package. |
+| `@beep/identity/index` | `$SanityId` | const | `packages/foundation/modeling/identity/src/packages.ts:1208` | Identity composer for `@beep/sanity`. |
+| `@beep/identity/index` | `$SchemaId` | const | `packages/foundation/modeling/identity/src/packages.ts:206` | Identity composer for the `@beep/schema` package. |
+| `@beep/identity/index` | `$ScratchpadId` | const | `packages/foundation/modeling/identity/src/packages.ts:866` | Identity composer for the `@beep/scratchpad` package. |
+| `@beep/identity/index` | `$SemanticWebId` | const | `packages/foundation/modeling/identity/src/packages.ts:437` | Identity composer for the `@beep/semantic-web` package. |
+| `@beep/identity/index` | `$SharedClientId` | const | `packages/foundation/modeling/identity/src/packages.ts:377` | Identity composer for the `@beep/shared-client` package. |
+| `@beep/identity/index` | `$SharedConfigId` | const | `packages/foundation/modeling/identity/src/packages.ts:422` | Identity composer for the `@beep/shared-config` package. |
+| `@beep/identity/index` | `$SharedDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:347` | Identity composer for the `@beep/shared-domain` package. |
+| `@beep/identity/index` | `$SharedServerId` | const | `packages/foundation/modeling/identity/src/packages.ts:392` | Identity composer for the `@beep/shared-server` package. |
+| `@beep/identity/index` | `$SharedTablesId` | const | `packages/foundation/modeling/identity/src/packages.ts:362` | Identity composer for the `@beep/shared-tables` package. |
+| `@beep/identity/index` | `$SharedUiId` | const | `packages/foundation/modeling/identity/src/packages.ts:407` | Identity composer for the `@beep/shared-ui` package. |
+| `@beep/identity/index` | `$SharedUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:542` | Identity composer for the `@beep/shared-use-cases` package. |
+| `@beep/identity/index` | `$StackInstallerId` | const | `packages/foundation/modeling/identity/src/packages.ts:1103` | Identity composer for `@beep/stack-installer`. |
+| `@beep/identity/index` | `$TestUtilsId` | const | `packages/foundation/modeling/identity/src/packages.ts:330` | Identity composer for the `@beep/test-utils` package. |
+| `@beep/identity/index` | `$TypesId` | const | `packages/foundation/modeling/identity/src/packages.ts:221` | Identity composer for the `@beep/types` package. |
+| `@beep/identity/index` | `$UiId` | const | `packages/foundation/modeling/identity/src/packages.ts:253` | Identity composer for the `@beep/ui` package. |
+| `@beep/identity/index` | `$UtilsId` | const | `packages/foundation/modeling/identity/src/packages.ts:236` | Identity composer for the `@beep/utils` package. |
+| `@beep/identity/index` | `$VeniceAiId` | const | `packages/foundation/modeling/identity/src/packages.ts:895` |  |
+| `@beep/identity/index` | `$WealthManagementDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:637` | Identity composer for the `@beep/wealth-management-domain` package. |
+| `@beep/identity/index` | `$WorkspaceDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:559` | Identity composer for the `@beep/workspace-domain` package. |
+| `@beep/identity/index` | `$WorkspaceTablesId` | const | `packages/foundation/modeling/identity/src/packages.ts:949` | Identity composer for `@beep/workspace-tables`. |
+| `@beep/identity/index` | `$XaiId` | const | `packages/foundation/modeling/identity/src/packages.ts:901` |  |
 | `@beep/identity/index` | `HttpAnnotationExtras` | type | `packages/foundation/modeling/identity/src/Id.ts:481` | Annotation fields accepted by `annoteHttp`, extending schema extras with HTTP API metadata. |
 | `@beep/identity/index` | `HttpApiEncoding` | type | `packages/foundation/modeling/identity/src/Id.ts:454` | Mirrors the raw HTTP encoding annotation shape used by Effect's HttpApiSchema. |
 | `@beep/identity/index` | `IdentityAnnotation` | type | `packages/foundation/modeling/identity/src/Id.ts:525` | Fully resolved identity annotation record applied to Effect schemas. |
@@ -6504,100 +6514,100 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/identity/index` | `make` | const | `packages/foundation/modeling/identity/src/Id.ts:1215` | Create a root identity composer for a `@beep` package namespace. |
 | `@beep/identity/index` | `ModuleAccessor` | type | `packages/foundation/modeling/identity/src/Id.ts:349` | Derive a PascalCase accessor name suffixed with `Id` from a module segment. |
 | `@beep/identity/index` | `ModuleSegmentValue` | type | `packages/foundation/modeling/identity/src/Id.ts:331` | Type-level constraint for module-safe identity segments. |
-| `@beep/identity/index` | `RepoPkgs` | const | `packages/foundation/modeling/identity/src/packages.ts:677` | RepoPkgs - export object containing all package IdentityComposer's |
+| `@beep/identity/index` | `RepoPkgs` | const | `packages/foundation/modeling/identity/src/packages.ts:678` | RepoPkgs - export object containing all package IdentityComposer's |
 | `@beep/identity/index` | `SchemaAnnotationExtras` | type | `packages/foundation/modeling/identity/src/Id.ts:418` | Additional schema annotation fields that identity annotation helpers accept. |
 | `@beep/identity/index` | `SegmentValue` | type | `packages/foundation/modeling/identity/src/Id.ts:203` | Type-level constraint ensuring an identity segment does not start or end with a slash. |
 | `@beep/identity/index` | `TaggedAccessor` | type | `packages/foundation/modeling/identity/src/Id.ts:366` | Derive a `$`-prefixed PascalCase accessor key from a module segment. |
 | `@beep/identity/index` | `TaggedModuleRecord` | type | `packages/foundation/modeling/identity/src/Id.ts:580` | Record mapping `$`-prefixed accessor keys to child {@link IdentityComposer} instances, |
 | `@beep/identity/index` | `TitleFromIdentifier` | type | `packages/foundation/modeling/identity/src/Id.ts:291` | Derive a human-readable title from a kebab-case or snake_case identifier. |
 | `@beep/identity/index` | `VERSION` | const | `packages/foundation/modeling/identity/src/Id.ts:184` | Current version of the `@beep/identity` package. |
-| `@beep/identity/packages` | `$AcpId` | const | `packages/foundation/modeling/identity/src/packages.ts:916` | Identity composer for `@beep/acp`. |
-| `@beep/identity/packages` | `$AgentCapabilityDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:588` | Identity composer for the `@beep/agent-capability-domain` package. |
-| `@beep/identity/packages` | `$AgentCapabilityUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:604` | Identity composer for the `@beep/agent-capability-use-cases` package. |
-| `@beep/identity/packages` | `$AiProviderCliId` | const | `packages/foundation/modeling/identity/src/packages.ts:1191` | Identity composer for `@beep/ai-provider-cli`. |
-| `@beep/identity/packages` | `$ArchitectureLabClientId` | const | `packages/foundation/modeling/identity/src/packages.ts:1049` | Identity composer for `@beep/architecture-lab-client`. |
-| `@beep/identity/packages` | `$ArchitectureLabConfigId` | const | `packages/foundation/modeling/identity/src/packages.ts:998` | Identity composer for `@beep/architecture-lab-config`. |
-| `@beep/identity/packages` | `$ArchitectureLabDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:964` | Identity composer for `@beep/architecture-lab-domain`. |
-| `@beep/identity/packages` | `$ArchitectureLabProofId` | const | `packages/foundation/modeling/identity/src/packages.ts:1083` | Identity composer for `@beep/architecture-lab-proof`. |
-| `@beep/identity/packages` | `$ArchitectureLabServerId` | const | `packages/foundation/modeling/identity/src/packages.ts:1015` | Identity composer for `@beep/architecture-lab-server`. |
-| `@beep/identity/packages` | `$ArchitectureLabTablesId` | const | `packages/foundation/modeling/identity/src/packages.ts:1032` | Identity composer for `@beep/architecture-lab-tables`. |
-| `@beep/identity/packages` | `$ArchitectureLabUiId` | const | `packages/foundation/modeling/identity/src/packages.ts:1066` | Identity composer for `@beep/architecture-lab-ui`. |
-| `@beep/identity/packages` | `$ArchitectureLabUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:981` | Identity composer for `@beep/architecture-lab-use-cases`. |
-| `@beep/identity/packages` | `$BillingDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:744` | Identity composer for the `@beep/billing-domain` package. |
-| `@beep/identity/packages` | `$BillingServerId` | const | `packages/foundation/modeling/identity/src/packages.ts:761` | Identity composer for the `@beep/billing-server` package. |
-| `@beep/identity/packages` | `$BillingUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:778` | Identity composer for the `@beep/billing-use-cases` package. |
-| `@beep/identity/packages` | `$CanvasClientId` | const | `packages/foundation/modeling/identity/src/packages.ts:1319` | Identity composer for `@beep/canvas-client`. |
-| `@beep/identity/packages` | `$CanvasDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:1271` | Identity composer for `@beep/canvas-domain`. |
-| `@beep/identity/packages` | `$CanvasId` | const | `packages/foundation/modeling/identity/src/packages.ts:1351` | Identity composer for `@beep/canvas`. |
-| `@beep/identity/packages` | `$CanvasServerId` | const | `packages/foundation/modeling/identity/src/packages.ts:1303` | Identity composer for `@beep/canvas-server`. |
-| `@beep/identity/packages` | `$CanvasUiId` | const | `packages/foundation/modeling/identity/src/packages.ts:1335` | Identity composer for `@beep/canvas-ui`. |
-| `@beep/identity/packages` | `$CanvasUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:1287` | Identity composer for `@beep/canvas-use-cases`. |
-| `@beep/identity/packages` | `$ChalkId` | const | `packages/foundation/modeling/identity/src/packages.ts:496` | Identity composer for the `@beep/chalk` package. |
-| `@beep/identity/packages` | `$CodedankWebId` | const | `packages/foundation/modeling/identity/src/packages.ts:689` |  |
-| `@beep/identity/packages` | `$ColorsId` | const | `packages/foundation/modeling/identity/src/packages.ts:481` | Identity composer for the `@beep/colors` package. |
-| `@beep/identity/packages` | `$DataId` | const | `packages/foundation/modeling/identity/src/packages.ts:160` | Identity composer for the `@beep/data` package. |
-| `@beep/identity/packages` | `$DiscordId` | const | `packages/foundation/modeling/identity/src/packages.ts:1175` | Identity composer for `@beep/discord`. |
-| `@beep/identity/packages` | `$DrizzleId` | const | `packages/foundation/modeling/identity/src/packages.ts:701` |  |
-| `@beep/identity/packages` | `$DuckdbId` | const | `packages/foundation/modeling/identity/src/packages.ts:707` |  |
-| `@beep/identity/packages` | `$EpistemicDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:573` | Identity composer for the `@beep/epistemic-domain` package. |
-| `@beep/identity/packages` | `$FaceDetectionId` | const | `packages/foundation/modeling/identity/src/packages.ts:713` |  |
-| `@beep/identity/packages` | `$FfmpegId` | const | `packages/foundation/modeling/identity/src/packages.ts:719` |  |
-| `@beep/identity/packages` | `$FormId` | const | `packages/foundation/modeling/identity/src/packages.ts:1384` | Identity composer for `@beep/form`. |
-| `@beep/identity/packages` | `$HubspotId` | const | `packages/foundation/modeling/identity/src/packages.ts:1223` | Identity composer for `@beep/hubspot`. |
+| `@beep/identity/packages` | `$AcpId` | const | `packages/foundation/modeling/identity/src/packages.ts:917` | Identity composer for `@beep/acp`. |
+| `@beep/identity/packages` | `$AgentCapabilityDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:589` | Identity composer for the `@beep/agent-capability-domain` package. |
+| `@beep/identity/packages` | `$AgentCapabilityUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:605` | Identity composer for the `@beep/agent-capability-use-cases` package. |
+| `@beep/identity/packages` | `$AiProviderCliId` | const | `packages/foundation/modeling/identity/src/packages.ts:1192` | Identity composer for `@beep/ai-provider-cli`. |
+| `@beep/identity/packages` | `$ArchitectureLabClientId` | const | `packages/foundation/modeling/identity/src/packages.ts:1050` | Identity composer for `@beep/architecture-lab-client`. |
+| `@beep/identity/packages` | `$ArchitectureLabConfigId` | const | `packages/foundation/modeling/identity/src/packages.ts:999` | Identity composer for `@beep/architecture-lab-config`. |
+| `@beep/identity/packages` | `$ArchitectureLabDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:965` | Identity composer for `@beep/architecture-lab-domain`. |
+| `@beep/identity/packages` | `$ArchitectureLabProofId` | const | `packages/foundation/modeling/identity/src/packages.ts:1084` | Identity composer for `@beep/architecture-lab-proof`. |
+| `@beep/identity/packages` | `$ArchitectureLabServerId` | const | `packages/foundation/modeling/identity/src/packages.ts:1016` | Identity composer for `@beep/architecture-lab-server`. |
+| `@beep/identity/packages` | `$ArchitectureLabTablesId` | const | `packages/foundation/modeling/identity/src/packages.ts:1033` | Identity composer for `@beep/architecture-lab-tables`. |
+| `@beep/identity/packages` | `$ArchitectureLabUiId` | const | `packages/foundation/modeling/identity/src/packages.ts:1067` | Identity composer for `@beep/architecture-lab-ui`. |
+| `@beep/identity/packages` | `$ArchitectureLabUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:982` | Identity composer for `@beep/architecture-lab-use-cases`. |
+| `@beep/identity/packages` | `$BillingDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:745` | Identity composer for the `@beep/billing-domain` package. |
+| `@beep/identity/packages` | `$BillingServerId` | const | `packages/foundation/modeling/identity/src/packages.ts:762` | Identity composer for the `@beep/billing-server` package. |
+| `@beep/identity/packages` | `$BillingUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:779` | Identity composer for the `@beep/billing-use-cases` package. |
+| `@beep/identity/packages` | `$CanvasClientId` | const | `packages/foundation/modeling/identity/src/packages.ts:1320` | Identity composer for `@beep/canvas-client`. |
+| `@beep/identity/packages` | `$CanvasDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:1272` | Identity composer for `@beep/canvas-domain`. |
+| `@beep/identity/packages` | `$CanvasId` | const | `packages/foundation/modeling/identity/src/packages.ts:1352` | Identity composer for `@beep/canvas`. |
+| `@beep/identity/packages` | `$CanvasServerId` | const | `packages/foundation/modeling/identity/src/packages.ts:1304` | Identity composer for `@beep/canvas-server`. |
+| `@beep/identity/packages` | `$CanvasUiId` | const | `packages/foundation/modeling/identity/src/packages.ts:1336` | Identity composer for `@beep/canvas-ui`. |
+| `@beep/identity/packages` | `$CanvasUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:1288` | Identity composer for `@beep/canvas-use-cases`. |
+| `@beep/identity/packages` | `$ChalkId` | const | `packages/foundation/modeling/identity/src/packages.ts:497` | Identity composer for the `@beep/chalk` package. |
+| `@beep/identity/packages` | `$CodedankWebId` | const | `packages/foundation/modeling/identity/src/packages.ts:690` |  |
+| `@beep/identity/packages` | `$ColorsId` | const | `packages/foundation/modeling/identity/src/packages.ts:482` | Identity composer for the `@beep/colors` package. |
+| `@beep/identity/packages` | `$DataId` | const | `packages/foundation/modeling/identity/src/packages.ts:161` | Identity composer for the `@beep/data` package. |
+| `@beep/identity/packages` | `$DiscordId` | const | `packages/foundation/modeling/identity/src/packages.ts:1176` | Identity composer for `@beep/discord`. |
+| `@beep/identity/packages` | `$DrizzleId` | const | `packages/foundation/modeling/identity/src/packages.ts:702` |  |
+| `@beep/identity/packages` | `$DuckdbId` | const | `packages/foundation/modeling/identity/src/packages.ts:708` |  |
+| `@beep/identity/packages` | `$EpistemicDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:574` | Identity composer for the `@beep/epistemic-domain` package. |
+| `@beep/identity/packages` | `$FaceDetectionId` | const | `packages/foundation/modeling/identity/src/packages.ts:714` |  |
+| `@beep/identity/packages` | `$FfmpegId` | const | `packages/foundation/modeling/identity/src/packages.ts:720` |  |
+| `@beep/identity/packages` | `$FormId` | const | `packages/foundation/modeling/identity/src/packages.ts:1385` | Identity composer for `@beep/form`. |
+| `@beep/identity/packages` | `$HubspotId` | const | `packages/foundation/modeling/identity/src/packages.ts:1224` | Identity composer for `@beep/hubspot`. |
 | `@beep/identity/packages` | `$I` | const | `packages/foundation/modeling/identity/src/packages.ts:40` | Root identity composer for the `@beep` namespace. |
-| `@beep/identity/packages` | `$IamDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:797` | Identity composer for the `@beep/iam-domain` package. |
-| `@beep/identity/packages` | `$IamServerId` | const | `packages/foundation/modeling/identity/src/packages.ts:814` | Identity composer for the `@beep/iam-server` package. |
-| `@beep/identity/packages` | `$IamTablesId` | const | `packages/foundation/modeling/identity/src/packages.ts:831` | Identity composer for the `@beep/iam-tables` package. |
-| `@beep/identity/packages` | `$IamUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:848` | Identity composer for the `@beep/iam-use-cases` package. |
-| `@beep/identity/packages` | `$IdentityId` | const | `packages/foundation/modeling/identity/src/packages.ts:175` | Identity composer for the `@beep/identity` package. |
-| `@beep/identity/packages` | `$InfraId` | const | `packages/foundation/modeling/identity/src/packages.ts:526` | Identity composer for the `@beep/infra` package. |
-| `@beep/identity/packages` | `$InstallerDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:1110` | Identity composer for `@beep/installer-domain`. |
-| `@beep/identity/packages` | `$InstallerServerId` | const | `packages/foundation/modeling/identity/src/packages.ts:1127` | Identity composer for `@beep/installer-server`. |
-| `@beep/identity/packages` | `$InstallerUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:1118` | Identity composer for `@beep/installer-use-cases`. |
-| `@beep/identity/packages` | `$KonvaId` | const | `packages/foundation/modeling/identity/src/packages.ts:1255` | Identity composer for `@beep/konva`. |
-| `@beep/identity/packages` | `$LawPracticeDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:620` | Identity composer for the `@beep/law-practice-domain` package. |
-| `@beep/identity/packages` | `$MdId` | const | `packages/foundation/modeling/identity/src/packages.ts:683` |  |
-| `@beep/identity/packages` | `$MessagesId` | const | `packages/foundation/modeling/identity/src/packages.ts:190` | Identity composer for the `@beep/messages` package. |
-| `@beep/identity/packages` | `$NlpId` | const | `packages/foundation/modeling/identity/src/packages.ts:451` | Identity composer for the `@beep/nlp` package. |
-| `@beep/identity/packages` | `$ObservabilityId` | const | `packages/foundation/modeling/identity/src/packages.ts:466` | Identity composer for the `@beep/observability` package. |
-| `@beep/identity/packages` | `$OipWebId` | const | `packages/foundation/modeling/identity/src/packages.ts:695` |  |
-| `@beep/identity/packages` | `$OnepasswordCliId` | const | `packages/foundation/modeling/identity/src/packages.ts:1159` | Identity composer for `@beep/onepassword-cli`. |
-| `@beep/identity/packages` | `$OpenaiCompatId` | const | `packages/foundation/modeling/identity/src/packages.ts:932` | Identity composer for `@beep/openai-compat`. |
-| `@beep/identity/packages` | `$OpenaiId` | const | `packages/foundation/modeling/identity/src/packages.ts:888` |  |
-| `@beep/identity/packages` | `$PhoenixId` | const | `packages/foundation/modeling/identity/src/packages.ts:1239` | Identity composer for `@beep/phoenix`. |
-| `@beep/identity/packages` | `$PostgresId` | const | `packages/foundation/modeling/identity/src/packages.ts:725` |  |
-| `@beep/identity/packages` | `$ProfessionalDesktopId` | const | `packages/foundation/modeling/identity/src/packages.ts:652` | Identity composer for the `@beep/professional-desktop` package. |
-| `@beep/identity/packages` | `$ProfessionalRuntimeProofId` | const | `packages/foundation/modeling/identity/src/packages.ts:668` | Identity composer for the `@beep/professional-runtime-proof` package. |
-| `@beep/identity/packages` | `$RepoAiMetricsId` | const | `packages/foundation/modeling/identity/src/packages.ts:269` | Identity composer for the `@beep/repo-ai-metrics` package. |
-| `@beep/identity/packages` | `$RepoCliId` | const | `packages/foundation/modeling/identity/src/packages.ts:284` | Identity composer for the `@beep/repo-cli` package. |
-| `@beep/identity/packages` | `$RepoCodegraphId` | const | `packages/foundation/modeling/identity/src/packages.ts:1368` | Identity composer for `@beep/repo-codegraph`. |
-| `@beep/identity/packages` | `$RepoConfigsId` | const | `packages/foundation/modeling/identity/src/packages.ts:299` | Identity composer for the `@beep/repo-configs` package. |
-| `@beep/identity/packages` | `$RepoDocgenId` | const | `packages/foundation/modeling/identity/src/packages.ts:511` | Identity composer for the `@beep/repo-docgen` package. |
-| `@beep/identity/packages` | `$RepoUtilsId` | const | `packages/foundation/modeling/identity/src/packages.ts:314` | Identity composer for the `@beep/repo-utils` package. |
-| `@beep/identity/packages` | `$RunpodId` | const | `packages/foundation/modeling/identity/src/packages.ts:1143` | Identity composer for `@beep/runpod`. |
-| `@beep/identity/packages` | `$SandboxId` | const | `packages/foundation/modeling/identity/src/packages.ts:882` | Identity composer for the `@beep/sandbox` package. |
-| `@beep/identity/packages` | `$SanityId` | const | `packages/foundation/modeling/identity/src/packages.ts:1207` | Identity composer for `@beep/sanity`. |
-| `@beep/identity/packages` | `$SchemaId` | const | `packages/foundation/modeling/identity/src/packages.ts:205` | Identity composer for the `@beep/schema` package. |
-| `@beep/identity/packages` | `$ScratchpadId` | const | `packages/foundation/modeling/identity/src/packages.ts:865` | Identity composer for the `@beep/scratchpad` package. |
-| `@beep/identity/packages` | `$SemanticWebId` | const | `packages/foundation/modeling/identity/src/packages.ts:436` | Identity composer for the `@beep/semantic-web` package. |
-| `@beep/identity/packages` | `$SharedClientId` | const | `packages/foundation/modeling/identity/src/packages.ts:376` | Identity composer for the `@beep/shared-client` package. |
-| `@beep/identity/packages` | `$SharedConfigId` | const | `packages/foundation/modeling/identity/src/packages.ts:421` | Identity composer for the `@beep/shared-config` package. |
-| `@beep/identity/packages` | `$SharedDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:346` | Identity composer for the `@beep/shared-domain` package. |
-| `@beep/identity/packages` | `$SharedServerId` | const | `packages/foundation/modeling/identity/src/packages.ts:391` | Identity composer for the `@beep/shared-server` package. |
-| `@beep/identity/packages` | `$SharedTablesId` | const | `packages/foundation/modeling/identity/src/packages.ts:361` | Identity composer for the `@beep/shared-tables` package. |
-| `@beep/identity/packages` | `$SharedUiId` | const | `packages/foundation/modeling/identity/src/packages.ts:406` | Identity composer for the `@beep/shared-ui` package. |
-| `@beep/identity/packages` | `$SharedUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:541` | Identity composer for the `@beep/shared-use-cases` package. |
-| `@beep/identity/packages` | `$StackInstallerId` | const | `packages/foundation/modeling/identity/src/packages.ts:1102` | Identity composer for `@beep/stack-installer`. |
-| `@beep/identity/packages` | `$TestUtilsId` | const | `packages/foundation/modeling/identity/src/packages.ts:329` | Identity composer for the `@beep/test-utils` package. |
-| `@beep/identity/packages` | `$TypesId` | const | `packages/foundation/modeling/identity/src/packages.ts:220` | Identity composer for the `@beep/types` package. |
-| `@beep/identity/packages` | `$UiId` | const | `packages/foundation/modeling/identity/src/packages.ts:252` | Identity composer for the `@beep/ui` package. |
-| `@beep/identity/packages` | `$UtilsId` | const | `packages/foundation/modeling/identity/src/packages.ts:235` | Identity composer for the `@beep/utils` package. |
-| `@beep/identity/packages` | `$VeniceAiId` | const | `packages/foundation/modeling/identity/src/packages.ts:894` |  |
-| `@beep/identity/packages` | `$WealthManagementDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:636` | Identity composer for the `@beep/wealth-management-domain` package. |
-| `@beep/identity/packages` | `$WorkspaceDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:558` | Identity composer for the `@beep/workspace-domain` package. |
-| `@beep/identity/packages` | `$WorkspaceTablesId` | const | `packages/foundation/modeling/identity/src/packages.ts:948` | Identity composer for `@beep/workspace-tables`. |
-| `@beep/identity/packages` | `$XaiId` | const | `packages/foundation/modeling/identity/src/packages.ts:900` |  |
-| `@beep/identity/packages` | `RepoPkgs` | const | `packages/foundation/modeling/identity/src/packages.ts:677` | RepoPkgs - export object containing all package IdentityComposer's |
+| `@beep/identity/packages` | `$IamDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:798` | Identity composer for the `@beep/iam-domain` package. |
+| `@beep/identity/packages` | `$IamServerId` | const | `packages/foundation/modeling/identity/src/packages.ts:815` | Identity composer for the `@beep/iam-server` package. |
+| `@beep/identity/packages` | `$IamTablesId` | const | `packages/foundation/modeling/identity/src/packages.ts:832` | Identity composer for the `@beep/iam-tables` package. |
+| `@beep/identity/packages` | `$IamUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:849` | Identity composer for the `@beep/iam-use-cases` package. |
+| `@beep/identity/packages` | `$IdentityId` | const | `packages/foundation/modeling/identity/src/packages.ts:176` | Identity composer for the `@beep/identity` package. |
+| `@beep/identity/packages` | `$InfraId` | const | `packages/foundation/modeling/identity/src/packages.ts:527` | Identity composer for the `@beep/infra` package. |
+| `@beep/identity/packages` | `$InstallerDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:1111` | Identity composer for `@beep/installer-domain`. |
+| `@beep/identity/packages` | `$InstallerServerId` | const | `packages/foundation/modeling/identity/src/packages.ts:1128` | Identity composer for `@beep/installer-server`. |
+| `@beep/identity/packages` | `$InstallerUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:1119` | Identity composer for `@beep/installer-use-cases`. |
+| `@beep/identity/packages` | `$KonvaId` | const | `packages/foundation/modeling/identity/src/packages.ts:1256` | Identity composer for `@beep/konva`. |
+| `@beep/identity/packages` | `$LawPracticeDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:621` | Identity composer for the `@beep/law-practice-domain` package. |
+| `@beep/identity/packages` | `$MdId` | const | `packages/foundation/modeling/identity/src/packages.ts:684` |  |
+| `@beep/identity/packages` | `$MessagesId` | const | `packages/foundation/modeling/identity/src/packages.ts:191` | Identity composer for the `@beep/messages` package. |
+| `@beep/identity/packages` | `$NlpId` | const | `packages/foundation/modeling/identity/src/packages.ts:452` | Identity composer for the `@beep/nlp` package. |
+| `@beep/identity/packages` | `$ObservabilityId` | const | `packages/foundation/modeling/identity/src/packages.ts:467` | Identity composer for the `@beep/observability` package. |
+| `@beep/identity/packages` | `$OipWebId` | const | `packages/foundation/modeling/identity/src/packages.ts:696` |  |
+| `@beep/identity/packages` | `$OnepasswordCliId` | const | `packages/foundation/modeling/identity/src/packages.ts:1160` | Identity composer for `@beep/onepassword-cli`. |
+| `@beep/identity/packages` | `$OpenaiCompatId` | const | `packages/foundation/modeling/identity/src/packages.ts:933` | Identity composer for `@beep/openai-compat`. |
+| `@beep/identity/packages` | `$OpenaiId` | const | `packages/foundation/modeling/identity/src/packages.ts:889` |  |
+| `@beep/identity/packages` | `$PhoenixId` | const | `packages/foundation/modeling/identity/src/packages.ts:1240` | Identity composer for `@beep/phoenix`. |
+| `@beep/identity/packages` | `$PostgresId` | const | `packages/foundation/modeling/identity/src/packages.ts:726` |  |
+| `@beep/identity/packages` | `$ProfessionalDesktopId` | const | `packages/foundation/modeling/identity/src/packages.ts:653` | Identity composer for the `@beep/professional-desktop` package. |
+| `@beep/identity/packages` | `$ProfessionalRuntimeProofId` | const | `packages/foundation/modeling/identity/src/packages.ts:669` | Identity composer for the `@beep/professional-runtime-proof` package. |
+| `@beep/identity/packages` | `$RepoAiMetricsId` | const | `packages/foundation/modeling/identity/src/packages.ts:270` | Identity composer for the `@beep/repo-ai-metrics` package. |
+| `@beep/identity/packages` | `$RepoCliId` | const | `packages/foundation/modeling/identity/src/packages.ts:285` | Identity composer for the `@beep/repo-cli` package. |
+| `@beep/identity/packages` | `$RepoCodegraphId` | const | `packages/foundation/modeling/identity/src/packages.ts:1369` | Identity composer for `@beep/repo-codegraph`. |
+| `@beep/identity/packages` | `$RepoConfigsId` | const | `packages/foundation/modeling/identity/src/packages.ts:300` | Identity composer for the `@beep/repo-configs` package. |
+| `@beep/identity/packages` | `$RepoDocgenId` | const | `packages/foundation/modeling/identity/src/packages.ts:512` | Identity composer for the `@beep/repo-docgen` package. |
+| `@beep/identity/packages` | `$RepoUtilsId` | const | `packages/foundation/modeling/identity/src/packages.ts:315` | Identity composer for the `@beep/repo-utils` package. |
+| `@beep/identity/packages` | `$RunpodId` | const | `packages/foundation/modeling/identity/src/packages.ts:1144` | Identity composer for `@beep/runpod`. |
+| `@beep/identity/packages` | `$SandboxId` | const | `packages/foundation/modeling/identity/src/packages.ts:883` | Identity composer for the `@beep/sandbox` package. |
+| `@beep/identity/packages` | `$SanityId` | const | `packages/foundation/modeling/identity/src/packages.ts:1208` | Identity composer for `@beep/sanity`. |
+| `@beep/identity/packages` | `$SchemaId` | const | `packages/foundation/modeling/identity/src/packages.ts:206` | Identity composer for the `@beep/schema` package. |
+| `@beep/identity/packages` | `$ScratchpadId` | const | `packages/foundation/modeling/identity/src/packages.ts:866` | Identity composer for the `@beep/scratchpad` package. |
+| `@beep/identity/packages` | `$SemanticWebId` | const | `packages/foundation/modeling/identity/src/packages.ts:437` | Identity composer for the `@beep/semantic-web` package. |
+| `@beep/identity/packages` | `$SharedClientId` | const | `packages/foundation/modeling/identity/src/packages.ts:377` | Identity composer for the `@beep/shared-client` package. |
+| `@beep/identity/packages` | `$SharedConfigId` | const | `packages/foundation/modeling/identity/src/packages.ts:422` | Identity composer for the `@beep/shared-config` package. |
+| `@beep/identity/packages` | `$SharedDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:347` | Identity composer for the `@beep/shared-domain` package. |
+| `@beep/identity/packages` | `$SharedServerId` | const | `packages/foundation/modeling/identity/src/packages.ts:392` | Identity composer for the `@beep/shared-server` package. |
+| `@beep/identity/packages` | `$SharedTablesId` | const | `packages/foundation/modeling/identity/src/packages.ts:362` | Identity composer for the `@beep/shared-tables` package. |
+| `@beep/identity/packages` | `$SharedUiId` | const | `packages/foundation/modeling/identity/src/packages.ts:407` | Identity composer for the `@beep/shared-ui` package. |
+| `@beep/identity/packages` | `$SharedUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:542` | Identity composer for the `@beep/shared-use-cases` package. |
+| `@beep/identity/packages` | `$StackInstallerId` | const | `packages/foundation/modeling/identity/src/packages.ts:1103` | Identity composer for `@beep/stack-installer`. |
+| `@beep/identity/packages` | `$TestUtilsId` | const | `packages/foundation/modeling/identity/src/packages.ts:330` | Identity composer for the `@beep/test-utils` package. |
+| `@beep/identity/packages` | `$TypesId` | const | `packages/foundation/modeling/identity/src/packages.ts:221` | Identity composer for the `@beep/types` package. |
+| `@beep/identity/packages` | `$UiId` | const | `packages/foundation/modeling/identity/src/packages.ts:253` | Identity composer for the `@beep/ui` package. |
+| `@beep/identity/packages` | `$UtilsId` | const | `packages/foundation/modeling/identity/src/packages.ts:236` | Identity composer for the `@beep/utils` package. |
+| `@beep/identity/packages` | `$VeniceAiId` | const | `packages/foundation/modeling/identity/src/packages.ts:895` |  |
+| `@beep/identity/packages` | `$WealthManagementDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:637` | Identity composer for the `@beep/wealth-management-domain` package. |
+| `@beep/identity/packages` | `$WorkspaceDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:559` | Identity composer for the `@beep/workspace-domain` package. |
+| `@beep/identity/packages` | `$WorkspaceTablesId` | const | `packages/foundation/modeling/identity/src/packages.ts:949` | Identity composer for `@beep/workspace-tables`. |
+| `@beep/identity/packages` | `$XaiId` | const | `packages/foundation/modeling/identity/src/packages.ts:901` |  |
+| `@beep/identity/packages` | `RepoPkgs` | const | `packages/foundation/modeling/identity/src/packages.ts:678` | RepoPkgs - export object containing all package IdentityComposer's |
 
 ### @beep/drizzle
 
@@ -12185,10 +12195,10 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/ui/components/card` | `CardTitle` | function | `packages/foundation/ui-system/ui/src/components/card.tsx:47` |  |
 | `@beep/ui/components/carousel` | `Carousel` | function | `packages/foundation/ui-system/ui/src/components/carousel.tsx:51` |  |
 | `@beep/ui/components/carousel` | `CarouselApi` | type | `packages/foundation/ui-system/ui/src/components/carousel.tsx:15` |  |
-| `@beep/ui/components/carousel` | `CarouselContent` | function | `packages/foundation/ui-system/ui/src/components/carousel.tsx:150` |  |
-| `@beep/ui/components/carousel` | `CarouselItem` | function | `packages/foundation/ui-system/ui/src/components/carousel.tsx:164` |  |
-| `@beep/ui/components/carousel` | `CarouselNext` | function | `packages/foundation/ui-system/ui/src/components/carousel.tsx:216` |  |
-| `@beep/ui/components/carousel` | `CarouselPrevious` | function | `packages/foundation/ui-system/ui/src/components/carousel.tsx:182` |  |
+| `@beep/ui/components/carousel` | `CarouselContent` | function | `packages/foundation/ui-system/ui/src/components/carousel.tsx:151` |  |
+| `@beep/ui/components/carousel` | `CarouselItem` | function | `packages/foundation/ui-system/ui/src/components/carousel.tsx:165` |  |
+| `@beep/ui/components/carousel` | `CarouselNext` | function | `packages/foundation/ui-system/ui/src/components/carousel.tsx:217` |  |
+| `@beep/ui/components/carousel` | `CarouselPrevious` | function | `packages/foundation/ui-system/ui/src/components/carousel.tsx:183` |  |
 | `@beep/ui/components/carousel` | `useCarousel` | function | `packages/foundation/ui-system/ui/src/components/carousel.tsx:42` |  |
 | `@beep/ui/components/checkbox` | `Checkbox` | function | `packages/foundation/ui-system/ui/src/components/checkbox.tsx:11` |  |
 | `@beep/ui/components/collapsible` | `Collapsible` | function | `packages/foundation/ui-system/ui/src/components/collapsible.tsx:10` |  |

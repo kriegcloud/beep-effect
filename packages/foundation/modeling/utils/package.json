@@ -31,7 +31,6 @@
   },
   "dependencies": {
     "@beep/identity": "workspace:^",
-    "@effect/platform-node-shared": "catalog:",
     "effect": "catalog:",
     "picomatch": "catalog:"
   },

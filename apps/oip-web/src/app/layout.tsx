@@ -12,10 +12,11 @@ import type { Metadata } from "next";
 import { headers } from "next/headers";
 import { connection } from "next/server";
 import { type ReactNode, use } from "react";
-import { oipSiteContent } from "../content";
+import { oipSiteContent, oipTwitterHandle } from "../content";
 import "./globals.css";
 
 const { metadata: siteMetadata } = oipSiteContent;
+const twitterHandle = oipTwitterHandle(oipSiteContent);
 const REACT_GRAB_VERSION = "0.1.37";
 const REACT_GRAB_INTEGRITY = "sha384-bu1FPBrtnXa6EIFQzS/zbLFeLLKPK06RmfHZYCTbWTXxXVjiIGvjdMjo/jDi+fVu";
 const configStringOptionSync = (name: string): O.Option<string> => Effect.runSync(Config.option(Config.string(name)));
@@ -183,6 +184,8 @@ export const metadata: Metadata = {
     title: siteMetadata.title,
     description: siteMetadata.description,
     images: [siteMetadata.ogImage],
+    creator: twitterHandle,
+    site: twitterHandle,
   },
   icons: {
     icon: [

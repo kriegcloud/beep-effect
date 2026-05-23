@@ -26,7 +26,6 @@
   "dependencies": {
     "@beep/data": "workspace:^",
     "@beep/identity": "workspace:^",
-    "@beep/messages": "workspace:^",
     "@beep/utils": "workspace:^",
     "@noble/hashes": "catalog:",
     "@scure/base": "catalog:",
@@ -41,7 +40,8 @@
   "devDependencies": {
     "@beep/types": "workspace:^",
     "@effect/vitest": "catalog:",
-    "@types/node": "catalog:"
+    "@types/node": "catalog:",
+    "@types/react": "catalog:"
   },
   "exports": {
     "./package.json": "./package.json",

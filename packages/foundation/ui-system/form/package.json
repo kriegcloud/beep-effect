@@ -38,6 +38,8 @@
   "exports": {
     ".": "./src/index.ts",
     "./core": "./src/core.ts",
+    "./core/internal/dirty": "./src/core/internal/dirty.ts",
+    "./core/internal/weak-registry": "./src/core/internal/weak-registry.ts",
     "./core/internal/*": null,
     "./core/*": "./src/core/*.ts",
     "./internal/*": null,
@@ -60,6 +62,8 @@
     "exports": {
       ".": "./dist/index.js",
       "./core": "./dist/core.js",
+      "./core/internal/dirty": "./dist/core/internal/dirty.js",
+      "./core/internal/weak-registry": "./dist/core/internal/weak-registry.js",
       "./core/internal/*": null,
       "./core/*": "./dist/core/*.js",
       "./internal/*": null,
@@ -69,6 +73,7 @@
     }
   },
   "dependencies": {
+    "@beep/identity": "workspace:^",
     "@beep/types": "workspace:^",
     "@effect/atom-react": "catalog:",
     "effect": "catalog:"
@@ -82,6 +87,7 @@
     "@types/node": "catalog:",
     "@types/react": "catalog:",
     "@types/react-dom": "catalog:",
+    "bun-types": "catalog:",
     "jsdom": "^29.1.1"
   },
   "peerDependencies": {

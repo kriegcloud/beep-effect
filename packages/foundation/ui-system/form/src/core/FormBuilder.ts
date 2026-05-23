@@ -1,48 +1,165 @@
-import { Effect } from "effect";
+/**
+ * Form builder composition and state models.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
+import { $FormId } from "@beep/identity/packages";
+import type { TUnsafe } from "@beep/types";
+import { Effect, type HashSet, SchemaGetter, SchemaIssue } from "effect";
+import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
+import * as R from "effect/Record";
 import * as S from "effect/Schema";
 import type * as AST from "effect/SchemaAST";
-import * as SchemaGetter from "effect/SchemaGetter";
-import * as SchemaIssue from "effect/SchemaIssue";
 import type * as AtomRegistry from "effect/unstable/reactivity/AtomRegistry";
 
-import type {
-  AnyFieldDef,
-  ArrayFieldDef,
-  DecodedFromFields,
-  EncodedFromFields,
-  FieldDef,
-  FieldsRecord,
-} from "./Field.ts";
-import { isArrayFieldDef, isFieldDef, makeField } from "./Field.ts";
+import type { ArrayFieldDef, DecodedFromFields, EncodedFromFields, FieldDef, FieldsRecord } from "./Field.ts";
+import { isArrayFieldDef, makeField } from "./Field.ts";
 
+const $I = $FormId.create("core/FormBuilder");
+
+/**
+ * Encoded and decoded value snapshot captured after successful submission.
+ *
+ * @example
+ * ```ts
+ * import type { SubmittedValues } from "@beep/form/core/FormBuilder"
+ * import type { FieldsRecord } from "@beep/form/core/Field"
+ * import * as O from "effect/Option"
+ *
+ * const submitted: O.Option<SubmittedValues<FieldsRecord>> = O.none()
+ * console.log(O.isNone(submitted)) // true
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
 export interface SubmittedValues<TFields extends FieldsRecord> {
   readonly decoded: DecodedFromFields<TFields>;
   readonly encoded: EncodedFromFields<TFields>;
 }
 
+/**
+ * Runtime marker for field references.
+ *
+ * @example
+ * ```ts
+ * import { FieldTypeId } from "@beep/form/core/FormBuilder"
+ *
+ * console.log(typeof FieldTypeId) // "symbol"
+ * ```
+ *
+ * @category symbols
+ * @since 0.0.0
+ */
 export const FieldTypeId: unique symbol = Symbol.for("@beep/form/FieldRef");
 
+/**
+ * Type of the field reference runtime marker.
+ *
+ * @example
+ * ```ts
+ * import { FieldTypeId, type FieldTypeId as FieldRefTypeId } from "@beep/form/core/FormBuilder"
+ *
+ * const id: FieldRefTypeId = FieldTypeId
+ * console.log(typeof id) // "symbol"
+ * ```
+ *
+ * @category symbols
+ * @since 0.0.0
+ */
 export type FieldTypeId = typeof FieldTypeId;
 
+/**
+ * Stable reference to a field by key and encoded value type.
+ *
+ * @example
+ * ```ts
+ * import { makeFieldRef, type FieldRef } from "@beep/form/core/FormBuilder"
+ *
+ * const ref: FieldRef<string> = makeFieldRef("name")
+ * console.log(ref.key) // "name"
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
 export interface FieldRef<SchemaOrValue> {
   readonly _S?: SchemaOrValue;
   readonly key: string;
   readonly [FieldTypeId]: FieldTypeId;
 }
 
+/**
+ * Creates a typed field reference from a field key.
+ *
+ * @example
+ * ```ts
+ * import { makeFieldRef } from "@beep/form/core/FormBuilder"
+ *
+ * const ref = makeFieldRef<string>("email")
+ * console.log(ref.key) // "email"
+ * ```
+ *
+ * @category constructors
+ * @since 0.0.0
+ */
 export const makeFieldRef = <SchemaOrValue>(key: string): FieldRef<SchemaOrValue> => ({
   [FieldTypeId]: FieldTypeId,
   key,
 });
 
+/**
+ * Runtime marker for form builders.
+ *
+ * @example
+ * ```ts
+ * import { TypeId } from "@beep/form/core/FormBuilder"
+ *
+ * console.log(typeof TypeId) // "symbol"
+ * ```
+ *
+ * @category symbols
+ * @since 0.0.0
+ */
 export const TypeId: unique symbol = Symbol.for("@beep/form/FormBuilder");
 
+/**
+ * Type of the form builder runtime marker.
+ *
+ * @example
+ * ```ts
+ * import { TypeId, type TypeId as BuilderTypeId } from "@beep/form/core/FormBuilder"
+ *
+ * const id: BuilderTypeId = TypeId
+ * console.log(typeof id) // "symbol"
+ * ```
+ *
+ * @category symbols
+ * @since 0.0.0
+ */
 export type TypeId = typeof TypeId;
 
+/**
+ * Runtime state held by a form atom graph.
+ *
+ * @example
+ * ```ts
+ * import type { FormState } from "@beep/form/core/FormBuilder"
+ * import type { FieldsRecord } from "@beep/form/core/Field"
+ * import * as O from "effect/Option"
+ *
+ * const lastSubmittedValues: FormState<FieldsRecord>["lastSubmittedValues"] = O.none()
+ * console.log(O.isNone(lastSubmittedValues)) // true
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
 export interface FormState<TFields extends FieldsRecord> {
-  readonly dirtyFields: ReadonlySet<string>;
+  readonly dirtyFields: HashSet.HashSet<string>;
   readonly initialValues: EncodedFromFields<TFields>;
   readonly lastSubmittedValues: O.Option<SubmittedValues<TFields>>;
   readonly submitCount: number;
@@ -51,13 +168,60 @@ export interface FormState<TFields extends FieldsRecord> {
   readonly values: EncodedFromFields<TFields>;
 }
 
-export type LegacyFilterIssue = {
-  readonly path: ReadonlyArray<PropertyKey>;
-  readonly message: string;
-};
+/**
+ * Legacy refinement issue object accepted by builder refinements.
+ *
+ * @example
+ * ```ts
+ * import { LegacyFilterIssue } from "@beep/form/core/FormBuilder"
+ *
+ * const issue = LegacyFilterIssue.make({ path: ["confirm"], message: "Must match" })
+ * console.log(issue.message) // "Must match"
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class LegacyFilterIssue extends S.Class<LegacyFilterIssue>($I`LegacyFilterIssue`)(
+  {
+    path: S.Array(S.PropertyKey),
+    message: S.String,
+  },
+  $I.annote("LegacyFilterIssue", {
+    description: "Legacy refinement issue object used by effect-form compatible form filters.",
+  })
+) {}
 
+/**
+ * Issue shape accepted from synchronous and Effect-based form refinements.
+ *
+ * @example
+ * ```ts
+ * import { LegacyFilterIssue, type FormFilterIssue } from "@beep/form/core/FormBuilder"
+ *
+ * const issue: FormFilterIssue = LegacyFilterIssue.make({ path: ["name"], message: "Required" })
+ * console.log(issue.message) // "Required"
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
 export type FormFilterIssue = S.FilterIssue | LegacyFilterIssue;
 
+/**
+ * Return shape accepted from form-level refinement callbacks.
+ *
+ * @example
+ * ```ts
+ * import type { FormFilterOutput } from "@beep/form/core/FormBuilder"
+ *
+ * const output: FormFilterOutput = true
+ * console.log(output) // true
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
 export type FormFilterOutput = undefined | boolean | FormFilterIssue | ReadonlyArray<FormFilterIssue>;
 
 interface SyncRefinement {
@@ -72,6 +236,23 @@ interface AsyncRefinement<R> {
 
 type Refinement<R> = SyncRefinement | AsyncRefinement<R>;
 
+/**
+ * Immutable builder used to collect fields and form-level refinements.
+ *
+ * @example
+ * ```ts
+ * import { empty, type FormBuilder } from "@beep/form/core/FormBuilder"
+ * import { makeField } from "@beep/form/core/Field"
+ * import * as S from "effect/Schema"
+ *
+ * const builder: FormBuilder<{ readonly name: ReturnType<typeof makeField<"name", typeof S.String>> }, never> =
+ *   empty.addField(makeField("name", S.String))
+ * console.log(builder.fields.name.key) // "name"
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
 export interface FormBuilder<TFields extends FieldsRecord, R> {
   readonly _R?: R;
 
@@ -110,91 +291,81 @@ export interface FormBuilder<TFields extends FieldsRecord, R> {
   readonly [TypeId]: TypeId;
 }
 
-const FormBuilderProto = {
+const makeBuilder = <TFields extends FieldsRecord, R>(
+  fields: TFields,
+  refinements: ReadonlyArray<Refinement<R>>
+): FormBuilder<TFields, R> => ({
   [TypeId]: TypeId,
-  addField<TFields extends FieldsRecord, R>(
+  fields,
+  refinements,
+  addField<K extends string, Schema extends S.Top>(
     this: FormBuilder<TFields, R>,
-    keyOrField: string | AnyFieldDef,
-    schema?: S.Top
-  ): FormBuilder<FieldsRecord, unknown> {
-    const field = P.isString(keyOrField)
-      ? (() => {
-          if (schema === undefined) {
-            throw new Error("FormBuilder.addField requires a schema when the first argument is a key");
-          }
-          return makeField(keyOrField, schema);
-        })()
-      : keyOrField;
-    const newSelf = Object.create(FormBuilderProto);
-    newSelf.fields = { ...this.fields, [field.key]: field };
-    newSelf.refinements = this.refinements;
-    return newSelf;
+    keyOrField: K | FieldDef<K, Schema> | ArrayFieldDef<K, Schema>,
+    schema?: Schema
+  ) {
+    const field = P.isString(keyOrField) ? makeField(keyOrField, schema ?? S.Unknown) : keyOrField;
+    return makeBuilder({ ...this.fields, [field.key]: field } as TUnsafe.Any, this.refinements) as TUnsafe.Any;
   },
-  merge<TFields extends FieldsRecord, R, TFields2 extends FieldsRecord, R2>(
-    this: FormBuilder<TFields, R>,
-    other: FormBuilder<TFields2, R2>
-  ): FormBuilder<TFields & TFields2, R | R2> {
-    const newSelf = Object.create(FormBuilderProto);
-    newSelf.fields = { ...this.fields, ...other.fields };
-    newSelf.refinements = [...this.refinements, ...other.refinements];
-    return newSelf;
+  merge<TFields2 extends FieldsRecord, R2>(this: FormBuilder<TFields, R>, other: FormBuilder<TFields2, R2>) {
+    return makeBuilder(
+      { ...this.fields, ...other.fields } as TUnsafe.Any,
+      A.appendAll(this.refinements, other.refinements) as TUnsafe.Any
+    ) as TUnsafe.Any;
   },
-  refine<TFields extends FieldsRecord, R>(
+  refine(
     this: FormBuilder<TFields, R>,
     predicate: (values: DecodedFromFields<TFields>) => FormFilterOutput
   ): FormBuilder<TFields, R> {
-    const newSelf = Object.create(FormBuilderProto);
-    newSelf.fields = this.fields;
-    newSelf.refinements = [
-      ...this.refinements,
-      { _tag: "sync" as const, fn: (values: unknown) => predicate(values as DecodedFromFields<TFields>) },
-    ];
-    return newSelf;
+    return makeBuilder(
+      this.fields,
+      A.append(this.refinements, {
+        _tag: "sync" as const,
+        fn: (values: unknown) => predicate(values as TUnsafe.Any),
+      })
+    );
   },
-  refineEffect<TFields extends FieldsRecord, R, RD>(
+  refineEffect<RD>(
     this: FormBuilder<TFields, R>,
     predicate: (values: DecodedFromFields<TFields>) => Effect.Effect<FormFilterOutput, never, RD>
   ): FormBuilder<TFields, R | Exclude<RD, AtomRegistry.AtomRegistry>> {
-    const newSelf = Object.create(FormBuilderProto);
-    newSelf.fields = this.fields;
-    newSelf.refinements = [
-      ...this.refinements,
-      { _tag: "async" as const, fn: (values: unknown) => predicate(values as DecodedFromFields<TFields>) },
-    ];
-    return newSelf;
+    return makeBuilder(
+      this.fields,
+      A.append(this.refinements, {
+        _tag: "async" as const,
+        fn: (values: unknown) => predicate(values as TUnsafe.Any),
+      }) as TUnsafe.Any
+    );
   },
-};
+});
 
 const isLegacyFilterIssue = (entry: FormFilterIssue): entry is LegacyFilterIssue =>
-  typeof entry === "object" && entry !== null && !SchemaIssue.isIssue(entry) && "message" in entry;
+  P.isObject(entry) && !SchemaIssue.isIssue(entry) && P.hasProperty(entry, "message") && P.isString(entry.message);
 
 const normalizeFilterIssue = (entry: FormFilterIssue): S.FilterIssue =>
   isLegacyFilterIssue(entry) ? { path: entry.path, issue: entry.message } : entry;
 
 const normalizeFilterOutput = (output: FormFilterOutput): S.FilterOutput =>
   isFilterIssueArray(output)
-    ? output.map(normalizeFilterIssue)
-    : output === undefined || typeof output === "boolean"
+    ? A.map(output, normalizeFilterIssue)
+    : output === undefined || P.isBoolean(output)
       ? output
       : normalizeFilterIssue(output);
 
 const makeFilterIssue = (input: unknown, entry: FormFilterIssue): SchemaIssue.Issue => {
   const normalizedEntry = normalizeFilterIssue(entry);
-  if (typeof normalizedEntry === "string") {
+  if (P.isString(normalizedEntry)) {
     return new SchemaIssue.InvalidValue(O.some(input), { message: normalizedEntry });
   }
   if (SchemaIssue.isIssue(normalizedEntry)) {
     return normalizedEntry;
   }
-  const inner =
-    typeof normalizedEntry.issue === "string"
-      ? new SchemaIssue.InvalidValue(O.some(input), { message: normalizedEntry.issue })
-      : normalizedEntry.issue;
+  const inner = P.isString(normalizedEntry.issue)
+    ? new SchemaIssue.InvalidValue(O.some(input), { message: normalizedEntry.issue })
+    : normalizedEntry.issue;
   return new SchemaIssue.Pointer(normalizedEntry.path, inner);
 };
 
-const isFilterIssueArray = (output: FormFilterOutput): output is ReadonlyArray<FormFilterIssue> =>
-  Array.isArray(output);
+const isFilterIssueArray = (output: FormFilterOutput): output is ReadonlyArray<FormFilterIssue> => A.isArray(output);
 
 const makeFilterOutputIssue = (
   input: unknown,
@@ -204,43 +375,75 @@ const makeFilterOutputIssue = (
   if (output === undefined) {
     return undefined;
   }
-  if (typeof output === "boolean") {
+  if (P.isBoolean(output)) {
     return output ? undefined : new SchemaIssue.InvalidValue(O.some(input));
   }
   if (isFilterIssueArray(output)) {
-    if (output.length === 0) {
+    if (A.length(output) === 0) {
       return undefined;
     }
-    const issues = output.map((entry) => makeFilterIssue(input, entry));
-    const first = issues[0];
-    if (first === undefined) {
+    const issues = A.map(output, (entry) => makeFilterIssue(input, entry));
+    const first = A.head(issues);
+    if (O.isNone(first)) {
       return undefined;
     }
-    return issues.length === 1 ? first : new SchemaIssue.Composite(ast, O.some(input), [first, ...issues.slice(1)]);
+    return A.length(issues) === 1
+      ? first.value
+      : new SchemaIssue.Composite(ast, O.some(input), [first.value, ...A.drop(issues, 1)]);
   }
   return makeFilterIssue(input, output);
 };
 
+/**
+ * Detects form builder values.
+ *
+ * @example
+ * ```ts
+ * import { empty, isFormBuilder } from "@beep/form/core/FormBuilder"
+ *
+ * console.log(isFormBuilder(empty)) // true
+ * ```
+ *
+ * @category guards
+ * @since 0.0.0
+ */
 export const isFormBuilder = (u: unknown): u is FormBuilder<FieldsRecord, unknown> => P.hasProperty(u, TypeId);
 
-export const empty: FormBuilder<{}, never> = (() => {
-  const self = Object.create(FormBuilderProto);
-  self.fields = {};
-  self.refinements = [];
-  return self;
-})();
+/**
+ * Empty form builder.
+ *
+ * @example
+ * ```ts
+ * import { empty } from "@beep/form/core/FormBuilder"
+ *
+ * console.log(empty.refinements.length) // 0
+ * ```
+ *
+ * @category constructors
+ * @since 0.0.0
+ */
+export const empty: FormBuilder<{}, never> = makeBuilder({}, A.empty<Refinement<never>>());
 
+/**
+ * Builds the combined schema for a form builder.
+ *
+ * @example
+ * ```ts
+ * import { buildSchema, empty } from "@beep/form/core/FormBuilder"
+ * import { makeField } from "@beep/form/core/Field"
+ * import * as S from "effect/Schema"
+ *
+ * const schema = buildSchema(empty.addField(makeField("name", S.String)))
+ * console.log(S.isSchema(schema)) // true
+ * ```
+ *
+ * @category schemas
+ * @since 0.0.0
+ */
 export const buildSchema = <TFields extends FieldsRecord, R>(
   self: FormBuilder<TFields, R>
 ): S.Codec<DecodedFromFields<TFields>, EncodedFromFields<TFields>, R> => {
-  const schemaFields: Record<string, S.Top> = {};
-  for (const [key, def] of Object.entries(self.fields)) {
-    if (isArrayFieldDef(def)) {
-      schemaFields[key] = S.Array(def.itemSchema);
-    } else if (isFieldDef(def)) {
-      schemaFields[key] = def.schema;
-    }
-  }
+  const schemaFields = R.map(self.fields, (def) => (isArrayFieldDef(def) ? S.Array(def.itemSchema) : def.schema));
 
   let schema: S.Top = S.Struct(schemaFields);
 
@@ -265,5 +468,5 @@ export const buildSchema = <TFields extends FieldsRecord, R>(
     }
   }
 
-  return schema as S.Codec<DecodedFromFields<TFields>, EncodedFromFields<TFields>, R>;
+  return schema as TUnsafe.Any;
 };
