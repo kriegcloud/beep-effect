@@ -10,16 +10,8 @@ import { Chunk, Number as Num } from "effect";
 import { dual, identity } from "effect/Function";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
-import {
-  EntityPatternElement,
-  LiteralPatternElement,
-  type MarkRange,
-  Pattern,
-  type PatternElement,
-  POSPatternElement,
-  type WinkEntityType,
-  type WinkPOSTag,
-} from "./Pattern.ts";
+import { EntityPatternElement, LiteralPatternElement, Pattern, POSPatternElement } from "./Pattern.ts";
+import type { MarkRange, PatternElement, WinkEntityType, WinkPOSTag } from "./Pattern.ts";
 
 type NonEmptyChoices<A> = readonly [A, ...A[]];
 type LiteralReplacer = (values: ReadonlyArray<string>, index: number) => PatternElement;

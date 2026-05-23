@@ -4,7 +4,7 @@
  * @packageDocumentation
  * @since 0.0.0
  */
-import type { TUnsafe } from "@beep/types";
+
 import { HashSet, Number as N } from "effect";
 import * as A from "effect/Array";
 import * as Eq from "effect/Equal";
@@ -13,6 +13,7 @@ import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as R from "effect/Record";
 import { getNestedValue, isPathUnderRoot } from "../Path.ts";
+import type { TUnsafe } from "@beep/types";
 
 /**
  * Recalculates dirty paths for an array field after item changes.

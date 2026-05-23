@@ -1,12 +1,4 @@
-import chalk, {
-  Chalk,
-  ChalkConstructorOptions,
-  type ChalkInstance,
-  ChalkOptions,
-  ColorSupportLevel,
-  type ColorSupportLevel as ColorSupportLevelType,
-  chalkStderr,
-} from "@beep/chalk";
+import chalk, { Chalk, ChalkConstructorOptions, ChalkOptions, ColorSupportLevel, chalkStderr } from "@beep/chalk";
 import browserChalk, {
   chalkStderr as browserChalkStderr,
   supportsColor as browserSupportsColor,
@@ -15,6 +7,7 @@ import browserChalk, {
 import { createSupportsColor } from "@beep/chalk/internal/SupportsColor";
 import { describe, expect, it } from "@effect/vitest";
 import * as S from "effect/Schema";
+import type { ChalkInstance, ColorSupportLevel as ColorSupportLevelType } from "@beep/chalk";
 
 const withLevel = (instance: ChalkInstance, level: ColorSupportLevelType, run: () => void): void => {
   const previousLevel = instance.level;

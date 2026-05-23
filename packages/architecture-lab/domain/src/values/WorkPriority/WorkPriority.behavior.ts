@@ -8,8 +8,8 @@
 
 import { Match } from "effect";
 import { dual } from "effect/Function";
-import type { WorkPriority } from "./WorkPriority.model.js";
 import { WorkPriority as WorkPrioritySchema } from "./WorkPriority.model.js";
+import type { WorkPriority } from "./WorkPriority.model.js";
 
 /**
  * Default priority for newly created WorkItems.

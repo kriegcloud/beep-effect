@@ -1,11 +1,12 @@
 import { fileURLToPath } from "node:url";
 import { makeDrizzle, migrate } from "@beep/postgres";
-import { makePgliteSqlTestLayer, type SqlTestHooks, TestDatabaseInfo } from "@beep/test-utils";
+import { makePgliteSqlTestLayer, TestDatabaseInfo } from "@beep/test-utils";
 import { A, Str } from "@beep/utils";
 import { describe, expect, layer } from "@effect/vitest";
 import { Effect, Layer, pipe } from "effect";
 import * as O from "effect/Option";
 import * as SqlClient from "effect/unstable/sql/SqlClient";
+import type { SqlTestHooks } from "@beep/test-utils";
 
 const sharedConnectionUri = pipe(Bun.env.BEEP_TEST_DATABASE_URL, O.fromUndefinedOr, O.filter(Str.isNonEmpty));
 const migrationsFolder = fileURLToPath(new URL("../../drizzle", import.meta.url));

@@ -18,13 +18,12 @@ import {
   decodeFaceDetectionModelConfig,
   FaceDetection,
   FaceDetectionBox,
-  type FaceDetectionImageRequest,
   FaceDetectionLandmarks,
-  type FaceDetectionModelConfig,
   FaceDetectionPoint,
   FaceDetectionResult,
   PositivePixelDimension,
 } from "./FaceDetection.models.ts";
+import type { FaceDetectionImageRequest, FaceDetectionModelConfig } from "./FaceDetection.models.ts";
 
 const $I = $FaceDetectionId.create("FaceDetection.service");
 const divisor = 32;

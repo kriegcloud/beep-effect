@@ -16,17 +16,17 @@ import * as AiError from "effect/unstable/ai/AiError";
 import * as Sse from "effect/unstable/encoding/Sse";
 import { FetchHttpClient } from "effect/unstable/http";
 import * as Headers from "effect/unstable/http/Headers";
-import type * as HttpBody from "effect/unstable/http/HttpBody";
 import * as HttpClient from "effect/unstable/http/HttpClient";
-import type * as HttpClientError from "effect/unstable/http/HttpClientError";
 import * as HttpClientRequest from "effect/unstable/http/HttpClientRequest";
 import * as HttpClientResponse from "effect/unstable/http/HttpClientResponse";
 import {
   decodeChatCompletionChunk,
-  type OpenAiCompatChatCompletionChunk,
   OpenAiCompatChatCompletionRequest,
   OpenAiCompatChatCompletionResponse,
 } from "./OpenAiCompat.models.ts";
+import type * as HttpBody from "effect/unstable/http/HttpBody";
+import type * as HttpClientError from "effect/unstable/http/HttpClientError";
+import type { OpenAiCompatChatCompletionChunk } from "./OpenAiCompat.models.ts";
 
 const $I = $OpenaiCompatId.create("OpenAiCompatClient.service");
 const moduleName = "OpenAiCompatClient";

@@ -4,7 +4,9 @@
  * @packageDocumentation
  * @since 0.0.0
  */
-import { type Str, Struct } from "@beep/utils";
+
+import { Struct } from "@beep/utils";
+import type { Str } from "@beep/utils";
 import type * as S from "effect/Schema";
 import type { Simplify, Assign as StructAssign } from "effect/Struct";
 import type * as Model from "../Model/index.ts";

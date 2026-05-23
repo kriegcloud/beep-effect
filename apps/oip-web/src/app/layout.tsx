@@ -7,11 +7,12 @@
 
 import { Config, Effect, pipe } from "effect";
 import * as O from "effect/Option";
-import type { Metadata } from "next";
 import { headers } from "next/headers";
 import { connection } from "next/server";
-import { type ReactNode, use } from "react";
+import { use } from "react";
 import { oipSiteContent, oipTwitterHandle } from "../content";
+import type { Metadata } from "next";
+import type { ReactNode } from "react";
 import "./globals.css";
 
 const { metadata: siteMetadata } = oipSiteContent;

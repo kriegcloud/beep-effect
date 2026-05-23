@@ -12,7 +12,6 @@
  * @since 0.0.0
  */
 export * from "./AiProviderCli.errors.ts";
-
 /**
  * Public provider CLI driver model exports.
  *
@@ -20,7 +19,6 @@ export * from "./AiProviderCli.errors.ts";
  * @since 0.0.0
  */
 export * from "./AiProviderCli.models.ts";
-
 /**
  * Public provider CLI driver service exports.
  *

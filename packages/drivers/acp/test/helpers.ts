@@ -1,11 +1,11 @@
 import { Errors as AcpError } from "@beep/acp";
-import type * as Cause from "effect/Cause";
 import * as Effect from "effect/Effect";
 import * as Queue from "effect/Queue";
 import * as S from "effect/Schema";
 import * as Sink from "effect/Sink";
 import * as Stdio from "effect/Stdio";
 import * as Stream from "effect/Stream";
+import type * as Cause from "effect/Cause";
 import type { ChildProcessSpawner } from "effect/unstable/process";
 
 const encoder = new TextEncoder();

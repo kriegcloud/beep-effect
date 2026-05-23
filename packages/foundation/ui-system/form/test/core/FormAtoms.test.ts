@@ -3,7 +3,6 @@ import * as FormAtoms from "@beep/form/core/FormAtoms";
 import * as FormBuilder from "@beep/form/core/FormBuilder";
 import { isPathOrParentDirty } from "@beep/form/core/Path";
 import { ErrorEntry } from "@beep/form/core/Validation";
-import type { TUnsafe } from "@beep/types";
 import * as HashMap from "effect/HashMap";
 import * as HashSet from "effect/HashSet";
 import * as Layer from "effect/Layer";
@@ -14,6 +13,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import * as Context from "../helpers/ContextCompat.ts";
 import * as Effect from "../helpers/EffectCompat.ts";
 import * as S from "../helpers/SchemaCompat.ts";
+import type { TUnsafe } from "@beep/types";
 
 const effectTest = (name: string, body: () => Generator<TUnsafe.Any, void, TUnsafe.Any>) =>
   it(name, () => Effect.runPromise(Effect.gen(body) as TUnsafe.Any));

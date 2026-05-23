@@ -8,10 +8,10 @@ import { $ObservabilityId } from "@beep/identity/packages";
 import { LiteralKit, NonNegativeInt } from "@beep/schema";
 import { A, Str } from "@beep/utils";
 import { Clock, Context, Effect, Layer, Match, MutableRef, pipe, Result } from "effect";
-import type * as O from "effect/Option";
 import * as S from "effect/Schema";
-import type * as HttpBody from "effect/unstable/http/HttpBody";
 import * as OtlpSerialization from "effect/unstable/observability/OtlpSerialization";
+import type * as O from "effect/Option";
+import type * as HttpBody from "effect/unstable/http/HttpBody";
 
 const $I = $ObservabilityId.create("experimental/server/OtlpPacketLab");
 const schemaIssueToError = (cause: S.SchemaError["issue"]): S.SchemaError => new S.SchemaError(cause);

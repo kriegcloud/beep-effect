@@ -2,20 +2,17 @@ import {
   CreatePodRequest,
   ListPodsRequest,
   PodCreateInput,
-  type Pods,
   Runpod,
   RunpodConfigInput,
   RunpodDocs,
   RunpodDocsConfigInput,
-  type RunpodDocsError,
-  type RunpodError,
   RunpodRawRequest,
-  type RunpodRawResponse,
-  type RunpodShape,
 } from "@beep/runpod";
-import { type Effect, type Layer, Redacted } from "effect";
-import type * as HttpClient from "effect/unstable/http/HttpClient";
+import { Redacted } from "effect";
 import { describe, expect, it } from "tstyche";
+import type { Pods, RunpodDocsError, RunpodError, RunpodRawResponse, RunpodShape } from "@beep/runpod";
+import type { Effect, Layer } from "effect";
+import type * as HttpClient from "effect/unstable/http/HttpClient";
 
 declare const runpod: RunpodShape;
 

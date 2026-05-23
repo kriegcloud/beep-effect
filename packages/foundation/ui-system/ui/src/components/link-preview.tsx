@@ -6,8 +6,9 @@ import { ArrowSquareOutIcon, InfoIcon } from "@phosphor-icons/react";
 import { Effect, pipe } from "effect";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
-import { type ReactNode, useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { cn, sanitizeAnchorHref } from "../lib/index.ts";
+import type { ReactNode } from "react";
 
 interface UrlMetadata {
   readonly description: null | string;

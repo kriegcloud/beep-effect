@@ -7,8 +7,9 @@
  */
 
 import { $InstallerUseCasesId } from "@beep/identity/packages";
+import { Context } from "effect";
 import type { OnePasswordReference } from "@beep/shared-domain/values/OnePasswordReference";
-import { Context, type Effect, type Redacted } from "effect";
+import type { Effect, Redacted } from "effect";
 import type * as S from "effect/Schema";
 import type {
   DiscordChannelPlan,

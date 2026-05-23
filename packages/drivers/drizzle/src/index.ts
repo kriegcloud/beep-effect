@@ -12,7 +12,6 @@
  * @category errors
  */
 export * from "./Drizzle.errors.ts";
-
 /**
  * Public Drizzle driver service exports.
  *
@@ -20,7 +19,6 @@ export * from "./Drizzle.errors.ts";
  * @category services
  */
 export * from "./Drizzle.service.ts";
-
 /**
  * Public schema-first Drizzle table projection exports.
  *

@@ -8,20 +8,13 @@
 import {
   encodeRepoCodegraphLookupResult,
   lookupRepoExports,
-  type RepoCodegraphCatalogReadError,
-  type RepoCodegraphFreshnessStatus,
   RepoCodegraphLookupRequest,
-  type RepoCodegraphLookupResult,
   readRepoCodegraphImportPolicies,
   readRepoExportsCatalog,
 } from "@beep/repo-codegraph";
 import {
   DomainError,
-  type FsUtils,
   findRepoRoot,
-  type NoSuchFileError,
-  type ReuseAnalysisError,
-  type ReuseCandidateNotFoundError,
   ReuseDiscoveryService,
   ReuseFindResult,
   ReuseInventory,
@@ -30,19 +23,34 @@ import {
   ReusePartitionPlan,
   ReusePartitionPlannerService,
   ReuseServiceSuiteLive,
-  type TSMorphService,
 } from "@beep/repo-utils";
 import { A } from "@beep/utils";
-import { Console, Effect, type FileSystem, Layer, type Path, pipe } from "effect";
+import { Console, Effect, Layer, pipe } from "effect";
 import * as Bool from "effect/Boolean";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import { Command, Flag } from "effect/unstable/cli";
-import { ChildProcess, type ChildProcessSpawner } from "effect/unstable/process";
+import { ChildProcess } from "effect/unstable/process";
 import { jsonFlag } from "../../internal/cli/Flags.js";
-import { type CliJsonError, printCommandJson } from "../../internal/cli/Json.js";
+import { printCommandJson } from "../../internal/cli/Json.js";
 import { printLines } from "../../internal/cli/Printer.js";
-import { type CodexRunnerError, CodexSmokeResult, runCodexSmoke } from "./internal/CodexRunner.js";
+import { CodexSmokeResult, runCodexSmoke } from "./internal/CodexRunner.js";
+import type {
+  RepoCodegraphCatalogReadError,
+  RepoCodegraphFreshnessStatus,
+  RepoCodegraphLookupResult,
+} from "@beep/repo-codegraph";
+import type {
+  FsUtils,
+  NoSuchFileError,
+  ReuseAnalysisError,
+  ReuseCandidateNotFoundError,
+  TSMorphService,
+} from "@beep/repo-utils";
+import type { FileSystem, Path } from "effect";
+import type { ChildProcessSpawner } from "effect/unstable/process";
+import type { CliJsonError } from "../../internal/cli/Json.js";
+import type { CodexRunnerError } from "./internal/CodexRunner.js";
 
 const scopeFlag = Flag.string("scope").pipe(
   Flag.withDescription("Limit analysis to one or more package or path selectors separated by commas"),

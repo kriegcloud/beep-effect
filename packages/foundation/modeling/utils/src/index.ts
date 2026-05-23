@@ -20,7 +20,6 @@
  * @since 0.0.0
  */
 export * as A from "./Array.ts";
-
 /**
  * Boolean utilities re-exported from `effect/Boolean`.
  *
@@ -35,7 +34,6 @@ export * as A from "./Array.ts";
  * @since 0.0.0
  */
 export * as Bool from "./Bool.ts";
-
 /**
  * DateTime utilities extending `effect/DateTime`.
  *
@@ -260,7 +258,6 @@ export * as Text from "./Text.ts";
  * @since 0.0.0
  */
 export * from "./thunk.ts";
-
 /**
  * Miscellaneous runtime utilities re-exported from `effect/Utils`.
  *

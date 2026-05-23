@@ -3,8 +3,9 @@
 import { Button, buttonVariants } from "@beep/ui/components/button";
 import { CaretDownIcon, CaretLeftIcon, CaretRightIcon } from "@phosphor-icons/react";
 import * as React from "react";
-import { type DayButton, DayPicker, getDefaultClassNames } from "react-day-picker";
+import { DayPicker, getDefaultClassNames } from "react-day-picker";
 import { cn } from "../lib/index.ts";
+import type { DayButton } from "react-day-picker";
 
 /**
  * @category components

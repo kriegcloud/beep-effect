@@ -9,10 +9,10 @@ import { $NlpId } from "@beep/identity";
 import { Context, Effect, Layer, Ref } from "effect";
 import {
   InstanceId as InstanceIdService,
-  type WinkEngineRuntimeState as WinkEngineRuntimeStateType,
   WinkEngine as WinkEngineService,
   WinkEngineState as WinkEngineStateService,
 } from "./WinkEngine.ts";
+import type { WinkEngineRuntimeState as WinkEngineRuntimeStateType } from "./WinkEngine.ts";
 import type { WinkEntityError } from "./WinkErrors.ts";
 import type { WinkEngineCustomEntities } from "./WinkPattern.ts";
 

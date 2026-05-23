@@ -1,7 +1,7 @@
+import { describe, expect, it } from "tstyche";
 import type * as Membership from "@beep/shared-domain/entities/Membership";
 import type * as User from "@beep/shared-domain/entities/User";
 import type * as Shared from "@beep/shared-domain/identity/Shared";
-import { describe, expect, it } from "tstyche";
 
 describe("User and Membership types", () => {
   it("preserves User entity metadata", () => {

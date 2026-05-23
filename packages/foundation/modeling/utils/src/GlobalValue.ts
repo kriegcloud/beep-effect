@@ -12,10 +12,11 @@
  *
  * @since 2.0.0
  */
-import type { TUnsafe } from "@beep/types";
+
 import { HashMap } from "effect";
 import { dual } from "effect/Function";
 import * as O from "effect/Option";
+import type { TUnsafe } from "@beep/types";
 
 const globalStoreId = `effect/GlobalValue`;
 type GlobalStore = HashMap.HashMap<unknown, TUnsafe.Any>;

@@ -5,14 +5,14 @@ import { A, Str } from "@beep/utils";
 import { NodeChildProcessSpawner, NodeServices } from "@effect/platform-node";
 import { Cause, Effect, Exit, FileSystem, Layer, Order, Path, pipe } from "effect";
 import * as O from "effect/Option";
-import type * as PlatformError from "effect/PlatformError";
 import * as S from "effect/Schema";
 import * as Stream from "effect/Stream";
 import * as TestConsole from "effect/testing/TestConsole";
 import { Command } from "effect/unstable/cli";
 import { ChildProcess } from "effect/unstable/process";
-import type { ChildProcessSpawner } from "effect/unstable/process/ChildProcessSpawner";
 import { describe, expect, it } from "vitest";
+import type * as PlatformError from "effect/PlatformError";
+import type { ChildProcessSpawner } from "effect/unstable/process/ChildProcessSpawner";
 
 const provideScopedLayer =
   <ROut, E2, RIn>(layer: Layer.Layer<ROut, E2, RIn>) =>

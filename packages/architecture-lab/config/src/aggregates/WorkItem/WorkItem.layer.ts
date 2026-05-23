@@ -9,7 +9,6 @@
 import { $ArchitectureLabConfigId } from "@beep/identity/packages";
 import { Config, Context, Effect, Layer } from "effect";
 import * as S from "effect/Schema";
-
 import {
   defaultWorkItemPublicConfig,
   defaultWorkItemSecretConfig,

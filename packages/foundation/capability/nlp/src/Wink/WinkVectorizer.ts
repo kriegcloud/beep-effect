@@ -16,11 +16,12 @@ import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
-import type { ItsHelpers } from "wink-nlp";
-import { type Document, DocumentId } from "../Core/Document.ts";
-import type { Token } from "../Core/Token.ts";
+import { DocumentId } from "../Core/Document.ts";
 import { PositiveNumber, UnitInterval } from "../internal/numbers.ts";
 import { WinkEngine } from "./WinkEngine.ts";
+import type { ItsHelpers } from "wink-nlp";
+import type { Document } from "../Core/Document.ts";
+import type { Token } from "../Core/Token.ts";
 
 const $I = $NlpId.create("Wink/WinkVectorizer");
 const require = createRequire(import.meta.url);

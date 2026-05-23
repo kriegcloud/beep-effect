@@ -5,8 +5,8 @@
  * @since 0.0.0
  */
 
-import type { MetadataRoute } from "next";
 import { oipSiteContent } from "../content";
+import type { MetadataRoute } from "next";
 
 /**
  * Returns the OIP sitemap.

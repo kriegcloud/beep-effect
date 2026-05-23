@@ -4,25 +4,26 @@
  * @packageDocumentation
  * @since 0.0.0
  */
-import type { TUnsafe } from "@beep/types";
+
 import { RegistryContext, useAtom, useAtomMount, useAtomSet, useAtomValue } from "@effect/atom-react";
 import { Layer } from "effect";
-import type * as Effect from "effect/Effect";
 import { dual } from "effect/Function";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as R from "effect/Record";
-import type * as S from "effect/Schema";
 import * as Atom from "effect/unstable/reactivity/Atom";
-import type * as AtomRegistry from "effect/unstable/reactivity/AtomRegistry";
 import * as React from "react";
 import { createContext, useContext } from "react";
 import * as Field from "../core/Field.ts";
-import type * as FieldStateModule from "../core/FieldState.ts";
 import * as FormAtoms from "../core/FormAtoms.ts";
+import { getNestedValue } from "../core/Path.ts";
+import type { TUnsafe } from "@beep/types";
+import type * as Effect from "effect/Effect";
+import type * as S from "effect/Schema";
+import type * as AtomRegistry from "effect/unstable/reactivity/AtomRegistry";
+import type * as FieldStateModule from "../core/FieldState.ts";
 import type * as FormBuilder from "../core/FormBuilder.ts";
 import type * as Mode from "../core/Mode.ts";
-import { getNestedValue } from "../core/Path.ts";
 
 /**
  * Render value type for a schema-backed field.

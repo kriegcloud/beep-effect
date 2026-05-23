@@ -1,6 +1,6 @@
-import type * as DomainWorkItem from "@beep/architecture-lab-domain/aggregates/WorkItem";
 import { WorkItem } from "@beep/architecture-lab-use-cases/public";
 import { expect } from "tstyche";
+import type * as DomainWorkItem from "@beep/architecture-lab-domain/aggregates/WorkItem";
 
 declare const workItemId: DomainWorkItem.WorkItemId;
 

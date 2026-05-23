@@ -6,24 +6,24 @@
  */
 
 import { $RepoCliId } from "@beep/identity/packages";
-import { type DomainError, findRepoRoot, type NoSuchFileError } from "@beep/repo-utils";
+import { findRepoRoot } from "@beep/repo-utils";
 import { LiteralKit } from "@beep/schema";
-import { makePgliteTestcontainerResource, type PgliteTestcontainerResource } from "@beep/test-utils";
+import { makePgliteTestcontainerResource } from "@beep/test-utils";
 import { A, Str, thunkFalse } from "@beep/utils";
-import { Console, Effect, FileSystem, flow, Match, Path, pipe, type Scope, Stream } from "effect";
+import { Console, Effect, FileSystem, flow, Match, Path, pipe, Stream } from "effect";
 import { dual } from "effect/Function";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
-import { ChildProcess, type ChildProcessSpawner } from "effect/unstable/process";
+import { ChildProcess } from "effect/unstable/process";
 import { configStringEqualsSync, configStringOption } from "./internal/Config.js";
-import {
-  QualityTaskConfigurationError,
-  QualityTaskFailed,
-  QualityTaskGroupFailed,
-  type UnexpectedQualityTaskFailure,
-} from "./Quality.errors.js";
+import { QualityTaskConfigurationError, QualityTaskFailed, QualityTaskGroupFailed } from "./Quality.errors.js";
+import type { DomainError, NoSuchFileError } from "@beep/repo-utils";
+import type { PgliteTestcontainerResource } from "@beep/test-utils";
+import type { Scope } from "effect";
+import type { ChildProcessSpawner } from "effect/unstable/process";
+import type { UnexpectedQualityTaskFailure } from "./Quality.errors.js";
 
 /**
  * Public quality task error exports.

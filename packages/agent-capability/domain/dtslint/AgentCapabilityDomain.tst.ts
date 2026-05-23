@@ -1,6 +1,7 @@
-import { Agent, type AgentMode, type AgentMode as AgentModeType } from "@beep/agent-capability-domain";
-import type * as AgentCapability from "@beep/shared-domain/identity/AgentCapability";
+import { Agent } from "@beep/agent-capability-domain";
 import { describe, expect, it } from "tstyche";
+import type { AgentMode, AgentMode as AgentModeType } from "@beep/agent-capability-domain";
+import type * as AgentCapability from "@beep/shared-domain/identity/AgentCapability";
 
 declare const agent: Agent;
 

@@ -12,7 +12,6 @@ import {
   DocgenLocalSelectedPackage,
   DocgenPackageAnalysis,
   DocgenQualityWorkerEvalReport,
-  type DocgenQualityWorkerEvalRunner,
   discoverDocgenWorkspacePackages,
   discoverOrphanDocgenConfigPaths,
   docgenLocalFullReasonsForTesting,
@@ -41,6 +40,7 @@ import { Command } from "effect/unstable/cli";
 import * as HttpClient from "effect/unstable/http/HttpClient";
 import { ChildProcess } from "effect/unstable/process";
 import { describe, expect, it } from "vitest";
+import type { DocgenQualityWorkerEvalRunner } from "@beep/repo-cli/test/Docgen";
 
 const provideScopedLayer =
   <ROut, E2, RIn>(layer: Layer.Layer<ROut, E2, RIn>) =>

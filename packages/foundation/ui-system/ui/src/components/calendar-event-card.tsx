@@ -2,8 +2,8 @@
 
 import { CheckIcon, SpinnerGap } from "@phosphor-icons/react";
 import { Match } from "effect";
-import type { ReactNode } from "react";
 import { cn } from "../lib/index.ts";
+import type { ReactNode } from "react";
 
 /**
  * @category type-level

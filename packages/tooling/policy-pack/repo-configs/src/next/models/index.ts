@@ -83,7 +83,6 @@ export * from "./ImageConfig.schema.ts";
  * @since 0.0.0
  */
 export * from "./PrefetchInliningConfig.schema.ts";
-
 /**
  * Route configuration schemas.
  *

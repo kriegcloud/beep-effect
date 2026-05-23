@@ -16,7 +16,6 @@ import {
 } from "@beep/schema";
 import { Str } from "@beep/utils";
 import { Effect, Match, Result, SchemaGetter, Tuple } from "effect";
-
 import * as S from "effect/Schema";
 import { Project, SourceFile, Node as TsMorphNode } from "ts-morph";
 import { TSSyntaxKind } from "../TypeScript/index.ts";

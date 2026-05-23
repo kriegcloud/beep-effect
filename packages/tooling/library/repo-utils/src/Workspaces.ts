@@ -14,13 +14,11 @@ import * as Eq from "effect/Equal";
 import { dual } from "effect/Function";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
-import { DomainError, type NoSuchFileError } from "./errors/index.js";
+import { DomainError } from "./errors/index.js";
 import { FsUtils } from "./FsUtils.js";
-import {
-  decodePackageJsonEffect,
-  type PackageJson,
-  type Workspaces as PackageJsonWorkspaces,
-} from "./schemas/PackageJson.js";
+import { decodePackageJsonEffect } from "./schemas/PackageJson.js";
+import type { NoSuchFileError } from "./errors/index.js";
+import type { PackageJson, Workspaces as PackageJsonWorkspaces } from "./schemas/PackageJson.js";
 
 /**
  * Directories to exclude when scanning workspace globs.

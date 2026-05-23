@@ -11,16 +11,13 @@ import {
   Phoenix,
   PhoenixAnnotationInput,
   PhoenixAnnotationTargetKind,
-  type PhoenixAnnotationTargetKind as PhoenixAnnotationTargetKindType,
   PhoenixDatasetAppendInput,
   PhoenixDatasetCreateInput,
   PhoenixDatasetExample,
   PhoenixDatasetSelector,
-  type PhoenixError,
   PhoenixExperimentCreateInput,
   PhoenixPromptChatMessage,
   PhoenixPromptCreateInput,
-  type PhoenixShape,
 } from "@beep/phoenix";
 import { LiteralKit, TaggedErrorClass, UnknownRecord } from "@beep/schema";
 import { A, O, P, Str } from "@beep/utils";
@@ -32,6 +29,11 @@ import * as HttpClient from "effect/unstable/http/HttpClient";
 import * as HttpClientRequest from "effect/unstable/http/HttpClientRequest";
 import * as HttpClientResponse from "effect/unstable/http/HttpClientResponse";
 import { AiMetricsDeployTarget } from "./models.ts";
+import type {
+  PhoenixAnnotationTargetKind as PhoenixAnnotationTargetKindType,
+  PhoenixError,
+  PhoenixShape,
+} from "@beep/phoenix";
 
 const $I = $RepoAiMetricsId.create("agent-effectiveness");
 

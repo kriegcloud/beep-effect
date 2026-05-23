@@ -12,22 +12,21 @@ import { dual } from "effect/Function";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
-import {
-  type ClassDeclaration,
-  type ConstructorDeclaration,
-  DiagnosticCategory,
-  type DiagnosticMessageChain,
-  type EnumDeclaration,
-  type FunctionDeclaration,
-  type GetAccessorDeclaration,
-  type InterfaceDeclaration,
-  type MethodDeclaration,
-  Node,
-  type SetAccessorDeclaration,
-  type TypeAliasDeclaration,
+import { DiagnosticCategory, Node } from "ts-morph";
+import { SymbolKind, symbolCategoryFromKind } from "./TSMorph.model.js";
+import type {
+  ClassDeclaration,
+  ConstructorDeclaration,
+  DiagnosticMessageChain,
+  EnumDeclaration,
+  FunctionDeclaration,
+  GetAccessorDeclaration,
+  InterfaceDeclaration,
+  MethodDeclaration,
+  SetAccessorDeclaration,
+  TypeAliasDeclaration,
 } from "ts-morph";
 import type { SourceText, TsMorphDiagnostic, Symbol as TsMorphSymbol } from "./TSMorph.model.js";
-import { SymbolKind, symbolCategoryFromKind } from "./TSMorph.model.js";
 
 const $I = $RepoUtilsId.create("TSMorph/TSMorph.shared");
 

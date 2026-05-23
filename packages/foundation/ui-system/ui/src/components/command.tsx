@@ -4,8 +4,8 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { InputGroup, InputGroupAddon } from "@beep/ui/components/input-group";
 import { CheckIcon, MagnifyingGlassIcon } from "@phosphor-icons/react";
 import { Command as CommandPrimitive } from "cmdk";
-import type * as React from "react";
 import { cn } from "../lib/index.ts";
+import type * as React from "react";
 
 /**
  * @category components

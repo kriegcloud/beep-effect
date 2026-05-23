@@ -2,9 +2,9 @@
 
 import { Dialog as DialogPrimitive } from "@base-ui/react/dialog";
 import { XIcon } from "@phosphor-icons/react";
-import type * as React from "react";
 import { cn } from "../lib/index.ts";
 import { Button } from "./button";
+import type * as React from "react";
 
 /**
  * @category components

@@ -1,5 +1,4 @@
 import { Field, FormBuilder, FormReact } from "@beep/form/react";
-import type { TUnsafe } from "@beep/types";
 import { useAtomSet, useAtomSubscribe, useAtomValue } from "@effect/atom-react";
 import { render, screen, waitFor } from "@testing-library/react";
 import { userEvent } from "@testing-library/user-event";
@@ -14,6 +13,7 @@ import { describe, expect, expectTypeOf, it, vi } from "vitest";
 import * as Context from "../helpers/ContextCompat.ts";
 import * as Effect from "../helpers/EffectCompat.ts";
 import * as S from "../helpers/SchemaCompat.ts";
+import type { TUnsafe } from "@beep/types";
 
 const effectTest = (name: string, body: () => Generator<TUnsafe.Any, void, TUnsafe.Any>) =>
   it(name, () => Effect.runPromise(Effect.gen(body) as TUnsafe.Any));

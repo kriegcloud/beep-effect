@@ -13,12 +13,8 @@ import { dual } from "effect/Function";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import { firstString, metricEventName, optionalTimestamp, transcriptLines } from "./internal/transcript-utils.ts";
-import {
-  AiMetricsSourceAttribution,
-  AiMetricsSourceRole,
-  AiMetricsTranscriptSource,
-  type TranscriptIngestSummary,
-} from "./models.ts";
+import { AiMetricsSourceAttribution, AiMetricsSourceRole, AiMetricsTranscriptSource } from "./models.ts";
+import type { TranscriptIngestSummary } from "./models.ts";
 
 const $I = $RepoAiMetricsId.create("privacy");
 

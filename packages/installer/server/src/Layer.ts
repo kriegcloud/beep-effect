@@ -6,7 +6,7 @@
  * @since 0.0.0
  */
 
-import { AiProviderCli, type AiProviderCliProvider } from "@beep/ai-provider-cli";
+import { AiProviderCli } from "@beep/ai-provider-cli";
 import { Discord, DiscordChannelRequest, DiscordCreateMessageRequest } from "@beep/discord";
 import { DiscordChannel } from "@beep/installer-domain/aggregates/DiscordChannel";
 import {
@@ -48,14 +48,16 @@ import {
   StackManifestUseCases,
 } from "@beep/installer-use-cases/server";
 import { OnePasswordCli } from "@beep/onepassword-cli";
-import type { OnePasswordReference } from "@beep/shared-domain/values/OnePasswordReference";
-import { Effect, Layer, pipe, type Redacted, Stream } from "effect";
+import { Effect, Layer, pipe, Stream } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import { ChildProcess, ChildProcessSpawner } from "effect/unstable/process";
+import type { AiProviderCliProvider } from "@beep/ai-provider-cli";
+import type { OnePasswordReference } from "@beep/shared-domain/values/OnePasswordReference";
+import type { Redacted } from "effect";
 
 const decodeHostDependencyPlan = S.decodeUnknownEffect(HostDependencyPlan);
 const decodeSecretReferencePlan = S.decodeUnknownEffect(SecretReferencePlan);

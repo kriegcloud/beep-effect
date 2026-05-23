@@ -9,7 +9,6 @@
 import { $CanvasDomainId } from "@beep/identity/packages";
 import { TaggedErrorClass } from "@beep/schema";
 import * as S from "effect/Schema";
-
 import { CanvasNodeId, CanvasProjectId, CanvasProjectStatus } from "./CanvasProject.values.js";
 
 const $I = $CanvasDomainId.create("aggregates/CanvasProject/CanvasProject.errors");

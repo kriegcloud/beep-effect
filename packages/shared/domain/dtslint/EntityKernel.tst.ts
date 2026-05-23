@@ -6,10 +6,10 @@ import * as EntityBarrel from "@beep/shared-domain/entity";
 import * as BaseEntity from "@beep/shared-domain/entity/BaseEntity";
 import * as EntityId from "@beep/shared-domain/entity/EntityId";
 import * as EntityRef from "@beep/shared-domain/entity/EntityRef";
-import type * as Shared from "@beep/shared-domain/identity/Shared";
-import type * as O from "effect/Option";
 import * as S from "effect/Schema";
 import { describe, expect, it } from "tstyche";
+import type * as Shared from "@beep/shared-domain/identity/Shared";
+import type * as O from "effect/Option";
 
 const $I = $SharedDomainId.create("entity/dtslint/EntityKernel");
 const makeSharedId = EntityId.factory("shared", $I);

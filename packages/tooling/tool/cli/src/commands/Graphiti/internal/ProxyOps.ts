@@ -7,15 +7,15 @@
 
 import { $RepoCliId } from "@beep/identity/packages";
 import { findRepoRoot } from "@beep/repo-utils";
-
 import { A, Str, thunkEmptyStr, thunkFalse } from "@beep/utils";
 import { Clock, Config, Console, Duration, Effect, FileSystem, Path, pipe, Stream } from "effect";
 import { dual } from "effect/Function";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
-import { ChildProcess, type ChildProcessSpawner } from "effect/unstable/process";
+import { ChildProcess } from "effect/unstable/process";
 import { QualityTaskStep } from "../../Quality/Tasks.js";
 import { GraphitiProxyOpsError } from "../Graphiti.errors.js";
+import type { ChildProcessSpawner } from "effect/unstable/process";
 
 /**
  * Public Graphiti proxy operations error export.

@@ -12,7 +12,6 @@
  * @since 0.0.0
  */
 export * from "./Layer.js";
-
 /**
  * SQL test utility exports.
  *

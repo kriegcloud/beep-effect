@@ -1,6 +1,6 @@
+import { describe, expect, it } from "tstyche";
 import type * as EntityId from "@beep/shared-domain/entity/EntityId";
 import type * as Identity from "@beep/shared-domain/identity";
-import { describe, expect, it } from "tstyche";
 
 describe("P3 identity namespace types", () => {
   it("preserves AgentCapability companion aliases and literals", () => {

@@ -11,21 +11,20 @@ import { A } from "@beep/utils";
 import { Effect, pipe } from "effect";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
-import type { CreateWorkerCommand, GetWorkerQuery, ListWorkersQuery } from "./Worker.commands.js";
 import {
   WORKER_ACTION_UNAVAILABLE_REASON,
-  type WorkerActionError,
   WorkerActionFailed,
   WorkerConflict,
   WorkerNotFound,
 } from "./Worker.errors.js";
 import {
   WorkerRepositoryConflict,
-  type WorkerRepositoryError,
   WorkerRepositoryNotFound,
-  type WorkerRepositoryShape,
   WorkerRepositoryUnavailable,
 } from "./Worker.repository.js";
+import type { CreateWorkerCommand, GetWorkerQuery, ListWorkersQuery } from "./Worker.commands.js";
+import type { WorkerActionError } from "./Worker.errors.js";
+import type { WorkerRepositoryError, WorkerRepositoryShape } from "./Worker.repository.js";
 import type { WorkerUseCasesShape } from "./Worker.use-cases.js";
 
 const isRepositoryNotFound = S.is(WorkerRepositoryNotFound);

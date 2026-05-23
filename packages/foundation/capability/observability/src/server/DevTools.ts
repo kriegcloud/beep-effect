@@ -7,8 +7,8 @@
 import { Effect, Layer, Match, Tracer } from "effect";
 import * as O from "effect/Option";
 import * as DevToolsClient from "effect/unstable/devtools/DevToolsClient";
-import type * as DevToolsSchema from "effect/unstable/devtools/DevToolsSchema";
 import * as Socket from "effect/unstable/socket/Socket";
+import type * as DevToolsSchema from "effect/unstable/devtools/DevToolsSchema";
 
 /**
  * Predicate used to decide whether a span should be mirrored to Effect devtools.

@@ -1,9 +1,11 @@
-import { $RepoCliId, $SchemaId, type IdentityString } from "@beep/identity";
-import { LiteralKit, LiteralNotInSetError, type LiteralToKey } from "@beep/schema/LiteralKit";
-import type { A } from "@beep/utils";
+import { $RepoCliId, $SchemaId } from "@beep/identity";
+import { LiteralKit, LiteralNotInSetError } from "@beep/schema/LiteralKit";
 import * as S from "effect/Schema";
-import type { LiteralValue } from "effect/SchemaAST";
 import { describe, expect, it } from "tstyche";
+import type { IdentityString } from "@beep/identity";
+import type { LiteralToKey } from "@beep/schema/LiteralKit";
+import type { A } from "@beep/utils";
+import type { LiteralValue } from "effect/SchemaAST";
 
 describe("LiteralToKey", () => {
   it("maps booleans to 'true' | 'false'", () => {

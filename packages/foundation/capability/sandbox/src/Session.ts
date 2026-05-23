@@ -10,8 +10,8 @@ import { Str } from "@beep/utils";
 import { Context, Effect, FileSystem, Layer, Path } from "effect";
 import * as S from "effect/Schema";
 import { SessionCaptureError } from "./Sandbox.errors.ts";
-import type { BindMountSandboxHandle } from "./Sandbox.provider.ts";
 import { SandboxExecOptions } from "./Sandbox.provider.ts";
+import type { BindMountSandboxHandle } from "./Sandbox.provider.ts";
 
 const $I = $SandboxId.create("Session");
 const SESSION_ID_PATTERN = /^[A-Za-z0-9_-]+$/u;

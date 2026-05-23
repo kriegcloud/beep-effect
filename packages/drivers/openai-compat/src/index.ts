@@ -40,7 +40,6 @@ export const VERSION = "0.0.0" as const;
  * @since 0.0.0
  */
 export * from "./OpenAiCompat.models.ts";
-
 /**
  * OpenAI-compatible HTTP client exports.
  *
@@ -56,7 +55,6 @@ export * from "./OpenAiCompat.models.ts";
  * @since 0.0.0
  */
 export * from "./OpenAiCompatClient.service.ts";
-
 /**
  * Effect AI language-model adapter exports for OpenAI-compatible chat completions.
  *

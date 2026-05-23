@@ -19,7 +19,6 @@
  * @since 0.0.0
  */
 export * from "./_generated/meta.gen.ts";
-
 /**
  * Generated ACP wire schemas.
  *

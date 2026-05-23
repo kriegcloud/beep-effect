@@ -6,11 +6,10 @@
  */
 
 import { $SandboxId } from "@beep/identity";
-import { Effect, type FileSystem, type Path } from "effect";
+import { Effect } from "effect";
 import * as S from "effect/Schema";
 import { AgentCommandOptions } from "./Agent.provider.ts";
 import { createSandbox } from "./createSandbox.ts";
-import type { Display } from "./Display.ts";
 import {
   BUILT_IN_PROMPT_ARG_KEY_SET,
   ResolvePromptOptions,
@@ -19,9 +18,12 @@ import {
   validateNoArgsWithInlinePrompt,
   validateNoBuiltInArgOverride,
 } from "./Prompt.ts";
-import type { RunOptions } from "./Run.ts";
 import { resolveCwd } from "./resolveCwd.ts";
-import { AgentError, type SandboxError } from "./Sandbox.errors.ts";
+import { AgentError } from "./Sandbox.errors.ts";
+import type { FileSystem, Path } from "effect";
+import type { Display } from "./Display.ts";
+import type { RunOptions } from "./Run.ts";
+import type { SandboxError } from "./Sandbox.errors.ts";
 
 const $I = $SandboxId.create("interactive");
 

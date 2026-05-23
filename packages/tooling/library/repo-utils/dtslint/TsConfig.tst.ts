@@ -1,6 +1,5 @@
 import {
   collectTsConfigPaths,
-  type DomainError,
   decodeTSConfig,
   decodeTSConfigEffect,
   decodeTSConfigExit,
@@ -8,13 +7,11 @@ import {
   encodeTSConfigEffect,
   encodeTSConfigPrettyEffect,
   encodeTSConfigToJsonEffect,
-  type FsUtils,
-  type NoSuchFileError,
-  type TSConfig,
 } from "@beep/repo-utils";
+import { describe, expect, it } from "tstyche";
+import type { DomainError, FsUtils, NoSuchFileError, TSConfig } from "@beep/repo-utils";
 import type { Effect, Exit, HashMap, Schema } from "effect";
 import type * as O from "effect/Option";
-import { describe, expect, it } from "tstyche";
 
 describe("TsConfig", () => {
   it("collectTsConfigPaths returns HashMap<string, ReadonlyArray<string>>", () => {

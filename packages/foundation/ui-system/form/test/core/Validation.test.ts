@@ -1,11 +1,11 @@
 import { extractFirstError, routeErrors, routeErrorsWithSource } from "@beep/form/core/Validation";
-import type { TUnsafe } from "@beep/types";
 import * as HashMap from "effect/HashMap";
 import * as O from "effect/Option";
 import * as SchemaIssue from "effect/SchemaIssue";
 import { describe, expect, it } from "vitest";
 import * as Effect from "../helpers/EffectCompat.ts";
 import * as S from "../helpers/SchemaCompat.ts";
+import type { TUnsafe } from "@beep/types";
 
 const effectTest = (name: string, body: () => Generator<TUnsafe.Any, void, TUnsafe.Any>) =>
   it(name, () => Effect.runPromise(Effect.gen(body) as TUnsafe.Any));

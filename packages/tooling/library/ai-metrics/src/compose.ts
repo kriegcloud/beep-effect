@@ -10,8 +10,9 @@ import { A } from "@beep/utils";
 import { Effect, pipe } from "effect";
 import * as O from "effect/Option";
 import { stringify as stringifyYaml } from "yaml";
-import { AiMetricsInstallConfigurationError, type AiMetricsInstallSpec, type AiMetricsServiceSpec } from "./install.ts";
+import { AiMetricsInstallConfigurationError } from "./install.ts";
 import { AiMetricsDeployTarget, AiMetricsTool } from "./models.ts";
+import type { AiMetricsInstallSpec, AiMetricsServiceSpec } from "./install.ts";
 
 const $I = $RepoAiMetricsId.create("compose");
 void $I;

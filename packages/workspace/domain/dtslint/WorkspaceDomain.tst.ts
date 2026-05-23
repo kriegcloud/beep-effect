@@ -1,12 +1,12 @@
-import type * as WorkspaceIdentity from "@beep/shared-domain/identity/Workspace";
-import {
-  type ApprovalDecision,
-  type ApprovalDecision as ApprovalDecisionType,
-  type CandidateLifecycle,
-  type CandidateLifecycle as CandidateLifecycleType,
-  Workspace as WorkspaceEntity,
-} from "@beep/workspace-domain";
+import { Workspace as WorkspaceEntity } from "@beep/workspace-domain";
 import { describe, expect, it } from "tstyche";
+import type * as WorkspaceIdentity from "@beep/shared-domain/identity/Workspace";
+import type {
+  ApprovalDecision,
+  ApprovalDecision as ApprovalDecisionType,
+  CandidateLifecycle,
+  CandidateLifecycle as CandidateLifecycleType,
+} from "@beep/workspace-domain";
 
 declare const workspace: WorkspaceEntity;
 

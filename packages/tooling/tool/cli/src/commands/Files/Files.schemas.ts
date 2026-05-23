@@ -141,15 +141,7 @@ export type MediaKind = typeof MediaKind.Type;
  * @category schemas
  * @since 0.0.0
  */
-export const SupportedMetadataImageExtension = LiteralKit([
-  "avif",
-  "jpeg",
-  "jpg",
-  "png",
-  "tif",
-  "tiff",
-  "webp",
-]).pipe(
+export const SupportedMetadataImageExtension = LiteralKit(["avif", "jpeg", "jpg", "png", "tif", "tiff", "webp"]).pipe(
   $I.annoteSchema("SupportedMetadataImageExtension", {
     description: "Image file extensions that the metadata-strip command normalizes through sharp.",
   })
@@ -286,14 +278,7 @@ export type BorderSide = typeof BorderSide.Type;
  * @category schemas
  * @since 0.0.0
  */
-export const BorderDetectionKind = LiteralKit([
-  "none",
-  "canvas-edge",
-  "pillarbox",
-  "letterbox",
-  "frame",
-  "mixed",
-]).pipe(
+export const BorderDetectionKind = LiteralKit(["none", "canvas-edge", "pillarbox", "letterbox", "frame", "mixed"]).pipe(
   $I.annoteSchema("BorderDetectionKind", {
     description: "Detected solid-border layout for a dataset image.",
   })

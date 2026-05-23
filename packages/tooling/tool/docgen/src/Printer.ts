@@ -11,10 +11,9 @@ import { dual, flow } from "effect/Function";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as R from "effect/Record";
-
 import * as Configuration from "./Configuration.js";
-import type * as Domain from "./Domain.js";
 import * as Parser from "./Parser.js";
+import type * as Domain from "./Domain.js";
 
 /**
  * Union of documented entities that the markdown printer can render.

@@ -15,12 +15,13 @@ import { dual } from "effect/Function";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
-import { type Document, DocumentId } from "../Core/Document.ts";
-import type { Token } from "../Core/Token.ts";
+import { DocumentId } from "../Core/Document.ts";
 import { ascendingNumber, ascendingString, descendingNumber } from "../internal/order.ts";
 import { WinkEngine } from "./WinkEngine.ts";
 import { WinkSimilarity } from "./WinkSimilarity.ts";
 import { BM25Config, DefaultBM25Config, DocumentVector } from "./WinkVectorizer.ts";
+import type { Document } from "../Core/Document.ts";
+import type { Token } from "../Core/Token.ts";
 
 const $I = $NlpId.create("Wink/WinkCorpusManager");
 const require = createRequire(import.meta.url);

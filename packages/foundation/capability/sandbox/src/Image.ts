@@ -13,7 +13,8 @@ import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
 import { DockerError, PodmanError } from "./Sandbox.errors.ts";
 import { redactSensitiveText } from "./Sandbox.observability.ts";
-import { ProcessCommand, type ProcessResult, SandboxProcess } from "./Sandbox.process.ts";
+import { ProcessCommand, SandboxProcess } from "./Sandbox.process.ts";
+import type { ProcessResult } from "./Sandbox.process.ts";
 
 const $I = $SandboxId.create("Image");
 

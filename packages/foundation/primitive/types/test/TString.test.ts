@@ -1,5 +1,5 @@
-import type { TString } from "@beep/types";
 import { describe, expectTypeOf, it } from "vitest";
+import type { TString } from "@beep/types";
 
 describe("TString", () => {
   it("preserves non-empty literal strings", () => {

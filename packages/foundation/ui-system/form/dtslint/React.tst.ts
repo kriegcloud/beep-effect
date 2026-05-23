@@ -1,8 +1,8 @@
 import { Field, FormBuilder } from "@beep/form/core";
 import * as FormReact from "@beep/form/react/FormReact";
 import * as S from "effect/Schema";
-import type * as React from "react";
 import { describe, expect, it } from "tstyche";
+import type * as React from "react";
 
 const NameField = Field.makeField("name", S.String);
 const ItemsField = Field.makeArrayField("items", S.Struct({ label: S.String }));

@@ -7,10 +7,10 @@
 
 import { fileURLToPath } from "node:url";
 import tsParser from "@typescript-eslint/parser";
-import type { Linter } from "eslint";
 import jsdoc from "eslint-plugin-jsdoc";
 import tsdoc from "eslint-plugin-tsdoc";
 import requireCategoryTagRule from "./RequireCategoryTagRule.ts";
+import type { Linter } from "eslint";
 
 const beepJsdoc = {
   rules: {

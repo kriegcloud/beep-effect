@@ -8,37 +8,25 @@
  * @since 0.0.0
  */
 
-import {DomainError, findRepoRoot} from "@beep/repo-utils";
-import {renderBiomeJson} from "@beep/repo-utils/schemas/BiomeJson";
-import {Runpod, RunpodConfigInput} from "@beep/runpod";
-import {A, Str} from "@beep/utils";
-import {
-  Config,
-  Console,
-  Effect,
-  FileSystem,
-  flow,
-  Layer,
-  Match,
-  Path,
-  pipe
-} from "effect";
+import { DomainError, findRepoRoot } from "@beep/repo-utils";
+import { renderBiomeJson } from "@beep/repo-utils/schemas/BiomeJson";
+import { Runpod, RunpodConfigInput } from "@beep/runpod";
+import { A, Str } from "@beep/utils";
+import { Config, Console, Effect, FileSystem, flow, Layer, Match, Path, pipe } from "effect";
 import * as O from "effect/Option";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
-import {Command, Flag} from "effect/unstable/cli";
+import { Command, Flag } from "effect/unstable/cli";
 import * as jsonc from "jsonc-parser";
-import {failWithReportedExit} from "../../internal/cli/ExitCodeError.js";
-import {jsonFlag} from "../../internal/cli/Flags.js";
-import {printLines} from "../../internal/cli/Printer.js";
-import {runDocgenLocal} from "./internal/Local.js";
+import { failWithReportedExit } from "../../internal/cli/ExitCodeError.js";
+import { jsonFlag } from "../../internal/cli/Flags.js";
+import { printLines } from "../../internal/cli/Printer.js";
+import { runDocgenLocal } from "./internal/Local.js";
 import {
   aggregateGeneratedDocs,
   analyzePackageDocumentation,
   assertNoOrphanDocgenConfigPaths,
   createDocgenConfigDocument,
-  type DocgenAggregateResult,
-  type DocgenGenerationResult,
   discoverDocgenWorkspacePackages,
   generateAnalysisJson,
   generateAnalysisReport,
@@ -69,6 +57,7 @@ import {
   requiredQualityWorkerRunpodEvalModel,
   runDocgenQualityWorkerRunpodEval,
 } from "./internal/QualityWorkerRunpodEval.js";
+import type { DocgenAggregateResult, DocgenGenerationResult } from "./internal/Operations.js";
 
 const packageFlag = Flag.string("package").pipe(
   Flag.withAlias("p"),
@@ -228,22 +217,12 @@ const renderJson: (value: unknown) => Effect.Effect<string, DomainError> = Effec
   return `${jsonc.applyEdits(encoded, edits)}\n`;
 });
 
-const defaultAnalysisPath = (
-  packagePath: string,
-  json: boolean,
-  path: Path.Path
-): string =>
+const defaultAnalysisPath = (packagePath: string, json: boolean, path: Path.Path): string =>
   path.join(packagePath, json ? "JSDOC_ANALYSIS.json" : "JSDOC_ANALYSIS.md");
-const defaultQualityPath = (
-  packagePath: string,
-  json: boolean,
-  path: Path.Path
-): string =>
+const defaultQualityPath = (packagePath: string, json: boolean, path: Path.Path): string =>
   path.join(packagePath, json ? "JSDOC_QUALITY.json" : "JSDOC_QUALITY.md");
 
-const reportDocgenCommandError = Effect.fn(function* (error: {
-  readonly message: string
-}) {
+const reportDocgenCommandError = Effect.fn(function* (error: { readonly message: string }) {
   yield* Console.error(`docgen: ${error.message}`);
   return yield* failWithReportedExit(`docgen: ${error.message}`);
 });
@@ -291,9 +270,7 @@ const resolveGenerateTargets = Effect.fn("Docgen.resolveGenerateTargets")(functi
     return [target] as const;
   }
 
-  return yield* discoverDocgenWorkspacePackages().pipe(
-    Effect.map(A.filter((pkg) => pkg.hasDocgenConfig))
-  );
+  return yield* discoverDocgenWorkspacePackages().pipe(Effect.map(A.filter((pkg) => pkg.hasDocgenConfig)));
 });
 
 const resolveAnalyzeTargets = Effect.fn("Docgen.resolveAnalyzeTargets")(function* (selector: O.Option<string>) {
@@ -303,9 +280,7 @@ const resolveAnalyzeTargets = Effect.fn("Docgen.resolveAnalyzeTargets")(function
     return [yield* resolveDocgenWorkspacePackage(selector.value)] as const;
   }
 
-  return yield* discoverDocgenWorkspacePackages().pipe(
-    Effect.map(A.filter((pkg) => pkg.hasDocgenConfig))
-  );
+  return yield* discoverDocgenWorkspacePackages().pipe(Effect.map(A.filter((pkg) => pkg.hasDocgenConfig)));
 });
 
 const resolvePackageSelector = Effect.fn("Docgen.resolvePackageSelector")(function* (
@@ -327,18 +302,17 @@ const splitCommaSeparatedFlag: (value: string) => ReadonlyArray<string> = flow(
   A.filter(Str.isNonEmpty)
 );
 
-const resolveQualityWorkerEvalSource = Effect.fn("Docgen.resolveQualityWorkerEvalSource")(function* (
-  {
-    all,
-    input,
-    packageSelector,
-    packetLimit,
-  }: {
-    readonly all: boolean;
-    readonly input: O.Option<string>;
-    readonly packageSelector: O.Option<string>;
-    readonly packetLimit: number;
-  }) {
+const resolveQualityWorkerEvalSource = Effect.fn("Docgen.resolveQualityWorkerEvalSource")(function* ({
+  all,
+  input,
+  packageSelector,
+  packetLimit,
+}: {
+  readonly all: boolean;
+  readonly input: O.Option<string>;
+  readonly packageSelector: O.Option<string>;
+  readonly packetLimit: number;
+}) {
   const fs = yield* FileSystem.FileSystem;
 
   if (O.isSome(input)) {
@@ -349,7 +323,7 @@ const resolveQualityWorkerEvalSource = Effect.fn("Docgen.resolveQualityWorkerEva
     };
   }
 
-  const {scope, targets} = yield* resolveDocgenQualityTargets({
+  const { scope, targets } = yield* resolveDocgenQualityTargets({
     all,
     changedFiles: false,
     packageSelector,
@@ -381,7 +355,7 @@ const docgenInitCommand = Command.make(
     force: forceFlag,
   },
   Effect.fn(
-    function* ({package: selector, dryRun, force}) {
+    function* ({ package: selector, dryRun, force }) {
       const fs = yield* FileSystem.FileSystem;
       const path = yield* Path.Path;
       const repoRoot = yield* findRepoRoot();
@@ -399,10 +373,7 @@ const docgenInitCommand = Command.make(
       const content = yield* renderBiomeJson(configPath, config);
 
       if (dryRun) {
-        yield* printLines([
-          `--- ${configPath} ---`,
-          content
-        ])
+        yield* printLines([`--- ${configPath} ---`, content]);
         return;
       }
 
@@ -423,7 +394,7 @@ const docgenStatusCommand = Command.make(
     json: jsonFlag,
   },
   Effect.fn(
-    function* ({verbose, json}) {
+    function* ({ verbose, json }) {
       const packages = yield* discoverDocgenWorkspacePackages();
       const configuredAndGenerated = A.filter(packages, (pkg) => pkg.status === "configured-and-generated");
       const configuredNotGenerated = A.filter(packages, (pkg) => pkg.status === "configured-not-generated");
@@ -444,41 +415,35 @@ const docgenStatusCommand = Command.make(
         return;
       }
 
-      yield* printLines(
-        [
-          "Docgen status:",
-          `- configured and generated: ${configuredAndGenerated.length}`,
-          `- configured, not generated: ${configuredNotGenerated.length}`,
-          `- not configured: ${notConfigured.length}`
-        ]
-      )
+      yield* printLines([
+        "Docgen status:",
+        `- configured and generated: ${configuredAndGenerated.length}`,
+        `- configured, not generated: ${configuredNotGenerated.length}`,
+        `- not configured: ${notConfigured.length}`,
+      ]);
 
       if (!verbose) {
         return;
       }
 
       for (const pkg of packages) {
-        yield* printLines(
-          [
-            ``,
-            `${pkg.name}`,
-            `  path: ${pkg.relativePath}`,
-            `  status: ${pkg.status}`,
-            `  docs: docs/${pkg.docsOutputPath}`,
-          ]
-        )
+        yield* printLines([
+          ``,
+          `${pkg.name}`,
+          `  path: ${pkg.relativePath}`,
+          `  status: ${pkg.status}`,
+          `  docs: docs/${pkg.docsOutputPath}`,
+        ]);
 
         if (pkg.hasDocgenConfig) {
           const config = yield* loadDocgenConfigDocument(pkg.absolutePath).pipe(Effect.option);
 
           if (O.isSome(config)) {
-            yield* printLines(
-              [
-                `  srcDir: ${config.value.srcDir ?? "src"}`,
-                `  outDir: ${config.value.outDir ?? "docs"}`,
-                `  exclude: ${A.join(config.value.exclude ?? [], ", ") || "none"}`
-              ]
-            )
+            yield* printLines([
+              `  srcDir: ${config.value.srcDir ?? "src"}`,
+              `  outDir: ${config.value.outDir ?? "docs"}`,
+              `  exclude: ${A.join(config.value.exclude ?? [], ", ") || "none"}`,
+            ]);
           }
         }
       }
@@ -500,13 +465,7 @@ const docgenGenerateCommand = Command.make(
     json: jsonFlag,
   },
   Effect.fn(
-    function* ({
-                 package: packageSelector,
-                 filter: filterSelector,
-                 validateExamples,
-                 parallel,
-                 json
-               }) {
+    function* ({ package: packageSelector, filter: filterSelector, validateExamples, parallel, json }) {
       void validateExamples;
       const selector = yield* resolvePackageSelector(packageSelector, filterSelector);
       const targets = yield* resolveGenerateTargets(selector);
@@ -554,13 +513,7 @@ const docgenRunCommand = Command.make(
     clean: cleanFlag,
   },
   Effect.fn(
-    function* ({
-                 package: packageSelector,
-                 filter: filterSelector,
-                 validateExamples,
-                 parallel,
-                 clean
-               }) {
+    function* ({ package: packageSelector, filter: filterSelector, validateExamples, parallel, clean }) {
       void validateExamples;
       const selector = yield* resolvePackageSelector(packageSelector, filterSelector);
       const targets = yield* resolveGenerateTargets(selector);
@@ -587,7 +540,7 @@ const docgenRunCommand = Command.make(
         clean,
         ...R.getSomes({
           package: selector,
-        })
+        }),
       });
       yield* logAggregateResults(aggregateResults);
     },
@@ -610,11 +563,11 @@ const docgenAggregateCommand = Command.make(
     clean: cleanFlag,
   },
   Effect.fn(
-    function* ({package: packageSelector, filter: filterSelector, clean}) {
+    function* ({ package: packageSelector, filter: filterSelector, clean }) {
       const selector = yield* resolvePackageSelector(packageSelector, filterSelector);
       const results = yield* aggregateGeneratedDocs({
         clean,
-        ...R.getSomes({package: selector}),
+        ...R.getSomes({ package: selector }),
       });
       yield* logAggregateResults(results);
     },
@@ -637,15 +590,7 @@ const docgenLocalCommand = Command.make(
     json: jsonFlag,
   },
   Effect.fn(
-    function* ({
-                 package: packageSelector,
-                 base,
-                 head,
-                 parallel,
-                 plan,
-                 full,
-                 json
-               }) {
+    function* ({ package: packageSelector, base, head, parallel, plan, full, json }) {
       yield* runDocgenLocal({
         base,
         full,
@@ -672,7 +617,7 @@ const docgenAnalyzeCommand = Command.make(
     fixMode: fixModeFlag,
   },
   Effect.fn(
-    function* ({package: selector, output, json, fixMode}) {
+    function* ({ package: selector, output, json, fixMode }) {
       const fs = yield* FileSystem.FileSystem;
       const path = yield* Path.Path;
       const targets = yield* resolveAnalyzeTargets(selector);
@@ -743,7 +688,7 @@ const docgenCheckCommand = Command.make(
     json: jsonFlag,
   },
   Effect.fn(
-    function* ({package: selector, parallel, json}) {
+    function* ({ package: selector, parallel, json }) {
       const targets = yield* resolveAnalyzeTargets(selector);
 
       if (targets.length === 0) {
@@ -766,10 +711,7 @@ const docgenCheckCommand = Command.make(
               missingDocumentation: A.reduce(
                 failures,
                 0,
-                (
-                  total,
-                  analysis
-                ) => total + analysis.summary.missingDocumentation
+                (total, analysis) => total + analysis.summary.missingDocumentation
               ),
             },
           })
@@ -832,18 +774,10 @@ const docgenQualityCommand = Command.make(
     packetLimit: packetLimitFlag,
   },
   Effect.fn(
-    function* ({
-                 package: packageSelector,
-                 all,
-                 changedFiles,
-                 output,
-                 json,
-                 score,
-                 packetLimit
-               }) {
+    function* ({ package: packageSelector, all, changedFiles, output, json, score, packetLimit }) {
       const fs = yield* FileSystem.FileSystem;
       const path = yield* Path.Path;
-      const {scope, targets} = yield* resolveDocgenQualityTargets({
+      const { scope, targets } = yield* resolveDocgenQualityTargets({
         all,
         changedFiles,
         packageSelector,
@@ -915,16 +849,16 @@ const docgenQualityWorkerEvalCommand = Command.make(
   },
   Effect.fn(
     function* ({
-                 package: packageSelector,
-                 all,
-                 input,
-                 output,
-                 provider,
-                 model,
-                 baseUrl,
-                 reasoningEffort,
-                 packetLimit,
-               }) {
+      package: packageSelector,
+      all,
+      input,
+      output,
+      provider,
+      model,
+      baseUrl,
+      reasoningEffort,
+      packetLimit,
+    }) {
       const fs = yield* FileSystem.FileSystem;
       const sourceCount = (O.isSome(input) ? 1 : 0) + (O.isSome(packageSelector) ? 1 : 0) + (all ? 1 : 0);
       const resolvedReasoningEffort = Match.value(provider).pipe(
@@ -933,7 +867,7 @@ const docgenQualityWorkerEvalCommand = Command.make(
       );
       const reasoningOptions = pipe(
         O.fromNullishOr(resolvedReasoningEffort),
-        O.map((value) => ({reasoningEffort: value})),
+        O.map((value) => ({ reasoningEffort: value })),
         O.getOrElse(() => ({}))
       );
 
@@ -959,12 +893,12 @@ const docgenQualityWorkerEvalCommand = Command.make(
         all,
         input,
         packageSelector,
-        packetLimit
+        packetLimit,
       });
       const baseUrlOptions = pipe(
         baseUrl,
         O.filter(flow(Str.trim, Str.isNonEmpty)),
-        O.map((value) => ({baseUrl: Str.trim(value)})),
+        O.map((value) => ({ baseUrl: Str.trim(value) })),
         O.getOrElse(R.empty)
       );
 
@@ -1021,34 +955,38 @@ const docgenQualityWorkerRunpodEvalCommand = Command.make(
   },
   Effect.fn(
     function* ({
-                 package: packageSelector,
-                 all,
-                 input,
-                 output,
-                 provider,
-                 model,
-                 packetLimit,
-                 confirmRunpodEval,
-                 keepPod,
-                 allow24GbFallback,
-                 gpuTypeIds,
-                 templateId,
-                 skipTemplateSearch,
-                 allowPublicTemplateSearch,
-                 readinessTimeoutMs,
-                 otlp,
-                 otlpBaseUrl,
-                 otlpProject,
-               }) {
+      package: packageSelector,
+      all,
+      input,
+      output,
+      provider,
+      model,
+      packetLimit,
+      confirmRunpodEval,
+      keepPod,
+      allow24GbFallback,
+      gpuTypeIds,
+      templateId,
+      skipTemplateSearch,
+      allowPublicTemplateSearch,
+      readinessTimeoutMs,
+      otlp,
+      otlpBaseUrl,
+      otlpProject,
+    }) {
       const fs = yield* FileSystem.FileSystem;
       const sourceCount = (O.isSome(input) ? 1 : 0) + (O.isSome(packageSelector) ? 1 : 0) + (all ? 1 : 0);
 
       if (sourceCount !== 1) {
-        return yield* DomainError.newMessage("Choose exactly one docgen quality-worker-eval-runpod source: --input, --package, or --all.");
+        return yield* DomainError.newMessage(
+          "Choose exactly one docgen quality-worker-eval-runpod source: --input, --package, or --all."
+        );
       }
 
       if (packetLimit < 0) {
-        return yield* DomainError.newMessage("--packet-limit must be zero or greater; use 0 to suppress worker packet turns.");
+        return yield* DomainError.newMessage(
+          "--packet-limit must be zero or greater; use 0 to suppress worker packet turns."
+        );
       }
 
       if (readinessTimeoutMs <= 0) {
@@ -1056,7 +994,9 @@ const docgenQualityWorkerRunpodEvalCommand = Command.make(
       }
 
       if (skipTemplateSearch && allowPublicTemplateSearch) {
-        return yield* DomainError.newMessage("Choose at most one template-search mode: --skip-template-search or --allow-public-template-search.");
+        return yield* DomainError.newMessage(
+          "Choose at most one template-search mode: --skip-template-search or --allow-public-template-search."
+        );
       }
 
       if (provider !== "ollama") {
@@ -1064,18 +1004,22 @@ const docgenQualityWorkerRunpodEvalCommand = Command.make(
       }
 
       if (model !== requiredQualityWorkerRunpodEvalModel()) {
-        return yield* DomainError.newMessage(`docgen quality-worker-eval-runpod v1 requires --model ${requiredQualityWorkerRunpodEvalModel()}.`);
+        return yield* DomainError.newMessage(
+          `docgen quality-worker-eval-runpod v1 requires --model ${requiredQualityWorkerRunpodEvalModel()}.`
+        );
       }
 
       if (!confirmRunpodEval) {
-        return yield* DomainError.newMessage("docgen quality-worker-eval-runpod creates a billable remote GPU pod; pass --confirm-runpod-eval to continue.");
+        return yield* DomainError.newMessage(
+          "docgen quality-worker-eval-runpod creates a billable remote GPU pod; pass --confirm-runpod-eval to continue."
+        );
       }
 
       const source = yield* resolveQualityWorkerEvalSource({
         all,
         input,
         packageSelector,
-        packetLimit
+        packetLimit,
       });
       const resolvedGpuTypeIds = pipe(
         gpuTypeIds,
@@ -1093,7 +1037,7 @@ const docgenQualityWorkerRunpodEvalCommand = Command.make(
       const report = yield* runDocgenQualityWorkerRunpodEval({
         allow24GbFallback,
         confirmRunpodEval,
-        ...(resolvedGpuTypeIds === undefined ? {} : {gpuTypeIds: resolvedGpuTypeIds}),
+        ...(resolvedGpuTypeIds === undefined ? {} : { gpuTypeIds: resolvedGpuTypeIds }),
         keepPod,
         model,
         otlpBaseUrl,
@@ -1107,10 +1051,10 @@ const docgenQualityWorkerRunpodEvalCommand = Command.make(
         sourceQualityReport: source.sourceQualityReport,
         skipTemplateSearch,
         allowPublicTemplateSearch,
-        ...(O.isSome(templateId) ? {templateId: templateId.value} : {}),
+        ...(O.isSome(templateId) ? { templateId: templateId.value } : {}),
       }).pipe((effect) =>
         Effect.scoped(
-          Layer.build(Runpod.makeLayer(RunpodConfigInput.make({apiKey: runpodApiKey}))).pipe(
+          Layer.build(Runpod.makeLayer(RunpodConfigInput.make({ apiKey: runpodApiKey }))).pipe(
             Effect.flatMap((context) => effect.pipe(Effect.provide(context)))
           )
         )

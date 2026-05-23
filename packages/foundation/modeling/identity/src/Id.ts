@@ -25,13 +25,13 @@
  * @since 0.0.0
  */
 
-import type { TString } from "@beep/types";
 import { Function as Fn, flow, pipe, Result } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
+import type { TString } from "@beep/types";
 import type * as Multipart_ from "effect/unstable/http/Multipart";
 import type { Get, Paths } from "type-fest";
 

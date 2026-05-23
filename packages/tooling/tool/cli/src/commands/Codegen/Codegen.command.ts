@@ -9,24 +9,16 @@
  * @since 0.0.0
  */
 
-import {$RepoCliId} from "@beep/identity/packages";
-import {FsUtils} from "@beep/repo-utils";
-import {A, Str, Text, thunkFalse, thunkUndefined} from "@beep/utils";
-import {
-  Console,
-  Effect,
-  FileSystem,
-  type Order,
-  Path,
-  pipe,
-  Result,
-  SchemaTransformation
-} from "effect";
+import { $RepoCliId } from "@beep/identity/packages";
+import { FsUtils } from "@beep/repo-utils";
+import { A, Str, Text, thunkFalse, thunkUndefined } from "@beep/utils";
+import { Console, Effect, FileSystem, Path, pipe, Result, SchemaTransformation } from "effect";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
-import {Command, Flag} from "effect/unstable/cli";
-import {printLines} from "../../internal/cli/Printer.ts";
+import { Command, Flag } from "effect/unstable/cli";
+import { printLines } from "../../internal/cli/Printer.ts";
+import type { Order } from "effect";
 
 const $I = $RepoCliId.create("commands/Codegen/Codegen.command");
 
@@ -178,14 +170,8 @@ const discoverModules = Effect.fn(function* (srcDir: string) {
   const fs = yield* FileSystem.FileSystem;
   const path = yield* Path.Path;
 
-  const walk: (
-    dir: string,
-    prefix: string
-  ) => Effect.Effect<Array<string>, never, FileSystem.FileSystem | Path.Path> =
-    Effect.fn(function* (
-      dir,
-      prefix
-    ) {
+  const walk: (dir: string, prefix: string) => Effect.Effect<Array<string>, never, FileSystem.FileSystem | Path.Path> =
+    Effect.fn(function* (dir, prefix) {
       const entries = yield* fs.readDirectory(dir).pipe(Effect.orElseSucceed(A.empty<string>));
 
       const discovered = yield* Effect.forEach(
@@ -240,10 +226,7 @@ const discoverModules = Effect.fn(function* (srcDir: string) {
  * @category utilities
  * @since 0.0.0
  */
-const buildBarrelContent = (
-  packageName: string,
-  modules: ReadonlyArray<string>
-): string => {
+const buildBarrelContent = (packageName: string, modules: ReadonlyArray<string>): string => {
   const header = pipe(
     A.make("/**", ` * Re-exports for ${packageName}.`, " *", " * @since 0.0.0", " */", ""),
     Text.joinLines
@@ -330,7 +313,7 @@ export const codegenCommand = Command.make(
     }
 
     yield* Console.log(`Found ${A.length(modules)} module(s):`);
-    yield* Effect.forEach(modules, (mod) => Console.log(`  - ${mod}`), {discard: true});
+    yield* Effect.forEach(modules, (mod) => Console.log(`  - ${mod}`), { discard: true });
 
     // Generate barrel content
     const content = buildBarrelContent(packageName, modules);
@@ -338,19 +321,17 @@ export const codegenCommand = Command.make(
     const indexPath = pathSvc.join(srcDir, "index.ts");
 
     if (config.dryRun) {
-      yield* printLines(
-        [
-          "",
-          "--- Dry run: would generate the following ---",
-          `File: ${indexPath}`,
-          "---",
-          content,
-          "--- End dry run ---"
-        ]
-      )
+      yield* printLines([
+        "",
+        "--- Dry run: would generate the following ---",
+        `File: ${indexPath}`,
+        "---",
+        content,
+        "--- End dry run ---",
+      ]);
     } else {
       yield* fs.writeFileString(indexPath, content);
-      yield* printLines(["", `Wrote ${indexPath}`])
+      yield* printLines(["", `Wrote ${indexPath}`]);
     }
   })
 ).pipe(Command.withDescription("Generate barrel file exports for a package"));

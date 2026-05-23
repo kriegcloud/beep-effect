@@ -1,7 +1,8 @@
 // cspell:ignore Klass
 
 import { HeadingNode, QuoteNode } from "@lexical/rich-text";
-import { type Klass, type LexicalNode, type LexicalNodeReplacement, ParagraphNode, TextNode } from "lexical";
+import { ParagraphNode, TextNode } from "lexical";
+import type { Klass, LexicalNode, LexicalNodeReplacement } from "lexical";
 
 /**
  * Lexical node set registered by the shared editor block.

@@ -16,23 +16,23 @@ import { Console, DateTime, Effect, FileSystem, HashMap, Match, MutableHashSet, 
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
-import { type ParseError, parse, printParseErrorCode } from "jsonc-parser";
-import {
-  type ArrowFunction,
-  type CallExpression,
-  type FunctionDeclaration,
-  type FunctionExpression,
-  type MethodDeclaration,
-  Node,
-  type ParameterDeclaration,
-  type PropertyDeclaration,
-  type Signature,
-  type SourceFile,
-  SyntaxKind,
-  type Type,
-  type VariableDeclaration,
-} from "ts-morph";
+import { parse, printParseErrorCode } from "jsonc-parser";
+import { Node, SyntaxKind } from "ts-morph";
 import { DualArityInventoryReadError } from "./Laws.errors.js";
+import type { ParseError } from "jsonc-parser";
+import type {
+  ArrowFunction,
+  CallExpression,
+  FunctionDeclaration,
+  FunctionExpression,
+  MethodDeclaration,
+  ParameterDeclaration,
+  PropertyDeclaration,
+  Signature,
+  SourceFile,
+  Type,
+  VariableDeclaration,
+} from "ts-morph";
 
 const $I = $RepoCliId.create("commands/Laws/DualArity");
 const INVENTORY_PATH = "standards/dual-arity.inventory.jsonc";

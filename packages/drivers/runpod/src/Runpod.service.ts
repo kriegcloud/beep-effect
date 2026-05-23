@@ -7,7 +7,7 @@
 
 import { $RunpodId } from "@beep/identity";
 import { A, Str } from "@beep/utils";
-import { Config, Context, Effect, Layer, Match, pipe, type Redacted, Result } from "effect";
+import { Config, Context, Effect, Layer, Match, pipe, Result } from "effect";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as R from "effect/Record";
@@ -15,10 +15,11 @@ import * as S from "effect/Schema";
 import { FetchHttpClient } from "effect/unstable/http";
 import * as HttpClient from "effect/unstable/http/HttpClient";
 import * as HttpClientRequest from "effect/unstable/http/HttpClientRequest";
-import type * as HttpClientResponse from "effect/unstable/http/HttpClientResponse";
 import * as G from "./_generated/Runpod.generated.ts";
 import { RUNPOD_API_URL, RunpodConfigInput } from "./Runpod.config.ts";
 import { RunpodError } from "./Runpod.errors.ts";
+import type { Redacted } from "effect";
+import type * as HttpClientResponse from "effect/unstable/http/HttpClientResponse";
 
 const $I = $RunpodId.create("Runpod.service");
 

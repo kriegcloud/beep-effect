@@ -8,43 +8,46 @@
 import { $RepoCliId } from "@beep/identity/packages";
 import { ImageFileExtension, VideoFileExtension } from "@beep/schema";
 import { A, Str } from "@beep/utils";
-import { Effect, flow, HashSet, Match, Order, type Path, pipe, Stream } from "effect";
+import { Effect, flow, HashSet, Match, Order, pipe, Stream } from "effect";
 import { dual } from "effect/Function";
 import * as O from "effect/Option";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
 import {
-  type ArchivePoorCandidatesEntry,
-  type ArchivePoorCandidatesSkippedEntry,
-  type BorderDetectionKind,
   BorderDetectionMaxScanPercentage,
   BorderDetectionPercentage,
   BorderDetectionTolerance,
-  type BorderSide,
   CandidateAssessmentDecision,
   CandidateAssessmentMetrics,
   CandidateAssessmentReason,
-  type CreateCaptionFilesPlanEntry,
-  type CreateCaptionFilesSkippedEntry,
   CropBordersPlanEntry,
   DetectBorderSideMeasurement,
-  type DetectBordersEntry,
-  type DetectBordersSkippedEntry,
-  type DetectFacesEntry,
-  type DetectFacesSkippedEntry,
   decodeRotationNumber,
-  type FfprobeStream,
   MediaDimensions,
-  type MediaKind,
-  type NormalizeImageFormat,
-  type NormalizePlanEntry,
-  type NormalizeSkippedEntry,
-  type RenamePlanEntry,
   RgbColor,
-  type SafeFilePrefix,
   SortableFile,
   StripMetadataPlanEntry,
   SupportedMetadataImageExtension,
+} from "./Files.schemas.js";
+import type { Path } from "effect";
+import type {
+  ArchivePoorCandidatesEntry,
+  ArchivePoorCandidatesSkippedEntry,
+  BorderDetectionKind,
+  BorderSide,
+  CreateCaptionFilesPlanEntry,
+  CreateCaptionFilesSkippedEntry,
+  DetectBordersEntry,
+  DetectBordersSkippedEntry,
+  DetectFacesEntry,
+  DetectFacesSkippedEntry,
+  FfprobeStream,
+  MediaKind,
+  NormalizeImageFormat,
+  NormalizePlanEntry,
+  NormalizeSkippedEntry,
+  RenamePlanEntry,
+  SafeFilePrefix,
 } from "./Files.schemas.js";
 
 const $I = $RepoCliId.create("commands/Files/Files.media");

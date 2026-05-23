@@ -11,12 +11,13 @@ import {
 } from "@beep/repo-utils";
 import { A } from "@beep/utils";
 import { NodeChildProcessSpawner, NodeServices } from "@effect/platform-node";
-import { type Context, Effect, Exit, Layer, Scope } from "effect";
+import { Effect, Exit, Layer, Scope } from "effect";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import * as TestConsole from "effect/testing/TestConsole";
 import { Command } from "effect/unstable/cli";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
+import type { Context } from "effect";
 
 const provideScopedLayer =
   <ROut, E2, RIn>(layer: Layer.Layer<ROut, E2, RIn>) =>

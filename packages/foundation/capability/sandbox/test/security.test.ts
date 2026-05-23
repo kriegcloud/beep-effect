@@ -1,7 +1,8 @@
-import { type BindMountSandboxHandle, ExecResult, SessionCaptureError, sandboxSessionStore } from "@beep/sandbox";
+import { ExecResult, SessionCaptureError, sandboxSessionStore } from "@beep/sandbox";
 import { A } from "@beep/utils";
 import { describe, expect, it } from "@effect/vitest";
 import { Effect } from "effect";
+import type { BindMountSandboxHandle } from "@beep/sandbox";
 
 describe("@beep/sandbox security boundaries", () => {
   it.effect(

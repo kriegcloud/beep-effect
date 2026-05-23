@@ -13,9 +13,10 @@ import { dual } from "effect/Function";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
-import type * as HttpServerResponse from "effect/unstable/http/HttpServerResponse";
-import { type HttpApiEndpoint, type HttpApiGroup, HttpApiMiddleware, HttpApiSchema } from "effect/unstable/httpapi";
+import { HttpApiMiddleware, HttpApiSchema } from "effect/unstable/httpapi";
 import { observeHttpRequest, statusClass } from "../Metric.ts";
+import type * as HttpServerResponse from "effect/unstable/http/HttpServerResponse";
+import type { HttpApiEndpoint, HttpApiGroup } from "effect/unstable/httpapi";
 
 const $I = $ObservabilityId.create("server/HttpApiTelemetry");
 const schemaIssueToError = (cause: S.SchemaError["issue"]): S.SchemaError => new S.SchemaError(cause);

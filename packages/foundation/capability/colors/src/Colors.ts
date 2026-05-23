@@ -33,11 +33,8 @@ import { A, Str } from "@beep/utils";
 import { pipe } from "effect";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
-import {
-  ColorsFields,
-  Formatter as FormatterDefinition,
-  type Formatter as FormatterType,
-} from "./internal/ColorsSchema.ts";
+import { ColorsFields, Formatter as FormatterDefinition } from "./internal/ColorsSchema.ts";
+import type { Formatter as FormatterType } from "./internal/ColorsSchema.ts";
 
 const $I = $ColorsId.create("Domain");
 

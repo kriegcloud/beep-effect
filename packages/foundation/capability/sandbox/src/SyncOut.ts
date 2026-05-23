@@ -11,11 +11,13 @@ import { DateTime, Effect, FileSystem, Path } from "effect";
 import { dual, flow } from "effect/Function";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
-import { buildRecoveryMessage, type FailedStep, RecoveryInput } from "./RecoveryMessage.ts";
+import { buildRecoveryMessage, RecoveryInput } from "./RecoveryMessage.ts";
 import { SyncError } from "./Sandbox.errors.ts";
 import { profileSandboxPhase, redactSensitiveText } from "./Sandbox.observability.ts";
 import { ProcessCommand, SandboxProcess } from "./Sandbox.process.ts";
-import { type IsolatedSandboxHandle, SandboxExecOptions } from "./Sandbox.provider.ts";
+import { SandboxExecOptions } from "./Sandbox.provider.ts";
+import type { FailedStep } from "./RecoveryMessage.ts";
+import type { IsolatedSandboxHandle } from "./Sandbox.provider.ts";
 
 const $I = $SandboxId.create("SyncOut");
 

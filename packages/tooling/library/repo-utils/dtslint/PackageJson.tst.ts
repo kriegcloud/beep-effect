@@ -1,6 +1,5 @@
 import {
   applyPackageJsonPatchEffect,
-  type DomainError,
   decodePackageJson,
   decodePackageJsonEffect,
   decodePackageJsonExit,
@@ -9,14 +8,13 @@ import {
   encodePackageJsonEffect,
   encodePackageJsonPrettyEffect,
   encodePackageJsonToJsonEffect,
-  type NpmPackageJson,
   normalizePackageJsonEffect,
-  type PackageJson,
 } from "@beep/repo-utils";
+import { describe, expect, it } from "tstyche";
+import type { DomainError, NpmPackageJson, PackageJson } from "@beep/repo-utils";
 import type { Effect, Exit, Schema } from "effect";
 import type * as JsonPatch from "effect/JsonPatch";
 import type * as O from "effect/Option";
-import { describe, expect, it } from "tstyche";
 
 describe("PackageJson", () => {
   describe("PackageJson schema", () => {

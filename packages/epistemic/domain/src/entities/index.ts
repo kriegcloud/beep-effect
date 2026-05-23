@@ -19,7 +19,6 @@
  * @since 0.0.0
  */
 export * from "./Activity/index.js";
-
 /**
  * Candidate claim entity exports.
  *
@@ -34,7 +33,6 @@ export * from "./Activity/index.js";
  * @since 0.0.0
  */
 export * from "./CandidateClaim/index.js";
-
 /**
  * Evidence entity exports.
  *
@@ -49,7 +47,6 @@ export * from "./CandidateClaim/index.js";
  * @since 0.0.0
  */
 export * from "./Evidence/index.js";
-
 /**
  * Usage record entity exports.
  *

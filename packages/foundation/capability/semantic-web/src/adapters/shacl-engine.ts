@@ -13,10 +13,10 @@ import { serializeTerm } from "../rdf.ts";
 import {
   ShaclValidationResult,
   ShaclValidationService,
-  type ShaclValidationServiceShape,
   ShaclValidationViolation,
 } from "../services/shacl-validation.ts";
 import { RDF_TYPE } from "../vocab/rdf.ts";
+import type { ShaclValidationServiceShape } from "../services/shacl-validation.ts";
 
 const emptySubjectKeys: Array<string> = [];
 const emptyViolations: Array<ShaclValidationViolation> = [];

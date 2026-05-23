@@ -6,7 +6,8 @@
  */
 
 import { Result } from "effect";
-import { decodeOipSiteContentResult, type OipSiteContent, ReviewStatus } from "./OipContent.model.ts";
+import { decodeOipSiteContentResult, ReviewStatus } from "./OipContent.model.ts";
+import type { OipSiteContent } from "./OipContent.model.ts";
 
 const needsReview = (note: string) => ({
   note,

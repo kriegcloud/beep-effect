@@ -1,8 +1,9 @@
 import * as Duration from "@beep/schema/Duration";
-import { type Effect, pipe } from "effect";
-import type * as D from "effect/Duration";
+import { pipe } from "effect";
 import * as S from "effect/Schema";
 import { describe, expect, it } from "tstyche";
+import type { Effect } from "effect";
+import type * as D from "effect/Duration";
 
 describe("Duration", () => {
   it("preserves the DurationUnit alias surface", () => {

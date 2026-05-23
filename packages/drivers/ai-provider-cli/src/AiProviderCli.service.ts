@@ -11,11 +11,8 @@ import { Context, Effect, Layer, Match, Stream } from "effect";
 import * as A from "effect/Array";
 import { ChildProcess, ChildProcessSpawner } from "effect/unstable/process";
 import { AiProviderCliError } from "./AiProviderCli.errors.ts";
-import {
-  AiProviderCliAuthProbe,
-  AiProviderCliProcessResult,
-  type AiProviderCliProvider,
-} from "./AiProviderCli.models.ts";
+import { AiProviderCliAuthProbe, AiProviderCliProcessResult } from "./AiProviderCli.models.ts";
+import type { AiProviderCliProvider } from "./AiProviderCli.models.ts";
 
 const $I = $AiProviderCliId.create("AiProviderCli.service");
 

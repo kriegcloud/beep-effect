@@ -5,13 +5,13 @@
  * @since 0.0.0
  */
 
-import type { TUnsafe } from "@beep/types";
 import * as A from "effect/Array";
 import { dual, flow } from "effect/Function";
 import * as O from "effect/Option";
-import type * as Order from "effect/Order";
 import * as S from "effect/Schema";
 import { thunkFalse, thunkTrue } from "./thunk.ts";
+import type { TUnsafe } from "@beep/types";
+import type * as Order from "effect/Order";
 
 /**
  * Returns `true` when the array is non-empty, `false` otherwise.

@@ -5,7 +5,6 @@ import {
   PgExternalTestDriver,
   PgliteTestcontainersTestDriver,
   SqlTestHarnessError,
-  type SqlTestHooks,
   TestDatabaseInfo,
 } from "@beep/test-utils";
 import { A, O } from "@beep/utils";
@@ -13,6 +12,7 @@ import { beforeAll, describe, expect, it } from "@effect/vitest";
 import { Cause, Context, Duration, Effect, Exit, Layer, pipe, Scope } from "effect";
 import * as S from "effect/Schema";
 import * as SqlClient from "effect/unstable/sql/SqlClient";
+import type { SqlTestHooks } from "@beep/test-utils";
 
 const provideScopedLayer =
   <ROut, E2, RIn>(layer: Layer.Layer<ROut, E2, RIn>) =>

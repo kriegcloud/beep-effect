@@ -1,20 +1,19 @@
-import {
-  makeInMemoryProfessionalRuntimeSdk,
-  type RuntimeFixtureInput,
-  runRuntimeFixture,
-} from "@beep/agent-capability-use-cases/proof";
+import { makeInMemoryProfessionalRuntimeSdk, runRuntimeFixture } from "@beep/agent-capability-use-cases/proof";
 import {
   CandidateOutputSet,
   GetContextPacket,
-  type ProfessionalRuntimeSdk,
-  type ProfessionalRuntimeValidationError,
   ProposeCandidateOutputSet,
   RuntimeScope,
-  type SdkContextPacket,
 } from "@beep/agent-capability-use-cases/public";
-import type { Effect } from "effect";
 import * as S from "effect/Schema";
 import { describe, expect, it } from "tstyche";
+import type { RuntimeFixtureInput } from "@beep/agent-capability-use-cases/proof";
+import type {
+  ProfessionalRuntimeSdk,
+  ProfessionalRuntimeValidationError,
+  SdkContextPacket,
+} from "@beep/agent-capability-use-cases/public";
+import type { Effect } from "effect";
 
 declare const fixture: RuntimeFixtureInput;
 declare const outputSet: CandidateOutputSet;

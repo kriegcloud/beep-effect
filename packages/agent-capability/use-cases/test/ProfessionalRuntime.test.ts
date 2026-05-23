@@ -4,14 +4,11 @@ import {
   ProposeCandidateOutputSet,
   RuntimeScope,
 } from "@beep/agent-capability-use-cases/public";
-import {
-  makeInMemoryProfessionalRuntimeSdk,
-  type RuntimeFixtureInput,
-  runRuntimeFixture,
-} from "@beep/agent-capability-use-cases/test";
+import { makeInMemoryProfessionalRuntimeSdk, runRuntimeFixture } from "@beep/agent-capability-use-cases/test";
 import { A } from "@beep/utils";
 import { describe, expect, it } from "@effect/vitest";
 import { Effect } from "effect";
+import type { RuntimeFixtureInput } from "@beep/agent-capability-use-cases/test";
 
 const lawFixture: RuntimeFixtureInput = {
   body: A.join(

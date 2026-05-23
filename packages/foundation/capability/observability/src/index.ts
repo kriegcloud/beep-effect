@@ -45,7 +45,6 @@ export const VERSION = "0.0.0" as const;
  * @category diagnostics
  */
 export * from "./CauseDiagnostics.ts";
-
 /**
  * Browser-safe shared observability configuration.
  *
@@ -53,7 +52,6 @@ export * from "./CauseDiagnostics.ts";
  * @category configuration
  */
 export * from "./CoreConfig.ts";
-
 /**
  * Typed HTTP error classes and convenience constructors.
  *
@@ -61,7 +59,6 @@ export * from "./CoreConfig.ts";
  * @category error-handling
  */
 export * from "./HttpError.ts";
-
 /**
  * Configurable console logging layer.
  *
@@ -69,7 +66,6 @@ export * from "./HttpError.ts";
  * @category observability
  */
 export * from "./Logging.ts";
-
 /**
  * Effect metric observation helpers.
  *
@@ -77,7 +73,6 @@ export * from "./Logging.ts";
  * @category observability
  */
 export * from "./Metric.ts";
-
 /**
  * Transport-safe schemas for errors, defects, causes, and exits.
  *
@@ -85,7 +80,6 @@ export * from "./Metric.ts";
  * @category observability
  */
 export * from "./Observed.ts";
-
 /**
  * Phase profiling with spans, logs, and optional metrics.
  *

@@ -1,7 +1,8 @@
-import { EffectSchema, type EffectSchema as EffectSchemaType } from "@beep/schema/EffectSchema";
+import { EffectSchema } from "@beep/schema/EffectSchema";
 import { Effect, pipe } from "effect";
 import * as S from "effect/Schema";
 import { describe, expect, it } from "tstyche";
+import type { EffectSchema as EffectSchemaType } from "@beep/schema/EffectSchema";
 
 describe("EffectSchema", () => {
   it("preserves the effect schema surface", () => {

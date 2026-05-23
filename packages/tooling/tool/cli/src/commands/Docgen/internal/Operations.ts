@@ -6,20 +6,12 @@
  */
 
 import { $RepoCliId } from "@beep/identity/packages";
-import {
-  DomainError,
-  decodePackageJsonEffect,
-  FsUtils,
-  findRepoRoot,
-  type NoSuchFileError,
-  resolveWorkspaceDirs,
-} from "@beep/repo-utils";
+import { DomainError, decodePackageJsonEffect, FsUtils, findRepoRoot, resolveWorkspaceDirs } from "@beep/repo-utils";
 import {
   buildDocgenAliasSource,
   CanonicalDocgenConfigInput,
   collectDocgenWorkspaceDependencyNames,
   createCanonicalDocgenConfig,
-  type DocgenAliasSource,
   toCanonicalDocgenConfigJson,
 } from "@beep/repo-utils/schemas/DocgenConfig";
 import { normalizeJSDocCategory } from "@beep/repo-utils/schemas/JSDocCategories";
@@ -44,9 +36,12 @@ import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
 import { ChildProcess } from "effect/unstable/process";
-import type { ChildProcessSpawner } from "effect/unstable/process/ChildProcessSpawner";
 import * as jsonc from "jsonc-parser";
-import { type ExportDeclaration, type JSDoc, Node, Project, type SourceFile, SyntaxKind } from "ts-morph";
+import { Node, Project, SyntaxKind } from "ts-morph";
+import type { NoSuchFileError } from "@beep/repo-utils";
+import type { DocgenAliasSource } from "@beep/repo-utils/schemas/DocgenConfig";
+import type { ChildProcessSpawner } from "effect/unstable/process/ChildProcessSpawner";
+import type { ExportDeclaration, JSDoc, SourceFile } from "ts-morph";
 
 const $I = $RepoCliId.create("commands/Docgen/internal/Operations");
 

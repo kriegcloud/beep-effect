@@ -9,8 +9,9 @@
 
 import { $RunpodId } from "@beep/identity";
 import { LiteralKit } from "@beep/schema";
-import { type Effect, pipe } from "effect";
+import { pipe } from "effect";
 import * as S from "effect/Schema";
+import type { Effect } from "effect";
 
 const $I = $RunpodId.create("Runpod.generated");
 

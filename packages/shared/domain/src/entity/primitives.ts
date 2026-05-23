@@ -7,9 +7,9 @@
 
 import { $SharedDomainId } from "@beep/identity/packages";
 import { NonNegativeInt } from "@beep/schema/Int";
-import type { Sha256Hex as Sha256HexType } from "@beep/schema/Sha256";
 import { Sha256Hex } from "@beep/schema/Sha256";
 import * as S from "effect/Schema";
+import type { Sha256Hex as Sha256HexType } from "@beep/schema/Sha256";
 
 const $I = $SharedDomainId.create("entity/primitives");
 

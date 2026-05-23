@@ -11,19 +11,16 @@ import { Clock, Effect, flow, pipe } from "effect";
 import * as S from "effect/Schema";
 import { CopyError, DockerError, PodmanError } from "./Sandbox.errors.ts";
 import { profileSandboxPhase, redactSensitiveText } from "./Sandbox.observability.ts";
-import { ProcessCommand, type ProcessResult, SandboxProcess } from "./Sandbox.process.ts";
+import { ProcessCommand, SandboxProcess } from "./Sandbox.process.ts";
+import { createBindMountSandboxProvider, ExecResult, InteractiveExecResult } from "./Sandbox.provider.ts";
+import type { ProcessResult } from "./Sandbox.process.ts";
 import type {
+  BindMountCreateOptions,
   BindMountSandboxHandle,
   BindMountSandboxProvider,
   NoSandboxHandle,
   NoSandboxProvider,
-} from "./Sandbox.provider.ts";
-import {
-  type BindMountCreateOptions,
-  createBindMountSandboxProvider,
-  ExecResult,
-  InteractiveExecResult,
-  type SandboxExecOptions,
+  SandboxExecOptions,
 } from "./Sandbox.provider.ts";
 
 const $I = $SandboxId.create("Sandbox.providers");

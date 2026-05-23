@@ -7,19 +7,15 @@
 
 import { make } from "@beep/identity";
 import { A, thunkUndefined } from "@beep/utils";
-import {
-  type DuckDBConnection,
-  DuckDBInstance,
-  type DuckDBValue,
-  quotedIdentifier,
-  quotedString,
-} from "@duckdb/node-api";
+import { DuckDBInstance, quotedIdentifier, quotedString } from "@duckdb/node-api";
 import { Context, Effect, Exit, Layer, Scope, Semaphore } from "effect";
 import * as O from "effect/Option";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
 import { DuckDbError } from "./DuckDb.errors.ts";
-import { type DuckDbConnectionOptions, type DuckDbParquetExport, DuckDbRows } from "./DuckDb.models.ts";
+import { DuckDbRows } from "./DuckDb.models.ts";
+import type { DuckDBConnection, DuckDBValue } from "@duckdb/node-api";
+import type { DuckDbConnectionOptions, DuckDbParquetExport } from "./DuckDb.models.ts";
 
 const { $DuckdbId } = make("duckdb");
 const $I = $DuckdbId.create("DuckDb.service");

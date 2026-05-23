@@ -10,9 +10,9 @@ import { A, thunk0 } from "@beep/utils";
 import { Clock, Context, Effect, HashMap, Layer, Match, MutableRef, Queue, Result } from "effect";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
-import type * as DevToolsSchema from "effect/unstable/devtools/DevToolsSchema";
 import * as DevToolsServer from "effect/unstable/devtools/DevToolsServer";
 import * as SocketServer from "effect/unstable/socket/SocketServer";
+import type * as DevToolsSchema from "effect/unstable/devtools/DevToolsSchema";
 
 const $I = $ObservabilityId.create("experimental/server/DevToolsRelay");
 const schemaIssueToError = (cause: S.SchemaError["issue"]): S.SchemaError => new S.SchemaError(cause);

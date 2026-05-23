@@ -5,9 +5,9 @@ import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from 
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { A, O, Str } from "@beep/utils";
-import type * as Ordering from "effect/Ordering";
 import * as jsonc from "jsonc-parser";
 import { Node, Project } from "ts-morph";
+import type * as Ordering from "effect/Ordering";
 
 const scriptDir = path.dirname(fileURLToPath(import.meta.url));
 const rootDir = path.resolve(scriptDir, "../../../../..");

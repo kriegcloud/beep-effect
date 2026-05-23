@@ -1,7 +1,8 @@
-import { A, type O } from "@beep/utils";
+import { A } from "@beep/utils";
 import { pipe } from "effect/Function";
 import * as Order from "effect/Order";
 import { describe, expect, it } from "tstyche";
+import type { O } from "@beep/utils";
 
 const nonEmpty: A.NonEmptyReadonlyArray<number> = [1, 2, 3];
 

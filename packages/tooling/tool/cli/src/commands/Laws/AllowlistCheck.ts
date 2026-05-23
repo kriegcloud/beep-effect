@@ -14,9 +14,10 @@ import { Console, Effect, FileSystem, Path, pipe, Result, SchemaIssue } from "ef
 import * as Eq from "effect/Equal";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
-import { type ParseError, parse } from "jsonc-parser";
+import { parse } from "jsonc-parser";
 import { Project } from "ts-morph";
 import { collectNativeRuntimeViolationKeys, NativeRuntimeViolationKeyOptions } from "./NoNativeRuntime.js";
+import type { ParseError } from "jsonc-parser";
 
 const $I = $RepoCliId.create("commands/Laws/AllowlistCheck");
 

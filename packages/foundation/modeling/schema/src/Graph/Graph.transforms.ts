@@ -6,7 +6,6 @@
  */
 import { SchemaParser, SchemaTransformation } from "effect";
 import * as S from "effect/Schema";
-import type { GraphEncodedSchema } from "./Graph.encoded.ts";
 import { GraphEncoded } from "./Graph.encoded.ts";
 import {
   DirectedGraphFromSelf,
@@ -15,7 +14,9 @@ import {
   UndirectedGraphFromSelf,
 } from "./Graph.from-self.ts";
 import { rebuildImmutableGraph, rebuildMutableGraph } from "./Graph.rebuild.ts";
-import { $I, type GraphKindValue, toRawGraphEncoded } from "./Graph.shared.ts";
+import { $I, toRawGraphEncoded } from "./Graph.shared.ts";
+import type { GraphEncodedSchema } from "./Graph.encoded.ts";
+import type { GraphKindValue } from "./Graph.shared.ts";
 
 /**
  * Schema for decoding encoded graph payloads into immutable directed graphs.

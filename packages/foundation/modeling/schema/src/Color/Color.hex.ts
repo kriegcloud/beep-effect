@@ -8,7 +8,8 @@
 import { A, Str } from "@beep/utils";
 import { flow, identity, Number as Num, pipe, Result, SchemaTransformation } from "effect";
 import * as S from "effect/Schema";
-import { $I, type RgbEncoded, schemaIssueToError } from "./Color.shared.ts";
+import { $I, schemaIssueToError } from "./Color.shared.ts";
+import type { RgbEncoded } from "./Color.shared.ts";
 
 const hexColorInputPattern = /^#(?:[0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/;
 const hexColorPattern = /^#[0-9a-f]{6}$/;

@@ -1,3 +1,4 @@
+import { describe, expect, it } from "tstyche";
 import type * as Color from "@beep/schema/Color";
 import type * as Csp from "@beep/schema/Csp";
 import type * as CsvParser from "@beep/schema/CsvParser";
@@ -18,7 +19,6 @@ import type * as SchemaUtils from "@beep/schema/SchemaUtils";
 import type { split } from "@beep/schema/SchemaUtils/split";
 import type * as VariantSchema from "@beep/schema/VariantSchema";
 import type * as XssProtection from "@beep/schema/XssProtection";
-import { describe, expect, it } from "tstyche";
 
 describe("@beep/schema topology", () => {
   it("exposes canonical schema aliases from leaf concept modules", () => {

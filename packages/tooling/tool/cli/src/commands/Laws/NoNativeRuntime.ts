@@ -23,18 +23,16 @@ import { dual } from "effect/Function";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
-import {
-  type BinaryExpression,
-  type CallExpression,
-  type ImportDeclaration,
-  type NewExpression,
-  Node,
-  Project,
-  type SourceFile,
-  type SwitchStatement,
-  SyntaxKind,
-} from "ts-morph";
+import { Node, Project, SyntaxKind } from "ts-morph";
 import { NoNativeRuntimeRulesExecutionError } from "./Laws.errors.js";
+import type {
+  BinaryExpression,
+  CallExpression,
+  ImportDeclaration,
+  NewExpression,
+  SourceFile,
+  SwitchStatement,
+} from "ts-morph";
 
 const $I = $RepoCliId.create("commands/Laws/NoNativeRuntime");
 

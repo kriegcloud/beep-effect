@@ -12,7 +12,6 @@
  * @category errors
  */
 export * from "./FFmpeg.errors.ts";
-
 /**
  * Public native FFmpeg driver model exports.
  *
@@ -20,7 +19,6 @@ export * from "./FFmpeg.errors.ts";
  * @category models
  */
 export * from "./FFmpeg.models.ts";
-
 /**
  * Public native FFmpeg driver service exports.
  *

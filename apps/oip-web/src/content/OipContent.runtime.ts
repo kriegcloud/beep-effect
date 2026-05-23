@@ -6,7 +6,7 @@
  */
 
 import { $OipWebId } from "@beep/identity/packages";
-import { Sanity, SanityConfigInput, type SanityError, SanityQueryRequest } from "@beep/sanity";
+import { Sanity, SanityConfigInput, SanityQueryRequest } from "@beep/sanity";
 import { LiteralKit, TaggedErrorClass } from "@beep/schema";
 import { Str } from "@beep/utils";
 import { Config, Effect, flow, Layer, pipe, Redacted } from "effect";
@@ -15,7 +15,9 @@ import * as R from "effect/Record";
 import * as S from "effect/Schema";
 import { FetchHttpClient } from "effect/unstable/http";
 import { oipSiteContent } from "./OipContent.data.ts";
-import { decodeOipSiteContent, type OipSiteContent } from "./OipContent.model.ts";
+import { decodeOipSiteContent } from "./OipContent.model.ts";
+import type { SanityError } from "@beep/sanity";
+import type { OipSiteContent } from "./OipContent.model.ts";
 
 const $I = $OipWebId.create("content/OipContent.runtime");
 const query = '*[_type == "oipSiteContent" && slug.current == "home"][0]';

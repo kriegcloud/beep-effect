@@ -1,7 +1,8 @@
-import { AiProviderCli, AiProviderCliProcessResult, type AiProviderCliProvider } from "@beep/ai-provider-cli";
+import { AiProviderCli, AiProviderCliProcessResult } from "@beep/ai-provider-cli";
 import { describe, expect, layer } from "@effect/vitest";
 import { Effect } from "effect";
 import * as A from "effect/Array";
+import type { AiProviderCliProvider } from "@beep/ai-provider-cli";
 
 const runner = (provider: AiProviderCliProvider, _command: string, args: ReadonlyArray<string>) =>
   Effect.succeed(

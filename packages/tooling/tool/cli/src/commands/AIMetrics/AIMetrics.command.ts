@@ -5,12 +5,9 @@
  * @since 0.0.0
  */
 
-import {DuckDb, DuckDbConnectionOptions} from "@beep/duckdb";
-import {$RepoCliId} from "@beep/identity/packages";
-import {
-  layerNodeSdkServerTraces,
-  ServerObservabilityConfig
-} from "@beep/observability/server";
+import { DuckDb, DuckDbConnectionOptions } from "@beep/duckdb";
+import { $RepoCliId } from "@beep/identity/packages";
+import { layerNodeSdkServerTraces, ServerObservabilityConfig } from "@beep/observability/server";
 import {
   AiMetricsArchiveError,
   AiMetricsBenchmarkCaseInput,
@@ -20,7 +17,6 @@ import {
   AiMetricsDeployTarget,
   AiMetricsForwarderError,
   AiMetricsForwarderInput,
-  type AiMetricsForwarderOtlpExport,
   AiMetricsForwarderOtlpExported,
   AiMetricsForwarderOtlpExportFailed,
   AiMetricsForwarderRunResult,
@@ -28,10 +24,8 @@ import {
   AiMetricsIngestError,
   AiMetricsInstallConfigurationError,
   AiMetricsInstallDoctorInput,
-  type AiMetricsInstallDoctorResult,
   AiMetricsInstallDoctorStatus,
   AiMetricsInstallInput,
-  type AiMetricsInstallPlan,
   AiMetricsInstallSpec,
   AiMetricsLabelQueueInput,
   AiMetricsMirrorBundleInput,
@@ -40,7 +34,6 @@ import {
   AiMetricsOtlpEndpointSpec,
   AiMetricsOtlpExportError,
   AiMetricsOtlpExportInput,
-  type AiMetricsOtlpExportResult,
   AiMetricsOutcomeLabelInput,
   AiMetricsPrivacyError,
   AiMetricsPrivacyMode,
@@ -103,7 +96,7 @@ import {
   summaryToJson,
   upsertAiMetricsBenchmarkCase,
 } from "@beep/repo-ai-metrics";
-import {A, Str} from "@beep/utils";
+import { A, Str } from "@beep/utils";
 import {
   Clock,
   Config,
@@ -124,13 +117,16 @@ import {
 import * as O from "effect/Option";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
-import {Command, Flag} from "effect/unstable/cli";
-import {jsonFlag} from "../../internal/cli/Flags.js";
-import {printLines} from "../../internal/cli/Printer.js";
-import {
-  AiMetricsCommandError,
-  AiMetricsStatusExit
-} from "./AIMetrics.errors.js";
+import { Command, Flag } from "effect/unstable/cli";
+import { jsonFlag } from "../../internal/cli/Flags.js";
+import { printLines } from "../../internal/cli/Printer.js";
+import { AiMetricsCommandError, AiMetricsStatusExit } from "./AIMetrics.errors.js";
+import type {
+  AiMetricsForwarderOtlpExport,
+  AiMetricsInstallDoctorResult,
+  AiMetricsInstallPlan,
+  AiMetricsOtlpExportResult,
+} from "@beep/repo-ai-metrics";
 
 const $I = $RepoCliId.create("commands/AIMetrics/AIMetrics.command");
 
@@ -155,8 +151,7 @@ class AiMetricsArchiveDrillRow extends S.Class<AiMetricsArchiveDrillRow>($I`AiMe
   $I.annote("AiMetricsArchiveDrillRow", {
     description: "Latest encrypted raw archive row selected for a non-printing decrypt drill.",
   })
-) {
-}
+) {}
 
 const decodeArchiveDrillRows = S.decodeUnknownEffect(S.Array(AiMetricsArchiveDrillRow));
 
@@ -455,12 +450,11 @@ const resolveRawArchiveKeySecretRef = Effect.fn("AIMetrics.resolveRawArchiveKeyS
 type RequireHashSaltForTargetOptions = {
   readonly hashSalt: string | undefined;
   readonly target: AiMetricsDeployTarget;
-}
-const requireHashSaltForTarget = Effect.fn("AIMetrics.requireHashSaltForTarget")(function* (
-  {
-    hashSalt,
-    target,
-  }: RequireHashSaltForTargetOptions) {
+};
+const requireHashSaltForTarget = Effect.fn("AIMetrics.requireHashSaltForTarget")(function* ({
+  hashSalt,
+  target,
+}: RequireHashSaltForTargetOptions) {
   if (target === AiMetricsDeployTarget.Enum.local || (hashSalt !== undefined && Str.isNonEmpty(Str.trim(hashSalt)))) {
     return hashSalt;
   }
@@ -473,12 +467,11 @@ const requireHashSaltForTarget = Effect.fn("AIMetrics.requireHashSaltForTarget")
 type RequireHashSaltSecretRefForTargetOptions = {
   readonly hashSaltSecretRef: string | undefined;
   readonly target: AiMetricsDeployTarget;
-}
-const requireHashSaltSecretRefForTarget = Effect.fn("AIMetrics.requireHashSaltSecretRefForTarget")(function* (
-  {
-    hashSaltSecretRef,
-    target,
-  }: RequireHashSaltSecretRefForTargetOptions) {
+};
+const requireHashSaltSecretRefForTarget = Effect.fn("AIMetrics.requireHashSaltSecretRefForTarget")(function* ({
+  hashSaltSecretRef,
+  target,
+}: RequireHashSaltSecretRefForTargetOptions) {
   if (
     target === AiMetricsDeployTarget.Enum.local ||
     (hashSaltSecretRef !== undefined && Str.isNonEmpty(Str.trim(hashSaltSecretRef)))
@@ -495,12 +488,9 @@ const requireHashSaltSecretRefForTarget = Effect.fn("AIMetrics.requireHashSaltSe
 type RequireRawArchiveKeySecretRefForTargetOptiosn = {
   readonly rawArchiveKeySecretRef: string | undefined;
   readonly target: AiMetricsDeployTarget;
-}
-const requireRawArchiveKeySecretRefForTarget = Effect.fn("AIMetrics.requireRawArchiveKeySecretRefForTarget")(function* (
-    {
-      rawArchiveKeySecretRef,
-      target,
-    }: RequireRawArchiveKeySecretRefForTargetOptiosn) {
+};
+const requireRawArchiveKeySecretRefForTarget = Effect.fn("AIMetrics.requireRawArchiveKeySecretRefForTarget")(
+  function* ({ rawArchiveKeySecretRef, target }: RequireRawArchiveKeySecretRefForTargetOptiosn) {
     if (
       target === AiMetricsDeployTarget.Enum.local ||
       (rawArchiveKeySecretRef !== undefined && Str.isNonEmpty(Str.trim(rawArchiveKeySecretRef)))
@@ -562,12 +552,8 @@ const parseOptionalEpochMillis = Effect.fn("AIMetrics.parseOptionalEpochMillis")
 type ParseWindowOptions = {
   readonly since: O.Option<string>;
   readonly until: O.Option<string>;
-}
-const parseWindow = Effect.fn("AIMetrics.parseWindow")(function* (
-  {
-    since,
-    until,
-  }: ParseWindowOptions) {
+};
+const parseWindow = Effect.fn("AIMetrics.parseWindow")(function* ({ since, until }: ParseWindowOptions) {
   const end = yield* parseOptionalEpochMillis("until", until);
   const windowEndEpochMillis = O.isSome(end) ? end.value : yield* Clock.currentTimeMillis;
   const start = yield* parseOptionalEpochMillis("since", since);
@@ -595,14 +581,13 @@ type ParseRetentionSelectorOptions = {
   readonly dataRoot: O.Option<string>;
   readonly since: O.Option<string>;
   readonly until: O.Option<string>;
-}
-const parseRetentionSelector = Effect.fn("AIMetrics.parseRetentionSelector")(function* (
-  {
-    before,
-    dataRoot,
-    since,
-    until,
-  }: ParseRetentionSelectorOptions) {
+};
+const parseRetentionSelector = Effect.fn("AIMetrics.parseRetentionSelector")(function* ({
+  before,
+  dataRoot,
+  since,
+  until,
+}: ParseRetentionSelectorOptions) {
   const beforeEpochMillis = yield* parseOptionalEpochMillis("before", before);
   const sinceEpochMillis = yield* parseOptionalEpochMillis("since", since);
   const untilEpochMillis = yield* parseOptionalEpochMillis("until", until);
@@ -637,24 +622,20 @@ const hasOrderedRetentionMutationWindow = (selector: AiMetricsRetentionSelector)
 const parseChecks = (checks: string): ReadonlyArray<string> =>
   pipe(Str.split(checks, ","), A.map(Str.trim), A.filter(Str.isNonEmpty));
 
-const p6aCollectorDataRoot = (
-  dataRoot: O.Option<string>,
-  target: AiMetricsDeployTarget
-): O.Option<string> =>
+const p6aCollectorDataRoot = (dataRoot: O.Option<string>, target: AiMetricsDeployTarget): O.Option<string> =>
   O.isSome(dataRoot) || target === AiMetricsDeployTarget.Enum.local ? dataRoot : O.some(localCollectorDataRoot);
 type MakeCommandInstallInputOptions = {
   readonly dataRoot: O.Option<string>;
   readonly hashSaltSecretRef: O.Option<string>;
   readonly rawArchiveKeySecretRef: O.Option<string>;
   readonly target: AiMetricsDeployTarget;
-}
-const makeCommandInstallInput = Effect.fn("AIMetrics.makeCommandInstallInput")(function* (
-  {
-    dataRoot,
-    hashSaltSecretRef,
-    rawArchiveKeySecretRef,
-    target,
-  }: MakeCommandInstallInputOptions) {
+};
+const makeCommandInstallInput = Effect.fn("AIMetrics.makeCommandInstallInput")(function* ({
+  dataRoot,
+  hashSaltSecretRef,
+  rawArchiveKeySecretRef,
+  target,
+}: MakeCommandInstallInputOptions) {
   const resolvedDataRoot = O.getOrUndefined(dataRoot);
   const resolvedHashSaltSecretRef = yield* requireHashSaltSecretRefForTarget({
     hashSaltSecretRef: yield* resolveHashSaltSecretRef(hashSaltSecretRef),
@@ -666,9 +647,9 @@ const makeCommandInstallInput = Effect.fn("AIMetrics.makeCommandInstallInput")(f
   });
 
   return AiMetricsInstallInput.make({
-    ...(resolvedDataRoot === undefined ? {} : {dataRoot: resolvedDataRoot}),
-    ...(resolvedHashSaltSecretRef === undefined ? {} : {hashSaltSecretRef: resolvedHashSaltSecretRef}),
-    ...(resolvedRawArchiveKeySecretRef === undefined ? {} : {rawArchiveKeySecretRef: resolvedRawArchiveKeySecretRef}),
+    ...(resolvedDataRoot === undefined ? {} : { dataRoot: resolvedDataRoot }),
+    ...(resolvedHashSaltSecretRef === undefined ? {} : { hashSaltSecretRef: resolvedHashSaltSecretRef }),
+    ...(resolvedRawArchiveKeySecretRef === undefined ? {} : { rawArchiveKeySecretRef: resolvedRawArchiveKeySecretRef }),
     target,
   });
 });
@@ -677,14 +658,13 @@ type MakeCommandInstallSpecOptions = {
   readonly hashSaltSecretRef: O.Option<string>;
   readonly rawArchiveKeySecretRef: O.Option<string>;
   readonly target: AiMetricsDeployTarget;
-}
-const makeCommandInstallSpec = Effect.fn("AIMetrics.makeCommandInstallSpec")(function* (
-  {
-    dataRoot,
-    hashSaltSecretRef,
-    rawArchiveKeySecretRef,
-    target,
-  }: MakeCommandInstallSpecOptions) {
+};
+const makeCommandInstallSpec = Effect.fn("AIMetrics.makeCommandInstallSpec")(function* ({
+  dataRoot,
+  hashSaltSecretRef,
+  rawArchiveKeySecretRef,
+  target,
+}: MakeCommandInstallSpecOptions) {
   return yield* makeAiMetricsInstallSpec(
     yield* makeCommandInstallInput({
       dataRoot,
@@ -767,15 +747,14 @@ type MakeInstallPreviewProgramOptions = {
   readonly rawArchiveKeySecretRef: O.Option<string>;
   readonly target: AiMetricsDeployTarget;
   readonly tool: AiMetricsTool;
-}
-const makeInstallPreviewProgram = Effect.fn("AIMetrics.makeInstallPreviewProgram")(function* (
-  {
-    hashSaltSecretRef,
-    json,
-    rawArchiveKeySecretRef,
-    target,
-    tool,
-  }: MakeInstallPreviewProgramOptions) {
+};
+const makeInstallPreviewProgram = Effect.fn("AIMetrics.makeInstallPreviewProgram")(function* ({
+  hashSaltSecretRef,
+  json,
+  rawArchiveKeySecretRef,
+  target,
+  tool,
+}: MakeInstallPreviewProgramOptions) {
   const resolvedHashSaltSecretRef = yield* requireHashSaltSecretRefForTarget({
     hashSaltSecretRef: yield* resolveHashSaltSecretRef(hashSaltSecretRef),
     target,
@@ -787,10 +766,10 @@ const makeInstallPreviewProgram = Effect.fn("AIMetrics.makeInstallPreviewProgram
   const spec = yield* makeAiMetricsInstallSpec(
     AiMetricsInstallInput.make({
       defaultTool: tool,
-      ...(resolvedHashSaltSecretRef === undefined ? {} : {hashSaltSecretRef: resolvedHashSaltSecretRef}),
+      ...(resolvedHashSaltSecretRef === undefined ? {} : { hashSaltSecretRef: resolvedHashSaltSecretRef }),
       ...(resolvedRawArchiveKeySecretRef === undefined
         ? {}
-        : {rawArchiveKeySecretRef: resolvedRawArchiveKeySecretRef}),
+        : { rawArchiveKeySecretRef: resolvedRawArchiveKeySecretRef }),
       privacyMode: AiMetricsPrivacyMode.Enum.encrypted_raw_redacted_ui,
       target,
     })
@@ -802,13 +781,12 @@ type MakeInstallComposeProgramOptions = {
   readonly json: boolean;
   readonly target: AiMetricsDeployTarget;
   readonly tool: AiMetricsTool;
-}
-const makeInstallComposeProgram = Effect.fn("AIMetrics.makeInstallComposeProgram")(function* (
-  {
-    json,
-    target,
-    tool,
-  }: MakeInstallComposeProgramOptions) {
+};
+const makeInstallComposeProgram = Effect.fn("AIMetrics.makeInstallComposeProgram")(function* ({
+  json,
+  target,
+  tool,
+}: MakeInstallComposeProgramOptions) {
   const spec = yield* makeAiMetricsInstallSpec(
     AiMetricsInstallInput.make({
       defaultTool: tool,
@@ -854,15 +832,14 @@ type MakeInstallPlanProgramOptions = {
   readonly json: boolean;
   readonly rawArchiveKeySecretRef: O.Option<string>;
   readonly target: AiMetricsDeployTarget;
-}
-const makeInstallPlanProgram = Effect.fn("AIMetrics.makeInstallPlanProgram")(function* (
-  {
-    dataRoot,
-    hashSaltSecretRef,
-    json,
-    rawArchiveKeySecretRef,
-    target,
-  }: MakeInstallPlanProgramOptions) {
+};
+const makeInstallPlanProgram = Effect.fn("AIMetrics.makeInstallPlanProgram")(function* ({
+  dataRoot,
+  hashSaltSecretRef,
+  json,
+  rawArchiveKeySecretRef,
+  target,
+}: MakeInstallPlanProgramOptions) {
   const input = yield* makeCommandInstallInput({
     dataRoot,
     hashSaltSecretRef,
@@ -902,23 +879,22 @@ type MakeInstallDoctorProgramOptions = {
   readonly repoRoot: O.Option<string>;
   readonly since: O.Option<string>;
   readonly target: AiMetricsDeployTarget;
-}
-const makeInstallDoctorProgram = Effect.fn("AIMetrics.makeInstallDoctorProgram")(function* (
-  {
-    all,
-    dataRoot,
-    hashSalt,
-    hashSaltSecretRef,
-    homeDir,
-    json,
-    maxFileBytes,
-    maxFiles,
-    openClawUnit,
-    rawArchiveKeySecretRef,
-    repoRoot,
-    since,
-    target,
-  }: MakeInstallDoctorProgramOptions) {
+};
+const makeInstallDoctorProgram = Effect.fn("AIMetrics.makeInstallDoctorProgram")(function* ({
+  all,
+  dataRoot,
+  hashSalt,
+  hashSaltSecretRef,
+  homeDir,
+  json,
+  maxFileBytes,
+  maxFiles,
+  openClawUnit,
+  rawArchiveKeySecretRef,
+  repoRoot,
+  since,
+  target,
+}: MakeInstallDoctorProgramOptions) {
   const install = yield* makeCommandInstallInput({
     dataRoot,
     hashSaltSecretRef,
@@ -931,13 +907,13 @@ const makeInstallDoctorProgram = Effect.fn("AIMetrics.makeInstallDoctorProgram")
     AiMetricsSourceDiscoveryInput.make({
       homeDir: yield* resolveHomeDir(homeDir),
       includeAll: all,
-      ...(O.isSome(maxFileBytes) ? {maxFileBytes: maxFileBytes.value} : {}),
+      ...(O.isSome(maxFileBytes) ? { maxFileBytes: maxFileBytes.value } : {}),
       maxFiles,
       repoRoot: yield* resolveRepoRoot(repoRoot),
       target: AiMetricsDeployTarget.Enum.local,
-      ...(resolvedHashSalt === undefined ? {} : {hashSalt: resolvedHashSalt}),
-      ...(sinceEpochMillis === undefined ? {} : {sinceEpochMillis}),
-      ...(O.isSome(openClawUnit) ? {openClawUnitPath: openClawUnit.value} : {}),
+      ...(resolvedHashSalt === undefined ? {} : { hashSalt: resolvedHashSalt }),
+      ...(sinceEpochMillis === undefined ? {} : { sinceEpochMillis }),
+      ...(O.isSome(openClawUnit) ? { openClawUnitPath: openClawUnit.value } : {}),
     })
   );
   const result = yield* makeAiMetricsInstallDoctorResult(
@@ -961,16 +937,15 @@ type MakeInstallApplyProgramOptions = {
   readonly json: boolean;
   readonly rawArchiveKeySecretRef: O.Option<string>;
   readonly target: AiMetricsDeployTarget;
-}
-const makeInstallApplyProgram = Effect.fn("AIMetrics.makeInstallApplyProgram")(function* (
-  {
-    dataRoot,
-    dryRun,
-    hashSaltSecretRef,
-    json,
-    rawArchiveKeySecretRef,
-    target,
-  }: MakeInstallApplyProgramOptions) {
+};
+const makeInstallApplyProgram = Effect.fn("AIMetrics.makeInstallApplyProgram")(function* ({
+  dataRoot,
+  dryRun,
+  hashSaltSecretRef,
+  json,
+  rawArchiveKeySecretRef,
+  target,
+}: MakeInstallApplyProgramOptions) {
   if (!dryRun) {
     return yield* AiMetricsCommandError.make({
       cause: "install apply",
@@ -996,7 +971,7 @@ const makeInstallApplyProgram = Effect.fn("AIMetrics.makeInstallApplyProgram")(f
     `ai-metrics install apply: target=${result.target} dry-run=${result.dryRun}`,
     result.message,
     ...A.map(result.plan.steps, (step) => `${step.order}. ${step.stepId}: ${step.command}`),
-  ])
+  ]);
 });
 type MakeIngestProgramOptions = {
   readonly hashSalt: O.Option<string>;
@@ -1004,22 +979,22 @@ type MakeIngestProgramOptions = {
   readonly json: boolean;
   readonly source: AiMetricsTranscriptSource;
   readonly target: AiMetricsDeployTarget;
-}
+};
 const makeIngestProgram = Effect.fn("AIMetrics.makeIngestProgram")(function* ({
-                                                                                hashSalt,
-                                                                                input,
-                                                                                json,
-                                                                                source,
-                                                                                target,
-                                                                              }: MakeIngestProgramOptions) {
-  const {absolutePath, content} = yield* readInputFile(input);
+  hashSalt,
+  input,
+  json,
+  source,
+  target,
+}: MakeIngestProgramOptions) {
+  const { absolutePath, content } = yield* readInputFile(input);
   const resolvedHashSalt = yield* requireHashSaltForTarget({
     hashSalt: yield* resolveHashSalt(hashSalt),
     target,
   });
   const summary = yield* summarizeTranscriptText({
     content,
-    ...(resolvedHashSalt === undefined ? {} : {hashSalt: resolvedHashSalt}),
+    ...(resolvedHashSalt === undefined ? {} : { hashSalt: resolvedHashSalt }),
     sourceKind: source,
     sourcePath: absolutePath,
   });
@@ -1030,16 +1005,14 @@ const makeIngestProgram = Effect.fn("AIMetrics.makeIngestProgram")(function* ({
   }
 
   const sourceHash = summary.sourcePathHash;
-  yield* printLines(
-    [
-      `ai-metrics ingest: ${summary.sourceKind} sourceHash=${sourceHash}`,
-      `target: ${target}`,
-      `lines: ${summary.totalLines}`,
-      `accepted events: ${summary.acceptedEvents}`,
-      `rejected lines: ${summary.rejectedLines}`,
-      `event names: ${pipe(summary.eventNames, A.join(", "))}`,
-    ]
-  )
+  yield* printLines([
+    `ai-metrics ingest: ${summary.sourceKind} sourceHash=${sourceHash}`,
+    `target: ${target}`,
+    `lines: ${summary.totalLines}`,
+    `accepted events: ${summary.acceptedEvents}`,
+    `rejected lines: ${summary.rejectedLines}`,
+    `event names: ${pipe(summary.eventNames, A.join(", "))}`,
+  ]);
 });
 
 const collectJsonlInputFiles = Effect.fn("AIMetrics.collectJsonlInputFiles")(function* (
@@ -1096,7 +1069,7 @@ const readPrivacyInput = Effect.fn("AIMetrics.readPrivacyInput")(function* (inpu
   const chunks = yield* Effect.forEach(
     files,
     (filePath) => fs.readFileString(filePath).pipe(AiMetricsCommandError.mapError("Failed to read transcript input.")),
-    {concurrency: 8}
+    { concurrency: 8 }
   );
 
   return {
@@ -1115,20 +1088,19 @@ type MakeSourcesDiscoverProgramOptions = {
   readonly repoRoot: O.Option<string>;
   readonly since: O.Option<string>;
   readonly target: AiMetricsDeployTarget;
-}
-const makeSourcesDiscoverProgram = Effect.fn("AIMetrics.makeSourcesDiscoverProgram")(function* (
-  {
-    all,
-    hashSalt,
-    homeDir,
-    json,
-    maxFileBytes,
-    maxFiles,
-    openClawUnit,
-    repoRoot,
-    since,
-    target,
-  }: MakeSourcesDiscoverProgramOptions) {
+};
+const makeSourcesDiscoverProgram = Effect.fn("AIMetrics.makeSourcesDiscoverProgram")(function* ({
+  all,
+  hashSalt,
+  homeDir,
+  json,
+  maxFileBytes,
+  maxFiles,
+  openClawUnit,
+  repoRoot,
+  since,
+  target,
+}: MakeSourcesDiscoverProgramOptions) {
   const resolvedHashSalt = yield* requireHashSaltForTarget({
     hashSalt: yield* resolveHashSalt(hashSalt),
     target,
@@ -1138,13 +1110,13 @@ const makeSourcesDiscoverProgram = Effect.fn("AIMetrics.makeSourcesDiscoverProgr
     AiMetricsSourceDiscoveryInput.make({
       homeDir: yield* resolveHomeDir(homeDir),
       includeAll: all,
-      ...(O.isSome(maxFileBytes) ? {maxFileBytes: maxFileBytes.value} : {}),
+      ...(O.isSome(maxFileBytes) ? { maxFileBytes: maxFileBytes.value } : {}),
       maxFiles,
       repoRoot: yield* resolveRepoRoot(repoRoot),
       target,
-      ...(resolvedHashSalt === undefined ? {} : {hashSalt: resolvedHashSalt}),
-      ...(sinceEpochMillis === undefined ? {} : {sinceEpochMillis}),
-      ...(O.isSome(openClawUnit) ? {openClawUnitPath: openClawUnit.value} : {}),
+      ...(resolvedHashSalt === undefined ? {} : { hashSalt: resolvedHashSalt }),
+      ...(sinceEpochMillis === undefined ? {} : { sinceEpochMillis }),
+      ...(O.isSome(openClawUnit) ? { openClawUnitPath: openClawUnit.value } : {}),
     })
   );
 
@@ -1153,23 +1125,25 @@ const makeSourcesDiscoverProgram = Effect.fn("AIMetrics.makeSourcesDiscoverProgr
     return;
   }
 
-  yield* printLines(
-    [
-      `ai-metrics sources discover: target=${result.target}`,
-      `hash salt: ${result.hashSaltStatus}`,
-      `discovered files: ${result.discoveredFileCount}`,
-      ...A.map(result.sources, (source) => `${source.sourceKind}: ${source.status} files=${source.fileCount} candidates=${source.candidateFileCount} limited=${source.limitedByMaxFiles}`)
-    ]
-  )
+  yield* printLines([
+    `ai-metrics sources discover: target=${result.target}`,
+    `hash salt: ${result.hashSaltStatus}`,
+    `discovered files: ${result.discoveredFileCount}`,
+    ...A.map(
+      result.sources,
+      (source) =>
+        `${source.sourceKind}: ${source.status} files=${source.fileCount} candidates=${source.candidateFileCount} limited=${source.limitedByMaxFiles}`
+    ),
+  ]);
 });
 type MakeConfigSnapshotProgramOptions = {
   readonly json: boolean;
   readonly repoRoot: O.Option<string>;
-}
+};
 const makeConfigSnapshotProgram = Effect.fn("AIMetrics.makeConfigSnapshotProgram")(function* ({
-                                                                                                json,
-                                                                                                repoRoot,
-                                                                                              }: MakeConfigSnapshotProgramOptions) {
+  json,
+  repoRoot,
+}: MakeConfigSnapshotProgramOptions) {
   const result = yield* makeAiMetricsConfigSnapshot(
     AiMetricsConfigSnapshotInput.make({
       repoRoot: yield* resolveRepoRoot(repoRoot),
@@ -1184,26 +1158,26 @@ const makeConfigSnapshotProgram = Effect.fn("AIMetrics.makeConfigSnapshotProgram
   yield* printLines([
     `ai-metrics config snapshot: ${result.snapshot.snapshotId}`,
     `files: ${result.fileCount}`,
-    `hash: ${result.snapshot.configHash}`
-  ])
+    `hash: ${result.snapshot.configHash}`,
+  ]);
 });
 type MakePrivacyCheckProgramOptions = {
   readonly hashSalt: O.Option<string>;
   readonly input: string;
   readonly json: boolean;
   readonly source: AiMetricsTranscriptSource;
-}
+};
 const makePrivacyCheckProgram = Effect.fn("AIMetrics.makePrivacyCheckProgram")(function* ({
-                                                                                            hashSalt,
-                                                                                            input,
-                                                                                            json,
-                                                                                            source,
-                                                                                          }: MakePrivacyCheckProgramOptions) {
-  const {absolutePath, content} = yield* readPrivacyInput(input);
+  hashSalt,
+  input,
+  json,
+  source,
+}: MakePrivacyCheckProgramOptions) {
+  const { absolutePath, content } = yield* readPrivacyInput(input);
   const resolvedHashSalt = yield* resolveHashSalt(hashSalt);
   const summary = yield* summarizeTranscriptText({
     content,
-    ...(resolvedHashSalt === undefined ? {} : {hashSalt: resolvedHashSalt}),
+    ...(resolvedHashSalt === undefined ? {} : { hashSalt: resolvedHashSalt }),
     sourceKind: source,
     sourcePath: absolutePath,
   });
@@ -1211,7 +1185,7 @@ const makePrivacyCheckProgram = Effect.fn("AIMetrics.makePrivacyCheckProgram")(f
     content,
     sourcePath: absolutePath,
     summary,
-    ...(resolvedHashSalt === undefined ? {} : {hashSalt: resolvedHashSalt}),
+    ...(resolvedHashSalt === undefined ? {} : { hashSalt: resolvedHashSalt }),
   });
 
   if (json) {
@@ -1219,14 +1193,12 @@ const makePrivacyCheckProgram = Effect.fn("AIMetrics.makePrivacyCheckProgram")(f
     return;
   }
 
-  yield* printLines(
-    [
-      `ai-metrics privacy check: ${result.sourceKind}`,
-      `hash salt: ${result.hashSaltStatus}`,
-      `safe for derived UI: ${result.redaction.safeForDerivedUi}`,
-      `accepted events: ${result.sanitized.acceptedEvents}`
-    ]
-  )
+  yield* printLines([
+    `ai-metrics privacy check: ${result.sourceKind}`,
+    `hash salt: ${result.hashSaltStatus}`,
+    `safe for derived UI: ${result.redaction.safeForDerivedUi}`,
+    `accepted events: ${result.sanitized.acceptedEvents}`,
+  ]);
 });
 
 const forwarderRunResultWithOtlpExport = (
@@ -1265,14 +1237,13 @@ type ForwarderOtlpExportFailedOptiosn = {
   readonly forwarderResult: AiMetricsForwarderRunResult;
   readonly message: string;
   readonly target: AiMetricsDeployTarget;
-}
-const forwarderOtlpExportFailed = (
-  {
-    endpoint,
-    forwarderResult,
-    message,
-    target,
-  }: ForwarderOtlpExportFailedOptiosn): AiMetricsForwarderOtlpExportFailed =>
+};
+const forwarderOtlpExportFailed = ({
+  endpoint,
+  forwarderResult,
+  message,
+  target,
+}: ForwarderOtlpExportFailedOptiosn): AiMetricsForwarderOtlpExportFailed =>
   AiMetricsForwarderOtlpExportFailed.make({
     endpointTraceUrl: endpoint.traceUrl,
     ingestRunId: forwarderResult.ingestRunId,
@@ -1284,13 +1255,12 @@ type ExportForwarderDerivedOtlpOptions = {
   readonly endpoint: AiMetricsOtlpEndpointSpec;
   readonly forwarderResult: AiMetricsForwarderRunResult;
   readonly target: AiMetricsDeployTarget;
-}
-const exportForwarderDerivedOtlp = Effect.fn("AIMetrics.exportForwarderDerivedOtlp")(function* (
-  {
-    endpoint,
-    forwarderResult,
-    target,
-  }: ExportForwarderDerivedOtlpOptions) {
+};
+const exportForwarderDerivedOtlp = Effect.fn("AIMetrics.exportForwarderDerivedOtlp")(function* ({
+  endpoint,
+  forwarderResult,
+  target,
+}: ExportForwarderDerivedOtlpOptions) {
   return yield* runAiMetricsOtlpExport(
     AiMetricsOtlpExportInput.make({
       duckDbPath: forwarderResult.duckDbPath,
@@ -1331,24 +1301,24 @@ type MakeForwarderRunProgramOptions = {
   readonly repoRoot: O.Option<string>;
   readonly since: O.Option<string>;
   readonly target: AiMetricsDeployTarget;
-}
+};
 const makeForwarderRunProgram = Effect.fn("AIMetrics.makeForwarderRunProgram")(function* ({
-                                                                                            all,
-                                                                                            dataRoot,
-                                                                                            hashSalt,
-                                                                                            hashSaltSecretRef,
-                                                                                            homeDir,
-                                                                                            json,
-                                                                                            maxFileBytes,
-                                                                                            maxFiles,
-                                                                                            openClawUnit,
-                                                                                            otlp,
-                                                                                            otlpBaseUrl,
-                                                                                            rawArchiveKeySecretRef,
-                                                                                            repoRoot,
-                                                                                            since,
-                                                                                            target,
-                                                                                          }: MakeForwarderRunProgramOptions) {
+  all,
+  dataRoot,
+  hashSalt,
+  hashSaltSecretRef,
+  homeDir,
+  json,
+  maxFileBytes,
+  maxFiles,
+  openClawUnit,
+  otlp,
+  otlpBaseUrl,
+  rawArchiveKeySecretRef,
+  repoRoot,
+  since,
+  target,
+}: MakeForwarderRunProgramOptions) {
   const resolvedHashSalt = yield* requireHashSaltForTarget({
     hashSalt: yield* resolveHashSalt(hashSalt),
     target,
@@ -1364,32 +1334,32 @@ const makeForwarderRunProgram = Effect.fn("AIMetrics.makeForwarderRunProgram")(f
   const resolvedDataRoot = O.getOrUndefined(p6aCollectorDataRoot(dataRoot, target));
   const spec = yield* makeAiMetricsInstallSpec(
     AiMetricsInstallInput.make({
-      ...(resolvedDataRoot === undefined ? {} : {dataRoot: resolvedDataRoot}),
-      ...(resolvedHashSaltSecretRef === undefined ? {} : {hashSaltSecretRef: resolvedHashSaltSecretRef}),
+      ...(resolvedDataRoot === undefined ? {} : { dataRoot: resolvedDataRoot }),
+      ...(resolvedHashSaltSecretRef === undefined ? {} : { hashSaltSecretRef: resolvedHashSaltSecretRef }),
       ...(resolvedRawArchiveKeySecretRef === undefined
         ? {}
-        : {rawArchiveKeySecretRef: resolvedRawArchiveKeySecretRef}),
+        : { rawArchiveKeySecretRef: resolvedRawArchiveKeySecretRef }),
       target,
     })
   );
   const resolvedRawArchiveKey = yield* resolveRawArchiveKey();
   const sinceEpochMillis = all ? undefined : yield* parseSinceEpochMillis(since);
   const forwarderInput = AiMetricsForwarderInput.make({
-    ...(resolvedDataRoot === undefined ? {} : {dataRoot: resolvedDataRoot}),
-    ...(resolvedHashSalt === undefined ? {} : {hashSalt: resolvedHashSalt}),
-    ...(resolvedHashSaltSecretRef === undefined ? {} : {hashSaltSecretRef: resolvedHashSaltSecretRef}),
-    ...(resolvedRawArchiveKeySecretRef === undefined ? {} : {rawArchiveKeySecretRef: resolvedRawArchiveKeySecretRef}),
+    ...(resolvedDataRoot === undefined ? {} : { dataRoot: resolvedDataRoot }),
+    ...(resolvedHashSalt === undefined ? {} : { hashSalt: resolvedHashSalt }),
+    ...(resolvedHashSaltSecretRef === undefined ? {} : { hashSaltSecretRef: resolvedHashSaltSecretRef }),
+    ...(resolvedRawArchiveKeySecretRef === undefined ? {} : { rawArchiveKeySecretRef: resolvedRawArchiveKeySecretRef }),
     homeDir: yield* resolveHomeDir(homeDir),
     includeAll: all,
-    ...(O.isSome(maxFileBytes) ? {maxFileBytes: maxFileBytes.value} : {}),
+    ...(O.isSome(maxFileBytes) ? { maxFileBytes: maxFileBytes.value } : {}),
     maxFiles,
-    ...(O.isSome(openClawUnit) ? {openClawUnitPath: openClawUnit.value} : {}),
+    ...(O.isSome(openClawUnit) ? { openClawUnitPath: openClawUnit.value } : {}),
     rawArchiveKey: resolvedRawArchiveKey,
     repoRoot: yield* resolveRepoRoot(repoRoot),
-    ...(sinceEpochMillis === undefined ? {} : {sinceEpochMillis}),
+    ...(sinceEpochMillis === undefined ? {} : { sinceEpochMillis }),
     target,
   });
-  const duckDbLayer = DuckDb.makeNodeLayer(DuckDbConnectionOptions.make({databasePath: spec.storage.duckDbPath}));
+  const duckDbLayer = DuckDb.makeNodeLayer(DuckDbConnectionOptions.make({ databasePath: spec.storage.duckDbPath }));
   const forwarderResult = yield* Effect.scoped(
     Layer.build(duckDbLayer).pipe(
       Effect.flatMap((context) => runAiMetricsForwarder(forwarderInput).pipe(Effect.provide(context)))
@@ -1413,11 +1383,11 @@ const makeForwarderRunProgram = Effect.fn("AIMetrics.makeForwarderRunProgram")(f
     ).pipe(Effect.exit);
     const otlpExport = Exit.isFailure(otlpExit)
       ? forwarderOtlpExportFailed({
-        endpoint,
-        forwarderResult,
-        message: forwarderOtlpExportFailureMessage,
-        target,
-      })
+          endpoint,
+          forwarderResult,
+          message: forwarderOtlpExportFailureMessage,
+          target,
+        })
       : otlpExit.value;
 
     if (Exit.isFailure(otlpExit)) {
@@ -1470,20 +1440,19 @@ type MakeForwarderTimerProgramOptions = {
   readonly rawArchiveKeySecretRef: O.Option<string>;
   readonly repoRoot: O.Option<string>;
   readonly target: AiMetricsDeployTarget;
-}
-const makeForwarderTimerProgram = Effect.fn("AIMetrics.makeForwarderTimerProgram")(function* (
-  {
-    dataRoot,
-    hashSaltSecretRef,
-    intervalMinutes,
-    json,
-    maxFileBytes,
-    maxFiles,
-    otlpBaseUrl,
-    rawArchiveKeySecretRef,
-    repoRoot,
-    target,
-  }: MakeForwarderTimerProgramOptions) {
+};
+const makeForwarderTimerProgram = Effect.fn("AIMetrics.makeForwarderTimerProgram")(function* ({
+  dataRoot,
+  hashSaltSecretRef,
+  intervalMinutes,
+  json,
+  maxFileBytes,
+  maxFiles,
+  otlpBaseUrl,
+  rawArchiveKeySecretRef,
+  repoRoot,
+  target,
+}: MakeForwarderTimerProgramOptions) {
   const resolvedDataRoot = p6aCollectorDataRoot(dataRoot, target);
   const spec = yield* makeCommandInstallSpec({
     dataRoot: resolvedDataRoot,
@@ -1526,12 +1495,12 @@ const makeForwarderTimerProgram = Effect.fn("AIMetrics.makeForwarderTimerProgram
         `${maxFiles}`,
         "--json",
       ],
-      ...(resolvedHashSaltSecretRef === undefined ? {} : {hashSaltSecretRef: resolvedHashSaltSecretRef}),
+      ...(resolvedHashSaltSecretRef === undefined ? {} : { hashSaltSecretRef: resolvedHashSaltSecretRef }),
       intervalMinutes,
       lockPath: "%t/beep-ai-metrics-forwarder.lock",
       ...(resolvedRawArchiveKeySecretRef === undefined
         ? {}
-        : {rawArchiveKeySecretRef: resolvedRawArchiveKeySecretRef}),
+        : { rawArchiveKeySecretRef: resolvedRawArchiveKeySecretRef }),
       statusPath: `${spec.storage.dataRoot}/forwarder/status/latest.json`,
       workingDirectory: yield* resolveRepoRoot(repoRoot),
     })
@@ -1542,16 +1511,14 @@ const makeForwarderTimerProgram = Effect.fn("AIMetrics.makeForwarderTimerProgram
     return;
   }
 
-  yield* printLines(
-    [
-      `# ${plan.serviceUnitName}`,
-      plan.serviceUnit,
-      `# ${plan.timerUnitName}`,
-      plan.timerUnit,
-      "# install commands",
-      ...plan.installCommands,
-    ]
-  )
+  yield* printLines([
+    `# ${plan.serviceUnitName}`,
+    plan.serviceUnit,
+    `# ${plan.timerUnitName}`,
+    plan.timerUnit,
+    "# install commands",
+    ...plan.installCommands,
+  ]);
 });
 type MakeOtlpExportProgramOptions = {
   readonly dataRoot: O.Option<string>;
@@ -1561,17 +1528,16 @@ type MakeOtlpExportProgramOptions = {
   readonly otlpBaseUrl: O.Option<string>;
   readonly rawArchiveKeySecretRef: O.Option<string>;
   readonly target: AiMetricsDeployTarget;
-}
-const makeOtlpExportProgram = Effect.fn("AIMetrics.makeOtlpExportProgram")(function* (
-  {
-    dataRoot,
-    hashSaltSecretRef,
-    ingestRunId,
-    json,
-    otlpBaseUrl,
-    rawArchiveKeySecretRef,
-    target,
-  }: MakeOtlpExportProgramOptions) {
+};
+const makeOtlpExportProgram = Effect.fn("AIMetrics.makeOtlpExportProgram")(function* ({
+  dataRoot,
+  hashSaltSecretRef,
+  ingestRunId,
+  json,
+  otlpBaseUrl,
+  rawArchiveKeySecretRef,
+  target,
+}: MakeOtlpExportProgramOptions) {
   const resolvedDataRoot = O.getOrUndefined(p6aCollectorDataRoot(dataRoot, target));
   const resolvedHashSaltSecretRef = yield* requireHashSaltSecretRefForTarget({
     hashSaltSecretRef: yield* resolveHashSaltSecretRef(hashSaltSecretRef),
@@ -1583,11 +1549,11 @@ const makeOtlpExportProgram = Effect.fn("AIMetrics.makeOtlpExportProgram")(funct
   });
   const spec = yield* makeAiMetricsInstallSpec(
     AiMetricsInstallInput.make({
-      ...(resolvedDataRoot === undefined ? {} : {dataRoot: resolvedDataRoot}),
-      ...(resolvedHashSaltSecretRef === undefined ? {} : {hashSaltSecretRef: resolvedHashSaltSecretRef}),
+      ...(resolvedDataRoot === undefined ? {} : { dataRoot: resolvedDataRoot }),
+      ...(resolvedHashSaltSecretRef === undefined ? {} : { hashSaltSecretRef: resolvedHashSaltSecretRef }),
       ...(resolvedRawArchiveKeySecretRef === undefined
         ? {}
-        : {rawArchiveKeySecretRef: resolvedRawArchiveKeySecretRef}),
+        : { rawArchiveKeySecretRef: resolvedRawArchiveKeySecretRef }),
       target,
     })
   );
@@ -1595,7 +1561,7 @@ const makeOtlpExportProgram = Effect.fn("AIMetrics.makeOtlpExportProgram")(funct
   const result = yield* Effect.scoped(
     Layer.build(
       Layer.mergeAll(
-        DuckDb.makeNodeLayer(DuckDbConnectionOptions.make({databasePath: spec.storage.duckDbPath})),
+        DuckDb.makeNodeLayer(DuckDbConnectionOptions.make({ databasePath: spec.storage.duckDbPath })),
         layerNodeSdkServerTraces(serverObservabilityConfigFor(target, endpoint))
       )
     ).pipe(
@@ -1617,16 +1583,14 @@ const makeOtlpExportProgram = Effect.fn("AIMetrics.makeOtlpExportProgram")(funct
     return;
   }
 
-  yield* printLines(
-    [
-      `ai-metrics otlp export: target=${target}`,
-      `ingest run: ${result.ingestRunId}`,
-      `spans: ${result.spanCount}`,
-      `sessions: ${result.sessionSpanCount}`,
-      `turns: ${result.turnSpanCount}`,
-      `trace endpoint: ${result.endpointTraceUrl}`,
-    ]
-  )
+  yield* printLines([
+    `ai-metrics otlp export: target=${target}`,
+    `ingest run: ${result.ingestRunId}`,
+    `spans: ${result.spanCount}`,
+    `sessions: ${result.sessionSpanCount}`,
+    `turns: ${result.turnSpanCount}`,
+    `trace endpoint: ${result.endpointTraceUrl}`,
+  ]);
 });
 type MakeBenchmarkRunProgramOptions = {
   readonly caseId: string;
@@ -1640,21 +1604,20 @@ type MakeBenchmarkRunProgramOptions = {
   readonly qualityGate: AiMetricsQualityGateStatus;
   readonly rawArchiveKeySecretRef: O.Option<string>;
   readonly target: AiMetricsDeployTarget;
-}
-const makeBenchmarkRunProgram = Effect.fn("AIMetrics.makeBenchmarkRunProgram")(function* (
-  {
-    caseId,
-    configSnapshotId,
-    dataRoot,
-    elapsedMs,
-    hashSaltSecretRef,
-    json,
-    note,
-    passed,
-    qualityGate,
-    rawArchiveKeySecretRef,
-    target,
-  }: MakeBenchmarkRunProgramOptions) {
+};
+const makeBenchmarkRunProgram = Effect.fn("AIMetrics.makeBenchmarkRunProgram")(function* ({
+  caseId,
+  configSnapshotId,
+  dataRoot,
+  elapsedMs,
+  hashSaltSecretRef,
+  json,
+  note,
+  passed,
+  qualityGate,
+  rawArchiveKeySecretRef,
+  target,
+}: MakeBenchmarkRunProgramOptions) {
   const spec = yield* makeCommandInstallSpec({
     dataRoot: p6aCollectorDataRoot(dataRoot, target),
     hashSaltSecretRef,
@@ -1662,7 +1625,7 @@ const makeBenchmarkRunProgram = Effect.fn("AIMetrics.makeBenchmarkRunProgram")(f
     target,
   });
   const result = yield* Effect.scoped(
-    Layer.build(DuckDb.makeNodeLayer(DuckDbConnectionOptions.make({databasePath: spec.storage.duckDbPath}))).pipe(
+    Layer.build(DuckDb.makeNodeLayer(DuckDbConnectionOptions.make({ databasePath: spec.storage.duckDbPath }))).pipe(
       Effect.flatMap((context) =>
         recordAiMetricsBenchmarkRun(
           AiMetricsBenchmarkRunInput.make({
@@ -1671,7 +1634,7 @@ const makeBenchmarkRunProgram = Effect.fn("AIMetrics.makeBenchmarkRunProgram")(f
             elapsedMs,
             passed,
             qualityGate,
-            ...(O.isSome(note) ? {note: note.value} : {}),
+            ...(O.isSome(note) ? { note: note.value } : {}),
           })
         ).pipe(Effect.provide(context))
       )
@@ -1683,19 +1646,17 @@ const makeBenchmarkRunProgram = Effect.fn("AIMetrics.makeBenchmarkRunProgram")(f
     return;
   }
 
-  yield* printLines(
-    [
-      `ai-metrics benchmark run: ${result.benchmarkRunId}`,
-      `case: ${result.benchmarkCaseId}`,
-      `config: ${result.configSnapshotId}`,
-      `passed: ${result.passed}`,
-    ]
-  )
+  yield* printLines([
+    `ai-metrics benchmark run: ${result.benchmarkRunId}`,
+    `case: ${result.benchmarkCaseId}`,
+    `config: ${result.configSnapshotId}`,
+    `passed: ${result.passed}`,
+  ]);
 });
 
 const makeBenchmarkCompareProgram = Effect.fn("AIMetrics.makeBenchmarkCompareProgram")(function* ({
-                                                                                                    json,
-                                                                                                  }: {
+  json,
+}: {
   readonly json: boolean;
 }) {
   if (json) {
@@ -1719,18 +1680,17 @@ type MakeLabelQueueProgramOptions = {
   readonly since: O.Option<string>;
   readonly target: AiMetricsDeployTarget;
   readonly until: O.Option<string>;
-}
-const makeLabelQueueProgram = Effect.fn("AIMetrics.makeLabelQueueProgram")(function* (
-  {
-    dataRoot,
-    hashSaltSecretRef,
-    json,
-    limit,
-    rawArchiveKeySecretRef,
-    since,
-    target,
-    until,
-  }: MakeLabelQueueProgramOptions) {
+};
+const makeLabelQueueProgram = Effect.fn("AIMetrics.makeLabelQueueProgram")(function* ({
+  dataRoot,
+  hashSaltSecretRef,
+  json,
+  limit,
+  rawArchiveKeySecretRef,
+  since,
+  target,
+  until,
+}: MakeLabelQueueProgramOptions) {
   const spec = yield* makeCommandInstallSpec({
     dataRoot: p6aCollectorDataRoot(dataRoot, target),
     hashSaltSecretRef,
@@ -1742,7 +1702,7 @@ const makeLabelQueueProgram = Effect.fn("AIMetrics.makeLabelQueueProgram")(funct
     until,
   });
   const result = yield* Effect.scoped(
-    Layer.build(DuckDb.makeNodeLayer(DuckDbConnectionOptions.make({databasePath: spec.storage.duckDbPath}))).pipe(
+    Layer.build(DuckDb.makeNodeLayer(DuckDbConnectionOptions.make({ databasePath: spec.storage.duckDbPath }))).pipe(
       Effect.flatMap((context) =>
         queueAiMetricsLabels(
           AiMetricsLabelQueueInput.make({
@@ -1761,13 +1721,11 @@ const makeLabelQueueProgram = Effect.fn("AIMetrics.makeLabelQueueProgram")(funct
     return;
   }
 
-  yield* printLines(
-    [
-      `ai-metrics label queue: target=${target}`,
-      `items: ${A.length(result.items)}`,
-      ...A.map(result.items, (item) => `${item.agentTaskId} config=${item.configSnapshotId} turns=${item.turnCount}`)
-    ]
-  )
+  yield* printLines([
+    `ai-metrics label queue: target=${target}`,
+    `items: ${A.length(result.items)}`,
+    ...A.map(result.items, (item) => `${item.agentTaskId} config=${item.configSnapshotId} turns=${item.turnCount}`),
+  ]);
 });
 type MakeLabelAddProgramOptions = {
   readonly dataRoot: O.Option<string>;
@@ -1782,22 +1740,21 @@ type MakeLabelAddProgramOptions = {
   readonly rawArchiveKeySecretRef: O.Option<string>;
   readonly target: AiMetricsDeployTarget;
   readonly taskId: string;
-}
-const makeLabelAddProgram = Effect.fn("AIMetrics.makeLabelAddProgram")(function* (
-  {
-    dataRoot,
-    followUpFix,
-    hashSaltSecretRef,
-    interventions,
-    json,
-    note,
-    passed,
-    qualityGate,
-    rating,
-    rawArchiveKeySecretRef,
-    target,
-    taskId,
-  }: MakeLabelAddProgramOptions) {
+};
+const makeLabelAddProgram = Effect.fn("AIMetrics.makeLabelAddProgram")(function* ({
+  dataRoot,
+  followUpFix,
+  hashSaltSecretRef,
+  interventions,
+  json,
+  note,
+  passed,
+  qualityGate,
+  rating,
+  rawArchiveKeySecretRef,
+  target,
+  taskId,
+}: MakeLabelAddProgramOptions) {
   const spec = yield* makeCommandInstallSpec({
     dataRoot: p6aCollectorDataRoot(dataRoot, target),
     hashSaltSecretRef,
@@ -1805,7 +1762,7 @@ const makeLabelAddProgram = Effect.fn("AIMetrics.makeLabelAddProgram")(function*
     target,
   });
   const result = yield* Effect.scoped(
-    Layer.build(DuckDb.makeNodeLayer(DuckDbConnectionOptions.make({databasePath: spec.storage.duckDbPath}))).pipe(
+    Layer.build(DuckDb.makeNodeLayer(DuckDbConnectionOptions.make({ databasePath: spec.storage.duckDbPath }))).pipe(
       Effect.flatMap((context) =>
         addAiMetricsOutcomeLabel(
           AiMetricsOutcomeLabelInput.make({
@@ -1815,7 +1772,7 @@ const makeLabelAddProgram = Effect.fn("AIMetrics.makeLabelAddProgram")(function*
             passed,
             qualityGate,
             rating,
-            ...(O.isSome(note) ? {note: note.value} : {}),
+            ...(O.isSome(note) ? { note: note.value } : {}),
           })
         ).pipe(Effect.provide(context))
       )
@@ -1827,13 +1784,11 @@ const makeLabelAddProgram = Effect.fn("AIMetrics.makeLabelAddProgram")(function*
     return;
   }
 
-  yield* printLines(
-    [
-      `ai-metrics label add: ${result.labelId}`,
-      `task: ${result.agentTaskId}`,
-      `passed: ${result.passed}`
-    ]
-  )
+  yield* printLines([
+    `ai-metrics label add: ${result.labelId}`,
+    `task: ${result.agentTaskId}`,
+    `passed: ${result.passed}`,
+  ]);
 });
 type MakeBenchmarkCaseAddProgramOptions = {
   readonly caseId: string;
@@ -1846,19 +1801,19 @@ type MakeBenchmarkCaseAddProgramOptions = {
   readonly rawArchiveKeySecretRef: O.Option<string>;
   readonly target: AiMetricsDeployTarget;
   readonly title: string;
-}
+};
 const makeBenchmarkCaseAddProgram = Effect.fn("AIMetrics.makeBenchmarkCaseAddProgram")(function* ({
-                                                                                                    caseId,
-                                                                                                    checks,
-                                                                                                    dataRoot,
-                                                                                                    hashSaltSecretRef,
-                                                                                                    json,
-                                                                                                    promptHash,
-                                                                                                    promptRef,
-                                                                                                    rawArchiveKeySecretRef,
-                                                                                                    target,
-                                                                                                    title,
-                                                                                                  }: MakeBenchmarkCaseAddProgramOptions) {
+  caseId,
+  checks,
+  dataRoot,
+  hashSaltSecretRef,
+  json,
+  promptHash,
+  promptRef,
+  rawArchiveKeySecretRef,
+  target,
+  title,
+}: MakeBenchmarkCaseAddProgramOptions) {
   const spec = yield* makeCommandInstallSpec({
     dataRoot: p6aCollectorDataRoot(dataRoot, target),
     hashSaltSecretRef,
@@ -1866,7 +1821,7 @@ const makeBenchmarkCaseAddProgram = Effect.fn("AIMetrics.makeBenchmarkCaseAddPro
     target,
   });
   const result = yield* Effect.scoped(
-    Layer.build(DuckDb.makeNodeLayer(DuckDbConnectionOptions.make({databasePath: spec.storage.duckDbPath}))).pipe(
+    Layer.build(DuckDb.makeNodeLayer(DuckDbConnectionOptions.make({ databasePath: spec.storage.duckDbPath }))).pipe(
       Effect.flatMap((context) =>
         upsertAiMetricsBenchmarkCase(
           AiMetricsBenchmarkCaseInput.make({
@@ -1874,7 +1829,7 @@ const makeBenchmarkCaseAddProgram = Effect.fn("AIMetrics.makeBenchmarkCaseAddPro
             expectedChecks: parseChecks(checks),
             promptHash,
             title,
-            ...(O.isSome(promptRef) ? {promptRef: promptRef.value} : {}),
+            ...(O.isSome(promptRef) ? { promptRef: promptRef.value } : {}),
           })
         ).pipe(Effect.provide(context))
       )
@@ -1886,10 +1841,10 @@ const makeBenchmarkCaseAddProgram = Effect.fn("AIMetrics.makeBenchmarkCaseAddPro
     return;
   }
 
-  yield* printLines(
-    [`ai-metrics benchmark case add: ${result.benchmarkCaseId}`,
-      `checks: ${A.length(result.expectedChecks)}`]
-  )
+  yield* printLines([
+    `ai-metrics benchmark case add: ${result.benchmarkCaseId}`,
+    `checks: ${A.length(result.expectedChecks)}`,
+  ]);
 });
 type MakeBenchmarkCaseListProgramOptions = {
   readonly dataRoot: O.Option<string>;
@@ -1897,14 +1852,14 @@ type MakeBenchmarkCaseListProgramOptions = {
   readonly json: boolean;
   readonly rawArchiveKeySecretRef: O.Option<string>;
   readonly target: AiMetricsDeployTarget;
-}
+};
 const makeBenchmarkCaseListProgram = Effect.fn("AIMetrics.makeBenchmarkCaseListProgram")(function* ({
-                                                                                                      dataRoot,
-                                                                                                      hashSaltSecretRef,
-                                                                                                      json,
-                                                                                                      rawArchiveKeySecretRef,
-                                                                                                      target,
-                                                                                                    }: MakeBenchmarkCaseListProgramOptions) {
+  dataRoot,
+  hashSaltSecretRef,
+  json,
+  rawArchiveKeySecretRef,
+  target,
+}: MakeBenchmarkCaseListProgramOptions) {
   const spec = yield* makeCommandInstallSpec({
     dataRoot: p6aCollectorDataRoot(dataRoot, target),
     hashSaltSecretRef,
@@ -1912,7 +1867,7 @@ const makeBenchmarkCaseListProgram = Effect.fn("AIMetrics.makeBenchmarkCaseListP
     target,
   });
   const result = yield* Effect.scoped(
-    Layer.build(DuckDb.makeNodeLayer(DuckDbConnectionOptions.make({databasePath: spec.storage.duckDbPath}))).pipe(
+    Layer.build(DuckDb.makeNodeLayer(DuckDbConnectionOptions.make({ databasePath: spec.storage.duckDbPath }))).pipe(
       Effect.flatMap((context) => listAiMetricsBenchmarkCases.pipe(Effect.provide(context)))
     )
   );
@@ -1922,12 +1877,10 @@ const makeBenchmarkCaseListProgram = Effect.fn("AIMetrics.makeBenchmarkCaseListP
     return;
   }
 
-  yield* printLines(
-    [
-      `ai-metrics benchmark case list: ${A.length(result.cases)}`,
-      ...A.map(result.cases, (benchmarkCase) => `${benchmarkCase.benchmarkCaseId}: ${benchmarkCase.title}`)
-    ]
-  );
+  yield* printLines([
+    `ai-metrics benchmark case list: ${A.length(result.cases)}`,
+    ...A.map(result.cases, (benchmarkCase) => `${benchmarkCase.benchmarkCaseId}: ${benchmarkCase.title}`),
+  ]);
 });
 type MakeWeeklyReportProgramOptions = {
   readonly dataRoot: O.Option<string>;
@@ -1937,16 +1890,16 @@ type MakeWeeklyReportProgramOptions = {
   readonly since: O.Option<string>;
   readonly target: AiMetricsDeployTarget;
   readonly until: O.Option<string>;
-}
+};
 const makeWeeklyReportProgram = Effect.fn("AIMetrics.makeWeeklyReportProgram")(function* ({
-                                                                                            dataRoot,
-                                                                                            hashSaltSecretRef,
-                                                                                            json,
-                                                                                            rawArchiveKeySecretRef,
-                                                                                            since,
-                                                                                            target,
-                                                                                            until,
-                                                                                          }: MakeWeeklyReportProgramOptions) {
+  dataRoot,
+  hashSaltSecretRef,
+  json,
+  rawArchiveKeySecretRef,
+  since,
+  target,
+  until,
+}: MakeWeeklyReportProgramOptions) {
   const path = yield* Path.Path;
   const spec = yield* makeCommandInstallSpec({
     dataRoot: p6aCollectorDataRoot(dataRoot, target),
@@ -1959,7 +1912,7 @@ const makeWeeklyReportProgram = Effect.fn("AIMetrics.makeWeeklyReportProgram")(f
     until,
   });
   const result = yield* Effect.scoped(
-    Layer.build(DuckDb.makeNodeLayer(DuckDbConnectionOptions.make({databasePath: spec.storage.duckDbPath}))).pipe(
+    Layer.build(DuckDb.makeNodeLayer(DuckDbConnectionOptions.make({ databasePath: spec.storage.duckDbPath }))).pipe(
       Effect.flatMap((context) =>
         generateAiMetricsWeeklyReport(
           AiMetricsWeeklyReportInput.make({
@@ -1978,15 +1931,12 @@ const makeWeeklyReportProgram = Effect.fn("AIMetrics.makeWeeklyReportProgram")(f
     return;
   }
 
-
-  yield* printLines(
-    [
-      `ai-metrics report weekly: target=${target}`,
-      `scorecards: ${A.length(result.document.scores)}`,
-      `markdown: ${result.markdownPath}`,
-      `json: ${result.jsonPath}`
-    ]
-  )
+  yield* printLines([
+    `ai-metrics report weekly: target=${target}`,
+    `scorecards: ${A.length(result.document.scores)}`,
+    `markdown: ${result.markdownPath}`,
+    `json: ${result.jsonPath}`,
+  ]);
 });
 
 type CapturedCommandResult = {
@@ -2029,16 +1979,13 @@ const runCapturedCommand = Effect.fn("AIMetrics.runCapturedCommand")(function* (
   });
 });
 
-const commandText = (
-  command: string,
-  args: ReadonlyArray<string>
-): string =>
+const commandText = (command: string, args: ReadonlyArray<string>): string =>
   pipe([command, ...args], A.map(shellQuote), A.join(" "));
 
 const resolveMirrorBundleDir = Effect.fn("AIMetrics.resolveMirrorBundleDir")(function* ({
-                                                                                          bundle,
-                                                                                          dataRoot,
-                                                                                        }: {
+  bundle,
+  dataRoot,
+}: {
   readonly bundle: string;
   readonly dataRoot: O.Option<string>;
 }) {
@@ -2060,10 +2007,10 @@ const readMirrorManifest = Effect.fn("AIMetrics.readMirrorManifest")(function* (
 });
 
 const requireSafeMirrorManifest = Effect.fn("AIMetrics.requireSafeMirrorManifest")(function* ({
-                                                                                                manifest,
-                                                                                                remoteRoot,
-                                                                                                target,
-                                                                                              }: {
+  manifest,
+  remoteRoot,
+  target,
+}: {
   readonly manifest: AiMetricsMirrorBundleManifest;
   readonly remoteRoot: string;
   readonly target: AiMetricsDeployTarget;
@@ -2130,7 +2077,7 @@ const listMirrorBundleFiles = Effect.fn("AIMetrics.listMirrorBundleFiles")(funct
     const entries = yield* fs
       .readDirectory(currentPath)
       .pipe(AiMetricsCommandError.mapError("Failed to read AI metrics mirror bundle file inventory."));
-    const nested = yield* Effect.forEach(entries, (entry) => walk(path.join(currentPath, entry)), {concurrency: 8});
+    const nested = yield* Effect.forEach(entries, (entry) => walk(path.join(currentPath, entry)), { concurrency: 8 });
     return A.flatten(nested);
   });
 
@@ -2138,10 +2085,10 @@ const listMirrorBundleFiles = Effect.fn("AIMetrics.listMirrorBundleFiles")(funct
 });
 
 const validateLocalMirrorBundle = Effect.fn("AIMetrics.validateLocalMirrorBundle")(function* ({
-                                                                                                bundleDir,
-                                                                                                remoteRoot,
-                                                                                                target,
-                                                                                              }: {
+  bundleDir,
+  remoteRoot,
+  target,
+}: {
   readonly bundleDir: string;
   readonly remoteRoot: string;
   readonly target: AiMetricsDeployTarget;
@@ -2191,11 +2138,11 @@ const validateLocalMirrorBundle = Effect.fn("AIMetrics.validateLocalMirrorBundle
 });
 
 const makeMirrorBuildProgram = Effect.fn("AIMetrics.makeMirrorBuildProgram")(function* ({
-                                                                                          dataRoot,
-                                                                                          json,
-                                                                                          remoteRoot,
-                                                                                          target,
-                                                                                        }: {
+  dataRoot,
+  json,
+  remoteRoot,
+  target,
+}: {
   readonly dataRoot: O.Option<string>;
   readonly json: boolean;
   readonly remoteRoot: string;
@@ -2222,14 +2169,14 @@ const makeMirrorBuildProgram = Effect.fn("AIMetrics.makeMirrorBuildProgram")(fun
 });
 
 const makeMirrorSyncProgram = Effect.fn("AIMetrics.makeMirrorSyncProgram")(function* ({
-                                                                                        bundle,
-                                                                                        confirm,
-                                                                                        dataRoot,
-                                                                                        host,
-                                                                                        json,
-                                                                                        remoteRoot,
-                                                                                        target,
-                                                                                      }: {
+  bundle,
+  confirm,
+  dataRoot,
+  host,
+  json,
+  remoteRoot,
+  target,
+}: {
   readonly bundle: string;
   readonly confirm: O.Option<string>;
   readonly dataRoot: O.Option<string>;
@@ -2298,11 +2245,11 @@ const makeMirrorSyncProgram = Effect.fn("AIMetrics.makeMirrorSyncProgram")(funct
 });
 
 const makeMirrorStatusProgram = Effect.fn("AIMetrics.makeMirrorStatusProgram")(function* ({
-                                                                                            host,
-                                                                                            json,
-                                                                                            remoteRoot,
-                                                                                            target,
-                                                                                          }: {
+  host,
+  json,
+  remoteRoot,
+  target,
+}: {
   readonly host: string;
   readonly json: boolean;
   readonly remoteRoot: string;
@@ -2336,9 +2283,9 @@ const makeMirrorStatusProgram = Effect.fn("AIMetrics.makeMirrorStatusProgram")(f
 });
 
 const confirmRetentionMutation = Effect.fn("AIMetrics.confirmRetentionMutation")(function* ({
-                                                                                              confirm,
-                                                                                              selector,
-                                                                                            }: {
+  confirm,
+  selector,
+}: {
   readonly confirm: O.Option<string>;
   readonly selector: AiMetricsRetentionSelector;
 }) {
@@ -2371,12 +2318,12 @@ const confirmRetentionMutation = Effect.fn("AIMetrics.confirmRetentionMutation")
 });
 
 const makeRetentionListProgram = Effect.fn("AIMetrics.makeRetentionListProgram")(function* ({
-                                                                                              before,
-                                                                                              dataRoot,
-                                                                                              json,
-                                                                                              since,
-                                                                                              until,
-                                                                                            }: {
+  before,
+  dataRoot,
+  json,
+  since,
+  until,
+}: {
   readonly before: O.Option<string>;
   readonly dataRoot: O.Option<string>;
   readonly json: boolean;
@@ -2403,14 +2350,14 @@ const makeRetentionListProgram = Effect.fn("AIMetrics.makeRetentionListProgram")
 });
 
 const makeRetentionMutationProgram = Effect.fn("AIMetrics.makeRetentionMutationProgram")(function* ({
-                                                                                                      before,
-                                                                                                      confirm,
-                                                                                                      dataRoot,
-                                                                                                      json,
-                                                                                                      mode,
-                                                                                                      since,
-                                                                                                      until,
-                                                                                                    }: {
+  before,
+  confirm,
+  dataRoot,
+  json,
+  mode,
+  since,
+  until,
+}: {
   readonly before: O.Option<string>;
   readonly confirm: O.Option<string>;
   readonly dataRoot: O.Option<string>;
@@ -2447,15 +2394,15 @@ const makeRetentionMutationProgram = Effect.fn("AIMetrics.makeRetentionMutationP
 });
 
 const makeRetentionRestoreDrillProgram = Effect.fn("AIMetrics.makeRetentionRestoreDrillProgram")(function* ({
-                                                                                                              before,
-                                                                                                              dataRoot,
-                                                                                                              hashSalt,
-                                                                                                              json,
-                                                                                                              maxObjects,
-                                                                                                              restoreRoot,
-                                                                                                              since,
-                                                                                                              until,
-                                                                                                            }: {
+  before,
+  dataRoot,
+  hashSalt,
+  json,
+  maxObjects,
+  restoreRoot,
+  since,
+  until,
+}: {
   readonly before: O.Option<string>;
   readonly dataRoot: O.Option<string>;
   readonly hashSalt: O.Option<string>;
@@ -2480,7 +2427,7 @@ const makeRetentionRestoreDrillProgram = Effect.fn("AIMetrics.makeRetentionResto
 
   const result = yield* runAiMetricsRetentionRestoreDrill(
     AiMetricsRetentionRestoreDrillInput.make({
-      ...(O.isSome(hashSalt) ? {hashSalt: hashSalt.value} : {}),
+      ...(O.isSome(hashSalt) ? { hashSalt: hashSalt.value } : {}),
       maxObjects,
       rawArchiveKey: yield* resolveRawArchiveKey(),
       restoreRoot,
@@ -2499,12 +2446,12 @@ const makeRetentionRestoreDrillProgram = Effect.fn("AIMetrics.makeRetentionResto
 });
 
 const makeArchiveDrillProgram = Effect.fn("AIMetrics.makeArchiveDrillProgram")(function* ({
-                                                                                            dataRoot,
-                                                                                            hashSaltSecretRef,
-                                                                                            json,
-                                                                                            rawArchiveKeySecretRef,
-                                                                                            target,
-                                                                                          }: {
+  dataRoot,
+  hashSaltSecretRef,
+  json,
+  rawArchiveKeySecretRef,
+  target,
+}: {
   readonly dataRoot: O.Option<string>;
   readonly hashSaltSecretRef: O.Option<string>;
   readonly json: boolean;
@@ -2519,7 +2466,7 @@ const makeArchiveDrillProgram = Effect.fn("AIMetrics.makeArchiveDrillProgram")(f
   });
   const rawArchiveKey = yield* resolveRawArchiveKey();
   const result = yield* Effect.scoped(
-    Layer.build(DuckDb.makeNodeLayer(DuckDbConnectionOptions.make({databasePath: spec.storage.duckDbPath}))).pipe(
+    Layer.build(DuckDb.makeNodeLayer(DuckDbConnectionOptions.make({ databasePath: spec.storage.duckDbPath }))).pipe(
       Effect.flatMap((context) =>
         Effect.gen(function* () {
           const duckdb = yield* DuckDb;
@@ -2589,7 +2536,7 @@ const installPreviewCommand = Command.make(
     target: targetFlag,
     tool: toolFlag,
   },
-  ({hashSaltSecretRef, json, rawArchiveKeySecretRef, target, tool}) =>
+  ({ hashSaltSecretRef, json, rawArchiveKeySecretRef, target, tool }) =>
     runAiMetricsProgram(
       makeInstallPreviewProgram({
         hashSaltSecretRef,
@@ -2610,7 +2557,7 @@ const installPlanCommand = Command.make(
     rawArchiveKeySecretRef: rawArchiveKeySecretRefFlag,
     target: targetFlag,
   },
-  ({dataRoot, hashSaltSecretRef, json, rawArchiveKeySecretRef, target}) =>
+  ({ dataRoot, hashSaltSecretRef, json, rawArchiveKeySecretRef, target }) =>
     runAiMetricsProgram(
       makeInstallPlanProgram({
         dataRoot,
@@ -2640,20 +2587,20 @@ const installDoctorCommand = Command.make(
     target: targetFlag,
   },
   ({
-     all,
-     dataRoot,
-     hashSalt,
-     hashSaltSecretRef,
-     homeDir,
-     json,
-     maxFileBytes,
-     maxFiles,
-     openClawUnit,
-     rawArchiveKeySecretRef,
-     repoRoot,
-     since,
-     target,
-   }) =>
+    all,
+    dataRoot,
+    hashSalt,
+    hashSaltSecretRef,
+    homeDir,
+    json,
+    maxFileBytes,
+    maxFiles,
+    openClawUnit,
+    rawArchiveKeySecretRef,
+    repoRoot,
+    since,
+    target,
+  }) =>
     runAiMetricsProgram(
       makeInstallDoctorProgram({
         all,
@@ -2683,14 +2630,7 @@ const installApplyCommand = Command.make(
     rawArchiveKeySecretRef: rawArchiveKeySecretRefFlag,
     target: targetFlag,
   },
-  ({
-     dataRoot,
-     dryRun,
-     hashSaltSecretRef,
-     json,
-     rawArchiveKeySecretRef,
-     target
-   }) =>
+  ({ dataRoot, dryRun, hashSaltSecretRef, json, rawArchiveKeySecretRef, target }) =>
     runAiMetricsProgram(
       makeInstallApplyProgram({
         dataRoot,
@@ -2710,7 +2650,7 @@ const installComposeCommand = Command.make(
     target: targetFlag,
     tool: toolFlag,
   },
-  ({json, target, tool}) =>
+  ({ json, target, tool }) =>
     runAiMetricsProgram(
       makeInstallComposeProgram({
         json,
@@ -2729,7 +2669,7 @@ const ingestCommand = Command.make(
     source: sourceFlag,
     target: targetFlag,
   },
-  ({hashSalt, input, json, source, target}) =>
+  ({ hashSalt, input, json, source, target }) =>
     runAiMetricsProgram(
       makeIngestProgram({
         hashSalt,
@@ -2755,18 +2695,7 @@ const sourcesDiscoverCommand = Command.make(
     since: sinceFlag,
     target: targetFlag,
   },
-  ({
-     all,
-     hashSalt,
-     homeDir,
-     json,
-     maxFileBytes,
-     maxFiles,
-     openClawUnit,
-     repoRoot,
-     since,
-     target
-   }) =>
+  ({ all, hashSalt, homeDir, json, maxFileBytes, maxFiles, openClawUnit, repoRoot, since, target }) =>
     runAiMetricsProgram(
       makeSourcesDiscoverProgram({
         all,
@@ -2796,7 +2725,7 @@ const configSnapshotCommand = Command.make(
     json: jsonFlag,
     repoRoot: repoRootFlag,
   },
-  ({json, repoRoot}) =>
+  ({ json, repoRoot }) =>
     runAiMetricsProgram(
       makeConfigSnapshotProgram({
         json,
@@ -2820,7 +2749,7 @@ const privacyCheckCommand = Command.make(
     json: jsonFlag,
     source: sourceFlag,
   },
-  ({hashSalt, input, json, source}) =>
+  ({ hashSalt, input, json, source }) =>
     runAiMetricsProgram(
       makePrivacyCheckProgram({
         hashSalt,
@@ -2879,22 +2808,22 @@ const forwarderRunCommand = Command.make(
     target: targetFlag,
   },
   ({
-     all,
-     dataRoot,
-     hashSalt,
-     hashSaltSecretRef,
-     homeDir,
-     json,
-     maxFileBytes,
-     maxFiles,
-     openClawUnit,
-     otlp,
-     otlpBaseUrl,
-     rawArchiveKeySecretRef,
-     repoRoot,
-     since,
-     target,
-   }) =>
+    all,
+    dataRoot,
+    hashSalt,
+    hashSaltSecretRef,
+    homeDir,
+    json,
+    maxFileBytes,
+    maxFiles,
+    openClawUnit,
+    otlp,
+    otlpBaseUrl,
+    rawArchiveKeySecretRef,
+    repoRoot,
+    since,
+    target,
+  }) =>
     runAiMetricsProgram(
       makeForwarderRunProgram({
         all,
@@ -2933,17 +2862,17 @@ const forwarderTimerCommand = Command.make(
     target: targetFlag,
   },
   ({
-     dataRoot,
-     hashSaltSecretRef,
-     intervalMinutes,
-     json,
-     maxFileBytes,
-     maxFiles,
-     otlpBaseUrl,
-     rawArchiveKeySecretRef,
-     repoRoot,
-     target,
-   }) =>
+    dataRoot,
+    hashSaltSecretRef,
+    intervalMinutes,
+    json,
+    maxFileBytes,
+    maxFiles,
+    otlpBaseUrl,
+    rawArchiveKeySecretRef,
+    repoRoot,
+    target,
+  }) =>
     runAiMetricsProgram(
       makeForwarderTimerProgram({
         dataRoot,
@@ -2965,7 +2894,7 @@ const forwarderCommand = Command.make("forwarder", {}, () =>
     "AI metrics forwarder commands:",
     "- bun run beep ai-metrics forwarder run --target local",
     "- bun run beep ai-metrics forwarder timer --target dankserver" +
-    " --hash-salt-secret-ref op://TBK/ai-metrics/hash-salt --raw-archive-key-secret-ref op://TBK/ai-metrics/raw-archive-key",
+      " --hash-salt-secret-ref op://TBK/ai-metrics/hash-salt --raw-archive-key-secret-ref op://TBK/ai-metrics/raw-archive-key",
   ])
 ).pipe(
   Command.withDescription("AI metrics local forwarder workflow"),
@@ -2983,15 +2912,7 @@ const otlpExportCommand = Command.make(
     rawArchiveKeySecretRef: rawArchiveKeySecretRefFlag,
     target: targetFlag,
   },
-  ({
-     dataRoot,
-     hashSaltSecretRef,
-     ingestRunId,
-     json,
-     otlpBaseUrl,
-     rawArchiveKeySecretRef,
-     target
-   }) =>
+  ({ dataRoot, hashSaltSecretRef, ingestRunId, json, otlpBaseUrl, rawArchiveKeySecretRef, target }) =>
     runAiMetricsProgram(
       makeOtlpExportProgram({
         dataRoot,
@@ -3025,18 +2946,18 @@ const benchmarkRunCommand = Command.make(
     target: targetFlag,
   },
   ({
-     caseId,
-     configSnapshotId,
-     dataRoot,
-     elapsedMs,
-     hashSaltSecretRef,
-     json,
-     note,
-     passed,
-     qualityGate,
-     rawArchiveKeySecretRef,
-     target,
-   }) =>
+    caseId,
+    configSnapshotId,
+    dataRoot,
+    elapsedMs,
+    hashSaltSecretRef,
+    json,
+    note,
+    passed,
+    qualityGate,
+    rawArchiveKeySecretRef,
+    target,
+  }) =>
     runAiMetricsProgram(
       makeBenchmarkRunProgram({
         caseId,
@@ -3069,17 +2990,17 @@ const benchmarkCaseAddCommand = Command.make(
     title: titleFlag,
   },
   ({
-     caseId,
-     checks,
-     dataRoot,
-     hashSaltSecretRef,
-     json,
-     promptHash,
-     promptRef,
-     rawArchiveKeySecretRef,
-     target,
-     title,
-   }) =>
+    caseId,
+    checks,
+    dataRoot,
+    hashSaltSecretRef,
+    json,
+    promptHash,
+    promptRef,
+    rawArchiveKeySecretRef,
+    target,
+    title,
+  }) =>
     runAiMetricsProgram(
       makeBenchmarkCaseAddProgram({
         caseId,
@@ -3105,7 +3026,7 @@ const benchmarkCaseListCommand = Command.make(
     rawArchiveKeySecretRef: rawArchiveKeySecretRefFlag,
     target: targetFlag,
   },
-  ({dataRoot, hashSaltSecretRef, json, rawArchiveKeySecretRef, target}) =>
+  ({ dataRoot, hashSaltSecretRef, json, rawArchiveKeySecretRef, target }) =>
     runAiMetricsProgram(
       makeBenchmarkCaseListProgram({
         dataRoot,
@@ -3133,7 +3054,7 @@ const benchmarkCompareCommand = Command.make(
   {
     json: jsonFlag,
   },
-  ({json}) => runAiMetricsProgram(makeBenchmarkCompareProgram({json}))
+  ({ json }) => runAiMetricsProgram(makeBenchmarkCompareProgram({ json }))
 ).pipe(Command.withDescription("Compare benchmark runs using the outcome-heavy scorecard model"));
 
 const benchmarkCommand = Command.make("benchmark", {}, () =>
@@ -3160,16 +3081,7 @@ const labelQueueCommand = Command.make(
     target: targetFlag,
     until: untilFlag,
   },
-  ({
-     dataRoot,
-     hashSaltSecretRef,
-     json,
-     limit,
-     rawArchiveKeySecretRef,
-     since,
-     target,
-     until
-   }) =>
+  ({ dataRoot, hashSaltSecretRef, json, limit, rawArchiveKeySecretRef, since, target, until }) =>
     runAiMetricsProgram(
       makeLabelQueueProgram({
         dataRoot,
@@ -3201,19 +3113,19 @@ const labelAddCommand = Command.make(
     taskId: taskFlag,
   },
   ({
-     dataRoot,
-     followUpFix,
-     hashSaltSecretRef,
-     interventions,
-     json,
-     note,
-     passed,
-     qualityGate,
-     rating,
-     rawArchiveKeySecretRef,
-     target,
-     taskId,
-   }) =>
+    dataRoot,
+    followUpFix,
+    hashSaltSecretRef,
+    interventions,
+    json,
+    note,
+    passed,
+    qualityGate,
+    rating,
+    rawArchiveKeySecretRef,
+    target,
+    taskId,
+  }) =>
     runAiMetricsProgram(
       makeLabelAddProgram({
         dataRoot,
@@ -3255,15 +3167,7 @@ const reportWeeklyCommand = Command.make(
     target: targetFlag,
     until: untilFlag,
   },
-  ({
-     dataRoot,
-     hashSaltSecretRef,
-     json,
-     rawArchiveKeySecretRef,
-     since,
-     target,
-     until
-   }) =>
+  ({ dataRoot, hashSaltSecretRef, json, rawArchiveKeySecretRef, since, target, until }) =>
     runAiMetricsProgram(
       makeWeeklyReportProgram({
         dataRoot,
@@ -3293,7 +3197,7 @@ const mirrorBuildCommand = Command.make(
     remoteRoot: remoteRootFlag,
     target: mirrorTargetFlag,
   },
-  ({dataRoot, json, remoteRoot, target}) =>
+  ({ dataRoot, json, remoteRoot, target }) =>
     runAiMetricsProgram(
       makeMirrorBuildProgram({
         dataRoot,
@@ -3315,7 +3219,7 @@ const mirrorSyncCommand = Command.make(
     remoteRoot: remoteRootFlag,
     target: mirrorTargetFlag,
   },
-  ({bundle, confirm, dataRoot, host, json, remoteRoot, target}) =>
+  ({ bundle, confirm, dataRoot, host, json, remoteRoot, target }) =>
     runAiMetricsProgram(
       makeMirrorSyncProgram({
         bundle,
@@ -3337,7 +3241,7 @@ const mirrorStatusCommand = Command.make(
     remoteRoot: remoteRootFlag,
     target: mirrorTargetFlag,
   },
-  ({host, json, remoteRoot, target}) =>
+  ({ host, json, remoteRoot, target }) =>
     runAiMetricsProgram(
       makeMirrorStatusProgram({
         host,
@@ -3369,7 +3273,7 @@ const retentionListCommand = Command.make(
     since: sinceFlag,
     until: untilFlag,
   },
-  ({before, dataRoot, json, since, until}) =>
+  ({ before, dataRoot, json, since, until }) =>
     runAiMetricsProgram(
       makeRetentionListProgram({
         before,
@@ -3391,7 +3295,7 @@ const retentionDeleteCommand = Command.make(
     since: sinceFlag,
     until: untilFlag,
   },
-  ({before, confirm, dataRoot, json, since, until}) =>
+  ({ before, confirm, dataRoot, json, since, until }) =>
     runAiMetricsProgram(
       makeRetentionMutationProgram({
         before,
@@ -3415,7 +3319,7 @@ const retentionCompactCommand = Command.make(
     since: sinceFlag,
     until: untilFlag,
   },
-  ({before, confirm, dataRoot, json, since, until}) =>
+  ({ before, confirm, dataRoot, json, since, until }) =>
     runAiMetricsProgram(
       makeRetentionMutationProgram({
         before,
@@ -3441,7 +3345,7 @@ const retentionRestoreDrillCommand = Command.make(
     since: sinceFlag,
     until: untilFlag,
   },
-  ({before, dataRoot, hashSalt, json, maxObjects, restoreRoot, since, until}) =>
+  ({ before, dataRoot, hashSalt, json, maxObjects, restoreRoot, since, until }) =>
     runAiMetricsProgram(
       makeRetentionRestoreDrillProgram({
         before,
@@ -3483,7 +3387,7 @@ const archiveDrillCommand = Command.make(
     rawArchiveKeySecretRef: rawArchiveKeySecretRefFlag,
     target: targetFlag,
   },
-  ({dataRoot, hashSaltSecretRef, json, rawArchiveKeySecretRef, target}) =>
+  ({ dataRoot, hashSaltSecretRef, json, rawArchiveKeySecretRef, target }) =>
     runAiMetricsProgram(
       makeArchiveDrillProgram({
         dataRoot,

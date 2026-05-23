@@ -6,7 +6,6 @@
  * @since 0.0.0
  */
 
-import type * as DomainWorker from "@beep/architecture-lab-domain/entities/Worker";
 import {
   fromWorkerRow,
   toWorkerInsert,
@@ -14,11 +13,13 @@ import {
   workerTable,
 } from "@beep/architecture-lab-tables/entities/Worker";
 import * as WorkerUseCaseServer from "@beep/architecture-lab-use-cases/server";
-import { PostgresDrizzle, type PostgresDrizzleDatabase } from "@beep/postgres";
+import { PostgresDrizzle } from "@beep/postgres";
 import { A } from "@beep/utils";
 import { eq } from "drizzle-orm";
 import { Effect, HashMap, pipe, Ref } from "effect";
 import * as O from "effect/Option";
+import type * as DomainWorker from "@beep/architecture-lab-domain/entities/Worker";
+import type { PostgresDrizzleDatabase } from "@beep/postgres";
 
 type WorkerStore = HashMap.HashMap<DomainWorker.WorkerId, DomainWorker.Worker>;
 

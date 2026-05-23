@@ -11,21 +11,8 @@ import { Context, Effect, FileSystem, flow, Inspectable, Layer, MutableHashMap, 
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
-import { Node, Project, type SourceFile } from "ts-morph";
+import { Node, Project } from "ts-morph";
 import { findRepoRoot } from "../Root.js";
-import type {
-  ProjectCacheKey,
-  TsMorphDiagnosticsRequest,
-  TsMorphFileOutlineRequest,
-  TsMorphProjectInspectionRequest,
-  TsMorphProjectScopeRequest,
-  TsMorphScopeEntrypoint,
-  TsMorphSourceTextRequest,
-  Symbol as TsMorphSymbol,
-  TsMorphSymbolLookupRequest,
-  TsMorphSymbolSearchRequest,
-  TsMorphSymbolSourceRequest,
-} from "./TSMorph.model.js";
 import {
   ByteLength,
   ByteOffset,
@@ -68,12 +55,26 @@ import {
   makeScopeSymbolSearchText,
   makeSummary,
   normalizeDiagnosticCategory,
-  type OutlineDeclaration,
   pipeQualifiedName,
   readDecorators,
   readDocstring,
   readSignature,
 } from "./TSMorph.shared.js";
+import type { SourceFile } from "ts-morph";
+import type {
+  ProjectCacheKey,
+  TsMorphDiagnosticsRequest,
+  TsMorphFileOutlineRequest,
+  TsMorphProjectInspectionRequest,
+  TsMorphProjectScopeRequest,
+  TsMorphScopeEntrypoint,
+  TsMorphSourceTextRequest,
+  Symbol as TsMorphSymbol,
+  TsMorphSymbolLookupRequest,
+  TsMorphSymbolSearchRequest,
+  TsMorphSymbolSourceRequest,
+} from "./TSMorph.model.js";
+import type { OutlineDeclaration } from "./TSMorph.shared.js";
 
 const $I = $RepoUtilsId.create("TSMorph/TSMorph.service");
 

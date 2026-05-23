@@ -16,7 +16,6 @@ export {
    */
   CyclicDependencyError,
 } from "./CyclicDependencyError.js";
-
 /**
  * @category utilities
  * @since 0.0.0

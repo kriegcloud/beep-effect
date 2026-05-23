@@ -14,8 +14,9 @@ import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
-import { type AiError, Tool, type Toolkit } from "effect/unstable/ai";
+import { Tool } from "effect/unstable/ai";
 import { NlpToolkit, NlpTools } from "./NlpToolkit.ts";
+import type { AiError, Toolkit } from "effect/unstable/ai";
 
 const $I = $NlpId.create("Tools/ToolExport");
 

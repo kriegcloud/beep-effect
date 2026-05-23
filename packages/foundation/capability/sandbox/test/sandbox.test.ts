@@ -4,7 +4,6 @@ import {
   AgentCommandOptions,
   AgentError,
   AgentIdleTimeoutError,
-  type AgentProvider,
   AgentStreamEmitter,
   buildCompletionMessage,
   buildLogFilename,
@@ -15,7 +14,6 @@ import {
   codex,
   createWorktree,
   Display,
-  type DisplayEntry,
   ExecResult,
   FileDisplay,
   formatErrorMessage,
@@ -25,7 +23,6 @@ import {
   LogFilenameOptions,
   MergeProviderEnvOptions,
   mergeProviderEnv,
-  type NoSandboxProvider,
   noSandbox,
   opencode,
   orchestrate,
@@ -36,10 +33,8 @@ import {
   redactSensitiveText,
   SandboxError,
   SandboxExecOptions,
-  type SandboxHandle,
   SandboxProcess,
   SandboxProcessLive,
-  type SandboxProvider,
   SilentDisplay,
   WorktreeTimeoutError,
 } from "@beep/sandbox";
@@ -50,6 +45,7 @@ import * as NodePath from "@effect/platform-node/NodePath";
 import { describe, expect, it } from "@effect/vitest";
 import { DateTime, Duration, Effect, Exit, Fiber, Layer, Ref } from "effect";
 import { TestClock } from "effect/testing";
+import type { AgentProvider, DisplayEntry, NoSandboxProvider, SandboxHandle, SandboxProvider } from "@beep/sandbox";
 
 const provideScopedLayer =
   <ROut, E2, RIn>(layer: Layer.Layer<ROut, E2, RIn>) =>

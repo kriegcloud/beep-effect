@@ -1,8 +1,9 @@
 import { Field, FormAtoms, FormBuilder, Validation } from "@beep/form/core";
-import { type HashMap, type HashSet, Layer } from "effect";
+import { Layer } from "effect";
 import * as S from "effect/Schema";
 import * as Atom from "effect/unstable/reactivity/Atom";
 import { describe, expect, it } from "tstyche";
+import type { HashMap, HashSet } from "effect";
 
 const NameField = Field.makeField("name", S.String);
 const TagsField = Field.makeArrayField("tags", S.String);

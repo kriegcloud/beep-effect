@@ -6,26 +6,29 @@
  */
 
 import { $RepoCliId } from "@beep/identity/packages";
-import { DomainError, type FsUtils, findRepoRoot, type NoSuchFileError } from "@beep/repo-utils";
+import { DomainError, findRepoRoot } from "@beep/repo-utils";
 import { LiteralKit } from "@beep/schema";
 import { A, Str, thunkEmptyStr } from "@beep/utils";
-import { Console, Effect, type FileSystem, flow, Order, type Path, pipe, Stream } from "effect";
+import { Console, Effect, flow, Order, pipe, Stream } from "effect";
 import { dual } from "effect/Function";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
 import { ChildProcess } from "effect/unstable/process";
-import type { ChildProcessSpawner } from "effect/unstable/process/ChildProcessSpawner";
-import { type CliReportedExit, failWithReportedExit } from "../../../internal/cli/ExitCodeError.ts";
+import { failWithReportedExit } from "../../../internal/cli/ExitCodeError.ts";
 import { printLines } from "../../../internal/cli/Printer.ts";
 import {
   aggregateGeneratedDocs,
   analyzePackageDocumentation,
   assertNoOrphanDocgenConfigPaths,
-  type DocgenWorkspacePackage,
   discoverDocgenWorkspacePackages,
   resolveDocgenWorkspacePackage,
 } from "./Operations.js";
+import type { FsUtils, NoSuchFileError } from "@beep/repo-utils";
+import type { FileSystem, Path } from "effect";
+import type { ChildProcessSpawner } from "effect/unstable/process/ChildProcessSpawner";
+import type { CliReportedExit } from "../../../internal/cli/ExitCodeError.ts";
+import type { DocgenWorkspacePackage } from "./Operations.js";
 
 const $I = $RepoCliId.create("commands/Docgen/internal/Local");
 

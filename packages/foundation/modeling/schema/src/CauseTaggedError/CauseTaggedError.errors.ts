@@ -5,14 +5,15 @@
  * @since 0.0.0
  */
 
-import type { Struct } from "effect";
 import { Effect, Result } from "effect";
 import { dual } from "effect/Function";
 import * as P from "effect/Predicate";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
 import { withStatics } from "../SchemaUtils/index.ts";
-import { TaggedErrorClass, type TaggedErrorClassFromFields } from "../TaggedErrorClass/index.ts";
+import { TaggedErrorClass } from "../TaggedErrorClass/index.ts";
+import type { Struct } from "effect";
+import type { TaggedErrorClassFromFields } from "../TaggedErrorClass/index.ts";
 
 type CauseTaggedErrorFields = S.Struct.Fields;
 type CauseTaggedErrorReservedField = "message" | "cause";

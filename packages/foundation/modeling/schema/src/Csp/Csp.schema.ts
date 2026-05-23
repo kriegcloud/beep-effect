@@ -14,7 +14,8 @@ import * as internal from "../Http/Http.headers.shared.ts";
 import { wrapArray } from "../Http/Http.headers.shared.ts";
 import { LiteralKit } from "../LiteralKit/index.ts";
 import * as SchemaUtils from "../SchemaUtils/index.ts";
-import { CspError, type SecureHeaderError } from "../SecureHeaderError/index.ts";
+import { CspError } from "../SecureHeaderError/index.ts";
+import type { SecureHeaderError } from "../SecureHeaderError/index.ts";
 
 const $I = $SchemaId.create("Csp");
 

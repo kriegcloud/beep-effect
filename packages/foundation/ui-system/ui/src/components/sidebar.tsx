@@ -2,7 +2,7 @@
 
 import { A, Str } from "@beep/utils";
 import { ListIcon } from "@phosphor-icons/react";
-import { cva, type VariantProps } from "class-variance-authority";
+import { cva } from "class-variance-authority";
 import * as P from "effect/Predicate";
 import * as React from "react";
 import { cn } from "../lib/index.ts";
@@ -11,6 +11,7 @@ import { Button } from "./button";
 import { Input } from "./input";
 import { Separator } from "./separator";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "./tooltip";
+import type { VariantProps } from "class-variance-authority";
 
 const SIDEBAR_STORAGE_KEY = "sidebar_state";
 const SIDEBAR_WIDTH = "16rem";

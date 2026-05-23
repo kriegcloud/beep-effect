@@ -12,9 +12,8 @@ import { Duration, Effect, FileSystem, Match, Path } from "effect";
 import { dual } from "effect/Function";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
-import type { AgentProvider } from "./Agent.provider.ts";
-import { type AgentStreamEmitter, AgentStreamEvent } from "./AgentStreamEmitter.ts";
-import { Display, type Severity } from "./Display.ts";
+import { AgentStreamEvent } from "./AgentStreamEmitter.ts";
+import { Display } from "./Display.ts";
 import { MergeProviderEnvOptions, mergeProviderEnv, resolveEnv } from "./Env.ts";
 import {
   getHostHead,
@@ -23,13 +22,11 @@ import {
   prepareSandboxLifecycle,
   RunHostHooksOptions,
   runHostHooks,
-  type SandboxHooks,
   SandboxLifecycleSetupOptions,
 } from "./Lifecycle.ts";
 import { CommitSummary, IterationResult, orchestrate } from "./Orchestrator.ts";
 import {
   BUILT_IN_PROMPT_ARG_KEY_SET,
-  type PromptArgs,
   ResolvePromptOptions,
   resolvePrompt,
   substitutePromptArgs,
@@ -41,19 +38,14 @@ import {
   CopyToWorktreeError,
   CopyToWorktreeTimeoutError,
   CwdError,
-  type SandboxError,
 } from "./Sandbox.errors.ts";
 import { profileSandboxPhase, redactSensitiveText } from "./Sandbox.observability.ts";
-import { ProcessCommand, SandboxProcess, type SandboxProcessShape } from "./Sandbox.process.ts";
+import { ProcessCommand, SandboxProcess } from "./Sandbox.process.ts";
 import {
   BindMountCreateOptions,
-  type BranchStrategy,
   HeadBranchStrategy,
   IsolatedCreateOptions,
   MergeToHeadBranchStrategy,
-  type MountEntry,
-  type SandboxHandle,
-  type SandboxProvider,
 } from "./Sandbox.provider.ts";
 import {
   CreateWorktreeInfoOptions,
@@ -61,8 +53,16 @@ import {
   createWorktreeInfo,
   getCurrentBranch,
   removeWorktree,
-  type WorktreeInfo,
 } from "./Worktree.ts";
+import type { AgentProvider } from "./Agent.provider.ts";
+import type { AgentStreamEmitter } from "./AgentStreamEmitter.ts";
+import type { Severity } from "./Display.ts";
+import type { SandboxHooks } from "./Lifecycle.ts";
+import type { PromptArgs } from "./Prompt.ts";
+import type { SandboxError } from "./Sandbox.errors.ts";
+import type { SandboxProcessShape } from "./Sandbox.process.ts";
+import type { BranchStrategy, MountEntry, SandboxHandle, SandboxProvider } from "./Sandbox.provider.ts";
+import type { WorktreeInfo } from "./Worktree.ts";
 
 const $I = $SandboxId.create("Run");
 

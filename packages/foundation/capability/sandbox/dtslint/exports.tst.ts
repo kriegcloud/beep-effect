@@ -2,13 +2,11 @@ import {
   buildLogFilename,
   buildRecoveryMessage,
   CreateWorktreeOptions,
-  type CwdError,
   claudeCode,
   createWorktree,
   createWorktreeScoped,
   Display,
   ExecResult,
-  type FailedStep,
   LogFilenameOptions,
   makeTerminalCleanupHandler,
   noSandbox,
@@ -18,11 +16,11 @@ import {
   SandboxProcess,
   TextDeltaBuffer,
   TextDeltaBufferOptions,
-  type Worktree,
   WorktreeInfo,
 } from "@beep/sandbox";
-import type { Effect, FileSystem, Path, Scope } from "effect";
 import { describe, expect, it } from "tstyche";
+import type { CwdError, FailedStep, Worktree } from "@beep/sandbox";
+import type { Effect, FileSystem, Path, Scope } from "effect";
 
 describe("@beep/sandbox package exports", () => {
   it("resolves root exports through the package map", () => {

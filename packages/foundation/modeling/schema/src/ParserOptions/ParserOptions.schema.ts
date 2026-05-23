@@ -13,8 +13,9 @@ import * as S from "effect/Schema";
 import { BuffEncoding } from "../BufferEncoding.ts";
 import { NonNegativeInt } from "../Int.ts";
 import { RegExpFromStr } from "../RegExp.ts";
-import { TaggedErrorClass, type TaggedErrorClassFromFields } from "../TaggedErrorClass/index.ts";
+import { TaggedErrorClass } from "../TaggedErrorClass/index.ts";
 import { HeaderArray, HeaderTransformFunction } from "./ParserOptions.types.ts";
+import type { TaggedErrorClassFromFields } from "../TaggedErrorClass/index.ts";
 
 const $I = $SchemaId.create("ParserOptions");
 

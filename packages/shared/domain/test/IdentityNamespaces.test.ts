@@ -1,9 +1,9 @@
-import type * as EntityId from "@beep/shared-domain/entity/EntityId";
 import * as Identity from "@beep/shared-domain/identity";
 import { describe, expect, it } from "@effect/vitest";
 import { Effect, Exit } from "effect";
 import { cast } from "effect/Function";
 import * as S from "effect/Schema";
+import type * as EntityId from "@beep/shared-domain/entity/EntityId";
 
 type IdentitySpec = {
   readonly brand: string;

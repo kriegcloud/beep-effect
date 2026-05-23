@@ -1,15 +1,16 @@
 import { VERSION } from "@beep/oip-web";
 import {
-  type ContactSubmission,
   ContactSubmissionResponse,
   ContactSubmissionStatus,
   contactResponseBody,
   decodeContactSubmission,
   submitContact,
 } from "@beep/oip-web/contact";
-import { loadOipSiteContent, type OipSiteContent, oipSiteContent } from "@beep/oip-web/content";
-import type { Effect } from "effect";
+import { loadOipSiteContent, oipSiteContent } from "@beep/oip-web/content";
 import { describe, expect, it } from "tstyche";
+import type { ContactSubmission } from "@beep/oip-web/contact";
+import type { OipSiteContent } from "@beep/oip-web/content";
+import type { Effect } from "effect";
 
 describe("@beep/oip-web", () => {
   it("exposes the typed package version", () => {

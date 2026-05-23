@@ -6,10 +6,12 @@
  */
 import { Duration, Layer, Metric } from "effect";
 import { dual } from "effect/Function";
-import type * as HttpClient from "effect/unstable/http/HttpClient";
 import * as Otlp from "effect/unstable/observability/Otlp";
-import { type ServerObservabilityConfig, toOtlpResource } from "./Config.ts";
-import { type DevToolsSpanFilter, layerFilteredDevTools } from "./DevTools.ts";
+import { toOtlpResource } from "./Config.ts";
+import { layerFilteredDevTools } from "./DevTools.ts";
+import type * as HttpClient from "effect/unstable/http/HttpClient";
+import type { ServerObservabilityConfig } from "./Config.ts";
+import type { DevToolsSpanFilter } from "./DevTools.ts";
 
 /**
  * Server-only local LGTM wiring for Effect OTLP + optional devtools.

@@ -1,8 +1,8 @@
 import { Effect, SchemaIssue } from "effect";
 import * as S from "effect/Schema";
-import type { RpcClientError } from "effect/unstable/rpc";
 import * as AcpSchema from "../_generated/schema.gen.ts";
 import * as AcpError from "../Acp.errors.ts";
+import type { RpcClientError } from "effect/unstable/rpc";
 
 const isAcpProtocolError = S.is(AcpSchema.Error);
 const isAcpRequestError = S.is(AcpError.AcpRequestError);

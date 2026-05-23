@@ -10,10 +10,10 @@
 import { $RepoUtilsId } from "@beep/identity/packages";
 import { Glob as SharedGlob, layer as SharedGlobLayer } from "@beep/utils/Glob";
 import { Context, Effect, FileSystem, Layer, Path } from "effect";
-import type * as O from "effect/Option";
 import * as S from "effect/Schema";
 import { DomainError, NoSuchFileError } from "./errors/index.js";
 import { jsonStringifyPretty } from "./JsonUtils.js";
+import type * as O from "effect/Option";
 
 const $I = $RepoUtilsId.create("FsUtils");
 const decodeJsonString = S.decodeUnknownOption(S.fromJsonString(S.Json));

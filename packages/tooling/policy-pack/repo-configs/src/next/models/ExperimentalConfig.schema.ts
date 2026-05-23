@@ -9,11 +9,11 @@ import { $RepoConfigsId } from "@beep/identity";
 import { LiteralKit } from "@beep/schema";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
-import type { ExperimentalConfig as ExperimentalConfigFromNext } from "next/dist/server/config-shared.js";
 import { isFunctionValue } from "../internal.ts";
 import { LightningCssFeatures } from "./ConfigPrimitives.schema.ts";
 import { SizeLimit } from "./Shared.schema.ts";
 import { SubresourceIntegrityAlgorithm } from "./SubresourceIntegrityPlugin.schema.ts";
+import type { ExperimentalConfig as ExperimentalConfigFromNext } from "next/dist/server/config-shared.js";
 
 const $I = $RepoConfigsId.create("next/models/ExperimentalConfig.schema");
 

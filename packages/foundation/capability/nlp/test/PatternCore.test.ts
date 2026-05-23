@@ -25,7 +25,6 @@ import {
   optionalLiteral,
   optionalPos,
   Pattern,
-  type PatternElement,
   PatternFromString,
   POSPatternOption,
   patchReplaceAllLiterals,
@@ -40,6 +39,7 @@ import { NonNegativeInt } from "@beep/schema";
 import { Str } from "@beep/utils";
 import { Chunk, Effect, Schema } from "effect";
 import { describe, expect, it } from "vitest";
+import type { PatternElement } from "@beep/nlp/Core/index";
 
 const firstIncludes = (values: ReadonlyArray<string>, searchString: string): boolean => {
   const first = values[0];

@@ -16,14 +16,16 @@ import * as P from "effect/Predicate";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
 import { Argument, Command, Flag } from "effect/unstable/cli";
-import { ChildProcess, type ChildProcessSpawner } from "effect/unstable/process";
+import { ChildProcess } from "effect/unstable/process";
 import { XMLParser } from "fast-xml-parser";
-import { type ParseError, parse } from "jsonc-parser";
+import { parse } from "jsonc-parser";
 import { printLines } from "../../internal/cli/Printer.js";
 import { runChangesetGraphCheck } from "./ChangesetGraph.js";
 import { configStringEqualsSync } from "./internal/Config.js";
 import { QualityScriptCommandError } from "./Quality.errors.js";
 import { QualityTaskStep } from "./Tasks.js";
+import type { ChildProcessSpawner } from "effect/unstable/process";
+import type { ParseError } from "jsonc-parser";
 
 /**
  * Public quality script command error export.

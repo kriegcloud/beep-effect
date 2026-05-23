@@ -4,20 +4,23 @@
  * @packageDocumentation
  * @since 0.0.0
  */
-import { Effect, type Graph as Graph_, Match, Option, SchemaIssue, SchemaParser } from "effect";
+
+import { Effect, Match, Option, SchemaIssue, SchemaParser } from "effect";
 import * as S from "effect/Schema";
-import { GraphEncoded as GraphEncodedSchemaFactory, type GraphIso } from "./Graph.encoded.ts";
+import { GraphEncoded as GraphEncodedSchemaFactory } from "./Graph.encoded.ts";
 import { rebuildImmutableGraph, rebuildMutableGraph } from "./Graph.rebuild.ts";
 import {
   $I,
   formatGraph,
-  type GraphKindValue,
   isImmutableGraphValue,
   isMutableGraphValue,
   makeGraphEquivalence,
   toRawGraphEncoded,
   trimGraphDescription,
 } from "./Graph.shared.ts";
+import type { Graph as Graph_ } from "effect";
+import type { GraphIso } from "./Graph.encoded.ts";
+import type { GraphKindValue } from "./Graph.shared.ts";
 
 /**
  * Schema for validating existing immutable Effect graphs.

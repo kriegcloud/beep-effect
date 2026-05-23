@@ -9,7 +9,7 @@ import { $VeniceAiId } from "@beep/identity";
 import { LiteralKit, TaggedErrorClass } from "@beep/schema";
 import { decodeJsonString } from "@beep/schema/Json";
 import { A, Str } from "@beep/utils";
-import { Config, Context, Effect, flow, Layer, pipe, type Redacted, Result, Stream } from "effect";
+import { Config, Context, Effect, flow, Layer, pipe, Result, Stream } from "effect";
 import { dual } from "effect/Function";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
@@ -19,6 +19,7 @@ import { FetchHttpClient } from "effect/unstable/http";
 import * as HttpClient from "effect/unstable/http/HttpClient";
 import * as HttpClientError from "effect/unstable/http/HttpClientError";
 import * as HttpClientRequest from "effect/unstable/http/HttpClientRequest";
+import type { Redacted } from "effect";
 import type * as HttpClientResponse from "effect/unstable/http/HttpClientResponse";
 
 const $I = $VeniceAiId.create("VeniceAI.service");

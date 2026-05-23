@@ -10,9 +10,6 @@ import {
   decodeChatCompletionChunk,
   decodeChatCompletionResponse,
   makeFromProvider,
-  type OpenAiCompatChatCompletionChunk,
-  type OpenAiCompatChatCompletionRequest,
-  type OpenAiCompatChatCompletionResponse,
   OpenAiCompatLanguageModelConfig,
 } from "@beep/openai-compat";
 import { Effect, Layer, pipe, Stream } from "effect";
@@ -20,9 +17,16 @@ import * as S from "effect/Schema";
 import * as AiError from "effect/unstable/ai/AiError";
 import * as LanguageModel from "effect/unstable/ai/LanguageModel";
 import * as AiModel from "effect/unstable/ai/Model";
+import { XAiRequestOptions, XAiResponse } from "./XAi.models.ts";
+import { XAi } from "./XAi.service.ts";
+import type {
+  OpenAiCompatChatCompletionChunk,
+  OpenAiCompatChatCompletionRequest,
+  OpenAiCompatChatCompletionResponse,
+} from "@beep/openai-compat";
 import type { XAiError } from "./XAi.errors.ts";
-import { XAiRequestOptions, XAiResponse, type XAiServerSentEvent } from "./XAi.models.ts";
-import { XAi, type XAiShape } from "./XAi.service.ts";
+import type { XAiServerSentEvent } from "./XAi.models.ts";
+import type { XAiShape } from "./XAi.service.ts";
 
 const $I = $XaiId.create("XAiLanguageModel.service");
 

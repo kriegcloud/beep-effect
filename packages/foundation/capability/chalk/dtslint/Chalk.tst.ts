@@ -1,34 +1,27 @@
-import type { ChalkInstance } from "@beep/chalk";
-import chalk, {
-  type BackgroundColorName,
-  type backgroundColorNames,
-  Chalk,
-  type ChalkConstructorOptions,
-  type ChalkConstructorOptions as ChalkConstructorOptionsType,
-  type ChalkOptions,
-  type ColorInfo,
-  type ColorName,
-  type ColorSupport,
-  type ColorSupportLevel,
-  type ColorSupportLevelInput,
-  type ColorSupportLevelInput as ColorSupportLevelInputType,
-  chalkStderr,
-  type colorNames,
-  type ForegroundColorName,
-  type foregroundColorNames,
-  type ModifierName,
-  type modifierNames,
-  supportsColor,
-  supportsColorStderr,
-} from "@beep/chalk";
-import browserChalk, {
-  Chalk as BrowserChalk,
-  type ChalkInstance as BrowserChalkInstance,
-  type Chalk as BrowserChalkType,
-  chalkStderr as browserChalkStderr,
-} from "@beep/chalk/Chalk.browser";
-import type * as S from "effect/Schema";
+import chalk, { Chalk, chalkStderr, supportsColor, supportsColorStderr } from "@beep/chalk";
+import browserChalk, { Chalk as BrowserChalk, chalkStderr as browserChalkStderr } from "@beep/chalk/Chalk.browser";
 import { describe, expect, it } from "tstyche";
+import type {
+  BackgroundColorName,
+  backgroundColorNames,
+  ChalkConstructorOptions,
+  ChalkConstructorOptions as ChalkConstructorOptionsType,
+  ChalkInstance,
+  ChalkOptions,
+  ColorInfo,
+  ColorName,
+  ColorSupport,
+  ColorSupportLevel,
+  ColorSupportLevelInput,
+  ColorSupportLevelInput as ColorSupportLevelInputType,
+  colorNames,
+  ForegroundColorName,
+  foregroundColorNames,
+  ModifierName,
+  modifierNames,
+} from "@beep/chalk";
+import type { ChalkInstance as BrowserChalkInstance, Chalk as BrowserChalkType } from "@beep/chalk/Chalk.browser";
+import type * as S from "effect/Schema";
 
 describe("@beep/chalk", () => {
   it("exposes the shared builder and constructor types", () => {

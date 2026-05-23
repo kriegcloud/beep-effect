@@ -1,16 +1,16 @@
-import {
-  type LegalClientStatus,
-  type LegalClientStatus as LegalClientStatusType,
-  type LegalContactRole,
-  type LegalContactRole as LegalContactRoleType,
-  Matter,
-  type MatterType,
-  type MatterType as MatterTypeType,
-  type PatentAssetStatus,
-  type PatentAssetStatus as PatentAssetStatusType,
+import { Matter } from "@beep/law-practice-domain";
+import { describe, expect, it } from "tstyche";
+import type {
+  LegalClientStatus,
+  LegalClientStatus as LegalClientStatusType,
+  LegalContactRole,
+  LegalContactRole as LegalContactRoleType,
+  MatterType,
+  MatterType as MatterTypeType,
+  PatentAssetStatus,
+  PatentAssetStatus as PatentAssetStatusType,
 } from "@beep/law-practice-domain";
 import type * as LawPractice from "@beep/shared-domain/identity/LawPractice";
-import { describe, expect, it } from "tstyche";
 
 declare const matter: Matter;
 

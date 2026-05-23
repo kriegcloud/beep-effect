@@ -12,7 +12,6 @@
  * @since 0.0.0
  */
 export * from "./OipContent.data.ts";
-
 /**
  * OIP content schemas and decoders.
  *
@@ -20,7 +19,6 @@ export * from "./OipContent.data.ts";
  * @since 0.0.0
  */
 export * from "./OipContent.model.ts";
-
 /**
  * Runtime content utilities.
  *
@@ -28,7 +26,6 @@ export * from "./OipContent.model.ts";
  * @since 0.0.0
  */
 export * from "./OipContent.runtime.ts";
-
 /**
  * OIP metadata, structured data, and llms.txt helpers.
  *

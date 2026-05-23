@@ -12,16 +12,18 @@ import { pipe, Result } from "effect";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
-import { ansiStyles, getModelAnsi, getStyleEntry, type StyleName } from "./AnsiStyles.ts";
+import { ansiStyles, getModelAnsi, getStyleEntry } from "./AnsiStyles.ts";
 import {
   backgroundColorNameValues,
-  type ColorInfo,
   ColorSupportLevel,
   foregroundColorNameValues,
   modifierNameValues,
 } from "./ChalkSchema.ts";
-import { type ChalkConstructorOptions, ColorSupportLevelInput } from "./PublicSurface.ts";
+import { ColorSupportLevelInput } from "./PublicSurface.ts";
 import { stringEncaseCRLFWithFirstIndex, stringReplaceAll } from "./Utilities.ts";
+import type { StyleName } from "./AnsiStyles.ts";
+import type { ColorInfo } from "./ChalkSchema.ts";
+import type { ChalkConstructorOptions } from "./PublicSurface.ts";
 
 const $I = $ChalkId.create("Domain");
 

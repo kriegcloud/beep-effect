@@ -4,10 +4,11 @@
  * @packageDocumentation
  * @since 0.0.0
  */
-import type { TUnsafe } from "@beep/types";
+
 import * as S from "effect/Schema";
-import type * as VariantSchema from "../VariantSchema/index.ts";
 import { Field } from "./Model.variants.ts";
+import type { TUnsafe } from "@beep/types";
+import type * as VariantSchema from "../VariantSchema/index.ts";
 /**
  * Interface for a field stored as a JSON text column in the database.
  *

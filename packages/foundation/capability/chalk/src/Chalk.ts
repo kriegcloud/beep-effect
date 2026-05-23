@@ -42,12 +42,14 @@ import {
 } from "./internal/ChalkSchema.ts";
 import {
   ChalkConstructorOptions as ChalkConstructorOptionsDefinition,
-  type ChalkConstructorOptions as ChalkConstructorOptionsType,
-  type ChalkInstanceSurface,
   ColorSupportLevelInput as ColorSupportLevelInputDefinition,
   makeChalkConstructor,
 } from "./internal/PublicSurface.ts";
 import { detectedSupportsColor } from "./internal/SupportsColor.ts";
+import type {
+  ChalkConstructorOptions as ChalkConstructorOptionsType,
+  ChalkInstanceSurface,
+} from "./internal/PublicSurface.ts";
 
 // oxlint-disable typescript-eslint/no-unsafe-declaration-merging
 

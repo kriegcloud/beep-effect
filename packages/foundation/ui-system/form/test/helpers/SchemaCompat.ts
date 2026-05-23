@@ -9,9 +9,9 @@ import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
-import type * as AST from "effect/SchemaAST";
 import * as SchemaGetter from "effect/SchemaGetter";
 import * as SchemaIssue from "effect/SchemaIssue";
+import type * as AST from "effect/SchemaAST";
 
 type LegacyAnnotations = Omit<S.Annotations.Filter, "message"> & {
   readonly message?: string | (() => string) | undefined;

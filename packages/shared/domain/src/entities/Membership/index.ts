@@ -19,7 +19,6 @@
  * @category models
  */
 export * from "./Membership.model.js";
-
 /**
  * Membership value schemas.
  *

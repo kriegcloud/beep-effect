@@ -10,11 +10,12 @@
 import { $UiId } from "@beep/identity";
 import { LiteralKit } from "@beep/schema";
 import CssBaseline from "@mui/material/CssBaseline";
-import { ThemeProvider as MuiThemeProvider, type Theme, useColorScheme } from "@mui/material/styles";
+import { ThemeProvider as MuiThemeProvider, useColorScheme } from "@mui/material/styles";
 import * as Bool from "effect/Boolean";
 import { dual } from "effect/Function";
-import type * as React from "react";
 import { theme as defaultTheme } from "./theme.ts";
+import type { Theme } from "@mui/material/styles";
+import type * as React from "react";
 
 const $I = $UiId.create("themes/theme-provider");
 /**

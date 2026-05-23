@@ -20,30 +20,24 @@ import {
   JsonLdLiteralValue,
   JsonLdNodeIdentifier,
   JsonLdNodeObject,
-  type JsonLdPropertyValue,
   JsonLdReferenceValue,
 } from "../jsonld.ts";
-import {
-  BlankNode,
-  DefaultGraph,
-  Literal,
-  makeDataset,
-  NamedNode,
-  type ObjectTerm,
-  Quad,
-  type Subject,
-} from "../rdf.ts";
+import { BlankNode, DefaultGraph, Literal, makeDataset, NamedNode, Quad } from "../rdf.ts";
 import {
   JsonLdDocumentError,
-  type JsonLdDocumentLoaderPolicy,
   JsonLdDocumentResult,
   JsonLdDocumentService,
-  type JsonLdDocumentServiceShape,
   JsonLdToRdfResult,
-  type NormalizeJsonLdDocumentRequest,
 } from "../services/jsonld-document.ts";
 import { RDF_TYPE } from "../vocab/rdf.ts";
 import { XSD_BOOLEAN, XSD_DOUBLE, XSD_INTEGER, XSD_STRING } from "../vocab/xsd.ts";
+import type { JsonLdPropertyValue } from "../jsonld.ts";
+import type { ObjectTerm, Subject } from "../rdf.ts";
+import type {
+  JsonLdDocumentLoaderPolicy,
+  JsonLdDocumentServiceShape,
+  NormalizeJsonLdDocumentRequest,
+} from "../services/jsonld-document.ts";
 
 const schemePrefix = /^[A-Za-z][A-Za-z0-9+.-]*:/;
 

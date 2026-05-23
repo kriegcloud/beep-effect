@@ -1,3 +1,6 @@
+import { Md } from "@beep/md";
+import { Effect } from "effect";
+import { describe, expect, it } from "tstyche";
 import type {
   Block,
   BlockContent,
@@ -32,11 +35,8 @@ import type {
   TaskListItemInput,
   Ul,
 } from "@beep/md";
-import { Md } from "@beep/md";
 import type { HtmlFragment, Markdown } from "@beep/schema";
 import type { Result } from "effect";
-import { Effect } from "effect";
-import { describe, expect, it } from "tstyche";
 
 describe("@beep/md", () => {
   it("keeps document, block, and inline constructors typed", () => {

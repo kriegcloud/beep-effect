@@ -1,10 +1,8 @@
 import {
   AgentCommandOptions,
-  type AgentStreamEmitter,
   ContainerProviderOptions,
   claudeCode,
   codex,
-  type Display,
   docker,
   HeadBranchStrategy,
   NoSandboxOptions,
@@ -14,14 +12,13 @@ import {
   PiOptions,
   pi,
   podman,
-  type RunResult,
   run,
-  type SandboxError,
-  type SandboxProcess,
   Timeouts,
 } from "@beep/sandbox";
-import { Duration, type Effect, type FileSystem, type Path } from "effect";
+import { Duration } from "effect";
 import { describe, expect, it } from "tstyche";
+import type { AgentStreamEmitter, Display, RunResult, SandboxError, SandboxProcess } from "@beep/sandbox";
+import type { Effect, FileSystem, Path } from "effect";
 
 describe("@beep/sandbox types", () => {
   it("keeps provider constructors and run typed", () => {

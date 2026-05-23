@@ -12,7 +12,8 @@ import { dual } from "effect/Function";
 import * as O from "effect/Option";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
-import { type BackgroundColorName, ForegroundColorName, ModifierName } from "./ChalkSchema.ts";
+import { ForegroundColorName, ModifierName } from "./ChalkSchema.ts";
+import type { BackgroundColorName } from "./ChalkSchema.ts";
 
 type AnsiCodePair = readonly [open: number, close: number];
 const $I = $ChalkId.create("Domain");

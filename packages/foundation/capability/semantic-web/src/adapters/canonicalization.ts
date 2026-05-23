@@ -13,34 +13,25 @@ import { A, Str } from "@beep/utils";
 import { Duration, Effect, flow, Layer, Match, pipe } from "effect";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
-import {
-  type CanonizeGraph,
-  type CanonizeObject,
-  type CanonizeQuad,
-  type CanonizeSubject,
-  canonize,
-  NQuads,
-} from "rdf-canonize";
+import { canonize, NQuads } from "rdf-canonize";
 import {
   DefaultGraph,
-  type GraphTerm,
   makeBlankNode,
   makeDataset,
   makeLiteral,
   makeNamedNode,
   makeQuad,
-  type ObjectTerm,
-  type Quad,
-  type Subject,
   sortDatasetQuads,
 } from "../rdf.ts";
 import {
   CanonicalDatasetResult,
   CanonicalizationError,
   CanonicalizationService,
-  type CanonicalizationServiceShape,
   DatasetFingerprint,
 } from "../services/canonicalization.ts";
+import type { CanonizeGraph, CanonizeObject, CanonizeQuad, CanonizeSubject } from "rdf-canonize";
+import type { GraphTerm, ObjectTerm, Quad, Subject } from "../rdf.ts";
+import type { CanonicalizationServiceShape } from "../services/canonicalization.ts";
 
 const SemanticCanonicalizationMaxWorkFactor = 1;
 const SemanticCanonicalizationTimeout = Duration.seconds(1);

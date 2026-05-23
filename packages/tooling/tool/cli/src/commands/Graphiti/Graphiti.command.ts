@@ -10,12 +10,12 @@ import { Argument, Command, Flag } from "effect/unstable/cli";
 import { printLines } from "../../internal/cli/Printer.js";
 import {
   ensureGraphitiProxy,
-  type GraphitiProxyOpsError,
   installGraphitiProxyService,
   recoverGraphitiStack,
   runKgWithGraphitiProxy,
 } from "./internal/ProxyOps.js";
 import { runGraphitiProxy } from "./internal/ProxyRuntime.js";
+import type { GraphitiProxyOpsError } from "./internal/ProxyOps.js";
 
 /**
  * Graphiti queue proxy subcommand.

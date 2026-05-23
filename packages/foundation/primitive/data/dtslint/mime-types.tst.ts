@@ -1,5 +1,6 @@
-import { type FileExtension, getExtensions, getTypes, lookup, type MimeType, mimeTypes } from "@beep/data/MimeTypes";
+import { getExtensions, getTypes, lookup, mimeTypes } from "@beep/data/MimeTypes";
 import { describe, expect, it } from "tstyche";
+import type { FileExtension, MimeType } from "@beep/data/MimeTypes";
 
 describe("MimeType", () => {
   it("includes known MIME type literals", () => {

@@ -12,7 +12,6 @@
  * @since 0.0.0
  */
 export * from "./OnePasswordCli.errors.ts";
-
 /**
  * Public 1Password CLI driver model exports.
  *
@@ -20,7 +19,6 @@ export * from "./OnePasswordCli.errors.ts";
  * @since 0.0.0
  */
 export * from "./OnePasswordCli.models.ts";
-
 /**
  * Public 1Password CLI driver service exports.
  *

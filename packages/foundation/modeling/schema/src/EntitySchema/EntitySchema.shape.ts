@@ -9,9 +9,9 @@ import { SchemaAST as AST, Match, pipe, Tuple } from "effect";
 import { dual } from "effect/Function";
 import * as S from "effect/Schema";
 import { TaggedErrorClass } from "../TaggedErrorClass/index.ts";
-import type { EncodedAbsenceKind } from "./EntitySchema.persist.ts";
 import { EncodedAbsenceKind as EncodedAbsenceKindSchema } from "./EntitySchema.persist.ts";
 import { $I } from "./EntitySchema.shared.ts";
+import type { EncodedAbsenceKind } from "./EntitySchema.persist.ts";
 
 class AstAbsence extends S.Class<AstAbsence>($I`AstAbsence`)(
   {

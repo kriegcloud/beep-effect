@@ -1,8 +1,8 @@
 import { Field, FormBuilder } from "@beep/form/core";
-import type { TUnsafe } from "@beep/types";
 import { Effect, SchemaIssue } from "effect";
 import { describe, expect, it } from "vitest";
 import * as S from "../helpers/SchemaCompat.ts";
+import type { TUnsafe } from "@beep/types";
 
 const effectTest = (name: string, body: () => Generator<TUnsafe.Any, void, TUnsafe.Any>) =>
   it(name, () => Effect.runPromise(Effect.gen(body) as TUnsafe.Any));

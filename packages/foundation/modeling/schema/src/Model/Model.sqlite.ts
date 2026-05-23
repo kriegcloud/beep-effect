@@ -5,8 +5,8 @@
  * @since 0.0.0
  */
 import * as S from "effect/Schema";
-import type * as VariantSchema from "../VariantSchema/index.ts";
 import { Field } from "./Model.variants.ts";
+import type * as VariantSchema from "../VariantSchema/index.ts";
 /**
  * Interface for an SQLite boolean field using `0 | 1` in the database and `boolean` in JSON.
  *

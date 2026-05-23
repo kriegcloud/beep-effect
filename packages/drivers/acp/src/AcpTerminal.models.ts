@@ -6,7 +6,6 @@
  */
 
 import type * as Effect from "effect/Effect";
-
 import type * as AcpSchema from "./_generated/schema.gen.ts";
 import type * as AcpError from "./Acp.errors.ts";
 

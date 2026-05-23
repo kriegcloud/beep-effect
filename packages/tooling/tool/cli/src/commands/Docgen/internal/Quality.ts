@@ -31,21 +31,23 @@ import {
 } from "effect";
 import { dual } from "effect/Function";
 import * as O from "effect/Option";
-import type * as PlatformError from "effect/PlatformError";
 import * as P from "effect/Predicate";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
-import { ChildProcess, type ChildProcessSpawner } from "effect/unstable/process";
+import { ChildProcess } from "effect/unstable/process";
 import * as jsonc from "jsonc-parser";
-import { type Diagnostic, type JSDoc, Node, Project, type SourceFile } from "ts-morph";
+import { Node, Project } from "ts-morph";
 import {
   assertNoOrphanDocgenConfigPaths,
   DocgenConfigDocument,
-  type DocgenWorkspacePackage,
   discoverDocgenWorkspacePackages,
   loadDocgenConfigDocument,
   resolveDocgenWorkspacePackage,
 } from "./Operations.js";
+import type * as PlatformError from "effect/PlatformError";
+import type { ChildProcessSpawner } from "effect/unstable/process";
+import type { Diagnostic, JSDoc, SourceFile } from "ts-morph";
+import type { DocgenWorkspacePackage } from "./Operations.js";
 
 const $I = $RepoCliId.create("commands/Docgen/internal/Quality");
 

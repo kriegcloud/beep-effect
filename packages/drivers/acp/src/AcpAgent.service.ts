@@ -10,8 +10,6 @@ import { A } from "@beep/utils";
 import { Context, Effect, HashMap, HashSet, Layer, Ref, Stdio } from "effect";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
-import type * as Scope from "effect/Scope";
-import type * as Stream from "effect/Stream";
 import * as RpcClient from "effect/unstable/rpc/RpcClient";
 import * as RpcServer from "effect/unstable/rpc/RpcServer";
 import { AGENT_METHODS, CLIENT_METHODS } from "./_generated/meta.gen.ts";
@@ -26,6 +24,8 @@ import {
   decodeExtRequestRegistration,
   runHandler,
 } from "./internal/shared.ts";
+import type * as Scope from "effect/Scope";
+import type * as Stream from "effect/Stream";
 
 const $I = $AcpId.create("agent");
 

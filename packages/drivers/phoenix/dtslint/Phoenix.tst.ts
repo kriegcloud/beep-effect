@@ -1,18 +1,21 @@
 import {
   Phoenix,
   PhoenixAnnotationInput,
-  type PhoenixAnnotationWriteResult,
   PhoenixConfigInput,
   PhoenixDatasetCreateInput,
-  type PhoenixDatasetCreateResult,
   PhoenixDatasetExample,
-  type PhoenixDoctorResult,
-  type PhoenixError,
-  type PhoenixSdkShape,
-  type PhoenixShape,
 } from "@beep/phoenix";
-import { type Effect, type Layer, Redacted } from "effect";
+import { Redacted } from "effect";
 import { describe, expect, it } from "tstyche";
+import type {
+  PhoenixAnnotationWriteResult,
+  PhoenixDatasetCreateResult,
+  PhoenixDoctorResult,
+  PhoenixError,
+  PhoenixSdkShape,
+  PhoenixShape,
+} from "@beep/phoenix";
+import type { Effect, Layer } from "effect";
 
 declare const phoenix: PhoenixShape;
 declare const sdk: PhoenixSdkShape;

@@ -1,6 +1,6 @@
-import type * as DomainWorker from "@beep/architecture-lab-domain/entities/Worker";
 import { Worker } from "@beep/architecture-lab-use-cases/public";
 import { expect } from "tstyche";
+import type * as DomainWorker from "@beep/architecture-lab-domain/entities/Worker";
 
 declare const workerId: DomainWorker.WorkerId;
 declare const organizationId: DomainWorker.WorkerOrganizationId;

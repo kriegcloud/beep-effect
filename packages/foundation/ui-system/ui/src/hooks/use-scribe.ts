@@ -8,22 +8,19 @@
 "use client";
 
 import { A } from "@beep/utils";
-import {
-  AudioFormat,
-  CommitStrategy,
-  type CommittedTranscriptMessage,
-  type MicrophoneOptions,
-  type PartialTranscriptMessage,
-  type RealtimeConnection,
-  RealtimeEvents,
-  Scribe,
-  type ScribeAuthErrorMessage,
-  type ScribeErrorMessage,
-  type ScribeQuotaExceededErrorMessage,
-} from "@elevenlabs/client";
+import { AudioFormat, CommitStrategy, RealtimeEvents, Scribe } from "@elevenlabs/client";
 import { Data, Effect } from "effect";
 import * as P from "effect/Predicate";
 import { useCallback, useEffect, useRef, useState } from "react";
+import type {
+  CommittedTranscriptMessage,
+  MicrophoneOptions,
+  PartialTranscriptMessage,
+  RealtimeConnection,
+  ScribeAuthErrorMessage,
+  ScribeErrorMessage,
+  ScribeQuotaExceededErrorMessage,
+} from "@elevenlabs/client";
 
 /**
  * ElevenLabs Scribe enum exports used by the `@beep/ui` speech components.

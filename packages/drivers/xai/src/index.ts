@@ -35,7 +35,6 @@ export const VERSION = "0.0.0" as const;
  * @since 0.0.0
  */
 export * from "./XAi.config.ts";
-
 /**
  * Error exports for the xAI driver.
  *
@@ -51,7 +50,6 @@ export * from "./XAi.config.ts";
  * @since 0.0.0
  */
 export * from "./XAi.errors.ts";
-
 /**
  * Model exports for the xAI driver.
  *
@@ -67,7 +65,6 @@ export * from "./XAi.errors.ts";
  * @since 0.0.0
  */
 export * from "./XAi.models.ts";
-
 /**
  * Service exports for the xAI driver.
  *
@@ -83,7 +80,6 @@ export * from "./XAi.models.ts";
  * @since 0.0.0
  */
 export * from "./XAi.service.ts";
-
 /**
  * Endpoint manifest exports for the xAI driver.
  *
@@ -98,7 +94,6 @@ export * from "./XAi.service.ts";
  * @since 0.0.0
  */
 export * from "./XAiEndpoints.models.ts";
-
 /**
  * Effect AI language-model adapter exports for xAI chat completions.
  *

@@ -7,12 +7,12 @@
 
 import { A, Str } from "@beep/utils";
 import * as S from "effect/Schema";
-import type { Metadata } from "next";
 import { headers } from "next/headers";
 import { connection } from "next/server";
 import { OipHomePage } from "../components/OipHomePage";
 import { ContactSubmissionStatus } from "../contact";
 import { getOipSiteContent, makeJsonLdGraph, oipTwitterHandle } from "../content";
+import type { Metadata } from "next";
 
 type HomeProps = {
   readonly searchParams?: Promise<Record<string, ReadonlyArray<string> | string | undefined>>;

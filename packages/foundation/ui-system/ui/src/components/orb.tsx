@@ -6,9 +6,9 @@ import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { Function as F } from "effect";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
-import type React from "react";
 import { useEffect, useMemo, useRef } from "react";
 import * as THREE from "three";
+import type React from "react";
 
 /**
  * @category type-level

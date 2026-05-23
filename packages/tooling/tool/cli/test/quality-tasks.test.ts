@@ -3,7 +3,6 @@ import {
   parseQualityTaskInvocation,
   QualityTaskFailed,
   QualityTaskGroupFailed,
-  type QualityTaskInvocation,
   QualityTaskStep,
   rootQualityStepsForTesting,
   runQualityTask,
@@ -22,6 +21,7 @@ import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import * as TestConsole from "effect/testing/TestConsole";
 import { describe, expect, it } from "vitest";
+import type { QualityTaskInvocation } from "@beep/repo-cli/test/Quality";
 
 const FileSystemLayer = Layer.mergeAll(NodeFileSystem.layer, NodePath.layer);
 const PlatformLayer = Layer.mergeAll(

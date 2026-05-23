@@ -22,14 +22,13 @@ import { HttpClient, HttpClientResponse } from "effect/unstable/http";
 import { failWithReportedExit } from "../../internal/cli/ExitCodeError.js";
 import {
   SyncDataRunMode,
-  type SyncDataRunMode as SyncDataRunModeType,
   SyncDataSourceFormat,
-  type SyncDataTarget,
   SyncDataTargetResult,
   SyncDataToTsDriftError,
   SyncDataToTsError,
 } from "./internal/Models.js";
 import { syncDataTargets } from "./targets/index.js";
+import type { SyncDataRunMode as SyncDataRunModeType, SyncDataTarget } from "./internal/Models.js";
 
 const $I = $RepoCliId.create("commands/SyncDataToTs/SyncDataToTs.command");
 

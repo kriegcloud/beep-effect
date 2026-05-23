@@ -1,7 +1,6 @@
 import { switchClasses } from "@mui/material/Switch";
 import { styled } from "@mui/material/styles";
 import { createElement } from "react";
-
 import {
   CONTROL_HEIGHTS,
   CONTROL_TOUCH_HEIGHTS,

@@ -21,11 +21,8 @@ import * as R from "effect/Record";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import * as jsonc from "jsonc-parser";
-import {
-  DocgenQualityFindingCode,
-  type DocgenQualityFindingCode as DocgenQualityFindingCodeValue,
-  DocgenQualityReport,
-} from "./Quality.js";
+import { DocgenQualityFindingCode, DocgenQualityReport } from "./Quality.js";
+import type { DocgenQualityFindingCode as DocgenQualityFindingCodeValue } from "./Quality.js";
 
 const $I = $RepoCliId.create("commands/Docgen/internal/QualityWorkerEval");
 

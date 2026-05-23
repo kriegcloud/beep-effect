@@ -15,10 +15,11 @@ import * as Atom from "effect/unstable/reactivity/Atom";
 import * as Field from "./Field.ts";
 import * as FormBuilder from "./FormBuilder.ts";
 import { recalculateDirtyFieldsForArray, recalculateDirtySubtree } from "./internal/dirty.ts";
-import { createWeakRegistry, type WeakRegistry } from "./internal/weak-registry.ts";
+import { createWeakRegistry } from "./internal/weak-registry.ts";
 import * as Mode from "./Mode.ts";
 import { getNestedValue, isPathOrParentDirty, setNestedValue } from "./Path.ts";
 import * as Validation from "./Validation.ts";
+import type { WeakRegistry } from "./internal/weak-registry.ts";
 
 /**
  * Internal atom bundle backing a single field path.

@@ -5,8 +5,6 @@
  * @since 0.0.0
  */
 
-import type { TUnsafe } from "@beep/types";
-import type { Struct } from "effect";
 import { Effect } from "effect";
 import { dual } from "effect/Function";
 import * as P from "effect/Predicate";
@@ -14,7 +12,10 @@ import * as R from "effect/Record";
 import * as S from "effect/Schema";
 import { withStatics } from "../SchemaUtils/index.ts";
 import { StatusCauseFields, statusCauseInput } from "../StatusCauseError.ts";
-import { TaggedErrorClass, type TaggedErrorClassFromFields } from "../TaggedErrorClass/index.ts";
+import { TaggedErrorClass } from "../TaggedErrorClass/index.ts";
+import type { TUnsafe } from "@beep/types";
+import type { Struct } from "effect";
+import type { TaggedErrorClassFromFields } from "../TaggedErrorClass/index.ts";
 
 type StatusCauseTaggedErrorFields = S.Struct.Fields;
 type StatusCauseTaggedErrorReservedField = "message" | "status" | "cause";

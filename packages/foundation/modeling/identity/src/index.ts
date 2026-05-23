@@ -29,7 +29,6 @@
  * @since 0.0.0
  */
 export * from "./Id.ts";
-
 /**
  * Pre-built identity composers for every `@beep/*` workspace package.
  *

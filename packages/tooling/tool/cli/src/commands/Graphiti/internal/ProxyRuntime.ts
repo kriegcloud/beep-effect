@@ -11,7 +11,6 @@ import { Console, Deferred, Effect, Fiber, Layer, Ref } from "effect";
 import * as HttpRouter from "effect/unstable/http/HttpRouter";
 import { loadGraphitiProxyConfig } from "./ProxyConfig.js";
 import {
-  type DependencyHealthSnapshot,
   GraphitiDependencyHealthService,
   GraphitiProxyForwarderService,
   GraphitiProxyQueueService,
@@ -21,6 +20,7 @@ import {
   ProxyHealthPayload,
   proxyHealthResponse,
 } from "./ProxyServices.js";
+import type { DependencyHealthSnapshot } from "./ProxyServices.js";
 
 const toHealthStatus = (snapshot: DependencyHealthSnapshot): "ok" | "degraded" =>
   snapshot.status === "ok" ? "ok" : "degraded";

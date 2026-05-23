@@ -27,18 +27,20 @@ import { Effect, Match, Random } from "effect";
 import * as S from "effect/Schema";
 import { useEffect, useMemo, useState } from "react";
 import {
-  type CanvasCommandBridgeEffect,
   CanvasCommandError,
-  type CanvasCommandRuntime,
-  type CanvasHealth,
-  type CanvasScene,
-  type CanvasSceneNode,
   CanvasScene as CanvasSceneSchema,
   decodeCanvasNodeId,
   decodeCanvasNodeKind,
   decodeCanvasProjectId,
   makeCanvasCommandBridge,
   makeCanvasCommandRuntime,
+} from "./commandBridge.js";
+import type {
+  CanvasCommandBridgeEffect,
+  CanvasCommandRuntime,
+  CanvasHealth,
+  CanvasScene,
+  CanvasSceneNode,
 } from "./commandBridge.js";
 
 type CanvasCommandBridge = Effect.Success<CanvasCommandBridgeEffect>;

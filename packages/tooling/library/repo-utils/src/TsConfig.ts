@@ -8,9 +8,9 @@
  * @since 0.0.0
  */
 import { Effect, HashMap } from "effect";
-import type { DomainError, NoSuchFileError } from "./errors/index.js";
 import { FsUtils } from "./FsUtils.js";
 import { resolveWorkspaceDirs } from "./Workspaces.js";
+import type { DomainError, NoSuchFileError } from "./errors/index.js";
 
 /**
  * The root package identifier used in the returned HashMap.

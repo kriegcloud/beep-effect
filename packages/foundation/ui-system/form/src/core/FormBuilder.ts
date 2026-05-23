@@ -5,18 +5,18 @@
  * @since 0.0.0
  */
 import { $FormId } from "@beep/identity/packages";
-import type { TUnsafe } from "@beep/types";
-import { Effect, type HashSet, Match, SchemaGetter, SchemaIssue } from "effect";
+import { Effect, Match, SchemaGetter, SchemaIssue } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
+import { isArrayFieldDef, makeField } from "./Field.ts";
+import type { TUnsafe } from "@beep/types";
+import type { HashSet } from "effect";
 import type * as AST from "effect/SchemaAST";
 import type * as AtomRegistry from "effect/unstable/reactivity/AtomRegistry";
-
 import type { ArrayFieldDef, DecodedFromFields, EncodedFromFields, FieldDef, FieldsRecord } from "./Field.ts";
-import { isArrayFieldDef, makeField } from "./Field.ts";
 
 const $I = $FormId.create("core/FormBuilder");
 

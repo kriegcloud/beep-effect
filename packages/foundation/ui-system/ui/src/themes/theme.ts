@@ -1,6 +1,5 @@
 "use client";
-import { createTheme, type Theme } from "@mui/material/styles";
-import type {} from "@mui/material/themeCssVarsAugmentation";
+import { createTheme } from "@mui/material/styles";
 import { colors } from "./colors.ts";
 import { alertTheme } from "./components/alert.ts";
 import { autocompleteTheme } from "./components/autocomplete.ts";
@@ -22,8 +21,10 @@ import { tableTheme } from "./components/table.ts";
 import { textFieldTheme } from "./components/text-field.ts";
 import { treeViewTheme } from "./components/tree-view.ts";
 import { shadows } from "./shadows.ts";
-import type { ThemeOptions } from "./types.ts";
 import { typography, typographyTheme } from "./typography.ts";
+import type { Theme } from "@mui/material/styles";
+import type {} from "@mui/material/themeCssVarsAugmentation";
+import type { ThemeOptions } from "./types.ts";
 
 /**
  * Base theme options shared by `@beep/ui`.

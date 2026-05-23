@@ -1,7 +1,8 @@
 import { CheckCircleIcon, InfoIcon, SpinnerGapIcon, WarningCircleIcon, XIcon } from "@phosphor-icons/react";
-import { cva, type VariantProps } from "class-variance-authority";
-import type * as React from "react";
+import { cva } from "class-variance-authority";
 import { cn } from "../lib/index.ts";
+import type { VariantProps } from "class-variance-authority";
+import type * as React from "react";
 
 /**
  * @category components

@@ -14,13 +14,8 @@ import * as P from "effect/Predicate";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
 import * as HttpClientError from "effect/unstable/http/HttpClientError";
-import {
-  XAiEndpoint,
-  type XAiEndpointDescriptor,
-  XAiEndpointId,
-  XAiEndpointMethodName,
-  XAiHttpMethod,
-} from "./XAiEndpoints.models.ts";
+import { XAiEndpoint, XAiEndpointId, XAiEndpointMethodName, XAiHttpMethod } from "./XAiEndpoints.models.ts";
+import type { XAiEndpointDescriptor } from "./XAiEndpoints.models.ts";
 
 const $I = $XaiId.create("XAi.errors");
 

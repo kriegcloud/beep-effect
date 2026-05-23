@@ -19,7 +19,6 @@
  * @since 0.0.0
  */
 export * as Entities from "./entities/index.js";
-
 /**
  * Root workspace domain entity exports.
  *
@@ -34,7 +33,6 @@ export * as Entities from "./entities/index.js";
  * @since 0.0.0
  */
 export * from "./entities/index.js";
-
 /**
  * Workspace domain value namespaces.
  *
@@ -49,7 +47,6 @@ export * from "./entities/index.js";
  * @since 0.0.0
  */
 export * as Values from "./values/index.js";
-
 /**
  * Root workspace domain value exports.
  *

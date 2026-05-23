@@ -1,12 +1,13 @@
 import { Md } from "@beep/md";
 import { blockquote, h1 } from "@beep/md/Md";
-import type { Block, Document, H1 } from "@beep/md/Md.model";
-import { MarkdownAdapter, type RenderError, renderEffectWith, renderWith } from "@beep/md/Md.render";
+import { MarkdownAdapter, renderEffectWith, renderWith } from "@beep/md/Md.render";
 import { escapeMarkdownText } from "@beep/md/Md.utils";
-import type { Markdown } from "@beep/schema";
-import type { Result } from "effect";
 import { Effect } from "effect";
 import { describe, expect, it } from "tstyche";
+import type { Block, Document, H1 } from "@beep/md/Md.model";
+import type { RenderError } from "@beep/md/Md.render";
+import type { Markdown } from "@beep/schema";
+import type { Result } from "effect";
 
 describe("@beep/md package exports", () => {
   it("resolves root and explicit subpath exports through the package map", () => {

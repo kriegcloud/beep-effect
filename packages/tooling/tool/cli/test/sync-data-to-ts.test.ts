@@ -1,10 +1,5 @@
 import { syncDataToTsCommand } from "@beep/repo-cli/commands/SyncDataToTs";
-import {
-  ISO4217_SOURCE_URL,
-  type SyncDataTarget,
-  SyncDataTargetProjection,
-  syncDataTargets,
-} from "@beep/repo-cli/test/SyncDataToTs";
+import { ISO4217_SOURCE_URL, SyncDataTargetProjection, syncDataTargets } from "@beep/repo-cli/test/SyncDataToTs";
 import { A, O } from "@beep/utils";
 import { NodeServices } from "@effect/platform-node";
 import { Cause, Effect, Exit, FileSystem, Layer, Path, Runtime } from "effect";
@@ -13,6 +8,7 @@ import * as TestConsole from "effect/testing/TestConsole";
 import { Command } from "effect/unstable/cli";
 import { HttpClient, HttpClientError, HttpClientResponse } from "effect/unstable/http";
 import { describe, expect, it } from "vitest";
+import type { SyncDataTarget } from "@beep/repo-cli/test/SyncDataToTs";
 
 const provideScopedLayer =
   <ROut, E2, RIn>(layer: Layer.Layer<ROut, E2, RIn>) =>
