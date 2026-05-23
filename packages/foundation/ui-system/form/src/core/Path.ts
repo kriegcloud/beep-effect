@@ -5,7 +5,7 @@
  * @since 0.0.0
  */
 import type { TUnsafe } from "@beep/types";
-import { HashSet, Number as N } from "effect";
+import { HashSet, Match, Number as N } from "effect";
 import * as A from "effect/Array";
 import { dual, pipe } from "effect/Function";
 import * as O from "effect/Option";
@@ -25,7 +25,11 @@ const getPathSegmentKey = (segment: PropertyKey | StandardPathSegment): Property
   isStandardPathSegment(segment) ? segment.key : segment;
 
 const propertyKeyToPathSegment = (key: PropertyKey): string =>
-  P.isString(key) ? key : P.isNumber(key) ? `${key}` : (key.description ?? "");
+  Match.value(key).pipe(
+    Match.when(P.isString, (value) => value),
+    Match.when(P.isNumber, (value) => `${value}`),
+    Match.orElse((value) => value.description ?? "")
+  );
 
 /**
  * Converts a schema issue path into dot-and-bracket form field notation.

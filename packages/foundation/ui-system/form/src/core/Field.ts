@@ -270,7 +270,11 @@ const tryServiceFreeSchemaDefault = (schema: S.Top): unknown | undefined => {
 };
 
 const astPropertyName = (name: PropertyKey): string =>
-  P.isString(name) ? name : P.isNumber(name) ? `${name}` : (name.description ?? "");
+  Match.value(name).pipe(
+    Match.when(P.isString, (value) => value),
+    Match.when(P.isNumber, (value) => `${value}`),
+    Match.orElse((value) => value.description ?? "")
+  );
 
 const getDefaultFromAst: (ast: AST.AST) => unknown = Match.type<AST.AST>().pipe(
   Match.withReturnType<unknown>(),

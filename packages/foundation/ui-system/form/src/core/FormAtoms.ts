@@ -4,7 +4,7 @@
  * @packageDocumentation
  * @since 0.0.0
  */
-import { Cause, Duration, Effect, HashMap, HashSet, Number as N } from "effect";
+import { Cause, Duration, Effect, HashMap, HashSet, Match, Number as N } from "effect";
 import * as A from "effect/Array";
 import { pipe } from "effect/Function";
 import * as O from "effect/Option";
@@ -533,12 +533,11 @@ export const make = <TFields extends Field.FieldsRecord, R, A, E, SubmitArgs = v
       const validationCount = get(validationCountAtom);
       const fieldValidationCount = get(fieldValidationCountAtom);
       const hasAttemptedValidation = submitCount > 0 || validationCount > 0 || fieldValidationCount > 0;
-      const shouldShowError =
-        parsedMode.validation === "onChange"
-          ? isDirty || hasAttemptedValidation
-          : parsedMode.validation === "onBlur"
-            ? isTouched || hasAttemptedValidation
-            : hasAttemptedValidation;
+      const shouldShowError = Match.value(parsedMode.validation).pipe(
+        Match.when("onChange", () => isDirty || hasAttemptedValidation),
+        Match.when("onBlur", () => isTouched || hasAttemptedValidation),
+        Match.orElse(() => hasAttemptedValidation)
+      );
 
       return shouldShowError ? validationError : O.none();
     }).pipe(Atom.setIdleTTL(0));

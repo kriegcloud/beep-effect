@@ -6,7 +6,7 @@
  */
 import { $FormId } from "@beep/identity/packages";
 import type { TUnsafe } from "@beep/types";
-import { Effect, type HashSet, SchemaGetter, SchemaIssue } from "effect";
+import { Effect, type HashSet, Match, SchemaGetter, SchemaIssue } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
@@ -345,11 +345,12 @@ const normalizeFilterIssue = (entry: FormFilterIssue): S.FilterIssue =>
   isLegacyFilterIssue(entry) ? { path: entry.path, issue: entry.message } : entry;
 
 const normalizeFilterOutput = (output: FormFilterOutput): S.FilterOutput =>
-  isFilterIssueArray(output)
-    ? A.map(output, normalizeFilterIssue)
-    : output === undefined || P.isBoolean(output)
-      ? output
-      : normalizeFilterIssue(output);
+  Match.value(output).pipe(
+    Match.when(isFilterIssueArray, (issues) => A.map(issues, normalizeFilterIssue)),
+    Match.when(P.isUndefined, (value) => value),
+    Match.when(P.isBoolean, (value) => value),
+    Match.orElse((issue) => normalizeFilterIssue(issue))
+  );
 
 const makeFilterIssue = (input: unknown, entry: FormFilterIssue): SchemaIssue.Issue => {
   const normalizedEntry = normalizeFilterIssue(entry);
