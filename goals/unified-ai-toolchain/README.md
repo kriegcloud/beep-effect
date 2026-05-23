@@ -2,7 +2,7 @@
 
 ## Status
 
-Active
+V1 complete; P6+ follow-ups deferred
 
 ## Overview
 
@@ -45,21 +45,24 @@ agent files.
 
 ## Current Progress
 
-P0 is in progress. The packet exists to bootstrap later implementation. The
-repo currently has the `@beep/acp` driver as the codegen precedent, but it does
-not yet have `packages/tooling/library/ai-sync`.
+P0 through P5 are complete for V1. The implementation lives in
+`packages/tooling/library/ai-sync` as the private package `@beep/ai-sync`.
 
-The V1 dogfooding candidates already exist in this checkout:
+The package now owns:
 
-- `.codex/config.toml`
-- `.mcp.json`
-- `.claude/settings.json`
-- `AGENTS.md`
-- `CLAUDE.md`
+- Tier-1 source pins and committed generated metadata hashes
+- native V1 schema coverage metadata for Claude Code, Codex, Grok Build,
+  JetBrains AI Assistant, and Junie
+- explicit `na` and `unknown_schema` cells for unsupported or undocumented
+  surfaces
+- local and strict drift checks, plus a refresh/generate path
+- tested cross-agent transform helpers with lossy/lossless evidence
+- mandatory dogfooding validation of this repo's `.codex/config.toml` during
+  package and root checks
 
-The implementation session must preserve this goal's role as a schema library
-and must not expand V1 into a CLI, file fanout tool, or reverse-roundtrip
-emitter.
+P6+ remains intentionally out of scope for V1. Future work can add a dedicated
+operator CLI, `ruler`/`rulesync` interoperability, reverse-roundtrip emission,
+or additional agents without reopening the V1 schema-library gate.
 
 ## Completion Standard
 
@@ -74,8 +77,7 @@ This initiative is done only when all are true:
   `unknown_schema` with rationale
 - Tier-1 sources are pinned, generated, and drift-checked
 - Tier-2, Tier-3, and Tier-4 sources have documented drift mechanisms
-- supported cross-agent transforms have bidirectional tests and lossy/lossless
-  metadata
+- supported cross-agent transforms have tests and lossy/lossless metadata
 - this repo validates at least one real on-disk agent config through the
   package during `bun run check`
 - V1 evidence records a deliberate invalid config failing with a typed Effect

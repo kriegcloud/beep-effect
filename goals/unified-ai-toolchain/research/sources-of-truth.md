@@ -1,9 +1,9 @@
 # Sources Of Truth
 
-This source map records the upstream evidence for
-`@beep/ai-sync`. It uses live pins verified on 2026-05-22 where
-the source was easy to confirm, and preserves the prior Claude web research as
-[claude-web-source-map.md](./claude-web-source-map.md).
+This source map records the upstream evidence for `@beep/ai-sync`. It uses
+live pins verified on 2026-05-22 where the source was easy to confirm, refreshes
+ACP to `v0.13.3` during implementation, and preserves the prior Claude web
+research as [claude-web-source-map.md](./claude-web-source-map.md).
 
 The tier vocabulary is:
 
@@ -177,8 +177,8 @@ schemas and transforms.
 | MCP schema | https://raw.githubusercontent.com/modelcontextprotocol/modelcontextprotocol/main/schema/2025-11-25/schema.json | 1 | `2025-11-25` | dated version |
 | MCP TypeScript schema | https://raw.githubusercontent.com/modelcontextprotocol/modelcontextprotocol/main/schema/2025-11-25/schema.ts | 1 | `2025-11-25` | dated version |
 | MCP releases | https://github.com/modelcontextprotocol/modelcontextprotocol/releases/latest | 1 | `2025-11-25` | release redirect |
-| ACP schema | https://raw.githubusercontent.com/agentclientprotocol/agent-client-protocol/v0.13.2/schema/schema.json | 1 | `v0.13.2` | git tag |
-| ACP releases | https://github.com/agentclientprotocol/agent-client-protocol/releases/latest | 1 | `v0.13.2` | release redirect |
+| ACP schema | https://raw.githubusercontent.com/agentclientprotocol/agent-client-protocol/v0.13.3/schema/schema.json | 1 | `v0.13.3` | git tag |
+| ACP releases | https://github.com/agentclientprotocol/agent-client-protocol/releases/latest | 1 | `v0.13.3` | release redirect |
 | AGENTS.md | https://agents.md/ | 2 | content current on 2026-05-22 | content hash |
 | AGENTS.md repo | https://github.com/agentsmd/agents.md | 3 | git SHA during implementation | hash |
 | Agent Skills spec | https://agentskills.io/specification | 2 | content current on 2026-05-22 | semantic-field-diff |
@@ -231,10 +231,10 @@ sources:
     isOfficial: true
   - agent: acp
     domain: schema
-    url: https://raw.githubusercontent.com/agentclientprotocol/agent-client-protocol/v0.13.2/schema/schema.json
+    url: https://raw.githubusercontent.com/agentclientprotocol/agent-client-protocol/v0.13.3/schema/schema.json
     tier: 1
     drift_mechanism: version
-    version_pin: v0.13.2
+    version_pin: v0.13.3
     public: true
     isOfficial: true
   - agent: claude-code

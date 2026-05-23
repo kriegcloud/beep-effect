@@ -1,19 +1,19 @@
 # Unified AI Toolchain Plan
 
-This plan executes [SPEC.md](./SPEC.md). P0 is the active bootstrap phase. P1
-through P5 are pending implementation phases. P6+ records follow-up work that
-is intentionally outside the V1 schema-library gate.
+This plan executes [SPEC.md](./SPEC.md). P0 through P5 are complete for V1.
+P6+ records follow-up work that is intentionally outside the V1 schema-library
+gate.
 
 ## P0: Initiative Bootstrap And Current State
 
-Status: in progress
+Status: complete
 
 - Create the goal packet under `goals/unified-ai-toolchain`.
 - Preserve the prior web research artifact as
   [research/claude-web-source-map.md](./research/claude-web-source-map.md).
 - Audit the current repo landscape:
   - `@beep/acp` exists and provides the codegen precedent
-  - `@beep/ai-sync` does not yet exist
+  - `@beep/ai-sync` did not yet exist at packet creation
   - `.codex/config.toml`, `.mcp.json`, `.claude/settings.json`, `AGENTS.md`,
     and `CLAUDE.md` are available dogfooding candidates
 - Record current state in
@@ -27,14 +27,14 @@ and public accessibility.
 
 ## P1: Source-of-Truth Pinning And Tier-1 Codegen
 
-Status: pending
+Status: complete
 
 - Create `packages/tooling/library/ai-sync` as a tooling library.
 - Pin Tier-1 machine-readable sources:
   - Codex `codex-rs/core/config.schema.json` at `rust-v0.133.0`
   - Codex `codex-rs/hooks/schema/generated/*.json` at `rust-v0.133.0`
   - MCP `schema/2025-11-25/schema.json`
-  - ACP `schema/schema.json` at `v0.13.2`
+  - ACP `schema/schema.json` at `v0.13.3`
   - Claude Code SchemaStore mirrors for settings, plugin manifest, and
     marketplace
   - rulesync release schema assets for unified-config fallback
@@ -45,9 +45,7 @@ Status: pending
 - Document the codegen architecture in
   [research/codegen-and-drift-architecture.md](./research/codegen-and-drift-architecture.md).
 
-Evidence: `bun run --cwd packages/tooling/library/ai-sync generate`
-passes, committed generated files match a golden check, and package tests prove
-generated schemas decode representative fixtures.
+Evidence: [history/outputs/p1-source-of-truth-pinning-and-tier-1-codegen.md](./history/outputs/p1-source-of-truth-pinning-and-tier-1-codegen.md).
 
 Acceptance gate: Tier-1 generated schemas are reproducible from pinned sources,
 generated files carry a no-edit banner, and normal package check remains
@@ -55,7 +53,7 @@ offline.
 
 ## P2: Tier-2 Semantic-Field-Diff Schemas
 
-Status: pending
+Status: complete
 
 - Hand-author Effect Schemas for domains without Tier-1 sources.
 - Cover Claude Code hooks, skills, commands, rules, plugin component metadata,
@@ -71,15 +69,14 @@ Status: pending
 - Attach each hand-authored schema to its upstream documentation URL through
   JSDoc annotation.
 
-Evidence: every agent by domain cell has a schema, N/A marker, or
-`unknown_schema` marker with rationale.
+Evidence: [history/outputs/p2-tier-2-semantic-field-diff-schemas.md](./history/outputs/p2-tier-2-semantic-field-diff-schemas.md).
 
 Acceptance gate: schema coverage is complete across the matrix without
 inventing unsupported shapes.
 
 ## P3: Drift Detection Pipeline
 
-Status: pending
+Status: complete
 
 - Implement layered drift checks:
   - `--check`: fast local check, no network, validates generated files and
@@ -94,14 +91,13 @@ Status: pending
 - Add synthetic drift tests that replace a pinned response and prove the drift
   checker reports the affected source and domain.
 
-Evidence: synthetic drift test passes, local check stays offline, strict check
-reports current pins cleanly, and CI is green.
+Evidence: [history/outputs/p3-drift-detection-pipeline.md](./history/outputs/p3-drift-detection-pipeline.md).
 
 Acceptance gate: drift is visible before schemas silently become stale.
 
 ## P4: Cross-Agent Transforms
 
-Status: pending
+Status: complete
 
 - Implement bidirectional `Schema.transform` pairs only where semantics are
   real.
@@ -115,15 +111,14 @@ Status: pending
 - Refuse transforms for unknown or unsupported cells until source evidence
   exists.
 
-Evidence: each transform pair has round-trip tests and a lossy/lossless
-classification.
+Evidence: [history/outputs/p4-cross-agent-transforms.md](./history/outputs/p4-cross-agent-transforms.md).
 
 Acceptance gate: transforms do not pretend that incompatible agent concepts are
 equivalent.
 
 ## P5: First Real Consumer
 
-Status: pending
+Status: complete
 
 - Wire beep-effect's own agent config files through
   `@beep/ai-sync`.
@@ -135,9 +130,7 @@ Status: pending
 - Record failure evidence from a deliberate invalid config mutation in a safe
   test fixture or disposable copy.
 
-Evidence: `bun run check` validates at least one real repo config file, and a
-deliberate invalid field fails with a typed Effect Schema error pointing at the
-offending field.
+Evidence: [history/outputs/p5-first-real-consumer.md](./history/outputs/p5-first-real-consumer.md).
 
 Acceptance gate: V1 is not complete until the repo uses the package on its own
 agent configuration in CI.

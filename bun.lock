@@ -1242,6 +1242,21 @@
         "@types/node": "catalog:",
       },
     },
+    "packages/tooling/library/ai-sync": {
+      "name": "@beep/ai-sync",
+      "version": "0.0.0",
+      "dependencies": {
+        "@beep/identity": "workspace:^",
+        "@beep/schema": "workspace:^",
+        "effect": "catalog:",
+      },
+      "devDependencies": {
+        "@beep/types": "workspace:^",
+        "@effect/platform-node": "catalog:",
+        "@effect/vitest": "catalog:",
+        "@types/node": "catalog:",
+      },
+    },
     "packages/tooling/library/repo-codegraph": {
       "name": "@beep/repo-codegraph",
       "version": "0.0.1",
@@ -1981,6 +1996,8 @@
     "@beep/agent-capability-use-cases": ["@beep/agent-capability-use-cases@workspace:packages/agent-capability/use-cases"],
 
     "@beep/ai-provider-cli": ["@beep/ai-provider-cli@workspace:packages/drivers/ai-provider-cli"],
+
+    "@beep/ai-sync": ["@beep/ai-sync@workspace:packages/tooling/library/ai-sync"],
 
     "@beep/architecture-lab-client": ["@beep/architecture-lab-client@workspace:packages/architecture-lab/client"],
 

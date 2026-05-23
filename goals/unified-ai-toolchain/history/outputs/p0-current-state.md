@@ -2,11 +2,12 @@
 
 ## Status
 
-In progress on 2026-05-22.
+Completed by V1 implementation. This file preserves the packet-creation audit
+from 2026-05-22 and records the post-implementation state.
 
 ## Current Repo Landscape
 
-`@beep/ai-sync` does not yet exist.
+`@beep/ai-sync` now exists at `packages/tooling/library/ai-sync`.
 
 The repo does have a strong precedent for this goal in `@beep/acp`:
 
@@ -16,13 +17,13 @@ The repo does have a strong precedent for this goal in `@beep/acp`:
 - pattern: pinned upstream release constant, Effect `Command.run`, generated
   no-edit banner, generated schemas hidden behind curated package exports
 
-The future package belongs at:
+The package belongs at:
 
 ```txt
 packages/tooling/library/ai-sync
 ```
 
-The package should publish as `@beep/ai-sync` and declare:
+The package publishes as `@beep/ai-sync` and declares:
 
 ```json
 {
@@ -61,7 +62,7 @@ Tier-1 sources are machine-readable schemas that can feed codegen:
 - Codex config schema at `openai/codex` tag `rust-v0.133.0`
 - Codex hook schemas at `openai/codex` tag `rust-v0.133.0`
 - MCP schema `2025-11-25`
-- ACP schema `v0.13.2`
+- ACP schema `v0.13.3`
 - Claude Code SchemaStore mirrors for settings, plugin manifest, and
   marketplace
 - rulesync release schema assets as unified-config fallback
@@ -103,8 +104,8 @@ pins:
 - Codex pinned source for P1: `rust-v0.133.0`
 - MCP latest release: `2025-11-25`
 - MCP pinned source for P1: `2025-11-25`
-- ACP latest release: `v0.13.2`
-- ACP pinned source for P1: `v0.13.2`
+- ACP latest release at packet creation: `v0.13.2`
+- ACP pinned source refreshed during implementation: `v0.13.3`
 - Grok Build skills/plugins docs: last updated May 15, 2026
 
 The preserved Claude web artifact had older pins for Codex and ACP. The packet
@@ -112,19 +113,15 @@ uses the live pins above.
 
 ## Known Gaps
 
-- No package exists yet.
-- No generated schemas exist yet for the target package.
-- No root `bun run check` dogfooding validation exists yet.
 - Grok Build hook event schemas, plugin manifest schema, and Grok-native MCP
   shape are undocumented and must remain `unknown_schema` until upstream docs
   or `grok inspect` evidence exists.
 - JetBrains AI Assistant has no committed Skills or Hooks concept.
 - Junie has no V1 Hooks or Plugins concept in the target matrix.
-- Cross-agent transforms are not implemented.
-- Drift checks are not implemented.
+- P6+ operator workflows, adapter integrations, reverse-roundtrip emission, and
+  additional agents are intentionally non-blocking follow-ups.
 
 ## Next Phase
 
-P1 should create the tooling library, pin Tier-1 sources, and implement the
-codegen pipeline before any Tier-2 hand-authored schemas or transforms are
-added.
+P0 through P5 are complete. P6+ follow-ups should be opened deliberately as
+separate work rather than folded back into the V1 schema-library gate.

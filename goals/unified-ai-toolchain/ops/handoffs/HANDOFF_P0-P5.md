@@ -1,5 +1,10 @@
 # Unified AI Toolchain P0-P5 Handoff
 
+## Status
+
+Superseded by the completed V1 implementation. The closeout evidence now lives
+in `history/outputs/p1-*` through `history/outputs/p5-*`.
+
 ## Mission
 
 Complete the unified AI toolchain schema library from packet bootstrap to V1
@@ -74,7 +79,7 @@ P1 source-of-truth pinning and Tier-1 codegen:
 - use the `@beep/acp` generator as the implementation model
 - pin Codex config and hooks at `rust-v0.133.0`
 - pin MCP at `2025-11-25`
-- pin ACP at `v0.13.2`
+- pin ACP at `v0.13.3`
 - include Claude Code SchemaStore mirrors and rulesync release schemas where
   they are machine-readable
 - keep normal package check offline

@@ -57,6 +57,7 @@ exifr
 fflate
 LiteLLM
 litellm
+Junie
 lmstudio
 Opik
 opik
