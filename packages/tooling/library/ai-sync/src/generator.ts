@@ -5,7 +5,7 @@
  * @since 0.0.0
  */
 
-import { Console, Effect, Encoding, FileSystem, Order, Path, pipe } from "effect";
+import { Console, Effect, Encoding, FileSystem, flow, Order, Path, pipe } from "effect";
 import * as A from "effect/Array";
 import * as Str from "effect/String";
 import { FetchHttpClient, HttpClient, HttpClientResponse } from "effect/unstable/http";
@@ -44,8 +44,11 @@ const sourceOrder = Order.mapInput(Order.String, (source: AiSyncSourceMetadata) 
 
 const sortedSources = () => A.sort(TIER_ONE_SOURCES, sourceOrder);
 
-const SJsonString = (value: string): string =>
-  pipe(value, Str.replaceAll("\\", "\\\\"), Str.replaceAll('"', '\\"'), (escaped) => `"${escaped}"`);
+const SJsonString: (value: string) => string = flow(
+  Str.replaceAll("\\", "\\\\"),
+  Str.replaceAll('"', '\\"'),
+  (escaped) => `"${escaped}"`
+);
 
 const quote = (value: string) => SJsonString(value);
 
