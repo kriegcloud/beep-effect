@@ -485,12 +485,12 @@ const requireHashSaltSecretRefForTarget = Effect.fn("AIMetrics.requireHashSaltSe
       "Non-local AI metrics install plans require --hash-salt-secret-ref or BEEP_AI_METRICS_HASH_SALT_SECRET_REF.",
   });
 });
-type RequireRawArchiveKeySecretRefForTargetOptiosn = {
+type RequireRawArchiveKeySecretRefForTargetOptions = {
   readonly rawArchiveKeySecretRef: string | undefined;
   readonly target: AiMetricsDeployTarget;
 };
 const requireRawArchiveKeySecretRefForTarget = Effect.fn("AIMetrics.requireRawArchiveKeySecretRefForTarget")(
-  function* ({ rawArchiveKeySecretRef, target }: RequireRawArchiveKeySecretRefForTargetOptiosn) {
+  function* ({ rawArchiveKeySecretRef, target }: RequireRawArchiveKeySecretRefForTargetOptions) {
     if (
       target === AiMetricsDeployTarget.Enum.local ||
       (rawArchiveKeySecretRef !== undefined && Str.isNonEmpty(Str.trim(rawArchiveKeySecretRef)))
@@ -1232,7 +1232,7 @@ const forwarderOtlpExported = (result: AiMetricsOtlpExportResult): AiMetricsForw
   });
 
 const forwarderOtlpExportFailureMessage = "OTLP export did not complete after the forwarder run.";
-type ForwarderOtlpExportFailedOptiosn = {
+type ForwarderOtlpExportFailedOptions = {
   readonly endpoint: AiMetricsOtlpEndpointSpec;
   readonly forwarderResult: AiMetricsForwarderRunResult;
   readonly message: string;
@@ -1243,7 +1243,7 @@ const forwarderOtlpExportFailed = ({
   forwarderResult,
   message,
   target,
-}: ForwarderOtlpExportFailedOptiosn): AiMetricsForwarderOtlpExportFailed =>
+}: ForwarderOtlpExportFailedOptions): AiMetricsForwarderOtlpExportFailed =>
   AiMetricsForwarderOtlpExportFailed.make({
     endpointTraceUrl: endpoint.traceUrl,
     ingestRunId: forwarderResult.ingestRunId,

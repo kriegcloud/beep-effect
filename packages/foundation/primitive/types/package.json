@@ -29,7 +29,6 @@
     "beep:audit": "bun run beep:build && bun run beep:check && bun run beep:test && bun run beep:lint",
     "audit": "bun run --if-present beep:audit"
   },
-  "dependencies": {},
   "devDependencies": {
     "@effect/vitest": "catalog:",
     "@types/node": "catalog:"

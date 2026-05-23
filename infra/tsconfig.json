@@ -19,10 +19,10 @@
       "path": "../packages/foundation/modeling/utils/tsconfig.json"
     },
     {
-      "path": "../packages/foundation/primitive/types/tsconfig.json"
+      "path": "../packages/tooling/library/ai-metrics/tsconfig.json"
     },
     {
-      "path": "../packages/tooling/library/ai-metrics/tsconfig.json"
+      "path": "../packages/foundation/primitive/types/tsconfig.json"
     }
   ]
 }

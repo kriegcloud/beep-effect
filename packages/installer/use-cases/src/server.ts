@@ -61,7 +61,7 @@ interface SecretReferenceUseCasesShape {
   readonly previewSecretReferences: Effect.Effect<SecretReferencePlan, S.SchemaError>;
   readonly readSecretReference: (
     reference: OnePasswordReference
-  ) => Effect.Effect<Redacted.Redacted<string>, S.SchemaError | SecretReferenceReadError>;
+  ) => Effect.Effect<Redacted.Redacted, S.SchemaError | SecretReferenceReadError>;
   readonly validateSecretReference: (
     request: SecretReferenceValidationRequest
   ) => Effect.Effect<SecretReferenceValidationResult, S.SchemaError>;
@@ -108,7 +108,7 @@ interface DiscordChannelUseCasesShape {
   readonly previewDiscordChannels: Effect.Effect<DiscordChannelPlan, S.SchemaError>;
   readonly validateDiscordChannel: (
     request: DiscordLiveValidationRequest,
-    botToken: Redacted.Redacted<string>
+    botToken: Redacted.Redacted
   ) => Effect.Effect<DiscordLiveValidationResult, S.SchemaError>;
 }
 

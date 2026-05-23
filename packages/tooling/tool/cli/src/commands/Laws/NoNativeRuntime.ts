@@ -460,7 +460,7 @@ const collectNativeRuntimeViolations = (
       Match.when(Node.isCallExpression, (expression) => detectCallExpressionViolation(expression, inHotspotScope)),
       Match.when(Node.isBinaryExpression, detectBinaryExpressionViolation),
       Match.when(Node.isSwitchStatement, detectSwitchStatementViolation),
-      Match.orElse(() => O.none<NativeRuntimeViolation>())
+      Match.orElse(O.none<NativeRuntimeViolation>)
     );
 
     if (O.isSome(violation)) {

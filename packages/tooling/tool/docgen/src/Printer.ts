@@ -197,17 +197,13 @@ const printOptionalSourceLink = Effect.fn("printOptionalSourceLink")(function* (
   const sourcePath = getSourceLinkPath(source, config);
   return `\n\n[Source](${appendUrlPath(config.srcLink, sourcePath)}#L${position.line})`;
 });
-
-const printModel = Effect.fn("printModel")(function* (
-  name: string,
-  doc: Domain.Doc,
-  options: {
-    readonly signature?: string | undefined;
-    readonly position?: Domain.Position | undefined;
-    readonly indentation?: number | undefined;
-    readonly postfix?: string | undefined;
-  }
-) {
+type PrintModelOptions = {
+  readonly signature?: string | undefined;
+  readonly position?: Domain.Position | undefined;
+  readonly indentation?: number | undefined;
+  readonly postfix?: string | undefined;
+};
+const printModel = Effect.fn("printModel")(function* (name: string, doc: Domain.Doc, options: PrintModelOptions) {
   const sourceLink = yield* printOptionalSourceLink(options.position);
   const description = yield* printOptionalDescription(doc.description);
   return (
@@ -222,14 +218,11 @@ const printModel = Effect.fn("printModel")(function* (
     printOptionalSince(doc.since)
   );
 });
-
-const printEntry = (
-  model: Domain.DocEntry,
-  options: {
-    readonly indentation?: number | undefined;
-    readonly postfix?: string | undefined;
-  }
-) =>
+type PrintEntryOptions = {
+  readonly indentation?: number | undefined;
+  readonly postfix?: string | undefined;
+};
+const printEntry = (model: Domain.DocEntry, options: PrintEntryOptions) =>
   printModel(model.name, model.doc, {
     signature: model.signature,
     position: model.position,
@@ -290,52 +283,81 @@ const printExport = (model: Domain.Export) =>
 
 const printFunction = (model: Domain.Function) => printEntry(model, {});
 
-const printInterface = (model: Domain.Interface, indentation: number) =>
+const printInterface: {
+  (
+    model: Domain.Interface,
+    indentation: number
+  ): Effect.Effect<string, never, Configuration.Configuration | Parser.Source>;
+  (
+    indentation: number
+  ): (model: Domain.Interface) => Effect.Effect<string, never, Configuration.Configuration | Parser.Source>;
+} = dual(2, (model: Domain.Interface, indentation: number) =>
   printEntry(model, {
     indentation,
     postfix: "(interface)",
-  });
+  })
+);
 
-const printTypeAlias = (model: Domain.TypeAlias, indentation: number) =>
+const printTypeAlias: {
+  (
+    model: Domain.TypeAlias,
+    indentation: number
+  ): Effect.Effect<string, never, Configuration.Configuration | Parser.Source>;
+  (
+    indentation: number
+  ): (model: Domain.TypeAlias) => Effect.Effect<string, never, Configuration.Configuration | Parser.Source>;
+} = dual(2, (model: Domain.TypeAlias, indentation: number) =>
   printEntry(model, {
     indentation,
     postfix: "(type alias)",
-  });
+  })
+);
 
-const printNamespace = Effect.fn("printNamespace")(function* (
-  model: Domain.Namespace,
-  indentation: number
-): Effect.fn.Return<string, never, Configuration.Configuration | Parser.Source> {
-  const header = yield* printModel(model.name, model.doc, {
-    position: model.position,
-    indentation,
-    postfix: "(namespace)",
-  });
-  const interfaces = yield* Effect.forEach(model.interfaces, (inter) => printInterface(inter, indentation + 1));
-  const typeAliases = yield* Effect.forEach(model.typeAliases, (typeAlias) =>
-    printTypeAlias(typeAlias, indentation + 1)
-  );
-  const namespaces = yield* Effect.forEach(model.namespaces, (namespace) => printNamespace(namespace, indentation + 1));
+const printNamespace: {
+  (
+    model: Domain.Namespace,
+    indentation: number
+  ): Effect.Effect<string, never, Configuration.Configuration | Parser.Source>;
+  (
+    indentation: number
+  ): (model: Domain.Namespace) => Effect.Effect<string, never, Configuration.Configuration | Parser.Source>;
+} = dual(
+  2,
+  Effect.fn("printNamespace")(function* (
+    model: Domain.Namespace,
+    indentation: number
+  ): Effect.fn.Return<string, never, Configuration.Configuration | Parser.Source> {
+    const header = yield* printModel(model.name, model.doc, {
+      position: model.position,
+      indentation,
+      postfix: "(namespace)",
+    });
+    const interfaces = yield* Effect.forEach(model.interfaces, (inter) => printInterface(inter, indentation + 1));
+    const typeAliases = yield* Effect.forEach(model.typeAliases, (typeAlias) =>
+      printTypeAlias(typeAlias, indentation + 1)
+    );
+    const namespaces = yield* Effect.forEach(model.namespaces, printNamespace(indentation + 1));
 
-  return (
-    header +
-    pipe(
-      interfaces,
-      A.map((value) => `\n\n${value}`),
-      A.join("")
-    ) +
-    pipe(
-      typeAliases,
-      A.map((value) => `\n\n${value}`),
-      A.join("")
-    ) +
-    pipe(
-      namespaces,
-      A.map((value) => `\n\n${value}`),
-      A.join("")
-    )
-  );
-});
+    return (
+      header +
+      pipe(
+        interfaces,
+        A.map((value) => `\n\n${value}`),
+        A.join("")
+      ) +
+      pipe(
+        typeAliases,
+        A.map((value) => `\n\n${value}`),
+        A.join("")
+      ) +
+      pipe(
+        namespaces,
+        A.map((value) => `\n\n${value}`),
+        A.join("")
+      )
+    );
+  })
+);
 
 /**
  * Renders a single documented entity into markdown.
@@ -351,17 +373,17 @@ const printNamespace = Effect.fn("printNamespace")(function* (
  * @category formatting
  * @since 0.0.0
  */
-export const print = (printable: Printable) =>
-  Match.value(printable).pipe(
-    Match.tag("Class", printClass),
-    Match.tag("Constant", printConstant),
-    Match.tag("Export", printExport),
-    Match.tag("Function", printFunction),
-    Match.tag("Interface", (value) => printInterface(value, 0)),
-    Match.tag("TypeAlias", (value) => printTypeAlias(value, 0)),
-    Match.tag("Namespace", (value) => printNamespace(value, 0)),
-    Match.exhaustive
-  );
+export const print = Match.type<Printable>().pipe(
+  Match.tagsExhaustive({
+    Class: printClass,
+    Constant: printConstant,
+    Export: printExport,
+    Function: printFunction,
+    Interface: printInterface(0),
+    TypeAlias: printTypeAlias(0),
+    Namespace: printNamespace(0),
+  })
+);
 
 const DEFAULT_CATEGORY = "utils";
 
@@ -378,9 +400,13 @@ const getPrintables = (module: Domain.Module): ReadonlyArray<Printable> =>
     module.namespaces,
   ]);
 
-const sortByName: <A extends { name: string }>(self: Iterable<A>) => Array<A> = A.sort(
-  Order.mapInput(Str.Order, ({ name }: { readonly name: string }) => name)
-);
+const sortByName: <
+  A extends {
+    name: string;
+  },
+>(
+  self: Iterable<A>
+) => Array<A> = A.sort(Order.mapInput(Str.Order, ({ name }: { readonly name: string }) => name));
 
 /**
  * Renders a parsed module into markdown grouped by documentation category.
@@ -402,7 +428,6 @@ export const printModule = (module: Domain.Module) =>
         Effect.fnUntraced(function* (context) {
           return yield* Effect.gen(function* () {
             const description = yield* printModel(module.name, module.doc, { postfix: "overview" });
-
             const grouped = A.groupBy(sortByName(getPrintables(module)), (printable) =>
               printable.doc.category.length === 0 ? DEFAULT_CATEGORY : A.join(", ")(printable.doc.category)
             );

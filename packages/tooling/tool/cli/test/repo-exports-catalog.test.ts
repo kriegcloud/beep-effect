@@ -80,7 +80,7 @@ describe("repo export catalog", () => {
         expect(unknownRecordEntries).toEqual(
           expect.arrayContaining([
             expect.objectContaining({
-              sourcePath: "packages/foundation/modeling/schema/src/Record.ts",
+              sourcePath: "packages/foundation/modeling/schema/src/Record/Record.schema.ts",
               summary: "Schema for object records with string keys and unknown values.",
             }),
           ])

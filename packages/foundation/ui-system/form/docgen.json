@@ -32,8 +32,35 @@
       "@beep/form": [
         "../../../../packages/foundation/ui-system/form/src/index.ts"
       ],
-      "@beep/form/*": [
-        "../../../../packages/foundation/ui-system/form/src/*.ts"
+      "@beep/form/core": [
+        "../../../../packages/foundation/ui-system/form/src/core.ts"
+      ],
+      "@beep/form/core/internal/dirty": [
+        "../../../../packages/foundation/ui-system/form/src/core/internal/dirty.ts"
+      ],
+      "@beep/form/core/internal/weak-registry": [
+        "../../../../packages/foundation/ui-system/form/src/core/internal/weak-registry.ts"
+      ],
+      "@beep/form/react": [
+        "../../../../packages/foundation/ui-system/form/src/react.ts"
+      ],
+      "@beep/form/react/FormReact": [
+        "../../../../packages/foundation/ui-system/form/src/react/FormReact.tsx"
+      ],
+      "@beep/identity": [
+        "../../../../packages/foundation/modeling/identity/src/index.ts"
+      ],
+      "@beep/identity/*": [
+        "../../../../packages/foundation/modeling/identity/src/*.ts"
+      ],
+      "@beep/identity/packages": [
+        "../../../../packages/foundation/modeling/identity/src/packages.ts"
+      ],
+      "@beep/types": [
+        "../../../../packages/foundation/primitive/types/src/index.ts"
+      ],
+      "@beep/types/*": [
+        "../../../../packages/foundation/primitive/types/src/*.ts"
       ]
     }
   }

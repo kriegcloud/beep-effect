@@ -895,7 +895,7 @@ const rootLintPolicySteps = (
       pipe(shouldRunRepoWide, O.liftPredicate(P.isTruthy), O.as(rootRepoLintPolicySteps(repoRoot))),
     ] satisfies ReadonlyArray<O.Option<ReadonlyArray<QualityTaskStep>>>,
     O.firstSomeOf,
-    O.getOrElse(() => A.empty<QualityTaskStep>())
+    O.getOrElse(A.empty<QualityTaskStep>)
   );
 };
 

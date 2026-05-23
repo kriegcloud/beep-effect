@@ -72,7 +72,7 @@ const parameterNamesForTool = (tool: NlpTool): ReadonlyArray<string> => {
       ),
     ] satisfies ReadonlyArray<O.Option<ReadonlyArray<string>>>,
     O.firstSomeOf,
-    O.getOrElse(() => A.empty<string>())
+    O.getOrElse(A.empty<string>)
   );
 };
 

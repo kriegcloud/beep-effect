@@ -6,15 +6,15 @@
  * @since 0.0.0
  */
 
-import { AiProviderCli } from "@beep/ai-provider-cli";
+import { AiProviderCli, AiProviderCliAuthStatus } from "@beep/ai-provider-cli";
 import { Discord, DiscordChannelRequest, DiscordCreateMessageRequest } from "@beep/discord";
+import { $InstallerServerId } from "@beep/identity";
 import { DiscordChannel } from "@beep/installer-domain/aggregates/DiscordChannel";
 import {
   AIStackManifest,
   ManifestCapability,
   ManifestDiscordChannel,
   ManifestProvider,
-  P1LiveProofSnapshot,
   ValidationEvent,
 } from "@beep/installer-domain/aggregates/StackManifest";
 import {
@@ -48,7 +48,7 @@ import {
   StackManifestUseCases,
 } from "@beep/installer-use-cases/server";
 import { OnePasswordCli } from "@beep/onepassword-cli";
-import { Effect, Layer, pipe, Stream } from "effect";
+import { Effect, identity, Layer, pipe, Stream } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as R from "effect/Record";
@@ -58,6 +58,8 @@ import { ChildProcess, ChildProcessSpawner } from "effect/unstable/process";
 import type { AiProviderCliProvider } from "@beep/ai-provider-cli";
 import type { OnePasswordReference } from "@beep/shared-domain/values/OnePasswordReference";
 import type { Redacted } from "effect";
+
+const $I = $InstallerServerId.create("Layer");
 
 const decodeHostDependencyPlan = S.decodeUnknownEffect(HostDependencyPlan);
 const decodeSecretReferencePlan = S.decodeUnknownEffect(SecretReferencePlan);
@@ -177,12 +179,18 @@ const p1aWorkspaceDryRunPlanInput = {
   verbs: P1A_WORKSPACE_VERB_INPUTS,
 } as const;
 
-type CommandProbe = {
-  readonly args: ReadonlyArray<string>;
-  readonly id: string;
-  readonly installHint: string;
-  readonly name: string;
-};
+class CommandProbe extends S.Class<CommandProbe>($I`CommandProbe`)(
+  {
+    args: S.Array(S.String),
+    id: S.String,
+    installHint: S.String,
+    name: S.String,
+  },
+  $I.annote("CommandProbe", {
+    description:
+      "A command probe represents a command that can be executed to verify installation and functionality of a tool or service.",
+  })
+) {}
 
 const p1CommandProbes = [
   { args: ["--version"], id: "op-cli", installHint: "Install and sign in to the 1Password CLI.", name: "op" },
@@ -291,13 +299,20 @@ const validationEvent = (
     tier,
   });
 
+class ManifestForRequest extends S.Class<ManifestForRequest>($I`ManifestForRequest`)(
+  {
+    discordSummary: S.String,
+    dryRunOnly: S.Boolean,
+  },
+  $I.annote("ManifestForRequest", {
+    description: "A request for a stack manifest with specific options and capabilities.",
+  })
+) {}
+
 const manifestForRequest = (
   request: P1ManualProofRequest,
   providers: ReadonlyArray<ManifestProvider>,
-  options: {
-    readonly discordSummary: string;
-    readonly dryRunOnly: boolean;
-  }
+  options: ManifestForRequest
 ) =>
   AIStackManifest.make({
     capabilities: proofCapabilities(options.discordSummary),
@@ -440,12 +455,11 @@ export const makeProviderAccountServer = Effect.fn("InstallerServer.makeProvider
           ProviderAuthValidationResult.make({
             authMode: "existing-local-session",
             command: probe.command,
-            message:
-              probe.status === "authenticated"
-                ? "Provider CLI reports an authenticated local session."
-                : "Provider CLI does not report an authenticated local session.",
+            message: AiProviderCliAuthStatus.is.authenticated(probe.status)
+              ? "Provider CLI reports an authenticated local session."
+              : "Provider CLI does not report an authenticated local session.",
             provider,
-            status: probe.status === "authenticated" ? "configured" : "missing",
+            status: AiProviderCliAuthStatus.is.authenticated(probe.status) ? "configured" : "missing",
           }),
       })
     );
@@ -471,7 +485,7 @@ export const makeDiscordChannelServer = Effect.fn("InstallerServer.makeDiscordCh
     previewDiscordChannels: Effect.succeed(plan),
     validateDiscordChannel: Effect.fn("InstallerServer.validateDiscordChannel")(function* (
       rawRequest: DiscordLiveValidationRequest,
-      botToken: Redacted.Redacted<string>
+      botToken: Redacted.Redacted
     ) {
       const request = yield* decodeDiscordLiveValidationRequest(rawRequest);
 
@@ -507,7 +521,7 @@ export const makeDiscordChannelServer = Effect.fn("InstallerServer.makeDiscordCh
               message: "Discord channel liveness or test-message proof failed.",
               status: "missing",
             }),
-          onSuccess: (result) => result,
+          onSuccess: identity,
         })
       );
     }),
@@ -603,7 +617,7 @@ export const makeP1ManualProofWorkflow = Effect.fn("InstallerServer.makeP1Manual
       });
 
       return P1ManualProofResult.make({
-        snapshot: P1LiveProofSnapshot.make({
+        snapshot: {
           generatedBy: `@beep/stack-installer:${request.operatorLabel}`,
           manifest,
           validationEvents: [
@@ -626,7 +640,7 @@ export const makeP1ManualProofWorkflow = Effect.fn("InstallerServer.makeP1Manual
                 : "Discord routing was previewed without sending a live test message from the app."
             ),
           ],
-        }),
+        },
       });
     }),
     run: Effect.fn("InstallerServer.runP1ManualProof")(function* (rawRequest: P1ManualProofRequest) {
@@ -662,7 +676,7 @@ export const makeP1ManualProofWorkflow = Effect.fn("InstallerServer.makeP1Manual
       });
 
       return P1ManualProofResult.make({
-        snapshot: P1LiveProofSnapshot.make({
+        snapshot: {
           generatedBy: `@beep/stack-installer:${request.operatorLabel}`,
           manifest,
           validationEvents: [
@@ -683,7 +697,7 @@ export const makeP1ManualProofWorkflow = Effect.fn("InstallerServer.makeP1Manual
               discordMessage
             ),
           ],
-        }),
+        },
       });
     }),
   };
