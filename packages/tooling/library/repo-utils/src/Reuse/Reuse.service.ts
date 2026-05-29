@@ -547,7 +547,11 @@ const candidateFromPattern = (
   });
 };
 
-const CLONE_MIN_TOKENS = 40;
+// Minimum normalized-token count for a declaration to be clone-eligible.
+// Tuned to 50: the 42-49 band was dominated by coincidental small schema /
+// error-option / event shapes (e.g. unrelated 2-3 field S.Class declarations
+// that normalize identically), while real cross-package clones cluster at >=50.
+const CLONE_MIN_TOKENS = 50;
 
 type CloneRecord = {
   readonly key: string;
@@ -584,12 +588,24 @@ const fnv1a64Hex = (input: string): string => {
   return hash.toString(16);
 };
 
-// Normalize a declaration to a structural signature that ignores formatting,
-// identifier names (alpha-renamed by first appearance), and literal values, so
-// exact + renamed copies (Type-1/Type-2 clones) collapse to the same key. The
-// key is the full token sequence (no hashing), so structurally distinct
-// declarations can never share a key.
-const normalizedDeclarationSignature = (node: Node): { readonly key: string; readonly size: number } => {
+/**
+ * Normalize a declaration to a structural signature that ignores formatting,
+ * identifier names (alpha-renamed by first appearance), and literal values, so
+ * exact + renamed copies (Type-1/Type-2 clones) collapse to the same key. The
+ * key is the full token sequence (no hashing), so structurally distinct
+ * declarations can never share a key.
+ *
+ * @param node - The exported ts-morph declaration node to fingerprint.
+ * @returns The full normalized token-sequence key and its token count.
+ * @example
+ * ```ts
+ * import { normalizedDeclarationSignature } from "@beep/repo-utils/Reuse/Reuse.service"
+ * void normalizedDeclarationSignature
+ * ```
+ * @category utilities
+ * @since 0.0.0
+ */
+export const normalizedDeclarationSignature = (node: Node): { readonly key: string; readonly size: number } => {
   const renames = new Map<string, number>();
   const tokens = A.empty<string>();
 
