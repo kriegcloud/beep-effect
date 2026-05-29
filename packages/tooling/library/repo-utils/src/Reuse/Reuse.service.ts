@@ -820,7 +820,7 @@ const nearMissCandidateFromCluster = (records: ReadonlyArray<CloneRecord>, simil
     implementationSteps: [
       "Diff the near-miss declarations to separate incidental from intentional differences.",
       "Pick the canonical home following specific-home-first routing.",
-      "Extract a shared declaration parameterizing the intentional differences and replace the copies with it.",
+      "Extract a shared declaration to parameterize the intentional differences and replace the copies with it.",
     ],
     verificationCommands: ["bun run check", "bun run test", "bun run lint"],
     catalogMatchIds: [],
@@ -835,15 +835,18 @@ const computeNearMissClusters = (
   records: ReadonlyArray<CloneRecord>,
   minSimilarity: number
 ): { readonly candidates: ReadonlyArray<ReuseCandidate>; readonly truncated: boolean } => {
-  // Exclude declarations whose normalized key is exact-identical to another:
-  // those are exact clones already reported by detectClones.
-  const keyCounts = new Map<string, number>();
+  // Keep one representative per normalized key. Exact-identical declarations are
+  // reported by detectClones; collapsing each exact group to a single
+  // representative avoids re-reporting them as near-misses while still letting an
+  // edited (Type-3) copy match the group it resembles.
+  const representativeByKey = new Map<string, CloneRecord>();
   for (const record of records) {
-    keyCounts.set(record.key, (keyCounts.get(record.key) ?? 0) + 1);
+    if (!representativeByKey.has(record.key)) {
+      representativeByKey.set(record.key, record);
+    }
   }
   const entries: ReadonlyArray<NearMissEntry> = pipe(
-    records,
-    A.filter((record) => (keyCounts.get(record.key) ?? 0) === 1),
+    Array.from(representativeByKey.values()),
     A.map((record) => {
       const shingles = tokenShingles({ tokens: record.key.split(","), k: NEAR_MISS_SHINGLE_K });
       return {
@@ -886,18 +889,21 @@ const computeNearMissClusters = (
     }
   }
 
-  // Deterministic order before applying the cap so truncation is reproducible.
-  const orderedKeys = A.sort(Array.from(candidatePairs.keys()), Order.String);
-  const truncated = orderedKeys.length > NEAR_MISS_MAX_COMPARISONS;
-  const consideredKeys = truncated ? orderedKeys.slice(0, NEAR_MISS_MAX_COMPARISONS) : orderedKeys;
+  // Numeric (not lexicographic) order before applying the cap so truncation is
+  // reproducible and stable across runs.
+  const orderedPairs = A.sort(
+    Array.from(candidatePairs.values()),
+    Order.combine(
+      Order.mapInput(Order.Number, (pair: { readonly left: number; readonly right: number }) => pair.left),
+      Order.mapInput(Order.Number, (pair: { readonly left: number; readonly right: number }) => pair.right)
+    )
+  );
+  const truncated = orderedPairs.length > NEAR_MISS_MAX_COMPARISONS;
+  const consideredPairs = truncated ? orderedPairs.slice(0, NEAR_MISS_MAX_COMPARISONS) : orderedPairs;
 
   const unionFind = makeUnionFind(A.length(entries));
   const edges = A.empty<{ readonly left: number; readonly right: number; readonly similarity: number }>();
-  for (const key of consideredKeys) {
-    const pair = candidatePairs.get(key);
-    if (pair === undefined) {
-      continue;
-    }
+  for (const pair of consideredPairs) {
     const leftEntry = entries[pair.left];
     const rightEntry = entries[pair.right];
     if (leftEntry === undefined || rightEntry === undefined) {
@@ -1092,6 +1098,7 @@ type ReuseAnalysisContextShape = {
   readonly catalogBySelector: MutableHashMap.MutableHashMap<SelectorCacheKey, ReadonlyArray<ReuseCatalogEntry>>;
   readonly candidatesBySelector: MutableHashMap.MutableHashMap<SelectorCacheKey, ReadonlyArray<ReuseCandidate>>;
   readonly cloneCandidatesBySelector: MutableHashMap.MutableHashMap<SelectorCacheKey, ReadonlyArray<ReuseCandidate>>;
+  readonly cloneRecordsBySelector: MutableHashMap.MutableHashMap<SelectorCacheKey, ReadonlyArray<CloneRecord>>;
 };
 
 class ReuseAnalysisContext extends Context.Service<ReuseAnalysisContext, ReuseAnalysisContextShape>()(
@@ -1498,6 +1505,7 @@ const ReuseAnalysisContextLive = Layer.effect(
       catalogBySelector: MutableHashMap.empty(),
       candidatesBySelector: MutableHashMap.empty(),
       cloneCandidatesBySelector: MutableHashMap.empty(),
+      cloneRecordsBySelector: MutableHashMap.empty(),
     });
   })
 );
@@ -1998,6 +2006,20 @@ const collectCloneRecords = Effect.fn("collectCloneRecords")(function* (
   });
 });
 
+// Cache the scanned clone records per scope so the exact and near-miss passes
+// share a single ts-morph traversal (and repeated near-miss calls at different
+// similarity thresholds do not re-scan).
+const getCloneRecords = (
+  analysisContext: ReuseAnalysisContextShape,
+  scopeSelector: O.Option<string>,
+  scopes: ReadonlyArray<WorkspaceScope>
+): Effect.Effect<ReadonlyArray<CloneRecord>, ReuseAnalysisError> =>
+  getCachedOrCompute(
+    analysisContext.cloneRecordsBySelector,
+    selectorCacheKey(scopeSelector),
+    collectCloneRecords(analysisContext, scopes)
+  );
+
 /**
  * Service contract for declaration-anchored structural clone detection.
  *
@@ -2060,7 +2082,7 @@ export const ReuseCloneServiceLive = Layer.effect(
           if (A.isReadonlyArrayEmpty(scopes)) {
             return A.empty<ReuseCandidate>();
           }
-          const records = yield* collectCloneRecords(analysisContext, scopes);
+          const records = yield* getCloneRecords(analysisContext, scopeSelector, scopes);
 
           const grouped = A.groupBy(records, (record) => record.key);
           let candidates = A.empty<ReuseCandidate>();
@@ -2091,7 +2113,7 @@ export const ReuseCloneServiceLive = Layer.effect(
         if (A.isReadonlyArrayEmpty(scopes)) {
           return A.empty<ReuseCandidate>();
         }
-        const records = yield* collectCloneRecords(analysisContext, scopes);
+        const records = yield* getCloneRecords(analysisContext, scopeSelector, scopes);
         const result = computeNearMissClusters(records, minSimilarity);
         if (result.truncated) {
           yield* Effect.logWarning(

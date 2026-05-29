@@ -605,6 +605,11 @@ const reuseClonesCommand = Command.make(
         }
 
         if (fuzzy) {
+          if (minSimilarity < 0 || minSimilarity > 1) {
+            return yield* DomainError.make({
+              message: `--min-similarity must be in the range [0, 1]; got ${minSimilarity}.`,
+            });
+          }
           const candidates = yield* cloneService.detectNearMissClones(scope, { minSimilarity });
           yield* printSelectedOutput(
             json,
