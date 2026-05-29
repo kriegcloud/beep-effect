@@ -1089,6 +1089,12 @@
       ],
       "@beep/schema/test/Yaml": [
         "./packages/foundation/modeling/schema/src/internal/test/Yaml.test-kit.ts"
+      ],
+      "@beep/nlp/Algebra": [
+        "./packages/foundation/capability/nlp/src/Algebra/index.ts"
+      ],
+      "@beep/nlp/Ontology": [
+        "./packages/foundation/capability/nlp/src/Ontology/index.ts"
       ]
     }
   }

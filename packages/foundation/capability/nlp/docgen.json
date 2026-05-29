@@ -32,6 +32,9 @@
       "@beep/nlp": [
         "../../../../packages/foundation/capability/nlp/src/index.ts"
       ],
+      "@beep/nlp/Algebra": [
+        "../../../../packages/foundation/capability/nlp/src/Algebra/index.ts"
+      ],
       "@beep/nlp/Core": [
         "../../../../packages/foundation/capability/nlp/src/Core/index.ts"
       ],
@@ -40,6 +43,9 @@
       ],
       "@beep/nlp/Layers": [
         "../../../../packages/foundation/capability/nlp/src/Layers/index.ts"
+      ],
+      "@beep/nlp/Ontology": [
+        "../../../../packages/foundation/capability/nlp/src/Ontology/index.ts"
       ],
       "@beep/nlp/PathText": [
         "../../../../packages/foundation/capability/nlp/src/PathText.ts"

@@ -22,6 +22,20 @@
 export const VERSION = "0.0.0";
 
 /**
+ * Algebraic structures (monoids) for NLP aggregation.
+ *
+ * @example
+ * ```typescript
+ * import { Algebra } from "@beep/nlp"
+ *
+ * console.log(Algebra.Monoid.fold(Algebra.Monoid.NumberSum)([1, 2, 3])) // 6
+ * ```
+ *
+ * @since 0.0.0
+ * @category algebra
+ */
+export * as Algebra from "./Algebra/index.ts";
+/**
  * Core NLP models, tokenization, and pattern utilities.
  *
  * @example
@@ -66,6 +80,20 @@ export * as IdentifierText from "./IdentifierText.ts";
  * @category layers
  */
 export * as Layers from "./Layers/index.ts";
+/**
+ * Type-level ontology of text strata (kinds) and the containment poset.
+ *
+ * @example
+ * ```typescript
+ * import { Ontology } from "@beep/nlp"
+ *
+ * console.log(Ontology.Kind.canContain("Document", "Sentence")) // true
+ * ```
+ *
+ * @since 0.0.0
+ * @category ontology
+ */
+export * as Ontology from "./Ontology/index.ts";
 /**
  * Deterministic path and module-specifier normalization helpers.
  *
