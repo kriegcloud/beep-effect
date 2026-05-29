@@ -41,10 +41,10 @@ export const Default: Story = {
   play: ({ canvasElement, args }) => {
     const canvas = within(canvasElement);
     const button = canvas.getByRole("button");
-    return expect(button)
-      .toBeVisible()
-      .then(() => userEvent.click(button))
-      .then(() => expect(args.onClick).toHaveBeenCalledOnce());
+    expect(button).toBeVisible();
+    return userEvent.click(button).then(() => {
+      expect(args.onClick).toHaveBeenCalledOnce();
+    });
   },
 };
 
@@ -113,10 +113,12 @@ export const ClickInteraction: Story = {
   play: ({ canvasElement, args }) => {
     const canvas = within(canvasElement);
     const button = canvas.getByRole("button");
-    return expect(button)
-      .toHaveTextContent("Click Me")
+    expect(button).toHaveTextContent("Click Me");
+    return userEvent
+      .click(button)
       .then(() => userEvent.click(button))
-      .then(() => userEvent.click(button))
-      .then(() => expect(args.onClick).toHaveBeenCalledTimes(2));
+      .then(() => {
+        expect(args.onClick).toHaveBeenCalledTimes(2);
+      });
   },
 };
