@@ -44,6 +44,7 @@ import {
   ReuseSourceSymbolRef,
   ReuseWorkUnit,
 } from "./Reuse.model.js";
+import { jaccardSimilarity, lshBandKeys, minhashSignature, tokenShingles } from "./TokenSimilarity.js";
 import type { Node } from "ts-morph";
 import type { Symbol as TsMorphSymbol } from "../TSMorph/index.js";
 import type { ReuseCandidateKind } from "./Reuse.model.js";
@@ -711,6 +712,242 @@ const cloneCandidateFromCluster = (records: ReadonlyArray<CloneRecord>): ReuseCa
     verificationCommands: ["bun run check", "bun run test", "bun run lint"],
     catalogMatchIds: [],
   });
+};
+
+// --- Type-3 near-miss (fuzzy) clone detection --------------------------------
+// Report-only: surfaces similar-but-not-identical declarations the exact pass
+// cannot. MinHash + LSH only prune the candidate space; every reported pair is
+// confirmed by an exact Jaccard score, so output is deterministic.
+const NEAR_MISS_SHINGLE_K = 3;
+const NEAR_MISS_MINHASH_PERMUTATIONS = 128;
+const NEAR_MISS_LSH_BANDS = 16;
+const NEAR_MISS_DEFAULT_MIN_SIMILARITY = 0.8;
+const NEAR_MISS_MAX_COMPARISONS = 200_000;
+
+const clampSimilarity = (value: number): number => Math.min(1, Math.max(0, value));
+
+type NearMissEntry = {
+  readonly record: CloneRecord;
+  readonly shingles: ReadonlySet<string>;
+  readonly signature: ReadonlyArray<number>;
+};
+
+// Minimal union-find (path-compressed) over entry indices for clustering edges.
+const makeUnionFind = (size: number) => {
+  const parent = new Array<number>(size);
+  for (let index = 0; index < size; index += 1) {
+    parent[index] = index;
+  }
+  const find = (value: number): number => {
+    let root = value;
+    while ((parent[root] ?? root) !== root) {
+      root = parent[root] ?? root;
+    }
+    let cursor = value;
+    while ((parent[cursor] ?? cursor) !== root) {
+      const next = parent[cursor] ?? cursor;
+      parent[cursor] = root;
+      cursor = next;
+    }
+    return root;
+  };
+  const union = (left: number, right: number): void => {
+    const rootLeft = find(left);
+    const rootRight = find(right);
+    if (rootLeft !== rootRight) {
+      parent[rootLeft] = rootRight;
+    }
+  };
+  return { find, union };
+};
+
+const nearMissCandidateFromCluster = (records: ReadonlyArray<CloneRecord>, similarity: number): ReuseCandidate => {
+  const ordered = A.sort(
+    records,
+    Order.mapInput(Order.String, (record: CloneRecord) => `${record.filePath}:${record.startLine}`)
+  );
+  const sourceSymbols = pipe(
+    ordered,
+    A.map((record) =>
+      ReuseSourceSymbolRef.make({
+        symbolId: `${record.filePath}#${record.symbolName}`,
+        filePath: record.filePath,
+        symbolName: record.symbolName,
+        symbolKind: record.symbolKind,
+      })
+    )
+  );
+  const sourceScopes = uniqueSortedStrings(
+    pipe(
+      ordered,
+      A.map((record) => record.packagePath)
+    )
+  );
+  const evidence = pipe(
+    ordered,
+    A.map(
+      (record) =>
+        `${record.filePath}:${record.startLine} ${record.symbolKind} ${record.symbolName} (${record.size} normalized tokens)`
+    )
+  );
+  const headSymbol = pipe(
+    A.head(ordered),
+    O.map((record) => record.symbolName),
+    O.getOrElse(() => "declaration")
+  );
+  const memberKey = pipe(
+    ordered,
+    A.map((record) => `${record.filePath}#${record.symbolName}`),
+    A.join("|")
+  );
+  const percent = Math.round(similarity * 100);
+
+  return ReuseCandidate.make({
+    candidateId: `reuse-near-miss:${fnv1a64Hex(memberKey)}`,
+    kind: "near-miss-clone",
+    title: `Near-miss clone of ${headSymbol} across ${A.length(sourceScopes)} packages (~${percent}% similar)`,
+    sourceSymbols,
+    sourceScopes,
+    recommendedAction:
+      "Review these near-identical declarations; if the differences are incidental, unify them behind one shared/foundation declaration and parameterize the intentional variation.",
+    proposedDestinationPackage: "@beep/utils",
+    proposedDestinationModule: "packages/foundation/modeling/utils/src",
+    confidence: similarity,
+    evidence,
+    blockingConcerns: [
+      "These declarations are similar but NOT identical - confirm the differences are incidental before unifying, and parameterize any intentional variation.",
+    ],
+    implementationSteps: [
+      "Diff the near-miss declarations to separate incidental from intentional differences.",
+      "Pick the canonical home following specific-home-first routing.",
+      "Extract a shared declaration parameterizing the intentional differences and replace the copies with it.",
+    ],
+    verificationCommands: ["bun run check", "bun run test", "bun run lint"],
+    catalogMatchIds: [],
+  });
+};
+
+// Pure: MinHash + LSH candidate generation, exact-Jaccard confirmation, and
+// union-find clustering over the records already collected for the exact pass.
+// Returns the truncated flag so the caller can warn when the comparison cap is
+// hit (no silent drop).
+const computeNearMissClusters = (
+  records: ReadonlyArray<CloneRecord>,
+  minSimilarity: number
+): { readonly candidates: ReadonlyArray<ReuseCandidate>; readonly truncated: boolean } => {
+  // Exclude declarations whose normalized key is exact-identical to another:
+  // those are exact clones already reported by detectClones.
+  const keyCounts = new Map<string, number>();
+  for (const record of records) {
+    keyCounts.set(record.key, (keyCounts.get(record.key) ?? 0) + 1);
+  }
+  const entries: ReadonlyArray<NearMissEntry> = pipe(
+    records,
+    A.filter((record) => (keyCounts.get(record.key) ?? 0) === 1),
+    A.map((record) => {
+      const shingles = tokenShingles({ tokens: record.key.split(","), k: NEAR_MISS_SHINGLE_K });
+      return {
+        record,
+        shingles,
+        signature: minhashSignature({ shingles, permutations: NEAR_MISS_MINHASH_PERMUTATIONS }),
+      };
+    })
+  );
+
+  if (A.length(entries) < 2) {
+    return { candidates: A.empty<ReuseCandidate>(), truncated: false };
+  }
+
+  const buckets = new Map<string, Array<number>>();
+  entries.forEach((entry, index) => {
+    for (const bandKey of lshBandKeys({ signature: entry.signature, bands: NEAR_MISS_LSH_BANDS })) {
+      const bucket = buckets.get(bandKey);
+      if (bucket === undefined) {
+        buckets.set(bandKey, [index]);
+      } else {
+        bucket.push(index);
+      }
+    }
+  });
+
+  const candidatePairs = new Map<string, { readonly left: number; readonly right: number }>();
+  for (const bucket of buckets.values()) {
+    if (bucket.length < 2) {
+      continue;
+    }
+    for (let a = 0; a < bucket.length; a += 1) {
+      for (let b = a + 1; b < bucket.length; b += 1) {
+        const left = bucket[a] ?? 0;
+        const right = bucket[b] ?? 0;
+        const lo = Math.min(left, right);
+        const hi = Math.max(left, right);
+        candidatePairs.set(`${lo}:${hi}`, { left: lo, right: hi });
+      }
+    }
+  }
+
+  // Deterministic order before applying the cap so truncation is reproducible.
+  const orderedKeys = A.sort(Array.from(candidatePairs.keys()), Order.String);
+  const truncated = orderedKeys.length > NEAR_MISS_MAX_COMPARISONS;
+  const consideredKeys = truncated ? orderedKeys.slice(0, NEAR_MISS_MAX_COMPARISONS) : orderedKeys;
+
+  const unionFind = makeUnionFind(A.length(entries));
+  const edges = A.empty<{ readonly left: number; readonly right: number; readonly similarity: number }>();
+  for (const key of consideredKeys) {
+    const pair = candidatePairs.get(key);
+    if (pair === undefined) {
+      continue;
+    }
+    const leftEntry = entries[pair.left];
+    const rightEntry = entries[pair.right];
+    if (leftEntry === undefined || rightEntry === undefined) {
+      continue;
+    }
+    const overlap = jaccardSimilarity({ self: leftEntry.shingles, that: rightEntry.shingles });
+    // Weight by token-length ratio so repetitive token runs (e.g. long literal
+    // arrays, whose k-gram sets collapse to a few "L,L,L" shingles) cannot
+    // masquerade as near-misses across very different declaration sizes.
+    const sizeRatio =
+      Math.min(leftEntry.record.size, rightEntry.record.size) / Math.max(leftEntry.record.size, rightEntry.record.size);
+    const similarity = overlap * sizeRatio;
+    if (similarity >= minSimilarity) {
+      A.appendInPlace(edges, { left: pair.left, right: pair.right, similarity });
+      unionFind.union(pair.left, pair.right);
+    }
+  }
+
+  const componentMembers = new Map<number, Set<number>>();
+  const componentMinSimilarity = new Map<number, number>();
+  for (const edge of edges) {
+    const root = unionFind.find(edge.left);
+    const members = componentMembers.get(root) ?? new Set<number>();
+    members.add(edge.left);
+    members.add(edge.right);
+    componentMembers.set(root, members);
+    const current = componentMinSimilarity.get(root);
+    componentMinSimilarity.set(root, current === undefined ? edge.similarity : Math.min(current, edge.similarity));
+  }
+
+  let candidates = A.empty<ReuseCandidate>();
+  for (const [root, members] of componentMembers) {
+    if (members.size < 2) {
+      continue;
+    }
+    const memberRecords = A.empty<CloneRecord>();
+    for (const index of members) {
+      const entry = entries[index];
+      if (entry !== undefined) {
+        A.appendInPlace(memberRecords, entry.record);
+      }
+    }
+    if (distinctPackageCount(memberRecords) < 2) {
+      continue;
+    }
+    const similarity = componentMinSimilarity.get(root) ?? minSimilarity;
+    candidates = A.append(candidates, nearMissCandidateFromCluster(memberRecords, similarity));
+  }
+
+  return { candidates, truncated };
 };
 
 const scopeSelectorLabel = (scopeSelector: O.Option<string>, scopes: ReadonlyArray<WorkspaceScope>): string => {
@@ -1771,6 +2008,10 @@ type ReuseCloneServiceShape = {
   readonly detectClones: (
     scopeSelector?: O.Option<string>
   ) => Effect.Effect<ReadonlyArray<ReuseCandidate>, ReuseAnalysisError>;
+  readonly detectNearMissClones: (
+    scopeSelector?: O.Option<string>,
+    options?: { readonly minSimilarity?: number }
+  ) => Effect.Effect<ReadonlyArray<ReuseCandidate>, ReuseAnalysisError>;
 };
 
 /**
@@ -1843,7 +2084,33 @@ export const ReuseCloneServiceLive = Layer.effect(
       );
     });
 
-    return ReuseCloneService.of({ detectClones });
+    const detectNearMissClones: ReuseCloneServiceShape["detectNearMissClones"] = Effect.fn("detectNearMissClones")(
+      function* (scopeSelector = O.none(), options: { readonly minSimilarity?: number } = {}) {
+        const minSimilarity = clampSimilarity(options.minSimilarity ?? NEAR_MISS_DEFAULT_MIN_SIMILARITY);
+        const scopes = yield* discoverWorkspaceScopes(analysisContext, scopeSelector);
+        if (A.isReadonlyArrayEmpty(scopes)) {
+          return A.empty<ReuseCandidate>();
+        }
+        const records = yield* collectCloneRecords(analysisContext, scopes);
+        const result = computeNearMissClusters(records, minSimilarity);
+        if (result.truncated) {
+          yield* Effect.logWarning(
+            `[clones] near-miss comparison cap (${NEAR_MISS_MAX_COMPARISONS}) reached; some near-miss pairs were not evaluated.`
+          );
+        }
+        return pipe(
+          result.candidates,
+          A.sort(
+            Order.combine(
+              Order.mapInput(Order.Number, (candidate: ReuseCandidate) => -candidate.confidence),
+              Order.mapInput(Order.String, (candidate: ReuseCandidate) => candidate.candidateId)
+            )
+          )
+        );
+      }
+    );
+
+    return ReuseCloneService.of({ detectClones, detectNearMissClones });
   })
 );
 

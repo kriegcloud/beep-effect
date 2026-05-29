@@ -32,9 +32,19 @@
 
 ## Phase 3 — ownership split
 
-- **Type-3 near-miss (fuzzy) behind a flag** — stays in this goal
-  (`ReuseCloneService`), deferred. Opt-in `--fuzzy`, perf-capped, so the default
-  gate stays fast and deterministic.
+- **Type-3 near-miss (fuzzy) behind a flag — DONE (report-only).** Implemented in
+  `ReuseCloneService.detectNearMissClones` + `beep reuse clones --fuzzy
+  [--min-similarity]`. Approach: k-shingle the normalized token sequence
+  (`Reuse/TokenSimilarity.ts`: `tokenShingles`/`minhashSignature`/`lshBandKeys`/
+  `jaccardSimilarity`), MinHash+LSH to generate candidate pairs, confirm with exact
+  Jaccard weighted by token-length ratio (so repetitive literal arrays can't
+  masquerade as near-misses), union-find into cross-package clusters, emit
+  `kind: "near-miss-clone"` with `confidence` = similarity. Deterministic
+  (fixed FNV seeds), perf-capped (LSH + a comparison cap that warns, never
+  silently truncates), and **advisory only** — not wired into `lint:clones`/CI,
+  `--fuzzy` rejects `--check`/`--write`, so the exact gate stays fast and
+  deterministic. Remaining deferred toggle: intra-package near-misses
+  (`--include-intra`); currently cross-package only.
 - **`importedBy` inbound-edge index → `repo-codegraph`** (its Phase-3 AST
   structural facts: imports / references / call-edges). Not built here — it would
   duplicate that goal.
