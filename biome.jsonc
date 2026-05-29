@@ -178,7 +178,14 @@
         "useSingleVarDeclarator": "error",
         "useNumberNamespace": "error",
         "noInferrableTypes": "error",
-        "noUselessElse": "error"
+        "noUselessElse": "error",
+        "useConsistentArrowReturn": {
+          "level": "error",
+          "options": {
+            "style": "asNeeded",
+            "requireForObjectLiteral": false
+          }
+        }
       }
     }
   }

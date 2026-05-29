@@ -1,9 +1,5 @@
 /**
- * Docs-focused ESLint configuration used by repository tooling.
- *
- * The surface is intentionally narrow (primarily JSDoc/TSDoc + a small number of
- * high-ROI style parity rules for IDE consumers of the project's flat config).
- * Biome remains the primary code style and formatting enforcer for the monorepo.
+ * Docs-only ESLint configuration used by repository tooling.
  *
  * @packageDocumentation
  * @since 0.0.0
@@ -262,14 +258,6 @@ export const DocsESLintConfig: DocsESLintConfigShape = [
     },
     rules: {
       "eslint-plugin-tsdoc/syntax": "warn",
-
-      // IDE parity rule for consumers of the project's flat ESLint config (WebStorm, etc.).
-      // Primary code style enforcement for the monorepo remains Biome ("beep:lint").
-      // This rule is intentionally set to "warn" (not "error") so it does not block the
-      // docs/jsdoc lane while the tree is being cleaned or in the future.
-      // Remediation of existing violations is performed with a one-off broad eslint --fix
-      // pass + immediate `biome check --write` reconciliation.
-      "arrow-body-style": ["warn", "as-needed", { requireReturnForObjectLiteral: false }],
     },
   },
 ];

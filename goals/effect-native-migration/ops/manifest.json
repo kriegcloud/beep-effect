@@ -11,7 +11,13 @@
   "mission": "Migrate native JS Map/Set/String/Object/Date/JSON/Array usage in first-party packages/** and apps/** to Effect-native equivalents, preferring @beep/utils wrappers where importable.",
   "scope": {
     "include": ["packages/**", "apps/**"],
-    "exclude": [".repos/**", "**/dist/**", "**/build/**", "generated docgen", "node_modules/**"],
+    "exclude": [
+      ".repos/**",
+      "**/dist/**",
+      "**/build/**",
+      "generated docgen",
+      "node_modules/**"
+    ],
     "testsFixtures": "in scope only for JSON and String bans"
   },
   "categories": ["Map", "Set", "String", "Object", "Date", "JSON", "Array"],
