@@ -148,13 +148,7 @@ export class AgentPluginManifestMetadata extends S.Class<AgentPluginManifestMeta
 ) {}
 
 /**
- * Generated Codex config schema.
- *
- * @category schemas
- * @since 0.0.0
- */
-/**
- * Generated Claude-style MCP JSON and settings schemas.
+ * Generated Codex config schema, Claude-style MCP JSON, and settings schemas.
  *
  * @category schemas
  * @since 0.0.0

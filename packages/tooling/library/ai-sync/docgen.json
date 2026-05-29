@@ -397,6 +397,12 @@
       ],
       "@beep/types/*": [
         "../../../../packages/foundation/primitive/types/src/*.ts"
+      ],
+      "@beep/utils": [
+        "../../../../packages/foundation/modeling/utils/src/index.ts"
+      ],
+      "@beep/utils/*": [
+        "../../../../packages/foundation/modeling/utils/src/*.ts"
       ]
     }
   }

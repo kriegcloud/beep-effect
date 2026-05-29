@@ -203,6 +203,7 @@ Columns: **CC** = Claude Code · **CX** = Codex · **GB** = Grok Build · **JBA*
 | **Anthropic Skills** | `https://platform.claude.com/docs/en/agents-and-tools/agent-skills/overview` | `github.com/anthropics/skills` reference impl + `/spec` directory | 2+3 | docs not semver'd; track `anthropics/skills@main` SHA | template hash + field diff |
 
 **Key relationships:**
+
 - **Anthropic Skills ≡ Agent Skills**: Anthropic authored the format and donated to `agentskills/agentskills` (Dec 18, 2025). Build one Effect Schema, validate both surfaces.
 - **MCP + Skills convergence**: `modelcontextprotocol/experimental-ext-skills` is exploring skill discovery as an MCP primitive — could collapse two primitives in late 2026.
 - **ACP org migration**: `github.com/zed-industries/agent-client-protocol` redirects to `agentclientprotocol/agent-client-protocol`. The npm package `@zed-industries/agent-client-protocol` is renamed to `@agentclientprotocol/sdk`. Migrate `@beep/acp` if still on old name.
@@ -219,7 +220,7 @@ Columns: **CC** = Claude Code · **CX** = Codex · **GB** = Grok Build · **JBA*
 
 **Most valuable code paths for reverse-engineering closed-source agents:**
 
-```
+```yaml
 rulesync:
   src/features/rules/<tool>-rule.ts             ← per-tool rules schema
   src/features/skills/<tool>-skill.ts           ← per-tool SKILL.md extensions
@@ -796,6 +797,7 @@ sources:
 ### Layered tier strategy
 
 **Tier 1 (machine-readable schemas) — version-pin + codegen.** Five sources qualify and these become your "release-tracked" core:
+
 1. `openai/codex` config + hooks schemas (pin to `rust-vX.Y.Z` tag; cadence: daily alphas, weekly stable)
 2. MCP spec schema.json (pin to dated revision `2025-11-25`; cadence: ~6 months between dated revisions)
 3. ACP spec schema.json (pin to git tag `v0.13.1`; cadence: weekly-to-monthly via release-plz)

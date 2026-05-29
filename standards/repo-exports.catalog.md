@@ -21,8 +21,8 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | packagesWithoutPublicExports | 1 |
 | missingWorkspaceMetadata | 4 |
 | importSpecifiers | 970 |
-| publicExportEntries | 12897 |
-| uniquePackageSymbols | 5579 |
+| publicExportEntries | 12898 |
+| uniquePackageSymbols | 5580 |
 
 ## Seed Discovery Proof
 
@@ -53,7 +53,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | 14 | `@beep/face-detection` | `packages/drivers/face-detection` | has-public-exports | 5 | 72 | 20 |
 | 15 | `@beep/architecture-lab-client` | `packages/architecture-lab/client` | has-public-exports | 2 | 6 | 6 |
 | 16 | `@beep/repo-cli` | `packages/tooling/tool/cli` | has-public-exports | 142 | 1542 | 538 |
-| 17 | `@beep/ai-sync` | `packages/tooling/library/ai-sync` | has-public-exports | 11 | 179 | 56 |
+| 17 | `@beep/ai-sync` | `packages/tooling/library/ai-sync` | has-public-exports | 11 | 180 | 57 |
 | 18 | `@beep/shared-server` | `packages/shared/server` | has-public-exports | 2 | 2 | 1 |
 | 19 | `@beep/law-practice-domain` | `packages/law-practice/domain` | has-public-exports | 6 | 36 | 8 |
 | 20 | `@beep/repo-docgen` | `packages/tooling/tool/docgen` | has-public-exports | 9 | 72 | 64 |
@@ -2364,10 +2364,10 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/ai-sync` | `AiSyncTransformStatus` | const | `packages/tooling/library/ai-sync/src/models.ts:209` | Transform proof status. |
 | `@beep/ai-sync` | `AiSyncTransformStatus` | type | `packages/tooling/library/ai-sync/src/models.ts:227` | Runtime type for {@link AiSyncTransformStatus}. |
 | `@beep/ai-sync` | `AiSyncValidationResult` | class | `packages/tooling/library/ai-sync/src/models.ts:395` | Validation success record for a repo-local config file. |
-| `@beep/ai-sync` | `assertNoStrictDrift` | const | `packages/tooling/library/ai-sync/src/drift.ts:165` | Fail when strict drift reports any findings. |
-| `@beep/ai-sync` | `checkGeneratedArtifacts` | const | `packages/tooling/library/ai-sync/src/drift.ts:69` | Offline generated artifact freshness check. |
-| `@beep/ai-sync` | `checkSourceDriftWithFetcher` | const | `packages/tooling/library/ai-sync/src/drift.ts:111` | Compare a set of sources with an injected fetcher. |
-| `@beep/ai-sync` | `checkStrictDrift` | const | `packages/tooling/library/ai-sync/src/drift.ts:147` | Networked strict drift check against committed Tier-1 hashes. |
+| `@beep/ai-sync` | `assertNoStrictDrift` | const | `packages/tooling/library/ai-sync/src/drift.ts:187` | Fail when strict drift reports any findings. |
+| `@beep/ai-sync` | `checkGeneratedArtifacts` | const | `packages/tooling/library/ai-sync/src/drift.ts:70` | Offline generated artifact freshness check. |
+| `@beep/ai-sync` | `checkSourceDriftWithFetcher` | const | `packages/tooling/library/ai-sync/src/drift.ts:133` | Compare a set of sources with an injected fetcher. |
+| `@beep/ai-sync` | `checkStrictDrift` | const | `packages/tooling/library/ai-sync/src/drift.ts:169` | Networked strict drift check against committed Tier-1 hashes. |
 | `@beep/ai-sync` | `ClaudeMcpJson` | class | `packages/tooling/library/ai-sync/src/_generated/schemas.gen.ts:158` | Generated Claude-style MCP JSON schema. |
 | `@beep/ai-sync` | `claudeMcpJsonToCodexConfig` | const | `packages/tooling/library/ai-sync/src/transforms.ts:77` | Transform Claude-style `.mcp.json` into the Codex TOML MCP server block. |
 | `@beep/ai-sync` | `claudeMcpJsonToJunieMcpJson` | const | `packages/tooling/library/ai-sync/src/transforms.ts:96` | Transform Claude-style `.mcp.json` into the modeled Junie project MCP shape. |
@@ -2377,16 +2377,16 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/ai-sync` | `codexMcpServersToClaudeMcpJson` | const | `packages/tooling/library/ai-sync/src/transforms.ts:58` | Transform Codex TOML MCP server config into Claude-style `.mcp.json`. |
 | `@beep/ai-sync` | `CodexSkillEntry` | class | `packages/tooling/library/ai-sync/src/_generated/schemas.gen.ts:53` | Generated Codex skill entry. |
 | `@beep/ai-sync` | `CodexSkills` | class | `packages/tooling/library/ai-sync/src/_generated/schemas.gen.ts:74` | Generated Codex skills block. |
-| `@beep/ai-sync` | `decodeClaudeMcpJsonObject` | const | `packages/tooling/library/ai-sync/src/schemas.ts:188` | Decoder for Claude-style MCP JSON values after JSON parsing. |
-| `@beep/ai-sync` | `decodeClaudeSettingsObject` | const | `packages/tooling/library/ai-sync/src/schemas.ts:201` | Decoder for Claude settings JSON values after JSON parsing. |
-| `@beep/ai-sync` | `decodeCodexConfigObject` | const | `packages/tooling/library/ai-sync/src/schemas.ts:175` | Decoder for Codex TOML config values after TOML parsing. |
+| `@beep/ai-sync` | `decodeClaudeMcpJsonObject` | const | `packages/tooling/library/ai-sync/src/schemas.ts:182` | Decoder for Claude-style MCP JSON values after JSON parsing. |
+| `@beep/ai-sync` | `decodeClaudeSettingsObject` | const | `packages/tooling/library/ai-sync/src/schemas.ts:195` | Decoder for Claude settings JSON values after JSON parsing. |
+| `@beep/ai-sync` | `decodeCodexConfigObject` | const | `packages/tooling/library/ai-sync/src/schemas.ts:169` | Decoder for Codex TOML config values after TOML parsing. |
 | `@beep/ai-sync` | `defaultRepoRoot` | const | `packages/tooling/library/ai-sync/src/validation.ts:120` | Resolve the repository root from the package source directory. |
-| `@beep/ai-sync` | `getGeneratedSourceMetadata` | const | `packages/tooling/library/ai-sync/src/drift.ts:47` | Decode committed generated source metadata. |
+| `@beep/ai-sync` | `getGeneratedSourceMetadata` | const | `packages/tooling/library/ai-sync/src/drift.ts:48` | Decode committed generated source metadata. |
 | `@beep/ai-sync` | `junieMcpJsonToClaudeMcpJson` | const | `packages/tooling/library/ai-sync/src/transforms.ts:112` | Transform the modeled Junie project MCP shape into Claude-style `.mcp.json`. |
 | `@beep/ai-sync` | `McpJsonServer` | class | `packages/tooling/library/ai-sync/src/_generated/schemas.gen.ts:128` | Generated Claude-style MCP server schema. |
 | `@beep/ai-sync` | `normalizeAgentSkillFrontmatter` | const | `packages/tooling/library/ai-sync/src/transforms.ts:143` | Keep only the shared Agent Skills frontmatter fields modeled in V1. |
 | `@beep/ai-sync` | `normalizeInstructionDocument` | const | `packages/tooling/library/ai-sync/src/transforms.ts:127` | Normalize markdown instruction documents for compatible rule surfaces. |
-| `@beep/ai-sync` | `renderSchemaIssueMessage` | const | `packages/tooling/library/ai-sync/src/schemas.ts:216` | Helper that turns schema issues into a bounded message. |
+| `@beep/ai-sync` | `renderSchemaIssueMessage` | const | `packages/tooling/library/ai-sync/src/schemas.ts:210` | Helper that turns schema issues into a bounded message. |
 | `@beep/ai-sync` | `TIER_ONE_SOURCES` | const | `packages/tooling/library/ai-sync/src/source-map.ts:21` | Tier-1 sources fetched by the generator and strict drift checker. |
 | `@beep/ai-sync` | `UnknownNativeSchemaCell` | class | `packages/tooling/library/ai-sync/src/schemas.ts:92` | Unknown native schema marker for documented-but-undisclosed surfaces. |
 | `@beep/ai-sync` | `V1_SCHEMA_COVERAGE` | const | `packages/tooling/library/ai-sync/src/source-map.ts:120` | Complete V1 schema support matrix. |
@@ -2403,18 +2403,19 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/ai-sync/_generated/schemas.gen` | `CodexSkills` | class | `packages/tooling/library/ai-sync/src/_generated/schemas.gen.ts:74` | Generated Codex skills block. |
 | `@beep/ai-sync/_generated/schemas.gen` | `McpJsonServer` | class | `packages/tooling/library/ai-sync/src/_generated/schemas.gen.ts:128` | Generated Claude-style MCP server schema. |
 | `@beep/ai-sync/_generated/source-metadata.gen` | `GENERATED_TIER_ONE_SOURCE_METADATA` | const | `packages/tooling/library/ai-sync/src/_generated/source-metadata.gen.ts:16` | Generated source metadata with content hashes for Tier-1 sources. |
-| `@beep/ai-sync/drift` | `assertNoStrictDrift` | const | `packages/tooling/library/ai-sync/src/drift.ts:165` | Fail when strict drift reports any findings. |
-| `@beep/ai-sync/drift` | `checkGeneratedArtifacts` | const | `packages/tooling/library/ai-sync/src/drift.ts:69` | Offline generated artifact freshness check. |
-| `@beep/ai-sync/drift` | `checkSourceDriftWithFetcher` | const | `packages/tooling/library/ai-sync/src/drift.ts:111` | Compare a set of sources with an injected fetcher. |
-| `@beep/ai-sync/drift` | `checkStrictDrift` | const | `packages/tooling/library/ai-sync/src/drift.ts:147` | Networked strict drift check against committed Tier-1 hashes. |
-| `@beep/ai-sync/drift` | `getGeneratedSourceMetadata` | const | `packages/tooling/library/ai-sync/src/drift.ts:47` | Decode committed generated source metadata. |
-| `@beep/ai-sync/generator` | `AiSyncHttpLayer` | const | `packages/tooling/library/ai-sync/src/generator.ts:399` | Runtime layer for generator and drift commands. |
-| `@beep/ai-sync/generator` | `fetchSourceText` | const | `packages/tooling/library/ai-sync/src/generator.ts:312` | Fetch an upstream source body. |
-| `@beep/ai-sync/generator` | `generateAiSyncArtifacts` | const | `packages/tooling/library/ai-sync/src/generator.ts:386` | Generate committed schema and source metadata files. |
+| `@beep/ai-sync/drift` | `assertNoStrictDrift` | const | `packages/tooling/library/ai-sync/src/drift.ts:187` | Fail when strict drift reports any findings. |
+| `@beep/ai-sync/drift` | `checkGeneratedArtifacts` | const | `packages/tooling/library/ai-sync/src/drift.ts:70` | Offline generated artifact freshness check. |
+| `@beep/ai-sync/drift` | `checkSourceDriftWithFetcher` | const | `packages/tooling/library/ai-sync/src/drift.ts:133` | Compare a set of sources with an injected fetcher. |
+| `@beep/ai-sync/drift` | `checkStrictDrift` | const | `packages/tooling/library/ai-sync/src/drift.ts:169` | Networked strict drift check against committed Tier-1 hashes. |
+| `@beep/ai-sync/drift` | `getGeneratedSourceMetadata` | const | `packages/tooling/library/ai-sync/src/drift.ts:48` | Decode committed generated source metadata. |
+| `@beep/ai-sync/generator` | `AiSyncHttpLayer` | const | `packages/tooling/library/ai-sync/src/generator.ts:412` | Runtime layer for generator and drift commands. |
+| `@beep/ai-sync/generator` | `fetchSourceText` | const | `packages/tooling/library/ai-sync/src/generator.ts:325` | Fetch an upstream source body. |
+| `@beep/ai-sync/generator` | `generateAiSyncArtifacts` | const | `packages/tooling/library/ai-sync/src/generator.ts:399` | Generate committed schema and source metadata files. |
 | `@beep/ai-sync/generator` | `GENERATED_SCHEMAS_PATH` | const | `packages/tooling/library/ai-sync/src/generator.ts:21` | Generated schemas file path relative to the package root. |
 | `@beep/ai-sync/generator` | `GENERATED_SOURCE_METADATA_PATH` | const | `packages/tooling/library/ai-sync/src/generator.ts:29` | Generated source metadata file path relative to the package root. |
-| `@beep/ai-sync/generator` | `hashSourceText` | const | `packages/tooling/library/ai-sync/src/generator.ts:288` | Compute a public SHA-256 content hash. |
-| `@beep/ai-sync/generator` | `renderGeneratedSchemas` | const | `packages/tooling/library/ai-sync/src/generator.ts:373` | Render generated schemas without network access. |
+| `@beep/ai-sync/generator` | `hashSourceText` | const | `packages/tooling/library/ai-sync/src/generator.ts:301` | Compute a public SHA-256 content hash. |
+| `@beep/ai-sync/generator` | `renderGeneratedSchemas` | const | `packages/tooling/library/ai-sync/src/generator.ts:386` | Render generated schemas without network access. |
+| `@beep/ai-sync/generator` | `renderGeneratedSourceMetadata` | const | `packages/tooling/library/ai-sync/src/generator.ts:98` | Render generated source metadata without network access. |
 | `@beep/ai-sync/index` | `AgentCommandMetadata` | class | `packages/tooling/library/ai-sync/src/schemas.ts:115` | Documentation-backed generic command metadata. |
 | `@beep/ai-sync/index` | `AgentInstructionDocument` | const | `packages/tooling/library/ai-sync/src/schemas.ts:35` | Agent instruction markdown document. |
 | `@beep/ai-sync/index` | `AgentInstructionDocument` | type | `packages/tooling/library/ai-sync/src/schemas.ts:53` | Runtime type for {@link AgentInstructionDocument}. |
@@ -2439,10 +2440,10 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/ai-sync/index` | `AiSyncTransformStatus` | const | `packages/tooling/library/ai-sync/src/models.ts:209` | Transform proof status. |
 | `@beep/ai-sync/index` | `AiSyncTransformStatus` | type | `packages/tooling/library/ai-sync/src/models.ts:227` | Runtime type for {@link AiSyncTransformStatus}. |
 | `@beep/ai-sync/index` | `AiSyncValidationResult` | class | `packages/tooling/library/ai-sync/src/models.ts:395` | Validation success record for a repo-local config file. |
-| `@beep/ai-sync/index` | `assertNoStrictDrift` | const | `packages/tooling/library/ai-sync/src/drift.ts:165` | Fail when strict drift reports any findings. |
-| `@beep/ai-sync/index` | `checkGeneratedArtifacts` | const | `packages/tooling/library/ai-sync/src/drift.ts:69` | Offline generated artifact freshness check. |
-| `@beep/ai-sync/index` | `checkSourceDriftWithFetcher` | const | `packages/tooling/library/ai-sync/src/drift.ts:111` | Compare a set of sources with an injected fetcher. |
-| `@beep/ai-sync/index` | `checkStrictDrift` | const | `packages/tooling/library/ai-sync/src/drift.ts:147` | Networked strict drift check against committed Tier-1 hashes. |
+| `@beep/ai-sync/index` | `assertNoStrictDrift` | const | `packages/tooling/library/ai-sync/src/drift.ts:187` | Fail when strict drift reports any findings. |
+| `@beep/ai-sync/index` | `checkGeneratedArtifacts` | const | `packages/tooling/library/ai-sync/src/drift.ts:70` | Offline generated artifact freshness check. |
+| `@beep/ai-sync/index` | `checkSourceDriftWithFetcher` | const | `packages/tooling/library/ai-sync/src/drift.ts:133` | Compare a set of sources with an injected fetcher. |
+| `@beep/ai-sync/index` | `checkStrictDrift` | const | `packages/tooling/library/ai-sync/src/drift.ts:169` | Networked strict drift check against committed Tier-1 hashes. |
 | `@beep/ai-sync/index` | `ClaudeMcpJson` | class | `packages/tooling/library/ai-sync/src/_generated/schemas.gen.ts:158` | Generated Claude-style MCP JSON schema. |
 | `@beep/ai-sync/index` | `claudeMcpJsonToCodexConfig` | const | `packages/tooling/library/ai-sync/src/transforms.ts:77` | Transform Claude-style `.mcp.json` into the Codex TOML MCP server block. |
 | `@beep/ai-sync/index` | `claudeMcpJsonToJunieMcpJson` | const | `packages/tooling/library/ai-sync/src/transforms.ts:96` | Transform Claude-style `.mcp.json` into the modeled Junie project MCP shape. |
@@ -2452,16 +2453,16 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/ai-sync/index` | `codexMcpServersToClaudeMcpJson` | const | `packages/tooling/library/ai-sync/src/transforms.ts:58` | Transform Codex TOML MCP server config into Claude-style `.mcp.json`. |
 | `@beep/ai-sync/index` | `CodexSkillEntry` | class | `packages/tooling/library/ai-sync/src/_generated/schemas.gen.ts:53` | Generated Codex skill entry. |
 | `@beep/ai-sync/index` | `CodexSkills` | class | `packages/tooling/library/ai-sync/src/_generated/schemas.gen.ts:74` | Generated Codex skills block. |
-| `@beep/ai-sync/index` | `decodeClaudeMcpJsonObject` | const | `packages/tooling/library/ai-sync/src/schemas.ts:188` | Decoder for Claude-style MCP JSON values after JSON parsing. |
-| `@beep/ai-sync/index` | `decodeClaudeSettingsObject` | const | `packages/tooling/library/ai-sync/src/schemas.ts:201` | Decoder for Claude settings JSON values after JSON parsing. |
-| `@beep/ai-sync/index` | `decodeCodexConfigObject` | const | `packages/tooling/library/ai-sync/src/schemas.ts:175` | Decoder for Codex TOML config values after TOML parsing. |
+| `@beep/ai-sync/index` | `decodeClaudeMcpJsonObject` | const | `packages/tooling/library/ai-sync/src/schemas.ts:182` | Decoder for Claude-style MCP JSON values after JSON parsing. |
+| `@beep/ai-sync/index` | `decodeClaudeSettingsObject` | const | `packages/tooling/library/ai-sync/src/schemas.ts:195` | Decoder for Claude settings JSON values after JSON parsing. |
+| `@beep/ai-sync/index` | `decodeCodexConfigObject` | const | `packages/tooling/library/ai-sync/src/schemas.ts:169` | Decoder for Codex TOML config values after TOML parsing. |
 | `@beep/ai-sync/index` | `defaultRepoRoot` | const | `packages/tooling/library/ai-sync/src/validation.ts:120` | Resolve the repository root from the package source directory. |
-| `@beep/ai-sync/index` | `getGeneratedSourceMetadata` | const | `packages/tooling/library/ai-sync/src/drift.ts:47` | Decode committed generated source metadata. |
+| `@beep/ai-sync/index` | `getGeneratedSourceMetadata` | const | `packages/tooling/library/ai-sync/src/drift.ts:48` | Decode committed generated source metadata. |
 | `@beep/ai-sync/index` | `junieMcpJsonToClaudeMcpJson` | const | `packages/tooling/library/ai-sync/src/transforms.ts:112` | Transform the modeled Junie project MCP shape into Claude-style `.mcp.json`. |
 | `@beep/ai-sync/index` | `McpJsonServer` | class | `packages/tooling/library/ai-sync/src/_generated/schemas.gen.ts:128` | Generated Claude-style MCP server schema. |
 | `@beep/ai-sync/index` | `normalizeAgentSkillFrontmatter` | const | `packages/tooling/library/ai-sync/src/transforms.ts:143` | Keep only the shared Agent Skills frontmatter fields modeled in V1. |
 | `@beep/ai-sync/index` | `normalizeInstructionDocument` | const | `packages/tooling/library/ai-sync/src/transforms.ts:127` | Normalize markdown instruction documents for compatible rule surfaces. |
-| `@beep/ai-sync/index` | `renderSchemaIssueMessage` | const | `packages/tooling/library/ai-sync/src/schemas.ts:216` | Helper that turns schema issues into a bounded message. |
+| `@beep/ai-sync/index` | `renderSchemaIssueMessage` | const | `packages/tooling/library/ai-sync/src/schemas.ts:210` | Helper that turns schema issues into a bounded message. |
 | `@beep/ai-sync/index` | `TIER_ONE_SOURCES` | const | `packages/tooling/library/ai-sync/src/source-map.ts:21` | Tier-1 sources fetched by the generator and strict drift checker. |
 | `@beep/ai-sync/index` | `UnknownNativeSchemaCell` | class | `packages/tooling/library/ai-sync/src/schemas.ts:92` | Unknown native schema marker for documented-but-undisclosed surfaces. |
 | `@beep/ai-sync/index` | `V1_SCHEMA_COVERAGE` | const | `packages/tooling/library/ai-sync/src/source-map.ts:120` | Complete V1 schema support matrix. |
@@ -2500,11 +2501,11 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/ai-sync/schemas` | `CodexMcpServer` | class | `packages/tooling/library/ai-sync/src/_generated/schemas.gen.ts:27` | Generated MCP server command configuration. |
 | `@beep/ai-sync/schemas` | `CodexSkillEntry` | class | `packages/tooling/library/ai-sync/src/_generated/schemas.gen.ts:53` | Generated Codex skill entry. |
 | `@beep/ai-sync/schemas` | `CodexSkills` | class | `packages/tooling/library/ai-sync/src/_generated/schemas.gen.ts:74` | Generated Codex skills block. |
-| `@beep/ai-sync/schemas` | `decodeClaudeMcpJsonObject` | const | `packages/tooling/library/ai-sync/src/schemas.ts:188` | Decoder for Claude-style MCP JSON values after JSON parsing. |
-| `@beep/ai-sync/schemas` | `decodeClaudeSettingsObject` | const | `packages/tooling/library/ai-sync/src/schemas.ts:201` | Decoder for Claude settings JSON values after JSON parsing. |
-| `@beep/ai-sync/schemas` | `decodeCodexConfigObject` | const | `packages/tooling/library/ai-sync/src/schemas.ts:175` | Decoder for Codex TOML config values after TOML parsing. |
+| `@beep/ai-sync/schemas` | `decodeClaudeMcpJsonObject` | const | `packages/tooling/library/ai-sync/src/schemas.ts:182` | Decoder for Claude-style MCP JSON values after JSON parsing. |
+| `@beep/ai-sync/schemas` | `decodeClaudeSettingsObject` | const | `packages/tooling/library/ai-sync/src/schemas.ts:195` | Decoder for Claude settings JSON values after JSON parsing. |
+| `@beep/ai-sync/schemas` | `decodeCodexConfigObject` | const | `packages/tooling/library/ai-sync/src/schemas.ts:169` | Decoder for Codex TOML config values after TOML parsing. |
 | `@beep/ai-sync/schemas` | `McpJsonServer` | class | `packages/tooling/library/ai-sync/src/_generated/schemas.gen.ts:128` | Generated Claude-style MCP server schema. |
-| `@beep/ai-sync/schemas` | `renderSchemaIssueMessage` | const | `packages/tooling/library/ai-sync/src/schemas.ts:216` | Helper that turns schema issues into a bounded message. |
+| `@beep/ai-sync/schemas` | `renderSchemaIssueMessage` | const | `packages/tooling/library/ai-sync/src/schemas.ts:210` | Helper that turns schema issues into a bounded message. |
 | `@beep/ai-sync/schemas` | `UnknownNativeSchemaCell` | class | `packages/tooling/library/ai-sync/src/schemas.ts:92` | Unknown native schema marker for documented-but-undisclosed surfaces. |
 | `@beep/ai-sync/source-map` | `TIER_ONE_SOURCES` | const | `packages/tooling/library/ai-sync/src/source-map.ts:21` | Tier-1 sources fetched by the generator and strict drift checker. |
 | `@beep/ai-sync/source-map` | `V1_SCHEMA_COVERAGE` | const | `packages/tooling/library/ai-sync/src/source-map.ts:120` | Complete V1 schema support matrix. |

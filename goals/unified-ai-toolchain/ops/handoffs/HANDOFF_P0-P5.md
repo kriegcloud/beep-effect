@@ -5,35 +5,34 @@
 Superseded by the completed V1 implementation. The closeout evidence now lives
 in `history/outputs/p1-*` through `history/outputs/p5-*`.
 
-## Mission
+## Historical Mission
 
-Complete the unified AI toolchain schema library from packet bootstrap to V1
-dogfooding in beep-effect. V1 closes only when
+This handoff originally directed completion of the unified AI toolchain schema
+library from packet bootstrap to V1 dogfooding in beep-effect. V1 closed when
 `@beep/ai-sync` validates at least one real repo agent config
 during `bun run check`.
 
-## Starting State
+## Historical Starting State
 
-P0 packet creation has begun. The repo contains the prior research artifact at
+P0 packet creation had begun. The repo contained the prior research artifact at
 [research/claude-web-source-map.md](../../research/claude-web-source-map.md),
 the source map at [research/sources-of-truth.md](../../research/sources-of-truth.md),
 and the current-state output at
 [history/outputs/p0-current-state.md](../../history/outputs/p0-current-state.md).
 
-The target package does not exist yet. The implementation base should be
-created at:
+The target package did not exist yet. The implementation base was created at:
 
 ```txt
 packages/tooling/library/ai-sync
 ```
 
-The key precedent already exists in the repo:
+The key precedent already existed in the repo:
 
 ```txt
 packages/drivers/acp/scripts/generate.ts
 ```
 
-Real dogfooding candidates already exist:
+Real dogfooding candidates already existed:
 
 - `.codex/config.toml`
 - `.mcp.json`

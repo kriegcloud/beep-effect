@@ -272,7 +272,7 @@ jobs:
           docker run --rm \
             -v "$PWD:/repo" \
             -w /repo \
-            zricethezav/gitleaks:v8.24.3 \
+            zricethezav/gitleaks@sha256:5d0147dc25c78f8cc2b9861ff8f5c9b4a41419ed60a9ce2217de5a215270b42b \
             detect --source=/repo --log-opts="$log_opts" --redact --no-banner
 
   security:
@@ -292,24 +292,8 @@ jobs:
             --lockfile=bun.lock
             --config=osv-scanner.toml
 
-      - name: Detect dependency graph availability
-        if: github.event_name == 'pull_request'
-        id: dependency-graph
-        shell: bash
-        run: |
-          set -euo pipefail
-
-          status="$(jq -r '.repository.security_and_analysis.dependency_graph.status // "unknown"' "$GITHUB_EVENT_PATH")"
-          echo "Dependency graph status: $status"
-
-          if [[ "$status" == "enabled" ]]; then
-            echo "enabled=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "enabled=false" >> "$GITHUB_OUTPUT"
-          fi
-
       - name: Dependency review
-        if: github.event_name == 'pull_request' && steps.dependency-graph.outputs.enabled == 'true'
+        if: github.event_name == 'pull_request'
         uses: actions/dependency-review-action@v4
         with:
           fail-on-severity: high

@@ -34,7 +34,7 @@ export const TIER_ONE_SOURCES = [
     agent: "codex",
     domain: "hooks",
     tier: "tier_1",
-    url: "https://api.github.com/repos/openai/codex/contents/codex-rs/hooks/schema/generated?ref=rust-v0.133.0",
+    url: "https://raw.githubusercontent.com/openai/codex/rust-v0.133.0/codex-rs/hooks/schema/generated/session-start.command.input.schema.json",
     versionPin: "rust-v0.133.0",
     isOfficial: true,
     driftMechanism: "version_and_hash",

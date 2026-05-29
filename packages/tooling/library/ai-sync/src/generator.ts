@@ -82,7 +82,20 @@ const renderSourceMetadata = (source: AiSyncSourceMetadata): string =>
     A.join("\n")
   );
 
-const renderSourceMetadataFile = (sources: ReadonlyArray<AiSyncSourceMetadata>): string =>
+/**
+ * Render generated source metadata without network access.
+ *
+ * @param sources - Source metadata records to render.
+ * @returns Generated TypeScript source for the metadata module.
+ * @example
+ * ```ts
+ * import { renderGeneratedSourceMetadata } from "@beep/ai-sync/generator"
+ * console.log(renderGeneratedSourceMetadata([]))
+ * ```
+ * @category utilities
+ * @since 0.0.0
+ */
+export const renderGeneratedSourceMetadata = (sources: ReadonlyArray<AiSyncSourceMetadata>): string =>
   pipe(
     [
       ...generatedPrelude,
@@ -386,7 +399,7 @@ export const renderGeneratedSchemas = renderSchemasFile;
 export const generateAiSyncArtifacts = Effect.fn("AiSync.generateAiSyncArtifacts")(function* () {
   const sources = yield* withSourceHashes;
   yield* writePackageFile(GENERATED_SCHEMAS_PATH, renderGeneratedSchemas());
-  yield* writePackageFile(GENERATED_SOURCE_METADATA_PATH, renderSourceMetadataFile(sources));
+  yield* writePackageFile(GENERATED_SOURCE_METADATA_PATH, renderGeneratedSourceMetadata(sources));
   yield* Console.log(`Generated ${A.length(sources)} AI sync source pins.`);
 });
 

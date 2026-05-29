@@ -8,7 +8,6 @@
 import { Effect, FileSystem, Path, pipe } from "effect";
 import * as A from "effect/Array";
 import * as S from "effect/Schema";
-import * as Str from "effect/String";
 import { GENERATED_TIER_ONE_SOURCE_METADATA } from "./_generated/source-metadata.gen.ts";
 import {
   fetchSourceText,
@@ -16,8 +15,10 @@ import {
   GENERATED_SOURCE_METADATA_PATH,
   hashSourceText,
   renderGeneratedSchemas,
+  renderGeneratedSourceMetadata,
 } from "./generator.ts";
 import { AiSyncDriftFinding, AiSyncDriftReport, AiSyncError, AiSyncSourceMetadata } from "./models.ts";
+import { TIER_ONE_SOURCES } from "./source-map.ts";
 
 const decodeGeneratedSources = S.decodeUnknownEffect(S.Array(AiSyncSourceMetadata));
 
@@ -75,7 +76,7 @@ export const checkGeneratedArtifacts = Effect.fn("AiSync.checkGeneratedArtifacts
       })
     )
   );
-  yield* readPackageFile(GENERATED_SOURCE_METADATA_PATH).pipe(
+  const sourceMetadataText = yield* readPackageFile(GENERATED_SOURCE_METADATA_PATH).pipe(
     Effect.mapError((cause) =>
       AiSyncError.make({
         message: `Missing generated source metadata at ${GENERATED_SOURCE_METADATA_PATH}. Run bun run generate.`,
@@ -85,9 +86,30 @@ export const checkGeneratedArtifacts = Effect.fn("AiSync.checkGeneratedArtifacts
   );
   const expectedSchemaText = renderGeneratedSchemas();
   const generatedSources = yield* getGeneratedSourceMetadata();
-  const sourceMetadataText = yield* readPackageFile(GENERATED_SOURCE_METADATA_PATH);
-  const hasEverySource = A.every(generatedSources, (source) => Str.includes(source.id)(sourceMetadataText));
-  if (schemaText !== expectedSchemaText || !hasEverySource) {
+  const expectedSources = TIER_ONE_SOURCES;
+  const metadataMatchesSourceMap =
+    A.length(generatedSources) === A.length(expectedSources) &&
+    A.every(expectedSources, (expected) =>
+      A.some(
+        generatedSources,
+        (actual) =>
+          actual.id === expected.id &&
+          actual.agent === expected.agent &&
+          actual.domain === expected.domain &&
+          actual.tier === expected.tier &&
+          actual.url === expected.url &&
+          actual.versionPin === expected.versionPin &&
+          actual.isOfficial === expected.isOfficial &&
+          actual.driftMechanism === expected.driftMechanism &&
+          actual.contentHash !== undefined
+      )
+    );
+  const expectedSourceMetadataText = renderGeneratedSourceMetadata(generatedSources);
+  if (
+    schemaText !== expectedSchemaText ||
+    sourceMetadataText !== expectedSourceMetadataText ||
+    !metadataMatchesSourceMap
+  ) {
     return yield* AiSyncError.make({
       message: "Generated AI sync schema artifacts are stale. Run bun run generate.",
     });
