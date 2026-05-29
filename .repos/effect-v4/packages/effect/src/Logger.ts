@@ -171,7 +171,7 @@ export interface Logger<in Message, out Output> extends Pipeable {
  * )
  * ```
  *
- * @category models
+ * @category options
  * @since 2.0.0
  */
 export interface Options<out Message> {
@@ -240,8 +240,22 @@ export const isLogger = (u: unknown): u is Logger<unknown, unknown> => Predicate
 export const CurrentLoggers: Context.Reference<ReadonlySet<Logger<unknown, any>>> = effect.CurrentLoggers
 
 /**
- * Context reference that controls whether console-style loggers write to
- * `console.error` instead of `console.log`.
+ * Context reference that routes the built-in default logger and TTY pretty
+ * console logger to stderr.
+ *
+ * **When to use**
+ *
+ * Use to keep stdout reserved for protocol messages or data output while still
+ * allowing Effect runtime logs to be emitted.
+ *
+ * **Details**
+ *
+ * The reference defaults to `false`. Providing `true` makes the affected
+ * loggers call `console.error` instead of `console.log`.
+ *
+ * @see {@link defaultLogger} for the runtime logger affected by this reference
+ * @see {@link consolePretty} for the TTY-mode pretty console logger affected by this reference
+ * @see {@link withConsoleError} for routing a specific formatter logger to `console.error`
  *
  * @category references
  * @since 4.0.0
@@ -253,7 +267,7 @@ export const LogToStderr: Context.Reference<boolean> = effect.LogToStderr
  *
  * **When to use**
  *
- * This allows you to modify, enhance, or completely change the output format
+ * Use when this allows you to modify, enhance, or completely change the output format
  * of an existing logger without recreating the entire logging logic.
  *
  * **Example** (Transforming logger output)
@@ -281,7 +295,7 @@ export const LogToStderr: Context.Reference<boolean> = effect.LogToStderr
  * )
  * ```
  *
- * @category utils
+ * @category mapping
  * @since 2.0.0
  */
 export const map = dual<
@@ -302,7 +316,7 @@ export const map = dual<
  *
  * **When to use**
  *
- * This is useful for taking any logger that produces string or object output
+ * Use when this is useful for taking any logger that produces string or object output
  * and routing it to the console for development or debugging purposes.
  *
  * **Example** (Writing logger output with console.log)
@@ -323,7 +337,7 @@ export const map = dual<
  * )
  * ```
  *
- * @category utils
+ * @category logging
  * @since 2.0.0
  */
 export const withConsoleLog = <Message, Output>(
@@ -339,7 +353,7 @@ export const withConsoleLog = <Message, Output>(
  *
  * **When to use**
  *
- * This is particularly useful for error logging where you want to ensure
+ * Use when this is particularly useful for error logging where you want to ensure
  * log messages appear in the error stream (stderr) rather than standard output.
  *
  * **Example** (Writing logger output with console.error)
@@ -360,7 +374,7 @@ export const withConsoleLog = <Message, Output>(
  * )
  * ```
  *
- * @category utils
+ * @category logging
  * @since 2.0.0
  */
 export const withConsoleError = <Message, Output>(
@@ -407,7 +421,7 @@ export const withConsoleError = <Message, Output>(
  * )
  * ```
  *
- * @category utils
+ * @category logging
  * @since 3.8.0
  */
 export const withLeveledConsole = <Message, Output>(
@@ -460,6 +474,8 @@ const format = (
   space?: number | string | undefined
 ) =>
 ({ cause, date, fiber, logLevel, message }: Options<unknown>): string => {
+  const formatUnknown = (value: unknown): string =>
+    typeof value === "string" ? value : Formatter.format(value, { space })
   const formatValue = (value: string): string => value.match(textOnly) ? value : quoteValue(value)
   const format = (label: string, value: string): string => `${effect.formatLabel(label)}=${formatValue(value)}`
   const append = (label: string, value: string): string => " " + format(label, value)
@@ -470,7 +486,7 @@ const format = (
 
   const messages = Array.ensure(message)
   for (let i = 0; i < messages.length; i++) {
-    out += append("message", Formatter.format(messages[i], { space }))
+    out += append("message", formatUnknown(messages[i]))
   }
 
   if (cause.reasons.length > 0) {
@@ -485,7 +501,7 @@ const format = (
 
   const annotations = fiber.getRef(CurrentLogAnnotations)
   for (const [label, value] of Object.entries(annotations)) {
-    out += append(label, Formatter.format(value, { space }))
+    out += append(label, formatUnknown(value))
   }
 
   return out
@@ -770,7 +786,7 @@ export const formatStructured: Logger<unknown, {
 export const formatJson = map(formatStructured, Formatter.formatJson)
 
 /**
- * Creates, in a scope, a logger that batches the output of another logger.
+ * Creates a scoped logger that batches the output of another logger.
  *
  * **Details**
  *
@@ -1213,7 +1229,7 @@ export const layer = <
   )
 
 /**
- * Creates, in a scope, a logger that writes string logger output to a file.
+ * Creates a scoped logger that writes string logger output to a file.
  *
  * **Details**
  *

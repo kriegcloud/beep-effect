@@ -1,12 +1,51 @@
 /**
- * This module provides a data structure called `Context` that can be used
- * for dependency injection in effectful programs. It is essentially a table
- * mapping `Service`s identifiers to their implementations, and can be used to
- * manage dependencies in a type-safe way. The `Context` data structure is
- * essentially a way of providing access to a set of related services that can
- * be passed around as a single unit. This module provides functions to create,
- * modify, and query the contents of a `Context`, as well as a number of
- * utility types for working with a `Context`.
+ * The `Context` module implements Effect's typed service environment. A
+ * `Context<Services>` is an immutable collection of service implementations,
+ * keyed by `Context.Service` or `Context.Reference` values. The type parameter
+ * records which service identifiers are present so effects can require
+ * dependencies without passing every implementation as an argument.
+ *
+ * **Mental model**
+ *
+ * - A service key is both a runtime identifier and a typed handle for one
+ *   dependency
+ * - `Context.Service` creates keys for dependencies that must be provided by
+ *   the surrounding context
+ * - `Context.Reference` creates keys that have a cached default value when no
+ *   explicit implementation is stored
+ * - A `Context` value stores implementations, while Effect fibers carry the
+ *   active context used to satisfy service requirements
+ * - Context operations such as {@link add}, {@link merge}, {@link pick}, and
+ *   {@link omit} return new contexts instead of mutating the original one
+ *
+ * **Common tasks**
+ *
+ * - Create service keys: {@link Service}, {@link Reference}
+ * - Build contexts: {@link empty}, {@link make}, {@link add}, {@link merge}
+ * - Read services: {@link get}, {@link getOption}, {@link getOrElse}
+ * - Keep or remove selected services: {@link pick}, {@link omit}
+ *
+ * **Example** (Building and reading a context)
+ *
+ * ```ts
+ * import { Context } from "effect"
+ *
+ * const Logger = Context.Service<{ log: (message: string) => void }>("Logger")
+ *
+ * const context = Context.make(Logger, {
+ *   log: (message) => console.log(message)
+ * })
+ *
+ * const logger = Context.get(context, Logger)
+ * logger.log("started")
+ * ```
+ *
+ * **Gotchas**
+ *
+ * - The service key string is the runtime identity; reusing the same string for
+ *   unrelated services makes them occupy the same slot
+ * - `Context.Reference` defaults are used only when no explicit value is stored
+ *   for that key
  *
  * @since 4.0.0
  */
@@ -44,12 +83,20 @@ export const ServiceTypeId: ServiceTypeId = "~effect/Context/Service"
 /**
  * Typed identifier for a service stored in a `Context`.
  *
+ * **When to use**
+ *
+ * Use as the typed handle for storing, retrieving, and requiring a specific
+ * service in a `Context`.
+ *
  * **Details**
  *
  * `Identifier` tracks the requirement in Effect types, while `Shape` is the
  * service implementation retrieved by the key. A key is also an Effect value,
  * so yielding it inside `Effect.gen` retrieves the service from the current
  * fiber context.
+ *
+ * @see {@link Service} for creating required service keys
+ * @see {@link Reference} for creating service keys with default values
  *
  * @category models
  * @since 4.0.0
@@ -98,10 +145,17 @@ export interface Service<in out Identifier, in out Shape> extends Key<Identifier
 /**
  * Class-style service key produced by `Context.Service<Self, Shape>()("Id")`.
  *
+ * **When to use**
+ *
+ * Use when declaring a service as a class so the class value can serve as the
+ * `Context` key.
+ *
  * **Details**
  *
- * Use this shape when declaring services as classes. The class itself is the
- * Context key, and its string `key` identifies the service at runtime.
+ * The class itself is the `Context` key, and its string `key` identifies the
+ * service at runtime.
+ *
+ * @see {@link Service} for creating function-style keys or class-style service keys
  *
  * @category models
  * @since 4.0.0
@@ -139,8 +193,8 @@ export declare namespace ServiceClass {
  *
  * **When to use**
  *
- * Use `Service` for dependencies that must be provided by the surrounding
- * context. Use `Reference` when a dependency should have a default value.
+ * Use when a dependency must be provided by the surrounding context. Use
+ * `Reference` when a dependency should have a default value.
  *
  * **Details**
  *
@@ -512,7 +566,22 @@ const Proto: Omit<Context<never>, "mapUnsafe" | "mutable"> = {
 }
 
 /**
- * Checks if the provided argument is a `Context`.
+ * Checks whether the provided argument is a `Context`.
+ *
+ * **When to use**
+ *
+ * Use to narrow an unknown value before passing it to APIs that require a
+ * `Context`.
+ *
+ * **Details**
+ *
+ * This checks the runtime `Context` marker and does not inspect which services
+ * the context contains.
+ *
+ * **Gotchas**
+ *
+ * This guard only proves that the value is a `Context`; it does not prove that
+ * any specific service is present.
  *
  * **Example** (Checking for contexts)
  *
@@ -523,13 +592,16 @@ const Proto: Omit<Context<never>, "mapUnsafe" | "mutable"> = {
  * assert.strictEqual(Context.isContext(Context.empty()), true)
  * ```
  *
+ * @see {@link isKey} for checking service keys
+ * @see {@link isReference} for checking references with defaults
+ *
  * @category guards
  * @since 2.0.0
  */
 export const isContext = (u: unknown): u is Context<never> => hasProperty(u, TypeId)
 
 /**
- * Checks if the provided argument is a `Key`.
+ * Checks whether the provided argument is a `Key`.
  *
  * **Example** (Checking for keys)
  *
@@ -546,7 +618,7 @@ export const isContext = (u: unknown): u is Context<never> => hasProperty(u, Typ
 export const isKey = (u: unknown): u is Key<any, any> => hasProperty(u, ServiceTypeId)
 
 /**
- * Checks if the provided argument is a `Reference`.
+ * Checks whether the provided argument is a `Reference`.
  *
  * **Example** (Checking for references)
  *
@@ -614,7 +686,7 @@ export const make = <I, S>(
  *
  * **When to use**
  *
- * Use `add` when you always have a service value to store. Use `addOrOmit`
+ * Use when you always have a service value to store. Use `addOrOmit`
  * when the value is optional and a missing value should remove the service.
  *
  * **Details**
@@ -671,7 +743,7 @@ export const add: {
  *
  * **When to use**
  *
- * Use `addOrOmit` when service presence is already represented as an `Option`.
+ * Use when service presence is already represented as an `Option`.
  * Use `add` when you always want to store a service value.
  *
  * **Details**
@@ -729,7 +801,7 @@ export const addOrOmit: {
  *
  * **When to use**
  *
- * Use `getOrElse` when you want a fallback value for a missing regular
+ * Use when you want a fallback value for a missing regular
  * service. Use `getOption` when you need to distinguish presence from absence.
  *
  * **Details**
@@ -788,8 +860,8 @@ export const getOrElse: {
  *
  * **When to use**
  *
- * Use `getOrUndefined` for raw map-style lookup. Use `getOption` when you want
- * the usual `Context.Reference` default-value behavior.
+ * Use when you need raw map-style lookup. Use `getOption` when you want the
+ * usual `Context.Reference` default-value behavior.
  *
  * **Gotchas**
  *
@@ -815,9 +887,9 @@ export const getOrUndefined: {
  *
  * **When to use**
  *
- * Use `getUnsafe` only when the context type cannot prove that the service is
- * present. Use `get` when the service requirement is tracked in the context
- * type, or `getOption` when absence is expected.
+ * Use when the context type cannot prove that the service is present. Use
+ * `get` when the service requirement is tracked in the context type, or
+ * `getOption` when absence is expected.
  *
  * **Details**
  *
@@ -861,11 +933,11 @@ export const getUnsafe: {
 )
 
 /**
- * Get a service from the context that corresponds to the given key.
+ * Gets a service from the context that corresponds to the given key.
  *
  * **When to use**
  *
- * Use `get` when the context type proves that the service is present. Use
+ * Use when the context type proves that the service is present. Use
  * `getOption` or `getOrElse` when a service may be absent.
  *
  * **Example** (Getting a service from a context)
@@ -900,6 +972,21 @@ export const get: {
  * Gets the value for a `Context.Reference`, returning its cached default when
  * the context does not contain an override.
  *
+ * **When to use**
+ *
+ * Use to resolve a `Context.Reference` against a context when you want either
+ * the stored override or the reference's default value.
+ *
+ * **Details**
+ *
+ * Stored overrides take precedence. If no override is present, the reference's
+ * default value is computed lazily and cached on the reference itself.
+ *
+ * **Gotchas**
+ *
+ * Mutable default values can be shared across contexts unless an override is
+ * provided, because the default is cached on the `Context.Reference`.
+ *
  * **Example** (Getting reference defaults unsafely)
  *
  * ```ts
@@ -914,6 +1001,10 @@ export const get: {
  *
  * console.log(typeof logger.log) // "function"
  * ```
+ *
+ * @see {@link getUnsafe} for unsafe access with any service key
+ * @see {@link get} for type-checked reference-aware access
+ * @see {@link getOption} for optional access to non-reference keys
  *
  * @category unsafe
  * @since 4.0.0
@@ -956,11 +1047,11 @@ const serviceNotFoundError = (service: Key<any, any>) => {
 }
 
 /**
- * Gets the service for a key wrapped in an `Option`.
+ * Gets the service for a key safely wrapped in an `Option`.
  *
  * **When to use**
  *
- * Use `getOption` when service absence is expected and should be represented
+ * Use when service absence is expected and should be represented
  * as data. Use `getOrElse` when you want to provide a fallback value directly.
  *
  * **Details**
@@ -1007,7 +1098,7 @@ export const getOption: {
  *
  * **When to use**
  *
- * Use `merge` when combining two contexts. Use `mergeAll` when combining a
+ * Use when combining two contexts. Use `mergeAll` when combining a
  * variadic list of contexts.
  *
  * **Details**
@@ -1054,7 +1145,7 @@ export const merge: {
  *
  * **When to use**
  *
- * Use `mergeAll` when the number of contexts is variadic. Use `merge` when
+ * Use when the number of contexts is variadic. Use `merge` when
  * combining exactly two contexts.
  *
  * **Details**
@@ -1109,7 +1200,7 @@ export const mergeAll = <T extends Array<unknown>>(
  *
  * **When to use**
  *
- * Use `pick` when you want to keep a small allowlist of services. Use `omit`
+ * Use when you want to keep a small allowlist of services. Use `omit`
  * when it is easier to name the services to remove.
  *
  * **Example** (Picking services from a context)
@@ -1157,7 +1248,7 @@ export const pick = <S extends ReadonlyArray<Key<any, any>>>(
  *
  * **When to use**
  *
- * Use `omit` when you want to remove a small denylist of services. Use `pick`
+ * Use when you want to remove a small denylist of services. Use `pick`
  * when it is easier to name the services to keep.
  *
  * **Example** (Omitting services from a context)
@@ -1199,10 +1290,21 @@ export const omit = <S extends ReadonlyArray<Key<any, any>>>(
   })
 
 /**
- * Perform a series of mutations on a `Context`. Prevents unnecessary copying
+ * Performs a series of mutations on a `Context`. Prevents unnecessary copying
  * of the underlying map when multiple mutations are needed.
  *
- * @category utils
+ * **When to use**
+ *
+ * Use to apply several `Context` transformations in one callback while copying
+ * the underlying service map only once.
+ *
+ * @see {@link add} for adding or replacing a service
+ * @see {@link addOrOmit} for adding or removing a service from an `Option`
+ * @see {@link merge} for combining two contexts
+ * @see {@link pick} for keeping selected services
+ * @see {@link omit} for removing selected services
+ *
+ * @category mutations
  * @since 4.0.0
  */
 export const mutate: {
@@ -1236,7 +1338,7 @@ const withMapUnsafe = <Services, B>(self: Context<Services>, f: (map: Map<string
  *
  * **When to use**
  *
- * Use `Reference` when a service should be available even if it is not
+ * Use when a service should be available even if it is not
  * explicitly stored in the `Context`. Use `Service` when the service must be
  * provided by the surrounding context.
  *
