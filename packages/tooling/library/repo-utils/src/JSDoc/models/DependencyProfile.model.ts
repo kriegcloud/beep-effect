@@ -23,8 +23,8 @@ const $I = $RepoUtilsId.create("JSDoc/models/DependencyProfile.model");
  * @category models
  * @since 0.0.0
  */
-export const FanValue = LiteralKit(["low", "medium", "high"]).annotate(
-  $I.annote("FanValue", {
+export const FanValue = LiteralKit(["low", "medium", "high"]).pipe(
+  $I.annoteSchema("FanValue", {
     description: "",
   })
 );

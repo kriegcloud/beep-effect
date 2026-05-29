@@ -111,11 +111,9 @@ export const BracketStringToPOSPatternElement = S.String.pipe(
     ),
     encode: SchemaGetter.transform((element) => Pattern.POS.toBracketString(element.value)),
   }),
-  S.annotate(
-    $I.annote("BracketStringToPOSPatternElement", {
-      description: "Decoder for POS bracket strings such as [ADJ|NOUN].",
-    })
-  )
+  $I.annoteSchema("BracketStringToPOSPatternElement", {
+    description: "Decoder for POS bracket strings such as [ADJ|NOUN].",
+  })
 );
 
 /**
@@ -144,11 +142,9 @@ export const BracketStringToEntityPatternElement = S.String.pipe(
     ),
     encode: SchemaGetter.transform((element) => Pattern.Entity.toBracketString(element.value)),
   }),
-  S.annotate(
-    $I.annote("BracketStringToEntityPatternElement", {
-      description: "Decoder for entity bracket strings such as [DATE|TIME].",
-    })
-  )
+  $I.annoteSchema("BracketStringToEntityPatternElement", {
+    description: "Decoder for entity bracket strings such as [DATE|TIME].",
+  })
 );
 
 /**
@@ -177,11 +173,9 @@ export const BracketStringToLiteralPatternElement = S.String.pipe(
     ),
     encode: SchemaGetter.transform((element) => Pattern.Literal.toBracketString(element.value)),
   }),
-  S.annotate(
-    $I.annote("BracketStringToLiteralPatternElement", {
-      description: "Decoder for literal bracket strings such as [Apple|Google].",
-    })
-  )
+  $I.annoteSchema("BracketStringToLiteralPatternElement", {
+    description: "Decoder for literal bracket strings such as [Apple|Google].",
+  })
 );
 
 /**
@@ -202,11 +196,9 @@ export const BracketStringToPatternElement = S.String.pipe(
     decode: SchemaGetter.transformOrFail(decodePatternElement),
     encode: SchemaGetter.transform(encodePatternElement),
   }),
-  S.annotate(
-    $I.annote("BracketStringToPatternElement", {
-      description: "Decoder for bracket strings that resolve to exactly one supported pattern element variant.",
-    })
-  )
+  $I.annoteSchema("BracketStringToPatternElement", {
+    description: "Decoder for bracket strings that resolve to exactly one supported pattern element variant.",
+  })
 );
 
 /**

@@ -22,8 +22,8 @@ const $I = $WorkspaceDomainId.create("values/ApprovalDecision/ApprovalDecision.m
  * @category schemas
  * @since 0.0.0
  */
-export const ApprovalDecision = LiteralKit(["pending"]).annotate(
-  $I.annote("ApprovalDecision", {
+export const ApprovalDecision = LiteralKit(["pending"]).pipe(
+  $I.annoteSchema("ApprovalDecision", {
     description: "Review decision vocabulary for candidate approval gates.",
   })
 );

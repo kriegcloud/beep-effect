@@ -22,8 +22,8 @@ const sanitizeDisplayText = redactSensitiveText;
  * @category schemas
  * @since 0.0.0
  */
-export const Severity = LiteralKit(["Info", "Success", "Warn", "Error"]).annotate(
-  $I.annote("Severity", {
+export const Severity = LiteralKit(["Info", "Success", "Warn", "Error"]).pipe(
+  $I.annoteSchema("Severity", {
     description: "Severity - The severity of the display message.",
   })
 );

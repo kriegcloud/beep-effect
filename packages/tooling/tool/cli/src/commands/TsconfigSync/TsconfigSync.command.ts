@@ -85,8 +85,8 @@ const ROOT_TSTYCHE_TSCONFIG = "./tsconfig.dtslint.json" as const;
  */
 const ROOT_DEP_INDEX_KEY = "@beep/root" as const;
 const $I = $RepoCliId.create("commands/TsconfigSync/TsconfigSync.command");
-const RootDepIndexKey = S.Literal(ROOT_DEP_INDEX_KEY).annotate(
-  $I.annote("RootDepIndexKey", {
+const RootDepIndexKey = S.Literal(ROOT_DEP_INDEX_KEY).pipe(
+  $I.annoteSchema("RootDepIndexKey", {
     description: "Synthetic root dependency index key from repo-utils dependency maps.",
   })
 );
@@ -106,24 +106,20 @@ const CANONICAL_ALIAS_KEY_PATTERN = /^@beep\/[^/*]+(?:\/(?!\*)[^*]+)*(?:\/\*)?$/
 
 const CanonicalAliasKey = S.String.check(S.isPattern(CANONICAL_ALIAS_KEY_PATTERN)).pipe(
   S.brand("CanonicalAliasKey"),
-  S.annotate(
-    $I.annote("CanonicalAliasKey", {
-      description: "Canonical @beep path alias key in root tsconfig paths.",
-    })
-  )
+  $I.annoteSchema("CanonicalAliasKey", {
+    description: "Canonical @beep path alias key in root tsconfig paths.",
+  })
 );
 
 const BeepScopedPackageName = S.String.check(S.isStartsWith("@beep/")).pipe(
   S.brand("BeepScopedPackageName"),
-  S.annotate(
-    $I.annote("BeepScopedPackageName", {
-      description: "Package name under the @beep scope.",
-    })
-  )
+  $I.annoteSchema("BeepScopedPackageName", {
+    description: "Package name under the @beep scope.",
+  })
 );
 
-const StringArray = S.Array(S.String).annotate(
-  $I.annote("StringArray", {
+const StringArray = S.Array(S.String).pipe(
+  $I.annoteSchema("StringArray", {
     description: "Reusable schema for arrays of strings.",
   })
 );
@@ -186,8 +182,8 @@ const TsconfigSyncModeKit = LiteralKit(["sync", "check", "dry-run"]);
  * @category models
  * @since 0.0.0
  */
-export const TsconfigSyncMode = TsconfigSyncModeKit.annotate(
-  $I.annote("TsconfigSyncMode", {
+export const TsconfigSyncMode = TsconfigSyncModeKit.pipe(
+  $I.annoteSchema("TsconfigSyncMode", {
     description: "Command execution mode for tsconfig-sync.",
   })
 );
@@ -246,13 +242,12 @@ export const TsconfigSyncRunOptions = TsconfigSyncMode.mapMembers(
     () => TsconfigSyncRunOptionsCheck,
     () => TsconfigSyncRunOptionsDryRun,
   ])
-)
-  .annotate(
-    $I.annote("TsconfigSyncRunOptions", {
-      description: "Runtime options for executing tsconfig sync at a repo root.",
-    })
-  )
-  .pipe(S.toTaggedUnion("mode"));
+).pipe(
+  $I.annoteSchema("TsconfigSyncRunOptions", {
+    description: "Runtime options for executing tsconfig sync at a repo root.",
+  }),
+  S.toTaggedUnion("mode")
+);
 /**
  * Runtime options for executing tsconfig sync at a repo root.
  *
@@ -275,8 +270,8 @@ export const TsconfigSyncSection = LiteralKit([
   "root-syncpack",
   "package-references",
   "package-docgen",
-]).annotate(
-  $I.annote("TsconfigSyncSection", {
+]).pipe(
+  $I.annoteSchema("TsconfigSyncSection", {
     description: "Sync change section categories for tsconfig-sync.",
   })
 );
@@ -383,13 +378,12 @@ export const TsconfigSyncChange = TsconfigSyncSection.mapMembers(
     () => PackageReferencesChange,
     () => PackageDocgenChange,
   ])
-)
-  .annotate(
-    $I.annote("TsconfigSyncChange", {
-      description: "A single planned file change for tsconfig-sync.",
-    })
-  )
-  .pipe(S.toTaggedUnion("section"));
+).pipe(
+  $I.annoteSchema("TsconfigSyncChange", {
+    description: "A single planned file change for tsconfig-sync.",
+  }),
+  S.toTaggedUnion("section")
+);
 
 /**
  * A single planned file change.
@@ -508,13 +502,12 @@ export const PlannedFileChange = TsconfigSyncSection.mapMembers(
     () => PackageReferencesPlannedFileChange,
     () => PackageDocgenPlannedFileChange,
   ])
-)
-  .annotate(
-    $I.annote("TsconfigSyncChange", {
-      description: "A single planned file change for tsconfig-sync.",
-    })
-  )
-  .pipe(S.toTaggedUnion("section"));
+).pipe(
+  $I.annoteSchema("TsconfigSyncChange", {
+    description: "A single planned file change for tsconfig-sync.",
+  }),
+  S.toTaggedUnion("section")
+);
 
 /**
  * A planned file change with transformed file content.
@@ -566,13 +559,12 @@ class TsconfigSyncResultDryRun extends S.Class<TsconfigSyncResultDryRun>($I`Tsco
  */
 export const TsconfigSyncResult = TsconfigSyncMode.mapMembers(
   Tuple.evolve([() => TsconfigSyncResultSync, () => TsconfigSyncResultCheck, () => TsconfigSyncResultDryRun])
-)
-  .annotate(
-    $I.annote("TsconfigSyncResult", {
-      description: "Result emitted after a sync run.",
-    })
-  )
-  .pipe(S.toTaggedUnion("mode"));
+).pipe(
+  $I.annoteSchema("TsconfigSyncResult", {
+    description: "Result emitted after a sync run.",
+  }),
+  S.toTaggedUnion("mode")
+);
 
 /**
  * Result emitted after a sync run.
@@ -617,8 +609,8 @@ export class WorkspaceDescriptor extends S.Class<WorkspaceDescriptor>($I`Workspa
   })
 ) {}
 
-const JsonObject = S.Record(S.String, S.Unknown).annotate(
-  $I.annote("JsonObject", {
+const JsonObject = S.Record(S.String, S.Unknown).pipe(
+  $I.annoteSchema("JsonObject", {
     description: "Generic JSON object document used for parsed docgen configs.",
   })
 );

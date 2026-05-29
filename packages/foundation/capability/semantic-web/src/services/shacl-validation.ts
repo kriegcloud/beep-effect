@@ -44,8 +44,8 @@ const serviceContractMetadata = (canonicalName: string, overview: string) =>
  * @since 0.0.0
  * @category models
  */
-export const ShaclSeverity = LiteralKit(["info", "warning", "violation"]).annotate(
-  $I.annote("ShaclSeverity", {
+export const ShaclSeverity = LiteralKit(["info", "warning", "violation"]).pipe(
+  $I.annoteSchema("ShaclSeverity", {
     description: "SHACL report severity.",
   })
 );

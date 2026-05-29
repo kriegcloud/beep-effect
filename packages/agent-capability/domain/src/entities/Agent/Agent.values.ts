@@ -23,8 +23,8 @@ const $I = $AgentCapabilityDomainId.create("entities/Agent/Agent.values");
  * @category schemas
  * @since 0.0.0
  */
-export const AgentMode = LiteralKit(["deterministic_fixture"]).annotate(
-  $I.annote("AgentMode", {
+export const AgentMode = LiteralKit(["deterministic_fixture"]).pipe(
+  $I.annoteSchema("AgentMode", {
     description: "Execution mode vocabulary for proof agents.",
   })
 );

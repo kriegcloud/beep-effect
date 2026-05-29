@@ -66,8 +66,8 @@ const GITHUB_CHECK_MODES = ["quality", "repo-sanity", "secrets", "security", "sa
  * @category models
  * @since 0.0.0
  */
-export const QualityTaskName = LiteralKit(QUALITY_TASK_NAMES).annotate(
-  $I.annote("QualityTaskName", {
+export const QualityTaskName = LiteralKit(QUALITY_TASK_NAMES).pipe(
+  $I.annoteSchema("QualityTaskName", {
     description: "Canonical quality task name handled by beep-cli.",
   })
 );

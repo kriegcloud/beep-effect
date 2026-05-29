@@ -35,18 +35,14 @@ const NON_SCHEMA_SIGNAL_PATTERN =
 
 const stringifyJsonPretty = SchemaGetter.stringifyJson({ space: 2 });
 
-const SchemaFirstEntryKind = LiteralKit([
-  "exported-interface",
-  "exported-type-literal",
-  "object-struct-schema",
-]).annotate(
-  $I.annote("SchemaFirstEntryKind", {
+const SchemaFirstEntryKind = LiteralKit(["exported-interface", "exported-type-literal", "object-struct-schema"]).pipe(
+  $I.annoteSchema("SchemaFirstEntryKind", {
     description: "Kinds of schema-first inventory findings.",
   })
 );
 
-const SchemaFirstEntryStatus = LiteralKit(["candidate", "exception"]).annotate(
-  $I.annote("SchemaFirstEntryStatus", {
+const SchemaFirstEntryStatus = LiteralKit(["candidate", "exception"]).pipe(
+  $I.annoteSchema("SchemaFirstEntryStatus", {
     description: "Tracked status for a schema-first inventory finding.",
   })
 );

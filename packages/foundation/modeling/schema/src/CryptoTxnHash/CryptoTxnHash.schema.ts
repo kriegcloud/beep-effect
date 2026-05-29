@@ -59,11 +59,9 @@ const CryptoTxnHashChecks = S.makeFilterGroup(
  */
 export const CryptoTxnHash = S.NonEmptyString.check(CryptoTxnHashChecks).pipe(
   S.brand("CryptoTxnHash"),
-  S.annotate(
-    $I.annote("CryptoTxnHash", {
-      description: "Canonical mainnet transaction identifier for supported EVM, Bitcoin, and Solana networks.",
-    })
-  )
+  $I.annoteSchema("CryptoTxnHash", {
+    description: "Canonical mainnet transaction identifier for supported EVM, Bitcoin, and Solana networks.",
+  })
 );
 
 /**
@@ -85,11 +83,9 @@ export const CryptoTxnHashRedacted = CryptoTxnHash.pipe(
   SchemaUtils.withStatics(() => ({
     makeRedacted: flow(CryptoTxnHash.make, Redacted.make),
   })),
-  S.annotate(
-    $I.annote("CryptoTxnHashRedacted", {
-      description: "Redacted canonical mainnet transaction identifier for supported EVM, Bitcoin, and Solana networks.",
-    })
-  )
+  $I.annoteSchema("CryptoTxnHashRedacted", {
+    description: "Redacted canonical mainnet transaction identifier for supported EVM, Bitcoin, and Solana networks.",
+  })
 );
 
 /**

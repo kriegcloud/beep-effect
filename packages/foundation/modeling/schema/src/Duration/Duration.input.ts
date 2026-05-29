@@ -80,11 +80,9 @@ export const DurationUnit = LiteralKit([
   "week",
   "weeks",
 ]).pipe(
-  S.annotate(
-    $I.annote("DurationUnit", {
-      description: "A unit of time measurement accepted by duration input schemas.",
-    })
-  )
+  $I.annoteSchema("DurationUnit", {
+    description: "A unit of time measurement accepted by duration input schemas.",
+  })
 );
 
 /**
@@ -172,12 +170,10 @@ export const DurationInput = S.Union([
   S.TemplateLiteral([S.Number, " ", DurationUnit]),
   NonEmptyDurationObject,
 ]).pipe(
-  S.annotate(
-    $I.annote("DurationInput", {
-      description:
-        "Duration input accepted as an existing Duration, numeric transport, duration string, or additive object.",
-    })
-  )
+  $I.annoteSchema("DurationInput", {
+    description:
+      "Duration input accepted as an existing Duration, numeric transport, duration string, or additive object.",
+  })
 );
 
 /**
@@ -230,11 +226,9 @@ export const DurationFromInput = DurationInput.pipe(
       () => "Encoding DurationFromInput results back to the original duration input is not supported"
     ),
   }),
-  S.annotate(
-    $I.annote("DurationFromInput", {
-      description: "A one-way schema that normalizes supported duration inputs into an Effect Duration value.",
-    })
-  )
+  $I.annoteSchema("DurationFromInput", {
+    description: "A one-way schema that normalizes supported duration inputs into an Effect Duration value.",
+  })
 );
 
 /**

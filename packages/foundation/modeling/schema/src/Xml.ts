@@ -84,11 +84,9 @@ export const XmlTextToUnknown = S.String.pipe(
       encode: encodeUnsupported,
     })
   ),
-  S.annotate(
-    $I.annote("XmlTextToUnknown", {
-      description: "Schema transformation that parses XML text into unknown values.",
-    })
-  )
+  $I.annoteSchema("XmlTextToUnknown", {
+    description: "Schema transformation that parses XML text into unknown values.",
+  })
 );
 
 /**

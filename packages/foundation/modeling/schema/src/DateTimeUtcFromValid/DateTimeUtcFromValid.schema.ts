@@ -40,11 +40,9 @@ export const DateTimeInputKind = LiteralKit([
   "Instant",
   "InstantWithZone",
 ]).pipe(
-  S.annotate(
-    $I.annote("DateTimeInputKind", {
-      description: "Discriminator values for DateTime.Input transport representations.",
-    })
-  )
+  $I.annoteSchema("DateTimeInputKind", {
+    description: "Discriminator values for DateTime.Input transport representations.",
+  })
 );
 
 /**

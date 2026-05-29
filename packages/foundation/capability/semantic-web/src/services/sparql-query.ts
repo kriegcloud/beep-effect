@@ -39,8 +39,8 @@ const serviceContractMetadata = (canonicalName: string, overview: string) =>
  * @since 0.0.0
  * @category models
  */
-export const SparqlQueryProfile = LiteralKit(["select", "ask", "construct"]).annotate(
-  $I.annote("SparqlQueryProfile", {
+export const SparqlQueryProfile = LiteralKit(["select", "ask", "construct"]).pipe(
+  $I.annoteSchema("SparqlQueryProfile", {
     description: "Minimal v1 SPARQL profile.",
   })
 );

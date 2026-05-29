@@ -35,11 +35,9 @@ export const HasNullByte = S.String.check(
   })
 ).pipe(
   S.brand("HasNullByte"),
-  S.annotate(
-    $I.annote("HasNullByte", {
-      description: "A string that contains an embedded NUL byte.",
-    })
-  )
+  $I.annoteSchema("HasNullByte", {
+    description: "A string that contains an embedded NUL byte.",
+  })
 );
 
 /**
@@ -66,11 +64,9 @@ export const SupportedWindowsNamespace = S.NonEmptyString.check(
   })
 ).pipe(
   S.brand("SupportedWindowsNamespace"),
-  S.annotate(
-    $I.annote("SupportedWindowsNamespace", {
-      description: "A non-empty path string that does not use unsupported Windows namespace prefixes.",
-    })
-  )
+  $I.annoteSchema("SupportedWindowsNamespace", {
+    description: "A non-empty path string that does not use unsupported Windows namespace prefixes.",
+  })
 );
 
 /**
@@ -96,11 +92,9 @@ export const UsesPosixSeparator = S.String.check(
   })
 ).pipe(
   S.brand("UsesPosixSeparator"),
-  S.annotate(
-    $I.annote("UsesPosixSeparator", {
-      description: "A string that contains the POSIX path separator /.",
-    })
-  )
+  $I.annoteSchema("UsesPosixSeparator", {
+    description: "A string that contains the POSIX path separator /.",
+  })
 );
 
 /**
@@ -126,11 +120,9 @@ export const UsesWindowsSeparator = S.String.check(
   })
 ).pipe(
   S.brand("UsesWindowsSeparator"),
-  S.annotate(
-    $I.annote("UsesWindowsSeparator", {
-      description: "A string that contains the Windows path separator \\.",
-    })
-  )
+  $I.annoteSchema("UsesWindowsSeparator", {
+    description: "A string that contains the Windows path separator \\.",
+  })
 );
 
 /**
@@ -156,11 +148,9 @@ export const EndsWithSeparator = S.String.check(
   })
 ).pipe(
   S.brand("EndsWithSeparator"),
-  S.annotate(
-    $I.annote("EndsWithSeparator", {
-      description: "A string that ends with either the POSIX or Windows path separator.",
-    })
-  )
+  $I.annoteSchema("EndsWithSeparator", {
+    description: "A string that ends with either the POSIX or Windows path separator.",
+  })
 );
 
 /**

@@ -135,8 +135,8 @@ type TsgoDiagnosticOutput = {
  * @category models
  * @since 0.0.0
  */
-export const GithubCheckMode = LiteralKit(GITHUB_CHECK_MODES).annotate(
-  $I.annote("GithubCheckMode", {
+export const GithubCheckMode = LiteralKit(GITHUB_CHECK_MODES).pipe(
+  $I.annoteSchema("GithubCheckMode", {
     description: "GitHub verification mode handled by the repo-cli quality command group.",
   })
 );

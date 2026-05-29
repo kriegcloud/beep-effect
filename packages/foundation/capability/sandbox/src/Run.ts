@@ -80,8 +80,8 @@ export const DEFAULT_MAX_ITERATIONS = 1 as const;
  * @category schemas
  * @since 0.0.0
  */
-export const LoggingOptionKind = LiteralKit(["File", "Stdout"]).annotate(
-  $I.annote("LoggingOptionKind", {
+export const LoggingOptionKind = LiteralKit(["File", "Stdout"]).pipe(
+  $I.annoteSchema("LoggingOptionKind", {
     description: "Logging option discriminator.",
   })
 );

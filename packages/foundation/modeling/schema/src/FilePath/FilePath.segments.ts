@@ -22,8 +22,8 @@ const WindowsDotSegmentKit = LiteralKit([".", ".."]);
  * @since 0.0.0
  * @category validation
  */
-export const WindowsDotSegment = WindowsDotSegmentKit.annotate(
-  $I.annote("WindowsDotSegment", {
+export const WindowsDotSegment = WindowsDotSegmentKit.pipe(
+  $I.annoteSchema("WindowsDotSegment", {
     description: "Windows dot-segment markers used for current and parent directory traversal.",
   })
 );
@@ -73,11 +73,9 @@ export const ValidWindowsPlainPathSegment = S.NonEmptyString.check(
   )
 ).pipe(
   S.brand("ValidWindowsPlainPathSegment"),
-  S.annotate(
-    $I.annote("ValidWindowsPlainPathSegment", {
-      description: "A non-empty Windows path segment without separators, reserved characters, or trailing dots/spaces.",
-    })
-  )
+  $I.annoteSchema("ValidWindowsPlainPathSegment", {
+    description: "A non-empty Windows path segment without separators, reserved characters, or trailing dots/spaces.",
+  })
 );
 
 /**
@@ -105,11 +103,9 @@ export const ValidWindowsRootSegment = ValidWindowsPlainPathSegment.check(
   })
 ).pipe(
   S.brand("ValidWindowsRootSegment"),
-  S.annotate(
-    $I.annote("ValidWindowsRootSegment", {
-      description: "A Windows root segment suitable for drive roots and UNC server/share segments.",
-    })
-  )
+  $I.annoteSchema("ValidWindowsRootSegment", {
+    description: "A Windows root segment suitable for drive roots and UNC server/share segments.",
+  })
 );
 
 /**
@@ -129,11 +125,9 @@ export type ValidWindowsRootSegment = typeof ValidWindowsRootSegment.Type;
  */
 export const ValidWindowsPathSegment = S.Union([WindowsDotSegment, ValidWindowsPlainPathSegment]).pipe(
   S.brand("ValidWindowsPathSegment"),
-  S.annotate(
-    $I.annote("ValidWindowsPathSegment", {
-      description: "A Windows path segment that is either a valid plain segment or a dot-segment marker.",
-    })
-  )
+  $I.annoteSchema("ValidWindowsPathSegment", {
+    description: "A Windows path segment that is either a valid plain segment or a dot-segment marker.",
+  })
 );
 
 /**
@@ -152,11 +146,9 @@ export type ValidWindowsPathSegment = typeof ValidWindowsPathSegment.Type;
  */
 export const WindowsSegments = S.NonEmptyArray(ValidWindowsPathSegment).pipe(
   S.brand("WindowsSegments"),
-  S.annotate(
-    $I.annote("WindowsSegments", {
-      description: "A non-empty Windows path segment list.",
-    })
-  )
+  $I.annoteSchema("WindowsSegments", {
+    description: "A non-empty Windows path segment list.",
+  })
 );
 
 /**
@@ -176,11 +168,9 @@ export type WindowsSegments = typeof WindowsSegments.Type;
  */
 export const ValidWindowsUncRest = S.NonEmptyArray(ValidWindowsPathSegment).pipe(
   S.brand("ValidWindowsUncRest"),
-  S.annotate(
-    $I.annote("ValidWindowsUncRest", {
-      description: "The non-empty remainder segment list of a UNC file path after the server and share segments.",
-    })
-  )
+  $I.annoteSchema("ValidWindowsUncRest", {
+    description: "The non-empty remainder segment list of a UNC file path after the server and share segments.",
+  })
 );
 
 /**
@@ -202,11 +192,9 @@ export const ValidWindowsUncSegments = S.TupleWithRest(
   [ValidWindowsPathSegment]
 ).pipe(
   S.brand("ValidWindowsUncSegments"),
-  S.annotate(
-    $I.annote("ValidWindowsUncSegments", {
-      description: "A UNC segment list with server, share, and at least one leaf segment.",
-    })
-  )
+  $I.annoteSchema("ValidWindowsUncSegments", {
+    description: "A UNC segment list with server, share, and at least one leaf segment.",
+  })
 );
 
 /**
