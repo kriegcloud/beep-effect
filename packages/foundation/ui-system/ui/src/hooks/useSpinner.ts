@@ -75,19 +75,12 @@ function useInterval(callback: () => void, delay: number | null) {
 
     const intervalId = window.setInterval(fn, delay);
 
-    return () => {
-      window.clearInterval(intervalId);
-    };
+    return () => window.clearInterval(intervalId);
   }, [delay, fn]);
 }
 
 function useUnmountEffect(fn: () => void, deps: React.DependencyList = []) {
-  React.useEffect(
-    () => () => {
-      fn();
-    },
-    deps
-  );
+  React.useEffect(() => () => fn(), deps);
 }
 
 /**
@@ -135,7 +128,7 @@ export function useSpinner<T>(increment: (params?: T) => void, decrement: (param
   }, []);
 
   const runAction = useCallback(
-    (nextAction: SpinnerAction, params?: T) => {
+    (nextAction: SpinnerAction, params?: T) =>
       pipe(
         nextAction,
         Match.type<SpinnerAction>().pipe(
@@ -143,21 +136,19 @@ export function useSpinner<T>(increment: (params?: T) => void, decrement: (param
           Match.when("decrement", () => decrement(params)),
           Match.exhaustive
         )
-      );
-    },
+      ),
     [decrement, increment]
   );
 
   useInterval(
-    () => {
+    () =>
       pipe(
         action,
         O.match({
           onNone: noopVoid,
           onSome: (nextAction) => runAction(nextAction, paramsRef.current),
         })
-      );
-    },
+      ),
     isSpinning ? spinnerSchedule.continuousChangeInterval : null
   );
 
@@ -179,19 +170,9 @@ export function useSpinner<T>(increment: (params?: T) => void, decrement: (param
     [runAction, runOnce]
   );
 
-  const up = useCallback(
-    (params?: T) => {
-      scheduleSpin("increment", params);
-    },
-    [scheduleSpin]
-  );
+  const up = useCallback((params?: T) => scheduleSpin("increment", params), [scheduleSpin]);
 
-  const down = useCallback(
-    (params?: T) => {
-      scheduleSpin("decrement", params);
-    },
-    [scheduleSpin]
-  );
+  const down = useCallback((params?: T) => scheduleSpin("decrement", params), [scheduleSpin]);
 
   const stop = useCallback(() => {
     paramsRef.current = undefined;

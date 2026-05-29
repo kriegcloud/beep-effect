@@ -1,6 +1,6 @@
 "use client";
 
-import { CaretRight, DotsThree } from "@phosphor-icons/react";
+import { CaretRightIcon, DotsThreeIcon } from "@phosphor-icons/react";
 import { cn } from "../lib/index.ts";
 import type * as React from "react";
 
@@ -77,7 +77,7 @@ function BreadcrumbSeparator({ children, className, ...props }: React.ComponentP
       className={cn("[&>svg]:size-3.5", className)}
       {...props}
     >
-      {children ?? <CaretRight />}
+      {children ?? <CaretRightIcon />}
     </li>
   );
 }
@@ -95,7 +95,7 @@ function BreadcrumbEllipsis({ className, ...props }: React.ComponentPropsWithout
       className={cn("flex size-9 items-center justify-center", className)}
       {...props}
     >
-      <DotsThree className="size-4" />
+      <DotsThreeIcon className="size-4" />
       <span className="sr-only">More</span>
     </span>
   );

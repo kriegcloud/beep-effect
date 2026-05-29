@@ -537,7 +537,7 @@ export const useNumberBoundary = (options: UseNumberInputOptions = {}) => {
   }, [defaultValue, formatter, numberValue, precision, value]);
 
   const change = useCallback(
-    (multiplier = 1, params: SpinParams = {}) => {
+    (multiplier = 1, params: SpinParams = {}) =>
       setInterfaceValueState((current) => {
         const result = (pipe(current, parser, toNumber) ?? 0) + multiplier * (params.step ?? step);
         const digits = params.precision ?? precision;
@@ -553,24 +553,13 @@ export const useNumberBoundary = (options: UseNumberInputOptions = {}) => {
         }
 
         return formatter(result.toFixed(digits));
-      });
-    },
+      }),
     [formatter, keepWithinRange, max, min, parser, precision, step]
   );
 
-  const increment = useCallback(
-    (params: SpinParams = {}) => {
-      change(1, params);
-    },
-    [change]
-  );
+  const increment = useCallback((params: SpinParams = {}) => change(1, params), [change]);
 
-  const decrement = useCallback(
-    (params: SpinParams = {}) => {
-      change(-1, params);
-    },
-    [change]
-  );
+  const decrement = useCallback((params: SpinParams = {}) => change(-1, params), [change]);
 
   return {
     numberValue,
@@ -647,9 +636,7 @@ function NumberInput() {
     if (element !== null && allowMouseWheel) {
       element.addEventListener("wheel", handler, { passive: false });
 
-      return () => {
-        element.removeEventListener("wheel", handler);
-      };
+      return () => element.removeEventListener("wheel", handler);
     }
   }, [allowMouseWheel, decrement, increment, inputRef, precision, step]);
 

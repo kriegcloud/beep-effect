@@ -178,7 +178,7 @@ export function LinkPreview({ href, children, className, metadata }: LinkPreview
 
     const observer = new IntersectionObserver(
       ([entry]) => {
-        if (entry?.isIntersecting === true) {
+        if (entry?.isIntersecting) {
           setIsInView(true);
           observer.unobserve(element);
         }
@@ -250,9 +250,7 @@ export function LinkPreview({ href, children, className, metadata }: LinkPreview
 
       {description !== undefined && <div className="line-clamp-3 w-full text-xs text-gray-400">{description}</div>}
 
-      <div className="truncate text-xs text-primary">
-        {pipe(href, Str.replace("https://", ""), Str.replace("http://", ""))}
-      </div>
+      <div className="truncate text-xs text-primary">{pipe(href, Str.replace(/^https?:\/\//, ""))}</div>
     </div>
   );
 
