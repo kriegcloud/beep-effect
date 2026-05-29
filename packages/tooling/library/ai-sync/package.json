@@ -1,6 +1,6 @@
 {
   "name": "@beep/ai-sync",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "description": "Schema-first AI agent configuration schemas, source metadata, drift checks, and validated transforms",
   "license": "MIT",
   "private": true,
