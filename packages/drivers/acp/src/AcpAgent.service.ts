@@ -6,7 +6,7 @@
  */
 
 import { $AcpId } from "@beep/identity";
-import { A } from "@beep/utils";
+import { A, thunkEffectVoid } from "@beep/utils";
 import { Context, Effect, HashMap, HashSet, Layer, Ref, Stdio } from "effect";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
@@ -43,7 +43,7 @@ const $I = $AcpId.create("agent");
  * @since 0.0.0
  */
 export interface AcpAgentOptions extends AcpProtocol.AcpProtocolLoggingOptions {
-  readonly logger?: (event: AcpProtocol.AcpProtocolLogEvent) => Effect.Effect<void, never>;
+  readonly logger?: (event: AcpProtocol.AcpProtocolLogEvent) => Effect.Effect<void>;
 }
 
 /**
@@ -307,7 +307,7 @@ export const make = Effect.fn($I`AcpAgent_make`)(function* (
     Ref.get(unknownExtNotificationHandler).pipe(
       Effect.flatMap(
         O.match({
-          onNone: () => Effect.void,
+          onNone: thunkEffectVoid,
           onSome: (handler) => handler(method, params),
         })
       )
@@ -331,8 +331,8 @@ export const make = Effect.fn($I`AcpAgent_make`)(function* (
     ...(options.logger !== undefined ? { logger: options.logger } : {}),
     onNotification: (notification) =>
       AcpProtocol.AcpIncomingNotification.match(notification, {
-        SessionUpdate: () => Effect.void,
-        ElicitationComplete: () => Effect.void,
+        SessionUpdate: thunkEffectVoid,
+        ElicitationComplete: thunkEffectVoid,
         ExtNotification: (value) => {
           if (value.method === AGENT_METHODS.session_cancel) {
             return decodeCancelNotification(value.params).pipe(
