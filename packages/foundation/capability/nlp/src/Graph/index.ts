@@ -6,6 +6,21 @@
  */
 
 /**
+ * Annotated text graph: structural nodes enriched with linguistic-annotation
+ * nodes (POS/entity/lemma/dependency) produced by an `NLPBackend`.
+ *
+ * @example
+ * ```typescript
+ * import { AnnotatedTextGraph } from "@beep/nlp/Graph"
+ *
+ * console.log(AnnotatedTextGraph.empty())
+ * ```
+ *
+ * @since 0.0.0
+ * @category graph
+ */
+export * as AnnotatedTextGraph from "./AnnotatedTextGraph.ts";
+/**
  * The categorical text-graph engine (DAG over `effect/Graph` with cata/ana/map).
  *
  * @example
