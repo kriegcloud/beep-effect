@@ -65,6 +65,24 @@ failing `tsgo -b` for this package. **Port approach: match `@beep/nlp`'s actual 
 --type library|tool|app [--family drivers|foundation|tooling] [--parent-dir <rel>] [--dry-run]`
 — `name` positional; `--family` does NOT accept `internal`/`apps`.
 
+**Algebra group ported (commits `5cb5793b9a`, next):**
+- `src/Algebra/Monoid.ts` — generic `Monoid<A>` + all instances + law checkers; v4 renames
+  (namespaced imports, HashMap/Option v4, `null`→`Option` for `SetIntersection`/`Option`
+  monoids). 50 proofs. `Algebra/index.ts` barrel uses `.ts` extension (repo
+  `allowImportingTsExtensions`); `"./Monoid"` without ext fails tsgo (TS2835).
+- `src/Algebra/NLPMonoid.ts` — NLP instances on the local framework; `BagOfWords` defined
+  locally as `Map<string,number>` (NLPService is a later MERGE). `SentenceConcat` preserved
+  as a **near-monoid** (identity-only proof, no associativity — matches adjunct's own test).
+  26 proofs.
+- **`src/Algebra/NLPMonoids.ts` (the `@effect/typeclass` duplicate) DROPPED** per the gap
+  table's "consolidate into ONE impl" disposition — its structures (BagOfWords,
+  DocumentStatistics, NamedEntity, DependencyEdge, TextAnalysis, monoid instances) are
+  duplicates of NLPMonoid, so nothing genuinely-new to fold. This avoids pulling in
+  `@effect/typeclass`/`Combiner`/`Reducer` for the algebra layer entirely.
+- `TypeClass.ts` deferred to the Graph group (it depends on `EffectGraph`).
+- Validation loop per increment: `beep:lint:fix` → `beep:check` (tsgo) → `beep:lint` (biome)
+  → scoped `vitest run`. All green.
+
 ---
 
 ## P1: Staging Port

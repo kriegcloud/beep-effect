@@ -19,3 +19,17 @@
  * @category algebra
  */
 export * as Monoid from "./Monoid.ts";
+/**
+ * NLP-specific monoid instances (tokens, sentences, documents, corpus, TF-IDF).
+ *
+ * @example
+ * ```typescript
+ * import { NLPMonoid } from "@beep/nlp/Algebra"
+ *
+ * console.log(NLPMonoid.TokenConcat.combine("hello", "world")) // "hello world"
+ * ```
+ *
+ * @since 0.0.0
+ * @category algebra
+ */
+export * as NLPMonoid from "./NLPMonoid.ts";
