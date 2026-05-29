@@ -35,6 +35,9 @@
       "@beep/nlp/Algebra": [
         "../../../../packages/foundation/capability/nlp/src/Algebra/index.ts"
       ],
+      "@beep/nlp/Backend": [
+        "../../../../packages/foundation/capability/nlp/src/Backend/index.ts"
+      ],
       "@beep/nlp/Core": [
         "../../../../packages/foundation/capability/nlp/src/Core/index.ts"
       ],

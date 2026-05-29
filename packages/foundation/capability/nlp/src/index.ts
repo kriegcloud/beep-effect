@@ -36,6 +36,20 @@ export const VERSION = "0.0.0";
  */
 export * as Algebra from "./Algebra/index.ts";
 /**
+ * Pluggable NLP backend interface, capabilities, and failures.
+ *
+ * @example
+ * ```typescript
+ * import { Backend } from "@beep/nlp"
+ *
+ * console.log(Backend.NLPBackend.NLPBackend.key)
+ * ```
+ *
+ * @since 0.0.0
+ * @category backend
+ */
+export * as Backend from "./Backend/index.ts";
+/**
  * Core NLP models, tokenization, and pattern utilities.
  *
  * @example
