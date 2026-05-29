@@ -31,11 +31,9 @@ const EthAmountInputChecks = S.makeFilterGroup(
 
 const EthAmountInput = S.Finite.pipe(
   S.check(EthAmountInputChecks),
-  S.annotate(
-    $I.annote("EthAmountInput", {
-      description: "Finite non-negative JSON number accepted at ETH amount boundaries.",
-    })
-  )
+  $I.annoteSchema("EthAmountInput", {
+    description: "Finite non-negative JSON number accepted at ETH amount boundaries.",
+  })
 );
 
 /**
@@ -50,11 +48,9 @@ export const EthAmount = EthAmountInput.pipe(
     decode: SchemaGetter.transform(BigDecimal.fromNumberUnsafe),
     encode: SchemaGetter.transform(BigDecimal.toNumberUnsafe),
   }),
-  S.annotate(
-    $I.annote("EthAmount", {
-      description: "ETH-denominated amount decoded from a non-negative JSON number into Effect BigDecimal.",
-    })
-  )
+  $I.annoteSchema("EthAmount", {
+    description: "ETH-denominated amount decoded from a non-negative JSON number into Effect BigDecimal.",
+  })
 );
 
 /**

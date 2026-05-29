@@ -74,20 +74,18 @@ const provDateTimeChecks = S.makeFilterGroup(
  */
 export const ObjectRef = S.String.check(provObjectRefChecks).pipe(
   S.brand("ProvObjectRef"),
-  S.annotate(
-    $I.annote("ObjectRef", {
-      description: "PROV object reference encoded as an IRI, CURIE, or local identifier.",
-      semanticSchemaMetadata: makeSemanticSchemaMetadata({
-        kind: "provenanceConstruct",
-        canonicalName: "ObjectRef",
-        overview: "PROV object reference encoded as an IRI, CURIE, or local identifier.",
-        status: "stable",
-        specifications: [{ name: "PROV-O", section: "Qualified Relations", disposition: "normative" }],
-        equivalenceBasis: "Exact reference-string equality inside a bounded provenance bundle.",
-        provenanceProfile: "minimal-core-v1",
-      }),
-    })
-  )
+  $I.annoteSchema("ObjectRef", {
+    description: "PROV object reference encoded as an IRI, CURIE, or local identifier.",
+    semanticSchemaMetadata: makeSemanticSchemaMetadata({
+      kind: "provenanceConstruct",
+      canonicalName: "ObjectRef",
+      overview: "PROV object reference encoded as an IRI, CURIE, or local identifier.",
+      status: "stable",
+      specifications: [{ name: "PROV-O", section: "Qualified Relations", disposition: "normative" }],
+      equivalenceBasis: "Exact reference-string equality inside a bounded provenance bundle.",
+      provenanceProfile: "minimal-core-v1",
+    }),
+  })
 );
 
 /**
@@ -121,20 +119,18 @@ export type ObjectRef = typeof ObjectRef.Type;
  */
 export const ProvDateTimeEncoded = S.String.check(provDateTimeChecks).pipe(
   S.brand("ProvDateTimeEncoded"),
-  S.annotate(
-    $I.annote("ProvDateTimeEncoded", {
-      description: "Encoded PROV timestamp string.",
-      semanticSchemaMetadata: makeSemanticSchemaMetadata({
-        kind: "provenanceConstruct",
-        canonicalName: "ProvDateTimeEncoded",
-        overview: "Encoded PROV timestamp string.",
-        status: "stable",
-        specifications: [{ name: "PROV-O", section: "Time", disposition: "normative" }],
-        equivalenceBasis: "Canonical ISO string equality after decoding and re-encoding.",
-        timeSemantics: "PROV activity and lifecycle timestamps remain distinct from domain lifecycle fields.",
-      }),
-    })
-  )
+  $I.annoteSchema("ProvDateTimeEncoded", {
+    description: "Encoded PROV timestamp string.",
+    semanticSchemaMetadata: makeSemanticSchemaMetadata({
+      kind: "provenanceConstruct",
+      canonicalName: "ProvDateTimeEncoded",
+      overview: "Encoded PROV timestamp string.",
+      status: "stable",
+      specifications: [{ name: "PROV-O", section: "Time", disposition: "normative" }],
+      equivalenceBasis: "Canonical ISO string equality after decoding and re-encoding.",
+      timeSemantics: "PROV activity and lifecycle timestamps remain distinct from domain lifecycle fields.",
+    }),
+  })
 );
 
 /**
@@ -168,20 +164,18 @@ export type ProvDateTimeEncoded = typeof ProvDateTimeEncoded.Type;
  */
 export const ProvDateTime = ProvDateTimeEncoded.pipe(
   S.decodeTo(S.DateTimeUtcFromString),
-  S.annotate(
-    $I.annote("ProvDateTime", {
-      description: "PROV timestamp decoded to DateTime.Utc.",
-      semanticSchemaMetadata: makeSemanticSchemaMetadata({
-        kind: "provenanceConstruct",
-        canonicalName: "ProvDateTime",
-        overview: "PROV timestamp decoded to DateTime.Utc.",
-        status: "stable",
-        specifications: [{ name: "PROV-O", section: "Time", disposition: "normative" }],
-        equivalenceBasis: "UTC instant equality.",
-        timeSemantics: "PROV timestamps express activity and influence time, not all domain lifecycle semantics.",
-      }),
-    })
-  )
+  $I.annoteSchema("ProvDateTime", {
+    description: "PROV timestamp decoded to DateTime.Utc.",
+    semanticSchemaMetadata: makeSemanticSchemaMetadata({
+      kind: "provenanceConstruct",
+      canonicalName: "ProvDateTime",
+      overview: "PROV timestamp decoded to DateTime.Utc.",
+      status: "stable",
+      specifications: [{ name: "PROV-O", section: "Time", disposition: "normative" }],
+      equivalenceBasis: "UTC instant equality.",
+      timeSemantics: "PROV timestamps express activity and influence time, not all domain lifecycle semantics.",
+    }),
+  })
 );
 
 /**
@@ -851,8 +845,8 @@ export const ProvRecord = S.Union([
   Revision,
   Start,
   End,
-]).annotate(
-  $I.annote("ProvRecord", {
+]).pipe(
+  $I.annoteSchema("ProvRecord", {
     description: "Public PROV record union for the stable semantic-web surface.",
     semanticSchemaMetadata: makeSemanticSchemaMetadata({
       kind: "provenanceConstruct",
@@ -931,8 +925,8 @@ export class ProvBundle extends S.Class<ProvBundle>($I`ProvBundle`)(
  * @since 0.0.0
  * @category models
  */
-export const ProvO = S.Union([ProvBundle, ProvRecord]).annotate(
-  $I.annote("ProvO", {
+export const ProvO = S.Union([ProvBundle, ProvRecord]).pipe(
+  $I.annoteSchema("ProvO", {
     description: "Public provenance entrypoint union.",
     semanticSchemaMetadata: makeSemanticSchemaMetadata({
       kind: "provenanceConstruct",

@@ -129,8 +129,8 @@ export class FileGenerationPlanInput extends S.Class<FileGenerationPlanInput>($I
  * @category models
  * @since 0.0.0
  */
-export const GenerationActionKind = LiteralKit(["mkdir", "write-file", "symlink"]).annotate(
-  $I.annote("GenerationActionKind", {
+export const GenerationActionKind = LiteralKit(["mkdir", "write-file", "symlink"]).pipe(
+  $I.annoteSchema("GenerationActionKind", {
     description: "Planned action kinds for deterministic generation.",
   })
 );
@@ -181,24 +181,25 @@ class GenerationActionSymlink extends S.Class<GenerationActionSymlink>($I`Genera
  * @category models
  * @since 0.0.0
  */
-export const GenerationAction = S.Union([GenerationActionMkdir, GenerationActionWriteFile, GenerationActionSymlink])
-  .annotate(
-    $I.annote("GenerationAction", {
-      description: "Planned generation action.",
-    })
-  )
-  .pipe(
-    S.toTaggedUnion("kind"),
-    SchemaUtils.withStatics((schema) => ({
-      toStr: flow(
-        schema.match({
-          mkdir: (action) => `mkdir ${action.relativePath}`,
-          "write-file": (action) => `write ${action.relativePath}`,
-          symlink: (action) => `symlink ${action.relativePath} -> ${action.target}`,
-        })
-      ),
-    }))
-  );
+export const GenerationAction = S.Union([
+  GenerationActionMkdir,
+  GenerationActionWriteFile,
+  GenerationActionSymlink,
+]).pipe(
+  $I.annoteSchema("GenerationAction", {
+    description: "Planned generation action.",
+  }),
+  S.toTaggedUnion("kind"),
+  SchemaUtils.withStatics((schema) => ({
+    toStr: flow(
+      schema.match({
+        mkdir: (action) => `mkdir ${action.relativePath}`,
+        "write-file": (action) => `write ${action.relativePath}`,
+        symlink: (action) => `symlink ${action.relativePath} -> ${action.target}`,
+      })
+    ),
+  }))
+);
 /**
  * Planned generation action.
  *

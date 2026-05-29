@@ -24,11 +24,9 @@ const causeMessage = (cause: unknown): string =>
  * @since 0.0.0
  */
 export const CodexRunnerStage = LiteralKit(["findRepoRoot", "import", "construct", "startThread"]).pipe(
-  S.annotate(
-    $I.annote("CodexRunnerStage", {
-      description: "Bounded lifecycle stage used when the Codex smoke path fails.",
-    })
-  )
+  $I.annoteSchema("CodexRunnerStage", {
+    description: "Bounded lifecycle stage used when the Codex smoke path fails.",
+  })
 );
 
 /**

@@ -49,35 +49,27 @@ const OTelSpanProcessor = S.declare<SpanProcessor>(isOTelSpanProcessor, {
 });
 
 const NodeSdkLogRecordProcessorOption = S.Union([OTelLogRecordProcessor, S.Array(OTelLogRecordProcessor)]).pipe(
-  S.annotate(
-    $I.annote("NodeSdkLogRecordProcessorOption", {
-      description: "One or more OpenTelemetry log record processors for the shared Node SDK layer.",
-    })
-  )
+  $I.annoteSchema("NodeSdkLogRecordProcessorOption", {
+    description: "One or more OpenTelemetry log record processors for the shared Node SDK layer.",
+  })
 );
 
 const NodeSdkMetricReaderOption = S.Union([OTelMetricReader, S.Array(OTelMetricReader)]).pipe(
-  S.annotate(
-    $I.annote("NodeSdkMetricReaderOption", {
-      description: "One or more OpenTelemetry metric readers for the shared Node SDK layer.",
-    })
-  )
+  $I.annoteSchema("NodeSdkMetricReaderOption", {
+    description: "One or more OpenTelemetry metric readers for the shared Node SDK layer.",
+  })
 );
 
 const NodeSdkSpanProcessorOption = S.Union([OTelSpanProcessor, S.Array(OTelSpanProcessor)]).pipe(
-  S.annotate(
-    $I.annote("NodeSdkSpanProcessorOption", {
-      description: "One or more OpenTelemetry span processors for the shared Node SDK layer.",
-    })
-  )
+  $I.annoteSchema("NodeSdkSpanProcessorOption", {
+    description: "One or more OpenTelemetry span processors for the shared Node SDK layer.",
+  })
 );
 
 const NodeSdkMetricTemporality = LiteralKit(["cumulative", "delta"]).pipe(
-  S.annotate(
-    $I.annote("NodeSdkMetricTemporality", {
-      description: "Metric temporality preference accepted by the Effect OpenTelemetry Node SDK.",
-    })
-  )
+  $I.annoteSchema("NodeSdkMetricTemporality", {
+    description: "Metric temporality preference accepted by the Effect OpenTelemetry Node SDK.",
+  })
 );
 
 /**

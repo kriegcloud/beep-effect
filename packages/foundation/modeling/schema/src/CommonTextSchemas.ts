@@ -41,11 +41,9 @@ export const TrimmedNonEmptyText = S.String.pipe(
       encode: identity,
     })
   ),
-  S.annotate(
-    $I.annote("TrimmedNonEmptyText", {
-      description: "Trimmed text that must be non-empty after normalization.",
-    })
-  )
+  $I.annoteSchema("TrimmedNonEmptyText", {
+    description: "Trimmed text that must be non-empty after normalization.",
+  })
 );
 
 /**
@@ -86,11 +84,9 @@ export const CommaSeparatedList = S.String.pipe(
       encode: (values: ReadonlyArray<string>) => A.join(values, ","),
     })
   ),
-  S.annotate(
-    $I.annote("CommaSeparatedList", {
-      description: "Comma-separated text decoded into a trimmed non-empty string list.",
-    })
-  )
+  $I.annoteSchema("CommaSeparatedList", {
+    description: "Comma-separated text decoded into a trimmed non-empty string list.",
+  })
 );
 
 /**
@@ -131,11 +127,9 @@ export const NormalizedBooleanString = S.String.pipe(
       encode: String,
     })
   ),
-  S.annotate(
-    $I.annote("NormalizedBooleanString", {
-      description: "Normalized boolean value decoded from common boolean string values.",
-    })
-  )
+  $I.annoteSchema("NormalizedBooleanString", {
+    description: "Normalized boolean value decoded from common boolean string values.",
+  })
 );
 
 /**

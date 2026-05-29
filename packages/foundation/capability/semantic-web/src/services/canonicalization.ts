@@ -45,8 +45,8 @@ const serviceContractMetadata = (canonicalName: string, overview: string) =>
  * @since 0.0.0
  * @category models
  */
-export const CanonicalizationAlgorithm = LiteralKit(["rdfc-1.0", "lexical-sort-v1"]).annotate(
-  $I.annote("CanonicalizationAlgorithm", {
+export const CanonicalizationAlgorithm = LiteralKit(["rdfc-1.0", "lexical-sort-v1"]).pipe(
+  $I.annoteSchema("CanonicalizationAlgorithm", {
     description: "Canonicalization algorithm name with an explicit graph-safe default and lexical fallback.",
   })
 );

@@ -1458,8 +1458,8 @@ const PgErrorAliasesLookup: Readonly<Record<string, A.NonEmptyReadonlyArray<PgEr
  * @category schemas
  * @since 0.0.0
  */
-export const PgErrorCode = LiteralKit(PgErrorCodeValues).annotate(
-  $I.annote("PgErrorCode", {
+export const PgErrorCode = LiteralKit(PgErrorCodeValues).pipe(
+  $I.annoteSchema("PgErrorCode", {
     description: "PostgreSQL SQLSTATE code literal domain.",
   })
 );
@@ -1480,8 +1480,8 @@ export const PgErrorCode = LiteralKit(PgErrorCodeValues).annotate(
  * @category schemas
  * @since 0.0.0
  */
-export const PgErrorName = LiteralKit(PgErrorNameValues).annotate(
-  $I.annote("PgErrorName", {
+export const PgErrorName = LiteralKit(PgErrorNameValues).pipe(
+  $I.annoteSchema("PgErrorName", {
     description: "PostgreSQL SQLSTATE name literal domain.",
   })
 );

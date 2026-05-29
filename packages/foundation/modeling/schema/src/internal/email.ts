@@ -72,7 +72,7 @@ const EmailBranded = NormalizedString.check(emailChecks).pipe(S.brand("Email"));
  * @since 0.0.0
  */
 export const Email = S.RedactedFromValue(EmailBranded, { label: "Email" }).pipe(
-  S.annotate($I.annote("Email", { description: "RFC 5322 compliant email address" }))
+  $I.annoteSchema("Email", { description: "RFC 5322 compliant email address" })
 );
 
 /**

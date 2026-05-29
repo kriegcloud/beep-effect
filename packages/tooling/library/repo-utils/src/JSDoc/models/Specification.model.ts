@@ -40,8 +40,8 @@ export const Specification = LiteralKit([
   "typedoc",
   // User-defined / non-standard
   "custom",
-]).annotate(
-  $I.annote("Specification", {
+]).pipe(
+  $I.annoteSchema("Specification", {
     description: "Which specification(s) define this tag",
   })
 );

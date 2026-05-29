@@ -29,11 +29,9 @@ const RgbChannelRangeCheck = S.isBetween(
  */
 export const RgbInputChannel = S.Finite.pipe(
   S.brand("RgbInputChannel"),
-  S.annotate(
-    $I.annote("RgbInputChannel", {
-      description: "A finite RGB channel value before clamping or normalization.",
-    })
-  )
+  $I.annoteSchema("RgbInputChannel", {
+    description: "A finite RGB channel value before clamping or normalization.",
+  })
 );
 
 /**
@@ -53,11 +51,9 @@ export type RgbInputChannel = typeof RgbInputChannel.Type;
 export const RgbChannel = RgbInputChannel.pipe(
   S.check(RgbChannelRangeCheck),
   S.brand("RgbChannel"),
-  S.annotate(
-    $I.annote("RgbChannel", {
-      description: "A normalized RGB channel value in the range 0 through 1.",
-    })
-  )
+  $I.annoteSchema("RgbChannel", {
+    description: "A normalized RGB channel value in the range 0 through 1.",
+  })
 );
 
 /**

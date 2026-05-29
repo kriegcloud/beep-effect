@@ -26,8 +26,8 @@ const $I = $OipWebId.create("content/OipContent.model");
  * @category schemas
  * @since 0.0.0
  */
-export const ReviewStatus = LiteralKit(["approved", "needs_review"]).annotate(
-  $I.annote("ReviewStatus", {
+export const ReviewStatus = LiteralKit(["approved", "needs_review"]).pipe(
+  $I.annoteSchema("ReviewStatus", {
     description: "Review state for public OIP website claims.",
   })
 );
@@ -128,8 +128,8 @@ export const SocialPlatform = LiteralKit([
   "reddit",
   "discord",
   "pinterest",
-]).annotate(
-  $I.annote("SocialPlatform", {
+]).pipe(
+  $I.annoteSchema("SocialPlatform", {
     description: "Social platform the OIP firm maintains a public profile on.",
   })
 );

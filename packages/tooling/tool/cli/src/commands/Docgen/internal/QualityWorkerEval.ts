@@ -86,8 +86,8 @@ const decodeCodexSdkPackageMetadataJson = S.decodeUnknownEffect(S.fromJsonString
  * @category models
  * @since 0.0.0
  */
-export const DocgenQualityWorkerEvalProvider = LiteralKit(["codex", "ollama", "lmstudio"]).annotate(
-  $I.annote("DocgenQualityWorkerEvalProvider", {
+export const DocgenQualityWorkerEvalProvider = LiteralKit(["codex", "ollama", "lmstudio"]).pipe(
+  $I.annoteSchema("DocgenQualityWorkerEvalProvider", {
     description: "Worker provider supported by docgen quality-worker-eval.",
   })
 );
@@ -119,14 +119,8 @@ export type DocgenQualityWorkerEvalProvider = typeof DocgenQualityWorkerEvalProv
  * @category models
  * @since 0.0.0
  */
-export const DocgenQualityWorkerEvalReasoningEffort = LiteralKit([
-  "minimal",
-  "low",
-  "medium",
-  "high",
-  "xhigh",
-]).annotate(
-  $I.annote("DocgenQualityWorkerEvalReasoningEffort", {
+export const DocgenQualityWorkerEvalReasoningEffort = LiteralKit(["minimal", "low", "medium", "high", "xhigh"]).pipe(
+  $I.annoteSchema("DocgenQualityWorkerEvalReasoningEffort", {
     description: "Codex reasoning effort supported by docgen quality-worker-eval.",
   })
 );
@@ -158,8 +152,8 @@ export type DocgenQualityWorkerEvalReasoningEffort = typeof DocgenQualityWorkerE
  * @category models
  * @since 0.0.0
  */
-export const DocgenQualityWorkerEvalScope = LiteralKit(["input", "package", "all"]).annotate(
-  $I.annote("DocgenQualityWorkerEvalScope", {
+export const DocgenQualityWorkerEvalScope = LiteralKit(["input", "package", "all"]).pipe(
+  $I.annoteSchema("DocgenQualityWorkerEvalScope", {
     description: "Source mode used to build a worker eval queue.",
   })
 );
@@ -191,8 +185,8 @@ export type DocgenQualityWorkerEvalScope = typeof DocgenQualityWorkerEvalScope.T
  * @category models
  * @since 0.0.0
  */
-export const DocgenQualityWorkerEvalPacketStatus = LiteralKit(["completed", "failed", "timed-out"]).annotate(
-  $I.annote("DocgenQualityWorkerEvalPacketStatus", {
+export const DocgenQualityWorkerEvalPacketStatus = LiteralKit(["completed", "failed", "timed-out"]).pipe(
+  $I.annoteSchema("DocgenQualityWorkerEvalPacketStatus", {
     description: "Read-only packet execution status for worker eval.",
   })
 );
@@ -224,12 +218,8 @@ export type DocgenQualityWorkerEvalPacketStatus = typeof DocgenQualityWorkerEval
  * @category models
  * @since 0.0.0
  */
-export const DocgenQualityWorkerEvalReviewDisposition = LiteralKit([
-  "candidate",
-  "needs-human-review",
-  "reject",
-]).annotate(
-  $I.annote("DocgenQualityWorkerEvalReviewDisposition", {
+export const DocgenQualityWorkerEvalReviewDisposition = LiteralKit(["candidate", "needs-human-review", "reject"]).pipe(
+  $I.annoteSchema("DocgenQualityWorkerEvalReviewDisposition", {
     description: "Advisory disposition assigned to a worker draft.",
   })
 );
@@ -273,8 +263,8 @@ export const DocgenQualityWorkerEvalPolicyViolationCode = LiteralKit([
   "noisy-conditional-tag",
   "runtime-behavior-change",
   "other",
-]).annotate(
-  $I.annote("DocgenQualityWorkerEvalPolicyViolationCode", {
+]).pipe(
+  $I.annoteSchema("DocgenQualityWorkerEvalPolicyViolationCode", {
     description: "Closed repo-policy issue code emitted by a worker eval.",
   })
 );

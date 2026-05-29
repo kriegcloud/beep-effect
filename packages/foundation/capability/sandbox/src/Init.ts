@@ -35,8 +35,8 @@ export const SANDBOX_CONFIG_DIR = ".sandcastle" as const;
  * @category schemas
  * @since 0.0.0
  */
-export const SandboxAgentName = LiteralKit(["claude-code", "codex", "opencode", "pi"]).annotate(
-  $I.annote("SandboxAgentName", {
+export const SandboxAgentName = LiteralKit(["claude-code", "codex", "opencode", "pi"]).pipe(
+  $I.annoteSchema("SandboxAgentName", {
     description: "Supported init-time agent choices.",
   })
 );
@@ -55,8 +55,8 @@ export type SandboxAgentName = typeof SandboxAgentName.Type;
  * @category schemas
  * @since 0.0.0
  */
-export const SandboxInitProviderName = LiteralKit(["docker", "podman"]).annotate(
-  $I.annote("SandboxInitProviderName", {
+export const SandboxInitProviderName = LiteralKit(["docker", "podman"]).pipe(
+  $I.annoteSchema("SandboxInitProviderName", {
     description: "Supported local container providers for generated configuration.",
   })
 );

@@ -82,11 +82,9 @@ const withAlphaValue = ({ color, alpha }: WithAlphaInput): RgbaColorString => {
  */
 export const RgbaColorString = S.String.check(RgbaColorStringChecks).pipe(
   S.brand("RgbaColorString"),
-  S.annotate(
-    $I.annote("RgbaColorString", {
-      description: "A CSS rgba color string in the form rgba(r, g, b, a).",
-    })
-  )
+  $I.annoteSchema("RgbaColorString", {
+    description: "A CSS rgba color string in the form rgba(r, g, b, a).",
+  })
 );
 
 /**
@@ -105,11 +103,9 @@ export type RgbaColorString = typeof RgbaColorString.Type;
  */
 export const ColorAmount = S.Finite.pipe(
   S.brand("ColorAmount"),
-  S.annotate(
-    $I.annote("ColorAmount", {
-      description: "A finite numeric amount used by color transformation helpers.",
-    })
-  )
+  $I.annoteSchema("ColorAmount", {
+    description: "A finite numeric amount used by color transformation helpers.",
+  })
 );
 
 /**
@@ -148,11 +144,9 @@ export const MixColors = MixColorsInput.pipe(
     decode: SchemaGetter.transform(mixColorsValue),
     encode: SchemaGetter.forbidden(() => "Encoding MixColors results back to the original request is not supported"),
   }),
-  S.annotate(
-    $I.annote("MixColors", {
-      description: "Mixes two hex colors in OKLCH space and returns a canonical hex color.",
-    })
-  )
+  $I.annoteSchema("MixColors", {
+    description: "Mixes two hex colors in OKLCH space and returns a canonical hex color.",
+  })
 );
 
 /**
@@ -190,11 +184,9 @@ export const Lighten = LightenInput.pipe(
     decode: SchemaGetter.transform(lightenValue),
     encode: SchemaGetter.forbidden(() => "Encoding Lighten results back to the original request is not supported"),
   }),
-  S.annotate(
-    $I.annote("Lighten", {
-      description: "Lightens a hex color in OKLCH space and returns a canonical hex color.",
-    })
-  )
+  $I.annoteSchema("Lighten", {
+    description: "Lightens a hex color in OKLCH space and returns a canonical hex color.",
+  })
 );
 
 /**
@@ -232,11 +224,9 @@ export const Darken = DarkenInput.pipe(
     decode: SchemaGetter.transform(darkenValue),
     encode: SchemaGetter.forbidden(() => "Encoding Darken results back to the original request is not supported"),
   }),
-  S.annotate(
-    $I.annote("Darken", {
-      description: "Darkens a hex color in OKLCH space and returns a canonical hex color.",
-    })
-  )
+  $I.annoteSchema("Darken", {
+    description: "Darkens a hex color in OKLCH space and returns a canonical hex color.",
+  })
 );
 
 /**
@@ -274,11 +264,9 @@ export const WithAlpha = WithAlphaInput.pipe(
     decode: SchemaGetter.transform(withAlphaValue),
     encode: SchemaGetter.forbidden(() => "Encoding WithAlpha results back to the original request is not supported"),
   }),
-  S.annotate(
-    $I.annote("WithAlpha", {
-      description: "Renders a canonical hex color plus alpha as a CSS rgba string.",
-    })
-  )
+  $I.annoteSchema("WithAlpha", {
+    description: "Renders a canonical hex color plus alpha as a CSS rgba string.",
+  })
 );
 
 /**

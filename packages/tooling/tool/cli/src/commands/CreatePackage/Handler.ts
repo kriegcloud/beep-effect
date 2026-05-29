@@ -108,8 +108,8 @@ const VALID_TOOLING_KINDS = ["library", "tool", "policy-pack", "test-kit"] as co
 const PACKAGE_NAME_PATTERN = /^[a-z_][a-z0-9._-]*$/;
 const PARENT_DIR_PATTERN = /^(?!.*\/\/)(?!.*\/$)(?!.*(?:^|\/)\.{1,2}(?:\/|$))[a-z0-9][a-z0-9/_-]*$/;
 
-const PackageType = LiteralKit(VALID_TYPES).annotate(
-  $I.annote("PackageType", {
+const PackageType = LiteralKit(VALID_TYPES).pipe(
+  $I.annoteSchema("PackageType", {
     description: "Supported package scaffold type.",
   })
 );
@@ -132,8 +132,8 @@ const decodePackageFamilyEffect = (input: unknown) =>
   );
 const packageFamilyEquivalence = SchemaUtils.toEquivalence(PackageFamily);
 
-const FoundationKind = LiteralKit(VALID_FOUNDATION_KINDS).annotate(
-  $I.annote("FoundationKind", {
+const FoundationKind = LiteralKit(VALID_FOUNDATION_KINDS).pipe(
+  $I.annoteSchema("FoundationKind", {
     description: "Supported foundation package kinds.",
   })
 );

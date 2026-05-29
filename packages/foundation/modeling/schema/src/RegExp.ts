@@ -57,11 +57,9 @@ const decodeRegExp = (value: string): Effect.Effect<globalThis.RegExp, SchemaIss
  */
 export const RegExpStr = S.String.check(RegExpStrCheck).pipe(
   S.brand("RegExpStr"),
-  S.annotate(
-    $I.annote("RegExpStr", {
-      description: "A string that can be converted directly to a JavaScript RegExp using new RegExp(value).",
-    })
-  )
+  $I.annoteSchema("RegExpStr", {
+    description: "A string that can be converted directly to a JavaScript RegExp using new RegExp(value).",
+  })
 );
 
 /**
@@ -112,11 +110,9 @@ export const RegExpFromStr = RegExpStr.pipe(
       encode: encodeRegExpStrForbidden,
     })
   ),
-  S.annotate(
-    $I.annote("RegExpFromStr", {
-      description: "A one-way schema that decodes RegExp-compatible pattern strings into JavaScript RegExp values.",
-    })
-  )
+  $I.annoteSchema("RegExpFromStr", {
+    description: "A one-way schema that decodes RegExp-compatible pattern strings into JavaScript RegExp values.",
+  })
 );
 
 /**

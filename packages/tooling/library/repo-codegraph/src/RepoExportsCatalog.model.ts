@@ -22,8 +22,8 @@ const $I = $RepoCodegraphId.create("RepoExportsCatalog.model");
  * @category models
  * @since 0.0.0
  */
-export const RepoExportsCatalogStandard = LiteralKit(["repo-exports-catalog"]).annotate(
-  $I.annote("RepoExportsCatalogStandard", {
+export const RepoExportsCatalogStandard = LiteralKit(["repo-exports-catalog"]).pipe(
+  $I.annoteSchema("RepoExportsCatalogStandard", {
     description: "Standard identifier for the generated repo export catalog.",
   })
 );
@@ -53,8 +53,8 @@ export type RepoExportsCatalogStandard = typeof RepoExportsCatalogStandard.Type;
  * @category models
  * @since 0.0.0
  */
-export const RepoExportsCatalogSchemaVersion = LiteralKit(["repo-exports-catalog/v1"]).annotate(
-  $I.annote("RepoExportsCatalogSchemaVersion", {
+export const RepoExportsCatalogSchemaVersion = LiteralKit(["repo-exports-catalog/v1"]).pipe(
+  $I.annoteSchema("RepoExportsCatalogSchemaVersion", {
     description: "Schema version for the generated repo export catalog consumed by lookup.",
   })
 );

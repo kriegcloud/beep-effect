@@ -143,8 +143,8 @@ const collectOptions = <T>(options: ReadonlyArray<O.Option<T>>): ReadonlyArray<T
  * @category models
  * @since 0.0.0
  */
-export const DocgenLocalMode = LiteralKit(["scoped", "full", "full-required", "noop"]).annotate(
-  $I.annote("DocgenLocalMode", {
+export const DocgenLocalMode = LiteralKit(["scoped", "full", "full-required", "noop"]).pipe(
+  $I.annoteSchema("DocgenLocalMode", {
     description: "Local docgen execution mode selected by the planner.",
   })
 );

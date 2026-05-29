@@ -104,11 +104,9 @@ export const JsonlTextToUnknown = S.String.pipe(
     decode: SchemaGetter.transformOrFail(decodeJsonlUnknown),
     encode: SchemaGetter.transformOrFail(encodeUnsupported),
   }),
-  S.annotate(
-    $I.annote("JsonlTextToUnknown", {
-      description: "Schema transformation that parses strict JSONL text into unknown values.",
-    })
-  )
+  $I.annoteSchema("JsonlTextToUnknown", {
+    description: "Schema transformation that parses strict JSONL text into unknown values.",
+  })
 );
 
 /**

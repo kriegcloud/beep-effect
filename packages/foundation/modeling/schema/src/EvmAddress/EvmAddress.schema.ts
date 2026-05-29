@@ -77,11 +77,9 @@ const EvmAddressChecks = S.makeFilterGroup(
  */
 export const EvmAddress = S.NonEmptyString.check(EvmAddressChecks).pipe(
   S.brand("EvmAddress"),
-  S.annotate(
-    $I.annote("EvmAddress", {
-      description: "Canonical mainnet EVM address in lowercase or valid EIP-55 checksum form.",
-    })
-  )
+  $I.annoteSchema("EvmAddress", {
+    description: "Canonical mainnet EVM address in lowercase or valid EIP-55 checksum form.",
+  })
 );
 
 /**
@@ -103,11 +101,9 @@ export const EvmAddressRedacted = EvmAddress.pipe(
   SchemaUtils.withStatics(() => ({
     makeRedacted: flow(EvmAddress.make, Redacted.make),
   })),
-  S.annotate(
-    $I.annote("EvmAddressRedacted", {
-      description: "Redacted canonical mainnet EVM address in lowercase or valid EIP-55 checksum form.",
-    })
-  )
+  $I.annoteSchema("EvmAddressRedacted", {
+    description: "Redacted canonical mainnet EVM address in lowercase or valid EIP-55 checksum form.",
+  })
 );
 
 /**

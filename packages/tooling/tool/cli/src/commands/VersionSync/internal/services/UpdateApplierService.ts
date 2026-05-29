@@ -19,8 +19,8 @@ import type { FileSystem } from "effect";
 import type { VersionCategoryReport, VersionSyncError, VersionSyncResolution } from "../Models.js";
 
 const $I = $RepoCliId.create("commands/VersionSync/internal/services/UpdateApplierService");
-const VersionCategoryName = LiteralKit(["bun", "node", "docker", "biome", "effect"]).annotate(
-  $I.annote("VersionCategoryName", {
+const VersionCategoryName = LiteralKit(["bun", "node", "docker", "biome", "effect"]).pipe(
+  $I.annoteSchema("VersionCategoryName", {
     description: "Supported update categories for write-mode version-sync application.",
   })
 );

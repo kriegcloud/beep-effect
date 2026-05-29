@@ -87,8 +87,8 @@ query AgentEffectivenessPhoenixInventory {
  * @category models
  * @since 0.0.0
  */
-export const AgentEffectivenessStatus = LiteralKit(["passed", "warning", "failed", "unavailable"]).annotate(
-  $I.annote("AgentEffectivenessStatus", {
+export const AgentEffectivenessStatus = LiteralKit(["passed", "warning", "failed", "unavailable"]).pipe(
+  $I.annoteSchema("AgentEffectivenessStatus", {
     description: "Non-blocking status used by agent-effectiveness trust-gate reports.",
   })
 );
@@ -112,8 +112,8 @@ export type AgentEffectivenessStatus = typeof AgentEffectivenessStatus.Type;
  * @category models
  * @since 0.0.0
  */
-export const AgentEffectivenessAnnotationValue = S.Union([S.String, S.Number, S.Boolean]).annotate(
-  $I.annote("AgentEffectivenessAnnotationValue", {
+export const AgentEffectivenessAnnotationValue = S.Union([S.String, S.Number, S.Boolean]).pipe(
+  $I.annoteSchema("AgentEffectivenessAnnotationValue", {
     description: "Sanitized primitive value allowed in an agent-effectiveness annotation plan.",
   })
 );
@@ -640,8 +640,8 @@ export const AgentEffectivenessDatasetKind = LiteralKit([
   "agent-outcomes",
   "jsdoc-worker-model-suitability",
   "source-coverage",
-]).annotate(
-  $I.annote("AgentEffectivenessDatasetKind", {
+]).pipe(
+  $I.annoteSchema("AgentEffectivenessDatasetKind", {
     description: "Phoenix dataset kinds owned by the agent-effectiveness loop.",
   })
 );
@@ -767,8 +767,8 @@ export class AgentEffectivenessDatasetBundle extends S.Class<AgentEffectivenessD
  * @category models
  * @since 0.0.0
  */
-export const AgentEffectivenessPromptRole = LiteralKit(["system", "user"]).annotate(
-  $I.annote("AgentEffectivenessPromptRole", {
+export const AgentEffectivenessPromptRole = LiteralKit(["system", "user"]).pipe(
+  $I.annoteSchema("AgentEffectivenessPromptRole", {
     description: "Prompt roles used by repo-owned agent-effectiveness prompt templates.",
   })
 );
@@ -1141,8 +1141,8 @@ class WorkerEvalPolicyViolationObject extends S.Class<WorkerEvalPolicyViolationO
   })
 ) {}
 
-const WorkerEvalPolicyViolation = S.Union([S.String, WorkerEvalPolicyViolationObject]).annotate(
-  $I.annote("WorkerEvalPolicyViolation", {
+const WorkerEvalPolicyViolation = S.Union([S.String, WorkerEvalPolicyViolationObject]).pipe(
+  $I.annoteSchema("WorkerEvalPolicyViolation", {
     description: "Internal worker-eval policy violation code in either legacy object or current string form.",
   })
 );

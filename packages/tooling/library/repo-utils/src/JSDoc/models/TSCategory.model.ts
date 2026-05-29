@@ -42,8 +42,8 @@ const TS_CATEGORY_TAG_VALUES = [
  * @category models
  * @since 0.0.0
  */
-const TSCategoryTagBase = LiteralKit(TS_CATEGORY_TAG_VALUES).annotate(
-  $I.annote("TSCategoryTag", {
+const TSCategoryTagBase = LiteralKit(TS_CATEGORY_TAG_VALUES).pipe(
+  $I.annoteSchema("TSCategoryTag", {
     description: "Strict literal union for all supported TypeDoc @category values.",
   })
 );
@@ -68,8 +68,8 @@ type TSCategoryTagBase = typeof TSCategoryTagBase.Type;
  * @category models
  * @since 0.0.0
  */
-export const CategoryPurity = LiteralKit(["pure", "effectful", "mixed"]).annotate(
-  $I.annote("CategoryPurity", {
+export const CategoryPurity = LiteralKit(["pure", "effectful", "mixed"]).pipe(
+  $I.annoteSchema("CategoryPurity", {
     description: "Purity classification",
     documentation:
       "- pure: no observable side effects\\n- effectful: performs IO, mutation, or external effects\\n- mixed: both pure and effectful patterns",
@@ -418,8 +418,8 @@ const DomainModel = make("DomainModel", {
   typicalImportPatterns: ["**/domain/**/*.ts", "**/model/**/*.ts", "**/entities/**/*.ts"],
   dependencyProfile: { typicalFanIn: "high", typicalFanOut: "low" },
   documentationPriority: 1,
-}).annotate(
-  $I.annote("DomainModel", {
+}).pipe(
+  $I.annoteSchema("DomainModel", {
     description: "Literal schema for DomainModel category.",
   })
 );
@@ -478,8 +478,8 @@ const DomainLogic = make("DomainLogic", {
   typicalImportPatterns: ["**/domain/**/*.ts", "**/policies/**/*.ts", "**/rules/**/*.ts"],
   dependencyProfile: { typicalFanIn: "high", typicalFanOut: "low" },
   documentationPriority: 2,
-}).annotate(
-  $I.annote("DomainLogic", {
+}).pipe(
+  $I.annoteSchema("DomainLogic", {
     description: "Literal schema for DomainLogic category.",
   })
 );
@@ -536,8 +536,8 @@ const PortContract = make("PortContract", {
   typicalImportPatterns: ["**/*Port.ts", "**/*Repository.ts", "**/*Gateway.ts"],
   dependencyProfile: { typicalFanIn: "high", typicalFanOut: "low" },
   documentationPriority: 4,
-}).annotate(
-  $I.annote("PortContract", {
+}).pipe(
+  $I.annoteSchema("PortContract", {
     description: "Literal schema for PortContract category.",
   })
 );
@@ -584,8 +584,8 @@ const Validation = make("Validation", {
   typicalImportPatterns: ["@effect/schema*", "effect/Schema*", "zod*", "valibot*", "arktype*", "**/schemas/**/*.ts"],
   dependencyProfile: { typicalFanIn: "medium", typicalFanOut: "low" },
   documentationPriority: 5,
-}).annotate(
-  $I.annote("Validation", {
+}).pipe(
+  $I.annoteSchema("Validation", {
     description: "Literal schema for Validation category.",
   })
 );
@@ -625,8 +625,8 @@ const Utility = make("Utility", {
   typicalImportPatterns: ["**/utils.ts", "**/helpers.ts", "**/lib/**/*.ts"],
   dependencyProfile: { typicalFanIn: "medium", typicalFanOut: "low" },
   documentationPriority: 6,
-}).annotate(
-  $I.annote("Utility", {
+}).pipe(
+  $I.annoteSchema("Utility", {
     description: "Literal schema for Utility category.",
   })
 );
@@ -667,8 +667,8 @@ const UseCase = make("UseCase", {
   typicalImportPatterns: ["**/*UseCase.ts", "**/*Handler.ts", "**/application/**/*.ts"],
   dependencyProfile: { typicalFanIn: "medium", typicalFanOut: "high" },
   documentationPriority: 7,
-}).annotate(
-  $I.annote("UseCase", {
+}).pipe(
+  $I.annoteSchema("UseCase", {
     description: "Literal schema for UseCase category.",
   })
 );
@@ -721,8 +721,8 @@ const Presentation = make("Presentation", {
   typicalImportPatterns: ["next/*", "react*", "**/app/**/page.tsx", "**/api/**/route.ts"],
   dependencyProfile: { typicalFanIn: "medium", typicalFanOut: "high" },
   documentationPriority: 8,
-}).annotate(
-  $I.annote("Presentation", {
+}).pipe(
+  $I.annoteSchema("Presentation", {
     description: "Literal schema for Presentation category.",
   })
 );
@@ -768,8 +768,8 @@ const DataAccess = make("DataAccess", {
   typicalImportPatterns: ["drizzle-orm*", "prisma*", "**/db/**/*.ts", "**/repository/**/*.ts"],
   dependencyProfile: { typicalFanIn: "low", typicalFanOut: "medium" },
   documentationPriority: 9,
-}).annotate(
-  $I.annote("DataAccess", {
+}).pipe(
+  $I.annoteSchema("DataAccess", {
     description: "Literal schema for DataAccess category.",
   })
 );
@@ -810,8 +810,8 @@ const Integration = make("Integration", {
   typicalImportPatterns: ["openai*", "stripe*", "@aws-sdk/*", "**/client.ts", "**/gateway/**/*.ts"],
   dependencyProfile: { typicalFanIn: "low", typicalFanOut: "medium" },
   documentationPriority: 10,
-}).annotate(
-  $I.annote("Integration", {
+}).pipe(
+  $I.annoteSchema("Integration", {
     description: "Literal schema for Integration category.",
   })
 );
@@ -857,8 +857,8 @@ const Configuration = make("Configuration", {
   typicalImportPatterns: ["**/config/**/*.ts", "**/*Config.ts", "**/*Settings.ts", "**/env/**/*.ts"],
   dependencyProfile: { typicalFanIn: "high", typicalFanOut: "medium" },
   documentationPriority: 3,
-}).annotate(
-  $I.annote("Configuration", {
+}).pipe(
+  $I.annoteSchema("Configuration", {
     description: "Literal schema for Configuration category.",
   })
 );
@@ -904,8 +904,8 @@ const CrossCutting = make("CrossCutting", {
   typicalImportPatterns: ["**/middleware/**/*.ts", "**/logger/**/*.ts", "**/auth/**/*.ts", "**/metrics/**/*.ts"],
   dependencyProfile: { typicalFanIn: "medium", typicalFanOut: "medium" },
   documentationPriority: 11,
-}).annotate(
-  $I.annote("CrossCutting", {
+}).pipe(
+  $I.annoteSchema("CrossCutting", {
     description: "Literal schema for CrossCutting category.",
   })
 );
@@ -951,8 +951,8 @@ const Uncategorized = make("Uncategorized", {
   typicalImportPatterns: [],
   dependencyProfile: { typicalFanIn: "low", typicalFanOut: "low" },
   documentationPriority: 99,
-}).annotate(
-  $I.annote("Uncategorized", {
+}).pipe(
+  $I.annoteSchema("Uncategorized", {
     description: "Literal schema for Uncategorized category.",
   })
 );
@@ -983,8 +983,8 @@ export const TSCategoryTag = LiteralKit([
   Configuration.literal,
   CrossCutting.literal,
   Uncategorized.literal,
-]).annotate(
-  $I.annote("TSCategoryTag", {
+]).pipe(
+  $I.annoteSchema("TSCategoryTag", {
     description: "Strict literal union for all supported TypeDoc @category values.",
   })
 );

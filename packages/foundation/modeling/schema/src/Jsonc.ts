@@ -95,11 +95,9 @@ export const JsoncTextToUnknown = S.String.pipe(
       encode: encodeUnsupported,
     })
   ),
-  S.annotate(
-    $I.annote("JsoncTextToUnknown", {
-      description: "Schema transformation that parses JSONC text into unknown values.",
-    })
-  )
+  $I.annoteSchema("JsoncTextToUnknown", {
+    description: "Schema transformation that parses JSONC text into unknown values.",
+  })
 );
 
 /**

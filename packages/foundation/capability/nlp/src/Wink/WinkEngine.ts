@@ -50,11 +50,9 @@ type WinkCustomEntityRecord = {
  */
 export const InstanceId = S.NonEmptyString.pipe(
   S.brand("InstanceId"),
-  S.annotate(
-    $I.annote("InstanceId", {
-      description: "Stable identifier for one live wink engine instance.",
-    })
-  )
+  $I.annoteSchema("InstanceId", {
+    description: "Stable identifier for one live wink engine instance.",
+  })
 );
 
 /**
