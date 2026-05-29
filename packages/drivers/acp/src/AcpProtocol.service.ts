@@ -729,9 +729,7 @@ export const makeAcpPatchedProtocol = Effect.fn($I`makeAcpPatchedProtocol`)(func
   function sendRequest(
     method: string,
     payload?: unknown
-  ):
-    | Effect.Effect<unknown, AcpError.AcpError>
-    | ((payload: unknown) => Effect.Effect<unknown, AcpError.AcpError>) {
+  ): Effect.Effect<unknown, AcpError.AcpError> | ((payload: unknown) => Effect.Effect<unknown, AcpError.AcpError>) {
     if (arguments.length === 1) {
       return (curriedPayload: unknown) => sendRequestEffect(method, curriedPayload);
     }
