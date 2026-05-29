@@ -1,5 +1,11 @@
 # @beep/ui
 
+## 0.0.2
+
+### Patch Changes
+
+- [#183](https://github.com/kriegcloud/beep-effect/pull/183) [`f76f5ee`](https://github.com/kriegcloud/beep-effect/commit/f76f5ee4e4192cc2bc957888f4129720d04b3b0d) Thanks [@kriegcloud](https://github.com/kriegcloud)! - Record the dedup clone engine closeout, threshold tuning, and CI verification updates for this internal PR.
+
 ## 0.0.1
 
 ### Patch Changes
