@@ -183,8 +183,10 @@
     "next": "catalog:",
     "postcss": "^8.5.12",
     "protobufjs": "7.5.8",
+    "qs": "^6.15.2",
     "serialize-javascript": "^7.0.5",
     "smol-toml": "1.6.1",
+    "tmp": "^0.2.6",
     "uuid": "catalog:"
   },
   "catalog": {

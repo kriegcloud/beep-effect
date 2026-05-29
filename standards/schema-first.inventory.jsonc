@@ -1,11 +1,7 @@
 {
   "version": 1,
   "generatedOn": "2026-05-23",
-  "scope": [
-    "apps/**/*.{ts,tsx}",
-    "packages/**/*.{ts,tsx}",
-    "infra/**/*.ts"
-  ],
+  "scope": ["apps/**/*.{ts,tsx}", "packages/**/*.{ts,tsx}", "infra/**/*.ts"],
   "enforcedRoots": [
     "packages/tooling/tool/cli/src",
     "packages/tooling/library/repo-utils/src/FsUtils.ts",

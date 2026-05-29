@@ -74,7 +74,7 @@ const schemaRoleFileTargetPattern = /^\.\/(?:src|dist)\/[A-Z][^/]+\/[^/]+\.[a-z]
 const exists = (fs: FileSystem.FileSystem, filePath: string): Effect.Effect<boolean> =>
   fs.exists(filePath).pipe(Effect.orElseSucceed(thunkFalse));
 
-const isRecord = (value: unknown): value is R.ReadonlyRecord<string, unknown> => P.isObject(value);
+const isRecord = (value: unknown): value is R.ReadonlyRecord<string, unknown> => P.isObject(value) && !A.isArray(value);
 
 const recordAt = (value: R.ReadonlyRecord<string, unknown>, key: string): R.ReadonlyRecord<string, unknown> =>
   pipe(value[key], (candidate) => (isRecord(candidate) ? candidate : R.empty()));
