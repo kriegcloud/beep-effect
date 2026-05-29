@@ -1,5 +1,19 @@
 # @beep/professional-runtime-proof
 
+## 0.0.2
+
+### Patch Changes
+
+- Updated dependencies [[`19c557e`](https://github.com/kriegcloud/beep-effect/commit/19c557eab4129e8c1945f7e1cec83ffb8ba819cf)]:
+  - @beep/utils@0.0.2
+  - @beep/agent-capability-use-cases@0.0.2
+  - @beep/shared-domain@0.0.2
+  - @beep/agent-capability-domain@0.0.2
+  - @beep/epistemic-domain@0.0.2
+  - @beep/law-practice-domain@0.0.2
+  - @beep/wealth-management-domain@0.0.2
+  - @beep/workspace-domain@0.0.2
+
 ## 0.0.1
 
 ### Patch Changes

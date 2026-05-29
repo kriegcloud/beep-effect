@@ -1,6 +1,6 @@
 {
   "name": "@beep/ffmpeg",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Driver-level native FFmpeg capability wrapper for product-neutral media processing.",
   "license": "MIT",
   "private": true,

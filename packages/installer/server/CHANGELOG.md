@@ -1,5 +1,14 @@
 # @beep/installer-server
 
+## 0.0.3
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @beep/shared-domain@0.0.2
+  - @beep/installer-domain@0.0.2
+  - @beep/installer-use-cases@0.0.2
+
 ## 0.0.2
 
 ### Patch Changes
