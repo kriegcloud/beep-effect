@@ -307,6 +307,41 @@ describe.sequential("package test import lint command", () => {
   );
 
   it(
+    "allows source test-kit files under src internal test directories",
+    () =>
+      Effect.runPromise(
+        withTempWorkingDirectory(
+          Effect.gen(function* () {
+            const fs = yield* FileSystem.FileSystem;
+            const path = yield* Path.Path;
+            const packageDir = path.join("packages", "foundation", "modeling", "example");
+
+            yield* writePackage(packageDir, "@beep/example");
+            yield* fs.makeDirectory(path.join(packageDir, "src", "internal", "test"), { recursive: true });
+            yield* fs.writeFileString(
+              path.join(packageDir, "src", "internal", "helper.ts"),
+              "export const helper = 1;\n"
+            );
+            yield* fs.writeFileString(
+              path.join(packageDir, "src", "internal", "test", "Example.test-kit.ts"),
+              `import { helper } from "../helper.ts";\nvoid helper;\n`
+            );
+
+            yield* runLintCommand(["package-test-imports"]);
+
+            const logLines = yield* TestConsole.logLines;
+            const errorLines = yield* TestConsole.errorLines;
+            expect(logLines).toEqual([
+              "[check-package-test-imports] OK: package test/dtslint imports use package aliases.",
+            ]);
+            expect(errorLines).toEqual([]);
+          })
+        ).pipe(provideScopedLayer(testLayer))
+      ),
+    5_000
+  );
+
+  it(
     "allows internal package alias imports",
     () =>
       Effect.runPromise(

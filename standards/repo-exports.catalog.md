@@ -1804,7 +1804,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/commands/Lint/Lint.command` | `lintCommand` | const | `packages/tooling/tool/cli/src/commands/Lint/Lint.command.ts:556` | Lint command group. |
 | `@beep/repo-cli/commands/Lint/Lint.errors` | `LintCircularAnalysisError` | class | `packages/tooling/tool/cli/src/commands/Lint/Lint.errors.ts:32` | Failure raised when circular dependency analysis cannot complete. |
 | `@beep/repo-cli/commands/Lint/Lint.errors` | `LintFileDiscoveryError` | class | `packages/tooling/tool/cli/src/commands/Lint/Lint.errors.ts:63` | Failure raised when lint file discovery cannot read a source root. |
-| `@beep/repo-cli/commands/Lint/PackageTestImports` | `lintPackageTestImportsCommand` | const | `packages/tooling/tool/cli/src/commands/Lint/PackageTestImports.ts:316` | Lint command for enforcing package aliases from package test and dtslint files. |
+| `@beep/repo-cli/commands/Lint/PackageTestImports` | `lintPackageTestImportsCommand` | const | `packages/tooling/tool/cli/src/commands/Lint/PackageTestImports.ts:319` | Lint command for enforcing package aliases from package test and dtslint files. |
 | `@beep/repo-cli/commands/Lint/SchemaFirst` | `lintSchemaFirstCommand` | const | `packages/tooling/tool/cli/src/commands/Lint/SchemaFirst.ts:633` | Repo-wide schema-first lint command. |
 | `@beep/repo-cli/commands/Lint/SchemaFirst` | `runSchemaFirstLint` | const | `packages/tooling/tool/cli/src/commands/Lint/SchemaFirst.ts:524` | Run schema-first inventory verification against the committed baseline. |
 | `@beep/repo-cli/commands/Lint/SchemaFirst` | `SchemaFirstInventoryEntry` | namespace | `packages/tooling/tool/cli/src/commands/Lint/SchemaFirst.ts:78` | Namespace for {@link SchemaFirstInventoryEntry} companion types. |
@@ -3028,7 +3028,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/chalk/internal/AnsiStyles` | `StyleName` | type | `packages/foundation/capability/chalk/src/internal/AnsiStyles.ts:83` | Any supported Chalk style name. |
 | `@beep/chalk/internal/AnsiStyles` | `StylerEntry` | class | `packages/foundation/capability/chalk/src/internal/AnsiStyles.ts:99` | Open and close ANSI escape sequences for a style. |
 | `@beep/chalk/internal/ChalkRuntime` | `ChalkState` | const | `packages/foundation/capability/chalk/src/internal/ChalkRuntime.ts:29` |  |
-| `@beep/chalk/internal/ChalkRuntime` | `makeCreateChalk` | const | `packages/foundation/capability/chalk/src/internal/ChalkRuntime.ts:314` | Create a Chalk instance factory from detected default color support. |
+| `@beep/chalk/internal/ChalkRuntime` | `makeCreateChalk` | const | `packages/foundation/capability/chalk/src/internal/ChalkRuntime.ts:316` | Create a Chalk instance factory from detected default color support. |
 | `@beep/chalk/internal/ChalkSchema` | `BackgroundColorName` | const | `packages/foundation/capability/chalk/src/internal/ChalkSchema.ts:355` | Supported Chalk background color names. |
 | `@beep/chalk/internal/ChalkSchema` | `BackgroundColorName` | type | `packages/foundation/capability/chalk/src/internal/ChalkSchema.ts:375` | Runtime type for {@link BackgroundColorName}. |
 | `@beep/chalk/internal/ChalkSchema` | `backgroundColorNameValues` | const | `packages/foundation/capability/chalk/src/internal/ChalkSchema.ts:105` | Supported background color names. |

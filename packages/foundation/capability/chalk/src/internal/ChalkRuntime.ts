@@ -35,6 +35,9 @@ export const ChalkState = ColorSupportLevel.mapMembers(
   ])
 ).pipe(S.toTaggedUnion("level"));
 type ChalkState = typeof ChalkState.Type;
+type MutableChalkState = {
+  -readonly [Key in keyof ChalkState]: ChalkState[Key];
+};
 
 class Styler extends S.Class<Styler>($I`Styler`)(
   {
@@ -102,6 +105,10 @@ const normalizeColorSupportLevel = (level: unknown): S.Schema.Type<typeof ColorS
   const input = Result.getOrThrowWith(decodeColorSupportLevelInput(level), schemaIssueToError);
 
   return Result.getOrThrowWith(decodeColorSupportLevel(input), schemaIssueToError);
+};
+
+const setChalkStateLevel = (state: ChalkState, level: unknown): void => {
+  (state as MutableChalkState).level = normalizeColorSupportLevel(level);
 };
 
 const getBuilderMeta = (builder: ChalkFunction): BuilderMeta => {
@@ -206,12 +213,7 @@ const createPrototype = (): ChalkPrototype => {
         return getBuilderMeta(this).state.level;
       },
       set(this: ChalkFunction, level: unknown) {
-        const { isEmpty, styler } = getBuilderMeta(this);
-        builderMetaMap.set(this, {
-          isEmpty,
-          state: { level: normalizeColorSupportLevel(level) },
-          styler,
-        });
+        setChalkStateLevel(getBuilderMeta(this).state, level);
       },
     },
     visible: {
