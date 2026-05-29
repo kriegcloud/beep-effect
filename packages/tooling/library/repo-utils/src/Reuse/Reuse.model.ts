@@ -97,6 +97,7 @@ export const ReuseCandidateKind = S.Union([
   S.Literal("extract-schema"),
   S.Literal("extract-type"),
   S.Literal("replace-with-existing"),
+  S.Literal("structural-clone"),
 ]).pipe(
   $I.annoteSchema("ReuseCandidateKind", {
     description: "High-level remediation class for a reuse opportunity.",
