@@ -292,8 +292,30 @@ jobs:
             --lockfile=bun.lock
             --config=osv-scanner.toml
 
-      - name: Dependency review
+      - name: Check dependency graph availability
         if: github.event_name == 'pull_request'
+        id: dependency-graph
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+
+          status="$(
+            gh api "repos/${GITHUB_REPOSITORY}" \
+              --jq '.security_and_analysis.dependency_graph.status // "unavailable"' \
+              2>/dev/null || true
+          )"
+
+          if [[ "$status" == "enabled" ]]; then
+            echo "enabled=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "enabled=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::Skipping dependency review because GitHub dependency graph status is '${status:-unavailable}'."
+          fi
+
+      - name: Dependency review
+        if: github.event_name == 'pull_request' && steps.dependency-graph.outputs.enabled == 'true'
         uses: actions/dependency-review-action@v4
         with:
           fail-on-severity: high
