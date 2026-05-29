@@ -10,9 +10,9 @@ import { findRepoRoot } from "@beep/repo-utils";
 import { LiteralKit } from "@beep/schema";
 import { makePgliteTestcontainerResource } from "@beep/test-utils";
 import { A, Str, thunkFalse } from "@beep/utils";
+import * as O from "@beep/utils/Option";
 import { Console, Effect, FileSystem, flow, Match, Path, pipe, Stream } from "effect";
 import { dual } from "effect/Function";
-import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
@@ -639,7 +639,7 @@ const turboStep = (cwd: string, label: string, tasks: ReadonlyArray<string>, arg
     command: "bunx",
     args: turboRunArgs(tasks, args),
     cwd,
-    ...(env === undefined ? {} : { env }),
+    ...O.getSomesStruct({ env: O.fromUndefinedOr(env) }),
   });
 };
 

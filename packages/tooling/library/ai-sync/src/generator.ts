@@ -5,6 +5,7 @@
  * @since 0.0.0
  */
 
+import * as O from "@beep/utils/Option";
 import { Console, Effect, Encoding, FileSystem, Order, Path, pipe } from "effect";
 import * as A from "effect/Array";
 import { FetchHttpClient, HttpClient, HttpClientResponse } from "effect/unstable/http";
@@ -343,7 +344,7 @@ const withSourceHashes = Effect.forEach(
           domain: source.domain,
           tier: source.tier,
           url: source.url,
-          ...(source.versionPin === undefined ? {} : { versionPin: source.versionPin }),
+          ...O.getSomesStruct({ versionPin: O.fromUndefinedOr(source.versionPin) }),
           contentHash,
           isOfficial: source.isOfficial,
           driftMechanism: source.driftMechanism,

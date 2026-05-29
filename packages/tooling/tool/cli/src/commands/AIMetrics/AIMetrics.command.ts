@@ -97,6 +97,7 @@ import {
   upsertAiMetricsBenchmarkCase,
 } from "@beep/repo-ai-metrics";
 import { A, Str } from "@beep/utils";
+import * as O from "@beep/utils/Option";
 import {
   Clock,
   Config,
@@ -114,7 +115,6 @@ import {
   pipe,
   Redacted,
 } from "effect";
-import * as O from "effect/Option";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
 import { Command, Flag } from "effect/unstable/cli";
@@ -647,9 +647,9 @@ const makeCommandInstallInput = Effect.fn("AIMetrics.makeCommandInstallInput")(f
   });
 
   return AiMetricsInstallInput.make({
-    ...(resolvedDataRoot === undefined ? {} : { dataRoot: resolvedDataRoot }),
-    ...(resolvedHashSaltSecretRef === undefined ? {} : { hashSaltSecretRef: resolvedHashSaltSecretRef }),
-    ...(resolvedRawArchiveKeySecretRef === undefined ? {} : { rawArchiveKeySecretRef: resolvedRawArchiveKeySecretRef }),
+    ...O.getSomesStruct({ dataRoot: O.fromUndefinedOr(resolvedDataRoot) }),
+    ...O.getSomesStruct({ hashSaltSecretRef: O.fromUndefinedOr(resolvedHashSaltSecretRef) }),
+    ...O.getSomesStruct({ rawArchiveKeySecretRef: O.fromUndefinedOr(resolvedRawArchiveKeySecretRef) }),
     target,
   });
 });
@@ -766,10 +766,8 @@ const makeInstallPreviewProgram = Effect.fn("AIMetrics.makeInstallPreviewProgram
   const spec = yield* makeAiMetricsInstallSpec(
     AiMetricsInstallInput.make({
       defaultTool: tool,
-      ...(resolvedHashSaltSecretRef === undefined ? {} : { hashSaltSecretRef: resolvedHashSaltSecretRef }),
-      ...(resolvedRawArchiveKeySecretRef === undefined
-        ? {}
-        : { rawArchiveKeySecretRef: resolvedRawArchiveKeySecretRef }),
+      ...O.getSomesStruct({ hashSaltSecretRef: O.fromUndefinedOr(resolvedHashSaltSecretRef) }),
+      ...O.getSomesStruct({ rawArchiveKeySecretRef: O.fromUndefinedOr(resolvedRawArchiveKeySecretRef) }),
       privacyMode: AiMetricsPrivacyMode.Enum.encrypted_raw_redacted_ui,
       target,
     })
@@ -911,8 +909,8 @@ const makeInstallDoctorProgram = Effect.fn("AIMetrics.makeInstallDoctorProgram")
       maxFiles,
       repoRoot: yield* resolveRepoRoot(repoRoot),
       target: AiMetricsDeployTarget.Enum.local,
-      ...(resolvedHashSalt === undefined ? {} : { hashSalt: resolvedHashSalt }),
-      ...(sinceEpochMillis === undefined ? {} : { sinceEpochMillis }),
+      ...O.getSomesStruct({ hashSalt: O.fromUndefinedOr(resolvedHashSalt) }),
+      ...O.getSomesStruct({ sinceEpochMillis: O.fromUndefinedOr(sinceEpochMillis) }),
       ...(O.isSome(openClawUnit) ? { openClawUnitPath: openClawUnit.value } : {}),
     })
   );
@@ -994,7 +992,7 @@ const makeIngestProgram = Effect.fn("AIMetrics.makeIngestProgram")(function* ({
   });
   const summary = yield* summarizeTranscriptText({
     content,
-    ...(resolvedHashSalt === undefined ? {} : { hashSalt: resolvedHashSalt }),
+    ...O.getSomesStruct({ hashSalt: O.fromUndefinedOr(resolvedHashSalt) }),
     sourceKind: source,
     sourcePath: absolutePath,
   });
@@ -1114,8 +1112,8 @@ const makeSourcesDiscoverProgram = Effect.fn("AIMetrics.makeSourcesDiscoverProgr
       maxFiles,
       repoRoot: yield* resolveRepoRoot(repoRoot),
       target,
-      ...(resolvedHashSalt === undefined ? {} : { hashSalt: resolvedHashSalt }),
-      ...(sinceEpochMillis === undefined ? {} : { sinceEpochMillis }),
+      ...O.getSomesStruct({ hashSalt: O.fromUndefinedOr(resolvedHashSalt) }),
+      ...O.getSomesStruct({ sinceEpochMillis: O.fromUndefinedOr(sinceEpochMillis) }),
       ...(O.isSome(openClawUnit) ? { openClawUnitPath: openClawUnit.value } : {}),
     })
   );
@@ -1177,7 +1175,7 @@ const makePrivacyCheckProgram = Effect.fn("AIMetrics.makePrivacyCheckProgram")(f
   const resolvedHashSalt = yield* resolveHashSalt(hashSalt);
   const summary = yield* summarizeTranscriptText({
     content,
-    ...(resolvedHashSalt === undefined ? {} : { hashSalt: resolvedHashSalt }),
+    ...O.getSomesStruct({ hashSalt: O.fromUndefinedOr(resolvedHashSalt) }),
     sourceKind: source,
     sourcePath: absolutePath,
   });
@@ -1185,7 +1183,7 @@ const makePrivacyCheckProgram = Effect.fn("AIMetrics.makePrivacyCheckProgram")(f
     content,
     sourcePath: absolutePath,
     summary,
-    ...(resolvedHashSalt === undefined ? {} : { hashSalt: resolvedHashSalt }),
+    ...O.getSomesStruct({ hashSalt: O.fromUndefinedOr(resolvedHashSalt) }),
   });
 
   if (json) {
@@ -1334,21 +1332,19 @@ const makeForwarderRunProgram = Effect.fn("AIMetrics.makeForwarderRunProgram")(f
   const resolvedDataRoot = O.getOrUndefined(p6aCollectorDataRoot(dataRoot, target));
   const spec = yield* makeAiMetricsInstallSpec(
     AiMetricsInstallInput.make({
-      ...(resolvedDataRoot === undefined ? {} : { dataRoot: resolvedDataRoot }),
-      ...(resolvedHashSaltSecretRef === undefined ? {} : { hashSaltSecretRef: resolvedHashSaltSecretRef }),
-      ...(resolvedRawArchiveKeySecretRef === undefined
-        ? {}
-        : { rawArchiveKeySecretRef: resolvedRawArchiveKeySecretRef }),
+      ...O.getSomesStruct({ dataRoot: O.fromUndefinedOr(resolvedDataRoot) }),
+      ...O.getSomesStruct({ hashSaltSecretRef: O.fromUndefinedOr(resolvedHashSaltSecretRef) }),
+      ...O.getSomesStruct({ rawArchiveKeySecretRef: O.fromUndefinedOr(resolvedRawArchiveKeySecretRef) }),
       target,
     })
   );
   const resolvedRawArchiveKey = yield* resolveRawArchiveKey();
   const sinceEpochMillis = all ? undefined : yield* parseSinceEpochMillis(since);
   const forwarderInput = AiMetricsForwarderInput.make({
-    ...(resolvedDataRoot === undefined ? {} : { dataRoot: resolvedDataRoot }),
-    ...(resolvedHashSalt === undefined ? {} : { hashSalt: resolvedHashSalt }),
-    ...(resolvedHashSaltSecretRef === undefined ? {} : { hashSaltSecretRef: resolvedHashSaltSecretRef }),
-    ...(resolvedRawArchiveKeySecretRef === undefined ? {} : { rawArchiveKeySecretRef: resolvedRawArchiveKeySecretRef }),
+    ...O.getSomesStruct({ dataRoot: O.fromUndefinedOr(resolvedDataRoot) }),
+    ...O.getSomesStruct({ hashSalt: O.fromUndefinedOr(resolvedHashSalt) }),
+    ...O.getSomesStruct({ hashSaltSecretRef: O.fromUndefinedOr(resolvedHashSaltSecretRef) }),
+    ...O.getSomesStruct({ rawArchiveKeySecretRef: O.fromUndefinedOr(resolvedRawArchiveKeySecretRef) }),
     homeDir: yield* resolveHomeDir(homeDir),
     includeAll: all,
     ...(O.isSome(maxFileBytes) ? { maxFileBytes: maxFileBytes.value } : {}),
@@ -1356,7 +1352,7 @@ const makeForwarderRunProgram = Effect.fn("AIMetrics.makeForwarderRunProgram")(f
     ...(O.isSome(openClawUnit) ? { openClawUnitPath: openClawUnit.value } : {}),
     rawArchiveKey: resolvedRawArchiveKey,
     repoRoot: yield* resolveRepoRoot(repoRoot),
-    ...(sinceEpochMillis === undefined ? {} : { sinceEpochMillis }),
+    ...O.getSomesStruct({ sinceEpochMillis: O.fromUndefinedOr(sinceEpochMillis) }),
     target,
   });
   const duckDbLayer = DuckDb.makeNodeLayer(DuckDbConnectionOptions.make({ databasePath: spec.storage.duckDbPath }));
@@ -1495,12 +1491,10 @@ const makeForwarderTimerProgram = Effect.fn("AIMetrics.makeForwarderTimerProgram
         `${maxFiles}`,
         "--json",
       ],
-      ...(resolvedHashSaltSecretRef === undefined ? {} : { hashSaltSecretRef: resolvedHashSaltSecretRef }),
+      ...O.getSomesStruct({ hashSaltSecretRef: O.fromUndefinedOr(resolvedHashSaltSecretRef) }),
       intervalMinutes,
       lockPath: "%t/beep-ai-metrics-forwarder.lock",
-      ...(resolvedRawArchiveKeySecretRef === undefined
-        ? {}
-        : { rawArchiveKeySecretRef: resolvedRawArchiveKeySecretRef }),
+      ...O.getSomesStruct({ rawArchiveKeySecretRef: O.fromUndefinedOr(resolvedRawArchiveKeySecretRef) }),
       statusPath: `${spec.storage.dataRoot}/forwarder/status/latest.json`,
       workingDirectory: yield* resolveRepoRoot(repoRoot),
     })
@@ -1549,11 +1543,9 @@ const makeOtlpExportProgram = Effect.fn("AIMetrics.makeOtlpExportProgram")(funct
   });
   const spec = yield* makeAiMetricsInstallSpec(
     AiMetricsInstallInput.make({
-      ...(resolvedDataRoot === undefined ? {} : { dataRoot: resolvedDataRoot }),
-      ...(resolvedHashSaltSecretRef === undefined ? {} : { hashSaltSecretRef: resolvedHashSaltSecretRef }),
-      ...(resolvedRawArchiveKeySecretRef === undefined
-        ? {}
-        : { rawArchiveKeySecretRef: resolvedRawArchiveKeySecretRef }),
+      ...O.getSomesStruct({ dataRoot: O.fromUndefinedOr(resolvedDataRoot) }),
+      ...O.getSomesStruct({ hashSaltSecretRef: O.fromUndefinedOr(resolvedHashSaltSecretRef) }),
+      ...O.getSomesStruct({ rawArchiveKeySecretRef: O.fromUndefinedOr(resolvedRawArchiveKeySecretRef) }),
       target,
     })
   );

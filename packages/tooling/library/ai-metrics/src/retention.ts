@@ -9,9 +9,9 @@ import { DuckDb, DuckDbConnectionOptions } from "@beep/duckdb";
 import { $RepoAiMetricsId } from "@beep/identity/packages";
 import { LiteralKit, TaggedErrorClass } from "@beep/schema";
 import { A, Str } from "@beep/utils";
+import * as O from "@beep/utils/Option";
 import { Clock, Effect, FileSystem, flow, Layer, Order, Path, pipe } from "effect";
 import { dual } from "effect/Function";
-import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
 import {
@@ -868,19 +868,19 @@ export const runAiMetricsRetentionRestoreDrill = Effect.fn("AiMetrics.runAiMetri
     const restoreSourcePath = path.join(input.restoreRoot, "restore-source", `${item.archiveObjectId}.jsonl`);
     const summary = yield* summarizeTranscriptText({
       content: plaintext,
-      ...(input.hashSalt === undefined ? {} : { hashSalt: input.hashSalt }),
+      ...O.getSomesStruct({ hashSalt: O.fromUndefinedOr(input.hashSalt) }),
       sourceKind: item.sourceKind,
       sourcePath: restoreSourcePath,
     }).pipe(Effect.mapError((cause) => retentionFailure("Failed to summarize restored archive plaintext.", cause)));
     const privacy = yield* makeAiMetricsPrivacyCheckResult({
       content: plaintext,
-      ...(input.hashSalt === undefined ? {} : { hashSalt: input.hashSalt }),
+      ...O.getSomesStruct({ hashSalt: O.fromUndefinedOr(input.hashSalt) }),
       sourcePath: restoreSourcePath,
       summary,
     }).pipe(Effect.mapError((cause) => retentionFailure("Failed to sanitize restored archive plaintext.", cause)));
     const archiveObject = yield* writeEncryptedRawArchiveObject({
       content: plaintext,
-      ...(input.hashSalt === undefined ? {} : { hashSalt: input.hashSalt }),
+      ...O.getSomesStruct({ hashSalt: O.fromUndefinedOr(input.hashSalt) }),
       rawArchiveDir: spec.storage.rawArchiveDir,
       rawArchiveKey: input.rawArchiveKey,
       sourceKind: item.sourceKind,

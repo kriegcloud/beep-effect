@@ -7,11 +7,10 @@
 
 import { $RunpodId } from "@beep/identity";
 import { LiteralKit, TaggedErrorClass } from "@beep/schema";
+import { O } from "@beep/utils";
 import { pipe, Result } from "effect";
 import { dual } from "effect/Function";
-import * as O from "effect/Option";
 import * as P from "effect/Predicate";
-import * as R from "effect/Record";
 import * as S from "effect/Schema";
 import * as HttpClientError from "effect/unstable/http/HttpClientError";
 import { RunpodHttpMethod, RunpodOperationDescriptor, RunpodOperationId } from "./_generated/Runpod.generated.ts";
@@ -111,10 +110,8 @@ export class RunpodError extends TaggedErrorClass<RunpodError>($I`RunpodError`)(
         operationId: descriptor.operationId,
         path: descriptor.path,
         reason,
-        ...R.getSomes({
+        ...O.getSomesStruct({
           cause: causeFromUnknown(options.cause),
-        }),
-        ...R.getSomes({
           status: O.fromUndefinedOr(options.status),
         }),
       })
@@ -129,7 +126,7 @@ export class RunpodError extends TaggedErrorClass<RunpodError>($I`RunpodError`)(
   static readonly config = (cause?: unknown): RunpodError =>
     RunpodError.make({
       reason: "config",
-      ...R.getSomes({
+      ...O.getSomesStruct({
         cause: causeFromUnknown(cause),
       }),
     });
@@ -145,10 +142,8 @@ export class RunpodError extends TaggedErrorClass<RunpodError>($I`RunpodError`)(
       method: options.method,
       path: options.path,
       reason: options.reason,
-      ...R.getSomes({
+      ...O.getSomesStruct({
         cause: causeFromUnknown(options.cause),
-      }),
-      ...R.getSomes({
         status: O.fromUndefinedOr(options.status),
       }),
     });
@@ -178,19 +173,21 @@ export class RunpodDocsError extends TaggedErrorClass<RunpodDocsError>($I`Runpod
    * @category constructors
    * @since 0.1.0
    */
-  static readonly fromReason = (reason: RunpodDocsErrorReason, options: RunpodDocsErrorOptions = {}): RunpodDocsError =>
-    RunpodDocsError.make({
-      reason,
-      ...R.getSomes({
-        cause: causeFromUnknown(options.cause),
-      }),
-      ...R.getSomes({
-        status: O.fromUndefinedOr(options.status),
-      }),
-      ...R.getSomes({
-        url: O.fromUndefinedOr(options.url),
-      }),
+  static readonly fromReason = (
+    reason: RunpodDocsErrorReason,
+    options: RunpodDocsErrorOptions = {}
+  ): RunpodDocsError => {
+    const optionalFields = O.getSomesStruct({
+      cause: causeFromUnknown(options.cause),
+      status: O.fromUndefinedOr(options.status),
+      url: O.fromUndefinedOr(options.url),
     });
+
+    return RunpodDocsError.make({
+      reason,
+      ...optionalFields,
+    });
+  };
 }
 
 /**

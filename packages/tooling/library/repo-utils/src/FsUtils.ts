@@ -7,13 +7,14 @@
  * @packageDocumentation
  * @since 0.0.0
  */
+
 import { $RepoUtilsId } from "@beep/identity/packages";
 import { Glob as SharedGlob, layer as SharedGlobLayer } from "@beep/utils/Glob";
+import * as O from "@beep/utils/Option";
 import { Context, Effect, FileSystem, Layer, Path } from "effect";
 import * as S from "effect/Schema";
 import { DomainError, NoSuchFileError } from "./errors/index.js";
 import { jsonStringifyPretty } from "./JsonUtils.js";
-import type * as O from "effect/Option";
 
 const $I = $RepoUtilsId.create("FsUtils");
 const decodeJsonString = S.decodeUnknownOption(S.fromJsonString(S.Json));
@@ -185,11 +186,11 @@ export const FsUtilsLive: Layer.Layer<FsUtils, never, FileSystem.FileSystem | Pa
       options?: undefined | (GlobOptions & { readonly nodir?: undefined | boolean })
     ) => Effect.Effect<ReadonlyArray<string>, DomainError> = Effect.fnUntraced(function* (pattern, options) {
       const sharedGlobOptions = {
-        ...(options?.absolute === undefined ? {} : { absolute: options.absolute }),
-        ...(options?.cwd === undefined ? {} : { cwd: options.cwd }),
-        ...(options?.dot === undefined ? {} : { dot: options.dot }),
-        ...(options?.ignore === undefined ? {} : { ignore: options.ignore }),
-        ...(options?.nodir === undefined ? {} : { nodir: options.nodir }),
+        ...O.getSomesStruct({ absolute: O.fromUndefinedOr(options?.absolute) }),
+        ...O.getSomesStruct({ cwd: O.fromUndefinedOr(options?.cwd) }),
+        ...O.getSomesStruct({ dot: O.fromUndefinedOr(options?.dot) }),
+        ...O.getSomesStruct({ ignore: O.fromUndefinedOr(options?.ignore) }),
+        ...O.getSomesStruct({ nodir: O.fromUndefinedOr(options?.nodir) }),
       };
 
       return yield* globUtils

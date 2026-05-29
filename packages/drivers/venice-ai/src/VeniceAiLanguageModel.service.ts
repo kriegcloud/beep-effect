@@ -12,6 +12,7 @@ import {
   makeFromProvider,
   OpenAiCompatLanguageModelConfig,
 } from "@beep/openai-compat";
+import * as O from "@beep/utils/Option";
 import { Effect, Layer, pipe, Stream } from "effect";
 import * as S from "effect/Schema";
 import * as AiError from "effect/unstable/ai/AiError";
@@ -170,7 +171,7 @@ export const make: (options: VeniceAiLanguageModelOptions) => Effect.Effect<Lang
   Effect.fn("VeniceAiLanguageModel.make")(function* (options) {
     const venice = yield* VeniceAI;
     return yield* makeFromProvider({
-      ...(options.config === undefined ? {} : { config: options.config }),
+      ...O.getSomesStruct({ config: O.fromUndefinedOr(options.config) }),
       model: options.model,
       moduleName,
       provider: {

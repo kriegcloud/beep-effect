@@ -1,4 +1,5 @@
 import { Client as AcpClient, Errors as AcpError, Schema as AcpSchema } from "@beep/acp";
+import * as O from "@beep/utils/Option";
 import * as NodeServices from "@effect/platform-node/NodeServices";
 import { assert, it } from "@effect/vitest";
 import * as Cause from "effect/Cause";
@@ -36,7 +37,7 @@ it.layer(NodeServices.layer)("effect-acp client", (it) => {
     const command = ChildProcess.make("bun", ["run", yield* mockPeerPath], {
       cwd: path.join(import.meta.dirname, "../.."),
       shell: process.platform === "win32",
-      ...(env !== undefined ? { env: { ...process.env, ...env } } : {}),
+      ...O.getSomesStruct({ env: O.map(O.fromUndefinedOr(env), (env) => ({ ...process.env, ...env })) }),
     });
     return yield* spawner.spawn(command);
   });

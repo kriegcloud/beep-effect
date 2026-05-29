@@ -40,3 +40,29 @@ describe("propFromNullishOr", () => {
     expect(O.propFromNullishOr(record, "anything")).type.toBe<O.Option<{}>>();
   });
 });
+
+describe("getSomesStruct", () => {
+  it("preserves heterogeneous per-key value types", () => {
+    const result = O.getSomesStruct({
+      id: O.some(1),
+      name: O.some("beep"),
+      cause: O.none<Error>(),
+    });
+
+    expect(result).type.toBe<{
+      id?: number;
+      name?: string;
+      cause?: Error;
+    }>();
+  });
+
+  it("keeps explicitly present undefined as the value type", () => {
+    const result = O.getSomesStruct({
+      value: O.some(undefined),
+    });
+
+    expect(result).type.toBe<{
+      value?: undefined;
+    }>();
+  });
+});

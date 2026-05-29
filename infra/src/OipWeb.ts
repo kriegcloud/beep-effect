@@ -8,6 +8,7 @@
 import { $InfraId } from "@beep/identity/packages";
 import { LiteralKit } from "@beep/schema";
 import { A, Str, Struct } from "@beep/utils";
+import * as O from "@beep/utils/Option";
 import * as aws from "@pulumi/aws";
 import * as cloudflare from "@pulumi/cloudflare";
 import * as pulumi from "@pulumi/pulumi";
@@ -441,44 +442,51 @@ export const makeOipWebStackArgsFromConfigValues = ({
 }: OipWebPulumiConfigValues = {}): OipWebStackArgs =>
   OipWebStackArgs.make({
     assets: OipAssetsBucketConfig.make({
-      ...(assetsBucketName === undefined ? {} : { bucketName: assetsBucketName }),
-      ...(awsRegion === undefined ? {} : { region: awsRegion }),
+      ...O.getSomesStruct({ bucketName: O.fromUndefinedOr(assetsBucketName) }),
+      ...O.getSomesStruct({ region: O.fromUndefinedOr(awsRegion) }),
     }),
     dns: OipDnsConfig.make({
-      ...(attachProductionDomains === undefined ? {} : { attachProductionDomains }),
-      ...(attachStagingDomain === undefined ? {} : { attachStagingDomain }),
-      ...(cloudflareZoneId === undefined ? {} : { cloudflareZoneId }),
-      ...(legacyCloudflareZoneId === undefined ? {} : { legacyCloudflareZoneId }),
-      ...(legacyProductionDnsRecordImportId === undefined ? {} : { legacyProductionDnsRecordImportId }),
-      ...(legacyProductionDomain === undefined ? {} : { legacyProductionDomain }),
-      ...(legacyStagingDomain === undefined ? {} : { legacyStagingDomain }),
-      ...(legacyWwwDnsRecordImportId === undefined ? {} : { legacyWwwDnsRecordImportId }),
-      ...(legacyWwwDomain === undefined ? {} : { legacyWwwDomain }),
-      ...(productionDnsRecordImportId === undefined ? {} : { productionDnsRecordImportId }),
-      ...(productionDomain === undefined ? {} : { productionDomain }),
-      ...(stagingDomain === undefined ? {} : { stagingDomain }),
-      ...(vercelApexTarget === undefined ? {} : { vercelApexTarget }),
-      ...(vercelCnameTarget === undefined ? {} : { vercelCnameTarget }),
-      ...(wwwDomain === undefined ? {} : { wwwDomain }),
+      ...O.getSomesStruct({ attachProductionDomains: O.fromUndefinedOr(attachProductionDomains) }),
+      ...O.getSomesStruct({ attachStagingDomain: O.fromUndefinedOr(attachStagingDomain) }),
+      ...O.getSomesStruct({ cloudflareZoneId: O.fromUndefinedOr(cloudflareZoneId) }),
+      ...O.getSomesStruct({ legacyCloudflareZoneId: O.fromUndefinedOr(legacyCloudflareZoneId) }),
+      ...O.getSomesStruct({ legacyProductionDnsRecordImportId: O.fromUndefinedOr(legacyProductionDnsRecordImportId) }),
+      ...O.getSomesStruct({ legacyProductionDomain: O.fromUndefinedOr(legacyProductionDomain) }),
+      ...O.getSomesStruct({ legacyStagingDomain: O.fromUndefinedOr(legacyStagingDomain) }),
+      ...O.getSomesStruct({ legacyWwwDnsRecordImportId: O.fromUndefinedOr(legacyWwwDnsRecordImportId) }),
+      ...O.getSomesStruct({ legacyWwwDomain: O.fromUndefinedOr(legacyWwwDomain) }),
+      ...O.getSomesStruct({ productionDnsRecordImportId: O.fromUndefinedOr(productionDnsRecordImportId) }),
+      ...O.getSomesStruct({ productionDomain: O.fromUndefinedOr(productionDomain) }),
+      ...O.getSomesStruct({ stagingDomain: O.fromUndefinedOr(stagingDomain) }),
+      ...O.getSomesStruct({ vercelApexTarget: O.fromUndefinedOr(vercelApexTarget) }),
+      ...O.getSomesStruct({ vercelCnameTarget: O.fromUndefinedOr(vercelCnameTarget) }),
+      ...O.getSomesStruct({ wwwDomain: O.fromUndefinedOr(wwwDomain) }),
     }),
     state: OipPulumiStateBackendConfig.make({
-      ...(awsRegion === undefined ? {} : { region: awsRegion }),
-      ...(createDynamoDbLockTable === undefined ? {} : { createDynamoDbLockTable }),
-      ...(pulumiStateBucketName === undefined ? {} : { bucketName: pulumiStateBucketName }),
-      ...(pulumiStateBucketName === undefined ? {} : { lockTableName: `${pulumiStateBucketName}-locks` }),
+      ...O.getSomesStruct({ region: O.fromUndefinedOr(awsRegion) }),
+      ...O.getSomesStruct({ createDynamoDbLockTable: O.fromUndefinedOr(createDynamoDbLockTable) }),
+      ...O.getSomesStruct({ bucketName: O.fromUndefinedOr(pulumiStateBucketName) }),
+      ...O.getSomesStruct({
+        lockTableName: O.map(
+          O.fromUndefinedOr(pulumiStateBucketName),
+          (pulumiStateBucketName) => `${pulumiStateBucketName}-locks`
+        ),
+      }),
     }),
     vercel: OipVercelProjectConfig.make({
-      ...(hubSpotAccountId === undefined ? {} : { hubSpotAccountId }),
-      ...(hubSpotFormGuid === undefined ? {} : { hubSpotFormGuid }),
-      ...(projectName === undefined ? {} : { projectName }),
-      ...(productionBranch === undefined ? {} : { productionBranch }),
-      ...(repository === undefined ? {} : { repository }),
-      ...(rootDirectory === undefined ? {} : { rootDirectory }),
-      ...(sanityDataset === undefined ? {} : { sanityDataset }),
-      ...(sanityProjectId === undefined ? {} : { sanityProjectId }),
-      ...(stagingBranch === undefined ? {} : { stagingBranch }),
-      ...(vercelAuthenticationDeploymentType === undefined ? {} : { vercelAuthenticationDeploymentType }),
-      ...(vercelTeamId === undefined ? {} : { teamId: vercelTeamId }),
+      ...O.getSomesStruct({ hubSpotAccountId: O.fromUndefinedOr(hubSpotAccountId) }),
+      ...O.getSomesStruct({ hubSpotFormGuid: O.fromUndefinedOr(hubSpotFormGuid) }),
+      ...O.getSomesStruct({ projectName: O.fromUndefinedOr(projectName) }),
+      ...O.getSomesStruct({ productionBranch: O.fromUndefinedOr(productionBranch) }),
+      ...O.getSomesStruct({ repository: O.fromUndefinedOr(repository) }),
+      ...O.getSomesStruct({ rootDirectory: O.fromUndefinedOr(rootDirectory) }),
+      ...O.getSomesStruct({ sanityDataset: O.fromUndefinedOr(sanityDataset) }),
+      ...O.getSomesStruct({ sanityProjectId: O.fromUndefinedOr(sanityProjectId) }),
+      ...O.getSomesStruct({ stagingBranch: O.fromUndefinedOr(stagingBranch) }),
+      ...O.getSomesStruct({
+        vercelAuthenticationDeploymentType: O.fromUndefinedOr(vercelAuthenticationDeploymentType),
+      }),
+      ...O.getSomesStruct({ teamId: O.fromUndefinedOr(vercelTeamId) }),
     }),
   });
 
@@ -687,7 +695,7 @@ const makeDnsRecord = (
         },
         {
           ...opts,
-          ...(importId === undefined ? {} : { import: importId }),
+          ...O.getSomesStruct({ import: O.fromUndefinedOr(importId) }),
         }
       );
 

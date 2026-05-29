@@ -252,7 +252,10 @@ export const orchestrate: <R>(
       }
     }
 
-    A.appendInPlace(iterations, IterationResult.make({ ...(sessionId === undefined ? {} : { sessionId }) }));
+    A.appendInPlace(
+      iterations,
+      IterationResult.make({ ...O.getSomesStruct({ sessionId: O.fromUndefinedOr(sessionId) }) })
+    );
     completionSignal = firstMatchedSignal(stdout, signals);
     if (P.isNotUndefined(completionSignal)) {
       break;

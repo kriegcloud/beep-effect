@@ -1,6 +1,7 @@
 "use client";
 
 import { TooltipProvider } from "@beep/ui/components/ui/tooltip";
+import * as O from "@beep/utils/Option";
 import { LexicalComposer } from "@lexical/react/LexicalComposer";
 import { OnChangePlugin } from "@lexical/react/LexicalOnChangePlugin";
 import { Effect } from "effect";
@@ -42,11 +43,13 @@ export function Editor({
       <LexicalComposer
         initialConfig={{
           ...editorConfig,
-          ...(editorState !== undefined ? { editorState } : {}),
+          ...O.getSomesStruct({ editorState: O.fromUndefinedOr(editorState) }),
           // TODO(effect-native-migration): model schema
-          ...(editorSerializedState !== undefined
-            ? { editorState: S.encodeUnknownSync(S.UnknownFromJsonString)(editorSerializedState) }
-            : {}),
+          ...O.getSomesStruct({
+            editorState: O.map(O.fromUndefinedOr(editorSerializedState), (editorSerializedState) =>
+              S.encodeUnknownSync(S.UnknownFromJsonString)(editorSerializedState)
+            ),
+          }),
         }}
       >
         <TooltipProvider>

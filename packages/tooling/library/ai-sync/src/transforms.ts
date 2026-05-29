@@ -5,6 +5,7 @@
  * @since 0.0.0
  */
 
+import * as O from "@beep/utils/Option";
 import { flow, pipe } from "effect";
 import * as A from "effect/Array";
 import * as R from "effect/Record";
@@ -21,22 +22,22 @@ const codexServerToMcpJsonServer = (server: {
 }): McpJsonServer =>
   McpJsonServer.make({
     type: server.url === undefined ? "stdio" : "http",
-    ...(server.command === undefined ? {} : { command: server.command }),
-    ...(server.args === undefined ? {} : { args: server.args }),
-    ...(server.env === undefined ? {} : { env: server.env }),
-    ...(server.url === undefined ? {} : { url: server.url }),
-    ...(server.headers === undefined ? {} : { headers: server.headers }),
-    ...(server.timeout_ms === undefined ? {} : { timeout_ms: server.timeout_ms }),
+    ...O.getSomesStruct({ command: O.fromUndefinedOr(server.command) }),
+    ...O.getSomesStruct({ args: O.fromUndefinedOr(server.args) }),
+    ...O.getSomesStruct({ env: O.fromUndefinedOr(server.env) }),
+    ...O.getSomesStruct({ url: O.fromUndefinedOr(server.url) }),
+    ...O.getSomesStruct({ headers: O.fromUndefinedOr(server.headers) }),
+    ...O.getSomesStruct({ timeout_ms: O.fromUndefinedOr(server.timeout_ms) }),
   });
 
 const mcpJsonServerToCodexServer = (server: McpJsonServer): CodexMcpServer =>
   CodexMcpServer.make({
-    ...(server.command === undefined ? {} : { command: server.command }),
-    ...(server.args === undefined ? {} : { args: server.args }),
-    ...(server.env === undefined ? {} : { env: server.env }),
-    ...(server.url === undefined ? {} : { url: server.url }),
-    ...(server.headers === undefined ? {} : { headers: server.headers }),
-    ...(server.timeout_ms === undefined ? {} : { timeout_ms: server.timeout_ms }),
+    ...O.getSomesStruct({ command: O.fromUndefinedOr(server.command) }),
+    ...O.getSomesStruct({ args: O.fromUndefinedOr(server.args) }),
+    ...O.getSomesStruct({ env: O.fromUndefinedOr(server.env) }),
+    ...O.getSomesStruct({ url: O.fromUndefinedOr(server.url) }),
+    ...O.getSomesStruct({ headers: O.fromUndefinedOr(server.headers) }),
+    ...O.getSomesStruct({ timeout_ms: O.fromUndefinedOr(server.timeout_ms) }),
   });
 
 /**

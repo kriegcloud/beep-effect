@@ -7,8 +7,8 @@
 
 import { $AcpId } from "@beep/identity";
 import { A, thunkEffectVoid } from "@beep/utils";
+import * as O from "@beep/utils/Option";
 import { Context, Effect, flow, HashMap, HashSet, Layer, Match, Ref } from "effect";
-import * as O from "effect/Option";
 import * as RpcClient from "effect/unstable/rpc/RpcClient";
 import * as RpcServer from "effect/unstable/rpc/RpcServer";
 import { AGENT_METHODS, CLIENT_METHODS } from "./_generated/meta.gen.ts";
@@ -479,11 +479,11 @@ export const make = Effect.fn($I`AcpClient_make`)(function* (
 
   const transport = yield* AcpProtocol.makeAcpPatchedProtocol({
     stdio: stdio,
-    ...(terminationError !== undefined ? { terminationError } : {}),
+    ...O.getSomesStruct({ terminationError: O.fromUndefinedOr(terminationError) }),
     serverRequestMethods: HashSet.fromIterable(AcpRpcs.ClientRpcs.requests.keys()),
-    ...(options.logIncoming !== undefined ? { logIncoming: options.logIncoming } : {}),
-    ...(options.logOutgoing !== undefined ? { logOutgoing: options.logOutgoing } : {}),
-    ...(options.logger !== undefined ? { logger: options.logger } : {}),
+    ...O.getSomesStruct({ logIncoming: O.fromUndefinedOr(options.logIncoming) }),
+    ...O.getSomesStruct({ logOutgoing: O.fromUndefinedOr(options.logOutgoing) }),
+    ...O.getSomesStruct({ logger: O.fromUndefinedOr(options.logger) }),
     onNotification: dispatchNotification,
     onExtRequest: dispatchExtRequest,
   });

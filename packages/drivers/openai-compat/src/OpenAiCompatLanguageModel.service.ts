@@ -8,8 +8,8 @@
 import { $OpenaiCompatId } from "@beep/identity";
 import { decodeJsonString, encodeJsonString } from "@beep/schema/Json";
 import { A, Str, thunkTrue } from "@beep/utils";
+import * as O from "@beep/utils/Option";
 import { Effect, flow, Layer, pipe, Stream, Tuple } from "effect";
-import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
@@ -919,7 +919,7 @@ export const make: (
   function* (options) {
     const client = yield* OpenAiCompatClient;
     return yield* makeFromProvider({
-      ...(options.config === undefined ? {} : { config: options.config }),
+      ...O.getSomesStruct({ config: O.fromUndefinedOr(options.config) }),
       model: options.model,
       moduleName: "OpenAiCompatLanguageModel",
       provider: {

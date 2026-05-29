@@ -7,8 +7,8 @@
 
 import { $FaceDetectionId } from "@beep/identity/packages";
 import { A } from "@beep/utils";
+import * as O from "@beep/utils/Option";
 import { Context, Effect, Layer, Order, pipe } from "effect";
-import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
 import sharp from "sharp";
@@ -162,7 +162,7 @@ const checkedPixelCount = (
   if (!Number.isSafeInteger(pixels) || pixels > maxPixels) {
     return Effect.fail(
       FaceDetectionError.make({
-        ...(imagePath === undefined ? {} : { imagePath }),
+        ...O.getSomesStruct({ imagePath: O.fromUndefinedOr(imagePath) }),
         message: `Face detection ${operation} dimensions exceed the ${maxPixels} pixel safety limit.`,
         operation: "preprocessImage",
       })

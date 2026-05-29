@@ -7,10 +7,9 @@
 
 import { make } from "@beep/identity";
 import { TaggedErrorClass } from "@beep/schema";
+import { O } from "@beep/utils";
 import { dual } from "effect/Function";
-import * as O from "effect/Option";
 import * as P from "effect/Predicate";
-import * as R from "effect/Record";
 import * as S from "effect/Schema";
 
 const { $DuckdbId } = make("duckdb");
@@ -108,11 +107,13 @@ export class DuckDbError extends TaggedErrorClass<DuckDbError>($I`DuckDbError`)(
     (operation: string, cause: unknown, options: DuckDbErrorFromUnknownOptions = {}): DuckDbError =>
       O.getOrElse(existingDuckDbError(cause), () =>
         DuckDbError.make({
-          ...R.getSomes({ cause: O.fromUndefinedOr(causeFromUnknown(cause)) }),
-          ...R.getSomes({ databasePath: O.fromUndefinedOr(options.databasePath) }),
+          ...O.getSomesStruct({
+            cause: O.fromUndefinedOr(causeFromUnknown(cause)),
+            databasePath: O.fromUndefinedOr(options.databasePath),
+            statement: O.fromUndefinedOr(options.statement),
+          }),
           message: options.message ?? "DuckDB operation failed.",
           operation,
-          ...R.getSomes({ statement: O.fromUndefinedOr(options.statement) }),
         })
       )
   );
