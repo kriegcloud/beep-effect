@@ -2,13 +2,28 @@
  * GraphOperations - the graph-operation execution engine.
  *
  * Operations are morphisms in the category of graphs; the executor applies them
- * to a graph's leaf nodes under a chosen strategy, caching results. Catalog and
- * Schemas are deferred (they depend on the NLP service).
+ * to a graph's leaf nodes under a chosen strategy, caching results. The
+ * {@link Catalog} provides standard backend-backed + pure operations; the legacy
+ * `Schemas` serialization layer is deferred (see the operations-serialization gap).
  *
  * @since 0.0.0
  * @packageDocumentation
  */
 
+/**
+ * The standard catalog of NLP graph operations (backend-backed + pure).
+ *
+ * @example
+ * ```typescript
+ * import { Catalog } from "@beep/nlp/Graph/GraphOperations"
+ *
+ * console.log(Catalog.tokenize.name)
+ * ```
+ *
+ * @since 0.0.0
+ * @category catalog
+ */
+export * as Catalog from "./Catalog.ts";
 /**
  * Failures raised during graph-operation execution.
  *
