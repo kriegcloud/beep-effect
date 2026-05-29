@@ -954,7 +954,10 @@ const discoverWorkspaceScopes = (analysisContext: ReuseAnalysisContextShape, sco
         }
       }
 
-      return pipe(scopes, A.sort(Order.mapInput(Order.String, (scope: WorkspaceScope) => scope.packagePath)));
+      return A.sort(
+        scopes,
+        Order.mapInput(Order.String, (scope: WorkspaceScope) => scope.packagePath)
+      );
     })
   );
 
