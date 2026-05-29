@@ -1,3 +1,4 @@
+import { join as joinPath, resolve as resolvePath } from "node:path";
 import { reuseCommand } from "@beep/repo-cli/commands/Reuse";
 import { CodexSmokeResult } from "@beep/repo-cli/test/Reuse";
 import { RepoCodegraphLookupResult } from "@beep/repo-codegraph";
@@ -25,6 +26,9 @@ const provideScopedLayer =
     Effect.scoped(Layer.build(layer).pipe(Effect.flatMap((context) => effect.pipe(Effect.provide(context)))));
 
 const runReuseCommand = Command.runWith(reuseCommand, { version: "0.0.0" });
+const TestFileCwd = process.cwd();
+const RepoRoot = resolvePath(TestFileCwd, "../../../..");
+const CliEntrypoint = joinPath(RepoRoot, "packages/tooling/tool/cli/src/bin.ts");
 const TOOLING_CLI_SCOPE = "packages/tooling/tool/cli";
 const TOOLING_CLI_DOT_SCOPE = "./packages/tooling/tool/cli";
 const TOOLING_CLI_FILE = "packages/tooling/tool/cli/src/commands/Docgen/index.ts";
@@ -319,20 +323,22 @@ describe("reuse command", () => {
     120_000
   );
 
-  it(
-    "runs strict lookup through the command child-process spawner",
-    () =>
-      Effect.runPromise(
-        Effect.gen(function* () {
-          yield* runReuseCommand(["lookup", "--query", "UnknownRecord", "--strict", "--json"]);
+  it("runs strict lookup through the command child-process spawner", () => {
+    const lookup = Bun.spawnSync(
+      ["bun", "run", CliEntrypoint, "--", "reuse", "lookup", "--query", "UnknownRecord", "--strict", "--json"],
+      {
+        cwd: RepoRoot,
+        stderr: "pipe",
+        stdout: "pipe",
+      }
+    );
 
-          const result = yield* parseLoggedJson(decodeRepoCodegraphLookupResultJson);
+    expect(lookup.exitCode, lookup.stderr.toString()).toBe(0);
 
-          expect(result.query).toBe("UnknownRecord");
-          expect(result.freshnessStatus).toBe("current");
-          expect(result.warnings).toEqual([]);
-        }).pipe(provideScopedLayer(CommandTestLayer))
-      ),
-    360_000
-  );
+    const result = decodeRepoCodegraphLookupResultJson(lookup.stdout.toString());
+
+    expect(result.query).toBe("UnknownRecord");
+    expect(result.freshnessStatus).toBe("current");
+    expect(result.warnings).toEqual([]);
+  }, 360_000);
 });
