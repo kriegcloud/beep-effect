@@ -250,7 +250,7 @@ export function LinkPreview({ href, children, className, metadata }: LinkPreview
 
       {description !== undefined && <div className="line-clamp-3 w-full text-xs text-gray-400">{description}</div>}
 
-      <div className="truncate text-xs text-primary">{pipe(href, Str.replace("https://", ""))}</div>
+      <div className="truncate text-xs text-primary">{pipe(href, Str.replace(/^https?:\/\//, ""))}</div>
     </div>
   );
 

@@ -13,14 +13,14 @@ const DATE_FORMAT = {
   day: "numeric",
 } as const satisfies Intl.DateTimeFormatOptions;
 
-type DatePickerProps = {
-  readonly value?: Date | undefined;
+interface DatePickerProps {
+  readonly className?: string | undefined;
   readonly defaultValue?: Date | undefined;
+  readonly disabled?: boolean | undefined;
   readonly onValueChange?: ((date: Date | undefined) => void) | undefined;
   readonly placeholder?: string | undefined;
-  readonly disabled?: boolean | undefined;
-  readonly className?: string | undefined;
-};
+  readonly value?: Date | undefined;
+}
 
 /**
  * A single-date picker composed from {@link Popover} and {@link Calendar}. Supports
@@ -39,10 +39,15 @@ function DatePicker({
 }: DatePickerProps) {
   const [internalValue, setInternalValue] = React.useState<Date | undefined>(defaultValue);
   const [open, setOpen] = React.useState(false);
-  const selected = value === undefined ? internalValue : value;
+  // Capture controlledness once so a controlled reset to `undefined` is honored
+  // instead of falling back to stale internal state.
+  const isControlled = React.useRef(value !== undefined).current;
+  const selected = isControlled ? value : internalValue;
 
   const handleSelect = (date: Date | undefined) => {
-    setInternalValue(date);
+    if (!isControlled) {
+      setInternalValue(date);
+    }
     onValueChange?.(date);
     setOpen(false);
   };
@@ -72,5 +77,8 @@ function DatePicker({
   );
 }
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 export { DatePicker };
-export type { DatePickerProps };
