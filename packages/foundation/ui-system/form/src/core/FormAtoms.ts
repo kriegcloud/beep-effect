@@ -1118,6 +1118,15 @@ export const make = <TFields extends Field.FieldsRecord, R, A, E, SubmitArgs = v
             if (wasSubmitting && !isSubmitting) {
               if (pendingChanges) {
                 pendingChanges = false;
+                const state = get.once(stateAtom);
+                if (
+                  O.isSome(state) &&
+                  O.isSome(state.value.lastSubmittedValues) &&
+                  state.value.values === state.value.lastSubmittedValues.value.encoded
+                ) {
+                  wasSubmitting = isSubmitting;
+                  return;
+                }
                 debouncedSubmit();
               }
             }
