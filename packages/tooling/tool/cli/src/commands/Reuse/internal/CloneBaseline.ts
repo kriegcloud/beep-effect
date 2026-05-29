@@ -24,7 +24,14 @@ const stringifyJsonPretty = SchemaGetter.stringifyJson({ space: 2 });
  *
  * @example
  * ```ts
- * console.log("CloneBaselineEntry")
+ * import { CloneBaselineEntry } from "@beep/repo-cli/commands/Reuse"
+ * const entry = CloneBaselineEntry.make({
+ *   id: "reuse-clone:1",
+ *   title: "Duplicated docs error class",
+ *   occurrences: 2,
+ *   packages: 2,
+ *   members: ["packages/drivers/runpod/src/E.ts#RunpodDocsError", "packages/drivers/sanity/src/E.ts#SanityError"],
+ * })
  * ```
  * @category models
  * @since 0.0.0
@@ -47,7 +54,12 @@ export class CloneBaselineEntry extends S.Class<CloneBaselineEntry>($I`CloneBase
  *
  * @example
  * ```ts
- * console.log("CloneBaselineDocument")
+ * import { CloneBaselineDocument } from "@beep/repo-cli/commands/Reuse"
+ * const baseline = CloneBaselineDocument.make({
+ *   version: 1,
+ *   generatedOn: "2026-05-29",
+ *   entries: [],
+ * })
  * ```
  * @category models
  * @since 0.0.0
@@ -95,7 +107,8 @@ const entryFromCandidate = (candidate: ReuseCandidate): CloneBaselineEntry =>
  * @returns A baseline document with one entry per cluster, sorted by id.
  * @example
  * ```ts
- * console.log("buildCloneDocument")
+ * import { buildCloneDocument } from "@beep/repo-cli/commands/Reuse"
+ * const baseline = buildCloneDocument([])
  * ```
  * @category constructors
  * @since 0.0.0
@@ -155,7 +168,9 @@ const writeCloneBaseline = Effect.fn("CloneBaseline.write")(function* (document:
  * @returns Clusters new vs the baseline and clusters that gained occurrences.
  * @example
  * ```ts
- * console.log("diffCloneBaseline")
+ * import { buildCloneDocument, diffCloneBaseline } from "@beep/repo-cli/commands/Reuse"
+ * import * as O from "effect/Option"
+ * const drift = diffCloneBaseline({ live: buildCloneDocument([]), baseline: O.none() })
  * ```
  * @category utilities
  * @since 0.0.0

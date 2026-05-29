@@ -43,7 +43,12 @@ const tinyConst = `export const answer = 42`;
 
 describe("normalizedDeclarationSignature", () => {
   it("collapses identical declarations to the same key", () => {
-    expect(sigOf(sumItems, "sumItems").key).toBe(sigOf(sumItems, "sumItems").key);
+    // Two independent in-memory projects built from the same source must agree,
+    // and the key must be non-empty (a broken signature returning "" would fail here).
+    const first = sigOf(sumItems, "sumItems");
+    const second = sigOf(sumItems, "sumItems");
+    expect(first.key).toBe(second.key);
+    expect(first.key).not.toBe("");
   });
 
   it("treats alpha-renamed and literal-changed copies as the same clone (Type-1/Type-2)", () => {
