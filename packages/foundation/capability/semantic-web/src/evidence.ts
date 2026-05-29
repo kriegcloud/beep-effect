@@ -29,7 +29,7 @@ const $I = $SemanticWebId.create("evidence");
  * @since 0.0.0
  * @category models
  */
-export const EvidenceSelectorKind = LiteralKit(["text-quote", "text-position", "fragment"] as const).annotate(
+export const EvidenceSelectorKind = LiteralKit(["text-quote", "text-position", "fragment"]).annotate(
   $I.annote("EvidenceSelectorKind", {
     description: "Evidence selector discriminator.",
   })

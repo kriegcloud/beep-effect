@@ -25,7 +25,7 @@ import type { Token } from "../Core/Token.ts";
 
 const $I = $NlpId.create("Wink/WinkVectorizer");
 const require = createRequire(import.meta.url);
-const BM25NormKit = LiteralKit(["none", "l1", "l2"] as const);
+const BM25NormKit = LiteralKit(["none", "l1", "l2"]);
 
 type BM25Accessor<T> = (...args: ReadonlyArray<never>) => T;
 

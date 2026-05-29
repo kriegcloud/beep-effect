@@ -76,6 +76,9 @@ const exists = (fs: FileSystem.FileSystem, filePath: string): Effect.Effect<bool
 const isRelativeModuleSpecifier = (specifier: string): boolean =>
   Str.startsWith("./")(specifier) || Str.startsWith("../")(specifier);
 
+const isPackageTestFilePath = (relativePath: string): boolean =>
+  packageTestFilePattern.test(relativePath) && !Str.includes("/src/")(relativePath);
+
 const toRootImportAlias = (source: PackageSourceRoot, sourceSubpath: string): string =>
   sourceSubpath === Str.empty || sourceSubpath === "index" ? source.name : `${source.name}/${sourceSubpath}`;
 
@@ -169,7 +172,7 @@ const collectPackageTestFiles = Effect.fn("PackageTestImports.collectPackageTest
 
     if (stat.value.type === "File") {
       const relativePath = normalizePath(path.relative(repoRoot, currentPath));
-      return packageTestFilePattern.test(relativePath) ? A.of(normalizePath(path.resolve(currentPath))) : A.empty();
+      return isPackageTestFilePath(relativePath) ? A.of(normalizePath(path.resolve(currentPath))) : A.empty();
     }
 
     if (stat.value.type !== "Directory") {

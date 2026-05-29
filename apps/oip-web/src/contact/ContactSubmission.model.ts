@@ -79,7 +79,7 @@ const ContactMessage = TrimmedContactText.check(
  * @category schemas
  * @since 0.0.0
  */
-export const ContactSubmissionStatus = LiteralKit(["accepted", "rejected"] as const).annotate(
+export const ContactSubmissionStatus = LiteralKit(["accepted", "rejected"]).annotate(
   $I.annote("ContactSubmissionStatus", {
     description: "Public contact submission result status.",
   })

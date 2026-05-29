@@ -49,7 +49,7 @@ type VeniceAITestHttpShape = {
 
 class VeniceAITestHttp extends Context.Service<VeniceAITestHttp, VeniceAITestHttpShape>()($TestI`VeniceAITestHttp`) {}
 
-const HttpMethod = LiteralKit(["delete", "get", "patch", "post"] as const).pipe(
+const HttpMethod = LiteralKit(["delete", "get", "patch", "post"]).pipe(
   $TestI.annoteSchema("HttpMethod", {
     description: "HTTP methods used by the Venice AI OpenAPI fixture parser.",
   })

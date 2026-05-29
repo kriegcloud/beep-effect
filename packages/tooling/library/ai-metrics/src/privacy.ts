@@ -53,7 +53,7 @@ const countMatches = (pattern: RegExp, content: string): number =>
  * @category models
  * @since 0.0.0
  */
-export const AiMetricsHashSaltStatus = LiteralKit(["provided", "insecure_default"] as const).annotate(
+export const AiMetricsHashSaltStatus = LiteralKit(["provided", "insecure_default"]).annotate(
   $I.annote("AiMetricsHashSaltStatus", {
     description: "Salt source status for private AI metrics identifier hashes.",
   })

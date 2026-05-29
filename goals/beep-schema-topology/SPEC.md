@@ -54,19 +54,29 @@ import * as Duration from "@beep/schema/Duration"
 Do not make public consumers import role files such as
 `@beep/schema/Duration/Input`.
 
-Suite aggregators also live under PascalCase source directories and publish
+Former topical suites are represented by PascalCase leaf concept modules and
 flat exact public subpaths:
 
 ```jsonc
 "./Color": "./src/Color/index.ts",
 "./Csv": "./src/Csv/index.ts",
-"./Dom": "./src/Dom/index.ts"
+"./HttpStatus": "./src/HttpStatus/index.ts"
 ```
 
 Do not create or restore lowercase topical source directories such as
 `src/color/`, `src/http/`, `src/csv/`, or `src/person/`. Do not publish
 lowercase topical subpaths such as `@beep/schema/color` or nested legacy topical
 paths such as `@beep/schema/http/headers`.
+
+Do not publish broad suite aggregators such as `@beep/schema/Blockchain`,
+`@beep/schema/Dom`, `@beep/schema/Http`, `@beep/schema/Location`, or
+`@beep/schema/Person`. Consumers import leaf concept modules directly, for
+example `@beep/schema/EvmAddress`, `@beep/schema/DomReactNode`, and
+`@beep/schema/HttpStatus`.
+
+`Csv` is a same-concept schema module. CSV parser, formatter, option, and error
+helpers live in sibling leaf modules such as `@beep/schema/CsvParser` and are
+not re-exported from `@beep/schema/Csv`.
 
 Do not create a module for every exported symbol. Promote source concepts:
 schemas, schema suites, codecs, parser/formatter helpers, and typed errors.
@@ -124,9 +134,12 @@ The migration is closed around the canonical topology:
 - Keep purposeful repeated names inside canonical modules when they aid
   migration, for example `Duration.DurationInput` beside `Duration.Input`.
 - Retire lowercase topical source directories and public subpaths.
+- Retire broad suite aggregator public subpaths.
 - Retire legacy acronym casing subpaths such as `@beep/schema/ExpectCT` and
   `@beep/schema/XSSProtection`; use `ExpectCt` and `XssProtection`.
 - Keep concept role files private and publish only concept indexes.
+- Keep parser internals private; source tests use `@beep/schema/test/Markdown`
+  and `@beep/schema/test/Yaml` instead of `@beep/schema/internal/*`.
 - Keep the broad package wildcard removed.
 
 ## Acceptance Criteria

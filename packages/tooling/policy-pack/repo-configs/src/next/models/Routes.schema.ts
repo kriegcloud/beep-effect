@@ -24,7 +24,7 @@ const $I = $RepoConfigsId.create("next/models/Routes.schema");
  * @category schemas
  * @since 0.0.0
  */
-export const RouteHasType = LiteralKit(["header", "cookie", "query", "host"] as const).pipe(
+export const RouteHasType = LiteralKit(["header", "cookie", "query", "host"]).pipe(
   $I.annoteSchema("RouteHasType", {
     description: "Literal discriminator values supported by Next.js route match predicates.",
   })

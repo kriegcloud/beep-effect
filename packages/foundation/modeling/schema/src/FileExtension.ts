@@ -99,7 +99,7 @@ export const extractMimeExtensions = <const T extends MimeTypeProperty>(
 export const ApplicationFileExtension = pipe(
   application,
   extractMimeExtensions,
-  LiteralKit,
+  (extensions) => LiteralKit(extensions),
   $I.annoteSchema("ApplicationExtension", {
     description: "A file extension for a mime type that is an application.",
   })
@@ -138,7 +138,7 @@ export type ApplicationFileExtension = typeof ApplicationFileExtension.Type;
 export const VideoFileExtension = pipe(
   video,
   extractMimeExtensions,
-  LiteralKit,
+  (extensions) => LiteralKit(extensions),
   $I.annoteSchema("VideoExtension", {
     description: "A file extension for a mime type that is a video.",
   })
@@ -177,7 +177,7 @@ export type VideoFileExtension = typeof VideoFileExtension.Type;
 export const TextFileExtension = pipe(
   text,
   extractMimeExtensions,
-  LiteralKit,
+  (extensions) => LiteralKit(extensions),
   $I.annoteSchema("TextExtension", {
     description: "A file extension for a mime type that is text.",
   })
@@ -216,7 +216,7 @@ export type TextFileExtension = typeof TextFileExtension.Type;
 export const ImageFileExtension = pipe(
   image,
   extractMimeExtensions,
-  LiteralKit,
+  (extensions) => LiteralKit(extensions),
   $I.annoteSchema("ImageExtension", {
     description: "A file extension for a mime type that is an image.",
   })
@@ -255,7 +255,7 @@ export type ImageFileExtension = typeof ImageFileExtension.Type;
 export const AudioFileExtension = pipe(
   audio,
   extractMimeExtensions,
-  LiteralKit,
+  (extensions) => LiteralKit(extensions),
   $I.annoteSchema("AudioExtension", {
     description: "A file extension for a mime type that is an audio file.",
   })
@@ -293,7 +293,7 @@ export type AudioFileExtension = typeof AudioFileExtension.Type;
 export const MiscFileExtension = pipe(
   misc,
   extractMimeExtensions,
-  LiteralKit,
+  (extensions) => LiteralKit(extensions),
   $I.annoteSchema("MiscExtension", {
     description: "A file extension for a mime type that is miscellaneous.",
   })

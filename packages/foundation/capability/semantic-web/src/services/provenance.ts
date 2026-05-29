@@ -61,7 +61,7 @@ const serviceContractMetadata = (canonicalName: string, overview: string) =>
  * @since 0.0.0
  * @category models
  */
-export const ProvenanceExportProfile = LiteralKit(["prov-core-v1", "prov-core-extensions-v1"] as const).annotate(
+export const ProvenanceExportProfile = LiteralKit(["prov-core-v1", "prov-core-extensions-v1"]).annotate(
   $I.annote("ProvenanceExportProfile", {
     description: "Provenance export profile.",
   })
@@ -213,7 +213,7 @@ export class ProvenanceSummary extends S.Class<ProvenanceSummary>($I`ProvenanceS
 export class ProvenanceServiceError extends TaggedErrorClass<ProvenanceServiceError>($I`ProvenanceServiceError`)(
   "ProvenanceServiceError",
   {
-    reason: LiteralKit(["missingEvidenceAnchor", "unsupportedProfile", "projectionLimit"] as const),
+    reason: LiteralKit(["missingEvidenceAnchor", "unsupportedProfile", "projectionLimit"]),
     message: S.String,
   },
   $I.annote("ProvenanceServiceError", {

@@ -144,7 +144,7 @@ const BeepToolingKind = S.Literals(["library", "tool", "policy-pack", "test-kit"
   })
 );
 
-const BeepPackageFamily = LiteralKit(["foundation", "drivers", "tooling"] as const).annotate(
+const BeepPackageFamily = LiteralKit(["foundation", "drivers", "tooling"]).annotate(
   $I.annote("BeepPackageFamily", {
     title: "Beep Package Family",
     description: "Canonical package family discriminator for repo-local package metadata.",

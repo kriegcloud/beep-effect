@@ -240,7 +240,7 @@ export class LoggingConfig extends S.Class<LoggingConfig>($I`LoggingConfig`)(
       S.Boolean.annotateKey({ description: "If false, Server Function invocation logging is disabled." })
     ),
     browserToTerminal: S.optionalKey(
-      S.Union([S.Boolean, LiteralKit(["error", "warn"] as const)]).annotateKey({
+      S.Union([S.Boolean, LiteralKit(["error", "warn"])]).annotateKey({
         description: "Forward browser console logs to the terminal.",
       })
     ),
@@ -287,7 +287,7 @@ export const LightningCssFeature = LiteralKit([
   "selectors",
   "media-queries",
   "colors",
-] as const).pipe(
+]).pipe(
   $I.annoteSchema("LightningCssFeature", {
     description: "Lightning CSS feature name accepted by Next.js.",
   })

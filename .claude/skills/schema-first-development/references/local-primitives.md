@@ -33,6 +33,8 @@ annotation metadata.
 ## Prefer `LiteralKit` for Internal Literal Domains
 
 Use `LiteralKit` when the literal set needs more than just a one-off union.
+Do not add `as const` to inline array literals passed directly to
+`LiteralKit(...)`; its const type parameters preserve the literal tuple.
 
 What it gives you:
 

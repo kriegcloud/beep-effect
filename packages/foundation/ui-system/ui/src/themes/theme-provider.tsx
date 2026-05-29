@@ -14,7 +14,7 @@ import { ThemeProvider as MuiThemeProvider, useColorScheme } from "@mui/material
 import * as Bool from "effect/Boolean";
 import { dual } from "effect/Function";
 import { theme as defaultTheme } from "./theme.ts";
-import type { Theme } from "@mui/material/styles";
+import type { StorageManager, Theme } from "@mui/material/styles";
 import type * as React from "react";
 
 const $I = $UiId.create("themes/theme-provider");
@@ -61,6 +61,13 @@ export type ResolvedThemeMode = typeof ResolvedThemeMode.Type;
 interface AppThemeProviderProps {
   readonly children: React.ReactNode;
   readonly defaultMode?: undefined | ThemeMode;
+  /**
+   * Controls how the active color scheme is persisted. Defaults to MUI's
+   * `localStorage` manager. Pass `null` to disable persistence entirely — e.g.
+   * in Storybook, where the toolbar (not `localStorage`) is the source of truth
+   * and per-story isolation is preferred over a persisted preference.
+   */
+  readonly storageManager?: StorageManager | null | undefined;
   readonly theme?: undefined | Theme;
 }
 
@@ -99,9 +106,10 @@ export function AppThemeProvider({
   children,
   defaultMode = ThemeMode.Enum.system,
   theme = defaultTheme,
+  storageManager,
 }: AppThemeProviderProps) {
   return (
-    <MuiThemeProvider theme={theme} defaultMode={defaultMode} disableTransitionOnChange>
+    <MuiThemeProvider theme={theme} defaultMode={defaultMode} storageManager={storageManager} disableTransitionOnChange>
       <CssBaseline enableColorScheme />
       {children}
     </MuiThemeProvider>

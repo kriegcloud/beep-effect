@@ -46,7 +46,7 @@ const serviceContractMetadata = (canonicalName: string, overview: string) =>
  * @since 0.0.0
  * @category models
  */
-export const JsonLdStreamMode = LiteralKit(["true-streaming", "buffered-fallback"] as const).annotate(
+export const JsonLdStreamMode = LiteralKit(["true-streaming", "buffered-fallback"]).annotate(
   $I.annote("JsonLdStreamMode", {
     description: "Streaming adapter mode.",
   })
@@ -232,7 +232,7 @@ export const JsonLdStreamParseErrorReason = LiteralKit([
   "parseFailure",
   "loaderPolicyViolation",
   "unsupportedEncoding",
-] as const).annotate(
+]).annotate(
   $I.annote("JsonLdStreamParseErrorReason", {
     description: "Streaming parse error reason.",
   })

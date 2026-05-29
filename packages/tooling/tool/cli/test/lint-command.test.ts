@@ -129,6 +129,82 @@ describe("lint command file discovery", () => {
   );
 });
 
+describe.sequential("schema-first lint command", () => {
+  it(
+    "reports redundant LiteralKit const assertions",
+    () =>
+      Effect.runPromise(
+        withTempWorkingDirectory(
+          Effect.gen(function* () {
+            const fs = yield* FileSystem.FileSystem;
+            const path = yield* Path.Path;
+
+            yield* fs.writeFileString(
+              "package.json",
+              `${encodeJson({
+                name: "@beep/test-root",
+                private: true,
+                type: "module",
+                workspaces: ["packages/*"],
+              })}\n`
+            );
+            yield* fs.writeFileString("tsconfig.json", `${encodeJson({ compilerOptions: {} })}\n`);
+            yield* fs.makeDirectory(path.join("packages", "example", "src"), { recursive: true });
+            yield* fs.writeFileString(
+              path.join("packages", "example", "src", "Example.ts"),
+              `import { LiteralKit } from "@beep/schema";\nconst Status = LiteralKit(["active", "inactive"] as const);\nvoid Status;\n`
+            );
+
+            const exit = yield* Effect.exit(runLintCommand(["schema-first"]));
+
+            const errorLines = yield* TestConsole.errorLines;
+            expectReportedExit(exit);
+            expect(errorLines).toContain("[schema-first] redundant LiteralKit const assertions:");
+            expect(errorLines).toContain(
+              "- packages/example/src/Example.ts:2 arg1 [literal-kit-const-assertion] Inline LiteralKit array arguments do not need as const."
+            );
+          })
+        ).pipe(provideScopedLayer(testLayer))
+      ),
+    5_000
+  );
+
+  it(
+    "accepts direct LiteralKit inline arrays without const assertions",
+    () =>
+      Effect.runPromise(
+        withTempWorkingDirectory(
+          Effect.gen(function* () {
+            const fs = yield* FileSystem.FileSystem;
+            const path = yield* Path.Path;
+
+            yield* fs.writeFileString(
+              "package.json",
+              `${encodeJson({
+                name: "@beep/test-root",
+                private: true,
+                type: "module",
+                workspaces: ["packages/*"],
+              })}\n`
+            );
+            yield* fs.writeFileString("tsconfig.json", `${encodeJson({ compilerOptions: {} })}\n`);
+            yield* fs.makeDirectory(path.join("packages", "example", "src"), { recursive: true });
+            yield* fs.writeFileString(
+              path.join("packages", "example", "src", "Example.ts"),
+              `import { LiteralKit } from "@beep/schema";\nconst Status = LiteralKit(["active", "inactive"]);\nvoid Status;\n`
+            );
+
+            yield* runLintCommand(["schema-first"]);
+
+            const errorLines = yield* TestConsole.errorLines;
+            expect(errorLines).toEqual([]);
+          })
+        ).pipe(provideScopedLayer(testLayer))
+      ),
+    5_000
+  );
+});
+
 describe.sequential("package test import lint command", () => {
   it(
     "reports same-package relative imports into src",
@@ -214,6 +290,41 @@ describe.sequential("package test import lint command", () => {
             yield* fs.writeFileString(
               path.join(packageDir, "test", "Example.test.ts"),
               `import { helper } from "./fixtures/src-helper.ts";\nvoid helper;\n`
+            );
+
+            yield* runLintCommand(["package-test-imports"]);
+
+            const logLines = yield* TestConsole.logLines;
+            const errorLines = yield* TestConsole.errorLines;
+            expect(logLines).toEqual([
+              "[check-package-test-imports] OK: package test/dtslint imports use package aliases.",
+            ]);
+            expect(errorLines).toEqual([]);
+          })
+        ).pipe(provideScopedLayer(testLayer))
+      ),
+    5_000
+  );
+
+  it(
+    "allows source test-kit files under src internal test directories",
+    () =>
+      Effect.runPromise(
+        withTempWorkingDirectory(
+          Effect.gen(function* () {
+            const fs = yield* FileSystem.FileSystem;
+            const path = yield* Path.Path;
+            const packageDir = path.join("packages", "foundation", "modeling", "example");
+
+            yield* writePackage(packageDir, "@beep/example");
+            yield* fs.makeDirectory(path.join(packageDir, "src", "internal", "test"), { recursive: true });
+            yield* fs.writeFileString(
+              path.join(packageDir, "src", "internal", "helper.ts"),
+              "export const helper = 1;\n"
+            );
+            yield* fs.writeFileString(
+              path.join(packageDir, "src", "internal", "test", "Example.test-kit.ts"),
+              `import { helper } from "../helper.ts";\nvoid helper;\n`
             );
 
             yield* runLintCommand(["package-test-imports"]);

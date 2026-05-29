@@ -38,7 +38,7 @@ const OptionalUnknownRecord = S.OptionFromOptionalKey(S.Record(S.String, S.Unkno
  * @category schemas
  * @since 0.0.0
  */
-export const OpenAiCompatChatRole = LiteralKit(["system", "user", "assistant", "tool"] as const).pipe(
+export const OpenAiCompatChatRole = LiteralKit(["system", "user", "assistant", "tool"]).pipe(
   $I.annoteSchema("OpenAiCompatChatRole", {
     description: "Chat roles accepted by OpenAI-compatible chat completion endpoints.",
   })
@@ -82,7 +82,7 @@ export const OpenAiCompatFinishReason = LiteralKit([
   "tool_calls",
   "content_filter",
   "function_call",
-] as const).pipe(
+]).pipe(
   $I.annoteSchema("OpenAiCompatFinishReason", {
     description: "Finish reasons emitted by OpenAI-compatible chat completion endpoints.",
   })
@@ -544,7 +544,7 @@ export class OpenAiCompatJsonSchemaResponseFormat extends S.Class<OpenAiCompatJs
  * @category schemas
  * @since 0.0.0
  */
-export const OpenAiCompatResponseFormatKind = LiteralKit(["text", "json_object", "json_schema"] as const).pipe(
+export const OpenAiCompatResponseFormatKind = LiteralKit(["text", "json_object", "json_schema"]).pipe(
   $I.annoteSchema("OpenAiCompatResponseFormatKind", {
     description: "Response format discriminator accepted by OpenAI-compatible chat completion requests.",
   })

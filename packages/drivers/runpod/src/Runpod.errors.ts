@@ -30,7 +30,7 @@ export const RunpodErrorReason = LiteralKit([
   "response decoding",
   "response status",
   "transport",
-] as const).pipe(
+]).pipe(
   $I.annoteSchema("RunpodErrorReason", {
     description: "Redacted technical error reasons emitted by the Runpod REST API driver.",
   })
@@ -56,7 +56,7 @@ export const RunpodDocsErrorReason = LiteralKit([
   "response decoding",
   "response status",
   "transport",
-] as const).pipe(
+]).pipe(
   $I.annoteSchema("RunpodDocsErrorReason", {
     description: "Redacted technical error reasons emitted by the Runpod documentation driver.",
   })

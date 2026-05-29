@@ -48,18 +48,29 @@ Public package subpaths are explicit. `SchemaUtils` helper leaves such as
 role files such as `@beep/schema/Duration/Duration.schema` are private source
 topology.
 
-Topical suite modules use PascalCase source directories and canonical public
-subpaths:
+Former topical families are represented by PascalCase leaf concept modules and
+canonical public subpaths:
 
 ```ts
 import * as Color from "@beep/schema/Color"
 import * as Csv from "@beep/schema/Csv"
-import * as Http from "@beep/schema/Http"
+import * as HttpStatus from "@beep/schema/HttpStatus"
 ```
 
-Do not create case-only sibling source directories such as `src/Color/` beside
-`src/color/`. Lowercase topical source and public paths such as `src/color/`,
-`src/http/`, `@beep/schema/color`, and `@beep/schema/http/headers` are retired.
+Do not create broad suite aggregators such as `@beep/schema/Blockchain`,
+`@beep/schema/Dom`, `@beep/schema/Http`, `@beep/schema/Location`, or
+`@beep/schema/Person`. Lowercase topical source and public paths such as
+`src/color/`, `src/http/`, `@beep/schema/color`, and
+`@beep/schema/http/headers` are retired.
+
+`Csv` is a same-concept schema module; parser, formatter, option, and error
+helpers live in their own leaf modules such as `@beep/schema/CsvParser` and are
+not re-exported from `@beep/schema/Csv`.
+
+Package-local tests may use source-only test seams such as
+`@beep/schema/test/Markdown` and `@beep/schema/test/Yaml`. Parser internals
+under `src/internal/` are not public package subpaths, and the test seam
+implementations live under `src/internal/test`.
 
 Topology is enforced by:
 

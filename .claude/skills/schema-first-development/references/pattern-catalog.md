@@ -81,6 +81,9 @@ Use `LiteralKit(...)` when the literal set needs any of:
 - member mapping
 - direct annotation
 
+Inline array literals passed directly to `LiteralKit(...)` should omit
+`as const`; `LiteralKit` preserves them through const type parameters.
+
 Use a one-off literal union only when the value is genuinely local and no helper
 surface is needed.
 

@@ -23,7 +23,7 @@ const $I = $LawPracticeDomainId.create("entities/LegalClient/LegalClient.values"
  * @category schemas
  * @since 0.0.0
  */
-export const LegalClientStatus = LiteralKit(["active_client"] as const).annotate(
+export const LegalClientStatus = LiteralKit(["active_client"]).annotate(
   $I.annote("LegalClientStatus", {
     description: "Legal client status vocabulary represented in proof seeds.",
   })

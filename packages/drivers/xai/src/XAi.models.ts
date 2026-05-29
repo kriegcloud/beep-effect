@@ -304,7 +304,7 @@ export class XAiServerSentEvent extends S.Class<XAiServerSentEvent>($I`XAiServer
  * @category schemas
  * @since 0.0.0
  */
-export const XAiWebSocketEventKind = LiteralKit(["close", "error", "message"] as const).pipe(
+export const XAiWebSocketEventKind = LiteralKit(["close", "error", "message"]).pipe(
   $I.annoteSchema("XAiWebSocketEventKind", {
     description: "WebSocket event kinds emitted by xAI realtime and streaming audio sessions.",
   })

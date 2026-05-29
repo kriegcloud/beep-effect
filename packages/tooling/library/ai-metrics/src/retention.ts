@@ -32,7 +32,7 @@ const defaultLocalDataRoot = ".beep/ai-metrics";
 const retentionSchemaVersion = "beep.ai_metrics.retention_inventory.v1";
 const retentionMutationSchemaVersion = "beep.ai_metrics.retention_mutation.v1";
 const restoreDrillSchemaVersion = "beep.ai_metrics.retention_restore_drill.v1";
-const AiMetricsRetentionMutationMode = LiteralKit(["delete", "compact"] as const);
+const AiMetricsRetentionMutationMode = LiteralKit(["delete", "compact"]);
 const RawArchiveObjectIdPattern = /^raw-[a-f0-9]{64}$/u;
 
 type RawArchivePlanItem = {

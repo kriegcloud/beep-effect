@@ -22,7 +22,7 @@ import type { OipSiteContent } from "./OipContent.model.ts";
 const $I = $OipWebId.create("content/OipContent.runtime");
 const query = '*[_type == "oipSiteContent" && slug.current == "home"][0]';
 
-const OipContentLoadErrorReason = LiteralKit(["config", "decode", "provider"] as const).pipe(
+const OipContentLoadErrorReason = LiteralKit(["config", "decode", "provider"]).pipe(
   $I.annoteSchema("OipContentLoadErrorReason", {
     description: "Sanitized OIP content loading failure reason.",
   })

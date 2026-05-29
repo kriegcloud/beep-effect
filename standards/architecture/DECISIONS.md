@@ -825,11 +825,13 @@ topology only; public consumers import the concept index. Utility namespaces
 such as `SchemaUtils` may expose helper leaves when the helper is itself the
 public concept.
 
-Compatibility suite modules with existing lower-case source directories may map
-their canonical public subpath to the current lower-case source index instead
-of creating case-only source siblings. Promote source concepts rather than
-every exported symbol; for example, `HttpStatus` remains one concept module
-rather than a public subpath per status literal.
+Former topical suites are represented by leaf concept modules, not broad suite
+aggregators. Import `@beep/schema/EvmAddress`, `@beep/schema/DomReactNode`, or
+`@beep/schema/HttpStatus` directly instead of importing retired aggregators
+such as `@beep/schema/Blockchain`, `@beep/schema/Dom`, or
+`@beep/schema/Http`. Promote source concepts rather than every exported symbol;
+for example, `HttpStatus` remains one concept module rather than a public
+subpath per status literal.
 
 Migration is compatibility-first. Legacy root exports, full repeated names such
 as `DurationInput`, and existing nested paths may remain while consumers move

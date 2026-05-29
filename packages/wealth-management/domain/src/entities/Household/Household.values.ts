@@ -23,7 +23,7 @@ const $I = $WealthManagementDomainId.create("entities/Household/Household.values
  * @category schemas
  * @since 0.0.0
  */
-export const HouseholdStatus = LiteralKit(["active"] as const).annotate(
+export const HouseholdStatus = LiteralKit(["active"]).annotate(
   $I.annote("HouseholdStatus", {
     description: "Closed fixture status vocabulary for households.",
   })

@@ -14,7 +14,7 @@ import {
   windowsSegmentWithoutSeparatorsRegExp,
 } from "./FilePath.shared.ts";
 
-const WindowsDotSegmentKit = LiteralKit([".", ".."] as const);
+const WindowsDotSegmentKit = LiteralKit([".", ".."]);
 
 /**
  * Literal union for Windows dot-segment markers.

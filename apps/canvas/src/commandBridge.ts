@@ -110,7 +110,7 @@ export const CanvasCommandName = LiteralKit(commandSurface).pipe(
  */
 export type CanvasCommandName = typeof CanvasCommandName.Type;
 
-const CanvasHealthStatus = LiteralKit(["preview", "ready"] as const).pipe(
+const CanvasHealthStatus = LiteralKit(["preview", "ready"]).pipe(
   $I.annoteSchema("CanvasHealthStatus", {
     description: "Canvas shell health lifecycle status.",
   })

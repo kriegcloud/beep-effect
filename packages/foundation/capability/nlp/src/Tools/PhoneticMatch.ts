@@ -12,7 +12,7 @@ import { Tool } from "effect/unstable/ai";
 import { AiPhoneticMatch } from "./_schemas.ts";
 
 const $I = $NlpId.create("Tools/PhoneticMatch");
-const PhoneticMatchAlgorithmKit = LiteralKit(["soundex", "phonetize"] as const);
+const PhoneticMatchAlgorithmKit = LiteralKit(["soundex", "phonetize"]);
 const PhoneticMatchAlgorithm = PhoneticMatchAlgorithmKit.pipe(
   $I.annoteSchema("PhoneticMatchAlgorithm", {
     description: "Phonetic encoding algorithm used to compare text.",

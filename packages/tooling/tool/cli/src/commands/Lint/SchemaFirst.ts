@@ -130,10 +130,24 @@ class SchemaFirstLintSummary extends S.Class<SchemaFirstLintSummary>($I`SchemaFi
     missingEntries: S.Number,
     staleEntries: S.Number,
     enforcedCandidates: S.Number,
+    literalKitConstAssertions: S.Number,
     wroteInventory: S.Boolean,
   },
   $I.annote("SchemaFirstLintSummary", {
     description: "Summary of schema-first inventory verification results.",
+  })
+) {}
+
+class LiteralKitConstAssertionViolation extends S.Class<LiteralKitConstAssertionViolation>(
+  $I`LiteralKitConstAssertionViolation`
+)(
+  {
+    file: S.String,
+    line: S.Number,
+    argument: S.Number,
+  },
+  $I.annote("LiteralKitConstAssertionViolation", {
+    description: "Direct LiteralKit call argument that redundantly asserts an inline array as const.",
   })
 ) {}
 
@@ -307,6 +321,57 @@ const inferStructSymbol = (callExpression: import("ts-morph").CallExpression): s
     })
   );
 
+const isLiteralKitConstAssertionArgument = (argument: Node): boolean =>
+  Node.isAsExpression(argument) &&
+  Node.isArrayLiteralExpression(argument.getExpression()) &&
+  argument.getTypeNode()?.getText() === "const";
+
+const collectLiteralKitConstAssertionViolations = Effect.fn(function* () {
+  const path = yield* Path.Path;
+  const project = new Project({
+    tsConfigFilePath: path.join(process.cwd(), "tsconfig.json"),
+    skipAddingFilesFromTsConfig: true,
+  });
+
+  for (const pattern of INCLUDED_GLOBS) {
+    project.addSourceFilesAtPaths(pattern);
+  }
+
+  const violations = A.empty<LiteralKitConstAssertionViolation>();
+
+  for (const sourceFile of project.getSourceFiles()) {
+    const filePath = toPosixPath(path.relative(process.cwd(), sourceFile.getFilePath()));
+    if (isExcludedFile(filePath)) {
+      continue;
+    }
+
+    for (const callExpression of sourceFile.getDescendantsOfKind(SyntaxKind.CallExpression)) {
+      if (callExpression.getExpression().getText() !== "LiteralKit") {
+        continue;
+      }
+
+      const args = callExpression.getArguments();
+      for (let argumentIndex = 0; argumentIndex < args.length; argumentIndex += 1) {
+        const argument = args[argumentIndex];
+        if (!isLiteralKitConstAssertionArgument(argument)) {
+          continue;
+        }
+
+        A.appendInPlace(
+          violations,
+          LiteralKitConstAssertionViolation.make({
+            file: filePath,
+            line: sourceFile.getLineAndColumnAtPos(argument.getStart()).line,
+            argument: argumentIndex + 1,
+          })
+        );
+      }
+    }
+  }
+
+  return violations;
+});
+
 const scanSchemaFirstInventory = Effect.fn(function* () {
   const path = yield* Path.Path;
   const ownerResolver = yield* makeOwnerResolver();
@@ -458,6 +523,7 @@ const mergeInventory = (
  */
 export const runSchemaFirstLint = Effect.fn(function* (options: SchemaFirstLintOptions) {
   const liveDocument = yield* scanSchemaFirstInventory();
+  const literalKitConstAssertionViolations = yield* collectLiteralKitConstAssertionViolations();
   const existingDocument = yield* readInventoryDocument();
   const mergedDocument = mergeInventory(liveDocument, existingDocument);
 
@@ -498,6 +564,7 @@ export const runSchemaFirstLint = Effect.fn(function* (options: SchemaFirstLintO
   yield* Console.log(`[schema-first] missing_entries=${missingEntries.length}`);
   yield* Console.log(`[schema-first] stale_entries=${staleEntries.length}`);
   yield* Console.log(`[schema-first] enforced_candidates=${enforcedCandidates.length}`);
+  yield* Console.log(`[schema-first] literal_kit_const_assertions=${literalKitConstAssertionViolations.length}`);
   if (options.write) {
     yield* Console.log(`[schema-first] wrote ${INVENTORY_PATH}`);
   }
@@ -523,9 +590,21 @@ export const runSchemaFirstLint = Effect.fn(function* (options: SchemaFirstLintO
     }
   }
 
+  if (literalKitConstAssertionViolations.length > 0) {
+    yield* Console.error("[schema-first] redundant LiteralKit const assertions:");
+    for (const violation of literalKitConstAssertionViolations) {
+      yield* Console.error(
+        `- ${violation.file}:${violation.line} arg${violation.argument} [literal-kit-const-assertion] Inline LiteralKit array arguments do not need as const.`
+      );
+    }
+  }
+
   const hasFailures = options.write
-    ? enforcedCandidates.length > 0
-    : missingEntries.length > 0 || staleEntries.length > 0 || enforcedCandidates.length > 0;
+    ? enforcedCandidates.length > 0 || literalKitConstAssertionViolations.length > 0
+    : missingEntries.length > 0 ||
+      staleEntries.length > 0 ||
+      enforcedCandidates.length > 0 ||
+      literalKitConstAssertionViolations.length > 0;
   if (hasFailures) {
     return yield* failWithReportedExit("schema-first: inventory enforcement failed.");
   }
@@ -536,6 +615,7 @@ export const runSchemaFirstLint = Effect.fn(function* (options: SchemaFirstLintO
     missingEntries: missingEntries.length,
     staleEntries: staleEntries.length,
     enforcedCandidates: enforcedCandidates.length,
+    literalKitConstAssertions: literalKitConstAssertionViolations.length,
     wroteInventory: options.write,
   });
 });

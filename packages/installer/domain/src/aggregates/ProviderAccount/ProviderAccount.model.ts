@@ -19,7 +19,7 @@ const $I = $InstallerDomainId.create("aggregates/ProviderAccount/ProviderAccount
  * @category aggregates
  * @since 0.0.0
  */
-export const ProviderKind = LiteralKit(["claude", "codex"] as const).pipe(
+export const ProviderKind = LiteralKit(["claude", "codex"]).pipe(
   $I.annoteSchema("ProviderKind", {
     description: "AI provider account families included in the P1A dry-run spine.",
   })
@@ -39,7 +39,7 @@ export type ProviderKind = typeof ProviderKind.Type;
  * @category aggregates
  * @since 0.0.0
  */
-export const ProviderAuthMode = LiteralKit(["one-password-reference", "existing-local-session"] as const).pipe(
+export const ProviderAuthMode = LiteralKit(["one-password-reference", "existing-local-session"]).pipe(
   $I.annoteSchema("ProviderAuthMode", {
     description: "Provider authentication sources the dry-run can describe without resolving secrets.",
   })
@@ -59,7 +59,7 @@ export type ProviderAuthMode = typeof ProviderAuthMode.Type;
  * @category aggregates
  * @since 0.0.0
  */
-export const ProviderAccountStatus = LiteralKit(["configured", "missing", "unchecked"] as const).pipe(
+export const ProviderAccountStatus = LiteralKit(["configured", "missing", "unchecked"]).pipe(
   $I.annoteSchema("ProviderAccountStatus", {
     description: "Dry-run validation status for a provider account.",
   })

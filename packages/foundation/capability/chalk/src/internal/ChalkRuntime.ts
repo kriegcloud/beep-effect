@@ -8,7 +8,7 @@
 import { $ChalkId } from "@beep/identity/packages";
 import { TaggedErrorClass } from "@beep/schema";
 import { A, Str } from "@beep/utils";
-import { pipe, Result } from "effect";
+import { pipe, Result, Tuple } from "effect";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
@@ -26,24 +26,52 @@ import type { ColorInfo } from "./ChalkSchema.ts";
 import type { ChalkConstructorOptions } from "./PublicSurface.ts";
 
 const $I = $ChalkId.create("Domain");
-
-type ChalkState = {
-  level: S.Schema.Type<typeof ColorSupportLevel>;
+export const ChalkState = ColorSupportLevel.mapMembers(
+  Tuple.evolve([
+    (literal) => S.Struct({ level: S.tag(literal.literal) }),
+    (literal) => S.Struct({ level: S.tag(literal.literal) }),
+    (literal) => S.Struct({ level: S.tag(literal.literal) }),
+    (literal) => S.Struct({ level: S.tag(literal.literal) }),
+  ])
+).pipe(S.toTaggedUnion("level"));
+type ChalkState = typeof ChalkState.Type;
+type MutableChalkState = {
+  -readonly [Key in keyof ChalkState]: ChalkState[Key];
 };
 
-type Styler = {
-  readonly open: string;
-  readonly close: string;
-  readonly openAll: string;
-  readonly closeAll: string;
-  readonly parent: Styler | undefined;
-};
+class Styler extends S.Class<Styler>($I`Styler`)(
+  {
+    open: S.String,
+    close: S.String,
+    openAll: S.String,
+    closeAll: S.String,
+    parent: S.UndefinedOr(S.suspend((): S.Codec<Styler.Codec> => Styler)),
+  },
+  $I.annote("Styler", {
+    description: "Represents a style modifier for terminal output formatting.",
+  })
+) {}
 
-type BuilderMeta = {
-  readonly isEmpty: boolean;
-  readonly state: ChalkState;
-  readonly styler: Styler | undefined;
-};
+declare namespace Styler {
+  export type Codec = {
+    readonly open: string;
+    readonly close: string;
+    readonly openAll: string;
+    readonly closeAll: string;
+    readonly parent: Styler | undefined;
+  };
+}
+
+class BuilderMeta extends S.Class<BuilderMeta>($I`BuilderMeta`)(
+  {
+    isEmpty: S.Boolean,
+    state: ChalkState,
+    styler: S.UndefinedOr(Styler),
+  },
+  $I.annote("BuilderMeta", {
+    description: "Represents metadata for a chalk builder instance.",
+  })
+) {}
 
 type ChalkFunction = (...arguments_: ReadonlyArray<unknown>) => string;
 type ChalkPrototype = object;
@@ -77,6 +105,10 @@ const normalizeColorSupportLevel = (level: unknown): S.Schema.Type<typeof ColorS
   const input = Result.getOrThrowWith(decodeColorSupportLevelInput(level), schemaIssueToError);
 
   return Result.getOrThrowWith(decodeColorSupportLevel(input), schemaIssueToError);
+};
+
+const setChalkStateLevel = (state: ChalkState, level: unknown): void => {
+  (state as MutableChalkState).level = normalizeColorSupportLevel(level);
 };
 
 const getBuilderMeta = (builder: ChalkFunction): BuilderMeta => {
@@ -181,7 +213,7 @@ const createPrototype = (): ChalkPrototype => {
         return getBuilderMeta(this).state.level;
       },
       set(this: ChalkFunction, level: unknown) {
-        getBuilderMeta(this).state.level = normalizeColorSupportLevel(level);
+        setChalkStateLevel(getBuilderMeta(this).state, level);
       },
     },
     visible: {

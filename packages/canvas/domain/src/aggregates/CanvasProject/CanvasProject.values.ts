@@ -63,7 +63,7 @@ export type CanvasProjectTitle = typeof CanvasProjectTitle.Type;
  * @category value-objects
  * @since 0.0.0
  */
-export const CanvasProjectStatus = LiteralKit(["open", "archived"] as const).pipe(
+export const CanvasProjectStatus = LiteralKit(["open", "archived"]).pipe(
   $I.annoteSchema("CanvasProjectStatus", {
     title: "CanvasProject status",
     description: "Lifecycle status for the bootstrap canvas scene container.",
@@ -107,7 +107,7 @@ export type CanvasNodeId = typeof CanvasNodeId.Type;
  * @category value-objects
  * @since 0.0.0
  */
-export const CanvasNodeKind = LiteralKit(["note", "shape", "asset"] as const).pipe(
+export const CanvasNodeKind = LiteralKit(["note", "shape", "asset"]).pipe(
   $I.annoteSchema("CanvasNodeKind", {
     title: "CanvasNode kind",
     description: "Small bootstrap node metadata vocabulary for canvas scenes.",

@@ -45,7 +45,7 @@ const serviceContractMetadata = (canonicalName: string, overview: string) =>
  * @since 0.0.0
  * @category models
  */
-export const CanonicalizationAlgorithm = LiteralKit(["rdfc-1.0", "lexical-sort-v1"] as const).annotate(
+export const CanonicalizationAlgorithm = LiteralKit(["rdfc-1.0", "lexical-sort-v1"]).annotate(
   $I.annote("CanonicalizationAlgorithm", {
     description: "Canonicalization algorithm name with an explicit graph-safe default and lexical fallback.",
   })
@@ -67,12 +67,7 @@ export const CanonicalizationAlgorithm = LiteralKit(["rdfc-1.0", "lexical-sort-v
 export class CanonicalizationError extends TaggedErrorClass<CanonicalizationError>($I`CanonicalizationError`)(
   "CanonicalizationError",
   {
-    reason: LiteralKit([
-      "workLimitExceeded",
-      "unsupportedAlgorithm",
-      "canonicalizationFailure",
-      "fingerprintFailure",
-    ] as const),
+    reason: LiteralKit(["workLimitExceeded", "unsupportedAlgorithm", "canonicalizationFailure", "fingerprintFailure"]),
     message: S.String,
   },
   $I.annote("CanonicalizationError", {

@@ -45,11 +45,6 @@ export * from "./BigDecimal.ts";
  * @since 0.0.0
  * @category validation
  */
-export * from "./Blockchain/index.ts";
-/**
- * @since 0.0.0
- * @category validation
- */
 export * from "./BufferEncoding.ts";
 /**
  * @since 0.0.0
@@ -76,11 +71,6 @@ export { CSV, Csv, type CsvDocument, type CsvText, type RowSchemaWithFields } fr
  * @category validation
  */
 export * from "./DateTimeUtcFromValid/index.ts";
-/**
- * @since 0.0.0
- * @category validation
- */
-export * from "./Dom/index.ts";
 /**
  * @since 0.0.0
  * @category validation
@@ -172,11 +162,6 @@ export * from "./Html.ts";
  * @since 0.0.0
  * @category validation
  */
-export * from "./Http/index.ts";
-/**
- * @since 0.0.0
- * @category validation
- */
 export * from "./Int.ts";
 /**
  * @since 0.0.0
@@ -203,11 +188,6 @@ export * from "./KebabStr.ts";
  * @category validation
  */
 export * from "./LocalDate/index.ts";
-/**
- * @since 0.0.0
- * @category validation
- */
-export * from "./Location/index.ts";
 /**
  * @since 0.0.0
  * @category validation
@@ -248,11 +228,6 @@ export * from "./Options.ts";
  * @category validation
  */
 export * from "./PascalStr.ts";
-/**
- * @since 0.0.0
- * @category validation
- */
-export * from "./Person/index.ts";
 /**
  * @since 0.0.0
  * @category validation

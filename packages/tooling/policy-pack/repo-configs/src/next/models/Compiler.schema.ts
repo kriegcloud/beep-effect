@@ -59,7 +59,7 @@ class EmotionImportMapEntry extends S.Class<EmotionImportMapEntry>($I`EmotionImp
 export class EmotionConfig extends S.Class<EmotionConfig>($I`EmotionConfig`)(
   {
     sourceMap: S.optionalKey(S.Boolean),
-    autoLabel: S.optionalKey(LiteralKit(["dev-only", "always", "never"] as const)),
+    autoLabel: S.optionalKey(LiteralKit(["dev-only", "always", "never"])),
     labelFormat: S.optionalKey(S.String),
     importMap: S.optionalKey(S.Record(S.String, S.Record(S.String, EmotionImportMapEntry))),
   },
@@ -112,8 +112,8 @@ export class StyledComponentsConfig extends S.Class<StyledComponentsConfig>($I`S
  */
 export class ReactCompilerOptions extends S.Class<ReactCompilerOptions>($I`ReactCompilerOptions`)(
   {
-    compilationMode: S.optionalKey(LiteralKit(["infer", "annotation", "all"] as const)),
-    panicThreshold: S.optionalKey(LiteralKit(["none", "critical_errors", "all_errors"] as const)),
+    compilationMode: S.optionalKey(LiteralKit(["infer", "annotation", "all"])),
+    panicThreshold: S.optionalKey(LiteralKit(["none", "critical_errors", "all_errors"])),
   },
   $I.annote("ReactCompilerOptions", {
     description: "React Compiler options supported by Next.js.",
@@ -134,7 +134,7 @@ class RelayConfig extends S.Class<RelayConfig>($I`RelayConfig`)(
   {
     src: S.String,
     artifactDirectory: S.optionalKey(S.String),
-    language: S.optionalKey(LiteralKit(["typescript", "javascript", "flow"] as const)),
+    language: S.optionalKey(LiteralKit(["typescript", "javascript", "flow"])),
     eagerEsModules: S.optionalKey(S.Boolean),
   },
   $I.annote("RelayConfig", {

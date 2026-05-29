@@ -37,7 +37,7 @@ export const HubSpotErrorReason = LiteralKit([
   "response decoding",
   "response status",
   "transport",
-] as const).pipe(
+]).pipe(
   $I.annoteSchema("HubSpotErrorReason", {
     description: "Redacted technical error reasons emitted by the HubSpot API driver.",
   })

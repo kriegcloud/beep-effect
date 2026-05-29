@@ -104,7 +104,7 @@ export class NoNativeRuntimeRulesOptions extends S.Class<NoNativeRuntimeRulesOpt
   })
 ) {}
 
-const NoNativeRuntimeSeverity = LiteralKit(["warn", "error"] as const);
+const NoNativeRuntimeSeverity = LiteralKit(["warn", "error"]);
 
 /**
  * Single repo-local native runtime diagnostic.

@@ -24,7 +24,7 @@ const $I = $ArchitectureLabUiId.create("aggregates/WorkItem/WorkItem.view-model"
  * @category models
  * @since 0.0.0
  */
-export const WorkItemVisibleAction = LiteralKit(["assign", "complete", "reopen", "archive"] as const).pipe(
+export const WorkItemVisibleAction = LiteralKit(["assign", "complete", "reopen", "archive"]).pipe(
   $I.annoteSchema("WorkItemVisibleAction", {
     title: "WorkItem visible action",
     description: "Action key exposed by the architecture lab WorkItem UI view model.",

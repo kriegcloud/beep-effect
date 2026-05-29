@@ -20,7 +20,7 @@ import { LiteralKit } from "@beep/schema";
  * @category models
  * @since 0.0.0
  */
-export const RuntimeCandidateLifecycle = LiteralKit(["candidate"] as const);
+export const RuntimeCandidateLifecycle = LiteralKit(["candidate"]);
 
 /**
  * Confidence vocabulary for candidate claims.
@@ -35,7 +35,7 @@ export const RuntimeCandidateLifecycle = LiteralKit(["candidate"] as const);
  * @category models
  * @since 0.0.0
  */
-export const RuntimeClaimConfidence = LiteralKit(["high", "medium", "low"] as const);
+export const RuntimeClaimConfidence = LiteralKit(["high", "medium", "low"]);
 
 /**
  * Approval decision vocabulary for candidate approval gates.
@@ -50,7 +50,7 @@ export const RuntimeClaimConfidence = LiteralKit(["high", "medium", "low"] as co
  * @category models
  * @since 0.0.0
  */
-export const RuntimeApprovalDecision = LiteralKit(["pending"] as const);
+export const RuntimeApprovalDecision = LiteralKit(["pending"]);
 
 /**
  * Runtime request kinds represented in context packets.
@@ -65,7 +65,7 @@ export const RuntimeApprovalDecision = LiteralKit(["pending"] as const);
  * @category models
  * @since 0.0.0
  */
-export const RuntimeRequestKind = LiteralKit(["email_to_candidate_work"] as const);
+export const RuntimeRequestKind = LiteralKit(["email_to_candidate_work"]);
 
 /**
  * Source artifact kinds represented in context packets.
@@ -80,7 +80,7 @@ export const RuntimeRequestKind = LiteralKit(["email_to_candidate_work"] as cons
  * @category models
  * @since 0.0.0
  */
-export const RuntimeSourceKind = LiteralKit(["email"] as const);
+export const RuntimeSourceKind = LiteralKit(["email"]);
 
 /**
  * Activity types emitted by deterministic runtime fixtures.
@@ -95,7 +95,7 @@ export const RuntimeSourceKind = LiteralKit(["email"] as const);
  * @category models
  * @since 0.0.0
  */
-export const RuntimeActivityType = LiteralKit(["artifact_ingested", "candidate_work_proposed"] as const);
+export const RuntimeActivityType = LiteralKit(["artifact_ingested", "candidate_work_proposed"]);
 
 /**
  * Usage modes emitted by deterministic runtime fixtures.
@@ -110,4 +110,4 @@ export const RuntimeActivityType = LiteralKit(["artifact_ingested", "candidate_w
  * @category models
  * @since 0.0.0
  */
-export const RuntimeUsageMode = LiteralKit(["deterministic_fixture"] as const);
+export const RuntimeUsageMode = LiteralKit(["deterministic_fixture"]);

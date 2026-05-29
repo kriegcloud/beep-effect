@@ -68,7 +68,7 @@ export const VENICE_CHAT_MODEL = "venice-uncensored-1-2";
  * @category models
  * @since 0.0.0
  */
-export const VeniceAIHttpMethod = LiteralKit(["DELETE", "GET", "PATCH", "POST"] as const).pipe(
+export const VeniceAIHttpMethod = LiteralKit(["DELETE", "GET", "PATCH", "POST"]).pipe(
   $I.annoteSchema("VeniceAIHttpMethod", {
     description: "Supported HTTP methods in the Venice AI OpenAPI document.",
   })
@@ -153,7 +153,7 @@ export const VeniceAIOperationId = LiteralKit([
   "updateApiKey",
   "webScrape",
   "webSearch",
-] as const).pipe(
+]).pipe(
   $I.annoteSchema("VeniceAIOperationId", {
     description: "Operation identifiers exposed by the Venice AI driver.",
   })
@@ -197,7 +197,7 @@ export const VeniceAIErrorReason = LiteralKit([
   "response status",
   "sse decoding",
   "transport",
-] as const).pipe(
+]).pipe(
   $I.annoteSchema("VeniceAIErrorReason", {
     description: "Redacted technical error reasons emitted by the Venice AI driver.",
   })

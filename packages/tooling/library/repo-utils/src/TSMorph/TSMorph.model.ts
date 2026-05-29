@@ -440,7 +440,7 @@ export type SymbolKind = typeof SymbolKind.Type;
  * @category models
  * @since 0.0.0
  */
-export const SymbolCategory = LiteralKit(["function", "class", "member", "type"] as const);
+export const SymbolCategory = LiteralKit(["function", "class", "member", "type"]);
 
 /**
  * Literal union of coarse TSMorph symbol categories.
@@ -725,7 +725,7 @@ export type ContentHash = typeof ContentHash.Type;
  * @category models
  * @since 0.0.0
  */
-export const TsMorphScopeMode = LiteralKit(["syntax", "semantic"] as const);
+export const TsMorphScopeMode = LiteralKit(["syntax", "semantic"]);
 
 /**
  * Literal union of ts-morph project scope modes.
@@ -751,7 +751,7 @@ export type TsMorphScopeMode = typeof TsMorphScopeMode.Type;
  * @category models
  * @since 0.0.0
  */
-export const TsMorphReferencePolicy = LiteralKit(["workspaceOnly", "followReferences"] as const);
+export const TsMorphReferencePolicy = LiteralKit(["workspaceOnly", "followReferences"]);
 
 /**
  * Literal union of ts-morph reference traversal policies.
@@ -1785,7 +1785,7 @@ export class TsMorphSymbolSourceResult extends S.Class<TsMorphSymbolSourceResult
  * @category models
  * @since 0.0.0
  */
-export const TsMorphDiagnosticCategory = LiteralKit(["error", "warning", "suggestion", "message"] as const);
+export const TsMorphDiagnosticCategory = LiteralKit(["error", "warning", "suggestion", "message"]);
 
 /**
  * Literal union of normalized diagnostic categories.

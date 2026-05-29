@@ -23,7 +23,7 @@ const $I = $LawPracticeDomainId.create("entities/Matter/Matter.values");
  * @category schemas
  * @since 0.0.0
  */
-export const MatterType = LiteralKit(["patent_application"] as const).annotate(
+export const MatterType = LiteralKit(["patent_application"]).annotate(
   $I.annote("MatterType", {
     description: "Legal matter type vocabulary represented in proof seeds.",
   })

@@ -10,7 +10,7 @@ import { LiteralKit } from "./LiteralKit/index.ts";
 
 const $I = $SchemaId.create("SeverityLevel");
 
-const SeverityLevelBase = LiteralKit(["low", "medium", "high", "critical"] as const);
+const SeverityLevelBase = LiteralKit(["low", "medium", "high", "critical"]);
 
 /**
  * Generic four-level severity scale: `"low"`, `"medium"`, `"high"`, `"critical"`.

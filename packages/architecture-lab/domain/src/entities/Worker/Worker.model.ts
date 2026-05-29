@@ -55,7 +55,7 @@ export type WorkerOrganizationId = typeof WorkerOrganizationId.Type;
  * @category entities
  * @since 0.0.0
  */
-export const WorkerStatus = LiteralKit(["active", "inactive"] as const).pipe(
+export const WorkerStatus = LiteralKit(["active", "inactive"]).pipe(
   $I.annoteSchema("WorkerStatus", {
     title: "Worker status",
     description: "Lifecycle status for a synthetic architecture lab Worker entity.",

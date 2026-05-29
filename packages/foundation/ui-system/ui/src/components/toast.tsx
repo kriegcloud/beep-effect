@@ -59,7 +59,7 @@ interface ToastRootProps extends Omit<ToastPrimitive.Root.Props, "toast">, Varia
  * @category components
  * @since 0.0.0
  */
-export const ToastVariant = LiteralKit(["default", "destructive"] as const).pipe(
+export const ToastVariant = LiteralKit(["default", "destructive"]).pipe(
   $I.annoteSchema("ToastVariant", {
     description: "Visual variants supported by toast notifications.",
   })

@@ -20,14 +20,14 @@ const $I = $RepoConfigsId.create("next/models/ExperimentalConfig.schema");
 const StringArray = S.String.pipe(S.Array, S.mutable);
 const UnknownRecord = S.Record(S.String, S.Unknown);
 const BooleanOrStrict = S.Union([S.Boolean, S.Literal("strict")]);
-const ProxyPrefetchMode = LiteralKit(["strict", "flexible"] as const);
-const WebVitalsMetric = LiteralKit(["CLS", "FCP", "FID", "INP", "LCP", "TTFB"] as const);
-const TurbopackRuntimeStrategy = LiteralKit(["workerThreads", "childProcesses", "forceWorkerThreads"] as const);
-const TurbopackModuleIds = LiteralKit(["named", "deterministic"] as const);
-const MdxType = LiteralKit(["gfm", "commonmark"] as const);
-const BrowserDebugLevel = LiteralKit(["error", "warn", "verbose"] as const);
-const ReportSystemEnvInlining = LiteralKit(["error", "warn"] as const);
-const SwcEnvMode = LiteralKit(["usage", "entry"] as const);
+const ProxyPrefetchMode = LiteralKit(["strict", "flexible"]);
+const WebVitalsMetric = LiteralKit(["CLS", "FCP", "FID", "INP", "LCP", "TTFB"]);
+const TurbopackRuntimeStrategy = LiteralKit(["workerThreads", "childProcesses", "forceWorkerThreads"]);
+const TurbopackModuleIds = LiteralKit(["named", "deterministic"]);
+const MdxType = LiteralKit(["gfm", "commonmark"]);
+const BrowserDebugLevel = LiteralKit(["error", "warn", "verbose"]);
+const ReportSystemEnvInlining = LiteralKit(["error", "warn"]);
+const SwcEnvMode = LiteralKit(["usage", "entry"]);
 
 const typedUnknown = <A>(name: string, description: string) =>
   S.declare<A>((value: unknown): value is A => P.isUnknown(value), {

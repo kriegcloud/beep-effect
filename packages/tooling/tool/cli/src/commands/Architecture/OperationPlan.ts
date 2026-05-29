@@ -24,7 +24,7 @@ const $I = $RepoCliId.create("commands/Architecture/OperationPlan");
  * @category models
  * @since 0.0.0
  */
-export const ArchitectureDomainKind = LiteralKit(["aggregates", "entities", "values"] as const).pipe(
+export const ArchitectureDomainKind = LiteralKit(["aggregates", "entities", "values"]).pipe(
   $I.annoteSchema("ArchitectureDomainKind", {
     description: "Domain-kind folder used by canonical architecture operation plans.",
   })
@@ -44,7 +44,7 @@ export type ArchitectureDomainKind = typeof ArchitectureDomainKind.Type;
  * @category models
  * @since 0.0.0
  */
-export const ArchitecturePlanStage = LiteralKit(["core", "persistence", "protocol", "client", "full"] as const).pipe(
+export const ArchitecturePlanStage = LiteralKit(["core", "persistence", "protocol", "client", "full"]).pipe(
   $I.annoteSchema("ArchitecturePlanStage", {
     description: "Stage selector for canonical slice operation-plan generation.",
   })
@@ -74,7 +74,7 @@ export const ArchitectureSliceRole = LiteralKit([
   "ui",
   "proof-app",
   "db-admin",
-] as const).pipe(
+]).pipe(
   $I.annoteSchema("ArchitectureSliceRole", {
     description: "Role package, proof app, or internal admin target represented in an architecture operation plan.",
   })
@@ -109,7 +109,7 @@ export const ArchitecturePackageRole = LiteralKit([
   "tables",
   "client",
   "ui",
-] as const).pipe(
+]).pipe(
   $I.annoteSchema("ArchitecturePackageRole", {
     description: "Normal slice role package that can be created as a shell-only architecture package.",
   })

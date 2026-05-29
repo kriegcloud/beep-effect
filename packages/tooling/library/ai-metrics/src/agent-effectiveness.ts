@@ -87,7 +87,7 @@ query AgentEffectivenessPhoenixInventory {
  * @category models
  * @since 0.0.0
  */
-export const AgentEffectivenessStatus = LiteralKit(["passed", "warning", "failed", "unavailable"] as const).annotate(
+export const AgentEffectivenessStatus = LiteralKit(["passed", "warning", "failed", "unavailable"]).annotate(
   $I.annote("AgentEffectivenessStatus", {
     description: "Non-blocking status used by agent-effectiveness trust-gate reports.",
   })
@@ -640,7 +640,7 @@ export const AgentEffectivenessDatasetKind = LiteralKit([
   "agent-outcomes",
   "jsdoc-worker-model-suitability",
   "source-coverage",
-] as const).annotate(
+]).annotate(
   $I.annote("AgentEffectivenessDatasetKind", {
     description: "Phoenix dataset kinds owned by the agent-effectiveness loop.",
   })
@@ -767,7 +767,7 @@ export class AgentEffectivenessDatasetBundle extends S.Class<AgentEffectivenessD
  * @category models
  * @since 0.0.0
  */
-export const AgentEffectivenessPromptRole = LiteralKit(["system", "user"] as const).annotate(
+export const AgentEffectivenessPromptRole = LiteralKit(["system", "user"]).annotate(
   $I.annote("AgentEffectivenessPromptRole", {
     description: "Prompt roles used by repo-owned agent-effectiveness prompt templates.",
   })

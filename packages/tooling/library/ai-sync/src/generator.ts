@@ -56,7 +56,7 @@ const renderOptionalLiteralKitField = (name: string, literals: ReadonlyArray<str
     literals,
     A.map((literal) => `      ${quote(literal)},`)
   ),
-  "    ] as const).pipe(S.optionalKey),",
+  "    ]).pipe(S.optionalKey),",
 ];
 
 const renderSourceMetadata = (source: AiSyncSourceMetadata): string =>

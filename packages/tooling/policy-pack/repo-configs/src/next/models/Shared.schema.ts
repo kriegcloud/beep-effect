@@ -12,8 +12,8 @@ import * as S from "effect/Schema";
 
 const $I = $RepoConfigsId.create("next/models/Shared.schema");
 
-const FileSizeScale = LiteralKit(["k", "K", "m", "M", "g", "G", "t", "T", "p", "P"] as const);
-const FileSizeByte = LiteralKit(["b", "B"] as const);
+const FileSizeScale = LiteralKit(["k", "K", "m", "M", "g", "G", "t", "T", "p", "P"]);
+const FileSizeByte = LiteralKit(["b", "B"]);
 
 /**
  * File-size suffix accepted by Next.js size limit strings.

@@ -18,7 +18,7 @@ const $I = $InstallerDomainId.create("aggregates/HostDependency/HostDependency.m
  * @category aggregates
  * @since 0.0.0
  */
-export const HostDependencyKind = LiteralKit(["system-package", "desktop-app", "cli-tool", "runtime"] as const).pipe(
+export const HostDependencyKind = LiteralKit(["system-package", "desktop-app", "cli-tool", "runtime"]).pipe(
   $I.annoteSchema("HostDependencyKind", {
     description: "Dependency families the stack installer can validate before live installation exists.",
   })
@@ -38,7 +38,7 @@ export type HostDependencyKind = typeof HostDependencyKind.Type;
  * @category aggregates
  * @since 0.0.0
  */
-export const HostDependencyStatus = LiteralKit(["present", "missing", "unknown"] as const).pipe(
+export const HostDependencyStatus = LiteralKit(["present", "missing", "unknown"]).pipe(
   $I.annoteSchema("HostDependencyStatus", {
     description: "Dry-run validation status for a host dependency.",
   })

@@ -22,7 +22,7 @@ const $I = $WorkspaceDomainId.create("values/CandidateLifecycle/CandidateLifecyc
  * @category schemas
  * @since 0.0.0
  */
-export const CandidateLifecycle = LiteralKit(["candidate"] as const).annotate(
+export const CandidateLifecycle = LiteralKit(["candidate"]).annotate(
   $I.annote("CandidateLifecycle", {
     description: "Lifecycle state for candidate work produced by the runtime proof.",
   })

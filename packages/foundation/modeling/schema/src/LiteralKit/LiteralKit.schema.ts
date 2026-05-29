@@ -692,8 +692,8 @@ export interface LiteralKit<L extends Literals, M extends EnumMappings<L> | unde
  * void Event;
  *
  * const StatusKeys = LiteralKit(
- *   ["one", "two"] as const,
- *   [["one", "ONE"], ["two", "TWO"]] as const
+ *   ["one", "two"],
+ *   [["one", "ONE"], ["two", "TWO"]]
  * );
  *
  * StatusKeys.Enum.ONE; // "one"
@@ -702,6 +702,11 @@ export interface LiteralKit<L extends Literals, M extends EnumMappings<L> | unde
  * @category models
  * @since 0.0.0
  */
+export function LiteralKit<const L extends Literals>(literals: L): LiteralKit<L>;
+export function LiteralKit<const L extends Literals, const M extends EnumMappings<L>>(
+  literals: L,
+  enumMapping: M & ValidEnumMapping<L, M>
+): LiteralKit<L, M>;
 export function LiteralKit<const L extends Literals, const M extends EnumMappings<L> | undefined = undefined>(
   literals: L,
   enumMapping?: M extends EnumMappings<L> ? ValidEnumMapping<L, M> : never
