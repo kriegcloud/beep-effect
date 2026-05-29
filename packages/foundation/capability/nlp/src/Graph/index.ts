@@ -63,3 +63,18 @@ export * as GraphOps from "./GraphOps.ts";
  * @category graph
  */
 export * as Schema from "./Schema.ts";
+/**
+ * Categorical type classes for text operations on graphs (Functor/Monad/
+ * Traversable/Foldable + the free⊣forgetful adjunction).
+ *
+ * @example
+ * ```typescript
+ * import { TypeClass } from "@beep/nlp/Graph"
+ *
+ * console.log(TypeClass.mapOperation("upper", (s: string) => s.toUpperCase()).name)
+ * ```
+ *
+ * @since 0.0.0
+ * @category graph
+ */
+export * as TypeClass from "./TypeClass.ts";
