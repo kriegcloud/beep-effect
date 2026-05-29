@@ -105,8 +105,8 @@ const uploadStatus = async () => ({
   ),
 });
 
-const landingPage = () => {
-  return [
+const landingPage = () =>
+  [
     "Stack Installer P1 proof upload endpoint",
     "",
     "If you are a proof operator and only have this URL:",
@@ -133,7 +133,6 @@ const landingPage = () => {
     "Use an Authorization: Bearer token header for /status, /commands, /next-actions, and /upload requests.",
     "Do not put the proof upload token in URLs, chat, commits, screencasts, or command transcripts.",
   ].join("\n");
-};
 
 const server = http.createServer(async (request, response) => {
   try {
