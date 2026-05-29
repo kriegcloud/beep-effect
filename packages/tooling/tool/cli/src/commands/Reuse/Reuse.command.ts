@@ -15,6 +15,8 @@ import {
 import {
   DomainError,
   findRepoRoot,
+  ReuseCandidate,
+  ReuseCloneService,
   ReuseDiscoveryService,
   ReuseFindResult,
   ReuseInventory,
@@ -34,6 +36,7 @@ import { ChildProcess } from "effect/unstable/process";
 import { jsonFlag } from "../../internal/cli/Flags.js";
 import { printCommandJson } from "../../internal/cli/Json.js";
 import { printLines } from "../../internal/cli/Printer.js";
+import { runCloneGate } from "./internal/CloneBaseline.js";
 import { CodexSmokeResult, runCodexSmoke } from "./internal/CodexRunner.js";
 import type {
   RepoCodegraphCatalogReadError,
@@ -84,6 +87,12 @@ const symbolIdFlag = Flag.string("symbol-id").pipe(
 );
 const candidateIdFlag = Flag.string("candidate-id").pipe(
   Flag.withDescription("Candidate id from `beep reuse inventory --json`")
+);
+const cloneWriteFlag = Flag.boolean("write").pipe(
+  Flag.withDescription("Refresh standards/clone.inventory.jsonc from current clones")
+);
+const cloneCheckFlag = Flag.boolean("check").pipe(
+  Flag.withDescription("Fail if new structural clones appear vs the committed baseline")
 );
 const typeOnlyExportKinds = ["interface", "type"] as const;
 const ASCII_BACKSLASH_CODE = 0x5c;
@@ -201,6 +210,7 @@ type ReuseProgramDependencies =
   | FsUtils
   | Path.Path
   | ChildProcessSpawner.ChildProcessSpawner
+  | ReuseCloneService
   | ReuseDiscoveryService
   | ReuseInventoryService
   | ReusePartitionPlannerService
@@ -533,11 +543,66 @@ const reuseCodexSmokeCommand = Command.make(
     )
 ).pipe(Command.withDescription("Validate the Codex SDK adapter and thread startup path without running a loop"));
 
+const printClones = Effect.fn(function* (candidates: ReadonlyArray<ReuseCandidate>) {
+  yield* Console.log(`Structural clone clusters: ${A.length(candidates)}`);
+  yield* Effect.forEach(
+    candidates,
+    Effect.fn(function* (candidate) {
+      yield* Console.log(`- ${candidate.candidateId} (confidence=${candidate.confidence.toFixed(2)})`);
+      yield* Console.log(`  ${candidate.title}`);
+      yield* Effect.forEach(candidate.evidence, (line) => Console.log(`    ${line}`), {
+        concurrency: 1,
+        discard: true,
+      });
+    }),
+    { concurrency: 1, discard: true }
+  );
+});
+
+const reuseClonesCommand = Command.make(
+  "clones",
+  {
+    scope: scopeFlag,
+    json: jsonFlag,
+    write: cloneWriteFlag,
+    check: cloneCheckFlag,
+  },
+  ({ scope, json, write, check }) =>
+    runReuseProgram(
+      Effect.gen(function* () {
+        const cloneService = yield* ReuseCloneService;
+
+        if (write && check) {
+          return yield* DomainError.make({
+            message: "Use either `--write` (refresh the baseline) or `--check` (enforce it), not both.",
+          });
+        }
+
+        // --write / --check operate repo-wide against the committed baseline.
+        if (write || check) {
+          const candidates = yield* cloneService.detectClones(O.none());
+          yield* runCloneGate(candidates, { write });
+          return;
+        }
+
+        const candidates = yield* cloneService.detectClones(scope);
+        yield* printSelectedOutput(
+          json,
+          S.encodeEffect(S.Array(ReuseCandidate))(candidates).pipe(Effect.flatMap(printCommandJson)),
+          printClones(candidates)
+        );
+      })
+    )
+).pipe(
+  Command.withDescription("Detect declaration-anchored structural clones across packages (--write/--check baseline)")
+);
+
 const printReuseIndex = () =>
   printLines([
     "Reuse commands:",
     "- bun run beep reuse partitions --scope packages/tooling/tool/cli,packages/tooling/library/repo-utils --json",
     "- bun run beep reuse inventory --scope packages/tooling/tool/cli,packages/tooling/library/repo-utils --json",
+    "- bun run beep reuse clones --json",
     "- bun run beep reuse find --file packages/tooling/tool/cli/src/commands/Docgen/index.ts --query json --json",
     "- bun run beep reuse lookup --query UnknownRecord --from packages/tooling/tool/cli --json",
     "- bun run beep reuse packet --candidate-id reuse-pattern:schema-json-encode-sync --json",
@@ -556,6 +621,7 @@ export const reuseCommand = Command.make("reuse", {}, printReuseIndex).pipe(
     reusePartitionsCommand,
     reuseFindCommand,
     reuseInventoryCommand,
+    reuseClonesCommand,
     reuseLookupCommand,
     reusePacketCommand,
     reuseCodexSmokeCommand,
