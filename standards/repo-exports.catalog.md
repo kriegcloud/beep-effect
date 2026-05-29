@@ -12257,15 +12257,15 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/ui/components/avatar` | `AvatarImage` | function | `packages/foundation/ui-system/ui/src/components/avatar.tsx:35` |  |
 | `@beep/ui/components/badge` | `Badge` | function | `packages/foundation/ui-system/ui/src/components/badge.tsx:35` |  |
 | `@beep/ui/components/badge` | `badgeVariants` | const | `packages/foundation/ui-system/ui/src/components/badge.tsx:11` |  |
-| `@beep/ui/components/banner` | `Banner` | function | `packages/foundation/ui-system/ui/src/components/banner.tsx:43` |  |
-| `@beep/ui/components/banner` | `Banner` | Identifier | `packages/foundation/ui-system/ui/src/components/banner.tsx:89` |  |
-| `@beep/ui/components/banner` | `Banner` | Identifier | `packages/foundation/ui-system/ui/src/components/banner.tsx:90` |  |
-| `@beep/ui/components/banner` | `Banner` | Identifier | `packages/foundation/ui-system/ui/src/components/banner.tsx:91` |  |
-| `@beep/ui/components/banner` | `Banner` | Identifier | `packages/foundation/ui-system/ui/src/components/banner.tsx:92` |  |
-| `@beep/ui/components/banner` | `BannerContent` | const | `packages/foundation/ui-system/ui/src/components/banner.tsx:54` |  |
-| `@beep/ui/components/banner` | `BannerDescription` | const | `packages/foundation/ui-system/ui/src/components/banner.tsx:62` |  |
-| `@beep/ui/components/banner` | `BannerDismiss` | const | `packages/foundation/ui-system/ui/src/components/banner.tsx:70` |  |
-| `@beep/ui/components/banner` | `BannerTitle` | const | `packages/foundation/ui-system/ui/src/components/banner.tsx:58` |  |
+| `@beep/ui/components/banner` | `Banner` | function | `packages/foundation/ui-system/ui/src/components/banner.tsx:47` |  |
+| `@beep/ui/components/banner` | `Banner` | Identifier | `packages/foundation/ui-system/ui/src/components/banner.tsx:109` |  |
+| `@beep/ui/components/banner` | `Banner` | Identifier | `packages/foundation/ui-system/ui/src/components/banner.tsx:110` |  |
+| `@beep/ui/components/banner` | `Banner` | Identifier | `packages/foundation/ui-system/ui/src/components/banner.tsx:111` |  |
+| `@beep/ui/components/banner` | `Banner` | Identifier | `packages/foundation/ui-system/ui/src/components/banner.tsx:112` |  |
+| `@beep/ui/components/banner` | `BannerContent` | const | `packages/foundation/ui-system/ui/src/components/banner.tsx:62` |  |
+| `@beep/ui/components/banner` | `BannerDescription` | const | `packages/foundation/ui-system/ui/src/components/banner.tsx:78` |  |
+| `@beep/ui/components/banner` | `BannerDismiss` | const | `packages/foundation/ui-system/ui/src/components/banner.tsx:90` |  |
+| `@beep/ui/components/banner` | `BannerTitle` | const | `packages/foundation/ui-system/ui/src/components/banner.tsx:70` |  |
 | `@beep/ui/components/banner` | `bannerVariants` | const | `packages/foundation/ui-system/ui/src/components/banner.tsx:11` |  |
 | `@beep/ui/components/blocks/editor-00/editor` | `Editor` | function | `packages/foundation/ui-system/ui/src/components/blocks/editor-00/editor.tsx:29` | Rich text editor block assembled from the shared editor theme and plugins. |
 | `@beep/ui/components/blocks/editor-00/plugins` | `Plugins` | function | `packages/foundation/ui-system/ui/src/components/blocks/editor-00/plugins.tsx:11` | Core plugin set for the shared editor block. |
