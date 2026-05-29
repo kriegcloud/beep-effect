@@ -6,7 +6,7 @@
 ## Surface Map
 | Surface | Key exports | Notes |
 | --- | --- | --- |
-| entry module | VERSION, DocsESLintConfig | package entry point |
+| entry module | VERSION, DocsESLintConfig | package entry point; includes a small number of style parity rules (e.g. arrow-body-style) for IDE consumers of the flat config (Biome remains primary) |
 | governance data | allowlist snapshot, native-runtime hotspots | shared by repo-local governance commands |
 
 ## Laws
