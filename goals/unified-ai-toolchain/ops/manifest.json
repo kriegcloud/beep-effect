@@ -1,0 +1,158 @@
+{
+  "schemaVersion": "1.0.0",
+  "initiative": {
+    "id": "unified-ai-toolchain",
+    "title": "Unified AI Toolchain",
+    "status": "v1-complete",
+    "created": "2026-05-22",
+    "updated": "2026-05-23",
+    "packetAnchorDocument": "SPEC.md"
+  },
+  "currentSourceOfTruth": "SPEC.md",
+  "currentTargetPhase": "P6+",
+  "completionEvidence": "schema library plus drift checks plus beep-effect dogfooding validation during bun run check",
+  "targets": {
+    "package": "packages/tooling/library/ai-sync",
+    "publishedPackage": "@beep/ai-sync",
+    "dogfoodRepo": "beep-effect"
+  },
+  "defaults": {
+    "artifactFamily": "tooling",
+    "artifactKind": "library",
+    "schemaRuntime": "effect-schema",
+    "codegenPrecedent": "@beep/acp",
+    "validationPosture": "offline-local-by-default",
+    "driftPosture": "tiered-pins-and-semantic-field-diff"
+  },
+  "v1Completion": {
+    "status": "complete",
+    "activeGate": null,
+    "closedGates": [
+      "goal packet created",
+      "source map drafted",
+      "architecture home selected",
+      "create @beep/ai-sync tooling library",
+      "generate Tier-1 Effect Schemas from pinned upstream sources",
+      "hand-author Tier-2 schemas with upstream documentation annotations",
+      "represent every unsupported or undocumented cell as N/A or unknown_schema",
+      "implement drift check modes",
+      "implement and test supported cross-agent transforms",
+      "validate at least one real beep-effect agent config during bun run check",
+      "record deliberate invalid-config failure evidence"
+    ],
+    "remainingGates": [],
+    "nonBlockingFollowUps": [
+      "P6+ CLI tool",
+      "P6+ ruler/rulesync interoperability layer",
+      "P6+ reverse-roundtrip emission",
+      "P6+ additional agents"
+    ]
+  },
+  "owningSurfaces": {
+    "schemaLibrary": "packages/tooling/library/ai-sync",
+    "codegenPrecedent": "packages/drivers/acp/scripts/generate.ts",
+    "rootCheckIntegration": "root package scripts and check pipeline",
+    "goalPacket": "goals/unified-ai-toolchain"
+  },
+  "phases": [
+    {
+      "id": "P0",
+      "name": "Initiative Bootstrap And Current State",
+      "status": "complete",
+      "output": "history/outputs/p0-current-state.md"
+    },
+    {
+      "id": "P1",
+      "name": "Source-of-Truth Pinning And Tier-1 Codegen",
+      "status": "complete",
+      "output": "history/outputs/p1-source-of-truth-pinning-and-tier-1-codegen.md"
+    },
+    {
+      "id": "P2",
+      "name": "Tier-2 Semantic-Field-Diff Schemas",
+      "status": "complete",
+      "output": "history/outputs/p2-tier-2-semantic-field-diff-schemas.md"
+    },
+    {
+      "id": "P3",
+      "name": "Drift Detection Pipeline",
+      "status": "complete",
+      "output": "history/outputs/p3-drift-detection-pipeline.md"
+    },
+    {
+      "id": "P4",
+      "name": "Cross-Agent Transforms",
+      "status": "complete",
+      "output": "history/outputs/p4-cross-agent-transforms.md"
+    },
+    {
+      "id": "P5",
+      "name": "First Real Consumer",
+      "status": "complete",
+      "v1Blocking": true,
+      "output": "history/outputs/p5-first-real-consumer.md"
+    },
+    {
+      "id": "P6+",
+      "name": "Non-V1-Blocking Follow-Ups",
+      "status": "pending",
+      "v1Blocking": false,
+      "output": "history/outputs/p6-plus-follow-ups.md",
+      "subphases": [
+        {
+          "id": "P6a",
+          "name": "CLI Tool",
+          "status": "pending",
+          "v1Blocking": false
+        },
+        {
+          "id": "P6b",
+          "name": "Ruler And Rulesync Interoperability",
+          "status": "pending",
+          "v1Blocking": false
+        },
+        {
+          "id": "P6c",
+          "name": "Reverse Roundtrip Emission",
+          "status": "pending",
+          "v1Blocking": false
+        },
+        {
+          "id": "P6d",
+          "name": "Additional Agents",
+          "status": "pending",
+          "v1Blocking": false
+        }
+      ]
+    }
+  ],
+  "commandGates": [
+    {
+      "id": "root-check",
+      "command": "bun run check"
+    },
+    {
+      "id": "ai-sync-check",
+      "command": "bun run --cwd packages/tooling/library/ai-sync check"
+    },
+    {
+      "id": "ai-sync-generate",
+      "command": "bun run --cwd packages/tooling/library/ai-sync generate"
+    },
+    {
+      "id": "ai-sync-drift-strict",
+      "command": "bun run --cwd packages/tooling/library/ai-sync drift --strict"
+    },
+    {
+      "id": "ai-sync-dogfood",
+      "command": "bun run --cwd packages/tooling/library/ai-sync validate -- --repo-root ../../../.. --config .codex/config.toml"
+    }
+  ],
+  "knownGaps": [
+    "Grok Build hook event schemas, plugin manifest schema, and Grok-native MCP shape are undocumented and must remain unknown_schema until evidence exists",
+    "JetBrains AI Assistant has no repo-committed Skills or Hooks concept",
+    "Junie Hooks and Plugins are not V1 repo-committed concepts",
+    "P6+ operator CLI, adapter interoperability, reverse-roundtrip emission, and additional agents are deferred"
+  ],
+  "nextAction": "Open a deliberate P6+ follow-up if operator workflows, adapter interoperability, reverse-roundtrip emission, or additional agents become active scope."
+}

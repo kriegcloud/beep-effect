@@ -249,10 +249,31 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Fetch pull request base
+        if: github.event_name == 'pull_request'
+        shell: bash
+        run: |
+          git fetch --quiet --no-tags origin "${GITHUB_BASE_REF:-main}:refs/remotes/origin/${GITHUB_BASE_REF:-main}"
+
       - name: Gitleaks
-        uses: gitleaks/gitleaks-action@v2
+        shell: bash
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          BEFORE_SHA: ${{ github.event.before }}
+        run: |
+          set -euo pipefail
+
+          log_opts="-1"
+          if [[ "$GITHUB_EVENT_NAME" == "pull_request" ]]; then
+            log_opts="origin/${GITHUB_BASE_REF:-main}..HEAD"
+          elif [[ -n "${BEFORE_SHA:-}" && ! "$BEFORE_SHA" =~ ^0+$ ]]; then
+            log_opts="${BEFORE_SHA}..HEAD"
+          fi
+
+          docker run --rm \
+            -v "$PWD:/repo" \
+            -w /repo \
+            zricethezav/gitleaks@sha256:5d0147dc25c78f8cc2b9861ff8f5c9b4a41419ed60a9ce2217de5a215270b42b \
+            detect --source=/repo --log-opts="$log_opts" --redact --no-banner
 
   security:
     name: Security
@@ -271,19 +292,27 @@ jobs:
             --lockfile=bun.lock
             --config=osv-scanner.toml
 
-      - name: Detect dependency graph availability
+      - name: Check dependency graph availability
         if: github.event_name == 'pull_request'
         id: dependency-graph
-        uses: actions/github-script@v7
-        with:
-          script: |
-            const { data } = await github.rest.repos.get({
-              owner: context.repo.owner,
-              repo: context.repo.repo
-            });
-            const status = data.security_and_analysis?.dependency_graph?.status ?? "disabled";
-            core.info(`Dependency graph status: ${status}`);
-            core.setOutput("enabled", status === "enabled" ? "true" : "false");
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+
+          status="$(
+            gh api "repos/${GITHUB_REPOSITORY}" \
+              --jq '.security_and_analysis.dependency_graph.status // "unavailable"' \
+              2>/dev/null || true
+          )"
+
+          if [[ "$status" == "enabled" ]]; then
+            echo "enabled=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "enabled=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::Skipping dependency review because GitHub dependency graph status is '${status:-unavailable}'."
+          fi
 
       - name: Dependency review
         if: github.event_name == 'pull_request' && steps.dependency-graph.outputs.enabled == 'true'

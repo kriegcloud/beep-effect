@@ -14,8 +14,10 @@
       "command": "serena",
       "args": [
         "start-mcp-server",
-        "--context", "claude-code",
-        "--language-backend", "JetBrains",
+        "--context",
+        "claude-code",
+        "--language-backend",
+        "JetBrains",
         "--project-from-cwd"
       ]
     }

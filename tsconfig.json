@@ -1070,6 +1070,8 @@
       "@beep/schema/Yaml": [
         "./packages/foundation/modeling/schema/src/Yaml.ts"
       ],
+      "@beep/ai-sync": ["./packages/tooling/library/ai-sync/src/index.ts"],
+      "@beep/ai-sync/*": ["./packages/tooling/library/ai-sync/src/*"],
       "@beep/form": ["./packages/foundation/ui-system/form/src/index.ts"],
       "@beep/form/core": ["./packages/foundation/ui-system/form/src/core.ts"],
       "@beep/form/core/internal/dirty": [
