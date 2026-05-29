@@ -177,8 +177,10 @@ export const make: (options: XAiLanguageModelOptions) => Effect.Effect<LanguageM
   "XAiLanguageModel.make"
 )(function* (options) {
   const xai = yield* XAi;
+  const optionalConfig = O.getSomesStruct({ config: O.fromUndefinedOr(options.config) });
+
   return yield* makeFromProvider({
-    ...O.getSomesStruct({ config: O.fromUndefinedOr(options.config) }),
+    ...optionalConfig,
     model: options.model,
     moduleName,
     provider: {

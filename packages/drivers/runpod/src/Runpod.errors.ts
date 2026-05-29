@@ -173,15 +173,21 @@ export class RunpodDocsError extends TaggedErrorClass<RunpodDocsError>($I`Runpod
    * @category constructors
    * @since 0.1.0
    */
-  static readonly fromReason = (reason: RunpodDocsErrorReason, options: RunpodDocsErrorOptions = {}): RunpodDocsError =>
-    RunpodDocsError.make({
-      reason,
-      ...O.getSomesStruct({
-        cause: causeFromUnknown(options.cause),
-        status: O.fromUndefinedOr(options.status),
-        url: O.fromUndefinedOr(options.url),
-      }),
+  static readonly fromReason = (
+    reason: RunpodDocsErrorReason,
+    options: RunpodDocsErrorOptions = {}
+  ): RunpodDocsError => {
+    const optionalFields = O.getSomesStruct({
+      cause: causeFromUnknown(options.cause),
+      status: O.fromUndefinedOr(options.status),
+      url: O.fromUndefinedOr(options.url),
     });
+
+    return RunpodDocsError.make({
+      reason,
+      ...optionalFields,
+    });
+  };
 }
 
 /**
