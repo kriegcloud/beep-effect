@@ -220,3 +220,7 @@ tolower
 Unfailable
 uvicorn
 venv
+affordances
+notif
+unhover
+unhovers
