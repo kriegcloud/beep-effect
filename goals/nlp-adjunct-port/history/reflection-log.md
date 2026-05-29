@@ -83,6 +83,35 @@ failing `tsgo -b` for this package. **Port approach: match `@beep/nlp`'s actual 
 - Validation loop per increment: `beep:lint:fix` → `beep:check` (tsgo) → `beep:lint` (biome)
   → scoped `vitest run`. All green.
 
+**Ontology + Graph-schema groups ported:**
+- `src/Ontology/Kind.ts` — 11-stratum TextKind ontology via `LiteralKit` (not
+  `S.Union(S.Literal)` → trips `schemaUnionOfLiterals`), TypedText + smart constructors +
+  containment poset. adjunct's `unsafeCast` (`any`) → `recast` over `TypedText<TextKind>`.
+  11 poset/constructor proofs.
+- `src/Graph/Schema.ts` — graph node/edge classes (TextNode/TextEdge/NLPAnalysis + POS/
+  Entity/Lemma/Dependency/Relation nodes) = handoff-contract basis. `Schema.Class("Name")`
+  → `S.Class($I\`Name\`)`; multi-arm `Schema.Literal` → `S.Literals`; `Schema.optional` →
+  `S.optionalKey`; positional `S.Record`. 10 decode/encode round-trip proofs.
+- Export subpaths added (`/Algebra /Ontology /Graph`); `beep tsconfig-sync` registers root
+  aliases + docgen managed fields automatically.
+- **Gotcha:** `S.Literals([...])` type-checks but throws at decode time in this v4 beta
+  (`_a.length` on undefined). Fixed by using `@beep/schema` `LiteralKit([...]).Schema` for the
+  graph node/edge vocabularies — the proven repo idiom (WinkVectorizer/Pattern). Tests are the
+  real gate: `tsgo`+`biome` both passed while decode was broken, so scoped `vitest` must run
+  before each commit (pre-commit hooks do NOT run tests).
+- **P1 progress: 4 of ~6 groups done; 96 proofs green; tree clean.**
+
+**CHECKPOINT — Graph engine is the inflection point.** The next group (Graph engine +
+TypeClass) is **3,408 LOC across 12 files**: `EffectGraph`/`TextGraph`/`AnnotatedTextGraph`/
+`GraphOps` + `GraphOperations/{Operation,Executor,Catalog,ResultStore,Schemas,Types,Errors}`
++ `TypeClass`. It must be remapped onto v4's in-core `effect/Graph` (`Graph<N,E>` /
+`MutableGraph<N,E>` — a mutation-builder API materially different from adjunct's v3 wrapper),
+and its type-changing `GraphOps.mapNodes<A→B>`/`bimap`/`merge` need reconstruction-based
+reimplementation (v4 `Graph.mapNodes` is type-preserving). It carries the load-bearing law
+suites (Adjunction triangle identities, AnnotatedTextGraph.laws, NLPOperations.laws,
+TextGraph, GraphOperations/Executor). This is the highest-fidelity-risk group and deserves a
+focused session with the v4 `Graph.ts` API read in full first — not a tail-end rush.
+
 ---
 
 ## P1: Staging Port
