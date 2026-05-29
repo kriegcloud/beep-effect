@@ -20,9 +20,9 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | packagesWithPublicExports | 79 |
 | packagesWithoutPublicExports | 1 |
 | missingWorkspaceMetadata | 4 |
-| importSpecifiers | 984 |
-| publicExportEntries | 12941 |
-| uniquePackageSymbols | 5673 |
+| importSpecifiers | 983 |
+| publicExportEntries | 12950 |
+| uniquePackageSymbols | 5669 |
 
 ## Seed Discovery Proof
 
@@ -94,7 +94,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | 55 | `@beep/infra` | `infra` | has-public-exports | 1 | 20 | 20 |
 | 56 | `@beep/installer-use-cases` | `packages/installer/use-cases` | has-public-exports | 3 | 51 | 29 |
 | 57 | `@beep/runpod` | `packages/drivers/runpod` | has-public-exports | 1 | 169 | 149 |
-| 58 | `@beep/repo-utils` | `packages/tooling/library/repo-utils` | has-public-exports | 65 | 1628 | 507 |
+| 58 | `@beep/repo-utils` | `packages/tooling/library/repo-utils` | has-public-exports | 66 | 1648 | 512 |
 | 59 | `@beep/schema` | `packages/foundation/modeling/schema` | has-public-exports | 118 | 1748 | 719 |
 | 60 | `@beep/codedank-web` | `apps/codedank-web` | has-public-exports | 1 | 1 | 1 |
 | 61 | `@beep/onepassword-cli` | `packages/drivers/onepassword-cli` | has-public-exports | 5 | 27 | 8 |
@@ -110,7 +110,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | 71 | `@beep/observability` | `packages/foundation/capability/observability` | has-public-exports | 4 | 115 | 98 |
 | 72 | `@beep/konva` | `packages/drivers/konva` | has-public-exports | 2 | 2 | 1 |
 | 73 | `@beep/shared-client` | `packages/shared/client` | has-public-exports | 2 | 2 | 1 |
-| 74 | `@beep/ui` | `packages/foundation/ui-system/ui` | has-public-exports | 117 | 538 | 454 |
+| 74 | `@beep/ui` | `packages/foundation/ui-system/ui` | has-public-exports | 115 | 527 | 445 |
 | 75 | `@beep/repo-configs` | `packages/tooling/policy-pack/repo-configs` | has-public-exports | 30 | 411 | 117 |
 | 76 | `@beep/canvas-client` | `packages/canvas/client` | has-public-exports | 1 | 1 | 1 |
 | 77 | `@beep/openai` | `packages/drivers/openai` | has-public-exports | 2 | 2 | 1 |
@@ -808,7 +808,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli` | `lintCommand` | const | `packages/tooling/tool/cli/src/commands/Lint/Lint.command.ts:556` | Lint command group. |
 | `@beep/repo-cli` | `purgeCommand` | const | `packages/tooling/tool/cli/src/commands/Purge/Purge.command.ts:249` | CLI command to purge workspace/root build artifacts. |
 | `@beep/repo-cli` | `qualityCommand` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:1646` | Quality command group for repo operational checks. |
-| `@beep/repo-cli` | `reuseCommand` | const | `packages/tooling/tool/cli/src/commands/Reuse/Reuse.command.ts:618` | Reuse-discovery command group. |
+| `@beep/repo-cli` | `reuseCommand` | const | `packages/tooling/tool/cli/src/commands/Reuse/Reuse.command.ts:667` | Reuse-discovery command group. |
 | `@beep/repo-cli` | `rootCommand` | const | `packages/tooling/tool/cli/src/commands/Root.ts:45` | Top-level CLI command that registers all subcommands. |
 | `@beep/repo-cli` | `syncDataToTsCommand` | const | `packages/tooling/tool/cli/src/commands/SyncDataToTs/SyncDataToTs.command.ts:441` | CLI command for syncing official upstream datasets into checked-in TypeScript modules. |
 | `@beep/repo-cli` | `topoSortCommand` | const | `packages/tooling/tool/cli/src/commands/TopoSort/TopoSort.command.ts:33` | CLI command that builds the workspace dependency graph and prints package names |
@@ -1890,8 +1890,8 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/commands/Reuse` | `CodexRunnerStage` | const | `packages/tooling/tool/cli/src/commands/Reuse/Reuse.errors.ts:26` | Lifecycle stages surfaced by the Codex smoke runner. |
 | `@beep/repo-cli/commands/Reuse` | `CodexRunnerStage` | type | `packages/tooling/tool/cli/src/commands/Reuse/Reuse.errors.ts:38` | Runtime type for `CodexRunnerStage`. |
 | `@beep/repo-cli/commands/Reuse` | `diffCloneBaseline` | const | `packages/tooling/tool/cli/src/commands/Reuse/internal/CloneBaseline.ts:178` | Diff live clusters against a committed baseline, returning new and grown clusters. |
-| `@beep/repo-cli/commands/Reuse` | `reuseCommand` | const | `packages/tooling/tool/cli/src/commands/Reuse/Reuse.command.ts:618` | Reuse-discovery command group. |
-| `@beep/repo-cli/commands/Reuse` | `sanitizeTerminalText` | const | `packages/tooling/tool/cli/src/commands/Reuse/Reuse.command.ts:154` | Remove terminal control sequences from human-readable reuse output. |
+| `@beep/repo-cli/commands/Reuse` | `reuseCommand` | const | `packages/tooling/tool/cli/src/commands/Reuse/Reuse.command.ts:667` | Reuse-discovery command group. |
+| `@beep/repo-cli/commands/Reuse` | `sanitizeTerminalText` | const | `packages/tooling/tool/cli/src/commands/Reuse/Reuse.command.ts:161` | Remove terminal control sequences from human-readable reuse output. |
 | `@beep/repo-cli/commands/Reuse/index` | `buildCloneDocument` | const | `packages/tooling/tool/cli/src/commands/Reuse/internal/CloneBaseline.ts:116` | Build a sorted, deterministic baseline document from clone candidates. |
 | `@beep/repo-cli/commands/Reuse/index` | `CloneBaselineDocument` | class | `packages/tooling/tool/cli/src/commands/Reuse/internal/CloneBaseline.ts:67` | Committed baseline of acknowledged structural-clone clusters for the ratchet. |
 | `@beep/repo-cli/commands/Reuse/index` | `CloneBaselineEntry` | class | `packages/tooling/tool/cli/src/commands/Reuse/internal/CloneBaseline.ts:39` | One acknowledged structural-clone cluster recorded in the committed baseline. |
@@ -1899,8 +1899,8 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/commands/Reuse/index` | `CodexRunnerStage` | const | `packages/tooling/tool/cli/src/commands/Reuse/Reuse.errors.ts:26` | Lifecycle stages surfaced by the Codex smoke runner. |
 | `@beep/repo-cli/commands/Reuse/index` | `CodexRunnerStage` | type | `packages/tooling/tool/cli/src/commands/Reuse/Reuse.errors.ts:38` | Runtime type for `CodexRunnerStage`. |
 | `@beep/repo-cli/commands/Reuse/index` | `diffCloneBaseline` | const | `packages/tooling/tool/cli/src/commands/Reuse/internal/CloneBaseline.ts:178` | Diff live clusters against a committed baseline, returning new and grown clusters. |
-| `@beep/repo-cli/commands/Reuse/index` | `reuseCommand` | const | `packages/tooling/tool/cli/src/commands/Reuse/Reuse.command.ts:618` | Reuse-discovery command group. |
-| `@beep/repo-cli/commands/Reuse/index` | `sanitizeTerminalText` | const | `packages/tooling/tool/cli/src/commands/Reuse/Reuse.command.ts:154` | Remove terminal control sequences from human-readable reuse output. |
+| `@beep/repo-cli/commands/Reuse/index` | `reuseCommand` | const | `packages/tooling/tool/cli/src/commands/Reuse/Reuse.command.ts:667` | Reuse-discovery command group. |
+| `@beep/repo-cli/commands/Reuse/index` | `sanitizeTerminalText` | const | `packages/tooling/tool/cli/src/commands/Reuse/Reuse.command.ts:161` | Remove terminal control sequences from human-readable reuse output. |
 | `@beep/repo-cli/commands/Reuse/internal/CloneBaseline` | `buildCloneDocument` | const | `packages/tooling/tool/cli/src/commands/Reuse/internal/CloneBaseline.ts:116` | Build a sorted, deterministic baseline document from clone candidates. |
 | `@beep/repo-cli/commands/Reuse/internal/CloneBaseline` | `CloneBaselineDocument` | class | `packages/tooling/tool/cli/src/commands/Reuse/internal/CloneBaseline.ts:67` | Committed baseline of acknowledged structural-clone clusters for the ratchet. |
 | `@beep/repo-cli/commands/Reuse/internal/CloneBaseline` | `CloneBaselineEntry` | class | `packages/tooling/tool/cli/src/commands/Reuse/internal/CloneBaseline.ts:39` | One acknowledged structural-clone cluster recorded in the committed baseline. |
@@ -1911,8 +1911,8 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/commands/Reuse/internal/CodexRunner` | `CodexRunnerStage` | type | `packages/tooling/tool/cli/src/commands/Reuse/Reuse.errors.ts:38` | Runtime type for `CodexRunnerStage`. |
 | `@beep/repo-cli/commands/Reuse/internal/CodexRunner` | `CodexSmokeResult` | class | `packages/tooling/tool/cli/src/commands/Reuse/internal/CodexRunner.ts:32` | Structured result for `beep reuse codex-smoke`. |
 | `@beep/repo-cli/commands/Reuse/internal/CodexRunner` | `runCodexSmoke` | const | `packages/tooling/tool/cli/src/commands/Reuse/internal/CodexRunner.ts:53` | Validate the local Codex SDK adapter without running a reuse loop. |
-| `@beep/repo-cli/commands/Reuse/Reuse.command` | `reuseCommand` | const | `packages/tooling/tool/cli/src/commands/Reuse/Reuse.command.ts:618` | Reuse-discovery command group. |
-| `@beep/repo-cli/commands/Reuse/Reuse.command` | `sanitizeTerminalText` | const | `packages/tooling/tool/cli/src/commands/Reuse/Reuse.command.ts:154` | Remove terminal control sequences from human-readable reuse output. |
+| `@beep/repo-cli/commands/Reuse/Reuse.command` | `reuseCommand` | const | `packages/tooling/tool/cli/src/commands/Reuse/Reuse.command.ts:667` | Reuse-discovery command group. |
+| `@beep/repo-cli/commands/Reuse/Reuse.command` | `sanitizeTerminalText` | const | `packages/tooling/tool/cli/src/commands/Reuse/Reuse.command.ts:161` | Remove terminal control sequences from human-readable reuse output. |
 | `@beep/repo-cli/commands/Reuse/Reuse.errors` | `CodexRunnerError` | class | `packages/tooling/tool/cli/src/commands/Reuse/Reuse.errors.ts:46` | Structured error emitted when the Codex SDK smoke path fails. |
 | `@beep/repo-cli/commands/Reuse/Reuse.errors` | `CodexRunnerStage` | const | `packages/tooling/tool/cli/src/commands/Reuse/Reuse.errors.ts:26` | Lifecycle stages surfaced by the Codex smoke runner. |
 | `@beep/repo-cli/commands/Reuse/Reuse.errors` | `CodexRunnerStage` | type | `packages/tooling/tool/cli/src/commands/Reuse/Reuse.errors.ts:38` | Runtime type for `CodexRunnerStage`. |
@@ -2290,9 +2290,9 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/test/Reuse` | `CodexRunnerStage` | type | `packages/tooling/tool/cli/src/commands/Reuse/Reuse.errors.ts:38` | Runtime type for `CodexRunnerStage`. |
 | `@beep/repo-cli/test/Reuse` | `CodexSmokeResult` | class | `packages/tooling/tool/cli/src/commands/Reuse/internal/CodexRunner.ts:32` | Structured result for `beep reuse codex-smoke`. |
 | `@beep/repo-cli/test/Reuse` | `diffCloneBaseline` | const | `packages/tooling/tool/cli/src/commands/Reuse/internal/CloneBaseline.ts:178` | Diff live clusters against a committed baseline, returning new and grown clusters. |
-| `@beep/repo-cli/test/Reuse` | `reuseCommand` | const | `packages/tooling/tool/cli/src/commands/Reuse/Reuse.command.ts:618` | Reuse-discovery command group. |
+| `@beep/repo-cli/test/Reuse` | `reuseCommand` | const | `packages/tooling/tool/cli/src/commands/Reuse/Reuse.command.ts:667` | Reuse-discovery command group. |
 | `@beep/repo-cli/test/Reuse` | `runCodexSmoke` | const | `packages/tooling/tool/cli/src/commands/Reuse/internal/CodexRunner.ts:53` | Validate the local Codex SDK adapter without running a reuse loop. |
-| `@beep/repo-cli/test/Reuse` | `sanitizeTerminalText` | const | `packages/tooling/tool/cli/src/commands/Reuse/Reuse.command.ts:154` | Remove terminal control sequences from human-readable reuse output. |
+| `@beep/repo-cli/test/Reuse` | `sanitizeTerminalText` | const | `packages/tooling/tool/cli/src/commands/Reuse/Reuse.command.ts:161` | Remove terminal control sequences from human-readable reuse output. |
 | `@beep/repo-cli/test/SyncDataToTs` | `ISO4217_SOURCE_URL` | const | `packages/tooling/tool/cli/src/commands/SyncDataToTs/targets/Iso4217.ts:27` | Official SIX XML source for ISO 4217 List One. |
 | `@beep/repo-cli/test/SyncDataToTs` | `iso4217Target` | const | `packages/tooling/tool/cli/src/commands/SyncDataToTs/targets/Iso4217.ts:274` | Checked-in sync target for the official SIX ISO 4217 List One XML feed. |
 | `@beep/repo-cli/test/SyncDataToTs` | `SyncDataRunMode` | const | `packages/tooling/tool/cli/src/commands/SyncDataToTs/internal/Models.ts:54` | Command execution mode for sync-data-to-ts. |
@@ -8328,6 +8328,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-utils` | `FilePathToTypeScriptFilePath` | const | `packages/tooling/library/repo-utils/src/TSMorph/TSMorph.model.ts:952` | Schema transformation from a generic file path to a TypeScript source file path. |
 | `@beep/repo-utils` | `FilePathToTypeScriptImplementationFilePath` | const | `packages/tooling/library/repo-utils/src/TSMorph/TSMorph.model.ts:910` | Schema transformation from a generic file path to a TypeScript implementation file path. |
 | `@beep/repo-utils` | `findRepoRoot` | const | `packages/tooling/library/repo-utils/src/Root.ts:45` | Find the repository root by walking upward from the given directory |
+| `@beep/repo-utils` | `fnv1a32` | const | `packages/tooling/library/repo-utils/src/Reuse/TokenSimilarity.ts:39` | 32-bit FNV-1a hash of a string (unsigned). The narrow-width sibling of the |
 | `@beep/repo-utils` | `FsUtils` | class | `packages/tooling/library/repo-utils/src/FsUtils.ts:160` | Service tag for `FsUtils`. |
 | `@beep/repo-utils` | `FsUtilsLive` | const | `packages/tooling/library/repo-utils/src/FsUtils.ts:176` | Live layer for `FsUtils` that uses the platform `FileSystem` and `Path` |
 | `@beep/repo-utils` | `FsUtilsShape` | interface | `packages/tooling/library/repo-utils/src/FsUtils.ts:60` | Shape of the FsUtils service. |
@@ -8337,16 +8338,19 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-utils` | `InternalTsMorphNode` | const | `packages/tooling/library/repo-utils/src/TSMorph/TSMorph.model.ts:1092` | Internal runtime schema for a live ts-morph Node instance. |
 | `@beep/repo-utils` | `InternalTsMorphProject` | const | `packages/tooling/library/repo-utils/src/TSMorph/TSMorph.model.ts:1056` | Internal runtime schemas. |
 | `@beep/repo-utils` | `InternalTsMorphSourceFile` | const | `packages/tooling/library/repo-utils/src/TSMorph/TSMorph.model.ts:1073` | Internal runtime schema for a live ts-morph SourceFile instance. |
+| `@beep/repo-utils` | `jaccardSimilarity` | const | `packages/tooling/library/repo-utils/src/Reuse/TokenSimilarity.ts:193` | Exact Jaccard similarity between two shingle sets: `\|A ∩ B\| / \|A ∪ B\|`. Two |
 | `@beep/repo-utils` | `jsonParse` | const | `packages/tooling/library/repo-utils/src/JsonUtils.ts:82` | Parse a JSON string into an unknown value using `SchemaGetter.parseJson`. |
 | `@beep/repo-utils` | `jsonStringifyCompact` | const | `packages/tooling/library/repo-utils/src/JsonUtils.ts:59` | Serialize a value to a compact JSON string |
 | `@beep/repo-utils` | `jsonStringifyPretty` | const | `packages/tooling/library/repo-utils/src/JsonUtils.ts:35` | Serialize a value to a pretty-printed JSON string (2-space indent) |
 | `@beep/repo-utils` | `LineNumber` | const | `packages/tooling/library/repo-utils/src/TSMorph/TSMorph.model.ts:541` | Positive 1-based line number schema. |
 | `@beep/repo-utils` | `LineNumber` | type | `packages/tooling/library/repo-utils/src/TSMorph/TSMorph.model.ts:559` | Branded positive 1-based line number. |
+| `@beep/repo-utils` | `lshBandKeys` | const | `packages/tooling/library/repo-utils/src/Reuse/TokenSimilarity.ts:160` | Project a MinHash signature into `bands` LSH band keys. The signature is split |
 | `@beep/repo-utils` | `makeProjectCacheKey` | const | `packages/tooling/library/repo-utils/src/TSMorph/TSMorph.model.ts:1278` | Builds a stable `ProjectCacheKey` from validated scope identity parts. |
 | `@beep/repo-utils` | `makeProjectScopeId` | const | `packages/tooling/library/repo-utils/src/TSMorph/TSMorph.model.ts:1256` | Builds a stable `ProjectScopeId` from validated scope identity parts. |
 | `@beep/repo-utils` | `makeSymbol` | const | `packages/tooling/library/repo-utils/src/TSMorph/TSMorph.model.ts:1298` | Normalizes symbol input by deriving missing identity and category fields. |
 | `@beep/repo-utils` | `makeSymbolId` | const | `packages/tooling/library/repo-utils/src/TSMorph/TSMorph.model.ts:1237` | Builds a stable `SymbolId` from validated symbol identity parts. |
-| `@beep/repo-utils` | `normalizedDeclarationSignature` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:608` | Normalize a declaration to a structural signature that ignores formatting, |
+| `@beep/repo-utils` | `minhashSignature` | const | `packages/tooling/library/repo-utils/src/Reuse/TokenSimilarity.ts:122` | Compute an `permutations`-length MinHash signature of a shingle set. Each slot |
+| `@beep/repo-utils` | `normalizedDeclarationSignature` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:609` | Normalize a declaration to a structural signature that ignores formatting, |
 | `@beep/repo-utils` | `normalizePackageJsonEffect` | const | `packages/tooling/library/repo-utils/src/schemas/PackageJsonTools.ts:306` | Normalize an unknown package.json value into a canonical encoded object. |
 | `@beep/repo-utils` | `NoSuchFileError` | class | `packages/tooling/library/repo-utils/src/errors/NoSuchFileError.ts:32` | Raised when a required file or directory cannot be located. |
 | `@beep/repo-utils` | `NpmPackageJson` | class | `packages/tooling/library/repo-utils/src/schemas/PackageJson.ts:965` | Type-safe schema for npm package.json files. |
@@ -8364,31 +8368,31 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-utils` | `RepoRootPath` | const | `packages/tooling/library/repo-utils/src/TSMorph/TSMorph.model.ts:121` | Repository root directory path schema. |
 | `@beep/repo-utils` | `RepoRootPath` | type | `packages/tooling/library/repo-utils/src/TSMorph/TSMorph.model.ts:139` | Branded repository root directory path. |
 | `@beep/repo-utils` | `resolveWorkspaceDirs` | const | `packages/tooling/library/repo-utils/src/Workspaces.ts:88` | Resolve all workspace directories declared in the root `package.json`. |
-| `@beep/repo-utils` | `ReuseAnalysisError` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:118` | Typed error returned when reuse analysis cannot complete a repository scan or lookup. |
-| `@beep/repo-utils` | `ReuseCandidate` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts:287` | Ranked reuse candidate inventory item. |
-| `@beep/repo-utils` | `ReuseCandidateKind` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts:95` | Candidate kind domain for inventory items. |
-| `@beep/repo-utils` | `ReuseCandidateKind` | type | `packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts:119` | Runtime type for `ReuseCandidateKind`. |
-| `@beep/repo-utils` | `ReuseCandidateNotFoundError` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:144` | Typed error returned when a requested candidate id is absent from the current reuse inventory. |
-| `@beep/repo-utils` | `ReuseCatalogEntry` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts:174` | Catalog entry describing an existing reusable symbol or curated pattern. |
+| `@beep/repo-utils` | `ReuseAnalysisError` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:119` | Typed error returned when reuse analysis cannot complete a repository scan or lookup. |
+| `@beep/repo-utils` | `ReuseCandidate` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts:290` | Ranked reuse candidate inventory item. |
+| `@beep/repo-utils` | `ReuseCandidateKind` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts:104` | Candidate kind domain for inventory items. |
+| `@beep/repo-utils` | `ReuseCandidateKind` | type | `packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts:122` | Runtime type for `ReuseCandidateKind`. |
+| `@beep/repo-utils` | `ReuseCandidateNotFoundError` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:145` | Typed error returned when a requested candidate id is absent from the current reuse inventory. |
+| `@beep/repo-utils` | `ReuseCatalogEntry` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts:177` | Catalog entry describing an existing reusable symbol or curated pattern. |
 | `@beep/repo-utils` | `ReuseCatalogOrigin` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts:27` | Catalog entry origin domain. |
 | `@beep/repo-utils` | `ReuseCatalogOrigin` | type | `packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts:49` | Runtime type for `ReuseCatalogOrigin`. |
-| `@beep/repo-utils` | `ReuseCatalogService` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1143` | Service tag for the reuse catalog contract. |
-| `@beep/repo-utils` | `ReuseCatalogServiceLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1280` | Default live layer for building the shared reuse catalog. |
-| `@beep/repo-utils` | `ReuseCloneService` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1792` | Service tag for declaration-anchored structural clone detection. |
-| `@beep/repo-utils` | `ReuseCloneServiceLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1808` | Default live layer for declaration-anchored structural clone detection. |
-| `@beep/repo-utils` | `ReuseDiscoveryService` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1211` | Service tag for reuse candidate discovery. |
-| `@beep/repo-utils` | `ReuseDiscoveryServiceLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1428` | Default live layer for reuse candidate discovery and local option lookup. |
-| `@beep/repo-utils` | `ReuseFindResult` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts:404` | Results for local-file reuse lookups. |
-| `@beep/repo-utils` | `ReuseInventory` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts:330` | Inventory payload produced for a requested scope. |
-| `@beep/repo-utils` | `ReuseInventoryService` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1245` | Service tag for reuse inventory materialization. |
-| `@beep/repo-utils` | `ReuseInventoryServiceLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1606` | Default live layer for ranked reuse inventories and implementation packets. |
-| `@beep/repo-utils` | `ReusePacket` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts:374` | Materialized implementation packet for one reuse candidate. |
-| `@beep/repo-utils` | `ReusePartitionPlan` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts:242` | Partition plan covering scout and specialist work units for a selected scope. |
-| `@beep/repo-utils` | `ReusePartitionPlannerService` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1173` | Service tag for reuse partition planning. |
-| `@beep/repo-utils` | `ReusePartitionPlannerServiceLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1325` | Default live layer for reuse partition planning. |
-| `@beep/repo-utils` | `ReuseServiceSuiteLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1867` | Fully wired reuse-discovery layer suite for CLI and tests. |
-| `@beep/repo-utils` | `ReuseSourceSymbolRef` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts:138` | File-local source symbol reference tied to a reuse opportunity. |
-| `@beep/repo-utils` | `ReuseWorkUnit` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts:210` | Partition work unit emitted for package scouts or hotspot specialists. |
+| `@beep/repo-utils` | `ReuseCatalogService` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1387` | Service tag for the reuse catalog contract. |
+| `@beep/repo-utils` | `ReuseCatalogServiceLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1525` | Default live layer for building the shared reuse catalog. |
+| `@beep/repo-utils` | `ReuseCloneService` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:2055` | Service tag for declaration-anchored structural clone detection. |
+| `@beep/repo-utils` | `ReuseCloneServiceLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:2071` | Default live layer for declaration-anchored structural clone detection. |
+| `@beep/repo-utils` | `ReuseDiscoveryService` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1455` | Service tag for reuse candidate discovery. |
+| `@beep/repo-utils` | `ReuseDiscoveryServiceLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1673` | Default live layer for reuse candidate discovery and local option lookup. |
+| `@beep/repo-utils` | `ReuseFindResult` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts:407` | Results for local-file reuse lookups. |
+| `@beep/repo-utils` | `ReuseInventory` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts:333` | Inventory payload produced for a requested scope. |
+| `@beep/repo-utils` | `ReuseInventoryService` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1489` | Service tag for reuse inventory materialization. |
+| `@beep/repo-utils` | `ReuseInventoryServiceLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1851` | Default live layer for ranked reuse inventories and implementation packets. |
+| `@beep/repo-utils` | `ReusePacket` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts:377` | Materialized implementation packet for one reuse candidate. |
+| `@beep/repo-utils` | `ReusePartitionPlan` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts:245` | Partition plan covering scout and specialist work units for a selected scope. |
+| `@beep/repo-utils` | `ReusePartitionPlannerService` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1417` | Service tag for reuse partition planning. |
+| `@beep/repo-utils` | `ReusePartitionPlannerServiceLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1570` | Default live layer for reuse partition planning. |
+| `@beep/repo-utils` | `ReuseServiceSuiteLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:2156` | Fully wired reuse-discovery layer suite for CLI and tests. |
+| `@beep/repo-utils` | `ReuseSourceSymbolRef` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts:141` | File-local source symbol reference tied to a reuse opportunity. |
+| `@beep/repo-utils` | `ReuseWorkUnit` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts:213` | Partition work unit emitted for package scouts or hotspot specialists. |
 | `@beep/repo-utils` | `ReuseWorkUnitKind` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts:63` | Partition work-unit kind. |
 | `@beep/repo-utils` | `ReuseWorkUnitKind` | type | `packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts:81` | Runtime type for `ReuseWorkUnitKind`. |
 | `@beep/repo-utils` | `SourceText` | const | `packages/tooling/library/repo-utils/src/TSMorph/TSMorph.model.ts:510` | Non-empty source text schema. |
@@ -8412,6 +8416,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-utils` | `SymbolNameSegment` | type | `packages/tooling/library/repo-utils/src/TSMorph/TSMorph.model.ts:355` | Branded single symbol name segment. |
 | `@beep/repo-utils` | `SymbolQualifiedName` | const | `packages/tooling/library/repo-utils/src/TSMorph/TSMorph.model.ts:368` | Qualified symbol name schema. |
 | `@beep/repo-utils` | `SymbolQualifiedName` | type | `packages/tooling/library/repo-utils/src/TSMorph/TSMorph.model.ts:386` | Branded qualified symbol name. |
+| `@beep/repo-utils` | `tokenShingles` | const | `packages/tooling/library/repo-utils/src/Reuse/TokenSimilarity.ts:64` | Split a normalized token sequence into the set of contiguous k-grams |
 | `@beep/repo-utils` | `topologicalSort` | const | `packages/tooling/library/repo-utils/src/Graph.ts:109` | Compute a topological ordering (dependency-first build order) of packages |
 | `@beep/repo-utils` | `TSConfig` | class | `packages/tooling/library/repo-utils/src/schemas/TSConfig.ts:1597` | Strict TypeScript tsconfig document schema. |
 | `@beep/repo-utils` | `TSConfig` | namespace | `packages/tooling/library/repo-utils/src/schemas/TSConfig.ts:1618` | Namespace helpers for the strict tsconfig schema. |
@@ -8535,6 +8540,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-utils/index` | `FilePathToTypeScriptFilePath` | const | `packages/tooling/library/repo-utils/src/TSMorph/TSMorph.model.ts:952` | Schema transformation from a generic file path to a TypeScript source file path. |
 | `@beep/repo-utils/index` | `FilePathToTypeScriptImplementationFilePath` | const | `packages/tooling/library/repo-utils/src/TSMorph/TSMorph.model.ts:910` | Schema transformation from a generic file path to a TypeScript implementation file path. |
 | `@beep/repo-utils/index` | `findRepoRoot` | const | `packages/tooling/library/repo-utils/src/Root.ts:45` | Find the repository root by walking upward from the given directory |
+| `@beep/repo-utils/index` | `fnv1a32` | const | `packages/tooling/library/repo-utils/src/Reuse/TokenSimilarity.ts:39` | 32-bit FNV-1a hash of a string (unsigned). The narrow-width sibling of the |
 | `@beep/repo-utils/index` | `FsUtils` | class | `packages/tooling/library/repo-utils/src/FsUtils.ts:160` | Service tag for `FsUtils`. |
 | `@beep/repo-utils/index` | `FsUtilsLive` | const | `packages/tooling/library/repo-utils/src/FsUtils.ts:176` | Live layer for `FsUtils` that uses the platform `FileSystem` and `Path` |
 | `@beep/repo-utils/index` | `FsUtilsShape` | interface | `packages/tooling/library/repo-utils/src/FsUtils.ts:60` | Shape of the FsUtils service. |
@@ -8544,16 +8550,19 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-utils/index` | `InternalTsMorphNode` | const | `packages/tooling/library/repo-utils/src/TSMorph/TSMorph.model.ts:1092` | Internal runtime schema for a live ts-morph Node instance. |
 | `@beep/repo-utils/index` | `InternalTsMorphProject` | const | `packages/tooling/library/repo-utils/src/TSMorph/TSMorph.model.ts:1056` | Internal runtime schemas. |
 | `@beep/repo-utils/index` | `InternalTsMorphSourceFile` | const | `packages/tooling/library/repo-utils/src/TSMorph/TSMorph.model.ts:1073` | Internal runtime schema for a live ts-morph SourceFile instance. |
+| `@beep/repo-utils/index` | `jaccardSimilarity` | const | `packages/tooling/library/repo-utils/src/Reuse/TokenSimilarity.ts:193` | Exact Jaccard similarity between two shingle sets: `\|A ∩ B\| / \|A ∪ B\|`. Two |
 | `@beep/repo-utils/index` | `jsonParse` | const | `packages/tooling/library/repo-utils/src/JsonUtils.ts:82` | Parse a JSON string into an unknown value using `SchemaGetter.parseJson`. |
 | `@beep/repo-utils/index` | `jsonStringifyCompact` | const | `packages/tooling/library/repo-utils/src/JsonUtils.ts:59` | Serialize a value to a compact JSON string |
 | `@beep/repo-utils/index` | `jsonStringifyPretty` | const | `packages/tooling/library/repo-utils/src/JsonUtils.ts:35` | Serialize a value to a pretty-printed JSON string (2-space indent) |
 | `@beep/repo-utils/index` | `LineNumber` | const | `packages/tooling/library/repo-utils/src/TSMorph/TSMorph.model.ts:541` | Positive 1-based line number schema. |
 | `@beep/repo-utils/index` | `LineNumber` | type | `packages/tooling/library/repo-utils/src/TSMorph/TSMorph.model.ts:559` | Branded positive 1-based line number. |
+| `@beep/repo-utils/index` | `lshBandKeys` | const | `packages/tooling/library/repo-utils/src/Reuse/TokenSimilarity.ts:160` | Project a MinHash signature into `bands` LSH band keys. The signature is split |
 | `@beep/repo-utils/index` | `makeProjectCacheKey` | const | `packages/tooling/library/repo-utils/src/TSMorph/TSMorph.model.ts:1278` | Builds a stable `ProjectCacheKey` from validated scope identity parts. |
 | `@beep/repo-utils/index` | `makeProjectScopeId` | const | `packages/tooling/library/repo-utils/src/TSMorph/TSMorph.model.ts:1256` | Builds a stable `ProjectScopeId` from validated scope identity parts. |
 | `@beep/repo-utils/index` | `makeSymbol` | const | `packages/tooling/library/repo-utils/src/TSMorph/TSMorph.model.ts:1298` | Normalizes symbol input by deriving missing identity and category fields. |
 | `@beep/repo-utils/index` | `makeSymbolId` | const | `packages/tooling/library/repo-utils/src/TSMorph/TSMorph.model.ts:1237` | Builds a stable `SymbolId` from validated symbol identity parts. |
-| `@beep/repo-utils/index` | `normalizedDeclarationSignature` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:608` | Normalize a declaration to a structural signature that ignores formatting, |
+| `@beep/repo-utils/index` | `minhashSignature` | const | `packages/tooling/library/repo-utils/src/Reuse/TokenSimilarity.ts:122` | Compute an `permutations`-length MinHash signature of a shingle set. Each slot |
+| `@beep/repo-utils/index` | `normalizedDeclarationSignature` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:609` | Normalize a declaration to a structural signature that ignores formatting, |
 | `@beep/repo-utils/index` | `normalizePackageJsonEffect` | const | `packages/tooling/library/repo-utils/src/schemas/PackageJsonTools.ts:306` | Normalize an unknown package.json value into a canonical encoded object. |
 | `@beep/repo-utils/index` | `NoSuchFileError` | class | `packages/tooling/library/repo-utils/src/errors/NoSuchFileError.ts:32` | Raised when a required file or directory cannot be located. |
 | `@beep/repo-utils/index` | `NpmPackageJson` | class | `packages/tooling/library/repo-utils/src/schemas/PackageJson.ts:965` | Type-safe schema for npm package.json files. |
@@ -8571,31 +8580,31 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-utils/index` | `RepoRootPath` | const | `packages/tooling/library/repo-utils/src/TSMorph/TSMorph.model.ts:121` | Repository root directory path schema. |
 | `@beep/repo-utils/index` | `RepoRootPath` | type | `packages/tooling/library/repo-utils/src/TSMorph/TSMorph.model.ts:139` | Branded repository root directory path. |
 | `@beep/repo-utils/index` | `resolveWorkspaceDirs` | const | `packages/tooling/library/repo-utils/src/Workspaces.ts:88` | Resolve all workspace directories declared in the root `package.json`. |
-| `@beep/repo-utils/index` | `ReuseAnalysisError` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:118` | Typed error returned when reuse analysis cannot complete a repository scan or lookup. |
-| `@beep/repo-utils/index` | `ReuseCandidate` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts:287` | Ranked reuse candidate inventory item. |
-| `@beep/repo-utils/index` | `ReuseCandidateKind` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts:95` | Candidate kind domain for inventory items. |
-| `@beep/repo-utils/index` | `ReuseCandidateKind` | type | `packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts:119` | Runtime type for `ReuseCandidateKind`. |
-| `@beep/repo-utils/index` | `ReuseCandidateNotFoundError` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:144` | Typed error returned when a requested candidate id is absent from the current reuse inventory. |
-| `@beep/repo-utils/index` | `ReuseCatalogEntry` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts:174` | Catalog entry describing an existing reusable symbol or curated pattern. |
+| `@beep/repo-utils/index` | `ReuseAnalysisError` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:119` | Typed error returned when reuse analysis cannot complete a repository scan or lookup. |
+| `@beep/repo-utils/index` | `ReuseCandidate` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts:290` | Ranked reuse candidate inventory item. |
+| `@beep/repo-utils/index` | `ReuseCandidateKind` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts:104` | Candidate kind domain for inventory items. |
+| `@beep/repo-utils/index` | `ReuseCandidateKind` | type | `packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts:122` | Runtime type for `ReuseCandidateKind`. |
+| `@beep/repo-utils/index` | `ReuseCandidateNotFoundError` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:145` | Typed error returned when a requested candidate id is absent from the current reuse inventory. |
+| `@beep/repo-utils/index` | `ReuseCatalogEntry` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts:177` | Catalog entry describing an existing reusable symbol or curated pattern. |
 | `@beep/repo-utils/index` | `ReuseCatalogOrigin` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts:27` | Catalog entry origin domain. |
 | `@beep/repo-utils/index` | `ReuseCatalogOrigin` | type | `packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts:49` | Runtime type for `ReuseCatalogOrigin`. |
-| `@beep/repo-utils/index` | `ReuseCatalogService` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1143` | Service tag for the reuse catalog contract. |
-| `@beep/repo-utils/index` | `ReuseCatalogServiceLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1280` | Default live layer for building the shared reuse catalog. |
-| `@beep/repo-utils/index` | `ReuseCloneService` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1792` | Service tag for declaration-anchored structural clone detection. |
-| `@beep/repo-utils/index` | `ReuseCloneServiceLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1808` | Default live layer for declaration-anchored structural clone detection. |
-| `@beep/repo-utils/index` | `ReuseDiscoveryService` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1211` | Service tag for reuse candidate discovery. |
-| `@beep/repo-utils/index` | `ReuseDiscoveryServiceLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1428` | Default live layer for reuse candidate discovery and local option lookup. |
-| `@beep/repo-utils/index` | `ReuseFindResult` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts:404` | Results for local-file reuse lookups. |
-| `@beep/repo-utils/index` | `ReuseInventory` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts:330` | Inventory payload produced for a requested scope. |
-| `@beep/repo-utils/index` | `ReuseInventoryService` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1245` | Service tag for reuse inventory materialization. |
-| `@beep/repo-utils/index` | `ReuseInventoryServiceLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1606` | Default live layer for ranked reuse inventories and implementation packets. |
-| `@beep/repo-utils/index` | `ReusePacket` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts:374` | Materialized implementation packet for one reuse candidate. |
-| `@beep/repo-utils/index` | `ReusePartitionPlan` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts:242` | Partition plan covering scout and specialist work units for a selected scope. |
-| `@beep/repo-utils/index` | `ReusePartitionPlannerService` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1173` | Service tag for reuse partition planning. |
-| `@beep/repo-utils/index` | `ReusePartitionPlannerServiceLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1325` | Default live layer for reuse partition planning. |
-| `@beep/repo-utils/index` | `ReuseServiceSuiteLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1867` | Fully wired reuse-discovery layer suite for CLI and tests. |
-| `@beep/repo-utils/index` | `ReuseSourceSymbolRef` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts:138` | File-local source symbol reference tied to a reuse opportunity. |
-| `@beep/repo-utils/index` | `ReuseWorkUnit` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts:210` | Partition work unit emitted for package scouts or hotspot specialists. |
+| `@beep/repo-utils/index` | `ReuseCatalogService` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1387` | Service tag for the reuse catalog contract. |
+| `@beep/repo-utils/index` | `ReuseCatalogServiceLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1525` | Default live layer for building the shared reuse catalog. |
+| `@beep/repo-utils/index` | `ReuseCloneService` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:2055` | Service tag for declaration-anchored structural clone detection. |
+| `@beep/repo-utils/index` | `ReuseCloneServiceLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:2071` | Default live layer for declaration-anchored structural clone detection. |
+| `@beep/repo-utils/index` | `ReuseDiscoveryService` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1455` | Service tag for reuse candidate discovery. |
+| `@beep/repo-utils/index` | `ReuseDiscoveryServiceLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1673` | Default live layer for reuse candidate discovery and local option lookup. |
+| `@beep/repo-utils/index` | `ReuseFindResult` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts:407` | Results for local-file reuse lookups. |
+| `@beep/repo-utils/index` | `ReuseInventory` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts:333` | Inventory payload produced for a requested scope. |
+| `@beep/repo-utils/index` | `ReuseInventoryService` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1489` | Service tag for reuse inventory materialization. |
+| `@beep/repo-utils/index` | `ReuseInventoryServiceLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1851` | Default live layer for ranked reuse inventories and implementation packets. |
+| `@beep/repo-utils/index` | `ReusePacket` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts:377` | Materialized implementation packet for one reuse candidate. |
+| `@beep/repo-utils/index` | `ReusePartitionPlan` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts:245` | Partition plan covering scout and specialist work units for a selected scope. |
+| `@beep/repo-utils/index` | `ReusePartitionPlannerService` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1417` | Service tag for reuse partition planning. |
+| `@beep/repo-utils/index` | `ReusePartitionPlannerServiceLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1570` | Default live layer for reuse partition planning. |
+| `@beep/repo-utils/index` | `ReuseServiceSuiteLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:2156` | Fully wired reuse-discovery layer suite for CLI and tests. |
+| `@beep/repo-utils/index` | `ReuseSourceSymbolRef` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts:141` | File-local source symbol reference tied to a reuse opportunity. |
+| `@beep/repo-utils/index` | `ReuseWorkUnit` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts:213` | Partition work unit emitted for package scouts or hotspot specialists. |
 | `@beep/repo-utils/index` | `ReuseWorkUnitKind` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts:63` | Partition work-unit kind. |
 | `@beep/repo-utils/index` | `ReuseWorkUnitKind` | type | `packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts:81` | Runtime type for `ReuseWorkUnitKind`. |
 | `@beep/repo-utils/index` | `SourceText` | const | `packages/tooling/library/repo-utils/src/TSMorph/TSMorph.model.ts:510` | Non-empty source text schema. |
@@ -8619,6 +8628,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-utils/index` | `SymbolNameSegment` | type | `packages/tooling/library/repo-utils/src/TSMorph/TSMorph.model.ts:355` | Branded single symbol name segment. |
 | `@beep/repo-utils/index` | `SymbolQualifiedName` | const | `packages/tooling/library/repo-utils/src/TSMorph/TSMorph.model.ts:368` | Qualified symbol name schema. |
 | `@beep/repo-utils/index` | `SymbolQualifiedName` | type | `packages/tooling/library/repo-utils/src/TSMorph/TSMorph.model.ts:386` | Branded qualified symbol name. |
+| `@beep/repo-utils/index` | `tokenShingles` | const | `packages/tooling/library/repo-utils/src/Reuse/TokenSimilarity.ts:64` | Split a normalized token sequence into the set of contiguous k-grams |
 | `@beep/repo-utils/index` | `topologicalSort` | const | `packages/tooling/library/repo-utils/src/Graph.ts:109` | Compute a topological ordering (dependency-first build order) of packages |
 | `@beep/repo-utils/index` | `TSConfig` | class | `packages/tooling/library/repo-utils/src/schemas/TSConfig.ts:1597` | Strict TypeScript tsconfig document schema. |
 | `@beep/repo-utils/index` | `TSConfig` | namespace | `packages/tooling/library/repo-utils/src/schemas/TSConfig.ts:1618` | Namespace helpers for the strict tsconfig schema. |
@@ -9510,62 +9520,72 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-utils/JsonUtils` | `jsonParse` | const | `packages/tooling/library/repo-utils/src/JsonUtils.ts:82` | Parse a JSON string into an unknown value using `SchemaGetter.parseJson`. |
 | `@beep/repo-utils/JsonUtils` | `jsonStringifyCompact` | const | `packages/tooling/library/repo-utils/src/JsonUtils.ts:59` | Serialize a value to a compact JSON string |
 | `@beep/repo-utils/JsonUtils` | `jsonStringifyPretty` | const | `packages/tooling/library/repo-utils/src/JsonUtils.ts:35` | Serialize a value to a pretty-printed JSON string (2-space indent) |
-| `@beep/repo-utils/Reuse/index` | `normalizedDeclarationSignature` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:608` | Normalize a declaration to a structural signature that ignores formatting, |
-| `@beep/repo-utils/Reuse/index` | `ReuseAnalysisError` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:118` | Typed error returned when reuse analysis cannot complete a repository scan or lookup. |
-| `@beep/repo-utils/Reuse/index` | `ReuseCandidate` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts:287` | Ranked reuse candidate inventory item. |
-| `@beep/repo-utils/Reuse/index` | `ReuseCandidateKind` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts:95` | Candidate kind domain for inventory items. |
-| `@beep/repo-utils/Reuse/index` | `ReuseCandidateKind` | type | `packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts:119` | Runtime type for `ReuseCandidateKind`. |
-| `@beep/repo-utils/Reuse/index` | `ReuseCandidateNotFoundError` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:144` | Typed error returned when a requested candidate id is absent from the current reuse inventory. |
-| `@beep/repo-utils/Reuse/index` | `ReuseCatalogEntry` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts:174` | Catalog entry describing an existing reusable symbol or curated pattern. |
+| `@beep/repo-utils/Reuse/index` | `fnv1a32` | const | `packages/tooling/library/repo-utils/src/Reuse/TokenSimilarity.ts:39` | 32-bit FNV-1a hash of a string (unsigned). The narrow-width sibling of the |
+| `@beep/repo-utils/Reuse/index` | `jaccardSimilarity` | const | `packages/tooling/library/repo-utils/src/Reuse/TokenSimilarity.ts:193` | Exact Jaccard similarity between two shingle sets: `\|A ∩ B\| / \|A ∪ B\|`. Two |
+| `@beep/repo-utils/Reuse/index` | `lshBandKeys` | const | `packages/tooling/library/repo-utils/src/Reuse/TokenSimilarity.ts:160` | Project a MinHash signature into `bands` LSH band keys. The signature is split |
+| `@beep/repo-utils/Reuse/index` | `minhashSignature` | const | `packages/tooling/library/repo-utils/src/Reuse/TokenSimilarity.ts:122` | Compute an `permutations`-length MinHash signature of a shingle set. Each slot |
+| `@beep/repo-utils/Reuse/index` | `normalizedDeclarationSignature` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:609` | Normalize a declaration to a structural signature that ignores formatting, |
+| `@beep/repo-utils/Reuse/index` | `ReuseAnalysisError` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:119` | Typed error returned when reuse analysis cannot complete a repository scan or lookup. |
+| `@beep/repo-utils/Reuse/index` | `ReuseCandidate` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts:290` | Ranked reuse candidate inventory item. |
+| `@beep/repo-utils/Reuse/index` | `ReuseCandidateKind` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts:104` | Candidate kind domain for inventory items. |
+| `@beep/repo-utils/Reuse/index` | `ReuseCandidateKind` | type | `packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts:122` | Runtime type for `ReuseCandidateKind`. |
+| `@beep/repo-utils/Reuse/index` | `ReuseCandidateNotFoundError` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:145` | Typed error returned when a requested candidate id is absent from the current reuse inventory. |
+| `@beep/repo-utils/Reuse/index` | `ReuseCatalogEntry` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts:177` | Catalog entry describing an existing reusable symbol or curated pattern. |
 | `@beep/repo-utils/Reuse/index` | `ReuseCatalogOrigin` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts:27` | Catalog entry origin domain. |
 | `@beep/repo-utils/Reuse/index` | `ReuseCatalogOrigin` | type | `packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts:49` | Runtime type for `ReuseCatalogOrigin`. |
-| `@beep/repo-utils/Reuse/index` | `ReuseCatalogService` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1143` | Service tag for the reuse catalog contract. |
-| `@beep/repo-utils/Reuse/index` | `ReuseCatalogServiceLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1280` | Default live layer for building the shared reuse catalog. |
-| `@beep/repo-utils/Reuse/index` | `ReuseCloneService` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1792` | Service tag for declaration-anchored structural clone detection. |
-| `@beep/repo-utils/Reuse/index` | `ReuseCloneServiceLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1808` | Default live layer for declaration-anchored structural clone detection. |
-| `@beep/repo-utils/Reuse/index` | `ReuseDiscoveryService` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1211` | Service tag for reuse candidate discovery. |
-| `@beep/repo-utils/Reuse/index` | `ReuseDiscoveryServiceLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1428` | Default live layer for reuse candidate discovery and local option lookup. |
-| `@beep/repo-utils/Reuse/index` | `ReuseFindResult` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts:404` | Results for local-file reuse lookups. |
-| `@beep/repo-utils/Reuse/index` | `ReuseInventory` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts:330` | Inventory payload produced for a requested scope. |
-| `@beep/repo-utils/Reuse/index` | `ReuseInventoryService` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1245` | Service tag for reuse inventory materialization. |
-| `@beep/repo-utils/Reuse/index` | `ReuseInventoryServiceLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1606` | Default live layer for ranked reuse inventories and implementation packets. |
-| `@beep/repo-utils/Reuse/index` | `ReusePacket` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts:374` | Materialized implementation packet for one reuse candidate. |
-| `@beep/repo-utils/Reuse/index` | `ReusePartitionPlan` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts:242` | Partition plan covering scout and specialist work units for a selected scope. |
-| `@beep/repo-utils/Reuse/index` | `ReusePartitionPlannerService` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1173` | Service tag for reuse partition planning. |
-| `@beep/repo-utils/Reuse/index` | `ReusePartitionPlannerServiceLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1325` | Default live layer for reuse partition planning. |
-| `@beep/repo-utils/Reuse/index` | `ReuseServiceSuiteLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1867` | Fully wired reuse-discovery layer suite for CLI and tests. |
-| `@beep/repo-utils/Reuse/index` | `ReuseSourceSymbolRef` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts:138` | File-local source symbol reference tied to a reuse opportunity. |
-| `@beep/repo-utils/Reuse/index` | `ReuseWorkUnit` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts:210` | Partition work unit emitted for package scouts or hotspot specialists. |
+| `@beep/repo-utils/Reuse/index` | `ReuseCatalogService` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1387` | Service tag for the reuse catalog contract. |
+| `@beep/repo-utils/Reuse/index` | `ReuseCatalogServiceLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1525` | Default live layer for building the shared reuse catalog. |
+| `@beep/repo-utils/Reuse/index` | `ReuseCloneService` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:2055` | Service tag for declaration-anchored structural clone detection. |
+| `@beep/repo-utils/Reuse/index` | `ReuseCloneServiceLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:2071` | Default live layer for declaration-anchored structural clone detection. |
+| `@beep/repo-utils/Reuse/index` | `ReuseDiscoveryService` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1455` | Service tag for reuse candidate discovery. |
+| `@beep/repo-utils/Reuse/index` | `ReuseDiscoveryServiceLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1673` | Default live layer for reuse candidate discovery and local option lookup. |
+| `@beep/repo-utils/Reuse/index` | `ReuseFindResult` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts:407` | Results for local-file reuse lookups. |
+| `@beep/repo-utils/Reuse/index` | `ReuseInventory` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts:333` | Inventory payload produced for a requested scope. |
+| `@beep/repo-utils/Reuse/index` | `ReuseInventoryService` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1489` | Service tag for reuse inventory materialization. |
+| `@beep/repo-utils/Reuse/index` | `ReuseInventoryServiceLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1851` | Default live layer for ranked reuse inventories and implementation packets. |
+| `@beep/repo-utils/Reuse/index` | `ReusePacket` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts:377` | Materialized implementation packet for one reuse candidate. |
+| `@beep/repo-utils/Reuse/index` | `ReusePartitionPlan` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts:245` | Partition plan covering scout and specialist work units for a selected scope. |
+| `@beep/repo-utils/Reuse/index` | `ReusePartitionPlannerService` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1417` | Service tag for reuse partition planning. |
+| `@beep/repo-utils/Reuse/index` | `ReusePartitionPlannerServiceLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1570` | Default live layer for reuse partition planning. |
+| `@beep/repo-utils/Reuse/index` | `ReuseServiceSuiteLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:2156` | Fully wired reuse-discovery layer suite for CLI and tests. |
+| `@beep/repo-utils/Reuse/index` | `ReuseSourceSymbolRef` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts:141` | File-local source symbol reference tied to a reuse opportunity. |
+| `@beep/repo-utils/Reuse/index` | `ReuseWorkUnit` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts:213` | Partition work unit emitted for package scouts or hotspot specialists. |
 | `@beep/repo-utils/Reuse/index` | `ReuseWorkUnitKind` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts:63` | Partition work-unit kind. |
 | `@beep/repo-utils/Reuse/index` | `ReuseWorkUnitKind` | type | `packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts:81` | Runtime type for `ReuseWorkUnitKind`. |
-| `@beep/repo-utils/Reuse/Reuse.model` | `ReuseCandidate` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts:287` | Ranked reuse candidate inventory item. |
-| `@beep/repo-utils/Reuse/Reuse.model` | `ReuseCandidateKind` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts:95` | Candidate kind domain for inventory items. |
-| `@beep/repo-utils/Reuse/Reuse.model` | `ReuseCandidateKind` | type | `packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts:119` | Runtime type for `ReuseCandidateKind`. |
-| `@beep/repo-utils/Reuse/Reuse.model` | `ReuseCatalogEntry` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts:174` | Catalog entry describing an existing reusable symbol or curated pattern. |
+| `@beep/repo-utils/Reuse/index` | `tokenShingles` | const | `packages/tooling/library/repo-utils/src/Reuse/TokenSimilarity.ts:64` | Split a normalized token sequence into the set of contiguous k-grams |
+| `@beep/repo-utils/Reuse/Reuse.model` | `ReuseCandidate` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts:290` | Ranked reuse candidate inventory item. |
+| `@beep/repo-utils/Reuse/Reuse.model` | `ReuseCandidateKind` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts:104` | Candidate kind domain for inventory items. |
+| `@beep/repo-utils/Reuse/Reuse.model` | `ReuseCandidateKind` | type | `packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts:122` | Runtime type for `ReuseCandidateKind`. |
+| `@beep/repo-utils/Reuse/Reuse.model` | `ReuseCatalogEntry` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts:177` | Catalog entry describing an existing reusable symbol or curated pattern. |
 | `@beep/repo-utils/Reuse/Reuse.model` | `ReuseCatalogOrigin` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts:27` | Catalog entry origin domain. |
 | `@beep/repo-utils/Reuse/Reuse.model` | `ReuseCatalogOrigin` | type | `packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts:49` | Runtime type for `ReuseCatalogOrigin`. |
-| `@beep/repo-utils/Reuse/Reuse.model` | `ReuseFindResult` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts:404` | Results for local-file reuse lookups. |
-| `@beep/repo-utils/Reuse/Reuse.model` | `ReuseInventory` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts:330` | Inventory payload produced for a requested scope. |
-| `@beep/repo-utils/Reuse/Reuse.model` | `ReusePacket` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts:374` | Materialized implementation packet for one reuse candidate. |
-| `@beep/repo-utils/Reuse/Reuse.model` | `ReusePartitionPlan` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts:242` | Partition plan covering scout and specialist work units for a selected scope. |
-| `@beep/repo-utils/Reuse/Reuse.model` | `ReuseSourceSymbolRef` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts:138` | File-local source symbol reference tied to a reuse opportunity. |
-| `@beep/repo-utils/Reuse/Reuse.model` | `ReuseWorkUnit` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts:210` | Partition work unit emitted for package scouts or hotspot specialists. |
+| `@beep/repo-utils/Reuse/Reuse.model` | `ReuseFindResult` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts:407` | Results for local-file reuse lookups. |
+| `@beep/repo-utils/Reuse/Reuse.model` | `ReuseInventory` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts:333` | Inventory payload produced for a requested scope. |
+| `@beep/repo-utils/Reuse/Reuse.model` | `ReusePacket` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts:377` | Materialized implementation packet for one reuse candidate. |
+| `@beep/repo-utils/Reuse/Reuse.model` | `ReusePartitionPlan` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts:245` | Partition plan covering scout and specialist work units for a selected scope. |
+| `@beep/repo-utils/Reuse/Reuse.model` | `ReuseSourceSymbolRef` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts:141` | File-local source symbol reference tied to a reuse opportunity. |
+| `@beep/repo-utils/Reuse/Reuse.model` | `ReuseWorkUnit` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts:213` | Partition work unit emitted for package scouts or hotspot specialists. |
 | `@beep/repo-utils/Reuse/Reuse.model` | `ReuseWorkUnitKind` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts:63` | Partition work-unit kind. |
 | `@beep/repo-utils/Reuse/Reuse.model` | `ReuseWorkUnitKind` | type | `packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts:81` | Runtime type for `ReuseWorkUnitKind`. |
-| `@beep/repo-utils/Reuse/Reuse.service` | `normalizedDeclarationSignature` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:608` | Normalize a declaration to a structural signature that ignores formatting, |
-| `@beep/repo-utils/Reuse/Reuse.service` | `ReuseAnalysisError` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:118` | Typed error returned when reuse analysis cannot complete a repository scan or lookup. |
-| `@beep/repo-utils/Reuse/Reuse.service` | `ReuseCandidateNotFoundError` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:144` | Typed error returned when a requested candidate id is absent from the current reuse inventory. |
-| `@beep/repo-utils/Reuse/Reuse.service` | `ReuseCatalogService` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1143` | Service tag for the reuse catalog contract. |
-| `@beep/repo-utils/Reuse/Reuse.service` | `ReuseCatalogServiceLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1280` | Default live layer for building the shared reuse catalog. |
-| `@beep/repo-utils/Reuse/Reuse.service` | `ReuseCloneService` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1792` | Service tag for declaration-anchored structural clone detection. |
-| `@beep/repo-utils/Reuse/Reuse.service` | `ReuseCloneServiceLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1808` | Default live layer for declaration-anchored structural clone detection. |
-| `@beep/repo-utils/Reuse/Reuse.service` | `ReuseDiscoveryService` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1211` | Service tag for reuse candidate discovery. |
-| `@beep/repo-utils/Reuse/Reuse.service` | `ReuseDiscoveryServiceLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1428` | Default live layer for reuse candidate discovery and local option lookup. |
-| `@beep/repo-utils/Reuse/Reuse.service` | `ReuseInventoryService` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1245` | Service tag for reuse inventory materialization. |
-| `@beep/repo-utils/Reuse/Reuse.service` | `ReuseInventoryServiceLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1606` | Default live layer for ranked reuse inventories and implementation packets. |
-| `@beep/repo-utils/Reuse/Reuse.service` | `ReusePartitionPlannerService` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1173` | Service tag for reuse partition planning. |
-| `@beep/repo-utils/Reuse/Reuse.service` | `ReusePartitionPlannerServiceLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1325` | Default live layer for reuse partition planning. |
-| `@beep/repo-utils/Reuse/Reuse.service` | `ReuseServiceSuiteLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1867` | Fully wired reuse-discovery layer suite for CLI and tests. |
+| `@beep/repo-utils/Reuse/Reuse.service` | `normalizedDeclarationSignature` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:609` | Normalize a declaration to a structural signature that ignores formatting, |
+| `@beep/repo-utils/Reuse/Reuse.service` | `ReuseAnalysisError` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:119` | Typed error returned when reuse analysis cannot complete a repository scan or lookup. |
+| `@beep/repo-utils/Reuse/Reuse.service` | `ReuseCandidateNotFoundError` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:145` | Typed error returned when a requested candidate id is absent from the current reuse inventory. |
+| `@beep/repo-utils/Reuse/Reuse.service` | `ReuseCatalogService` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1387` | Service tag for the reuse catalog contract. |
+| `@beep/repo-utils/Reuse/Reuse.service` | `ReuseCatalogServiceLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1525` | Default live layer for building the shared reuse catalog. |
+| `@beep/repo-utils/Reuse/Reuse.service` | `ReuseCloneService` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:2055` | Service tag for declaration-anchored structural clone detection. |
+| `@beep/repo-utils/Reuse/Reuse.service` | `ReuseCloneServiceLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:2071` | Default live layer for declaration-anchored structural clone detection. |
+| `@beep/repo-utils/Reuse/Reuse.service` | `ReuseDiscoveryService` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1455` | Service tag for reuse candidate discovery. |
+| `@beep/repo-utils/Reuse/Reuse.service` | `ReuseDiscoveryServiceLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1673` | Default live layer for reuse candidate discovery and local option lookup. |
+| `@beep/repo-utils/Reuse/Reuse.service` | `ReuseInventoryService` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1489` | Service tag for reuse inventory materialization. |
+| `@beep/repo-utils/Reuse/Reuse.service` | `ReuseInventoryServiceLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1851` | Default live layer for ranked reuse inventories and implementation packets. |
+| `@beep/repo-utils/Reuse/Reuse.service` | `ReusePartitionPlannerService` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1417` | Service tag for reuse partition planning. |
+| `@beep/repo-utils/Reuse/Reuse.service` | `ReusePartitionPlannerServiceLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1570` | Default live layer for reuse partition planning. |
+| `@beep/repo-utils/Reuse/Reuse.service` | `ReuseServiceSuiteLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:2156` | Fully wired reuse-discovery layer suite for CLI and tests. |
+| `@beep/repo-utils/Reuse/TokenSimilarity` | `fnv1a32` | const | `packages/tooling/library/repo-utils/src/Reuse/TokenSimilarity.ts:39` | 32-bit FNV-1a hash of a string (unsigned). The narrow-width sibling of the |
+| `@beep/repo-utils/Reuse/TokenSimilarity` | `jaccardSimilarity` | const | `packages/tooling/library/repo-utils/src/Reuse/TokenSimilarity.ts:193` | Exact Jaccard similarity between two shingle sets: `\|A ∩ B\| / \|A ∪ B\|`. Two |
+| `@beep/repo-utils/Reuse/TokenSimilarity` | `lshBandKeys` | const | `packages/tooling/library/repo-utils/src/Reuse/TokenSimilarity.ts:160` | Project a MinHash signature into `bands` LSH band keys. The signature is split |
+| `@beep/repo-utils/Reuse/TokenSimilarity` | `minhashSignature` | const | `packages/tooling/library/repo-utils/src/Reuse/TokenSimilarity.ts:122` | Compute an `permutations`-length MinHash signature of a shingle set. Each slot |
+| `@beep/repo-utils/Reuse/TokenSimilarity` | `tokenShingles` | const | `packages/tooling/library/repo-utils/src/Reuse/TokenSimilarity.ts:64` | Split a normalized token sequence into the set of contiguous k-grams |
 | `@beep/repo-utils/Root` | `findRepoRoot` | const | `packages/tooling/library/repo-utils/src/Root.ts:45` | Find the repository root by walking upward from the given directory |
 | `@beep/repo-utils/schemas/BiomeJson` | `renderBiomeJson` | const | `packages/tooling/library/repo-utils/src/schemas/BiomeJson.ts:43` | Render JSON with the same Biome config that repository lint uses. |
 | `@beep/repo-utils/schemas/DocgenConfig` | `buildDocgenAliasSource` | const | `packages/tooling/library/repo-utils/src/schemas/DocgenConfig.ts:290` | Build docgen alias targets for one workspace package from its exports. |
@@ -12257,15 +12277,6 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/ui/components/avatar` | `AvatarImage` | function | `packages/foundation/ui-system/ui/src/components/avatar.tsx:35` |  |
 | `@beep/ui/components/badge` | `Badge` | function | `packages/foundation/ui-system/ui/src/components/badge.tsx:35` |  |
 | `@beep/ui/components/badge` | `badgeVariants` | const | `packages/foundation/ui-system/ui/src/components/badge.tsx:11` |  |
-| `@beep/ui/components/banner` | `Banner` | function | `packages/foundation/ui-system/ui/src/components/banner.tsx:47` |  |
-| `@beep/ui/components/banner` | `Banner` | Identifier | `packages/foundation/ui-system/ui/src/components/banner.tsx:109` |  |
-| `@beep/ui/components/banner` | `Banner` | Identifier | `packages/foundation/ui-system/ui/src/components/banner.tsx:110` |  |
-| `@beep/ui/components/banner` | `Banner` | Identifier | `packages/foundation/ui-system/ui/src/components/banner.tsx:111` |  |
-| `@beep/ui/components/banner` | `Banner` | Identifier | `packages/foundation/ui-system/ui/src/components/banner.tsx:112` |  |
-| `@beep/ui/components/banner` | `BannerContent` | const | `packages/foundation/ui-system/ui/src/components/banner.tsx:62` |  |
-| `@beep/ui/components/banner` | `BannerDescription` | const | `packages/foundation/ui-system/ui/src/components/banner.tsx:78` |  |
-| `@beep/ui/components/banner` | `BannerDismiss` | const | `packages/foundation/ui-system/ui/src/components/banner.tsx:90` |  |
-| `@beep/ui/components/banner` | `BannerTitle` | const | `packages/foundation/ui-system/ui/src/components/banner.tsx:70` |  |
 | `@beep/ui/components/banner` | `bannerVariants` | const | `packages/foundation/ui-system/ui/src/components/banner.tsx:11` |  |
 | `@beep/ui/components/blocks/editor-00/editor` | `Editor` | function | `packages/foundation/ui-system/ui/src/components/blocks/editor-00/editor.tsx:29` | Rich text editor block assembled from the shared editor theme and plugins. |
 | `@beep/ui/components/blocks/editor-00/plugins` | `Plugins` | function | `packages/foundation/ui-system/ui/src/components/blocks/editor-00/plugins.tsx:11` | Core plugin set for the shared editor block. |
@@ -12299,18 +12310,11 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/ui/components/card` | `CardTitle` | function | `packages/foundation/ui-system/ui/src/components/card.tsx:47` |  |
 | `@beep/ui/components/carousel` | `Carousel` | function | `packages/foundation/ui-system/ui/src/components/carousel.tsx:51` |  |
 | `@beep/ui/components/carousel` | `CarouselApi` | type | `packages/foundation/ui-system/ui/src/components/carousel.tsx:15` |  |
-| `@beep/ui/components/carousel` | `CarouselContent` | function | `packages/foundation/ui-system/ui/src/components/carousel.tsx:147` |  |
-| `@beep/ui/components/carousel` | `CarouselItem` | function | `packages/foundation/ui-system/ui/src/components/carousel.tsx:161` |  |
-| `@beep/ui/components/carousel` | `CarouselNext` | function | `packages/foundation/ui-system/ui/src/components/carousel.tsx:213` |  |
-| `@beep/ui/components/carousel` | `CarouselPrevious` | function | `packages/foundation/ui-system/ui/src/components/carousel.tsx:179` |  |
+| `@beep/ui/components/carousel` | `CarouselContent` | function | `packages/foundation/ui-system/ui/src/components/carousel.tsx:151` |  |
+| `@beep/ui/components/carousel` | `CarouselItem` | function | `packages/foundation/ui-system/ui/src/components/carousel.tsx:165` |  |
+| `@beep/ui/components/carousel` | `CarouselNext` | function | `packages/foundation/ui-system/ui/src/components/carousel.tsx:217` |  |
+| `@beep/ui/components/carousel` | `CarouselPrevious` | function | `packages/foundation/ui-system/ui/src/components/carousel.tsx:183` |  |
 | `@beep/ui/components/carousel` | `useCarousel` | function | `packages/foundation/ui-system/ui/src/components/carousel.tsx:42` |  |
-| `@beep/ui/components/chart` | `ChartConfig` | type | `packages/foundation/ui-system/ui/src/components/chart.tsx:21` | Configuration describing each chart series' label, icon, and color or per-theme colors. |
-| `@beep/ui/components/chart` | `ChartContainer` | function | `packages/foundation/ui-system/ui/src/components/chart.tsx:51` | Responsive chart wrapper that provides the chart config context and theme CSS variables. |
-| `@beep/ui/components/chart` | `ChartLegend` | const | `packages/foundation/ui-system/ui/src/components/chart.tsx:286` | Recharts legend primitive paired with {@link ChartLegendContent}. |
-| `@beep/ui/components/chart` | `ChartLegendContent` | function | `packages/foundation/ui-system/ui/src/components/chart.tsx:294` | Themed legend content for charts, rendering each series' icon or color swatch and label. |
-| `@beep/ui/components/chart` | `ChartStyle` | const | `packages/foundation/ui-system/ui/src/components/chart.tsx:95` | Injects per-theme CSS custom properties for a chart's configured series colors. |
-| `@beep/ui/components/chart` | `ChartTooltip` | const | `packages/foundation/ui-system/ui/src/components/chart.tsx:137` | Recharts tooltip primitive paired with {@link ChartTooltipContent}. |
-| `@beep/ui/components/chart` | `ChartTooltipContent` | function | `packages/foundation/ui-system/ui/src/components/chart.tsx:145` | Themed tooltip content for charts, rendering the active payload's label, indicator, and values. |
 | `@beep/ui/components/checkbox` | `Checkbox` | function | `packages/foundation/ui-system/ui/src/components/checkbox.tsx:11` |  |
 | `@beep/ui/components/collapsible` | `Collapsible` | function | `packages/foundation/ui-system/ui/src/components/collapsible.tsx:10` |  |
 | `@beep/ui/components/collapsible` | `CollapsibleContent` | function | `packages/foundation/ui-system/ui/src/components/collapsible.tsx:26` |  |
@@ -12355,15 +12359,14 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/ui/components/context-menu` | `ContextMenuSubContent` | function | `packages/foundation/ui-system/ui/src/components/context-menu.tsx:169` |  |
 | `@beep/ui/components/context-menu` | `ContextMenuSubTrigger` | function | `packages/foundation/ui-system/ui/src/components/context-menu.tsx:141` |  |
 | `@beep/ui/components/context-menu` | `ContextMenuTrigger` | function | `packages/foundation/ui-system/ui/src/components/context-menu.tsx:28` |  |
-| `@beep/ui/components/conversation` | `Conversation` | const | `packages/foundation/ui-system/ui/src/components/conversation.tsx:21` |  |
-| `@beep/ui/components/conversation` | `ConversationContent` | const | `packages/foundation/ui-system/ui/src/components/conversation.tsx:41` |  |
-| `@beep/ui/components/conversation` | `ConversationContentProps` | type | `packages/foundation/ui-system/ui/src/components/conversation.tsx:35` |  |
-| `@beep/ui/components/conversation` | `ConversationEmptyState` | const | `packages/foundation/ui-system/ui/src/components/conversation.tsx:59` |  |
-| `@beep/ui/components/conversation` | `ConversationEmptyStateProps` | type | `packages/foundation/ui-system/ui/src/components/conversation.tsx:49` |  |
-| `@beep/ui/components/conversation` | `ConversationProps` | type | `packages/foundation/ui-system/ui/src/components/conversation.tsx:15` |  |
-| `@beep/ui/components/conversation` | `ConversationScrollButton` | const | `packages/foundation/ui-system/ui/src/components/conversation.tsx:93` |  |
-| `@beep/ui/components/conversation` | `ConversationScrollButtonProps` | type | `packages/foundation/ui-system/ui/src/components/conversation.tsx:87` |  |
-| `@beep/ui/components/date-picker` | `DatePicker` | function | `packages/foundation/ui-system/ui/src/components/date-picker.tsx:32` | A single-date picker composed from {@link Popover} and {@link Calendar}. Supports |
+| `@beep/ui/components/conversation` | `Conversation` | const | `packages/foundation/ui-system/ui/src/components/conversation.tsx:20` |  |
+| `@beep/ui/components/conversation` | `ConversationContent` | const | `packages/foundation/ui-system/ui/src/components/conversation.tsx:40` |  |
+| `@beep/ui/components/conversation` | `ConversationContentProps` | type | `packages/foundation/ui-system/ui/src/components/conversation.tsx:34` |  |
+| `@beep/ui/components/conversation` | `ConversationEmptyState` | const | `packages/foundation/ui-system/ui/src/components/conversation.tsx:58` |  |
+| `@beep/ui/components/conversation` | `ConversationEmptyStateProps` | type | `packages/foundation/ui-system/ui/src/components/conversation.tsx:48` |  |
+| `@beep/ui/components/conversation` | `ConversationProps` | type | `packages/foundation/ui-system/ui/src/components/conversation.tsx:14` |  |
+| `@beep/ui/components/conversation` | `ConversationScrollButton` | const | `packages/foundation/ui-system/ui/src/components/conversation.tsx:92` |  |
+| `@beep/ui/components/conversation` | `ConversationScrollButtonProps` | type | `packages/foundation/ui-system/ui/src/components/conversation.tsx:86` |  |
 | `@beep/ui/components/dialog` | `Dialog` | function | `packages/foundation/ui-system/ui/src/components/dialog.tsx:13` |  |
 | `@beep/ui/components/dialog` | `Dialog` | Identifier | `packages/foundation/ui-system/ui/src/components/dialog.tsx:163` |  |
 | `@beep/ui/components/dialog` | `Dialog` | Identifier | `packages/foundation/ui-system/ui/src/components/dialog.tsx:164` |  |
@@ -12383,9 +12386,6 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/ui/components/dialog` | `DialogPortal` | function | `packages/foundation/ui-system/ui/src/components/dialog.tsx:29` |  |
 | `@beep/ui/components/dialog` | `DialogTitle` | function | `packages/foundation/ui-system/ui/src/components/dialog.tsx:137` |  |
 | `@beep/ui/components/dialog` | `DialogTrigger` | function | `packages/foundation/ui-system/ui/src/components/dialog.tsx:21` |  |
-| `@beep/ui/components/direction` | `DirectionProvider` | const | `node_modules/@base-ui/react/esm/direction-provider/DirectionProvider.d.ts:8` | Enables RTL behavior for Base UI components. |
-| `@beep/ui/components/direction` | `DirectionProvider` | namespace | `node_modules/@base-ui/react/esm/direction-provider/DirectionProvider.d.ts:18` |  |
-| `@beep/ui/components/direction` | `useDirection` | function | `node_modules/@base-ui/react/esm/internals/direction-context/DirectionContext.d.ts:10` |  |
 | `@beep/ui/components/drawer` | `Drawer` | function | `packages/foundation/ui-system/ui/src/components/drawer.tsx:11` |  |
 | `@beep/ui/components/drawer` | `DrawerClose` | function | `packages/foundation/ui-system/ui/src/components/drawer.tsx:35` |  |
 | `@beep/ui/components/drawer` | `DrawerContent` | function | `packages/foundation/ui-system/ui/src/components/drawer.tsx:60` |  |
@@ -12494,9 +12494,8 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/ui/components/menubar` | `MenubarSubContent` | function | `packages/foundation/ui-system/ui/src/components/menubar.tsx:268` |  |
 | `@beep/ui/components/menubar` | `MenubarSubTrigger` | function | `packages/foundation/ui-system/ui/src/components/menubar.tsx:244` |  |
 | `@beep/ui/components/menubar` | `MenubarTrigger` | function | `packages/foundation/ui-system/ui/src/components/menubar.tsx:66` |  |
-| `@beep/ui/components/native-select` | `NativeSelect` | function | `packages/foundation/ui-system/ui/src/components/native-select.tsx:15` | A styled wrapper around the native `<select>` element with a trailing caret icon. |
-| `@beep/ui/components/native-select` | `NativeSelectOptGroup` | function | `packages/foundation/ui-system/ui/src/components/native-select.tsx:55` | An `<optgroup>` for use within {@link NativeSelect}, themed to match the system color scheme. |
-| `@beep/ui/components/native-select` | `NativeSelectOption` | function | `packages/foundation/ui-system/ui/src/components/native-select.tsx:43` | An `<option>` for use within {@link NativeSelect}, themed to match the system color scheme. |
+| `@beep/ui/components/mui-theme.stories` | `default` | const | `packages/foundation/ui-system/ui/src/components/mui-theme.stories.tsx:21` | MUI primitives rendered through the shared `@beep/ui` theme, which the global |
+| `@beep/ui/components/mui-theme.stories` | `Default` | const | `packages/foundation/ui-system/ui/src/components/mui-theme.stories.tsx:38` |  |
 | `@beep/ui/components/navigation-menu` | `NavigationMenu` | function | `packages/foundation/ui-system/ui/src/components/navigation-menu.tsx:11` |  |
 | `@beep/ui/components/navigation-menu` | `NavigationMenuContent` | function | `packages/foundation/ui-system/ui/src/components/navigation-menu.tsx:83` |  |
 | `@beep/ui/components/navigation-menu` | `NavigationMenuIndicator` | function | `packages/foundation/ui-system/ui/src/components/navigation-menu.tsx:150` |  |
@@ -12584,7 +12583,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/ui/components/sidebar` | `SidebarSeparator` | function | `packages/foundation/ui-system/ui/src/components/sidebar.tsx:440` |  |
 | `@beep/ui/components/sidebar` | `SidebarTrigger` | function | `packages/foundation/ui-system/ui/src/components/sidebar.tsx:331` |  |
 | `@beep/ui/components/sidebar` | `useSidebar` | function | `packages/foundation/ui-system/ui/src/components/sidebar.tsx:44` |  |
-| `@beep/ui/components/skeleton` | `Skeleton` | function | `packages/foundation/ui-system/ui/src/components/skeleton.tsx:8` |  |
+| `@beep/ui/components/skeleton` | `Skeleton` | function | `packages/foundation/ui-system/ui/src/components/skeleton.tsx:7` |  |
 | `@beep/ui/components/slider` | `Slider` | function | `packages/foundation/ui-system/ui/src/components/slider.tsx:29` |  |
 | `@beep/ui/components/sonner` | `Toaster` | const | `packages/foundation/ui-system/ui/src/components/sonner.tsx:13` |  |
 | `@beep/ui/components/speech-input` | `SpeechInput` | const | `packages/foundation/ui-system/ui/src/components/speech-input.tsx:147` |  |
@@ -12627,7 +12626,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/ui/components/toast` | `ToastVariant` | const | `packages/foundation/ui-system/ui/src/components/toast.tsx:62` |  |
 | `@beep/ui/components/toast` | `ToastVariant` | type | `packages/foundation/ui-system/ui/src/components/toast.tsx:72` |  |
 | `@beep/ui/components/toast` | `ToastViewport` | const | `packages/foundation/ui-system/ui/src/components/toast.tsx:25` |  |
-| `@beep/ui/components/toaster` | `Toaster` | function | `packages/foundation/ui-system/ui/src/components/toaster.tsx:61` |  |
+| `@beep/ui/components/toaster` | `Toaster` | function | `packages/foundation/ui-system/ui/src/components/toaster.tsx:21` |  |
 | `@beep/ui/components/toaster` | `ToastPrimitive` | SourceFile | `node_modules/@base-ui/react/esm/toast/index.parts.d.ts:1` |  |
 | `@beep/ui/components/todo-item` | `TodoItem` | function | `packages/foundation/ui-system/ui/src/components/todo-item.tsx:105` |  |
 | `@beep/ui/components/toggle` | `Toggle` | function | `packages/foundation/ui-system/ui/src/components/toggle.tsx:37` |  |
@@ -12655,6 +12654,16 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/ui/components/tour` | `useTour` | function | `packages/foundation/ui-system/ui/src/components/tour.tsx:34` |  |
 | `@beep/ui/components/ui/button` | `Button` | function | `packages/foundation/ui-system/ui/src/components/ui/button.tsx:65` | Versatile button component with multiple visual variants and sizes. |
 | `@beep/ui/components/ui/button` | `buttonVariants` | const | `packages/foundation/ui-system/ui/src/components/ui/button.tsx:21` | Button variant configuration using class-variance-authority. |
+| `@beep/ui/components/ui/button.stories` | `ClickInteraction` | const | `packages/foundation/ui-system/ui/src/components/ui/button.stories.tsx:111` |  |
+| `@beep/ui/components/ui/button.stories` | `default` | const | `packages/foundation/ui-system/ui/src/components/ui/button.stories.tsx:9` |  |
+| `@beep/ui/components/ui/button.stories` | `Default` | const | `packages/foundation/ui-system/ui/src/components/ui/button.stories.tsx:39` |  |
+| `@beep/ui/components/ui/button.stories` | `Destructive` | const | `packages/foundation/ui-system/ui/src/components/ui/button.stories.tsx:79` |  |
+| `@beep/ui/components/ui/button.stories` | `Ghost` | const | `packages/foundation/ui-system/ui/src/components/ui/button.stories.tsx:71` |  |
+| `@beep/ui/components/ui/button.stories` | `Large` | const | `packages/foundation/ui-system/ui/src/components/ui/button.stories.tsx:103` |  |
+| `@beep/ui/components/ui/button.stories` | `Link` | const | `packages/foundation/ui-system/ui/src/components/ui/button.stories.tsx:87` |  |
+| `@beep/ui/components/ui/button.stories` | `Outline` | const | `packages/foundation/ui-system/ui/src/components/ui/button.stories.tsx:55` |  |
+| `@beep/ui/components/ui/button.stories` | `Secondary` | const | `packages/foundation/ui-system/ui/src/components/ui/button.stories.tsx:63` |  |
+| `@beep/ui/components/ui/button.stories` | `Small` | const | `packages/foundation/ui-system/ui/src/components/ui/button.stories.tsx:95` |  |
 | `@beep/ui/components/ui/tooltip` | `Tooltip` | function | `packages/foundation/ui-system/ui/src/components/ui/tooltip.tsx:20` |  |
 | `@beep/ui/components/ui/tooltip` | `TooltipContent` | function | `packages/foundation/ui-system/ui/src/components/ui/tooltip.tsx:36` |  |
 | `@beep/ui/components/ui/tooltip` | `TooltipProvider` | function | `packages/foundation/ui-system/ui/src/components/ui/tooltip.tsx:12` | Tooltip timing context shared across tooltip instances. |
@@ -12675,7 +12684,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/ui/hooks/index` | `SpinParams` | class | `packages/foundation/ui-system/ui/src/hooks/useNumberInput.ts:241` | Schema describing step and precision overrides for spinner changes. |
 | `@beep/ui/hooks/index` | `toNumber` | const | `packages/foundation/ui-system/ui/src/hooks/useNumberInput.ts:272` | Convert editable number-input text into a number when the text is parseable. |
 | `@beep/ui/hooks/index` | `useNumberBoundary` | const | `packages/foundation/ui-system/ui/src/hooks/useNumberInput.ts:514` | Low-level number-input state hook for parsing, formatting, and boundary management. |
-| `@beep/ui/hooks/index` | `useNumberInput` | const | `packages/foundation/ui-system/ui/src/hooks/useNumberInput.ts:579` | Fully managed number-input hook with keyboard and spinner controls. |
+| `@beep/ui/hooks/index` | `useNumberInput` | const | `packages/foundation/ui-system/ui/src/hooks/useNumberInput.ts:590` | Fully managed number-input hook with keyboard and spinner controls. |
 | `@beep/ui/hooks/index` | `UseNumberInputOptions` | type | `packages/foundation/ui-system/ui/src/hooks/useNumberInput.ts:449` | Options accepted by {@link useNumberBoundary} and {@link useNumberInput}. |
 | `@beep/ui/hooks/index` | `useScribe` | function | `packages/foundation/ui-system/ui/src/hooks/use-scribe.ts:145` | Manage an ElevenLabs realtime Scribe connection from React components. |
 | `@beep/ui/hooks/use-scribe` | `AudioFormat` | enum | `node_modules/@elevenlabs/client/dist/scribe/scribe.d.ts:2` |  |
@@ -12697,9 +12706,9 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/ui/hooks/useNumberInput` | `SpinParams` | class | `packages/foundation/ui-system/ui/src/hooks/useNumberInput.ts:241` | Schema describing step and precision overrides for spinner changes. |
 | `@beep/ui/hooks/useNumberInput` | `toNumber` | const | `packages/foundation/ui-system/ui/src/hooks/useNumberInput.ts:272` | Convert editable number-input text into a number when the text is parseable. |
 | `@beep/ui/hooks/useNumberInput` | `useNumberBoundary` | const | `packages/foundation/ui-system/ui/src/hooks/useNumberInput.ts:514` | Low-level number-input state hook for parsing, formatting, and boundary management. |
-| `@beep/ui/hooks/useNumberInput` | `useNumberInput` | const | `packages/foundation/ui-system/ui/src/hooks/useNumberInput.ts:579` | Fully managed number-input hook with keyboard and spinner controls. |
+| `@beep/ui/hooks/useNumberInput` | `useNumberInput` | const | `packages/foundation/ui-system/ui/src/hooks/useNumberInput.ts:590` | Fully managed number-input hook with keyboard and spinner controls. |
 | `@beep/ui/hooks/useNumberInput` | `UseNumberInputOptions` | type | `packages/foundation/ui-system/ui/src/hooks/useNumberInput.ts:449` | Options accepted by {@link useNumberBoundary} and {@link useNumberInput}. |
-| `@beep/ui/hooks/useSpinner` | `useSpinner` | function | `packages/foundation/ui-system/ui/src/hooks/useSpinner.ts:115` | Spinner button hook with press-and-hold repeat behavior. |
+| `@beep/ui/hooks/useSpinner` | `useSpinner` | function | `packages/foundation/ui-system/ui/src/hooks/useSpinner.ts:122` | Spinner button hook with press-and-hold repeat behavior. |
 | `@beep/ui/lib/index` | `cn` | function | `packages/foundation/ui-system/ui/src/lib/utils.ts:22` | Merge Tailwind CSS class names with conflict resolution. |
 | `@beep/ui/lib/index` | `sanitizeAnchorHref` | const | `packages/foundation/ui-system/ui/src/lib/url.ts:89` | Replaces active script URL protocols with a harmless fragment. |
 | `@beep/ui/lib/react-invariant` | `ReactContextInvariantOptions` | class | `packages/foundation/ui-system/ui/src/lib/react-invariant.ts:20` | Options for a React context invariant check. |
