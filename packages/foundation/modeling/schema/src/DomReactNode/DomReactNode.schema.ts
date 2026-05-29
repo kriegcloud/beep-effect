@@ -14,6 +14,13 @@ const $I = $SchemaId.create("DomReactNode");
 /**
  * Type guard for React.ReactNode.
  *
+ * @example
+ * ```ts
+ * import { isReactNode } from "@beep/schema/DomReactNode"
+ *
+ * console.log(isReactNode(["hello", 1, null]))
+ * ```
+ *
  * @since 0.0.0
  * @category guards
  */
@@ -33,6 +40,15 @@ export const isReactNode = (u: unknown): u is React.ReactNode => {
 
 /**
  * A React.ReactNode value.
+ *
+ * @example
+ * ```ts
+ * import { DOMReactNode } from "@beep/schema/DomReactNode"
+ * import * as S from "effect/Schema"
+ *
+ * const node = S.decodeUnknownSync(DOMReactNode)("hello")
+ * console.log(node)
+ * ```
  *
  * @since 0.0.0
  * @category schemas
@@ -54,6 +70,13 @@ export type DOMReactNode = typeof DOMReactNode.Type;
 /**
  * Type guard for React.Ref<T>.
  *
+ * @example
+ * ```ts
+ * import { isReactRef } from "@beep/schema/DomReactNode"
+ *
+ * console.log(isReactRef({ current: null }))
+ * ```
+ *
  * @since 0.0.0
  * @category guards
  */
@@ -70,6 +93,16 @@ export const isReactRef = <T>(u: unknown): u is React.Ref<T> => {
 
 /**
  * Creates a schema for React.Ref<T> where T extends HTMLElement.
+ *
+ * @example
+ * ```ts
+ * import { createDOMRefSchema } from "@beep/schema/DomReactNode"
+ * import * as S from "effect/Schema"
+ *
+ * const DOMRef = createDOMRefSchema<HTMLDivElement>()
+ * const ref = S.decodeUnknownSync(DOMRef)({ current: null })
+ * console.log(ref)
+ * ```
  *
  * @since 0.0.0
  * @category constructors

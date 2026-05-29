@@ -15,7 +15,7 @@ import { makeNamedNode } from "../rdf.ts";
  * ```ts
  * import { XSD_NAMESPACE } from "@beep/semantic-web/vocab/xsd"
  *
- * void XSD_NAMESPACE
+ * console.log(XSD_NAMESPACE)
  * ```
  *
  * @since 0.0.0
@@ -30,7 +30,7 @@ export const XSD_NAMESPACE = "http://www.w3.org/2001/XMLSchema#" as const;
  * ```ts
  * import { XSD_STRING } from "@beep/semantic-web/vocab/xsd"
  *
- * void XSD_STRING
+ * console.log(XSD_STRING)
  * ```
  *
  * @since 0.0.0
@@ -45,7 +45,7 @@ export const XSD_STRING = makeNamedNode(`${XSD_NAMESPACE}string`);
  * ```ts
  * import { XSD_BOOLEAN } from "@beep/semantic-web/vocab/xsd"
  *
- * void XSD_BOOLEAN
+ * console.log(XSD_BOOLEAN)
  * ```
  *
  * @since 0.0.0
@@ -60,7 +60,7 @@ export const XSD_BOOLEAN = makeNamedNode(`${XSD_NAMESPACE}boolean`);
  * ```ts
  * import { XSD_INTEGER } from "@beep/semantic-web/vocab/xsd"
  *
- * void XSD_INTEGER
+ * console.log(XSD_INTEGER)
  * ```
  *
  * @since 0.0.0
@@ -75,7 +75,7 @@ export const XSD_INTEGER = makeNamedNode(`${XSD_NAMESPACE}integer`);
  * ```ts
  * import { XSD_DOUBLE } from "@beep/semantic-web/vocab/xsd"
  *
- * void XSD_DOUBLE
+ * console.log(XSD_DOUBLE)
  * ```
  *
  * @since 0.0.0

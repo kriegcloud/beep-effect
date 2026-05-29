@@ -1,10 +1,17 @@
 import type { ThemeOptions } from "./types.ts";
 
 /**
- * Shadow scale used by the shared theme.
+ * Shadows theme value.
  *
- * @since 0.0.0
+ * @example
+ * ```ts
+ * import { shadows } from "@beep/ui/themes/shadows"
+ *
+ * console.log(shadows)
+ * ```
+ *
  * @category themes
+ * @since 0.0.0
  */
 export const shadows: ThemeOptions["shadows"] = [
   "none",

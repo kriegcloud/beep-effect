@@ -135,21 +135,12 @@ const makeGraphTransform = <Node extends S.Top, Edge extends S.Top>(
  *
  * @example
  * ```ts
- * import { Effect } from "effect"
  * import * as S from "effect/Schema"
  * import { DirectedGraph } from "@beep/schema/Graph"
  *
  * const GraphSchema = DirectedGraph({ node: S.String, edge: S.Number })
  *
- * const program = Effect.gen(function* () {
- *
- *
- *
- *
- *
- *
- *
- * })
+ * console.log(GraphSchema.ast)
  * ```
  *
  * @param options - Schemas for node and edge payloads.
@@ -176,6 +167,16 @@ export const DirectedGraph = <Node extends S.Top, Edge extends S.Top>(options: {
 /**
  * Schema for immutable undirected graphs.
  *
+ * @example
+ * ```ts
+ * import * as S from "effect/Schema"
+ * import { UndirectedGraph } from "@beep/schema/Graph"
+ *
+ * const GraphSchema = UndirectedGraph({ node: S.String, edge: S.Number })
+ *
+ * console.log(GraphSchema.ast)
+ * ```
+ *
  * @param options - Schemas for node and edge payloads.
  * @returns Undirected graph transform schema.
  * @since 0.0.0
@@ -200,6 +201,16 @@ export const UndirectedGraph = <Node extends S.Top, Edge extends S.Top>(options:
 /**
  * Schema for mutable directed graphs.
  *
+ * @example
+ * ```ts
+ * import * as S from "effect/Schema"
+ * import { MutableDirectedGraph } from "@beep/schema/Graph"
+ *
+ * const GraphSchema = MutableDirectedGraph({ node: S.String, edge: S.Number })
+ *
+ * console.log(GraphSchema.ast)
+ * ```
+ *
  * @param options - Schemas for node and edge payloads.
  * @returns Mutable directed graph transform schema.
  * @since 0.0.0
@@ -223,6 +234,16 @@ export const MutableDirectedGraph = <Node extends S.Top, Edge extends S.Top>(opt
 
 /**
  * Schema for mutable undirected graphs.
+ *
+ * @example
+ * ```ts
+ * import * as S from "effect/Schema"
+ * import { MutableUndirectedGraph } from "@beep/schema/Graph"
+ *
+ * const GraphSchema = MutableUndirectedGraph({ node: S.String, edge: S.Number })
+ *
+ * console.log(GraphSchema.ast)
+ * ```
  *
  * @param options - Schemas for node and edge payloads.
  * @returns Mutable undirected graph transform schema.

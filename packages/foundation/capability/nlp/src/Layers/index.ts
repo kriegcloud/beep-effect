@@ -55,6 +55,8 @@ export const TokenizationModuleLive = WinkTokenization.pipe(Layer.provideMerge(W
 export const NLPAppLive = TokenizationModuleLive;
 
 /**
+ * Wink engine service.
+ *
  * @example
  * ```ts
  * import { WinkEngine } from "@beep/nlp/Layers"
@@ -67,6 +69,8 @@ export const NLPAppLive = TokenizationModuleLive;
  */
 export const WinkEngine = WinkEngineService;
 /**
+ * Wink engine live layer.
+ *
  * @example
  * ```ts
  * import { WinkEngineLive } from "@beep/nlp/Layers"

@@ -82,7 +82,7 @@ const attachStatics = <S extends object, M extends Record<string, unknown>>(
  *   }))
  * )
  *
- * void MySchema.empty
+ * console.log(MySchema.empty)
  * ```
  *
  * @since 0.0.0

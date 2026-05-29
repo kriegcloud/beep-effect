@@ -7,6 +7,15 @@ import type React from "react";
 import type { ToasterProps } from "sonner";
 
 /**
+ * Toaster component.
+ *
+ * @example
+ * ```tsx
+ * import { Toaster } from "@beep/ui/components/sonner"
+ *
+ * console.log(Toaster)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */

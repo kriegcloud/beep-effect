@@ -15,7 +15,7 @@ const $I = $RepoUtilsId.create("JSDoc/models/tag-values/ClosureTagValues");
  * @example
  * ```ts
  * import { DefineValue } from "@beep/repo-utils/JSDoc/models/tag-values/ClosureTagValues"
- * void DefineValue
+ * console.log(DefineValue)
  * ```
  * @category models
  * @since 0.0.0
@@ -32,7 +32,7 @@ export class DefineValue extends S.TaggedClass<DefineValue>($I`DefineValue`)(
  * @example
  * ```ts
  * import { DictValue } from "@beep/repo-utils/JSDoc/models/tag-values/ClosureTagValues"
- * void DictValue
+ * console.log(DictValue)
  * ```
  * @category models
  * @since 0.0.0
@@ -49,7 +49,7 @@ export class DictValue extends S.TaggedClass<DictValue>($I`DictValue`)(
  * @example
  * ```ts
  * import { ImplicitCastValue } from "@beep/repo-utils/JSDoc/models/tag-values/ClosureTagValues"
- * void ImplicitCastValue
+ * console.log(ImplicitCastValue)
  * ```
  * @category models
  * @since 0.0.0
@@ -66,7 +66,7 @@ export class ImplicitCastValue extends S.TaggedClass<ImplicitCastValue>($I`Impli
  * @example
  * ```ts
  * import { StructValue } from "@beep/repo-utils/JSDoc/models/tag-values/ClosureTagValues"
- * void StructValue
+ * console.log(StructValue)
  * ```
  * @category models
  * @since 0.0.0
@@ -83,7 +83,7 @@ export class StructValue extends S.TaggedClass<StructValue>($I`StructValue`)(
  * @example
  * ```ts
  * import { UnrestrictedValue } from "@beep/repo-utils/JSDoc/models/tag-values/ClosureTagValues"
- * void UnrestrictedValue
+ * console.log(UnrestrictedValue)
  * ```
  * @category models
  * @since 0.0.0
@@ -100,7 +100,7 @@ export class UnrestrictedValue extends S.TaggedClass<UnrestrictedValue>($I`Unres
  * @example
  * ```ts
  * import { SuppressValue } from "@beep/repo-utils/JSDoc/models/tag-values/ClosureTagValues"
- * void SuppressValue
+ * console.log(SuppressValue)
  * ```
  * @category models
  * @since 0.0.0
@@ -117,7 +117,7 @@ export class SuppressValue extends S.TaggedClass<SuppressValue>($I`SuppressValue
  * @example
  * ```ts
  * import { ExternsValue } from "@beep/repo-utils/JSDoc/models/tag-values/ClosureTagValues"
- * void ExternsValue
+ * console.log(ExternsValue)
  * ```
  * @category models
  * @since 0.0.0
@@ -134,7 +134,7 @@ export class ExternsValue extends S.TaggedClass<ExternsValue>($I`ExternsValue`)(
  * @example
  * ```ts
  * import { NoaliasValue } from "@beep/repo-utils/JSDoc/models/tag-values/ClosureTagValues"
- * void NoaliasValue
+ * console.log(NoaliasValue)
  * ```
  * @category models
  * @since 0.0.0
@@ -151,7 +151,7 @@ export class NoaliasValue extends S.TaggedClass<NoaliasValue>($I`NoaliasValue`)(
  * @example
  * ```ts
  * import { NocompileValue } from "@beep/repo-utils/JSDoc/models/tag-values/ClosureTagValues"
- * void NocompileValue
+ * console.log(NocompileValue)
  * ```
  * @category models
  * @since 0.0.0
@@ -168,7 +168,7 @@ export class NocompileValue extends S.TaggedClass<NocompileValue>($I`NocompileVa
  * @example
  * ```ts
  * import { NosideeffectsValue } from "@beep/repo-utils/JSDoc/models/tag-values/ClosureTagValues"
- * void NosideeffectsValue
+ * console.log(NosideeffectsValue)
  * ```
  * @category models
  * @since 0.0.0
@@ -185,7 +185,7 @@ export class NosideeffectsValue extends S.TaggedClass<NosideeffectsValue>($I`Nos
  * @example
  * ```ts
  * import { PolymerValue } from "@beep/repo-utils/JSDoc/models/tag-values/ClosureTagValues"
- * void PolymerValue
+ * console.log(PolymerValue)
  * ```
  * @category models
  * @since 0.0.0
@@ -202,7 +202,7 @@ export class PolymerValue extends S.TaggedClass<PolymerValue>($I`PolymerValue`)(
  * @example
  * ```ts
  * import { PolymerBehaviorValue } from "@beep/repo-utils/JSDoc/models/tag-values/ClosureTagValues"
- * void PolymerBehaviorValue
+ * console.log(PolymerBehaviorValue)
  * ```
  * @category models
  * @since 0.0.0
@@ -219,7 +219,7 @@ export class PolymerBehaviorValue extends S.TaggedClass<PolymerBehaviorValue>($I
  * @example
  * ```ts
  * import { RecordValue } from "@beep/repo-utils/JSDoc/models/tag-values/ClosureTagValues"
- * void RecordValue
+ * console.log(RecordValue)
  * ```
  * @category models
  * @since 0.0.0
@@ -236,7 +236,7 @@ export class RecordValue extends S.TaggedClass<RecordValue>($I`RecordValue`)(
  * @example
  * ```ts
  * import { NocollapseValue } from "@beep/repo-utils/JSDoc/models/tag-values/ClosureTagValues"
- * void NocollapseValue
+ * console.log(NocollapseValue)
  * ```
  * @category models
  * @since 0.0.0
@@ -253,7 +253,7 @@ export class NocollapseValue extends S.TaggedClass<NocollapseValue>($I`Nocollaps
  * @example
  * ```ts
  * import { NoinlineValue } from "@beep/repo-utils/JSDoc/models/tag-values/ClosureTagValues"
- * void NoinlineValue
+ * console.log(NoinlineValue)
  * ```
  * @category models
  * @since 0.0.0

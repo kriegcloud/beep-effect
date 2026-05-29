@@ -41,7 +41,7 @@ export const WorkspaceId = make("workspace", {
  *   const id: Workspace.WorkspaceId = yield* S.decodeUnknownEffect(Workspace.WorkspaceId)(1)
  *   return id
  * })
- * void program
+ * console.log(program)
  * ```
  *
  * @category entity-ids
@@ -79,7 +79,7 @@ export const EmailArtifactId = make("email_artifact", {
  *   const id: Workspace.EmailArtifactId = yield* S.decodeUnknownEffect(Workspace.EmailArtifactId)(1)
  *   return id
  * })
- * void program
+ * console.log(program)
  * ```
  *
  * @category entity-ids
@@ -117,7 +117,7 @@ export const CandidateProjectId = make("candidate_project", {
  *   const id: Workspace.CandidateProjectId = yield* S.decodeUnknownEffect(Workspace.CandidateProjectId)(1)
  *   return id
  * })
- * void program
+ * console.log(program)
  * ```
  *
  * @category entity-ids
@@ -155,7 +155,7 @@ export const CandidateTaskId = make("candidate_task", {
  *   const id: Workspace.CandidateTaskId = yield* S.decodeUnknownEffect(Workspace.CandidateTaskId)(1)
  *   return id
  * })
- * void program
+ * console.log(program)
  * ```
  *
  * @category entity-ids
@@ -193,7 +193,7 @@ export const CandidateDraftId = make("candidate_draft", {
  *   const id: Workspace.CandidateDraftId = yield* S.decodeUnknownEffect(Workspace.CandidateDraftId)(1)
  *   return id
  * })
- * void program
+ * console.log(program)
  * ```
  *
  * @category entity-ids
@@ -231,7 +231,7 @@ export const ApprovalGateId = make("approval_gate", {
  *   const id: Workspace.ApprovalGateId = yield* S.decodeUnknownEffect(Workspace.ApprovalGateId)(1)
  *   return id
  * })
- * void program
+ * console.log(program)
  * ```
  *
  * @category entity-ids
@@ -269,7 +269,7 @@ export const ContextPacketId = make("context_packet", {
  *   const id: Workspace.ContextPacketId = yield* S.decodeUnknownEffect(Workspace.ContextPacketId)(1)
  *   return id
  * })
- * void program
+ * console.log(program)
  * ```
  *
  * @category entity-ids

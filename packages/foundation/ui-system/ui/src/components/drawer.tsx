@@ -5,6 +5,15 @@ import { cn } from "../lib/index.ts";
 import type * as React from "react";
 
 /**
+ * Drawer component.
+ *
+ * @example
+ * ```tsx
+ * import { Drawer } from "@beep/ui/components/drawer"
+ *
+ * console.log(Drawer)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -13,6 +22,15 @@ function Drawer({ ...props }: React.ComponentProps<typeof DrawerPrimitive.Root>)
 }
 
 /**
+ * Drawer trigger component.
+ *
+ * @example
+ * ```tsx
+ * import { DrawerTrigger } from "@beep/ui/components/drawer"
+ *
+ * console.log(DrawerTrigger)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -21,6 +39,15 @@ function DrawerTrigger({ ...props }: React.ComponentProps<typeof DrawerPrimitive
 }
 
 /**
+ * Drawer portal component.
+ *
+ * @example
+ * ```tsx
+ * import { DrawerPortal } from "@beep/ui/components/drawer"
+ *
+ * console.log(DrawerPortal)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -29,6 +56,15 @@ function DrawerPortal({ ...props }: React.ComponentProps<typeof DrawerPrimitive.
 }
 
 /**
+ * Drawer close component.
+ *
+ * @example
+ * ```tsx
+ * import { DrawerClose } from "@beep/ui/components/drawer"
+ *
+ * console.log(DrawerClose)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -37,6 +73,15 @@ function DrawerClose({ ...props }: React.ComponentProps<typeof DrawerPrimitive.C
 }
 
 /**
+ * Drawer overlay component.
+ *
+ * @example
+ * ```tsx
+ * import { DrawerOverlay } from "@beep/ui/components/drawer"
+ *
+ * console.log(DrawerOverlay)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -54,6 +99,15 @@ function DrawerOverlay({ className, ...props }: React.ComponentProps<typeof Draw
 }
 
 /**
+ * Drawer content component.
+ *
+ * @example
+ * ```tsx
+ * import { DrawerContent } from "@beep/ui/components/drawer"
+ *
+ * console.log(DrawerContent)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -77,6 +131,15 @@ function DrawerContent({ className, children, ...props }: React.ComponentProps<t
 }
 
 /**
+ * Drawer header component.
+ *
+ * @example
+ * ```tsx
+ * import { DrawerHeader } from "@beep/ui/components/drawer"
+ *
+ * console.log(DrawerHeader)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -94,6 +157,15 @@ function DrawerHeader({ className, ...props }: React.ComponentProps<"div">) {
 }
 
 /**
+ * Drawer footer component.
+ *
+ * @example
+ * ```tsx
+ * import { DrawerFooter } from "@beep/ui/components/drawer"
+ *
+ * console.log(DrawerFooter)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -102,6 +174,15 @@ function DrawerFooter({ className, ...props }: React.ComponentProps<"div">) {
 }
 
 /**
+ * Drawer title component.
+ *
+ * @example
+ * ```tsx
+ * import { DrawerTitle } from "@beep/ui/components/drawer"
+ *
+ * console.log(DrawerTitle)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -116,6 +197,15 @@ function DrawerTitle({ className, ...props }: React.ComponentProps<typeof Drawer
 }
 
 /**
+ * Drawer description component.
+ *
+ * @example
+ * ```tsx
+ * import { DrawerDescription } from "@beep/ui/components/drawer"
+ *
+ * console.log(DrawerDescription)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */

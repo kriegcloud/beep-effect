@@ -11,6 +11,16 @@ import * as THREE from "three";
 import type React from "react";
 
 /**
+ * Agent state type.
+ *
+ * @example
+ * ```ts
+ * import type { AgentState } from "@beep/ui/components/orb"
+ *
+ * const value = {} as AgentState
+ * console.log(value)
+ * ```
+ *
  * @category type-level
  * @since 0.0.0
  */
@@ -39,6 +49,15 @@ const randomUint32 = (): number => {
 };
 
 /**
+ * Orb component.
+ *
+ * @example
+ * ```tsx
+ * import { Orb } from "@beep/ui/components/orb"
+ *
+ * console.log(Orb)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */

@@ -13,6 +13,13 @@ const $I = $DiscordId.create("Discord.models");
 /**
  * Discord driver configuration.
  *
+ * @example
+ * ```ts
+ * import { DiscordConfigInput } from "@beep/discord/Discord.models"
+ *
+ * console.log(DiscordConfigInput)
+ * ```
+ *
  * @category models
  * @since 0.0.0
  */
@@ -27,6 +34,13 @@ export class DiscordConfigInput extends S.Class<DiscordConfigInput>($I`DiscordCo
 
 /**
  * Discord channel lookup request.
+ *
+ * @example
+ * ```ts
+ * import { DiscordChannelRequest } from "@beep/discord/Discord.models"
+ *
+ * console.log(DiscordChannelRequest)
+ * ```
  *
  * @category models
  * @since 0.0.0
@@ -43,6 +57,13 @@ export class DiscordChannelRequest extends S.Class<DiscordChannelRequest>($I`Dis
 /**
  * Discord message creation request.
  *
+ * @example
+ * ```ts
+ * import { DiscordCreateMessageRequest } from "@beep/discord/Discord.models"
+ *
+ * console.log(DiscordCreateMessageRequest)
+ * ```
+ *
  * @category models
  * @since 0.0.0
  */
@@ -58,6 +79,13 @@ export class DiscordCreateMessageRequest extends S.Class<DiscordCreateMessageReq
 
 /**
  * Redacted Discord channel proof metadata.
+ *
+ * @example
+ * ```ts
+ * import { DiscordChannelProof } from "@beep/discord/Discord.models"
+ *
+ * console.log(DiscordChannelProof)
+ * ```
  *
  * @category models
  * @since 0.0.0
@@ -76,6 +104,13 @@ export class DiscordChannelProof extends S.Class<DiscordChannelProof>($I`Discord
 
 /**
  * Redacted Discord message proof metadata.
+ *
+ * @example
+ * ```ts
+ * import { DiscordMessageProof } from "@beep/discord/Discord.models"
+ *
+ * console.log(DiscordMessageProof)
+ * ```
  *
  * @category models
  * @since 0.0.0

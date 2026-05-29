@@ -15,7 +15,7 @@ const $I = $RepoUtilsId.create("JSDoc/models/tag-values/InlineTagValues");
  * @example
  * ```ts
  * import { LinkValue } from "@beep/repo-utils/JSDoc/models/tag-values/InlineTagValues"
- * void LinkValue
+ * console.log(LinkValue)
  * ```
  * @category models
  * @since 0.0.0
@@ -32,7 +32,7 @@ export class LinkValue extends S.TaggedClass<LinkValue>($I`LinkValue`)(
  * @example
  * ```ts
  * import { InheritDocValue } from "@beep/repo-utils/JSDoc/models/tag-values/InlineTagValues"
- * void InheritDocValue
+ * console.log(InheritDocValue)
  * ```
  * @category models
  * @since 0.0.0

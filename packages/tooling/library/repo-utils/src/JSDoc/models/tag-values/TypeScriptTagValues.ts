@@ -15,7 +15,7 @@ const $I = $RepoUtilsId.create("JSDoc/models/tag-values/TypeScriptTagValues");
  * @example
  * ```ts
  * import { OverloadValue } from "@beep/repo-utils/JSDoc/models/tag-values/TypeScriptTagValues"
- * void OverloadValue
+ * console.log(OverloadValue)
  * ```
  * @category models
  * @since 0.0.0

@@ -35,6 +35,17 @@ const EthereumValidatorPublicKeyChecks = S.makeFilterGroup(
 /**
  * Branded schema for canonical Ethereum validator public keys.
  *
+ * @example
+ * ```ts
+ * import { EthereumValidatorPublicKey } from "@beep/schema/EthereumValidatorPublicKey"
+ * import * as S from "effect/Schema"
+ *
+ * const key = S.decodeUnknownSync(EthereumValidatorPublicKey)(
+ *   "0x000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+ * )
+ * console.log(key)
+ * ```
+ *
  * @since 0.0.0
  * @category validation
  */
@@ -55,6 +66,16 @@ export type EthereumValidatorPublicKey = typeof EthereumValidatorPublicKey.Type;
 
 /**
  * Redacted schema for canonical Ethereum validator public keys.
+ *
+ * @example
+ * ```ts
+ * import { EthereumValidatorPublicKeyRedacted } from "@beep/schema/EthereumValidatorPublicKey"
+ *
+ * const key = EthereumValidatorPublicKeyRedacted.makeRedacted(
+ *   "0x000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+ * )
+ * console.log(key)
+ * ```
  *
  * @since 0.0.0
  * @category validation

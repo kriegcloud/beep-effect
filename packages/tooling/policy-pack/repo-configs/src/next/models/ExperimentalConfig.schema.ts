@@ -186,7 +186,7 @@ const SwcPlugins = S.Tuple([S.String, UnknownRecord]).pipe(S.mutable, S.Array, S
  *   cssChunking: true,
  *   mcpServer: true
  * })
- * void config
+ * console.log(config)
  * ```
  * @category schemas
  * @since 0.0.0

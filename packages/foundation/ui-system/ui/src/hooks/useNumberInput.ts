@@ -201,6 +201,13 @@ const useIsFirstMount = () => {
 /**
  * Lowest safe integer supported by the hook defaults.
  *
+ * @example
+ * ```ts
+ * import { minSafeInteger } from "@beep/ui/hooks/useNumberInput"
+ *
+ * console.log(minSafeInteger)
+ * ```
+ *
  * @category constants
  * @since 0.0.0
  */
@@ -209,6 +216,13 @@ export const minSafeInteger = Number.MIN_SAFE_INTEGER ?? -9007199254740991;
 /**
  * Highest safe integer supported by the hook defaults.
  *
+ * @example
+ * ```ts
+ * import { maxSafeInteger } from "@beep/ui/hooks/useNumberInput"
+ *
+ * console.log(maxSafeInteger)
+ * ```
+ *
  * @category constants
  * @since 0.0.0
  */
@@ -216,6 +230,14 @@ export const maxSafeInteger = Number.MAX_SAFE_INTEGER ?? 9007199254740991;
 
 /**
  * Schema describing optional numeric bounds and controlled values for number input hooks.
+ *
+ * @example
+ * ```ts
+ * import { BoundaryParams } from "@beep/ui/hooks/useNumberInput"
+ *
+ * const params = BoundaryParams.make({ min: 0, max: 10, defaultValue: 5 })
+ * console.log(params.defaultValue)
+ * ```
  *
  * @category models
  * @since 0.0.0
@@ -234,6 +256,14 @@ export class BoundaryParams extends S.Class<BoundaryParams>($I`BoundaryParams`)(
 
 /**
  * Schema describing step and precision overrides for spinner changes.
+ *
+ * @example
+ * ```ts
+ * import { SpinParams } from "@beep/ui/hooks/useNumberInput"
+ *
+ * const params = SpinParams.make({ step: 0.5, precision: 1 })
+ * console.log(params.step)
+ * ```
  *
  * @category models
  * @since 0.0.0
@@ -365,6 +395,13 @@ export const getStepFactor: {
 /**
  * Event types reported through the `onChange` metadata callback.
  *
+ * @example
+ * ```ts
+ * import { NumberInputEventType } from "@beep/ui/hooks/useNumberInput"
+ *
+ * console.log(NumberInputEventType.Options)
+ * ```
+ *
  * @category models
  * @since 0.0.0
  */
@@ -385,6 +422,13 @@ export type NumberInputEventType = typeof NumberInputEventType.Type;
 /**
  * Error states reported through the `onChange` metadata callback.
  *
+ * @example
+ * ```ts
+ * import { NumberInputError } from "@beep/ui/hooks/useNumberInput"
+ *
+ * console.log(NumberInputError.Options)
+ * ```
+ *
  * @category models
  * @since 0.0.0
  */
@@ -404,6 +448,19 @@ export type NumberInputError = typeof NumberInputError.Type;
 
 /**
  * Metadata passed to `UseNumberInputOptions.onChange`.
+ *
+ * @example
+ * ```ts
+ * import { NumberInputChangeMetadata, NumberInputEventType } from "@beep/ui/hooks/useNumberInput"
+ *
+ * const metadata = NumberInputChangeMetadata.make({
+ *   error: null,
+ *   eventType: NumberInputEventType.Enum.change,
+ *   valueText: "5"
+ * })
+ *
+ * console.log(metadata.valueText)
+ * ```
  *
  * @category models
  * @since 0.0.0
@@ -442,6 +499,14 @@ const getError = (value: number | undefined, min: number, max: number): NumberIn
 
 /**
  * Options accepted by {@link useNumberBoundary} and {@link useNumberInput}.
+ *
+ * @example
+ * ```ts
+ * import type { UseNumberInputOptions } from "@beep/ui/hooks/useNumberInput"
+ *
+ * const options: UseNumberInputOptions = { min: 0, max: 10, step: 1 }
+ * console.log(options.max)
+ * ```
  *
  * @category models
  * @since 0.0.0
@@ -489,25 +554,16 @@ export type UseNumberInputOptions = BoundaryParams &
  * import { useNumberBoundary } from "@beep/ui/hooks/useNumberInput"
  *
  * function Example() {
- *
- *
- *
- *
- *
- *
- *
+ *   const number = useNumberBoundary({ defaultValue: 1, min: 0, max: 10 })
+ *   return React.createElement("output", null, number.interfaceValue)
  * }
  *
- * void Example
+ * console.log(Example.name)
  * ```
  *
  * @category components
  * @param options - Number-input boundary and formatting options.
  * @returns Managed numeric and interface state helpers.
- */
-/**
- * Low-level number-input state hook for parsing, formatting, and boundary management.
- *
  * @since 0.0.0
  * @category components
  */
@@ -572,6 +628,19 @@ export const useNumberBoundary = (options: UseNumberInputOptions = {}) => {
 
 /**
  * Fully managed number-input hook with keyboard and spinner controls.
+ *
+ * @example
+ * ```ts
+ * import React from "react"
+ * import { useNumberInput } from "@beep/ui/hooks/useNumberInput"
+ *
+ * function Example() {
+ *   const number = useNumberInput({ defaultValue: 1, min: 0, max: 10 })
+ *   return React.createElement("input", { ref: number.inputRef, ...number.getInputProps() })
+ * }
+ *
+ * console.log(Example.name)
+ * ```
  *
  * @since 0.0.0
  * @category components

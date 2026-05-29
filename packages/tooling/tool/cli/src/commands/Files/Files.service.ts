@@ -247,6 +247,14 @@ const resolveTrustedMediaToolPath = Effect.fn("Files.resolveTrustedMediaToolPath
 /**
  * Service contract for dataset file curation operations.
  *
+ * @example
+ * ```ts
+ * import type { FilesCommandServiceShape } from "@beep/repo-cli/commands/Files"
+ *
+ * const value = {} as FilesCommandServiceShape
+ * console.log(value)
+ * ```
+ *
  * @category services
  * @since 0.0.0
  */
@@ -319,6 +327,13 @@ export interface FilesCommandServiceShape {
 
 /**
  * Service tag for dataset file curation operations.
+ *
+ * @example
+ * ```ts
+ * import { FilesCommandService } from "@beep/repo-cli/commands/Files"
+ *
+ * console.log(FilesCommandService)
+ * ```
  *
  * @category services
  * @since 0.0.0
@@ -3702,6 +3717,13 @@ const logCropBordersPlan = Effect.fn("Files.logCropBordersPlan")(function* (plan
 /**
  * Print the files command index.
  *
+ * @example
+ * ```ts
+ * import { printFilesIndex } from "@beep/repo-cli/commands/Files"
+ *
+ * console.log(printFilesIndex)
+ * ```
+ *
  * @category use-cases
  * @since 0.0.0
  */
@@ -4461,6 +4483,13 @@ const makeFilesCommandService = Effect.fn("FilesCommandService.make")(function* 
 /**
  * Live service layer for dataset file curation operations.
  *
+ * @example
+ * ```ts
+ * import { FilesCommandServiceLive } from "@beep/repo-cli/commands/Files"
+ *
+ * console.log(FilesCommandServiceLive)
+ * ```
+ *
  * @category layers
  * @since 0.0.0
  */
@@ -4472,6 +4501,13 @@ export const FilesCommandServiceLive: Layer.Layer<FilesCommandService, never, Fi
  *
  * @param options - Candidate archival options.
  * @returns Summary counts for the operation.
+ * @example
+ * ```ts
+ * import { archivePoorCandidates } from "@beep/repo-cli/commands/Files"
+ *
+ * console.log(archivePoorCandidates)
+ * ```
+ *
  * @category use-cases
  * @since 0.0.0
  */
@@ -4487,6 +4523,13 @@ export const archivePoorCandidates = Effect.fn("Files.archivePoorCandidates")(fu
  *
  * @param options - Caption sidecar creation options.
  * @returns Summary counts for the operation.
+ * @example
+ * ```ts
+ * import { createCaptionFiles } from "@beep/repo-cli/commands/Files"
+ *
+ * console.log(createCaptionFiles)
+ * ```
+ *
  * @category use-cases
  * @since 0.0.0
  */
@@ -4502,6 +4545,13 @@ export const createCaptionFiles = Effect.fn("Files.createCaptionFiles")(function
  *
  * @param options - Border crop options.
  * @returns Summary counts for the operation.
+ * @example
+ * ```ts
+ * import { cropBordersFiles } from "@beep/repo-cli/commands/Files"
+ *
+ * console.log(cropBordersFiles)
+ * ```
+ *
  * @category use-cases
  * @since 0.0.0
  */
@@ -4517,6 +4567,13 @@ export const cropBordersFiles = Effect.fn("Files.cropBordersFiles")(function* (
  *
  * @param options - Border detection options.
  * @returns JSON-safe detection report.
+ * @example
+ * ```ts
+ * import { detectBordersFiles } from "@beep/repo-cli/commands/Files"
+ *
+ * console.log(detectBordersFiles)
+ * ```
+ *
  * @category use-cases
  * @since 0.0.0
  */
@@ -4532,6 +4589,13 @@ export const detectBordersFiles = Effect.fn("Files.detectBordersFiles")(function
  *
  * @param options - Face detection options.
  * @returns JSON-safe face detection report.
+ * @example
+ * ```ts
+ * import { detectFacesFiles } from "@beep/repo-cli/commands/Files"
+ *
+ * console.log(detectFacesFiles)
+ * ```
+ *
  * @category use-cases
  * @since 0.0.0
  */
@@ -4547,6 +4611,13 @@ export const detectFacesFiles = Effect.fn("Files.detectFacesFiles")(function* (
  *
  * @param options - Normalization options.
  * @returns Summary counts for the operation.
+ * @example
+ * ```ts
+ * import { normalizeFiles } from "@beep/repo-cli/commands/Files"
+ *
+ * console.log(normalizeFiles)
+ * ```
+ *
  * @category use-cases
  * @since 0.0.0
  */
@@ -4565,6 +4636,13 @@ export const normalizeFiles = Effect.fn("Files.normalizeFiles")(function* (
  * @param dryRun - Whether to print the plan without applying it.
  * @param withDimensions - Whether to include probed media dimensions in generated names.
  * @returns Summary counts for the operation.
+ * @example
+ * ```ts
+ * import { sortAndRenameFiles } from "@beep/repo-cli/commands/Files"
+ *
+ * console.log(sortAndRenameFiles)
+ * ```
+ *
  * @category use-cases
  * @since 0.0.0
  */
@@ -4590,7 +4668,7 @@ export const sortAndRenameFiles = Effect.fn("Files.sortAndRenameFiles")(function
  * import { stripMetadataFiles } from "@beep/repo-cli/commands/Files/index"
  *
  * const program = stripMetadataFiles("./tmp", true)
- * void program
+ * console.log(program)
  * ```
  * @category use-cases
  * @since 0.0.0

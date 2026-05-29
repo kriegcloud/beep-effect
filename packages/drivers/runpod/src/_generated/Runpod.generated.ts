@@ -18,6 +18,13 @@ const $I = $RunpodId.create("Runpod.generated");
 /**
  * Pods schema generated from the Runpod OpenAPI document.
  *
+ * @example
+ * ```ts
+ * import { Pods } from "@beep/runpod"
+ *
+ * console.log(Pods.ast)
+ * ```
+ *
  * @category schemas
  * @since 0.1.0
  */
@@ -31,6 +38,13 @@ export const Pods = S.suspend(() => Pod).pipe(
 /**
  * Pods value generated from the Runpod OpenAPI document.
  *
+ * @example
+ * ```ts
+ * import type { Pods } from "@beep/runpod"
+ *
+ * type PodsValue = Pods
+ * ```
+ *
  * @category type-level
  * @since 0.1.0
  */
@@ -38,6 +52,13 @@ export type Pods = typeof Pods.Type;
 
 /**
  * Pod model returned by the Runpod REST API.
+ *
+ * @example
+ * ```ts
+ * import { Pod } from "@beep/runpod"
+ *
+ * console.log(Pod.ast)
+ * ```
  *
  * @category models
  * @since 0.1.0
@@ -144,6 +165,13 @@ export class Pod extends S.Class<Pod>($I`Pod`)(
 /**
  * PodUpdateInPlaceInput model returned by the Runpod REST API.
  *
+ * @example
+ * ```ts
+ * import { PodUpdateInPlaceInput } from "@beep/runpod"
+ *
+ * console.log(PodUpdateInPlaceInput.ast)
+ * ```
+ *
  * @category models
  * @since 0.1.0
  */
@@ -159,6 +187,13 @@ export class PodUpdateInPlaceInput extends S.Class<PodUpdateInPlaceInput>($I`Pod
 
 /**
  * PodUpdateInput model returned by the Runpod REST API.
+ *
+ * @example
+ * ```ts
+ * import { PodUpdateInput } from "@beep/runpod"
+ *
+ * console.log(PodUpdateInput.ast)
+ * ```
  *
  * @category models
  * @since 0.1.0
@@ -185,6 +220,13 @@ export class PodUpdateInput extends S.Class<PodUpdateInput>($I`PodUpdateInput`)(
 
 /**
  * PodCreateInput model returned by the Runpod REST API.
+ *
+ * @example
+ * ```ts
+ * import { PodCreateInput } from "@beep/runpod"
+ *
+ * console.log(PodCreateInput.ast)
+ * ```
  *
  * @category models
  * @since 0.1.0
@@ -233,6 +275,13 @@ export class PodCreateInput extends S.Class<PodCreateInput>($I`PodCreateInput`)(
 /**
  * NetworkVolumes schema generated from the Runpod OpenAPI document.
  *
+ * @example
+ * ```ts
+ * import { NetworkVolumes } from "@beep/runpod"
+ *
+ * console.log(NetworkVolumes.ast)
+ * ```
+ *
  * @category schemas
  * @since 0.1.0
  */
@@ -252,6 +301,13 @@ export const NetworkVolumes = pipe(
 /**
  * NetworkVolumes value generated from the Runpod OpenAPI document.
  *
+ * @example
+ * ```ts
+ * import type { NetworkVolumes } from "@beep/runpod"
+ *
+ * type NetworkVolumesValue = NetworkVolumes
+ * ```
+ *
  * @category type-level
  * @since 0.1.0
  */
@@ -259,6 +315,13 @@ export type NetworkVolumes = typeof NetworkVolumes.Type;
 
 /**
  * NetworkVolume model returned by the Runpod REST API.
+ *
+ * @example
+ * ```ts
+ * import { NetworkVolume } from "@beep/runpod"
+ *
+ * console.log(NetworkVolume.ast)
+ * ```
  *
  * @category models
  * @since 0.1.0
@@ -278,6 +341,13 @@ export class NetworkVolume extends S.Class<NetworkVolume>($I`NetworkVolume`)(
 /**
  * NetworkVolumeCreateInput model returned by the Runpod REST API.
  *
+ * @example
+ * ```ts
+ * import { NetworkVolumeCreateInput } from "@beep/runpod"
+ *
+ * console.log(NetworkVolumeCreateInput.ast)
+ * ```
+ *
  * @category models
  * @since 0.1.0
  */
@@ -295,6 +365,13 @@ export class NetworkVolumeCreateInput extends S.Class<NetworkVolumeCreateInput>(
 /**
  * NetworkVolumeUpdateInput model returned by the Runpod REST API.
  *
+ * @example
+ * ```ts
+ * import { NetworkVolumeUpdateInput } from "@beep/runpod"
+ *
+ * console.log(NetworkVolumeUpdateInput.ast)
+ * ```
+ *
  * @category models
  * @since 0.1.0
  */
@@ -311,6 +388,13 @@ export class NetworkVolumeUpdateInput extends S.Class<NetworkVolumeUpdateInput>(
 /**
  * Templates schema generated from the Runpod OpenAPI document.
  *
+ * @example
+ * ```ts
+ * import { Templates } from "@beep/runpod"
+ *
+ * console.log(Templates.ast)
+ * ```
+ *
  * @category schemas
  * @since 0.1.0
  */
@@ -324,6 +408,13 @@ export const Templates = S.suspend(() => Template).pipe(
 /**
  * Templates value generated from the Runpod OpenAPI document.
  *
+ * @example
+ * ```ts
+ * import type { Templates } from "@beep/runpod"
+ *
+ * type TemplatesValue = Templates
+ * ```
+ *
  * @category type-level
  * @since 0.1.0
  */
@@ -331,6 +422,13 @@ export type Templates = typeof Templates.Type;
 
 /**
  * Template model returned by the Runpod REST API.
+ *
+ * @example
+ * ```ts
+ * import { Template } from "@beep/runpod"
+ *
+ * console.log(Template.ast)
+ * ```
  *
  * @category models
  * @since 0.1.0
@@ -364,6 +462,13 @@ export class Template extends S.Class<Template>($I`Template`)(
 /**
  * TemplateCreateInput model returned by the Runpod REST API.
  *
+ * @example
+ * ```ts
+ * import { TemplateCreateInput } from "@beep/runpod"
+ *
+ * console.log(TemplateCreateInput.ast)
+ * ```
+ *
  * @category models
  * @since 0.1.0
  */
@@ -392,6 +497,13 @@ export class TemplateCreateInput extends S.Class<TemplateCreateInput>($I`Templat
 /**
  * TemplateUpdateInPlaceInput model returned by the Runpod REST API.
  *
+ * @example
+ * ```ts
+ * import { TemplateUpdateInPlaceInput } from "@beep/runpod"
+ *
+ * console.log(TemplateUpdateInPlaceInput.ast)
+ * ```
+ *
  * @category models
  * @since 0.1.0
  */
@@ -410,6 +522,13 @@ export class TemplateUpdateInPlaceInput extends S.Class<TemplateUpdateInPlaceInp
 
 /**
  * TemplateUpdateInput model returned by the Runpod REST API.
+ *
+ * @example
+ * ```ts
+ * import { TemplateUpdateInput } from "@beep/runpod"
+ *
+ * console.log(TemplateUpdateInput.ast)
+ * ```
  *
  * @category models
  * @since 0.1.0
@@ -437,6 +556,13 @@ export class TemplateUpdateInput extends S.Class<TemplateUpdateInput>($I`Templat
 /**
  * Endpoints schema generated from the Runpod OpenAPI document.
  *
+ * @example
+ * ```ts
+ * import { Endpoints } from "@beep/runpod"
+ *
+ * console.log(Endpoints.ast)
+ * ```
+ *
  * @category schemas
  * @since 0.1.0
  */
@@ -450,6 +576,13 @@ export const Endpoints = S.suspend(() => Endpoint).pipe(
 /**
  * Endpoints value generated from the Runpod OpenAPI document.
  *
+ * @example
+ * ```ts
+ * import type { Endpoints } from "@beep/runpod"
+ *
+ * type EndpointsValue = Endpoints
+ * ```
+ *
  * @category type-level
  * @since 0.1.0
  */
@@ -457,6 +590,13 @@ export type Endpoints = typeof Endpoints.Type;
 
 /**
  * Endpoint model returned by the Runpod REST API.
+ *
+ * @example
+ * ```ts
+ * import { Endpoint } from "@beep/runpod"
+ *
+ * console.log(Endpoint.ast)
+ * ```
  *
  * @category models
  * @since 0.1.0
@@ -496,6 +636,13 @@ export class Endpoint extends S.Class<Endpoint>($I`Endpoint`)(
 /**
  * EndpointUpdateInPlaceInput model returned by the Runpod REST API.
  *
+ * @example
+ * ```ts
+ * import { EndpointUpdateInPlaceInput } from "@beep/runpod"
+ *
+ * console.log(EndpointUpdateInPlaceInput.ast)
+ * ```
+ *
  * @category models
  * @since 0.1.0
  */
@@ -517,6 +664,13 @@ export class EndpointUpdateInPlaceInput extends S.Class<EndpointUpdateInPlaceInp
 
 /**
  * EndpointUpdateInput model returned by the Runpod REST API.
+ *
+ * @example
+ * ```ts
+ * import { EndpointUpdateInput } from "@beep/runpod"
+ *
+ * console.log(EndpointUpdateInput.ast)
+ * ```
  *
  * @category models
  * @since 0.1.0
@@ -549,6 +703,13 @@ export class EndpointUpdateInput extends S.Class<EndpointUpdateInput>($I`Endpoin
 
 /**
  * EndpointCreateInput model returned by the Runpod REST API.
+ *
+ * @example
+ * ```ts
+ * import { EndpointCreateInput } from "@beep/runpod"
+ *
+ * console.log(EndpointCreateInput.ast)
+ * ```
  *
  * @category models
  * @since 0.1.0
@@ -583,6 +744,13 @@ export class EndpointCreateInput extends S.Class<EndpointCreateInput>($I`Endpoin
 /**
  * User schema generated from the Runpod OpenAPI document.
  *
+ * @example
+ * ```ts
+ * import { User } from "@beep/runpod"
+ *
+ * console.log(User.ast)
+ * ```
+ *
  * @category schemas
  * @since 0.1.0
  */
@@ -595,6 +763,13 @@ export const User = S.String.pipe(
 /**
  * User value generated from the Runpod OpenAPI document.
  *
+ * @example
+ * ```ts
+ * import type { User } from "@beep/runpod"
+ *
+ * type UserValue = User
+ * ```
+ *
  * @category type-level
  * @since 0.1.0
  */
@@ -602,6 +777,13 @@ export type User = typeof User.Type;
 
 /**
  * SavingsPlan model returned by the Runpod REST API.
+ *
+ * @example
+ * ```ts
+ * import { SavingsPlan } from "@beep/runpod"
+ *
+ * console.log(SavingsPlan.ast)
+ * ```
  *
  * @category models
  * @since 0.1.0
@@ -622,6 +804,13 @@ export class SavingsPlan extends S.Class<SavingsPlan>($I`SavingsPlan`)(
 
 /**
  * Machine model returned by the Runpod REST API.
+ *
+ * @example
+ * ```ts
+ * import { Machine } from "@beep/runpod"
+ *
+ * console.log(Machine.ast)
+ * ```
  *
  * @category models
  * @since 0.1.0
@@ -676,6 +865,13 @@ export class Machine extends S.Class<Machine>($I`Machine`)(
 /**
  * DataCenter model returned by the Runpod REST API.
  *
+ * @example
+ * ```ts
+ * import { DataCenter } from "@beep/runpod"
+ *
+ * console.log(DataCenter.ast)
+ * ```
+ *
  * @category models
  * @since 0.1.0
  */
@@ -690,6 +886,13 @@ export class DataCenter extends S.Class<DataCenter>($I`DataCenter`)(
 
 /**
  * UnauthorizedError model returned by the Runpod REST API.
+ *
+ * @example
+ * ```ts
+ * import { UnauthorizedError } from "@beep/runpod"
+ *
+ * console.log(UnauthorizedError.ast)
+ * ```
  *
  * @category models
  * @since 0.1.0
@@ -706,6 +909,13 @@ export class UnauthorizedError extends S.Class<UnauthorizedError>($I`Unauthorize
 /**
  * CudaVersions schema generated from the Runpod OpenAPI document.
  *
+ * @example
+ * ```ts
+ * import { CudaVersions } from "@beep/runpod"
+ *
+ * console.log(CudaVersions.ast)
+ * ```
+ *
  * @category schemas
  * @since 0.1.0
  */
@@ -718,6 +928,13 @@ export const CudaVersions = S.String.pipe(
 /**
  * CudaVersions value generated from the Runpod OpenAPI document.
  *
+ * @example
+ * ```ts
+ * import type { CudaVersions } from "@beep/runpod"
+ *
+ * type CudaVersionsValue = CudaVersions
+ * ```
+ *
  * @category type-level
  * @since 0.1.0
  */
@@ -725,6 +942,13 @@ export type CudaVersions = typeof CudaVersions.Type;
 
 /**
  * GPUTypeId schema generated from the Runpod OpenAPI document.
+ *
+ * @example
+ * ```ts
+ * import { GPUTypeId } from "@beep/runpod"
+ *
+ * console.log(GPUTypeId.ast)
+ * ```
  *
  * @category schemas
  * @since 0.1.0
@@ -738,6 +962,13 @@ export const GPUTypeId = S.String.pipe(
 /**
  * GPUTypeId value generated from the Runpod OpenAPI document.
  *
+ * @example
+ * ```ts
+ * import type { GPUTypeId } from "@beep/runpod"
+ *
+ * type GPUTypeIdValue = GPUTypeId
+ * ```
+ *
  * @category type-level
  * @since 0.1.0
  */
@@ -745,6 +976,13 @@ export type GPUTypeId = typeof GPUTypeId.Type;
 
 /**
  * ContainerRegistryAuth model returned by the Runpod REST API.
+ *
+ * @example
+ * ```ts
+ * import { ContainerRegistryAuth } from "@beep/runpod"
+ *
+ * console.log(ContainerRegistryAuth.ast)
+ * ```
  *
  * @category models
  * @since 0.1.0
@@ -762,6 +1000,13 @@ export class ContainerRegistryAuth extends S.Class<ContainerRegistryAuth>($I`Con
 /**
  * ContainerRegistryAuths schema generated from the Runpod OpenAPI document.
  *
+ * @example
+ * ```ts
+ * import { ContainerRegistryAuths } from "@beep/runpod"
+ *
+ * console.log(ContainerRegistryAuths.ast)
+ * ```
+ *
  * @category schemas
  * @since 0.1.0
  */
@@ -775,6 +1020,13 @@ export const ContainerRegistryAuths = S.suspend(() => ContainerRegistryAuth).pip
 /**
  * ContainerRegistryAuths value generated from the Runpod OpenAPI document.
  *
+ * @example
+ * ```ts
+ * import type { ContainerRegistryAuths } from "@beep/runpod"
+ *
+ * type ContainerRegistryAuthsValue = ContainerRegistryAuths
+ * ```
+ *
  * @category type-level
  * @since 0.1.0
  */
@@ -782,6 +1034,13 @@ export type ContainerRegistryAuths = typeof ContainerRegistryAuths.Type;
 
 /**
  * ContainerRegistryAuthCreateInput model returned by the Runpod REST API.
+ *
+ * @example
+ * ```ts
+ * import { ContainerRegistryAuthCreateInput } from "@beep/runpod"
+ *
+ * console.log(ContainerRegistryAuthCreateInput.ast)
+ * ```
  *
  * @category models
  * @since 0.1.0
@@ -801,6 +1060,13 @@ export class ContainerRegistryAuthCreateInput extends S.Class<ContainerRegistryA
 
 /**
  * BillingRecord model returned by the Runpod REST API.
+ *
+ * @example
+ * ```ts
+ * import { BillingRecord } from "@beep/runpod"
+ *
+ * console.log(BillingRecord.ast)
+ * ```
  *
  * @category models
  * @since 0.1.0
@@ -822,6 +1088,13 @@ export class BillingRecord extends S.Class<BillingRecord>($I`BillingRecord`)(
 
 /**
  * BillingRecords schema generated from the Runpod OpenAPI document.
+ *
+ * @example
+ * ```ts
+ * import { BillingRecords } from "@beep/runpod"
+ *
+ * console.log(BillingRecords.ast)
+ * ```
  *
  * @category schemas
  * @since 0.1.0
@@ -845,6 +1118,13 @@ export const BillingRecords = pipe(
 /**
  * BillingRecords value generated from the Runpod OpenAPI document.
  *
+ * @example
+ * ```ts
+ * import type { BillingRecords } from "@beep/runpod"
+ *
+ * type BillingRecordsValue = BillingRecords
+ * ```
+ *
  * @category type-level
  * @since 0.1.0
  */
@@ -852,6 +1132,13 @@ export type BillingRecords = typeof BillingRecords.Type;
 
 /**
  * NetworkVolumeBillingRecord model returned by the Runpod REST API.
+ *
+ * @example
+ * ```ts
+ * import { NetworkVolumeBillingRecord } from "@beep/runpod"
+ *
+ * console.log(NetworkVolumeBillingRecord.ast)
+ * ```
  *
  * @category models
  * @since 0.1.0
@@ -871,6 +1158,13 @@ export class NetworkVolumeBillingRecord extends S.Class<NetworkVolumeBillingReco
 
 /**
  * NetworkVolumeBillingRecords schema generated from the Runpod OpenAPI document.
+ *
+ * @example
+ * ```ts
+ * import { NetworkVolumeBillingRecords } from "@beep/runpod"
+ *
+ * console.log(NetworkVolumeBillingRecords.ast)
+ * ```
  *
  * @category schemas
  * @since 0.1.0
@@ -892,6 +1186,13 @@ export const NetworkVolumeBillingRecords = pipe(
 /**
  * NetworkVolumeBillingRecords value generated from the Runpod OpenAPI document.
  *
+ * @example
+ * ```ts
+ * import type { NetworkVolumeBillingRecords } from "@beep/runpod"
+ *
+ * type NetworkVolumeBillingRecordsValue = NetworkVolumeBillingRecords
+ * ```
+ *
  * @category type-level
  * @since 0.1.0
  */
@@ -899,6 +1200,13 @@ export type NetworkVolumeBillingRecords = typeof NetworkVolumeBillingRecords.Typ
 
 /**
  * Advisory allowedCudaVersions values observed in the checked-in Runpod OpenAPI document.
+ *
+ * @example
+ * ```ts
+ * import { RUNPOD_ALLOWED_CUDA_VERSIONS_VALUES } from "@beep/runpod"
+ *
+ * console.log(RUNPOD_ALLOWED_CUDA_VERSIONS_VALUES)
+ * ```
  *
  * @category constants
  * @since 0.1.0
@@ -921,6 +1229,13 @@ export const RUNPOD_ALLOWED_CUDA_VERSIONS_VALUES = [
 /**
  * Advisory cpuFlavorIds values observed in the checked-in Runpod OpenAPI document.
  *
+ * @example
+ * ```ts
+ * import { RUNPOD_CPU_FLAVOR_IDS_VALUES } from "@beep/runpod"
+ *
+ * console.log(RUNPOD_CPU_FLAVOR_IDS_VALUES)
+ * ```
+ *
  * @category constants
  * @since 0.1.0
  */
@@ -928,6 +1243,13 @@ export const RUNPOD_CPU_FLAVOR_IDS_VALUES = ["cpu3c", "cpu3g", "cpu5c", "cpu5g"]
 
 /**
  * Advisory cpuFlavorPriority values observed in the checked-in Runpod OpenAPI document.
+ *
+ * @example
+ * ```ts
+ * import { RUNPOD_CPU_FLAVOR_PRIORITY_VALUES } from "@beep/runpod"
+ *
+ * console.log(RUNPOD_CPU_FLAVOR_PRIORITY_VALUES)
+ * ```
  *
  * @category constants
  * @since 0.1.0
@@ -937,6 +1259,13 @@ export const RUNPOD_CPU_FLAVOR_PRIORITY_VALUES = ["availability", "custom"] as c
 /**
  * Advisory cudaVersions values observed in the checked-in Runpod OpenAPI document.
  *
+ * @example
+ * ```ts
+ * import { RUNPOD_CUDA_VERSIONS_VALUES } from "@beep/runpod"
+ *
+ * console.log(RUNPOD_CUDA_VERSIONS_VALUES)
+ * ```
+ *
  * @category constants
  * @since 0.1.0
  */
@@ -944,6 +1273,13 @@ export const RUNPOD_CUDA_VERSIONS_VALUES = ["12.4", "12.3", "12.2", "12.1", "12.
 
 /**
  * Advisory dataCenterId values observed in the checked-in Runpod OpenAPI document.
+ *
+ * @example
+ * ```ts
+ * import { RUNPOD_DATA_CENTER_ID_VALUES } from "@beep/runpod"
+ *
+ * console.log(RUNPOD_DATA_CENTER_ID_VALUES)
+ * ```
  *
  * @category constants
  * @since 0.1.0
@@ -980,6 +1316,13 @@ export const RUNPOD_DATA_CENTER_ID_VALUES = [
 /**
  * Advisory dataCenterIds values observed in the checked-in Runpod OpenAPI document.
  *
+ * @example
+ * ```ts
+ * import { RUNPOD_DATA_CENTER_IDS_VALUES } from "@beep/runpod"
+ *
+ * console.log(RUNPOD_DATA_CENTER_IDS_VALUES)
+ * ```
+ *
  * @category constants
  * @since 0.1.0
  */
@@ -1015,6 +1358,13 @@ export const RUNPOD_DATA_CENTER_IDS_VALUES = [
 /**
  * Advisory dataCenterPriority values observed in the checked-in Runpod OpenAPI document.
  *
+ * @example
+ * ```ts
+ * import { RUNPOD_DATA_CENTER_PRIORITY_VALUES } from "@beep/runpod"
+ *
+ * console.log(RUNPOD_DATA_CENTER_PRIORITY_VALUES)
+ * ```
+ *
  * @category constants
  * @since 0.1.0
  */
@@ -1022,6 +1372,13 @@ export const RUNPOD_DATA_CENTER_PRIORITY_VALUES = ["availability", "custom"] as 
 
 /**
  * Advisory gpuTypeId values observed in the checked-in Runpod OpenAPI document.
+ *
+ * @example
+ * ```ts
+ * import { RUNPOD_GPU_TYPE_ID_VALUES } from "@beep/runpod"
+ *
+ * console.log(RUNPOD_GPU_TYPE_ID_VALUES)
+ * ```
  *
  * @category constants
  * @since 0.1.0
@@ -1065,6 +1422,13 @@ export const RUNPOD_GPU_TYPE_ID_VALUES = [
 
 /**
  * Advisory gpuTypeIds values observed in the checked-in Runpod OpenAPI document.
+ *
+ * @example
+ * ```ts
+ * import { RUNPOD_GPU_TYPE_IDS_VALUES } from "@beep/runpod"
+ *
+ * console.log(RUNPOD_GPU_TYPE_IDS_VALUES)
+ * ```
  *
  * @category constants
  * @since 0.1.0
@@ -1124,6 +1488,13 @@ export const RUNPOD_GPU_TYPE_IDS_VALUES = [
 /**
  * Advisory gpuTypePriority values observed in the checked-in Runpod OpenAPI document.
  *
+ * @example
+ * ```ts
+ * import { RUNPOD_GPU_TYPE_PRIORITY_VALUES } from "@beep/runpod"
+ *
+ * console.log(RUNPOD_GPU_TYPE_PRIORITY_VALUES)
+ * ```
+ *
  * @category constants
  * @since 0.1.0
  */
@@ -1131,6 +1502,13 @@ export const RUNPOD_GPU_TYPE_PRIORITY_VALUES = ["availability", "custom"] as con
 
 /**
  * Advisory minCudaVersion values observed in the checked-in Runpod OpenAPI document.
+ *
+ * @example
+ * ```ts
+ * import { RUNPOD_MIN_CUDA_VERSION_VALUES } from "@beep/runpod"
+ *
+ * console.log(RUNPOD_MIN_CUDA_VERSION_VALUES)
+ * ```
  *
  * @category constants
  * @since 0.1.0
@@ -1153,6 +1531,13 @@ export const RUNPOD_MIN_CUDA_VERSION_VALUES = [
 /**
  * GetOpenAPIStatus200Response schema generated from the Runpod OpenAPI document.
  *
+ * @example
+ * ```ts
+ * import { GetOpenAPIStatus200Response } from "@beep/runpod"
+ *
+ * console.log(GetOpenAPIStatus200Response.ast)
+ * ```
+ *
  * @category schemas
  * @since 0.1.0
  */
@@ -1165,6 +1550,13 @@ export const GetOpenAPIStatus200Response = S.Record(S.String, S.Unknown).pipe(
 /**
  * GetOpenAPIStatus200Response value generated from the Runpod OpenAPI document.
  *
+ * @example
+ * ```ts
+ * import type { GetOpenAPIStatus200Response } from "@beep/runpod"
+ *
+ * type GetOpenAPIStatus200ResponseValue = GetOpenAPIStatus200Response
+ * ```
+ *
  * @category type-level
  * @since 0.1.0
  */
@@ -1172,6 +1564,13 @@ export type GetOpenAPIStatus200Response = typeof GetOpenAPIStatus200Response.Typ
 
 /**
  * GetDocsStatus200TextResponse schema generated from the Runpod OpenAPI document.
+ *
+ * @example
+ * ```ts
+ * import { GetDocsStatus200TextResponse } from "@beep/runpod"
+ *
+ * console.log(GetDocsStatus200TextResponse.ast)
+ * ```
  *
  * @category schemas
  * @since 0.1.0
@@ -1185,6 +1584,13 @@ export const GetDocsStatus200TextResponse = S.String.pipe(
 /**
  * GetDocsStatus200TextResponse value generated from the Runpod OpenAPI document.
  *
+ * @example
+ * ```ts
+ * import type { GetDocsStatus200TextResponse } from "@beep/runpod"
+ *
+ * type GetDocsStatus200TextResponseValue = GetDocsStatus200TextResponse
+ * ```
+ *
  * @category type-level
  * @since 0.1.0
  */
@@ -1192,6 +1598,13 @@ export type GetDocsStatus200TextResponse = typeof GetDocsStatus200TextResponse.T
 
 /**
  * Request input for GetOpenAPI.
+ *
+ * @example
+ * ```ts
+ * import { GetOpenAPIRequest } from "@beep/runpod"
+ *
+ * console.log(GetOpenAPIRequest.ast)
+ * ```
  *
  * @category dtos
  * @since 0.1.0
@@ -1206,6 +1619,13 @@ export class GetOpenAPIRequest extends S.Class<GetOpenAPIRequest>($I`GetOpenAPIR
 /**
  * Request input for GetDocs.
  *
+ * @example
+ * ```ts
+ * import { GetDocsRequest } from "@beep/runpod"
+ *
+ * console.log(GetDocsRequest.ast)
+ * ```
+ *
  * @category dtos
  * @since 0.1.0
  */
@@ -1218,6 +1638,13 @@ export class GetDocsRequest extends S.Class<GetDocsRequest>($I`GetDocsRequest`)(
 
 /**
  * Request input for ListPods.
+ *
+ * @example
+ * ```ts
+ * import { ListPodsRequest } from "@beep/runpod"
+ *
+ * console.log(ListPodsRequest.ast)
+ * ```
  *
  * @category dtos
  * @since 0.1.0
@@ -1249,6 +1676,13 @@ export class ListPodsRequest extends S.Class<ListPodsRequest>($I`ListPodsRequest
 /**
  * Request input for CreatePod.
  *
+ * @example
+ * ```ts
+ * import { CreatePodRequest } from "@beep/runpod"
+ *
+ * console.log(CreatePodRequest.ast)
+ * ```
+ *
  * @category dtos
  * @since 0.1.0
  */
@@ -1263,6 +1697,13 @@ export class CreatePodRequest extends S.Class<CreatePodRequest>($I`CreatePodRequ
 
 /**
  * Request input for GetPod.
+ *
+ * @example
+ * ```ts
+ * import { GetPodRequest } from "@beep/runpod"
+ *
+ * console.log(GetPodRequest.ast)
+ * ```
  *
  * @category dtos
  * @since 0.1.0
@@ -1284,6 +1725,13 @@ export class GetPodRequest extends S.Class<GetPodRequest>($I`GetPodRequest`)(
 /**
  * Request input for UpdatePod.
  *
+ * @example
+ * ```ts
+ * import { UpdatePodRequest } from "@beep/runpod"
+ *
+ * console.log(UpdatePodRequest.ast)
+ * ```
+ *
  * @category dtos
  * @since 0.1.0
  */
@@ -1300,6 +1748,13 @@ export class UpdatePodRequest extends S.Class<UpdatePodRequest>($I`UpdatePodRequ
 /**
  * Request input for DeletePod.
  *
+ * @example
+ * ```ts
+ * import { DeletePodRequest } from "@beep/runpod"
+ *
+ * console.log(DeletePodRequest.ast)
+ * ```
+ *
  * @category dtos
  * @since 0.1.0
  */
@@ -1314,6 +1769,13 @@ export class DeletePodRequest extends S.Class<DeletePodRequest>($I`DeletePodRequ
 
 /**
  * Request input for UpdatePod.
+ *
+ * @example
+ * ```ts
+ * import { UpdatePodViaPostRequest } from "@beep/runpod"
+ *
+ * console.log(UpdatePodViaPostRequest.ast)
+ * ```
  *
  * @category dtos
  * @since 0.1.0
@@ -1331,6 +1793,13 @@ export class UpdatePodViaPostRequest extends S.Class<UpdatePodViaPostRequest>($I
 /**
  * Request input for StartPod.
  *
+ * @example
+ * ```ts
+ * import { StartPodRequest } from "@beep/runpod"
+ *
+ * console.log(StartPodRequest.ast)
+ * ```
+ *
  * @category dtos
  * @since 0.1.0
  */
@@ -1345,6 +1814,13 @@ export class StartPodRequest extends S.Class<StartPodRequest>($I`StartPodRequest
 
 /**
  * Request input for StopPod.
+ *
+ * @example
+ * ```ts
+ * import { StopPodRequest } from "@beep/runpod"
+ *
+ * console.log(StopPodRequest.ast)
+ * ```
  *
  * @category dtos
  * @since 0.1.0
@@ -1361,6 +1837,13 @@ export class StopPodRequest extends S.Class<StopPodRequest>($I`StopPodRequest`)(
 /**
  * Request input for ResetPod.
  *
+ * @example
+ * ```ts
+ * import { ResetPodRequest } from "@beep/runpod"
+ *
+ * console.log(ResetPodRequest.ast)
+ * ```
+ *
  * @category dtos
  * @since 0.1.0
  */
@@ -1376,6 +1859,13 @@ export class ResetPodRequest extends S.Class<ResetPodRequest>($I`ResetPodRequest
 /**
  * Request input for RestartPod.
  *
+ * @example
+ * ```ts
+ * import { RestartPodRequest } from "@beep/runpod"
+ *
+ * console.log(RestartPodRequest.ast)
+ * ```
+ *
  * @category dtos
  * @since 0.1.0
  */
@@ -1390,6 +1880,13 @@ export class RestartPodRequest extends S.Class<RestartPodRequest>($I`RestartPodR
 
 /**
  * Request input for ListEndpoints.
+ *
+ * @example
+ * ```ts
+ * import { ListEndpointsRequest } from "@beep/runpod"
+ *
+ * console.log(ListEndpointsRequest.ast)
+ * ```
  *
  * @category dtos
  * @since 0.1.0
@@ -1407,6 +1904,13 @@ export class ListEndpointsRequest extends S.Class<ListEndpointsRequest>($I`ListE
 /**
  * Request input for CreateEndpoint.
  *
+ * @example
+ * ```ts
+ * import { CreateEndpointRequest } from "@beep/runpod"
+ *
+ * console.log(CreateEndpointRequest.ast)
+ * ```
+ *
  * @category dtos
  * @since 0.1.0
  */
@@ -1421,6 +1925,13 @@ export class CreateEndpointRequest extends S.Class<CreateEndpointRequest>($I`Cre
 
 /**
  * Request input for GetEndpoint.
+ *
+ * @example
+ * ```ts
+ * import { GetEndpointRequest } from "@beep/runpod"
+ *
+ * console.log(GetEndpointRequest.ast)
+ * ```
  *
  * @category dtos
  * @since 0.1.0
@@ -1439,6 +1950,13 @@ export class GetEndpointRequest extends S.Class<GetEndpointRequest>($I`GetEndpoi
 /**
  * Request input for UpdateEndpoint.
  *
+ * @example
+ * ```ts
+ * import { UpdateEndpointRequest } from "@beep/runpod"
+ *
+ * console.log(UpdateEndpointRequest.ast)
+ * ```
+ *
  * @category dtos
  * @since 0.1.0
  */
@@ -1455,6 +1973,13 @@ export class UpdateEndpointRequest extends S.Class<UpdateEndpointRequest>($I`Upd
 /**
  * Request input for DeleteEndpoint.
  *
+ * @example
+ * ```ts
+ * import { DeleteEndpointRequest } from "@beep/runpod"
+ *
+ * console.log(DeleteEndpointRequest.ast)
+ * ```
+ *
  * @category dtos
  * @since 0.1.0
  */
@@ -1469,6 +1994,13 @@ export class DeleteEndpointRequest extends S.Class<DeleteEndpointRequest>($I`Del
 
 /**
  * Request input for UpdateEndpoint.
+ *
+ * @example
+ * ```ts
+ * import { UpdateEndpointViaPostRequest } from "@beep/runpod"
+ *
+ * console.log(UpdateEndpointViaPostRequest.ast)
+ * ```
  *
  * @category dtos
  * @since 0.1.0
@@ -1488,6 +2020,13 @@ export class UpdateEndpointViaPostRequest extends S.Class<UpdateEndpointViaPostR
 /**
  * Request input for ListTemplates.
  *
+ * @example
+ * ```ts
+ * import { ListTemplatesRequest } from "@beep/runpod"
+ *
+ * console.log(ListTemplatesRequest.ast)
+ * ```
+ *
  * @category dtos
  * @since 0.1.0
  */
@@ -1505,6 +2044,13 @@ export class ListTemplatesRequest extends S.Class<ListTemplatesRequest>($I`ListT
 /**
  * Request input for CreateTemplate.
  *
+ * @example
+ * ```ts
+ * import { CreateTemplateRequest } from "@beep/runpod"
+ *
+ * console.log(CreateTemplateRequest.ast)
+ * ```
+ *
  * @category dtos
  * @since 0.1.0
  */
@@ -1519,6 +2065,13 @@ export class CreateTemplateRequest extends S.Class<CreateTemplateRequest>($I`Cre
 
 /**
  * Request input for GetTemplate.
+ *
+ * @example
+ * ```ts
+ * import { GetTemplateRequest } from "@beep/runpod"
+ *
+ * console.log(GetTemplateRequest.ast)
+ * ```
  *
  * @category dtos
  * @since 0.1.0
@@ -1538,6 +2091,13 @@ export class GetTemplateRequest extends S.Class<GetTemplateRequest>($I`GetTempla
 /**
  * Request input for UpdateTemplate.
  *
+ * @example
+ * ```ts
+ * import { UpdateTemplateRequest } from "@beep/runpod"
+ *
+ * console.log(UpdateTemplateRequest.ast)
+ * ```
+ *
  * @category dtos
  * @since 0.1.0
  */
@@ -1554,6 +2114,13 @@ export class UpdateTemplateRequest extends S.Class<UpdateTemplateRequest>($I`Upd
 /**
  * Request input for DeleteTemplate.
  *
+ * @example
+ * ```ts
+ * import { DeleteTemplateRequest } from "@beep/runpod"
+ *
+ * console.log(DeleteTemplateRequest.ast)
+ * ```
+ *
  * @category dtos
  * @since 0.1.0
  */
@@ -1568,6 +2135,13 @@ export class DeleteTemplateRequest extends S.Class<DeleteTemplateRequest>($I`Del
 
 /**
  * Request input for UpdateTemplate.
+ *
+ * @example
+ * ```ts
+ * import { UpdateTemplateViaPostRequest } from "@beep/runpod"
+ *
+ * console.log(UpdateTemplateViaPostRequest.ast)
+ * ```
  *
  * @category dtos
  * @since 0.1.0
@@ -1587,6 +2161,13 @@ export class UpdateTemplateViaPostRequest extends S.Class<UpdateTemplateViaPostR
 /**
  * Request input for ListNetworkVolumes.
  *
+ * @example
+ * ```ts
+ * import { ListNetworkVolumesRequest } from "@beep/runpod"
+ *
+ * console.log(ListNetworkVolumesRequest.ast)
+ * ```
+ *
  * @category dtos
  * @since 0.1.0
  */
@@ -1599,6 +2180,13 @@ export class ListNetworkVolumesRequest extends S.Class<ListNetworkVolumesRequest
 
 /**
  * Request input for CreateNetworkVolume.
+ *
+ * @example
+ * ```ts
+ * import { CreateNetworkVolumeRequest } from "@beep/runpod"
+ *
+ * console.log(CreateNetworkVolumeRequest.ast)
+ * ```
  *
  * @category dtos
  * @since 0.1.0
@@ -1615,6 +2203,13 @@ export class CreateNetworkVolumeRequest extends S.Class<CreateNetworkVolumeReque
 /**
  * Request input for GetNetworkVolume.
  *
+ * @example
+ * ```ts
+ * import { GetNetworkVolumeRequest } from "@beep/runpod"
+ *
+ * console.log(GetNetworkVolumeRequest.ast)
+ * ```
+ *
  * @category dtos
  * @since 0.1.0
  */
@@ -1629,6 +2224,13 @@ export class GetNetworkVolumeRequest extends S.Class<GetNetworkVolumeRequest>($I
 
 /**
  * Request input for UpdateNetworkVolume.
+ *
+ * @example
+ * ```ts
+ * import { UpdateNetworkVolumeRequest } from "@beep/runpod"
+ *
+ * console.log(UpdateNetworkVolumeRequest.ast)
+ * ```
  *
  * @category dtos
  * @since 0.1.0
@@ -1646,6 +2248,13 @@ export class UpdateNetworkVolumeRequest extends S.Class<UpdateNetworkVolumeReque
 /**
  * Request input for DeleteNetworkVolume.
  *
+ * @example
+ * ```ts
+ * import { DeleteNetworkVolumeRequest } from "@beep/runpod"
+ *
+ * console.log(DeleteNetworkVolumeRequest.ast)
+ * ```
+ *
  * @category dtos
  * @since 0.1.0
  */
@@ -1660,6 +2269,13 @@ export class DeleteNetworkVolumeRequest extends S.Class<DeleteNetworkVolumeReque
 
 /**
  * Request input for UpdateNetworkVolume.
+ *
+ * @example
+ * ```ts
+ * import { UpdateNetworkVolumeViaPostRequest } from "@beep/runpod"
+ *
+ * console.log(UpdateNetworkVolumeViaPostRequest.ast)
+ * ```
  *
  * @category dtos
  * @since 0.1.0
@@ -1679,6 +2295,13 @@ export class UpdateNetworkVolumeViaPostRequest extends S.Class<UpdateNetworkVolu
 /**
  * Request input for ListContainerRegistryAuths.
  *
+ * @example
+ * ```ts
+ * import { ListContainerRegistryAuthsRequest } from "@beep/runpod"
+ *
+ * console.log(ListContainerRegistryAuthsRequest.ast)
+ * ```
+ *
  * @category dtos
  * @since 0.1.0
  */
@@ -1693,6 +2316,13 @@ export class ListContainerRegistryAuthsRequest extends S.Class<ListContainerRegi
 
 /**
  * Request input for CreateContainerRegistryAuth.
+ *
+ * @example
+ * ```ts
+ * import { CreateContainerRegistryAuthRequest } from "@beep/runpod"
+ *
+ * console.log(CreateContainerRegistryAuthRequest.ast)
+ * ```
  *
  * @category dtos
  * @since 0.1.0
@@ -1711,6 +2341,13 @@ export class CreateContainerRegistryAuthRequest extends S.Class<CreateContainerR
 /**
  * Request input for GetContainerRegistryAuth.
  *
+ * @example
+ * ```ts
+ * import { GetContainerRegistryAuthRequest } from "@beep/runpod"
+ *
+ * console.log(GetContainerRegistryAuthRequest.ast)
+ * ```
+ *
  * @category dtos
  * @since 0.1.0
  */
@@ -1728,6 +2365,13 @@ export class GetContainerRegistryAuthRequest extends S.Class<GetContainerRegistr
 /**
  * Request input for DeleteContainerRegistryAuth.
  *
+ * @example
+ * ```ts
+ * import { DeleteContainerRegistryAuthRequest } from "@beep/runpod"
+ *
+ * console.log(DeleteContainerRegistryAuthRequest.ast)
+ * ```
+ *
  * @category dtos
  * @since 0.1.0
  */
@@ -1744,6 +2388,13 @@ export class DeleteContainerRegistryAuthRequest extends S.Class<DeleteContainerR
 
 /**
  * Request input for PodBilling.
+ *
+ * @example
+ * ```ts
+ * import { PodBillingRequest } from "@beep/runpod"
+ *
+ * console.log(PodBillingRequest.ast)
+ * ```
  *
  * @category dtos
  * @since 0.1.0
@@ -1764,6 +2415,13 @@ export class PodBillingRequest extends S.Class<PodBillingRequest>($I`PodBillingR
 
 /**
  * Request input for EndpointBilling.
+ *
+ * @example
+ * ```ts
+ * import { EndpointBillingRequest } from "@beep/runpod"
+ *
+ * console.log(EndpointBillingRequest.ast)
+ * ```
  *
  * @category dtos
  * @since 0.1.0
@@ -1788,6 +2446,13 @@ export class EndpointBillingRequest extends S.Class<EndpointBillingRequest>($I`E
 /**
  * Request input for NetworkVolumeBilling.
  *
+ * @example
+ * ```ts
+ * import { NetworkVolumeBillingRequest } from "@beep/runpod"
+ *
+ * console.log(NetworkVolumeBillingRequest.ast)
+ * ```
+ *
  * @category dtos
  * @since 0.1.0
  */
@@ -1805,6 +2470,13 @@ export class NetworkVolumeBillingRequest extends S.Class<NetworkVolumeBillingReq
 /**
  * Supported Runpod HTTP methods.
  *
+ * @example
+ * ```ts
+ * import { RunpodHttpMethod } from "@beep/runpod"
+ *
+ * console.log(RunpodHttpMethod.ast)
+ * ```
+ *
  * @category schemas
  * @since 0.1.0
  */
@@ -1813,6 +2485,13 @@ export const RunpodHttpMethod = LiteralKit(["GET", "POST", "PATCH", "DELETE"]);
 /**
  * Supported Runpod HTTP method.
  *
+ * @example
+ * ```ts
+ * import type { RunpodHttpMethod } from "@beep/runpod"
+ *
+ * type Method = RunpodHttpMethod
+ * ```
+ *
  * @category type-level
  * @since 0.1.0
  */
@@ -1820,6 +2499,13 @@ export type RunpodHttpMethod = typeof RunpodHttpMethod.Type;
 
 /**
  * Operation ids exposed by Runpod REST API v1.
+ *
+ * @example
+ * ```ts
+ * import { RunpodOperationId } from "@beep/runpod"
+ *
+ * console.log(RunpodOperationId.ast)
+ * ```
  *
  * @category schemas
  * @since 0.1.0
@@ -1863,6 +2549,13 @@ export const RunpodOperationId = LiteralKit([
 /**
  * Operation id exposed by Runpod REST API v1.
  *
+ * @example
+ * ```ts
+ * import type { RunpodOperationId } from "@beep/runpod"
+ *
+ * type OperationId = RunpodOperationId
+ * ```
+ *
  * @category type-level
  * @since 0.1.0
  */
@@ -1870,6 +2563,13 @@ export type RunpodOperationId = typeof RunpodOperationId.Type;
 
 /**
  * Request body encoding used by a Runpod operation.
+ *
+ * @example
+ * ```ts
+ * import { RunpodRequestBodyKind } from "@beep/runpod"
+ *
+ * console.log(RunpodRequestBodyKind.ast)
+ * ```
  *
  * @category schemas
  * @since 0.1.0
@@ -1879,6 +2579,13 @@ export const RunpodRequestBodyKind = LiteralKit(["json", "none"]);
 /**
  * Request body encoding used by a Runpod operation.
  *
+ * @example
+ * ```ts
+ * import type { RunpodRequestBodyKind } from "@beep/runpod"
+ *
+ * type RequestBodyKind = RunpodRequestBodyKind
+ * ```
+ *
  * @category type-level
  * @since 0.1.0
  */
@@ -1886,6 +2593,13 @@ export type RunpodRequestBodyKind = typeof RunpodRequestBodyKind.Type;
 
 /**
  * Response body decoding used by a Runpod operation.
+ *
+ * @example
+ * ```ts
+ * import { RunpodResponseBodyKind } from "@beep/runpod"
+ *
+ * console.log(RunpodResponseBodyKind.ast)
+ * ```
  *
  * @category schemas
  * @since 0.1.0
@@ -1895,6 +2609,13 @@ export const RunpodResponseBodyKind = LiteralKit(["json", "none", "text"]);
 /**
  * Response body decoding used by a Runpod operation.
  *
+ * @example
+ * ```ts
+ * import type { RunpodResponseBodyKind } from "@beep/runpod"
+ *
+ * type ResponseBodyKind = RunpodResponseBodyKind
+ * ```
+ *
  * @category type-level
  * @since 0.1.0
  */
@@ -1902,6 +2623,13 @@ export type RunpodResponseBodyKind = typeof RunpodResponseBodyKind.Type;
 
 /**
  * Static metadata for one Runpod REST operation.
+ *
+ * @example
+ * ```ts
+ * import { RunpodOperationDescriptor } from "@beep/runpod"
+ *
+ * console.log(RunpodOperationDescriptor.ast)
+ * ```
  *
  * @category models
  * @since 0.1.0
@@ -1928,6 +2656,13 @@ export class RunpodOperationDescriptor extends S.Class<RunpodOperationDescriptor
 /**
  * Descriptor for GetOpenAPI.
  *
+ * @example
+ * ```ts
+ * import { getOpenAPIOperation } from "@beep/runpod"
+ *
+ * console.log(getOpenAPIOperation.path)
+ * ```
+ *
  * @category constants
  * @since 0.1.0
  */
@@ -1948,6 +2683,13 @@ export const getOpenAPIOperation = RunpodOperationDescriptor.make({
 /**
  * Descriptor for GetDocs.
  *
+ * @example
+ * ```ts
+ * import { getDocsOperation } from "@beep/runpod"
+ *
+ * console.log(getDocsOperation.path)
+ * ```
+ *
  * @category constants
  * @since 0.1.0
  */
@@ -1967,6 +2709,13 @@ export const getDocsOperation = RunpodOperationDescriptor.make({
 
 /**
  * Descriptor for ListPods.
+ *
+ * @example
+ * ```ts
+ * import { listPodsOperation } from "@beep/runpod"
+ *
+ * console.log(listPodsOperation.path)
+ * ```
  *
  * @category constants
  * @since 0.1.0
@@ -2005,6 +2754,13 @@ export const listPodsOperation = RunpodOperationDescriptor.make({
 /**
  * Descriptor for CreatePod.
  *
+ * @example
+ * ```ts
+ * import { createPodOperation } from "@beep/runpod"
+ *
+ * console.log(createPodOperation.path)
+ * ```
+ *
  * @category constants
  * @since 0.1.0
  */
@@ -2024,6 +2780,13 @@ export const createPodOperation = RunpodOperationDescriptor.make({
 
 /**
  * Descriptor for GetPod.
+ *
+ * @example
+ * ```ts
+ * import { getPodOperation } from "@beep/runpod"
+ *
+ * console.log(getPodOperation.path)
+ * ```
  *
  * @category constants
  * @since 0.1.0
@@ -2045,6 +2808,13 @@ export const getPodOperation = RunpodOperationDescriptor.make({
 /**
  * Descriptor for UpdatePod.
  *
+ * @example
+ * ```ts
+ * import { updatePodOperation } from "@beep/runpod"
+ *
+ * console.log(updatePodOperation.path)
+ * ```
+ *
  * @category constants
  * @since 0.1.0
  */
@@ -2064,6 +2834,13 @@ export const updatePodOperation = RunpodOperationDescriptor.make({
 
 /**
  * Descriptor for DeletePod.
+ *
+ * @example
+ * ```ts
+ * import { deletePodOperation } from "@beep/runpod"
+ *
+ * console.log(deletePodOperation.path)
+ * ```
  *
  * @category constants
  * @since 0.1.0
@@ -2085,6 +2862,13 @@ export const deletePodOperation = RunpodOperationDescriptor.make({
 /**
  * Descriptor for UpdatePod.
  *
+ * @example
+ * ```ts
+ * import { updatePodViaPostOperation } from "@beep/runpod"
+ *
+ * console.log(updatePodViaPostOperation.path)
+ * ```
+ *
  * @category constants
  * @since 0.1.0
  */
@@ -2104,6 +2888,13 @@ export const updatePodViaPostOperation = RunpodOperationDescriptor.make({
 
 /**
  * Descriptor for StartPod.
+ *
+ * @example
+ * ```ts
+ * import { startPodOperation } from "@beep/runpod"
+ *
+ * console.log(startPodOperation.path)
+ * ```
  *
  * @category constants
  * @since 0.1.0
@@ -2125,6 +2916,13 @@ export const startPodOperation = RunpodOperationDescriptor.make({
 /**
  * Descriptor for StopPod.
  *
+ * @example
+ * ```ts
+ * import { stopPodOperation } from "@beep/runpod"
+ *
+ * console.log(stopPodOperation.path)
+ * ```
+ *
  * @category constants
  * @since 0.1.0
  */
@@ -2144,6 +2942,13 @@ export const stopPodOperation = RunpodOperationDescriptor.make({
 
 /**
  * Descriptor for ResetPod.
+ *
+ * @example
+ * ```ts
+ * import { resetPodOperation } from "@beep/runpod"
+ *
+ * console.log(resetPodOperation.path)
+ * ```
  *
  * @category constants
  * @since 0.1.0
@@ -2165,6 +2970,13 @@ export const resetPodOperation = RunpodOperationDescriptor.make({
 /**
  * Descriptor for RestartPod.
  *
+ * @example
+ * ```ts
+ * import { restartPodOperation } from "@beep/runpod"
+ *
+ * console.log(restartPodOperation.path)
+ * ```
+ *
  * @category constants
  * @since 0.1.0
  */
@@ -2184,6 +2996,13 @@ export const restartPodOperation = RunpodOperationDescriptor.make({
 
 /**
  * Descriptor for ListEndpoints.
+ *
+ * @example
+ * ```ts
+ * import { listEndpointsOperation } from "@beep/runpod"
+ *
+ * console.log(listEndpointsOperation.path)
+ * ```
  *
  * @category constants
  * @since 0.1.0
@@ -2205,6 +3024,13 @@ export const listEndpointsOperation = RunpodOperationDescriptor.make({
 /**
  * Descriptor for CreateEndpoint.
  *
+ * @example
+ * ```ts
+ * import { createEndpointOperation } from "@beep/runpod"
+ *
+ * console.log(createEndpointOperation.path)
+ * ```
+ *
  * @category constants
  * @since 0.1.0
  */
@@ -2224,6 +3050,13 @@ export const createEndpointOperation = RunpodOperationDescriptor.make({
 
 /**
  * Descriptor for GetEndpoint.
+ *
+ * @example
+ * ```ts
+ * import { getEndpointOperation } from "@beep/runpod"
+ *
+ * console.log(getEndpointOperation.path)
+ * ```
  *
  * @category constants
  * @since 0.1.0
@@ -2245,6 +3078,13 @@ export const getEndpointOperation = RunpodOperationDescriptor.make({
 /**
  * Descriptor for UpdateEndpoint.
  *
+ * @example
+ * ```ts
+ * import { updateEndpointOperation } from "@beep/runpod"
+ *
+ * console.log(updateEndpointOperation.path)
+ * ```
+ *
  * @category constants
  * @since 0.1.0
  */
@@ -2264,6 +3104,13 @@ export const updateEndpointOperation = RunpodOperationDescriptor.make({
 
 /**
  * Descriptor for DeleteEndpoint.
+ *
+ * @example
+ * ```ts
+ * import { deleteEndpointOperation } from "@beep/runpod"
+ *
+ * console.log(deleteEndpointOperation.path)
+ * ```
  *
  * @category constants
  * @since 0.1.0
@@ -2285,6 +3132,13 @@ export const deleteEndpointOperation = RunpodOperationDescriptor.make({
 /**
  * Descriptor for UpdateEndpoint.
  *
+ * @example
+ * ```ts
+ * import { updateEndpointViaPostOperation } from "@beep/runpod"
+ *
+ * console.log(updateEndpointViaPostOperation.path)
+ * ```
+ *
  * @category constants
  * @since 0.1.0
  */
@@ -2304,6 +3158,13 @@ export const updateEndpointViaPostOperation = RunpodOperationDescriptor.make({
 
 /**
  * Descriptor for ListTemplates.
+ *
+ * @example
+ * ```ts
+ * import { listTemplatesOperation } from "@beep/runpod"
+ *
+ * console.log(listTemplatesOperation.path)
+ * ```
  *
  * @category constants
  * @since 0.1.0
@@ -2325,6 +3186,13 @@ export const listTemplatesOperation = RunpodOperationDescriptor.make({
 /**
  * Descriptor for CreateTemplate.
  *
+ * @example
+ * ```ts
+ * import { createTemplateOperation } from "@beep/runpod"
+ *
+ * console.log(createTemplateOperation.path)
+ * ```
+ *
  * @category constants
  * @since 0.1.0
  */
@@ -2344,6 +3212,13 @@ export const createTemplateOperation = RunpodOperationDescriptor.make({
 
 /**
  * Descriptor for GetTemplate.
+ *
+ * @example
+ * ```ts
+ * import { getTemplateOperation } from "@beep/runpod"
+ *
+ * console.log(getTemplateOperation.path)
+ * ```
  *
  * @category constants
  * @since 0.1.0
@@ -2365,6 +3240,13 @@ export const getTemplateOperation = RunpodOperationDescriptor.make({
 /**
  * Descriptor for UpdateTemplate.
  *
+ * @example
+ * ```ts
+ * import { updateTemplateOperation } from "@beep/runpod"
+ *
+ * console.log(updateTemplateOperation.path)
+ * ```
+ *
  * @category constants
  * @since 0.1.0
  */
@@ -2384,6 +3266,13 @@ export const updateTemplateOperation = RunpodOperationDescriptor.make({
 
 /**
  * Descriptor for DeleteTemplate.
+ *
+ * @example
+ * ```ts
+ * import { deleteTemplateOperation } from "@beep/runpod"
+ *
+ * console.log(deleteTemplateOperation.path)
+ * ```
  *
  * @category constants
  * @since 0.1.0
@@ -2405,6 +3294,13 @@ export const deleteTemplateOperation = RunpodOperationDescriptor.make({
 /**
  * Descriptor for UpdateTemplate.
  *
+ * @example
+ * ```ts
+ * import { updateTemplateViaPostOperation } from "@beep/runpod"
+ *
+ * console.log(updateTemplateViaPostOperation.path)
+ * ```
+ *
  * @category constants
  * @since 0.1.0
  */
@@ -2424,6 +3320,13 @@ export const updateTemplateViaPostOperation = RunpodOperationDescriptor.make({
 
 /**
  * Descriptor for ListNetworkVolumes.
+ *
+ * @example
+ * ```ts
+ * import { listNetworkVolumesOperation } from "@beep/runpod"
+ *
+ * console.log(listNetworkVolumesOperation.path)
+ * ```
  *
  * @category constants
  * @since 0.1.0
@@ -2445,6 +3348,13 @@ export const listNetworkVolumesOperation = RunpodOperationDescriptor.make({
 /**
  * Descriptor for CreateNetworkVolume.
  *
+ * @example
+ * ```ts
+ * import { createNetworkVolumeOperation } from "@beep/runpod"
+ *
+ * console.log(createNetworkVolumeOperation.path)
+ * ```
+ *
  * @category constants
  * @since 0.1.0
  */
@@ -2464,6 +3374,13 @@ export const createNetworkVolumeOperation = RunpodOperationDescriptor.make({
 
 /**
  * Descriptor for GetNetworkVolume.
+ *
+ * @example
+ * ```ts
+ * import { getNetworkVolumeOperation } from "@beep/runpod"
+ *
+ * console.log(getNetworkVolumeOperation.path)
+ * ```
  *
  * @category constants
  * @since 0.1.0
@@ -2485,6 +3402,13 @@ export const getNetworkVolumeOperation = RunpodOperationDescriptor.make({
 /**
  * Descriptor for UpdateNetworkVolume.
  *
+ * @example
+ * ```ts
+ * import { updateNetworkVolumeOperation } from "@beep/runpod"
+ *
+ * console.log(updateNetworkVolumeOperation.path)
+ * ```
+ *
  * @category constants
  * @since 0.1.0
  */
@@ -2504,6 +3428,13 @@ export const updateNetworkVolumeOperation = RunpodOperationDescriptor.make({
 
 /**
  * Descriptor for DeleteNetworkVolume.
+ *
+ * @example
+ * ```ts
+ * import { deleteNetworkVolumeOperation } from "@beep/runpod"
+ *
+ * console.log(deleteNetworkVolumeOperation.path)
+ * ```
  *
  * @category constants
  * @since 0.1.0
@@ -2525,6 +3456,13 @@ export const deleteNetworkVolumeOperation = RunpodOperationDescriptor.make({
 /**
  * Descriptor for UpdateNetworkVolume.
  *
+ * @example
+ * ```ts
+ * import { updateNetworkVolumeViaPostOperation } from "@beep/runpod"
+ *
+ * console.log(updateNetworkVolumeViaPostOperation.path)
+ * ```
+ *
  * @category constants
  * @since 0.1.0
  */
@@ -2544,6 +3482,13 @@ export const updateNetworkVolumeViaPostOperation = RunpodOperationDescriptor.mak
 
 /**
  * Descriptor for ListContainerRegistryAuths.
+ *
+ * @example
+ * ```ts
+ * import { listContainerRegistryAuthsOperation } from "@beep/runpod"
+ *
+ * console.log(listContainerRegistryAuthsOperation.path)
+ * ```
  *
  * @category constants
  * @since 0.1.0
@@ -2565,6 +3510,13 @@ export const listContainerRegistryAuthsOperation = RunpodOperationDescriptor.mak
 /**
  * Descriptor for CreateContainerRegistryAuth.
  *
+ * @example
+ * ```ts
+ * import { createContainerRegistryAuthOperation } from "@beep/runpod"
+ *
+ * console.log(createContainerRegistryAuthOperation.path)
+ * ```
+ *
  * @category constants
  * @since 0.1.0
  */
@@ -2584,6 +3536,13 @@ export const createContainerRegistryAuthOperation = RunpodOperationDescriptor.ma
 
 /**
  * Descriptor for GetContainerRegistryAuth.
+ *
+ * @example
+ * ```ts
+ * import { getContainerRegistryAuthOperation } from "@beep/runpod"
+ *
+ * console.log(getContainerRegistryAuthOperation.path)
+ * ```
  *
  * @category constants
  * @since 0.1.0
@@ -2605,6 +3564,13 @@ export const getContainerRegistryAuthOperation = RunpodOperationDescriptor.make(
 /**
  * Descriptor for DeleteContainerRegistryAuth.
  *
+ * @example
+ * ```ts
+ * import { deleteContainerRegistryAuthOperation } from "@beep/runpod"
+ *
+ * console.log(deleteContainerRegistryAuthOperation.path)
+ * ```
+ *
  * @category constants
  * @since 0.1.0
  */
@@ -2625,6 +3591,13 @@ export const deleteContainerRegistryAuthOperation = RunpodOperationDescriptor.ma
 /**
  * Descriptor for PodBilling.
  *
+ * @example
+ * ```ts
+ * import { podBillingOperation } from "@beep/runpod"
+ *
+ * console.log(podBillingOperation.path)
+ * ```
+ *
  * @category constants
  * @since 0.1.0
  */
@@ -2644,6 +3617,13 @@ export const podBillingOperation = RunpodOperationDescriptor.make({
 
 /**
  * Descriptor for EndpointBilling.
+ *
+ * @example
+ * ```ts
+ * import { endpointBillingOperation } from "@beep/runpod"
+ *
+ * console.log(endpointBillingOperation.path)
+ * ```
  *
  * @category constants
  * @since 0.1.0
@@ -2675,6 +3655,13 @@ export const endpointBillingOperation = RunpodOperationDescriptor.make({
 /**
  * Descriptor for NetworkVolumeBilling.
  *
+ * @example
+ * ```ts
+ * import { networkVolumeBillingOperation } from "@beep/runpod"
+ *
+ * console.log(networkVolumeBillingOperation.path)
+ * ```
+ *
  * @category constants
  * @since 0.1.0
  */
@@ -2694,6 +3681,13 @@ export const networkVolumeBillingOperation = RunpodOperationDescriptor.make({
 
 /**
  * Generated operation spec table for Runpod service construction.
+ *
+ * @example
+ * ```ts
+ * import { RUNPOD_OPERATION_SPECS } from "@beep/runpod"
+ *
+ * console.log(Object.keys(RUNPOD_OPERATION_SPECS))
+ * ```
  *
  * @category constants
  * @since 0.1.0
@@ -2879,6 +3873,13 @@ export const RUNPOD_OPERATION_SPECS = {
 
 /**
  * Typed method surface generated from Runpod REST API v1.
+ *
+ * @example
+ * ```ts
+ * import type { RunpodOperationsShape } from "@beep/runpod"
+ *
+ * type Operations = RunpodOperationsShape<never>
+ * ```
  *
  * @category services
  * @since 0.1.0

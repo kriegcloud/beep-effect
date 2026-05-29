@@ -34,11 +34,11 @@ const makeDestructiveOutput = <B>(): S.Codec<Readonly<B>> => S.make<S.Codec<Read
  *
  * // data-first
  * const StringLength = destructiveTransform(S.String, (value) => value.length)
- * void StringLength
+ * console.log(StringLength)
  *
  * // data-last (pipeable)
  * const Piped = pipe(S.String, destructiveTransform((value) => value.length))
- * void Piped
+ * console.log(Piped)
  * ```
  *
  * @since 0.0.0

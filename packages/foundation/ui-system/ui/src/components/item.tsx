@@ -8,6 +8,15 @@ import type { VariantProps } from "class-variance-authority";
 import type * as React from "react";
 
 /**
+ * Item group component.
+ *
+ * @example
+ * ```tsx
+ * import { ItemGroup } from "@beep/ui/components/item"
+ *
+ * console.log(ItemGroup)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -18,6 +27,15 @@ function ItemGroup({ className, ...props }: React.ComponentProps<"div">) {
 }
 
 /**
+ * Item separator component.
+ *
+ * @example
+ * ```tsx
+ * import { ItemSeparator } from "@beep/ui/components/item"
+ *
+ * console.log(ItemSeparator)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -47,6 +65,15 @@ const itemVariants = cva(
 );
 
 /**
+ * Item component.
+ *
+ * @example
+ * ```tsx
+ * import { Item } from "@beep/ui/components/item"
+ *
+ * console.log(Item)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -96,6 +123,15 @@ const itemMediaVariants = cva(
 );
 
 /**
+ * Item media component.
+ *
+ * @example
+ * ```tsx
+ * import { ItemMedia } from "@beep/ui/components/item"
+ *
+ * console.log(ItemMedia)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -115,6 +151,15 @@ function ItemMedia({
 }
 
 /**
+ * Item content component.
+ *
+ * @example
+ * ```tsx
+ * import { ItemContent } from "@beep/ui/components/item"
+ *
+ * console.log(ItemContent)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -129,6 +174,15 @@ function ItemContent({ className, ...props }: React.ComponentProps<"div">) {
 }
 
 /**
+ * Item title component.
+ *
+ * @example
+ * ```tsx
+ * import { ItemTitle } from "@beep/ui/components/item"
+ *
+ * console.log(ItemTitle)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -143,6 +197,15 @@ function ItemTitle({ className, ...props }: React.ComponentProps<"div">) {
 }
 
 /**
+ * Item description component.
+ *
+ * @example
+ * ```tsx
+ * import { ItemDescription } from "@beep/ui/components/item"
+ *
+ * console.log(ItemDescription)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -161,6 +224,15 @@ function ItemDescription({ className, ...props }: React.ComponentProps<"p">) {
 }
 
 /**
+ * Item actions component.
+ *
+ * @example
+ * ```tsx
+ * import { ItemActions } from "@beep/ui/components/item"
+ *
+ * console.log(ItemActions)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -169,6 +241,15 @@ function ItemActions({ className, ...props }: React.ComponentProps<"div">) {
 }
 
 /**
+ * Item header component.
+ *
+ * @example
+ * ```tsx
+ * import { ItemHeader } from "@beep/ui/components/item"
+ *
+ * console.log(ItemHeader)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -183,6 +264,15 @@ function ItemHeader({ className, ...props }: React.ComponentProps<"div">) {
 }
 
 /**
+ * Item footer component.
+ *
+ * @example
+ * ```tsx
+ * import { ItemFooter } from "@beep/ui/components/item"
+ *
+ * console.log(ItemFooter)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */

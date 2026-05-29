@@ -74,7 +74,7 @@ export const JsonLdKeyword = LiteralKit([
  * import type { JsonLdKeyword } from "@beep/semantic-web/jsonld"
  *
  * const acceptJsonLdKeyword = (value: JsonLdKeyword) => value
- * void acceptJsonLdKeyword
+ * console.log(acceptJsonLdKeyword)
  * ```
  *
  * @since 0.0.0
@@ -125,7 +125,7 @@ export class JsonLdTermDefinition extends S.Class<JsonLdTermDefinition>($I`JsonL
  * ```ts
  * import { JsonLdContext } from "@beep/semantic-web/jsonld"
  *
- * void JsonLdContext
+ * console.log(JsonLdContext)
  * ```
  *
  * @since 0.0.0
@@ -159,7 +159,7 @@ export class JsonLdContext extends S.Class<JsonLdContext>($I`JsonLdContext`)(
  * ```ts
  * import { JsonLdBlankNodeIdentifier } from "@beep/semantic-web/jsonld"
  *
- * void JsonLdBlankNodeIdentifier
+ * console.log(JsonLdBlankNodeIdentifier)
  * ```
  *
  * @since 0.0.0
@@ -190,7 +190,7 @@ export const JsonLdBlankNodeIdentifier = S.String.check(jsonLdBlankNodeIdentifie
  * import type { JsonLdBlankNodeIdentifier } from "@beep/semantic-web/jsonld"
  *
  * const acceptJsonLdBlankNodeIdentifier = (value: JsonLdBlankNodeIdentifier) => value
- * void acceptJsonLdBlankNodeIdentifier
+ * console.log(acceptJsonLdBlankNodeIdentifier)
  * ```
  *
  * @since 0.0.0
@@ -205,7 +205,7 @@ export type JsonLdBlankNodeIdentifier = typeof JsonLdBlankNodeIdentifier.Type;
  * ```ts
  * import { JsonLdNodeIdentifier } from "@beep/semantic-web/jsonld"
  *
- * void JsonLdNodeIdentifier
+ * console.log(JsonLdNodeIdentifier)
  * ```
  *
  * @since 0.0.0
@@ -235,7 +235,7 @@ export const JsonLdNodeIdentifier = S.Union([IRIReference, JsonLdBlankNodeIdenti
  * import type { JsonLdNodeIdentifier } from "@beep/semantic-web/jsonld"
  *
  * const acceptJsonLdNodeIdentifier = (value: JsonLdNodeIdentifier) => value
- * void acceptJsonLdNodeIdentifier
+ * console.log(acceptJsonLdNodeIdentifier)
  * ```
  *
  * @since 0.0.0
@@ -250,7 +250,7 @@ export type JsonLdNodeIdentifier = typeof JsonLdNodeIdentifier.Type;
  * ```ts
  * import { JsonLdReferenceValue } from "@beep/semantic-web/jsonld"
  *
- * void JsonLdReferenceValue
+ * console.log(JsonLdReferenceValue)
  * ```
  *
  * @since 0.0.0
@@ -282,7 +282,7 @@ export class JsonLdReferenceValue extends S.Class<JsonLdReferenceValue>($I`JsonL
  * ```ts
  * import { JsonLdLiteralValue } from "@beep/semantic-web/jsonld"
  *
- * void JsonLdLiteralValue
+ * console.log(JsonLdLiteralValue)
  * ```
  *
  * @since 0.0.0
@@ -315,7 +315,7 @@ export class JsonLdLiteralValue extends S.Class<JsonLdLiteralValue>($I`JsonLdLit
  * ```ts
  * import { JsonLdPropertyValue } from "@beep/semantic-web/jsonld"
  *
- * void JsonLdPropertyValue
+ * console.log(JsonLdPropertyValue)
  * ```
  *
  * @since 0.0.0
@@ -335,7 +335,7 @@ export const JsonLdPropertyValue = S.Union([JsonLdReferenceValue, JsonLdLiteralV
  * import type { JsonLdPropertyValue } from "@beep/semantic-web/jsonld"
  *
  * const acceptJsonLdPropertyValue = (value: JsonLdPropertyValue) => value
- * void acceptJsonLdPropertyValue
+ * console.log(acceptJsonLdPropertyValue)
  * ```
  *
  * @since 0.0.0
@@ -350,7 +350,7 @@ export type JsonLdPropertyValue = typeof JsonLdPropertyValue.Type;
  * ```ts
  * import { JsonLdNodeObject } from "@beep/semantic-web/jsonld"
  *
- * void JsonLdNodeObject
+ * console.log(JsonLdNodeObject)
  * ```
  *
  * @since 0.0.0
@@ -420,7 +420,7 @@ export class JsonLdDocument extends S.Class<JsonLdDocument>($I`JsonLdDocument`)(
  * ```ts
  * import { JsonLdFrame } from "@beep/semantic-web/jsonld"
  *
- * void JsonLdFrame
+ * console.log(JsonLdFrame)
  * ```
  *
  * @since 0.0.0

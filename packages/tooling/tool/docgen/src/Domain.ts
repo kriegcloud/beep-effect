@@ -70,7 +70,7 @@ type ModuleNewOptions = {
  * ```ts
  * import { Position } from "@beep/repo-docgen/Domain"
  * const position = Position.new(1, 1)
- * void position
+ * console.log(position)
  * ```
  * @category models
  * @since 0.0.0
@@ -107,7 +107,7 @@ export class Position extends S.Class<Position>($I`Position`)({
  *   sees: [],
  *   tags: {}
  * })
- * void doc
+ * console.log(doc)
  * ```
  * @category models
  * @since 0.0.0
@@ -185,7 +185,7 @@ export class Doc extends S.Class<Doc>($I`Doc`)({
  *   signature: "declare const Example: string",
  *   position: Position.new(1, 1)
  * })
- * void entry
+ * console.log(entry)
  * ```
  * @category models
  * @since 0.0.0
@@ -236,7 +236,7 @@ export class DocEntry extends S.Class<DocEntry>($I`DocEntry`)({
  *   staticMethods: [],
  *   properties: []
  * })
- * void model
+ * console.log(model)
  * ```
  * @category models
  * @since 0.0.0
@@ -296,7 +296,7 @@ export class Class extends S.Class<Class>($I`Class`)({
  *   signature: "interface Example {}",
  *   position: Position.new(1, 1)
  * })
- * void model
+ * console.log(model)
  * ```
  * @category models
  * @since 0.0.0
@@ -345,7 +345,7 @@ export class Interface extends S.Class<Interface>($I`Interface`)({
  *   signature: "declare const example: () => void",
  *   position: Position.new(1, 1)
  * })
- * void model
+ * console.log(model)
  * ```
  * @category models
  * @since 0.0.0
@@ -394,7 +394,7 @@ export class Function extends S.Class<Function>($I`Function`)({
  *   signature: "type Example = string",
  *   position: Position.new(1, 1)
  * })
- * void model
+ * console.log(model)
  * ```
  * @category models
  * @since 0.0.0
@@ -443,7 +443,7 @@ export class TypeAlias extends S.Class<TypeAlias>($I`TypeAlias`)({
  *   signature: "declare const example: string",
  *   position: Position.new(1, 1)
  * })
- * void model
+ * console.log(model)
  * ```
  * @category models
  * @since 0.0.0
@@ -501,7 +501,7 @@ export class Constant extends S.Class<Constant>($I`Constant`)({
  *   position: Position.new(1, 1),
  *   isNamespaceExport: false
  * })
- * void model
+ * console.log(model)
  * ```
  * @category models
  * @since 0.0.0
@@ -559,7 +559,7 @@ export class Export extends S.Class<Export>($I`Export`)({
  *   typeAliases: [],
  *   namespaces: []
  * })
- * void model
+ * console.log(model)
  * ```
  * @category models
  * @since 0.0.0
@@ -606,7 +606,7 @@ export class Namespace extends S.Class<Namespace>($I`Namespace`)({
  * @example
  * ```ts
  * import { Module } from "@beep/repo-docgen/Domain"
- * void Module
+ * console.log(Module)
  * ```
  * @category models
  * @since 0.0.0
@@ -667,7 +667,7 @@ type FileNewOptions = {
  * @example
  * ```ts
  * import { ByPath } from "@beep/repo-docgen/Domain"
- * void ByPath
+ * console.log(ByPath)
  * ```
  * @category utilities
  * @since 0.0.0
@@ -683,7 +683,7 @@ export const ByPath: Order.Order<Module> = Order.mapInput(Str.Order, (module: Mo
  * ```ts
  * import { File } from "@beep/repo-docgen/Domain"
  * const file = File.new("docs/index.md", "# Docs", { isOverwritable: true })
- * void file
+ * console.log(file)
  * ```
  * @category models
  * @since 0.0.0
@@ -716,7 +716,7 @@ export class File extends S.Class<File>($I`File`)({
  * @example
  * ```ts
  * import { DocgenErrorTypeId } from "@beep/repo-docgen/Domain"
- * void DocgenErrorTypeId
+ * console.log(DocgenErrorTypeId)
  * ```
  * @category symbols
  * @since 0.0.0
@@ -743,7 +743,7 @@ export type DocgenErrorTypeId = typeof DocgenErrorTypeId;
  * ```ts
  * import { DocgenError } from "@beep/repo-docgen/Domain"
  * const error = DocgenError.make({ message: "Unable to generate docs." })
- * void error
+ * console.log(error)
  * ```
  * @category models
  * @since 0.0.0
@@ -756,7 +756,7 @@ export class DocgenError extends TaggedErrorClass<DocgenError>($I`DocgenError`)(
  * @example
  * ```ts
  * import { Process } from "@beep/repo-docgen/Domain"
- * void Process
+ * console.log(Process)
  * ```
  * @category services
  * @since 0.0.0
@@ -779,7 +779,7 @@ const defaultProcess: ProcessShape = {
  * @example
  * ```ts
  * import { Process } from "@beep/repo-docgen/Domain"
- * void Process
+ * console.log(Process)
  * ```
  * @category services
  * @since 0.0.0

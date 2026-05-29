@@ -4,6 +4,15 @@ import { Progress as ProgressPrimitive } from "@base-ui/react/progress";
 import { cn } from "../lib/index.ts";
 
 /**
+ * Progress component.
+ *
+ * @example
+ * ```tsx
+ * import { Progress } from "@beep/ui/components/progress"
+ *
+ * console.log(Progress)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -24,6 +33,15 @@ function Progress({ className, children, value, ...props }: ProgressPrimitive.Ro
 }
 
 /**
+ * Progress track component.
+ *
+ * @example
+ * ```tsx
+ * import { ProgressTrack } from "@beep/ui/components/progress"
+ *
+ * console.log(ProgressTrack)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -38,6 +56,15 @@ function ProgressTrack({ className, ...props }: ProgressPrimitive.Track.Props) {
 }
 
 /**
+ * Progress indicator component.
+ *
+ * @example
+ * ```tsx
+ * import { ProgressIndicator } from "@beep/ui/components/progress"
+ *
+ * console.log(ProgressIndicator)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -52,6 +79,15 @@ function ProgressIndicator({ className, ...props }: ProgressPrimitive.Indicator.
 }
 
 /**
+ * Progress label component.
+ *
+ * @example
+ * ```tsx
+ * import { ProgressLabel } from "@beep/ui/components/progress"
+ *
+ * console.log(ProgressLabel)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -62,6 +98,15 @@ function ProgressLabel({ className, ...props }: ProgressPrimitive.Label.Props) {
 }
 
 /**
+ * Progress value component.
+ *
+ * @example
+ * ```tsx
+ * import { ProgressValue } from "@beep/ui/components/progress"
+ *
+ * console.log(ProgressValue)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */

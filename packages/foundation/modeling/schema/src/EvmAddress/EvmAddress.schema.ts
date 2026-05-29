@@ -72,6 +72,15 @@ const EvmAddressChecks = S.makeFilterGroup(
 /**
  * Branded schema for canonical mainnet EVM wallet addresses.
  *
+ * @example
+ * ```ts
+ * import { EvmAddress } from "@beep/schema/EvmAddress"
+ * import * as S from "effect/Schema"
+ *
+ * const address = S.decodeUnknownSync(EvmAddress)("0x0000000000000000000000000000000000000000")
+ * console.log(address)
+ * ```
+ *
  * @since 0.0.0
  * @category validation
  */
@@ -92,6 +101,14 @@ export type EvmAddress = typeof EvmAddress.Type;
 
 /**
  * Redacted schema for canonical mainnet EVM wallet addresses.
+ *
+ * @example
+ * ```ts
+ * import { EvmAddressRedacted } from "@beep/schema/EvmAddress"
+ *
+ * const address = EvmAddressRedacted.makeRedacted("0x0000000000000000000000000000000000000000")
+ * console.log(address)
+ * ```
  *
  * @since 0.0.0
  * @category validation

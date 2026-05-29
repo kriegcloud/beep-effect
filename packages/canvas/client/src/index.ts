@@ -9,6 +9,13 @@
 /**
  * Package version for `@beep/canvas-client`.
  *
+ * @example
+ * ```ts
+ * import { VERSION } from "@beep/canvas-client"
+ *
+ * console.log(VERSION)
+ * ```
+ *
  * @category clients
  * @since 0.0.0
  */

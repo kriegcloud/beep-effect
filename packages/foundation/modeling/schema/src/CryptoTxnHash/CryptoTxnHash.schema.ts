@@ -54,6 +54,17 @@ const CryptoTxnHashChecks = S.makeFilterGroup(
 /**
  * Branded schema for canonical mainnet blockchain transaction identifiers.
  *
+ * @example
+ * ```ts
+ * import { CryptoTxnHash } from "@beep/schema/CryptoTxnHash"
+ * import * as S from "effect/Schema"
+ *
+ * const hash = S.decodeUnknownSync(CryptoTxnHash)(
+ *   "0x0000000000000000000000000000000000000000000000000000000000000000"
+ * )
+ * console.log(hash)
+ * ```
+ *
  * @since 0.0.0
  * @category validation
  */
@@ -74,6 +85,16 @@ export type CryptoTxnHash = typeof CryptoTxnHash.Type;
 
 /**
  * Redacted schema for canonical mainnet blockchain transaction identifiers.
+ *
+ * @example
+ * ```ts
+ * import { CryptoTxnHashRedacted } from "@beep/schema/CryptoTxnHash"
+ *
+ * const hash = CryptoTxnHashRedacted.makeRedacted(
+ *   "0x0000000000000000000000000000000000000000000000000000000000000000"
+ * )
+ * console.log(hash)
+ * ```
  *
  * @since 0.0.0
  * @category validation

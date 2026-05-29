@@ -14,7 +14,7 @@
  *
  * const version: "0.0.0" = VERSION
  *
- * void version
+ * console.log(version)
  * ```
  *
  * @category configuration
@@ -33,7 +33,7 @@ export const VERSION = "0.0.0" as const;
  *   messages: [{ content: "Hello", role: "user" }],
  *   model: "compat-model"
  * })
- * void request
+ * console.log(request)
  * ```
  *
  * @category utilities
@@ -48,7 +48,7 @@ export * from "./OpenAiCompat.models.ts";
  * import { OpenAiCompatClient } from "@beep/openai-compat"
  *
  * const service = OpenAiCompatClient
- * void service
+ * console.log(service)
  * ```
  *
  * @category utilities
@@ -63,7 +63,7 @@ export * from "./OpenAiCompatClient.service.ts";
  * import { model } from "@beep/openai-compat"
  *
  * const aiModel = model("compat-model")
- * void aiModel
+ * console.log(aiModel)
  * ```
  *
  * @category utilities

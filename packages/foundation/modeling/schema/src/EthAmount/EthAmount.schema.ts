@@ -40,6 +40,15 @@ const EthAmountInput = S.Finite.pipe(
  * ETH-denominated amount decoded from a non-negative JSON number into Effect
  * `BigDecimal`.
  *
+ * @example
+ * ```ts
+ * import { EthAmount } from "@beep/schema/EthAmount"
+ * import * as S from "effect/Schema"
+ *
+ * const amount = S.decodeUnknownSync(EthAmount)(1.5)
+ * console.log(amount)
+ * ```
+ *
  * @since 0.0.0
  * @category validation
  */

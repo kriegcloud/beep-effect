@@ -5,6 +5,15 @@ import { cn } from "../lib/index.ts";
 import type * as React from "react";
 
 /**
+ * Resizable panel group component.
+ *
+ * @example
+ * ```tsx
+ * import { ResizablePanelGroup } from "@beep/ui/components/resizable"
+ *
+ * console.log(ResizablePanelGroup)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -13,6 +22,15 @@ function ResizablePanelGroup({ className, ...props }: React.ComponentProps<typeo
 }
 
 /**
+ * Resizable panel component.
+ *
+ * @example
+ * ```tsx
+ * import { ResizablePanel } from "@beep/ui/components/resizable"
+ *
+ * console.log(ResizablePanel)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -26,6 +44,15 @@ interface ResizableHandleProps extends React.ComponentProps<typeof Separator> {
 }
 
 /**
+ * Resizable handle component.
+ *
+ * @example
+ * ```tsx
+ * import { ResizableHandle } from "@beep/ui/components/resizable"
+ *
+ * console.log(ResizableHandle)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */

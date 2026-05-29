@@ -10,6 +10,15 @@ import type { GraphKindValue } from "./Graph.shared.ts";
 /**
  * Guard for Effect `Graph.Edge` values.
  *
+ * @example
+ * ```ts
+ * import { Graph } from "effect"
+ * import { isEdge } from "@beep/schema/Graph"
+ *
+ * const edge = new Graph.Edge({ source: 0, target: 1, data: "knows" })
+ * console.log(isEdge(edge))
+ * ```
+ *
  * @param value - Unknown input to test.
  * @returns `true` when `value` is a `Graph.Edge`.
  * @since 0.0.0
@@ -19,6 +28,15 @@ export const isEdge = <Data>(value: unknown): value is Graph_.Edge<Data> => valu
 
 /**
  * Guard for Effect graph values, including mutable variants.
+ *
+ * @example
+ * ```ts
+ * import { Graph } from "effect"
+ * import { isGraph } from "@beep/schema/Graph"
+ *
+ * const graph = Graph.directed<string, string>()
+ * console.log(isGraph(graph))
+ * ```
  *
  * @param value - Unknown input to test.
  * @returns `true` when `value` is an Effect graph.

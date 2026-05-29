@@ -17,8 +17,8 @@
  * const userId = $MyPkgId.make("UserId")
  * const sym = $MyPkgId.symbol()
  *
- * void userId // "@beep/my-pkg/UserId"
- * void sym // Symbol.for("@beep/my-pkg")
+ * console.log(userId)// "@beep/my-pkg/UserId"
+ * console.log(sym)// Symbol.for("@beep/my-pkg")
  * ```
  *
  * @packageDocumentation
@@ -103,13 +103,9 @@ const preserveSchemaStatics = <Schema extends S.Top>(
  * const { $MyPkgId } = make("my-pkg")
  *
  * try {
- *
- *
- *
+ *   $MyPkgId`User${"Name"}`
  * } catch (error) {
- *
- *
- *
+ *   console.log(error instanceof IdentityInterpolationError)
  * }
  * ```
  *
@@ -598,28 +594,28 @@ export type TaggedModuleRecord<Value extends string, Segments extends ReadonlyAr
  *
  * // Template tag: derive a child identity string
  * const serviceId = $MyPkgId`UserService`
- * void serviceId // "@beep/my-pkg/UserService"
+ * console.log(serviceId)// "@beep/my-pkg/UserService"
  *
  * // make: one-shot string creation
  * const modelId = $MyPkgId.make("UserModel")
- * void modelId // "@beep/my-pkg/UserModel"
+ * console.log(modelId)// "@beep/my-pkg/UserModel"
  *
  * // create: derive a child composer for further nesting
  * const sub = $MyPkgId.create("domain")
  * const nested = sub.make("Entity")
- * void nested // "@beep/my-pkg/domain/Entity"
+ * console.log(nested)// "@beep/my-pkg/domain/Entity"
  *
  * // compose: batch-create tagged child composers
  * const modules = $MyPkgId.compose("auth", "billing")
  * const authId = modules.$AuthId.make("Session")
- * void authId // "@beep/my-pkg/auth/Session"
+ * console.log(authId)// "@beep/my-pkg/auth/Session"
  *
  * // annote: produce an annotation record for Effect schemas
  * const annotation = $MyPkgId.annote("UserSchema", {
  *
  * })
- * void annotation.identifier // "UserSchema"
- * void annotation.title // "UserSchema"
+ * console.log(annotation.identifier)// "UserSchema"
+ * console.log(annotation.title)// "UserSchema"
  * ```
  *
  * @since 0.0.0
@@ -640,9 +636,9 @@ export interface IdentityComposer<Value extends string> {
    * const { $MyPkgId } = make("my-pkg")
    * const ann = $MyPkgId.annote("UserCreated", { description: "A user was created." })
    *
-   * void ann.identifier // "UserCreated"
-   * void ann.title // "UserCreated"
-   * void ann.description // "A user was created."
+   * console.log(ann.identifier)// "UserCreated"
+   * console.log(ann.title)// "UserCreated"
+   * console.log(ann.description)// "A user was created."
    * ```
    *
    * @since 0.0.0
@@ -728,7 +724,7 @@ export interface IdentityComposer<Value extends string> {
    * const modules = $MyPkgId.compose("auth", "billing")
    *
    * const authId = modules.$AuthId.make("Session")
-   * void authId // "@beep/my-pkg/auth/Session"
+   * console.log(authId)// "@beep/my-pkg/auth/Session"
    * ```
    *
    * @since 0.0.0
@@ -751,7 +747,7 @@ export interface IdentityComposer<Value extends string> {
    * const { $MyPkgId } = make("my-pkg")
    * const sub = $MyPkgId.create("domain")
    * const entityId = sub.make("Entity")
-   * void entityId // "@beep/my-pkg/domain/Entity"
+   * console.log(entityId)// "@beep/my-pkg/domain/Entity"
    * ```
    *
    * @since 0.0.0
@@ -778,7 +774,7 @@ export interface IdentityComposer<Value extends string> {
    *
    * const { $MyPkgId } = make("my-pkg")
    * const id = $MyPkgId.make("UserModel")
-   * void id // "@beep/my-pkg/UserModel"
+   * console.log(id)// "@beep/my-pkg/UserModel"
    * ```
    *
    * @since 0.0.0
@@ -823,7 +819,7 @@ export interface IdentityComposer<Value extends string> {
    *
    * const { $MyPkgId } = make("my-pkg")
    * const id = $MyPkgId`UserService`
-   * void id // "@beep/my-pkg/UserService"
+   * console.log(id)// "@beep/my-pkg/UserService"
    * ```
    *
    * @since 0.0.0
@@ -1196,7 +1192,7 @@ type MakeReturn<Base extends TString.NonEmpty> = {
  * // Bare name -- "@beep/" prefix is added automatically
  * const { $MyPkgId } = make("my-pkg")
  * const id = $MyPkgId.make("Service")
- * void id // "@beep/my-pkg/Service"
+ * console.log(id)// "@beep/my-pkg/Service"
  * ```
  *
  * @example
@@ -1206,7 +1202,7 @@ type MakeReturn<Base extends TString.NonEmpty> = {
  * // Full scoped name works too
  * const { $UtilsId } = make("@beep/utils")
  * const sym = $UtilsId.symbol()
- * void sym // Symbol.for("@beep/utils")
+ * console.log(sym)// Symbol.for("@beep/utils")
  * ```
  *
  * @since 0.0.0

@@ -50,6 +50,13 @@ class ScoredEntry extends S.Class<ScoredEntry>($I`ScoredEntry`)(
 /**
  * Resolved package and selector details for a lookup request.
  *
+ * @example
+ * ```ts
+ * import { FromPackageResolution } from "@beep/repo-codegraph/RepoCodegraphLookup"
+ *
+ * console.log(FromPackageResolution)
+ * ```
+ *
  * @category models
  * @since 0.0.0
  */
@@ -66,6 +73,13 @@ export class FromPackageResolution extends S.Class<FromPackageResolution>($I`Fro
 /**
  * Optional freshness and import-policy inputs for repo codegraph lookup.
  *
+ * @example
+ * ```ts
+ * import { LookupOptions } from "@beep/repo-codegraph/RepoCodegraphLookup"
+ *
+ * console.log(LookupOptions)
+ * ```
+ *
  * @category models
  * @since 0.0.0
  */
@@ -81,6 +95,13 @@ export class LookupOptions extends S.Class<LookupOptions>($I`LookupOptions`)(
 
 /**
  * Normalized path-like selector tokens used for catalog matching.
+ *
+ * @example
+ * ```ts
+ * import { NormalizedPathLikeSelector } from "@beep/repo-codegraph/RepoCodegraphLookup"
+ *
+ * console.log(NormalizedPathLikeSelector)
+ * ```
  *
  * @category models
  * @since 0.0.0

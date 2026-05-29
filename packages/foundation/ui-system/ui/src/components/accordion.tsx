@@ -5,6 +5,15 @@ import { CaretDownIcon, CaretUpIcon } from "@phosphor-icons/react";
 import { cn } from "../lib/index.ts";
 
 /**
+ * Accordion component.
+ *
+ * @example
+ * ```tsx
+ * import { Accordion } from "@beep/ui/components/accordion"
+ *
+ * console.log(Accordion)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -13,6 +22,15 @@ function Accordion({ className, ...props }: AccordionPrimitive.Root.Props) {
 }
 
 /**
+ * Accordion item component.
+ *
+ * @example
+ * ```tsx
+ * import { AccordionItem } from "@beep/ui/components/accordion"
+ *
+ * console.log(AccordionItem)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -23,6 +41,15 @@ function AccordionItem({ className, ...props }: AccordionPrimitive.Item.Props) {
 }
 
 /**
+ * Accordion trigger component.
+ *
+ * @example
+ * ```tsx
+ * import { AccordionTrigger } from "@beep/ui/components/accordion"
+ *
+ * console.log(AccordionTrigger)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -52,6 +79,15 @@ function AccordionTrigger({ className, children, ...props }: AccordionPrimitive.
 }
 
 /**
+ * Accordion content component.
+ *
+ * @example
+ * ```tsx
+ * import { AccordionContent } from "@beep/ui/components/accordion"
+ *
+ * console.log(AccordionContent)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */

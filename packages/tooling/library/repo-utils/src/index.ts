@@ -57,7 +57,7 @@ export {
  * @example
  * ```ts
  * import { FsUtils } from "@beep/repo-utils"
- * void FsUtils
+ * console.log(FsUtils)
  * ```
  * @category models
  * @since 0.0.0
@@ -69,7 +69,7 @@ export { FsUtils } from "./FsUtils.js";
  * @example
  * ```ts
  * import { FsUtilsLive } from "@beep/repo-utils"
- * void FsUtilsLive
+ * console.log(FsUtilsLive)
  * ```
  * @category constructors
  * @since 0.0.0
@@ -82,7 +82,7 @@ export { FsUtilsLive } from "./FsUtils.js";
  * ```ts
  * import type { FsUtilsShape } from "@beep/repo-utils"
  * const key = "readJson" satisfies keyof FsUtilsShape
- * void key
+ * console.log(key)
  * ```
  * @category models
  * @since 0.0.0
@@ -95,7 +95,7 @@ export type { FsUtilsShape } from "./FsUtils.js";
  * ```ts
  * import { GlobOptions } from "@beep/repo-utils"
  * const options = GlobOptions.make({ cwd: "src" })
- * void options.cwd
+ * console.log(options.cwd)
  * ```
  * @category models
  * @since 0.0.0
@@ -375,7 +375,7 @@ export * from "./TypeScript/index.js";
  * @example
  * ```ts
  * import { collectUniqueNpmDependencies } from "@beep/repo-utils"
- * void collectUniqueNpmDependencies
+ * console.log(collectUniqueNpmDependencies)
  * ```
  * @category utilities
  * @since 0.0.0
@@ -391,7 +391,7 @@ export { collectUniqueNpmDependencies } from "./UniqueDeps.js";
  *   dependencies: ["effect"],
  *   devDependencies: ["vitest"]
  * })
- * void deps
+ * console.log(deps)
  * ```
  * @category models
  * @since 0.0.0

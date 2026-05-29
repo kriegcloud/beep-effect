@@ -39,7 +39,7 @@ const $I = $VeniceAiId.create("VeniceAiLanguageModel.service");
  *   model: "llama-3.3-70b"
  * }
  *
- * void options
+ * console.log(options)
  * ```
  *
  * @category models
@@ -161,7 +161,7 @@ const streamChatCompletion = (
  *
  * const languageModel = VeniceAiLanguageModel.make({ model: "llama-3.3-70b" })
  *
- * void languageModel
+ * console.log(languageModel)
  * ```
  *
  * @category constructors
@@ -190,7 +190,7 @@ export const make: (options: VeniceAiLanguageModelOptions) => Effect.Effect<Lang
  *
  * const languageModelLayer = VeniceAiLanguageModel.layer({ model: "llama-3.3-70b" })
  *
- * void languageModelLayer
+ * console.log(languageModelLayer)
  * ```
  *
  * @category layers
@@ -210,7 +210,7 @@ export const layer = (
  *
  * const aiModel = VeniceAiLanguageModel.model("llama-3.3-70b")
  *
- * void aiModel
+ * console.log(aiModel)
  * ```
  *
  * @category constructors

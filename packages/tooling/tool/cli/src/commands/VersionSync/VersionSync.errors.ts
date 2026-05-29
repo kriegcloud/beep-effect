@@ -29,6 +29,13 @@ const messageWithCause = (message: string, cause: unknown): string => `${message
 /**
  * Operational error during version sync (file read/write, parse failures).
  *
+ * @example
+ * ```ts
+ * import { VersionSyncError } from "@beep/repo-cli/commands/VersionSync"
+ *
+ * console.log(VersionSyncError)
+ * ```
+ *
  * @category utilities
  * @since 0.0.0
  */
@@ -73,6 +80,13 @@ export class VersionSyncError extends TaggedErrorClass<VersionSyncError>($I`Vers
 /**
  * Network unavailable during upstream version resolution.
  *
+ * @example
+ * ```ts
+ * import { NetworkUnavailableError } from "@beep/repo-cli/commands/VersionSync"
+ *
+ * console.log(NetworkUnavailableError)
+ * ```
+ *
  * @category utilities
  * @since 0.0.0
  */
@@ -93,6 +107,13 @@ export class NetworkUnavailableError extends TaggedErrorClass<NetworkUnavailable
 
 /**
  * Drift detected in check mode (non-zero exit).
+ *
+ * @example
+ * ```ts
+ * import { VersionSyncDriftError } from "@beep/repo-cli/commands/VersionSync"
+ *
+ * console.log(VersionSyncDriftError)
+ * ```
  *
  * @category utilities
  * @since 0.0.0

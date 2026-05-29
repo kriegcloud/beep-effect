@@ -20,7 +20,7 @@ const schemaIssueToError = (cause: S.SchemaError["issue"]): S.SchemaError => new
  * ```ts
  * import { LoaderValue } from "@beep/repo-configs/next/models/ImageConfig.schema"
  * const loader = LoaderValue
- * void loader
+ * console.log(loader)
  * ```
  * @category schemas
  * @since 0.0.0
@@ -38,7 +38,7 @@ export const LoaderValue = LiteralKit(["default", "imgix", "cloudinary", "akamai
  * ```ts
  * import { ImageLoaderProps } from "@beep/repo-configs/next/models/ImageConfig.schema"
  * const schema = ImageLoaderProps
- * void schema
+ * console.log(schema)
  * ```
  * @category models
  * @since 0.0.0
@@ -61,7 +61,7 @@ export class ImageLoaderProps extends S.Class<ImageLoaderProps>($I`ImageLoaderPr
  * ```ts
  * import { LocalPattern } from "@beep/repo-configs/next/models/ImageConfig.schema"
  * const pattern = LocalPattern.make({ pathname: "/assets/**" })
- * void pattern
+ * console.log(pattern)
  * ```
  * @category models
  * @since 0.0.0
@@ -98,7 +98,7 @@ export class LocalPattern extends S.Class<LocalPattern>($I`LocalPattern`)(
  * ```ts
  * import { RemotePattern } from "@beep/repo-configs/next/models/ImageConfig.schema"
  * const pattern = RemotePattern.make({ hostname: "images.example.com" })
- * void pattern
+ * console.log(pattern)
  * ```
  * @category models
  * @since 0.0.0
@@ -160,7 +160,7 @@ export class RemotePattern extends S.Class<RemotePattern>($I`RemotePattern`)(
  * ```ts
  * import { ImageFormat } from "@beep/repo-configs/next/models/ImageConfig.schema"
  * const format = ImageFormat
- * void format
+ * console.log(format)
  * ```
  * @category schemas
  * @since 0.0.0
@@ -178,7 +178,7 @@ export const ImageFormat = LiteralKit(["image/avif", "image/webp"]).pipe(
  * ```ts
  * import type { ImageFormat } from "@beep/repo-configs/next/models/ImageConfig.schema"
  * const format = "image/webp" satisfies ImageFormat
- * void format
+ * console.log(format)
  * ```
  * @category models
  * @since 0.0.0
@@ -193,7 +193,7 @@ export type ImageFormat = typeof ImageFormat.Type;
  * ```ts
  * import { ImageConfigComplete } from "@beep/repo-configs/next/models/ImageConfig.schema"
  * const schema = ImageConfigComplete
- * void schema
+ * console.log(schema)
  * ```
  * @category models
  * @since 0.0.0
@@ -361,7 +361,7 @@ export class ImageConfigComplete extends S.Class<ImageConfigComplete>($I`ImageCo
  * ```ts
  * import { ImageConfig } from "@beep/repo-configs/next/models/ImageConfig.schema"
  * const config = ImageConfig
- * void config
+ * console.log(config)
  * ```
  * @category schemas
  * @since 0.0.0
@@ -408,7 +408,7 @@ export const ImageConfig = ImageConfigComplete.mapFields(Struct.map(S.optionalKe
  * ```ts
  * import type { ImageConfig } from "@beep/repo-configs/next/models/ImageConfig.schema"
  * const config = {} satisfies ImageConfig
- * void config
+ * console.log(config)
  * ```
  * @category models
  * @since 0.0.0

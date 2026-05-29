@@ -273,6 +273,8 @@ const exportToolsEffect: Effect.Effect<
   )
 );
 /**
+ * Export tools export.
+ *
  * @example
  * ```ts
  * import { exportTools } from "@beep/nlp/Tools/ToolExport"

@@ -2,6 +2,15 @@ import { CONTROL_HEIGHTS, CONTROL_TOUCH_HEIGHTS, TOUCH_MEDIA_QUERY } from "../sc
 import type { ThemeComponents } from "../types.ts";
 
 /**
+ * Button theme theme value.
+ *
+ * @example
+ * ```ts
+ * import { buttonTheme } from "@beep/ui/themes/components/button"
+ *
+ * console.log(buttonTheme)
+ * ```
+ *
  * @category themes
  * @since 0.0.0
  */

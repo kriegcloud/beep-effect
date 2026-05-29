@@ -31,7 +31,7 @@ const defaultIsDeprecated = (): boolean => false;
  * ```ts
  * import { JSDocTagDefinition } from "@beep/repo-utils/JSDoc/models/JSDocTagDefinition.model"
  *
- * void JSDocTagDefinition
+ * console.log(JSDocTagDefinition)
  * ```
  * @category models
  * @since 0.0.0
@@ -109,7 +109,7 @@ export class JSDocTagDefinition extends S.Class<JSDocTagDefinition>($I`JSDocTagD
  * ```ts
  * import { JSDocTagDefinition } from "@beep/repo-utils/JSDoc/models/JSDocTagDefinition.model"
  *
- * void JSDocTagDefinition
+ * console.log(JSDocTagDefinition)
  * ```
  * @category models
  * @since 0.0.0
@@ -147,7 +147,7 @@ export declare namespace JSDocTagDefinition {
  * ```ts
  * import { assertJsDoc } from "@beep/repo-utils/JSDoc/models/JSDocTagDefinition.model"
  *
- * void assertJsDoc
+ * console.log(assertJsDoc)
  * ```
  * @category models
  * @since 0.0.0
@@ -168,7 +168,7 @@ export const assertJsDoc: <const Def extends JSDocTagDefinition.Encoded>(input: 
  * ```ts
  * import { make } from "@beep/repo-utils/JSDoc/models/JSDocTagDefinition.model"
  *
- * void make
+ * console.log(make)
  * ```
  * @category models
  * @since 0.0.0

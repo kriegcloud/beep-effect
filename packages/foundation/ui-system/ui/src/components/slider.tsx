@@ -23,6 +23,15 @@ const sliderValues = (
 };
 
 /**
+ * Slider component.
+ *
+ * @example
+ * ```tsx
+ * import { Slider } from "@beep/ui/components/slider"
+ *
+ * console.log(Slider)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */

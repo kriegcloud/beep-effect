@@ -41,7 +41,7 @@ const serviceContractMetadata = (canonicalName: string, overview: string) =>
  * ```ts
  * import { JsonLdStreamSerializeRequest } from "@beep/semantic-web/services/jsonld-stream-serialize"
  *
- * void JsonLdStreamSerializeRequest
+ * console.log(JsonLdStreamSerializeRequest)
  * ```
  *
  * @since 0.0.0
@@ -71,7 +71,7 @@ export class JsonLdStreamSerializeRequest extends S.Class<JsonLdStreamSerializeR
  * ```ts
  * import { JsonLdStreamSerializeResult } from "@beep/semantic-web/services/jsonld-stream-serialize"
  *
- * void JsonLdStreamSerializeResult
+ * console.log(JsonLdStreamSerializeResult)
  * ```
  *
  * @since 0.0.0
@@ -99,7 +99,7 @@ export class JsonLdStreamSerializeResult extends S.Class<JsonLdStreamSerializeRe
  * ```ts
  * import { JsonLdStreamSerializeErrorReason } from "@beep/semantic-web/services/jsonld-stream-serialize"
  *
- * void JsonLdStreamSerializeErrorReason
+ * console.log(JsonLdStreamSerializeErrorReason)
  * ```
  *
  * @since 0.0.0
@@ -118,7 +118,7 @@ export const JsonLdStreamSerializeErrorReason = LiteralKit(["serializeFailure", 
  * ```ts
  * import { JsonLdStreamSerializeError } from "@beep/semantic-web/services/jsonld-stream-serialize"
  *
- * void JsonLdStreamSerializeError
+ * console.log(JsonLdStreamSerializeError)
  * ```
  *
  * @since 0.0.0
@@ -149,7 +149,7 @@ export class JsonLdStreamSerializeError extends TaggedErrorClass<JsonLdStreamSer
  * import type { JsonLdStreamSerializeServiceShape } from "@beep/semantic-web/services/jsonld-stream-serialize"
  *
  * const acceptJsonLdStreamSerializeServiceShape = (value: JsonLdStreamSerializeServiceShape) => value
- * void acceptJsonLdStreamSerializeServiceShape
+ * console.log(acceptJsonLdStreamSerializeServiceShape)
  * ```
  *
  * @since 0.0.0
@@ -168,7 +168,7 @@ export interface JsonLdStreamSerializeServiceShape {
  * ```ts
  * import { JsonLdStreamSerializeService } from "@beep/semantic-web/services/jsonld-stream-serialize"
  *
- * void JsonLdStreamSerializeService
+ * console.log(JsonLdStreamSerializeService)
  * ```
  *
  * @since 0.0.0

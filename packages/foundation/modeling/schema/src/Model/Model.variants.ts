@@ -20,6 +20,14 @@ const { Class, Field, FieldExcept, FieldOnly, Struct, Union, extract, fieldEvolv
 /**
  * Constraint type satisfied by any Model class produced by {@link Class}.
  *
+ * @example
+ * ```ts
+ * import * as Model from "@beep/schema/Model"
+ *
+ * declare const model: Model.Any
+ * console.log(model.fields)
+ * ```
+ *
  * @since 0.0.0
  * @category models
  */
@@ -35,6 +43,14 @@ export type Any = S.Top & {
 /**
  * Union of database variant keys: `"select"`, `"insert"`, `"update"`.
  *
+ * @example
+ * ```ts
+ * import type { VariantsDatabase } from "@beep/schema/Model"
+ *
+ * const variant = "insert" satisfies VariantsDatabase
+ * console.log(variant)
+ * ```
+ *
  * @since 0.0.0
  * @category models
  */
@@ -42,6 +58,14 @@ export type VariantsDatabase = "select" | "insert" | "update";
 
 /**
  * Union of JSON variant keys: `"json"`, `"jsonCreate"`, `"jsonUpdate"`.
+ *
+ * @example
+ * ```ts
+ * import type { VariantsJson } from "@beep/schema/Model"
+ *
+ * const variant = "jsonCreate" satisfies VariantsJson
+ * console.log(variant)
+ * ```
  *
  * @since 0.0.0
  * @category models
@@ -51,6 +75,14 @@ export type VariantsJson = "json" | "jsonCreate" | "jsonUpdate";
 /**
  * Union of all model variant keys.
  *
+ * @example
+ * ```ts
+ * import type { Variant } from "@beep/schema/Model"
+ *
+ * const variant = "jsonUpdate" satisfies Variant
+ * console.log(variant)
+ * ```
+ *
  * @since 0.0.0
  * @category models
  */
@@ -58,6 +90,14 @@ export type Variant = (typeof modelVariants)[number];
 
 /**
  * Default model variant used as the class schema.
+ *
+ * @example
+ * ```ts
+ * import type { DefaultVariant } from "@beep/schema/Model"
+ *
+ * const variant = "select" satisfies DefaultVariant
+ * console.log(variant)
+ * ```
  *
  * @since 0.0.0
  * @category models
@@ -83,6 +123,16 @@ type InheritStaticMembers<C, Static> = C & Pick<Static, Exclude<keyof Static, ke
 
 /**
  * Materialized class constructor shape produced by {@link Class}.
+ *
+ * @example
+ * ```ts
+ * import * as S from "effect/Schema"
+ * import * as Model from "@beep/schema/Model"
+ *
+ * class Account extends Model.Class<Account>("Account")({ id: S.String }) {}
+ * type AccountShape = Model.ClassShape<Account, { readonly id: typeof S.String }>
+ * console.log(Account satisfies AccountShape)
+ * ```
  *
  * @since 0.0.0
  * @category models
@@ -133,7 +183,7 @@ export {
    *
    * // you can also turn them into classes
    * class GroupJson extends Schema.Class<GroupJson>("GroupJson")(Group.json) {}
-   * void GroupJson
+   * console.log(GroupJson)
    * ```
    */
   Class,
@@ -148,7 +198,7 @@ export {
    * const fields = Model.Struct({})
    *
    * const InsertSchema = Model.extract(fields, "insert")
-   * void InsertSchema
+   * console.log(InsertSchema)
    * ```
    *
    * @since 0.0.0
@@ -165,7 +215,7 @@ export {
    *
    * const status = Model.Field({})
    *
-   * void status
+   * console.log(status)
    * ```
    *
    * @since 0.0.0
@@ -181,7 +231,7 @@ export {
    * import * as Model from "@beep/schema/Model"
    *
    * const readOnly = Model.FieldExcept(["insert", "update"])(Schema.String)
-   * void readOnly
+   * console.log(readOnly)
    * ```
    *
    * @since 0.0.0
@@ -197,7 +247,7 @@ export {
    * import * as Model from "@beep/schema/Model"
    *
    * const jsonOnly = Model.FieldOnly(["json", "jsonCreate"])(Schema.String)
-   * void jsonOnly
+   * console.log(jsonOnly)
    * ```
    *
    * @since 0.0.0
@@ -214,7 +264,7 @@ export {
    *
    * const makeOptional = Model.fieldEvolve({})
    *
-   * void makeOptional
+   * console.log(makeOptional)
    * ```
    *
    * @since 0.0.0
@@ -231,7 +281,7 @@ export {
    *
    * const groupFields = Model.Struct({})
    *
-   * void groupFields
+   * console.log(groupFields)
    * ```
    *
    * @since 0.0.0
@@ -250,7 +300,7 @@ export {
    * const b = Model.Struct({ _tag: Schema.tag("B"), count: Schema.Number })
    * const AB = Model.Union([a, b])
    *
-   * void AB
+   * console.log(AB)
    * ```
    *
    * @since 0.0.0
@@ -270,7 +320,7 @@ export {
  * const s = Model.Struct({})
  *
  * const raw = Model.fields(s)
- * void raw
+ * console.log(raw)
  * ```
  *
  * @since 0.0.0
@@ -291,7 +341,7 @@ export const fields: <A extends VariantSchema.Struct<TUnsafe.Any>>(self: A) => A
  *
  * class Group extends Model.Class<Group>("Group")({}) {}
  *
- * void Group
+ * console.log(Group)
  * ```
  *
  * @since 0.0.0
@@ -303,6 +353,16 @@ export const Override: <A>(value: A) => A & Brand<"Override"> = VariantSchema.Ov
  * Schema whose constructor can supply a generated default unless callers pass
  * {@link Override}.
  *
+ * @example
+ * ```ts
+ * import { Effect } from "effect"
+ * import * as S from "effect/Schema"
+ * import * as Model from "@beep/schema/Model"
+ *
+ * const Name = Model.Overridable(S.String, { defaultValue: Effect.succeed("anonymous") })
+ * console.log(S.isSchema(Name))
+ * ```
+ *
  * @since 0.0.0
  * @category schemas
  */
@@ -310,6 +370,16 @@ export interface Overridable<S extends S.Top & S.WithoutConstructorDefault> exte
 
 /**
  * Upstream-compatible spelling for {@link Overridable}.
+ *
+ * @example
+ * ```ts
+ * import { Effect } from "effect"
+ * import * as S from "effect/Schema"
+ * import * as Model from "@beep/schema/Model"
+ *
+ * const Name = Model.Overrideable(S.String, { defaultValue: Effect.succeed("anonymous") })
+ * console.log(S.isSchema(Name))
+ * ```
  *
  * @since 0.0.0
  * @category schemas
@@ -320,6 +390,16 @@ export interface Overrideable<S extends S.Top & S.WithoutConstructorDefault> ext
  * Build an `Overridable` schema that falls back to `defaultValue` during
  * constructor creation.
  *
+ * @example
+ * ```ts
+ * import { Effect } from "effect"
+ * import * as S from "effect/Schema"
+ * import * as Model from "@beep/schema/Model"
+ *
+ * const Name = Model.Overridable(S.String, { defaultValue: Effect.succeed("anonymous") })
+ * console.log(S.isSchema(Name))
+ * ```
+ *
  * @since 0.0.0
  * @category constructors
  */
@@ -327,6 +407,16 @@ export const Overridable: typeof VariantSchema.Overridable = VariantSchema.Overr
 
 /**
  * Upstream-compatible spelling for {@link Overridable}.
+ *
+ * @example
+ * ```ts
+ * import { Effect } from "effect"
+ * import * as S from "effect/Schema"
+ * import * as Model from "@beep/schema/Model"
+ *
+ * const Name = Model.Overrideable(S.String, { defaultValue: Effect.succeed("anonymous") })
+ * console.log(S.isSchema(Name))
+ * ```
  *
  * @since 0.0.0
  * @category constructors

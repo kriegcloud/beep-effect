@@ -16,7 +16,7 @@ const $I = $RepoUtilsId.create("JSDoc/models/Specification.model");
  * ```ts
  * import { Specification } from "@beep/repo-utils/JSDoc/models/Specification.model"
  *
- * void Specification
+ * console.log(Specification)
  * ```
  * @category models
  * @since 0.0.0
@@ -55,7 +55,7 @@ export const Specification = LiteralKit([
  *
  * type Example = Specification
  * const accept = <A extends Example>(value: A): A => value
- * void accept
+ * console.log(accept)
  * ```
  * @category models
  * @since 0.0.0

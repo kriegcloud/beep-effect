@@ -62,7 +62,7 @@ export const ObservabilityCoreConfig = LogLevel.toTaggedUnion("minLogLevel")({
  * import type { ObservabilityCoreConfig } from "@beep/observability"
  *
  * const serviceName = (config: ObservabilityCoreConfig) => config.serviceName
- * void serviceName
+ * console.log(serviceName)
  * ```
  *
  * @since 0.0.0

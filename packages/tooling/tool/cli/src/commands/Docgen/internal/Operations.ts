@@ -402,7 +402,7 @@ const formatOrphanDocgenConfigMessage = (paths: ReadonlyArray<string>): string =
  *   Effect.map((paths) => paths.length)
  * )
  *
- * void program
+ * console.log(program)
  * ```
  * @category utilities
  * @since 0.0.0
@@ -456,7 +456,7 @@ export const discoverOrphanDocgenConfigPaths: (
  *
  * const program = assertNoOrphanDocgenConfigPaths()
  *
- * void program
+ * console.log(program)
  * ```
  * @category utilities
  * @since 0.0.0
@@ -523,13 +523,15 @@ const getJsDocs = (node: Node): ReadonlyArray<JSDoc> => {
   return A.empty();
 };
 
+const getOwningJsDocs = (node: Node): ReadonlyArray<JSDoc> => pipe(getJsDocs(node), A.last, O.toArray);
+
 const extractJsDocTags = flow(
-  getJsDocs,
+  getOwningJsDocs,
   A.flatMap((doc) => A.map(doc.getTags(), (tag) => `@${tag.getTagName()}`))
 );
 
 const extractJsDocCategoryValues = flow(
-  getJsDocs,
+  getOwningJsDocs,
   A.flatMap((doc) =>
     A.flatMap(doc.getTags(), (tag) =>
       tag.getTagName() === "category" ? [Str.trim(tag.getCommentText() ?? "")] : A.empty<string>()
@@ -561,7 +563,7 @@ const extractJsDocCategoryValuesFromText = flow(
 );
 
 const extractContext = flow(
-  getJsDocs,
+  getOwningJsDocs,
   A.head,
   O.flatMap((doc) => O.fromNullishOr(doc.getDescription())),
   O.map((description) => Str.trim(description)),
@@ -573,7 +575,7 @@ const extractContext = flow(
   O.getOrUndefined
 );
 
-const hasJsDocComment = (node: Node): boolean => getJsDocs(node).length > 0;
+const hasJsDocComment = (node: Node): boolean => getOwningJsDocs(node).length > 0;
 
 type DocgenRequiredTag = (typeof DOCGEN_REQUIRED_TAGS)[number];
 
@@ -657,6 +659,9 @@ const collectExportSpecifierCategoryValues = (
 
   return index;
 };
+
+const isStaticMemberAssignmentExportDeclaration = (node: Node): boolean =>
+  Node.isIdentifier(node) && Node.isPropertyAccessExpression(node.getParent());
 
 const getExportKind = (node: Node): DocgenExportKind => {
   if (Node.isFunctionDeclaration(node)) return "function";
@@ -960,16 +965,25 @@ const analyzeSourceFile = (
   const directExports = pipe(
     A.fromIterable(sourceFile.getExportedDeclarations().entries()),
     A.flatMap(([name, declarations]) => {
-      const localDeclarations = A.filter(declarations, (declaration) => declaration.getSourceFile() === sourceFile);
-      const siblingTags = pipe(localDeclarations, A.flatMap(extractJsDocTags), A.dedupe);
+      const localDeclarations = pipe(
+        declarations,
+        A.filter((declaration) => declaration.getSourceFile() === sourceFile),
+        A.filter((declaration) => !isStaticMemberAssignmentExportDeclaration(declaration))
+      );
+      const declarationGroupTags = pipe(localDeclarations, A.flatMap(extractJsDocTags), A.dedupe);
+      const declarationGroupCategoryValues = pipe(localDeclarations, A.flatMap(extractJsDocCategoryValues), A.dedupe);
       const specifierTags = O.getOrElse(HashMap.get(exportSpecifierTags, name), A.empty<string>);
-      const inheritedTags = pipe([...siblingTags, ...specifierTags], A.dedupe);
-      const siblingCategoryValues = pipe(localDeclarations, A.flatMap(extractJsDocCategoryValues), A.dedupe);
       const specifierCategoryValues = O.getOrElse(HashMap.get(exportSpecifierCategoryValues, name), A.empty<string>);
-      const inheritedCategoryValues = pipe([...siblingCategoryValues, ...specifierCategoryValues], A.dedupe);
 
       return A.map(localDeclarations, (declaration) =>
-        analyzeExport(name, declaration, relativeFilePath, requiredTags, inheritedTags, inheritedCategoryValues)
+        analyzeExport(
+          name,
+          declaration,
+          relativeFilePath,
+          requiredTags,
+          [...declarationGroupTags, ...specifierTags],
+          [...declarationGroupCategoryValues, ...specifierCategoryValues]
+        )
       );
     })
   );

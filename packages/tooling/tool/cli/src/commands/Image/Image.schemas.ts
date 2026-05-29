@@ -29,7 +29,7 @@ const $I = $RepoCliId.create("commands/Image/Image.schemas");
  *   prefix: O.none(),
  *   video: "./clip.mp4"
  * })
- * void options
+ * console.log(options)
  * ```
  * @category models
  * @since 0.0.0
@@ -71,7 +71,7 @@ export class ExtractFramesOptions extends S.Class<ExtractFramesOptions>($I`Extra
  *   overwrite: false,
  *   prefix: O.none()
  * })
- * void options
+ * console.log(options)
  * ```
  * @category models
  * @since 0.0.0
@@ -107,7 +107,7 @@ export class ExtractFramesDirOptions extends S.Class<ExtractFramesDirOptions>($I
  *   sourcePath: "./videos/clip.mp4",
  *   stem: "clip"
  * })
- * void video
+ * console.log(video)
  * ```
  * @category models
  * @since 0.0.0
@@ -144,7 +144,7 @@ export class ExtractFramesDirVideo extends S.Class<ExtractFramesDirVideo>($I`Ext
  *   sourcePath: "./videos/clip.mp4",
  *   status: "success"
  * })
- * void success
+ * console.log(success)
  * ```
  * @category models
  * @since 0.0.0
@@ -174,7 +174,7 @@ export class ExtractFramesDirSuccess extends S.Class<ExtractFramesDirSuccess>($I
  *   sourcePath: "./videos/clip.mp4",
  *   status: "failure"
  * })
- * void failure
+ * console.log(failure)
  * ```
  * @category models
  * @since 0.0.0
@@ -193,6 +193,13 @@ export class ExtractFramesDirFailure extends S.Class<ExtractFramesDirFailure>($I
 
 /**
  * Ordered outcome for one `image extract-frames-dir` input video.
+ *
+ * @example
+ * ```ts
+ * import { ExtractFramesDirOutcome } from "@beep/repo-cli/commands/Image"
+ *
+ * console.log(ExtractFramesDirOutcome)
+ * ```
  *
  * @category models
  * @since 0.0.0
@@ -224,7 +231,7 @@ export type ExtractFramesDirOutcome = typeof ExtractFramesDirOutcome.Type;
  *   outcomes: [],
  *   totalCount: 0
  * })
- * void result
+ * console.log(result)
  * ```
  * @category models
  * @since 0.0.0
@@ -244,6 +251,13 @@ export class ExtractFramesDirResult extends S.Class<ExtractFramesDirResult>($I`E
 /**
  * Decode unknown single-video frame extraction options.
  *
+ * @example
+ * ```ts
+ * import { decodeExtractFramesOptions } from "@beep/repo-cli/commands/Image"
+ *
+ * console.log(decodeExtractFramesOptions)
+ * ```
+ *
  * @category decoding
  * @since 0.0.0
  */
@@ -251,6 +265,13 @@ export const decodeExtractFramesOptions = S.decodeUnknownEffect(ExtractFramesOpt
 
 /**
  * Decode unknown directory frame extraction options.
+ *
+ * @example
+ * ```ts
+ * import { decodeExtractFramesDirOptions } from "@beep/repo-cli/commands/Image"
+ *
+ * console.log(decodeExtractFramesDirOptions)
+ * ```
  *
  * @category decoding
  * @since 0.0.0

@@ -34,6 +34,13 @@ const isRepositoryUnavailable = S.is(WorkerRepositoryUnavailable);
 /**
  * Translate repository failures to public Worker action failures.
  *
+ * @example
+ * ```ts
+ * import { toWorkerActionError } from "@beep/architecture-lab-use-cases/entities/Worker/server"
+ *
+ * console.log(toWorkerActionError)
+ * ```
+ *
  * @category use-cases
  * @since 0.0.0
  */
@@ -52,6 +59,13 @@ export const toWorkerActionError = (error: WorkerRepositoryError): WorkerActionE
 
 /**
  * Build Worker use-cases from the server repository port.
+ *
+ * @example
+ * ```ts
+ * import { makeWorkerUseCases } from "@beep/architecture-lab-use-cases/entities/Worker/server"
+ *
+ * console.log(makeWorkerUseCases)
+ * ```
  *
  * @category use-cases
  * @since 0.0.0

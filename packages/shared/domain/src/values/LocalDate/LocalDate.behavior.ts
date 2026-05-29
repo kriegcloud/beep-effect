@@ -685,7 +685,7 @@ export const daysInMonth: {
  *
  *   return encoded
  * })
- * void program
+ * console.log(program)
  * ```
  *
  * @category constructors

@@ -16,7 +16,7 @@ import type * as VariantSchema from "../VariantSchema/index.ts";
  * import * as Model from "@beep/schema/Model"
  *
  * const field: Model.Date = Model.Date
- * void field
+ * console.log(field)
  * ```
  *
  * @since 0.0.0
@@ -35,7 +35,7 @@ export interface Date extends S.decodeTo<S.instanceOf<DateTime.Utc>, S.String> {
  *
  * class Event extends Model.Class<Event>("Event")({}) {}
  *
- * void Event
+ * console.log(Event)
  * ```
  *
  * @since 0.0.0
@@ -55,7 +55,7 @@ export const Date: Date = S.String.pipe(
  * ```ts
  * import * as Model from "@beep/schema/Model"
  *
- * void Model.DateWithNow
+ * console.log(Model.DateWithNow)
  * ```
  *
  * @since 0.0.0
@@ -72,7 +72,7 @@ export const DateWithNow = Overridable(Date, {
  * ```ts
  * import * as Model from "@beep/schema/Model"
  *
- * void Model.DateTimeWithNow
+ * console.log(Model.DateTimeWithNow)
  * ```
  *
  * @since 0.0.0
@@ -89,7 +89,7 @@ export const DateTimeWithNow = Overridable(S.DateTimeUtcFromString, {
  * ```ts
  * import * as Model from "@beep/schema/Model"
  *
- * void Model.DateTimeFromDateWithNow
+ * console.log(Model.DateTimeFromDateWithNow)
  * ```
  *
  * @since 0.0.0
@@ -106,7 +106,7 @@ export const DateTimeFromDateWithNow = Overridable(S.DateTimeUtcFromDate, {
  * ```ts
  * import * as Model from "@beep/schema/Model"
  *
- * void Model.DateTimeFromNumberWithNow
+ * console.log(Model.DateTimeFromNumberWithNow)
  * ```
  *
  * @since 0.0.0
@@ -124,7 +124,7 @@ export const DateTimeFromNumberWithNow = Overridable(S.DateTimeUtcFromMillis, {
  * import * as Model from "@beep/schema/Model"
  *
  * const field: Model.DateTimeInsert = Model.DateTimeInsert
- * void field
+ * console.log(field)
  * ```
  *
  * @since 0.0.0
@@ -150,7 +150,7 @@ export interface DateTimeInsert
  *
  * class Group extends Model.Class<Group>("Group")({}) {}
  *
- * void Group
+ * console.log(Group)
  * ```
  *
  * @since 0.0.0
@@ -170,7 +170,7 @@ export const DateTimeInsert: DateTimeInsert = Field({
  * import * as Model from "@beep/schema/Model"
  *
  * const field: Model.DateTimeInsertFromDate = Model.DateTimeInsertFromDate
- * void field
+ * console.log(field)
  * ```
  *
  * @since 0.0.0
@@ -196,7 +196,7 @@ export interface DateTimeInsertFromDate
  *
  * class Group extends Model.Class<Group>("Group")({}) {}
  *
- * void Group
+ * console.log(Group)
  * ```
  *
  * @since 0.0.0
@@ -216,7 +216,7 @@ export const DateTimeInsertFromDate: DateTimeInsertFromDate = Field({
  * import * as Model from "@beep/schema/Model"
  *
  * const field: Model.DateTimeInsertFromNumber = Model.DateTimeInsertFromNumber
- * void field
+ * console.log(field)
  * ```
  *
  * @since 0.0.0
@@ -242,7 +242,7 @@ export interface DateTimeInsertFromNumber
  *
  * class Group extends Model.Class<Group>("Group")({}) {}
  *
- * void Group
+ * console.log(Group)
  * ```
  *
  * @since 0.0.0
@@ -262,7 +262,7 @@ export const DateTimeInsertFromNumber: DateTimeInsertFromNumber = Field({
  * import * as Model from "@beep/schema/Model"
  *
  * const field: Model.DateTimeUpdate = Model.DateTimeUpdate
- * void field
+ * console.log(field)
  * ```
  *
  * @since 0.0.0
@@ -290,7 +290,7 @@ export interface DateTimeUpdate
  *
  * class Group extends Model.Class<Group>("Group")({}) {}
  *
- * void Group
+ * console.log(Group)
  * ```
  *
  * @since 0.0.0
@@ -311,7 +311,7 @@ export const DateTimeUpdate: DateTimeUpdate = Field({
  * import * as Model from "@beep/schema/Model"
  *
  * const field: Model.DateTimeUpdateFromDate = Model.DateTimeUpdateFromDate
- * void field
+ * console.log(field)
  * ```
  *
  * @since 0.0.0
@@ -339,7 +339,7 @@ export interface DateTimeUpdateFromDate
  *
  * class Group extends Model.Class<Group>("Group")({}) {}
  *
- * void Group
+ * console.log(Group)
  * ```
  *
  * @since 0.0.0
@@ -360,7 +360,7 @@ export const DateTimeUpdateFromDate: DateTimeUpdateFromDate = Field({
  * import * as Model from "@beep/schema/Model"
  *
  * const field: Model.DateTimeUpdateFromNumber = Model.DateTimeUpdateFromNumber
- * void field
+ * console.log(field)
  * ```
  *
  * @since 0.0.0
@@ -388,7 +388,7 @@ export interface DateTimeUpdateFromNumber
  *
  * class Group extends Model.Class<Group>("Group")({}) {}
  *
- * void Group
+ * console.log(Group)
  * ```
  *
  * @since 0.0.0

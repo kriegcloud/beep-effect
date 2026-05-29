@@ -118,6 +118,14 @@ export class LocalDate extends S.Class<LocalDate>($I`LocalDate`)(
 /**
  * Type guard for `LocalDate` instances.
  *
+ * @example
+ * ```ts
+ * import { LocalDate, isLocalDate } from "@beep/schema/LocalDate"
+ *
+ * const date = LocalDate.make({ year: 2024, month: 6, day: 15 })
+ * console.log(isLocalDate(date))
+ * ```
+ *
  * @since 0.0.0
  * @category guards
  */
@@ -202,6 +210,17 @@ const encodeLocalDateFromString = (localDate: {
 /**
  * Parse a `YYYY-MM-DD` string into a `LocalDate`, returning an `Effect` that fails for invalid input.
  *
+ * @example
+ * ```ts
+ * import { Effect } from "effect"
+ * import { fromString } from "@beep/schema/LocalDate"
+ *
+ * const program = fromString("2024-06-15")
+ * console.log(Effect.runPromise(program))
+ * ```
+ *
+ * @effects Parses an ISO local date string and fails with `SchemaError` when the input is not a valid calendar date.
+ *
  * @since 0.0.0
  * @category constructors
  */
@@ -225,6 +244,14 @@ export const fromString = (dateString: string): Effect.Effect<LocalDate, S.Schem
 /**
  * Create a `LocalDate` from a JavaScript `Date` using its UTC components.
  *
+ * @example
+ * ```ts
+ * import { fromDate } from "@beep/schema/LocalDate"
+ *
+ * const date = fromDate(new Date("2024-06-15T10:30:00Z"))
+ * console.log(date.toISOString())
+ * ```
+ *
  * @since 0.0.0
  * @category constructors
  */
@@ -239,6 +266,14 @@ export const fromDate: (date: Date) => LocalDate = flow(DateTime.fromDateUnsafe,
 /**
  * Get today's date in UTC.
  *
+ * @example
+ * ```ts
+ * import { today } from "@beep/schema/LocalDate"
+ *
+ * const date = today()
+ * console.log(date.year > 0)
+ * ```
+ *
  * @since 0.0.0
  * @category constructors
  */
@@ -246,6 +281,16 @@ export const today = (): LocalDate => DateTime.nowUnsafe().pipe(DateTime.toDate,
 
 /**
  * Get today's UTC date as an `Effect` using the Clock service, testable with `TestClock`.
+ *
+ * @example
+ * ```ts
+ * import { Effect } from "effect"
+ * import { todayEffect } from "@beep/schema/LocalDate"
+ *
+ * console.log(Effect.runPromise(todayEffect))
+ * ```
+ *
+ * @effects Reads the Effect Clock service and returns the current UTC calendar date.
  *
  * @since 0.0.0
  * @category constructors
@@ -257,6 +302,15 @@ export const todayEffect = pipe(
 
 /**
  * Create a `LocalDate` from a `DateTime` by extracting its UTC date components.
+ *
+ * @example
+ * ```ts
+ * import { DateTime } from "effect"
+ * import { fromDateTime } from "@beep/schema/LocalDate"
+ *
+ * const date = fromDateTime(DateTime.makeUnsafe("2024-06-15T10:30:00Z"))
+ * console.log(date.toISOString())
+ * ```
  *
  * @since 0.0.0
  * @category constructors
@@ -272,6 +326,15 @@ export const fromDateTime = (dateTime: DateTime.DateTime): LocalDate => {
 
 /**
  * Chronological `Order` for `LocalDate` values.
+ *
+ * @example
+ * ```ts
+ * import { LocalDate, Order } from "@beep/schema/LocalDate"
+ *
+ * const earlier = LocalDate.make({ year: 2024, month: 1, day: 1 })
+ * const later = LocalDate.make({ year: 2024, month: 1, day: 2 })
+ * console.log(Order(earlier, later))
+ * ```
  *
  * @since 0.0.0
  * @category utilities
@@ -292,6 +355,15 @@ export const Order: Order_.Order<LocalDate> = Order_.make((a, b) => {
 /**
  * Dual predicate returning `true` when `self` is chronologically before `that`.
  *
+ * @example
+ * ```ts
+ * import { LocalDate, isBefore } from "@beep/schema/LocalDate"
+ *
+ * const earlier = LocalDate.make({ year: 2024, month: 1, day: 1 })
+ * const later = LocalDate.make({ year: 2024, month: 1, day: 2 })
+ * console.log(isBefore(earlier, later))
+ * ```
+ *
  * @since 0.0.0
  * @category predicates
  */
@@ -303,6 +375,15 @@ export const isBefore: {
 /**
  * Dual predicate returning `true` when `self` is chronologically after `that`.
  *
+ * @example
+ * ```ts
+ * import { LocalDate, isAfter } from "@beep/schema/LocalDate"
+ *
+ * const earlier = LocalDate.make({ year: 2024, month: 1, day: 1 })
+ * const later = LocalDate.make({ year: 2024, month: 1, day: 2 })
+ * console.log(isAfter(later, earlier))
+ * ```
+ *
  * @since 0.0.0
  * @category predicates
  */
@@ -313,6 +394,15 @@ export const isAfter: {
 
 /**
  * Dual predicate returning `true` when two `LocalDate` values represent the same calendar date.
+ *
+ * @example
+ * ```ts
+ * import { LocalDate, equals } from "@beep/schema/LocalDate"
+ *
+ * const a = LocalDate.make({ year: 2024, month: 6, day: 15 })
+ * const b = LocalDate.make({ year: 2024, month: 6, day: 15 })
+ * console.log(equals(a, b))
+ * ```
  *
  * @since 0.0.0
  * @category predicates
@@ -329,6 +419,14 @@ export const equals: {
 /**
  * Add days to a `LocalDate`.
  *
+ * @example
+ * ```ts
+ * import { LocalDate, addDays } from "@beep/schema/LocalDate"
+ *
+ * const date = LocalDate.make({ year: 2024, month: 6, day: 15 })
+ * console.log(addDays(date, 1).toISOString())
+ * ```
+ *
  * @since 0.0.0
  * @category combinators
  */
@@ -343,6 +441,14 @@ export const addDays: {
 
 /**
  * Add months to a `LocalDate`.
+ *
+ * @example
+ * ```ts
+ * import { LocalDate, addMonths } from "@beep/schema/LocalDate"
+ *
+ * const date = LocalDate.make({ year: 2024, month: 6, day: 15 })
+ * console.log(addMonths(date, 1).toISOString())
+ * ```
  *
  * @since 0.0.0
  * @category combinators
@@ -359,6 +465,14 @@ export const addMonths: {
 /**
  * Add years to a `LocalDate`.
  *
+ * @example
+ * ```ts
+ * import { LocalDate, addYears } from "@beep/schema/LocalDate"
+ *
+ * const date = LocalDate.make({ year: 2024, month: 6, day: 15 })
+ * console.log(addYears(date, 1).toISOString())
+ * ```
+ *
  * @since 0.0.0
  * @category combinators
  */
@@ -373,6 +487,15 @@ export const addYears: {
 
 /**
  * Get the difference in whole days between two `LocalDate` values.
+ *
+ * @example
+ * ```ts
+ * import { LocalDate, diffInDays } from "@beep/schema/LocalDate"
+ *
+ * const earlier = LocalDate.make({ year: 2024, month: 6, day: 15 })
+ * const later = LocalDate.make({ year: 2024, month: 6, day: 18 })
+ * console.log(diffInDays(later, earlier))
+ * ```
  *
  * @since 0.0.0
  * @category utilities
@@ -390,6 +513,14 @@ export const diffInDays: {
 /**
  * Return the first day of the month for the given `LocalDate`.
  *
+ * @example
+ * ```ts
+ * import { LocalDate, startOfMonth } from "@beep/schema/LocalDate"
+ *
+ * const date = LocalDate.make({ year: 2024, month: 6, day: 15 })
+ * console.log(startOfMonth(date).toISOString())
+ * ```
+ *
  * @since 0.0.0
  * @category utilities
  */
@@ -402,6 +533,14 @@ export const startOfMonth = (date: LocalDate): LocalDate =>
 
 /**
  * Return the last day of the month for the given `LocalDate`.
+ *
+ * @example
+ * ```ts
+ * import { LocalDate, endOfMonth } from "@beep/schema/LocalDate"
+ *
+ * const date = LocalDate.make({ year: 2024, month: 2, day: 15 })
+ * console.log(endOfMonth(date).toISOString())
+ * ```
  *
  * @since 0.0.0
  * @category utilities
@@ -416,6 +555,14 @@ export const endOfMonth = (date: LocalDate): LocalDate =>
 /**
  * Return January 1st for the year of the given `LocalDate`.
  *
+ * @example
+ * ```ts
+ * import { LocalDate, startOfYear } from "@beep/schema/LocalDate"
+ *
+ * const date = LocalDate.make({ year: 2024, month: 6, day: 15 })
+ * console.log(startOfYear(date).toISOString())
+ * ```
+ *
  * @since 0.0.0
  * @category utilities
  */
@@ -428,6 +575,14 @@ export const startOfYear = (date: LocalDate): LocalDate =>
 
 /**
  * Return December 31st for the year of the given `LocalDate`.
+ *
+ * @example
+ * ```ts
+ * import { LocalDate, endOfYear } from "@beep/schema/LocalDate"
+ *
+ * const date = LocalDate.make({ year: 2024, month: 6, day: 15 })
+ * console.log(endOfYear(date).toISOString())
+ * ```
  *
  * @since 0.0.0
  * @category utilities
@@ -442,6 +597,13 @@ export const endOfYear = (date: LocalDate): LocalDate =>
 /**
  * Check whether a year is a leap year.
  *
+ * @example
+ * ```ts
+ * import { isLeapYear } from "@beep/schema/LocalDate"
+ *
+ * console.log(isLeapYear(2024))
+ * ```
+ *
  * @since 0.0.0
  * @category predicates
  */
@@ -449,6 +611,13 @@ export const isLeapYear = (year: number): boolean => isLeapYearInternal(year);
 
 /**
  * Get the number of days in a given month, accounting for leap years.
+ *
+ * @example
+ * ```ts
+ * import { daysInMonth } from "@beep/schema/LocalDate"
+ *
+ * console.log(daysInMonth(2024, 2))
+ * ```
  *
  * @since 0.0.0
  * @category utilities
@@ -497,6 +666,13 @@ export const LocalDateFromString = S.String.pipe(
 /**
  * Decoded `LocalDate` type extracted from {@link LocalDateFromString}.
  *
+ * @example
+ * ```ts
+ * import type { LocalDateFromString } from "@beep/schema/LocalDate"
+ *
+ * console.log({} as { date: LocalDateFromString })
+ * ```
+ *
  * @since 0.0.0
  * @category models
  */
@@ -504,6 +680,14 @@ export type LocalDateFromString = typeof LocalDateFromString.Type;
 
 /**
  * Namespace members for {@link LocalDateFromString}.
+ *
+ * @example
+ * ```ts
+ * import type { LocalDateFromString } from "@beep/schema/LocalDate"
+ *
+ * type EncodedLocalDate = LocalDateFromString.Encoded
+ * console.log({} as { encoded: EncodedLocalDate })
+ * ```
  *
  * @since 0.0.0
  * @category models

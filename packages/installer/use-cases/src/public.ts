@@ -34,6 +34,13 @@ const $I = $InstallerUseCasesId.create("public");
 /**
  * Dry-run verb owned by the installer slice.
  *
+ * @example
+ * ```ts
+ * import { InstallerDryRunVerb } from "@beep/installer-use-cases/public"
+ *
+ * console.log(InstallerDryRunVerb)
+ * ```
+ *
  * @category use-cases
  * @since 0.0.0
  */
@@ -54,6 +61,13 @@ export class InstallerDryRunVerb extends S.Class<InstallerDryRunVerb>($I`Install
 /**
  * Dry-run dependency preview plan.
  *
+ * @example
+ * ```ts
+ * import { HostDependencyPlan } from "@beep/installer-use-cases/public"
+ *
+ * console.log(HostDependencyPlan)
+ * ```
+ *
  * @category use-cases
  * @since 0.0.0
  */
@@ -71,6 +85,13 @@ export class HostDependencyPlan extends S.Class<HostDependencyPlan>($I`HostDepen
 
 /**
  * Live host dependency validation result.
+ *
+ * @example
+ * ```ts
+ * import { HostDependencyValidationResult } from "@beep/installer-use-cases/public"
+ *
+ * console.log(HostDependencyValidationResult)
+ * ```
  *
  * @category use-cases
  * @since 0.0.0
@@ -91,6 +112,13 @@ export class HostDependencyValidationResult extends S.Class<HostDependencyValida
 /**
  * Dry-run provider preview plan.
  *
+ * @example
+ * ```ts
+ * import { ProviderAccountPlan } from "@beep/installer-use-cases/public"
+ *
+ * console.log(ProviderAccountPlan)
+ * ```
+ *
  * @category use-cases
  * @since 0.0.0
  */
@@ -108,6 +136,13 @@ export class ProviderAccountPlan extends S.Class<ProviderAccountPlan>($I`Provide
 
 /**
  * Live provider authentication validation result.
+ *
+ * @example
+ * ```ts
+ * import { ProviderAuthValidationResult } from "@beep/installer-use-cases/public"
+ *
+ * console.log(ProviderAuthValidationResult)
+ * ```
  *
  * @category use-cases
  * @since 0.0.0
@@ -131,6 +166,13 @@ export class ProviderAuthValidationResult extends S.Class<ProviderAuthValidation
 /**
  * Dry-run secret-reference preview plan.
  *
+ * @example
+ * ```ts
+ * import { SecretReferencePlan } from "@beep/installer-use-cases/public"
+ *
+ * console.log(SecretReferencePlan)
+ * ```
+ *
  * @category use-cases
  * @since 0.0.0
  */
@@ -148,6 +190,13 @@ export class SecretReferencePlan extends S.Class<SecretReferencePlan>($I`SecretR
 
 /**
  * Live 1Password reference validation request.
+ *
+ * @example
+ * ```ts
+ * import { SecretReferenceValidationRequest } from "@beep/installer-use-cases/public"
+ *
+ * console.log(SecretReferenceValidationRequest)
+ * ```
  *
  * @category use-cases
  * @since 0.0.0
@@ -169,6 +218,13 @@ export class SecretReferenceValidationRequest extends S.Class<SecretReferenceVal
 
 /**
  * Live 1Password reference validation result.
+ *
+ * @example
+ * ```ts
+ * import { SecretReferenceValidationResult } from "@beep/installer-use-cases/public"
+ *
+ * console.log(SecretReferenceValidationResult)
+ * ```
  *
  * @category use-cases
  * @since 0.0.0
@@ -193,6 +249,13 @@ export class SecretReferenceValidationResult extends S.Class<SecretReferenceVali
 /**
  * Typed failure for an approved live secret read.
  *
+ * @example
+ * ```ts
+ * import { SecretReferenceReadError } from "@beep/installer-use-cases/public"
+ *
+ * console.log(SecretReferenceReadError)
+ * ```
+ *
  * @category errors
  * @since 0.0.0
  */
@@ -209,6 +272,13 @@ export class SecretReferenceReadError extends TaggedErrorClass<SecretReferenceRe
 
 /**
  * Dry-run Discord channel preview plan.
+ *
+ * @example
+ * ```ts
+ * import { DiscordChannelPlan } from "@beep/installer-use-cases/public"
+ *
+ * console.log(DiscordChannelPlan)
+ * ```
  *
  * @category use-cases
  * @since 0.0.0
@@ -227,6 +297,13 @@ export class DiscordChannelPlan extends S.Class<DiscordChannelPlan>($I`DiscordCh
 
 /**
  * Live Discord validation request.
+ *
+ * @example
+ * ```ts
+ * import { DiscordLiveValidationRequest } from "@beep/installer-use-cases/public"
+ *
+ * console.log(DiscordLiveValidationRequest)
+ * ```
  *
  * @category use-cases
  * @since 0.0.0
@@ -247,6 +324,13 @@ export class DiscordLiveValidationRequest extends S.Class<DiscordLiveValidationR
 /**
  * Live Discord validation result.
  *
+ * @example
+ * ```ts
+ * import { DiscordLiveValidationResult } from "@beep/installer-use-cases/public"
+ *
+ * console.log(DiscordLiveValidationResult)
+ * ```
+ *
  * @category use-cases
  * @since 0.0.0
  */
@@ -266,6 +350,13 @@ export class DiscordLiveValidationResult extends S.Class<DiscordLiveValidationRe
 /**
  * Workspace dry-run plan.
  *
+ * @example
+ * ```ts
+ * import { WorkspaceDryRunPlan } from "@beep/installer-use-cases/public"
+ *
+ * console.log(WorkspaceDryRunPlan)
+ * ```
+ *
  * @category use-cases
  * @since 0.0.0
  */
@@ -283,6 +374,13 @@ export class WorkspaceDryRunPlan extends S.Class<WorkspaceDryRunPlan>($I`Workspa
 
 /**
  * P1 Manual Mode proof request.
+ *
+ * @example
+ * ```ts
+ * import { P1ManualProofRequest } from "@beep/installer-use-cases/public"
+ *
+ * console.log(P1ManualProofRequest)
+ * ```
  *
  * @category use-cases
  * @since 0.0.0
@@ -306,6 +404,13 @@ export class P1ManualProofRequest extends S.Class<P1ManualProofRequest>($I`P1Man
 /**
  * P1 Manual Mode proof result.
  *
+ * @example
+ * ```ts
+ * import { P1ManualProofResult } from "@beep/installer-use-cases/public"
+ *
+ * console.log(P1ManualProofResult)
+ * ```
+ *
  * @category use-cases
  * @since 0.0.0
  */
@@ -321,6 +426,13 @@ export class P1ManualProofResult extends S.Class<P1ManualProofResult>($I`P1Manua
 
 /**
  * Static P1A verb contracts owned by the host-dependency concept.
+ *
+ * @example
+ * ```ts
+ * import { P1A_HOST_DEPENDENCY_VERB_INPUTS } from "@beep/installer-use-cases/public"
+ *
+ * console.log(P1A_HOST_DEPENDENCY_VERB_INPUTS)
+ * ```
  *
  * @category use-cases
  * @since 0.0.0
@@ -345,6 +457,13 @@ export const P1A_HOST_DEPENDENCY_VERB_INPUTS = [
 /**
  * Static P1A verb contracts owned by the secret-reference concept.
  *
+ * @example
+ * ```ts
+ * import { P1A_SECRET_REFERENCE_VERB_INPUTS } from "@beep/installer-use-cases/public"
+ *
+ * console.log(P1A_SECRET_REFERENCE_VERB_INPUTS)
+ * ```
+ *
  * @category use-cases
  * @since 0.0.0
  */
@@ -367,6 +486,13 @@ export const P1A_SECRET_REFERENCE_VERB_INPUTS = [
 
 /**
  * Static P1A verb contracts owned by the provider-account concept.
+ *
+ * @example
+ * ```ts
+ * import { P1A_PROVIDER_ACCOUNT_VERB_INPUTS } from "@beep/installer-use-cases/public"
+ *
+ * console.log(P1A_PROVIDER_ACCOUNT_VERB_INPUTS)
+ * ```
  *
  * @category use-cases
  * @since 0.0.0
@@ -391,6 +517,13 @@ export const P1A_PROVIDER_ACCOUNT_VERB_INPUTS = [
 /**
  * Static P1A verb contracts owned by the Discord-channel concept.
  *
+ * @example
+ * ```ts
+ * import { P1A_DISCORD_CHANNEL_VERB_INPUTS } from "@beep/installer-use-cases/public"
+ *
+ * console.log(P1A_DISCORD_CHANNEL_VERB_INPUTS)
+ * ```
+ *
  * @category use-cases
  * @since 0.0.0
  */
@@ -413,6 +546,13 @@ export const P1A_DISCORD_CHANNEL_VERB_INPUTS = [
 
 /**
  * Static P1A verb contracts owned by the stack-manifest concept.
+ *
+ * @example
+ * ```ts
+ * import { P1A_WORKSPACE_VERB_INPUTS } from "@beep/installer-use-cases/public"
+ *
+ * console.log(P1A_WORKSPACE_VERB_INPUTS)
+ * ```
  *
  * @category use-cases
  * @since 0.0.0
@@ -437,6 +577,13 @@ export const P1A_WORKSPACE_VERB_INPUTS = [
 /**
  * Static P1A dry-run registry inputs composed inside the installer slice.
  *
+ * @example
+ * ```ts
+ * import { P1A_INSTALLER_DRY_RUN_REGISTRY_INPUTS } from "@beep/installer-use-cases/public"
+ *
+ * console.log(P1A_INSTALLER_DRY_RUN_REGISTRY_INPUTS)
+ * ```
+ *
  * @category use-cases
  * @since 0.0.0
  */
@@ -450,6 +597,13 @@ export const P1A_INSTALLER_DRY_RUN_REGISTRY_INPUTS = [
 
 /**
  * Deterministic P1A manifest snapshot input.
+ *
+ * @example
+ * ```ts
+ * import { P1A_DRY_RUN_SNAPSHOT_INPUT } from "@beep/installer-use-cases/public"
+ *
+ * console.log(P1A_DRY_RUN_SNAPSHOT_INPUT)
+ * ```
  *
  * @category use-cases
  * @since 0.0.0

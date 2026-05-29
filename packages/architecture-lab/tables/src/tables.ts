@@ -17,6 +17,13 @@ type DbSchemaShape = {
 /**
  * Architecture lab drizzle schema.
  *
+ * @example
+ * ```ts
+ * import { DbSchema } from "@beep/architecture-lab-tables/tables"
+ *
+ * console.log(DbSchema)
+ * ```
+ *
  * @category tables
  * @since 0.0.0
  */
@@ -27,6 +34,14 @@ export const DbSchema: DbSchemaShape = {
 
 /**
  * Architecture lab drizzle schema type.
+ *
+ * @example
+ * ```ts
+ * import type { DbSchema } from "@beep/architecture-lab-tables/tables"
+ *
+ * const value = {} as DbSchema
+ * console.log(value)
+ * ```
  *
  * @category tables
  * @since 0.0.0

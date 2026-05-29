@@ -217,7 +217,7 @@ export const URIReference = S.String.check(uriReferenceChecks).pipe(
  * import type { URIReference } from "@beep/semantic-web/uri"
  *
  * const acceptURIReference = (value: URIReference) => value
- * void acceptURIReference
+ * console.log(acceptURIReference)
  * ```
  *
  * @since 0.0.0
@@ -256,7 +256,7 @@ export const RelativeURIReference = S.String.check(relativeUriReferenceChecks).p
  * import type { RelativeURIReference } from "@beep/semantic-web/uri"
  *
  * const acceptRelativeURIReference = (value: RelativeURIReference) => value
- * void acceptRelativeURIReference
+ * console.log(acceptRelativeURIReference)
  * ```
  *
  * @since 0.0.0
@@ -295,7 +295,7 @@ export const AbsoluteURI = S.String.check(absoluteUriChecks).pipe(
  * import type { AbsoluteURI } from "@beep/semantic-web/uri"
  *
  * const acceptAbsoluteURI = (value: AbsoluteURI) => value
- * void acceptAbsoluteURI
+ * console.log(acceptAbsoluteURI)
  * ```
  *
  * @since 0.0.0
@@ -334,7 +334,7 @@ export const URI = S.String.check(uriChecks).pipe(
  * import type { URI } from "@beep/semantic-web/uri"
  *
  * const acceptURI = (value: URI) => value
- * void acceptURI
+ * console.log(acceptURI)
  * ```
  *
  * @since 0.0.0

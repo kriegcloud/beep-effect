@@ -169,7 +169,7 @@ export const ColorSupportLevel = LiteralKit(colorSupportLevelValues).pipe(
  * import type { ColorSupportLevel } from "@beep/chalk"
  *
  * const level: ColorSupportLevel = 2
- * void level
+ * console.log(level)
  * ```
  *
  * @category models
@@ -232,7 +232,7 @@ export const ColorInfo = S.Union([ColorSupport, S.Literal(false)]).pipe(
  * import type { ColorInfo } from "@beep/chalk"
  *
  * const info: ColorInfo = false
- * void info
+ * console.log(info)
  * ```
  *
  * @category models
@@ -292,7 +292,7 @@ export const ModifierName = LiteralKit(modifierNameValues).pipe(
  * import type { ModifierName } from "@beep/chalk"
  *
  * const name: ModifierName = "italic"
- * void name
+ * console.log(name)
  * ```
  *
  * @category models
@@ -329,7 +329,7 @@ export const ForegroundColorName = LiteralKit(foregroundColorNameValues).pipe(
  * import type { ForegroundColorName } from "@beep/chalk"
  *
  * const name: ForegroundColorName = "cyan"
- * void name
+ * console.log(name)
  * ```
  *
  * @category models
@@ -366,7 +366,7 @@ export const BackgroundColorName = LiteralKit(backgroundColorNameValues).pipe(
  * import type { BackgroundColorName } from "@beep/chalk"
  *
  * const name: BackgroundColorName = "bgMagenta"
- * void name
+ * console.log(name)
  * ```
  *
  * @category models
@@ -403,7 +403,7 @@ export const ColorName = LiteralKit(colorNameValues).pipe(
  * import type { ColorName } from "@beep/chalk"
  *
  * const name: ColorName = "bgYellow"
- * void name
+ * console.log(name)
  * ```
  *
  * @category models

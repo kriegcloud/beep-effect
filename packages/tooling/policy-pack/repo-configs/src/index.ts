@@ -14,7 +14,7 @@ import type { DocsESLintConfigShape as DocsESLintConfigShapeInternal } from "./e
  * @example
  * ```ts
  * import { VERSION } from "@beep/repo-configs"
- * void VERSION
+ * console.log(VERSION)
  * ```
  * @category configuration
  * @since 0.0.0
@@ -28,7 +28,7 @@ export const VERSION = "0.0.0" as const;
  * ```ts
  * import type { DocsESLintConfigShape } from "@beep/repo-configs"
  * const config = [] satisfies DocsESLintConfigShape
- * void config
+ * console.log(config)
  * ```
  * @category configuration
  * @since 0.0.0
@@ -41,7 +41,7 @@ export type DocsESLintConfigShape = DocsESLintConfigShapeInternal;
  * @example
  * ```ts
  * import { DocsESLintConfig } from "@beep/repo-configs"
- * void DocsESLintConfig
+ * console.log(DocsESLintConfig)
  * ```
  * @category configuration
  * @since 0.0.0

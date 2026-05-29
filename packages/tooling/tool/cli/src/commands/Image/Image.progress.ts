@@ -18,6 +18,13 @@ import type { Terminal } from "effect";
  * @param label - User-facing operation label.
  * @param event - FFmpeg event.
  * @returns Effect that updates the terminal display.
+ * @example
+ * ```ts
+ * import { renderExtractFramesEvent } from "@beep/repo-cli/commands/Image"
+ *
+ * console.log(renderExtractFramesEvent)
+ * ```
+ *
  * @category utilities
  * @since 0.0.0
  */
@@ -47,6 +54,13 @@ export const renderExtractFramesEvent: {
  * @param terminal - Terminal service used for in-place display.
  * @param label - User-facing operation label.
  * @returns Event sink when stdout is a TTY; otherwise undefined.
+ * @example
+ * ```ts
+ * import { makeExtractFramesEvents } from "@beep/repo-cli/commands/Image"
+ *
+ * console.log(makeExtractFramesEvents)
+ * ```
+ *
  * @category utilities
  * @since 0.0.0
  */

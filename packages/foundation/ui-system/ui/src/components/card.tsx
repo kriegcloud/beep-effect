@@ -2,6 +2,15 @@ import { cn } from "../lib/index.ts";
 import type * as React from "react";
 
 /**
+ * Card component.
+ *
+ * @example
+ * ```tsx
+ * import { Card } from "@beep/ui/components/card"
+ *
+ * console.log(Card)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -24,6 +33,15 @@ function Card({
 }
 
 /**
+ * Card header component.
+ *
+ * @example
+ * ```tsx
+ * import { CardHeader } from "@beep/ui/components/card"
+ *
+ * console.log(CardHeader)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -41,6 +59,15 @@ function CardHeader({ className, ...props }: React.ComponentProps<"div">) {
 }
 
 /**
+ * Card title component.
+ *
+ * @example
+ * ```tsx
+ * import { CardTitle } from "@beep/ui/components/card"
+ *
+ * console.log(CardTitle)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -55,6 +82,15 @@ function CardTitle({ className, ...props }: React.ComponentProps<"div">) {
 }
 
 /**
+ * Card description component.
+ *
+ * @example
+ * ```tsx
+ * import { CardDescription } from "@beep/ui/components/card"
+ *
+ * console.log(CardDescription)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -63,6 +99,15 @@ function CardDescription({ className, ...props }: React.ComponentProps<"div">) {
 }
 
 /**
+ * Card action component.
+ *
+ * @example
+ * ```tsx
+ * import { CardAction } from "@beep/ui/components/card"
+ *
+ * console.log(CardAction)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -77,6 +122,15 @@ function CardAction({ className, ...props }: React.ComponentProps<"div">) {
 }
 
 /**
+ * Card content component.
+ *
+ * @example
+ * ```tsx
+ * import { CardContent } from "@beep/ui/components/card"
+ *
+ * console.log(CardContent)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -85,6 +139,15 @@ function CardContent({ className, ...props }: React.ComponentProps<"div">) {
 }
 
 /**
+ * Card footer component.
+ *
+ * @example
+ * ```tsx
+ * import { CardFooter } from "@beep/ui/components/card"
+ *
+ * console.log(CardFooter)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */

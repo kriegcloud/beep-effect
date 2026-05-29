@@ -12,6 +12,16 @@ import { cn } from "../lib/index.ts";
 // ============================================================================
 
 /**
+ * Graph node type.
+ *
+ * @example
+ * ```ts
+ * import type { GraphNode } from "@beep/ui/components/knowledge-graph"
+ *
+ * const value = {} as GraphNode
+ * console.log(value)
+ * ```
+ *
  * @category type-level
  * @since 0.0.0
  */
@@ -31,6 +41,16 @@ export interface GraphNode extends d3.SimulationNodeDatum {
 }
 
 /**
+ * Graph link type.
+ *
+ * @example
+ * ```ts
+ * import type { GraphLink } from "@beep/ui/components/knowledge-graph"
+ *
+ * const value = {} as GraphLink
+ * console.log(value)
+ * ```
+ *
  * @category type-level
  * @since 0.0.0
  */
@@ -65,6 +85,16 @@ interface KnowledgeGraphProps {
 }
 
 /**
+ * Knowledge graph handle type.
+ *
+ * @example
+ * ```ts
+ * import type { KnowledgeGraphHandle } from "@beep/ui/components/knowledge-graph"
+ *
+ * const value = {} as KnowledgeGraphHandle
+ * console.log(value)
+ * ```
+ *
  * @category type-level
  * @since 0.0.0
  */
@@ -106,6 +136,15 @@ const formatTypeLabel: (type: string) => string = flow(
 // ============================================================================
 
 /**
+ * Knowledge graph component.
+ *
+ * @example
+ * ```tsx
+ * import { KnowledgeGraph } from "@beep/ui/components/knowledge-graph"
+ *
+ * console.log(KnowledgeGraph)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */

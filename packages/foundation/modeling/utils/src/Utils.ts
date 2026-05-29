@@ -10,6 +10,13 @@ import * as GlobalValue from "./GlobalValue.ts";
  * Note: this is an experimental feature made available to allow custom matchers in tests, not to be directly used yet in user code
  *
  * @since 0.0.0
+ * @example
+ * ```ts
+ * import { structuralRegionState } from "@beep/utils/Utils"
+ *
+ * console.log(structuralRegionState)
+ * ```
+ *
  * @category utilities
  */
 export const structuralRegionState = GlobalValue.globalValue(
@@ -24,6 +31,13 @@ export const structuralRegionState = GlobalValue.globalValue(
  * Note: this is an experimental feature made available to allow custom matchers in tests, not to be directly used yet in user code
  *
  * @since 0.0.0
+ * @example
+ * ```ts
+ * import { structuralRegion } from "@beep/utils/Utils"
+ *
+ * console.log(structuralRegion)
+ * ```
+ *
  * @category utilities
  */
 export const structuralRegion = <A>(body: () => A, tester?: (a: unknown, b: unknown) => boolean): A => {

@@ -4,10 +4,17 @@ import type { ComponentProps } from "react";
 type AppThemeInitScriptProps = ComponentProps<typeof InitColorSchemeScript>;
 
 /**
- * Initializes MUI color-scheme classes before client hydration.
+ * App theme init script component.
  *
- * @since 0.0.0
+ * @example
+ * ```tsx
+ * import { AppThemeInitScript } from "@beep/ui/themes/theme-init-script"
+ *
+ * console.log(AppThemeInitScript)
+ * ```
+ *
  * @category components
+ * @since 0.0.0
  */
 export function AppThemeInitScript(props: AppThemeInitScriptProps) {
   return <InitColorSchemeScript {...props} />;

@@ -6,6 +6,15 @@ import * as React from "react";
 import { cn } from "../lib/index.ts";
 
 /**
+ * Input otp component.
+ *
+ * @example
+ * ```tsx
+ * import { InputOTP } from "@beep/ui/components/input-otp"
+ *
+ * console.log(InputOTP)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -28,6 +37,15 @@ function InputOTP({
 }
 
 /**
+ * Input otp group component.
+ *
+ * @example
+ * ```tsx
+ * import { InputOTPGroup } from "@beep/ui/components/input-otp"
+ *
+ * console.log(InputOTPGroup)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -45,6 +63,15 @@ function InputOTPGroup({ className, ...props }: React.ComponentProps<"div">) {
 }
 
 /**
+ * Input otp slot component.
+ *
+ * @example
+ * ```tsx
+ * import { InputOTPSlot } from "@beep/ui/components/input-otp"
+ *
+ * console.log(InputOTPSlot)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -79,6 +106,15 @@ function InputOTPSlot({
 }
 
 /**
+ * Input otp separator component.
+ *
+ * @example
+ * ```tsx
+ * import { InputOTPSeparator } from "@beep/ui/components/input-otp"
+ *
+ * console.log(InputOTPSeparator)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */

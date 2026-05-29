@@ -112,7 +112,7 @@ const PgExternalSchemaPrefix = S.String.check(
  *   tempDir: O.some("/tmp"),
  *   username: O.none()
  * })
- * void info.databasePath
+ * console.log(info.databasePath)
  * ```
  * @category models
  * @since 0.0.0
@@ -142,7 +142,7 @@ export class TestDatabaseInfoShape extends S.Class<TestDatabaseInfoShape>($I`Tes
  * ```ts
  * import { PgliteTestcontainersTestDriverConfig } from "@beep/test-utils"
  * const config = PgliteTestcontainersTestDriverConfig.make({})
- * void config.maxConnections
+ * console.log(config.maxConnections)
  * ```
  * @category models
  * @since 0.0.0
@@ -184,6 +184,14 @@ export class PgliteTestcontainersTestDriverConfig extends S.Class<PgliteTestcont
 /**
  * Constructor input accepted by the PGLite Testcontainers SQL test driver.
  *
+ * @example
+ * ```ts
+ * import type { PgliteTestcontainersTestDriverConfigInput } from "@beep/test-utils/SqlTest"
+ *
+ * const value = {} as PgliteTestcontainersTestDriverConfigInput
+ * console.log(value)
+ * ```
+ *
  * @category models
  * @since 0.0.0
  */
@@ -198,7 +206,7 @@ export type PgliteTestcontainersTestDriverConfigInput = Partial<PgliteTestcontai
  * const config = PgExternalTestDriverConfig.make({
  *   connectionUri: "postgres://postgres:postgres@127.0.0.1:5432/postgres"
  * })
- * void config.isolation
+ * console.log(config.isolation)
  * ```
  * @category models
  * @since 0.0.0
@@ -235,6 +243,14 @@ export class PgExternalTestDriverConfig extends S.Class<PgExternalTestDriverConf
 /**
  * Constructor input accepted by the external PostgreSQL SQL test driver.
  *
+ * @example
+ * ```ts
+ * import type { PgExternalTestDriverConfigInput } from "@beep/test-utils/SqlTest"
+ *
+ * const value = {} as PgExternalTestDriverConfigInput
+ * console.log(value)
+ * ```
+ *
  * @category models
  * @since 0.0.0
  */
@@ -243,6 +259,14 @@ export type PgExternalTestDriverConfigInput = Partial<PgExternalTestDriverConfig
 /**
  * Mode selector for the public PGLite SQL test layer helper.
  *
+ * @example
+ * ```ts
+ * import type { PgliteSqlTestLayerMode } from "@beep/test-utils/SqlTest"
+ *
+ * const value = {} as PgliteSqlTestLayerMode
+ * console.log(value)
+ * ```
+ *
  * @category models
  * @since 0.0.0
  */
@@ -250,6 +274,14 @@ export type PgliteSqlTestLayerMode = "auto" | "external" | "testcontainers";
 
 /**
  * Options for `makePgliteSqlTestLayer`.
+ *
+ * @example
+ * ```ts
+ * import type { PgliteSqlTestLayerOptions } from "@beep/test-utils/SqlTest"
+ *
+ * const value = {} as PgliteSqlTestLayerOptions
+ * console.log(value)
+ * ```
  *
  * @category models
  * @since 0.0.0
@@ -268,7 +300,7 @@ export interface PgliteSqlTestLayerOptions<MigrateError = never, SeedError = nev
  * ```ts
  * import { TestDatabaseInfo } from "@beep/test-utils"
  * const key = TestDatabaseInfo
- * void key
+ * console.log(key)
  * ```
  * @category testing
  * @since 0.0.0
@@ -290,7 +322,7 @@ export class TestDatabaseInfo extends Context.Service<TestDatabaseInfo, TestData
  *   message: "setup failed",
  *   phase: "provision"
  * })
- * void error.message
+ * console.log(error.message)
  * ```
  * @category error-handling
  * @since 0.0.0
@@ -315,7 +347,7 @@ export class SqlTestHarnessError extends TaggedErrorClass<SqlTestHarnessError>($
  * ```ts
  * import type { SqlTestHooks } from "@beep/test-utils"
  * const hooks: SqlTestHooks = {}
- * void hooks
+ * console.log(hooks)
  * ```
  * @category models
  * @since 0.0.0
@@ -334,7 +366,7 @@ export interface SqlTestHooks<MigrateError = never, SeedError = never> {
  * import type { SqlTestDriver } from "@beep/test-utils"
  * type DriverName = SqlTestDriver<unknown, unknown, unknown>["name"]
  * const driverName: DriverName = NodeSqliteTestDriver.name
- * void driverName
+ * console.log(driverName)
  * ```
  * @category models
  * @since 0.0.0
@@ -430,7 +462,7 @@ const makeExternalPgInfo = (connectionUri: string, parsed: URL, schema: O.Option
  * ```ts
  * import type { PgliteTestcontainerResource } from "@beep/test-utils"
  * declare const resource: PgliteTestcontainerResource
- * void resource.connectionUri
+ * console.log(resource.connectionUri)
  * ```
  * @category models
  * @since 0.0.0
@@ -498,7 +530,7 @@ const runHook = <Services, SqlService extends Services, HookError>(
  *   config: undefined,
  *   driver: NodeSqliteTestDriver
  * })
- * void layer
+ * console.log(layer)
  * ```
  * @category constructors
  * @since 0.0.0
@@ -669,7 +701,7 @@ const startPgliteContainer = Effect.fn("SqlTest.startPgliteContainer")(function*
  * import { makePgliteTestcontainerResource } from "@beep/test-utils"
  * import { Effect } from "effect"
  * const program = Effect.scoped(makePgliteTestcontainerResource())
- * void program
+ * console.log(program)
  * ```
  * @category constructors
  * @since 0.0.0
@@ -953,7 +985,7 @@ const buildBunSqliteLayer = Effect.gen(function* () {
  * ```ts
  * import { BunSqliteTestDriver } from "@beep/test-utils"
  * const driverName = BunSqliteTestDriver.name
- * void driverName
+ * console.log(driverName)
  * ```
  * @category testing
  * @since 0.0.0
@@ -1003,7 +1035,7 @@ const buildNodeSqliteLayer = Effect.gen(function* () {
  * ```ts
  * import { NodeSqliteTestDriver } from "@beep/test-utils"
  * const driverName = NodeSqliteTestDriver.name
- * void driverName
+ * console.log(driverName)
  * ```
  * @category testing
  * @since 0.0.0
@@ -1025,7 +1057,7 @@ export const NodeSqliteTestDriver: SqlTestDriver<
  * ```ts
  * import { PgliteTestcontainersTestDriver } from "@beep/test-utils"
  * const driverName = PgliteTestcontainersTestDriver.name
- * void driverName
+ * console.log(driverName)
  * ```
  * @category testing
  * @since 0.0.0
@@ -1047,7 +1079,7 @@ export const PgliteTestcontainersTestDriver: SqlTestDriver<
  * ```ts
  * import { PgExternalTestDriver } from "@beep/test-utils"
  * const driverName = PgExternalTestDriver.name
- * void driverName
+ * console.log(driverName)
  * ```
  * @category testing
  * @since 0.0.0
@@ -1095,7 +1127,7 @@ const shouldUseExternalPgliteLayer = (mode: PgliteSqlTestLayerMode, config: PgEx
  * ```ts
  * import { makePgliteSqlTestLayer } from "@beep/test-utils"
  * const layer = makePgliteSqlTestLayer()
- * void layer
+ * console.log(layer)
  * ```
  * @category constructors
  * @since 0.0.0

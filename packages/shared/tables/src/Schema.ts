@@ -17,6 +17,13 @@ type DbSchemaShape = {
  * Shared-kernel Drizzle schema aggregate.
  *
  * @since 0.0.0
+ * @example
+ * ```ts
+ * import { DbSchema } from "@beep/shared-tables/Schema"
+ *
+ * console.log(DbSchema)
+ * ```
+ *
  * @category tables
  */
 export const DbSchema: DbSchemaShape = {
@@ -29,6 +36,14 @@ export const DbSchema: DbSchemaShape = {
  * Type for {@link DbSchema}.
  *
  * @since 0.0.0
+ * @example
+ * ```ts
+ * import type { DbSchema } from "@beep/shared-tables/Schema"
+ *
+ * const value = {} as DbSchema
+ * console.log(value)
+ * ```
+ *
  * @category tables
  */
 export type DbSchema = DbSchemaShape;

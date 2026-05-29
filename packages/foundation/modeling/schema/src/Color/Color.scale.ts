@@ -118,6 +118,20 @@ const generateAlphaScaleValues = ({ scale, isDark }: GenerateAlphaScaleInput): H
 /**
  * Fixed-size 12-step canonical hex color scale.
  *
+ * @example
+ * ```ts
+ * import { HexColorScale12 } from "@beep/schema/Color"
+ * import * as S from "effect/Schema"
+ *
+ * const scale = S.decodeUnknownSync(HexColorScale12)([
+ *   "#020617", "#0f172a", "#1e293b", "#334155",
+ *   "#475569", "#64748b", "#94a3b8", "#cbd5e1",
+ *   "#e2e8f0", "#f1f5f9", "#f8fafc", "#ffffff"
+ * ])
+ *
+ * console.log(scale.length)
+ * ```
+ *
  * @since 0.0.0
  * @category validation
  */
@@ -149,6 +163,15 @@ const HexColorScale12Input = S.Array(NormalizeHexColor)
 /**
  * Request schema for generating a chromatic 12-step scale.
  *
+ * @example
+ * ```ts
+ * import { GenerateScaleInput } from "@beep/schema/Color"
+ * import * as S from "effect/Schema"
+ *
+ * const input = S.decodeUnknownSync(GenerateScaleInput)({ seed: "#3b82f6", isDark: true })
+ * console.log(input.seed)
+ * ```
+ *
  * @since 0.0.0
  * @category validation
  */
@@ -164,6 +187,15 @@ export class GenerateScaleInput extends S.Class<GenerateScaleInput>($I`GenerateS
 
 /**
  * One-way schema for generating a chromatic 12-step scale.
+ *
+ * @example
+ * ```ts
+ * import { GenerateScale } from "@beep/schema/Color"
+ * import * as S from "effect/Schema"
+ *
+ * const scale = S.decodeUnknownSync(GenerateScale)({ seed: "#3b82f6", isDark: false })
+ * console.log(scale.length)
+ * ```
  *
  * @since 0.0.0
  * @category validation
@@ -191,6 +223,15 @@ export type GenerateScale = typeof GenerateScale.Type;
 /**
  * Request schema for generating a neutral 12-step scale.
  *
+ * @example
+ * ```ts
+ * import { GenerateNeutralScaleInput } from "@beep/schema/Color"
+ * import * as S from "effect/Schema"
+ *
+ * const input = S.decodeUnknownSync(GenerateNeutralScaleInput)({ seed: "#64748b", isDark: false })
+ * console.log(input.isDark)
+ * ```
+ *
  * @since 0.0.0
  * @category validation
  */
@@ -206,6 +247,15 @@ export class GenerateNeutralScaleInput extends S.Class<GenerateNeutralScaleInput
 
 /**
  * One-way schema for generating a neutral 12-step scale.
+ *
+ * @example
+ * ```ts
+ * import { GenerateNeutralScale } from "@beep/schema/Color"
+ * import * as S from "effect/Schema"
+ *
+ * const scale = S.decodeUnknownSync(GenerateNeutralScale)({ seed: "#64748b", isDark: true })
+ * console.log(scale.length)
+ * ```
  *
  * @since 0.0.0
  * @category validation
@@ -233,6 +283,23 @@ export type GenerateNeutralScale = typeof GenerateNeutralScale.Type;
 /**
  * Request schema for generating an alpha-blended 12-step scale.
  *
+ * @example
+ * ```ts
+ * import { GenerateAlphaScaleInput } from "@beep/schema/Color"
+ * import * as S from "effect/Schema"
+ *
+ * const input = S.decodeUnknownSync(GenerateAlphaScaleInput)({
+ *   scale: [
+ *     "#020617", "#0f172a", "#1e293b", "#334155",
+ *     "#475569", "#64748b", "#94a3b8", "#cbd5e1",
+ *     "#e2e8f0", "#f1f5f9", "#f8fafc", "#ffffff"
+ *   ],
+ *   isDark: true
+ * })
+ *
+ * console.log(input.scale.length)
+ * ```
+ *
  * @since 0.0.0
  * @category validation
  */
@@ -248,6 +315,23 @@ export class GenerateAlphaScaleInput extends S.Class<GenerateAlphaScaleInput>($I
 
 /**
  * One-way schema for generating an alpha-blended 12-step scale.
+ *
+ * @example
+ * ```ts
+ * import { GenerateAlphaScale } from "@beep/schema/Color"
+ * import * as S from "effect/Schema"
+ *
+ * const alphaScale = S.decodeUnknownSync(GenerateAlphaScale)({
+ *   scale: [
+ *     "#020617", "#0f172a", "#1e293b", "#334155",
+ *     "#475569", "#64748b", "#94a3b8", "#cbd5e1",
+ *     "#e2e8f0", "#f1f5f9", "#f8fafc", "#ffffff"
+ *   ],
+ *   isDark: true
+ * })
+ *
+ * console.log(alphaScale.length)
+ * ```
  *
  * @since 0.0.0
  * @category validation

@@ -435,6 +435,13 @@ const renderSyncDataError = (error: SyncDataToTsError): string =>
 /**
  * CLI command for syncing official upstream datasets into checked-in TypeScript modules.
  *
+ * @example
+ * ```ts
+ * import { syncDataToTsCommand } from "@beep/repo-cli/commands/SyncDataToTs"
+ *
+ * console.log(syncDataToTsCommand)
+ * ```
+ *
  * @category use-cases
  * @since 0.0.0
  */

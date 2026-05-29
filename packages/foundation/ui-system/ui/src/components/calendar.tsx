@@ -8,6 +8,15 @@ import { cn } from "../lib/index.ts";
 import type { DayButton } from "react-day-picker";
 
 /**
+ * Calendar component.
+ *
+ * @example
+ * ```tsx
+ * import { Calendar } from "@beep/ui/components/calendar"
+ *
+ * console.log(Calendar)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -137,6 +146,15 @@ function Calendar({
 }
 
 /**
+ * Calendar day button component.
+ *
+ * @example
+ * ```tsx
+ * import { CalendarDayButton } from "@beep/ui/components/calendar"
+ *
+ * console.log(CalendarDayButton)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */

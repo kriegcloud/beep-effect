@@ -129,7 +129,7 @@ export class AiMetricsOtlpExportError extends TaggedErrorClass<AiMetricsOtlpExpo
  *   }),
  *   target: "local"
  * })
- * void input
+ * console.log(input)
  * ```
  * @category models
  * @since 0.0.0

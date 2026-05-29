@@ -13,7 +13,7 @@
  * import { VeniceAI } from "@beep/venice-ai"
  *
  * const service = VeniceAI
- * void service
+ * console.log(service)
  * ```
  *
  * @category utilities
@@ -28,7 +28,7 @@ export * from "./VeniceAI.service.ts";
  * import { VeniceAiLanguageModel } from "@beep/venice-ai"
  *
  * const aiModel = VeniceAiLanguageModel.model("llama-3.3-70b")
- * void aiModel
+ * console.log(aiModel)
  * ```
  *
  * @category utilities

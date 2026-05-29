@@ -731,7 +731,7 @@ const literalValueFromRdf = Effect.fn("JsonLdDocument.literalValueFromRdf")(func
  * ```ts
  * import { JsonLdDocumentServiceLive } from "@beep/semantic-web/adapters/jsonld-document"
  *
- * void JsonLdDocumentServiceLive
+ * console.log(JsonLdDocumentServiceLive)
  * ```
  *
  * @since 0.0.0

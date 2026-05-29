@@ -32,6 +32,15 @@ export const hexToOklchValue = flow(hexToRgbValue, rgbToOklchValue);
 /**
  * Transformation schema for decoding boundary hex input into normalized RGB.
  *
+ * @example
+ * ```ts
+ * import { HexToRgb } from "@beep/schema/Color"
+ * import * as S from "effect/Schema"
+ *
+ * const rgb = S.decodeUnknownSync(HexToRgb)("#3b82f6")
+ * console.log(rgb.b)
+ * ```
+ *
  * @since 0.0.0
  * @category validation
  */
@@ -59,6 +68,15 @@ export type HexToRgb = typeof HexToRgb.Type;
 /**
  * Transformation schema for encoding RGB input into canonical hex.
  *
+ * @example
+ * ```ts
+ * import { RgbToHex } from "@beep/schema/Color"
+ * import * as S from "effect/Schema"
+ *
+ * const hex = S.decodeUnknownSync(RgbToHex)({ r: 0.23, g: 0.51, b: 0.96 })
+ * console.log(hex)
+ * ```
+ *
  * @since 0.0.0
  * @category validation
  */
@@ -82,6 +100,15 @@ export type RgbToHex = typeof RgbToHex.Type;
 
 /**
  * Transformation schema for decoding normalized RGB into canonical OKLCH.
+ *
+ * @example
+ * ```ts
+ * import { RgbToOklch } from "@beep/schema/Color"
+ * import * as S from "effect/Schema"
+ *
+ * const oklch = S.decodeUnknownSync(RgbToOklch)({ r: 0.23, g: 0.51, b: 0.96 })
+ * console.log(oklch.h)
+ * ```
  *
  * @since 0.0.0
  * @category validation
@@ -107,6 +134,15 @@ export type RgbToOklch = typeof RgbToOklch.Type;
 /**
  * Transformation schema for encoding OKLCH coordinates into RGB input values.
  *
+ * @example
+ * ```ts
+ * import { OklchToRgb } from "@beep/schema/Color"
+ * import * as S from "effect/Schema"
+ *
+ * const rgb = S.decodeUnknownSync(OklchToRgb)({ l: 0.72, c: 0.12, h: 240 })
+ * console.log(rgb.r)
+ * ```
+ *
  * @since 0.0.0
  * @category validation
  */
@@ -130,6 +166,15 @@ export type OklchToRgb = typeof OklchToRgb.Type;
 
 /**
  * Transformation schema for decoding boundary hex input into canonical OKLCH.
+ *
+ * @example
+ * ```ts
+ * import { HexToOklch } from "@beep/schema/Color"
+ * import * as S from "effect/Schema"
+ *
+ * const color = S.decodeUnknownSync(HexToOklch)("#3b82f6")
+ * console.log(color.c)
+ * ```
  *
  * @since 0.0.0
  * @category validation
@@ -157,6 +202,15 @@ export type HexToOklch = typeof HexToOklch.Type;
 
 /**
  * Transformation schema for encoding OKLCH coordinates into canonical hex.
+ *
+ * @example
+ * ```ts
+ * import { OklchToHex } from "@beep/schema/Color"
+ * import * as S from "effect/Schema"
+ *
+ * const hex = S.decodeUnknownSync(OklchToHex)({ l: 0.72, c: 0.12, h: 240 })
+ * console.log(hex)
+ * ```
  *
  * @since 0.0.0
  * @category validation

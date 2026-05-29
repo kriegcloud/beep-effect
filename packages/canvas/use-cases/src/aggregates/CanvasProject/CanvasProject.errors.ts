@@ -16,6 +16,13 @@ const $I = $CanvasUseCasesId.create("aggregates/CanvasProject/CanvasProject.erro
 /**
  * Generic public reason used when internal CanvasProject repository details are redacted.
  *
+ * @example
+ * ```ts
+ * import { CANVAS_PROJECT_ACTION_UNAVAILABLE_REASON } from "@beep/canvas-use-cases/aggregates/CanvasProject"
+ *
+ * console.log(CANVAS_PROJECT_ACTION_UNAVAILABLE_REASON)
+ * ```
+ *
  * @category errors
  * @since 0.0.0
  */
@@ -24,6 +31,13 @@ export const CANVAS_PROJECT_ACTION_UNAVAILABLE_REASON = "CanvasProject service i
 /**
  * Generic public reason used when internal CanvasProject conflict details are redacted.
  *
+ * @example
+ * ```ts
+ * import { CANVAS_PROJECT_CONFLICT_REASON } from "@beep/canvas-use-cases/aggregates/CanvasProject"
+ *
+ * console.log(CANVAS_PROJECT_CONFLICT_REASON)
+ * ```
+ *
  * @category errors
  * @since 0.0.0
  */
@@ -31,6 +45,13 @@ export const CANVAS_PROJECT_CONFLICT_REASON = "CanvasProject already exists." as
 
 /**
  * Public failure raised when a requested CanvasProject is absent.
+ *
+ * @example
+ * ```ts
+ * import { CanvasProjectNotFound } from "@beep/canvas-use-cases/aggregates/CanvasProject"
+ *
+ * console.log(CanvasProjectNotFound)
+ * ```
  *
  * @category errors
  * @since 0.0.0
@@ -49,6 +70,13 @@ export class CanvasProjectNotFound extends TaggedErrorClass<CanvasProjectNotFoun
 /**
  * Public failure raised when a command conflicts with persisted state.
  *
+ * @example
+ * ```ts
+ * import { CanvasProjectConflict } from "@beep/canvas-use-cases/aggregates/CanvasProject"
+ *
+ * console.log(CanvasProjectConflict)
+ * ```
+ *
  * @category errors
  * @since 0.0.0
  */
@@ -66,6 +94,13 @@ export class CanvasProjectConflict extends TaggedErrorClass<CanvasProjectConflic
 
 /**
  * Public failure raised when the domain rejects a CanvasProject action.
+ *
+ * @example
+ * ```ts
+ * import { CanvasProjectActionRejected } from "@beep/canvas-use-cases/aggregates/CanvasProject"
+ *
+ * console.log(CanvasProjectActionRejected)
+ * ```
  *
  * @category errors
  * @since 0.0.0
@@ -87,6 +122,13 @@ export class CanvasProjectActionRejected extends TaggedErrorClass<CanvasProjectA
 /**
  * Public failure raised when an action cannot be completed.
  *
+ * @example
+ * ```ts
+ * import { CanvasProjectActionFailed } from "@beep/canvas-use-cases/aggregates/CanvasProject"
+ *
+ * console.log(CanvasProjectActionFailed)
+ * ```
+ *
  * @category errors
  * @since 0.0.0
  */
@@ -106,6 +148,14 @@ export class CanvasProjectActionFailed extends TaggedErrorClass<CanvasProjectAct
 /**
  * Public CanvasProject use-case failure.
  *
+ * @example
+ * ```ts
+ * import type { CanvasProjectActionError } from "@beep/canvas-use-cases/aggregates/CanvasProject"
+ *
+ * const value = {} as CanvasProjectActionError
+ * console.log(value)
+ * ```
+ *
  * @category errors
  * @since 0.0.0
  */
@@ -117,6 +167,13 @@ export type CanvasProjectActionError =
 
 /**
  * Public CanvasProject use-case failure schema.
+ *
+ * @example
+ * ```ts
+ * import { CanvasProjectActionError } from "@beep/canvas-use-cases/aggregates/CanvasProject"
+ *
+ * console.log(CanvasProjectActionError)
+ * ```
  *
  * @category errors
  * @since 0.0.0

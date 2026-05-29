@@ -451,7 +451,7 @@ const hasAttachedTableMetadata = <const Entity extends EntitySchema.EntityClass.
  * })
  *
  * const table = EntityTable.pgTableFrom(Widget)
- * void table
+ * console.log(table)
  * ```
  *
  * @since 0.0.0

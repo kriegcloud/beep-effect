@@ -39,6 +39,13 @@ const getStoredWorkItem = Effect.fn("ArchitectureLab.WorkItemRepository.getStore
 /**
  * Build the in-memory WorkItem repository used by the fast architecture lab proof.
  *
+ * @example
+ * ```ts
+ * import { makeInMemoryWorkItemRepository } from "@beep/architecture-lab-server/aggregates/WorkItem"
+ *
+ * console.log(makeInMemoryWorkItemRepository)
+ * ```
+ *
  * @category repositories
  * @since 0.0.0
  */
@@ -121,6 +128,13 @@ const getDrizzleWorkItem = Effect.fn("ArchitectureLab.WorkItemRepository.getDriz
 /**
  * Build a Drizzle-backed WorkItem repository used by live persistence tests.
  *
+ * @example
+ * ```ts
+ * import { makeDrizzleWorkItemRepository } from "@beep/architecture-lab-server/aggregates/WorkItem"
+ *
+ * console.log(makeDrizzleWorkItemRepository)
+ * ```
+ *
  * @category repositories
  * @since 0.0.0
  */
@@ -178,6 +192,13 @@ export const makeDrizzleWorkItemRepository = Effect.fn("ArchitectureLab.WorkItem
 
 /**
  * Build the default WorkItem repository for normal slice tests.
+ *
+ * @example
+ * ```ts
+ * import { makeWorkItemRepository } from "@beep/architecture-lab-server/aggregates/WorkItem"
+ *
+ * console.log(makeWorkItemRepository)
+ * ```
  *
  * @category repositories
  * @since 0.0.0

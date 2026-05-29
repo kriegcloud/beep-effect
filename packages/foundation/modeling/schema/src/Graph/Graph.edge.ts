@@ -14,6 +14,15 @@ import type { EdgeEncodedSchema, EdgeIso } from "./Graph.encoded.ts";
 /**
  * Schema for validating existing `Graph.Edge` instances.
  *
+ * @example
+ * ```ts
+ * import { EdgeFromSelf } from "@beep/schema/Graph"
+ * import * as S from "effect/Schema"
+ *
+ * const EdgeSchema = EdgeFromSelf(S.String)
+ * console.log(EdgeSchema.ast._tag)
+ * ```
+ *
  * @since 0.0.0
  * @category validation
  */
@@ -30,6 +39,15 @@ export interface EdgeFromSelf<Data extends S.Top>
 
 /**
  * Schema for transforming encoded edge payloads into `Graph.Edge` instances.
+ *
+ * @example
+ * ```ts
+ * import { EdgeTransform } from "@beep/schema/Graph"
+ * import * as S from "effect/Schema"
+ *
+ * const EdgeSchema = EdgeTransform(S.String)
+ * console.log(EdgeSchema.ast._tag)
+ * ```
  *
  * @since 0.0.0
  * @category validation
@@ -51,6 +69,15 @@ export interface Edge<Data extends S.Top> extends EdgeTransform<Data> {}
 /**
  * Schema for validating existing `Graph.Edge` instances while applying the
  * provided payload schema.
+ *
+ * @example
+ * ```ts
+ * import { EdgeFromSelf } from "@beep/schema/Graph"
+ * import * as S from "effect/Schema"
+ *
+ * const EdgeSchema = EdgeFromSelf(S.String)
+ * console.log(EdgeSchema.ast._tag)
+ * ```
  *
  * @param data - Schema for edge payloads.
  * @returns Schema that validates runtime `Graph.Edge` values.
@@ -115,6 +142,15 @@ export const EdgeFromSelf = <Data extends S.Top>(data: Data): EdgeFromSelf<Data>
  * Schema that transforms encoded edge objects into `Graph.Edge` instances and
  * encodes them back to the same object shape.
  *
+ * @example
+ * ```ts
+ * import { EdgeTransform } from "@beep/schema/Graph"
+ * import * as S from "effect/Schema"
+ *
+ * const EdgeSchema = EdgeTransform(S.String)
+ * console.log(EdgeSchema.ast._tag)
+ * ```
+ *
  * @param data - Schema for edge payloads.
  * @returns Edge transform schema.
  * @since 0.0.0
@@ -163,14 +199,7 @@ export const EdgeTransform = <Data extends S.Top>(data: Data): EdgeTransform<Dat
  *
  * const EdgeSchema = Edge(S.String)
  *
- * const program = Effect.gen(function* () {
- *
- *
- *
- *
- *
- *
- * })
+ * console.log(EdgeSchema.ast)
  * ```
  *
  * @param data - Schema for edge payloads.

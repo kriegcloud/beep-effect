@@ -5,6 +5,15 @@ import { cn } from "../lib/index.ts";
 import type { ComponentPropsWithoutRef } from "react";
 
 /**
+ * Navigation menu component.
+ *
+ * @example
+ * ```tsx
+ * import { NavigationMenu } from "@beep/ui/components/navigation-menu"
+ *
+ * console.log(NavigationMenu)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -25,6 +34,15 @@ function NavigationMenu({ className, children, ...props }: NavigationMenuPrimiti
 }
 
 /**
+ * Navigation menu list component.
+ *
+ * @example
+ * ```tsx
+ * import { NavigationMenuList } from "@beep/ui/components/navigation-menu"
+ *
+ * console.log(NavigationMenuList)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -39,6 +57,15 @@ function NavigationMenuList({ className, ...props }: ComponentPropsWithoutRef<ty
 }
 
 /**
+ * Navigation menu item component.
+ *
+ * @example
+ * ```tsx
+ * import { NavigationMenuItem } from "@beep/ui/components/navigation-menu"
+ *
+ * console.log(NavigationMenuItem)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -49,6 +76,15 @@ function NavigationMenuItem({ className, ...props }: ComponentPropsWithoutRef<ty
 }
 
 /**
+ * Navigation menu trigger style theme value.
+ *
+ * @example
+ * ```tsx
+ * import { navigationMenuTriggerStyle } from "@beep/ui/components/navigation-menu"
+ *
+ * console.log(navigationMenuTriggerStyle)
+ * ```
+ *
  * @category themes
  * @since 0.0.0
  */
@@ -57,6 +93,15 @@ const navigationMenuTriggerStyle = cva(
 );
 
 /**
+ * Navigation menu trigger component.
+ *
+ * @example
+ * ```tsx
+ * import { NavigationMenuTrigger } from "@beep/ui/components/navigation-menu"
+ *
+ * console.log(NavigationMenuTrigger)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -77,6 +122,15 @@ function NavigationMenuTrigger({ className, children, ...props }: NavigationMenu
 }
 
 /**
+ * Navigation menu content component.
+ *
+ * @example
+ * ```tsx
+ * import { NavigationMenuContent } from "@beep/ui/components/navigation-menu"
+ *
+ * console.log(NavigationMenuContent)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -94,6 +148,15 @@ function NavigationMenuContent({ className, ...props }: NavigationMenuPrimitive.
 }
 
 /**
+ * Navigation menu positioner component.
+ *
+ * @example
+ * ```tsx
+ * import { NavigationMenuPositioner } from "@beep/ui/components/navigation-menu"
+ *
+ * console.log(NavigationMenuPositioner)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -127,6 +190,15 @@ function NavigationMenuPositioner({
 }
 
 /**
+ * Navigation menu link component.
+ *
+ * @example
+ * ```tsx
+ * import { NavigationMenuLink } from "@beep/ui/components/navigation-menu"
+ *
+ * console.log(NavigationMenuLink)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -144,6 +216,15 @@ function NavigationMenuLink({ className, ...props }: NavigationMenuPrimitive.Lin
 }
 
 /**
+ * Navigation menu indicator component.
+ *
+ * @example
+ * ```tsx
+ * import { NavigationMenuIndicator } from "@beep/ui/components/navigation-menu"
+ *
+ * console.log(NavigationMenuIndicator)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */

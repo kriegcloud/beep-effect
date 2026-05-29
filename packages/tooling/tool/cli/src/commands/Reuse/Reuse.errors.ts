@@ -20,6 +20,13 @@ const causeMessage = (cause: unknown): string =>
 /**
  * Lifecycle stages surfaced by the Codex smoke runner.
  *
+ * @example
+ * ```ts
+ * import { CodexRunnerStage } from "@beep/repo-cli/commands/Reuse"
+ *
+ * console.log(CodexRunnerStage)
+ * ```
+ *
  * @category models
  * @since 0.0.0
  */
@@ -39,6 +46,13 @@ export type CodexRunnerStage = typeof CodexRunnerStage.Type;
 
 /**
  * Structured error emitted when the Codex SDK smoke path fails.
+ *
+ * @example
+ * ```ts
+ * import { CodexRunnerError } from "@beep/repo-cli/commands/Reuse"
+ *
+ * console.log(CodexRunnerError)
+ * ```
  *
  * @category models
  * @since 0.0.0

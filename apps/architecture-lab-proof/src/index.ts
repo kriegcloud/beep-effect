@@ -36,6 +36,13 @@ export const VERSION = "0.0.0" as const;
 /**
  * App-level WorkItem proof result.
  *
+ * @example
+ * ```ts
+ * import { ArchitectureLabProofResult } from "@beep/architecture-lab-proof"
+ *
+ * console.log(ArchitectureLabProofResult.ast)
+ * ```
+ *
  * @category workflows
  * @since 0.0.0
  */
@@ -52,6 +59,15 @@ export class ArchitectureLabProofResult extends S.Class<ArchitectureLabProofResu
 
 /**
  * Execute the architecture lab proof harness against the composed server layer.
+ *
+ * @example
+ * ```ts
+ * import { runArchitectureLabProof } from "@beep/architecture-lab-proof"
+ *
+ * console.log(runArchitectureLabProof)
+ * ```
+ *
+ * @effects Requires `WorkItemServer`, creates one proof WorkItem, and projects it to a summary view model.
  *
  * @category workflows
  * @since 0.0.0

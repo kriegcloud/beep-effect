@@ -76,8 +76,7 @@ export const AuthEnvVar = S.Struct({
  * ```ts
  * import type { AuthEnvVar } from "@beep/acp/schema"
  *
- * const inspect = (value: AuthEnvVar) => value
- * void inspect
+ * type AuthEnvVarValue = AuthEnvVar
  * ```
  *
  * @category models
@@ -131,8 +130,7 @@ export const AvailableCommandInput = S.Union([
  * ```ts
  * import type { AvailableCommandInput } from "@beep/acp/schema"
  *
- * const inspect = (value: AvailableCommandInput) => value
- * void inspect
+ * type AvailableCommandInputValue = AvailableCommandInput
  * ```
  *
  * @category models
@@ -176,8 +174,7 @@ export const Cost = S.Struct({
  * ```ts
  * import type { Cost } from "@beep/acp/schema"
  *
- * const inspect = (value: Cost) => value
- * void inspect
+ * type CostValue = Cost
  * ```
  *
  * @category models
@@ -219,8 +216,7 @@ export const ElicitationContentValue = S.Union([
  * ```ts
  * import type { ElicitationContentValue } from "@beep/acp/schema"
  *
- * const inspect = (value: ElicitationContentValue) => value
- * void inspect
+ * type ElicitationContentValueValue = ElicitationContentValue
  * ```
  *
  * @category models
@@ -266,8 +262,7 @@ export const ElicitationFormCapabilities = S.Struct({
  * ```ts
  * import type { ElicitationFormCapabilities } from "@beep/acp/schema"
  *
- * const inspect = (value: ElicitationFormCapabilities) => value
- * void inspect
+ * type ElicitationFormCapabilitiesValue = ElicitationFormCapabilities
  * ```
  *
  * @category models
@@ -314,8 +309,7 @@ export const ElicitationUrlCapabilities = S.Struct({
  * ```ts
  * import type { ElicitationUrlCapabilities } from "@beep/acp/schema"
  *
- * const inspect = (value: ElicitationUrlCapabilities) => value
- * void inspect
+ * type ElicitationUrlCapabilitiesValue = ElicitationUrlCapabilities
  * ```
  *
  * @category models
@@ -385,8 +379,7 @@ export const EmbeddedResourceResource = S.Union([
  * ```ts
  * import type { EmbeddedResourceResource } from "@beep/acp/schema"
  *
- * const inspect = (value: EmbeddedResourceResource) => value
- * void inspect
+ * type EmbeddedResourceResourceValue = EmbeddedResourceResource
  * ```
  *
  * @category models
@@ -429,8 +422,7 @@ export const EnumOption = S.Struct({
  * ```ts
  * import type { EnumOption } from "@beep/acp/schema"
  *
- * const inspect = (value: EnumOption) => value
- * void inspect
+ * type EnumOptionValue = EnumOption
  * ```
  *
  * @category models
@@ -482,8 +474,7 @@ export const EnvVariable = S.Struct({
  * ```ts
  * import type { EnvVariable } from "@beep/acp/schema"
  *
- * const inspect = (value: EnvVariable) => value
- * void inspect
+ * type EnvVariableValue = EnvVariable
  * ```
  *
  * @category models
@@ -593,8 +584,7 @@ export const Error = S.Struct({
  * ```ts
  * import type { Error } from "@beep/acp/schema"
  *
- * const inspect = (value: Error) => value
- * void inspect
+ * type ErrorValue = Error
  * ```
  *
  * @category models
@@ -644,8 +634,7 @@ export const HttpHeader = S.Struct({
  * ```ts
  * import type { HttpHeader } from "@beep/acp/schema"
  *
- * const inspect = (value: HttpHeader) => value
- * void inspect
+ * type HttpHeaderValue = HttpHeader
  * ```
  *
  * @category models
@@ -708,8 +697,7 @@ export const Implementation = S.Struct({
  * ```ts
  * import type { Implementation } from "@beep/acp/schema"
  *
- * const inspect = (value: Implementation) => value
- * void inspect
+ * type ImplementationValue = Implementation
  * ```
  *
  * @category models
@@ -755,8 +743,7 @@ export const LogoutCapabilities = S.Struct({
  * ```ts
  * import type { LogoutCapabilities } from "@beep/acp/schema"
  *
- * const inspect = (value: LogoutCapabilities) => value
- * void inspect
+ * type LogoutCapabilitiesValue = LogoutCapabilities
  * ```
  *
  * @category models
@@ -817,8 +804,7 @@ export const ModelInfo = S.Struct({
  * ```ts
  * import type { ModelInfo } from "@beep/acp/schema"
  *
- * const inspect = (value: ModelInfo) => value
- * void inspect
+ * type ModelInfoValue = ModelInfo
  * ```
  *
  * @category models
@@ -879,8 +865,7 @@ export const PermissionOption = S.Struct({
  * ```ts
  * import type { PermissionOption } from "@beep/acp/schema"
  *
- * const inspect = (value: PermissionOption) => value
- * void inspect
+ * type PermissionOptionValue = PermissionOption
  * ```
  *
  * @category models
@@ -938,8 +923,7 @@ export const PlanEntry = S.Struct({
  * ```ts
  * import type { PlanEntry } from "@beep/acp/schema"
  *
- * const inspect = (value: PlanEntry) => value
- * void inspect
+ * type PlanEntryValue = PlanEntry
  * ```
  *
  * @category models
@@ -979,8 +963,7 @@ export const RequestId = S.Union([
  * ```ts
  * import type { RequestId } from "@beep/acp/schema"
  *
- * const inspect = (value: RequestId) => value
- * void inspect
+ * type RequestIdValue = RequestId
  * ```
  *
  * @category models
@@ -1016,8 +999,7 @@ export const Role = S.Literals(["assistant", "user"]).pipe(
  * ```ts
  * import type { Role } from "@beep/acp/schema"
  *
- * const inspect = (value: Role) => value
- * void inspect
+ * type RoleValue = Role
  * ```
  *
  * @category models
@@ -1063,8 +1045,7 @@ export const SessionCloseCapabilities = S.Struct({
  * ```ts
  * import type { SessionCloseCapabilities } from "@beep/acp/schema"
  *
- * const inspect = (value: SessionCloseCapabilities) => value
- * void inspect
+ * type SessionCloseCapabilitiesValue = SessionCloseCapabilities
  * ```
  *
  * @category models
@@ -1110,8 +1091,7 @@ export const SessionConfigOptionCategory = S.Union([
  * ```ts
  * import type { SessionConfigOptionCategory } from "@beep/acp/schema"
  *
- * const inspect = (value: SessionConfigOptionCategory) => value
- * void inspect
+ * type SessionConfigOptionCategoryValue = SessionConfigOptionCategory
  * ```
  *
  * @category models
@@ -1171,8 +1151,7 @@ export const SessionConfigSelectOption = S.Struct({
  * ```ts
  * import type { SessionConfigSelectOption } from "@beep/acp/schema"
  *
- * const inspect = (value: SessionConfigSelectOption) => value
- * void inspect
+ * type SessionConfigSelectOptionValue = SessionConfigSelectOption
  * ```
  *
  * @category models
@@ -1218,8 +1197,7 @@ export const SessionForkCapabilities = S.Struct({
  * ```ts
  * import type { SessionForkCapabilities } from "@beep/acp/schema"
  *
- * const inspect = (value: SessionForkCapabilities) => value
- * void inspect
+ * type SessionForkCapabilitiesValue = SessionForkCapabilities
  * ```
  *
  * @category models
@@ -1288,8 +1266,7 @@ export const SessionInfo = S.Struct({
  * ```ts
  * import type { SessionInfo } from "@beep/acp/schema"
  *
- * const inspect = (value: SessionInfo) => value
- * void inspect
+ * type SessionInfoValue = SessionInfo
  * ```
  *
  * @category models
@@ -1335,8 +1312,7 @@ export const SessionListCapabilities = S.Struct({
  * ```ts
  * import type { SessionListCapabilities } from "@beep/acp/schema"
  *
- * const inspect = (value: SessionListCapabilities) => value
- * void inspect
+ * type SessionListCapabilitiesValue = SessionListCapabilities
  * ```
  *
  * @category models
@@ -1371,8 +1347,7 @@ export const SessionModeId = S.String.pipe(
  * ```ts
  * import type { SessionModeId } from "@beep/acp/schema"
  *
- * const inspect = (value: SessionModeId) => value
- * void inspect
+ * type SessionModeIdValue = SessionModeId
  * ```
  *
  * @category models
@@ -1418,8 +1393,7 @@ export const SessionResumeCapabilities = S.Struct({
  * ```ts
  * import type { SessionResumeCapabilities } from "@beep/acp/schema"
  *
- * const inspect = (value: SessionResumeCapabilities) => value
- * void inspect
+ * type SessionResumeCapabilitiesValue = SessionResumeCapabilities
  * ```
  *
  * @category models
@@ -1460,8 +1434,7 @@ export const StringFormat = S.Literals([
  * ```ts
  * import type { StringFormat } from "@beep/acp/schema"
  *
- * const inspect = (value: StringFormat) => value
- * void inspect
+ * type StringFormatValue = StringFormat
  * ```
  *
  * @category models
@@ -1527,8 +1500,7 @@ export const TerminalExitStatus = S.Struct({
  * ```ts
  * import type { TerminalExitStatus } from "@beep/acp/schema"
  *
- * const inspect = (value: TerminalExitStatus) => value
- * void inspect
+ * type TerminalExitStatusValue = TerminalExitStatus
  * ```
  *
  * @category models
@@ -1588,8 +1560,7 @@ export const ToolCallLocation = S.Struct({
  * ```ts
  * import type { ToolCallLocation } from "@beep/acp/schema"
  *
- * const inspect = (value: ToolCallLocation) => value
- * void inspect
+ * type ToolCallLocationValue = ToolCallLocation
  * ```
  *
  * @category models
@@ -1630,8 +1601,7 @@ export const ToolCallStatus = S.Literals([
  * ```ts
  * import type { ToolCallStatus } from "@beep/acp/schema"
  *
- * const inspect = (value: ToolCallStatus) => value
- * void inspect
+ * type ToolCallStatusValue = ToolCallStatus
  * ```
  *
  * @category models
@@ -1678,8 +1648,7 @@ export const ToolKind = S.Literals([
  * ```ts
  * import type { ToolKind } from "@beep/acp/schema"
  *
- * const inspect = (value: ToolKind) => value
- * void inspect
+ * type ToolKindValue = ToolKind
  * ```
  *
  * @category models
@@ -1767,8 +1736,7 @@ export const Usage = S.Struct({
  * ```ts
  * import type { Usage } from "@beep/acp/schema"
  *
- * const inspect = (value: Usage) => value
- * void inspect
+ * type UsageValue = Usage
  * ```
  *
  * @category models
@@ -1919,8 +1887,7 @@ export const AuthMethod = S.Union([
  * ```ts
  * import type { AuthMethod } from "@beep/acp/schema"
  *
- * const inspect = (value: AuthMethod) => value
- * void inspect
+ * type AuthMethodValue = AuthMethod
  * ```
  *
  * @category models
@@ -1976,8 +1943,7 @@ export const AvailableCommand = S.Struct({
  * ```ts
  * import type { AvailableCommand } from "@beep/acp/schema"
  *
- * const inspect = (value: AvailableCommand) => value
- * void inspect
+ * type AvailableCommandValue = AvailableCommand
  * ```
  *
  * @category models
@@ -2033,8 +1999,7 @@ export const ElicitationCapabilities = S.Struct({
  * ```ts
  * import type { ElicitationCapabilities } from "@beep/acp/schema"
  *
- * const inspect = (value: ElicitationCapabilities) => value
- * void inspect
+ * type ElicitationCapabilitiesValue = ElicitationCapabilities
  * ```
  *
  * @category models
@@ -2138,8 +2103,7 @@ export const McpServer = S.Union([
  * ```ts
  * import type { McpServer } from "@beep/acp/schema"
  *
- * const inspect = (value: McpServer) => value
- * void inspect
+ * type McpServerValue = McpServer
  * ```
  *
  * @category models
@@ -2192,8 +2156,7 @@ export const SessionModelState = S.Struct({
  * ```ts
  * import type { SessionModelState } from "@beep/acp/schema"
  *
- * const inspect = (value: SessionModelState) => value
- * void inspect
+ * type SessionModelStateValue = SessionModelState
  * ```
  *
  * @category models
@@ -2247,8 +2210,7 @@ export const Annotations = S.Struct({
  * ```ts
  * import type { Annotations } from "@beep/acp/schema"
  *
- * const inspect = (value: Annotations) => value
- * void inspect
+ * type AnnotationsValue = Annotations
  * ```
  *
  * @category models
@@ -2304,8 +2266,7 @@ export const SessionConfigSelectGroup = S.Struct({
  * ```ts
  * import type { SessionConfigSelectGroup } from "@beep/acp/schema"
  *
- * const inspect = (value: SessionConfigSelectGroup) => value
- * void inspect
+ * type SessionConfigSelectGroupValue = SessionConfigSelectGroup
  * ```
  *
  * @category models
@@ -2354,8 +2315,7 @@ export const SessionMode = S.Struct({
  * ```ts
  * import type { SessionMode } from "@beep/acp/schema"
  *
- * const inspect = (value: SessionMode) => value
- * void inspect
+ * type SessionModeValue = SessionMode
  * ```
  *
  * @category models
@@ -2666,8 +2626,7 @@ export const ElicitationPropertySchema = S.Union(
  * ```ts
  * import type { ElicitationPropertySchema } from "@beep/acp/schema"
  *
- * const inspect = (value: ElicitationPropertySchema) => value
- * void inspect
+ * type ElicitationPropertySchemaValue = ElicitationPropertySchema
  * ```
  *
  * @category models
@@ -2796,8 +2755,7 @@ export const ContentBlock = S.Union(
  * ```ts
  * import type { ContentBlock } from "@beep/acp/schema"
  *
- * const inspect = (value: ContentBlock) => value
- * void inspect
+ * type ContentBlockValue = ContentBlock
  * ```
  *
  * @category models
@@ -2995,8 +2953,7 @@ export const ToolCallContent = S.Union(
  * ```ts
  * import type { ToolCallContent } from "@beep/acp/schema"
  *
- * const inspect = (value: ToolCallContent) => value
- * void inspect
+ * type ToolCallContentValue = ToolCallContent
  * ```
  *
  * @category models
@@ -3123,8 +3080,7 @@ export const SessionConfigOption = S.Union(
  * ```ts
  * import type { SessionConfigOption } from "@beep/acp/schema"
  *
- * const inspect = (value: SessionConfigOption) => value
- * void inspect
+ * type SessionConfigOptionValue = SessionConfigOption
  * ```
  *
  * @category models
@@ -3175,8 +3131,7 @@ export const SessionModeState = S.Struct({
  * ```ts
  * import type { SessionModeState } from "@beep/acp/schema"
  *
- * const inspect = (value: SessionModeState) => value
- * void inspect
+ * type SessionModeStateValue = SessionModeState
  * ```
  *
  * @category models
@@ -3228,8 +3183,7 @@ export const AgentAuthCapabilities = S.Struct({
  * ```ts
  * import type { AgentAuthCapabilities } from "@beep/acp/schema"
  *
- * const inspect = (value: AgentAuthCapabilities) => value
- * void inspect
+ * type AgentAuthCapabilitiesValue = AgentAuthCapabilities
  * ```
  *
  * @category models
@@ -3408,8 +3362,7 @@ export const AgentCapabilities = S.Struct({
  * ```ts
  * import type { AgentCapabilities } from "@beep/acp/schema"
  *
- * const inspect = (value: AgentCapabilities) => value
- * void inspect
+ * type AgentCapabilitiesValue = AgentCapabilities
  * ```
  *
  * @category models
@@ -4186,8 +4139,7 @@ export const AgentNotification = S.Struct({
  * ```ts
  * import type { AgentNotification } from "@beep/acp/schema"
  *
- * const inspect = (value: AgentNotification) => value
- * void inspect
+ * type AgentNotificationValue = AgentNotification
  * ```
  *
  * @category models
@@ -4633,8 +4585,7 @@ export const AgentRequest = S.Struct({
  * ```ts
  * import type { AgentRequest } from "@beep/acp/schema"
  *
- * const inspect = (value: AgentRequest) => value
- * void inspect
+ * type AgentRequestValue = AgentRequest
  * ```
  *
  * @category models
@@ -5186,8 +5137,7 @@ export const AgentResponse = S.Union([
  * ```ts
  * import type { AgentResponse } from "@beep/acp/schema"
  *
- * const inspect = (value: AgentResponse) => value
- * void inspect
+ * type AgentResponseValue = AgentResponse
  * ```
  *
  * @category models
@@ -5235,8 +5185,7 @@ export const AudioContent = S.Struct({
  * ```ts
  * import type { AudioContent } from "@beep/acp/schema"
  *
- * const inspect = (value: AudioContent) => value
- * void inspect
+ * type AudioContentValue = AudioContent
  * ```
  *
  * @category models
@@ -5289,8 +5238,7 @@ export const AuthCapabilities = S.Struct({
  * ```ts
  * import type { AuthCapabilities } from "@beep/acp/schema"
  *
- * const inspect = (value: AuthCapabilities) => value
- * void inspect
+ * type AuthCapabilitiesValue = AuthCapabilities
  * ```
  *
  * @category models
@@ -5340,8 +5288,7 @@ export const AuthenticateRequest = S.Struct({
  * ```ts
  * import type { AuthenticateRequest } from "@beep/acp/schema"
  *
- * const inspect = (value: AuthenticateRequest) => value
- * void inspect
+ * type AuthenticateRequestValue = AuthenticateRequest
  * ```
  *
  * @category models
@@ -5386,8 +5333,7 @@ export const AuthenticateResponse = S.Struct({
  * ```ts
  * import type { AuthenticateResponse } from "@beep/acp/schema"
  *
- * const inspect = (value: AuthenticateResponse) => value
- * void inspect
+ * type AuthenticateResponseValue = AuthenticateResponse
  * ```
  *
  * @category models
@@ -5448,8 +5394,7 @@ export const AuthMethodAgent = S.Struct({
  * ```ts
  * import type { AuthMethodAgent } from "@beep/acp/schema"
  *
- * const inspect = (value: AuthMethodAgent) => value
- * void inspect
+ * type AuthMethodAgentValue = AuthMethodAgent
  * ```
  *
  * @category models
@@ -5522,8 +5467,7 @@ export const AuthMethodEnvVar = S.Struct({
  * ```ts
  * import type { AuthMethodEnvVar } from "@beep/acp/schema"
  *
- * const inspect = (value: AuthMethodEnvVar) => value
- * void inspect
+ * type AuthMethodEnvVarValue = AuthMethodEnvVar
  * ```
  *
  * @category models
@@ -5596,8 +5540,7 @@ export const AuthMethodTerminal = S.Struct({
  * ```ts
  * import type { AuthMethodTerminal } from "@beep/acp/schema"
  *
- * const inspect = (value: AuthMethodTerminal) => value
- * void inspect
+ * type AuthMethodTerminalValue = AuthMethodTerminal
  * ```
  *
  * @category models
@@ -5645,8 +5588,7 @@ export const AvailableCommandsUpdate = S.Struct({
  * ```ts
  * import type { AvailableCommandsUpdate } from "@beep/acp/schema"
  *
- * const inspect = (value: AvailableCommandsUpdate) => value
- * void inspect
+ * type AvailableCommandsUpdateValue = AvailableCommandsUpdate
  * ```
  *
  * @category models
@@ -5694,8 +5636,7 @@ export const BlobResourceContents = S.Struct({
  * ```ts
  * import type { BlobResourceContents } from "@beep/acp/schema"
  *
- * const inspect = (value: BlobResourceContents) => value
- * void inspect
+ * type BlobResourceContentsValue = BlobResourceContents
  * ```
  *
  * @category models
@@ -5746,8 +5687,7 @@ export const BooleanPropertySchema = S.Struct({
  * ```ts
  * import type { BooleanPropertySchema } from "@beep/acp/schema"
  *
- * const inspect = (value: BooleanPropertySchema) => value
- * void inspect
+ * type BooleanPropertySchemaValue = BooleanPropertySchema
  * ```
  *
  * @category models
@@ -5797,8 +5737,7 @@ export const CancelNotification = S.Struct({
  * ```ts
  * import type { CancelNotification } from "@beep/acp/schema"
  *
- * const inspect = (value: CancelNotification) => value
- * void inspect
+ * type CancelNotificationValue = CancelNotification
  * ```
  *
  * @category models
@@ -5852,8 +5791,7 @@ export const CancelRequestNotification = S.Struct({
  * ```ts
  * import type { CancelRequestNotification } from "@beep/acp/schema"
  *
- * const inspect = (value: CancelRequestNotification) => value
- * void inspect
+ * type CancelRequestNotificationValue = CancelRequestNotification
  * ```
  *
  * @category models
@@ -5966,8 +5904,7 @@ export const ClientCapabilities = S.Struct({
  * ```ts
  * import type { ClientCapabilities } from "@beep/acp/schema"
  *
- * const inspect = (value: ClientCapabilities) => value
- * void inspect
+ * type ClientCapabilitiesValue = ClientCapabilities
  * ```
  *
  * @category models
@@ -6037,8 +5974,7 @@ export const ClientNotification = S.Struct({
  * ```ts
  * import type { ClientNotification } from "@beep/acp/schema"
  *
- * const inspect = (value: ClientNotification) => value
- * void inspect
+ * type ClientNotificationValue = ClientNotification
  * ```
  *
  * @category models
@@ -6531,8 +6467,7 @@ export const ClientRequest = S.Struct({
  * ```ts
  * import type { ClientRequest } from "@beep/acp/schema"
  *
- * const inspect = (value: ClientRequest) => value
- * void inspect
+ * type ClientRequestValue = ClientRequest
  * ```
  *
  * @category models
@@ -6800,8 +6735,7 @@ export const ClientResponse = S.Union([
  * ```ts
  * import type { ClientResponse } from "@beep/acp/schema"
  *
- * const inspect = (value: ClientResponse) => value
- * void inspect
+ * type ClientResponseValue = ClientResponse
  * ```
  *
  * @category models
@@ -6851,8 +6785,7 @@ export const CloseSessionRequest = S.Struct({
  * ```ts
  * import type { CloseSessionRequest } from "@beep/acp/schema"
  *
- * const inspect = (value: CloseSessionRequest) => value
- * void inspect
+ * type CloseSessionRequestValue = CloseSessionRequest
  * ```
  *
  * @category models
@@ -6898,8 +6831,7 @@ export const CloseSessionResponse = S.Struct({
  * ```ts
  * import type { CloseSessionResponse } from "@beep/acp/schema"
  *
- * const inspect = (value: CloseSessionResponse) => value
- * void inspect
+ * type CloseSessionResponseValue = CloseSessionResponse
  * ```
  *
  * @category models
@@ -6948,8 +6880,7 @@ export const ConfigOptionUpdate = S.Struct({
  * ```ts
  * import type { ConfigOptionUpdate } from "@beep/acp/schema"
  *
- * const inspect = (value: ConfigOptionUpdate) => value
- * void inspect
+ * type ConfigOptionUpdateValue = ConfigOptionUpdate
  * ```
  *
  * @category models
@@ -7091,8 +7022,7 @@ export const Content = S.Struct({
  * ```ts
  * import type { Content } from "@beep/acp/schema"
  *
- * const inspect = (value: Content) => value
- * void inspect
+ * type ContentValue = Content
  * ```
  *
  * @category models
@@ -7243,8 +7173,7 @@ export const ContentChunk = S.Struct({
  * ```ts
  * import type { ContentChunk } from "@beep/acp/schema"
  *
- * const inspect = (value: ContentChunk) => value
- * void inspect
+ * type ContentChunkValue = ContentChunk
  * ```
  *
  * @category models
@@ -7324,8 +7253,7 @@ export const CreateTerminalRequest = S.Struct({
  * ```ts
  * import type { CreateTerminalRequest } from "@beep/acp/schema"
  *
- * const inspect = (value: CreateTerminalRequest) => value
- * void inspect
+ * type CreateTerminalRequestValue = CreateTerminalRequest
  * ```
  *
  * @category models
@@ -7373,8 +7301,7 @@ export const CreateTerminalResponse = S.Struct({
  * ```ts
  * import type { CreateTerminalResponse } from "@beep/acp/schema"
  *
- * const inspect = (value: CreateTerminalResponse) => value
- * void inspect
+ * type CreateTerminalResponseValue = CreateTerminalResponse
  * ```
  *
  * @category models
@@ -7423,8 +7350,7 @@ export const CurrentModeUpdate = S.Struct({
  * ```ts
  * import type { CurrentModeUpdate } from "@beep/acp/schema"
  *
- * const inspect = (value: CurrentModeUpdate) => value
- * void inspect
+ * type CurrentModeUpdateValue = CurrentModeUpdate
  * ```
  *
  * @category models
@@ -7482,8 +7408,7 @@ export const Diff = S.Struct({
  * ```ts
  * import type { Diff } from "@beep/acp/schema"
  *
- * const inspect = (value: Diff) => value
- * void inspect
+ * type DiffValue = Diff
  * ```
  *
  * @category models
@@ -7529,8 +7454,7 @@ export const ElicitationAcceptAction = S.Struct({
  * ```ts
  * import type { ElicitationAcceptAction } from "@beep/acp/schema"
  *
- * const inspect = (value: ElicitationAcceptAction) => value
- * void inspect
+ * type ElicitationAcceptActionValue = ElicitationAcceptAction
  * ```
  *
  * @category models
@@ -7591,8 +7515,7 @@ export const ElicitationAction = S.Union(
  * ```ts
  * import type { ElicitationAction } from "@beep/acp/schema"
  *
- * const inspect = (value: ElicitationAction) => value
- * void inspect
+ * type ElicitationActionValue = ElicitationAction
  * ```
  *
  * @category models
@@ -7642,8 +7565,7 @@ export const ElicitationCompleteNotification = S.Struct({
  * ```ts
  * import type { ElicitationCompleteNotification } from "@beep/acp/schema"
  *
- * const inspect = (value: ElicitationCompleteNotification) => value
- * void inspect
+ * type ElicitationCompleteNotificationValue = ElicitationCompleteNotification
  * ```
  *
  * @category models
@@ -7720,8 +7642,7 @@ export const ElicitationFormMode = S.Struct({
  * ```ts
  * import type { ElicitationFormMode } from "@beep/acp/schema"
  *
- * const inspect = (value: ElicitationFormMode) => value
- * void inspect
+ * type ElicitationFormModeValue = ElicitationFormMode
  * ```
  *
  * @category models
@@ -7757,8 +7678,7 @@ export const ElicitationId = S.String.pipe(
  * ```ts
  * import type { ElicitationId } from "@beep/acp/schema"
  *
- * const inspect = (value: ElicitationId) => value
- * void inspect
+ * type ElicitationIdValue = ElicitationId
  * ```
  *
  * @category models
@@ -7892,8 +7812,7 @@ export const ElicitationRequest = S.Union(
  * ```ts
  * import type { ElicitationRequest } from "@beep/acp/schema"
  *
- * const inspect = (value: ElicitationRequest) => value
- * void inspect
+ * type ElicitationRequestValue = ElicitationRequest
  * ```
  *
  * @category models
@@ -7968,8 +7887,7 @@ export const ElicitationResponse = S.Struct({
  * ```ts
  * import type { ElicitationResponse } from "@beep/acp/schema"
  *
- * const inspect = (value: ElicitationResponse) => value
- * void inspect
+ * type ElicitationResponseValue = ElicitationResponse
  * ```
  *
  * @category models
@@ -8040,8 +7958,7 @@ export const ElicitationSchema = S.Struct({
  * ```ts
  * import type { ElicitationSchema } from "@beep/acp/schema"
  *
- * const inspect = (value: ElicitationSchema) => value
- * void inspect
+ * type ElicitationSchemaValue = ElicitationSchema
  * ```
  *
  * @category models
@@ -8076,8 +7993,7 @@ export const ElicitationSchemaType = S.Literal("object").pipe(
  * ```ts
  * import type { ElicitationSchemaType } from "@beep/acp/schema"
  *
- * const inspect = (value: ElicitationSchemaType) => value
- * void inspect
+ * type ElicitationSchemaTypeValue = ElicitationSchemaType
  * ```
  *
  * @category models
@@ -8113,8 +8029,7 @@ export const ElicitationStringType = S.Literal("string").pipe(
  * ```ts
  * import type { ElicitationStringType } from "@beep/acp/schema"
  *
- * const inspect = (value: ElicitationStringType) => value
- * void inspect
+ * type ElicitationStringTypeValue = ElicitationStringType
  * ```
  *
  * @category models
@@ -8159,8 +8074,7 @@ export const ElicitationUrlMode = S.Struct({
  * ```ts
  * import type { ElicitationUrlMode } from "@beep/acp/schema"
  *
- * const inspect = (value: ElicitationUrlMode) => value
- * void inspect
+ * type ElicitationUrlModeValue = ElicitationUrlMode
  * ```
  *
  * @category models
@@ -8208,8 +8122,7 @@ export const EmbeddedResource = S.Struct({
  * ```ts
  * import type { EmbeddedResource } from "@beep/acp/schema"
  *
- * const inspect = (value: EmbeddedResource) => value
- * void inspect
+ * type EmbeddedResourceValue = EmbeddedResource
  * ```
  *
  * @category models
@@ -8304,8 +8217,7 @@ export const ErrorCode = S.Union([
  * ```ts
  * import type { ErrorCode } from "@beep/acp/schema"
  *
- * const inspect = (value: ErrorCode) => value
- * void inspect
+ * type ErrorCodeValue = ErrorCode
  * ```
  *
  * @category models
@@ -8341,8 +8253,7 @@ export const ExtNotification = S.Unknown.pipe(
  * ```ts
  * import type { ExtNotification } from "@beep/acp/schema"
  *
- * const inspect = (value: ExtNotification) => value
- * void inspect
+ * type ExtNotificationValue = ExtNotification
  * ```
  *
  * @category models
@@ -8378,8 +8289,7 @@ export const ExtRequest = S.Unknown.pipe(
  * ```ts
  * import type { ExtRequest } from "@beep/acp/schema"
  *
- * const inspect = (value: ExtRequest) => value
- * void inspect
+ * type ExtRequestValue = ExtRequest
  * ```
  *
  * @category models
@@ -8415,8 +8325,7 @@ export const ExtResponse = S.Unknown.pipe(
  * ```ts
  * import type { ExtResponse } from "@beep/acp/schema"
  *
- * const inspect = (value: ExtResponse) => value
- * void inspect
+ * type ExtResponseValue = ExtResponse
  * ```
  *
  * @category models
@@ -8474,8 +8383,7 @@ export const FileSystemCapabilities = S.Struct({
  * ```ts
  * import type { FileSystemCapabilities } from "@beep/acp/schema"
  *
- * const inspect = (value: FileSystemCapabilities) => value
- * void inspect
+ * type FileSystemCapabilitiesValue = FileSystemCapabilities
  * ```
  *
  * @category models
@@ -8533,8 +8441,7 @@ export const ForkSessionRequest = S.Struct({
  * ```ts
  * import type { ForkSessionRequest } from "@beep/acp/schema"
  *
- * const inspect = (value: ForkSessionRequest) => value
- * void inspect
+ * type ForkSessionRequestValue = ForkSessionRequest
  * ```
  *
  * @category models
@@ -8605,8 +8512,7 @@ export const ForkSessionResponse = S.Struct({
  * ```ts
  * import type { ForkSessionResponse } from "@beep/acp/schema"
  *
- * const inspect = (value: ForkSessionResponse) => value
- * void inspect
+ * type ForkSessionResponseValue = ForkSessionResponse
  * ```
  *
  * @category models
@@ -8655,8 +8561,7 @@ export const ImageContent = S.Struct({
  * ```ts
  * import type { ImageContent } from "@beep/acp/schema"
  *
- * const inspect = (value: ImageContent) => value
- * void inspect
+ * type ImageContentValue = ImageContent
  * ```
  *
  * @category models
@@ -8804,8 +8709,7 @@ export const InitializeRequest = S.Struct({
  * ```ts
  * import type { InitializeRequest } from "@beep/acp/schema"
  *
- * const inspect = (value: InitializeRequest) => value
- * void inspect
+ * type InitializeRequestValue = InitializeRequest
  * ```
  *
  * @category models
@@ -9031,8 +8935,7 @@ export const InitializeResponse = S.Struct({
  * ```ts
  * import type { InitializeResponse } from "@beep/acp/schema"
  *
- * const inspect = (value: InitializeResponse) => value
- * void inspect
+ * type InitializeResponseValue = InitializeResponse
  * ```
  *
  * @category models
@@ -9107,8 +9010,7 @@ export const IntegerPropertySchema = S.Struct({
  * ```ts
  * import type { IntegerPropertySchema } from "@beep/acp/schema"
  *
- * const inspect = (value: IntegerPropertySchema) => value
- * void inspect
+ * type IntegerPropertySchemaValue = IntegerPropertySchema
  * ```
  *
  * @category models
@@ -9160,8 +9062,7 @@ export const KillTerminalRequest = S.Struct({
  * ```ts
  * import type { KillTerminalRequest } from "@beep/acp/schema"
  *
- * const inspect = (value: KillTerminalRequest) => value
- * void inspect
+ * type KillTerminalRequestValue = KillTerminalRequest
  * ```
  *
  * @category models
@@ -9206,8 +9107,7 @@ export const KillTerminalResponse = S.Struct({
  * ```ts
  * import type { KillTerminalResponse } from "@beep/acp/schema"
  *
- * const inspect = (value: KillTerminalResponse) => value
- * void inspect
+ * type KillTerminalResponseValue = KillTerminalResponse
  * ```
  *
  * @category models
@@ -9271,8 +9171,7 @@ export const ListSessionsRequest = S.Struct({
  * ```ts
  * import type { ListSessionsRequest } from "@beep/acp/schema"
  *
- * const inspect = (value: ListSessionsRequest) => value
- * void inspect
+ * type ListSessionsRequestValue = ListSessionsRequest
  * ```
  *
  * @category models
@@ -9329,8 +9228,7 @@ export const ListSessionsResponse = S.Struct({
  * ```ts
  * import type { ListSessionsResponse } from "@beep/acp/schema"
  *
- * const inspect = (value: ListSessionsResponse) => value
- * void inspect
+ * type ListSessionsResponseValue = ListSessionsResponse
  * ```
  *
  * @category models
@@ -9386,8 +9284,7 @@ export const LoadSessionRequest = S.Struct({
  * ```ts
  * import type { LoadSessionRequest } from "@beep/acp/schema"
  *
- * const inspect = (value: LoadSessionRequest) => value
- * void inspect
+ * type LoadSessionRequestValue = LoadSessionRequest
  * ```
  *
  * @category models
@@ -9453,8 +9350,7 @@ export const LoadSessionResponse = S.Struct({
  * ```ts
  * import type { LoadSessionResponse } from "@beep/acp/schema"
  *
- * const inspect = (value: LoadSessionResponse) => value
- * void inspect
+ * type LoadSessionResponseValue = LoadSessionResponse
  * ```
  *
  * @category models
@@ -9500,8 +9396,7 @@ export const LogoutRequest = S.Struct({
  * ```ts
  * import type { LogoutRequest } from "@beep/acp/schema"
  *
- * const inspect = (value: LogoutRequest) => value
- * void inspect
+ * type LogoutRequestValue = LogoutRequest
  * ```
  *
  * @category models
@@ -9547,8 +9442,7 @@ export const LogoutResponse = S.Struct({
  * ```ts
  * import type { LogoutResponse } from "@beep/acp/schema"
  *
- * const inspect = (value: LogoutResponse) => value
- * void inspect
+ * type LogoutResponseValue = LogoutResponse
  * ```
  *
  * @category models
@@ -9605,8 +9499,7 @@ export const McpCapabilities = S.Struct({
  * ```ts
  * import type { McpCapabilities } from "@beep/acp/schema"
  *
- * const inspect = (value: McpCapabilities) => value
- * void inspect
+ * type McpCapabilitiesValue = McpCapabilities
  * ```
  *
  * @category models
@@ -9658,8 +9551,7 @@ export const McpServerHttp = S.Struct({
  * ```ts
  * import type { McpServerHttp } from "@beep/acp/schema"
  *
- * const inspect = (value: McpServerHttp) => value
- * void inspect
+ * type McpServerHttpValue = McpServerHttp
  * ```
  *
  * @category models
@@ -9711,8 +9603,7 @@ export const McpServerSse = S.Struct({
  * ```ts
  * import type { McpServerSse } from "@beep/acp/schema"
  *
- * const inspect = (value: McpServerSse) => value
- * void inspect
+ * type McpServerSseValue = McpServerSse
  * ```
  *
  * @category models
@@ -9769,8 +9660,7 @@ export const McpServerStdio = S.Struct({
  * ```ts
  * import type { McpServerStdio } from "@beep/acp/schema"
  *
- * const inspect = (value: McpServerStdio) => value
- * void inspect
+ * type McpServerStdioValue = McpServerStdio
  * ```
  *
  * @category models
@@ -9806,8 +9696,7 @@ export const ModelId = S.String.pipe(
  * ```ts
  * import type { ModelId } from "@beep/acp/schema"
  *
- * const inspect = (value: ModelId) => value
- * void inspect
+ * type ModelIdValue = ModelId
  * ```
  *
  * @category models
@@ -9863,8 +9752,7 @@ export const MultiSelectItems = S.Union([
  * ```ts
  * import type { MultiSelectItems } from "@beep/acp/schema"
  *
- * const inspect = (value: MultiSelectItems) => value
- * void inspect
+ * type MultiSelectItemsValue = MultiSelectItems
  * ```
  *
  * @category models
@@ -9968,8 +9856,7 @@ export const MultiSelectPropertySchema = S.Struct({
  * ```ts
  * import type { MultiSelectPropertySchema } from "@beep/acp/schema"
  *
- * const inspect = (value: MultiSelectPropertySchema) => value
- * void inspect
+ * type MultiSelectPropertySchemaValue = MultiSelectPropertySchema
  * ```
  *
  * @category models
@@ -10023,8 +9910,7 @@ export const NewSessionRequest = S.Struct({
  * ```ts
  * import type { NewSessionRequest } from "@beep/acp/schema"
  *
- * const inspect = (value: NewSessionRequest) => value
- * void inspect
+ * type NewSessionRequestValue = NewSessionRequest
  * ```
  *
  * @category models
@@ -10095,8 +9981,7 @@ export const NewSessionResponse = S.Struct({
  * ```ts
  * import type { NewSessionResponse } from "@beep/acp/schema"
  *
- * const inspect = (value: NewSessionResponse) => value
- * void inspect
+ * type NewSessionResponseValue = NewSessionResponse
  * ```
  *
  * @category models
@@ -10172,8 +10057,7 @@ export const NumberPropertySchema = S.Struct({
  * ```ts
  * import type { NumberPropertySchema } from "@beep/acp/schema"
  *
- * const inspect = (value: NumberPropertySchema) => value
- * void inspect
+ * type NumberPropertySchemaValue = NumberPropertySchema
  * ```
  *
  * @category models
@@ -10208,8 +10092,7 @@ export const PermissionOptionId = S.String.pipe(
  * ```ts
  * import type { PermissionOptionId } from "@beep/acp/schema"
  *
- * const inspect = (value: PermissionOptionId) => value
- * void inspect
+ * type PermissionOptionIdValue = PermissionOptionId
  * ```
  *
  * @category models
@@ -10250,8 +10133,7 @@ export const PermissionOptionKind = S.Literals([
  * ```ts
  * import type { PermissionOptionKind } from "@beep/acp/schema"
  *
- * const inspect = (value: PermissionOptionKind) => value
- * void inspect
+ * type PermissionOptionKindValue = PermissionOptionKind
  * ```
  *
  * @category models
@@ -10301,8 +10183,7 @@ export const Plan = S.Struct({
  * ```ts
  * import type { Plan } from "@beep/acp/schema"
  *
- * const inspect = (value: Plan) => value
- * void inspect
+ * type PlanValue = Plan
  * ```
  *
  * @category models
@@ -10338,8 +10219,7 @@ export const PlanEntryPriority = S.Literals(["high", "medium", "low"]).pipe(
  * ```ts
  * import type { PlanEntryPriority } from "@beep/acp/schema"
  *
- * const inspect = (value: PlanEntryPriority) => value
- * void inspect
+ * type PlanEntryPriorityValue = PlanEntryPriority
  * ```
  *
  * @category models
@@ -10379,8 +10259,7 @@ export const PlanEntryStatus = S.Literals([
  * ```ts
  * import type { PlanEntryStatus } from "@beep/acp/schema"
  *
- * const inspect = (value: PlanEntryStatus) => value
- * void inspect
+ * type PlanEntryStatusValue = PlanEntryStatus
  * ```
  *
  * @category models
@@ -10445,8 +10324,7 @@ export const PromptCapabilities = S.Struct({
  * ```ts
  * import type { PromptCapabilities } from "@beep/acp/schema"
  *
- * const inspect = (value: PromptCapabilities) => value
- * void inspect
+ * type PromptCapabilitiesValue = PromptCapabilities
  * ```
  *
  * @category models
@@ -10509,8 +10387,7 @@ export const PromptRequest = S.Struct({
  * ```ts
  * import type { PromptRequest } from "@beep/acp/schema"
  *
- * const inspect = (value: PromptRequest) => value
- * void inspect
+ * type PromptRequestValue = PromptRequest
  * ```
  *
  * @category models
@@ -10581,8 +10458,7 @@ export const PromptResponse = S.Struct({
  * ```ts
  * import type { PromptResponse } from "@beep/acp/schema"
  *
- * const inspect = (value: PromptResponse) => value
- * void inspect
+ * type PromptResponseValue = PromptResponse
  * ```
  *
  * @category models
@@ -10622,8 +10498,7 @@ export const ProtocolVersion = S.Number.check(S.isInt())
  * ```ts
  * import type { ProtocolVersion } from "@beep/acp/schema"
  *
- * const inspect = (value: ProtocolVersion) => value
- * void inspect
+ * type ProtocolVersionValue = ProtocolVersion
  * ```
  *
  * @category models
@@ -10698,8 +10573,7 @@ export const ReadTextFileRequest = S.Struct({
  * ```ts
  * import type { ReadTextFileRequest } from "@beep/acp/schema"
  *
- * const inspect = (value: ReadTextFileRequest) => value
- * void inspect
+ * type ReadTextFileRequestValue = ReadTextFileRequest
  * ```
  *
  * @category models
@@ -10745,8 +10619,7 @@ export const ReadTextFileResponse = S.Struct({
  * ```ts
  * import type { ReadTextFileResponse } from "@beep/acp/schema"
  *
- * const inspect = (value: ReadTextFileResponse) => value
- * void inspect
+ * type ReadTextFileResponseValue = ReadTextFileResponse
  * ```
  *
  * @category models
@@ -10798,8 +10671,7 @@ export const ReleaseTerminalRequest = S.Struct({
  * ```ts
  * import type { ReleaseTerminalRequest } from "@beep/acp/schema"
  *
- * const inspect = (value: ReleaseTerminalRequest) => value
- * void inspect
+ * type ReleaseTerminalRequestValue = ReleaseTerminalRequest
  * ```
  *
  * @category models
@@ -10844,8 +10716,7 @@ export const ReleaseTerminalResponse = S.Struct({
  * ```ts
  * import type { ReleaseTerminalResponse } from "@beep/acp/schema"
  *
- * const inspect = (value: ReleaseTerminalResponse) => value
- * void inspect
+ * type ReleaseTerminalResponseValue = ReleaseTerminalResponse
  * ```
  *
  * @category models
@@ -10905,8 +10776,7 @@ export const RequestPermissionOutcome = S.Union(
  * ```ts
  * import type { RequestPermissionOutcome } from "@beep/acp/schema"
  *
- * const inspect = (value: RequestPermissionOutcome) => value
- * void inspect
+ * type RequestPermissionOutcomeValue = RequestPermissionOutcome
  * ```
  *
  * @category models
@@ -11016,8 +10886,7 @@ export const RequestPermissionRequest = S.Struct({
  * ```ts
  * import type { RequestPermissionRequest } from "@beep/acp/schema"
  *
- * const inspect = (value: RequestPermissionRequest) => value
- * void inspect
+ * type RequestPermissionRequestValue = RequestPermissionRequest
  * ```
  *
  * @category models
@@ -11088,8 +10957,7 @@ export const RequestPermissionResponse = S.Struct({
  * ```ts
  * import type { RequestPermissionResponse } from "@beep/acp/schema"
  *
- * const inspect = (value: RequestPermissionResponse) => value
- * void inspect
+ * type RequestPermissionResponseValue = RequestPermissionResponse
  * ```
  *
  * @category models
@@ -11147,8 +11015,7 @@ export const ResourceLink = S.Struct({
  * ```ts
  * import type { ResourceLink } from "@beep/acp/schema"
  *
- * const inspect = (value: ResourceLink) => value
- * void inspect
+ * type ResourceLinkValue = ResourceLink
  * ```
  *
  * @category models
@@ -11206,8 +11073,7 @@ export const ResumeSessionRequest = S.Struct({
  * ```ts
  * import type { ResumeSessionRequest } from "@beep/acp/schema"
  *
- * const inspect = (value: ResumeSessionRequest) => value
- * void inspect
+ * type ResumeSessionRequestValue = ResumeSessionRequest
  * ```
  *
  * @category models
@@ -11274,8 +11140,7 @@ export const ResumeSessionResponse = S.Struct({
  * ```ts
  * import type { ResumeSessionResponse } from "@beep/acp/schema"
  *
- * const inspect = (value: ResumeSessionResponse) => value
- * void inspect
+ * type ResumeSessionResponseValue = ResumeSessionResponse
  * ```
  *
  * @category models
@@ -11323,8 +11188,7 @@ export const SelectedPermissionOutcome = S.Struct({
  * ```ts
  * import type { SelectedPermissionOutcome } from "@beep/acp/schema"
  *
- * const inspect = (value: SelectedPermissionOutcome) => value
- * void inspect
+ * type SelectedPermissionOutcomeValue = SelectedPermissionOutcome
  * ```
  *
  * @category models
@@ -11393,8 +11257,7 @@ export const SessionCapabilities = S.Struct({
  * ```ts
  * import type { SessionCapabilities } from "@beep/acp/schema"
  *
- * const inspect = (value: SessionCapabilities) => value
- * void inspect
+ * type SessionCapabilitiesValue = SessionCapabilities
  * ```
  *
  * @category models
@@ -11434,8 +11297,7 @@ export const SessionConfigBoolean = S.Struct({
  * ```ts
  * import type { SessionConfigBoolean } from "@beep/acp/schema"
  *
- * const inspect = (value: SessionConfigBoolean) => value
- * void inspect
+ * type SessionConfigBooleanValue = SessionConfigBoolean
  * ```
  *
  * @category models
@@ -11471,8 +11333,7 @@ export const SessionConfigGroupId = S.String.pipe(
  * ```ts
  * import type { SessionConfigGroupId } from "@beep/acp/schema"
  *
- * const inspect = (value: SessionConfigGroupId) => value
- * void inspect
+ * type SessionConfigGroupIdValue = SessionConfigGroupId
  * ```
  *
  * @category models
@@ -11507,8 +11368,7 @@ export const SessionConfigId = S.String.pipe(
  * ```ts
  * import type { SessionConfigId } from "@beep/acp/schema"
  *
- * const inspect = (value: SessionConfigId) => value
- * void inspect
+ * type SessionConfigIdValue = SessionConfigId
  * ```
  *
  * @category models
@@ -11560,8 +11420,7 @@ export const SessionConfigSelect = S.Struct({
  * ```ts
  * import type { SessionConfigSelect } from "@beep/acp/schema"
  *
- * const inspect = (value: SessionConfigSelect) => value
- * void inspect
+ * type SessionConfigSelectValue = SessionConfigSelect
  * ```
  *
  * @category models
@@ -11605,8 +11464,7 @@ export const SessionConfigSelectOptions = S.Union([
  * ```ts
  * import type { SessionConfigSelectOptions } from "@beep/acp/schema"
  *
- * const inspect = (value: SessionConfigSelectOptions) => value
- * void inspect
+ * type SessionConfigSelectOptionsValue = SessionConfigSelectOptions
  * ```
  *
  * @category models
@@ -11642,8 +11500,7 @@ export const SessionConfigValueId = S.String.pipe(
  * ```ts
  * import type { SessionConfigValueId } from "@beep/acp/schema"
  *
- * const inspect = (value: SessionConfigValueId) => value
- * void inspect
+ * type SessionConfigValueIdValue = SessionConfigValueId
  * ```
  *
  * @category models
@@ -11679,8 +11536,7 @@ export const SessionId = S.String.pipe(
  * ```ts
  * import type { SessionId } from "@beep/acp/schema"
  *
- * const inspect = (value: SessionId) => value
- * void inspect
+ * type SessionIdValue = SessionId
  * ```
  *
  * @category models
@@ -11744,8 +11600,7 @@ export const SessionInfoUpdate = S.Struct({
  * ```ts
  * import type { SessionInfoUpdate } from "@beep/acp/schema"
  *
- * const inspect = (value: SessionInfoUpdate) => value
- * void inspect
+ * type SessionInfoUpdateValue = SessionInfoUpdate
  * ```
  *
  * @category models
@@ -12435,8 +12290,7 @@ export const SessionNotification = S.Struct({
  * ```ts
  * import type { SessionNotification } from "@beep/acp/schema"
  *
- * const inspect = (value: SessionNotification) => value
- * void inspect
+ * type SessionNotificationValue = SessionNotification
  * ```
  *
  * @category models
@@ -13101,8 +12955,7 @@ export const SessionUpdate = S.Union(
  * ```ts
  * import type { SessionUpdate } from "@beep/acp/schema"
  *
- * const inspect = (value: SessionUpdate) => value
- * void inspect
+ * type SessionUpdateValue = SessionUpdate
  * ```
  *
  * @category models
@@ -13186,8 +13039,7 @@ export const SetSessionConfigOptionRequest = S.Union([
  * ```ts
  * import type { SetSessionConfigOptionRequest } from "@beep/acp/schema"
  *
- * const inspect = (value: SetSessionConfigOptionRequest) => value
- * void inspect
+ * type SetSessionConfigOptionRequestValue = SetSessionConfigOptionRequest
  * ```
  *
  * @category models
@@ -13237,8 +13089,7 @@ export const SetSessionConfigOptionResponse = S.Struct({
  * ```ts
  * import type { SetSessionConfigOptionResponse } from "@beep/acp/schema"
  *
- * const inspect = (value: SetSessionConfigOptionResponse) => value
- * void inspect
+ * type SetSessionConfigOptionResponseValue = SetSessionConfigOptionResponse
  * ```
  *
  * @category models
@@ -13293,8 +13144,7 @@ export const SetSessionModelRequest = S.Struct({
  * ```ts
  * import type { SetSessionModelRequest } from "@beep/acp/schema"
  *
- * const inspect = (value: SetSessionModelRequest) => value
- * void inspect
+ * type SetSessionModelRequestValue = SetSessionModelRequest
  * ```
  *
  * @category models
@@ -13340,8 +13190,7 @@ export const SetSessionModelResponse = S.Struct({
  * ```ts
  * import type { SetSessionModelResponse } from "@beep/acp/schema"
  *
- * const inspect = (value: SetSessionModelResponse) => value
- * void inspect
+ * type SetSessionModelResponseValue = SetSessionModelResponse
  * ```
  *
  * @category models
@@ -13393,8 +13242,7 @@ export const SetSessionModeRequest = S.Struct({
  * ```ts
  * import type { SetSessionModeRequest } from "@beep/acp/schema"
  *
- * const inspect = (value: SetSessionModeRequest) => value
- * void inspect
+ * type SetSessionModeRequestValue = SetSessionModeRequest
  * ```
  *
  * @category models
@@ -13439,8 +13287,7 @@ export const SetSessionModeResponse = S.Struct({
  * ```ts
  * import type { SetSessionModeResponse } from "@beep/acp/schema"
  *
- * const inspect = (value: SetSessionModeResponse) => value
- * void inspect
+ * type SetSessionModeResponseValue = SetSessionModeResponse
  * ```
  *
  * @category models
@@ -13482,8 +13329,7 @@ export const StopReason = S.Literals([
  * ```ts
  * import type { StopReason } from "@beep/acp/schema"
  *
- * const inspect = (value: StopReason) => value
- * void inspect
+ * type StopReasonValue = StopReason
  * ```
  *
  * @category models
@@ -13584,8 +13430,7 @@ export const StringPropertySchema = S.Struct({
  * ```ts
  * import type { StringPropertySchema } from "@beep/acp/schema"
  *
- * const inspect = (value: StringPropertySchema) => value
- * void inspect
+ * type StringPropertySchemaValue = StringPropertySchema
  * ```
  *
  * @category models
@@ -13632,8 +13477,7 @@ export const Terminal = S.Struct({
  * ```ts
  * import type { Terminal } from "@beep/acp/schema"
  *
- * const inspect = (value: Terminal) => value
- * void inspect
+ * type TerminalValue = Terminal
  * ```
  *
  * @category models
@@ -13686,8 +13530,7 @@ export const TerminalOutputRequest = S.Struct({
  * ```ts
  * import type { TerminalOutputRequest } from "@beep/acp/schema"
  *
- * const inspect = (value: TerminalOutputRequest) => value
- * void inspect
+ * type TerminalOutputRequestValue = TerminalOutputRequest
  * ```
  *
  * @category models
@@ -13743,8 +13586,7 @@ export const TerminalOutputResponse = S.Struct({
  * ```ts
  * import type { TerminalOutputResponse } from "@beep/acp/schema"
  *
- * const inspect = (value: TerminalOutputResponse) => value
- * void inspect
+ * type TerminalOutputResponseValue = TerminalOutputResponse
  * ```
  *
  * @category models
@@ -13791,8 +13633,7 @@ export const TextContent = S.Struct({
  * ```ts
  * import type { TextContent } from "@beep/acp/schema"
  *
- * const inspect = (value: TextContent) => value
- * void inspect
+ * type TextContentValue = TextContent
  * ```
  *
  * @category models
@@ -13840,8 +13681,7 @@ export const TextResourceContents = S.Struct({
  * ```ts
  * import type { TextResourceContents } from "@beep/acp/schema"
  *
- * const inspect = (value: TextResourceContents) => value
- * void inspect
+ * type TextResourceContentsValue = TextResourceContents
  * ```
  *
  * @category models
@@ -13880,8 +13720,7 @@ export const TitledMultiSelectItems = S.Struct({
  * ```ts
  * import type { TitledMultiSelectItems } from "@beep/acp/schema"
  *
- * const inspect = (value: TitledMultiSelectItems) => value
- * void inspect
+ * type TitledMultiSelectItemsValue = TitledMultiSelectItems
  * ```
  *
  * @category models
@@ -13975,8 +13814,7 @@ export const ToolCall = S.Struct({
  * ```ts
  * import type { ToolCall } from "@beep/acp/schema"
  *
- * const inspect = (value: ToolCall) => value
- * void inspect
+ * type ToolCallValue = ToolCall
  * ```
  *
  * @category models
@@ -14011,8 +13849,7 @@ export const ToolCallId = S.String.pipe(
  * ```ts
  * import type { ToolCallId } from "@beep/acp/schema"
  *
- * const inspect = (value: ToolCallId) => value
- * void inspect
+ * type ToolCallIdValue = ToolCallId
  * ```
  *
  * @category models
@@ -14099,8 +13936,7 @@ export const ToolCallUpdate = S.Struct({
  * ```ts
  * import type { ToolCallUpdate } from "@beep/acp/schema"
  *
- * const inspect = (value: ToolCallUpdate) => value
- * void inspect
+ * type ToolCallUpdateValue = ToolCallUpdate
  * ```
  *
  * @category models
@@ -14149,8 +13985,7 @@ export const UnstructuredCommandInput = S.Struct({
  * ```ts
  * import type { UnstructuredCommandInput } from "@beep/acp/schema"
  *
- * const inspect = (value: UnstructuredCommandInput) => value
- * void inspect
+ * type UnstructuredCommandInputValue = UnstructuredCommandInput
  * ```
  *
  * @category models
@@ -14191,8 +14026,7 @@ export const UntitledMultiSelectItems = S.Struct({
  * ```ts
  * import type { UntitledMultiSelectItems } from "@beep/acp/schema"
  *
- * const inspect = (value: UntitledMultiSelectItems) => value
- * void inspect
+ * type UntitledMultiSelectItemsValue = UntitledMultiSelectItems
  * ```
  *
  * @category models
@@ -14255,8 +14089,7 @@ export const UsageUpdate = S.Struct({
  * ```ts
  * import type { UsageUpdate } from "@beep/acp/schema"
  *
- * const inspect = (value: UsageUpdate) => value
- * void inspect
+ * type UsageUpdateValue = UsageUpdate
  * ```
  *
  * @category models
@@ -14308,8 +14141,7 @@ export const WaitForTerminalExitRequest = S.Struct({
  * ```ts
  * import type { WaitForTerminalExitRequest } from "@beep/acp/schema"
  *
- * const inspect = (value: WaitForTerminalExitRequest) => value
- * void inspect
+ * type WaitForTerminalExitRequestValue = WaitForTerminalExitRequest
  * ```
  *
  * @category models
@@ -14375,8 +14207,7 @@ export const WaitForTerminalExitResponse = S.Struct({
  * ```ts
  * import type { WaitForTerminalExitResponse } from "@beep/acp/schema"
  *
- * const inspect = (value: WaitForTerminalExitResponse) => value
- * void inspect
+ * type WaitForTerminalExitResponseValue = WaitForTerminalExitResponse
  * ```
  *
  * @category models
@@ -14433,8 +14264,7 @@ export const WriteTextFileRequest = S.Struct({
  * ```ts
  * import type { WriteTextFileRequest } from "@beep/acp/schema"
  *
- * const inspect = (value: WriteTextFileRequest) => value
- * void inspect
+ * type WriteTextFileRequestValue = WriteTextFileRequest
  * ```
  *
  * @category models
@@ -14479,8 +14309,7 @@ export const WriteTextFileResponse = S.Struct({
  * ```ts
  * import type { WriteTextFileResponse } from "@beep/acp/schema"
  *
- * const inspect = (value: WriteTextFileResponse) => value
- * void inspect
+ * type WriteTextFileResponseValue = WriteTextFileResponse
  * ```
  *
  * @category models

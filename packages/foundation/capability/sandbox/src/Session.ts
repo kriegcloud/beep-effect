@@ -21,6 +21,13 @@ const shellEscape = (value: string): string => `'${Str.replaceAll("'", "'\\''")(
 /**
  * Session path service shape.
  *
+ * @example
+ * ```ts
+ * import { SessionPathsShape } from "@beep/sandbox/Session"
+ *
+ * console.log(SessionPathsShape)
+ * ```
+ *
  * @category models
  * @since 0.0.0
  */
@@ -36,6 +43,13 @@ export class SessionPathsShape extends S.Class<SessionPathsShape>($I`SessionPath
 
 /**
  * Filename-safe agent session identifier.
+ *
+ * @example
+ * ```ts
+ * import { SessionId } from "@beep/sandbox/Session"
+ *
+ * console.log(SessionId)
+ * ```
  *
  * @category schemas
  * @since 0.0.0
@@ -61,6 +75,13 @@ export type SessionId = typeof SessionId.Type;
 /**
  * Session path service.
  *
+ * @example
+ * ```ts
+ * import { SessionPaths } from "@beep/sandbox/Session"
+ *
+ * console.log(SessionPaths)
+ * ```
+ *
  * @category services
  * @since 0.0.0
  */
@@ -68,6 +89,14 @@ export class SessionPaths extends Context.Service<SessionPaths, SessionPathsShap
 
 /**
  * Session file store.
+ *
+ * @example
+ * ```ts
+ * import type { SessionStore } from "@beep/sandbox/Session"
+ *
+ * const value = {} as SessionStore
+ * console.log(value)
+ * ```
  *
  * @category services
  * @since 0.0.0
@@ -81,6 +110,13 @@ export interface SessionStore<R = never> {
 /**
  * Encoded project path used by Claude session directories.
  *
+ * @example
+ * ```ts
+ * import { encodeProjectPath } from "@beep/sandbox/Session"
+ *
+ * console.log(encodeProjectPath)
+ * ```
+ *
  * @category utilities
  * @since 0.0.0
  */
@@ -88,6 +124,13 @@ export const encodeProjectPath = (cwd: string): string => Str.replaceAll("/", "-
 
 /**
  * Create a configured session-path layer.
+ *
+ * @example
+ * ```ts
+ * import { sessionPathsLayer } from "@beep/sandbox/Session"
+ *
+ * console.log(sessionPathsLayer)
+ * ```
  *
  * @category layers
  * @since 0.0.0
@@ -97,6 +140,13 @@ export const sessionPathsLayer = (paths: SessionPathsShape): Layer.Layer<Session
 
 /**
  * Default session-path layer.
+ *
+ * @example
+ * ```ts
+ * import { defaultSessionPathsLayer } from "@beep/sandbox/Session"
+ *
+ * console.log(defaultSessionPathsLayer)
+ * ```
  *
  * @category layers
  * @since 0.0.0
@@ -126,6 +176,13 @@ const sessionFilePath = (repoDir: string, projectsDir: string, sessionId: string
 /**
  * Session transfer summary.
  *
+ * @example
+ * ```ts
+ * import { SessionTransferResult } from "@beep/sandbox/Session"
+ *
+ * console.log(SessionTransferResult)
+ * ```
+ *
  * @category models
  * @since 0.0.0
  */
@@ -140,6 +197,13 @@ export class SessionTransferResult extends S.Class<SessionTransferResult>($I`Ses
 
 /**
  * Create a host-backed session store.
+ *
+ * @example
+ * ```ts
+ * import { hostSessionStore } from "@beep/sandbox/Session"
+ *
+ * console.log(hostSessionStore)
+ * ```
  *
  * @category constructors
  * @since 0.0.0
@@ -182,6 +246,13 @@ export const hostSessionStore = (
 /**
  * Create a sandbox-backed session store for bind-mount handles.
  *
+ * @example
+ * ```ts
+ * import { sandboxSessionStore } from "@beep/sandbox/Session"
+ *
+ * console.log(sandboxSessionStore)
+ * ```
+ *
  * @category constructors
  * @since 0.0.0
  */
@@ -213,6 +284,13 @@ export const sandboxSessionStore = (
 
 /**
  * Transfer a session between stores.
+ *
+ * @example
+ * ```ts
+ * import { transferSession } from "@beep/sandbox/Session"
+ *
+ * console.log(transferSession)
+ * ```
  *
  * @category combinators
  * @since 0.0.0

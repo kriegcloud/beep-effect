@@ -25,7 +25,7 @@ const $I = $PostgresId.create("PostgresClient.service");
  *   host: "127.0.0.1",
  *   username: "postgres"
  * }
- * void config
+ * console.log(config)
  * ```
  *
  * @category models
@@ -41,7 +41,7 @@ export type PostgresPoolConfig = Pg.PgPoolConfig;
  * import type { PostgresClientValue } from "@beep/postgres"
  *
  * const readConfig = (client: PostgresClientValue) => client.config
- * void readConfig
+ * console.log(readConfig)
  * ```
  *
  * @category models
@@ -57,7 +57,7 @@ export type PostgresClientValue = Pg.PgClient;
  * import { PostgresClient } from "@beep/postgres"
  *
  * const service = PostgresClient
- * void service
+ * console.log(service)
  * ```
  *
  * @category services
@@ -72,7 +72,7 @@ export class PostgresClient extends Context.Service<PostgresClient, PostgresClie
    * import { PostgresClient } from "@beep/postgres"
    *
    * const effect = PostgresClient.make({ database: "postgres" })
-   * void effect
+   * console.log(effect)
    * ```
    *
    * @category constructors
@@ -89,7 +89,7 @@ export class PostgresClient extends Context.Service<PostgresClient, PostgresClie
    * import { PostgresClient } from "@beep/postgres"
    *
    * const layer = PostgresClient.makeLayer({ database: "postgres" })
-   * void layer
+   * console.log(layer)
    * ```
    *
    * @category layers
@@ -113,7 +113,7 @@ export class PostgresClient extends Context.Service<PostgresClient, PostgresClie
    * import type { PostgresClientValue } from "@beep/postgres"
    *
    * const makeLayer = (client: PostgresClientValue) => PostgresClient.fromPgClient(client)
-   * void makeLayer
+   * console.log(makeLayer)
    * ```
    *
    * @category layers

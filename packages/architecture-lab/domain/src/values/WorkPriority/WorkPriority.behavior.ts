@@ -14,6 +14,13 @@ import type { WorkPriority } from "./WorkPriority.model.js";
 /**
  * Default priority for newly created WorkItems.
  *
+ * @example
+ * ```ts
+ * import { defaultWorkPriority } from "@beep/architecture-lab-domain/values/WorkPriority"
+ *
+ * console.log(defaultWorkPriority)
+ * ```
+ *
  * @category value-objects
  * @since 0.0.0
  */
@@ -21,6 +28,13 @@ export const defaultWorkPriority: WorkPriority = WorkPrioritySchema.Enum.normal;
 
 /**
  * Rank a priority from lowest to highest.
+ *
+ * @example
+ * ```ts
+ * import { rank } from "@beep/architecture-lab-domain/values/WorkPriority"
+ *
+ * console.log(rank)
+ * ```
  *
  * @category value-objects
  * @since 0.0.0
@@ -34,6 +48,13 @@ export const rank: (priority: WorkPriority) => number = Match.type<WorkPriority>
 
 /**
  * Compare two priorities.
+ *
+ * @example
+ * ```ts
+ * import { compare } from "@beep/architecture-lab-domain/values/WorkPriority"
+ *
+ * console.log(compare)
+ * ```
  *
  * @category value-objects
  * @since 0.0.0

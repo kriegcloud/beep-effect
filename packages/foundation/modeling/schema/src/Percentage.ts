@@ -87,6 +87,13 @@ export const ZERO: Percentage = Percentage.make(0);
 /**
  * Percentage constant for 20%.
  *
+ * @example
+ * ```ts
+ * import { TWENTY } from "@beep/schema/Percentage"
+ *
+ * console.log(TWENTY)
+ * ```
+ *
  * @since 0.0.0
  * @category constants
  */
@@ -94,12 +101,26 @@ export const TWENTY: Percentage = Percentage.make(20);
 /**
  * Percentage constant for 50%.
  *
+ * @example
+ * ```ts
+ * import { FIFTY } from "@beep/schema/Percentage"
+ *
+ * console.log(FIFTY)
+ * ```
+ *
  * @since 0.0.0
  * @category constants
  */
 export const FIFTY: Percentage = Percentage.make(50);
 /**
  * Percentage constant for 100%.
+ *
+ * @example
+ * ```ts
+ * import { HUNDRED } from "@beep/schema/Percentage"
+ *
+ * console.log(HUNDRED)
+ * ```
  *
  * @since 0.0.0
  * @category constants

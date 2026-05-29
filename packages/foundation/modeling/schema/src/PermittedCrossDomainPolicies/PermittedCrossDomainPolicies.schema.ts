@@ -29,6 +29,16 @@ const PermittedCrossDomainPoliciesValueBase = LiteralKit([
 ]);
 
 /**
+ * Schema for allowed `X-Permitted-Cross-Domain-Policies` values.
+ *
+ * @example
+ * ```ts
+ * import * as S from "effect/Schema"
+ * import { PermittedCrossDomainPoliciesValue } from "@beep/schema/PermittedCrossDomainPolicies"
+ *
+ * console.log(S.is(PermittedCrossDomainPoliciesValue)("none")) // true
+ * ```
+ *
  * @category schemas
  * @since 0.0.0
  */
@@ -40,6 +50,8 @@ export const PermittedCrossDomainPoliciesValue = PermittedCrossDomainPoliciesVal
 );
 
 /**
+ * Type for allowed `X-Permitted-Cross-Domain-Policies` values.
+ *
  * @category models
  * @since 0.0.0
  */
@@ -48,6 +60,16 @@ export type PermittedCrossDomainPoliciesValue = typeof PermittedCrossDomainPolic
 const PermittedCrossDomainPoliciesOptionBase = LiteralKit([false, ...PermittedCrossDomainPoliciesValueBase.Options]);
 
 /**
+ * Schema for enabled or disabled cross-domain policy options.
+ *
+ * @example
+ * ```ts
+ * import * as S from "effect/Schema"
+ * import { PermittedCrossDomainPoliciesOption } from "@beep/schema/PermittedCrossDomainPolicies"
+ *
+ * console.log(S.decodeUnknownSync(PermittedCrossDomainPoliciesOption)("master-only"))
+ * ```
+ *
  * @category schemas
  * @since 0.0.0
  */
@@ -59,12 +81,28 @@ export const PermittedCrossDomainPoliciesOption = PermittedCrossDomainPoliciesOp
 );
 
 /**
+ * Type for enabled or disabled cross-domain policy options.
+ *
  * @category models
  * @since 0.0.0
  */
 export type PermittedCrossDomainPoliciesOption = typeof PermittedCrossDomainPoliciesOption.Type;
 
 /**
+ * Model for a rendered `X-Permitted-Cross-Domain-Policies` response header.
+ *
+ * @example
+ * ```ts
+ * import * as O from "effect/Option"
+ * import { PermittedCrossDomainPoliciesResponseHeader } from "@beep/schema/PermittedCrossDomainPolicies"
+ *
+ * const header = PermittedCrossDomainPoliciesResponseHeader.make({
+ *   name: "X-Permitted-Cross-Domain-Policies",
+ *   value: O.some("none"),
+ * })
+ * console.log(header.name)
+ * ```
+ *
  * @category models
  * @since 0.0.0
  */
@@ -83,6 +121,17 @@ export class PermittedCrossDomainPoliciesResponseHeader extends S.Class<Permitte
 type PermittedCrossDomainPoliciesResponseHeaderEncoded = typeof PermittedCrossDomainPoliciesResponseHeader.Encoded;
 
 /**
+ * Schema that renders cross-domain policy options into a response header.
+ *
+ * @example
+ * ```ts
+ * import * as S from "effect/Schema"
+ * import { PermittedCrossDomainPoliciesHeader } from "@beep/schema/PermittedCrossDomainPolicies"
+ *
+ * const header = S.decodeUnknownSync(PermittedCrossDomainPoliciesHeader)("none")
+ * console.log(header.name)
+ * ```
+ *
  * @category schemas
  * @since 0.0.0
  */
@@ -149,6 +198,8 @@ export const PermittedCrossDomainPoliciesHeader = S.Union([PermittedCrossDomainP
 );
 
 /**
+ * Type for rendered `X-Permitted-Cross-Domain-Policies` response headers.
+ *
  * @category models
  * @since 0.0.0
  */

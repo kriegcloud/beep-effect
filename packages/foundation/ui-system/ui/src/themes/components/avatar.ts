@@ -1,6 +1,15 @@
 import type { ThemeComponents } from "../types.ts";
 
 /**
+ * Avatar theme theme value.
+ *
+ * @example
+ * ```ts
+ * import { avatarTheme } from "@beep/ui/themes/components/avatar"
+ *
+ * console.log(avatarTheme)
+ * ```
+ *
  * @category themes
  * @since 0.0.0
  */

@@ -16,7 +16,7 @@ const $I = $RepoUtilsId.create("JSDoc/models/TagParameters.model");
  * ```ts
  * import { TagParameters } from "@beep/repo-utils/JSDoc/models/TagParameters.model"
  *
- * void TagParameters
+ * console.log(TagParameters)
  * ```
  * @category models
  * @since 0.0.0

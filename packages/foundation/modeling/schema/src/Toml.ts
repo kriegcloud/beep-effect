@@ -84,8 +84,9 @@ const decodeTomlUnknown = (content: string) => {
  * import * as S from "effect/Schema"
  * import { TomlTextToUnknown } from "@beep/schema/Toml"
  *
- * const program = Effect.gen(function* () {})
- * void program
+ * const program = S.decodeUnknownEffect(TomlTextToUnknown)("port = 8080")
+ * const result = Effect.runPromise(program)
+ * console.log(result)
  * ```
  *
  * @category validation
@@ -114,8 +115,9 @@ export const TomlTextToUnknown = S.String.pipe(
  * const ServerConfig = S.Struct({ port: S.Number, host: S.String })
  * const decodeConfig = decodeTomlTextAs(S.Struct({ server: ServerConfig }))
  *
- * const program = Effect.gen(function* () {})
- * void program
+ * const program = decodeConfig("[server]\nport = 8080\nhost = \"localhost\"")
+ * const result = Effect.runPromise(program)
+ * console.log(result)
  * ```
  *
  * @param schema - Target schema to decode parsed TOML document into.

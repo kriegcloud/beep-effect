@@ -94,6 +94,17 @@ const FileNameSchema = S.TemplateLiteral([FileNameStemWithDot, FileExtension]).p
 );
 
 /**
+ * Portable file name schema.
+ *
+ * @example
+ * ```ts
+ * import { FileName } from "@beep/schema/FileName"
+ * import * as S from "effect/Schema"
+ *
+ * const fileName = S.decodeUnknownSync(FileName)("readme.txt")
+ * console.log(fileName)
+ * ```
+ *
  * @since 0.0.0
  * @category validation
  */

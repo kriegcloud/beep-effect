@@ -26,7 +26,7 @@ const $I = $ChalkId.create("Domain");
  * import type { ModifierStyleName } from "./AnsiStyles.ts"
  *
  * const styleName: ModifierStyleName = "bold"
- * void styleName
+ * console.log(styleName)
  * ```
  *
  * @category models
@@ -42,7 +42,7 @@ export type ModifierStyleName = ModifierName;
  * import type { ForegroundStyleName } from "./AnsiStyles.ts"
  *
  * const styleName: ForegroundStyleName = "cyan"
- * void styleName
+ * console.log(styleName)
  * ```
  *
  * @category models
@@ -58,7 +58,7 @@ export type ForegroundStyleName = ForegroundColorName;
  * import type { BackgroundStyleName } from "./AnsiStyles.ts"
  *
  * const styleName: BackgroundStyleName = "bgBlue"
- * void styleName
+ * console.log(styleName)
  * ```
  *
  * @category models
@@ -74,7 +74,7 @@ export type BackgroundStyleName = BackgroundColorName;
  * import type { StyleName } from "./AnsiStyles.ts"
  *
  * const styleName: StyleName = "underline"
- * void styleName
+ * console.log(styleName)
  * ```
  *
  * @category models

@@ -1,4 +1,6 @@
 /**
+ * Cardinal direction literal schemas.
+ *
  * @packageDocumentation
  * @since 0.0.0
  */
@@ -8,6 +10,15 @@ import { LiteralKit } from "../LiteralKit/index.ts";
 const $I = $SchemaId.create("person/CardinalDirection");
 
 /**
+ * Cardinal direction literal schema.
+ *
+ * @example
+ * ```ts
+ * import { CardinalDirection } from "@beep/schema/CardinalDirection"
+ *
+ * console.log(CardinalDirection.Options)
+ * ```
+ *
  * CardinalDirection - The cardinal directions
  *
  * @since 0.0.0
@@ -28,6 +39,13 @@ export type CardinalDirection = typeof CardinalDirection.Type;
 
 /**
  * CardinalDirectionAbbrev - The abbreviated version of the {@link CardinalDirection}
+ *
+ * @example
+ * ```ts
+ * import { CardinalDirectionAbbrev } from "@beep/schema/CardinalDirection"
+ *
+ * console.log(CardinalDirectionAbbrev.Options)
+ * ```
  *
  * @category validation
  * @since 0.0.0

@@ -17,6 +17,13 @@ import { $I } from "./HttpStatus.shared.ts";
  * from the client’s side. Common causes are URLs with invalid syntax, deceptive
  * request routing, large file size, etc.
  *
+ * @example
+ * ```ts
+ * import { BadRequest } from "@beep/schema/HttpStatus"
+ *
+ * console.log(BadRequest.literal)
+ * ```
+ *
  * @since 0.0.0
  * @category validation
  */
@@ -44,6 +51,13 @@ export type BadRequest = typeof BadRequest.Type;
  * If you experience this problem, check this guide for
  * {@link https://www.siteground.com/kb/error-401/
  * | troubleshooting the HTTP 401 error.}
+ *
+ * @example
+ * ```ts
+ * import { Unauthorized } from "@beep/schema/HttpStatus"
+ *
+ * console.log(Unauthorized.literal)
+ * ```
  *
  * @since 0.0.0
  * @category validation
@@ -76,6 +90,13 @@ export type Unauthorized = typeof Unauthorized.Type;
  * to be used in the future by payment systems. The purpose of the code is to
  * indicate that the content is not available due to a failed payment.
  *
+ * @example
+ * ```ts
+ * import { PaymentRequired } from "@beep/schema/HttpStatus"
+ *
+ * console.log(PaymentRequired.literal)
+ * ```
+ *
  * @since 0.0.0
  * @category validation
  */
@@ -105,6 +126,13 @@ export type PaymentRequired = typeof PaymentRequired.Type;
  * For more information, read this article about the HTTP 403 error and how to
  * fix it.
  *
+ * @example
+ * ```ts
+ * import { Forbidden } from "@beep/schema/HttpStatus"
+ *
+ * console.log(Forbidden.literal)
+ * ```
+ *
  * @since 0.0.0
  * @category validation
  */
@@ -131,6 +159,13 @@ export type Forbidden = typeof Forbidden.Type;
  * The error could also be caused by a website misconfiguration. Read the
  * following guide for troubleshooting the HTTP error 404.
  *
+ * @example
+ * ```ts
+ * import { NotFound } from "@beep/schema/HttpStatus"
+ *
+ * console.log(NotFound.literal)
+ * ```
+ *
  * @since 0.0.0
  * @category validation
  */
@@ -153,6 +188,13 @@ export type NotFound = typeof NotFound.Type;
 /**
  * 405 “Method Not Allowed” – The server understands the requested method, but
  * the target resource doesn’t support it.
+ *
+ * @example
+ * ```ts
+ * import { MethodNotAllowed } from "@beep/schema/HttpStatus"
+ *
+ * console.log(MethodNotAllowed.literal)
+ * ```
  *
  * @since 0.0.0
  * @category validation
@@ -177,6 +219,13 @@ export type MethodNotAllowed = typeof MethodNotAllowed.Type;
  * 406 “Not Acceptable” – The requested resource generated content that doesn’t
  * meet the criteria of the user-agent who requested it.
  *
+ * @example
+ * ```ts
+ * import { NotAcceptable } from "@beep/schema/HttpStatus"
+ *
+ * console.log(NotAcceptable.literal)
+ * ```
+ *
  * @since 0.0.0
  * @category validation
  */
@@ -200,6 +249,13 @@ export type NotAcceptable = typeof NotAcceptable.Type;
  * 407 “Proxy Authentication Required” – There is a proxy server used in the
  * communication between the browser and the server and it requires
  * authentication.
+ *
+ * @example
+ * ```ts
+ * import { ProxyAuthenticationRequired } from "@beep/schema/HttpStatus"
+ *
+ * console.log(ProxyAuthenticationRequired.literal)
+ * ```
  *
  * @since 0.0.0
  * @category validation
@@ -228,6 +284,13 @@ export type ProxyAuthenticationRequired = typeof ProxyAuthenticationRequired.Typ
  * It should be noted that servers may close the connection without sending a
  * message.
  *
+ * @example
+ * ```ts
+ * import { RequestTimeout } from "@beep/schema/HttpStatus"
+ *
+ * console.log(RequestTimeout.literal)
+ * ```
+ *
  * @since 0.0.0
  * @category validation
  */
@@ -252,6 +315,13 @@ export type RequestTimeout = typeof RequestTimeout.Type;
  * to a conflict in the current state of the resource on the server. An example
  * of this error is when multiple edits of the same file are submitted to the
  * server and the edits conflict with each other.
+ *
+ * @example
+ * ```ts
+ * import { Conflict } from "@beep/schema/HttpStatus"
+ *
+ * console.log(Conflict.literal)
+ * ```
  *
  * @since 0.0.0
  * @category validation

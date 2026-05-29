@@ -29,7 +29,7 @@ const decodeRows = S.decodeUnknownEffect(DuckDbRows);
  * import type { DuckDbQueryParameters } from "@beep/duckdb"
  *
  * const params: DuckDbQueryParameters = { id: "run-1" }
- * void params
+ * console.log(params)
  * ```
  *
  * @category models
@@ -53,7 +53,7 @@ export type DuckDbQueryParameters = Array<DuckDBValue> | Record<string, DuckDBVa
  *   withTransaction: (use) => use(client)
  * }
  *
- * void client
+ * console.log(client)
  * ```
  *
  * @category models
@@ -88,7 +88,7 @@ export interface DuckDbClient {
  *   withTransaction: (use) => use(service)
  * }
  *
- * void service
+ * console.log(service)
  * ```
  *
  * @category services
@@ -351,7 +351,7 @@ const makeNodeLayer = (options: DuckDbConnectionOptions): Layer.Layer<DuckDb> =>
  * import { DuckDb } from "@beep/duckdb"
  *
  * const service = DuckDb
- * void service
+ * console.log(service)
  * ```
  *
  * @category services
@@ -375,7 +375,7 @@ export class DuckDb extends Context.Service<DuckDb, DuckDbShape>()($I`DuckDb`) {
    * }
    *
    * const layer = DuckDb.makeLayer(client)
-   * void layer
+   * console.log(layer)
    * ```
    *
    * @category layers
@@ -394,7 +394,7 @@ export class DuckDb extends Context.Service<DuckDb, DuckDbShape>()($I`DuckDb`) {
    *   databasePath: "metrics.duckdb"
    * }))
    *
-   * void client
+   * console.log(client)
    * ```
    *
    * @category constructors
@@ -413,7 +413,7 @@ export class DuckDb extends Context.Service<DuckDb, DuckDbShape>()($I`DuckDb`) {
    *   databasePath: "metrics.duckdb"
    * }))
    *
-   * void layer
+   * console.log(layer)
    * ```
    *
    * @category layers

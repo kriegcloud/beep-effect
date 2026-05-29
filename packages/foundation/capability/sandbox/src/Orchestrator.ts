@@ -27,6 +27,13 @@ const DEFAULT_COMPLETION_SIGNAL = "<promise>COMPLETE</promise>";
 /**
  * Per-iteration run result.
  *
+ * @example
+ * ```ts
+ * import { IterationResult } from "@beep/sandbox/Orchestrator"
+ *
+ * console.log(IterationResult)
+ * ```
+ *
  * @category models
  * @since 0.0.0
  */
@@ -44,6 +51,13 @@ export class IterationResult extends S.Class<IterationResult>($I`IterationResult
 /**
  * Commit summary produced by a run.
  *
+ * @example
+ * ```ts
+ * import { CommitSummary } from "@beep/sandbox/Orchestrator"
+ *
+ * console.log(CommitSummary)
+ * ```
+ *
  * @category models
  * @since 0.0.0
  */
@@ -58,6 +72,13 @@ export class CommitSummary extends S.Class<CommitSummary>($I`CommitSummary`)(
 
 /**
  * Result of orchestrating agent iterations.
+ *
+ * @example
+ * ```ts
+ * import { OrchestrateResult } from "@beep/sandbox/Orchestrator"
+ *
+ * console.log(OrchestrateResult)
+ * ```
  *
  * @category models
  * @since 0.0.0
@@ -78,6 +99,14 @@ export class OrchestrateResult extends S.Class<OrchestrateResult>($I`Orchestrate
 
 /**
  * Options for orchestrating agent iterations against a sandbox handle.
+ *
+ * @example
+ * ```ts
+ * import type { OrchestrateOptions } from "@beep/sandbox/Orchestrator"
+ *
+ * const value = {} as OrchestrateOptions
+ * console.log(value)
+ * ```
  *
  * @category services
  * @since 0.0.0
@@ -180,6 +209,13 @@ const runAgentIteration: <R>(
 
 /**
  * Run an agent provider for the requested number of iterations.
+ *
+ * @example
+ * ```ts
+ * import { orchestrate } from "@beep/sandbox/Orchestrator"
+ *
+ * console.log(orchestrate)
+ * ```
  *
  * @category combinators
  * @since 0.0.0

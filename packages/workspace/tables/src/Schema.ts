@@ -34,6 +34,14 @@ export const DbSchema: DbSchemaShape = {
  * Type for {@link DbSchema}.
  *
  * @since 0.0.0
+ * @example
+ * ```ts
+ * import type { DbSchema } from "@beep/workspace-tables"
+ *
+ * const value = {} as DbSchema
+ * console.log(value)
+ * ```
+ *
  * @category tables
  */
 export type DbSchema = DbSchemaShape;

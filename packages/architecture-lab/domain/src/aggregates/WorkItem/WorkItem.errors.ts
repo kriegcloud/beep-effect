@@ -16,6 +16,13 @@ const $I = $ArchitectureLabDomainId.create("aggregates/WorkItem/WorkItem.errors"
 /**
  * Failure raised when a command attempts to mutate an archived WorkItem.
  *
+ * @example
+ * ```ts
+ * import { WorkItemAlreadyArchived } from "@beep/architecture-lab-domain/aggregates/WorkItem"
+ *
+ * console.log(WorkItemAlreadyArchived)
+ * ```
+ *
  * @category errors
  * @since 0.0.0
  */
@@ -32,6 +39,13 @@ export class WorkItemAlreadyArchived extends TaggedErrorClass<WorkItemAlreadyArc
 
 /**
  * Failure raised when a command attempts an unsupported lifecycle transition.
+ *
+ * @example
+ * ```ts
+ * import { WorkItemInvalidTransition } from "@beep/architecture-lab-domain/aggregates/WorkItem"
+ *
+ * console.log(WorkItemInvalidTransition)
+ * ```
  *
  * @category errors
  * @since 0.0.0
@@ -72,6 +86,13 @@ export class WorkItemInvalidTransition extends TaggedErrorClass<WorkItemInvalidT
 /**
  * Failure raised when an assignment command omits a valid assignee.
  *
+ * @example
+ * ```ts
+ * import { WorkItemAssigneeRequired } from "@beep/architecture-lab-domain/aggregates/WorkItem"
+ *
+ * console.log(WorkItemAssigneeRequired)
+ * ```
+ *
  * @category errors
  * @since 0.0.0
  */
@@ -89,6 +110,14 @@ export class WorkItemAssigneeRequired extends TaggedErrorClass<WorkItemAssigneeR
 /**
  * WorkItem aggregate domain failure.
  *
+ * @example
+ * ```ts
+ * import type { WorkItemDomainError } from "@beep/architecture-lab-domain/aggregates/WorkItem"
+ *
+ * const value = {} as WorkItemDomainError
+ * console.log(value)
+ * ```
+ *
  * @category errors
  * @since 0.0.0
  */
@@ -96,6 +125,13 @@ export type WorkItemDomainError = WorkItemAlreadyArchived | WorkItemInvalidTrans
 
 /**
  * WorkItem aggregate domain failure schema.
+ *
+ * @example
+ * ```ts
+ * import { WorkItemDomainError } from "@beep/architecture-lab-domain/aggregates/WorkItem"
+ *
+ * console.log(WorkItemDomainError)
+ * ```
  *
  * @category errors
  * @since 0.0.0

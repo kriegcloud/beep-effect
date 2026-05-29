@@ -41,7 +41,7 @@ export const HouseholdId = make("household", {
  *   const id: WealthManagement.HouseholdId = yield* S.decodeUnknownEffect(WealthManagement.HouseholdId)(1)
  *   return id
  * })
- * void program
+ * console.log(program)
  * ```
  *
  * @category entity-ids
@@ -79,7 +79,7 @@ export const WealthClientId = make("wealth_client", {
  *   const id: WealthManagement.WealthClientId = yield* S.decodeUnknownEffect(WealthManagement.WealthClientId)(1)
  *   return id
  * })
- * void program
+ * console.log(program)
  * ```
  *
  * @category entity-ids
@@ -117,7 +117,7 @@ export const PartyId = make("party", {
  *   const id: WealthManagement.PartyId = yield* S.decodeUnknownEffect(WealthManagement.PartyId)(1)
  *   return id
  * })
- * void program
+ * console.log(program)
  * ```
  *
  * @category entity-ids
@@ -155,7 +155,7 @@ export const AccountId = make("account", {
  *   const id: WealthManagement.AccountId = yield* S.decodeUnknownEffect(WealthManagement.AccountId)(1)
  *   return id
  * })
- * void program
+ * console.log(program)
  * ```
  *
  * @category entity-ids

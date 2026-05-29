@@ -10,6 +10,15 @@ import type { VariantProps } from "class-variance-authority";
 import type * as React from "react";
 
 /**
+ * Input group component.
+ *
+ * @example
+ * ```tsx
+ * import { InputGroup } from "@beep/ui/components/input-group"
+ *
+ * console.log(InputGroup)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -46,6 +55,15 @@ const inputGroupAddonVariants = cva(
 );
 
 /**
+ * Input group addon component.
+ *
+ * @example
+ * ```tsx
+ * import { InputGroupAddon } from "@beep/ui/components/input-group"
+ *
+ * console.log(InputGroupAddon)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -86,6 +104,15 @@ const inputGroupButtonVariants = cva("gap-2 text-sm shadow-none flex items-cente
 });
 
 /**
+ * Input group button component.
+ *
+ * @example
+ * ```tsx
+ * import { InputGroupButton } from "@beep/ui/components/input-group"
+ *
+ * console.log(InputGroupButton)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -111,6 +138,15 @@ function InputGroupButton({
 }
 
 /**
+ * Input group text component.
+ *
+ * @example
+ * ```tsx
+ * import { InputGroupText } from "@beep/ui/components/input-group"
+ *
+ * console.log(InputGroupText)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -127,6 +163,15 @@ function InputGroupText({ className, ...props }: React.ComponentProps<"span">) {
 }
 
 /**
+ * Input group input component.
+ *
+ * @example
+ * ```tsx
+ * import { InputGroupInput } from "@beep/ui/components/input-group"
+ *
+ * console.log(InputGroupInput)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -144,6 +189,15 @@ function InputGroupInput({ className, ...props }: React.ComponentProps<"input">)
 }
 
 /**
+ * Input group textarea component.
+ *
+ * @example
+ * ```tsx
+ * import { InputGroupTextarea } from "@beep/ui/components/input-group"
+ *
+ * console.log(InputGroupTextarea)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */

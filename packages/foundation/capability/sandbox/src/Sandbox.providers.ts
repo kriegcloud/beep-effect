@@ -52,6 +52,13 @@ const profileProviderAction = (provider: string, action: string) =>
 /**
  * Options for the no-sandbox provider.
  *
+ * @example
+ * ```ts
+ * import { NoSandboxOptions } from "@beep/sandbox/Sandbox.providers"
+ *
+ * console.log(NoSandboxOptions)
+ * ```
+ *
  * @category models
  * @since 0.0.0
  */
@@ -66,6 +73,13 @@ export class NoSandboxOptions extends S.Class<NoSandboxOptions>($I`NoSandboxOpti
 
 /**
  * Options for Docker and Podman bind-mount providers.
+ *
+ * @example
+ * ```ts
+ * import { ContainerProviderOptions } from "@beep/sandbox/Sandbox.providers"
+ *
+ * console.log(ContainerProviderOptions)
+ * ```
  *
  * @category models
  * @since 0.0.0
@@ -275,6 +289,13 @@ const createContainerProvider = (
 /**
  * Create a host-local no-sandbox provider.
  *
+ * @example
+ * ```ts
+ * import { noSandbox } from "@beep/sandbox/Sandbox.providers"
+ *
+ * console.log(noSandbox)
+ * ```
+ *
  * @category constructors
  * @since 0.0.0
  */
@@ -334,6 +355,13 @@ export const noSandbox = (
 /**
  * Create a Docker bind-mount sandbox provider.
  *
+ * @example
+ * ```ts
+ * import { docker } from "@beep/sandbox/Sandbox.providers"
+ *
+ * console.log(docker)
+ * ```
+ *
  * @category constructors
  * @since 0.0.0
  */
@@ -342,6 +370,13 @@ export const docker = (options: ContainerProviderOptions): BindMountSandboxProvi
 
 /**
  * Create a Podman bind-mount sandbox provider.
+ *
+ * @example
+ * ```ts
+ * import { podman } from "@beep/sandbox/Sandbox.providers"
+ *
+ * console.log(podman)
+ * ```
  *
  * @category constructors
  * @since 0.0.0

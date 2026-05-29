@@ -12,6 +12,13 @@ const $I = $SchemaId.create("HttpProtocol");
 /**
  * An HTTP protocol ("http" or "https")
  *
+ * @example
+ * ```ts
+ * import { HttpProtocol } from "@beep/schema/HttpProtocol"
+ *
+ * console.log(HttpProtocol.Options)
+ * ```
+ *
  * @category validation
  * @since 0.0.0
  */

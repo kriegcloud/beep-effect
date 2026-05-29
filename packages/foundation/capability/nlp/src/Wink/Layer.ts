@@ -56,6 +56,8 @@ const WinkLayerSharedLive = WinkEngineRefLiveService.pipe(Layer.provideMerge(Win
 export const WinkLayerAllLive = WinkCorpusManagerLiveService.pipe(Layer.provideMerge(WinkLayerSharedLive));
 
 /**
+ * Wink corpus manager live layer.
+ *
  * @example
  * ```ts
  * import { WinkCorpusManagerLive } from "@beep/nlp/Wink/Layer"
@@ -68,6 +70,8 @@ export const WinkLayerAllLive = WinkCorpusManagerLiveService.pipe(Layer.provideM
  */
 export const WinkCorpusManagerLive = WinkCorpusManagerLiveService;
 /**
+ * Wink engine service.
+ *
  * @example
  * ```ts
  * import { WinkEngine } from "@beep/nlp/Wink/Layer"
@@ -80,6 +84,8 @@ export const WinkCorpusManagerLive = WinkCorpusManagerLiveService;
  */
 export const WinkEngine = WinkEngineService;
 /**
+ * Wink engine live layer.
+ *
  * @example
  * ```ts
  * import { WinkEngineLive } from "@beep/nlp/Wink/Layer"
@@ -92,6 +98,8 @@ export const WinkEngine = WinkEngineService;
  */
 export const WinkEngineLive = WinkEngineLiveService;
 /**
+ * Wink engine ref live layer.
+ *
  * @example
  * ```ts
  * import { WinkEngineRefLive } from "@beep/nlp/Wink/Layer"
@@ -104,6 +112,8 @@ export const WinkEngineLive = WinkEngineLiveService;
  */
 export const WinkEngineRefLive = WinkEngineRefLiveService;
 /**
+ * Wink similarity live layer.
+ *
  * @example
  * ```ts
  * import { WinkSimilarityLive } from "@beep/nlp/Wink/Layer"
@@ -116,6 +126,8 @@ export const WinkEngineRefLive = WinkEngineRefLiveService;
  */
 export const WinkSimilarityLive = WinkSimilarityLiveService;
 /**
+ * Wink tokenization layer.
+ *
  * @example
  * ```ts
  * import { WinkTokenization } from "@beep/nlp/Wink/Layer"
@@ -128,6 +140,8 @@ export const WinkSimilarityLive = WinkSimilarityLiveService;
  */
 export const WinkTokenization = WinkTokenizationService;
 /**
+ * Wink tokenization live layer.
+ *
  * @example
  * ```ts
  * import { WinkTokenizationLive } from "@beep/nlp/Wink/Layer"
@@ -140,6 +154,8 @@ export const WinkTokenization = WinkTokenizationService;
  */
 export const WinkTokenizationLive = WinkTokenizationLiveService;
 /**
+ * Wink utils live layer.
+ *
  * @example
  * ```ts
  * import { WinkUtilsLive } from "@beep/nlp/Wink/Layer"
@@ -152,6 +168,8 @@ export const WinkTokenizationLive = WinkTokenizationLiveService;
  */
 export const WinkUtilsLive = WinkUtilsLiveService;
 /**
+ * Wink vectorizer live layer.
+ *
  * @example
  * ```ts
  * import { WinkVectorizerLive } from "@beep/nlp/Wink/Layer"

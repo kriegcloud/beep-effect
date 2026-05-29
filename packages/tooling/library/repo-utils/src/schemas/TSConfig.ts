@@ -480,7 +480,7 @@ const TSConfigExtends = S.Union([S.String, S.Array(S.String)]).pipe(
  * ```ts
  * import { TSConfigReference } from "@beep/repo-utils/schemas/TSConfig"
  * const schema = TSConfigReference
- * void schema
+ * console.log(schema)
  * ```
  * @category validation
  * @since 0.0.0
@@ -1228,7 +1228,7 @@ const TSNodeCompilerOptions = makeLooseJsonObject(
  * ```ts
  * import { TSConfigCompilerOptions } from "@beep/repo-utils/schemas/TSConfig"
  * const schema = TSConfigCompilerOptions
- * void schema
+ * console.log(schema)
  * ```
  * @category validation
  * @since 0.0.0
@@ -1288,7 +1288,7 @@ const TSConfigWatchOptionsShape = S.Struct(tsConfigWatchOptionsFields);
  * ```ts
  * import { TSConfigWatchOptions } from "@beep/repo-utils/schemas/TSConfig"
  * const schema = TSConfigWatchOptions
- * void schema
+ * console.log(schema)
  * ```
  * @category validation
  * @since 0.0.0
@@ -1335,7 +1335,7 @@ const TSConfigBuildOptionsShape = S.Struct(tsConfigBuildOptionsFields);
  * ```ts
  * import { TSConfigBuildOptions } from "@beep/repo-utils/schemas/TSConfig"
  * const schema = TSConfigBuildOptions
- * void schema
+ * console.log(schema)
  * ```
  * @category validation
  * @since 0.0.0
@@ -1371,7 +1371,7 @@ const TSConfigTypeAcquisitionShape = S.Struct(tsConfigTypeAcquisitionFields);
  * ```ts
  * import { TSConfigTypeAcquisition } from "@beep/repo-utils/schemas/TSConfig"
  * const schema = TSConfigTypeAcquisition
- * void schema
+ * console.log(schema)
  * ```
  * @category validation
  * @since 0.0.0
@@ -1475,7 +1475,7 @@ const TSNodeConfigShape = S.Struct(tsNodeFields);
  * ```ts
  * import { TSNodeConfig } from "@beep/repo-utils/schemas/TSConfig"
  * const schema = TSNodeConfig
- * void schema
+ * console.log(schema)
  * ```
  * @category validation
  * @since 0.0.0
@@ -1589,7 +1589,7 @@ const TSConfigSemantic = TSConfigShape.check(TSConfigSemanticChecks).pipe(
  * ```ts
  * import { TSConfig } from "@beep/repo-utils/schemas/TSConfig"
  * const schema = TSConfig
- * void schema
+ * console.log(schema)
  * ```
  * @category validation
  * @since 0.0.0
@@ -1610,7 +1610,7 @@ export class TSConfig extends S.Class<TSConfig>($I`TSConfig`)(
  * ```ts
  * import type { TSConfig } from "@beep/repo-utils/schemas/TSConfig"
  * const readCompilerOptions = (value: TSConfig.Type) => value.compilerOptions
- * void readCompilerOptions
+ * console.log(readCompilerOptions)
  * ```
  * @category models
  * @since 0.0.0
@@ -1660,7 +1660,7 @@ const encodeTSConfigJsonStringEffect = S.encodeUnknownEffect(S.fromJsonString(TS
  * ```ts
  * import { decodeTSConfig } from "@beep/repo-utils/schemas/TSConfig"
  * const config = decodeTSConfig({ compilerOptions: { strict: true } })
- * void config
+ * console.log(config)
  * ```
  * @category validation
  * @since 0.0.0
@@ -1678,7 +1678,7 @@ export const decodeTSConfig = (input: unknown): TSConfig.Type =>
  * ```ts
  * import { decodeTSConfigExit } from "@beep/repo-utils/schemas/TSConfig"
  * const exit = decodeTSConfigExit({ compilerOptions: { strict: true } })
- * void exit
+ * console.log(exit)
  * ```
  * @category validation
  * @since 0.0.0
@@ -1698,7 +1698,7 @@ export const decodeTSConfigExit: (input: unknown) => Exit.Exit<TSConfig.Type, S.
  * ```ts
  * import { decodeTSConfigEffect } from "@beep/repo-utils/schemas/TSConfig"
  * const program = decodeTSConfigEffect({ compilerOptions: { strict: true } })
- * void program
+ * console.log(program)
  * ```
  * @category validation
  * @since 0.0.0
@@ -1721,7 +1721,7 @@ export const decodeTSConfigEffect: (input: unknown) => Effect.Effect<TSConfig.Ty
  *   // Typecheck only
  *   "compilerOptions": { "noEmit": true }
  * }`)
- * void program
+ * console.log(program)
  * ```
  * @category validation
  * @since 0.0.0
@@ -1745,7 +1745,7 @@ export const decodeTSConfigFromJsoncTextEffect: (input: string) => Effect.Effect
  * ```ts
  * import { encodeTSConfigEffect } from "@beep/repo-utils/schemas/TSConfig"
  * const program = encodeTSConfigEffect({ compilerOptions: { strict: true } })
- * void program
+ * console.log(program)
  * ```
  * @category validation
  * @since 0.0.0
@@ -1766,7 +1766,7 @@ export const encodeTSConfigEffect: (input: unknown) => Effect.Effect<TSConfig.En
  * ```ts
  * import { encodeTSConfigToJsonEffect } from "@beep/repo-utils/schemas/TSConfig"
  * const program = encodeTSConfigToJsonEffect({ compilerOptions: { strict: true } })
- * void program
+ * console.log(program)
  * ```
  * @category validation
  * @since 0.0.0
@@ -1787,7 +1787,7 @@ export const encodeTSConfigToJsonEffect: (input: unknown) => Effect.Effect<strin
  * ```ts
  * import { encodeTSConfigPrettyEffect } from "@beep/repo-utils/schemas/TSConfig"
  * const program = encodeTSConfigPrettyEffect({ compilerOptions: { strict: true } })
- * void program
+ * console.log(program)
  * ```
  * @category validation
  * @since 0.0.0

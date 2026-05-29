@@ -43,6 +43,13 @@ const isRepositoryUnavailable = S.is(WorkItemRepositoryUnavailable);
 /**
  * Translate server and aggregate failures to public action failures.
  *
+ * @example
+ * ```ts
+ * import { toWorkItemActionError } from "@beep/architecture-lab-use-cases/aggregates/WorkItem/server"
+ *
+ * console.log(toWorkItemActionError)
+ * ```
+ *
  * @category use-cases
  * @since 0.0.0
  */
@@ -80,6 +87,13 @@ const mutateStoredWorkItem = (
 
 /**
  * Build WorkItem use-cases from the server repository port.
+ *
+ * @example
+ * ```ts
+ * import { makeWorkItemUseCases } from "@beep/architecture-lab-use-cases/aggregates/WorkItem/server"
+ *
+ * console.log(makeWorkItemUseCases)
+ * ```
  *
  * @category use-cases
  * @since 0.0.0

@@ -21,6 +21,7 @@ const writeErrorLine = (line: string): void => {
  * import { makeConsoleErrorReporter } from "@beep/observability/server"
  *
  * const reporter = makeConsoleErrorReporter({ includeCause: true })
+ * console.log(reporter)
  * ```
  *
  * @since 0.0.0
@@ -63,6 +64,7 @@ export const makeConsoleErrorReporter = (options?: {
  * import { layerErrorReporter } from "@beep/observability/server"
  *
  * const ErrorReporterLive = layerErrorReporter({ includeCause: true })
+ * console.log(ErrorReporterLive)
  * ```
  *
  * @since 0.0.0

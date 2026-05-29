@@ -4,16 +4,32 @@ import { Tooltip as TooltipPrimitive } from "@base-ui/react/tooltip";
 import { cn } from "@beep/ui/lib/utils";
 
 /**
- * Tooltip timing context shared across tooltip instances.
+ * Tooltip provider component.
  *
- * @since 0.0.0
+ * @example
+ * ```tsx
+ * import { TooltipProvider } from "@beep/ui/components/ui/tooltip"
+ *
+ * console.log(TooltipProvider)
+ * ```
+ *
  * @category components
+ * @since 0.0.0
  */
 function TooltipProvider({ delay = 0, ...props }: TooltipPrimitive.Provider.Props) {
   return <TooltipPrimitive.Provider data-slot="tooltip-provider" delay={delay} {...props} />;
 }
 
 /**
+ * Tooltip component.
+ *
+ * @example
+ * ```tsx
+ * import { Tooltip } from "@beep/ui/components/ui/tooltip"
+ *
+ * console.log(Tooltip)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -22,6 +38,15 @@ function Tooltip({ ...props }: TooltipPrimitive.Root.Props) {
 }
 
 /**
+ * Tooltip trigger component.
+ *
+ * @example
+ * ```tsx
+ * import { TooltipTrigger } from "@beep/ui/components/ui/tooltip"
+ *
+ * console.log(TooltipTrigger)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -30,6 +55,15 @@ function TooltipTrigger({ ...props }: TooltipPrimitive.Trigger.Props) {
 }
 
 /**
+ * Tooltip content component.
+ *
+ * @example
+ * ```tsx
+ * import { TooltipContent } from "@beep/ui/components/ui/tooltip"
+ *
+ * console.log(TooltipContent)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */

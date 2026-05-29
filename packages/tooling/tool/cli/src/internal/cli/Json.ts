@@ -21,7 +21,7 @@ const encodeJson = S.encodeUnknownEffect(S.UnknownFromJsonString);
  *
  * const error = CliJsonError.new("Failed to encode JSON")("boom")
  *
- * void error
+ * console.log(error)
  * ```
  * @category errors
  * @since 0.0.0
@@ -43,7 +43,7 @@ export class CliJsonError extends CauseTaggedError<CliJsonError>($I`CliJsonError
  *
  * const encoded = Effect.runSync(encodeCommandJson({ ok: true }))
  *
- * void encoded
+ * console.log(encoded)
  * ```
  * @category rendering
  * @since 0.0.0
@@ -63,7 +63,7 @@ const encodeCommandJson = Effect.fn("RepoCli.Json.encodeCommandJson")(function* 
  *
  * const program = printCommandJson({ ok: true })
  *
- * void program
+ * console.log(program)
  * ```
  * @category rendering
  * @since 0.0.0

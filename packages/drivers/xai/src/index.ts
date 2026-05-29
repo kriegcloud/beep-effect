@@ -28,7 +28,7 @@ export const VERSION = "0.0.0" as const;
  * import { XAiConfigInput } from "@beep/xai"
  *
  * const config = XAiConfigInput.make({})
- * void config
+ * console.log(config)
  * ```
  *
  * @category utilities
@@ -43,7 +43,7 @@ export * from "./XAi.config.ts";
  * import { XAiError } from "@beep/xai"
  *
  * const error = XAiError.config()
- * void error
+ * console.log(error)
  * ```
  *
  * @category utilities
@@ -58,7 +58,7 @@ export * from "./XAi.errors.ts";
  * import { XAiRequestOptions } from "@beep/xai"
  *
  * const request = XAiRequestOptions.make({})
- * void request
+ * console.log(request)
  * ```
  *
  * @category utilities
@@ -73,7 +73,7 @@ export * from "./XAi.models.ts";
  * import { XAi } from "@beep/xai"
  *
  * const layer = XAi.layer
- * void layer
+ * console.log(layer)
  * ```
  *
  * @category utilities
@@ -102,7 +102,7 @@ export * from "./XAiEndpoints.models.ts";
  * import { XAiLanguageModel } from "@beep/xai"
  *
  * const aiModel = XAiLanguageModel.model("grok-3")
- * void aiModel
+ * console.log(aiModel)
  * ```
  *
  * @category utilities

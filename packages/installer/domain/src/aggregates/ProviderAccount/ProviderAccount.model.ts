@@ -16,6 +16,13 @@ const $I = $InstallerDomainId.create("aggregates/ProviderAccount/ProviderAccount
 /**
  * Provider supported by the v1 installer dry-run.
  *
+ * @example
+ * ```ts
+ * import { ProviderKind } from "@beep/installer-domain/aggregates/ProviderAccount"
+ *
+ * console.log(ProviderKind)
+ * ```
+ *
  * @category aggregates
  * @since 0.0.0
  */
@@ -35,6 +42,13 @@ export type ProviderKind = typeof ProviderKind.Type;
 
 /**
  * Authentication shape for a provider account.
+ *
+ * @example
+ * ```ts
+ * import { ProviderAuthMode } from "@beep/installer-domain/aggregates/ProviderAccount"
+ *
+ * console.log(ProviderAuthMode)
+ * ```
  *
  * @category aggregates
  * @since 0.0.0
@@ -56,6 +70,13 @@ export type ProviderAuthMode = typeof ProviderAuthMode.Type;
 /**
  * Dry-run status for a provider account.
  *
+ * @example
+ * ```ts
+ * import { ProviderAccountStatus } from "@beep/installer-domain/aggregates/ProviderAccount"
+ *
+ * console.log(ProviderAccountStatus)
+ * ```
+ *
  * @category aggregates
  * @since 0.0.0
  */
@@ -75,6 +96,13 @@ export type ProviderAccountStatus = typeof ProviderAccountStatus.Type;
 
 /**
  * Provider account requested by the installer.
+ *
+ * @example
+ * ```ts
+ * import { ProviderAccount } from "@beep/installer-domain/aggregates/ProviderAccount"
+ *
+ * console.log(ProviderAccount)
+ * ```
  *
  * @category aggregates
  * @since 0.0.0

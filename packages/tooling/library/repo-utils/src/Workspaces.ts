@@ -75,12 +75,8 @@ const isContainedCanonicalPath: {
  * import { Effect } from "effect"
  * import { resolveWorkspaceDirs } from "@beep/repo-utils/Workspaces"
  *
- * const program = Effect.gen(function*() {
- *
- *
- *
- * })
- * void program
+ * const program = resolveWorkspaceDirs(".")
+ * console.log(program)
  * ```
  * @category utilities
  * @since 0.0.0
@@ -182,13 +178,8 @@ export const resolveWorkspaceDirs: (
  * import * as O from "effect/Option"
  * import { getWorkspaceDir } from "@beep/repo-utils/Workspaces"
  *
- * const program = Effect.gen(function*() {
- *
- *
- *
- *
- * })
- * void program
+ * const program = getWorkspaceDir(".", "@beep/repo-utils")
+ * console.log(program)
  * ```
  * @category utilities
  * @since 0.0.0

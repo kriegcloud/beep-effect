@@ -99,6 +99,15 @@ export const rgbToHexValue = ({ r, g, b }: RgbEncoded): HexColor =>
 /**
  * Boundary schema for hex color input strings.
  *
+ * @example
+ * ```ts
+ * import { HexColorInput } from "@beep/schema/Color"
+ * import * as S from "effect/Schema"
+ *
+ * const input = S.decodeUnknownSync(HexColorInput)("#3bf")
+ * console.log(input)
+ * ```
+ *
  * @since 0.0.0
  * @category validation
  */
@@ -118,6 +127,15 @@ export type HexColorInput = typeof HexColorInput.Type;
 
 /**
  * Canonical lowercase six-digit hex color schema.
+ *
+ * @example
+ * ```ts
+ * import { HexColor } from "@beep/schema/Color"
+ * import * as S from "effect/Schema"
+ *
+ * const color = S.decodeUnknownSync(HexColor)("#33bbff")
+ * console.log(color)
+ * ```
  *
  * @since 0.0.0
  * @category validation
@@ -139,6 +157,15 @@ export type HexColor = typeof HexColor.Type;
 
 /**
  * Canonicalization schema from boundary hex input to canonical hex output.
+ *
+ * @example
+ * ```ts
+ * import { NormalizeHexColor } from "@beep/schema/Color"
+ * import * as S from "effect/Schema"
+ *
+ * const color = S.decodeUnknownSync(NormalizeHexColor)("#3bf")
+ * console.log(color)
+ * ```
  *
  * @since 0.0.0
  * @category validation

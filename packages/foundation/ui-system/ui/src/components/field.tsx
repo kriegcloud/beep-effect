@@ -15,6 +15,15 @@ const hasRenderableNode = (node: React.ReactNode): boolean =>
   node !== undefined && node !== null && node !== false && node !== "" && node !== 0 && node !== 0n;
 
 /**
+ * Field set component.
+ *
+ * @example
+ * ```tsx
+ * import { FieldSet } from "@beep/ui/components/field"
+ *
+ * console.log(FieldSet)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -32,6 +41,15 @@ function FieldSet({ className, ...props }: React.ComponentProps<"fieldset">) {
 }
 
 /**
+ * Field legend component.
+ *
+ * @example
+ * ```tsx
+ * import { FieldLegend } from "@beep/ui/components/field"
+ *
+ * console.log(FieldLegend)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -51,6 +69,15 @@ function FieldLegend({
 }
 
 /**
+ * Field group component.
+ *
+ * @example
+ * ```tsx
+ * import { FieldGroup } from "@beep/ui/components/field"
+ *
+ * console.log(FieldGroup)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -83,6 +110,15 @@ const fieldVariants = cva("data-[invalid=true]:text-destructive gap-2 group/fiel
 });
 
 /**
+ * Field component.
+ *
+ * @example
+ * ```tsx
+ * import { Field } from "@beep/ui/components/field"
+ *
+ * console.log(Field)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -103,6 +139,15 @@ function Field({
 }
 
 /**
+ * Field content component.
+ *
+ * @example
+ * ```tsx
+ * import { FieldContent } from "@beep/ui/components/field"
+ *
+ * console.log(FieldContent)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -117,6 +162,15 @@ function FieldContent({ className, ...props }: React.ComponentProps<"div">) {
 }
 
 /**
+ * Field label component.
+ *
+ * @example
+ * ```tsx
+ * import { FieldLabel } from "@beep/ui/components/field"
+ *
+ * console.log(FieldLabel)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -135,6 +189,15 @@ function FieldLabel({ className, ...props }: React.ComponentProps<typeof Label>)
 }
 
 /**
+ * Field title component.
+ *
+ * @example
+ * ```tsx
+ * import { FieldTitle } from "@beep/ui/components/field"
+ *
+ * console.log(FieldTitle)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -152,6 +215,15 @@ function FieldTitle({ className, ...props }: React.ComponentProps<"div">) {
 }
 
 /**
+ * Field description component.
+ *
+ * @example
+ * ```tsx
+ * import { FieldDescription } from "@beep/ui/components/field"
+ *
+ * console.log(FieldDescription)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -171,6 +243,15 @@ function FieldDescription({ className, ...props }: React.ComponentProps<"p">) {
 }
 
 /**
+ * Field separator component.
+ *
+ * @example
+ * ```tsx
+ * import { FieldSeparator } from "@beep/ui/components/field"
+ *
+ * console.log(FieldSeparator)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -203,6 +284,15 @@ function FieldSeparator({
 }
 
 /**
+ * Field error component.
+ *
+ * @example
+ * ```tsx
+ * import { FieldError } from "@beep/ui/components/field"
+ *
+ * console.log(FieldError)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */

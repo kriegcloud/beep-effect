@@ -28,7 +28,7 @@ const isFalse = (value: unknown): value is false => Eq.equals(false)(value);
  *   key: "X-Content-Type-Options",
  *   value: "nosniff"
  * })
- * void header
+ * console.log(header)
  * ```
  * @category schemas
  * @since 0.0.0
@@ -85,7 +85,7 @@ class SecureHeadersConfigValue extends S.Class<SecureHeadersConfigValue>($I`Secu
  * const config: SecureHeadersConfig = {
  *   additionalHeaders: [{ key: "X-Beep", value: "1" }]
  * }
- * void config
+ * console.log(config)
  * ```
  * @category schemas
  * @since 0.0.0
@@ -105,7 +105,7 @@ export const SecureHeadersConfig = S.Union([S.Literal(false), SecureHeadersConfi
  * const config: SecureHeadersConfig = {
  *   source: "/(.*)"
  * }
- * void config
+ * console.log(config)
  * ```
  * @category models
  * @since 0.0.0
@@ -119,7 +119,7 @@ export type SecureHeadersConfig = typeof SecureHeadersConfig.Type;
  * ```ts
  * import { DEFAULT_BEEP_SECURE_HEADERS } from "@beep/repo-configs/next/security"
  * const headers = DEFAULT_BEEP_SECURE_HEADERS
- * void headers
+ * console.log(headers)
  * ```
  * @category configuration
  * @since 0.0.0
@@ -181,7 +181,7 @@ const headerSource = (config: SecureHeadersConfig | undefined): string =>
  * const headers = makeSecureHeaders({
  *   additionalHeaders: [{ key: "X-Beep", value: "1" }]
  * })
- * void headers
+ * console.log(headers)
  * ```
  * @category constructors
  * @since 0.0.0
@@ -213,7 +213,7 @@ export const makeSecureHeaders = (config?: SecureHeadersConfig): ReadonlyArray<S
  * ```ts
  * import { withSecureHeaders } from "@beep/repo-configs/next/security"
  * const config = withSecureHeaders({ reactStrictMode: true })
- * void config
+ * console.log(config)
  * ```
  * @category combinators
  * @since 0.0.0

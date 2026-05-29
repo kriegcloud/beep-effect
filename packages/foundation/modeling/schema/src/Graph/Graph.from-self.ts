@@ -25,6 +25,15 @@ import type { GraphKindValue } from "./Graph.shared.ts";
 /**
  * Schema for validating existing immutable Effect graphs.
  *
+ * @example
+ * ```ts
+ * import { GraphFromSelf } from "@beep/schema/Graph"
+ * import * as S from "effect/Schema"
+ *
+ * type Schema = import("@beep/schema/Graph").GraphFromSelf<typeof S.String, typeof S.Number>
+ * console.log(S.isSchema(GraphFromSelf({ node: S.String, edge: S.Number }) satisfies Schema))
+ * ```
+ *
  * @since 0.0.0
  * @category validation
  */
@@ -42,6 +51,15 @@ export interface GraphFromSelf<Node extends S.Top, Edge extends S.Top>
 
 /**
  * Schema for validating existing immutable directed Effect graphs.
+ *
+ * @example
+ * ```ts
+ * import { DirectedGraphFromSelf } from "@beep/schema/Graph"
+ * import * as S from "effect/Schema"
+ *
+ * type Schema = import("@beep/schema/Graph").DirectedGraphFromSelf<typeof S.String, typeof S.Number>
+ * console.log(S.isSchema(DirectedGraphFromSelf({ node: S.String, edge: S.Number }) satisfies Schema))
+ * ```
  *
  * @since 0.0.0
  * @category validation
@@ -61,6 +79,15 @@ export interface DirectedGraphFromSelf<Node extends S.Top, Edge extends S.Top>
 /**
  * Schema for validating existing immutable undirected Effect graphs.
  *
+ * @example
+ * ```ts
+ * import { UndirectedGraphFromSelf } from "@beep/schema/Graph"
+ * import * as S from "effect/Schema"
+ *
+ * type Schema = import("@beep/schema/Graph").UndirectedGraphFromSelf<typeof S.String, typeof S.Number>
+ * console.log(S.isSchema(UndirectedGraphFromSelf({ node: S.String, edge: S.Number }) satisfies Schema))
+ * ```
+ *
  * @since 0.0.0
  * @category validation
  */
@@ -78,6 +105,15 @@ export interface UndirectedGraphFromSelf<Node extends S.Top, Edge extends S.Top>
 
 /**
  * Schema for validating existing mutable Effect graphs.
+ *
+ * @example
+ * ```ts
+ * import { MutableGraphFromSelf } from "@beep/schema/Graph"
+ * import * as S from "effect/Schema"
+ *
+ * type Schema = import("@beep/schema/Graph").MutableGraphFromSelf<typeof S.String, typeof S.Number>
+ * console.log(S.isSchema(MutableGraphFromSelf({ node: S.String, edge: S.Number }) satisfies Schema))
+ * ```
  *
  * @since 0.0.0
  * @category validation
@@ -97,6 +133,15 @@ export interface MutableGraphFromSelf<Node extends S.Top, Edge extends S.Top>
 /**
  * Schema for validating existing mutable directed Effect graphs.
  *
+ * @example
+ * ```ts
+ * import { MutableDirectedGraphFromSelf } from "@beep/schema/Graph"
+ * import * as S from "effect/Schema"
+ *
+ * type Schema = import("@beep/schema/Graph").MutableDirectedGraphFromSelf<typeof S.String, typeof S.Number>
+ * console.log(S.isSchema(MutableDirectedGraphFromSelf({ node: S.String, edge: S.Number }) satisfies Schema))
+ * ```
+ *
  * @since 0.0.0
  * @category validation
  */
@@ -114,6 +159,15 @@ export interface MutableDirectedGraphFromSelf<Node extends S.Top, Edge extends S
 
 /**
  * Schema for validating existing mutable undirected Effect graphs.
+ *
+ * @example
+ * ```ts
+ * import { MutableUndirectedGraphFromSelf } from "@beep/schema/Graph"
+ * import * as S from "effect/Schema"
+ *
+ * type Schema = import("@beep/schema/Graph").MutableUndirectedGraphFromSelf<typeof S.String, typeof S.Number>
+ * console.log(S.isSchema(MutableUndirectedGraphFromSelf({ node: S.String, edge: S.Number }) satisfies Schema))
+ * ```
  *
  * @since 0.0.0
  * @category validation
@@ -239,6 +293,15 @@ const makeMutableGraphFromSelf = <Node extends S.Top, Edge extends S.Top>(
 /**
  * Schema for validating existing immutable Effect graphs.
  *
+ * @example
+ * ```ts
+ * import { GraphFromSelf } from "@beep/schema/Graph"
+ * import * as S from "effect/Schema"
+ *
+ * const schema = GraphFromSelf({ node: S.String, edge: S.Number })
+ * console.log(S.isSchema(schema))
+ * ```
+ *
  * @param options - Schemas for node and edge payloads.
  * @returns Immutable graph validator schema.
  * @since 0.0.0
@@ -256,6 +319,15 @@ export const GraphFromSelf = <Node extends S.Top, Edge extends S.Top>(options: {
 
 /**
  * Schema for validating existing immutable directed Effect graphs.
+ *
+ * @example
+ * ```ts
+ * import { DirectedGraphFromSelf } from "@beep/schema/Graph"
+ * import * as S from "effect/Schema"
+ *
+ * const schema = DirectedGraphFromSelf({ node: S.String, edge: S.Number })
+ * console.log(S.isSchema(schema))
+ * ```
  *
  * @param options - Schemas for node and edge payloads.
  * @returns Immutable directed graph validator schema.
@@ -278,6 +350,15 @@ export const DirectedGraphFromSelf = <Node extends S.Top, Edge extends S.Top>(op
 /**
  * Schema for validating existing immutable undirected Effect graphs.
  *
+ * @example
+ * ```ts
+ * import { UndirectedGraphFromSelf } from "@beep/schema/Graph"
+ * import * as S from "effect/Schema"
+ *
+ * const schema = UndirectedGraphFromSelf({ node: S.String, edge: S.Number })
+ * console.log(S.isSchema(schema))
+ * ```
+ *
  * @param options - Schemas for node and edge payloads.
  * @returns Immutable undirected graph validator schema.
  * @since 0.0.0
@@ -299,6 +380,15 @@ export const UndirectedGraphFromSelf = <Node extends S.Top, Edge extends S.Top>(
 /**
  * Schema for validating existing mutable Effect graphs.
  *
+ * @example
+ * ```ts
+ * import { MutableGraphFromSelf } from "@beep/schema/Graph"
+ * import * as S from "effect/Schema"
+ *
+ * const schema = MutableGraphFromSelf({ node: S.String, edge: S.Number })
+ * console.log(S.isSchema(schema))
+ * ```
+ *
  * @param options - Schemas for node and edge payloads.
  * @returns Mutable graph validator schema.
  * @since 0.0.0
@@ -316,6 +406,15 @@ export const MutableGraphFromSelf = <Node extends S.Top, Edge extends S.Top>(opt
 
 /**
  * Schema for validating existing mutable directed Effect graphs.
+ *
+ * @example
+ * ```ts
+ * import { MutableDirectedGraphFromSelf } from "@beep/schema/Graph"
+ * import * as S from "effect/Schema"
+ *
+ * const schema = MutableDirectedGraphFromSelf({ node: S.String, edge: S.Number })
+ * console.log(S.isSchema(schema))
+ * ```
  *
  * @param options - Schemas for node and edge payloads.
  * @returns Mutable directed graph validator schema.
@@ -337,6 +436,15 @@ export const MutableDirectedGraphFromSelf = <Node extends S.Top, Edge extends S.
 
 /**
  * Schema for validating existing mutable undirected Effect graphs.
+ *
+ * @example
+ * ```ts
+ * import { MutableUndirectedGraphFromSelf } from "@beep/schema/Graph"
+ * import * as S from "effect/Schema"
+ *
+ * const schema = MutableUndirectedGraphFromSelf({ node: S.String, edge: S.Number })
+ * console.log(S.isSchema(schema))
+ * ```
  *
  * @param options - Schemas for node and edge payloads.
  * @returns Mutable undirected graph validator schema.

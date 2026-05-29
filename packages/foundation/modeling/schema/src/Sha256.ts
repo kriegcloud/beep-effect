@@ -86,11 +86,9 @@ export type Sha256Hex = typeof Sha256Hex.Type;
  * import * as S from "effect/Schema"
  * import { Sha256HexFromBytes } from "@beep/schema/Sha256"
  *
- * const program = Effect.gen(function* () {
- *
- *
- *
- * })
+ * const program = S.decodeUnknownEffect(Sha256HexFromBytes)(new Uint8Array())
+ * const result = Effect.runPromise(program)
+ * console.log(result)
  * ```
  *
  * @since 0.0.0
@@ -131,10 +129,9 @@ export type Sha256HexFromBytes = typeof Sha256HexFromBytes.Type;
  * import * as S from "effect/Schema"
  * import { Sha256HexFromHexBytes } from "@beep/schema/Sha256"
  *
- * const program = Effect.gen(function* () {
- *
- *
- * })
+ * const program = S.decodeUnknownEffect(Sha256HexFromHexBytes)("68656c6c6f")
+ * const result = Effect.runPromise(program)
+ * console.log(result)
  * ```
  *
  * @since 0.0.0

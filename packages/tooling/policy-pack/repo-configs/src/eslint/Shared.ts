@@ -13,7 +13,7 @@ import { normalizePath as normalizeSchemaPath, PosixPath as PosixPathSchema } fr
  * @example
  * ```ts
  * import { PosixPath } from "@beep/repo-configs/eslint/Shared"
- * void PosixPath
+ * console.log(PosixPath)
  * ```
  * @category validation
  * @since 0.0.0
@@ -42,7 +42,7 @@ export type PosixPath = typeof PosixPath.Type;
  * ```ts
  * import { normalizePath } from "@beep/repo-configs/eslint/Shared"
  * const path = normalizePath("packages/tooling/policy-pack/repo-configs/src/index.ts")
- * void path
+ * console.log(path)
  * ```
  * @category utilities
  * @since 0.0.0

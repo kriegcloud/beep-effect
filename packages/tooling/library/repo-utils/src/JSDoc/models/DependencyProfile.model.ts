@@ -18,7 +18,7 @@ const $I = $RepoUtilsId.create("JSDoc/models/DependencyProfile.model");
  * ```ts
  * import { FanValue } from "@beep/repo-utils/JSDoc/models/DependencyProfile.model"
  *
- * void FanValue
+ * console.log(FanValue)
  * ```
  * @category models
  * @since 0.0.0
@@ -38,7 +38,7 @@ export const FanValue = LiteralKit(["low", "medium", "high"]).pipe(
  *
  * type Example = FanValue
  * const accept = <A extends Example>(value: A): A => value
- * void accept
+ * console.log(accept)
  * ```
  * @category models
  * @since 0.0.0
@@ -54,7 +54,7 @@ export type FanValue = typeof FanValue.Type;
  * ```ts
  * import { DependencyProfile } from "@beep/repo-utils/JSDoc/models/DependencyProfile.model"
  *
- * void DependencyProfile
+ * console.log(DependencyProfile)
  * ```
  * @category models
  * @since 0.0.0

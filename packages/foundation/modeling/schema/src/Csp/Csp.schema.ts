@@ -20,6 +20,15 @@ import type { SecureHeaderError } from "../SecureHeaderError/index.ts";
 const $I = $SchemaId.create("Csp");
 
 /**
+ * Source value accepted by a Content-Security-Policy directive.
+ *
+ * @example
+ * ```ts
+ * import { DirectiveSource } from "@beep/schema/Csp"
+ *
+ * console.log(DirectiveSource.ast)
+ * ```
+ *
  * @category schemas
  * @since 0.0.0
  */
@@ -30,6 +39,16 @@ export const DirectiveSource = S.Union([...internal.ArrayOfStrOrStr.members, S.U
 );
 
 /**
+ * Runtime type for {@link DirectiveSource}.
+ *
+ * @example
+ * ```ts
+ * import type { DirectiveSource } from "@beep/schema/Csp"
+ *
+ * const source: DirectiveSource = "'self'"
+ * console.log(source)
+ * ```
+ *
  * @category models
  * @since 0.0.0
  */
@@ -42,6 +61,15 @@ const directiveValueSeparator = "; ";
 const ContentSecurityPolicyHeaderNameBase = LiteralKit([headerName, reportOnlyHeaderName]);
 
 /**
+ * Header names used for enforcing or reporting CSP directives.
+ *
+ * @example
+ * ```ts
+ * import { ContentSecurityPolicyHeaderName } from "@beep/schema/Csp"
+ *
+ * console.log(ContentSecurityPolicyHeaderName.ast)
+ * ```
+ *
  * @category schemas
  * @since 0.0.0
  */
@@ -53,6 +81,16 @@ export const ContentSecurityPolicyHeaderName = ContentSecurityPolicyHeaderNameBa
 );
 
 /**
+ * Runtime type for {@link ContentSecurityPolicyHeaderName}.
+ *
+ * @example
+ * ```ts
+ * import type { ContentSecurityPolicyHeaderName } from "@beep/schema/Csp"
+ *
+ * const name: ContentSecurityPolicyHeaderName = "Content-Security-Policy"
+ * console.log(name)
+ * ```
+ *
  * @category models
  * @since 0.0.0
  */
@@ -76,12 +114,12 @@ const unwrapDirectiveValue = <T>(value: undefined | T | O.Option<T>): T | undefi
  *
  * // Get standard CSP header name
  * const standardHeader = getProperHeaderName();
- * void standardHeader;
+ * console.log(standardHeader)
  * // => "Content-Security-Policy"
  *
  * // Get report-only CSP header name
  * const reportOnlyHeader = getProperHeaderName(true);
- * void reportOnlyHeader;
+ * console.log(reportOnlyHeader)
  * // => "Content-Security-Policy-Report-Only"
  * ```
  *
@@ -110,6 +148,14 @@ type DirectiveValueOptions = {
 
 /**
  * Creates a serialized directive value from a directive name and value list.
+ *
+ * @example
+ * ```ts
+ * import { createDirectiveValue } from "@beep/schema/Csp"
+ *
+ * const value = createDirectiveValue("default-src", ["'self'", "https://cdn.example.com"])
+ * console.log(value)
+ * ```
  *
  * @category utilities
  * @since 0.0.0
@@ -140,6 +186,15 @@ export const createDirectiveValue: {
 );
 
 /**
+ * Values accepted by the CSP `plugin-types` directive.
+ *
+ * @example
+ * ```ts
+ * import { PluginTypes } from "@beep/schema/Csp"
+ *
+ * console.log(PluginTypes.ast)
+ * ```
+ *
  * @category schemas
  * @since 0.0.0
  */
@@ -150,6 +205,16 @@ export const PluginTypes = internal.ArrayOfStrOrStr.pipe(
 );
 
 /**
+ * Runtime type for {@link PluginTypes}.
+ *
+ * @example
+ * ```ts
+ * import type { PluginTypes } from "@beep/schema/Csp"
+ *
+ * const pluginTypes: PluginTypes = ["application/pdf"]
+ * console.log(pluginTypes)
+ * ```
+ *
  * @category models
  * @since 0.0.0
  */
@@ -173,6 +238,15 @@ const SandboxBase = LiteralKit([
 ]);
 
 /**
+ * Values accepted by the CSP `sandbox` directive.
+ *
+ * @example
+ * ```ts
+ * import { Sandbox } from "@beep/schema/Csp"
+ *
+ * console.log(Sandbox.ast)
+ * ```
+ *
  * @category schemas
  * @since 0.0.0
  */
@@ -184,6 +258,16 @@ export const Sandbox = SandboxBase.pipe(
 );
 
 /**
+ * Runtime type for {@link Sandbox}.
+ *
+ * @example
+ * ```ts
+ * import type { Sandbox } from "@beep/schema/Csp"
+ *
+ * const sandbox: Sandbox = "allow-scripts"
+ * console.log(sandbox)
+ * ```
+ *
  * @category models
  * @since 0.0.0
  */
@@ -227,6 +311,16 @@ const fetchDirectiveNamesByKey = {
 } as const;
 
 /**
+ * Fetch directive fields accepted by Content-Security-Policy.
+ *
+ * @example
+ * ```ts
+ * import { FetchDirective } from "@beep/schema/Csp"
+ *
+ * const value = FetchDirective.convertToString({ defaultSrc: "'self'" })
+ * console.log(value)
+ * ```
+ *
  * @category models
  * @since 0.0.0
  */
@@ -296,6 +390,16 @@ export class FetchDirective extends S.Class<FetchDirective>($I`FetchDirective`)(
 }
 
 /**
+ * Document directive fields accepted by Content-Security-Policy.
+ *
+ * @example
+ * ```ts
+ * import { DocumentDirective } from "@beep/schema/Csp"
+ *
+ * const value = DocumentDirective.convertToString({ sandbox: "allow-scripts" })
+ * console.log(value)
+ * ```
+ *
  * @category models
  * @since 0.0.0
  */
@@ -340,6 +444,16 @@ export class DocumentDirective extends S.Class<DocumentDirective>($I`DocumentDir
 }
 
 /**
+ * Navigation directive fields accepted by Content-Security-Policy.
+ *
+ * @example
+ * ```ts
+ * import { NavigationDirective } from "@beep/schema/Csp"
+ *
+ * const value = NavigationDirective.convertToString({ formAction: "'self'" })
+ * console.log(value)
+ * ```
+ *
  * @category models
  * @since 0.0.0
  */
@@ -384,6 +498,15 @@ export class NavigationDirective extends S.Class<NavigationDirective>($I`Navigat
 }
 
 /**
+ * Values accepted by the CSP `report-uri` directive.
+ *
+ * @example
+ * ```ts
+ * import { ReportURI } from "@beep/schema/Csp"
+ *
+ * console.log(ReportURI.ast)
+ * ```
+ *
  * @category schemas
  * @since 0.0.0
  */
@@ -394,6 +517,16 @@ export const ReportURI = S.Union([...internal.StringOrUrl.members, S.Array(inter
 );
 
 /**
+ * Reporting directive fields accepted by Content-Security-Policy.
+ *
+ * @example
+ * ```ts
+ * import { ReportingDirective } from "@beep/schema/Csp"
+ *
+ * const value = ReportingDirective.convertToString({ reportTo: "default" })
+ * console.log(value)
+ * ```
+ *
  * @category models
  * @since 0.0.0
  */
@@ -430,6 +563,15 @@ export class ReportingDirective extends S.Class<ReportingDirective>($I`Reporting
 }
 
 /**
+ * Combined CSP directive field schema.
+ *
+ * @example
+ * ```ts
+ * import { CspDirectives } from "@beep/schema/Csp"
+ *
+ * console.log(CspDirectives.ast)
+ * ```
+ *
  * @category schemas
  * @since 0.0.0
  */
@@ -445,6 +587,15 @@ export const CspDirectives = S.Struct({
 );
 
 /**
+ * Structured CSP option object before header serialization.
+ *
+ * @example
+ * ```ts
+ * import { ContentSecurityPolicyOptionStruct } from "@beep/schema/Csp"
+ *
+ * console.log(ContentSecurityPolicyOptionStruct.ast)
+ * ```
+ *
  * @category models
  * @since 0.0.0
  */
@@ -477,6 +628,15 @@ export class ContentSecurityPolicyOptionStruct extends S.Class<ContentSecurityPo
 ) {}
 
 /**
+ * CSP option schema accepting a disabled `false` value or structured directives.
+ *
+ * @example
+ * ```ts
+ * import { ContentSecurityPolicyOption } from "@beep/schema/Csp"
+ *
+ * console.log(ContentSecurityPolicyOption.ast)
+ * ```
+ *
  * @category schemas
  * @since 0.0.0
  */
@@ -487,12 +647,31 @@ export const ContentSecurityPolicyOption = S.Union([S.Literal(false), ContentSec
 );
 
 /**
+ * Runtime type for {@link ContentSecurityPolicyOption}.
+ *
+ * @example
+ * ```ts
+ * import type { ContentSecurityPolicyOption } from "@beep/schema/Csp"
+ *
+ * const option: ContentSecurityPolicyOption = false
+ * console.log(option)
+ * ```
+ *
  * @category models
  * @since 0.0.0
  */
 export type ContentSecurityPolicyOption = typeof ContentSecurityPolicyOption.Type;
 
 /**
+ * Serialized Content-Security-Policy response header model.
+ *
+ * @example
+ * ```ts
+ * import { ContentSecurityPolicyResponseHeader } from "@beep/schema/Csp"
+ *
+ * console.log(ContentSecurityPolicyResponseHeader.ast)
+ * ```
+ *
  * @category models
  * @since 0.0.0
  */
@@ -551,6 +730,18 @@ const decodeContentSecurityPolicyHeader = Effect.fn("Csp.decodeContentSecurityPo
 });
 
 /**
+ * Format a structured CSP option into a header value.
+ *
+ * @example
+ * ```ts
+ * import { ContentSecurityPolicyOptionStruct, createContentSecurityPolicyOptionHeaderValue } from "@beep/schema/Csp"
+ *
+ * const option = ContentSecurityPolicyOptionStruct.make({
+ *   directives: { defaultSrc: "'self'" }
+ * })
+ * console.log(createContentSecurityPolicyOptionHeaderValue(option))
+ * ```
+ *
  * @category formatting
  * @since 0.0.0
  */
@@ -577,6 +768,15 @@ export const createContentSecurityPolicyOptionHeaderValue = (
 };
 
 /**
+ * One-way schema that decodes CSP options into a response header.
+ *
+ * @example
+ * ```ts
+ * import { ContentSecurityPolicyHeader } from "@beep/schema/Csp"
+ *
+ * console.log(ContentSecurityPolicyHeader.ast)
+ * ```
+ *
  * @category schemas
  * @since 0.0.0
  */
@@ -642,6 +842,15 @@ export const ContentSecurityPolicyHeader = S.Union([ContentSecurityPolicyOption,
 );
 
 /**
+ * Runtime type for {@link ContentSecurityPolicyHeader}.
+ *
+ * @example
+ * ```ts
+ * import type { ContentSecurityPolicyHeader } from "@beep/schema/Csp"
+ *
+ * console.log({} as { header: ContentSecurityPolicyHeader })
+ * ```
+ *
  * @category models
  * @since 0.0.0
  */

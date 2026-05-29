@@ -71,6 +71,13 @@ const templateDirCandidates = (baseDir: string, path: Path.Path): ReadonlyArray<
  *
  * @param baseDir - Optional command module directory override (defaults to current module directory).
  * @returns Resolved template directory path.
+ * @example
+ * ```ts
+ * import { resolveCreatePackageTemplateDir } from "@beep/repo-cli/commands/CreatePackage"
+ *
+ * console.log(resolveCreatePackageTemplateDir)
+ * ```
+ *
  * @category models
  * @since 0.0.0
  */
@@ -271,6 +278,13 @@ const IDENTITY_PACKAGES_EXPORT_PATH = ["src", "packages.ts"] as const;
 
 /**
  * Variables passed into every template during package scaffolding.
+ *
+ * @example
+ * ```ts
+ * import { TemplateContext } from "@beep/repo-cli/commands/CreatePackage"
+ *
+ * console.log(TemplateContext)
+ * ```
  *
  * @category models
  * @since 0.0.0
@@ -554,6 +568,13 @@ const identityPackageRegistrationNeeded = Effect.fn(function* (
 /**
  * CLI command that scaffolds a new package with templates, a Schema-validated
  * `package.json`, root workspace registration, identity registration, and shared repo config synchronization.
+ *
+ * @example
+ * ```ts
+ * import { createPackageCommand } from "@beep/repo-cli/commands/CreatePackage"
+ *
+ * console.log(createPackageCommand)
+ * ```
  *
  * @category use-cases
  * @since 0.0.0

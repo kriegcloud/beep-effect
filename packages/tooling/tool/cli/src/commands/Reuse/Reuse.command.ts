@@ -661,6 +661,13 @@ const printReuseIndex = () =>
 /**
  * Reuse-discovery command group.
  *
+ * @example
+ * ```ts
+ * import { reuseCommand } from "@beep/repo-cli/commands/Reuse"
+ *
+ * console.log(reuseCommand)
+ * ```
+ *
  * @category use-cases
  * @since 0.0.0
  */

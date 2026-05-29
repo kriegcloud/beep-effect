@@ -1,14 +1,22 @@
 /* cspell:ignore atrule Resizer */
+/// <reference path="../../../css.d.ts" />
 
 import type { EditorThemeClasses } from "lexical";
 
 import "./editor-theme.css";
 
 /**
- * Shared Lexical theme classes for the shadcn editor registry components.
+ * Editor theme theme value.
  *
- * @since 0.0.0
+ * @example
+ * ```ts
+ * import { editorTheme } from "@beep/ui/components/editor/themes/editor-theme"
+ *
+ * console.log(editorTheme)
+ * ```
+ *
  * @category themes
+ * @since 0.0.0
  */
 export const editorTheme: EditorThemeClasses = {
   ltr: "text-left",

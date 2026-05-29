@@ -12,6 +12,13 @@ const $I = $SchemaId.create("DomEvent");
 /**
  * Type guard for Event.
  *
+ * @example
+ * ```ts
+ * import { isEvent } from "@beep/schema/DomEvent"
+ *
+ * console.log(isEvent(new Event("submit")))
+ * ```
+ *
  * @since 0.0.0
  * @category guards
  */
@@ -19,6 +26,15 @@ export const isEvent = (u: unknown): u is Event => u instanceof Event;
 
 /**
  * A DOM event.
+ *
+ * @example
+ * ```ts
+ * import { DOMEvent } from "@beep/schema/DomEvent"
+ * import * as S from "effect/Schema"
+ *
+ * const event = S.decodeUnknownSync(DOMEvent)(new Event("submit"))
+ * console.log(event.type)
+ * ```
  *
  * @since 0.0.0
  * @category schemas

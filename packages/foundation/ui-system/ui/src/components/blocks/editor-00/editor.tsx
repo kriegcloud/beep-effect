@@ -22,10 +22,17 @@ const editorConfig: InitialConfigType = {
 };
 
 /**
- * Rich text editor block assembled from the shared editor theme and plugins.
+ * Editor component.
  *
- * @since 0.0.0
+ * @example
+ * ```tsx
+ * import { Editor } from "@beep/ui/components/blocks/editor-00/editor"
+ *
+ * console.log(Editor)
+ * ```
+ *
  * @category components
+ * @since 0.0.0
  */
 export function Editor({
   editorState,

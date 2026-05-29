@@ -20,7 +20,7 @@ const $I = $SchemaId.create("Thunk");
  * ```ts
  * import { TypeId } from "@beep/schema/Thunk"
  *
- * void TypeId
+ * console.log(TypeId)
  * ```
  *
  * @since 0.0.0
@@ -31,6 +31,14 @@ export const TypeId = $I`ThunkUnknown`;
 /**
  * Type for {@link TypeId}.
  *
+ * @example
+ * ```ts
+ * import { TypeId, type TypeId as TypeIdType } from "@beep/schema/Thunk"
+ *
+ * const id = TypeId satisfies TypeIdType
+ * console.log(id)
+ * ```
+ *
  * @since 0.0.0
  * @category models
  */
@@ -39,6 +47,14 @@ export type TypeId = typeof TypeId;
 /**
  * Branded thunk type -- a zero-argument function returning `A`, branded with
  * {@link TypeId}.
+ *
+ * @example
+ * ```ts
+ * import { nominal, type ThunkUnknown } from "@beep/schema/Thunk"
+ *
+ * const thunk = nominal(() => "ready") satisfies ThunkUnknown
+ * console.log(thunk())
+ * ```
  *
  * @since 0.0.0
  * @category models
@@ -55,7 +71,7 @@ const isThunkUnknownValue = (u: unknown): u is () => unknown => P.isFunction(u);
  * import { nominal } from "@beep/schema/Thunk"
  *
  * const thunk = nominal(() => 42)
- * void thunk
+ * console.log(thunk)
  * ```
  *
  * @since 0.0.0
@@ -73,7 +89,7 @@ export const nominal = Brand.make<ThunkUnknown>(isThunkUnknownValue);
  * import { ThunkUnknown } from "@beep/schema/Thunk"
  *
  * const thunk = S.decodeUnknownSync(ThunkUnknown)(() => "hello")
- * void thunk
+ * console.log(thunk)
  * ```
  *
  * @since 0.0.0
@@ -122,7 +138,7 @@ export const isThunkUnknown = S.is(ThunkUnknown);
  *   P.isFunction(u) && P.isString(u())
  *
  * const StringThunk = make(isStringThunk, S.String)
- * void StringThunk
+ * console.log(StringThunk)
  * ```
  *
  * @since 0.0.0

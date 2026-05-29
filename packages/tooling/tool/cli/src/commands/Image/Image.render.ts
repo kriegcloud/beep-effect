@@ -27,6 +27,13 @@ type RenderProgressBarEvent = typeof FFmpegEvent.cases.progress.Type;
  * @param label - User-facing operation label.
  * @param event - FFmpeg progress event.
  * @returns Single-line terminal progress text.
+ * @example
+ * ```ts
+ * import { renderProgressBar } from "@beep/repo-cli/commands/Image"
+ *
+ * console.log(renderProgressBar)
+ * ```
+ *
  * @category utilities
  * @since 0.0.0
  */
@@ -46,6 +53,13 @@ export const renderProgressBar: {
  * @param label - User-facing operation label.
  * @param frameCount - Number of frames written.
  * @returns Single-line completed progress text.
+ * @example
+ * ```ts
+ * import { renderCompletedProgress } from "@beep/repo-cli/commands/Image"
+ *
+ * console.log(renderCompletedProgress)
+ * ```
+ *
  * @category utilities
  * @since 0.0.0
  */
@@ -63,6 +77,13 @@ export const renderCompletedProgress: {
  *
  * @param label - User-facing operation label.
  * @returns Single-line initial progress text.
+ * @example
+ * ```ts
+ * import { renderInitialProgress } from "@beep/repo-cli/commands/Image"
+ *
+ * console.log(renderInitialProgress)
+ * ```
+ *
  * @category utilities
  * @since 0.0.0
  */
@@ -74,6 +95,13 @@ export const renderInitialProgress = (label: string): string =>
  *
  * @param result - Extraction result.
  * @returns Human-readable extraction summary.
+ * @example
+ * ```ts
+ * import { renderExtractFramesSummary } from "@beep/repo-cli/commands/Image"
+ *
+ * console.log(renderExtractFramesSummary)
+ * ```
+ *
  * @category utilities
  * @since 0.0.0
  */
@@ -85,6 +113,13 @@ export const renderExtractFramesSummary = (result: ExtractFramesResult): string 
  *
  * @param result - Extraction result.
  * @returns Human-readable command summary.
+ * @example
+ * ```ts
+ * import { renderExtractFramesCommandSummary } from "@beep/repo-cli/commands/Image"
+ *
+ * console.log(renderExtractFramesCommandSummary)
+ * ```
+ *
  * @category utilities
  * @since 0.0.0
  */
@@ -96,6 +131,13 @@ export const renderExtractFramesCommandSummary = (result: ExtractFramesResult): 
  *
  * @param outcome - Successful video outcome.
  * @returns Human-readable success summary.
+ * @example
+ * ```ts
+ * import { renderExtractFramesDirSuccess } from "@beep/repo-cli/commands/Image"
+ *
+ * console.log(renderExtractFramesDirSuccess)
+ * ```
+ *
  * @category utilities
  * @since 0.0.0
  */
@@ -107,6 +149,13 @@ export const renderExtractFramesDirSuccess = (outcome: ExtractFramesDirSuccess):
  *
  * @param outcome - Failed video outcome.
  * @returns Human-readable failure summary.
+ * @example
+ * ```ts
+ * import { renderExtractFramesDirFailure } from "@beep/repo-cli/commands/Image"
+ *
+ * console.log(renderExtractFramesDirFailure)
+ * ```
+ *
  * @category utilities
  * @since 0.0.0
  */
@@ -118,6 +167,13 @@ export const renderExtractFramesDirFailure = (outcome: ExtractFramesDirFailure):
  *
  * @param outcome - Video outcome.
  * @returns Human-readable outcome summary.
+ * @example
+ * ```ts
+ * import { renderExtractFramesDirOutcome } from "@beep/repo-cli/commands/Image"
+ *
+ * console.log(renderExtractFramesDirOutcome)
+ * ```
+ *
  * @category utilities
  * @since 0.0.0
  */
@@ -133,6 +189,13 @@ export const renderExtractFramesDirOutcome = Match.type<ExtractFramesDirOutcome>
  *
  * @param result - Directory extraction result.
  * @returns Human-readable batch summary.
+ * @example
+ * ```ts
+ * import { renderExtractFramesDirSummary } from "@beep/repo-cli/commands/Image"
+ *
+ * console.log(renderExtractFramesDirSummary)
+ * ```
+ *
  * @category utilities
  * @since 0.0.0
  */
@@ -144,6 +207,13 @@ export const renderExtractFramesDirSummary = (result: ExtractFramesDirResult): s
  *
  * @param result - Directory extraction result with failures.
  * @returns Human-readable aggregate failure.
+ * @example
+ * ```ts
+ * import { renderExtractFramesDirError } from "@beep/repo-cli/commands/Image"
+ *
+ * console.log(renderExtractFramesDirError)
+ * ```
+ *
  * @category utilities
  * @since 0.0.0
  */

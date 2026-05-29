@@ -11,6 +11,13 @@ import type { WorkItem as WorkItemUseCases } from "@beep/architecture-lab-use-ca
 /**
  * WorkItem tool names exposed by the architecture lab proof.
  *
+ * @example
+ * ```ts
+ * import { WorkItemToolNames } from "@beep/architecture-lab-server/aggregates/WorkItem"
+ *
+ * console.log(WorkItemToolNames)
+ * ```
+ *
  * @category tools
  * @since 0.0.0
  */
@@ -26,6 +33,13 @@ export const WorkItemToolNames = {
 
 /**
  * Build tool-style WorkItem handlers from the public use-case facade.
+ *
+ * @example
+ * ```ts
+ * import { makeWorkItemToolHandlers } from "@beep/architecture-lab-server/aggregates/WorkItem"
+ *
+ * console.log(makeWorkItemToolHandlers)
+ * ```
  *
  * @category tools
  * @since 0.0.0

@@ -47,6 +47,15 @@ const makeMutableHashSetEquivalence =
  * Iso representation (serializable value array) used by
  * {@link MutableHashSetFromSelf} for round-tripping.
  *
+ * @example
+ * ```ts
+ * import type { MutableHashSetIso } from "@beep/schema/MutableHashSet"
+ * import * as S from "effect/Schema"
+ *
+ * const values = ["a", "b"] satisfies MutableHashSetIso<typeof S.String>
+ * console.log(values.length)
+ * ```
+ *
  * @since 0.0.0
  * @category models
  */
@@ -114,7 +123,7 @@ export const isMutableHashSet = <Value>(value: unknown): value is MutableHashSet
  * const SetSchema = MutableHashSetFromSelf(S.String)
  * const set = MutableHashSet.fromIterable(["a", "b"])
  * const decoded = S.decodeUnknownSync(SetSchema)(set)
- * void decoded
+ * console.log(decoded)
  * ```
  *
  * @param value - Element schema for set members.
@@ -208,7 +217,7 @@ export const MutableHashSetFromSelf = <Value extends S.Top>(value: Value): Mutab
  *
  * const decoded = S.decodeUnknownSync(StringSet)(["a", "b", "a"])
  * const encoded = S.encodeSync(StringSet)(decoded)
- * void encoded
+ * console.log(encoded)
  * ```
  *
  * @param value - Element schema for set members.

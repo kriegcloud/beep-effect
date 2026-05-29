@@ -77,7 +77,7 @@ export const redactSensitiveText = (text: string): string =>
  *   profileSandboxPhase({ phase: "sandbox.example" })
  * )
  *
- * void program
+ * console.log(program)
  * ```
  *
  * @category utilities
@@ -131,6 +131,13 @@ export const profileSandboxPhase: {
 
 /**
  * Schema for safe observability phase attributes.
+ *
+ * @example
+ * ```ts
+ * import { SandboxPhaseAttributes } from "@beep/sandbox/Sandbox.observability"
+ *
+ * console.log(SandboxPhaseAttributes)
+ * ```
  *
  * @category schemas
  * @since 0.0.0
