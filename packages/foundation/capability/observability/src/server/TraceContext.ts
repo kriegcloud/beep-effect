@@ -51,7 +51,7 @@ export const injectTraceContextHeaders = Effect.fn("injectTraceContextHeaders")(
 ): Effect.fn.Return<Headers.Headers> {
   return yield* Effect.currentSpan.pipe(
     Effect.map((span) => Headers.setAll(Headers.fromInput(headers), HttpTraceContext.toHeaders(span))),
-    Effect.catch(() => Effect.succeed(Headers.fromInput(headers)))
+    Effect.orElseSucceed(() => Headers.fromInput(headers))
   );
 });
 

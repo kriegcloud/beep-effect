@@ -700,7 +700,7 @@ const acquireRunpodPod = Effect.fn("DocgenQualityWorkerRunpodEval.acquireRunpodP
         podId,
       })
     )
-    .pipe(Effect.catch(() => Effect.succeed(created)));
+    .pipe(Effect.orElseSucceed(() => created));
 
   return {
     bootstrap: DocgenQualityWorkerRunpodEvalBootstrap.make({

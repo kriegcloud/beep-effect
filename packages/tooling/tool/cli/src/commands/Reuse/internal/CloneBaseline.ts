@@ -19,7 +19,24 @@ const CLONE_INVENTORY_PATH = "standards/clone.inventory.jsonc";
 
 const stringifyJsonPretty = SchemaGetter.stringifyJson({ space: 2 });
 
-class CloneBaselineEntry extends S.Class<CloneBaselineEntry>($I`CloneBaselineEntry`)(
+/**
+ * One acknowledged structural-clone cluster recorded in the committed baseline.
+ *
+ * @example
+ * ```ts
+ * import { CloneBaselineEntry } from "@beep/repo-cli/commands/Reuse"
+ * const entry = CloneBaselineEntry.make({
+ *   id: "reuse-clone:1",
+ *   title: "Duplicated docs error class",
+ *   occurrences: 2,
+ *   packages: 2,
+ *   members: ["packages/drivers/runpod/src/E.ts#RunpodDocsError", "packages/drivers/sanity/src/E.ts#SanityError"],
+ * })
+ * ```
+ * @category models
+ * @since 0.0.0
+ */
+export class CloneBaselineEntry extends S.Class<CloneBaselineEntry>($I`CloneBaselineEntry`)(
   {
     id: S.String,
     title: S.String,
@@ -32,7 +49,22 @@ class CloneBaselineEntry extends S.Class<CloneBaselineEntry>($I`CloneBaselineEnt
   })
 ) {}
 
-class CloneBaselineDocument extends S.Class<CloneBaselineDocument>($I`CloneBaselineDocument`)(
+/**
+ * Committed baseline of acknowledged structural-clone clusters for the ratchet.
+ *
+ * @example
+ * ```ts
+ * import { CloneBaselineDocument } from "@beep/repo-cli/commands/Reuse"
+ * const baseline = CloneBaselineDocument.make({
+ *   version: 1,
+ *   generatedOn: "2026-05-29",
+ *   entries: [],
+ * })
+ * ```
+ * @category models
+ * @since 0.0.0
+ */
+export class CloneBaselineDocument extends S.Class<CloneBaselineDocument>($I`CloneBaselineDocument`)(
   {
     version: S.Literal(1),
     generatedOn: S.String,
@@ -42,16 +74,6 @@ class CloneBaselineDocument extends S.Class<CloneBaselineDocument>($I`CloneBasel
     description: "Committed baseline of acknowledged structural-clone clusters for ratchet enforcement.",
   })
 ) {}
-
-type GrownCluster = {
-  readonly entry: CloneBaselineEntry;
-  readonly previousOccurrences: number;
-};
-
-type CloneDrift = {
-  readonly newClusters: ReadonlyArray<CloneBaselineEntry>;
-  readonly grownClusters: ReadonlyArray<GrownCluster>;
-};
 
 const decodeDocument = S.decodeUnknownEffect(CloneBaselineDocument);
 const encodeDocument = S.encodeUnknownEffect(CloneBaselineDocument);
@@ -78,7 +100,20 @@ const entryFromCandidate = (candidate: ReuseCandidate): CloneBaselineEntry =>
     ),
   });
 
-const buildCloneDocument = (candidates: ReadonlyArray<ReuseCandidate>): CloneBaselineDocument =>
+/**
+ * Build a sorted, deterministic baseline document from clone candidates.
+ *
+ * @param candidates - The structural-clone candidates to record.
+ * @returns A baseline document with one entry per cluster, sorted by id.
+ * @example
+ * ```ts
+ * import { buildCloneDocument } from "@beep/repo-cli/commands/Reuse"
+ * const baseline = buildCloneDocument([])
+ * ```
+ * @category constructors
+ * @since 0.0.0
+ */
+export const buildCloneDocument = (candidates: ReadonlyArray<ReuseCandidate>): CloneBaselineDocument =>
   CloneBaselineDocument.make({
     version: 1,
     generatedOn: todayYmd(),
@@ -126,7 +161,28 @@ const writeCloneBaseline = Effect.fn("CloneBaseline.write")(function* (document:
     .pipe(Effect.mapError(DomainError.newCauseMessage(`Failed to write ${CLONE_INVENTORY_PATH}`)));
 });
 
-const diffCloneBaseline = (live: CloneBaselineDocument, baseline: O.Option<CloneBaselineDocument>): CloneDrift => {
+/**
+ * Diff live clusters against a committed baseline, returning new and grown clusters.
+ *
+ * @param input - The live document plus the optional committed baseline.
+ * @returns Clusters new vs the baseline and clusters that gained occurrences.
+ * @example
+ * ```ts
+ * import { buildCloneDocument, diffCloneBaseline } from "@beep/repo-cli/commands/Reuse"
+ * import * as O from "effect/Option"
+ * const drift = diffCloneBaseline({ live: buildCloneDocument([]), baseline: O.none() })
+ * ```
+ * @category utilities
+ * @since 0.0.0
+ */
+export const diffCloneBaseline = (input: {
+  readonly live: CloneBaselineDocument;
+  readonly baseline: O.Option<CloneBaselineDocument>;
+}): {
+  readonly newClusters: ReadonlyArray<CloneBaselineEntry>;
+  readonly grownClusters: ReadonlyArray<{ readonly entry: CloneBaselineEntry; readonly previousOccurrences: number }>;
+} => {
+  const { live, baseline } = input;
   const baselineById = pipe(
     baseline,
     O.map((document) =>
@@ -140,7 +196,7 @@ const diffCloneBaseline = (live: CloneBaselineDocument, baseline: O.Option<Clone
     A.filter((entry) => !HashMap.has(baselineById, entry.id))
   );
 
-  const grownClusters: Array<GrownCluster> = [];
+  const grownClusters: Array<{ readonly entry: CloneBaselineEntry; readonly previousOccurrences: number }> = [];
   for (const entry of live.entries) {
     const previous = HashMap.get(baselineById, entry.id);
     if (O.isSome(previous) && entry.occurrences > previous.value.occurrences) {
@@ -190,7 +246,7 @@ export const runCloneGate = Effect.fn("CloneBaseline.runCloneGate")(function* (
     });
   }
 
-  const drift = diffCloneBaseline(live, baseline);
+  const drift = diffCloneBaseline({ live, baseline });
   yield* Console.log(
     `[clones] new_clusters=${A.length(drift.newClusters)} grown_clusters=${A.length(drift.grownClusters)}`
   );
