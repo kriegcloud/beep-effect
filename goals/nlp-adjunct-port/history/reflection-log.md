@@ -237,3 +237,51 @@ annotation relations, same query semantics).
 - `repo-exports:catalog:check`:
 
 **Final readiness assessment:**
+
+## P4 — MCP driver `@beep/nlp-mcp` (2026-05-29)
+
+**What shipped:** `packages/drivers/nlp-mcp` (scaffolded via `create-package`) exposing the
+`@beep/nlp` `NLPBackend` catalog as five schema-validated `effect/unstable/ai` MCP tools
+(`nlp_sentencize`, `nlp_tokenize`, `nlp_pos_tag`, `nlp_lemmatize`, `nlp_entities`) over a
+stdio transport. `Schemas.ts` (flat MCP I/O + `NlpToolError`), `Tools.ts` (`Tool.make` +
+`NlpToolkit`), `Server.ts` (`makeNlpHandlers` + `NlpToolkitHandlersLive` + `makeServerLayer`),
+`bin.ts` (`NodeRuntime` stdio entrypoint), proofs in `test/`. Streaming subsystem deferred
+(`research/p4-streaming-deferral.md`). Commit `2c8f1d6a04`; `pkg:verify` + docgen green.
+
+**Lessons:**
+- Effect v4's `effect/unstable/ai` `McpServer`/`Toolkit` differs from adjunct's v3
+  `@effect/ai`. `McpServer.layerStdio({name, version})` requires a `Stdio` service (provide
+  `@effect/platform-node` `NodeStdio.layer`) — it does NOT take `stdin`/`stdout`. The shipped
+  source under `node_modules/effect/src` + the module's `@example` are ground truth.
+- `McpServer.toolkit(tk)` provides `never`, requires `McpServer | HandlersFor | <handler R>`;
+  the server is `toolkit.pipe(provide(handlers), provide(backend), provide(layerStdio))`.
+- Keep node-only transport imports out of the testable module: a top-level `NodeStdio` import
+  in `Server.ts` broke vitest module resolution (the namespace import resolved to `undefined`);
+  move it to `bin.ts`. That is the correct driver-boundary shape anyway.
+- `toolkit.handle(name, params)` returns `Effect<Stream<{result}>, AiError>` whose stream R/E
+  collapse to `unknown` (a `Tool` does not track its handler's services — effect's own code
+  casts there). Cast-free fix: export the handler record as `makeNlpHandlers` and call handlers
+  directly in tests (typed output, `R = NLPBackend`, `E = NlpToolError`).
+- `EntityNode.confidence`/`span` decode to plain `T | undefined` (not `Option`); map with
+  conditional spreads into `optionalKey` output fields. `Effect.dieMessage` is v3 — use
+  `Effect.die(new Error(...))`.
+- commitlint config-conventional rejects non-lowercase subjects AND body lines >100 chars.
+
+## P5 — verification, theory paper, capability record (2026-05-29)
+
+**What shipped:** `docs/theory.md` (the categorical theory paper mapping objects/morphisms/
+monoids/F-algebras/adjunctions/proofs to real modules), the `@beep/nlp` README updated with
+the ported module surface + a "Categorical architecture" section linking the theory + a
+Consumers (record + gate) table per `standards/07-non-slice-families.md` recording
+`@beep/nlp-mcp` as the first consumer. Full gates green: `@beep/nlp` verify, `@beep/nlp-mcp`
+verify, docgen.
+
+**Lessons:**
+- "Full categorical fidelity" is auditable only if a theory doc names the real module for each
+  concept; otherwise the elegance is asserted, not shown.
+- The capability stays product-neutral: the generic IR is the *free object* and the IP-law KG
+  mapping is the downstream interpretation functor — documenting that boundary is what makes
+  the handoff mechanical.
+- A flaky tool-output channel fabricated plausible "green" verifies and fake commit SHAs; the
+  discipline of re-reading a real green result (and cross-checking full SHAs / commit
+  manifests) before trusting a commit is what kept broken code from landing.
