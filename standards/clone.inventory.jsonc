@@ -1,0 +1,347 @@
+{
+  "version": 1,
+  "generatedOn": "2026-05-29",
+  "entries": [
+    {
+      "id": "reuse-clone:120:d442e104",
+      "title": "Structural clone of RunpodDocsError across 2 packages",
+      "occurrences": 2,
+      "packages": 2,
+      "members": [
+        "packages/drivers/runpod/src/Runpod.errors.ts#RunpodDocsError",
+        "packages/drivers/sanity/src/Sanity.errors.ts#SanityError"
+      ]
+    },
+    {
+      "id": "reuse-clone:42:29bc7d2c",
+      "title": "Structural clone of AcpProtocolLoggingOptions across 4 packages",
+      "occurrences": 4,
+      "packages": 4,
+      "members": [
+        "packages/drivers/acp/src/AcpProtocol.service.ts#AcpProtocolLoggingOptions",
+        "packages/drivers/hubspot/src/HubSpot.service.ts#HubSpotSubmitFormResponse",
+        "packages/drivers/openai-compat/src/OpenAiCompat.models.ts#OpenAiCompatToolCallFunctionDelta",
+        "packages/tooling/library/repo-utils/src/UniqueDeps.ts#UniqueNpmDeps"
+      ]
+    },
+    {
+      "id": "reuse-clone:42:94df6c33",
+      "title": "Structural clone of RunpodErrorOptions across 2 packages",
+      "occurrences": 2,
+      "packages": 2,
+      "members": [
+        "packages/drivers/runpod/src/Runpod.errors.ts#RunpodErrorOptions",
+        "packages/drivers/xai/src/XAi.errors.ts#XAiErrorOptions"
+      ]
+    },
+    {
+      "id": "reuse-clone:43:e0a35733",
+      "title": "Structural clone of RepoExportsCatalogSource across 2 packages",
+      "occurrences": 2,
+      "packages": 2,
+      "members": [
+        "packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts#RepoExportsCatalogSource",
+        "packages/tooling/tool/cli/src/commands/Docgen/internal/Local.ts#DocgenLocalSelectedPackage"
+      ]
+    },
+    {
+      "id": "reuse-clone:43:f7413bf0",
+      "title": "Structural clone of VeniceAIServerSentEvent across 2 packages",
+      "occurrences": 2,
+      "packages": 2,
+      "members": [
+        "packages/drivers/venice-ai/src/VeniceAI.service.ts#VeniceAIServerSentEvent",
+        "packages/drivers/xai/src/XAi.models.ts#XAiServerSentEvent"
+      ]
+    },
+    {
+      "id": "reuse-clone:44:a7b71509",
+      "title": "Structural clone of FaceDetectionBox across 4 packages",
+      "occurrences": 5,
+      "packages": 4,
+      "members": [
+        "packages/drivers/face-detection/src/FaceDetection.models.ts#FaceDetectionBox",
+        "packages/tooling/library/ai-sync/src/models.ts#AiSyncDriftFinding",
+        "packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts#ReuseSourceSymbolRef",
+        "packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyOps.ts#ProxyServiceConfig",
+        "packages/tooling/tool/cli/src/commands/Image/Image.schemas.ts#ExtractFramesDirVideo"
+      ]
+    },
+    {
+      "id": "reuse-clone:46:428a694b",
+      "title": "Structural clone of makeWorkItemRpcHandlers across 2 packages",
+      "occurrences": 2,
+      "packages": 2,
+      "members": [
+        "packages/architecture-lab/server/src/aggregates/WorkItem/WorkItem.rpc.ts#makeWorkItemRpcHandlers",
+        "packages/canvas/server/src/aggregates/CanvasProject/CanvasProject.rpc.ts#makeCanvasProjectRpcHandlers"
+      ]
+    },
+    {
+      "id": "reuse-clone:46:4a732b32",
+      "title": "Structural clone of AgentEffectivenessDatasetBundle across 2 packages",
+      "occurrences": 3,
+      "packages": 2,
+      "members": [
+        "packages/tooling/library/ai-metrics/src/agent-effectiveness.ts#AgentEffectivenessDatasetBundle",
+        "packages/tooling/library/ai-metrics/src/agent-effectiveness.ts#AgentEffectivenessExperimentBundle",
+        "packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts#StripMetadataPlan"
+      ]
+    },
+    {
+      "id": "reuse-clone:46:aa6c611a",
+      "title": "Structural clone of AgentEffectivenessPromptBundle across 2 packages",
+      "occurrences": 2,
+      "packages": 2,
+      "members": [
+        "packages/tooling/library/ai-metrics/src/agent-effectiveness.ts#AgentEffectivenessPromptBundle",
+        "packages/tooling/tool/cli/src/commands/Image/Image.schemas.ts#ExtractFramesDirResult"
+      ]
+    },
+    {
+      "id": "reuse-clone:48:81d742bd",
+      "title": "Structural clone of DiscordMessageProof across 2 packages",
+      "occurrences": 2,
+      "packages": 2,
+      "members": [
+        "packages/drivers/discord/src/Discord.models.ts#DiscordMessageProof",
+        "packages/tooling/library/repo-codegraph/src/RepoCodegraphLookup.model.ts#RepoCodegraphImportCandidate"
+      ]
+    },
+    {
+      "id": "reuse-clone:49:8d287436",
+      "title": "Structural clone of AiMetricsStorageLayout across 2 packages",
+      "occurrences": 4,
+      "packages": 2,
+      "members": [
+        "packages/tooling/library/ai-metrics/src/install.ts#AiMetricsStorageLayout",
+        "packages/tooling/tool/cli/src/commands/CreatePackage/FileGenerationPlanService.ts#FileGenerationExecutionResult",
+        "packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts#ArchivedSidecarEntry",
+        "packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts#ArchivePoorCandidatesManifestSummary"
+      ]
+    },
+    {
+      "id": "reuse-clone:50:74847349",
+      "title": "Structural clone of ArchitectureLab across 2 packages",
+      "occurrences": 2,
+      "packages": 2,
+      "members": [
+        "packages/architecture-lab/domain/src/identity/ArchitectureLab.ts#ArchitectureLab",
+        "packages/canvas/domain/src/identity/Canvas.ts#Canvas"
+      ]
+    },
+    {
+      "id": "reuse-clone:50:95ebe790",
+      "title": "Structural clone of model across 3 packages",
+      "occurrences": 3,
+      "packages": 3,
+      "members": [
+        "packages/drivers/openai-compat/src/OpenAiCompatLanguageModel.service.ts#model",
+        "packages/drivers/venice-ai/src/VeniceAiLanguageModel.service.ts#model",
+        "packages/drivers/xai/src/XAiLanguageModel.service.ts#model"
+      ]
+    },
+    {
+      "id": "reuse-clone:51:22ca4d41",
+      "title": "Structural clone of HubSpotFormContext across 2 packages",
+      "occurrences": 2,
+      "packages": 2,
+      "members": [
+        "packages/drivers/hubspot/src/HubSpot.service.ts#HubSpotFormContext",
+        "packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts#OperationPlanApplyResult"
+      ]
+    },
+    {
+      "id": "reuse-clone:51:60d02f78",
+      "title": "Structural clone of RunpodDocsErrorOptions across 2 packages",
+      "occurrences": 2,
+      "packages": 2,
+      "members": [
+        "packages/drivers/runpod/src/Runpod.errors.ts#RunpodDocsErrorOptions",
+        "packages/drivers/sanity/src/Sanity.errors.ts#SanityErrorOptions"
+      ]
+    },
+    {
+      "id": "reuse-clone:54:5a97beae",
+      "title": "Structural clone of RepoCodegraphLookupScore across 2 packages",
+      "occurrences": 2,
+      "packages": 2,
+      "members": [
+        "packages/tooling/library/repo-codegraph/src/RepoCodegraphLookup.model.ts#RepoCodegraphLookupScore",
+        "packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts#NormalizeManifestSummary"
+      ]
+    },
+    {
+      "id": "reuse-clone:55:35368842",
+      "title": "Structural clone of ListWorkItemsQuery across 2 packages",
+      "occurrences": 3,
+      "packages": 2,
+      "members": [
+        "packages/architecture-lab/use-cases/src/aggregates/WorkItem/WorkItem.commands.ts#ListWorkItemsQuery",
+        "packages/architecture-lab/use-cases/src/entities/Worker/Worker.commands.ts#ListWorkersQuery",
+        "packages/canvas/use-cases/src/aggregates/CanvasProject/CanvasProject.commands.ts#ListCanvasProjectsQuery"
+      ]
+    },
+    {
+      "id": "reuse-clone:56:7a648c1",
+      "title": "Structural clone of VeniceAIJsonResponse across 2 packages",
+      "occurrences": 4,
+      "packages": 2,
+      "members": [
+        "packages/drivers/venice-ai/src/VeniceAI.service.ts#VeniceAIJsonResponse",
+        "packages/drivers/venice-ai/src/VeniceAI.service.ts#VeniceAIBinaryResponse",
+        "packages/drivers/xai/src/XAi.models.ts#XAiJsonResponse",
+        "packages/drivers/xai/src/XAi.models.ts#XAiBinaryResponse"
+      ]
+    },
+    {
+      "id": "reuse-clone:56:b9ca1140",
+      "title": "Structural clone of VeniceAITextResponse across 2 packages",
+      "occurrences": 2,
+      "packages": 2,
+      "members": [
+        "packages/drivers/venice-ai/src/VeniceAI.service.ts#VeniceAITextResponse",
+        "packages/drivers/xai/src/XAi.models.ts#XAiTextResponse"
+      ]
+    },
+    {
+      "id": "reuse-clone:59:2535052b",
+      "title": "Structural clone of RepoExportsCatalogTotals across 2 packages",
+      "occurrences": 2,
+      "packages": 2,
+      "members": [
+        "packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts#RepoExportsCatalogTotals",
+        "packages/tooling/tool/cli/src/commands/Docgen/internal/Operations.ts#DocgenAnalysisSummary"
+      ]
+    },
+    {
+      "id": "reuse-clone:60:6f40b0dd",
+      "title": "Structural clone of PhoenixPromptSelector across 2 packages",
+      "occurrences": 2,
+      "packages": 2,
+      "members": [
+        "packages/drivers/phoenix/src/Phoenix.models.ts#PhoenixPromptSelector",
+        "packages/tooling/library/ai-metrics/src/config-snapshot.ts#AiMetricsConfigSnapshotDiff"
+      ]
+    },
+    {
+      "id": "reuse-clone:64:90ebebc2",
+      "title": "Structural clone of OpenAiCompatClientOptions across 4 packages",
+      "occurrences": 4,
+      "packages": 4,
+      "members": [
+        "packages/drivers/openai-compat/src/OpenAiCompatClient.service.ts#OpenAiCompatClientOptions",
+        "packages/drivers/phoenix/src/Phoenix.config.ts#PhoenixConfigInput",
+        "packages/drivers/runpod/src/Runpod.config.ts#RunpodConfigInput",
+        "packages/drivers/venice-ai/src/VeniceAI.service.ts#VeniceAIConfigInput"
+      ]
+    },
+    {
+      "id": "reuse-clone:67:a5cd4b11",
+      "title": "Structural clone of makeWorkItemToolHandlers across 2 packages",
+      "occurrences": 2,
+      "packages": 2,
+      "members": [
+        "packages/architecture-lab/server/src/aggregates/WorkItem/WorkItem.tools.ts#makeWorkItemToolHandlers",
+        "packages/canvas/server/src/aggregates/CanvasProject/CanvasProject.tools.ts#makeCanvasProjectToolHandlers"
+      ]
+    },
+    {
+      "id": "reuse-clone:67:e610ab58",
+      "title": "Structural clone of Skill across 2 packages",
+      "occurrences": 2,
+      "packages": 2,
+      "members": [
+        "packages/agent-capability/domain/src/entities/Skill/Skill.model.ts#Skill",
+        "packages/epistemic/domain/src/entities/Evidence/Evidence.model.ts#Evidence"
+      ]
+    },
+    {
+      "id": "reuse-clone:69:2e61a773",
+      "title": "Structural clone of FFmpegErrorFromUnknownOptions across 2 packages",
+      "occurrences": 2,
+      "packages": 2,
+      "members": [
+        "packages/drivers/ffmpeg/src/FFmpeg.errors.ts#FFmpegErrorFromUnknownOptions",
+        "packages/drivers/onepassword-cli/src/OnePasswordCli.errors.ts#OnePasswordCliErrorOptions"
+      ]
+    },
+    {
+      "id": "reuse-clone:76:25bc2f38",
+      "title": "Structural clone of FaceDetectionConfidence across 3 packages",
+      "occurrences": 7,
+      "packages": 3,
+      "members": [
+        "packages/drivers/face-detection/src/FaceDetection.models.ts#FaceDetectionConfidence",
+        "packages/drivers/face-detection/src/FaceDetection.models.ts#FaceDetectionPercentage",
+        "packages/drivers/ffmpeg/src/FFmpeg.models.ts#SafeFramePrefix",
+        "packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts#BorderDetectionPercentage",
+        "packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts#BorderDetectionMaxScanPercentage",
+        "packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts#BorderDetectionTolerance",
+        "packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts#RgbChannel"
+      ]
+    },
+    {
+      "id": "reuse-clone:78:6502bc3d",
+      "title": "Structural clone of WorkItemInvalidTransition across 2 packages",
+      "occurrences": 2,
+      "packages": 2,
+      "members": [
+        "packages/architecture-lab/domain/src/aggregates/WorkItem/WorkItem.errors.ts#WorkItemInvalidTransition",
+        "packages/canvas/domain/src/aggregates/CanvasProject/CanvasProject.errors.ts#CanvasProjectInvalidTransition"
+      ]
+    },
+    {
+      "id": "reuse-clone:80:76c12aeb",
+      "title": "Structural clone of CandidateClaim across 2 packages",
+      "occurrences": 4,
+      "packages": 2,
+      "members": [
+        "packages/epistemic/domain/src/entities/CandidateClaim/CandidateClaim.model.ts#CandidateClaim",
+        "packages/workspace/domain/src/entities/CandidateDraft/CandidateDraft.model.ts#CandidateDraft",
+        "packages/workspace/domain/src/entities/CandidateProject/CandidateProject.model.ts#CandidateProject",
+        "packages/workspace/domain/src/entities/CandidateTask/CandidateTask.model.ts#CandidateTask"
+      ]
+    },
+    {
+      "id": "reuse-clone:82:5f64d9e",
+      "title": "Structural clone of LegalClient across 2 packages",
+      "occurrences": 2,
+      "packages": 2,
+      "members": [
+        "packages/law-practice/domain/src/entities/LegalClient/LegalClient.model.ts#LegalClient",
+        "packages/workspace/domain/src/entities/ContextPacket/ContextPacket.model.ts#ContextPacket"
+      ]
+    },
+    {
+      "id": "reuse-clone:86:659cd371",
+      "title": "Structural clone of WorkItemRepositoryShape across 2 packages",
+      "occurrences": 2,
+      "packages": 2,
+      "members": [
+        "packages/architecture-lab/use-cases/src/aggregates/WorkItem/WorkItem.repository.ts#WorkItemRepositoryShape",
+        "packages/canvas/use-cases/src/aggregates/CanvasProject/CanvasProject.repository.ts#CanvasProjectRepositoryShape"
+      ]
+    },
+    {
+      "id": "reuse-clone:89:d84f1c7b",
+      "title": "Structural clone of make across 2 packages",
+      "occurrences": 2,
+      "packages": 2,
+      "members": [
+        "packages/drivers/venice-ai/src/VeniceAiLanguageModel.service.ts#make",
+        "packages/drivers/xai/src/XAiLanguageModel.service.ts#make"
+      ]
+    },
+    {
+      "id": "reuse-clone:94:4418372f",
+      "title": "Structural clone of Discord across 2 packages",
+      "occurrences": 2,
+      "packages": 2,
+      "members": [
+        "packages/drivers/discord/src/Discord.service.ts#Discord",
+        "packages/drivers/openai-compat/src/OpenAiCompatClient.service.ts#OpenAiCompatClient"
+      ]
+    }
+  ]
+}

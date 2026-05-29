@@ -25,11 +25,13 @@ import {
 import * as O from "effect/Option";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
+import { SyntaxKind } from "ts-morph";
 import { FsUtils } from "../FsUtils.js";
 import { findRepoRoot } from "../Root.js";
 import {
   TSMorphService,
   TsMorphFileOutlineRequest,
+  TsMorphProjectInspectionRequest,
   TsMorphProjectScopeRequest,
   TsMorphSymbolLookupRequest,
 } from "../TSMorph/index.js";
@@ -43,6 +45,7 @@ import {
   ReuseSourceSymbolRef,
   ReuseWorkUnit,
 } from "./Reuse.model.js";
+import type { Node } from "ts-morph";
 import type { Symbol as TsMorphSymbol } from "../TSMorph/index.js";
 import type { ReuseCandidateKind } from "./Reuse.model.js";
 
@@ -155,6 +158,7 @@ export class ReuseCandidateNotFoundError extends TaggedErrorClass<ReuseCandidate
 const decodeJsonString = S.decodeUnknownEffect(S.UnknownFromJsonString);
 const decodeWorkspacePackageManifest = S.decodeUnknownEffect(WorkspacePackageManifest);
 const decodeFileOutlineRequest = S.decodeUnknownEffect(TsMorphFileOutlineRequest);
+const decodeInspectionRequest = S.decodeUnknownEffect(TsMorphProjectInspectionRequest);
 const decodeProjectScopeRequest = S.decodeUnknownEffect(TsMorphProjectScopeRequest);
 const decodeSymbolLookupRequest = S.decodeUnknownEffect(TsMorphSymbolLookupRequest);
 const decodeNonNegativeInt = S.decodeUnknownEffect(NonNegativeInt);
@@ -545,6 +549,156 @@ const candidateFromPattern = (
   });
 };
 
+const CLONE_MIN_TOKENS = 40;
+
+type CloneRecord = {
+  readonly key: string;
+  readonly size: number;
+  readonly packagePath: string;
+  readonly filePath: string;
+  readonly symbolName: string;
+  readonly symbolKind: string;
+  readonly startLine: number;
+};
+
+const LITERAL_SYNTAX_KINDS: ReadonlySet<SyntaxKind> = new Set([
+  SyntaxKind.StringLiteral,
+  SyntaxKind.NumericLiteral,
+  SyntaxKind.BigIntLiteral,
+  SyntaxKind.NoSubstitutionTemplateLiteral,
+  SyntaxKind.RegularExpressionLiteral,
+  SyntaxKind.TrueKeyword,
+  SyntaxKind.FalseKeyword,
+]);
+
+const FNV_OFFSET_BASIS = 2166136261;
+const FNV_PRIME = 16777619;
+
+const fnv1aStep = (hash: number, token: string): number => {
+  let next = hash;
+  for (let index = 0; index < token.length; index += 1) {
+    next = (next ^ token.charCodeAt(index)) >>> 0;
+    next = Math.imul(next, FNV_PRIME) >>> 0;
+  }
+  return next;
+};
+
+// Normalize a declaration to a structural signature that ignores formatting,
+// identifier names (alpha-renamed by first appearance), and literal values, so
+// exact + renamed copies (Type-1/Type-2 clones) collapse to the same key.
+const normalizedDeclarationSignature = (node: Node): { readonly key: string; readonly size: number } => {
+  const renames = new Map<string, number>();
+  let hash = FNV_OFFSET_BASIS >>> 0;
+  let size = 0;
+
+  node.forEachDescendant((descendant) => {
+    const kind = descendant.getKind();
+    let token: string;
+    if (kind === SyntaxKind.Identifier) {
+      const text = descendant.getText();
+      let index = renames.get(text);
+      if (index === undefined) {
+        index = renames.size;
+        renames.set(text, index);
+      }
+      token = `I${index}`;
+    } else if (LITERAL_SYNTAX_KINDS.has(kind)) {
+      token = "L";
+    } else {
+      token = `K${kind}`;
+    }
+    hash = fnv1aStep(hash, token);
+    hash = fnv1aStep(hash, ",");
+    size += 1;
+  });
+
+  return { key: `${size}:${hash.toString(16)}`, size };
+};
+
+const isExcludedCloneFile = (relativePath: string): boolean =>
+  Str.endsWith(".d.ts")(relativePath) ||
+  Str.includes(".test.")(relativePath) ||
+  Str.includes(".spec.")(relativePath) ||
+  Str.includes(".stories.")(relativePath) ||
+  Str.includes("/test/")(relativePath) ||
+  Str.includes("/tests/")(relativePath) ||
+  Str.includes("/dist/")(relativePath) ||
+  Str.includes("/docs/")(relativePath) ||
+  Str.includes("/storybook-static/")(relativePath);
+
+const distinctPackageCount = (records: ReadonlyArray<CloneRecord>): number =>
+  pipe(
+    records,
+    A.map((record) => record.packagePath),
+    A.dedupe,
+    A.length
+  );
+
+const cloneCandidateFromCluster = (records: ReadonlyArray<CloneRecord>): ReuseCandidate => {
+  const ordered = A.sort(
+    records,
+    Order.mapInput(Order.String, (record: CloneRecord) => `${record.filePath}:${record.startLine}`)
+  );
+  const sourceSymbols = pipe(
+    ordered,
+    A.map((record) =>
+      ReuseSourceSymbolRef.make({
+        symbolId: `${record.filePath}#${record.symbolName}`,
+        filePath: record.filePath,
+        symbolName: record.symbolName,
+        symbolKind: record.symbolKind,
+      })
+    )
+  );
+  const sourceScopes = uniqueSortedStrings(
+    pipe(
+      ordered,
+      A.map((record) => record.packagePath)
+    )
+  );
+  const evidence = pipe(
+    ordered,
+    A.map(
+      (record) =>
+        `${record.filePath}:${record.startLine} ${record.symbolKind} ${record.symbolName} (${record.size} normalized tokens)`
+    )
+  );
+  const headSymbol = pipe(
+    A.head(ordered),
+    O.map((record) => record.symbolName),
+    O.getOrElse(() => "declaration")
+  );
+  const headKey = pipe(
+    A.head(ordered),
+    O.map((record) => record.key),
+    O.getOrElse(() => "unknown")
+  );
+
+  return ReuseCandidate.make({
+    candidateId: `reuse-clone:${headKey}`,
+    kind: "structural-clone",
+    title: `Structural clone of ${headSymbol} across ${A.length(sourceScopes)} packages`,
+    sourceSymbols,
+    sourceScopes,
+    recommendedAction:
+      "Consolidate these structurally identical declarations into one shared/foundation home and replace the copies with an import.",
+    proposedDestinationPackage: "@beep/utils",
+    proposedDestinationModule: "packages/foundation/modeling/utils/src",
+    confidence: confidenceFromOccurrenceCount(A.length(ordered)),
+    evidence,
+    blockingConcerns: [
+      "Confirm the copies are semantically identical and pick the architecturally correct shared/foundation home before consolidating.",
+    ],
+    implementationSteps: [
+      "Pick the canonical home for the shared declaration following specific-home-first routing.",
+      "Move one copy to the chosen home and export it.",
+      "Replace the remaining copies with imports of the shared declaration.",
+    ],
+    verificationCommands: ["bun run check", "bun run test", "bun run lint"],
+    catalogMatchIds: [],
+  });
+};
+
 const scopeSelectorLabel = (scopeSelector: O.Option<string>, scopes: ReadonlyArray<WorkspaceScope>): string => {
   if (O.isSome(scopeSelector)) {
     const tokens = parseScopeSelector(scopeSelector);
@@ -686,6 +840,8 @@ type ReuseAnalysisContextShape = {
   readonly patternMatchCountsByScope: MutableHashMap.MutableHashMap<string, PatternMatchCountsById>;
   readonly catalogBySelector: MutableHashMap.MutableHashMap<SelectorCacheKey, ReadonlyArray<ReuseCatalogEntry>>;
   readonly candidatesBySelector: MutableHashMap.MutableHashMap<SelectorCacheKey, ReadonlyArray<ReuseCandidate>>;
+  readonly cloneRecordsByScope: MutableHashMap.MutableHashMap<string, ReadonlyArray<CloneRecord>>;
+  readonly cloneCandidatesBySelector: MutableHashMap.MutableHashMap<SelectorCacheKey, ReadonlyArray<ReuseCandidate>>;
 };
 
 class ReuseAnalysisContext extends Context.Service<ReuseAnalysisContext, ReuseAnalysisContextShape>()(
@@ -1088,6 +1244,8 @@ const ReuseAnalysisContextLive = Layer.effect(
       patternMatchCountsByScope: MutableHashMap.empty(),
       catalogBySelector: MutableHashMap.empty(),
       candidatesBySelector: MutableHashMap.empty(),
+      cloneRecordsByScope: MutableHashMap.empty(),
+      cloneCandidatesBySelector: MutableHashMap.empty(),
     });
   })
 );
@@ -1498,6 +1656,173 @@ export const ReuseInventoryServiceLive = Layer.effect(
   })
 );
 
+const collectCloneRecordsForScope = (analysisContext: ReuseAnalysisContextShape, scope: WorkspaceScope) =>
+  getCachedOrCompute(
+    analysisContext.cloneRecordsByScope,
+    scope.packagePath,
+    Effect.gen(function* () {
+      const runtime = analysisContext.runtime;
+      const srcPrefix = `${scope.srcPath}/`;
+      const inspectionRequest = yield* decodeInspectionRequest({
+        entrypoint: { _tag: "tsconfig", tsConfigPath: scope.tsConfigPath },
+        repoRootPath: runtime.repoRoot,
+        mode: "syntax",
+        referencePolicy: "workspaceOnly",
+        filePaths: [],
+        sourceFileGlobs: [runtime.path.join(runtime.repoRoot, scope.srcPath, "**", "*.ts")],
+      }).pipe(
+        Effect.mapError(
+          mapAnalysisError("collectCloneRecordsForScope", `Failed to build inspection request for ${scope.packagePath}`)
+        )
+      );
+
+      return yield* runtime.tsmorph
+        .inspectProject(inspectionRequest, ({ sourceFiles }) => {
+          const seen = new Set<string>();
+          const collected: Array<CloneRecord> = [];
+
+          for (const sourceFile of sourceFiles) {
+            const relativeSource = normalizeRelativePath(
+              runtime.path.relative(runtime.repoRoot, sourceFile.getFilePath())
+            );
+            if (!Str.startsWith(srcPrefix)(relativeSource) || isExcludedCloneFile(relativeSource)) {
+              continue;
+            }
+
+            for (const [symbolName, declarations] of sourceFile.getExportedDeclarations()) {
+              for (const declaration of declarations) {
+                const declarationFile = normalizeRelativePath(
+                  runtime.path.relative(runtime.repoRoot, declaration.getSourceFile().getFilePath())
+                );
+                if (!Str.startsWith(srcPrefix)(declarationFile) || isExcludedCloneFile(declarationFile)) {
+                  continue;
+                }
+
+                const startLine = declaration.getStartLineNumber();
+                const dedupeId = `${declarationFile}#${startLine}#${symbolName}`;
+                if (seen.has(dedupeId)) {
+                  continue;
+                }
+                seen.add(dedupeId);
+
+                const signature = normalizedDeclarationSignature(declaration);
+                if (signature.size < CLONE_MIN_TOKENS) {
+                  continue;
+                }
+
+                collected.push({
+                  key: signature.key,
+                  size: signature.size,
+                  packagePath: scope.packagePath,
+                  filePath: declarationFile,
+                  symbolName,
+                  symbolKind: declaration.getKindName(),
+                  startLine,
+                });
+              }
+            }
+          }
+
+          return collected as ReadonlyArray<CloneRecord>;
+        })
+        .pipe(
+          Effect.mapError(
+            mapAnalysisError(
+              "collectCloneRecordsForScope",
+              `Failed to inspect ts-morph project for ${scope.packagePath}`
+            )
+          )
+        );
+    })
+  );
+
+/**
+ * Service contract for declaration-anchored structural clone detection.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+type ReuseCloneServiceShape = {
+  readonly detectClones: (
+    scopeSelector?: O.Option<string>
+  ) => Effect.Effect<ReadonlyArray<ReuseCandidate>, ReuseAnalysisError>;
+};
+
+/**
+ * Service tag for declaration-anchored structural clone detection.
+ *
+ * @example
+ * ```ts
+ * import { Effect } from "effect"
+ * import { ReuseCloneService } from "@beep/repo-utils/Reuse/Reuse.service"
+ * const program = Effect.gen(function* () {
+ *   const service = yield* ReuseCloneService
+ *   return service
+ * })
+ * void program
+ * ```
+ * @category models
+ * @since 0.0.0
+ */
+export class ReuseCloneService extends Context.Service<ReuseCloneService, ReuseCloneServiceShape>()(
+  $I`ReuseCloneService`
+) {}
+
+/**
+ * Default live layer for declaration-anchored structural clone detection.
+ *
+ * @example
+ * ```ts
+ * import { ReuseCloneServiceLive } from "@beep/repo-utils/Reuse/Reuse.service"
+ * const layer = ReuseCloneServiceLive
+ * void layer
+ * ```
+ * @category constructors
+ * @since 0.0.0
+ */
+export const ReuseCloneServiceLive = Layer.effect(
+  ReuseCloneService,
+  Effect.gen(function* () {
+    const analysisContext = yield* ReuseAnalysisContext;
+
+    const detectClones: ReuseCloneServiceShape["detectClones"] = Effect.fn(function* (scopeSelector = O.none()) {
+      return yield* getCachedOrCompute(
+        analysisContext.cloneCandidatesBySelector,
+        selectorCacheKey(scopeSelector),
+        Effect.gen(function* () {
+          const scopes = yield* discoverWorkspaceScopes(analysisContext, scopeSelector);
+          let records = A.empty<CloneRecord>();
+          for (const scope of scopes) {
+            const scopeRecords = yield* collectCloneRecordsForScope(analysisContext, scope);
+            records = A.appendAll(records, scopeRecords);
+          }
+
+          const grouped = A.groupBy(records, (record) => record.key);
+          let candidates = A.empty<ReuseCandidate>();
+          for (const key of R.keys(grouped)) {
+            const cluster = grouped[key] ?? A.empty<CloneRecord>();
+            if (A.length(cluster) >= 2 && distinctPackageCount(cluster) >= 2) {
+              candidates = A.append(candidates, cloneCandidateFromCluster(cluster));
+            }
+          }
+
+          return pipe(
+            candidates,
+            A.sort(
+              Order.combine(
+                Order.mapInput(Order.Number, (candidate: ReuseCandidate) => -candidate.confidence),
+                Order.mapInput(Order.String, (candidate: ReuseCandidate) => candidate.candidateId)
+              )
+            )
+          );
+        })
+      );
+    });
+
+    return ReuseCloneService.of({ detectClones });
+  })
+);
+
 const ReuseCatalogAndDiscoveryLive = Layer.mergeAll(
   ReuseCatalogServiceLive,
   ReuseDiscoveryServiceLive.pipe(Layer.provideMerge(ReuseCatalogServiceLive))
@@ -1518,5 +1843,6 @@ const ReuseCatalogAndDiscoveryLive = Layer.mergeAll(
 export const ReuseServiceSuiteLive = Layer.mergeAll(
   ReuseCatalogAndDiscoveryLive,
   ReusePartitionPlannerServiceLive.pipe(Layer.provideMerge(ReuseCatalogServiceLive)),
-  ReuseInventoryServiceLive.pipe(Layer.provide(ReuseCatalogAndDiscoveryLive))
+  ReuseInventoryServiceLive.pipe(Layer.provide(ReuseCatalogAndDiscoveryLive)),
+  ReuseCloneServiceLive
 ).pipe(Layer.provideMerge(ReuseAnalysisContextLive));
