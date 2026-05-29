@@ -1,5 +1,13 @@
 # @beep/architecture-lab-domain
 
+## 0.0.2
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @beep/schema@0.1.2
+  - @beep/shared-domain@0.0.2
+
 ## 0.0.1
 
 ### Patch Changes

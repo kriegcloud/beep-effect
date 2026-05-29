@@ -1,5 +1,13 @@
 # @beep/shared-tables
 
+## 0.0.2
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @beep/drizzle@0.0.2
+  - @beep/shared-domain@0.0.2
+
 ## 0.0.1
 
 ### Patch Changes

@@ -1,5 +1,13 @@
 # @beep/workspace-tables
 
+## 0.0.2
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @beep/drizzle@0.0.2
+  - @beep/workspace-domain@0.0.2
+
 ## 0.0.1
 
 ### Patch Changes

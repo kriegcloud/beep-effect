@@ -1,6 +1,6 @@
 {
   "name": "@beep/messages",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "A library for managing user messages",
   "license": "Apache-2.0",
   "private": true,

@@ -1,6 +1,6 @@
 {
   "name": "@beep/professional-runtime-proof",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "App-level contract harness for the Agentic Professional Runtime proof.",
   "license": "MIT",
   "private": true,

@@ -1,6 +1,6 @@
 {
   "name": "@beep/epistemic-domain",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Epistemic domain models for claims, evidence, activities, and usage.",
   "license": "MIT",
   "private": true,

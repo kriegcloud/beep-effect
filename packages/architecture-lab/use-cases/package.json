@@ -1,6 +1,6 @@
 {
   "name": "@beep/architecture-lab-use-cases",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Architecture-lab use-case package for WorkItem commands, queries, ports, and public action contracts.",
   "license": "MIT",
   "private": true,

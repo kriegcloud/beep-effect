@@ -1,5 +1,17 @@
 # @beep/oip-web
 
+## 0.1.3
+
+### Patch Changes
+
+- Updated dependencies [[`19c557e`](https://github.com/kriegcloud/beep-effect/commit/19c557eab4129e8c1945f7e1cec83ffb8ba819cf)]:
+  - @beep/utils@0.0.2
+  - @beep/hubspot@0.0.2
+  - @beep/sanity@0.0.2
+  - @beep/schema@0.1.2
+  - @beep/ui@0.1.1
+  - @beep/repo-configs@0.1.1
+
 ## 0.1.2
 
 ### Patch Changes

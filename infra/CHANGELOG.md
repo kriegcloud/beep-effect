@@ -1,5 +1,13 @@
 # @beep/infra
 
+## 0.0.3
+
+### Patch Changes
+
+- Updated dependencies [[`19c557e`](https://github.com/kriegcloud/beep-effect/commit/19c557eab4129e8c1945f7e1cec83ffb8ba819cf)]:
+  - @beep/utils@0.0.2
+  - @beep/repo-ai-metrics@0.0.3
+
 ## 0.0.2
 
 ### Patch Changes

@@ -1,6 +1,6 @@
 {
   "name": "@beep/shared-domain",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Shared-kernel domain language for cross-slice product concepts, values, schemas, and pure behavior.",
   "license": "MIT",
   "private": true,

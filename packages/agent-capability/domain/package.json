@@ -1,6 +1,6 @@
 {
   "name": "@beep/agent-capability-domain",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Agent capability domain models for agents and skills.",
   "license": "MIT",
   "private": true,

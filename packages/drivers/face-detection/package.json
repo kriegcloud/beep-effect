@@ -1,6 +1,6 @@
 {
   "name": "@beep/face-detection",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Driver-level ONNX face detection capability for product-neutral image processing.",
   "license": "MIT",
   "private": true,

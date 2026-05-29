@@ -1,6 +1,6 @@
 {
   "name": "@beep/law-practice-domain",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Law-practice context domain models for the runtime proof.",
   "license": "MIT",
   "private": true,
