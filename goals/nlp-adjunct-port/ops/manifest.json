@@ -1,0 +1,75 @@
+{
+  "schemaVersion": "initiative-manifest/v1",
+  "slug": "nlp-adjunct-port",
+  "title": "NLP Adjunct Port",
+  "status": "ACTIVE",
+  "created": "2026-05-29",
+  "updated": "2026-05-29",
+  "phases": {
+    "p0": {
+      "name": "Reference Capture & Port Audit",
+      "status": "COMPLETE",
+      "output": "history/outputs/p0-port-audit.md",
+      "handoff": "ops/handoffs/HANDOFF_P0.md"
+    },
+    "p1": {
+      "name": "Staging Port",
+      "status": "PENDING",
+      "output": "history/outputs/p1-staging-port.md",
+      "handoff": "ops/handoffs/HANDOFF_P1.md"
+    },
+    "p2": {
+      "name": "Land & Merge",
+      "status": "PENDING",
+      "output": "history/outputs/p2-land-merge.md",
+      "handoff": "ops/handoffs/HANDOFF_P2.md"
+    },
+    "p3": {
+      "name": "Handoff Contract",
+      "status": "PENDING",
+      "output": "history/outputs/p3-contract.md",
+      "handoff": "ops/handoffs/HANDOFF_P3.md"
+    },
+    "p4": {
+      "name": "MCP Driver",
+      "status": "PENDING",
+      "output": "history/outputs/p4-mcp-driver.md",
+      "handoff": "ops/handoffs/HANDOFF_P4.md"
+    },
+    "p5": {
+      "name": "Verification & Docs",
+      "status": "PENDING",
+      "output": "history/outputs/p5-verification.md",
+      "handoff": "ops/handoffs/HANDOFF_P5.md"
+    }
+  },
+  "outputs": {
+    "manifest": "ops/manifest.json",
+    "p0": "history/outputs/p0-port-audit.md",
+    "p1": "history/outputs/p1-staging-port.md",
+    "p2": "history/outputs/p2-land-merge.md",
+    "p3": "history/outputs/p3-contract.md",
+    "p4": "history/outputs/p4-mcp-driver.md",
+    "p5": "history/outputs/p5-verification.md"
+  },
+  "research": [
+    "research/adjunct-architecture.md",
+    "research/v3-to-v4-port-map.md",
+    "research/gap-vs-beep-nlp.md"
+  ],
+  "root_files": [
+    "README.md",
+    "SPEC.md",
+    "PLAN.md",
+    "history/quick-start.md",
+    "history/reflection-log.md"
+  ],
+  "handoff_files": [
+    "ops/handoffs/HANDOFF_P0.md",
+    "ops/handoffs/HANDOFF_P1.md",
+    "ops/handoffs/HANDOFF_P2.md",
+    "ops/handoffs/HANDOFF_P3.md",
+    "ops/handoffs/HANDOFF_P4.md",
+    "ops/handoffs/HANDOFF_P5.md"
+  ]
+}
