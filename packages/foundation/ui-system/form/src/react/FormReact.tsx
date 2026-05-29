@@ -137,6 +137,8 @@ type StructFieldsFromSchema<S> =
       ? StructFieldsFromSchema<From>
       : never;
 
+type IsStructSchema<Schema extends S.Top> = [StructFieldsFromSchema<Schema>] extends [never] ? false : true;
+
 /**
  * Component map accepted for one array field item.
  *
@@ -154,7 +156,7 @@ type StructFieldsFromSchema<S> =
  * @since 0.0.0
  */
 export type ArrayItemComponentMap<Schema extends S.Top> =
-  StructFieldsFromSchema<Schema> extends S.Struct.Fields
+  IsStructSchema<Schema> extends true
     ? {
         readonly [K in keyof StructFieldsFromSchema<Schema>]: StructFieldsFromSchema<Schema>[K] extends S.Top
           ? React.FC<FieldComponentProps<S.Codec.Encoded<StructFieldsFromSchema<Schema>[K]>, TUnsafe.Any>>
@@ -268,7 +270,7 @@ type FieldComponents<TFields extends Field.FieldsRecord, CM extends FieldCompone
 };
 
 type ExtractArrayItemExtraProps<CM, Schema extends S.Top> =
-  StructFieldsFromSchema<Schema> extends S.Struct.Fields
+  IsStructSchema<Schema> extends true
     ? {
         readonly [K in keyof StructFieldsFromSchema<Schema>]: CM extends { readonly [P in K]: infer C }
           ? ExtractExtraProps<C>
@@ -285,13 +287,15 @@ type ArrayFieldComponent<Schema extends S.Top, ExtraPropsMap> = React.FC<{
     readonly index: number;
     readonly children: React.ReactNode | ((props: { readonly remove: () => void }) => React.ReactNode);
   }>;
-} & (StructFieldsFromSchema<Schema> extends S.Struct.Fields
+} & (IsStructSchema<Schema> extends true
     ? {
         readonly [K in keyof StructFieldsFromSchema<Schema>]: React.FC<
           ExtraPropsMap extends { readonly [P in K]: infer EP } ? EP : Record<string, never>
         >;
       }
-    : unknown);
+    : {
+        readonly Value: React.FC<ExtraPropsMap>;
+      });
 
 interface ArrayItemContextValue {
   readonly index: number;
@@ -309,7 +313,8 @@ const makeFieldComponent = <Schema extends S.Top, P>(
 ): React.FC<P> => {
   const FieldComponent: React.FC<P> = (extraProps) => {
     const arrayCtx = useContext(ArrayItemContext);
-    const fieldPath = arrayCtx !== null ? `${arrayCtx.parentPath}.${fieldKey}` : fieldKey;
+    const fieldPath =
+      arrayCtx !== null ? (fieldKey === "" ? arrayCtx.parentPath : `${arrayCtx.parentPath}.${fieldKey}`) : fieldKey;
 
     const fieldAtoms = React.useMemo(() => getOrCreateFieldAtoms(fieldPath, fieldDef.schema), [fieldPath]);
 
@@ -459,6 +464,14 @@ const makeArrayFieldComponent = <Schema extends S.Top>(
         onBlurSubmitAtom
       );
     }
+  } else {
+    itemFieldComponents.Value = makeFieldComponent(
+      "",
+      Field.makeField("", def.itemSchema),
+      getOrCreateFieldAtoms,
+      componentMap as React.FC<FieldComponentProps<S.Codec.Encoded<Schema>, TUnsafe.Any>>,
+      onBlurSubmitAtom
+    );
   }
 
   const properties: Record<string, TUnsafe.Any> = {

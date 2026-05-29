@@ -1524,6 +1524,26 @@ describe("FormAtoms", () => {
       expect(O.isSome(registry.get(atoms.stateAtom).pipe(O.getOrThrow).lastSubmittedValues)).toBe(true);
     });
 
+    effectTest("does not set lastSubmittedValues when onSubmit fails", function* () {
+      const runtime = Atom.runtime(Layer.empty);
+      const EmailField = Field.makeField("email", S.String.check(S.isNonEmpty({ message: "Email is required" })));
+      const form = FormBuilder.empty.addField(EmailField);
+      const onSubmit = vi.fn(() => Effect.fail("submit failed"));
+      const atoms = FormAtoms.make({ runtime, formBuilder: form, onSubmit });
+      const registry = Registry.make();
+
+      const initialState = atoms.operations.createInitialState({ email: "test@example.com" });
+      registry.set(atoms.stateAtom, O.some(initialState));
+      registry.mount(atoms.stateAtom);
+      registry.mount(atoms.submitAtom);
+      registry.set(atoms.submitAtom, undefined);
+
+      yield* Effect.sleep("50 millis");
+
+      expect(onSubmit).toHaveBeenCalledTimes(1);
+      expect(O.isNone(registry.get(atoms.stateAtom).pipe(O.getOrThrow).lastSubmittedValues)).toBe(true);
+    });
+
     effectTest("collects all validation errors on submit, not just the first", function* () {
       const runtime = Atom.runtime(Layer.empty);
       const NameField = Field.makeField("name", S.String.check(S.isNonEmpty({ message: "Name is required" })));

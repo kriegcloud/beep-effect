@@ -6,11 +6,13 @@ import type * as React from "react";
 
 const NameField = Field.makeField("name", S.String);
 const ItemsField = Field.makeArrayField("items", S.Struct({ label: S.String }));
-const Form = FormBuilder.empty.addField(NameField).addField(ItemsField);
+const TagsField = Field.makeArrayField("tags", S.String);
+const Form = FormBuilder.empty.addField(NameField).addField(ItemsField).addField(TagsField);
 
 const NameComponent: React.FC<FormReact.FieldComponentProps<string, { readonly label: string }>> = () => null;
 const ItemLabelComponent: React.FC<FormReact.FieldComponentProps<string, { readonly placeholder: string }>> = () =>
   null;
+const TagComponent: React.FC<FormReact.FieldComponentProps<string, { readonly compact: boolean }>> = () => null;
 
 describe("@beep/form React types", () => {
   it("extracts extra props from field components", () => {
@@ -26,6 +28,7 @@ describe("@beep/form React types", () => {
       items: {
         label: ItemLabelComponent,
       },
+      tags: TagComponent,
     };
 
     expect(components.name).type.toBeAssignableTo<
@@ -44,14 +47,17 @@ describe("@beep/form React types", () => {
         items: {
           label: ItemLabelComponent,
         },
+        tags: TagComponent,
       },
       onSubmit: (_: void, ctx) => ctx.encoded.name,
     });
 
     expect(built.name).type.toBeAssignableTo<React.FC<{ readonly label: string }>>();
     expect(built.items.label).type.toBeAssignableTo<React.FC<{ readonly placeholder: string }>>();
+    expect(built.tags.Value).type.toBeAssignableTo<React.FC<{ readonly compact: boolean }>>();
     expect(built.fields.name).type.toBe<FormBuilder.FieldRef<string>>();
     expect(built.fields.items).type.toBe<FormBuilder.FieldRef<ReadonlyArray<{ readonly label: string }>>>();
+    expect(built.fields.tags).type.toBe<FormBuilder.FieldRef<ReadonlyArray<string>>>();
     expect(built.submit).type.toBeAssignableTo<unknown>();
   });
 });

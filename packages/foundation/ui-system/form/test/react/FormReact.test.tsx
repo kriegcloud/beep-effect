@@ -1,6 +1,6 @@
 import { Field, FormBuilder, FormReact } from "@beep/form/react";
 import { useAtomSet, useAtomSubscribe, useAtomValue } from "@effect/atom-react";
-import { render, screen, waitFor } from "@testing-library/react";
+import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { userEvent } from "@testing-library/user-event";
 import * as Data from "effect/Data";
 import * as Layer from "effect/Layer";
@@ -406,6 +406,53 @@ describe("FormReact.make", () => {
       yield* Effect.promise(() => user.type(screen.getByTestId("item-name"), "A"));
 
       expect((screen.getByTestId("item-name") as HTMLInputElement).value).toBe("FirstA");
+    });
+
+    effectTest("renders scalar array item value fields", function* () {
+      const user = userEvent.setup();
+
+      const TagsArrayField = Field.makeArrayField("tags", S.String);
+      const formBuilder = FormBuilder.empty.addField(TagsArrayField);
+
+      const TagInput: FormReact.FieldComponent<string> = ({ field }) => (
+        <input
+          type="text"
+          value={field.value}
+          onChange={(e) => field.onChange(e.target.value)}
+          onBlur={field.onBlur}
+          data-testid="tag"
+          data-path={field.path}
+        />
+      );
+
+      const form = FormReact.make(formBuilder, {
+        fields: { tags: TagInput },
+        onSubmit: () => {},
+      });
+
+      render(
+        <form.Initialize defaultValues={{ tags: ["first"] }}>
+          <form.tags>
+            {({ items }) => (
+              <>
+                {items.map((_, i) => (
+                  <form.tags.Item key={i} index={i}>
+                    <form.tags.Value />
+                  </form.tags.Item>
+                ))}
+              </>
+            )}
+          </form.tags>
+        </form.Initialize>
+      );
+
+      const input = screen.getByTestId("tag") as HTMLInputElement;
+      expect(input.value).toBe("first");
+      expect(input.dataset.path).toBe("tags[0]");
+
+      yield* Effect.promise(() => user.type(input, " tag"));
+
+      expect(input.value).toBe("first tag");
     });
 
     effectTest("remove() removes item at specified index", function* () {
@@ -2590,42 +2637,50 @@ describe("FormReact.make", () => {
     });
 
     effectTest("batches updates from multiple fields into a single auto-submission", function* () {
-      const user = userEvent.setup();
+      vi.useFakeTimers();
       const submitHandler = vi.fn();
 
-      const formBuilder = FormBuilder.empty.addField(NameField).addField(AgeField);
+      try {
+        const formBuilder = FormBuilder.empty.addField(NameField).addField(AgeField);
 
-      const form = FormReact.make(formBuilder, {
-        runtime: createRuntime(),
-        fields: { name: NameInput, age: AgeInput },
-        mode: { validation: "onChange", debounce: "100 millis", autoSubmit: true },
-        onSubmit: (_: void, { decoded }) => submitHandler(decoded),
-      });
+        const form = FormReact.make(formBuilder, {
+          runtime: createRuntime(),
+          fields: { name: NameInput, age: AgeInput },
+          mode: { validation: "onChange", debounce: "100 millis", autoSubmit: true },
+          onSubmit: (_: void, { decoded }) => submitHandler(decoded),
+        });
 
-      render(
-        <form.Initialize defaultValues={{ name: "", age: "" }}>
-          <form.name />
-          <form.age />
-        </form.Initialize>
-      );
+        render(
+          <form.Initialize defaultValues={{ name: "", age: "" }}>
+            <form.name />
+            <form.age />
+          </form.Initialize>
+        );
 
-      const nameInput = screen.getByTestId("name-input");
-      const ageInput = screen.getByTestId("age-input");
-      yield* Effect.promise(() => user.type(nameInput, "Lucas"));
-      yield* Effect.promise(() => user.type(ageInput, "30"));
+        const nameInput = screen.getByTestId("name-input");
+        const ageInput = screen.getByTestId("age-input");
+        act(() => {
+          fireEvent.change(nameInput, { target: { value: "Lucas" } });
+          fireEvent.change(ageInput, { target: { value: "30" } });
+        });
 
-      yield* delay(50);
-      expect(submitHandler).not.toHaveBeenCalled();
+        yield* Effect.promise(() =>
+          act(async () => {
+            await vi.advanceTimersByTimeAsync(50);
+          })
+        );
+        expect(submitHandler).not.toHaveBeenCalled();
 
-      yield* Effect.promise(() =>
-        waitFor(
-          () => {
-            expect(submitHandler).toHaveBeenCalledTimes(1);
-            expect(submitHandler).toHaveBeenCalledWith({ name: "Lucas", age: "30" });
-          },
-          { timeout: 300 }
-        )
-      );
+        yield* Effect.promise(() =>
+          act(async () => {
+            await vi.advanceTimersByTimeAsync(50);
+          })
+        );
+        expect(submitHandler).toHaveBeenCalledTimes(1);
+        expect(submitHandler).toHaveBeenCalledWith({ name: "Lucas", age: "30" });
+      } finally {
+        vi.useRealTimers();
+      }
     });
 
     effectTest("does NOT auto-submit if validation fails", function* () {

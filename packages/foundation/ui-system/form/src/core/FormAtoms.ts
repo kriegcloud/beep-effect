@@ -628,18 +628,25 @@ export const make = <TFields extends Field.FieldsRecord, R, A, E, SubmitArgs = v
       )
     );
     const submitState = operations.createSubmitState(state.value);
-    get.set(
-      stateAtom,
-      O.some({
-        ...submitState,
-        lastSubmittedValues: O.some({ encoded: values, decoded }),
-      })
-    );
+    get.set(stateAtom, O.some(submitState));
     const result = config.onSubmit(args, { decoded, encoded: values, get });
+    let submitted: A;
     if (Effect.isEffect(result)) {
-      return yield* result as Effect.Effect<A, E, R>;
+      submitted = yield* result as Effect.Effect<A, E, R>;
+    } else {
+      submitted = result as A;
     }
-    return result as A;
+    const latestState = get(stateAtom);
+    if (O.isSome(latestState)) {
+      get.set(
+        stateAtom,
+        O.some({
+          ...latestState.value,
+          lastSubmittedValues: O.some({ encoded: values, decoded }),
+        })
+      );
+    }
+    return submitted;
   });
 
   const runValidate = Effect.fnUntraced(function* (_: void, get: Atom.FnContext) {
