@@ -79,6 +79,21 @@ export * as Core from "./Core/index.ts";
  */
 export * as Graph from "./Graph/index.ts";
 /**
+ * The product-neutral generic IR handoff contract emitted for downstream
+ * consumers (chunks/mentions/entities/relations + spans + PROV-O provenance).
+ *
+ * @example
+ * ```typescript
+ * import { Handoff } from "@beep/nlp"
+ *
+ * console.log(Handoff.Contract.AnnotatedDocument)
+ * ```
+ *
+ * @since 0.0.0
+ * @category handoff
+ */
+export * as Handoff from "./Handoff/index.ts";
+/**
  * Deterministic identifier tokenization and variant helpers.
  *
  * @example

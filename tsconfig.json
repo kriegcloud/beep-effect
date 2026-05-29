@@ -1110,6 +1110,9 @@
       ],
       "@beep/nlp/Operations": [
         "./packages/foundation/capability/nlp/src/Operations/index.ts"
+      ],
+      "@beep/nlp/Handoff": [
+        "./packages/foundation/capability/nlp/src/Handoff/index.ts"
       ]
     }
   }
