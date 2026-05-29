@@ -108,11 +108,9 @@ const UnknownNodeVersionValueToString = S.Unknown.pipe(
       encode: identity,
     })
   ),
-  S.annotate(
-    $I.annote("UnknownNodeVersionValueToString", {
-      description: "Schema transformation that normalizes unknown workflow node-version values into strings.",
-    })
-  )
+  $I.annoteSchema("UnknownNodeVersionValueToString", {
+    description: "Schema transformation that normalizes unknown workflow node-version values into strings.",
+  })
 );
 
 const decodeNodeVersionString = S.decodeUnknownOption(UnknownNodeVersionValueToString);

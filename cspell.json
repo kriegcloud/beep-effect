@@ -69,6 +69,8 @@
     "outputs",
     ".next",
     "storybook-static",
+    "**/public/sw.js",
+    "**/public/workbox-*.js",
     ".beep/**",
     ".aiassistant/**",
     "scratchpad/**",

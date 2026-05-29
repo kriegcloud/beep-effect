@@ -55,8 +55,8 @@ export const BUILT_IN_PROMPT_ARG_KEY_SET: HashSet.HashSet<string> = HashSet.from
  * @category schemas
  * @since 0.0.0
  */
-export const BuiltInPromptArgKey = LiteralKit(BUILT_IN_PROMPT_ARG_KEYS).annotate(
-  $I.annote("BuiltInPromptArgKey", {
+export const BuiltInPromptArgKey = LiteralKit(BUILT_IN_PROMPT_ARG_KEYS).pipe(
+  $I.annoteSchema("BuiltInPromptArgKey", {
     description: "Built-in prompt argument key domain.",
   })
 );
@@ -117,8 +117,8 @@ const promptArgValueToText = (value: PromptArgValue): string => value.toString()
  * @category schemas
  * @since 0.0.0
  */
-export const PromptSource = LiteralKit(["Inline", "Template"]).annotate(
-  $I.annote("PromptSource", {
+export const PromptSource = LiteralKit(["Inline", "Template"]).pipe(
+  $I.annoteSchema("PromptSource", {
     description: "Prompt source discriminator.",
   })
 );

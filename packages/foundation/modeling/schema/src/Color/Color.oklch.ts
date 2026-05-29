@@ -130,11 +130,9 @@ export const oklchToRgbValue = ({ l: lightness, c: chroma, h: hue }: OklchEncode
  */
 export const OklchCoordinate = S.Finite.pipe(
   S.brand("OklchCoordinate"),
-  S.annotate(
-    $I.annote("OklchCoordinate", {
-      description: "A finite OKLCH coordinate component.",
-    })
-  )
+  $I.annoteSchema("OklchCoordinate", {
+    description: "A finite OKLCH coordinate component.",
+  })
 );
 
 /**
@@ -154,11 +152,9 @@ export type OklchCoordinate = typeof OklchCoordinate.Type;
 export const OklchLightness = OklchCoordinate.pipe(
   S.check(OklchLightnessRangeCheck),
   S.brand("OklchLightness"),
-  S.annotate(
-    $I.annote("OklchLightness", {
-      description: "OKLCH lightness normalized to the range 0 through 1.",
-    })
-  )
+  $I.annoteSchema("OklchLightness", {
+    description: "OKLCH lightness normalized to the range 0 through 1.",
+  })
 );
 
 /**
@@ -178,11 +174,9 @@ export type OklchLightness = typeof OklchLightness.Type;
 export const OklchChroma = OklchCoordinate.pipe(
   S.check(OklchChromaCheck),
   S.brand("OklchChroma"),
-  S.annotate(
-    $I.annote("OklchChroma", {
-      description: "A non-negative OKLCH chroma value.",
-    })
-  )
+  $I.annoteSchema("OklchChroma", {
+    description: "A non-negative OKLCH chroma value.",
+  })
 );
 
 /**
@@ -202,11 +196,9 @@ export type OklchChroma = typeof OklchChroma.Type;
 export const OklchHue = OklchCoordinate.pipe(
   S.check(OklchHueRangeCheck),
   S.brand("OklchHue"),
-  S.annotate(
-    $I.annote("OklchHue", {
-      description: "An OKLCH hue angle in degrees from 0 through 360.",
-    })
-  )
+  $I.annoteSchema("OklchHue", {
+    description: "An OKLCH hue angle in degrees from 0 through 360.",
+  })
 );
 
 /**

@@ -24,8 +24,8 @@ const TOOL_ARG_FIELDS: Readonly<Record<string, string>> = {
   WebSearch: "query",
 };
 
-const ClaudeContentBlockType = LiteralKit(["text", "tool_use"]).annotate(
-  $I.annote("ClaudeContentBlockType", {
+const ClaudeContentBlockType = LiteralKit(["text", "tool_use"]).pipe(
+  $I.annoteSchema("ClaudeContentBlockType", {
     description: "Claude stream content block discriminator.",
   })
 );
@@ -74,8 +74,8 @@ class ClaudeMessage extends S.Class<ClaudeMessage>($I`ClaudeMessage`)(
   })
 ) {}
 
-const ClaudeStreamLineType = LiteralKit(["assistant", "result", "system"]).annotate(
-  $I.annote("ClaudeStreamLineType", {
+const ClaudeStreamLineType = LiteralKit(["assistant", "result", "system"]).pipe(
+  $I.annoteSchema("ClaudeStreamLineType", {
     description: "Claude stream line discriminator.",
   })
 );
@@ -105,8 +105,8 @@ type ClaudeAssistantStreamLine = Extract<
   }
 >;
 
-const CodexItemType = LiteralKit(["agent_message", "command_execution"]).annotate(
-  $I.annote("CodexItemType", {
+const CodexItemType = LiteralKit(["agent_message", "command_execution"]).pipe(
+  $I.annoteSchema("CodexItemType", {
     description: "Codex stream item discriminator.",
   })
 );
@@ -141,8 +141,8 @@ const CodexErrorPayload = S.Union([S.String, CodexErrorMessagePayload]).pipe(
 
 type CodexErrorPayload = typeof CodexErrorPayload.Type;
 
-const CodexStreamLineType = LiteralKit(["item.completed", "item.started", "error"]).annotate(
-  $I.annote("CodexStreamLineType", {
+const CodexStreamLineType = LiteralKit(["item.completed", "item.started", "error"]).pipe(
+  $I.annoteSchema("CodexStreamLineType", {
     description: "Codex stream line discriminator.",
   })
 );
@@ -172,8 +172,8 @@ type CodexErrorStreamLine = Extract<
   }
 >;
 
-const PiAssistantMessageEventType = LiteralKit(["text_delta"]).annotate(
-  $I.annote("PiAssistantMessageEventType", {
+const PiAssistantMessageEventType = LiteralKit(["text_delta"]).pipe(
+  $I.annoteSchema("PiAssistantMessageEventType", {
     description: "Pi assistant message event discriminator.",
   })
 );
@@ -214,8 +214,8 @@ const PiStreamLineType = LiteralKit([
   "error",
   "message_update",
   "tool_execution_start",
-]).annotate(
-  $I.annote("PiStreamLineType", {
+]).pipe(
+  $I.annoteSchema("PiStreamLineType", {
     description: "Pi stream line discriminator.",
   })
 );
@@ -363,8 +363,8 @@ export type ParsedStreamEvent = typeof ParsedStreamEvent.Type;
  * @category schemas
  * @since 0.0.0
  */
-export const CodexEffort = LiteralKit(["low", "medium", "high", "xhigh"]).annotate(
-  $I.annote("CodexEffort", {
+export const CodexEffort = LiteralKit(["low", "medium", "high", "xhigh"]).pipe(
+  $I.annoteSchema("CodexEffort", {
     description: "Reasoning effort accepted by the Codex provider.",
   })
 );
@@ -383,8 +383,8 @@ export type CodexEffort = typeof CodexEffort.Type;
  * @category schemas
  * @since 0.0.0
  */
-export const ClaudeEffort = LiteralKit(["low", "medium", "high", "max"]).annotate(
-  $I.annote("ClaudeEffort", {
+export const ClaudeEffort = LiteralKit(["low", "medium", "high", "max"]).pipe(
+  $I.annoteSchema("ClaudeEffort", {
     description: "Reasoning effort accepted by the Claude Code provider.",
   })
 );

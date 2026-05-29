@@ -42,11 +42,9 @@ const getRangeEnd = (
  */
 export const DocumentId = S.NonEmptyString.pipe(
   S.brand("DocumentId"),
-  S.annotate(
-    $I.annote("DocumentId", {
-      description: "Stable identifier for an NLP document.",
-    })
-  )
+  $I.annoteSchema("DocumentId", {
+    description: "Stable identifier for an NLP document.",
+  })
 );
 
 /**

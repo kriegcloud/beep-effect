@@ -26,7 +26,7 @@ const makeDefaultedStringField = (name: string, fallback: string, description: s
     }),
     S.withConstructorDefault(Effect.succeed(fallback)),
     S.withDecodingDefault(Effect.succeed(fallback)),
-    S.annotate($I.annote(name, { description }))
+    $I.annoteSchema(name, { description })
   );
 
 const makeDefaultedPositiveIntField = (name: string, fallback: number, description: string) =>
@@ -41,7 +41,7 @@ const makeDefaultedPositiveIntField = (name: string, fallback: number, descripti
     }),
     S.withConstructorDefault(Effect.succeed(fallback)),
     S.withDecodingDefault(Effect.succeed(`${fallback}`)),
-    S.annotate($I.annote(name, { description }))
+    $I.annoteSchema(name, { description })
   );
 
 const makeDefaultedBooleanField = (name: string, fallback: boolean, description: string) =>
@@ -55,7 +55,7 @@ const makeDefaultedBooleanField = (name: string, fallback: boolean, description:
     }),
     S.withConstructorDefault(Effect.succeed(fallback)),
     S.withDecodingDefault(Effect.succeed(booleanToNormalizedString(fallback))),
-    S.annotate($I.annote(name, { description }))
+    $I.annoteSchema(name, { description })
   );
 
 const makeDefaultedUrlField = (name: string, fallback: string, description: string) =>
@@ -69,7 +69,7 @@ const makeDefaultedUrlField = (name: string, fallback: string, description: stri
     }),
     S.withConstructorDefault(Effect.succeed(fallback)),
     S.withDecodingDefault(Effect.succeed(fallback)),
-    S.annotate($I.annote(name, { description }))
+    $I.annoteSchema(name, { description })
   );
 
 class GraphitiProxyConfigInput extends S.Class<GraphitiProxyConfigInput>($I`GraphitiProxyConfigInput`)(

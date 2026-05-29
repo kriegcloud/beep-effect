@@ -140,8 +140,8 @@ export const WebAnnotationSelector = S.Union([
   WebAnnotationTextQuoteSelector,
   WebAnnotationTextPositionSelector,
   WebAnnotationFragmentSelector,
-]).annotate(
-  $I.annote("WebAnnotationSelector", {
+]).pipe(
+  $I.annoteSchema("WebAnnotationSelector", {
     description: "Web Annotation selector union.",
   })
 );

@@ -34,8 +34,8 @@ const exportConditionPattern = /^(?:[^.0-9]+|types@.+)$/;
 const NpmPackageName = S.String.check(S.isMinLength(1))
   .check(S.isMaxLength(214))
   .check(S.isPattern(npmPackageNamePattern))
-  .annotate(
-    $I.annote("NpmPackageName", {
+  .pipe(
+    $I.annoteSchema("NpmPackageName", {
       title: "Npm Package Name",
       description: "An npm package name that satisfies the package.json SchemaStore constraints.",
     })
@@ -44,108 +44,108 @@ const NpmPackageName = S.String.check(S.isMinLength(1))
 const RepoPackageName = S.String.check(S.isMinLength(1))
   .check(S.isMaxLength(214))
   .check(S.isPattern(repoPackageNamePattern))
-  .annotate(
-    $I.annote("RepoPackageName", {
+  .pipe(
+    $I.annoteSchema("RepoPackageName", {
       title: "Repo Package Name",
       description:
         "A repo-local package name, including the legacy mixed-case workspace names currently present in this monorepo.",
     })
   );
 
-const PackageManager = S.String.check(S.isPattern(packageManagerPattern)).annotate(
-  $I.annote("PackageManager", {
+const PackageManager = S.String.check(S.isPattern(packageManagerPattern)).pipe(
+  $I.annoteSchema("PackageManager", {
     title: "Package Manager",
     description: "A Corepack-style package manager pin such as bun@1.3.10 or pnpm@9.0.0.",
   })
 );
 
-const RelativeDotPath = S.String.check(S.isPattern(relativeDotPathPattern)).annotate(
-  $I.annote("RelativeDotPath", {
+const RelativeDotPath = S.String.check(S.isPattern(relativeDotPathPattern)).pipe(
+  $I.annoteSchema("RelativeDotPath", {
     title: "Relative Dot Path",
     description: "A relative path that starts with ./, used by exports and publishConfig.",
   })
 );
 
-const ExportTopLevelKey = S.String.check(S.isPattern(exportTopLevelPattern)).annotate(
-  $I.annote("ExportTopLevelKey", {
+const ExportTopLevelKey = S.String.check(S.isPattern(exportTopLevelPattern)).pipe(
+  $I.annoteSchema("ExportTopLevelKey", {
     title: "Export Top Level Key",
     description: "A top-level package exports key such as . or ./subpath.",
   })
 );
 
-const ImportSpecifierKey = S.String.check(S.isPattern(importSpecifierPattern)).annotate(
-  $I.annote("ImportSpecifierKey", {
+const ImportSpecifierKey = S.String.check(S.isPattern(importSpecifierPattern)).pipe(
+  $I.annoteSchema("ImportSpecifierKey", {
     title: "Import Specifier Key",
     description: "A package imports specifier key such as #internal or #config/*.",
   })
 );
 
-const ExportConditionKey = S.String.check(S.isPattern(exportConditionPattern)).annotate(
-  $I.annote("ExportConditionKey", {
+const ExportConditionKey = S.String.check(S.isPattern(exportConditionPattern)).pipe(
+  $I.annoteSchema("ExportConditionKey", {
     title: "Export Condition Key",
     description: "A conditional exports/imports key such as import, require, default, node, or types@>=5.",
   })
 );
 
-const StringArray = S.Array(S.String).annotate(
-  $I.annote("StringArray", {
+const StringArray = S.Array(S.String).pipe(
+  $I.annoteSchema("StringArray", {
     title: "String Array",
     description: "An array of strings used for package metadata fields such as files, man, os, and cpu.",
   })
 );
 
-const NonEmptyStringValue = S.String.check(S.isMinLength(1)).annotate(
-  $I.annote("NonEmptyStringValue", {
+const NonEmptyStringValue = S.String.check(S.isMinLength(1)).pipe(
+  $I.annoteSchema("NonEmptyStringValue", {
     title: "Non Empty String Value",
     description: "A non-empty string value used for package metadata fields that should not be blank.",
   })
 );
 
-const StringRecord = S.Record(S.String, S.String).annotate(
-  $I.annote("StringRecord", {
+const StringRecord = S.Record(S.String, S.String).pipe(
+  $I.annoteSchema("StringRecord", {
     title: "String Record",
     description: "A record mapping string keys to string values, used for dependency maps, scripts, and engines.",
   })
 );
 
-const NpmDependencyRecord = S.Record(NpmPackageName, NonEmptyStringValue).annotate(
-  $I.annote("NpmDependencyRecord", {
+const NpmDependencyRecord = S.Record(NpmPackageName, NonEmptyStringValue).pipe(
+  $I.annoteSchema("NpmDependencyRecord", {
     title: "Npm Dependency Record",
     description: "A record of npm package names to non-empty version or protocol specifiers.",
   })
 );
 
-const RepoDependencyRecord = S.Record(RepoPackageName, NonEmptyStringValue).annotate(
-  $I.annote("RepoDependencyRecord", {
+const RepoDependencyRecord = S.Record(RepoPackageName, NonEmptyStringValue).pipe(
+  $I.annoteSchema("RepoDependencyRecord", {
     title: "Repo Dependency Record",
     description:
       "A record of repo-local package names to non-empty version or protocol specifiers, including legacy mixed-case workspace packages.",
   })
 );
 
-const NonEmptyStringRecord = S.Record(NonEmptyStringValue, NonEmptyStringValue).annotate(
-  $I.annote("NonEmptyStringRecord", {
+const NonEmptyStringRecord = S.Record(NonEmptyStringValue, NonEmptyStringValue).pipe(
+  $I.annoteSchema("NonEmptyStringRecord", {
     title: "Non Empty String Record",
     description: "A record whose keys and values are non-empty strings.",
   })
 );
 
-const BeepFoundationKind = S.Literals(["primitive", "modeling", "capability", "ui-system"] as const).annotate(
-  $I.annote("BeepFoundationKind", {
+const BeepFoundationKind = S.Literals(["primitive", "modeling", "capability", "ui-system"] as const).pipe(
+  $I.annoteSchema("BeepFoundationKind", {
     title: "Beep Foundation Kind",
     description: "Canonical foundation package kind metadata from the repo architecture.",
   })
 );
 
-const BeepToolingKind = S.Literals(["library", "tool", "policy-pack", "test-kit"] as const).annotate(
-  $I.annote("BeepToolingKind", {
+const BeepToolingKind = S.Literals(["library", "tool", "policy-pack", "test-kit"] as const).pipe(
+  $I.annoteSchema("BeepToolingKind", {
     title: "Beep Tooling Kind",
     description: "Canonical tooling package kind metadata from the repo architecture.",
   })
 );
 
-const BeepPackageFamily = LiteralKit(["foundation", "drivers", "tooling"]).annotate(
-  $I.annote("BeepPackageFamily", {
+const BeepPackageFamily = LiteralKit(["foundation", "drivers", "tooling"]).pipe(
+  $I.annoteSchema("BeepPackageFamily", {
     title: "Beep Package Family",
     description: "Canonical package family discriminator for repo-local package metadata.",
   })
@@ -154,8 +154,8 @@ const BeepPackageFamily = LiteralKit(["foundation", "drivers", "tooling"]).annot
 const BeepFoundationMetadata = S.Struct({
   family: S.Literal("foundation"),
   kind: BeepFoundationKind,
-}).annotate(
-  $I.annote("BeepFoundationMetadata", {
+}).pipe(
+  $I.annoteSchema("BeepFoundationMetadata", {
     title: "Beep Foundation Metadata",
     description: "Repo-local package metadata for foundation packages.",
   })
@@ -163,8 +163,8 @@ const BeepFoundationMetadata = S.Struct({
 
 const BeepDriverMetadata = S.Struct({
   family: S.Literal("drivers"),
-}).annotate(
-  $I.annote("BeepDriverMetadata", {
+}).pipe(
+  $I.annoteSchema("BeepDriverMetadata", {
     title: "Beep Driver Metadata",
     description: "Repo-local package metadata for flat driver packages.",
   })
@@ -173,8 +173,8 @@ const BeepDriverMetadata = S.Struct({
 const BeepToolingMetadata = S.Struct({
   family: S.Literal("tooling"),
   kind: BeepToolingKind,
-}).annotate(
-  $I.annote("BeepToolingMetadata", {
+}).pipe(
+  $I.annoteSchema("BeepToolingMetadata", {
     title: "Beep Tooling Metadata",
     description: "Repo-local package metadata for tooling packages.",
   })
@@ -182,17 +182,16 @@ const BeepToolingMetadata = S.Struct({
 
 const BeepPackageMetadata = BeepPackageFamily.mapMembers(
   Tuple.evolve([() => BeepFoundationMetadata, () => BeepDriverMetadata, () => BeepToolingMetadata])
-)
-  .pipe(S.toTaggedUnion("family"))
-  .annotate(
-    $I.annote("BeepPackageMetadata", {
-      title: "Beep Package Metadata",
-      description: "Machine-readable repo architecture metadata for non-slice code packages.",
-    })
-  );
+).pipe(
+  S.toTaggedUnion("family"),
+  $I.annoteSchema("BeepPackageMetadata", {
+    title: "Beep Package Metadata",
+    description: "Machine-readable repo architecture metadata for non-slice code packages.",
+  })
+);
 
-const PackageTypeField = S.String.check(S.isPattern(packageTypePattern)).annotate(
-  $I.annote("PackageTypeField", {
+const PackageTypeField = S.String.check(S.isPattern(packageTypePattern)).pipe(
+  $I.annoteSchema("PackageTypeField", {
     title: "Package Type Field",
     description: "The package type field constrained to the supported Node.js package types.",
   })
@@ -202,15 +201,15 @@ type Json = string | number | boolean | null | ReadonlyArray<Json> | { readonly 
 
 const Json: S.Codec<Json, Json> = S.suspend(() =>
   S.Union([S.String, S.Number, S.Boolean, S.Null, S.Array(Json), S.Record(S.String, Json)])
-).annotate(
-  $I.annote("Json", {
+).pipe(
+  $I.annoteSchema("Json", {
     title: "JSON Value",
     description: "A recursive JSON value used for schema-backed escape hatches like config and publishConfig extras.",
   })
 );
 
-const BrowserReplacement = S.Union([S.String, S.Literal(false)]).annotate(
-  $I.annote("BrowserReplacement", {
+const BrowserReplacement = S.Union([S.String, S.Literal(false)]).pipe(
+  $I.annoteSchema("BrowserReplacement", {
     title: "Browser Replacement",
     description: "A browser field replacement target, either a module path string or false to disable the module.",
   })
@@ -274,8 +273,8 @@ class FundingEntry extends S.Class<FundingEntry>($I`FundingEntry`)(
  * @category validation
  * @since 0.0.0
  */
-export const Person = S.Union([S.String, PersonObject]).annotate(
-  $I.annote("Person", {
+export const Person = S.Union([S.String, PersonObject]).pipe(
+  $I.annoteSchema("Person", {
     title: "Person",
     description:
       "A package author, contributor, or maintainer, either as a string or a structured object with a required name.",
@@ -294,8 +293,8 @@ export const Person = S.Union([S.String, PersonObject]).annotate(
  * @category validation
  * @since 0.0.0
  */
-export const Author = Person.annotate(
-  $I.annote("Author", {
+export const Author = Person.pipe(
+  $I.annoteSchema("Author", {
     title: "Author",
     description: "Package author, either as a string or a structured object with a required name.",
   })
@@ -313,8 +312,8 @@ export const Author = Person.annotate(
  * @category validation
  * @since 0.0.0
  */
-export const Contributors = S.Array(Person).annotate(
-  $I.annote("Contributors", {
+export const Contributors = S.Array(Person).pipe(
+  $I.annoteSchema("Contributors", {
     title: "Contributors",
     description: "A list of people who contributed to the package.",
   })
@@ -332,8 +331,8 @@ export const Contributors = S.Array(Person).annotate(
  * @category validation
  * @since 0.0.0
  */
-export const Maintainers = S.Array(Person).annotate(
-  $I.annote("Maintainers", {
+export const Maintainers = S.Array(Person).pipe(
+  $I.annoteSchema("Maintainers", {
     title: "Maintainers",
     description: "A list of people who maintain the package.",
   })
@@ -351,8 +350,8 @@ export const Maintainers = S.Array(Person).annotate(
  * @category validation
  * @since 0.0.0
  */
-export const Repository = S.Union([S.String, RepositoryObject]).annotate(
-  $I.annote("Repository", {
+export const Repository = S.Union([S.String, RepositoryObject]).pipe(
+  $I.annoteSchema("Repository", {
     title: "Repository",
     description:
       "A package repository reference represented as a shorthand string or a structured object with required type and url.",
@@ -371,8 +370,8 @@ export const Repository = S.Union([S.String, RepositoryObject]).annotate(
  * @category validation
  * @since 0.0.0
  */
-export const Bugs = S.Union([S.String, BugsObject]).annotate(
-  $I.annote("Bugs", {
+export const Bugs = S.Union([S.String, BugsObject]).pipe(
+  $I.annoteSchema("Bugs", {
     title: "Bugs",
     description:
       "A package bug tracker reference represented as a URL string or a structured object with optional url and email.",
@@ -391,8 +390,8 @@ export const Bugs = S.Union([S.String, BugsObject]).annotate(
  * @category validation
  * @since 0.0.0
  */
-export const Funding = S.Union([S.String, FundingEntry, S.NonEmptyArray(S.Union([S.String, FundingEntry]))]).annotate(
-  $I.annote("Funding", {
+export const Funding = S.Union([S.String, FundingEntry, S.NonEmptyArray(S.Union([S.String, FundingEntry]))]).pipe(
+  $I.annoteSchema("Funding", {
     title: "Funding",
     description:
       "Package funding metadata represented as a URL string, a structured funding object, or a non-empty array of those.",
@@ -411,8 +410,8 @@ export const Funding = S.Union([S.String, FundingEntry, S.NonEmptyArray(S.Union(
  * @category validation
  * @since 0.0.0
  */
-export const Bin = S.Union([S.String, StringRecord]).annotate(
-  $I.annote("Bin", {
+export const Bin = S.Union([S.String, StringRecord]).pipe(
+  $I.annoteSchema("Bin", {
     title: "Bin",
     description: "Executable binaries, either as a single file path string or a record mapping command names to paths.",
   })
@@ -430,8 +429,8 @@ export const Bin = S.Union([S.String, StringRecord]).annotate(
  * @category validation
  * @since 0.0.0
  */
-export const Browser = S.Union([S.String, S.Record(S.String, BrowserReplacement)]).annotate(
-  $I.annote("Browser", {
+export const Browser = S.Union([S.String, S.Record(S.String, BrowserReplacement)]).pipe(
+  $I.annoteSchema("Browser", {
     title: "Browser",
     description:
       "Browser-specific entry points represented as a replacement path string or a record of module replacements.",
@@ -477,8 +476,8 @@ const peerDependencyMetaEntryFields = {
   optional: S.optionalKey(S.Boolean),
 } as const;
 
-const PeerDependencyMetaEntry = S.Struct(peerDependencyMetaEntryFields).annotate(
-  $I.annote("PeerDependencyMetaEntry", {
+const PeerDependencyMetaEntry = S.Struct(peerDependencyMetaEntryFields).pipe(
+  $I.annoteSchema("PeerDependencyMetaEntry", {
     title: "Peer Dependency Meta Entry",
     description: "Structured metadata for a peer dependency, including whether it is optional.",
   })
@@ -496,8 +495,8 @@ const PeerDependencyMetaEntry = S.Struct(peerDependencyMetaEntryFields).annotate
  * @category validation
  * @since 0.0.0
  */
-export const Man = S.Union([S.String, StringArray]).annotate(
-  $I.annote("Man", {
+export const Man = S.Union([S.String, StringArray]).pipe(
+  $I.annoteSchema("Man", {
     title: "Man",
     description: "A man page reference represented as a single file path or an array of file paths.",
   })
@@ -515,8 +514,8 @@ export const Man = S.Union([S.String, StringArray]).annotate(
  * @category validation
  * @since 0.0.0
  */
-export const SideEffects = S.Union([S.Boolean, StringArray]).annotate(
-  $I.annote("SideEffects", {
+export const SideEffects = S.Union([S.Boolean, StringArray]).pipe(
+  $I.annoteSchema("SideEffects", {
     title: "Side Effects",
     description: "Whether the package has side effects, represented as a boolean or an array of glob patterns.",
   })
@@ -534,8 +533,8 @@ export const SideEffects = S.Union([S.Boolean, StringArray]).annotate(
  * @category validation
  * @since 0.0.0
  */
-export const BundleDependencies = S.Union([S.Boolean, StringArray]).annotate(
-  $I.annote("BundleDependencies", {
+export const BundleDependencies = S.Union([S.Boolean, StringArray]).pipe(
+  $I.annoteSchema("BundleDependencies", {
     title: "Bundle Dependencies",
     description: "Bundled dependency metadata represented as a boolean or an array of package names.",
   })
@@ -556,8 +555,8 @@ export const BundleDependencies = S.Union([S.Boolean, StringArray]).annotate(
 export const PeerDependenciesMeta = S.Record(
   S.String,
   S.StructWithRest(PeerDependencyMetaEntry, [S.Record(S.String, Json)])
-).annotate(
-  $I.annote("PeerDependenciesMeta", {
+).pipe(
+  $I.annoteSchema("PeerDependenciesMeta", {
     title: "Peer Dependencies Meta",
     description: "Metadata describing peer dependency usage, including whether a peer dependency is optional.",
   })
@@ -575,8 +574,8 @@ export const PeerDependenciesMeta = S.Record(
  * @category validation
  * @since 0.0.0
  */
-export const TypesVersions = S.Record(S.String, S.Record(S.String, StringArray)).annotate(
-  $I.annote("TypesVersions", {
+export const TypesVersions = S.Record(S.String, S.Record(S.String, StringArray)).pipe(
+  $I.annoteSchema("TypesVersions", {
     title: "Types Versions",
     description: "TypeScript version-specific path mappings for declarations.",
   })
@@ -615,8 +614,8 @@ class DevEngineDependencyShape extends S.Class<DevEngineDependencyShape>($I`DevE
  */
 export const DevEngineDependency = DevEngineDependencyShape;
 
-const DevEngineRequirement = S.Union([DevEngineDependency, S.Array(DevEngineDependency)]).annotate(
-  $I.annote("DevEngineRequirement", {
+const DevEngineRequirement = S.Union([DevEngineDependency, S.Array(DevEngineDependency)]).pipe(
+  $I.annoteSchema("DevEngineRequirement", {
     title: "Dev Engine Requirement",
     description:
       "A development environment requirement represented as a single dependency entry or an array of dependency entries.",
@@ -661,8 +660,8 @@ type PackageExportsEntry = string | null | { readonly [key: string]: PackageExpo
 
 type PackageExportsEntryOrFallback = PackageExportsEntry | ReadonlyArray<PackageExportsEntry>;
 
-const PackageExportsEntryPath = S.Union([RelativeDotPath, S.Null]).annotate(
-  $I.annote("PackageExportsEntryPath", {
+const PackageExportsEntryPath = S.Union([RelativeDotPath, S.Null]).pipe(
+  $I.annoteSchema("PackageExportsEntryPath", {
     title: "Package Exports Entry Path",
     description: "An exports target path starting with ./, or null to explicitly block the target.",
   })
@@ -671,8 +670,8 @@ const PackageExportsEntryPath = S.Union([RelativeDotPath, S.Null]).annotate(
 const PackageExportsEntryObject: S.Codec<
   { readonly [key: string]: PackageExportsEntryOrFallback },
   { readonly [key: string]: PackageExportsEntryOrFallback }
-> = S.suspend(() => S.Record(ExportConditionKey, PackageExportsEntryOrFallback)).annotate(
-  $I.annote("PackageExportsEntryObject", {
+> = S.suspend(() => S.Record(ExportConditionKey, PackageExportsEntryOrFallback)).pipe(
+  $I.annoteSchema("PackageExportsEntryObject", {
     title: "Package Exports Entry Object",
     description:
       "A conditional exports object keyed by conditions such as import, require, default, or types@ selectors.",
@@ -681,15 +680,15 @@ const PackageExportsEntryObject: S.Codec<
 
 const PackageExportsEntry: S.Codec<PackageExportsEntry, PackageExportsEntry> = S.suspend(() =>
   S.Union([PackageExportsEntryPath, PackageExportsEntryObject])
-).annotate(
-  $I.annote("PackageExportsEntry", {
+).pipe(
+  $I.annoteSchema("PackageExportsEntry", {
     title: "Package Exports Entry",
     description: "A single exports entry represented as a relative path, null, or a conditional exports object.",
   })
 );
 
-const PackageExportsFallback = S.NonEmptyArray(PackageExportsEntry).annotate(
-  $I.annote("PackageExportsFallback", {
+const PackageExportsFallback = S.NonEmptyArray(PackageExportsEntry).pipe(
+  $I.annoteSchema("PackageExportsFallback", {
     title: "Package Exports Fallback",
     description: "A non-empty fallback array of exports entries evaluated in order.",
   })
@@ -697,15 +696,15 @@ const PackageExportsFallback = S.NonEmptyArray(PackageExportsEntry).annotate(
 
 const PackageExportsEntryOrFallback: S.Codec<PackageExportsEntryOrFallback, PackageExportsEntryOrFallback> = S.suspend(
   () => S.Union([PackageExportsEntry, PackageExportsFallback])
-).annotate(
-  $I.annote("PackageExportsEntryOrFallback", {
+).pipe(
+  $I.annoteSchema("PackageExportsEntryOrFallback", {
     title: "Package Exports Entry Or Fallback",
     description: "An exports target represented as a single entry or a non-empty fallback array of entries.",
   })
 );
 
-const PackageExportsSubpathMap = S.Record(ExportTopLevelKey, PackageExportsEntryOrFallback).annotate(
-  $I.annote("PackageExportsSubpathMap", {
+const PackageExportsSubpathMap = S.Record(ExportTopLevelKey, PackageExportsEntryOrFallback).pipe(
+  $I.annoteSchema("PackageExportsSubpathMap", {
     title: "Package Exports Subpath Map",
     description: "An exports map whose keys are . or ./subpath targets and whose values are exports entries.",
   })
@@ -728,8 +727,8 @@ export const PackageExports = S.Union([
   PackageExportsSubpathMap,
   PackageExportsEntryObject,
   PackageExportsFallback,
-]).annotate(
-  $I.annote("PackageExports", {
+]).pipe(
+  $I.annoteSchema("PackageExports", {
     title: "Package Exports",
     description:
       "The package exports field modeled as a path target, conditional exports object, subpath map, or fallback array.",
@@ -740,8 +739,8 @@ type PackageImportsEntry = string | null | { readonly [key: string]: PackageImpo
 
 type PackageImportsEntryOrFallback = PackageImportsEntry | ReadonlyArray<PackageImportsEntry>;
 
-const PackageImportsEntryPath = S.Union([S.String, S.Null]).annotate(
-  $I.annote("PackageImportsEntryPath", {
+const PackageImportsEntryPath = S.Union([S.String, S.Null]).pipe(
+  $I.annoteSchema("PackageImportsEntryPath", {
     title: "Package Imports Entry Path",
     description: "An imports target path or null to explicitly block the target.",
   })
@@ -750,8 +749,8 @@ const PackageImportsEntryPath = S.Union([S.String, S.Null]).annotate(
 const PackageImportsEntryObject: S.Codec<
   { readonly [key: string]: PackageImportsEntryOrFallback },
   { readonly [key: string]: PackageImportsEntryOrFallback }
-> = S.suspend(() => S.Record(ExportConditionKey, PackageImportsEntryOrFallback)).annotate(
-  $I.annote("PackageImportsEntryObject", {
+> = S.suspend(() => S.Record(ExportConditionKey, PackageImportsEntryOrFallback)).pipe(
+  $I.annoteSchema("PackageImportsEntryObject", {
     title: "Package Imports Entry Object",
     description:
       "A conditional imports object keyed by conditions such as import, require, default, or types@ selectors.",
@@ -760,15 +759,15 @@ const PackageImportsEntryObject: S.Codec<
 
 const PackageImportsEntry: S.Codec<PackageImportsEntry, PackageImportsEntry> = S.suspend(() =>
   S.Union([PackageImportsEntryPath, PackageImportsEntryObject])
-).annotate(
-  $I.annote("PackageImportsEntry", {
+).pipe(
+  $I.annoteSchema("PackageImportsEntry", {
     title: "Package Imports Entry",
     description: "A single imports entry represented as a path, null, or a conditional imports object.",
   })
 );
 
-const PackageImportsFallback = S.NonEmptyArray(PackageImportsEntry).annotate(
-  $I.annote("PackageImportsFallback", {
+const PackageImportsFallback = S.NonEmptyArray(PackageImportsEntry).pipe(
+  $I.annoteSchema("PackageImportsFallback", {
     title: "Package Imports Fallback",
     description: "A non-empty fallback array of imports entries evaluated in order.",
   })
@@ -776,8 +775,8 @@ const PackageImportsFallback = S.NonEmptyArray(PackageImportsEntry).annotate(
 
 const PackageImportsEntryOrFallback: S.Codec<PackageImportsEntryOrFallback, PackageImportsEntryOrFallback> = S.suspend(
   () => S.Union([PackageImportsEntry, PackageImportsFallback])
-).annotate(
-  $I.annote("PackageImportsEntryOrFallback", {
+).pipe(
+  $I.annoteSchema("PackageImportsEntryOrFallback", {
     title: "Package Imports Entry Or Fallback",
     description: "An imports target represented as a single entry or a non-empty fallback array of entries.",
   })
@@ -795,8 +794,8 @@ const PackageImportsEntryOrFallback: S.Codec<PackageImportsEntryOrFallback, Pack
  * @category validation
  * @since 0.0.0
  */
-export const PackageImports = S.Record(ImportSpecifierKey, PackageImportsEntryOrFallback).annotate(
-  $I.annote("PackageImports", {
+export const PackageImports = S.Record(ImportSpecifierKey, PackageImportsEntryOrFallback).pipe(
+  $I.annoteSchema("PackageImports", {
     title: "Package Imports",
     description: "Private package import mappings keyed by # specifiers.",
   })
@@ -806,8 +805,8 @@ type OverrideValue = string | { readonly [key: string]: OverrideValue };
 
 const OverrideValue: S.Codec<OverrideValue, OverrideValue> = S.suspend(() =>
   S.Union([S.String, S.Record(S.String, OverrideValue)])
-).annotate(
-  $I.annote("OverrideValue", {
+).pipe(
+  $I.annoteSchema("OverrideValue", {
     title: "Override Value",
     description: "An npm overrides value represented as a version string or a nested override object.",
   })
@@ -833,8 +832,8 @@ const publishConfigBaseFields = {
   exports: S.optionalKey(PackageExports),
 } as const;
 
-const PublishConfigBase = S.Struct(publishConfigBaseFields).annotate(
-  $I.annote("PublishConfigBase", {
+const PublishConfigBase = S.Struct(publishConfigBaseFields).pipe(
+  $I.annoteSchema("PublishConfigBase", {
     title: "Publish Config Base",
     description:
       "Structured npm publish configuration fields modeled explicitly before allowing additional JSON-valued keys.",
@@ -853,8 +852,8 @@ const PublishConfigBase = S.Struct(publishConfigBaseFields).annotate(
  * @category validation
  * @since 0.0.0
  */
-export const Workspaces = S.Union([StringArray, WorkspacesObject]).annotate(
-  $I.annote("Workspaces", {
+export const Workspaces = S.Union([StringArray, WorkspacesObject]).pipe(
+  $I.annoteSchema("Workspaces", {
     title: "Workspaces",
     description:
       "Workspace package globs represented as an array of strings or an object with packages and optional nohoist.",
@@ -873,8 +872,8 @@ export const Workspaces = S.Union([StringArray, WorkspacesObject]).annotate(
  * @category validation
  * @since 0.0.0
  */
-export const PublishConfig = S.StructWithRest(PublishConfigBase, [S.Record(S.String, Json)]).annotate(
-  $I.annote("PublishConfig", {
+export const PublishConfig = S.StructWithRest(PublishConfigBase, [S.Record(S.String, Json)]).pipe(
+  $I.annoteSchema("PublishConfig", {
     title: "Publish Config",
     description:
       "npm publish configuration with explicit support for access, tag, registry, provenance, bin, exports, and additional JSON-valued config keys.",

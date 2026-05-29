@@ -858,11 +858,9 @@ const iriChecks = makeNonEmptyReferenceChecks("IRI", "IRI", "An RFC 3987 IRI.", 
  */
 export const IRIReference = S.String.check(iriReferenceChecks).pipe(
   S.brand("IRIReference"),
-  S.annotate(
-    $I.annote("IRIReference", {
-      description: "RFC 3987 IRI reference syntax, including both absolute and relative forms.",
-    })
-  )
+  $I.annoteSchema("IRIReference", {
+    description: "RFC 3987 IRI reference syntax, including both absolute and relative forms.",
+  })
 );
 
 /**
@@ -898,11 +896,9 @@ export type IRIReference = typeof IRIReference.Type;
  */
 export const RelativeIRIReference = S.String.check(relativeIriReferenceChecks).pipe(
   S.brand("RelativeIRIReference"),
-  S.annotate(
-    $I.annote("RelativeIRIReference", {
-      description: "RFC 3987 relative IRI reference syntax (`irelative-ref`).",
-    })
-  )
+  $I.annoteSchema("RelativeIRIReference", {
+    description: "RFC 3987 relative IRI reference syntax (`irelative-ref`).",
+  })
 );
 
 /**
@@ -938,11 +934,9 @@ export type RelativeIRIReference = typeof RelativeIRIReference.Type;
  */
 export const AbsoluteIRI = S.String.check(absoluteIriChecks).pipe(
   S.brand("AbsoluteIRI"),
-  S.annotate(
-    $I.annote("AbsoluteIRI", {
-      description: "RFC 3987 absolute IRI syntax without a fragment component.",
-    })
-  )
+  $I.annoteSchema("AbsoluteIRI", {
+    description: "RFC 3987 absolute IRI syntax without a fragment component.",
+  })
 );
 
 /**
@@ -978,11 +972,9 @@ export type AbsoluteIRI = typeof AbsoluteIRI.Type;
  */
 export const IRI = S.String.check(iriChecks).pipe(
   S.brand("IRI"),
-  S.annotate(
-    $I.annote("IRI", {
-      description: "RFC 3987 IRI syntax.",
-    })
-  )
+  $I.annoteSchema("IRI", {
+    description: "RFC 3987 IRI syntax.",
+  })
 );
 
 /**

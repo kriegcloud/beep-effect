@@ -25,8 +25,8 @@ const $I = $SharedDomainId.create("entity/Principal");
  * @since 0.0.0
  * @category schemas
  */
-export const SystemComponent = LiteralKit(["Runtime", "Sync", "Migration", "Policy", "Generator"]).annotate(
-  $I.annote("SystemComponent", {
+export const SystemComponent = LiteralKit(["Runtime", "Sync", "Migration", "Policy", "Generator"]).pipe(
+  $I.annoteSchema("SystemComponent", {
     description: "System component allowed to appear in a system principal.",
   })
 );

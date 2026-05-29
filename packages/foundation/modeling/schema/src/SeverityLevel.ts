@@ -27,8 +27,8 @@ const SeverityLevelBase = LiteralKit(["low", "medium", "high", "critical"]);
  * @since 0.0.0
  * @category validation
  */
-export const SeverityLevel = SeverityLevelBase.annotate(
-  $I.annote("SeverityLevel", {
+export const SeverityLevel = SeverityLevelBase.pipe(
+  $I.annoteSchema("SeverityLevel", {
     description: "Generic four-level severity scale shared across beep packages.",
   })
 );

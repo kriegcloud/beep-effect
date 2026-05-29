@@ -40,11 +40,9 @@ class Iso4217CurrencyNameWithMetadata extends S.Class<Iso4217CurrencyNameWithMet
 ) {}
 
 const Iso4217CurrencyName = S.Union([S.String, Iso4217CurrencyNameWithMetadata]).pipe(
-  S.annotate(
-    $I.annote("Iso4217CurrencyName", {
-      description: "Currency name node emitted by the ISO 4217 XML parser.",
-    })
-  )
+  $I.annoteSchema("Iso4217CurrencyName", {
+    description: "Currency name node emitted by the ISO 4217 XML parser.",
+  })
 );
 
 class Iso4217CurrencyCountry extends S.Class<Iso4217CurrencyCountry>($I`Iso4217CurrencyCountry`)(

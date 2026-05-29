@@ -28,8 +28,8 @@ const $I = $SchemaId.create("Logs");
  * @since 0.0.0
  * @category models
  */
-export const LogLevel = LiteralKit(["All", "Fatal", "Error", "Warn", "Info", "Debug", "Trace", "None"]).annotate(
-  $I.annote("LogLevel", {
+export const LogLevel = LiteralKit(["All", "Fatal", "Error", "Warn", "Info", "Debug", "Trace", "None"]).pipe(
+  $I.annoteSchema("LogLevel", {
     description: "Log levels supported",
   })
 );
@@ -59,8 +59,8 @@ export type LogLevel = typeof LogLevel.Type;
  * @since 0.0.0
  * @category models
  */
-export const LogSeverity = LiteralKit(["Fatal", "Error", "Warn", "Info", "Debug", "Trace"]).annotate(
-  $I.annote("LogSeverity", {
+export const LogSeverity = LiteralKit(["Fatal", "Error", "Warn", "Info", "Debug", "Trace"]).pipe(
+  $I.annoteSchema("LogSeverity", {
     description: "Log severities supported",
   })
 );

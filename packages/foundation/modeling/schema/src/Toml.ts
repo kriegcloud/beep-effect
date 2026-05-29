@@ -96,11 +96,9 @@ export const TomlTextToUnknown = S.String.pipe(
     decode: SchemaGetter.transformOrFail(decodeTomlUnknown),
     encode: SchemaGetter.transformOrFail(encodeUnsupported),
   }),
-  S.annotate(
-    $I.annote("TomlTextToUnknown", {
-      description: "Schema transformation that parses TOML text into unknown values.",
-    })
-  )
+  $I.annoteSchema("TomlTextToUnknown", {
+    description: "Schema transformation that parses TOML text into unknown values.",
+  })
 );
 
 /**

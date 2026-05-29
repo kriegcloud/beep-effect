@@ -25,11 +25,9 @@ const YamlNodeValueAsString = S.Unknown.pipe(
       encode: (value) => value,
     })
   ),
-  S.annotate(
-    $I.annote("YamlNodeValueAsString", {
-      description: "Schema transformation that normalizes arbitrary YAML node values into comparable strings.",
-    })
-  )
+  $I.annoteSchema("YamlNodeValueAsString", {
+    description: "Schema transformation that normalizes arbitrary YAML node values into comparable strings.",
+  })
 );
 
 const decodeYamlNodeValueAsString = S.decodeUnknownOption(YamlNodeValueAsString);

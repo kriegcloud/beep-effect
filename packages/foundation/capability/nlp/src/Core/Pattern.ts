@@ -158,11 +158,9 @@ const DisambiguatedLiteralPatternOptionChoice = S.makeFilter(
 export const POSPatternOption = S.NonEmptyArray(S.Union([WinkPOSTag, EmptyPatternChoice]))
   .check(MeaningfulPatternOptionChoice)
   .pipe(
-    S.annotate(
-      $I.annote("POSPatternOption", {
-        description: "One or more POS tag alternatives for a pattern position.",
-      })
-    )
+    $I.annoteSchema("POSPatternOption", {
+      description: "One or more POS tag alternatives for a pattern position.",
+    })
   );
 
 /**
@@ -196,11 +194,9 @@ export type POSPatternOption = typeof POSPatternOption.Type;
 export const EntityPatternOption = S.NonEmptyArray(S.Union([WinkEntityType, EmptyPatternChoice]))
   .check(MeaningfulPatternOptionChoice)
   .pipe(
-    S.annotate(
-      $I.annote("EntityPatternOption", {
-        description: "One or more entity-type alternatives for a pattern position.",
-      })
-    )
+    $I.annoteSchema("EntityPatternOption", {
+      description: "One or more entity-type alternatives for a pattern position.",
+    })
   );
 
 /**
@@ -235,11 +231,9 @@ export const LiteralPatternOption = S.NonEmptyArray(S.Union([S.NonEmptyString, E
   .check(MeaningfulPatternOptionChoice)
   .check(DisambiguatedLiteralPatternOptionChoice)
   .pipe(
-    S.annotate(
-      $I.annote("LiteralPatternOption", {
-        description: "One or more literal-text alternatives for a pattern position.",
-      })
-    )
+    $I.annoteSchema("LiteralPatternOption", {
+      description: "One or more literal-text alternatives for a pattern position.",
+    })
   );
 
 /**
@@ -340,11 +334,9 @@ export class LiteralPatternElement extends S.TaggedClass<LiteralPatternElement>(
  * @category models
  */
 export const PatternElement = S.Union([POSPatternElement, EntityPatternElement, LiteralPatternElement]).pipe(
-  S.annotate(
-    $I.annote("PatternElement", {
-      description: "Tagged union of supported NLP pattern element variants.",
-    })
-  )
+  $I.annoteSchema("PatternElement", {
+    description: "Tagged union of supported NLP pattern element variants.",
+  })
 );
 
 /**
@@ -377,11 +369,9 @@ export type PatternElement = typeof PatternElement.Type;
  */
 export const PatternId = S.NonEmptyString.pipe(
   S.brand("PatternId"),
-  S.annotate(
-    $I.annote("PatternId", {
-      description: "Stable identifier for a reusable NLP pattern.",
-    })
-  )
+  $I.annoteSchema("PatternId", {
+    description: "Stable identifier for a reusable NLP pattern.",
+  })
 );
 
 /**
@@ -413,11 +403,9 @@ export type PatternId = typeof PatternId.Type;
  * @category models
  */
 export const MarkRange = S.Tuple([NonNegativeInt, NonNegativeInt]).pipe(
-  S.annotate(
-    $I.annote("MarkRange", {
-      description: "Inclusive [start, end] range of marked pattern elements.",
-    })
-  )
+  $I.annoteSchema("MarkRange", {
+    description: "Inclusive [start, end] range of marked pattern elements.",
+  })
 );
 
 /**

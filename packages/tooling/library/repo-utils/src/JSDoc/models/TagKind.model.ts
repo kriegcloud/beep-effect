@@ -28,8 +28,8 @@ export const TagKind = LiteralKit([
   "inline",
   // @tag (no content, indicates a quality/flag)
   "modifier",
-]).annotate(
-  $I.annote("TagKind", {
+]).pipe(
+  $I.annoteSchema("TagKind", {
     description: "The kind of tag",
   })
 );

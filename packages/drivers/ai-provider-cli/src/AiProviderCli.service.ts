@@ -54,13 +54,12 @@ interface AiProviderCliShape {
 class AiProviderCliPaths extends S.Class<AiProviderCliPaths>($I`AiProviderCliPaths`)(
   {
     claudePath: S.optionalKey(S.String),
-    codexPath: S.optionalKey(S.String)
+    codexPath: S.optionalKey(S.String),
   },
   $I.annote("AiProviderCliPaths", {
-    description: "Configuration for the AI provider CLI executable paths"
+    description: "Configuration for the AI provider CLI executable paths",
   })
 ) {}
-
 
 const commandFor = (
   paths: AiProviderCliPaths,

@@ -128,26 +128,22 @@ export class DockerImageState extends S.Class<DockerImageState>($I`DockerImageSt
 
 const StableDockerTag = S.String.check(S.isPattern(STABLE_DOCKER_TAG_PATTERN)).pipe(
   S.brand("StableDockerTag"),
-  S.annotate(
-    $I.annote("StableDockerTag", {
-      description: "Docker tag that is pinned and excludes known unstable/pre-release markers.",
-    })
-  )
+  $I.annoteSchema("StableDockerTag", {
+    description: "Docker tag that is pinned and excludes known unstable/pre-release markers.",
+  })
 );
 const isStableTag = S.is(StableDockerTag);
 
 const MajorOnlyDockerTag = S.String.check(S.isPattern(/^\d+$/)).pipe(
   S.brand("MajorOnlyDockerTag"),
-  S.annotate(
-    $I.annote("MajorOnlyDockerTag", {
-      description: "Pinned Docker tag containing only a major version number.",
-    })
-  )
+  $I.annoteSchema("MajorOnlyDockerTag", {
+    description: "Pinned Docker tag containing only a major version number.",
+  })
 );
 const isMajorOnlyDockerTag = S.is(MajorOnlyDockerTag);
 
-const LatestDockerTag = S.Literal("latest").annotate(
-  $I.annote("LatestDockerTag", {
+const LatestDockerTag = S.Literal("latest").pipe(
+  $I.annoteSchema("LatestDockerTag", {
     description: "Unpinned floating Docker tag.",
   })
 );
@@ -161,11 +157,9 @@ const UnknownDockerImageValueToString = S.Unknown.pipe(
       encode: identity,
     })
   ),
-  S.annotate(
-    $I.annote("UnknownDockerImageValueToString", {
-      description: "Schema transformation that normalizes docker image field values to strings.",
-    })
-  )
+  $I.annoteSchema("UnknownDockerImageValueToString", {
+    description: "Schema transformation that normalizes docker image field values to strings.",
+  })
 );
 const decodeDockerImageValueToString = S.decodeUnknownOption(UnknownDockerImageValueToString);
 const dockerImageValueToString = (value: unknown): string =>

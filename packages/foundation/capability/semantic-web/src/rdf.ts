@@ -213,24 +213,22 @@ const BlankNodeLabelChecks = S.makeFilterGroup(
  */
 export const PrefixLabel = S.String.check(PrefixLabelChecks).pipe(
   S.brand("PrefixLabel"),
-  S.annotate(
-    $I.annote("PrefixLabel", {
-      description: "Prefix label used by RDF namespace bindings.",
-      semanticSchemaMetadata: makeSemanticSchemaMetadata({
-        kind: "identifier",
-        canonicalName: "PrefixLabel",
-        overview: "Prefix label used by RDF namespace bindings.",
-        status: "stable",
-        specifications: [
-          {
-            name: "RDF 1.1 Concepts",
-            disposition: "informative",
-          },
-        ],
-        equivalenceBasis: "Exact string equality.",
-      }),
-    })
-  )
+  $I.annoteSchema("PrefixLabel", {
+    description: "Prefix label used by RDF namespace bindings.",
+    semanticSchemaMetadata: makeSemanticSchemaMetadata({
+      kind: "identifier",
+      canonicalName: "PrefixLabel",
+      overview: "Prefix label used by RDF namespace bindings.",
+      status: "stable",
+      specifications: [
+        {
+          name: "RDF 1.1 Concepts",
+          disposition: "informative",
+        },
+      ],
+      equivalenceBasis: "Exact string equality.",
+    }),
+  })
 );
 
 /**
@@ -264,12 +262,10 @@ export type PrefixLabel = typeof PrefixLabel.Type;
  */
 export const Curie = S.String.check(CurieChecks).pipe(
   S.brand("Curie"),
-  S.annotate(
-    $I.annote("Curie", {
-      description: "CURIE-style compact IRI expression.",
-      semanticSchemaMetadata: curieMetadata,
-    })
-  )
+  $I.annoteSchema("Curie", {
+    description: "CURIE-style compact IRI expression.",
+    semanticSchemaMetadata: curieMetadata,
+  })
 );
 
 /**
@@ -303,25 +299,23 @@ export type Curie = typeof Curie.Type;
  */
 export const LanguageTag = S.String.check(LanguageTagChecks).pipe(
   S.brand("LanguageTag"),
-  S.annotate(
-    $I.annote("LanguageTag", {
-      description: "RDF literal language tag.",
-      semanticSchemaMetadata: makeSemanticSchemaMetadata({
-        kind: "rdfConstruct",
-        canonicalName: "LanguageTag",
-        overview: "Language tag attached to RDF literals.",
-        status: "stable",
-        specifications: [
-          {
-            name: "RDF 1.1 Concepts",
-            section: "Language-Tagged Strings",
-            disposition: "normative",
-          },
-        ],
-        equivalenceBasis: "Lower-cased language-tag equality.",
-      }),
-    })
-  )
+  $I.annoteSchema("LanguageTag", {
+    description: "RDF literal language tag.",
+    semanticSchemaMetadata: makeSemanticSchemaMetadata({
+      kind: "rdfConstruct",
+      canonicalName: "LanguageTag",
+      overview: "Language tag attached to RDF literals.",
+      status: "stable",
+      specifications: [
+        {
+          name: "RDF 1.1 Concepts",
+          section: "Language-Tagged Strings",
+          disposition: "normative",
+        },
+      ],
+      equivalenceBasis: "Lower-cased language-tag equality.",
+    }),
+  })
 );
 
 /**
@@ -712,8 +706,8 @@ export class NamespaceBinding extends S.Class<NamespaceBinding>($I`NamespaceBind
  * @since 0.0.0
  * @category models
  */
-export const PrefixMap = S.Record(PrefixLabel, IRI).annotate(
-  $I.annote("PrefixMap", {
+export const PrefixMap = S.Record(PrefixLabel, IRI).pipe(
+  $I.annoteSchema("PrefixMap", {
     description: "Prefix map keyed by RDF prefix labels.",
     semanticSchemaMetadata: makeSemanticSchemaMetadata({
       kind: "rdfConstruct",

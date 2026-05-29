@@ -29,8 +29,8 @@ const SyncDataSourceFormatKit = LiteralKit(["json", "csv", "xml"]);
  * @category models
  * @since 0.0.0
  */
-export const SyncDataSourceFormat = SyncDataSourceFormatKit.annotate(
-  $I.annote("SyncDataSourceFormat", {
+export const SyncDataSourceFormat = SyncDataSourceFormatKit.pipe(
+  $I.annoteSchema("SyncDataSourceFormat", {
     description: "Supported source formats for sync-data-to-ts targets.",
   })
 );
@@ -51,8 +51,8 @@ const SyncDataRunModeKit = LiteralKit(["write", "check", "dry-run"]);
  * @category models
  * @since 0.0.0
  */
-export const SyncDataRunMode = SyncDataRunModeKit.annotate(
-  $I.annote("SyncDataRunMode", {
+export const SyncDataRunMode = SyncDataRunModeKit.pipe(
+  $I.annoteSchema("SyncDataRunMode", {
     description: "Command execution mode for sync-data-to-ts.",
   })
 );
@@ -139,13 +139,12 @@ class SyncDataTargetXml extends S.Class<SyncDataTargetXml>($I`SyncDataTargetXml`
  */
 export const SyncDataTarget = SyncDataSourceFormat.mapMembers(
   Tuple.evolve([() => SyncDataTargetJson, () => SyncDataTargetCsv, () => SyncDataTargetXml])
-)
-  .annotate(
-    $I.annote("SyncDataTarget", {
-      description: "Checked-in sync target definition.",
-    })
-  )
-  .pipe(S.toTaggedUnion("format"));
+).pipe(
+  $I.annoteSchema("SyncDataTarget", {
+    description: "Checked-in sync target definition.",
+  }),
+  S.toTaggedUnion("format")
+);
 
 /**
  * {@inheritDoc SyncDataTarget}

@@ -52,8 +52,8 @@ const $I = $RepoCliId.create("commands/Graphiti/internal/ProxyServices");
  * @category models
  * @since 0.0.0
  */
-export const ContainerHealthState = LiteralKit(["unknown", "healthy", "unhealthy", "starting"]).annotate(
-  $I.annote("ContainerHealthState", {
+export const ContainerHealthState = LiteralKit(["unknown", "healthy", "unhealthy", "starting"]).pipe(
+  $I.annoteSchema("ContainerHealthState", {
     description: "Container health status as reported by docker inspect.",
   })
 );
@@ -68,26 +68,26 @@ export const ContainerHealthState = LiteralKit(["unknown", "healthy", "unhealthy
  * @category models
  * @since 0.0.0
  */
-export const DependencyHealthState = LiteralKit(["unknown", "ok", "degraded"]).annotate(
-  $I.annote("DependencyHealthState", {
+export const DependencyHealthState = LiteralKit(["unknown", "ok", "degraded"]).pipe(
+  $I.annoteSchema("DependencyHealthState", {
     description: "Dependency health status used by graphiti proxy.",
   })
 );
 
-const ProxyErrorKind = LiteralKit(["queue_full", "upstream_failure", "upstream_timeout", "shutting_down"]).annotate(
-  $I.annote("ProxyErrorKind", {
+const ProxyErrorKind = LiteralKit(["queue_full", "upstream_failure", "upstream_timeout", "shutting_down"]).pipe(
+  $I.annoteSchema("ProxyErrorKind", {
     description: "Structured graphiti proxy error identifiers.",
   })
 );
 
-const ProxyHealthStatus = LiteralKit(["ok", "degraded"]).annotate(
-  $I.annote("ProxyHealthStatus", {
+const ProxyHealthStatus = LiteralKit(["ok", "degraded"]).pipe(
+  $I.annoteSchema("ProxyHealthStatus", {
     description: "Health endpoint status values.",
   })
 );
 
-const ProxyLane = LiteralKit(["queued", "fast"]).annotate(
-  $I.annote("ProxyLane", {
+const ProxyLane = LiteralKit(["queued", "fast"]).pipe(
+  $I.annoteSchema("ProxyLane", {
     description: "Graphiti proxy forwarding lanes.",
   })
 );
@@ -100,15 +100,15 @@ const GraphitiProxyFastMcpMethod = LiteralKit([
   "prompts/list",
   "resources/list",
   "tools/list",
-]).annotate(
-  $I.annote("GraphitiProxyFastMcpMethod", {
+]).pipe(
+  $I.annoteSchema("GraphitiProxyFastMcpMethod", {
     description: "Cheap MCP methods allowed to bypass serialized Graphiti memory work.",
   })
 );
 const isGraphitiProxyFastMcpMethod = S.is(GraphitiProxyFastMcpMethod);
 
-const GraphitiProxyFastMcpToolName = LiteralKit(["get_status"]).annotate(
-  $I.annote("GraphitiProxyFastMcpToolName", {
+const GraphitiProxyFastMcpToolName = LiteralKit(["get_status"]).pipe(
+  $I.annoteSchema("GraphitiProxyFastMcpToolName", {
     description: "Cheap Graphiti MCP tools allowed to bypass serialized Graphiti memory work.",
   })
 );
@@ -243,11 +243,9 @@ const urlSearchParamsSchema = S.instanceOf(URLSearchParams).pipe(
       },
     })
   ),
-  S.annotate(
-    $I.annote("UrlSearchParamsToUrlParams", {
-      description: "Schema transformation from URLSearchParams into Effect UrlParams.",
-    })
-  )
+  $I.annoteSchema("UrlSearchParamsToUrlParams", {
+    description: "Schema transformation from URLSearchParams into Effect UrlParams.",
+  })
 );
 
 const decodeUrlSearchParams = S.decodeUnknownEffect(urlSearchParamsSchema);

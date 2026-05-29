@@ -17,11 +17,9 @@ const contactEmailPattern =
 
 const TrimmedContactText = S.NonEmptyString.pipe(
   S.decode(SchemaTransformation.trim()),
-  S.annotate(
-    $I.annote("TrimmedContactText", {
-      description: "Trimmed non-empty contact form text.",
-    })
-  )
+  $I.annoteSchema("TrimmedContactText", {
+    description: "Trimmed non-empty contact form text.",
+  })
 );
 
 const ContactName = TrimmedContactText.check(
@@ -29,11 +27,9 @@ const ContactName = TrimmedContactText.check(
     message: "Name must include at least 2 characters.",
   })
 ).pipe(
-  S.annotate(
-    $I.annote("ContactName", {
-      description: "Normalized contact form name.",
-    })
-  )
+  $I.annoteSchema("ContactName", {
+    description: "Normalized contact form name.",
+  })
 );
 
 const ContactEmail = TrimmedContactText.pipe(S.decode(SchemaTransformation.toLowerCase()))
@@ -46,11 +42,9 @@ const ContactEmail = TrimmedContactText.pipe(S.decode(SchemaTransformation.toLow
     })
   )
   .pipe(
-    S.annotate(
-      $I.annote("ContactEmail", {
-        description: "Normalized contact form email address.",
-      })
-    )
+    $I.annoteSchema("ContactEmail", {
+      description: "Normalized contact form email address.",
+    })
   );
 
 const ContactMessage = TrimmedContactText.check(
@@ -58,11 +52,9 @@ const ContactMessage = TrimmedContactText.check(
     message: "Message must include at least 10 characters.",
   })
 ).pipe(
-  S.annotate(
-    $I.annote("ContactMessage", {
-      description: "Normalized contact form message.",
-    })
-  )
+  $I.annoteSchema("ContactMessage", {
+    description: "Normalized contact form message.",
+  })
 );
 
 /**
@@ -79,8 +71,8 @@ const ContactMessage = TrimmedContactText.check(
  * @category schemas
  * @since 0.0.0
  */
-export const ContactSubmissionStatus = LiteralKit(["accepted", "rejected"]).annotate(
-  $I.annote("ContactSubmissionStatus", {
+export const ContactSubmissionStatus = LiteralKit(["accepted", "rejected"]).pipe(
+  $I.annoteSchema("ContactSubmissionStatus", {
     description: "Public contact submission result status.",
   })
 );

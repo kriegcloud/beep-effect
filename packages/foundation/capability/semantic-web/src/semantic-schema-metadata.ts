@@ -42,8 +42,8 @@ export const SemanticSchemaMetadataKind = LiteralKit([
   "provenanceConstruct",
   "serviceContract",
   "adapterBoundary",
-]).annotate(
-  $I.annote("SemanticSchemaMetadataKind", {
+]).pipe(
+  $I.annoteSchema("SemanticSchemaMetadataKind", {
     description: "Closed v1 metadata kind domain for semantic-web schemas.",
   })
 );
@@ -77,8 +77,8 @@ export type SemanticSchemaMetadataKind = typeof SemanticSchemaMetadataKind.Type;
  * @since 0.0.0
  * @category models
  */
-export const SemanticSchemaStatus = LiteralKit(["experimental", "stable", "deprecated"]).annotate(
-  $I.annote("SemanticSchemaStatus", {
+export const SemanticSchemaStatus = LiteralKit(["experimental", "stable", "deprecated"]).pipe(
+  $I.annoteSchema("SemanticSchemaStatus", {
     description: "Stability classification for semantic-web schema metadata.",
   })
 );
@@ -112,8 +112,8 @@ export type SemanticSchemaStatus = typeof SemanticSchemaStatus.Type;
  * @since 0.0.0
  * @category models
  */
-export const SemanticSchemaSpecificationDisposition = LiteralKit(["normative", "informative"]).annotate(
-  $I.annote("SemanticSchemaSpecificationDisposition", {
+export const SemanticSchemaSpecificationDisposition = LiteralKit(["normative", "informative"]).pipe(
+  $I.annoteSchema("SemanticSchemaSpecificationDisposition", {
     description: "Specification disposition attached to a semantic schema reference.",
   })
 );
@@ -154,8 +154,8 @@ export const SemanticRepresentationKind = LiteralKit([
   "TriG",
   "RDF/XML",
   "JSON Schema",
-]).annotate(
-  $I.annote("SemanticRepresentationKind", {
+]).pipe(
+  $I.annoteSchema("SemanticRepresentationKind", {
     description: "Representation label for semantic-web values.",
   })
 );

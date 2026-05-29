@@ -23,8 +23,8 @@ const $I = $RepoAiMetricsId.create("models");
  * @category models
  * @since 0.0.0
  */
-export const AiMetricsDeployTarget = LiteralKit(["local", "dankserver"]).annotate(
-  $I.annote("AiMetricsDeployTarget", {
+export const AiMetricsDeployTarget = LiteralKit(["local", "dankserver"]).pipe(
+  $I.annoteSchema("AiMetricsDeployTarget", {
     description: "Deploy targets supported by the repo AI metrics install module.",
   })
 );
@@ -54,8 +54,8 @@ export type AiMetricsDeployTarget = typeof AiMetricsDeployTarget.Type;
  * @category models
  * @since 0.0.0
  */
-export const AiMetricsTool = LiteralKit(["langfuse", "phoenix", "opik", "posthog"]).annotate(
-  $I.annote("AiMetricsTool", {
+export const AiMetricsTool = LiteralKit(["langfuse", "phoenix", "opik", "posthog"]).pipe(
+  $I.annoteSchema("AiMetricsTool", {
     description: "LLM analytics or evaluation tools that AI metrics exports can target.",
   })
 );
@@ -85,8 +85,8 @@ export type AiMetricsTool = typeof AiMetricsTool.Type;
  * @category models
  * @since 0.0.0
  */
-export const AiMetricsTranscriptSource = LiteralKit(["codex", "claude", "openclaw"]).annotate(
-  $I.annote("AiMetricsTranscriptSource", {
+export const AiMetricsTranscriptSource = LiteralKit(["codex", "claude", "openclaw"]).pipe(
+  $I.annoteSchema("AiMetricsTranscriptSource", {
     description: "AI stack transcript sources supported by the repo ingest layer.",
   })
 );
@@ -116,8 +116,8 @@ export type AiMetricsTranscriptSource = typeof AiMetricsTranscriptSource.Type;
  * @category models
  * @since 0.0.0
  */
-export const AiMetricsSourceRole = LiteralKit(["primary", "subagent", "gateway_metadata"]).annotate(
-  $I.annote("AiMetricsSourceRole", {
+export const AiMetricsSourceRole = LiteralKit(["primary", "subagent", "gateway_metadata"]).pipe(
+  $I.annoteSchema("AiMetricsSourceRole", {
     description: "Privacy-safe role of a discovered source file or metadata record.",
   })
 );
@@ -174,12 +174,8 @@ export class AiMetricsSourceAttribution extends S.Class<AiMetricsSourceAttributi
  * @category models
  * @since 0.0.0
  */
-export const AiMetricsPrivacyMode = LiteralKit([
-  "encrypted_raw_redacted_ui",
-  "raw_tailnet_ui",
-  "redacted_only",
-]).annotate(
-  $I.annote("AiMetricsPrivacyMode", {
+export const AiMetricsPrivacyMode = LiteralKit(["encrypted_raw_redacted_ui", "raw_tailnet_ui", "redacted_only"]).pipe(
+  $I.annoteSchema("AiMetricsPrivacyMode", {
     description: "Privacy boundary for raw transcripts and derived observability UI payloads.",
   })
 );
@@ -209,8 +205,8 @@ export type AiMetricsPrivacyMode = typeof AiMetricsPrivacyMode.Type;
  * @category models
  * @since 0.0.0
  */
-export const AiMetricsOtlpProtocol = LiteralKit(["http/protobuf"]).annotate(
-  $I.annote("AiMetricsOtlpProtocol", {
+export const AiMetricsOtlpProtocol = LiteralKit(["http/protobuf"]).pipe(
+  $I.annoteSchema("AiMetricsOtlpProtocol", {
     description: "OTLP wire protocol variants supported by the AI metrics backend contract.",
   })
 );
@@ -240,8 +236,8 @@ export type AiMetricsOtlpProtocol = typeof AiMetricsOtlpProtocol.Type;
  * @category models
  * @since 0.0.0
  */
-export const AiMetricsOtlpSignalScope = LiteralKit(["traces_only"]).annotate(
-  $I.annote("AiMetricsOtlpSignalScope", {
+export const AiMetricsOtlpSignalScope = LiteralKit(["traces_only"]).pipe(
+  $I.annoteSchema("AiMetricsOtlpSignalScope", {
     description: "Telemetry signal scope exported to the AI metrics backend.",
   })
 );
@@ -271,8 +267,8 @@ export type AiMetricsOtlpSignalScope = typeof AiMetricsOtlpSignalScope.Type;
  * @category models
  * @since 0.0.0
  */
-export const AiMetricsQualityGateStatus = LiteralKit(["passed", "failed", "not_run", "unknown"]).annotate(
-  $I.annote("AiMetricsQualityGateStatus", {
+export const AiMetricsQualityGateStatus = LiteralKit(["passed", "failed", "not_run", "unknown"]).pipe(
+  $I.annoteSchema("AiMetricsQualityGateStatus", {
     description: "Bounded quality-gate outcome used by AI metrics labels and benchmark runs.",
   })
 );

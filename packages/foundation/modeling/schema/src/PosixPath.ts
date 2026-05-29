@@ -30,11 +30,9 @@ const POSIX_PATH_PATTERN = /^[^\\]*$/;
  */
 export const PosixPath = S.String.check(S.isPattern(POSIX_PATH_PATTERN)).pipe(
   S.brand("PosixPath"),
-  S.annotate(
-    $I.annote("PosixPath", {
-      description: "Path string normalized to use '/' separators only.",
-    })
-  )
+  $I.annoteSchema("PosixPath", {
+    description: "Path string normalized to use '/' separators only.",
+  })
 );
 
 /**
@@ -75,11 +73,9 @@ export const NativePathToPosixPath = S.String.pipe(
       encode: identity,
     })
   ),
-  S.annotate(
-    $I.annote("NativePathToPosixPath", {
-      description: "Schema transformation that normalizes native path separators to posix format.",
-    })
-  )
+  $I.annoteSchema("NativePathToPosixPath", {
+    description: "Schema transformation that normalizes native path separators to posix format.",
+  })
 );
 
 const decodePosixPath = S.decodeUnknownResult(NativePathToPosixPath);
