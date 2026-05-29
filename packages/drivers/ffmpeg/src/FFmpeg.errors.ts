@@ -21,7 +21,7 @@ const $I = $FfmpegId.create("FFmpeg.errors");
  * import { FFmpegErrorContext } from "@beep/ffmpeg"
  *
  * const context = FFmpegErrorContext.make({ command: "ffmpeg", exitCode: 1 })
- * void context
+ * console.log(context)
  * ```
  *
  * @category errors
@@ -56,7 +56,7 @@ const existingFfmpegError = (cause: unknown): O.Option<FFmpegError> =>
  *   exitCode: 1,
  *   stderr: "invalid input"
  * })
- * void options
+ * console.log(options)
  * ```
  *
  * @category errors
@@ -85,7 +85,7 @@ export class FFmpegErrorFromUnknownOptions extends S.Class<FFmpegErrorFromUnknow
  * import { FFmpegError } from "@beep/ffmpeg"
  *
  * const error = FFmpegError.make({ message: "ffmpeg failed", operation: "extractFrames" })
- * void error.message
+ * console.log(error.message)
  * ```
  *
  * @category errors
@@ -114,7 +114,7 @@ export class FFmpegError extends TaggedErrorClass<FFmpegError>($I`FFmpegError`)(
    * import { FFmpegError } from "@beep/ffmpeg"
    *
    * const error = FFmpegError.fromUnknown("probeVideo", "ffprobe failed", { cause: new Error("boom") })
-   * void error
+   * console.log(error)
    * ```
    *
    * @category errors

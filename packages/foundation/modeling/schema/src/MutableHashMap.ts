@@ -75,6 +75,15 @@ type MutableHashMapEntry<Key extends S.Top, Value extends S.Top> = S.Codec<
 /**
  * Serializable entry-array iso type for `MutableHashMap` schemas.
  *
+ * @example
+ * ```ts
+ * import type { MutableHashMapIso } from "@beep/schema/MutableHashMap"
+ * import * as S from "effect/Schema"
+ *
+ * const entries = [["key", 1]] satisfies MutableHashMapIso<typeof S.String, typeof S.Number>
+ * console.log(entries.length)
+ * ```
+ *
  * @since 0.0.0
  * @category models
  */
@@ -149,7 +158,7 @@ export const isMutableHashMap = <Key, Value>(value: unknown): value is MutableHa
  * const MapSchema = MutableHashMapFromSelf({ key: S.String, value: S.Number })
  * const map = MutableHashMap.fromIterable([["a", 1]])
  * const decoded = S.decodeUnknownSync(MapSchema)(map)
- * void decoded
+ * console.log(decoded)
  * ```
  *
  * @param options - Schemas for keys and values.
@@ -249,7 +258,7 @@ export const MutableHashMapFromSelf = <Key extends S.Top, Value extends S.Top>(o
  *
  * const decoded = S.decodeUnknownSync(StringNumberMap)([["a", "1"]])
  * const encoded = S.encodeSync(StringNumberMap)(decoded)
- * void encoded
+ * console.log(encoded)
  * ```
  *
  * @param options - Schemas for keys and values.

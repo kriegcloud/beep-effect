@@ -155,7 +155,7 @@ type CauseTaggedErrorExtendMethod<
  *
  * const error = fromClass(ExampleError)
  *
- * void error
+ * console.log(error)
  * ```
  *
  * @category models
@@ -200,8 +200,8 @@ export type CauseTaggedErrorWithStatics<
  * const factory: CauseTaggedErrorFactory<ExampleError> = CauseTaggedError<ExampleError>($I`ExampleErrorFactory`)
  * const error = ExampleError.new("Example failed")(new Error("cause"))
  *
- * void factory
- * void error
+ * console.log(factory)
+ * console.log(error)
  * ```
  *
  * @category models
@@ -240,7 +240,7 @@ export interface CauseTaggedErrorFactory<Self, Brand = {}> {
  *
  * const error = ExampleError.new("Example failed")(new Error("cause"))
  *
- * void error
+ * console.log(error)
  * ```
  *
  * @category constructors
@@ -473,7 +473,7 @@ const attachCauseTaggedErrorStatics = <
  *   DomainError.mapError("Domain operation failed")
  * )
  *
- * void program
+ * console.log(program)
  * ```
  *
  * @example
@@ -498,7 +498,7 @@ const attachCauseTaggedErrorStatics = <
  *   operation: "load-profile"
  * })(new Error("database unavailable"))
  *
- * void error
+ * console.log(error)
  * ```
  *
  * @since 0.0.0

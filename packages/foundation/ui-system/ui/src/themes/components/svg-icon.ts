@@ -1,6 +1,15 @@
 import type { ThemeComponents } from "../types.ts";
 
 /**
+ * Svg icon theme theme value.
+ *
+ * @example
+ * ```ts
+ * import { svgIconTheme } from "@beep/ui/themes/components/svg-icon"
+ *
+ * console.log(svgIconTheme)
+ * ```
+ *
  * @category themes
  * @since 0.0.0
  */

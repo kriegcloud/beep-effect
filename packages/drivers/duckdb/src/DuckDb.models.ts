@@ -22,7 +22,7 @@ const $I = $DuckdbId.create("DuckDb.models");
  *   databasePath: "metrics.duckdb"
  * })
  *
- * void options
+ * console.log(options)
  * ```
  *
  * @category models
@@ -50,7 +50,7 @@ export class DuckDbConnectionOptions extends S.Class<DuckDbConnectionOptions>($I
  *   tableName: "ai_metrics_ingest_runs"
  * })
  *
- * void request
+ * console.log(request)
  * ```
  *
  * @category models
@@ -79,7 +79,7 @@ export class DuckDbParquetExport extends S.Class<DuckDbParquetExport>($I`DuckDbP
  *   return yield* S.decodeUnknownEffect(DuckDbRow)({ count: 1 })
  * })
  *
- * void program
+ * console.log(program)
  * ```
  *
  * @category schemas
@@ -99,7 +99,7 @@ export const DuckDbRow = S.Record(S.String, S.Unknown).pipe(
  * import type { DuckDbRow } from "@beep/duckdb"
  *
  * const row: DuckDbRow = { count: 1 }
- * void row
+ * console.log(row)
  * ```
  *
  * @category models
@@ -120,7 +120,7 @@ export type DuckDbRow = typeof DuckDbRow.Type;
  *   return yield* S.decodeUnknownEffect(DuckDbRows)([])
  * })
  *
- * void program
+ * console.log(program)
  * ```
  *
  * @category schemas
@@ -140,7 +140,7 @@ export const DuckDbRows = S.Array(DuckDbRow).pipe(
  * import type { DuckDbRows } from "@beep/duckdb"
  *
  * const rows: DuckDbRows = []
- * void rows
+ * console.log(rows)
  * ```
  *
  * @category models

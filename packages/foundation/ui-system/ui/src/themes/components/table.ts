@@ -1,6 +1,15 @@
 import type { ThemeComponents } from "../types.ts";
 
 /**
+ * Table theme theme value.
+ *
+ * @example
+ * ```ts
+ * import { tableTheme } from "@beep/ui/themes/components/table"
+ *
+ * console.log(tableTheme)
+ * ```
+ *
  * @category themes
  * @since 0.0.0
  */

@@ -16,6 +16,16 @@ import * as S from "effect/Schema";
 const $I = $SchemaId.create("Http/headers");
 
 /**
+ * Schema for a single string header value or repeated string values.
+ *
+ * @example
+ * ```ts
+ * import * as S from "effect/Schema"
+ * import { ArrayOfStrOrStr } from "../../src/Http/Http.headers.shared.ts"
+ *
+ * console.log(S.decodeUnknownSync(ArrayOfStrOrStr)(["a", "b"]).length)
+ * ```
+ *
  * @category schemas
  * @since 0.0.0
  */
@@ -26,12 +36,24 @@ export const ArrayOfStrOrStr = S.Union([S.String, S.Array(S.String)]).pipe(
 );
 
 /**
+ * Type for a single string header value or repeated string values.
+ *
  * @category models
  * @since 0.0.0
  */
 export type ArrayOfStrOrStr = typeof ArrayOfStrOrStr.Type;
 
 /**
+ * Schema for values accepted where a URL-like header value is expected.
+ *
+ * @example
+ * ```ts
+ * import * as S from "effect/Schema"
+ * import { StringOrUrl } from "../../src/Http/Http.headers.shared.ts"
+ *
+ * console.log(S.decodeUnknownSync(StringOrUrl)("https://example.com"))
+ * ```
+ *
  * @category schemas
  * @since 0.0.0
  */
@@ -42,12 +64,25 @@ export const StringOrUrl = S.Union([S.String, S.URL]).pipe(
 );
 
 /**
+ * Type for values accepted where a URL-like header value is expected.
+ *
  * @category models
  * @since 0.0.0
  */
 export type StringOrUrl = typeof StringOrUrl.Type;
 
 /**
+ * Schema that normalizes a string or URL into an encoded absolute URL string.
+ *
+ * @example
+ * ```ts
+ * import * as S from "effect/Schema"
+ * import { EncodedStrictURIFromStrOrURL } from "../../src/Http/Http.headers.shared.ts"
+ *
+ * const uri = S.decodeUnknownSync(EncodedStrictURIFromStrOrURL)("https://example.com/docs")
+ * console.log(uri)
+ * ```
+ *
  * @category schemas
  * @since 0.0.0
  */
@@ -72,6 +107,8 @@ export const EncodedStrictURIFromStrOrURL = StringOrUrl.pipe(
 );
 
 /**
+ * Type for encoded absolute URL strings.
+ *
  * @category models
  * @since 0.0.0
  */
@@ -81,6 +118,15 @@ const decodeStrictURI = S.decodeUnknownResult(EncodedStrictURIFromStrOrURL);
 const schemaIssueToError = (cause: S.SchemaError["issue"]): S.SchemaError => new S.SchemaError(cause);
 
 /**
+ * Encodes a string or URL as a normalized absolute URL string.
+ *
+ * @example
+ * ```ts
+ * import { encodeStrictURI } from "../../src/Http/Http.headers.shared.ts"
+ *
+ * console.log(encodeStrictURI("https://example.com/docs"))
+ * ```
+ *
  * @category encoding
  * @since 0.0.0
  */
@@ -88,6 +134,15 @@ export const encodeStrictURI = (value: StringOrUrl): EncodedStrictURIFromStrOrUR
   Result.getOrThrowWith(decodeStrictURI(value), schemaIssueToError);
 
 /**
+ * Wraps a single value in an array while preserving arrays.
+ *
+ * @example
+ * ```ts
+ * import { wrapArray } from "../../src/Http/Http.headers.shared.ts"
+ *
+ * console.log(wrapArray("cache-control").length)
+ * ```
+ *
  * @category utilities
  * @since 0.0.0
  */
@@ -95,6 +150,17 @@ export const wrapArray = <T>(value: T | ReadonlyArray<T>): readonly T[] =>
   A.isArray(value) ? cast(value) : cast(A.make(value));
 
 /**
+ * Model for a rendered HTTP response header.
+ *
+ * @example
+ * ```ts
+ * import * as Option from "effect/Option"
+ * import { ResponseHeader } from "../../src/Http/Http.headers.shared.ts"
+ *
+ * const header = ResponseHeader.make({ name: "X-Test", value: Option.some("ok") })
+ * console.log(header.name)
+ * ```
+ *
  * @category models
  * @since 0.0.0
  */
@@ -109,6 +175,17 @@ export class ResponseHeader extends S.Class<ResponseHeader>($I`ResponseHeader`)(
 ) {}
 
 /**
+ * Creates an encoder that always fails for one-way header schemas.
+ *
+ * @example
+ * ```ts
+ * import { Effect } from "effect"
+ * import { makeHeaderEncodeForbidden } from "../../src/Http/Http.headers.shared.ts"
+ *
+ * const result = Effect.runSyncExit(makeHeaderEncodeForbidden("DemoHeader")("value"))
+ * console.log(result._tag)
+ * ```
+ *
  * @category constructors
  * @since 0.0.0
  */
@@ -138,6 +215,17 @@ const makeResponseHeader: {
 );
 
 /**
+ * Creates a response header when a value is present.
+ *
+ * @example
+ * ```ts
+ * import * as Option from "effect/Option"
+ * import { makeResponseHeaderOption } from "../../src/Http/Http.headers.shared.ts"
+ *
+ * const header = makeResponseHeaderOption("X-Test", Option.some("ok"))
+ * console.log(Option.isSome(header))
+ * ```
+ *
  * @category constructors
  * @since 0.0.0
  */

@@ -20,6 +20,15 @@ const alertVariants = cva(
 );
 
 /**
+ * Alert component.
+ *
+ * @example
+ * ```tsx
+ * import { Alert } from "@beep/ui/components/alert"
+ *
+ * console.log(Alert)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -28,6 +37,15 @@ function Alert({ className, variant, ...props }: React.ComponentProps<"div"> & V
 }
 
 /**
+ * Alert title component.
+ *
+ * @example
+ * ```tsx
+ * import { AlertTitle } from "@beep/ui/components/alert"
+ *
+ * console.log(AlertTitle)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -45,6 +63,15 @@ function AlertTitle({ className, ...props }: React.ComponentProps<"div">) {
 }
 
 /**
+ * Alert description component.
+ *
+ * @example
+ * ```tsx
+ * import { AlertDescription } from "@beep/ui/components/alert"
+ *
+ * console.log(AlertDescription)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -62,6 +89,15 @@ function AlertDescription({ className, ...props }: React.ComponentProps<"div">) 
 }
 
 /**
+ * Alert action component.
+ *
+ * @example
+ * ```tsx
+ * import { AlertAction } from "@beep/ui/components/alert"
+ *
+ * console.log(AlertAction)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */

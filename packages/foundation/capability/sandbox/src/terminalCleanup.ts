@@ -23,6 +23,14 @@ export const SHOW_CURSOR = "\x1b[?25h";
 /**
  * Minimal stdin surface required by terminal cleanup.
  *
+ * @example
+ * ```ts
+ * import type { TerminalCleanupStdin } from "@beep/sandbox/terminalCleanup"
+ *
+ * const value = {} as TerminalCleanupStdin
+ * console.log(value)
+ * ```
+ *
  * @category models
  * @since 0.0.0
  */
@@ -33,6 +41,14 @@ export interface TerminalCleanupStdin {
 
 /**
  * Minimal stdout surface required by terminal cleanup.
+ *
+ * @example
+ * ```ts
+ * import type { TerminalCleanupStdout } from "@beep/sandbox/terminalCleanup"
+ *
+ * const value = {} as TerminalCleanupStdout
+ * console.log(value)
+ * ```
  *
  * @category models
  * @since 0.0.0

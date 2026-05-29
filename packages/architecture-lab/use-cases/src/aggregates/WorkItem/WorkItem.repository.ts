@@ -18,6 +18,13 @@ const $I = $ArchitectureLabUseCasesId.create("aggregates/WorkItem/WorkItem.repos
 /**
  * Persistence failure raised when a WorkItem row is absent.
  *
+ * @example
+ * ```ts
+ * import { WorkItemRepositoryNotFound } from "@beep/architecture-lab-use-cases/aggregates/WorkItem/server"
+ *
+ * console.log(WorkItemRepositoryNotFound)
+ * ```
+ *
  * @category repositories
  * @since 0.0.0
  */
@@ -36,6 +43,13 @@ export class WorkItemRepositoryNotFound extends TaggedErrorClass<WorkItemReposit
 
 /**
  * Persistence failure raised when a WorkItem write conflicts.
+ *
+ * @example
+ * ```ts
+ * import { WorkItemRepositoryConflict } from "@beep/architecture-lab-use-cases/aggregates/WorkItem/server"
+ *
+ * console.log(WorkItemRepositoryConflict)
+ * ```
  *
  * @category repositories
  * @since 0.0.0
@@ -57,6 +71,13 @@ export class WorkItemRepositoryConflict extends TaggedErrorClass<WorkItemReposit
 /**
  * Persistence failure raised when the WorkItem repository is unavailable.
  *
+ * @example
+ * ```ts
+ * import { WorkItemRepositoryUnavailable } from "@beep/architecture-lab-use-cases/aggregates/WorkItem/server"
+ *
+ * console.log(WorkItemRepositoryUnavailable)
+ * ```
+ *
  * @category repositories
  * @since 0.0.0
  */
@@ -76,6 +97,14 @@ export class WorkItemRepositoryUnavailable extends TaggedErrorClass<WorkItemRepo
 /**
  * WorkItem repository failure.
  *
+ * @example
+ * ```ts
+ * import type { WorkItemRepositoryError } from "@beep/architecture-lab-use-cases/aggregates/WorkItem/server"
+ *
+ * const value = {} as WorkItemRepositoryError
+ * console.log(value)
+ * ```
+ *
  * @category repositories
  * @since 0.0.0
  */
@@ -86,6 +115,14 @@ export type WorkItemRepositoryError =
 
 /**
  * WorkItem repository contract.
+ *
+ * @example
+ * ```ts
+ * import type { WorkItemRepositoryShape } from "@beep/architecture-lab-use-cases/aggregates/WorkItem/server"
+ *
+ * const value = {} as WorkItemRepositoryShape
+ * console.log(value)
+ * ```
  *
  * @category repositories
  * @since 0.0.0
@@ -105,6 +142,13 @@ export interface WorkItemRepositoryShape {
 
 /**
  * WorkItem repository service.
+ *
+ * @example
+ * ```ts
+ * import { WorkItemRepository } from "@beep/architecture-lab-use-cases/aggregates/WorkItem/server"
+ *
+ * console.log(WorkItemRepository)
+ * ```
  *
  * @category repositories
  * @since 0.0.0

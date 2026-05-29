@@ -12,7 +12,7 @@
  * ```ts
  * import { AllowedDevOrigin } from "@beep/repo-configs/next"
  * const schema = AllowedDevOrigin
- * void schema
+ * console.log(schema)
  * ```
  * @category models
  * @since 0.0.0
@@ -25,7 +25,7 @@ export * from "./AllowedDevOrigin.schema.ts";
  * ```ts
  * import { CompilerConfig } from "@beep/repo-configs/next"
  * const schema = CompilerConfig
- * void schema
+ * console.log(schema)
  * ```
  * @category models
  * @since 0.0.0
@@ -38,7 +38,7 @@ export * from "./Compiler.schema.ts";
  * ```ts
  * import { TypeScriptConfig } from "@beep/repo-configs/next"
  * const schema = TypeScriptConfig
- * void schema
+ * console.log(schema)
  * ```
  * @category models
  * @since 0.0.0
@@ -51,7 +51,7 @@ export * from "./ConfigPrimitives.schema.ts";
  * ```ts
  * import { ExperimentalConfig } from "@beep/repo-configs/next"
  * const schema = ExperimentalConfig
- * void schema
+ * console.log(schema)
  * ```
  * @category models
  * @since 0.0.0
@@ -64,7 +64,7 @@ export * from "./ExperimentalConfig.schema.ts";
  * ```ts
  * import { ImageConfig } from "@beep/repo-configs/next"
  * const schema = ImageConfig
- * void schema
+ * console.log(schema)
  * ```
  * @category models
  * @since 0.0.0
@@ -77,7 +77,7 @@ export * from "./ImageConfig.schema.ts";
  * ```ts
  * import { PrefetchInliningConfig } from "@beep/repo-configs/next"
  * const schema = PrefetchInliningConfig
- * void schema
+ * console.log(schema)
  * ```
  * @category models
  * @since 0.0.0
@@ -90,7 +90,7 @@ export * from "./PrefetchInliningConfig.schema.ts";
  * ```ts
  * import { Rewrite } from "@beep/repo-configs/next"
  * const schema = Rewrite
- * void schema
+ * console.log(schema)
  * ```
  * @category models
  * @since 0.0.0
@@ -103,7 +103,7 @@ export * from "./Routes.schema.ts";
  * ```ts
  * import { SizeLimit } from "@beep/repo-configs/next"
  * const schema = SizeLimit
- * void schema
+ * console.log(schema)
  * ```
  * @category models
  * @since 0.0.0
@@ -116,7 +116,7 @@ export * from "./Shared.schema.ts";
  * ```ts
  * import { SubresourceIntegrityAlgorithm } from "@beep/repo-configs/next"
  * const schema = SubresourceIntegrityAlgorithm
- * void schema
+ * console.log(schema)
  * ```
  * @category models
  * @since 0.0.0
@@ -129,7 +129,7 @@ export * from "./SubresourceIntegrityPlugin.schema.ts";
  * ```ts
  * import { TurbopackOptions } from "@beep/repo-configs/next"
  * const schema = TurbopackOptions
- * void schema
+ * console.log(schema)
  * ```
  * @category models
  * @since 0.0.0

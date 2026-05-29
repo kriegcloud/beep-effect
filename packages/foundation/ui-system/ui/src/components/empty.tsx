@@ -4,6 +4,15 @@ import type { VariantProps } from "class-variance-authority";
 import type React from "react";
 
 /**
+ * Empty component.
+ *
+ * @example
+ * ```tsx
+ * import { Empty } from "@beep/ui/components/empty"
+ *
+ * console.log(Empty)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -21,6 +30,15 @@ function Empty({ className, ...props }: React.ComponentProps<"div">) {
 }
 
 /**
+ * Empty header component.
+ *
+ * @example
+ * ```tsx
+ * import { EmptyHeader } from "@beep/ui/components/empty"
+ *
+ * console.log(EmptyHeader)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -50,6 +68,15 @@ const emptyMediaVariants = cva(
 );
 
 /**
+ * Empty media component.
+ *
+ * @example
+ * ```tsx
+ * import { EmptyMedia } from "@beep/ui/components/empty"
+ *
+ * console.log(EmptyMedia)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -69,6 +96,15 @@ function EmptyMedia({
 }
 
 /**
+ * Empty title component.
+ *
+ * @example
+ * ```tsx
+ * import { EmptyTitle } from "@beep/ui/components/empty"
+ *
+ * console.log(EmptyTitle)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -77,6 +113,15 @@ function EmptyTitle({ className, ...props }: React.ComponentProps<"div">) {
 }
 
 /**
+ * Empty description component.
+ *
+ * @example
+ * ```tsx
+ * import { EmptyDescription } from "@beep/ui/components/empty"
+ *
+ * console.log(EmptyDescription)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -94,6 +139,15 @@ function EmptyDescription({ className, ...props }: React.ComponentProps<"p">) {
 }
 
 /**
+ * Empty content component.
+ *
+ * @example
+ * ```tsx
+ * import { EmptyContent } from "@beep/ui/components/empty"
+ *
+ * console.log(EmptyContent)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */

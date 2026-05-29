@@ -152,7 +152,7 @@ const extractPrefixedNestedNamespaces = (
  * @example
  * ```ts
  * import { SKIP_TYPE_CHECKING_FENCE_METADATA } from "@beep/repo-docgen/Core"
- * void SKIP_TYPE_CHECKING_FENCE_METADATA
+ * console.log(SKIP_TYPE_CHECKING_FENCE_METADATA)
  * ```
  * @category constants
  * @since 0.0.0
@@ -169,7 +169,7 @@ export const SKIP_TYPE_CHECKING_FENCE_METADATA = "skip-type-checking";
  * ```ts
  * import { extractFencedCode } from "@beep/repo-docgen/Core"
  * const [examples] = extractFencedCode("~~~ts\nconst value = 1\n~~~")
- * void examples
+ * console.log(examples)
  * ```
  * @category parsing
  * @since 0.0.0
@@ -592,7 +592,7 @@ const writeMarkdown = Effect.fn("writeMarkdown")(function* (files: ReadonlyArray
  * @example
  * ```ts
  * import { program } from "@beep/repo-docgen/Core"
- * void program
+ * console.log(program)
  * ```
  * @category workflows
  * @since 0.0.0

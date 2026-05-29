@@ -179,6 +179,13 @@ const TsconfigSyncModeKit = LiteralKit(["sync", "check", "dry-run"]);
 /**
  * Command execution mode.
  *
+ * @example
+ * ```ts
+ * import { TsconfigSyncMode } from "@beep/repo-cli/commands/TsconfigSync"
+ *
+ * console.log(TsconfigSyncMode)
+ * ```
+ *
  * @category models
  * @since 0.0.0
  */
@@ -233,6 +240,13 @@ class TsconfigSyncRunOptionsDryRun extends S.Class<TsconfigSyncRunOptionsDryRun>
  * Runtime options for executing tsconfig sync at a repo root.
  *
  * @returns Tagged union schema keyed by `mode`.
+ * @example
+ * ```ts
+ * import { TsconfigSyncRunOptions } from "@beep/repo-cli/commands/TsconfigSync"
+ *
+ * console.log(TsconfigSyncRunOptions)
+ * ```
+ *
  * @category models
  * @since 0.0.0
  */
@@ -258,6 +272,13 @@ export type TsconfigSyncRunOptions = typeof TsconfigSyncRunOptions.Type;
 
 /**
  * Sync change section categories.
+ *
+ * @example
+ * ```ts
+ * import { TsconfigSyncSection } from "@beep/repo-cli/commands/TsconfigSync"
+ *
+ * console.log(TsconfigSyncSection)
+ * ```
  *
  * @category models
  * @since 0.0.0
@@ -365,6 +386,13 @@ class PackageDocgenChange extends S.Class<PackageDocgenChange>($I`PackageDocgenC
  * A single planned file change.
  *
  * @returns Tagged union schema keyed by `section`.
+ * @example
+ * ```ts
+ * import { TsconfigSyncChange } from "@beep/repo-cli/commands/TsconfigSync"
+ *
+ * console.log(TsconfigSyncChange)
+ * ```
+ *
  * @category models
  * @since 0.0.0
  */
@@ -489,6 +517,13 @@ class PackageDocgenPlannedFileChange extends S.Class<PackageDocgenPlannedFileCha
  * A planned file change with transformed file content.
  *
  * @returns Tagged union schema keyed by `section`.
+ * @example
+ * ```ts
+ * import { PlannedFileChange } from "@beep/repo-cli/commands/TsconfigSync"
+ *
+ * console.log(PlannedFileChange)
+ * ```
+ *
  * @category models
  * @since 0.0.0
  */
@@ -554,6 +589,13 @@ class TsconfigSyncResultDryRun extends S.Class<TsconfigSyncResultDryRun>($I`Tsco
  * Result emitted after a sync run.
  *
  * @returns Tagged union schema keyed by `mode`.
+ * @example
+ * ```ts
+ * import { TsconfigSyncResult } from "@beep/repo-cli/commands/TsconfigSync"
+ *
+ * console.log(TsconfigSyncResult)
+ * ```
+ *
  * @category models
  * @since 0.0.0
  */
@@ -584,6 +626,13 @@ type TsconfigSyncError =
 
 /**
  * Workspace package descriptor with metadata for tsconfig synchronization.
+ *
+ * @example
+ * ```ts
+ * import { WorkspaceDescriptor } from "@beep/repo-cli/commands/TsconfigSync"
+ *
+ * console.log(WorkspaceDescriptor)
+ * ```
  *
  * @category models
  * @since 0.0.0
@@ -636,6 +685,13 @@ class TsconfigCompilerOptionsPaths extends S.Class<TsconfigCompilerOptionsPaths>
 /**
  * Minimal tsconfig shape containing optional `references`.
  *
+ * @example
+ * ```ts
+ * import { TsconfigWithReferences } from "@beep/repo-cli/commands/TsconfigSync"
+ *
+ * console.log(TsconfigWithReferences)
+ * ```
+ *
  * @category models
  * @since 0.0.0
  */
@@ -650,6 +706,13 @@ export class TsconfigWithReferences extends S.Class<TsconfigWithReferences>($I`T
 
 /**
  * Minimal tsconfig shape containing optional `compilerOptions.paths`.
+ *
+ * @example
+ * ```ts
+ * import { TsconfigWithPaths } from "@beep/repo-cli/commands/TsconfigSync"
+ *
+ * console.log(TsconfigWithPaths)
+ * ```
  *
  * @category models
  * @since 0.0.0
@@ -1629,6 +1692,13 @@ const renderChanges = Effect.fn(function* (
  * @param rootDir - Absolute repository root directory.
  * @param options - Mode and logging options.
  * @returns Summary of planned/applied changes.
+ * @example
+ * ```ts
+ * import { syncTsconfigAtRoot } from "@beep/repo-cli/commands/TsconfigSync"
+ *
+ * console.log(syncTsconfigAtRoot)
+ * ```
+ *
  * @category utilities
  * @since 0.0.0
  */
@@ -1763,6 +1833,13 @@ const resolveMode = (check: boolean, dryRun: boolean): TsconfigSyncMode => {
 
 /**
  * CLI command for synchronizing root and workspace tsconfig state.
+ *
+ * @example
+ * ```ts
+ * import { tsconfigSyncCommand } from "@beep/repo-cli/commands/TsconfigSync"
+ *
+ * console.log(tsconfigSyncCommand)
+ * ```
  *
  * @category use-cases
  * @since 0.0.0

@@ -18,6 +18,13 @@ const $I = $SandboxId.create("AgentStreamEmitter");
  * Emitted only in log-to-file mode when an `onAgentStreamEvent` callback is
  * provided via `logging`. See `run()`.
  *
+ * @example
+ * ```ts
+ * import { AgentStreamEvent } from "@beep/sandbox/AgentStreamEmitter"
+ *
+ * console.log(AgentStreamEvent)
+ * ```
+ *
  * @category models
  * @since 0.0.0
  */
@@ -69,6 +76,14 @@ export declare namespace AgentStreamEvent {
 /**
  * Agent stream emitter service shape.
  *
+ * @example
+ * ```ts
+ * import type { AgentStreamEmitterShape } from "@beep/sandbox/AgentStreamEmitter"
+ *
+ * const value = {} as AgentStreamEmitterShape
+ * console.log(value)
+ * ```
+ *
  * @category services
  * @since 0.0.0
  */
@@ -79,6 +94,13 @@ export interface AgentStreamEmitterShape {
 /**
  * Agent stream emitter service.
  *
+ * @example
+ * ```ts
+ * import { AgentStreamEmitter } from "@beep/sandbox/AgentStreamEmitter"
+ *
+ * console.log(AgentStreamEmitter)
+ * ```
+ *
  * @category services
  * @since 0.0.0
  */
@@ -88,6 +110,13 @@ export class AgentStreamEmitter extends Context.Service<AgentStreamEmitter, Agen
 
 /**
  * Agent stream emitter layer that discards events.
+ *
+ * @example
+ * ```ts
+ * import { noopAgentStreamEmitterLayer } from "@beep/sandbox/AgentStreamEmitter"
+ *
+ * console.log(noopAgentStreamEmitterLayer)
+ * ```
  *
  * @category layers
  * @since 0.0.0
@@ -103,6 +132,13 @@ export const noopAgentStreamEmitterLayer: Layer.Layer<AgentStreamEmitter> = Laye
  * The callback is invoked synchronously inside an `Effect.sync`; any error
  * thrown by the callback is caught and discarded so observability failures
  * cannot kill the run.
+ *
+ * @example
+ * ```ts
+ * import { callbackAgentStreamEmitterLayer } from "@beep/sandbox/AgentStreamEmitter"
+ *
+ * console.log(callbackAgentStreamEmitterLayer)
+ * ```
  *
  * @category layers
  * @since 0.0.0

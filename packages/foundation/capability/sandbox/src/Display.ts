@@ -19,6 +19,13 @@ const sanitizeDisplayText = redactSensitiveText;
 /**
  * Severity - The severity of the display message.
  *
+ * @example
+ * ```ts
+ * import { Severity } from "@beep/sandbox/Display"
+ *
+ * console.log(Severity)
+ * ```
+ *
  * @category schemas
  * @since 0.0.0
  */
@@ -39,6 +46,13 @@ export type Severity = typeof Severity.Type;
 /**
  * Status entry captured by a display implementation.
  *
+ * @example
+ * ```ts
+ * import { DisplayEntryStatus } from "@beep/sandbox/Display"
+ *
+ * console.log(DisplayEntryStatus)
+ * ```
+ *
  * @category models
  * @since 0.0.0
  */
@@ -56,6 +70,13 @@ export class DisplayEntryStatus extends S.TaggedClass<DisplayEntryStatus>($I`Dis
 /**
  * Intro entry captured by a display implementation.
  *
+ * @example
+ * ```ts
+ * import { DisplayEntryIntro } from "@beep/sandbox/Display"
+ *
+ * console.log(DisplayEntryIntro)
+ * ```
+ *
  * @category models
  * @since 0.0.0
  */
@@ -72,6 +93,13 @@ export class DisplayEntryIntro extends S.TaggedClass<DisplayEntryIntro>($I`Displ
 /**
  * Spinner entry captured by a display implementation.
  *
+ * @example
+ * ```ts
+ * import { DisplayEntrySpinner } from "@beep/sandbox/Display"
+ *
+ * console.log(DisplayEntrySpinner)
+ * ```
+ *
  * @category models
  * @since 0.0.0
  */
@@ -87,6 +115,13 @@ export class DisplayEntrySpinner extends S.TaggedClass<DisplayEntrySpinner>($I`D
 
 /**
  * Summary entry captured by a display implementation.
+ *
+ * @example
+ * ```ts
+ * import { DisplayEntrySummary } from "@beep/sandbox/Display"
+ *
+ * console.log(DisplayEntrySummary)
+ * ```
  *
  * @category models
  * @since 0.0.0
@@ -105,6 +140,13 @@ export class DisplayEntrySummary extends S.TaggedClass<DisplayEntrySummary>($I`D
 /**
  * Task log entry captured by a display implementation.
  *
+ * @example
+ * ```ts
+ * import { DisplayEntryTaskLog } from "@beep/sandbox/Display"
+ *
+ * console.log(DisplayEntryTaskLog)
+ * ```
+ *
  * @category models
  * @since 0.0.0
  */
@@ -122,6 +164,13 @@ export class DisplayEntryTaskLog extends S.TaggedClass<DisplayEntryTaskLog>($I`D
 /**
  * Text entry captured by a display implementation.
  *
+ * @example
+ * ```ts
+ * import { DisplayEntryText } from "@beep/sandbox/Display"
+ *
+ * console.log(DisplayEntryText)
+ * ```
+ *
  * @category models
  * @since 0.0.0
  */
@@ -137,6 +186,13 @@ export class DisplayEntryText extends S.TaggedClass<DisplayEntryText>($I`Display
 
 /**
  * Tool-call entry captured by a display implementation.
+ *
+ * @example
+ * ```ts
+ * import { DisplayEntryToolCall } from "@beep/sandbox/Display"
+ *
+ * console.log(DisplayEntryToolCall)
+ * ```
  *
  * @category models
  * @since 0.0.0
@@ -154,6 +210,13 @@ export class DisplayEntryToolCall extends S.TaggedClass<DisplayEntryToolCall>($I
 
 /**
  * Display entry union.
+ *
+ * @example
+ * ```ts
+ * import { DisplayEntry } from "@beep/sandbox/Display"
+ *
+ * console.log(DisplayEntry)
+ * ```
  *
  * @category schemas
  * @since 0.0.0
@@ -184,6 +247,14 @@ export type DisplayEntry = typeof DisplayEntry.Type;
 /**
  * Display service shape.
  *
+ * @example
+ * ```ts
+ * import type { DisplayServiceShape } from "@beep/sandbox/Display"
+ *
+ * const value = {} as DisplayServiceShape
+ * console.log(value)
+ * ```
+ *
  * @category services
  * @since 0.0.0
  */
@@ -209,6 +280,13 @@ export interface DisplayServiceShape {
 /**
  * Display service.
  *
+ * @example
+ * ```ts
+ * import { Display } from "@beep/sandbox/Display"
+ *
+ * console.log(Display)
+ * ```
+ *
  * @category services
  * @since 0.0.0
  */
@@ -226,6 +304,13 @@ const sanitizeSummaryRows = (rows: Record<string, string>): Record<string, strin
 
 /**
  * Display implementation that records entries in a `Ref`.
+ *
+ * @example
+ * ```ts
+ * import { SilentDisplay } from "@beep/sandbox/Display"
+ *
+ * console.log(SilentDisplay)
+ * ```
  *
  * @category layers
  * @since 0.0.0
@@ -415,6 +500,13 @@ const makeFileDisplayService = Effect.fn("FileDisplay.make")(function* (filePath
 /**
  * File-backed display implementation that appends display output to a log file.
  *
+ * @example
+ * ```ts
+ * import { FileDisplay } from "@beep/sandbox/Display"
+ *
+ * console.log(FileDisplay)
+ * ```
+ *
  * @category layers
  * @since 0.0.0
  */
@@ -445,6 +537,13 @@ const severityToClack: Record<Severity, (message: string) => void> = {
 /**
  * Terminal text styles used by {@link ClackDisplay}.
  *
+ * @example
+ * ```ts
+ * import { terminalStyle } from "@beep/sandbox/Display"
+ *
+ * console.log(terminalStyle)
+ * ```
+ *
  * @category utilities
  * @since 0.0.0
  */
@@ -458,6 +557,13 @@ export const terminalStyle = {
 
 /**
  * Interactive terminal display implementation backed by `@clack/prompts`.
+ *
+ * @example
+ * ```ts
+ * import { ClackDisplay } from "@beep/sandbox/Display"
+ *
+ * console.log(ClackDisplay)
+ * ```
  *
  * @category layers
  * @since 0.0.0

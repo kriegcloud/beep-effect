@@ -17,6 +17,13 @@ const $I = $ArchitectureLabServerId.create("aggregates/WorkItem/WorkItem.layer")
 /**
  * Build the WorkItem server facade.
  *
+ * @example
+ * ```ts
+ * import { makeWorkItemServer } from "@beep/architecture-lab-server/aggregates/WorkItem"
+ *
+ * console.log(makeWorkItemServer)
+ * ```
+ *
  * @category layers
  * @since 0.0.0
  */
@@ -28,6 +35,13 @@ export const makeWorkItemServer = Effect.fn("ArchitectureLab.WorkItemServer.make
 /**
  * WorkItem server facade service.
  *
+ * @example
+ * ```ts
+ * import { WorkItemServer } from "@beep/architecture-lab-server/aggregates/WorkItem"
+ *
+ * console.log(WorkItemServer)
+ * ```
+ *
  * @category layers
  * @since 0.0.0
  */
@@ -37,6 +51,13 @@ export class WorkItemServer extends Context.Service<WorkItemServer, WorkItemUseC
 
 /**
  * Config-dependent WorkItem server layer.
+ *
+ * @example
+ * ```ts
+ * import { WorkItemServerLayer } from "@beep/architecture-lab-server/aggregates/WorkItem"
+ *
+ * console.log(WorkItemServerLayer)
+ * ```
  *
  * @category layers
  * @since 0.0.0

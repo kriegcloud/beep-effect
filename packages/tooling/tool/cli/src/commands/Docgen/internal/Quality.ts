@@ -71,6 +71,7 @@ const EXCLUDED_SOURCE_SEGMENTS = [
   "/tests/",
   "/dtslint/",
 ] as const;
+const EXCLUDED_SOURCE_SUFFIXES = [".stories.ts", ".stories.tsx"] as const;
 const REPO_BASE_CHANGED_FILE_COMMAND = [
   "diff",
   "--name-only",
@@ -216,7 +217,10 @@ export const DocgenQualityFindingCode = LiteralKit([
   "example-not-code-fenced",
   "example-too-trivial",
   "example-only-voids-result",
+  "example-discards-result",
   "example-lacks-observable-result",
+  "example-empty-effect-gen",
+  "example-too-many-blank-lines",
   "missing-effects-for-effectful-symbol",
   "insufficient-agent-context",
 ]).pipe(
@@ -688,6 +692,10 @@ const sourceFileMatchesExclude = (
     return true;
   }
 
+  if (A.some(EXCLUDED_SOURCE_SUFFIXES, (suffix) => Str.endsWith(suffix)(normalized))) {
+    return true;
+  }
+
   if (A.some(EXCLUDED_SOURCE_SEGMENTS, (segment) => Str.includes(segment)(normalized))) {
     return true;
   }
@@ -744,6 +752,10 @@ const getTopFileoverviewText = (sourceFile: SourceFile): string => {
 
 const isFileoverviewJsDoc = (rawJsDoc: string): boolean => /@(packageDocumentation|fileoverview|file)\b/.test(rawJsDoc);
 
+const isInternalJsDoc = (rawJsDoc: string): boolean => /@internal\b/.test(rawJsDoc);
+
+const hasInternalJsDoc = (node: Node): boolean => A.some(getJsDocs(node), (doc) => isInternalJsDoc(doc.getText()));
+
 const normalizeTags = (rawJsDoc: string): Record<string, ReadonlyArray<string>> => {
   if (Str.trim(rawJsDoc).length === 0) {
     return {};
@@ -762,12 +774,39 @@ const tagValues = (tags: Record<string, ReadonlyArray<string>>, tagName: string)
 const hasTag = (tags: Record<string, ReadonlyArray<string>>, tagName: string): boolean =>
   R.has(tags, Str.replace(/^@/, "")(tagName));
 
+const hasInheritDoc = (rawJsDoc: string): boolean => /\{@inheritDoc\s+[^}]+\}/.test(rawJsDoc);
+
+const isSchemaCompanionTypeAlias = (exportName: string, declarationKind: string, signature: string): boolean =>
+  declarationKind === "type" &&
+  (new RegExp(
+    `^export\\s+type\\s+${escapeRegexChar(exportName)}\\s+=\\s+typeof\\s+${escapeRegexChar(exportName)}\\.Type\\b`
+  ).test(signature) ||
+    new RegExp(
+      `^export\\s+type\\s+${escapeRegexChar(exportName)}\\s+=\\s+\\w+\\.Schema\\.Type<\\s*typeof\\s+${escapeRegexChar(exportName)}\\s*>`
+    ).test(signature));
+
+const isCompanionNamespace = (exportName: string, declarationKind: string, signature: string): boolean =>
+  declarationKind === "namespace" &&
+  new RegExp(`^export\\s+declare\\s+namespace\\s+${escapeRegexChar(exportName)}\\b`).test(signature);
+
+const isSchemaCompanionInterface = (exportName: string, declarationKind: string, signature: string): boolean =>
+  declarationKind === "interface" &&
+  new RegExp(`^export\\s+interface\\s+${escapeRegexChar(exportName)}\\b[\\s\\S]*\\bextends\\s+\\w+\\.`).test(signature);
+
 const descriptionFromRawJsDoc = (rawJsDoc: string): string | null => {
   if (Str.trim(rawJsDoc).length === 0) {
     return null;
   }
 
   return parseComment(rawJsDoc).description ?? null;
+};
+
+const descriptionFromDeclarationSource = (declarationSource: string): string | null => {
+  const match =
+    /\bannote(?:Schema)?\([\s\S]*?\bdescription\s*:\s*"([^"]+)"/.exec(declarationSource) ??
+    /\bannote(?:Schema)?\([\s\S]*?\bdescription\s*:\s*'([^']+)'/.exec(declarationSource);
+
+  return match?.[1] ?? null;
 };
 
 const categoryIssueMessages = flow(
@@ -779,6 +818,27 @@ const categoryIssueMessages = flow(
 const missingRequiredTags = (kind: string, tags: Record<string, ReadonlyArray<string>>): ReadonlyArray<string> => {
   const requiredTags = kind === "module-fileoverview" ? QUALITY_REQUIRED_MODULE_TAGS : QUALITY_REQUIRED_EXPORT_TAGS;
   return A.filter(requiredTags, (tag) => !hasTag(tags, tag));
+};
+
+const effectiveMissingRequiredTags = (
+  exportName: string,
+  kind: string,
+  signature: string,
+  tags: Record<string, ReadonlyArray<string>>,
+  rawJsDoc: string
+): ReadonlyArray<string> => {
+  const missingTags = missingRequiredTags(kind, tags);
+
+  if (
+    !hasInheritDoc(rawJsDoc) &&
+    !isSchemaCompanionTypeAlias(exportName, kind, signature) &&
+    !isCompanionNamespace(exportName, kind, signature) &&
+    !isSchemaCompanionInterface(exportName, kind, signature)
+  ) {
+    return missingTags;
+  }
+
+  return A.filter(missingTags, (tag) => tag !== "@example");
 };
 
 const getExportKind = (node: Node): string => {
@@ -841,9 +901,31 @@ const collectLocalDeclarations = (sourceFile: SourceFile): ReadonlyArray<LocalDe
   return declarations;
 };
 
+const isDeclarationAlreadyExported = (declaration: Node): boolean => {
+  if (Node.isVariableDeclaration(declaration)) {
+    return declaration.getVariableStatement()?.isExported() ?? false;
+  }
+
+  const exportable = declaration as Node & { readonly isExported?: () => boolean };
+  return exportable.isExported?.() ?? false;
+};
+
 const collectExportedDeclarationCandidates = (sourceFile: SourceFile): ReadonlyArray<ExportedDeclarationCandidate> => {
   let candidates = A.empty<ExportedDeclarationCandidate>();
   const localDeclarations = collectLocalDeclarations(sourceFile);
+  const documentedOverloadNames = new Set<string>();
+  for (const statement of sourceFile.getStatements()) {
+    if (
+      Node.isFunctionDeclaration(statement) &&
+      statement.isOverload() &&
+      Str.trim(getLastJsDocText(statement)).length > 0
+    ) {
+      const name = statement.getName();
+      if (name !== undefined) {
+        documentedOverloadNames.add(name);
+      }
+    }
+  }
 
   for (const exportAssignment of sourceFile.getExportAssignments()) {
     if (exportAssignment.isExportEquals()) {
@@ -856,6 +938,7 @@ const collectExportedDeclarationCandidates = (sourceFile: SourceFile): ReadonlyA
       ? pipe(
           localDeclarations,
           A.filter((entry) => entry.name === expression.getText()),
+          A.filter((entry) => !isDeclarationAlreadyExported(entry.declaration)),
           A.map((entry) => entry.declaration)
         )
       : [expression];
@@ -881,6 +964,9 @@ const collectExportedDeclarationCandidates = (sourceFile: SourceFile): ReadonlyA
     for (const specifier of exportDeclaration.getNamedExports()) {
       const localName = specifier.getName();
       const exportName = specifier.getAliasNode()?.getText() ?? specifier.getName();
+      if (localName !== exportName) {
+        continue;
+      }
       const declarations = pipe(
         localDeclarations,
         A.filter((entry) => entry.name === localName),
@@ -900,6 +986,17 @@ const collectExportedDeclarationCandidates = (sourceFile: SourceFile): ReadonlyA
   }
 
   for (const statement of sourceFile.getStatements()) {
+    if (Node.isFunctionDeclaration(statement)) {
+      const name = statement.getName();
+      const hasOwnDocs = Str.trim(getLastJsDocText(statement)).length > 0;
+      if ((statement.isOverload() || !statement.hasBody()) && !hasOwnDocs) {
+        continue;
+      }
+      if (name !== undefined && documentedOverloadNames.has(name) && !statement.isOverload() && !hasOwnDocs) {
+        continue;
+      }
+    }
+
     if (Node.isVariableStatement(statement) && statement.isExported()) {
       for (const declaration of statement.getDeclarations()) {
         candidates = A.append(candidates, {
@@ -1031,6 +1128,7 @@ const makeSubjectCandidate = ({
   readonly signature: string;
 }): DocgenQualitySubjectCandidate => {
   const tags = normalizeTags(rawJsDoc);
+  const jsDocDescription = descriptionFromRawJsDoc(rawJsDoc);
   const categoryValues = tagValues(tags, "category");
   const identityStem = `${packageName}:${repoPath}:${declarationKind}:${exportName}`;
   return {
@@ -1044,14 +1142,14 @@ const makeSubjectCandidate = ({
     signature,
     declarationSource,
     rawJsDoc,
-    description: descriptionFromRawJsDoc(rawJsDoc),
+    description: jsDocDescription ?? descriptionFromDeclarationSource(declarationSource),
     tags,
     parsedExamples: tagValues(tags, "example"),
     generatedDocSnippet,
     identityStem,
     diagnostics: collectDiagnostics(diagnostics, line, endLine),
     relatedSymbols,
-    deterministicMissingTags: missingRequiredTags(declarationKind, tags),
+    deterministicMissingTags: effectiveMissingRequiredTags(exportName, declarationKind, signature, tags, rawJsDoc),
     categoryValues,
     categoryIssues: categoryIssueMessages(categoryValues),
     hashSourceText: A.join([packageName, repoPath, declarationKind, exportName, hashSourceText], "\n"),
@@ -1145,7 +1243,11 @@ const collectDirectExportSubjects = ({
 
   for (const candidate of collectExportedDeclarationCandidates(sourceFile)) {
     const { declaration, name: exportName } = candidate;
-    const rawJsDoc = candidate.rawJsDoc ?? getLastJsDocText(declaration);
+    const declarationJsDoc = getLastJsDocText(declaration);
+    const rawJsDoc = Str.trim(declarationJsDoc).length > 0 ? declarationJsDoc : (candidate.rawJsDoc ?? "");
+    if (isInternalJsDoc(rawJsDoc) || hasInternalJsDoc(declaration)) {
+      continue;
+    }
     const line = nodeLine(candidate.anchorNode ?? declaration);
     const declarationSource = declarationText(declaration);
 
@@ -1354,11 +1456,24 @@ const OBSERVABLE_EXAMPLE_RESULT_PATTERN =
   /expect\s*\(|assert|return\s+|(?:Console|console)\.|Effect\.run|S\.decode|Schema\.decode|Equal\.|\.pipe\(/;
 const TYPE_EVIDENCE_EXAMPLE_PATTERN =
   /\btype\s+[A-Z_a-z]\w*\s*=|\binterface\s+[A-Z_a-z]\w*|\bsatisfies\b|\bExpect<|\bEqual\.|expectTypeOf\s*\(/;
+const STANDALONE_VOID_DISCARD_PATTERN = /^\s*void\s+[A-Za-z_$][\w$]*\s*;?\s*$/m;
+const EMPTY_EFFECT_GEN_BODY_PATTERN =
+  /Effect\.gen\s*\(\s*function\*\s*\([^)]*\)\s*\{\s*(?:\/\*[\s\S]*?\*\/\s*|\/\/[^\n\r]*(?:\r?\n|$)\s*)*\}\s*\)/m;
+const EXCESSIVE_EXAMPLE_BLANK_LINES_PATTERN = /(?:^|\r?\n)(?:[ \t]*\r?\n){3,}/m;
 
 const exampleOnlyVoidsResult = (example: string): boolean => {
   const code = exampleCodeText(example);
-  return /void\s+\w+/.test(code) && !OBSERVABLE_EXAMPLE_RESULT_PATTERN.test(code);
+  return STANDALONE_VOID_DISCARD_PATTERN.test(code) && !OBSERVABLE_EXAMPLE_RESULT_PATTERN.test(code);
 };
+
+const exampleDiscardsResult = (example: string): boolean =>
+  STANDALONE_VOID_DISCARD_PATTERN.test(exampleCodeText(example));
+
+const exampleHasEmptyEffectGenBody = (example: string): boolean =>
+  EMPTY_EFFECT_GEN_BODY_PATTERN.test(exampleCodeText(example));
+
+const exampleHasExcessiveBlankLines = (example: string): boolean =>
+  EXCESSIVE_EXAMPLE_BLANK_LINES_PATTERN.test(exampleCodeText(example));
 
 const exampleHasObservableResult = (example: string): boolean =>
   OBSERVABLE_EXAMPLE_RESULT_PATTERN.test(exampleCodeText(example));
@@ -1495,6 +1610,50 @@ const scoreSubject = (subject: DocgenQualitySubject): DocgenQualityReview => {
           message: "@example only silences the result instead of showing what matters.",
           remediation: "Replace `void result` with an assertion, returned value, or visible decoded value.",
           scoreImpact: 2,
+          tier: "warn",
+        })
+      );
+    }
+
+    if (exampleDiscardsResult(example)) {
+      findings = addFinding(
+        findings,
+        makeFinding({
+          code: "example-discards-result",
+          evidence: [boundedText(exampleCodeText(example), 160)],
+          message: "@example discards a value with a standalone `void` line.",
+          remediation:
+            "Remove the standalone `void` discard and show a visible result, assertion, or type-level evidence.",
+          scoreImpact: 2,
+          tier: "warn",
+        })
+      );
+    }
+
+    if (exampleHasEmptyEffectGenBody(example)) {
+      findings = addFinding(
+        findings,
+        makeFinding({
+          code: "example-empty-effect-gen",
+          evidence: [boundedText(exampleCodeText(example), 160)],
+          message: "@example contains an empty Effect.gen block.",
+          remediation:
+            "Replace the empty generator body with a real yielded operation or use a simpler non-Effect example.",
+          scoreImpact: 2,
+          tier: "warn",
+        })
+      );
+    }
+
+    if (exampleHasExcessiveBlankLines(example)) {
+      findings = addFinding(
+        findings,
+        makeFinding({
+          code: "example-too-many-blank-lines",
+          evidence: [boundedText(exampleCodeText(example), 160)],
+          message: "@example contains three or more consecutive blank lines.",
+          remediation: "Remove empty padding so the fenced code block stays compact and readable.",
+          scoreImpact: 1,
           tier: "warn",
         })
       );

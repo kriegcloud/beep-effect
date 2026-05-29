@@ -22,6 +22,15 @@ import { cn } from "../lib/index.ts";
 import type * as React from "react";
 
 /**
+ * Menubar component.
+ *
+ * @example
+ * ```tsx
+ * import { Menubar } from "@beep/ui/components/menubar"
+ *
+ * console.log(Menubar)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -36,6 +45,15 @@ function Menubar({ className, ...props }: MenubarPrimitive.Props) {
 }
 
 /**
+ * Menubar menu component.
+ *
+ * @example
+ * ```tsx
+ * import { MenubarMenu } from "@beep/ui/components/menubar"
+ *
+ * console.log(MenubarMenu)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -44,6 +62,15 @@ function MenubarMenu({ ...props }: React.ComponentProps<typeof DropdownMenu>) {
 }
 
 /**
+ * Menubar group component.
+ *
+ * @example
+ * ```tsx
+ * import { MenubarGroup } from "@beep/ui/components/menubar"
+ *
+ * console.log(MenubarGroup)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -52,6 +79,15 @@ function MenubarGroup({ ...props }: React.ComponentProps<typeof DropdownMenuGrou
 }
 
 /**
+ * Menubar portal component.
+ *
+ * @example
+ * ```tsx
+ * import { MenubarPortal } from "@beep/ui/components/menubar"
+ *
+ * console.log(MenubarPortal)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -60,6 +96,15 @@ function MenubarPortal({ ...props }: React.ComponentProps<typeof DropdownMenuPor
 }
 
 /**
+ * Menubar trigger component.
+ *
+ * @example
+ * ```tsx
+ * import { MenubarTrigger } from "@beep/ui/components/menubar"
+ *
+ * console.log(MenubarTrigger)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -77,6 +122,15 @@ function MenubarTrigger({ className, ...props }: React.ComponentProps<typeof Dro
 }
 
 /**
+ * Menubar content component.
+ *
+ * @example
+ * ```tsx
+ * import { MenubarContent } from "@beep/ui/components/menubar"
+ *
+ * console.log(MenubarContent)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -103,6 +157,15 @@ function MenubarContent({
 }
 
 /**
+ * Menubar item component.
+ *
+ * @example
+ * ```tsx
+ * import { MenubarItem } from "@beep/ui/components/menubar"
+ *
+ * console.log(MenubarItem)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -127,6 +190,15 @@ function MenubarItem({
 }
 
 /**
+ * Menubar checkbox item component.
+ *
+ * @example
+ * ```tsx
+ * import { MenubarCheckboxItem } from "@beep/ui/components/menubar"
+ *
+ * console.log(MenubarCheckboxItem)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -152,6 +224,15 @@ function MenubarCheckboxItem({ className, children, checked, ...props }: MenuPri
 }
 
 /**
+ * Menubar radio group component.
+ *
+ * @example
+ * ```tsx
+ * import { MenubarRadioGroup } from "@beep/ui/components/menubar"
+ *
+ * console.log(MenubarRadioGroup)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -160,6 +241,15 @@ function MenubarRadioGroup({ ...props }: React.ComponentProps<typeof DropdownMen
 }
 
 /**
+ * Menubar radio item component.
+ *
+ * @example
+ * ```tsx
+ * import { MenubarRadioItem } from "@beep/ui/components/menubar"
+ *
+ * console.log(MenubarRadioItem)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -184,6 +274,15 @@ function MenubarRadioItem({ className, children, ...props }: MenuPrimitive.Radio
 }
 
 /**
+ * Menubar label component.
+ *
+ * @example
+ * ```tsx
+ * import { MenubarLabel } from "@beep/ui/components/menubar"
+ *
+ * console.log(MenubarLabel)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -199,6 +298,15 @@ function MenubarLabel({ className, inset, ...props }: React.ComponentProps<typeo
 }
 
 /**
+ * Menubar separator component.
+ *
+ * @example
+ * ```tsx
+ * import { MenubarSeparator } from "@beep/ui/components/menubar"
+ *
+ * console.log(MenubarSeparator)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -213,6 +321,15 @@ function MenubarSeparator({ className, ...props }: React.ComponentProps<typeof D
 }
 
 /**
+ * Menubar shortcut component.
+ *
+ * @example
+ * ```tsx
+ * import { MenubarShortcut } from "@beep/ui/components/menubar"
+ *
+ * console.log(MenubarShortcut)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -230,6 +347,15 @@ function MenubarShortcut({ className, ...props }: React.ComponentProps<typeof Dr
 }
 
 /**
+ * Menubar sub component.
+ *
+ * @example
+ * ```tsx
+ * import { MenubarSub } from "@beep/ui/components/menubar"
+ *
+ * console.log(MenubarSub)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -238,6 +364,15 @@ function MenubarSub({ ...props }: React.ComponentProps<typeof DropdownMenuSub>) 
 }
 
 /**
+ * Menubar sub trigger component.
+ *
+ * @example
+ * ```tsx
+ * import { MenubarSubTrigger } from "@beep/ui/components/menubar"
+ *
+ * console.log(MenubarSubTrigger)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -262,6 +397,15 @@ function MenubarSubTrigger({
 }
 
 /**
+ * Menubar sub content component.
+ *
+ * @example
+ * ```tsx
+ * import { MenubarSubContent } from "@beep/ui/components/menubar"
+ *
+ * console.log(MenubarSubContent)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */

@@ -21,6 +21,13 @@ const $I = $SandboxId.create("Image");
 /**
  * Container runtime used for local sandbox images.
  *
+ * @example
+ * ```ts
+ * import { ContainerImageRuntime } from "@beep/sandbox/Image"
+ *
+ * console.log(ContainerImageRuntime)
+ * ```
+ *
  * @category schemas
  * @since 0.0.0
  */

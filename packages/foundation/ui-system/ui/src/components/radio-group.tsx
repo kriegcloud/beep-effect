@@ -6,6 +6,15 @@ import { CircleIcon } from "@phosphor-icons/react";
 import { cn } from "../lib/index.ts";
 
 /**
+ * Radio group component.
+ *
+ * @example
+ * ```tsx
+ * import { RadioGroup } from "@beep/ui/components/radio-group"
+ *
+ * console.log(RadioGroup)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -14,6 +23,15 @@ function RadioGroup({ className, ...props }: RadioGroupPrimitive.Props) {
 }
 
 /**
+ * Radio group item component.
+ *
+ * @example
+ * ```tsx
+ * import { RadioGroupItem } from "@beep/ui/components/radio-group"
+ *
+ * console.log(RadioGroupItem)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */

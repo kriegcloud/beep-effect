@@ -20,6 +20,13 @@ import { $I } from "./HttpStatus.shared.ts";
  * the client’s side. Read this tutorial on {@link https://www.siteground.com/kb/internal_server_error_500/ | what an “HTTP Error 500 –
  * Internal Server Error” is and how to fix it} for more information.
  *
+ * @example
+ * ```ts
+ * import { InternalServerError } from "@beep/schema/HttpStatus"
+ *
+ * console.log(InternalServerError.literal)
+ * ```
+ *
  * @since 0.0.0
  * @category validation
  */
@@ -42,6 +49,13 @@ export type InternalServerError = typeof InternalServerError.Type;
 /**
  * 501 “Not Implemented” – The server doesn’t support the request method or
  * doesn’t have the ability to fulfill the request.
+ *
+ * @example
+ * ```ts
+ * import { NotImplemented } from "@beep/schema/HttpStatus"
+ *
+ * console.log(NotImplemented.literal)
+ * ```
  *
  * @since 0.0.0
  * @category validation
@@ -68,6 +82,13 @@ export type NotImplemented = typeof NotImplemented.Type;
  * is the official description, but various factors can cause this error. Find
  * out more about the HTTP 502 “Bad Gateway” error and how to fix it here.
  *
+ * @example
+ * ```ts
+ * import { BadGateway } from "@beep/schema/HttpStatus"
+ *
+ * console.log(BadGateway.literal)
+ * ```
+ *
  * @since 0.0.0
  * @category validation
  */
@@ -92,6 +113,13 @@ export type BadGateway = typeof BadGateway.Type;
  * usually a temporary condition caused by overload or ongoing maintenance on
  * the server. Read this guide on what the HTTP 503 “Service Unavailable” error
  * is and how to fix it.
+ *
+ * @example
+ * ```ts
+ * import { ServiceUnavailable } from "@beep/schema/HttpStatus"
+ *
+ * console.log(ServiceUnavailable.literal)
+ * ```
  *
  * @since 0.0.0
  * @category validation
@@ -120,6 +148,13 @@ export type ServiceUnavailable = typeof ServiceUnavailable.Type;
  * the connection. See more details in this article about the HTTP 504
  * “Gateway Timeout” and how to fix it.
  *
+ * @example
+ * ```ts
+ * import { GatewayTimeout } from "@beep/schema/HttpStatus"
+ *
+ * console.log(GatewayTimeout.literal)
+ * ```
+ *
  * @since 0.0.0
  * @category validation
  */
@@ -142,6 +177,13 @@ export type GatewayTimeout = typeof GatewayTimeout.Type;
 /**
  * 505 “HTTP Version Not Supported” – The server doesn’t support the HTTP
  * protocol version used in the request.
+ *
+ * @example
+ * ```ts
+ * import { HttpVersionNotSupported } from "@beep/schema/HttpStatus"
+ *
+ * console.log(HttpVersionNotSupported.literal)
+ * ```
  *
  * @since 0.0.0
  * @category validation
@@ -169,6 +211,13 @@ export type HttpVersionNotSupported = typeof HttpVersionNotSupported.Type;
  * versions. However, there is a misconfiguration, and the chosen resource also
  * prompts content negotiation that causes a closed loop.
  *
+ * @example
+ * ```ts
+ * import { VariantAlsoNegotiates } from "@beep/schema/HttpStatus"
+ *
+ * console.log(VariantAlsoNegotiates.literal)
+ * ```
+ *
  * @since 0.0.0
  * @category validation
  */
@@ -191,6 +240,13 @@ export type VariantAlsoNegotiates = typeof VariantAlsoNegotiates.Type;
 /**
  * 507 “Insufficient Storage” (WebDAV) – The server is unable to store the
  * representation required to complete the request.
+ *
+ * @example
+ * ```ts
+ * import { InsufficientStorage } from "@beep/schema/HttpStatus"
+ *
+ * console.log(InsufficientStorage.literal)
+ * ```
  *
  * @since 0.0.0
  * @category validation
@@ -215,6 +271,13 @@ export type InsufficientStorage = typeof InsufficientStorage.Type;
  * 508 “Loop Detected” (WebDAV) – The server detected an infinite loop while
  * processing the request.
  *
+ * @example
+ * ```ts
+ * import { LoopDetected } from "@beep/schema/HttpStatus"
+ *
+ * console.log(LoopDetected.literal)
+ * ```
+ *
  * @since 0.0.0
  * @category validation
  */
@@ -236,6 +299,13 @@ export type LoopDetected = typeof LoopDetected.Type;
 /**
  * 510 “Not Extended” – Further extensions to the request are required for the
  * server to fulfill it. This code is now deprecated.
+ *
+ * @example
+ * ```ts
+ * import { NotExtended } from "@beep/schema/HttpStatus"
+ *
+ * console.log(NotExtended.literal)
+ * ```
  *
  * @since 0.0.0
  * @category validation
@@ -261,6 +331,13 @@ export type NotExtended = typeof NotExtended.Type;
  * to be authenticated so the network can send your request to a server. Most
  * commonly, it is seen when trying to use a Wi-Fi network, and you need to
  * agree to its Terms of Agreement.
+ *
+ * @example
+ * ```ts
+ * import { NetworkAuthenticationRequired } from "@beep/schema/HttpStatus"
+ *
+ * console.log(NetworkAuthenticationRequired.literal)
+ * ```
  *
  * @since 0.0.0
  * @category validation

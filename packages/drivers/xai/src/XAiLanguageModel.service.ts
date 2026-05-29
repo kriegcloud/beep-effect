@@ -42,7 +42,7 @@ const $I = $XaiId.create("XAiLanguageModel.service");
  *   model: "grok-3"
  * }
  *
- * void options
+ * console.log(options)
  * ```
  *
  * @category models
@@ -167,7 +167,7 @@ const streamChatCompletion = (
  *
  * const languageModel = XAiLanguageModel.make({ model: "grok-3" })
  *
- * void languageModel
+ * console.log(languageModel)
  * ```
  *
  * @category constructors
@@ -199,7 +199,7 @@ export const make: (options: XAiLanguageModelOptions) => Effect.Effect<LanguageM
  *
  * const languageModelLayer = XAiLanguageModel.layer({ model: "grok-3" })
  *
- * void languageModelLayer
+ * console.log(languageModelLayer)
  * ```
  *
  * @category layers
@@ -217,7 +217,7 @@ export const layer = (options: XAiLanguageModelOptions): Layer.Layer<LanguageMod
  *
  * const aiModel = XAiLanguageModel.model("grok-3")
  *
- * void aiModel
+ * console.log(aiModel)
  * ```
  *
  * @category constructors

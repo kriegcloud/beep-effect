@@ -1,6 +1,13 @@
 /**
  * Shared toast manager used by the `@beep/ui` toaster surface.
  *
+ * @example
+ * ```ts
+ * import { globalToastManager } from "@beep/ui/lib/toaster"
+ *
+ * console.log(globalToastManager)
+ * ```
+ *
  * @category utilities
  * @since 0.0.0
  */
@@ -8,7 +15,14 @@ import { Toast as ToastPrimitive } from "@base-ui/react/toast";
 import type { ToastData } from "../components/toast.tsx";
 
 /**
- * Process-wide toast manager used by `Toaster` and imperative toast callers.
+ * Global toast manager export.
+ *
+ * @example
+ * ```ts
+ * import { globalToastManager } from "@beep/ui/lib/toaster"
+ *
+ * console.log(globalToastManager)
+ * ```
  *
  * @category utilities
  * @since 0.0.0

@@ -19,6 +19,13 @@ const $I = $ArchitectureLabUseCasesId.create("aggregates/WorkItem/WorkItem.comma
 /**
  * Create WorkItem command.
  *
+ * @example
+ * ```ts
+ * import { CreateWorkItemCommand } from "@beep/architecture-lab-use-cases/aggregates/WorkItem"
+ *
+ * console.log(CreateWorkItemCommand)
+ * ```
+ *
  * @category commands
  * @since 0.0.0
  */
@@ -39,6 +46,13 @@ export class CreateWorkItemCommand extends S.Class<CreateWorkItemCommand>($I`Cre
 /**
  * Assign WorkItem command.
  *
+ * @example
+ * ```ts
+ * import { AssignWorkItemCommand } from "@beep/architecture-lab-use-cases/aggregates/WorkItem"
+ *
+ * console.log(AssignWorkItemCommand)
+ * ```
+ *
  * @category commands
  * @since 0.0.0
  */
@@ -56,6 +70,13 @@ export class AssignWorkItemCommand extends S.Class<AssignWorkItemCommand>($I`Ass
 /**
  * Complete WorkItem command.
  *
+ * @example
+ * ```ts
+ * import { CompleteWorkItemCommand } from "@beep/architecture-lab-use-cases/aggregates/WorkItem"
+ *
+ * console.log(CompleteWorkItemCommand)
+ * ```
+ *
  * @category commands
  * @since 0.0.0
  */
@@ -71,6 +92,13 @@ export class CompleteWorkItemCommand extends S.Class<CompleteWorkItemCommand>($I
 
 /**
  * Reopen WorkItem command.
+ *
+ * @example
+ * ```ts
+ * import { ReopenWorkItemCommand } from "@beep/architecture-lab-use-cases/aggregates/WorkItem"
+ *
+ * console.log(ReopenWorkItemCommand)
+ * ```
  *
  * @category commands
  * @since 0.0.0
@@ -88,6 +116,13 @@ export class ReopenWorkItemCommand extends S.Class<ReopenWorkItemCommand>($I`Reo
 /**
  * Archive WorkItem command.
  *
+ * @example
+ * ```ts
+ * import { ArchiveWorkItemCommand } from "@beep/architecture-lab-use-cases/aggregates/WorkItem"
+ *
+ * console.log(ArchiveWorkItemCommand)
+ * ```
+ *
  * @category commands
  * @since 0.0.0
  */
@@ -104,6 +139,13 @@ export class ArchiveWorkItemCommand extends S.Class<ArchiveWorkItemCommand>($I`A
 /**
  * Get WorkItem query.
  *
+ * @example
+ * ```ts
+ * import { GetWorkItemQuery } from "@beep/architecture-lab-use-cases/aggregates/WorkItem"
+ *
+ * console.log(GetWorkItemQuery)
+ * ```
+ *
  * @category commands
  * @since 0.0.0
  */
@@ -119,6 +161,13 @@ export class GetWorkItemQuery extends S.Class<GetWorkItemQuery>($I`GetWorkItemQu
 
 /**
  * List WorkItems query.
+ *
+ * @example
+ * ```ts
+ * import { ListWorkItemsQuery } from "@beep/architecture-lab-use-cases/aggregates/WorkItem"
+ *
+ * console.log(ListWorkItemsQuery)
+ * ```
  *
  * @category commands
  * @since 0.0.0

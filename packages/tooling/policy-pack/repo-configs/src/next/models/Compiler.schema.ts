@@ -51,7 +51,7 @@ class EmotionImportMapEntry extends S.Class<EmotionImportMapEntry>($I`EmotionImp
  * ```ts
  * import { EmotionConfig } from "@beep/repo-configs/next/models/Compiler.schema"
  * const config = EmotionConfig.make({ sourceMap: true })
- * void config
+ * console.log(config)
  * ```
  * @category schemas
  * @since 0.0.0
@@ -75,7 +75,7 @@ export class EmotionConfig extends S.Class<EmotionConfig>($I`EmotionConfig`)(
  * ```ts
  * import { StyledComponentsConfig } from "@beep/repo-configs/next/models/Compiler.schema"
  * const config = StyledComponentsConfig.make({ ssr: true })
- * void config
+ * console.log(config)
  * ```
  * @category schemas
  * @since 0.0.0
@@ -105,7 +105,7 @@ export class StyledComponentsConfig extends S.Class<StyledComponentsConfig>($I`S
  * ```ts
  * import { ReactCompilerOptions } from "@beep/repo-configs/next/models/Compiler.schema"
  * const config = ReactCompilerOptions.make({ compilationMode: "infer" })
- * void config
+ * console.log(config)
  * ```
  * @category schemas
  * @since 0.0.0
@@ -167,7 +167,7 @@ class StyledJsxConfig extends S.Class<StyledJsxConfig>($I`StyledJsxConfig`)(
  * ```ts
  * import { CompilerConfig } from "@beep/repo-configs/next/models/Compiler.schema"
  * const config = CompilerConfig.make({ removeConsole: true })
- * void config
+ * console.log(config)
  * ```
  * @category schemas
  * @since 0.0.0
@@ -206,7 +206,7 @@ export class CompilerConfig extends S.Class<CompilerConfig>($I`CompilerConfig`)(
  * import * as S from "effect/Schema"
  * import { SassOptions } from "@beep/repo-configs/next"
  * const program = S.decodeUnknownEffect(SassOptions)({ implementation: "sass" })
- * void Effect.runPromise(program)
+ * console.log(Effect.runPromise(program))
  * ```
  * @category schemas
  * @since 0.0.0
@@ -227,7 +227,7 @@ export const SassOptions = S.declare<SassOptionsFromNext>(isSassOptions, {
  * ```ts
  * import type { SassOptions } from "@beep/repo-configs/next"
  * const options: SassOptions = { implementation: "sass" }
- * void options
+ * console.log(options)
  * ```
  * @category models
  * @since 0.0.0

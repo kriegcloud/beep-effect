@@ -11,6 +11,13 @@ import type { WorkItem as WorkItemUseCases } from "@beep/architecture-lab-use-ca
 /**
  * Build RPC-style WorkItem handlers from the public use-case facade.
  *
+ * @example
+ * ```ts
+ * import { makeWorkItemRpcHandlers } from "@beep/architecture-lab-server/aggregates/WorkItem"
+ *
+ * console.log(makeWorkItemRpcHandlers)
+ * ```
+ *
  * @category handlers
  * @since 0.0.0
  */

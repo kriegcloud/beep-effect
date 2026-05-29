@@ -31,6 +31,13 @@ const $I = $SandboxId.create("interactive");
 /**
  * Result of an interactive agent session.
  *
+ * @example
+ * ```ts
+ * import { InteractiveResult } from "@beep/sandbox/interactive"
+ *
+ * console.log(InteractiveResult)
+ * ```
+ *
  * @category models
  * @since 0.0.0
  */
@@ -50,6 +57,13 @@ export class InteractiveResult extends S.Class<InteractiveResult>($I`Interactive
  * This conservative foundation resolves the same prompt and sandbox inputs as
  * the non-interactive runner, then requires provider-level interactive
  * execution support before handing the current process streams to the sandbox.
+ *
+ * @example
+ * ```ts
+ * import { interactive } from "@beep/sandbox/interactive"
+ *
+ * console.log(interactive)
+ * ```
  *
  * @category combinators
  * @since 0.0.0

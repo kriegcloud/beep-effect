@@ -6,12 +6,30 @@ import { cn } from "../lib/index.ts";
 import type * as React from "react";
 
 /**
+ * Select component.
+ *
+ * @example
+ * ```tsx
+ * import { Select } from "@beep/ui/components/select"
+ *
+ * console.log(Select)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
 const Select = SelectPrimitive.Root;
 
 /**
+ * Select group component.
+ *
+ * @example
+ * ```tsx
+ * import { SelectGroup } from "@beep/ui/components/select"
+ *
+ * console.log(SelectGroup)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -20,6 +38,15 @@ function SelectGroup({ className, ...props }: SelectPrimitive.Group.Props) {
 }
 
 /**
+ * Select value component.
+ *
+ * @example
+ * ```tsx
+ * import { SelectValue } from "@beep/ui/components/select"
+ *
+ * console.log(SelectValue)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -30,6 +57,15 @@ function SelectValue({ className, ...props }: SelectPrimitive.Value.Props) {
 }
 
 /**
+ * Select trigger component.
+ *
+ * @example
+ * ```tsx
+ * import { SelectTrigger } from "@beep/ui/components/select"
+ *
+ * console.log(SelectTrigger)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -58,6 +94,15 @@ function SelectTrigger({
 }
 
 /**
+ * Select content component.
+ *
+ * @example
+ * ```tsx
+ * import { SelectContent } from "@beep/ui/components/select"
+ *
+ * console.log(SelectContent)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -100,6 +145,15 @@ function SelectContent({
 }
 
 /**
+ * Select label component.
+ *
+ * @example
+ * ```tsx
+ * import { SelectLabel } from "@beep/ui/components/select"
+ *
+ * console.log(SelectLabel)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -114,6 +168,15 @@ function SelectLabel({ className, ...props }: SelectPrimitive.GroupLabel.Props) 
 }
 
 /**
+ * Select item component.
+ *
+ * @example
+ * ```tsx
+ * import { SelectItem } from "@beep/ui/components/select"
+ *
+ * console.log(SelectItem)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -140,6 +203,15 @@ function SelectItem({ className, children, ...props }: SelectPrimitive.Item.Prop
 }
 
 /**
+ * Select separator component.
+ *
+ * @example
+ * ```tsx
+ * import { SelectSeparator } from "@beep/ui/components/select"
+ *
+ * console.log(SelectSeparator)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -154,6 +226,15 @@ function SelectSeparator({ className, ...props }: SelectPrimitive.Separator.Prop
 }
 
 /**
+ * Select scroll up button component.
+ *
+ * @example
+ * ```tsx
+ * import { SelectScrollUpButton } from "@beep/ui/components/select"
+ *
+ * console.log(SelectScrollUpButton)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -173,6 +254,15 @@ function SelectScrollUpButton({ className, ...props }: React.ComponentProps<type
 }
 
 /**
+ * Select scroll down button component.
+ *
+ * @example
+ * ```tsx
+ * import { SelectScrollDownButton } from "@beep/ui/components/select"
+ *
+ * console.log(SelectScrollDownButton)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */

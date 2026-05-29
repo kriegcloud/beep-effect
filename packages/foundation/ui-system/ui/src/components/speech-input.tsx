@@ -56,6 +56,15 @@ interface SpeechInputContextValue {
 const SpeechInputContext = createContext<SpeechInputContextValue | null>(null);
 
 /**
+ * Use speech input hook.
+ *
+ * @example
+ * ```tsx
+ * import { useSpeechInput } from "@beep/ui/components/speech-input"
+ *
+ * console.log(useSpeechInput)
+ * ```
+ *
  * @category hooks
  * @since 0.0.0
  */
@@ -142,6 +151,15 @@ const buildEvent = ({
 });
 
 /**
+ * Speech input component.
+ *
+ * @example
+ * ```tsx
+ * import { SpeechInput } from "@beep/ui/components/speech-input"
+ *
+ * console.log(SpeechInput)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -301,6 +319,15 @@ const SpeechInput = forwardRef<HTMLDivElement, SpeechInputProps>(function Speech
 type SpeechInputRecordButtonProps = Omit<ComponentPropsWithoutRef<typeof Button>, "size">;
 
 /**
+ * Speech input record button component.
+ *
+ * @example
+ * ```tsx
+ * import { SpeechInputRecordButton } from "@beep/ui/components/speech-input"
+ *
+ * console.log(SpeechInputRecordButton)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -358,6 +385,15 @@ type SpeechInputPreviewProps = ComponentPropsWithoutRef<"div"> & {
 };
 
 /**
+ * Speech input preview component.
+ *
+ * @example
+ * ```tsx
+ * import { SpeechInputPreview } from "@beep/ui/components/speech-input"
+ *
+ * console.log(SpeechInputPreview)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -402,6 +438,15 @@ const SpeechInputPreview = forwardRef<HTMLDivElement, SpeechInputPreviewProps>(f
 type SpeechInputCancelButtonProps = Omit<ComponentPropsWithoutRef<typeof Button>, "size">;
 
 /**
+ * Speech input cancel button component.
+ *
+ * @example
+ * ```tsx
+ * import { SpeechInputCancelButton } from "@beep/ui/components/speech-input"
+ *
+ * console.log(SpeechInputCancelButton)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */

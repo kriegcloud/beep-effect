@@ -27,7 +27,7 @@ const AES_GCM_NONCE_BYTES = 12;
  *   cause: "boom",
  *   message: "Archive failed."
  * })
- * void error
+ * console.log(error)
  * ```
  * @category errors
  * @since 0.0.0
@@ -107,7 +107,7 @@ export class AiMetricsRawArchiveObject extends S.Class<AiMetricsRawArchiveObject
  * import { AiMetricsRawArchiveKey } from "@beep/repo-ai-metrics"
  * import { Redacted } from "effect"
  * const key: AiMetricsRawArchiveKey = Redacted.make("base64-32-byte-key")
- * void key
+ * console.log(key)
  * ```
  * @category models
  * @since 0.0.0
@@ -127,7 +127,7 @@ export const AiMetricsRawArchiveKey = S.String.pipe(
  * import type { AiMetricsRawArchiveKey } from "@beep/repo-ai-metrics"
  * import { Redacted } from "effect"
  * const key: AiMetricsRawArchiveKey = Redacted.make("base64-32-byte-key")
- * void key
+ * console.log(key)
  * ```
  * @category models
  * @since 0.0.0
@@ -243,7 +243,7 @@ const readExistingArchiveObject = Effect.fn("AiMetrics.readExistingArchiveObject
  *   sourceKind: AiMetricsTranscriptSource.Enum.codex,
  *   sourcePath: "session.jsonl"
  * })
- * void Effect.map(program, (object) => object.archiveObjectId)
+ * console.log(Effect.map(program, (object) => object.archiveObjectId))
  * ```
  * @category services
  * @since 0.0.0
@@ -354,7 +354,7 @@ export const writeEncryptedRawArchiveObject = Effect.fn("AiMetrics.writeEncrypte
  *   }),
  *   rawArchiveKey: Redacted.make("base64-32-byte-key")
  * })
- * void program
+ * console.log(program)
  * ```
  * @category services
  * @since 0.0.0
@@ -391,7 +391,7 @@ export const decryptEncryptedRawArchiveEnvelope = Effect.fn("AiMetrics.decryptEn
  * ```ts
  * import { readEncryptedRawArchiveEnvelope } from "@beep/repo-ai-metrics"
  * const program = readEncryptedRawArchiveEnvelope(".ai-metrics/raw/codex/raw-example.json")
- * void program
+ * console.log(program)
  * ```
  * @category services
  * @since 0.0.0

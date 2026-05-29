@@ -95,6 +95,16 @@ const formatCsvHeaderRowEffect = Effect.fn("CsvFormatter.formatCsvHeaderRowEffec
 /**
  * Format a CSV header row.
  *
+ * @example
+ * ```ts
+ * import { Effect } from "effect"
+ * import { CsvCodecOptions } from "@beep/schema/CsvCodecOptions"
+ * import { formatCsvHeaderRow } from "@beep/schema/CsvFormatter"
+ *
+ * const header = Effect.runSync(formatCsvHeaderRow(["name", "age"], CsvCodecOptions.make({})))
+ * console.log(header)
+ * ```
+ *
  * @category utilities
  * @since 0.0.0
  */
@@ -119,6 +129,16 @@ const formatCsvDataRowEffect = Effect.fn("CsvFormatter.formatCsvDataRowEffect")(
 
 /**
  * Format a CSV data row.
+ *
+ * @example
+ * ```ts
+ * import { Effect } from "effect"
+ * import { CsvCodecOptions } from "@beep/schema/CsvCodecOptions"
+ * import { formatCsvDataRow } from "@beep/schema/CsvFormatter"
+ *
+ * const row = Effect.runSync(formatCsvDataRow(["Ada", "36"], CsvCodecOptions.make({})))
+ * console.log(row)
+ * ```
  *
  * @category utilities
  * @since 0.0.0
@@ -146,6 +166,16 @@ const formatCsvDocumentEffect = Effect.fn("CsvFormatter.formatCsvDocumentEffect"
 
 /**
  * Format a whole CSV document.
+ *
+ * @example
+ * ```ts
+ * import { Effect } from "effect"
+ * import { CsvCodecOptions } from "@beep/schema/CsvCodecOptions"
+ * import { formatCsvDocument } from "@beep/schema/CsvFormatter"
+ *
+ * const csv = Effect.runSync(formatCsvDocument(["name"], [["Ada"]], CsvCodecOptions.make({})))
+ * console.log(csv)
+ * ```
  *
  * @category utilities
  * @since 0.0.0

@@ -46,6 +46,14 @@ const unsupportedFloat16ArrayRuntime = (): never => {
 /**
  * Float16Array type guard.
  *
+ * @example
+ * ```ts
+ * import { isFloat16Array } from "@beep/schema/Float16Array";
+ *
+ * const value = new Float16Array([1, 2, 3]);
+ * console.log(isFloat16Array(value));
+ * ```
+ *
  * @category validation
  * @since 0.0.0
  */
@@ -172,6 +180,13 @@ export declare namespace Float16ArrayFromArray {
  * numeric arrays through {@link Float16ArrayFromArray}. This field does not
  * define a `json` variant, allowing read-side JSON serialization to be chosen
  * explicitly by the surrounding model.
+ *
+ * @example
+ * ```ts
+ * import { Float16ArrayField } from "@beep/schema/Float16Array";
+ *
+ * console.log(Float16ArrayField.schemas.insert.ast._tag);
+ * ```
  *
  * @category schemas
  * @since 0.0.0

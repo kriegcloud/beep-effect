@@ -27,7 +27,7 @@ const $I = $SchemaId.create("BigDecimal");
  *
  * const decode = S.decodeUnknownSync(BigDecimalFromNumber)
  * const value = decode(12.34)
- * void value
+ * console.log(value)
  * ```
  */
 export const BigDecimalFromNumber: S.decodeTo<S.BigDecimal, S.Number> = S.Number.pipe(

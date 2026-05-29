@@ -12,7 +12,7 @@
  * ```ts
  * import { moduleVersion } from "../../src/internal/version.ts"
  *
- * void moduleVersion
+ * console.log(moduleVersion)
  * ```
  *
  * @internal

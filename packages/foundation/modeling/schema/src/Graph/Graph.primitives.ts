@@ -69,6 +69,15 @@ export const NodeIndexFromString = S.NumberFromString.pipe(
 /**
  * Branded schema for graph edge indices.
  *
+ * @example
+ * ```ts
+ * import { EdgeIndex } from "@beep/schema/Graph"
+ * import * as S from "effect/Schema"
+ *
+ * const index = S.decodeUnknownSync(EdgeIndex)(1)
+ * console.log(index)
+ * ```
+ *
  * @since 0.0.0
  * @category validation
  */
@@ -90,6 +99,15 @@ export type EdgeIndex = typeof EdgeIndex.Type;
 /**
  * Decode a string-encoded graph edge index into a branded {@link EdgeIndex}.
  *
+ * @example
+ * ```ts
+ * import { EdgeIndexFromString } from "@beep/schema/Graph"
+ * import * as S from "effect/Schema"
+ *
+ * const index = S.decodeUnknownSync(EdgeIndexFromString)("2")
+ * console.log(index)
+ * ```
+ *
  * @since 0.0.0
  * @category constructors
  */
@@ -102,6 +120,15 @@ export const EdgeIndexFromString = S.NumberFromString.pipe(
 
 /**
  * Schema for graph kind discriminators.
+ *
+ * @example
+ * ```ts
+ * import { GraphKind } from "@beep/schema/Graph"
+ * import * as S from "effect/Schema"
+ *
+ * const kind = S.decodeUnknownSync(GraphKind)("directed")
+ * console.log(kind)
+ * ```
  *
  * @since 0.0.0
  * @category validation

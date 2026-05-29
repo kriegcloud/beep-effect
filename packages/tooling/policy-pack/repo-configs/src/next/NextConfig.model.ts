@@ -172,7 +172,7 @@ const GenerateBuildIdFunction = declaredFunction<NonNullable<NextConfigFromNext[
  *   allowedDevOrigins: ["codedank-web.localhost"],
  *   reactStrictMode: true
  * } satisfies NextConfig)
- * void config
+ * console.log(config)
  * ```
  * @category schemas
  * @since 0.0.0
@@ -402,7 +402,7 @@ const encodeNextConfigResult = S.encodeResult(NextConfig);
  * import { Effect } from "effect"
  * import { decodeNextConfig } from "@beep/repo-configs/next"
  * const program = decodeNextConfig({ reactStrictMode: true })
- * void Effect.runPromise(program)
+ * console.log(Effect.runPromise(program))
  * ```
  * @category decoding
  * @since 0.0.0
@@ -438,7 +438,7 @@ export const defineNextConfig = (config: unknown): NextConfigFromNext =>
  * ```ts
  * import { NextConfigExperimental } from "@beep/repo-configs/next"
  * const experimental = NextConfigExperimental.make({ cssChunking: true })
- * void experimental
+ * console.log(experimental)
  * ```
  * @category schemas
  * @since 0.0.0
@@ -452,7 +452,7 @@ export const NextConfigExperimental = ExperimentalConfig;
  * ```ts
  * import type { NextConfigExperimental } from "@beep/repo-configs/next"
  * const experimental: NextConfigExperimental = { cssChunking: true }
- * void experimental
+ * console.log(experimental)
  * ```
  * @category models
  * @since 0.0.0
@@ -466,7 +466,7 @@ export type NextConfigExperimental = ExperimentalConfig;
  * ```ts
  * import { NextConfigBase } from "@beep/repo-configs/next"
  * const config = NextConfigBase.make({ reactStrictMode: true })
- * void config
+ * console.log(config)
  * ```
  * @category schemas
  * @since 0.0.0
@@ -480,7 +480,7 @@ export const NextConfigBase: typeof NextConfig = NextConfig;
  * ```ts
  * import type { NextConfigBase } from "@beep/repo-configs/next"
  * const config: NextConfigBase = { reactStrictMode: true }
- * void config
+ * console.log(config)
  * ```
  * @category models
  * @since 0.0.0

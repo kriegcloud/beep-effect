@@ -16,6 +16,13 @@ import { $I } from "./HttpStatus.shared.ts";
 /**
  * 200 “OK” – The response for a successful HTTP request. The result will depend on the type of request.
  *
+ * @example
+ * ```ts
+ * import { Ok } from "@beep/schema/HttpStatus"
+ *
+ * console.log(Ok.literal)
+ * ```
+ *
  * @since 0.0.0
  * @category validation
  */
@@ -37,6 +44,13 @@ export type Ok = typeof Ok.Type;
 
 /**
  * 201 “Created” – The request was fulfilled, and the server created a new resource.
+ *
+ * @example
+ * ```ts
+ * import { Created } from "@beep/schema/HttpStatus"
+ *
+ * console.log(Created.literal)
+ * ```
  *
  * @since 0.0.0
  * @category validation
@@ -60,6 +74,13 @@ export type Created = typeof Created.Type;
  * 202 “Accepted” – The server accepted the request but has not yet finished
  * processing it. The request might be fulfilled or rejected, but the outcome
  * is still undetermined.
+ *
+ * @example
+ * ```ts
+ * import { Accepted } from "@beep/schema/HttpStatus"
+ *
+ * console.log(Accepted.literal)
+ * ```
  *
  * @since 0.0.0
  * @category validation
@@ -86,6 +107,13 @@ export type Accepted = typeof Accepted.Type;
  * from the origin server and returns a modified version of the origin’s
  * response.
  *
+ * @example
+ * ```ts
+ * import { NonAuthoritativeInformation } from "@beep/schema/HttpStatus"
+ *
+ * console.log(NonAuthoritativeInformation.literal)
+ * ```
+ *
  * @since 0.0.0
  * @category validation
  */
@@ -109,6 +137,13 @@ export type NonAuthoritativeInformation = typeof NonAuthoritativeInformation.Typ
  * 204 “No Content” – The server fulfilled the request but won’t return any
  * content.
  *
+ * @example
+ * ```ts
+ * import { NoContent } from "@beep/schema/HttpStatus"
+ *
+ * console.log(NoContent.literal)
+ * ```
+ *
  * @since 0.0.0
  * @category validation
  */
@@ -130,6 +165,13 @@ export type NoContent = typeof NoContent.Type;
 /**
  * 205 “Reset Content” – The server fulfilled the request, and it won’t return
  * any content but asks the client (browser) to reset the document view.
+ *
+ * @example
+ * ```ts
+ * import { ResetContent } from "@beep/schema/HttpStatus"
+ *
+ * console.log(ResetContent.literal)
+ * ```
  *
  * @since 0.0.0
  * @category validation
@@ -156,6 +198,13 @@ export type ResetContent = typeof ResetContent.Type;
  * browsers to resume downloads or split downloads into multiple simultaneous
  * streams.
  *
+ * @example
+ * ```ts
+ * import { PartialContent } from "@beep/schema/HttpStatus"
+ *
+ * console.log(PartialContent.literal)
+ * ```
+ *
  * @since 0.0.0
  * @category validation
  */
@@ -179,6 +228,13 @@ export type PartialContent = typeof PartialContent.Type;
  * 207 “Multi-Status” – A code associated with WebDav when a compound request
  * is made. The server returns a message containing an array of response codes
  * for all sub-requests.
+ *
+ * @example
+ * ```ts
+ * import { MultiStatus } from "@beep/schema/HttpStatus"
+ *
+ * console.log(MultiStatus.literal)
+ * ```
  *
  * @since 0.0.0
  * @category validation
@@ -204,6 +260,13 @@ export type MultiStatus = typeof MultiStatus.Type;
  * members of a DAV binding were already enumerated in a previous part of the
  * response and will not be enumerated again.
  *
+ * @example
+ * ```ts
+ * import { AlreadyReported } from "@beep/schema/HttpStatus"
+ *
+ * console.log(AlreadyReported.literal)
+ * ```
+ *
  * @since 0.0.0
  * @category validation
  */
@@ -228,6 +291,13 @@ export type AlreadyReported = typeof AlreadyReported.Type;
  * representation of the result of one or more instance manipulations applied
  * to the current instance.
  *
+ * @example
+ * ```ts
+ * import { ImUsed } from "@beep/schema/HttpStatus"
+ *
+ * console.log(ImUsed.literal)
+ * ```
+ *
  * @since 0.0.0
  * @category validation
  */
@@ -250,6 +320,13 @@ export type ImUsed = typeof ImUsed.Type;
 /**
  * The 2XX codes are the best responses you can receive. They indicate that the
  * request was recognized by the server, was accepted, and is being processed.
+ *
+ * @example
+ * ```ts
+ * import { HttpStatus2XX } from "@beep/schema/HttpStatus"
+ *
+ * console.log(HttpStatus2XX.Pairs.length)
+ * ```
  *
  * @since 0.0.0
  * @category validation

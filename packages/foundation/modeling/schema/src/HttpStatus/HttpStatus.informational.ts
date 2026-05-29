@@ -17,6 +17,13 @@ import { $I } from "./HttpStatus.shared.ts";
  * 100 “Continue” – The server has received the headers of the request.
  * It now tells your browser to proceed with sending the body of the request.
  *
+ * @example
+ * ```ts
+ * import { Continue } from "@beep/schema/HttpStatus"
+ *
+ * console.log(Continue.literal)
+ * ```
+ *
  * @since 0.0.0
  * @category validation
  */
@@ -39,6 +46,13 @@ export type Continue = typeof Continue.Type;
 /**
  * 101 “Switching Protocols” – The requesting client (browser) asked the server to
  * change the protocols, and the server fulfilled the request.
+ *
+ * @example
+ * ```ts
+ * import { SwitchingProtocols } from "@beep/schema/HttpStatus"
+ *
+ * console.log(SwitchingProtocols.literal)
+ * ```
  *
  * @since 0.0.0
  * @category validation
@@ -64,6 +78,13 @@ export type SwitchingProtocols = typeof SwitchingProtocols.Type;
  * requests, which may take a longer time to be completed. It indicates that
  * the server has received the request and is currently processing it.
  *
+ * @example
+ * ```ts
+ * import { Processing } from "@beep/schema/HttpStatus"
+ *
+ * console.log(Processing.literal)
+ * ```
+ *
  * @since 0.0.0
  * @category validation
  */
@@ -86,6 +107,13 @@ export type Processing = typeof Processing.Type;
 /**
  * 103 “Early Hints” – The server returns some response headers before the
  * final HTTP response is sent.
+ *
+ * @example
+ * ```ts
+ * import { EarlyHints } from "@beep/schema/HttpStatus"
+ *
+ * console.log(EarlyHints.literal)
+ * ```
  *
  * @since 0.0.0
  * @category validation
@@ -110,6 +138,13 @@ export type EarlyHints = typeof EarlyHints.Type;
  * 1XX codes are informational responses from the website’s server. They do not
  * generate content and only update clients on the progress of their requests.
  * This information is sent in the headers of the HTTP response.
+ *
+ * @example
+ * ```ts
+ * import { HttpStatus1XX } from "@beep/schema/HttpStatus"
+ *
+ * console.log(HttpStatus1XX.Pairs.length)
+ * ```
  *
  * @since 0.0.0
  * @category validation

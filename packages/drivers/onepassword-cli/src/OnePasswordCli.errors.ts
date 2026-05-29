@@ -16,6 +16,13 @@ const $I = $OnepasswordCliId.create("OnePasswordCli.errors");
 /**
  * Options captured while normalizing unknown 1Password CLI failures.
  *
+ * @example
+ * ```ts
+ * import { OnePasswordCliErrorOptions } from "@beep/onepassword-cli/OnePasswordCli.errors"
+ *
+ * console.log(OnePasswordCliErrorOptions)
+ * ```
+ *
  * @category errors
  * @since 0.0.0
  */
@@ -34,6 +41,13 @@ export class OnePasswordCliErrorOptions extends S.Class<OnePasswordCliErrorOptio
 
 /**
  * Technical failure raised by the `@beep/onepassword-cli` driver boundary.
+ *
+ * @example
+ * ```ts
+ * import { OnePasswordCliError } from "@beep/onepassword-cli/OnePasswordCli.errors"
+ *
+ * console.log(OnePasswordCliError)
+ * ```
  *
  * @category errors
  * @since 0.0.0

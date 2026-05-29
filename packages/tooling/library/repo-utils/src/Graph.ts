@@ -23,7 +23,7 @@ import { CyclicDependencyError } from "./errors/index.js";
 /**
  * Convert a `HashMap<string, HashSet<string>>` adjacency list into an
  * `G.DirectedGraph<string, void>` and a bidirectional lookup
- * between package names and node indices.export * from "./Graph.ts";
+ * between package names and node indices.
  *
  * @internal
  * @param adjacencyList - Package dependency adjacency list.
@@ -90,18 +90,9 @@ const fromAdjacencyList = (
  * import { Effect, HashMap, HashSet } from "effect"
  * import { topologicalSort } from "@beep/repo-utils/Graph"
  *
- * const adj = HashMap.make(
- *
- *
- *
- * )
- *
- * const program = Effect.gen(function*() {
- *
- *
- *
- * })
- * void program
+ * const adj = HashMap.make(["app", HashSet.make("lib")], ["lib", HashSet.empty<string>()])
+ * const program = topologicalSort(adj)
+ * Effect.runPromise(program).then(console.log)
  * ```
  * @category services
  * @since 0.0.0
@@ -149,18 +140,9 @@ export const topologicalSort: (
  * import { Effect, HashMap, HashSet } from "effect"
  * import { detectCycles } from "@beep/repo-utils/Graph"
  *
- * const adj = HashMap.make(
- *
- *
- *
- * )
- *
- * const program = Effect.gen(function*() {
- *
- *
- *
- * })
- * void program
+ * const adj = HashMap.make(["app", HashSet.make("lib")], ["lib", HashSet.empty<string>()])
+ * const program = detectCycles(adj)
+ * Effect.runPromise(program).then(console.log)
  * ```
  * @category services
  * @since 0.0.0
@@ -305,18 +287,9 @@ const buildCyclePath = (
  * import { Effect, HashMap, HashSet } from "effect"
  * import { computeTransitiveClosure } from "@beep/repo-utils/Graph"
  *
- * const adj = HashMap.make(
- *
- *
- *
- * )
- *
- * const program = Effect.gen(function*() {
- *
- *
- *
- * })
- * void program
+ * const adj = HashMap.make(["app", HashSet.make("lib")], ["lib", HashSet.empty<string>()])
+ * const program = computeTransitiveClosure(adj, "app")
+ * Effect.runPromise(program).then(console.log)
  * ```
  * @category services
  * @since 0.0.0

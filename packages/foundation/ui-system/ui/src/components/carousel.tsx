@@ -9,6 +9,16 @@ import { cn } from "../lib/index.ts";
 import { requireReactContext } from "../lib/react-invariant.ts";
 
 /**
+ * Carousel api type.
+ *
+ * @example
+ * ```ts
+ * import type { CarouselApi } from "@beep/ui/components/carousel"
+ *
+ * const value = {} as CarouselApi
+ * console.log(value)
+ * ```
+ *
  * @category type-level
  * @since 0.0.0
  */
@@ -36,6 +46,15 @@ type CarouselContextProps = {
 const CarouselContext = React.createContext<CarouselContextProps | null>(null);
 
 /**
+ * Use carousel hook.
+ *
+ * @example
+ * ```tsx
+ * import { useCarousel } from "@beep/ui/components/carousel"
+ *
+ * console.log(useCarousel)
+ * ```
+ *
  * @category hooks
  * @since 0.0.0
  */
@@ -45,6 +64,15 @@ function useCarousel() {
 }
 
 /**
+ * Carousel component.
+ *
+ * @example
+ * ```tsx
+ * import { Carousel } from "@beep/ui/components/carousel"
+ *
+ * console.log(Carousel)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -141,6 +169,15 @@ function Carousel({
 }
 
 /**
+ * Carousel content component.
+ *
+ * @example
+ * ```tsx
+ * import { CarouselContent } from "@beep/ui/components/carousel"
+ *
+ * console.log(CarouselContent)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -155,6 +192,15 @@ function CarouselContent({ className, ...props }: React.ComponentProps<"div">) {
 }
 
 /**
+ * Carousel item component.
+ *
+ * @example
+ * ```tsx
+ * import { CarouselItem } from "@beep/ui/components/carousel"
+ *
+ * console.log(CarouselItem)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -173,6 +219,15 @@ function CarouselItem({ className, ...props }: React.ComponentProps<"div">) {
 }
 
 /**
+ * Carousel previous component.
+ *
+ * @example
+ * ```tsx
+ * import { CarouselPrevious } from "@beep/ui/components/carousel"
+ *
+ * console.log(CarouselPrevious)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -207,6 +262,15 @@ function CarouselPrevious({
 }
 
 /**
+ * Carousel next component.
+ *
+ * @example
+ * ```tsx
+ * import { CarouselNext } from "@beep/ui/components/carousel"
+ *
+ * console.log(CarouselNext)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */

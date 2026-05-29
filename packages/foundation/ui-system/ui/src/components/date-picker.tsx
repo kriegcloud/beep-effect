@@ -26,6 +26,13 @@ interface DatePickerProps {
  * A single-date picker composed from {@link Popover} and {@link Calendar}. Supports
  * both controlled (`value` + `onValueChange`) and uncontrolled (`defaultValue`) usage.
  *
+ * @example
+ * ```tsx
+ * import { DatePicker } from "@beep/ui/components/date-picker"
+ *
+ * console.log(DatePicker)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -72,6 +79,15 @@ function DatePicker(props: DatePickerProps) {
 }
 
 /**
+ * Date picker component export.
+ *
+ * @example
+ * ```tsx
+ * import { DatePicker } from "@beep/ui/components/date-picker"
+ *
+ * console.log(DatePicker)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */

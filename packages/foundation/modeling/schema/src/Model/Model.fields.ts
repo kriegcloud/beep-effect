@@ -40,7 +40,7 @@ export interface Generated<S extends S.Top>
  *
  * class Group extends Model.Class<Group>("Group")({}) {}
  *
- * void Group
+ * console.log(Group)
  * ```
  *
  * @since 0.0.0
@@ -72,6 +72,15 @@ export interface GeneratedByApp<S extends S.Top>
  *
  * Present in all database variants and `json`, but absent from `jsonCreate`
  * and `jsonUpdate` because the server assigns the value.
+ *
+ * @example
+ * ```ts
+ * import * as S from "effect/Schema"
+ * import * as Model from "@beep/schema/Model"
+ *
+ * const field = Model.GeneratedByApp(S.String)
+ * console.log(field.schemas.select.ast._tag)
+ * ```
  *
  * @since 0.0.0
  * @category constructors
@@ -109,7 +118,7 @@ export interface Sensitive<S extends S.Top>
  *
  * class User extends Model.Class<User>("User")({}) {}
  *
- * void User
+ * console.log(User)
  * ```
  *
  * @since 0.0.0
@@ -133,7 +142,7 @@ export const Sensitive = <S extends S.Top>(schema: S): Sensitive<S> =>
  * const field: Model.optionalOption<typeof Schema.String> =
  *   Model.optionalOption(Schema.String)
  *
- * void field
+ * console.log(field)
  * ```
  *
  * @since 0.0.0
@@ -151,7 +160,7 @@ export interface optionalOption<S extends S.Top>
  * import * as Model from "@beep/schema/Model"
  *
  * const opt = Model.optionalOption(Schema.Number)
- * void opt
+ * console.log(opt)
  * ```
  *
  * @since 0.0.0
@@ -183,7 +192,7 @@ export const optionalOption = <S extends S.Top>(schema: S): optionalOption<S> =>
  * const opt: Model.FieldOption<typeof Schema.String> =
  *   Model.FieldOption(Schema.String)
  *
- * void opt
+ * console.log(opt)
  * ```
  *
  * @since 0.0.0
@@ -211,7 +220,7 @@ export interface FieldOption<S extends S.Top>
  * import * as Model from "@beep/schema/Model"
  *
  * const opt = Model.FieldOption(Schema.String)
- * void opt
+ * console.log(opt)
  * ```
  *
  * @since 0.0.0

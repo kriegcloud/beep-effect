@@ -6,6 +6,15 @@ import { cn } from "../lib/index.ts";
 import type { VariantProps } from "class-variance-authority";
 
 /**
+ * Tabs component.
+ *
+ * @example
+ * ```tsx
+ * import { Tabs } from "@beep/ui/components/tabs"
+ *
+ * console.log(Tabs)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -21,6 +30,15 @@ function Tabs({ className, orientation = "horizontal", ...props }: TabsPrimitive
 }
 
 /**
+ * Tabs list variants component.
+ *
+ * @example
+ * ```tsx
+ * import { tabsListVariants } from "@beep/ui/components/tabs"
+ *
+ * console.log(tabsListVariants)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -40,6 +58,15 @@ const tabsListVariants = cva(
 );
 
 /**
+ * Tabs list component.
+ *
+ * @example
+ * ```tsx
+ * import { TabsList } from "@beep/ui/components/tabs"
+ *
+ * console.log(TabsList)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -59,6 +86,15 @@ function TabsList({
 }
 
 /**
+ * Tabs trigger component.
+ *
+ * @example
+ * ```tsx
+ * import { TabsTrigger } from "@beep/ui/components/tabs"
+ *
+ * console.log(TabsTrigger)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -79,6 +115,15 @@ function TabsTrigger({ className, ...props }: TabsPrimitive.Tab.Props) {
 }
 
 /**
+ * Tabs content component.
+ *
+ * @example
+ * ```tsx
+ * import { TabsContent } from "@beep/ui/components/tabs"
+ *
+ * console.log(TabsContent)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */

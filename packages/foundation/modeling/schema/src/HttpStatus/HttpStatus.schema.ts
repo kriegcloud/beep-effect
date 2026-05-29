@@ -22,6 +22,13 @@ import { HttpStatusUnofficial } from "./HttpStatus.unofficial.aggregate.ts";
  * A MappedLiteralKit of all HTTP status codes.
  *
  * @category validation
+ * @example
+ * ```ts
+ * import { HttpStatus } from "@beep/schema/HttpStatus"
+ *
+ * console.log(HttpStatus.Pairs.length)
+ * ```
+ *
  * @since 0.0.0
  */
 export const HttpStatus = MappedLiteralKit([
@@ -65,12 +72,27 @@ export type HttpStatus = typeof HttpStatus.Type;
  * Canonical alias for the complete HTTP status schema.
  *
  * @category validation
+ * @example
+ * ```ts
+ * import { Schema } from "@beep/schema/HttpStatus"
+ *
+ * console.log(Schema.Pairs.length)
+ * ```
+ *
  * @since 0.0.0
  */
 export const Schema = HttpStatus;
 
 /**
  * Runtime type extracted from {@link Schema}.
+ *
+ * @example
+ * ```ts
+ * import type { Schema as HttpStatusValue } from "@beep/schema/HttpStatus"
+ *
+ * const status = 200 as HttpStatusValue
+ * console.log(status)
+ * ```
  *
  * @category models
  * @since 0.0.0

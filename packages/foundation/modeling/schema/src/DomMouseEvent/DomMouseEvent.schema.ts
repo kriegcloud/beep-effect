@@ -12,6 +12,13 @@ const $I = $SchemaId.create("DomMouseEvent");
 /**
  * Type guard for MouseEvent.
  *
+ * @example
+ * ```ts
+ * import { isMouseEvent } from "@beep/schema/DomMouseEvent"
+ *
+ * console.log(isMouseEvent(new MouseEvent("click")))
+ * ```
+ *
  * @since 0.0.0
  * @category guards
  */
@@ -19,6 +26,15 @@ export const isMouseEvent = (u: unknown): u is MouseEvent => u instanceof MouseE
 
 /**
  * A DOM mouse event.
+ *
+ * @example
+ * ```ts
+ * import { DOMMouseEvent } from "@beep/schema/DomMouseEvent"
+ * import * as S from "effect/Schema"
+ *
+ * const event = S.decodeUnknownSync(DOMMouseEvent)(new MouseEvent("click"))
+ * console.log(event.type)
+ * ```
  *
  * @since 0.0.0
  * @category schemas

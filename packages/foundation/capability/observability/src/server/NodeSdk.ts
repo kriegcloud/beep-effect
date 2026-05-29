@@ -126,7 +126,8 @@ const isServerObservabilityConfig = S.is(ServerObservabilityConfig);
  *   serviceName: "beep",
  *   serviceVersion: "0.0.0"
  * })
- * export const resource = toNodeSdkResource(config)
+ * const resource = toNodeSdkResource(config)
+ * console.log(resource.serviceName)
  * ```
  *
  * @since 0.0.0
@@ -154,7 +155,8 @@ export const toNodeSdkResource = (config: ServerObservabilityConfig): NonNullabl
  *   serviceName: "beep",
  *   serviceVersion: "0.0.0"
  * })
- * export const sdkConfig = makeNodeSdkServerConfig(config)
+ * const sdkConfig = makeNodeSdkServerConfig(config)
+ * console.log(sdkConfig.resource)
  * ```
  *
  * @since 0.0.0
@@ -238,7 +240,8 @@ export const makeNodeSdkServerConfig: {
  *   serviceName: "beep",
  *   serviceVersion: "0.0.0"
  * })
- * export const sdkConfig = makeNodeSdkServerTraceConfig(config)
+ * const sdkConfig = makeNodeSdkServerTraceConfig(config)
+ * console.log(sdkConfig.resource)
  * ```
  *
  * @since 0.0.0
@@ -276,7 +279,8 @@ export const makeNodeSdkServerTraceConfig: {
  *   serviceName: "beep",
  *   serviceVersion: "0.0.0"
  * })
- * export const NodeSdkLive = layerNodeSdkServer(config)
+ * const NodeSdkLive = layerNodeSdkServer(config)
+ * console.log(NodeSdkLive)
  * ```
  *
  * @since 0.0.0
@@ -312,7 +316,8 @@ export const layerNodeSdkServer: {
  *   serviceName: "beep",
  *   serviceVersion: "0.0.0"
  * })
- * export const NodeSdkLive = layerNodeSdkServerTraces(config)
+ * const NodeSdkLive = layerNodeSdkServerTraces(config)
+ * console.log(NodeSdkLive)
  * ```
  *
  * @since 0.0.0

@@ -138,6 +138,22 @@ const astAbsence: (input: AST.AST) => AstAbsence = Match.type<AST.AST>().pipe(
 /**
  * Encoded absence shape for one schema field.
  *
+ * @example
+ * ```ts
+ * import { EncodedFieldShape } from "@beep/schema/EntitySchema"
+ * import * as S from "effect/Schema"
+ *
+ * const shape = S.decodeUnknownSync(EncodedFieldShape)({
+ *   absenceKind: "required",
+ *   allowsNull: false,
+ *   allowsUndefined: false,
+ *   isAmbiguous: false,
+ *   isOptional: false
+ * })
+ *
+ * console.log(shape.absenceKind)
+ * ```
+ *
  * @since 0.0.0
  * @category models
  */
@@ -175,6 +191,15 @@ export type EncodedFieldShape = typeof EncodedFieldShape.Type;
 /**
  * Return the encoded AST for a schema field.
  *
+ * @example
+ * ```ts
+ * import { encodedAstFor } from "@beep/schema/EntitySchema"
+ * import * as S from "effect/Schema"
+ *
+ * const ast = encodedAstFor(S.NullOr(S.String))
+ * console.log(ast._tag)
+ * ```
+ *
  * @since 0.0.0
  * @category getters
  */
@@ -211,6 +236,15 @@ const absenceKindFor = (shape: Omit<EncodedFieldShape, "absenceKind">): EncodedA
 /**
  * Derive encoded nullability and optionality from the encoded schema AST.
  *
+ * @example
+ * ```ts
+ * import { encodedFieldShape } from "@beep/schema/EntitySchema"
+ * import * as S from "effect/Schema"
+ *
+ * const shape = encodedFieldShape(S.NullOr(S.String))
+ * console.log(shape.allowsNull)
+ * ```
+ *
  * @since 0.0.0
  * @category getters
  */
@@ -230,6 +264,15 @@ export const encodedFieldShape = (field: S.Top): EncodedFieldShape => {
 
 /**
  * Derive and validate selected-row absence semantics for one field.
+ *
+ * @example
+ * ```ts
+ * import { selectedRowFieldShape } from "@beep/schema/EntitySchema"
+ * import * as S from "effect/Schema"
+ *
+ * const shape = selectedRowFieldShape("name", S.String)
+ * console.log(shape.absenceKind)
+ * ```
  *
  * @since 0.0.0
  * @category validation
@@ -251,6 +294,14 @@ export const selectedRowFieldShape: {
 /**
  * True when a field's encoded side allows null.
  *
+ * @example
+ * ```ts
+ * import { isEncodedNullable } from "@beep/schema/EntitySchema"
+ * import * as S from "effect/Schema"
+ *
+ * console.log(isEncodedNullable(S.NullOr(S.String)))
+ * ```
+ *
  * @since 0.0.0
  * @category predicates
  */
@@ -258,6 +309,14 @@ export const isEncodedNullable = (field: S.Top): boolean => encodedFieldShape(fi
 
 /**
  * True when a field's encoded side is optional.
+ *
+ * @example
+ * ```ts
+ * import { isEncodedOptional } from "@beep/schema/EntitySchema"
+ * import * as S from "effect/Schema"
+ *
+ * console.log(isEncodedOptional(S.optionalKey(S.String)))
+ * ```
  *
  * @since 0.0.0
  * @category predicates

@@ -4,6 +4,15 @@ import { Separator as SeparatorPrimitive } from "@base-ui/react/separator";
 import { cn } from "../lib/index.ts";
 
 /**
+ * Separator component.
+ *
+ * @example
+ * ```tsx
+ * import { Separator } from "@beep/ui/components/separator"
+ *
+ * console.log(Separator)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */

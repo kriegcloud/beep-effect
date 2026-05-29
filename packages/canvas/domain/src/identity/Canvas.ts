@@ -15,6 +15,13 @@ const make = EntityId.factory("canvas", $I);
 /**
  * Canvas operator entity identifier.
  *
+ * @example
+ * ```ts
+ * import { CanvasOperatorId } from "@beep/canvas-domain/identity/Canvas"
+ *
+ * console.log(CanvasOperatorId)
+ * ```
+ *
  * @category entity-ids
  * @since 0.0.0
  */

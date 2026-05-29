@@ -16,6 +16,13 @@ const $I = $InstallerDomainId.create("aggregates/StackManifest/StackManifest.mod
 /**
  * Host platforms tracked by v1 installer manifests.
  *
+ * @example
+ * ```ts
+ * import { StackInstallerPlatform } from "@beep/installer-domain/aggregates/StackManifest"
+ *
+ * console.log(StackInstallerPlatform)
+ * ```
+ *
  * @category aggregates
  * @since 0.0.0
  */
@@ -35,6 +42,13 @@ export type StackInstallerPlatform = typeof StackInstallerPlatform.Type;
 
 /**
  * Provider names tracked by the stack manifest.
+ *
+ * @example
+ * ```ts
+ * import { StackInstallerProvider } from "@beep/installer-domain/aggregates/StackManifest"
+ *
+ * console.log(StackInstallerProvider)
+ * ```
  *
  * @category aggregates
  * @since 0.0.0
@@ -56,6 +70,13 @@ export type StackInstallerProvider = typeof StackInstallerProvider.Type;
 /**
  * Validation tier for installer evidence events.
  *
+ * @example
+ * ```ts
+ * import { ValidationTier } from "@beep/installer-domain/aggregates/StackManifest"
+ *
+ * console.log(ValidationTier)
+ * ```
+ *
  * @category aggregates
  * @since 0.0.0
  */
@@ -75,6 +96,13 @@ export type ValidationTier = typeof ValidationTier.Type;
 
 /**
  * Validation status for installer evidence events.
+ *
+ * @example
+ * ```ts
+ * import { ValidationStatus } from "@beep/installer-domain/aggregates/StackManifest"
+ *
+ * console.log(ValidationStatus)
+ * ```
  *
  * @category aggregates
  * @since 0.0.0
@@ -96,6 +124,13 @@ export type ValidationStatus = typeof ValidationStatus.Type;
 /**
  * Manifest provider entry.
  *
+ * @example
+ * ```ts
+ * import { ManifestProvider } from "@beep/installer-domain/aggregates/StackManifest"
+ *
+ * console.log(ManifestProvider)
+ * ```
+ *
  * @category aggregates
  * @since 0.0.0
  */
@@ -113,6 +148,13 @@ export class ManifestProvider extends S.Class<ManifestProvider>($I`ManifestProvi
 
 /**
  * Manifest Discord channel target.
+ *
+ * @example
+ * ```ts
+ * import { ManifestDiscordChannel } from "@beep/installer-domain/aggregates/StackManifest"
+ *
+ * console.log(ManifestDiscordChannel)
+ * ```
  *
  * @category aggregates
  * @since 0.0.0
@@ -132,6 +174,13 @@ export class ManifestDiscordChannel extends S.Class<ManifestDiscordChannel>($I`M
 /**
  * Manifest capability entry.
  *
+ * @example
+ * ```ts
+ * import { ManifestCapability } from "@beep/installer-domain/aggregates/StackManifest"
+ *
+ * console.log(ManifestCapability)
+ * ```
+ *
  * @category aggregates
  * @since 0.0.0
  */
@@ -149,6 +198,13 @@ export class ManifestCapability extends S.Class<ManifestCapability>($I`ManifestC
 
 /**
  * AI stack manifest assembled by the workspace slice.
+ *
+ * @example
+ * ```ts
+ * import { AIStackManifest } from "@beep/installer-domain/aggregates/StackManifest"
+ *
+ * console.log(AIStackManifest)
+ * ```
  *
  * @category aggregates
  * @since 0.0.0
@@ -173,6 +229,13 @@ export class AIStackManifest extends S.Class<AIStackManifest>($I`AIStackManifest
 /**
  * Validation event emitted while proving an installer manifest.
  *
+ * @example
+ * ```ts
+ * import { ValidationEvent } from "@beep/installer-domain/aggregates/StackManifest"
+ *
+ * console.log(ValidationEvent)
+ * ```
+ *
  * @category aggregates
  * @since 0.0.0
  */
@@ -193,6 +256,13 @@ export class ValidationEvent extends S.Class<ValidationEvent>($I`ValidationEvent
 /**
  * Deterministic P1A snapshot containing a manifest and validation feed.
  *
+ * @example
+ * ```ts
+ * import { P1aDryRunSnapshot } from "@beep/installer-domain/aggregates/StackManifest"
+ *
+ * console.log(P1aDryRunSnapshot)
+ * ```
+ *
  * @category aggregates
  * @since 0.0.0
  */
@@ -210,6 +280,13 @@ export class P1aDryRunSnapshot extends S.Class<P1aDryRunSnapshot>($I`P1aDryRunSn
 
 /**
  * P1 live proof snapshot containing only sanitized validation evidence.
+ *
+ * @example
+ * ```ts
+ * import { P1LiveProofSnapshot } from "@beep/installer-domain/aggregates/StackManifest"
+ *
+ * console.log(P1LiveProofSnapshot)
+ * ```
  *
  * @category aggregates
  * @since 0.0.0

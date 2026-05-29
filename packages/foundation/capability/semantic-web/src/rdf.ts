@@ -239,7 +239,7 @@ export const PrefixLabel = S.String.check(PrefixLabelChecks).pipe(
  * import type { PrefixLabel } from "@beep/semantic-web/rdf"
  *
  * const acceptPrefixLabel = (value: PrefixLabel) => value
- * void acceptPrefixLabel
+ * console.log(acceptPrefixLabel)
  * ```
  *
  * @since 0.0.0
@@ -254,7 +254,7 @@ export type PrefixLabel = typeof PrefixLabel.Type;
  * ```ts
  * import { Curie } from "@beep/semantic-web/rdf"
  *
- * void Curie
+ * console.log(Curie)
  * ```
  *
  * @since 0.0.0
@@ -276,7 +276,7 @@ export const Curie = S.String.check(CurieChecks).pipe(
  * import type { Curie } from "@beep/semantic-web/rdf"
  *
  * const acceptCurie = (value: Curie) => value
- * void acceptCurie
+ * console.log(acceptCurie)
  * ```
  *
  * @since 0.0.0
@@ -291,7 +291,7 @@ export type Curie = typeof Curie.Type;
  * ```ts
  * import { LanguageTag } from "@beep/semantic-web/rdf"
  *
- * void LanguageTag
+ * console.log(LanguageTag)
  * ```
  *
  * @since 0.0.0
@@ -326,7 +326,7 @@ export const LanguageTag = S.String.check(LanguageTagChecks).pipe(
  * import type { LanguageTag } from "@beep/semantic-web/rdf"
  *
  * const acceptLanguageTag = (value: LanguageTag) => value
- * void acceptLanguageTag
+ * console.log(acceptLanguageTag)
  * ```
  *
  * @since 0.0.0
@@ -341,7 +341,7 @@ export type LanguageTag = typeof LanguageTag.Type;
  * ```ts
  * import { NamedNode } from "@beep/semantic-web/rdf"
  *
- * void NamedNode
+ * console.log(NamedNode)
  * ```
  *
  * @since 0.0.0
@@ -365,7 +365,7 @@ export class NamedNode extends S.Class<NamedNode>($I`NamedNode`)(
  * ```ts
  * import { BlankNode } from "@beep/semantic-web/rdf"
  *
- * void BlankNode
+ * console.log(BlankNode)
  * ```
  *
  * @since 0.0.0
@@ -404,7 +404,7 @@ export class BlankNode extends S.Class<BlankNode>($I`BlankNode`)(
  * ```ts
  * import { Literal } from "@beep/semantic-web/rdf"
  *
- * void Literal
+ * console.log(Literal)
  * ```
  *
  * @since 0.0.0
@@ -430,7 +430,7 @@ export class Literal extends S.Class<Literal>($I`Literal`)(
  * ```ts
  * import { DefaultGraph } from "@beep/semantic-web/rdf"
  *
- * void DefaultGraph
+ * console.log(DefaultGraph)
  * ```
  *
  * @since 0.0.0
@@ -467,7 +467,7 @@ export class DefaultGraph extends S.Class<DefaultGraph>($I`DefaultGraph`)(
  * ```ts
  * import { Term } from "@beep/semantic-web/rdf"
  *
- * void Term
+ * console.log(Term)
  * ```
  *
  * @since 0.0.0
@@ -504,7 +504,7 @@ export const Term = S.Union([NamedNode, BlankNode, Literal, DefaultGraph]).pipe(
  * import type { Term } from "@beep/semantic-web/rdf"
  *
  * const acceptTerm = (value: Term) => value
- * void acceptTerm
+ * console.log(acceptTerm)
  * ```
  *
  * @since 0.0.0
@@ -519,7 +519,7 @@ export type Term = typeof Term.Type;
  * ```ts
  * import { Subject } from "@beep/semantic-web/rdf"
  *
- * void Subject
+ * console.log(Subject)
  * ```
  *
  * @since 0.0.0
@@ -540,7 +540,7 @@ export const Subject = S.Union([NamedNode, BlankNode]).pipe(
  * import type { Subject } from "@beep/semantic-web/rdf"
  *
  * const acceptSubject = (value: Subject) => value
- * void acceptSubject
+ * console.log(acceptSubject)
  * ```
  *
  * @since 0.0.0
@@ -555,7 +555,7 @@ export type Subject = typeof Subject.Type;
  * ```ts
  * import { ObjectTerm } from "@beep/semantic-web/rdf"
  *
- * void ObjectTerm
+ * console.log(ObjectTerm)
  * ```
  *
  * @since 0.0.0
@@ -576,7 +576,7 @@ export const ObjectTerm = S.Union([NamedNode, BlankNode, Literal]).pipe(
  * import type { ObjectTerm } from "@beep/semantic-web/rdf"
  *
  * const acceptObjectTerm = (value: ObjectTerm) => value
- * void acceptObjectTerm
+ * console.log(acceptObjectTerm)
  * ```
  *
  * @since 0.0.0
@@ -591,7 +591,7 @@ export type ObjectTerm = typeof ObjectTerm.Type;
  * ```ts
  * import { GraphTerm } from "@beep/semantic-web/rdf"
  *
- * void GraphTerm
+ * console.log(GraphTerm)
  * ```
  *
  * @since 0.0.0
@@ -612,7 +612,7 @@ export const GraphTerm = S.Union([NamedNode, BlankNode, DefaultGraph]).pipe(
  * import type { GraphTerm } from "@beep/semantic-web/rdf"
  *
  * const acceptGraphTerm = (value: GraphTerm) => value
- * void acceptGraphTerm
+ * console.log(acceptGraphTerm)
  * ```
  *
  * @since 0.0.0
@@ -627,7 +627,7 @@ export type GraphTerm = typeof GraphTerm.Type;
  * ```ts
  * import { Quad } from "@beep/semantic-web/rdf"
  *
- * void Quad
+ * console.log(Quad)
  * ```
  *
  * @since 0.0.0
@@ -653,7 +653,7 @@ export class Quad extends S.Class<Quad>($I`Quad`)(
  * ```ts
  * import { Dataset } from "@beep/semantic-web/rdf"
  *
- * void Dataset
+ * console.log(Dataset)
  * ```
  *
  * @since 0.0.0
@@ -676,7 +676,7 @@ export class Dataset extends S.Class<Dataset>($I`Dataset`)(
  * ```ts
  * import { NamespaceBinding } from "@beep/semantic-web/rdf"
  *
- * void NamespaceBinding
+ * console.log(NamespaceBinding)
  * ```
  *
  * @since 0.0.0
@@ -700,7 +700,7 @@ export class NamespaceBinding extends S.Class<NamespaceBinding>($I`NamespaceBind
  * ```ts
  * import { PrefixMap } from "@beep/semantic-web/rdf"
  *
- * void PrefixMap
+ * console.log(PrefixMap)
  * ```
  *
  * @since 0.0.0
@@ -734,7 +734,7 @@ export const PrefixMap = S.Record(PrefixLabel, IRI).pipe(
  * import type { PrefixMap } from "@beep/semantic-web/rdf"
  *
  * const acceptPrefixMap = (value: PrefixMap) => value
- * void acceptPrefixMap
+ * console.log(acceptPrefixMap)
  * ```
  *
  * @since 0.0.0
@@ -802,7 +802,7 @@ export const makeBlankNode = (value: string): BlankNode =>
  * import type { MakeLiteralOptions } from "@beep/semantic-web/rdf"
  *
  * const options: MakeLiteralOptions = { language: "en" }
- * void options
+ * console.log(options)
  * ```
  *
  * @since 0.0.0
@@ -866,7 +866,7 @@ export const makeLiteral: {
  * import type { MakeQuadOptions } from "@beep/semantic-web/rdf"
  *
  * const acceptOptions = (options: MakeQuadOptions) => options
- * void acceptOptions
+ * console.log(acceptOptions)
  * ```
  *
  * @since 0.0.0

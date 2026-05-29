@@ -27,7 +27,7 @@ const maxSpanEvents = 200;
  * ```typescript
  * import { DevToolsSnapshot } from "@beep/observability/experimental/server"
  *
- * void DevToolsSnapshot
+ * console.log(DevToolsSnapshot)
  * ```
  *
  * @since 0.0.0
@@ -54,12 +54,11 @@ export class DevToolsSnapshot extends S.Class<DevToolsSnapshot>($I`DevToolsSnaps
  * import { DevToolsRelayService } from "@beep/observability/experimental/server"
  *
  * const program = Effect.gen(function* () {
- *
- *
- *
+ *   const relay = yield* DevToolsRelayService
+ *   return yield* relay.snapshot
  * })
  *
- * void program
+ * console.log(program)
  * ```
  *
  * @since 0.0.0
@@ -100,8 +99,10 @@ const toSpanKey = (span: Pick<DevToolsSchema.Span, "traceId" | "spanId">): strin
  * ```typescript
  * import { makeDevToolsRelayService } from "@beep/observability/experimental/server"
  *
- * void makeDevToolsRelayService
+ * console.log(makeDevToolsRelayService)
  * ```
+ *
+ * @effects Requires `SocketServer.SocketServer`, reads the clock, and returns an in-memory relay service.
  *
  * @since 0.0.0
  * @category constructors
@@ -202,7 +203,7 @@ const pipeAppendLimited = <A>(values: ReadonlyArray<A>, value: A): ReadonlyArray
  * ```typescript
  * import { layerDevToolsRelayServer } from "@beep/observability/experimental/server"
  *
- * void layerDevToolsRelayServer
+ * console.log(layerDevToolsRelayServer)
  * ```
  *
  * @since 0.0.0

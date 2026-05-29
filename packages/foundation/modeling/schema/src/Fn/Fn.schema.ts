@@ -118,10 +118,10 @@ const anyFnAnnotations = {
  * ```ts
  * import type { FnType } from "@beep/schema/Fn"
  *
- * type Thunk = FnType<never, string>    // () => string
- * type Unary = FnType<number, string>   // (input: number) => string
- * void (0 as unknown as Thunk)
- * void (0 as unknown as Unary)
+ * const thunk = (() => "ready") satisfies FnType<never, string>
+ * const unary = ((input: number) => `${input}`) satisfies FnType<number, string>
+ *
+ * console.log(thunk(), unary(1))
  * ```
  *
  * @since 0.0.0
@@ -168,6 +168,17 @@ type FnNoArgInput<Input extends S.Top> = [Input["Type"]] extends [never]
  * Schema surface for zero-argument (thunk-like) functions created by {@link Fn}.
  * Provides `implement`, `implementEffect`, and `implementSync` helpers.
  *
+ * @example
+ * ```ts
+ * import type { FnSchemaNoArg } from "@beep/schema/Fn"
+ * import * as S from "effect/Schema"
+ *
+ * declare const schema: FnSchemaNoArg<typeof S.Never, typeof S.String, typeof S.Never>
+ * const getValue = schema.implementSync(() => "ready")
+ *
+ * console.log(getValue())
+ * ```
+ *
  * @since 0.0.0
  * @category models
  */
@@ -186,6 +197,17 @@ export interface FnSchemaNoArg<Input extends NoArgInputSchema, Output extends S.
  * Schema surface for unary functions created by {@link Fn}. Provides
  * `implement`, `implementEffect`, and `implementSync` helpers that decode
  * input and validate output at invocation time.
+ *
+ * @example
+ * ```ts
+ * import type { FnSchemaUnary } from "@beep/schema/Fn"
+ * import * as S from "effect/Schema"
+ *
+ * declare const schema: FnSchemaUnary<typeof S.Number, typeof S.String, typeof S.Never>
+ * const format = schema.implementSync((input) => `${input}`)
+ *
+ * console.log(format(1))
+ * ```
  *
  * @since 0.0.0
  * @category models
@@ -207,6 +229,17 @@ export interface FnSchemaUnary<Input extends S.Top, Output extends S.Top, Error 
  * Union schema type returned by {@link Fn}. Resolves to either
  * {@link FnSchemaNoArg} or {@link FnSchemaUnary} based on the input schema.
  *
+ * @example
+ * ```ts
+ * import type { FnSchema } from "@beep/schema/Fn"
+ * import * as S from "effect/Schema"
+ *
+ * type FormatCount = FnSchema<typeof S.Number, typeof S.String>
+ * const schema = S.String satisfies FormatCount["outputSchema"]
+ *
+ * console.log(schema.ast._tag)
+ * ```
+ *
  * @since 0.0.0
  * @category models
  */
@@ -222,6 +255,17 @@ export type FnSchema<Input extends S.Top, Output extends S.Top, Error extends S.
  * Subset of the {@link FnSchema} surface exposing only the invocation helpers
  * and sub-schemas (`implement`, `implementEffect`, `implementSync`,
  * `inputSchema`, `outputSchema`, `errorSchema`).
+ *
+ * @example
+ * ```ts
+ * import type { FnSchemaStatics } from "@beep/schema/Fn"
+ * import * as S from "effect/Schema"
+ *
+ * declare const statics: FnSchemaStatics<typeof S.Number, typeof S.String>
+ * const format = statics.implementSync((input) => `${input}`)
+ *
+ * console.log(format(1))
+ * ```
  *
  * @since 0.0.0
  * @category models
@@ -405,7 +449,7 @@ const makeUnaryFnSchema = <Input extends S.Top, Output extends S.Top, Error exte
  * import * as S from "effect/Schema"
  *
  * const fn = S.decodeUnknownSync(AnyFn)(() => "hello")
- * void fn
+ * console.log(fn)
  * ```
  *
  * @since 0.0.0
@@ -438,7 +482,7 @@ export type AnyFn = typeof AnyFn.Type;
  * const GetGreeting = ThunkOf(S.String)
  * const greeting = GetGreeting.implementSync(() => "hello")
  *
- * void greeting
+ * console.log(greeting)
  * ```
  *
  * @param output - Schema for the thunk result.
@@ -449,20 +493,40 @@ export type AnyFn = typeof AnyFn.Type;
  */
 export function ThunkOf<Output extends S.Top>(output: Output): FnSchema<typeof S.Never, Output, typeof S.Never>;
 /**
- * Public schema module export.
+ * Creates a thunk schema whose effect failure channel is validated against the
+ * provided error schema.
  *
- * @category errors
+ * @example
+ * ```ts
+ * import { ThunkOf } from "@beep/schema"
+ * import * as S from "effect/Schema"
+ *
+ * const GetCount = ThunkOf(S.Number, S.String)
+ * console.log(GetCount.errorSchema.ast._tag)
+ * ```
+ *
  * @since 0.0.0
+ * @category validation
  */
 export function ThunkOf<Output extends S.Top, Error extends S.Top>(
   output: Output,
   error: Error
 ): FnSchema<typeof S.Never, Output, Error>;
 /**
- * Public schema module export.
+ * Creates a thunk schema from an output schema and optional error schema.
  *
- * @category errors
+ * @example
+ * ```ts
+ * import { ThunkOf } from "@beep/schema"
+ * import * as S from "effect/Schema"
+ *
+ * const GetName = ThunkOf(S.String)
+ * const getName = GetName.implementSync(() => "Ada")
+ * console.log(getName())
+ * ```
+ *
  * @since 0.0.0
+ * @category validation
  */
 export function ThunkOf<Output extends S.Top, Error extends S.Top>(output: Output, error?: Error) {
   return makeNoArgFnSchema(S.Never, output, error ?? S.Never);
@@ -480,7 +544,7 @@ export function ThunkOf<Output extends S.Top, Error extends S.Top>(output: Outpu
  * const GetGreeting = Fn({ output: S.String })
  * const greeting = GetGreeting.implementSync(() => "hello")
  *
- * void greeting
+ * console.log(greeting)
  * ```
  *
  * @param options - Output and optional error contracts for the thunk.
@@ -504,7 +568,7 @@ export function Fn<Output extends S.Top, Error extends S.Top = typeof S.Never>(o
  *
  * const GetTime = Fn({ input: S.Undefined, output: S.Number })
  * const getTime = GetTime.implementSync(() => Date.now())
- * void getTime
+ * console.log(getTime)
  * ```
  *
  * @param options - Input/output contract for the thunk-like function.
@@ -529,7 +593,7 @@ export function Fn<Output extends S.Top, Error extends S.Top = typeof S.Never>(o
  *
  * const Noop = Fn({ input: S.Void, output: S.Void })
  * const noop = Noop.implementSync(() => undefined)
- * void noop
+ * console.log(noop)
  * ```
  *
  * @param options - Input/output contract for the thunk-like function.
@@ -553,13 +617,13 @@ export function Fn<Output extends S.Top, Error extends S.Top = typeof S.Never>(o
  * import * as S from "effect/Schema"
  *
  * const FormatCount = Fn({
- *
- *
+ *   input: S.Number,
+ *   output: S.String
  * })
  *
  * const formatCount = FormatCount.implementSync((count) => `${count}`)
  *
- * void formatCount
+ * console.log(formatCount)
  * ```
  *
  * @param options - Input, output, and optional error contracts for the function.
@@ -574,10 +638,21 @@ export function Fn<Input extends S.Top, Output extends S.Top, Error extends S.To
 }): FnSchema<Input, Output, Error>;
 
 /**
- * Public schema module export.
+ * Creates a function schema from the canonical options object.
  *
- * @category errors
+ * @example
+ * ```ts
+ * import { Fn } from "@beep/schema"
+ * import * as S from "effect/Schema"
+ *
+ * const FormatCount = Fn({ input: S.Number, output: S.String })
+ * const formatCount = FormatCount.implementSync((count) => `${count}`)
+ *
+ * console.log(formatCount(1))
+ * ```
+ *
  * @since 0.0.0
+ * @category validation
  */
 export function Fn<Output extends S.Top, Error extends S.Top = typeof S.Never>(options: {
   readonly input?: S.Top;

@@ -2,6 +2,15 @@ import { cn } from "../lib/index.ts";
 import type React from "react";
 
 /**
+ * Skeleton component.
+ *
+ * @example
+ * ```tsx
+ * import { Skeleton } from "@beep/ui/components/skeleton"
+ *
+ * console.log(Skeleton)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */

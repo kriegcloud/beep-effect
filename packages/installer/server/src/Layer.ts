@@ -330,6 +330,13 @@ const manifestForRequest = (
 /**
  * Build the host-dependency concept server.
  *
+ * @example
+ * ```ts
+ * import { makeHostDependencyServer } from "@beep/installer-server/layer"
+ *
+ * console.log(makeHostDependencyServer)
+ * ```
+ *
  * @category layers
  * @since 0.0.0
  */
@@ -347,6 +354,13 @@ export const makeHostDependencyServer = Effect.fn("InstallerServer.makeHostDepen
 
 /**
  * Build the secret-reference concept server.
+ *
+ * @example
+ * ```ts
+ * import { makeSecretReferenceServer } from "@beep/installer-server/layer"
+ *
+ * console.log(makeSecretReferenceServer)
+ * ```
  *
  * @category layers
  * @since 0.0.0
@@ -431,6 +445,13 @@ export const makeSecretReferenceServer = Effect.fn("InstallerServer.makeSecretRe
 /**
  * Build the provider-account concept server.
  *
+ * @example
+ * ```ts
+ * import { makeProviderAccountServer } from "@beep/installer-server/layer"
+ *
+ * console.log(makeProviderAccountServer)
+ * ```
+ *
  * @category layers
  * @since 0.0.0
  */
@@ -471,6 +492,13 @@ export const makeProviderAccountServer = Effect.fn("InstallerServer.makeProvider
 
 /**
  * Build the Discord-channel concept server.
+ *
+ * @example
+ * ```ts
+ * import { makeDiscordChannelServer } from "@beep/installer-server/layer"
+ *
+ * console.log(makeDiscordChannelServer)
+ * ```
  *
  * @category layers
  * @since 0.0.0
@@ -529,6 +557,13 @@ export const makeDiscordChannelServer = Effect.fn("InstallerServer.makeDiscordCh
 /**
  * Build the stack-manifest concept server.
  *
+ * @example
+ * ```ts
+ * import { makeStackManifestServer } from "@beep/installer-server/layer"
+ *
+ * console.log(makeStackManifestServer)
+ * ```
+ *
  * @category layers
  * @since 0.0.0
  */
@@ -542,6 +577,13 @@ export const makeStackManifestServer = Effect.fn("InstallerServer.makeStackManif
 
 /**
  * Build the P1 Manual Mode proof workflow.
+ *
+ * @example
+ * ```ts
+ * import { makeP1ManualProofWorkflow } from "@beep/installer-server/layer"
+ *
+ * console.log(makeP1ManualProofWorkflow)
+ * ```
  *
  * @category workflows
  * @since 0.0.0
@@ -704,6 +746,13 @@ export const makeP1ManualProofWorkflow = Effect.fn("InstallerServer.makeP1Manual
 /**
  * Host-dependency concept layer.
  *
+ * @example
+ * ```ts
+ * import { HostDependencyServerLive } from "@beep/installer-server/layer"
+ *
+ * console.log(HostDependencyServerLive)
+ * ```
+ *
  * @category layers
  * @since 0.0.0
  */
@@ -711,6 +760,13 @@ export const HostDependencyServerLive = Layer.effect(HostDependencyUseCases, mak
 
 /**
  * Secret-reference concept layer.
+ *
+ * @example
+ * ```ts
+ * import { SecretReferenceServerLive } from "@beep/installer-server/layer"
+ *
+ * console.log(SecretReferenceServerLive)
+ * ```
  *
  * @category layers
  * @since 0.0.0
@@ -720,6 +776,13 @@ export const SecretReferenceServerLive = Layer.effect(SecretReferenceUseCases, m
 /**
  * Provider-account concept layer.
  *
+ * @example
+ * ```ts
+ * import { ProviderAccountServerLive } from "@beep/installer-server/layer"
+ *
+ * console.log(ProviderAccountServerLive)
+ * ```
+ *
  * @category layers
  * @since 0.0.0
  */
@@ -727,6 +790,13 @@ export const ProviderAccountServerLive = Layer.effect(ProviderAccountUseCases, m
 
 /**
  * Discord-channel concept layer.
+ *
+ * @example
+ * ```ts
+ * import { DiscordChannelServerLive } from "@beep/installer-server/layer"
+ *
+ * console.log(DiscordChannelServerLive)
+ * ```
  *
  * @category layers
  * @since 0.0.0
@@ -736,6 +806,13 @@ export const DiscordChannelServerLive = Layer.effect(DiscordChannelUseCases, mak
 /**
  * Stack-manifest concept layer.
  *
+ * @example
+ * ```ts
+ * import { StackManifestServerLive } from "@beep/installer-server/layer"
+ *
+ * console.log(StackManifestServerLive)
+ * ```
+ *
  * @category layers
  * @since 0.0.0
  */
@@ -743,6 +820,13 @@ export const StackManifestServerLive = Layer.effect(StackManifestUseCases, makeS
 
 /**
  * Concept-local installer services.
+ *
+ * @example
+ * ```ts
+ * import { InstallerConceptServerLive } from "@beep/installer-server/layer"
+ *
+ * console.log(InstallerConceptServerLive)
+ * ```
  *
  * @category layers
  * @since 0.0.0
@@ -758,6 +842,13 @@ export const InstallerConceptServerLive = Layer.mergeAll(
 /**
  * P1 Manual Mode proof workflow layer.
  *
+ * @example
+ * ```ts
+ * import { P1ManualProofWorkflowLive } from "@beep/installer-server/layer"
+ *
+ * console.log(P1ManualProofWorkflowLive)
+ * ```
+ *
  * @category layers
  * @since 0.0.0
  */
@@ -766,6 +857,13 @@ export const P1ManualProofWorkflowLive = Layer.effect(P1ManualProofWorkflow, mak
 /**
  * Complete installer server layer.
  *
+ * @example
+ * ```ts
+ * import { InstallerServerLive } from "@beep/installer-server/layer"
+ *
+ * console.log(InstallerServerLive)
+ * ```
+ *
  * @category layers
  * @since 0.0.0
  */
@@ -773,6 +871,13 @@ export const InstallerServerLive = P1ManualProofWorkflowLive.pipe(Layer.provideM
 
 /**
  * Run the live P1 Manual Mode proof and return sanitized evidence.
+ *
+ * @example
+ * ```ts
+ * import { runP1ManualProof } from "@beep/installer-server/layer"
+ *
+ * console.log(runP1ManualProof)
+ * ```
  *
  * @category workflows
  * @since 0.0.0
@@ -786,6 +891,13 @@ export const runP1ManualProof = Effect.fn("InstallerServer.runP1ManualProofExpor
 
 /**
  * Preview the P1 Manual Mode proof without sending a Discord message.
+ *
+ * @example
+ * ```ts
+ * import { previewP1ManualProof } from "@beep/installer-server/layer"
+ *
+ * console.log(previewP1ManualProof)
+ * ```
  *
  * @category workflows
  * @since 0.0.0

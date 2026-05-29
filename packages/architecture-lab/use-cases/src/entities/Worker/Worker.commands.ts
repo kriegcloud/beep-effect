@@ -17,6 +17,13 @@ const $I = $ArchitectureLabUseCasesId.create("entities/Worker/Worker.commands");
 /**
  * Create Worker command.
  *
+ * @example
+ * ```ts
+ * import { CreateWorkerCommand } from "@beep/architecture-lab-use-cases/entities/Worker"
+ *
+ * console.log(CreateWorkerCommand)
+ * ```
+ *
  * @category commands
  * @since 0.0.0
  */
@@ -35,6 +42,13 @@ export class CreateWorkerCommand extends S.Class<CreateWorkerCommand>($I`CreateW
 /**
  * Get Worker query.
  *
+ * @example
+ * ```ts
+ * import { GetWorkerQuery } from "@beep/architecture-lab-use-cases/entities/Worker"
+ *
+ * console.log(GetWorkerQuery)
+ * ```
+ *
  * @category commands
  * @since 0.0.0
  */
@@ -50,6 +64,13 @@ export class GetWorkerQuery extends S.Class<GetWorkerQuery>($I`GetWorkerQuery`)(
 
 /**
  * List Workers query.
+ *
+ * @example
+ * ```ts
+ * import { ListWorkersQuery } from "@beep/architecture-lab-use-cases/entities/Worker"
+ *
+ * console.log(ListWorkersQuery)
+ * ```
  *
  * @category commands
  * @since 0.0.0

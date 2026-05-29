@@ -93,6 +93,17 @@ const getQuotedFieldStart = (input: string, cursor: number, parserOptions: Parse
 };
 
 /**
+ * Parsed CSV field with the cursor position after the field and normalized
+ * string value.
+ *
+ * @example
+ * ```ts
+ * import { ParsedField } from "@beep/schema/CsvParser"
+ *
+ * const field = ParsedField.make({ cursor: 4, value: "Ada" })
+ * console.log(field.value)
+ * ```
+ *
  * @category models
  * @since 0.0.0
  */
@@ -238,6 +249,16 @@ const parseField = (
 };
 
 /**
+ * Parsed CSV row with the cursor position after the row and raw field values.
+ *
+ * @example
+ * ```ts
+ * import { ParsedRow } from "@beep/schema/CsvParser"
+ *
+ * const row = ParsedRow.make({ cursor: 8, row: ["Ada", "36"] })
+ * console.log(row.row.length)
+ * ```
+ *
  * @category models
  * @since 0.0.0
  */
@@ -373,6 +394,16 @@ const parseCsvRowsEffect = Effect.fn("CsvParser.parseCsvRowsEffect")(function* (
 
 /**
  * Parse full CSV text into raw row arrays using low-level parser options.
+ *
+ * @example
+ * ```ts
+ * import { Effect } from "effect"
+ * import { parseCsvRows } from "@beep/schema/CsvParser"
+ * import { ParserOptions } from "@beep/schema/ParserOptions"
+ *
+ * const rows = Effect.runSync(parseCsvRows("name,age\nAda,36", ParserOptions.new()))
+ * console.log(rows.length)
+ * ```
  *
  * @category utilities
  * @since 0.0.0

@@ -22,7 +22,7 @@ import { Effect, Layer } from "effect";
  *
  * const layer = Layer.empty
  * const program = Effect.void.pipe(provideScopedLayer(layer))
- * void program
+ * console.log(program)
  * ```
  * @category layers
  * @since 0.0.0

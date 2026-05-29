@@ -1,6 +1,13 @@
 /**
  * Utility functions for the UI component library.
  *
+ * @example
+ * ```ts
+ * import { cn } from "@beep/ui/lib/utils"
+ *
+ * console.log(cn)
+ * ```
+ *
  * @category utilities
  * @since 0.0.0
  * @packageDocumentation
@@ -11,13 +18,17 @@ import { twMerge } from "tailwind-merge";
 import type { ClassValue } from "clsx";
 
 /**
- * Merge Tailwind CSS class names with conflict resolution.
+ * Cn export.
  *
- * Combines `clsx` for conditional class joining with `tailwind-merge`
- * for intelligent Tailwind class deduplication.
+ * @example
+ * ```ts
+ * import { cn } from "@beep/ui/lib/utils"
  *
- * @since 0.0.0
+ * console.log(cn)
+ * ```
+ *
  * @category utilities
+ * @since 0.0.0
  */
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));

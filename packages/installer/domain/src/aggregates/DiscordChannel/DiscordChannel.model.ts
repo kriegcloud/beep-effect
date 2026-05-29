@@ -16,6 +16,13 @@ const $I = $InstallerDomainId.create("aggregates/DiscordChannel/DiscordChannel.m
 /**
  * Discord channel family supported in v1.
  *
+ * @example
+ * ```ts
+ * import { DiscordChannelKind } from "@beep/installer-domain/aggregates/DiscordChannel"
+ *
+ * console.log(DiscordChannelKind)
+ * ```
+ *
  * @category aggregates
  * @since 0.0.0
  */
@@ -36,6 +43,13 @@ export type DiscordChannelKind = typeof DiscordChannelKind.Type;
 /**
  * Discord channel dry-run status.
  *
+ * @example
+ * ```ts
+ * import { DiscordChannelStatus } from "@beep/installer-domain/aggregates/DiscordChannel"
+ *
+ * console.log(DiscordChannelStatus)
+ * ```
+ *
  * @category aggregates
  * @since 0.0.0
  */
@@ -55,6 +69,13 @@ export type DiscordChannelStatus = typeof DiscordChannelStatus.Type;
 
 /**
  * Discord channel target for v1 installer notifications.
+ *
+ * @example
+ * ```ts
+ * import { DiscordChannel } from "@beep/installer-domain/aggregates/DiscordChannel"
+ *
+ * console.log(DiscordChannel)
+ * ```
  *
  * @category aggregates
  * @since 0.0.0

@@ -17,6 +17,13 @@ const clearCurrentLine = "\r\x1b[2K";
 /**
  * Shared concurrency caps for Files command phases.
  *
+ * @example
+ * ```ts
+ * import { FilesConcurrency } from "@beep/repo-cli/commands/Files"
+ *
+ * console.log(FilesConcurrency)
+ * ```
+ *
  * @category constants
  * @since 0.0.0
  */
@@ -67,6 +74,13 @@ const progressPercent = (completed: number, total: number): string =>
  *
  * @param enabled - Explicit caller opt-in for live progress rendering.
  * @returns True when progress is enabled and stdout is attached to a TTY.
+ * @example
+ * ```ts
+ * import { isFilesProgressEnabled } from "@beep/repo-cli/commands/Files"
+ *
+ * console.log(isFilesProgressEnabled)
+ * ```
+ *
  * @category utilities
  * @since 0.0.0
  */
@@ -77,6 +91,13 @@ export const isFilesProgressEnabled = (enabled = true): boolean => enabled && pr
  *
  * @param options - Progress bar rendering options.
  * @returns Rendered single-line progress text.
+ * @example
+ * ```ts
+ * import { renderFilesProgressBar } from "@beep/repo-cli/commands/Files"
+ *
+ * console.log(renderFilesProgressBar)
+ * ```
+ *
  * @category utilities
  * @since 0.0.0
  */
@@ -97,6 +118,13 @@ export const renderFilesProgressBar = (options: FilesProgressRenderOptions): str
 
 /**
  * Run an array of effects with bounded concurrency and optional TTY progress.
+ *
+ * @example
+ * ```ts
+ * import { runFilesProgressAll } from "@beep/repo-cli/commands/Files"
+ *
+ * console.log(runFilesProgressAll)
+ * ```
  *
  * @category utilities
  * @since 0.0.0
@@ -165,6 +193,13 @@ export const runFilesProgressAll: {
 );
 /**
  * Map items to effects, then run them with bounded concurrency and optional TTY progress.
+ *
+ * @example
+ * ```ts
+ * import { runFilesProgressForEach } from "@beep/repo-cli/commands/Files"
+ *
+ * console.log(runFilesProgressForEach)
+ * ```
  *
  * @category utilities
  * @since 0.0.0

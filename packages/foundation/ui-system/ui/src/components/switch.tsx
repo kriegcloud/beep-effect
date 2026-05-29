@@ -4,6 +4,15 @@ import { Switch as SwitchPrimitive } from "@base-ui/react/switch";
 import { cn } from "../lib/index.ts";
 
 /**
+ * Switch component.
+ *
+ * @example
+ * ```tsx
+ * import { Switch } from "@beep/ui/components/switch"
+ *
+ * console.log(Switch)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */

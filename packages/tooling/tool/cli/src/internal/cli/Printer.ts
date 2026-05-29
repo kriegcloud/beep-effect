@@ -16,7 +16,7 @@ import { Console, Effect } from "effect";
  *
  * const program = printLines(["one", "two"])
  *
- * void program
+ * console.log(program)
  * ```
  * @category rendering
  * @since 0.0.0

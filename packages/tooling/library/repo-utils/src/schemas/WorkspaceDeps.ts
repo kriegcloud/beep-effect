@@ -19,7 +19,7 @@ const $I = $RepoUtilsId.create("schemas/WorkspaceDeps");
  * ```ts
  * import { DependencyRecord } from "@beep/repo-utils/schemas/WorkspaceDeps"
  * const isRecord = DependencyRecord
- * void isRecord
+ * console.log(isRecord)
  * ```
  * @category models
  * @since 0.0.0
@@ -39,7 +39,7 @@ export const DependencyRecord = S.Record(S.String, S.String).pipe(
  * const deps: DependencyRecord = {
  *   effect: "^4.0.0"
  * }
- * void deps
+ * console.log(deps)
  * ```
  * @category models
  * @since 0.0.0
@@ -69,7 +69,7 @@ class WorkspaceDependencyBuckets extends S.Class<WorkspaceDependencyBuckets>($I`
  * ```ts
  * import { emptyWorkspaceDeps } from "@beep/repo-utils/schemas/WorkspaceDeps"
  * const deps = emptyWorkspaceDeps("@beep/example")
- * void deps.packageName
+ * console.log(deps.packageName)
  * ```
  * @category models
  * @since 0.0.0
@@ -95,7 +95,7 @@ export class WorkspaceDeps extends S.Class<WorkspaceDeps>($I`WorkspaceDeps`)(
  * ```ts
  * import { emptyWorkspaceDeps } from "@beep/repo-utils/schemas/WorkspaceDeps"
  * const deps = emptyWorkspaceDeps("@beep/example")
- * void deps.workspace.dependencies
+ * console.log(deps.workspace.dependencies)
  * ```
  * @category constructors
  * @since 0.0.0

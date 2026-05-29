@@ -18,6 +18,13 @@ const $I = $ArchitectureLabUseCasesId.create("entities/Worker/Worker.repository"
 /**
  * Persistence failure raised when a Worker row is absent.
  *
+ * @example
+ * ```ts
+ * import { WorkerRepositoryNotFound } from "@beep/architecture-lab-use-cases/entities/Worker/server"
+ *
+ * console.log(WorkerRepositoryNotFound)
+ * ```
+ *
  * @category repositories
  * @since 0.0.0
  */
@@ -34,6 +41,13 @@ export class WorkerRepositoryNotFound extends TaggedErrorClass<WorkerRepositoryN
 
 /**
  * Persistence failure raised when a Worker write conflicts.
+ *
+ * @example
+ * ```ts
+ * import { WorkerRepositoryConflict } from "@beep/architecture-lab-use-cases/entities/Worker/server"
+ *
+ * console.log(WorkerRepositoryConflict)
+ * ```
  *
  * @category repositories
  * @since 0.0.0
@@ -52,6 +66,13 @@ export class WorkerRepositoryConflict extends TaggedErrorClass<WorkerRepositoryC
 
 /**
  * Persistence failure raised when the Worker repository is unavailable.
+ *
+ * @example
+ * ```ts
+ * import { WorkerRepositoryUnavailable } from "@beep/architecture-lab-use-cases/entities/Worker/server"
+ *
+ * console.log(WorkerRepositoryUnavailable)
+ * ```
  *
  * @category repositories
  * @since 0.0.0
@@ -72,6 +93,14 @@ export class WorkerRepositoryUnavailable extends TaggedErrorClass<WorkerReposito
 /**
  * Worker repository failure.
  *
+ * @example
+ * ```ts
+ * import type { WorkerRepositoryError } from "@beep/architecture-lab-use-cases/entities/Worker/server"
+ *
+ * const value = {} as WorkerRepositoryError
+ * console.log(value)
+ * ```
+ *
  * @category repositories
  * @since 0.0.0
  */
@@ -79,6 +108,14 @@ export type WorkerRepositoryError = WorkerRepositoryNotFound | WorkerRepositoryC
 
 /**
  * Worker repository contract.
+ *
+ * @example
+ * ```ts
+ * import type { WorkerRepositoryShape } from "@beep/architecture-lab-use-cases/entities/Worker/server"
+ *
+ * const value = {} as WorkerRepositoryShape
+ * console.log(value)
+ * ```
  *
  * @category repositories
  * @since 0.0.0
@@ -95,6 +132,13 @@ export interface WorkerRepositoryShape {
 
 /**
  * Worker repository service.
+ *
+ * @example
+ * ```ts
+ * import { WorkerRepository } from "@beep/architecture-lab-use-cases/entities/Worker/server"
+ *
+ * console.log(WorkerRepository)
+ * ```
  *
  * @category repositories
  * @since 0.0.0

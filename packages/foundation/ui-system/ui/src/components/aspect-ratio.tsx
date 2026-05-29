@@ -1,6 +1,15 @@
 import { cn } from "../lib/index.ts";
 
 /**
+ * Aspect ratio component.
+ *
+ * @example
+ * ```tsx
+ * import { AspectRatio } from "@beep/ui/components/aspect-ratio"
+ *
+ * console.log(AspectRatio)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */

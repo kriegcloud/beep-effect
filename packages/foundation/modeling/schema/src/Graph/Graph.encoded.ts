@@ -13,6 +13,17 @@ import type { GraphKindValue } from "./Graph.shared.ts";
 /**
  * Encoded edge representation used by graph codecs.
  *
+ * @example
+ * ```ts
+ * import { NodeIndex, type EdgeEncoded } from "@beep/schema/Graph"
+ * import * as S from "effect/Schema"
+ *
+ * const source = S.decodeUnknownSync(NodeIndex)(0)
+ * const target = S.decodeUnknownSync(NodeIndex)(1)
+ * const edge = { source, target, data: "knows" } satisfies EdgeEncoded<string>
+ * console.log(edge.data)
+ * ```
+ *
  * @since 0.0.0
  * @category models
  */
@@ -24,6 +35,23 @@ export type EdgeEncoded<Data> = Readonly<{
 
 /**
  * Encoded graph representation used by graph codecs.
+ *
+ * @example
+ * ```ts
+ * import { NodeIndex, type GraphEncoded } from "@beep/schema/Graph"
+ * import * as S from "effect/Schema"
+ *
+ * const nodeIndex = S.decodeUnknownSync(NodeIndex)(0)
+ *
+ * const graph = {
+ *   _tag: "Graph",
+ *   type: "directed",
+ *   nodes: [[nodeIndex, "Ada"]],
+ *   edges: []
+ * } satisfies GraphEncoded<string, string, "directed">
+ *
+ * console.log(graph.nodes.length)
+ * ```
  *
  * @since 0.0.0
  * @category models
@@ -110,6 +138,16 @@ export interface GraphEncodedSchema<Node extends S.Top, Edge extends S.Top>
 /**
  * Schema for encoded graph edges.
  *
+ * @example
+ * ```ts
+ * import { EdgeEncoded } from "@beep/schema/Graph"
+ * import * as S from "effect/Schema"
+ *
+ * const Edge = EdgeEncoded(S.String)
+ * const edge = S.decodeUnknownSync(Edge)({ source: 0, target: 1, data: "knows" })
+ * console.log(edge.data)
+ * ```
+ *
  * @param data - Schema for edge payloads.
  * @returns Schema for the encoded edge representation.
  * @since 0.0.0
@@ -131,6 +169,22 @@ export const EdgeEncoded = <Data extends S.Top>(data: Data): EdgeEncodedSchema<D
 
 /**
  * Schema for encoded graphs.
+ *
+ * @example
+ * ```ts
+ * import { GraphEncoded } from "@beep/schema/Graph"
+ * import * as S from "effect/Schema"
+ *
+ * const Graph = GraphEncoded(S.String, S.String)
+ * const graph = S.decodeUnknownSync(Graph)({
+ *   _tag: "Graph",
+ *   type: "directed",
+ *   nodes: [[0, "Ada"]],
+ *   edges: []
+ * })
+ *
+ * console.log(graph.type)
+ * ```
  *
  * @param node - Schema for node payloads.
  * @param edge - Schema for edge payloads.

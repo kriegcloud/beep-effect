@@ -15,7 +15,7 @@ import type * as VariantSchema from "../VariantSchema/index.ts";
  * import * as Model from "@beep/schema/Model"
  *
  * const field: Model.BooleanSqlite = Model.BooleanSqlite
- * void field
+ * console.log(field)
  * ```
  *
  * @since 0.0.0
@@ -42,7 +42,7 @@ export interface BooleanSqlite
  *
  * class Task extends Model.Class<Task>("Task")({}) {}
  *
- * void Task
+ * console.log(Task)
  * ```
  *
  * @since 0.0.0

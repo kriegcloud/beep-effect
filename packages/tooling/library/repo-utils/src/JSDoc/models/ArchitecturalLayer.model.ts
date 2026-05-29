@@ -19,7 +19,7 @@ const $I = $RepoUtilsId.create("JSDoc/models/ArchitecturalLayer.model");
  * ```ts
  * import { ArchitecturalLayer } from "@beep/repo-utils/JSDoc/models/ArchitecturalLayer.model"
  *
- * void ArchitecturalLayer
+ * console.log(ArchitecturalLayer)
  * ```
  * @category models
  * @since 0.0.0
@@ -49,7 +49,7 @@ export const ArchitecturalLayer = LiteralKit([
  *
  * type Example = ArchitecturalLayer
  * const accept = <A extends Example>(value: A): A => value
- * void accept
+ * console.log(accept)
  * ```
  * @category models
  * @since 0.0.0

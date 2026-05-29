@@ -16,7 +16,7 @@
  *   { phase: "migrations" }
  * )
  *
- * void Effect.runPromise(profiled)
+ * console.log(Effect.runPromise(profiled))
  * ```
  *
  * @packageDocumentation
@@ -53,7 +53,7 @@ const isProfilePhaseDataFirst = (args: IArguments): boolean => args.length >= 2 
  * ```typescript
  * import { PhaseOutcome } from "@beep/observability"
  *
- * void PhaseOutcome
+ * console.log(PhaseOutcome)
  * ```
  *
  * @since 0.0.0
@@ -73,7 +73,7 @@ export const PhaseOutcome = LiteralKit(["completed", "failed", "interrupted"]).p
  * import type { PhaseOutcome } from "@beep/observability"
  *
  * const outcome: PhaseOutcome = "completed"
- * void outcome
+ * console.log(outcome)
  * ```
  *
  * @category models
@@ -178,16 +178,17 @@ const logPhaseProfile = (profile: PhaseProfile): Effect.Effect<void> =>
  * import { Effect, Metric } from "effect"
  * import { profilePhase } from "@beep/observability"
  *
- * const started = Metric.counter("phase_started_total")
  * const completed = Metric.counter("phase_completed_total")
- * const duration = Metric.timer("phase_duration")
  *
- * const migrate = Effect.log("running migrations")
+ * const profiled = profilePhase(Effect.succeed("ok"), {
+ *   completed,
+ *   phase: "startup"
+ * })
  *
- * const profiled = profilePhase()
- *
- * void Effect.runPromise(profiled)
+ * console.log(Effect.runPromise(profiled))
  * ```
+ *
+ * @effects Logs the phase outcome, annotates the current span, and updates any supplied phase metrics.
  *
  * @since 0.0.0
  * @category observability
@@ -258,6 +259,17 @@ const profilePhaseImpl = Effect.fn("profilePhaseImpl")(function* <A, E, R>(
 
 /**
  * Profiles an Effect phase and records its duration and outcome.
+ *
+ * @example
+ * ```typescript
+ * import { Effect } from "effect"
+ * import { profilePhase } from "@beep/observability"
+ *
+ * const program = profilePhase(Effect.succeed("ok"), { phase: "startup" })
+ * console.log(Effect.runPromise(program))
+ * ```
+ *
+ * @effects Logs the phase outcome, annotates the current span, and updates any supplied phase metrics.
  *
  * @category observability
  * @since 0.0.0

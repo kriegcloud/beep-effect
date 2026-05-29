@@ -96,7 +96,7 @@ export const ObjectRef = S.String.check(provObjectRefChecks).pipe(
  * import type { ObjectRef } from "@beep/semantic-web/prov"
  *
  * const acceptObjectRef = (value: ObjectRef) => value
- * void acceptObjectRef
+ * console.log(acceptObjectRef)
  * ```
  *
  * @since 0.0.0
@@ -111,7 +111,7 @@ export type ObjectRef = typeof ObjectRef.Type;
  * ```ts
  * import { ProvDateTimeEncoded } from "@beep/semantic-web/prov"
  *
- * void ProvDateTimeEncoded
+ * console.log(ProvDateTimeEncoded)
  * ```
  *
  * @since 0.0.0
@@ -141,7 +141,7 @@ export const ProvDateTimeEncoded = S.String.check(provDateTimeChecks).pipe(
  * import type { ProvDateTimeEncoded } from "@beep/semantic-web/prov"
  *
  * const acceptProvDateTimeEncoded = (value: ProvDateTimeEncoded) => value
- * void acceptProvDateTimeEncoded
+ * console.log(acceptProvDateTimeEncoded)
  * ```
  *
  * @since 0.0.0
@@ -156,7 +156,7 @@ export type ProvDateTimeEncoded = typeof ProvDateTimeEncoded.Type;
  * ```ts
  * import { ProvDateTime } from "@beep/semantic-web/prov"
  *
- * void ProvDateTime
+ * console.log(ProvDateTime)
  * ```
  *
  * @since 0.0.0
@@ -186,7 +186,7 @@ export const ProvDateTime = ProvDateTimeEncoded.pipe(
  * import type { ProvDateTime } from "@beep/semantic-web/prov"
  *
  * const acceptProvDateTime = (value: ProvDateTime) => value
- * void acceptProvDateTime
+ * console.log(acceptProvDateTime)
  * ```
  *
  * @since 0.0.0
@@ -201,7 +201,7 @@ export type ProvDateTime = typeof ProvDateTime.Type;
  * ```ts
  * import { LifecycleTimes } from "@beep/semantic-web/prov"
  *
- * void LifecycleTimes
+ * console.log(LifecycleTimes)
  * ```
  *
  * @since 0.0.0
@@ -242,9 +242,8 @@ export class LifecycleTimes extends S.Class<LifecycleTimes>($I`LifecycleTimes`)(
  * import { Entity } from "@beep/semantic-web/prov"
  *
  * const entity = S.decodeUnknownSync(Entity)({
- *
- *
- *
+ *   provType: "Entity",
+ *   id: "entity:artifact"
  * })
  * console.log(entity.provType) // "Entity"
  * ```
@@ -289,9 +288,8 @@ export class Entity extends S.Class<Entity>($I`Entity`)(
  * import { Activity } from "@beep/semantic-web/prov"
  *
  * const activity = S.decodeUnknownSync(Activity)({
- *
- *
- *
+ *   provType: "Activity",
+ *   id: "activity:build"
  * })
  * console.log(activity.provType) // "Activity"
  * ```
@@ -331,9 +329,8 @@ export class Activity extends S.Class<Activity>($I`Activity`)(
  * import { Agent } from "@beep/semantic-web/prov"
  *
  * const agent = S.decodeUnknownSync(Agent)({
- *
- *
- *
+ *   provType: "Agent",
+ *   name: "CI"
  * })
  * console.log(agent.provType) // "Agent"
  * ```
@@ -368,7 +365,7 @@ export class Agent extends S.Class<Agent>($I`Agent`)(
  * ```ts
  * import { SoftwareAgent } from "@beep/semantic-web/prov"
  *
- * void SoftwareAgent
+ * console.log(SoftwareAgent)
  * ```
  *
  * @since 0.0.0
@@ -401,7 +398,7 @@ export class SoftwareAgent extends S.Class<SoftwareAgent>($I`SoftwareAgent`)(
  * ```ts
  * import { Plan } from "@beep/semantic-web/prov"
  *
- * void Plan
+ * console.log(Plan)
  * ```
  *
  * @since 0.0.0
@@ -434,7 +431,7 @@ export class Plan extends S.Class<Plan>($I`Plan`)(
  * ```ts
  * import { Collection } from "@beep/semantic-web/prov"
  *
- * void Collection
+ * console.log(Collection)
  * ```
  *
  * @since 0.0.0
@@ -467,7 +464,7 @@ export class Collection extends S.Class<Collection>($I`Collection`)(
  * ```ts
  * import { Person } from "@beep/semantic-web/prov"
  *
- * void Person
+ * console.log(Person)
  * ```
  *
  * @since 0.0.0
@@ -500,7 +497,7 @@ export class Person extends S.Class<Person>($I`Person`)(
  * ```ts
  * import { Organization } from "@beep/semantic-web/prov"
  *
- * void Organization
+ * console.log(Organization)
  * ```
  *
  * @since 0.0.0
@@ -544,7 +541,7 @@ const relationMetadata = (canonicalName: string, overview: string, profile: "min
  * ```ts
  * import { Usage } from "@beep/semantic-web/prov"
  *
- * void Usage
+ * console.log(Usage)
  * ```
  *
  * @since 0.0.0
@@ -569,7 +566,7 @@ export class Usage extends S.Class<Usage>($I`Usage`)(
  * ```ts
  * import { Generation } from "@beep/semantic-web/prov"
  *
- * void Generation
+ * console.log(Generation)
  * ```
  *
  * @since 0.0.0
@@ -594,7 +591,7 @@ export class Generation extends S.Class<Generation>($I`Generation`)(
  * ```ts
  * import { Association } from "@beep/semantic-web/prov"
  *
- * void Association
+ * console.log(Association)
  * ```
  *
  * @since 0.0.0
@@ -619,7 +616,7 @@ export class Association extends S.Class<Association>($I`Association`)(
  * ```ts
  * import { Attribution } from "@beep/semantic-web/prov"
  *
- * void Attribution
+ * console.log(Attribution)
  * ```
  *
  * @since 0.0.0
@@ -643,7 +640,7 @@ export class Attribution extends S.Class<Attribution>($I`Attribution`)(
  * ```ts
  * import { Delegation } from "@beep/semantic-web/prov"
  *
- * void Delegation
+ * console.log(Delegation)
  * ```
  *
  * @since 0.0.0
@@ -668,7 +665,7 @@ export class Delegation extends S.Class<Delegation>($I`Delegation`)(
  * ```ts
  * import { Derivation } from "@beep/semantic-web/prov"
  *
- * void Derivation
+ * console.log(Derivation)
  * ```
  *
  * @since 0.0.0
@@ -692,7 +689,7 @@ export class Derivation extends S.Class<Derivation>($I`Derivation`)(
  * ```ts
  * import { PrimarySource } from "@beep/semantic-web/prov"
  *
- * void PrimarySource
+ * console.log(PrimarySource)
  * ```
  *
  * @since 0.0.0
@@ -716,7 +713,7 @@ export class PrimarySource extends S.Class<PrimarySource>($I`PrimarySource`)(
  * ```ts
  * import { Quotation } from "@beep/semantic-web/prov"
  *
- * void Quotation
+ * console.log(Quotation)
  * ```
  *
  * @since 0.0.0
@@ -740,7 +737,7 @@ export class Quotation extends S.Class<Quotation>($I`Quotation`)(
  * ```ts
  * import { Revision } from "@beep/semantic-web/prov"
  *
- * void Revision
+ * console.log(Revision)
  * ```
  *
  * @since 0.0.0
@@ -764,7 +761,7 @@ export class Revision extends S.Class<Revision>($I`Revision`)(
  * ```ts
  * import { Start } from "@beep/semantic-web/prov"
  *
- * void Start
+ * console.log(Start)
  * ```
  *
  * @since 0.0.0
@@ -789,7 +786,7 @@ export class Start extends S.Class<Start>($I`Start`)(
  * ```ts
  * import { End } from "@beep/semantic-web/prov"
  *
- * void End
+ * console.log(End)
  * ```
  *
  * @since 0.0.0
@@ -868,7 +865,7 @@ export const ProvRecord = S.Union([
  * import type { ProvRecord } from "@beep/semantic-web/prov"
  *
  * const acceptProvRecord = (value: ProvRecord) => value
- * void acceptProvRecord
+ * console.log(acceptProvRecord)
  * ```
  *
  * @since 0.0.0
@@ -919,7 +916,7 @@ export class ProvBundle extends S.Class<ProvBundle>($I`ProvBundle`)(
  * ```ts
  * import { ProvO } from "@beep/semantic-web/prov"
  *
- * void ProvO
+ * console.log(ProvO)
  * ```
  *
  * @since 0.0.0
@@ -948,7 +945,7 @@ export const ProvO = S.Union([ProvBundle, ProvRecord]).pipe(
  * import type { ProvO } from "@beep/semantic-web/prov"
  *
  * const acceptProvO = (value: ProvO) => value
- * void acceptProvO
+ * console.log(acceptProvO)
  * ```
  *
  * @since 0.0.0

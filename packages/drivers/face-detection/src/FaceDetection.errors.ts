@@ -37,7 +37,7 @@ const messageWithCause = (message: string, cause: unknown): string =>
  * import { FaceDetectionErrorFromUnknownOptions } from "@beep/face-detection"
  *
  * const options = FaceDetectionErrorFromUnknownOptions.make({ modelPath: "./yunet.onnx" })
- * void options
+ * console.log(options)
  * ```
  *
  * @category errors
@@ -64,7 +64,7 @@ export class FaceDetectionErrorFromUnknownOptions extends S.Class<FaceDetectionE
  * import { FaceDetectionError } from "@beep/face-detection"
  *
  * const error = FaceDetectionError.make({ message: "model failed", operation: "loadModel" })
- * void error.message
+ * console.log(error.message)
  * ```
  *
  * @category errors
@@ -91,7 +91,7 @@ export class FaceDetectionError extends TaggedErrorClass<FaceDetectionError>($I`
    * import { FaceDetectionError } from "@beep/face-detection"
    *
    * const error = FaceDetectionError.fromUnknown("loadModel", "failed", { modelPath: "./yunet.onnx" })
-   * void error
+   * console.log(error)
    * ```
    *
    * @category errors

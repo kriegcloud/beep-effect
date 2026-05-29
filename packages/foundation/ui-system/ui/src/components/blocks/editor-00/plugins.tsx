@@ -3,10 +3,17 @@ import { RichTextPlugin } from "@lexical/react/LexicalRichTextPlugin";
 import { ContentEditable } from "../../editor/editor-ui/content-editable.js";
 
 /**
- * Core plugin set for the shared editor block.
+ * Plugins component.
  *
- * @since 0.0.0
+ * @example
+ * ```tsx
+ * import { Plugins } from "@beep/ui/components/blocks/editor-00/plugins"
+ *
+ * console.log(Plugins)
+ * ```
+ *
  * @category components
+ * @since 0.0.0
  */
 export function Plugins() {
   return (

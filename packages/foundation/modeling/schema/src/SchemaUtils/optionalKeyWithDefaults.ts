@@ -14,6 +14,15 @@ import * as S from "effect/Schema";
  *
  * Replaces `S.optionalWith(schema, { exact: true, default: () => val })` in v4.
  *
+ * @example
+ * ```ts
+ * import { optionalKeyWithDefault } from "@beep/schema/SchemaUtils/optionalKeyWithDefaults"
+ * import * as S from "effect/Schema"
+ *
+ * const Settings = S.Struct({ label: optionalKeyWithDefault(S.String, "draft") })
+ * console.log(S.decodeUnknownSync(Settings)({}).label)
+ * ```
+ *
  * @since 0.0.0
  * @category utilities
  */

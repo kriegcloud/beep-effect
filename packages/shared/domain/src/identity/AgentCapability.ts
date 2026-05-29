@@ -41,7 +41,7 @@ export const AgentId = make("agent", {
  *   const id: AgentCapability.AgentId = yield* S.decodeUnknownEffect(AgentCapability.AgentId)(1)
  *   return id
  * })
- * void program
+ * console.log(program)
  * ```
  *
  * @category entity-ids
@@ -79,7 +79,7 @@ export const SkillId = make("skill", {
  *   const id: AgentCapability.SkillId = yield* S.decodeUnknownEffect(AgentCapability.SkillId)(1)
  *   return id
  * })
- * void program
+ * console.log(program)
  * ```
  *
  * @category entity-ids

@@ -26,6 +26,13 @@ import {
  * services. The following codes are used in some of the most popular online
  * services.
  *
+ * @example
+ * ```ts
+ * import { HttpStatusUnofficial } from "@beep/schema/HttpStatus"
+ *
+ * console.log(HttpStatusUnofficial.Pairs.length)
+ * ```
+ *
  * @since 0.0.0
  * @category validation
  */

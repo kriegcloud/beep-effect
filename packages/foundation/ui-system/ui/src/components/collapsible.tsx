@@ -4,6 +4,15 @@ import { Collapsible as CollapsiblePrimitive } from "@base-ui/react/collapsible"
 import { cn } from "../lib/index.ts";
 
 /**
+ * Collapsible component.
+ *
+ * @example
+ * ```tsx
+ * import { Collapsible } from "@beep/ui/components/collapsible"
+ *
+ * console.log(Collapsible)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -12,6 +21,15 @@ function Collapsible({ className, ...props }: CollapsiblePrimitive.Root.Props) {
 }
 
 /**
+ * Collapsible trigger component.
+ *
+ * @example
+ * ```tsx
+ * import { CollapsibleTrigger } from "@beep/ui/components/collapsible"
+ *
+ * console.log(CollapsibleTrigger)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -20,6 +38,15 @@ function CollapsibleTrigger({ className, ...props }: CollapsiblePrimitive.Trigge
 }
 
 /**
+ * Collapsible content component.
+ *
+ * @example
+ * ```tsx
+ * import { CollapsibleContent } from "@beep/ui/components/collapsible"
+ *
+ * console.log(CollapsibleContent)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */

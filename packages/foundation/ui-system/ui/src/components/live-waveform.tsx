@@ -7,6 +7,16 @@ import { cn } from "../lib/index.ts";
 import type { HTMLAttributes } from "react";
 
 /**
+ * Live waveform props type.
+ *
+ * @example
+ * ```ts
+ * import type { LiveWaveformProps } from "@beep/ui/components/live-waveform"
+ *
+ * const value = {} as LiveWaveformProps
+ * console.log(value)
+ * ```
+ *
  * @category type-level
  * @since 0.0.0
  */
@@ -46,6 +56,15 @@ const waveformAriaLabel = (active: boolean, processing: boolean): string => {
 };
 
 /**
+ * Live waveform component.
+ *
+ * @example
+ * ```tsx
+ * import { LiveWaveform } from "@beep/ui/components/live-waveform"
+ *
+ * console.log(LiveWaveform)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */

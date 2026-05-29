@@ -257,7 +257,7 @@ const renderIssuePath = (path: StandardSchemaV1.Issue["path"]): ReadonlyArray<st
  *   path: ["name"],
  *   pointer: "/name"
  * })
- * void issue.pointer
+ * console.log(issue.pointer)
  * ```
  * @category models
  * @since 0.0.0
@@ -280,7 +280,7 @@ export class PackageJsonValidationIssue extends S.Class<PackageJsonValidationIss
  * ```ts
  * import { packageJsonJsonSchema } from "@beep/repo-utils/schemas/PackageJsonTools"
  * const schema = packageJsonJsonSchema
- * void schema
+ * console.log(schema)
  * ```
  * @category utilities
  * @since 0.0.0
@@ -294,7 +294,7 @@ export const packageJsonJsonSchema = S.toJsonSchemaDocument(PackageJson);
  * ```ts
  * import { npmPackageJsonJsonSchema } from "@beep/repo-utils/schemas/PackageJsonTools"
  * const schema = npmPackageJsonJsonSchema
- * void schema
+ * console.log(schema)
  * ```
  * @category utilities
  * @since 0.0.0
@@ -311,7 +311,7 @@ export const npmPackageJsonJsonSchema = S.toJsonSchemaDocument(NpmPackageJson);
  *   name: "@beep/example",
  *   version: "0.0.0"
  * })
- * void program
+ * console.log(program)
  * ```
  * @category combinators
  * @since 0.0.0
@@ -332,7 +332,7 @@ export const normalizePackageJsonEffect: (input: unknown) => Effect.Effect<Packa
  *   name: "@beep/example",
  *   version: "0.0.0"
  * })
- * void program
+ * console.log(program)
  * ```
  * @category combinators
  * @since 0.0.0
@@ -356,7 +356,7 @@ export const encodePackageJsonCanonicalPrettyEffect: (
  *   { name: "@beep/example", version: "0.0.0" },
  *   { name: "@beep/example", version: "0.0.1" }
  * )
- * void program
+ * console.log(program)
  * ```
  * @category combinators
  * @since 0.0.0
@@ -383,7 +383,7 @@ export const diffPackageJsonEffect: {
  *   { name: "@beep/example", version: "0.0.0" },
  *   []
  * )
- * void program
+ * console.log(program)
  * ```
  * @category combinators
  * @since 0.0.0
@@ -415,7 +415,7 @@ export const applyPackageJsonPatchEffect: {
  * const program = S.decodeUnknownEffect(S.String)(1).pipe(
  *   Effect.mapError(getPackageJsonSchemaIssues)
  * )
- * void program
+ * console.log(program)
  * ```
  * @category utilities
  * @since 0.0.0

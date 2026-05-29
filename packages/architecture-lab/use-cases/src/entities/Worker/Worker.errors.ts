@@ -16,6 +16,13 @@ const $I = $ArchitectureLabUseCasesId.create("entities/Worker/Worker.errors");
 /**
  * Generic public reason used when internal Worker repository details are redacted.
  *
+ * @example
+ * ```ts
+ * import { WORKER_ACTION_UNAVAILABLE_REASON } from "@beep/architecture-lab-use-cases/entities/Worker"
+ *
+ * console.log(WORKER_ACTION_UNAVAILABLE_REASON)
+ * ```
+ *
  * @category errors
  * @since 0.0.0
  */
@@ -23,6 +30,13 @@ export const WORKER_ACTION_UNAVAILABLE_REASON = "Worker service is unavailable."
 
 /**
  * Public failure raised when a requested Worker is absent.
+ *
+ * @example
+ * ```ts
+ * import { WorkerNotFound } from "@beep/architecture-lab-use-cases/entities/Worker"
+ *
+ * console.log(WorkerNotFound)
+ * ```
  *
  * @category errors
  * @since 0.0.0
@@ -40,6 +54,13 @@ export class WorkerNotFound extends TaggedErrorClass<WorkerNotFound>($I`WorkerNo
 
 /**
  * Public failure raised when a Worker command conflicts with persisted state.
+ *
+ * @example
+ * ```ts
+ * import { WorkerConflict } from "@beep/architecture-lab-use-cases/entities/Worker"
+ *
+ * console.log(WorkerConflict)
+ * ```
  *
  * @category errors
  * @since 0.0.0
@@ -59,6 +80,13 @@ export class WorkerConflict extends TaggedErrorClass<WorkerConflict>($I`WorkerCo
 /**
  * Public failure raised when a Worker action cannot be completed.
  *
+ * @example
+ * ```ts
+ * import { WorkerActionFailed } from "@beep/architecture-lab-use-cases/entities/Worker"
+ *
+ * console.log(WorkerActionFailed)
+ * ```
+ *
  * @category errors
  * @since 0.0.0
  */
@@ -76,6 +104,14 @@ export class WorkerActionFailed extends TaggedErrorClass<WorkerActionFailed>($I`
 /**
  * Public Worker use-case failure.
  *
+ * @example
+ * ```ts
+ * import type { WorkerActionError } from "@beep/architecture-lab-use-cases/entities/Worker"
+ *
+ * const value = {} as WorkerActionError
+ * console.log(value)
+ * ```
+ *
  * @category errors
  * @since 0.0.0
  */
@@ -83,6 +119,13 @@ export type WorkerActionError = WorkerNotFound | WorkerConflict | WorkerActionFa
 
 /**
  * Public Worker use-case failure schema.
+ *
+ * @example
+ * ```ts
+ * import { WorkerActionError } from "@beep/architecture-lab-use-cases/entities/Worker"
+ *
+ * console.log(WorkerActionError)
+ * ```
  *
  * @category errors
  * @since 0.0.0

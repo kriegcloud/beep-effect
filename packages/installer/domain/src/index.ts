@@ -9,6 +9,13 @@
 /**
  * Package version for `@beep/installer-domain`.
  *
+ * @example
+ * ```ts
+ * import { VERSION } from "@beep/installer-domain"
+ *
+ * console.log(VERSION)
+ * ```
+ *
  * @category aggregates
  * @since 0.0.0
  */

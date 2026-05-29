@@ -4,6 +4,15 @@ import { cn } from "../lib/index.ts";
 import type * as React from "react";
 
 /**
+ * Pagination component.
+ *
+ * @example
+ * ```tsx
+ * import { Pagination } from "@beep/ui/components/pagination"
+ *
+ * console.log(Pagination)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -19,6 +28,15 @@ function Pagination({ className, ...props }: React.ComponentProps<"nav">) {
 }
 
 /**
+ * Pagination content component.
+ *
+ * @example
+ * ```tsx
+ * import { PaginationContent } from "@beep/ui/components/pagination"
+ *
+ * console.log(PaginationContent)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -27,6 +45,15 @@ function PaginationContent({ className, ...props }: React.ComponentProps<"ul">) 
 }
 
 /**
+ * Pagination item component.
+ *
+ * @example
+ * ```tsx
+ * import { PaginationItem } from "@beep/ui/components/pagination"
+ *
+ * console.log(PaginationItem)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -40,6 +67,15 @@ type PaginationLinkProps = {
   React.ComponentProps<"a">;
 
 /**
+ * Pagination link component.
+ *
+ * @example
+ * ```tsx
+ * import { PaginationLink } from "@beep/ui/components/pagination"
+ *
+ * console.log(PaginationLink)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -60,6 +96,15 @@ function PaginationLink({ className, isActive, size = "icon", ...props }: Pagina
 }
 
 /**
+ * Pagination previous component.
+ *
+ * @example
+ * ```tsx
+ * import { PaginationPrevious } from "@beep/ui/components/pagination"
+ *
+ * console.log(PaginationPrevious)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -73,6 +118,15 @@ function PaginationPrevious({ className, ...props }: React.ComponentProps<typeof
 }
 
 /**
+ * Pagination next component.
+ *
+ * @example
+ * ```tsx
+ * import { PaginationNext } from "@beep/ui/components/pagination"
+ *
+ * console.log(PaginationNext)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -86,6 +140,15 @@ function PaginationNext({ className, ...props }: React.ComponentProps<typeof Pag
 }
 
 /**
+ * Pagination ellipsis component.
+ *
+ * @example
+ * ```tsx
+ * import { PaginationEllipsis } from "@beep/ui/components/pagination"
+ *
+ * console.log(PaginationEllipsis)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */

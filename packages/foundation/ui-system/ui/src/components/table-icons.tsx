@@ -3,6 +3,15 @@
 import type { IconProps } from "@phosphor-icons/react";
 
 /**
+ * Border all icon component.
+ *
+ * @example
+ * ```tsx
+ * import { BorderAllIcon } from "@beep/ui/components/table-icons"
+ *
+ * console.log(BorderAllIcon)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -38,6 +47,15 @@ export function BorderAllIcon(props: IconProps) {
 }
 
 /**
+ * Border bottom icon component.
+ *
+ * @example
+ * ```tsx
+ * import { BorderBottomIcon } from "@beep/ui/components/table-icons"
+ *
+ * console.log(BorderBottomIcon)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -85,6 +103,15 @@ export function BorderBottomIcon(props: IconProps) {
 }
 
 /**
+ * Border left icon component.
+ *
+ * @example
+ * ```tsx
+ * import { BorderLeftIcon } from "@beep/ui/components/table-icons"
+ *
+ * console.log(BorderLeftIcon)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -132,6 +159,15 @@ export function BorderLeftIcon(props: IconProps) {
 }
 
 /**
+ * Border none icon component.
+ *
+ * @example
+ * ```tsx
+ * import { BorderNoneIcon } from "@beep/ui/components/table-icons"
+ *
+ * console.log(BorderNoneIcon)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -185,6 +221,15 @@ export function BorderNoneIcon(props: IconProps) {
 }
 
 /**
+ * Border right icon component.
+ *
+ * @example
+ * ```tsx
+ * import { BorderRightIcon } from "@beep/ui/components/table-icons"
+ *
+ * console.log(BorderRightIcon)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -232,6 +277,15 @@ export function BorderRightIcon(props: IconProps) {
 }
 
 /**
+ * Border top icon component.
+ *
+ * @example
+ * ```tsx
+ * import { BorderTopIcon } from "@beep/ui/components/table-icons"
+ *
+ * console.log(BorderTopIcon)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */

@@ -73,7 +73,7 @@ class ChalkConstructorOptionsModel extends S.Class<ChalkConstructorOptionsModel>
  * import type { ChalkInstanceSurface } from "@beep/chalk/Chalk"
  *
  * const render = (chalk: ChalkInstanceSurface) => chalk.red.bold("error")
- * void render
+ * console.log(render)
  * ```
  *
  * @category models
@@ -163,7 +163,7 @@ export const ChalkConstructorOptions = ChalkConstructorOptionsModel;
  * import type { ChalkConstructorOptions } from "@beep/chalk/Chalk"
  *
  * const options: ChalkConstructorOptions = { level: 3 }
- * void options
+ * console.log(options)
  * ```
  *
  * @category models
@@ -179,7 +179,7 @@ export type ChalkConstructorOptions = typeof ChalkConstructorOptions.Encoded;
  * import type { ChalkConstructorBase } from "@beep/chalk/Chalk"
  *
  * const Base: ChalkConstructorBase = class {}
- * void Base
+ * console.log(Base)
  * ```
  *
  * @category models
@@ -195,7 +195,7 @@ export type ChalkConstructorBase = new (options?: ChalkConstructorOptions) => ob
  * import type { ChalkCreator } from "@beep/chalk/Chalk"
  *
  * const create: ChalkCreator = () => ({})
- * void create
+ * console.log(create)
  * ```
  *
  * @category models

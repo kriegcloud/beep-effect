@@ -60,7 +60,7 @@ import type { Block, Inline } from "./Md.model.ts";
  * import type { InlineInput } from "@beep/md/Md"
  *
  * const accept = (input: InlineInput) => input
- * void accept
+ * console.log(accept)
  * ```
  *
  * @category models
@@ -77,7 +77,7 @@ export type InlineInput = string | Inline;
  * import type { InlineContent } from "@beep/md/Md"
  *
  * const content: InlineContent = [Md.strong("Hello"), " world"]
- * void content
+ * console.log(content)
  * ```
  *
  * @category models
@@ -94,7 +94,7 @@ export type InlineContent = InlineInput | ReadonlyArray<InlineInput>;
  * import type { Strong } from "@beep/md/Md.model"
  *
  * const accept = (builder: InlineContentBuilder<Strong>) => builder
- * void accept
+ * console.log(accept)
  * ```
  *
  * @category models
@@ -113,7 +113,7 @@ export type InlineContentBuilder<Node> = {
  * import type { BlockInput } from "@beep/md/Md"
  *
  * const accept = (input: BlockInput) => input
- * void accept
+ * console.log(accept)
  * ```
  *
  * @category models
@@ -130,7 +130,7 @@ export type BlockInput = string | Block;
  * import type { BlockContent } from "@beep/md/Md"
  *
  * const content: BlockContent = [Md.h2("Nested"), "plain"]
- * void content
+ * console.log(content)
  * ```
  *
  * @category models
@@ -150,7 +150,7 @@ export type BlockContent = BlockInput | ReadonlyArray<BlockInput>;
  * import type { BlockTemplateValue } from "@beep/md/Md"
  *
  * const value: BlockTemplateValue = Md.h2("Nested")
- * void value
+ * console.log(value)
  * ```
  *
  * @category models
@@ -167,7 +167,7 @@ export type BlockTemplateValue = InlineContent | Block;
  * import type { BlockQuote } from "@beep/md/Md.model"
  *
  * const accept = (builder: BlockContentBuilder<BlockQuote>) => builder
- * void accept
+ * console.log(accept)
  * ```
  *
  * @category models
@@ -187,7 +187,7 @@ export type BlockContentBuilder<Node> = {
  * import type { ListItemInput } from "@beep/md/Md"
  *
  * const item: ListItemInput = [Md.strong("Item")]
- * void item
+ * console.log(item)
  * ```
  *
  * @category models
@@ -203,7 +203,7 @@ export type ListItemInput = string | Inline | Li | ReadonlyArray<InlineInput>;
  * import type { TaskListItemInput } from "@beep/md/Md"
  *
  * const item: TaskListItemInput = { text: "Done", checked: true }
- * void item
+ * console.log(item)
  * ```
  *
  * @category models

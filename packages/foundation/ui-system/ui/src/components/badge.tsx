@@ -6,6 +6,15 @@ import { cn } from "../lib/index.ts";
 import type { VariantProps } from "class-variance-authority";
 
 /**
+ * Badge variants component.
+ *
+ * @example
+ * ```tsx
+ * import { badgeVariants } from "@beep/ui/components/badge"
+ *
+ * console.log(badgeVariants)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -30,6 +39,15 @@ const badgeVariants = cva(
 );
 
 /**
+ * Badge component.
+ *
+ * @example
+ * ```tsx
+ * import { Badge } from "@beep/ui/components/badge"
+ *
+ * console.log(Badge)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */

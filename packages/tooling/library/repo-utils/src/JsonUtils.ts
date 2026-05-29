@@ -27,7 +27,7 @@ const compactGetter = SchemaGetter.stringifyJson();
  * import { Effect } from "effect"
  * import { jsonStringifyPretty } from "@beep/repo-utils/JsonUtils"
  * const program = Effect.map(jsonStringifyPretty({ ok: true }), (json) => json.length)
- * void program
+ * console.log(program)
  * ```
  * @category utilities
  * @since 0.0.0
@@ -51,7 +51,7 @@ export const jsonStringifyPretty: (value: unknown) => Effect.Effect<string, Doma
  * import { Effect } from "effect"
  * import { jsonStringifyCompact } from "@beep/repo-utils/JsonUtils"
  * const program = Effect.map(jsonStringifyCompact({ ok: true }), (json) => json.length)
- * void program
+ * console.log(program)
  * ```
  * @category utilities
  * @since 0.0.0
@@ -74,7 +74,7 @@ export const jsonStringifyCompact: (value: unknown) => Effect.Effect<string, Dom
  * import { Effect } from "effect"
  * import { jsonParse } from "@beep/repo-utils/JsonUtils"
  * const program = Effect.map(jsonParse("{\"ok\":true}"), (value) => typeof value)
- * void program
+ * console.log(program)
  * ```
  * @category utilities
  * @since 0.0.0

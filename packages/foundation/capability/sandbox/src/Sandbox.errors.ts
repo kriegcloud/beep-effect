@@ -15,6 +15,13 @@ const $I = $SandboxId.create("Sandbox.errors");
 /**
  * ExecError - Command execution failed in the sandbox.
  *
+ * @example
+ * ```ts
+ * import { ExecError } from "@beep/sandbox/Sandbox.errors"
+ *
+ * console.log(ExecError)
+ * ```
+ *
  * @category errors
  * @since 0.0.0
  */
@@ -30,6 +37,13 @@ export class ExecError extends CauseTaggedError<ExecError>($I`ExecError`)(
 
 /**
  * ExecHostError - Command execution failed on the host.
+ *
+ * @example
+ * ```ts
+ * import { ExecHostError } from "@beep/sandbox/Sandbox.errors"
+ *
+ * console.log(ExecHostError)
+ * ```
  *
  * @category errors
  * @since 0.0.0
@@ -47,6 +61,13 @@ export class ExecHostError extends CauseTaggedError<ExecHostError>($I`ExecHostEr
 /**
  * CopyError - File copy between host and sandbox failed
  *
+ * @example
+ * ```ts
+ * import { CopyError } from "@beep/sandbox/Sandbox.errors"
+ *
+ * console.log(CopyError)
+ * ```
+ *
  * @category errors
  * @since 0.0.0
  */
@@ -60,6 +81,13 @@ export class CopyError extends CauseTaggedError<CopyError>($I`CopyError`)(
 
 /**
  * DockerError - Docker infrastructure operation failed
+ *
+ * @example
+ * ```ts
+ * import { DockerError } from "@beep/sandbox/Sandbox.errors"
+ *
+ * console.log(DockerError)
+ * ```
  *
  * @category errors
  * @since 0.0.0
@@ -75,6 +103,13 @@ export class DockerError extends CauseTaggedError<DockerError>($I`DockerError`)(
 /**
  * PodmanError - Podman infrastructure operation failed
  *
+ * @example
+ * ```ts
+ * import { PodmanError } from "@beep/sandbox/Sandbox.errors"
+ *
+ * console.log(PodmanError)
+ * ```
+ *
  * @category errors
  * @since 0.0.0
  */
@@ -88,6 +123,13 @@ export class PodmanError extends CauseTaggedError<PodmanError>($I`PodmanError`)(
 
 /**
  * SyncError - Git sync-in or sync-out operation failed
+ *
+ * @example
+ * ```ts
+ * import { SyncError } from "@beep/sandbox/Sandbox.errors"
+ *
+ * console.log(SyncError)
+ * ```
  *
  * @category errors
  * @since 0.0.0
@@ -103,6 +145,13 @@ export class SyncError extends CauseTaggedError<SyncError>($I`SyncError`)(
 /**
  * WorktreeError - Git worktree operation failed
  *
+ * @example
+ * ```ts
+ * import { WorktreeError } from "@beep/sandbox/Sandbox.errors"
+ *
+ * console.log(WorktreeError)
+ * ```
+ *
  * @category errors
  * @since 0.0.0
  */
@@ -117,6 +166,13 @@ export class WorktreeError extends CauseTaggedError<WorktreeError>($I`WorktreeEr
 /**
  * PromptError - Prompt resolution or preprocessing failed
  *
+ * @example
+ * ```ts
+ * import { PromptError } from "@beep/sandbox/Sandbox.errors"
+ *
+ * console.log(PromptError)
+ * ```
+ *
  * @category errors
  * @since 0.0.0
  */
@@ -130,6 +186,13 @@ export class PromptError extends CauseTaggedError<PromptError>($I`PromptError`)(
 
 /**
  * AgentError - Agent invocation failed.
+ *
+ * @example
+ * ```ts
+ * import { AgentError } from "@beep/sandbox/Sandbox.errors"
+ *
+ * console.log(AgentError)
+ * ```
  *
  * @category errors
  * @since 0.0.0
@@ -147,6 +210,13 @@ export class AgentError extends CauseTaggedError<AgentError>($I`AgentError`)(
 /**
  * ConfigDirError - .sandcastle/ config directory missing.
  *
+ * @example
+ * ```ts
+ * import { ConfigDirError } from "@beep/sandbox/Sandbox.errors"
+ *
+ * console.log(ConfigDirError)
+ * ```
+ *
  * @category errors
  * @since 0.0.0
  */
@@ -161,6 +231,13 @@ export class ConfigDirError extends CauseTaggedError<ConfigDirError>($I`ConfigDi
 /**
  * InitError - Initialization or setup operation failed.
  *
+ * @example
+ * ```ts
+ * import { InitError } from "@beep/sandbox/Sandbox.errors"
+ *
+ * console.log(InitError)
+ * ```
+ *
  * @category errors
  * @since 0.0.0
  */
@@ -174,6 +251,13 @@ export class InitError extends CauseTaggedError<InitError>($I`InitError`)(
 
 /**
  * AgentIdleTimeoutError - Run exceeded the configured agent idle timeout.
+ *
+ * @example
+ * ```ts
+ * import { AgentIdleTimeoutError } from "@beep/sandbox/Sandbox.errors"
+ *
+ * console.log(AgentIdleTimeoutError)
+ * ```
  *
  * @category errors
  * @since 0.0.0
@@ -191,6 +275,13 @@ export class AgentIdleTimeoutError extends CauseTaggedError<AgentIdleTimeoutErro
 
 /**
  * WorktreeTimeoutError - Git worktree create or prune timed out.
+ *
+ * @example
+ * ```ts
+ * import { WorktreeTimeoutError } from "@beep/sandbox/Sandbox.errors"
+ *
+ * console.log(WorktreeTimeoutError)
+ * ```
  *
  * @category errors
  * @since 0.0.0
@@ -210,6 +301,13 @@ export class WorktreeTimeoutError extends CauseTaggedError<WorktreeTimeoutError>
 /**
  * ContainerStartTimeoutError - Sandbox container start timed out.
  *
+ * @example
+ * ```ts
+ * import { ContainerStartTimeoutError } from "@beep/sandbox/Sandbox.errors"
+ *
+ * console.log(ContainerStartTimeoutError)
+ * ```
+ *
  * @category errors
  * @since 0.0.0
  */
@@ -227,6 +325,13 @@ export class ContainerStartTimeoutError extends CauseTaggedError<ContainerStartT
 
 /**
  * CopyToWorktreeTimeoutError - Copying files to worktree timed out.
+ *
+ * @example
+ * ```ts
+ * import { CopyToWorktreeTimeoutError } from "@beep/sandbox/Sandbox.errors"
+ *
+ * console.log(CopyToWorktreeTimeoutError)
+ * ```
  *
  * @category errors
  * @since 0.0.0
@@ -247,6 +352,13 @@ export class CopyToWorktreeTimeoutError extends CauseTaggedError<CopyToWorktreeT
 /**
  * CopyToWorktreeError - Fallback cp -R to worktree failed.
  *
+ * @example
+ * ```ts
+ * import { CopyToWorktreeError } from "@beep/sandbox/Sandbox.errors"
+ *
+ * console.log(CopyToWorktreeError)
+ * ```
+ *
  * @category errors
  * @since 0.0.0
  */
@@ -265,6 +377,13 @@ export class CopyToWorktreeError extends CauseTaggedError<CopyToWorktreeError>($
 /**
  * SyncInTimeoutError - Git sync-in for isolated providers timed out.
  *
+ * @example
+ * ```ts
+ * import { SyncInTimeoutError } from "@beep/sandbox/Sandbox.errors"
+ *
+ * console.log(SyncInTimeoutError)
+ * ```
+ *
  * @category errors
  * @since 0.0.0
  */
@@ -281,6 +400,13 @@ export class SyncInTimeoutError extends CauseTaggedError<SyncInTimeoutError>($I`
 /**
  * SyncOutTimeoutError - Git sync-out for isolated providers timed out.
  *
+ * @example
+ * ```ts
+ * import { SyncOutTimeoutError } from "@beep/sandbox/Sandbox.errors"
+ *
+ * console.log(SyncOutTimeoutError)
+ * ```
+ *
  * @category errors
  * @since 0.0.0
  */
@@ -296,6 +422,13 @@ export class SyncOutTimeoutError extends CauseTaggedError<SyncOutTimeoutError>($
 
 /**
  * HookTimeoutError - onSandboxReady hook command timed out.
+ *
+ * @example
+ * ```ts
+ * import { HookTimeoutError } from "@beep/sandbox/Sandbox.errors"
+ *
+ * console.log(HookTimeoutError)
+ * ```
  *
  * @category errors
  * @since 0.0.0
@@ -314,6 +447,13 @@ export class HookTimeoutError extends CauseTaggedError<HookTimeoutError>($I`Hook
 /**
  * GitSetupTimeoutError - Git config setup command timed out.
  *
+ * @example
+ * ```ts
+ * import { GitSetupTimeoutError } from "@beep/sandbox/Sandbox.errors"
+ *
+ * console.log(GitSetupTimeoutError)
+ * ```
+ *
  * @category errors
  * @since 0.0.0
  */
@@ -330,6 +470,13 @@ export class GitSetupTimeoutError extends CauseTaggedError<GitSetupTimeoutError>
 
 /**
  * PromptExpansionTimeoutError - Prompt shell expression expansion timed out.
+ *
+ * @example
+ * ```ts
+ * import { PromptExpansionTimeoutError } from "@beep/sandbox/Sandbox.errors"
+ *
+ * console.log(PromptExpansionTimeoutError)
+ * ```
  *
  * @category errors
  * @since 0.0.0
@@ -350,6 +497,13 @@ export class PromptExpansionTimeoutError extends CauseTaggedError<PromptExpansio
 /**
  * CommitCollectionTimeoutError - Commit collection timed out.
  *
+ * @example
+ * ```ts
+ * import { CommitCollectionTimeoutError } from "@beep/sandbox/Sandbox.errors"
+ *
+ * console.log(CommitCollectionTimeoutError)
+ * ```
+ *
  * @category errors
  * @since 0.0.0
  */
@@ -367,6 +521,13 @@ export class CommitCollectionTimeoutError extends CauseTaggedError<CommitCollect
 
 /**
  * MergeToHostTimeoutError - Merge-to-host branch timed out.
+ *
+ * @example
+ * ```ts
+ * import { MergeToHostTimeoutError } from "@beep/sandbox/Sandbox.errors"
+ *
+ * console.log(MergeToHostTimeoutError)
+ * ```
  *
  * @category errors
  * @since 0.0.0
@@ -386,6 +547,13 @@ export class MergeToHostTimeoutError extends CauseTaggedError<MergeToHostTimeout
 /**
  * SessionCaptureError - Session capture (read, rewrite, or write) failed
  *
+ * @example
+ * ```ts
+ * import { SessionCaptureError } from "@beep/sandbox/Sandbox.errors"
+ *
+ * console.log(SessionCaptureError)
+ * ```
+ *
  * @category errors
  * @since 0.0.0
  */
@@ -402,6 +570,13 @@ export class SessionCaptureError extends CauseTaggedError<SessionCaptureError>($
 /**
  * CwdError - The provided `cwd` path does not exist or is not a directory
  *
+ * @example
+ * ```ts
+ * import { CwdError } from "@beep/sandbox/Sandbox.errors"
+ *
+ * console.log(CwdError)
+ * ```
+ *
  * @category errors
  * @since 0.0.0
  */
@@ -417,6 +592,13 @@ export class CwdError extends CauseTaggedError<CwdError>($I`CwdError`)(
 
 /**
  * Union of all sandbox capability errors.
+ *
+ * @example
+ * ```ts
+ * import { SandboxError } from "@beep/sandbox/Sandbox.errors"
+ *
+ * console.log(SandboxError)
+ * ```
  *
  * @category errors
  * @since 0.0.0

@@ -2,6 +2,15 @@ import { CONTROL_HEIGHTS, CONTROL_TOUCH_HEIGHTS, TOUCH_MEDIA_QUERY } from "../sc
 import type { ThemeComponents } from "../types.ts";
 
 /**
+ * Select theme theme value.
+ *
+ * @example
+ * ```ts
+ * import { selectTheme } from "@beep/ui/themes/components/select"
+ *
+ * console.log(selectTheme)
+ * ```
+ *
  * @category themes
  * @since 0.0.0
  */

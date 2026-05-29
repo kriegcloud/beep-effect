@@ -138,6 +138,13 @@ export declare namespace Float32ArrayFromArray {
  * define a `json` variant, allowing read-side JSON serialization to be chosen
  * explicitly by the surrounding model.
  *
+ * @example
+ * ```ts
+ * import { Float32ArrayField } from "@beep/schema/Float32Array";
+ *
+ * console.log(Float32ArrayField.schemas.insert.ast._tag);
+ * ```
+ *
  * @category schemas
  * @since 0.0.0
  */

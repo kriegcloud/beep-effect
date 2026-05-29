@@ -4,6 +4,15 @@ import { ScrollArea as ScrollAreaPrimitive } from "@base-ui/react/scroll-area";
 import { cn } from "../lib/index.ts";
 
 /**
+ * Scroll area component.
+ *
+ * @example
+ * ```tsx
+ * import { ScrollArea } from "@beep/ui/components/scroll-area"
+ *
+ * console.log(ScrollArea)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -23,6 +32,15 @@ function ScrollArea({ className, children, ...props }: ScrollAreaPrimitive.Root.
 }
 
 /**
+ * Scroll bar component.
+ *
+ * @example
+ * ```tsx
+ * import { ScrollBar } from "@beep/ui/components/scroll-area"
+ *
+ * console.log(ScrollBar)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */

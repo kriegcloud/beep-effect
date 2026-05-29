@@ -39,7 +39,7 @@ const serviceContractMetadata = (canonicalName: string, overview: string) =>
  * ```ts
  * import { CanonicalizationAlgorithm } from "@beep/semantic-web/services/canonicalization"
  *
- * void CanonicalizationAlgorithm
+ * console.log(CanonicalizationAlgorithm)
  * ```
  *
  * @since 0.0.0
@@ -58,7 +58,7 @@ export const CanonicalizationAlgorithm = LiteralKit(["rdfc-1.0", "lexical-sort-v
  * ```ts
  * import { CanonicalizationError } from "@beep/semantic-web/services/canonicalization"
  *
- * void CanonicalizationError
+ * console.log(CanonicalizationError)
  * ```
  *
  * @since 0.0.0
@@ -83,7 +83,7 @@ export class CanonicalizationError extends TaggedErrorClass<CanonicalizationErro
  * ```ts
  * import { CanonicalizeDatasetRequest } from "@beep/semantic-web/services/canonicalization"
  *
- * void CanonicalizeDatasetRequest
+ * console.log(CanonicalizeDatasetRequest)
  * ```
  *
  * @since 0.0.0
@@ -111,7 +111,7 @@ export class CanonicalizeDatasetRequest extends S.Class<CanonicalizeDatasetReque
  * ```ts
  * import { FingerprintDatasetRequest } from "@beep/semantic-web/services/canonicalization"
  *
- * void FingerprintDatasetRequest
+ * console.log(FingerprintDatasetRequest)
  * ```
  *
  * @since 0.0.0
@@ -139,7 +139,7 @@ export class FingerprintDatasetRequest extends S.Class<FingerprintDatasetRequest
  * ```ts
  * import { CanonicalDatasetResult } from "@beep/semantic-web/services/canonicalization"
  *
- * void CanonicalDatasetResult
+ * console.log(CanonicalDatasetResult)
  * ```
  *
  * @since 0.0.0
@@ -163,7 +163,7 @@ export class CanonicalDatasetResult extends S.Class<CanonicalDatasetResult>($I`C
  * ```ts
  * import { DatasetFingerprint } from "@beep/semantic-web/services/canonicalization"
  *
- * void DatasetFingerprint
+ * console.log(DatasetFingerprint)
  * ```
  *
  * @since 0.0.0
@@ -188,7 +188,7 @@ export class DatasetFingerprint extends S.Class<DatasetFingerprint>($I`DatasetFi
  * import type { CanonicalizationServiceShape } from "@beep/semantic-web/services/canonicalization"
  *
  * const acceptCanonicalizationServiceShape = (value: CanonicalizationServiceShape) => value
- * void acceptCanonicalizationServiceShape
+ * console.log(acceptCanonicalizationServiceShape)
  * ```
  *
  * @since 0.0.0
@@ -210,7 +210,7 @@ export interface CanonicalizationServiceShape {
  * ```ts
  * import { CanonicalizationService } from "@beep/semantic-web/services/canonicalization"
  *
- * void CanonicalizationService
+ * console.log(CanonicalizationService)
  * ```
  *
  * @since 0.0.0

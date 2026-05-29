@@ -17,7 +17,7 @@ const $I = $RepoUtilsId.create("JSDoc/models/CanonicalJSDocSourceMetadata.model"
  * ```ts
  * import { CanonicalJSDocSourceMetadata } from "@beep/repo-utils/JSDoc/models/CanonicalJSDocSourceMetadata.model"
  *
- * void CanonicalJSDocSourceMetadata
+ * console.log(CanonicalJSDocSourceMetadata)
  * ```
  * @category models
  * @since 0.0.0
@@ -42,7 +42,7 @@ export class CanonicalJSDocSourceMetadata extends S.Class<CanonicalJSDocSourceMe
  * ```ts
  * import { CanonicalJSDocSourceMetadata } from "@beep/repo-utils/JSDoc/models/CanonicalJSDocSourceMetadata.model"
  *
- * void CanonicalJSDocSourceMetadata
+ * console.log(CanonicalJSDocSourceMetadata)
  * ```
  * @category models
  * @since 0.0.0
@@ -66,7 +66,7 @@ export declare namespace CanonicalJSDocSourceMetadata {
  * ```ts
  * import { make } from "@beep/repo-utils/JSDoc/models/CanonicalJSDocSourceMetadata.model"
  *
- * void make
+ * console.log(make)
  * ```
  * @category models
  * @since 0.0.0

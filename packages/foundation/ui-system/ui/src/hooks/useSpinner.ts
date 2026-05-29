@@ -97,7 +97,14 @@ function useUnmountEffect(fn: () => void, deps: React.DependencyList = []) {
  *
  * function Example() {}
  *
- * void Example
+ * console.log(Example)
+ * ```
+ *
+ * @example
+ * ```ts
+ * import { useSpinner } from "@beep/ui/hooks/useSpinner"
+ *
+ * console.log(useSpinner)
  * ```
  *
  * @category components
@@ -107,10 +114,17 @@ function useUnmountEffect(fn: () => void, deps: React.DependencyList = []) {
  * @since 0.0.0
  */
 /**
- * Spinner button hook with press-and-hold repeat behavior.
+ * Use spinner hook.
  *
- * @since 0.0.0
+ * @example
+ * ```ts
+ * import { useSpinner } from "@beep/ui/hooks/useSpinner"
+ *
+ * console.log(useSpinner)
+ * ```
+ *
  * @category components
+ * @since 0.0.0
  */
 export function useSpinner<T>(increment: (params?: T) => void, decrement: (params?: T) => void) {
   const [isSpinning, setIsSpinning] = useState(false);

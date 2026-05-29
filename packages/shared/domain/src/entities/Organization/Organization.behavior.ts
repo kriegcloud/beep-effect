@@ -27,7 +27,7 @@ import type { Model } from "./Organization.model.js";
  *   const id = yield* S.decodeUnknownEffect(Shared.OrganizationId)(1)
  *   return isTenantRoot({ id, orgId: id })
  * })
- * void program
+ * console.log(program)
  * ```
  *
  * @category predicates
@@ -74,7 +74,7 @@ export const hasParentOrganization = (organization: Pick<Model, "parentOrgId">):
  *   const id = yield* S.decodeUnknownEffect(Shared.OrganizationId)(1)
  *   return Organization.hasValidTenantPlacement({ id, orgId: id, parentOrgId: O.none() })
  * })
- * void program
+ * console.log(program)
  * ```
  *
  * @category predicates

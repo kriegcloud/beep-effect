@@ -426,7 +426,7 @@ const collectTsconfigViolations = Effect.fn("SchemaTopology.collectTsconfigViola
  *   const violations = yield* collectSchemaTopologyViolations()
  *   console.log(violations.length)
  * })
- * void program
+ * console.log(program)
  * ```
  * @category utilities
  * @since 0.0.0

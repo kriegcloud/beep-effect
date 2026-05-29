@@ -7,6 +7,15 @@ import { cn } from "../lib/index.ts";
 import type { VariantProps } from "class-variance-authority";
 
 /**
+ * Button group variants component.
+ *
+ * @example
+ * ```tsx
+ * import { buttonGroupVariants } from "@beep/ui/components/button-group"
+ *
+ * console.log(buttonGroupVariants)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -28,6 +37,15 @@ const buttonGroupVariants = cva(
 );
 
 /**
+ * Button group component.
+ *
+ * @example
+ * ```tsx
+ * import { ButtonGroup } from "@beep/ui/components/button-group"
+ *
+ * console.log(ButtonGroup)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -48,6 +66,15 @@ function ButtonGroup({
 }
 
 /**
+ * Button group text component.
+ *
+ * @example
+ * ```tsx
+ * import { ButtonGroupText } from "@beep/ui/components/button-group"
+ *
+ * console.log(ButtonGroupText)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -71,6 +98,15 @@ function ButtonGroupText({ className, render, ...props }: useRender.ComponentPro
 }
 
 /**
+ * Button group separator component.
+ *
+ * @example
+ * ```tsx
+ * import { ButtonGroupSeparator } from "@beep/ui/components/button-group"
+ *
+ * console.log(ButtonGroupSeparator)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */

@@ -33,7 +33,7 @@ const serviceContractMetadata = (canonicalName: string, overview: string) =>
  * ```ts
  * import { SparqlQueryProfile } from "@beep/semantic-web/services/sparql-query"
  *
- * void SparqlQueryProfile
+ * console.log(SparqlQueryProfile)
  * ```
  *
  * @since 0.0.0
@@ -52,7 +52,7 @@ export const SparqlQueryProfile = LiteralKit(["select", "ask", "construct"]).pip
  * ```ts
  * import { SparqlQueryRequest } from "@beep/semantic-web/services/sparql-query"
  *
- * void SparqlQueryRequest
+ * console.log(SparqlQueryRequest)
  * ```
  *
  * @since 0.0.0
@@ -78,7 +78,7 @@ export class SparqlQueryRequest extends S.Class<SparqlQueryRequest>($I`SparqlQue
  * ```ts
  * import { SparqlSelectResult } from "@beep/semantic-web/services/sparql-query"
  *
- * void SparqlSelectResult
+ * console.log(SparqlSelectResult)
  * ```
  *
  * @since 0.0.0
@@ -102,7 +102,7 @@ export class SparqlSelectResult extends S.Class<SparqlSelectResult>($I`SparqlSel
  * ```ts
  * import { SparqlAskResult } from "@beep/semantic-web/services/sparql-query"
  *
- * void SparqlAskResult
+ * console.log(SparqlAskResult)
  * ```
  *
  * @since 0.0.0
@@ -126,7 +126,7 @@ export class SparqlAskResult extends S.Class<SparqlAskResult>($I`SparqlAskResult
  * ```ts
  * import { SparqlConstructResult } from "@beep/semantic-web/services/sparql-query"
  *
- * void SparqlConstructResult
+ * console.log(SparqlConstructResult)
  * ```
  *
  * @since 0.0.0
@@ -150,7 +150,7 @@ export class SparqlConstructResult extends S.Class<SparqlConstructResult>($I`Spa
  * ```ts
  * import { SparqlQueryResult } from "@beep/semantic-web/services/sparql-query"
  *
- * void SparqlQueryResult
+ * console.log(SparqlQueryResult)
  * ```
  *
  * @since 0.0.0
@@ -171,7 +171,7 @@ export const SparqlQueryResult = S.Union([SparqlSelectResult, SparqlAskResult, S
  * import type { SparqlQueryResult } from "@beep/semantic-web/services/sparql-query"
  *
  * const acceptSparqlQueryResult = (value: SparqlQueryResult) => value
- * void acceptSparqlQueryResult
+ * console.log(acceptSparqlQueryResult)
  * ```
  *
  * @since 0.0.0
@@ -186,7 +186,7 @@ export type SparqlQueryResult = typeof SparqlQueryResult.Type;
  * ```ts
  * import { SparqlQueryError } from "@beep/semantic-web/services/sparql-query"
  *
- * void SparqlQueryError
+ * console.log(SparqlQueryError)
  * ```
  *
  * @since 0.0.0
@@ -212,7 +212,7 @@ export class SparqlQueryError extends TaggedErrorClass<SparqlQueryError>($I`Spar
  * import type { SparqlQueryServiceShape } from "@beep/semantic-web/services/sparql-query"
  *
  * const acceptSparqlQueryServiceShape = (value: SparqlQueryServiceShape) => value
- * void acceptSparqlQueryServiceShape
+ * console.log(acceptSparqlQueryServiceShape)
  * ```
  *
  * @since 0.0.0
@@ -229,7 +229,7 @@ export interface SparqlQueryServiceShape {
  * ```ts
  * import { SparqlQueryService } from "@beep/semantic-web/services/sparql-query"
  *
- * void SparqlQueryService
+ * console.log(SparqlQueryService)
  * ```
  *
  * @since 0.0.0
@@ -246,7 +246,7 @@ export class SparqlQueryService extends Context.Service<SparqlQueryService, Spar
  * ```ts
  * import { UnsupportedSparqlQueryServiceLive } from "@beep/semantic-web/services/sparql-query"
  *
- * void UnsupportedSparqlQueryServiceLive
+ * console.log(UnsupportedSparqlQueryServiceLive)
  * ```
  *
  * @since 0.0.0

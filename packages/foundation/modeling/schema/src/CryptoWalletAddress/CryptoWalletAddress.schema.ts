@@ -175,6 +175,15 @@ const CryptoWalletAddressChecks = S.makeFilterGroup(
 /**
  * Branded schema for canonical mainnet blockchain wallet addresses.
  *
+ * @example
+ * ```ts
+ * import { CryptoWalletAddress } from "@beep/schema/CryptoWalletAddress"
+ * import * as S from "effect/Schema"
+ *
+ * const address = S.decodeUnknownSync(CryptoWalletAddress)("0x0000000000000000000000000000000000000000")
+ * console.log(address)
+ * ```
+ *
  * @since 0.0.0
  * @category validation
  */
@@ -195,6 +204,14 @@ export type CryptoWalletAddress = typeof CryptoWalletAddress.Type;
 
 /**
  * Redacted Branded schema for canonical mainnet blockchain wallet addresses.
+ *
+ * @example
+ * ```ts
+ * import { CryptoWalletAddressRedacted } from "@beep/schema/CryptoWalletAddress"
+ *
+ * const address = CryptoWalletAddressRedacted.makeRedacted("0x0000000000000000000000000000000000000000")
+ * console.log(address)
+ * ```
  *
  * @since 0.0.0
  * @category validation

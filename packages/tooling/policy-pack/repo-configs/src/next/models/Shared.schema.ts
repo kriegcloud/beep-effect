@@ -24,7 +24,7 @@ const FileSizeByte = LiteralKit(["b", "B"]);
  * import * as S from "effect/Schema"
  * import { FileSizeSuffix } from "@beep/repo-configs/next/models/Shared.schema"
  * const program = S.decodeUnknownEffect(FileSizeSuffix)("mb")
- * void Effect.runPromise(program)
+ * console.log(Effect.runPromise(program))
  * ```
  * @category schemas
  * @since 0.0.0
@@ -43,7 +43,7 @@ export const FileSizeSuffix = S.TemplateLiteral([FileSizeScale, FileSizeByte]).p
  * ```ts
  * import type { FileSizeSuffix } from "@beep/repo-configs/next/models/Shared.schema"
  * const suffix = "MB" satisfies FileSizeSuffix
- * void suffix
+ * console.log(suffix)
  * ```
  * @category models
  * @since 0.0.0
@@ -74,7 +74,7 @@ const SizeLimitText = S.TemplateLiteral([S.Number, FileSizeSuffix]).check(
  * import * as S from "effect/Schema"
  * import { SizeLimit } from "@beep/repo-configs/next/models/Shared.schema"
  * const program = S.decodeUnknownEffect(SizeLimit)("2mb")
- * void Effect.runPromise(program)
+ * console.log(Effect.runPromise(program))
  * ```
  * @category schemas
  * @since 0.0.0
@@ -94,7 +94,7 @@ export const SizeLimit = S.Union([NonNegativeSizeLimitNumber, SizeLimitText]).pi
  * ```ts
  * import type { SizeLimit } from "@beep/repo-configs/next/models/Shared.schema"
  * const limit = "2mb" satisfies SizeLimit
- * void limit
+ * console.log(limit)
  * ```
  * @category models
  * @since 0.0.0

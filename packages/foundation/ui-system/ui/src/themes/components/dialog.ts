@@ -1,6 +1,15 @@
 import type { ThemeComponents } from "../types.ts";
 
 /**
+ * Dialog theme theme value.
+ *
+ * @example
+ * ```ts
+ * import { dialogTheme } from "@beep/ui/themes/components/dialog"
+ *
+ * console.log(dialogTheme)
+ * ```
+ *
  * @category themes
  * @since 0.0.0
  */

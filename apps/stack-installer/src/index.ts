@@ -9,6 +9,13 @@
 /**
  * App version marker.
  *
+ * @example
+ * ```ts
+ * import { VERSION } from "@beep/stack-installer"
+ *
+ * console.log(VERSION)
+ * ```
+ *
  * @category constants
  * @since 0.0.0
  */

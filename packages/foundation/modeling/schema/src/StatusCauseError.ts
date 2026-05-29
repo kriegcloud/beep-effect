@@ -30,7 +30,7 @@ const $I = $SchemaId.create("StatusCauseError");
  *   cause: O.none()
  * })
  *
- * void error
+ * console.log(error)
  * ```
  *
  * @category schemas
@@ -78,7 +78,7 @@ export class StatusCauseInputOptions extends S.Class<StatusCauseInputOptions>($I
  *
  * const payload: StatusCauseInput = statusCauseInput("not found", { status: 404, cause: undefined })
  *
- * void payload
+ * console.log(payload)
  * ```
  *
  * @category models
@@ -183,7 +183,7 @@ const buildStatusCauseErrorBuilder = <Input extends StatusCauseInput, Error>(
  *   cause: new Error("missing")
  * })
  *
- * void err
+ * console.log(err)
  *
  * ```
  *

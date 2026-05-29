@@ -28,6 +28,15 @@ const TourContext = React.createContext<{
 } | null>(null);
 
 /**
+ * Use tour hook.
+ *
+ * @example
+ * ```tsx
+ * import { useTour } from "@beep/ui/components/tour"
+ *
+ * console.log(useTour)
+ * ```
+ *
  * @category hooks
  * @since 0.0.0
  */
@@ -37,6 +46,16 @@ function useTour() {
 }
 
 /**
+ * Step type.
+ *
+ * @example
+ * ```ts
+ * import type { Step } from "@beep/ui/components/tour"
+ *
+ * const value = {} as Step
+ * console.log(value)
+ * ```
+ *
  * @category type-level
  * @since 0.0.0
  */
@@ -56,6 +75,16 @@ interface Step {
 }
 
 /**
+ * Tour type.
+ *
+ * @example
+ * ```ts
+ * import type { Tour } from "@beep/ui/components/tour"
+ *
+ * const value = {} as Tour
+ * console.log(value)
+ * ```
+ *
  * @category type-level
  * @since 0.0.0
  */
@@ -65,6 +94,15 @@ interface Tour {
 }
 
 /**
+ * Tour provider export.
+ *
+ * @example
+ * ```tsx
+ * import { TourProvider } from "@beep/ui/components/tour"
+ *
+ * console.log(TourProvider)
+ * ```
+ *
  * @category providers
  * @since 0.0.0
  */

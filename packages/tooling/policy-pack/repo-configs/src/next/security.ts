@@ -12,7 +12,7 @@
  * ```ts
  * import { withSecureHeaders } from "@beep/repo-configs/next/security"
  * const config = withSecureHeaders({ reactStrictMode: true })
- * void config
+ * console.log(config)
  * ```
  * @category configuration
  * @since 0.0.0

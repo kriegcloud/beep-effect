@@ -25,7 +25,7 @@ const $I = $RepoUtilsId.create("errors/CyclicDependencyError");
  *   cycles: [["a", "b", "a"]],
  *   message: "Cyclic dependencies detected"
  * })
- * void error.cycles
+ * console.log(error.cycles)
  * ```
  * @category error-handling
  * @since 0.0.0

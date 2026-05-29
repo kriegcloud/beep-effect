@@ -19,7 +19,7 @@ import type * as VariantSchema from "../VariantSchema/index.ts";
  *
  * const field = Model.JsonFromString(Schema.Struct({ a: Schema.String }))
  *
- * void field
+ * console.log(field)
  * ```
  *
  * @since 0.0.0
@@ -47,7 +47,7 @@ export interface JsonFromString<S extends S.Top>
  *
  * class Record extends Model.Class<Record>("Record")({}) {}
  *
- * void Record
+ * console.log(Record)
  * ```
  *
  * @since 0.0.0

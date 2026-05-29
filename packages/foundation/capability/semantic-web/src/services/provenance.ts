@@ -55,7 +55,7 @@ const serviceContractMetadata = (canonicalName: string, overview: string) =>
  * ```ts
  * import { ProvenanceExportProfile } from "@beep/semantic-web/services/provenance"
  *
- * void ProvenanceExportProfile
+ * console.log(ProvenanceExportProfile)
  * ```
  *
  * @since 0.0.0
@@ -74,7 +74,7 @@ export const ProvenanceExportProfile = LiteralKit(["prov-core-v1", "prov-core-ex
  * ```ts
  * import { ProjectProvenanceRequest } from "@beep/semantic-web/services/provenance"
  *
- * void ProjectProvenanceRequest
+ * console.log(ProjectProvenanceRequest)
  * ```
  *
  * @since 0.0.0
@@ -99,7 +99,7 @@ export class ProjectProvenanceRequest extends S.Class<ProjectProvenanceRequest>(
  * ```ts
  * import { SummarizeProvenanceRequest } from "@beep/semantic-web/services/provenance"
  *
- * void SummarizeProvenanceRequest
+ * console.log(SummarizeProvenanceRequest)
  * ```
  *
  * @since 0.0.0
@@ -123,7 +123,7 @@ export class SummarizeProvenanceRequest extends S.Class<SummarizeProvenanceReque
  * ```ts
  * import { ExportProvenanceRequest } from "@beep/semantic-web/services/provenance"
  *
- * void ExportProvenanceRequest
+ * console.log(ExportProvenanceRequest)
  * ```
  *
  * @since 0.0.0
@@ -149,7 +149,7 @@ export class ExportProvenanceRequest extends S.Class<ExportProvenanceRequest>($I
  * ```ts
  * import { BoundedProvenanceProjection } from "@beep/semantic-web/services/provenance"
  *
- * void BoundedProvenanceProjection
+ * console.log(BoundedProvenanceProjection)
  * ```
  *
  * @since 0.0.0
@@ -177,7 +177,7 @@ export class BoundedProvenanceProjection extends S.Class<BoundedProvenanceProjec
  * ```ts
  * import { ProvenanceSummary } from "@beep/semantic-web/services/provenance"
  *
- * void ProvenanceSummary
+ * console.log(ProvenanceSummary)
  * ```
  *
  * @since 0.0.0
@@ -204,7 +204,7 @@ export class ProvenanceSummary extends S.Class<ProvenanceSummary>($I`ProvenanceS
  * ```ts
  * import { ProvenanceServiceError } from "@beep/semantic-web/services/provenance"
  *
- * void ProvenanceServiceError
+ * console.log(ProvenanceServiceError)
  * ```
  *
  * @since 0.0.0
@@ -230,7 +230,7 @@ export class ProvenanceServiceError extends TaggedErrorClass<ProvenanceServiceEr
  * import type { ProvenanceServiceShape } from "@beep/semantic-web/services/provenance"
  *
  * const acceptProvenanceServiceShape = (value: ProvenanceServiceShape) => value
- * void acceptProvenanceServiceShape
+ * console.log(acceptProvenanceServiceShape)
  * ```
  *
  * @since 0.0.0
@@ -253,7 +253,7 @@ export interface ProvenanceServiceShape {
  * ```ts
  * import { ProvenanceService } from "@beep/semantic-web/services/provenance"
  *
- * void ProvenanceService
+ * console.log(ProvenanceService)
  * ```
  *
  * @since 0.0.0
@@ -344,7 +344,7 @@ const createProjection = (
  * ```ts
  * import { ProvenanceServiceLive } from "@beep/semantic-web/services/provenance"
  *
- * void ProvenanceServiceLive
+ * console.log(ProvenanceServiceLive)
  * ```
  *
  * @since 0.0.0

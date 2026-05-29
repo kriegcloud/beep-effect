@@ -18,6 +18,14 @@ const $I = $ArchitectureLabUseCasesId.create("entities/Worker/Worker.use-cases")
 /**
  * Public Worker use-case contract.
  *
+ * @example
+ * ```ts
+ * import type { WorkerUseCasesShape } from "@beep/architecture-lab-use-cases/entities/Worker"
+ *
+ * const value = {} as WorkerUseCasesShape
+ * console.log(value)
+ * ```
+ *
  * @category use-cases
  * @since 0.0.0
  */
@@ -29,6 +37,13 @@ export interface WorkerUseCasesShape {
 
 /**
  * Public Worker use-case service.
+ *
+ * @example
+ * ```ts
+ * import { WorkerUseCases } from "@beep/architecture-lab-use-cases/entities/Worker"
+ *
+ * console.log(WorkerUseCases)
+ * ```
  *
  * @category use-cases
  * @since 0.0.0

@@ -16,6 +16,13 @@ import type * as DomainWorkPriority from "@beep/architecture-lab-domain/values/W
 /**
  * WorkItem persistence table name.
  *
+ * @example
+ * ```ts
+ * import { WORK_ITEM_TABLE_NAME } from "@beep/architecture-lab-tables/aggregates/WorkItem"
+ *
+ * console.log(WORK_ITEM_TABLE_NAME)
+ * ```
+ *
  * @category tables
  * @since 0.0.0
  */
@@ -23,6 +30,13 @@ export const WORK_ITEM_TABLE_NAME = "architecture_lab_work_item" as const;
 
 /**
  * WorkItem persistence projection.
+ *
+ * @example
+ * ```ts
+ * import { workItemTable } from "@beep/architecture-lab-tables/aggregates/WorkItem"
+ *
+ * console.log(workItemTable)
+ * ```
  *
  * @category tables
  * @since 0.0.0
@@ -40,6 +54,14 @@ export const workItemTable = pgTable(WORK_ITEM_TABLE_NAME, {
 /**
  * Selected WorkItem row.
  *
+ * @example
+ * ```ts
+ * import type { WorkItemRow } from "@beep/architecture-lab-tables/aggregates/WorkItem"
+ *
+ * const value = {} as WorkItemRow
+ * console.log(value)
+ * ```
+ *
  * @category tables
  * @since 0.0.0
  */
@@ -48,6 +70,14 @@ export type WorkItemRow = typeof workItemTable.$inferSelect;
 /**
  * Insertable WorkItem row.
  *
+ * @example
+ * ```ts
+ * import type { WorkItemInsert } from "@beep/architecture-lab-tables/aggregates/WorkItem"
+ *
+ * const value = {} as WorkItemInsert
+ * console.log(value)
+ * ```
+ *
  * @category tables
  * @since 0.0.0
  */
@@ -55,6 +85,13 @@ export type WorkItemInsert = typeof workItemTable.$inferInsert;
 
 /**
  * Convert a WorkItem aggregate to its persistence row shape.
+ *
+ * @example
+ * ```ts
+ * import { toWorkItemInsert } from "@beep/architecture-lab-tables/aggregates/WorkItem"
+ *
+ * console.log(toWorkItemInsert)
+ * ```
  *
  * @category tables
  * @since 0.0.0
@@ -69,6 +106,13 @@ export const toWorkItemInsert = (workItem: DomainWorkItem.WorkItem): WorkItemIns
 
 /**
  * Convert a selected persistence row into a WorkItem aggregate.
+ *
+ * @example
+ * ```ts
+ * import { fromWorkItemRow } from "@beep/architecture-lab-tables/aggregates/WorkItem"
+ *
+ * console.log(fromWorkItemRow)
+ * ```
  *
  * @category tables
  * @since 0.0.0

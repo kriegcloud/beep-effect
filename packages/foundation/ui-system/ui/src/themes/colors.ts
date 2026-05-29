@@ -22,10 +22,17 @@ declare module "@mui/material/styles" {
 }
 
 /**
- * Color scheme tokens for the shared theme.
+ * Colors theme value.
  *
- * @since 0.0.0
+ * @example
+ * ```ts
+ * import { colors } from "@beep/ui/themes/colors"
+ *
+ * console.log(colors)
+ * ```
+ *
  * @category themes
+ * @since 0.0.0
  */
 export const colors: CssVarsThemeOptions["colorSchemes"] = {
   light: {

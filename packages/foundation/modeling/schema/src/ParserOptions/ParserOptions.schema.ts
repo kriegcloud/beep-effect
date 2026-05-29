@@ -55,6 +55,15 @@ const ParserOptionsErrorBase: TaggedErrorClassFromFields<
 /**
  * A parser header configuration input.
  *
+ * @example
+ * ```ts
+ * import { HeaderValueInput } from "@beep/schema/ParserOptions"
+ * import * as S from "effect/Schema"
+ *
+ * const headers = S.decodeUnknownSync(HeaderValueInput)(true)
+ * console.log(headers)
+ * ```
+ *
  * @category configuration
  * @since 0.0.0
  */
@@ -74,6 +83,15 @@ export type HeaderValueInput = typeof HeaderValueInput.Type;
 
 /**
  * A parser options configuration error.
+ *
+ * @example
+ * ```ts
+ * import { Error as ParserOptionsError } from "@beep/schema/ParserOptions"
+ * import * as O from "effect/Option"
+ *
+ * const error = ParserOptionsError.make({ cause: O.none(), message: "Invalid delimiter" })
+ * console.log(error.message)
+ * ```
  *
  * @category validation
  * @since 0.0.0
@@ -105,6 +123,14 @@ const buildNextTokenRegExp = (escapedDelimiter: string): globalThis.RegExp =>
  * `escapedDelimiter`, `escapeChar`, `supportsComments`, `limitRows`, and
  * `NEXT_TOKEN_REGEXP` are exposed as getters so the schema stays focused on the
  * true input/configuration surface.
+ *
+ * @example
+ * ```ts
+ * import { ParserOptions } from "@beep/schema/ParserOptions"
+ *
+ * const options = ParserOptions.new({ delimiter: ";" })
+ * console.log(options.escapedDelimiter)
+ * ```
  *
  * @category configuration
  * @since 0.0.0
@@ -224,6 +250,14 @@ const decodeParserOptionsUnknownResult = S.decodeUnknownResult(ParserOptions);
 
 /**
  * Encoded/raw constructor input for {@link ParserOptions}.
+ *
+ * @example
+ * ```ts
+ * import type { ParserOptionsArgs } from "@beep/schema/ParserOptions"
+ *
+ * const options = { delimiter: ";" } satisfies ParserOptionsArgs
+ * console.log(options.delimiter)
+ * ```
  *
  * @category configuration
  * @since 0.0.0

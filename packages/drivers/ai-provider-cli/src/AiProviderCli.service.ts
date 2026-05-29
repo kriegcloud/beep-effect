@@ -26,6 +26,14 @@ const collectText = <E>(stream: Stream.Stream<Uint8Array, E>): Effect.Effect<str
 /**
  * Product-neutral process runner used by provider CLI probes.
  *
+ * @example
+ * ```ts
+ * import type { AiProviderCliRunner } from "@beep/ai-provider-cli/AiProviderCli.service"
+ *
+ * const value = {} as AiProviderCliRunner
+ * console.log(value)
+ * ```
+ *
  * @category services
  * @since 0.0.0
  */
@@ -121,6 +129,13 @@ const makeService = (paths: AiProviderCliPaths, runner: AiProviderCliRunner): Ai
 
 /**
  * Effect service for Claude and Codex CLI status checks.
+ *
+ * @example
+ * ```ts
+ * import { AiProviderCli } from "@beep/ai-provider-cli/AiProviderCli.service"
+ *
+ * console.log(AiProviderCli)
+ * ```
  *
  * @category services
  * @since 0.0.0

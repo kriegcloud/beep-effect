@@ -36,7 +36,7 @@ const $I = $SharedUiId.create("entities/Organization/Organization.display");
  *   })
  *   return display.name
  * })
- * void program
+ * console.log(program)
  * ```
  *
  * @category models
@@ -81,7 +81,7 @@ export class Display extends S.Class<Display>($I`Display`)(
  *   })
  *   return form.slug
  * })
- * void program
+ * console.log(program)
  * ```
  *
  * @category models
@@ -129,7 +129,7 @@ export class Form extends S.Class<Form>($I`Form`)(
  *   })
  *   return primaryLabel(display)
  * })
- * void program
+ * console.log(program)
  * ```
  *
  * @category getters

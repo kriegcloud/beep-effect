@@ -41,7 +41,7 @@ export const OrganizationId = make("organization", {
  *   const id = yield* S.decodeUnknownEffect(OrganizationId)(1)
  *   return id
  * })
- * void program
+ * console.log(program)
  * ```
  *
  * @category entity-ids
@@ -79,7 +79,7 @@ export const UserId = make("user", {
  *   const id = yield* S.decodeUnknownEffect(UserId)(1)
  *   return id
  * })
- * void program
+ * console.log(program)
  * ```
  *
  * @category entity-ids
@@ -117,7 +117,7 @@ export const MembershipId = make("membership", {
  *   const id = yield* S.decodeUnknownEffect(MembershipId)(1)
  *   return id
  * })
- * void program
+ * console.log(program)
  * ```
  *
  * @category entity-ids
@@ -155,7 +155,7 @@ export const TeamId = make("team", {
  *   const id = yield* S.decodeUnknownEffect(TeamId)(1)
  *   return id
  * })
- * void program
+ * console.log(program)
  * ```
  *
  * @category entity-ids
@@ -193,7 +193,7 @@ export const ServiceAccountId = make("service_account", {
  *   const id = yield* S.decodeUnknownEffect(ServiceAccountId)(1)
  *   return id
  * })
- * void program
+ * console.log(program)
  * ```
  *
  * @category entity-ids
@@ -231,7 +231,7 @@ export const AgentId = make("agent", {
  *   const id = yield* S.decodeUnknownEffect(AgentId)(1)
  *   return id
  * })
- * void program
+ * console.log(program)
  * ```
  *
  * @category entity-ids
@@ -269,7 +269,7 @@ export const AgentVersionId = make("agent_version", {
  *   const id = yield* S.decodeUnknownEffect(AgentVersionId)(1)
  *   return id
  * })
- * void program
+ * console.log(program)
  * ```
  *
  * @category entity-ids
@@ -307,7 +307,7 @@ export const ConnectorAccountId = make("connector_account", {
  *   const id = yield* S.decodeUnknownEffect(ConnectorAccountId)(1)
  *   return id
  * })
- * void program
+ * console.log(program)
  * ```
  *
  * @category entity-ids
@@ -345,7 +345,7 @@ export const ActivityId = make("activity", {
  *   const id = yield* S.decodeUnknownEffect(ActivityId)(1)
  *   return id
  * })
- * void program
+ * console.log(program)
  * ```
  *
  * @category entity-ids
@@ -383,7 +383,7 @@ export const LocalMachineId = make("local_machine", {
  *   const id = yield* S.decodeUnknownEffect(LocalMachineId)(1)
  *   return id
  * })
- * void program
+ * console.log(program)
  * ```
  *
  * @category entity-ids

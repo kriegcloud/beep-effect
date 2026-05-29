@@ -81,10 +81,17 @@ const h4Styles = {
 };
 
 /**
- * Typography scale for the shared theme.
+ * Typography theme value.
  *
- * @since 0.0.0
+ * @example
+ * ```ts
+ * import { typography } from "@beep/ui/themes/typography"
+ *
+ * console.log(typography)
+ * ```
+ *
  * @category themes
+ * @since 0.0.0
  */
 export const typography: ThemeOptions["typography"] = {
   fontFamily:
@@ -105,10 +112,17 @@ export const typography: ThemeOptions["typography"] = {
 };
 
 /**
- * Typography component overrides for the shared theme.
+ * Typography theme theme value.
  *
- * @since 0.0.0
+ * @example
+ * ```ts
+ * import { typographyTheme } from "@beep/ui/themes/typography"
+ *
+ * console.log(typographyTheme)
+ * ```
+ *
  * @category themes
+ * @since 0.0.0
  */
 export const typographyTheme: ThemeOptions["components"] = {
   MuiTypography: {

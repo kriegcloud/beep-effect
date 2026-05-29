@@ -13,6 +13,13 @@ import { $I } from "./HttpStatus.shared.ts";
 /**
  * HttpStatusCategory - HTTP status code category
  *
+ * @example
+ * ```ts
+ * import { HttpStatusCategory } from "@beep/schema/HttpStatus"
+ *
+ * console.log(HttpStatusCategory.Pairs.length)
+ * ```
+ *
  * @since 0.0.0
  * @category validation
  */

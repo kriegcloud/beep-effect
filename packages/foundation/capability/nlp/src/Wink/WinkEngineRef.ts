@@ -71,6 +71,8 @@ export class WinkEngineRef extends Context.Service<WinkEngineRef, WinkEngineRefS
 export const WinkEngineRefLive = Layer.effect(WinkEngineRef, makeWinkEngineRef);
 
 /**
+ * Wink engine runtime state type.
+ *
  * @example
  * ```ts
  * import type { WinkEngineRuntimeState } from "@beep/nlp/Wink/WinkEngineRef"
@@ -83,6 +85,8 @@ export const WinkEngineRefLive = Layer.effect(WinkEngineRef, makeWinkEngineRef);
  */
 export type WinkEngineRuntimeState = WinkEngineRuntimeStateType;
 /**
+ * Instance id export.
+ *
  * @example
  * ```ts
  * import { InstanceId } from "@beep/nlp/Wink/WinkEngineRef"
@@ -95,6 +99,8 @@ export type WinkEngineRuntimeState = WinkEngineRuntimeStateType;
  */
 export const InstanceId = InstanceIdService;
 /**
+ * Wink engine state export.
+ *
  * @example
  * ```ts
  * import { WinkEngineState } from "@beep/nlp/Wink/WinkEngineRef"

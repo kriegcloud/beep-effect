@@ -99,6 +99,15 @@ const formatDate = (date: Date | string): string => {
 };
 
 /**
+ * Todo item component.
+ *
+ * @example
+ * ```tsx
+ * import { TodoItem } from "@beep/ui/components/todo-item"
+ *
+ * console.log(TodoItem)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */

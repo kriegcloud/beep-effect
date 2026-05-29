@@ -24,6 +24,13 @@ const $I = $SandboxId.create("Init");
 /**
  * Config directory created by {@link initSandbox}.
  *
+ * @example
+ * ```ts
+ * import { SANDBOX_CONFIG_DIR } from "@beep/sandbox/Init"
+ *
+ * console.log(SANDBOX_CONFIG_DIR)
+ * ```
+ *
  * @category utilities
  * @since 0.0.0
  */
@@ -31,6 +38,13 @@ export const SANDBOX_CONFIG_DIR = ".sandcastle" as const;
 
 /**
  * Supported init-time agent choices.
+ *
+ * @example
+ * ```ts
+ * import { SandboxAgentName } from "@beep/sandbox/Init"
+ *
+ * console.log(SandboxAgentName)
+ * ```
  *
  * @category schemas
  * @since 0.0.0
@@ -51,6 +65,13 @@ export type SandboxAgentName = typeof SandboxAgentName.Type;
 
 /**
  * Supported local container providers for generated configuration.
+ *
+ * @example
+ * ```ts
+ * import { SandboxInitProviderName } from "@beep/sandbox/Init"
+ *
+ * console.log(SandboxInitProviderName)
+ * ```
  *
  * @category schemas
  * @since 0.0.0

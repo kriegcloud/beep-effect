@@ -2,6 +2,15 @@ import type {} from "@mui/x-data-grid/themeAugmentation";
 import type { ThemeComponents } from "../types.ts";
 
 /**
+ * Data grid theme theme value.
+ *
+ * @example
+ * ```ts
+ * import { dataGridTheme } from "@beep/ui/themes/components/data-grid"
+ *
+ * console.log(dataGridTheme)
+ * ```
+ *
  * @category themes
  * @since 0.0.0
  */

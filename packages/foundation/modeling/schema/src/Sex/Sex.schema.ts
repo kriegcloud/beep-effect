@@ -1,4 +1,6 @@
 /**
+ * Person sex literal schema.
+ *
  * @packageDocumentation
  * @since 0.0.0
  */
@@ -9,6 +11,13 @@ const $I = $SchemaId.create("Sex");
 
 /**
  * The sex of a person ("male" or "female").
+ *
+ * @example
+ * ```ts
+ * import { Sex } from "@beep/schema/Sex"
+ *
+ * console.log(Sex.Options)
+ * ```
  *
  * @since 0.0.0
  * @category validation

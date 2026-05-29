@@ -33,6 +33,13 @@ const getStoredCanvasProject = Effect.fn("Canvas.CanvasProjectRepository.getStor
 /**
  * Build the in-memory CanvasProject repository used by the fast canvas proof.
  *
+ * @example
+ * ```ts
+ * import { makeInMemoryCanvasProjectRepository } from "@beep/canvas-server/aggregates/CanvasProject"
+ *
+ * console.log(makeInMemoryCanvasProjectRepository)
+ * ```
+ *
  * @category repositories
  * @since 0.0.0
  */
@@ -76,6 +83,13 @@ export const makeInMemoryCanvasProjectRepository = Effect.fn("Canvas.CanvasProje
 
 /**
  * Build the default CanvasProject repository for normal slice tests.
+ *
+ * @example
+ * ```ts
+ * import { makeCanvasProjectRepository } from "@beep/canvas-server/aggregates/CanvasProject"
+ *
+ * console.log(makeCanvasProjectRepository)
+ * ```
  *
  * @category repositories
  * @since 0.0.0

@@ -19,6 +19,7 @@ import type * as DevToolsSchema from "effect/unstable/devtools/DevToolsSchema";
  * import type { DevToolsSpanFilter } from "@beep/observability/server"
  *
  * const filter: DevToolsSpanFilter = (name) => Str.startsWith(name, "Http.")
+ * console.log(filter("Http.server"))
  * ```
  *
  * @since 0.0.0
@@ -80,6 +81,7 @@ const toDevToolsSpan = (span: Tracer.Span): DevToolsSchema.Span => ({
  *   shouldPublish: () => true,
  *   url: "ws://localhost:34437"
  * })
+ * console.log(DevToolsLive)
  * ```
  *
  * @since 0.0.0

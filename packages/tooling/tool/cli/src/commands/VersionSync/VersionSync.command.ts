@@ -43,6 +43,13 @@ const resolveMode = (write: boolean, dryRun: boolean): VersionSyncMode => {
 /**
  * CLI command for synchronizing version pins across the monorepo.
  *
+ * @example
+ * ```ts
+ * import { versionSyncCommand } from "@beep/repo-cli/commands/VersionSync"
+ *
+ * console.log(versionSyncCommand)
+ * ```
+ *
  * @category use-cases
  * @since 0.0.0
  */

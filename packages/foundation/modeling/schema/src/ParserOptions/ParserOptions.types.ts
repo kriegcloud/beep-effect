@@ -14,6 +14,15 @@ const $I = $SchemaId.create("ParserOptions");
 /**
  * An array containing possibly nullish strings.
  *
+ * @example
+ * ```ts
+ * import { HeaderArray } from "../../src/ParserOptions/ParserOptions.types.ts"
+ * import * as S from "effect/Schema"
+ *
+ * const headers = S.decodeUnknownSync(HeaderArray)(["name", null])
+ * console.log(headers.length)
+ * ```
+ *
  * @category validation
  * @since 0.0.0
  */
@@ -37,6 +46,14 @@ export type HeaderArray = typeof HeaderArray.Type;
 /**
  * An identity function taking an array containing possibly nullish strings
  * and returning it.
+ *
+ * @example
+ * ```ts
+ * import { HeaderTransformFunction } from "../../src/ParserOptions/ParserOptions.types.ts"
+ *
+ * const transform = HeaderTransformFunction.implementSync((headers) => headers)
+ * console.log(transform(["name"]).length)
+ * ```
  *
  * @category validation
  * @since 0.0.0

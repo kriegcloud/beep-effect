@@ -27,7 +27,7 @@ import * as internal from "./generated/iso4217.ts";
  * import { CurrencyCodeDataValues, type CurrencyCodeData } from "@beep/data/CurrencyCodes"
  *
  * const entry: CurrencyCodeData = CurrencyCodeDataValues[0]
- * void entry
+ * console.log(entry)
  * ```
  */
 export type CurrencyCodeData = (typeof internal.CurrencyCodeDataValues)[number];
@@ -43,8 +43,8 @@ export type CurrencyCodeData = (typeof internal.CurrencyCodeDataValues)[number];
  *
  * const usd: CurrencyCode = "USD"
  * const eur: CurrencyCode = "EUR"
- * void usd
- * void eur
+ * console.log(usd)
+ * console.log(eur)
  * ```
  */
 export type CurrencyCode = CurrencyCodeData["code"];

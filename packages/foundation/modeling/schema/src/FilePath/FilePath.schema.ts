@@ -25,6 +25,13 @@ const SupportedPathFamilyKit = LiteralKit([
 /**
  * Literal union of file-path families recognized by {@link FilePath}.
  *
+ * @example
+ * ```ts
+ * import { SupportedPathFamily } from "@beep/schema/FilePath"
+ *
+ * console.log(SupportedPathFamily.Options)
+ * ```
+ *
  * @since 0.0.0
  * @category validation
  */

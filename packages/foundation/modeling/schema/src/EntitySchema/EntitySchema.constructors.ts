@@ -38,6 +38,14 @@ const descriptor =
 /**
  * Persistence descriptor constructors.
  *
+ * @example
+ * ```ts
+ * import { persist } from "@beep/schema/EntitySchema"
+ *
+ * const descriptor = persist.text({ columnName: "display_name" })
+ * console.log(descriptor.columnName)
+ * ```
+ *
  * @since 0.0.0
  * @category constructors
  */
@@ -56,6 +64,15 @@ export const persist = {
 /**
  * Epoch-millis DateTime schema used by persisted timestamp fields.
  *
+ * @example
+ * ```ts
+ * import { DateTimeFromMillis } from "@beep/schema/EntitySchema"
+ * import * as S from "effect/Schema"
+ *
+ * const instant = S.decodeUnknownSync(DateTimeFromMillis)(1_715_000_000_000)
+ * console.log(instant)
+ * ```
+ *
  * @since 0.0.0
  * @category schemas
  */
@@ -64,6 +81,15 @@ export const DateTimeFromMillis = S.DateTimeUtcFromMillis;
 /**
  * Integer schema used by persisted integer fields.
  *
+ * @example
+ * ```ts
+ * import { int } from "@beep/schema/EntitySchema"
+ * import * as S from "effect/Schema"
+ *
+ * const value = S.decodeUnknownSync(int)(42)
+ * console.log(value)
+ * ```
+ *
  * @since 0.0.0
  * @category schemas
  */
@@ -71,6 +97,15 @@ export const int = S.Int;
 
 /**
  * Literal schema helper for persisted discriminators.
+ *
+ * @example
+ * ```ts
+ * import { literal } from "@beep/schema/EntitySchema"
+ * import * as S from "effect/Schema"
+ *
+ * const kind = S.decodeUnknownSync(literal("account"))("account")
+ * console.log(kind)
+ * ```
  *
  * @since 0.0.0
  * @category constructors
@@ -84,6 +119,14 @@ const titleSegment = <const Identifier extends string>(identifier: Identifier): 
 /**
  * Derive a table name from the final segment of a schema identifier.
  *
+ * @example
+ * ```ts
+ * import { tableNameFromIdentifier } from "@beep/schema/EntitySchema"
+ *
+ * const tableName = tableNameFromIdentifier("App/UserProfile")
+ * console.log(tableName)
+ * ```
+ *
  * @since 0.0.0
  * @category formatting
  */
@@ -94,6 +137,14 @@ export const tableNameFromIdentifier = <const Identifier extends string>(
 
 /**
  * Resolve a column name from field key and descriptor override.
+ *
+ * @example
+ * ```ts
+ * import { columnNameFor, persist } from "@beep/schema/EntitySchema"
+ *
+ * const columnName = columnNameFor("displayName", persist.text())
+ * console.log(columnName)
+ * ```
  *
  * @since 0.0.0
  * @category formatting

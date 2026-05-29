@@ -27,7 +27,7 @@ import * as internal from "./internal/data/mime-types/index.ts";
  * import type { MimeType } from "@beep/data/MimeTypes"
  *
  * const contentType: MimeType = "application/json"
- * void contentType
+ * console.log(contentType)
  * ```
  */
 export type MimeType = internal.MimeType;
@@ -45,7 +45,7 @@ export type MimeType = internal.MimeType;
  * import type { FileExtension } from "@beep/data/MimeTypes"
  *
  * const ext: FileExtension = "json"
- * void ext
+ * console.log(ext)
  * ```
  */
 export type FileExtension = internal.FileExtension;
@@ -184,7 +184,7 @@ export const mimes: typeof internal.mimes = internal.mimes;
  * import { mimeTypes } from "@beep/data/MimeTypes"
  *
  * const json = mimeTypes["application/json"]
- * void json
+ * console.log(json)
  * // { source: "iana", extensions: ["json", "map"] }
  * ```
  */

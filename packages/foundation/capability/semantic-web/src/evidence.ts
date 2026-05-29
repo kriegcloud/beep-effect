@@ -43,7 +43,7 @@ export const EvidenceSelectorKind = LiteralKit(["text-quote", "text-position", "
  * import type { EvidenceSelectorKind } from "@beep/semantic-web/evidence"
  *
  * const acceptEvidenceSelectorKind = (value: EvidenceSelectorKind) => value
- * void acceptEvidenceSelectorKind
+ * console.log(acceptEvidenceSelectorKind)
  * ```
  *
  * @since 0.0.0
@@ -101,9 +101,9 @@ export class TextQuoteSelector extends S.Class<TextQuoteSelector>($I`TextQuoteSe
  * import { TextPositionSelector } from "@beep/semantic-web/evidence"
  *
  * const selector = S.decodeUnknownSync(TextPositionSelector)({
- *
- *
- *
+ *   kind: "text-position",
+ *   start: 0,
+ *   end: 5
  * })
  * console.log(selector.start) // 0
  * ```
@@ -204,7 +204,7 @@ export const EvidenceSelector = S.Union([TextQuoteSelector, TextPositionSelector
  * import type { EvidenceSelector } from "@beep/semantic-web/evidence"
  *
  * const acceptEvidenceSelector = (value: EvidenceSelector) => value
- * void acceptEvidenceSelector
+ * console.log(acceptEvidenceSelector)
  * ```
  *
  * @since 0.0.0
@@ -219,7 +219,7 @@ export type EvidenceSelector = typeof EvidenceSelector.Type;
  * ```ts
  * import { EvidenceTarget } from "@beep/semantic-web/evidence"
  *
- * void EvidenceTarget
+ * console.log(EvidenceTarget)
  * ```
  *
  * @since 0.0.0
@@ -251,7 +251,7 @@ export class EvidenceTarget extends S.Class<EvidenceTarget>($I`EvidenceTarget`)(
  * ```ts
  * import { EvidenceAnchor } from "@beep/semantic-web/evidence"
  *
- * void EvidenceAnchor
+ * console.log(EvidenceAnchor)
  * ```
  *
  * @since 0.0.0
@@ -285,7 +285,7 @@ export class EvidenceAnchor extends S.Class<EvidenceAnchor>($I`EvidenceAnchor`)(
  * ```ts
  * import { BoundedEvidenceProjection } from "@beep/semantic-web/evidence"
  *
- * void BoundedEvidenceProjection
+ * console.log(BoundedEvidenceProjection)
  * ```
  *
  * @since 0.0.0

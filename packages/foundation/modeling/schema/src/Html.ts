@@ -46,7 +46,7 @@ export const HtmlFragment = S.String.pipe(
  * import type { HtmlFragment } from "@beep/schema/Html"
  *
  * const render = (value: HtmlFragment) => value
- * void render
+ * console.log(render)
  * ```
  *
  * @category models

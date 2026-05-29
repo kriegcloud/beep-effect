@@ -9,6 +9,13 @@ type NativeSelectProps = Omit<React.ComponentProps<"select">, "size"> & {
 /**
  * A styled wrapper around the native `<select>` element with a trailing caret icon.
  *
+ * @example
+ * ```tsx
+ * import { NativeSelect } from "@beep/ui/components/native-select"
+ *
+ * console.log(NativeSelect)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -37,6 +44,13 @@ function NativeSelect({ className, size = "default", ...props }: NativeSelectPro
 /**
  * An `<option>` for use within {@link NativeSelect}, themed to match the system color scheme.
  *
+ * @example
+ * ```tsx
+ * import { NativeSelectOption } from "@beep/ui/components/native-select"
+ *
+ * console.log(NativeSelectOption)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -48,6 +62,13 @@ function NativeSelectOption({ className, ...props }: React.ComponentProps<"optio
 
 /**
  * An `<optgroup>` for use within {@link NativeSelect}, themed to match the system color scheme.
+ *
+ * @example
+ * ```tsx
+ * import { NativeSelectOptGroup } from "@beep/ui/components/native-select"
+ *
+ * console.log(NativeSelectOptGroup)
+ * ```
  *
  * @category components
  * @since 0.0.0
@@ -63,6 +84,15 @@ function NativeSelectOptGroup({ className, ...props }: React.ComponentProps<"opt
 }
 
 /**
+ * Native select component suite exports.
+ *
+ * @example
+ * ```tsx
+ * import { NativeSelect } from "@beep/ui/components/native-select"
+ *
+ * console.log(NativeSelect)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */

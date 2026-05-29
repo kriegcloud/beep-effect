@@ -20,6 +20,7 @@ import * as PrometheusMetrics from "effect/unstable/observability/PrometheusMetr
  *
  * const raw = 'my_metric_bucket{le="Infinity"} 5\nmy_metric_bucket{le="1"} 3'
  * const clean = sanitizePrometheusMetrics(raw)
+ * console.log(clean)
  * ```
  *
  * @since 0.0.0
@@ -39,6 +40,7 @@ export const sanitizePrometheusMetrics: (text: string) => string = flow(
  * import { layerPrometheusMetricsHttp } from "@beep/observability/server"
  *
  * const PrometheusLive = layerPrometheusMetricsHttp({ path: "/metrics" })
+ * console.log(PrometheusLive)
  * ```
  *
  * @since 0.0.0

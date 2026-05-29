@@ -63,7 +63,7 @@ export const PositiveFrameRate = S.Number.check(
  * import type { PositiveFrameRate } from "@beep/ffmpeg"
  *
  * const fps = 1 as PositiveFrameRate
- * void fps
+ * console.log(fps)
  * ```
  *
  * @category models
@@ -122,7 +122,7 @@ export const PositiveMilliseconds = S.Number.check(
  * import type { PositiveMilliseconds } from "@beep/ffmpeg"
  *
  * const timeout = 2000 as PositiveMilliseconds
- * void timeout
+ * console.log(timeout)
  * ```
  *
  * @category models
@@ -181,7 +181,7 @@ export const SafeFramePrefix = S.String.check(
  * import type { SafeFramePrefix } from "@beep/ffmpeg"
  *
  * const prefix = "clip_frame" as SafeFramePrefix
- * void prefix
+ * console.log(prefix)
  * ```
  *
  * @category models
@@ -197,7 +197,7 @@ export type SafeFramePrefix = typeof SafeFramePrefix.Type;
  * import { FFmpegConfigInput } from "@beep/ffmpeg"
  *
  * const config = FFmpegConfigInput.make({ ffmpegPath: "ffmpeg", ffprobePath: "ffprobe" })
- * void config
+ * console.log(config)
  * ```
  *
  * @category models
@@ -226,7 +226,7 @@ export class FFmpegConfigInput extends S.Class<FFmpegConfigInput>($I`FFmpegConfi
  *   ffprobePath: "ffprobe",
  *   forceKillAfterMillis: 2000
  * })
- * void config
+ * console.log(config)
  * ```
  *
  * @category models
@@ -251,7 +251,7 @@ export class FFmpegConfig extends S.Class<FFmpegConfig>($I`FFmpegConfig`)(
  * import { ProbeVideoRequest } from "@beep/ffmpeg"
  *
  * const request = ProbeVideoRequest.make({ videoPath: "./clip.mp4" })
- * void request
+ * console.log(request)
  * ```
  *
  * @category models
@@ -274,7 +274,7 @@ export class ProbeVideoRequest extends S.Class<ProbeVideoRequest>($I`ProbeVideoR
  * import { VideoProbe } from "@beep/ffmpeg"
  *
  * const probe = VideoProbe.make({ videoPath: "./clip.mp4", durationSeconds: 3 })
- * void probe
+ * console.log(probe)
  * ```
  *
  * @category models
@@ -310,7 +310,7 @@ export class VideoProbe extends S.Class<VideoProbe>($I`VideoProbe`)(
  *   prefix: O.none(),
  *   videoPath: "./clip.mp4"
  * })
- * void request
+ * console.log(request)
  * ```
  *
  * @category models
@@ -352,7 +352,7 @@ export class ExtractFramesRequest extends S.Class<ExtractFramesRequest>($I`Extra
  *   path: "./frames/clip_frame_00000.png",
  *   relativePath: "clip_frame_00000.png"
  * })
- * void frame
+ * console.log(frame)
  * ```
  *
  * @category models
@@ -378,7 +378,7 @@ export class ExtractedFrame extends S.Class<ExtractedFrame>($I`ExtractedFrame`)(
  * import { ExtractFramesManifestOptions } from "@beep/ffmpeg"
  *
  * const options = ExtractFramesManifestOptions.make({ fps: 1, overwrite: false, prefix: "clip_frame" })
- * void options
+ * console.log(options)
  * ```
  *
  * @category models
@@ -405,7 +405,7 @@ export class ExtractFramesManifestOptions extends S.Class<ExtractFramesManifestO
  * import { ExtractFramesManifestSummary } from "@beep/ffmpeg"
  *
  * const summary = ExtractFramesManifestSummary.make({ frameCount: 3 })
- * void summary
+ * console.log(summary)
  * ```
  *
  * @category models
@@ -439,7 +439,7 @@ export class ExtractFramesManifestSummary extends S.Class<ExtractFramesManifestS
  *   sourceVideo: "./clip.mp4",
  *   summary: ExtractFramesManifestSummary.make({ frameCount: 0 })
  * })
- * void manifest
+ * console.log(manifest)
  * ```
  *
  * @category models
@@ -475,7 +475,7 @@ export class ExtractFramesManifest extends S.Class<ExtractFramesManifest>($I`Ext
  *   outDir: "./frames",
  *   videoPath: "./clip.mp4"
  * })
- * void result
+ * console.log(result)
  * ```
  *
  * @category models
@@ -508,7 +508,7 @@ export class ExtractFramesResult extends S.Class<ExtractFramesResult>($I`Extract
  *   outDir: "./frames",
  *   videoPath: "./clip.mp4"
  * })
- * void event
+ * console.log(event)
  * ```
  *
  * @category events
@@ -535,7 +535,7 @@ export class FFmpegStartedEvent extends S.Class<FFmpegStartedEvent>($I`FFmpegSta
  * import { FFmpegProgressEvent } from "@beep/ffmpeg"
  *
  * const event = FFmpegProgressEvent.make({ frameCount: 1, kind: "progress", percent: 50, progress: "continue" })
- * void event
+ * console.log(event)
  * ```
  *
  * @category events
@@ -568,7 +568,7 @@ export class FFmpegProgressEvent extends S.Class<FFmpegProgressEvent>($I`FFmpegP
  *   manifestPath: "./frames/extract-frames-manifest.json",
  *   outDir: "./frames"
  * })
- * void event
+ * console.log(event)
  * ```
  *
  * @category events
@@ -594,7 +594,7 @@ export class FFmpegCompletedEvent extends S.Class<FFmpegCompletedEvent>($I`FFmpe
  * import type { FFmpegEvent } from "@beep/ffmpeg"
  *
  * const log = (event: FFmpegEvent) => event.kind
- * void log
+ * console.log(log)
  * ```
  *
  * @category events
@@ -615,7 +615,7 @@ export const FFmpegEvent = S.Union([FFmpegStartedEvent, FFmpegProgressEvent, FFm
  * import type { FFmpegEvent } from "@beep/ffmpeg"
  *
  * const eventKind = (event: FFmpegEvent) => event.kind
- * void eventKind
+ * console.log(eventKind)
  * ```
  *
  * @category events
@@ -631,7 +631,7 @@ export type FFmpegEvent = typeof FFmpegEvent.Type;
  * import { decodeExtractFramesRequest } from "@beep/ffmpeg"
  *
  * const effect = decodeExtractFramesRequest({ fps: 1, outDir: "./frames", videoPath: "./clip.mp4" })
- * void effect
+ * console.log(effect)
  * ```
  *
  * @category decoding
@@ -647,7 +647,7 @@ export const decodeExtractFramesRequest = S.decodeUnknownEffect(ExtractFramesReq
  * import { decodeProbeVideoRequest } from "@beep/ffmpeg"
  *
  * const effect = decodeProbeVideoRequest({ videoPath: "./clip.mp4" })
- * void effect
+ * console.log(effect)
  * ```
  *
  * @category decoding
@@ -672,7 +672,7 @@ export const decodeProbeVideoRequest = S.decodeUnknownEffect(ProbeVideoRequest);
  *   sourceVideo: "./clip.mp4",
  *   summary: ExtractFramesManifestSummary.make({ frameCount: 0 })
  * }))
- * void encoded
+ * console.log(encoded)
  * ```
  *
  * @category encoding

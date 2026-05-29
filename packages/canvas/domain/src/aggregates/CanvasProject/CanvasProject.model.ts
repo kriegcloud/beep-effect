@@ -31,6 +31,13 @@ const $I = $CanvasDomainId.create("aggregates/CanvasProject/CanvasProject.model"
 /**
  * Lightweight node metadata stored inside a bootstrap canvas scene.
  *
+ * @example
+ * ```ts
+ * import { CanvasNode } from "@beep/canvas-domain/aggregates/CanvasProject"
+ *
+ * console.log(CanvasNode)
+ * ```
+ *
  * @category aggregates
  * @since 0.0.0
  */
@@ -48,6 +55,13 @@ export class CanvasNode extends S.Class<CanvasNode>($I`CanvasNode`)(
 
 /**
  * CanvasProject aggregate.
+ *
+ * @example
+ * ```ts
+ * import { CanvasProject } from "@beep/canvas-domain/aggregates/CanvasProject"
+ *
+ * console.log(CanvasProject)
+ * ```
  *
  * @category aggregates
  * @since 0.0.0
@@ -67,6 +81,13 @@ export class CanvasProject extends S.Class<CanvasProject>($I`CanvasProject`)(
 
 /**
  * CanvasProject creation input.
+ *
+ * @example
+ * ```ts
+ * import { CreateCanvasProjectInput } from "@beep/canvas-domain/aggregates/CanvasProject"
+ *
+ * console.log(CreateCanvasProjectInput)
+ * ```
  *
  * @category aggregates
  * @since 0.0.0
@@ -89,6 +110,13 @@ export class CreateCanvasProjectInput extends S.Class<CreateCanvasProjectInput>(
 
 /**
  * Create a new open CanvasProject aggregate.
+ *
+ * @example
+ * ```ts
+ * import { create } from "@beep/canvas-domain/aggregates/CanvasProject"
+ *
+ * console.log(create)
+ * ```
  *
  * @category aggregates
  * @since 0.0.0
@@ -115,6 +143,13 @@ const findNode = (canvasProject: CanvasProject, canvasNodeId: CanvasNodeId): O.O
 /**
  * Add lightweight node metadata to an open CanvasProject.
  *
+ * @example
+ * ```ts
+ * import { addNode } from "@beep/canvas-domain/aggregates/CanvasProject"
+ *
+ * console.log(addNode)
+ * ```
+ *
  * @category aggregates
  * @since 0.0.0
  */
@@ -137,6 +172,13 @@ export const addNode = Effect.fn("CanvasProject.addNode")(function* (
 
 /**
  * Remove lightweight node metadata from an open CanvasProject.
+ *
+ * @example
+ * ```ts
+ * import { removeNode } from "@beep/canvas-domain/aggregates/CanvasProject"
+ *
+ * console.log(removeNode)
+ * ```
  *
  * @category aggregates
  * @since 0.0.0
@@ -161,6 +203,13 @@ export const removeNode = Effect.fn("CanvasProject.removeNode")(function* (
 /**
  * Archive any non-archived CanvasProject.
  *
+ * @example
+ * ```ts
+ * import { archive } from "@beep/canvas-domain/aggregates/CanvasProject"
+ *
+ * console.log(archive)
+ * ```
+ *
  * @category aggregates
  * @since 0.0.0
  */
@@ -174,6 +223,13 @@ export const archive = Effect.fn("CanvasProject.archive")(function* (canvasProje
 
 /**
  * Reopen an archived CanvasProject.
+ *
+ * @example
+ * ```ts
+ * import { reopen } from "@beep/canvas-domain/aggregates/CanvasProject"
+ *
+ * console.log(reopen)
+ * ```
  *
  * @category aggregates
  * @since 0.0.0

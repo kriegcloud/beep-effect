@@ -29,7 +29,7 @@ class PrefetchInliningConfigComplex extends S.Class<PrefetchInliningConfigComple
  * ```ts
  * import { PrefetchInliningConfig } from "@beep/repo-configs/next/models/PrefetchInliningConfig.schema"
  * const schema = PrefetchInliningConfig
- * void schema
+ * console.log(schema)
  * ```
  * @category schemas
  * @since 0.0.0
@@ -48,7 +48,7 @@ export const PrefetchInliningConfig = S.Union([S.Literal(false), PrefetchInlinin
  * ```ts
  * import type { PrefetchInliningConfig } from "@beep/repo-configs/next/models/PrefetchInliningConfig.schema"
  * const config = false satisfies PrefetchInliningConfig
- * void config
+ * console.log(config)
  * ```
  * @category models
  * @since 0.0.0

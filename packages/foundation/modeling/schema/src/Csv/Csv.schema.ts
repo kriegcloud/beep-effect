@@ -32,6 +32,15 @@ const CsvText = S.String.pipe(
 /**
  * Object-like row schema contract accepted by the CSV schema factory.
  *
+ * @example
+ * ```ts
+ * import type { RowSchemaWithFields } from "@beep/schema/Csv"
+ * import * as S from "effect/Schema"
+ *
+ * const Row = S.Struct({ name: S.String }) satisfies RowSchemaWithFields
+ * console.log(Object.keys(Row.fields))
+ * ```
+ *
  * @category models
  * @since 0.0.0
  */
@@ -41,6 +50,16 @@ export type RowSchemaWithFields = S.Top & {
 
 /**
  * Schema transformation returned by the CSV schema factory for a row schema.
+ *
+ * @example
+ * ```ts
+ * import type { CsvDocument } from "@beep/schema/Csv"
+ * import * as S from "effect/Schema"
+ *
+ * const Row = S.Struct({ name: S.String })
+ * declare const document: CsvDocument<typeof Row>
+ * console.log(document.ast._tag)
+ * ```
  *
  * @category models
  * @since 0.0.0
@@ -279,8 +298,9 @@ const encodeCsvRowsEffect = <RowSchema extends RowSchemaWithFields>(
  * const Row = S.Struct({ name: S.String, age: S.NumberFromString })
  * const CsvSchema = CSV(Row)
  *
- * const program = Effect.gen(function* () {})
- * void program
+ * const program = S.decodeUnknownEffect(CsvSchema)("name,age\nAda,36")
+ * const result = Effect.runPromise(program)
+ * console.log(result)
  * ```
  *
  * @category validation
@@ -326,6 +346,16 @@ export { Csv as CSV, Csv as Schema };
 /**
  * Runtime type extracted from the {@link CSV} alias.
  *
+ * @example
+ * ```ts
+ * import type { CSV } from "@beep/schema/Csv"
+ * import * as S from "effect/Schema"
+ *
+ * const Row = S.Struct({ name: S.String })
+ * declare const schema: CSV<typeof Row>
+ * console.log(schema.ast._tag)
+ * ```
+ *
  * @category models
  * @since 0.0.0
  */
@@ -333,6 +363,16 @@ export type CSV<RowSchema extends RowSchemaWithFields> = CsvDocument<RowSchema>;
 
 /**
  * Runtime type extracted from the {@link Schema} alias.
+ *
+ * @example
+ * ```ts
+ * import type { Schema } from "@beep/schema/Csv"
+ * import * as S from "effect/Schema"
+ *
+ * const Row = S.Struct({ name: S.String })
+ * declare const schema: Schema<typeof Row>
+ * console.log(schema.ast._tag)
+ * ```
  *
  * @category models
  * @since 0.0.0

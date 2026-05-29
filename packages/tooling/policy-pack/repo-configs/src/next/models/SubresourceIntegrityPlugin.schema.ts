@@ -16,7 +16,7 @@ const $I = $RepoConfigsId.create("next/models/SubresourceIntegrityPlugin.schema"
  * ```ts
  * import { SubresourceIntegrityAlgorithm } from "@beep/repo-configs/next/models/SubresourceIntegrityPlugin.schema"
  * const algorithm = SubresourceIntegrityAlgorithm
- * void algorithm
+ * console.log(algorithm)
  * ```
  * @category schemas
  * @since 0.0.0
@@ -34,7 +34,7 @@ export const SubresourceIntegrityAlgorithm = LiteralKit(["sha256", "sha384", "sh
  * ```ts
  * import type { SubresourceIntegrityAlgorithm } from "@beep/repo-configs/next/models/SubresourceIntegrityPlugin.schema"
  * const algorithm = "sha384" satisfies SubresourceIntegrityAlgorithm
- * void algorithm
+ * console.log(algorithm)
  * ```
  * @category models
  * @since 0.0.0

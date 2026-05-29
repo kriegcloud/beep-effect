@@ -17,7 +17,7 @@ import type { JSDocTagDefinition } from "./JSDocTagDefinition.model.js";
  *
  * type Example = JSDocTagAnnotationPayload
  * const accept = <A extends Example>(value: A): A => value
- * void accept
+ * console.log(accept)
  * ```
  * @category models
  * @since 0.0.0
@@ -41,7 +41,7 @@ declare module "effect/Schema" {
  * ```ts
  * import { getJSDocTagMetadata } from "@beep/repo-utils/JSDoc/models/JSDocTagAnnotation.model"
  *
- * void getJSDocTagMetadata
+ * console.log(getJSDocTagMetadata)
  * ```
  * @category models
  * @since 0.0.0

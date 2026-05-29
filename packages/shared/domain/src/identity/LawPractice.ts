@@ -41,7 +41,7 @@ export const LegalClientId = make("legal_client", {
  *   const id: LawPractice.LegalClientId = yield* S.decodeUnknownEffect(LawPractice.LegalClientId)(1)
  *   return id
  * })
- * void program
+ * console.log(program)
  * ```
  *
  * @category entity-ids
@@ -79,7 +79,7 @@ export const LegalContactId = make("legal_contact", {
  *   const id: LawPractice.LegalContactId = yield* S.decodeUnknownEffect(LawPractice.LegalContactId)(1)
  *   return id
  * })
- * void program
+ * console.log(program)
  * ```
  *
  * @category entity-ids
@@ -117,7 +117,7 @@ export const MatterId = make("matter", {
  *   const id: LawPractice.MatterId = yield* S.decodeUnknownEffect(LawPractice.MatterId)(1)
  *   return id
  * })
- * void program
+ * console.log(program)
  * ```
  *
  * @category entity-ids
@@ -155,7 +155,7 @@ export const PatentAssetId = make("patent_asset", {
  *   const id: LawPractice.PatentAssetId = yield* S.decodeUnknownEffect(LawPractice.PatentAssetId)(1)
  *   return id
  * })
- * void program
+ * console.log(program)
  * ```
  *
  * @category entity-ids

@@ -27,7 +27,7 @@ const $I = $XaiId.create("XAi.errors");
  * import type { XAiErrorReason } from "@beep/xai"
  *
  * const reason: XAiErrorReason = "response status"
- * void reason
+ * console.log(reason)
  * ```
  *
  * @category errors
@@ -56,7 +56,7 @@ export const XAiErrorReason = LiteralKit([
  * import type { XAiErrorReason } from "@beep/xai"
  *
  * const reason: XAiErrorReason = "transport"
- * void reason
+ * console.log(reason)
  * ```
  *
  * @category errors
@@ -74,7 +74,7 @@ const isXAiEndpointDescriptor = S.is(XAiEndpoint);
  * import { XAiError, XAI_ENDPOINTS } from "@beep/xai"
  *
  * const error = XAiError.fromDescriptor(XAI_ENDPOINTS[0], "transport")
- * void error.reason
+ * console.log(error.reason)
  * ```
  *
  * @category errors
@@ -103,7 +103,7 @@ export class XAiError extends TaggedErrorClass<XAiError>($I`XAiError`)(
    * import { XAiError, XAI_ENDPOINTS } from "@beep/xai"
    *
    * const error = XAiError.fromDescriptor(XAI_ENDPOINTS[0], "request encoding")
-   * void error.endpoint
+   * console.log(error.endpoint)
    * ```
    *
    * @category errors
@@ -138,7 +138,7 @@ export class XAiError extends TaggedErrorClass<XAiError>($I`XAiError`)(
    * import { XAiError } from "@beep/xai"
    *
    * const error = XAiError.config()
-   * void error.reason
+   * console.log(error.reason)
    * ```
    *
    * @category errors
@@ -198,7 +198,7 @@ const causeFromUnknown = (cause: unknown): O.Option<string> =>
  * import { XAiErrorOptions } from "@beep/xai"
  *
  * const options = XAiErrorOptions.make({ status: 500 })
- * void options
+ * console.log(options)
  * ```
  *
  * @category errors

@@ -23,7 +23,7 @@ const $I = $RepoUtilsId.create("schemas/JSDocCategories");
  * ```ts
  * import { CANONICAL_JSDOC_CATEGORIES } from "@beep/repo-utils/schemas/JSDocCategories"
  * const categories = CANONICAL_JSDOC_CATEGORIES
- * void categories
+ * console.log(categories)
  * ```
  * @category configuration
  * @since 0.0.0
@@ -118,7 +118,7 @@ export const CANONICAL_JSDOC_CATEGORIES = [
  * ```ts
  * import type { JSDocCategory } from "@beep/repo-utils/schemas/JSDocCategories"
  * const category: JSDocCategory = "validation"
- * void category
+ * console.log(category)
  * ```
  * @category type-level
  * @since 0.0.0
@@ -132,7 +132,7 @@ export type JSDocCategory = (typeof CANONICAL_JSDOC_CATEGORIES)[number];
  * ```ts
  * import { JSDocCategoryNormalizationStatus } from "@beep/repo-utils/schemas/JSDocCategories"
  * const status = JSDocCategoryNormalizationStatus
- * void status
+ * console.log(status)
  * ```
  * @category models
  * @since 0.0.0
@@ -149,7 +149,7 @@ export const JSDocCategoryNormalizationStatus = LiteralKit(["canonical", "alias"
  * ```ts
  * import type { JSDocCategoryNormalizationStatus } from "@beep/repo-utils/schemas/JSDocCategories"
  * const status: JSDocCategoryNormalizationStatus = "canonical"
- * void status
+ * console.log(status)
  * ```
  * @category type-level
  * @since 0.0.0
@@ -163,7 +163,7 @@ export type JSDocCategoryNormalizationStatus = typeof JSDocCategoryNormalization
  * ```ts
  * import { normalizeJSDocCategory } from "@beep/repo-utils/schemas/JSDocCategories"
  * const normalized = normalizeJSDocCategory("DomainModel")
- * void normalized
+ * console.log(normalized)
  * ```
  * @category models
  * @since 0.0.0
@@ -287,7 +287,7 @@ const appendCategorySeparator = (output: string): string =>
  * ```ts
  * import { normalizeJSDocCategoryKey } from "@beep/repo-utils/schemas/JSDocCategories"
  * const key = normalizeJSDocCategoryKey("Resource Management & Finalization")
- * void key
+ * console.log(key)
  * ```
  * @category normalization
  * @since 0.0.0
@@ -340,7 +340,7 @@ export const normalizeJSDocCategoryKey = (value: string): string => {
  * ```ts
  * import { isCanonicalJSDocCategory } from "@beep/repo-utils/schemas/JSDocCategories"
  * const isCanonical = isCanonicalJSDocCategory("tool-schemas")
- * void isCanonical
+ * console.log(isCanonical)
  * ```
  * @category predicates
  * @since 0.0.0
@@ -357,7 +357,7 @@ export const isCanonicalJSDocCategory = (value: string): value is JSDocCategory 
  * ```ts
  * import { normalizeJSDocCategory } from "@beep/repo-utils/schemas/JSDocCategories"
  * const normalized = normalizeJSDocCategory("ToolSchemas")
- * void normalized
+ * console.log(normalized)
  * ```
  * @category normalization
  * @since 0.0.0
@@ -444,7 +444,7 @@ export const normalizeJSDocCategory = (value: string): JSDocCategoryNormalizatio
  * ```ts
  * import { isAcceptedJSDocCategory } from "@beep/repo-utils/schemas/JSDocCategories"
  * const accepted = isAcceptedJSDocCategory("DomainModel")
- * void accepted
+ * console.log(accepted)
  * ```
  * @category predicates
  * @since 0.0.0

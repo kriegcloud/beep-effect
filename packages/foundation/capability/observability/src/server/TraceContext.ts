@@ -22,6 +22,7 @@ const isTraceContextDataFirst = (args: IArguments): boolean => args.length >= 2 
  * import { extractTraceContextHeaders } from "@beep/observability/server"
  *
  * const parentSpan = extractTraceContextHeaders({ traceparent: "00-abc-def-01" })
+ * console.log(parentSpan)
  * ```
  *
  * @since 0.0.0
@@ -39,9 +40,12 @@ export const extractTraceContextHeaders = (headers?: Headers.Input): O.Option<Tr
  * import { injectTraceContextHeaders } from "@beep/observability/server"
  *
  * const program = injectTraceContextHeaders().pipe(
- *
+ *   Effect.map((headers) => headers)
  * )
+ * console.log(Effect.runPromise(program))
  * ```
+ *
+ * @effects Reads the current span when available and returns headers with W3C trace context fields.
  *
  * @since 0.0.0
  * @category observability
@@ -64,10 +68,13 @@ export const injectTraceContextHeaders = Effect.fn("injectTraceContextHeaders")(
  * import { withIncomingTraceContext } from "@beep/observability/server"
  *
  * const program = withIncomingTraceContext(
- *
- *
+ *   Effect.succeed("ok"),
+ *   { traceparent: "00-4bf92f3577b34da6a3ce929d0e0e4736-00f067aa0ca902c7-00" }
  * )
+ * console.log(Effect.runPromise(program))
  * ```
+ *
+ * @effects Applies an extracted parent span to the wrapped effect when incoming trace headers are present.
  *
  * @since 0.0.0
  * @category observability
@@ -86,6 +93,20 @@ const withIncomingTraceContextImpl = Effect.fn("withIncomingTraceContextImpl")(f
 
 /**
  * Runs an Effect with trace context extracted from incoming headers.
+ *
+ * @example
+ * ```typescript
+ * import { Effect } from "effect"
+ * import { withIncomingTraceContext } from "@beep/observability/server"
+ *
+ * const program = withIncomingTraceContext(
+ *   Effect.succeed("ok"),
+ *   { traceparent: "00-4bf92f3577b34da6a3ce929d0e0e4736-00f067aa0ca902c7-00" }
+ * )
+ * console.log(Effect.runPromise(program))
+ * ```
+ *
+ * @effects Applies an extracted parent span to the wrapped effect when incoming trace headers are present.
  *
  * @category observability
  * @since 0.0.0

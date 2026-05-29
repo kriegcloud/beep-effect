@@ -92,6 +92,7 @@ const inputFlag = Flag.string("input").pipe(
 const planFlag = Flag.boolean("plan").pipe(Flag.withDescription("Print the local docgen plan without executing it"));
 const fullFlag = Flag.boolean("full").pipe(Flag.withDescription("Run the canonical full docgen proof"));
 const allFlag = Flag.boolean("all").pipe(Flag.withDescription("Run against every configured docgen package"));
+const checkFlag = Flag.boolean("check").pipe(Flag.withDescription("Fail when the command reports failure findings"));
 const changedFilesFlag = Flag.boolean("changed-files").pipe(
   Flag.withDescription("Run against packages touched by working-tree TypeScript changes only")
 );
@@ -301,6 +302,11 @@ const splitCommaSeparatedFlag: (value: string) => ReadonlyArray<string> = flow(
   A.map(Str.trim),
   A.filter(Str.isNonEmpty)
 );
+
+const qualityReportHasBlockingFindings = (report: {
+  readonly summary: { readonly failures: number };
+  readonly packages: ReadonlyArray<{ readonly status: string }>;
+}): boolean => report.summary.failures > 0 || A.some(report.packages, (pkg) => pkg.status !== "completed");
 
 const resolveQualityWorkerEvalSource = Effect.fn("Docgen.resolveQualityWorkerEvalSource")(function* ({
   all,
@@ -767,6 +773,7 @@ const docgenQualityCommand = Command.make(
   {
     package: packageFlag,
     all: allFlag,
+    check: checkFlag,
     changedFiles: changedFilesFlag,
     output: outputFlag,
     json: jsonFlag,
@@ -774,7 +781,7 @@ const docgenQualityCommand = Command.make(
     packetLimit: packetLimitFlag,
   },
   Effect.fn(
-    function* ({ package: packageSelector, all, changedFiles, output, json, score, packetLimit }) {
+    function* ({ package: packageSelector, all, check, changedFiles, output, json, score, packetLimit }) {
       const fs = yield* FileSystem.FileSystem;
       const path = yield* Path.Path;
       const { scope, targets } = yield* resolveDocgenQualityTargets({
@@ -805,6 +812,9 @@ const docgenQualityCommand = Command.make(
       if (O.isSome(output)) {
         yield* fs.writeFileString(output.value, content);
         yield* Console.log(`docgen: wrote ${output.value}`);
+        if (check && qualityReportHasBlockingFindings(report)) {
+          return yield* failWithReportedExit("docgen: quality check found failures.");
+        }
         return;
       }
 
@@ -818,10 +828,16 @@ const docgenQualityCommand = Command.make(
         const destination = defaultQualityPath(target.value.absolutePath, json, path);
         yield* fs.writeFileString(destination, content);
         yield* Console.log(`docgen: wrote ${destination}`);
+        if (check && qualityReportHasBlockingFindings(report)) {
+          return yield* failWithReportedExit("docgen: quality check found failures.");
+        }
         return;
       }
 
       yield* Console.log(content);
+      if (check && qualityReportHasBlockingFindings(report)) {
+        return yield* failWithReportedExit("docgen: quality check found failures.");
+      }
     },
     Effect.catchTags({
       DomainError: reportDocgenCommandError,
@@ -1081,6 +1097,13 @@ const printDocgenIndex = () =>
 
 /**
  * Human-first docgen command suite.
+ *
+ * @example
+ * ```ts
+ * import { docgenCommand } from "@beep/repo-cli/commands/Docgen"
+ *
+ * console.log(docgenCommand)
+ * ```
  *
  * @category use-cases
  * @since 0.0.0

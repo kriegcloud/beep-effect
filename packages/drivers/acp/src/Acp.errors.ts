@@ -405,7 +405,7 @@ export const AcpError = S.Union([
  * import type { AcpError } from "@beep/acp/errors"
  *
  * const inspect = (error: AcpError) => error._tag
- * void inspect
+ * console.log(inspect)
  * ```
  *
  * @category errors

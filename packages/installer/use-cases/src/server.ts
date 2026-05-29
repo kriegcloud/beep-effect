@@ -44,6 +44,13 @@ interface HostDependencyUseCasesShape {
 /**
  * Host dependency use-case service key.
  *
+ * @example
+ * ```ts
+ * import { HostDependencyUseCases } from "@beep/installer-use-cases/server"
+ *
+ * console.log(HostDependencyUseCases)
+ * ```
+ *
  * @category repositories
  * @since 0.0.0
  */
@@ -70,6 +77,13 @@ interface SecretReferenceUseCasesShape {
 /**
  * Secret reference use-case service key.
  *
+ * @example
+ * ```ts
+ * import { SecretReferenceUseCases } from "@beep/installer-use-cases/server"
+ *
+ * console.log(SecretReferenceUseCases)
+ * ```
+ *
  * @category repositories
  * @since 0.0.0
  */
@@ -90,6 +104,13 @@ interface ProviderAccountUseCasesShape {
 
 /**
  * Provider account use-case service key.
+ *
+ * @example
+ * ```ts
+ * import { ProviderAccountUseCases } from "@beep/installer-use-cases/server"
+ *
+ * console.log(ProviderAccountUseCases)
+ * ```
  *
  * @category repositories
  * @since 0.0.0
@@ -115,6 +136,13 @@ interface DiscordChannelUseCasesShape {
 /**
  * Discord channel use-case service key.
  *
+ * @example
+ * ```ts
+ * import { DiscordChannelUseCases } from "@beep/installer-use-cases/server"
+ *
+ * console.log(DiscordChannelUseCases)
+ * ```
+ *
  * @category repositories
  * @since 0.0.0
  */
@@ -134,6 +162,13 @@ interface StackManifestUseCasesShape {
 
 /**
  * Stack manifest use-case service key.
+ *
+ * @example
+ * ```ts
+ * import { StackManifestUseCases } from "@beep/installer-use-cases/server"
+ *
+ * console.log(StackManifestUseCases)
+ * ```
  *
  * @category repositories
  * @since 0.0.0
@@ -157,6 +192,13 @@ interface P1ManualProofWorkflowShape {
 
 /**
  * P1 Manual Mode proof workflow service key.
+ *
+ * @example
+ * ```ts
+ * import { P1ManualProofWorkflow } from "@beep/installer-use-cases/server"
+ *
+ * console.log(P1ManualProofWorkflow)
+ * ```
  *
  * @category workflows
  * @since 0.0.0

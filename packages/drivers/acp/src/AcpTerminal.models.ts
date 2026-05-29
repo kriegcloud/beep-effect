@@ -17,7 +17,7 @@ import type * as AcpError from "./Acp.errors.ts";
  * import type { AcpTerminal } from "@beep/acp/terminal"
  *
  * const terminalIdOf = (terminal: AcpTerminal) => terminal.terminalId
- * void terminalIdOf
+ * console.log(terminalIdOf)
  * ```
  *
  * @category models
@@ -52,7 +52,7 @@ export interface AcpTerminal {
  * import type { MakeTerminalOptions } from "@beep/acp/terminal"
  *
  * const sessionIdOf = (options: MakeTerminalOptions) => options.sessionId
- * void sessionIdOf
+ * console.log(sessionIdOf)
  * ```
  *
  * @category models
@@ -75,7 +75,7 @@ export interface MakeTerminalOptions {
  * import { makeTerminal, type MakeTerminalOptions } from "@beep/acp/terminal"
  *
  * const fromOptions = (options: MakeTerminalOptions) => makeTerminal(options)
- * void fromOptions
+ * console.log(fromOptions)
  * ```
  *
  * @category constructors

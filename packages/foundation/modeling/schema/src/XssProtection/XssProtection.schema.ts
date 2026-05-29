@@ -24,6 +24,16 @@ const headerName = "X-XSS-Protection" as const;
 const XSSProtectionModeBase = LiteralKit(["sanitize", "block-rendering"]);
 
 /**
+ * Schema for direct `X-XSS-Protection` policy modes.
+ *
+ * @example
+ * ```ts
+ * import * as S from "effect/Schema"
+ * import { XSSProtectionMode } from "@beep/schema/XssProtection"
+ *
+ * console.log(S.is(XSSProtectionMode)("block-rendering")) // true
+ * ```
+ *
  * @category schemas
  * @since 0.0.0
  */
@@ -35,12 +45,24 @@ export const XSSProtectionMode = XSSProtectionModeBase.pipe(
 );
 
 /**
+ * Type for direct `X-XSS-Protection` policy modes.
+ *
  * @category models
  * @since 0.0.0
  */
 export type XSSProtectionMode = typeof XSSProtectionMode.Type;
 
 /**
+ * Configuration for `X-XSS-Protection` report mode.
+ *
+ * @example
+ * ```ts
+ * import { XSSProtectionReportConfig } from "@beep/schema/XssProtection"
+ *
+ * const config = XSSProtectionReportConfig.make({ uri: "https://example.com/report" })
+ * console.log(config.uri)
+ * ```
+ *
  * @category models
  * @since 0.0.0
  */
@@ -54,6 +76,20 @@ export class XSSProtectionReportConfig extends S.Class<XSSProtectionReportConfig
 ) {}
 
 /**
+ * Schema for tuple-based `X-XSS-Protection` report configuration.
+ *
+ * @example
+ * ```ts
+ * import * as S from "effect/Schema"
+ * import { XSSProtectionReport, XSSProtectionReportConfig } from "@beep/schema/XssProtection"
+ *
+ * const value = S.decodeUnknownSync(XSSProtectionReport)([
+ *   "report",
+ *   XSSProtectionReportConfig.make({ uri: "https://example.com/report" }),
+ * ])
+ * console.log(value[0])
+ * ```
+ *
  * @category schemas
  * @since 0.0.0
  */
@@ -64,12 +100,24 @@ export const XSSProtectionReport = S.Tuple([S.Literal("report"), XSSProtectionRe
 );
 
 /**
+ * Type for tuple-based `X-XSS-Protection` report configuration.
+ *
  * @category models
  * @since 0.0.0
  */
 export type XSSProtectionReport = typeof XSSProtectionReport.Type;
 
 /**
+ * Schema for enabled, disabled, or report-mode XSS protection options.
+ *
+ * @example
+ * ```ts
+ * import * as S from "effect/Schema"
+ * import { XSSProtectionOption } from "@beep/schema/XssProtection"
+ *
+ * console.log(S.decodeUnknownSync(XSSProtectionOption)("sanitize"))
+ * ```
+ *
  * @category schemas
  * @since 0.0.0
  */
@@ -80,12 +128,25 @@ export const XSSProtectionOption = S.Union([S.Literal(false), XSSProtectionMode,
 );
 
 /**
+ * Type for enabled, disabled, or report-mode XSS protection options.
+ *
  * @category models
  * @since 0.0.0
  */
 export type XSSProtectionOption = typeof XSSProtectionOption.Type;
 
 /**
+ * Model for a rendered `X-XSS-Protection` response header.
+ *
+ * @example
+ * ```ts
+ * import * as O from "effect/Option"
+ * import { XSSProtectionResponseHeader } from "@beep/schema/XssProtection"
+ *
+ * const header = XSSProtectionResponseHeader.make({ name: "X-XSS-Protection", value: O.some("1") })
+ * console.log(header.name)
+ * ```
+ *
  * @category models
  * @since 0.0.0
  */
@@ -139,6 +200,17 @@ const formatXSSProtectionValue = Effect.fn("XSSProtection.formatXSSProtectionVal
 });
 
 /**
+ * Schema that renders XSS protection options into a response header.
+ *
+ * @example
+ * ```ts
+ * import * as S from "effect/Schema"
+ * import { XSSProtectionHeader } from "@beep/schema/XssProtection"
+ *
+ * const header = S.decodeUnknownSync(XSSProtectionHeader)("block-rendering")
+ * console.log(header.name)
+ * ```
+ *
  * @category schemas
  * @since 0.0.0
  */
@@ -190,6 +262,8 @@ export const XSSProtectionHeader = S.Union([XSSProtectionOption, S.Undefined]).p
 );
 
 /**
+ * Type for rendered `X-XSS-Protection` response headers.
+ *
  * @category models
  * @since 0.0.0
  */

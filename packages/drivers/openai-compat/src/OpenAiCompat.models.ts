@@ -32,7 +32,7 @@ const OptionalUnknownRecord = S.OptionFromOptionalKey(S.Record(S.String, S.Unkno
  *
  * const isUserRole = OpenAiCompatChatRole.is.user("user")
  *
- * void isUserRole
+ * console.log(isUserRole)
  * ```
  *
  * @category schemas
@@ -53,7 +53,7 @@ export const OpenAiCompatChatRole = LiteralKit(["system", "user", "assistant", "
  *
  * const role: OpenAiCompatChatRole = "assistant"
  *
- * void role
+ * console.log(role)
  * ```
  *
  * @category models
@@ -70,7 +70,7 @@ export type OpenAiCompatChatRole = typeof OpenAiCompatChatRole.Type;
  *
  * const stopped = OpenAiCompatFinishReason.is.stop("stop")
  *
- * void stopped
+ * console.log(stopped)
  * ```
  *
  * @category schemas
@@ -97,7 +97,7 @@ export const OpenAiCompatFinishReason = LiteralKit([
  *
  * const reason: OpenAiCompatFinishReason = "tool_calls"
  *
- * void reason
+ * console.log(reason)
  * ```
  *
  * @category models
@@ -117,7 +117,7 @@ export type OpenAiCompatFinishReason = typeof OpenAiCompatFinishReason.Type;
  *   name: "weather"
  * })
  *
- * void call
+ * console.log(call)
  * ```
  *
  * @category models
@@ -148,7 +148,7 @@ export class OpenAiCompatToolCallFunction extends S.Class<OpenAiCompatToolCallFu
  *   type: "function"
  * })
  *
- * void call
+ * console.log(call)
  * ```
  *
  * @category models
@@ -177,7 +177,7 @@ export class OpenAiCompatToolCall extends S.Class<OpenAiCompatToolCall>($I`OpenA
  *   arguments: "{\"city\""
  * })
  *
- * void delta
+ * console.log(delta)
  * ```
  *
  * @category models
@@ -207,7 +207,7 @@ export class OpenAiCompatToolCallFunctionDelta extends S.Class<OpenAiCompatToolC
  *   index: 0
  * })
  *
- * void delta
+ * console.log(delta)
  * ```
  *
  * @category models
@@ -237,7 +237,7 @@ export class OpenAiCompatToolCallDelta extends S.Class<OpenAiCompatToolCallDelta
  *   parameters: { type: "object" }
  * })
  *
- * void definition
+ * console.log(definition)
  * ```
  *
  * @category models
@@ -269,7 +269,7 @@ export class OpenAiCompatFunctionToolDefinition extends S.Class<OpenAiCompatFunc
  *   type: "function"
  * })
  *
- * void tool
+ * console.log(tool)
  * ```
  *
  * @category models
@@ -303,7 +303,7 @@ const OpenAiCompatChatContent = S.Union([S.String, S.Array(S.Record(S.String, S.
  *   role: "system"
  * })
  *
- * void message
+ * console.log(message)
  * ```
  *
  * @category models
@@ -334,7 +334,7 @@ export class OpenAiCompatSystemChatMessage extends S.Class<OpenAiCompatSystemCha
  *   role: "user"
  * })
  *
- * void message
+ * console.log(message)
  * ```
  *
  * @category models
@@ -363,7 +363,7 @@ export class OpenAiCompatUserChatMessage extends S.Class<OpenAiCompatUserChatMes
  *   role: "assistant"
  * })
  *
- * void message
+ * console.log(message)
  * ```
  *
  * @category models
@@ -396,7 +396,7 @@ export class OpenAiCompatAssistantChatMessage extends S.Class<OpenAiCompatAssist
  *   tool_call_id: "call_1"
  * })
  *
- * void message
+ * console.log(message)
  * ```
  *
  * @category models
@@ -426,7 +426,7 @@ export class OpenAiCompatToolChatMessage extends S.Class<OpenAiCompatToolChatMes
  *   role: "user"
  * }
  *
- * void message
+ * console.log(message)
  * ```
  *
  * @category schemas
@@ -458,7 +458,7 @@ export const OpenAiCompatChatMessage = OpenAiCompatChatRole.mapMembers(
  *   role: "user"
  * }
  *
- * void message
+ * console.log(message)
  * ```
  *
  * @category models
@@ -479,7 +479,7 @@ export type OpenAiCompatChatMessage = typeof OpenAiCompatChatMessage.Type;
  *   strict: true
  * })
  *
- * void definition
+ * console.log(definition)
  * ```
  *
  * @category models
@@ -511,7 +511,7 @@ export class OpenAiCompatJsonSchemaDefinition extends S.Class<OpenAiCompatJsonSc
  *   type: "json_schema"
  * })
  *
- * void format
+ * console.log(format)
  * ```
  *
  * @category models
@@ -538,7 +538,7 @@ export class OpenAiCompatJsonSchemaResponseFormat extends S.Class<OpenAiCompatJs
  *
  * const isJsonSchema = OpenAiCompatResponseFormatKind.is.json_schema("json_schema")
  *
- * void isJsonSchema
+ * console.log(isJsonSchema)
  * ```
  *
  * @category schemas
@@ -559,7 +559,7 @@ export const OpenAiCompatResponseFormatKind = LiteralKit(["text", "json_object",
  *
  * const kind: OpenAiCompatResponseFormatKind = "json_object"
  *
- * void kind
+ * console.log(kind)
  * ```
  *
  * @category models
@@ -576,7 +576,7 @@ export type OpenAiCompatResponseFormatKind = typeof OpenAiCompatResponseFormatKi
  *
  * const format = OpenAiCompatTextResponseFormat.make({ type: "text" })
  *
- * void format
+ * console.log(format)
  * ```
  *
  * @category models
@@ -602,7 +602,7 @@ export class OpenAiCompatTextResponseFormat extends S.Class<OpenAiCompatTextResp
  *
  * const format = OpenAiCompatJsonObjectResponseFormat.make({ type: "json_object" })
  *
- * void format
+ * console.log(format)
  * ```
  *
  * @category models
@@ -628,7 +628,7 @@ export class OpenAiCompatJsonObjectResponseFormat extends S.Class<OpenAiCompatJs
  *
  * const format: OpenAiCompatResponseFormat = { type: "json_object" }
  *
- * void format
+ * console.log(format)
  * ```
  *
  * @category models
@@ -656,7 +656,7 @@ export const OpenAiCompatResponseFormat = OpenAiCompatResponseFormatKind.mapMemb
  *
  * const format: OpenAiCompatResponseFormat = { type: "text" }
  *
- * void format
+ * console.log(format)
  * ```
  *
  * @category models
@@ -676,7 +676,7 @@ export type OpenAiCompatResponseFormat = typeof OpenAiCompatResponseFormat.Type;
  *   model: "gpt-compatible"
  * })
  *
- * void request
+ * console.log(request)
  * ```
  *
  * @category models
@@ -721,7 +721,7 @@ export class OpenAiCompatChatCompletionRequest extends S.Class<OpenAiCompatChatC
  *   role: "assistant"
  * })
  *
- * void message
+ * console.log(message)
  * ```
  *
  * @category models
@@ -757,7 +757,7 @@ export class OpenAiCompatAssistantMessage extends S.Class<OpenAiCompatAssistantM
  *   role: "assistant"
  * })
  *
- * void delta
+ * console.log(delta)
  * ```
  *
  * @category models
@@ -792,7 +792,7 @@ export class OpenAiCompatAssistantDelta extends S.Class<OpenAiCompatAssistantDel
  *   total_tokens: O.some(3)
  * })
  *
- * void usage
+ * console.log(usage)
  * ```
  *
  * @category models
@@ -824,7 +824,7 @@ export class OpenAiCompatUsage extends S.Class<OpenAiCompatUsage>($I`OpenAiCompa
  *   message: O.some(OpenAiCompatAssistantMessage.make({ content: O.some("Hello"), role: "assistant" }))
  * })
  *
- * void choice
+ * console.log(choice)
  * ```
  *
  * @category models
@@ -867,7 +867,7 @@ export class OpenAiCompatChatCompletionChoice extends S.Class<OpenAiCompatChatCo
  *   ]
  * })
  *
- * void response
+ * console.log(response)
  * ```
  *
  * @category models
@@ -902,7 +902,7 @@ export class OpenAiCompatChatCompletionResponse extends S.Class<OpenAiCompatChat
  *   index: 0
  * })
  *
- * void choice
+ * console.log(choice)
  * ```
  *
  * @category models
@@ -944,7 +944,7 @@ export class OpenAiCompatChatCompletionChunkChoice extends S.Class<OpenAiCompatC
  *   ]
  * })
  *
- * void chunk
+ * console.log(chunk)
  * ```
  *
  * @category models
@@ -976,7 +976,7 @@ export class OpenAiCompatChatCompletionChunk extends S.Class<OpenAiCompatChatCom
  *
  * const decoded = Effect.runSync(decodeChatCompletionResponse({ choices: [] }))
  *
- * void decoded
+ * console.log(decoded)
  * ```
  *
  * @category codecs
@@ -994,7 +994,7 @@ export const decodeChatCompletionResponse = S.decodeUnknownEffect(OpenAiCompatCh
  *
  * const decoded = Effect.runSync(decodeChatCompletionChunk({ choices: [] }))
  *
- * void decoded
+ * console.log(decoded)
  * ```
  *
  * @category codecs

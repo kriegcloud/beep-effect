@@ -15,7 +15,7 @@ import { makeNamedNode } from "../rdf.ts";
  * ```ts
  * import { OWL_NAMESPACE } from "@beep/semantic-web/vocab/owl"
  *
- * void OWL_NAMESPACE
+ * console.log(OWL_NAMESPACE)
  * ```
  *
  * @since 0.0.0
@@ -30,7 +30,7 @@ export const OWL_NAMESPACE = "http://www.w3.org/2002/07/owl#" as const;
  * ```ts
  * import { OWL_CLASS } from "@beep/semantic-web/vocab/owl"
  *
- * void OWL_CLASS
+ * console.log(OWL_CLASS)
  * ```
  *
  * @since 0.0.0
@@ -45,7 +45,7 @@ export const OWL_CLASS = makeNamedNode(`${OWL_NAMESPACE}Class`);
  * ```ts
  * import { OWL_OBJECT_PROPERTY } from "@beep/semantic-web/vocab/owl"
  *
- * void OWL_OBJECT_PROPERTY
+ * console.log(OWL_OBJECT_PROPERTY)
  * ```
  *
  * @since 0.0.0
@@ -60,7 +60,7 @@ export const OWL_OBJECT_PROPERTY = makeNamedNode(`${OWL_NAMESPACE}ObjectProperty
  * ```ts
  * import { OWL_DATATYPE_PROPERTY } from "@beep/semantic-web/vocab/owl"
  *
- * void OWL_DATATYPE_PROPERTY
+ * console.log(OWL_DATATYPE_PROPERTY)
  * ```
  *
  * @since 0.0.0
