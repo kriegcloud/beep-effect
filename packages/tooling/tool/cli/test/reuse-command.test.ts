@@ -11,7 +11,7 @@ import {
 } from "@beep/repo-utils";
 import { A } from "@beep/utils";
 import { NodeChildProcessSpawner, NodeServices } from "@effect/platform-node";
-import { Effect, Exit, Layer, Scope } from "effect";
+import { Effect, Exit, FileSystem, Layer, Scope } from "effect";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import * as TestConsole from "effect/testing/TestConsole";
@@ -322,22 +322,73 @@ describe("reuse command", () => {
     120_000
   );
 
-  it("runs strict lookup through the command child-process spawner", () => {
-    const lookup = Bun.spawnSync(
-      ["bun", "run", CliEntrypoint, "--", "reuse", "lookup", "--query", "UnknownRecord", "--strict", "--json"],
-      {
-        cwd: RepoRoot,
-        stderr: "pipe",
-        stdout: "pipe",
-      }
-    );
+  it(
+    "runs strict lookup through the command child-process spawner",
+    () =>
+      Effect.runPromise(
+        Effect.acquireUseRelease(
+          Effect.gen(function* () {
+            const fs = yield* FileSystem.FileSystem;
+            const tempBinDir = yield* fs.makeTempDirectory();
+            const fakeBunPath = `${tempBinDir}/bun`;
 
-    expect(lookup.exitCode, lookup.stderr.toString()).toBe(0);
+            yield* fs.writeFileString(
+              fakeBunPath,
+              [
+                "#!/usr/bin/env bash",
+                "set -euo pipefail",
+                'if [[ "${1:-}" != "run" || "${2:-}" != "repo-exports:catalog:check" ]]; then',
+                '  echo "unexpected strict catalog check command: $*" >&2',
+                "  exit 127",
+                "fi",
+                "exit 0",
+                "",
+              ].join("\n")
+            );
+            Bun.spawnSync(["chmod", "+x", fakeBunPath]);
 
-    const result = decodeRepoCodegraphLookupResultJson(lookup.stdout.toString());
+            return tempBinDir;
+          }),
+          (tempBinDir) =>
+            Effect.sync(() => {
+              const lookup = Bun.spawnSync(
+                [
+                  process.execPath,
+                  "run",
+                  CliEntrypoint,
+                  "--",
+                  "reuse",
+                  "lookup",
+                  "--query",
+                  "UnknownRecord",
+                  "--strict",
+                  "--json",
+                ],
+                {
+                  cwd: RepoRoot,
+                  env: {
+                    PATH: `${tempBinDir}:/usr/bin:/bin`,
+                  },
+                  stderr: "pipe",
+                  stdout: "pipe",
+                }
+              );
 
-    expect(result.query).toBe("UnknownRecord");
-    expect(result.freshnessStatus).toBe("current");
-    expect(result.warnings).toEqual([]);
-  }, 360_000);
+              expect(lookup.exitCode, `${lookup.stdout.toString()}\n${lookup.stderr.toString()}`).toBe(0);
+
+              const result = decodeRepoCodegraphLookupResultJson(lookup.stdout.toString());
+
+              expect(result.query).toBe("UnknownRecord");
+              expect(result.freshnessStatus).toBe("current");
+              expect(result.warnings).toEqual([]);
+            }),
+          (tempBinDir) =>
+            Effect.gen(function* () {
+              const fs = yield* FileSystem.FileSystem;
+              yield* fs.remove(tempBinDir, { recursive: true, force: true });
+            })
+        ).pipe(provideScopedLayer(CommandTestLayer))
+      ),
+    120_000
+  );
 });
