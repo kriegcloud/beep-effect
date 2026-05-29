@@ -20,9 +20,9 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | packagesWithPublicExports | 79 |
 | packagesWithoutPublicExports | 1 |
 | missingWorkspaceMetadata | 4 |
-| importSpecifiers | 1016 |
-| publicExportEntries | 13319 |
-| uniquePackageSymbols | 5963 |
+| importSpecifiers | 1019 |
+| publicExportEntries | 13339 |
+| uniquePackageSymbols | 5976 |
 
 ## Seed Discovery Proof
 
@@ -90,7 +90,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | 51 | `@beep/architecture-lab-use-cases` | `packages/architecture-lab/use-cases` | has-public-exports | 7 | 77 | 44 |
 | 52 | `@beep/professional-runtime-proof` | `apps/professional-runtime-proof` | has-public-exports | 1 | 4 | 4 |
 | 53 | `@beep/acp` | `packages/drivers/acp` | has-public-exports | 8 | 405 | 229 |
-| 54 | `@beep/nlp` | `packages/foundation/capability/nlp` | has-public-exports | 86 | 958 | 472 |
+| 54 | `@beep/nlp` | `packages/foundation/capability/nlp` | has-public-exports | 89 | 978 | 485 |
 | 55 | `@beep/infra` | `infra` | has-public-exports | 1 | 20 | 20 |
 | 56 | `@beep/installer-use-cases` | `packages/installer/use-cases` | has-public-exports | 3 | 51 | 29 |
 | 57 | `@beep/runpod` | `packages/drivers/runpod` | has-public-exports | 1 | 169 | 149 |
@@ -7440,6 +7440,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/nlp` | `Backend` | SourceFile | `packages/foundation/capability/nlp/src/Backend/index.ts:21` |  |
 | `@beep/nlp` | `Core` | SourceFile | `packages/foundation/capability/nlp/src/Core/index.ts:11` |  |
 | `@beep/nlp` | `Graph` | SourceFile | `packages/foundation/capability/nlp/src/Graph/index.ts:22` |  |
+| `@beep/nlp` | `Handoff` | SourceFile | `packages/foundation/capability/nlp/src/Handoff/index.ts:26` |  |
 | `@beep/nlp` | `IdentifierText` | SourceFile | `packages/foundation/capability/nlp/src/IdentifierText.ts:7` |  |
 | `@beep/nlp` | `Layers` | SourceFile | `packages/foundation/capability/nlp/src/Layers/index.ts:8` |  |
 | `@beep/nlp` | `NLPService` | SourceFile | `packages/foundation/capability/nlp/src/NLPService.ts:18` |  |
@@ -8065,6 +8066,25 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/nlp/Graph/TypeClass` | `traverse` | const | `packages/foundation/capability/nlp/src/Graph/TypeClass.ts:441` | Traverse an operation's outputs with an effectful function. |
 | `@beep/nlp/Graph/TypeClass` | `unless` | const | `packages/foundation/capability/nlp/src/Graph/TypeClass.ts:494` | Apply an operation unless the node data satisfies the predicate. |
 | `@beep/nlp/Graph/TypeClass` | `when` | const | `packages/foundation/capability/nlp/src/Graph/TypeClass.ts:480` | Apply an operation only when the node data satisfies the predicate. |
+| `@beep/nlp/Handoff` | `Contract` | SourceFile | `packages/foundation/capability/nlp/src/Handoff/Contract.ts:21` |  |
+| `@beep/nlp/Handoff/Contract` | `AnnotatedDocument` | class | `packages/foundation/capability/nlp/src/Handoff/Contract.ts:331` | The top-level handoff envelope: a fully annotated document — its chunks, |
+| `@beep/nlp/Handoff/Contract` | `ChunkId` | const | `packages/foundation/capability/nlp/src/Handoff/Contract.ts:42` | Stable identifier for a {@link TextChunk}. |
+| `@beep/nlp/Handoff/Contract` | `ChunkId` | type | `packages/foundation/capability/nlp/src/Handoff/Contract.ts:53` | Runtime type of {@link ChunkId}. |
+| `@beep/nlp/Handoff/Contract` | `ChunkKind` | const | `packages/foundation/capability/nlp/src/Handoff/Contract.ts:146` | Closed vocabulary of {@link TextChunk} granularities. |
+| `@beep/nlp/Handoff/Contract` | `Entity` | class | `packages/foundation/capability/nlp/src/Handoff/Contract.ts:271` | An entity: a canonical thing referred to by one or more {@link Mention}s. Its |
+| `@beep/nlp/Handoff/Contract` | `EntityId` | const | `packages/foundation/capability/nlp/src/Handoff/Contract.ts:94` | Stable identifier for an {@link Entity}. |
+| `@beep/nlp/Handoff/Contract` | `EntityId` | type | `packages/foundation/capability/nlp/src/Handoff/Contract.ts:105` | Runtime type of {@link EntityId}. |
+| `@beep/nlp/Handoff/Contract` | `makeProvenance` | const | `packages/foundation/capability/nlp/src/Handoff/Contract.ts:358` | Build a {@link Provenance} stamped with the current time (effectful: reads |
+| `@beep/nlp/Handoff/Contract` | `Mention` | class | `packages/foundation/capability/nlp/src/Handoff/Contract.ts:243` | A surface mention occurrence: where a span of text within a chunk refers to |
+| `@beep/nlp/Handoff/Contract` | `MentionId` | const | `packages/foundation/capability/nlp/src/Handoff/Contract.ts:68` | Stable identifier for a {@link Mention}. |
+| `@beep/nlp/Handoff/Contract` | `MentionId` | type | `packages/foundation/capability/nlp/src/Handoff/Contract.ts:79` | Runtime type of {@link MentionId}. |
+| `@beep/nlp/Handoff/Contract` | `Provenance` | class | `packages/foundation/capability/nlp/src/Handoff/Contract.ts:189` | PROV-O-aligned provenance for a piece of derived annotation: where it came |
+| `@beep/nlp/Handoff/Contract` | `Relation` | class | `packages/foundation/capability/nlp/src/Handoff/Contract.ts:300` | A directed relation between two {@link Entity}s. Its `type` is a GENERIC |
+| `@beep/nlp/Handoff/Contract` | `RelationId` | const | `packages/foundation/capability/nlp/src/Handoff/Contract.ts:120` | Stable identifier for a {@link Relation}. |
+| `@beep/nlp/Handoff/Contract` | `RelationId` | type | `packages/foundation/capability/nlp/src/Handoff/Contract.ts:131` | Runtime type of {@link RelationId}. |
+| `@beep/nlp/Handoff/Contract` | `Span` | class | `packages/foundation/capability/nlp/src/Handoff/Contract.ts:163` | A half-open character span `[start, end)` into the source text. |
+| `@beep/nlp/Handoff/Contract` | `TextChunk` | class | `packages/foundation/capability/nlp/src/Handoff/Contract.ts:216` | A contiguous chunk of source text at a given granularity, with its span and |
+| `@beep/nlp/Handoff/index` | `Contract` | SourceFile | `packages/foundation/capability/nlp/src/Handoff/Contract.ts:21` |  |
 | `@beep/nlp/IdentifierText` | `tokens` | const | `packages/foundation/capability/nlp/src/IdentifierText.ts:35` | Convert a candidate identifier phrase into lowercase word tokens. |
 | `@beep/nlp/IdentifierText` | `variants` | const | `packages/foundation/capability/nlp/src/IdentifierText.ts:54` | Generate deterministic identifier variants for symbol lookup. |
 | `@beep/nlp/Layers` | `NLPAppLive` | const | `packages/foundation/capability/nlp/src/Layers/index.ts:55` | Compatibility application layer matching the legacy tokenization-focused bundle. |
