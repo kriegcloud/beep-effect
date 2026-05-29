@@ -65,7 +65,8 @@
     "packages/drivers/hubspot",
     "packages/drivers/phoenix",
     "packages/drivers/konva",
-    "apps/canvas"
+    "apps/canvas",
+    "packages/drivers/nlp-mcp"
   ],
   "repository": {
     "type": "git",

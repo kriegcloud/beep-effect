@@ -1113,7 +1113,9 @@
       ],
       "@beep/nlp/Handoff": [
         "./packages/foundation/capability/nlp/src/Handoff/index.ts"
-      ]
+      ],
+      "@beep/nlp-mcp": ["./packages/drivers/nlp-mcp/src/index.ts"],
+      "@beep/nlp-mcp/*": ["./packages/drivers/nlp-mcp/src/*"]
     }
   }
 }

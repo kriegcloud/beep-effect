@@ -60,7 +60,7 @@
     },
     "apps/canvas": {
       "name": "@beep/canvas",
-      "version": "0.0.0",
+      "version": "0.0.2",
       "dependencies": {
         "@beep/canvas-domain": "workspace:^",
         "@beep/canvas-server": "workspace:^",
@@ -91,7 +91,7 @@
     },
     "apps/codedank-web": {
       "name": "@beep/codedank-web",
-      "version": "0.0.1",
+      "version": "0.0.3",
       "dependencies": {
         "@beep/repo-configs": "workspace:^",
         "@beep/ui": "workspace:^",
@@ -122,7 +122,7 @@
     },
     "apps/oip-web": {
       "name": "@beep/oip-web",
-      "version": "0.1.0",
+      "version": "0.1.2",
       "dependencies": {
         "@beep/hubspot": "workspace:^",
         "@beep/identity": "workspace:^",
@@ -160,7 +160,7 @@
     },
     "apps/professional-desktop": {
       "name": "@beep/professional-desktop",
-      "version": "0.0.1",
+      "version": "0.0.3",
       "dependencies": {
         "@beep/ui": "workspace:^",
         "@phosphor-icons/react": "catalog:",
@@ -205,7 +205,7 @@
     },
     "apps/stack-installer": {
       "name": "@beep/stack-installer",
-      "version": "0.0.1",
+      "version": "0.0.3",
       "dependencies": {
         "@beep/ai-provider-cli": "workspace:^",
         "@beep/discord": "workspace:^",
@@ -239,7 +239,7 @@
     },
     "infra": {
       "name": "@beep/infra",
-      "version": "0.0.1",
+      "version": "0.0.2",
       "dependencies": {
         "@beep/identity": "workspace:^",
         "@beep/repo-ai-metrics": "workspace:^",
@@ -614,6 +614,19 @@
         "@types/node": "catalog:",
       },
     },
+    "packages/drivers/nlp-mcp": {
+      "name": "@beep/nlp-mcp",
+      "version": "0.0.0",
+      "dependencies": {
+        "@beep/nlp": "workspace:^",
+        "@effect/platform-node": "catalog:",
+        "effect": "catalog:",
+      },
+      "devDependencies": {
+        "@effect/vitest": "catalog:",
+        "@types/node": "catalog:",
+      },
+    },
     "packages/drivers/onepassword-cli": {
       "name": "@beep/onepassword-cli",
       "version": "0.0.1",
@@ -823,7 +836,7 @@
     },
     "packages/foundation/capability/observability": {
       "name": "@beep/observability",
-      "version": "0.0.1",
+      "version": "0.0.2",
       "dependencies": {
         "@beep/colors": "workspace:^",
         "@beep/identity": "workspace:^",
@@ -847,7 +860,7 @@
     },
     "packages/foundation/capability/sandbox": {
       "name": "@beep/sandbox",
-      "version": "0.0.1",
+      "version": "0.0.2",
       "bin": {
         "beep-sandbox": "./src/bin.ts",
       },
@@ -994,7 +1007,7 @@
     },
     "packages/foundation/ui-system/ui": {
       "name": "@beep/ui",
-      "version": "0.0.1",
+      "version": "0.1.0",
       "dependencies": {
         "@base-ui/react": "catalog:",
         "@beep/utils": "workspace:^",
@@ -1074,7 +1087,7 @@
     },
     "packages/installer/server": {
       "name": "@beep/installer-server",
-      "version": "0.0.1",
+      "version": "0.0.2",
       "dependencies": {
         "@beep/ai-provider-cli": "workspace:^",
         "@beep/discord": "workspace:^",
@@ -1207,7 +1220,7 @@
     },
     "packages/tooling/library/ai-metrics": {
       "name": "@beep/repo-ai-metrics",
-      "version": "0.0.1",
+      "version": "0.0.2",
       "dependencies": {
         "@beep/duckdb": "workspace:^",
         "@beep/identity": "workspace:^",
@@ -1989,6 +2002,8 @@
     "@beep/messages": ["@beep/messages@workspace:packages/foundation/modeling/messages"],
 
     "@beep/nlp": ["@beep/nlp@workspace:packages/foundation/capability/nlp"],
+
+    "@beep/nlp-mcp": ["@beep/nlp-mcp@workspace:packages/drivers/nlp-mcp"],
 
     "@beep/observability": ["@beep/observability@workspace:packages/foundation/capability/observability"],
 
