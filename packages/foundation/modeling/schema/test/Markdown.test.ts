@@ -1,5 +1,5 @@
-import { loadMarkdownGfmModule, loadMarkdownModule, makeParseMarkdownForSchema } from "@beep/schema/internal/markdown";
 import { decodeMarkdownTextAs, Markdown, MarkdownTextToHtml } from "@beep/schema/Markdown";
+import { loadMarkdownGfmModule, loadMarkdownModule, makeParseMarkdownForSchema } from "@beep/schema/test/Markdown";
 import { describe, expect, it } from "@effect/vitest";
 import { Cause, Effect, Exit } from "effect";
 import * as P from "effect/Predicate";

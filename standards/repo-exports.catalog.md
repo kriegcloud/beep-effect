@@ -20,9 +20,9 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | packagesWithPublicExports | 78 |
 | packagesWithoutPublicExports | 1 |
 | missingWorkspaceMetadata | 4 |
-| importSpecifiers | 974 |
-| publicExportEntries | 12851 |
-| uniquePackageSymbols | 5605 |
+| importSpecifiers | 969 |
+| publicExportEntries | 12710 |
+| uniquePackageSymbols | 5597 |
 
 ## Seed Discovery Proof
 
@@ -94,7 +94,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | 55 | `@beep/installer-use-cases` | `packages/installer/use-cases` | has-public-exports | 3 | 51 | 29 |
 | 56 | `@beep/runpod` | `packages/drivers/runpod` | has-public-exports | 1 | 169 | 149 |
 | 57 | `@beep/repo-utils` | `packages/tooling/library/repo-utils` | has-public-exports | 65 | 1616 | 504 |
-| 58 | `@beep/schema` | `packages/foundation/modeling/schema` | has-public-exports | 123 | 1885 | 727 |
+| 58 | `@beep/schema` | `packages/foundation/modeling/schema` | has-public-exports | 118 | 1744 | 719 |
 | 59 | `@beep/codedank-web` | `apps/codedank-web` | has-public-exports | 1 | 1 | 1 |
 | 60 | `@beep/onepassword-cli` | `packages/drivers/onepassword-cli` | has-public-exports | 5 | 27 | 8 |
 | 61 | `@beep/architecture-lab-config` | `packages/architecture-lab/config` | has-public-exports | 7 | 29 | 13 |
@@ -811,7 +811,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli` | `rootCommand` | const | `packages/tooling/tool/cli/src/commands/Root.ts:45` | Top-level CLI command that registers all subcommands. |
 | `@beep/repo-cli` | `syncDataToTsCommand` | const | `packages/tooling/tool/cli/src/commands/SyncDataToTs/SyncDataToTs.command.ts:441` | CLI command for syncing official upstream datasets into checked-in TypeScript modules. |
 | `@beep/repo-cli` | `topoSortCommand` | const | `packages/tooling/tool/cli/src/commands/TopoSort/TopoSort.command.ts:33` | CLI command that builds the workspace dependency graph and prints package names |
-| `@beep/repo-cli` | `tsconfigSyncCommand` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:1765` | CLI command for synchronizing root and workspace tsconfig state. |
+| `@beep/repo-cli` | `tsconfigSyncCommand` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:1778` | CLI command for synchronizing root and workspace tsconfig state. |
 | `@beep/repo-cli` | `versionSyncCommand` | const | `packages/tooling/tool/cli/src/commands/VersionSync/VersionSync.command.ts:49` | CLI command for synchronizing version pins across the monorepo. |
 | `@beep/repo-cli/commands/AgentEffectiveness` | `agentEffectivenessCommand` | const | `packages/tooling/tool/cli/src/commands/AgentEffectiveness/AgentEffectiveness.command.ts:657` | Agent-effectiveness root command. |
 | `@beep/repo-cli/commands/AgentEffectiveness/AgentEffectiveness.command` | `agentEffectivenessCommand` | const | `packages/tooling/tool/cli/src/commands/AgentEffectiveness/AgentEffectiveness.command.ts:657` | Agent-effectiveness root command. |
@@ -1783,22 +1783,22 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/commands/Laws/TerseEffect` | `runTerseEffectRules` | const | `packages/tooling/tool/cli/src/commands/Laws/TerseEffect.ts:492` | Run terse Effect style migration/check logic. |
 | `@beep/repo-cli/commands/Laws/TerseEffect` | `TerseEffectRulesOptions` | class | `packages/tooling/tool/cli/src/commands/Laws/TerseEffect.ts:31` | Runtime options for terse Effect style migration checks. |
 | `@beep/repo-cli/commands/Laws/TerseEffect` | `TerseEffectRulesSummary` | class | `packages/tooling/tool/cli/src/commands/Laws/TerseEffect.ts:61` | Summary of terse Effect style migration results. |
-| `@beep/repo-cli/commands/Lint` | `collectSchemaTopologyViolations` | const | `packages/tooling/tool/cli/src/commands/Lint/SchemaTopology.ts:305` | Collect schema topology violations without mutating process state. |
+| `@beep/repo-cli/commands/Lint` | `collectSchemaTopologyViolations` | const | `packages/tooling/tool/cli/src/commands/Lint/SchemaTopology.ts:434` | Collect schema topology violations without mutating process state. |
 | `@beep/repo-cli/commands/Lint` | `collectTypeScriptFiles` | const | `packages/tooling/tool/cli/src/commands/Lint/Lint.command.ts:101` | Collect TypeScript source files under a lint root without following symlink escapes. |
 | `@beep/repo-cli/commands/Lint` | `LintCircularAnalysisError` | class | `packages/tooling/tool/cli/src/commands/Lint/Lint.errors.ts:32` | Failure raised when circular dependency analysis cannot complete. |
 | `@beep/repo-cli/commands/Lint` | `lintCommand` | const | `packages/tooling/tool/cli/src/commands/Lint/Lint.command.ts:556` | Lint command group. |
 | `@beep/repo-cli/commands/Lint` | `LintFileDiscoveryError` | class | `packages/tooling/tool/cli/src/commands/Lint/Lint.errors.ts:63` | Failure raised when lint file discovery cannot read a source root. |
-| `@beep/repo-cli/commands/Lint` | `lintSchemaTopologyCommand` | const | `packages/tooling/tool/cli/src/commands/Lint/SchemaTopology.ts:363` | Lint command for enforcing canonical `@beep/schema` topology. |
-| `@beep/repo-cli/commands/Lint` | `runSchemaTopologyLint` | const | `packages/tooling/tool/cli/src/commands/Lint/SchemaTopology.ts:337` | Run the schema topology lint command. |
-| `@beep/repo-cli/commands/Lint` | `SchemaTopologyViolation` | class | `packages/tooling/tool/cli/src/commands/Lint/SchemaTopology.ts:61` | Schema topology lint violation. |
-| `@beep/repo-cli/commands/Lint/index` | `collectSchemaTopologyViolations` | const | `packages/tooling/tool/cli/src/commands/Lint/SchemaTopology.ts:305` | Collect schema topology violations without mutating process state. |
+| `@beep/repo-cli/commands/Lint` | `lintSchemaTopologyCommand` | const | `packages/tooling/tool/cli/src/commands/Lint/SchemaTopology.ts:492` | Lint command for enforcing canonical `@beep/schema` topology. |
+| `@beep/repo-cli/commands/Lint` | `runSchemaTopologyLint` | const | `packages/tooling/tool/cli/src/commands/Lint/SchemaTopology.ts:466` | Run the schema topology lint command. |
+| `@beep/repo-cli/commands/Lint` | `SchemaTopologyViolation` | class | `packages/tooling/tool/cli/src/commands/Lint/SchemaTopology.ts:63` | Schema topology lint violation. |
+| `@beep/repo-cli/commands/Lint/index` | `collectSchemaTopologyViolations` | const | `packages/tooling/tool/cli/src/commands/Lint/SchemaTopology.ts:434` | Collect schema topology violations without mutating process state. |
 | `@beep/repo-cli/commands/Lint/index` | `collectTypeScriptFiles` | const | `packages/tooling/tool/cli/src/commands/Lint/Lint.command.ts:101` | Collect TypeScript source files under a lint root without following symlink escapes. |
 | `@beep/repo-cli/commands/Lint/index` | `LintCircularAnalysisError` | class | `packages/tooling/tool/cli/src/commands/Lint/Lint.errors.ts:32` | Failure raised when circular dependency analysis cannot complete. |
 | `@beep/repo-cli/commands/Lint/index` | `lintCommand` | const | `packages/tooling/tool/cli/src/commands/Lint/Lint.command.ts:556` | Lint command group. |
 | `@beep/repo-cli/commands/Lint/index` | `LintFileDiscoveryError` | class | `packages/tooling/tool/cli/src/commands/Lint/Lint.errors.ts:63` | Failure raised when lint file discovery cannot read a source root. |
-| `@beep/repo-cli/commands/Lint/index` | `lintSchemaTopologyCommand` | const | `packages/tooling/tool/cli/src/commands/Lint/SchemaTopology.ts:363` | Lint command for enforcing canonical `@beep/schema` topology. |
-| `@beep/repo-cli/commands/Lint/index` | `runSchemaTopologyLint` | const | `packages/tooling/tool/cli/src/commands/Lint/SchemaTopology.ts:337` | Run the schema topology lint command. |
-| `@beep/repo-cli/commands/Lint/index` | `SchemaTopologyViolation` | class | `packages/tooling/tool/cli/src/commands/Lint/SchemaTopology.ts:61` | Schema topology lint violation. |
+| `@beep/repo-cli/commands/Lint/index` | `lintSchemaTopologyCommand` | const | `packages/tooling/tool/cli/src/commands/Lint/SchemaTopology.ts:492` | Lint command for enforcing canonical `@beep/schema` topology. |
+| `@beep/repo-cli/commands/Lint/index` | `runSchemaTopologyLint` | const | `packages/tooling/tool/cli/src/commands/Lint/SchemaTopology.ts:466` | Run the schema topology lint command. |
+| `@beep/repo-cli/commands/Lint/index` | `SchemaTopologyViolation` | class | `packages/tooling/tool/cli/src/commands/Lint/SchemaTopology.ts:63` | Schema topology lint violation. |
 | `@beep/repo-cli/commands/Lint/Lint.command` | `collectTypeScriptFiles` | const | `packages/tooling/tool/cli/src/commands/Lint/Lint.command.ts:101` | Collect TypeScript source files under a lint root without following symlink escapes. |
 | `@beep/repo-cli/commands/Lint/Lint.command` | `lintCommand` | const | `packages/tooling/tool/cli/src/commands/Lint/Lint.command.ts:556` | Lint command group. |
 | `@beep/repo-cli/commands/Lint/Lint.errors` | `LintCircularAnalysisError` | class | `packages/tooling/tool/cli/src/commands/Lint/Lint.errors.ts:32` | Failure raised when circular dependency analysis cannot complete. |
@@ -1807,10 +1807,10 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/commands/Lint/SchemaFirst` | `lintSchemaFirstCommand` | const | `packages/tooling/tool/cli/src/commands/Lint/SchemaFirst.ts:553` | Repo-wide schema-first lint command. |
 | `@beep/repo-cli/commands/Lint/SchemaFirst` | `runSchemaFirstLint` | const | `packages/tooling/tool/cli/src/commands/Lint/SchemaFirst.ts:459` | Run schema-first inventory verification against the committed baseline. |
 | `@beep/repo-cli/commands/Lint/SchemaFirst` | `SchemaFirstInventoryEntry` | namespace | `packages/tooling/tool/cli/src/commands/Lint/SchemaFirst.ts:78` | Namespace for {@link SchemaFirstInventoryEntry} companion types. |
-| `@beep/repo-cli/commands/Lint/SchemaTopology` | `collectSchemaTopologyViolations` | const | `packages/tooling/tool/cli/src/commands/Lint/SchemaTopology.ts:305` | Collect schema topology violations without mutating process state. |
-| `@beep/repo-cli/commands/Lint/SchemaTopology` | `lintSchemaTopologyCommand` | const | `packages/tooling/tool/cli/src/commands/Lint/SchemaTopology.ts:363` | Lint command for enforcing canonical `@beep/schema` topology. |
-| `@beep/repo-cli/commands/Lint/SchemaTopology` | `runSchemaTopologyLint` | const | `packages/tooling/tool/cli/src/commands/Lint/SchemaTopology.ts:337` | Run the schema topology lint command. |
-| `@beep/repo-cli/commands/Lint/SchemaTopology` | `SchemaTopologyViolation` | class | `packages/tooling/tool/cli/src/commands/Lint/SchemaTopology.ts:61` | Schema topology lint violation. |
+| `@beep/repo-cli/commands/Lint/SchemaTopology` | `collectSchemaTopologyViolations` | const | `packages/tooling/tool/cli/src/commands/Lint/SchemaTopology.ts:434` | Collect schema topology violations without mutating process state. |
+| `@beep/repo-cli/commands/Lint/SchemaTopology` | `lintSchemaTopologyCommand` | const | `packages/tooling/tool/cli/src/commands/Lint/SchemaTopology.ts:492` | Lint command for enforcing canonical `@beep/schema` topology. |
+| `@beep/repo-cli/commands/Lint/SchemaTopology` | `runSchemaTopologyLint` | const | `packages/tooling/tool/cli/src/commands/Lint/SchemaTopology.ts:466` | Run the schema topology lint command. |
+| `@beep/repo-cli/commands/Lint/SchemaTopology` | `SchemaTopologyViolation` | class | `packages/tooling/tool/cli/src/commands/Lint/SchemaTopology.ts:63` | Schema topology lint violation. |
 | `@beep/repo-cli/commands/Purge` | `purgeAtRoot` | const | `packages/tooling/tool/cli/src/commands/Purge/Purge.command.ts:192` | Purge root/workspace artifacts under a specific root directory. |
 | `@beep/repo-cli/commands/Purge` | `purgeCommand` | const | `packages/tooling/tool/cli/src/commands/Purge/Purge.command.ts:249` | CLI command to purge workspace/root build artifacts. |
 | `@beep/repo-cli/commands/Purge` | `PurgeSummary` | class | `packages/tooling/tool/cli/src/commands/Purge/Purge.command.ts:127` | Summary statistics returned after a purge run. |
@@ -1929,65 +1929,65 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/commands/TopoSort/index` | `topoSortCommand` | const | `packages/tooling/tool/cli/src/commands/TopoSort/TopoSort.command.ts:33` | CLI command that builds the workspace dependency graph and prints package names |
 | `@beep/repo-cli/commands/TopoSort/TopoSort.command` | `topoSortCommand` | const | `packages/tooling/tool/cli/src/commands/TopoSort/TopoSort.command.ts:33` | CLI command that builds the workspace dependency graph and prints package names |
 | `@beep/repo-cli/commands/TsconfigSync` | `buildCanonicalAliasTargets` | const | `packages/tooling/library/repo-utils/src/schemas/TsconfigAliasTargets.ts:154` | Build root and wildcard alias targets for a package export target. |
-| `@beep/repo-cli/commands/TsconfigSync` | `PlannedFileChange` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:488` | A planned file change with transformed file content. |
-| `@beep/repo-cli/commands/TsconfigSync` | `PlannedFileChange` | type | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:512` | A planned file change with transformed file content. |
+| `@beep/repo-cli/commands/TsconfigSync` | `PlannedFileChange` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:501` | A planned file change with transformed file content. |
+| `@beep/repo-cli/commands/TsconfigSync` | `PlannedFileChange` | type | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:525` | A planned file change with transformed file content. |
 | `@beep/repo-cli/commands/TsconfigSync` | `resolveRootExportTarget` | const | `packages/tooling/library/repo-utils/src/schemas/TsconfigAliasTargets.ts:89` | Resolve the canonical root export target from a package `exports` field. |
-| `@beep/repo-cli/commands/TsconfigSync` | `syncTsconfigAtRoot` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:1630` | Synchronize tsconfig references and root aliases under a specific repository root. |
-| `@beep/repo-cli/commands/TsconfigSync` | `TsconfigSyncChange` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:363` | A single planned file change. |
-| `@beep/repo-cli/commands/TsconfigSync` | `TsconfigSyncChange` | type | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:387` | A single planned file change. |
-| `@beep/repo-cli/commands/TsconfigSync` | `tsconfigSyncCommand` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:1765` | CLI command for synchronizing root and workspace tsconfig state. |
+| `@beep/repo-cli/commands/TsconfigSync` | `syncTsconfigAtRoot` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:1643` | Synchronize tsconfig references and root aliases under a specific repository root. |
+| `@beep/repo-cli/commands/TsconfigSync` | `TsconfigSyncChange` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:376` | A single planned file change. |
+| `@beep/repo-cli/commands/TsconfigSync` | `TsconfigSyncChange` | type | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:400` | A single planned file change. |
+| `@beep/repo-cli/commands/TsconfigSync` | `tsconfigSyncCommand` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:1778` | CLI command for synchronizing root and workspace tsconfig state. |
 | `@beep/repo-cli/commands/TsconfigSync` | `TsconfigSyncCycleError` | class | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.errors.ts:60` | Cycle error raised when workspace dependency cycles are detected. |
 | `@beep/repo-cli/commands/TsconfigSync` | `TsconfigSyncDriftError` | class | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.errors.ts:21` | Drift error raised in check mode when changes are required. |
 | `@beep/repo-cli/commands/TsconfigSync` | `TsconfigSyncFilterError` | class | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.errors.ts:99` | Filter error raised when `--filter` does not match any workspace package. |
-| `@beep/repo-cli/commands/TsconfigSync` | `TsconfigSyncMode` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:176` | Command execution mode. |
-| `@beep/repo-cli/commands/TsconfigSync` | `TsconfigSyncResult` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:554` | Result emitted after a sync run. |
-| `@beep/repo-cli/commands/TsconfigSync` | `TsconfigSyncResult` | type | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:570` | Result emitted after a sync run. |
-| `@beep/repo-cli/commands/TsconfigSync` | `TsconfigSyncRunOptions` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:230` | Runtime options for executing tsconfig sync at a repo root. |
-| `@beep/repo-cli/commands/TsconfigSync` | `TsconfigSyncRunOptions` | type | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:249` | Runtime options for executing tsconfig sync at a repo root. |
-| `@beep/repo-cli/commands/TsconfigSync` | `TsconfigSyncSection` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:257` | Sync change section categories. |
-| `@beep/repo-cli/commands/TsconfigSync` | `TsconfigSyncSection` | type | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:277` | Sync change section categories. |
-| `@beep/repo-cli/commands/TsconfigSync` | `TsconfigWithPaths` | class | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:652` | Minimal tsconfig shape containing optional `compilerOptions.paths`. |
-| `@beep/repo-cli/commands/TsconfigSync` | `TsconfigWithReferences` | class | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:637` | Minimal tsconfig shape containing optional `references`. |
-| `@beep/repo-cli/commands/TsconfigSync` | `WorkspaceDescriptor` | class | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:586` | Workspace package descriptor with metadata for tsconfig synchronization. |
+| `@beep/repo-cli/commands/TsconfigSync` | `TsconfigSyncMode` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:189` | Command execution mode. |
+| `@beep/repo-cli/commands/TsconfigSync` | `TsconfigSyncResult` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:567` | Result emitted after a sync run. |
+| `@beep/repo-cli/commands/TsconfigSync` | `TsconfigSyncResult` | type | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:583` | Result emitted after a sync run. |
+| `@beep/repo-cli/commands/TsconfigSync` | `TsconfigSyncRunOptions` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:243` | Runtime options for executing tsconfig sync at a repo root. |
+| `@beep/repo-cli/commands/TsconfigSync` | `TsconfigSyncRunOptions` | type | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:262` | Runtime options for executing tsconfig sync at a repo root. |
+| `@beep/repo-cli/commands/TsconfigSync` | `TsconfigSyncSection` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:270` | Sync change section categories. |
+| `@beep/repo-cli/commands/TsconfigSync` | `TsconfigSyncSection` | type | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:290` | Sync change section categories. |
+| `@beep/repo-cli/commands/TsconfigSync` | `TsconfigWithPaths` | class | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:665` | Minimal tsconfig shape containing optional `compilerOptions.paths`. |
+| `@beep/repo-cli/commands/TsconfigSync` | `TsconfigWithReferences` | class | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:650` | Minimal tsconfig shape containing optional `references`. |
+| `@beep/repo-cli/commands/TsconfigSync` | `WorkspaceDescriptor` | class | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:599` | Workspace package descriptor with metadata for tsconfig synchronization. |
 | `@beep/repo-cli/commands/TsconfigSync/index` | `buildCanonicalAliasTargets` | const | `packages/tooling/library/repo-utils/src/schemas/TsconfigAliasTargets.ts:154` | Build root and wildcard alias targets for a package export target. |
-| `@beep/repo-cli/commands/TsconfigSync/index` | `PlannedFileChange` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:488` | A planned file change with transformed file content. |
-| `@beep/repo-cli/commands/TsconfigSync/index` | `PlannedFileChange` | type | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:512` | A planned file change with transformed file content. |
+| `@beep/repo-cli/commands/TsconfigSync/index` | `PlannedFileChange` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:501` | A planned file change with transformed file content. |
+| `@beep/repo-cli/commands/TsconfigSync/index` | `PlannedFileChange` | type | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:525` | A planned file change with transformed file content. |
 | `@beep/repo-cli/commands/TsconfigSync/index` | `resolveRootExportTarget` | const | `packages/tooling/library/repo-utils/src/schemas/TsconfigAliasTargets.ts:89` | Resolve the canonical root export target from a package `exports` field. |
-| `@beep/repo-cli/commands/TsconfigSync/index` | `syncTsconfigAtRoot` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:1630` | Synchronize tsconfig references and root aliases under a specific repository root. |
-| `@beep/repo-cli/commands/TsconfigSync/index` | `TsconfigSyncChange` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:363` | A single planned file change. |
-| `@beep/repo-cli/commands/TsconfigSync/index` | `TsconfigSyncChange` | type | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:387` | A single planned file change. |
-| `@beep/repo-cli/commands/TsconfigSync/index` | `tsconfigSyncCommand` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:1765` | CLI command for synchronizing root and workspace tsconfig state. |
+| `@beep/repo-cli/commands/TsconfigSync/index` | `syncTsconfigAtRoot` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:1643` | Synchronize tsconfig references and root aliases under a specific repository root. |
+| `@beep/repo-cli/commands/TsconfigSync/index` | `TsconfigSyncChange` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:376` | A single planned file change. |
+| `@beep/repo-cli/commands/TsconfigSync/index` | `TsconfigSyncChange` | type | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:400` | A single planned file change. |
+| `@beep/repo-cli/commands/TsconfigSync/index` | `tsconfigSyncCommand` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:1778` | CLI command for synchronizing root and workspace tsconfig state. |
 | `@beep/repo-cli/commands/TsconfigSync/index` | `TsconfigSyncCycleError` | class | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.errors.ts:60` | Cycle error raised when workspace dependency cycles are detected. |
 | `@beep/repo-cli/commands/TsconfigSync/index` | `TsconfigSyncDriftError` | class | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.errors.ts:21` | Drift error raised in check mode when changes are required. |
 | `@beep/repo-cli/commands/TsconfigSync/index` | `TsconfigSyncFilterError` | class | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.errors.ts:99` | Filter error raised when `--filter` does not match any workspace package. |
-| `@beep/repo-cli/commands/TsconfigSync/index` | `TsconfigSyncMode` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:176` | Command execution mode. |
-| `@beep/repo-cli/commands/TsconfigSync/index` | `TsconfigSyncResult` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:554` | Result emitted after a sync run. |
-| `@beep/repo-cli/commands/TsconfigSync/index` | `TsconfigSyncResult` | type | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:570` | Result emitted after a sync run. |
-| `@beep/repo-cli/commands/TsconfigSync/index` | `TsconfigSyncRunOptions` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:230` | Runtime options for executing tsconfig sync at a repo root. |
-| `@beep/repo-cli/commands/TsconfigSync/index` | `TsconfigSyncRunOptions` | type | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:249` | Runtime options for executing tsconfig sync at a repo root. |
-| `@beep/repo-cli/commands/TsconfigSync/index` | `TsconfigSyncSection` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:257` | Sync change section categories. |
-| `@beep/repo-cli/commands/TsconfigSync/index` | `TsconfigSyncSection` | type | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:277` | Sync change section categories. |
-| `@beep/repo-cli/commands/TsconfigSync/index` | `TsconfigWithPaths` | class | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:652` | Minimal tsconfig shape containing optional `compilerOptions.paths`. |
-| `@beep/repo-cli/commands/TsconfigSync/index` | `TsconfigWithReferences` | class | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:637` | Minimal tsconfig shape containing optional `references`. |
-| `@beep/repo-cli/commands/TsconfigSync/index` | `WorkspaceDescriptor` | class | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:586` | Workspace package descriptor with metadata for tsconfig synchronization. |
+| `@beep/repo-cli/commands/TsconfigSync/index` | `TsconfigSyncMode` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:189` | Command execution mode. |
+| `@beep/repo-cli/commands/TsconfigSync/index` | `TsconfigSyncResult` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:567` | Result emitted after a sync run. |
+| `@beep/repo-cli/commands/TsconfigSync/index` | `TsconfigSyncResult` | type | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:583` | Result emitted after a sync run. |
+| `@beep/repo-cli/commands/TsconfigSync/index` | `TsconfigSyncRunOptions` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:243` | Runtime options for executing tsconfig sync at a repo root. |
+| `@beep/repo-cli/commands/TsconfigSync/index` | `TsconfigSyncRunOptions` | type | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:262` | Runtime options for executing tsconfig sync at a repo root. |
+| `@beep/repo-cli/commands/TsconfigSync/index` | `TsconfigSyncSection` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:270` | Sync change section categories. |
+| `@beep/repo-cli/commands/TsconfigSync/index` | `TsconfigSyncSection` | type | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:290` | Sync change section categories. |
+| `@beep/repo-cli/commands/TsconfigSync/index` | `TsconfigWithPaths` | class | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:665` | Minimal tsconfig shape containing optional `compilerOptions.paths`. |
+| `@beep/repo-cli/commands/TsconfigSync/index` | `TsconfigWithReferences` | class | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:650` | Minimal tsconfig shape containing optional `references`. |
+| `@beep/repo-cli/commands/TsconfigSync/index` | `WorkspaceDescriptor` | class | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:599` | Workspace package descriptor with metadata for tsconfig synchronization. |
 | `@beep/repo-cli/commands/TsconfigSync/TsconfigSync.command` | `buildCanonicalAliasTargets` | const | `packages/tooling/library/repo-utils/src/schemas/TsconfigAliasTargets.ts:154` | Build root and wildcard alias targets for a package export target. |
-| `@beep/repo-cli/commands/TsconfigSync/TsconfigSync.command` | `PlannedFileChange` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:488` | A planned file change with transformed file content. |
-| `@beep/repo-cli/commands/TsconfigSync/TsconfigSync.command` | `PlannedFileChange` | type | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:512` | A planned file change with transformed file content. |
+| `@beep/repo-cli/commands/TsconfigSync/TsconfigSync.command` | `PlannedFileChange` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:501` | A planned file change with transformed file content. |
+| `@beep/repo-cli/commands/TsconfigSync/TsconfigSync.command` | `PlannedFileChange` | type | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:525` | A planned file change with transformed file content. |
 | `@beep/repo-cli/commands/TsconfigSync/TsconfigSync.command` | `resolveRootExportTarget` | const | `packages/tooling/library/repo-utils/src/schemas/TsconfigAliasTargets.ts:89` | Resolve the canonical root export target from a package `exports` field. |
-| `@beep/repo-cli/commands/TsconfigSync/TsconfigSync.command` | `syncTsconfigAtRoot` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:1630` | Synchronize tsconfig references and root aliases under a specific repository root. |
-| `@beep/repo-cli/commands/TsconfigSync/TsconfigSync.command` | `TsconfigSyncChange` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:363` | A single planned file change. |
-| `@beep/repo-cli/commands/TsconfigSync/TsconfigSync.command` | `TsconfigSyncChange` | type | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:387` | A single planned file change. |
-| `@beep/repo-cli/commands/TsconfigSync/TsconfigSync.command` | `tsconfigSyncCommand` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:1765` | CLI command for synchronizing root and workspace tsconfig state. |
-| `@beep/repo-cli/commands/TsconfigSync/TsconfigSync.command` | `TsconfigSyncMode` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:176` | Command execution mode. |
-| `@beep/repo-cli/commands/TsconfigSync/TsconfigSync.command` | `TsconfigSyncResult` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:554` | Result emitted after a sync run. |
-| `@beep/repo-cli/commands/TsconfigSync/TsconfigSync.command` | `TsconfigSyncResult` | type | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:570` | Result emitted after a sync run. |
-| `@beep/repo-cli/commands/TsconfigSync/TsconfigSync.command` | `TsconfigSyncRunOptions` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:230` | Runtime options for executing tsconfig sync at a repo root. |
-| `@beep/repo-cli/commands/TsconfigSync/TsconfigSync.command` | `TsconfigSyncRunOptions` | type | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:249` | Runtime options for executing tsconfig sync at a repo root. |
-| `@beep/repo-cli/commands/TsconfigSync/TsconfigSync.command` | `TsconfigSyncSection` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:257` | Sync change section categories. |
-| `@beep/repo-cli/commands/TsconfigSync/TsconfigSync.command` | `TsconfigSyncSection` | type | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:277` | Sync change section categories. |
-| `@beep/repo-cli/commands/TsconfigSync/TsconfigSync.command` | `TsconfigWithPaths` | class | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:652` | Minimal tsconfig shape containing optional `compilerOptions.paths`. |
-| `@beep/repo-cli/commands/TsconfigSync/TsconfigSync.command` | `TsconfigWithReferences` | class | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:637` | Minimal tsconfig shape containing optional `references`. |
-| `@beep/repo-cli/commands/TsconfigSync/TsconfigSync.command` | `WorkspaceDescriptor` | class | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:586` | Workspace package descriptor with metadata for tsconfig synchronization. |
+| `@beep/repo-cli/commands/TsconfigSync/TsconfigSync.command` | `syncTsconfigAtRoot` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:1643` | Synchronize tsconfig references and root aliases under a specific repository root. |
+| `@beep/repo-cli/commands/TsconfigSync/TsconfigSync.command` | `TsconfigSyncChange` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:376` | A single planned file change. |
+| `@beep/repo-cli/commands/TsconfigSync/TsconfigSync.command` | `TsconfigSyncChange` | type | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:400` | A single planned file change. |
+| `@beep/repo-cli/commands/TsconfigSync/TsconfigSync.command` | `tsconfigSyncCommand` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:1778` | CLI command for synchronizing root and workspace tsconfig state. |
+| `@beep/repo-cli/commands/TsconfigSync/TsconfigSync.command` | `TsconfigSyncMode` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:189` | Command execution mode. |
+| `@beep/repo-cli/commands/TsconfigSync/TsconfigSync.command` | `TsconfigSyncResult` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:567` | Result emitted after a sync run. |
+| `@beep/repo-cli/commands/TsconfigSync/TsconfigSync.command` | `TsconfigSyncResult` | type | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:583` | Result emitted after a sync run. |
+| `@beep/repo-cli/commands/TsconfigSync/TsconfigSync.command` | `TsconfigSyncRunOptions` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:243` | Runtime options for executing tsconfig sync at a repo root. |
+| `@beep/repo-cli/commands/TsconfigSync/TsconfigSync.command` | `TsconfigSyncRunOptions` | type | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:262` | Runtime options for executing tsconfig sync at a repo root. |
+| `@beep/repo-cli/commands/TsconfigSync/TsconfigSync.command` | `TsconfigSyncSection` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:270` | Sync change section categories. |
+| `@beep/repo-cli/commands/TsconfigSync/TsconfigSync.command` | `TsconfigSyncSection` | type | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:290` | Sync change section categories. |
+| `@beep/repo-cli/commands/TsconfigSync/TsconfigSync.command` | `TsconfigWithPaths` | class | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:665` | Minimal tsconfig shape containing optional `compilerOptions.paths`. |
+| `@beep/repo-cli/commands/TsconfigSync/TsconfigSync.command` | `TsconfigWithReferences` | class | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:650` | Minimal tsconfig shape containing optional `references`. |
+| `@beep/repo-cli/commands/TsconfigSync/TsconfigSync.command` | `WorkspaceDescriptor` | class | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:599` | Workspace package descriptor with metadata for tsconfig synchronization. |
 | `@beep/repo-cli/commands/TsconfigSync/TsconfigSync.errors` | `TsconfigSyncCycleError` | class | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.errors.ts:60` | Cycle error raised when workspace dependency cycles are detected. |
 | `@beep/repo-cli/commands/TsconfigSync/TsconfigSync.errors` | `TsconfigSyncDriftError` | class | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.errors.ts:21` | Drift error raised in check mode when changes are required. |
 | `@beep/repo-cli/commands/TsconfigSync/TsconfigSync.errors` | `TsconfigSyncFilterError` | class | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.errors.ts:99` | Filter error raised when `--filter` does not match any workspace package. |
@@ -9703,7 +9703,6 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/schema` | `addDays` | const | `packages/foundation/modeling/schema/src/LocalDate/LocalDate.schema.ts:335` | Add days to a `LocalDate`. |
 | `@beep/schema` | `addMonths` | const | `packages/foundation/modeling/schema/src/LocalDate/LocalDate.schema.ts:350` | Add months to a `LocalDate`. |
 | `@beep/schema` | `addYears` | const | `packages/foundation/modeling/schema/src/LocalDate/LocalDate.schema.ts:365` | Add years to a `LocalDate`. |
-| `@beep/schema` | `Age` | SourceFile | `packages/foundation/modeling/schema/src/Age/index.ts:22` |  |
 | `@beep/schema` | `AnyFn` | const | `packages/foundation/modeling/schema/src/Fn/Fn.schema.ts:414` | Schema for any runtime function value. |
 | `@beep/schema` | `AnyFn` | type | `packages/foundation/modeling/schema/src/Fn/Fn.schema.ts:426` | Type for {@link AnyFn}. |
 | `@beep/schema` | `ApplicationFileExtension` | const | `packages/foundation/modeling/schema/src/FileExtension.ts:99` | Schema for file extensions associated with `application/*` mime types. |
@@ -9725,7 +9724,6 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/schema` | `BigDecimalFromNumber` | const | `packages/foundation/modeling/schema/src/BigDecimal.ts:33` | Schema that decodes a number into an Effect `BigDecimal` and encodes a |
 | `@beep/schema` | `BuffEncoding` | const | `packages/foundation/modeling/schema/src/BufferEncoding.ts:27` | Schema for Node.js `BufferEncoding` string literals (`"utf8"`, `"hex"`, `"base64"`, etc.). |
 | `@beep/schema` | `BufferEncoding` | type | `packages/foundation/modeling/schema/src/BufferEncoding.ts:59` | {@inheritDoc BuffEncoding} |
-| `@beep/schema` | `CardinalDirection` | SourceFile | `packages/foundation/modeling/schema/src/CardinalDirection/index.ts:22` |  |
 | `@beep/schema` | `CauseTaggedError` | const | `packages/foundation/modeling/schema/src/CauseTaggedError/CauseTaggedError.errors.ts:507` | Create a tagged error class that always carries a `message` and required defect `cause`. |
 | `@beep/schema` | `CauseTaggedErrorConstructor` | type | `packages/foundation/modeling/schema/src/CauseTaggedError/CauseTaggedError.errors.ts:249` | Callable constructor for creating cause-tagged error class factories. |
 | `@beep/schema` | `CauseTaggedErrorFactory` | interface | `packages/foundation/modeling/schema/src/CauseTaggedError/CauseTaggedError.errors.ts:210` | Factory returned by {@link CauseTaggedError} after an identity namespace has been selected. |
@@ -9734,13 +9732,6 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/schema` | `ColorAmount` | type | `packages/foundation/modeling/schema/src/Color/Color.adjust.ts:121` | Type for {@link ColorAmount}. |
 | `@beep/schema` | `CommaSeparatedList` | const | `packages/foundation/modeling/schema/src/CommonTextSchemas.ts:81` | Schema that decodes a comma-separated string into a trimmed non-empty string array. |
 | `@beep/schema` | `CommaSeparatedList` | type | `packages/foundation/modeling/schema/src/CommonTextSchemas.ts:109` | Type for {@link CommaSeparatedList}. |
-| `@beep/schema` | `createDOMRefSchema` | const | `packages/foundation/modeling/schema/src/DomReactNode/DomReactNode.schema.ts:77` | Creates a schema for React.Ref<T> where T extends HTMLElement. |
-| `@beep/schema` | `CrossOriginEmbedderPolicy` | SourceFile | `packages/foundation/modeling/schema/src/CrossOriginEmbedderPolicy/index.ts:20` |  |
-| `@beep/schema` | `CrossOriginOpenerPolicy` | SourceFile | `packages/foundation/modeling/schema/src/CrossOriginOpenerPolicy/index.ts:20` |  |
-| `@beep/schema` | `CrossOriginResourcePolicy` | SourceFile | `packages/foundation/modeling/schema/src/CrossOriginResourcePolicy/index.ts:20` |  |
-| `@beep/schema` | `CryptoTxnHash` | SourceFile | `packages/foundation/modeling/schema/src/CryptoTxnHash/index.ts:22` |  |
-| `@beep/schema` | `CryptoWalletAddress` | SourceFile | `packages/foundation/modeling/schema/src/CryptoWalletAddress/index.ts:22` |  |
-| `@beep/schema` | `Csp` | SourceFile | `packages/foundation/modeling/schema/src/Csp/index.ts:20` |  |
 | `@beep/schema` | `Csv` | const | `packages/foundation/modeling/schema/src/Csv/Csv.schema.ts:293` | Schema factory for CSV documents whose rows are validated by the provided |
 | `@beep/schema` | `CSV` | const | `packages/foundation/modeling/schema/src/Csv/Csv.schema.ts:293` | Schema factory for CSV documents whose rows are validated by the provided |
 | `@beep/schema` | `CSV` | type | `packages/foundation/modeling/schema/src/Csv/Csv.schema.ts:336` | Runtime type extracted from the {@link CSV} alias. |
@@ -9781,38 +9772,6 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/schema` | `DirectedGraphFromSelf` | const | `packages/foundation/modeling/schema/src/Graph/Graph.from-self.ts:265` | Schema for validating existing immutable directed Effect graphs. |
 | `@beep/schema` | `DirectedGraphFromSelf` | interface | `packages/foundation/modeling/schema/src/Graph/Graph.from-self.ts:49` | Schema for validating existing immutable directed Effect graphs. |
 | `@beep/schema` | `DomainModel` | SourceFile | `packages/foundation/modeling/schema/src/DomainModel.ts:8` |  |
-| `@beep/schema` | `DomCssProperties` | const | `packages/foundation/modeling/schema/src/DomCssProperties/DomCssProperties.schema.ts:33` | A React.CSSProperties object. |
-| `@beep/schema` | `DOMCssProperties` | const | `packages/foundation/modeling/schema/src/DomCssProperties/DomCssProperties.schema.ts:33` | A React.CSSProperties object. |
-| `@beep/schema` | `DomDragEvent` | const | `packages/foundation/modeling/schema/src/DomDragEvent/DomDragEvent.schema.ts:26` | A DragEvent. |
-| `@beep/schema` | `DomDragEvent` | type | `packages/foundation/modeling/schema/src/DomDragEvent/DomDragEvent.schema.ts:38` | Type for {@link DOMDragEvent}. |
-| `@beep/schema` | `DOMDragEvent` | const | `packages/foundation/modeling/schema/src/DomDragEvent/DomDragEvent.schema.ts:26` | A DragEvent. |
-| `@beep/schema` | `DOMDragEvent` | type | `packages/foundation/modeling/schema/src/DomDragEvent/DomDragEvent.schema.ts:38` | Type for {@link DOMDragEvent}. |
-| `@beep/schema` | `DOMDragEventValue` | const | `packages/foundation/modeling/schema/src/DomDragEvent/DomDragEvent.schema.ts:26` | A DragEvent. |
-| `@beep/schema` | `DOMDragEventValue` | type | `packages/foundation/modeling/schema/src/DomDragEvent/DomDragEvent.schema.ts:38` | Type for {@link DOMDragEvent}. |
-| `@beep/schema` | `DomEvent` | const | `packages/foundation/modeling/schema/src/DomEvent/DomEvent.schema.ts:26` | A DOM event. |
-| `@beep/schema` | `DomEvent` | type | `packages/foundation/modeling/schema/src/DomEvent/DomEvent.schema.ts:38` | Type for {@link DOMEvent}. |
-| `@beep/schema` | `DOMEvent` | const | `packages/foundation/modeling/schema/src/DomEvent/DomEvent.schema.ts:26` | A DOM event. |
-| `@beep/schema` | `DOMEvent` | type | `packages/foundation/modeling/schema/src/DomEvent/DomEvent.schema.ts:38` | Type for {@link DOMEvent}. |
-| `@beep/schema` | `DOMEventValue` | const | `packages/foundation/modeling/schema/src/DomEvent/DomEvent.schema.ts:26` | A DOM event. |
-| `@beep/schema` | `DOMEventValue` | type | `packages/foundation/modeling/schema/src/DomEvent/DomEvent.schema.ts:38` | Type for {@link DOMEvent}. |
-| `@beep/schema` | `DomHtmlElement` | const | `packages/foundation/modeling/schema/src/DomHtmlElement/DomHtmlElement.schema.ts:26` | An HTMLElement. |
-| `@beep/schema` | `DomHtmlElement` | type | `packages/foundation/modeling/schema/src/DomHtmlElement/DomHtmlElement.schema.ts:38` | Type for {@link DOMHtmlElement}. |
-| `@beep/schema` | `DOMHtmlElement` | const | `packages/foundation/modeling/schema/src/DomHtmlElement/DomHtmlElement.schema.ts:26` | An HTMLElement. |
-| `@beep/schema` | `DOMHtmlElement` | type | `packages/foundation/modeling/schema/src/DomHtmlElement/DomHtmlElement.schema.ts:38` | Type for {@link DOMHtmlElement}. |
-| `@beep/schema` | `DOMHtmlElementValue` | const | `packages/foundation/modeling/schema/src/DomHtmlElement/DomHtmlElement.schema.ts:26` | An HTMLElement. |
-| `@beep/schema` | `DOMHtmlElementValue` | type | `packages/foundation/modeling/schema/src/DomHtmlElement/DomHtmlElement.schema.ts:38` | Type for {@link DOMHtmlElement}. |
-| `@beep/schema` | `DomMouseEvent` | const | `packages/foundation/modeling/schema/src/DomMouseEvent/DomMouseEvent.schema.ts:26` | A DOM mouse event. |
-| `@beep/schema` | `DomMouseEvent` | type | `packages/foundation/modeling/schema/src/DomMouseEvent/DomMouseEvent.schema.ts:38` | Type for {@link DOMMouseEvent}. |
-| `@beep/schema` | `DOMMouseEvent` | const | `packages/foundation/modeling/schema/src/DomMouseEvent/DomMouseEvent.schema.ts:26` | A DOM mouse event. |
-| `@beep/schema` | `DOMMouseEvent` | type | `packages/foundation/modeling/schema/src/DomMouseEvent/DomMouseEvent.schema.ts:38` | Type for {@link DOMMouseEvent}. |
-| `@beep/schema` | `DOMMouseEventValue` | const | `packages/foundation/modeling/schema/src/DomMouseEvent/DomMouseEvent.schema.ts:26` | A DOM mouse event. |
-| `@beep/schema` | `DOMMouseEventValue` | type | `packages/foundation/modeling/schema/src/DomMouseEvent/DomMouseEvent.schema.ts:38` | Type for {@link DOMMouseEvent}. |
-| `@beep/schema` | `DomReactNode` | const | `packages/foundation/modeling/schema/src/DomReactNode/DomReactNode.schema.ts:40` | A React.ReactNode value. |
-| `@beep/schema` | `DomReactNode` | type | `packages/foundation/modeling/schema/src/DomReactNode/DomReactNode.schema.ts:52` | Type for {@link DOMReactNode}. |
-| `@beep/schema` | `DOMReactNode` | const | `packages/foundation/modeling/schema/src/DomReactNode/DomReactNode.schema.ts:40` | A React.ReactNode value. |
-| `@beep/schema` | `DOMReactNode` | type | `packages/foundation/modeling/schema/src/DomReactNode/DomReactNode.schema.ts:52` | Type for {@link DOMReactNode}. |
-| `@beep/schema` | `DOMReactNodeValue` | const | `packages/foundation/modeling/schema/src/DomReactNode/DomReactNode.schema.ts:40` | A React.ReactNode value. |
-| `@beep/schema` | `DOMReactNodeValue` | type | `packages/foundation/modeling/schema/src/DomReactNode/DomReactNode.schema.ts:52` | Type for {@link DOMReactNode}. |
 | `@beep/schema` | `Duration` | const | `packages/foundation/modeling/schema/src/Duration/Duration.schema.ts:41` | Compatibility alias for the primary Effect Duration schema. |
 | `@beep/schema` | `Duration` | type | `packages/foundation/modeling/schema/src/Duration/Duration.schema.ts:49` | Runtime type extracted from {@link Duration}. |
 | `@beep/schema` | `DurationFromInput` | const | `packages/foundation/modeling/schema/src/Duration/Duration.input.ts:226` | One-way schema that decodes {@link DurationInput} into an Effect `Duration`. |
@@ -9855,10 +9814,6 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/schema` | `EndsWithSeparator` | type | `packages/foundation/modeling/schema/src/FilePath/FilePath.guards.ts:172` | Type for {@link EndsWithSeparator}. |
 | `@beep/schema` | `EntitySchema` | SourceFile | `packages/foundation/modeling/schema/src/EntitySchema/index.ts:14` |  |
 | `@beep/schema` | `equals` | const | `packages/foundation/modeling/schema/src/LocalDate/LocalDate.schema.ts:320` | Dual predicate returning `true` when two `LocalDate` values represent the same calendar date. |
-| `@beep/schema` | `EthAmount` | SourceFile | `packages/foundation/modeling/schema/src/EthAmount/index.ts:22` |  |
-| `@beep/schema` | `EthereumValidatorPublicKey` | SourceFile | `packages/foundation/modeling/schema/src/EthereumValidatorPublicKey/index.ts:22` |  |
-| `@beep/schema` | `EvmAddress` | SourceFile | `packages/foundation/modeling/schema/src/EvmAddress/index.ts:22` |  |
-| `@beep/schema` | `ExpectCt` | SourceFile | `packages/foundation/modeling/schema/src/ExpectCt/index.ts:20` |  |
 | `@beep/schema` | `extractMimeExtensions` | const | `packages/foundation/modeling/schema/src/FileExtension.ts:72` | Extracts the distinct file extensions from a mime-type dictionary. |
 | `@beep/schema` | `extractMimeTypes` | const | `packages/foundation/modeling/schema/src/MimeType.ts:66` | Extracts all mime-type keys from a mime-type dictionary as a deduplicated array. |
 | `@beep/schema` | `FileExtension` | const | `packages/foundation/modeling/schema/src/FileExtension.ts:332` | Schema for any supported file extension across all mime-type categories. |
@@ -9895,8 +9850,6 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/schema` | `FnSchemaStatics` | type | `packages/foundation/modeling/schema/src/Fn/Fn.schema.ts:229` | Subset of the {@link FnSchema} surface exposing only the invocation helpers |
 | `@beep/schema` | `FnSchemaUnary` | interface | `packages/foundation/modeling/schema/src/Fn/Fn.schema.ts:193` | Schema surface for unary functions created by {@link Fn}. Provides |
 | `@beep/schema` | `FnType` | type | `packages/foundation/modeling/schema/src/Fn/Fn.schema.ts:130` | Function type helper used by {@link Fn}. Inputs modeled with `never`, |
-| `@beep/schema` | `ForceHttpsRedirect` | SourceFile | `packages/foundation/modeling/schema/src/ForceHttpsRedirect/index.ts:20` |  |
-| `@beep/schema` | `FrameGuard` | SourceFile | `packages/foundation/modeling/schema/src/FrameGuard/index.ts:20` |  |
 | `@beep/schema` | `fromDate` | const | `packages/foundation/modeling/schema/src/LocalDate/LocalDate.schema.ts:231` | Create a `LocalDate` from a JavaScript `Date` using its UTC components. |
 | `@beep/schema` | `fromDateTime` | const | `packages/foundation/modeling/schema/src/LocalDate/LocalDate.schema.ts:264` | Create a `LocalDate` from a `DateTime` by extracting its UTC date components. |
 | `@beep/schema` | `FromInput` | const | `packages/foundation/modeling/schema/src/Duration/Duration.input.ts:226` | One-way schema that decodes {@link DurationInput} into an Effect `Duration`. |
@@ -9937,10 +9890,6 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/schema` | `HexToRgb` | type | `packages/foundation/modeling/schema/src/Color/Color.transforms.ts:59` | Type for {@link HexToRgb}. |
 | `@beep/schema` | `HtmlFragment` | const | `packages/foundation/modeling/schema/src/Html.ts:33` | Branded schema for trusted HTML fragment strings. |
 | `@beep/schema` | `HtmlFragment` | type | `packages/foundation/modeling/schema/src/Html.ts:55` | Type for {@link HtmlFragment}. |
-| `@beep/schema` | `HttpHeaders` | SourceFile | `packages/foundation/modeling/schema/src/HttpHeaders/index.ts:20` |  |
-| `@beep/schema` | `HttpMethod` | SourceFile | `packages/foundation/modeling/schema/src/HttpMethod/index.ts:22` |  |
-| `@beep/schema` | `HttpProtocol` | SourceFile | `packages/foundation/modeling/schema/src/HttpProtocol/index.ts:22` |  |
-| `@beep/schema` | `HttpStatus` | SourceFile | `packages/foundation/modeling/schema/src/HttpStatus/index.ts:21` |  |
 | `@beep/schema` | `ImageFileExtension` | const | `packages/foundation/modeling/schema/src/FileExtension.ts:216` | Schema for file extensions associated with `image/*` mime types. |
 | `@beep/schema` | `ImageFileExtension` | type | `packages/foundation/modeling/schema/src/FileExtension.ts:238` | Union of literals accepted by {@link ImageFileExtension}. |
 | `@beep/schema` | `ImageMimeType` | const | `packages/foundation/modeling/schema/src/MimeType.ts:295` | Schema for `image/*` mime-type literals. |
@@ -9950,17 +9899,12 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/schema` | `isAbortSignal` | const | `packages/foundation/modeling/schema/src/AbortSignal.ts:28` | Type guard that checks whether a value is an `AbortSignal` instance. |
 | `@beep/schema` | `isAfter` | const | `packages/foundation/modeling/schema/src/LocalDate/LocalDate.schema.ts:309` | Dual predicate returning `true` when `self` is chronologically after `that`. |
 | `@beep/schema` | `isBefore` | const | `packages/foundation/modeling/schema/src/LocalDate/LocalDate.schema.ts:298` | Dual predicate returning `true` when `self` is chronologically before `that`. |
-| `@beep/schema` | `isCSSProperties` | const | `packages/foundation/modeling/schema/src/DomCssProperties/DomCssProperties.schema.ts:20` | Type guard for React.CSSProperties. |
-| `@beep/schema` | `isDragEvent` | const | `packages/foundation/modeling/schema/src/DomDragEvent/DomDragEvent.schema.ts:18` | Type guard for DragEvent. |
 | `@beep/schema` | `isEdge` | const | `packages/foundation/modeling/schema/src/Graph/Graph.guards.ts:18` | Guard for Effect `Graph.Edge` values. |
 | `@beep/schema` | `isEffect` | const | `packages/foundation/modeling/schema/src/EffectSchema.ts:56` | Type guard that checks whether a value is an Effect runtime value. |
-| `@beep/schema` | `isEvent` | const | `packages/foundation/modeling/schema/src/DomEvent/DomEvent.schema.ts:18` | Type guard for Event. |
 | `@beep/schema` | `isFloat16Array` | const | `packages/foundation/modeling/schema/src/Float16Array.ts:52` | Float16Array type guard. |
 | `@beep/schema` | `isGraph` | const | `packages/foundation/modeling/schema/src/Graph/Graph.guards.ts:28` | Guard for Effect graph values, including mutable variants. |
-| `@beep/schema` | `isHTMLElement` | const | `packages/foundation/modeling/schema/src/DomHtmlElement/DomHtmlElement.schema.ts:18` | Type guard for HTMLElement. |
 | `@beep/schema` | `isLeapYear` | const | `packages/foundation/modeling/schema/src/LocalDate/LocalDate.schema.ts:448` | Check whether a year is a leap year. |
 | `@beep/schema` | `isLocalDate` | const | `packages/foundation/modeling/schema/src/LocalDate/LocalDate.schema.ts:124` | Type guard for `LocalDate` instances. |
-| `@beep/schema` | `isMouseEvent` | const | `packages/foundation/modeling/schema/src/DomMouseEvent/DomMouseEvent.schema.ts:18` | Type guard for MouseEvent. |
 | `@beep/schema` | `isMutableHashMap` | const | `packages/foundation/modeling/schema/src/MutableHashMap.ts:136` | Type guard for Effect `MutableHashMap` values. |
 | `@beep/schema` | `isMutableHashSet` | const | `packages/foundation/modeling/schema/src/MutableHashSet.ts:101` | Type guard for Effect `MutableHashSet` values. |
 | `@beep/schema` | `isNegative` | const | `packages/foundation/modeling/schema/src/Number.ts:109` | Refinement that accepts negative numbers (less than zero). |
@@ -9969,8 +9913,6 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/schema` | `isPositive` | const | `packages/foundation/modeling/schema/src/Number.ts:29` | Refinement that accepts positive numbers (greater than zero). |
 | `@beep/schema` | `isPostgresSerialInt` | const | `packages/foundation/modeling/schema/src/Number.ts:47` | Refinement that accepts integers in PostgreSQL `serial` column range. |
 | `@beep/schema` | `isPromise` | const | `packages/foundation/modeling/schema/src/PromiseSchema.ts:64` | Type guard that checks whether a value is a native JavaScript `Promise`. |
-| `@beep/schema` | `isReactNode` | const | `packages/foundation/modeling/schema/src/DomReactNode/DomReactNode.schema.ts:20` | Type guard for React.ReactNode. |
-| `@beep/schema` | `isReactRef` | const | `packages/foundation/modeling/schema/src/DomReactNode/DomReactNode.schema.ts:60` | Type guard for React.Ref<T>. |
 | `@beep/schema` | `JsonArray` | const | `packages/foundation/modeling/schema/src/Json.ts:56` | Schema for a JSON array (an array of JSON-compatible values). |
 | `@beep/schema` | `JsonArray` | type | `packages/foundation/modeling/schema/src/Json.ts:68` | Runtime type extracted from the {@link JsonArray} schema. |
 | `@beep/schema` | `JsoncParseDiagnostic` | class | `packages/foundation/modeling/schema/src/Jsonc.ts:32` | Typed representation of a single JSONC parse diagnostic produced by `jsonc-parser`. |
@@ -10059,13 +10001,11 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/schema` | `NonNegNum` | type | `packages/foundation/modeling/schema/src/Number.ts:163` | Type for {@link NonNegNum}. |
 | `@beep/schema` | `NonPositiveInt` | const | `packages/foundation/modeling/schema/src/Int.ts:197` | Branded schema for non-positive integers (zero or less). |
 | `@beep/schema` | `NonPositiveInt` | type | `packages/foundation/modeling/schema/src/Int.ts:223` | Type for {@link NonPositiveInt}. |
-| `@beep/schema` | `NoOpen` | SourceFile | `packages/foundation/modeling/schema/src/NoOpen/index.ts:20` |  |
 | `@beep/schema` | `NormalizedBooleanString` | const | `packages/foundation/modeling/schema/src/CommonTextSchemas.ts:126` | Schema that normalizes common boolean string spellings (`"true"`, `"1"`, `"yes"`, `"on"`, etc.) to `boolean`. |
 | `@beep/schema` | `NormalizedBooleanString` | type | `packages/foundation/modeling/schema/src/CommonTextSchemas.ts:154` | Type for {@link NormalizedBooleanString}. |
 | `@beep/schema` | `NormalizeHexColor` | const | `packages/foundation/modeling/schema/src/Color/Color.hex.ts:150` | Canonicalization schema from boundary hex input to canonical hex output. |
 | `@beep/schema` | `NormalizeHexColor` | type | `packages/foundation/modeling/schema/src/Color/Color.hex.ts:171` | Type for {@link NormalizeHexColor}. |
 | `@beep/schema` | `normalizePath` | const | `packages/foundation/modeling/schema/src/PosixPath.ts:104` | Normalize a file-system path string to POSIX separators. |
-| `@beep/schema` | `NoSniff` | SourceFile | `packages/foundation/modeling/schema/src/NoSniff/index.ts:20` |  |
 | `@beep/schema` | `NullableStr` | const | `packages/foundation/modeling/schema/src/String.ts:104` | A nullable string schema that accepts `string \| null`. |
 | `@beep/schema` | `NullableStr` | type | `packages/foundation/modeling/schema/src/String.ts:124` | Type for {@link NullableStr}. |
 | `@beep/schema` | `OklchChroma` | const | `packages/foundation/modeling/schema/src/Color/Color.oklch.ts:178` | Canonical OKLCH chroma component. |
@@ -10089,8 +10029,6 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/schema` | `parseYaml` | const | `packages/foundation/modeling/schema/src/Yaml.ts:73` | Parses a YAML string into a JavaScript value. Uses `Bun.YAML` when available |
 | `@beep/schema` | `PascalCaseStr` | const | `packages/foundation/modeling/schema/src/PascalStr.ts:28` | Branded PascalCase string schema. |
 | `@beep/schema` | `PascalCaseStr` | type | `packages/foundation/modeling/schema/src/PascalStr.ts:54` | Type for {@link PascalCaseStr}. |
-| `@beep/schema` | `PermissionsPolicy` | SourceFile | `packages/foundation/modeling/schema/src/PermissionsPolicy/index.ts:20` |  |
-| `@beep/schema` | `PermittedCrossDomainPolicies` | SourceFile | `packages/foundation/modeling/schema/src/PermittedCrossDomainPolicies/index.ts:20` |  |
 | `@beep/schema` | `PosInt` | const | `packages/foundation/modeling/schema/src/Int.ts:72` | Branded schema for positive integers (greater than zero). |
 | `@beep/schema` | `PosInt` | type | `packages/foundation/modeling/schema/src/Int.ts:98` | Type for {@link PosInt}. |
 | `@beep/schema` | `PosixPath` | const | `packages/foundation/modeling/schema/src/PosixPath.ts:31` | Branded schema for path strings using only POSIX `/` separators. |
@@ -10101,7 +10039,6 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/schema` | `Primitive` | type | `packages/foundation/modeling/schema/src/Primitive.ts:47` | {@inheritDoc Primitive} |
 | `@beep/schema` | `PromiseSchema` | const | `packages/foundation/modeling/schema/src/PromiseSchema.ts:91` | Declared schema for native JavaScript `Promise` values. |
 | `@beep/schema` | `PromiseSchema` | type | `packages/foundation/modeling/schema/src/PromiseSchema.ts:112` | {@inheritDoc PromiseSchema} |
-| `@beep/schema` | `ReferrerPolicy` | SourceFile | `packages/foundation/modeling/schema/src/ReferrerPolicy/index.ts:20` |  |
 | `@beep/schema` | `RegExpFromStr` | const | `packages/foundation/modeling/schema/src/RegExp.ts:107` | One-way schema that decodes a valid pattern string into a JavaScript `RegExp` object. |
 | `@beep/schema` | `RegExpFromStr` | type | `packages/foundation/modeling/schema/src/RegExp.ts:135` | Type for {@link RegExpFromStr}. |
 | `@beep/schema` | `RegExpStr` | const | `packages/foundation/modeling/schema/src/RegExp.ts:58` | Branded schema for strings that can be converted directly to a JavaScript `RegExp`. |
@@ -10122,14 +10059,10 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/schema` | `Schema` | const | `packages/foundation/modeling/schema/src/Glob/Glob.schema.ts:128` | Primary glob schema role alias. |
 | `@beep/schema` | `Schema` | type | `packages/foundation/modeling/schema/src/Glob/Glob.schema.ts:136` | Runtime type extracted from {@link Schema}. |
 | `@beep/schema` | `SchemaUtils` | SourceFile | `packages/foundation/modeling/schema/src/SchemaUtils/index.ts:12` |  |
-| `@beep/schema` | `SecureHeader` | SourceFile | `packages/foundation/modeling/schema/src/SecureHeader/index.ts:22` |  |
-| `@beep/schema` | `SecureHeaderError` | SourceFile | `packages/foundation/modeling/schema/src/SecureHeaderError/index.ts:20` |  |
-| `@beep/schema` | `SecureHeaderOptions` | SourceFile | `packages/foundation/modeling/schema/src/SecureHeaderOptions/index.ts:20` |  |
 | `@beep/schema` | `SemanticVersion` | const | `packages/foundation/modeling/schema/src/SemanticVersion.ts:46` | A Semantic Versioning (SemVer) schema for validating `MAJOR.MINOR.PATCH` version strings. |
 | `@beep/schema` | `SemanticVersion` | type | `packages/foundation/modeling/schema/src/SemanticVersion.ts:75` | {@inheritDoc SemanticVersion} |
 | `@beep/schema` | `SeverityLevel` | const | `packages/foundation/modeling/schema/src/SeverityLevel.ts:30` | Generic four-level severity scale: `"low"`, `"medium"`, `"high"`, `"critical"`. |
 | `@beep/schema` | `SeverityLevel` | type | `packages/foundation/modeling/schema/src/SeverityLevel.ts:49` | Type for {@link SeverityLevel}. |
-| `@beep/schema` | `Sex` | SourceFile | `packages/foundation/modeling/schema/src/Sex/index.ts:22` |  |
 | `@beep/schema` | `Sha256Hex` | const | `packages/foundation/modeling/schema/src/Sha256.ts:57` | Branded schema for canonical lowercase SHA-256 hex digests (64 hex characters). |
 | `@beep/schema` | `Sha256Hex` | type | `packages/foundation/modeling/schema/src/Sha256.ts:79` | Type for {@link Sha256Hex}. |
 | `@beep/schema` | `Sha256HexFromBytes` | const | `packages/foundation/modeling/schema/src/Sha256.ts:101` | One-way schema that decodes a byte array into a canonical lowercase SHA-256 |
@@ -10223,7 +10156,6 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/schema` | `WithAlpha` | type | `packages/foundation/modeling/schema/src/Color/Color.adjust.ts:290` | Type for {@link WithAlpha}. |
 | `@beep/schema` | `WithAlphaInput` | class | `packages/foundation/modeling/schema/src/Color/Color.adjust.ts:256` | Request schema for converting a color plus alpha to an rgba string. |
 | `@beep/schema` | `XmlTextToUnknown` | const | `packages/foundation/modeling/schema/src/Xml.ts:79` | Schema transformation that decodes XML text into an unknown parsed document |
-| `@beep/schema` | `XssProtection` | SourceFile | `packages/foundation/modeling/schema/src/XssProtection/index.ts:20` |  |
 | `@beep/schema` | `YamlTextToUnknown` | const | `packages/foundation/modeling/schema/src/Yaml.ts:96` | Schema transformation that decodes YAML text into an unknown parsed value. |
 | `@beep/schema/AbortSignal` | `AbortSig` | const | `packages/foundation/modeling/schema/src/AbortSignal.ts:46` | Declared schema for `AbortSignal` instances. |
 | `@beep/schema/AbortSignal` | `AbortSig` | type | `packages/foundation/modeling/schema/src/AbortSignal.ts:65` | {@inheritDoc AbortSig} |
@@ -10254,11 +10186,6 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/schema/BinaryFileExtension` | `hasBinaryExtension` | function | `packages/foundation/modeling/schema/src/BinaryFileExtension.ts:238` | Detects whether a file path ends in a known binary file extension. |
 | `@beep/schema/BinaryFileExtension` | `isBinaryContent` | function | `packages/foundation/modeling/schema/src/BinaryFileExtension.ts:265` | Detects whether a byte sample looks like binary content. |
 | `@beep/schema/BinaryFileExtension` | `isBinaryFileExtension` | const | `packages/foundation/modeling/schema/src/BinaryFileExtension.ts:216` | Schema-derived guard for individual binary file extensions. |
-| `@beep/schema/Blockchain` | `CryptoTxnHash` | SourceFile | `packages/foundation/modeling/schema/src/CryptoTxnHash/index.ts:22` |  |
-| `@beep/schema/Blockchain` | `CryptoWalletAddress` | SourceFile | `packages/foundation/modeling/schema/src/CryptoWalletAddress/index.ts:22` |  |
-| `@beep/schema/Blockchain` | `EthAmount` | SourceFile | `packages/foundation/modeling/schema/src/EthAmount/index.ts:22` |  |
-| `@beep/schema/Blockchain` | `EthereumValidatorPublicKey` | SourceFile | `packages/foundation/modeling/schema/src/EthereumValidatorPublicKey/index.ts:22` |  |
-| `@beep/schema/Blockchain` | `EvmAddress` | SourceFile | `packages/foundation/modeling/schema/src/EvmAddress/index.ts:22` |  |
 | `@beep/schema/BufferEncoding` | `BuffEncoding` | const | `packages/foundation/modeling/schema/src/BufferEncoding.ts:27` | Schema for Node.js `BufferEncoding` string literals (`"utf8"`, `"hex"`, `"base64"`, etc.). |
 | `@beep/schema/BufferEncoding` | `BufferEncoding` | type | `packages/foundation/modeling/schema/src/BufferEncoding.ts:59` | {@inheritDoc BuffEncoding} |
 | `@beep/schema/CardinalDirection` | `Abbrev` | const | `packages/foundation/modeling/schema/src/CardinalDirection/CardinalDirection.schema.ts:35` | CardinalDirectionAbbrev - The abbreviated version of the {@link CardinalDirection} |
@@ -10423,13 +10350,8 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/schema/Csv` | `Csv` | const | `packages/foundation/modeling/schema/src/Csv/Csv.schema.ts:293` | Schema factory for CSV documents whose rows are validated by the provided |
 | `@beep/schema/Csv` | `CSV` | const | `packages/foundation/modeling/schema/src/Csv/Csv.schema.ts:293` | Schema factory for CSV documents whose rows are validated by the provided |
 | `@beep/schema/Csv` | `CSV` | type | `packages/foundation/modeling/schema/src/Csv/Csv.schema.ts:336` | Runtime type extracted from the {@link CSV} alias. |
-| `@beep/schema/Csv` | `CsvCodecOptions` | SourceFile | `packages/foundation/modeling/schema/src/CsvCodecOptions/index.ts:21` |  |
 | `@beep/schema/Csv` | `CsvDocument` | type | `packages/foundation/modeling/schema/src/Csv/Csv.schema.ts:50` | Schema transformation returned by the CSV schema factory for a row schema. |
-| `@beep/schema/Csv` | `CsvError` | SourceFile | `packages/foundation/modeling/schema/src/CsvError/index.ts:21` |  |
-| `@beep/schema/Csv` | `CsvFormatter` | SourceFile | `packages/foundation/modeling/schema/src/CsvFormatter/index.ts:20` |  |
-| `@beep/schema/Csv` | `CsvParser` | SourceFile | `packages/foundation/modeling/schema/src/CsvParser/index.ts:20` |  |
 | `@beep/schema/Csv` | `CsvText` | type | `packages/foundation/modeling/schema/src/Csv/Csv.schema.ts:320` | Branded runtime type for CSV document text produced by encoding a `CSV` |
-| `@beep/schema/Csv` | `ParserOptions` | SourceFile | `packages/foundation/modeling/schema/src/ParserOptions/index.ts:21` |  |
 | `@beep/schema/Csv` | `RowSchemaWithFields` | type | `packages/foundation/modeling/schema/src/Csv/Csv.schema.ts:40` | Object-like row schema contract accepted by the CSV schema factory. |
 | `@beep/schema/Csv` | `Schema` | const | `packages/foundation/modeling/schema/src/Csv/Csv.schema.ts:293` | Schema factory for CSV documents whose rows are validated by the provided |
 | `@beep/schema/Csv` | `Schema` | type | `packages/foundation/modeling/schema/src/Csv/Csv.schema.ts:344` | Runtime type extracted from the {@link Schema} alias. |
@@ -10487,46 +10409,6 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/schema/DateTimeUtcFromValid` | `DateTimeInputString` | type | `packages/foundation/modeling/schema/src/DateTimeUtcFromValid/DateTimeUtcFromValid.schema.ts:180` | {@inheritDoc DateTimeInputString} |
 | `@beep/schema/DateTimeUtcFromValid` | `DateTimeUtcFromValid` | const | `packages/foundation/modeling/schema/src/DateTimeUtcFromValid/DateTimeUtcFromValid.schema.ts:512` | Bidirectional schema transformation from valid DateTime input to `DateTime.Utc`. |
 | `@beep/schema/DateTimeUtcFromValid` | `DateTimeUtcFromValid` | type | `packages/foundation/modeling/schema/src/DateTimeUtcFromValid/DateTimeUtcFromValid.schema.ts:540` | {@inheritDoc DateTimeUtcFromValid} |
-| `@beep/schema/Dom` | `createDOMRefSchema` | const | `packages/foundation/modeling/schema/src/DomReactNode/DomReactNode.schema.ts:77` | Creates a schema for React.Ref<T> where T extends HTMLElement. |
-| `@beep/schema/Dom` | `DomCssProperties` | const | `packages/foundation/modeling/schema/src/DomCssProperties/DomCssProperties.schema.ts:33` | A React.CSSProperties object. |
-| `@beep/schema/Dom` | `DOMCssProperties` | const | `packages/foundation/modeling/schema/src/DomCssProperties/DomCssProperties.schema.ts:33` | A React.CSSProperties object. |
-| `@beep/schema/Dom` | `DomDragEvent` | const | `packages/foundation/modeling/schema/src/DomDragEvent/DomDragEvent.schema.ts:26` | A DragEvent. |
-| `@beep/schema/Dom` | `DomDragEvent` | type | `packages/foundation/modeling/schema/src/DomDragEvent/DomDragEvent.schema.ts:38` | Type for {@link DOMDragEvent}. |
-| `@beep/schema/Dom` | `DOMDragEvent` | const | `packages/foundation/modeling/schema/src/DomDragEvent/DomDragEvent.schema.ts:26` | A DragEvent. |
-| `@beep/schema/Dom` | `DOMDragEvent` | type | `packages/foundation/modeling/schema/src/DomDragEvent/DomDragEvent.schema.ts:38` | Type for {@link DOMDragEvent}. |
-| `@beep/schema/Dom` | `DOMDragEventValue` | const | `packages/foundation/modeling/schema/src/DomDragEvent/DomDragEvent.schema.ts:26` | A DragEvent. |
-| `@beep/schema/Dom` | `DOMDragEventValue` | type | `packages/foundation/modeling/schema/src/DomDragEvent/DomDragEvent.schema.ts:38` | Type for {@link DOMDragEvent}. |
-| `@beep/schema/Dom` | `DomEvent` | const | `packages/foundation/modeling/schema/src/DomEvent/DomEvent.schema.ts:26` | A DOM event. |
-| `@beep/schema/Dom` | `DomEvent` | type | `packages/foundation/modeling/schema/src/DomEvent/DomEvent.schema.ts:38` | Type for {@link DOMEvent}. |
-| `@beep/schema/Dom` | `DOMEvent` | const | `packages/foundation/modeling/schema/src/DomEvent/DomEvent.schema.ts:26` | A DOM event. |
-| `@beep/schema/Dom` | `DOMEvent` | type | `packages/foundation/modeling/schema/src/DomEvent/DomEvent.schema.ts:38` | Type for {@link DOMEvent}. |
-| `@beep/schema/Dom` | `DOMEventValue` | const | `packages/foundation/modeling/schema/src/DomEvent/DomEvent.schema.ts:26` | A DOM event. |
-| `@beep/schema/Dom` | `DOMEventValue` | type | `packages/foundation/modeling/schema/src/DomEvent/DomEvent.schema.ts:38` | Type for {@link DOMEvent}. |
-| `@beep/schema/Dom` | `DomHtmlElement` | const | `packages/foundation/modeling/schema/src/DomHtmlElement/DomHtmlElement.schema.ts:26` | An HTMLElement. |
-| `@beep/schema/Dom` | `DomHtmlElement` | type | `packages/foundation/modeling/schema/src/DomHtmlElement/DomHtmlElement.schema.ts:38` | Type for {@link DOMHtmlElement}. |
-| `@beep/schema/Dom` | `DOMHtmlElement` | const | `packages/foundation/modeling/schema/src/DomHtmlElement/DomHtmlElement.schema.ts:26` | An HTMLElement. |
-| `@beep/schema/Dom` | `DOMHtmlElement` | type | `packages/foundation/modeling/schema/src/DomHtmlElement/DomHtmlElement.schema.ts:38` | Type for {@link DOMHtmlElement}. |
-| `@beep/schema/Dom` | `DOMHtmlElementValue` | const | `packages/foundation/modeling/schema/src/DomHtmlElement/DomHtmlElement.schema.ts:26` | An HTMLElement. |
-| `@beep/schema/Dom` | `DOMHtmlElementValue` | type | `packages/foundation/modeling/schema/src/DomHtmlElement/DomHtmlElement.schema.ts:38` | Type for {@link DOMHtmlElement}. |
-| `@beep/schema/Dom` | `DomMouseEvent` | const | `packages/foundation/modeling/schema/src/DomMouseEvent/DomMouseEvent.schema.ts:26` | A DOM mouse event. |
-| `@beep/schema/Dom` | `DomMouseEvent` | type | `packages/foundation/modeling/schema/src/DomMouseEvent/DomMouseEvent.schema.ts:38` | Type for {@link DOMMouseEvent}. |
-| `@beep/schema/Dom` | `DOMMouseEvent` | const | `packages/foundation/modeling/schema/src/DomMouseEvent/DomMouseEvent.schema.ts:26` | A DOM mouse event. |
-| `@beep/schema/Dom` | `DOMMouseEvent` | type | `packages/foundation/modeling/schema/src/DomMouseEvent/DomMouseEvent.schema.ts:38` | Type for {@link DOMMouseEvent}. |
-| `@beep/schema/Dom` | `DOMMouseEventValue` | const | `packages/foundation/modeling/schema/src/DomMouseEvent/DomMouseEvent.schema.ts:26` | A DOM mouse event. |
-| `@beep/schema/Dom` | `DOMMouseEventValue` | type | `packages/foundation/modeling/schema/src/DomMouseEvent/DomMouseEvent.schema.ts:38` | Type for {@link DOMMouseEvent}. |
-| `@beep/schema/Dom` | `DomReactNode` | const | `packages/foundation/modeling/schema/src/DomReactNode/DomReactNode.schema.ts:40` | A React.ReactNode value. |
-| `@beep/schema/Dom` | `DomReactNode` | type | `packages/foundation/modeling/schema/src/DomReactNode/DomReactNode.schema.ts:52` | Type for {@link DOMReactNode}. |
-| `@beep/schema/Dom` | `DOMReactNode` | const | `packages/foundation/modeling/schema/src/DomReactNode/DomReactNode.schema.ts:40` | A React.ReactNode value. |
-| `@beep/schema/Dom` | `DOMReactNode` | type | `packages/foundation/modeling/schema/src/DomReactNode/DomReactNode.schema.ts:52` | Type for {@link DOMReactNode}. |
-| `@beep/schema/Dom` | `DOMReactNodeValue` | const | `packages/foundation/modeling/schema/src/DomReactNode/DomReactNode.schema.ts:40` | A React.ReactNode value. |
-| `@beep/schema/Dom` | `DOMReactNodeValue` | type | `packages/foundation/modeling/schema/src/DomReactNode/DomReactNode.schema.ts:52` | Type for {@link DOMReactNode}. |
-| `@beep/schema/Dom` | `isCSSProperties` | const | `packages/foundation/modeling/schema/src/DomCssProperties/DomCssProperties.schema.ts:20` | Type guard for React.CSSProperties. |
-| `@beep/schema/Dom` | `isDragEvent` | const | `packages/foundation/modeling/schema/src/DomDragEvent/DomDragEvent.schema.ts:18` | Type guard for DragEvent. |
-| `@beep/schema/Dom` | `isEvent` | const | `packages/foundation/modeling/schema/src/DomEvent/DomEvent.schema.ts:18` | Type guard for Event. |
-| `@beep/schema/Dom` | `isHTMLElement` | const | `packages/foundation/modeling/schema/src/DomHtmlElement/DomHtmlElement.schema.ts:18` | Type guard for HTMLElement. |
-| `@beep/schema/Dom` | `isMouseEvent` | const | `packages/foundation/modeling/schema/src/DomMouseEvent/DomMouseEvent.schema.ts:18` | Type guard for MouseEvent. |
-| `@beep/schema/Dom` | `isReactNode` | const | `packages/foundation/modeling/schema/src/DomReactNode/DomReactNode.schema.ts:20` | Type guard for React.ReactNode. |
-| `@beep/schema/Dom` | `isReactRef` | const | `packages/foundation/modeling/schema/src/DomReactNode/DomReactNode.schema.ts:60` | Type guard for React.Ref<T>. |
 | `@beep/schema/DomainModel` | `defaultFields` | const | `packages/foundation/modeling/schema/src/DomainModel.ts:33` | Default audit and bookkeeping fields for persisted domain models. |
 | `@beep/schema/DomainModel` | `DomainModel` | class | `packages/foundation/modeling/schema/src/DomainModel.ts:65` | Base class for persisted domain models that share audit metadata. |
 | `@beep/schema/DomCssProperties` | `DomCssProperties` | const | `packages/foundation/modeling/schema/src/DomCssProperties/DomCssProperties.schema.ts:33` | A React.CSSProperties object. |
@@ -10863,26 +10745,6 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/schema/Graph` | `UndirectedGraphFromSelf` | interface | `packages/foundation/modeling/schema/src/Graph/Graph.from-self.ts:67` | Schema for validating existing immutable undirected Effect graphs. |
 | `@beep/schema/Html` | `HtmlFragment` | const | `packages/foundation/modeling/schema/src/Html.ts:33` | Branded schema for trusted HTML fragment strings. |
 | `@beep/schema/Html` | `HtmlFragment` | type | `packages/foundation/modeling/schema/src/Html.ts:55` | Type for {@link HtmlFragment}. |
-| `@beep/schema/Http` | `CrossOriginEmbedderPolicy` | SourceFile | `packages/foundation/modeling/schema/src/CrossOriginEmbedderPolicy/index.ts:20` |  |
-| `@beep/schema/Http` | `CrossOriginOpenerPolicy` | SourceFile | `packages/foundation/modeling/schema/src/CrossOriginOpenerPolicy/index.ts:20` |  |
-| `@beep/schema/Http` | `CrossOriginResourcePolicy` | SourceFile | `packages/foundation/modeling/schema/src/CrossOriginResourcePolicy/index.ts:20` |  |
-| `@beep/schema/Http` | `Csp` | SourceFile | `packages/foundation/modeling/schema/src/Csp/index.ts:20` |  |
-| `@beep/schema/Http` | `ExpectCt` | SourceFile | `packages/foundation/modeling/schema/src/ExpectCt/index.ts:20` |  |
-| `@beep/schema/Http` | `ForceHttpsRedirect` | SourceFile | `packages/foundation/modeling/schema/src/ForceHttpsRedirect/index.ts:20` |  |
-| `@beep/schema/Http` | `FrameGuard` | SourceFile | `packages/foundation/modeling/schema/src/FrameGuard/index.ts:20` |  |
-| `@beep/schema/Http` | `HttpHeaders` | SourceFile | `packages/foundation/modeling/schema/src/HttpHeaders/index.ts:20` |  |
-| `@beep/schema/Http` | `HttpMethod` | SourceFile | `packages/foundation/modeling/schema/src/HttpMethod/index.ts:22` |  |
-| `@beep/schema/Http` | `HttpProtocol` | SourceFile | `packages/foundation/modeling/schema/src/HttpProtocol/index.ts:22` |  |
-| `@beep/schema/Http` | `HttpStatus` | SourceFile | `packages/foundation/modeling/schema/src/HttpStatus/index.ts:21` |  |
-| `@beep/schema/Http` | `NoOpen` | SourceFile | `packages/foundation/modeling/schema/src/NoOpen/index.ts:20` |  |
-| `@beep/schema/Http` | `NoSniff` | SourceFile | `packages/foundation/modeling/schema/src/NoSniff/index.ts:20` |  |
-| `@beep/schema/Http` | `PermissionsPolicy` | SourceFile | `packages/foundation/modeling/schema/src/PermissionsPolicy/index.ts:20` |  |
-| `@beep/schema/Http` | `PermittedCrossDomainPolicies` | SourceFile | `packages/foundation/modeling/schema/src/PermittedCrossDomainPolicies/index.ts:20` |  |
-| `@beep/schema/Http` | `ReferrerPolicy` | SourceFile | `packages/foundation/modeling/schema/src/ReferrerPolicy/index.ts:20` |  |
-| `@beep/schema/Http` | `SecureHeader` | SourceFile | `packages/foundation/modeling/schema/src/SecureHeader/index.ts:22` |  |
-| `@beep/schema/Http` | `SecureHeaderError` | SourceFile | `packages/foundation/modeling/schema/src/SecureHeaderError/index.ts:20` |  |
-| `@beep/schema/Http` | `SecureHeaderOptions` | SourceFile | `packages/foundation/modeling/schema/src/SecureHeaderOptions/index.ts:20` |  |
-| `@beep/schema/Http` | `XssProtection` | SourceFile | `packages/foundation/modeling/schema/src/XssProtection/index.ts:20` |  |
 | `@beep/schema/HttpHeaders` | `CrossOriginEmbedderPolicy` | SourceFile | `packages/foundation/modeling/schema/src/CrossOriginEmbedderPolicy/index.ts:20` |  |
 | `@beep/schema/HttpHeaders` | `CrossOriginOpenerPolicy` | SourceFile | `packages/foundation/modeling/schema/src/CrossOriginOpenerPolicy/index.ts:20` |  |
 | `@beep/schema/HttpHeaders` | `CrossOriginResourcePolicy` | SourceFile | `packages/foundation/modeling/schema/src/CrossOriginResourcePolicy/index.ts:20` |  |
@@ -11138,7 +11000,6 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/schema/LocalDate` | `startOfYear` | const | `packages/foundation/modeling/schema/src/LocalDate/LocalDate.schema.ts:422` | Return January 1st for the year of the given `LocalDate`. |
 | `@beep/schema/LocalDate` | `today` | const | `packages/foundation/modeling/schema/src/LocalDate/LocalDate.schema.ts:245` | Get today's date in UTC. |
 | `@beep/schema/LocalDate` | `todayEffect` | const | `packages/foundation/modeling/schema/src/LocalDate/LocalDate.schema.ts:253` | Get today's UTC date as an `Effect` using the Clock service, testable with `TestClock`. |
-| `@beep/schema/Location` | `CardinalDirection` | SourceFile | `packages/foundation/modeling/schema/src/CardinalDirection/index.ts:22` |  |
 | `@beep/schema/Logs` | `LogLevel` | const | `packages/foundation/modeling/schema/src/Logs.ts:31` | Supported log levels including global enable-all and disable-all sentinels. |
 | `@beep/schema/Logs` | `LogLevel` | type | `packages/foundation/modeling/schema/src/Logs.ts:43` | Runtime type for `LogLevel`. |
 | `@beep/schema/Logs` | `LogSeverity` | const | `packages/foundation/modeling/schema/src/Logs.ts:62` | Supported log severities emitted by the logger (excludes `All` and `None`). |
@@ -11332,8 +11193,6 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/schema/PermittedCrossDomainPolicies` | `ResponseHeader` | class | `packages/foundation/modeling/schema/src/PermittedCrossDomainPolicies/PermittedCrossDomainPolicies.schema.ts:71` |  |
 | `@beep/schema/PermittedCrossDomainPolicies` | `Value` | const | `packages/foundation/modeling/schema/src/PermittedCrossDomainPolicies/PermittedCrossDomainPolicies.schema.ts:35` |  |
 | `@beep/schema/PermittedCrossDomainPolicies` | `Value` | type | `packages/foundation/modeling/schema/src/PermittedCrossDomainPolicies/PermittedCrossDomainPolicies.schema.ts:46` |  |
-| `@beep/schema/Person` | `Age` | SourceFile | `packages/foundation/modeling/schema/src/Age/index.ts:22` |  |
-| `@beep/schema/Person` | `Sex` | SourceFile | `packages/foundation/modeling/schema/src/Sex/index.ts:22` |  |
 | `@beep/schema/PosixPath` | `NativePathToPosixPath` | const | `packages/foundation/modeling/schema/src/PosixPath.ts:70` | Schema transformation that converts native file-system paths (with backslashes) to POSIX separators. |
 | `@beep/schema/PosixPath` | `normalizePath` | const | `packages/foundation/modeling/schema/src/PosixPath.ts:104` | Normalize a file-system path string to POSIX separators. |
 | `@beep/schema/PosixPath` | `PosixPath` | const | `packages/foundation/modeling/schema/src/PosixPath.ts:31` | Branded schema for path strings using only POSIX `/` separators. |
@@ -12013,8 +11872,8 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 
 | Import | Symbol | Kind | Source | Summary |
 |---|---|---|---|---|
-| `@beep/observability` | `BadGatewayError` | class | `packages/foundation/capability/observability/src/HttpError.ts:361` | 502 tagged error. |
-| `@beep/observability` | `BadRequestError` | class | `packages/foundation/capability/observability/src/HttpError.ts:153` | 400 tagged error. |
+| `@beep/observability` | `BadGatewayError` | class | `packages/foundation/capability/observability/src/HttpError.ts:362` | 502 tagged error. |
+| `@beep/observability` | `BadRequestError` | class | `packages/foundation/capability/observability/src/HttpError.ts:154` | 400 tagged error. |
 | `@beep/observability` | `BannerMode` | const | `packages/foundation/capability/observability/src/Logging.ts:122` | Banner render modes for startup and phase summaries: `"off"`, `"startup"`, `"phase"`, or `"all"`. |
 | `@beep/observability` | `BannerMode` | type | `packages/foundation/capability/observability/src/Logging.ts:142` | Runtime type for {@link BannerMode}. |
 | `@beep/observability` | `CauseClassification` | const | `packages/foundation/capability/observability/src/CauseDiagnostics.ts:55` | High-level classification for a full Effect cause. |
@@ -12022,31 +11881,31 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/observability` | `CauseFingerprint` | class | `packages/foundation/capability/observability/src/CauseDiagnostics.ts:126` | Deterministic string fingerprint for a cause, useful for deduplication and grouping. |
 | `@beep/observability` | `CauseSummary` | type | `packages/foundation/capability/observability/src/CauseDiagnostics.ts:191` | Type of {@link CauseSummary} |
 | `@beep/observability` | `classifyCause` | const | `packages/foundation/capability/observability/src/CauseDiagnostics.ts:402` | Classify a cause by its reason makeup into a single {@link CauseClassification} label. |
-| `@beep/observability` | `ClientHttpError` | class | `packages/foundation/capability/observability/src/HttpError.ts:88` | Shared tagged error for 4xx HTTP responses with `Warn` severity. |
-| `@beep/observability` | `ConflictError` | class | `packages/foundation/capability/observability/src/HttpError.ts:257` | 409 tagged error. |
+| `@beep/observability` | `ClientHttpError` | class | `packages/foundation/capability/observability/src/HttpError.ts:89` | Shared tagged error for 4xx HTTP responses with `Warn` severity. |
+| `@beep/observability` | `ConflictError` | class | `packages/foundation/capability/observability/src/HttpError.ts:258` | 409 tagged error. |
 | `@beep/observability` | `ExitOutcome` | const | `packages/foundation/capability/observability/src/CauseDiagnostics.ts:90` | High-level classification for an exit: `"success"` or `"failure"`. |
 | `@beep/observability` | `ExitOutcome` | type | `packages/foundation/capability/observability/src/CauseDiagnostics.ts:110` | Runtime type for {@link ExitOutcome}. |
 | `@beep/observability` | `fingerprintCause` | const | `packages/foundation/capability/observability/src/CauseDiagnostics.ts:422` | Generate a deterministic fingerprint for a cause. |
-| `@beep/observability` | `ForbiddenError` | class | `packages/foundation/capability/observability/src/HttpError.ts:205` | 403 tagged error. |
-| `@beep/observability` | `GatewayTimeoutError` | class | `packages/foundation/capability/observability/src/HttpError.ts:413` | 504 tagged error. |
-| `@beep/observability` | `InternalServerErrorError` | class | `packages/foundation/capability/observability/src/HttpError.ts:335` | 500 tagged error. |
+| `@beep/observability` | `ForbiddenError` | class | `packages/foundation/capability/observability/src/HttpError.ts:206` | 403 tagged error. |
+| `@beep/observability` | `GatewayTimeoutError` | class | `packages/foundation/capability/observability/src/HttpError.ts:414` | 504 tagged error. |
+| `@beep/observability` | `InternalServerErrorError` | class | `packages/foundation/capability/observability/src/HttpError.ts:336` | 500 tagged error. |
 | `@beep/observability` | `layerConsoleLogger` | const | `packages/foundation/capability/observability/src/Logging.ts:401` | Build a console logger layer from a shared logging config. |
 | `@beep/observability` | `LogFormat` | const | `packages/foundation/capability/observability/src/Logging.ts:50` | Supported console logger formats for shared observability wiring. |
 | `@beep/observability` | `LogFormat` | type | `packages/foundation/capability/observability/src/Logging.ts:70` | Runtime type for {@link LogFormat}. |
 | `@beep/observability` | `LoggingConfig` | class | `packages/foundation/capability/observability/src/Logging.ts:190` | Shared logger configuration for browser-safe and server-safe console logging. |
-| `@beep/observability` | `makeBadGatewayError` | const | `packages/foundation/capability/observability/src/HttpError.ts:590` | Helper constructor for {@link BadGatewayError} (502). |
-| `@beep/observability` | `makeBadRequestError` | const | `packages/foundation/capability/observability/src/HttpError.ts:438` | Helper constructor for {@link BadRequestError} (400). |
-| `@beep/observability` | `makeConflictError` | const | `packages/foundation/capability/observability/src/HttpError.ts:514` | Helper constructor for {@link ConflictError} (409). |
-| `@beep/observability` | `makeForbiddenError` | const | `packages/foundation/capability/observability/src/HttpError.ts:476` | Helper constructor for {@link ForbiddenError} (403). |
-| `@beep/observability` | `makeGatewayTimeoutError` | const | `packages/foundation/capability/observability/src/HttpError.ts:628` | Helper constructor for {@link GatewayTimeoutError} (504). |
-| `@beep/observability` | `makeInternalServerError` | const | `packages/foundation/capability/observability/src/HttpError.ts:571` | Helper constructor for {@link InternalServerErrorError} (500). |
-| `@beep/observability` | `makeNotFoundError` | const | `packages/foundation/capability/observability/src/HttpError.ts:495` | Helper constructor for {@link NotFoundError} (404). |
-| `@beep/observability` | `makeServiceUnavailableError` | const | `packages/foundation/capability/observability/src/HttpError.ts:609` | Helper constructor for {@link ServiceUnavailableError} (503). |
-| `@beep/observability` | `makeTooManyRequestsError` | const | `packages/foundation/capability/observability/src/HttpError.ts:552` | Helper constructor for {@link TooManyRequestsError} (429). |
-| `@beep/observability` | `makeUnauthorizedError` | const | `packages/foundation/capability/observability/src/HttpError.ts:457` | Helper constructor for {@link UnauthorizedError} (401). |
-| `@beep/observability` | `makeUnprocessableEntityError` | const | `packages/foundation/capability/observability/src/HttpError.ts:533` | Helper constructor for {@link UnprocessableEntityError} (422). |
+| `@beep/observability` | `makeBadGatewayError` | const | `packages/foundation/capability/observability/src/HttpError.ts:591` | Helper constructor for {@link BadGatewayError} (502). |
+| `@beep/observability` | `makeBadRequestError` | const | `packages/foundation/capability/observability/src/HttpError.ts:439` | Helper constructor for {@link BadRequestError} (400). |
+| `@beep/observability` | `makeConflictError` | const | `packages/foundation/capability/observability/src/HttpError.ts:515` | Helper constructor for {@link ConflictError} (409). |
+| `@beep/observability` | `makeForbiddenError` | const | `packages/foundation/capability/observability/src/HttpError.ts:477` | Helper constructor for {@link ForbiddenError} (403). |
+| `@beep/observability` | `makeGatewayTimeoutError` | const | `packages/foundation/capability/observability/src/HttpError.ts:629` | Helper constructor for {@link GatewayTimeoutError} (504). |
+| `@beep/observability` | `makeInternalServerError` | const | `packages/foundation/capability/observability/src/HttpError.ts:572` | Helper constructor for {@link InternalServerErrorError} (500). |
+| `@beep/observability` | `makeNotFoundError` | const | `packages/foundation/capability/observability/src/HttpError.ts:496` | Helper constructor for {@link NotFoundError} (404). |
+| `@beep/observability` | `makeServiceUnavailableError` | const | `packages/foundation/capability/observability/src/HttpError.ts:610` | Helper constructor for {@link ServiceUnavailableError} (503). |
+| `@beep/observability` | `makeTooManyRequestsError` | const | `packages/foundation/capability/observability/src/HttpError.ts:553` | Helper constructor for {@link TooManyRequestsError} (429). |
+| `@beep/observability` | `makeUnauthorizedError` | const | `packages/foundation/capability/observability/src/HttpError.ts:458` | Helper constructor for {@link UnauthorizedError} (401). |
+| `@beep/observability` | `makeUnprocessableEntityError` | const | `packages/foundation/capability/observability/src/HttpError.ts:534` | Helper constructor for {@link UnprocessableEntityError} (422). |
 | `@beep/observability` | `measureElapsedMillis` | const | `packages/foundation/capability/observability/src/Metric.ts:124` | Measure wall-clock elapsed milliseconds for an effect. |
-| `@beep/observability` | `NotFoundError` | class | `packages/foundation/capability/observability/src/HttpError.ts:231` | 404 tagged error. |
+| `@beep/observability` | `NotFoundError` | class | `packages/foundation/capability/observability/src/HttpError.ts:232` | 404 tagged error. |
 | `@beep/observability` | `ObservabilityCoreConfig` | const | `packages/foundation/capability/observability/src/CoreConfig.ts:42` | Browser-safe shared observability configuration. |
 | `@beep/observability` | `ObservabilityCoreConfig` | type | `packages/foundation/capability/observability/src/CoreConfig.ts:71` | Type of {@link ObservabilityCoreConfig} |
 | `@beep/observability` | `ObservedCause` | const | `packages/foundation/capability/observability/src/Observed.ts:234` | A transport-safe schema for full Effect causes. |
@@ -12076,15 +11935,15 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/observability` | `profilePhase` | const | `packages/foundation/capability/observability/src/PhaseProfiler.ts:265` | Profiles an Effect phase and records its duration and outcome. |
 | `@beep/observability` | `renderLogBanner` | const | `packages/foundation/capability/observability/src/Logging.ts:296` | Render an opt-in banner for startup and phase summaries. |
 | `@beep/observability` | `renderObservedCause` | const | `packages/foundation/capability/observability/src/CauseDiagnostics.ts:550` | Render a compact human-readable representation of a cause. |
-| `@beep/observability` | `ServerHttpError` | class | `packages/foundation/capability/observability/src/HttpError.ts:123` | Shared tagged error for 5xx HTTP responses with `Error` severity. |
-| `@beep/observability` | `ServiceUnavailableError` | class | `packages/foundation/capability/observability/src/HttpError.ts:387` | 503 tagged error. |
+| `@beep/observability` | `ServerHttpError` | class | `packages/foundation/capability/observability/src/HttpError.ts:124` | Shared tagged error for 5xx HTTP responses with `Error` severity. |
+| `@beep/observability` | `ServiceUnavailableError` | class | `packages/foundation/capability/observability/src/HttpError.ts:388` | 503 tagged error. |
 | `@beep/observability` | `statusClass` | const | `packages/foundation/capability/observability/src/Metric.ts:93` | Normalize an HTTP status code to its class label (e.g. `"2xx"`, `"4xx"`). |
 | `@beep/observability` | `summarizeCause` | const | `packages/foundation/capability/observability/src/CauseDiagnostics.ts:446` | Summarize a cause into a transport-safe {@link CauseSummary} with classification, |
 | `@beep/observability` | `summarizeExit` | const | `packages/foundation/capability/observability/src/CauseDiagnostics.ts:494` | Summarize an exit into a transport-safe {@link ObservedExitSummary}. |
-| `@beep/observability` | `TooManyRequestsError` | class | `packages/foundation/capability/observability/src/HttpError.ts:309` | 429 tagged error. |
+| `@beep/observability` | `TooManyRequestsError` | class | `packages/foundation/capability/observability/src/HttpError.ts:310` | 429 tagged error. |
 | `@beep/observability` | `trackDuration` | const | `packages/foundation/capability/observability/src/Metric.ts:189` | Tracks the elapsed duration of an Effect with a metric. |
-| `@beep/observability` | `UnauthorizedError` | class | `packages/foundation/capability/observability/src/HttpError.ts:179` | 401 tagged error. |
-| `@beep/observability` | `UnprocessableEntityError` | class | `packages/foundation/capability/observability/src/HttpError.ts:283` | 422 tagged error. |
+| `@beep/observability` | `UnauthorizedError` | class | `packages/foundation/capability/observability/src/HttpError.ts:180` | 401 tagged error. |
+| `@beep/observability` | `UnprocessableEntityError` | class | `packages/foundation/capability/observability/src/HttpError.ts:284` | 422 tagged error. |
 | `@beep/observability` | `VERSION` | const | `packages/foundation/capability/observability/src/index.ts:39` | Current version of the `@beep/observability` package. |
 | `@beep/observability/experimental/server` | `DevToolsRelayService` | class | `packages/foundation/capability/observability/src/experimental/server/DevToolsRelay.ts:68` | Service for ingesting and snapshotting devtools traffic. |
 | `@beep/observability/experimental/server` | `DevToolsSnapshot` | class | `packages/foundation/capability/observability/src/experimental/server/DevToolsRelay.ts:36` | Summary of the in-memory relay state. |

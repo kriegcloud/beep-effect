@@ -3,14 +3,14 @@
   "initiative": {
     "id": "beep-schema-topology",
     "title": "@beep/schema Topology",
-    "status": "completed",
+    "status": "active",
     "created": "2026-05-22",
-    "updated": "2026-05-22",
+    "updated": "2026-05-28",
     "packetAnchorDocument": "SPEC.md"
   },
-  "mission": "Canonize and migrate @beep/schema to namespace-first concept modules with small role files, exact PascalCase public subpaths, and lint-enforced topology closure.",
+  "mission": "Canonize and migrate @beep/schema to namespace-first concept modules with small role files, exact PascalCase public subpaths, retired suite aggregators, and lint-enforced topology closure.",
   "currentSourceOfTruth": "SPEC.md",
-  "currentTargetPhase": "complete",
+  "currentTargetPhase": "P8",
   "package": {
     "name": "@beep/schema",
     "path": "packages/foundation/modeling/schema",
@@ -21,7 +21,6 @@
   "pilotConcepts": ["Duration", "Glob"],
   "migratedTopicalConcepts": [
     "Age",
-    "Blockchain",
     "CardinalDirection",
     "Color",
     "CryptoTxnHash",
@@ -35,7 +34,6 @@
     "CrossOriginEmbedderPolicy",
     "CrossOriginOpenerPolicy",
     "CrossOriginResourcePolicy",
-    "Dom",
     "DomCssProperties",
     "DomDragEvent",
     "DomEvent",
@@ -48,18 +46,15 @@
     "ExpectCt",
     "ForceHttpsRedirect",
     "FrameGuard",
-    "Http",
     "HttpHeaders",
     "HttpMethod",
     "HttpProtocol",
     "HttpStatus",
-    "Location",
     "NoOpen",
     "NoSniff",
     "ParserOptions",
     "PermissionsPolicy",
     "PermittedCrossDomainPolicies",
-    "Person",
     "ReferrerPolicy",
     "SecureHeader",
     "SecureHeaderError",
@@ -95,6 +90,17 @@
     "Model",
     "Record",
     "VariantSchema"
+  ],
+  "retiredSuiteAggregators": [
+    "Blockchain",
+    "Dom",
+    "Http",
+    "Location",
+    "Person"
+  ],
+  "sourceOnlyTestSubpaths": [
+    "@beep/schema/test/Markdown",
+    "@beep/schema/test/Yaml"
   ],
   "phases": [
     {
@@ -143,7 +149,13 @@
       "id": "P7",
       "name": "Enforcement automation",
       "status": "completed",
-      "exitCriteriaSummary": "bun run beep lint schema-topology prevents lowercase topology, public role-file exports, retired casing aliases, and root alias drift."
+      "exitCriteriaSummary": "bun run beep lint schema-topology prevents lowercase topology, public role-file exports, retired casing aliases, retired suite aggregators, private parser seams, and root alias drift."
+    },
+    {
+      "id": "P8",
+      "name": "Suite aggregator retirement",
+      "status": "completed",
+      "exitCriteriaSummary": "Pure suite aggregators are deleted, Csv only exports its own schema concept, parser seams are source-test-only, and schema-topology lint prevents regression."
     }
   ],
   "verification": [
@@ -151,6 +163,7 @@
     "bun run --cwd packages/foundation/modeling/schema test",
     "bunx tstyche packages/foundation/modeling/schema/dtslint/Topology.tst.ts packages/foundation/modeling/schema/dtslint/Duration.tst.ts packages/foundation/modeling/schema/dtslint/Glob.tst.ts",
     "bun run beep lint schema-topology",
+    "bun run config-sync:check",
     "bun run --cwd packages/tooling/tool/cli check",
     "bun run --cwd packages/tooling/tool/cli test -- test/schema-topology.test.ts",
     "bun run --cwd packages/foundation/modeling/schema docgen",
@@ -165,6 +178,11 @@
     "conceptRoleFilesPrivate": true,
     "legacyTopicalSubpathsRemoved": true,
     "legacyAcronymCasingAliasesRemoved": true,
+    "retiredSuiteAggregatorsRemoved": true,
+    "csvCrossConceptReexportsRemoved": true,
+    "publicParserSeamsRemoved": true,
+    "sourceOnlyParserTestSubpaths": true,
+    "crossConceptIndexReexportsForbidden": true,
     "schemaTopologyLint": true
   },
   "sourceTopologyCleanup": {

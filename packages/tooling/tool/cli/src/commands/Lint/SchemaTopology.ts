@@ -22,6 +22,8 @@ const SCHEMA_SOURCE_ROOT = `${SCHEMA_PACKAGE_ROOT}/src`;
 const ROOT_TSCONFIG_PATH = "tsconfig.json";
 const LEGACY_TOPICAL_SEGMENTS = ["blockchain", "color", "csv", "dom", "http", "location", "person"] as const;
 const LEGACY_CASE_EXPORT_PREFIXES = ["ExpectCT", "XSSProtection"] as const;
+const RETIRED_SUITE_EXPORT_PREFIXES = ["Blockchain", "Dom", "Http", "Location", "Person"] as const;
+const RETIRED_INTERNAL_EXPORT_KEYS = ["./internal/markdown", "./internal/yaml"] as const;
 const PROMOTED_CONCEPT_ROOT_SHIMS = [
   "CauseTaggedError",
   "DateTimeUtcFromValid",
@@ -70,6 +72,8 @@ export class SchemaTopologyViolation extends S.Class<SchemaTopologyViolation>($I
 
 const decodeJson = S.decodeUnknownEffect(S.UnknownFromJsonString);
 const schemaRoleFileTargetPattern = /^\.\/(?:src|dist)\/[A-Z][^/]+\/[^/]+\.[a-z][A-Za-z0-9-]*\.(?:ts|js)$/u;
+const crossConceptIndexExportPattern =
+  /^\s*export\s+(?:type\s+)?(?:\*|\{[\s\S]*?\})\s*(?:as\s+[A-Za-z_$][\w$]*\s*)?from\s+["']\.\.\/[^"']+["']/mu;
 
 const exists = (fs: FileSystem.FileSystem, filePath: string): Effect.Effect<boolean> =>
   fs.exists(filePath).pipe(Effect.orElseSucceed(thunkFalse));
@@ -109,6 +113,18 @@ const isLegacyCaseExportKey = (specifier: string): boolean =>
     )
   );
 
+const isRetiredSuiteExportKey = (specifier: string): boolean =>
+  pipe(
+    RETIRED_SUITE_EXPORT_PREFIXES,
+    A.some((prefix) => specifier === `./${prefix}` || specifier === `./${prefix}/*`)
+  );
+
+const isRetiredInternalExportKey = (specifier: string): boolean =>
+  pipe(
+    RETIRED_INTERNAL_EXPORT_KEYS,
+    A.some((retiredSpecifier) => Str.equivalence(specifier, retiredSpecifier))
+  );
+
 const isLegacyTopicalTarget = (target: string): boolean =>
   pipe(
     LEGACY_TOPICAL_SEGMENTS,
@@ -120,6 +136,24 @@ const isLegacyTopicalTarget = (target: string): boolean =>
         Str.includes(`./dist/${segment}/`)(target)
     )
   );
+
+const isRetiredSuiteTarget = (target: string): boolean =>
+  pipe(
+    RETIRED_SUITE_EXPORT_PREFIXES,
+    A.some(
+      (prefix) =>
+        Str.includes(`/src/${prefix}/`)(target) ||
+        Str.includes(`/dist/${prefix}/`)(target) ||
+        Str.includes(`./src/${prefix}/`)(target) ||
+        Str.includes(`./dist/${prefix}/`)(target)
+    )
+  );
+
+const isRetiredInternalTarget = (target: string): boolean =>
+  target === "./src/internal/markdown.ts" ||
+  target === "./src/internal/yaml.ts" ||
+  target === "./dist/internal/markdown.js" ||
+  target === "./dist/internal/yaml.js";
 
 const isPublicRoleFileTarget = (target: string): boolean => schemaRoleFileTargetPattern.test(target);
 
@@ -151,6 +185,26 @@ const exportRecordViolations = (
       );
     }
 
+    if (isRetiredSuiteExportKey(specifier)) {
+      violations = A.append(
+        violations,
+        SchemaTopologyViolation.make({
+          file,
+          detail: `${section} exposes retired schema suite aggregator subpath ${specifier}`,
+        })
+      );
+    }
+
+    if (isRetiredInternalExportKey(specifier)) {
+      violations = A.append(
+        violations,
+        SchemaTopologyViolation.make({
+          file,
+          detail: `${section} exposes retired public schema parser seam ${specifier}; use @beep/schema/test/* in source tests`,
+        })
+      );
+    }
+
     for (const exportTarget of collectExportTargets(target)) {
       if (isLegacyTopicalTarget(exportTarget)) {
         violations = A.append(
@@ -158,6 +212,26 @@ const exportRecordViolations = (
           SchemaTopologyViolation.make({
             file,
             detail: `${section} target ${specifier} points at retired lowercase topology path ${exportTarget}`,
+          })
+        );
+      }
+
+      if (isRetiredSuiteTarget(exportTarget)) {
+        violations = A.append(
+          violations,
+          SchemaTopologyViolation.make({
+            file,
+            detail: `${section} target ${specifier} points at retired schema suite aggregator path ${exportTarget}`,
+          })
+        );
+      }
+
+      if (isRetiredInternalTarget(exportTarget)) {
+        violations = A.append(
+          violations,
+          SchemaTopologyViolation.make({
+            file,
+            detail: `${section} target ${specifier} exposes retired parser seam target ${exportTarget}`,
           })
         );
       }
@@ -214,6 +288,30 @@ const collectSourcePathViolations = Effect.fn("SchemaTopology.collectSourcePathV
     }
   }
 
+  const schemaSourcePath = path.join(repoRoot, SCHEMA_SOURCE_ROOT);
+  const entries = yield* fs.readDirectory(schemaSourcePath).pipe(Effect.orElseSucceed(A.empty<string>));
+
+  for (const entry of entries) {
+    const indexFile = path.join(schemaSourcePath, entry, "index.ts");
+    const indexExists = yield* exists(fs, indexFile);
+
+    if (!indexExists) {
+      continue;
+    }
+
+    const content = yield* fs.readFileString(indexFile).pipe(Effect.orElseSucceed(() => Str.empty));
+
+    if (crossConceptIndexExportPattern.test(content)) {
+      violations = A.append(
+        violations,
+        SchemaTopologyViolation.make({
+          file: normalizePath(path.relative(repoRoot, indexFile)),
+          detail: "concept index files must not re-export sibling concept modules",
+        })
+      );
+    }
+  }
+
   return violations;
 });
 
@@ -265,6 +363,37 @@ const collectTsconfigViolations = Effect.fn("SchemaTopology.collectTsconfigViola
         SchemaTopologyViolation.make({
           file: ROOT_TSCONFIG_PATH,
           detail: `root tsconfig contains retired lowercase schema topology segment "${segment}"`,
+        })
+      );
+    }
+  }
+
+  for (const concept of RETIRED_SUITE_EXPORT_PREFIXES) {
+    const aliasPattern = new RegExp(`"@beep/schema/${concept}(?:/\\*|")`, "u");
+
+    if (aliasPattern.test(content) || Str.includes(`${SCHEMA_SOURCE_ROOT}/${concept}/`)(content)) {
+      violations = A.append(
+        violations,
+        SchemaTopologyViolation.make({
+          file: ROOT_TSCONFIG_PATH,
+          detail: `root tsconfig contains retired schema suite aggregator alias "${concept}"`,
+        })
+      );
+    }
+  }
+
+  for (const retiredInternalExportKey of RETIRED_INTERNAL_EXPORT_KEYS) {
+    const aliasKey = `@beep/schema/${Str.replace("./", "")(retiredInternalExportKey)}`;
+
+    if (
+      Str.includes(`"${aliasKey}"`)(content) ||
+      Str.includes(`${SCHEMA_SOURCE_ROOT}/${Str.replace("./", "")(retiredInternalExportKey)}.`)(content)
+    ) {
+      violations = A.append(
+        violations,
+        SchemaTopologyViolation.make({
+          file: ROOT_TSCONFIG_PATH,
+          detail: `root tsconfig contains retired public parser seam alias "${aliasKey}"`,
         })
       );
     }

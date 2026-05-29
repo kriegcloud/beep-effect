@@ -1,6 +1,7 @@
 import { describe, expect, it } from "tstyche";
 import type * as Color from "@beep/schema/Color";
 import type * as Csp from "@beep/schema/Csp";
+import type * as Csv from "@beep/schema/Csv";
 import type * as CsvParser from "@beep/schema/CsvParser";
 import type * as DomainModel from "@beep/schema/DomainModel";
 import type * as EntitySchema from "@beep/schema/EntitySchema";
@@ -28,9 +29,30 @@ describe("@beep/schema topology", () => {
   });
 
   it("exposes canonical helper aliases from role-oriented concept modules", () => {
+    expect<typeof Csv.Csv>().type.toBe<typeof Csv.Csv>();
     expect<typeof CsvParser.parse>().type.toBe<typeof CsvParser.parseCsvRows>();
     expect<typeof ParserOptions.Schema>().type.toBe<typeof ParserOptions.ParserOptions>();
     expect<typeof ParserOptions.Error>().type.toBe<typeof ParserOptions.ParserOptionsError>();
+  });
+
+  it("keeps suite and cross-concept aggregators private", () => {
+    // @ts-expect-error!
+    type CsvParserNamespace = typeof Csv.CsvParser;
+
+    // @ts-expect-error!
+    void import("@beep/schema/Blockchain");
+
+    // @ts-expect-error!
+    void import("@beep/schema/Dom");
+
+    // @ts-expect-error!
+    void import("@beep/schema/Http");
+
+    // @ts-expect-error!
+    void import("@beep/schema/Location");
+
+    // @ts-expect-error!
+    void import("@beep/schema/Person");
   });
 
   it("exposes concise header aliases from HTTP header concept modules", () => {
@@ -113,5 +135,11 @@ describe("@beep/schema topology", () => {
 
     // @ts-expect-error!
     void import("@beep/schema/XSSProtection");
+
+    // @ts-expect-error!
+    void import("@beep/schema/internal/markdown");
+
+    // @ts-expect-error!
+    void import("@beep/schema/internal/yaml");
   });
 });

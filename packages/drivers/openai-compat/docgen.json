@@ -59,9 +59,6 @@
       "@beep/schema/BinaryFileExtension": [
         "../../../packages/foundation/modeling/schema/src/BinaryFileExtension.ts"
       ],
-      "@beep/schema/Blockchain": [
-        "../../../packages/foundation/modeling/schema/src/Blockchain/index.ts"
-      ],
       "@beep/schema/BufferEncoding": [
         "../../../packages/foundation/modeling/schema/src/BufferEncoding.ts"
       ],
@@ -118,9 +115,6 @@
       ],
       "@beep/schema/DateTimeUtcFromValid": [
         "../../../packages/foundation/modeling/schema/src/DateTimeUtcFromValid/index.ts"
-      ],
-      "@beep/schema/Dom": [
-        "../../../packages/foundation/modeling/schema/src/Dom/index.ts"
       ],
       "@beep/schema/DomCssProperties": [
         "../../../packages/foundation/modeling/schema/src/DomCssProperties/index.ts"
@@ -203,9 +197,6 @@
       "@beep/schema/Html": [
         "../../../packages/foundation/modeling/schema/src/Html.ts"
       ],
-      "@beep/schema/Http": [
-        "../../../packages/foundation/modeling/schema/src/Http/index.ts"
-      ],
       "@beep/schema/HttpHeaders": [
         "../../../packages/foundation/modeling/schema/src/HttpHeaders/index.ts"
       ],
@@ -238,9 +229,6 @@
       ],
       "@beep/schema/LocalDate": [
         "../../../packages/foundation/modeling/schema/src/LocalDate/index.ts"
-      ],
-      "@beep/schema/Location": [
-        "../../../packages/foundation/modeling/schema/src/Location/index.ts"
       ],
       "@beep/schema/Logs": [
         "../../../packages/foundation/modeling/schema/src/Logs.ts"
@@ -289,9 +277,6 @@
       ],
       "@beep/schema/PermittedCrossDomainPolicies": [
         "../../../packages/foundation/modeling/schema/src/PermittedCrossDomainPolicies/index.ts"
-      ],
-      "@beep/schema/Person": [
-        "../../../packages/foundation/modeling/schema/src/Person/index.ts"
       ],
       "@beep/schema/PosixPath": [
         "../../../packages/foundation/modeling/schema/src/PosixPath.ts"
@@ -383,11 +368,11 @@
       "@beep/schema/Yaml": [
         "../../../packages/foundation/modeling/schema/src/Yaml.ts"
       ],
-      "@beep/schema/internal/markdown": [
-        "../../../packages/foundation/modeling/schema/src/internal/markdown.ts"
+      "@beep/schema/test/Markdown": [
+        "../../../packages/foundation/modeling/schema/src/test/Markdown.test-kit.ts"
       ],
-      "@beep/schema/internal/yaml": [
-        "../../../packages/foundation/modeling/schema/src/internal/yaml.ts"
+      "@beep/schema/test/Yaml": [
+        "../../../packages/foundation/modeling/schema/src/test/Yaml.test-kit.ts"
       ],
       "@beep/utils": [
         "../../../packages/foundation/modeling/utils/src/index.ts"

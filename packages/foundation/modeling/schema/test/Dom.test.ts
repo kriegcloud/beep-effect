@@ -1,17 +1,9 @@
-import {
-  createDOMRefSchema,
-  DOMCssProperties,
-  DOMDragEvent,
-  DOMEvent,
-  DOMHtmlElement,
-  DOMMouseEvent,
-  DOMReactNode,
-  isCSSProperties,
-  isDragEvent,
-  isHTMLElement,
-  isReactNode,
-  isReactRef,
-} from "@beep/schema/Dom";
+import { DOMCssProperties, isCSSProperties } from "@beep/schema/DomCssProperties";
+import { DOMDragEvent, isDragEvent } from "@beep/schema/DomDragEvent";
+import { DOMEvent } from "@beep/schema/DomEvent";
+import { DOMHtmlElement, isHTMLElement } from "@beep/schema/DomHtmlElement";
+import { DOMMouseEvent } from "@beep/schema/DomMouseEvent";
+import { createDOMRefSchema, DOMReactNode, isReactNode, isReactRef } from "@beep/schema/DomReactNode";
 import { describe, expect, it } from "@effect/vitest";
 import { DateTime } from "effect";
 import * as S from "effect/Schema";

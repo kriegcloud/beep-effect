@@ -639,12 +639,6 @@
       "@beep/oip-web/app/api/contact/ContactRouteResponse": [
         "./apps/oip-web/src/app/api/contact/ContactRouteResponse.ts"
       ],
-      "@beep/schema/internal/markdown": [
-        "./packages/foundation/modeling/schema/src/internal/markdown.ts"
-      ],
-      "@beep/schema/internal/yaml": [
-        "./packages/foundation/modeling/schema/src/internal/yaml.ts"
-      ],
       "@beep/repo-cli/commands/AIMetrics": [
         "./packages/tooling/tool/cli/src/commands/AIMetrics/index.ts"
       ],
@@ -738,9 +732,6 @@
       "@beep/schema/Age": [
         "./packages/foundation/modeling/schema/src/Age/index.ts"
       ],
-      "@beep/schema/Blockchain": [
-        "./packages/foundation/modeling/schema/src/Blockchain/index.ts"
-      ],
       "@beep/schema/CardinalDirection": [
         "./packages/foundation/modeling/schema/src/CardinalDirection/index.ts"
       ],
@@ -770,9 +761,6 @@
       ],
       "@beep/schema/CsvParser": [
         "./packages/foundation/modeling/schema/src/CsvParser/index.ts"
-      ],
-      "@beep/schema/Dom": [
-        "./packages/foundation/modeling/schema/src/Dom/index.ts"
       ],
       "@beep/schema/DomCssProperties": [
         "./packages/foundation/modeling/schema/src/DomCssProperties/index.ts"
@@ -810,9 +798,6 @@
       "@beep/schema/FrameGuard": [
         "./packages/foundation/modeling/schema/src/FrameGuard/index.ts"
       ],
-      "@beep/schema/Http": [
-        "./packages/foundation/modeling/schema/src/Http/index.ts"
-      ],
       "@beep/schema/HttpHeaders": [
         "./packages/foundation/modeling/schema/src/HttpHeaders/index.ts"
       ],
@@ -824,9 +809,6 @@
       ],
       "@beep/schema/HttpStatus": [
         "./packages/foundation/modeling/schema/src/HttpStatus/index.ts"
-      ],
-      "@beep/schema/Location": [
-        "./packages/foundation/modeling/schema/src/Location/index.ts"
       ],
       "@beep/schema/NoOpen": [
         "./packages/foundation/modeling/schema/src/NoOpen/index.ts"
@@ -842,9 +824,6 @@
       ],
       "@beep/schema/PermittedCrossDomainPolicies": [
         "./packages/foundation/modeling/schema/src/PermittedCrossDomainPolicies/index.ts"
-      ],
-      "@beep/schema/Person": [
-        "./packages/foundation/modeling/schema/src/Person/index.ts"
       ],
       "@beep/schema/ReferrerPolicy": [
         "./packages/foundation/modeling/schema/src/ReferrerPolicy/index.ts"
@@ -1091,23 +1070,23 @@
       "@beep/schema/Yaml": [
         "./packages/foundation/modeling/schema/src/Yaml.ts"
       ],
-      "@beep/form": [
-        "./packages/foundation/ui-system/form/src/index.ts"
-      ],
-      "@beep/form/core": [
-        "./packages/foundation/ui-system/form/src/core.ts"
-      ],
+      "@beep/form": ["./packages/foundation/ui-system/form/src/index.ts"],
+      "@beep/form/core": ["./packages/foundation/ui-system/form/src/core.ts"],
       "@beep/form/core/internal/dirty": [
         "./packages/foundation/ui-system/form/src/core/internal/dirty.ts"
       ],
       "@beep/form/core/internal/weak-registry": [
         "./packages/foundation/ui-system/form/src/core/internal/weak-registry.ts"
       ],
-      "@beep/form/react": [
-        "./packages/foundation/ui-system/form/src/react.ts"
-      ],
+      "@beep/form/react": ["./packages/foundation/ui-system/form/src/react.ts"],
       "@beep/form/react/FormReact": [
         "./packages/foundation/ui-system/form/src/react/FormReact.tsx"
+      ],
+      "@beep/schema/test/Markdown": [
+        "./packages/foundation/modeling/schema/src/test/Markdown.test-kit.ts"
+      ],
+      "@beep/schema/test/Yaml": [
+        "./packages/foundation/modeling/schema/src/test/Yaml.test-kit.ts"
       ]
     }
   }

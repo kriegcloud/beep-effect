@@ -2,8 +2,9 @@
 
 ## Status
 
-This plan executes [SPEC.md](./SPEC.md). The migration is complete; future work
-is maintenance under the topology lint.
+This plan executes [SPEC.md](./SPEC.md). The migration has been pushed through
+suite-aggregator retirement; future work is maintenance under the topology lint
+and opportunistic root-facade cleanup.
 
 ## Phase 0 - Doctrine And Goal Packet
 
@@ -31,9 +32,8 @@ is maintenance under the topology lint.
   location, and person concepts.
 - [x] Add leaf concept folders for source concepts that do not collide with
   existing lower-case suite directories.
-- [x] Map suite public subpaths such as `@beep/schema/Color`,
-  `@beep/schema/Csv`, and `@beep/schema/Http` to their existing lower-case
-  suite indexes instead of creating case-only source siblings.
+- [x] Promote former suite leaves to flat concept subpaths without relying on
+  case-only lower-case source siblings.
 - [x] Keep `Sql` and `sqlite` deleted; do not restore or migrate them.
 - [x] Move package-local tests and the direct CLI CSV consumer to canonical
   imports.
@@ -98,6 +98,21 @@ is maintenance under the topology lint.
   topical imports.
 - [x] Keep dtslint coverage for exact subpaths and private role files.
 
+## Phase 8 - Suite Aggregator Retirement
+
+- [x] Delete pure suite aggregator source indexes for `Blockchain`, `Dom`,
+  `Http`, `Location`, and `Person`.
+- [x] Remove the corresponding public package exports and root-facade
+  re-exports.
+- [x] Prune `@beep/schema/Csv` to same-concept schema exports only; CSV parser,
+  formatter, option, and error helpers remain separate leaf concepts.
+- [x] Move Markdown/YAML parser seam tests to source-only test subpaths and
+  remove public `@beep/schema/internal/markdown` and
+  `@beep/schema/internal/yaml` exports.
+- [x] Extend schema-topology lint to reject retired suite exports, stale
+  tsconfig aliases, public parser seams, and cross-concept index re-exports.
+- [x] Refresh generated path maps and docgen package configs.
+
 ## Verification
 
 Use focused checks after each phase:
@@ -106,6 +121,7 @@ Use focused checks after each phase:
 - `bun run --cwd packages/foundation/modeling/schema test`
 - package dtslint through Tstyche
 - `bun run --cwd packages/foundation/modeling/schema docgen`
+- `bun run config-sync:check`
 - `bun run docgen:local`
 - `bun run repo-exports:catalog`
 - `bun run repo-exports:catalog:check`

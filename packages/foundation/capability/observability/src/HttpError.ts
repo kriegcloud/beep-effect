@@ -24,7 +24,8 @@
  * @since 0.0.0
  */
 import { $ObservabilityId } from "@beep/identity/packages";
-import { HttpStatus, makeStatusCauseError, StatusCauseFields, TaggedErrorClass } from "@beep/schema";
+import { makeStatusCauseError, StatusCauseFields, TaggedErrorClass } from "@beep/schema";
+import * as HttpStatus from "@beep/schema/HttpStatus";
 import { ErrorReporter } from "effect";
 import { dual } from "effect/Function";
 import * as P from "effect/Predicate";

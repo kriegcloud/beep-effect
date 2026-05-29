@@ -2,7 +2,7 @@
 
 ## Status
 
-**ACTIVE - Doctrine and pilot migration in progress**
+**ACTIVE - Suite aggregator retirement implemented**
 
 ## Owner
 
@@ -11,7 +11,7 @@
 ## Created / Updated
 
 - **Created:** 2026-05-22
-- **Updated:** 2026-05-22
+- **Updated:** 2026-05-28
 
 ## Purpose
 
@@ -37,6 +37,13 @@ and explicit public subpaths.
   compatibility.
 - Concept subpaths are flat, e.g. `@beep/schema/Color`,
   `@beep/schema/EvmAddress`, and `@beep/schema/HttpStatus`.
+- Broad suite aggregators such as `@beep/schema/Blockchain`,
+  `@beep/schema/Dom`, `@beep/schema/Http`, `@beep/schema/Location`, and
+  `@beep/schema/Person` are retired; consumers import leaf concepts directly.
+- `@beep/schema/Csv` remains a same-concept schema module and does not
+  re-export sibling CSV parser, formatter, option, or error modules.
+- Markdown/YAML parser seams are source-only test subpaths:
+  `@beep/schema/test/Markdown` and `@beep/schema/test/Yaml`.
 - Concept folders use role files such as `.schema.ts`, `.input.ts`, and
   `.transforms.ts`; consumers import only the concept index.
 - Utility namespaces such as `SchemaUtils` may expose helper leaves when the

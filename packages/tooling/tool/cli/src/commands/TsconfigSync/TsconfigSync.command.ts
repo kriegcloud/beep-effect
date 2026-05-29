@@ -133,6 +133,7 @@ const isBeepScopedPackageName = S.is(BeepScopedPackageName);
 const isRootDepIndexKey = S.is(RootDepIndexKey);
 const stringArrayEquivalence = S.toEquivalence(StringArray);
 const byStringAscending: Order.Order<string> = Str.orderAsc;
+type SourceOnlyTestKitAlias = readonly [aliasKey: string, sourcePath: string];
 const repoCliPackageName = "@beep/repo-cli" as const;
 const repoCliSourceOnlyTestKitAliases = [
   ["@beep/repo-cli/test/CreatePackage", "src/test/CreatePackage.test-kit.ts"],
@@ -143,22 +144,34 @@ const repoCliSourceOnlyTestKitAliases = [
   ["@beep/repo-cli/test/Reuse", "src/test/Reuse.test-kit.ts"],
   ["@beep/repo-cli/test/SyncDataToTs", "src/test/SyncDataToTs.test-kit.ts"],
   ["@beep/repo-cli/test/VersionSync", "src/test/VersionSync.test-kit.ts"],
-] as const;
+] as const satisfies ReadonlyArray<SourceOnlyTestKitAlias>;
+const schemaPackageName = "@beep/schema" as const;
+const schemaSourceOnlyTestKitAliases = [
+  ["@beep/schema/test/Markdown", "src/test/Markdown.test-kit.ts"],
+  ["@beep/schema/test/Yaml", "src/test/Yaml.test-kit.ts"],
+] as const satisfies ReadonlyArray<SourceOnlyTestKitAlias>;
+
+const sourceOnlyTestKitAliasesForPackage = (packageName: string): ReadonlyArray<SourceOnlyTestKitAlias> => {
+  if (Str.equivalence(packageName, repoCliPackageName)) {
+    return repoCliSourceOnlyTestKitAliases;
+  }
+
+  if (Str.equivalence(packageName, schemaPackageName)) {
+    return schemaSourceOnlyTestKitAliases;
+  }
+
+  return A.empty();
+};
 
 const buildSourceOnlySubpathAliasTargets = (
   packageName: string,
   packageRelativePath: string
-): Readonly<Record<string, string>> => {
-  if (!Str.equivalence(packageName, repoCliPackageName)) {
-    return R.empty();
-  }
-
-  return pipe(
-    repoCliSourceOnlyTestKitAliases,
+): Readonly<Record<string, string>> =>
+  pipe(
+    sourceOnlyTestKitAliasesForPackage(packageName),
     A.map(([aliasKey, sourcePath]) => [aliasKey, `./${packageRelativePath}/${sourcePath}`] as const),
     R.fromEntries
   );
-};
 
 /**
  * Command execution mode.

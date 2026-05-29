@@ -679,14 +679,17 @@ src/Duration/
 ```
 
 Only `@beep/schema/<Concept>` is public for concept modules. Role files are
-source topology, not public import paths. Topical schema suites use PascalCase
-source directories and flat exact public subpaths. Lowercase topical source and
-public paths such as `src/color/`, `src/http/`, `@beep/schema/color`, and
-`@beep/schema/http/headers` are retired topology, not compatibility surfaces.
-Suite aggregate modules such as `@beep/schema/Blockchain`, `@beep/schema/Dom`,
-and `@beep/schema/Http` may group leaf concepts, but leaf concepts still own
-their canonical flat modules such as `@beep/schema/EvmAddress` and
-`@beep/schema/HttpStatus`. Retired acronym casing aliases such as
+source topology, not public import paths. Former topical suites are represented
+by PascalCase leaf concept modules and flat exact public subpaths. Lowercase
+topical source and public paths such as `src/color/`, `src/http/`,
+`@beep/schema/color`, and `@beep/schema/http/headers` are retired topology, not
+compatibility surfaces. Suite aggregate modules such as
+`@beep/schema/Blockchain`, `@beep/schema/Dom`, `@beep/schema/Http`,
+`@beep/schema/Location`, and `@beep/schema/Person` are retired; import leaf
+concept modules such as `@beep/schema/EvmAddress`,
+`@beep/schema/DomReactNode`, and `@beep/schema/HttpStatus` instead. `Csv` is a
+same-concept schema module and does not re-export sibling CSV parser,
+formatter, option, or error modules. Retired acronym casing aliases such as
 `@beep/schema/ExpectCT` and `@beep/schema/XSSProtection` are not public exports;
 use the canonical concept casing (`ExpectCt`, `XssProtection`). `SchemaUtils`
 and similar utility namespaces may expose helper leaves when the helper itself
@@ -702,9 +705,12 @@ Inside a concept namespace, concise role names are canonical: `Schema`,
 `DurationInput` and `DurationFromInput` may remain as aliases during migration.
 Prefer promoted source concepts over per-symbol modules: `HttpStatus` is one
 concept module even though it exports many status literal schemas.
-`bun run beep lint schema-topology` enforces the retired lowercase topology,
-private role-file exports, promoted concept folder exports, and generated root
-alias drift.
+Package-local tests may use source-only test seams such as
+`@beep/schema/test/Markdown` and `@beep/schema/test/Yaml`; parser internals
+under `src/internal/` are not public package subpaths. `bun run beep lint
+schema-topology` enforces the retired lowercase topology, retired suite
+aggregators, private role-file exports, promoted concept folder exports,
+private parser seams, and generated root alias drift.
 
 Script-only pseudo-packages are not canonical. If an artifact matters enough to
 name in the architecture, it should have a real family/kind contract and a real

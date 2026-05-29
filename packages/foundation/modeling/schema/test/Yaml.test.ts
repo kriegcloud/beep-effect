@@ -1,5 +1,5 @@
 import { $SchemaId } from "@beep/identity";
-import { makeParseYaml, makeParseYamlForSchema } from "@beep/schema/internal/yaml";
+import { makeParseYaml, makeParseYamlForSchema } from "@beep/schema/test/Yaml";
 import { decodeYamlTextAs, parseYaml, YamlTextToUnknown } from "@beep/schema/Yaml";
 import { describe, expect, it } from "@effect/vitest";
 import { Cause, Effect, Exit, Result } from "effect";
