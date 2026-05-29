@@ -1,5 +1,5 @@
-import { addEqualityTesters } from "@effect/vitest";
 import { P } from "@beep/utils";
+import { addEqualityTesters } from "@effect/vitest";
 
 addEqualityTesters();
 

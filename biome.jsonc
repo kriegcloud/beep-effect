@@ -33,7 +33,8 @@
       "!**/dist",
       "!standards/jsdoc-documentation.inventory.jsonc",
       "!standards/repo-exports.catalog.jsonc",
-      "!scratchpad"
+      "!scratchpad",
+      "!.ai/mcp/mcp.json"
     ]
   },
   "css": {
