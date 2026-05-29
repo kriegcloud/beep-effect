@@ -1,5 +1,11 @@
 # @beep/utils
 
+## 0.0.2
+
+### Patch Changes
+
+- [#189](https://github.com/kriegcloud/beep-effect/pull/189) [`19c557e`](https://github.com/kriegcloud/beep-effect/commit/19c557eab4129e8c1945f7e1cec83ffb8ba819cf) Thanks [@kriegcloud](https://github.com/kriegcloud)! - Add `getSomesStruct` for compacting struct-shaped `Option` values while preserving per-key unwrapped value types.
+
 ## 0.0.1
 
 ### Patch Changes

@@ -1,5 +1,13 @@
 # @beep/canvas-client
 
+## 0.0.2
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @beep/canvas-use-cases@0.0.2
+  - @beep/canvas-domain@0.0.2
+
 ## 0.0.1
 
 ### Patch Changes

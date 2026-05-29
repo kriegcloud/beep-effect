@@ -1,6 +1,6 @@
 {
   "name": "@beep/installer-use-cases",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "installer use-case contract package.",
   "license": "MIT",
   "private": true,

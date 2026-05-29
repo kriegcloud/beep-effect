@@ -1,6 +1,6 @@
 {
   "name": "@beep/workspace-tables",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Workspace persistence boundary for metadata-only table projections.",
   "license": "MIT",
   "private": true,

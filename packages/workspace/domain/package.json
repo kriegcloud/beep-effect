@@ -1,6 +1,6 @@
 {
   "name": "@beep/workspace-domain",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Workspace domain models for artifacts, candidate tasks, drafts, approvals, and context packets.",
   "license": "MIT",
   "private": true,

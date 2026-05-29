@@ -1,6 +1,6 @@
 {
   "name": "@beep/architecture-lab-client",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Architecture-lab client facade package for WorkItem contracts.",
   "license": "MIT",
   "private": true,

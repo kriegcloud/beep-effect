@@ -1,6 +1,6 @@
 {
   "name": "@beep/data",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "A library containing data values & utilities",
   "license": "Apache-2.0",
   "private": true,

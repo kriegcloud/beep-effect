@@ -1,5 +1,13 @@
 # @beep/architecture-lab-client
 
+## 0.0.2
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @beep/architecture-lab-use-cases@0.0.2
+  - @beep/architecture-lab-domain@0.0.2
+
 ## 0.0.1
 
 ### Patch Changes

@@ -1,6 +1,6 @@
 {
   "name": "@beep/xai",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "XAI driver package",
   "license": "MIT",
   "private": true,

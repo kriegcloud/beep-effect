@@ -1,6 +1,6 @@
 {
   "name": "@beep/nlp",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "An library containing utilities, schemas & services for natural language processing",
   "license": "Apache-2.0",
   "private": true,
