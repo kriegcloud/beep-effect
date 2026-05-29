@@ -1,5 +1,11 @@
 # @beep/ui
 
+## 0.1.0
+
+### Minor Changes
+
+- [#186](https://github.com/kriegcloud/beep-effect/pull/186) [`9e5fd5c`](https://github.com/kriegcloud/beep-effect/commit/9e5fd5c1f0872a77a9573d474f931d44744e913b) Thanks [@kriegcloud](https://github.com/kriegcloud)! - Add Base UI shadcn components to complete the primitive baseline: `chart` (recharts wrapper), `native-select`, `direction` (RTL/LTR provider), and a composed `date-picker` (Popover + Calendar). New primitives land in `src/components/` (the `ui` alias now resolves to `@beep/ui/components`) and follow the repo's effect-first conventions (`@beep/utils` `A`/`P`/`Str`/`Struct` helpers, strict boolean expressions).
+
 ## 0.0.2
 
 ### Patch Changes

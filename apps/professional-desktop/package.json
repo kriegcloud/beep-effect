@@ -1,6 +1,6 @@
 {
   "name": "@beep/professional-desktop",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "Minimal Tauri and React shell for the Agentic Professional Runtime desktop app.",
   "license": "MIT",
   "private": true,
