@@ -94,6 +94,13 @@ const cloneWriteFlag = Flag.boolean("write").pipe(
 const cloneCheckFlag = Flag.boolean("check").pipe(
   Flag.withDescription("Fail if new structural clones appear vs the committed baseline")
 );
+const cloneFuzzyFlag = Flag.boolean("fuzzy").pipe(
+  Flag.withDescription("Report near-miss (Type-3) clones by MinHash/LSH similarity (advisory; not gated)")
+);
+const cloneMinSimilarityFlag = Flag.float("min-similarity").pipe(
+  Flag.withDescription("Minimum Jaccard similarity (0..1) for a near-miss cluster when --fuzzy is set"),
+  Flag.withDefault(0.8)
+);
 const typeOnlyExportKinds = ["interface", "type"] as const;
 const ASCII_BACKSLASH_CODE = 0x5c;
 const ASCII_LEFT_BRACKET_CODE = 0x5b;
@@ -559,6 +566,22 @@ const printClones = Effect.fn(function* (candidates: ReadonlyArray<ReuseCandidat
   );
 });
 
+const printNearMissClones = Effect.fn(function* (candidates: ReadonlyArray<ReuseCandidate>) {
+  yield* Console.log(`Near-miss clone clusters: ${A.length(candidates)}`);
+  yield* Effect.forEach(
+    candidates,
+    Effect.fn(function* (candidate) {
+      yield* Console.log(`- ${candidate.candidateId} (similarity=${candidate.confidence.toFixed(2)})`);
+      yield* Console.log(`  ${candidate.title}`);
+      yield* Effect.forEach(candidate.evidence, (line) => Console.log(`    ${line}`), {
+        concurrency: 1,
+        discard: true,
+      });
+    }),
+    { concurrency: 1, discard: true }
+  );
+});
+
 const reuseClonesCommand = Command.make(
   "clones",
   {
@@ -566,11 +589,35 @@ const reuseClonesCommand = Command.make(
     json: jsonFlag,
     write: cloneWriteFlag,
     check: cloneCheckFlag,
+    fuzzy: cloneFuzzyFlag,
+    minSimilarity: cloneMinSimilarityFlag,
   },
-  ({ scope, json, write, check }) =>
+  ({ scope, json, write, check, fuzzy, minSimilarity }) =>
     runReuseProgram(
       Effect.gen(function* () {
         const cloneService = yield* ReuseCloneService;
+
+        // --fuzzy is report-only (advisory near-miss detection); never a gate.
+        if (fuzzy && (write || check)) {
+          return yield* DomainError.make({
+            message: "`--fuzzy` is report-only and cannot be combined with `--write` or `--check`.",
+          });
+        }
+
+        if (fuzzy) {
+          if (minSimilarity < 0 || minSimilarity > 1) {
+            return yield* DomainError.make({
+              message: `--min-similarity must be in the range [0, 1]; got ${minSimilarity}.`,
+            });
+          }
+          const candidates = yield* cloneService.detectNearMissClones(scope, { minSimilarity });
+          yield* printSelectedOutput(
+            json,
+            S.encodeEffect(S.Array(ReuseCandidate))(candidates).pipe(Effect.flatMap(printCommandJson)),
+            printNearMissClones(candidates)
+          );
+          return;
+        }
 
         if (write && check) {
           return yield* DomainError.make({
@@ -594,7 +641,9 @@ const reuseClonesCommand = Command.make(
       })
     )
 ).pipe(
-  Command.withDescription("Detect declaration-anchored structural clones across packages (--write/--check baseline)")
+  Command.withDescription(
+    "Detect declaration-anchored structural clones across packages (--write/--check baseline; --fuzzy for advisory near-miss)"
+  )
 );
 
 const printReuseIndex = () =>

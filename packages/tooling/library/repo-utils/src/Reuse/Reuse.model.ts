@@ -80,6 +80,15 @@ export const ReuseWorkUnitKind = LiteralKit(["scout", "specialist"]).pipe(
  */
 export type ReuseWorkUnitKind = typeof ReuseWorkUnitKind.Type;
 
+const REUSE_CANDIDATE_KINDS = [
+  "extract-function",
+  "extract-schema",
+  "extract-type",
+  "replace-with-existing",
+  "structural-clone",
+  "near-miss-clone",
+] as const;
+
 /**
  * Candidate kind domain for inventory items.
  *
@@ -92,13 +101,7 @@ export type ReuseWorkUnitKind = typeof ReuseWorkUnitKind.Type;
  * @category models
  * @since 0.0.0
  */
-export const ReuseCandidateKind = S.Union([
-  S.Literal("extract-function"),
-  S.Literal("extract-schema"),
-  S.Literal("extract-type"),
-  S.Literal("replace-with-existing"),
-  S.Literal("structural-clone"),
-]).pipe(
+export const ReuseCandidateKind = LiteralKit(REUSE_CANDIDATE_KINDS).pipe(
   $I.annoteSchema("ReuseCandidateKind", {
     description: "High-level remediation class for a reuse opportunity.",
   })
