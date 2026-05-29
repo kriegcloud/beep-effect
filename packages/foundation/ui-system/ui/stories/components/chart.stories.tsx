@@ -1,0 +1,277 @@
+import {
+  ChartContainer,
+  ChartLegend,
+  ChartLegendContent,
+  ChartTooltip,
+  ChartTooltipContent,
+} from "@beep/ui/components/chart";
+import { A, Str } from "@beep/utils";
+import {
+  AreaChart,
+  Bar,
+  BarChart,
+  CartesianGrid,
+  Cell,
+  LineChart,
+  PieChart,
+  Area as RechartsArea,
+  Line as RechartsLine,
+  Pie as RechartsPie,
+  XAxis,
+} from "recharts";
+import { expect, within } from "storybook/test";
+import type { ChartConfig } from "@beep/ui/components/chart";
+import type { Meta, StoryObj } from "@storybook/react-vite";
+
+/**
+ * `ChartContainer` is the responsive root of the chart system, built on Recharts. It
+ * provides the chart config context and injects per-series theme CSS variables
+ * (`--color-<key>`) consumed by the underlying Recharts primitives. Compose it with
+ * Recharts components (`BarChart`, `LineChart`, `AreaChart`, `PieChart`, axes, grids)
+ * and the themed helpers `ChartTooltip` + `ChartTooltipContent` and `ChartLegend` +
+ * `ChartLegendContent` to build a complete chart.
+ *
+ * The `config` prop maps each data series key to a `label`, optional `icon`, and a
+ * `color` (or per-theme colors). Series fills then reference `var(--color-<key>)`.
+ *
+ * Imported from `@beep/ui/components/chart`.
+ */
+const chartData = [
+  { month: "January", desktop: 186, mobile: 80 },
+  { month: "February", desktop: 305, mobile: 200 },
+  { month: "March", desktop: 237, mobile: 120 },
+  { month: "April", desktop: 73, mobile: 190 },
+  { month: "May", desktop: 209, mobile: 130 },
+  { month: "June", desktop: 214, mobile: 140 },
+] as const;
+
+const chartConfig = {
+  desktop: { label: "Desktop", color: "#2563eb" },
+  mobile: { label: "Mobile", color: "#60a5fa" },
+} satisfies ChartConfig;
+
+const browserData = [
+  { browser: "chrome", visitors: 275, fill: "#2563eb" },
+  { browser: "safari", visitors: 200, fill: "#60a5fa" },
+  { browser: "firefox", visitors: 187, fill: "#93c5fd" },
+  { browser: "edge", visitors: 173, fill: "#1d4ed8" },
+] as const;
+
+const pieConfig = {
+  visitors: { label: "Visitors" },
+  chrome: { label: "Chrome", color: "#2563eb" },
+  safari: { label: "Safari", color: "#60a5fa" },
+  firefox: { label: "Firefox", color: "#93c5fd" },
+  edge: { label: "Edge", color: "#1d4ed8" },
+} satisfies ChartConfig;
+
+const monthTickFormatter = (value: string): string => Str.slice(0, 3)(value);
+
+// `ChartContainer` requires a single Recharts `children` element, so the story args type
+// treats `children` as required. Every story supplies its own composition through `render`,
+// so this default only satisfies the type and is never the rendered output.
+const defaultChartChildren = (
+  <BarChart accessibilityLayer data={[...chartData]}>
+    <Bar dataKey="desktop" fill="var(--color-desktop)" radius={4} />
+    <Bar dataKey="mobile" fill="var(--color-mobile)" radius={4} />
+  </BarChart>
+);
+
+const meta = {
+  title: "Components/Data Display/Chart",
+  component: ChartContainer,
+  tags: ["autodocs"],
+  argTypes: {
+    config: {
+      control: false,
+      description: "Maps each series key to its label, optional icon, and color (or per-theme colors).",
+    },
+    className: {
+      control: "text",
+      description: "Additional classes merged onto the chart wrapper (e.g. sizing constraints).",
+    },
+    initialDimension: {
+      control: false,
+      description: "Starting width/height for the responsive container before layout is measured.",
+      table: { defaultValue: { summary: "{ width: 320, height: 200 }" } },
+    },
+    children: {
+      control: false,
+      description: "A single Recharts chart element (e.g. `BarChart`, `LineChart`, `PieChart`).",
+    },
+  },
+  args: {
+    config: chartConfig,
+    className: "min-h-[200px] w-full max-w-xl",
+    children: defaultChartChildren,
+  },
+} satisfies Meta<typeof ChartContainer>;
+
+export default meta;
+type Story = StoryObj<typeof meta>;
+
+/**
+ * The canonical bar chart: two series rendered from `chartConfig`, each bar filled with
+ * its `var(--color-<key>)` variable injected by the container.
+ */
+export const Default: Story = {
+  render: (args) => (
+    <ChartContainer {...args}>
+      <BarChart accessibilityLayer data={[...chartData]}>
+        <Bar dataKey="desktop" fill="var(--color-desktop)" radius={4} />
+        <Bar dataKey="mobile" fill="var(--color-mobile)" radius={4} />
+      </BarChart>
+    </ChartContainer>
+  ),
+  play: ({ canvasElement }) => {
+    const chart = canvasElement.querySelector('[data-slot="chart"]');
+    expect(chart).not.toBeNull();
+    expect(chart).toHaveAttribute("data-chart");
+  },
+};
+
+/**
+ * A bar chart with a labeled X axis and horizontal grid lines, the most common
+ * dashboard configuration.
+ */
+export const BarWithAxis: Story = {
+  render: (args) => (
+    <ChartContainer {...args}>
+      <BarChart accessibilityLayer data={[...chartData]}>
+        <CartesianGrid vertical={false} />
+        <XAxis dataKey="month" tickLine={false} tickMargin={10} axisLine={false} tickFormatter={monthTickFormatter} />
+        <Bar dataKey="desktop" fill="var(--color-desktop)" radius={4} />
+        <Bar dataKey="mobile" fill="var(--color-mobile)" radius={4} />
+      </BarChart>
+    </ChartContainer>
+  ),
+};
+
+/**
+ * Adds the themed `ChartTooltip` with `ChartTooltipContent`, which reads the active
+ * payload and renders each series' label, color indicator, and value on hover.
+ */
+export const WithTooltip: Story = {
+  render: (args) => (
+    <ChartContainer {...args}>
+      <BarChart accessibilityLayer data={[...chartData]}>
+        <CartesianGrid vertical={false} />
+        <XAxis dataKey="month" tickLine={false} tickMargin={10} axisLine={false} tickFormatter={monthTickFormatter} />
+        <ChartTooltip content={<ChartTooltipContent />} />
+        <Bar dataKey="desktop" fill="var(--color-desktop)" radius={4} />
+        <Bar dataKey="mobile" fill="var(--color-mobile)" radius={4} />
+      </BarChart>
+    </ChartContainer>
+  ),
+};
+
+/**
+ * Adds the themed `ChartLegend` with `ChartLegendContent`, which renders a swatch and
+ * label for each configured series below the plot.
+ */
+export const WithLegend: Story = {
+  render: (args) => (
+    <ChartContainer {...args}>
+      <BarChart accessibilityLayer data={[...chartData]}>
+        <CartesianGrid vertical={false} />
+        <XAxis dataKey="month" tickLine={false} tickMargin={10} axisLine={false} tickFormatter={monthTickFormatter} />
+        <ChartTooltip content={<ChartTooltipContent />} />
+        <ChartLegend content={<ChartLegendContent />} />
+        <Bar dataKey="desktop" fill="var(--color-desktop)" radius={4} />
+        <Bar dataKey="mobile" fill="var(--color-mobile)" radius={4} />
+      </BarChart>
+    </ChartContainer>
+  ),
+  play: ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    expect(canvas.getByText("Desktop")).toBeVisible();
+    expect(canvas.getByText("Mobile")).toBeVisible();
+  },
+};
+
+/** A line chart driven by the same config, ideal for showing trends over time. */
+export const Line: Story = {
+  render: (args) => (
+    <ChartContainer {...args}>
+      <LineChart accessibilityLayer data={[...chartData]}>
+        <CartesianGrid vertical={false} />
+        <XAxis dataKey="month" tickLine={false} tickMargin={10} axisLine={false} tickFormatter={monthTickFormatter} />
+        <ChartTooltip content={<ChartTooltipContent />} />
+        <RechartsLine dataKey="desktop" stroke="var(--color-desktop)" strokeWidth={2} dot={false} />
+        <RechartsLine dataKey="mobile" stroke="var(--color-mobile)" strokeWidth={2} dot={false} />
+      </LineChart>
+    </ChartContainer>
+  ),
+};
+
+/** An area chart with stacked, semi-transparent fills for cumulative comparisons. */
+export const Area: Story = {
+  render: (args) => (
+    <ChartContainer {...args}>
+      <AreaChart accessibilityLayer data={[...chartData]}>
+        <CartesianGrid vertical={false} />
+        <XAxis dataKey="month" tickLine={false} tickMargin={10} axisLine={false} tickFormatter={monthTickFormatter} />
+        <ChartTooltip content={<ChartTooltipContent indicator="line" />} />
+        <RechartsArea
+          dataKey="mobile"
+          type="natural"
+          fill="var(--color-mobile)"
+          fillOpacity={0.4}
+          stroke="var(--color-mobile)"
+          stackId="a"
+        />
+        <RechartsArea
+          dataKey="desktop"
+          type="natural"
+          fill="var(--color-desktop)"
+          fillOpacity={0.4}
+          stroke="var(--color-desktop)"
+          stackId="a"
+        />
+      </AreaChart>
+    </ChartContainer>
+  ),
+};
+
+/**
+ * A pie chart where each slice references its own `fill` from the data, with a legend
+ * mapping slices to their configured labels via `nameKey`.
+ */
+export const Pie: Story = {
+  args: { config: pieConfig, className: "mx-auto aspect-square max-h-[260px]" },
+  render: (args) => (
+    <ChartContainer {...args}>
+      <PieChart>
+        <ChartTooltip content={<ChartTooltipContent nameKey="visitors" hideLabel />} />
+        <RechartsPie data={[...browserData]} dataKey="visitors" nameKey="browser">
+          {A.map(browserData, (entry) => (
+            <Cell key={entry.browser} fill={entry.fill} />
+          ))}
+        </RechartsPie>
+        <ChartLegend content={<ChartLegendContent nameKey="browser" />} />
+      </PieChart>
+    </ChartContainer>
+  ),
+  play: ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    expect(canvas.getByText("Chrome")).toBeVisible();
+    expect(canvas.getByText("Safari")).toBeVisible();
+  },
+};
+
+/**
+ * The tooltip content supports three indicator styles. Here the `dashed` indicator is
+ * paired with a single series, demonstrating the nested-label layout.
+ */
+export const DashedTooltip: Story = {
+  render: (args) => (
+    <ChartContainer {...args}>
+      <BarChart accessibilityLayer data={[...chartData]}>
+        <CartesianGrid vertical={false} />
+        <XAxis dataKey="month" tickLine={false} tickMargin={10} axisLine={false} tickFormatter={monthTickFormatter} />
+        <ChartTooltip content={<ChartTooltipContent indicator="dashed" />} />
+        <Bar dataKey="desktop" fill="var(--color-desktop)" radius={4} />
+      </BarChart>
+    </ChartContainer>
+  ),
+};

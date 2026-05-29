@@ -22,7 +22,7 @@ const ToastProvider = ToastPrimitive.Provider;
  * @category components
  * @since 0.0.0
  */
-const ToastViewport = React.forwardRef<HTMLDivElement, ToastPrimitive.Viewport.Props & { className?: string }>(
+const ToastViewport = React.forwardRef<HTMLDivElement, ToastPrimitive.Viewport.Props & { readonly className?: string }>(
   ({ className, ...props }, ref) => (
     <ToastPrimitive.Viewport
       ref={ref}
@@ -105,7 +105,7 @@ Toast.displayName = "Toast";
  * @category components
  * @since 0.0.0
  */
-const ToastAction = React.forwardRef<HTMLButtonElement, ToastPrimitive.Action.Props & { className?: string }>(
+const ToastAction = React.forwardRef<HTMLButtonElement, ToastPrimitive.Action.Props & { readonly className?: string }>(
   ({ className, ...props }, ref) => (
     <ToastPrimitive.Action
       ref={ref}
@@ -123,7 +123,7 @@ ToastAction.displayName = "ToastAction";
  * @category components
  * @since 0.0.0
  */
-const ToastClose = React.forwardRef<HTMLButtonElement, ToastPrimitive.Close.Props & { className?: string }>(
+const ToastClose = React.forwardRef<HTMLButtonElement, ToastPrimitive.Close.Props & { readonly className?: string }>(
   ({ className, ...props }, ref) => (
     <ToastPrimitive.Close
       ref={ref}
@@ -143,7 +143,7 @@ ToastClose.displayName = "ToastClose";
  * @category components
  * @since 0.0.0
  */
-const ToastTitle = React.forwardRef<HTMLHeadingElement, ToastPrimitive.Title.Props & { className?: string }>(
+const ToastTitle = React.forwardRef<HTMLHeadingElement, ToastPrimitive.Title.Props & { readonly className?: string }>(
   ({ className, ...props }, ref) => (
     <ToastPrimitive.Title ref={ref} className={cn("font-semibold text-sm [&+div]:text-xs", className)} {...props} />
   )

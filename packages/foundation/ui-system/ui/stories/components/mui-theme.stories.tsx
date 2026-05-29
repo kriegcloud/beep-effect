@@ -14,9 +14,6 @@ import type { Meta, StoryObj } from "@storybook/react-vite";
  * all recolor — not just the Tailwind page background. It imports no `@beep/ui`
  * theme objects, so a correct render proves the decorator wires the provider
  * end to end.
- *
- * @category testing
- * @since 0.0.0
  */
 const meta = {
   title: "Themes/MUI",
@@ -24,17 +21,10 @@ const meta = {
   tags: ["autodocs"],
 } satisfies Meta<typeof Card>;
 
-/**
- * @category testing
- * @since 0.0.0
- */
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-/**
- * @category testing
- * @since 0.0.0
- */
+/** A MUI Card whose surface, text, and controls recolor with the light/dark toolbar. */
 export const Default: Story = {
   render: () => (
     <Card sx={{ maxWidth: 360 }}>
