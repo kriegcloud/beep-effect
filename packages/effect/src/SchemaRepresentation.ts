@@ -108,7 +108,7 @@ import * as Getter from "./SchemaGetter.ts"
  *
  * **When to use**
  *
- * Use this when inspecting or transforming non-primitive schema types.
+ * Use when inspecting or transforming non-primitive schema types.
  *
  * **Details**
  *
@@ -758,10 +758,9 @@ export interface References {
  *
  * **When to use**
  *
- * Use {@link fromAST} to create a `Document` from a Schema AST, {@link toSchema}
- * to reconstruct a runtime Schema, {@link toJsonSchemaDocument} to convert to
- * JSON Schema, and {@link toMultiDocument} to wrap it as a
- * {@link MultiDocument}.
+ * Use when representing a single Schema AST together with its named references
+ * before reconstructing a runtime Schema, converting to JSON Schema, or
+ * wrapping it as a {@link MultiDocument}.
  *
  * @see {@link MultiDocument}
  * @see {@link fromAST}
@@ -779,7 +778,7 @@ export type Document = {
  *
  * **When to use**
  *
- * Use {@link fromASTs} to create this from multiple Schema ASTs,
+ * Use when you use {@link fromASTs} to create this from multiple Schema ASTs,
  * {@link toCodeDocument} to generate TypeScript code, and
  * {@link toJsonSchemaMultiDocument} to convert to JSON Schema.
  *
@@ -816,7 +815,15 @@ const toJsonAnnotationsBlacklist: Set<string> = new Set([
 export type PrimitiveTree = Schema.Tree<null | number | boolean | bigint | symbol | string>
 
 /**
- * Schema codec for {@link PrimitiveTree}.
+ * Schema for {@link PrimitiveTree}.
+ *
+ * **When to use**
+ *
+ * Use to validate recursive annotation metadata trees whose leaves are `null`,
+ * `number`, `boolean`, `bigint`, `symbol`, or `string`.
+ *
+ * @see {@link PrimitiveTree} for the recursive tree type accepted by this codec
+ * @see {@link $Annotations} for the annotation codec that filters values through this codec
  *
  * @category schemas
  * @since 4.0.0
@@ -835,8 +842,21 @@ export const $PrimitiveTree: Schema.Codec<PrimitiveTree> = Schema.Tree(
 const isPrimitiveTree = Schema.is($PrimitiveTree)
 
 /**
- * Schema codec for `Schema.Annotations.Annotations`. Filters out internal
- * annotation keys and non-primitive values during encoding.
+ * Schema for serializing public `Schema.Annotations.Annotations` values. It
+ * filters out internal annotation keys and non-primitive values during
+ * encoding.
+ *
+ * **When to use**
+ *
+ * Use to serialize schema annotations in representation schemas while retaining
+ * only primitive-tree metadata.
+ *
+ * **Details**
+ *
+ * Decoding is passthrough. Encoding removes internal annotation keys and values
+ * that are not accepted by `$PrimitiveTree`.
+ *
+ * @see {@link $PrimitiveTree} for the codec used to filter annotation values
  *
  * @category schemas
  * @since 4.0.0
@@ -857,7 +877,7 @@ export const $Annotations = Schema.Record(Schema.String, Schema.Unknown).pipe(
 ).annotate({ identifier: "Annotations" })
 
 /**
- * Schema codec for the {@link Null} representation node.
+ * Schema for the {@link Null} representation node.
  *
  * @category schemas
  * @since 4.0.0
@@ -868,7 +888,7 @@ export const $Null = Schema.Struct({
 }).annotate({ identifier: "Null" })
 
 /**
- * Schema codec for the {@link Undefined} representation node.
+ * Schema for the {@link Undefined} representation node.
  *
  * @category schemas
  * @since 4.0.0
@@ -879,7 +899,7 @@ export const $Undefined = Schema.Struct({
 }).annotate({ identifier: "Undefined" })
 
 /**
- * Schema codec for the {@link Void} representation node.
+ * Schema for the {@link Void} representation node.
  *
  * @category schemas
  * @since 4.0.0
@@ -890,7 +910,7 @@ export const $Void = Schema.Struct({
 }).annotate({ identifier: "Void" })
 
 /**
- * Schema codec for the {@link Never} representation node.
+ * Schema for the {@link Never} representation node.
  *
  * @category schemas
  * @since 4.0.0
@@ -901,7 +921,7 @@ export const $Never = Schema.Struct({
 }).annotate({ identifier: "Never" })
 
 /**
- * Schema codec for the {@link Unknown} representation node.
+ * Schema for the {@link Unknown} representation node.
  *
  * @category schemas
  * @since 4.0.0
@@ -912,7 +932,7 @@ export const $Unknown = Schema.Struct({
 }).annotate({ identifier: "Unknown" })
 
 /**
- * Schema codec for the {@link Any} representation node.
+ * Schema for the {@link Any} representation node.
  *
  * @category schemas
  * @since 4.0.0
@@ -1025,7 +1045,7 @@ const $IsPattern = Schema.Struct({
 }).annotate({ identifier: "IsPattern" })
 
 /**
- * Schema codec for {@link StringMeta}.
+ * Schema for {@link StringMeta}.
  *
  * @category schemas
  * @since 4.0.0
@@ -1070,7 +1090,7 @@ function makeCheck<T>(meta: Schema.Codec<T>, identifier: string) {
 }
 
 /**
- * Schema codec for the {@link String} representation node.
+ * Schema for the {@link String} representation node.
  *
  * @category schemas
  * @since 4.0.0
@@ -1125,7 +1145,7 @@ const $IsBetween = Schema.Struct({
 }).annotate({ identifier: "IsBetween" })
 
 /**
- * Schema codec for {@link NumberMeta}.
+ * Schema for {@link NumberMeta}.
  *
  * @category schemas
  * @since 4.0.0
@@ -1142,7 +1162,7 @@ export const $NumberMeta = Schema.Union([
 ]).annotate({ identifier: "NumberMeta" })
 
 /**
- * Schema codec for the {@link Number} representation node.
+ * Schema for the {@link Number} representation node.
  *
  * @category schemas
  * @since 4.0.0
@@ -1154,7 +1174,7 @@ export const $Number = Schema.Struct({
 }).annotate({ identifier: "Number" })
 
 /**
- * Schema codec for the {@link Boolean} representation node.
+ * Schema for the {@link Boolean} representation node.
  *
  * @category schemas
  * @since 4.0.0
@@ -1201,7 +1221,19 @@ const $BigIntMeta = Schema.Union([
 ]).annotate({ identifier: "BigIntMeta" })
 
 /**
- * Schema codec for the {@link BigInt} representation node.
+ * Schema for the {@link BigInt} representation node.
+ *
+ * **When to use**
+ *
+ * Use to encode, decode, or validate serialized `BigInt` representation nodes,
+ * not application `bigint` values.
+ *
+ * **Details**
+ *
+ * Accepts representation nodes with `_tag: "BigInt"`, optional annotations,
+ * and bigint-specific validation metadata in `checks`.
+ *
+ * @see {@link BigIntMeta} for the metadata accepted by the `checks` array
  *
  * @category schemas
  * @since 4.0.0
@@ -1213,7 +1245,7 @@ export const $BigInt = Schema.Struct({
 }).annotate({ identifier: "BigInt" })
 
 /**
- * Schema codec for the {@link Symbol} representation node.
+ * Schema for the {@link Symbol} representation node.
  *
  * @category schemas
  * @since 4.0.0
@@ -1224,7 +1256,7 @@ export const $Symbol = Schema.Struct({
 }).annotate({ identifier: "Symbol" })
 
 /**
- * Schema codec for the literal value types allowed in a {@link Literal} node
+ * Schema for the literal value types allowed in a {@link Literal} node
  * (string, finite number, boolean, or bigint).
  *
  * @category schemas
@@ -1238,7 +1270,7 @@ export const $LiteralValue = Schema.Union([
 ]).annotate({ identifier: "LiteralValue" })
 
 /**
- * Schema codec for the {@link Literal} representation node.
+ * Schema for the {@link Literal} representation node.
  *
  * @category schemas
  * @since 4.0.0
@@ -1250,7 +1282,7 @@ export const $Literal = Schema.Struct({
 }).annotate({ identifier: "Literal" })
 
 /**
- * Schema codec for the {@link UniqueSymbol} representation node.
+ * Schema for the {@link UniqueSymbol} representation node.
  *
  * @category schemas
  * @since 4.0.0
@@ -1262,7 +1294,7 @@ export const $UniqueSymbol = Schema.Struct({
 }).annotate({ identifier: "UniqueSymbol" })
 
 /**
- * Schema codec for the {@link ObjectKeyword} representation node.
+ * Schema for the {@link ObjectKeyword} representation node.
  *
  * @category schemas
  * @since 4.0.0
@@ -1273,7 +1305,7 @@ export const $ObjectKeyword = Schema.Struct({
 }).annotate({ identifier: "ObjectKeyword" })
 
 /**
- * Schema codec for the {@link Enum} representation node.
+ * Schema for the {@link Enum} representation node.
  *
  * @category schemas
  * @since 4.0.0
@@ -1293,7 +1325,7 @@ export const $Enum = Schema.Struct({
 }).annotate({ identifier: "Enum" })
 
 /**
- * Schema codec for the {@link TemplateLiteral} representation node.
+ * Schema for the {@link TemplateLiteral} representation node.
  *
  * @category schemas
  * @since 4.0.0
@@ -1305,7 +1337,7 @@ export const $TemplateLiteral = Schema.Struct({
 }).annotate({ identifier: "TemplateLiteral" })
 
 /**
- * Schema codec for the {@link Element} type (positional tuple element).
+ * Schema for the {@link Element} type (positional tuple element).
  *
  * @category schemas
  * @since 4.0.0
@@ -1328,7 +1360,7 @@ const $ArraysMeta = Schema.Union([
 ]).annotate({ identifier: "ArraysMeta" })
 
 /**
- * Schema codec for the {@link Arrays} representation node.
+ * Schema for the {@link Arrays} representation node.
  *
  * @category schemas
  * @since 4.0.0
@@ -1342,7 +1374,7 @@ export const $Arrays = Schema.Struct({
 }).annotate({ identifier: "Arrays" })
 
 /**
- * Schema codec for the {@link PropertySignature} type.
+ * Schema for the {@link PropertySignature} type.
  *
  * @category schemas
  * @since 4.0.0
@@ -1356,7 +1388,7 @@ export const $PropertySignature = Schema.Struct({
 }).annotate({ identifier: "PropertySignature" })
 
 /**
- * Schema codec for the {@link IndexSignature} type.
+ * Schema for the {@link IndexSignature} type.
  *
  * @category schemas
  * @since 4.0.0
@@ -1388,7 +1420,7 @@ const $IsPropertyNames = Schema.Struct({
 }).annotate({ identifier: "IsPropertyNames" })
 
 /**
- * Schema codec for {@link ObjectsMeta}.
+ * Schema for {@link ObjectsMeta}.
  *
  * @category schemas
  * @since 4.0.0
@@ -1401,7 +1433,7 @@ export const $ObjectsMeta = Schema.Union([
 ]).annotate({ identifier: "ObjectsMeta" })
 
 /**
- * Schema codec for the {@link Objects} representation node.
+ * Schema for the {@link Objects} representation node.
  *
  * @category schemas
  * @since 4.0.0
@@ -1415,7 +1447,7 @@ export const $Objects = Schema.Struct({
 }).annotate({ identifier: "Objects" })
 
 /**
- * Schema codec for the {@link Union} representation node.
+ * Schema for the {@link Union} representation node.
  *
  * @category schemas
  * @since 4.0.0
@@ -1428,7 +1460,7 @@ export const $Union = Schema.Struct({
 }).annotate({ identifier: "Union" })
 
 /**
- * Schema codec for the {@link Reference} representation node.
+ * Schema for the {@link Reference} representation node.
  *
  * @category schemas
  * @since 4.0.0
@@ -1471,7 +1503,7 @@ const $IsBetweenDate = Schema.Struct({
 }).annotate({ identifier: "IsBetweenDate" })
 
 /**
- * Schema codec for {@link DateMeta}.
+ * Schema for {@link DateMeta}.
  *
  * @category schemas
  * @since 4.0.0
@@ -1502,7 +1534,7 @@ const $IsSizeBetween = Schema.Struct({
 }).annotate({ identifier: "IsSizeBetween" })
 
 /**
- * Schema codec for {@link SizeMeta}.
+ * Schema for {@link SizeMeta}.
  *
  * @category schemas
  * @since 4.0.0
@@ -1514,7 +1546,7 @@ export const $SizeMeta = Schema.Union([
 ]).annotate({ identifier: "SizeMeta" })
 
 /**
- * Schema codec for {@link DeclarationMeta}.
+ * Schema for {@link DeclarationMeta}.
  *
  * @category schemas
  * @since 4.0.0
@@ -1525,7 +1557,7 @@ export const $DeclarationMeta = Schema.Union([
 ]).annotate({ identifier: "DeclarationMeta" })
 
 /**
- * Schema codec for the {@link Declaration} representation node.
+ * Schema for the {@link Declaration} representation node.
  *
  * @category schemas
  * @since 4.0.0
@@ -1539,7 +1571,7 @@ export const $Declaration = Schema.Struct({
 }).annotate({ identifier: "Declaration" })
 
 /**
- * Schema codec for the {@link Suspend} representation node.
+ * Schema for the {@link Suspend} representation node.
  *
  * @category schemas
  * @since 4.0.0
@@ -1560,8 +1592,8 @@ export const $Suspend = Schema.Struct({
 export interface $Representation extends Schema.Codec<Representation> {}
 
 /**
- * Schema codec for the full {@link Representation} union. This is the
- * recursive codec that can validate/encode any representation node.
+ * Schema for the full {@link Representation} union. It recursively validates
+ * and encodes any representation node.
  *
  * @category schemas
  * @since 4.0.0
@@ -1592,8 +1624,20 @@ export const $Representation: $Representation = Schema.Union([
 ]).annotate({ identifier: "Schema" })
 
 /**
- * Schema codec for {@link Document}. Use with `Schema.decodeUnknownSync` or
- * `Schema.encodeSync` to validate or serialize document data.
+ * Schema for {@link Document}.
+ *
+ * **When to use**
+ *
+ * Use to validate or serialize a single schema representation document with
+ * `Schema.decodeUnknownSync` or `Schema.encodeSync`.
+ *
+ * **Gotchas**
+ *
+ * This codec validates document structure but does not resolve `$ref` keys
+ * against `references`.
+ *
+ * @see {@link DocumentFromJson} for the JSON-string codec wrapper
+ * @see {@link $MultiDocument} for validating documents with multiple root representations
  *
  * @category schemas
  * @since 4.0.0
@@ -1604,7 +1648,7 @@ export const $Document = Schema.Struct({
 }).annotate({ identifier: "Document" })
 
 /**
- * Schema codec for {@link MultiDocument}.
+ * Schema for {@link MultiDocument}.
  *
  * @category schemas
  * @since 4.0.0
@@ -1623,11 +1667,10 @@ export const $MultiDocument = Schema.Struct({
  *
  * **When to use**
  *
- * Use this when you have a single schema and need its representation.
+ * Use when you have a single schema and need its representation.
  *
  * **Details**
  *
- * This is a pure function and does not mutate the input AST.
  * Shared/recursive sub-schemas are extracted into the `references` map.
  *
  * **Example** (Converting a Schema to a Document)
@@ -1658,12 +1701,11 @@ export const fromAST: (ast: AST.AST) => Document = InternalRepresentation.fromAS
  *
  * **When to use**
  *
- * Use this when you have multiple schemas that may share references.
+ * Use when you have multiple schemas that may share references.
  *
  * **Details**
  *
- * This is a pure function and does not mutate the input ASTs. All schemas share
- * a single `references` map.
+ * All schemas share a single `references` map.
  *
  * @see {@link MultiDocument}
  * @see {@link fromAST}
@@ -1674,11 +1716,11 @@ export const fromAST: (ast: AST.AST) => Document = InternalRepresentation.fromAS
 export const fromASTs: (asts: readonly [AST.AST, ...Array<AST.AST>]) => MultiDocument = InternalRepresentation.fromASTs
 
 /**
- * Schema codec that decodes a {@link Document} from JSON and encodes it back.
+ * Schema that decodes a {@link Document} from JSON and encodes it back.
  *
  * **When to use**
  *
- * Use this with `Schema.decodeUnknownSync` or `Schema.encodeSync` to serialize
+ * Use with `Schema.decodeUnknownSync` or `Schema.encodeSync` to serialize
  * and deserialize documents.
  *
  * **Example** (Round-tripping a Document through JSON)
@@ -1700,8 +1742,7 @@ export const fromASTs: (asts: readonly [AST.AST, ...Array<AST.AST>]) => MultiDoc
 export const DocumentFromJson: Schema.Codec<Document, Schema.Json> = Schema.toCodecJson($Document)
 
 /**
- * Schema codec that decodes a {@link MultiDocument} from JSON and encodes it
- * back.
+ * Schema for `MultiDocument` values encoded as JSON.
  *
  * @see {@link $MultiDocument}
  * @see {@link DocumentFromJson}
@@ -1717,12 +1758,8 @@ export const MultiDocumentFromJson: Schema.Codec<MultiDocument, Schema.Json> = S
  *
  * **When to use**
  *
- * Use this when an API expects a `MultiDocument` but you only have a single
+ * Use when an API expects a `MultiDocument` but you only have a single
  * `Document`.
- *
- * **Details**
- *
- * This is a pure function and does not mutate the input.
  *
  * @see {@link Document}
  * @see {@link MultiDocument}
@@ -1764,8 +1801,8 @@ export type Reviver<T> = (declaration: Declaration, recur: (representation: Repr
  *
  * **When to use**
  *
- * Pass this as `options.reviver` to {@link toSchema} to reconstruct schemas
- * that use these types.
+ * Use when passing this as `options.reviver` to {@link toSchema} to reconstruct
+ * schemas that use these types.
  *
  * **Details**
  *
@@ -1848,11 +1885,11 @@ export const toSchemaDefaultReviver: Reviver<Schema.Top> = (s, recur) => {
 }
 
 /**
- * Reconstructs a runtime Schema from a {@link Document}.
+ * Creates a runtime Schema from a {@link Document}.
  *
  * **When to use**
  *
- * Use this when you have a serialized or computed representation and need a
+ * Use when you have a serialized or computed representation and need a
  * working Schema for decoding/encoding.
  *
  * **Details**
@@ -2198,12 +2235,8 @@ export function toSchema<S extends Schema.Top = Schema.Top>(document: Document, 
  *
  * **When to use**
  *
- * Use this to produce a standard JSON Schema from an Effect Schema
+ * Use to produce a standard JSON Schema from an Effect Schema
  * representation.
- *
- * **Details**
- *
- * This is a pure function and does not mutate the input.
  *
  * **Example** (Generating JSON Schema)
  *
@@ -2234,11 +2267,7 @@ export const toJsonSchemaDocument: (
  *
  * **When to use**
  *
- * Use this when you have multiple schemas sharing references.
- *
- * **Details**
- *
- * This is a pure function and does not mutate the input.
+ * Use when you have multiple schemas sharing references.
  *
  * @see {@link MultiDocument}
  * @see {@link toJsonSchemaDocument}
@@ -2344,7 +2373,7 @@ export type CodeDocument = {
  *
  * **When to use**
  *
- * Use this to produce source code for Schema definitions, such as in codegen
+ * Use to produce source code for Schema definitions, such as in codegen
  * tools.
  *
  * **Details**
@@ -2980,7 +3009,7 @@ function toRuntimeRegExp(regExp: RegExp): string {
  *
  * **When to use**
  *
- * Use this to import external JSON Schemas into the Effect representation
+ * Use to import external JSON Schemas into the Effect representation
  * system.
  *
  * **Details**
@@ -3020,7 +3049,7 @@ export function fromJsonSchemaDocument(document: JsonSchema.Document<"draft-2020
  *
  * **When to use**
  *
- * Use this to import multiple JSON Schemas sharing definitions.
+ * Use to import multiple JSON Schemas sharing definitions.
  *
  * **Details**
  *

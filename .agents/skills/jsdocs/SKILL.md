@@ -12,9 +12,8 @@ When updating public API JSDoc:
 1. Inspect the declaration, implementation, nearby tests, and nearby JSDoc before editing.
 2. Decide whether the task is a single API fix or a module refinement pass.
 3. Rewrite comments into the required documentation shape while preserving correct facts and examples.
-4. Run the `@see` audit.
-5. Run the `**Gotchas**` audit.
-6. Run the narrowest relevant validation.
+4. For module refinements, complex APIs, or APIs with related alternatives, run the `@see` and `**Gotchas**` audits.
+5. Run the narrowest relevant validation.
 
 ## Required documentation shape
 
@@ -49,7 +48,7 @@ Use a normal multiline JSDoc comment in TypeScript source:
  */
 ```
 
-## Writing rules
+## Prose Rules
 
 - Use sober, practical prose.
 - Write all public JSDoc prose in English.
@@ -57,16 +56,35 @@ Use a normal multiline JSDoc comment in TypeScript source:
 - Do not be clever.
 - Do not add filler sections.
 - The short description is required and must be exactly one paragraph.
+- Make the short description stand on its own. Do not rely on `**When to use**`
+  to make the API understandable.
+- For functions and methods, prefer present-tense, action-first prose such as
+  `Creates`, `Returns`, `Checks`, `Provides`, `Represents`, `Converts`,
+  `Decodes`, or `Formats`.
+- For technical value exports, use consistent noun forms such as `Schema for`,
+  `Layer that`, `Service that`, `Context reference that`, or
+  `Constructors and matchers for`.
+- Avoid leading `A` or `An` for canonical technical nouns when the surrounding
+  module uses a standard noun family, for example prefer `Schema for ...` over
+  `A schema for ...`.
+- Do not describe implementation mechanics when a public concept is clearer.
+  For example, prefer `Constructors and matchers for ...` over wording that
+  only says an API uses `Data.taggedEnum`.
+- Avoid generic purity or non-mutation remarks unless they document a real
+  surprise, caveat, or meaningful contrast with a mutating-looking API.
 - Optional sections must appear in this order:
   1. `**When to use**`
   2. `**Details**`
   3. `**Gotchas**`
 - Include an optional section only when it has useful, non-empty content.
-- `**When to use**` is important when the API has close alternatives, trade-offs, or `@see` tags. If `@see` tags are present, inspect the referenced APIs and add `**When to use**` when it helps readers choose between them.
-- Add `@see` only for APIs that are similar to the documented API but intended for different situations or usage patterns. Do not add `@see` for loosely related helpers, dependencies, implementation details, or general background links.
-- If an API has close alternatives and no `@see` tags, inspect the alternatives before deciding whether `@see` would help readers choose the right API.
-- Before deciding whether to include `**Gotchas**`, inspect the implementation and nearby tests for edge cases, footguns, preconditions, surprising behavior, or important failure modes. Add `**Gotchas**` only when you find a real gotcha worth documenting.
-- If a `Details` section explains behavior that changes how the API must be used safely or correctly, treat it as a `**Gotchas**` candidate and make an explicit keep-or-move decision.
+- Prefer prose over bullet lists for single-item `**Details**`, `**When to use**`, or `**Gotchas**` sections. Use bullets only when there are two or more parallel facts, options, cases, or caveats.
+- `**When to use**` describes the positive use case for the documented API. Do not use it as a routing section for sibling APIs. If neighboring APIs need to be mentioned, put that boundary in `@see` tag text instead.
+- `**When to use**` is important when the API has close alternatives, trade-offs, or `@see` tags. If `@see` tags are present, inspect the referenced APIs and add `**When to use**` when it clarifies the documented API's own use case.
+- `**When to use**` must start with one of these practical guidance forms: `Use to`, `Use when`, `Use as`, or `Use with`. Avoid bullet lists and vague openers such as `Use this...` or `Useful for...`.
+- Keep `short` and `**When to use**` distinct: the short description says what
+  the API is or does; `**When to use**` says when to choose it.
+- Add internal `@see` tags only for semantically useful related public APIs.
+- Write `@see` tag text as normal prose after the link; no special separator is required. Prefer forms like `@see {@link otherApi} for ...` when a short explanation helps.
 - Use exactly one blank line between the short description, sections, examples, and tags.
 - Do not use Markdown headings such as `# Heading` or ad hoc bold headings such as `**Notes**`; only the standard headings are allowed.
 - Examples must use `**Example** (Title)`, optional prose, and exactly one non-empty `ts` code fence.
@@ -90,6 +108,8 @@ Use a normal multiline JSDoc comment in TypeScript source:
 - `@internal` means the item is ignored; do not rewrite it as public docs.
 - Default exports are ignored by this rule and do not need JSDoc.
 - Do not add unsupported constructs such as enums or empty exports in checked files.
+- For low-level public values, prefer accurate categories such as `symbols`,
+  `type IDs`, or `prototypes` over compensating with verbose descriptions.
 
 ## Tag rules
 
@@ -101,31 +121,17 @@ When multiple tags are present, keep them in this order:
 4. `@category`
 5. `@since`
 
-Root declarations:
+Tag requirements by declaration kind:
 
-- Require `@category`.
-- Require `@since` with stable semver like `1.2.3`.
-- May use `@deprecated` with a non-empty message.
-- May use repeated non-empty `@see` tags, but only for similar APIs with different usage patterns.
-- Must not use `@default`.
-
-Namespaces and declarations inside namespaces:
-
-- Require `@since` with stable semver like `1.2.3`.
-- May use optional `@category`.
-- May use `@deprecated` with a non-empty message.
-- May use repeated non-empty `@see` tags, but only for similar APIs with different usage patterns.
-- Must not use `@default`.
-
-Members:
-
-- JSDoc is optional.
-- When member JSDoc is present, it must follow the same short description, section, example, spacing, and tag-order rules.
-- May use optional `@since` with stable semver like `1.2.3`.
-- May use `@default` with a non-empty value.
-- May use `@deprecated` with a non-empty message.
-- May use repeated non-empty `@see` tags, but only for similar APIs with different usage patterns.
-- Must not use `@category`.
+- Root declarations require `@category` and stable-semver `@since`, and must
+  not use `@default`.
+- Namespaces and declarations inside namespaces require stable-semver `@since`,
+  may use `@category`, and must not use `@default`.
+- Member JSDoc is optional. When present, it follows the same prose and layout
+  rules, may use optional stable-semver `@since`, may use non-empty `@default`,
+  and must not use `@category`.
+- Any declaration may use `@deprecated` with a non-empty message and repeated
+  non-empty `@see` tags for semantically useful related public APIs.
 
 ## Updating existing JSDoc
 
@@ -133,15 +139,13 @@ When fixing or updating existing docs:
 
 1. Preserve correct facts and examples.
 2. Rewrite the layout into the standard template.
-3. Move usage guidance into `**When to use**`; when `@see` tags are present, inspect the referenced APIs and explain selection guidance if useful.
-4. Move option, overload, and behavior details into `**Details**`.
-5. Move caveats into `**Gotchas**`; if no caveat is already documented, inspect the implementation and nearby tests before deciding whether a `**Gotchas**` section is warranted.
-6. Convert `@example` tags and loose `ts` fences into `**Example** (Title)` sections.
-7. Preserve valid `@see`, `@deprecated`, `@default`, `@category`, and `@since` tags.
-8. Remove `@see` tags that do not point to similar APIs with meaningfully different usage patterns.
-9. Replace redundant inline `{@link ...}` tags with plain code formatting when
+3. Move usage guidance into `**When to use**`, behavior details into `**Details**`, and real caveats into `**Gotchas**`.
+4. Convert `@example` tags and loose `ts` fences into `**Example** (Title)` sections.
+5. Preserve valid `@see`, `@deprecated`, `@default`, `@category`, and `@since` tags.
+6. Remove `@see` tags that do not point to semantically useful related public APIs.
+7. Replace redundant inline `{@link ...}` tags with plain code formatting when
    the link target is already obvious from the current declaration or module.
-10. Remove sections that would be empty.
+8. Remove sections that would be empty.
 
 ## Module refinement
 
@@ -160,9 +164,10 @@ When refining an existing public API module, always do a dedicated `@see` pass:
 
 1. Inspect existing `@see` tags and referenced APIs before keeping, changing, or removing them.
 2. Look for close alternatives in the same module or API family when the documented API is one of several ways to do similar work.
-3. Keep or add `@see` only when the linked API is a real alternative a reader may choose instead of the documented API.
-4. Do not use `@see` for implementation dependencies, broad concepts, result types, helper APIs used only inside examples, or APIs that are merely compatible.
-5. When `@see` tags are kept or added, include `**When to use**` guidance if the difference between the APIs is not obvious from the short description.
+3. Keep or add `@see` only when the linked API is semantically useful to understand the documented API.
+4. Good `@see` targets include sibling APIs, alternatives, inverse operations, lower-level or higher-level variants, complementary operations, and closely returned, consumed, or configured types/values.
+5. Do not use `@see` for implementation dependencies, broad concepts, external background links, APIs that merely share a word or name, helper APIs used only inside examples, undocumented/private members, or APIs that are only generally compatible.
+6. When `@see` tags are kept or added, include `**When to use**` guidance if the documented API's own use case is not obvious from the short description. Keep comparisons with sibling APIs in the `@see` tag text.
 
 ## Gotchas audit
 

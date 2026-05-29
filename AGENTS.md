@@ -73,6 +73,7 @@ Strong success criteria let you loop independently. Weak criteria ("make it work
 1. Inspect nearby implementation, tests, and pattern docs before editing.
 2. Prefer existing abstractions and conventions over introducing new ones.
 3. For ad hoc runnable code, create a temporary file in `scratchpad/`, run it with `node scratchpad/<file>.ts`, and delete it when done.
+   The local runtime is Node 24, which can run TypeScript files directly; use plain `node` for local TypeScript probes instead of `tsx` unless `node` fails.
 4. Run the validation appropriate to the change type.
 5. Report which validation commands were run and any commands that could not be run.
 
@@ -80,13 +81,14 @@ Strong success criteria let you loop independently. Weak criteria ("make it work
 
 Use the narrowest validation that still covers the change:
 
-| Change type                 | Validation                                                                                                  |
-| --------------------------- | ----------------------------------------------------------------------------------------------------------- |
-| Code changes                | `pnpm lint-fix`, targeted `pnpm test <test_file.ts>`, `pnpm check:tsgo`                                     |
-| Tests-only changes          | `pnpm lint-fix`, targeted `pnpm test <test_file.ts>`, `pnpm check:tsgo`                                     |
-| Type-level/API type changes | Targeted `pnpm test-types <filename>`, plus `pnpm check:tsgo` when source types changed                     |
-| JSDoc/example changes       | From the changed package directory, run `pnpm docgen`; also run `pnpm check:tsgo` when source types changed |
-| Docs-only changes           | `pnpm lint-fix`; no tests required unless examples or code changed                                          |
+| Change type                      | Validation                                                                              |
+| -------------------------------- | --------------------------------------------------------------------------------------- |
+| Code changes                     | `pnpm lint-fix`, targeted `pnpm test <test_file.ts>`, `pnpm check:tsgo`                 |
+| Tests-only changes               | `pnpm lint-fix`, targeted `pnpm test <test_file.ts>`, `pnpm check:tsgo`                 |
+| Type-level/API type changes      | Targeted `pnpm test-types <filename>`, plus `pnpm check:tsgo` when source types changed |
+| JSDoc text/category/link changes | `pnpm lint`                                                                             |
+| JSDoc example changes            | `pnpm lint`; from the changed package directory, run `pnpm docgen`                      |
+| Docs-only changes                | `pnpm lint-fix`; no tests required unless examples or code changed                      |
 
 ## Coding Patterns
 
