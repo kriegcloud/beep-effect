@@ -2664,18 +2664,10 @@ describe("FormReact.make", () => {
           fireEvent.change(ageInput, { target: { value: "30" } });
         });
 
-        yield* Effect.promise(() =>
-          act(async () => {
-            await vi.advanceTimersByTimeAsync(50);
-          })
-        );
+        yield* Effect.promise(() => act(() => vi.advanceTimersByTimeAsync(50)));
         expect(submitHandler).not.toHaveBeenCalled();
 
-        yield* Effect.promise(() =>
-          act(async () => {
-            await vi.advanceTimersByTimeAsync(50);
-          })
-        );
+        yield* Effect.promise(() => act(() => vi.advanceTimersByTimeAsync(50)));
         expect(submitHandler).toHaveBeenCalledTimes(1);
         expect(submitHandler).toHaveBeenCalledWith({ name: "Lucas", age: "30" });
       } finally {
@@ -2748,11 +2740,7 @@ describe("FormReact.make", () => {
 
         unmount();
 
-        yield* Effect.promise(() =>
-          act(async () => {
-            await vi.advanceTimersByTimeAsync(200);
-          })
-        );
+        yield* Effect.promise(() => act(() => vi.advanceTimersByTimeAsync(200)));
 
         expect(submitHandler).not.toHaveBeenCalled();
       } finally {
