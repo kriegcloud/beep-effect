@@ -21,6 +21,9 @@
  * are aggregated into a single parent node.
  *
  * Ported from the `adjunct` repo (Effect v3) to Effect v4 / `@beep/nlp`.
+ *
+ * @since 0.0.0
+ * @packageDocumentation
  */
 
 import * as HashMap from "effect/HashMap";
@@ -38,6 +41,9 @@ import * as O from "effect/Option";
  * - An associative binary operation (combine)
  *
  * @typeParam A - The carrier type
+ *
+ * @since 0.0.0
+ * @category models
  */
 export interface Monoid<A> {
   /**
@@ -54,6 +60,9 @@ export interface Monoid<A> {
 
 /**
  * Helper to create a Monoid instance
+ *
+ * @since 0.0.0
+ * @category constructors
  */
 export const make = <A>(empty: A, combine: (x: A, y: A) => A): Monoid<A> => ({
   empty,
@@ -65,6 +74,9 @@ export const make = <A>(empty: A, combine: (x: A, y: A) => A): Monoid<A> => ({
  * This is the fundamental aggregation operation.
  *
  * Category theory: This is a catamorphism from the list functor to the monoid.
+ *
+ * @since 0.0.0
+ * @category folding
  */
 export const fold =
   <A>(monoid: Monoid<A>) =>
@@ -78,6 +90,9 @@ export const fold =
 
 /**
  * Combine an array of values using a monoid, seeded with the identity.
+ *
+ * @since 0.0.0
+ * @category folding
  */
 export const combineAll =
   <A>(monoid: Monoid<A>) =>
@@ -93,6 +108,9 @@ export const combineAll =
  *
  * - Empty: ""
  * - Combine: (x, y) => x + y
+ *
+ * @since 0.0.0
+ * @category instances
  */
 export const StringConcat: Monoid<string> = {
   empty: "",
@@ -103,6 +121,9 @@ export const StringConcat: Monoid<string> = {
  * String join with separator monoid.
  *
  * Combines strings with a separator, intelligently handling empty strings.
+ *
+ * @since 0.0.0
+ * @category instances
  */
 export const StringJoin = (separator: string): Monoid<string> => ({
   empty: "",
@@ -115,6 +136,9 @@ export const StringJoin = (separator: string): Monoid<string> => ({
 
 /**
  * String join with prefix and suffix, useful for creating delimited lists.
+ *
+ * @since 0.0.0
+ * @category instances
  */
 export const StringDelimited = (prefix: string, suffix: string, separator: string): Monoid<string> => ({
   empty: "",
@@ -133,6 +157,9 @@ export const StringDelimited = (prefix: string, suffix: string, separator: strin
 
 /**
  * Addition monoid for numbers (empty: 0).
+ *
+ * @since 0.0.0
+ * @category instances
  */
 export const NumberSum: Monoid<number> = {
   empty: 0,
@@ -141,6 +168,9 @@ export const NumberSum: Monoid<number> = {
 
 /**
  * Multiplication monoid for numbers (empty: 1).
+ *
+ * @since 0.0.0
+ * @category instances
  */
 export const NumberProduct: Monoid<number> = {
   empty: 1,
@@ -149,6 +179,9 @@ export const NumberProduct: Monoid<number> = {
 
 /**
  * Max monoid for numbers (empty: -Infinity).
+ *
+ * @since 0.0.0
+ * @category instances
  */
 export const NumberMax: Monoid<number> = {
   empty: Number.NEGATIVE_INFINITY,
@@ -157,6 +190,9 @@ export const NumberMax: Monoid<number> = {
 
 /**
  * Min monoid for numbers (empty: Infinity).
+ *
+ * @since 0.0.0
+ * @category instances
  */
 export const NumberMin: Monoid<number> = {
   empty: Number.POSITIVE_INFINITY,
@@ -169,6 +205,9 @@ export const NumberMin: Monoid<number> = {
 
 /**
  * Array concatenation monoid (empty: []).
+ *
+ * @since 0.0.0
+ * @category instances
  */
 export const ArrayConcat = <A>(): Monoid<ReadonlyArray<A>> => ({
   empty: [],
@@ -184,6 +223,9 @@ export const ArrayConcat = <A>(): Monoid<ReadonlyArray<A>> => ({
  *
  * A multiset is a collection where elements can appear multiple times.
  * Union adds the multiplicities.
+ *
+ * @since 0.0.0
+ * @category instances
  */
 export const MultiSet = <K>(): Monoid<HashMap.HashMap<K, number>> => ({
   empty: HashMap.empty(),
@@ -195,6 +237,9 @@ export const MultiSet = <K>(): Monoid<HashMap.HashMap<K, number>> => ({
 
 /**
  * Set union monoid (empty: ∅).
+ *
+ * @since 0.0.0
+ * @category instances
  */
 export const SetUnion = <A>(): Monoid<ReadonlySet<A>> => ({
   empty: new Set(),
@@ -208,6 +253,9 @@ export const SetUnion = <A>(): Monoid<ReadonlySet<A>> => ({
  * unbounded universe, so we model the identity as the "universal set" via
  * `Option.none()` (intersecting with the universal set is the identity).
  * Only use when all elements come from a finite universe.
+ *
+ * @since 0.0.0
+ * @category instances
  */
 export const SetIntersection = <A>(): Monoid<O.Option<ReadonlySet<A>>> => ({
   empty: O.none(),
@@ -234,6 +282,9 @@ export const SetIntersection = <A>(): Monoid<O.Option<ReadonlySet<A>>> => ({
 
 /**
  * Vector addition monoid (element-wise addition; empty: zero vector).
+ *
+ * @since 0.0.0
+ * @category instances
  */
 export const VectorAdd = (dimension: number): Monoid<ReadonlyArray<number>> => ({
   empty: Array(dimension).fill(0),
@@ -242,6 +293,9 @@ export const VectorAdd = (dimension: number): Monoid<ReadonlyArray<number>> => (
 
 /**
  * Vector average monoid (tracks sum and count to compute a running average).
+ *
+ * @since 0.0.0
+ * @category instances
  */
 export const VectorAverage = (
   dimension: number
@@ -255,6 +309,9 @@ export const VectorAverage = (
 
 /**
  * Extract the average from a {@link VectorAverage} result.
+ *
+ * @since 0.0.0
+ * @category accessors
  */
 export const getAverage = (result: {
   readonly sum: ReadonlyArray<number>;
@@ -267,6 +324,9 @@ export const getAverage = (result: {
 
 /**
  * Product monoid: combine two monoids component-wise.
+ *
+ * @since 0.0.0
+ * @category combinators
  */
 export const Product = <A, B>(ma: Monoid<A>, mb: Monoid<B>): Monoid<readonly [A, B]> => ({
   empty: [ma.empty, mb.empty],
@@ -275,6 +335,9 @@ export const Product = <A, B>(ma: Monoid<A>, mb: Monoid<B>): Monoid<readonly [A,
 
 /**
  * Triple product monoid.
+ *
+ * @since 0.0.0
+ * @category combinators
  */
 export const Product3 = <A, B, C>(ma: Monoid<A>, mb: Monoid<B>, mc: Monoid<C>): Monoid<readonly [A, B, C]> => ({
   empty: [ma.empty, mb.empty, mc.empty],
@@ -287,6 +350,9 @@ export const Product3 = <A, B, C>(ma: Monoid<A>, mb: Monoid<B>, mc: Monoid<C>): 
 
 /**
  * Lift a monoid through Option: combine point-wise, treating `None` as the identity.
+ *
+ * @since 0.0.0
+ * @category combinators
  */
 export const Option = <A>(monoid: Monoid<A>): Monoid<O.Option<A>> => ({
   empty: O.none(),
@@ -307,6 +373,9 @@ export const Option = <A>(monoid: Monoid<A>): Monoid<O.Option<A>> => ({
 
 /**
  * Endomorphism monoid: functions from A to A under composition (empty: identity).
+ *
+ * @since 0.0.0
+ * @category instances
  */
 export const Endo = <A>(): Monoid<(a: A) => A> => ({
   empty: (a) => a,
@@ -319,6 +388,9 @@ export const Endo = <A>(): Monoid<(a: A) => A> => ({
 
 /**
  * Dual monoid: reverse the order of combination (x ⊕' y = y ⊕ x).
+ *
+ * @since 0.0.0
+ * @category combinators
  */
 export const Dual = <A>(monoid: Monoid<A>): Monoid<A> => ({
   empty: monoid.empty,
@@ -331,6 +403,9 @@ export const Dual = <A>(monoid: Monoid<A>): Monoid<A> => ({
 
 /**
  * Logical AND monoid (empty: true).
+ *
+ * @since 0.0.0
+ * @category instances
  */
 export const BooleanAll: Monoid<boolean> = {
   empty: true,
@@ -339,6 +414,9 @@ export const BooleanAll: Monoid<boolean> = {
 
 /**
  * Logical OR monoid (empty: false).
+ *
+ * @since 0.0.0
+ * @category instances
  */
 export const BooleanAny: Monoid<boolean> = {
   empty: false,
@@ -351,6 +429,9 @@ export const BooleanAny: Monoid<boolean> = {
 
 /**
  * Check left identity law: empty ⊕ x = x
+ *
+ * @since 0.0.0
+ * @category laws
  */
 export const checkLeftIdentity = <A>(
   monoid: Monoid<A>,
@@ -360,6 +441,9 @@ export const checkLeftIdentity = <A>(
 
 /**
  * Check right identity law: x ⊕ empty = x
+ *
+ * @since 0.0.0
+ * @category laws
  */
 export const checkRightIdentity = <A>(
   monoid: Monoid<A>,
@@ -369,6 +453,9 @@ export const checkRightIdentity = <A>(
 
 /**
  * Check associativity law: (x ⊕ y) ⊕ z = x ⊕ (y ⊕ z)
+ *
+ * @since 0.0.0
+ * @category laws
  */
 export const checkAssociativity = <A>(
   monoid: Monoid<A>,
@@ -384,6 +471,9 @@ export const checkAssociativity = <A>(
 
 /**
  * Check all monoid laws against a representative triple.
+ *
+ * @since 0.0.0
+ * @category laws
  */
 export const checkLaws = <A>(
   monoid: Monoid<A>,
