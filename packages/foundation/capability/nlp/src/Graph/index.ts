@@ -35,6 +35,22 @@ export * as AnnotatedTextGraph from "./AnnotatedTextGraph.ts";
  */
 export * as EffectGraph from "./EffectGraph.ts";
 /**
+ * The graph-operation execution engine: operations as graph morphisms, applied
+ * to leaf nodes under a strategy with result caching (Errors/Types/Operation/
+ * ResultStore/Executor).
+ *
+ * @example
+ * ```typescript
+ * import { GraphOperations } from "@beep/nlp/Graph"
+ *
+ * console.log(GraphOperations.Operation.identity<string>().name)
+ * ```
+ *
+ * @since 0.0.0
+ * @category graph
+ */
+export * as GraphOperations from "./GraphOperations/index.ts";
+/**
  * Generic categorical operations over `effect/Graph` directed graphs
  * (functorial maps, folds, the search adjunction, traversals, streaming).
  *

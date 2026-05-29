@@ -44,6 +44,9 @@
       "@beep/nlp/Graph": [
         "../../../../packages/foundation/capability/nlp/src/Graph/index.ts"
       ],
+      "@beep/nlp/Graph/GraphOperations": [
+        "../../../../packages/foundation/capability/nlp/src/Graph/GraphOperations/index.ts"
+      ],
       "@beep/nlp/IdentifierText": [
         "../../../../packages/foundation/capability/nlp/src/IdentifierText.ts"
       ],
