@@ -12629,23 +12629,23 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/ui/components/ui/tooltip` | `TooltipProvider` | function | `packages/foundation/ui-system/ui/src/components/ui/tooltip.tsx:12` | Tooltip timing context shared across tooltip instances. |
 | `@beep/ui/components/ui/tooltip` | `TooltipTrigger` | function | `packages/foundation/ui-system/ui/src/components/ui/tooltip.tsx:28` |  |
 | `@beep/ui/hooks/index` | `AudioFormat` | enum | `node_modules/@elevenlabs/client/dist/scribe/scribe.d.ts:2` |  |
-| `@beep/ui/hooks/index` | `BoundaryParams` | class | `packages/foundation/ui-system/ui/src/hooks/useNumberInput.ts:224` | Schema describing optional numeric bounds and controlled values for number input hooks. |
+| `@beep/ui/hooks/index` | `BoundaryParams` | class | `packages/foundation/ui-system/ui/src/hooks/useNumberInput.ts:223` | Schema describing optional numeric bounds and controlled values for number input hooks. |
 | `@beep/ui/hooks/index` | `CommitStrategy` | enum | `node_modules/@elevenlabs/client/dist/scribe/scribe.d.ts:11` |  |
-| `@beep/ui/hooks/index` | `getStepFactor` | const | `packages/foundation/ui-system/ui/src/hooks/useNumberInput.ts:352` | Compute the effective step multiplier for an increment or decrement gesture. |
-| `@beep/ui/hooks/index` | `maxSafeInteger` | const | `packages/foundation/ui-system/ui/src/hooks/useNumberInput.ts:216` | Highest safe integer supported by the hook defaults. |
-| `@beep/ui/hooks/index` | `minSafeInteger` | const | `packages/foundation/ui-system/ui/src/hooks/useNumberInput.ts:208` | Lowest safe integer supported by the hook defaults. |
-| `@beep/ui/hooks/index` | `NumberInputChangeMetadata` | class | `packages/foundation/ui-system/ui/src/hooks/useNumberInput.ts:412` | Metadata passed to `UseNumberInputOptions.onChange`. |
-| `@beep/ui/hooks/index` | `NumberInputError` | const | `packages/foundation/ui-system/ui/src/hooks/useNumberInput.ts:392` | Error states reported through the `onChange` metadata callback. |
-| `@beep/ui/hooks/index` | `NumberInputError` | type | `packages/foundation/ui-system/ui/src/hooks/useNumberInput.ts:404` | Runtime type for {@link NumberInputError}. |
-| `@beep/ui/hooks/index` | `NumberInputEventType` | const | `packages/foundation/ui-system/ui/src/hooks/useNumberInput.ts:372` | Event types reported through the `onChange` metadata callback. |
-| `@beep/ui/hooks/index` | `NumberInputEventType` | type | `packages/foundation/ui-system/ui/src/hooks/useNumberInput.ts:384` | Runtime type for {@link NumberInputEventType}. |
-| `@beep/ui/hooks/index` | `numberToString` | const | `packages/foundation/ui-system/ui/src/hooks/useNumberInput.ts:305` | Format an optional numeric value using a fixed decimal precision. |
+| `@beep/ui/hooks/index` | `getStepFactor` | const | `packages/foundation/ui-system/ui/src/hooks/useNumberInput.ts:351` | Compute the effective step multiplier for an increment or decrement gesture. |
+| `@beep/ui/hooks/index` | `maxSafeInteger` | const | `packages/foundation/ui-system/ui/src/hooks/useNumberInput.ts:215` | Highest safe integer supported by the hook defaults. |
+| `@beep/ui/hooks/index` | `minSafeInteger` | const | `packages/foundation/ui-system/ui/src/hooks/useNumberInput.ts:207` | Lowest safe integer supported by the hook defaults. |
+| `@beep/ui/hooks/index` | `NumberInputChangeMetadata` | class | `packages/foundation/ui-system/ui/src/hooks/useNumberInput.ts:411` | Metadata passed to `UseNumberInputOptions.onChange`. |
+| `@beep/ui/hooks/index` | `NumberInputError` | const | `packages/foundation/ui-system/ui/src/hooks/useNumberInput.ts:391` | Error states reported through the `onChange` metadata callback. |
+| `@beep/ui/hooks/index` | `NumberInputError` | type | `packages/foundation/ui-system/ui/src/hooks/useNumberInput.ts:403` | Runtime type for {@link NumberInputError}. |
+| `@beep/ui/hooks/index` | `NumberInputEventType` | const | `packages/foundation/ui-system/ui/src/hooks/useNumberInput.ts:371` | Event types reported through the `onChange` metadata callback. |
+| `@beep/ui/hooks/index` | `NumberInputEventType` | type | `packages/foundation/ui-system/ui/src/hooks/useNumberInput.ts:383` | Runtime type for {@link NumberInputEventType}. |
+| `@beep/ui/hooks/index` | `numberToString` | const | `packages/foundation/ui-system/ui/src/hooks/useNumberInput.ts:304` | Format an optional numeric value using a fixed decimal precision. |
 | `@beep/ui/hooks/index` | `ScribeStatus` | type | `packages/foundation/ui-system/ui/src/hooks/use-scribe.ts:39` | Connection status for the realtime Scribe hook. |
-| `@beep/ui/hooks/index` | `SpinParams` | class | `packages/foundation/ui-system/ui/src/hooks/useNumberInput.ts:242` | Schema describing step and precision overrides for spinner changes. |
-| `@beep/ui/hooks/index` | `toNumber` | const | `packages/foundation/ui-system/ui/src/hooks/useNumberInput.ts:273` | Convert editable number-input text into a number when the text is parseable. |
-| `@beep/ui/hooks/index` | `useNumberBoundary` | const | `packages/foundation/ui-system/ui/src/hooks/useNumberInput.ts:515` | Low-level number-input state hook for parsing, formatting, and boundary management. |
-| `@beep/ui/hooks/index` | `useNumberInput` | const | `packages/foundation/ui-system/ui/src/hooks/useNumberInput.ts:591` | Fully managed number-input hook with keyboard and spinner controls. |
-| `@beep/ui/hooks/index` | `UseNumberInputOptions` | type | `packages/foundation/ui-system/ui/src/hooks/useNumberInput.ts:450` | Options accepted by {@link useNumberBoundary} and {@link useNumberInput}. |
+| `@beep/ui/hooks/index` | `SpinParams` | class | `packages/foundation/ui-system/ui/src/hooks/useNumberInput.ts:241` | Schema describing step and precision overrides for spinner changes. |
+| `@beep/ui/hooks/index` | `toNumber` | const | `packages/foundation/ui-system/ui/src/hooks/useNumberInput.ts:272` | Convert editable number-input text into a number when the text is parseable. |
+| `@beep/ui/hooks/index` | `useNumberBoundary` | const | `packages/foundation/ui-system/ui/src/hooks/useNumberInput.ts:514` | Low-level number-input state hook for parsing, formatting, and boundary management. |
+| `@beep/ui/hooks/index` | `useNumberInput` | const | `packages/foundation/ui-system/ui/src/hooks/useNumberInput.ts:590` | Fully managed number-input hook with keyboard and spinner controls. |
+| `@beep/ui/hooks/index` | `UseNumberInputOptions` | type | `packages/foundation/ui-system/ui/src/hooks/useNumberInput.ts:449` | Options accepted by {@link useNumberBoundary} and {@link useNumberInput}. |
 | `@beep/ui/hooks/index` | `useScribe` | function | `packages/foundation/ui-system/ui/src/hooks/use-scribe.ts:145` | Manage an ElevenLabs realtime Scribe connection from React components. |
 | `@beep/ui/hooks/use-scribe` | `AudioFormat` | enum | `node_modules/@elevenlabs/client/dist/scribe/scribe.d.ts:2` |  |
 | `@beep/ui/hooks/use-scribe` | `CommitStrategy` | enum | `node_modules/@elevenlabs/client/dist/scribe/scribe.d.ts:11` |  |
@@ -12653,21 +12653,21 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/ui/hooks/use-scribe` | `useScribe` | function | `packages/foundation/ui-system/ui/src/hooks/use-scribe.ts:145` | Manage an ElevenLabs realtime Scribe connection from React components. |
 | `@beep/ui/hooks/useMobile` | `resolveIsMobile` | const | `packages/foundation/ui-system/ui/src/hooks/useMobile.ts:24` | Resolve an optional mobile flag to a concrete boolean value. |
 | `@beep/ui/hooks/useMobile` | `useIsMobile` | function | `packages/foundation/ui-system/ui/src/hooks/useMobile.ts:32` | React hook that tracks whether the current viewport matches the mobile media query. |
-| `@beep/ui/hooks/useNumberInput` | `BoundaryParams` | class | `packages/foundation/ui-system/ui/src/hooks/useNumberInput.ts:224` | Schema describing optional numeric bounds and controlled values for number input hooks. |
-| `@beep/ui/hooks/useNumberInput` | `getStepFactor` | const | `packages/foundation/ui-system/ui/src/hooks/useNumberInput.ts:352` | Compute the effective step multiplier for an increment or decrement gesture. |
-| `@beep/ui/hooks/useNumberInput` | `maxSafeInteger` | const | `packages/foundation/ui-system/ui/src/hooks/useNumberInput.ts:216` | Highest safe integer supported by the hook defaults. |
-| `@beep/ui/hooks/useNumberInput` | `minSafeInteger` | const | `packages/foundation/ui-system/ui/src/hooks/useNumberInput.ts:208` | Lowest safe integer supported by the hook defaults. |
-| `@beep/ui/hooks/useNumberInput` | `NumberInputChangeMetadata` | class | `packages/foundation/ui-system/ui/src/hooks/useNumberInput.ts:412` | Metadata passed to `UseNumberInputOptions.onChange`. |
-| `@beep/ui/hooks/useNumberInput` | `NumberInputError` | const | `packages/foundation/ui-system/ui/src/hooks/useNumberInput.ts:392` | Error states reported through the `onChange` metadata callback. |
-| `@beep/ui/hooks/useNumberInput` | `NumberInputError` | type | `packages/foundation/ui-system/ui/src/hooks/useNumberInput.ts:404` | Runtime type for {@link NumberInputError}. |
-| `@beep/ui/hooks/useNumberInput` | `NumberInputEventType` | const | `packages/foundation/ui-system/ui/src/hooks/useNumberInput.ts:372` | Event types reported through the `onChange` metadata callback. |
-| `@beep/ui/hooks/useNumberInput` | `NumberInputEventType` | type | `packages/foundation/ui-system/ui/src/hooks/useNumberInput.ts:384` | Runtime type for {@link NumberInputEventType}. |
-| `@beep/ui/hooks/useNumberInput` | `numberToString` | const | `packages/foundation/ui-system/ui/src/hooks/useNumberInput.ts:305` | Format an optional numeric value using a fixed decimal precision. |
-| `@beep/ui/hooks/useNumberInput` | `SpinParams` | class | `packages/foundation/ui-system/ui/src/hooks/useNumberInput.ts:242` | Schema describing step and precision overrides for spinner changes. |
-| `@beep/ui/hooks/useNumberInput` | `toNumber` | const | `packages/foundation/ui-system/ui/src/hooks/useNumberInput.ts:273` | Convert editable number-input text into a number when the text is parseable. |
-| `@beep/ui/hooks/useNumberInput` | `useNumberBoundary` | const | `packages/foundation/ui-system/ui/src/hooks/useNumberInput.ts:515` | Low-level number-input state hook for parsing, formatting, and boundary management. |
-| `@beep/ui/hooks/useNumberInput` | `useNumberInput` | const | `packages/foundation/ui-system/ui/src/hooks/useNumberInput.ts:591` | Fully managed number-input hook with keyboard and spinner controls. |
-| `@beep/ui/hooks/useNumberInput` | `UseNumberInputOptions` | type | `packages/foundation/ui-system/ui/src/hooks/useNumberInput.ts:450` | Options accepted by {@link useNumberBoundary} and {@link useNumberInput}. |
+| `@beep/ui/hooks/useNumberInput` | `BoundaryParams` | class | `packages/foundation/ui-system/ui/src/hooks/useNumberInput.ts:223` | Schema describing optional numeric bounds and controlled values for number input hooks. |
+| `@beep/ui/hooks/useNumberInput` | `getStepFactor` | const | `packages/foundation/ui-system/ui/src/hooks/useNumberInput.ts:351` | Compute the effective step multiplier for an increment or decrement gesture. |
+| `@beep/ui/hooks/useNumberInput` | `maxSafeInteger` | const | `packages/foundation/ui-system/ui/src/hooks/useNumberInput.ts:215` | Highest safe integer supported by the hook defaults. |
+| `@beep/ui/hooks/useNumberInput` | `minSafeInteger` | const | `packages/foundation/ui-system/ui/src/hooks/useNumberInput.ts:207` | Lowest safe integer supported by the hook defaults. |
+| `@beep/ui/hooks/useNumberInput` | `NumberInputChangeMetadata` | class | `packages/foundation/ui-system/ui/src/hooks/useNumberInput.ts:411` | Metadata passed to `UseNumberInputOptions.onChange`. |
+| `@beep/ui/hooks/useNumberInput` | `NumberInputError` | const | `packages/foundation/ui-system/ui/src/hooks/useNumberInput.ts:391` | Error states reported through the `onChange` metadata callback. |
+| `@beep/ui/hooks/useNumberInput` | `NumberInputError` | type | `packages/foundation/ui-system/ui/src/hooks/useNumberInput.ts:403` | Runtime type for {@link NumberInputError}. |
+| `@beep/ui/hooks/useNumberInput` | `NumberInputEventType` | const | `packages/foundation/ui-system/ui/src/hooks/useNumberInput.ts:371` | Event types reported through the `onChange` metadata callback. |
+| `@beep/ui/hooks/useNumberInput` | `NumberInputEventType` | type | `packages/foundation/ui-system/ui/src/hooks/useNumberInput.ts:383` | Runtime type for {@link NumberInputEventType}. |
+| `@beep/ui/hooks/useNumberInput` | `numberToString` | const | `packages/foundation/ui-system/ui/src/hooks/useNumberInput.ts:304` | Format an optional numeric value using a fixed decimal precision. |
+| `@beep/ui/hooks/useNumberInput` | `SpinParams` | class | `packages/foundation/ui-system/ui/src/hooks/useNumberInput.ts:241` | Schema describing step and precision overrides for spinner changes. |
+| `@beep/ui/hooks/useNumberInput` | `toNumber` | const | `packages/foundation/ui-system/ui/src/hooks/useNumberInput.ts:272` | Convert editable number-input text into a number when the text is parseable. |
+| `@beep/ui/hooks/useNumberInput` | `useNumberBoundary` | const | `packages/foundation/ui-system/ui/src/hooks/useNumberInput.ts:514` | Low-level number-input state hook for parsing, formatting, and boundary management. |
+| `@beep/ui/hooks/useNumberInput` | `useNumberInput` | const | `packages/foundation/ui-system/ui/src/hooks/useNumberInput.ts:590` | Fully managed number-input hook with keyboard and spinner controls. |
+| `@beep/ui/hooks/useNumberInput` | `UseNumberInputOptions` | type | `packages/foundation/ui-system/ui/src/hooks/useNumberInput.ts:449` | Options accepted by {@link useNumberBoundary} and {@link useNumberInput}. |
 | `@beep/ui/hooks/useSpinner` | `useSpinner` | function | `packages/foundation/ui-system/ui/src/hooks/useSpinner.ts:122` | Spinner button hook with press-and-hold repeat behavior. |
 | `@beep/ui/lib/index` | `cn` | function | `packages/foundation/ui-system/ui/src/lib/utils.ts:22` | Merge Tailwind CSS class names with conflict resolution. |
 | `@beep/ui/lib/index` | `sanitizeAnchorHref` | const | `packages/foundation/ui-system/ui/src/lib/url.ts:89` | Replaces active script URL protocols with a harmless fragment. |
@@ -12745,9 +12745,9 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-configs` | `DocsESLintConfig` | const | `packages/tooling/policy-pack/repo-configs/src/index.ts:49` | Shared docs-only repository ESLint flat config. |
 | `@beep/repo-configs` | `DocsESLintConfigShape` | type | `packages/tooling/policy-pack/repo-configs/src/index.ts:36` | Flat docs-only ESLint config array shape exported by this package. |
 | `@beep/repo-configs` | `VERSION` | const | `packages/tooling/policy-pack/repo-configs/src/index.ts:22` | Package version for `@beep/repo-configs`. |
-| `@beep/repo-configs/eslint/DocsESLintConfig` | `default` | const | `packages/tooling/policy-pack/repo-configs/src/eslint/DocsESLintConfig.ts:52` | Docs-only ESLint configuration used by the repository root `lint:jsdoc` lane. |
-| `@beep/repo-configs/eslint/DocsESLintConfig` | `DocsESLintConfig` | const | `packages/tooling/policy-pack/repo-configs/src/eslint/DocsESLintConfig.ts:52` | Docs-only ESLint configuration used by the repository root `lint:jsdoc` lane. |
-| `@beep/repo-configs/eslint/DocsESLintConfig` | `DocsESLintConfigShape` | type | `packages/tooling/policy-pack/repo-configs/src/eslint/DocsESLintConfig.ts:39` | Flat ESLint config array shape exported for repository documentation checks. |
+| `@beep/repo-configs/eslint/DocsESLintConfig` | `default` | const | `packages/tooling/policy-pack/repo-configs/src/eslint/DocsESLintConfig.ts:48` | Docs-only ESLint configuration used by the repository root `lint:jsdoc` lane. |
+| `@beep/repo-configs/eslint/DocsESLintConfig` | `DocsESLintConfig` | const | `packages/tooling/policy-pack/repo-configs/src/eslint/DocsESLintConfig.ts:48` | Docs-only ESLint configuration used by the repository root `lint:jsdoc` lane. |
+| `@beep/repo-configs/eslint/DocsESLintConfig` | `DocsESLintConfigShape` | type | `packages/tooling/policy-pack/repo-configs/src/eslint/DocsESLintConfig.ts:35` | Flat ESLint config array shape exported for repository documentation checks. |
 | `@beep/repo-configs/eslint/EffectLawsAllowlist` | `getAllowlistDiagnostics` | const | `packages/tooling/policy-pack/repo-configs/src/eslint/EffectLawsAllowlist.ts:69` | Retrieve allowlist decode diagnostics. |
 | `@beep/repo-configs/eslint/EffectLawsAllowlist` | `getAllowlistEntries` | const | `packages/tooling/policy-pack/repo-configs/src/eslint/EffectLawsAllowlist.ts:84` | Retrieve normalized allowlist entries from the generated snapshot. |
 | `@beep/repo-configs/eslint/EffectLawsAllowlist` | `isViolationAllowlisted` | const | `packages/tooling/policy-pack/repo-configs/src/eslint/EffectLawsAllowlist.ts:104` | Check whether a normalized violation key appears in the effect-laws allowlist. |
