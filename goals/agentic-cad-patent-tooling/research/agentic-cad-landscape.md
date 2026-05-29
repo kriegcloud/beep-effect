@@ -61,10 +61,12 @@ Fusion/Forma, and MakeIt3D — offers the most polished text-to-CAD generation b
 invention prompt to a vendor server; Zoo's free tier explicitly reserves the right to train on
 that data, a direct Rule 1.6 red flag for privileged disclosures. **Open-source / local
 libraries** — CadQuery and build123d (both Apache-2.0 Python frameworks on the industrial
-OpenCASCADE B-rep kernel), plus the GPLv3 web app CADAM (adam.new's own open-source
-counterpart) — can run fully on the attorney's machine, and CadQuery is in fact the code
-representation that modern text-to-CAD systems (MakeIt3D, the *Text-to-CadQuery* research line)
-generate under the hood. For an IP attorney whose top constraint is confidentiality, the
+OpenCASCADE B-rep kernel) — can run fully on the attorney's machine, and CadQuery is in fact the
+code representation that modern text-to-CAD systems (MakeIt3D, the *Text-to-CadQuery* research
+line) generate under the hood. A third open-source option, the GPLv3 web app CADAM (adam.new's
+own open-source counterpart), runs its *geometry* locally but by default sends the invention
+prompt/image to a cloud LLM for the generation step, so it is privilege-safe only if paired with
+a local model (see Job 2) — it is **not** in the same fully-offline category as CadQuery/build123d. For an IP attorney whose top constraint is confidentiality, the
 strongest *adoptable* primitives are the local Python kernels: **build123d is uniquely able to
 project a 3D model into black-line 2D drawings (visible/hidden edges, title block, SVG/DXF
 export)** — the patent-figure job — while **CadQuery is the canonical headless geometry backend**
@@ -137,9 +139,11 @@ This is the adam.new job, and it is the most crowded.
   modeling and uniquely strong at the 2D-figure side. [Claims 19, 20]
 
 **Research signal:** the field is converging on **CadQuery code as the LLM target** because
-CadQuery is a Python scripting language LLMs already handle well, letting fine-tuned models emit
-3D models *directly* without the intermediate command-sequence / CAD-vector representations that
-pretrained models cannot handle (Text-to-CadQuery, arXiv 2505.06507). [Claim 23]
+CadQuery is a Python scripting language an LLM can emit *directly* — avoiding the intermediate
+command-sequence / CAD-vector representations that pretrained models cannot handle — so models can
+be fine-tuned to generate 3D models as CadQuery scripts (Text-to-CadQuery, arXiv 2505.06507). This
+rests only on CadQuery being a direct script target, **not** on any claim that LLMs "already excel"
+at CAD/spatial reasoning (that stronger claim was refuted — see Caveats). [Claim 23]
 
 **Verdict for Job 2:** for *privilege-safe* work, the local Python kernels (CadQuery / build123d)
 are the adoptable core; for *convenience on non-privileged* work, Zoo's API is the most mature
@@ -202,7 +206,7 @@ on.
 
 | Tool | Job(s) | Type | Integration surface (rung) | Deployment | Privilege verdict (Rule 1.6) | Price signal |
 |---|---|---|---|---|---|---|
-| **Zoo Text-to-CAD / Zookeeper** | 2, 3, (4 gen) | SaaS (commercial) | **REST API** (`POST /ai/text-to-cad/{output_format}` @ api.zoo.dev) + KCL scriptable language + STEP/GLTF/OBJ/etc. interop; official Python/TS/Go/Rust client libs (rung 2) | **Cloud-only** (geometry engine cloud; engine not open source; even desktop app needs internet) | **Caution → red flag on Free tier.** Data transmitted to Zoo; **Free plan: Zoo may train on usage data.** Cloud mitigations exist (SOC 2 Type II expected Q4 2025, ITAR/US region, enterprise private training) but data still leaves the firm. | Free tier (trains on data) + paid plans / server-minute billing |
+| **Zoo Text-to-CAD / Zookeeper** | 2, 3, (4 gen) | SaaS (commercial) | **REST API** (`POST /ai/text-to-cad/{output_format}` @ api.zoo.dev) + KCL scriptable language + STEP/GLTF/OBJ/etc. interop; official Python/TS/Go/Rust client libs (rung 2) | **Cloud-only** (geometry engine cloud; engine not open source; even desktop app needs internet) | **Caution → red flag on Free tier.** Data transmitted to Zoo; **Free plan: Zoo may train on usage data.** Cloud mitigations exist (SOC 2 Type II was *expected Q4 2025* — that deadline has now passed; confirm current status at zoo.dev/trust — plus ITAR/US region and enterprise private training) but data still leaves the firm. | Free tier (trains on data) + paid plans / server-minute billing |
 | **Autodesk "neural CAD" (Fusion/Forma)** | 2, (3) | SaaS (commercial) | Not yet GA — no published API surface for it yet (will live inside Fusion/Forma) | **Cloud** (Autodesk cloud-AI) | **Unknown/likely cloud** — evaluate when it ships; assume cloud transmission until Autodesk states otherwise. | Bundled into Fusion/Forma (commercial); not yet available |
 | **MakeIt3D — Text-to-CAD** | 2 | SaaS (commercial, Beta) | **File-format interop only** for the text-to-CAD feature (STL; CadQuery code can also yield STEP/3MF). **No API/CLI/SDK for text-to-CAD** (rung 5) | **Cloud-only** (browser; secure CAD worker, OCCT kernel, cloud LLM) | **Caution.** Invention text + execution in vendor cloud; no stated training opt-out found; treat as not privilege-safe absent a confidentiality agreement. | Beta SaaS |
 | **MakeIt3D — image-to-3D API** | 3 | SaaS (commercial) | **REST API** (`POST /v1/generate`, `GET /v1/generate/:id`, `…/result`) — **image→mesh only, not CAD**; pre-launch (rung 2, but wrong job for editable CAD) | **Cloud-only** | **Caution.** Image + output in vendor cloud; mesh only (not editable CAD). | Pre-launch; early-partner access |
@@ -317,10 +321,12 @@ neural CAD.**
 # Caveats & time-sensitivity
 
 - **Cloud confidentiality is vendor-asserted, not audited here.** Zoo's mitigations (SOC 2 Type
-  II *expected* Q4 2025, ITAR/US-regulated region, enterprise private-data training) are claims
-  on the vendor's trust page; the **Free-tier training statement is the firm, primary-sourced
-  red flag**. Any privileged use of a cloud tool needs a signed confidentiality/DPA and a
-  no-training assurance reviewed by the attorney. [Claims 2, 4]
+  II *expected* Q4 2025 — **a deadline that had already passed when this report was written
+  (2026-05-29) and whose outcome was not verified here; confirm Zoo's current SOC 2 status
+  directly before any privileged use** — ITAR/US-regulated region, enterprise private-data
+  training) are claims on the vendor's trust page; the **Free-tier training statement is the
+  firm, primary-sourced red flag**. Any privileged use of a cloud tool needs a signed
+  confidentiality/DPA and a no-training assurance reviewed by the attorney. [Claims 2, 4]
 - **Autodesk neural CAD is not generally available** as of May 2026 (announced AU 2025 as
   "upcoming"; multiple May-2026 sources confirm no GA date). Its integration surface and
   deployment/privilege posture cannot be evaluated until it ships. [Claims 6, 7]
