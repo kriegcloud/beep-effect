@@ -35,9 +35,7 @@ export function useIsMobile() {
 
   React.useEffect(() => {
     const mql = window.matchMedia(mobileMediaQuery);
-    const onChange = () => {
-      setIsMobile(O.some(mql.matches));
-    };
+    const onChange = () => setIsMobile(O.some(mql.matches));
 
     mql.addEventListener("change", onChange);
     setIsMobile(O.some(mql.matches));

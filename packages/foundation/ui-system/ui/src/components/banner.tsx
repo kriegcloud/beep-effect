@@ -37,7 +37,7 @@ const variantIcons: Record<BannerVariant, React.ReactNode> = {
 
 type BannerRootProps = React.ComponentProps<"div"> &
   VariantProps<typeof bannerVariants> & {
-    icon?: React.ReactNode;
+    readonly icon?: React.ReactNode;
   };
 
 function Banner({ className, variant = "default", icon, children, ...props }: BannerRootProps) {
@@ -64,7 +64,7 @@ const BannerDescription = ({ className, ...props }: React.ComponentProps<"p">) =
 );
 
 type BannerDismissProps = React.ComponentProps<"button"> & {
-  onDismiss?: undefined | (() => void);
+  readonly onDismiss?: undefined | (() => void);
 };
 
 const BannerDismiss = ({ className, onDismiss, onClick, ...props }: BannerDismissProps) => (
@@ -95,4 +95,4 @@ Banner.Dismiss = BannerDismiss;
  * @category components
  * @since 0.0.0
  */
-export { bannerVariants };
+export { Banner, BannerContent, BannerDescription, BannerDismiss, BannerTitle, bannerVariants };

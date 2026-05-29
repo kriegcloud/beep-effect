@@ -87,7 +87,7 @@ const stringToColor = (str: string): string => {
   for (let i = 0; i < str.length; i++) {
     const char = O.getOrElse(Str.charCodeAt(str, i), () => 0);
     hash = (hash << 5) - hash + char;
-    hash = hash & hash;
+    hash &= hash;
   }
   const hue = Math.abs(hash) % 360;
   const saturation = 65 + (Math.abs(hash) % 20);

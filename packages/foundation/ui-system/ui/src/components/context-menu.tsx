@@ -1,7 +1,7 @@
 "use client";
 
 import { ContextMenu as ContextMenuPrimitive } from "@base-ui/react/context-menu";
-import { CaretRight, CheckIcon } from "@phosphor-icons/react";
+import { CaretRightIcon, CheckIcon } from "@phosphor-icons/react";
 import { cn } from "../lib/index.ts";
 import type * as React from "react";
 
@@ -157,7 +157,7 @@ function ContextMenuSubTrigger({
       {...props}
     >
       {children}
-      <CaretRight className="ml-auto" />
+      <CaretRightIcon className="ml-auto" />
     </ContextMenuPrimitive.SubmenuTrigger>
   );
 }

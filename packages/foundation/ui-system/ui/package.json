@@ -17,10 +17,10 @@
     "lint:fix": "bun run beep:lint:fix",
     "test:storybook": "playwright install --only-shell chromium && vitest --config vitest.storybook.config.ts",
     "beep:build": "tsc -b tsconfig.json",
-    "beep:check": "tsgo -b tsconfig.json",
+    "beep:check": "tsgo -b tsconfig.json && tsgo -p tsconfig.stories.json",
     "beep:test": "bunx --bun vitest run",
-    "beep:lint": "biome check src/ .storybook/",
-    "beep:lint:fix": "biome check src/ .storybook/ --write",
+    "beep:lint": "biome check src/ .storybook/ stories/",
+    "beep:lint:fix": "biome check src/ .storybook/ stories/ --write",
     "beep:audit": "bun run beep:build && bun run beep:check && bun run beep:test && bun run beep:lint",
     "audit": "bun run --if-present beep:audit"
   },

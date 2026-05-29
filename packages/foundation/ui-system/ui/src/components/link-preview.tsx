@@ -85,7 +85,7 @@ const fetchMetadataHtml = (href: string): Effect.Effect<O.Option<string>> =>
   Effect.tryPromise({
     try: () => window.fetch(href).then((response) => (response.ok ? response.text().then(O.some) : O.none<string>())),
     catch: () => undefined,
-  }).pipe(Effect.catch(() => Effect.succeed(O.none<string>())));
+  }).pipe(Effect.orElseSucceed(O.none<string>));
 
 const getFallbackMetadata = (href: string): UrlMetadata => {
   let origin = href;
@@ -178,7 +178,7 @@ export function LinkPreview({ href, children, className, metadata }: LinkPreview
 
     const observer = new IntersectionObserver(
       ([entry]) => {
-        if (entry?.isIntersecting === true) {
+        if (entry?.isIntersecting) {
           setIsInView(true);
           observer.unobserve(element);
         }
@@ -250,9 +250,7 @@ export function LinkPreview({ href, children, className, metadata }: LinkPreview
 
       {description !== undefined && <div className="line-clamp-3 w-full text-xs text-gray-400">{description}</div>}
 
-      <div className="truncate text-xs text-primary">
-        {pipe(href, Str.replace("https://", ""), Str.replace("http://", ""))}
-      </div>
+      <div className="truncate text-xs text-primary">{pipe(href, Str.replace("https://", ""))}</div>
     </div>
   );
 

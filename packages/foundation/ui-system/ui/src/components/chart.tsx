@@ -56,11 +56,11 @@ function ChartContainer({
   initialDimension = INITIAL_DIMENSION,
   ...props
 }: React.ComponentProps<"div"> & {
-  config: ChartConfig;
-  children: React.ComponentProps<typeof RechartsPrimitive.ResponsiveContainer>["children"];
-  initialDimension?: {
-    width: number;
-    height: number;
+  readonly config: ChartConfig;
+  readonly children: React.ComponentProps<typeof RechartsPrimitive.ResponsiveContainer>["children"];
+  readonly initialDimension?: {
+    readonly width: number;
+    readonly height: number;
   };
 }) {
   const uniqueId = React.useId();
@@ -92,7 +92,7 @@ function ChartContainer({
  * @category components
  * @since 0.0.0
  */
-const ChartStyle = ({ id, config }: { id: string; config: ChartConfig }) => {
+const ChartStyle = ({ id, config }: { readonly id: string; readonly config: ChartConfig }) => {
   const colorConfig = A.filter(
     Struct.entries(config),
     ([, itemConfig]) => (itemConfig.theme ?? itemConfig.color) !== undefined
@@ -158,11 +158,11 @@ function ChartTooltipContent({
   labelKey,
 }: React.ComponentProps<typeof RechartsPrimitive.Tooltip> &
   React.ComponentProps<"div"> & {
-    hideLabel?: boolean;
-    hideIndicator?: boolean;
-    indicator?: "line" | "dot" | "dashed";
-    nameKey?: string;
-    labelKey?: string;
+    readonly hideLabel?: boolean;
+    readonly hideIndicator?: boolean;
+    readonly indicator?: "line" | "dot" | "dashed";
+    readonly nameKey?: string;
+    readonly labelKey?: string;
   } & Omit<RechartsPrimitive.DefaultTooltipContentProps<TooltipValueType, TooltipNameType>, "accessibilityLayer">) {
   const { config } = useChart();
 
@@ -298,8 +298,8 @@ function ChartLegendContent({
   verticalAlign = "bottom",
   nameKey,
 }: React.ComponentProps<"div"> & {
-  hideIcon?: boolean;
-  nameKey?: string;
+  readonly hideIcon?: boolean;
+  readonly nameKey?: string;
 } & RechartsPrimitive.DefaultLegendContentProps) {
   const { config } = useChart();
 
