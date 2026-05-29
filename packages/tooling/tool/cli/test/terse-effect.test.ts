@@ -400,6 +400,98 @@ describe("terse effect laws", () => {
       ).pipe(provideScopedLayer(testLayer))
     ));
 
+  it("reports conditional optional object spread candidates", () =>
+    Effect.runPromise(
+      withTempWorkingDirectory(
+        Effect.gen(function* () {
+          yield* writeTsconfig;
+          yield* writeProjectFile(
+            "packages/demo/src/index.ts",
+            A.join(
+              [
+                "declare const name: string | undefined;",
+                "declare const bucketName: string | undefined;",
+                "",
+                "export const options = {",
+                "  verbose: true,",
+                "  ...(name === undefined ? {} : { name }),",
+                "  ...(bucketName !== undefined ? { lockTableName: `${bucketName}-locks` } : {}),",
+                "};",
+                "",
+              ],
+              "\n"
+            )
+          );
+
+          const summary = yield* runTerseEffectRules(
+            TerseEffectRulesOptions.make({
+              write: false,
+              strictCheck: true,
+              excludePaths: [],
+            })
+          );
+
+          expect(summary.touchedFiles).toBe(1);
+          expect(summary.optionObjectCompactionCandidatesDetected).toBe(0);
+          expect(summary.conditionalOptionalObjectSpreadCandidatesDetected).toBe(2);
+          expect(summary.strictFailure).toBe(true);
+          expect(summary.changedFiles).toEqual(["packages/demo/src/index.ts"]);
+        })
+      ).pipe(provideScopedLayer(testLayer))
+    ));
+
+  it("ignores JSX prop spreads and non-object optional spreads", () =>
+    Effect.runPromise(
+      withTempWorkingDirectory(
+        Effect.gen(function* () {
+          yield* writeTsconfig;
+          yield* writeProjectFile(
+            "packages/demo/src/index.ts",
+            A.join(
+              [
+                "declare const id: string | undefined;",
+                "declare const imageName: string;",
+                "declare const templateId: string | undefined;",
+                "",
+                "export const ids = [",
+                "  ...(id === undefined ? [] : [id]),",
+                "];",
+                "export const selector = {",
+                "  ...(templateId === undefined ? { imageName } : { templateId }),",
+                "};",
+                "",
+              ],
+              "\n"
+            )
+          );
+          yield* writeProjectFile(
+            "packages/demo/src/view.tsx",
+            A.join(
+              [
+                "declare const value: string | undefined;",
+                "",
+                "export const view = <input {...(value !== undefined ? { value } : {})} />;",
+                "",
+              ],
+              "\n"
+            )
+          );
+
+          const summary = yield* runTerseEffectRules(
+            TerseEffectRulesOptions.make({
+              write: false,
+              strictCheck: true,
+              excludePaths: [],
+            })
+          );
+
+          expect(summary.touchedFiles).toBe(0);
+          expect(summary.conditionalOptionalObjectSpreadCandidatesDetected).toBe(0);
+          expect(summary.strictFailure).toBe(false);
+        })
+      ).pipe(provideScopedLayer(testLayer))
+    ));
+
   it("reports nested Option and Bool match candidates", () =>
     Effect.runPromise(
       withTempWorkingDirectory(

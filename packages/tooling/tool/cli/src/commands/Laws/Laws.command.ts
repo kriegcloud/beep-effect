@@ -241,6 +241,9 @@ const lawsTerseEffectCommand = Command.make(
       `[effect-governance-terse-effect] option_object_compaction_candidates_detected=${summary.optionObjectCompactionCandidatesDetected}`
     );
     yield* Console.log(
+      `[effect-governance-terse-effect] conditional_optional_object_spread_candidates_detected=${summary.conditionalOptionalObjectSpreadCandidatesDetected}`
+    );
+    yield* Console.log(
       `[effect-governance-terse-effect] nested_option_match_candidates_detected=${summary.nestedOptionMatchCandidatesDetected}`
     );
     yield* Console.log(

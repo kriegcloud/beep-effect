@@ -13,9 +13,9 @@ import { $RepoCliId } from "@beep/identity/packages";
 import { DomainError } from "@beep/repo-utils";
 import { LiteralKit } from "@beep/schema";
 import { A } from "@beep/utils";
+import * as O from "@beep/utils/Option";
 import { DateTime, Duration, Effect, FileSystem, Match, Order, Path, pipe, Result } from "effect";
 import { dual, flow } from "effect/Function";
-import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
@@ -1016,7 +1016,7 @@ const runPacketEval = Effect.fn("DocgenQualityWorkerEval.runPacketEval")(functio
     O.getOrElse(() => ({}))
   );
   const timed = yield* runner({
-    ...(baseUrl === undefined ? {} : { baseUrl }),
+    ...O.getSomesStruct({ baseUrl: O.fromUndefinedOr(baseUrl) }),
     model,
     prompt: workerPrompt(candidate),
     provider,
@@ -1263,7 +1263,7 @@ export const analyzeDocgenQualityWorkerEval = Effect.fn("DocgenQualityWorkerEval
               );
 
               return runPacketEval({
-                ...(resolvedBaseUrl === undefined ? {} : { baseUrl: resolvedBaseUrl }),
+                ...O.getSomesStruct({ baseUrl: O.fromUndefinedOr(resolvedBaseUrl) }),
                 candidate,
                 model,
                 provider,

@@ -12,8 +12,8 @@ import { DomainError, findRepoRoot } from "@beep/repo-utils";
 import { renderBiomeJson } from "@beep/repo-utils/schemas/BiomeJson";
 import { Runpod, RunpodConfigInput } from "@beep/runpod";
 import { A, Str } from "@beep/utils";
+import * as O from "@beep/utils/Option";
 import { Config, Console, Effect, FileSystem, flow, Layer, Match, Path, pipe } from "effect";
-import * as O from "effect/Option";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
 import { Command, Flag } from "effect/unstable/cli";
@@ -1037,7 +1037,7 @@ const docgenQualityWorkerRunpodEvalCommand = Command.make(
       const report = yield* runDocgenQualityWorkerRunpodEval({
         allow24GbFallback,
         confirmRunpodEval,
-        ...(resolvedGpuTypeIds === undefined ? {} : { gpuTypeIds: resolvedGpuTypeIds }),
+        ...O.getSomesStruct({ gpuTypeIds: O.fromUndefinedOr(resolvedGpuTypeIds) }),
         keepPod,
         model,
         otlpBaseUrl,

@@ -8,9 +8,9 @@
 import { $RepoAiMetricsId } from "@beep/identity/packages";
 import { LiteralKit, TaggedErrorClass } from "@beep/schema";
 import { A, Str } from "@beep/utils";
+import * as O from "@beep/utils/Option";
 import { Effect, Encoding, flow, Order, pipe } from "effect";
 import { dual } from "effect/Function";
-import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import { firstString, metricEventName, optionalTimestamp, transcriptLines } from "./internal/transcript-utils.ts";
 import { AiMetricsSourceAttribution, AiMetricsSourceRole, AiMetricsTranscriptSource } from "./models.ts";
@@ -475,13 +475,13 @@ export const makeAiMetricsSourceAttribution = Effect.fn("AiMetrics.makeAiMetrics
   );
 
   return AiMetricsSourceAttribution.make({
-    ...(subagentValue?.thread_spawn === undefined ? {} : { threadSpawn: subagentValue.thread_spawn }),
-    ...(agentNicknameHash === undefined ? {} : { agentNicknameHash }),
-    ...(agentRoleHash === undefined ? {} : { agentRoleHash }),
-    ...(forkedFromIdHash === undefined ? {} : { forkedFromIdHash }),
-    ...(parentSessionIdHash === undefined ? {} : { parentSessionIdHash }),
-    ...(parentThreadIdHash === undefined ? {} : { parentThreadIdHash }),
-    ...(sessionIdHash === undefined ? {} : { sessionIdHash }),
+    ...O.getSomesStruct({ threadSpawn: O.fromUndefinedOr(subagentValue?.thread_spawn) }),
+    ...O.getSomesStruct({ agentNicknameHash: O.fromUndefinedOr(agentNicknameHash) }),
+    ...O.getSomesStruct({ agentRoleHash: O.fromUndefinedOr(agentRoleHash) }),
+    ...O.getSomesStruct({ forkedFromIdHash: O.fromUndefinedOr(forkedFromIdHash) }),
+    ...O.getSomesStruct({ parentSessionIdHash: O.fromUndefinedOr(parentSessionIdHash) }),
+    ...O.getSomesStruct({ parentThreadIdHash: O.fromUndefinedOr(parentThreadIdHash) }),
+    ...O.getSomesStruct({ sessionIdHash: O.fromUndefinedOr(sessionIdHash) }),
     sourceRole,
   });
 });
@@ -605,7 +605,7 @@ export const makeSanitizedTranscript = Effect.fn("AiMetrics.makeSanitizedTranscr
 }) {
   const attribution = yield* makeAiMetricsSourceAttribution({
     content,
-    ...(hashSalt === undefined ? {} : { hashSalt }),
+    ...O.getSomesStruct({ hashSalt: O.fromUndefinedOr(hashSalt) }),
     relativePath: relativePath ?? basenameAttributionPath(sourcePath),
     sourceKind: summary.sourceKind,
     sourcePath,
@@ -615,27 +615,27 @@ export const makeSanitizedTranscript = Effect.fn("AiMetrics.makeSanitizedTranscr
     content,
     sourceKind: summary.sourceKind,
     sourcePathHash: summary.sourcePathHash,
-    ...(hashSalt === undefined ? {} : { hashSalt }),
+    ...O.getSomesStruct({ hashSalt: O.fromUndefinedOr(hashSalt) }),
   });
 
   return AiMetricsSanitizedTranscript.make({
     acceptedEvents: summary.acceptedEvents,
-    ...(attribution.agentNicknameHash === undefined ? {} : { agentNicknameHash: attribution.agentNicknameHash }),
-    ...(attribution.agentRoleHash === undefined ? {} : { agentRoleHash: attribution.agentRoleHash }),
+    ...O.getSomesStruct({ agentNicknameHash: O.fromUndefinedOr(attribution.agentNicknameHash) }),
+    ...O.getSomesStruct({ agentRoleHash: O.fromUndefinedOr(attribution.agentRoleHash) }),
     eventNames: eventNameList(envelopes),
-    ...(attribution.forkedFromIdHash === undefined ? {} : { forkedFromIdHash: attribution.forkedFromIdHash }),
+    ...O.getSomesStruct({ forkedFromIdHash: O.fromUndefinedOr(attribution.forkedFromIdHash) }),
     rawEventEnvelopes: envelopes,
     rejectedLines: summary.rejectedLines,
-    ...(attribution.parentSessionIdHash === undefined ? {} : { parentSessionIdHash: attribution.parentSessionIdHash }),
-    ...(attribution.parentThreadIdHash === undefined ? {} : { parentThreadIdHash: attribution.parentThreadIdHash }),
-    ...(attribution.sessionIdHash === undefined ? {} : { sessionIdHash: attribution.sessionIdHash }),
+    ...O.getSomesStruct({ parentSessionIdHash: O.fromUndefinedOr(attribution.parentSessionIdHash) }),
+    ...O.getSomesStruct({ parentThreadIdHash: O.fromUndefinedOr(attribution.parentThreadIdHash) }),
+    ...O.getSomesStruct({ sessionIdHash: O.fromUndefinedOr(attribution.sessionIdHash) }),
     sourceKind: summary.sourceKind,
     sourcePathHash: summary.sourcePathHash,
     sourceRole: attribution.sourceRole,
-    ...(attribution.threadSpawn === undefined ? {} : { threadSpawn: attribution.threadSpawn }),
+    ...O.getSomesStruct({ threadSpawn: O.fromUndefinedOr(attribution.threadSpawn) }),
     totalLines: summary.totalLines,
-    ...(summary.firstTimestamp === undefined ? {} : { firstTimestamp: summary.firstTimestamp }),
-    ...(summary.lastTimestamp === undefined ? {} : { lastTimestamp: summary.lastTimestamp }),
+    ...O.getSomesStruct({ firstTimestamp: O.fromUndefinedOr(summary.firstTimestamp) }),
+    ...O.getSomesStruct({ lastTimestamp: O.fromUndefinedOr(summary.lastTimestamp) }),
   });
 });
 
@@ -669,10 +669,10 @@ export const makeAiMetricsPrivacyCheckResult = Effect.fn("AiMetrics.makeAiMetric
     redaction: redactionResultFor(content),
     sanitized: yield* makeSanitizedTranscript({
       content,
-      ...(relativePath === undefined ? {} : { relativePath }),
+      ...O.getSomesStruct({ relativePath: O.fromUndefinedOr(relativePath) }),
       sourcePath,
       summary,
-      ...(hashSalt === undefined ? {} : { hashSalt }),
+      ...O.getSomesStruct({ hashSalt: O.fromUndefinedOr(hashSalt) }),
     }),
     sourceKind: summary.sourceKind,
   });

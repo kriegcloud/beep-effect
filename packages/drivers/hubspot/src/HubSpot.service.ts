@@ -6,10 +6,8 @@
  */
 
 import { $HubspotId } from "@beep/identity";
-import { Str } from "@beep/utils";
+import { O, Str } from "@beep/utils";
 import { Config, Context, Effect, Layer, pipe } from "effect";
-import * as O from "effect/Option";
-import * as R from "effect/Record";
 import * as S from "effect/Schema";
 import { FetchHttpClient } from "effect/unstable/http";
 import * as HttpClient from "effect/unstable/http/HttpClient";
@@ -516,10 +514,7 @@ export class HubSpot extends Context.Service<HubSpot, HubSpotShape>()($I`HubSpot
       const client = yield* HttpClient.HttpClient;
       const resolved = yield* resolveConfig(
         HubSpotConfigInput.make({
-          ...R.getSomes({ accessToken }),
-          ...R.getSomes({ accountId }),
-          ...R.getSomes({ crmApiUrl }),
-          ...R.getSomes({ formsApiUrl }),
+          ...O.getSomesStruct({ accessToken, accountId, crmApiUrl, formsApiUrl }),
         })
       );
 

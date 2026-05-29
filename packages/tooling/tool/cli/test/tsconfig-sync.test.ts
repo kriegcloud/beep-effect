@@ -2,6 +2,7 @@ import { syncTsconfigAtRoot } from "@beep/repo-cli/commands/TsconfigSync";
 import { FsUtilsLive } from "@beep/repo-utils";
 import { provideScopedLayer } from "@beep/test-utils";
 import { A } from "@beep/utils";
+import * as O from "@beep/utils/Option";
 import { NodeChildProcessSpawner } from "@effect/platform-node";
 import * as NodeFileSystem from "@effect/platform-node/NodeFileSystem";
 import * as NodePath from "@effect/platform-node/NodePath";
@@ -161,18 +162,18 @@ const bootstrapWorkspace = Effect.fn(function* (
   yield* writeJsonFile(path.join(workspaceDir, "package.json"), {
     name: options.packageName,
     version: "0.0.0",
-    ...(options.dependencies === undefined ? {} : { dependencies: options.dependencies }),
+    ...O.getSomesStruct({ dependencies: O.fromUndefinedOr(options.dependencies) }),
     exports: options.exports ?? {
       ".": "./src/index.ts",
       "./*": "./src/*.ts",
     },
   });
   yield* writeJsonFile(path.join(workspaceDir, "tsconfig.json"), {
-    ...(options.references === undefined
-      ? {}
-      : {
-          references: A.map(options.references, (referencePath) => ({ path: referencePath })),
-        }),
+    ...O.getSomesStruct({
+      references: O.map(O.fromUndefinedOr(options.references), (references) =>
+        A.map(references, (referencePath) => ({ path: referencePath }))
+      ),
+    }),
     compilerOptions: {
       outDir: "dist",
       rootDir: "src",

@@ -8,8 +8,8 @@
 import { $RepoAiMetricsId } from "@beep/identity/packages";
 import { TaggedErrorClass } from "@beep/schema";
 import { A, Str } from "@beep/utils";
+import * as O from "@beep/utils/Option";
 import { Clock, Effect, FileSystem, flow, Order, Path, pipe } from "effect";
-import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import { AiMetricsRawArchiveKey, writeEncryptedRawArchiveObject } from "./archive.ts";
 import {
@@ -692,13 +692,13 @@ const processSourceFile = Effect.fn("AiMetrics.forwarder.processSourceFile")(
     );
     const summary = yield* summarizeTranscriptText({
       content,
-      ...(input.hashSalt === undefined ? {} : { hashSalt: input.hashSalt }),
+      ...O.getSomesStruct({ hashSalt: O.fromUndefinedOr(input.hashSalt) }),
       sourceKind: sourceFile.sourceKind,
       sourcePath: sourceFile.sourcePath,
     }).pipe(Effect.mapError((cause) => forwarderFailure("Failed to summarize AI metrics source file.", cause)));
     const archiveObject = yield* writeEncryptedRawArchiveObject({
       content,
-      ...(input.hashSalt === undefined ? {} : { hashSalt: input.hashSalt }),
+      ...O.getSomesStruct({ hashSalt: O.fromUndefinedOr(input.hashSalt) }),
       rawArchiveDir,
       rawArchiveKey: input.rawArchiveKey,
       sourceKind: sourceFile.sourceKind,
@@ -708,7 +708,7 @@ const processSourceFile = Effect.fn("AiMetrics.forwarder.processSourceFile")(
     );
     const privacy = yield* makeAiMetricsPrivacyCheckResult({
       content,
-      ...(input.hashSalt === undefined ? {} : { hashSalt: input.hashSalt }),
+      ...O.getSomesStruct({ hashSalt: O.fromUndefinedOr(input.hashSalt) }),
       relativePath: sourceFile.relativePath,
       sourcePath: sourceFile.sourcePath,
       summary,
@@ -753,9 +753,9 @@ export const runAiMetricsForwarder = Effect.fn("AiMetrics.runAiMetricsForwarder"
     yield* requireForwarderHashSalt(input);
     const installSpec = yield* makeAiMetricsInstallSpec(
       AiMetricsInstallInput.make({
-        ...(input.dataRoot === undefined ? {} : { dataRoot: input.dataRoot }),
-        ...(input.hashSaltSecretRef === undefined ? {} : { hashSaltSecretRef: input.hashSaltSecretRef }),
-        ...(input.rawArchiveKeySecretRef === undefined ? {} : { rawArchiveKeySecretRef: input.rawArchiveKeySecretRef }),
+        ...O.getSomesStruct({ dataRoot: O.fromUndefinedOr(input.dataRoot) }),
+        ...O.getSomesStruct({ hashSaltSecretRef: O.fromUndefinedOr(input.hashSaltSecretRef) }),
+        ...O.getSomesStruct({ rawArchiveKeySecretRef: O.fromUndefinedOr(input.rawArchiveKeySecretRef) }),
         target: input.target,
       })
     ).pipe(Effect.mapError((cause) => forwarderFailure("Failed to resolve AI metrics install storage layout.", cause)));
