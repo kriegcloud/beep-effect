@@ -1,6 +1,6 @@
 {
   "name": "@beep/oip-web",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Next.js canary app wired to shared @beep/ui styling and portless dev URLs",
   "license": "MIT",
   "private": true,
