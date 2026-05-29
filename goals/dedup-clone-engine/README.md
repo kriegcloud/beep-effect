@@ -2,7 +2,8 @@
 
 ## Status
 
-Active — Phase 1 in progress.
+Active — Phase 1 (detector + `beep reuse clones`) and Phase 2 (baseline +
+`lint:clones` CI gate) implemented; unit tests are a follow-up.
 
 ## Mission
 

@@ -1709,7 +1709,9 @@ const collectCloneRecords = Effect.fn("collectCloneRecords")(function* (
             }
 
             const startLine = declaration.getStartLineNumber();
-            const dedupeId = `${declarationFile}#${startLine}#${symbolName}`;
+            // Dedupe by declaration identity (node position), not export name:
+            // one declaration re-exported under multiple names must count once.
+            const dedupeId = `${declarationFile}#${declaration.getStart()}`;
             if (seen.has(dedupeId)) {
               continue;
             }
