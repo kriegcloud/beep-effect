@@ -1095,6 +1095,9 @@
       ],
       "@beep/nlp/Ontology": [
         "./packages/foundation/capability/nlp/src/Ontology/index.ts"
+      ],
+      "@beep/nlp/Graph": [
+        "./packages/foundation/capability/nlp/src/Graph/index.ts"
       ]
     }
   }
