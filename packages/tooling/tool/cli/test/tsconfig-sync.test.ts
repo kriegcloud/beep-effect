@@ -400,6 +400,10 @@ describe("tsconfig-sync", () => {
               "@beep/identity/*": ["./packages/foundation/modeling/identity/src/*"],
               "@beep/schema": ["./packages/foundation/modeling/schema/src/index.ts"],
               "@beep/schema/*": ["./packages/foundation/modeling/schema/src/*"],
+              "@beep/schema/test/Markdown": [
+                "./packages/foundation/modeling/schema/src/internal/test/Markdown.test-kit.ts",
+              ],
+              "@beep/schema/test/Yaml": ["./packages/foundation/modeling/schema/src/internal/test/Yaml.test-kit.ts"],
             },
             testFileMatch: ["packages/foundation/*/*/dtslint/**/*.tst.*"],
             syncpackSources: ["package.json", "packages/foundation/*/*/package.json"],
@@ -501,6 +505,10 @@ describe("tsconfig-sync", () => {
               paths: {
                 "@beep/schema": ["./packages/foundation/modeling/schema/src/index.ts"],
                 "@beep/schema/*": ["./packages/foundation/modeling/schema/src/*"],
+                "@beep/schema/test/Markdown": [
+                  "./packages/foundation/modeling/schema/src/internal/test/Markdown.test-kit.ts",
+                ],
+                "@beep/schema/test/Yaml": ["./packages/foundation/modeling/schema/src/internal/test/Yaml.test-kit.ts"],
                 "@beep/example-protocol": ["./packages/example/protocol/src/index.ts"],
                 "@beep/example-protocol/*": ["./packages/example/protocol/src/*"],
               },
