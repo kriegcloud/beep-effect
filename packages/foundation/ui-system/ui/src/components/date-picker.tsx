@@ -29,19 +29,13 @@ interface DatePickerProps {
  * @category components
  * @since 0.0.0
  */
-function DatePicker({
-  value,
-  defaultValue,
-  onValueChange,
-  placeholder = "Pick a date",
-  disabled = false,
-  className,
-}: DatePickerProps) {
+function DatePicker(props: DatePickerProps) {
+  const { value, defaultValue, onValueChange, placeholder = "Pick a date", disabled = false, className } = props;
   const [internalValue, setInternalValue] = React.useState<Date | undefined>(defaultValue);
   const [open, setOpen] = React.useState(false);
-  // Capture controlledness once so a controlled reset to `undefined` is honored
-  // instead of falling back to stale internal state.
-  const isControlled = React.useRef(value !== undefined).current;
+  // Detect controlledness by prop presence so a parent that starts controlled
+  // with `value={undefined}` (and any later reset to `undefined`) is honored.
+  const isControlled = Object.hasOwn(props, "value");
   const selected = isControlled ? value : internalValue;
 
   const handleSelect = (date: Date | undefined) => {
