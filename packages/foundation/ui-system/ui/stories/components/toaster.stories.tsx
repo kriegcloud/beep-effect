@@ -33,7 +33,7 @@ type Story = StoryObj<typeof meta>;
  */
 export const Default: Story = {
   play: ({ canvasElement }) => {
-    const region = canvasElement.querySelector("[role='region']");
+    const region = canvasElement.ownerDocument.querySelector("[role='region']");
     expect(region).not.toBeNull();
     return Promise.resolve();
   },

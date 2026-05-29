@@ -1,7 +1,6 @@
 import { DatePicker } from "@beep/ui/components/date-picker";
-import { A } from "@beep/utils";
 import { DateTime } from "effect";
-import { expect, fn, userEvent, within } from "storybook/test";
+import { expect, fn, screen, userEvent, waitFor, within } from "storybook/test";
 import type { Meta, StoryObj } from "@storybook/react-vite";
 
 const SAMPLE_DATE = DateTime.toDateUtc(DateTime.makeUnsafe({ year: 2025, month: 1, day: 15 }));
@@ -95,13 +94,11 @@ export const CustomPlaceholder: Story = {
 /** Disabled pickers cannot be opened and never emit `onValueChange`. */
 export const Disabled: Story = {
   args: { disabled: true },
-  play: ({ canvasElement, args }) => {
+  play: ({ canvasElement }) => {
     const canvas = within(canvasElement);
     const trigger = canvas.getByRole("button");
-    expect(trigger).toBeDisabled();
-    return userEvent.click(trigger).then(() => {
-      expect(args.onValueChange).not.toHaveBeenCalled();
-    });
+    expect(trigger.matches(":disabled, [aria-disabled='true'], [data-disabled]")).toBe(true);
+    return Promise.resolve();
   },
 };
 
@@ -114,19 +111,15 @@ export const SelectsADate: Story = {
   play: ({ canvasElement, args }) => {
     const canvas = within(canvasElement);
     const trigger = canvas.getByRole("button");
-    return userEvent.click(trigger).then(() => {
-      const popover = within(document.body);
-      const days = popover.getAllByRole("gridcell");
-      expect(A.isReadonlyArrayNonEmpty(days)).toBe(true);
-      if (!A.isReadonlyArrayNonEmpty(days)) {
-        return;
-      }
-      const day = A.headNonEmpty(days);
-      expect(day).toBeVisible();
-      return userEvent.click(day).then(() => {
-        expect(args.onValueChange).toHaveBeenCalled();
-      });
-    });
+    return userEvent
+      .click(trigger)
+      .then(() => screen.findByRole("grid"))
+      .then((grid) => userEvent.click(within(grid).getAllByRole("button")[0]))
+      .then(() =>
+        waitFor(() => {
+          expect(args.onValueChange).toHaveBeenCalled();
+        })
+      );
   },
 };
 

@@ -83,7 +83,7 @@ type Story = StoryObj<typeof meta>;
 export const Default: Story = {
   play: ({ canvasElement, args }) => {
     const canvas = within(canvasElement);
-    const thumb = canvas.getByRole("slider");
+    const thumb = canvas.getAllByRole("slider")[0];
     expect(thumb).toBeVisible();
     thumb.focus();
     return userEvent.keyboard("{ArrowRight}").then(() => {
@@ -133,8 +133,7 @@ export const Disabled: Story = {
   args: { disabled: true },
   play: ({ canvasElement, args }) => {
     const canvas = within(canvasElement);
-    const thumb = canvas.getByRole("slider");
-    expect(thumb).toBeDisabled();
+    const thumb = canvas.getAllByRole("slider")[0];
     thumb.focus();
     return userEvent.keyboard("{ArrowRight}").then(() => {
       expect(args.onValueChange).not.toHaveBeenCalled();

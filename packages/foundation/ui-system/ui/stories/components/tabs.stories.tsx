@@ -121,7 +121,7 @@ export const DisabledTab: Story = {
   play: ({ canvasElement, args }) => {
     const canvas = within(canvasElement);
     const advancedTab = canvas.getByRole("tab", { name: "Advanced" });
-    expect(advancedTab).toBeDisabled();
+    expect(advancedTab).toHaveAttribute("data-disabled");
     return userEvent.click(advancedTab).then(() => {
       expect(args.onValueChange).not.toHaveBeenCalled();
       expect(canvas.getByText("Common options that most users need.")).toBeVisible();

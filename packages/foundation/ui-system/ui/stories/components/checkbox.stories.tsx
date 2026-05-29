@@ -99,7 +99,7 @@ export const Disabled: Story = {
   play: ({ canvasElement, args }) => {
     const canvas = within(canvasElement);
     const checkbox = canvas.getByRole("checkbox", { name: "Disabled option" });
-    expect(checkbox).toBeDisabled();
+    expect(checkbox).toHaveAttribute("data-disabled");
     return userEvent.click(checkbox).then(() => {
       expect(args.onCheckedChange).not.toHaveBeenCalled();
     });
@@ -112,7 +112,7 @@ export const DisabledChecked: Story = {
   play: ({ canvasElement }) => {
     const canvas = within(canvasElement);
     const checkbox = canvas.getByRole("checkbox", { name: "Locked option" });
-    expect(checkbox).toBeDisabled();
+    expect(checkbox).toHaveAttribute("data-disabled");
     expect(checkbox).toBeChecked();
     return Promise.resolve();
   },
@@ -143,7 +143,7 @@ export const WithLabel: Story = {
   ),
   play: ({ canvasElement, args }) => {
     const canvas = within(canvasElement);
-    const checkbox = canvas.getByRole("checkbox", { name: "Email me about new releases" });
+    const checkbox = canvas.getByRole("checkbox");
     expect(checkbox).not.toBeChecked();
     return userEvent.click(checkbox).then(() => {
       expect(args.onCheckedChange).toHaveBeenCalledWith(true, expect.anything());

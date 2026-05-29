@@ -12628,7 +12628,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/ui/components/toast` | `ToastVariant` | const | `packages/foundation/ui-system/ui/src/components/toast.tsx:62` |  |
 | `@beep/ui/components/toast` | `ToastVariant` | type | `packages/foundation/ui-system/ui/src/components/toast.tsx:72` |  |
 | `@beep/ui/components/toast` | `ToastViewport` | const | `packages/foundation/ui-system/ui/src/components/toast.tsx:25` |  |
-| `@beep/ui/components/toaster` | `Toaster` | function | `packages/foundation/ui-system/ui/src/components/toaster.tsx:21` |  |
+| `@beep/ui/components/toaster` | `Toaster` | function | `packages/foundation/ui-system/ui/src/components/toaster.tsx:61` |  |
 | `@beep/ui/components/toaster` | `ToastPrimitive` | SourceFile | `node_modules/@base-ui/react/esm/toast/index.parts.d.ts:1` |  |
 | `@beep/ui/components/todo-item` | `TodoItem` | function | `packages/foundation/ui-system/ui/src/components/todo-item.tsx:105` |  |
 | `@beep/ui/components/toggle` | `Toggle` | function | `packages/foundation/ui-system/ui/src/components/toggle.tsx:37` |  |
