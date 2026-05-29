@@ -20,9 +20,9 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | packagesWithPublicExports | 79 |
 | packagesWithoutPublicExports | 1 |
 | missingWorkspaceMetadata | 4 |
-| importSpecifiers | 981 |
-| publicExportEntries | 12900 |
-| uniquePackageSymbols | 5656 |
+| importSpecifiers | 985 |
+| publicExportEntries | 12916 |
+| uniquePackageSymbols | 5670 |
 
 ## Seed Discovery Proof
 
@@ -89,7 +89,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | 50 | `@beep/epistemic-domain` | `packages/epistemic/domain` | has-public-exports | 8 | 18 | 5 |
 | 51 | `@beep/architecture-lab-use-cases` | `packages/architecture-lab/use-cases` | has-public-exports | 7 | 77 | 44 |
 | 52 | `@beep/professional-runtime-proof` | `apps/professional-runtime-proof` | has-public-exports | 1 | 4 | 4 |
-| 53 | `@beep/acp` | `packages/drivers/acp` | has-public-exports | 8 | 404 | 229 |
+| 53 | `@beep/acp` | `packages/drivers/acp` | has-public-exports | 8 | 405 | 229 |
 | 54 | `@beep/nlp` | `packages/foundation/capability/nlp` | has-public-exports | 53 | 589 | 178 |
 | 55 | `@beep/infra` | `infra` | has-public-exports | 1 | 20 | 20 |
 | 56 | `@beep/installer-use-cases` | `packages/installer/use-cases` | has-public-exports | 3 | 51 | 29 |
@@ -110,7 +110,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | 71 | `@beep/observability` | `packages/foundation/capability/observability` | has-public-exports | 4 | 115 | 98 |
 | 72 | `@beep/konva` | `packages/drivers/konva` | has-public-exports | 2 | 2 | 1 |
 | 73 | `@beep/shared-client` | `packages/shared/client` | has-public-exports | 2 | 2 | 1 |
-| 74 | `@beep/ui` | `packages/foundation/ui-system/ui` | has-public-exports | 115 | 527 | 445 |
+| 74 | `@beep/ui` | `packages/foundation/ui-system/ui` | has-public-exports | 119 | 542 | 459 |
 | 75 | `@beep/repo-configs` | `packages/tooling/policy-pack/repo-configs` | has-public-exports | 30 | 411 | 117 |
 | 76 | `@beep/canvas-client` | `packages/canvas/client` | has-public-exports | 1 | 1 | 1 |
 | 77 | `@beep/openai` | `packages/drivers/openai` | has-public-exports | 2 | 2 | 1 |
@@ -2795,7 +2795,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 
 | Import | Symbol | Kind | Source | Summary |
 |---|---|---|---|---|
-| `@beep/ai-provider-cli` | `AiProviderCli` | class | `packages/drivers/ai-provider-cli/src/AiProviderCli.service.ts:122` | Effect service for Claude and Codex CLI status checks. |
+| `@beep/ai-provider-cli` | `AiProviderCli` | class | `packages/drivers/ai-provider-cli/src/AiProviderCli.service.ts:129` | Effect service for Claude and Codex CLI status checks. |
 | `@beep/ai-provider-cli` | `AiProviderCliAuthProbe` | class | `packages/drivers/ai-provider-cli/src/AiProviderCli.models.ts:77` | Redacted provider CLI authentication probe. |
 | `@beep/ai-provider-cli` | `AiProviderCliAuthStatus` | const | `packages/drivers/ai-provider-cli/src/AiProviderCli.models.ts:40` | Provider CLI authentication status. |
 | `@beep/ai-provider-cli` | `AiProviderCliAuthStatus` | type | `packages/drivers/ai-provider-cli/src/AiProviderCli.models.ts:52` | Runtime type for {@link AiProviderCliAuthStatus}. |
@@ -2803,7 +2803,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/ai-provider-cli` | `AiProviderCliProcessResult` | class | `packages/drivers/ai-provider-cli/src/AiProviderCli.models.ts:60` | Provider CLI process result. |
 | `@beep/ai-provider-cli` | `AiProviderCliProvider` | const | `packages/drivers/ai-provider-cli/src/AiProviderCli.models.ts:20` | AI provider CLI vocabulary. |
 | `@beep/ai-provider-cli` | `AiProviderCliProvider` | type | `packages/drivers/ai-provider-cli/src/AiProviderCli.models.ts:32` | Runtime type for {@link AiProviderCliProvider}. |
-| `@beep/ai-provider-cli` | `AiProviderCliRunner` | type | `packages/drivers/ai-provider-cli/src/AiProviderCli.service.ts:31` | Product-neutral process runner used by provider CLI probes. |
+| `@beep/ai-provider-cli` | `AiProviderCliRunner` | type | `packages/drivers/ai-provider-cli/src/AiProviderCli.service.ts:32` | Product-neutral process runner used by provider CLI probes. |
 | `@beep/ai-provider-cli/AiProviderCli.errors` | `AiProviderCliError` | class | `packages/drivers/ai-provider-cli/src/AiProviderCli.errors.ts:20` | Technical provider CLI failure. |
 | `@beep/ai-provider-cli/AiProviderCli.models` | `AiProviderCliAuthProbe` | class | `packages/drivers/ai-provider-cli/src/AiProviderCli.models.ts:77` | Redacted provider CLI authentication probe. |
 | `@beep/ai-provider-cli/AiProviderCli.models` | `AiProviderCliAuthStatus` | const | `packages/drivers/ai-provider-cli/src/AiProviderCli.models.ts:40` | Provider CLI authentication status. |
@@ -2811,9 +2811,9 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/ai-provider-cli/AiProviderCli.models` | `AiProviderCliProcessResult` | class | `packages/drivers/ai-provider-cli/src/AiProviderCli.models.ts:60` | Provider CLI process result. |
 | `@beep/ai-provider-cli/AiProviderCli.models` | `AiProviderCliProvider` | const | `packages/drivers/ai-provider-cli/src/AiProviderCli.models.ts:20` | AI provider CLI vocabulary. |
 | `@beep/ai-provider-cli/AiProviderCli.models` | `AiProviderCliProvider` | type | `packages/drivers/ai-provider-cli/src/AiProviderCli.models.ts:32` | Runtime type for {@link AiProviderCliProvider}. |
-| `@beep/ai-provider-cli/AiProviderCli.service` | `AiProviderCli` | class | `packages/drivers/ai-provider-cli/src/AiProviderCli.service.ts:122` | Effect service for Claude and Codex CLI status checks. |
-| `@beep/ai-provider-cli/AiProviderCli.service` | `AiProviderCliRunner` | type | `packages/drivers/ai-provider-cli/src/AiProviderCli.service.ts:31` | Product-neutral process runner used by provider CLI probes. |
-| `@beep/ai-provider-cli/index` | `AiProviderCli` | class | `packages/drivers/ai-provider-cli/src/AiProviderCli.service.ts:122` | Effect service for Claude and Codex CLI status checks. |
+| `@beep/ai-provider-cli/AiProviderCli.service` | `AiProviderCli` | class | `packages/drivers/ai-provider-cli/src/AiProviderCli.service.ts:129` | Effect service for Claude and Codex CLI status checks. |
+| `@beep/ai-provider-cli/AiProviderCli.service` | `AiProviderCliRunner` | type | `packages/drivers/ai-provider-cli/src/AiProviderCli.service.ts:32` | Product-neutral process runner used by provider CLI probes. |
+| `@beep/ai-provider-cli/index` | `AiProviderCli` | class | `packages/drivers/ai-provider-cli/src/AiProviderCli.service.ts:129` | Effect service for Claude and Codex CLI status checks. |
 | `@beep/ai-provider-cli/index` | `AiProviderCliAuthProbe` | class | `packages/drivers/ai-provider-cli/src/AiProviderCli.models.ts:77` | Redacted provider CLI authentication probe. |
 | `@beep/ai-provider-cli/index` | `AiProviderCliAuthStatus` | const | `packages/drivers/ai-provider-cli/src/AiProviderCli.models.ts:40` | Provider CLI authentication status. |
 | `@beep/ai-provider-cli/index` | `AiProviderCliAuthStatus` | type | `packages/drivers/ai-provider-cli/src/AiProviderCli.models.ts:52` | Runtime type for {@link AiProviderCliAuthStatus}. |
@@ -2821,7 +2821,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/ai-provider-cli/index` | `AiProviderCliProcessResult` | class | `packages/drivers/ai-provider-cli/src/AiProviderCli.models.ts:60` | Provider CLI process result. |
 | `@beep/ai-provider-cli/index` | `AiProviderCliProvider` | const | `packages/drivers/ai-provider-cli/src/AiProviderCli.models.ts:20` | AI provider CLI vocabulary. |
 | `@beep/ai-provider-cli/index` | `AiProviderCliProvider` | type | `packages/drivers/ai-provider-cli/src/AiProviderCli.models.ts:32` | Runtime type for {@link AiProviderCliProvider}. |
-| `@beep/ai-provider-cli/index` | `AiProviderCliRunner` | type | `packages/drivers/ai-provider-cli/src/AiProviderCli.service.ts:31` | Product-neutral process runner used by provider CLI probes. |
+| `@beep/ai-provider-cli/index` | `AiProviderCliRunner` | type | `packages/drivers/ai-provider-cli/src/AiProviderCli.service.ts:32` | Product-neutral process runner used by provider CLI probes. |
 
 ### @beep/colors
 
@@ -7023,11 +7023,11 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/acp/agent` | `layer` | const | `packages/drivers/acp/src/AcpAgent.service.ts:609` | Constructs a layer for an ACP agent over the provided transport. |
 | `@beep/acp/agent` | `layerStdio` | const | `packages/drivers/acp/src/AcpAgent.service.ts:625` | Constructs a layer that reads its transport from the `Stdio` service. |
 | `@beep/acp/agent` | `make` | const | `packages/drivers/acp/src/AcpAgent.service.ts:286` | Constructs an ACP agent from an Effect `Stdio` transport. |
-| `@beep/acp/client` | `AcpClient` | class | `packages/drivers/acp/src/AcpClient.service.ts:302` | Context service tag for an ACP client. |
-| `@beep/acp/client` | `AcpClientOptions` | interface | `packages/drivers/acp/src/AcpClient.service.ts:48` | Options for constructing an ACP client service. |
-| `@beep/acp/client` | `AcpClientShape` | interface | `packages/drivers/acp/src/AcpClient.service.ts:72` | Service shape implemented by the ACP client driver. |
-| `@beep/acp/client` | `layerChildProcess` | const | `packages/drivers/acp/src/AcpClient.service.ts:690` | Constructs an ACP client layer backed by a spawned child process. |
-| `@beep/acp/client` | `make` | const | `packages/drivers/acp/src/AcpClient.service.ts:359` | Constructs an ACP client from an Effect `Stdio` transport. |
+| `@beep/acp/client` | `AcpClient` | class | `packages/drivers/acp/src/AcpClient.service.ts:303` | Context service tag for an ACP client. |
+| `@beep/acp/client` | `AcpClientOptions` | interface | `packages/drivers/acp/src/AcpClient.service.ts:49` | Options for constructing an ACP client service. |
+| `@beep/acp/client` | `AcpClientShape` | interface | `packages/drivers/acp/src/AcpClient.service.ts:73` | Service shape implemented by the ACP client driver. |
+| `@beep/acp/client` | `layerChildProcess` | const | `packages/drivers/acp/src/AcpClient.service.ts:691` | Constructs an ACP client layer backed by a spawned child process. |
+| `@beep/acp/client` | `make` | const | `packages/drivers/acp/src/AcpClient.service.ts:360` | Constructs an ACP client from an Effect `Stdio` transport. |
 | `@beep/acp/errors` | `AcpError` | const | `packages/drivers/acp/src/Acp.errors.ts:392` | Union of typed technical failures emitted by the ACP driver. |
 | `@beep/acp/errors` | `AcpError` | type | `packages/drivers/acp/src/Acp.errors.ts:414` | Type for {@link AcpError}. |
 | `@beep/acp/errors` | `AcpProcessExitedError` | class | `packages/drivers/acp/src/Acp.errors.ts:62` | Failure raised when an ACP process exits before the protocol completes. |
@@ -7035,13 +7035,14 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/acp/errors` | `AcpRequestError` | class | `packages/drivers/acp/src/Acp.errors.ts:145` | JSON-RPC request failure returned by an ACP peer. |
 | `@beep/acp/errors` | `AcpSpawnError` | class | `packages/drivers/acp/src/Acp.errors.ts:31` | Failure raised when an ACP child process cannot be spawned. |
 | `@beep/acp/errors` | `AcpTransportError` | class | `packages/drivers/acp/src/Acp.errors.ts:120` | Failure raised by the ACP transport boundary. |
-| `@beep/acp/protocol` | `AcpIncomingNotification` | const | `packages/drivers/acp/src/AcpProtocol.service.ts:140` | Schema for notifications decoded from the ACP peer stream. |
-| `@beep/acp/protocol` | `AcpIncomingNotification` | type | `packages/drivers/acp/src/AcpProtocol.service.ts:173` | Type for {@link AcpIncomingNotification}. |
-| `@beep/acp/protocol` | `AcpPatchedProtocol` | interface | `packages/drivers/acp/src/AcpProtocol.service.ts:216` | Runtime protocol handles used by ACP clients and agents. |
-| `@beep/acp/protocol` | `AcpPatchedProtocolOptions` | interface | `packages/drivers/acp/src/AcpProtocol.service.ts:192` | Options used to create the patched ACP protocol. |
-| `@beep/acp/protocol` | `AcpProtocolLogEvent` | class | `packages/drivers/acp/src/AcpProtocol.service.ts:92` | Structured log event emitted by the ACP protocol adapter. |
-| `@beep/acp/protocol` | `AcpProtocolLoggingOptions` | class | `packages/drivers/acp/src/AcpProtocol.service.ts:117` | Schema-backed ACP protocol logging flags. |
-| `@beep/acp/protocol` | `makeAcpPatchedProtocol` | const | `packages/drivers/acp/src/AcpProtocol.service.ts:252` | Builds the patched ACP protocol over an Effect `Stdio` transport. |
+| `@beep/acp/protocol` | `AcpIncomingNotification` | const | `packages/drivers/acp/src/AcpProtocol.service.ts:186` | Schema for notifications decoded from the ACP peer stream. |
+| `@beep/acp/protocol` | `AcpIncomingNotification` | type | `packages/drivers/acp/src/AcpProtocol.service.ts:219` | Type for {@link AcpIncomingNotification}. |
+| `@beep/acp/protocol` | `AcpPatchedProtocol` | interface | `packages/drivers/acp/src/AcpProtocol.service.ts:262` | Runtime protocol handles used by ACP clients and agents. |
+| `@beep/acp/protocol` | `AcpPatchedProtocolOptions` | interface | `packages/drivers/acp/src/AcpProtocol.service.ts:238` | Options used to create the patched ACP protocol. |
+| `@beep/acp/protocol` | `AcpProtocolLogEvent` | const | `packages/drivers/acp/src/AcpProtocol.service.ts:97` | Structured log event emitted by the ACP protocol adapter. |
+| `@beep/acp/protocol` | `AcpProtocolLogEvent` | type | `packages/drivers/acp/src/AcpProtocol.service.ts:147` | Structured log event emitted by the ACP protocol adapter. |
+| `@beep/acp/protocol` | `AcpProtocolLoggingOptions` | class | `packages/drivers/acp/src/AcpProtocol.service.ts:163` | Schema-backed ACP protocol logging flags. |
+| `@beep/acp/protocol` | `makeAcpPatchedProtocol` | const | `packages/drivers/acp/src/AcpProtocol.service.ts:304` | Builds the patched ACP protocol over an Effect `Stdio` transport. |
 | `@beep/acp/rpc` | `AgentRpcs` | const | `packages/drivers/acp/src/AcpRpc.models.ts:425` | RPC group served by ACP agents. |
 | `@beep/acp/rpc` | `AuthenticateRpc` | const | `packages/drivers/acp/src/AcpRpc.models.ts:45` | RPC definition for `AuthenticateRpc`. |
 | `@beep/acp/rpc` | `ClientRpcs` | const | `packages/drivers/acp/src/AcpRpc.models.ts:453` | RPC group served by ACP clients. |
@@ -12265,6 +12266,13 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/ui/components/carousel` | `CarouselNext` | function | `packages/foundation/ui-system/ui/src/components/carousel.tsx:217` |  |
 | `@beep/ui/components/carousel` | `CarouselPrevious` | function | `packages/foundation/ui-system/ui/src/components/carousel.tsx:183` |  |
 | `@beep/ui/components/carousel` | `useCarousel` | function | `packages/foundation/ui-system/ui/src/components/carousel.tsx:42` |  |
+| `@beep/ui/components/chart` | `ChartConfig` | type | `packages/foundation/ui-system/ui/src/components/chart.tsx:21` | Configuration describing each chart series' label, icon, and color or per-theme colors. |
+| `@beep/ui/components/chart` | `ChartContainer` | function | `packages/foundation/ui-system/ui/src/components/chart.tsx:51` | Responsive chart wrapper that provides the chart config context and theme CSS variables. |
+| `@beep/ui/components/chart` | `ChartLegend` | const | `packages/foundation/ui-system/ui/src/components/chart.tsx:286` | Recharts legend primitive paired with {@link ChartLegendContent}. |
+| `@beep/ui/components/chart` | `ChartLegendContent` | function | `packages/foundation/ui-system/ui/src/components/chart.tsx:294` | Themed legend content for charts, rendering each series' icon or color swatch and label. |
+| `@beep/ui/components/chart` | `ChartStyle` | const | `packages/foundation/ui-system/ui/src/components/chart.tsx:95` | Injects per-theme CSS custom properties for a chart's configured series colors. |
+| `@beep/ui/components/chart` | `ChartTooltip` | const | `packages/foundation/ui-system/ui/src/components/chart.tsx:137` | Recharts tooltip primitive paired with {@link ChartTooltipContent}. |
+| `@beep/ui/components/chart` | `ChartTooltipContent` | function | `packages/foundation/ui-system/ui/src/components/chart.tsx:145` | Themed tooltip content for charts, rendering the active payload's label, indicator, and values. |
 | `@beep/ui/components/checkbox` | `Checkbox` | function | `packages/foundation/ui-system/ui/src/components/checkbox.tsx:11` |  |
 | `@beep/ui/components/collapsible` | `Collapsible` | function | `packages/foundation/ui-system/ui/src/components/collapsible.tsx:10` |  |
 | `@beep/ui/components/collapsible` | `CollapsibleContent` | function | `packages/foundation/ui-system/ui/src/components/collapsible.tsx:26` |  |
@@ -12317,6 +12325,8 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/ui/components/conversation` | `ConversationProps` | type | `packages/foundation/ui-system/ui/src/components/conversation.tsx:14` |  |
 | `@beep/ui/components/conversation` | `ConversationScrollButton` | const | `packages/foundation/ui-system/ui/src/components/conversation.tsx:92` |  |
 | `@beep/ui/components/conversation` | `ConversationScrollButtonProps` | type | `packages/foundation/ui-system/ui/src/components/conversation.tsx:86` |  |
+| `@beep/ui/components/date-picker` | `DatePicker` | function | `packages/foundation/ui-system/ui/src/components/date-picker.tsx:32` | A single-date picker composed from {@link Popover} and {@link Calendar}. Supports |
+| `@beep/ui/components/date-picker` | `DatePickerProps` | type | `packages/foundation/ui-system/ui/src/components/date-picker.tsx:16` |  |
 | `@beep/ui/components/dialog` | `Dialog` | function | `packages/foundation/ui-system/ui/src/components/dialog.tsx:13` |  |
 | `@beep/ui/components/dialog` | `Dialog` | Identifier | `packages/foundation/ui-system/ui/src/components/dialog.tsx:163` |  |
 | `@beep/ui/components/dialog` | `Dialog` | Identifier | `packages/foundation/ui-system/ui/src/components/dialog.tsx:164` |  |
@@ -12336,6 +12346,9 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/ui/components/dialog` | `DialogPortal` | function | `packages/foundation/ui-system/ui/src/components/dialog.tsx:29` |  |
 | `@beep/ui/components/dialog` | `DialogTitle` | function | `packages/foundation/ui-system/ui/src/components/dialog.tsx:137` |  |
 | `@beep/ui/components/dialog` | `DialogTrigger` | function | `packages/foundation/ui-system/ui/src/components/dialog.tsx:21` |  |
+| `@beep/ui/components/direction` | `DirectionProvider` | const | `node_modules/@base-ui/react/esm/direction-provider/DirectionProvider.d.ts:8` | Enables RTL behavior for Base UI components. |
+| `@beep/ui/components/direction` | `DirectionProvider` | namespace | `node_modules/@base-ui/react/esm/direction-provider/DirectionProvider.d.ts:18` |  |
+| `@beep/ui/components/direction` | `useDirection` | function | `node_modules/@base-ui/react/esm/internals/direction-context/DirectionContext.d.ts:10` |  |
 | `@beep/ui/components/drawer` | `Drawer` | function | `packages/foundation/ui-system/ui/src/components/drawer.tsx:11` |  |
 | `@beep/ui/components/drawer` | `DrawerClose` | function | `packages/foundation/ui-system/ui/src/components/drawer.tsx:35` |  |
 | `@beep/ui/components/drawer` | `DrawerContent` | function | `packages/foundation/ui-system/ui/src/components/drawer.tsx:60` |  |
@@ -12446,6 +12459,9 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/ui/components/menubar` | `MenubarTrigger` | function | `packages/foundation/ui-system/ui/src/components/menubar.tsx:66` |  |
 | `@beep/ui/components/mui-theme.stories` | `default` | const | `packages/foundation/ui-system/ui/src/components/mui-theme.stories.tsx:21` | MUI primitives rendered through the shared `@beep/ui` theme, which the global |
 | `@beep/ui/components/mui-theme.stories` | `Default` | const | `packages/foundation/ui-system/ui/src/components/mui-theme.stories.tsx:38` |  |
+| `@beep/ui/components/native-select` | `NativeSelect` | function | `packages/foundation/ui-system/ui/src/components/native-select.tsx:15` | A styled wrapper around the native `<select>` element with a trailing caret icon. |
+| `@beep/ui/components/native-select` | `NativeSelectOptGroup` | function | `packages/foundation/ui-system/ui/src/components/native-select.tsx:55` | An `<optgroup>` for use within {@link NativeSelect}, themed to match the system color scheme. |
+| `@beep/ui/components/native-select` | `NativeSelectOption` | function | `packages/foundation/ui-system/ui/src/components/native-select.tsx:43` | An `<option>` for use within {@link NativeSelect}, themed to match the system color scheme. |
 | `@beep/ui/components/navigation-menu` | `NavigationMenu` | function | `packages/foundation/ui-system/ui/src/components/navigation-menu.tsx:11` |  |
 | `@beep/ui/components/navigation-menu` | `NavigationMenuContent` | function | `packages/foundation/ui-system/ui/src/components/navigation-menu.tsx:83` |  |
 | `@beep/ui/components/navigation-menu` | `NavigationMenuIndicator` | function | `packages/foundation/ui-system/ui/src/components/navigation-menu.tsx:150` |  |
