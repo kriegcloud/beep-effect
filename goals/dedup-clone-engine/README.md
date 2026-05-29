@@ -2,8 +2,13 @@
 
 ## Status
 
-Active — Phase 1 (detector + `beep reuse clones`) and Phase 2 (baseline +
-`lint:clones` CI gate) implemented; unit tests are a follow-up.
+**Complete (V1).** Phase 1 (detector + `beep reuse clones`), Phase 2 (baseline +
+`lint:clones` CI gate), tests + threshold tuning, and Phase 3 Type-3 fuzzy
+(`--fuzzy`, report-only) are all shipped and merged (PRs #180, #183, #187). All
+`SPEC.md` completion conditions are met. The only owned follow-up is the deferred
+`--include-intra` toggle (intra-package near-misses); inbound-edges and codemod
+extraction are redirected to `repo-codegraph` and `tooling/tool`. See
+[PLAN.md](./PLAN.md) "Status — V1 COMPLETE".
 
 ## Mission
 

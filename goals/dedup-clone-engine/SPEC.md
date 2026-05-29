@@ -2,7 +2,9 @@
 
 ## Status
 
-**Active**
+**Complete (V1)** — all "Completion Standard (V1)" conditions met; shipped across
+PRs #180 (detector + gate), #183 (tests + tuning), #187 (Type-3 fuzzy). See
+`PLAN.md` "Status — V1 COMPLETE".
 
 ## Owner
 
@@ -11,7 +13,7 @@
 ## Created / Updated
 
 - **Created:** 2026-05-29
-- **Updated:** 2026-05-29
+- **Updated:** 2026-05-29 (V1 closed out)
 
 ## Mission
 
@@ -72,9 +74,15 @@ cite the duplicated declarations.
 
 ## Phase 3 Contract (later)
 
-- Type-3 near-miss behind an explicit flag.
-- `importedBy` inbound edges for blast-radius ranking.
+- **Type-3 near-miss behind an explicit flag — DONE (PR #187).** `beep reuse
+  clones --fuzzy [--min-similarity]` → report-only `detectNearMissClones`
+  (MinHash+LSH, exact-Jaccard confirm, token-length-ratio weighted, cross-package),
+  `kind: "near-miss-clone"`. Not wired into the gate; `--fuzzy` rejects
+  `--check`/`--write`. Deferred toggle: intra-package (`--include-intra`).
+- `importedBy` inbound edges for blast-radius ranking. **Redirected → `repo-codegraph`**
+  (its Phase-3 AST facts; building here would re-duplicate that goal).
 - Optional codemod-assisted extraction via `TSMorphService.updateSourceFile`.
+  **Redirected → `tooling/tool`** (`@beep/repo-utils` is detection-only by doctrine).
 
 ## Completion Standard (V1)
 
