@@ -31,7 +31,7 @@ const NumberInputEventKey = LiteralKit([
   "Escape",
   " ",
   "Shift",
-] as const).pipe(
+]).pipe(
   $I.annoteSchema("NumberInputEventKey", {
     description: "Normalized keyboard event keys recognized by the number input hook.",
   })

@@ -23,7 +23,7 @@ const $I = $WealthManagementDomainId.create("entities/Party/Party.values");
  * @category schemas
  * @since 0.0.0
  */
-export const PartyType = LiteralKit(["person"] as const).annotate(
+export const PartyType = LiteralKit(["person"]).annotate(
   $I.annote("PartyType", {
     description: "Closed fixture type vocabulary for parties.",
   })

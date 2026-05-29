@@ -22,7 +22,7 @@ const $I = $EpistemicDomainId.create("values/ClaimLifecycle/ClaimLifecycle.model
  * @category schemas
  * @since 0.0.0
  */
-export const ClaimLifecycle = LiteralKit(["candidate"] as const).annotate(
+export const ClaimLifecycle = LiteralKit(["candidate"]).annotate(
   $I.annote("ClaimLifecycle", {
     description: "Lifecycle state for epistemic claims produced by the runtime proof.",
   })

@@ -40,7 +40,7 @@ export const SanityErrorReason = LiteralKit([
   "response decoding",
   "response status",
   "transport",
-] as const).pipe(
+]).pipe(
   $I.annoteSchema("SanityErrorReason", {
     description: "Redacted technical error reasons emitted by the Sanity API driver.",
   })

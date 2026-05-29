@@ -83,7 +83,7 @@ class SeedMembershipFixture extends S.Class<SeedMembershipFixture>("SeedMembersh
 }) {}
 
 class SeedOrganizationFixture extends S.Class<SeedOrganizationFixture>("SeedOrganizationFixture")({
-  kind: LiteralKit(["solo_practice", "wealth_firm"] as const),
+  kind: LiteralKit(["solo_practice", "wealth_firm"]),
   licenseTier: S.String,
   name: S.String,
   organizationId: S.String,

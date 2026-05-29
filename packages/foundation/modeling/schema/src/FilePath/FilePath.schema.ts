@@ -20,7 +20,7 @@ const SupportedPathFamilyKit = LiteralKit([
   "windowsDrive",
   "windowsUnc",
   "windowsRelative",
-] as const);
+]);
 
 /**
  * Literal union of file-path families recognized by {@link FilePath}.

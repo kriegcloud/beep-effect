@@ -36,7 +36,7 @@ const serviceUnavailableBody = CanvasProjectUseCases.CanvasProjectActionFailed.m
  * @category handlers
  * @since 0.0.0
  */
-export const CanvasProjectHttpStatus = LiteralKit([200, 201, 404, 409, 422, 503] as const).pipe(
+export const CanvasProjectHttpStatus = LiteralKit([200, 201, 404, 409, 422, 503]).pipe(
   $I.annoteSchema("CanvasProjectHttpStatus", {
     title: "CanvasProject HTTP status",
     description: "HTTP status vocabulary emitted by the CanvasProject bootstrap protocol adapter.",

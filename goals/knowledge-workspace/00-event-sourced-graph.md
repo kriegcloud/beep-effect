@@ -98,7 +98,7 @@ const KnowledgeNodeKind = LiteralKit([
   "code-file",
   "code-module",
   "concept",
-] as const).pipe(
+]).pipe(
   $I.annoteSchema("KnowledgeNodeKind", {
     description: "Kinds of knowledge graph nodes.",
   })
@@ -123,7 +123,7 @@ const KnowledgeEdgeKind = LiteralKit([
   "code_export",
   "code_dependency",
   "semantic",
-] as const).pipe(
+]).pipe(
   $I.annoteSchema("KnowledgeEdgeKind", {
     description: "Kinds of knowledge graph edges.",
   })
@@ -147,7 +147,7 @@ const KnowledgeDomain = LiteralKit([
   "legal",
   "compliance",
   "general",
-] as const).pipe(
+]).pipe(
   $I.annoteSchema("KnowledgeDomain", {
     description: "Domain partition for knowledge graph nodes.",
   })

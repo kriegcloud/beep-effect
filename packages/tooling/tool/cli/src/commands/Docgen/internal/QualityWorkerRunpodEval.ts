@@ -98,23 +98,19 @@ const DocgenQualityWorkerRunpodEvalTemplateStrategy = LiteralKit([
   "explicit-template",
   "existing-template",
   "fallback-image",
-] as const).annotate(
+]).annotate(
   $I.annote("DocgenQualityWorkerRunpodEvalTemplateStrategy", {
     description: "How the Runpod worker eval pod image or template was selected.",
   })
 );
 
-const DocgenQualityWorkerRunpodEvalCleanupStatus = LiteralKit([
-  "completed",
-  "failed",
-  "skipped-debug-keep",
-] as const).annotate(
+const DocgenQualityWorkerRunpodEvalCleanupStatus = LiteralKit(["completed", "failed", "skipped-debug-keep"]).annotate(
   $I.annote("DocgenQualityWorkerRunpodEvalCleanupStatus", {
     description: "Cleanup outcome for a Runpod worker eval pod.",
   })
 );
 
-const DocgenQualityWorkerRunpodEvalOtlpStatus = LiteralKit(["disabled", "exported", "failed"] as const).annotate(
+const DocgenQualityWorkerRunpodEvalOtlpStatus = LiteralKit(["disabled", "exported", "failed"]).annotate(
   $I.annote("DocgenQualityWorkerRunpodEvalOtlpStatus", {
     description: "OTLP export outcome for a Runpod worker eval wrapper report.",
   })

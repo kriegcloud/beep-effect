@@ -901,7 +901,7 @@ const $I = $KnowledgeWorkspaceUiId.create("schemas/CanvasMode")
  * @since 0.1.0
  * @category schemas
  */
-const CanvasMode = LiteralKit(["graph", "editor", "split"] as const)
+const CanvasMode = LiteralKit(["graph", "editor", "split"])
 ```
 
 ### Graph mode (`Cmd+Shift+G`)

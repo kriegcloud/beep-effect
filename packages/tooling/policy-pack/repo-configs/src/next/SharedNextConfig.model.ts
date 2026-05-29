@@ -57,12 +57,12 @@ const DEFAULT_OPTIMIZE_PACKAGE_IMPORTS: ReadonlyArray<string> = [
 ];
 const DEFAULT_MDX_EXTENSION = /\.(md|mdx)$/;
 
-const AnalyzerMode = LiteralKit(["json", "static"] as const).pipe(
+const AnalyzerMode = LiteralKit(["json", "static"]).pipe(
   $I.annoteSchema("AnalyzerMode", {
     description: "Bundle analyzer report output mode.",
   })
 );
-const AnalyzerLogLevel = LiteralKit(["info", "warn", "error", "silent"] as const).pipe(
+const AnalyzerLogLevel = LiteralKit(["info", "warn", "error", "silent"]).pipe(
   $I.annoteSchema("AnalyzerLogLevel", {
     description: "Bundle analyzer logging level.",
   })

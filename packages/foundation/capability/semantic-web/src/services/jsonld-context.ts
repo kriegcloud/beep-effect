@@ -41,11 +41,7 @@ const serviceContractMetadata = (canonicalName: string, overview: string) =>
  * @since 0.0.0
  * @category models
  */
-export const JsonLdContextErrorReason = LiteralKit([
-  "unknownTerm",
-  "policyViolation",
-  "compactionFailure",
-] as const).annotate(
+export const JsonLdContextErrorReason = LiteralKit(["unknownTerm", "policyViolation", "compactionFailure"]).annotate(
   $I.annote("JsonLdContextErrorReason", {
     description: "JSON-LD context error reason.",
   })

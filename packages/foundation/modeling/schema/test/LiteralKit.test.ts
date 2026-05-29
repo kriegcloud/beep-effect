@@ -15,7 +15,7 @@ const createRuntimeLiteralKit = (
 ): unknown => Function.prototype.apply.call(LiteralKit, undefined, [literals, enumMapping]);
 
 describe("LiteralKit", () => {
-  const Status = LiteralKit([1, 20n, true, false, "hello"] as const);
+  const Status = LiteralKit([1, 20n, true, false, "hello"]);
 
   it("exposes Options with the original literal tuple", () => {
     expect(Status.Options).toEqual([1, 20n, true, false, "hello"]);
@@ -69,10 +69,10 @@ describe("LiteralKit", () => {
   });
 
   it("throws LiteralKitKeyCollisionError when different literals encode to the same helper key", () => {
-    expect(() => LiteralKit([true, "true"] as const)).toThrow(LiteralKitKeyCollisionError);
-    expect(() => LiteralKit([1, "number1"] as const)).toThrow(LiteralKitKeyCollisionError);
-    expect(() => LiteralKit([1n, "bigint1n"] as const)).toThrow(LiteralKitKeyCollisionError);
-    expect(() => LiteralKit([0, -0] as const)).toThrow(LiteralKitKeyCollisionError);
+    expect(() => LiteralKit([true, "true"])).toThrow(LiteralKitKeyCollisionError);
+    expect(() => LiteralKit([1, "number1"])).toThrow(LiteralKitKeyCollisionError);
+    expect(() => LiteralKit([1n, "bigint1n"])).toThrow(LiteralKitKeyCollisionError);
+    expect(() => LiteralKit([0, -0])).toThrow(LiteralKitKeyCollisionError);
   });
 
   it("matches literals in uncurried form", () => {
@@ -130,8 +130,8 @@ describe("LiteralKit", () => {
 });
 
 describe("LiteralKit (string-only)", () => {
-  const Direction = LiteralKit(["up", "down", "left", "right"] as const);
-  const EventKind = LiteralKit(["created", "deleted"] as const);
+  const Direction = LiteralKit(["up", "down", "left", "right"]);
+  const EventKind = LiteralKit(["created", "deleted"]);
   const Event = EventKind.toTaggedUnion("kind")({
     created: {
       value: S.Literal(1),
@@ -184,11 +184,11 @@ describe("LiteralKit (string-only)", () => {
 
 describe("LiteralKit (manual Enum mapping)", () => {
   const Status = LiteralKit(
-    ["one", "two"] as const,
+    ["one", "two"],
     [
       ["one", "ONE"],
       ["two", "TWO"],
-    ] as const
+    ]
   );
 
   it("maps Enum keys from the provided manual names", () => {
@@ -223,11 +223,11 @@ describe("LiteralKit (manual Enum mapping)", () => {
 
   it("uses mapped keys for branded string helper objects", () => {
     const RepoPkg = LiteralKit(
-      [$RepoCliId.identifier, $SchemaId.identifier] as const,
+      [$RepoCliId.identifier, $SchemaId.identifier],
       [
         [$RepoCliId.identifier, "@beep/repo-cli"],
         [$SchemaId.identifier, "@beep/schema"],
-      ] as const
+      ]
     );
 
     expect(RepoPkg.Enum["@beep/repo-cli"]).toBe("@beep/repo-cli");
@@ -263,12 +263,12 @@ describe("LiteralKit (manual Enum mapping)", () => {
 
   it("supports mixed source literal types", () => {
     const Mixed = LiteralKit(
-      [1, true, "two"] as const,
+      [1, true, "two"],
       [
         [1, "ONE"],
         [true, "TRUE"],
         ["two", "TWO"],
-      ] as const
+      ]
     );
 
     expect(Mixed.Enum.ONE).toBe(1);
@@ -317,7 +317,7 @@ describe("LiteralKit (manual Enum mapping)", () => {
 });
 
 describe("LiteralKit toTaggedUnion (number keys)", () => {
-  const NumberKind = LiteralKit([1, 2] as const);
+  const NumberKind = LiteralKit([1, 2]);
   const NumberEvent = NumberKind.toTaggedUnion("kind")({
     number1: {
       value: S.Literal("one"),

@@ -60,7 +60,7 @@ export const JsonLdKeyword = LiteralKit([
   "@type",
   "@value",
   "@vocab",
-] as const).annotate(
+]).annotate(
   $I.annote("JsonLdKeyword", {
     description: "JSON-LD keyword surface used by the bounded v1 model.",
   })

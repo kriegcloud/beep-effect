@@ -27,7 +27,7 @@ import type { ContactSubmission } from "./ContactSubmission.model.ts";
 const $I = $OipWebId.create("contact/ContactSubmission.service");
 const minimumElapsedMs = 3_000;
 
-const ContactSubmissionErrorReason = LiteralKit(["config", "decode", "provider", "spam"] as const).pipe(
+const ContactSubmissionErrorReason = LiteralKit(["config", "decode", "provider", "spam"]).pipe(
   $I.annoteSchema("ContactSubmissionErrorReason", {
     description: "Sanitized contact submission failure reason.",
   })

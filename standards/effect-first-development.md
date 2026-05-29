@@ -278,6 +278,7 @@ export type Tenant = typeof Tenant.Type
 - Prefer built-in schema constructors/checks such as `S.NonEmptyString`, `S.NonEmptyArray`, `S.TupleWithRest`, `S.Union`, `S.isPattern`, and `S.isIncludes` before reaching for `S.makeFilter`.
 - Derive domain guards with `S.is(SomeSchema)`.
 - If an internal literal domain needs `.is`, `.thunk`, `$match`, or an annotation-bearing schema value, use `LiteralKit`.
+- Do not add `as const` to inline array literals passed directly to `LiteralKit(...)`; `LiteralKit` uses const type parameters already.
 - Prefer named intermediate schemas; export and document them when reusable or when they materially clarify the module’s domain model, otherwise keep them module-local.
 
 ### EF-12c: Reusable schema checks carry metadata
@@ -313,7 +314,7 @@ import * as S from "effect/Schema"
 
 const $I = $PackageNameId.create("relative/path/to/file/from/package/src")
 
-const ExternalJobKind = LiteralKit(["created", "completed"] as const)
+const ExternalJobKind = LiteralKit(["created", "completed"])
 
 export class ExternalJobCreated extends S.Class<ExternalJobCreated>($I`ExternalJobCreated`)(
   {
@@ -830,6 +831,7 @@ export class VersionSyncOptions extends S.Class<VersionSyncOptions>($I`VersionSy
 - Prefer built-in schema constructors/checks before `S.makeFilter`.
 - Keep guard intent and reusable check intent in schema annotations and check metadata.
 - Use `LiteralKit` for internal literal domains whenever `.is`, `.thunk`, `$match`, or annotation-bearing schema values are useful.
+- Do not add `as const` to inline array literals passed directly to `LiteralKit(...)`; `LiteralKit` uses const type parameters already.
 - Prefer named intermediate schemas; export them only when reusable or when they materially clarify the module’s domain model.
 
 Example:
@@ -845,7 +847,7 @@ import * as Str from "effect/String"
 
 const $I = $PackageNameId.create("relative/path/to/file/from/package/src")
 
-const TopicKind = LiteralKit(["plain", "scoped"] as const)
+const TopicKind = LiteralKit(["plain", "scoped"])
 
 const ContainsScopeSeparator = S.String.check(
   S.isIncludes(":", {

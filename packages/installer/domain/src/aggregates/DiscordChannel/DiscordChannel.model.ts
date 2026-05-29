@@ -19,7 +19,7 @@ const $I = $InstallerDomainId.create("aggregates/DiscordChannel/DiscordChannel.m
  * @category aggregates
  * @since 0.0.0
  */
-export const DiscordChannelKind = LiteralKit(["guild-text-channel"] as const).pipe(
+export const DiscordChannelKind = LiteralKit(["guild-text-channel"]).pipe(
   $I.annoteSchema("DiscordChannelKind", {
     description: "Discord channel families supported by the P1A dry-run spine.",
   })
@@ -39,7 +39,7 @@ export type DiscordChannelKind = typeof DiscordChannelKind.Type;
  * @category aggregates
  * @since 0.0.0
  */
-export const DiscordChannelStatus = LiteralKit(["configured", "missing", "unchecked"] as const).pipe(
+export const DiscordChannelStatus = LiteralKit(["configured", "missing", "unchecked"]).pipe(
   $I.annoteSchema("DiscordChannelStatus", {
     description: "Dry-run validation status for a Discord channel target.",
   })

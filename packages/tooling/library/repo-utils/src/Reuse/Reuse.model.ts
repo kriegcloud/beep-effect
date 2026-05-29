@@ -62,7 +62,7 @@ export type ReuseCatalogOrigin = typeof ReuseCatalogOrigin.Type;
  * @category models
  * @since 0.0.0
  */
-export const ReuseWorkUnitKind = LiteralKit(["scout", "specialist"] as const).pipe(
+export const ReuseWorkUnitKind = LiteralKit(["scout", "specialist"]).pipe(
   S.annotate(
     $I.annote("ReuseWorkUnitKind", {
       description: "Kind of reuse-analysis work unit emitted for future orchestration.",

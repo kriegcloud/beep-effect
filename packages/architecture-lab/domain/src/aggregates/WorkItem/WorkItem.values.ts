@@ -63,7 +63,7 @@ export type WorkItemTitle = S.Schema.Type<typeof WorkItemTitle>;
  * @category value-objects
  * @since 0.0.0
  */
-export const WorkItemStatus = LiteralKit(["open", "assigned", "completed", "archived"] as const).pipe(
+export const WorkItemStatus = LiteralKit(["open", "assigned", "completed", "archived"]).pipe(
   $I.annoteSchema("WorkItemStatus", {
     title: "WorkItem status",
     description: "Canonical lifecycle status for the architecture lab WorkItem aggregate.",

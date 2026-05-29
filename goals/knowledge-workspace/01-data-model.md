@@ -29,7 +29,7 @@ Tagged union of node types, built with `LiteralKit` so callers get `.Enum`,
  *
  * const KnowledgeNodeKind = LiteralKit([
  *   "page", "code-symbol", "code-file", "code-module", "concept",
- * ] as const)
+ * ])
  *
  * KnowledgeNodeKind.is["code-symbol"]("code-symbol") // true
  * KnowledgeNodeKind.Enum.page                        // "page"
@@ -44,7 +44,7 @@ const KnowledgeNodeKind = LiteralKit([
   "code-file",
   "code-module",
   "concept",
-] as const).pipe(
+]).pipe(
   $I.annoteSchema("KnowledgeNodeKind", {
     description: "Classification of knowledge graph node types.",
   })
@@ -77,7 +77,7 @@ All `.$match` and `Match` call sites get a compile error until handled.
  *
  * const KnowledgeEdgeKind = LiteralKit([
  *   "wiki_link", "code_import", "code_export", "code_dependency", "semantic",
- * ] as const)
+ * ])
  *
  * KnowledgeEdgeKind.$match("wiki_link", {
  *   "wiki_link":       () => 1.0,
@@ -97,7 +97,7 @@ const KnowledgeEdgeKind = LiteralKit([
   "code_export",
   "code_dependency",
   "semantic",
-] as const).pipe(
+]).pipe(
   $I.annoteSchema("KnowledgeEdgeKind", {
     description: "Classification of knowledge graph edge types.",
   })
@@ -129,7 +129,7 @@ procedural certainty without explicit user confirmation.
  *
  * const KnowledgeDomain = LiteralKit([
  *   "code", "legal", "compliance", "general",
- * ] as const)
+ * ])
  *
  * KnowledgeDomain.Enum.general // "general"
  * ```
@@ -142,7 +142,7 @@ const KnowledgeDomain = LiteralKit([
   "legal",
   "compliance",
   "general",
-] as const).pipe(
+]).pipe(
   $I.annoteSchema("KnowledgeDomain", {
     description: "Domain partition for knowledge graph nodes.",
   })

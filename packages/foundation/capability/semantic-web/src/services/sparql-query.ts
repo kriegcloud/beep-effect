@@ -39,7 +39,7 @@ const serviceContractMetadata = (canonicalName: string, overview: string) =>
  * @since 0.0.0
  * @category models
  */
-export const SparqlQueryProfile = LiteralKit(["select", "ask", "construct"] as const).annotate(
+export const SparqlQueryProfile = LiteralKit(["select", "ask", "construct"]).annotate(
   $I.annote("SparqlQueryProfile", {
     description: "Minimal v1 SPARQL profile.",
   })
@@ -195,7 +195,7 @@ export type SparqlQueryResult = typeof SparqlQueryResult.Type;
 export class SparqlQueryError extends TaggedErrorClass<SparqlQueryError>($I`SparqlQueryError`)(
   "SparqlQueryError",
   {
-    reason: LiteralKit(["unsupportedProfile", "unimplemented"] as const),
+    reason: LiteralKit(["unsupportedProfile", "unimplemented"]),
     message: S.String,
   },
   $I.annote("SparqlQueryError", {

@@ -23,7 +23,7 @@ const $I = $LawPracticeDomainId.create("entities/PatentAsset/PatentAsset.values"
  * @category schemas
  * @since 0.0.0
  */
-export const PatentAssetStatus = LiteralKit(["pre_filing"] as const).annotate(
+export const PatentAssetStatus = LiteralKit(["pre_filing"]).annotate(
   $I.annote("PatentAssetStatus", {
     description: "Patent asset status vocabulary represented in proof seeds.",
   })

@@ -136,7 +136,7 @@ export const TurbopackLoaderBuiltinCondition = LiteralKit([
   "production",
   "node",
   "edge-light",
-] as const).pipe(
+]).pipe(
   $I.annoteSchema("TurbopackLoaderBuiltinCondition", {
     description: "Built-in Turbopack rule condition.",
   })
@@ -268,7 +268,7 @@ export const TurbopackModuleType = LiteralKit([
   "node",
   "bytes",
   "text",
-] as const).pipe(
+]).pipe(
   $I.annoteSchema("TurbopackModuleType", {
     description: "Module type used by Turbopack for matched files.",
     documentation: "https://nextjs.org/docs/app/api-reference/config/next-config-js/turbopack#module-types",

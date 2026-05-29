@@ -24,7 +24,7 @@ export const SecretReferencePurpose = LiteralKit([
   "claude-auth",
   "codex-auth",
   "provider-api-key",
-] as const).pipe(
+]).pipe(
   $I.annoteSchema("SecretReferencePurpose", {
     description: "Allowed purposes for credential references accepted by installer dry-run verbs.",
   })
@@ -44,11 +44,7 @@ export type SecretReferencePurpose = typeof SecretReferencePurpose.Type;
  * @category aggregates
  * @since 0.0.0
  */
-export const SecretReferenceStatus = LiteralKit([
-  "reference-valid",
-  "reference-missing",
-  "reference-unchecked",
-] as const).pipe(
+export const SecretReferenceStatus = LiteralKit(["reference-valid", "reference-missing", "reference-unchecked"]).pipe(
   $I.annoteSchema("SecretReferenceStatus", {
     description: "Dry-run validation status for a 1Password reference.",
   })

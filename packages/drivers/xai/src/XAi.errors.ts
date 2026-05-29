@@ -42,7 +42,7 @@ export const XAiErrorReason = LiteralKit([
   "sse decoding",
   "transport",
   "websocket",
-] as const).pipe(
+]).pipe(
   $I.annoteSchema("XAiErrorReason", {
     description: "Redacted technical error reasons emitted by the xAI driver.",
   })

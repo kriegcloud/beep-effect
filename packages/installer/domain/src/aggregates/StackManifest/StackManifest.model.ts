@@ -19,7 +19,7 @@ const $I = $InstallerDomainId.create("aggregates/StackManifest/StackManifest.mod
  * @category aggregates
  * @since 0.0.0
  */
-export const StackInstallerPlatform = LiteralKit(["macos", "windows", "linux"] as const).pipe(
+export const StackInstallerPlatform = LiteralKit(["macos", "windows", "linux"]).pipe(
   $I.annoteSchema("StackInstallerPlatform", {
     description: "Installer manifest target platform vocabulary.",
   })
@@ -39,7 +39,7 @@ export type StackInstallerPlatform = typeof StackInstallerPlatform.Type;
  * @category aggregates
  * @since 0.0.0
  */
-export const StackInstallerProvider = LiteralKit(["claude", "codex"] as const).pipe(
+export const StackInstallerProvider = LiteralKit(["claude", "codex"]).pipe(
   $I.annoteSchema("StackInstallerProvider", {
     description: "AI provider names represented in a stack installer manifest.",
   })
@@ -59,13 +59,7 @@ export type StackInstallerProvider = typeof StackInstallerProvider.Type;
  * @category aggregates
  * @since 0.0.0
  */
-export const ValidationTier = LiteralKit([
-  "existence",
-  "version",
-  "config",
-  "liveness",
-  "user-confirmation",
-] as const).pipe(
+export const ValidationTier = LiteralKit(["existence", "version", "config", "liveness", "user-confirmation"]).pipe(
   $I.annoteSchema("ValidationTier", {
     description: "Proof tier vocabulary for installer validation events.",
   })
@@ -85,7 +79,7 @@ export type ValidationTier = typeof ValidationTier.Type;
  * @category aggregates
  * @since 0.0.0
  */
-export const ValidationStatus = LiteralKit(["passed", "failed", "indeterminate"] as const).pipe(
+export const ValidationStatus = LiteralKit(["passed", "failed", "indeterminate"]).pipe(
   $I.annoteSchema("ValidationStatus", {
     description: "Result vocabulary for installer validation events.",
   })

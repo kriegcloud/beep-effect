@@ -17,12 +17,7 @@ const $I = $DiscordId.create("Discord.errors");
  * @category errors
  * @since 0.0.0
  */
-export const DiscordErrorReason = LiteralKit([
-  "request",
-  "transport",
-  "response-status",
-  "response-decoding",
-] as const).pipe(
+export const DiscordErrorReason = LiteralKit(["request", "transport", "response-status", "response-decoding"]).pipe(
   $I.annoteSchema("DiscordErrorReason", {
     description: "Technical failure reasons emitted by the Discord REST driver.",
   })

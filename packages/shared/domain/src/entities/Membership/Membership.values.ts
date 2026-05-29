@@ -23,7 +23,7 @@ const $I = $SharedDomainId.create("entities/Membership/Membership.values");
  * @category schemas
  * @since 0.0.0
  */
-export const Role = LiteralKit(["owner", "member"] as const).annotate(
+export const Role = LiteralKit(["owner", "member"]).annotate(
   $I.annote("Role", {
     description: "Shared organization membership role.",
   })
@@ -58,7 +58,7 @@ export type Role = typeof Role.Type;
  * @category schemas
  * @since 0.0.0
  */
-export const Status = LiteralKit(["active"] as const).annotate(
+export const Status = LiteralKit(["active"]).annotate(
   $I.annote("Status", {
     description: "Shared organization membership lifecycle status.",
   })

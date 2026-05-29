@@ -27,7 +27,7 @@ const serviceUnavailableBody = WorkItemUseCases.WorkItemActionFailed.make({
  * @category handlers
  * @since 0.0.0
  */
-export const WorkItemHttpStatus = LiteralKit([200, 201, 404, 409, 422, 503] as const).pipe(
+export const WorkItemHttpStatus = LiteralKit([200, 201, 404, 409, 422, 503]).pipe(
   $I.annoteSchema("WorkItemHttpStatus", {
     title: "WorkItem HTTP status",
     description: "HTTP status vocabulary emitted by the WorkItem proof protocol adapter.",

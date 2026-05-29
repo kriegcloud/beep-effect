@@ -44,7 +44,7 @@ const serviceContractMetadata = (canonicalName: string, overview: string) =>
  * @since 0.0.0
  * @category models
  */
-export const ShaclSeverity = LiteralKit(["info", "warning", "violation"] as const).annotate(
+export const ShaclSeverity = LiteralKit(["info", "warning", "violation"]).annotate(
   $I.annote("ShaclSeverity", {
     description: "SHACL report severity.",
   })
@@ -202,7 +202,7 @@ export class ShaclValidationResult extends S.Class<ShaclValidationResult>($I`Sha
 export class ShaclValidationError extends TaggedErrorClass<ShaclValidationError>($I`ShaclValidationError`)(
   "ShaclValidationError",
   {
-    reason: LiteralKit(["invalidShape", "engineFailure"] as const),
+    reason: LiteralKit(["invalidShape", "engineFailure"]),
     message: S.String,
   },
   $I.annote("ShaclValidationError", {

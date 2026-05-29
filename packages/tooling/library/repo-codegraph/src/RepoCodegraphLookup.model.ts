@@ -24,7 +24,7 @@ const $I = $RepoCodegraphId.create("RepoCodegraphLookup.model");
  * @category models
  * @since 0.0.0
  */
-export const RepoCodegraphLookupSchemaVersion = LiteralKit(["repo-codegraph.lookup/v1"] as const).annotate(
+export const RepoCodegraphLookupSchemaVersion = LiteralKit(["repo-codegraph.lookup/v1"]).annotate(
   $I.annote("RepoCodegraphLookupSchemaVersion", {
     description: "Schema version for deterministic repo-codegraph lookup results.",
   })
@@ -55,7 +55,7 @@ export type RepoCodegraphLookupSchemaVersion = typeof RepoCodegraphLookupSchemaV
  * @category models
  * @since 0.0.0
  */
-export const RepoCodegraphFreshnessStatus = LiteralKit(["unchecked", "current"] as const).annotate(
+export const RepoCodegraphFreshnessStatus = LiteralKit(["unchecked", "current"]).annotate(
   $I.annote("RepoCodegraphFreshnessStatus", {
     description: "Freshness posture of the export catalog used by a lookup request.",
   })
@@ -86,7 +86,7 @@ export type RepoCodegraphFreshnessStatus = typeof RepoCodegraphFreshnessStatus.T
  * @category models
  * @since 0.0.0
  */
-export const RepoCodegraphBoundaryStatus = LiteralKit(["allowed", "advisory", "blocked", "unknown"] as const).annotate(
+export const RepoCodegraphBoundaryStatus = LiteralKit(["allowed", "advisory", "blocked", "unknown"]).annotate(
   $I.annote("RepoCodegraphBoundaryStatus", {
     description: "Advisory architecture-boundary status for a candidate import.",
   })

@@ -70,7 +70,7 @@ const CacheHandlersConfig = S.Record(S.String, S.UndefinedOr(S.String)).pipe(
 class DevIndicatorsConfigOptions extends S.Class<DevIndicatorsConfigOptions>($I`DevIndicatorsConfigOptions`)(
   {
     position: optional(
-      LiteralKit(["top-left", "top-right", "bottom-left", "bottom-right"] as const),
+      LiteralKit(["top-left", "top-right", "bottom-left", "bottom-right"]),
       "Position of the development tools indicator in the browser window."
     ),
   },
@@ -334,7 +334,7 @@ export class NextConfig extends S.Class<NextConfig>($I`NextConfig`)(
     ),
     staticPageGenerationTimeout: optional(S.Number, "Timeout in seconds for static page generation."),
     crossOrigin: optional(
-      LiteralKit(["anonymous", "use-credentials"] as const),
+      LiteralKit(["anonymous", "use-credentials"]),
       "Cross-origin attribute for generated script elements.",
       "https://developer.mozilla.org/docs/Web/HTML/Attributes/crossorigin"
     ),
@@ -344,7 +344,7 @@ export class NextConfig extends S.Class<NextConfig>($I`NextConfig`)(
       "https://nextjs.org/docs/advanced-features/compiler#supported-features"
     ),
     output: optional(
-      LiteralKit(["standalone", "export"] as const),
+      LiteralKit(["standalone", "export"]),
       "Build output type.",
       "https://nextjs.org/docs/advanced-features/output-file-tracing"
     ),

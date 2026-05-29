@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generatedOn": "2026-05-23",
+  "generatedOn": "2026-05-29",
   "scope": ["apps/**/*.{ts,tsx}", "packages/**/*.{ts,tsx}", "infra/**/*.ts"],
   "enforcedRoots": [
     "packages/tooling/tool/cli/src",
@@ -288,6 +288,14 @@
       "status": "exception",
       "owner": "@beep/chalk",
       "reason": "Interface contains non-schema signals such as function members or runtime handles."
+    },
+    {
+      "file": "packages/foundation/capability/chalk/src/internal/ChalkRuntime.ts",
+      "symbol": "ChalkState",
+      "kind": "object-struct-schema",
+      "status": "candidate",
+      "owner": "@beep/chalk",
+      "reason": "Object schema should prefer an annotated S.Class over S.Struct."
     },
     {
       "file": "packages/foundation/capability/md/src/Md.model.ts",

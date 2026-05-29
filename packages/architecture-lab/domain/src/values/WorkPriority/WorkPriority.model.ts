@@ -17,7 +17,7 @@ const $I = $ArchitectureLabDomainId.create("values/WorkPriority/WorkPriority.mod
  * @category value-objects
  * @since 0.0.0
  */
-export const WorkPriority = LiteralKit(["low", "normal", "high"] as const).pipe(
+export const WorkPriority = LiteralKit(["low", "normal", "high"]).pipe(
   $I.annoteSchema("WorkPriority", {
     title: "Work priority",
     description: "Reusable architecture lab value object for relative WorkItem priority.",

@@ -25,7 +25,7 @@ const $I = $PhoenixId.create("Phoenix.models");
  * @category models
  * @since 0.0.0
  */
-export const PhoenixDoctorStatus = LiteralKit(["passed", "unavailable"] as const).pipe(
+export const PhoenixDoctorStatus = LiteralKit(["passed", "unavailable"]).pipe(
   $I.annoteSchema("PhoenixDoctorStatus", {
     description: "Phoenix driver health states returned by the doctor operation.",
   })
@@ -52,7 +52,7 @@ export type PhoenixDoctorStatus = typeof PhoenixDoctorStatus.Type;
  * @category models
  * @since 0.0.0
  */
-export const PhoenixDatasetSelectorKind = LiteralKit(["dataset-id", "dataset-name"] as const).pipe(
+export const PhoenixDatasetSelectorKind = LiteralKit(["dataset-id", "dataset-name"]).pipe(
   $I.annoteSchema("PhoenixDatasetSelectorKind", {
     description: "Selector kinds used when addressing Phoenix datasets.",
   })
@@ -79,7 +79,7 @@ export type PhoenixDatasetSelectorKind = typeof PhoenixDatasetSelectorKind.Type;
  * @category models
  * @since 0.0.0
  */
-export const PhoenixAnnotationTargetKind = LiteralKit(["span", "session", "trace"] as const).pipe(
+export const PhoenixAnnotationTargetKind = LiteralKit(["span", "session", "trace"]).pipe(
   $I.annoteSchema("PhoenixAnnotationTargetKind", {
     description: "Phoenix annotation target kinds supported by the driver.",
   })
@@ -106,7 +106,7 @@ export type PhoenixAnnotationTargetKind = typeof PhoenixAnnotationTargetKind.Typ
  * @category models
  * @since 0.0.0
  */
-export const PhoenixAnnotatorKind = LiteralKit(["CODE", "HUMAN", "LLM"] as const).pipe(
+export const PhoenixAnnotatorKind = LiteralKit(["CODE", "HUMAN", "LLM"]).pipe(
   $I.annoteSchema("PhoenixAnnotatorKind", {
     description: "Phoenix annotator kinds supported by annotation writes.",
   })
@@ -168,7 +168,7 @@ export const PhoenixPromptChatRole = LiteralKit([
   "system",
   "tool",
   "user",
-] as const).pipe(
+]).pipe(
   $I.annoteSchema("PhoenixPromptChatRole", {
     description: "Prompt chat roles accepted by repo-owned Phoenix prompt templates.",
   })
@@ -195,7 +195,7 @@ export type PhoenixPromptChatRole = typeof PhoenixPromptChatRole.Type;
  * @category models
  * @since 0.0.0
  */
-export const PhoenixPromptTemplateFormat = LiteralKit(["F_STRING", "MUSTACHE"] as const).pipe(
+export const PhoenixPromptTemplateFormat = LiteralKit(["F_STRING", "MUSTACHE"]).pipe(
   $I.annoteSchema("PhoenixPromptTemplateFormat", {
     description: "Prompt template formats accepted by repo-owned Phoenix prompt templates.",
   })
@@ -230,7 +230,7 @@ export const PhoenixPromptModelProvider = LiteralKit([
   "XAI",
   "OLLAMA",
   "AWS",
-] as const).pipe(
+]).pipe(
   $I.annoteSchema("PhoenixPromptModelProvider", {
     description: "Prompt model providers supported by the Phoenix driver prompt creation path.",
   })

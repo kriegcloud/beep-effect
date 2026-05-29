@@ -66,6 +66,8 @@ Keep `Schema` as the source of truth for pure data models.
   concepts.
 - Prefer `LiteralKit` when a literal domain needs `.is`, `.Enum`, `.thunk`,
   `$match`, `.mapMembers(...)`, or `.toTaggedUnion(...)`.
+- Do not add `as const` to inline array literals passed directly to
+  `LiteralKit(...)`; its const type parameters preserve the literal tuple.
 - Model finite variants, lifecycle states, status/result cases, and
   case-specific payloads as discriminated unions, not one optional/nullish
   payload bag.

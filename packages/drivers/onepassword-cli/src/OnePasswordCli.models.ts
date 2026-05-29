@@ -17,7 +17,7 @@ const $I = $OnepasswordCliId.create("OnePasswordCli.models");
  * @category models
  * @since 0.0.0
  */
-export const OnePasswordReferenceProbeStatus = LiteralKit(["resolved", "missing"] as const).pipe(
+export const OnePasswordReferenceProbeStatus = LiteralKit(["resolved", "missing"]).pipe(
   $I.annoteSchema("OnePasswordReferenceProbeStatus", {
     description: "Product-neutral 1Password secret-reference probe status.",
   })

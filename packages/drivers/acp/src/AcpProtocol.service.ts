@@ -91,9 +91,9 @@ const ACP_STDIO_CLIENT_IDS = {
  */
 export class AcpProtocolLogEvent extends S.Class<AcpProtocolLogEvent>($I`AcpProtocolLogEvent`)(
   {
-    direction: LiteralKit(["incoming", "outgoing"] as const),
+    direction: LiteralKit(["incoming", "outgoing"]),
     payload: S.Unknown,
-    stage: LiteralKit(["raw", "decoded", "decode_failed"] as const),
+    stage: LiteralKit(["raw", "decoded", "decode_failed"]),
   },
   $I.annote("AcpProtocolLogEvent", {
     description: "Structured log event emitted by the ACP protocol adapter.",

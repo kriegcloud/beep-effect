@@ -17,7 +17,7 @@ const $I = $AiProviderCliId.create("AiProviderCli.models");
  * @category models
  * @since 0.0.0
  */
-export const AiProviderCliProvider = LiteralKit(["claude", "codex"] as const).pipe(
+export const AiProviderCliProvider = LiteralKit(["claude", "codex"]).pipe(
   $I.annoteSchema("AiProviderCliProvider", {
     description: "AI provider CLI names supported by the driver.",
   })
@@ -37,7 +37,7 @@ export type AiProviderCliProvider = typeof AiProviderCliProvider.Type;
  * @category models
  * @since 0.0.0
  */
-export const AiProviderCliAuthStatus = LiteralKit(["authenticated", "not-authenticated"] as const).pipe(
+export const AiProviderCliAuthStatus = LiteralKit(["authenticated", "not-authenticated"]).pipe(
   $I.annoteSchema("AiProviderCliAuthStatus", {
     description: "Authentication state inferred from a provider CLI status command.",
   })

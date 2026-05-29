@@ -92,7 +92,7 @@ Each skill must produce a scratchpad file that type-checks against the repo's `t
  * const $I = $ScratchId.create("phase0-validation")
  *
  * // schema-model-specialist
- * const Status = LiteralKit(["active", "inactive"] as const)
+ * const Status = LiteralKit(["active", "inactive"])
  * class Entity extends S.Class<Entity>($I`Entity`)({
  *   status: Status,
  * }) {}

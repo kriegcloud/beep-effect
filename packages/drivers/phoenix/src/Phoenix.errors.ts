@@ -41,7 +41,7 @@ export const PhoenixOperation = LiteralKit([
   "getExperimentInfo",
   "getPrompt",
   "init",
-] as const).pipe(
+]).pipe(
   $I.annoteSchema("PhoenixOperation", {
     description: "Phoenix driver operation names used in technical error diagnostics.",
   })
@@ -69,7 +69,7 @@ const isPhoenixOperation = S.is(PhoenixOperation);
  * @category errors
  * @since 0.0.0
  */
-export const PhoenixErrorReason = LiteralKit(["config", "response decoding", "transport"] as const).pipe(
+export const PhoenixErrorReason = LiteralKit(["config", "response decoding", "transport"]).pipe(
   $I.annoteSchema("PhoenixErrorReason", {
     description: "Redacted technical error reasons emitted by the Phoenix driver.",
   })

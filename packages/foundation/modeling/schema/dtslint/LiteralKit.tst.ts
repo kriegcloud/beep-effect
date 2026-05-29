@@ -30,7 +30,7 @@ describe("LiteralToKey", () => {
 });
 
 describe("LiteralKit", () => {
-  const Status = LiteralKit([1, 20n, true, false, "hello"] as const);
+  const Status = LiteralKit([1, 20n, true, false, "hello"]);
 
   it("preserves the literal tuple on Options", () => {
     expect<typeof Status.Options>().type.toBe<readonly [1, 20n, true, false, "hello"]>();
@@ -112,11 +112,11 @@ describe("LiteralKit", () => {
 
 describe("LiteralKit with manual Enum mapping", () => {
   const Status = LiteralKit(
-    ["one", "two"] as const,
+    ["one", "two"],
     [
       ["one", "ONE"],
       ["two", "TWO"],
-    ] as const
+    ]
   );
 
   it("maps Enum members to the provided manual keys", () => {
@@ -168,11 +168,11 @@ describe("LiteralKit with manual Enum mapping", () => {
 
   it("uses mapped keys for branded string helper objects", () => {
     const RepoPkg = LiteralKit(
-      [$RepoCliId.identifier, $SchemaId.identifier] as const,
+      [$RepoCliId.identifier, $SchemaId.identifier],
       [
         [$RepoCliId.identifier, "@beep/repo-cli"],
         [$SchemaId.identifier, "@beep/schema"],
-      ] as const
+      ]
     );
 
     expect(RepoPkg.Enum["@beep/repo-cli"]).type.toBe<IdentityString<"@beep/repo-cli">>();
@@ -202,12 +202,12 @@ describe("LiteralKit with manual Enum mapping", () => {
 
   it("supports mixed source literal types", () => {
     const Mixed = LiteralKit(
-      [1, true, "two"] as const,
+      [1, true, "two"],
       [
         [1, "ONE"],
         [true, "TRUE"],
         ["two", "TWO"],
-      ] as const
+      ]
     );
 
     expect(Mixed.Enum.ONE).type.toBe<1>();
@@ -226,7 +226,7 @@ describe("LiteralKit with manual Enum mapping", () => {
       ["two", "TWO"],
     ];
 
-    const StatusFromPairs = LiteralKit(["one", "two"] as const, pairs);
+    const StatusFromPairs = LiteralKit(["one", "two"], pairs);
 
     expect(StatusFromPairs.Enum.ONE).type.toBe<"one">();
     expect(StatusFromPairs.Enum.TWO).type.toBe<"two">();
@@ -234,7 +234,7 @@ describe("LiteralKit with manual Enum mapping", () => {
 
   it("rejects invalid mappings at compile time", () => {
     // @ts-expect-error!
-    LiteralKit(["one", "two"] as const, [["one", "ONE"]] as const);
+    LiteralKit(["one", "two"], [["one", "ONE"]]);
 
     const duplicateSourceMapping = [
       ["one", "ONE"],
@@ -242,7 +242,7 @@ describe("LiteralKit with manual Enum mapping", () => {
     ] as const;
 
     // @ts-expect-error!
-    LiteralKit(["one", "two"] as const, duplicateSourceMapping);
+    LiteralKit(["one", "two"], duplicateSourceMapping);
 
     const duplicateKeyMapping = [
       ["one", "SAME"],
@@ -250,13 +250,13 @@ describe("LiteralKit with manual Enum mapping", () => {
     ] as const;
 
     // @ts-expect-error!
-    LiteralKit(["one", "two"] as const, duplicateKeyMapping);
+    LiteralKit(["one", "two"], duplicateKeyMapping);
   });
 });
 
 describe("LiteralKit (string-only)", () => {
-  const Dir = LiteralKit(["up", "down"] as const);
-  const EventKind = LiteralKit(["created", "deleted"] as const);
+  const Dir = LiteralKit(["up", "down"]);
+  const EventKind = LiteralKit(["created", "deleted"]);
 
   it("uses string values directly as keys", () => {
     expect(Dir.Enum.up).type.toBe<"up">();
@@ -331,7 +331,7 @@ describe("LiteralKit (string-only)", () => {
 });
 
 describe("LiteralKit toTaggedUnion (number keys)", () => {
-  const NumberKind = LiteralKit([1, 2] as const);
+  const NumberKind = LiteralKit([1, 2]);
 
   it("uses LiteralToKey for case object keys", () => {
     const NumberEvent = NumberKind.toTaggedUnion("kind")({
