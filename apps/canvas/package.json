@@ -1,6 +1,6 @@
 {
   "name": "@beep/canvas",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "description": "Tauri and React shell for the canvas bootstrap goal.",
   "license": "MIT",
   "private": true,
