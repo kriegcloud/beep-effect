@@ -2722,33 +2722,42 @@ describe("FormReact.make", () => {
     });
 
     effectTest("cancels pending submission on unmount", function* () {
-      const user = userEvent.setup();
+      vi.useFakeTimers();
       const submitHandler = vi.fn();
 
-      const formBuilder = FormBuilder.empty.addField(NameField);
+      try {
+        const formBuilder = FormBuilder.empty.addField(NameField);
 
-      const form = FormReact.make(formBuilder, {
-        runtime: createRuntime(),
-        fields: { name: DebounceTextInput },
-        mode: { validation: "onChange", debounce: "100 millis", autoSubmit: true },
-        onSubmit: (_: void, { decoded }) => submitHandler(decoded),
-      });
+        const form = FormReact.make(formBuilder, {
+          runtime: createRuntime(),
+          fields: { name: DebounceTextInput },
+          mode: { validation: "onChange", debounce: "100 millis", autoSubmit: true },
+          onSubmit: (_: void, { decoded }) => submitHandler(decoded),
+        });
 
-      const { unmount } = render(
-        <form.Initialize defaultValues={{ name: "" }}>
-          <form.name />
-        </form.Initialize>
-      );
+        const { unmount } = render(
+          <form.Initialize defaultValues={{ name: "" }}>
+            <form.name />
+          </form.Initialize>
+        );
 
-      const input = screen.getByTestId("text-input");
+        const input = screen.getByTestId("text-input");
+        act(() => {
+          fireEvent.change(input, { target: { value: "Lucas" } });
+        });
 
-      yield* Effect.promise(() => user.type(input, "Lucas"));
+        unmount();
 
-      unmount();
+        yield* Effect.promise(() =>
+          act(async () => {
+            await vi.advanceTimersByTimeAsync(200);
+          })
+        );
 
-      yield* delay(200);
-
-      expect(submitHandler).not.toHaveBeenCalled();
+        expect(submitHandler).not.toHaveBeenCalled();
+      } finally {
+        vi.useRealTimers();
+      }
     });
 
     effectTest("auto-submits on blur when mode is onBlur with autoSubmit", function* () {
