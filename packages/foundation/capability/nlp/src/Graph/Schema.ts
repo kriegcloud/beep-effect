@@ -25,49 +25,38 @@ import * as S from "effect/Schema";
 const $I = $NlpId.create("Graph/Schema");
 
 /**
- * Structural text-node kind vocabulary (kit: `.Schema`, `.Options`, `.is`).
- *
- * @example
- * ```ts
- * import { TextNodeTypeKit } from "@beep/nlp/Graph/Schema"
- *
- * console.log(TextNodeTypeKit.is.any("sentence")) // true
- * ```
- *
- * @since 0.0.0
- * @category schemas
- */
-export const TextNodeTypeKit = LiteralKit(["sentence", "token", "paragraph", "document"]);
-
-/**
- * Schema for the structural text-node kind vocabulary.
+ * Structural text-node kind vocabulary.
  *
  * @example
  * ```ts
  * import { TextNodeType } from "@beep/nlp/Graph/Schema"
  *
- * console.log(TextNodeType)
+ * console.log(TextNodeType.is.sentence("sentence")) // true
  * ```
  *
  * @since 0.0.0
  * @category schemas
  */
-export const TextNodeType = TextNodeTypeKit.Schema;
+export const TextNodeType = LiteralKit(["sentence", "token", "paragraph", "document"]).annotate(
+  $I.annote("TextNodeType", {
+    description: "Structural text-graph node kind (document/paragraph/sentence/token).",
+  })
+);
 
 /**
- * Edge-relation vocabulary kit (structural + linguistic-annotation relations).
+ * Edge-relation vocabulary (structural + linguistic-annotation relations).
  *
  * @example
  * ```ts
- * import { TextEdgeRelationKit } from "@beep/nlp/Graph/Schema"
+ * import { TextEdgeRelation } from "@beep/nlp/Graph/Schema"
  *
- * console.log(TextEdgeRelationKit.is.any("contains")) // true
+ * console.log(TextEdgeRelation.is.contains("contains")) // true
  * ```
  *
  * @since 0.0.0
  * @category schemas
  */
-export const TextEdgeRelationKit = LiteralKit([
+export const TextEdgeRelation = LiteralKit([
   // Structural relations
   "contains",
   "follows",
@@ -80,22 +69,11 @@ export const TextEdgeRelationKit = LiteralKit([
   "dependent-of",
   "entity-mention",
   "relates-to",
-]);
-
-/**
- * Schema for the edge-relation vocabulary.
- *
- * @example
- * ```ts
- * import { TextEdgeRelation } from "@beep/nlp/Graph/Schema"
- *
- * console.log(TextEdgeRelation)
- * ```
- *
- * @since 0.0.0
- * @category schemas
- */
-export const TextEdgeRelation = TextEdgeRelationKit.Schema;
+]).annotate(
+  $I.annote("TextEdgeRelation", {
+    description: "Text-graph edge relation (structural lineage + linguistic-annotation links).",
+  })
+);
 
 /**
  * Text node stored in the graph: a piece of text with processing metadata.
