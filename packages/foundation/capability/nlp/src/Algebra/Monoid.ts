@@ -1,0 +1,399 @@
+/**
+ * Algebra/Monoid - Algebraic structures for aggregation operations
+ *
+ * This module defines monoids and their laws, providing a mathematical
+ * foundation for aggregation operations in the categorical NLP framework.
+ *
+ * A Monoid is an algebraic structure (M, ⊕, ∅) where:
+ * - M is a set (the carrier type)
+ * - ⊕ : M × M → M is an associative binary operation (combine)
+ * - ∅ ∈ M is the identity element (empty)
+ *
+ * Laws:
+ * 1. Associativity: (x ⊕ y) ⊕ z = x ⊕ (y ⊕ z)
+ * 2. Left identity: ∅ ⊕ x = x
+ * 3. Right identity: x ⊕ ∅ = x
+ *
+ * Category theory: Monoids can be viewed as categories with a single object,
+ * where morphisms are elements of the monoid and composition is the monoid operation.
+ *
+ * For forgetful functors: The monoid structure determines how multiple nodes
+ * are aggregated into a single parent node.
+ *
+ * Ported from the `adjunct` repo (Effect v3) to Effect v4 / `@beep/nlp`.
+ */
+
+import * as HashMap from "effect/HashMap";
+import * as O from "effect/Option";
+
+// =============================================================================
+// Core Monoid Type Class
+// =============================================================================
+
+/**
+ * Monoid type class
+ *
+ * A monoid is an algebraic structure with:
+ * - An identity element (empty)
+ * - An associative binary operation (combine)
+ *
+ * @typeParam A - The carrier type
+ */
+export interface Monoid<A> {
+  /**
+   * Associative binary operation
+   * Must satisfy: combine(combine(x, y), z) = combine(x, combine(y, z))
+   */
+  readonly combine: (x: A, y: A) => A;
+  /**
+   * The identity element
+   * Must satisfy: combine(empty, x) = x = combine(x, empty)
+   */
+  readonly empty: A;
+}
+
+/**
+ * Helper to create a Monoid instance
+ */
+export const make = <A>(empty: A, combine: (x: A, y: A) => A): Monoid<A> => ({
+  empty,
+  combine,
+});
+
+/**
+ * Fold a collection using a monoid
+ * This is the fundamental aggregation operation.
+ *
+ * Category theory: This is a catamorphism from the list functor to the monoid.
+ */
+export const fold =
+  <A>(monoid: Monoid<A>) =>
+  (values: Iterable<A>): A => {
+    let result = monoid.empty;
+    for (const value of values) {
+      result = monoid.combine(result, value);
+    }
+    return result;
+  };
+
+/**
+ * Combine an array of values using a monoid, seeded with the identity.
+ */
+export const combineAll =
+  <A>(monoid: Monoid<A>) =>
+  (values: ReadonlyArray<A>): A =>
+    values.reduce(monoid.combine, monoid.empty);
+
+// =============================================================================
+// String Monoids
+// =============================================================================
+
+/**
+ * String concatenation monoid.
+ *
+ * - Empty: ""
+ * - Combine: (x, y) => x + y
+ */
+export const StringConcat: Monoid<string> = {
+  empty: "",
+  combine: (x, y) => x + y,
+};
+
+/**
+ * String join with separator monoid.
+ *
+ * Combines strings with a separator, intelligently handling empty strings.
+ */
+export const StringJoin = (separator: string): Monoid<string> => ({
+  empty: "",
+  combine: (x, y) => {
+    if (x === "") return y;
+    if (y === "") return x;
+    return `${x}${separator}${y}`;
+  },
+});
+
+/**
+ * String join with prefix and suffix, useful for creating delimited lists.
+ */
+export const StringDelimited = (prefix: string, suffix: string, separator: string): Monoid<string> => ({
+  empty: "",
+  combine: (x, y) => {
+    if (x === "" && y === "") return "";
+    if (x === "") return `${prefix}${y}${suffix}`;
+    if (y === "") return `${prefix}${x}${suffix}`;
+    const inner = `${x.slice(prefix.length, -suffix.length)}${separator}${y.slice(prefix.length, -suffix.length)}`;
+    return `${prefix}${inner}${suffix}`;
+  },
+});
+
+// =============================================================================
+// Numeric Monoids
+// =============================================================================
+
+/**
+ * Addition monoid for numbers (empty: 0).
+ */
+export const NumberSum: Monoid<number> = {
+  empty: 0,
+  combine: (x, y) => x + y,
+};
+
+/**
+ * Multiplication monoid for numbers (empty: 1).
+ */
+export const NumberProduct: Monoid<number> = {
+  empty: 1,
+  combine: (x, y) => x * y,
+};
+
+/**
+ * Max monoid for numbers (empty: -Infinity).
+ */
+export const NumberMax: Monoid<number> = {
+  empty: Number.NEGATIVE_INFINITY,
+  combine: (x, y) => Math.max(x, y),
+};
+
+/**
+ * Min monoid for numbers (empty: Infinity).
+ */
+export const NumberMin: Monoid<number> = {
+  empty: Number.POSITIVE_INFINITY,
+  combine: (x, y) => Math.min(x, y),
+};
+
+// =============================================================================
+// Array Monoids
+// =============================================================================
+
+/**
+ * Array concatenation monoid (empty: []).
+ */
+export const ArrayConcat = <A>(): Monoid<ReadonlyArray<A>> => ({
+  empty: [],
+  combine: (x, y) => [...x, ...y],
+});
+
+// =============================================================================
+// Collection Monoids (Bag-of-Words, Multisets)
+// =============================================================================
+
+/**
+ * Multiset (bag) union monoid.
+ *
+ * A multiset is a collection where elements can appear multiple times.
+ * Union adds the multiplicities.
+ */
+export const MultiSet = <K>(): Monoid<HashMap.HashMap<K, number>> => ({
+  empty: HashMap.empty(),
+  combine: (x, y) =>
+    HashMap.reduce(y, x, (map, count, key) =>
+      HashMap.modifyAt(map, key, (existing) => O.some(O.getOrElse(existing, () => 0) + count))
+    ),
+});
+
+/**
+ * Set union monoid (empty: ∅).
+ */
+export const SetUnion = <A>(): Monoid<ReadonlySet<A>> => ({
+  empty: new Set(),
+  combine: (x, y) => new Set([...x, ...y]),
+});
+
+/**
+ * Set intersection monoid.
+ *
+ * Note: There is no universal identity element for intersection over an
+ * unbounded universe, so we model the identity as the "universal set" via
+ * `Option.none()` (intersecting with the universal set is the identity).
+ * Only use when all elements come from a finite universe.
+ */
+export const SetIntersection = <A>(): Monoid<O.Option<ReadonlySet<A>>> => ({
+  empty: O.none(),
+  combine: (x, y) =>
+    O.match(x, {
+      onNone: () => y,
+      onSome: (xs) =>
+        O.match(y, {
+          onNone: () => x,
+          onSome: (ys) => {
+            const result = new Set<A>();
+            for (const elem of xs) {
+              if (ys.has(elem)) result.add(elem);
+            }
+            return O.some(result);
+          },
+        }),
+    }),
+});
+
+// =============================================================================
+// Vector Monoids (for embeddings)
+// =============================================================================
+
+/**
+ * Vector addition monoid (element-wise addition; empty: zero vector).
+ */
+export const VectorAdd = (dimension: number): Monoid<ReadonlyArray<number>> => ({
+  empty: Array(dimension).fill(0),
+  combine: (x, y) => x.map((xi, i) => xi + (y[i] ?? 0)),
+});
+
+/**
+ * Vector average monoid (tracks sum and count to compute a running average).
+ */
+export const VectorAverage = (
+  dimension: number
+): Monoid<{ readonly sum: ReadonlyArray<number>; readonly count: number }> => ({
+  empty: { sum: Array(dimension).fill(0), count: 0 },
+  combine: (x, y) => ({
+    sum: x.sum.map((xi, i) => xi + (y.sum[i] ?? 0)),
+    count: x.count + y.count,
+  }),
+});
+
+/**
+ * Extract the average from a {@link VectorAverage} result.
+ */
+export const getAverage = (result: {
+  readonly sum: ReadonlyArray<number>;
+  readonly count: number;
+}): ReadonlyArray<number> => (result.count === 0 ? result.sum : result.sum.map((x) => x / result.count));
+
+// =============================================================================
+// Tuple Monoids (Product)
+// =============================================================================
+
+/**
+ * Product monoid: combine two monoids component-wise.
+ */
+export const Product = <A, B>(ma: Monoid<A>, mb: Monoid<B>): Monoid<readonly [A, B]> => ({
+  empty: [ma.empty, mb.empty],
+  combine: ([xa, xb], [ya, yb]) => [ma.combine(xa, ya), mb.combine(xb, yb)],
+});
+
+/**
+ * Triple product monoid.
+ */
+export const Product3 = <A, B, C>(ma: Monoid<A>, mb: Monoid<B>, mc: Monoid<C>): Monoid<readonly [A, B, C]> => ({
+  empty: [ma.empty, mb.empty, mc.empty],
+  combine: ([xa, xb, xc], [ya, yb, yc]) => [ma.combine(xa, ya), mb.combine(xb, yb), mc.combine(xc, yc)],
+});
+
+// =============================================================================
+// Functor Monoids
+// =============================================================================
+
+/**
+ * Lift a monoid through Option: combine point-wise, treating `None` as the identity.
+ */
+export const Option = <A>(monoid: Monoid<A>): Monoid<O.Option<A>> => ({
+  empty: O.none(),
+  combine: (x, y) =>
+    O.match(x, {
+      onNone: () => y,
+      onSome: (xa) =>
+        O.match(y, {
+          onNone: () => x,
+          onSome: (ya) => O.some(monoid.combine(xa, ya)),
+        }),
+    }),
+});
+
+// =============================================================================
+// Endomorphism Monoid
+// =============================================================================
+
+/**
+ * Endomorphism monoid: functions from A to A under composition (empty: identity).
+ */
+export const Endo = <A>(): Monoid<(a: A) => A> => ({
+  empty: (a) => a,
+  combine: (f, g) => (a) => f(g(a)),
+});
+
+// =============================================================================
+// Dual Monoid
+// =============================================================================
+
+/**
+ * Dual monoid: reverse the order of combination (x ⊕' y = y ⊕ x).
+ */
+export const Dual = <A>(monoid: Monoid<A>): Monoid<A> => ({
+  empty: monoid.empty,
+  combine: (x, y) => monoid.combine(y, x),
+});
+
+// =============================================================================
+// Boolean Monoids
+// =============================================================================
+
+/**
+ * Logical AND monoid (empty: true).
+ */
+export const BooleanAll: Monoid<boolean> = {
+  empty: true,
+  combine: (x, y) => x && y,
+};
+
+/**
+ * Logical OR monoid (empty: false).
+ */
+export const BooleanAny: Monoid<boolean> = {
+  empty: false,
+  combine: (x, y) => x || y,
+};
+
+// =============================================================================
+// Monoid Laws (for testing)
+// =============================================================================
+
+/**
+ * Check left identity law: empty ⊕ x = x
+ */
+export const checkLeftIdentity = <A>(
+  monoid: Monoid<A>,
+  x: A,
+  equals: (a: A, b: A) => boolean = (a, b) => a === b
+): boolean => equals(monoid.combine(monoid.empty, x), x);
+
+/**
+ * Check right identity law: x ⊕ empty = x
+ */
+export const checkRightIdentity = <A>(
+  monoid: Monoid<A>,
+  x: A,
+  equals: (a: A, b: A) => boolean = (a, b) => a === b
+): boolean => equals(monoid.combine(x, monoid.empty), x);
+
+/**
+ * Check associativity law: (x ⊕ y) ⊕ z = x ⊕ (y ⊕ z)
+ */
+export const checkAssociativity = <A>(
+  monoid: Monoid<A>,
+  x: A,
+  y: A,
+  z: A,
+  equals: (a: A, b: A) => boolean = (a, b) => a === b
+): boolean => {
+  const left = monoid.combine(monoid.combine(x, y), z);
+  const right = monoid.combine(x, monoid.combine(y, z));
+  return equals(left, right);
+};
+
+/**
+ * Check all monoid laws against a representative triple.
+ */
+export const checkLaws = <A>(
+  monoid: Monoid<A>,
+  values: readonly [A, A, A],
+  equals: (a: A, b: A) => boolean = (a, b) => a === b
+): boolean => {
+  const [x, y, z] = values;
+  return (
+    checkLeftIdentity(monoid, x, equals) &&
+    checkRightIdentity(monoid, x, equals) &&
+    checkAssociativity(monoid, x, y, z, equals)
+  );
+};
