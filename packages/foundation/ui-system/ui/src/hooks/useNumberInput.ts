@@ -159,13 +159,12 @@ const getNodeEnv = (): string | undefined => {
 
 const callAllHandlers =
   <T>(...handlers: ReadonlyArray<undefined | ((event: T) => void)>) =>
-  (event: T) => {
+  (event: T) =>
     A.forEach(handlers, (handler) => {
       if (P.isFunction(handler)) {
         handler(event);
       }
     });
-  };
 
 const getSpinStartProps: {
   (handlers: Partial<ButtonHandlers> | undefined): (spin: SpinStartHandler) => SpinStartProps;

@@ -177,6 +177,7 @@
         "useSelfClosingElements": "error",
         "useSingleVarDeclarator": "error",
         "useNumberNamespace": "error",
+        "useConsistentArrowReturn": "error",
         "noInferrableTypes": "error",
         "noUselessElse": "error"
       }
