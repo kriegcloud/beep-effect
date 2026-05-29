@@ -279,8 +279,8 @@ export const AiMetricsInstallPlanStepKind = LiteralKit([
   "retention_drill",
   "weekly_report",
   "pulumi",
-]).annotate(
-  $I.annote("AiMetricsInstallPlanStepKind", {
+]).pipe(
+  $I.annoteSchema("AiMetricsInstallPlanStepKind", {
     description: "Typed step categories emitted by the AI metrics P5a install planner.",
   })
 );
@@ -365,8 +365,8 @@ export class AiMetricsInstallPlan extends S.Class<AiMetricsInstallPlan>($I`AiMet
  * @category models
  * @since 0.0.0
  */
-export const AiMetricsInstallDoctorCheckStatus = LiteralKit(["passed", "warning", "failed", "skipped"]).annotate(
-  $I.annote("AiMetricsInstallDoctorCheckStatus", {
+export const AiMetricsInstallDoctorCheckStatus = LiteralKit(["passed", "warning", "failed", "skipped"]).pipe(
+  $I.annoteSchema("AiMetricsInstallDoctorCheckStatus", {
     description: "Bounded status for one AI metrics install doctor check.",
   })
 );
@@ -396,8 +396,8 @@ export type AiMetricsInstallDoctorCheckStatus = typeof AiMetricsInstallDoctorChe
  * @category models
  * @since 0.0.0
  */
-export const AiMetricsInstallDoctorStatus = LiteralKit(["passed", "warning", "failed"]).annotate(
-  $I.annote("AiMetricsInstallDoctorStatus", {
+export const AiMetricsInstallDoctorStatus = LiteralKit(["passed", "warning", "failed"]).pipe(
+  $I.annoteSchema("AiMetricsInstallDoctorStatus", {
     description: "Aggregate AI metrics install doctor status.",
   })
 );

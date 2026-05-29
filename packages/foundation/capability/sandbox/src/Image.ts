@@ -24,8 +24,8 @@ const $I = $SandboxId.create("Image");
  * @category schemas
  * @since 0.0.0
  */
-export const ContainerImageRuntime = LiteralKit(["docker", "podman"]).annotate(
-  $I.annote("ContainerImageRuntime", {
+export const ContainerImageRuntime = LiteralKit(["docker", "podman"]).pipe(
+  $I.annoteSchema("ContainerImageRuntime", {
     description: "Container runtime used for local sandbox images.",
   })
 );

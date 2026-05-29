@@ -26,8 +26,8 @@ const $I = $SandboxId.create("RecoveryMessage");
  * @category models
  * @since 0.0.0
  */
-export const FailedStep = LiteralKit(["commits", "diff", "untracked"]).annotate(
-  $I.annote("FailedStep", {
+export const FailedStep = LiteralKit(["commits", "diff", "untracked"]).pipe(
+  $I.annoteSchema("FailedStep", {
     description: "Sync-out step that failed during patch application.",
   })
 );

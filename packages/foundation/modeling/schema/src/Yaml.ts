@@ -98,11 +98,9 @@ export const YamlTextToUnknown = S.String.pipe(
     decode: SchemaGetter.transformOrFail(decodeYamlUnknown),
     encode: SchemaGetter.transformOrFail(encodeUnsupported),
   }),
-  S.annotate(
-    $I.annote("YamlTextToUnknown", {
-      description: "Schema transformation that parses YAML text into unknown values.",
-    })
-  )
+  $I.annoteSchema("YamlTextToUnknown", {
+    description: "Schema transformation that parses YAML text into unknown values.",
+  })
 );
 
 /**

@@ -33,8 +33,8 @@ export const Int = S.Int.pipe(S.brand("Int"))
       description: "A finite integer",
     })
   )
-  .annotate(
-    $I.annote("Int", {
+  .pipe(
+    $I.annoteSchema("Int", {
       description: "A an integer value",
     })
   );
@@ -76,8 +76,8 @@ export const PosInt = Int.pipe(S.brand("PosInt"))
       description: "A positive integer",
     })
   )
-  .annotate(
-    $I.annote("PosInt", {
+  .pipe(
+    $I.annoteSchema("PosInt", {
       description: "A positive integer",
     })
   );
@@ -114,8 +114,8 @@ export type PosInt = typeof PosInt.Type;
  */
 export const PostgresSerialInt = Int.pipe(S.brand("PostgresSerialInt"))
   .check(isPostgresSerialInt)
-  .annotate(
-    $I.annote("PostgresSerialInt", {
+  .pipe(
+    $I.annoteSchema("PostgresSerialInt", {
       description: "A positive integer in the PostgreSQL serial int4 range.",
     })
   );
@@ -158,8 +158,8 @@ export const NegInt = Int.pipe(S.brand("NegInt"))
       description: "A negative integer",
     })
   )
-  .annotate(
-    $I.annote("NegInt", {
+  .pipe(
+    $I.annoteSchema("NegInt", {
       description: "A negative integer",
     })
   );
@@ -201,8 +201,8 @@ export const NonPositiveInt = Int.pipe(S.brand("NonPositiveInt"))
       description: "A non-positive integer",
     })
   )
-  .annotate(
-    $I.annote("NonPositiveInt", {
+  .pipe(
+    $I.annoteSchema("NonPositiveInt", {
       description: "A non-positive integer",
     })
   );

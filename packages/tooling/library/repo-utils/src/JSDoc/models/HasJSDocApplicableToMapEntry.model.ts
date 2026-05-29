@@ -59,8 +59,8 @@ export const HasJSDocApplicableToMapEntry = ApplicableTo.toTaggedUnion("applicab
   event: fields,
   mixin: fields,
   any: fields, // can attach to anything
-}).annotate(
-  $I.annote("HasJSDocApplicableToMapEntry", {
+}).pipe(
+  $I.annoteSchema("HasJSDocApplicableToMapEntry", {
     description: "One mapping row from a TypeScript `HasJSDoc` member name to an `ApplicableTo` classification.",
   })
 );

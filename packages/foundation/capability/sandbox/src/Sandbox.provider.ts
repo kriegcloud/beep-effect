@@ -21,8 +21,8 @@ const $I = $SandboxId.create("Sandbox.provider");
  * @category schemas
  * @since 0.0.0
  */
-export const SandboxProviderKind = LiteralKit(["BindMount", "Isolated", "None"]).annotate(
-  $I.annote("SandboxProviderKind", {
+export const SandboxProviderKind = LiteralKit(["BindMount", "Isolated", "None"]).pipe(
+  $I.annoteSchema("SandboxProviderKind", {
     description: "Sandbox provider kind.",
   })
 );

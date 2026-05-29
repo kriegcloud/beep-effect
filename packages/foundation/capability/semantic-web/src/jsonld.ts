@@ -14,8 +14,8 @@ import { makeSemanticSchemaMetadata } from "./semantic-schema-metadata.ts";
 
 const $I = $SemanticWebId.create("jsonld");
 
-const JsonLdScalar = S.Union([S.String, S.Number, S.Boolean]).annotate(
-  $I.annote("JsonLdScalar", {
+const JsonLdScalar = S.Union([S.String, S.Number, S.Boolean]).pipe(
+  $I.annoteSchema("JsonLdScalar", {
     description: "Scalar JSON-LD literal value input used by bounded document helpers.",
   })
 );
@@ -60,8 +60,8 @@ export const JsonLdKeyword = LiteralKit([
   "@type",
   "@value",
   "@vocab",
-]).annotate(
-  $I.annote("JsonLdKeyword", {
+]).pipe(
+  $I.annoteSchema("JsonLdKeyword", {
     description: "JSON-LD keyword surface used by the bounded v1 model.",
   })
 );
@@ -167,21 +167,19 @@ export class JsonLdContext extends S.Class<JsonLdContext>($I`JsonLdContext`)(
  */
 export const JsonLdBlankNodeIdentifier = S.String.check(jsonLdBlankNodeIdentifierChecks).pipe(
   S.brand("JsonLdBlankNodeIdentifier"),
-  S.annotate(
-    $I.annote("JsonLdBlankNodeIdentifier", {
-      description: "JSON-LD blank-node identifier used by the bounded document model.",
-      semanticSchemaMetadata: makeSemanticSchemaMetadata({
-        kind: "identifier",
-        canonicalName: "JsonLdBlankNodeIdentifier",
-        overview: "JSON-LD blank-node identifier used by the bounded document model.",
-        status: "stable",
-        specifications: [{ name: "JSON-LD 1.1", section: "Node Identifiers", disposition: "normative" }],
-        equivalenceBasis: "Exact blank-node identifier equality within a bounded document.",
-        canonicalizationRequired: true,
-        representations: [{ kind: "JSON-LD" }, { kind: "RDF/JS", note: "Bridges to RDF blank-node labels." }],
-      }),
-    })
-  )
+  $I.annoteSchema("JsonLdBlankNodeIdentifier", {
+    description: "JSON-LD blank-node identifier used by the bounded document model.",
+    semanticSchemaMetadata: makeSemanticSchemaMetadata({
+      kind: "identifier",
+      canonicalName: "JsonLdBlankNodeIdentifier",
+      overview: "JSON-LD blank-node identifier used by the bounded document model.",
+      status: "stable",
+      specifications: [{ name: "JSON-LD 1.1", section: "Node Identifiers", disposition: "normative" }],
+      equivalenceBasis: "Exact blank-node identifier equality within a bounded document.",
+      canonicalizationRequired: true,
+      representations: [{ kind: "JSON-LD" }, { kind: "RDF/JS", note: "Bridges to RDF blank-node labels." }],
+    }),
+  })
 );
 
 /**
@@ -213,8 +211,8 @@ export type JsonLdBlankNodeIdentifier = typeof JsonLdBlankNodeIdentifier.Type;
  * @since 0.0.0
  * @category models
  */
-export const JsonLdNodeIdentifier = S.Union([IRIReference, JsonLdBlankNodeIdentifier]).annotate(
-  $I.annote("JsonLdNodeIdentifier", {
+export const JsonLdNodeIdentifier = S.Union([IRIReference, JsonLdBlankNodeIdentifier]).pipe(
+  $I.annoteSchema("JsonLdNodeIdentifier", {
     description: "JSON-LD node identifier used by the bounded document model.",
     semanticSchemaMetadata: makeSemanticSchemaMetadata({
       kind: "identifier",
@@ -323,8 +321,8 @@ export class JsonLdLiteralValue extends S.Class<JsonLdLiteralValue>($I`JsonLdLit
  * @since 0.0.0
  * @category models
  */
-export const JsonLdPropertyValue = S.Union([JsonLdReferenceValue, JsonLdLiteralValue]).annotate(
-  $I.annote("JsonLdPropertyValue", {
+export const JsonLdPropertyValue = S.Union([JsonLdReferenceValue, JsonLdLiteralValue]).pipe(
+  $I.annoteSchema("JsonLdPropertyValue", {
     description: "JSON-LD property value union used by bounded node objects.",
   })
 );

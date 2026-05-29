@@ -24,11 +24,9 @@ const $I = $SchemaId.create("Csv");
 
 const CsvText = S.String.pipe(
   S.brand("CSV"),
-  S.annotate(
-    $I.annote("CsvText", {
-      description: "Branded CSV document text.",
-    })
-  )
+  $I.annoteSchema("CsvText", {
+    description: "Branded CSV document text.",
+  })
 );
 
 /**
@@ -81,11 +79,9 @@ const CsvEffect = <RowSchema extends RowSchemaWithFields>(
         encode: (rows) => encodeRows(rows).pipe(Effect.mapError((error) => toSchemaIssue(rows, error))),
       })
     ),
-    S.annotate(
-      $I.annote("Csv", {
-        description: "Schema factory for branded CSV text decoded into typed row arrays.",
-      })
-    )
+    $I.annoteSchema("Csv", {
+      description: "Schema factory for branded CSV text decoded into typed row arrays.",
+    })
   );
 };
 

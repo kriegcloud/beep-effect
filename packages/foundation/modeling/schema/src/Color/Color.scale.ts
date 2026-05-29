@@ -125,11 +125,9 @@ export const HexColorScale12 = S.Array(HexColor)
   .check(HexColorScale12Checks)
   .pipe(
     S.brand("HexColorScale12"),
-    S.annotate(
-      $I.annote("HexColorScale12", {
-        description: "A fixed-size 12-step scale of canonical hex colors.",
-      })
-    )
+    $I.annoteSchema("HexColorScale12", {
+      description: "A fixed-size 12-step scale of canonical hex colors.",
+    })
   );
 
 /**
@@ -143,11 +141,9 @@ export type HexColorScale12 = typeof HexColorScale12.Type;
 const HexColorScale12Input = S.Array(NormalizeHexColor)
   .check(HexColorScale12Checks)
   .pipe(
-    S.annotate(
-      $I.annote("HexColorScale12Input", {
-        description: "A 12-step hex color scale accepted at boundaries before canonical normalization.",
-      })
-    )
+    $I.annoteSchema("HexColorScale12Input", {
+      description: "A 12-step hex color scale accepted at boundaries before canonical normalization.",
+    })
   );
 
 /**
@@ -179,11 +175,9 @@ export const GenerateScale = GenerateScaleInput.pipe(
       () => "Encoding GenerateScale results back to the original request is not supported"
     ),
   }),
-  S.annotate(
-    $I.annote("GenerateScale", {
-      description: "Generates a 12-step chromatic scale from a seed hex color.",
-    })
-  )
+  $I.annoteSchema("GenerateScale", {
+    description: "Generates a 12-step chromatic scale from a seed hex color.",
+  })
 );
 
 /**
@@ -223,11 +217,9 @@ export const GenerateNeutralScale = GenerateNeutralScaleInput.pipe(
       () => "Encoding GenerateNeutralScale results back to the original request is not supported"
     ),
   }),
-  S.annotate(
-    $I.annote("GenerateNeutralScale", {
-      description: "Generates a 12-step neutral scale from a seed hex color.",
-    })
-  )
+  $I.annoteSchema("GenerateNeutralScale", {
+    description: "Generates a 12-step neutral scale from a seed hex color.",
+  })
 );
 
 /**
@@ -267,11 +259,9 @@ export const GenerateAlphaScale = GenerateAlphaScaleInput.pipe(
       () => "Encoding GenerateAlphaScale results back to the original request is not supported"
     ),
   }),
-  S.annotate(
-    $I.annote("GenerateAlphaScale", {
-      description: "Generates a 12-step alpha-blended scale from a canonical 12-step base scale.",
-    })
-  )
+  $I.annoteSchema("GenerateAlphaScale", {
+    description: "Generates a 12-step alpha-blended scale from a canonical 12-step base scale.",
+  })
 );
 
 /**

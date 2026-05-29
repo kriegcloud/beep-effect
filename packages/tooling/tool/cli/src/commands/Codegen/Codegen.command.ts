@@ -44,29 +44,23 @@ const JS_IMPORT_PATH_PATTERN = /^\.\/.+\.js$/;
 
 const TypeScriptSourceFileName = S.String.check(S.isPattern(TYPE_SCRIPT_SOURCE_FILE_PATTERN)).pipe(
   S.brand("TypeScriptSourceFileName"),
-  S.annotate(
-    $I.annote("TypeScriptSourceFileName", {
-      description: "TypeScript source filename ending with .ts or .tsx.",
-    })
-  )
+  $I.annoteSchema("TypeScriptSourceFileName", {
+    description: "TypeScript source filename ending with .ts or .tsx.",
+  })
 );
 const decodeTypeScriptSourceFileNameResult = S.decodeUnknownResult(TypeScriptSourceFileName);
 
 const TypeScriptTestFileName = S.String.check(S.isPattern(TYPE_SCRIPT_TEST_FILE_PATTERN)).pipe(
   S.brand("TypeScriptTestFileName"),
-  S.annotate(
-    $I.annote("TypeScriptTestFileName", {
-      description: "TypeScript test filename ending with .test.ts[x] or .spec.ts[x].",
-    })
-  )
+  $I.annoteSchema("TypeScriptTestFileName", {
+    description: "TypeScript test filename ending with .test.ts[x] or .spec.ts[x].",
+  })
 );
 
 const JSImportPath = S.String.check(S.isPattern(JS_IMPORT_PATH_PATTERN)).pipe(
-  S.annotate(
-    $I.annote("JSImportPath", {
-      description: "Relative ESM import path with .js extension.",
-    })
-  )
+  $I.annoteSchema("JSImportPath", {
+    description: "Relative ESM import path with .js extension.",
+  })
 );
 
 const TypeScriptSourceToJSImportPath = TypeScriptSourceFileName.pipe(
@@ -86,21 +80,19 @@ const TypeScriptSourceToJSImportPath = TypeScriptSourceFileName.pipe(
         ),
     })
   ),
-  S.annotate(
-    $I.annote("TypeScriptSourceToJSImportPath", {
-      description: "Schema transformation from a TypeScript module filename to its .js import path.",
-    })
-  )
+  $I.annoteSchema("TypeScriptSourceToJSImportPath", {
+    description: "Schema transformation from a TypeScript module filename to its .js import path.",
+  })
 );
 
-const InternalDirectoryName = S.Literal("internal").annotate(
-  $I.annote("InternalDirectoryName", {
+const InternalDirectoryName = S.Literal("internal").pipe(
+  $I.annoteSchema("InternalDirectoryName", {
     description: "Directory name excluded from barrel generation.",
   })
 );
 
-const RootIndexFileName = S.Literal("index.ts").annotate(
-  $I.annote("RootIndexFileName", {
+const RootIndexFileName = S.Literal("index.ts").pipe(
+  $I.annoteSchema("RootIndexFileName", {
     description: "Root index module excluded from generated barrel inputs.",
   })
 );

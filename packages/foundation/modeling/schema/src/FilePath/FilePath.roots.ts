@@ -25,11 +25,9 @@ export const WindowsDriveRoot = S.String.check(
   })
 ).pipe(
   S.brand("WindowsDriveRoot"),
-  S.annotate(
-    $I.annote("WindowsDriveRoot", {
-      description: "A Windows drive root such as C: or C:\\.",
-    })
-  )
+  $I.annoteSchema("WindowsDriveRoot", {
+    description: "A Windows drive root such as C: or C:\\.",
+  })
 );
 
 /**
@@ -55,11 +53,9 @@ export const WindowsUncRoot = S.String.check(
   })
 ).pipe(
   S.brand("WindowsUncRoot"),
-  S.annotate(
-    $I.annote("WindowsUncRoot", {
-      description: "A Windows UNC root such as \\\\server\\share.",
-    })
-  )
+  $I.annoteSchema("WindowsUncRoot", {
+    description: "A Windows UNC root such as \\\\server\\share.",
+  })
 );
 
 /**
@@ -116,11 +112,9 @@ export const HasLeafSegment = S.NonEmptyString.check(
   )
 ).pipe(
   S.brand("HasLeafSegment"),
-  S.annotate(
-    $I.annote("HasLeafSegment", {
-      description: "A non-empty path string that is not just a root and does not end with a separator.",
-    })
-  )
+  $I.annoteSchema("HasLeafSegment", {
+    description: "A non-empty path string that is not just a root and does not end with a separator.",
+  })
 );
 
 /**

@@ -105,8 +105,8 @@ export class JsonLdStreamSerializeResult extends S.Class<JsonLdStreamSerializeRe
  * @since 0.0.0
  * @category models
  */
-export const JsonLdStreamSerializeErrorReason = LiteralKit(["serializeFailure", "invalidChunkSize"]).annotate(
-  $I.annote("JsonLdStreamSerializeErrorReason", {
+export const JsonLdStreamSerializeErrorReason = LiteralKit(["serializeFailure", "invalidChunkSize"]).pipe(
+  $I.annoteSchema("JsonLdStreamSerializeErrorReason", {
     description: "Streaming serialize error reason.",
   })
 );

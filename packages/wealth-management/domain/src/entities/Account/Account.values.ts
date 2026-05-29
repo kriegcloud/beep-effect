@@ -23,8 +23,8 @@ const $I = $WealthManagementDomainId.create("entities/Account/Account.values");
  * @category schemas
  * @since 0.0.0
  */
-export const AccountType = LiteralKit(["taxable_brokerage"]).annotate(
-  $I.annote("AccountType", {
+export const AccountType = LiteralKit(["taxable_brokerage"]).pipe(
+  $I.annoteSchema("AccountType", {
     description: "Closed fixture type vocabulary for accounts.",
   })
 );

@@ -858,9 +858,9 @@ const ContainsScopeSeparator = S.String.check(
   })
 ).pipe(
   S.brand("ContainsScopeSeparator"),
-  S.annotate($I.annote("ContainsScopeSeparator", {
+  $I.annoteSchema("ContainsScopeSeparator", {
     description: "A string that contains the topic scope separator `:`."
-  }))
+  })
 )
 
 const isContainsScopeSeparator = S.is(ContainsScopeSeparator)
@@ -874,9 +874,9 @@ const TopicSegment = S.NonEmptyString.check(
   })
 ).pipe(
   S.brand("TopicSegment"),
-  S.annotate($I.annote("TopicSegment", {
+  $I.annoteSchema("TopicSegment", {
     description: "A non-empty topic segment without the scope separator."
-  }))
+  })
 )
 
 const isTopicSegment = S.is(TopicSegment)
@@ -923,9 +923,9 @@ export const TopicName = S.NonEmptyString.check(
   )
 ).pipe(
   S.brand("TopicName"),
-  S.annotate($I.annote("TopicName", {
+  $I.annoteSchema("TopicName", {
     description: "A topic name composed from valid plain or scoped segments."
-  }))
+  })
 )
 ```
 

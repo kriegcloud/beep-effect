@@ -29,11 +29,9 @@ export const ReuseCatalogOrigin = S.Union([
   S.Literal("repo-tooling"),
   S.Literal("effect-v4-curated"),
 ]).pipe(
-  S.annotate(
-    $I.annote("ReuseCatalogOrigin", {
-      description: "Origin classification for a reuse-catalog entry.",
-    })
-  )
+  $I.annoteSchema("ReuseCatalogOrigin", {
+    description: "Origin classification for a reuse-catalog entry.",
+  })
 );
 
 /**
@@ -63,11 +61,9 @@ export type ReuseCatalogOrigin = typeof ReuseCatalogOrigin.Type;
  * @since 0.0.0
  */
 export const ReuseWorkUnitKind = LiteralKit(["scout", "specialist"]).pipe(
-  S.annotate(
-    $I.annote("ReuseWorkUnitKind", {
-      description: "Kind of reuse-analysis work unit emitted for future orchestration.",
-    })
-  )
+  $I.annoteSchema("ReuseWorkUnitKind", {
+    description: "Kind of reuse-analysis work unit emitted for future orchestration.",
+  })
 );
 
 /**
@@ -102,11 +98,9 @@ export const ReuseCandidateKind = S.Union([
   S.Literal("extract-type"),
   S.Literal("replace-with-existing"),
 ]).pipe(
-  S.annotate(
-    $I.annote("ReuseCandidateKind", {
-      description: "High-level remediation class for a reuse opportunity.",
-    })
-  )
+  $I.annoteSchema("ReuseCandidateKind", {
+    description: "High-level remediation class for a reuse opportunity.",
+  })
 );
 
 /**

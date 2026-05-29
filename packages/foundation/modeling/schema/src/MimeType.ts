@@ -115,8 +115,8 @@ export const MimeType: MimeTypeSchema = pipe(
       ...Image.Options,
       ...Audio.Options,
       ...Misc.Options,
-    ]).annotate(
-      $I.annote("MimeType", {
+    ]).pipe(
+      $I.annoteSchema("MimeType", {
         description: "a mime type.",
       })
     );

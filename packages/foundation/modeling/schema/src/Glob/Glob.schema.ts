@@ -104,11 +104,9 @@ const GlobChecks = S.makeFilterGroup(
  */
 export const Glob = S.String.check(GlobChecks).pipe(
   S.brand("Glob"),
-  S.annotate(
-    $I.annote("Glob", {
-      description: "A portable non-empty glob pattern string accepted by the current Bun glob parser.",
-    })
-  )
+  $I.annoteSchema("Glob", {
+    description: "A portable non-empty glob pattern string accepted by the current Bun glob parser.",
+  })
 );
 
 /**

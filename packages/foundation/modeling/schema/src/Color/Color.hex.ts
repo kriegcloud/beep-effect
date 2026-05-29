@@ -103,11 +103,9 @@ export const rgbToHexValue = ({ r, g, b }: RgbEncoded): HexColor =>
  * @category validation
  */
 export const HexColorInput = S.String.check(HexColorInputChecks).pipe(
-  S.annotate(
-    $I.annote("HexColorInput", {
-      description: "A hex color string accepted at boundaries in #rgb or #rrggbb form.",
-    })
-  )
+  $I.annoteSchema("HexColorInput", {
+    description: "A hex color string accepted at boundaries in #rgb or #rrggbb form.",
+  })
 );
 
 /**
@@ -126,11 +124,9 @@ export type HexColorInput = typeof HexColorInput.Type;
  */
 export const HexColor = S.String.check(HexColorChecks).pipe(
   S.brand("HexColor"),
-  S.annotate(
-    $I.annote("HexColor", {
-      description: "A canonical lowercase six-digit hex color string.",
-    })
-  )
+  $I.annoteSchema("HexColor", {
+    description: "A canonical lowercase six-digit hex color string.",
+  })
 );
 
 /**
@@ -155,11 +151,9 @@ export const NormalizeHexColor = HexColorInput.pipe(
       encode: identity,
     })
   ),
-  S.annotate(
-    $I.annote("NormalizeHexColor", {
-      description: "Normalizes #rgb or #rrggbb input into canonical lowercase #rrggbb hex.",
-    })
-  )
+  $I.annoteSchema("NormalizeHexColor", {
+    description: "Normalizes #rgb or #rrggbb input into canonical lowercase #rrggbb hex.",
+  })
 );
 
 /**
