@@ -1,6 +1,7 @@
-import { FileName, type FileName as FileNameType } from "@beep/schema/FileName";
+import { FileName } from "@beep/schema/FileName";
 import * as S from "effect/Schema";
 import { describe, expect, it } from "tstyche";
+import type { FileName as FileNameType } from "@beep/schema/FileName";
 
 describe("FileName", () => {
   it("preserves the simplified template-literal schema surface", () => {

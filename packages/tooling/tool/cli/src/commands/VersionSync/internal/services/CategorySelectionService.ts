@@ -8,11 +8,8 @@
 import { $RepoCliId } from "@beep/identity/packages";
 import { A } from "@beep/utils";
 import { Context, Layer, Match } from "effect";
-import {
-  VersionCategoryOptions,
-  type VersionCategory as VersionCategoryValue,
-  type VersionSyncOptions,
-} from "../Models.js";
+import { VersionCategoryOptions } from "../Models.js";
+import type { VersionCategory as VersionCategoryValue, VersionSyncOptions } from "../Models.js";
 
 const $I = $RepoCliId.create("commands/VersionSync/internal/services/CategorySelectionService");
 

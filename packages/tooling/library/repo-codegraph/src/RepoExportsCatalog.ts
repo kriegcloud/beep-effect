@@ -11,9 +11,11 @@ import { A, Str, thunkFalse } from "@beep/utils";
 import { Effect, FileSystem, flow, Inspectable, Order, Path, pipe } from "effect";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
-import { type ParseError, parse, printParseErrorCode } from "jsonc-parser";
+import { parse, printParseErrorCode } from "jsonc-parser";
 import { RepoCodegraphPackageImportPolicy, RepoCodegraphPreferredImport } from "./RepoCodegraphLookup.model.ts";
-import { decodeRepoExportsCatalog, type RepoExportsCatalog } from "./RepoExportsCatalog.model.ts";
+import { decodeRepoExportsCatalog } from "./RepoExportsCatalog.model.ts";
+import type { ParseError } from "jsonc-parser";
+import type { RepoExportsCatalog } from "./RepoExportsCatalog.model.ts";
 
 const $I = $RepoCodegraphId.create("RepoExportsCatalog");
 const catalogRelativePath = "standards/repo-exports.catalog.jsonc";

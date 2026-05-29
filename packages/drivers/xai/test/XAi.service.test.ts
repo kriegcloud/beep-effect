@@ -10,9 +10,7 @@ import {
   XAi,
   XAiConfigInput,
   XAiEndpoint,
-  type XAiEndpointDescriptor,
   XAiError,
-  type XAiHttpEndpointMethodName,
   XAiLanguageModel,
   XAiRequestOptions,
 } from "@beep/xai";
@@ -26,6 +24,7 @@ import * as HttpClient from "effect/unstable/http/HttpClient";
 import * as HttpClientError from "effect/unstable/http/HttpClientError";
 import * as HttpClientRequest from "effect/unstable/http/HttpClientRequest";
 import * as HttpClientResponse from "effect/unstable/http/HttpClientResponse";
+import type { XAiEndpointDescriptor, XAiHttpEndpointMethodName } from "@beep/xai";
 
 type XAiHttpEndpointDescriptor = XAiEndpointDescriptor & {
   readonly methodName: XAiHttpEndpointMethodName;

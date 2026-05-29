@@ -9,9 +9,6 @@ import { $InfraId } from "@beep/identity/packages";
 import {
   AiMetricsDeployTarget,
   AiMetricsInstallInput,
-  type AiMetricsInstallSpec,
-  type AiMetricsOtlpEndpointSpec,
-  type AiMetricsServiceSpec,
   AiMetricsTool,
   makeAiMetricsInstallSpec,
 } from "@beep/repo-ai-metrics";
@@ -20,6 +17,7 @@ import * as command from "@pulumi/command";
 import * as pulumi from "@pulumi/pulumi";
 import { Effect, pipe, Result } from "effect";
 import * as S from "effect/Schema";
+import type { AiMetricsInstallSpec, AiMetricsOtlpEndpointSpec, AiMetricsServiceSpec } from "@beep/repo-ai-metrics";
 
 const $I = $InfraId.create("AIMetrics");
 const defaultPhoenixImage = "arizephoenix/phoenix:latest";

@@ -266,5 +266,5 @@ console.log(
 );
 
 if (!allComplete) {
-  process.exitCode = 1;
+  process.exit(1);
 }

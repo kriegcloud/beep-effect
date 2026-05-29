@@ -9,7 +9,8 @@ import { $SchemaId } from "@beep/identity";
 import { dual } from "effect/Function";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
-import { TaggedErrorClass, type TaggedErrorClassFromFields } from "../TaggedErrorClass/index.ts";
+import { TaggedErrorClass } from "../TaggedErrorClass/index.ts";
+import type { TaggedErrorClassFromFields } from "../TaggedErrorClass/index.ts";
 
 const $I = $SchemaId.create("CsvError");
 const CsvErrorFields = {

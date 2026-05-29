@@ -12,7 +12,6 @@
  * @category errors
  */
 export * from "./Postgres.errors.ts";
-
 /**
  * Public Postgres client service exports.
  *
@@ -20,7 +19,6 @@ export * from "./Postgres.errors.ts";
  * @category clients
  */
 export * from "./PostgresClient.service.ts";
-
 /**
  * Public Postgres formatting exports.
  *
@@ -28,7 +26,6 @@ export * from "./PostgresClient.service.ts";
  * @category formatting
  */
 export * from "./PostgresDiagnostics.service.ts";
-
 /**
  * Public Postgres Drizzle composition exports.
  *
@@ -36,7 +33,6 @@ export * from "./PostgresDiagnostics.service.ts";
  * @category services
  */
 export * from "./PostgresDrizzle.service.ts";
-
 /**
  * Public native Postgres/Drizzle interop type exports.
  *
@@ -44,7 +40,6 @@ export * from "./PostgresDrizzle.service.ts";
  * @category models
  */
 export * from "./PostgresInterop.models.ts";
-
 /**
  * Public PostgreSQL SQLSTATE exports.
  *

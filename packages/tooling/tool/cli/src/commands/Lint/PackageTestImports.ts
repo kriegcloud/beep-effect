@@ -13,6 +13,7 @@ import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import { Command } from "effect/unstable/cli";
 import { Node, Project, SyntaxKind } from "ts-morph";
+import { failWithReportedExit } from "../../internal/cli/ExitCodeError.js";
 
 const $I = $RepoCliId.create("commands/Lint/PackageTestImports");
 
@@ -296,8 +297,7 @@ const runLintPackageTestImports = Effect.fn("PackageTestImports.runLintPackageTe
       yield* Console.error(`${relativeFile}:${violation.line} ${violation.specifier} -> ${violation.replacement}`);
     }
 
-    process.exitCode = 1;
-    return;
+    return yield* failWithReportedExit("check-package-test-imports: violations found.");
   }
 
   yield* Console.log("[check-package-test-imports] OK: package test/dtslint imports use package aliases.");

@@ -129,7 +129,11 @@ const incrementMetric = (
   metric === undefined ? Effect.void : Metric.update(metricWithAttributes(metric, attributes), 1);
 
 const toPhaseOutcome = <A, E>(exit: Exit.Exit<A, E>): PhaseOutcome =>
-  Exit.isSuccess(exit) ? "completed" : Exit.hasInterrupts(exit) ? "interrupted" : "failed";
+  Match.value(exit).pipe(
+    Match.when(Exit.isSuccess, () => "completed" as const),
+    Match.when(Exit.hasInterrupts, () => "interrupted" as const),
+    Match.orElse(() => "failed" as const)
+  );
 
 const logPhaseProfile = (profile: PhaseProfile): Effect.Effect<void> =>
   Match.value(profile.outcome).pipe(

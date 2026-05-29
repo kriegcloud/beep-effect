@@ -28,7 +28,7 @@ const $I = $SchemaId.create("Email");
  * @category utilities
  * @since 0.0.0
  */
-export const emailRegex: RegExp =
+const emailRegex: RegExp =
   /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@([a-zA-Z0-9]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?\.)+[a-zA-Z]{2,}$/;
 
 // --- Normalization base ---

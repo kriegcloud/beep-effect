@@ -8,22 +8,13 @@
 import { $SchemaId } from "@beep/identity";
 import { LocalDate } from "@beep/schema/LocalDate";
 import { Str } from "@beep/utils";
-import {
-  type Brand,
-  DateTime,
-  Effect,
-  flow,
-  Order as Order_,
-  pipe,
-  Schema,
-  SchemaIssue,
-  SchemaTransformation,
-} from "effect";
+import { DateTime, Effect, flow, Order as Order_, pipe, Schema, SchemaIssue, SchemaTransformation } from "effect";
 import { dual } from "effect/Function";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import { PosInt } from "../Int.ts";
 import { NonEmptyTrimmedStr } from "../String.ts";
+import type { Brand } from "effect";
 
 const $I = $SchemaId.create("Timestamp");
 

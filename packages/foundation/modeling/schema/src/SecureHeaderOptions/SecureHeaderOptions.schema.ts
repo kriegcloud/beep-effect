@@ -31,8 +31,8 @@ import {
   PermittedCrossDomainPoliciesOption,
 } from "../PermittedCrossDomainPolicies/index.ts";
 import { ReferrerPolicyHeader, ReferrerPolicyOption } from "../ReferrerPolicy/index.ts";
-import type { SecureHeaderError } from "../SecureHeaderError/index.ts";
 import { XSSProtectionHeader, XSSProtectionOption } from "../XssProtection/index.ts";
+import type { SecureHeaderError } from "../SecureHeaderError/index.ts";
 
 const $I = $SchemaId.create("SecureHeaderOptions");
 

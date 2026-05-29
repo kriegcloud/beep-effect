@@ -3,7 +3,6 @@ import {
   parseQualityTaskInvocation,
   QualityTaskFailed,
   QualityTaskGroupFailed,
-  type QualityTaskInvocation,
   QualityTaskStep,
   rootQualityStepsForTesting,
   runQualityTask,
@@ -22,6 +21,7 @@ import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import * as TestConsole from "effect/testing/TestConsole";
 import { describe, expect, it } from "vitest";
+import type { QualityTaskInvocation } from "@beep/repo-cli/test/Quality";
 
 const FileSystemLayer = Layer.mergeAll(NodeFileSystem.layer, NodePath.layer);
 const PlatformLayer = Layer.mergeAll(
@@ -41,19 +41,16 @@ const withTempRepo = <A, E, R>(use: Effect.Effect<A, E, R>) =>
       const path = yield* Path.Path;
       const tmpDir = yield* fs.makeTempDirectory();
       const previousCwd = process.cwd();
-      const previousExitCode = process.exitCode;
 
       process.chdir(tmpDir);
-      process.exitCode = undefined;
       yield* fs.makeDirectory(path.join(tmpDir, ".git"), { recursive: true });
 
-      return { fs, previousCwd, previousExitCode, tmpDir } as const;
+      return { fs, previousCwd, tmpDir } as const;
     }),
     () => use,
-    ({ fs, previousCwd, previousExitCode, tmpDir }) =>
+    ({ fs, previousCwd, tmpDir }) =>
       Effect.gen(function* () {
         process.chdir(previousCwd);
-        process.exitCode = previousExitCode ?? 0;
         yield* fs.remove(tmpDir, { recursive: true });
       })
   ).pipe(provideScopedLayer(PlatformLayer));

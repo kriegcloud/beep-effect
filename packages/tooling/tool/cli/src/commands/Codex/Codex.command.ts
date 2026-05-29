@@ -6,13 +6,14 @@
  */
 
 import { findRepoRoot } from "@beep/repo-utils";
-
 import { A } from "@beep/utils";
-import { Effect, type FileSystem, Stream } from "effect";
+import { Effect, Stream } from "effect";
 import { Argument, Command } from "effect/unstable/cli";
-import { ChildProcess, type ChildProcessSpawner } from "effect/unstable/process";
+import { ChildProcess } from "effect/unstable/process";
 import { printLines } from "../../internal/cli/Printer.js";
 import { CodexCommandError } from "./Codex.errors.js";
+import type { FileSystem } from "effect";
+import type { ChildProcessSpawner } from "effect/unstable/process";
 
 const textEncoder = new TextEncoder();
 

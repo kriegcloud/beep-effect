@@ -13,7 +13,6 @@
  * @category predicates
  */
 export * from "./Organization.behavior.js";
-
 /**
  * Organization model schema namespace.
  *
@@ -28,7 +27,6 @@ export * from "./Organization.behavior.js";
  * @category models
  */
 export * from "./Organization.model.js";
-
 /**
  * Organization value schemas.
  *

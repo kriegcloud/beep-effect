@@ -18,16 +18,18 @@ import {
   ArchitecturePackageRole,
   ArchitecturePlanStage,
   ArchitectureSliceRole,
-  type CanonicalSliceOperationPlan,
   decodeCanonicalSliceOperationPlanJson,
   defaultArchitecturePlanTarget,
   encodeCanonicalSliceOperationPlanJson,
   makeArchitectureOperationPlan,
   makeArchitecturePackageOperationPlan,
-  type OperationPlanApplyResult,
-  type OperationPlanCheckResult,
 } from "./OperationPlan.js";
 import { applyCanonicalSliceOperationPlan, checkCanonicalSliceOperationPlan } from "./OperationPlanExecution.js";
+import type {
+  CanonicalSliceOperationPlan,
+  OperationPlanApplyResult,
+  OperationPlanCheckResult,
+} from "./OperationPlan.js";
 
 const planFileFlag = Flag.string("file").pipe(
   Flag.withAlias("f"),

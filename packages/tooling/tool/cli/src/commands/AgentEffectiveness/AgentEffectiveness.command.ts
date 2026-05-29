@@ -6,21 +6,12 @@
  */
 
 import { DuckDb, DuckDbConnectionOptions } from "@beep/duckdb";
-import { $RepoCliId } from "@beep/identity/packages";
 import { Phoenix, PhoenixConfigInput } from "@beep/phoenix";
 import {
   AGENT_EFFECTIVENESS_PHOENIX_WRITE_CONFIRMATION,
-  type AgentEffectivenessAnnotationCheckReport,
-  type AgentEffectivenessAnnotationPlan,
   AgentEffectivenessAnnotationPlanInput,
-  type AgentEffectivenessDatasetBundle,
   AgentEffectivenessDoctorInput,
-  type AgentEffectivenessDoctorReport,
-  type AgentEffectivenessError,
-  type AgentEffectivenessExperimentBundle,
   AgentEffectivenessPhoenixSyncInput,
-  type AgentEffectivenessPhoenixSyncResult,
-  type AgentEffectivenessPromptBundle,
   AgentEffectivenessStatus,
   AiMetricsDeployTarget,
   agentEffectivenessAnnotationCheckReportToJson,
@@ -40,18 +31,33 @@ import {
   syncAgentEffectivenessPhoenix,
 } from "@beep/repo-ai-metrics";
 import { A } from "@beep/utils";
-import { Console, DateTime, Effect, flow, Layer, Path, pipe } from "effect";
+import { Config, Console, DateTime, Effect, flow, Layer, Path, pipe } from "effect";
+import { dual } from "effect/Function";
 import * as O from "effect/Option";
 import { Command, Flag } from "effect/unstable/cli";
 import { FetchHttpClient } from "effect/unstable/http";
+import { failWithReportedExit } from "../../internal/cli/ExitCodeError.js";
 import { jsonFlag } from "../../internal/cli/Flags.js";
 import { printLines } from "../../internal/cli/Printer.js";
-
-const $I = $RepoCliId.create("commands/AgentEffectiveness/AgentEffectiveness.command");
-void $I;
+import type {
+  AgentEffectivenessAnnotationCheckReport,
+  AgentEffectivenessAnnotationPlan,
+  AgentEffectivenessDatasetBundle,
+  AgentEffectivenessDoctorReport,
+  AgentEffectivenessError,
+  AgentEffectivenessExperimentBundle,
+  AgentEffectivenessPhoenixSyncResult,
+  AgentEffectivenessPromptBundle,
+} from "@beep/repo-ai-metrics";
+import type { Scope } from "effect";
+import type { HttpClient } from "effect/unstable/http";
 
 const defaultAgentEffectivenessDataRoot = ".beep/ai-metrics";
+const agentEffectivenessPhoenixBaseUrlEnvVar = "BEEP_AGENT_EFFECTIVENESS_PHOENIX_BASE_URL";
 const defaultAgentEffectivenessPhoenixBaseUrl = "https://dankserver.tailc7c348.ts.net:8447";
+const agentEffectivenessPhoenixBaseUrlConfig = Config.string(agentEffectivenessPhoenixBaseUrlEnvVar).pipe(
+  Config.withDefault(defaultAgentEffectivenessPhoenixBaseUrl)
+);
 
 const noPhoenixFlag = Flag.boolean("no-phoenix").pipe(
   Flag.withDescription("Skip live Phoenix probes and report Phoenix as unavailable")
@@ -68,8 +74,8 @@ const dataRootFlag = Flag.string("data-root").pipe(
   Flag.withDescription("AI metrics data root")
 );
 const phoenixBaseUrlFlag = Flag.string("phoenix-base-url").pipe(
-  Flag.withDefault(defaultAgentEffectivenessPhoenixBaseUrl),
-  Flag.withDescription("Read-only Phoenix base URL")
+  Flag.withFallbackConfig(agentEffectivenessPhoenixBaseUrlConfig),
+  Flag.withDescription(`Read-only Phoenix base URL, or ${agentEffectivenessPhoenixBaseUrlEnvVar}`)
 );
 const workerEvalReportFlag = Flag.string("worker-eval-report").pipe(
   Flag.withDefault(DEFAULT_AGENT_EFFECTIVENESS_WORKER_EVAL_REPORT_PATH),
@@ -85,171 +91,218 @@ const confirmPhoenixWriteFlag = Flag.string("confirm-phoenix-write").pipe(
   Flag.optional
 );
 
-type AgentEffectivenessProgramError = AgentEffectivenessError;
+const runAgentEffectivenessProgram = <A, E, R>(effect: Effect.Effect<A, E, R>): Effect.Effect<void, E, R> =>
+  effect.pipe(Effect.asVoid);
 
-const runAgentEffectivenessProgram = <A, R>(
-  effect: Effect.Effect<A, AgentEffectivenessProgramError, R>
-): Effect.Effect<void, AgentEffectivenessProgramError, R> => effect.pipe(Effect.asVoid);
+const provideAgentEffectivenessLayers: {
+  <A, E, R>(
+    effect: Effect.Effect<A, E, R>,
+    dataRoot: string
+  ): Effect.Effect<A, E, Path.Path | Exclude<Exclude<R, DuckDb | HttpClient.HttpClient>, Scope.Scope>>;
+  (
+    dataRoot: string
+  ): <A, E, R>(
+    effect: Effect.Effect<A, E, R>
+  ) => Effect.Effect<A, E, Path.Path | Exclude<Exclude<R, DuckDb | HttpClient.HttpClient>, Scope.Scope>>;
+} = dual(
+  2,
+  Effect.fn("AgentEffectiveness.provideLayers")(function* <A, E, R>(effect: Effect.Effect<A, E, R>, dataRoot: string) {
+    const path = yield* Path.Path;
+    const duckDbPath = path.resolve(dataRoot, "derived", "ai-metrics.duckdb");
+    return yield* Effect.scoped(
+      Layer.build(
+        Layer.mergeAll(
+          DuckDb.makeNodeLayer(DuckDbConnectionOptions.make({ databasePath: duckDbPath })),
+          FetchHttpClient.layer
+        )
+      ).pipe(Effect.flatMap((context) => effect.pipe(Effect.provide(context))))
+    );
+  })
+);
 
-const provideAgentEffectivenessLayers = Effect.fn("AgentEffectiveness.provideLayers")(function* <A, E, R>({
-  dataRoot,
-  effect,
-}: {
-  readonly dataRoot: string;
-  readonly effect: Effect.Effect<A, E, R>;
-}) {
-  const path = yield* Path.Path;
-  const duckDbPath = path.resolve(dataRoot, "derived", "ai-metrics.duckdb");
-  return yield* Effect.scoped(
-    Layer.build(
-      Layer.mergeAll(
-        DuckDb.makeNodeLayer(DuckDbConnectionOptions.make({ databasePath: duckDbPath })),
-        FetchHttpClient.layer
-      )
-    ).pipe(Effect.flatMap((context) => effect.pipe(Effect.provide(context))))
-  );
-});
+const provideAgentEffectivenessPhoenixLayers: {
+  <A, E, R>(
+    effect: Effect.Effect<A, E, R>,
+    dataRoot: string,
+    phoenixBaseUrl: string
+  ): Effect.Effect<A, E, Path.Path | Exclude<Exclude<R, DuckDb | HttpClient.HttpClient | Phoenix>, Scope.Scope>>;
+  (
+    dataRoot: string,
+    phoenixBaseUrl: string
+  ): <A, E, R>(
+    effect: Effect.Effect<A, E, R>
+  ) => Effect.Effect<A, E, Path.Path | Exclude<Exclude<R, DuckDb | HttpClient.HttpClient | Phoenix>, Scope.Scope>>;
+} = dual(
+  3,
+  Effect.fn("AgentEffectiveness.providePhoenixLayers")(function* <A, E, R>(
+    effect: Effect.Effect<A, E, R>,
+    dataRoot: string,
+    phoenixBaseUrl: string
+  ) {
+    const path = yield* Path.Path;
+    const duckDbPath = path.resolve(dataRoot, "derived", "ai-metrics.duckdb");
+    return yield* Effect.scoped(
+      Layer.build(
+        Layer.mergeAll(
+          DuckDb.makeNodeLayer(DuckDbConnectionOptions.make({ databasePath: duckDbPath })),
+          FetchHttpClient.layer,
+          Phoenix.makeLayer(PhoenixConfigInput.make({ baseUrl: phoenixBaseUrl }))
+        )
+      ).pipe(Effect.flatMap((context) => effect.pipe(Effect.provide(context))))
+    );
+  })
+);
 
-const provideAgentEffectivenessPhoenixLayers = Effect.fn("AgentEffectiveness.providePhoenixLayers")(function* <
-  A,
-  E,
-  R,
->({
-  dataRoot,
-  effect,
-  phoenixBaseUrl,
-}: {
-  readonly dataRoot: string;
-  readonly effect: Effect.Effect<A, E, R>;
-  readonly phoenixBaseUrl: string;
-}) {
-  const path = yield* Path.Path;
-  const duckDbPath = path.resolve(dataRoot, "derived", "ai-metrics.duckdb");
-  return yield* Effect.scoped(
-    Layer.build(
-      Layer.mergeAll(
-        DuckDb.makeNodeLayer(DuckDbConnectionOptions.make({ databasePath: duckDbPath })),
-        FetchHttpClient.layer,
-        Phoenix.makeLayer(PhoenixConfigInput.make({ baseUrl: phoenixBaseUrl }))
-      )
-    ).pipe(Effect.flatMap((context) => effect.pipe(Effect.provide(context))))
-  );
-});
+const renderDoctorReport: {
+  (report: AgentEffectivenessDoctorReport, json: boolean): Effect.Effect<void, AgentEffectivenessError>;
+  (json: boolean): (report: AgentEffectivenessDoctorReport) => Effect.Effect<void, AgentEffectivenessError>;
+} = dual(
+  2,
+  Effect.fn("AgentEffectiveness.renderDoctorReport")(function* (report: AgentEffectivenessDoctorReport, json: boolean) {
+    if (json) {
+      yield* Console.log(yield* agentEffectivenessDoctorReportToJson(report));
+      return;
+    }
+    yield* printLines([
+      `agent-effectiveness doctor: status=${report.summary.status}`,
+      `phoenix: ${report.phoenix.status} ${report.phoenix.message}`,
+      `ai-metrics: ${report.aiMetrics.status} ${report.aiMetrics.message}`,
+      `jsdoc-worker-eval: ${report.jsdocWorkerEval.status} ${report.jsdocWorkerEval.message}`,
+    ]);
+  })
+);
 
-const renderDoctorReport = Effect.fn("AgentEffectiveness.renderDoctorReport")(function* (
-  report: AgentEffectivenessDoctorReport,
-  json: boolean
-) {
-  if (json) {
-    yield* Console.log(yield* agentEffectivenessDoctorReportToJson(report));
-    return;
-  }
-  yield* printLines([
-    `agent-effectiveness doctor: status=${report.summary.status}`,
-    `phoenix: ${report.phoenix.status} ${report.phoenix.message}`,
-    `ai-metrics: ${report.aiMetrics.status} ${report.aiMetrics.message}`,
-    `jsdoc-worker-eval: ${report.jsdocWorkerEval.status} ${report.jsdocWorkerEval.message}`,
-  ]);
-});
+const renderAnnotationPlan: {
+  (plan: AgentEffectivenessAnnotationPlan, json: boolean): Effect.Effect<void, AgentEffectivenessError>;
+  (json: boolean): (plan: AgentEffectivenessAnnotationPlan) => Effect.Effect<void, AgentEffectivenessError>;
+} = dual(
+  2,
+  Effect.fn("AgentEffectiveness.renderAnnotationPlan")(function* (
+    plan: AgentEffectivenessAnnotationPlan,
+    json: boolean
+  ) {
+    if (json) {
+      yield* Console.log(yield* agentEffectivenessAnnotationPlanToJson(plan));
+      return;
+    }
 
-const renderAnnotationPlan = Effect.fn("AgentEffectiveness.renderAnnotationPlan")(function* (
-  plan: AgentEffectivenessAnnotationPlan,
-  json: boolean
-) {
-  if (json) {
-    yield* Console.log(yield* agentEffectivenessAnnotationPlanToJson(plan));
-    return;
-  }
+    yield* printLines([
+      `agent-effectiveness annotations plan: status=${plan.summary.status}`,
+      `planned annotations: ${plan.annotations.length}`,
+      `mutation policy: ${plan.mutationPolicy}`,
+    ]);
+  })
+);
 
-  yield* printLines([
-    `agent-effectiveness annotations plan: status=${plan.summary.status}`,
-    `planned annotations: ${plan.annotations.length}`,
-    `mutation policy: ${plan.mutationPolicy}`,
-  ]);
-});
+const renderAnnotationCheck: {
+  (report: AgentEffectivenessAnnotationCheckReport, json: boolean): Effect.Effect<void, AgentEffectivenessError>;
+  (json: boolean): (report: AgentEffectivenessAnnotationCheckReport) => Effect.Effect<void, AgentEffectivenessError>;
+} = dual(
+  2,
+  Effect.fn("AgentEffectiveness.renderAnnotationCheck")(function* (
+    report: AgentEffectivenessAnnotationCheckReport,
+    json: boolean
+  ) {
+    if (json) {
+      yield* agentEffectivenessAnnotationCheckReportToJson(report).pipe(Effect.tap(Console.log));
+      return;
+    }
 
-const renderAnnotationCheck = Effect.fn("AgentEffectiveness.renderAnnotationCheck")(function* (
-  report: AgentEffectivenessAnnotationCheckReport,
-  json: boolean
-) {
-  if (json) {
-    yield* Console.log(yield* agentEffectivenessAnnotationCheckReportToJson(report));
-    return;
-  }
+    yield* printLines([
+      `agent-effectiveness annotations check: status=${report.status}`,
+      `checked annotations: ${report.annotationCount}`,
+      `findings: ${report.findings.length}`,
+    ]);
+  })
+);
 
-  yield* printLines([
-    `agent-effectiveness annotations check: status=${report.status}`,
-    `checked annotations: ${report.annotationCount}`,
-    `findings: ${report.findings.length}`,
-  ]);
-});
+const renderDatasetBundle: {
+  (bundle: AgentEffectivenessDatasetBundle, json: boolean): Effect.Effect<void, AgentEffectivenessError>;
+  (json: boolean): (bundle: AgentEffectivenessDatasetBundle) => Effect.Effect<void, AgentEffectivenessError>;
+} = dual(
+  2,
+  Effect.fn("AgentEffectiveness.renderDatasetBundle")(function* (
+    bundle: AgentEffectivenessDatasetBundle,
+    json: boolean
+  ) {
+    if (json) {
+      yield* agentEffectivenessDatasetBundleToJson(bundle).pipe(Effect.tap(Console.log));
+      return;
+    }
 
-const renderDatasetBundle = Effect.fn("AgentEffectiveness.renderDatasetBundle")(function* (
-  bundle: AgentEffectivenessDatasetBundle,
-  json: boolean
-) {
-  if (json) {
-    yield* Console.log(yield* agentEffectivenessDatasetBundleToJson(bundle));
-    return;
-  }
+    yield* printLines([
+      `agent-effectiveness datasets: ${bundle.datasets.length}`,
+      `project: ${bundle.projectName}`,
+      `examples: ${pipe(
+        bundle.datasets,
+        A.reduce(0, (total, dataset) => total + dataset.examples.length)
+      )}`,
+    ]);
+  })
+);
 
-  yield* printLines([
-    `agent-effectiveness datasets: ${bundle.datasets.length}`,
-    `project: ${bundle.projectName}`,
-    `examples: ${pipe(
-      bundle.datasets,
-      A.reduce(0, (total, dataset) => total + dataset.examples.length)
-    )}`,
-  ]);
-});
+const renderPromptBundle: {
+  (bundle: AgentEffectivenessPromptBundle, json: boolean): Effect.Effect<void, AgentEffectivenessError>;
+  (json: boolean): (bundle: AgentEffectivenessPromptBundle) => Effect.Effect<void, AgentEffectivenessError>;
+} = dual(
+  2,
+  Effect.fn("AgentEffectiveness.renderPromptBundle")(function* (bundle: AgentEffectivenessPromptBundle, json: boolean) {
+    if (json) {
+      yield* agentEffectivenessPromptBundleToJson(bundle).pipe(Effect.tap(Console.log));
+      return;
+    }
 
-const renderPromptBundle = Effect.fn("AgentEffectiveness.renderPromptBundle")(function* (
-  bundle: AgentEffectivenessPromptBundle,
-  json: boolean
-) {
-  if (json) {
-    yield* Console.log(yield* agentEffectivenessPromptBundleToJson(bundle));
-    return;
-  }
+    yield* printLines([`agent-effectiveness prompts: ${bundle.prompts.length}`, `project: ${bundle.projectName}`]);
+  })
+);
 
-  yield* printLines([`agent-effectiveness prompts: ${bundle.prompts.length}`, `project: ${bundle.projectName}`]);
-});
+const renderExperimentBundle: {
+  (bundle: AgentEffectivenessExperimentBundle, json: boolean): Effect.Effect<void, AgentEffectivenessError>;
+  (json: boolean): (bundle: AgentEffectivenessExperimentBundle) => Effect.Effect<void, AgentEffectivenessError>;
+} = dual(
+  2,
+  Effect.fn("AgentEffectiveness.renderExperimentBundle")(function* (
+    bundle: AgentEffectivenessExperimentBundle,
+    json: boolean
+  ) {
+    if (json) {
+      yield* agentEffectivenessExperimentBundleToJson(bundle).pipe(Effect.tap(Console.log));
+      return;
+    }
 
-const renderExperimentBundle = Effect.fn("AgentEffectiveness.renderExperimentBundle")(function* (
-  bundle: AgentEffectivenessExperimentBundle,
-  json: boolean
-) {
-  if (json) {
-    yield* Console.log(yield* agentEffectivenessExperimentBundleToJson(bundle));
-    return;
-  }
+    yield* printLines([
+      `agent-effectiveness experiments: ${bundle.experiments.length}`,
+      `project: ${bundle.projectName}`,
+    ]);
+  })
+);
 
-  yield* printLines([
-    `agent-effectiveness experiments: ${bundle.experiments.length}`,
-    `project: ${bundle.projectName}`,
-  ]);
-});
+const renderPhoenixSyncResult: {
+  (result: AgentEffectivenessPhoenixSyncResult, json: boolean): Effect.Effect<void, AgentEffectivenessError>;
+  (json: boolean): (result: AgentEffectivenessPhoenixSyncResult) => Effect.Effect<void, AgentEffectivenessError>;
+} = dual(
+  2,
+  Effect.fn("AgentEffectiveness.renderPhoenixSyncResult")(function* (
+    result: AgentEffectivenessPhoenixSyncResult,
+    json: boolean
+  ) {
+    if (json) {
+      yield* agentEffectivenessPhoenixSyncResultToJson(result).pipe(Effect.tap(Console.log));
+      return;
+    }
 
-const renderPhoenixSyncResult = Effect.fn("AgentEffectiveness.renderPhoenixSyncResult")(function* (
-  result: AgentEffectivenessPhoenixSyncResult,
-  json: boolean
-) {
-  if (json) {
-    yield* Console.log(yield* agentEffectivenessPhoenixSyncResultToJson(result));
-    return;
-  }
-
-  yield* printLines([
-    `agent-effectiveness phoenix sync: status=${result.status}`,
-    `dry-run: ${result.dryRun}`,
-    `mutation policy: ${result.mutationPolicy}`,
-    `datasets: ${result.datasetCount}`,
-    `prompts: ${result.promptCount}`,
-    `experiments: ${result.experimentCount}`,
-    `annotations: ${result.annotationCount}`,
-    `skipped annotations: ${result.skippedAnnotationCount}`,
-  ]);
-});
+    yield* printLines([
+      `agent-effectiveness phoenix sync: status=${result.status}`,
+      `dry-run: ${result.dryRun}`,
+      `mutation policy: ${result.mutationPolicy}`,
+      `datasets: ${result.datasetCount}`,
+      `prompts: ${result.promptCount}`,
+      `experiments: ${result.experimentCount}`,
+      `annotations: ${result.annotationCount}`,
+      `skipped annotations: ${result.skippedAnnotationCount}`,
+    ]);
+  })
+);
 
 const makeDoctorProgram = Effect.fn("AgentEffectiveness.makeDoctorProgram")(function* ({
   dataRoot,
@@ -266,18 +319,18 @@ const makeDoctorProgram = Effect.fn("AgentEffectiveness.makeDoctorProgram")(func
   readonly target: AiMetricsDeployTarget;
   readonly workerEvalReportPath: string;
 }) {
-  const input = AgentEffectivenessDoctorInput.make({
-    dataRoot,
-    noPhoenix,
-    phoenixBaseUrl,
-    target,
-    workerEvalReportPath,
-  });
-  const report = yield* provideAgentEffectivenessLayers({
-    dataRoot,
-    effect: makeAgentEffectivenessDoctorReport(input),
-  });
-  yield* renderDoctorReport(report, json);
+  return yield* pipe(
+    AgentEffectivenessDoctorInput.make({
+      dataRoot,
+      noPhoenix,
+      phoenixBaseUrl,
+      target,
+      workerEvalReportPath,
+    }),
+    makeAgentEffectivenessDoctorReport,
+    provideAgentEffectivenessLayers(dataRoot),
+    Effect.flatMap(renderDoctorReport(json))
+  );
 });
 
 const makeAnnotationPlanProgram = Effect.fn("AgentEffectiveness.makeAnnotationPlanProgram")(function* ({
@@ -295,18 +348,19 @@ const makeAnnotationPlanProgram = Effect.fn("AgentEffectiveness.makeAnnotationPl
   readonly target: AiMetricsDeployTarget;
   readonly workerEvalReportPath: string;
 }) {
-  const doctor = AgentEffectivenessDoctorInput.make({
-    dataRoot,
-    noPhoenix,
-    phoenixBaseUrl,
-    target,
-    workerEvalReportPath,
-  });
-  const plan = yield* provideAgentEffectivenessLayers({
-    dataRoot,
-    effect: makeAgentEffectivenessAnnotationPlan(AgentEffectivenessAnnotationPlanInput.make({ doctor })),
-  });
-  yield* renderAnnotationPlan(plan, json);
+  return yield* pipe(
+    AgentEffectivenessDoctorInput.make({
+      dataRoot,
+      noPhoenix,
+      phoenixBaseUrl,
+      target,
+      workerEvalReportPath,
+    }),
+    AgentEffectivenessAnnotationPlanInput.new,
+    makeAgentEffectivenessAnnotationPlan,
+    provideAgentEffectivenessLayers(dataRoot),
+    Effect.flatMap(renderAnnotationPlan(json))
+  );
 });
 
 const makeAnnotationCheckProgram = Effect.fn("AgentEffectiveness.makeAnnotationCheckProgram")(function* ({
@@ -324,22 +378,25 @@ const makeAnnotationCheckProgram = Effect.fn("AgentEffectiveness.makeAnnotationC
   readonly target: AiMetricsDeployTarget;
   readonly workerEvalReportPath: string;
 }) {
-  const doctor = AgentEffectivenessDoctorInput.make({
-    dataRoot,
-    noPhoenix,
-    phoenixBaseUrl,
-    target,
-    workerEvalReportPath,
-  });
-  const plan = yield* provideAgentEffectivenessLayers({
-    dataRoot,
-    effect: makeAgentEffectivenessAnnotationPlan(AgentEffectivenessAnnotationPlanInput.make({ doctor })),
-  });
-  const report = makeAgentEffectivenessAnnotationCheckReport(plan);
-  yield* renderAnnotationCheck(report, json);
-  if (report.status === AgentEffectivenessStatus.Enum.failed) {
-    process.exitCode = 1;
-  }
+  return yield* pipe(
+    AgentEffectivenessDoctorInput.make({
+      dataRoot,
+      noPhoenix,
+      phoenixBaseUrl,
+      target,
+      workerEvalReportPath,
+    }),
+    AgentEffectivenessAnnotationPlanInput.new,
+    makeAgentEffectivenessAnnotationPlan,
+    provideAgentEffectivenessLayers(dataRoot),
+    Effect.map(makeAgentEffectivenessAnnotationCheckReport),
+    Effect.tap(renderAnnotationCheck(json)),
+    Effect.flatMap((report) =>
+      AgentEffectivenessStatus.is.failed(report.status)
+        ? failWithReportedExit("agent-effectiveness annotations check failed.")
+        : Effect.void
+    )
+  );
 });
 
 const makeDatasetBundleProgram = Effect.fn("AgentEffectiveness.makeDatasetBundleProgram")(function* ({
@@ -357,23 +414,22 @@ const makeDatasetBundleProgram = Effect.fn("AgentEffectiveness.makeDatasetBundle
   readonly target: AiMetricsDeployTarget;
   readonly workerEvalReportPath: string;
 }) {
-  const input = AgentEffectivenessDoctorInput.make({
-    dataRoot,
-    noPhoenix,
-    phoenixBaseUrl,
-    target,
-    workerEvalReportPath,
-  });
-  const report = yield* provideAgentEffectivenessLayers({
-    dataRoot,
-    effect: makeAgentEffectivenessDoctorReport(input),
-  });
-  yield* renderDatasetBundle(makeAgentEffectivenessDatasetBundle(report), json);
+  return yield* pipe(
+    AgentEffectivenessDoctorInput.make({
+      dataRoot,
+      noPhoenix,
+      phoenixBaseUrl,
+      target,
+      workerEvalReportPath,
+    }),
+    makeAgentEffectivenessDoctorReport,
+    provideAgentEffectivenessLayers(dataRoot),
+    Effect.map(makeAgentEffectivenessDatasetBundle),
+    Effect.flatMap(renderDatasetBundle(json))
+  );
 });
 
-const makePromptBundleProgram = Effect.fn("AgentEffectiveness.makePromptBundleProgram")(function* ({
-  json,
-}: {
+const makePromptBundleProgram = Effect.fn("AgentEffectiveness.makePromptBundleProgram")(function* (params: {
   readonly dataRoot: string;
   readonly json: boolean;
   readonly noPhoenix: boolean;
@@ -381,38 +437,37 @@ const makePromptBundleProgram = Effect.fn("AgentEffectiveness.makePromptBundlePr
   readonly target: AiMetricsDeployTarget;
   readonly workerEvalReportPath: string;
 }) {
-  const generatedAt = yield* DateTime.now.pipe(Effect.map(DateTime.formatIso));
-  yield* renderPromptBundle(makeAgentEffectivenessPromptBundle(generatedAt), json);
+  return yield* pipe(
+    DateTime.now,
+    Effect.map(DateTime.formatIso),
+    Effect.map(makeAgentEffectivenessPromptBundle),
+    Effect.flatMap(renderPromptBundle(params.json))
+  );
 });
-
+type MakeExperimentBundleProgramOptions = {
+  readonly dataRoot: string;
+  readonly json: boolean;
+  readonly noPhoenix: boolean;
+  readonly phoenixBaseUrl: string;
+  readonly target: AiMetricsDeployTarget;
+  readonly workerEvalReportPath: string;
+};
 const makeExperimentBundleProgram = Effect.fn("AgentEffectiveness.makeExperimentBundleProgram")(function* ({
   dataRoot,
   json,
-  noPhoenix,
-  phoenixBaseUrl,
-  target,
-  workerEvalReportPath,
-}: {
-  readonly dataRoot: string;
-  readonly json: boolean;
-  readonly noPhoenix: boolean;
-  readonly phoenixBaseUrl: string;
-  readonly target: AiMetricsDeployTarget;
-  readonly workerEvalReportPath: string;
-}) {
-  const input = AgentEffectivenessDoctorInput.make({
-    dataRoot,
-    noPhoenix,
-    phoenixBaseUrl,
-    target,
-    workerEvalReportPath,
-  });
-  const report = yield* provideAgentEffectivenessLayers({
-    dataRoot,
-    effect: makeAgentEffectivenessDoctorReport(input),
-  });
-  const datasetBundle = makeAgentEffectivenessDatasetBundle(report);
-  yield* renderExperimentBundle(makeAgentEffectivenessExperimentBundle(datasetBundle), json);
+  ...rest
+}: MakeExperimentBundleProgramOptions) {
+  return yield* pipe(
+    AgentEffectivenessDoctorInput.make({
+      dataRoot,
+      ...rest,
+    }),
+    makeAgentEffectivenessDoctorReport,
+    provideAgentEffectivenessLayers(dataRoot),
+    Effect.map(makeAgentEffectivenessDatasetBundle),
+    Effect.map(makeAgentEffectivenessExperimentBundle),
+    Effect.flatMap(renderExperimentBundle(json))
+  );
 });
 
 const makePhoenixSyncProgram = Effect.fn("AgentEffectiveness.makePhoenixSyncProgram")(function* ({
@@ -434,28 +489,33 @@ const makePhoenixSyncProgram = Effect.fn("AgentEffectiveness.makePhoenixSyncProg
   readonly workerEvalReportPath: string;
   readonly write: boolean;
 }) {
-  const doctor = AgentEffectivenessDoctorInput.make({
-    dataRoot,
-    noPhoenix,
-    phoenixBaseUrl,
-    target,
-    workerEvalReportPath,
-  });
-  const result = yield* provideAgentEffectivenessPhoenixLayers({
-    dataRoot,
-    effect: syncAgentEffectivenessPhoenix(
-      AgentEffectivenessPhoenixSyncInput.make({
-        annotationPlan: AgentEffectivenessAnnotationPlanInput.make({ doctor }),
-        dryRun: !write,
-        ...(O.isSome(confirmPhoenixWrite) ? { confirmToken: confirmPhoenixWrite.value } : {}),
-      })
-    ),
-    phoenixBaseUrl,
-  });
-  yield* renderPhoenixSyncResult(result, json);
-  if (result.status === AgentEffectivenessStatus.Enum.failed) {
-    process.exitCode = 1;
-  }
+  const makePhoenixSyncInput = pipe(
+    confirmPhoenixWrite,
+    O.match({
+      onNone: () => AgentEffectivenessPhoenixSyncInput.new(!write),
+      onSome: (confirmToken) => AgentEffectivenessPhoenixSyncInput.new(!write, confirmToken),
+    })
+  );
+
+  return yield* pipe(
+    AgentEffectivenessDoctorInput.make({
+      dataRoot,
+      noPhoenix,
+      phoenixBaseUrl,
+      target,
+      workerEvalReportPath,
+    }),
+    AgentEffectivenessAnnotationPlanInput.new,
+    makePhoenixSyncInput,
+    syncAgentEffectivenessPhoenix,
+    provideAgentEffectivenessPhoenixLayers(dataRoot, phoenixBaseUrl),
+    Effect.tap(renderPhoenixSyncResult(json)),
+    Effect.flatMap((result) =>
+      AgentEffectivenessStatus.is.failed(result.status)
+        ? failWithReportedExit("agent-effectiveness phoenix sync failed.")
+        : Effect.void
+    )
+  );
 });
 
 const doctorCommand = Command.make(

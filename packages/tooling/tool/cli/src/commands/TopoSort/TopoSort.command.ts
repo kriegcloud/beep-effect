@@ -5,11 +5,12 @@
  * @since 0.0.0
  */
 
-import { buildRepoDependencyIndex, findRepoRoot, topologicalSort, type WorkspaceDeps } from "@beep/repo-utils";
+import { buildRepoDependencyIndex, findRepoRoot, topologicalSort } from "@beep/repo-utils";
 import { A } from "@beep/utils";
 import { Console, Effect, HashMap, HashSet, pipe } from "effect";
 import * as R from "effect/Record";
 import { Command } from "effect/unstable/cli";
+import type { WorkspaceDeps } from "@beep/repo-utils";
 
 const dependencyNames = (workspaceDeps: WorkspaceDeps): ReadonlyArray<string> =>
   pipe(

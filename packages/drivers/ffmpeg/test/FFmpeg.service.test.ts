@@ -5,7 +5,6 @@ import {
   ExtractFramesRequest,
   FFmpeg,
   FFmpegError,
-  type FFmpegEvent,
   formatFrameFileName,
   ProbeVideoRequest,
 } from "@beep/ffmpeg";
@@ -16,6 +15,7 @@ import { Effect, FileSystem, Layer, Order, Path, pipe, Sink, Stream } from "effe
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import { ChildProcess, ChildProcessSpawner } from "effect/unstable/process";
+import type { FFmpegEvent } from "@beep/ffmpeg";
 
 const provideScopedLayer =
   <ROut, E2, RIn>(layer: Layer.Layer<ROut, E2, RIn>) =>

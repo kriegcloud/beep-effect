@@ -11,14 +11,14 @@ import { flow, HashSet, pipe } from "effect";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
-import type { Rule, SourceCode } from "eslint";
-import type ESTree from "estree";
 import {
   decodeBlockCommentNode,
   decodeNamedDeclarationNode,
   decodeVariableDeclarationNode,
 } from "../internal/eslint/RuleAstSchemas.ts";
 import { firstSome, optionToReadonlyArray } from "../internal/eslint/RuleHelpers.ts";
+import type { Rule, SourceCode } from "eslint";
+import type ESTree from "estree";
 
 const CATEGORY_PATTERN = /@category\s+\S+/;
 

@@ -12,7 +12,6 @@
  * @category entities
  */
 export * as Membership from "./Membership/index.js";
-
 /**
  * Shared-kernel organization concept namespace.
  *
@@ -27,7 +26,6 @@ export * as Membership from "./Membership/index.js";
  * @category entities
  */
 export * as Organization from "./Organization/index.js";
-
 /**
  * Shared-kernel user concept namespace.
  *

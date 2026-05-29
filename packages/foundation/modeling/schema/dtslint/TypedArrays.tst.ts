@@ -1,21 +1,21 @@
-import {
-  Float16ArrayFromArray,
-  type Float16ArrayFromArray as Float16ArrayFromArrayType,
-  type Float16Arr as Float16ArrType,
-} from "@beep/schema/Float16Array";
-import {
-  Float32ArrayFromArray,
-  type Float32ArrayFromArray as Float32ArrayFromArrayType,
-  type Float32Arr as Float32ArrType,
-} from "@beep/schema/Float32Array";
-import {
-  Float64ArrayFromArray,
-  type Float64ArrayFromArray as Float64ArrayFromArrayType,
-  type Float64Arr as Float64ArrType,
-} from "@beep/schema/Float64Array";
-import type { Effect } from "effect";
+import { Float16ArrayFromArray } from "@beep/schema/Float16Array";
+import { Float32ArrayFromArray } from "@beep/schema/Float32Array";
+import { Float64ArrayFromArray } from "@beep/schema/Float64Array";
 import * as S from "effect/Schema";
 import { describe, expect, it } from "tstyche";
+import type {
+  Float16ArrayFromArray as Float16ArrayFromArrayType,
+  Float16Arr as Float16ArrType,
+} from "@beep/schema/Float16Array";
+import type {
+  Float32ArrayFromArray as Float32ArrayFromArrayType,
+  Float32Arr as Float32ArrType,
+} from "@beep/schema/Float32Array";
+import type {
+  Float64ArrayFromArray as Float64ArrayFromArrayType,
+  Float64Arr as Float64ArrType,
+} from "@beep/schema/Float64Array";
+import type { Effect } from "effect";
 
 describe("Float16Array schemas", () => {
   it("preserve the typed-array schema surface", () => {

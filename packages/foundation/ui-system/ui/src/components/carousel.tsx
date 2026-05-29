@@ -111,6 +111,7 @@ function Carousel({
 
       return () => {
         api?.off("select", onSelect);
+        api?.off("reInit", onSelect);
       };
     },
     A.make(api, onSelect)

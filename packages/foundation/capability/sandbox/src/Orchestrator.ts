@@ -10,15 +10,16 @@ import { A, O, Str } from "@beep/utils";
 import { Clock, DateTime, Duration, Effect, pipe } from "effect";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
-import type { AgentProvider } from "./Agent.provider.ts";
 import { IterationUsage } from "./Agent.provider.ts";
 import { AgentStreamEmitter, AgentStreamEvent } from "./AgentStreamEmitter.ts";
 import { Display } from "./Display.ts";
 import { ExpandPromptShellExpressionsOptions, expandPromptShellExpressions } from "./Prompt.ts";
-import { AgentError, AgentIdleTimeoutError, type SandboxError } from "./Sandbox.errors.ts";
+import { AgentError, AgentIdleTimeoutError } from "./Sandbox.errors.ts";
 import { profileSandboxPhase, redactSensitiveText } from "./Sandbox.observability.ts";
-import type { ExecResult, SandboxHandle } from "./Sandbox.provider.ts";
 import { SandboxExecOptions } from "./Sandbox.provider.ts";
+import type { AgentProvider } from "./Agent.provider.ts";
+import type { SandboxError } from "./Sandbox.errors.ts";
+import type { ExecResult, SandboxHandle } from "./Sandbox.provider.ts";
 
 const $I = $SandboxId.create("Orchestrator");
 const DEFAULT_COMPLETION_SIGNAL = "<promise>COMPLETE</promise>";
@@ -94,8 +95,17 @@ export interface OrchestrateOptions<R = never> {
   readonly sandboxRepoDir: string;
 }
 
-const completionSignals = (input: string | ReadonlyArray<string> | undefined): ReadonlyArray<string> =>
-  P.isUndefined(input) ? [DEFAULT_COMPLETION_SIGNAL] : P.isString(input) ? [input] : input;
+const completionSignals = (input: string | ReadonlyArray<string> | undefined): ReadonlyArray<string> => {
+  if (P.isUndefined(input)) {
+    return A.make(DEFAULT_COMPLETION_SIGNAL);
+  }
+
+  if (P.isString(input)) {
+    return A.of(input);
+  }
+
+  return input;
+};
 
 const firstMatchedSignal = (output: string, signals: ReadonlyArray<string>): string | undefined =>
   pipe(

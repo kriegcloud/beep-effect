@@ -18,11 +18,11 @@ import {
   PhoenixPromptReadResult,
   PhoenixPromptSelector,
   PhoenixPromptWriteResult,
-  type PhoenixSdkShape,
 } from "@beep/phoenix";
 import { describe, expect, it } from "@effect/vitest";
 import { Effect, Layer, pipe } from "effect";
 import * as A from "effect/Array";
+import type { PhoenixSdkShape } from "@beep/phoenix";
 
 const provideScopedLayer =
   <ROut, E2, RIn>(layer: Layer.Layer<ROut, E2, RIn>) =>

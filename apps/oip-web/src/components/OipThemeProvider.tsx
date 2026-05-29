@@ -6,7 +6,8 @@
  */
 "use client";
 
-import { AppThemeProvider, createAppTheme, ThemeMode, type ThemeOptions } from "@beep/ui/themes";
+import { AppThemeProvider, createAppTheme, ThemeMode } from "@beep/ui/themes";
+import type { ThemeOptions } from "@beep/ui/themes";
 import type { ReactNode } from "react";
 
 const oipThemeOptions = {

@@ -14,7 +14,8 @@ import * as P from "effect/Predicate";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
 import { Display } from "./Display.ts";
-import { PromptError, type SandboxError } from "./Sandbox.errors.ts";
+import { PromptError } from "./Sandbox.errors.ts";
+import type { SandboxError } from "./Sandbox.errors.ts";
 import type { SandboxHandle } from "./Sandbox.provider.ts";
 
 const $I = $SandboxId.create("Prompt");

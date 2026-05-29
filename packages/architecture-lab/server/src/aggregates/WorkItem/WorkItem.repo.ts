@@ -7,7 +7,6 @@
  */
 
 import { WorkItemConfig } from "@beep/architecture-lab-config/layer";
-import type * as DomainWorkItem from "@beep/architecture-lab-domain/aggregates/WorkItem";
 import {
   fromWorkItemRow,
   toWorkItemInsert,
@@ -15,11 +14,13 @@ import {
   workItemTable,
 } from "@beep/architecture-lab-tables/aggregates/WorkItem";
 import * as WorkItemUseCaseServer from "@beep/architecture-lab-use-cases/server";
-import { PostgresDrizzle, type PostgresDrizzleDatabase } from "@beep/postgres";
+import { PostgresDrizzle } from "@beep/postgres";
 import { A } from "@beep/utils";
 import { eq } from "drizzle-orm";
 import { Effect, HashMap, pipe, Ref } from "effect";
 import * as O from "effect/Option";
+import type * as DomainWorkItem from "@beep/architecture-lab-domain/aggregates/WorkItem";
+import type { PostgresDrizzleDatabase } from "@beep/postgres";
 
 type WorkItemStore = HashMap.HashMap<DomainWorkItem.WorkItemId, DomainWorkItem.WorkItem>;
 

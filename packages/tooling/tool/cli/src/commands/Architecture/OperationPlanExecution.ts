@@ -11,17 +11,15 @@ import { normalizePath } from "@beep/schema";
 import { A, Str, thunkFalse } from "@beep/utils";
 import { Effect, FileSystem, Match, Path } from "effect";
 import { dual } from "effect/Function";
-import {
-  type ArchitectureOperation,
-  ArchitectureOperationCheck,
-  type ArchitectureOperationCheckStatus,
-  type CanonicalSliceOperationPlan,
-  OperationPlanApplyResult,
-  OperationPlanCheckResult,
-  type WriteFileOperation,
-  type WritePackageJsonOperation,
-} from "./OperationPlan.js";
+import { ArchitectureOperationCheck, OperationPlanApplyResult, OperationPlanCheckResult } from "./OperationPlan.js";
 import { renderPackageJsonOperation } from "./OperationPlanPackageJson.js";
+import type {
+  ArchitectureOperation,
+  ArchitectureOperationCheckStatus,
+  CanonicalSliceOperationPlan,
+  WriteFileOperation,
+  WritePackageJsonOperation,
+} from "./OperationPlan.js";
 
 type EnsureAbsentPathOperation = Extract<ArchitectureOperation, { readonly kind: "ensure-absent-path" }>;
 type EnsureFileOperation = Extract<ArchitectureOperation, { readonly kind: "ensure-file" }>;

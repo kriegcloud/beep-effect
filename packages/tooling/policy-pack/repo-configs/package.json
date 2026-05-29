@@ -39,7 +39,6 @@
   },
   "devDependencies": {
     "@beep/test-utils": "workspace:^",
-    "@beep/types": "workspace:^",
     "@effect/vitest": "catalog:",
     "@next/bundle-analyzer": "catalog:",
     "@next/mdx": "catalog:",

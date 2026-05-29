@@ -5,7 +5,7 @@
  * @since 0.0.0
  */
 import { Agent } from "@beep/agent-capability-domain/entities/Agent";
-import { makeInMemoryProfessionalRuntimeSdk, type RuntimeFixtureInput } from "@beep/agent-capability-use-cases/proof";
+import { makeInMemoryProfessionalRuntimeSdk } from "@beep/agent-capability-use-cases/proof";
 import {
   CandidateOutputSet,
   GetContextPacket,
@@ -37,6 +37,7 @@ import { EmailArtifact } from "@beep/workspace-domain/entities/EmailArtifact";
 import { Workspace } from "@beep/workspace-domain/entities/Workspace";
 import { Effect, pipe } from "effect";
 import * as S from "effect/Schema";
+import type { RuntimeFixtureInput } from "@beep/agent-capability-use-cases/proof";
 
 /**
  * Package version.

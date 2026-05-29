@@ -1,23 +1,29 @@
 "use client";
 
 import { Button } from "@beep/ui/components/button";
-import { type AudioFormat, type CommitStrategy, useScribe } from "@beep/ui/hooks/use-scribe";
+import { useScribe } from "@beep/ui/hooks/use-scribe";
 import { A, Str } from "@beep/utils";
 import { MicrophoneIcon, SquareIcon, XIcon } from "@phosphor-icons/react";
-import { cva, type VariantProps } from "class-variance-authority";
+import { cva } from "class-variance-authority";
 import { motion } from "framer-motion";
-import {
-  type ComponentPropsWithoutRef,
-  createContext,
-  forwardRef,
-  type ReactNode,
-  useCallback,
-  useContext,
-  useEffect,
-  useRef,
-} from "react";
+import { createContext, forwardRef, useCallback, useContext, useEffect, useRef } from "react";
 import { cn } from "../lib/index.ts";
 import { requireReactContext } from "../lib/react-invariant.ts";
+import type { AudioFormat, CommitStrategy } from "@beep/ui/hooks/use-scribe";
+import type { VariantProps } from "class-variance-authority";
+import type { ComponentPropsWithoutRef, ReactNode } from "react";
+
+const previewDisplayText = (transcript: string, partialTranscript: string, placeholder: string): string => {
+  if (transcript !== "") {
+    return transcript;
+  }
+
+  if (partialTranscript !== "") {
+    return partialTranscript;
+  }
+
+  return placeholder;
+};
 
 const buttonVariants = cva("!px-0", {
   variants: {
@@ -360,12 +366,7 @@ const SpeechInputPreview = forwardRef<HTMLDivElement, SpeechInputPreviewProps>(f
 ) {
   const speechInput = useSpeechInput();
 
-  const displayText =
-    speechInput.transcript !== ""
-      ? speechInput.transcript
-      : speechInput.partialTranscript !== ""
-        ? speechInput.partialTranscript
-        : placeholder;
+  const displayText = previewDisplayText(speechInput.transcript, speechInput.partialTranscript, placeholder);
   const showPlaceholder = Str.trim(speechInput.transcript) === "";
 
   return (

@@ -1,12 +1,3 @@
-import type {
-  HttpApiEncoding,
-  IdentityComposer,
-  IdentityString,
-  IdentitySymbol,
-  ModuleSegmentValue,
-  SegmentValue,
-  TitleFromIdentifier,
-} from "@beep/identity";
 import {
   $AgentCapabilityDomainId,
   $AgentCapabilityUseCasesId,
@@ -24,6 +15,15 @@ import {
 import { Context } from "effect";
 import * as S from "effect/Schema";
 import { describe, expect, it } from "tstyche";
+import type {
+  HttpApiEncoding,
+  IdentityComposer,
+  IdentityString,
+  IdentitySymbol,
+  ModuleSegmentValue,
+  SegmentValue,
+  TitleFromIdentifier,
+} from "@beep/identity";
 
 declare module "effect/Schema" {
   namespace Annotations {

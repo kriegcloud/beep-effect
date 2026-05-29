@@ -1,0 +1,67 @@
+{
+  "$schema": "../../../../packages/tooling/tool/docgen/schema.json",
+  "exclude": ["src/internal/**/*.ts"],
+  "srcLink": "https://github.com/kriegcloud/beep-effect/tree/main/packages/foundation/ui-system/form/src/",
+  "examplesCompilerOptions": {
+    "noEmit": true,
+    "strict": true,
+    "skipLibCheck": true,
+    "moduleResolution": "bundler",
+    "module": "es2022",
+    "target": "es2022",
+    "lib": ["ESNext", "DOM", "DOM.Iterable"],
+    "rewriteRelativeImportExtensions": true,
+    "allowImportingTsExtensions": true,
+    "moduleDetection": "force",
+    "verbatimModuleSyntax": true,
+    "allowJs": false,
+    "erasableSyntaxOnly": true,
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true,
+    "exactOptionalPropertyTypes": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noImplicitOverride": true,
+    "noFallthroughCasesInSwitch": true,
+    "stripInternal": false,
+    "noErrorTruncation": true,
+    "types": [],
+    "jsx": "react-jsx",
+    "paths": {
+      "@beep/form": [
+        "../../../../packages/foundation/ui-system/form/src/index.ts"
+      ],
+      "@beep/form/core": [
+        "../../../../packages/foundation/ui-system/form/src/core.ts"
+      ],
+      "@beep/form/core/internal/dirty": [
+        "../../../../packages/foundation/ui-system/form/src/core/internal/dirty.ts"
+      ],
+      "@beep/form/core/internal/weak-registry": [
+        "../../../../packages/foundation/ui-system/form/src/core/internal/weak-registry.ts"
+      ],
+      "@beep/form/react": [
+        "../../../../packages/foundation/ui-system/form/src/react.ts"
+      ],
+      "@beep/form/react/FormReact": [
+        "../../../../packages/foundation/ui-system/form/src/react/FormReact.tsx"
+      ],
+      "@beep/identity": [
+        "../../../../packages/foundation/modeling/identity/src/index.ts"
+      ],
+      "@beep/identity/*": [
+        "../../../../packages/foundation/modeling/identity/src/*.ts"
+      ],
+      "@beep/identity/packages": [
+        "../../../../packages/foundation/modeling/identity/src/packages.ts"
+      ],
+      "@beep/types": [
+        "../../../../packages/foundation/primitive/types/src/index.ts"
+      ],
+      "@beep/types/*": [
+        "../../../../packages/foundation/primitive/types/src/*.ts"
+      ]
+    }
+  }
+}

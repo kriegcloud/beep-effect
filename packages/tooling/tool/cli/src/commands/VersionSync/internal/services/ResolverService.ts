@@ -7,14 +7,10 @@
 
 import { $RepoCliId } from "@beep/identity/packages";
 import { A, Str } from "@beep/utils";
-import { Context, Effect, type FileSystem, Layer, type Path } from "effect";
+import { Context, Effect, Layer } from "effect";
 import * as S from "effect/Schema";
-import type { HttpClient } from "effect/unstable/http";
 import {
-  type VersionCategoryReport,
   VersionCategoryStatus,
-  type VersionSyncError,
-  type VersionSyncOptions,
   VersionSyncReport,
   VersionSyncResolution,
   VersionSyncUpdateLocation,
@@ -25,6 +21,9 @@ import { buildDockerReport, DockerImageState, resolveDockerImages } from "../res
 import { buildEffectReport, EffectCatalogState, resolveEffectCatalog } from "../resolvers/EffectResolver.js";
 import { buildNodeReport, resolveNodeVersions } from "../resolvers/NodeResolver.js";
 import { CategorySelectionService } from "./CategorySelectionService.js";
+import type { FileSystem, Path } from "effect";
+import type { HttpClient } from "effect/unstable/http";
+import type { VersionCategoryReport, VersionSyncError, VersionSyncOptions } from "../Models.js";
 
 const $I = $RepoCliId.create("commands/VersionSync/internal/services/ResolverService");
 const versionCategoryStatusEquivalence = S.toEquivalence(VersionCategoryStatus);

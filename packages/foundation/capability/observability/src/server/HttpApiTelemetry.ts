@@ -7,15 +7,16 @@
 import { $ObservabilityId } from "@beep/identity/packages";
 import { NonNegativeInt } from "@beep/schema";
 import { A } from "@beep/utils";
-import { Cause, Clock, Duration, Effect, Exit, Layer, Metric, Result, SchemaAST } from "effect";
+import { Cause, Clock, Duration, Effect, Exit, Layer, Metric, pipe, Result, SchemaAST } from "effect";
 import * as Eq from "effect/Equal";
 import { dual } from "effect/Function";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
-import type * as HttpServerResponse from "effect/unstable/http/HttpServerResponse";
-import { type HttpApiEndpoint, type HttpApiGroup, HttpApiMiddleware, HttpApiSchema } from "effect/unstable/httpapi";
+import { HttpApiMiddleware, HttpApiSchema } from "effect/unstable/httpapi";
 import { observeHttpRequest, statusClass } from "../Metric.ts";
+import type * as HttpServerResponse from "effect/unstable/http/HttpServerResponse";
+import type { HttpApiEndpoint, HttpApiGroup } from "effect/unstable/httpapi";
 
 const $I = $ObservabilityId.create("server/HttpApiTelemetry");
 const schemaIssueToError = (cause: S.SchemaError["issue"]): S.SchemaError => new S.SchemaError(cause);
@@ -386,11 +387,14 @@ const observeHttpApiEffectImpl = <E, R>(
                     const status = O.isSome(failure)
                       ? httpApiFailureStatus(options.endpoint, failure.value)
                       : undefined;
-                    const failureKind = Cause.hasInterruptsOnly(exit.cause)
-                      ? "interrupted"
-                      : O.isSome(failure)
-                        ? "failure"
-                        : "defect";
+                    const failureKind = pipe(
+                      [
+                        pipe(Cause.hasInterruptsOnly(exit.cause), O.liftPredicate(P.isTruthy), O.as("interrupted")),
+                        pipe(failure, O.as("failure")),
+                      ] satisfies ReadonlyArray<O.Option<"defect" | "failure" | "interrupted">>,
+                      O.firstSomeOf,
+                      O.getOrElse(() => "defect" as const)
+                    );
                     const statusLabel = P.isUndefined(status) ? "unknown" : statusClass(status);
 
                     return yield* annotateHttpApiOutcome(options.descriptor, {

@@ -7,8 +7,9 @@
 
 import { $SandboxId } from "@beep/identity";
 import { Str } from "@beep/utils";
-import { Effect, type Fiber } from "effect";
+import { Effect } from "effect";
 import * as S from "effect/Schema";
+import type { Fiber } from "effect";
 
 const $I = $SandboxId.create("TextDeltaBuffer");
 

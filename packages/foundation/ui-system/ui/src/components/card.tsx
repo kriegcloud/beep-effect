@@ -1,5 +1,5 @@
-import type * as React from "react";
 import { cn } from "../lib/index.ts";
+import type * as React from "react";
 
 /**
  * @category components

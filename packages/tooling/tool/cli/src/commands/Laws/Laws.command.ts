@@ -10,6 +10,7 @@ import { Text } from "@beep/utils";
 import { Console, Effect } from "effect";
 import * as S from "effect/Schema";
 import { Command, Flag } from "effect/unstable/cli";
+import { failWithReportedExit } from "../../internal/cli/ExitCodeError.js";
 import { printLines } from "../../internal/cli/Printer.js";
 import { AllowlistCheckOptions, reportAllowlistCheckSummary, runAllowlistCheck } from "./AllowlistCheck.js";
 import { DualArityRulesOptions, runDualArityRules } from "./DualArity.js";
@@ -195,7 +196,7 @@ const lawsEffectImportsCommand = Command.make(
     }
 
     if (summary.strictFailure) {
-      process.exitCode = 1;
+      return yield* failWithReportedExit("effect-governance-imports: check failed.");
     }
   })
 ).pipe(Command.withDescription("Check or rewrite Effect import style rules"));
@@ -258,7 +259,7 @@ const lawsTerseEffectCommand = Command.make(
     }
 
     if (summary.strictFailure) {
-      process.exitCode = 1;
+      return yield* failWithReportedExit("effect-governance-terse-effect: check failed.");
     }
   })
 ).pipe(Command.withDescription("Check or rewrite terse Effect helper wrappers"));
@@ -294,7 +295,7 @@ const lawsDualArityCommand = Command.make(
     );
 
     if (summary.strictFailure) {
-      process.exitCode = 1;
+      return yield* failWithReportedExit("effect-governance-dual-arity: check failed.");
     }
   })
 ).pipe(Command.withDescription("Check or refresh public helper dual-arity inventory"));
@@ -339,7 +340,7 @@ const lawsEffectFnCommand = Command.make(
     }
 
     if (summary.strictFailure) {
-      process.exitCode = 1;
+      return yield* failWithReportedExit("effect-governance-effect-fn: check failed.");
     }
   })
 ).pipe(Command.withDescription("Check reusable Effect.gen-returning functions use Effect.fn or Effect.fnUntraced"));
@@ -389,7 +390,7 @@ const lawsNativeRuntimeCommand = Command.make(
     }
 
     if (summary.strictFailure) {
-      process.exitCode = 1;
+      return yield* failWithReportedExit("effect-governance-native-runtime: check failed.");
     }
   })
 ).pipe(Command.withDescription("Run repo-local no-native-runtime parity checks"));
@@ -417,7 +418,7 @@ const lawsAllowlistCheckCommand = Command.make(
     yield* reportAllowlistCheckSummary(summary);
 
     if (!summary.ok) {
-      process.exitCode = 1;
+      return yield* failWithReportedExit("effect-governance-allowlist-check: check failed.");
     }
   })
 ).pipe(Command.withDescription("Validate the Effect governance allowlist document"));

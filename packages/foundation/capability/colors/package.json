@@ -73,7 +73,6 @@
     "effect": "catalog:"
   },
   "devDependencies": {
-    "@beep/types": "workspace:^",
     "@effect/vitest": "catalog:",
     "@types/node": "catalog:"
   },

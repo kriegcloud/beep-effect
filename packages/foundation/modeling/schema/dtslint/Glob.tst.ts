@@ -1,8 +1,9 @@
-import type * as GlobModule from "@beep/schema/Glob";
-import { Glob, type Glob as GlobType } from "@beep/schema/Glob";
-import type * as Brand from "effect/Brand";
+import { Glob } from "@beep/schema/Glob";
 import * as S from "effect/Schema";
 import { describe, expect, it } from "tstyche";
+import type * as GlobModule from "@beep/schema/Glob";
+import type { Glob as GlobType } from "@beep/schema/Glob";
+import type * as Brand from "effect/Brand";
 
 describe("Glob", () => {
   it("preserves the branded schema surface", () => {

@@ -5,8 +5,8 @@
  * @since 0.0.0
  */
 import { flow, Match } from "effect";
-import type { SandboxError } from "./Sandbox.errors.ts";
 import { redactSensitiveText } from "./Sandbox.observability.ts";
+import type { SandboxError } from "./Sandbox.errors.ts";
 
 /**
  * Formats a tagged SandboxError into a user-friendly message with

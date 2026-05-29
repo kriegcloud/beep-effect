@@ -1,8 +1,8 @@
+import { describe, expect, it } from "tstyche";
 import type * as Organization from "@beep/shared-domain/entities/Organization";
 import type * as Shared from "@beep/shared-domain/identity/Shared";
 import type * as O from "effect/Option";
 import type * as S from "effect/Schema";
-import { describe, expect, it } from "tstyche";
 
 describe("Organization types", () => {
   it("preserves entity, table, and literal metadata", () => {

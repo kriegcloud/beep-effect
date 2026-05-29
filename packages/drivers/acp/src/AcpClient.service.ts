@@ -9,15 +9,9 @@ import { $AcpId } from "@beep/identity";
 import { A } from "@beep/utils";
 import { Context, Effect, HashMap, HashSet, Layer, Match, Ref } from "effect";
 import * as O from "effect/Option";
-import type * as S from "effect/Schema";
-import type * as Scope from "effect/Scope";
-import type * as Stdio from "effect/Stdio";
-import type * as Stream from "effect/Stream";
-import type { ChildProcessSpawner } from "effect/unstable/process";
 import * as RpcClient from "effect/unstable/rpc/RpcClient";
 import * as RpcServer from "effect/unstable/rpc/RpcServer";
 import { AGENT_METHODS, CLIENT_METHODS } from "./_generated/meta.gen.ts";
-import type * as AcpSchema from "./_generated/schema.gen.ts";
 import * as AcpError from "./Acp.errors.ts";
 import * as AcpProtocol from "./AcpProtocol.service.ts";
 import * as AcpRpcs from "./AcpRpc.models.ts";
@@ -28,6 +22,12 @@ import {
   runHandler,
 } from "./internal/shared.ts";
 import { makeChildStdio, makeTerminationError } from "./internal/stdio.ts";
+import type * as S from "effect/Schema";
+import type * as Scope from "effect/Scope";
+import type * as Stdio from "effect/Stdio";
+import type * as Stream from "effect/Stream";
+import type { ChildProcessSpawner } from "effect/unstable/process";
+import type * as AcpSchema from "./_generated/schema.gen.ts";
 
 const $I = $AcpId.create("client");
 const ACP_CLIENT_PENDING_NOTIFICATION_CAPACITY = 256;

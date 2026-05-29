@@ -6,18 +6,16 @@
  */
 
 import {
-  type FaceDetection as DetectedFace,
   FaceDetectionImageRequest,
   FaceDetectionModelConfig,
   FaceDetectionService,
-  type LoadedFaceDetector,
   makeFaceDetectionService,
   withDetector,
 } from "@beep/face-detection";
 import { $RepoCliId } from "@beep/identity/packages";
 import { profilePhase } from "@beep/observability";
 import { renderBiomeJson } from "@beep/repo-utils/schemas/BiomeJson";
-import { A, Str } from "@beep/utils";
+import { A, P, Str } from "@beep/utils";
 import {
   Config,
   Console,
@@ -32,10 +30,10 @@ import {
   Path,
   pipe,
   Result,
-  type Terminal,
 } from "effect";
 import * as O from "effect/Option";
-import { ChildProcess, type ChildProcessSpawner } from "effect/unstable/process";
+import * as R from "effect/Record";
+import { ChildProcess } from "effect/unstable/process";
 import { imageSizeFromFile } from "image-size/fromFile";
 import sharp from "sharp";
 import { printLines } from "../../internal/cli/Printer.js";
@@ -86,34 +84,24 @@ import {
   ArchivePoorCandidatesManifest,
   ArchivePoorCandidatesManifestOptions,
   ArchivePoorCandidatesManifestSummary,
-  type ArchivePoorCandidatesOptions,
   ArchivePoorCandidatesPlan,
   ArchivePoorCandidatesSkippedEntry,
-  type ArchivePoorCandidatesSkippedReason,
   ArchivePoorCandidatesSummary,
-  type CreateCaptionFilesOptions,
   CreateCaptionFilesPlan,
   CreateCaptionFilesPlanEntry,
   CreateCaptionFilesSkippedEntry,
-  type CreateCaptionFilesSkippedReason,
   CreateCaptionFilesSummary,
-  type CropBordersOptions,
   CropBordersPlan,
-  type CropBordersPlanEntry,
   CropBordersSummary,
   DetectBordersEntry,
   DetectBordersOptions,
   DetectBordersReport,
   DetectBordersSkippedEntry,
-  type DetectBordersSkippedReason,
   DetectBordersSummary,
   DetectFacesEntry,
-  type DetectFacesFlag,
-  type DetectFacesOptions,
   DetectFacesReport,
   DetectFacesReportOptions,
   DetectFacesSkippedEntry,
-  type DetectFacesSkippedReason,
   DetectFacesSummary,
   decodeArchivePoorCandidatesOptions,
   decodeCreateCaptionFilesOptions,
@@ -128,29 +116,44 @@ import {
   encodeDetectBordersReport,
   encodeDetectFacesReport,
   encodeNormalizeManifest,
-  type FileSha256Hash,
   MediaDimensions,
-  type MediaKind,
   NormalizeFilesOptions,
-  type NormalizeImageFormat,
   NormalizeManifest,
   NormalizeManifestOptions,
   NormalizeManifestSummary,
   NormalizePlan,
   NormalizePlanEntry,
   NormalizeSkippedEntry,
-  type NormalizeSkippedReason,
   NormalizeSummary,
-  type PositiveMediaDimension,
   RenamePlan,
   RenamePlanEntry,
-  type SafeFilePrefix,
   SortAndRenameSummary,
   SortableFile,
   SortableFileCollection,
   StripMetadataPlan,
   StripMetadataPlanEntry,
   StripMetadataSummary,
+} from "./Files.schemas.js";
+import type { FaceDetection as DetectedFace, LoadedFaceDetector } from "@beep/face-detection";
+import type { Terminal } from "effect";
+import type { ChildProcessSpawner } from "effect/unstable/process";
+import type {
+  ArchivePoorCandidatesOptions,
+  ArchivePoorCandidatesSkippedReason,
+  CreateCaptionFilesOptions,
+  CreateCaptionFilesSkippedReason,
+  CropBordersOptions,
+  CropBordersPlanEntry,
+  DetectBordersSkippedReason,
+  DetectFacesFlag,
+  DetectFacesOptions,
+  DetectFacesSkippedReason,
+  FileSha256Hash,
+  MediaKind,
+  NormalizeImageFormat,
+  NormalizeSkippedReason,
+  PositiveMediaDimension,
+  SafeFilePrefix,
 } from "./Files.schemas.js";
 
 const $I = $RepoCliId.create("commands/Files/Files.service");
@@ -535,7 +538,13 @@ const makeNormalizeSkippedEntry = (
   message: string
 ): NormalizeSkippedEntry =>
   O.isSome(extension)
-    ? NormalizeSkippedEntry.make({ extension: extension.value, message, reason, sourceName, sourcePath })
+    ? NormalizeSkippedEntry.make({
+        extension: extension.value,
+        message,
+        reason,
+        sourceName,
+        sourcePath,
+      })
     : NormalizeSkippedEntry.make({ message, reason, sourceName, sourcePath });
 
 const makeNormalizeDuplicateSkippedEntry = (
@@ -548,7 +557,10 @@ const makeNormalizeDuplicateSkippedEntry = (
     duplicateOfOutputRelativePath: duplicateOf.outputRelativePath,
     duplicateOfSourceRelativePath: duplicateOf.sourceRelativePath,
     ...(O.isSome(moveTarget)
-      ? { duplicateMovedPath: moveTarget.value.path, duplicateMovedRelativePath: moveTarget.value.relativePath }
+      ? {
+          duplicateMovedPath: moveTarget.value.path,
+          duplicateMovedRelativePath: moveTarget.value.relativePath,
+        }
       : {}),
     extension: entry.sourceExtension,
     message: `Normalized output exactly duplicates "${duplicateOf.outputRelativePath}".`,
@@ -567,8 +579,7 @@ const makeCreateCaptionFilesSkippedEntry = (
   message: string
 ): CreateCaptionFilesSkippedEntry =>
   CreateCaptionFilesSkippedEntry.make({
-    ...(O.isSome(captionName) ? { captionName: captionName.value } : {}),
-    ...(O.isSome(extension) ? { extension: extension.value } : {}),
+    ...R.getSomes({ captionName, extension }),
     message,
     reason,
     sourceName,
@@ -583,7 +594,13 @@ const makeDetectBordersSkippedEntry = (
   message: string
 ): DetectBordersSkippedEntry =>
   O.isSome(extension)
-    ? DetectBordersSkippedEntry.make({ extension: extension.value, message, reason, sourceName, sourcePath })
+    ? DetectBordersSkippedEntry.make({
+        extension: extension.value,
+        message,
+        reason,
+        sourceName,
+        sourcePath,
+      })
     : DetectBordersSkippedEntry.make({ message, reason, sourceName, sourcePath });
 
 const makeDetectFacesSkippedEntry = (
@@ -594,7 +611,13 @@ const makeDetectFacesSkippedEntry = (
   message: string
 ): DetectFacesSkippedEntry =>
   O.isSome(extension)
-    ? DetectFacesSkippedEntry.make({ extension: extension.value, message, reason, sourceName, sourcePath })
+    ? DetectFacesSkippedEntry.make({
+        extension: extension.value,
+        message,
+        reason,
+        sourceName,
+        sourcePath,
+      })
     : DetectFacesSkippedEntry.make({ message, reason, sourceName, sourcePath });
 
 const makeArchivePoorCandidatesSkippedEntry = (
@@ -605,8 +628,19 @@ const makeArchivePoorCandidatesSkippedEntry = (
   message: string
 ): ArchivePoorCandidatesSkippedEntry =>
   O.isSome(extension)
-    ? ArchivePoorCandidatesSkippedEntry.make({ extension: extension.value, message, reason, sourceName, sourcePath })
-    : ArchivePoorCandidatesSkippedEntry.make({ message, reason, sourceName, sourcePath });
+    ? ArchivePoorCandidatesSkippedEntry.make({
+        extension: extension.value,
+        message,
+        reason,
+        sourceName,
+        sourcePath,
+      })
+    : ArchivePoorCandidatesSkippedEntry.make({
+        message,
+        reason,
+        sourceName,
+        sourcePath,
+      });
 
 const parseSidecarExtensions = (value: string): Effect.Effect<ReadonlyArray<string>, FilesCommandError> => {
   const normalized = pipe(value, Str.trim, Str.toLowerCase);
@@ -621,12 +655,7 @@ const parseSidecarExtensions = (value: string): Effect.Effect<ReadonlyArray<stri
     A.map((entry) => normalizeBareExtension(Str.trim(entry))),
     A.filter(Str.isNonEmpty)
   );
-  const invalid = pipe(
-    extensions,
-    A.findFirst(
-      (extension) => Str.includes("/")(extension) || Str.includes("\\")(extension) || Str.includes("\0")(extension)
-    )
-  );
+  const invalid = pipe(extensions, A.findFirst(P.some([Str.includes("/"), Str.includes("\\"), Str.includes("\0")])));
 
   if (O.isSome(invalid) || !A.isReadonlyArrayNonEmpty(extensions)) {
     return Effect.fail(
@@ -1070,7 +1099,10 @@ const collectNormalizeFiles = Effect.fn("Files.collectNormalizeFiles")(function*
   directory: string,
   canonicalDirectory: string
 ): Effect.fn.Return<
-  { readonly files: ReadonlyArray<SortableFile>; readonly skipped: ReadonlyArray<NormalizeSkippedEntry> },
+  {
+    readonly files: ReadonlyArray<SortableFile>;
+    readonly skipped: ReadonlyArray<NormalizeSkippedEntry>;
+  },
   FilesCommandError,
   FileSystem.FileSystem | Path.Path | Terminal.Terminal
 > {
@@ -1358,7 +1390,10 @@ const applyCreateCaptionFilesPlan = Effect.fn("Files.applyCreateCaptionFilesPlan
 
   yield* Effect.acquireUseRelease(
     fs
-      .makeTempDirectory({ directory: plan.directory, prefix: ".beep-files-create-captions-" })
+      .makeTempDirectory({
+        directory: plan.directory,
+        prefix: ".beep-files-create-captions-",
+      })
       .pipe(
         Effect.mapError((cause) =>
           formatPlatformError("Failed to create temporary caption directory", plan.directory, { cause })
@@ -1393,7 +1428,13 @@ const applyCreateCaptionFilesPlan = Effect.fn("Files.applyCreateCaptionFilesPlan
         }
       );
     }),
-    (tempDir) => fs.remove(tempDir, { recursive: true, force: true }).pipe(Effect.ignore)
+    (tempDir) =>
+      fs
+        .remove(tempDir, {
+          recursive: true,
+          force: true,
+        })
+        .pipe(Effect.ignore)
   );
 });
 
@@ -2118,7 +2159,10 @@ const uniqueNormalizeTargetName = (
   stem: string,
   format: NormalizeImageFormat,
   usedTargetNames: HashSet.HashSet<string>
-): { readonly targetName: string; readonly usedTargetNames: HashSet.HashSet<string> } => {
+): {
+  readonly targetName: string;
+  readonly usedTargetNames: HashSet.HashSet<string>;
+} => {
   const extension = normalizeOutputExtension(format);
   let suffix = 0;
   let targetName = `${stem}${extension}`;
@@ -2138,7 +2182,10 @@ const uniqueArchiveTargetName = (
   stem: string,
   extension: string,
   usedTargetNames: HashSet.HashSet<string>
-): { readonly targetName: string; readonly usedTargetNames: HashSet.HashSet<string> } => {
+): {
+  readonly targetName: string;
+  readonly usedTargetNames: HashSet.HashSet<string>;
+} => {
   let suffix = 0;
   let targetName = `${stem}${extension}`;
 
@@ -2821,7 +2868,10 @@ const applyNormalizePlan = Effect.fn("Files.applyNormalizePlan")(function* (
 
   return yield* Effect.acquireUseRelease(
     fs
-      .makeTempDirectory({ directory: plan.outputDirectory, prefix: ".beep-files-normalize-" })
+      .makeTempDirectory({
+        directory: plan.outputDirectory,
+        prefix: ".beep-files-normalize-",
+      })
       .pipe(
         Effect.mapError((cause) =>
           formatPlatformError("Failed to create temporary normalize directory", plan.outputDirectory, { cause })
@@ -2839,7 +2889,10 @@ const applyNormalizePlan = Effect.fn("Files.applyNormalizePlan")(function* (
       let duplicateMoves = A.empty<NormalizeDuplicateMove>();
       let duplicateSkippedEntries = A.empty<NormalizeSkippedEntry>();
       let duplicateMoveTargets = HashSet.empty<string>();
-      let readyTempEntries = A.empty<{ readonly entry: NormalizePlanEntry; readonly tempPath: string }>();
+      let readyTempEntries = A.empty<{
+        readonly entry: NormalizePlanEntry;
+        readonly tempPath: string;
+      }>();
       let seenOutputs = HashMap.empty<FileSha256Hash, ReadonlyArray<NormalizeSeenOutput>>();
 
       yield* runFilesProgressForEach(
@@ -2896,13 +2949,20 @@ const applyNormalizePlan = Effect.fn("Files.applyNormalizePlan")(function* (
 
           const completedEntry = withOutputMetadata(entry, `${outputStat.size}`, outputHash);
           completedEntries = A.append(completedEntries, completedEntry);
-          readyTempEntries = A.append(readyTempEntries, { entry: completedEntry, tempPath });
+          readyTempEntries = A.append(readyTempEntries, {
+            entry: completedEntry,
+            tempPath,
+          });
 
           if (O.isSome(outputHash)) {
             seenOutputs = HashMap.set(
               seenOutputs,
               outputHash.value,
-              A.append(candidates, { entry: completedEntry, outputHash: outputHash.value, tempPath })
+              A.append(candidates, {
+                entry: completedEntry,
+                outputHash: outputHash.value,
+                tempPath,
+              })
             );
           }
         }),
@@ -2958,7 +3018,13 @@ const applyNormalizePlan = Effect.fn("Files.applyNormalizePlan")(function* (
 
       return { completedEntries, duplicateMoves, duplicateSkippedEntries };
     }),
-    (tempDir) => fs.remove(tempDir, { recursive: true, force: true }).pipe(Effect.ignore)
+    (tempDir) =>
+      fs
+        .remove(tempDir, {
+          recursive: true,
+          force: true,
+        })
+        .pipe(Effect.ignore)
   );
 });
 
@@ -2990,7 +3056,10 @@ const applyArchivePoorCandidatesPlan = Effect.fn("Files.applyArchivePoorCandidat
 
   return yield* Effect.acquireUseRelease(
     fs
-      .makeTempDirectory({ directory: plan.archiveDirectory, prefix: ".beep-files-archive-poor-candidates-" })
+      .makeTempDirectory({
+        directory: plan.archiveDirectory,
+        prefix: ".beep-files-archive-poor-candidates-",
+      })
       .pipe(
         Effect.mapError((cause) =>
           formatPlatformError("Failed to create temporary archive directory", plan.archiveDirectory, { cause })
@@ -3043,7 +3112,13 @@ const applyArchivePoorCandidatesPlan = Effect.fn("Files.applyArchivePoorCandidat
       }
       yield* renameOrFail(tempManifestPath, plan.manifestPath, tempDir);
     }),
-    (tempDir) => fs.remove(tempDir, { recursive: true, force: true }).pipe(Effect.ignore)
+    (tempDir) =>
+      fs
+        .remove(tempDir, {
+          recursive: true,
+          force: true,
+        })
+        .pipe(Effect.ignore)
   );
 });
 
@@ -3069,7 +3144,12 @@ const buildRenamePlan = Effect.fn("Files.buildRenamePlan")(function* (
   let plan = A.empty<RenamePlanEntry>();
 
   for (const [file, dimensions] of A.zip(collection.files, dimensionsByFile)) {
-    const targetName = targetNameForEntry(prefix, { dimensions, file, index, width });
+    const targetName = targetNameForEntry(prefix, {
+      dimensions,
+      file,
+      index,
+      width,
+    });
     plan = A.append(
       plan,
       RenamePlanEntry.make({
@@ -3498,7 +3578,13 @@ const applyStripMetadataPlan = Effect.fn("Files.applyStripMetadataPlan")(functio
         }
       );
     }),
-    (tempDir) => fs.remove(tempDir, { recursive: true, force: true }).pipe(Effect.ignore)
+    (tempDir) =>
+      fs
+        .remove(tempDir, {
+          recursive: true,
+          force: true,
+        })
+        .pipe(Effect.ignore)
   );
 });
 
@@ -3537,7 +3623,13 @@ const applyCropBordersPlan = Effect.fn("Files.applyCropBordersPlan")(function* (
         }
       );
     }),
-    (tempDir) => fs.remove(tempDir, { recursive: true, force: true }).pipe(Effect.ignore)
+    (tempDir) =>
+      fs
+        .remove(tempDir, {
+          recursive: true,
+          force: true,
+        })
+        .pipe(Effect.ignore)
   );
 });
 

@@ -6,8 +6,8 @@
  */
 import { DateTime, Effect, SchemaGetter as Getter } from "effect";
 import * as S from "effect/Schema";
-import type * as VariantSchema from "../VariantSchema/index.ts";
 import { Field, Overridable } from "./Model.variants.ts";
+import type * as VariantSchema from "../VariantSchema/index.ts";
 /**
  * Schema interface that decodes a `YYYY-MM-DD` string into `DateTime.Utc` with time removed.
  *

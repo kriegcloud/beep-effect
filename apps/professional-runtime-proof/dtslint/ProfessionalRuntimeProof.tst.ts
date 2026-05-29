@@ -1,6 +1,7 @@
-import type { CandidateOutputSet } from "@beep/agent-capability-use-cases/public";
-import { runProfessionalRuntimeScenario, type ScenarioId, toPlain, VERSION } from "@beep/professional-runtime-proof";
+import { runProfessionalRuntimeScenario, toPlain, VERSION } from "@beep/professional-runtime-proof";
 import { describe, expect, it } from "tstyche";
+import type { CandidateOutputSet } from "@beep/agent-capability-use-cases/public";
+import type { ScenarioId } from "@beep/professional-runtime-proof";
 
 type ScenarioResult = Awaited<ReturnType<typeof runProfessionalRuntimeScenario>>;
 

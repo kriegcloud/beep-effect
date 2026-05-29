@@ -10,7 +10,8 @@ import { Fn, LiteralKit } from "@beep/schema";
 import { Effect } from "effect";
 import { dual } from "effect/Function";
 import * as S from "effect/Schema";
-import { CopyError, type SandboxError } from "./Sandbox.errors.ts";
+import { CopyError } from "./Sandbox.errors.ts";
+import type { SandboxError } from "./Sandbox.errors.ts";
 
 const $I = $SandboxId.create("Sandbox.provider");
 

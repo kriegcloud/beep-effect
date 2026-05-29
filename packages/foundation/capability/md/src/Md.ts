@@ -11,7 +11,6 @@ import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
 import {
   A as ANode,
-  type Block,
   BlockQuote,
   Block as BlockSchema,
   Br,
@@ -27,7 +26,6 @@ import {
   H6,
   Hr,
   Img,
-  type Inline,
   Li,
   Ol,
   P as PNode,
@@ -52,6 +50,7 @@ import {
   renderWith,
   renderWithUnsafe,
 } from "./Md.render.ts";
+import type { Block, Inline } from "./Md.model.ts";
 
 /**
  * Inline constructor input accepted by text-oriented builders.

@@ -12,19 +12,15 @@ import { Effect, Layer, pipe } from "effect";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import { JsonLdContext, JsonLdDocument } from "../jsonld.ts";
-import {
-  type JsonLdDocumentError,
-  type JsonLdDocumentLoaderPolicy,
-  JsonLdDocumentService,
-  JsonLdToRdfRequest,
-} from "../services/jsonld-document.ts";
+import { JsonLdDocumentService, JsonLdToRdfRequest } from "../services/jsonld-document.ts";
 import {
   JsonLdStreamParseError,
   JsonLdStreamParseInput,
   JsonLdStreamParseResult,
   JsonLdStreamParseService,
-  type JsonLdStreamParseServiceShape,
 } from "../services/jsonld-stream-parse.ts";
+import type { JsonLdDocumentError, JsonLdDocumentLoaderPolicy } from "../services/jsonld-document.ts";
+import type { JsonLdStreamParseServiceShape } from "../services/jsonld-stream-parse.ts";
 
 const decodeJsonLdDocumentFromJson = S.decodeUnknownEffect(S.fromJsonString(JsonLdDocument));
 

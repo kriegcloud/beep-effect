@@ -6,14 +6,14 @@
  */
 
 import { $PostgresId } from "@beep/identity";
-import type * as Pg from "@effect/sql-pg/PgClient";
 import * as PgDrizzle from "drizzle-orm/effect-postgres";
 import * as PgDrizzleMigrator from "drizzle-orm/effect-postgres/migrator";
-import type { MigrationConfig } from "drizzle-orm/migrator";
-import type { AnyRelations, EmptyRelations } from "drizzle-orm/relations";
 import { Context, Effect, Layer } from "effect";
 import { dual } from "effect/Function";
 import { PostgresError } from "./Postgres.errors.ts";
+import type * as Pg from "@effect/sql-pg/PgClient";
+import type { MigrationConfig } from "drizzle-orm/migrator";
+import type { AnyRelations, EmptyRelations } from "drizzle-orm/relations";
 import type { NativeMigrationError } from "./PostgresInterop.models.ts";
 
 const $I = $PostgresId.create("PostgresDrizzle.service");

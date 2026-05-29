@@ -7,26 +7,22 @@
 
 import { $RepoCliId } from "@beep/identity/packages";
 import { isExcludedTypeScriptSourcePath, toPosixPath } from "@beep/repo-utils/schemas/TypeScriptSourceExclusions";
-import {
-  TSMorphService,
-  type TSMorphServiceError,
-  TsMorphProjectInspectionRequest,
-} from "@beep/repo-utils/TSMorph/index";
+import { TSMorphService, TsMorphProjectInspectionRequest } from "@beep/repo-utils/TSMorph/index";
 import { LiteralKit } from "@beep/schema";
 import { A } from "@beep/utils";
 import { Effect, Order, Path, pipe } from "effect";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
-import {
-  type ArrowFunction,
-  type CallExpression,
-  type FunctionDeclaration,
-  type FunctionExpression,
-  type MethodDeclaration,
-  Node,
-  type SourceFile,
-  SyntaxKind,
+import { Node, SyntaxKind } from "ts-morph";
+import type { TSMorphServiceError } from "@beep/repo-utils/TSMorph/index";
+import type {
+  ArrowFunction,
+  CallExpression,
+  FunctionDeclaration,
+  FunctionExpression,
+  MethodDeclaration,
+  SourceFile,
 } from "ts-morph";
 
 const $I = $RepoCliId.create("commands/Laws/EffectFn");

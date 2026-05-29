@@ -150,12 +150,12 @@ export const createWorktreeInfo = Effect.fn("Worktree.createWorktreeInfo")(funct
   const branch =
     options.branch ??
     (options.name === undefined ? `sandcastle/${timestamp}` : `sandcastle/${sanitizeName(options.name)}/${timestamp}`);
-  const worktreeName =
-    options.branch === undefined
-      ? options.name === undefined
-        ? `sandcastle-${timestamp}`
-        : `sandcastle-${sanitizeName(options.name)}-${timestamp}`
-      : Str.replaceAll("/", "-")(options.branch);
+  let worktreeName = `sandcastle-${timestamp}`;
+  if (options.branch !== undefined) {
+    worktreeName = Str.replaceAll("/", "-")(options.branch);
+  } else if (options.name !== undefined) {
+    worktreeName = `sandcastle-${sanitizeName(options.name)}-${timestamp}`;
+  }
   const worktreePath = path.join(worktreesDir, worktreeName);
   const addArgs =
     options.branch === undefined

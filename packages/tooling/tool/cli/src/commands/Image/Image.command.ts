@@ -5,7 +5,6 @@
  * @since 0.0.0
  */
 
-import type { FFmpegError } from "@beep/ffmpeg";
 import { A } from "@beep/utils";
 import { Console, Effect, Match } from "effect";
 import { Command, Flag } from "effect/unstable/cli";
@@ -18,13 +17,10 @@ import {
   renderExtractFramesDirSuccess,
   renderExtractFramesDirSummary,
 } from "./Image.render.js";
-import {
-  decodeExtractFramesDirOptions,
-  decodeExtractFramesOptions,
-  type ExtractFramesDirOutcome,
-  type ExtractFramesDirResult,
-} from "./Image.schemas.js";
+import { decodeExtractFramesDirOptions, decodeExtractFramesOptions } from "./Image.schemas.js";
 import { ImageCommandService, ImageCommandServiceLive } from "./Image.service.js";
+import type { FFmpegError } from "@beep/ffmpeg";
+import type { ExtractFramesDirOutcome, ExtractFramesDirResult } from "./Image.schemas.js";
 
 const videoFlag = Flag.file("video", { mustExist: true }).pipe(Flag.withDescription("Input video file to sample"));
 const dirFlag = Flag.directory("dir", { mustExist: true }).pipe(

@@ -7,7 +7,8 @@
 import { dual } from "effect/Function";
 import * as S from "effect/Schema";
 import { EdgeIndex, GraphKind, NodeIndex } from "./Graph.primitives.ts";
-import { $I, type GraphKindValue } from "./Graph.shared.ts";
+import { $I } from "./Graph.shared.ts";
+import type { GraphKindValue } from "./Graph.shared.ts";
 
 /**
  * Encoded edge representation used by graph codecs.

@@ -12,27 +12,21 @@ import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
-import { type Tool, Toolkit } from "effect/unstable/ai";
+import { Toolkit } from "effect/unstable/ai";
 import { DocumentId } from "../Core/Document.ts";
 import { BracketStringToPatternElement, Tokenization } from "../Core/index.ts";
-import type { Token } from "../Core/Token.ts";
 import { ascendingNumber, ascendingString, descendingNumber } from "../internal/order.ts";
-import type { WinkEngineError } from "../Wink/index.ts";
 import {
   BagOfWords,
-  type CorpusManagerError,
   CustomEntityExample,
   DocumentTermSet,
   EntityGroupName,
-  type SimilarityError,
   TverskyParams,
-  type VectorizerError,
   WinkCorpusManager,
   WinkEngine,
   WinkEngineCustomEntities,
   WinkSimilarity,
   WinkUtils,
-  type WinkUtilsError,
   WinkVectorizer,
 } from "../Wink/index.ts";
 import { WinkLayerAllLive } from "../Wink/Layer.ts";
@@ -55,6 +49,15 @@ import { TextSimilarity } from "./TextSimilarity.ts";
 import { Tokenize } from "./Tokenize.ts";
 import { TransformText } from "./TransformText.ts";
 import { TverskySimilarity } from "./TverskySimilarity.ts";
+import type { Tool } from "effect/unstable/ai";
+import type { Token } from "../Core/Token.ts";
+import type {
+  CorpusManagerError,
+  SimilarityError,
+  VectorizerError,
+  WinkEngineError,
+  WinkUtilsError,
+} from "../Wink/index.ts";
 
 const $I = $NlpId.create("Tools/NlpToolkit");
 

@@ -17,11 +17,11 @@ import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
-import type { NextConfig as NextConfigFromNext } from "next";
 import { isFunctionValue, schemaIssueToError } from "./internal.ts";
 import { AllowedDevOrigin } from "./models/AllowedDevOrigin.schema.ts";
 import { defineNextConfig, NextConfig as NextConfigModel } from "./NextConfig.model.ts";
 import { SecureHeadersConfig, withSecureHeaders } from "./security/index.ts";
+import type { NextConfig as NextConfigFromNext } from "next";
 
 const $I = $RepoConfigsId.create("next/SharedNextConfig.model");
 const require = createRequire(import.meta.url);

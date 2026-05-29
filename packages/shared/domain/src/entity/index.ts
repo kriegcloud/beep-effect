@@ -19,7 +19,6 @@
  * @category constructors
  */
 export * as BaseEntity from "./BaseEntity.ts";
-
 /**
  * Entity identifier constructor namespace.
  *
@@ -34,7 +33,6 @@ export * as BaseEntity from "./BaseEntity.ts";
  * @category constructors
  */
 export * as EntityId from "./EntityId.ts";
-
 /**
  * Polymorphic entity reference namespace.
  *
@@ -49,7 +47,6 @@ export * as EntityId from "./EntityId.ts";
  * @category identifiers
  */
 export * as EntityRef from "./EntityRef.ts";
-
 /**
  * Canonical actor principal namespace.
  *
@@ -64,7 +61,6 @@ export * as EntityRef from "./EntityRef.ts";
  * @category identifiers
  */
 export * as Principal from "./Principal.ts";
-
 /**
  * Shared entity primitives namespace.
  *
@@ -79,7 +75,6 @@ export * as Principal from "./Principal.ts";
  * @category schemas
  */
 export * as primitives from "./primitives.ts";
-
 /**
  * Canonical source-kind namespace.
  *

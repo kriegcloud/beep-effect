@@ -6,9 +6,10 @@
  * @since 0.0.0
  */
 
-import type * as DomainCanvasProject from "@beep/canvas-domain/aggregates/CanvasProject";
 import { $CanvasUseCasesId } from "@beep/identity/packages";
-import { Context, type Effect } from "effect";
+import { Context } from "effect";
+import type * as DomainCanvasProject from "@beep/canvas-domain/aggregates/CanvasProject";
+import type { Effect } from "effect";
 import type {
   AddCanvasNodeCommand,
   ArchiveCanvasProjectCommand,

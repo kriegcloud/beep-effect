@@ -4,10 +4,11 @@
  * @packageDocumentation
  * @since 0.0.0
  */
+
+import * as VariantSchema from "../VariantSchema/index.ts";
 import type { TUnsafe } from "@beep/types";
 import type { Brand } from "effect/Brand";
 import type * as S from "effect/Schema";
-import * as VariantSchema from "../VariantSchema/index.ts";
 
 const modelVariants = ["select", "insert", "update", "json", "jsonCreate", "jsonUpdate"] as const;
 

@@ -6,10 +6,10 @@
  * @since 0.0.0
  */
 import { cast, dual, flow } from "effect/Function";
-import type * as Order from "effect/Order";
 import * as Str from "effect/String";
-import type * as TF from "type-fest";
 import * as A from "./Array.ts";
+import type * as Order from "effect/Order";
+import type * as TF from "type-fest";
 
 /**
  * Compare two strings for equality with data-first and data-last call forms.

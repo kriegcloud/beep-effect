@@ -44,7 +44,6 @@
     "**/*.css"
   ],
   "dependencies": {
-    "@beep/identity": "workspace:^",
     "@beep/ui": "workspace:^",
     "@phosphor-icons/react": "catalog:",
     "@tauri-apps/api": "catalog:",

@@ -4,11 +4,11 @@ import { Toast as ToastPrimitive } from "@base-ui/react/toast";
 import { $UiId } from "@beep/identity";
 import { LiteralKit } from "@beep/schema";
 import { XIcon } from "@phosphor-icons/react";
-import type { VariantProps } from "class-variance-authority";
 import { cva } from "class-variance-authority";
 import * as S from "effect/Schema";
 import * as React from "react";
 import { cn } from "../lib/index.ts";
+import type { VariantProps } from "class-variance-authority";
 
 const $I = $UiId.create("components/toast");
 

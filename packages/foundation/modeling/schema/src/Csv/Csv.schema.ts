@@ -12,11 +12,13 @@ import { dual } from "effect/Function";
 import * as P from "effect/Predicate";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
-import { CsvCodecOptions, type CsvCodecOptionsArgs, CsvCodecOptionsParseOptions } from "../CsvCodecOptions/index.ts";
-import { type CsvError, csvError } from "../CsvError/index.ts";
+import { CsvCodecOptions, CsvCodecOptionsParseOptions } from "../CsvCodecOptions/index.ts";
+import { csvError } from "../CsvError/index.ts";
 import { formatCsvDocument } from "../CsvFormatter/index.ts";
 import { parseCsvRows } from "../CsvParser/index.ts";
 import { ParserOptions } from "../ParserOptions/index.ts";
+import type { CsvCodecOptionsArgs } from "../CsvCodecOptions/index.ts";
+import type { CsvError } from "../CsvError/index.ts";
 
 const $I = $SchemaId.create("Csv");
 

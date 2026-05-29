@@ -54,8 +54,6 @@
   "dependencies": {
     "@beep/ai-provider-cli": "workspace:^",
     "@beep/discord": "workspace:^",
-    "@beep/identity": "workspace:^",
-    "@beep/installer-domain": "workspace:^",
     "@beep/installer-server": "workspace:^",
     "@beep/installer-use-cases": "workspace:^",
     "@beep/onepassword-cli": "workspace:^",

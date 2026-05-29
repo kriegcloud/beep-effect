@@ -2,8 +2,9 @@ import { A } from "@beep/utils";
 import { Effect, flow, Inspectable, pipe, Result, SchemaIssue, SchemaTransformation } from "effect";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
-import { type ParseError, parse, printParseErrorCode } from "jsonc-parser";
+import { parse, printParseErrorCode } from "jsonc-parser";
 import { normalizePath, PosixPath } from "../../eslint/Shared.ts";
+import type { ParseError } from "jsonc-parser";
 
 export const ALLOWLIST_PATH = "standards/effect-laws.allowlist.jsonc";
 const DATE_YMD_PATTERN = /^[0-9]{4}-[0-9]{2}-[0-9]{2}$/;

@@ -5,10 +5,11 @@
  * @since 0.0.0
  */
 
-import type { FFmpegEvent } from "@beep/ffmpeg";
-import { Effect, Match, pipe, type Terminal } from "effect";
+import { Effect, Match, pipe } from "effect";
 import { dual } from "effect/Function";
 import { renderCompletedProgress, renderInitialProgress, renderProgressBar } from "./Image.render.js";
+import type { FFmpegEvent } from "@beep/ffmpeg";
+import type { Terminal } from "effect";
 
 /**
  * Render one FFmpeg event through the terminal service.

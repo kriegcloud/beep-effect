@@ -1,16 +1,15 @@
 "use client";
 
 import { TooltipProvider } from "@beep/ui/components/ui/tooltip";
-import { type InitialConfigType, LexicalComposer } from "@lexical/react/LexicalComposer";
+import { LexicalComposer } from "@lexical/react/LexicalComposer";
 import { OnChangePlugin } from "@lexical/react/LexicalOnChangePlugin";
 import { Effect } from "effect";
 import * as S from "effect/Schema";
-import type { EditorState, SerializedEditorState } from "lexical";
-
 import { editorTheme } from "../../editor/themes/editor-theme.js";
-
 import { nodes } from "./nodes.js";
 import { Plugins } from "./plugins.js";
+import type { InitialConfigType } from "@lexical/react/LexicalComposer";
+import type { EditorState, SerializedEditorState } from "lexical";
 
 const editorConfig: InitialConfigType = {
   namespace: "Editor",

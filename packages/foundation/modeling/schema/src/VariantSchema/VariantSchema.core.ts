@@ -6,10 +6,11 @@
  */
 import { A } from "@beep/utils";
 import { dual } from "effect/Function";
-import { type Pipeable, pipeArguments } from "effect/Pipeable";
+import { pipeArguments } from "effect/Pipeable";
 import * as P from "effect/Predicate";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
+import type { Pipeable } from "effect/Pipeable";
 import type * as AST from "effect/SchemaAST";
 import type * as Struct_ from "effect/Struct";
 /**

@@ -7,17 +7,18 @@
 
 import { $HubspotId } from "@beep/identity";
 import { Str } from "@beep/utils";
-import { Config, Context, Effect, Layer, pipe, type Redacted as RedactedType } from "effect";
+import { Config, Context, Effect, Layer, pipe } from "effect";
 import * as O from "effect/Option";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
 import { FetchHttpClient } from "effect/unstable/http";
 import * as HttpClient from "effect/unstable/http/HttpClient";
-import type * as HttpClientError from "effect/unstable/http/HttpClientError";
 import * as HttpClientRequest from "effect/unstable/http/HttpClientRequest";
-import type * as HttpClientResponse from "effect/unstable/http/HttpClientResponse";
 import { HUBSPOT_CRM_API_URL, HUBSPOT_FORMS_API_URL, HubSpotConfigInput } from "./HubSpot.config.ts";
 import { HubSpotError } from "./HubSpot.errors.ts";
+import type { Redacted as RedactedType } from "effect";
+import type * as HttpClientError from "effect/unstable/http/HttpClientError";
+import type * as HttpClientResponse from "effect/unstable/http/HttpClientResponse";
 
 const $I = $HubspotId.create("HubSpot.service");
 

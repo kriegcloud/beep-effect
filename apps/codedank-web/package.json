@@ -47,11 +47,8 @@
     "**/*.css"
   ],
   "dependencies": {
-    "@beep/identity": "workspace:^",
     "@beep/repo-configs": "workspace:^",
-    "@beep/schema": "workspace:^",
     "@beep/ui": "workspace:^",
-    "@beep/utils": "workspace:^",
     "@mdx-js/react": "catalog:",
     "@next/bundle-analyzer": "catalog:",
     "@next/mdx": "catalog:",

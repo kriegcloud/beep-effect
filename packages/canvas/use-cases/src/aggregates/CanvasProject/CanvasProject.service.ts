@@ -11,6 +11,19 @@ import { A } from "@beep/utils";
 import { Effect, Match, pipe } from "effect";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
+import {
+  CANVAS_PROJECT_ACTION_UNAVAILABLE_REASON,
+  CANVAS_PROJECT_CONFLICT_REASON,
+  CanvasProjectActionFailed,
+  CanvasProjectActionRejected,
+  CanvasProjectConflict,
+  CanvasProjectNotFound,
+} from "./CanvasProject.errors.js";
+import {
+  CanvasProjectRepositoryConflict,
+  CanvasProjectRepositoryNotFound,
+  CanvasProjectRepositoryUnavailable,
+} from "./CanvasProject.repository.js";
 import type {
   AddCanvasNodeCommand,
   ArchiveCanvasProjectCommand,
@@ -20,22 +33,8 @@ import type {
   RemoveCanvasNodeCommand,
   RestoreCanvasProjectCommand,
 } from "./CanvasProject.commands.js";
-import {
-  CANVAS_PROJECT_ACTION_UNAVAILABLE_REASON,
-  CANVAS_PROJECT_CONFLICT_REASON,
-  type CanvasProjectActionError,
-  CanvasProjectActionFailed,
-  CanvasProjectActionRejected,
-  CanvasProjectConflict,
-  CanvasProjectNotFound,
-} from "./CanvasProject.errors.js";
-import {
-  CanvasProjectRepositoryConflict,
-  type CanvasProjectRepositoryError,
-  CanvasProjectRepositoryNotFound,
-  type CanvasProjectRepositoryShape,
-  CanvasProjectRepositoryUnavailable,
-} from "./CanvasProject.repository.js";
+import type { CanvasProjectActionError } from "./CanvasProject.errors.js";
+import type { CanvasProjectRepositoryError, CanvasProjectRepositoryShape } from "./CanvasProject.repository.js";
 import type { CanvasProjectUseCasesShape } from "./CanvasProject.use-cases.js";
 
 const isRepositoryNotFound = S.is(CanvasProjectRepositoryNotFound);

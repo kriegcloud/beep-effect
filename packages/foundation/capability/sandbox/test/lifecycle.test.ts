@@ -1,11 +1,8 @@
 import {
-  type DisplayEntry,
   ExecResult,
   ExpandPromptShellExpressionsOptions,
   expandPromptShellExpressions,
   ProcessResult,
-  type SandboxExecOptions,
-  type SandboxHandle,
   SandboxProcess,
   SilentDisplay,
   substitutePromptArgs,
@@ -25,8 +22,9 @@ import {
 import { HookTimeoutError } from "@beep/sandbox/Sandbox.errors";
 import { A } from "@beep/utils";
 import { describe, expect, it } from "@effect/vitest";
-import { Duration, Effect, Fiber, Layer, Ref, Schema } from "effect";
+import { Duration, Effect, Fiber, Layer, Match, Ref, Schema } from "effect";
 import { TestClock } from "effect/testing";
+import type { DisplayEntry, SandboxExecOptions, SandboxHandle } from "@beep/sandbox";
 
 const provideScopedLayer =
   <ROut, E2, RIn>(layer: Layer.Layer<ROut, E2, RIn>) =>
@@ -108,12 +106,11 @@ describe("@beep/sandbox lifecycle foundation", () => {
               ProcessResult.make({
                 exitCode: 0,
                 stderr: "",
-                stdout:
-                  command.args[1] === "user.name"
-                    ? "Host User\n"
-                    : command.args[1] === "user.email"
-                      ? "host@test\n"
-                      : "",
+                stdout: Match.value(command.args[1]).pipe(
+                  Match.when("user.name", () => "Host User\n"),
+                  Match.when("user.email", () => "host@test\n"),
+                  Match.orElse(() => "")
+                ),
               })
             )
           ),

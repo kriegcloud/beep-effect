@@ -7,12 +7,13 @@
 
 import colors, { type Colors } from "@beep/colors";
 import { A, Str } from "@beep/utils";
-import { Cause, Console, type Effect, pipe, Result } from "effect";
+import { Cause, Console, pipe, Result } from "effect";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
 import { format } from "sql-formatter";
 import { PostgresError } from "./Postgres.errors.ts";
+import type { Effect } from "effect";
 
 const SqlKeywordValues = [
   "select",

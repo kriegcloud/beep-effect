@@ -5,6 +5,12 @@
  * @since 0.0.0
  */
 
+/**
+ * Public namespace re-export.
+ *
+ * @category schemas
+ * @since 0.0.0
+ */
 export * as CrossOriginEmbedderPolicy from "../CrossOriginEmbedderPolicy/index.ts";
 /**
  * Public namespace re-export.

@@ -17,26 +17,29 @@ import * as AiError from "effect/unstable/ai/AiError";
 import * as LanguageModel from "effect/unstable/ai/LanguageModel";
 import * as AiModel from "effect/unstable/ai/Model";
 import { toCodecOpenAI } from "effect/unstable/ai/OpenAiStructuredOutput";
-import type * as Prompt from "effect/unstable/ai/Prompt";
 import * as Response from "effect/unstable/ai/Response";
 import * as Tool from "effect/unstable/ai/Tool";
 import {
   OpenAiCompatAssistantChatMessage,
-  type OpenAiCompatChatCompletionChunk,
   OpenAiCompatChatCompletionRequest,
-  type OpenAiCompatChatCompletionResponse,
-  type OpenAiCompatChatMessage,
   OpenAiCompatFunctionTool,
   OpenAiCompatJsonSchemaResponseFormat,
-  type OpenAiCompatResponseFormat,
   OpenAiCompatSystemChatMessage,
   OpenAiCompatToolCall,
-  type OpenAiCompatToolCallDelta,
   OpenAiCompatToolCallFunction,
   OpenAiCompatToolChatMessage,
   OpenAiCompatUserChatMessage,
 } from "./OpenAiCompat.models.ts";
-import { OpenAiCompatClient, type OpenAiCompatClientShape } from "./OpenAiCompatClient.service.ts";
+import { OpenAiCompatClient } from "./OpenAiCompatClient.service.ts";
+import type * as Prompt from "effect/unstable/ai/Prompt";
+import type {
+  OpenAiCompatChatCompletionChunk,
+  OpenAiCompatChatCompletionResponse,
+  OpenAiCompatChatMessage,
+  OpenAiCompatResponseFormat,
+  OpenAiCompatToolCallDelta,
+} from "./OpenAiCompat.models.ts";
+import type { OpenAiCompatClientShape } from "./OpenAiCompatClient.service.ts";
 
 const $I = $OpenaiCompatId.create("OpenAiCompatLanguageModel.service");
 const decodeUnknownRecordOption = S.decodeUnknownOption(S.Record(S.String, S.Unknown));

@@ -16,7 +16,8 @@ import "./JSDocTagAnnotation.model.js";
 import { Specification } from "./Specification.model.js";
 import { TagKind } from "./TagKind.model.js";
 import { TagParameters } from "./TagParameters.model.js";
-import { type TagName, TagValue } from "./TagValue.model.js";
+import { TagValue } from "./TagValue.model.js";
+import type { TagName } from "./TagValue.model.js";
 
 const $I = $RepoUtilsId.create("JSDoc/models/JSDocTagDefinition.model");
 

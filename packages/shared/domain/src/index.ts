@@ -34,7 +34,6 @@ export const VERSION = "0.0.0" as const;
  * @category aggregates
  */
 export * as Aggregates from "./aggregates/index.ts";
-
 /**
  * Shared-kernel entity concepts.
  *

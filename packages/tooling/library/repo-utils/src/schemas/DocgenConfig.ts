@@ -14,13 +14,13 @@ import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
-import type { PackageJson } from "./PackageJson.js";
 import {
   buildDocgenAliasTargets,
   resolveRootExportTarget,
   resolveSubpathExportTarget,
   resolveWildcardExportTarget,
 } from "./TsconfigAliasTargets.js";
+import type { PackageJson } from "./PackageJson.js";
 
 const $I = $RepoUtilsId.create("schemas/DocgenConfig");
 

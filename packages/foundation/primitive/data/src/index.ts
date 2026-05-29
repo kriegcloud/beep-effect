@@ -37,7 +37,6 @@ export * as Blockchain from "./Blockchain.ts";
  * @category constants
  */
 export * as Calendar from "./Calendar.ts";
-
 /**
  * ISO 4217 currency constants namespace.
  *

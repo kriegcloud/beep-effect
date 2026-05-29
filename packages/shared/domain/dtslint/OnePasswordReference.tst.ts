@@ -1,11 +1,8 @@
-import {
-  isOnePasswordReference,
-  OnePasswordReference,
-  type OnePasswordReference as OnePasswordReferenceType,
-} from "@beep/shared-domain/values/OnePasswordReference";
-import type { Effect } from "effect";
+import { isOnePasswordReference, OnePasswordReference } from "@beep/shared-domain/values/OnePasswordReference";
 import * as S from "effect/Schema";
 import { describe, expect, it } from "tstyche";
+import type { OnePasswordReference as OnePasswordReferenceType } from "@beep/shared-domain/values/OnePasswordReference";
+import type { Effect } from "effect";
 
 describe("OnePasswordReference", () => {
   it("preserves the branded reference type", () => {

@@ -10,9 +10,6 @@ import {
   decodeChatCompletionChunk,
   decodeChatCompletionResponse,
   makeFromProvider,
-  type OpenAiCompatChatCompletionChunk,
-  type OpenAiCompatChatCompletionRequest,
-  type OpenAiCompatChatCompletionResponse,
   OpenAiCompatLanguageModelConfig,
 } from "@beep/openai-compat";
 import { Effect, Layer, pipe, Stream } from "effect";
@@ -20,13 +17,13 @@ import * as S from "effect/Schema";
 import * as AiError from "effect/unstable/ai/AiError";
 import * as LanguageModel from "effect/unstable/ai/LanguageModel";
 import * as AiModel from "effect/unstable/ai/Model";
-import {
-  VeniceAI,
-  type VeniceAIError,
-  VeniceAIRequestOptions,
-  type VeniceAIServerSentEvent,
-  type VeniceAIShape,
-} from "./VeniceAI.service.ts";
+import { VeniceAI, VeniceAIRequestOptions } from "./VeniceAI.service.ts";
+import type {
+  OpenAiCompatChatCompletionChunk,
+  OpenAiCompatChatCompletionRequest,
+  OpenAiCompatChatCompletionResponse,
+} from "@beep/openai-compat";
+import type { VeniceAIError, VeniceAIServerSentEvent, VeniceAIShape } from "./VeniceAI.service.ts";
 
 const $I = $VeniceAiId.create("VeniceAiLanguageModel.service");
 

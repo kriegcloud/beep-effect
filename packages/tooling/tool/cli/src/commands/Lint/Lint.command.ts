@@ -16,6 +16,7 @@ import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import { Command } from "effect/unstable/cli";
 import madge from "madge";
+import { failWithReportedExit } from "../../internal/cli/ExitCodeError.js";
 import { printLines } from "../../internal/cli/Printer.js";
 import { LintCircularAnalysisError, LintFileDiscoveryError } from "./Lint.errors.js";
 import { lintPackageTestImportsCommand } from "./PackageTestImports.js";
@@ -227,10 +228,10 @@ const collectToolingSourceRoots = Effect.fn("Lint.collectToolingSourceRoots")(fu
 });
 
 const recoverLintFileDiscovery = <A>(checkName: string, fallback: A) =>
-  Effect.fn(function* (error: LintFileDiscoveryError): Effect.fn.Return<A, never, never> {
-    process.exitCode = 2;
+  Effect.fn(function* (error: LintFileDiscoveryError) {
+    void fallback;
     yield* Console.error(`[${checkName}] ${error.message}`);
-    return fallback;
+    return yield* failWithReportedExit(`[${checkName}] ${error.message}`, 2);
   });
 
 const runLintToolingTaggedErrors = Effect.fn("runLintToolingTaggedErrors")(function* () {
@@ -242,20 +243,12 @@ const runLintToolingTaggedErrors = Effect.fn("runLintToolingTaggedErrors")(funct
     )
   );
 
-  if (process.exitCode === 2) {
-    return;
-  }
-
   const filesByRoot = yield* Effect.forEach(sourceRoots, collectTypeScriptFiles, { concurrency: "unbounded" }).pipe(
     Effect.catchTag(
       "LintFileDiscoveryError",
       recoverLintFileDiscovery("check-tooling-tagged-errors", A.empty<ReadonlyArray<string>>())
     )
   );
-
-  if (process.exitCode === 2) {
-    return;
-  }
 
   let violations = A.empty<string>();
 
@@ -266,10 +259,6 @@ const runLintToolingTaggedErrors = Effect.fn("runLintToolingTaggedErrors")(funct
         LintFileDiscoveryError.mapError(file, file, "Failed to read file"),
         Effect.catchTag("LintFileDiscoveryError", recoverLintFileDiscovery("check-tooling-tagged-errors", ""))
       );
-
-    if (process.exitCode === 2) {
-      return;
-    }
 
     for (const match of Str.matchAll(/\bnew Error\(/g)(content)) {
       const line = lineNumberAt(content, match.index ?? 0);
@@ -283,8 +272,7 @@ const runLintToolingTaggedErrors = Effect.fn("runLintToolingTaggedErrors")(funct
       "[check-tooling-tagged-errors] native Error usage detected in packages/tooling/*/*/src. Use TaggedErrorClass from @beep/schema."
     );
     yield* Console.error(A.join(violations, "\n"));
-    process.exitCode = 1;
-    return;
+    return yield* failWithReportedExit("check-tooling-tagged-errors: native Error usage detected.");
   }
 
   yield* Console.log("[check-tooling-tagged-errors] OK: no native Error usage found in packages/tooling/*/*/src.");
@@ -301,10 +289,6 @@ const runLintToolingSchemaFirst = Effect.fn("runLintToolingSchemaFirst")(functio
       recoverLintFileDiscovery("check-tooling-schema-first", A.empty<ReadonlyArray<string>>())
     )
   );
-
-  if (process.exitCode === 2) {
-    return;
-  }
 
   const files = pipe(filesByRoot, A.flatten, A.dedupe);
   const toolingFiles = A.filter(files, (file) => Str.startsWith(`${TOOLING_ROOT}/`)(file));
@@ -467,8 +451,7 @@ const runLintToolingSchemaFirst = Effect.fn("runLintToolingSchemaFirst")(functio
     for (const violation of violations) {
       yield* Console.error(`${violation.file}:${violation.line} [${violation.kind}] ${violation.detail}`);
     }
-    process.exitCode = 1;
-    return;
+    return yield* failWithReportedExit("check-tooling-schema-first: violations found.");
   }
 
   yield* Console.log("[check-tooling-schema-first] OK: packages/tooling/tool/cli schema-first checks passed.");
@@ -512,8 +495,7 @@ const runLintCircular = Effect.fn("runLintCircular")(function* () {
   }
 
   if (hasCircular) {
-    process.exitCode = 1;
-    return;
+    return yield* failWithReportedExit("lint circular: circular dependencies found.");
   }
 
   yield* Console.log("No circular dependencies found.");

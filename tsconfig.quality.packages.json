@@ -169,6 +169,9 @@
       "path": "packages/foundation/primitive/types"
     },
     {
+      "path": "packages/foundation/ui-system/form"
+    },
+    {
       "path": "packages/foundation/ui-system/ui"
     },
     {

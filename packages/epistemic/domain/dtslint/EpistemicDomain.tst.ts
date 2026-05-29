@@ -1,6 +1,7 @@
-import { CandidateClaim, type ClaimLifecycle, type ClaimLifecycle as ClaimLifecycleType } from "@beep/epistemic-domain";
-import type * as Epistemic from "@beep/shared-domain/identity/Epistemic";
+import { CandidateClaim } from "@beep/epistemic-domain";
 import { describe, expect, it } from "tstyche";
+import type { ClaimLifecycle, ClaimLifecycle as ClaimLifecycleType } from "@beep/epistemic-domain";
+import type * as Epistemic from "@beep/shared-domain/identity/Epistemic";
 
 declare const candidateClaim: CandidateClaim;
 

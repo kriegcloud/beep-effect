@@ -26,9 +26,9 @@ import { invoke } from "@tauri-apps/api/core";
 import * as A from "effect/Array";
 import * as P from "effect/Predicate";
 import { Atom } from "effect/unstable/reactivity";
-import type { FormEvent } from "react";
 import { p1aDryRunRegistry, p1aDryRunSnapshot } from "./dry-run-registry.js";
 import { P1_REQUIRED_PLATFORMS } from "./proof/P1ProofArtifacts.js";
+import type { FormEvent } from "react";
 
 const workbenchSteps = [
   {

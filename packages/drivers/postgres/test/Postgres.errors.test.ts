@@ -9,8 +9,6 @@ import {
   NativePgClient,
   PgErrorCanonicalNameByCode,
   PostgresClient,
-  type PostgresClientValue,
-  type PostgresDrizzleDatabase,
   PostgresError,
   PostgresErrorContext,
 } from "@beep/postgres";
@@ -19,6 +17,7 @@ import { assert, describe, expect, it } from "@effect/vitest";
 import { Cause, Effect, Layer } from "effect";
 import * as O from "effect/Option";
 import * as SqlClient from "effect/unstable/sql/SqlClient";
+import type { PostgresClientValue, PostgresDrizzleDatabase } from "@beep/postgres";
 
 const NativeDate = globalThis.Date;
 

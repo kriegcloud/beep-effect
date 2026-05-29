@@ -12,29 +12,13 @@ import { A } from "@beep/utils";
 import * as Struct from "@beep/utils/Struct";
 import { getColumns } from "drizzle-orm";
 import {
-  type AnyPgColumnBuilder,
   bigint,
   boolean,
   bytea,
-  type ExtraConfigColumn,
   index,
   integer,
   jsonb,
-  type PgBigInt53Builder,
-  type PgBooleanBuilder,
-  type PgBuildColumns,
-  type PgByteaBuilder,
-  type PgIntegerBuilder,
-  type PgJsonbBuilder,
-  type PgSerialBuilder,
-  type PgTableExtraConfigValue,
-  type PgTableWithColumns,
-  type PgTextBuilder,
-  type PgTimestampBuilder,
   pgTable,
-  type Set$Type,
-  type SetIsPrimaryKey,
-  type SetNotNull,
   serial,
   text,
   timestamp,
@@ -45,6 +29,24 @@ import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
+import type {
+  AnyPgColumnBuilder,
+  ExtraConfigColumn,
+  PgBigInt53Builder,
+  PgBooleanBuilder,
+  PgBuildColumns,
+  PgByteaBuilder,
+  PgIntegerBuilder,
+  PgJsonbBuilder,
+  PgSerialBuilder,
+  PgTableExtraConfigValue,
+  PgTableWithColumns,
+  PgTextBuilder,
+  PgTimestampBuilder,
+  Set$Type,
+  SetIsPrimaryKey,
+  SetNotNull,
+} from "drizzle-orm/pg-core";
 
 const $I = $DrizzleId.create("EntityTable.models");
 

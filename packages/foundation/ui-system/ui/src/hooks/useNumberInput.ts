@@ -6,9 +6,9 @@ import { constVoid, dual, identity } from "effect/Function";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
-import type React from "react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useSpinner } from "./useSpinner";
+import type React from "react";
 
 const $I = $UiId.create("hooks/useNumberInput");
 

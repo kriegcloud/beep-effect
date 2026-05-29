@@ -10,7 +10,6 @@ import {
   PhoenixExperimentInfoResult,
   PhoenixPromptReadResult,
   PhoenixPromptWriteResult,
-  type PhoenixSdkShape,
 } from "@beep/phoenix";
 import {
   AGENT_EFFECTIVENESS_PHOENIX_WRITE_CONFIRMATION,
@@ -39,6 +38,7 @@ import { FetchHttpClient } from "effect/unstable/http";
 import * as HttpClient from "effect/unstable/http/HttpClient";
 import * as HttpClientRequest from "effect/unstable/http/HttpClientRequest";
 import * as HttpClientResponse from "effect/unstable/http/HttpClientResponse";
+import type { PhoenixSdkShape } from "@beep/phoenix";
 
 const provideScopedLayer =
   <ROut, E2, RIn>(layer: Layer.Layer<ROut, E2, RIn>) =>

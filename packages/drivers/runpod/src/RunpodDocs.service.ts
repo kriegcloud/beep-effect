@@ -14,9 +14,9 @@ import * as S from "effect/Schema";
 import { FetchHttpClient } from "effect/unstable/http";
 import * as HttpClient from "effect/unstable/http/HttpClient";
 import * as HttpClientRequest from "effect/unstable/http/HttpClientRequest";
-import type * as HttpClientResponse from "effect/unstable/http/HttpClientResponse";
 import { RUNPOD_DOCS_INDEX_URL, RunpodDocsConfigInput } from "./Runpod.config.ts";
 import { RunpodDocsError } from "./Runpod.errors.ts";
+import type * as HttpClientResponse from "effect/unstable/http/HttpClientResponse";
 
 const $I = $RunpodId.create("RunpodDocs.service");
 

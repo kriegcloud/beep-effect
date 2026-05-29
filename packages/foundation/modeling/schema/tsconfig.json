@@ -12,9 +12,6 @@
       "path": "../identity/tsconfig.json"
     },
     {
-      "path": "../messages/tsconfig.json"
-    },
-    {
       "path": "../utils/tsconfig.json"
     },
     {
@@ -22,6 +19,9 @@
     },
     {
       "path": "../../primitive/types/tsconfig.json"
+    },
+    {
+      "path": "../messages/tsconfig.json"
     }
   ]
 }

@@ -1,9 +1,9 @@
 import { Agent, Client, Errors, Protocol, Rpc, Schema, Terminal } from "@beep/acp";
+import { describe, expect, it } from "tstyche";
 import type { Effect, Layer, Stream } from "effect";
 import type * as Scope from "effect/Scope";
 import type * as Stdio from "effect/Stdio";
 import type { ChildProcessSpawner } from "effect/unstable/process";
-import { describe, expect, it } from "tstyche";
 
 declare const client: Client.AcpClientShape;
 declare const agent: Agent.AcpAgentShape;

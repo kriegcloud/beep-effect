@@ -3,8 +3,8 @@
 import { Dialog as SheetPrimitive } from "@base-ui/react/dialog";
 import { Button } from "@beep/ui/components/button";
 import { XIcon } from "@phosphor-icons/react";
-import type * as React from "react";
 import { cn } from "../lib/index.ts";
+import type * as React from "react";
 
 /**
  * @category components

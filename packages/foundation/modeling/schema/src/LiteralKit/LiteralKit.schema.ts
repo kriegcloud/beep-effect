@@ -7,12 +7,14 @@
  */
 
 import { $SchemaId } from "@beep/identity/packages";
-import { TaggedErrorClass, type TaggedErrorClassFromFields } from "@beep/schema/TaggedErrorClass";
+import { TaggedErrorClass } from "@beep/schema/TaggedErrorClass";
 import { A } from "@beep/utils";
-import { HashMap, HashSet, Match, pipe, type SchemaAST, type Struct, type Unify } from "effect";
+import { HashMap, HashSet, Match, pipe } from "effect";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
+import type { TaggedErrorClassFromFields } from "@beep/schema/TaggedErrorClass";
+import type { SchemaAST, Struct, Unify } from "effect";
 
 const $I = $SchemaId.create("LiteralKit");
 

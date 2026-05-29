@@ -6,7 +6,6 @@
  */
 
 import { $RepoCliId } from "@beep/identity/packages";
-
 import { A, Str } from "@beep/utils";
 import { Console, Effect, FileSystem, flow, Order, Path, pipe, Stream } from "effect";
 import { dual } from "effect/Function";
@@ -14,9 +13,10 @@ import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
-import { ChildProcess, type ChildProcessSpawner } from "effect/unstable/process";
+import { ChildProcess } from "effect/unstable/process";
 import { parseDocument } from "yaml";
 import { ChangesetGraphError } from "./Quality.errors.js";
+import type { ChildProcessSpawner } from "effect/unstable/process";
 
 /**
  * Public changeset graph error export.

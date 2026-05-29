@@ -6,19 +6,16 @@
  */
 
 import { $SchemaId } from "@beep/identity/packages";
-import { TaggedErrorClass, type TaggedErrorClassFromFields } from "@beep/schema/TaggedErrorClass";
+import { TaggedErrorClass } from "@beep/schema/TaggedErrorClass";
 import { A } from "@beep/utils";
-import { HashMap, pipe, type SchemaAST } from "effect";
+import { HashMap, pipe } from "effect";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
-import {
-  LiteralKit,
-  LiteralKitKeyCollisionError,
-  type LiteralKit as LiteralKitSchema,
-  type LiteralToKey,
-  matchLiteral,
-} from "../LiteralKit/index.ts";
+import { LiteralKit, LiteralKitKeyCollisionError, matchLiteral } from "../LiteralKit/index.ts";
+import type { TaggedErrorClassFromFields } from "@beep/schema/TaggedErrorClass";
+import type { SchemaAST } from "effect";
+import type { LiteralKit as LiteralKitSchema, LiteralToKey } from "../LiteralKit/index.ts";
 
 const $I = $SchemaId.create("MappedLiteralKit");
 const MappedLiteralDuplicateErrorFields = {

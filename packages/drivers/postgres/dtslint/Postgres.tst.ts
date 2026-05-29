@@ -1,6 +1,4 @@
 import {
-  type EffectDrizzlePgConfig,
-  type EffectPgDatabase,
   formatSql,
   getPgErrorAliases,
   getPgErrorName,
@@ -9,18 +7,22 @@ import {
   migrate,
   NativePgClient,
   PgErrorCode,
-  type PgErrorCode as PgErrorCodeType,
-  type PgErrorName as PgErrorNameType,
   PostgresClient,
-  type PostgresClientValue,
-  type PostgresDrizzle,
-  type PostgresDrizzleDatabase,
   PostgresError,
   PostgresErrorContext,
 } from "@beep/postgres";
+import { describe, expect, it } from "tstyche";
+import type {
+  EffectDrizzlePgConfig,
+  EffectPgDatabase,
+  PgErrorCode as PgErrorCodeType,
+  PgErrorName as PgErrorNameType,
+  PostgresClientValue,
+  PostgresDrizzle,
+  PostgresDrizzleDatabase,
+} from "@beep/postgres";
 import type { Effect, Layer } from "effect";
 import type * as O from "effect/Option";
-import { describe, expect, it } from "tstyche";
 
 declare const client: PostgresClientValue;
 declare const db: PostgresDrizzleDatabase;

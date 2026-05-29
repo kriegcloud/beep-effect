@@ -1,11 +1,13 @@
-import { Drizzle, type DrizzleClient, DrizzleError, DrizzleErrorContext, type DrizzleRows } from "@beep/drizzle";
-import { makePgliteSqlTestLayer, type SqlTestHooks } from "@beep/test-utils";
+import { Drizzle, DrizzleError, DrizzleErrorContext } from "@beep/drizzle";
+import { makePgliteSqlTestLayer } from "@beep/test-utils";
 import { A, Str } from "@beep/utils";
 import { describe, expect, layer } from "@effect/vitest";
 import { Effect, Layer, pipe } from "effect";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import * as SqlClient from "effect/unstable/sql/SqlClient";
+import type { DrizzleClient, DrizzleRows } from "@beep/drizzle";
+import type { SqlTestHooks } from "@beep/test-utils";
 
 const sharedConnectionUri = pipe(Bun.env.BEEP_TEST_DATABASE_URL, O.fromUndefinedOr, O.filter(Str.isNonEmpty));
 const shouldUseTestcontainers = Bun.env.BEEP_TEST_DATABASE_DRIVER === "pglite-testcontainers";

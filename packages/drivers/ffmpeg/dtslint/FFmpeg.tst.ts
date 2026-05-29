@@ -1,17 +1,8 @@
-import {
-  ExtractFramesRequest,
-  type ExtractFramesResult,
-  FFmpeg,
-  FFmpegError,
-  type FFmpegEvent,
-  type FFmpegEventSink,
-  type FFmpegShape,
-  ProbeVideoRequest,
-  type VideoProbe,
-} from "@beep/ffmpeg";
-import type { Effect, FileSystem, Layer, Path } from "effect";
+import { ExtractFramesRequest, FFmpeg, FFmpegError, ProbeVideoRequest } from "@beep/ffmpeg";
 import * as O from "effect/Option";
 import { describe, expect, it } from "tstyche";
+import type { ExtractFramesResult, FFmpegEvent, FFmpegEventSink, FFmpegShape, VideoProbe } from "@beep/ffmpeg";
+import type { Effect, FileSystem, Layer, Path } from "effect";
 
 declare const service: FFmpegShape;
 declare const sink: FFmpegEventSink;

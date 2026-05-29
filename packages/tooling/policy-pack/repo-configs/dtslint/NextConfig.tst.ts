@@ -1,12 +1,7 @@
-import {
-  type BeepNextConfigOptionsInput,
-  defineBeepNextConfig,
-  defineNextConfig,
-  type NextConfig,
-  type NextConfig as NextConfigSchema,
-} from "@beep/repo-configs/next";
-import type { NextConfig as NextConfigFromNext, SizeLimit } from "next";
+import { defineBeepNextConfig, defineNextConfig } from "@beep/repo-configs/next";
 import { describe, expect, it } from "tstyche";
+import type { BeepNextConfigOptionsInput, NextConfig, NextConfig as NextConfigSchema } from "@beep/repo-configs/next";
+import type { NextConfig as NextConfigFromNext, SizeLimit } from "next";
 
 describe("NextConfig", () => {
   it("derives a model assignable to next.NextConfig", () => {

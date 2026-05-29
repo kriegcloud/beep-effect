@@ -1,5 +1,10 @@
 {
   "mcpServers": {
+    "next-devtools": {
+      "type": "stdio",
+      "command": "bunx",
+      "args": ["next-devtools-mcp@latest"]
+    },
     "graphiti-memory": {
       "type": "http",
       "url": "http://localhost:8123/mcp"

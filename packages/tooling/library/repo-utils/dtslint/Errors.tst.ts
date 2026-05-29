@@ -1,5 +1,6 @@
-import { type CyclicDependencyError, DomainError, NoSuchFileError } from "@beep/repo-utils";
+import { DomainError, NoSuchFileError } from "@beep/repo-utils";
 import { describe, expect, it } from "tstyche";
+import type { CyclicDependencyError } from "@beep/repo-utils";
 
 describe("Errors", () => {
   describe("NoSuchFileError", () => {

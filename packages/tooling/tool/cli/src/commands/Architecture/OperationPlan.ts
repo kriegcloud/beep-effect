@@ -13,8 +13,8 @@ import { A, Str, thunk0, thunkFalse } from "@beep/utils";
 import { Effect, FileSystem, identity, Path, pipe } from "effect";
 import { dual } from "effect/Function";
 import * as O from "effect/Option";
-import type * as R from "effect/Record";
 import * as S from "effect/Schema";
+import type * as R from "effect/Record";
 
 const $I = $RepoCliId.create("commands/Architecture/OperationPlan");
 

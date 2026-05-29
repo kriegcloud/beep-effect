@@ -13,10 +13,11 @@ import { dual } from "effect/Function";
 import * as O from "effect/Option";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
-import type { ApplicableTo } from "./ApplicableTo.model.js";
-import { ArchitecturalLayer, type ArchitecturalLayer as ArchitecturalLayerValue } from "./ArchitecturalLayer.model.js";
+import { ArchitecturalLayer } from "./ArchitecturalLayer.model.js";
 import { ASTSignal } from "./ASTSignal.model.js";
 import { DependencyProfile } from "./DependencyProfile.model.js";
+import type { ApplicableTo } from "./ApplicableTo.model.js";
+import type { ArchitecturalLayer as ArchitecturalLayerValue } from "./ArchitecturalLayer.model.js";
 
 const $I = $RepoUtilsId.create("JSDoc/models/TSCategory.model");
 

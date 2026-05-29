@@ -13,10 +13,10 @@ import * as P from "effect/Predicate";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
-import type { Get, Paths, Simplify } from "type-fest";
 import * as A from "./Array.ts";
-import type { PathLookup as InternalPathLookup, PathInput } from "./internal/StructPath.ts";
 import { lookupAtPath, unsafeDotGet } from "./internal/StructPath.ts";
+import type { Get, Paths, Simplify } from "type-fest";
+import type { PathLookup as InternalPathLookup, PathInput } from "./internal/StructPath.ts";
 
 const $I = $UtilsId.create("Struct");
 

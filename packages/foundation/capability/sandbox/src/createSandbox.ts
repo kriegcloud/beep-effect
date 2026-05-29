@@ -6,18 +6,14 @@
  */
 
 import { $SandboxId } from "@beep/identity";
-import { Effect, type FileSystem, type Path } from "effect";
+import { Effect } from "effect";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
 import { MergeProviderEnvOptions, mergeProviderEnv, resolveEnv } from "./Env.ts";
+import { BindMountCreateOptions, IsolatedCreateOptions } from "./Sandbox.provider.ts";
+import type { FileSystem, Path } from "effect";
 import type { SandboxError } from "./Sandbox.errors.ts";
-import {
-  BindMountCreateOptions,
-  IsolatedCreateOptions,
-  type MountEntry,
-  type SandboxHandle,
-  type SandboxProvider,
-} from "./Sandbox.provider.ts";
+import type { MountEntry, SandboxHandle, SandboxProvider } from "./Sandbox.provider.ts";
 
 const $I = $SandboxId.create("createSandbox");
 

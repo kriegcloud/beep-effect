@@ -11,6 +11,18 @@ import { A } from "@beep/utils";
 import { Effect, pipe } from "effect";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
+import {
+  WORK_ITEM_ACTION_UNAVAILABLE_REASON,
+  WorkItemActionFailed,
+  WorkItemActionRejected,
+  WorkItemConflict,
+  WorkItemNotFound,
+} from "./WorkItem.errors.js";
+import {
+  WorkItemRepositoryConflict,
+  WorkItemRepositoryNotFound,
+  WorkItemRepositoryUnavailable,
+} from "./WorkItem.repository.js";
 import type {
   ArchiveWorkItemCommand,
   AssignWorkItemCommand,
@@ -20,21 +32,8 @@ import type {
   ListWorkItemsQuery,
   ReopenWorkItemCommand,
 } from "./WorkItem.commands.js";
-import {
-  WORK_ITEM_ACTION_UNAVAILABLE_REASON,
-  type WorkItemActionError,
-  WorkItemActionFailed,
-  WorkItemActionRejected,
-  WorkItemConflict,
-  WorkItemNotFound,
-} from "./WorkItem.errors.js";
-import {
-  WorkItemRepositoryConflict,
-  type WorkItemRepositoryError,
-  WorkItemRepositoryNotFound,
-  type WorkItemRepositoryShape,
-  WorkItemRepositoryUnavailable,
-} from "./WorkItem.repository.js";
+import type { WorkItemActionError } from "./WorkItem.errors.js";
+import type { WorkItemRepositoryError, WorkItemRepositoryShape } from "./WorkItem.repository.js";
 import type { WorkItemUseCasesShape } from "./WorkItem.use-cases.js";
 
 const isRepositoryNotFound = S.is(WorkItemRepositoryNotFound);

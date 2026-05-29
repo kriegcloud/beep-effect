@@ -5,10 +5,10 @@
  * @since 0.0.0
  */
 
-import type { ExtractFramesResult, FFmpegEvent } from "@beep/ffmpeg";
 import { Str } from "@beep/utils";
 import { Match, pipe } from "effect";
 import { dual } from "effect/Function";
+import type { ExtractFramesResult, FFmpegEvent } from "@beep/ffmpeg";
 import type {
   ExtractFramesDirFailure,
   ExtractFramesDirOutcome,

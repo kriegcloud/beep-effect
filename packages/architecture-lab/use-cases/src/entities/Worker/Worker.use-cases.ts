@@ -6,9 +6,10 @@
  * @since 0.0.0
  */
 
-import type * as DomainWorker from "@beep/architecture-lab-domain/entities/Worker";
 import { $ArchitectureLabUseCasesId } from "@beep/identity/packages";
-import { Context, type Effect } from "effect";
+import { Context } from "effect";
+import type * as DomainWorker from "@beep/architecture-lab-domain/entities/Worker";
+import type { Effect } from "effect";
 import type { CreateWorkerCommand, GetWorkerQuery, ListWorkersQuery } from "./Worker.commands.js";
 import type { WorkerActionError } from "./Worker.errors.js";
 

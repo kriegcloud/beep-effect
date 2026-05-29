@@ -1,8 +1,9 @@
-import { type DomainError, type FsUtils, FsUtilsLive, type FsUtilsShape, type NoSuchFileError } from "@beep/repo-utils";
+import { FsUtilsLive } from "@beep/repo-utils";
+import { describe, expect, it } from "tstyche";
+import type { DomainError, FsUtils, FsUtilsShape, NoSuchFileError } from "@beep/repo-utils";
 import type { Effect, FileSystem, Layer, Path } from "effect";
 import type * as O from "effect/Option";
 import type * as S from "effect/Schema";
-import { describe, expect, it } from "tstyche";
 
 describe("FsUtils", () => {
   describe("FsUtilsShape", () => {

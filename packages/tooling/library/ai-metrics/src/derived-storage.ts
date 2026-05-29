@@ -5,7 +5,7 @@
  * @since 0.0.0
  */
 
-import { DuckDb, type DuckDbClient, type DuckDbError, DuckDbParquetExport } from "@beep/duckdb";
+import { DuckDb, DuckDbParquetExport } from "@beep/duckdb";
 import { $RepoAiMetricsId } from "@beep/identity/packages";
 import { TaggedErrorClass } from "@beep/schema";
 import { A, Str } from "@beep/utils";
@@ -15,6 +15,7 @@ import { AiMetricsRawArchiveObject } from "./archive.ts";
 import { AiMetricsStorageLayout } from "./install.ts";
 import { AiMetricsDeployTarget, ConfigSnapshot } from "./models.ts";
 import { AiMetricsPrivacyCheckResult, hashPublicTextSha256 } from "./privacy.ts";
+import type { DuckDbClient, DuckDbError } from "@beep/duckdb";
 
 const $I = $RepoAiMetricsId.create("derived-storage");
 

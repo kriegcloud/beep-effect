@@ -1,12 +1,7 @@
-import {
-  type DomainError,
-  type FsUtils,
-  getWorkspaceDir,
-  type NoSuchFileError,
-  resolveWorkspaceDirs,
-} from "@beep/repo-utils";
-import type { Effect, HashMap, Option } from "effect";
+import { getWorkspaceDir, resolveWorkspaceDirs } from "@beep/repo-utils";
 import { describe, expect, it } from "tstyche";
+import type { DomainError, FsUtils, NoSuchFileError } from "@beep/repo-utils";
+import type { Effect, HashMap, Option } from "effect";
 
 describe("Workspaces", () => {
   it("resolveWorkspaceDirs returns HashMap<string, string>", () => {

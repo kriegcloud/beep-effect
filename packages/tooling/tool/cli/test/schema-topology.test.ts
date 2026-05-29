@@ -1,16 +1,15 @@
 import { collectSchemaTopologyViolations } from "@beep/repo-cli/commands/Lint";
 import { NodeServices } from "@effect/platform-node";
+import { layer } from "@effect/vitest";
 import { Effect } from "effect";
-import { describe, expect, it } from "vitest";
+import { expect } from "vitest";
 
-describe("schema topology lint", () => {
-  it("keeps @beep/schema on the canonical topology", () =>
-    Effect.runPromise(
-      collectSchemaTopologyViolations().pipe(
-        Effect.provide(NodeServices.layer),
-        Effect.map((violations) => {
-          expect(violations).toEqual([]);
-        })
-      )
-    ));
+layer(NodeServices.layer)("schema topology lint", (it) => {
+  it.effect(
+    "keeps @beep/schema on the canonical topology",
+    Effect.fn("SchemaTopologyTest.keepsCanonicalTopology")(function* () {
+      const violations = yield* collectSchemaTopologyViolations();
+      expect(violations).toEqual([]);
+    })
+  );
 });

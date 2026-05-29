@@ -8,7 +8,6 @@
 
 import { ArchitectureLabConfigLive } from "@beep/architecture-lab-config/layer";
 import { Layer } from "effect";
-
 import { WorkItemServerLayer } from "./aggregates/WorkItem/index.ts";
 import { WorkerServerLayer } from "./entities/Worker/index.ts";
 

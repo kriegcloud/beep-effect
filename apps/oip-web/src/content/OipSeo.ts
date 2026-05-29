@@ -5,8 +5,19 @@
  * @since 0.0.0
  */
 
-import { A } from "@beep/utils";
+import { A, Str } from "@beep/utils";
+import { pipe } from "effect";
+import * as O from "effect/Option";
 import type { OipSiteContent } from "./OipContent.model.ts";
+
+// Discord links are server invites rather than identity profiles, so they are
+// excluded from `sameAs` while still rendering as a footer link.
+const profileUrls = (content: OipSiteContent): ReadonlyArray<string> =>
+  pipe(
+    content.socials,
+    A.filter((social) => social.platform !== "discord"),
+    A.map((social) => social.href)
+  );
 
 /**
  * Builds conservative JSON-LD graph data for the OIP website.
@@ -47,6 +58,7 @@ export const makeJsonLdGraph = (content: OipSiteContent) => ({
       description: content.metadata.description,
       founder: { "@id": `${content.metadata.siteUrl}/#person` },
       name: content.metadata.siteName,
+      ...(A.matchToBoolean(profileUrls(content)) ? { sameAs: profileUrls(content) } : {}),
       serviceType: A.map(content.practices, (practice) => practice.title),
       url: content.metadata.siteUrl,
     },
@@ -61,6 +73,30 @@ export const makeJsonLdGraph = (content: OipSiteContent) => ({
     },
   ],
 });
+
+/**
+ * Derives the firm's X/Twitter handle (e.g. `@opiplaw`) from the social links,
+ * for use in Next.js `twitter` metadata. Returns `undefined` when no X profile
+ * is present.
+ *
+ * @example
+ * ```ts
+ * import { oipSiteContent, oipTwitterHandle } from "@beep/oip-web/content"
+ *
+ * console.log(oipTwitterHandle(oipSiteContent))
+ * ```
+ *
+ * @category utilities
+ * @since 0.0.0
+ */
+export const oipTwitterHandle = (content: OipSiteContent): string | undefined =>
+  pipe(
+    A.findFirst(content.socials, (social) => social.platform === "x"),
+    O.map((social) => Str.replaceAll("/", "")(new URL(social.href).pathname)),
+    O.filter(Str.isNonEmpty),
+    O.map((handle) => `@${handle}`),
+    O.getOrUndefined
+  );
 
 /**
  * Builds `llms.txt` content from reviewed OIP site content.

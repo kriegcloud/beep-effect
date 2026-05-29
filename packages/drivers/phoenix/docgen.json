@@ -387,11 +387,7 @@
       ],
       "@beep/schema/internal/yaml": [
         "../../../packages/foundation/modeling/schema/src/internal/yaml.ts"
-      ],
-      "@beep/utils": [
-        "../../../packages/foundation/modeling/utils/src/index.ts"
-      ],
-      "@beep/utils/*": ["../../../packages/foundation/modeling/utils/src/*.ts"]
+      ]
     }
   }
 }

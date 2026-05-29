@@ -65,7 +65,7 @@
     "@beep/utils": "workspace:^",
     "@biomejs/biome": "catalog:",
     "@effect/platform-node": "catalog:",
-    "@microsoft/tsdoc": "catalog:",
+    "@standard-schema/spec": "catalog:",
     "effect": "catalog:",
     "ts-morph": "catalog:"
   },

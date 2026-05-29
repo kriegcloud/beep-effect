@@ -8,18 +8,22 @@
 import { $ObservabilityId } from "@beep/identity/packages";
 import { DurationInput, LiteralKit } from "@beep/schema";
 import * as NodeSdk from "@effect/opentelemetry/NodeSdk";
-import type * as OtelResource from "@effect/opentelemetry/Resource";
 import { OTLPLogExporter } from "@opentelemetry/exporter-logs-otlp-proto";
 import { OTLPMetricExporter } from "@opentelemetry/exporter-metrics-otlp-proto";
 import { OTLPTraceExporter } from "@opentelemetry/exporter-trace-otlp-proto";
-import { BatchLogRecordProcessor, type LogRecordProcessor } from "@opentelemetry/sdk-logs";
-import { type MetricReader, PeriodicExportingMetricReader } from "@opentelemetry/sdk-metrics";
-import { BatchSpanProcessor, type SpanProcessor } from "@opentelemetry/sdk-trace-base";
-import { Duration, type Layer } from "effect";
+import { BatchLogRecordProcessor } from "@opentelemetry/sdk-logs";
+import { PeriodicExportingMetricReader } from "@opentelemetry/sdk-metrics";
+import { BatchSpanProcessor } from "@opentelemetry/sdk-trace-base";
+import { Duration } from "effect";
 import { dual } from "effect/Function";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
 import { ServerObservabilityConfig, toOtlpResource } from "./Config.ts";
+import type * as OtelResource from "@effect/opentelemetry/Resource";
+import type { LogRecordProcessor } from "@opentelemetry/sdk-logs";
+import type { MetricReader } from "@opentelemetry/sdk-metrics";
+import type { SpanProcessor } from "@opentelemetry/sdk-trace-base";
+import type { Layer } from "effect";
 
 const $I = $ObservabilityId.create("server/NodeSdk");
 const isOTelLogRecordProcessor = (value: unknown): value is LogRecordProcessor => P.isUnknown(value);

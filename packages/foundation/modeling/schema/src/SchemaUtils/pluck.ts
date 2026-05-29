@@ -8,10 +8,11 @@
  * @packageDocumentation
  * @since 0.0.0
  */
-import type { TUnsafe } from "@beep/types";
+
 import { Struct } from "@beep/utils";
 import { SchemaGetter } from "effect";
 import * as S from "effect/Schema";
+import type { TUnsafe } from "@beep/types";
 
 /**
  * Project a struct schema down to one field and expose that field as the

@@ -62,6 +62,20 @@ export * from "./processes/ProfessionalRuntime/ProfessionalRuntime.errors.js";
  */
 export * from "./processes/ProfessionalRuntime/ProfessionalRuntime.queries.js";
 /**
+ * Client-safe runtime literal vocabularies.
+ *
+ * @example
+ * ```ts
+ * import { RuntimeCandidateLifecycle } from "@beep/agent-capability-use-cases/public"
+ *
+ * console.log(RuntimeCandidateLifecycle)
+ * ```
+ *
+ * @category value-objects
+ * @since 0.0.0
+ */
+export * from "./processes/ProfessionalRuntime/ProfessionalRuntime.values.js";
+/**
  * Client-safe SDK facade interface.
  *
  * @example
@@ -76,17 +90,3 @@ export * from "./processes/ProfessionalRuntime/ProfessionalRuntime.queries.js";
  * @since 0.0.0
  */
 export type { ProfessionalRuntimeSdk } from "./processes/ProfessionalRuntime/ProfessionalRuntime.service.js";
-/**
- * Client-safe runtime literal vocabularies.
- *
- * @example
- * ```ts
- * import { RuntimeCandidateLifecycle } from "@beep/agent-capability-use-cases/public"
- *
- * console.log(RuntimeCandidateLifecycle)
- * ```
- *
- * @category value-objects
- * @since 0.0.0
- */
-export * from "./processes/ProfessionalRuntime/ProfessionalRuntime.values.js";

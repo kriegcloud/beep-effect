@@ -1,16 +1,16 @@
-import type * as WealthManagement from "@beep/shared-domain/identity/WealthManagement";
-import {
-  Account,
-  type AccountType,
-  type AccountType as AccountTypeType,
-  type HouseholdStatus,
-  type HouseholdStatus as HouseholdStatusType,
-  type PartyType,
-  type PartyType as PartyTypeType,
-  type WealthClientStatus,
-  type WealthClientStatus as WealthClientStatusType,
-} from "@beep/wealth-management-domain";
+import { Account } from "@beep/wealth-management-domain";
 import { describe, expect, it } from "tstyche";
+import type * as WealthManagement from "@beep/shared-domain/identity/WealthManagement";
+import type {
+  AccountType,
+  AccountType as AccountTypeType,
+  HouseholdStatus,
+  HouseholdStatus as HouseholdStatusType,
+  PartyType,
+  PartyType as PartyTypeType,
+  WealthClientStatus,
+  WealthClientStatus as WealthClientStatusType,
+} from "@beep/wealth-management-domain";
 
 declare const account: Account;
 

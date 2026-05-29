@@ -20,7 +20,6 @@
  * @since 0.0.0
  */
 export * from "./VeniceAI.service.ts";
-
 /**
  * Effect AI language-model adapter exports for Venice chat completions.
  *

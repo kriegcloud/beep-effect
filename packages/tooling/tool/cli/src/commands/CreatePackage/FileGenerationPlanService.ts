@@ -41,15 +41,12 @@ const RelativePlanPathChecks = S.makeFilterGroup(
       description: "Create-package plan paths must not be empty.",
       message: "Create-package plan paths must not be empty.",
     }),
-    S.makeFilter(
-      (value: string) => !Str.startsWith("/")(value),
-      {
-        identifier: $I`RelativePlanPathNotAbsoluteCheck`,
-        title: "Relative plan path not absolute",
-        description: "Create-package plan paths must stay relative to the output directory.",
-        message: "Create-package plan paths must stay relative to the output directory.",
-      }
-    ),
+    S.makeFilter((value: string) => !Str.startsWith("/")(value), {
+      identifier: $I`RelativePlanPathNotAbsoluteCheck`,
+      title: "Relative plan path not absolute",
+      description: "Create-package plan paths must stay relative to the output directory.",
+      message: "Create-package plan paths must stay relative to the output directory.",
+    }),
     S.makeFilter(isSafeRelativePlanPath, {
       identifier: $I`RelativePlanPathTraversalCheck`,
       title: "Relative plan path traversal-safe",

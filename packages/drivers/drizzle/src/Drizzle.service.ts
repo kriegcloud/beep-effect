@@ -6,8 +6,9 @@
  */
 
 import { $DrizzleId } from "@beep/identity";
-import { Context, type Effect, Layer } from "effect";
+import { Context, Layer } from "effect";
 import * as S from "effect/Schema";
+import type { Effect } from "effect";
 import type { DrizzleError } from "./Drizzle.errors.ts";
 
 const $I = $DrizzleId.create("Drizzle.service");

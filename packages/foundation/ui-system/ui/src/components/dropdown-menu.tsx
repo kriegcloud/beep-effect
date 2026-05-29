@@ -2,9 +2,9 @@
 
 import { Menu as MenuPrimitive } from "@base-ui/react/menu";
 import { CaretRight, CheckIcon } from "@phosphor-icons/react";
-import type * as React from "react";
 import { cn } from "../lib/index.ts";
 import { Kbd } from "./kbd";
+import type * as React from "react";
 
 /**
  * @category components

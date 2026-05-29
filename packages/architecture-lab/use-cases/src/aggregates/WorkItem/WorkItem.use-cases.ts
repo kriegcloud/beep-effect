@@ -6,9 +6,10 @@
  * @since 0.0.0
  */
 
-import type * as DomainWorkItem from "@beep/architecture-lab-domain/aggregates/WorkItem";
 import { $ArchitectureLabUseCasesId } from "@beep/identity/packages";
-import { Context, type Effect } from "effect";
+import { Context } from "effect";
+import type * as DomainWorkItem from "@beep/architecture-lab-domain/aggregates/WorkItem";
+import type { Effect } from "effect";
 import type {
   ArchiveWorkItemCommand,
   AssignWorkItemCommand,

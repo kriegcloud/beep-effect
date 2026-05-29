@@ -31,12 +31,10 @@ import {
   TSMorphService,
   TsMorphFileOutlineRequest,
   TsMorphProjectScopeRequest,
-  type Symbol as TsMorphSymbol,
   TsMorphSymbolLookupRequest,
 } from "../TSMorph/index.js";
 import {
   ReuseCandidate,
-  type ReuseCandidateKind,
   ReuseCatalogEntry,
   ReuseFindResult,
   ReuseInventory,
@@ -45,6 +43,8 @@ import {
   ReuseSourceSymbolRef,
   ReuseWorkUnit,
 } from "./Reuse.model.js";
+import type { Symbol as TsMorphSymbol } from "../TSMorph/index.js";
+import type { ReuseCandidateKind } from "./Reuse.model.js";
 
 const $I = $RepoUtilsId.create("Reuse/Reuse.service");
 

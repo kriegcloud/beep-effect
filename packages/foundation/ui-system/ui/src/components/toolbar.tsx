@@ -7,11 +7,12 @@ import { DropdownMenuLabel, DropdownMenuRadioGroup, DropdownMenuSeparator } from
 import { Separator } from "@beep/ui/components/separator";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@beep/ui/components/tooltip";
 import { CaretDownIcon } from "@phosphor-icons/react";
-import { cva, type VariantProps } from "class-variance-authority";
+import { cva } from "class-variance-authority";
 import * as P from "effect/Predicate";
-import type { ComponentProps, ElementType, ReactNode } from "react";
 import { useEffect, useState } from "react";
 import { cn } from "../lib/index.ts";
+import type { VariantProps } from "class-variance-authority";
+import type { ComponentProps, ElementType, ReactNode } from "react";
 
 /**
  * @category components

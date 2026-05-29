@@ -18,6 +18,7 @@ import * as R from "effect/Record";
 import * as S from "effect/Schema";
 import { Command, Flag } from "effect/unstable/cli";
 import * as jsonc from "jsonc-parser";
+import { failWithReportedExit } from "../../internal/cli/ExitCodeError.js";
 import { jsonFlag } from "../../internal/cli/Flags.js";
 import { printLines } from "../../internal/cli/Printer.js";
 import { runDocgenLocal } from "./internal/Local.js";
@@ -26,8 +27,6 @@ import {
   analyzePackageDocumentation,
   assertNoOrphanDocgenConfigPaths,
   createDocgenConfigDocument,
-  type DocgenAggregateResult,
-  type DocgenGenerationResult,
   discoverDocgenWorkspacePackages,
   generateAnalysisJson,
   generateAnalysisReport,
@@ -58,6 +57,7 @@ import {
   requiredQualityWorkerRunpodEvalModel,
   runDocgenQualityWorkerRunpodEval,
 } from "./internal/QualityWorkerRunpodEval.js";
+import type { DocgenAggregateResult, DocgenGenerationResult } from "./internal/Operations.js";
 
 const packageFlag = Flag.string("package").pipe(
   Flag.withAlias("p"),
@@ -223,8 +223,8 @@ const defaultQualityPath = (packagePath: string, json: boolean, path: Path.Path)
   path.join(packagePath, json ? "JSDOC_QUALITY.json" : "JSDOC_QUALITY.md");
 
 const reportDocgenCommandError = Effect.fn(function* (error: { readonly message: string }) {
-  process.exitCode = 1;
   yield* Console.error(`docgen: ${error.message}`);
+  return yield* failWithReportedExit(`docgen: ${error.message}`);
 });
 
 const logGenerationResults = Effect.fn(function* (results: ReadonlyArray<DocgenGenerationResult>) {
@@ -243,9 +243,7 @@ const logGenerationResults = Effect.fn(function* (results: ReadonlyArray<DocgenG
     }
   }
 
-  if (failures.length > 0) {
-    process.exitCode = 1;
-  }
+  return failures.length;
 });
 
 const logAggregateResults = Effect.fn(function* (results: ReadonlyArray<DocgenAggregateResult>) {
@@ -272,9 +270,7 @@ const resolveGenerateTargets = Effect.fn("Docgen.resolveGenerateTargets")(functi
     return [target] as const;
   }
 
-  return yield* discoverDocgenWorkspacePackages().pipe(
-    Effect.map((packages) => A.filter(packages, (pkg) => pkg.hasDocgenConfig))
-  );
+  return yield* discoverDocgenWorkspacePackages().pipe(Effect.map(A.filter((pkg) => pkg.hasDocgenConfig)));
 });
 
 const resolveAnalyzeTargets = Effect.fn("Docgen.resolveAnalyzeTargets")(function* (selector: O.Option<string>) {
@@ -284,9 +280,7 @@ const resolveAnalyzeTargets = Effect.fn("Docgen.resolveAnalyzeTargets")(function
     return [yield* resolveDocgenWorkspacePackage(selector.value)] as const;
   }
 
-  return yield* discoverDocgenWorkspacePackages().pipe(
-    Effect.map((packages) => A.filter(packages, (pkg) => pkg.hasDocgenConfig))
-  );
+  return yield* discoverDocgenWorkspacePackages().pipe(Effect.map(A.filter((pkg) => pkg.hasDocgenConfig)));
 });
 
 const resolvePackageSelector = Effect.fn("Docgen.resolvePackageSelector")(function* (
@@ -369,19 +363,17 @@ const docgenInitCommand = Command.make(
       const configPath = path.join(target.absolutePath, "docgen.json");
 
       if (target.hasDocgenConfig && !force) {
-        process.exitCode = 1;
         yield* Console.error(
           `docgen: ${target.relativePath} already has docgen.json. Re-run with --force to overwrite.`
         );
-        return;
+        return yield* failWithReportedExit(`docgen: ${target.relativePath} already has docgen.json.`);
       }
 
       const config = yield* createDocgenConfigDocument(target, repoRoot);
       const content = yield* renderBiomeJson(configPath, config);
 
       if (dryRun) {
-        yield* Console.log(`--- ${configPath} ---`);
-        yield* Console.log(content);
+        yield* printLines([`--- ${configPath} ---`, content]);
         return;
       }
 
@@ -423,29 +415,35 @@ const docgenStatusCommand = Command.make(
         return;
       }
 
-      yield* Console.log("Docgen status:");
-      yield* Console.log(`- configured and generated: ${configuredAndGenerated.length}`);
-      yield* Console.log(`- configured, not generated: ${configuredNotGenerated.length}`);
-      yield* Console.log(`- not configured: ${notConfigured.length}`);
+      yield* printLines([
+        "Docgen status:",
+        `- configured and generated: ${configuredAndGenerated.length}`,
+        `- configured, not generated: ${configuredNotGenerated.length}`,
+        `- not configured: ${notConfigured.length}`,
+      ]);
 
       if (!verbose) {
         return;
       }
 
       for (const pkg of packages) {
-        yield* Console.log(``);
-        yield* Console.log(`${pkg.name}`);
-        yield* Console.log(`  path: ${pkg.relativePath}`);
-        yield* Console.log(`  status: ${pkg.status}`);
-        yield* Console.log(`  docs: docs/${pkg.docsOutputPath}`);
+        yield* printLines([
+          ``,
+          `${pkg.name}`,
+          `  path: ${pkg.relativePath}`,
+          `  status: ${pkg.status}`,
+          `  docs: docs/${pkg.docsOutputPath}`,
+        ]);
 
         if (pkg.hasDocgenConfig) {
           const config = yield* loadDocgenConfigDocument(pkg.absolutePath).pipe(Effect.option);
 
           if (O.isSome(config)) {
-            yield* Console.log(`  srcDir: ${config.value.srcDir ?? "src"}`);
-            yield* Console.log(`  outDir: ${config.value.outDir ?? "docs"}`);
-            yield* Console.log(`  exclude: ${A.join(config.value.exclude ?? [], ", ") || "none"}`);
+            yield* printLines([
+              `  srcDir: ${config.value.srcDir ?? "src"}`,
+              `  outDir: ${config.value.outDir ?? "docs"}`,
+              `  exclude: ${A.join(config.value.exclude ?? [], ", ") || "none"}`,
+            ]);
           }
         }
       }
@@ -484,12 +482,15 @@ const docgenGenerateCommand = Command.make(
       if (json) {
         yield* Console.log(yield* renderJson(results));
         if (A.some(results, (result) => !result.success)) {
-          process.exitCode = 1;
+          return yield* failWithReportedExit("docgen: generation failed for one or more package(s).");
         }
         return;
       }
 
-      yield* logGenerationResults(results);
+      const failures = yield* logGenerationResults(results);
+      if (failures > 0) {
+        return yield* failWithReportedExit("docgen: generation failed for one or more package(s).");
+      }
     },
     Effect.catchTags({
       DomainError: reportDocgenCommandError,
@@ -526,16 +527,20 @@ const docgenRunCommand = Command.make(
         concurrency: Math.max(1, parallel),
       });
 
-      yield* logGenerationResults(generationResults);
+      const generationFailures = yield* logGenerationResults(generationResults);
 
       if (A.some(generationResults, (result) => !result.success)) {
         yield* Console.log("docgen: skipping aggregation because generation failed for one or more package(s)");
-        return;
+        return yield* failWithReportedExit(
+          `docgen: generation failed for ${generationFailures} package(s); aggregation was skipped.`
+        );
       }
 
       const aggregateResults = yield* aggregateGeneratedDocs({
         clean,
-        ...R.getSomes({ package: selector }),
+        ...R.getSomes({
+          package: selector,
+        }),
       });
       yield* logAggregateResults(aggregateResults);
     },
@@ -623,9 +628,8 @@ const docgenAnalyzeCommand = Command.make(
       }
 
       if (O.isSome(output) && O.isNone(selector)) {
-        process.exitCode = 1;
         yield* Console.error("docgen: --output requires --package so the destination is unambiguous.");
-        return;
+        return yield* failWithReportedExit("docgen: --output requires --package.");
       }
 
       const analyses = yield* Effect.forEach(targets, analyzePackageDocumentation, {
@@ -713,7 +717,7 @@ const docgenCheckCommand = Command.make(
           })
         );
         if (failures.length > 0) {
-          process.exitCode = 1;
+          return yield* failWithReportedExit("docgen: check found missing documentation.");
         }
         return;
       }
@@ -748,7 +752,7 @@ const docgenCheckCommand = Command.make(
       }
 
       if (failures.length > 0) {
-        process.exitCode = 1;
+        return yield* failWithReportedExit("docgen: check found missing documentation.");
       }
     },
     Effect.catchTags({
@@ -885,12 +889,17 @@ const docgenQualityWorkerEvalCommand = Command.make(
         });
       }
 
-      const source = yield* resolveQualityWorkerEvalSource({ all, input, packageSelector, packetLimit });
+      const source = yield* resolveQualityWorkerEvalSource({
+        all,
+        input,
+        packageSelector,
+        packetLimit,
+      });
       const baseUrlOptions = pipe(
         baseUrl,
-        O.filter((value) => Str.isNonEmpty(Str.trim(value))),
+        O.filter(flow(Str.trim, Str.isNonEmpty)),
         O.map((value) => ({ baseUrl: Str.trim(value) })),
-        O.getOrElse(() => ({}))
+        O.getOrElse(R.empty)
       );
 
       const report = yield* analyzeDocgenQualityWorkerEval({
@@ -969,49 +978,49 @@ const docgenQualityWorkerRunpodEvalCommand = Command.make(
       const sourceCount = (O.isSome(input) ? 1 : 0) + (O.isSome(packageSelector) ? 1 : 0) + (all ? 1 : 0);
 
       if (sourceCount !== 1) {
-        return yield* DomainError.make({
-          message: "Choose exactly one docgen quality-worker-eval-runpod source: --input, --package, or --all.",
-        });
+        return yield* DomainError.newMessage(
+          "Choose exactly one docgen quality-worker-eval-runpod source: --input, --package, or --all."
+        );
       }
 
       if (packetLimit < 0) {
-        return yield* DomainError.make({
-          message: "--packet-limit must be zero or greater; use 0 to suppress worker packet turns.",
-        });
+        return yield* DomainError.newMessage(
+          "--packet-limit must be zero or greater; use 0 to suppress worker packet turns."
+        );
       }
 
       if (readinessTimeoutMs <= 0) {
-        return yield* DomainError.make({
-          message: "--readiness-timeout-ms must be greater than zero.",
-        });
+        return yield* DomainError.newMessage("--readiness-timeout-ms must be greater than zero.");
       }
 
       if (skipTemplateSearch && allowPublicTemplateSearch) {
-        return yield* DomainError.make({
-          message: "Choose at most one template-search mode: --skip-template-search or --allow-public-template-search.",
-        });
+        return yield* DomainError.newMessage(
+          "Choose at most one template-search mode: --skip-template-search or --allow-public-template-search."
+        );
       }
 
       if (provider !== "ollama") {
-        return yield* DomainError.make({
-          message: "docgen quality-worker-eval-runpod v1 only supports --provider ollama.",
-        });
+        return yield* DomainError.newMessage("docgen quality-worker-eval-runpod v1 only supports --provider ollama.");
       }
 
       if (model !== requiredQualityWorkerRunpodEvalModel()) {
-        return yield* DomainError.make({
-          message: `docgen quality-worker-eval-runpod v1 requires --model ${requiredQualityWorkerRunpodEvalModel()}.`,
-        });
+        return yield* DomainError.newMessage(
+          `docgen quality-worker-eval-runpod v1 requires --model ${requiredQualityWorkerRunpodEvalModel()}.`
+        );
       }
 
       if (!confirmRunpodEval) {
-        return yield* DomainError.make({
-          message:
-            "docgen quality-worker-eval-runpod creates a billable remote GPU pod; pass --confirm-runpod-eval to continue.",
-        });
+        return yield* DomainError.newMessage(
+          "docgen quality-worker-eval-runpod creates a billable remote GPU pod; pass --confirm-runpod-eval to continue."
+        );
       }
 
-      const source = yield* resolveQualityWorkerEvalSource({ all, input, packageSelector, packetLimit });
+      const source = yield* resolveQualityWorkerEvalSource({
+        all,
+        input,
+        packageSelector,
+        packetLimit,
+      });
       const resolvedGpuTypeIds = pipe(
         gpuTypeIds,
         O.map(splitCommaSeparatedFlag),

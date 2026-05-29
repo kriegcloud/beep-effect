@@ -3,9 +3,9 @@ import * as SchemaUtils from "@beep/schema/SchemaUtils/index";
 import { pluck } from "@beep/schema/SchemaUtils/pluck";
 import { split } from "@beep/schema/SchemaUtils/split";
 import { toEquivalence } from "@beep/schema/SchemaUtils/toEquivalence";
-import type { Effect } from "effect";
 import * as S from "effect/Schema";
 import { describe, expect, it } from "tstyche";
+import type { Effect } from "effect";
 
 describe("pluck", () => {
   const RecordSchema = S.Struct({

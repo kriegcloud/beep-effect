@@ -18,11 +18,13 @@ import {
   GitSetupTimeoutError,
   HookTimeoutError,
   MergeToHostTimeoutError,
-  type SandboxError,
   SyncError,
 } from "./Sandbox.errors.ts";
-import { ProcessCommand, type ProcessResult, SandboxProcess, type SandboxProcessShape } from "./Sandbox.process.ts";
-import { type ExecResult, SandboxExecOptions, type SandboxHandle } from "./Sandbox.provider.ts";
+import { ProcessCommand, SandboxProcess } from "./Sandbox.process.ts";
+import { SandboxExecOptions } from "./Sandbox.provider.ts";
+import type { SandboxError } from "./Sandbox.errors.ts";
+import type { ProcessResult, SandboxProcessShape } from "./Sandbox.process.ts";
+import type { ExecResult, SandboxHandle } from "./Sandbox.provider.ts";
 
 const $I = $SandboxId.create("Lifecycle");
 const DEFAULT_GIT_SETUP_TIMEOUT = Duration.millis(10_000);

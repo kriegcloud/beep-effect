@@ -1,10 +1,10 @@
 import { $SchemaId } from "@beep/identity";
 import * as EntitySchema from "@beep/schema/EntitySchema";
 import * as Model from "@beep/schema/Model";
-import type * as O from "effect/Option";
 import * as S from "effect/Schema";
 import { Model as UpstreamModel } from "effect/unstable/schema";
 import { describe, expect, it } from "tstyche";
+import type * as O from "effect/Option";
 
 const $I = $SchemaId.create("EntitySchema.dtslint");
 

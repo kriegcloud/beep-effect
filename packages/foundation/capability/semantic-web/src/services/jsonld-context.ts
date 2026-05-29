@@ -8,11 +8,12 @@
 
 import { $SemanticWebId } from "@beep/identity/packages";
 import { LiteralKit, TaggedErrorClass } from "@beep/schema";
-import { Context, type Effect } from "effect";
+import { Context } from "effect";
 import * as S from "effect/Schema";
 import { IRIReference } from "../iri.ts";
 import { JsonLdContext } from "../jsonld.ts";
 import { makeSemanticSchemaMetadata } from "../semantic-schema-metadata.ts";
+import type { Effect } from "effect";
 
 const $I = $SemanticWebId.create("services/jsonld-context");
 

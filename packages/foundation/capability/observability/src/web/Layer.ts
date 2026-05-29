@@ -5,8 +5,9 @@
  * @since 0.0.0
  */
 import * as WebSdk from "@effect/opentelemetry/WebSdk";
+import { toWebResource } from "./Config.ts";
 import type * as Layer from "effect/Layer";
-import { toWebResource, type WebObservabilityConfig } from "./Config.ts";
+import type { WebObservabilityConfig } from "./Config.ts";
 
 /**
  * Thin browser-safe wrapper around `@effect/opentelemetry/WebSdk.layer`.

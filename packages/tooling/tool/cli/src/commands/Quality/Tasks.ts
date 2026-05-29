@@ -6,23 +6,24 @@
  */
 
 import { $RepoCliId } from "@beep/identity/packages";
-import { type DomainError, findRepoRoot, type NoSuchFileError } from "@beep/repo-utils";
+import { findRepoRoot } from "@beep/repo-utils";
 import { LiteralKit } from "@beep/schema";
-import { makePgliteTestcontainerResource, type PgliteTestcontainerResource } from "@beep/test-utils";
+import { makePgliteTestcontainerResource } from "@beep/test-utils";
 import { A, Str, thunkFalse } from "@beep/utils";
-import { Console, Effect, FileSystem, flow, Match, Path, pipe, type Scope, Stream } from "effect";
+import { Console, Effect, FileSystem, flow, Match, Path, pipe, Stream } from "effect";
 import { dual } from "effect/Function";
 import * as O from "effect/Option";
+import * as P from "effect/Predicate";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
-import { ChildProcess, type ChildProcessSpawner } from "effect/unstable/process";
+import { ChildProcess } from "effect/unstable/process";
 import { configStringEqualsSync, configStringOption } from "./internal/Config.js";
-import {
-  QualityTaskConfigurationError,
-  QualityTaskFailed,
-  QualityTaskGroupFailed,
-  type UnexpectedQualityTaskFailure,
-} from "./Quality.errors.js";
+import { QualityTaskConfigurationError, QualityTaskFailed, QualityTaskGroupFailed } from "./Quality.errors.js";
+import type { DomainError, NoSuchFileError } from "@beep/repo-utils";
+import type { PgliteTestcontainerResource } from "@beep/test-utils";
+import type { Scope } from "effect";
+import type { ChildProcessSpawner } from "effect/unstable/process";
+import type { UnexpectedQualityTaskFailure } from "./Quality.errors.js";
 
 /**
  * Public quality task error exports.
@@ -881,13 +882,26 @@ const rootLintFixPolicySteps = (repoRoot: string): ReadonlyArray<QualityTaskStep
   repoCliStep(repoRoot, "lint:effect-imports:fix", ["laws", "effect-imports", "--write"]),
 ];
 
+const rootLintPolicySteps = (
+  repoRoot: string,
+  args: ReadonlyArray<string>,
+  fix: boolean
+): ReadonlyArray<QualityTaskStep> => {
+  const shouldRunRepoWide = shouldRunRepoWideSteps(args);
+
+  return pipe(
+    [
+      pipe(shouldRunRepoWide && fix, O.liftPredicate(P.isTruthy), O.as(rootLintFixPolicySteps(repoRoot))),
+      pipe(shouldRunRepoWide, O.liftPredicate(P.isTruthy), O.as(rootRepoLintPolicySteps(repoRoot))),
+    ] satisfies ReadonlyArray<O.Option<ReadonlyArray<QualityTaskStep>>>,
+    O.firstSomeOf,
+    O.getOrElse(A.empty<QualityTaskStep>)
+  );
+};
+
 const rootLintSteps = (repoRoot: string, args: ReadonlyArray<string>, fix: boolean) => [
   fix ? turboStep(repoRoot, "lint:fix", ["lint:fix"], args) : turboStep(repoRoot, "lint", ["lint"], args),
-  ...(shouldRunRepoWideSteps(args)
-    ? fix
-      ? rootLintFixPolicySteps(repoRoot)
-      : rootRepoLintPolicySteps(repoRoot)
-    : A.empty<QualityTaskStep>()),
+  ...rootLintPolicySteps(repoRoot, args, fix),
 ];
 
 const runRootLintTask = Effect.fn("QualityTasks.runRootLintTask")(function* (

@@ -1,12 +1,7 @@
-import {
-  buildRepoDependencyIndex,
-  type DomainError,
-  type FsUtils,
-  type NoSuchFileError,
-  type WorkspaceDeps,
-} from "@beep/repo-utils";
-import type { Effect, HashMap } from "effect";
+import { buildRepoDependencyIndex } from "@beep/repo-utils";
 import { describe, expect, it } from "tstyche";
+import type { DomainError, FsUtils, NoSuchFileError, WorkspaceDeps } from "@beep/repo-utils";
+import type { Effect, HashMap } from "effect";
 
 describe("DependencyIndex", () => {
   it("buildRepoDependencyIndex returns HashMap<string, WorkspaceDeps>", () => {

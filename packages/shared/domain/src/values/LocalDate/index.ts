@@ -19,7 +19,6 @@
  * @category utilities
  */
 export * from "./LocalDate.behavior.ts";
-
 /**
  * LocalDate model schema.
  *

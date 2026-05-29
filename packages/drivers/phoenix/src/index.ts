@@ -35,7 +35,6 @@ export const VERSION = "0.0.0" as const;
  * @since 0.0.0
  */
 export * from "./Phoenix.config.ts";
-
 /**
  * Error exports for the Phoenix driver.
  *
@@ -51,7 +50,6 @@ export * from "./Phoenix.config.ts";
  * @since 0.0.0
  */
 export * from "./Phoenix.errors.ts";
-
 /**
  * Model exports for the Phoenix driver.
  *
@@ -67,7 +65,6 @@ export * from "./Phoenix.errors.ts";
  * @since 0.0.0
  */
 export * from "./Phoenix.models.ts";
-
 /**
  * Service exports for the Phoenix driver.
  *

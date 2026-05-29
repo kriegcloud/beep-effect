@@ -180,7 +180,12 @@ const parseInterfaceDeclaration = Effect.fn("parseInterfaceDeclaration")(functio
   }
 
   const position = yield* parsePosition(id);
-  return [Domain.Interface.new(id.getName(), doc, { signature: id.getText(), position })];
+  return [
+    Domain.Interface.new(id.getName(), doc, {
+      signature: id.getText(),
+      position,
+    }),
+  ];
 });
 
 const parseInterfaceDeclarations = (interfaces: ReadonlyArray<ast.InterfaceDeclaration>) =>
@@ -400,7 +405,11 @@ const parseExportSpecifier = Effect.fn("parseExportSpecifier")(function* (
   const doc = O.isSome(docComment) ? parseDoc(docComment.value.getText()) : parseDoc("");
   const signature = `declare const ${name}: ${parseType(es)}`;
   const position = yield* parsePosition(es);
-  return Domain.Export.new(name, doc, { signature, position, isNamespaceExport: false });
+  return Domain.Export.new(name, doc, {
+    signature,
+    position,
+    isNamespaceExport: false,
+  });
 });
 
 const parseExportStar = Effect.fn("parseExportStar")(function* (ed: ast.ExportDeclaration) {
@@ -457,11 +466,24 @@ const parseModuleDeclaration = Effect.fn("parseModuleDeclaration")(function* (
     return [];
   }
 
-  const interfaces = yield* parseInterfaceDeclarations(md.getInterfaces());
-  const typeAliases = yield* parseTypeAliasDeclarations(md.getTypeAliases());
-  const namespaces = yield* parseModuleDeclarations(md.getModules());
-  const position = yield* parsePosition(md);
-  return [Domain.Namespace.new(md.getName(), doc, { position, interfaces, typeAliases, namespaces })];
+  const [interfaces, typeAliases, namespaces, position] = yield* Effect.all(
+    [
+      parseInterfaceDeclarations(md.getInterfaces()),
+      parseTypeAliasDeclarations(md.getTypeAliases()),
+      parseModuleDeclarations(md.getModules()),
+      parsePosition(md),
+    ],
+    { concurrency: 4 }
+  );
+
+  return A.make(
+    Domain.Namespace.new(md.getName(), doc, {
+      position,
+      interfaces,
+      typeAliases,
+      namespaces,
+    })
+  );
 });
 
 const parseModuleDeclarations = (namespaces: ReadonlyArray<ast.ModuleDeclaration>) =>
@@ -507,7 +529,12 @@ const parseMethod = Effect.fn("parseMethod")(function* (md: ast.MethodDeclaratio
   }
 
   const position = yield* parsePosition(md);
-  return O.some(Domain.DocEntry.new(name, doc, { signature: `declare const ${name}: ${parseType(md)}`, position }));
+  return O.some(
+    Domain.DocEntry.new(name, doc, {
+      signature: `declare const ${name}: ${parseType(md)}`,
+      position,
+    })
+  );
 });
 
 const parseProperty = Effect.fn("parseProperty")(function* (pd: ast.PropertyDeclaration) {
@@ -598,7 +625,15 @@ const parseClass = Effect.fn("parseClass")(function* (c: ast.ClassDeclaration) {
   const staticMethods = yield* Effect.forEach(c.getStaticMethods(), parseMethod).pipe(Effect.map(A.getSomes));
   const properties = yield* parseProperties(c);
   const position = yield* parsePosition(c);
-  return [Domain.Class.new(name, doc, { signature, position, methods, staticMethods, properties })];
+  return [
+    Domain.Class.new(name, doc, {
+      signature,
+      position,
+      methods,
+      staticMethods,
+      properties,
+    }),
+  ];
 });
 
 /**
@@ -612,11 +647,11 @@ const parseClass = Effect.fn("parseClass")(function* (c: ast.ClassDeclaration) {
  * @category parsing
  * @since 0.0.0
  */
-export const parseClasses = Effect.gen(function* () {
-  const source = yield* Source;
-  const exportedClasses = A.filter(source.sourceFile.getClasses(), (declaration) => declaration.isExported());
-  return yield* Effect.forEach(exportedClasses, parseClass).pipe(Effect.map(A.flatten));
-});
+export const parseClasses = Source.pipe(
+  Effect.map((source) => A.filter(source.sourceFile.getClasses(), (declaration) => declaration.isExported())),
+  Effect.flatMap(Effect.forEach(parseClass)),
+  Effect.map(A.flatten)
+);
 
 /**
  * Parses the file-level module documentation block from the current source file.
@@ -630,18 +665,16 @@ export const parseClasses = Effect.gen(function* () {
  * @category parsing
  * @since 0.0.0
  */
-export const parseModuleDocumentation = Effect.gen(function* () {
-  const source = yield* Source;
-  const firstStatement = A.head(source.sourceFile.getStatements());
-  if (O.isSome(firstStatement)) {
-    const docComment = getDocComment(firstStatement.value.getLeadingCommentRanges());
-    if (O.isSome(docComment)) {
-      return parseDoc(docComment.value.getText());
-    }
-  }
-
-  return parseDoc("");
-});
+export const parseModuleDocumentation = Source.pipe(
+  Effect.map((source) => A.head(source.sourceFile.getStatements())),
+  Effect.map(O.flatMap((firstStatement) => getDocComment(firstStatement.getLeadingCommentRanges()))),
+  Effect.map(
+    O.match({
+      onNone: () => parseDoc(""),
+      onSome: (docComment) => parseDoc(docComment.getText()),
+    })
+  )
+);
 
 /**
  * Parses the active source file into a docgen module model.
@@ -655,15 +688,21 @@ export const parseModuleDocumentation = Effect.gen(function* () {
  * @since 0.0.0
  */
 export const parseModule = Effect.gen(function* () {
-  const source = yield* Source;
-  const doc = yield* parseModuleDocumentation;
-  const interfaces = yield* parseInterfaces;
-  const functions = yield* parseFunctions;
-  const typeAliases = yield* parseTypeAliases;
-  const classes = yield* parseClasses;
-  const constants = yield* parseConstants;
-  const exports = yield* parseExports;
-  const namespaces = yield* parseNamespaces;
+  const [source, doc, interfaces, functions, typeAliases, classes, constants, exports, namespaces] = yield* Effect.all(
+    [
+      Source,
+      parseModuleDocumentation,
+      parseInterfaces,
+      parseFunctions,
+      parseTypeAliases,
+      parseClasses,
+      parseConstants,
+      parseExports,
+      parseNamespaces,
+    ],
+    { concurrency: 9 }
+  );
+
   const name = source.sourceFile.getBaseName();
 
   return Domain.Module.new(source, name, {
@@ -707,8 +746,7 @@ export const parseFile = (project: ast.Project) =>
   });
 
 const createProject = Effect.fn("createProject")(function* (files: ReadonlyArray<Domain.File>) {
-  const config = yield* Configuration.Configuration;
-  const process = yield* Domain.Process;
+  const [config, process] = yield* Effect.all([Configuration.Configuration, Domain.Process], { concurrency: 2 });
   const cwd = yield* process.cwd;
   const baseCompilerOptions = {
     strict: true,
@@ -752,9 +790,5 @@ const createProject = Effect.fn("createProject")(function* (files: ReadonlyArray
  */
 export const parseFiles = (files: ReadonlyArray<Domain.File>) =>
   createProject(files).pipe(
-    Effect.flatMap(
-      Effect.fnUntraced(function* (project) {
-        return yield* pipe(files, Effect.validate(parseFile(project)), Effect.map(sortModulesByPath));
-      })
-    )
+    Effect.flatMap((project) => pipe(files, Effect.validate(parseFile(project)), Effect.map(sortModulesByPath)))
   );

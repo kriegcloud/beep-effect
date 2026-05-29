@@ -5,20 +5,18 @@
  * @since 0.0.0
  */
 
-import { findRepoRoot, type NoSuchFileError } from "@beep/repo-utils";
+import { findRepoRoot } from "@beep/repo-utils";
 import { A } from "@beep/utils";
-import { Console, Effect, type FileSystem, Layer, Number as Num, type Path } from "effect";
-import type { HttpClient } from "effect/unstable/http";
-import {
-  VersionSyncDriftError,
-  type VersionSyncError,
-  VersionSyncModeMatch,
-  type VersionSyncOptions,
-} from "./Models.js";
+import { Console, Effect, Layer, Number as Num } from "effect";
+import { VersionSyncDriftError, VersionSyncModeMatch } from "./Models.js";
 import { CategorySelectionServiceLive } from "./services/CategorySelectionService.js";
 import { ReportRendererService, ReportRendererServiceLive } from "./services/ReportRendererService.js";
 import { ResolverService, ResolverServiceLive } from "./services/ResolverService.js";
 import { UpdateApplierService, UpdateApplierServiceLive } from "./services/UpdateApplierService.js";
+import type { NoSuchFileError } from "@beep/repo-utils";
+import type { FileSystem, Path } from "effect";
+import type { HttpClient } from "effect/unstable/http";
+import type { VersionSyncError, VersionSyncOptions } from "./Models.js";
 
 const VersionSyncServicesLive = Layer.mergeAll(
   CategorySelectionServiceLive,

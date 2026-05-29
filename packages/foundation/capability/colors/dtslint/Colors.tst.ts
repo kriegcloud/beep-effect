@@ -1,14 +1,7 @@
-import colors, {
-  type Colors,
-  createColors,
-  type Formatter,
-  isColorSupported,
-  type ProcessLike,
-  type ProcessLikeStdout,
-  supportsColor,
-} from "@beep/colors";
+import colors, { createColors, isColorSupported, supportsColor } from "@beep/colors";
 import browserColors, { type Formatter as BrowserFormatter } from "@beep/colors/Colors.browser";
 import { describe, expect, it } from "tstyche";
+import type { Colors, Formatter, ProcessLike, ProcessLikeStdout } from "@beep/colors";
 
 describe("@beep/colors", () => {
   it("exposes a shared Colors instance and typed constructors", () => {

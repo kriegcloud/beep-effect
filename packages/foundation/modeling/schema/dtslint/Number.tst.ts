@@ -1,5 +1,5 @@
-import type { NonNegativeInt, NonNegNum } from "@beep/schema/Number";
 import { describe, expect, it } from "tstyche";
+import type { NonNegativeInt, NonNegNum } from "@beep/schema/Number";
 
 describe("Number schemas", () => {
   it("keeps non-negative number and integer exports available from the Number subpath", () => {

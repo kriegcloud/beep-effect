@@ -9,7 +9,6 @@ import { $FfmpegId } from "@beep/identity/packages";
 import { A, Str, thunkEmptyStr } from "@beep/utils";
 import { Context, Effect, FileSystem, Layer, Number as N, Order, Path, pipe, Ref, Stream } from "effect";
 import * as O from "effect/Option";
-import type * as PlatformError from "effect/PlatformError";
 import * as P from "effect/Predicate";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
@@ -27,13 +26,13 @@ import {
   encodeExtractFramesManifest,
   FFmpegCompletedEvent,
   FFmpegConfig,
-  type FFmpegConfigInput,
-  type FFmpegEvent,
   FFmpegProgressEvent,
   FFmpegStartedEvent,
   ProbeVideoRequest,
   VideoProbe,
 } from "./FFmpeg.models.ts";
+import type * as PlatformError from "effect/PlatformError";
+import type { FFmpegConfigInput, FFmpegEvent } from "./FFmpeg.models.ts";
 
 const $I = $FfmpegId.create("FFmpeg.service");
 const encodeJson = S.encodeUnknownEffect(S.UnknownFromJsonString);

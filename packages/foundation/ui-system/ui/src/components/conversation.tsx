@@ -1,11 +1,11 @@
 "use client";
 
 import { ArrowDown } from "@phosphor-icons/react";
-import type { ComponentProps } from "react";
 import { useCallback } from "react";
 import { StickToBottom, useStickToBottomContext } from "use-stick-to-bottom";
 import { cn } from "../lib/index.ts";
 import { Button } from "./button";
+import type { ComponentProps } from "react";
 
 /**
  * @category type-level

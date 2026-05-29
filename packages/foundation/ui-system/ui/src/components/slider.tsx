@@ -5,15 +5,29 @@ import { A, thunk } from "@beep/utils";
 import * as React from "react";
 import { cn } from "../lib/index.ts";
 
+const sliderValues = (
+  value: SliderPrimitive.Root.Props["value"],
+  defaultValue: SliderPrimitive.Root.Props["defaultValue"],
+  min: number,
+  max: number
+) => {
+  if (A.isArray(value)) {
+    return value;
+  }
+
+  if (A.isArray(defaultValue)) {
+    return defaultValue;
+  }
+
+  return A.make(min, max);
+};
+
 /**
  * @category components
  * @since 0.0.0
  */
 function Slider({ className, defaultValue, value, min = 0, max = 100, ref, ...props }: SliderPrimitive.Root.Props) {
-  const _values = React.useMemo(
-    thunk(A.isArray(value) ? value : A.isArray(defaultValue) ? defaultValue : A.make(min, max)),
-    [value, defaultValue, min, max]
-  );
+  const _values = React.useMemo(thunk(sliderValues(value, defaultValue, min, max)), [value, defaultValue, min, max]);
 
   return (
     <SliderPrimitive.Root

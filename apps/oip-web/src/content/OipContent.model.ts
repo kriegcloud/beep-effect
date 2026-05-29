@@ -7,6 +7,7 @@
 
 import { $OipWebId } from "@beep/identity/packages";
 import { LiteralKit } from "@beep/schema";
+import { Effect } from "effect";
 import * as S from "effect/Schema";
 
 const $I = $OipWebId.create("content/OipContent.model");
@@ -100,6 +101,86 @@ export class ExternalLink extends S.Class<ExternalLink>($I`ExternalLink`)(
   },
   $I.annote("ExternalLink", {
     description: "External link displayed by the public OIP website.",
+  })
+) {}
+
+/**
+ * Social platform the OIP firm maintains a public profile on.
+ *
+ * @example
+ * ```ts
+ * import { SocialPlatform } from "@beep/oip-web/content"
+ *
+ * const platform = SocialPlatform.Enum.instagram
+ * console.log(platform)
+ * ```
+ *
+ * @category schemas
+ * @since 0.0.0
+ */
+export const SocialPlatform = LiteralKit([
+  "instagram",
+  "x",
+  "linkedin",
+  "youtube",
+  "threads",
+  "tiktok",
+  "reddit",
+  "discord",
+  "pinterest",
+] as const).annotate(
+  $I.annote("SocialPlatform", {
+    description: "Social platform the OIP firm maintains a public profile on.",
+  })
+);
+
+/**
+ * Runtime type for {@link SocialPlatform}.
+ *
+ * @example
+ * ```ts
+ * import type { SocialPlatform } from "@beep/oip-web/content"
+ *
+ * const platform: SocialPlatform = "instagram"
+ * console.log(platform)
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export type SocialPlatform = typeof SocialPlatform.Type;
+
+/**
+ * Public social media profile link for the OIP firm.
+ *
+ * @example
+ * ```ts
+ * import { SocialLink } from "@beep/oip-web/content"
+ *
+ * const link = new SocialLink({
+ *   href: "https://www.instagram.com/oip.law/",
+ *   label: "OIP on Instagram",
+ *   platform: "instagram"
+ * })
+ *
+ * console.log(link.active)
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class SocialLink extends S.Class<SocialLink>($I`SocialLink`)(
+  {
+    href: S.String,
+    label: S.String,
+    platform: SocialPlatform,
+    active: S.Boolean.pipe(
+      S.withConstructorDefault(Effect.succeed(true)),
+      S.withDecodingDefaultKey(Effect.succeed(true))
+    ),
+  },
+  $I.annote("SocialLink", {
+    description: "Public social media profile link for the OIP firm.",
   })
 ) {}
 
@@ -352,7 +433,8 @@ export class MatterItem extends S.Class<MatterItem>($I`MatterItem`)(
  *   aspectRatio: "4 / 1",
  *   id: "client",
  *   logo: new SiteAsset({ alt: "Client", src: "/oip/client.svg" }),
- *   review: new ReviewGate({ note: "Approved.", status: "approved" })
+ *   review: new ReviewGate({ note: "Approved.", status: "approved" }),
+ *   website: "https://example.com"
  * })
  *
  * console.log(client.id)
@@ -367,6 +449,7 @@ export class ClientLogo extends S.Class<ClientLogo>($I`ClientLogo`)(
     id: S.String,
     logo: SiteAsset,
     review: ReviewGate,
+    website: S.optionalKey(S.String),
   },
   $I.annote("ClientLogo", {
     description: "Client logo reference for the OIP home page.",
@@ -468,6 +551,10 @@ export class OipSiteContent extends S.Class<OipSiteContent>($I`OipSiteContent`)(
     nav: S.Array(NavItem),
     practices: S.Array(PracticeArea),
     press: S.Array(PressItem),
+    socials: S.Array(SocialLink).pipe(
+      S.withConstructorDefault(Effect.succeed([])),
+      S.withDecodingDefaultKey(Effect.succeed([]))
+    ),
   },
   $I.annote("OipSiteContent", {
     description: "Complete content contract for the OIP public site.",

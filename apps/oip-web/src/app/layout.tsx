@@ -5,17 +5,18 @@
  * @packageDocumentation
  */
 
-import { AppThemeInitScript } from "@beep/ui/themes/theme-init-script";
 import { Config, Effect, pipe } from "effect";
 import * as O from "effect/Option";
-import type { Metadata } from "next";
 import { headers } from "next/headers";
 import { connection } from "next/server";
-import { type ReactNode, use } from "react";
-import { oipSiteContent } from "../content";
+import { use } from "react";
+import { oipSiteContent, oipTwitterHandle } from "../content";
+import type { Metadata } from "next";
+import type { ReactNode } from "react";
 import "./globals.css";
 
 const { metadata: siteMetadata } = oipSiteContent;
+const twitterHandle = oipTwitterHandle(oipSiteContent);
 const REACT_GRAB_VERSION = "0.1.37";
 const REACT_GRAB_INTEGRITY = "sha384-bu1FPBrtnXa6EIFQzS/zbLFeLLKPK06RmfHZYCTbWTXxXVjiIGvjdMjo/jDi+fVu";
 const configStringOptionSync = (name: string): O.Option<string> => Effect.runSync(Config.option(Config.string(name)));
@@ -183,6 +184,8 @@ export const metadata: Metadata = {
     title: siteMetadata.title,
     description: siteMetadata.description,
     images: [siteMetadata.ogImage],
+    creator: twitterHandle,
+    site: twitterHandle,
   },
   icons: {
     icon: [
@@ -235,7 +238,6 @@ export default function RootLayout({
       return (
         <html lang="en" className="h-full antialiased" suppressHydrationWarning>
           <head>
-            <AppThemeInitScript attribute="class" defaultMode="light" modeStorageKey="mui-mode" nonce={nonce} />
             <script
               nonce={nonce}
               suppressHydrationWarning

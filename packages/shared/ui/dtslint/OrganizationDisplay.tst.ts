@@ -1,8 +1,8 @@
+import { describe, expect, it } from "tstyche";
 import type * as OrganizationDomain from "@beep/shared-domain/entities/Organization";
 import type * as Shared from "@beep/shared-domain/identity/Shared";
 import type * as OrganizationUi from "@beep/shared-ui/entities/Organization";
 import type * as O from "effect/Option";
-import { describe, expect, it } from "tstyche";
 
 describe("Organization UI types", () => {
   it("preserves display payload field types", () => {

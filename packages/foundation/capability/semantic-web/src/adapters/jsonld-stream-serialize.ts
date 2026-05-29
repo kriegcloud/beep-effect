@@ -12,13 +12,14 @@ import { Effect, Layer, pipe } from "effect";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import { JsonLdDocument } from "../jsonld.ts";
-import { type JsonLdDocumentError, JsonLdDocumentService, JsonLdFromRdfRequest } from "../services/jsonld-document.ts";
+import { JsonLdDocumentService, JsonLdFromRdfRequest } from "../services/jsonld-document.ts";
 import {
   JsonLdStreamSerializeError,
   JsonLdStreamSerializeResult,
   JsonLdStreamSerializeService,
-  type JsonLdStreamSerializeServiceShape,
 } from "../services/jsonld-stream-serialize.ts";
+import type { JsonLdDocumentError } from "../services/jsonld-document.ts";
+import type { JsonLdStreamSerializeServiceShape } from "../services/jsonld-stream-serialize.ts";
 
 const encodeJsonLdDocumentToJson = S.encodeEffect(S.fromJsonString(JsonLdDocument));
 

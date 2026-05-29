@@ -9,7 +9,7 @@
 
 import { TSConfigCompilerOptions } from "@beep/repo-utils";
 import { A } from "@beep/utils";
-import { Effect, Layer } from "effect";
+import { Effect, Layer, pipe } from "effect";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import { Command, Flag } from "effect/unstable/cli";
@@ -92,13 +92,26 @@ const decodeCompilerOptionsText = (value: string) =>
   );
 
 const resolveCompilerOptionsInput = (filePath: O.Option<string>, text: O.Option<string>) =>
-  O.isSome(filePath)
-    ? Effect.succeed(O.some(filePath.value as Configuration.CompilerOptionsInput))
-    : O.isSome(text)
-      ? decodeCompilerOptionsText(text.value).pipe(
-          Effect.map((value) => O.some(value as Configuration.CompilerOptionsInput))
+  pipe(
+    [
+      pipe(
+        filePath,
+        O.map((value) => Effect.succeed(O.some(value as Configuration.CompilerOptionsInput)))
+      ),
+      pipe(
+        text,
+        O.map((value) =>
+          decodeCompilerOptionsText(value).pipe(
+            Effect.map((decoded) => O.some(decoded as Configuration.CompilerOptionsInput))
+          )
         )
-      : Effect.succeed(O.none<Configuration.CompilerOptionsInput>());
+      ),
+    ] satisfies ReadonlyArray<
+      O.Option<Effect.Effect<O.Option<Configuration.CompilerOptionsInput>, Domain.DocgenError>>
+    >,
+    O.firstSomeOf,
+    O.getOrElse(() => Effect.succeed(O.none<Configuration.CompilerOptionsInput>()))
+  );
 
 const options = {
   projectHomepage,

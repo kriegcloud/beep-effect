@@ -192,7 +192,18 @@ const semverCompare = (a: readonly [number, number, number], b: readonly [number
   return a[2] - b[2];
 };
 
-const toOrdering = (n: number): -1 | 0 | 1 => (n < 0 ? -1 : n > 0 ? 1 : 0);
+const toOrdering = (n: number): -1 | 0 | 1 =>
+  Match.value(n).pipe(
+    Match.when(
+      (value) => value < 0,
+      () => -1 as const
+    ),
+    Match.when(
+      (value) => value > 0,
+      () => 1 as const
+    ),
+    Match.orElse(() => 0 as const)
+  );
 
 // ── Helpers ─────────────────────────────────────────────────────────────────
 

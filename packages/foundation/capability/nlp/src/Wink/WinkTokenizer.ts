@@ -11,12 +11,12 @@ import { Chunk, Clock, Effect, Layer, pipe, Ref } from "effect";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
-import type { ItemSentence, ItemToken, ItsHelpers, Document as WinkDocument } from "wink-nlp";
 import { Document, DocumentId } from "../Core/Document.ts";
 import { Tokenization, TokenizationError } from "../Core/index.ts";
 import { Sentence, SentenceIndex } from "../Core/Sentence.ts";
 import { CharPosition, Token, TokenIndex } from "../Core/Token.ts";
 import { WinkEngine, WinkEngineLive } from "./WinkEngine.ts";
+import type { ItemSentence, ItemToken, ItsHelpers, Document as WinkDocument } from "wink-nlp";
 
 const $I = $NlpId.create("Wink/WinkTokenizer");
 

@@ -5,9 +5,9 @@
  * @since 0.0.0
  */
 import { Effect } from "effect";
-import type { Brand } from "effect/Brand";
 import { dual } from "effect/Function";
 import * as S from "effect/Schema";
+import type { Brand } from "effect/Brand";
 /**
  * @since 0.0.0
  * @category constructors
