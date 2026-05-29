@@ -59,6 +59,9 @@
       "@beep/nlp/Ontology": [
         "../../../../packages/foundation/capability/nlp/src/Ontology/index.ts"
       ],
+      "@beep/nlp/Operations": [
+        "../../../../packages/foundation/capability/nlp/src/Operations/index.ts"
+      ],
       "@beep/nlp/PathText": [
         "../../../../packages/foundation/capability/nlp/src/PathText.ts"
       ],

@@ -1107,6 +1107,9 @@
       ],
       "@beep/nlp/NLPService": [
         "./packages/foundation/capability/nlp/src/NLPService.ts"
+      ],
+      "@beep/nlp/Operations": [
+        "./packages/foundation/capability/nlp/src/Operations/index.ts"
       ]
     }
   }
