@@ -1,6 +1,6 @@
 "use client";
 
-import { CheckIcon, SpinnerGap } from "@phosphor-icons/react";
+import { CheckIcon, SpinnerGapIcon } from "@phosphor-icons/react";
 import { Match } from "effect";
 import { cn } from "../lib/index.ts";
 import type { ReactNode } from "react";
@@ -58,7 +58,7 @@ export function CalendarEventCard({
   const actionContent = Match.value(status).pipe(
     Match.when("loading", () => (
       <>
-        <SpinnerGap size={16} className="animate-spin" />
+        <SpinnerGapIcon size={16} className="animate-spin" />
         Confirm
       </>
     )),

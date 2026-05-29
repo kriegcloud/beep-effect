@@ -1,5 +1,10 @@
 {
   "mcpServers": {
+    "shadcn": {
+      "type": "stdio",
+      "command": "bunx",
+      "args": ["--bun", "shadcn@latest", "mcp"]
+    },
     "next-devtools": {
       "type": "stdio",
       "command": "bunx",

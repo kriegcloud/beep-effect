@@ -30,3 +30,8 @@ Segoe
 Starenky
 Stroustrup
 Yukihiro
+Benoit
+Colm
+Diaz
+Duarte
+Tuite

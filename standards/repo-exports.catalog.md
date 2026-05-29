@@ -20,9 +20,9 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | packagesWithPublicExports | 79 |
 | packagesWithoutPublicExports | 1 |
 | missingWorkspaceMetadata | 4 |
-| importSpecifiers | 983 |
-| publicExportEntries | 12950 |
-| uniquePackageSymbols | 5669 |
+| importSpecifiers | 985 |
+| publicExportEntries | 12961 |
+| uniquePackageSymbols | 5678 |
 
 ## Seed Discovery Proof
 
@@ -110,7 +110,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | 71 | `@beep/observability` | `packages/foundation/capability/observability` | has-public-exports | 4 | 115 | 98 |
 | 72 | `@beep/konva` | `packages/drivers/konva` | has-public-exports | 2 | 2 | 1 |
 | 73 | `@beep/shared-client` | `packages/shared/client` | has-public-exports | 2 | 2 | 1 |
-| 74 | `@beep/ui` | `packages/foundation/ui-system/ui` | has-public-exports | 115 | 527 | 445 |
+| 74 | `@beep/ui` | `packages/foundation/ui-system/ui` | has-public-exports | 117 | 538 | 454 |
 | 75 | `@beep/repo-configs` | `packages/tooling/policy-pack/repo-configs` | has-public-exports | 30 | 411 | 117 |
 | 76 | `@beep/canvas-client` | `packages/canvas/client` | has-public-exports | 1 | 1 | 1 |
 | 77 | `@beep/openai` | `packages/drivers/openai` | has-public-exports | 2 | 2 | 1 |
@@ -12277,6 +12277,15 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/ui/components/avatar` | `AvatarImage` | function | `packages/foundation/ui-system/ui/src/components/avatar.tsx:35` |  |
 | `@beep/ui/components/badge` | `Badge` | function | `packages/foundation/ui-system/ui/src/components/badge.tsx:35` |  |
 | `@beep/ui/components/badge` | `badgeVariants` | const | `packages/foundation/ui-system/ui/src/components/badge.tsx:11` |  |
+| `@beep/ui/components/banner` | `Banner` | function | `packages/foundation/ui-system/ui/src/components/banner.tsx:47` |  |
+| `@beep/ui/components/banner` | `Banner` | Identifier | `packages/foundation/ui-system/ui/src/components/banner.tsx:109` |  |
+| `@beep/ui/components/banner` | `Banner` | Identifier | `packages/foundation/ui-system/ui/src/components/banner.tsx:110` |  |
+| `@beep/ui/components/banner` | `Banner` | Identifier | `packages/foundation/ui-system/ui/src/components/banner.tsx:111` |  |
+| `@beep/ui/components/banner` | `Banner` | Identifier | `packages/foundation/ui-system/ui/src/components/banner.tsx:112` |  |
+| `@beep/ui/components/banner` | `BannerContent` | const | `packages/foundation/ui-system/ui/src/components/banner.tsx:62` |  |
+| `@beep/ui/components/banner` | `BannerDescription` | const | `packages/foundation/ui-system/ui/src/components/banner.tsx:78` |  |
+| `@beep/ui/components/banner` | `BannerDismiss` | const | `packages/foundation/ui-system/ui/src/components/banner.tsx:90` |  |
+| `@beep/ui/components/banner` | `BannerTitle` | const | `packages/foundation/ui-system/ui/src/components/banner.tsx:70` |  |
 | `@beep/ui/components/banner` | `bannerVariants` | const | `packages/foundation/ui-system/ui/src/components/banner.tsx:11` |  |
 | `@beep/ui/components/blocks/editor-00/editor` | `Editor` | function | `packages/foundation/ui-system/ui/src/components/blocks/editor-00/editor.tsx:29` | Rich text editor block assembled from the shared editor theme and plugins. |
 | `@beep/ui/components/blocks/editor-00/plugins` | `Plugins` | function | `packages/foundation/ui-system/ui/src/components/blocks/editor-00/plugins.tsx:11` | Core plugin set for the shared editor block. |
@@ -12310,11 +12319,18 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/ui/components/card` | `CardTitle` | function | `packages/foundation/ui-system/ui/src/components/card.tsx:47` |  |
 | `@beep/ui/components/carousel` | `Carousel` | function | `packages/foundation/ui-system/ui/src/components/carousel.tsx:51` |  |
 | `@beep/ui/components/carousel` | `CarouselApi` | type | `packages/foundation/ui-system/ui/src/components/carousel.tsx:15` |  |
-| `@beep/ui/components/carousel` | `CarouselContent` | function | `packages/foundation/ui-system/ui/src/components/carousel.tsx:151` |  |
-| `@beep/ui/components/carousel` | `CarouselItem` | function | `packages/foundation/ui-system/ui/src/components/carousel.tsx:165` |  |
-| `@beep/ui/components/carousel` | `CarouselNext` | function | `packages/foundation/ui-system/ui/src/components/carousel.tsx:217` |  |
-| `@beep/ui/components/carousel` | `CarouselPrevious` | function | `packages/foundation/ui-system/ui/src/components/carousel.tsx:183` |  |
+| `@beep/ui/components/carousel` | `CarouselContent` | function | `packages/foundation/ui-system/ui/src/components/carousel.tsx:147` |  |
+| `@beep/ui/components/carousel` | `CarouselItem` | function | `packages/foundation/ui-system/ui/src/components/carousel.tsx:161` |  |
+| `@beep/ui/components/carousel` | `CarouselNext` | function | `packages/foundation/ui-system/ui/src/components/carousel.tsx:213` |  |
+| `@beep/ui/components/carousel` | `CarouselPrevious` | function | `packages/foundation/ui-system/ui/src/components/carousel.tsx:179` |  |
 | `@beep/ui/components/carousel` | `useCarousel` | function | `packages/foundation/ui-system/ui/src/components/carousel.tsx:42` |  |
+| `@beep/ui/components/chart` | `ChartConfig` | type | `packages/foundation/ui-system/ui/src/components/chart.tsx:21` | Configuration describing each chart series' label, icon, and color or per-theme colors. |
+| `@beep/ui/components/chart` | `ChartContainer` | function | `packages/foundation/ui-system/ui/src/components/chart.tsx:51` | Responsive chart wrapper that provides the chart config context and theme CSS variables. |
+| `@beep/ui/components/chart` | `ChartLegend` | const | `packages/foundation/ui-system/ui/src/components/chart.tsx:286` | Recharts legend primitive paired with {@link ChartLegendContent}. |
+| `@beep/ui/components/chart` | `ChartLegendContent` | function | `packages/foundation/ui-system/ui/src/components/chart.tsx:294` | Themed legend content for charts, rendering each series' icon or color swatch and label. |
+| `@beep/ui/components/chart` | `ChartStyle` | const | `packages/foundation/ui-system/ui/src/components/chart.tsx:95` | Injects per-theme CSS custom properties for a chart's configured series colors. |
+| `@beep/ui/components/chart` | `ChartTooltip` | const | `packages/foundation/ui-system/ui/src/components/chart.tsx:137` | Recharts tooltip primitive paired with {@link ChartTooltipContent}. |
+| `@beep/ui/components/chart` | `ChartTooltipContent` | function | `packages/foundation/ui-system/ui/src/components/chart.tsx:145` | Themed tooltip content for charts, rendering the active payload's label, indicator, and values. |
 | `@beep/ui/components/checkbox` | `Checkbox` | function | `packages/foundation/ui-system/ui/src/components/checkbox.tsx:11` |  |
 | `@beep/ui/components/collapsible` | `Collapsible` | function | `packages/foundation/ui-system/ui/src/components/collapsible.tsx:10` |  |
 | `@beep/ui/components/collapsible` | `CollapsibleContent` | function | `packages/foundation/ui-system/ui/src/components/collapsible.tsx:26` |  |
@@ -12359,14 +12375,15 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/ui/components/context-menu` | `ContextMenuSubContent` | function | `packages/foundation/ui-system/ui/src/components/context-menu.tsx:169` |  |
 | `@beep/ui/components/context-menu` | `ContextMenuSubTrigger` | function | `packages/foundation/ui-system/ui/src/components/context-menu.tsx:141` |  |
 | `@beep/ui/components/context-menu` | `ContextMenuTrigger` | function | `packages/foundation/ui-system/ui/src/components/context-menu.tsx:28` |  |
-| `@beep/ui/components/conversation` | `Conversation` | const | `packages/foundation/ui-system/ui/src/components/conversation.tsx:20` |  |
-| `@beep/ui/components/conversation` | `ConversationContent` | const | `packages/foundation/ui-system/ui/src/components/conversation.tsx:40` |  |
-| `@beep/ui/components/conversation` | `ConversationContentProps` | type | `packages/foundation/ui-system/ui/src/components/conversation.tsx:34` |  |
-| `@beep/ui/components/conversation` | `ConversationEmptyState` | const | `packages/foundation/ui-system/ui/src/components/conversation.tsx:58` |  |
-| `@beep/ui/components/conversation` | `ConversationEmptyStateProps` | type | `packages/foundation/ui-system/ui/src/components/conversation.tsx:48` |  |
-| `@beep/ui/components/conversation` | `ConversationProps` | type | `packages/foundation/ui-system/ui/src/components/conversation.tsx:14` |  |
-| `@beep/ui/components/conversation` | `ConversationScrollButton` | const | `packages/foundation/ui-system/ui/src/components/conversation.tsx:92` |  |
-| `@beep/ui/components/conversation` | `ConversationScrollButtonProps` | type | `packages/foundation/ui-system/ui/src/components/conversation.tsx:86` |  |
+| `@beep/ui/components/conversation` | `Conversation` | const | `packages/foundation/ui-system/ui/src/components/conversation.tsx:21` |  |
+| `@beep/ui/components/conversation` | `ConversationContent` | const | `packages/foundation/ui-system/ui/src/components/conversation.tsx:41` |  |
+| `@beep/ui/components/conversation` | `ConversationContentProps` | type | `packages/foundation/ui-system/ui/src/components/conversation.tsx:35` |  |
+| `@beep/ui/components/conversation` | `ConversationEmptyState` | const | `packages/foundation/ui-system/ui/src/components/conversation.tsx:59` |  |
+| `@beep/ui/components/conversation` | `ConversationEmptyStateProps` | type | `packages/foundation/ui-system/ui/src/components/conversation.tsx:49` |  |
+| `@beep/ui/components/conversation` | `ConversationProps` | type | `packages/foundation/ui-system/ui/src/components/conversation.tsx:15` |  |
+| `@beep/ui/components/conversation` | `ConversationScrollButton` | const | `packages/foundation/ui-system/ui/src/components/conversation.tsx:93` |  |
+| `@beep/ui/components/conversation` | `ConversationScrollButtonProps` | type | `packages/foundation/ui-system/ui/src/components/conversation.tsx:87` |  |
+| `@beep/ui/components/date-picker` | `DatePicker` | function | `packages/foundation/ui-system/ui/src/components/date-picker.tsx:32` | A single-date picker composed from {@link Popover} and {@link Calendar}. Supports |
 | `@beep/ui/components/dialog` | `Dialog` | function | `packages/foundation/ui-system/ui/src/components/dialog.tsx:13` |  |
 | `@beep/ui/components/dialog` | `Dialog` | Identifier | `packages/foundation/ui-system/ui/src/components/dialog.tsx:163` |  |
 | `@beep/ui/components/dialog` | `Dialog` | Identifier | `packages/foundation/ui-system/ui/src/components/dialog.tsx:164` |  |
@@ -12386,6 +12403,9 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/ui/components/dialog` | `DialogPortal` | function | `packages/foundation/ui-system/ui/src/components/dialog.tsx:29` |  |
 | `@beep/ui/components/dialog` | `DialogTitle` | function | `packages/foundation/ui-system/ui/src/components/dialog.tsx:137` |  |
 | `@beep/ui/components/dialog` | `DialogTrigger` | function | `packages/foundation/ui-system/ui/src/components/dialog.tsx:21` |  |
+| `@beep/ui/components/direction` | `DirectionProvider` | const | `node_modules/@base-ui/react/esm/direction-provider/DirectionProvider.d.ts:8` | Enables RTL behavior for Base UI components. |
+| `@beep/ui/components/direction` | `DirectionProvider` | namespace | `node_modules/@base-ui/react/esm/direction-provider/DirectionProvider.d.ts:18` |  |
+| `@beep/ui/components/direction` | `useDirection` | function | `node_modules/@base-ui/react/esm/internals/direction-context/DirectionContext.d.ts:10` |  |
 | `@beep/ui/components/drawer` | `Drawer` | function | `packages/foundation/ui-system/ui/src/components/drawer.tsx:11` |  |
 | `@beep/ui/components/drawer` | `DrawerClose` | function | `packages/foundation/ui-system/ui/src/components/drawer.tsx:35` |  |
 | `@beep/ui/components/drawer` | `DrawerContent` | function | `packages/foundation/ui-system/ui/src/components/drawer.tsx:60` |  |
@@ -12494,8 +12514,9 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/ui/components/menubar` | `MenubarSubContent` | function | `packages/foundation/ui-system/ui/src/components/menubar.tsx:268` |  |
 | `@beep/ui/components/menubar` | `MenubarSubTrigger` | function | `packages/foundation/ui-system/ui/src/components/menubar.tsx:244` |  |
 | `@beep/ui/components/menubar` | `MenubarTrigger` | function | `packages/foundation/ui-system/ui/src/components/menubar.tsx:66` |  |
-| `@beep/ui/components/mui-theme.stories` | `default` | const | `packages/foundation/ui-system/ui/src/components/mui-theme.stories.tsx:21` | MUI primitives rendered through the shared `@beep/ui` theme, which the global |
-| `@beep/ui/components/mui-theme.stories` | `Default` | const | `packages/foundation/ui-system/ui/src/components/mui-theme.stories.tsx:38` |  |
+| `@beep/ui/components/native-select` | `NativeSelect` | function | `packages/foundation/ui-system/ui/src/components/native-select.tsx:15` | A styled wrapper around the native `<select>` element with a trailing caret icon. |
+| `@beep/ui/components/native-select` | `NativeSelectOptGroup` | function | `packages/foundation/ui-system/ui/src/components/native-select.tsx:55` | An `<optgroup>` for use within {@link NativeSelect}, themed to match the system color scheme. |
+| `@beep/ui/components/native-select` | `NativeSelectOption` | function | `packages/foundation/ui-system/ui/src/components/native-select.tsx:43` | An `<option>` for use within {@link NativeSelect}, themed to match the system color scheme. |
 | `@beep/ui/components/navigation-menu` | `NavigationMenu` | function | `packages/foundation/ui-system/ui/src/components/navigation-menu.tsx:11` |  |
 | `@beep/ui/components/navigation-menu` | `NavigationMenuContent` | function | `packages/foundation/ui-system/ui/src/components/navigation-menu.tsx:83` |  |
 | `@beep/ui/components/navigation-menu` | `NavigationMenuIndicator` | function | `packages/foundation/ui-system/ui/src/components/navigation-menu.tsx:150` |  |
@@ -12583,7 +12604,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/ui/components/sidebar` | `SidebarSeparator` | function | `packages/foundation/ui-system/ui/src/components/sidebar.tsx:440` |  |
 | `@beep/ui/components/sidebar` | `SidebarTrigger` | function | `packages/foundation/ui-system/ui/src/components/sidebar.tsx:331` |  |
 | `@beep/ui/components/sidebar` | `useSidebar` | function | `packages/foundation/ui-system/ui/src/components/sidebar.tsx:44` |  |
-| `@beep/ui/components/skeleton` | `Skeleton` | function | `packages/foundation/ui-system/ui/src/components/skeleton.tsx:7` |  |
+| `@beep/ui/components/skeleton` | `Skeleton` | function | `packages/foundation/ui-system/ui/src/components/skeleton.tsx:8` |  |
 | `@beep/ui/components/slider` | `Slider` | function | `packages/foundation/ui-system/ui/src/components/slider.tsx:29` |  |
 | `@beep/ui/components/sonner` | `Toaster` | const | `packages/foundation/ui-system/ui/src/components/sonner.tsx:13` |  |
 | `@beep/ui/components/speech-input` | `SpeechInput` | const | `packages/foundation/ui-system/ui/src/components/speech-input.tsx:147` |  |
@@ -12626,7 +12647,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/ui/components/toast` | `ToastVariant` | const | `packages/foundation/ui-system/ui/src/components/toast.tsx:62` |  |
 | `@beep/ui/components/toast` | `ToastVariant` | type | `packages/foundation/ui-system/ui/src/components/toast.tsx:72` |  |
 | `@beep/ui/components/toast` | `ToastViewport` | const | `packages/foundation/ui-system/ui/src/components/toast.tsx:25` |  |
-| `@beep/ui/components/toaster` | `Toaster` | function | `packages/foundation/ui-system/ui/src/components/toaster.tsx:21` |  |
+| `@beep/ui/components/toaster` | `Toaster` | function | `packages/foundation/ui-system/ui/src/components/toaster.tsx:61` |  |
 | `@beep/ui/components/toaster` | `ToastPrimitive` | SourceFile | `node_modules/@base-ui/react/esm/toast/index.parts.d.ts:1` |  |
 | `@beep/ui/components/todo-item` | `TodoItem` | function | `packages/foundation/ui-system/ui/src/components/todo-item.tsx:105` |  |
 | `@beep/ui/components/toggle` | `Toggle` | function | `packages/foundation/ui-system/ui/src/components/toggle.tsx:37` |  |
@@ -12654,16 +12675,6 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/ui/components/tour` | `useTour` | function | `packages/foundation/ui-system/ui/src/components/tour.tsx:34` |  |
 | `@beep/ui/components/ui/button` | `Button` | function | `packages/foundation/ui-system/ui/src/components/ui/button.tsx:65` | Versatile button component with multiple visual variants and sizes. |
 | `@beep/ui/components/ui/button` | `buttonVariants` | const | `packages/foundation/ui-system/ui/src/components/ui/button.tsx:21` | Button variant configuration using class-variance-authority. |
-| `@beep/ui/components/ui/button.stories` | `ClickInteraction` | const | `packages/foundation/ui-system/ui/src/components/ui/button.stories.tsx:111` |  |
-| `@beep/ui/components/ui/button.stories` | `default` | const | `packages/foundation/ui-system/ui/src/components/ui/button.stories.tsx:9` |  |
-| `@beep/ui/components/ui/button.stories` | `Default` | const | `packages/foundation/ui-system/ui/src/components/ui/button.stories.tsx:39` |  |
-| `@beep/ui/components/ui/button.stories` | `Destructive` | const | `packages/foundation/ui-system/ui/src/components/ui/button.stories.tsx:79` |  |
-| `@beep/ui/components/ui/button.stories` | `Ghost` | const | `packages/foundation/ui-system/ui/src/components/ui/button.stories.tsx:71` |  |
-| `@beep/ui/components/ui/button.stories` | `Large` | const | `packages/foundation/ui-system/ui/src/components/ui/button.stories.tsx:103` |  |
-| `@beep/ui/components/ui/button.stories` | `Link` | const | `packages/foundation/ui-system/ui/src/components/ui/button.stories.tsx:87` |  |
-| `@beep/ui/components/ui/button.stories` | `Outline` | const | `packages/foundation/ui-system/ui/src/components/ui/button.stories.tsx:55` |  |
-| `@beep/ui/components/ui/button.stories` | `Secondary` | const | `packages/foundation/ui-system/ui/src/components/ui/button.stories.tsx:63` |  |
-| `@beep/ui/components/ui/button.stories` | `Small` | const | `packages/foundation/ui-system/ui/src/components/ui/button.stories.tsx:95` |  |
 | `@beep/ui/components/ui/tooltip` | `Tooltip` | function | `packages/foundation/ui-system/ui/src/components/ui/tooltip.tsx:20` |  |
 | `@beep/ui/components/ui/tooltip` | `TooltipContent` | function | `packages/foundation/ui-system/ui/src/components/ui/tooltip.tsx:36` |  |
 | `@beep/ui/components/ui/tooltip` | `TooltipProvider` | function | `packages/foundation/ui-system/ui/src/components/ui/tooltip.tsx:12` | Tooltip timing context shared across tooltip instances. |
@@ -12684,7 +12695,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/ui/hooks/index` | `SpinParams` | class | `packages/foundation/ui-system/ui/src/hooks/useNumberInput.ts:241` | Schema describing step and precision overrides for spinner changes. |
 | `@beep/ui/hooks/index` | `toNumber` | const | `packages/foundation/ui-system/ui/src/hooks/useNumberInput.ts:272` | Convert editable number-input text into a number when the text is parseable. |
 | `@beep/ui/hooks/index` | `useNumberBoundary` | const | `packages/foundation/ui-system/ui/src/hooks/useNumberInput.ts:514` | Low-level number-input state hook for parsing, formatting, and boundary management. |
-| `@beep/ui/hooks/index` | `useNumberInput` | const | `packages/foundation/ui-system/ui/src/hooks/useNumberInput.ts:590` | Fully managed number-input hook with keyboard and spinner controls. |
+| `@beep/ui/hooks/index` | `useNumberInput` | const | `packages/foundation/ui-system/ui/src/hooks/useNumberInput.ts:579` | Fully managed number-input hook with keyboard and spinner controls. |
 | `@beep/ui/hooks/index` | `UseNumberInputOptions` | type | `packages/foundation/ui-system/ui/src/hooks/useNumberInput.ts:449` | Options accepted by {@link useNumberBoundary} and {@link useNumberInput}. |
 | `@beep/ui/hooks/index` | `useScribe` | function | `packages/foundation/ui-system/ui/src/hooks/use-scribe.ts:145` | Manage an ElevenLabs realtime Scribe connection from React components. |
 | `@beep/ui/hooks/use-scribe` | `AudioFormat` | enum | `node_modules/@elevenlabs/client/dist/scribe/scribe.d.ts:2` |  |
@@ -12706,9 +12717,9 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/ui/hooks/useNumberInput` | `SpinParams` | class | `packages/foundation/ui-system/ui/src/hooks/useNumberInput.ts:241` | Schema describing step and precision overrides for spinner changes. |
 | `@beep/ui/hooks/useNumberInput` | `toNumber` | const | `packages/foundation/ui-system/ui/src/hooks/useNumberInput.ts:272` | Convert editable number-input text into a number when the text is parseable. |
 | `@beep/ui/hooks/useNumberInput` | `useNumberBoundary` | const | `packages/foundation/ui-system/ui/src/hooks/useNumberInput.ts:514` | Low-level number-input state hook for parsing, formatting, and boundary management. |
-| `@beep/ui/hooks/useNumberInput` | `useNumberInput` | const | `packages/foundation/ui-system/ui/src/hooks/useNumberInput.ts:590` | Fully managed number-input hook with keyboard and spinner controls. |
+| `@beep/ui/hooks/useNumberInput` | `useNumberInput` | const | `packages/foundation/ui-system/ui/src/hooks/useNumberInput.ts:579` | Fully managed number-input hook with keyboard and spinner controls. |
 | `@beep/ui/hooks/useNumberInput` | `UseNumberInputOptions` | type | `packages/foundation/ui-system/ui/src/hooks/useNumberInput.ts:449` | Options accepted by {@link useNumberBoundary} and {@link useNumberInput}. |
-| `@beep/ui/hooks/useSpinner` | `useSpinner` | function | `packages/foundation/ui-system/ui/src/hooks/useSpinner.ts:122` | Spinner button hook with press-and-hold repeat behavior. |
+| `@beep/ui/hooks/useSpinner` | `useSpinner` | function | `packages/foundation/ui-system/ui/src/hooks/useSpinner.ts:115` | Spinner button hook with press-and-hold repeat behavior. |
 | `@beep/ui/lib/index` | `cn` | function | `packages/foundation/ui-system/ui/src/lib/utils.ts:22` | Merge Tailwind CSS class names with conflict resolution. |
 | `@beep/ui/lib/index` | `sanitizeAnchorHref` | const | `packages/foundation/ui-system/ui/src/lib/url.ts:89` | Replaces active script URL protocols with a harmless fragment. |
 | `@beep/ui/lib/react-invariant` | `ReactContextInvariantOptions` | class | `packages/foundation/ui-system/ui/src/lib/react-invariant.ts:20` | Options for a React context invariant check. |
