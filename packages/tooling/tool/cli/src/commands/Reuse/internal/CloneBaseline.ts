@@ -6,7 +6,7 @@
  */
 
 import { $RepoCliId } from "@beep/identity/packages";
-import { DomainError } from "@beep/repo-utils";
+import { DomainError, findRepoRoot } from "@beep/repo-utils";
 import { A, Str, thunkEmptyStr } from "@beep/utils";
 import { Console, DateTime, Effect, FileSystem, HashMap, Order, Path, pipe, SchemaGetter } from "effect";
 import * as O from "effect/Option";
@@ -88,20 +88,32 @@ const buildCloneDocument = (candidates: ReadonlyArray<ReuseCandidate>): CloneBas
 const readCloneBaseline = Effect.fn("CloneBaseline.read")(function* () {
   const fs = yield* FileSystem.FileSystem;
   const path = yield* Path.Path;
-  const absolutePath = path.resolve(process.cwd(), CLONE_INVENTORY_PATH);
+  const repoRoot = yield* findRepoRoot();
+  const absolutePath = path.join(repoRoot, CLONE_INVENTORY_PATH);
 
   if (!(yield* fs.exists(absolutePath).pipe(Effect.orElseSucceed(() => false)))) {
     return O.none<CloneBaselineDocument>();
   }
 
-  const content = yield* fs.readFileString(absolutePath).pipe(Effect.orElseSucceed(thunkEmptyStr));
-  return yield* decodeDocument(parse(content)).pipe(Effect.option);
+  // The file exists: a decode failure is a corrupt baseline, not a missing one.
+  const content = yield* fs
+    .readFileString(absolutePath)
+    .pipe(Effect.mapError(DomainError.newCauseMessage(`Failed to read ${CLONE_INVENTORY_PATH}`)));
+  const document = yield* decodeDocument(parse(content)).pipe(
+    Effect.mapError(
+      DomainError.newCauseMessage(
+        `${CLONE_INVENTORY_PATH} is malformed; fix it or re-run \`beep reuse clones --write\``
+      )
+    )
+  );
+  return O.some(document);
 });
 
 const writeCloneBaseline = Effect.fn("CloneBaseline.write")(function* (document: CloneBaselineDocument) {
   const fs = yield* FileSystem.FileSystem;
   const path = yield* Path.Path;
-  const absolutePath = path.resolve(process.cwd(), CLONE_INVENTORY_PATH);
+  const repoRoot = yield* findRepoRoot();
+  const absolutePath = path.join(repoRoot, CLONE_INVENTORY_PATH);
   const encoded = yield* encodeDocument(document).pipe(
     Effect.mapError(DomainError.newCauseMessage(`Failed to encode ${CLONE_INVENTORY_PATH}`))
   );

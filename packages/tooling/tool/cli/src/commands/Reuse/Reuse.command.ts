@@ -572,6 +572,12 @@ const reuseClonesCommand = Command.make(
       Effect.gen(function* () {
         const cloneService = yield* ReuseCloneService;
 
+        if (write && check) {
+          return yield* DomainError.make({
+            message: "Use either `--write` (refresh the baseline) or `--check` (enforce it), not both.",
+          });
+        }
+
         // --write / --check operate repo-wide against the committed baseline.
         if (write || check) {
           const candidates = yield* cloneService.detectClones(O.none());

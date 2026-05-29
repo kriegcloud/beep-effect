@@ -25,13 +25,12 @@ import {
 import * as O from "effect/Option";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
-import { SyntaxKind } from "ts-morph";
+import { Project, SyntaxKind } from "ts-morph";
 import { FsUtils } from "../FsUtils.js";
 import { findRepoRoot } from "../Root.js";
 import {
   TSMorphService,
   TsMorphFileOutlineRequest,
-  TsMorphProjectInspectionRequest,
   TsMorphProjectScopeRequest,
   TsMorphSymbolLookupRequest,
 } from "../TSMorph/index.js";
@@ -158,7 +157,6 @@ export class ReuseCandidateNotFoundError extends TaggedErrorClass<ReuseCandidate
 const decodeJsonString = S.decodeUnknownEffect(S.UnknownFromJsonString);
 const decodeWorkspacePackageManifest = S.decodeUnknownEffect(WorkspacePackageManifest);
 const decodeFileOutlineRequest = S.decodeUnknownEffect(TsMorphFileOutlineRequest);
-const decodeInspectionRequest = S.decodeUnknownEffect(TsMorphProjectInspectionRequest);
 const decodeProjectScopeRequest = S.decodeUnknownEffect(TsMorphProjectScopeRequest);
 const decodeSymbolLookupRequest = S.decodeUnknownEffect(TsMorphSymbolLookupRequest);
 const decodeNonNegativeInt = S.decodeUnknownEffect(NonNegativeInt);
@@ -571,29 +569,32 @@ const LITERAL_SYNTAX_KINDS: ReadonlySet<SyntaxKind> = new Set([
   SyntaxKind.FalseKeyword,
 ]);
 
-const FNV_OFFSET_BASIS = 2166136261;
-const FNV_PRIME = 16777619;
+const FNV64_OFFSET_BASIS = 14695981039346656037n;
+const FNV64_PRIME = 1099511628211n;
+const FNV64_MASK = (1n << 64n) - 1n;
 
-const fnv1aStep = (hash: number, token: string): number => {
-  let next = hash;
-  for (let index = 0; index < token.length; index += 1) {
-    next = (next ^ token.charCodeAt(index)) >>> 0;
-    next = Math.imul(next, FNV_PRIME) >>> 0;
+// Stable 64-bit FNV-1a digest used only to derive a short candidate id from a
+// (collision-free) full signature; cluster grouping never relies on this hash.
+const fnv1a64Hex = (input: string): string => {
+  let hash = FNV64_OFFSET_BASIS;
+  for (let index = 0; index < input.length; index += 1) {
+    hash = (hash ^ BigInt(input.charCodeAt(index))) & FNV64_MASK;
+    hash = (hash * FNV64_PRIME) & FNV64_MASK;
   }
-  return next;
+  return hash.toString(16);
 };
 
 // Normalize a declaration to a structural signature that ignores formatting,
 // identifier names (alpha-renamed by first appearance), and literal values, so
-// exact + renamed copies (Type-1/Type-2 clones) collapse to the same key.
+// exact + renamed copies (Type-1/Type-2 clones) collapse to the same key. The
+// key is the full token sequence (no hashing), so structurally distinct
+// declarations can never share a key.
 const normalizedDeclarationSignature = (node: Node): { readonly key: string; readonly size: number } => {
   const renames = new Map<string, number>();
-  let hash = FNV_OFFSET_BASIS >>> 0;
-  let size = 0;
+  const tokens = A.empty<string>();
 
   node.forEachDescendant((descendant) => {
     const kind = descendant.getKind();
-    let token: string;
     if (kind === SyntaxKind.Identifier) {
       const text = descendant.getText();
       let index = renames.get(text);
@@ -601,18 +602,15 @@ const normalizedDeclarationSignature = (node: Node): { readonly key: string; rea
         index = renames.size;
         renames.set(text, index);
       }
-      token = `I${index}`;
+      A.appendInPlace(tokens, `I${index}`);
     } else if (LITERAL_SYNTAX_KINDS.has(kind)) {
-      token = "L";
+      A.appendInPlace(tokens, "L");
     } else {
-      token = `K${kind}`;
+      A.appendInPlace(tokens, `K${kind}`);
     }
-    hash = fnv1aStep(hash, token);
-    hash = fnv1aStep(hash, ",");
-    size += 1;
   });
 
-  return { key: `${size}:${hash.toString(16)}`, size };
+  return { key: A.join(tokens, ","), size: A.length(tokens) };
 };
 
 const isExcludedCloneFile = (relativePath: string): boolean =>
@@ -668,14 +666,14 @@ const cloneCandidateFromCluster = (records: ReadonlyArray<CloneRecord>): ReuseCa
     O.map((record) => record.symbolName),
     O.getOrElse(() => "declaration")
   );
-  const headKey = pipe(
+  const idSuffix = pipe(
     A.head(ordered),
-    O.map((record) => record.key),
+    O.map((record) => `${record.size}:${fnv1a64Hex(record.key)}`),
     O.getOrElse(() => "unknown")
   );
 
   return ReuseCandidate.make({
-    candidateId: `reuse-clone:${headKey}`,
+    candidateId: `reuse-clone:${idSuffix}`,
     kind: "structural-clone",
     title: `Structural clone of ${headSymbol} across ${A.length(sourceScopes)} packages`,
     sourceSymbols,
@@ -840,7 +838,6 @@ type ReuseAnalysisContextShape = {
   readonly patternMatchCountsByScope: MutableHashMap.MutableHashMap<string, PatternMatchCountsById>;
   readonly catalogBySelector: MutableHashMap.MutableHashMap<SelectorCacheKey, ReadonlyArray<ReuseCatalogEntry>>;
   readonly candidatesBySelector: MutableHashMap.MutableHashMap<SelectorCacheKey, ReadonlyArray<ReuseCandidate>>;
-  readonly cloneRecordsByScope: MutableHashMap.MutableHashMap<string, ReadonlyArray<CloneRecord>>;
   readonly cloneCandidatesBySelector: MutableHashMap.MutableHashMap<SelectorCacheKey, ReadonlyArray<ReuseCandidate>>;
 };
 
@@ -1244,7 +1241,6 @@ const ReuseAnalysisContextLive = Layer.effect(
       patternMatchCountsByScope: MutableHashMap.empty(),
       catalogBySelector: MutableHashMap.empty(),
       candidatesBySelector: MutableHashMap.empty(),
-      cloneRecordsByScope: MutableHashMap.empty(),
       cloneCandidatesBySelector: MutableHashMap.empty(),
     });
   })
@@ -1656,85 +1652,93 @@ export const ReuseInventoryServiceLive = Layer.effect(
   })
 );
 
-const collectCloneRecordsForScope = (analysisContext: ReuseAnalysisContextShape, scope: WorkspaceScope) =>
-  getCachedOrCompute(
-    analysisContext.cloneRecordsByScope,
-    scope.packagePath,
-    Effect.gen(function* () {
-      const runtime = analysisContext.runtime;
-      const srcPrefix = `${scope.srcPath}/`;
-      const inspectionRequest = yield* decodeInspectionRequest({
-        entrypoint: { _tag: "tsconfig", tsConfigPath: scope.tsConfigPath },
-        repoRootPath: runtime.repoRoot,
-        mode: "syntax",
-        referencePolicy: "workspaceOnly",
-        filePaths: [],
-        sourceFileGlobs: [runtime.path.join(runtime.repoRoot, scope.srcPath, "**", "*.ts")],
-      }).pipe(
-        Effect.mapError(
-          mapAnalysisError("collectCloneRecordsForScope", `Failed to build inspection request for ${scope.packagePath}`)
-        )
-      );
+// Single ts-morph project for the whole scan (SchemaFirst-style). Building one
+// project per package retains them all in the service pool and exhausts memory
+// in CI; one project keeps the footprint bounded.
+const collectCloneRecords = Effect.fn("collectCloneRecords")(function* (
+  analysisContext: ReuseAnalysisContextShape,
+  scopes: ReadonlyArray<WorkspaceScope>
+) {
+  const runtime = analysisContext.runtime;
+  const path = runtime.path;
+  const repoRoot = runtime.repoRoot;
+  // Longest src-path prefix first so nested packages map to the right owner.
+  const sortedScopes = A.sort(
+    scopes,
+    Order.mapInput(Order.Number, (scope: WorkspaceScope) => -scope.srcPath.length)
+  );
+  const owningPackagePath = (relativePath: string): O.Option<string> => {
+    for (const scope of sortedScopes) {
+      if (Str.startsWith(`${scope.srcPath}/`)(relativePath)) {
+        return O.some(scope.packagePath);
+      }
+    }
+    return O.none();
+  };
 
-      return yield* runtime.tsmorph
-        .inspectProject(inspectionRequest, ({ sourceFiles }) => {
-          const seen = new Set<string>();
-          const collected: Array<CloneRecord> = [];
+  return yield* Effect.try({
+    try: () => {
+      const project = new Project({
+        tsConfigFilePath: path.join(repoRoot, "tsconfig.json"),
+        skipAddingFilesFromTsConfig: true,
+      });
+      for (const scope of scopes) {
+        project.addSourceFilesAtPaths(path.join(repoRoot, scope.srcPath, "**", "*.{ts,tsx,mts,cts}"));
+      }
 
-          for (const sourceFile of sourceFiles) {
-            const relativeSource = normalizeRelativePath(
-              runtime.path.relative(runtime.repoRoot, sourceFile.getFilePath())
+      const seen = new Set<string>();
+      const collected = A.empty<CloneRecord>();
+
+      for (const sourceFile of project.getSourceFiles()) {
+        const relativeSource = normalizeRelativePath(path.relative(repoRoot, sourceFile.getFilePath()));
+        if (isExcludedCloneFile(relativeSource)) {
+          continue;
+        }
+
+        for (const [symbolName, declarations] of sourceFile.getExportedDeclarations()) {
+          for (const declaration of declarations) {
+            const declarationFile = normalizeRelativePath(
+              path.relative(repoRoot, declaration.getSourceFile().getFilePath())
             );
-            if (!Str.startsWith(srcPrefix)(relativeSource) || isExcludedCloneFile(relativeSource)) {
+            if (isExcludedCloneFile(declarationFile)) {
+              continue;
+            }
+            const ownerOption = owningPackagePath(declarationFile);
+            if (O.isNone(ownerOption)) {
               continue;
             }
 
-            for (const [symbolName, declarations] of sourceFile.getExportedDeclarations()) {
-              for (const declaration of declarations) {
-                const declarationFile = normalizeRelativePath(
-                  runtime.path.relative(runtime.repoRoot, declaration.getSourceFile().getFilePath())
-                );
-                if (!Str.startsWith(srcPrefix)(declarationFile) || isExcludedCloneFile(declarationFile)) {
-                  continue;
-                }
-
-                const startLine = declaration.getStartLineNumber();
-                const dedupeId = `${declarationFile}#${startLine}#${symbolName}`;
-                if (seen.has(dedupeId)) {
-                  continue;
-                }
-                seen.add(dedupeId);
-
-                const signature = normalizedDeclarationSignature(declaration);
-                if (signature.size < CLONE_MIN_TOKENS) {
-                  continue;
-                }
-
-                collected.push({
-                  key: signature.key,
-                  size: signature.size,
-                  packagePath: scope.packagePath,
-                  filePath: declarationFile,
-                  symbolName,
-                  symbolKind: declaration.getKindName(),
-                  startLine,
-                });
-              }
+            const startLine = declaration.getStartLineNumber();
+            const dedupeId = `${declarationFile}#${startLine}#${symbolName}`;
+            if (seen.has(dedupeId)) {
+              continue;
             }
-          }
+            seen.add(dedupeId);
 
-          return collected as ReadonlyArray<CloneRecord>;
-        })
-        .pipe(
-          Effect.mapError(
-            mapAnalysisError(
-              "collectCloneRecordsForScope",
-              `Failed to inspect ts-morph project for ${scope.packagePath}`
-            )
-          )
-        );
-    })
-  );
+            const signature = normalizedDeclarationSignature(declaration);
+            if (signature.size < CLONE_MIN_TOKENS) {
+              continue;
+            }
+
+            A.appendInPlace(collected, {
+              key: signature.key,
+              size: signature.size,
+              packagePath: ownerOption.value,
+              filePath: declarationFile,
+              symbolName,
+              symbolKind: declaration.getKindName(),
+              startLine,
+            });
+          }
+        }
+      }
+
+      return collected as ReadonlyArray<CloneRecord>;
+    },
+    catch: (cause) =>
+      mkAnalysisError("collectCloneRecords", `Failed to scan declarations for clones: ${formatCauseMessage(cause)}`),
+  });
+});
 
 /**
  * Service contract for declaration-anchored structural clone detection.
@@ -1791,11 +1795,10 @@ export const ReuseCloneServiceLive = Layer.effect(
         selectorCacheKey(scopeSelector),
         Effect.gen(function* () {
           const scopes = yield* discoverWorkspaceScopes(analysisContext, scopeSelector);
-          let records = A.empty<CloneRecord>();
-          for (const scope of scopes) {
-            const scopeRecords = yield* collectCloneRecordsForScope(analysisContext, scope);
-            records = A.appendAll(records, scopeRecords);
+          if (A.isReadonlyArrayEmpty(scopes)) {
+            return A.empty<ReuseCandidate>();
           }
+          const records = yield* collectCloneRecords(analysisContext, scopes);
 
           const grouped = A.groupBy(records, (record) => record.key);
           let candidates = A.empty<ReuseCandidate>();

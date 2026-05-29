@@ -3,7 +3,7 @@
   "generatedOn": "2026-05-29",
   "entries": [
     {
-      "id": "reuse-clone:120:d442e104",
+      "id": "reuse-clone:120:3e5e535fafe46900",
       "title": "Structural clone of RunpodDocsError across 2 packages",
       "occurrences": 2,
       "packages": 2,
@@ -13,7 +13,7 @@
       ]
     },
     {
-      "id": "reuse-clone:42:29bc7d2c",
+      "id": "reuse-clone:42:aa615724ee20c368",
       "title": "Structural clone of AcpProtocolLoggingOptions across 4 packages",
       "occurrences": 4,
       "packages": 4,
@@ -25,7 +25,7 @@
       ]
     },
     {
-      "id": "reuse-clone:42:94df6c33",
+      "id": "reuse-clone:42:dd47594bc7886c0d",
       "title": "Structural clone of RunpodErrorOptions across 2 packages",
       "occurrences": 2,
       "packages": 2,
@@ -35,7 +35,7 @@
       ]
     },
     {
-      "id": "reuse-clone:43:e0a35733",
+      "id": "reuse-clone:43:1c0af9da1d81320d",
       "title": "Structural clone of RepoExportsCatalogSource across 2 packages",
       "occurrences": 2,
       "packages": 2,
@@ -45,7 +45,7 @@
       ]
     },
     {
-      "id": "reuse-clone:43:f7413bf0",
+      "id": "reuse-clone:43:e90bf53a4868df9c",
       "title": "Structural clone of VeniceAIServerSentEvent across 2 packages",
       "occurrences": 2,
       "packages": 2,
@@ -55,7 +55,7 @@
       ]
     },
     {
-      "id": "reuse-clone:44:a7b71509",
+      "id": "reuse-clone:44:badf5a58151677ff",
       "title": "Structural clone of FaceDetectionBox across 4 packages",
       "occurrences": 5,
       "packages": 4,
@@ -68,7 +68,7 @@
       ]
     },
     {
-      "id": "reuse-clone:46:428a694b",
+      "id": "reuse-clone:46:2bd99bb173cd1e25",
       "title": "Structural clone of makeWorkItemRpcHandlers across 2 packages",
       "occurrences": 2,
       "packages": 2,
@@ -78,7 +78,7 @@
       ]
     },
     {
-      "id": "reuse-clone:46:4a732b32",
+      "id": "reuse-clone:46:65a53dacf1a9fa6a",
       "title": "Structural clone of AgentEffectivenessDatasetBundle across 2 packages",
       "occurrences": 3,
       "packages": 2,
@@ -89,7 +89,7 @@
       ]
     },
     {
-      "id": "reuse-clone:46:aa6c611a",
+      "id": "reuse-clone:46:c14b96c655a39212",
       "title": "Structural clone of AgentEffectivenessPromptBundle across 2 packages",
       "occurrences": 2,
       "packages": 2,
@@ -99,7 +99,7 @@
       ]
     },
     {
-      "id": "reuse-clone:48:81d742bd",
+      "id": "reuse-clone:48:69597541d74fa843",
       "title": "Structural clone of DiscordMessageProof across 2 packages",
       "occurrences": 2,
       "packages": 2,
@@ -109,7 +109,7 @@
       ]
     },
     {
-      "id": "reuse-clone:49:8d287436",
+      "id": "reuse-clone:49:2758efc8b91bb6de",
       "title": "Structural clone of AiMetricsStorageLayout across 2 packages",
       "occurrences": 4,
       "packages": 2,
@@ -121,17 +121,7 @@
       ]
     },
     {
-      "id": "reuse-clone:50:74847349",
-      "title": "Structural clone of ArchitectureLab across 2 packages",
-      "occurrences": 2,
-      "packages": 2,
-      "members": [
-        "packages/architecture-lab/domain/src/identity/ArchitectureLab.ts#ArchitectureLab",
-        "packages/canvas/domain/src/identity/Canvas.ts#Canvas"
-      ]
-    },
-    {
-      "id": "reuse-clone:50:95ebe790",
+      "id": "reuse-clone:50:3716dfdbaca45d3c",
       "title": "Structural clone of model across 3 packages",
       "occurrences": 3,
       "packages": 3,
@@ -142,7 +132,17 @@
       ]
     },
     {
-      "id": "reuse-clone:51:22ca4d41",
+      "id": "reuse-clone:50:e45aa804d1bbf3ff",
+      "title": "Structural clone of ArchitectureLab across 2 packages",
+      "occurrences": 2,
+      "packages": 2,
+      "members": [
+        "packages/architecture-lab/domain/src/identity/ArchitectureLab.ts#ArchitectureLab",
+        "packages/canvas/domain/src/identity/Canvas.ts#Canvas"
+      ]
+    },
+    {
+      "id": "reuse-clone:51:88bbf4b0ad49fbd7",
       "title": "Structural clone of HubSpotFormContext across 2 packages",
       "occurrences": 2,
       "packages": 2,
@@ -152,7 +152,7 @@
       ]
     },
     {
-      "id": "reuse-clone:51:60d02f78",
+      "id": "reuse-clone:51:a5b570fedc10dce4",
       "title": "Structural clone of RunpodDocsErrorOptions across 2 packages",
       "occurrences": 2,
       "packages": 2,
@@ -162,7 +162,7 @@
       ]
     },
     {
-      "id": "reuse-clone:54:5a97beae",
+      "id": "reuse-clone:54:3315eb8de9c773b6",
       "title": "Structural clone of RepoCodegraphLookupScore across 2 packages",
       "occurrences": 2,
       "packages": 2,
@@ -172,7 +172,7 @@
       ]
     },
     {
-      "id": "reuse-clone:55:35368842",
+      "id": "reuse-clone:55:fb970e2ee704361a",
       "title": "Structural clone of ListWorkItemsQuery across 2 packages",
       "occurrences": 3,
       "packages": 2,
@@ -183,7 +183,7 @@
       ]
     },
     {
-      "id": "reuse-clone:56:7a648c1",
+      "id": "reuse-clone:56:668c0e71ebfd9577",
       "title": "Structural clone of VeniceAIJsonResponse across 2 packages",
       "occurrences": 4,
       "packages": 2,
@@ -195,7 +195,7 @@
       ]
     },
     {
-      "id": "reuse-clone:56:b9ca1140",
+      "id": "reuse-clone:56:d050f50074f6486c",
       "title": "Structural clone of VeniceAITextResponse across 2 packages",
       "occurrences": 2,
       "packages": 2,
@@ -205,7 +205,7 @@
       ]
     },
     {
-      "id": "reuse-clone:59:2535052b",
+      "id": "reuse-clone:59:eaa7b48779f2bdc5",
       "title": "Structural clone of RepoExportsCatalogTotals across 2 packages",
       "occurrences": 2,
       "packages": 2,
@@ -215,7 +215,7 @@
       ]
     },
     {
-      "id": "reuse-clone:60:6f40b0dd",
+      "id": "reuse-clone:60:10a85916d6270d23",
       "title": "Structural clone of PhoenixPromptSelector across 2 packages",
       "occurrences": 2,
       "packages": 2,
@@ -225,7 +225,7 @@
       ]
     },
     {
-      "id": "reuse-clone:64:90ebebc2",
+      "id": "reuse-clone:64:c4ca9fc04c8fb19a",
       "title": "Structural clone of OpenAiCompatClientOptions across 4 packages",
       "occurrences": 4,
       "packages": 4,
@@ -237,17 +237,7 @@
       ]
     },
     {
-      "id": "reuse-clone:67:a5cd4b11",
-      "title": "Structural clone of makeWorkItemToolHandlers across 2 packages",
-      "occurrences": 2,
-      "packages": 2,
-      "members": [
-        "packages/architecture-lab/server/src/aggregates/WorkItem/WorkItem.tools.ts#makeWorkItemToolHandlers",
-        "packages/canvas/server/src/aggregates/CanvasProject/CanvasProject.tools.ts#makeCanvasProjectToolHandlers"
-      ]
-    },
-    {
-      "id": "reuse-clone:67:e610ab58",
+      "id": "reuse-clone:67:7e1f3e2ef8439864",
       "title": "Structural clone of Skill across 2 packages",
       "occurrences": 2,
       "packages": 2,
@@ -257,7 +247,17 @@
       ]
     },
     {
-      "id": "reuse-clone:69:2e61a773",
+      "id": "reuse-clone:67:81dd0a0fe06ee287",
+      "title": "Structural clone of makeWorkItemToolHandlers across 2 packages",
+      "occurrences": 2,
+      "packages": 2,
+      "members": [
+        "packages/architecture-lab/server/src/aggregates/WorkItem/WorkItem.tools.ts#makeWorkItemToolHandlers",
+        "packages/canvas/server/src/aggregates/CanvasProject/CanvasProject.tools.ts#makeCanvasProjectToolHandlers"
+      ]
+    },
+    {
+      "id": "reuse-clone:69:f7c094f8481c834d",
       "title": "Structural clone of FFmpegErrorFromUnknownOptions across 2 packages",
       "occurrences": 2,
       "packages": 2,
@@ -267,7 +267,7 @@
       ]
     },
     {
-      "id": "reuse-clone:76:25bc2f38",
+      "id": "reuse-clone:76:c020359bce27b04",
       "title": "Structural clone of FaceDetectionConfidence across 3 packages",
       "occurrences": 7,
       "packages": 3,
@@ -282,7 +282,7 @@
       ]
     },
     {
-      "id": "reuse-clone:78:6502bc3d",
+      "id": "reuse-clone:78:fed9cebaf7f004c3",
       "title": "Structural clone of WorkItemInvalidTransition across 2 packages",
       "occurrences": 2,
       "packages": 2,
@@ -292,7 +292,7 @@
       ]
     },
     {
-      "id": "reuse-clone:80:76c12aeb",
+      "id": "reuse-clone:80:e1675b78425848e5",
       "title": "Structural clone of CandidateClaim across 2 packages",
       "occurrences": 4,
       "packages": 2,
@@ -304,7 +304,7 @@
       ]
     },
     {
-      "id": "reuse-clone:82:5f64d9e",
+      "id": "reuse-clone:82:d335a0ca6db2f9e6",
       "title": "Structural clone of LegalClient across 2 packages",
       "occurrences": 2,
       "packages": 2,
@@ -314,7 +314,7 @@
       ]
     },
     {
-      "id": "reuse-clone:86:659cd371",
+      "id": "reuse-clone:86:c632c2cef570aec7",
       "title": "Structural clone of WorkItemRepositoryShape across 2 packages",
       "occurrences": 2,
       "packages": 2,
@@ -324,7 +324,7 @@
       ]
     },
     {
-      "id": "reuse-clone:89:d84f1c7b",
+      "id": "reuse-clone:89:de300150c2a9a7f5",
       "title": "Structural clone of make across 2 packages",
       "occurrences": 2,
       "packages": 2,
@@ -334,7 +334,7 @@
       ]
     },
     {
-      "id": "reuse-clone:94:4418372f",
+      "id": "reuse-clone:94:5206e8bb3921ad39",
       "title": "Structural clone of Discord across 2 packages",
       "occurrences": 2,
       "packages": 2,
