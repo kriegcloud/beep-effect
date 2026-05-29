@@ -6,9 +6,10 @@
  * @since 0.0.0
  */
 
-import * as DomainCanvasProject from "@beep/canvas-domain/aggregates/CanvasProject";
-import { A } from "@beep/utils";
-import { Effect, Match, pipe } from "effect";
+import * as DomainCanvasProject
+  from "@beep/canvas-domain/aggregates/CanvasProject";
+import {A} from "@beep/utils";
+import {Effect, flow, Match, pipe} from "effect";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import {
@@ -27,15 +28,17 @@ import {
 import type {
   AddCanvasNodeCommand,
   ArchiveCanvasProjectCommand,
-  CreateCanvasProjectCommand,
   GetCanvasProjectQuery,
   ListCanvasProjectsQuery,
   RemoveCanvasNodeCommand,
   RestoreCanvasProjectCommand,
 } from "./CanvasProject.commands.js";
-import type { CanvasProjectActionError } from "./CanvasProject.errors.js";
-import type { CanvasProjectRepositoryError, CanvasProjectRepositoryShape } from "./CanvasProject.repository.js";
-import type { CanvasProjectUseCasesShape } from "./CanvasProject.use-cases.js";
+import type {CanvasProjectActionError} from "./CanvasProject.errors.js";
+import type {
+  CanvasProjectRepositoryError,
+  CanvasProjectRepositoryShape
+} from "./CanvasProject.repository.js";
+import type {CanvasProjectUseCasesShape} from "./CanvasProject.use-cases.js";
 
 const isRepositoryNotFound = S.is(CanvasProjectRepositoryNotFound);
 const isRepositoryConflict = S.is(CanvasProjectRepositoryConflict);
@@ -61,7 +64,7 @@ export const toCanvasProjectActionError = (
   error: CanvasProjectRepositoryError | DomainCanvasProject.CanvasProjectDomainError
 ): CanvasProjectActionError =>
   Match.value(error).pipe(
-    Match.when(isRepositoryNotFound, (error) => CanvasProjectNotFound.make({ canvasProjectId: error.canvasProjectId })),
+    Match.when(isRepositoryNotFound, (error) => CanvasProjectNotFound.make({canvasProjectId: error.canvasProjectId})),
     Match.when(isRepositoryConflict, (error) =>
       CanvasProjectConflict.make({
         canvasProjectId: error.canvasProjectId,
@@ -69,7 +72,7 @@ export const toCanvasProjectActionError = (
       })
     ),
     Match.when(isRepositoryUnavailable, () =>
-      CanvasProjectActionFailed.make({ reason: CANVAS_PROJECT_ACTION_UNAVAILABLE_REASON })
+      CanvasProjectActionFailed.make({reason: CANVAS_PROJECT_ACTION_UNAVAILABLE_REASON})
     ),
     Match.orElse((error) =>
       CanvasProjectActionRejected.make({
@@ -117,16 +120,17 @@ export const makeCanvasProjectUseCases = (repository: CanvasProjectRepositorySha
   archive: Effect.fn("Canvas.CanvasProjectUseCases.archive")(function* (command: ArchiveCanvasProjectCommand) {
     return yield* mutateStoredCanvasProject(repository, command.id, DomainCanvasProject.archive);
   }),
-  create: Effect.fn("Canvas.CanvasProjectUseCases.create")(function* (command: CreateCanvasProjectCommand) {
-    return yield* pipe(
-      Effect.succeed(DomainCanvasProject.create(DomainCanvasProject.CreateCanvasProjectInput.make(command))),
-      Effect.flatMap(repository.create),
-      Effect.mapError(toCanvasProjectActionError)
-    );
-  }),
+  create: flow(
+    DomainCanvasProject.CreateCanvasProjectInput.make,
+    DomainCanvasProject.create,
+    Effect.succeed,
+    Effect.flatMap(repository.create),
+    Effect.mapError(toCanvasProjectActionError),
+    Effect.withSpan("Canvas.CanvasProjectUseCases.create")
+  ),
   get: Effect.fn("Canvas.CanvasProjectUseCases.get")(function* (query: GetCanvasProjectQuery) {
-    return yield* pipe(repository.get(query.id), Effect.mapError(toCanvasProjectActionError));
-  }),
+    return yield* repository.get(query.id);
+  }, Effect.mapError(toCanvasProjectActionError)),
   list: Effect.fn("Canvas.CanvasProjectUseCases.list")(function* (query: ListCanvasProjectsQuery) {
     return yield* pipe(
       repository.list,
@@ -149,8 +153,8 @@ export const makeCanvasProjectUseCases = (repository: CanvasProjectRepositorySha
   }),
   restore: Effect.fn("Canvas.CanvasProjectUseCases.restore")(function* (command: RestoreCanvasProjectCommand) {
     return yield* repository.save(command.scene).pipe(
-      Effect.catchTag("CanvasProjectRepositoryNotFound", () => repository.create(command.scene)),
-      Effect.mapError(toCanvasProjectActionError)
+      Effect.catchTag("CanvasProjectRepositoryNotFound", () => repository.create(command.scene))
     );
-  }),
+  },
+    Effect.mapError(toCanvasProjectActionError)),
 });

@@ -21,11 +21,10 @@ import type { RuntimeFixtureInput } from "./ProfessionalRuntime.fixtures.js";
 import type { GetContextPacket } from "./ProfessionalRuntime.queries.js";
 import type { ProfessionalRuntimeSdk } from "./ProfessionalRuntime.service.js";
 
-const failValidation = (message: string): Effect.Effect<never, ProfessionalRuntimeValidationError> =>
-  Effect.fail(ProfessionalRuntimeValidationError.make({ message }));
+
 
 const ensure = (condition: boolean, message: string): Effect.Effect<void, ProfessionalRuntimeValidationError> =>
-  condition ? Effect.void : failValidation(message);
+  condition ? Effect.void : ProfessionalRuntimeValidationError.failEffect(message);
 
 const fixtureForScenario = (
   fixtures: ReadonlyArray<RuntimeFixtureInput>,
@@ -34,7 +33,7 @@ const fixtureForScenario = (
   O.match(
     A.findFirst(fixtures, (fixture) => fixture.email.scenarioId === scenarioId),
     {
-      onNone: () => failValidation(`Unknown runtime fixture scenario: ${scenarioId}`),
+      onNone: () => ProfessionalRuntimeValidationError.failEffect(`Unknown runtime fixture scenario: ${scenarioId}`),
       onSome: Effect.succeed,
     }
   );
@@ -191,7 +190,7 @@ const validateOutputSet = (
 ): Effect.Effect<void, ProfessionalRuntimeValidationError> => {
   const issues = collectOutputIssues(outputSet, producedByPrincipalId);
 
-  return issues.length === 0 ? Effect.void : failValidation(`${outputSet.scenarioId}: ${A.join(issues, "; ")}`);
+  return issues.length === 0 ? Effect.void : ProfessionalRuntimeValidationError.failEffect(`${outputSet.scenarioId}: ${A.join(issues, "; ")}`);
 };
 
 /**

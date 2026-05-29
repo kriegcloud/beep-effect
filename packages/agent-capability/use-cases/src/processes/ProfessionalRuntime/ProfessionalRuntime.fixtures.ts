@@ -61,13 +61,10 @@ export class RuntimeFixtureInput extends S.Class<RuntimeFixtureInput>($I`Runtime
 
 const decodeOutputSet = S.decodeUnknownSync(CandidateOutputSet);
 
-const failValidation = (message: string): never => {
-  throw ProfessionalRuntimeValidationError.make({ message });
-};
 
 const assertScenario = (input: RuntimeFixtureInput): void => {
   if (input.seed.scenarioId !== input.email.scenarioId) {
-    failValidation(`Mismatched seed/email scenario ids: ${input.seed.scenarioId} !== ${input.email.scenarioId}`);
+    ProfessionalRuntimeValidationError.throwError(`Mismatched seed/email scenario ids: ${input.seed.scenarioId} !== ${input.email.scenarioId}`);
   }
 };
 
@@ -75,7 +72,7 @@ const assertSpanRefs = (input: RuntimeFixtureInput, spanIds: ReadonlyArray<strin
   const missing = A.filter(spanIds, (spanId) => !Str.includes(`[span:${spanId}]`)(input.body));
 
   if (missing.length > 0) {
-    failValidation(`${input.email.scenarioId}: missing body spans: ${A.join(missing, ", ")}`);
+    ProfessionalRuntimeValidationError.throwError(`${input.email.scenarioId}: missing body spans: ${A.join(missing, ", ")}`);
   }
 };
 
@@ -648,7 +645,7 @@ const fixtureRunnerForScenario: (scenarioId: string) => (input: RuntimeFixtureIn
   Match.type<string>().pipe(
     Match.when("law-patent-intake", () => runLawPatentIntake),
     Match.when("wealth-cash-request", () => runWealthCashRequest),
-    Match.orElse((scenarioId) => () => failValidation(`Unknown runtime fixture scenario: ${scenarioId}`))
+    Match.orElse((scenarioId) => () => ProfessionalRuntimeValidationError.throwError(`Unknown runtime fixture scenario: ${scenarioId}`))
   );
 
 /**

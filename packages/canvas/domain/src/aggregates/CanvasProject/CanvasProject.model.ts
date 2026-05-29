@@ -6,8 +6,8 @@
  * @since 0.0.0
  */
 
-import { $CanvasDomainId } from "@beep/identity/packages";
-import { Effect, pipe } from "effect";
+import {$CanvasDomainId} from "@beep/identity/packages";
+import {Effect, pipe, Tuple} from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
@@ -44,7 +44,8 @@ export class CanvasNode extends S.Class<CanvasNode>($I`CanvasNode`)(
     title: "CanvasNode",
     description: "Non-rendering metadata entry for a bootstrap canvas scene.",
   })
-) {}
+) {
+}
 
 /**
  * CanvasProject aggregate.
@@ -52,18 +53,30 @@ export class CanvasNode extends S.Class<CanvasNode>($I`CanvasNode`)(
  * @category aggregates
  * @since 0.0.0
  */
-export class CanvasProject extends S.Class<CanvasProject>($I`CanvasProject`)(
-  {
+export const CanvasProject = CanvasProjectStatus.mapMembers((members) => {
+  const make = <T extends CanvasProjectStatus>(literal: S.Literal<T>) => S.Struct({
     id: CanvasProjectId,
     title: CanvasProjectTitle,
-    status: CanvasProjectStatus,
+    status: S.tag(literal.literal),
     nodes: S.Array(CanvasNode),
-  },
-  $I.annote("CanvasProject", {
+  })
+
+  return pipe(
+    members,
+    Tuple.evolve([
+      make,
+      make
+    ])
+  )
+}).pipe(
+  S.toTaggedUnion("status"),
+  $I.annoteSchema("CanvasProject", {
     title: "CanvasProject",
     description: "Scene container aggregate for the bootstrap canvas slice.",
   })
-) {}
+)
+
+export type CanvasProject = typeof CanvasProject.Type;
 
 /**
  * CanvasProject creation input.
@@ -85,7 +98,8 @@ export class CreateCanvasProjectInput extends S.Class<CreateCanvasProjectInput>(
     title: "Create CanvasProject input",
     description: "Input required to create an open canvas scene container.",
   })
-) {}
+) {
+}
 
 /**
  * Create a new open CanvasProject aggregate.
@@ -98,15 +112,18 @@ export const create = (input: CreateCanvasProjectInput): CanvasProject =>
     id: input.id,
     title: input.title,
     status: "open",
-    nodes: O.getOrElse(input.nodes, () => []),
+    nodes: O.getOrElse(input.nodes, A.empty<CanvasNode>),
   });
 
 const requireMutable = (canvasProject: CanvasProject): Effect.Effect<void, CanvasProjectAlreadyArchived> =>
   canvasProject.status === "archived"
-    ? Effect.fail(CanvasProjectAlreadyArchived.make({ canvasProjectId: canvasProject.id }))
+    ? Effect.fail(CanvasProjectAlreadyArchived.make({canvasProjectId: canvasProject.id}))
     : Effect.void;
 
-const findNode = (canvasProject: CanvasProject, canvasNodeId: CanvasNodeId): O.Option<CanvasNode> =>
+const findNode = (
+  canvasProject: CanvasProject,
+  canvasNodeId: CanvasNodeId
+): O.Option<CanvasNode> =>
   pipe(
     canvasProject.nodes,
     A.findFirst((node) => node.id === canvasNodeId)

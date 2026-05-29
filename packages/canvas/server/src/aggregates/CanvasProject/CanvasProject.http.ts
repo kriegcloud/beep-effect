@@ -6,21 +6,16 @@
  * @since 0.0.0
  */
 
-import { CanvasProject as CanvasProjectUseCases } from "@beep/canvas-use-cases/public";
-import { $CanvasServerId } from "@beep/identity/packages";
-import { LiteralKit } from "@beep/schema";
-import { Effect, Match } from "effect";
+import {
+  CanvasProject as CanvasProjectUseCases
+} from "@beep/canvas-use-cases/public";
+import {$CanvasServerId} from "@beep/identity/packages";
+import {LiteralKit} from "@beep/schema";
+import {Effect, flow, Match} from "effect";
+import {dual} from "effect/Function";
 import * as S from "effect/Schema";
 
 const $I = $CanvasServerId.create("aggregates/CanvasProject/CanvasProject.http");
-
-const isNotFound = S.is(CanvasProjectUseCases.CanvasProjectNotFound);
-const isConflict = S.is(CanvasProjectUseCases.CanvasProjectConflict);
-const isActionRejected = S.is(CanvasProjectUseCases.CanvasProjectActionRejected);
-const isActionFailed = S.is(CanvasProjectUseCases.CanvasProjectActionFailed);
-const serviceUnavailableBody = CanvasProjectUseCases.CanvasProjectActionFailed.make({
-  reason: CanvasProjectUseCases.CANVAS_PROJECT_ACTION_UNAVAILABLE_REASON,
-});
 
 /**
  * HTTP status values emitted by the CanvasProject bootstrap adapter.
@@ -82,7 +77,25 @@ export class CanvasProjectHttpResponse extends S.Class<CanvasProjectHttpResponse
     title: "CanvasProject HTTP response",
     description: "Minimal protocol response envelope used by the canvas bootstrap proof.",
   })
-) {}
+) {
+  static readonly new: {
+    (
+      body: unknown,
+      status: CanvasProjectHttpStatus
+    ): CanvasProjectHttpResponse;
+    (status: CanvasProjectHttpStatus): (body: unknown) => CanvasProjectHttpResponse;
+  } = dual(
+    2,
+    (
+      body: unknown,
+      status: CanvasProjectHttpStatus
+    ): CanvasProjectHttpResponse =>
+      CanvasProjectHttpResponse.make({
+        body,
+        status,
+      })
+  );
+}
 
 /**
  * Convert a public CanvasProject failure to an HTTP response envelope.
@@ -103,21 +116,20 @@ export class CanvasProjectHttpResponse extends S.Class<CanvasProjectHttpResponse
  * @category handlers
  * @since 0.0.0
  */
-export const toCanvasProjectHttpError = (
-  error: CanvasProjectUseCases.CanvasProjectActionError
-): CanvasProjectHttpResponse =>
-  Match.value(error).pipe(
-    Match.when(isNotFound, (error) => CanvasProjectHttpResponse.make({ status: 404, body: error })),
-    Match.when(isConflict, (error) => CanvasProjectHttpResponse.make({ status: 409, body: error })),
-    Match.when(isActionRejected, (error) => CanvasProjectHttpResponse.make({ status: 422, body: error })),
-    Match.when(isActionFailed, () => CanvasProjectHttpResponse.make({ status: 503, body: serviceUnavailableBody })),
-    Match.orElse(() => CanvasProjectHttpResponse.make({ status: 503, body: serviceUnavailableBody }))
-  );
+export const toCanvasProjectHttpError = Match.type<CanvasProjectUseCases.CanvasProjectActionError>().pipe(
+  Match.tags({
+    CanvasProjectNotFound: CanvasProjectHttpResponse.new(404),
+    CanvasProjectConflict: CanvasProjectHttpResponse.new(409),
+    CanvasProjectActionRejected: CanvasProjectHttpResponse.new(422),
+  }),
+  Match.orElse(() => CanvasProjectHttpResponse.new(CanvasProjectUseCases.CANVAS_PROJECT_ACTION_UNAVAILABLE_REASON, 503)
+  )
+);
 
 const toSuccess =
   (status: 200 | 201) =>
-  (body: unknown): CanvasProjectHttpResponse =>
-    CanvasProjectHttpResponse.make({ status, body });
+    (body: unknown): CanvasProjectHttpResponse =>
+      CanvasProjectHttpResponse.make({status, body});
 
 /**
  * Build HTTP-style CanvasProject handlers from the public use-case facade.
@@ -136,53 +148,53 @@ const toSuccess =
  * @since 0.0.0
  */
 export const makeCanvasProjectHttpHandlers = (useCases: CanvasProjectUseCases.CanvasProjectUseCasesShape) => ({
-  addNode: (command: CanvasProjectUseCases.AddCanvasNodeCommand): Effect.Effect<CanvasProjectHttpResponse> =>
-    useCases.addNode(command).pipe(
-      Effect.match({
-        onFailure: toCanvasProjectHttpError,
-        onSuccess: toSuccess(200),
-      })
-    ),
-  archive: (command: CanvasProjectUseCases.ArchiveCanvasProjectCommand): Effect.Effect<CanvasProjectHttpResponse> =>
-    useCases.archive(command).pipe(
-      Effect.match({
-        onFailure: toCanvasProjectHttpError,
-        onSuccess: toSuccess(200),
-      })
-    ),
-  create: (command: CanvasProjectUseCases.CreateCanvasProjectCommand): Effect.Effect<CanvasProjectHttpResponse> =>
-    useCases.create(command).pipe(
-      Effect.match({
-        onFailure: toCanvasProjectHttpError,
-        onSuccess: toSuccess(201),
-      })
-    ),
-  get: (query: CanvasProjectUseCases.GetCanvasProjectQuery): Effect.Effect<CanvasProjectHttpResponse> =>
-    useCases.get(query).pipe(
-      Effect.match({
-        onFailure: toCanvasProjectHttpError,
-        onSuccess: toSuccess(200),
-      })
-    ),
-  list: (query: CanvasProjectUseCases.ListCanvasProjectsQuery): Effect.Effect<CanvasProjectHttpResponse> =>
-    useCases.list(query).pipe(
-      Effect.match({
-        onFailure: toCanvasProjectHttpError,
-        onSuccess: toSuccess(200),
-      })
-    ),
-  removeNode: (command: CanvasProjectUseCases.RemoveCanvasNodeCommand): Effect.Effect<CanvasProjectHttpResponse> =>
-    useCases.removeNode(command).pipe(
-      Effect.match({
-        onFailure: toCanvasProjectHttpError,
-        onSuccess: toSuccess(200),
-      })
-    ),
-  restore: (command: CanvasProjectUseCases.RestoreCanvasProjectCommand): Effect.Effect<CanvasProjectHttpResponse> =>
-    useCases.restore(command).pipe(
-      Effect.match({
-        onFailure: toCanvasProjectHttpError,
-        onSuccess: toSuccess(200),
-      })
-    ),
+  addNode: flow(
+    useCases.addNode,
+    Effect.match({
+      onFailure: toCanvasProjectHttpError,
+      onSuccess: CanvasProjectHttpResponse.new(200),
+    })
+  ),
+  archive: flow(
+    useCases.archive,
+    Effect.match({
+      onFailure: toCanvasProjectHttpError,
+      onSuccess: CanvasProjectHttpResponse.new(200),
+    })
+  ),
+  create: flow(
+    useCases.create,
+    Effect.match({
+      onFailure: toCanvasProjectHttpError,
+      onSuccess: CanvasProjectHttpResponse.new(201),
+    })
+  ),
+  get: flow(
+    useCases.get,
+    Effect.match({
+      onFailure: toCanvasProjectHttpError,
+      onSuccess: CanvasProjectHttpResponse.new(200),
+    })
+  ),
+  list: flow(
+    useCases.list,
+    Effect.match({
+      onFailure: toCanvasProjectHttpError,
+      onSuccess: CanvasProjectHttpResponse.new(200),
+    })
+  ),
+  removeNode: flow(
+    useCases.removeNode,
+    Effect.match({
+      onFailure: toCanvasProjectHttpError,
+      onSuccess: CanvasProjectHttpResponse.new(200),
+    })
+  ),
+  restore: flow(
+    useCases.restore,
+    Effect.match({
+      onFailure: toCanvasProjectHttpError,
+      onSuccess: toSuccess(200),
+    })
+  ),
 });

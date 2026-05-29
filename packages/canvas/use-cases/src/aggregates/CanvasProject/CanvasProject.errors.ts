@@ -44,7 +44,10 @@ export class CanvasProjectNotFound extends TaggedErrorClass<CanvasProjectNotFoun
     title: "CanvasProject not found",
     description: "The requested canvas CanvasProject does not exist.",
   })
-) {}
+) {
+  static readonly new = (canvasProjectId: DomainCanvasProject.CanvasProjectId): CanvasProjectNotFound =>
+    CanvasProjectNotFound.make({ canvasProjectId });
+}
 
 /**
  * Public failure raised when a command conflicts with persisted state.
@@ -62,7 +65,10 @@ export class CanvasProjectConflict extends TaggedErrorClass<CanvasProjectConflic
     title: "CanvasProject conflict",
     description: "The requested CanvasProject command conflicts with persisted state.",
   })
-) {}
+) {
+  static readonly new = (canvasProjectId: DomainCanvasProject.CanvasProjectId, reason: string): CanvasProjectConflict =>
+    CanvasProjectConflict.make({ canvasProjectId, reason });
+}
 
 /**
  * Public failure raised when the domain rejects a CanvasProject action.
@@ -115,6 +121,8 @@ export type CanvasProjectActionError =
   | CanvasProjectActionRejected
   | CanvasProjectActionFailed;
 
+
+
 /**
  * Public CanvasProject use-case failure schema.
  *
@@ -126,4 +134,9 @@ export const CanvasProjectActionError = S.Union([
   CanvasProjectConflict,
   CanvasProjectActionRejected,
   CanvasProjectActionFailed,
-]);
+]).pipe(
+  S.toTaggedUnion("_tag"),
+  $I.annoteSchema("CanvasProjectActionError", {
+    description: "Public CanvasProject use-case failure.",
+  })
+);

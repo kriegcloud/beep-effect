@@ -130,4 +130,9 @@ export const CanvasProjectDomainError = S.Union([
   CanvasProjectInvalidTransition,
   CanvasNodeAlreadyExists,
   CanvasNodeNotFound,
-]);
+]).pipe(
+  S.toTaggedUnion("_tag"),
+  $I.annoteSchema("CanvasProjectDomainError", {
+    description: "CanvasProject aggregate domain error",
+  })
+);
