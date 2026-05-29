@@ -65,6 +65,7 @@ export class TerseEffectRulesSummary extends S.Class<TerseEffectRulesSummary>($I
     thunkHelpersSimplified: S.Number,
     flowCandidatesDetected: S.Number,
     optionObjectCompactionCandidatesDetected: S.Number,
+    conditionalOptionalObjectSpreadCandidatesDetected: S.Number,
     nestedOptionMatchCandidatesDetected: S.Number,
     nestedBoolMatchCandidatesDetected: S.Number,
     dualOverloadCandidatesDetected: S.Number,
@@ -418,6 +419,55 @@ const isOptionObjectCompactionCandidate = (callExpression: CallExpression): bool
     O.isSome
   );
 
+const unwrapParenthesizedExpression = (node: import("ts-morph").Node): import("ts-morph").Node =>
+  Node.isParenthesizedExpression(node) ? unwrapParenthesizedExpression(node.getExpression()) : node;
+
+const isUndefinedIdentifier = (node: import("ts-morph").Node): boolean =>
+  Node.isIdentifier(node) && node.getText() === "undefined";
+
+const isEmptyObjectLiteral = (node: import("ts-morph").Node): boolean => {
+  const expression = unwrapParenthesizedExpression(node);
+  return Node.isObjectLiteralExpression(expression) && A.length(expression.getProperties()) === 0;
+};
+
+const isSinglePropertyObjectLiteral = (node: import("ts-morph").Node): boolean => {
+  const expression = unwrapParenthesizedExpression(node);
+  return Node.isObjectLiteralExpression(expression) && A.length(expression.getProperties()) === 1;
+};
+
+const isConditionalOptionalObjectSpreadCandidate = (spreadAssignment: import("ts-morph").SpreadAssignment): boolean => {
+  const parent = spreadAssignment.getParent();
+  if (!Node.isObjectLiteralExpression(parent)) {
+    return false;
+  }
+
+  const expression = unwrapParenthesizedExpression(spreadAssignment.getExpression());
+  if (!Node.isConditionalExpression(expression)) {
+    return false;
+  }
+
+  const condition = unwrapParenthesizedExpression(expression.getCondition());
+  if (!Node.isBinaryExpression(condition)) {
+    return false;
+  }
+
+  const operator = condition.getOperatorToken().getText();
+  if (operator !== "===" && operator !== "!==") {
+    return false;
+  }
+
+  const comparesWithUndefined =
+    isUndefinedIdentifier(condition.getLeft()) || isUndefinedIdentifier(condition.getRight());
+  if (!comparesWithUndefined) {
+    return false;
+  }
+
+  const emptyBranch = operator === "===" ? expression.getWhenTrue() : expression.getWhenFalse();
+  const objectBranch = operator === "===" ? expression.getWhenFalse() : expression.getWhenTrue();
+
+  return isEmptyObjectLiteral(emptyBranch) && isSinglePropertyObjectLiteral(objectBranch);
+};
+
 const nodeContainsCallExpression = (
   node: import("ts-morph").Node,
   predicate: (callExpression: CallExpression) => boolean
@@ -513,6 +563,7 @@ export const runTerseEffectRules = Effect.fn(function* (options: TerseEffectRule
   let thunkHelpersSimplified = 0;
   let flowCandidatesDetected = 0;
   let optionObjectCompactionCandidatesDetected = 0;
+  let conditionalOptionalObjectSpreadCandidatesDetected = 0;
   let nestedOptionMatchCandidatesDetected = 0;
   let nestedBoolMatchCandidatesDetected = 0;
   let dualOverloadCandidatesDetected = 0;
@@ -586,6 +637,13 @@ export const runTerseEffectRules = Effect.fn(function* (options: TerseEffectRule
       }
     }
 
+    for (const spreadAssignment of sourceFile.getDescendantsOfKind(SyntaxKind.SpreadAssignment)) {
+      if (isConditionalOptionalObjectSpreadCandidate(spreadAssignment)) {
+        conditionalOptionalObjectSpreadCandidatesDetected += 1;
+        fileTouched = true;
+      }
+    }
+
     for (const functionDeclaration of sourceFile.getFunctions()) {
       if (isExplicitDualOverloadCandidate(functionDeclaration)) {
         dualOverloadCandidatesDetected += 1;
@@ -618,6 +676,7 @@ export const runTerseEffectRules = Effect.fn(function* (options: TerseEffectRule
     (helpersSimplified > 0 ||
       thunkHelpersSimplified > 0 ||
       optionObjectCompactionCandidatesDetected > 0 ||
+      conditionalOptionalObjectSpreadCandidatesDetected > 0 ||
       nestedOptionMatchCandidatesDetected > 0 ||
       nestedBoolMatchCandidatesDetected > 0 ||
       dualOverloadCandidatesDetected > 0);
@@ -628,6 +687,7 @@ export const runTerseEffectRules = Effect.fn(function* (options: TerseEffectRule
     thunkHelpersSimplified,
     flowCandidatesDetected,
     optionObjectCompactionCandidatesDetected,
+    conditionalOptionalObjectSpreadCandidatesDetected,
     nestedOptionMatchCandidatesDetected,
     nestedBoolMatchCandidatesDetected,
     dualOverloadCandidatesDetected,

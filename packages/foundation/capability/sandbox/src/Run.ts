@@ -8,6 +8,7 @@
 import { $SandboxId } from "@beep/identity";
 import { Fn, LiteralKit } from "@beep/schema";
 import { A, Str } from "@beep/utils";
+import * as O from "@beep/utils/Option";
 import { Duration, Effect, FileSystem, Match, Path } from "effect";
 import { dual } from "effect/Function";
 import * as P from "effect/Predicate";
@@ -657,7 +658,7 @@ const runInWorktree: <R>(
         SandboxLifecycleSetupOptions.make({
           gitSetupTimeoutMs: options.timeouts.gitSetupMs,
           hookTimeoutMs: options.timeouts.hookMs,
-          ...(runOptions.hooks === undefined ? {} : { hooks: runOptions.hooks }),
+          ...O.getSomesStruct({ hooks: O.fromUndefinedOr(runOptions.hooks) }),
           hostRepoDir: options.hostRepoDir,
           hostWorktreePath: options.worktree.path,
           sandboxRepoDir: sandbox.worktreePath,
@@ -666,9 +667,9 @@ const runInWorktree: <R>(
         Effect.andThen(
           orchestrate({
             branch: options.worktree.branch,
-            ...(runOptions.completionSignal === undefined ? {} : { completionSignal: runOptions.completionSignal }),
+            ...O.getSomesStruct({ completionSignal: O.fromUndefinedOr(runOptions.completionSignal) }),
             iterations: options.maxIterations,
-            ...(runOptions.name === undefined ? {} : { name: runOptions.name }),
+            ...O.getSomesStruct({ name: O.fromUndefinedOr(runOptions.name) }),
             prompt: options.prompt,
             promptExpansionTimeoutMs: options.timeouts.promptExpansionMs,
             provider: runOptions.agent,
@@ -718,7 +719,7 @@ const runInWorktree: <R>(
       agentName: runOptions.agent.name,
       branch: result.branch,
       maxIterations: options.maxIterations,
-      ...(runOptions.name === undefined ? {} : { name: runOptions.name }),
+      ...O.getSomesStruct({ name: O.fromUndefinedOr(runOptions.name) }),
       sandboxName: runOptions.sandbox.name,
     })
   );
@@ -729,10 +730,10 @@ const runInWorktree: <R>(
   return RunResult.make({
     branch: options.branchStrategy._tag === "MergeToHead" ? options.currentBranch : result.branch,
     commits,
-    ...(result.completionSignal === undefined ? {} : { completionSignal: result.completionSignal }),
+    ...O.getSomesStruct({ completionSignal: O.fromUndefinedOr(result.completionSignal) }),
     iterations: result.iterations,
     ...(runOptions.logging?._tag === "File" ? { logFilePath: runOptions.logging.path } : {}),
-    ...(result.preservedWorktreePath === undefined ? {} : { preservedWorktreePath: result.preservedWorktreePath }),
+    ...O.getSomesStruct({ preservedWorktreePath: O.fromUndefinedOr(result.preservedWorktreePath) }),
     stdout: result.stdout,
   });
 });
@@ -776,8 +777,8 @@ const runEffect: <R>(
   const promptArgs = options.promptArgs ?? {};
   const resolvedPrompt = yield* resolvePrompt(
     ResolvePromptOptions.make({
-      ...(options.prompt === undefined ? {} : { prompt: options.prompt }),
-      ...(options.promptFile === undefined ? {} : { promptFile: options.promptFile }),
+      ...O.getSomesStruct({ prompt: O.fromUndefinedOr(options.prompt) }),
+      ...O.getSomesStruct({ promptFile: O.fromUndefinedOr(options.promptFile) }),
     })
   );
 
@@ -799,7 +800,7 @@ const runEffect: <R>(
         buildLogFilename(
           currentBranch,
           LogFilenameOptions.make({
-            ...(options.name === undefined ? {} : { name: options.name }),
+            ...O.getSomesStruct({ name: O.fromUndefinedOr(options.name) }),
           })
         )
       )
@@ -856,11 +857,11 @@ const runEffect: <R>(
       CreateWorktreeInfoOptions.make({
         ...(branchStrategy._tag === "Branch"
           ? {
-              ...(branchStrategy.baseBranch === undefined ? {} : { baseBranch: branchStrategy.baseBranch }),
+              ...O.getSomesStruct({ baseBranch: O.fromUndefinedOr(branchStrategy.baseBranch) }),
               branch: branchStrategy.branch,
             }
           : {}),
-        ...(options.name === undefined ? {} : { name: options.name }),
+        ...O.getSomesStruct({ name: O.fromUndefinedOr(options.name) }),
         repoDir: hostRepoDir,
       })
     ),

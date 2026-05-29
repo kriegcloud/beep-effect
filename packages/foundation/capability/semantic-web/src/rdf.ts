@@ -7,9 +7,9 @@
 
 import { $SemanticWebId } from "@beep/identity/packages";
 import { A, Str } from "@beep/utils";
+import * as O from "@beep/utils/Option";
 import { Order, pipe, Result } from "effect";
 import { dual } from "effect/Function";
-import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
 import { IRI } from "./iri.ts";
@@ -826,7 +826,7 @@ const makeLiteralInternal = (value: string, datatype: string, options: MakeLiter
       termType: "Literal",
       value,
       datatype: makeNamedNode(datatype),
-      ...(language === undefined ? {} : { language }),
+      ...O.getSomesStruct({ language: O.fromUndefinedOr(language) }),
     }),
     Result.getOrThrow
   );

@@ -12,6 +12,7 @@ import {
   makeFromProvider,
   OpenAiCompatLanguageModelConfig,
 } from "@beep/openai-compat";
+import * as O from "@beep/utils/Option";
 import { Effect, Layer, pipe, Stream } from "effect";
 import * as S from "effect/Schema";
 import * as AiError from "effect/unstable/ai/AiError";
@@ -177,7 +178,7 @@ export const make: (options: XAiLanguageModelOptions) => Effect.Effect<LanguageM
 )(function* (options) {
   const xai = yield* XAi;
   return yield* makeFromProvider({
-    ...(options.config === undefined ? {} : { config: options.config }),
+    ...O.getSomesStruct({ config: O.fromUndefinedOr(options.config) }),
     model: options.model,
     moduleName,
     provider: {

@@ -7,9 +7,9 @@
  */
 
 import { A, Str } from "@beep/utils";
+import * as O from "@beep/utils/Option";
 import { Effect, flow, Layer, Match, Order, pipe } from "effect";
 import { dual } from "effect/Function";
-import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
@@ -136,7 +136,7 @@ const makeLiteralEffect = (options: {
     termType: "Literal",
     value: options.value,
     datatype: options.datatype,
-    ...(options.language === undefined ? {} : { language: options.language }),
+    ...O.getSomesStruct({ language: O.fromUndefinedOr(options.language) }),
   }).pipe(
     Effect.mapError((cause) =>
       makeDocumentError(

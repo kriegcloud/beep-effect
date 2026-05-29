@@ -7,6 +7,7 @@
 
 import { $SandboxId } from "@beep/identity";
 import { A, Str } from "@beep/utils";
+import * as O from "@beep/utils/Option";
 import { DateTime, Effect, FileSystem, Path } from "effect";
 import { dual, flow } from "effect/Function";
 import * as P from "effect/Predicate";
@@ -332,7 +333,7 @@ const cleanupPatchDir = Effect.fn("SyncOut.cleanupPatchDir")(function* (patchDir
 
   const remainingPatches = yield* fs
     .readDirectory(patchesRoot)
-    .pipe(Effect.catch(() => Effect.succeed(["preserve"] as Array<string>)));
+    .pipe(Effect.orElseSucceed(() => ["preserve"] as Array<string>));
 
   if (remainingPatches.length === 0) {
     yield* fs.remove(patchesRoot, { force: true, recursive: true }).pipe(Effect.ignore);
@@ -340,7 +341,7 @@ const cleanupPatchDir = Effect.fn("SyncOut.cleanupPatchDir")(function* (patchDir
 
   const remainingSandcastleEntries = yield* fs
     .readDirectory(sandcastleDir)
-    .pipe(Effect.catch(() => Effect.succeed(["preserve"] as Array<string>)));
+    .pipe(Effect.orElseSucceed(() => ["preserve"] as Array<string>));
 
   if (remainingSandcastleEntries.length === 0) {
     yield* fs.remove(sandcastleDir, { force: true, recursive: true }).pipe(Effect.ignore);
@@ -443,7 +444,7 @@ export const syncOut: {
     if (failedStep !== undefined) {
       const recoveryMessage = buildRecoveryMessage(
         RecoveryInput.make({
-          ...(options.branch === undefined ? {} : { branch: options.branch }),
+          ...O.getSomesStruct({ branch: O.fromUndefinedOr(options.branch) }),
           failedStep,
           hasCommits: nonEmptyPatches.length > 0,
           hasDiff,

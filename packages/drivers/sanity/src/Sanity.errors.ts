@@ -7,11 +7,9 @@
 
 import { $SanityId } from "@beep/identity";
 import { LiteralKit, TaggedErrorClass } from "@beep/schema";
-import { thunkFalse, thunkUndefined } from "@beep/utils";
+import { O, thunkFalse, thunkUndefined } from "@beep/utils";
 import { pipe, Result } from "effect";
-import * as O from "effect/Option";
 import * as P from "effect/Predicate";
-import * as R from "effect/Record";
 import * as S from "effect/Schema";
 import * as HttpClientError from "effect/unstable/http/HttpClientError";
 
@@ -113,13 +111,9 @@ export class SanityError extends TaggedErrorClass<SanityError>($I`SanityError`)(
   static readonly fromReason = (reason: SanityErrorReason, options: SanityErrorOptions = {}): SanityError =>
     SanityError.make({
       reason,
-      ...R.getSomes({
+      ...O.getSomesStruct({
         cause: causeFromUnknown(options.cause),
-      }),
-      ...R.getSomes({
         status: O.fromUndefinedOr(options.status),
-      }),
-      ...R.getSomes({
         url: O.fromUndefinedOr(options.url),
       }),
     });

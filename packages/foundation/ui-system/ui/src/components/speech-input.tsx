@@ -1,4 +1,6 @@
-"use client";
+import * as O from "@beep/utils/Option";
+
+("use client");
 
 import { Button } from "@beep/ui/components/button";
 import { useScribe } from "@beep/ui/hooks/use-scribe";
@@ -201,7 +203,7 @@ const SpeechInput = forwardRef<HTMLDivElement, SpeechInputProps>(function Speech
       transcriptsRef.current.partialTranscript = "";
       onChange?.(buildEvent(transcriptsRef.current));
     },
-    ...(onError === undefined ? {} : { onError }),
+    ...O.getSomesStruct({ onError: O.fromUndefinedOr(onError) }),
     onAuthError,
     onQuotaExceededError,
   });

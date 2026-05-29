@@ -17,6 +17,7 @@ import {
 import { normalizeJSDocCategory } from "@beep/repo-utils/schemas/JSDocCategories";
 import { LiteralKit, normalizePath } from "@beep/schema";
 import { A, Str, thunk0, thunkEmptyStr, thunkFalse } from "@beep/utils";
+import * as O from "@beep/utils/Option";
 import {
   DateTime,
   Effect,
@@ -32,7 +33,6 @@ import {
   Stream,
 } from "effect";
 import { dual } from "effect/Function";
-import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
 import { ChildProcess } from "effect/unstable/process";
@@ -713,7 +713,7 @@ const makeExportAnalysis = (options: {
     hasJsDoc: options.hasJsDoc,
     priority: computePriority(options.hasJsDoc, options.missingTags, options.categoryIssues),
     declarationSource: options.declarationSource,
-    ...(options.context === undefined ? {} : { context: options.context }),
+    ...O.getSomesStruct({ context: O.fromUndefinedOr(options.context) }),
   });
 
 const analyzeExport = (

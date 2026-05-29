@@ -72,7 +72,7 @@ const remotePhoenixComposePath = (remoteConfigRoot: string): string =>
 
 const remoteSshConnection = (remote: AIMetricsRemoteDeploymentConfig): command.types.input.remote.ConnectionArgs => ({
   host: remote.ssh.host,
-  ...(remote.ssh.agentSocketPath === undefined ? {} : { agentSocketPath: remote.ssh.agentSocketPath }),
+  ...O.getSomesStruct({ agentSocketPath: O.fromUndefinedOr(remote.ssh.agentSocketPath) }),
   user: remote.ssh.user,
 });
 
@@ -402,15 +402,15 @@ export const makeAIMetricsStackArgsFromConfigValues = ({
 }: AIMetricsPulumiConfigValues = {}): AIMetricsStackArgs => {
   const resolvedTarget = targetFromPulumiConfig(target);
   const remote = AIMetricsRemoteDeploymentConfig.make({
-    ...(phoenixTailnetHttpsPort === undefined ? {} : { phoenixTailnetHttpsPort }),
-    ...(remoteConfigRoot === undefined ? {} : { remoteConfigRoot }),
-    ...(remoteMirrorRoot === undefined ? {} : { remoteMirrorRoot }),
+    ...O.getSomesStruct({ phoenixTailnetHttpsPort: O.fromUndefinedOr(phoenixTailnetHttpsPort) }),
+    ...O.getSomesStruct({ remoteConfigRoot: O.fromUndefinedOr(remoteConfigRoot) }),
+    ...O.getSomesStruct({ remoteMirrorRoot: O.fromUndefinedOr(remoteMirrorRoot) }),
     ssh: AIMetricsRemoteSshConfig.make({
-      ...(sshAgentSocketPath === undefined ? {} : { agentSocketPath: sshAgentSocketPath }),
-      ...(sshHost === undefined ? {} : { host: sshHost }),
-      ...(sshUser === undefined ? {} : { user: sshUser }),
+      ...O.getSomesStruct({ agentSocketPath: O.fromUndefinedOr(sshAgentSocketPath) }),
+      ...O.getSomesStruct({ host: O.fromUndefinedOr(sshHost) }),
+      ...O.getSomesStruct({ user: O.fromUndefinedOr(sshUser) }),
     }),
-    ...(tailnetFqdn === undefined ? {} : { tailnetFqdn }),
+    ...O.getSomesStruct({ tailnetFqdn: O.fromUndefinedOr(tailnetFqdn) }),
   });
   const resolvedPublicBaseUrl =
     publicBaseUrl ??
@@ -421,11 +421,11 @@ export const makeAIMetricsStackArgsFromConfigValues = ({
   return makeAIMetricsStackArgs(
     AiMetricsInstallInput.make({
       defaultTool: toolFromPulumiConfig(defaultTool),
-      ...(dataRoot === undefined ? {} : { dataRoot }),
-      ...(hashSaltSecretRef === undefined ? {} : { hashSaltSecretRef }),
-      ...(phoenixImage === undefined ? {} : { phoenixImage }),
-      ...(resolvedPublicBaseUrl === undefined ? {} : { publicBaseUrl: resolvedPublicBaseUrl }),
-      ...(rawArchiveKeySecretRef === undefined ? {} : { rawArchiveKeySecretRef }),
+      ...O.getSomesStruct({ dataRoot: O.fromUndefinedOr(dataRoot) }),
+      ...O.getSomesStruct({ hashSaltSecretRef: O.fromUndefinedOr(hashSaltSecretRef) }),
+      ...O.getSomesStruct({ phoenixImage: O.fromUndefinedOr(phoenixImage) }),
+      ...O.getSomesStruct({ publicBaseUrl: O.fromUndefinedOr(resolvedPublicBaseUrl) }),
+      ...O.getSomesStruct({ rawArchiveKeySecretRef: O.fromUndefinedOr(rawArchiveKeySecretRef) }),
       target: resolvedTarget,
     }),
     remote

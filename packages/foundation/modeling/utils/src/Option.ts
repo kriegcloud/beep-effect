@@ -5,11 +5,20 @@
  * @since 0.0.0
  */
 
-import { dual } from "effect/Function";
+import { cast, dual } from "effect/Function";
 import * as O from "effect/Option";
+import * as R from "effect/Record";
 import { unsafeDotGet } from "./internal/StructPath.ts";
-import type { Get, Paths } from "type-fest";
+import type { Get, Paths, Simplify } from "type-fest";
 import type { PathInput } from "./internal/StructPath.ts";
+
+type OptionStruct = Readonly<Record<string, O.Option<unknown>>>;
+
+type GetSomesStruct<Self extends OptionStruct> = Simplify<
+  Partial<{
+    [K in keyof Self & string]: O.Option.Value<Self[K]>;
+  }>
+>;
 
 /**
  * Retrieves a value from a struct by path and converts missing or nullish
@@ -66,6 +75,32 @@ export const propFromNullishOr: {
   <S extends object, const P extends string & Paths<S>>(self: S, path: P): O.Option<NonNullable<Get<S, P>>>;
   <S extends object, const P extends ReadonlyArray<string>>(self: S, path: P): O.Option<NonNullable<Get<S, P>>>;
 };
+
+/**
+ * Compact a struct of `Option` values into an object containing only `Some`
+ * fields.
+ *
+ * This mirrors `Record.getSomes` at runtime while preserving heterogeneous
+ * per-key value types for object-constructor payloads.
+ *
+ * @example
+ * ```ts
+ * import { O } from "@beep/utils"
+ *
+ * const props = O.getSomesStruct({
+ *   id: O.some(1),
+ *   name: O.none<string>(),
+ * })
+ *
+ * console.log(props)
+ * // { id: 1 }
+ * ```
+ *
+ * @category filtering
+ * @since 0.0.0
+ */
+export const getSomesStruct = <const Self extends OptionStruct>(self: Self): GetSomesStruct<Self> =>
+  cast<Record<string, unknown>, GetSomesStruct<Self>>(R.getSomes(self));
 
 /**
  * Re-export of all helpers from `effect/Option`.

@@ -24,9 +24,9 @@ import {
   StopPodRequest,
 } from "@beep/runpod";
 import { LiteralKit } from "@beep/schema";
+import * as O from "@beep/utils/Option";
 import { Console, DateTime, Duration, Effect, flow, Layer, Order, pipe, Ref, Result, Schedule } from "effect";
 import * as A from "effect/Array";
-import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
@@ -664,14 +664,14 @@ const acquireRunpodPod = Effect.fn("DocgenQualityWorkerRunpodEval.acquireRunpodP
   const template = yield* resolveTemplate({
     allowPublicTemplateSearch,
     skipTemplateSearch,
-    ...(templateId === undefined ? {} : { templateId }),
+    ...O.getSomesStruct({ templateId: O.fromUndefinedOr(templateId) }),
   });
   yield* Console.log(
     `docgen: Runpod template strategy=${template.strategy} image=${template.imageName} template=${template.templateId ?? "none"}`
   );
   const resolvedGpuTypeIds = gpuTypeIdsFor({
     allow24GbFallback,
-    ...(gpuTypeIds === undefined ? {} : { gpuTypeIds }),
+    ...O.getSomesStruct({ gpuTypeIds: O.fromUndefinedOr(gpuTypeIds) }),
   });
   const minRamPerGpuGb = minRamPerGpuFor(allow24GbFallback);
   const podName = `beep-jsdoc-worker-eval-${pipe(runId, Str.takeLeft(12))}`;
@@ -700,7 +700,7 @@ const acquireRunpodPod = Effect.fn("DocgenQualityWorkerRunpodEval.acquireRunpodP
         podId,
       })
     )
-    .pipe(Effect.catch(() => Effect.succeed(created)));
+    .pipe(Effect.orElseSucceed(() => created));
 
   return {
     bootstrap: DocgenQualityWorkerRunpodEvalBootstrap.make({
@@ -1071,11 +1071,11 @@ export const runDocgenQualityWorkerRunpodEval = Effect.fn(
     acquireRunpodPod({
       allow24GbFallback: options.allow24GbFallback ?? false,
       allowPublicTemplateSearch: options.allowPublicTemplateSearch ?? false,
-      ...(options.gpuTypeIds === undefined ? {} : { gpuTypeIds: options.gpuTypeIds }),
+      ...O.getSomesStruct({ gpuTypeIds: O.fromUndefinedOr(options.gpuTypeIds) }),
       model: options.model,
       runId,
       skipTemplateSearch: options.skipTemplateSearch ?? false,
-      ...(options.templateId === undefined ? {} : { templateId: options.templateId }),
+      ...O.getSomesStruct({ templateId: O.fromUndefinedOr(options.templateId) }),
     }),
     Effect.fnUntraced(function* (acquired) {
       const workerStartedAtMs = globalThis.performance.now();
