@@ -3464,7 +3464,7 @@ export const parseValue = (value: string): string => value.trim();
   );
 
   it(
-    "allows quality check mode when only warnings are present",
+    "fails quality check mode when only warnings are present",
     {
       timeout: DOCGEN_COMMAND_TEST_TIMEOUT,
     },
@@ -3538,7 +3538,7 @@ export const parseValue = (value: string): string => value.trim();
 
             expect(output.summary?.warnings).toBeGreaterThan(0);
             expect(output.summary?.failures).toBe(0);
-            expect(Exit.isSuccess(exit)).toBe(true);
+            expectReportedExit(exit);
           })
         )
       )

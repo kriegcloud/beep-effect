@@ -304,9 +304,12 @@ const splitCommaSeparatedFlag: (value: string) => ReadonlyArray<string> = flow(
 );
 
 const qualityReportHasBlockingFindings = (report: {
-  readonly summary: { readonly failures: number };
+  readonly summary: { readonly failures: number; readonly warnings: number };
   readonly packages: ReadonlyArray<{ readonly status: string }>;
-}): boolean => report.summary.failures > 0 || A.some(report.packages, (pkg) => pkg.status !== "completed");
+}): boolean =>
+  report.summary.failures > 0 ||
+  report.summary.warnings > 0 ||
+  A.some(report.packages, (pkg) => pkg.status !== "completed");
 
 const resolveQualityWorkerEvalSource = Effect.fn("Docgen.resolveQualityWorkerEvalSource")(function* ({
   all,
