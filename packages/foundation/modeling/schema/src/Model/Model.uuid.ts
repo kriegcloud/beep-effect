@@ -7,8 +7,8 @@
 import { Effect } from "effect";
 import * as S from "effect/Schema";
 import * as Uuid from "uuid";
-import type * as VariantSchema from "../VariantSchema/index.ts";
 import { Field, Overridable } from "./Model.variants.ts";
+import type * as VariantSchema from "../VariantSchema/index.ts";
 /**
  * Interface for a binary UUID v4 field auto-generated on insert.
  *

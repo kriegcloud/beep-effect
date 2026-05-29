@@ -1,4 +1,4 @@
-import { Drizzle, type DrizzleClient, DrizzleError, DrizzleErrorContext, DrizzleRows } from "@beep/drizzle";
+import { Drizzle, DrizzleError, DrizzleErrorContext, DrizzleRows } from "@beep/drizzle";
 import { A } from "@beep/utils";
 import { describe, expect, it } from "@effect/vitest";
 import * as assert from "@effect/vitest/utils";
@@ -6,6 +6,7 @@ import { Effect, Layer, pipe } from "effect";
 import * as Cause from "effect/Cause";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
+import type { DrizzleClient } from "@beep/drizzle";
 
 const provideScopedLayer =
   <ROut, E2, RIn>(layer: Layer.Layer<ROut, E2, RIn>) =>

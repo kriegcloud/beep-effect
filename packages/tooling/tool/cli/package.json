@@ -137,11 +137,9 @@
     "@beep/schema": "workspace:^",
     "@beep/test-utils": "workspace:^",
     "@beep/utils": "workspace:^",
-    "@effect/markdown-toc": "catalog:",
     "@effect/platform-bun": "catalog:",
     "@effect/platform-node": "catalog:",
     "@openai/codex-sdk": "catalog:",
-    "doctrine": "catalog:",
     "effect": "catalog:",
     "fast-xml-parser": "catalog:",
     "handlebars": "catalog:",
@@ -153,8 +151,6 @@
   },
   "devDependencies": {
     "@effect/vitest": "catalog:",
-    "@types/babel__code-frame": "catalog:",
-    "@types/doctrine": "catalog:",
     "@types/node": "catalog:"
   }
 }

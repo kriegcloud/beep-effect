@@ -64,7 +64,6 @@ import {
   writeAiMetricsConfigSnapshotArtifacts,
   writeAiMetricsDerivedStorage,
 } from "@beep/repo-ai-metrics";
-import type { TUnsafe } from "@beep/types";
 import { A, Str } from "@beep/utils";
 import { NodeServices } from "@effect/platform-node";
 import { expect, layer } from "@effect/vitest";
@@ -72,6 +71,7 @@ import { Effect, Encoding, Exit, FileSystem, Layer, Order, Path, pipe, Redacted 
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
+import type { TUnsafe } from "@beep/types";
 
 const provideScopedLayer =
   <ROut, E2, RIn>(layer: Layer.Layer<ROut, E2, RIn>) =>

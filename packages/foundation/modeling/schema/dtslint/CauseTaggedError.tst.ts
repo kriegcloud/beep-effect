@@ -1,8 +1,8 @@
 import { CauseTaggedError } from "@beep/schema/CauseTaggedError";
-import type { TaggedErrorNewInput } from "@beep/schema/TaggedErrorClass";
 import { Effect, pipe } from "effect";
 import * as S from "effect/Schema";
 import { describe, expect, it } from "tstyche";
+import type { TaggedErrorNewInput } from "@beep/schema/TaggedErrorClass";
 
 class DomainError extends CauseTaggedError<DomainError>("DomainError")("DomainError") {}
 

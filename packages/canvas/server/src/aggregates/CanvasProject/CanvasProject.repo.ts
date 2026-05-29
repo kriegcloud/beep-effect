@@ -6,11 +6,11 @@
  * @since 0.0.0
  */
 
-import type * as DomainCanvasProject from "@beep/canvas-domain/aggregates/CanvasProject";
 import * as CanvasProjectUseCaseServer from "@beep/canvas-use-cases/server";
 import { A } from "@beep/utils";
 import { Effect, HashMap, Ref } from "effect";
 import * as O from "effect/Option";
+import type * as DomainCanvasProject from "@beep/canvas-domain/aggregates/CanvasProject";
 
 const CANVAS_PROJECT_STORE_NAME = "canvas_project";
 

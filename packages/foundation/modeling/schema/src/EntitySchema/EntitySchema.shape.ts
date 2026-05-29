@@ -9,9 +9,9 @@ import { SchemaAST as AST, Match, pipe, Tuple } from "effect";
 import { dual } from "effect/Function";
 import * as S from "effect/Schema";
 import { TaggedErrorClass } from "../TaggedErrorClass/index.ts";
-import type { EncodedAbsenceKind } from "./EntitySchema.persist.ts";
 import { EncodedAbsenceKind as EncodedAbsenceKindSchema } from "./EntitySchema.persist.ts";
 import { $I } from "./EntitySchema.shared.ts";
+import type { EncodedAbsenceKind } from "./EntitySchema.persist.ts";
 
 class AstAbsence extends S.Class<AstAbsence>($I`AstAbsence`)(
   {
@@ -121,12 +121,11 @@ const astAbsence: (input: AST.AST) => AstAbsence = Match.type<AST.AST>().pipe(
   Match.tag("Undefined", "Void", () => knownAstAbsence(false, true)),
   Match.tag("Any", "Unknown", () => knownAstAbsence(true, true)),
   Match.tags({
-    Declaration: (ast) =>
-      isJsonDeclaration(ast)
-        ? knownAstAbsence(true, false)
-        : isKnownRequiredDeclaration(ast)
-          ? knownAstAbsence(false, false)
-          : knownAstAbsence(false, false, true),
+    Declaration: Match.type<AST.Declaration>().pipe(
+      Match.when(isJsonDeclaration, () => knownAstAbsence(true, false)),
+      Match.when(isKnownRequiredDeclaration, () => knownAstAbsence(false, false)),
+      Match.orElse(() => knownAstAbsence(false, false, true))
+    ),
     Suspend: (ast) => astAbsence(ast.thunk()),
     Union: (ast) =>
       A.reduce(ast.types ?? A.empty(), knownAstAbsence(false, false), (accumulator, member) =>

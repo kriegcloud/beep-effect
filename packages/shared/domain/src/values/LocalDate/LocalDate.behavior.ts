@@ -15,8 +15,8 @@ import { DateTime, Duration, Effect, Match, Order as Ord, pipe, SchemaGetter, Sc
 import { dual } from "effect/Function";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
-import type * as AST from "effect/SchemaAST";
 import * as LocalDate from "./LocalDate.model.ts";
+import type * as AST from "effect/SchemaAST";
 
 const $I = $SharedDomainId.create("values/LocalDate/LocalDate.behavior");
 

@@ -5,14 +5,15 @@
  * @packageDocumentation
  */
 import { $SchemaId } from "@beep/identity";
-import { Effect, SchemaTransformation } from "effect";
+import { Effect, Match, SchemaTransformation } from "effect";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
 import * as internal from "../Http/Http.headers.shared.ts";
 import { LiteralKit } from "../LiteralKit/index.ts";
 import * as SchemaUtils from "../SchemaUtils/index.ts";
-import { NoSniffError, type SecureHeaderError } from "../SecureHeaderError/index.ts";
+import { NoSniffError } from "../SecureHeaderError/index.ts";
+import type { SecureHeaderError } from "../SecureHeaderError/index.ts";
 
 const $I = $SchemaId.create("NoSniff");
 
@@ -132,7 +133,11 @@ export const NoSniffHeader = S.Union([NoSniffOption, S.Undefined]).pipe(
       decode: (input): Effect.Effect<NoSniffResponseHeaderEncoded> =>
         Effect.succeed({
           name: headerName,
-          value: P.isUndefined(input) ? defaultValue : input === false ? undefined : input,
+          value: Match.value(input).pipe(
+            Match.when(P.isUndefined, () => defaultValue),
+            Match.when(false, () => undefined),
+            Match.orElse((value) => value)
+          ),
         }),
       encode: internal.makeHeaderEncodeForbidden("NoSniffHeader"),
     })

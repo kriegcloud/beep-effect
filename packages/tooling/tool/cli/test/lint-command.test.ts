@@ -1,7 +1,7 @@
 import { lintCommand } from "@beep/repo-cli";
 import { FsUtilsLive } from "@beep/repo-utils/FsUtils";
 import { NodeServices } from "@effect/platform-node";
-import { Effect, FileSystem, Layer, Path } from "effect";
+import { Cause, Effect, Exit, FileSystem, Layer, Path, Runtime } from "effect";
 import * as S from "effect/Schema";
 import * as TestConsole from "effect/testing/TestConsole";
 import { Command } from "effect/unstable/cli";
@@ -15,6 +15,15 @@ const provideScopedLayer =
 const runLintCommand = Command.runWith(lintCommand, { version: "0.0.0" });
 const encodeJson = S.encodeUnknownSync(S.UnknownFromJsonString);
 
+const expectReportedExit = (exit: Exit.Exit<unknown, unknown>, exitCode = 1) => {
+  expect(Exit.isFailure(exit)).toBe(true);
+  if (Exit.isFailure(exit)) {
+    const error = Cause.squash(exit.cause);
+    expect(Runtime.getErrorExitCode(error)).toBe(exitCode);
+    expect(Runtime.getErrorReported(error)).toBe(false);
+  }
+};
+
 const testLayer = Layer.mergeAll(
   NodeServices.layer,
   TestConsole.layer,
@@ -27,18 +36,15 @@ const withTempWorkingDirectory = <A, E, R>(use: Effect.Effect<A, E, R>) =>
       const fs = yield* FileSystem.FileSystem;
       const tmpDir = yield* fs.makeTempDirectory();
       const previousCwd = process.cwd();
-      const previousExitCode = process.exitCode;
 
       process.chdir(tmpDir);
-      process.exitCode = undefined;
 
-      return { fs, previousCwd, previousExitCode, tmpDir } as const;
+      return { fs, previousCwd, tmpDir } as const;
     }),
     () => use,
-    ({ fs, previousCwd, previousExitCode, tmpDir }) =>
+    ({ fs, previousCwd, tmpDir }) =>
       Effect.gen(function* () {
         process.chdir(previousCwd);
-        process.exitCode = previousExitCode;
         yield* fs.remove(tmpDir, { recursive: true });
       })
   );
@@ -141,16 +147,16 @@ describe.sequential("package test import lint command", () => {
               `import { example } from "../src/index.ts";\nvoid example;\n`
             );
 
-            yield* runLintCommand(["package-test-imports"]);
+            const exit = yield* Effect.exit(runLintCommand(["package-test-imports"]));
 
             const errorLines = yield* TestConsole.errorLines;
+            expectReportedExit(exit);
             expect(errorLines).toContain(
               "[check-package-test-imports] relative imports from package test/dtslint files into workspace src are not allowed. Use @beep/* package aliases."
             );
             expect(errorLines).toContain(
               "packages/foundation/modeling/example/test/Example.test.ts:1 ../src/index.ts -> @beep/example"
             );
-            expect(process.exitCode).toBe(1);
           })
         ).pipe(provideScopedLayer(testLayer))
       ),
@@ -176,13 +182,13 @@ describe.sequential("package test import lint command", () => {
               `import type { Producer } from "../../producer/src/Producer.ts";\ntype _ = Producer;\n`
             );
 
-            yield* runLintCommand(["package-test-imports"]);
+            const exit = yield* Effect.exit(runLintCommand(["package-test-imports"]));
 
             const errorLines = yield* TestConsole.errorLines;
+            expectReportedExit(exit);
             expect(errorLines).toContain(
               "packages/foundation/modeling/consumer/dtslint/Consumer.tst.ts:1 ../../producer/src/Producer.ts -> @beep/producer/Producer"
             );
-            expect(process.exitCode).toBe(1);
           })
         ).pipe(provideScopedLayer(testLayer))
       ),

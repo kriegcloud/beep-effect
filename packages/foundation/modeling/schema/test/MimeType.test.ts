@@ -1,4 +1,3 @@
-import type { MimeTypesData } from "@beep/data";
 import {
   AudioMimeType,
   extractMimeExtensions,
@@ -8,6 +7,7 @@ import {
   TextMimeType,
 } from "@beep/schema";
 import { describe, expect, it } from "@effect/vitest";
+import type { MimeTypesData } from "@beep/data";
 
 describe("MimeType helpers", () => {
   it("dedupes extracted file extensions while preserving first-seen order", () => {

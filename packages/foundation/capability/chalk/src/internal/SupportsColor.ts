@@ -14,12 +14,8 @@ import { flow, Match, pipe } from "effect";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
-import {
-  type ColorInfo,
-  ColorSupport,
-  ColorSupportLevel,
-  type ColorSupportLevel as ColorSupportLevelType,
-} from "./ChalkSchema.ts";
+import { ColorSupport, ColorSupportLevel } from "./ChalkSchema.ts";
+import type { ColorInfo, ColorSupportLevel as ColorSupportLevelType } from "./ChalkSchema.ts";
 
 const $I = $ChalkId.create("Domain");
 

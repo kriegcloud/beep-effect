@@ -11,13 +11,13 @@ import { LiteralKit, TaggedErrorClass } from "@beep/schema";
 import { O, Str } from "@beep/utils";
 import * as NodeFileSystem from "@effect/platform-node/NodeFileSystem";
 import * as NodePath from "@effect/platform-node/NodePath";
-import type * as PgClient from "@effect/sql-pg/PgClient";
 import { SqliteClient as NodeSqliteClient } from "@effect/sql-sqlite-node";
 import { Config, Context, Duration, Effect, FileSystem, Layer, Path, pipe, Redacted, Schedule } from "effect";
 import * as S from "effect/Schema";
 import * as Reactivity from "effect/unstable/reactivity/Reactivity";
 import * as SqlClient from "effect/unstable/sql/SqlClient";
 import { ConnectionError, SqlError } from "effect/unstable/sql/SqlError";
+import type * as PgClient from "@effect/sql-pg/PgClient";
 import type { GenericContainer, StartedTestContainer } from "testcontainers";
 
 const $I = $TestUtilsId.create("SqlTest");

@@ -7,6 +7,18 @@ import { cn } from "../lib/index.ts";
 
 type TodoPriority = "high" | "medium" | "low" | "none";
 
+const dueDateToneClassName = (isToday: boolean, isOverdue: boolean): string => {
+  if (isToday) {
+    return "bg-green-500/10 text-green-600 dark:text-green-400";
+  }
+
+  if (isOverdue) {
+    return "bg-red-500/10 text-red-600 dark:text-red-400";
+  }
+
+  return "bg-zinc-100 text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400";
+};
+
 interface TodoLabel {
   readonly color?: undefined | string;
   readonly id: string;
@@ -183,11 +195,7 @@ export function TodoItem({
                 <span
                   className={cn(
                     "inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-xs",
-                    isToday
-                      ? "bg-green-500/10 text-green-600 dark:text-green-400"
-                      : isOverdue
-                        ? "bg-red-500/10 text-red-600 dark:text-red-400"
-                        : "bg-zinc-100 text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400"
+                    dueDateToneClassName(isToday, isOverdue)
                   )}
                 >
                   <CalendarIcon size={12} />

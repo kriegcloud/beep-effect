@@ -11,11 +11,8 @@
 import { $ColorsId } from "@beep/identity";
 import { thunkFalse } from "@beep/utils";
 import * as S from "effect/Schema";
-import {
-  ColorsFields,
-  Formatter as FormatterDefinition,
-  type Formatter as FormatterType,
-} from "./internal/ColorsSchema.ts";
+import { ColorsFields, Formatter as FormatterDefinition } from "./internal/ColorsSchema.ts";
+import type { Formatter as FormatterType } from "./internal/ColorsSchema.ts";
 
 const $I = $ColorsId.create("Domain");
 const identity: FormatterType = String;

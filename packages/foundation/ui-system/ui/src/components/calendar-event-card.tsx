@@ -1,8 +1,9 @@
 "use client";
 
 import { CheckIcon, SpinnerGap } from "@phosphor-icons/react";
-import type { ReactNode } from "react";
+import { Match } from "effect";
 import { cn } from "../lib/index.ts";
+import type { ReactNode } from "react";
 
 /**
  * @category type-level
@@ -54,6 +55,21 @@ export function CalendarEventCard({
     primary: "bg-sky-500 text-white hover:bg-sky-600",
     danger: "bg-red-500 text-white hover:bg-red-600",
   } as const;
+  const actionContent = Match.value(status).pipe(
+    Match.when("loading", () => (
+      <>
+        <SpinnerGap size={16} className="animate-spin" />
+        Confirm
+      </>
+    )),
+    Match.when("completed", () => (
+      <>
+        <CheckIcon size={16} />
+        {completedLabel}
+      </>
+    )),
+    Match.orElse(() => "Confirm")
+  );
 
   return (
     <div
@@ -103,19 +119,7 @@ export function CalendarEventCard({
           disabled={status === "completed"}
           onClick={onAction}
         >
-          {status === "loading" ? (
-            <>
-              <SpinnerGap size={16} className="animate-spin" />
-              Confirm
-            </>
-          ) : status === "completed" ? (
-            <>
-              <CheckIcon size={16} />
-              {completedLabel}
-            </>
-          ) : (
-            "Confirm"
-          )}
+          {actionContent}
         </button>
       )}
     </div>

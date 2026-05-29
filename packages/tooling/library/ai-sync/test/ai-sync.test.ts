@@ -15,11 +15,12 @@ import {
   validateRepoConfig,
 } from "@beep/ai-sync";
 import { renderGeneratedSchemas } from "@beep/ai-sync/generator";
-import type { TUnsafe } from "@beep/types";
 import { NodeServices } from "@effect/platform-node";
 import { expect, layer } from "@effect/vitest";
-import { Effect, Exit, FileSystem, type Layer, Path } from "effect";
+import { Effect, Exit, FileSystem, Path } from "effect";
 import * as A from "effect/Array";
+import type { TUnsafe } from "@beep/types";
+import type { Layer } from "effect";
 
 const withTempDirectory = <A, E, R>(use: (tmpDir: string) => Effect.Effect<A, E, R>) =>
   Effect.acquireUseRelease(

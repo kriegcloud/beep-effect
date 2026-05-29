@@ -19,8 +19,8 @@ import {
   ExpandJsonLdTermResult,
   JsonLdContextError,
   JsonLdContextService,
-  type JsonLdContextServiceShape,
 } from "../services/jsonld-context.ts";
+import type { JsonLdContextServiceShape } from "../services/jsonld-context.ts";
 
 const schemePrefix = /^[A-Za-z][A-Za-z0-9+.-]*:/;
 

@@ -7,7 +7,7 @@
  */
 
 import { A, Str } from "@beep/utils";
-import { flow } from "effect";
+import { flow, Match } from "effect";
 import * as P from "effect/Predicate";
 
 const unsafeHrefProtocolPattern = /^(?:javascript|vbscript|data):/i;
@@ -27,7 +27,11 @@ const decodeHtmlCharacterReferences = (value: string): string =>
     const [decimal, hexadecimal, named] = args;
     if (P.isString(named)) {
       const normalizedNamed = Str.toLowerCase(named);
-      const namedCodePoint = normalizedNamed === "tab" ? 9 : normalizedNamed === "newline" ? 10 : 58;
+      const namedCodePoint = Match.value(normalizedNamed).pipe(
+        Match.when("tab", () => 9),
+        Match.when("newline", () => 10),
+        Match.orElse(() => 58)
+      );
       return toCodePointString(namedCodePoint);
     }
 

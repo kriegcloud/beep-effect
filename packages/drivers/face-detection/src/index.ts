@@ -12,7 +12,6 @@
  * @category errors
  */
 export * from "./FaceDetection.errors.ts";
-
 /**
  * Public ONNX face detection driver model exports.
  *
@@ -20,7 +19,6 @@ export * from "./FaceDetection.errors.ts";
  * @category models
  */
 export * from "./FaceDetection.models.ts";
-
 /**
  * Public ONNX face detection driver service exports.
  *

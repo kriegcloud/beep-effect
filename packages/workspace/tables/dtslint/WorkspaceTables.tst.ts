@@ -1,10 +1,10 @@
+import { describe, expect, it } from "tstyche";
 import type { EntityTable } from "@beep/drizzle";
 import type * as CandidateDraft from "@beep/workspace-domain/entities/CandidateDraft";
 import type * as CandidateProject from "@beep/workspace-domain/entities/CandidateProject";
 import type { DbSchema } from "@beep/workspace-tables";
 import type * as CandidateDraftTables from "@beep/workspace-tables/entities/CandidateDraft";
 import type * as CandidateProjectTables from "@beep/workspace-tables/entities/CandidateProject";
-import { describe, expect, it } from "tstyche";
 
 describe("WorkspaceTables types", () => {
   it("exports the DbSchema type from the package entrypoint", () => {

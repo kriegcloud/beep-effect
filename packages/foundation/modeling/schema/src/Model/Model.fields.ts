@@ -4,13 +4,15 @@
  * @packageDocumentation
  * @since 0.0.0
  */
-import type { TUnsafe } from "@beep/types";
+
 import { SchemaTransformation as Transformation } from "effect";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
+import { Field, fieldEvolve } from "./Model.variants.ts";
+import type { TUnsafe } from "@beep/types";
 import type * as VariantSchema from "../VariantSchema/index.ts";
-import { Field, fieldEvolve, type VariantsDatabase } from "./Model.variants.ts";
+import type { VariantsDatabase } from "./Model.variants.ts";
 /**
  * Interface for a database-generated field present in `select`, `update`, and `json` variants.
  *

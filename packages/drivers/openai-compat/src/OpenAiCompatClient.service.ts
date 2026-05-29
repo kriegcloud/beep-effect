@@ -8,7 +8,7 @@
 import { $OpenaiCompatId } from "@beep/identity";
 import { decodeJsonString } from "@beep/schema/Json";
 import { A, Str } from "@beep/utils";
-import { Context, Effect, flow, Layer, pipe, Stream } from "effect";
+import { Context, Effect, flow, Layer, Match, pipe, Stream } from "effect";
 import { identity } from "effect/Function";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
@@ -16,17 +16,17 @@ import * as AiError from "effect/unstable/ai/AiError";
 import * as Sse from "effect/unstable/encoding/Sse";
 import { FetchHttpClient } from "effect/unstable/http";
 import * as Headers from "effect/unstable/http/Headers";
-import type * as HttpBody from "effect/unstable/http/HttpBody";
 import * as HttpClient from "effect/unstable/http/HttpClient";
-import type * as HttpClientError from "effect/unstable/http/HttpClientError";
 import * as HttpClientRequest from "effect/unstable/http/HttpClientRequest";
 import * as HttpClientResponse from "effect/unstable/http/HttpClientResponse";
 import {
   decodeChatCompletionChunk,
-  type OpenAiCompatChatCompletionChunk,
   OpenAiCompatChatCompletionRequest,
   OpenAiCompatChatCompletionResponse,
 } from "./OpenAiCompat.models.ts";
+import type * as HttpBody from "effect/unstable/http/HttpBody";
+import type * as HttpClientError from "effect/unstable/http/HttpClientError";
+import type { OpenAiCompatChatCompletionChunk } from "./OpenAiCompat.models.ts";
 
 const $I = $OpenaiCompatId.create("OpenAiCompatClient.service");
 const moduleName = "OpenAiCompatClient";
@@ -141,13 +141,17 @@ const mapHttpClientError = (
   method: string,
   error: HttpClientError.HttpClientError
 ): Effect.Effect<never, AiError.AiError> =>
-  error.reason._tag === "StatusCodeError"
-    ? mapStatusError(method, error.reason)
-    : error.reason._tag === "TransportError" ||
-        error.reason._tag === "EncodeError" ||
-        error.reason._tag === "InvalidUrlError"
-      ? Effect.fail(makeAiError(method, AiError.NetworkError.fromRequestError(error.reason)))
-      : Effect.fail(makeAiError(method, AiError.InvalidOutputError.make({ description: error.message })));
+  Match.value(error.reason).pipe(
+    Match.tags({
+      StatusCodeError: (reason) => mapStatusError(method, reason),
+      TransportError: (reason) => Effect.fail(makeAiError(method, AiError.NetworkError.fromRequestError(reason))),
+      EncodeError: (reason) => Effect.fail(makeAiError(method, AiError.NetworkError.fromRequestError(reason))),
+      InvalidUrlError: (reason) => Effect.fail(makeAiError(method, AiError.NetworkError.fromRequestError(reason))),
+    }),
+    Match.orElse(() =>
+      Effect.fail(makeAiError(method, AiError.InvalidOutputError.make({ description: error.message })))
+    )
+  );
 
 const logClientFailure =
   (method: string) =>

@@ -10,37 +10,28 @@
 
 import { Sha256Hex } from "@beep/schema";
 import { A, Str } from "@beep/utils";
-import { Duration, Effect, flow, Layer, pipe } from "effect";
+import { Duration, Effect, flow, Layer, Match, pipe } from "effect";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
-import {
-  type CanonizeGraph,
-  type CanonizeObject,
-  type CanonizeQuad,
-  type CanonizeSubject,
-  canonize,
-  NQuads,
-} from "rdf-canonize";
+import { canonize, NQuads } from "rdf-canonize";
 import {
   DefaultGraph,
-  type GraphTerm,
   makeBlankNode,
   makeDataset,
   makeLiteral,
   makeNamedNode,
   makeQuad,
-  type ObjectTerm,
-  type Quad,
-  type Subject,
   sortDatasetQuads,
 } from "../rdf.ts";
 import {
   CanonicalDatasetResult,
   CanonicalizationError,
   CanonicalizationService,
-  type CanonicalizationServiceShape,
   DatasetFingerprint,
 } from "../services/canonicalization.ts";
+import type { CanonizeGraph, CanonizeObject, CanonizeQuad, CanonizeSubject } from "rdf-canonize";
+import type { GraphTerm, ObjectTerm, Quad, Subject } from "../rdf.ts";
+import type { CanonicalizationServiceShape } from "../services/canonicalization.ts";
 
 const SemanticCanonicalizationMaxWorkFactor = 1;
 const SemanticCanonicalizationTimeout = Duration.seconds(1);
@@ -158,11 +149,11 @@ const fromCanonizeObject = (object: CanonizeObject): ObjectTerm => {
 };
 
 const fromCanonizeGraph = (graph: CanonizeGraph): GraphTerm =>
-  graph.termType === "NamedNode"
-    ? makeNamedNode(graph.value)
-    : graph.termType === "BlankNode"
-      ? makeBlankNode(graph.value)
-      : DefaultGraph.make({ termType: "DefaultGraph", value: "" });
+  Match.value(graph.termType).pipe(
+    Match.when("NamedNode", () => makeNamedNode(graph.value)),
+    Match.when("BlankNode", () => makeBlankNode(graph.value)),
+    Match.orElse(() => DefaultGraph.make({ termType: "DefaultGraph", value: "" }))
+  );
 
 const fromCanonizeQuad = (quad: CanonizeQuad): Quad =>
   makeQuad(fromCanonizeSubject(quad.subject), makeNamedNode(quad.predicate.value), {
@@ -230,16 +221,18 @@ const getCanonicalDataset = (
   { readonly canonicalText: string; readonly dataset: ReturnType<typeof makeDataset> },
   CanonicalizationError
 > =>
-  request.algorithm === "rdfc-1.0"
-    ? canonicalizeSemantically(request.dataset.quads)
-    : request.algorithm === "lexical-sort-v1"
-      ? Effect.succeed(canonicalizeLexically(request.dataset.quads))
-      : Effect.fail(
-          CanonicalizationError.make({
-            reason: "unsupportedAlgorithm",
-            message: `Unsupported canonicalization algorithm: ${request.algorithm}`,
-          })
-        );
+  Match.value(request.algorithm).pipe(
+    Match.when("rdfc-1.0", () => canonicalizeSemantically(request.dataset.quads)),
+    Match.when("lexical-sort-v1", () => Effect.succeed(canonicalizeLexically(request.dataset.quads))),
+    Match.orElse((algorithm) =>
+      Effect.fail(
+        CanonicalizationError.make({
+          reason: "unsupportedAlgorithm",
+          message: `Unsupported canonicalization algorithm: ${algorithm}`,
+        })
+      )
+    )
+  );
 
 /**
  * Canonicalization service live layer.

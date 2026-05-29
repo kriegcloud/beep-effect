@@ -19,7 +19,6 @@
  * @since 0.0.0
  */
 export * as Entities from "./entities/index.js";
-
 /**
  * Root agent capability domain entity exports.
  *

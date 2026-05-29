@@ -9,8 +9,8 @@ import { randomUUID } from "node:crypto";
 import { A } from "@beep/utils";
 import { Config, Effect, pipe } from "effect";
 import * as O from "effect/Option";
-import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
+import type { NextRequest } from "next/server";
 
 const configStringOptionSync = (name: string): O.Option<string> => Effect.runSync(Config.option(Config.string(name)));
 const configStringEqualsSync = (name: string, expected: string): boolean =>

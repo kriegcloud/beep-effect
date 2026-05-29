@@ -11,7 +11,7 @@
 import { $RepoCliId } from "@beep/identity/packages";
 import { decodeJsoncTextAs } from "@beep/schema/Jsonc";
 import { A, Str } from "@beep/utils";
-import { Effect, FileSystem, identity, Path } from "effect";
+import { Effect, FileSystem, identity, Path, pipe } from "effect";
 import * as Bool from "effect/Boolean";
 import { dual } from "effect/Function";
 import * as O from "effect/Option";
@@ -114,11 +114,16 @@ const parseBunVersionPart = (value: string): O.Option<number> => {
 };
 
 const parsePrereleaseIdentifier = (value: string): O.Option<BunSemverIdentifier> =>
-  O.isSome(Str.match(NUMERIC_PRERELEASE_IDENTIFIER)(value))
-    ? parseBunVersionPart(value)
-    : Str.isNonEmpty(value)
-      ? O.some(value)
-      : O.none();
+  pipe(
+    [
+      pipe(
+        Str.match(NUMERIC_PRERELEASE_IDENTIFIER)(value),
+        O.flatMap(() => parseBunVersionPart(value))
+      ),
+      pipe(value, O.liftPredicate(Str.isNonEmpty)),
+    ] satisfies ReadonlyArray<O.Option<BunSemverIdentifier>>,
+    O.firstSomeOf
+  );
 
 const parsePrerelease = (value: string): O.Option<A.NonEmptyReadonlyArray<BunSemverIdentifier>> => {
   const identifiers = A.filter(Str.split(".")(value), Str.isNonEmpty);

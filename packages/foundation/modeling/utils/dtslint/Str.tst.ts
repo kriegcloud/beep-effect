@@ -1,6 +1,7 @@
-import { type A, Str } from "@beep/utils";
+import { Str } from "@beep/utils";
 import { pipe } from "effect/Function";
 import { describe, expect, it } from "tstyche";
+import type { A } from "@beep/utils";
 
 describe("prefix", () => {
   it("data-first returns template literal", () => {

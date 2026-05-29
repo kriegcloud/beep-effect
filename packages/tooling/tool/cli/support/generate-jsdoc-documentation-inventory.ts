@@ -537,13 +537,14 @@ const analyzeModule = (sourceFile, packagePath, exportCount) => {
   const missingTags = exportCount === 0 ? [] : missingRequiredTags(presentTags, requiredModuleTags);
   const forbidden = forbiddenTagsIn(presentTags);
   const missingSummary = fileoverview === undefined ? exportCount > 0 : summaryFromComment(fileoverview) === undefined;
-  const docKind = A.contains(presentTags, "@packageDocumentation")
-    ? "packageDocumentation"
-    : A.contains(presentTags, "@module")
-      ? "module"
-      : fileoverview === undefined
-        ? "none"
-        : "jsdoc";
+  let docKind = "jsdoc";
+  if (A.contains(presentTags, "@packageDocumentation")) {
+    docKind = "packageDocumentation";
+  } else if (A.contains(presentTags, "@module")) {
+    docKind = "module";
+  } else if (fileoverview === undefined) {
+    docKind = "none";
+  }
   const malformedTags = fileoverview === undefined ? [] : malformedConditionalTags(fileoverview);
   const categoryIssues = fileoverview === undefined ? [] : categoryViolations(fileoverview);
   const findingCount =
@@ -729,12 +730,12 @@ const analyzePackage = (packageInfo, topoOrder) => {
 
   const openModuleCount = A.filter(modules, (entry) => entry.remediationStatus === "open").length;
   const openExportCount = A.filter(exports, (entry) => entry.remediationStatus === "open").length;
-  const status =
-    sourceFiles.length === 0 || (modules.length === 0 && exports.length === 0)
-      ? "no-public-src-surface"
-      : openModuleCount + openExportCount === 0
-        ? "clean"
-        : "needs-remediation";
+  let status = "needs-remediation";
+  if (sourceFiles.length === 0 || (modules.length === 0 && exports.length === 0)) {
+    status = "no-public-src-surface";
+  } else if (openModuleCount + openExportCount === 0) {
+    status = "clean";
+  }
 
   return {
     packageName: packageInfo.name,

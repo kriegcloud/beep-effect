@@ -3,7 +3,6 @@ import { CrossOriginOpenerPolicyHeader } from "@beep/schema/CrossOriginOpenerPol
 import { CrossOriginResourcePolicyHeader } from "@beep/schema/CrossOriginResourcePolicy";
 import {
   ContentSecurityPolicyHeader,
-  type ContentSecurityPolicyOption,
   createContentSecurityPolicyOptionHeaderValue,
   createDirectiveValue,
   DocumentDirective,
@@ -27,6 +26,7 @@ import { describe, expect, it } from "@effect/vitest";
 import { Effect, Exit, pipe } from "effect";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
+import type { ContentSecurityPolicyOption } from "@beep/schema/Csp";
 
 type HeaderLike = {
   readonly name: string;

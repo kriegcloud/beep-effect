@@ -6,9 +6,10 @@
  */
 import { Effect, Graph as Graph_, Option, SchemaIssue, SchemaParser, SchemaTransformation } from "effect";
 import * as S from "effect/Schema";
-import { EdgeEncoded, type EdgeEncodedSchema, type EdgeIso } from "./Graph.encoded.ts";
+import { EdgeEncoded } from "./Graph.encoded.ts";
 import { isEdge } from "./Graph.guards.ts";
 import { $I, toRawEdgeEncoded } from "./Graph.shared.ts";
+import type { EdgeEncodedSchema, EdgeIso } from "./Graph.encoded.ts";
 
 /**
  * Schema for validating existing `Graph.Edge` instances.

@@ -10,9 +10,9 @@ import { describe, expect, layer } from "@effect/vitest";
 import { Cause, Context, Effect, Exit, Layer, Redacted, Ref } from "effect";
 import * as O from "effect/Option";
 import * as HttpClient from "effect/unstable/http/HttpClient";
-import type * as HttpClientError from "effect/unstable/http/HttpClientError";
 import * as HttpClientRequest from "effect/unstable/http/HttpClientRequest";
 import * as HttpClientResponse from "effect/unstable/http/HttpClientResponse";
+import type * as HttpClientError from "effect/unstable/http/HttpClientError";
 
 type CapturedRequest = {
   readonly headers: Readonly<Record<string, string>>;

@@ -18,8 +18,8 @@ import {
   DropdownMenuTrigger,
 } from "@beep/ui/components/dropdown-menu";
 import { CheckIcon } from "@phosphor-icons/react";
-import type * as React from "react";
 import { cn } from "../lib/index.ts";
+import type * as React from "react";
 
 /**
  * @category components

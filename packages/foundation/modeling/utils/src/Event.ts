@@ -6,8 +6,8 @@
  */
 
 import { $UtilsId } from "@beep/identity/packages";
-import type { TString } from "@beep/types";
 import { dual } from "effect/Function";
+import type { TString } from "@beep/types";
 
 /**
  * Re-export of the Effect SSE encoder/decoder primitives.

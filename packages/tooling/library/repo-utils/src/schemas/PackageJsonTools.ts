@@ -8,8 +8,7 @@
 import { $RepoUtilsId } from "@beep/identity/packages";
 import { ArrayOfStrings } from "@beep/schema";
 import { A } from "@beep/utils";
-import type { StandardSchemaV1 } from "@standard-schema/spec";
-import { Effect, flow, identity, type JsonPatch, JsonPointer, Order, pipe, Result, SchemaIssue, Tuple } from "effect";
+import { Effect, flow, identity, JsonPointer, Order, pipe, Result, SchemaIssue, Tuple } from "effect";
 import { dual } from "effect/Function";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
@@ -29,6 +28,8 @@ import {
   PublishConfig,
   TypesVersions,
 } from "./PackageJson.js";
+import type { StandardSchemaV1 } from "@standard-schema/spec";
+import type { JsonPatch } from "effect";
 
 const $I = $RepoUtilsId.create("schemas/PackageJsonTools");
 

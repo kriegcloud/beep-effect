@@ -8,7 +8,6 @@
 import {
   HubSpot,
   HubSpotConfigInput,
-  type HubSpotError,
   HubSpotFormField,
   HubSpotSubmitFormRequest,
   HubSpotUpsertContactRequest,
@@ -21,11 +20,9 @@ import * as O from "effect/Option";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
 import { FetchHttpClient } from "effect/unstable/http";
-import {
-  type ContactSubmission,
-  ContactSubmissionResponse,
-  decodeContactSubmission,
-} from "./ContactSubmission.model.ts";
+import { ContactSubmissionResponse, decodeContactSubmission } from "./ContactSubmission.model.ts";
+import type { HubSpotError } from "@beep/hubspot";
+import type { ContactSubmission } from "./ContactSubmission.model.ts";
 
 const $I = $OipWebId.create("contact/ContactSubmission.service");
 const minimumElapsedMs = 3_000;

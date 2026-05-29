@@ -4,9 +4,10 @@ import { Button } from "@beep/ui/components/button";
 import { Input } from "@beep/ui/components/input";
 import { Textarea } from "@beep/ui/components/textarea";
 import { Str } from "@beep/utils";
-import { cva, type VariantProps } from "class-variance-authority";
-import type * as React from "react";
+import { cva } from "class-variance-authority";
 import { cn } from "../lib/index.ts";
+import type { VariantProps } from "class-variance-authority";
+import type * as React from "react";
 
 /**
  * @category components

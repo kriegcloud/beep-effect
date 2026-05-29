@@ -8,17 +8,13 @@
 import { $RepoCliId } from "@beep/identity/packages";
 import {
   buildRepoDependencyIndex,
-  type CyclicDependencyError,
   collectTsConfigPaths,
   DomainError,
   decodePackageJsonEffect,
   detectCycles,
-  type FsUtils,
   findRepoRoot,
-  type NoSuchFileError,
   resolveWorkspaceDirs,
   topologicalSort,
-  type WorkspaceDeps,
 } from "@beep/repo-utils";
 import { renderBiomeJson } from "@beep/repo-utils/schemas/BiomeJson";
 import {
@@ -45,9 +41,11 @@ import * as P from "effect/Predicate";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
 import { Command, Flag } from "effect/unstable/cli";
-import type { ChildProcessSpawner } from "effect/unstable/process/ChildProcessSpawner";
 import * as jsonc from "jsonc-parser";
+import { failWithReportedExit } from "../../internal/cli/ExitCodeError.js";
 import { TsconfigSyncCycleError, TsconfigSyncDriftError, TsconfigSyncFilterError } from "./TsconfigSync.errors.js";
+import type { CyclicDependencyError, FsUtils, NoSuchFileError, WorkspaceDeps } from "@beep/repo-utils";
+import type { ChildProcessSpawner } from "effect/unstable/process/ChildProcessSpawner";
 
 export {
   /**
@@ -1792,19 +1790,19 @@ export const tsconfigSyncCommand = Command.make(
     yield* syncTsconfigAtRoot(rootDir, syncOptions).pipe(
       Effect.catchTags({
         TsconfigSyncDriftError: Effect.fn(function* (error) {
-          process.exitCode = 1;
           yield* Console.error(`tsconfig-sync: ${error.summary}`);
+          return yield* failWithReportedExit(`tsconfig-sync: ${error.summary}`);
         }),
         TsconfigSyncFilterError: Effect.fn(function* (error) {
-          process.exitCode = 1;
           yield* Console.error(`tsconfig-sync: ${error.message}`);
+          return yield* failWithReportedExit(`tsconfig-sync: ${error.message}`);
         }),
         TsconfigSyncCycleError: Effect.fn(function* (error) {
-          process.exitCode = 1;
           yield* Console.error(`tsconfig-sync: ${error.message}`);
           for (const cycle of error.cycles) {
             yield* Console.error(`  cycle: ${A.join(cycle, " -> ")}`);
           }
+          return yield* failWithReportedExit(`tsconfig-sync: ${error.message}`);
         }),
       })
     );

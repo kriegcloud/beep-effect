@@ -14,7 +14,7 @@ import {
   VeniceAiLanguageModel,
 } from "@beep/venice-ai";
 import { describe, expect, layer } from "@effect/vitest";
-import { Context, Effect, Layer, pipe, Redacted, Ref, Stream } from "effect";
+import { Context, Effect, Layer, Match, pipe, Redacted, Ref, Stream } from "effect";
 import * as O from "effect/Option";
 import * as Order from "effect/Order";
 import * as P from "effect/Predicate";
@@ -129,6 +129,9 @@ const readSwagger = Effect.gen(function* () {
   return yield* decodeOpenApiSpec(parseYaml(raw));
 });
 
+const hasOperationId = (operation: unknown): operation is { readonly operationId: string } =>
+  P.isObject(operation) && P.hasProperty(operation, "operationId") && P.isString(operation.operationId);
+
 const swaggerOperationIds = Effect.gen(function* () {
   const spec = yield* readSwagger;
   return pipe(
@@ -139,11 +142,14 @@ const swaggerOperationIds = Effect.gen(function* () {
         operations,
         R.toEntries,
         A.map(([, operation]) =>
-          P.isObject(operation) && P.hasProperty(operation, "operationId") && P.isString(operation.operationId)
-            ? operation.operationId
-            : path === "/image/styles"
-              ? "listImageStyles"
-              : ""
+          Match.value(operation).pipe(
+            Match.when(hasOperationId, (value) => value.operationId),
+            Match.when(
+              () => path === "/image/styles",
+              () => "listImageStyles"
+            ),
+            Match.orElse(() => "")
+          )
         )
       )
     ),

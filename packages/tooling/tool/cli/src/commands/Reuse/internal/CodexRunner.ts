@@ -7,10 +7,11 @@
 
 import { $RepoCliId } from "@beep/identity/packages";
 import { findRepoRoot } from "@beep/repo-utils";
-import { Effect, type FileSystem } from "effect";
+import { Effect } from "effect";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
 import { CodexRunnerError } from "../Reuse.errors.js";
+import type { FileSystem } from "effect";
 
 /**
  * Public Codex runner smoke error exports.

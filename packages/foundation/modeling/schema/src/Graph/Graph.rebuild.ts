@@ -4,16 +4,18 @@
  * @packageDocumentation
  * @since 0.0.0
  */
-import { Effect, Graph as Graph_, type SchemaIssue } from "effect";
+
+import { Effect, Graph as Graph_ } from "effect";
 import * as P from "effect/Predicate";
-import type { GraphEncoded } from "./Graph.encoded.ts";
 import {
-  type GraphKindValue,
   makeGraphConstructionIssue,
   makeInvalidGraphIssue,
   sortRawEdgeEntries,
   sortRawNodeEntries,
 } from "./Graph.shared.ts";
+import type { SchemaIssue } from "effect";
+import type { GraphEncoded } from "./Graph.encoded.ts";
+import type { GraphKindValue } from "./Graph.shared.ts";
 
 const populateMutableGraph = Effect.fn("Schema.Graph.populateMutableGraph")(function* <
   Node,

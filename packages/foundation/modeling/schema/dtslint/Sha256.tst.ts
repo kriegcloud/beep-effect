@@ -1,15 +1,13 @@
-import {
-  Sha256Hex,
-  Sha256HexFromBytes,
-  type Sha256HexFromBytes as Sha256HexFromBytesType,
-  Sha256HexFromHexBytes,
-  type Sha256HexFromHexBytes as Sha256HexFromHexBytesType,
-  type Sha256Hex as Sha256HexType,
+import { Sha256Hex, Sha256HexFromBytes, Sha256HexFromHexBytes } from "@beep/schema/Sha256";
+import * as S from "effect/Schema";
+import { describe, expect, it } from "tstyche";
+import type {
+  Sha256HexFromBytes as Sha256HexFromBytesType,
+  Sha256HexFromHexBytes as Sha256HexFromHexBytesType,
+  Sha256Hex as Sha256HexType,
 } from "@beep/schema/Sha256";
 import type { Effect } from "effect";
 import type * as Brand from "effect/Brand";
-import * as S from "effect/Schema";
-import { describe, expect, it } from "tstyche";
 
 const knownDigest = "d01b7ce9154ef0264ce71e457ea81903b87a58d6cf2cd6be474886fdbc6f61d9";
 

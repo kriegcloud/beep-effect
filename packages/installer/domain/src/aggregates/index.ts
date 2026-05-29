@@ -13,7 +13,6 @@
  * @since 0.0.0
  */
 export * as DiscordChannel from "./DiscordChannel/index.js";
-
 /**
  * Host dependency aggregate namespace.
  *
@@ -21,7 +20,6 @@ export * as DiscordChannel from "./DiscordChannel/index.js";
  * @since 0.0.0
  */
 export * as HostDependency from "./HostDependency/index.js";
-
 /**
  * Provider account aggregate namespace.
  *
@@ -29,7 +27,6 @@ export * as HostDependency from "./HostDependency/index.js";
  * @since 0.0.0
  */
 export * as ProviderAccount from "./ProviderAccount/index.js";
-
 /**
  * Secret reference aggregate namespace.
  *
@@ -37,7 +34,6 @@ export * as ProviderAccount from "./ProviderAccount/index.js";
  * @since 0.0.0
  */
 export * as SecretReference from "./SecretReference/index.js";
-
 /**
  * Stack manifest aggregate namespace.
  *

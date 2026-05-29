@@ -12,7 +12,6 @@
  * @category errors
  */
 export * from "./DuckDb.errors.ts";
-
 /**
  * Public DuckDB driver model exports.
  *
@@ -20,7 +19,6 @@ export * from "./DuckDb.errors.ts";
  * @category models
  */
 export * from "./DuckDb.models.ts";
-
 /**
  * Public DuckDB driver service exports.
  *

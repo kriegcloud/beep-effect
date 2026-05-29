@@ -78,7 +78,6 @@
     "ts-morph": "catalog:"
   },
   "devDependencies": {
-    "@beep/types": "workspace:^",
     "@effect/vitest": "catalog:",
     "@types/babel__code-frame": "catalog:",
     "@types/doctrine": "catalog:",

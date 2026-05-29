@@ -1,8 +1,8 @@
 import { NavigationMenu as NavigationMenuPrimitive } from "@base-ui/react/navigation-menu";
 import { CaretDownIcon } from "@phosphor-icons/react";
 import { cva } from "class-variance-authority";
-import type { ComponentPropsWithoutRef } from "react";
 import { cn } from "../lib/index.ts";
+import type { ComponentPropsWithoutRef } from "react";
 
 /**
  * @category components

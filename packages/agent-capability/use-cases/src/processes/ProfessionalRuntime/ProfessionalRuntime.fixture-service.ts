@@ -8,6 +8,8 @@ import { A } from "@beep/utils";
 import { Effect, HashMap, HashSet } from "effect";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
+import { ProfessionalRuntimeValidationError } from "./ProfessionalRuntime.errors.js";
+import { runRuntimeFixture } from "./ProfessionalRuntime.fixtures.js";
 import type { ProposeCandidateOutputSet } from "./ProfessionalRuntime.commands.js";
 import type {
   CandidateOutputSet,
@@ -15,9 +17,7 @@ import type {
   RuntimeScope,
   SdkContextPacket,
 } from "./ProfessionalRuntime.contracts.js";
-import { ProfessionalRuntimeValidationError } from "./ProfessionalRuntime.errors.js";
 import type { RuntimeFixtureInput } from "./ProfessionalRuntime.fixtures.js";
-import { runRuntimeFixture } from "./ProfessionalRuntime.fixtures.js";
 import type { GetContextPacket } from "./ProfessionalRuntime.queries.js";
 import type { ProfessionalRuntimeSdk } from "./ProfessionalRuntime.service.js";
 

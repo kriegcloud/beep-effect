@@ -7,8 +7,8 @@
  */
 
 import { Effect } from "effect";
-
-import { ArchitectureLabMigrationTarget, type DbAdminMigrationTarget } from "./migrations/ArchitectureLab.js";
+import { ArchitectureLabMigrationTarget } from "./migrations/ArchitectureLab.js";
+import type { DbAdminMigrationTarget } from "./migrations/ArchitectureLab.js";
 
 /**
  * Architecture lab migration target export.

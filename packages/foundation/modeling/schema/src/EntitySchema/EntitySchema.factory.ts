@@ -11,19 +11,20 @@ import * as S from "effect/Schema";
 import * as Model from "../Model/index.ts";
 import * as VariantSchema from "../VariantSchema/index.ts";
 import { tableNameFromIdentifier } from "./EntitySchema.constructors.ts";
-import {
-  type Assign,
-  type AssignedPersisted,
-  assignEntityParts,
-  type ClassInput,
-  type Definition,
-  defineClassInput,
-  type EntityClass,
-  type SchemaAnnotations,
-  type TypeShape,
-  type VariantFieldFor,
-  type VariantFieldForInput,
-  type VariantFieldsFor,
+import { assignEntityParts, defineClassInput } from "./EntitySchema.definition.ts";
+import { EntityFieldInputError, EntitySchemaAttachmentError, selectedRowFieldShape } from "./EntitySchema.shape.ts";
+import { DefinitionAnnotationKey } from "./EntitySchema.shared.ts";
+import type {
+  Assign,
+  AssignedPersisted,
+  ClassInput,
+  Definition,
+  EntityClass,
+  SchemaAnnotations,
+  TypeShape,
+  VariantFieldFor,
+  VariantFieldForInput,
+  VariantFieldsFor,
 } from "./EntitySchema.definition.ts";
 import type {
   EntityFieldInput,
@@ -39,8 +40,6 @@ import type {
   PersistedMap,
   PersistStrategy,
 } from "./EntitySchema.persist.ts";
-import { EntityFieldInputError, EntitySchemaAttachmentError, selectedRowFieldShape } from "./EntitySchema.shape.ts";
-import { DefinitionAnnotationKey } from "./EntitySchema.shared.ts";
 
 /**
  * Class factory with inherited invariant fields.

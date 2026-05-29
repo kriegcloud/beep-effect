@@ -1,4 +1,5 @@
 import * as Domain from "@beep/shared-domain";
+import { describe, expect, it } from "tstyche";
 import type * as Organization from "@beep/shared-domain/entities/Organization";
 import type * as BaseEntity from "@beep/shared-domain/entity/BaseEntity";
 import type * as EntityId from "@beep/shared-domain/entity/EntityId";
@@ -6,7 +7,6 @@ import type * as EntityRef from "@beep/shared-domain/entity/EntityRef";
 import type * as Principal from "@beep/shared-domain/entity/Principal";
 import type * as SourceKind from "@beep/shared-domain/entity/SourceKind";
 import type * as LocalDate from "@beep/shared-domain/values/LocalDate";
-import { describe, expect, it } from "tstyche";
 
 describe("@beep/shared-domain root barrel", () => {
   it("keeps root namespaces wired to their public modules", () => {

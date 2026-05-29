@@ -7,10 +7,10 @@
 
 import { $PostgresId } from "@beep/identity";
 import { LiteralKit } from "@beep/schema";
-import type { A } from "@beep/utils";
 import * as O from "effect/Option";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
+import type { A } from "@beep/utils";
 
 const $I = $PostgresId.create("PostgresSqlState.models");
 

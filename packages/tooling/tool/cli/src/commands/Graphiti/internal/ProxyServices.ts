@@ -22,7 +22,6 @@ import {
   Ref,
   Result,
   SchemaTransformation,
-  type Scope,
 } from "effect";
 import { dual } from "effect/Function";
 import * as O from "effect/Option";
@@ -34,10 +33,11 @@ import {
   HttpClientError,
   HttpClientRequest,
   HttpMethod,
-  type HttpServerRequest,
   HttpServerResponse,
   UrlParams,
 } from "effect/unstable/http";
+import type { Scope } from "effect";
+import type { HttpServerRequest } from "effect/unstable/http";
 import type { GraphitiProxyConfig } from "./ProxyConfig.js";
 
 const $I = $RepoCliId.create("commands/Graphiti/internal/ProxyServices");

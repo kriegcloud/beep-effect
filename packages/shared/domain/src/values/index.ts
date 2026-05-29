@@ -19,7 +19,6 @@
  * @category models
  */
 export * as LocalDate from "./LocalDate/index.ts";
-
 /**
  * OnePasswordReference - Typed reference to a 1Password item field.
  *

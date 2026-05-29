@@ -14,7 +14,8 @@ import * as S from "effect/Schema";
 import { ResponseHeader } from "../Http/Http.headers.shared.ts";
 import { LiteralKit } from "../LiteralKit/index.ts";
 import * as SchemaUtils from "../SchemaUtils/index.ts";
-import { CrossOriginEmbedderPolicyError, type SecureHeaderError } from "../SecureHeaderError/index.ts";
+import { CrossOriginEmbedderPolicyError } from "../SecureHeaderError/index.ts";
+import type { SecureHeaderError } from "../SecureHeaderError/index.ts";
 
 const $I = $SchemaId.create("CrossOriginEmbedderPolicy");
 

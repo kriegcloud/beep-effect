@@ -12,7 +12,6 @@
  * @since 0.0.0
  */
 export * from "./Discord.errors.ts";
-
 /**
  * Public Discord driver model exports.
  *
@@ -20,7 +19,6 @@ export * from "./Discord.errors.ts";
  * @since 0.0.0
  */
 export * from "./Discord.models.ts";
-
 /**
  * Public Discord driver service exports.
  *

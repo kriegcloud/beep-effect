@@ -2,14 +2,12 @@ import {
   FaceDetectionError,
   FaceDetectionImageRequest,
   FaceDetectionModelConfig,
-  type FaceDetectionResult,
   FaceDetectionService,
-  type FaceDetectionServiceShape,
-  type LoadedFaceDetector,
   makeFaceDetectionService,
 } from "@beep/face-detection";
-import type { Effect, Layer } from "effect";
 import { describe, expect, it } from "tstyche";
+import type { FaceDetectionResult, FaceDetectionServiceShape, LoadedFaceDetector } from "@beep/face-detection";
+import type { Effect, Layer } from "effect";
 
 declare const detector: LoadedFaceDetector;
 

@@ -1,6 +1,6 @@
-import type * as DomainCanvasProject from "@beep/canvas-domain/aggregates/CanvasProject";
 import { CanvasProject } from "@beep/canvas-use-cases/public";
 import { expect } from "tstyche";
+import type * as DomainCanvasProject from "@beep/canvas-domain/aggregates/CanvasProject";
 
 declare const canvasProjectId: DomainCanvasProject.CanvasProjectId;
 declare const canvasNode: DomainCanvasProject.CanvasNode;

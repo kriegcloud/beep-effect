@@ -1,7 +1,8 @@
-import { type A, Struct } from "@beep/utils";
+import { Struct } from "@beep/utils";
 import { pipe } from "effect/Function";
-import type * as O from "effect/Option";
 import { describe, expect, it } from "tstyche";
+import type { A } from "@beep/utils";
+import type * as O from "effect/Option";
 
 describe("dotGet", () => {
   it("resolves nested path value types", () => {

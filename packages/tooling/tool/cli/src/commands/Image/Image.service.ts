@@ -5,7 +5,7 @@
  * @since 0.0.0
  */
 
-import { ExtractFramesRequest, type ExtractFramesResult, FFmpeg, type FFmpegError } from "@beep/ffmpeg";
+import { ExtractFramesRequest, FFmpeg } from "@beep/ffmpeg";
 import { $RepoCliId } from "@beep/identity/packages";
 import { VideoFileExtension } from "@beep/schema";
 import { A, Str } from "@beep/utils";
@@ -14,19 +14,20 @@ import { dual, flow } from "effect/Function";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
-import type { ChildProcessSpawner } from "effect/unstable/process";
 import { ImageCommandError } from "./Image.errors.js";
 import { makeExtractFramesEvents } from "./Image.progress.js";
 import {
   decodeExtractFramesDirOptions,
   decodeExtractFramesOptions,
   ExtractFramesDirFailure,
-  type ExtractFramesDirOptions,
   ExtractFramesDirResult,
   ExtractFramesDirSuccess,
   ExtractFramesDirVideo,
   ExtractFramesOptions,
 } from "./Image.schemas.js";
+import type { ExtractFramesResult, FFmpegError } from "@beep/ffmpeg";
+import type { ChildProcessSpawner } from "effect/unstable/process";
+import type { ExtractFramesDirOptions } from "./Image.schemas.js";
 
 const $I = $RepoCliId.create("commands/Image/Image.service");
 

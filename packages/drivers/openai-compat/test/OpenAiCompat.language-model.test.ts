@@ -1,13 +1,10 @@
 import {
   decodeChatCompletionChunk,
   makeFromProvider,
-  type OpenAiCompatChatCompletionChunk,
   OpenAiCompatChatCompletionRequest,
-  type OpenAiCompatChatCompletionResponse,
   OpenAiCompatClient,
   OpenAiCompatClientOptions,
 } from "@beep/openai-compat";
-import type { TUnsafe } from "@beep/types";
 import { A } from "@beep/utils";
 import { expect, layer } from "@effect/vitest";
 import { Effect, Layer, pipe, Redacted, Ref, Stream } from "effect";
@@ -18,9 +15,11 @@ import * as Prompt from "effect/unstable/ai/Prompt";
 import * as Tool from "effect/unstable/ai/Tool";
 import * as Toolkit from "effect/unstable/ai/Toolkit";
 import * as HttpClient from "effect/unstable/http/HttpClient";
+import * as HttpClientResponse from "effect/unstable/http/HttpClientResponse";
+import type { OpenAiCompatChatCompletionChunk, OpenAiCompatChatCompletionResponse } from "@beep/openai-compat";
+import type { TUnsafe } from "@beep/types";
 import type * as HttpClientError from "effect/unstable/http/HttpClientError";
 import type * as HttpClientRequest from "effect/unstable/http/HttpClientRequest";
-import * as HttpClientResponse from "effect/unstable/http/HttpClientResponse";
 
 const provideScopedLayer =
   <ROut, E2, RIn>(layer: Layer.Layer<ROut, E2, RIn>) =>

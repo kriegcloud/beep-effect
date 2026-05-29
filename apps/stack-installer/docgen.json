@@ -38,30 +38,6 @@
       ],
       "@beep/discord": ["../../packages/drivers/discord/src/index.ts"],
       "@beep/discord/*": ["../../packages/drivers/discord/src/*.ts"],
-      "@beep/identity": [
-        "../../packages/foundation/modeling/identity/src/index.ts"
-      ],
-      "@beep/identity/*": [
-        "../../packages/foundation/modeling/identity/src/*.ts"
-      ],
-      "@beep/identity/packages": [
-        "../../packages/foundation/modeling/identity/src/packages.ts"
-      ],
-      "@beep/installer-domain": [
-        "../../packages/installer/domain/src/index.ts"
-      ],
-      "@beep/installer-domain/aggregates": [
-        "../../packages/installer/domain/src/aggregates/index.ts"
-      ],
-      "@beep/installer-domain/entities": [
-        "../../packages/installer/domain/src/entities/index.ts"
-      ],
-      "@beep/installer-domain/identity": [
-        "../../packages/installer/domain/src/identity/index.ts"
-      ],
-      "@beep/installer-domain/values": [
-        "../../packages/installer/domain/src/values/index.ts"
-      ],
       "@beep/installer-server": [
         "../../packages/installer/server/src/index.ts"
       ],

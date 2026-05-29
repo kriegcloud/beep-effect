@@ -32,12 +32,27 @@ export default function manifest(): MetadataRoute.Manifest {
     background_color: "#f6f1e7",
     theme_color: "#11100e",
     categories: ["business", "legal", "productivity"],
-    icons: [
+    shortcuts: [
       {
-        src: "/favicon.ico",
-        sizes: "any",
-        type: "image/x-icon",
+        name: "Open an engagement",
+        short_name: "Contact",
+        url: "/?source=pwa#contact",
+        icons: [{ src: "/oip/icon-192.png", sizes: "192x192", type: "image/png" }],
       },
+      {
+        name: "Practice areas",
+        short_name: "Practice",
+        url: "/?source=pwa#practice",
+        icons: [{ src: "/oip/icon-192.png", sizes: "192x192", type: "image/png" }],
+      },
+      {
+        name: "Recent matters",
+        short_name: "Matters",
+        url: "/?source=pwa#matters",
+        icons: [{ src: "/oip/icon-192.png", sizes: "192x192", type: "image/png" }],
+      },
+    ],
+    icons: [
       {
         src: "/oip/apple-touch-icon.png",
         sizes: "180x180",

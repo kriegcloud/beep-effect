@@ -1,19 +1,14 @@
 import { randomUUID } from "node:crypto";
 import { tmpdir } from "node:os";
 import { TaggedErrorClass } from "@beep/schema/TaggedErrorClass";
-import {
-  type GlobError,
-  layer as GlobLayer,
-  type GlobOptions,
-  Glob as GlobService,
-  type Pattern,
-} from "@beep/utils/Glob";
+import { layer as GlobLayer, Glob as GlobService } from "@beep/utils/Glob";
 import * as BunFileSystem from "@effect/platform-bun/BunFileSystem";
 import * as BunPath from "@effect/platform-bun/BunPath";
 import { Effect, Layer, Match } from "effect";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import { describe, expect, it } from "vitest";
+import type { GlobError, GlobOptions, Pattern } from "@beep/utils/Glob";
 
 type TestEffect<A, E = never> = Effect.Effect<A, E, never>;
 

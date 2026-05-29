@@ -12,7 +12,8 @@ import * as S from "effect/Schema";
 import * as internal from "../Http/Http.headers.shared.ts";
 import { LiteralKit } from "../LiteralKit/index.ts";
 import * as SchemaUtils from "../SchemaUtils/index.ts";
-import { CrossOriginResourcePolicyError, type SecureHeaderError } from "../SecureHeaderError/index.ts";
+import { CrossOriginResourcePolicyError } from "../SecureHeaderError/index.ts";
+import type { SecureHeaderError } from "../SecureHeaderError/index.ts";
 
 const $I = $SchemaId.create("CrossOriginResourcePolicy");
 

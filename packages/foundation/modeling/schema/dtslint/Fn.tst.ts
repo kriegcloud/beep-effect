@@ -1,16 +1,9 @@
-import {
-  type AnyFn,
-  type AnyFn as AnyFnType,
-  Fn,
-  type FnSchema,
-  type FnSchemaStatics,
-  type FnType,
-  ThunkOf,
-} from "@beep/schema/Fn";
+import { Fn, ThunkOf } from "@beep/schema/Fn";
 import { Effect } from "effect";
 import * as S from "effect/Schema";
-import type * as SchemaIssue from "effect/SchemaIssue";
 import { describe, expect, it } from "tstyche";
+import type { AnyFn, AnyFn as AnyFnType, FnSchema, FnSchemaStatics, FnType } from "@beep/schema/Fn";
+import type * as SchemaIssue from "effect/SchemaIssue";
 
 interface InputWithService extends S.Codec<number, string, "InputService"> {
   readonly "~rebuild.out": this;

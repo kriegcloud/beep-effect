@@ -1,7 +1,7 @@
+import { describe, expect, it } from "tstyche";
 import type * as Organization from "@beep/shared-domain/entities/Organization";
 import type * as OrganizationTables from "@beep/shared-tables/entities/Organization";
 import type { EntityTable } from "@beep/shared-tables/table/Table";
-import { describe, expect, it } from "tstyche";
 
 describe("OrganizationTable types", () => {
   it("preserves table and descriptor metadata literals", () => {

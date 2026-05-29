@@ -1,8 +1,9 @@
-import { Markdown, type Markdown as MarkdownType } from "@beep/schema/Markdown";
-import type { Effect } from "effect";
-import type * as Brand from "effect/Brand";
+import { Markdown } from "@beep/schema/Markdown";
 import * as S from "effect/Schema";
 import { describe, expect, it } from "tstyche";
+import type { Markdown as MarkdownType } from "@beep/schema/Markdown";
+import type { Effect } from "effect";
+import type * as Brand from "effect/Brand";
 
 declare const markdown: MarkdownType;
 

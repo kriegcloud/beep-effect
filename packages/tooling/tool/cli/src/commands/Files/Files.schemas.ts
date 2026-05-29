@@ -121,7 +121,7 @@ export type NonNegativePixelOffset = typeof NonNegativePixelOffset.Type;
  * @category schemas
  * @since 0.0.0
  */
-export const MediaKind = LiteralKit(["image", "video"] as const).pipe(
+export const MediaKind = LiteralKit(["image", "video"]).pipe(
   $I.annoteSchema("MediaKind", {
     description: "The media probing strategy used for a selected file.",
   })
@@ -141,15 +141,7 @@ export type MediaKind = typeof MediaKind.Type;
  * @category schemas
  * @since 0.0.0
  */
-export const SupportedMetadataImageExtension = LiteralKit([
-  "avif",
-  "jpeg",
-  "jpg",
-  "png",
-  "tif",
-  "tiff",
-  "webp",
-] as const).pipe(
+export const SupportedMetadataImageExtension = LiteralKit(["avif", "jpeg", "jpg", "png", "tif", "tiff", "webp"]).pipe(
   $I.annoteSchema("SupportedMetadataImageExtension", {
     description: "Image file extensions that the metadata-strip command normalizes through sharp.",
   })
@@ -169,7 +161,7 @@ export type SupportedMetadataImageExtension = typeof SupportedMetadataImageExten
  * @category schemas
  * @since 0.0.0
  */
-export const NormalizeImageFormatInput = LiteralKit(["png", "jpg", "jpeg", "webp"] as const).pipe(
+export const NormalizeImageFormatInput = LiteralKit(["png", "jpg", "jpeg", "webp"]).pipe(
   $I.annoteSchema("NormalizeImageFormatInput", {
     description: "Image output format accepted by the normalize command.",
   })
@@ -189,7 +181,7 @@ export type NormalizeImageFormatInput = typeof NormalizeImageFormatInput.Type;
  * @category schemas
  * @since 0.0.0
  */
-export const NormalizeImageFormat = LiteralKit(["png", "jpg", "webp"] as const).pipe(
+export const NormalizeImageFormat = LiteralKit(["png", "jpg", "webp"]).pipe(
   $I.annoteSchema("NormalizeImageFormat", {
     description: "Canonical image output format emitted by the normalize command.",
   })
@@ -217,7 +209,7 @@ export const NormalizeSkippedReason = LiteralKit([
   "symlink",
   "unsupported-image",
   "video",
-] as const).pipe(
+]).pipe(
   $I.annoteSchema("NormalizeSkippedReason", {
     description: "Reason a source entry was not selected for image normalization.",
   })
@@ -246,7 +238,7 @@ export const CreateCaptionFilesSkippedReason = LiteralKit([
   "non-media",
   "symlink",
   "video",
-] as const).pipe(
+]).pipe(
   $I.annoteSchema("CreateCaptionFilesSkippedReason", {
     description: "Reason a source entry was not selected for caption sidecar creation.",
   })
@@ -266,7 +258,7 @@ export type CreateCaptionFilesSkippedReason = typeof CreateCaptionFilesSkippedRe
  * @category schemas
  * @since 0.0.0
  */
-export const BorderSide = LiteralKit(["top", "right", "bottom", "left"] as const).pipe(
+export const BorderSide = LiteralKit(["top", "right", "bottom", "left"]).pipe(
   $I.annoteSchema("BorderSide", {
     description: "Image side scanned by the border detection operation.",
   })
@@ -286,14 +278,7 @@ export type BorderSide = typeof BorderSide.Type;
  * @category schemas
  * @since 0.0.0
  */
-export const BorderDetectionKind = LiteralKit([
-  "none",
-  "canvas-edge",
-  "pillarbox",
-  "letterbox",
-  "frame",
-  "mixed",
-] as const).pipe(
+export const BorderDetectionKind = LiteralKit(["none", "canvas-edge", "pillarbox", "letterbox", "frame", "mixed"]).pipe(
   $I.annoteSchema("BorderDetectionKind", {
     description: "Detected solid-border layout for a dataset image.",
   })
@@ -321,7 +306,7 @@ export const DetectBordersSkippedReason = LiteralKit([
   "unsupported-image",
   "unreadable-image",
   "video",
-] as const).pipe(
+]).pipe(
   $I.annoteSchema("DetectBordersSkippedReason", {
     description: "Reason a source entry was not analyzed for solid borders.",
   })
@@ -350,7 +335,7 @@ export const DetectFacesSkippedReason = LiteralKit([
   "unreadable-image",
   "unsupported-image",
   "video",
-] as const).pipe(
+]).pipe(
   $I.annoteSchema("DetectFacesSkippedReason", {
     description: "Reason a source entry was not selected for face detection.",
   })
@@ -376,7 +361,7 @@ export const DetectFacesFlag = LiteralKit([
   "has-face",
   "multiple-faces",
   "no-face",
-] as const).pipe(
+]).pipe(
   $I.annoteSchema("DetectFacesFlag", {
     description: "Machine-readable face triage flag emitted for an analyzed image.",
   })
@@ -396,7 +381,7 @@ export type DetectFacesFlag = typeof DetectFacesFlag.Type;
  * @category schemas
  * @since 0.0.0
  */
-export const CandidateAssessmentProfile = LiteralKit(["character-lora"] as const).pipe(
+export const CandidateAssessmentProfile = LiteralKit(["character-lora"]).pipe(
   $I.annoteSchema("CandidateAssessmentProfile", {
     description: "Dataset-quality assessment profile for files archive-poor-candidates.",
   })
@@ -416,7 +401,7 @@ export type CandidateAssessmentProfile = typeof CandidateAssessmentProfile.Type;
  * @category schemas
  * @since 0.0.0
  */
-export const CandidateAssessmentDecision = LiteralKit(["archive", "keep"] as const).pipe(
+export const CandidateAssessmentDecision = LiteralKit(["archive", "keep"]).pipe(
   $I.annoteSchema("CandidateAssessmentDecision", {
     description: "Whether an assessed image should be kept in place or archived as a poor candidate.",
   })
@@ -440,7 +425,7 @@ export const CandidateAssessmentReason = LiteralKit([
   "extreme-aspect-ratio",
   "short-edge-too-small",
   "upscale-too-large",
-] as const).pipe(
+]).pipe(
   $I.annoteSchema("CandidateAssessmentReason", {
     description: "Machine-readable hard-threshold reason for archiving a poor image candidate.",
   })
@@ -468,7 +453,7 @@ export const ArchivePoorCandidatesSkippedReason = LiteralKit([
   "unsupported-image",
   "unreadable-image",
   "video",
-] as const).pipe(
+]).pipe(
   $I.annoteSchema("ArchivePoorCandidatesSkippedReason", {
     description: "Reason a source entry was not assessed for candidate-quality archival.",
   })

@@ -1,5 +1,7 @@
 # beep-effect
 
+[![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/kriegcloud/beep-effect)
+
 **Mission.** beep-effect is the Effect-first, schema-first monorepo for building local-first, evidence-backed, governed **professional agentic runtimes**. It ships reliable domain experiments as production-quality vertical slices that can be added, rewritten, or removed without long-term topology debt.
 
 **North Star** (from `standards/ARCHITECTURE.md`)

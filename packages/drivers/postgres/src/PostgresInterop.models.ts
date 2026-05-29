@@ -39,7 +39,6 @@ export type NativeMigrationError = EffectDrizzleQueryError | MigratorInitError |
  * @category interop
  */
 export * as NativePgClient from "@effect/sql-pg/PgClient";
-
 /**
  * Native Drizzle Effect Postgres database types.
  *

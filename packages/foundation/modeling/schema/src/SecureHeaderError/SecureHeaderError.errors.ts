@@ -7,7 +7,8 @@ import { $SchemaId } from "@beep/identity";
 import { Tuple } from "effect";
 import * as S from "effect/Schema";
 import { SecureHeader } from "../SecureHeader/index.ts";
-import { TaggedErrorClass, type TaggedErrorClassFromFields } from "../TaggedErrorClass/index.ts";
+import { TaggedErrorClass } from "../TaggedErrorClass/index.ts";
+import type { TaggedErrorClassFromFields } from "../TaggedErrorClass/index.ts";
 
 const $I = $SchemaId.create("SecureHeaderError");
 const commonFields = {

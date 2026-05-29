@@ -6,10 +6,10 @@
  * @since 0.0.0
  */
 
-import type { P1ManualProofRequest } from "@beep/installer-use-cases";
 import * as A from "effect/Array";
 import { dual } from "effect/Function";
 import * as Str from "effect/String";
+import type { P1ManualProofRequest } from "@beep/installer-use-cases";
 
 /**
  * Inputs used to build a proof command transcript.

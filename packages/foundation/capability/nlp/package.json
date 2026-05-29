@@ -85,7 +85,6 @@
     "wink-nlp-utils": "catalog:"
   },
   "devDependencies": {
-    "@beep/types": "workspace:^",
     "@effect/vitest": "catalog:",
     "@types/bun": "catalog:",
     "@types/node": "catalog:"

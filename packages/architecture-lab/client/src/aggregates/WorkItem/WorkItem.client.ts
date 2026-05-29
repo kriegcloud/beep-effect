@@ -6,10 +6,11 @@
  * @since 0.0.0
  */
 
+import { $ArchitectureLabClientId } from "@beep/identity/packages";
+import { Context } from "effect";
 import type * as DomainWorkItem from "@beep/architecture-lab-domain/aggregates/WorkItem";
 import type { WorkItem as WorkItemUseCases } from "@beep/architecture-lab-use-cases/public";
-import { $ArchitectureLabClientId } from "@beep/identity/packages";
-import { Context, type Effect } from "effect";
+import type { Effect } from "effect";
 
 const $I = $ArchitectureLabClientId.create("aggregates/WorkItem/WorkItem.client");
 

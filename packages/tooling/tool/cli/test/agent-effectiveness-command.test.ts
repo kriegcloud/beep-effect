@@ -9,7 +9,7 @@ import { agentEffectivenessCommand } from "@beep/repo-cli/commands/AgentEffectiv
 import { A } from "@beep/utils";
 import { NodeServices } from "@effect/platform-node";
 import { describe, expect, it } from "@effect/vitest";
-import { Effect, FileSystem, Layer, Path, pipe } from "effect";
+import { Cause, ConfigProvider, Effect, Exit, FileSystem, Layer, Path, pipe, Runtime } from "effect";
 import * as S from "effect/Schema";
 import * as TestConsole from "effect/testing/TestConsole";
 import { Command } from "effect/unstable/cli";
@@ -21,6 +21,15 @@ const decodeAnnotationCheckReport = S.decodeUnknownEffect(S.fromJsonString(Agent
 const decodeDatasetBundle = S.decodeUnknownEffect(S.fromJsonString(AgentEffectivenessDatasetBundle));
 const decodePhoenixSyncResult = S.decodeUnknownEffect(S.fromJsonString(AgentEffectivenessPhoenixSyncResult));
 const decodePromptBundle = S.decodeUnknownEffect(S.fromJsonString(AgentEffectivenessPromptBundle));
+
+const expectReportedExit = (exit: Exit.Exit<unknown, unknown>, exitCode = 1) => {
+  expect(Exit.isFailure(exit)).toBe(true);
+  if (Exit.isFailure(exit)) {
+    const error = Cause.squash(exit.cause);
+    expect(Runtime.getErrorExitCode(error)).toBe(exitCode);
+    expect(Runtime.getErrorReported(error)).toBe(false);
+  }
+};
 
 const provideScopedLayer =
   <ROut, E2, RIn>(layer: Layer.Layer<ROut, E2, RIn>) =>
@@ -49,14 +58,12 @@ const withTempDirectory = <A, E, R>(use: (tmpDir: string) => Effect.Effect<A, E,
   Effect.acquireUseRelease(
     Effect.gen(function* () {
       const fs = yield* FileSystem.FileSystem;
-      process.exitCode = 0;
       return yield* fs.makeTempDirectory();
     }),
     use,
     (tmpDir) =>
       Effect.gen(function* () {
         const fs = yield* FileSystem.FileSystem;
-        process.exitCode = 0;
         yield* fs.remove(tmpDir, { recursive: true, force: true });
       })
   ).pipe(provideScopedLayer(CommandTestLayer));
@@ -67,6 +74,15 @@ const writeText = Effect.fn("AgentEffectivenessCommandTest.writeText")(function*
   yield* fs.makeDirectory(path.dirname(filePath), { recursive: true });
   yield* fs.writeFileString(filePath, content);
 });
+
+const withPhoenixBaseUrlEnv = <A, E, R>(phoenixBaseUrl: string, use: Effect.Effect<A, E, R>): Effect.Effect<A, E, R> =>
+  provideScopedLayer(
+    ConfigProvider.layer(
+      ConfigProvider.fromUnknown({
+        BEEP_AGENT_EFFECTIVENESS_PHOENIX_BASE_URL: phoenixBaseUrl,
+      })
+    )
+  )(use);
 
 const lastLoggedLine = Effect.fn("AgentEffectivenessCommandTest.lastLoggedLine")(function* () {
   const last = pipe(yield* TestConsole.logLines, A.last);
@@ -100,7 +116,37 @@ describe("agent-effectiveness command", () => {
         const report = yield* decodeDoctorReport(output);
         expect(report.phoenix.status).toBe("unavailable");
         expect(report.jsdocWorkerEval.completedPackets).toBe(1);
-        expect(process.exitCode).toBe(0);
+        expect(process.exitCode ?? 0).toBe(0);
+      })
+    )
+  );
+
+  it.effect("uses the Phoenix base URL from Config when the flag is omitted", () =>
+    withTempDirectory(
+      Effect.fnUntraced(function* (tmpDir) {
+        const path = yield* Path.Path;
+        const dataRoot = path.join(tmpDir, "metrics");
+        const phoenixBaseUrl = "https://phoenix.example.test";
+        const workerReportPath = path.join(tmpDir, "worker-eval.json");
+        yield* writeText(workerReportPath, workerReportJson);
+
+        yield* withPhoenixBaseUrlEnv(
+          phoenixBaseUrl,
+          runAgentEffectivenessCommand([
+            "doctor",
+            "--data-root",
+            dataRoot,
+            "--worker-eval-report",
+            workerReportPath,
+            "--no-phoenix",
+            "--json",
+          ])
+        );
+
+        const output = yield* lastLoggedLine();
+        const report = yield* decodeDoctorReport(output);
+        expect(report.phoenix.baseUrl).toBe(phoenixBaseUrl);
+        expect(process.exitCode ?? 0).toBe(0);
       })
     )
   );
@@ -128,7 +174,7 @@ describe("agent-effectiveness command", () => {
         const report = yield* decodeAnnotationCheckReport(output);
         expect(report.status).toBe("passed");
         expect(report.annotationCount).toBeGreaterThan(0);
-        expect(process.exitCode).toBe(0);
+        expect(process.exitCode ?? 0).toBe(0);
       })
     )
   );
@@ -141,19 +187,22 @@ describe("agent-effectiveness command", () => {
         const workerReportPath = path.join(tmpDir, "worker-eval.json");
         yield* writeText(workerReportPath, workerReportJsonWithSecretShapedPolicyCode);
 
-        yield* runAgentEffectivenessCommand([
-          "annotations",
-          "check",
-          "--data-root",
-          dataRoot,
-          "--worker-eval-report",
-          workerReportPath,
-          "--no-phoenix",
-          "--json",
-        ]);
+        const exit = yield* Effect.exit(
+          runAgentEffectivenessCommand([
+            "annotations",
+            "check",
+            "--data-root",
+            dataRoot,
+            "--worker-eval-report",
+            workerReportPath,
+            "--no-phoenix",
+            "--json",
+          ])
+        );
 
         const output = yield* lastLoggedLine();
         const report = yield* decodeAnnotationCheckReport(output);
+        expectReportedExit(exit);
         expect(report.status).toBe("failed");
         expect(
           pipe(
@@ -161,7 +210,6 @@ describe("agent-effectiveness command", () => {
             A.map((finding) => finding.code)
           )
         ).toContain("secret-shaped-value");
-        expect(process.exitCode).toBe(1);
       })
     )
   );
@@ -190,7 +238,7 @@ describe("agent-effectiveness command", () => {
         expect(bundle.datasets.length).toBe(5);
         expect(output).not.toContain("draftJsDoc");
         expect(output).not.toContain("@example");
-        expect(process.exitCode).toBe(0);
+        expect(process.exitCode ?? 0).toBe(0);
       })
     )
   );
@@ -204,7 +252,7 @@ describe("agent-effectiveness command", () => {
         const bundle = yield* decodePromptBundle(output);
         expect(bundle.prompts.length).toBe(2);
         expect(bundle.projectName).toBe("beep-agent-effectiveness");
-        expect(process.exitCode).toBe(0);
+        expect(process.exitCode ?? 0).toBe(0);
       })
     )
   );
@@ -236,7 +284,7 @@ describe("agent-effectiveness command", () => {
         expect(result.promptCount).toBe(2);
         expect(result.experimentCount).toBe(5);
         expect(result.writtenDatasetIds).toEqual([]);
-        expect(process.exitCode).toBe(0);
+        expect(process.exitCode ?? 0).toBe(0);
       })
     )
   );

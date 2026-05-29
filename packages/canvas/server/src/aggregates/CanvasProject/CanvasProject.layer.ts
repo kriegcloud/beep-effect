@@ -6,12 +6,11 @@
  * @since 0.0.0
  */
 
-import type { CanvasProject as CanvasProjectUseCases } from "@beep/canvas-use-cases/public";
 import * as CanvasProjectUseCaseServer from "@beep/canvas-use-cases/server";
 import { $CanvasServerId } from "@beep/identity/packages";
 import { Context, Effect, Layer } from "effect";
-
 import { makeCanvasProjectRepository } from "./CanvasProject.repo.js";
+import type { CanvasProject as CanvasProjectUseCases } from "@beep/canvas-use-cases/public";
 
 const $I = $CanvasServerId.create("aggregates/CanvasProject/CanvasProject.layer");
 

@@ -6,7 +6,8 @@
  */
 
 import { Result } from "effect";
-import { decodeOipSiteContentResult, type OipSiteContent, ReviewStatus } from "./OipContent.model.ts";
+import { decodeOipSiteContentResult, ReviewStatus } from "./OipContent.model.ts";
+import type { OipSiteContent } from "./OipContent.model.ts";
 
 const needsReview = (note: string) => ({
   note,
@@ -193,60 +194,70 @@ const rawOipSiteContent = {
       id: "precision-planting",
       aspectRatio: "660/128",
       logo: { src: "/oip/clients/precision-planting.svg", alt: "Precision Planting", credit: "Client mark" },
+      website: "https://www.precisionplanting.com/",
       review: needsReview("Confirm permission or publication comfort before launch."),
     },
     {
       id: "headsight",
       aspectRatio: "258/86",
       logo: { src: "/oip/clients/headsight.png", alt: "Headsight", credit: "Client mark" },
+      website: "https://headsight.com/",
       review: needsReview("Confirm permission or publication comfort before launch."),
     },
     {
       id: "genesis-attachments",
       aspectRatio: "242/52",
       logo: { src: "/oip/clients/genesis-attachments.svg", alt: "Genesis Attachments", credit: "Client mark" },
+      website: "https://www.genesisattachments.com/",
       review: needsReview("Confirm permission or publication comfort before launch."),
     },
     {
       id: "superior-industries",
       aspectRatio: "200/71",
       logo: { src: "/oip/clients/superior-industries.svg", alt: "Superior Industries", credit: "Client mark" },
+      website: "https://superior-ind.com/",
       review: needsReview("Confirm permission or publication comfort before launch."),
     },
     {
       id: "skyline-displays",
       aspectRatio: "5000/2140",
       logo: { src: "/oip/clients/skyline-displays.png", alt: "Skyline Displays", credit: "Client mark" },
+      website: "https://skyline.com/",
       review: needsReview("Confirm permission or publication comfort before launch."),
     },
     {
       id: "par-aide",
       aspectRatio: "200/209",
       logo: { src: "/oip/clients/par-aide.png", alt: "Par Aide", credit: "Client mark" },
+      website: "https://www.paraide.com/",
       review: needsReview("Confirm permission or publication comfort before launch."),
     },
     {
       id: "cray",
       aspectRatio: "513/60",
       logo: { src: "/oip/clients/cray.svg", alt: "Cray", credit: "Client mark" },
-      review: needsReview("Confirm permission or publication comfort before launch."),
+      website: "https://www.hpe.com/us/en/compute/hpc/cray.html",
+      review: needsReview("Confirm Cray link target (now HPE) before launch."),
     },
     {
       id: "kingdom-ag-concepts",
       aspectRatio: "176/62",
       logo: { src: "/oip/clients/kingdom-ag-concepts.png", alt: "Kingdom Ag Concepts", credit: "Client mark" },
-      review: needsReview("Confirm permission or publication comfort before launch."),
+      website: "https://www.shredselect.com/",
+      review: needsReview("Confirm Kingdom Ag Concepts link target (Shred Select) before launch."),
     },
     {
       id: "eastpoint-sports",
       aspectRatio: "508/144",
       logo: { src: "/oip/clients/eastpoint-sports.png", alt: "EastPoint Sports", credit: "Client mark" },
+      website: "https://www.eastpointsports.com/",
       review: needsReview("Confirm permission or publication comfort before launch."),
     },
     {
       id: "bioenergy-life",
       aspectRatio: "300/124",
       logo: { src: "/oip/clients/bioenergy-life.png", alt: "Bioenergy Life Science", credit: "Client mark" },
+      website: "https://www.bioenergylifescience.com/",
       review: needsReview("Confirm permission or publication comfort before launch."),
     },
   ],
@@ -283,6 +294,62 @@ const rawOipSiteContent = {
         href: "https://rejournals.com/minneapolis-larkin-hoffman-adds-to-board-of-directors/",
         label: "Read at REJournals",
       },
+    },
+  ],
+  socials: [
+    {
+      platform: "instagram",
+      href: "https://www.instagram.com/oip.law/",
+      label: "OIP on Instagram",
+      active: true,
+    },
+    {
+      platform: "x",
+      href: "https://x.com/opiplaw",
+      label: "OIP on X",
+      active: true,
+    },
+    {
+      platform: "linkedin",
+      href: "https://www.linkedin.com/company/oppold-ip-law",
+      label: "Oppold IP Law on LinkedIn",
+      active: true,
+    },
+    {
+      platform: "youtube",
+      href: "https://www.youtube.com/@oip-law",
+      label: "OIP on YouTube",
+      active: true,
+    },
+    {
+      platform: "threads",
+      href: "https://www.threads.com/@oip.law",
+      label: "OIP on Threads",
+      active: true,
+    },
+    {
+      platform: "tiktok",
+      href: "https://www.tiktok.com/@oip.law",
+      label: "OIP on TikTok",
+      active: true,
+    },
+    {
+      platform: "reddit",
+      href: "https://www.reddit.com/user/opiplaw/",
+      label: "OIP on Reddit",
+      active: true,
+    },
+    {
+      platform: "discord",
+      href: "https://discord.gg/xjU9Kaqfg",
+      label: "Join the OIP Discord",
+      active: true,
+    },
+    {
+      platform: "pinterest",
+      href: "https://www.pinterest.com/opiplaw/",
+      label: "OIP on Pinterest",
+      active: true,
     },
   ],
   contact: {
@@ -332,4 +399,5 @@ export const launchReviewGates = {
   contact: oipSiteContent.contact.review,
   matters: needsReview("Named matters need final public framing review before launch."),
   metadata: approved("SEO and JSON-LD content mirrors the launch draft and is safe to validate technically."),
+  socials: approved("Firm social profiles confirmed live and approved for public launch."),
 } as const;

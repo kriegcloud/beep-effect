@@ -37,15 +37,6 @@
   },
   "references": [
     {
-      "path": "../../packages/foundation/modeling/identity/tsconfig.json"
-    },
-    {
-      "path": "../../packages/foundation/modeling/schema/tsconfig.json"
-    },
-    {
-      "path": "../../packages/foundation/modeling/utils/tsconfig.json"
-    },
-    {
       "path": "../../packages/foundation/ui-system/ui/tsconfig.json"
     },
     {
@@ -53,6 +44,15 @@
     },
     {
       "path": "../../packages/tooling/policy-pack/repo-configs/tsconfig.json"
+    },
+    {
+      "path": "../../packages/foundation/modeling/identity/tsconfig.json"
+    },
+    {
+      "path": "../../packages/foundation/modeling/schema/tsconfig.json"
+    },
+    {
+      "path": "../../packages/foundation/modeling/utils/tsconfig.json"
     },
     {
       "path": "../../packages/shared/ui/tsconfig.json"

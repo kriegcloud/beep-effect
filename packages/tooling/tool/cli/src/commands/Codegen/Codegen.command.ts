@@ -12,11 +12,13 @@
 import { $RepoCliId } from "@beep/identity/packages";
 import { FsUtils } from "@beep/repo-utils";
 import { A, Str, Text, thunkFalse, thunkUndefined } from "@beep/utils";
-import { Console, Effect, FileSystem, type Order, Path, pipe, Result, SchemaTransformation } from "effect";
+import { Console, Effect, FileSystem, Path, pipe, Result, SchemaTransformation } from "effect";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
 import { Command, Flag } from "effect/unstable/cli";
+import { printLines } from "../../internal/cli/Printer.ts";
+import type { Order } from "effect";
 
 const $I = $RepoCliId.create("commands/Codegen/Codegen.command");
 
@@ -319,16 +321,17 @@ export const codegenCommand = Command.make(
     const indexPath = pathSvc.join(srcDir, "index.ts");
 
     if (config.dryRun) {
-      yield* Console.log("");
-      yield* Console.log("--- Dry run: would generate the following ---");
-      yield* Console.log(`File: ${indexPath}`);
-      yield* Console.log("---");
-      yield* Console.log(content);
-      yield* Console.log("--- End dry run ---");
+      yield* printLines([
+        "",
+        "--- Dry run: would generate the following ---",
+        `File: ${indexPath}`,
+        "---",
+        content,
+        "--- End dry run ---",
+      ]);
     } else {
       yield* fs.writeFileString(indexPath, content);
-      yield* Console.log("");
-      yield* Console.log(`Wrote ${indexPath}`);
+      yield* printLines(["", `Wrote ${indexPath}`]);
     }
   })
 ).pipe(Command.withDescription("Generate barrel file exports for a package"));

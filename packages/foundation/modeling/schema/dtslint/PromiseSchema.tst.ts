@@ -1,7 +1,8 @@
-import { PromiseSchema, type PromiseSchema as PromiseSchemaType } from "@beep/schema/PromiseSchema";
-import type { Effect } from "effect";
+import { PromiseSchema } from "@beep/schema/PromiseSchema";
 import * as S from "effect/Schema";
 import { describe, expect, it } from "tstyche";
+import type { PromiseSchema as PromiseSchemaType } from "@beep/schema/PromiseSchema";
+import type { Effect } from "effect";
 
 describe("PromiseSchema", () => {
   it("preserves the promise schema surface", () => {

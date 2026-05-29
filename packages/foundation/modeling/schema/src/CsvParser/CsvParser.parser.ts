@@ -12,7 +12,8 @@ import { dual } from "effect/Function";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
-import { type CsvError, csvError } from "../CsvError/index.ts";
+import { csvError } from "../CsvError/index.ts";
+import type { CsvError } from "../CsvError/index.ts";
 import type { ParserOptions } from "../ParserOptions/index.ts";
 
 const $I = $SchemaId.create("CsvParser");

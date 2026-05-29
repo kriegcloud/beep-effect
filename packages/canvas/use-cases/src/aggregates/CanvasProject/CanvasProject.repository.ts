@@ -9,8 +9,9 @@
 import * as DomainCanvasProject from "@beep/canvas-domain/aggregates/CanvasProject";
 import { $CanvasUseCasesId } from "@beep/identity/packages";
 import { TaggedErrorClass } from "@beep/schema";
-import { Context, type Effect } from "effect";
+import { Context } from "effect";
 import * as S from "effect/Schema";
+import type { Effect } from "effect";
 
 const $I = $CanvasUseCasesId.create("aggregates/CanvasProject/CanvasProject.repository");
 

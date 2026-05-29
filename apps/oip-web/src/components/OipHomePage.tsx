@@ -7,14 +7,28 @@
 
 import { cn } from "@beep/ui/lib/utils";
 import { A } from "@beep/utils";
+import {
+  DiscordLogo,
+  InstagramLogo,
+  LinkedinLogo,
+  PinterestLogo,
+  RedditLogo,
+  ThreadsLogo,
+  TiktokLogo,
+  XLogo,
+  YoutubeLogo,
+} from "@phosphor-icons/react/ssr";
 import * as P from "effect/Predicate";
 import Image from "next/image";
-import type { CSSProperties, ReactNode } from "react";
-import type { ContactSubmissionStatus } from "../contact";
-import type { OipSiteContent } from "../content";
+import { BackToTop } from "./BackToTop";
 import { ContactForm } from "./ContactForm";
 import { HeroVideo } from "./HeroVideo";
+import { MattersCarousel } from "./MattersCarousel";
 import { ThemeModeToggle } from "./ThemeModeToggle";
+import type { Icon } from "@phosphor-icons/react";
+import type { CSSProperties, ReactNode } from "react";
+import type { ContactSubmissionStatus } from "../contact";
+import type { OipSiteContent, SocialPlatform } from "../content";
 
 const sectionShell = "mx-auto w-full max-w-7xl px-5 sm:px-8 lg:px-12";
 const monoLabel = "font-[family-name:var(--font-oip-mono)] text-xs font-medium uppercase tracking-[0.16em]";
@@ -61,14 +75,28 @@ function Nav({ content }: { readonly content: OipSiteContent }) {
         Skip to main content
       </a>
       <nav className="fixed inset-x-0 top-0 z-40 border-b border-[color-mix(in_oklab,var(--oip-on-soil)_20%,transparent)] bg-[color-mix(in_oklab,var(--oip-soil)_82%,transparent)] backdrop-blur-md">
-        <div className={`${sectionShell} relative flex h-14 items-center justify-end sm:justify-center`}>
-          <div className="absolute left-5 sm:left-8 lg:left-12">
-            <ThemeModeToggle />
+        <div className={`${sectionShell} flex h-14 items-center gap-2`}>
+          <div className="flex flex-1 justify-start">
+            <a href="/" aria-label="Oppold IP Law — home" className="flex shrink-0 items-center">
+              <Image
+                src="/oip/oip-mark.svg"
+                alt=""
+                width={64}
+                height={64}
+                priority
+                className="h-8 w-auto brightness-0 invert sm:hidden"
+              />
+              <Image
+                src="/oip/oip-lockup-horizontal.svg"
+                alt=""
+                width={320}
+                height={96}
+                priority
+                className="hidden h-9 w-auto brightness-0 invert sm:block"
+              />
+            </a>
           </div>
-          <ul
-            className="flex max-w-[calc(100%-4.5rem)] items-center gap-1 overflow-x-auto sm:max-w-none sm:gap-3"
-            aria-label="Primary navigation"
-          >
+          <ul className="flex min-w-0 items-center gap-1 overflow-x-auto sm:gap-3" aria-label="Primary navigation">
             {A.map(content.nav, (item) => (
               <li key={item.href}>
                 <a
@@ -80,6 +108,9 @@ function Nav({ content }: { readonly content: OipSiteContent }) {
               </li>
             ))}
           </ul>
+          <div className="flex flex-1 justify-end">
+            <ThemeModeToggle />
+          </div>
         </div>
       </nav>
     </>
@@ -94,12 +125,8 @@ function Hero({ content }: { readonly content: OipSiteContent }) {
       className="relative isolate grid min-h-[720px] overflow-hidden bg-[var(--oip-soil)] pt-14 text-[var(--oip-on-soil)] lg:grid-cols-[1.08fr_0.92fr]"
       aria-labelledby="hero-title"
     >
-      <div className="relative z-10 flex min-h-[650px] flex-col justify-between px-5 py-10 sm:px-8 sm:py-14 lg:px-14">
-        <header>
-          <Lockup className="h-auto w-44 brightness-0 invert" />
-        </header>
-
-        <div className="max-w-[41rem] py-12 lg:py-16 2xl:max-w-[32rem]">
+      <div className="relative z-10 flex min-h-[650px] flex-col justify-center px-5 py-10 sm:px-8 sm:py-14 lg:pl-[max(3rem,calc((100vw-80rem)/2+3rem))] lg:pr-14">
+        <div className="max-w-[41rem] 2xl:max-w-[32rem]">
           <p className={`${monoLabel} mb-5 text-[var(--oip-gold)]`}>{hero.citation}</p>
           <h1
             id="hero-title"
@@ -125,21 +152,25 @@ function Hero({ content }: { readonly content: OipSiteContent }) {
             </a>
           </div>
         </div>
-
-        <Image
-          className="pointer-events-none absolute bottom-0 right-2 hidden h-[78%] w-auto max-w-[38%] object-contain opacity-95 2xl:block"
-          src={hero.portrait.src}
-          alt={hero.portrait.alt}
-          width={hero.portrait.width ?? 700}
-          height={hero.portrait.height ?? 1245}
-          sizes="(min-width: 1536px) 32vw, 1px"
-        />
       </div>
 
       <div className="relative min-h-[420px] overflow-hidden bg-[var(--oip-soil)] lg:min-h-full lg:[clip-path:polygon(18%_0,100%_0,100%_100%,0_100%)]">
-        <HeroVideo poster={hero.videoPoster.src} />
+        <HeroVideo
+          poster={hero.videoPoster.src}
+          mp4={hero.video.src}
+          webm={hero.video.src.replace(/\.mp4$/, ".webm")}
+        />
         <div className="absolute inset-0 bg-[linear-gradient(110deg,rgba(31,29,26,0.58),rgba(91,26,26,0.12),rgba(31,29,26,0.38))]" />
       </div>
+
+      <Image
+        className="pointer-events-none absolute bottom-0 left-1/2 z-20 hidden h-[78%] w-auto max-w-[42%] object-contain opacity-95 2xl:block"
+        src={hero.portrait.src}
+        alt={hero.portrait.alt}
+        width={hero.portrait.width ?? 700}
+        height={hero.portrait.height ?? 1245}
+        sizes="(min-width: 1536px) 28vw, 1px"
+      />
     </section>
   );
 }
@@ -156,28 +187,26 @@ function About({ content }: { readonly content: OipSiteContent }) {
             const isPortraitPanel = panel.id === "law";
 
             return (
-              <article key={panel.id} className="grid gap-5">
+              <article key={panel.id} className="flex flex-col gap-5">
                 <figure
                   className={cn(
                     "overflow-hidden rounded-lg border border-[var(--oip-rule)]",
                     isPortraitPanel ? "bg-[var(--oip-portrait-ground)]" : "bg-[var(--oip-figure-ground)]"
                   )}
                 >
-                  <Image
-                    className={cn(
-                      "aspect-[4/3] size-full",
-                      isPortraitPanel ? "object-contain object-bottom px-7 pt-7" : "object-cover"
-                    )}
-                    src={panel.image.src}
-                    alt={panel.image.alt}
-                    width={panel.image.width ?? 1200}
-                    height={panel.image.height ?? 800}
-                    quality={60}
-                    sizes="(min-width: 1024px) 31vw, 90vw"
-                  />
+                  <div className="relative aspect-[4/3] w-full">
+                    <Image
+                      className={cn(isPortraitPanel ? "object-contain object-bottom px-7 pt-7" : "object-cover")}
+                      src={panel.image.src}
+                      alt={panel.image.alt}
+                      fill
+                      quality={60}
+                      sizes="(min-width: 1024px) 31vw, 90vw"
+                    />
+                  </div>
                   <figcaption
                     className={cn(
-                      "px-4 py-2 font-[family-name:var(--font-oip-mono)] text-[0.68rem] uppercase tracking-[0.12em]",
+                      "min-h-9 px-4 py-2 font-[family-name:var(--font-oip-mono)] text-[0.68rem] uppercase tracking-[0.12em]",
                       isPortraitPanel ? "text-[var(--oip-cream-muted)]" : "text-[var(--oip-figure-caption)]"
                     )}
                   >
@@ -223,7 +252,9 @@ function Practice({ content }: { readonly content: OipSiteContent }) {
           {A.map(content.practices, (practice) => (
             <article key={practice.id} className="rounded-lg border border-[var(--oip-rule)] bg-[var(--oip-card)] p-5">
               <p className={`${monoLabel} text-[var(--oip-burgundy)]`}>{practice.id}</p>
-              <h3 className={`${displayClass} mt-4 text-2xl leading-8 text-[var(--oip-heading)]`}>{practice.title}</h3>
+              <h3 className={`${displayClass} mt-4 min-h-[6rem] text-2xl leading-8 text-[var(--oip-heading)]`}>
+                {practice.title}
+              </h3>
               <p className="mt-4 text-sm leading-7 text-[var(--oip-body)]">{practice.body}</p>
             </article>
           ))}
@@ -247,28 +278,32 @@ function Matters({ content }: { readonly content: OipSiteContent }) {
             Public records, practical machinery.
           </h2>
         </header>
-        <div className="mt-10 grid auto-cols-[minmax(18rem,1fr)] grid-flow-col gap-5 overflow-x-auto pb-5 lg:grid-flow-row lg:grid-cols-3 lg:overflow-visible">
+        <MattersCarousel>
           {A.map(content.matters, (matter) => (
-            <ExternalAnchor
+            <a
               key={matter.id}
               href={matter.source.href}
-              className="group grid min-h-[36rem] w-[min(84vw,26rem)] min-w-0 content-start overflow-hidden rounded-lg border border-[color-mix(in_oklab,var(--oip-on-soil)_18%,transparent)] bg-[color-mix(in_oklab,var(--oip-soil)_80%,black)] text-[var(--oip-on-soil)] transition-transform hover:-translate-y-1 lg:w-auto"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="group flex h-full min-h-[34rem] flex-col overflow-hidden rounded-lg border border-[color-mix(in_oklab,var(--oip-on-soil)_18%,transparent)] bg-[color-mix(in_oklab,var(--oip-soil)_80%,black)] text-[var(--oip-on-soil)] transition-transform hover:-translate-y-1 focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-[var(--oip-gold)]"
             >
               <figure className="min-w-0 border-b border-[color-mix(in_oklab,var(--oip-on-soil)_18%,transparent)] bg-[var(--oip-figure-ground)]">
                 <Image
-                  className="aspect-[3/2] size-full object-contain p-5"
+                  className="aspect-[4/3] w-full object-contain p-5"
                   src={matter.figure.src}
                   alt={matter.figure.alt}
                   width={matter.figure.width ?? 900}
                   height={matter.figure.height ?? 600}
                   sizes="(min-width: 1024px) 31vw, 84vw"
                 />
-                <figcaption className="overflow-wrap-anywhere border-t border-[var(--oip-rule)] px-4 py-2 font-[family-name:var(--font-oip-mono)] text-[clamp(0.62rem,0.58rem+0.12vw,0.72rem)] uppercase leading-5 tracking-[0.08em] text-[var(--oip-figure-caption)]">
-                  {matter.figure.credit}
-                </figcaption>
+                {P.isString(matter.figure.credit) ? (
+                  <figcaption className="overflow-wrap-anywhere border-t border-[var(--oip-rule)] px-5 py-3 font-[family-name:var(--font-oip-mono)] text-sm font-semibold leading-6 tracking-[0.04em] text-[var(--oip-figure-caption)]">
+                    {matter.figure.credit}
+                  </figcaption>
+                ) : null}
               </figure>
               <div className="grid min-w-0 gap-3 p-5">
-                <p className={`${monoLabel} text-[var(--oip-gold)]`}>{matter.eyebrow}</p>
+                <p className={`${monoLabel} min-h-8 text-[var(--oip-gold)]`}>{matter.eyebrow}</p>
                 <p className={`${monoLabel} text-[var(--oip-cream-muted)]`}>{matter.caption}</p>
                 <h3 className={`${displayClass} text-3xl leading-tight`}>{matter.title}</h3>
                 <p className="text-sm leading-7 text-[var(--oip-cream-muted)]">{matter.body}</p>
@@ -281,9 +316,9 @@ function Matters({ content }: { readonly content: OipSiteContent }) {
                   {matter.source.label}
                 </span>
               </div>
-            </ExternalAnchor>
+            </a>
           ))}
-        </div>
+        </MattersCarousel>
       </div>
     </section>
   );
@@ -295,8 +330,8 @@ function Clients({ content }: { readonly content: OipSiteContent }) {
       <div className={sectionShell}>
         <p className={`${monoLabel} text-center text-[var(--oip-burgundy)]`}>Counsel of record for selected matters</p>
         <ul className="mt-8 grid grid-cols-2 items-center gap-x-8 gap-y-7 sm:grid-cols-3 lg:grid-cols-5">
-          {A.map(content.clients, (client) => (
-            <li key={client.id} className="flex min-h-16 items-center justify-center">
+          {A.map(content.clients, (client) => {
+            const logo = (
               <img
                 src={client.logo.src}
                 alt={client.logo.alt}
@@ -310,8 +345,25 @@ function Clients({ content }: { readonly content: OipSiteContent }) {
                   } satisfies CSSProperties
                 }
               />
-            </li>
-          ))}
+            );
+            return (
+              <li key={client.id} className="flex min-h-16 items-center justify-center">
+                {P.isString(client.website) ? (
+                  <a
+                    href={client.website}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label={`${client.logo.alt} (opens in a new tab)`}
+                    className="flex w-full items-center justify-center rounded-md focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-[var(--oip-gold)]"
+                  >
+                    {logo}
+                  </a>
+                ) : (
+                  logo
+                )}
+              </li>
+            );
+          })}
         </ul>
         <p className={`${displayClass} mt-8 text-center text-lg italic text-[var(--oip-walnut)]`}>
           Selected matters - 1997 to present. Client marks are review-gated before launch.
@@ -414,9 +466,48 @@ function Contact({
   );
 }
 
-function Footer({ content }: { readonly content: OipSiteContent }) {
-  const { metadata } = content;
+const socialIcon: Record<SocialPlatform, Icon> = {
+  instagram: InstagramLogo,
+  linkedin: LinkedinLogo,
+  x: XLogo,
+  youtube: YoutubeLogo,
+  threads: ThreadsLogo,
+  tiktok: TiktokLogo,
+  reddit: RedditLogo,
+  discord: DiscordLogo,
+  pinterest: PinterestLogo,
+};
 
+function SocialLinks({ socials }: { readonly socials: OipSiteContent["socials"] }) {
+  const visible = A.filter(socials, (social) => social.active);
+  if (!A.matchToBoolean(visible)) {
+    return null;
+  }
+
+  return (
+    <ul aria-label="OIP social media" className="flex flex-wrap items-center gap-1 md:justify-end">
+      {A.map(visible, (social) => {
+        const Glyph = socialIcon[social.platform];
+
+        return (
+          <li key={social.platform}>
+            <a
+              aria-label={social.label}
+              className="inline-flex size-11 items-center justify-center rounded-md text-[var(--oip-on-soil)] transition-colors hover:text-[var(--oip-gold)] focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-[var(--oip-gold)]"
+              href={social.href}
+              rel="me noopener noreferrer"
+              target="_blank"
+            >
+              <Glyph aria-hidden size={20} weight="regular" />
+            </a>
+          </li>
+        );
+      })}
+    </ul>
+  );
+}
+
+function Footer({ content }: { readonly content: OipSiteContent }) {
   return (
     <footer className="bg-[var(--oip-soil)] py-10 text-[var(--oip-on-soil)]">
       <div className={`${sectionShell} grid gap-8 md:grid-cols-[1fr_auto] md:items-end`}>
@@ -424,19 +515,14 @@ function Footer({ content }: { readonly content: OipSiteContent }) {
           <h2 id="footer-title" className="sr-only">
             Site footer
           </h2>
-          <Lockup className="h-auto w-40 brightness-0 invert" />
+          <Lockup className="h-auto w-64 brightness-0 invert md:w-[18.75rem]" />
           <p className={`${displayClass} mt-4 text-xl italic text-[var(--oip-cream-muted)]`}>
             Patent counsel for the people who build the machines.
           </p>
         </div>
-        <div className="grid gap-3 text-left md:text-right">
-          <ExternalAnchor
-            className="font-[family-name:var(--font-oip-mono)] text-xs uppercase tracking-[0.12em] text-[var(--oip-gold)]"
-            href={metadata.linkedInUrl}
-          >
-            LinkedIn
-          </ExternalAnchor>
-          <p className="text-sm text-[var(--oip-cream-muted)]">Copyright 2026 Thomas J. Oppold. OIP.</p>
+        <div className="grid gap-4 text-left md:justify-items-end md:text-right">
+          <SocialLinks socials={content.socials} />
+          <p className="text-sm text-[var(--oip-cream-muted)]">Copyright 2026 Oppold IP Law</p>
         </div>
       </div>
     </footer>
@@ -478,6 +564,7 @@ export function OipHomePage({
         <Contact content={content} status={contactStatus} />
       </main>
       <Footer content={content} />
+      <BackToTop />
     </div>
   );
 }

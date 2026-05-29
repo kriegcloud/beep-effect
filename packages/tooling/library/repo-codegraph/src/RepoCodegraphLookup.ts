@@ -14,22 +14,21 @@ import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
 import {
   RepoCodegraphBoundaryAdvice,
-  type RepoCodegraphBoundaryStatus,
   RepoCodegraphFreshnessStatus,
   RepoCodegraphImportCandidate,
   RepoCodegraphLookupMatch,
-  type RepoCodegraphLookupRequest,
   RepoCodegraphLookupResult,
   RepoCodegraphLookupScore,
   RepoCodegraphLookupTotals,
   RepoCodegraphPackageImportPolicy,
-  type RepoCodegraphPreferredImport,
 } from "./RepoCodegraphLookup.model.ts";
-import {
-  type RepoExportsCatalog,
-  RepoExportsCatalogEntry,
-  RepoExportsCatalogPackage,
-} from "./RepoExportsCatalog.model.ts";
+import { RepoExportsCatalogEntry, RepoExportsCatalogPackage } from "./RepoExportsCatalog.model.ts";
+import type {
+  RepoCodegraphBoundaryStatus,
+  RepoCodegraphLookupRequest,
+  RepoCodegraphPreferredImport,
+} from "./RepoCodegraphLookup.model.ts";
+import type { RepoExportsCatalog } from "./RepoExportsCatalog.model.ts";
 
 const $I = $RepoCodegraphId.create("RepoCodegraphLookup");
 

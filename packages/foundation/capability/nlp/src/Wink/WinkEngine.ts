@@ -11,9 +11,9 @@ import { A } from "@beep/utils";
 import { Clock, Context, Effect, Layer, pipe, Ref } from "effect";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
-import type { AsHelpers, ItemToken, ItsHelpers, Model, Document as WinkDocument, WinkMethods } from "wink-nlp";
 import { WinkEngineError, WinkEntityError, WinkTokenizationError } from "./WinkErrors.ts";
 import { WinkEngineCustomEntities } from "./WinkPattern.ts";
+import type { AsHelpers, ItemToken, ItsHelpers, Model, Document as WinkDocument, WinkMethods } from "wink-nlp";
 
 const $I = $NlpId.create("Wink/WinkEngine");
 const require = createRequire(import.meta.url);

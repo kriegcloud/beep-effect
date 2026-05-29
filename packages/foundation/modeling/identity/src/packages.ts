@@ -140,7 +140,8 @@ const composers = $I.compose(
   "konva",
   "canvas",
   "repo-codegraph",
-  "ai-sync"
+  "ai-sync",
+  "form"
 );
 
 // --- foundation ---
@@ -1383,3 +1384,19 @@ export const $RepoCodegraphId: Identity.IdentityComposer<"@beep/repo-codegraph">
  * @category configuration
  */
 export const $AiSyncId: Identity.IdentityComposer<"@beep/ai-sync"> = composers.$AiSyncId;
+
+/**
+ * Identity composer for `@beep/form`.
+ *
+ * @example
+ * ```typescript
+ * import { $FormId } from "@beep/identity"
+ *
+ * const id = $FormId.make("Form")
+ * void id
+ * ```
+ *
+ * @since 0.0.0
+ * @category configuration
+ */
+export const $FormId: Identity.IdentityComposer<"@beep/form"> = composers.$FormId;

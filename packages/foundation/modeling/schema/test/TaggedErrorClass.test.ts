@@ -1,7 +1,8 @@
 import { CauseTaggedError } from "@beep/schema/CauseTaggedError";
-import { TaggedErrorClass, type TaggedErrorNewInput } from "@beep/schema/TaggedErrorClass";
+import { TaggedErrorClass } from "@beep/schema/TaggedErrorClass";
 import { describe, expect, it } from "@effect/vitest";
 import * as S from "effect/Schema";
+import type { TaggedErrorNewInput } from "@beep/schema/TaggedErrorClass";
 
 class BeepError extends TaggedErrorClass<BeepError>("BeepError")("BeepError", {
   beep: S.String,

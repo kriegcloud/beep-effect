@@ -8,7 +8,7 @@
 import { $MdId } from "@beep/identity";
 import { Markdown } from "@beep/schema";
 import { A, Html, Str } from "@beep/utils";
-import { Number as N } from "effect";
+import { Match, Number as N } from "effect";
 import { dual, flow, pipe } from "effect/Function";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
@@ -91,16 +91,26 @@ const decodeHtmlCharacterReferences = (value: string): string =>
   replaceHtmlCharacterReferences(
     value,
     (_match, decimal: string | undefined, hexadecimal: string | undefined, named: string | undefined) => {
-      const normalizedNamed = P.isString(named) ? Str.toLowerCase(named) : "";
-      const codePoint = P.isString(named)
-        ? normalizedNamed === "tab"
-          ? 9
-          : normalizedNamed === "newline"
-            ? 10
-            : 58
-        : P.isString(hexadecimal)
-          ? parseCodePoint(hexadecimal, 16)
-          : parseCodePoint(O.getOrThrow(O.fromUndefinedOr(decimal)), 10);
+      const codePoint = pipe(
+        [
+          pipe(
+            O.fromUndefinedOr(named),
+            O.map((value) =>
+              Match.value(Str.toLowerCase(value)).pipe(
+                Match.when("tab", () => 9),
+                Match.when("newline", () => 10),
+                Match.orElse(() => 58)
+              )
+            )
+          ),
+          pipe(
+            O.fromUndefinedOr(hexadecimal),
+            O.map((value) => parseCodePoint(value, 16))
+          ),
+        ],
+        O.firstSomeOf,
+        O.getOrElse(() => parseCodePoint(O.getOrThrow(O.fromUndefinedOr(decimal)), 10))
+      );
 
       return isValidCodePoint(codePoint) ? codePointToString(codePoint) : _match;
     }

@@ -20,16 +20,18 @@ import {
   getWorkspaceDir,
   TSMorphService,
 } from "@beep/repo-utils";
-import { LiteralKit } from "@beep/schema";
+import { LiteralKit, SchemaUtils } from "@beep/schema";
 import { A, Str, Text, thunkFalse } from "@beep/utils";
 import { Console, DateTime, Effect, FileSystem, flow, Path, pipe } from "effect";
 import { dual } from "effect/Function";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
+import * as R from "effect/Record";
 import * as S from "effect/Schema";
 import { Argument, Command, Flag } from "effect/unstable/cli";
 import * as jsonc from "jsonc-parser";
 import { SyntaxKind } from "ts-morph";
+import { printLines } from "../../internal/cli/Printer.ts";
 import { syncTsconfigAtRoot } from "../TsconfigSync/index.js";
 import {
   createFileGenerationPlanService,
@@ -113,10 +115,10 @@ const PackageType = LiteralKit(VALID_TYPES).annotate(
 );
 type PackageType = typeof PackageType.Type;
 const isPackageType = S.is(PackageType);
-const packageTypeEquivalence = S.toEquivalence(PackageType);
+const packageTypeEquivalence = SchemaUtils.toEquivalence(PackageType);
 
-const PackageFamily = LiteralKit(VALID_FAMILIES).annotate(
-  $I.annote("PackageFamily", {
+const PackageFamily = LiteralKit(VALID_FAMILIES).pipe(
+  $I.annoteSchema("PackageFamily", {
     description: "Supported canonical package family scaffold targets.",
   })
 );
@@ -128,13 +130,14 @@ const decodePackageFamilyEffect = (input: unknown) =>
       DomainError.newCause(`Invalid package family "${input}". Must be one of: ${A.join(VALID_FAMILIES, ", ")}`)
     )
   );
-const packageFamilyEquivalence = S.toEquivalence(PackageFamily);
+const packageFamilyEquivalence = SchemaUtils.toEquivalence(PackageFamily);
 
 const FoundationKind = LiteralKit(VALID_FOUNDATION_KINDS).annotate(
   $I.annote("FoundationKind", {
     description: "Supported foundation package kinds.",
   })
 );
+
 type FoundationKind = typeof FoundationKind.Type;
 const isFoundationKind = S.is(FoundationKind);
 const decodeFoundationKindEffect = (input: unknown) =>
@@ -146,8 +149,8 @@ const decodeFoundationKindEffect = (input: unknown) =>
     )
   );
 
-const ToolingKind = LiteralKit(VALID_TOOLING_KINDS).annotate(
-  $I.annote("ToolingKind", {
+const ToolingKind = LiteralKit(VALID_TOOLING_KINDS).pipe(
+  $I.annoteSchema("ToolingKind", {
     description: "Supported tooling package kinds.",
   })
 );
@@ -175,21 +178,17 @@ class BeepPackageMetadata extends S.Class<BeepPackageMetadata>($I`BeepPackageMet
 
 const ParentDir = S.String.check(S.isPattern(PARENT_DIR_PATTERN)).pipe(
   S.brand("ParentDir"),
-  S.annotate(
-    $I.annote("ParentDir", {
-      description: "Validated repo-relative parent directory for package scaffolding.",
-    })
-  )
+  $I.annoteSchema("ParentDir", {
+    description: "Validated repo-relative parent directory for package scaffolding.",
+  })
 );
 const isParentDir = S.is(ParentDir);
 
 const PackageName = S.String.check(S.isPattern(PACKAGE_NAME_PATTERN)).pipe(
   S.brand("PackageName"),
-  S.annotate(
-    $I.annote("PackageName", {
-      description: "Package name segment used for @beep scoped package creation.",
-    })
-  )
+  $I.annoteSchema("PackageName", {
+    description: "Package name segment used for @beep scoped package creation.",
+  })
 );
 const isPackageName = S.is(PackageName);
 
@@ -318,8 +317,8 @@ export class TemplateContext extends S.Class<TemplateContext>($I`TemplateContext
 const toRootRelative = (packagePath: string): string => Str.repeat("../", A.length(Str.split(packagePath, "/")));
 
 const parseJsonDocument: {
-  (content: string, filePath: string): Effect.Effect<unknown, DomainError, never>;
-  (filePath: string): (content: string) => Effect.Effect<unknown, DomainError, never>;
+  (content: string, filePath: string): Effect.Effect<unknown, DomainError>;
+  (filePath: string): (content: string) => Effect.Effect<unknown, DomainError>;
 } = dual(
   2,
   Effect.fn(function* (content: string, filePath: string) {
@@ -661,21 +660,34 @@ export const createPackageCommand = Command.make(
         message: `Drivers packages are a flat family and do not accept --kind.`,
       });
     }
-    const inferredToolingKind =
-      O.isNone(requestedPackageFamily) && Str.isEmpty(parentDirOverride) && !packageTypeEquivalence(packageType, "app")
-        ? O.some<ToolingKind>(packageTypeEquivalence(packageType, "tool") ? "tool" : "library")
-        : O.none<ToolingKind>();
-    const toolingKind = O.isSome(explicitToolingKind) ? explicitToolingKind : inferredToolingKind;
-    const packageFamily = O.isSome(requestedPackageFamily)
-      ? requestedPackageFamily
-      : O.isSome(inferredToolingKind)
-        ? O.some<PackageFamily>("tooling")
-        : O.none<PackageFamily>();
-    const packageKind: O.Option<PackageKind> = O.isSome(foundationKind)
-      ? O.some(foundationKind.value)
-      : O.isSome(toolingKind)
-        ? O.some(toolingKind.value)
-        : O.none();
+    const inferableToolingPackageType = pipe(
+      packageType,
+      O.liftPredicate(
+        (type) =>
+          O.isNone(requestedPackageFamily) && Str.isEmpty(parentDirOverride) && !packageTypeEquivalence(type, "app")
+      )
+    );
+    const inferredToolingKind = pipe(
+      [
+        pipe(inferableToolingPackageType, O.filter(packageTypeEquivalence("tool")), O.as("tool" as const)),
+        pipe(inferableToolingPackageType, O.as("library" as const)),
+      ] satisfies ReadonlyArray<O.Option<ToolingKind>>,
+      O.firstSomeOf
+    );
+    const toolingKind = pipe(
+      [explicitToolingKind, inferredToolingKind] satisfies ReadonlyArray<O.Option<ToolingKind>>,
+      O.firstSomeOf
+    );
+    const packageFamily = pipe(
+      [requestedPackageFamily, pipe(inferredToolingKind, O.as("tooling" as const))] satisfies ReadonlyArray<
+        O.Option<PackageFamily>
+      >,
+      O.firstSomeOf
+    );
+    const packageKind: O.Option<PackageKind> = pipe(
+      [foundationKind, toolingKind] satisfies ReadonlyArray<O.Option<PackageKind>>,
+      O.firstSomeOf
+    );
 
     // ── Validate package name ─────────────────────────────────────────
     if (!isPackageName(name)) {
@@ -700,15 +712,22 @@ export const createPackageCommand = Command.make(
       });
     }
 
-    const defaultParentDir = O.isSome(foundationKind)
-      ? `packages/foundation/${foundationKind.value}`
-      : O.isSome(toolingKind)
-        ? `packages/tooling/${toolingKind.value}`
-        : O.isSome(requestedPackageFamily) && packageFamilyEquivalence(requestedPackageFamily.value, "drivers")
-          ? "packages/drivers"
-          : packageTypeEquivalence(packageType, "app")
-            ? "apps"
-            : "packages/tooling/library";
+    const defaultParentDir = pipe(
+      [
+        pipe(
+          foundationKind,
+          O.map((kind) => `packages/foundation/${kind}`)
+        ),
+        pipe(
+          toolingKind,
+          O.map((kind) => `packages/tooling/${kind}`)
+        ),
+        pipe(requestedPackageFamily, O.filter(packageFamilyEquivalence("drivers")), O.as("packages/drivers")),
+        pipe(packageType, O.liftPredicate(packageTypeEquivalence("app")), O.as("apps")),
+      ] satisfies ReadonlyArray<O.Option<string>>,
+      O.firstSomeOf,
+      O.getOrElse(() => "packages/tooling/library")
+    );
     const parentDir = Str.isNonEmpty(parentDirOverride) ? parentDirOverride : defaultParentDir;
     if (!isParentDir(parentDir)) {
       return yield* DomainError.make({
@@ -732,9 +751,9 @@ export const createPackageCommand = Command.make(
     if (!dryRun) {
       const alreadyExists = yield* fs.exists(outputDir).pipe(Effect.orElseSucceed(thunkFalse));
       if (alreadyExists) {
-        return yield* DomainError.make({
-          message: `Directory already exists: ${outputDir}\nRemove it first or choose a different package name.`,
-        });
+        return yield* DomainError.newMessage(
+          `Directory already exists: ${outputDir}\nRemove it first or choose a different package name.`
+        );
       }
     }
 
@@ -757,21 +776,17 @@ export const createPackageCommand = Command.make(
       if (dirName !== name) {
         yield* Console.log(`[dry-run] Directory name: ${dirName} (overridden from package name "${name}")`);
       }
-      yield* Console.log(`[dry-run] Directory: ${outputDir}`);
-      yield* Console.log(`[dry-run] Files:`);
-      for (const file of ALL_FILES) {
-        yield* Console.log(`  - ${file}`);
-      }
-      yield* Console.log(`[dry-run] Root bootstrap updates:`);
-      yield* Console.log(
-        `  - package.json workspaces: ${workspaceEntryNeeded ? `Add "${packagePath}"` : "SKIP (already covered by an existing workspace entry)"}`
-      );
-      yield* Console.log(
-        `  - ${identityPackagesFilePath}: ${identityRegistrationMissing ? `Register "${name}" and export ${toIdentityAccessorName(name)}` : "SKIP (already registered)"}`
-      );
-      yield* Console.log(
-        `[dry-run] Derived repo configs: shared sync runs after scaffolding to update tsconfig references, aliases, tstyche, syncpack, and docgen`
-      );
+
+      yield* printLines([
+        `[dry-run] Directory: ${outputDir}`,
+        `[dry-run] Files:`,
+        ...A.map(ALL_FILES, (file) => `  - ${file}`),
+        `[dry-run] Root bootstrap updates:`,
+        `  - package.json workspaces: ${workspaceEntryNeeded ? `Add "${packagePath}"` : "SKIP (already covered by an existing workspace entry)"}`,
+        `  - ${identityPackagesFilePath}: ${identityRegistrationMissing ? `Register "${name}" and export ${toIdentityAccessorName(name)}` : "SKIP (already registered)"}`,
+        `[dry-run] Derived repo configs: shared sync runs after scaffolding to update tsconfig references, aliases, tstyche, syncpack, and docgen`,
+      ]);
+
       return;
     }
 
@@ -786,8 +801,7 @@ export const createPackageCommand = Command.make(
       parentDir,
       packagePath,
       rootRelative: toRootRelative(packagePath),
-      ...(O.isSome(packageFamily) ? { family: packageFamily.value } : {}),
-      ...(O.isSome(packageKind) ? { kind: packageKind.value } : {}),
+      ...R.getSomes({ family: packageFamily, kind: packageKind }),
       isTool: packageTypeEquivalence(packageType, "tool"),
       isApp: packageTypeEquivalence(packageType, "app"),
       isLibrary: packageTypeEquivalence(packageType, "library"),
@@ -857,11 +871,11 @@ export const createPackageCommand = Command.make(
     });
 
     // ── Print summary ──────────────────────────────────────────────────
-    yield* Console.log(`Created package @beep/${name} at ${outputDir}`);
-    yield* Console.log(`Files created:`);
-    for (const file of ALL_FILES) {
-      yield* Console.log(`  - ${file}`);
-    }
+    yield* printLines([
+      `Created package @beep/${name} at ${outputDir}`,
+      `Files created:`,
+      ...A.map(ALL_FILES, (file) => `  - ${file}`),
+    ]);
     if (workspaceUpdated || identityUpdated || syncResult.changedFiles > 0) {
       yield* Console.log(`\nRepo registration and config sync:`);
       if (workspaceUpdated) {
@@ -870,13 +884,18 @@ export const createPackageCommand = Command.make(
       if (identityUpdated) {
         yield* Console.log(`  - ${identityPackagesFilePath}: registered "${name}" as ${toIdentityAccessorName(name)}`);
       }
-      for (const change of syncResult.changes) {
-        yield* Console.log(`  - ${path.relative(repoRoot, change.filePath)} [${change.section}] ${change.summary}`);
-      }
+      yield* printLines(
+        A.map(
+          syncResult.changes,
+          (change) => `  - ${path.relative(repoRoot, change.filePath)} [${change.section}] ${change.summary}`
+        )
+      );
     }
-    yield* Console.log(`\nNext steps:`);
-    yield* Console.log(`  1. Run "bun install" to link the new package`);
-    yield* Console.log(`  2. Start building in src/index.ts`);
+    yield* printLines([
+      `\nNext steps:`,
+      `  1. Run "bun install" to link the new package`,
+      `  2. Start building in src/index.ts`,
+    ]);
   })
 ).pipe(Command.withDescription("Create a new package following Effect v4 conventions"));
 

@@ -1,7 +1,7 @@
 import { withThemeByClassName } from "@storybook/addon-themes";
+import { themes } from "storybook/theming";
 import type { Preview, ReactRenderer } from "@storybook/react-vite";
 import type { DecoratorFunction } from "storybook/internal/types";
-import { themes } from "storybook/theming";
 import "./preview.css";
 
 /**

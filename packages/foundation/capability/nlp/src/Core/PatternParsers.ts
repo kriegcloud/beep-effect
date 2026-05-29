@@ -18,10 +18,10 @@ import {
   LiteralPatternOption,
   Pattern,
   PatternElement,
-  type PatternElement as PatternElementType,
   POSPatternElement,
   POSPatternOption,
 } from "./Pattern.ts";
+import type { PatternElement as PatternElementType } from "./Pattern.ts";
 
 const $I = $NlpId.create("Core/PatternParsers");
 const schemaIssueToError = (cause: S.SchemaError["issue"]): S.SchemaError => new S.SchemaError(cause);

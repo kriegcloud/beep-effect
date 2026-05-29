@@ -10,8 +10,8 @@ import { TaggedErrorClass } from "@beep/schema";
 import { Result } from "effect";
 import { dual, pipe } from "effect/Function";
 import * as S from "effect/Schema";
-import type * as SchemaIssue from "effect/SchemaIssue";
 import * as EntityId from "./EntityId.js";
+import type * as SchemaIssue from "effect/SchemaIssue";
 
 const $I = $SharedDomainId.create("entity/EntityRef");
 

@@ -6,11 +6,11 @@
  */
 
 import { $RepoCliId } from "@beep/identity/packages";
-import type { DomainError } from "@beep/repo-utils";
 import { LiteralKit } from "@beep/schema";
 import { A } from "@beep/utils";
 import { Context, Effect, flow, Tuple } from "effect";
 import * as S from "effect/Schema";
+import type { DomainError } from "@beep/repo-utils";
 
 const $I = $RepoCliId.create("commands/CreatePackage/TsMorphIntegrationService");
 
@@ -25,8 +25,8 @@ export const TsMorphMutationKind = LiteralKit([
   "add-entity-id-export",
   "wire-persistence",
   "wire-data-access",
-]).annotate(
-  $I.annote("TsMorphMutationKind", {
+]).pipe(
+  $I.annoteSchema("TsMorphMutationKind", {
     description: "Supported AST mutation categories required by create-package.",
   })
 );

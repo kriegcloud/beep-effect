@@ -5,7 +5,7 @@
  * @since 0.0.0
  */
 
-import { createClient, type PhoenixClient } from "@arizeai/phoenix-client";
+import { createClient } from "@arizeai/phoenix-client";
 import {
   appendDatasetExamples,
   createDataset,
@@ -17,11 +17,6 @@ import { createPrompt, getPrompt, promptVersion } from "@arizeai/phoenix-client/
 import { addSessionAnnotation } from "@arizeai/phoenix-client/sessions";
 import { addSpanAnnotation } from "@arizeai/phoenix-client/spans";
 import { addTraceAnnotation } from "@arizeai/phoenix-client/traces";
-import type {
-  Example as SdkDatasetExample,
-  DatasetSelector as SdkDatasetSelector,
-} from "@arizeai/phoenix-client/types/datasets";
-import type { PromptSelector as SdkPromptSelector } from "@arizeai/phoenix-client/types/prompts";
 import { $PhoenixId } from "@beep/identity";
 import { Config, Context, Effect, flow, Layer, Match, pipe, Redacted } from "effect";
 import * as A from "effect/Array";
@@ -30,26 +25,35 @@ import * as P from "effect/Predicate";
 import * as R from "effect/Record";
 import * as Str from "effect/String";
 import { PHOENIX_API_URL, PhoenixConfigInput } from "./Phoenix.config.ts";
-import { PhoenixError, type PhoenixOperation } from "./Phoenix.errors.ts";
+import { PhoenixError } from "./Phoenix.errors.ts";
 import {
-  type PhoenixAnnotationInput,
   PhoenixAnnotationWriteResult,
-  type PhoenixDatasetAppendInput,
   PhoenixDatasetAppendResult,
-  type PhoenixDatasetCreateInput,
   PhoenixDatasetCreateResult,
   PhoenixDatasetExample,
   PhoenixDatasetExamplesResult,
   PhoenixDatasetInfoResult,
-  type PhoenixDatasetSelector,
   PhoenixDoctorResult,
-  type PhoenixExperimentCreateInput,
   PhoenixExperimentInfoResult,
-  type PhoenixPromptCreateInput,
-  type PhoenixPromptModelProvider,
   PhoenixPromptReadResult,
-  type PhoenixPromptSelector,
   PhoenixPromptWriteResult,
+} from "./Phoenix.models.ts";
+import type { PhoenixClient } from "@arizeai/phoenix-client";
+import type {
+  Example as SdkDatasetExample,
+  DatasetSelector as SdkDatasetSelector,
+} from "@arizeai/phoenix-client/types/datasets";
+import type { PromptSelector as SdkPromptSelector } from "@arizeai/phoenix-client/types/prompts";
+import type { PhoenixOperation } from "./Phoenix.errors.ts";
+import type {
+  PhoenixAnnotationInput,
+  PhoenixDatasetAppendInput,
+  PhoenixDatasetCreateInput,
+  PhoenixDatasetSelector,
+  PhoenixExperimentCreateInput,
+  PhoenixPromptCreateInput,
+  PhoenixPromptModelProvider,
+  PhoenixPromptSelector,
 } from "./Phoenix.models.ts";
 
 const $I = $PhoenixId.create("Phoenix.service");

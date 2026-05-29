@@ -6,7 +6,6 @@
  * @since 0.0.0
  */
 
-import type { WorkItemPublicConfig } from "@beep/architecture-lab-config/public";
 import * as DomainWorkItem from "@beep/architecture-lab-domain/aggregates/WorkItem";
 import { $ArchitectureLabUiId } from "@beep/identity/packages";
 import { LiteralKit } from "@beep/schema";
@@ -15,6 +14,7 @@ import { pipe } from "effect";
 import { dual } from "effect/Function";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
+import type { WorkItemPublicConfig } from "@beep/architecture-lab-config/public";
 
 const $I = $ArchitectureLabUiId.create("aggregates/WorkItem/WorkItem.view-model");
 

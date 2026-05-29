@@ -1,8 +1,8 @@
 "use client";
 
-import type * as React from "react";
 import { Drawer as DrawerPrimitive } from "vaul";
 import { cn } from "../lib/index.ts";
+import type * as React from "react";
 
 /**
  * @category components

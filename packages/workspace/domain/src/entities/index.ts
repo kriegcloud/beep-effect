@@ -19,7 +19,6 @@
  * @since 0.0.0
  */
 export * from "./ApprovalGate/index.js";
-
 /**
  * CandidateDraft entity exports.
  *
@@ -34,7 +33,6 @@ export * from "./ApprovalGate/index.js";
  * @since 0.0.0
  */
 export * from "./CandidateDraft/index.js";
-
 /**
  * CandidateProject entity exports.
  *
@@ -49,7 +47,6 @@ export * from "./CandidateDraft/index.js";
  * @since 0.0.0
  */
 export * from "./CandidateProject/index.js";
-
 /**
  * CandidateTask entity exports.
  *
@@ -64,7 +61,6 @@ export * from "./CandidateProject/index.js";
  * @since 0.0.0
  */
 export * from "./CandidateTask/index.js";
-
 /**
  * ContextPacket entity exports.
  *
@@ -79,7 +75,6 @@ export * from "./CandidateTask/index.js";
  * @since 0.0.0
  */
 export * from "./ContextPacket/index.js";
-
 /**
  * EmailArtifact entity exports.
  *
@@ -94,7 +89,6 @@ export * from "./ContextPacket/index.js";
  * @since 0.0.0
  */
 export * from "./EmailArtifact/index.js";
-
 /**
  * Workspace entity exports.
  *

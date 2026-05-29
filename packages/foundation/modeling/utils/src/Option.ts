@@ -7,9 +7,9 @@
 
 import { dual } from "effect/Function";
 import * as O from "effect/Option";
+import { unsafeDotGet } from "./internal/StructPath.ts";
 import type { Get, Paths } from "type-fest";
 import type { PathInput } from "./internal/StructPath.ts";
-import { unsafeDotGet } from "./internal/StructPath.ts";
 
 /**
  * Retrieves a value from a struct by path and converts missing or nullish

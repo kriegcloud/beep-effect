@@ -1,3 +1,13 @@
+import {
+  VENICE_AI_OPERATION_DESCRIPTORS,
+  VeniceAI,
+  VeniceAIConfigInput,
+  VeniceAIRequestOptions,
+  VeniceAiChat,
+  VeniceAiLanguageModel,
+} from "@beep/venice-ai";
+import { Redacted } from "effect";
+import { describe, expect, it } from "tstyche";
 import type {
   VeniceAIError,
   VeniceAIErrorReason,
@@ -10,19 +20,10 @@ import type {
   VeniceAIShape,
   VeniceAIStreamMethod,
 } from "@beep/venice-ai";
-import {
-  VENICE_AI_OPERATION_DESCRIPTORS,
-  VeniceAI,
-  VeniceAIConfigInput,
-  VeniceAIRequestOptions,
-  VeniceAiChat,
-  VeniceAiLanguageModel,
-} from "@beep/venice-ai";
-import { type Effect, type Layer, Redacted, type Stream } from "effect";
+import type { Effect, Layer, Stream } from "effect";
 import type * as LanguageModel from "effect/unstable/ai/LanguageModel";
 import type * as AiModel from "effect/unstable/ai/Model";
 import type * as HttpClient from "effect/unstable/http/HttpClient";
-import { describe, expect, it } from "tstyche";
 
 declare const service: VeniceAIShape;
 

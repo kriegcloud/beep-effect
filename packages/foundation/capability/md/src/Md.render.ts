@@ -13,7 +13,6 @@ import { dual, pipe } from "effect/Function";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
-import type { Block, Document, H1, H2, H3, H4, H5, H6, Inline, Li, TaskItem } from "./Md.model.ts";
 import { Document as DocumentSchema } from "./Md.model.ts";
 import {
   escapeHtmlUrlAttribute,
@@ -25,6 +24,7 @@ import {
   renderInlineCode,
   sanitizeCodeFenceLanguage,
 } from "./Md.utils.ts";
+import type { Block, Document, H1, H2, H3, H4, H5, H6, Inline, Li, TaskItem } from "./Md.model.ts";
 
 const $I = $MdId.create("Md.render");
 const joinEmpty = A.join("");

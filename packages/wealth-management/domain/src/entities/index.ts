@@ -19,7 +19,6 @@
  * @since 0.0.0
  */
 export * from "./Account/index.js";
-
 /**
  * Household entity exports.
  *
@@ -34,7 +33,6 @@ export * from "./Account/index.js";
  * @since 0.0.0
  */
 export * from "./Household/index.js";
-
 /**
  * Party entity exports.
  *
@@ -49,7 +47,6 @@ export * from "./Household/index.js";
  * @since 0.0.0
  */
 export * from "./Party/index.js";
-
 /**
  * Wealth client entity exports.
  *

@@ -103,7 +103,6 @@ import {
   SuppressValue,
   UnrestrictedValue,
 } from "./ClosureTagValues.js";
-
 import {
   AuthorValue,
   DeprecatedValue,
@@ -117,9 +116,7 @@ import {
   VersionValue,
 } from "./DocumentationTagValues.js";
 import { EventValue, FiresValue, ListensValue, RequiresValue } from "./EventDependencyTagValues.js";
-
 import { InheritDocValue, LinkValue } from "./InlineTagValues.js";
-
 import {
   FunctionValue,
   InterfaceValue,
@@ -182,7 +179,6 @@ import {
   SealedValue,
   VirtualValue,
 } from "./TSDocTagValues.js";
-
 import {
   CategoryValue,
   DocumentValue,
@@ -195,7 +191,6 @@ import {
   SortStrategyValue,
   UseDeclaredTypeValue,
 } from "./TypeDocTagValues.js";
-
 import { OverloadValue } from "./TypeScriptTagValues.js";
 
 // ── Encoded sub-unions by category ───────────────────────────────────

@@ -19,11 +19,9 @@ import {
   GetPodRequest,
   ListPodsRequest,
   ListTemplatesRequest,
-  type Pod,
   PodCreateInput,
   Runpod,
   StopPodRequest,
-  type Template,
 } from "@beep/runpod";
 import { LiteralKit } from "@beep/schema";
 import { Console, DateTime, Duration, Effect, flow, Layer, Order, pipe, Ref, Result, Schedule } from "effect";
@@ -42,6 +40,7 @@ import {
   DocgenQualityWorkerEvalReport,
   DocgenQualityWorkerEvalScope,
 } from "./QualityWorkerEval.js";
+import type { Pod, Template } from "@beep/runpod";
 
 const $I = $RepoCliId.create("commands/Docgen/internal/QualityWorkerRunpodEval");
 

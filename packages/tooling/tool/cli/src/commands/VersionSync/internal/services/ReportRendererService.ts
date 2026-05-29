@@ -9,14 +9,12 @@ import { $RepoCliId } from "@beep/identity/packages";
 import { A, Str } from "@beep/utils";
 import { Console, Context, Effect, Layer } from "effect";
 import * as O from "effect/Option";
-import {
-  VersionCategoryReport,
-  type VersionCategoryReport as VersionCategoryReportValue,
-  VersionCategoryStatusMatch,
-  type VersionCategoryStatus as VersionCategoryStatusValue,
-  VersionSyncModeMatch,
-  type VersionSyncMode as VersionSyncModeValue,
-  type VersionSyncReport,
+import { VersionCategoryReport, VersionCategoryStatusMatch, VersionSyncModeMatch } from "../Models.js";
+import type {
+  VersionCategoryReport as VersionCategoryReportValue,
+  VersionCategoryStatus as VersionCategoryStatusValue,
+  VersionSyncMode as VersionSyncModeValue,
+  VersionSyncReport,
 } from "../Models.js";
 
 const $I = $RepoCliId.create("commands/VersionSync/internal/services/ReportRendererService");

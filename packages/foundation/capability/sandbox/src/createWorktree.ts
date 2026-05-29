@@ -6,16 +6,20 @@
  */
 
 import { $SandboxId } from "@beep/identity";
-import { Effect, type FileSystem, type Path, Ref, type Scope } from "effect";
+import { Effect, Ref } from "effect";
 import * as S from "effect/Schema";
+import { run } from "./Run.ts";
+import { HeadBranchStrategy } from "./Sandbox.provider.ts";
+import { CreateWorktreeInfoOptions, createWorktreeInfo, removeWorktree } from "./Worktree.ts";
+import type { FileSystem, Path, Scope } from "effect";
 import type { AgentProvider } from "./Agent.provider.ts";
 import type { AgentStreamEmitter } from "./AgentStreamEmitter.ts";
 import type { Display } from "./Display.ts";
-import { type RunOptions, type RunResult, run } from "./Run.ts";
+import type { RunOptions, RunResult } from "./Run.ts";
 import type { SandboxError } from "./Sandbox.errors.ts";
 import type { SandboxProcess } from "./Sandbox.process.ts";
-import { HeadBranchStrategy, type SandboxProvider } from "./Sandbox.provider.ts";
-import { CreateWorktreeInfoOptions, createWorktreeInfo, removeWorktree, type WorktreeInfo } from "./Worktree.ts";
+import type { SandboxProvider } from "./Sandbox.provider.ts";
+import type { WorktreeInfo } from "./Worktree.ts";
 
 const $I = $SandboxId.create("createWorktree");
 

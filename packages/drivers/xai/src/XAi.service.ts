@@ -16,7 +16,6 @@ import * as S from "effect/Schema";
 import { FetchHttpClient } from "effect/unstable/http";
 import * as HttpClient from "effect/unstable/http/HttpClient";
 import * as HttpClientRequest from "effect/unstable/http/HttpClientRequest";
-import type * as HttpClientResponse from "effect/unstable/http/HttpClientResponse";
 import WebSocket from "ws";
 import { XAI_API_URL, XAI_MANAGEMENT_API_URL, XAI_WEBSOCKET_URL, XAiConfigInput } from "./XAi.config.ts";
 import { XAiError } from "./XAi.errors.ts";
@@ -24,19 +23,14 @@ import {
   XAiBinaryResponse,
   XAiJsonResponse,
   XAiNoBodyResponse,
-  type XAiQueryValue,
   XAiRequestOptions,
-  type XAiResponse,
   XAiServerSentEvent,
   XAiTextResponse,
-  type XAiWebSocketEvent,
 } from "./XAi.models.ts";
-import {
-  XAI_ENDPOINTS,
-  type XAiEndpointBase,
-  type XAiEndpointDescriptor,
-  type XAiEndpointMethodName,
-} from "./XAiEndpoints.models.ts";
+import { XAI_ENDPOINTS } from "./XAiEndpoints.models.ts";
+import type * as HttpClientResponse from "effect/unstable/http/HttpClientResponse";
+import type { XAiQueryValue, XAiResponse, XAiWebSocketEvent } from "./XAi.models.ts";
+import type { XAiEndpointBase, XAiEndpointDescriptor, XAiEndpointMethodName } from "./XAiEndpoints.models.ts";
 
 const $I = $XaiId.create("XAi.service");
 

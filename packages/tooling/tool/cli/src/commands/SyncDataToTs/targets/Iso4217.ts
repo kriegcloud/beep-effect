@@ -13,8 +13,8 @@ import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
 import * as jsonc from "jsonc-parser";
-import type { SyncDataTarget, SyncDataTargetProjection } from "../internal/Models.js";
 import { SyncDataToTsError } from "../internal/Models.js";
+import type { SyncDataTarget, SyncDataTargetProjection } from "../internal/Models.js";
 
 const $I = $RepoCliId.create("commands/SyncDataToTs/targets/Iso4217");
 

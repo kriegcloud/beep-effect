@@ -400,7 +400,19 @@ const isActionFailed = S.is(CanvasProjectUseCases.CanvasProjectActionFailed);
 const publicErrorMessage = (error: CanvasProjectUseCases.CanvasProjectActionError): string =>
   isActionFailed(error)
     ? `${error._tag}: ${CanvasProjectUseCases.CANVAS_PROJECT_ACTION_UNAVAILABLE_REASON}`
-    : `${error._tag}: ${"reason" in error ? error.reason : "canvasProjectId" in error ? error.canvasProjectId : "unknown"}`;
+    : `${error._tag}: ${publicActionErrorDetail(error)}`;
+
+const publicActionErrorDetail = (error: CanvasProjectUseCases.CanvasProjectActionError): string => {
+  if ("reason" in error) {
+    return error.reason;
+  }
+
+  if ("canvasProjectId" in error) {
+    return error.canvasProjectId;
+  }
+
+  return "unknown";
+};
 
 const toCommandError = (error: CanvasProjectUseCases.CanvasProjectActionError): CanvasCommandError =>
   CanvasCommandError.make({ message: publicErrorMessage(error) });

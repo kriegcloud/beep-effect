@@ -564,5 +564,5 @@ console.log("recent watcher log:");
 console.log(watchLogLines.length > 0 ? watchLogLines.join("\n") : "- none");
 
 if (failOnMissing && !uploadWindowOk) {
-  process.exitCode = 1;
+  process.exit(1);
 }

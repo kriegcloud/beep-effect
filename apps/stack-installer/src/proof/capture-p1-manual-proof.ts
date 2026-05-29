@@ -27,7 +27,6 @@ import {
   isP1ProofArtifactStatusFileName,
   isP1ProofEvidenceFileName,
   P1_REQUIRED_PLATFORMS,
-  type P1RequiredPlatform,
   PROOF_FILE_NAME,
   p1ProofBundleExtractionCommand,
   p1ProofBundleExtractionProcess,
@@ -36,6 +35,7 @@ import {
   p1ProofMissingRequiredArtifactFiles,
 } from "./P1ProofArtifacts.js";
 import { buildP1ProofCommandsText, p1ProofCommandsTextMatchesPlatform } from "./P1ProofCommands.js";
+import type { P1RequiredPlatform } from "./P1ProofArtifacts.js";
 
 const DISCORD_TOKEN_PATTERNS = [
   Rx.RegExp("mfa\\.[A-Za-z0-9_-]{80,}"),

@@ -1,4 +1,4 @@
-import { AiProviderCli, AiProviderCliProcessResult, type AiProviderCliProvider } from "@beep/ai-provider-cli";
+import { AiProviderCli, AiProviderCliProcessResult } from "@beep/ai-provider-cli";
 import { Discord, DiscordConfigInput } from "@beep/discord";
 import {
   DiscordChannelServerLive,
@@ -16,7 +16,6 @@ import {
 import { HostDependencyUseCases } from "@beep/installer-use-cases/server";
 import { OnePasswordCli, OnePasswordCliProcessResult } from "@beep/onepassword-cli";
 import { OnePasswordReference } from "@beep/shared-domain/values/OnePasswordReference";
-import type { TUnsafe } from "@beep/types";
 import { describe, expect, it, layer } from "@effect/vitest";
 import { Effect, Exit, Layer } from "effect";
 import * as A from "effect/Array";
@@ -35,6 +34,8 @@ import {
   p1ProofMissingRequiredArtifactFiles,
 } from "../src/proof/P1ProofArtifacts.js";
 import { buildP1ProofCommandsText, p1ProofCommandsTextMatchesPlatform } from "../src/proof/P1ProofCommands.js";
+import type { AiProviderCliProvider } from "@beep/ai-provider-cli";
+import type { TUnsafe } from "@beep/types";
 
 const encodeProofResult = S.encodeUnknownEffect(S.fromJsonString(P1ManualProofResult));
 const decodeOnePasswordReference = S.decodeUnknownEffect(OnePasswordReference);

@@ -6,34 +6,42 @@
  */
 
 import { $RepoCliId } from "@beep/identity/packages";
-import {
-  DomainError,
-  decodePackageJsonEffect,
-  FsUtils,
-  findRepoRoot,
-  type NoSuchFileError,
-  resolveWorkspaceDirs,
-} from "@beep/repo-utils";
+import { DomainError, decodePackageJsonEffect, FsUtils, findRepoRoot, resolveWorkspaceDirs } from "@beep/repo-utils";
 import {
   buildDocgenAliasSource,
   CanonicalDocgenConfigInput,
   collectDocgenWorkspaceDependencyNames,
   createCanonicalDocgenConfig,
-  type DocgenAliasSource,
   toCanonicalDocgenConfigJson,
 } from "@beep/repo-utils/schemas/DocgenConfig";
 import { normalizeJSDocCategory } from "@beep/repo-utils/schemas/JSDocCategories";
 import { LiteralKit, normalizePath } from "@beep/schema";
 import { A, Str, thunk0, thunkEmptyStr, thunkFalse } from "@beep/utils";
-import { DateTime, Effect, FileSystem, flow, HashMap, MutableHashSet, Order, Path, pipe, Result, Stream } from "effect";
+import {
+  DateTime,
+  Effect,
+  FileSystem,
+  flow,
+  HashMap,
+  Match,
+  MutableHashSet,
+  Order,
+  Path,
+  pipe,
+  Result,
+  Stream,
+} from "effect";
 import { dual } from "effect/Function";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
 import { ChildProcess } from "effect/unstable/process";
-import type { ChildProcessSpawner } from "effect/unstable/process/ChildProcessSpawner";
 import * as jsonc from "jsonc-parser";
-import { type ExportDeclaration, type JSDoc, Node, Project, type SourceFile, SyntaxKind } from "ts-morph";
+import { Node, Project, SyntaxKind } from "ts-morph";
+import type { NoSuchFileError } from "@beep/repo-utils";
+import type { DocgenAliasSource } from "@beep/repo-utils/schemas/DocgenConfig";
+import type { ChildProcessSpawner } from "effect/unstable/process/ChildProcessSpawner";
+import type { ExportDeclaration, JSDoc, SourceFile } from "ts-morph";
 
 const $I = $RepoCliId.create("commands/Docgen/internal/Operations");
 
@@ -77,9 +85,11 @@ const byDocsOutputPathAscending: Order.Order<DocgenWorkspacePackage> = Order.map
 const byIssueAscending: Order.Order<DocgenExportAnalysis> = Order.mapInput(
   Order.String,
   (analysis: DocgenExportAnalysis) =>
-    `${
-      analysis.priority === "high" ? "0" : analysis.priority === "medium" ? "1" : "2"
-    }:${analysis.filePath}:${analysis.line}:${analysis.name}`
+    `${Match.value(analysis.priority).pipe(
+      Match.when("high", () => "0"),
+      Match.when("medium", () => "1"),
+      Match.orElse(() => "2")
+    )}:${analysis.filePath}:${analysis.line}:${analysis.name}`
 );
 
 /**
@@ -777,6 +787,21 @@ const analyzeModuleFileoverview = (
     return O.none();
   }
 
+  const hasMissingTags = A.isReadonlyArrayNonEmpty(missingTags);
+  const hasCategoryIssues = A.isReadonlyArrayNonEmpty(categoryIssues);
+  const context = pipe(
+    [
+      pipe(
+        hasMissingTags && hasCategoryIssues,
+        O.liftPredicate(P.isTruthy),
+        O.as("Module fileoverview is missing @since and has invalid @category metadata.")
+      ),
+      pipe(hasMissingTags, O.liftPredicate(P.isTruthy), O.as("Module fileoverview is missing @since.")),
+    ] satisfies ReadonlyArray<O.Option<string>>,
+    O.firstSomeOf,
+    O.getOrElse(() => "Module fileoverview has invalid @category metadata.")
+  );
+
   return O.some(
     makeExportAnalysis({
       name: "<module fileoverview>",
@@ -789,12 +814,7 @@ const analyzeModuleFileoverview = (
       categoryIssues,
       hasJsDoc: true,
       declarationSource: commentText,
-      context:
-        missingTags.length > 0 && categoryIssues.length > 0
-          ? "Module fileoverview is missing @since and has invalid @category metadata."
-          : missingTags.length > 0
-            ? "Module fileoverview is missing @since."
-            : "Module fileoverview has invalid @category metadata.",
+      context,
     })
   );
 };
@@ -1434,11 +1454,13 @@ export const aggregateGeneratedDocs: (options?: {
   const selectedPackage = P.isUndefined(options?.package)
     ? undefined
     : yield* resolveDocgenWorkspacePackage(options.package, { rootDir: repoRoot });
-  const packages = P.isUndefined(selectedPackage)
-    ? A.filter(yield* discoverDocgenWorkspacePackages(repoRoot), (pkg) => pkg.hasGeneratedDocs)
-    : selectedPackage.hasGeneratedDocs
-      ? [selectedPackage]
-      : A.empty();
+  const packages = yield* pipe(
+    O.fromUndefinedOr(selectedPackage),
+    O.match({
+      onNone: () => discoverDocgenWorkspacePackages(repoRoot).pipe(Effect.map(A.filter((pkg) => pkg.hasGeneratedDocs))),
+      onSome: (pkg) => Effect.succeed(pkg.hasGeneratedDocs ? A.of(pkg) : A.empty<DocgenWorkspacePackage>()),
+    })
+  );
 
   if (selectedPackage !== undefined && A.isReadonlyArrayEmpty(packages)) {
     return yield* DomainError.make({

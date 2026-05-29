@@ -2,7 +2,14 @@ import { VERSION } from "@beep/oip-web";
 import { contactRequestResponseWithSubmit } from "@beep/oip-web/app/api/contact/ContactRouteResponse";
 import { POST } from "@beep/oip-web/app/api/contact/route";
 import { ContactSubmissionResponse, decodeContactSubmission, submitContact } from "@beep/oip-web/contact";
-import { decodeOipSiteContentResult, launchReviewGates, oipSiteContent, ReviewStatus } from "@beep/oip-web/content";
+import {
+  decodeOipSiteContentResult,
+  launchReviewGates,
+  makeJsonLdGraph,
+  oipSiteContent,
+  oipTwitterHandle,
+  ReviewStatus,
+} from "@beep/oip-web/content";
 import { Button } from "@beep/ui/components/ui/button";
 import { A } from "@beep/utils";
 import { cleanup, render, screen } from "@testing-library/react";
@@ -129,6 +136,53 @@ describe.sequential("@beep/oip-web", () => {
     const result = decodeOipSiteContentResult(oipSiteContent);
 
     expect(Result.isSuccess(result)).toBe(true);
+  });
+
+  it("decodes the firm social profiles", () => {
+    expect(A.map(oipSiteContent.socials, (social) => social.platform)).toEqual([
+      "instagram",
+      "x",
+      "linkedin",
+      "youtube",
+      "threads",
+      "tiktok",
+      "reddit",
+      "discord",
+      "pinterest",
+    ]);
+  });
+
+  it("renders brand-compliant footer social links", () =>
+    Home({}).then((page) => {
+      render(page);
+
+      const instagram = screen.getByRole("link", { name: "OIP on Instagram" });
+
+      expect(instagram.getAttribute("href")).toBe("https://www.instagram.com/oip.law/");
+      expect(instagram.getAttribute("rel")).toBe("me noopener noreferrer");
+      expect(instagram.getAttribute("target")).toBe("_blank");
+      expect(screen.getByRole("link", { name: "OIP on X" })).toBeDefined();
+      expect(screen.getByRole("link", { name: "Oppold IP Law on LinkedIn" })).toBeDefined();
+      expect(screen.getByRole("link", { name: "OIP on YouTube" })).toBeDefined();
+      expect(screen.getByRole("link", { name: "OIP on Threads" })).toBeDefined();
+      expect(screen.getByRole("link", { name: "OIP on TikTok" })).toBeDefined();
+      expect(screen.getByRole("link", { name: "OIP on Reddit" })).toBeDefined();
+      expect(screen.getByRole("link", { name: "Join the OIP Discord" })).toBeDefined();
+      expect(screen.getByRole("link", { name: "OIP on Pinterest" })).toBeDefined();
+    }));
+
+  it("publishes firm social profiles in JSON-LD, excludes the Discord invite, and keeps the personal LinkedIn on the Person", () => {
+    const json = JSON.stringify(makeJsonLdGraph(oipSiteContent));
+
+    expect(json).toContain("https://www.instagram.com/oip.law/");
+    expect(json).toContain("https://www.linkedin.com/company/oppold-ip-law");
+    expect(json).toContain("https://www.tiktok.com/@oip.law");
+    expect(json).toContain(oipSiteContent.metadata.linkedInUrl);
+    expect(json).not.toContain("discord.gg");
+  });
+
+  it("derives the X/Twitter handle from the social profiles", () => {
+    expect(oipTwitterHandle(oipSiteContent)).toBe("@opiplaw");
   });
 
   it("renders the OIP public headline and contact CTA", () =>

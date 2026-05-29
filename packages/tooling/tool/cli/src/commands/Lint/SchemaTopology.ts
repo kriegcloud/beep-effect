@@ -13,6 +13,7 @@ import * as P from "effect/Predicate";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
 import { Command } from "effect/unstable/cli";
+import { failWithReportedExit } from "../../internal/cli/ExitCodeError.js";
 
 const $I = $RepoCliId.create("commands/Lint/SchemaTopology");
 
@@ -73,14 +74,14 @@ const schemaRoleFileTargetPattern = /^\.\/(?:src|dist)\/[A-Z][^/]+\/[^/]+\.[a-z]
 const exists = (fs: FileSystem.FileSystem, filePath: string): Effect.Effect<boolean> =>
   fs.exists(filePath).pipe(Effect.orElseSucceed(thunkFalse));
 
-const isRecord = (value: unknown): value is Readonly<Record<string, unknown>> => P.isObject(value) && !A.isArray(value);
+const isRecord = (value: unknown): value is R.ReadonlyRecord<string, unknown> => P.isObject(value) && !A.isArray(value);
 
-const recordAt = (value: Readonly<Record<string, unknown>>, key: string): Readonly<Record<string, unknown>> =>
-  pipe(value[key], (candidate) => (isRecord(candidate) ? candidate : {}));
+const recordAt = (value: R.ReadonlyRecord<string, unknown>, key: string): R.ReadonlyRecord<string, unknown> =>
+  pipe(value[key], (candidate) => (isRecord(candidate) ? candidate : R.empty()));
 
 const collectExportTargets = (value: unknown): ReadonlyArray<string> => {
   if (P.isString(value)) {
-    return [value];
+    return A.of(value);
   }
 
   if (!isRecord(value)) {
@@ -94,21 +95,30 @@ const collectExportTargets = (value: unknown): ReadonlyArray<string> => {
 };
 
 const isLegacyTopicalExportKey = (specifier: string): boolean =>
-  LEGACY_TOPICAL_SEGMENTS.some((segment) => specifier === `./${segment}` || Str.startsWith(`./${segment}/`)(specifier));
+  pipe(
+    LEGACY_TOPICAL_SEGMENTS,
+    A.some((segment) => specifier === `./${segment}` || Str.startsWith(`./${segment}/`)(specifier))
+  );
 
 const isLegacyCaseExportKey = (specifier: string): boolean =>
-  LEGACY_CASE_EXPORT_PREFIXES.some(
-    (prefix) =>
-      specifier === `./${prefix}` || specifier === `./${prefix}/*` || Str.startsWith(`./${prefix}/`)(specifier)
+  pipe(
+    LEGACY_CASE_EXPORT_PREFIXES,
+    A.some(
+      (prefix) =>
+        specifier === `./${prefix}` || specifier === `./${prefix}/*` || Str.startsWith(`./${prefix}/`)(specifier)
+    )
   );
 
 const isLegacyTopicalTarget = (target: string): boolean =>
-  LEGACY_TOPICAL_SEGMENTS.some(
-    (segment) =>
-      Str.includes(`/src/${segment}/`)(target) ||
-      Str.includes(`/dist/${segment}/`)(target) ||
-      Str.includes(`./src/${segment}/`)(target) ||
-      Str.includes(`./dist/${segment}/`)(target)
+  pipe(
+    LEGACY_TOPICAL_SEGMENTS,
+    A.some(
+      (segment) =>
+        Str.includes(`/src/${segment}/`)(target) ||
+        Str.includes(`/dist/${segment}/`)(target) ||
+        Str.includes(`./src/${segment}/`)(target) ||
+        Str.includes(`./dist/${segment}/`)(target)
+    )
   );
 
 const isPublicRoleFileTarget = (target: string): boolean => schemaRoleFileTargetPattern.test(target);
@@ -334,8 +344,7 @@ export const runSchemaTopologyLint = Effect.fn("SchemaTopology.runSchemaTopology
       yield* Console.error(`${violation.file} ${violation.detail}`);
     }
 
-    process.exitCode = 1;
-    return;
+    return yield* failWithReportedExit("schema-topology: topology violations found.");
   }
 
   yield* Console.log("[schema-topology] OK: @beep/schema topology is canonical.");

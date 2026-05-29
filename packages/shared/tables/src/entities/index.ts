@@ -5,7 +5,6 @@
  * @category tables
  */
 export * as Membership from "./Membership/index.ts";
-
 /**
  * Shared Organization table namespace.
  *
@@ -13,7 +12,6 @@ export * as Membership from "./Membership/index.ts";
  * @category tables
  */
 export * as Organization from "./Organization/index.ts";
-
 /**
  * Shared User table namespace.
  *

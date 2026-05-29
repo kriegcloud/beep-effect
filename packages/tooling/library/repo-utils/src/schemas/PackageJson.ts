@@ -11,11 +11,11 @@
 
 import { $RepoUtilsId } from "@beep/identity/packages";
 import { LiteralKit } from "@beep/schema";
-import type { Exit } from "effect";
 import { Effect, Result, Tuple } from "effect";
 import * as S from "effect/Schema";
-import type { DomainError } from "../errors/index.js";
 import { jsonStringifyPretty } from "../JsonUtils.js";
+import type { Exit } from "effect";
+import type { DomainError } from "../errors/index.js";
 
 const $I = $RepoUtilsId.create("schemas/PackageJson");
 

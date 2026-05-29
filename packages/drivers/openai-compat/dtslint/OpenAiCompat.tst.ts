@@ -1,3 +1,6 @@
+import { layer, make, model, OpenAiCompatClient, OpenAiCompatClientOptions } from "@beep/openai-compat";
+import { Redacted } from "effect";
+import { describe, expect, it } from "tstyche";
 import type {
   OpenAiCompatAssistantMessage,
   OpenAiCompatChatCompletionChoice,
@@ -8,15 +11,12 @@ import type {
   OpenAiCompatLanguageModelConfig,
   OpenAiCompatUsage,
 } from "@beep/openai-compat";
-import { layer, make, model, OpenAiCompatClient, OpenAiCompatClientOptions } from "@beep/openai-compat";
 import type { Effect, Layer, Stream } from "effect";
-import { Redacted } from "effect";
 import type * as O from "effect/Option";
 import type * as AiError from "effect/unstable/ai/AiError";
 import type * as LanguageModel from "effect/unstable/ai/LanguageModel";
 import type * as AiModel from "effect/unstable/ai/Model";
 import type * as HttpClient from "effect/unstable/http/HttpClient";
-import { describe, expect, it } from "tstyche";
 
 declare const client: OpenAiCompatClientShape;
 declare const choice: OpenAiCompatChatCompletionChoice;

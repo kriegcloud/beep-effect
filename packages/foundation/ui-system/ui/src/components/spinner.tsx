@@ -1,6 +1,6 @@
-import type { IconProps } from "@phosphor-icons/react";
 import { SpinnerGapIcon } from "@phosphor-icons/react";
 import { cn } from "../lib/index.ts";
+import type { IconProps } from "@phosphor-icons/react";
 
 /**
  * @category components

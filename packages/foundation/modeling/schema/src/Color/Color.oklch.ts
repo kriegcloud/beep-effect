@@ -6,7 +6,8 @@
  */
 
 import * as S from "effect/Schema";
-import { $I, type OklchEncoded, type RgbEncoded } from "./Color.shared.ts";
+import { $I } from "./Color.shared.ts";
+import type { OklchEncoded, RgbEncoded } from "./Color.shared.ts";
 
 const OklchLightnessRangeCheck = S.isBetween(
   {

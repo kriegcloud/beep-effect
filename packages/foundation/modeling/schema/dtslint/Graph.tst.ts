@@ -1,8 +1,8 @@
 import * as GraphSchema from "@beep/schema/Graph";
-import type * as Brand from "effect/Brand";
 import * as Graph_ from "effect/Graph";
 import * as S from "effect/Schema";
 import { describe, expect, it } from "tstyche";
+import type * as Brand from "effect/Brand";
 
 describe("Graph primitives", () => {
   it("brands node and edge indices", () => {

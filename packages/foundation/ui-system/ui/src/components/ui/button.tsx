@@ -9,7 +9,8 @@
 
 import { Button as ButtonPrimitive } from "@base-ui/react/button";
 import { cn } from "@beep/ui/lib/utils";
-import { cva, type VariantProps } from "class-variance-authority";
+import { cva } from "class-variance-authority";
+import type { VariantProps } from "class-variance-authority";
 
 /**
  * Button variant configuration using class-variance-authority.

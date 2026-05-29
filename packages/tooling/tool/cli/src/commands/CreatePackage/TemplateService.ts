@@ -8,7 +8,7 @@
 import { $RepoCliId } from "@beep/identity/packages";
 import { DomainError } from "@beep/repo-utils";
 import { Str, thunkEmptyRecord, thunkEmptyStr } from "@beep/utils";
-import { Context, Effect, FileSystem, flow, identity, pipe, SchemaTransformation } from "effect";
+import { Context, Effect, FileSystem, flow, identity, SchemaTransformation } from "effect";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import Handlebars from "handlebars";
@@ -103,7 +103,7 @@ const UnknownToTemplateHelperString = S.Unknown.pipe(
 );
 
 const decodeTemplateHelperString = S.decodeUnknownOption(UnknownToTemplateHelperString);
-const toHelperValue = (value: unknown): string => pipe(decodeTemplateHelperString(value), O.getOrElse(thunkEmptyStr));
+const toHelperValue = flow(decodeTemplateHelperString, O.getOrElse(thunkEmptyStr));
 
 const createHandlebarsEnvironment = () => {
   const hbs = Handlebars.create();

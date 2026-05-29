@@ -6,8 +6,8 @@
  */
 
 import { Effect } from "effect";
-import type { NextResponse } from "next/server";
 import { contactRequestResponse } from "./ContactRouteResponse";
+import type { NextResponse } from "next/server";
 
 /**
  * Handles OIP contact submissions at the Next.js route boundary.

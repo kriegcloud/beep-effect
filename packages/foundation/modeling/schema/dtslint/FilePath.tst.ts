@@ -1,7 +1,7 @@
 import * as FilePathSchema from "@beep/schema/FilePath";
-import type * as Brand from "effect/Brand";
 import * as S from "effect/Schema";
 import { describe, expect, it } from "tstyche";
+import type * as Brand from "effect/Brand";
 
 describe("FilePath", () => {
   it("preserves the branded schema surface", () => {

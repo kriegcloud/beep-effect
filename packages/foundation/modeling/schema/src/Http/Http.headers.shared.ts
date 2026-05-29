@@ -88,12 +88,6 @@ export const encodeStrictURI = (value: StringOrUrl): EncodedStrictURIFromStrOrUR
   Result.getOrThrowWith(decodeStrictURI(value), schemaIssueToError);
 
 /**
- * @category encoding
- * @since 0.0.0
- */
-export const encodeStrictURIOption = S.decodeUnknownOption(EncodedStrictURIFromStrOrURL);
-
-/**
  * @category utilities
  * @since 0.0.0
  */
@@ -131,7 +125,7 @@ export const makeHeaderEncodeForbidden =
  * @category constructors
  * @since 0.0.0
  */
-export const makeResponseHeader: {
+const makeResponseHeader: {
   (name: string, value: string): ResponseHeader;
   (value: string): (name: string) => ResponseHeader;
 } = dual(

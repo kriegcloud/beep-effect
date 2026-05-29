@@ -1,0 +1,92 @@
+{
+  "$schema": "https://unpkg.com/knip@6/schema.json",
+  "workspaces": {
+    "packages/**": {
+      // Library packages publish their whole top-level src surface via `"./*": "./src/*.ts"`,
+      // so treat every src/*.ts as an entry (src/index.ts is already covered by the exports map).
+      "entry": ["src/*.ts"]
+    },
+    "infra": {
+      // Pulumi stack entrypoints (src/internal/*-entry.ts) are referenced from Pulumi.yaml,
+      // not via TS imports, so knip can't see them — register them as explicit entries.
+      // (src/index.ts is already covered by the package's exports map.)
+      "entry": ["src/internal/*-entry.ts"]
+    }
+  },
+  // Type-tests (tstyche .tst.ts), ops scripts, scratch, test fixtures, runnable examples, and
+  // build configs are not part of the analyzable source graph.
+  "ignore": [
+    "**/dtslint/**",
+    "goals/**",
+    "scratchpad/**",
+    "**/test/fixtures/**",
+    "**/examples/**",
+    "**/postcss.config.*"
+  ],
+  // @effect/vitest is imported across virtually every package's tests; knip's vitest plugin
+  // doesn't activate per-workspace in this layout, so it would otherwise read as unused everywhere.
+  // @effect/language-service is a TypeScript LSP plugin referenced from tsconfig `plugins`
+  // (editor-only, best-effort); it is not an importable runtime/build dependency.
+  // cspell (cspell.json) and markdownlint-cli2 (.markdownlint-cli2.jsonc) are driven by root
+  // config files knip's plugins don't auto-detect here — both configs verified present.
+  // babel-plugin-annotate-pure-calls is invoked via the `babel --plugins annotate-pure-calls`
+  // CLI flag in every package's build script, which knip can't trace.
+  // tsgo: a policy-pack test references the node_modules/.bin/tsgo binary via a path string,
+  // which knip misreads as a dependency import (the binary comes from @typescript/native-preview).
+  // babel/* + babel-plugin-transform-next-use-client: build-toolchain babel plugins driven by the
+  // build pipeline (not statically importable); removing them would break `bun run build`.
+  // @typescript-eslint/parser + eslint-plugin-jsdoc/tsdoc: imported by the repo-configs ESLint
+  // builder (src/eslint/DocsESLintConfig.ts), run via the lefthook jsdoc hook at repo root.
+  // tailwindcss + @tailwindcss/postcss: driven by postcss/tailwind configs (postcss.config.* is
+  // ignored above), so their usage isn't visible in the import graph.
+  // ws + @types/ws: genuinely imported by @beep/xai (src/XAi.service.ts) — knip misses the
+  // `import WebSocket from "ws"` default import; @types/ws supplies its types.
+  // @beep/repo-utils (apps' docgen.json) + @beep/test-utils (canvas/server test) are referenced
+  // from config/test surfaces knip doesn't parse.
+  "ignoreDependencies": [
+    "@effect/vitest",
+    "@effect/language-service",
+    "cspell",
+    "markdownlint-cli2",
+    "babel-plugin-annotate-pure-calls",
+    "babel-plugin-transform-next-use-client",
+    "@babel/plugin-transform-export-namespace-from",
+    "@babel/plugin-transform-modules-commonjs",
+    "@typescript-eslint/parser",
+    "eslint-plugin-jsdoc",
+    "eslint-plugin-tsdoc",
+    "tailwindcss",
+    "@tailwindcss/postcss",
+    "tsgo",
+    "ws",
+    "@types/ws",
+    "@beep/repo-utils",
+    "@beep/test-utils"
+  ],
+  // op = 1Password CLI, beep-cli = repo CLI bin, portless = dev proxy invoked from app scripts —
+  // binaries not provided as a resolvable dependency import.
+  "ignoreBinaries": ["op", "beep-cli", "portless"],
+  // Scaffolded stub packages (only `export const VERSION`): their architectural deps are
+  // pre-provisioned to encode intended slice wiring and are deliberately unused until built out.
+  // Excluded wholesale so that intentional scaffolding doesn't read as dependency drift.
+  "ignoreWorkspaces": [
+    "packages/canvas/client",
+    "packages/canvas/ui",
+    "packages/drivers/konva",
+    "packages/drivers/openai",
+    "packages/shared/client",
+    "packages/shared/config",
+    "packages/shared/server",
+    "packages/shared/use-cases",
+    "**/test/fixtures/mock-monorepo"
+  ],
+  "rules": {
+    // Duplicate exports here are intentional conventions: Schema/<DomainName> dual-naming on
+    // schema modules, Overridable/Overrideable upstream-compat aliases, and named/default React
+    // component exports. None are accidental.
+    "duplicates": "off",
+    // The bun catalog is a curated version-pin registry; entries are intentionally pre-provisioned
+    // for planned features, so unused-catalog-entry reports are noise here.
+    "catalog": "off"
+  }
+}

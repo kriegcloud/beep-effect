@@ -2,8 +2,8 @@
 
 import { AlertDialog as AlertDialogPrimitive } from "@base-ui/react/alert-dialog";
 import { Button } from "@beep/ui/components/button";
-import type * as React from "react";
 import { cn } from "../lib/index.ts";
+import type * as React from "react";
 
 /**
  * @category components

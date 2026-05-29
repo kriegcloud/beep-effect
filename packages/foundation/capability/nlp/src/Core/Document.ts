@@ -10,11 +10,13 @@ import { NonNegativeInt } from "@beep/schema";
 import { A, Str } from "@beep/utils";
 import { Brand, Chunk, pipe, Result } from "effect";
 import { dual } from "effect/Function";
-import type * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
-import { Sentence, type SentenceIndex } from "./Sentence.ts";
-import { Token, type TokenIndex } from "./Token.ts";
+import { Sentence } from "./Sentence.ts";
+import { Token } from "./Token.ts";
+import type * as O from "effect/Option";
+import type { SentenceIndex } from "./Sentence.ts";
+import type { TokenIndex } from "./Token.ts";
 
 const $I = $NlpId.create("Core/Document");
 const getRangeEnd = (

@@ -8,7 +8,6 @@ import { $RepoConfigsId } from "@beep/identity";
 import { LiteralKit } from "@beep/schema";
 import { Result } from "effect";
 import * as S from "effect/Schema";
-import type { NextConfig as NextConfigFromNext } from "next";
 import { isFunctionValue, schemaIssueToError } from "./internal.ts";
 import { AllowedDevOrigin } from "./models/AllowedDevOrigin.schema.ts";
 import { CompilerConfig, ReactCompilerOptions, SassOptions } from "./models/Compiler.schema.ts";
@@ -16,6 +15,7 @@ import { I18NConfig, LoggingConfig, TypeScriptConfig } from "./models/ConfigPrim
 import { ExperimentalConfig } from "./models/ExperimentalConfig.schema.ts";
 import { ImageConfig } from "./models/ImageConfig.schema.ts";
 import { TurbopackOptions } from "./models/Turbopack.schema.ts";
+import type { NextConfig as NextConfigFromNext } from "next";
 
 const $I = $RepoConfigsId.create("next/NextConfig.model");
 

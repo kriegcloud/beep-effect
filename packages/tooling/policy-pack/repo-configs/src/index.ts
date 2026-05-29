@@ -5,10 +5,8 @@
  * @since 0.0.0
  */
 
-import {
-  DocsESLintConfig as DocsESLintConfigInternal,
-  type DocsESLintConfigShape as DocsESLintConfigShapeInternal,
-} from "./eslint/DocsESLintConfig.ts";
+import { DocsESLintConfig as DocsESLintConfigInternal } from "./eslint/DocsESLintConfig.ts";
+import type { DocsESLintConfigShape as DocsESLintConfigShapeInternal } from "./eslint/DocsESLintConfig.ts";
 
 /**
  * Package version for `@beep/repo-configs`.

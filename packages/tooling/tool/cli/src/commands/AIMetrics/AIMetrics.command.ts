@@ -17,7 +17,6 @@ import {
   AiMetricsDeployTarget,
   AiMetricsForwarderError,
   AiMetricsForwarderInput,
-  type AiMetricsForwarderOtlpExport,
   AiMetricsForwarderOtlpExported,
   AiMetricsForwarderOtlpExportFailed,
   AiMetricsForwarderRunResult,
@@ -25,10 +24,8 @@ import {
   AiMetricsIngestError,
   AiMetricsInstallConfigurationError,
   AiMetricsInstallDoctorInput,
-  type AiMetricsInstallDoctorResult,
   AiMetricsInstallDoctorStatus,
   AiMetricsInstallInput,
-  type AiMetricsInstallPlan,
   AiMetricsInstallSpec,
   AiMetricsLabelQueueInput,
   AiMetricsMirrorBundleInput,
@@ -37,7 +34,6 @@ import {
   AiMetricsOtlpEndpointSpec,
   AiMetricsOtlpExportError,
   AiMetricsOtlpExportInput,
-  type AiMetricsOtlpExportResult,
   AiMetricsOutcomeLabelInput,
   AiMetricsPrivacyError,
   AiMetricsPrivacyMode,
@@ -125,6 +121,12 @@ import { Command, Flag } from "effect/unstable/cli";
 import { jsonFlag } from "../../internal/cli/Flags.js";
 import { printLines } from "../../internal/cli/Printer.js";
 import { AiMetricsCommandError, AiMetricsStatusExit } from "./AIMetrics.errors.js";
+import type {
+  AiMetricsForwarderOtlpExport,
+  AiMetricsInstallDoctorResult,
+  AiMetricsInstallPlan,
+  AiMetricsOtlpExportResult,
+} from "@beep/repo-ai-metrics";
 
 const $I = $RepoCliId.create("commands/AIMetrics/AIMetrics.command");
 
@@ -374,7 +376,7 @@ const readOptionalConfigString: (key: string) => Effect.Effect<O.Option<string>,
 
 const readOptionalRedactedConfigString: (
   key: string
-) => Effect.Effect<O.Option<Redacted.Redacted<string>>, AiMetricsCommandError> = Effect.fn(
+) => Effect.Effect<O.Option<Redacted.Redacted>, AiMetricsCommandError> = Effect.fn(
   "AIMetrics.readOptionalRedactedConfigString"
 )((key) =>
   ConfigProvider.ConfigProvider.use(pipe(key, Config.redacted, Config.option).parse).pipe(
@@ -445,14 +447,14 @@ const resolveRawArchiveKeySecretRef = Effect.fn("AIMetrics.resolveRawArchiveKeyS
   const envRef = yield* readOptionalConfigString("BEEP_AI_METRICS_RAW_ARCHIVE_KEY_SECRET_REF");
   return O.isSome(envRef) ? envRef.value : undefined;
 });
-
+type RequireHashSaltForTargetOptions = {
+  readonly hashSalt: string | undefined;
+  readonly target: AiMetricsDeployTarget;
+};
 const requireHashSaltForTarget = Effect.fn("AIMetrics.requireHashSaltForTarget")(function* ({
   hashSalt,
   target,
-}: {
-  readonly hashSalt: string | undefined;
-  readonly target: AiMetricsDeployTarget;
-}) {
+}: RequireHashSaltForTargetOptions) {
   if (target === AiMetricsDeployTarget.Enum.local || (hashSalt !== undefined && Str.isNonEmpty(Str.trim(hashSalt)))) {
     return hashSalt;
   }
@@ -462,14 +464,14 @@ const requireHashSaltForTarget = Effect.fn("AIMetrics.requireHashSaltForTarget")
     message: "Non-local AI metrics commands require --hash-salt or BEEP_AI_METRICS_HASH_SALT.",
   });
 });
-
+type RequireHashSaltSecretRefForTargetOptions = {
+  readonly hashSaltSecretRef: string | undefined;
+  readonly target: AiMetricsDeployTarget;
+};
 const requireHashSaltSecretRefForTarget = Effect.fn("AIMetrics.requireHashSaltSecretRefForTarget")(function* ({
   hashSaltSecretRef,
   target,
-}: {
-  readonly hashSaltSecretRef: string | undefined;
-  readonly target: AiMetricsDeployTarget;
-}) {
+}: RequireHashSaltSecretRefForTargetOptions) {
   if (
     target === AiMetricsDeployTarget.Enum.local ||
     (hashSaltSecretRef !== undefined && Str.isNonEmpty(Str.trim(hashSaltSecretRef)))
@@ -483,15 +485,12 @@ const requireHashSaltSecretRefForTarget = Effect.fn("AIMetrics.requireHashSaltSe
       "Non-local AI metrics install plans require --hash-salt-secret-ref or BEEP_AI_METRICS_HASH_SALT_SECRET_REF.",
   });
 });
-
+type RequireRawArchiveKeySecretRefForTargetOptions = {
+  readonly rawArchiveKeySecretRef: string | undefined;
+  readonly target: AiMetricsDeployTarget;
+};
 const requireRawArchiveKeySecretRefForTarget = Effect.fn("AIMetrics.requireRawArchiveKeySecretRefForTarget")(
-  function* ({
-    rawArchiveKeySecretRef,
-    target,
-  }: {
-    readonly rawArchiveKeySecretRef: string | undefined;
-    readonly target: AiMetricsDeployTarget;
-  }) {
+  function* ({ rawArchiveKeySecretRef, target }: RequireRawArchiveKeySecretRefForTargetOptions) {
     if (
       target === AiMetricsDeployTarget.Enum.local ||
       (rawArchiveKeySecretRef !== undefined && Str.isNonEmpty(Str.trim(rawArchiveKeySecretRef)))
@@ -550,14 +549,11 @@ const parseOptionalEpochMillis = Effect.fn("AIMetrics.parseOptionalEpochMillis")
     message: `Invalid --${flagName} value "${value.value}". Use an ISO timestamp or epoch milliseconds.`,
   });
 });
-
-const parseWindow = Effect.fn("AIMetrics.parseWindow")(function* ({
-  since,
-  until,
-}: {
+type ParseWindowOptions = {
   readonly since: O.Option<string>;
   readonly until: O.Option<string>;
-}) {
+};
+const parseWindow = Effect.fn("AIMetrics.parseWindow")(function* ({ since, until }: ParseWindowOptions) {
   const end = yield* parseOptionalEpochMillis("until", until);
   const windowEndEpochMillis = O.isSome(end) ? end.value : yield* Clock.currentTimeMillis;
   const start = yield* parseOptionalEpochMillis("since", since);
@@ -580,18 +576,18 @@ const parseWindow = Effect.fn("AIMetrics.parseWindow")(function* ({
     message: "AI metrics report windows require --since to be before --until.",
   });
 });
-
+type ParseRetentionSelectorOptions = {
+  readonly before: O.Option<string>;
+  readonly dataRoot: O.Option<string>;
+  readonly since: O.Option<string>;
+  readonly until: O.Option<string>;
+};
 const parseRetentionSelector = Effect.fn("AIMetrics.parseRetentionSelector")(function* ({
   before,
   dataRoot,
   since,
   until,
-}: {
-  readonly before: O.Option<string>;
-  readonly dataRoot: O.Option<string>;
-  readonly since: O.Option<string>;
-  readonly until: O.Option<string>;
-}) {
+}: ParseRetentionSelectorOptions) {
   const beforeEpochMillis = yield* parseOptionalEpochMillis("before", before);
   const sinceEpochMillis = yield* parseOptionalEpochMillis("since", since);
   const untilEpochMillis = yield* parseOptionalEpochMillis("until", until);
@@ -628,18 +624,18 @@ const parseChecks = (checks: string): ReadonlyArray<string> =>
 
 const p6aCollectorDataRoot = (dataRoot: O.Option<string>, target: AiMetricsDeployTarget): O.Option<string> =>
   O.isSome(dataRoot) || target === AiMetricsDeployTarget.Enum.local ? dataRoot : O.some(localCollectorDataRoot);
-
+type MakeCommandInstallInputOptions = {
+  readonly dataRoot: O.Option<string>;
+  readonly hashSaltSecretRef: O.Option<string>;
+  readonly rawArchiveKeySecretRef: O.Option<string>;
+  readonly target: AiMetricsDeployTarget;
+};
 const makeCommandInstallInput = Effect.fn("AIMetrics.makeCommandInstallInput")(function* ({
   dataRoot,
   hashSaltSecretRef,
   rawArchiveKeySecretRef,
   target,
-}: {
-  readonly dataRoot: O.Option<string>;
-  readonly hashSaltSecretRef: O.Option<string>;
-  readonly rawArchiveKeySecretRef: O.Option<string>;
-  readonly target: AiMetricsDeployTarget;
-}) {
+}: MakeCommandInstallInputOptions) {
   const resolvedDataRoot = O.getOrUndefined(dataRoot);
   const resolvedHashSaltSecretRef = yield* requireHashSaltSecretRefForTarget({
     hashSaltSecretRef: yield* resolveHashSaltSecretRef(hashSaltSecretRef),
@@ -657,18 +653,18 @@ const makeCommandInstallInput = Effect.fn("AIMetrics.makeCommandInstallInput")(f
     target,
   });
 });
-
+type MakeCommandInstallSpecOptions = {
+  readonly dataRoot: O.Option<string>;
+  readonly hashSaltSecretRef: O.Option<string>;
+  readonly rawArchiveKeySecretRef: O.Option<string>;
+  readonly target: AiMetricsDeployTarget;
+};
 const makeCommandInstallSpec = Effect.fn("AIMetrics.makeCommandInstallSpec")(function* ({
   dataRoot,
   hashSaltSecretRef,
   rawArchiveKeySecretRef,
   target,
-}: {
-  readonly dataRoot: O.Option<string>;
-  readonly hashSaltSecretRef: O.Option<string>;
-  readonly rawArchiveKeySecretRef: O.Option<string>;
-  readonly target: AiMetricsDeployTarget;
-}) {
+}: MakeCommandInstallSpecOptions) {
   return yield* makeAiMetricsInstallSpec(
     yield* makeCommandInstallInput({
       dataRoot,
@@ -745,20 +741,20 @@ const serverObservabilityConfigFor = (
     serviceName: "beep-ai-metrics",
     serviceVersion: "0.0.0",
   });
-
+type MakeInstallPreviewProgramOptions = {
+  readonly hashSaltSecretRef: O.Option<string>;
+  readonly json: boolean;
+  readonly rawArchiveKeySecretRef: O.Option<string>;
+  readonly target: AiMetricsDeployTarget;
+  readonly tool: AiMetricsTool;
+};
 const makeInstallPreviewProgram = Effect.fn("AIMetrics.makeInstallPreviewProgram")(function* ({
   hashSaltSecretRef,
   json,
   rawArchiveKeySecretRef,
   target,
   tool,
-}: {
-  readonly hashSaltSecretRef: O.Option<string>;
-  readonly json: boolean;
-  readonly rawArchiveKeySecretRef: O.Option<string>;
-  readonly target: AiMetricsDeployTarget;
-  readonly tool: AiMetricsTool;
-}) {
+}: MakeInstallPreviewProgramOptions) {
   const resolvedHashSaltSecretRef = yield* requireHashSaltSecretRefForTarget({
     hashSaltSecretRef: yield* resolveHashSaltSecretRef(hashSaltSecretRef),
     target,
@@ -781,16 +777,16 @@ const makeInstallPreviewProgram = Effect.fn("AIMetrics.makeInstallPreviewProgram
 
   yield* renderInstallSpec(spec, json);
 });
-
+type MakeInstallComposeProgramOptions = {
+  readonly json: boolean;
+  readonly target: AiMetricsDeployTarget;
+  readonly tool: AiMetricsTool;
+};
 const makeInstallComposeProgram = Effect.fn("AIMetrics.makeInstallComposeProgram")(function* ({
   json,
   target,
   tool,
-}: {
-  readonly json: boolean;
-  readonly target: AiMetricsDeployTarget;
-  readonly tool: AiMetricsTool;
-}) {
+}: MakeInstallComposeProgramOptions) {
   const spec = yield* makeAiMetricsInstallSpec(
     AiMetricsInstallInput.make({
       defaultTool: tool,
@@ -830,20 +826,20 @@ const renderInstallPlan = Effect.fn("AIMetrics.renderInstallPlan")(function* (
     ...A.map(plan.steps, (step) => `${step.order}. ${step.stepId}: ${step.command}`),
   ]);
 });
-
+type MakeInstallPlanProgramOptions = {
+  readonly dataRoot: O.Option<string>;
+  readonly hashSaltSecretRef: O.Option<string>;
+  readonly json: boolean;
+  readonly rawArchiveKeySecretRef: O.Option<string>;
+  readonly target: AiMetricsDeployTarget;
+};
 const makeInstallPlanProgram = Effect.fn("AIMetrics.makeInstallPlanProgram")(function* ({
   dataRoot,
   hashSaltSecretRef,
   json,
   rawArchiveKeySecretRef,
   target,
-}: {
-  readonly dataRoot: O.Option<string>;
-  readonly hashSaltSecretRef: O.Option<string>;
-  readonly json: boolean;
-  readonly rawArchiveKeySecretRef: O.Option<string>;
-  readonly target: AiMetricsDeployTarget;
-}) {
+}: MakeInstallPlanProgramOptions) {
   const input = yield* makeCommandInstallInput({
     dataRoot,
     hashSaltSecretRef,
@@ -869,7 +865,21 @@ const renderInstallDoctor = Effect.fn("AIMetrics.renderInstallDoctor")(function*
     yield* Console.log(`${check.status} ${check.checkId}: ${check.message}`);
   }
 });
-
+type MakeInstallDoctorProgramOptions = {
+  readonly all: boolean;
+  readonly dataRoot: O.Option<string>;
+  readonly hashSalt: O.Option<string>;
+  readonly hashSaltSecretRef: O.Option<string>;
+  readonly homeDir: O.Option<string>;
+  readonly json: boolean;
+  readonly maxFileBytes: O.Option<number>;
+  readonly maxFiles: number;
+  readonly openClawUnit: O.Option<string>;
+  readonly rawArchiveKeySecretRef: O.Option<string>;
+  readonly repoRoot: O.Option<string>;
+  readonly since: O.Option<string>;
+  readonly target: AiMetricsDeployTarget;
+};
 const makeInstallDoctorProgram = Effect.fn("AIMetrics.makeInstallDoctorProgram")(function* ({
   all,
   dataRoot,
@@ -884,21 +894,7 @@ const makeInstallDoctorProgram = Effect.fn("AIMetrics.makeInstallDoctorProgram")
   repoRoot,
   since,
   target,
-}: {
-  readonly all: boolean;
-  readonly dataRoot: O.Option<string>;
-  readonly hashSalt: O.Option<string>;
-  readonly hashSaltSecretRef: O.Option<string>;
-  readonly homeDir: O.Option<string>;
-  readonly json: boolean;
-  readonly maxFileBytes: O.Option<number>;
-  readonly maxFiles: number;
-  readonly openClawUnit: O.Option<string>;
-  readonly rawArchiveKeySecretRef: O.Option<string>;
-  readonly repoRoot: O.Option<string>;
-  readonly since: O.Option<string>;
-  readonly target: AiMetricsDeployTarget;
-}) {
+}: MakeInstallDoctorProgramOptions) {
   const install = yield* makeCommandInstallInput({
     dataRoot,
     hashSaltSecretRef,
@@ -934,7 +930,14 @@ const makeInstallDoctorProgram = Effect.fn("AIMetrics.makeInstallDoctorProgram")
     });
   }
 });
-
+type MakeInstallApplyProgramOptions = {
+  readonly dataRoot: O.Option<string>;
+  readonly dryRun: boolean;
+  readonly hashSaltSecretRef: O.Option<string>;
+  readonly json: boolean;
+  readonly rawArchiveKeySecretRef: O.Option<string>;
+  readonly target: AiMetricsDeployTarget;
+};
 const makeInstallApplyProgram = Effect.fn("AIMetrics.makeInstallApplyProgram")(function* ({
   dataRoot,
   dryRun,
@@ -942,14 +945,7 @@ const makeInstallApplyProgram = Effect.fn("AIMetrics.makeInstallApplyProgram")(f
   json,
   rawArchiveKeySecretRef,
   target,
-}: {
-  readonly dataRoot: O.Option<string>;
-  readonly dryRun: boolean;
-  readonly hashSaltSecretRef: O.Option<string>;
-  readonly json: boolean;
-  readonly rawArchiveKeySecretRef: O.Option<string>;
-  readonly target: AiMetricsDeployTarget;
-}) {
+}: MakeInstallApplyProgramOptions) {
   if (!dryRun) {
     return yield* AiMetricsCommandError.make({
       cause: "install apply",
@@ -971,26 +967,26 @@ const makeInstallApplyProgram = Effect.fn("AIMetrics.makeInstallApplyProgram")(f
     return;
   }
 
-  yield* Console.log(`ai-metrics install apply: target=${result.target} dry-run=${result.dryRun}`);
-  yield* Console.log(result.message);
-  for (const step of result.plan.steps) {
-    yield* Console.log(`${step.order}. ${step.stepId}: ${step.command}`);
-  }
+  yield* printLines([
+    `ai-metrics install apply: target=${result.target} dry-run=${result.dryRun}`,
+    result.message,
+    ...A.map(result.plan.steps, (step) => `${step.order}. ${step.stepId}: ${step.command}`),
+  ]);
 });
-
+type MakeIngestProgramOptions = {
+  readonly hashSalt: O.Option<string>;
+  readonly input: string;
+  readonly json: boolean;
+  readonly source: AiMetricsTranscriptSource;
+  readonly target: AiMetricsDeployTarget;
+};
 const makeIngestProgram = Effect.fn("AIMetrics.makeIngestProgram")(function* ({
   hashSalt,
   input,
   json,
   source,
   target,
-}: {
-  readonly hashSalt: O.Option<string>;
-  readonly input: string;
-  readonly json: boolean;
-  readonly source: AiMetricsTranscriptSource;
-  readonly target: AiMetricsDeployTarget;
-}) {
+}: MakeIngestProgramOptions) {
   const { absolutePath, content } = yield* readInputFile(input);
   const resolvedHashSalt = yield* requireHashSaltForTarget({
     hashSalt: yield* resolveHashSalt(hashSalt),
@@ -1009,12 +1005,14 @@ const makeIngestProgram = Effect.fn("AIMetrics.makeIngestProgram")(function* ({
   }
 
   const sourceHash = summary.sourcePathHash;
-  yield* Console.log(`ai-metrics ingest: ${summary.sourceKind} sourceHash=${sourceHash}`);
-  yield* Console.log(`target: ${target}`);
-  yield* Console.log(`lines: ${summary.totalLines}`);
-  yield* Console.log(`accepted events: ${summary.acceptedEvents}`);
-  yield* Console.log(`rejected lines: ${summary.rejectedLines}`);
-  yield* Console.log(`event names: ${pipe(summary.eventNames, A.join(", "))}`);
+  yield* printLines([
+    `ai-metrics ingest: ${summary.sourceKind} sourceHash=${sourceHash}`,
+    `target: ${target}`,
+    `lines: ${summary.totalLines}`,
+    `accepted events: ${summary.acceptedEvents}`,
+    `rejected lines: ${summary.rejectedLines}`,
+    `event names: ${pipe(summary.eventNames, A.join(", "))}`,
+  ]);
 });
 
 const collectJsonlInputFiles = Effect.fn("AIMetrics.collectJsonlInputFiles")(function* (
@@ -1079,7 +1077,18 @@ const readPrivacyInput = Effect.fn("AIMetrics.readPrivacyInput")(function* (inpu
     content: pipe(chunks, A.join("\n")),
   };
 });
-
+type MakeSourcesDiscoverProgramOptions = {
+  readonly all: boolean;
+  readonly hashSalt: O.Option<string>;
+  readonly homeDir: O.Option<string>;
+  readonly json: boolean;
+  readonly maxFileBytes: O.Option<number>;
+  readonly maxFiles: number;
+  readonly openClawUnit: O.Option<string>;
+  readonly repoRoot: O.Option<string>;
+  readonly since: O.Option<string>;
+  readonly target: AiMetricsDeployTarget;
+};
 const makeSourcesDiscoverProgram = Effect.fn("AIMetrics.makeSourcesDiscoverProgram")(function* ({
   all,
   hashSalt,
@@ -1091,18 +1100,7 @@ const makeSourcesDiscoverProgram = Effect.fn("AIMetrics.makeSourcesDiscoverProgr
   repoRoot,
   since,
   target,
-}: {
-  readonly all: boolean;
-  readonly hashSalt: O.Option<string>;
-  readonly homeDir: O.Option<string>;
-  readonly json: boolean;
-  readonly maxFileBytes: O.Option<number>;
-  readonly maxFiles: number;
-  readonly openClawUnit: O.Option<string>;
-  readonly repoRoot: O.Option<string>;
-  readonly since: O.Option<string>;
-  readonly target: AiMetricsDeployTarget;
-}) {
+}: MakeSourcesDiscoverProgramOptions) {
   const resolvedHashSalt = yield* requireHashSaltForTarget({
     hashSalt: yield* resolveHashSalt(hashSalt),
     target,
@@ -1127,23 +1125,25 @@ const makeSourcesDiscoverProgram = Effect.fn("AIMetrics.makeSourcesDiscoverProgr
     return;
   }
 
-  yield* Console.log(`ai-metrics sources discover: target=${result.target}`);
-  yield* Console.log(`hash salt: ${result.hashSaltStatus}`);
-  yield* Console.log(`discovered files: ${result.discoveredFileCount}`);
-  for (const source of result.sources) {
-    yield* Console.log(
-      `${source.sourceKind}: ${source.status} files=${source.fileCount} candidates=${source.candidateFileCount} limited=${source.limitedByMaxFiles}`
-    );
-  }
+  yield* printLines([
+    `ai-metrics sources discover: target=${result.target}`,
+    `hash salt: ${result.hashSaltStatus}`,
+    `discovered files: ${result.discoveredFileCount}`,
+    ...A.map(
+      result.sources,
+      (source) =>
+        `${source.sourceKind}: ${source.status} files=${source.fileCount} candidates=${source.candidateFileCount} limited=${source.limitedByMaxFiles}`
+    ),
+  ]);
 });
-
+type MakeConfigSnapshotProgramOptions = {
+  readonly json: boolean;
+  readonly repoRoot: O.Option<string>;
+};
 const makeConfigSnapshotProgram = Effect.fn("AIMetrics.makeConfigSnapshotProgram")(function* ({
   json,
   repoRoot,
-}: {
-  readonly json: boolean;
-  readonly repoRoot: O.Option<string>;
-}) {
+}: MakeConfigSnapshotProgramOptions) {
   const result = yield* makeAiMetricsConfigSnapshot(
     AiMetricsConfigSnapshotInput.make({
       repoRoot: yield* resolveRepoRoot(repoRoot),
@@ -1155,22 +1155,24 @@ const makeConfigSnapshotProgram = Effect.fn("AIMetrics.makeConfigSnapshotProgram
     return;
   }
 
-  yield* Console.log(`ai-metrics config snapshot: ${result.snapshot.snapshotId}`);
-  yield* Console.log(`files: ${result.fileCount}`);
-  yield* Console.log(`hash: ${result.snapshot.configHash}`);
+  yield* printLines([
+    `ai-metrics config snapshot: ${result.snapshot.snapshotId}`,
+    `files: ${result.fileCount}`,
+    `hash: ${result.snapshot.configHash}`,
+  ]);
 });
-
+type MakePrivacyCheckProgramOptions = {
+  readonly hashSalt: O.Option<string>;
+  readonly input: string;
+  readonly json: boolean;
+  readonly source: AiMetricsTranscriptSource;
+};
 const makePrivacyCheckProgram = Effect.fn("AIMetrics.makePrivacyCheckProgram")(function* ({
   hashSalt,
   input,
   json,
   source,
-}: {
-  readonly hashSalt: O.Option<string>;
-  readonly input: string;
-  readonly json: boolean;
-  readonly source: AiMetricsTranscriptSource;
-}) {
+}: MakePrivacyCheckProgramOptions) {
   const { absolutePath, content } = yield* readPrivacyInput(input);
   const resolvedHashSalt = yield* resolveHashSalt(hashSalt);
   const summary = yield* summarizeTranscriptText({
@@ -1191,10 +1193,12 @@ const makePrivacyCheckProgram = Effect.fn("AIMetrics.makePrivacyCheckProgram")(f
     return;
   }
 
-  yield* Console.log(`ai-metrics privacy check: ${result.sourceKind}`);
-  yield* Console.log(`hash salt: ${result.hashSaltStatus}`);
-  yield* Console.log(`safe for derived UI: ${result.redaction.safeForDerivedUi}`);
-  yield* Console.log(`accepted events: ${result.sanitized.acceptedEvents}`);
+  yield* printLines([
+    `ai-metrics privacy check: ${result.sourceKind}`,
+    `hash salt: ${result.hashSaltStatus}`,
+    `safe for derived UI: ${result.redaction.safeForDerivedUi}`,
+    `accepted events: ${result.sanitized.acceptedEvents}`,
+  ]);
 });
 
 const forwarderRunResultWithOtlpExport = (
@@ -1228,18 +1232,18 @@ const forwarderOtlpExported = (result: AiMetricsOtlpExportResult): AiMetricsForw
   });
 
 const forwarderOtlpExportFailureMessage = "OTLP export did not complete after the forwarder run.";
-
+type ForwarderOtlpExportFailedOptions = {
+  readonly endpoint: AiMetricsOtlpEndpointSpec;
+  readonly forwarderResult: AiMetricsForwarderRunResult;
+  readonly message: string;
+  readonly target: AiMetricsDeployTarget;
+};
 const forwarderOtlpExportFailed = ({
   endpoint,
   forwarderResult,
   message,
   target,
-}: {
-  readonly endpoint: AiMetricsOtlpEndpointSpec;
-  readonly forwarderResult: AiMetricsForwarderRunResult;
-  readonly message: string;
-  readonly target: AiMetricsDeployTarget;
-}): AiMetricsForwarderOtlpExportFailed =>
+}: ForwarderOtlpExportFailedOptions): AiMetricsForwarderOtlpExportFailed =>
   AiMetricsForwarderOtlpExportFailed.make({
     endpointTraceUrl: endpoint.traceUrl,
     ingestRunId: forwarderResult.ingestRunId,
@@ -1247,16 +1251,16 @@ const forwarderOtlpExportFailed = ({
     status: "failed",
     target,
   });
-
+type ExportForwarderDerivedOtlpOptions = {
+  readonly endpoint: AiMetricsOtlpEndpointSpec;
+  readonly forwarderResult: AiMetricsForwarderRunResult;
+  readonly target: AiMetricsDeployTarget;
+};
 const exportForwarderDerivedOtlp = Effect.fn("AIMetrics.exportForwarderDerivedOtlp")(function* ({
   endpoint,
   forwarderResult,
   target,
-}: {
-  readonly endpoint: AiMetricsOtlpEndpointSpec;
-  readonly forwarderResult: AiMetricsForwarderRunResult;
-  readonly target: AiMetricsDeployTarget;
-}) {
+}: ExportForwarderDerivedOtlpOptions) {
   return yield* runAiMetricsOtlpExport(
     AiMetricsOtlpExportInput.make({
       duckDbPath: forwarderResult.duckDbPath,
@@ -1281,7 +1285,23 @@ const exportForwarderDerivedOtlp = Effect.fn("AIMetrics.exportForwarderDerivedOt
     })
   );
 });
-
+type MakeForwarderRunProgramOptions = {
+  readonly all: boolean;
+  readonly dataRoot: O.Option<string>;
+  readonly hashSalt: O.Option<string>;
+  readonly hashSaltSecretRef: O.Option<string>;
+  readonly homeDir: O.Option<string>;
+  readonly json: boolean;
+  readonly maxFileBytes: O.Option<number>;
+  readonly maxFiles: number;
+  readonly openClawUnit: O.Option<string>;
+  readonly otlp: boolean;
+  readonly otlpBaseUrl: O.Option<string>;
+  readonly rawArchiveKeySecretRef: O.Option<string>;
+  readonly repoRoot: O.Option<string>;
+  readonly since: O.Option<string>;
+  readonly target: AiMetricsDeployTarget;
+};
 const makeForwarderRunProgram = Effect.fn("AIMetrics.makeForwarderRunProgram")(function* ({
   all,
   dataRoot,
@@ -1298,23 +1318,7 @@ const makeForwarderRunProgram = Effect.fn("AIMetrics.makeForwarderRunProgram")(f
   repoRoot,
   since,
   target,
-}: {
-  readonly all: boolean;
-  readonly dataRoot: O.Option<string>;
-  readonly hashSalt: O.Option<string>;
-  readonly hashSaltSecretRef: O.Option<string>;
-  readonly homeDir: O.Option<string>;
-  readonly json: boolean;
-  readonly maxFileBytes: O.Option<number>;
-  readonly maxFiles: number;
-  readonly openClawUnit: O.Option<string>;
-  readonly otlp: boolean;
-  readonly otlpBaseUrl: O.Option<string>;
-  readonly rawArchiveKeySecretRef: O.Option<string>;
-  readonly repoRoot: O.Option<string>;
-  readonly since: O.Option<string>;
-  readonly target: AiMetricsDeployTarget;
-}) {
+}: MakeForwarderRunProgramOptions) {
   const resolvedHashSalt = yield* requireHashSaltForTarget({
     hashSalt: yield* resolveHashSalt(hashSalt),
     target,
@@ -1425,7 +1429,18 @@ const makeForwarderRunProgram = Effect.fn("AIMetrics.makeForwarderRunProgram")(f
     }
   }
 });
-
+type MakeForwarderTimerProgramOptions = {
+  readonly dataRoot: O.Option<string>;
+  readonly hashSaltSecretRef: O.Option<string>;
+  readonly intervalMinutes: number;
+  readonly json: boolean;
+  readonly maxFileBytes: number;
+  readonly maxFiles: number;
+  readonly otlpBaseUrl: O.Option<string>;
+  readonly rawArchiveKeySecretRef: O.Option<string>;
+  readonly repoRoot: O.Option<string>;
+  readonly target: AiMetricsDeployTarget;
+};
 const makeForwarderTimerProgram = Effect.fn("AIMetrics.makeForwarderTimerProgram")(function* ({
   dataRoot,
   hashSaltSecretRef,
@@ -1437,18 +1452,7 @@ const makeForwarderTimerProgram = Effect.fn("AIMetrics.makeForwarderTimerProgram
   rawArchiveKeySecretRef,
   repoRoot,
   target,
-}: {
-  readonly dataRoot: O.Option<string>;
-  readonly hashSaltSecretRef: O.Option<string>;
-  readonly intervalMinutes: number;
-  readonly json: boolean;
-  readonly maxFileBytes: number;
-  readonly maxFiles: number;
-  readonly otlpBaseUrl: O.Option<string>;
-  readonly rawArchiveKeySecretRef: O.Option<string>;
-  readonly repoRoot: O.Option<string>;
-  readonly target: AiMetricsDeployTarget;
-}) {
+}: MakeForwarderTimerProgramOptions) {
   const resolvedDataRoot = p6aCollectorDataRoot(dataRoot, target);
   const spec = yield* makeCommandInstallSpec({
     dataRoot: resolvedDataRoot,
@@ -1507,16 +1511,24 @@ const makeForwarderTimerProgram = Effect.fn("AIMetrics.makeForwarderTimerProgram
     return;
   }
 
-  yield* Console.log(`# ${plan.serviceUnitName}`);
-  yield* Console.log(plan.serviceUnit);
-  yield* Console.log(`# ${plan.timerUnitName}`);
-  yield* Console.log(plan.timerUnit);
-  yield* Console.log("# install commands");
-  for (const command of plan.installCommands) {
-    yield* Console.log(command);
-  }
+  yield* printLines([
+    `# ${plan.serviceUnitName}`,
+    plan.serviceUnit,
+    `# ${plan.timerUnitName}`,
+    plan.timerUnit,
+    "# install commands",
+    ...plan.installCommands,
+  ]);
 });
-
+type MakeOtlpExportProgramOptions = {
+  readonly dataRoot: O.Option<string>;
+  readonly hashSaltSecretRef: O.Option<string>;
+  readonly ingestRunId: string;
+  readonly json: boolean;
+  readonly otlpBaseUrl: O.Option<string>;
+  readonly rawArchiveKeySecretRef: O.Option<string>;
+  readonly target: AiMetricsDeployTarget;
+};
 const makeOtlpExportProgram = Effect.fn("AIMetrics.makeOtlpExportProgram")(function* ({
   dataRoot,
   hashSaltSecretRef,
@@ -1525,15 +1537,7 @@ const makeOtlpExportProgram = Effect.fn("AIMetrics.makeOtlpExportProgram")(funct
   otlpBaseUrl,
   rawArchiveKeySecretRef,
   target,
-}: {
-  readonly dataRoot: O.Option<string>;
-  readonly hashSaltSecretRef: O.Option<string>;
-  readonly ingestRunId: string;
-  readonly json: boolean;
-  readonly otlpBaseUrl: O.Option<string>;
-  readonly rawArchiveKeySecretRef: O.Option<string>;
-  readonly target: AiMetricsDeployTarget;
-}) {
+}: MakeOtlpExportProgramOptions) {
   const resolvedDataRoot = O.getOrUndefined(p6aCollectorDataRoot(dataRoot, target));
   const resolvedHashSaltSecretRef = yield* requireHashSaltSecretRefForTarget({
     hashSaltSecretRef: yield* resolveHashSaltSecretRef(hashSaltSecretRef),
@@ -1579,14 +1583,28 @@ const makeOtlpExportProgram = Effect.fn("AIMetrics.makeOtlpExportProgram")(funct
     return;
   }
 
-  yield* Console.log(`ai-metrics otlp export: target=${target}`);
-  yield* Console.log(`ingest run: ${result.ingestRunId}`);
-  yield* Console.log(`spans: ${result.spanCount}`);
-  yield* Console.log(`sessions: ${result.sessionSpanCount}`);
-  yield* Console.log(`turns: ${result.turnSpanCount}`);
-  yield* Console.log(`trace endpoint: ${result.endpointTraceUrl}`);
+  yield* printLines([
+    `ai-metrics otlp export: target=${target}`,
+    `ingest run: ${result.ingestRunId}`,
+    `spans: ${result.spanCount}`,
+    `sessions: ${result.sessionSpanCount}`,
+    `turns: ${result.turnSpanCount}`,
+    `trace endpoint: ${result.endpointTraceUrl}`,
+  ]);
 });
-
+type MakeBenchmarkRunProgramOptions = {
+  readonly caseId: string;
+  readonly configSnapshotId: string;
+  readonly dataRoot: O.Option<string>;
+  readonly elapsedMs: number;
+  readonly hashSaltSecretRef: O.Option<string>;
+  readonly json: boolean;
+  readonly note: O.Option<string>;
+  readonly passed: boolean;
+  readonly qualityGate: AiMetricsQualityGateStatus;
+  readonly rawArchiveKeySecretRef: O.Option<string>;
+  readonly target: AiMetricsDeployTarget;
+};
 const makeBenchmarkRunProgram = Effect.fn("AIMetrics.makeBenchmarkRunProgram")(function* ({
   caseId,
   configSnapshotId,
@@ -1599,19 +1617,7 @@ const makeBenchmarkRunProgram = Effect.fn("AIMetrics.makeBenchmarkRunProgram")(f
   qualityGate,
   rawArchiveKeySecretRef,
   target,
-}: {
-  readonly caseId: string;
-  readonly configSnapshotId: string;
-  readonly dataRoot: O.Option<string>;
-  readonly elapsedMs: number;
-  readonly hashSaltSecretRef: O.Option<string>;
-  readonly json: boolean;
-  readonly note: O.Option<string>;
-  readonly passed: boolean;
-  readonly qualityGate: AiMetricsQualityGateStatus;
-  readonly rawArchiveKeySecretRef: O.Option<string>;
-  readonly target: AiMetricsDeployTarget;
-}) {
+}: MakeBenchmarkRunProgramOptions) {
   const spec = yield* makeCommandInstallSpec({
     dataRoot: p6aCollectorDataRoot(dataRoot, target),
     hashSaltSecretRef,
@@ -1640,10 +1646,12 @@ const makeBenchmarkRunProgram = Effect.fn("AIMetrics.makeBenchmarkRunProgram")(f
     return;
   }
 
-  yield* Console.log(`ai-metrics benchmark run: ${result.benchmarkRunId}`);
-  yield* Console.log(`case: ${result.benchmarkCaseId}`);
-  yield* Console.log(`config: ${result.configSnapshotId}`);
-  yield* Console.log(`passed: ${result.passed}`);
+  yield* printLines([
+    `ai-metrics benchmark run: ${result.benchmarkRunId}`,
+    `case: ${result.benchmarkCaseId}`,
+    `config: ${result.configSnapshotId}`,
+    `passed: ${result.passed}`,
+  ]);
 });
 
 const makeBenchmarkCompareProgram = Effect.fn("AIMetrics.makeBenchmarkCompareProgram")(function* ({
@@ -1663,7 +1671,16 @@ const makeBenchmarkCompareProgram = Effect.fn("AIMetrics.makeBenchmarkComparePro
 
   yield* Console.log("ai-metrics benchmark compare: outcome-heavy scorecard ready for derived run tables");
 });
-
+type MakeLabelQueueProgramOptions = {
+  readonly dataRoot: O.Option<string>;
+  readonly hashSaltSecretRef: O.Option<string>;
+  readonly json: boolean;
+  readonly limit: number;
+  readonly rawArchiveKeySecretRef: O.Option<string>;
+  readonly since: O.Option<string>;
+  readonly target: AiMetricsDeployTarget;
+  readonly until: O.Option<string>;
+};
 const makeLabelQueueProgram = Effect.fn("AIMetrics.makeLabelQueueProgram")(function* ({
   dataRoot,
   hashSaltSecretRef,
@@ -1673,16 +1690,7 @@ const makeLabelQueueProgram = Effect.fn("AIMetrics.makeLabelQueueProgram")(funct
   since,
   target,
   until,
-}: {
-  readonly dataRoot: O.Option<string>;
-  readonly hashSaltSecretRef: O.Option<string>;
-  readonly json: boolean;
-  readonly limit: number;
-  readonly rawArchiveKeySecretRef: O.Option<string>;
-  readonly since: O.Option<string>;
-  readonly target: AiMetricsDeployTarget;
-  readonly until: O.Option<string>;
-}) {
+}: MakeLabelQueueProgramOptions) {
   const spec = yield* makeCommandInstallSpec({
     dataRoot: p6aCollectorDataRoot(dataRoot, target),
     hashSaltSecretRef,
@@ -1713,13 +1721,26 @@ const makeLabelQueueProgram = Effect.fn("AIMetrics.makeLabelQueueProgram")(funct
     return;
   }
 
-  yield* Console.log(`ai-metrics label queue: target=${target}`);
-  yield* Console.log(`items: ${A.length(result.items)}`);
-  for (const item of result.items) {
-    yield* Console.log(`${item.agentTaskId} config=${item.configSnapshotId} turns=${item.turnCount}`);
-  }
+  yield* printLines([
+    `ai-metrics label queue: target=${target}`,
+    `items: ${A.length(result.items)}`,
+    ...A.map(result.items, (item) => `${item.agentTaskId} config=${item.configSnapshotId} turns=${item.turnCount}`),
+  ]);
 });
-
+type MakeLabelAddProgramOptions = {
+  readonly dataRoot: O.Option<string>;
+  readonly followUpFix: boolean;
+  readonly hashSaltSecretRef: O.Option<string>;
+  readonly interventions: number;
+  readonly json: boolean;
+  readonly note: O.Option<string>;
+  readonly passed: boolean;
+  readonly qualityGate: AiMetricsQualityGateStatus;
+  readonly rating: number;
+  readonly rawArchiveKeySecretRef: O.Option<string>;
+  readonly target: AiMetricsDeployTarget;
+  readonly taskId: string;
+};
 const makeLabelAddProgram = Effect.fn("AIMetrics.makeLabelAddProgram")(function* ({
   dataRoot,
   followUpFix,
@@ -1733,20 +1754,7 @@ const makeLabelAddProgram = Effect.fn("AIMetrics.makeLabelAddProgram")(function*
   rawArchiveKeySecretRef,
   target,
   taskId,
-}: {
-  readonly dataRoot: O.Option<string>;
-  readonly followUpFix: boolean;
-  readonly hashSaltSecretRef: O.Option<string>;
-  readonly interventions: number;
-  readonly json: boolean;
-  readonly note: O.Option<string>;
-  readonly passed: boolean;
-  readonly qualityGate: AiMetricsQualityGateStatus;
-  readonly rating: number;
-  readonly rawArchiveKeySecretRef: O.Option<string>;
-  readonly target: AiMetricsDeployTarget;
-  readonly taskId: string;
-}) {
+}: MakeLabelAddProgramOptions) {
   const spec = yield* makeCommandInstallSpec({
     dataRoot: p6aCollectorDataRoot(dataRoot, target),
     hashSaltSecretRef,
@@ -1776,11 +1784,24 @@ const makeLabelAddProgram = Effect.fn("AIMetrics.makeLabelAddProgram")(function*
     return;
   }
 
-  yield* Console.log(`ai-metrics label add: ${result.labelId}`);
-  yield* Console.log(`task: ${result.agentTaskId}`);
-  yield* Console.log(`passed: ${result.passed}`);
+  yield* printLines([
+    `ai-metrics label add: ${result.labelId}`,
+    `task: ${result.agentTaskId}`,
+    `passed: ${result.passed}`,
+  ]);
 });
-
+type MakeBenchmarkCaseAddProgramOptions = {
+  readonly caseId: string;
+  readonly checks: string;
+  readonly dataRoot: O.Option<string>;
+  readonly hashSaltSecretRef: O.Option<string>;
+  readonly json: boolean;
+  readonly promptHash: string;
+  readonly promptRef: O.Option<string>;
+  readonly rawArchiveKeySecretRef: O.Option<string>;
+  readonly target: AiMetricsDeployTarget;
+  readonly title: string;
+};
 const makeBenchmarkCaseAddProgram = Effect.fn("AIMetrics.makeBenchmarkCaseAddProgram")(function* ({
   caseId,
   checks,
@@ -1792,18 +1813,7 @@ const makeBenchmarkCaseAddProgram = Effect.fn("AIMetrics.makeBenchmarkCaseAddPro
   rawArchiveKeySecretRef,
   target,
   title,
-}: {
-  readonly caseId: string;
-  readonly checks: string;
-  readonly dataRoot: O.Option<string>;
-  readonly hashSaltSecretRef: O.Option<string>;
-  readonly json: boolean;
-  readonly promptHash: string;
-  readonly promptRef: O.Option<string>;
-  readonly rawArchiveKeySecretRef: O.Option<string>;
-  readonly target: AiMetricsDeployTarget;
-  readonly title: string;
-}) {
+}: MakeBenchmarkCaseAddProgramOptions) {
   const spec = yield* makeCommandInstallSpec({
     dataRoot: p6aCollectorDataRoot(dataRoot, target),
     hashSaltSecretRef,
@@ -1831,23 +1841,25 @@ const makeBenchmarkCaseAddProgram = Effect.fn("AIMetrics.makeBenchmarkCaseAddPro
     return;
   }
 
-  yield* Console.log(`ai-metrics benchmark case add: ${result.benchmarkCaseId}`);
-  yield* Console.log(`checks: ${A.length(result.expectedChecks)}`);
+  yield* printLines([
+    `ai-metrics benchmark case add: ${result.benchmarkCaseId}`,
+    `checks: ${A.length(result.expectedChecks)}`,
+  ]);
 });
-
+type MakeBenchmarkCaseListProgramOptions = {
+  readonly dataRoot: O.Option<string>;
+  readonly hashSaltSecretRef: O.Option<string>;
+  readonly json: boolean;
+  readonly rawArchiveKeySecretRef: O.Option<string>;
+  readonly target: AiMetricsDeployTarget;
+};
 const makeBenchmarkCaseListProgram = Effect.fn("AIMetrics.makeBenchmarkCaseListProgram")(function* ({
   dataRoot,
   hashSaltSecretRef,
   json,
   rawArchiveKeySecretRef,
   target,
-}: {
-  readonly dataRoot: O.Option<string>;
-  readonly hashSaltSecretRef: O.Option<string>;
-  readonly json: boolean;
-  readonly rawArchiveKeySecretRef: O.Option<string>;
-  readonly target: AiMetricsDeployTarget;
-}) {
+}: MakeBenchmarkCaseListProgramOptions) {
   const spec = yield* makeCommandInstallSpec({
     dataRoot: p6aCollectorDataRoot(dataRoot, target),
     hashSaltSecretRef,
@@ -1865,12 +1877,20 @@ const makeBenchmarkCaseListProgram = Effect.fn("AIMetrics.makeBenchmarkCaseListP
     return;
   }
 
-  yield* Console.log(`ai-metrics benchmark case list: ${A.length(result.cases)}`);
-  for (const benchmarkCase of result.cases) {
-    yield* Console.log(`${benchmarkCase.benchmarkCaseId}: ${benchmarkCase.title}`);
-  }
+  yield* printLines([
+    `ai-metrics benchmark case list: ${A.length(result.cases)}`,
+    ...A.map(result.cases, (benchmarkCase) => `${benchmarkCase.benchmarkCaseId}: ${benchmarkCase.title}`),
+  ]);
 });
-
+type MakeWeeklyReportProgramOptions = {
+  readonly dataRoot: O.Option<string>;
+  readonly hashSaltSecretRef: O.Option<string>;
+  readonly json: boolean;
+  readonly rawArchiveKeySecretRef: O.Option<string>;
+  readonly since: O.Option<string>;
+  readonly target: AiMetricsDeployTarget;
+  readonly until: O.Option<string>;
+};
 const makeWeeklyReportProgram = Effect.fn("AIMetrics.makeWeeklyReportProgram")(function* ({
   dataRoot,
   hashSaltSecretRef,
@@ -1879,15 +1899,7 @@ const makeWeeklyReportProgram = Effect.fn("AIMetrics.makeWeeklyReportProgram")(f
   since,
   target,
   until,
-}: {
-  readonly dataRoot: O.Option<string>;
-  readonly hashSaltSecretRef: O.Option<string>;
-  readonly json: boolean;
-  readonly rawArchiveKeySecretRef: O.Option<string>;
-  readonly since: O.Option<string>;
-  readonly target: AiMetricsDeployTarget;
-  readonly until: O.Option<string>;
-}) {
+}: MakeWeeklyReportProgramOptions) {
   const path = yield* Path.Path;
   const spec = yield* makeCommandInstallSpec({
     dataRoot: p6aCollectorDataRoot(dataRoot, target),
@@ -1919,10 +1931,12 @@ const makeWeeklyReportProgram = Effect.fn("AIMetrics.makeWeeklyReportProgram")(f
     return;
   }
 
-  yield* Console.log(`ai-metrics report weekly: target=${target}`);
-  yield* Console.log(`scorecards: ${A.length(result.document.scores)}`);
-  yield* Console.log(`markdown: ${result.markdownPath}`);
-  yield* Console.log(`json: ${result.jsonPath}`);
+  yield* printLines([
+    `ai-metrics report weekly: target=${target}`,
+    `scorecards: ${A.length(result.document.scores)}`,
+    `markdown: ${result.markdownPath}`,
+    `json: ${result.jsonPath}`,
+  ]);
 });
 
 type CapturedCommandResult = {
@@ -2462,7 +2476,7 @@ const makeArchiveDrillProgram = Effect.fn("AIMetrics.makeArchiveDrillProgram")(f
                            plaintext_content_hash AS "plaintextContentHash"
                     FROM ai_metrics_raw_archive_objects
                     ORDER BY encrypted_at_epoch_ms
-                      DESC LIMIT 1`)
+                        DESC LIMIT 1`)
             .pipe(
               AiMetricsCommandError.mapError("Failed to select an AI metrics archive object for the decrypt drill.")
             );

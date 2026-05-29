@@ -9,6 +9,7 @@ import { Console, Effect, pipe } from "effect";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import { Command, Flag } from "effect/unstable/cli";
+import { failWithReportedExit } from "../../internal/cli/ExitCodeError.js";
 import { handleVersionSync } from "./internal/Handler.js";
 import type { VersionSyncMode } from "./internal/Models.js";
 
@@ -82,16 +83,16 @@ export const versionSyncCommand = Command.make(
     }).pipe(
       Effect.catchTags({
         VersionSyncDriftError: Effect.fn(function* (error) {
-          process.exitCode = 1;
           yield* Console.error(`version-sync: ${error.message}`);
+          return yield* failWithReportedExit(`version-sync: ${error.message}`);
         }),
         VersionSyncError: Effect.fn(function* (error) {
-          process.exitCode = 1;
           yield* Console.error(`version-sync: ${error.message} (${error.file})`);
+          return yield* failWithReportedExit(`version-sync: ${error.message}`);
         }),
         NoSuchFileError: Effect.fn(function* (error) {
-          process.exitCode = 1;
           yield* Console.error(`version-sync: ${error.message}`);
+          return yield* failWithReportedExit(`version-sync: ${error.message}`);
         }),
       })
     );

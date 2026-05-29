@@ -1,6 +1,7 @@
-import { findRepoRoot, type NoSuchFileError } from "@beep/repo-utils";
-import type { Effect, FileSystem } from "effect";
+import { findRepoRoot } from "@beep/repo-utils";
 import { describe, expect, it } from "tstyche";
+import type { NoSuchFileError } from "@beep/repo-utils";
+import type { Effect, FileSystem } from "effect";
 
 describe("Root", () => {
   it("findRepoRoot returns Effect<string, NoSuchFileError, FileSystem>", () => {

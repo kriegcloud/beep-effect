@@ -14,7 +14,8 @@ import * as S from "effect/Schema";
 import { SyncError } from "./Sandbox.errors.ts";
 import { profileSandboxPhase, redactSensitiveText } from "./Sandbox.observability.ts";
 import { ProcessCommand, SandboxProcess } from "./Sandbox.process.ts";
-import { type IsolatedSandboxHandle, SandboxExecOptions } from "./Sandbox.provider.ts";
+import { SandboxExecOptions } from "./Sandbox.provider.ts";
+import type { IsolatedSandboxHandle } from "./Sandbox.provider.ts";
 
 const $I = $SandboxId.create("SyncIn");
 

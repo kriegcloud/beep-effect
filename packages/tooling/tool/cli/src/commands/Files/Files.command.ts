@@ -8,7 +8,6 @@
 import { Effect } from "effect";
 import * as O from "effect/Option";
 import { Command, Flag } from "effect/unstable/cli";
-import type { FilesCommandError } from "./Files.errors.js";
 import {
   ArchivePoorCandidatesOptions,
   CreateCaptionFilesOptions,
@@ -23,13 +22,14 @@ import {
   cropBordersFiles,
   detectBordersFiles,
   detectFacesFiles,
-  type FilesCommandService,
   FilesCommandServiceLive,
   normalizeFiles,
   printFilesIndex,
   sortAndRenameFiles,
   stripMetadataFiles,
 } from "./Files.service.js";
+import type { FilesCommandError } from "./Files.errors.js";
+import type { FilesCommandService } from "./Files.service.js";
 
 const runFilesProgram = <A>(
   effect: Effect.Effect<A, FilesCommandError, FilesCommandService>

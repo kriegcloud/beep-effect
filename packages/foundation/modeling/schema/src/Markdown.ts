@@ -10,15 +10,15 @@ import { Effect, flow, Match, SchemaGetter, SchemaIssue } from "effect";
 import { dual } from "effect/Function";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
-import type * as R from "effect/Record";
 import * as S from "effect/Schema";
 import {
   getGlobalMarkdownRuntime,
   loadMarkdownGfmModule,
   loadMarkdownModule,
-  type MarkdownParseResult,
   makeParseMarkdownForSchema,
 } from "./internal/markdown.ts";
+import type * as R from "effect/Record";
+import type { MarkdownParseResult } from "./internal/markdown.ts";
 
 const $I = $SchemaId.create("Markdown");
 

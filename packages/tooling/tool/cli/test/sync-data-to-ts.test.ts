@@ -1,18 +1,14 @@
 import { syncDataToTsCommand } from "@beep/repo-cli/commands/SyncDataToTs";
-import {
-  ISO4217_SOURCE_URL,
-  type SyncDataTarget,
-  SyncDataTargetProjection,
-  syncDataTargets,
-} from "@beep/repo-cli/test/SyncDataToTs";
+import { ISO4217_SOURCE_URL, SyncDataTargetProjection, syncDataTargets } from "@beep/repo-cli/test/SyncDataToTs";
 import { A, O } from "@beep/utils";
 import { NodeServices } from "@effect/platform-node";
-import { Effect, FileSystem, Layer, Path } from "effect";
+import { Cause, Effect, Exit, FileSystem, Layer, Path, Runtime } from "effect";
 import * as S from "effect/Schema";
 import * as TestConsole from "effect/testing/TestConsole";
 import { Command } from "effect/unstable/cli";
 import { HttpClient, HttpClientError, HttpClientResponse } from "effect/unstable/http";
 import { describe, expect, it } from "vitest";
+import type { SyncDataTarget } from "@beep/repo-cli/test/SyncDataToTs";
 
 const provideScopedLayer =
   <ROut, E2, RIn>(layer: Layer.Layer<ROut, E2, RIn>) =>
@@ -25,6 +21,15 @@ const generatedOutputPath = "packages/foundation/primitive/data/src/generated/is
 const csvGeneratedOutputPath = "packages/foundation/primitive/data/src/generated/test-csv.ts" as const;
 const csvFixtureSourceUrl = "https://example.com/test.csv" as const;
 const encodeJson = S.encodeUnknownSync(S.UnknownFromJsonString);
+
+const expectReportedExit = (exit: Exit.Exit<unknown, unknown>, exitCode = 1) => {
+  expect(Exit.isFailure(exit)).toBe(true);
+  if (Exit.isFailure(exit)) {
+    const error = Cause.squash(exit.cause);
+    expect(Runtime.getErrorExitCode(error)).toBe(exitCode);
+    expect(Runtime.getErrorReported(error)).toBe(false);
+  }
+};
 
 const iso4217XmlFixture = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <ISO_4217 Pblshd="2026-01-01">
@@ -130,19 +135,16 @@ const withTempRepoCommand = <A, E, R>(use: Effect.Effect<A, E, R>) =>
       const path = yield* Path.Path;
       const tmpDir = yield* fs.makeTempDirectory();
       const previousCwd = process.cwd();
-      const previousExitCode = process.exitCode;
 
       process.chdir(tmpDir);
-      process.exitCode = 0;
       yield* fs.makeDirectory(path.join(tmpDir, ".git"), { recursive: true });
 
-      return { fs, previousCwd, previousExitCode, tmpDir } as const;
+      return { fs, previousCwd, tmpDir } as const;
     }),
     () => use,
-    ({ fs, previousCwd, previousExitCode, tmpDir }) =>
+    ({ fs, previousCwd, tmpDir }) =>
       Effect.gen(function* () {
         process.chdir(previousCwd);
-        process.exitCode = previousExitCode ?? 0;
         yield* fs.remove(tmpDir, { recursive: true });
       })
   ).pipe(provideScopedLayer(CommandTestLayer));
@@ -256,16 +258,16 @@ describe("sync-data-to-ts", () => {
       Effect.gen(function* () {
         yield* writeGeneratedFile("stale-content\n");
 
-        yield* runSyncDataToTsCommand(["--target", "iso4217", "--check"]);
+        const exit = yield* Effect.exit(runSyncDataToTsCommand(["--target", "iso4217", "--check"]));
 
         const content = yield* readGeneratedFile;
         const errors = yield* TestConsole.errorLines;
 
+        expectReportedExit(exit);
         expect(content).toBe("stale-content\n");
         expect(errors).toContain(
           'sync-data-to-ts: Detected drift in 1 target(s): iso4217. Run "bun run beep sync-data-to-ts --all" to refresh generated files.'
         );
-        expect(process.exitCode).toBe(1);
       }).pipe(provideIso4217Client, withTempRepoCommand)
     ));
 

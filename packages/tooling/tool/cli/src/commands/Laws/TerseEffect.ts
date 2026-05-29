@@ -7,22 +7,14 @@
 
 import { $RepoCliId } from "@beep/identity/packages";
 import { isExcludedTypeScriptSourcePath, toPosixPath } from "@beep/repo-utils/schemas/TypeScriptSourceExclusions";
-
 import { A, thunkEmptyStr } from "@beep/utils";
 import { Effect, HashMap, Inspectable, Order, Path, pipe } from "effect";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
-import {
-  type ArrowFunction,
-  type CallExpression,
-  type FunctionDeclaration,
-  Node,
-  type ObjectLiteralExpression,
-  Project,
-  SyntaxKind,
-} from "ts-morph";
+import { Node, Project, SyntaxKind } from "ts-morph";
 import { TerseEffectRulesPersistenceError } from "./Laws.errors.js";
+import type { ArrowFunction, CallExpression, FunctionDeclaration, ObjectLiteralExpression } from "ts-morph";
 
 const $I = $RepoCliId.create("commands/Laws/TerseEffect");
 

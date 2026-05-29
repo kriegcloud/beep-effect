@@ -18,23 +18,21 @@ import {
 import { isExcludedTypeScriptSourcePath, toPosixPath } from "@beep/repo-utils/schemas/TypeScriptSourceExclusions";
 import { LiteralKit } from "@beep/schema";
 import { A } from "@beep/utils";
-import { Effect, HashSet, Inspectable, Order, Path, pipe } from "effect";
+import { Effect, HashSet, Inspectable, Match, Order, Path, pipe } from "effect";
 import { dual } from "effect/Function";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
-import {
-  type BinaryExpression,
-  type CallExpression,
-  type ImportDeclaration,
-  type NewExpression,
-  Node,
-  Project,
-  type SourceFile,
-  type SwitchStatement,
-  SyntaxKind,
-} from "ts-morph";
+import { Node, Project, SyntaxKind } from "ts-morph";
 import { NoNativeRuntimeRulesExecutionError } from "./Laws.errors.js";
+import type {
+  BinaryExpression,
+  CallExpression,
+  ImportDeclaration,
+  NewExpression,
+  SourceFile,
+  SwitchStatement,
+} from "ts-morph";
 
 const $I = $RepoCliId.create("commands/Laws/NoNativeRuntime");
 
@@ -456,17 +454,14 @@ const collectNativeRuntimeViolations = (
   let violations = A.empty<NativeRuntimeViolation>();
 
   sourceFile.forEachDescendant((node: import("ts-morph").Node) => {
-    const violation = Node.isImportDeclaration(node)
-      ? detectImportViolation(node, inHotspotScope)
-      : Node.isNewExpression(node)
-        ? detectNewExpressionViolation(node)
-        : Node.isCallExpression(node)
-          ? detectCallExpressionViolation(node, inHotspotScope)
-          : Node.isBinaryExpression(node)
-            ? detectBinaryExpressionViolation(node)
-            : Node.isSwitchStatement(node)
-              ? detectSwitchStatementViolation(node)
-              : O.none<NativeRuntimeViolation>();
+    const violation = Match.value(node).pipe(
+      Match.when(Node.isImportDeclaration, (declaration) => detectImportViolation(declaration, inHotspotScope)),
+      Match.when(Node.isNewExpression, detectNewExpressionViolation),
+      Match.when(Node.isCallExpression, (expression) => detectCallExpressionViolation(expression, inHotspotScope)),
+      Match.when(Node.isBinaryExpression, detectBinaryExpressionViolation),
+      Match.when(Node.isSwitchStatement, detectSwitchStatementViolation),
+      Match.orElse(O.none<NativeRuntimeViolation>)
+    );
 
     if (O.isSome(violation)) {
       violations = A.append(violations, violation.value);

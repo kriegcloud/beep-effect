@@ -9,6 +9,116 @@ import * as A from "effect/Array";
 import { dual } from "effect/Function";
 import * as P from "effect/Predicate";
 
+type ChainRefinementBuilder<Start> = {
+  <A extends Start>(refinements: readonly [P.Refinement<Start, A>]): P.Refinement<Start, A>;
+  <A extends Start, B extends A>(
+    refinements: readonly [P.Refinement<Start, A>, P.Refinement<A, B>]
+  ): P.Refinement<Start, B>;
+  <A extends Start, B extends A, C extends B>(
+    refinements: readonly [P.Refinement<Start, A>, P.Refinement<A, B>, P.Refinement<B, C>]
+  ): P.Refinement<Start, C>;
+  <A extends Start, B extends A, C extends B, D extends C>(
+    refinements: readonly [P.Refinement<Start, A>, P.Refinement<A, B>, P.Refinement<B, C>, P.Refinement<C, D>]
+  ): P.Refinement<Start, D>;
+  <A extends Start, B extends A, C extends B, D extends C, E extends D>(
+    refinements: readonly [
+      P.Refinement<Start, A>,
+      P.Refinement<A, B>,
+      P.Refinement<B, C>,
+      P.Refinement<C, D>,
+      P.Refinement<D, E>,
+    ]
+  ): P.Refinement<Start, E>;
+  <A extends Start, B extends A, C extends B, D extends C, E extends D, F extends E>(
+    refinements: readonly [
+      P.Refinement<Start, A>,
+      P.Refinement<A, B>,
+      P.Refinement<B, C>,
+      P.Refinement<C, D>,
+      P.Refinement<D, E>,
+      P.Refinement<E, F>,
+    ]
+  ): P.Refinement<Start, F>;
+  <A extends Start, B extends A, C extends B, D extends C, E extends D, F extends E, G extends F>(
+    refinements: readonly [
+      P.Refinement<Start, A>,
+      P.Refinement<A, B>,
+      P.Refinement<B, C>,
+      P.Refinement<C, D>,
+      P.Refinement<D, E>,
+      P.Refinement<E, F>,
+      P.Refinement<F, G>,
+    ]
+  ): P.Refinement<Start, G>;
+  <A extends Start, B extends A, C extends B, D extends C, E extends D, F extends E, G extends F, H extends G>(
+    refinements: readonly [
+      P.Refinement<Start, A>,
+      P.Refinement<A, B>,
+      P.Refinement<B, C>,
+      P.Refinement<C, D>,
+      P.Refinement<D, E>,
+      P.Refinement<E, F>,
+      P.Refinement<F, G>,
+      P.Refinement<G, H>,
+    ]
+  ): P.Refinement<Start, H>;
+  <
+    A extends Start,
+    B extends A,
+    C extends B,
+    D extends C,
+    E extends D,
+    F extends E,
+    G extends F,
+    H extends G,
+    I extends H,
+  >(
+    refinements: readonly [
+      P.Refinement<Start, A>,
+      P.Refinement<A, B>,
+      P.Refinement<B, C>,
+      P.Refinement<C, D>,
+      P.Refinement<D, E>,
+      P.Refinement<E, F>,
+      P.Refinement<F, G>,
+      P.Refinement<G, H>,
+      P.Refinement<H, I>,
+    ]
+  ): P.Refinement<Start, I>;
+  <
+    A extends Start,
+    B extends A,
+    C extends B,
+    D extends C,
+    E extends D,
+    F extends E,
+    G extends F,
+    H extends G,
+    I extends H,
+    J extends I,
+  >(
+    refinements: readonly [
+      P.Refinement<Start, A>,
+      P.Refinement<A, B>,
+      P.Refinement<B, C>,
+      P.Refinement<C, D>,
+      P.Refinement<D, E>,
+      P.Refinement<E, F>,
+      P.Refinement<F, G>,
+      P.Refinement<G, H>,
+      P.Refinement<H, I>,
+      P.Refinement<I, J>,
+    ]
+  ): P.Refinement<Start, J>;
+};
+
+type RuntimeRefinement = { bivarianceHack(self: unknown): boolean }["bivarianceHack"];
+
+const makeChainRefinement =
+  (refinements: ReadonlyArray<RuntimeRefinement>) =>
+  (self: unknown): self is never =>
+    A.every(refinements, (refinement) => refinement(self));
+
 /**
  * Re-export of all helpers from `effect/Predicate`.
  *
@@ -24,6 +134,174 @@ import * as P from "effect/Predicate";
  * @since 0.0.0
  */
 export * from "effect/Predicate";
+
+/**
+ * Chains refinements so each step receives the type narrowed by the previous
+ * step.
+ *
+ * @remarks
+ * Use the flat `chainRefinements([...])` form when the first refinement can
+ * infer the input type. Use `chainRefinements<Start>()([...])` when the input
+ * type must be fixed explicitly. The chain stops at the first failed
+ * refinement, so later structural checks can rely on earlier guards.
+ *
+ * @example
+ * ```ts
+ * import { P } from "@beep/utils";
+ *
+ * const hasMessage = P.chainRefinements([
+ *   P.isNotNullish,
+ *   P.isObject,
+ *   P.hasProperty("message"),
+ *   P.Struct({ message: P.isString })
+ * ]);
+ *
+ * const candidate: unknown = { message: "hello" };
+ *
+ * if (hasMessage(candidate)) {
+ *   const message: string = candidate.message;
+ *   console.log(message);
+ * }
+ * ```
+ *
+ * @category refinements
+ * @since 0.0.0
+ */
+export function chainRefinements<Start, A extends Start>(
+  refinements: readonly [P.Refinement<Start, A>]
+): P.Refinement<Start, A>;
+export function chainRefinements<Start, A extends Start, B extends A>(
+  refinements: readonly [P.Refinement<Start, A>, P.Refinement<A, B>]
+): P.Refinement<Start, B>;
+export function chainRefinements<Start, A extends Start, B extends A, C extends B>(
+  refinements: readonly [P.Refinement<Start, A>, P.Refinement<A, B>, P.Refinement<B, C>]
+): P.Refinement<Start, C>;
+export function chainRefinements<Start, A extends Start, B extends A, C extends B, D extends C>(
+  refinements: readonly [P.Refinement<Start, A>, P.Refinement<A, B>, P.Refinement<B, C>, P.Refinement<C, D>]
+): P.Refinement<Start, D>;
+export function chainRefinements<Start, A extends Start, B extends A, C extends B, D extends C, E extends D>(
+  refinements: readonly [
+    P.Refinement<Start, A>,
+    P.Refinement<A, B>,
+    P.Refinement<B, C>,
+    P.Refinement<C, D>,
+    P.Refinement<D, E>,
+  ]
+): P.Refinement<Start, E>;
+export function chainRefinements<
+  Start,
+  A extends Start,
+  B extends A,
+  C extends B,
+  D extends C,
+  E extends D,
+  F extends E,
+>(
+  refinements: readonly [
+    P.Refinement<Start, A>,
+    P.Refinement<A, B>,
+    P.Refinement<B, C>,
+    P.Refinement<C, D>,
+    P.Refinement<D, E>,
+    P.Refinement<E, F>,
+  ]
+): P.Refinement<Start, F>;
+export function chainRefinements<
+  Start,
+  A extends Start,
+  B extends A,
+  C extends B,
+  D extends C,
+  E extends D,
+  F extends E,
+  G extends F,
+>(
+  refinements: readonly [
+    P.Refinement<Start, A>,
+    P.Refinement<A, B>,
+    P.Refinement<B, C>,
+    P.Refinement<C, D>,
+    P.Refinement<D, E>,
+    P.Refinement<E, F>,
+    P.Refinement<F, G>,
+  ]
+): P.Refinement<Start, G>;
+export function chainRefinements<
+  Start,
+  A extends Start,
+  B extends A,
+  C extends B,
+  D extends C,
+  E extends D,
+  F extends E,
+  G extends F,
+  H extends G,
+>(
+  refinements: readonly [
+    P.Refinement<Start, A>,
+    P.Refinement<A, B>,
+    P.Refinement<B, C>,
+    P.Refinement<C, D>,
+    P.Refinement<D, E>,
+    P.Refinement<E, F>,
+    P.Refinement<F, G>,
+    P.Refinement<G, H>,
+  ]
+): P.Refinement<Start, H>;
+export function chainRefinements<
+  Start,
+  A extends Start,
+  B extends A,
+  C extends B,
+  D extends C,
+  E extends D,
+  F extends E,
+  G extends F,
+  H extends G,
+  I extends H,
+>(
+  refinements: readonly [
+    P.Refinement<Start, A>,
+    P.Refinement<A, B>,
+    P.Refinement<B, C>,
+    P.Refinement<C, D>,
+    P.Refinement<D, E>,
+    P.Refinement<E, F>,
+    P.Refinement<F, G>,
+    P.Refinement<G, H>,
+    P.Refinement<H, I>,
+  ]
+): P.Refinement<Start, I>;
+export function chainRefinements<
+  Start,
+  A extends Start,
+  B extends A,
+  C extends B,
+  D extends C,
+  E extends D,
+  F extends E,
+  G extends F,
+  H extends G,
+  I extends H,
+  J extends I,
+>(
+  refinements: readonly [
+    P.Refinement<Start, A>,
+    P.Refinement<A, B>,
+    P.Refinement<B, C>,
+    P.Refinement<C, D>,
+    P.Refinement<D, E>,
+    P.Refinement<E, F>,
+    P.Refinement<F, G>,
+    P.Refinement<G, H>,
+    P.Refinement<H, I>,
+    P.Refinement<I, J>,
+  ]
+): P.Refinement<Start, J>;
+export function chainRefinements<Start>(): ChainRefinementBuilder<Start>;
+export function chainRefinements(refinements?: ReadonlyArray<RuntimeRefinement>): unknown {
+  return refinements === undefined ? makeChainRefinement : makeChainRefinement(refinements);
+}
 
 /**
  * Returns a predicate that succeeds when an unknown value is an object with all

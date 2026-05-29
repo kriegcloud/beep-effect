@@ -15,7 +15,6 @@ import * as Str from "effect/String";
 import { FetchHttpClient } from "effect/unstable/http";
 import * as HttpClient from "effect/unstable/http/HttpClient";
 import * as HttpClientRequest from "effect/unstable/http/HttpClientRequest";
-import type * as HttpClientResponse from "effect/unstable/http/HttpClientResponse";
 import { DiscordError } from "./Discord.errors.ts";
 import {
   DiscordChannelProof,
@@ -24,6 +23,7 @@ import {
   DiscordCreateMessageRequest,
   DiscordMessageProof,
 } from "./Discord.models.ts";
+import type * as HttpClientResponse from "effect/unstable/http/HttpClientResponse";
 
 const $I = $DiscordId.create("Discord.service");
 

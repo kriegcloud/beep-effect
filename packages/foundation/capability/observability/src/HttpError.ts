@@ -24,17 +24,12 @@
  * @since 0.0.0
  */
 import { $ObservabilityId } from "@beep/identity/packages";
-import {
-  HttpStatus,
-  makeStatusCauseError,
-  StatusCauseFields,
-  type StatusCauseInput,
-  TaggedErrorClass,
-} from "@beep/schema";
+import { HttpStatus, makeStatusCauseError, StatusCauseFields, TaggedErrorClass } from "@beep/schema";
 import { ErrorReporter } from "effect";
 import { dual } from "effect/Function";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
+import type { StatusCauseInput } from "@beep/schema";
 
 const $I = $ObservabilityId.create("HttpError");
 

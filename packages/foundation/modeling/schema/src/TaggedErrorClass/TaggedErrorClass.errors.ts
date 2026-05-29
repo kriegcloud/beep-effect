@@ -5,9 +5,9 @@
  * @since 0.0.0
  */
 
+import * as S from "effect/Schema";
 import type { TUnsafe } from "@beep/types";
 import type { Cause, Struct } from "effect";
-import * as S from "effect/Schema";
 
 type TaggedErrorFields = S.Struct.Fields;
 type TaggedErrorStruct = S.Struct<TaggedErrorFields>;

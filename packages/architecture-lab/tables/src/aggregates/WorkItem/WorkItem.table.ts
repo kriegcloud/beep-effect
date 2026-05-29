@@ -7,11 +7,11 @@
  */
 
 import * as DomainWorkItem from "@beep/architecture-lab-domain/aggregates/WorkItem";
-import type * as DomainWorker from "@beep/architecture-lab-domain/entities/Worker";
-import type * as DomainWorkPriority from "@beep/architecture-lab-domain/values/WorkPriority";
 import { integer, pgTable, text, timestamp } from "drizzle-orm/pg-core";
 import { pipe } from "effect";
 import * as O from "effect/Option";
+import type * as DomainWorker from "@beep/architecture-lab-domain/entities/Worker";
+import type * as DomainWorkPriority from "@beep/architecture-lab-domain/values/WorkPriority";
 
 /**
  * WorkItem persistence table name.
