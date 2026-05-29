@@ -97,12 +97,12 @@ import * as Getter from "./SchemaGetter.ts"
 import * as Issue from "./SchemaIssue.ts"
 
 /**
- * A middleware that wraps the entire parsing `Effect` pipeline for both
+ * Middleware that wraps the entire parsing `Effect` pipeline for both
  * decode and encode directions.
  *
  * **When to use**
  *
- * - You need to catch or recover from parsing errors (e.g. `Schema.catchDecoding`).
+ * Use when you need to catch or recover from parsing errors (e.g. `Schema.catchDecoding`).
  * - You need to run side effects around the parsing pipeline.
  * - You need access to the full `Effect` rather than a single decoded value.
  *
@@ -112,7 +112,6 @@ import * as Issue from "./SchemaIssue.ts"
  * `Middleware` receives the full `Effect` produced by the inner schema and can
  * intercept, modify, retry, or replace it.
  *
- * - Immutable — constructing a Middleware does not mutate existing instances.
  * - `decode` receives an `Effect<Option<E>, Issue, RDE>` and returns
  *   `Effect<Option<T>, Issue, RDT>`.
  * - `encode` receives an `Effect<Option<T>, Issue, RET>` and returns
@@ -171,12 +170,12 @@ export class Middleware<in out T, in out E, RDE, RDT, RET, REE> {
 const TypeId = "~effect/SchemaTransformation/Transformation"
 
 /**
- * A bidirectional transformation between a decoded type `T` and an encoded
+ * Represents a bidirectional transformation between a decoded type `T` and an encoded
  * type `E`, built from a pair of `Getter`s.
  *
  * **When to use**
  *
- * - You need to define how a schema converts between two representations.
+ * Use when you need to define how a schema converts between two representations.
  * - You want to compose multiple transformations into a pipeline.
  * - You want to flip a transformation to swap decode/encode.
  *
@@ -240,7 +239,7 @@ export class Transformation<in out T, in out E, RD = never, RE = never> {
  *
  * **When to use**
  *
- * - Checking whether a value is already a Transformation before wrapping it.
+ * Use to check whether a value is already a Transformation before wrapping it.
  *
  * **Details**
  *
@@ -275,12 +274,11 @@ export function isTransformation(u: unknown): u is Transformation<any, any, unkn
  *
  * **When to use**
  *
- * - You already have `Getter` instances and want to pair them.
+ * Use when you already have `Getter` instances and want to pair them.
  * - You want idempotent wrapping (won't double-wrap).
  *
  * **Details**
  *
- * - Does not mutate the input.
  * - Returns the input unchanged if it is already a `Transformation`.
  *
  * **Example** (Wrapping existing getters)
@@ -317,7 +315,7 @@ export const make = <T, E, RD = never, RE = never>(options: {
  *
  * **When to use**
  *
- * - The transformation can fail (e.g. parsing, validation).
+ * Use when the transformation can fail (e.g. parsing, validation).
  * - The transformation requires Effect services.
  *
  * **Details**
@@ -370,7 +368,7 @@ export function transformOrFail<T, E, RD = never, RE = never>(options: {
  *
  * **When to use**
  *
- * - The conversion cannot fail.
+ * Use when the conversion cannot fail.
  * - No Effect services are needed.
  *
  * **Details**
@@ -418,7 +416,7 @@ export function transform<T, E>(options: {
  *
  * **When to use**
  *
- * - You need to produce or consume `Option.None` to represent absent keys.
+ * Use when you need to produce or consume `Option.None` to represent absent keys.
  * - You are working with optional struct fields.
  *
  * **Details**
@@ -464,12 +462,12 @@ export function transformOptional<T, E>(options: {
 }
 
 /**
- * A string-to-string transformation that trims whitespace on decode.
+ * Transforms strings by trimming whitespace on decode.
  * Encode is passthrough (no change).
  *
  * **When to use**
  *
- * - Normalizing user input by stripping leading/trailing whitespace.
+ * Use to normalize user input by stripping leading/trailing whitespace.
  *
  * **Details**
  *
@@ -502,12 +500,12 @@ export function trim(): Transformation<string, string> {
 }
 
 /**
- * A string-to-string transformation that converts snake_case to camelCase
+ * Transforms strings by converting snake_case to camelCase
  * on decode and camelCase to snake_case on encode.
  *
  * **When to use**
  *
- * - Converting API field names between snake_case and camelCase conventions.
+ * Use to convert API field names between snake_case and camelCase conventions.
  *
  * **Details**
  *
@@ -539,12 +537,12 @@ export function snakeToCamel(): Transformation<string, string> {
 }
 
 /**
- * A string-to-string transformation that lowercases on decode.
+ * Transforms strings by lowercasing on decode.
  * Encode is passthrough.
  *
  * **When to use**
  *
- * - Normalizing strings to lowercase (e.g. email addresses).
+ * Use to normalize strings to lowercase (e.g. email addresses).
  *
  * **Details**
  *
@@ -576,12 +574,12 @@ export function toLowerCase(): Transformation<string, string> {
 }
 
 /**
- * A string-to-string transformation that uppercases on decode.
+ * Transforms strings by uppercasing on decode.
  * Encode is passthrough.
  *
  * **When to use**
  *
- * - Normalizing strings to uppercase (e.g. country codes).
+ * Use to normalize strings to uppercase (e.g. country codes).
  *
  * **Details**
  *
@@ -613,12 +611,12 @@ export function toUpperCase(): Transformation<string, string> {
 }
 
 /**
- * A string-to-string transformation that capitalizes the first character on
+ * Transforms strings by capitalizing the first character on
  * decode. Encode is passthrough.
  *
  * **When to use**
  *
- * - Normalizing display names or titles.
+ * Use to normalize display names or titles.
  *
  * **Details**
  *
@@ -649,12 +647,12 @@ export function capitalize(): Transformation<string, string> {
 }
 
 /**
- * A string-to-string transformation that lowercases the first character on
+ * Transforms strings by lowercasing the first character on
  * decode. Encode is passthrough.
  *
  * **When to use**
  *
- * - Normalizing identifiers or field names.
+ * Use to normalize identifiers or field names.
  *
  * **Details**
  *
@@ -685,12 +683,12 @@ export function uncapitalize(): Transformation<string, string> {
 }
 
 /**
- * A transformation that decodes a string into a record of key-value pairs and
+ * Transforms a string into a record of key-value pairs and
  * encodes a record of key-value pairs into a string.
  *
  * **When to use**
  *
- * - Parsing query-string-like or config-file-like strings into records.
+ * Use to parse query-string-like or config-file-like strings into records.
  *
  * **Details**
  *
@@ -735,12 +733,12 @@ const passthrough_ = new Transformation(
 )
 
 /**
- * The identity transformation — returns the input unchanged in both
+ * Transforms values by returning the input unchanged in both
  * directions.
  *
  * **When to use**
  *
- * - Connecting two schemas that share the same type with no conversion.
+ * Use when connecting two schemas that share the same type with no conversion.
  * - As a placeholder when `Schema.decodeTo` requires a transformation but
  *   no actual conversion is needed.
  *
@@ -775,12 +773,12 @@ export function passthrough<T>(): Transformation<T, T> {
 }
 
 /**
- * A passthrough transformation typed so that `T extends E`, where the decoded
+ * Transforms values without changing them, typed so that `T extends E`, where the decoded
  * type `T` is a subtype of the encoded type `E`.
  *
  * **When to use**
  *
- * Use this when the runtime value is unchanged but the decoded side should be
+ * Use when the runtime value is unchanged but the decoded side should be
  * narrower than the encoded side.
  *
  * **Details**
@@ -808,12 +806,12 @@ export function passthroughSupertype<T>(): Transformation<T, T> {
 }
 
 /**
- * A passthrough transformation typed so that `E extends T` — the encoded
+ * Transforms values without changing them, typed so that `E extends T` — the encoded
  * type is a subtype of the decoded type.
  *
  * **When to use**
  *
- * - Narrowing: the encoded side is more specific than the decoded side.
+ * Use when narrowing: the encoded side is more specific than the decoded side.
  *
  * **Details**
  *
@@ -845,7 +843,7 @@ export function passthroughSubtype<T>(): Transformation<T, T> {
  *
  * **When to use**
  *
- * - Parsing numeric strings from APIs, form data, or URL parameters.
+ * Use to parse numeric strings from APIs, form data, or URL parameters.
  *
  * **Details**
  *
@@ -881,7 +879,7 @@ export const numberFromString = new Transformation(
  *
  * **When to use**
  *
- * - Parsing large integer strings (e.g. database IDs, blockchain values).
+ * Use to parse large integer strings (e.g. database IDs, blockchain values).
  *
  * **Details**
  *
@@ -915,7 +913,7 @@ export const bigintFromString = new Transformation(
  *
  * **When to use**
  *
- * - Parsing ISO 8601 date strings from APIs or user input.
+ * Use to parse ISO 8601 date strings from APIs or user input.
  *
  * **Details**
  *
@@ -950,7 +948,7 @@ export const dateFromString: Transformation<globalThis.Date, string> = new Trans
  *
  * **When to use**
  *
- * - Parsing human-readable duration strings from APIs, config, or user input.
+ * Use to parse human-readable duration strings from APIs, config, or user input.
  *
  * **Details**
  *
@@ -993,7 +991,7 @@ export const durationFromString: Transformation<Duration.Duration, string> = tra
  *
  * **When to use**
  *
- * - Working with nanosecond-precision timestamps or intervals.
+ * Use when working with nanosecond-precision timestamps or intervals.
  *
  * **Details**
  *
@@ -1034,7 +1032,7 @@ export const durationFromNanos: Transformation<Duration.Duration, bigint> = tran
  *
  * **When to use**
  *
- * Use this for timeouts, delays, elapsed intervals, or other duration values
+ * Use when you use this for timeouts, delays, elapsed intervals, or other duration values
  * stored as millisecond counts.
  *
  * **Details**
@@ -1099,7 +1097,7 @@ export const errorFromErrorJsonEncoded = (options?: {
  *
  * **When to use**
  *
- * - Converting nullable API fields to `Option`.
+ * Use to convert nullable API fields to `Option`.
  *
  * **Details**
  *
@@ -1133,12 +1131,12 @@ export function optionFromNullOr<T>(): Transformation<Option.Option<T>, T | null
 }
 
 /**
- * Decodes `T | undefined` into `Option<T>` and encodes `Option<T>` back
- * to `T | undefined`.
+ * Decodes `T | undefined` into `Option<T>` and encodes `Option.none()` back to
+ * `undefined`.
  *
  * **When to use**
  *
- * - Converting undefined-or API fields to `Option`.
+ * Use to convert undefined-or API fields to `Option`.
  *
  * **Details**
  *
@@ -1179,7 +1177,7 @@ export function optionFromUndefinedOr<T>(): Transformation<Option.Option<T>, T |
  *
  * **When to use**
  *
- * - Converting nullish API fields to `Option` when both `null` and
+ * Use to convert nullish API fields to `Option` when both `null` and
  *   `undefined` represent absence.
  *
  * **Details**
@@ -1225,7 +1223,7 @@ export function optionFromNullishOr<T>(
  *
  * **When to use**
  *
- * - Converting optional struct keys (declared with `Schema.optionalKey`) to
+ * Use to convert optional struct keys (declared with `Schema.optionalKey`) to
  *   `Option` values.
  *
  * **Details**
@@ -1264,12 +1262,12 @@ export function optionFromOptionalKey<T>(): Transformation<Option.Option<T>, T> 
 }
 
 /**
- * Decodes `T | undefined` into `Option<T>` and encodes `Option<T>` back
- * to `T | undefined`.
+ * Decodes optional values into `Option<T>` and encodes `Option.none()` back to
+ * an omitted optional value.
  *
  * **When to use**
  *
- * - Converting optional (possibly `undefined`) values to `Option`.
+ * Use to convert optional (possibly `undefined`) values to `Option`.
  *
  * **Details**
  *
@@ -1312,7 +1310,7 @@ export function optionFromOptional<T>(): Transformation<Option.Option<T>, T | un
  *
  * **When to use**
  *
- * - Parsing URL strings from user input or API responses.
+ * Use to parse URL strings from user input or API responses.
  *
  * **Details**
  *
@@ -1351,7 +1349,7 @@ export const urlFromString: Transformation<URL, string> = transformOrFail<URL, s
  *
  * **When to use**
  *
- * - Parsing decimal number strings from APIs or user input.
+ * Use to parse decimal number strings from APIs or user input.
  *
  * **Details**
  *
@@ -1381,7 +1379,7 @@ export const bigDecimalFromString: Transformation<BigDecimal.BigDecimal, string>
  *
  * **When to use**
  *
- * - Handling binary data transmitted as Base64 strings (e.g. file uploads,
+ * Use when handling binary data transmitted as Base64 strings (e.g. file uploads,
  *   API payloads).
  *
  * **Details**
@@ -1416,7 +1414,7 @@ export const uint8ArrayFromBase64String: Transformation<Uint8Array<ArrayBufferLi
  *
  * **When to use**
  *
- * - Handling text data transmitted as Base64 strings.
+ * Use when handling text data transmitted as Base64 strings.
  *
  * **Details**
  *
@@ -1449,7 +1447,7 @@ export const stringFromBase64String: Transformation<string, string> = new Transf
  *
  * **When to use**
  *
- * - Handling text data transmitted as Base64 URL-safe strings.
+ * Use when handling text data transmitted as Base64 URL-safe strings.
  *
  * **Details**
  *
@@ -1482,7 +1480,7 @@ export const stringFromBase64UrlString: Transformation<string, string> = new Tra
  *
  * **When to use**
  *
- * - Handling text data transmitted as hexadecimal strings.
+ * Use when handling text data transmitted as hexadecimal strings.
  *
  * **Details**
  *
@@ -1516,7 +1514,7 @@ export const stringFromHexString: Transformation<string, string> = new Transform
  *
  * **When to use**
  *
- * - Storing structured data in URL query parameters or fragments.
+ * Use when storing structured data in URL query parameters or fragments.
  * - Composing with `Schema.parseJson` to round-trip JSON through a URL.
  *
  * **Details**
@@ -1552,7 +1550,7 @@ export const stringFromUriComponent: Transformation<string, string> = new Transf
  *
  * **When to use**
  *
- * Use this for JSON stored or transmitted as a string, usually before composing
+ * Use when you use this for JSON stored or transmitted as a string, usually before composing
  * with another schema that validates the parsed structure.
  *
  * **Details**
@@ -1587,7 +1585,7 @@ export const fromJsonString = new Transformation<unknown, string>(
  *
  * **When to use**
  *
- * Use this for form or multipart payloads where keys such as `user[name]` or
+ * Use when you use this for form or multipart payloads where keys such as `user[name]` or
  * `items[0]` should become nested data.
  *
  * **Details**
@@ -1623,7 +1621,7 @@ export const fromFormData = new Transformation<unknown, FormData>(
  *
  * **When to use**
  *
- * Use this for query strings where keys such as `filter[name]` or `items[0]`
+ * Use when you use this for query strings where keys such as `filter[name]` or `items[0]`
  * should become nested data.
  *
  * **Details**
@@ -1657,10 +1655,18 @@ export const fromURLSearchParams = new Transformation<unknown, URLSearchParams>(
  * Decodes a numeric time-zone offset in milliseconds into a
  * `DateTime.TimeZone.Offset` and encodes it back to the offset number.
  *
+ * **When to use**
+ *
+ * Use to represent fixed-offset time zones with numeric millisecond offsets in
+ * schema transformations or JSON codecs.
+ *
  * **Details**
  *
  * Decode uses `DateTime.zoneMakeOffset`; encode returns the offset's `offset`
  * field.
+ *
+ * @see {@link timeZoneFromString} for IANA or offset string encodings
+ * @see {@link timeZoneNamedFromString} for IANA named-zone strings
  *
  * @category transforming
  * @since 4.0.0
@@ -1677,10 +1683,17 @@ export const timeZoneOffsetFromNumber: Transformation<DateTime.TimeZone.Offset, 
  * Decodes an IANA time-zone identifier string into a
  * `DateTime.TimeZone.Named` and encodes a named time zone back to its `id`.
  *
+ * **When to use**
+ *
+ * Use when a schema transformation should accept only IANA time-zone identifier
+ * strings and produce `DateTime.TimeZone.Named` values.
+ *
  * **Details**
  *
  * Decode fails with `InvalidValue` when the string is not a valid IANA time-zone
  * identifier.
+ *
+ * @see {@link timeZoneFromString} for time-zone strings that may be either IANA identifiers or offset strings
  *
  * @category transforming
  * @since 4.0.0
@@ -1702,11 +1715,19 @@ export const timeZoneNamedFromString: Transformation<DateTime.TimeZone.Named, st
  * Decodes a string into a `DateTime.TimeZone` and encodes a time zone back to
  * its string representation.
  *
+ * **When to use**
+ *
+ * Use when schema decoding should accept either an IANA time-zone identifier or
+ * an offset string and produce a general `DateTime.TimeZone`.
+ *
  * **Details**
  *
  * Accepted decode inputs include valid IANA identifiers and offset strings such
  * as `"+03:00"`. Decode fails with `InvalidValue` when the string cannot be
  * parsed as a time zone.
+ *
+ * @see {@link timeZoneNamedFromString} for IANA named-zone strings only
+ * @see {@link timeZoneOffsetFromNumber} for fixed-offset zones encoded as numbers
  *
  * @category transforming
  * @since 4.0.0
@@ -1728,11 +1749,19 @@ export const timeZoneFromString: Transformation<DateTime.TimeZone, string> = tra
  * Decodes a date-time string into a `DateTime.Utc` and encodes it back to an ISO
  * string.
  *
+ * **When to use**
+ *
+ * Use to decode date-time strings when the schema value should be a normalized
+ * `DateTime.Utc` and encode back as a UTC ISO string.
+ *
  * **Details**
  *
  * Decode accepts strings supported by `DateTime.make`, converts the result to
  * UTC, and fails with `InvalidValue` when parsing fails. Encode uses
  * `DateTime.formatIso`.
+ *
+ * @see {@link dateTimeZonedFromString} for ISO strings that should preserve zoned date-time information
+ * @see {@link dateFromString} for decoding into JavaScript `Date`
  *
  * @category transforming
  * @since 4.0.0
@@ -1755,11 +1784,18 @@ export const dateTimeUtcFromString: Transformation<DateTime.Utc, string> = trans
  * Decodes a zoned date-time string into a `DateTime.Zoned` and encodes it back
  * to an ISO zoned string.
  *
+ * **When to use**
+ *
+ * Use to define a schema transformation for ISO zoned date-time strings that
+ * decode to `DateTime.Zoned` and encode with `DateTime.formatIsoZoned`.
+ *
  * **Details**
  *
  * Decode uses `DateTime.makeZonedFromString` and fails with `InvalidValue` when
  * the input is not a valid zoned date-time. Encode uses
  * `DateTime.formatIsoZoned`.
+ *
+ * @see {@link dateTimeUtcFromString} for date-time strings that should decode to `DateTime.Utc` and encode as UTC ISO strings
  *
  * @category transforming
  * @since 4.0.0

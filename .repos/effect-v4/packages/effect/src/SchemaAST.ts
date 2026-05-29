@@ -158,6 +158,13 @@ export function isAST(u: unknown): u is AST {
 /**
  * Narrows an {@link AST} to {@link Declaration}.
  *
+ * **When to use**
+ *
+ * Use to recognize declaration AST nodes before running declaration-specific
+ * handling.
+ *
+ * @see {@link Declaration} for the AST node type narrowed by this guard
+ *
  * @category guards
  * @since 3.10.0
  */
@@ -165,6 +172,15 @@ export const isDeclaration = makeGuard("Declaration")
 
 /**
  * Narrows an {@link AST} to {@link Null}.
+ *
+ * **When to use**
+ *
+ * Use to recognize an AST node that represents exactly the `null` literal when
+ * inspecting, traversing, or transforming schema ASTs.
+ *
+ * @see {@link Null} for the AST node type narrowed by this guard
+ * @see {@link null_ null} for the singleton `Null` AST instance
+ * @see {@link isLiteral} for exact primitive literal AST nodes
  *
  * @category guards
  * @since 4.0.0
@@ -174,6 +190,13 @@ export const isNull = makeGuard("Null")
 /**
  * Narrows an {@link AST} to {@link Undefined}.
  *
+ * **When to use**
+ *
+ * Use to identify AST nodes that represent exactly the JavaScript `undefined`
+ * value.
+ *
+ * @see {@link isVoid} for narrowing AST nodes that represent TypeScript `void` instead of exact `undefined`
+ *
  * @category guards
  * @since 4.0.0
  */
@@ -181,6 +204,13 @@ export const isUndefined = makeGuard("Undefined")
 
 /**
  * Narrows an {@link AST} to {@link Void}.
+ *
+ * **When to use**
+ *
+ * Use to identify AST nodes that represent the TypeScript `void` type before
+ * handling `Void`-specific schema behavior.
+ *
+ * @see {@link isUndefined} for narrowing AST nodes that represent the literal `undefined` value instead of TypeScript `void`
  *
  * @category guards
  * @since 4.0.0
@@ -190,6 +220,14 @@ export const isVoid = makeGuard("Void")
 /**
  * Narrows an {@link AST} to {@link Never}.
  *
+ * **When to use**
+ *
+ * Use to detect the AST node for a schema that can never match before handling
+ * other schema variants.
+ *
+ * @see {@link Never} for the AST node type narrowed by this guard
+ * @see {@link never} for the singleton `Never` AST instance
+ *
  * @category guards
  * @since 4.0.0
  */
@@ -197,6 +235,13 @@ export const isNever = makeGuard("Never")
 
 /**
  * Narrows an {@link AST} to {@link Unknown}.
+ *
+ * **When to use**
+ *
+ * Use when inspecting a schema AST and you need to handle the `Unknown` node
+ * variant specifically.
+ *
+ * @see {@link isAny} for the guard for the `Any` node, whose parsed result is typed as `any` rather than `unknown`
  *
  * @category guards
  * @since 4.0.0
@@ -206,6 +251,13 @@ export const isUnknown = makeGuard("Unknown")
 /**
  * Narrows an {@link AST} to {@link Any}.
  *
+ * **When to use**
+ *
+ * Use when inspecting a schema AST and you need to handle the `Any` node
+ * variant specifically.
+ *
+ * @see {@link isUnknown} for the guard for the `Unknown` node, whose parsed result is typed as `unknown` rather than `any`
+ *
  * @category guards
  * @since 4.0.0
  */
@@ -213,6 +265,15 @@ export const isAny = makeGuard("Any")
 
 /**
  * Narrows an {@link AST} to {@link String}.
+ *
+ * **When to use**
+ *
+ * Use to detect schema AST nodes that match any string value while inspecting or
+ * transforming an AST.
+ *
+ * @see {@link String} for the AST node class narrowed by this guard
+ * @see {@link string} for the singleton `String` AST instance
+ * @see {@link isLiteral} for exact primitive literal AST nodes, including exact string literals
  *
  * @category guards
  * @since 4.0.0
@@ -222,6 +283,11 @@ export const isString = makeGuard("String")
 /**
  * Narrows an {@link AST} to {@link Number}.
  *
+ * **When to use**
+ *
+ * Use to detect `Number` AST nodes while inspecting, traversing, or transforming
+ * schema ASTs.
+ *
  * @category guards
  * @since 4.0.0
  */
@@ -229,6 +295,14 @@ export const isNumber = makeGuard("Number")
 
 /**
  * Narrows an {@link AST} to {@link Boolean}.
+ *
+ * **When to use**
+ *
+ * Use to identify the `Boolean` AST variant while inspecting, traversing, or
+ * transforming schema definitions.
+ *
+ * @see {@link Boolean} for the AST node type matched by this guard
+ * @see {@link boolean} for the singleton instance to use when constructing a boolean AST directly
  *
  * @category guards
  * @since 4.0.0
@@ -238,6 +312,13 @@ export const isBoolean = makeGuard("Boolean")
 /**
  * Narrows an {@link AST} to {@link BigInt}.
  *
+ * **When to use**
+ *
+ * Use to identify bigint AST nodes while inspecting or transforming schema ASTs.
+ *
+ * @see {@link BigInt} for the AST node matched by this guard
+ * @see {@link bigInt} for the singleton instance; use `isBigInt` when narrowing an existing `AST` value
+ *
  * @category guards
  * @since 4.0.0
  */
@@ -246,6 +327,13 @@ export const isBigInt = makeGuard("BigInt")
 /**
  * Narrows an {@link AST} to {@link Symbol}.
  *
+ * **When to use**
+ *
+ * Use to narrow an `AST` node before handling the `Symbol` variant for schemas
+ * that accept any JavaScript symbol value.
+ *
+ * @see {@link isUniqueSymbol} for the sibling guard that narrows the `UniqueSymbol` variant for one exact symbol value
+ *
  * @category guards
  * @since 4.0.0
  */
@@ -253,6 +341,13 @@ export const isSymbol = makeGuard("Symbol")
 
 /**
  * Narrows an {@link AST} to {@link Literal}.
+ *
+ * **When to use**
+ *
+ * Use to recognize exact string, number, boolean, or bigint literal AST nodes.
+ *
+ * @see {@link Literal} for the AST node type narrowed by this guard
+ * @see {@link LiteralValue} for the values stored by literal nodes
  *
  * @category guards
  * @since 3.10.0
@@ -270,6 +365,15 @@ export const isUniqueSymbol = makeGuard("UniqueSymbol")
 /**
  * Narrows an {@link AST} to {@link ObjectKeyword}.
  *
+ * **When to use**
+ *
+ * Use to identify the AST node for the TypeScript `object` keyword when
+ * inspecting or transforming a schema AST.
+ *
+ * @see {@link ObjectKeyword} for the AST node matched by this guard
+ * @see {@link objectKeyword} for the singleton `ObjectKeyword` AST instance
+ * @see {@link isObjects} for struct and record AST nodes
+ *
  * @category guards
  * @since 3.10.0
  */
@@ -277,6 +381,13 @@ export const isObjectKeyword = makeGuard("ObjectKeyword")
 
 /**
  * Narrows an {@link AST} to {@link Enum}.
+ *
+ * **When to use**
+ *
+ * Use to recognize enum AST nodes before reading enum cases or running
+ * enum-specific handling.
+ *
+ * @see {@link Enum} for the AST node type narrowed by this guard
  *
  * @category guards
  * @since 4.0.0
@@ -293,6 +404,13 @@ export const isTemplateLiteral = makeGuard("TemplateLiteral")
 
 /**
  * Narrows an {@link AST} to {@link Arrays}.
+ *
+ * **When to use**
+ *
+ * Use to recognize array-like AST nodes before reading their element, rest, or
+ * mutability metadata.
+ *
+ * @see {@link Arrays} for the AST node type narrowed by this guard
  *
  * @category guards
  * @since 4.0.0
@@ -324,7 +442,7 @@ export const isUnion = makeGuard("Union")
 export const isSuspend = makeGuard("Suspend")
 
 /**
- * A single step in an {@link Encoding} chain.
+ * Represents a single step in an {@link Encoding} chain.
  *
  * **Details**
  *
@@ -395,7 +513,7 @@ export type Encoding = readonly [Link, ...Array<Link>]
  * - `concurrency` — maximum number of async parse effects to run concurrently;
  *   defaults to `1`, or use `"unbounded"`.
  *
- * @category models
+ * @category options
  * @since 3.10.0
  */
 export interface ParseOptions {
@@ -466,7 +584,7 @@ export interface ParseOptions {
 export const defaultParseOptions: ParseOptions = {}
 
 /**
- * Per-property metadata attached to AST nodes via {@link Base.context}.
+ * Represents per-property metadata attached to AST nodes via {@link Base.context}.
  *
  * **Details**
  *
@@ -527,7 +645,7 @@ export type Checks = readonly [Check<any>, ...Array<Check<any>>]
 const TypeId = "~effect/Schema"
 
 /**
- * Abstract base class for all {@link AST} node variants.
+ * Represents the abstract base class for all {@link AST} node variants.
  *
  * **Details**
  *
@@ -639,7 +757,7 @@ export class Declaration extends Base {
  *
  * Parsing succeeds only when the input is exactly `null`.
  *
- * @see {@link null}
+ * @see {@link null_ null}
  * @see {@link isNull}
  * @category models
  * @since 4.0.0
@@ -659,9 +777,14 @@ export class Null extends Base {
 const null_ = new Null()
 export {
   /**
-   * Singleton {@link Null} AST instance.
+   * Provides the singleton {@link Null} AST instance.
    *
-   * @category constructors
+   * **When to use**
+   *
+   * Use when you need the shared AST node for exact null values while inspecting
+   * or constructing schema ASTs.
+   *
+   * @category constants
    * @since 4.0.0
    */
   null_ as null
@@ -706,9 +829,14 @@ const undefinedToNull = new Link(
 const undefined_ = new Undefined()
 export {
   /**
-   * Singleton {@link Undefined} AST instance.
+   * Provides the singleton {@link Undefined} AST instance.
    *
-   * @category constructors
+   * **When to use**
+   *
+   * Use when you need the shared AST node for exact undefined values while
+   * inspecting or constructing schema ASTs.
+   *
+   * @category constants
    * @since 4.0.0
    */
   undefined_ as undefined
@@ -722,7 +850,7 @@ export {
  * Behaves like {@link Undefined} for parsing but represents the TypeScript
  * `void` type semantically.
  *
- * @see {@link void}
+ * @see {@link void_ void}
  * @see {@link isVoid}
  * @category models
  * @since 4.0.0
@@ -746,7 +874,16 @@ export class Void extends Base {
 const void_ = new Void()
 export {
   /**
-   * Singleton {@link Void} AST instance.
+   * Provides the singleton {@link Void} AST instance.
+   *
+   * **When to use**
+   *
+   * Use when constructing or comparing AST nodes that represent the TypeScript
+   * `void` type and accept `undefined` at runtime.
+   *
+   * @see {@link Void} for the AST node class
+   * @see {@link undefined} for the sibling AST singleton that matches exactly `undefined`
+   * @see {@link isVoid} for narrowing an AST to a `Void` node
    *
    * @category constructors
    * @since 4.0.0
@@ -780,7 +917,15 @@ export class Never extends Base {
 }
 
 /**
- * Singleton {@link Never} AST instance.
+ * Provides the singleton {@link Never} AST instance.
+ *
+ * **When to use**
+ *
+ * Use to reuse the canonical bottom-type AST node when constructing,
+ * comparing, or returning ASTs.
+ *
+ * @see {@link Never} for the AST node class
+ * @see {@link isNever} for narrowing an AST to a `Never` node
  *
  * @category constructors
  * @since 4.0.0
@@ -809,7 +954,14 @@ export class Any extends Base {
 }
 
 /**
- * Singleton {@link Any} AST instance.
+ * Provides the singleton {@link Any} AST instance.
+ *
+ * **When to use**
+ *
+ * Use when you need the singleton AST node for the TypeScript `any` type and
+ * intentionally want parsing to accept every input value.
+ *
+ * @see {@link unknown} for the sibling AST singleton that also accepts every value while preserving the safer `unknown` type
  *
  * @category constructors
  * @since 4.0.0
@@ -842,7 +994,14 @@ export class Unknown extends Base {
 }
 
 /**
- * Singleton {@link Unknown} AST instance.
+ * Provides the singleton {@link Unknown} AST instance.
+ *
+ * **When to use**
+ *
+ * Use when you need the reusable AST singleton for a schema node that accepts
+ * every value while keeping parsed values opaque.
+ *
+ * @see {@link any} for the singleton that accepts every value as `any`
  *
  * @category constructors
  * @since 4.0.0
@@ -872,7 +1031,15 @@ export class ObjectKeyword extends Base {
 }
 
 /**
- * Singleton {@link ObjectKeyword} AST instance.
+ * Provides the singleton {@link ObjectKeyword} AST instance.
+ *
+ * **When to use**
+ *
+ * Use to reuse the canonical AST node for the TypeScript `object` keyword when
+ * building or comparing `SchemaAST` values directly.
+ *
+ * @see {@link ObjectKeyword} for the AST node class
+ * @see {@link isObjectKeyword} for narrowing an AST to an `ObjectKeyword` node
  *
  * @category constructors
  * @since 3.10.0
@@ -1178,7 +1345,14 @@ export class String extends Base {
 }
 
 /**
- * Singleton {@link String} AST instance.
+ * Provides the singleton {@link String} AST instance.
+ *
+ * **When to use**
+ *
+ * Use as the shared `SchemaAST` node for unconstrained JavaScript strings.
+ *
+ * @see {@link String} for the AST node class
+ * @see {@link isString} for narrowing an AST to a string node
  *
  * @category constructors
  * @since 4.0.0
@@ -1243,7 +1417,15 @@ function hasCheck(checks: ReadonlyArray<Check<unknown>>, tag: string): boolean {
 }
 
 /**
- * Singleton {@link Number} AST instance.
+ * Provides the singleton {@link Number} AST instance.
+ *
+ * **When to use**
+ *
+ * Use when you need the canonical `SchemaAST` node for schemas that accept any
+ * JavaScript number value.
+ *
+ * @see {@link Number} for the AST node class and serialization behavior
+ * @see {@link Literal} for exact finite numeric literal AST nodes
  *
  * @category constructors
  * @since 4.0.0
@@ -1272,7 +1454,15 @@ export class Boolean extends Base {
 }
 
 /**
- * Singleton {@link Boolean} AST instance.
+ * Provides the singleton {@link Boolean} AST instance.
+ *
+ * **When to use**
+ *
+ * Use to reuse the standard AST node that accepts either `true` or `false` when
+ * constructing schema ASTs directly.
+ *
+ * @see {@link Boolean} for the AST node class
+ * @see {@link Literal} for exact boolean literal AST nodes
  *
  * @category constructors
  * @since 4.0.0
@@ -1281,6 +1471,11 @@ export const boolean = new Boolean()
 
 /**
  * AST node matching any `symbol` value.
+ *
+ * **When to use**
+ *
+ * Use when defining or inspecting the AST node class for schemas that match any
+ * JavaScript symbol value.
  *
  * **Details**
  *
@@ -1309,7 +1504,19 @@ export class Symbol extends Base {
 }
 
 /**
- * Singleton {@link Symbol} AST instance.
+ * Provides the singleton {@link Symbol} AST instance.
+ *
+ * **When to use**
+ *
+ * Use to reuse the singleton AST node for schemas that match any JavaScript
+ * symbol value.
+ *
+ * **Gotchas**
+ *
+ * String-based codecs can encode only symbols registered with `Symbol.for`,
+ * because the implementation uses `Symbol.keyFor`.
+ *
+ * @see {@link UniqueSymbol} for an AST node that matches one specific symbol
  *
  * @category constructors
  * @since 4.0.0
@@ -1346,7 +1553,15 @@ export class BigInt extends Base {
 }
 
 /**
- * Singleton {@link BigInt} AST instance.
+ * Provides the singleton {@link BigInt} AST instance.
+ *
+ * **When to use**
+ *
+ * Use to reuse the canonical `BigInt` AST node when constructing, inspecting,
+ * or transforming schemas at the AST level.
+ *
+ * @see {@link BigInt} for the AST node class and string-codec behavior
+ * @see {@link isBigInt} for narrowing an AST to a `BigInt` node
  *
  * @category constructors
  * @since 4.0.0
@@ -1609,7 +1824,7 @@ export function getIndexSignatureKeys(
 }
 
 /**
- * A named property within an {@link Objects} node.
+ * Represents a named property within an {@link Objects} node.
  *
  * **Details**
  *
@@ -1635,7 +1850,7 @@ export class PropertySignature {
 }
 
 /**
- * Bidirectional merge strategy for index signature key-value pairs.
+ * Represents a bidirectional merge strategy for index signature key-value pairs.
  *
  * **Details**
  *
@@ -1666,7 +1881,7 @@ export class KeyValueCombiner {
 }
 
 /**
- * An index signature entry within an {@link Objects} node.
+ * Represents an index signature entry within an {@link Objects} node.
  *
  * **Details**
  *
@@ -2543,7 +2758,7 @@ export class Suspend extends Base {
 // -----------------------------------------------------------------------------
 
 /**
- * A single validation check attached to an AST node.
+ * Represents a single validation check attached to an AST node.
  *
  * **Details**
  *
@@ -2598,7 +2813,7 @@ export class Filter<in E> extends Pipeable.Class {
 }
 
 /**
- * A composite validation check grouping multiple {@link Check} values.
+ * Represents a composite validation check grouping multiple {@link Check} values.
  *
  * **Details**
  *
@@ -2928,7 +3143,6 @@ export function withConstructorDefault<A extends AST>(
  * `Schema.transformOrFail`. It appends a {@link Link} to the `to` node's
  * encoding chain.
  *
- * - Does not mutate either input.
  * - Returns a new AST with the same type as `to`.
  *
  * @see {@link Link}
@@ -3028,7 +3242,6 @@ export function isMutable(ast: AST): boolean {
  * - Memoized: same input reference → same output reference.
  * - Recursively walks into composite nodes ({@link Arrays}, {@link Objects},
  *   {@link Union}, {@link Suspend}).
- * - Does not mutate the input.
  *
  * **Example** (Getting the type AST)
  *
@@ -3063,7 +3276,6 @@ export const toType = memoize(<A extends AST>(ast: A): A => {
  * the shape of the serialized/encoded data.
  *
  * - Memoized: same input reference → same output reference.
- * - Does not mutate the input.
  *
  * **Example** (Getting the encoded AST)
  *
@@ -3113,7 +3325,6 @@ function flipEncoding(ast: AST, encoding: Encoding): AST {
  *
  * - Memoized: same input reference → same output reference.
  * - Recursively walks composite nodes.
- * - Does not mutate the input.
  *
  * @see {@link toType}
  * @see {@link toEncoded}

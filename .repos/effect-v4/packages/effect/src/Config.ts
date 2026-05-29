@@ -93,7 +93,7 @@ const TypeId = "~effect/Config"
  *
  * **When to use**
  *
- * - Runtime type-checking before calling `.parse()` on an unknown value.
+ * Use when runtime type-checking before calling `.parse()` on an unknown value.
  * - Distinguishing a `Config` from a plain value inside {@link unwrap}.
  *
  * **Example** (Type guard)
@@ -111,11 +111,11 @@ const TypeId = "~effect/Config"
 export const isConfig = (u: unknown): u is Config<unknown> => Predicate.hasProperty(u, TypeId)
 
 /**
- * The error type produced when config loading or validation fails.
+ * Represents the error type produced when config loading or validation fails.
  *
  * **When to use**
  *
- * - Match on `error.cause._tag` to distinguish source failures from
+ * Use when match on `error.cause._tag` to distinguish source failures from
  *   validation failures.
  * - Pass to {@link fail} to create a Config that always errors.
  *
@@ -149,6 +149,11 @@ export class ConfigError {
 
 /**
  * A recipe for extracting a typed value `T` from a `ConfigProvider`.
+ *
+ * **When to use**
+ *
+ * Use to describe typed configuration that can be parsed from a provider or
+ * yielded inside `Effect.gen`.
  *
  * **Details**
  *
@@ -190,9 +195,8 @@ const Proto = {
  *
  * **When to use**
  *
- * - Building a custom config that cannot be expressed with {@link schema} or
- *   the convenience constructors.
- * - Composing configs programmatically.
+ * Use to build a custom config that cannot be expressed with {@link schema} or
+ * convenience constructors, or to compose configs programmatically.
  *
  * **Details**
  *
@@ -234,7 +238,7 @@ export function make<T>(
  *
  * **When to use**
  *
- * - Post-processing a config value (e.g. trimming, uppercasing, wrapping).
+ * Use when post-processing a config value (e.g. trimming, uppercasing, wrapping).
  * - The transformation cannot fail. Use {@link mapOrFail} if it can.
  *
  * **Details**
@@ -271,7 +275,7 @@ export const map: {
  *
  * **When to use**
  *
- * - Validating or converting a config value where the transformation can
+ * Use to validate or converting a config value where the transformation can
  *   produce a `ConfigError` (e.g. parsing a URL, checking a range).
  *
  * **Details**
@@ -301,11 +305,11 @@ export const mapOrFail: {
 })
 
 /**
- * Falls back to another config when parsing fails with a `ConfigError`.
+ * Provides a fallback config when parsing fails with a `ConfigError`.
  *
  * **When to use**
  *
- * - Trying an alternative config source when the primary one errors.
+ * Use when trying an alternative config source when the primary one errors.
  * - Providing environment-specific overrides.
  *
  * **Details**
@@ -343,7 +347,7 @@ export const orElse: {
  *
  * **When to use**
  *
- * - Grouping related configs into a tuple or named struct.
+ * Use when grouping related configs into a tuple or named struct.
  *
  * **Details**
  *
@@ -423,7 +427,7 @@ function isMissingDataOnly(issue: Issue.Issue): boolean {
  *
  * **When to use**
  *
- * - Making a config key optional with a sensible default.
+ * Use when making a config key optional with a sensible default.
  *
  * **Details**
  *
@@ -474,7 +478,7 @@ export const withDefault: {
  *
  * **When to use**
  *
- * - A config key may or may not be present and you want to handle both
+ * Use when a config key may or may not be present and you want to handle both
  *   cases explicitly.
  *
  * **Gotchas**
@@ -504,6 +508,14 @@ export const option = <A>(self: Config<A>): Config<Option.Option<A>> =>
 /**
  * Extracts the successfully parsed value type from a `Config`.
  *
+ * **When to use**
+ *
+ * Use to derive the parsed value type from an existing `Config` value when
+ * declaring reusable config-driven types.
+ *
+ * @see {@link Config} for the config type whose parsed value is extracted
+ * @see {@link Effect.Success} for extracting the success type from any `Effect`
+ *
  * @category utility types
  * @since 2.5.0
  */
@@ -515,7 +527,7 @@ export type Success<T> = [T] extends [Config<infer A>] ? A : never
  *
  * **When to use**
  *
- * - Typing the input of {@link unwrap} so callers can pass either a `Config`
+ * Use when typing the input of {@link unwrap} so callers can pass either a `Config`
  *   or a record of `Config`s.
  *
  * **Details**
@@ -542,7 +554,7 @@ type IsPlainObject<A> = [A] extends [Record<string, any>]
  *
  * **When to use**
  *
- * - Accepting config from callers who may pass either a single `Config` or a
+ * Use when accepting config from callers who may pass either a single `Config` or a
  *   record of individual `Config`s.
  *
  * **Details**
@@ -680,7 +692,7 @@ const recur: (
  *
  * **When to use**
  *
- * - Reading structured or validated config (structs, arrays, unions, branded
+ * Use when reading structured or validated config (structs, arrays, unions, branded
  *   types, etc.).
  * - All convenience constructors (`string`, `number`, …) delegate to this.
  *
@@ -746,12 +758,12 @@ export const TrueValues = Schema.Literals(["true", "yes", "on", "1", "y"])
 export const FalseValues = Schema.Literals(["false", "no", "off", "0", "n"])
 
 /**
- * A `Schema.Codec` for boolean values encoded as strings.
+ * Schema for boolean values encoded as strings.
  *
  * **When to use**
  *
- * - Pass to {@link schema} for custom paths, or use the {@link boolean}
- *   convenience constructor.
+ * Use when passing to {@link schema} for custom paths, or use the
+ * {@link boolean} convenience constructor.
  *
  * **Details**
  *
@@ -774,12 +786,12 @@ export const Boolean = Schema.Literals([...TrueValues.literals, ...FalseValues.l
 )
 
 /**
- * A `Schema.Codec` for port numbers (integers in 1–65535).
+ * Schema for port numbers (integers in 1–65535).
  *
  * **When to use**
  *
- * - Pass to {@link schema} for custom paths, or use the {@link port}
- *   convenience constructor.
+ * Use when passing to {@link schema} for custom paths, or use the {@link port}
+ * convenience constructor.
  *
  * @see {@link port} – convenience constructor
  *
@@ -789,12 +801,12 @@ export const Boolean = Schema.Literals([...TrueValues.literals, ...FalseValues.l
 export const Port = Schema.Int.check(Schema.isBetween({ minimum: 1, maximum: 65535 }))
 
 /**
- * A `Schema.Codec` for `LogLevel` string literals.
+ * Schema for `LogLevel` string literals.
  *
  * **When to use**
  *
- * - Pass to {@link schema} for custom paths, or use the {@link logLevel}
- *   convenience constructor.
+ * Use when passing to {@link schema} for custom paths, or use the
+ * {@link logLevel} convenience constructor.
  *
  * **Details**
  *
@@ -809,12 +821,12 @@ export const Port = Schema.Int.check(Schema.isBetween({ minimum: 1, maximum: 655
 export const LogLevel = Schema.Literals(LogLevel_.values)
 
 /**
- * A `Schema.Codec` for key-value record types that can also be parsed from
+ * Schema for key-value record types that can also be parsed from
  * a flat comma-separated string.
  *
  * **When to use**
  *
- * - Reading key-value maps from a single env var (e.g. OpenTelemetry
+ * Use when reading key-value maps from a single env var (e.g. OpenTelemetry
  *   resource attributes).
  *
  * **Details**
@@ -874,7 +886,7 @@ export const Record = <K extends Schema.Record.Key, V extends Schema.Top>(key: K
  *
  * **When to use**
  *
- * - Inside {@link orElse} to re-raise a specific error.
+ * Use when inside {@link orElse} to re-raise a specific error.
  * - Testing error handling paths.
  *
  * @category constructors
@@ -890,7 +902,7 @@ export function fail(err: SourceError | Schema.SchemaError) {
  *
  * **When to use**
  *
- * - Providing a hardcoded constant inside {@link orElse}.
+ * Use when providing a hardcoded constant inside {@link orElse}.
  * - Testing.
  *
  * **Example** (Constant fallback)
@@ -915,7 +927,7 @@ export function succeed<T>(value: T) {
  *
  * **When to use**
  *
- * - Reading a single string env var or config key.
+ * Use when reading a single string env var or config key.
  *
  * **Details**
  *
@@ -946,11 +958,15 @@ export function string(name?: string) {
  * Creates a config for a non-empty string value. Fails if the value is an
  * empty string.
  *
+ * **When to use**
+ *
+ * Use to read a string config value that must contain at least one character.
+ *
  * **Details**
  *
  * Shortcut for `Config.schema(Schema.NonEmptyString, name)`.
  *
- * @see {@link string} – allows empty strings
+ * @see {@link string} for allowing empty strings
  *
  * @category constructors
  * @since 3.7.0
@@ -962,12 +978,16 @@ export function nonEmptyString(name?: string) {
 /**
  * Creates a config for a numeric value (including `NaN`, `Infinity`).
  *
+ * **When to use**
+ *
+ * Use to read a numeric config value when `NaN` and `Infinity` are acceptable.
+ *
  * **Details**
  *
  * Shortcut for `Config.schema(Schema.Number, name)`.
  *
- * @see {@link finite} – rejects `NaN` and `Infinity`
- * @see {@link int} – only integers
+ * @see {@link finite} for rejecting `NaN` and `Infinity`
+ * @see {@link int} for accepting only integers
  *
  * @category constructors
  * @since 2.0.0
@@ -979,12 +999,16 @@ export function number(name?: string) {
 /**
  * Creates a config for a finite number (rejects `NaN` and `Infinity`).
  *
+ * **When to use**
+ *
+ * Use to read a numeric config value that must be finite.
+ *
  * **Details**
  *
  * Shortcut for `Config.schema(Schema.Finite, name)`.
  *
- * @see {@link number} – allows `NaN` and `Infinity`
- * @see {@link int} – only integers
+ * @see {@link number} for accepting `NaN` and `Infinity`
+ * @see {@link int} for accepting only integers
  *
  * @category constructors
  * @since 4.0.0
@@ -996,12 +1020,16 @@ export function finite(name?: string) {
 /**
  * Creates a config for an integer value. Rejects floats.
  *
+ * **When to use**
+ *
+ * Use to read a numeric config value that must be an integer.
+ *
  * **Details**
  *
  * Shortcut for `Config.schema(Schema.Int, name)`.
  *
- * @see {@link number} – allows any number
- * @see {@link port} – integers in 1–65535
+ * @see {@link number} for accepting any number
+ * @see {@link port} for accepting only integers in `1` through `65535`
  *
  * @category constructors
  * @since 4.0.0
@@ -1012,6 +1040,10 @@ export function int(name?: string) {
 
 /**
  * Creates a config that only accepts a specific literal value.
+ *
+ * **When to use**
+ *
+ * Use to restrict a config to a single, specific literal value.
  *
  * **Details**
  *
@@ -1025,6 +1057,7 @@ export function int(name?: string) {
  * const env = Config.literal("production", "ENV")
  * ```
  *
+ * @see {@link literals} – accepts multiple literal values
  * @category constructors
  * @since 2.0.0
  */
@@ -1034,6 +1067,10 @@ export function literal<L extends AST.LiteralValue>(literal: L, name?: string) {
 
 /**
  * Creates a config that only accepts one of the specified literal values.
+ *
+ * **When to use**
+ *
+ * Use to restrict a config to a fixed set of allowed literal values.
  *
  * **Details**
  *
@@ -1047,6 +1084,8 @@ export function literal<L extends AST.LiteralValue>(literal: L, name?: string) {
  * const env = Config.literals(["development", "production"], "ENV")
  * ```
  *
+ * @see {@link literal} for accepting one specific literal value
+ *
  * @category constructors
  * @since 4.0.0
  */
@@ -1057,6 +1096,10 @@ export function literals<const L extends ReadonlyArray<AST.LiteralValue>>(litera
 /**
  * Creates a config for a boolean value parsed from common string
  * representations.
+ *
+ * **When to use**
+ *
+ * Use to read boolean flags from string-like config sources.
  *
  * **Details**
  *
@@ -1087,6 +1130,8 @@ export function literals<const L extends ReadonlyArray<AST.LiteralValue>>(litera
  * // Output: true
  * ```
  *
+ * @see {@link Boolean} for the underlying boolean codec
+ *
  * @category constructors
  * @since 2.0.0
  */
@@ -1097,6 +1142,10 @@ export function boolean(name?: string) {
 /**
  * Creates a config for a `Duration` value parsed from a human-readable
  * string.
+ *
+ * **When to use**
+ *
+ * Use to read time duration settings such as timeouts, intervals, or TTLs.
  *
  * **Details**
  *
@@ -1127,6 +1176,8 @@ export function boolean(name?: string) {
  * // Output: Duration { _tag: "millis", value: 10000 }
  * ```
  *
+ * @see {@link schema} for decoding configuration values with a custom codec
+ *
  * @category constructors
  * @since 2.5.0
  */
@@ -1136,6 +1187,10 @@ export function duration(name?: string) {
 
 /**
  * Creates a config for a port number (integer in 1–65535).
+ *
+ * **When to use**
+ *
+ * Use to read network port settings that must be valid port numbers.
  *
  * **Details**
  *
@@ -1163,6 +1218,9 @@ export function duration(name?: string) {
  * // Output: 8080
  * ```
  *
+ * @see {@link int} for integer config values outside the port range
+ * @see {@link Port} for the underlying port codec
+ *
  * @category constructors
  * @since 3.16.0
  */
@@ -1172,6 +1230,10 @@ export function port(name?: string) {
 
 /**
  * Creates a config for a log level string.
+ *
+ * **When to use**
+ *
+ * Use to read Effect log-level settings from configuration.
  *
  * **Details**
  *
@@ -1202,6 +1264,8 @@ export function port(name?: string) {
  * // Output: "Info"
  * ```
  *
+ * @see {@link LogLevel} for the underlying log-level codec
+ *
  * @category constructors
  * @since 2.0.0
  */
@@ -1212,6 +1276,11 @@ export function logLevel(name?: string) {
 /**
  * Creates a config for a redacted string value. The parsed result is wrapped
  * in a `Redacted` container that hides the value from logs and `toString`.
+ *
+ * **When to use**
+ *
+ * Use to read secret string settings that should not be exposed in logs or
+ * string output.
  *
  * **Details**
  *
@@ -1239,6 +1308,8 @@ export function logLevel(name?: string) {
  * // Output: <redacted>
  * ```
  *
+ * @see {@link string} for non-secret string settings
+ *
  * @category constructors
  * @since 2.0.0
  */
@@ -1248,6 +1319,14 @@ export function redacted(name?: string) {
 
 /**
  * Creates a config for a `URL` value parsed from a string.
+ *
+ * **When to use**
+ *
+ * Use to read configuration values that must be valid URL strings.
+ *
+ * **Details**
+ *
+ * This is a shortcut for `Config.schema(Schema.URL, name)`.
  *
  * **Gotchas**
  *
@@ -1289,6 +1368,8 @@ export function redacted(name?: string) {
  * // }
  * ```
  *
+ * @see {@link schema} for decoding configuration values with a custom codec
+ *
  * @category constructors
  * @since 3.11.0
  */
@@ -1298,6 +1379,10 @@ export function url(name?: string) {
 
 /**
  * Creates a config for a `Date` value parsed from a string.
+ *
+ * **When to use**
+ *
+ * Use to read date settings that must parse to valid `Date` values.
  *
  * **Details**
  *
@@ -1331,7 +1416,7 @@ export function date(name?: string) {
  *
  * **When to use**
  *
- * - Grouping related config keys under a common namespace (e.g.
+ * Use when grouping related config keys under a common namespace (e.g.
  *   `"database"`, `"redis"`).
  * - Building reusable config fragments that callers nest at different paths.
  *
