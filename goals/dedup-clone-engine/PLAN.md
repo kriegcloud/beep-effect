@@ -30,31 +30,37 @@
 - Wire `repoCliStep("lint:clones", ["reuse", "clones", "--check"])` into
   `rootRepoLintPolicySteps` (`Quality/Tasks.ts`); warn-first → error.
 
-## Phase 3 — Later
+## Phase 3 — ownership split
 
-- Type-3 near-miss behind a flag.
-- `importedBy` inbound-edge index for blast-radius ranking.
-- Codemod-assisted extraction via `TSMorphService.updateSourceFile`.
+- **Type-3 near-miss (fuzzy) behind a flag** — stays in this goal
+  (`ReuseCloneService`), deferred. Opt-in `--fuzzy`, perf-capped, so the default
+  gate stays fast and deterministic.
+- **`importedBy` inbound-edge index → `repo-codegraph`** (its Phase-3 AST
+  structural facts: imports / references / call-edges). Not built here — it would
+  duplicate that goal.
+- **Codemod-assisted extraction → `tooling/tool`** (a `beep reuse extract` CLI).
+  `@beep/repo-utils` is detection-only; doctrine routes codemods/automation to
+  `tooling`.
 
-## Tests (follow-up)
+## Tests (done)
 
-Needs a small testability seam first: the detector is repo-root-anchored and the
-gate internals (`internal/CloneBaseline.ts`) are unexported, while repo
-convention tests via `@beep/*` aliases. Plan:
-
-- Expose `diffCloneBaseline` / `buildCloneDocument` (pure) for a ratchet-logic
-  unit test (new-cluster and grown-cluster transitions) from plain data.
-- Add a scope/root-injectable detection path so a tiny fixture workspace (two
-  packages sharing an identical-after-rename declaration; a near-but-distinct
-  one; a sub-threshold one) can be tested without scanning the whole repo.
+- Unit (`repo-utils/test/Reuse.clones.test.ts`): `normalizedDeclarationSignature`
+  — identical and alpha-renamed+literal-changed copies → same key; structurally
+  different → different key; a tiny declaration below the floor.
+- Unit (`cli/test/clone-baseline.test.ts`): `buildCloneDocument` +
+  `diffCloneBaseline` ratchet — new-cluster, grown-cluster, no-drift, and missing
+  baseline. (Exposed `diffCloneBaseline`/`buildCloneDocument` +
+  `CloneBaselineEntry`/`CloneBaselineDocument` via `@beep/repo-cli/commands/Reuse`,
+  and `normalizedDeclarationSignature` from `@beep/repo-utils`.)
+- Integration (`repo-utils/test/Reuse.clones.test.ts`): `detectClones` scoped to
+  `drivers/runpod,drivers/sanity` finds a `structural-clone` candidate spanning
+  ≥2 packages.
 
 ## Current Slice
 
-- Phase 0 (goal packet), Phase 1 (detector + `beep reuse clones`), and Phase 2
-  (baseline + `--check` + `lint:clones` gate) are DONE and verified:
-  - `@beep/repo-utils` + `@beep/repo-cli` `check` green;
-  - full `bun run lint` green with `lint:clones` reporting `new_clusters=0`;
-  - red path proven (a clone absent from the baseline fails `--check`, exit 1);
-  - `standards/clone.inventory.jsonc` committed with 32 baseline clusters.
-- Remaining: Tests (above); optional threshold tuning (some small-schema
-  clusters are coincidental structural matches).
+- Phases 0–2 shipped and merged (PR #180). Close-out branch
+  `feat/dedup-clone-engine-closeout` adds: the tests above and threshold tuning
+  (`CLONE_MIN_TOKENS` 40 → 50, dropping coincidental ≤49-token schema-shape
+  clusters; baseline regenerated 32 → 22).
+- Remaining in this goal: Type-3 fuzzy matching (deferred). Redirected to other
+  goals: inbound-edges → `repo-codegraph`; codemod extraction → `tooling/tool`.

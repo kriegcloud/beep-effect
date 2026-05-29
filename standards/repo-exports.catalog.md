@@ -21,8 +21,8 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | packagesWithoutPublicExports | 1 |
 | missingWorkspaceMetadata | 4 |
 | importSpecifiers | 982 |
-| publicExportEntries | 12910 |
-| uniquePackageSymbols | 5659 |
+| publicExportEntries | 12930 |
+| uniquePackageSymbols | 5664 |
 
 ## Seed Discovery Proof
 
@@ -52,7 +52,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | 13 | `@beep/discord` | `packages/drivers/discord` | has-public-exports | 5 | 27 | 8 |
 | 14 | `@beep/face-detection` | `packages/drivers/face-detection` | has-public-exports | 5 | 72 | 20 |
 | 15 | `@beep/architecture-lab-client` | `packages/architecture-lab/client` | has-public-exports | 2 | 6 | 6 |
-| 16 | `@beep/repo-cli` | `packages/tooling/tool/cli` | has-public-exports | 143 | 1543 | 539 |
+| 16 | `@beep/repo-cli` | `packages/tooling/tool/cli` | has-public-exports | 143 | 1559 | 543 |
 | 17 | `@beep/ai-sync` | `packages/tooling/library/ai-sync` | has-public-exports | 11 | 180 | 57 |
 | 18 | `@beep/shared-server` | `packages/shared/server` | has-public-exports | 2 | 2 | 1 |
 | 19 | `@beep/law-practice-domain` | `packages/law-practice/domain` | has-public-exports | 6 | 36 | 8 |
@@ -94,7 +94,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | 55 | `@beep/infra` | `infra` | has-public-exports | 1 | 20 | 20 |
 | 56 | `@beep/installer-use-cases` | `packages/installer/use-cases` | has-public-exports | 3 | 51 | 29 |
 | 57 | `@beep/runpod` | `packages/drivers/runpod` | has-public-exports | 1 | 169 | 149 |
-| 58 | `@beep/repo-utils` | `packages/tooling/library/repo-utils` | has-public-exports | 65 | 1624 | 506 |
+| 58 | `@beep/repo-utils` | `packages/tooling/library/repo-utils` | has-public-exports | 65 | 1628 | 507 |
 | 59 | `@beep/schema` | `packages/foundation/modeling/schema` | has-public-exports | 118 | 1748 | 719 |
 | 60 | `@beep/codedank-web` | `apps/codedank-web` | has-public-exports | 1 | 1 | 1 |
 | 61 | `@beep/onepassword-cli` | `packages/drivers/onepassword-cli` | has-public-exports | 5 | 27 | 8 |
@@ -1883,17 +1883,29 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/commands/Quality/Tasks` | `sqlIntegrationConnectionUriFromEnvForTesting` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:803` | Resolve the SQL integration database connection URI from environment variables. |
 | `@beep/repo-cli/commands/Quality/Tasks` | `sqlIntegrationStepForTesting` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:780` | Build the SQL integration test subprocess step. Exposed for focused unit tests. |
 | `@beep/repo-cli/commands/Quality/Tasks` | `UnexpectedQualityTaskFailure` | class | `packages/tooling/tool/cli/src/commands/Quality/Quality.errors.ts:277` | Error raised when an unexpected quality task cause reaches the command boundary. |
+| `@beep/repo-cli/commands/Reuse` | `buildCloneDocument` | const | `packages/tooling/tool/cli/src/commands/Reuse/internal/CloneBaseline.ts:116` | Build a sorted, deterministic baseline document from clone candidates. |
+| `@beep/repo-cli/commands/Reuse` | `CloneBaselineDocument` | class | `packages/tooling/tool/cli/src/commands/Reuse/internal/CloneBaseline.ts:67` | Committed baseline of acknowledged structural-clone clusters for the ratchet. |
+| `@beep/repo-cli/commands/Reuse` | `CloneBaselineEntry` | class | `packages/tooling/tool/cli/src/commands/Reuse/internal/CloneBaseline.ts:39` | One acknowledged structural-clone cluster recorded in the committed baseline. |
 | `@beep/repo-cli/commands/Reuse` | `CodexRunnerError` | class | `packages/tooling/tool/cli/src/commands/Reuse/Reuse.errors.ts:46` | Structured error emitted when the Codex SDK smoke path fails. |
 | `@beep/repo-cli/commands/Reuse` | `CodexRunnerStage` | const | `packages/tooling/tool/cli/src/commands/Reuse/Reuse.errors.ts:26` | Lifecycle stages surfaced by the Codex smoke runner. |
 | `@beep/repo-cli/commands/Reuse` | `CodexRunnerStage` | type | `packages/tooling/tool/cli/src/commands/Reuse/Reuse.errors.ts:38` | Runtime type for `CodexRunnerStage`. |
+| `@beep/repo-cli/commands/Reuse` | `diffCloneBaseline` | const | `packages/tooling/tool/cli/src/commands/Reuse/internal/CloneBaseline.ts:178` | Diff live clusters against a committed baseline, returning new and grown clusters. |
 | `@beep/repo-cli/commands/Reuse` | `reuseCommand` | const | `packages/tooling/tool/cli/src/commands/Reuse/Reuse.command.ts:618` | Reuse-discovery command group. |
 | `@beep/repo-cli/commands/Reuse` | `sanitizeTerminalText` | const | `packages/tooling/tool/cli/src/commands/Reuse/Reuse.command.ts:154` | Remove terminal control sequences from human-readable reuse output. |
+| `@beep/repo-cli/commands/Reuse/index` | `buildCloneDocument` | const | `packages/tooling/tool/cli/src/commands/Reuse/internal/CloneBaseline.ts:116` | Build a sorted, deterministic baseline document from clone candidates. |
+| `@beep/repo-cli/commands/Reuse/index` | `CloneBaselineDocument` | class | `packages/tooling/tool/cli/src/commands/Reuse/internal/CloneBaseline.ts:67` | Committed baseline of acknowledged structural-clone clusters for the ratchet. |
+| `@beep/repo-cli/commands/Reuse/index` | `CloneBaselineEntry` | class | `packages/tooling/tool/cli/src/commands/Reuse/internal/CloneBaseline.ts:39` | One acknowledged structural-clone cluster recorded in the committed baseline. |
 | `@beep/repo-cli/commands/Reuse/index` | `CodexRunnerError` | class | `packages/tooling/tool/cli/src/commands/Reuse/Reuse.errors.ts:46` | Structured error emitted when the Codex SDK smoke path fails. |
 | `@beep/repo-cli/commands/Reuse/index` | `CodexRunnerStage` | const | `packages/tooling/tool/cli/src/commands/Reuse/Reuse.errors.ts:26` | Lifecycle stages surfaced by the Codex smoke runner. |
 | `@beep/repo-cli/commands/Reuse/index` | `CodexRunnerStage` | type | `packages/tooling/tool/cli/src/commands/Reuse/Reuse.errors.ts:38` | Runtime type for `CodexRunnerStage`. |
+| `@beep/repo-cli/commands/Reuse/index` | `diffCloneBaseline` | const | `packages/tooling/tool/cli/src/commands/Reuse/internal/CloneBaseline.ts:178` | Diff live clusters against a committed baseline, returning new and grown clusters. |
 | `@beep/repo-cli/commands/Reuse/index` | `reuseCommand` | const | `packages/tooling/tool/cli/src/commands/Reuse/Reuse.command.ts:618` | Reuse-discovery command group. |
 | `@beep/repo-cli/commands/Reuse/index` | `sanitizeTerminalText` | const | `packages/tooling/tool/cli/src/commands/Reuse/Reuse.command.ts:154` | Remove terminal control sequences from human-readable reuse output. |
-| `@beep/repo-cli/commands/Reuse/internal/CloneBaseline` | `runCloneGate` | const | `packages/tooling/tool/cli/src/commands/Reuse/internal/CloneBaseline.ts:168` | Refresh or enforce the structural-clone baseline from current clone candidates. |
+| `@beep/repo-cli/commands/Reuse/internal/CloneBaseline` | `buildCloneDocument` | const | `packages/tooling/tool/cli/src/commands/Reuse/internal/CloneBaseline.ts:116` | Build a sorted, deterministic baseline document from clone candidates. |
+| `@beep/repo-cli/commands/Reuse/internal/CloneBaseline` | `CloneBaselineDocument` | class | `packages/tooling/tool/cli/src/commands/Reuse/internal/CloneBaseline.ts:67` | Committed baseline of acknowledged structural-clone clusters for the ratchet. |
+| `@beep/repo-cli/commands/Reuse/internal/CloneBaseline` | `CloneBaselineEntry` | class | `packages/tooling/tool/cli/src/commands/Reuse/internal/CloneBaseline.ts:39` | One acknowledged structural-clone cluster recorded in the committed baseline. |
+| `@beep/repo-cli/commands/Reuse/internal/CloneBaseline` | `diffCloneBaseline` | const | `packages/tooling/tool/cli/src/commands/Reuse/internal/CloneBaseline.ts:178` | Diff live clusters against a committed baseline, returning new and grown clusters. |
+| `@beep/repo-cli/commands/Reuse/internal/CloneBaseline` | `runCloneGate` | const | `packages/tooling/tool/cli/src/commands/Reuse/internal/CloneBaseline.ts:224` | Refresh or enforce the structural-clone baseline from current clone candidates. |
 | `@beep/repo-cli/commands/Reuse/internal/CodexRunner` | `CodexRunnerError` | class | `packages/tooling/tool/cli/src/commands/Reuse/Reuse.errors.ts:46` | Structured error emitted when the Codex SDK smoke path fails. |
 | `@beep/repo-cli/commands/Reuse/internal/CodexRunner` | `CodexRunnerStage` | const | `packages/tooling/tool/cli/src/commands/Reuse/Reuse.errors.ts:26` | Lifecycle stages surfaced by the Codex smoke runner. |
 | `@beep/repo-cli/commands/Reuse/internal/CodexRunner` | `CodexRunnerStage` | type | `packages/tooling/tool/cli/src/commands/Reuse/Reuse.errors.ts:38` | Runtime type for `CodexRunnerStage`. |
@@ -2270,10 +2282,14 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/test/Quality` | `sqlIntegrationConnectionUriFromEnvForTesting` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:803` | Resolve the SQL integration database connection URI from environment variables. |
 | `@beep/repo-cli/test/Quality` | `sqlIntegrationStepForTesting` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:780` | Build the SQL integration test subprocess step. Exposed for focused unit tests. |
 | `@beep/repo-cli/test/Quality` | `UnexpectedQualityTaskFailure` | class | `packages/tooling/tool/cli/src/commands/Quality/Quality.errors.ts:277` | Error raised when an unexpected quality task cause reaches the command boundary. |
+| `@beep/repo-cli/test/Reuse` | `buildCloneDocument` | const | `packages/tooling/tool/cli/src/commands/Reuse/internal/CloneBaseline.ts:116` | Build a sorted, deterministic baseline document from clone candidates. |
+| `@beep/repo-cli/test/Reuse` | `CloneBaselineDocument` | class | `packages/tooling/tool/cli/src/commands/Reuse/internal/CloneBaseline.ts:67` | Committed baseline of acknowledged structural-clone clusters for the ratchet. |
+| `@beep/repo-cli/test/Reuse` | `CloneBaselineEntry` | class | `packages/tooling/tool/cli/src/commands/Reuse/internal/CloneBaseline.ts:39` | One acknowledged structural-clone cluster recorded in the committed baseline. |
 | `@beep/repo-cli/test/Reuse` | `CodexRunnerError` | class | `packages/tooling/tool/cli/src/commands/Reuse/Reuse.errors.ts:46` | Structured error emitted when the Codex SDK smoke path fails. |
 | `@beep/repo-cli/test/Reuse` | `CodexRunnerStage` | const | `packages/tooling/tool/cli/src/commands/Reuse/Reuse.errors.ts:26` | Lifecycle stages surfaced by the Codex smoke runner. |
 | `@beep/repo-cli/test/Reuse` | `CodexRunnerStage` | type | `packages/tooling/tool/cli/src/commands/Reuse/Reuse.errors.ts:38` | Runtime type for `CodexRunnerStage`. |
 | `@beep/repo-cli/test/Reuse` | `CodexSmokeResult` | class | `packages/tooling/tool/cli/src/commands/Reuse/internal/CodexRunner.ts:32` | Structured result for `beep reuse codex-smoke`. |
+| `@beep/repo-cli/test/Reuse` | `diffCloneBaseline` | const | `packages/tooling/tool/cli/src/commands/Reuse/internal/CloneBaseline.ts:178` | Diff live clusters against a committed baseline, returning new and grown clusters. |
 | `@beep/repo-cli/test/Reuse` | `reuseCommand` | const | `packages/tooling/tool/cli/src/commands/Reuse/Reuse.command.ts:618` | Reuse-discovery command group. |
 | `@beep/repo-cli/test/Reuse` | `runCodexSmoke` | const | `packages/tooling/tool/cli/src/commands/Reuse/internal/CodexRunner.ts:53` | Validate the local Codex SDK adapter without running a reuse loop. |
 | `@beep/repo-cli/test/Reuse` | `sanitizeTerminalText` | const | `packages/tooling/tool/cli/src/commands/Reuse/Reuse.command.ts:154` | Remove terminal control sequences from human-readable reuse output. |
@@ -5625,25 +5641,25 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-ai-metrics` | `AgentEffectivenessAiMetricsSection` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:382` | AI-metrics local evidence section for the doctor report. |
 | `@beep/repo-ai-metrics` | `AgentEffectivenessAnnotationCheckFinding` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:558` | One validation finding for an annotation plan. |
 | `@beep/repo-ai-metrics` | `AgentEffectivenessAnnotationCheckReport` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:582` | Report emitted by `agent-effectiveness annotations check`. |
-| `@beep/repo-ai-metrics` | `agentEffectivenessAnnotationCheckReportToJson` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:3071` | Encode an annotation-check report as JSON. |
+| `@beep/repo-ai-metrics` | `agentEffectivenessAnnotationCheckReportToJson` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:3069` | Encode an annotation-check report as JSON. |
 | `@beep/repo-ai-metrics` | `AgentEffectivenessAnnotationPlan` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:531` | Dry-run annotation plan for Phase 1. |
 | `@beep/repo-ai-metrics` | `AgentEffectivenessAnnotationPlanInput` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:203` | Input for building a dry-run annotation plan. |
-| `@beep/repo-ai-metrics` | `agentEffectivenessAnnotationPlanToJson` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:3046` | Encode an annotation plan as JSON. |
+| `@beep/repo-ai-metrics` | `agentEffectivenessAnnotationPlanToJson` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:3044` | Encode an annotation plan as JSON. |
 | `@beep/repo-ai-metrics` | `AgentEffectivenessAnnotationValue` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:115` | Primitive annotation value allowed in local Phase 1 plans. |
 | `@beep/repo-ai-metrics` | `AgentEffectivenessAnnotationValue` | type | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:127` | Runtime type for `AgentEffectivenessAnnotationValue`. |
 | `@beep/repo-ai-metrics` | `AgentEffectivenessDatasetBundle` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:744` | Full Phoenix dataset bundle derived from a doctor report. |
-| `@beep/repo-ai-metrics` | `agentEffectivenessDatasetBundleToJson` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:3097` | Encode a dataset bundle as JSON. |
+| `@beep/repo-ai-metrics` | `agentEffectivenessDatasetBundleToJson` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:3095` | Encode a dataset bundle as JSON. |
 | `@beep/repo-ai-metrics` | `AgentEffectivenessDatasetExample` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:670` | One sanitized example destined for a Phoenix dataset. |
 | `@beep/repo-ai-metrics` | `AgentEffectivenessDatasetKind` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:637` | Phoenix dataset kinds owned by the agent-effectiveness loop. |
 | `@beep/repo-ai-metrics` | `AgentEffectivenessDatasetKind` | type | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:655` | Type for {@link AgentEffectivenessDatasetKind}. |
 | `@beep/repo-ai-metrics` | `AgentEffectivenessDatasetSpec` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:712` | One repo-owned Phoenix dataset specification. |
 | `@beep/repo-ai-metrics` | `AgentEffectivenessDoctorInput` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:162` | Input for the Phase 1 agent-effectiveness doctor. |
 | `@beep/repo-ai-metrics` | `AgentEffectivenessDoctorReport` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:470` | Phase 1 agent-effectiveness doctor report. |
-| `@beep/repo-ai-metrics` | `agentEffectivenessDoctorReportToJson` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:3021` | Encode a doctor report as JSON. |
+| `@beep/repo-ai-metrics` | `agentEffectivenessDoctorReportToJson` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:3019` | Encode a doctor report as JSON. |
 | `@beep/repo-ai-metrics` | `AgentEffectivenessDoctorSummary` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:445` | Aggregate summary emitted by the doctor report. |
 | `@beep/repo-ai-metrics` | `AgentEffectivenessError` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:140` | Error raised by agent-effectiveness report helpers. |
 | `@beep/repo-ai-metrics` | `AgentEffectivenessExperimentBundle` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:925` | Deterministic experiment bundle derived from dataset specs. |
-| `@beep/repo-ai-metrics` | `agentEffectivenessExperimentBundleToJson` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:3147` | Encode an experiment bundle as JSON. |
+| `@beep/repo-ai-metrics` | `agentEffectivenessExperimentBundleToJson` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:3145` | Encode an experiment bundle as JSON. |
 | `@beep/repo-ai-metrics` | `AgentEffectivenessExperimentSpec` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:890` | Deterministic experiment plan entry. |
 | `@beep/repo-ai-metrics` | `AgentEffectivenessForwarderSummary` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:323` | Latest forwarder summary from derived AI-metrics storage. |
 | `@beep/repo-ai-metrics` | `AgentEffectivenessJsdocWorkerSection` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:413` | JSDoc worker-eval section for the doctor report. |
@@ -5651,10 +5667,10 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-ai-metrics` | `AgentEffectivenessPhoenixSection` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:265` | Read-only Phoenix health and inventory section. |
 | `@beep/repo-ai-metrics` | `AgentEffectivenessPhoenixSyncInput` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:952` | Input for syncing agent-effectiveness evidence to Phoenix. |
 | `@beep/repo-ai-metrics` | `AgentEffectivenessPhoenixSyncResult` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:1015` | Result from a guarded Phoenix sync attempt. |
-| `@beep/repo-ai-metrics` | `agentEffectivenessPhoenixSyncResultToJson` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:3172` | Encode a Phoenix sync result as JSON. |
+| `@beep/repo-ai-metrics` | `agentEffectivenessPhoenixSyncResultToJson` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:3170` | Encode a Phoenix sync result as JSON. |
 | `@beep/repo-ai-metrics` | `AgentEffectivenessPlannedAnnotation` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:499` | One local-only annotation row that could be written to Phoenix later. |
 | `@beep/repo-ai-metrics` | `AgentEffectivenessPromptBundle` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:859` | Full repo-owned Phoenix prompt bundle. |
-| `@beep/repo-ai-metrics` | `agentEffectivenessPromptBundleToJson` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:3122` | Encode a prompt bundle as JSON. |
+| `@beep/repo-ai-metrics` | `agentEffectivenessPromptBundleToJson` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:3120` | Encode a prompt bundle as JSON. |
 | `@beep/repo-ai-metrics` | `AgentEffectivenessPromptMessage` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:797` | One repo-owned Phoenix prompt message. |
 | `@beep/repo-ai-metrics` | `AgentEffectivenessPromptRole` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:770` | Prompt roles used by repo-owned agent-effectiveness prompt templates. |
 | `@beep/repo-ai-metrics` | `AgentEffectivenessPromptRole` | type | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:782` | Type for {@link AgentEffectivenessPromptRole}. |
@@ -5808,12 +5824,12 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-ai-metrics` | `listAiMetricsBenchmarkCases` | const | `packages/tooling/library/ai-metrics/src/scorecard.ts:760` | List deploy-safe benchmark cases. |
 | `@beep/repo-ai-metrics` | `listAiMetricsRetentionInventory` | const | `packages/tooling/library/ai-metrics/src/retention.ts:581` | List retained AI metrics raw archive objects and derived/report outputs. |
 | `@beep/repo-ai-metrics` | `locateLatestAiMetricsMirrorBundle` | const | `packages/tooling/library/ai-metrics/src/mirror.ts:540` | Locate the latest local mirror bundle pointer for a data root. |
-| `@beep/repo-ai-metrics` | `makeAgentEffectivenessAnnotationCheckReport` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:2991` | Check a local annotation plan for Phase 1 privacy and schema safety. |
-| `@beep/repo-ai-metrics` | `makeAgentEffectivenessAnnotationPlan` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:2152` | Build a sanitized local-only annotation plan. |
-| `@beep/repo-ai-metrics` | `makeAgentEffectivenessDatasetBundle` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:2362` | Build the Phoenix dataset bundle from a doctor report. |
-| `@beep/repo-ai-metrics` | `makeAgentEffectivenessDoctorReport` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:1816` | Build the report-only Phase 1 agent-effectiveness doctor report. |
-| `@beep/repo-ai-metrics` | `makeAgentEffectivenessExperimentBundle` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:2445` | Build deterministic experiment specs from a dataset bundle. |
-| `@beep/repo-ai-metrics` | `makeAgentEffectivenessPromptBundle` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:2391` | Build the repo-owned Phoenix prompt bundle. |
+| `@beep/repo-ai-metrics` | `makeAgentEffectivenessAnnotationCheckReport` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:2989` | Check a local annotation plan for Phase 1 privacy and schema safety. |
+| `@beep/repo-ai-metrics` | `makeAgentEffectivenessAnnotationPlan` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:2150` | Build a sanitized local-only annotation plan. |
+| `@beep/repo-ai-metrics` | `makeAgentEffectivenessDatasetBundle` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:2360` | Build the Phoenix dataset bundle from a doctor report. |
+| `@beep/repo-ai-metrics` | `makeAgentEffectivenessDoctorReport` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:1814` | Build the report-only Phase 1 agent-effectiveness doctor report. |
+| `@beep/repo-ai-metrics` | `makeAgentEffectivenessExperimentBundle` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:2443` | Build deterministic experiment specs from a dataset bundle. |
+| `@beep/repo-ai-metrics` | `makeAgentEffectivenessPromptBundle` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:2389` | Build the repo-owned Phoenix prompt bundle. |
 | `@beep/repo-ai-metrics` | `makeAiMetricsConfigSnapshot` | const | `packages/tooling/library/ai-metrics/src/config-snapshot.ts:424` | Build a deterministic snapshot of repo-owned agent-facing configuration. |
 | `@beep/repo-ai-metrics` | `makeAiMetricsInstallApplyDryRunResult` | const | `packages/tooling/library/ai-metrics/src/install.ts:1220` | Resolve the P5a dry-run apply result. |
 | `@beep/repo-ai-metrics` | `makeAiMetricsInstallDoctorResult` | const | `packages/tooling/library/ai-metrics/src/install.ts:1115` | Evaluate the P5a install doctor contract checks. |
@@ -5846,7 +5862,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-ai-metrics` | `sourceDiscoveryToJson` | const | `packages/tooling/library/ai-metrics/src/source-discovery.ts:631` | Render a source discovery result as JSON. |
 | `@beep/repo-ai-metrics` | `summarizeTranscriptText` | const | `packages/tooling/library/ai-metrics/src/ingest.ts:177` | Summarize JSONL transcript text into a stable ingest summary. |
 | `@beep/repo-ai-metrics` | `summaryToJson` | const | `packages/tooling/library/ai-metrics/src/ingest.ts:220` | Render a transcript ingest summary as JSON. |
-| `@beep/repo-ai-metrics` | `syncAgentEffectivenessPhoenix` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:2642` | Sync agent-effectiveness datasets, prompts, experiments, and resolved annotations to Phoenix. |
+| `@beep/repo-ai-metrics` | `syncAgentEffectivenessPhoenix` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:2640` | Sync agent-effectiveness datasets, prompts, experiments, and resolved annotations to Phoenix. |
 | `@beep/repo-ai-metrics` | `ToolInvocation` | class | `packages/tooling/library/ai-metrics/src/models.ts:499` | Tool or shell command invocation measured under an agent task. |
 | `@beep/repo-ai-metrics` | `TranscriptIngestSummary` | class | `packages/tooling/library/ai-metrics/src/models.ts:637` | Summary produced by transcript ingestion. |
 | `@beep/repo-ai-metrics` | `upsertAiMetricsBenchmarkCase` | const | `packages/tooling/library/ai-metrics/src/scorecard.ts:681` | Add or replace a deploy-safe benchmark case. |
@@ -5858,25 +5874,25 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-ai-metrics/agent-effectiveness` | `AgentEffectivenessAiMetricsSection` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:382` | AI-metrics local evidence section for the doctor report. |
 | `@beep/repo-ai-metrics/agent-effectiveness` | `AgentEffectivenessAnnotationCheckFinding` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:558` | One validation finding for an annotation plan. |
 | `@beep/repo-ai-metrics/agent-effectiveness` | `AgentEffectivenessAnnotationCheckReport` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:582` | Report emitted by `agent-effectiveness annotations check`. |
-| `@beep/repo-ai-metrics/agent-effectiveness` | `agentEffectivenessAnnotationCheckReportToJson` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:3071` | Encode an annotation-check report as JSON. |
+| `@beep/repo-ai-metrics/agent-effectiveness` | `agentEffectivenessAnnotationCheckReportToJson` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:3069` | Encode an annotation-check report as JSON. |
 | `@beep/repo-ai-metrics/agent-effectiveness` | `AgentEffectivenessAnnotationPlan` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:531` | Dry-run annotation plan for Phase 1. |
 | `@beep/repo-ai-metrics/agent-effectiveness` | `AgentEffectivenessAnnotationPlanInput` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:203` | Input for building a dry-run annotation plan. |
-| `@beep/repo-ai-metrics/agent-effectiveness` | `agentEffectivenessAnnotationPlanToJson` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:3046` | Encode an annotation plan as JSON. |
+| `@beep/repo-ai-metrics/agent-effectiveness` | `agentEffectivenessAnnotationPlanToJson` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:3044` | Encode an annotation plan as JSON. |
 | `@beep/repo-ai-metrics/agent-effectiveness` | `AgentEffectivenessAnnotationValue` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:115` | Primitive annotation value allowed in local Phase 1 plans. |
 | `@beep/repo-ai-metrics/agent-effectiveness` | `AgentEffectivenessAnnotationValue` | type | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:127` | Runtime type for `AgentEffectivenessAnnotationValue`. |
 | `@beep/repo-ai-metrics/agent-effectiveness` | `AgentEffectivenessDatasetBundle` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:744` | Full Phoenix dataset bundle derived from a doctor report. |
-| `@beep/repo-ai-metrics/agent-effectiveness` | `agentEffectivenessDatasetBundleToJson` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:3097` | Encode a dataset bundle as JSON. |
+| `@beep/repo-ai-metrics/agent-effectiveness` | `agentEffectivenessDatasetBundleToJson` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:3095` | Encode a dataset bundle as JSON. |
 | `@beep/repo-ai-metrics/agent-effectiveness` | `AgentEffectivenessDatasetExample` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:670` | One sanitized example destined for a Phoenix dataset. |
 | `@beep/repo-ai-metrics/agent-effectiveness` | `AgentEffectivenessDatasetKind` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:637` | Phoenix dataset kinds owned by the agent-effectiveness loop. |
 | `@beep/repo-ai-metrics/agent-effectiveness` | `AgentEffectivenessDatasetKind` | type | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:655` | Type for {@link AgentEffectivenessDatasetKind}. |
 | `@beep/repo-ai-metrics/agent-effectiveness` | `AgentEffectivenessDatasetSpec` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:712` | One repo-owned Phoenix dataset specification. |
 | `@beep/repo-ai-metrics/agent-effectiveness` | `AgentEffectivenessDoctorInput` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:162` | Input for the Phase 1 agent-effectiveness doctor. |
 | `@beep/repo-ai-metrics/agent-effectiveness` | `AgentEffectivenessDoctorReport` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:470` | Phase 1 agent-effectiveness doctor report. |
-| `@beep/repo-ai-metrics/agent-effectiveness` | `agentEffectivenessDoctorReportToJson` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:3021` | Encode a doctor report as JSON. |
+| `@beep/repo-ai-metrics/agent-effectiveness` | `agentEffectivenessDoctorReportToJson` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:3019` | Encode a doctor report as JSON. |
 | `@beep/repo-ai-metrics/agent-effectiveness` | `AgentEffectivenessDoctorSummary` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:445` | Aggregate summary emitted by the doctor report. |
 | `@beep/repo-ai-metrics/agent-effectiveness` | `AgentEffectivenessError` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:140` | Error raised by agent-effectiveness report helpers. |
 | `@beep/repo-ai-metrics/agent-effectiveness` | `AgentEffectivenessExperimentBundle` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:925` | Deterministic experiment bundle derived from dataset specs. |
-| `@beep/repo-ai-metrics/agent-effectiveness` | `agentEffectivenessExperimentBundleToJson` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:3147` | Encode an experiment bundle as JSON. |
+| `@beep/repo-ai-metrics/agent-effectiveness` | `agentEffectivenessExperimentBundleToJson` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:3145` | Encode an experiment bundle as JSON. |
 | `@beep/repo-ai-metrics/agent-effectiveness` | `AgentEffectivenessExperimentSpec` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:890` | Deterministic experiment plan entry. |
 | `@beep/repo-ai-metrics/agent-effectiveness` | `AgentEffectivenessForwarderSummary` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:323` | Latest forwarder summary from derived AI-metrics storage. |
 | `@beep/repo-ai-metrics/agent-effectiveness` | `AgentEffectivenessJsdocWorkerSection` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:413` | JSDoc worker-eval section for the doctor report. |
@@ -5884,10 +5900,10 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-ai-metrics/agent-effectiveness` | `AgentEffectivenessPhoenixSection` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:265` | Read-only Phoenix health and inventory section. |
 | `@beep/repo-ai-metrics/agent-effectiveness` | `AgentEffectivenessPhoenixSyncInput` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:952` | Input for syncing agent-effectiveness evidence to Phoenix. |
 | `@beep/repo-ai-metrics/agent-effectiveness` | `AgentEffectivenessPhoenixSyncResult` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:1015` | Result from a guarded Phoenix sync attempt. |
-| `@beep/repo-ai-metrics/agent-effectiveness` | `agentEffectivenessPhoenixSyncResultToJson` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:3172` | Encode a Phoenix sync result as JSON. |
+| `@beep/repo-ai-metrics/agent-effectiveness` | `agentEffectivenessPhoenixSyncResultToJson` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:3170` | Encode a Phoenix sync result as JSON. |
 | `@beep/repo-ai-metrics/agent-effectiveness` | `AgentEffectivenessPlannedAnnotation` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:499` | One local-only annotation row that could be written to Phoenix later. |
 | `@beep/repo-ai-metrics/agent-effectiveness` | `AgentEffectivenessPromptBundle` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:859` | Full repo-owned Phoenix prompt bundle. |
-| `@beep/repo-ai-metrics/agent-effectiveness` | `agentEffectivenessPromptBundleToJson` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:3122` | Encode a prompt bundle as JSON. |
+| `@beep/repo-ai-metrics/agent-effectiveness` | `agentEffectivenessPromptBundleToJson` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:3120` | Encode a prompt bundle as JSON. |
 | `@beep/repo-ai-metrics/agent-effectiveness` | `AgentEffectivenessPromptMessage` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:797` | One repo-owned Phoenix prompt message. |
 | `@beep/repo-ai-metrics/agent-effectiveness` | `AgentEffectivenessPromptRole` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:770` | Prompt roles used by repo-owned agent-effectiveness prompt templates. |
 | `@beep/repo-ai-metrics/agent-effectiveness` | `AgentEffectivenessPromptRole` | type | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:782` | Type for {@link AgentEffectivenessPromptRole}. |
@@ -5897,13 +5913,13 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-ai-metrics/agent-effectiveness` | `AgentEffectivenessStatus` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:90` | Status emitted by agent-effectiveness reports. |
 | `@beep/repo-ai-metrics/agent-effectiveness` | `AgentEffectivenessStatus` | type | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:102` | Runtime type for `AgentEffectivenessStatus`. |
 | `@beep/repo-ai-metrics/agent-effectiveness` | `DEFAULT_AGENT_EFFECTIVENESS_WORKER_EVAL_REPORT_PATH` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:53` | Stable default pointer used to locate the latest checked-in JSDoc worker-eval evidence. |
-| `@beep/repo-ai-metrics/agent-effectiveness` | `makeAgentEffectivenessAnnotationCheckReport` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:2991` | Check a local annotation plan for Phase 1 privacy and schema safety. |
-| `@beep/repo-ai-metrics/agent-effectiveness` | `makeAgentEffectivenessAnnotationPlan` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:2152` | Build a sanitized local-only annotation plan. |
-| `@beep/repo-ai-metrics/agent-effectiveness` | `makeAgentEffectivenessDatasetBundle` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:2362` | Build the Phoenix dataset bundle from a doctor report. |
-| `@beep/repo-ai-metrics/agent-effectiveness` | `makeAgentEffectivenessDoctorReport` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:1816` | Build the report-only Phase 1 agent-effectiveness doctor report. |
-| `@beep/repo-ai-metrics/agent-effectiveness` | `makeAgentEffectivenessExperimentBundle` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:2445` | Build deterministic experiment specs from a dataset bundle. |
-| `@beep/repo-ai-metrics/agent-effectiveness` | `makeAgentEffectivenessPromptBundle` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:2391` | Build the repo-owned Phoenix prompt bundle. |
-| `@beep/repo-ai-metrics/agent-effectiveness` | `syncAgentEffectivenessPhoenix` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:2642` | Sync agent-effectiveness datasets, prompts, experiments, and resolved annotations to Phoenix. |
+| `@beep/repo-ai-metrics/agent-effectiveness` | `makeAgentEffectivenessAnnotationCheckReport` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:2989` | Check a local annotation plan for Phase 1 privacy and schema safety. |
+| `@beep/repo-ai-metrics/agent-effectiveness` | `makeAgentEffectivenessAnnotationPlan` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:2150` | Build a sanitized local-only annotation plan. |
+| `@beep/repo-ai-metrics/agent-effectiveness` | `makeAgentEffectivenessDatasetBundle` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:2360` | Build the Phoenix dataset bundle from a doctor report. |
+| `@beep/repo-ai-metrics/agent-effectiveness` | `makeAgentEffectivenessDoctorReport` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:1814` | Build the report-only Phase 1 agent-effectiveness doctor report. |
+| `@beep/repo-ai-metrics/agent-effectiveness` | `makeAgentEffectivenessExperimentBundle` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:2443` | Build deterministic experiment specs from a dataset bundle. |
+| `@beep/repo-ai-metrics/agent-effectiveness` | `makeAgentEffectivenessPromptBundle` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:2389` | Build the repo-owned Phoenix prompt bundle. |
+| `@beep/repo-ai-metrics/agent-effectiveness` | `syncAgentEffectivenessPhoenix` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:2640` | Sync agent-effectiveness datasets, prompts, experiments, and resolved annotations to Phoenix. |
 | `@beep/repo-ai-metrics/archive` | `AiMetricsArchiveError` | class | `packages/tooling/library/ai-metrics/src/archive.ts:35` | Error raised by AI metrics encrypted archive helpers. |
 | `@beep/repo-ai-metrics/archive` | `AiMetricsEncryptedRawArchiveEnvelope` | class | `packages/tooling/library/ai-metrics/src/archive.ts:57` | Encrypted raw transcript archive envelope stored on disk. |
 | `@beep/repo-ai-metrics/archive` | `AiMetricsRawArchiveKey` | const | `packages/tooling/library/ai-metrics/src/archive.ts:115` | Redacted base64 AES-256-GCM key used for raw archive encryption. |
@@ -5947,25 +5963,25 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-ai-metrics/index` | `AgentEffectivenessAiMetricsSection` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:382` | AI-metrics local evidence section for the doctor report. |
 | `@beep/repo-ai-metrics/index` | `AgentEffectivenessAnnotationCheckFinding` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:558` | One validation finding for an annotation plan. |
 | `@beep/repo-ai-metrics/index` | `AgentEffectivenessAnnotationCheckReport` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:582` | Report emitted by `agent-effectiveness annotations check`. |
-| `@beep/repo-ai-metrics/index` | `agentEffectivenessAnnotationCheckReportToJson` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:3071` | Encode an annotation-check report as JSON. |
+| `@beep/repo-ai-metrics/index` | `agentEffectivenessAnnotationCheckReportToJson` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:3069` | Encode an annotation-check report as JSON. |
 | `@beep/repo-ai-metrics/index` | `AgentEffectivenessAnnotationPlan` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:531` | Dry-run annotation plan for Phase 1. |
 | `@beep/repo-ai-metrics/index` | `AgentEffectivenessAnnotationPlanInput` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:203` | Input for building a dry-run annotation plan. |
-| `@beep/repo-ai-metrics/index` | `agentEffectivenessAnnotationPlanToJson` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:3046` | Encode an annotation plan as JSON. |
+| `@beep/repo-ai-metrics/index` | `agentEffectivenessAnnotationPlanToJson` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:3044` | Encode an annotation plan as JSON. |
 | `@beep/repo-ai-metrics/index` | `AgentEffectivenessAnnotationValue` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:115` | Primitive annotation value allowed in local Phase 1 plans. |
 | `@beep/repo-ai-metrics/index` | `AgentEffectivenessAnnotationValue` | type | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:127` | Runtime type for `AgentEffectivenessAnnotationValue`. |
 | `@beep/repo-ai-metrics/index` | `AgentEffectivenessDatasetBundle` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:744` | Full Phoenix dataset bundle derived from a doctor report. |
-| `@beep/repo-ai-metrics/index` | `agentEffectivenessDatasetBundleToJson` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:3097` | Encode a dataset bundle as JSON. |
+| `@beep/repo-ai-metrics/index` | `agentEffectivenessDatasetBundleToJson` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:3095` | Encode a dataset bundle as JSON. |
 | `@beep/repo-ai-metrics/index` | `AgentEffectivenessDatasetExample` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:670` | One sanitized example destined for a Phoenix dataset. |
 | `@beep/repo-ai-metrics/index` | `AgentEffectivenessDatasetKind` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:637` | Phoenix dataset kinds owned by the agent-effectiveness loop. |
 | `@beep/repo-ai-metrics/index` | `AgentEffectivenessDatasetKind` | type | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:655` | Type for {@link AgentEffectivenessDatasetKind}. |
 | `@beep/repo-ai-metrics/index` | `AgentEffectivenessDatasetSpec` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:712` | One repo-owned Phoenix dataset specification. |
 | `@beep/repo-ai-metrics/index` | `AgentEffectivenessDoctorInput` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:162` | Input for the Phase 1 agent-effectiveness doctor. |
 | `@beep/repo-ai-metrics/index` | `AgentEffectivenessDoctorReport` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:470` | Phase 1 agent-effectiveness doctor report. |
-| `@beep/repo-ai-metrics/index` | `agentEffectivenessDoctorReportToJson` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:3021` | Encode a doctor report as JSON. |
+| `@beep/repo-ai-metrics/index` | `agentEffectivenessDoctorReportToJson` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:3019` | Encode a doctor report as JSON. |
 | `@beep/repo-ai-metrics/index` | `AgentEffectivenessDoctorSummary` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:445` | Aggregate summary emitted by the doctor report. |
 | `@beep/repo-ai-metrics/index` | `AgentEffectivenessError` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:140` | Error raised by agent-effectiveness report helpers. |
 | `@beep/repo-ai-metrics/index` | `AgentEffectivenessExperimentBundle` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:925` | Deterministic experiment bundle derived from dataset specs. |
-| `@beep/repo-ai-metrics/index` | `agentEffectivenessExperimentBundleToJson` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:3147` | Encode an experiment bundle as JSON. |
+| `@beep/repo-ai-metrics/index` | `agentEffectivenessExperimentBundleToJson` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:3145` | Encode an experiment bundle as JSON. |
 | `@beep/repo-ai-metrics/index` | `AgentEffectivenessExperimentSpec` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:890` | Deterministic experiment plan entry. |
 | `@beep/repo-ai-metrics/index` | `AgentEffectivenessForwarderSummary` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:323` | Latest forwarder summary from derived AI-metrics storage. |
 | `@beep/repo-ai-metrics/index` | `AgentEffectivenessJsdocWorkerSection` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:413` | JSDoc worker-eval section for the doctor report. |
@@ -5973,10 +5989,10 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-ai-metrics/index` | `AgentEffectivenessPhoenixSection` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:265` | Read-only Phoenix health and inventory section. |
 | `@beep/repo-ai-metrics/index` | `AgentEffectivenessPhoenixSyncInput` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:952` | Input for syncing agent-effectiveness evidence to Phoenix. |
 | `@beep/repo-ai-metrics/index` | `AgentEffectivenessPhoenixSyncResult` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:1015` | Result from a guarded Phoenix sync attempt. |
-| `@beep/repo-ai-metrics/index` | `agentEffectivenessPhoenixSyncResultToJson` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:3172` | Encode a Phoenix sync result as JSON. |
+| `@beep/repo-ai-metrics/index` | `agentEffectivenessPhoenixSyncResultToJson` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:3170` | Encode a Phoenix sync result as JSON. |
 | `@beep/repo-ai-metrics/index` | `AgentEffectivenessPlannedAnnotation` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:499` | One local-only annotation row that could be written to Phoenix later. |
 | `@beep/repo-ai-metrics/index` | `AgentEffectivenessPromptBundle` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:859` | Full repo-owned Phoenix prompt bundle. |
-| `@beep/repo-ai-metrics/index` | `agentEffectivenessPromptBundleToJson` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:3122` | Encode a prompt bundle as JSON. |
+| `@beep/repo-ai-metrics/index` | `agentEffectivenessPromptBundleToJson` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:3120` | Encode a prompt bundle as JSON. |
 | `@beep/repo-ai-metrics/index` | `AgentEffectivenessPromptMessage` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:797` | One repo-owned Phoenix prompt message. |
 | `@beep/repo-ai-metrics/index` | `AgentEffectivenessPromptRole` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:770` | Prompt roles used by repo-owned agent-effectiveness prompt templates. |
 | `@beep/repo-ai-metrics/index` | `AgentEffectivenessPromptRole` | type | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:782` | Type for {@link AgentEffectivenessPromptRole}. |
@@ -6130,12 +6146,12 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-ai-metrics/index` | `listAiMetricsBenchmarkCases` | const | `packages/tooling/library/ai-metrics/src/scorecard.ts:760` | List deploy-safe benchmark cases. |
 | `@beep/repo-ai-metrics/index` | `listAiMetricsRetentionInventory` | const | `packages/tooling/library/ai-metrics/src/retention.ts:581` | List retained AI metrics raw archive objects and derived/report outputs. |
 | `@beep/repo-ai-metrics/index` | `locateLatestAiMetricsMirrorBundle` | const | `packages/tooling/library/ai-metrics/src/mirror.ts:540` | Locate the latest local mirror bundle pointer for a data root. |
-| `@beep/repo-ai-metrics/index` | `makeAgentEffectivenessAnnotationCheckReport` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:2991` | Check a local annotation plan for Phase 1 privacy and schema safety. |
-| `@beep/repo-ai-metrics/index` | `makeAgentEffectivenessAnnotationPlan` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:2152` | Build a sanitized local-only annotation plan. |
-| `@beep/repo-ai-metrics/index` | `makeAgentEffectivenessDatasetBundle` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:2362` | Build the Phoenix dataset bundle from a doctor report. |
-| `@beep/repo-ai-metrics/index` | `makeAgentEffectivenessDoctorReport` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:1816` | Build the report-only Phase 1 agent-effectiveness doctor report. |
-| `@beep/repo-ai-metrics/index` | `makeAgentEffectivenessExperimentBundle` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:2445` | Build deterministic experiment specs from a dataset bundle. |
-| `@beep/repo-ai-metrics/index` | `makeAgentEffectivenessPromptBundle` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:2391` | Build the repo-owned Phoenix prompt bundle. |
+| `@beep/repo-ai-metrics/index` | `makeAgentEffectivenessAnnotationCheckReport` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:2989` | Check a local annotation plan for Phase 1 privacy and schema safety. |
+| `@beep/repo-ai-metrics/index` | `makeAgentEffectivenessAnnotationPlan` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:2150` | Build a sanitized local-only annotation plan. |
+| `@beep/repo-ai-metrics/index` | `makeAgentEffectivenessDatasetBundle` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:2360` | Build the Phoenix dataset bundle from a doctor report. |
+| `@beep/repo-ai-metrics/index` | `makeAgentEffectivenessDoctorReport` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:1814` | Build the report-only Phase 1 agent-effectiveness doctor report. |
+| `@beep/repo-ai-metrics/index` | `makeAgentEffectivenessExperimentBundle` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:2443` | Build deterministic experiment specs from a dataset bundle. |
+| `@beep/repo-ai-metrics/index` | `makeAgentEffectivenessPromptBundle` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:2389` | Build the repo-owned Phoenix prompt bundle. |
 | `@beep/repo-ai-metrics/index` | `makeAiMetricsConfigSnapshot` | const | `packages/tooling/library/ai-metrics/src/config-snapshot.ts:424` | Build a deterministic snapshot of repo-owned agent-facing configuration. |
 | `@beep/repo-ai-metrics/index` | `makeAiMetricsInstallApplyDryRunResult` | const | `packages/tooling/library/ai-metrics/src/install.ts:1220` | Resolve the P5a dry-run apply result. |
 | `@beep/repo-ai-metrics/index` | `makeAiMetricsInstallDoctorResult` | const | `packages/tooling/library/ai-metrics/src/install.ts:1115` | Evaluate the P5a install doctor contract checks. |
@@ -6168,7 +6184,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-ai-metrics/index` | `sourceDiscoveryToJson` | const | `packages/tooling/library/ai-metrics/src/source-discovery.ts:631` | Render a source discovery result as JSON. |
 | `@beep/repo-ai-metrics/index` | `summarizeTranscriptText` | const | `packages/tooling/library/ai-metrics/src/ingest.ts:177` | Summarize JSONL transcript text into a stable ingest summary. |
 | `@beep/repo-ai-metrics/index` | `summaryToJson` | const | `packages/tooling/library/ai-metrics/src/ingest.ts:220` | Render a transcript ingest summary as JSON. |
-| `@beep/repo-ai-metrics/index` | `syncAgentEffectivenessPhoenix` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:2642` | Sync agent-effectiveness datasets, prompts, experiments, and resolved annotations to Phoenix. |
+| `@beep/repo-ai-metrics/index` | `syncAgentEffectivenessPhoenix` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:2640` | Sync agent-effectiveness datasets, prompts, experiments, and resolved annotations to Phoenix. |
 | `@beep/repo-ai-metrics/index` | `ToolInvocation` | class | `packages/tooling/library/ai-metrics/src/models.ts:499` | Tool or shell command invocation measured under an agent task. |
 | `@beep/repo-ai-metrics/index` | `TranscriptIngestSummary` | class | `packages/tooling/library/ai-metrics/src/models.ts:637` | Summary produced by transcript ingestion. |
 | `@beep/repo-ai-metrics/index` | `upsertAiMetricsBenchmarkCase` | const | `packages/tooling/library/ai-metrics/src/scorecard.ts:681` | Add or replace a deploy-safe benchmark case. |
@@ -6881,9 +6897,9 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 
 | Import | Symbol | Kind | Source | Summary |
 |---|---|---|---|---|
-| `@beep/stack-installer` | `P1ManualProofSliceLayer` | const | `packages/installer/server/src/Layer.ts:774` | Complete installer server layer. |
-| `@beep/stack-installer` | `previewP1ManualProof` | const | `packages/installer/server/src/Layer.ts:795` | Preview the P1 Manual Mode proof without sending a Discord message. |
-| `@beep/stack-installer` | `runP1ManualProof` | const | `packages/installer/server/src/Layer.ts:782` | Run the live P1 Manual Mode proof and return sanitized evidence. |
+| `@beep/stack-installer` | `P1ManualProofSliceLayer` | const | `packages/installer/server/src/Layer.ts:772` | Complete installer server layer. |
+| `@beep/stack-installer` | `previewP1ManualProof` | const | `packages/installer/server/src/Layer.ts:793` | Preview the P1 Manual Mode proof without sending a Discord message. |
+| `@beep/stack-installer` | `runP1ManualProof` | const | `packages/installer/server/src/Layer.ts:780` | Run the live P1 Manual Mode proof and return sanitized evidence. |
 | `@beep/stack-installer` | `VERSION` | const | `apps/stack-installer/src/index.ts:15` | App version marker. |
 
 ### @beep/professional-desktop
@@ -8330,6 +8346,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-utils` | `makeProjectScopeId` | const | `packages/tooling/library/repo-utils/src/TSMorph/TSMorph.model.ts:1256` | Builds a stable `ProjectScopeId` from validated scope identity parts. |
 | `@beep/repo-utils` | `makeSymbol` | const | `packages/tooling/library/repo-utils/src/TSMorph/TSMorph.model.ts:1298` | Normalizes symbol input by deriving missing identity and category fields. |
 | `@beep/repo-utils` | `makeSymbolId` | const | `packages/tooling/library/repo-utils/src/TSMorph/TSMorph.model.ts:1237` | Builds a stable `SymbolId` from validated symbol identity parts. |
+| `@beep/repo-utils` | `normalizedDeclarationSignature` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:608` | Normalize a declaration to a structural signature that ignores formatting, |
 | `@beep/repo-utils` | `normalizePackageJsonEffect` | const | `packages/tooling/library/repo-utils/src/schemas/PackageJsonTools.ts:306` | Normalize an unknown package.json value into a canonical encoded object. |
 | `@beep/repo-utils` | `NoSuchFileError` | class | `packages/tooling/library/repo-utils/src/errors/NoSuchFileError.ts:32` | Raised when a required file or directory cannot be located. |
 | `@beep/repo-utils` | `NpmPackageJson` | class | `packages/tooling/library/repo-utils/src/schemas/PackageJson.ts:965` | Type-safe schema for npm package.json files. |
@@ -8355,21 +8372,21 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-utils` | `ReuseCatalogEntry` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts:174` | Catalog entry describing an existing reusable symbol or curated pattern. |
 | `@beep/repo-utils` | `ReuseCatalogOrigin` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts:27` | Catalog entry origin domain. |
 | `@beep/repo-utils` | `ReuseCatalogOrigin` | type | `packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts:49` | Runtime type for `ReuseCatalogOrigin`. |
-| `@beep/repo-utils` | `ReuseCatalogService` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1124` | Service tag for the reuse catalog contract. |
-| `@beep/repo-utils` | `ReuseCatalogServiceLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1261` | Default live layer for building the shared reuse catalog. |
-| `@beep/repo-utils` | `ReuseCloneService` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1773` | Service tag for declaration-anchored structural clone detection. |
-| `@beep/repo-utils` | `ReuseCloneServiceLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1789` | Default live layer for declaration-anchored structural clone detection. |
-| `@beep/repo-utils` | `ReuseDiscoveryService` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1192` | Service tag for reuse candidate discovery. |
-| `@beep/repo-utils` | `ReuseDiscoveryServiceLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1409` | Default live layer for reuse candidate discovery and local option lookup. |
+| `@beep/repo-utils` | `ReuseCatalogService` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1143` | Service tag for the reuse catalog contract. |
+| `@beep/repo-utils` | `ReuseCatalogServiceLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1280` | Default live layer for building the shared reuse catalog. |
+| `@beep/repo-utils` | `ReuseCloneService` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1792` | Service tag for declaration-anchored structural clone detection. |
+| `@beep/repo-utils` | `ReuseCloneServiceLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1808` | Default live layer for declaration-anchored structural clone detection. |
+| `@beep/repo-utils` | `ReuseDiscoveryService` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1211` | Service tag for reuse candidate discovery. |
+| `@beep/repo-utils` | `ReuseDiscoveryServiceLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1428` | Default live layer for reuse candidate discovery and local option lookup. |
 | `@beep/repo-utils` | `ReuseFindResult` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts:404` | Results for local-file reuse lookups. |
 | `@beep/repo-utils` | `ReuseInventory` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts:330` | Inventory payload produced for a requested scope. |
-| `@beep/repo-utils` | `ReuseInventoryService` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1226` | Service tag for reuse inventory materialization. |
-| `@beep/repo-utils` | `ReuseInventoryServiceLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1587` | Default live layer for ranked reuse inventories and implementation packets. |
+| `@beep/repo-utils` | `ReuseInventoryService` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1245` | Service tag for reuse inventory materialization. |
+| `@beep/repo-utils` | `ReuseInventoryServiceLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1606` | Default live layer for ranked reuse inventories and implementation packets. |
 | `@beep/repo-utils` | `ReusePacket` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts:374` | Materialized implementation packet for one reuse candidate. |
 | `@beep/repo-utils` | `ReusePartitionPlan` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts:242` | Partition plan covering scout and specialist work units for a selected scope. |
-| `@beep/repo-utils` | `ReusePartitionPlannerService` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1154` | Service tag for reuse partition planning. |
-| `@beep/repo-utils` | `ReusePartitionPlannerServiceLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1306` | Default live layer for reuse partition planning. |
-| `@beep/repo-utils` | `ReuseServiceSuiteLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1848` | Fully wired reuse-discovery layer suite for CLI and tests. |
+| `@beep/repo-utils` | `ReusePartitionPlannerService` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1173` | Service tag for reuse partition planning. |
+| `@beep/repo-utils` | `ReusePartitionPlannerServiceLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1325` | Default live layer for reuse partition planning. |
+| `@beep/repo-utils` | `ReuseServiceSuiteLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1867` | Fully wired reuse-discovery layer suite for CLI and tests. |
 | `@beep/repo-utils` | `ReuseSourceSymbolRef` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts:138` | File-local source symbol reference tied to a reuse opportunity. |
 | `@beep/repo-utils` | `ReuseWorkUnit` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts:210` | Partition work unit emitted for package scouts or hotspot specialists. |
 | `@beep/repo-utils` | `ReuseWorkUnitKind` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts:63` | Partition work-unit kind. |
@@ -8536,6 +8553,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-utils/index` | `makeProjectScopeId` | const | `packages/tooling/library/repo-utils/src/TSMorph/TSMorph.model.ts:1256` | Builds a stable `ProjectScopeId` from validated scope identity parts. |
 | `@beep/repo-utils/index` | `makeSymbol` | const | `packages/tooling/library/repo-utils/src/TSMorph/TSMorph.model.ts:1298` | Normalizes symbol input by deriving missing identity and category fields. |
 | `@beep/repo-utils/index` | `makeSymbolId` | const | `packages/tooling/library/repo-utils/src/TSMorph/TSMorph.model.ts:1237` | Builds a stable `SymbolId` from validated symbol identity parts. |
+| `@beep/repo-utils/index` | `normalizedDeclarationSignature` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:608` | Normalize a declaration to a structural signature that ignores formatting, |
 | `@beep/repo-utils/index` | `normalizePackageJsonEffect` | const | `packages/tooling/library/repo-utils/src/schemas/PackageJsonTools.ts:306` | Normalize an unknown package.json value into a canonical encoded object. |
 | `@beep/repo-utils/index` | `NoSuchFileError` | class | `packages/tooling/library/repo-utils/src/errors/NoSuchFileError.ts:32` | Raised when a required file or directory cannot be located. |
 | `@beep/repo-utils/index` | `NpmPackageJson` | class | `packages/tooling/library/repo-utils/src/schemas/PackageJson.ts:965` | Type-safe schema for npm package.json files. |
@@ -8561,21 +8579,21 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-utils/index` | `ReuseCatalogEntry` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts:174` | Catalog entry describing an existing reusable symbol or curated pattern. |
 | `@beep/repo-utils/index` | `ReuseCatalogOrigin` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts:27` | Catalog entry origin domain. |
 | `@beep/repo-utils/index` | `ReuseCatalogOrigin` | type | `packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts:49` | Runtime type for `ReuseCatalogOrigin`. |
-| `@beep/repo-utils/index` | `ReuseCatalogService` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1124` | Service tag for the reuse catalog contract. |
-| `@beep/repo-utils/index` | `ReuseCatalogServiceLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1261` | Default live layer for building the shared reuse catalog. |
-| `@beep/repo-utils/index` | `ReuseCloneService` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1773` | Service tag for declaration-anchored structural clone detection. |
-| `@beep/repo-utils/index` | `ReuseCloneServiceLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1789` | Default live layer for declaration-anchored structural clone detection. |
-| `@beep/repo-utils/index` | `ReuseDiscoveryService` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1192` | Service tag for reuse candidate discovery. |
-| `@beep/repo-utils/index` | `ReuseDiscoveryServiceLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1409` | Default live layer for reuse candidate discovery and local option lookup. |
+| `@beep/repo-utils/index` | `ReuseCatalogService` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1143` | Service tag for the reuse catalog contract. |
+| `@beep/repo-utils/index` | `ReuseCatalogServiceLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1280` | Default live layer for building the shared reuse catalog. |
+| `@beep/repo-utils/index` | `ReuseCloneService` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1792` | Service tag for declaration-anchored structural clone detection. |
+| `@beep/repo-utils/index` | `ReuseCloneServiceLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1808` | Default live layer for declaration-anchored structural clone detection. |
+| `@beep/repo-utils/index` | `ReuseDiscoveryService` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1211` | Service tag for reuse candidate discovery. |
+| `@beep/repo-utils/index` | `ReuseDiscoveryServiceLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1428` | Default live layer for reuse candidate discovery and local option lookup. |
 | `@beep/repo-utils/index` | `ReuseFindResult` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts:404` | Results for local-file reuse lookups. |
 | `@beep/repo-utils/index` | `ReuseInventory` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts:330` | Inventory payload produced for a requested scope. |
-| `@beep/repo-utils/index` | `ReuseInventoryService` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1226` | Service tag for reuse inventory materialization. |
-| `@beep/repo-utils/index` | `ReuseInventoryServiceLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1587` | Default live layer for ranked reuse inventories and implementation packets. |
+| `@beep/repo-utils/index` | `ReuseInventoryService` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1245` | Service tag for reuse inventory materialization. |
+| `@beep/repo-utils/index` | `ReuseInventoryServiceLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1606` | Default live layer for ranked reuse inventories and implementation packets. |
 | `@beep/repo-utils/index` | `ReusePacket` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts:374` | Materialized implementation packet for one reuse candidate. |
 | `@beep/repo-utils/index` | `ReusePartitionPlan` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts:242` | Partition plan covering scout and specialist work units for a selected scope. |
-| `@beep/repo-utils/index` | `ReusePartitionPlannerService` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1154` | Service tag for reuse partition planning. |
-| `@beep/repo-utils/index` | `ReusePartitionPlannerServiceLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1306` | Default live layer for reuse partition planning. |
-| `@beep/repo-utils/index` | `ReuseServiceSuiteLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1848` | Fully wired reuse-discovery layer suite for CLI and tests. |
+| `@beep/repo-utils/index` | `ReusePartitionPlannerService` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1173` | Service tag for reuse partition planning. |
+| `@beep/repo-utils/index` | `ReusePartitionPlannerServiceLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1325` | Default live layer for reuse partition planning. |
+| `@beep/repo-utils/index` | `ReuseServiceSuiteLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1867` | Fully wired reuse-discovery layer suite for CLI and tests. |
 | `@beep/repo-utils/index` | `ReuseSourceSymbolRef` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts:138` | File-local source symbol reference tied to a reuse opportunity. |
 | `@beep/repo-utils/index` | `ReuseWorkUnit` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts:210` | Partition work unit emitted for package scouts or hotspot specialists. |
 | `@beep/repo-utils/index` | `ReuseWorkUnitKind` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts:63` | Partition work-unit kind. |
@@ -9492,6 +9510,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-utils/JsonUtils` | `jsonParse` | const | `packages/tooling/library/repo-utils/src/JsonUtils.ts:82` | Parse a JSON string into an unknown value using `SchemaGetter.parseJson`. |
 | `@beep/repo-utils/JsonUtils` | `jsonStringifyCompact` | const | `packages/tooling/library/repo-utils/src/JsonUtils.ts:59` | Serialize a value to a compact JSON string |
 | `@beep/repo-utils/JsonUtils` | `jsonStringifyPretty` | const | `packages/tooling/library/repo-utils/src/JsonUtils.ts:35` | Serialize a value to a pretty-printed JSON string (2-space indent) |
+| `@beep/repo-utils/Reuse/index` | `normalizedDeclarationSignature` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:608` | Normalize a declaration to a structural signature that ignores formatting, |
 | `@beep/repo-utils/Reuse/index` | `ReuseAnalysisError` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:118` | Typed error returned when reuse analysis cannot complete a repository scan or lookup. |
 | `@beep/repo-utils/Reuse/index` | `ReuseCandidate` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts:287` | Ranked reuse candidate inventory item. |
 | `@beep/repo-utils/Reuse/index` | `ReuseCandidateKind` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts:95` | Candidate kind domain for inventory items. |
@@ -9500,21 +9519,21 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-utils/Reuse/index` | `ReuseCatalogEntry` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts:174` | Catalog entry describing an existing reusable symbol or curated pattern. |
 | `@beep/repo-utils/Reuse/index` | `ReuseCatalogOrigin` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts:27` | Catalog entry origin domain. |
 | `@beep/repo-utils/Reuse/index` | `ReuseCatalogOrigin` | type | `packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts:49` | Runtime type for `ReuseCatalogOrigin`. |
-| `@beep/repo-utils/Reuse/index` | `ReuseCatalogService` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1124` | Service tag for the reuse catalog contract. |
-| `@beep/repo-utils/Reuse/index` | `ReuseCatalogServiceLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1261` | Default live layer for building the shared reuse catalog. |
-| `@beep/repo-utils/Reuse/index` | `ReuseCloneService` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1773` | Service tag for declaration-anchored structural clone detection. |
-| `@beep/repo-utils/Reuse/index` | `ReuseCloneServiceLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1789` | Default live layer for declaration-anchored structural clone detection. |
-| `@beep/repo-utils/Reuse/index` | `ReuseDiscoveryService` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1192` | Service tag for reuse candidate discovery. |
-| `@beep/repo-utils/Reuse/index` | `ReuseDiscoveryServiceLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1409` | Default live layer for reuse candidate discovery and local option lookup. |
+| `@beep/repo-utils/Reuse/index` | `ReuseCatalogService` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1143` | Service tag for the reuse catalog contract. |
+| `@beep/repo-utils/Reuse/index` | `ReuseCatalogServiceLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1280` | Default live layer for building the shared reuse catalog. |
+| `@beep/repo-utils/Reuse/index` | `ReuseCloneService` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1792` | Service tag for declaration-anchored structural clone detection. |
+| `@beep/repo-utils/Reuse/index` | `ReuseCloneServiceLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1808` | Default live layer for declaration-anchored structural clone detection. |
+| `@beep/repo-utils/Reuse/index` | `ReuseDiscoveryService` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1211` | Service tag for reuse candidate discovery. |
+| `@beep/repo-utils/Reuse/index` | `ReuseDiscoveryServiceLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1428` | Default live layer for reuse candidate discovery and local option lookup. |
 | `@beep/repo-utils/Reuse/index` | `ReuseFindResult` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts:404` | Results for local-file reuse lookups. |
 | `@beep/repo-utils/Reuse/index` | `ReuseInventory` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts:330` | Inventory payload produced for a requested scope. |
-| `@beep/repo-utils/Reuse/index` | `ReuseInventoryService` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1226` | Service tag for reuse inventory materialization. |
-| `@beep/repo-utils/Reuse/index` | `ReuseInventoryServiceLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1587` | Default live layer for ranked reuse inventories and implementation packets. |
+| `@beep/repo-utils/Reuse/index` | `ReuseInventoryService` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1245` | Service tag for reuse inventory materialization. |
+| `@beep/repo-utils/Reuse/index` | `ReuseInventoryServiceLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1606` | Default live layer for ranked reuse inventories and implementation packets. |
 | `@beep/repo-utils/Reuse/index` | `ReusePacket` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts:374` | Materialized implementation packet for one reuse candidate. |
 | `@beep/repo-utils/Reuse/index` | `ReusePartitionPlan` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts:242` | Partition plan covering scout and specialist work units for a selected scope. |
-| `@beep/repo-utils/Reuse/index` | `ReusePartitionPlannerService` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1154` | Service tag for reuse partition planning. |
-| `@beep/repo-utils/Reuse/index` | `ReusePartitionPlannerServiceLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1306` | Default live layer for reuse partition planning. |
-| `@beep/repo-utils/Reuse/index` | `ReuseServiceSuiteLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1848` | Fully wired reuse-discovery layer suite for CLI and tests. |
+| `@beep/repo-utils/Reuse/index` | `ReusePartitionPlannerService` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1173` | Service tag for reuse partition planning. |
+| `@beep/repo-utils/Reuse/index` | `ReusePartitionPlannerServiceLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1325` | Default live layer for reuse partition planning. |
+| `@beep/repo-utils/Reuse/index` | `ReuseServiceSuiteLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1867` | Fully wired reuse-discovery layer suite for CLI and tests. |
 | `@beep/repo-utils/Reuse/index` | `ReuseSourceSymbolRef` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts:138` | File-local source symbol reference tied to a reuse opportunity. |
 | `@beep/repo-utils/Reuse/index` | `ReuseWorkUnit` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts:210` | Partition work unit emitted for package scouts or hotspot specialists. |
 | `@beep/repo-utils/Reuse/index` | `ReuseWorkUnitKind` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts:63` | Partition work-unit kind. |
@@ -9533,19 +9552,20 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-utils/Reuse/Reuse.model` | `ReuseWorkUnit` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts:210` | Partition work unit emitted for package scouts or hotspot specialists. |
 | `@beep/repo-utils/Reuse/Reuse.model` | `ReuseWorkUnitKind` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts:63` | Partition work-unit kind. |
 | `@beep/repo-utils/Reuse/Reuse.model` | `ReuseWorkUnitKind` | type | `packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts:81` | Runtime type for `ReuseWorkUnitKind`. |
+| `@beep/repo-utils/Reuse/Reuse.service` | `normalizedDeclarationSignature` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:608` | Normalize a declaration to a structural signature that ignores formatting, |
 | `@beep/repo-utils/Reuse/Reuse.service` | `ReuseAnalysisError` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:118` | Typed error returned when reuse analysis cannot complete a repository scan or lookup. |
 | `@beep/repo-utils/Reuse/Reuse.service` | `ReuseCandidateNotFoundError` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:144` | Typed error returned when a requested candidate id is absent from the current reuse inventory. |
-| `@beep/repo-utils/Reuse/Reuse.service` | `ReuseCatalogService` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1124` | Service tag for the reuse catalog contract. |
-| `@beep/repo-utils/Reuse/Reuse.service` | `ReuseCatalogServiceLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1261` | Default live layer for building the shared reuse catalog. |
-| `@beep/repo-utils/Reuse/Reuse.service` | `ReuseCloneService` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1773` | Service tag for declaration-anchored structural clone detection. |
-| `@beep/repo-utils/Reuse/Reuse.service` | `ReuseCloneServiceLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1789` | Default live layer for declaration-anchored structural clone detection. |
-| `@beep/repo-utils/Reuse/Reuse.service` | `ReuseDiscoveryService` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1192` | Service tag for reuse candidate discovery. |
-| `@beep/repo-utils/Reuse/Reuse.service` | `ReuseDiscoveryServiceLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1409` | Default live layer for reuse candidate discovery and local option lookup. |
-| `@beep/repo-utils/Reuse/Reuse.service` | `ReuseInventoryService` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1226` | Service tag for reuse inventory materialization. |
-| `@beep/repo-utils/Reuse/Reuse.service` | `ReuseInventoryServiceLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1587` | Default live layer for ranked reuse inventories and implementation packets. |
-| `@beep/repo-utils/Reuse/Reuse.service` | `ReusePartitionPlannerService` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1154` | Service tag for reuse partition planning. |
-| `@beep/repo-utils/Reuse/Reuse.service` | `ReusePartitionPlannerServiceLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1306` | Default live layer for reuse partition planning. |
-| `@beep/repo-utils/Reuse/Reuse.service` | `ReuseServiceSuiteLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1848` | Fully wired reuse-discovery layer suite for CLI and tests. |
+| `@beep/repo-utils/Reuse/Reuse.service` | `ReuseCatalogService` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1143` | Service tag for the reuse catalog contract. |
+| `@beep/repo-utils/Reuse/Reuse.service` | `ReuseCatalogServiceLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1280` | Default live layer for building the shared reuse catalog. |
+| `@beep/repo-utils/Reuse/Reuse.service` | `ReuseCloneService` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1792` | Service tag for declaration-anchored structural clone detection. |
+| `@beep/repo-utils/Reuse/Reuse.service` | `ReuseCloneServiceLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1808` | Default live layer for declaration-anchored structural clone detection. |
+| `@beep/repo-utils/Reuse/Reuse.service` | `ReuseDiscoveryService` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1211` | Service tag for reuse candidate discovery. |
+| `@beep/repo-utils/Reuse/Reuse.service` | `ReuseDiscoveryServiceLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1428` | Default live layer for reuse candidate discovery and local option lookup. |
+| `@beep/repo-utils/Reuse/Reuse.service` | `ReuseInventoryService` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1245` | Service tag for reuse inventory materialization. |
+| `@beep/repo-utils/Reuse/Reuse.service` | `ReuseInventoryServiceLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1606` | Default live layer for ranked reuse inventories and implementation packets. |
+| `@beep/repo-utils/Reuse/Reuse.service` | `ReusePartitionPlannerService` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1173` | Service tag for reuse partition planning. |
+| `@beep/repo-utils/Reuse/Reuse.service` | `ReusePartitionPlannerServiceLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1325` | Default live layer for reuse partition planning. |
+| `@beep/repo-utils/Reuse/Reuse.service` | `ReuseServiceSuiteLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1867` | Fully wired reuse-discovery layer suite for CLI and tests. |
 | `@beep/repo-utils/Root` | `findRepoRoot` | const | `packages/tooling/library/repo-utils/src/Root.ts:45` | Find the repository root by walking upward from the given directory |
 | `@beep/repo-utils/schemas/BiomeJson` | `renderBiomeJson` | const | `packages/tooling/library/repo-utils/src/schemas/BiomeJson.ts:43` | Render JSON with the same Biome config that repository lint uses. |
 | `@beep/repo-utils/schemas/DocgenConfig` | `buildDocgenAliasSource` | const | `packages/tooling/library/repo-utils/src/schemas/DocgenConfig.ts:290` | Build docgen alias targets for one workspace package from its exports. |
@@ -12037,39 +12057,39 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 
 | Import | Symbol | Kind | Source | Summary |
 |---|---|---|---|---|
-| `@beep/installer-server` | `DiscordChannelServerLive` | const | `packages/installer/server/src/Layer.ts:736` | Discord-channel concept layer. |
-| `@beep/installer-server` | `HostDependencyServerLive` | const | `packages/installer/server/src/Layer.ts:712` | Host-dependency concept layer. |
-| `@beep/installer-server` | `InstallerConceptServerLive` | const | `packages/installer/server/src/Layer.ts:752` | Concept-local installer services. |
-| `@beep/installer-server` | `InstallerServerLive` | const | `packages/installer/server/src/Layer.ts:774` | Complete installer server layer. |
-| `@beep/installer-server` | `makeDiscordChannelServer` | const | `packages/installer/server/src/Layer.ts:480` | Build the Discord-channel concept server. |
-| `@beep/installer-server` | `makeHostDependencyServer` | const | `packages/installer/server/src/Layer.ts:338` | Build the host-dependency concept server. |
-| `@beep/installer-server` | `makeP1ManualProofWorkflow` | const | `packages/installer/server/src/Layer.ts:551` | Build the P1 Manual Mode proof workflow. |
-| `@beep/installer-server` | `makeProviderAccountServer` | const | `packages/installer/server/src/Layer.ts:439` | Build the provider-account concept server. |
-| `@beep/installer-server` | `makeSecretReferenceServer` | const | `packages/installer/server/src/Layer.ts:356` | Build the secret-reference concept server. |
-| `@beep/installer-server` | `makeStackManifestServer` | const | `packages/installer/server/src/Layer.ts:537` | Build the stack-manifest concept server. |
-| `@beep/installer-server` | `P1ManualProofWorkflowLive` | const | `packages/installer/server/src/Layer.ts:766` | P1 Manual Mode proof workflow layer. |
-| `@beep/installer-server` | `previewP1ManualProof` | const | `packages/installer/server/src/Layer.ts:795` | Preview the P1 Manual Mode proof without sending a Discord message. |
-| `@beep/installer-server` | `ProviderAccountServerLive` | const | `packages/installer/server/src/Layer.ts:728` | Provider-account concept layer. |
-| `@beep/installer-server` | `runP1ManualProof` | const | `packages/installer/server/src/Layer.ts:782` | Run the live P1 Manual Mode proof and return sanitized evidence. |
-| `@beep/installer-server` | `SecretReferenceServerLive` | const | `packages/installer/server/src/Layer.ts:720` | Secret-reference concept layer. |
-| `@beep/installer-server` | `StackManifestServerLive` | const | `packages/installer/server/src/Layer.ts:744` | Stack-manifest concept layer. |
+| `@beep/installer-server` | `DiscordChannelServerLive` | const | `packages/installer/server/src/Layer.ts:734` | Discord-channel concept layer. |
+| `@beep/installer-server` | `HostDependencyServerLive` | const | `packages/installer/server/src/Layer.ts:710` | Host-dependency concept layer. |
+| `@beep/installer-server` | `InstallerConceptServerLive` | const | `packages/installer/server/src/Layer.ts:750` | Concept-local installer services. |
+| `@beep/installer-server` | `InstallerServerLive` | const | `packages/installer/server/src/Layer.ts:772` | Complete installer server layer. |
+| `@beep/installer-server` | `makeDiscordChannelServer` | const | `packages/installer/server/src/Layer.ts:478` | Build the Discord-channel concept server. |
+| `@beep/installer-server` | `makeHostDependencyServer` | const | `packages/installer/server/src/Layer.ts:336` | Build the host-dependency concept server. |
+| `@beep/installer-server` | `makeP1ManualProofWorkflow` | const | `packages/installer/server/src/Layer.ts:549` | Build the P1 Manual Mode proof workflow. |
+| `@beep/installer-server` | `makeProviderAccountServer` | const | `packages/installer/server/src/Layer.ts:437` | Build the provider-account concept server. |
+| `@beep/installer-server` | `makeSecretReferenceServer` | const | `packages/installer/server/src/Layer.ts:354` | Build the secret-reference concept server. |
+| `@beep/installer-server` | `makeStackManifestServer` | const | `packages/installer/server/src/Layer.ts:535` | Build the stack-manifest concept server. |
+| `@beep/installer-server` | `P1ManualProofWorkflowLive` | const | `packages/installer/server/src/Layer.ts:764` | P1 Manual Mode proof workflow layer. |
+| `@beep/installer-server` | `previewP1ManualProof` | const | `packages/installer/server/src/Layer.ts:793` | Preview the P1 Manual Mode proof without sending a Discord message. |
+| `@beep/installer-server` | `ProviderAccountServerLive` | const | `packages/installer/server/src/Layer.ts:726` | Provider-account concept layer. |
+| `@beep/installer-server` | `runP1ManualProof` | const | `packages/installer/server/src/Layer.ts:780` | Run the live P1 Manual Mode proof and return sanitized evidence. |
+| `@beep/installer-server` | `SecretReferenceServerLive` | const | `packages/installer/server/src/Layer.ts:718` | Secret-reference concept layer. |
+| `@beep/installer-server` | `StackManifestServerLive` | const | `packages/installer/server/src/Layer.ts:742` | Stack-manifest concept layer. |
 | `@beep/installer-server` | `VERSION` | const | `packages/installer/server/src/index.ts:15` | Package version for `@beep/installer-server`. |
-| `@beep/installer-server/layer` | `DiscordChannelServerLive` | const | `packages/installer/server/src/Layer.ts:736` | Discord-channel concept layer. |
-| `@beep/installer-server/layer` | `HostDependencyServerLive` | const | `packages/installer/server/src/Layer.ts:712` | Host-dependency concept layer. |
-| `@beep/installer-server/layer` | `InstallerConceptServerLive` | const | `packages/installer/server/src/Layer.ts:752` | Concept-local installer services. |
-| `@beep/installer-server/layer` | `InstallerServerLive` | const | `packages/installer/server/src/Layer.ts:774` | Complete installer server layer. |
-| `@beep/installer-server/layer` | `makeDiscordChannelServer` | const | `packages/installer/server/src/Layer.ts:480` | Build the Discord-channel concept server. |
-| `@beep/installer-server/layer` | `makeHostDependencyServer` | const | `packages/installer/server/src/Layer.ts:338` | Build the host-dependency concept server. |
-| `@beep/installer-server/layer` | `makeP1ManualProofWorkflow` | const | `packages/installer/server/src/Layer.ts:551` | Build the P1 Manual Mode proof workflow. |
-| `@beep/installer-server/layer` | `makeProviderAccountServer` | const | `packages/installer/server/src/Layer.ts:439` | Build the provider-account concept server. |
-| `@beep/installer-server/layer` | `makeSecretReferenceServer` | const | `packages/installer/server/src/Layer.ts:356` | Build the secret-reference concept server. |
-| `@beep/installer-server/layer` | `makeStackManifestServer` | const | `packages/installer/server/src/Layer.ts:537` | Build the stack-manifest concept server. |
-| `@beep/installer-server/layer` | `P1ManualProofWorkflowLive` | const | `packages/installer/server/src/Layer.ts:766` | P1 Manual Mode proof workflow layer. |
-| `@beep/installer-server/layer` | `previewP1ManualProof` | const | `packages/installer/server/src/Layer.ts:795` | Preview the P1 Manual Mode proof without sending a Discord message. |
-| `@beep/installer-server/layer` | `ProviderAccountServerLive` | const | `packages/installer/server/src/Layer.ts:728` | Provider-account concept layer. |
-| `@beep/installer-server/layer` | `runP1ManualProof` | const | `packages/installer/server/src/Layer.ts:782` | Run the live P1 Manual Mode proof and return sanitized evidence. |
-| `@beep/installer-server/layer` | `SecretReferenceServerLive` | const | `packages/installer/server/src/Layer.ts:720` | Secret-reference concept layer. |
-| `@beep/installer-server/layer` | `StackManifestServerLive` | const | `packages/installer/server/src/Layer.ts:744` | Stack-manifest concept layer. |
+| `@beep/installer-server/layer` | `DiscordChannelServerLive` | const | `packages/installer/server/src/Layer.ts:734` | Discord-channel concept layer. |
+| `@beep/installer-server/layer` | `HostDependencyServerLive` | const | `packages/installer/server/src/Layer.ts:710` | Host-dependency concept layer. |
+| `@beep/installer-server/layer` | `InstallerConceptServerLive` | const | `packages/installer/server/src/Layer.ts:750` | Concept-local installer services. |
+| `@beep/installer-server/layer` | `InstallerServerLive` | const | `packages/installer/server/src/Layer.ts:772` | Complete installer server layer. |
+| `@beep/installer-server/layer` | `makeDiscordChannelServer` | const | `packages/installer/server/src/Layer.ts:478` | Build the Discord-channel concept server. |
+| `@beep/installer-server/layer` | `makeHostDependencyServer` | const | `packages/installer/server/src/Layer.ts:336` | Build the host-dependency concept server. |
+| `@beep/installer-server/layer` | `makeP1ManualProofWorkflow` | const | `packages/installer/server/src/Layer.ts:549` | Build the P1 Manual Mode proof workflow. |
+| `@beep/installer-server/layer` | `makeProviderAccountServer` | const | `packages/installer/server/src/Layer.ts:437` | Build the provider-account concept server. |
+| `@beep/installer-server/layer` | `makeSecretReferenceServer` | const | `packages/installer/server/src/Layer.ts:354` | Build the secret-reference concept server. |
+| `@beep/installer-server/layer` | `makeStackManifestServer` | const | `packages/installer/server/src/Layer.ts:535` | Build the stack-manifest concept server. |
+| `@beep/installer-server/layer` | `P1ManualProofWorkflowLive` | const | `packages/installer/server/src/Layer.ts:764` | P1 Manual Mode proof workflow layer. |
+| `@beep/installer-server/layer` | `previewP1ManualProof` | const | `packages/installer/server/src/Layer.ts:793` | Preview the P1 Manual Mode proof without sending a Discord message. |
+| `@beep/installer-server/layer` | `ProviderAccountServerLive` | const | `packages/installer/server/src/Layer.ts:726` | Provider-account concept layer. |
+| `@beep/installer-server/layer` | `runP1ManualProof` | const | `packages/installer/server/src/Layer.ts:780` | Run the live P1 Manual Mode proof and return sanitized evidence. |
+| `@beep/installer-server/layer` | `SecretReferenceServerLive` | const | `packages/installer/server/src/Layer.ts:718` | Secret-reference concept layer. |
+| `@beep/installer-server/layer` | `StackManifestServerLive` | const | `packages/installer/server/src/Layer.ts:742` | Stack-manifest concept layer. |
 | `@beep/installer-server/test` | `InstallerServerTest` | const | `packages/installer/server/src/test.ts:17` | Deterministic test layer for the installer slice. |
 
 ### @beep/observability
