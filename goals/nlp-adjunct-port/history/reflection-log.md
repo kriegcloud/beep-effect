@@ -121,17 +121,63 @@ focused session with the v4 `Graph.ts` API read in full first — not a tail-end
 
 ## P1: Staging Port
 
-**Date:**
+**Date:** 2026-05-29 (Graph subsystem + TypeClass COMPLETE)
 
-**What worked:**
+**Graph subsystem fully ported (5 green commits this session):**
+- `Graph/TextGraph.ts` (`d496bd6d71`) — structural text graph over `effect/Graph`; effectful
+  node ctors (Clock), `addChildren` fails with tagged `GraphCycleError`, `rebuild` helper for
+  type-preserving map/filter (v4 `Graph.mapNodes` mutates in place). The fix that made it green
+  was adding the `./Graph` package.json **exports** subpath (tsgo uses tsconfig paths; vitest
+  uses package.json exports — every new subpath needs an exports entry or vitest 404s).
+- `Backend/NLPBackend.ts` (`89adf355ce`) — pluggable backend interface; 3 `TaggedErrorClass`
+  errors (init/op carry `cause: S.DefectWithStack`), `Context.Service` class tag, `Struct.keys`.
+- `Graph/AnnotatedTextGraph.ts` (`d92f2abb9b`) — annotation strata (POS/entity/lemma/dep) over
+  the NLPBackend; **implemented `addDependencyAnnotations`** (adjunct left it a TODO).
+- `Graph/GraphOps.ts` (`a3a552e75e`) — generic categorical ops; type-changing
+  map/bimap/filter/mapNodesEffect go through one `reconstruct` index-remap helper (no casts);
+  `merge` remaps+copies edges (adjunct left edges a TODO); HashMap/HashSet not Map/Set.
+- `Graph/TypeClass.ts` (`cc10de32a4`) — TextOperation Kleisli morphisms + Functor/Monad/
+  Applicative/Traversable/Foldable/adjunction; effectful node minting; `Foldable<F,A>` (not
+  `Foldable<F>`) so the instance needs no `any`; covariant widening replaces adjunct's
+  `as EffectGraph<A|B>`.
 
-**What failed or was unclear:**
+**CRITICAL correction (pre-compaction plan was wrong):** the carried-over "convert the 6 graph
+node classes to `S.TaggedClass`" step was a **deviation, not fidelity**. adjunct's `Schema.ts`
+defines ALL nodes as plain `Schema.Class` and `AnnotatedTextGraph` discriminates the union via
+`instanceof` guards. Faithful port = keep `S.Class` (already green) and translate the guards to
+**`S.is(Schema)`** (the repo bans `instanceof` on schema types via the `instanceOfSchema`
+diagnostic). `Graph/Schema.ts` was left untouched; no churn on the already-green TextGraph.
 
-**Schema AST / SchemaASTMatchers porting notes:**
+**Repo-law is STRICTER than the P1 "enforced-bar finding" claimed.** The earlier note said the
+bar is just "tsgo + biome pass" and `@beep/nlp` tolerates `as`/native arrays. In practice the
+`@effect/language-service` diagnostics DO fire as tsgo errors for the new Graph code:
+`instanceOfSchema` (instanceof on a Schema type) and the biome `useSortedInterfaceMembers` /
+`organizeImports` / formatter rules all block `beep:check`/`beep:lint`. So new code must obey
+full repo-law (S.is, sorted members, HashMap/Set, no casts) — gold-plating was correct here.
 
-**Law-suite (fast-check → effect/testing/FastCheck) porting notes:**
+**typos hook false-positive:** the pre-commit `typos` hook flags `bimap` as a misspelling of
+`bitmap`. Fixed by allowlisting `bimap = "bimap"` in `_typos.toml` under "Effect-TS API names".
+Pre-commit runs gitleaks+biome+typos+commitlint but NOT vitest — scoped `pkg:verify` first.
 
-**Behavior parity vs adjunct:**
+**Reliability win:** `bun run pkg:verify @beep/nlp` (lint+check+test, failed-only output) as a
+SEPARATE step before each commit caught every red before it landed — 5/5 groups committed green
+on the verified attempt. Recurring trap: after `cd <pkg>`, the root-level `pkg:verify` script is
+"not found" — always run it from the repo root.
+
+**Bash channel:** degraded to ~5-call delayed-flush batches all session; mitigated by capturing
+command output to `/tmp/*.txt` + reading via the (reliable) Read tool, and padding with
+throwaway echo "flush" probes. No red commits resulted.
+
+**Schema AST / SchemaASTMatchers porting notes:** (not yet — next: GraphOperations 2167 LOC,
+then Operations 2829 LOC incl. SchemaASTMatchers `_tag` walker, the top fidelity risk)
+
+**Law-suite (fast-check → effect/testing/FastCheck) porting notes:** proofs so far are
+`@effect/vitest` example-based (functor identity/composition, monoid laws, adjunction-shaped
+round-trips); no FastCheck property suites ported yet.
+
+**Behavior parity vs adjunct:** node ctors are effectful (Clock/Random) where adjunct used
+`Date.now()`/`crypto.randomUUID()`; otherwise structural parity (same node/edge shapes, same
+annotation relations, same query semantics).
 
 **Open questions carried to P2:**
 
