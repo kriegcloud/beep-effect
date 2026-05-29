@@ -37,9 +37,13 @@ const variantIcons: Record<BannerVariant, React.ReactNode> = {
 
 type BannerRootProps = React.ComponentProps<"div"> &
   VariantProps<typeof bannerVariants> & {
-    icon?: React.ReactNode;
+    readonly icon?: React.ReactNode;
   };
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 function Banner({ className, variant = "default", icon, children, ...props }: BannerRootProps) {
   const defaultIcon = variantIcons[variant ?? "default"];
 
@@ -51,22 +55,38 @@ function Banner({ className, variant = "default", icon, children, ...props }: Ba
   );
 }
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 const BannerContent = ({ className, ...props }: React.ComponentProps<"div">) => (
   <div data-slot="banner-content" className={cn("flex-1", className)} {...props} />
 );
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 const BannerTitle = ({ className, ...props }: React.ComponentProps<"p">) => (
   <p data-slot="banner-title" className={cn("font-medium leading-none", className)} {...props} />
 );
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 const BannerDescription = ({ className, ...props }: React.ComponentProps<"p">) => (
   <p data-slot="banner-description" className={cn("text-sm opacity-90", className)} {...props} />
 );
 
 type BannerDismissProps = React.ComponentProps<"button"> & {
-  onDismiss?: undefined | (() => void);
+  readonly onDismiss?: undefined | (() => void);
 };
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 const BannerDismiss = ({ className, onDismiss, onClick, ...props }: BannerDismissProps) => (
   <button
     type="button"
@@ -95,4 +115,4 @@ Banner.Dismiss = BannerDismiss;
  * @category components
  * @since 0.0.0
  */
-export { bannerVariants };
+export { Banner, BannerContent, BannerDescription, BannerDismiss, BannerTitle, bannerVariants };

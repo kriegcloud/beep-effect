@@ -7,6 +7,7 @@
 
 import { $SandboxId } from "@beep/identity";
 import { A, Str, Struct } from "@beep/utils";
+import * as O from "@beep/utils/Option";
 import { Clock, Effect, flow, pipe } from "effect";
 import * as S from "effect/Schema";
 import { CopyError, DockerError, PodmanError } from "./Sandbox.errors.ts";
@@ -204,8 +205,8 @@ const makeContainerHandle = (
       const processCommand = ProcessCommand.make({
         args: [...containerExecArgs(containerName, command, options)],
         command: runtime,
-        ...(options?.onLine === undefined ? {} : { onLine: options.onLine }),
-        ...(options?.stdin === undefined ? {} : { stdin: options.stdin }),
+        ...O.getSomesStruct({ onLine: O.fromUndefinedOr(options?.onLine) }),
+        ...O.getSomesStruct({ stdin: O.fromUndefinedOr(options?.stdin) }),
       });
       const result = yield* process.run(processCommand).pipe(profileProviderAction(runtime, "exec"));
 
@@ -301,8 +302,8 @@ export const noSandbox = (
               ...env,
               ...options.env,
             },
-            ...(execOptions?.onLine === undefined ? {} : { onLine: execOptions.onLine }),
-            ...(execOptions?.stdin === undefined ? {} : { stdin: execOptions.stdin }),
+            ...O.getSomesStruct({ onLine: O.fromUndefinedOr(execOptions?.onLine) }),
+            ...O.getSomesStruct({ stdin: O.fromUndefinedOr(execOptions?.stdin) }),
           })
           .pipe(profileProviderAction("host", "exec"));
 

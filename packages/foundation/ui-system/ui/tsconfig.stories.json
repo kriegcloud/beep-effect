@@ -1,0 +1,28 @@
+{
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "extends": "../../../../tsconfig.base.json",
+  "include": [
+    "stories/**/*.ts",
+    "stories/**/*.tsx",
+    "src/**/*.ts",
+    "src/**/*.tsx"
+  ],
+  "compilerOptions": {
+    "composite": false,
+    "declaration": false,
+    "declarationMap": false,
+    "incremental": false,
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "noEmit": true,
+    "rootDir": ".",
+    "sourceMap": false,
+    "types": ["node"],
+    "paths": {
+      "@beep/ui": ["./src/index.ts"],
+      "@beep/ui/*": ["./src/*"],
+      "@beep/ui/lib": ["./src/lib/index.ts"],
+      "@beep/ui/lib/*": ["./src/lib/*"]
+    }
+  }
+}

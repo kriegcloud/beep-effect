@@ -20,9 +20,9 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | packagesWithPublicExports | 79 |
 | packagesWithoutPublicExports | 1 |
 | missingWorkspaceMetadata | 4 |
-| importSpecifiers | 1019 |
-| publicExportEntries | 13339 |
-| uniquePackageSymbols | 5976 |
+| importSpecifiers | 1021 |
+| publicExportEntries | 13351 |
+| uniquePackageSymbols | 5986 |
 
 ## Seed Discovery Proof
 
@@ -76,7 +76,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | 37 | `@beep/canvas` | `apps/canvas` | has-public-exports | 1 | 23 | 20 |
 | 38 | `@beep/workspace-domain` | `packages/workspace/domain` | has-public-exports | 12 | 35 | 11 |
 | 39 | `@beep/semantic-web` | `packages/foundation/capability/semantic-web` | has-public-exports | 30 | 272 | 219 |
-| 40 | `@beep/utils` | `packages/foundation/modeling/utils` | has-public-exports | 24 | 775 | 578 |
+| 40 | `@beep/utils` | `packages/foundation/modeling/utils` | has-public-exports | 24 | 776 | 579 |
 | 41 | `@beep/repo-ai-metrics` | `packages/tooling/library/ai-metrics` | has-public-exports | 18 | 702 | 214 |
 | 42 | `@beep/architecture-lab-tables` | `packages/architecture-lab/tables` | has-public-exports | 4 | 19 | 16 |
 | 43 | `@beep/venice-ai` | `packages/drivers/venice-ai` | has-public-exports | 1 | 30 | 24 |
@@ -110,7 +110,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | 71 | `@beep/observability` | `packages/foundation/capability/observability` | has-public-exports | 4 | 115 | 98 |
 | 72 | `@beep/konva` | `packages/drivers/konva` | has-public-exports | 2 | 2 | 1 |
 | 73 | `@beep/shared-client` | `packages/shared/client` | has-public-exports | 2 | 2 | 1 |
-| 74 | `@beep/ui` | `packages/foundation/ui-system/ui` | has-public-exports | 115 | 527 | 445 |
+| 74 | `@beep/ui` | `packages/foundation/ui-system/ui` | has-public-exports | 117 | 538 | 454 |
 | 75 | `@beep/repo-configs` | `packages/tooling/policy-pack/repo-configs` | has-public-exports | 30 | 411 | 117 |
 | 76 | `@beep/canvas-client` | `packages/canvas/client` | has-public-exports | 1 | 1 | 1 |
 | 77 | `@beep/openai` | `packages/drivers/openai` | has-public-exports | 2 | 2 | 1 |
@@ -128,55 +128,55 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 
 | Import | Symbol | Kind | Source | Summary |
 |---|---|---|---|---|
-| `@beep/hubspot` | `HubSpot` | class | `packages/drivers/hubspot/src/HubSpot.service.ts:466` | Effect service for HubSpot Forms API submissions. |
+| `@beep/hubspot` | `HubSpot` | class | `packages/drivers/hubspot/src/HubSpot.service.ts:464` | Effect service for HubSpot Forms API submissions. |
 | `@beep/hubspot` | `HUBSPOT_CRM_API_URL` | const | `packages/drivers/hubspot/src/HubSpot.config.ts:41` | Default HubSpot CRM API base URL. |
 | `@beep/hubspot` | `HUBSPOT_FORMS_API_URL` | const | `packages/drivers/hubspot/src/HubSpot.config.ts:26` | Default HubSpot Forms API base URL. |
 | `@beep/hubspot` | `HubSpotConfigInput` | class | `packages/drivers/hubspot/src/HubSpot.config.ts:61` | Runtime configuration accepted by {@link HubSpot.makeLayer}. |
-| `@beep/hubspot` | `HubSpotError` | class | `packages/drivers/hubspot/src/HubSpot.errors.ts:80` | Technical failure raised by the HubSpot driver boundary. |
-| `@beep/hubspot` | `HubSpotErrorOptions` | class | `packages/drivers/hubspot/src/HubSpot.errors.ts:147` | Options used when constructing HubSpot driver errors. |
-| `@beep/hubspot` | `HubSpotErrorReason` | const | `packages/drivers/hubspot/src/HubSpot.errors.ts:34` | Technical error reasons emitted by the HubSpot driver. |
-| `@beep/hubspot` | `HubSpotErrorReason` | type | `packages/drivers/hubspot/src/HubSpot.errors.ts:60` | Type for {@link HubSpotErrorReason}. |
-| `@beep/hubspot` | `HubSpotFormContext` | class | `packages/drivers/hubspot/src/HubSpot.service.ts:71` | HubSpot form submission context. |
-| `@beep/hubspot` | `HubSpotFormField` | class | `packages/drivers/hubspot/src/HubSpot.service.ts:43` | HubSpot form field submission value. |
-| `@beep/hubspot` | `HubSpotShape` | type | `packages/drivers/hubspot/src/HubSpot.service.ts:250` | Public HubSpot service shape. |
-| `@beep/hubspot` | `HubSpotSubmitFormRequest` | class | `packages/drivers/hubspot/src/HubSpot.service.ts:100` | HubSpot form submission request. |
-| `@beep/hubspot` | `HubSpotSubmitFormResponse` | class | `packages/drivers/hubspot/src/HubSpot.service.ts:129` | HubSpot form submission response. |
-| `@beep/hubspot` | `HubSpotUpsertContactRequest` | class | `packages/drivers/hubspot/src/HubSpot.service.ts:159` | HubSpot contact upsert request using email as the stable identifier. |
-| `@beep/hubspot` | `HubSpotUpsertContactResponse` | class | `packages/drivers/hubspot/src/HubSpot.service.ts:214` | HubSpot contact upsert response. |
-| `@beep/hubspot` | `HubSpotUpsertContactResult` | class | `packages/drivers/hubspot/src/HubSpot.service.ts:187` | HubSpot contact upsert result. |
+| `@beep/hubspot` | `HubSpotError` | class | `packages/drivers/hubspot/src/HubSpot.errors.ts:79` | Technical failure raised by the HubSpot driver boundary. |
+| `@beep/hubspot` | `HubSpotErrorOptions` | class | `packages/drivers/hubspot/src/HubSpot.errors.ts:138` | Options used when constructing HubSpot driver errors. |
+| `@beep/hubspot` | `HubSpotErrorReason` | const | `packages/drivers/hubspot/src/HubSpot.errors.ts:33` | Technical error reasons emitted by the HubSpot driver. |
+| `@beep/hubspot` | `HubSpotErrorReason` | type | `packages/drivers/hubspot/src/HubSpot.errors.ts:59` | Type for {@link HubSpotErrorReason}. |
+| `@beep/hubspot` | `HubSpotFormContext` | class | `packages/drivers/hubspot/src/HubSpot.service.ts:69` | HubSpot form submission context. |
+| `@beep/hubspot` | `HubSpotFormField` | class | `packages/drivers/hubspot/src/HubSpot.service.ts:41` | HubSpot form field submission value. |
+| `@beep/hubspot` | `HubSpotShape` | type | `packages/drivers/hubspot/src/HubSpot.service.ts:248` | Public HubSpot service shape. |
+| `@beep/hubspot` | `HubSpotSubmitFormRequest` | class | `packages/drivers/hubspot/src/HubSpot.service.ts:98` | HubSpot form submission request. |
+| `@beep/hubspot` | `HubSpotSubmitFormResponse` | class | `packages/drivers/hubspot/src/HubSpot.service.ts:127` | HubSpot form submission response. |
+| `@beep/hubspot` | `HubSpotUpsertContactRequest` | class | `packages/drivers/hubspot/src/HubSpot.service.ts:157` | HubSpot contact upsert request using email as the stable identifier. |
+| `@beep/hubspot` | `HubSpotUpsertContactResponse` | class | `packages/drivers/hubspot/src/HubSpot.service.ts:212` | HubSpot contact upsert response. |
+| `@beep/hubspot` | `HubSpotUpsertContactResult` | class | `packages/drivers/hubspot/src/HubSpot.service.ts:185` | HubSpot contact upsert result. |
 | `@beep/hubspot` | `VERSION` | const | `packages/drivers/hubspot/src/index.ts:43` | Package version. |
 | `@beep/hubspot/HubSpot.config` | `HUBSPOT_CRM_API_URL` | const | `packages/drivers/hubspot/src/HubSpot.config.ts:41` | Default HubSpot CRM API base URL. |
 | `@beep/hubspot/HubSpot.config` | `HUBSPOT_FORMS_API_URL` | const | `packages/drivers/hubspot/src/HubSpot.config.ts:26` | Default HubSpot Forms API base URL. |
 | `@beep/hubspot/HubSpot.config` | `HubSpotConfigInput` | class | `packages/drivers/hubspot/src/HubSpot.config.ts:61` | Runtime configuration accepted by {@link HubSpot.makeLayer}. |
-| `@beep/hubspot/HubSpot.errors` | `HubSpotError` | class | `packages/drivers/hubspot/src/HubSpot.errors.ts:80` | Technical failure raised by the HubSpot driver boundary. |
-| `@beep/hubspot/HubSpot.errors` | `HubSpotErrorOptions` | class | `packages/drivers/hubspot/src/HubSpot.errors.ts:147` | Options used when constructing HubSpot driver errors. |
-| `@beep/hubspot/HubSpot.errors` | `HubSpotErrorReason` | const | `packages/drivers/hubspot/src/HubSpot.errors.ts:34` | Technical error reasons emitted by the HubSpot driver. |
-| `@beep/hubspot/HubSpot.errors` | `HubSpotErrorReason` | type | `packages/drivers/hubspot/src/HubSpot.errors.ts:60` | Type for {@link HubSpotErrorReason}. |
-| `@beep/hubspot/HubSpot.service` | `HubSpot` | class | `packages/drivers/hubspot/src/HubSpot.service.ts:466` | Effect service for HubSpot Forms API submissions. |
-| `@beep/hubspot/HubSpot.service` | `HubSpotFormContext` | class | `packages/drivers/hubspot/src/HubSpot.service.ts:71` | HubSpot form submission context. |
-| `@beep/hubspot/HubSpot.service` | `HubSpotFormField` | class | `packages/drivers/hubspot/src/HubSpot.service.ts:43` | HubSpot form field submission value. |
-| `@beep/hubspot/HubSpot.service` | `HubSpotShape` | type | `packages/drivers/hubspot/src/HubSpot.service.ts:250` | Public HubSpot service shape. |
-| `@beep/hubspot/HubSpot.service` | `HubSpotSubmitFormRequest` | class | `packages/drivers/hubspot/src/HubSpot.service.ts:100` | HubSpot form submission request. |
-| `@beep/hubspot/HubSpot.service` | `HubSpotSubmitFormResponse` | class | `packages/drivers/hubspot/src/HubSpot.service.ts:129` | HubSpot form submission response. |
-| `@beep/hubspot/HubSpot.service` | `HubSpotUpsertContactRequest` | class | `packages/drivers/hubspot/src/HubSpot.service.ts:159` | HubSpot contact upsert request using email as the stable identifier. |
-| `@beep/hubspot/HubSpot.service` | `HubSpotUpsertContactResponse` | class | `packages/drivers/hubspot/src/HubSpot.service.ts:214` | HubSpot contact upsert response. |
-| `@beep/hubspot/HubSpot.service` | `HubSpotUpsertContactResult` | class | `packages/drivers/hubspot/src/HubSpot.service.ts:187` | HubSpot contact upsert result. |
-| `@beep/hubspot/index` | `HubSpot` | class | `packages/drivers/hubspot/src/HubSpot.service.ts:466` | Effect service for HubSpot Forms API submissions. |
+| `@beep/hubspot/HubSpot.errors` | `HubSpotError` | class | `packages/drivers/hubspot/src/HubSpot.errors.ts:79` | Technical failure raised by the HubSpot driver boundary. |
+| `@beep/hubspot/HubSpot.errors` | `HubSpotErrorOptions` | class | `packages/drivers/hubspot/src/HubSpot.errors.ts:138` | Options used when constructing HubSpot driver errors. |
+| `@beep/hubspot/HubSpot.errors` | `HubSpotErrorReason` | const | `packages/drivers/hubspot/src/HubSpot.errors.ts:33` | Technical error reasons emitted by the HubSpot driver. |
+| `@beep/hubspot/HubSpot.errors` | `HubSpotErrorReason` | type | `packages/drivers/hubspot/src/HubSpot.errors.ts:59` | Type for {@link HubSpotErrorReason}. |
+| `@beep/hubspot/HubSpot.service` | `HubSpot` | class | `packages/drivers/hubspot/src/HubSpot.service.ts:464` | Effect service for HubSpot Forms API submissions. |
+| `@beep/hubspot/HubSpot.service` | `HubSpotFormContext` | class | `packages/drivers/hubspot/src/HubSpot.service.ts:69` | HubSpot form submission context. |
+| `@beep/hubspot/HubSpot.service` | `HubSpotFormField` | class | `packages/drivers/hubspot/src/HubSpot.service.ts:41` | HubSpot form field submission value. |
+| `@beep/hubspot/HubSpot.service` | `HubSpotShape` | type | `packages/drivers/hubspot/src/HubSpot.service.ts:248` | Public HubSpot service shape. |
+| `@beep/hubspot/HubSpot.service` | `HubSpotSubmitFormRequest` | class | `packages/drivers/hubspot/src/HubSpot.service.ts:98` | HubSpot form submission request. |
+| `@beep/hubspot/HubSpot.service` | `HubSpotSubmitFormResponse` | class | `packages/drivers/hubspot/src/HubSpot.service.ts:127` | HubSpot form submission response. |
+| `@beep/hubspot/HubSpot.service` | `HubSpotUpsertContactRequest` | class | `packages/drivers/hubspot/src/HubSpot.service.ts:157` | HubSpot contact upsert request using email as the stable identifier. |
+| `@beep/hubspot/HubSpot.service` | `HubSpotUpsertContactResponse` | class | `packages/drivers/hubspot/src/HubSpot.service.ts:212` | HubSpot contact upsert response. |
+| `@beep/hubspot/HubSpot.service` | `HubSpotUpsertContactResult` | class | `packages/drivers/hubspot/src/HubSpot.service.ts:185` | HubSpot contact upsert result. |
+| `@beep/hubspot/index` | `HubSpot` | class | `packages/drivers/hubspot/src/HubSpot.service.ts:464` | Effect service for HubSpot Forms API submissions. |
 | `@beep/hubspot/index` | `HUBSPOT_CRM_API_URL` | const | `packages/drivers/hubspot/src/HubSpot.config.ts:41` | Default HubSpot CRM API base URL. |
 | `@beep/hubspot/index` | `HUBSPOT_FORMS_API_URL` | const | `packages/drivers/hubspot/src/HubSpot.config.ts:26` | Default HubSpot Forms API base URL. |
 | `@beep/hubspot/index` | `HubSpotConfigInput` | class | `packages/drivers/hubspot/src/HubSpot.config.ts:61` | Runtime configuration accepted by {@link HubSpot.makeLayer}. |
-| `@beep/hubspot/index` | `HubSpotError` | class | `packages/drivers/hubspot/src/HubSpot.errors.ts:80` | Technical failure raised by the HubSpot driver boundary. |
-| `@beep/hubspot/index` | `HubSpotErrorOptions` | class | `packages/drivers/hubspot/src/HubSpot.errors.ts:147` | Options used when constructing HubSpot driver errors. |
-| `@beep/hubspot/index` | `HubSpotErrorReason` | const | `packages/drivers/hubspot/src/HubSpot.errors.ts:34` | Technical error reasons emitted by the HubSpot driver. |
-| `@beep/hubspot/index` | `HubSpotErrorReason` | type | `packages/drivers/hubspot/src/HubSpot.errors.ts:60` | Type for {@link HubSpotErrorReason}. |
-| `@beep/hubspot/index` | `HubSpotFormContext` | class | `packages/drivers/hubspot/src/HubSpot.service.ts:71` | HubSpot form submission context. |
-| `@beep/hubspot/index` | `HubSpotFormField` | class | `packages/drivers/hubspot/src/HubSpot.service.ts:43` | HubSpot form field submission value. |
-| `@beep/hubspot/index` | `HubSpotShape` | type | `packages/drivers/hubspot/src/HubSpot.service.ts:250` | Public HubSpot service shape. |
-| `@beep/hubspot/index` | `HubSpotSubmitFormRequest` | class | `packages/drivers/hubspot/src/HubSpot.service.ts:100` | HubSpot form submission request. |
-| `@beep/hubspot/index` | `HubSpotSubmitFormResponse` | class | `packages/drivers/hubspot/src/HubSpot.service.ts:129` | HubSpot form submission response. |
-| `@beep/hubspot/index` | `HubSpotUpsertContactRequest` | class | `packages/drivers/hubspot/src/HubSpot.service.ts:159` | HubSpot contact upsert request using email as the stable identifier. |
-| `@beep/hubspot/index` | `HubSpotUpsertContactResponse` | class | `packages/drivers/hubspot/src/HubSpot.service.ts:214` | HubSpot contact upsert response. |
-| `@beep/hubspot/index` | `HubSpotUpsertContactResult` | class | `packages/drivers/hubspot/src/HubSpot.service.ts:187` | HubSpot contact upsert result. |
+| `@beep/hubspot/index` | `HubSpotError` | class | `packages/drivers/hubspot/src/HubSpot.errors.ts:79` | Technical failure raised by the HubSpot driver boundary. |
+| `@beep/hubspot/index` | `HubSpotErrorOptions` | class | `packages/drivers/hubspot/src/HubSpot.errors.ts:138` | Options used when constructing HubSpot driver errors. |
+| `@beep/hubspot/index` | `HubSpotErrorReason` | const | `packages/drivers/hubspot/src/HubSpot.errors.ts:33` | Technical error reasons emitted by the HubSpot driver. |
+| `@beep/hubspot/index` | `HubSpotErrorReason` | type | `packages/drivers/hubspot/src/HubSpot.errors.ts:59` | Type for {@link HubSpotErrorReason}. |
+| `@beep/hubspot/index` | `HubSpotFormContext` | class | `packages/drivers/hubspot/src/HubSpot.service.ts:69` | HubSpot form submission context. |
+| `@beep/hubspot/index` | `HubSpotFormField` | class | `packages/drivers/hubspot/src/HubSpot.service.ts:41` | HubSpot form field submission value. |
+| `@beep/hubspot/index` | `HubSpotShape` | type | `packages/drivers/hubspot/src/HubSpot.service.ts:248` | Public HubSpot service shape. |
+| `@beep/hubspot/index` | `HubSpotSubmitFormRequest` | class | `packages/drivers/hubspot/src/HubSpot.service.ts:98` | HubSpot form submission request. |
+| `@beep/hubspot/index` | `HubSpotSubmitFormResponse` | class | `packages/drivers/hubspot/src/HubSpot.service.ts:127` | HubSpot form submission response. |
+| `@beep/hubspot/index` | `HubSpotUpsertContactRequest` | class | `packages/drivers/hubspot/src/HubSpot.service.ts:157` | HubSpot contact upsert request using email as the stable identifier. |
+| `@beep/hubspot/index` | `HubSpotUpsertContactResponse` | class | `packages/drivers/hubspot/src/HubSpot.service.ts:212` | HubSpot contact upsert response. |
+| `@beep/hubspot/index` | `HubSpotUpsertContactResult` | class | `packages/drivers/hubspot/src/HubSpot.service.ts:185` | HubSpot contact upsert result. |
 | `@beep/hubspot/index` | `VERSION` | const | `packages/drivers/hubspot/src/index.ts:43` | Package version. |
 
 ### @beep/architecture-lab-ui
@@ -804,7 +804,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli` | `filesCommand` | const | `packages/tooling/tool/cli/src/commands/Files/Files.command.ts:437` | File curation command group. |
 | `@beep/repo-cli` | `graphitiCommand` | const | `packages/tooling/tool/cli/src/commands/Graphiti/Graphiti.command.ts:94` | Graphiti command group. |
 | `@beep/repo-cli` | `imageCommand` | const | `packages/tooling/tool/cli/src/commands/Image/Image.command.ts:135` | Image and video curation command group. |
-| `@beep/repo-cli` | `lawsCommand` | const | `packages/tooling/tool/cli/src/commands/Laws/Laws.command.ts:436` | Laws command group. |
+| `@beep/repo-cli` | `lawsCommand` | const | `packages/tooling/tool/cli/src/commands/Laws/Laws.command.ts:439` | Laws command group. |
 | `@beep/repo-cli` | `lintCommand` | const | `packages/tooling/tool/cli/src/commands/Lint/Lint.command.ts:556` | Lint command group. |
 | `@beep/repo-cli` | `purgeCommand` | const | `packages/tooling/tool/cli/src/commands/Purge/Purge.command.ts:249` | CLI command to purge workspace/root build artifacts. |
 | `@beep/repo-cli` | `qualityCommand` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:1646` | Quality command group for repo operational checks. |
@@ -817,13 +817,13 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/commands/AgentEffectiveness` | `agentEffectivenessCommand` | const | `packages/tooling/tool/cli/src/commands/AgentEffectiveness/AgentEffectiveness.command.ts:657` | Agent-effectiveness root command. |
 | `@beep/repo-cli/commands/AgentEffectiveness/AgentEffectiveness.command` | `agentEffectivenessCommand` | const | `packages/tooling/tool/cli/src/commands/AgentEffectiveness/AgentEffectiveness.command.ts:657` | Agent-effectiveness root command. |
 | `@beep/repo-cli/commands/AgentEffectiveness/index` | `agentEffectivenessCommand` | const | `packages/tooling/tool/cli/src/commands/AgentEffectiveness/AgentEffectiveness.command.ts:657` | Agent-effectiveness root command. |
-| `@beep/repo-cli/commands/AIMetrics` | `aiMetricsCommand` | const | `packages/tooling/tool/cli/src/commands/AIMetrics/AIMetrics.command.ts:3424` | AI metrics root command. |
+| `@beep/repo-cli/commands/AIMetrics` | `aiMetricsCommand` | const | `packages/tooling/tool/cli/src/commands/AIMetrics/AIMetrics.command.ts:3416` | AI metrics root command. |
 | `@beep/repo-cli/commands/AIMetrics` | `AiMetricsCommandError` | class | `packages/tooling/tool/cli/src/commands/AIMetrics/AIMetrics.errors.ts:26` | Error raised by the AI metrics CLI. |
 | `@beep/repo-cli/commands/AIMetrics` | `AiMetricsStatusExit` | class | `packages/tooling/tool/cli/src/commands/AIMetrics/AIMetrics.errors.ts:47` | Silent non-zero status used after the status command has already rendered output. |
-| `@beep/repo-cli/commands/AIMetrics/AIMetrics.command` | `aiMetricsCommand` | const | `packages/tooling/tool/cli/src/commands/AIMetrics/AIMetrics.command.ts:3424` | AI metrics root command. |
+| `@beep/repo-cli/commands/AIMetrics/AIMetrics.command` | `aiMetricsCommand` | const | `packages/tooling/tool/cli/src/commands/AIMetrics/AIMetrics.command.ts:3416` | AI metrics root command. |
 | `@beep/repo-cli/commands/AIMetrics/AIMetrics.errors` | `AiMetricsCommandError` | class | `packages/tooling/tool/cli/src/commands/AIMetrics/AIMetrics.errors.ts:26` | Error raised by the AI metrics CLI. |
 | `@beep/repo-cli/commands/AIMetrics/AIMetrics.errors` | `AiMetricsStatusExit` | class | `packages/tooling/tool/cli/src/commands/AIMetrics/AIMetrics.errors.ts:47` | Silent non-zero status used after the status command has already rendered output. |
-| `@beep/repo-cli/commands/AIMetrics/index` | `aiMetricsCommand` | const | `packages/tooling/tool/cli/src/commands/AIMetrics/AIMetrics.command.ts:3424` | AI metrics root command. |
+| `@beep/repo-cli/commands/AIMetrics/index` | `aiMetricsCommand` | const | `packages/tooling/tool/cli/src/commands/AIMetrics/AIMetrics.command.ts:3416` | AI metrics root command. |
 | `@beep/repo-cli/commands/AIMetrics/index` | `AiMetricsCommandError` | class | `packages/tooling/tool/cli/src/commands/AIMetrics/AIMetrics.errors.ts:26` | Error raised by the AI metrics CLI. |
 | `@beep/repo-cli/commands/AIMetrics/index` | `AiMetricsStatusExit` | class | `packages/tooling/tool/cli/src/commands/AIMetrics/AIMetrics.errors.ts:47` | Silent non-zero status used after the status command has already rendered output. |
 | `@beep/repo-cli/commands/Architecture` | `applyCanonicalSliceOperationPlan` | const | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlanExecution.ts:266` | Apply a decoded operation plan with failsafe conflict behavior. |
@@ -1745,7 +1745,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/commands/Image/index` | `ImageCommandServiceShape` | interface | `packages/tooling/tool/cli/src/commands/Image/Image.service.ts:48` | Service contract for image and video curation commands. |
 | `@beep/repo-cli/commands/Laws` | `DualArityInventoryReadError` | class | `packages/tooling/tool/cli/src/commands/Laws/Laws.errors.ts:31` | Failure raised when the dual-arity inventory cannot be read or decoded. |
 | `@beep/repo-cli/commands/Laws` | `EffectImportRulesPersistenceError` | class | `packages/tooling/tool/cli/src/commands/Laws/Laws.errors.ts:62` | Failure raised when Effect import rule updates cannot be written. |
-| `@beep/repo-cli/commands/Laws` | `lawsCommand` | const | `packages/tooling/tool/cli/src/commands/Laws/Laws.command.ts:436` | Laws command group. |
+| `@beep/repo-cli/commands/Laws` | `lawsCommand` | const | `packages/tooling/tool/cli/src/commands/Laws/Laws.command.ts:439` | Laws command group. |
 | `@beep/repo-cli/commands/Laws` | `NoNativeRuntimeRulesExecutionError` | class | `packages/tooling/tool/cli/src/commands/Laws/Laws.errors.ts:94` | Failure raised when native runtime enforcement cannot complete. |
 | `@beep/repo-cli/commands/Laws` | `TerseEffectRulesPersistenceError` | class | `packages/tooling/tool/cli/src/commands/Laws/Laws.errors.ts:126` | Failure raised when terse Effect rule updates cannot be written. |
 | `@beep/repo-cli/commands/Laws/AllowlistCheck` | `ALLOWLIST_PATH` | const | `packages/tooling/tool/cli/src/commands/Laws/AllowlistCheck.ts:34` | Relative path to the effect laws allowlist. |
@@ -1766,10 +1766,10 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/commands/Laws/EffectImports` | `runEffectImportRules` | const | `packages/tooling/tool/cli/src/commands/Laws/EffectImports.ts:110` | Run effect import style migration/check logic. |
 | `@beep/repo-cli/commands/Laws/index` | `DualArityInventoryReadError` | class | `packages/tooling/tool/cli/src/commands/Laws/Laws.errors.ts:31` | Failure raised when the dual-arity inventory cannot be read or decoded. |
 | `@beep/repo-cli/commands/Laws/index` | `EffectImportRulesPersistenceError` | class | `packages/tooling/tool/cli/src/commands/Laws/Laws.errors.ts:62` | Failure raised when Effect import rule updates cannot be written. |
-| `@beep/repo-cli/commands/Laws/index` | `lawsCommand` | const | `packages/tooling/tool/cli/src/commands/Laws/Laws.command.ts:436` | Laws command group. |
+| `@beep/repo-cli/commands/Laws/index` | `lawsCommand` | const | `packages/tooling/tool/cli/src/commands/Laws/Laws.command.ts:439` | Laws command group. |
 | `@beep/repo-cli/commands/Laws/index` | `NoNativeRuntimeRulesExecutionError` | class | `packages/tooling/tool/cli/src/commands/Laws/Laws.errors.ts:94` | Failure raised when native runtime enforcement cannot complete. |
 | `@beep/repo-cli/commands/Laws/index` | `TerseEffectRulesPersistenceError` | class | `packages/tooling/tool/cli/src/commands/Laws/Laws.errors.ts:126` | Failure raised when terse Effect rule updates cannot be written. |
-| `@beep/repo-cli/commands/Laws/Laws.command` | `lawsCommand` | const | `packages/tooling/tool/cli/src/commands/Laws/Laws.command.ts:436` | Laws command group. |
+| `@beep/repo-cli/commands/Laws/Laws.command` | `lawsCommand` | const | `packages/tooling/tool/cli/src/commands/Laws/Laws.command.ts:439` | Laws command group. |
 | `@beep/repo-cli/commands/Laws/Laws.errors` | `DualArityInventoryReadError` | class | `packages/tooling/tool/cli/src/commands/Laws/Laws.errors.ts:31` | Failure raised when the dual-arity inventory cannot be read or decoded. |
 | `@beep/repo-cli/commands/Laws/Laws.errors` | `EffectImportRulesPersistenceError` | class | `packages/tooling/tool/cli/src/commands/Laws/Laws.errors.ts:62` | Failure raised when Effect import rule updates cannot be written. |
 | `@beep/repo-cli/commands/Laws/Laws.errors` | `NoNativeRuntimeRulesExecutionError` | class | `packages/tooling/tool/cli/src/commands/Laws/Laws.errors.ts:94` | Failure raised when native runtime enforcement cannot complete. |
@@ -1781,7 +1781,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/commands/Laws/NoNativeRuntime` | `NoNativeRuntimeRulesOptions` | class | `packages/tooling/tool/cli/src/commands/Laws/NoNativeRuntime.ts:91` | Runtime options for repo-local native runtime checks. |
 | `@beep/repo-cli/commands/Laws/NoNativeRuntime` | `NoNativeRuntimeRulesSummary` | class | `packages/tooling/tool/cli/src/commands/Laws/NoNativeRuntime.ts:167` | Summary of repo-local native runtime checks. |
 | `@beep/repo-cli/commands/Laws/NoNativeRuntime` | `runNoNativeRuntimeRules` | const | `packages/tooling/tool/cli/src/commands/Laws/NoNativeRuntime.ts:509` | Run repo-local native runtime checks. |
-| `@beep/repo-cli/commands/Laws/TerseEffect` | `runTerseEffectRules` | const | `packages/tooling/tool/cli/src/commands/Laws/TerseEffect.ts:492` | Run terse Effect style migration/check logic. |
+| `@beep/repo-cli/commands/Laws/TerseEffect` | `runTerseEffectRules` | const | `packages/tooling/tool/cli/src/commands/Laws/TerseEffect.ts:542` | Run terse Effect style migration/check logic. |
 | `@beep/repo-cli/commands/Laws/TerseEffect` | `TerseEffectRulesOptions` | class | `packages/tooling/tool/cli/src/commands/Laws/TerseEffect.ts:31` | Runtime options for terse Effect style migration checks. |
 | `@beep/repo-cli/commands/Laws/TerseEffect` | `TerseEffectRulesSummary` | class | `packages/tooling/tool/cli/src/commands/Laws/TerseEffect.ts:61` | Summary of terse Effect style migration results. |
 | `@beep/repo-cli/commands/Lint` | `collectSchemaTopologyViolations` | const | `packages/tooling/tool/cli/src/commands/Lint/SchemaTopology.ts:434` | Collect schema topology violations without mutating process state. |
@@ -2226,7 +2226,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/test/Laws` | `EffectImportRulesOptions` | class | `packages/tooling/tool/cli/src/commands/Laws/EffectImports.ts:30` | Runtime options for effect import law migration checks. |
 | `@beep/repo-cli/test/Laws` | `EffectImportRulesPersistenceError` | class | `packages/tooling/tool/cli/src/commands/Laws/Laws.errors.ts:62` | Failure raised when Effect import rule updates cannot be written. |
 | `@beep/repo-cli/test/Laws` | `EffectImportRulesSummary` | class | `packages/tooling/tool/cli/src/commands/Laws/EffectImports.ts:60` | Summary of effect import law migration results. |
-| `@beep/repo-cli/test/Laws` | `lawsCommand` | const | `packages/tooling/tool/cli/src/commands/Laws/Laws.command.ts:436` | Laws command group. |
+| `@beep/repo-cli/test/Laws` | `lawsCommand` | const | `packages/tooling/tool/cli/src/commands/Laws/Laws.command.ts:439` | Laws command group. |
 | `@beep/repo-cli/test/Laws` | `NativeRuntimeViolationKeyOptions` | class | `packages/tooling/tool/cli/src/commands/Laws/NoNativeRuntime.ts:206` | Options for collecting native-runtime allowlist lookup keys. |
 | `@beep/repo-cli/test/Laws` | `NoNativeRuntimeDiagnostic` | class | `packages/tooling/tool/cli/src/commands/Laws/NoNativeRuntime.ts:119` | Single repo-local native runtime diagnostic. |
 | `@beep/repo-cli/test/Laws` | `NoNativeRuntimeDiagnostic` | namespace | `packages/tooling/tool/cli/src/commands/Laws/NoNativeRuntime.ts:143` | Namespace for {@link NoNativeRuntimeDiagnostic} companion types. |
@@ -2239,7 +2239,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/test/Laws` | `runEffectFnRules` | const | `packages/tooling/tool/cli/src/commands/Laws/EffectFn.ts:391` | Run the repo-local Effect.fn supplemental law. |
 | `@beep/repo-cli/test/Laws` | `runEffectImportRules` | const | `packages/tooling/tool/cli/src/commands/Laws/EffectImports.ts:110` | Run effect import style migration/check logic. |
 | `@beep/repo-cli/test/Laws` | `runNoNativeRuntimeRules` | const | `packages/tooling/tool/cli/src/commands/Laws/NoNativeRuntime.ts:509` | Run repo-local native runtime checks. |
-| `@beep/repo-cli/test/Laws` | `runTerseEffectRules` | const | `packages/tooling/tool/cli/src/commands/Laws/TerseEffect.ts:492` | Run terse Effect style migration/check logic. |
+| `@beep/repo-cli/test/Laws` | `runTerseEffectRules` | const | `packages/tooling/tool/cli/src/commands/Laws/TerseEffect.ts:542` | Run terse Effect style migration/check logic. |
 | `@beep/repo-cli/test/Laws` | `TerseEffectRulesOptions` | class | `packages/tooling/tool/cli/src/commands/Laws/TerseEffect.ts:31` | Runtime options for terse Effect style migration checks. |
 | `@beep/repo-cli/test/Laws` | `TerseEffectRulesPersistenceError` | class | `packages/tooling/tool/cli/src/commands/Laws/Laws.errors.ts:126` | Failure raised when terse Effect rule updates cannot be written. |
 | `@beep/repo-cli/test/Laws` | `TerseEffectRulesSummary` | class | `packages/tooling/tool/cli/src/commands/Laws/TerseEffect.ts:61` | Summary of terse Effect style migration results. |
@@ -2387,12 +2387,12 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/ai-sync` | `checkSourceDriftWithFetcher` | const | `packages/tooling/library/ai-sync/src/drift.ts:133` | Compare a set of sources with an injected fetcher. |
 | `@beep/ai-sync` | `checkStrictDrift` | const | `packages/tooling/library/ai-sync/src/drift.ts:169` | Networked strict drift check against committed Tier-1 hashes. |
 | `@beep/ai-sync` | `ClaudeMcpJson` | class | `packages/tooling/library/ai-sync/src/_generated/schemas.gen.ts:158` | Generated Claude-style MCP JSON schema. |
-| `@beep/ai-sync` | `claudeMcpJsonToCodexConfig` | const | `packages/tooling/library/ai-sync/src/transforms.ts:77` | Transform Claude-style `.mcp.json` into the Codex TOML MCP server block. |
-| `@beep/ai-sync` | `claudeMcpJsonToJunieMcpJson` | const | `packages/tooling/library/ai-sync/src/transforms.ts:96` | Transform Claude-style `.mcp.json` into the modeled Junie project MCP shape. |
+| `@beep/ai-sync` | `claudeMcpJsonToCodexConfig` | const | `packages/tooling/library/ai-sync/src/transforms.ts:78` | Transform Claude-style `.mcp.json` into the Codex TOML MCP server block. |
+| `@beep/ai-sync` | `claudeMcpJsonToJunieMcpJson` | const | `packages/tooling/library/ai-sync/src/transforms.ts:97` | Transform Claude-style `.mcp.json` into the modeled Junie project MCP shape. |
 | `@beep/ai-sync` | `ClaudeSettings` | class | `packages/tooling/library/ai-sync/src/_generated/schemas.gen.ts:178` | Generated Claude Code settings schema subset. |
 | `@beep/ai-sync` | `CodexConfig` | class | `packages/tooling/library/ai-sync/src/_generated/schemas.gen.ts:95` | Generated Codex config schema. |
 | `@beep/ai-sync` | `CodexMcpServer` | class | `packages/tooling/library/ai-sync/src/_generated/schemas.gen.ts:27` | Generated MCP server command configuration. |
-| `@beep/ai-sync` | `codexMcpServersToClaudeMcpJson` | const | `packages/tooling/library/ai-sync/src/transforms.ts:58` | Transform Codex TOML MCP server config into Claude-style `.mcp.json`. |
+| `@beep/ai-sync` | `codexMcpServersToClaudeMcpJson` | const | `packages/tooling/library/ai-sync/src/transforms.ts:59` | Transform Codex TOML MCP server config into Claude-style `.mcp.json`. |
 | `@beep/ai-sync` | `CodexSkillEntry` | class | `packages/tooling/library/ai-sync/src/_generated/schemas.gen.ts:53` | Generated Codex skill entry. |
 | `@beep/ai-sync` | `CodexSkills` | class | `packages/tooling/library/ai-sync/src/_generated/schemas.gen.ts:74` | Generated Codex skills block. |
 | `@beep/ai-sync` | `decodeClaudeMcpJsonObject` | const | `packages/tooling/library/ai-sync/src/schemas.ts:182` | Decoder for Claude-style MCP JSON values after JSON parsing. |
@@ -2400,10 +2400,10 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/ai-sync` | `decodeCodexConfigObject` | const | `packages/tooling/library/ai-sync/src/schemas.ts:169` | Decoder for Codex TOML config values after TOML parsing. |
 | `@beep/ai-sync` | `defaultRepoRoot` | const | `packages/tooling/library/ai-sync/src/validation.ts:120` | Resolve the repository root from the package source directory. |
 | `@beep/ai-sync` | `getGeneratedSourceMetadata` | const | `packages/tooling/library/ai-sync/src/drift.ts:48` | Decode committed generated source metadata. |
-| `@beep/ai-sync` | `junieMcpJsonToClaudeMcpJson` | const | `packages/tooling/library/ai-sync/src/transforms.ts:112` | Transform the modeled Junie project MCP shape into Claude-style `.mcp.json`. |
+| `@beep/ai-sync` | `junieMcpJsonToClaudeMcpJson` | const | `packages/tooling/library/ai-sync/src/transforms.ts:113` | Transform the modeled Junie project MCP shape into Claude-style `.mcp.json`. |
 | `@beep/ai-sync` | `McpJsonServer` | class | `packages/tooling/library/ai-sync/src/_generated/schemas.gen.ts:128` | Generated Claude-style MCP server schema. |
-| `@beep/ai-sync` | `normalizeAgentSkillFrontmatter` | const | `packages/tooling/library/ai-sync/src/transforms.ts:143` | Keep only the shared Agent Skills frontmatter fields modeled in V1. |
-| `@beep/ai-sync` | `normalizeInstructionDocument` | const | `packages/tooling/library/ai-sync/src/transforms.ts:127` | Normalize markdown instruction documents for compatible rule surfaces. |
+| `@beep/ai-sync` | `normalizeAgentSkillFrontmatter` | const | `packages/tooling/library/ai-sync/src/transforms.ts:144` | Keep only the shared Agent Skills frontmatter fields modeled in V1. |
+| `@beep/ai-sync` | `normalizeInstructionDocument` | const | `packages/tooling/library/ai-sync/src/transforms.ts:128` | Normalize markdown instruction documents for compatible rule surfaces. |
 | `@beep/ai-sync` | `renderSchemaIssueMessage` | const | `packages/tooling/library/ai-sync/src/schemas.ts:210` | Helper that turns schema issues into a bounded message. |
 | `@beep/ai-sync` | `TIER_ONE_SOURCES` | const | `packages/tooling/library/ai-sync/src/source-map.ts:21` | Tier-1 sources fetched by the generator and strict drift checker. |
 | `@beep/ai-sync` | `UnknownNativeSchemaCell` | class | `packages/tooling/library/ai-sync/src/schemas.ts:92` | Unknown native schema marker for documented-but-undisclosed surfaces. |
@@ -2426,14 +2426,14 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/ai-sync/drift` | `checkSourceDriftWithFetcher` | const | `packages/tooling/library/ai-sync/src/drift.ts:133` | Compare a set of sources with an injected fetcher. |
 | `@beep/ai-sync/drift` | `checkStrictDrift` | const | `packages/tooling/library/ai-sync/src/drift.ts:169` | Networked strict drift check against committed Tier-1 hashes. |
 | `@beep/ai-sync/drift` | `getGeneratedSourceMetadata` | const | `packages/tooling/library/ai-sync/src/drift.ts:48` | Decode committed generated source metadata. |
-| `@beep/ai-sync/generator` | `AiSyncHttpLayer` | const | `packages/tooling/library/ai-sync/src/generator.ts:407` | Runtime layer for generator and drift commands. |
-| `@beep/ai-sync/generator` | `fetchSourceText` | const | `packages/tooling/library/ai-sync/src/generator.ts:320` | Fetch an upstream source body. |
-| `@beep/ai-sync/generator` | `generateAiSyncArtifacts` | const | `packages/tooling/library/ai-sync/src/generator.ts:394` | Generate committed schema and source metadata files. |
-| `@beep/ai-sync/generator` | `GENERATED_SCHEMAS_PATH` | const | `packages/tooling/library/ai-sync/src/generator.ts:20` | Generated schemas file path relative to the package root. |
-| `@beep/ai-sync/generator` | `GENERATED_SOURCE_METADATA_PATH` | const | `packages/tooling/library/ai-sync/src/generator.ts:28` | Generated source metadata file path relative to the package root. |
-| `@beep/ai-sync/generator` | `hashSourceText` | const | `packages/tooling/library/ai-sync/src/generator.ts:296` | Compute a public SHA-256 content hash. |
-| `@beep/ai-sync/generator` | `renderGeneratedSchemas` | const | `packages/tooling/library/ai-sync/src/generator.ts:381` | Render generated schemas without network access. |
-| `@beep/ai-sync/generator` | `renderGeneratedSourceMetadata` | const | `packages/tooling/library/ai-sync/src/generator.ts:93` | Render generated source metadata without network access. |
+| `@beep/ai-sync/generator` | `AiSyncHttpLayer` | const | `packages/tooling/library/ai-sync/src/generator.ts:408` | Runtime layer for generator and drift commands. |
+| `@beep/ai-sync/generator` | `fetchSourceText` | const | `packages/tooling/library/ai-sync/src/generator.ts:321` | Fetch an upstream source body. |
+| `@beep/ai-sync/generator` | `generateAiSyncArtifacts` | const | `packages/tooling/library/ai-sync/src/generator.ts:395` | Generate committed schema and source metadata files. |
+| `@beep/ai-sync/generator` | `GENERATED_SCHEMAS_PATH` | const | `packages/tooling/library/ai-sync/src/generator.ts:21` | Generated schemas file path relative to the package root. |
+| `@beep/ai-sync/generator` | `GENERATED_SOURCE_METADATA_PATH` | const | `packages/tooling/library/ai-sync/src/generator.ts:29` | Generated source metadata file path relative to the package root. |
+| `@beep/ai-sync/generator` | `hashSourceText` | const | `packages/tooling/library/ai-sync/src/generator.ts:297` | Compute a public SHA-256 content hash. |
+| `@beep/ai-sync/generator` | `renderGeneratedSchemas` | const | `packages/tooling/library/ai-sync/src/generator.ts:382` | Render generated schemas without network access. |
+| `@beep/ai-sync/generator` | `renderGeneratedSourceMetadata` | const | `packages/tooling/library/ai-sync/src/generator.ts:94` | Render generated source metadata without network access. |
 | `@beep/ai-sync/index` | `AgentCommandMetadata` | class | `packages/tooling/library/ai-sync/src/schemas.ts:115` | Documentation-backed generic command metadata. |
 | `@beep/ai-sync/index` | `AgentInstructionDocument` | const | `packages/tooling/library/ai-sync/src/schemas.ts:35` | Agent instruction markdown document. |
 | `@beep/ai-sync/index` | `AgentInstructionDocument` | type | `packages/tooling/library/ai-sync/src/schemas.ts:53` | Runtime type for {@link AgentInstructionDocument}. |
@@ -2463,12 +2463,12 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/ai-sync/index` | `checkSourceDriftWithFetcher` | const | `packages/tooling/library/ai-sync/src/drift.ts:133` | Compare a set of sources with an injected fetcher. |
 | `@beep/ai-sync/index` | `checkStrictDrift` | const | `packages/tooling/library/ai-sync/src/drift.ts:169` | Networked strict drift check against committed Tier-1 hashes. |
 | `@beep/ai-sync/index` | `ClaudeMcpJson` | class | `packages/tooling/library/ai-sync/src/_generated/schemas.gen.ts:158` | Generated Claude-style MCP JSON schema. |
-| `@beep/ai-sync/index` | `claudeMcpJsonToCodexConfig` | const | `packages/tooling/library/ai-sync/src/transforms.ts:77` | Transform Claude-style `.mcp.json` into the Codex TOML MCP server block. |
-| `@beep/ai-sync/index` | `claudeMcpJsonToJunieMcpJson` | const | `packages/tooling/library/ai-sync/src/transforms.ts:96` | Transform Claude-style `.mcp.json` into the modeled Junie project MCP shape. |
+| `@beep/ai-sync/index` | `claudeMcpJsonToCodexConfig` | const | `packages/tooling/library/ai-sync/src/transforms.ts:78` | Transform Claude-style `.mcp.json` into the Codex TOML MCP server block. |
+| `@beep/ai-sync/index` | `claudeMcpJsonToJunieMcpJson` | const | `packages/tooling/library/ai-sync/src/transforms.ts:97` | Transform Claude-style `.mcp.json` into the modeled Junie project MCP shape. |
 | `@beep/ai-sync/index` | `ClaudeSettings` | class | `packages/tooling/library/ai-sync/src/_generated/schemas.gen.ts:178` | Generated Claude Code settings schema subset. |
 | `@beep/ai-sync/index` | `CodexConfig` | class | `packages/tooling/library/ai-sync/src/_generated/schemas.gen.ts:95` | Generated Codex config schema. |
 | `@beep/ai-sync/index` | `CodexMcpServer` | class | `packages/tooling/library/ai-sync/src/_generated/schemas.gen.ts:27` | Generated MCP server command configuration. |
-| `@beep/ai-sync/index` | `codexMcpServersToClaudeMcpJson` | const | `packages/tooling/library/ai-sync/src/transforms.ts:58` | Transform Codex TOML MCP server config into Claude-style `.mcp.json`. |
+| `@beep/ai-sync/index` | `codexMcpServersToClaudeMcpJson` | const | `packages/tooling/library/ai-sync/src/transforms.ts:59` | Transform Codex TOML MCP server config into Claude-style `.mcp.json`. |
 | `@beep/ai-sync/index` | `CodexSkillEntry` | class | `packages/tooling/library/ai-sync/src/_generated/schemas.gen.ts:53` | Generated Codex skill entry. |
 | `@beep/ai-sync/index` | `CodexSkills` | class | `packages/tooling/library/ai-sync/src/_generated/schemas.gen.ts:74` | Generated Codex skills block. |
 | `@beep/ai-sync/index` | `decodeClaudeMcpJsonObject` | const | `packages/tooling/library/ai-sync/src/schemas.ts:182` | Decoder for Claude-style MCP JSON values after JSON parsing. |
@@ -2476,10 +2476,10 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/ai-sync/index` | `decodeCodexConfigObject` | const | `packages/tooling/library/ai-sync/src/schemas.ts:169` | Decoder for Codex TOML config values after TOML parsing. |
 | `@beep/ai-sync/index` | `defaultRepoRoot` | const | `packages/tooling/library/ai-sync/src/validation.ts:120` | Resolve the repository root from the package source directory. |
 | `@beep/ai-sync/index` | `getGeneratedSourceMetadata` | const | `packages/tooling/library/ai-sync/src/drift.ts:48` | Decode committed generated source metadata. |
-| `@beep/ai-sync/index` | `junieMcpJsonToClaudeMcpJson` | const | `packages/tooling/library/ai-sync/src/transforms.ts:112` | Transform the modeled Junie project MCP shape into Claude-style `.mcp.json`. |
+| `@beep/ai-sync/index` | `junieMcpJsonToClaudeMcpJson` | const | `packages/tooling/library/ai-sync/src/transforms.ts:113` | Transform the modeled Junie project MCP shape into Claude-style `.mcp.json`. |
 | `@beep/ai-sync/index` | `McpJsonServer` | class | `packages/tooling/library/ai-sync/src/_generated/schemas.gen.ts:128` | Generated Claude-style MCP server schema. |
-| `@beep/ai-sync/index` | `normalizeAgentSkillFrontmatter` | const | `packages/tooling/library/ai-sync/src/transforms.ts:143` | Keep only the shared Agent Skills frontmatter fields modeled in V1. |
-| `@beep/ai-sync/index` | `normalizeInstructionDocument` | const | `packages/tooling/library/ai-sync/src/transforms.ts:127` | Normalize markdown instruction documents for compatible rule surfaces. |
+| `@beep/ai-sync/index` | `normalizeAgentSkillFrontmatter` | const | `packages/tooling/library/ai-sync/src/transforms.ts:144` | Keep only the shared Agent Skills frontmatter fields modeled in V1. |
+| `@beep/ai-sync/index` | `normalizeInstructionDocument` | const | `packages/tooling/library/ai-sync/src/transforms.ts:128` | Normalize markdown instruction documents for compatible rule surfaces. |
 | `@beep/ai-sync/index` | `renderSchemaIssueMessage` | const | `packages/tooling/library/ai-sync/src/schemas.ts:210` | Helper that turns schema issues into a bounded message. |
 | `@beep/ai-sync/index` | `TIER_ONE_SOURCES` | const | `packages/tooling/library/ai-sync/src/source-map.ts:21` | Tier-1 sources fetched by the generator and strict drift checker. |
 | `@beep/ai-sync/index` | `UnknownNativeSchemaCell` | class | `packages/tooling/library/ai-sync/src/schemas.ts:92` | Unknown native schema marker for documented-but-undisclosed surfaces. |
@@ -2528,12 +2528,12 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/ai-sync/source-map` | `TIER_ONE_SOURCES` | const | `packages/tooling/library/ai-sync/src/source-map.ts:21` | Tier-1 sources fetched by the generator and strict drift checker. |
 | `@beep/ai-sync/source-map` | `V1_SCHEMA_COVERAGE` | const | `packages/tooling/library/ai-sync/src/source-map.ts:120` | Complete V1 schema support matrix. |
 | `@beep/ai-sync/source-map` | `V1_TRANSFORM_EVIDENCE` | const | `packages/tooling/library/ai-sync/src/source-map.ts:320` | P4 transform evidence ledger. |
-| `@beep/ai-sync/transforms` | `claudeMcpJsonToCodexConfig` | const | `packages/tooling/library/ai-sync/src/transforms.ts:77` | Transform Claude-style `.mcp.json` into the Codex TOML MCP server block. |
-| `@beep/ai-sync/transforms` | `claudeMcpJsonToJunieMcpJson` | const | `packages/tooling/library/ai-sync/src/transforms.ts:96` | Transform Claude-style `.mcp.json` into the modeled Junie project MCP shape. |
-| `@beep/ai-sync/transforms` | `codexMcpServersToClaudeMcpJson` | const | `packages/tooling/library/ai-sync/src/transforms.ts:58` | Transform Codex TOML MCP server config into Claude-style `.mcp.json`. |
-| `@beep/ai-sync/transforms` | `junieMcpJsonToClaudeMcpJson` | const | `packages/tooling/library/ai-sync/src/transforms.ts:112` | Transform the modeled Junie project MCP shape into Claude-style `.mcp.json`. |
-| `@beep/ai-sync/transforms` | `normalizeAgentSkillFrontmatter` | const | `packages/tooling/library/ai-sync/src/transforms.ts:143` | Keep only the shared Agent Skills frontmatter fields modeled in V1. |
-| `@beep/ai-sync/transforms` | `normalizeInstructionDocument` | const | `packages/tooling/library/ai-sync/src/transforms.ts:127` | Normalize markdown instruction documents for compatible rule surfaces. |
+| `@beep/ai-sync/transforms` | `claudeMcpJsonToCodexConfig` | const | `packages/tooling/library/ai-sync/src/transforms.ts:78` | Transform Claude-style `.mcp.json` into the Codex TOML MCP server block. |
+| `@beep/ai-sync/transforms` | `claudeMcpJsonToJunieMcpJson` | const | `packages/tooling/library/ai-sync/src/transforms.ts:97` | Transform Claude-style `.mcp.json` into the modeled Junie project MCP shape. |
+| `@beep/ai-sync/transforms` | `codexMcpServersToClaudeMcpJson` | const | `packages/tooling/library/ai-sync/src/transforms.ts:59` | Transform Codex TOML MCP server config into Claude-style `.mcp.json`. |
+| `@beep/ai-sync/transforms` | `junieMcpJsonToClaudeMcpJson` | const | `packages/tooling/library/ai-sync/src/transforms.ts:113` | Transform the modeled Junie project MCP shape into Claude-style `.mcp.json`. |
+| `@beep/ai-sync/transforms` | `normalizeAgentSkillFrontmatter` | const | `packages/tooling/library/ai-sync/src/transforms.ts:144` | Keep only the shared Agent Skills frontmatter fields modeled in V1. |
+| `@beep/ai-sync/transforms` | `normalizeInstructionDocument` | const | `packages/tooling/library/ai-sync/src/transforms.ts:128` | Normalize markdown instruction documents for compatible rule surfaces. |
 | `@beep/ai-sync/validation` | `defaultRepoRoot` | const | `packages/tooling/library/ai-sync/src/validation.ts:120` | Resolve the repository root from the package source directory. |
 | `@beep/ai-sync/validation` | `validateCurrentCheckoutDogfood` | const | `packages/tooling/library/ai-sync/src/validation.ts:136` | Validate the mandatory V1 config from the current checkout. |
 | `@beep/ai-sync/validation` | `validateDogfoodConfig` | const | `packages/tooling/library/ai-sync/src/validation.ts:105` | Validate the mandatory V1 dogfood config. |
@@ -3097,14 +3097,14 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/sandbox` | `BindMountSandboxProviderConfig` | interface | `packages/foundation/capability/sandbox/src/Sandbox.provider.ts:321` | Configuration for {@link createBindMountSandboxProvider}. |
 | `@beep/sandbox` | `BranchStrategy` | const | `packages/foundation/capability/sandbox/src/Sandbox.provider.ts:202` | Branch strategy for a sandbox run. |
 | `@beep/sandbox` | `BranchStrategy` | type | `packages/foundation/capability/sandbox/src/Sandbox.provider.ts:214` | Runtime type for {@link BranchStrategy}. |
-| `@beep/sandbox` | `buildCompletionMessage` | const | `packages/foundation/capability/sandbox/src/Run.ts:363` | Build the final run status message. |
+| `@beep/sandbox` | `buildCompletionMessage` | const | `packages/foundation/capability/sandbox/src/Run.ts:364` | Build the final run status message. |
 | `@beep/sandbox` | `buildContainerImage` | const | `packages/foundation/capability/sandbox/src/Image.ts:215` | Build a local Docker or Podman image for sandbox runs. |
-| `@beep/sandbox` | `buildContextWindowLines` | const | `packages/foundation/capability/sandbox/src/Run.ts:408` | Build context-window summary lines. |
+| `@beep/sandbox` | `buildContextWindowLines` | const | `packages/foundation/capability/sandbox/src/Run.ts:409` | Build context-window summary lines. |
 | `@beep/sandbox` | `buildDockerImage` | const | `packages/foundation/capability/sandbox/src/Image.ts:277` | Build a Docker image for sandbox runs. |
-| `@beep/sandbox` | `buildLogFilename` | const | `packages/foundation/capability/sandbox/src/Run.ts:327` | Build a log filename for a branch/run pair. |
+| `@beep/sandbox` | `buildLogFilename` | const | `packages/foundation/capability/sandbox/src/Run.ts:328` | Build a log filename for a branch/run pair. |
 | `@beep/sandbox` | `buildPodmanImage` | const | `packages/foundation/capability/sandbox/src/Image.ts:335` | Build a Podman image for sandbox runs. |
 | `@beep/sandbox` | `buildRecoveryMessage` | const | `packages/foundation/capability/sandbox/src/RecoveryMessage.ts:158` | Build copy-pastable recovery commands for a failed sync-out. |
-| `@beep/sandbox` | `buildRunSummaryRows` | const | `packages/foundation/capability/sandbox/src/Run.ts:350` | Build summary rows for display output. |
+| `@beep/sandbox` | `buildRunSummaryRows` | const | `packages/foundation/capability/sandbox/src/Run.ts:351` | Build summary rows for display output. |
 | `@beep/sandbox` | `BUILT_IN_PROMPT_ARG_KEY_SET` | const | `packages/foundation/capability/sandbox/src/Prompt.ts:50` | Built-in prompt argument keys as a `HashSet` for membership checks. |
 | `@beep/sandbox` | `BUILT_IN_PROMPT_ARG_KEYS` | const | `packages/foundation/capability/sandbox/src/Prompt.ts:42` | Built-in prompt argument keys injected by run orchestration. |
 | `@beep/sandbox` | `BuiltInPromptArgKey` | const | `packages/foundation/capability/sandbox/src/Prompt.ts:58` | Built-in prompt argument key domain. |
@@ -3127,7 +3127,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/sandbox` | `ContainerImageRemoveOptions` | class | `packages/foundation/capability/sandbox/src/Image.ts:136` | Options for removing a local sandbox image. |
 | `@beep/sandbox` | `ContainerImageRuntime` | const | `packages/foundation/capability/sandbox/src/Image.ts:27` | Container runtime used for local sandbox images. |
 | `@beep/sandbox` | `ContainerImageRuntime` | type | `packages/foundation/capability/sandbox/src/Image.ts:39` | Runtime type for {@link ContainerImageRuntime}. |
-| `@beep/sandbox` | `ContainerProviderOptions` | class | `packages/foundation/capability/sandbox/src/Sandbox.providers.ts:72` | Options for Docker and Podman bind-mount providers. |
+| `@beep/sandbox` | `ContainerProviderOptions` | class | `packages/foundation/capability/sandbox/src/Sandbox.providers.ts:73` | Options for Docker and Podman bind-mount providers. |
 | `@beep/sandbox` | `ContainerStartTimeoutError` | class | `packages/foundation/capability/sandbox/src/Sandbox.errors.ts:216` | ContainerStartTimeoutError - Sandbox container start timed out. |
 | `@beep/sandbox` | `CopyError` | class | `packages/foundation/capability/sandbox/src/Sandbox.errors.ts:53` | CopyError - File copy between host and sandbox failed |
 | `@beep/sandbox` | `CopyToWorktreeError` | class | `packages/foundation/capability/sandbox/src/Sandbox.errors.ts:253` | CopyToWorktreeError - Fallback cp -R to worktree failed. |
@@ -3137,15 +3137,15 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/sandbox` | `createSandbox` | const | `packages/foundation/capability/sandbox/src/createSandbox.ts:56` | Create a sandbox handle from a provider. |
 | `@beep/sandbox` | `CreateSandboxOptions` | interface | `packages/foundation/capability/sandbox/src/createSandbox.ts:26` | Options for creating a sandbox handle directly. |
 | `@beep/sandbox` | `CreateSandboxResult` | class | `packages/foundation/capability/sandbox/src/createSandbox.ts:40` | Result of direct sandbox creation. |
-| `@beep/sandbox` | `createWorktree` | const | `packages/foundation/capability/sandbox/src/createWorktree.ts:88` | Create a managed worktree wrapper. |
+| `@beep/sandbox` | `createWorktree` | const | `packages/foundation/capability/sandbox/src/createWorktree.ts:89` | Create a managed worktree wrapper. |
 | `@beep/sandbox` | `createWorktreeInfo` | const | `packages/foundation/capability/sandbox/src/Worktree.ts:144` | Create a managed git worktree under `.sandcastle/worktrees`. |
 | `@beep/sandbox` | `CreateWorktreeInfoOptions` | class | `packages/foundation/capability/sandbox/src/Worktree.ts:52` | Options for creating a managed git worktree. |
-| `@beep/sandbox` | `CreateWorktreeOptions` | class | `packages/foundation/capability/sandbox/src/createWorktree.ts:32` | Options for creating a managed worktree. |
-| `@beep/sandbox` | `CreateWorktreeResult` | class | `packages/foundation/capability/sandbox/src/createWorktree.ts:72` | Worktree creation summary. |
-| `@beep/sandbox` | `createWorktreeScoped` | const | `packages/foundation/capability/sandbox/src/createWorktree.ts:129` | Create a managed worktree whose lifetime is bound to the current Effect scope. |
+| `@beep/sandbox` | `CreateWorktreeOptions` | class | `packages/foundation/capability/sandbox/src/createWorktree.ts:33` | Options for creating a managed worktree. |
+| `@beep/sandbox` | `CreateWorktreeResult` | class | `packages/foundation/capability/sandbox/src/createWorktree.ts:73` | Worktree creation summary. |
+| `@beep/sandbox` | `createWorktreeScoped` | const | `packages/foundation/capability/sandbox/src/createWorktree.ts:130` | Create a managed worktree whose lifetime is bound to the current Effect scope. |
 | `@beep/sandbox` | `CwdError` | class | `packages/foundation/capability/sandbox/src/Sandbox.errors.ts:408` | CwdError - The provided `cwd` path does not exist or is not a directory |
 | `@beep/sandbox` | `DEFAULT_CLAUDE_MODEL` | const | `packages/foundation/capability/sandbox/src/Agent.provider.ts:536` | Default Claude model used by the source Sandcastle implementation. |
-| `@beep/sandbox` | `DEFAULT_MAX_ITERATIONS` | const | `packages/foundation/capability/sandbox/src/Run.ts:75` | Default maximum number of iterations. |
+| `@beep/sandbox` | `DEFAULT_MAX_ITERATIONS` | const | `packages/foundation/capability/sandbox/src/Run.ts:76` | Default maximum number of iterations. |
 | `@beep/sandbox` | `defaultSandboxImageName` | const | `packages/foundation/capability/sandbox/src/Init.ts:339` | Derive the default local container image name for a repository. |
 | `@beep/sandbox` | `defaultSessionPathsLayer` | const | `packages/foundation/capability/sandbox/src/Session.ts:104` | Default session-path layer. |
 | `@beep/sandbox` | `Display` | class | `packages/foundation/capability/sandbox/src/Display.ts:215` | Display service. |
@@ -3159,7 +3159,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/sandbox` | `DisplayEntryText` | class | `packages/foundation/capability/sandbox/src/Display.ts:128` | Text entry captured by a display implementation. |
 | `@beep/sandbox` | `DisplayEntryToolCall` | class | `packages/foundation/capability/sandbox/src/Display.ts:144` | Tool-call entry captured by a display implementation. |
 | `@beep/sandbox` | `DisplayServiceShape` | interface | `packages/foundation/capability/sandbox/src/Display.ts:190` | Display service shape. |
-| `@beep/sandbox` | `docker` | const | `packages/foundation/capability/sandbox/src/Sandbox.providers.ts:339` | Create a Docker bind-mount sandbox provider. |
+| `@beep/sandbox` | `docker` | const | `packages/foundation/capability/sandbox/src/Sandbox.providers.ts:340` | Create a Docker bind-mount sandbox provider. |
 | `@beep/sandbox` | `DockerError` | class | `packages/foundation/capability/sandbox/src/Sandbox.errors.ts:67` | DockerError - Docker infrastructure operation failed |
 | `@beep/sandbox` | `DockerImageBuildOptions` | class | `packages/foundation/capability/sandbox/src/Image.ts:85` | Docker-specific image build options. |
 | `@beep/sandbox` | `encodeProjectPath` | const | `packages/foundation/capability/sandbox/src/Session.ts:87` | Encoded project path used by Claude session directories. |
@@ -3172,10 +3172,10 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/sandbox` | `FailedStep` | const | `packages/foundation/capability/sandbox/src/RecoveryMessage.ts:29` | Sync-out step that failed during patch application. |
 | `@beep/sandbox` | `FailedStep` | type | `packages/foundation/capability/sandbox/src/RecoveryMessage.ts:41` | Runtime type for {@link FailedStep}. |
 | `@beep/sandbox` | `FileDisplay` | const | `packages/foundation/capability/sandbox/src/Display.ts:421` | File-backed display implementation that appends display output to a log file. |
-| `@beep/sandbox` | `FileDisplayStartupOptions` | class | `packages/foundation/capability/sandbox/src/Run.ts:235` | Startup options for file display mode. |
-| `@beep/sandbox` | `FileLoggingOption` | class | `packages/foundation/capability/sandbox/src/Run.ts:165` | File logging options. |
+| `@beep/sandbox` | `FileDisplayStartupOptions` | class | `packages/foundation/capability/sandbox/src/Run.ts:236` | Startup options for file display mode. |
+| `@beep/sandbox` | `FileLoggingOption` | class | `packages/foundation/capability/sandbox/src/Run.ts:166` | File logging options. |
 | `@beep/sandbox` | `findMissingPromptArgKeys` | const | `packages/foundation/capability/sandbox/src/Prompt.ts:256` | Find placeholders that are missing corresponding prompt arguments. |
-| `@beep/sandbox` | `formatContextWindowSize` | const | `packages/foundation/capability/sandbox/src/Run.ts:392` | Format an iteration context-window size. |
+| `@beep/sandbox` | `formatContextWindowSize` | const | `packages/foundation/capability/sandbox/src/Run.ts:393` | Format an iteration context-window size. |
 | `@beep/sandbox` | `formatErrorMessage` | const | `packages/foundation/capability/sandbox/src/Sandbox.error-handler.ts:57` | Format a sandbox error with secret-shaped text redacted. |
 | `@beep/sandbox` | `fromPromiseBindMountSandboxProvider` | const | `packages/foundation/capability/sandbox/src/Sandbox.provider.ts:385` | Convert a Promise-based bind-mount provider into the Effect contract. |
 | `@beep/sandbox` | `fromPromiseIsolatedSandboxProvider` | const | `packages/foundation/capability/sandbox/src/Sandbox.provider.ts:406` | Convert a Promise-based isolated provider into the Effect contract. |
@@ -3196,10 +3196,10 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/sandbox` | `initSandbox` | const | `packages/foundation/capability/sandbox/src/Init.ts:464` | Scaffold the `.sandcastle` config directory for a repository. |
 | `@beep/sandbox` | `InitSandboxOptions` | class | `packages/foundation/capability/sandbox/src/Init.ts:138` | Options for initializing a sandbox config directory. |
 | `@beep/sandbox` | `InitSandboxResult` | class | `packages/foundation/capability/sandbox/src/Init.ts:173` | Result returned after sandbox init scaffolding completes. |
-| `@beep/sandbox` | `interactive` | const | `packages/foundation/capability/sandbox/src/interactive.ts:56` | Start an interactive agent session. |
+| `@beep/sandbox` | `interactive` | const | `packages/foundation/capability/sandbox/src/interactive.ts:57` | Start an interactive agent session. |
 | `@beep/sandbox` | `InteractiveExecOptions` | interface | `packages/foundation/capability/sandbox/src/Sandbox.provider.ts:94` | Options for interactive sandbox command execution. |
 | `@beep/sandbox` | `InteractiveExecResult` | class | `packages/foundation/capability/sandbox/src/Sandbox.provider.ts:79` | Result of an interactive sandbox command. |
-| `@beep/sandbox` | `InteractiveResult` | class | `packages/foundation/capability/sandbox/src/interactive.ts:36` | Result of an interactive agent session. |
+| `@beep/sandbox` | `InteractiveResult` | class | `packages/foundation/capability/sandbox/src/interactive.ts:37` | Result of an interactive agent session. |
 | `@beep/sandbox` | `IsolatedCreateOptions` | class | `packages/foundation/capability/sandbox/src/Sandbox.provider.ts:142` | Options passed when creating an isolated sandbox. |
 | `@beep/sandbox` | `IsolatedSandboxHandle` | interface | `packages/foundation/capability/sandbox/src/Sandbox.provider.ts:249` | Handle returned by isolated providers. |
 | `@beep/sandbox` | `IsolatedSandboxProvider` | interface | `packages/foundation/capability/sandbox/src/Sandbox.provider.ts:281` | Isolated sandbox provider contract. |
@@ -3209,11 +3209,11 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/sandbox` | `listSandboxAgents` | const | `packages/foundation/capability/sandbox/src/Init.ts:365` | List init-time agent registry entries. |
 | `@beep/sandbox` | `listSandboxInitProviders` | const | `packages/foundation/capability/sandbox/src/Init.ts:397` | List init-time sandbox provider registry entries. |
 | `@beep/sandbox` | `listSandboxTemplates` | const | `packages/foundation/capability/sandbox/src/Template.ts:243` | List scaffold templates supported by the init command. |
-| `@beep/sandbox` | `LogFilenameOptions` | class | `packages/foundation/capability/sandbox/src/Run.ts:253` | Options for building a sandbox run log filename. |
-| `@beep/sandbox` | `LoggingOption` | const | `packages/foundation/capability/sandbox/src/Run.ts:196` | Logging mode for a sandbox run. |
-| `@beep/sandbox` | `LoggingOption` | type | `packages/foundation/capability/sandbox/src/Run.ts:208` | Runtime type for {@link LoggingOption}. |
-| `@beep/sandbox` | `LoggingOptionKind` | const | `packages/foundation/capability/sandbox/src/Run.ts:83` | Logging option discriminator. |
-| `@beep/sandbox` | `LoggingOptionKind` | type | `packages/foundation/capability/sandbox/src/Run.ts:95` | Runtime type for {@link LoggingOptionKind}. |
+| `@beep/sandbox` | `LogFilenameOptions` | class | `packages/foundation/capability/sandbox/src/Run.ts:254` | Options for building a sandbox run log filename. |
+| `@beep/sandbox` | `LoggingOption` | const | `packages/foundation/capability/sandbox/src/Run.ts:197` | Logging mode for a sandbox run. |
+| `@beep/sandbox` | `LoggingOption` | type | `packages/foundation/capability/sandbox/src/Run.ts:209` | Runtime type for {@link LoggingOption}. |
+| `@beep/sandbox` | `LoggingOptionKind` | const | `packages/foundation/capability/sandbox/src/Run.ts:84` | Logging option discriminator. |
+| `@beep/sandbox` | `LoggingOptionKind` | type | `packages/foundation/capability/sandbox/src/Run.ts:96` | Runtime type for {@link LoggingOptionKind}. |
 | `@beep/sandbox` | `makeTerminalCleanupHandler` | const | `packages/foundation/capability/sandbox/src/terminalCleanup.ts:58` | Create a synchronous exit handler that restores terminal state. |
 | `@beep/sandbox` | `matchSandboxProvider` | const | `packages/foundation/capability/sandbox/src/Sandbox.provider.ts:427` | Match a sandbox provider by provider kind. |
 | `@beep/sandbox` | `mergeProviderEnv` | const | `packages/foundation/capability/sandbox/src/Env.ts:109` | Merge resolved environment variables with agent and sandbox provider env. |
@@ -3225,9 +3225,9 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/sandbox` | `MountEntry` | class | `packages/foundation/capability/sandbox/src/Sandbox.provider.ts:107` | A host-to-sandbox mount declaration. |
 | `@beep/sandbox` | `NamedBranchStrategy` | class | `packages/foundation/capability/sandbox/src/Sandbox.provider.ts:185` | Branch strategy that writes changes to a named branch. |
 | `@beep/sandbox` | `noopAgentStreamEmitterLayer` | const | `packages/foundation/capability/sandbox/src/AgentStreamEmitter.ts:95` | Agent stream emitter layer that discards events. |
-| `@beep/sandbox` | `noSandbox` | const | `packages/foundation/capability/sandbox/src/Sandbox.providers.ts:280` | Create a host-local no-sandbox provider. |
+| `@beep/sandbox` | `noSandbox` | const | `packages/foundation/capability/sandbox/src/Sandbox.providers.ts:281` | Create a host-local no-sandbox provider. |
 | `@beep/sandbox` | `NoSandboxHandle` | interface | `packages/foundation/capability/sandbox/src/Sandbox.provider.ts:259` | Handle returned by the no-sandbox provider. |
-| `@beep/sandbox` | `NoSandboxOptions` | class | `packages/foundation/capability/sandbox/src/Sandbox.providers.ts:57` | Options for the no-sandbox provider. |
+| `@beep/sandbox` | `NoSandboxOptions` | class | `packages/foundation/capability/sandbox/src/Sandbox.providers.ts:58` | Options for the no-sandbox provider. |
 | `@beep/sandbox` | `NoSandboxProvider` | interface | `packages/foundation/capability/sandbox/src/Sandbox.provider.ts:294` | Host-local no-sandbox provider contract. |
 | `@beep/sandbox` | `opencode` | const | `packages/foundation/capability/sandbox/src/Agent.provider.ts:804` | Create an OpenCode agent provider. |
 | `@beep/sandbox` | `OpenCodeOptions` | class | `packages/foundation/capability/sandbox/src/Agent.provider.ts:488` | Options for the OpenCode provider. |
@@ -3238,7 +3238,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/sandbox` | `ParsedStreamEvent` | type | `packages/foundation/capability/sandbox/src/Agent.provider.ts:358` | Runtime type for {@link ParsedStreamEvent}. |
 | `@beep/sandbox` | `pi` | const | `packages/foundation/capability/sandbox/src/Agent.provider.ts:784` | Create a Pi agent provider. |
 | `@beep/sandbox` | `PiOptions` | class | `packages/foundation/capability/sandbox/src/Agent.provider.ts:473` | Options for the Pi provider. |
-| `@beep/sandbox` | `podman` | const | `packages/foundation/capability/sandbox/src/Sandbox.providers.ts:348` | Create a Podman bind-mount sandbox provider. |
+| `@beep/sandbox` | `podman` | const | `packages/foundation/capability/sandbox/src/Sandbox.providers.ts:349` | Create a Podman bind-mount sandbox provider. |
 | `@beep/sandbox` | `PodmanError` | class | `packages/foundation/capability/sandbox/src/Sandbox.errors.ts:81` | PodmanError - Podman infrastructure operation failed |
 | `@beep/sandbox` | `PodmanImageBuildOptions` | class | `packages/foundation/capability/sandbox/src/Image.ts:109` | Podman-specific image build options. |
 | `@beep/sandbox` | `prepareSandboxLifecycle` | const | `packages/foundation/capability/sandbox/src/Lifecycle.ts:440` | Run sandbox setup commands and ready hooks before agent work. |
@@ -3267,12 +3267,12 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/sandbox` | `resolveEnv` | const | `packages/foundation/capability/sandbox/src/Env.ts:78` | Resolve declared sandbox environment variables from `.sandcastle/.env`. |
 | `@beep/sandbox` | `resolvePrompt` | const | `packages/foundation/capability/sandbox/src/Prompt.ts:191` | Resolve an inline prompt or prompt file. |
 | `@beep/sandbox` | `ResolvePromptOptions` | class | `packages/foundation/capability/sandbox/src/Prompt.ts:140` | Options for resolving a prompt. |
-| `@beep/sandbox` | `run` | const | `packages/foundation/capability/sandbox/src/Run.ts:746` | Run an agent in a sandbox provider. |
+| `@beep/sandbox` | `run` | const | `packages/foundation/capability/sandbox/src/Run.ts:747` | Run an agent in a sandbox provider. |
 | `@beep/sandbox` | `runHostHooks` | const | `packages/foundation/capability/sandbox/src/Lifecycle.ts:298` | Run host-side lifecycle hook commands sequentially. |
 | `@beep/sandbox` | `RunHostHooksOptions` | class | `packages/foundation/capability/sandbox/src/Lifecycle.ts:164` | Options for running host lifecycle hooks. |
-| `@beep/sandbox` | `RunOptions` | interface | `packages/foundation/capability/sandbox/src/Run.ts:295` | Programmatic run options. |
-| `@beep/sandbox` | `RunResult` | class | `packages/foundation/capability/sandbox/src/Run.ts:269` | Result returned by {@link run}. |
-| `@beep/sandbox` | `RunSummaryRowOptions` | class | `packages/foundation/capability/sandbox/src/Run.ts:216` | Options for building run summary rows. |
+| `@beep/sandbox` | `RunOptions` | interface | `packages/foundation/capability/sandbox/src/Run.ts:296` | Programmatic run options. |
+| `@beep/sandbox` | `RunResult` | class | `packages/foundation/capability/sandbox/src/Run.ts:270` | Result returned by {@link run}. |
+| `@beep/sandbox` | `RunSummaryRowOptions` | class | `packages/foundation/capability/sandbox/src/Run.ts:217` | Options for building run summary rows. |
 | `@beep/sandbox` | `SANDBOX_CONFIG_DIR` | const | `packages/foundation/capability/sandbox/src/Init.ts:30` | Config directory created by {@link initSandbox}. |
 | `@beep/sandbox` | `SandboxAgentEntry` | class | `packages/foundation/capability/sandbox/src/Init.ts:85` | Agent registry entry used by init scaffolding. |
 | `@beep/sandbox` | `SandboxAgentName` | const | `packages/foundation/capability/sandbox/src/Init.ts:38` | Supported init-time agent choices. |
@@ -3304,7 +3304,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/sandbox` | `SandboxTemplateName` | type | `packages/foundation/capability/sandbox/src/Template.ts:37` | Runtime type for {@link SandboxTemplateName}. |
 | `@beep/sandbox` | `sandboxTemplateNextSteps` | const | `packages/foundation/capability/sandbox/src/Template.ts:314` | Build human-readable next steps for a scaffolded template. |
 | `@beep/sandbox` | `SandboxTemplateRenderContext` | class | `packages/foundation/capability/sandbox/src/Template.ts:109` | Values available to embedded scaffold templates. |
-| `@beep/sandbox` | `sanitizeBranchForFilename` | const | `packages/foundation/capability/sandbox/src/Run.ts:319` | Replace path-hostile branch characters with dashes. |
+| `@beep/sandbox` | `sanitizeBranchForFilename` | const | `packages/foundation/capability/sandbox/src/Run.ts:320` | Replace path-hostile branch characters with dashes. |
 | `@beep/sandbox` | `sanitizeName` | const | `packages/foundation/capability/sandbox/src/Worktree.ts:70` | Sanitize text for branch and directory names. |
 | `@beep/sandbox` | `SessionCaptureError` | class | `packages/foundation/capability/sandbox/src/Sandbox.errors.ts:392` | SessionCaptureError - Session capture (read, rewrite, or write) failed |
 | `@beep/sandbox` | `SessionId` | const | `packages/foundation/capability/sandbox/src/Session.ts:43` | Filename-safe agent session identifier. |
@@ -3320,15 +3320,15 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/sandbox` | `SHELL_BLOCK_MARKER` | const | `packages/foundation/capability/sandbox/src/Prompt.ts:32` | Marker inserted before literal shell blocks in prompt templates. |
 | `@beep/sandbox` | `SHOW_CURSOR` | const | `packages/foundation/capability/sandbox/src/terminalCleanup.ts:21` | Escape sequence that restores terminal cursor visibility. |
 | `@beep/sandbox` | `SilentDisplay` | const | `packages/foundation/capability/sandbox/src/Display.ts:233` | Display implementation that records entries in a `Ref`. |
-| `@beep/sandbox` | `StdoutLoggingOption` | class | `packages/foundation/capability/sandbox/src/Run.ts:182` | Terminal logging options. |
+| `@beep/sandbox` | `StdoutLoggingOption` | class | `packages/foundation/capability/sandbox/src/Run.ts:183` | Terminal logging options. |
 | `@beep/sandbox` | `substitutePromptArgs` | const | `packages/foundation/capability/sandbox/src/Prompt.ts:288` | Substitute `{{KEY}}` prompt arguments in a prompt template. |
 | `@beep/sandbox` | `SyncError` | class | `packages/foundation/capability/sandbox/src/Sandbox.errors.ts:95` | SyncError - Git sync-in or sync-out operation failed |
 | `@beep/sandbox` | `syncIn` | const | `packages/foundation/capability/sandbox/src/SyncIn.ts:182` | Sync a host git repository into an isolated sandbox by cloning from a git bundle. |
 | `@beep/sandbox` | `SyncInResult` | class | `packages/foundation/capability/sandbox/src/SyncIn.ts:30` | Result returned after a repository has been copied into an isolated sandbox. |
 | `@beep/sandbox` | `SyncInTimeoutError` | class | `packages/foundation/capability/sandbox/src/Sandbox.errors.ts:271` | SyncInTimeoutError - Git sync-in for isolated providers timed out. |
-| `@beep/sandbox` | `syncOut` | const | `packages/foundation/capability/sandbox/src/SyncOut.ts:359` | Sync committed, uncommitted, and untracked sandbox changes back to a host repository. |
-| `@beep/sandbox` | `SyncOutOptions` | class | `packages/foundation/capability/sandbox/src/SyncOut.ts:40` | Optional sync-out recovery settings. |
-| `@beep/sandbox` | `SyncOutResult` | class | `packages/foundation/capability/sandbox/src/SyncOut.ts:55` | Result returned after sandbox changes have been applied to the host. |
+| `@beep/sandbox` | `syncOut` | const | `packages/foundation/capability/sandbox/src/SyncOut.ts:360` | Sync committed, uncommitted, and untracked sandbox changes back to a host repository. |
+| `@beep/sandbox` | `SyncOutOptions` | class | `packages/foundation/capability/sandbox/src/SyncOut.ts:41` | Optional sync-out recovery settings. |
+| `@beep/sandbox` | `SyncOutResult` | class | `packages/foundation/capability/sandbox/src/SyncOut.ts:56` | Result returned after sandbox changes have been applied to the host. |
 | `@beep/sandbox` | `SyncOutTimeoutError` | class | `packages/foundation/capability/sandbox/src/Sandbox.errors.ts:287` | SyncOutTimeoutError - Git sync-out for isolated providers timed out. |
 | `@beep/sandbox` | `TerminalCleanupStdin` | interface | `packages/foundation/capability/sandbox/src/terminalCleanup.ts:29` | Minimal stdin surface required by terminal cleanup. |
 | `@beep/sandbox` | `TerminalCleanupStdout` | interface | `packages/foundation/capability/sandbox/src/terminalCleanup.ts:40` | Minimal stdout surface required by terminal cleanup. |
@@ -3336,11 +3336,11 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/sandbox` | `TextDeltaBuffer` | class | `packages/foundation/capability/sandbox/src/TextDeltaBuffer.ts:75` | Buffers streaming text deltas into readable chunks. |
 | `@beep/sandbox` | `TextDeltaBufferOptions` | class | `packages/foundation/capability/sandbox/src/TextDeltaBuffer.ts:34` | Configuration for {@link TextDeltaBuffer}. |
 | `@beep/sandbox` | `TextDeltaFlush` | type | `packages/foundation/capability/sandbox/src/TextDeltaBuffer.ts:55` | Callback invoked whenever buffered text is flushed. |
-| `@beep/sandbox` | `Timeouts` | class | `packages/foundation/capability/sandbox/src/Run.ts:103` | Override default timeouts for built-in lifecycle steps. |
+| `@beep/sandbox` | `Timeouts` | class | `packages/foundation/capability/sandbox/src/Run.ts:104` | Override default timeouts for built-in lifecycle steps. |
 | `@beep/sandbox` | `transferSession` | const | `packages/foundation/capability/sandbox/src/Session.ts:220` | Transfer a session between stores. |
 | `@beep/sandbox` | `validateNoArgsWithInlinePrompt` | const | `packages/foundation/capability/sandbox/src/Prompt.ts:218` | Fail when prompt arguments are provided with an inline prompt. |
 | `@beep/sandbox` | `validateNoBuiltInArgOverride` | const | `packages/foundation/capability/sandbox/src/Prompt.ts:237` | Fail when callers override built-in prompt arguments. |
-| `@beep/sandbox` | `Worktree` | interface | `packages/foundation/capability/sandbox/src/createWorktree.ts:50` | Programmatic worktree wrapper. |
+| `@beep/sandbox` | `Worktree` | interface | `packages/foundation/capability/sandbox/src/createWorktree.ts:51` | Programmatic worktree wrapper. |
 | `@beep/sandbox` | `WorktreeError` | class | `packages/foundation/capability/sandbox/src/Sandbox.errors.ts:109` | WorktreeError - Git worktree operation failed |
 | `@beep/sandbox` | `WorktreeInfo` | class | `packages/foundation/capability/sandbox/src/Worktree.ts:36` | Information about a created git worktree. |
 | `@beep/sandbox` | `WorktreeTimeoutError` | class | `packages/foundation/capability/sandbox/src/Sandbox.errors.ts:198` | WorktreeTimeoutError - Git worktree create or prune timed out. |
@@ -3373,11 +3373,11 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/sandbox/createSandbox` | `createSandbox` | const | `packages/foundation/capability/sandbox/src/createSandbox.ts:56` | Create a sandbox handle from a provider. |
 | `@beep/sandbox/createSandbox` | `CreateSandboxOptions` | interface | `packages/foundation/capability/sandbox/src/createSandbox.ts:26` | Options for creating a sandbox handle directly. |
 | `@beep/sandbox/createSandbox` | `CreateSandboxResult` | class | `packages/foundation/capability/sandbox/src/createSandbox.ts:40` | Result of direct sandbox creation. |
-| `@beep/sandbox/createWorktree` | `createWorktree` | const | `packages/foundation/capability/sandbox/src/createWorktree.ts:88` | Create a managed worktree wrapper. |
-| `@beep/sandbox/createWorktree` | `CreateWorktreeOptions` | class | `packages/foundation/capability/sandbox/src/createWorktree.ts:32` | Options for creating a managed worktree. |
-| `@beep/sandbox/createWorktree` | `CreateWorktreeResult` | class | `packages/foundation/capability/sandbox/src/createWorktree.ts:72` | Worktree creation summary. |
-| `@beep/sandbox/createWorktree` | `createWorktreeScoped` | const | `packages/foundation/capability/sandbox/src/createWorktree.ts:129` | Create a managed worktree whose lifetime is bound to the current Effect scope. |
-| `@beep/sandbox/createWorktree` | `Worktree` | interface | `packages/foundation/capability/sandbox/src/createWorktree.ts:50` | Programmatic worktree wrapper. |
+| `@beep/sandbox/createWorktree` | `createWorktree` | const | `packages/foundation/capability/sandbox/src/createWorktree.ts:89` | Create a managed worktree wrapper. |
+| `@beep/sandbox/createWorktree` | `CreateWorktreeOptions` | class | `packages/foundation/capability/sandbox/src/createWorktree.ts:33` | Options for creating a managed worktree. |
+| `@beep/sandbox/createWorktree` | `CreateWorktreeResult` | class | `packages/foundation/capability/sandbox/src/createWorktree.ts:73` | Worktree creation summary. |
+| `@beep/sandbox/createWorktree` | `createWorktreeScoped` | const | `packages/foundation/capability/sandbox/src/createWorktree.ts:130` | Create a managed worktree whose lifetime is bound to the current Effect scope. |
+| `@beep/sandbox/createWorktree` | `Worktree` | interface | `packages/foundation/capability/sandbox/src/createWorktree.ts:51` | Programmatic worktree wrapper. |
 | `@beep/sandbox/Display` | `ClackDisplay` | const | `packages/foundation/capability/sandbox/src/Display.ts:465` | Interactive terminal display implementation backed by `@clack/prompts`. |
 | `@beep/sandbox/Display` | `Display` | class | `packages/foundation/capability/sandbox/src/Display.ts:215` | Display service. |
 | `@beep/sandbox/Display` | `DisplayEntry` | const | `packages/foundation/capability/sandbox/src/Display.ts:161` | Display entry union. |
@@ -3425,14 +3425,14 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/sandbox/index` | `BindMountSandboxProviderConfig` | interface | `packages/foundation/capability/sandbox/src/Sandbox.provider.ts:321` | Configuration for {@link createBindMountSandboxProvider}. |
 | `@beep/sandbox/index` | `BranchStrategy` | const | `packages/foundation/capability/sandbox/src/Sandbox.provider.ts:202` | Branch strategy for a sandbox run. |
 | `@beep/sandbox/index` | `BranchStrategy` | type | `packages/foundation/capability/sandbox/src/Sandbox.provider.ts:214` | Runtime type for {@link BranchStrategy}. |
-| `@beep/sandbox/index` | `buildCompletionMessage` | const | `packages/foundation/capability/sandbox/src/Run.ts:363` | Build the final run status message. |
+| `@beep/sandbox/index` | `buildCompletionMessage` | const | `packages/foundation/capability/sandbox/src/Run.ts:364` | Build the final run status message. |
 | `@beep/sandbox/index` | `buildContainerImage` | const | `packages/foundation/capability/sandbox/src/Image.ts:215` | Build a local Docker or Podman image for sandbox runs. |
-| `@beep/sandbox/index` | `buildContextWindowLines` | const | `packages/foundation/capability/sandbox/src/Run.ts:408` | Build context-window summary lines. |
+| `@beep/sandbox/index` | `buildContextWindowLines` | const | `packages/foundation/capability/sandbox/src/Run.ts:409` | Build context-window summary lines. |
 | `@beep/sandbox/index` | `buildDockerImage` | const | `packages/foundation/capability/sandbox/src/Image.ts:277` | Build a Docker image for sandbox runs. |
-| `@beep/sandbox/index` | `buildLogFilename` | const | `packages/foundation/capability/sandbox/src/Run.ts:327` | Build a log filename for a branch/run pair. |
+| `@beep/sandbox/index` | `buildLogFilename` | const | `packages/foundation/capability/sandbox/src/Run.ts:328` | Build a log filename for a branch/run pair. |
 | `@beep/sandbox/index` | `buildPodmanImage` | const | `packages/foundation/capability/sandbox/src/Image.ts:335` | Build a Podman image for sandbox runs. |
 | `@beep/sandbox/index` | `buildRecoveryMessage` | const | `packages/foundation/capability/sandbox/src/RecoveryMessage.ts:158` | Build copy-pastable recovery commands for a failed sync-out. |
-| `@beep/sandbox/index` | `buildRunSummaryRows` | const | `packages/foundation/capability/sandbox/src/Run.ts:350` | Build summary rows for display output. |
+| `@beep/sandbox/index` | `buildRunSummaryRows` | const | `packages/foundation/capability/sandbox/src/Run.ts:351` | Build summary rows for display output. |
 | `@beep/sandbox/index` | `BUILT_IN_PROMPT_ARG_KEY_SET` | const | `packages/foundation/capability/sandbox/src/Prompt.ts:50` | Built-in prompt argument keys as a `HashSet` for membership checks. |
 | `@beep/sandbox/index` | `BUILT_IN_PROMPT_ARG_KEYS` | const | `packages/foundation/capability/sandbox/src/Prompt.ts:42` | Built-in prompt argument keys injected by run orchestration. |
 | `@beep/sandbox/index` | `BuiltInPromptArgKey` | const | `packages/foundation/capability/sandbox/src/Prompt.ts:58` | Built-in prompt argument key domain. |
@@ -3455,7 +3455,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/sandbox/index` | `ContainerImageRemoveOptions` | class | `packages/foundation/capability/sandbox/src/Image.ts:136` | Options for removing a local sandbox image. |
 | `@beep/sandbox/index` | `ContainerImageRuntime` | const | `packages/foundation/capability/sandbox/src/Image.ts:27` | Container runtime used for local sandbox images. |
 | `@beep/sandbox/index` | `ContainerImageRuntime` | type | `packages/foundation/capability/sandbox/src/Image.ts:39` | Runtime type for {@link ContainerImageRuntime}. |
-| `@beep/sandbox/index` | `ContainerProviderOptions` | class | `packages/foundation/capability/sandbox/src/Sandbox.providers.ts:72` | Options for Docker and Podman bind-mount providers. |
+| `@beep/sandbox/index` | `ContainerProviderOptions` | class | `packages/foundation/capability/sandbox/src/Sandbox.providers.ts:73` | Options for Docker and Podman bind-mount providers. |
 | `@beep/sandbox/index` | `ContainerStartTimeoutError` | class | `packages/foundation/capability/sandbox/src/Sandbox.errors.ts:216` | ContainerStartTimeoutError - Sandbox container start timed out. |
 | `@beep/sandbox/index` | `CopyError` | class | `packages/foundation/capability/sandbox/src/Sandbox.errors.ts:53` | CopyError - File copy between host and sandbox failed |
 | `@beep/sandbox/index` | `CopyToWorktreeError` | class | `packages/foundation/capability/sandbox/src/Sandbox.errors.ts:253` | CopyToWorktreeError - Fallback cp -R to worktree failed. |
@@ -3465,15 +3465,15 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/sandbox/index` | `createSandbox` | const | `packages/foundation/capability/sandbox/src/createSandbox.ts:56` | Create a sandbox handle from a provider. |
 | `@beep/sandbox/index` | `CreateSandboxOptions` | interface | `packages/foundation/capability/sandbox/src/createSandbox.ts:26` | Options for creating a sandbox handle directly. |
 | `@beep/sandbox/index` | `CreateSandboxResult` | class | `packages/foundation/capability/sandbox/src/createSandbox.ts:40` | Result of direct sandbox creation. |
-| `@beep/sandbox/index` | `createWorktree` | const | `packages/foundation/capability/sandbox/src/createWorktree.ts:88` | Create a managed worktree wrapper. |
+| `@beep/sandbox/index` | `createWorktree` | const | `packages/foundation/capability/sandbox/src/createWorktree.ts:89` | Create a managed worktree wrapper. |
 | `@beep/sandbox/index` | `createWorktreeInfo` | const | `packages/foundation/capability/sandbox/src/Worktree.ts:144` | Create a managed git worktree under `.sandcastle/worktrees`. |
 | `@beep/sandbox/index` | `CreateWorktreeInfoOptions` | class | `packages/foundation/capability/sandbox/src/Worktree.ts:52` | Options for creating a managed git worktree. |
-| `@beep/sandbox/index` | `CreateWorktreeOptions` | class | `packages/foundation/capability/sandbox/src/createWorktree.ts:32` | Options for creating a managed worktree. |
-| `@beep/sandbox/index` | `CreateWorktreeResult` | class | `packages/foundation/capability/sandbox/src/createWorktree.ts:72` | Worktree creation summary. |
-| `@beep/sandbox/index` | `createWorktreeScoped` | const | `packages/foundation/capability/sandbox/src/createWorktree.ts:129` | Create a managed worktree whose lifetime is bound to the current Effect scope. |
+| `@beep/sandbox/index` | `CreateWorktreeOptions` | class | `packages/foundation/capability/sandbox/src/createWorktree.ts:33` | Options for creating a managed worktree. |
+| `@beep/sandbox/index` | `CreateWorktreeResult` | class | `packages/foundation/capability/sandbox/src/createWorktree.ts:73` | Worktree creation summary. |
+| `@beep/sandbox/index` | `createWorktreeScoped` | const | `packages/foundation/capability/sandbox/src/createWorktree.ts:130` | Create a managed worktree whose lifetime is bound to the current Effect scope. |
 | `@beep/sandbox/index` | `CwdError` | class | `packages/foundation/capability/sandbox/src/Sandbox.errors.ts:408` | CwdError - The provided `cwd` path does not exist or is not a directory |
 | `@beep/sandbox/index` | `DEFAULT_CLAUDE_MODEL` | const | `packages/foundation/capability/sandbox/src/Agent.provider.ts:536` | Default Claude model used by the source Sandcastle implementation. |
-| `@beep/sandbox/index` | `DEFAULT_MAX_ITERATIONS` | const | `packages/foundation/capability/sandbox/src/Run.ts:75` | Default maximum number of iterations. |
+| `@beep/sandbox/index` | `DEFAULT_MAX_ITERATIONS` | const | `packages/foundation/capability/sandbox/src/Run.ts:76` | Default maximum number of iterations. |
 | `@beep/sandbox/index` | `defaultSandboxImageName` | const | `packages/foundation/capability/sandbox/src/Init.ts:339` | Derive the default local container image name for a repository. |
 | `@beep/sandbox/index` | `defaultSessionPathsLayer` | const | `packages/foundation/capability/sandbox/src/Session.ts:104` | Default session-path layer. |
 | `@beep/sandbox/index` | `Display` | class | `packages/foundation/capability/sandbox/src/Display.ts:215` | Display service. |
@@ -3487,7 +3487,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/sandbox/index` | `DisplayEntryText` | class | `packages/foundation/capability/sandbox/src/Display.ts:128` | Text entry captured by a display implementation. |
 | `@beep/sandbox/index` | `DisplayEntryToolCall` | class | `packages/foundation/capability/sandbox/src/Display.ts:144` | Tool-call entry captured by a display implementation. |
 | `@beep/sandbox/index` | `DisplayServiceShape` | interface | `packages/foundation/capability/sandbox/src/Display.ts:190` | Display service shape. |
-| `@beep/sandbox/index` | `docker` | const | `packages/foundation/capability/sandbox/src/Sandbox.providers.ts:339` | Create a Docker bind-mount sandbox provider. |
+| `@beep/sandbox/index` | `docker` | const | `packages/foundation/capability/sandbox/src/Sandbox.providers.ts:340` | Create a Docker bind-mount sandbox provider. |
 | `@beep/sandbox/index` | `DockerError` | class | `packages/foundation/capability/sandbox/src/Sandbox.errors.ts:67` | DockerError - Docker infrastructure operation failed |
 | `@beep/sandbox/index` | `DockerImageBuildOptions` | class | `packages/foundation/capability/sandbox/src/Image.ts:85` | Docker-specific image build options. |
 | `@beep/sandbox/index` | `encodeProjectPath` | const | `packages/foundation/capability/sandbox/src/Session.ts:87` | Encoded project path used by Claude session directories. |
@@ -3500,10 +3500,10 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/sandbox/index` | `FailedStep` | const | `packages/foundation/capability/sandbox/src/RecoveryMessage.ts:29` | Sync-out step that failed during patch application. |
 | `@beep/sandbox/index` | `FailedStep` | type | `packages/foundation/capability/sandbox/src/RecoveryMessage.ts:41` | Runtime type for {@link FailedStep}. |
 | `@beep/sandbox/index` | `FileDisplay` | const | `packages/foundation/capability/sandbox/src/Display.ts:421` | File-backed display implementation that appends display output to a log file. |
-| `@beep/sandbox/index` | `FileDisplayStartupOptions` | class | `packages/foundation/capability/sandbox/src/Run.ts:235` | Startup options for file display mode. |
-| `@beep/sandbox/index` | `FileLoggingOption` | class | `packages/foundation/capability/sandbox/src/Run.ts:165` | File logging options. |
+| `@beep/sandbox/index` | `FileDisplayStartupOptions` | class | `packages/foundation/capability/sandbox/src/Run.ts:236` | Startup options for file display mode. |
+| `@beep/sandbox/index` | `FileLoggingOption` | class | `packages/foundation/capability/sandbox/src/Run.ts:166` | File logging options. |
 | `@beep/sandbox/index` | `findMissingPromptArgKeys` | const | `packages/foundation/capability/sandbox/src/Prompt.ts:256` | Find placeholders that are missing corresponding prompt arguments. |
-| `@beep/sandbox/index` | `formatContextWindowSize` | const | `packages/foundation/capability/sandbox/src/Run.ts:392` | Format an iteration context-window size. |
+| `@beep/sandbox/index` | `formatContextWindowSize` | const | `packages/foundation/capability/sandbox/src/Run.ts:393` | Format an iteration context-window size. |
 | `@beep/sandbox/index` | `formatErrorMessage` | const | `packages/foundation/capability/sandbox/src/Sandbox.error-handler.ts:57` | Format a sandbox error with secret-shaped text redacted. |
 | `@beep/sandbox/index` | `fromPromiseBindMountSandboxProvider` | const | `packages/foundation/capability/sandbox/src/Sandbox.provider.ts:385` | Convert a Promise-based bind-mount provider into the Effect contract. |
 | `@beep/sandbox/index` | `fromPromiseIsolatedSandboxProvider` | const | `packages/foundation/capability/sandbox/src/Sandbox.provider.ts:406` | Convert a Promise-based isolated provider into the Effect contract. |
@@ -3524,10 +3524,10 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/sandbox/index` | `initSandbox` | const | `packages/foundation/capability/sandbox/src/Init.ts:464` | Scaffold the `.sandcastle` config directory for a repository. |
 | `@beep/sandbox/index` | `InitSandboxOptions` | class | `packages/foundation/capability/sandbox/src/Init.ts:138` | Options for initializing a sandbox config directory. |
 | `@beep/sandbox/index` | `InitSandboxResult` | class | `packages/foundation/capability/sandbox/src/Init.ts:173` | Result returned after sandbox init scaffolding completes. |
-| `@beep/sandbox/index` | `interactive` | const | `packages/foundation/capability/sandbox/src/interactive.ts:56` | Start an interactive agent session. |
+| `@beep/sandbox/index` | `interactive` | const | `packages/foundation/capability/sandbox/src/interactive.ts:57` | Start an interactive agent session. |
 | `@beep/sandbox/index` | `InteractiveExecOptions` | interface | `packages/foundation/capability/sandbox/src/Sandbox.provider.ts:94` | Options for interactive sandbox command execution. |
 | `@beep/sandbox/index` | `InteractiveExecResult` | class | `packages/foundation/capability/sandbox/src/Sandbox.provider.ts:79` | Result of an interactive sandbox command. |
-| `@beep/sandbox/index` | `InteractiveResult` | class | `packages/foundation/capability/sandbox/src/interactive.ts:36` | Result of an interactive agent session. |
+| `@beep/sandbox/index` | `InteractiveResult` | class | `packages/foundation/capability/sandbox/src/interactive.ts:37` | Result of an interactive agent session. |
 | `@beep/sandbox/index` | `IsolatedCreateOptions` | class | `packages/foundation/capability/sandbox/src/Sandbox.provider.ts:142` | Options passed when creating an isolated sandbox. |
 | `@beep/sandbox/index` | `IsolatedSandboxHandle` | interface | `packages/foundation/capability/sandbox/src/Sandbox.provider.ts:249` | Handle returned by isolated providers. |
 | `@beep/sandbox/index` | `IsolatedSandboxProvider` | interface | `packages/foundation/capability/sandbox/src/Sandbox.provider.ts:281` | Isolated sandbox provider contract. |
@@ -3537,11 +3537,11 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/sandbox/index` | `listSandboxAgents` | const | `packages/foundation/capability/sandbox/src/Init.ts:365` | List init-time agent registry entries. |
 | `@beep/sandbox/index` | `listSandboxInitProviders` | const | `packages/foundation/capability/sandbox/src/Init.ts:397` | List init-time sandbox provider registry entries. |
 | `@beep/sandbox/index` | `listSandboxTemplates` | const | `packages/foundation/capability/sandbox/src/Template.ts:243` | List scaffold templates supported by the init command. |
-| `@beep/sandbox/index` | `LogFilenameOptions` | class | `packages/foundation/capability/sandbox/src/Run.ts:253` | Options for building a sandbox run log filename. |
-| `@beep/sandbox/index` | `LoggingOption` | const | `packages/foundation/capability/sandbox/src/Run.ts:196` | Logging mode for a sandbox run. |
-| `@beep/sandbox/index` | `LoggingOption` | type | `packages/foundation/capability/sandbox/src/Run.ts:208` | Runtime type for {@link LoggingOption}. |
-| `@beep/sandbox/index` | `LoggingOptionKind` | const | `packages/foundation/capability/sandbox/src/Run.ts:83` | Logging option discriminator. |
-| `@beep/sandbox/index` | `LoggingOptionKind` | type | `packages/foundation/capability/sandbox/src/Run.ts:95` | Runtime type for {@link LoggingOptionKind}. |
+| `@beep/sandbox/index` | `LogFilenameOptions` | class | `packages/foundation/capability/sandbox/src/Run.ts:254` | Options for building a sandbox run log filename. |
+| `@beep/sandbox/index` | `LoggingOption` | const | `packages/foundation/capability/sandbox/src/Run.ts:197` | Logging mode for a sandbox run. |
+| `@beep/sandbox/index` | `LoggingOption` | type | `packages/foundation/capability/sandbox/src/Run.ts:209` | Runtime type for {@link LoggingOption}. |
+| `@beep/sandbox/index` | `LoggingOptionKind` | const | `packages/foundation/capability/sandbox/src/Run.ts:84` | Logging option discriminator. |
+| `@beep/sandbox/index` | `LoggingOptionKind` | type | `packages/foundation/capability/sandbox/src/Run.ts:96` | Runtime type for {@link LoggingOptionKind}. |
 | `@beep/sandbox/index` | `makeTerminalCleanupHandler` | const | `packages/foundation/capability/sandbox/src/terminalCleanup.ts:58` | Create a synchronous exit handler that restores terminal state. |
 | `@beep/sandbox/index` | `matchSandboxProvider` | const | `packages/foundation/capability/sandbox/src/Sandbox.provider.ts:427` | Match a sandbox provider by provider kind. |
 | `@beep/sandbox/index` | `mergeProviderEnv` | const | `packages/foundation/capability/sandbox/src/Env.ts:109` | Merge resolved environment variables with agent and sandbox provider env. |
@@ -3553,9 +3553,9 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/sandbox/index` | `MountEntry` | class | `packages/foundation/capability/sandbox/src/Sandbox.provider.ts:107` | A host-to-sandbox mount declaration. |
 | `@beep/sandbox/index` | `NamedBranchStrategy` | class | `packages/foundation/capability/sandbox/src/Sandbox.provider.ts:185` | Branch strategy that writes changes to a named branch. |
 | `@beep/sandbox/index` | `noopAgentStreamEmitterLayer` | const | `packages/foundation/capability/sandbox/src/AgentStreamEmitter.ts:95` | Agent stream emitter layer that discards events. |
-| `@beep/sandbox/index` | `noSandbox` | const | `packages/foundation/capability/sandbox/src/Sandbox.providers.ts:280` | Create a host-local no-sandbox provider. |
+| `@beep/sandbox/index` | `noSandbox` | const | `packages/foundation/capability/sandbox/src/Sandbox.providers.ts:281` | Create a host-local no-sandbox provider. |
 | `@beep/sandbox/index` | `NoSandboxHandle` | interface | `packages/foundation/capability/sandbox/src/Sandbox.provider.ts:259` | Handle returned by the no-sandbox provider. |
-| `@beep/sandbox/index` | `NoSandboxOptions` | class | `packages/foundation/capability/sandbox/src/Sandbox.providers.ts:57` | Options for the no-sandbox provider. |
+| `@beep/sandbox/index` | `NoSandboxOptions` | class | `packages/foundation/capability/sandbox/src/Sandbox.providers.ts:58` | Options for the no-sandbox provider. |
 | `@beep/sandbox/index` | `NoSandboxProvider` | interface | `packages/foundation/capability/sandbox/src/Sandbox.provider.ts:294` | Host-local no-sandbox provider contract. |
 | `@beep/sandbox/index` | `opencode` | const | `packages/foundation/capability/sandbox/src/Agent.provider.ts:804` | Create an OpenCode agent provider. |
 | `@beep/sandbox/index` | `OpenCodeOptions` | class | `packages/foundation/capability/sandbox/src/Agent.provider.ts:488` | Options for the OpenCode provider. |
@@ -3566,7 +3566,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/sandbox/index` | `ParsedStreamEvent` | type | `packages/foundation/capability/sandbox/src/Agent.provider.ts:358` | Runtime type for {@link ParsedStreamEvent}. |
 | `@beep/sandbox/index` | `pi` | const | `packages/foundation/capability/sandbox/src/Agent.provider.ts:784` | Create a Pi agent provider. |
 | `@beep/sandbox/index` | `PiOptions` | class | `packages/foundation/capability/sandbox/src/Agent.provider.ts:473` | Options for the Pi provider. |
-| `@beep/sandbox/index` | `podman` | const | `packages/foundation/capability/sandbox/src/Sandbox.providers.ts:348` | Create a Podman bind-mount sandbox provider. |
+| `@beep/sandbox/index` | `podman` | const | `packages/foundation/capability/sandbox/src/Sandbox.providers.ts:349` | Create a Podman bind-mount sandbox provider. |
 | `@beep/sandbox/index` | `PodmanError` | class | `packages/foundation/capability/sandbox/src/Sandbox.errors.ts:81` | PodmanError - Podman infrastructure operation failed |
 | `@beep/sandbox/index` | `PodmanImageBuildOptions` | class | `packages/foundation/capability/sandbox/src/Image.ts:109` | Podman-specific image build options. |
 | `@beep/sandbox/index` | `prepareSandboxLifecycle` | const | `packages/foundation/capability/sandbox/src/Lifecycle.ts:440` | Run sandbox setup commands and ready hooks before agent work. |
@@ -3595,12 +3595,12 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/sandbox/index` | `resolveEnv` | const | `packages/foundation/capability/sandbox/src/Env.ts:78` | Resolve declared sandbox environment variables from `.sandcastle/.env`. |
 | `@beep/sandbox/index` | `resolvePrompt` | const | `packages/foundation/capability/sandbox/src/Prompt.ts:191` | Resolve an inline prompt or prompt file. |
 | `@beep/sandbox/index` | `ResolvePromptOptions` | class | `packages/foundation/capability/sandbox/src/Prompt.ts:140` | Options for resolving a prompt. |
-| `@beep/sandbox/index` | `run` | const | `packages/foundation/capability/sandbox/src/Run.ts:746` | Run an agent in a sandbox provider. |
+| `@beep/sandbox/index` | `run` | const | `packages/foundation/capability/sandbox/src/Run.ts:747` | Run an agent in a sandbox provider. |
 | `@beep/sandbox/index` | `runHostHooks` | const | `packages/foundation/capability/sandbox/src/Lifecycle.ts:298` | Run host-side lifecycle hook commands sequentially. |
 | `@beep/sandbox/index` | `RunHostHooksOptions` | class | `packages/foundation/capability/sandbox/src/Lifecycle.ts:164` | Options for running host lifecycle hooks. |
-| `@beep/sandbox/index` | `RunOptions` | interface | `packages/foundation/capability/sandbox/src/Run.ts:295` | Programmatic run options. |
-| `@beep/sandbox/index` | `RunResult` | class | `packages/foundation/capability/sandbox/src/Run.ts:269` | Result returned by {@link run}. |
-| `@beep/sandbox/index` | `RunSummaryRowOptions` | class | `packages/foundation/capability/sandbox/src/Run.ts:216` | Options for building run summary rows. |
+| `@beep/sandbox/index` | `RunOptions` | interface | `packages/foundation/capability/sandbox/src/Run.ts:296` | Programmatic run options. |
+| `@beep/sandbox/index` | `RunResult` | class | `packages/foundation/capability/sandbox/src/Run.ts:270` | Result returned by {@link run}. |
+| `@beep/sandbox/index` | `RunSummaryRowOptions` | class | `packages/foundation/capability/sandbox/src/Run.ts:217` | Options for building run summary rows. |
 | `@beep/sandbox/index` | `SANDBOX_CONFIG_DIR` | const | `packages/foundation/capability/sandbox/src/Init.ts:30` | Config directory created by {@link initSandbox}. |
 | `@beep/sandbox/index` | `SandboxAgentEntry` | class | `packages/foundation/capability/sandbox/src/Init.ts:85` | Agent registry entry used by init scaffolding. |
 | `@beep/sandbox/index` | `SandboxAgentName` | const | `packages/foundation/capability/sandbox/src/Init.ts:38` | Supported init-time agent choices. |
@@ -3632,7 +3632,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/sandbox/index` | `SandboxTemplateName` | type | `packages/foundation/capability/sandbox/src/Template.ts:37` | Runtime type for {@link SandboxTemplateName}. |
 | `@beep/sandbox/index` | `sandboxTemplateNextSteps` | const | `packages/foundation/capability/sandbox/src/Template.ts:314` | Build human-readable next steps for a scaffolded template. |
 | `@beep/sandbox/index` | `SandboxTemplateRenderContext` | class | `packages/foundation/capability/sandbox/src/Template.ts:109` | Values available to embedded scaffold templates. |
-| `@beep/sandbox/index` | `sanitizeBranchForFilename` | const | `packages/foundation/capability/sandbox/src/Run.ts:319` | Replace path-hostile branch characters with dashes. |
+| `@beep/sandbox/index` | `sanitizeBranchForFilename` | const | `packages/foundation/capability/sandbox/src/Run.ts:320` | Replace path-hostile branch characters with dashes. |
 | `@beep/sandbox/index` | `sanitizeName` | const | `packages/foundation/capability/sandbox/src/Worktree.ts:70` | Sanitize text for branch and directory names. |
 | `@beep/sandbox/index` | `SessionCaptureError` | class | `packages/foundation/capability/sandbox/src/Sandbox.errors.ts:392` | SessionCaptureError - Session capture (read, rewrite, or write) failed |
 | `@beep/sandbox/index` | `SessionId` | const | `packages/foundation/capability/sandbox/src/Session.ts:43` | Filename-safe agent session identifier. |
@@ -3648,15 +3648,15 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/sandbox/index` | `SHELL_BLOCK_MARKER` | const | `packages/foundation/capability/sandbox/src/Prompt.ts:32` | Marker inserted before literal shell blocks in prompt templates. |
 | `@beep/sandbox/index` | `SHOW_CURSOR` | const | `packages/foundation/capability/sandbox/src/terminalCleanup.ts:21` | Escape sequence that restores terminal cursor visibility. |
 | `@beep/sandbox/index` | `SilentDisplay` | const | `packages/foundation/capability/sandbox/src/Display.ts:233` | Display implementation that records entries in a `Ref`. |
-| `@beep/sandbox/index` | `StdoutLoggingOption` | class | `packages/foundation/capability/sandbox/src/Run.ts:182` | Terminal logging options. |
+| `@beep/sandbox/index` | `StdoutLoggingOption` | class | `packages/foundation/capability/sandbox/src/Run.ts:183` | Terminal logging options. |
 | `@beep/sandbox/index` | `substitutePromptArgs` | const | `packages/foundation/capability/sandbox/src/Prompt.ts:288` | Substitute `{{KEY}}` prompt arguments in a prompt template. |
 | `@beep/sandbox/index` | `SyncError` | class | `packages/foundation/capability/sandbox/src/Sandbox.errors.ts:95` | SyncError - Git sync-in or sync-out operation failed |
 | `@beep/sandbox/index` | `syncIn` | const | `packages/foundation/capability/sandbox/src/SyncIn.ts:182` | Sync a host git repository into an isolated sandbox by cloning from a git bundle. |
 | `@beep/sandbox/index` | `SyncInResult` | class | `packages/foundation/capability/sandbox/src/SyncIn.ts:30` | Result returned after a repository has been copied into an isolated sandbox. |
 | `@beep/sandbox/index` | `SyncInTimeoutError` | class | `packages/foundation/capability/sandbox/src/Sandbox.errors.ts:271` | SyncInTimeoutError - Git sync-in for isolated providers timed out. |
-| `@beep/sandbox/index` | `syncOut` | const | `packages/foundation/capability/sandbox/src/SyncOut.ts:359` | Sync committed, uncommitted, and untracked sandbox changes back to a host repository. |
-| `@beep/sandbox/index` | `SyncOutOptions` | class | `packages/foundation/capability/sandbox/src/SyncOut.ts:40` | Optional sync-out recovery settings. |
-| `@beep/sandbox/index` | `SyncOutResult` | class | `packages/foundation/capability/sandbox/src/SyncOut.ts:55` | Result returned after sandbox changes have been applied to the host. |
+| `@beep/sandbox/index` | `syncOut` | const | `packages/foundation/capability/sandbox/src/SyncOut.ts:360` | Sync committed, uncommitted, and untracked sandbox changes back to a host repository. |
+| `@beep/sandbox/index` | `SyncOutOptions` | class | `packages/foundation/capability/sandbox/src/SyncOut.ts:41` | Optional sync-out recovery settings. |
+| `@beep/sandbox/index` | `SyncOutResult` | class | `packages/foundation/capability/sandbox/src/SyncOut.ts:56` | Result returned after sandbox changes have been applied to the host. |
 | `@beep/sandbox/index` | `SyncOutTimeoutError` | class | `packages/foundation/capability/sandbox/src/Sandbox.errors.ts:287` | SyncOutTimeoutError - Git sync-out for isolated providers timed out. |
 | `@beep/sandbox/index` | `TerminalCleanupStdin` | interface | `packages/foundation/capability/sandbox/src/terminalCleanup.ts:29` | Minimal stdin surface required by terminal cleanup. |
 | `@beep/sandbox/index` | `TerminalCleanupStdout` | interface | `packages/foundation/capability/sandbox/src/terminalCleanup.ts:40` | Minimal stdout surface required by terminal cleanup. |
@@ -3664,11 +3664,11 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/sandbox/index` | `TextDeltaBuffer` | class | `packages/foundation/capability/sandbox/src/TextDeltaBuffer.ts:75` | Buffers streaming text deltas into readable chunks. |
 | `@beep/sandbox/index` | `TextDeltaBufferOptions` | class | `packages/foundation/capability/sandbox/src/TextDeltaBuffer.ts:34` | Configuration for {@link TextDeltaBuffer}. |
 | `@beep/sandbox/index` | `TextDeltaFlush` | type | `packages/foundation/capability/sandbox/src/TextDeltaBuffer.ts:55` | Callback invoked whenever buffered text is flushed. |
-| `@beep/sandbox/index` | `Timeouts` | class | `packages/foundation/capability/sandbox/src/Run.ts:103` | Override default timeouts for built-in lifecycle steps. |
+| `@beep/sandbox/index` | `Timeouts` | class | `packages/foundation/capability/sandbox/src/Run.ts:104` | Override default timeouts for built-in lifecycle steps. |
 | `@beep/sandbox/index` | `transferSession` | const | `packages/foundation/capability/sandbox/src/Session.ts:220` | Transfer a session between stores. |
 | `@beep/sandbox/index` | `validateNoArgsWithInlinePrompt` | const | `packages/foundation/capability/sandbox/src/Prompt.ts:218` | Fail when prompt arguments are provided with an inline prompt. |
 | `@beep/sandbox/index` | `validateNoBuiltInArgOverride` | const | `packages/foundation/capability/sandbox/src/Prompt.ts:237` | Fail when callers override built-in prompt arguments. |
-| `@beep/sandbox/index` | `Worktree` | interface | `packages/foundation/capability/sandbox/src/createWorktree.ts:50` | Programmatic worktree wrapper. |
+| `@beep/sandbox/index` | `Worktree` | interface | `packages/foundation/capability/sandbox/src/createWorktree.ts:51` | Programmatic worktree wrapper. |
 | `@beep/sandbox/index` | `WorktreeError` | class | `packages/foundation/capability/sandbox/src/Sandbox.errors.ts:109` | WorktreeError - Git worktree operation failed |
 | `@beep/sandbox/index` | `WorktreeInfo` | class | `packages/foundation/capability/sandbox/src/Worktree.ts:36` | Information about a created git worktree. |
 | `@beep/sandbox/index` | `WorktreeTimeoutError` | class | `packages/foundation/capability/sandbox/src/Sandbox.errors.ts:198` | WorktreeTimeoutError - Git worktree create or prune timed out. |
@@ -3688,8 +3688,8 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/sandbox/Init` | `SandboxInitProviderEntry` | class | `packages/foundation/capability/sandbox/src/Init.ts:112` | Provider registry entry used by init scaffolding. |
 | `@beep/sandbox/Init` | `SandboxInitProviderName` | const | `packages/foundation/capability/sandbox/src/Init.ts:58` | Supported local container providers for generated configuration. |
 | `@beep/sandbox/Init` | `SandboxInitProviderName` | type | `packages/foundation/capability/sandbox/src/Init.ts:70` | Runtime type for {@link SandboxInitProviderName}. |
-| `@beep/sandbox/interactive` | `interactive` | const | `packages/foundation/capability/sandbox/src/interactive.ts:56` | Start an interactive agent session. |
-| `@beep/sandbox/interactive` | `InteractiveResult` | class | `packages/foundation/capability/sandbox/src/interactive.ts:36` | Result of an interactive agent session. |
+| `@beep/sandbox/interactive` | `interactive` | const | `packages/foundation/capability/sandbox/src/interactive.ts:57` | Start an interactive agent session. |
+| `@beep/sandbox/interactive` | `InteractiveResult` | class | `packages/foundation/capability/sandbox/src/interactive.ts:37` | Result of an interactive agent session. |
 | `@beep/sandbox/Lifecycle` | `getHostHead` | const | `packages/foundation/capability/sandbox/src/Lifecycle.ts:512` | Return the current HEAD SHA for a host repository path. |
 | `@beep/sandbox/Lifecycle` | `HostLifecycleHookCommand` | class | `packages/foundation/capability/sandbox/src/Lifecycle.ts:42` | Host lifecycle hook command. |
 | `@beep/sandbox/Lifecycle` | `HostLifecycleHooks` | class | `packages/foundation/capability/sandbox/src/Lifecycle.ts:75` | Host lifecycle hook groups. |
@@ -3732,26 +3732,26 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/sandbox/RecoveryMessage` | `FailedStep` | type | `packages/foundation/capability/sandbox/src/RecoveryMessage.ts:41` | Runtime type for {@link FailedStep}. |
 | `@beep/sandbox/RecoveryMessage` | `RecoveryInput` | class | `packages/foundation/capability/sandbox/src/RecoveryMessage.ts:62` | Recovery message inputs for a failed sync-out patch application. |
 | `@beep/sandbox/resolveCwd` | `resolveCwd` | const | `packages/foundation/capability/sandbox/src/resolveCwd.ts:28` | Resolve an optional cwd to an absolute, validated host directory. |
-| `@beep/sandbox/Run` | `buildCompletionMessage` | const | `packages/foundation/capability/sandbox/src/Run.ts:363` | Build the final run status message. |
-| `@beep/sandbox/Run` | `buildContextWindowLines` | const | `packages/foundation/capability/sandbox/src/Run.ts:408` | Build context-window summary lines. |
-| `@beep/sandbox/Run` | `buildLogFilename` | const | `packages/foundation/capability/sandbox/src/Run.ts:327` | Build a log filename for a branch/run pair. |
-| `@beep/sandbox/Run` | `buildRunSummaryRows` | const | `packages/foundation/capability/sandbox/src/Run.ts:350` | Build summary rows for display output. |
-| `@beep/sandbox/Run` | `DEFAULT_MAX_ITERATIONS` | const | `packages/foundation/capability/sandbox/src/Run.ts:75` | Default maximum number of iterations. |
-| `@beep/sandbox/Run` | `FileDisplayStartupOptions` | class | `packages/foundation/capability/sandbox/src/Run.ts:235` | Startup options for file display mode. |
-| `@beep/sandbox/Run` | `FileLoggingOption` | class | `packages/foundation/capability/sandbox/src/Run.ts:165` | File logging options. |
-| `@beep/sandbox/Run` | `formatContextWindowSize` | const | `packages/foundation/capability/sandbox/src/Run.ts:392` | Format an iteration context-window size. |
-| `@beep/sandbox/Run` | `LogFilenameOptions` | class | `packages/foundation/capability/sandbox/src/Run.ts:253` | Options for building a sandbox run log filename. |
-| `@beep/sandbox/Run` | `LoggingOption` | const | `packages/foundation/capability/sandbox/src/Run.ts:196` | Logging mode for a sandbox run. |
-| `@beep/sandbox/Run` | `LoggingOption` | type | `packages/foundation/capability/sandbox/src/Run.ts:208` | Runtime type for {@link LoggingOption}. |
-| `@beep/sandbox/Run` | `LoggingOptionKind` | const | `packages/foundation/capability/sandbox/src/Run.ts:83` | Logging option discriminator. |
-| `@beep/sandbox/Run` | `LoggingOptionKind` | type | `packages/foundation/capability/sandbox/src/Run.ts:95` | Runtime type for {@link LoggingOptionKind}. |
-| `@beep/sandbox/Run` | `run` | const | `packages/foundation/capability/sandbox/src/Run.ts:746` | Run an agent in a sandbox provider. |
-| `@beep/sandbox/Run` | `RunOptions` | interface | `packages/foundation/capability/sandbox/src/Run.ts:295` | Programmatic run options. |
-| `@beep/sandbox/Run` | `RunResult` | class | `packages/foundation/capability/sandbox/src/Run.ts:269` | Result returned by {@link run}. |
-| `@beep/sandbox/Run` | `RunSummaryRowOptions` | class | `packages/foundation/capability/sandbox/src/Run.ts:216` | Options for building run summary rows. |
-| `@beep/sandbox/Run` | `sanitizeBranchForFilename` | const | `packages/foundation/capability/sandbox/src/Run.ts:319` | Replace path-hostile branch characters with dashes. |
-| `@beep/sandbox/Run` | `StdoutLoggingOption` | class | `packages/foundation/capability/sandbox/src/Run.ts:182` | Terminal logging options. |
-| `@beep/sandbox/Run` | `Timeouts` | class | `packages/foundation/capability/sandbox/src/Run.ts:103` | Override default timeouts for built-in lifecycle steps. |
+| `@beep/sandbox/Run` | `buildCompletionMessage` | const | `packages/foundation/capability/sandbox/src/Run.ts:364` | Build the final run status message. |
+| `@beep/sandbox/Run` | `buildContextWindowLines` | const | `packages/foundation/capability/sandbox/src/Run.ts:409` | Build context-window summary lines. |
+| `@beep/sandbox/Run` | `buildLogFilename` | const | `packages/foundation/capability/sandbox/src/Run.ts:328` | Build a log filename for a branch/run pair. |
+| `@beep/sandbox/Run` | `buildRunSummaryRows` | const | `packages/foundation/capability/sandbox/src/Run.ts:351` | Build summary rows for display output. |
+| `@beep/sandbox/Run` | `DEFAULT_MAX_ITERATIONS` | const | `packages/foundation/capability/sandbox/src/Run.ts:76` | Default maximum number of iterations. |
+| `@beep/sandbox/Run` | `FileDisplayStartupOptions` | class | `packages/foundation/capability/sandbox/src/Run.ts:236` | Startup options for file display mode. |
+| `@beep/sandbox/Run` | `FileLoggingOption` | class | `packages/foundation/capability/sandbox/src/Run.ts:166` | File logging options. |
+| `@beep/sandbox/Run` | `formatContextWindowSize` | const | `packages/foundation/capability/sandbox/src/Run.ts:393` | Format an iteration context-window size. |
+| `@beep/sandbox/Run` | `LogFilenameOptions` | class | `packages/foundation/capability/sandbox/src/Run.ts:254` | Options for building a sandbox run log filename. |
+| `@beep/sandbox/Run` | `LoggingOption` | const | `packages/foundation/capability/sandbox/src/Run.ts:197` | Logging mode for a sandbox run. |
+| `@beep/sandbox/Run` | `LoggingOption` | type | `packages/foundation/capability/sandbox/src/Run.ts:209` | Runtime type for {@link LoggingOption}. |
+| `@beep/sandbox/Run` | `LoggingOptionKind` | const | `packages/foundation/capability/sandbox/src/Run.ts:84` | Logging option discriminator. |
+| `@beep/sandbox/Run` | `LoggingOptionKind` | type | `packages/foundation/capability/sandbox/src/Run.ts:96` | Runtime type for {@link LoggingOptionKind}. |
+| `@beep/sandbox/Run` | `run` | const | `packages/foundation/capability/sandbox/src/Run.ts:747` | Run an agent in a sandbox provider. |
+| `@beep/sandbox/Run` | `RunOptions` | interface | `packages/foundation/capability/sandbox/src/Run.ts:296` | Programmatic run options. |
+| `@beep/sandbox/Run` | `RunResult` | class | `packages/foundation/capability/sandbox/src/Run.ts:270` | Result returned by {@link run}. |
+| `@beep/sandbox/Run` | `RunSummaryRowOptions` | class | `packages/foundation/capability/sandbox/src/Run.ts:217` | Options for building run summary rows. |
+| `@beep/sandbox/Run` | `sanitizeBranchForFilename` | const | `packages/foundation/capability/sandbox/src/Run.ts:320` | Replace path-hostile branch characters with dashes. |
+| `@beep/sandbox/Run` | `StdoutLoggingOption` | class | `packages/foundation/capability/sandbox/src/Run.ts:183` | Terminal logging options. |
+| `@beep/sandbox/Run` | `Timeouts` | class | `packages/foundation/capability/sandbox/src/Run.ts:104` | Override default timeouts for built-in lifecycle steps. |
 | `@beep/sandbox/Sandbox.error-handler` | `formatErrorMessage` | const | `packages/foundation/capability/sandbox/src/Sandbox.error-handler.ts:57` | Format a sandbox error with secret-shaped text redacted. |
 | `@beep/sandbox/Sandbox.errors` | `AgentError` | class | `packages/foundation/capability/sandbox/src/Sandbox.errors.ts:137` | AgentError - Agent invocation failed. |
 | `@beep/sandbox/Sandbox.errors` | `AgentIdleTimeoutError` | class | `packages/foundation/capability/sandbox/src/Sandbox.errors.ts:181` | AgentIdleTimeoutError - Run exceeded the configured agent idle timeout. |
@@ -3819,11 +3819,11 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/sandbox/Sandbox.provider` | `SandboxProvider` | type | `packages/foundation/capability/sandbox/src/Sandbox.provider.ts:310` | Any sandbox provider supported by the first programmatic port. |
 | `@beep/sandbox/Sandbox.provider` | `SandboxProviderKind` | const | `packages/foundation/capability/sandbox/src/Sandbox.provider.ts:24` | Sandbox provider kind. |
 | `@beep/sandbox/Sandbox.provider` | `SandboxProviderKind` | type | `packages/foundation/capability/sandbox/src/Sandbox.provider.ts:36` | Runtime type for {@link SandboxProviderKind}. |
-| `@beep/sandbox/Sandbox.providers` | `ContainerProviderOptions` | class | `packages/foundation/capability/sandbox/src/Sandbox.providers.ts:72` | Options for Docker and Podman bind-mount providers. |
-| `@beep/sandbox/Sandbox.providers` | `docker` | const | `packages/foundation/capability/sandbox/src/Sandbox.providers.ts:339` | Create a Docker bind-mount sandbox provider. |
-| `@beep/sandbox/Sandbox.providers` | `noSandbox` | const | `packages/foundation/capability/sandbox/src/Sandbox.providers.ts:280` | Create a host-local no-sandbox provider. |
-| `@beep/sandbox/Sandbox.providers` | `NoSandboxOptions` | class | `packages/foundation/capability/sandbox/src/Sandbox.providers.ts:57` | Options for the no-sandbox provider. |
-| `@beep/sandbox/Sandbox.providers` | `podman` | const | `packages/foundation/capability/sandbox/src/Sandbox.providers.ts:348` | Create a Podman bind-mount sandbox provider. |
+| `@beep/sandbox/Sandbox.providers` | `ContainerProviderOptions` | class | `packages/foundation/capability/sandbox/src/Sandbox.providers.ts:73` | Options for Docker and Podman bind-mount providers. |
+| `@beep/sandbox/Sandbox.providers` | `docker` | const | `packages/foundation/capability/sandbox/src/Sandbox.providers.ts:340` | Create a Docker bind-mount sandbox provider. |
+| `@beep/sandbox/Sandbox.providers` | `noSandbox` | const | `packages/foundation/capability/sandbox/src/Sandbox.providers.ts:281` | Create a host-local no-sandbox provider. |
+| `@beep/sandbox/Sandbox.providers` | `NoSandboxOptions` | class | `packages/foundation/capability/sandbox/src/Sandbox.providers.ts:58` | Options for the no-sandbox provider. |
+| `@beep/sandbox/Sandbox.providers` | `podman` | const | `packages/foundation/capability/sandbox/src/Sandbox.providers.ts:349` | Create a Podman bind-mount sandbox provider. |
 | `@beep/sandbox/Session` | `defaultSessionPathsLayer` | const | `packages/foundation/capability/sandbox/src/Session.ts:104` | Default session-path layer. |
 | `@beep/sandbox/Session` | `encodeProjectPath` | const | `packages/foundation/capability/sandbox/src/Session.ts:87` | Encoded project path used by Claude session directories. |
 | `@beep/sandbox/Session` | `hostSessionStore` | const | `packages/foundation/capability/sandbox/src/Session.ts:147` | Create a host-backed session store. |
@@ -3838,9 +3838,9 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/sandbox/Session` | `transferSession` | const | `packages/foundation/capability/sandbox/src/Session.ts:220` | Transfer a session between stores. |
 | `@beep/sandbox/SyncIn` | `syncIn` | const | `packages/foundation/capability/sandbox/src/SyncIn.ts:182` | Sync a host git repository into an isolated sandbox by cloning from a git bundle. |
 | `@beep/sandbox/SyncIn` | `SyncInResult` | class | `packages/foundation/capability/sandbox/src/SyncIn.ts:30` | Result returned after a repository has been copied into an isolated sandbox. |
-| `@beep/sandbox/SyncOut` | `syncOut` | const | `packages/foundation/capability/sandbox/src/SyncOut.ts:359` | Sync committed, uncommitted, and untracked sandbox changes back to a host repository. |
-| `@beep/sandbox/SyncOut` | `SyncOutOptions` | class | `packages/foundation/capability/sandbox/src/SyncOut.ts:40` | Optional sync-out recovery settings. |
-| `@beep/sandbox/SyncOut` | `SyncOutResult` | class | `packages/foundation/capability/sandbox/src/SyncOut.ts:55` | Result returned after sandbox changes have been applied to the host. |
+| `@beep/sandbox/SyncOut` | `syncOut` | const | `packages/foundation/capability/sandbox/src/SyncOut.ts:360` | Sync committed, uncommitted, and untracked sandbox changes back to a host repository. |
+| `@beep/sandbox/SyncOut` | `SyncOutOptions` | class | `packages/foundation/capability/sandbox/src/SyncOut.ts:41` | Optional sync-out recovery settings. |
+| `@beep/sandbox/SyncOut` | `SyncOutResult` | class | `packages/foundation/capability/sandbox/src/SyncOut.ts:56` | Result returned after sandbox changes have been applied to the host. |
 | `@beep/sandbox/Template` | `getSandboxTemplate` | const | `packages/foundation/capability/sandbox/src/Template.ts:259` | Look up a scaffold template by name. |
 | `@beep/sandbox/Template` | `listSandboxTemplates` | const | `packages/foundation/capability/sandbox/src/Template.ts:243` | List scaffold templates supported by the init command. |
 | `@beep/sandbox/Template` | `renderSandboxTemplateFiles` | const | `packages/foundation/capability/sandbox/src/Template.ts:287` | Render files for a supported scaffold template. |
@@ -5369,6 +5369,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/utils/Option` | `getOrThrow` | const | `node_modules/effect/dist/Option.d.ts:1463` | Extracts the value from a `Some`, or throws a default `Error` for `None`. |
 | `@beep/utils/Option` | `getOrThrowWith` | const | `node_modules/effect/dist/Option.d.ts:1367` | Extracts the value from a `Some`, or throws a custom error for `None`. |
 | `@beep/utils/Option` | `getOrUndefined` | const | `node_modules/effect/dist/Option.d.ts:1303` | Extracts the value from a `Some`, or returns `undefined` for `None`. |
+| `@beep/utils/Option` | `getSomesStruct` | const | `packages/foundation/modeling/utils/src/Option.ts:102` | Compact a struct of `Option` values into an object containing only `Some` |
 | `@beep/utils/Option` | `getSuccess` | const | `node_modules/effect/dist/Option.d.ts:640` | Converts a `Result` into an `Option`, keeping only the success value. |
 | `@beep/utils/Option` | `isNone` | const | `node_modules/effect/dist/Option.d.ts:399` | Checks whether an `Option` is `None` (absent). |
 | `@beep/utils/Option` | `isOption` | const | `node_modules/effect/dist/Option.d.ts:370` | Determines whether the given value is an `Option`. |
@@ -5399,7 +5400,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/utils/Option` | `partitionMap` | const | `node_modules/effect/dist/Option.d.ts:3175` | Splits an `Option` into two `Option`s using a function that returns a `Result`. |
 | `@beep/utils/Option` | `product` | const | `node_modules/effect/dist/Option.d.ts:2829` | Combines two `Option`s into a `Some` containing a tuple `[A, B]` if both |
 | `@beep/utils/Option` | `productMany` | const | `node_modules/effect/dist/Option.d.ts:2864` | Combines a primary `Option` with an iterable of `Option`s into a tuple if |
-| `@beep/utils/Option` | `propFromNullishOr` | const | `packages/foundation/modeling/utils/src/Option.ts:51` | Retrieves a value from a struct by path and converts missing or nullish |
+| `@beep/utils/Option` | `propFromNullishOr` | const | `packages/foundation/modeling/utils/src/Option.ts:60` | Retrieves a value from a struct by path and converts missing or nullish |
 | `@beep/utils/Option` | `reduceCompact` | const | `node_modules/effect/dist/Option.d.ts:3048` | Reduces an iterable of `Option`s to a single value, skipping `None` entries. |
 | `@beep/utils/Option` | `some` | const | `node_modules/effect/dist/Option.d.ts:335` | Wraps the given value into an `Option` to represent its presence. |
 | `@beep/utils/Option` | `Some` | interface | `node_modules/effect/dist/Option.d.ts:174` | Represents the presence of a value within an {@link Option}. |
@@ -8426,19 +8427,19 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/infra` | `AIMetricsStackArgs` | class | `infra/src/AIMetrics.ts:339` | Pulumi-facing args for the AI metrics component. |
 | `@beep/infra` | `infraProjectName` | const | `infra/src/index.ts:28` | Canonical project name for this repository's infrastructure workspace. |
 | `@beep/infra` | `loadAIMetricsStackArgs` | const | `infra/src/AIMetrics.ts:448` | Load AI metrics args from Pulumi config. |
-| `@beep/infra` | `loadOipWebRuntimeSecrets` | const | `infra/src/OipWeb.ts:554` | Load OIP web runtime secrets from Pulumi secret config. |
-| `@beep/infra` | `loadOipWebStackArgs` | const | `infra/src/OipWeb.ts:500` | Load OIP web stack args from Pulumi config. |
+| `@beep/infra` | `loadOipWebRuntimeSecrets` | const | `infra/src/OipWeb.ts:562` | Load OIP web runtime secrets from Pulumi secret config. |
+| `@beep/infra` | `loadOipWebStackArgs` | const | `infra/src/OipWeb.ts:508` | Load OIP web stack args from Pulumi config. |
 | `@beep/infra` | `makeAIMetricsStackArgs` | const | `infra/src/AIMetrics.ts:365` | Build Pulumi component args from a schema-first install input. |
 | `@beep/infra` | `makeAIMetricsStackArgsFromConfigValues` | const | `infra/src/AIMetrics.ts:387` | Build AI metrics stack args from decoded Pulumi config values. |
-| `@beep/infra` | `makeOipWebStackArgsFromConfigValues` | const | `infra/src/OipWeb.ts:410` | Build OIP web stack args from decoded Pulumi config values. |
-| `@beep/infra` | `OipAssetsBucketConfig` | class | `infra/src/OipWeb.ts:193` | S3 asset bucket resources for OIP-controlled media. |
-| `@beep/infra` | `OipDnsConfig` | class | `infra/src/OipWeb.ts:226` | DNS configuration for Cloudflare-managed OIP records. |
-| `@beep/infra` | `OipPulumiStateBackendConfig` | class | `infra/src/OipWeb.ts:152` | Pulumi DIY state backend settings for OIP. |
-| `@beep/infra` | `OipVercelProjectConfig` | class | `infra/src/OipWeb.ts:292` | Vercel project configuration for `@beep/oip-web`. |
-| `@beep/infra` | `OipWebPulumiConfigValues` | const | `infra/src/OipWeb.ts:101` | Optional Pulumi config values before OIP deploy defaults are applied. |
-| `@beep/infra` | `OipWebRuntimeSecrets` | type | `infra/src/OipWeb.ts:348` | Secret runtime values for OIP deploy targets. |
-| `@beep/infra` | `OipWebStack` | class | `infra/src/OipWeb.ts:726` | Import-safe Pulumi component for OIP production web infrastructure. |
-| `@beep/infra` | `OipWebStackArgs` | class | `infra/src/OipWeb.ts:366` | Pulumi-facing args for the OIP web stack. |
+| `@beep/infra` | `makeOipWebStackArgsFromConfigValues` | const | `infra/src/OipWeb.ts:411` | Build OIP web stack args from decoded Pulumi config values. |
+| `@beep/infra` | `OipAssetsBucketConfig` | class | `infra/src/OipWeb.ts:194` | S3 asset bucket resources for OIP-controlled media. |
+| `@beep/infra` | `OipDnsConfig` | class | `infra/src/OipWeb.ts:227` | DNS configuration for Cloudflare-managed OIP records. |
+| `@beep/infra` | `OipPulumiStateBackendConfig` | class | `infra/src/OipWeb.ts:153` | Pulumi DIY state backend settings for OIP. |
+| `@beep/infra` | `OipVercelProjectConfig` | class | `infra/src/OipWeb.ts:293` | Vercel project configuration for `@beep/oip-web`. |
+| `@beep/infra` | `OipWebPulumiConfigValues` | const | `infra/src/OipWeb.ts:102` | Optional Pulumi config values before OIP deploy defaults are applied. |
+| `@beep/infra` | `OipWebRuntimeSecrets` | type | `infra/src/OipWeb.ts:349` | Secret runtime values for OIP deploy targets. |
+| `@beep/infra` | `OipWebStack` | class | `infra/src/OipWeb.ts:734` | Import-safe Pulumi component for OIP production web infrastructure. |
+| `@beep/infra` | `OipWebStackArgs` | class | `infra/src/OipWeb.ts:367` | Pulumi-facing args for the OIP web stack. |
 
 ### @beep/installer-use-cases
 
@@ -8610,16 +8611,16 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/runpod` | `RunpodConfigInput` | class | `packages/drivers/runpod/src/Runpod.config.ts:35` | Runtime configuration accepted by {@link Runpod.makeLayer}. |
 | `@beep/runpod` | `RunpodDocs` | class | `packages/drivers/runpod/src/RunpodDocs.service.ts:263` | Effect service for the Runpod LLM documentation index. |
 | `@beep/runpod` | `RunpodDocsConfigInput` | class | `packages/drivers/runpod/src/Runpod.config.ts:52` | Runtime configuration accepted by {@link RunpodDocs.makeLayer}. |
-| `@beep/runpod` | `RunpodDocsError` | class | `packages/drivers/runpod/src/Runpod.errors.ts:163` | Technical failure raised by the Runpod documentation index driver boundary. |
-| `@beep/runpod` | `RunpodDocsErrorOptions` | class | `packages/drivers/runpod/src/Runpod.errors.ts:237` | Options used when constructing Runpod documentation driver errors. |
-| `@beep/runpod` | `RunpodDocsErrorReason` | const | `packages/drivers/runpod/src/Runpod.errors.ts:53` | Technical error reasons emitted by the Runpod documentation index driver. |
-| `@beep/runpod` | `RunpodDocsErrorReason` | type | `packages/drivers/runpod/src/Runpod.errors.ts:71` | Type for {@link RunpodDocsErrorReason}. |
+| `@beep/runpod` | `RunpodDocsError` | class | `packages/drivers/runpod/src/Runpod.errors.ts:158` | Technical failure raised by the Runpod documentation index driver boundary. |
+| `@beep/runpod` | `RunpodDocsErrorOptions` | class | `packages/drivers/runpod/src/Runpod.errors.ts:234` | Options used when constructing Runpod documentation driver errors. |
+| `@beep/runpod` | `RunpodDocsErrorReason` | const | `packages/drivers/runpod/src/Runpod.errors.ts:52` | Technical error reasons emitted by the Runpod documentation index driver. |
+| `@beep/runpod` | `RunpodDocsErrorReason` | type | `packages/drivers/runpod/src/Runpod.errors.ts:70` | Type for {@link RunpodDocsErrorReason}. |
 | `@beep/runpod` | `RunpodDocsIndex` | class | `packages/drivers/runpod/src/RunpodDocs.service.ts:47` | Parsed Runpod documentation index. |
 | `@beep/runpod` | `RunpodDocsIndexEntry` | class | `packages/drivers/runpod/src/RunpodDocs.service.ts:29` | One Markdown documentation link parsed from Runpod's `llms.txt` index. |
-| `@beep/runpod` | `RunpodError` | class | `packages/drivers/runpod/src/Runpod.errors.ts:81` | Technical failure raised by the Runpod REST API driver boundary. |
-| `@beep/runpod` | `RunpodErrorOptions` | class | `packages/drivers/runpod/src/Runpod.errors.ts:202` | Options used when constructing Runpod driver errors. |
-| `@beep/runpod` | `RunpodErrorReason` | const | `packages/drivers/runpod/src/Runpod.errors.ts:27` | Technical error reasons emitted by the Runpod REST API driver. |
-| `@beep/runpod` | `RunpodErrorReason` | type | `packages/drivers/runpod/src/Runpod.errors.ts:45` | Type for {@link RunpodErrorReason}. |
+| `@beep/runpod` | `RunpodError` | class | `packages/drivers/runpod/src/Runpod.errors.ts:80` | Technical failure raised by the Runpod REST API driver boundary. |
+| `@beep/runpod` | `RunpodErrorOptions` | class | `packages/drivers/runpod/src/Runpod.errors.ts:199` | Options used when constructing Runpod driver errors. |
+| `@beep/runpod` | `RunpodErrorReason` | const | `packages/drivers/runpod/src/Runpod.errors.ts:26` | Technical error reasons emitted by the Runpod REST API driver. |
+| `@beep/runpod` | `RunpodErrorReason` | type | `packages/drivers/runpod/src/Runpod.errors.ts:44` | Type for {@link RunpodErrorReason}. |
 | `@beep/runpod` | `RunpodHttpMethod` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1811` | Supported Runpod HTTP methods. |
 | `@beep/runpod` | `RunpodHttpMethod` | type | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1819` | Supported Runpod HTTP method. |
 | `@beep/runpod` | `RunpodOperationDescriptor` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1909` | Static metadata for one Runpod REST operation. |
@@ -8630,7 +8631,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/runpod` | `RunpodQueryScalar` | type | `packages/drivers/runpod/src/Runpod.service.ts:44` | Type for {@link RunpodQueryScalar}. |
 | `@beep/runpod` | `RunpodQueryValue` | const | `packages/drivers/runpod/src/Runpod.service.ts:55` | Query value accepted by the raw Runpod request escape hatch. |
 | `@beep/runpod` | `RunpodQueryValue` | type | `packages/drivers/runpod/src/Runpod.service.ts:67` | Type for {@link RunpodQueryValue}. |
-| `@beep/runpod` | `RunpodRawErrorOptions` | class | `packages/drivers/runpod/src/Runpod.errors.ts:218` | Options used when constructing Runpod driver errors for raw requests. |
+| `@beep/runpod` | `RunpodRawErrorOptions` | class | `packages/drivers/runpod/src/Runpod.errors.ts:215` | Options used when constructing Runpod driver errors for raw requests. |
 | `@beep/runpod` | `RunpodRawRequest` | class | `packages/drivers/runpod/src/Runpod.service.ts:75` | Raw Runpod HTTP request escape hatch for endpoints ahead of the checked-in OpenAPI document. |
 | `@beep/runpod` | `RunpodRawResponse` | class | `packages/drivers/runpod/src/Runpod.service.ts:95` | Raw Runpod HTTP response returned by {@link Runpod.raw}. |
 | `@beep/runpod` | `RunpodRequestBodyKind` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1877` | Request body encoding used by a Runpod operation. |
@@ -8674,7 +8675,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 
 | Import | Symbol | Kind | Source | Summary |
 |---|---|---|---|---|
-| `@beep/repo-utils` | `applyPackageJsonPatchEffect` | const | `packages/tooling/library/repo-utils/src/schemas/PackageJsonTools.ts:378` | Apply a typed JSON Patch document to a package.json value. |
+| `@beep/repo-utils` | `applyPackageJsonPatchEffect` | const | `packages/tooling/library/repo-utils/src/schemas/PackageJsonTools.ts:391` | Apply a typed JSON Patch document to a package.json value. |
 | `@beep/repo-utils` | `buildRepoDependencyIndex` | const | `packages/tooling/library/repo-utils/src/DependencyIndex.ts:56` | Build a complete dependency index for the entire monorepo. |
 | `@beep/repo-utils` | `ByteLength` | const | `packages/tooling/library/repo-utils/src/TSMorph/TSMorph.model.ts:634` | Non-negative byte length schema. |
 | `@beep/repo-utils` | `ByteLength` | type | `packages/tooling/library/repo-utils/src/TSMorph/TSMorph.model.ts:652` | Branded non-negative byte length. |
@@ -8701,10 +8702,10 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-utils` | `DependencyRecord` | const | `packages/tooling/library/repo-utils/src/schemas/WorkspaceDeps.ts:27` | A record mapping package names to version specifiers. |
 | `@beep/repo-utils` | `DependencyRecord` | type | `packages/tooling/library/repo-utils/src/schemas/WorkspaceDeps.ts:47` | A record mapping package names to version specifiers. |
 | `@beep/repo-utils` | `detectCycles` | const | `packages/tooling/library/repo-utils/src/Graph.ts:168` | Detect all cycles in a directed dependency graph. |
-| `@beep/repo-utils` | `diffPackageJsonEffect` | const | `packages/tooling/library/repo-utils/src/schemas/PackageJsonTools.ts:351` | Compute a typed JSON Patch diff between two package.json values. |
+| `@beep/repo-utils` | `diffPackageJsonEffect` | const | `packages/tooling/library/repo-utils/src/schemas/PackageJsonTools.ts:364` | Compute a typed JSON Patch diff between two package.json values. |
 | `@beep/repo-utils` | `DomainError` | class | `packages/tooling/library/repo-utils/src/errors/DomainError.ts:32` | A generic domain-level error with an optional underlying cause. |
 | `@beep/repo-utils` | `emptyWorkspaceDeps` | const | `packages/tooling/library/repo-utils/src/schemas/WorkspaceDeps.ts:103` | Create an empty WorkspaceDeps for a given package name. |
-| `@beep/repo-utils` | `encodePackageJsonCanonicalPrettyEffect` | const | `packages/tooling/library/repo-utils/src/schemas/PackageJsonTools.ts:327` | Encode an unknown package.json value to a canonical pretty JSON string. |
+| `@beep/repo-utils` | `encodePackageJsonCanonicalPrettyEffect` | const | `packages/tooling/library/repo-utils/src/schemas/PackageJsonTools.ts:340` | Encode an unknown package.json value to a canonical pretty JSON string. |
 | `@beep/repo-utils` | `encodePackageJsonEffect` | const | `packages/tooling/library/repo-utils/src/schemas/PackageJson.ts:1403` | Encode a strict `PackageJson` value back to its encoded form as an Effect. |
 | `@beep/repo-utils` | `encodePackageJsonPrettyEffect` | const | `packages/tooling/library/repo-utils/src/schemas/PackageJson.ts:1445` | Encode a strict `PackageJson` value to a pretty-printed JSON string. |
 | `@beep/repo-utils` | `encodePackageJsonToJsonEffect` | const | `packages/tooling/library/repo-utils/src/schemas/PackageJson.ts:1424` | Encode a strict `PackageJson` value to a compact JSON string as an Effect. |
@@ -8718,12 +8719,12 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-utils` | `FilePathToTypeScriptImplementationFilePath` | const | `packages/tooling/library/repo-utils/src/TSMorph/TSMorph.model.ts:910` | Schema transformation from a generic file path to a TypeScript implementation file path. |
 | `@beep/repo-utils` | `findRepoRoot` | const | `packages/tooling/library/repo-utils/src/Root.ts:45` | Find the repository root by walking upward from the given directory |
 | `@beep/repo-utils` | `fnv1a32` | const | `packages/tooling/library/repo-utils/src/Reuse/TokenSimilarity.ts:39` | 32-bit FNV-1a hash of a string (unsigned). The narrow-width sibling of the |
-| `@beep/repo-utils` | `FsUtils` | class | `packages/tooling/library/repo-utils/src/FsUtils.ts:160` | Service tag for `FsUtils`. |
-| `@beep/repo-utils` | `FsUtilsLive` | const | `packages/tooling/library/repo-utils/src/FsUtils.ts:176` | Live layer for `FsUtils` that uses the platform `FileSystem` and `Path` |
-| `@beep/repo-utils` | `FsUtilsShape` | interface | `packages/tooling/library/repo-utils/src/FsUtils.ts:60` | Shape of the FsUtils service. |
-| `@beep/repo-utils` | `getPackageJsonSchemaIssues` | const | `packages/tooling/library/repo-utils/src/schemas/PackageJsonTools.ts:410` | Format a SchemaError into package.json validation issues with JSON Pointers. |
+| `@beep/repo-utils` | `FsUtils` | class | `packages/tooling/library/repo-utils/src/FsUtils.ts:161` | Service tag for `FsUtils`. |
+| `@beep/repo-utils` | `FsUtilsLive` | const | `packages/tooling/library/repo-utils/src/FsUtils.ts:177` | Live layer for `FsUtils` that uses the platform `FileSystem` and `Path` |
+| `@beep/repo-utils` | `FsUtilsShape` | interface | `packages/tooling/library/repo-utils/src/FsUtils.ts:61` | Shape of the FsUtils service. |
+| `@beep/repo-utils` | `getPackageJsonSchemaIssues` | const | `packages/tooling/library/repo-utils/src/schemas/PackageJsonTools.ts:423` | Format a SchemaError into package.json validation issues with JSON Pointers. |
 | `@beep/repo-utils` | `getWorkspaceDir` | const | `packages/tooling/library/repo-utils/src/Workspaces.ts:196` | Look up the absolute directory for a single workspace by package name. |
-| `@beep/repo-utils` | `GlobOptions` | class | `packages/tooling/library/repo-utils/src/FsUtils.ts:36` | Options for glob matching operations. |
+| `@beep/repo-utils` | `GlobOptions` | class | `packages/tooling/library/repo-utils/src/FsUtils.ts:37` | Options for glob matching operations. |
 | `@beep/repo-utils` | `InternalTsMorphNode` | const | `packages/tooling/library/repo-utils/src/TSMorph/TSMorph.model.ts:1092` | Internal runtime schema for a live ts-morph Node instance. |
 | `@beep/repo-utils` | `InternalTsMorphProject` | const | `packages/tooling/library/repo-utils/src/TSMorph/TSMorph.model.ts:1056` | Internal runtime schemas. |
 | `@beep/repo-utils` | `InternalTsMorphSourceFile` | const | `packages/tooling/library/repo-utils/src/TSMorph/TSMorph.model.ts:1073` | Internal runtime schema for a live ts-morph SourceFile instance. |
@@ -8740,15 +8741,15 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-utils` | `makeSymbolId` | const | `packages/tooling/library/repo-utils/src/TSMorph/TSMorph.model.ts:1237` | Builds a stable `SymbolId` from validated symbol identity parts. |
 | `@beep/repo-utils` | `minhashSignature` | const | `packages/tooling/library/repo-utils/src/Reuse/TokenSimilarity.ts:122` | Compute an `permutations`-length MinHash signature of a shingle set. Each slot |
 | `@beep/repo-utils` | `normalizedDeclarationSignature` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:609` | Normalize a declaration to a structural signature that ignores formatting, |
-| `@beep/repo-utils` | `normalizePackageJsonEffect` | const | `packages/tooling/library/repo-utils/src/schemas/PackageJsonTools.ts:306` | Normalize an unknown package.json value into a canonical encoded object. |
+| `@beep/repo-utils` | `normalizePackageJsonEffect` | const | `packages/tooling/library/repo-utils/src/schemas/PackageJsonTools.ts:319` | Normalize an unknown package.json value into a canonical encoded object. |
 | `@beep/repo-utils` | `NoSuchFileError` | class | `packages/tooling/library/repo-utils/src/errors/NoSuchFileError.ts:32` | Raised when a required file or directory cannot be located. |
 | `@beep/repo-utils` | `NpmPackageJson` | class | `packages/tooling/library/repo-utils/src/schemas/PackageJson.ts:965` | Type-safe schema for npm package.json files. |
 | `@beep/repo-utils` | `NpmPackageJson` | namespace | `packages/tooling/library/repo-utils/src/schemas/PackageJson.ts:1007` | Namespace helpers for the strict npm package-json schema. |
-| `@beep/repo-utils` | `npmPackageJsonJsonSchema` | const | `packages/tooling/library/repo-utils/src/schemas/PackageJsonTools.ts:289` | Draft 2020-12 JSON Schema document for the npm-only package.json schema. |
+| `@beep/repo-utils` | `npmPackageJsonJsonSchema` | const | `packages/tooling/library/repo-utils/src/schemas/PackageJsonTools.ts:302` | Draft 2020-12 JSON Schema document for the npm-only package.json schema. |
 | `@beep/repo-utils` | `PackageJson` | class | `packages/tooling/library/repo-utils/src/schemas/PackageJson.ts:987` | Type-safe schema for this repo's package.json files. |
 | `@beep/repo-utils` | `PackageJson` | namespace | `packages/tooling/library/repo-utils/src/schemas/PackageJson.ts:1036` | Namespace helpers for the repo-aware package-json schema. |
-| `@beep/repo-utils` | `packageJsonJsonSchema` | const | `packages/tooling/library/repo-utils/src/schemas/PackageJsonTools.ts:275` | Draft 2020-12 JSON Schema document for the repo-aware package.json schema. |
-| `@beep/repo-utils` | `PackageJsonValidationIssue` | class | `packages/tooling/library/repo-utils/src/schemas/PackageJsonTools.ts:252` | Structured package.json validation issue. |
+| `@beep/repo-utils` | `packageJsonJsonSchema` | const | `packages/tooling/library/repo-utils/src/schemas/PackageJsonTools.ts:288` | Draft 2020-12 JSON Schema document for the repo-aware package.json schema. |
+| `@beep/repo-utils` | `PackageJsonValidationIssue` | class | `packages/tooling/library/repo-utils/src/schemas/PackageJsonTools.ts:265` | Structured package.json validation issue. |
 | `@beep/repo-utils` | `ProjectCacheKey` | const | `packages/tooling/library/repo-utils/src/TSMorph/TSMorph.model.ts:810` | Cache key schema for memoized ts-morph projects. |
 | `@beep/repo-utils` | `ProjectCacheKey` | type | `packages/tooling/library/repo-utils/src/TSMorph/TSMorph.model.ts:828` | Branded cache key for memoized ts-morph projects. |
 | `@beep/repo-utils` | `ProjectScopeId` | const | `packages/tooling/library/repo-utils/src/TSMorph/TSMorph.model.ts:756` | Stable identity schema for a resolved ts-morph project scope. |
@@ -8879,14 +8880,14 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-utils/errors/index` | `DomainError` | class | `packages/tooling/library/repo-utils/src/errors/DomainError.ts:32` | A generic domain-level error with an optional underlying cause. |
 | `@beep/repo-utils/errors/index` | `NoSuchFileError` | class | `packages/tooling/library/repo-utils/src/errors/NoSuchFileError.ts:32` | Raised when a required file or directory cannot be located. |
 | `@beep/repo-utils/errors/NoSuchFileError` | `NoSuchFileError` | class | `packages/tooling/library/repo-utils/src/errors/NoSuchFileError.ts:32` | Raised when a required file or directory cannot be located. |
-| `@beep/repo-utils/FsUtils` | `FsUtils` | class | `packages/tooling/library/repo-utils/src/FsUtils.ts:160` | Service tag for `FsUtils`. |
-| `@beep/repo-utils/FsUtils` | `FsUtilsLive` | const | `packages/tooling/library/repo-utils/src/FsUtils.ts:176` | Live layer for `FsUtils` that uses the platform `FileSystem` and `Path` |
-| `@beep/repo-utils/FsUtils` | `FsUtilsShape` | interface | `packages/tooling/library/repo-utils/src/FsUtils.ts:60` | Shape of the FsUtils service. |
-| `@beep/repo-utils/FsUtils` | `GlobOptions` | class | `packages/tooling/library/repo-utils/src/FsUtils.ts:36` | Options for glob matching operations. |
+| `@beep/repo-utils/FsUtils` | `FsUtils` | class | `packages/tooling/library/repo-utils/src/FsUtils.ts:161` | Service tag for `FsUtils`. |
+| `@beep/repo-utils/FsUtils` | `FsUtilsLive` | const | `packages/tooling/library/repo-utils/src/FsUtils.ts:177` | Live layer for `FsUtils` that uses the platform `FileSystem` and `Path` |
+| `@beep/repo-utils/FsUtils` | `FsUtilsShape` | interface | `packages/tooling/library/repo-utils/src/FsUtils.ts:61` | Shape of the FsUtils service. |
+| `@beep/repo-utils/FsUtils` | `GlobOptions` | class | `packages/tooling/library/repo-utils/src/FsUtils.ts:37` | Options for glob matching operations. |
 | `@beep/repo-utils/Graph` | `computeTransitiveClosure` | const | `packages/tooling/library/repo-utils/src/Graph.ts:324` | Compute the transitive closure of dependencies for a single package. |
 | `@beep/repo-utils/Graph` | `detectCycles` | const | `packages/tooling/library/repo-utils/src/Graph.ts:168` | Detect all cycles in a directed dependency graph. |
 | `@beep/repo-utils/Graph` | `topologicalSort` | const | `packages/tooling/library/repo-utils/src/Graph.ts:109` | Compute a topological ordering (dependency-first build order) of packages |
-| `@beep/repo-utils/index` | `applyPackageJsonPatchEffect` | const | `packages/tooling/library/repo-utils/src/schemas/PackageJsonTools.ts:378` | Apply a typed JSON Patch document to a package.json value. |
+| `@beep/repo-utils/index` | `applyPackageJsonPatchEffect` | const | `packages/tooling/library/repo-utils/src/schemas/PackageJsonTools.ts:391` | Apply a typed JSON Patch document to a package.json value. |
 | `@beep/repo-utils/index` | `buildRepoDependencyIndex` | const | `packages/tooling/library/repo-utils/src/DependencyIndex.ts:56` | Build a complete dependency index for the entire monorepo. |
 | `@beep/repo-utils/index` | `ByteLength` | const | `packages/tooling/library/repo-utils/src/TSMorph/TSMorph.model.ts:634` | Non-negative byte length schema. |
 | `@beep/repo-utils/index` | `ByteLength` | type | `packages/tooling/library/repo-utils/src/TSMorph/TSMorph.model.ts:652` | Branded non-negative byte length. |
@@ -8913,10 +8914,10 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-utils/index` | `DependencyRecord` | const | `packages/tooling/library/repo-utils/src/schemas/WorkspaceDeps.ts:27` | A record mapping package names to version specifiers. |
 | `@beep/repo-utils/index` | `DependencyRecord` | type | `packages/tooling/library/repo-utils/src/schemas/WorkspaceDeps.ts:47` | A record mapping package names to version specifiers. |
 | `@beep/repo-utils/index` | `detectCycles` | const | `packages/tooling/library/repo-utils/src/Graph.ts:168` | Detect all cycles in a directed dependency graph. |
-| `@beep/repo-utils/index` | `diffPackageJsonEffect` | const | `packages/tooling/library/repo-utils/src/schemas/PackageJsonTools.ts:351` | Compute a typed JSON Patch diff between two package.json values. |
+| `@beep/repo-utils/index` | `diffPackageJsonEffect` | const | `packages/tooling/library/repo-utils/src/schemas/PackageJsonTools.ts:364` | Compute a typed JSON Patch diff between two package.json values. |
 | `@beep/repo-utils/index` | `DomainError` | class | `packages/tooling/library/repo-utils/src/errors/DomainError.ts:32` | A generic domain-level error with an optional underlying cause. |
 | `@beep/repo-utils/index` | `emptyWorkspaceDeps` | const | `packages/tooling/library/repo-utils/src/schemas/WorkspaceDeps.ts:103` | Create an empty WorkspaceDeps for a given package name. |
-| `@beep/repo-utils/index` | `encodePackageJsonCanonicalPrettyEffect` | const | `packages/tooling/library/repo-utils/src/schemas/PackageJsonTools.ts:327` | Encode an unknown package.json value to a canonical pretty JSON string. |
+| `@beep/repo-utils/index` | `encodePackageJsonCanonicalPrettyEffect` | const | `packages/tooling/library/repo-utils/src/schemas/PackageJsonTools.ts:340` | Encode an unknown package.json value to a canonical pretty JSON string. |
 | `@beep/repo-utils/index` | `encodePackageJsonEffect` | const | `packages/tooling/library/repo-utils/src/schemas/PackageJson.ts:1403` | Encode a strict `PackageJson` value back to its encoded form as an Effect. |
 | `@beep/repo-utils/index` | `encodePackageJsonPrettyEffect` | const | `packages/tooling/library/repo-utils/src/schemas/PackageJson.ts:1445` | Encode a strict `PackageJson` value to a pretty-printed JSON string. |
 | `@beep/repo-utils/index` | `encodePackageJsonToJsonEffect` | const | `packages/tooling/library/repo-utils/src/schemas/PackageJson.ts:1424` | Encode a strict `PackageJson` value to a compact JSON string as an Effect. |
@@ -8930,12 +8931,12 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-utils/index` | `FilePathToTypeScriptImplementationFilePath` | const | `packages/tooling/library/repo-utils/src/TSMorph/TSMorph.model.ts:910` | Schema transformation from a generic file path to a TypeScript implementation file path. |
 | `@beep/repo-utils/index` | `findRepoRoot` | const | `packages/tooling/library/repo-utils/src/Root.ts:45` | Find the repository root by walking upward from the given directory |
 | `@beep/repo-utils/index` | `fnv1a32` | const | `packages/tooling/library/repo-utils/src/Reuse/TokenSimilarity.ts:39` | 32-bit FNV-1a hash of a string (unsigned). The narrow-width sibling of the |
-| `@beep/repo-utils/index` | `FsUtils` | class | `packages/tooling/library/repo-utils/src/FsUtils.ts:160` | Service tag for `FsUtils`. |
-| `@beep/repo-utils/index` | `FsUtilsLive` | const | `packages/tooling/library/repo-utils/src/FsUtils.ts:176` | Live layer for `FsUtils` that uses the platform `FileSystem` and `Path` |
-| `@beep/repo-utils/index` | `FsUtilsShape` | interface | `packages/tooling/library/repo-utils/src/FsUtils.ts:60` | Shape of the FsUtils service. |
-| `@beep/repo-utils/index` | `getPackageJsonSchemaIssues` | const | `packages/tooling/library/repo-utils/src/schemas/PackageJsonTools.ts:410` | Format a SchemaError into package.json validation issues with JSON Pointers. |
+| `@beep/repo-utils/index` | `FsUtils` | class | `packages/tooling/library/repo-utils/src/FsUtils.ts:161` | Service tag for `FsUtils`. |
+| `@beep/repo-utils/index` | `FsUtilsLive` | const | `packages/tooling/library/repo-utils/src/FsUtils.ts:177` | Live layer for `FsUtils` that uses the platform `FileSystem` and `Path` |
+| `@beep/repo-utils/index` | `FsUtilsShape` | interface | `packages/tooling/library/repo-utils/src/FsUtils.ts:61` | Shape of the FsUtils service. |
+| `@beep/repo-utils/index` | `getPackageJsonSchemaIssues` | const | `packages/tooling/library/repo-utils/src/schemas/PackageJsonTools.ts:423` | Format a SchemaError into package.json validation issues with JSON Pointers. |
 | `@beep/repo-utils/index` | `getWorkspaceDir` | const | `packages/tooling/library/repo-utils/src/Workspaces.ts:196` | Look up the absolute directory for a single workspace by package name. |
-| `@beep/repo-utils/index` | `GlobOptions` | class | `packages/tooling/library/repo-utils/src/FsUtils.ts:36` | Options for glob matching operations. |
+| `@beep/repo-utils/index` | `GlobOptions` | class | `packages/tooling/library/repo-utils/src/FsUtils.ts:37` | Options for glob matching operations. |
 | `@beep/repo-utils/index` | `InternalTsMorphNode` | const | `packages/tooling/library/repo-utils/src/TSMorph/TSMorph.model.ts:1092` | Internal runtime schema for a live ts-morph Node instance. |
 | `@beep/repo-utils/index` | `InternalTsMorphProject` | const | `packages/tooling/library/repo-utils/src/TSMorph/TSMorph.model.ts:1056` | Internal runtime schemas. |
 | `@beep/repo-utils/index` | `InternalTsMorphSourceFile` | const | `packages/tooling/library/repo-utils/src/TSMorph/TSMorph.model.ts:1073` | Internal runtime schema for a live ts-morph SourceFile instance. |
@@ -8952,15 +8953,15 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-utils/index` | `makeSymbolId` | const | `packages/tooling/library/repo-utils/src/TSMorph/TSMorph.model.ts:1237` | Builds a stable `SymbolId` from validated symbol identity parts. |
 | `@beep/repo-utils/index` | `minhashSignature` | const | `packages/tooling/library/repo-utils/src/Reuse/TokenSimilarity.ts:122` | Compute an `permutations`-length MinHash signature of a shingle set. Each slot |
 | `@beep/repo-utils/index` | `normalizedDeclarationSignature` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:609` | Normalize a declaration to a structural signature that ignores formatting, |
-| `@beep/repo-utils/index` | `normalizePackageJsonEffect` | const | `packages/tooling/library/repo-utils/src/schemas/PackageJsonTools.ts:306` | Normalize an unknown package.json value into a canonical encoded object. |
+| `@beep/repo-utils/index` | `normalizePackageJsonEffect` | const | `packages/tooling/library/repo-utils/src/schemas/PackageJsonTools.ts:319` | Normalize an unknown package.json value into a canonical encoded object. |
 | `@beep/repo-utils/index` | `NoSuchFileError` | class | `packages/tooling/library/repo-utils/src/errors/NoSuchFileError.ts:32` | Raised when a required file or directory cannot be located. |
 | `@beep/repo-utils/index` | `NpmPackageJson` | class | `packages/tooling/library/repo-utils/src/schemas/PackageJson.ts:965` | Type-safe schema for npm package.json files. |
 | `@beep/repo-utils/index` | `NpmPackageJson` | namespace | `packages/tooling/library/repo-utils/src/schemas/PackageJson.ts:1007` | Namespace helpers for the strict npm package-json schema. |
-| `@beep/repo-utils/index` | `npmPackageJsonJsonSchema` | const | `packages/tooling/library/repo-utils/src/schemas/PackageJsonTools.ts:289` | Draft 2020-12 JSON Schema document for the npm-only package.json schema. |
+| `@beep/repo-utils/index` | `npmPackageJsonJsonSchema` | const | `packages/tooling/library/repo-utils/src/schemas/PackageJsonTools.ts:302` | Draft 2020-12 JSON Schema document for the npm-only package.json schema. |
 | `@beep/repo-utils/index` | `PackageJson` | class | `packages/tooling/library/repo-utils/src/schemas/PackageJson.ts:987` | Type-safe schema for this repo's package.json files. |
 | `@beep/repo-utils/index` | `PackageJson` | namespace | `packages/tooling/library/repo-utils/src/schemas/PackageJson.ts:1036` | Namespace helpers for the repo-aware package-json schema. |
-| `@beep/repo-utils/index` | `packageJsonJsonSchema` | const | `packages/tooling/library/repo-utils/src/schemas/PackageJsonTools.ts:275` | Draft 2020-12 JSON Schema document for the repo-aware package.json schema. |
-| `@beep/repo-utils/index` | `PackageJsonValidationIssue` | class | `packages/tooling/library/repo-utils/src/schemas/PackageJsonTools.ts:252` | Structured package.json validation issue. |
+| `@beep/repo-utils/index` | `packageJsonJsonSchema` | const | `packages/tooling/library/repo-utils/src/schemas/PackageJsonTools.ts:288` | Draft 2020-12 JSON Schema document for the repo-aware package.json schema. |
+| `@beep/repo-utils/index` | `PackageJsonValidationIssue` | class | `packages/tooling/library/repo-utils/src/schemas/PackageJsonTools.ts:265` | Structured package.json validation issue. |
 | `@beep/repo-utils/index` | `ProjectCacheKey` | const | `packages/tooling/library/repo-utils/src/TSMorph/TSMorph.model.ts:810` | Cache key schema for memoized ts-morph projects. |
 | `@beep/repo-utils/index` | `ProjectCacheKey` | type | `packages/tooling/library/repo-utils/src/TSMorph/TSMorph.model.ts:828` | Branded cache key for memoized ts-morph projects. |
 | `@beep/repo-utils/index` | `ProjectScopeId` | const | `packages/tooling/library/repo-utils/src/TSMorph/TSMorph.model.ts:756` | Stable identity schema for a resolved ts-morph project scope. |
@@ -10049,14 +10050,14 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-utils/schemas/PackageJson` | `TypesVersions` | type | `packages/tooling/library/repo-utils/src/schemas/PackageJson.ts:1247` | Runtime type for {@link TypesVersions}. |
 | `@beep/repo-utils/schemas/PackageJson` | `Workspaces` | const | `packages/tooling/library/repo-utils/src/schemas/PackageJson.ts:855` | Schema for the `workspaces` field. |
 | `@beep/repo-utils/schemas/PackageJson` | `Workspaces` | type | `packages/tooling/library/repo-utils/src/schemas/PackageJson.ts:1312` | Runtime type for {@link Workspaces}. |
-| `@beep/repo-utils/schemas/PackageJsonTools` | `applyPackageJsonPatchEffect` | const | `packages/tooling/library/repo-utils/src/schemas/PackageJsonTools.ts:378` | Apply a typed JSON Patch document to a package.json value. |
-| `@beep/repo-utils/schemas/PackageJsonTools` | `diffPackageJsonEffect` | const | `packages/tooling/library/repo-utils/src/schemas/PackageJsonTools.ts:351` | Compute a typed JSON Patch diff between two package.json values. |
-| `@beep/repo-utils/schemas/PackageJsonTools` | `encodePackageJsonCanonicalPrettyEffect` | const | `packages/tooling/library/repo-utils/src/schemas/PackageJsonTools.ts:327` | Encode an unknown package.json value to a canonical pretty JSON string. |
-| `@beep/repo-utils/schemas/PackageJsonTools` | `getPackageJsonSchemaIssues` | const | `packages/tooling/library/repo-utils/src/schemas/PackageJsonTools.ts:410` | Format a SchemaError into package.json validation issues with JSON Pointers. |
-| `@beep/repo-utils/schemas/PackageJsonTools` | `normalizePackageJsonEffect` | const | `packages/tooling/library/repo-utils/src/schemas/PackageJsonTools.ts:306` | Normalize an unknown package.json value into a canonical encoded object. |
-| `@beep/repo-utils/schemas/PackageJsonTools` | `npmPackageJsonJsonSchema` | const | `packages/tooling/library/repo-utils/src/schemas/PackageJsonTools.ts:289` | Draft 2020-12 JSON Schema document for the npm-only package.json schema. |
-| `@beep/repo-utils/schemas/PackageJsonTools` | `packageJsonJsonSchema` | const | `packages/tooling/library/repo-utils/src/schemas/PackageJsonTools.ts:275` | Draft 2020-12 JSON Schema document for the repo-aware package.json schema. |
-| `@beep/repo-utils/schemas/PackageJsonTools` | `PackageJsonValidationIssue` | class | `packages/tooling/library/repo-utils/src/schemas/PackageJsonTools.ts:252` | Structured package.json validation issue. |
+| `@beep/repo-utils/schemas/PackageJsonTools` | `applyPackageJsonPatchEffect` | const | `packages/tooling/library/repo-utils/src/schemas/PackageJsonTools.ts:391` | Apply a typed JSON Patch document to a package.json value. |
+| `@beep/repo-utils/schemas/PackageJsonTools` | `diffPackageJsonEffect` | const | `packages/tooling/library/repo-utils/src/schemas/PackageJsonTools.ts:364` | Compute a typed JSON Patch diff between two package.json values. |
+| `@beep/repo-utils/schemas/PackageJsonTools` | `encodePackageJsonCanonicalPrettyEffect` | const | `packages/tooling/library/repo-utils/src/schemas/PackageJsonTools.ts:340` | Encode an unknown package.json value to a canonical pretty JSON string. |
+| `@beep/repo-utils/schemas/PackageJsonTools` | `getPackageJsonSchemaIssues` | const | `packages/tooling/library/repo-utils/src/schemas/PackageJsonTools.ts:423` | Format a SchemaError into package.json validation issues with JSON Pointers. |
+| `@beep/repo-utils/schemas/PackageJsonTools` | `normalizePackageJsonEffect` | const | `packages/tooling/library/repo-utils/src/schemas/PackageJsonTools.ts:319` | Normalize an unknown package.json value into a canonical encoded object. |
+| `@beep/repo-utils/schemas/PackageJsonTools` | `npmPackageJsonJsonSchema` | const | `packages/tooling/library/repo-utils/src/schemas/PackageJsonTools.ts:302` | Draft 2020-12 JSON Schema document for the npm-only package.json schema. |
+| `@beep/repo-utils/schemas/PackageJsonTools` | `packageJsonJsonSchema` | const | `packages/tooling/library/repo-utils/src/schemas/PackageJsonTools.ts:288` | Draft 2020-12 JSON Schema document for the repo-aware package.json schema. |
+| `@beep/repo-utils/schemas/PackageJsonTools` | `PackageJsonValidationIssue` | class | `packages/tooling/library/repo-utils/src/schemas/PackageJsonTools.ts:265` | Structured package.json validation issue. |
 | `@beep/repo-utils/schemas/TSConfig` | `decodeTSConfig` | const | `packages/tooling/library/repo-utils/src/schemas/TSConfig.ts:1668` | Synchronously decode an unknown value into a strict `TSConfig`. |
 | `@beep/repo-utils/schemas/TSConfig` | `decodeTSConfigEffect` | const | `packages/tooling/library/repo-utils/src/schemas/TSConfig.ts:1706` | Decode an unknown value into a strict `TSConfig` as an Effect. |
 | `@beep/repo-utils/schemas/TSConfig` | `decodeTSConfigExit` | const | `packages/tooling/library/repo-utils/src/schemas/TSConfig.ts:1686` | Synchronously decode an unknown value into a strict `TSConfig`, |
@@ -12334,8 +12335,8 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/duckdb` | `DuckDb` | class | `packages/drivers/duckdb/src/DuckDb.service.ts:360` | Effect service for product-neutral DuckDB execution. |
 | `@beep/duckdb` | `DuckDbClient` | interface | `packages/drivers/duckdb/src/DuckDb.service.ts:62` | Narrow adapter accepted by {@link DuckDb.makeLayer}. |
 | `@beep/duckdb` | `DuckDbConnectionOptions` | class | `packages/drivers/duckdb/src/DuckDb.models.ts:31` | Connection options for a DuckDB database. |
-| `@beep/duckdb` | `DuckDbError` | class | `packages/drivers/duckdb/src/DuckDb.errors.ts:73` | Technical failure raised by the `@beep/duckdb` driver boundary. |
-| `@beep/duckdb` | `DuckDbErrorFromUnknownOptions` | class | `packages/drivers/duckdb/src/DuckDb.errors.ts:41` | Options used when normalizing unknown DuckDB boundary failures. |
+| `@beep/duckdb` | `DuckDbError` | class | `packages/drivers/duckdb/src/DuckDb.errors.ts:72` | Technical failure raised by the `@beep/duckdb` driver boundary. |
+| `@beep/duckdb` | `DuckDbErrorFromUnknownOptions` | class | `packages/drivers/duckdb/src/DuckDb.errors.ts:40` | Options used when normalizing unknown DuckDB boundary failures. |
 | `@beep/duckdb` | `DuckDbParquetExport` | class | `packages/drivers/duckdb/src/DuckDb.models.ts:59` | Parquet export request for a DuckDB table. |
 | `@beep/duckdb` | `DuckDbQueryParameters` | type | `packages/drivers/duckdb/src/DuckDb.service.ts:38` | Parameter values accepted by the DuckDB Node API. |
 | `@beep/duckdb` | `DuckDbRow` | const | `packages/drivers/duckdb/src/DuckDb.models.ts:88` | JSON-compatible row returned from DuckDB queries. |
@@ -12664,10 +12665,19 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/ui/components/avatar` | `Avatar` | function | `packages/foundation/ui-system/ui/src/components/avatar.tsx:14` |  |
 | `@beep/ui/components/avatar` | `AvatarFallback` | function | `packages/foundation/ui-system/ui/src/components/avatar.tsx:86` |  |
 | `@beep/ui/components/avatar` | `AvatarImage` | function | `packages/foundation/ui-system/ui/src/components/avatar.tsx:35` |  |
-| `@beep/ui/components/badge` | `Badge` | function | `packages/foundation/ui-system/ui/src/components/badge.tsx:35` |  |
-| `@beep/ui/components/badge` | `badgeVariants` | const | `packages/foundation/ui-system/ui/src/components/badge.tsx:11` |  |
+| `@beep/ui/components/badge` | `Badge` | function | `packages/foundation/ui-system/ui/src/components/badge.tsx:36` |  |
+| `@beep/ui/components/badge` | `badgeVariants` | const | `packages/foundation/ui-system/ui/src/components/badge.tsx:12` |  |
+| `@beep/ui/components/banner` | `Banner` | function | `packages/foundation/ui-system/ui/src/components/banner.tsx:47` |  |
+| `@beep/ui/components/banner` | `Banner` | Identifier | `packages/foundation/ui-system/ui/src/components/banner.tsx:109` |  |
+| `@beep/ui/components/banner` | `Banner` | Identifier | `packages/foundation/ui-system/ui/src/components/banner.tsx:110` |  |
+| `@beep/ui/components/banner` | `Banner` | Identifier | `packages/foundation/ui-system/ui/src/components/banner.tsx:111` |  |
+| `@beep/ui/components/banner` | `Banner` | Identifier | `packages/foundation/ui-system/ui/src/components/banner.tsx:112` |  |
+| `@beep/ui/components/banner` | `BannerContent` | const | `packages/foundation/ui-system/ui/src/components/banner.tsx:62` |  |
+| `@beep/ui/components/banner` | `BannerDescription` | const | `packages/foundation/ui-system/ui/src/components/banner.tsx:78` |  |
+| `@beep/ui/components/banner` | `BannerDismiss` | const | `packages/foundation/ui-system/ui/src/components/banner.tsx:90` |  |
+| `@beep/ui/components/banner` | `BannerTitle` | const | `packages/foundation/ui-system/ui/src/components/banner.tsx:70` |  |
 | `@beep/ui/components/banner` | `bannerVariants` | const | `packages/foundation/ui-system/ui/src/components/banner.tsx:11` |  |
-| `@beep/ui/components/blocks/editor-00/editor` | `Editor` | function | `packages/foundation/ui-system/ui/src/components/blocks/editor-00/editor.tsx:29` | Rich text editor block assembled from the shared editor theme and plugins. |
+| `@beep/ui/components/blocks/editor-00/editor` | `Editor` | function | `packages/foundation/ui-system/ui/src/components/blocks/editor-00/editor.tsx:30` | Rich text editor block assembled from the shared editor theme and plugins. |
 | `@beep/ui/components/blocks/editor-00/plugins` | `Plugins` | function | `packages/foundation/ui-system/ui/src/components/blocks/editor-00/plugins.tsx:11` | Core plugin set for the shared editor block. |
 | `@beep/ui/components/breadcrumb` | `Breadcrumb` | function | `packages/foundation/ui-system/ui/src/components/breadcrumb.tsx:11` |  |
 | `@beep/ui/components/breadcrumb` | `BreadcrumbEllipsis` | function | `packages/foundation/ui-system/ui/src/components/breadcrumb.tsx:89` |  |
@@ -12678,10 +12688,10 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/ui/components/breadcrumb` | `BreadcrumbSeparator` | function | `packages/foundation/ui-system/ui/src/components/breadcrumb.tsx:71` |  |
 | `@beep/ui/components/button` | `Button` | function | `packages/foundation/ui-system/ui/src/components/button.tsx:50` |  |
 | `@beep/ui/components/button` | `buttonVariants` | const | `packages/foundation/ui-system/ui/src/components/button.tsx:11` |  |
-| `@beep/ui/components/button-group` | `ButtonGroup` | function | `packages/foundation/ui-system/ui/src/components/button-group.tsx:33` |  |
-| `@beep/ui/components/button-group` | `ButtonGroupSeparator` | function | `packages/foundation/ui-system/ui/src/components/button-group.tsx:76` |  |
-| `@beep/ui/components/button-group` | `ButtonGroupText` | function | `packages/foundation/ui-system/ui/src/components/button-group.tsx:53` |  |
-| `@beep/ui/components/button-group` | `buttonGroupVariants` | const | `packages/foundation/ui-system/ui/src/components/button-group.tsx:12` |  |
+| `@beep/ui/components/button-group` | `ButtonGroup` | function | `packages/foundation/ui-system/ui/src/components/button-group.tsx:34` |  |
+| `@beep/ui/components/button-group` | `ButtonGroupSeparator` | function | `packages/foundation/ui-system/ui/src/components/button-group.tsx:77` |  |
+| `@beep/ui/components/button-group` | `ButtonGroupText` | function | `packages/foundation/ui-system/ui/src/components/button-group.tsx:54` |  |
+| `@beep/ui/components/button-group` | `buttonGroupVariants` | const | `packages/foundation/ui-system/ui/src/components/button-group.tsx:13` |  |
 | `@beep/ui/components/calendar` | `Calendar` | function | `packages/foundation/ui-system/ui/src/components/calendar.tsx:14` |  |
 | `@beep/ui/components/calendar` | `CalendarDayButton` | function | `packages/foundation/ui-system/ui/src/components/calendar.tsx:143` |  |
 | `@beep/ui/components/calendar-event-card` | `CalendarEventCard` | function | `packages/foundation/ui-system/ui/src/components/calendar-event-card.tsx:37` |  |
@@ -12699,11 +12709,18 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/ui/components/card` | `CardTitle` | function | `packages/foundation/ui-system/ui/src/components/card.tsx:47` |  |
 | `@beep/ui/components/carousel` | `Carousel` | function | `packages/foundation/ui-system/ui/src/components/carousel.tsx:51` |  |
 | `@beep/ui/components/carousel` | `CarouselApi` | type | `packages/foundation/ui-system/ui/src/components/carousel.tsx:15` |  |
-| `@beep/ui/components/carousel` | `CarouselContent` | function | `packages/foundation/ui-system/ui/src/components/carousel.tsx:151` |  |
-| `@beep/ui/components/carousel` | `CarouselItem` | function | `packages/foundation/ui-system/ui/src/components/carousel.tsx:165` |  |
-| `@beep/ui/components/carousel` | `CarouselNext` | function | `packages/foundation/ui-system/ui/src/components/carousel.tsx:217` |  |
-| `@beep/ui/components/carousel` | `CarouselPrevious` | function | `packages/foundation/ui-system/ui/src/components/carousel.tsx:183` |  |
+| `@beep/ui/components/carousel` | `CarouselContent` | function | `packages/foundation/ui-system/ui/src/components/carousel.tsx:147` |  |
+| `@beep/ui/components/carousel` | `CarouselItem` | function | `packages/foundation/ui-system/ui/src/components/carousel.tsx:161` |  |
+| `@beep/ui/components/carousel` | `CarouselNext` | function | `packages/foundation/ui-system/ui/src/components/carousel.tsx:213` |  |
+| `@beep/ui/components/carousel` | `CarouselPrevious` | function | `packages/foundation/ui-system/ui/src/components/carousel.tsx:179` |  |
 | `@beep/ui/components/carousel` | `useCarousel` | function | `packages/foundation/ui-system/ui/src/components/carousel.tsx:42` |  |
+| `@beep/ui/components/chart` | `ChartConfig` | type | `packages/foundation/ui-system/ui/src/components/chart.tsx:21` | Configuration describing each chart series' label, icon, and color or per-theme colors. |
+| `@beep/ui/components/chart` | `ChartContainer` | function | `packages/foundation/ui-system/ui/src/components/chart.tsx:51` | Responsive chart wrapper that provides the chart config context and theme CSS variables. |
+| `@beep/ui/components/chart` | `ChartLegend` | const | `packages/foundation/ui-system/ui/src/components/chart.tsx:286` | Recharts legend primitive paired with {@link ChartLegendContent}. |
+| `@beep/ui/components/chart` | `ChartLegendContent` | function | `packages/foundation/ui-system/ui/src/components/chart.tsx:294` | Themed legend content for charts, rendering each series' icon or color swatch and label. |
+| `@beep/ui/components/chart` | `ChartStyle` | const | `packages/foundation/ui-system/ui/src/components/chart.tsx:95` | Injects per-theme CSS custom properties for a chart's configured series colors. |
+| `@beep/ui/components/chart` | `ChartTooltip` | const | `packages/foundation/ui-system/ui/src/components/chart.tsx:137` | Recharts tooltip primitive paired with {@link ChartTooltipContent}. |
+| `@beep/ui/components/chart` | `ChartTooltipContent` | function | `packages/foundation/ui-system/ui/src/components/chart.tsx:145` | Themed tooltip content for charts, rendering the active payload's label, indicator, and values. |
 | `@beep/ui/components/checkbox` | `Checkbox` | function | `packages/foundation/ui-system/ui/src/components/checkbox.tsx:11` |  |
 | `@beep/ui/components/collapsible` | `Collapsible` | function | `packages/foundation/ui-system/ui/src/components/collapsible.tsx:10` |  |
 | `@beep/ui/components/collapsible` | `CollapsibleContent` | function | `packages/foundation/ui-system/ui/src/components/collapsible.tsx:26` |  |
@@ -12748,14 +12765,15 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/ui/components/context-menu` | `ContextMenuSubContent` | function | `packages/foundation/ui-system/ui/src/components/context-menu.tsx:169` |  |
 | `@beep/ui/components/context-menu` | `ContextMenuSubTrigger` | function | `packages/foundation/ui-system/ui/src/components/context-menu.tsx:141` |  |
 | `@beep/ui/components/context-menu` | `ContextMenuTrigger` | function | `packages/foundation/ui-system/ui/src/components/context-menu.tsx:28` |  |
-| `@beep/ui/components/conversation` | `Conversation` | const | `packages/foundation/ui-system/ui/src/components/conversation.tsx:20` |  |
-| `@beep/ui/components/conversation` | `ConversationContent` | const | `packages/foundation/ui-system/ui/src/components/conversation.tsx:40` |  |
-| `@beep/ui/components/conversation` | `ConversationContentProps` | type | `packages/foundation/ui-system/ui/src/components/conversation.tsx:34` |  |
-| `@beep/ui/components/conversation` | `ConversationEmptyState` | const | `packages/foundation/ui-system/ui/src/components/conversation.tsx:58` |  |
-| `@beep/ui/components/conversation` | `ConversationEmptyStateProps` | type | `packages/foundation/ui-system/ui/src/components/conversation.tsx:48` |  |
-| `@beep/ui/components/conversation` | `ConversationProps` | type | `packages/foundation/ui-system/ui/src/components/conversation.tsx:14` |  |
-| `@beep/ui/components/conversation` | `ConversationScrollButton` | const | `packages/foundation/ui-system/ui/src/components/conversation.tsx:92` |  |
-| `@beep/ui/components/conversation` | `ConversationScrollButtonProps` | type | `packages/foundation/ui-system/ui/src/components/conversation.tsx:86` |  |
+| `@beep/ui/components/conversation` | `Conversation` | const | `packages/foundation/ui-system/ui/src/components/conversation.tsx:21` |  |
+| `@beep/ui/components/conversation` | `ConversationContent` | const | `packages/foundation/ui-system/ui/src/components/conversation.tsx:41` |  |
+| `@beep/ui/components/conversation` | `ConversationContentProps` | type | `packages/foundation/ui-system/ui/src/components/conversation.tsx:35` |  |
+| `@beep/ui/components/conversation` | `ConversationEmptyState` | const | `packages/foundation/ui-system/ui/src/components/conversation.tsx:59` |  |
+| `@beep/ui/components/conversation` | `ConversationEmptyStateProps` | type | `packages/foundation/ui-system/ui/src/components/conversation.tsx:49` |  |
+| `@beep/ui/components/conversation` | `ConversationProps` | type | `packages/foundation/ui-system/ui/src/components/conversation.tsx:15` |  |
+| `@beep/ui/components/conversation` | `ConversationScrollButton` | const | `packages/foundation/ui-system/ui/src/components/conversation.tsx:93` |  |
+| `@beep/ui/components/conversation` | `ConversationScrollButtonProps` | type | `packages/foundation/ui-system/ui/src/components/conversation.tsx:87` |  |
+| `@beep/ui/components/date-picker` | `DatePicker` | function | `packages/foundation/ui-system/ui/src/components/date-picker.tsx:32` | A single-date picker composed from {@link Popover} and {@link Calendar}. Supports |
 | `@beep/ui/components/dialog` | `Dialog` | function | `packages/foundation/ui-system/ui/src/components/dialog.tsx:13` |  |
 | `@beep/ui/components/dialog` | `Dialog` | Identifier | `packages/foundation/ui-system/ui/src/components/dialog.tsx:163` |  |
 | `@beep/ui/components/dialog` | `Dialog` | Identifier | `packages/foundation/ui-system/ui/src/components/dialog.tsx:164` |  |
@@ -12775,6 +12793,9 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/ui/components/dialog` | `DialogPortal` | function | `packages/foundation/ui-system/ui/src/components/dialog.tsx:29` |  |
 | `@beep/ui/components/dialog` | `DialogTitle` | function | `packages/foundation/ui-system/ui/src/components/dialog.tsx:137` |  |
 | `@beep/ui/components/dialog` | `DialogTrigger` | function | `packages/foundation/ui-system/ui/src/components/dialog.tsx:21` |  |
+| `@beep/ui/components/direction` | `DirectionProvider` | const | `node_modules/@base-ui/react/esm/direction-provider/DirectionProvider.d.ts:8` | Enables RTL behavior for Base UI components. |
+| `@beep/ui/components/direction` | `DirectionProvider` | namespace | `node_modules/@base-ui/react/esm/direction-provider/DirectionProvider.d.ts:18` |  |
+| `@beep/ui/components/direction` | `useDirection` | function | `node_modules/@base-ui/react/esm/internals/direction-context/DirectionContext.d.ts:10` |  |
 | `@beep/ui/components/drawer` | `Drawer` | function | `packages/foundation/ui-system/ui/src/components/drawer.tsx:11` |  |
 | `@beep/ui/components/drawer` | `DrawerClose` | function | `packages/foundation/ui-system/ui/src/components/drawer.tsx:35` |  |
 | `@beep/ui/components/drawer` | `DrawerContent` | function | `packages/foundation/ui-system/ui/src/components/drawer.tsx:60` |  |
@@ -12846,16 +12867,16 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/ui/components/input-otp` | `InputOTPGroup` | function | `packages/foundation/ui-system/ui/src/components/input-otp.tsx:34` |  |
 | `@beep/ui/components/input-otp` | `InputOTPSeparator` | function | `packages/foundation/ui-system/ui/src/components/input-otp.tsx:85` |  |
 | `@beep/ui/components/input-otp` | `InputOTPSlot` | function | `packages/foundation/ui-system/ui/src/components/input-otp.tsx:51` |  |
-| `@beep/ui/components/item` | `Item` | function | `packages/foundation/ui-system/ui/src/components/item.tsx:52` |  |
-| `@beep/ui/components/item` | `ItemActions` | function | `packages/foundation/ui-system/ui/src/components/item.tsx:166` |  |
-| `@beep/ui/components/item` | `ItemContent` | function | `packages/foundation/ui-system/ui/src/components/item.tsx:120` |  |
-| `@beep/ui/components/item` | `ItemDescription` | function | `packages/foundation/ui-system/ui/src/components/item.tsx:148` |  |
-| `@beep/ui/components/item` | `ItemFooter` | function | `packages/foundation/ui-system/ui/src/components/item.tsx:188` |  |
-| `@beep/ui/components/item` | `ItemGroup` | function | `packages/foundation/ui-system/ui/src/components/item.tsx:13` |  |
-| `@beep/ui/components/item` | `ItemHeader` | function | `packages/foundation/ui-system/ui/src/components/item.tsx:174` |  |
-| `@beep/ui/components/item` | `ItemMedia` | function | `packages/foundation/ui-system/ui/src/components/item.tsx:101` |  |
-| `@beep/ui/components/item` | `ItemSeparator` | function | `packages/foundation/ui-system/ui/src/components/item.tsx:23` |  |
-| `@beep/ui/components/item` | `ItemTitle` | function | `packages/foundation/ui-system/ui/src/components/item.tsx:134` |  |
+| `@beep/ui/components/item` | `Item` | function | `packages/foundation/ui-system/ui/src/components/item.tsx:53` |  |
+| `@beep/ui/components/item` | `ItemActions` | function | `packages/foundation/ui-system/ui/src/components/item.tsx:167` |  |
+| `@beep/ui/components/item` | `ItemContent` | function | `packages/foundation/ui-system/ui/src/components/item.tsx:121` |  |
+| `@beep/ui/components/item` | `ItemDescription` | function | `packages/foundation/ui-system/ui/src/components/item.tsx:149` |  |
+| `@beep/ui/components/item` | `ItemFooter` | function | `packages/foundation/ui-system/ui/src/components/item.tsx:189` |  |
+| `@beep/ui/components/item` | `ItemGroup` | function | `packages/foundation/ui-system/ui/src/components/item.tsx:14` |  |
+| `@beep/ui/components/item` | `ItemHeader` | function | `packages/foundation/ui-system/ui/src/components/item.tsx:175` |  |
+| `@beep/ui/components/item` | `ItemMedia` | function | `packages/foundation/ui-system/ui/src/components/item.tsx:102` |  |
+| `@beep/ui/components/item` | `ItemSeparator` | function | `packages/foundation/ui-system/ui/src/components/item.tsx:24` |  |
+| `@beep/ui/components/item` | `ItemTitle` | function | `packages/foundation/ui-system/ui/src/components/item.tsx:135` |  |
 | `@beep/ui/components/kbd` | `Kbd` | function | `packages/foundation/ui-system/ui/src/components/kbd.tsx:8` |  |
 | `@beep/ui/components/kbd` | `KbdGroup` | function | `packages/foundation/ui-system/ui/src/components/kbd.tsx:25` |  |
 | `@beep/ui/components/knowledge-graph` | `default` | const | `packages/foundation/ui-system/ui/src/components/knowledge-graph.tsx:112` |  |
@@ -12883,8 +12904,9 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/ui/components/menubar` | `MenubarSubContent` | function | `packages/foundation/ui-system/ui/src/components/menubar.tsx:268` |  |
 | `@beep/ui/components/menubar` | `MenubarSubTrigger` | function | `packages/foundation/ui-system/ui/src/components/menubar.tsx:244` |  |
 | `@beep/ui/components/menubar` | `MenubarTrigger` | function | `packages/foundation/ui-system/ui/src/components/menubar.tsx:66` |  |
-| `@beep/ui/components/mui-theme.stories` | `default` | const | `packages/foundation/ui-system/ui/src/components/mui-theme.stories.tsx:21` | MUI primitives rendered through the shared `@beep/ui` theme, which the global |
-| `@beep/ui/components/mui-theme.stories` | `Default` | const | `packages/foundation/ui-system/ui/src/components/mui-theme.stories.tsx:38` |  |
+| `@beep/ui/components/native-select` | `NativeSelect` | function | `packages/foundation/ui-system/ui/src/components/native-select.tsx:15` | A styled wrapper around the native `<select>` element with a trailing caret icon. |
+| `@beep/ui/components/native-select` | `NativeSelectOptGroup` | function | `packages/foundation/ui-system/ui/src/components/native-select.tsx:55` | An `<optgroup>` for use within {@link NativeSelect}, themed to match the system color scheme. |
+| `@beep/ui/components/native-select` | `NativeSelectOption` | function | `packages/foundation/ui-system/ui/src/components/native-select.tsx:43` | An `<option>` for use within {@link NativeSelect}, themed to match the system color scheme. |
 | `@beep/ui/components/navigation-menu` | `NavigationMenu` | function | `packages/foundation/ui-system/ui/src/components/navigation-menu.tsx:11` |  |
 | `@beep/ui/components/navigation-menu` | `NavigationMenuContent` | function | `packages/foundation/ui-system/ui/src/components/navigation-menu.tsx:83` |  |
 | `@beep/ui/components/navigation-menu` | `NavigationMenuIndicator` | function | `packages/foundation/ui-system/ui/src/components/navigation-menu.tsx:150` |  |
@@ -12972,14 +12994,14 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/ui/components/sidebar` | `SidebarSeparator` | function | `packages/foundation/ui-system/ui/src/components/sidebar.tsx:440` |  |
 | `@beep/ui/components/sidebar` | `SidebarTrigger` | function | `packages/foundation/ui-system/ui/src/components/sidebar.tsx:331` |  |
 | `@beep/ui/components/sidebar` | `useSidebar` | function | `packages/foundation/ui-system/ui/src/components/sidebar.tsx:44` |  |
-| `@beep/ui/components/skeleton` | `Skeleton` | function | `packages/foundation/ui-system/ui/src/components/skeleton.tsx:7` |  |
+| `@beep/ui/components/skeleton` | `Skeleton` | function | `packages/foundation/ui-system/ui/src/components/skeleton.tsx:8` |  |
 | `@beep/ui/components/slider` | `Slider` | function | `packages/foundation/ui-system/ui/src/components/slider.tsx:29` |  |
 | `@beep/ui/components/sonner` | `Toaster` | const | `packages/foundation/ui-system/ui/src/components/sonner.tsx:13` |  |
-| `@beep/ui/components/speech-input` | `SpeechInput` | const | `packages/foundation/ui-system/ui/src/components/speech-input.tsx:147` |  |
-| `@beep/ui/components/speech-input` | `SpeechInputCancelButton` | const | `packages/foundation/ui-system/ui/src/components/speech-input.tsx:407` |  |
-| `@beep/ui/components/speech-input` | `SpeechInputPreview` | const | `packages/foundation/ui-system/ui/src/components/speech-input.tsx:363` |  |
-| `@beep/ui/components/speech-input` | `SpeechInputRecordButton` | const | `packages/foundation/ui-system/ui/src/components/speech-input.tsx:306` |  |
-| `@beep/ui/components/speech-input` | `useSpeechInput` | function | `packages/foundation/ui-system/ui/src/components/speech-input.tsx:61` |  |
+| `@beep/ui/components/speech-input` | `SpeechInput` | const | `packages/foundation/ui-system/ui/src/components/speech-input.tsx:148` |  |
+| `@beep/ui/components/speech-input` | `SpeechInputCancelButton` | const | `packages/foundation/ui-system/ui/src/components/speech-input.tsx:408` |  |
+| `@beep/ui/components/speech-input` | `SpeechInputPreview` | const | `packages/foundation/ui-system/ui/src/components/speech-input.tsx:364` |  |
+| `@beep/ui/components/speech-input` | `SpeechInputRecordButton` | const | `packages/foundation/ui-system/ui/src/components/speech-input.tsx:307` |  |
+| `@beep/ui/components/speech-input` | `useSpeechInput` | function | `packages/foundation/ui-system/ui/src/components/speech-input.tsx:62` |  |
 | `@beep/ui/components/spinner` | `Spinner` | function | `packages/foundation/ui-system/ui/src/components/spinner.tsx:9` |  |
 | `@beep/ui/components/switch` | `Switch` | function | `packages/foundation/ui-system/ui/src/components/switch.tsx:10` |  |
 | `@beep/ui/components/table` | `Table` | function | `packages/foundation/ui-system/ui/src/components/table.tsx:10` |  |
@@ -13015,7 +13037,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/ui/components/toast` | `ToastVariant` | const | `packages/foundation/ui-system/ui/src/components/toast.tsx:62` |  |
 | `@beep/ui/components/toast` | `ToastVariant` | type | `packages/foundation/ui-system/ui/src/components/toast.tsx:72` |  |
 | `@beep/ui/components/toast` | `ToastViewport` | const | `packages/foundation/ui-system/ui/src/components/toast.tsx:25` |  |
-| `@beep/ui/components/toaster` | `Toaster` | function | `packages/foundation/ui-system/ui/src/components/toaster.tsx:21` |  |
+| `@beep/ui/components/toaster` | `Toaster` | function | `packages/foundation/ui-system/ui/src/components/toaster.tsx:61` |  |
 | `@beep/ui/components/toaster` | `ToastPrimitive` | SourceFile | `node_modules/@base-ui/react/esm/toast/index.parts.d.ts:1` |  |
 | `@beep/ui/components/todo-item` | `TodoItem` | function | `packages/foundation/ui-system/ui/src/components/todo-item.tsx:105` |  |
 | `@beep/ui/components/toggle` | `Toggle` | function | `packages/foundation/ui-system/ui/src/components/toggle.tsx:37` |  |
@@ -13043,16 +13065,6 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/ui/components/tour` | `useTour` | function | `packages/foundation/ui-system/ui/src/components/tour.tsx:34` |  |
 | `@beep/ui/components/ui/button` | `Button` | function | `packages/foundation/ui-system/ui/src/components/ui/button.tsx:65` | Versatile button component with multiple visual variants and sizes. |
 | `@beep/ui/components/ui/button` | `buttonVariants` | const | `packages/foundation/ui-system/ui/src/components/ui/button.tsx:21` | Button variant configuration using class-variance-authority. |
-| `@beep/ui/components/ui/button.stories` | `ClickInteraction` | const | `packages/foundation/ui-system/ui/src/components/ui/button.stories.tsx:111` |  |
-| `@beep/ui/components/ui/button.stories` | `default` | const | `packages/foundation/ui-system/ui/src/components/ui/button.stories.tsx:9` |  |
-| `@beep/ui/components/ui/button.stories` | `Default` | const | `packages/foundation/ui-system/ui/src/components/ui/button.stories.tsx:39` |  |
-| `@beep/ui/components/ui/button.stories` | `Destructive` | const | `packages/foundation/ui-system/ui/src/components/ui/button.stories.tsx:79` |  |
-| `@beep/ui/components/ui/button.stories` | `Ghost` | const | `packages/foundation/ui-system/ui/src/components/ui/button.stories.tsx:71` |  |
-| `@beep/ui/components/ui/button.stories` | `Large` | const | `packages/foundation/ui-system/ui/src/components/ui/button.stories.tsx:103` |  |
-| `@beep/ui/components/ui/button.stories` | `Link` | const | `packages/foundation/ui-system/ui/src/components/ui/button.stories.tsx:87` |  |
-| `@beep/ui/components/ui/button.stories` | `Outline` | const | `packages/foundation/ui-system/ui/src/components/ui/button.stories.tsx:55` |  |
-| `@beep/ui/components/ui/button.stories` | `Secondary` | const | `packages/foundation/ui-system/ui/src/components/ui/button.stories.tsx:63` |  |
-| `@beep/ui/components/ui/button.stories` | `Small` | const | `packages/foundation/ui-system/ui/src/components/ui/button.stories.tsx:95` |  |
 | `@beep/ui/components/ui/tooltip` | `Tooltip` | function | `packages/foundation/ui-system/ui/src/components/ui/tooltip.tsx:20` |  |
 | `@beep/ui/components/ui/tooltip` | `TooltipContent` | function | `packages/foundation/ui-system/ui/src/components/ui/tooltip.tsx:36` |  |
 | `@beep/ui/components/ui/tooltip` | `TooltipProvider` | function | `packages/foundation/ui-system/ui/src/components/ui/tooltip.tsx:12` | Tooltip timing context shared across tooltip instances. |
@@ -13069,17 +13081,17 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/ui/hooks/index` | `NumberInputEventType` | const | `packages/foundation/ui-system/ui/src/hooks/useNumberInput.ts:371` | Event types reported through the `onChange` metadata callback. |
 | `@beep/ui/hooks/index` | `NumberInputEventType` | type | `packages/foundation/ui-system/ui/src/hooks/useNumberInput.ts:383` | Runtime type for {@link NumberInputEventType}. |
 | `@beep/ui/hooks/index` | `numberToString` | const | `packages/foundation/ui-system/ui/src/hooks/useNumberInput.ts:304` | Format an optional numeric value using a fixed decimal precision. |
-| `@beep/ui/hooks/index` | `ScribeStatus` | type | `packages/foundation/ui-system/ui/src/hooks/use-scribe.ts:39` | Connection status for the realtime Scribe hook. |
+| `@beep/ui/hooks/index` | `ScribeStatus` | type | `packages/foundation/ui-system/ui/src/hooks/use-scribe.ts:41` | Connection status for the realtime Scribe hook. |
 | `@beep/ui/hooks/index` | `SpinParams` | class | `packages/foundation/ui-system/ui/src/hooks/useNumberInput.ts:241` | Schema describing step and precision overrides for spinner changes. |
 | `@beep/ui/hooks/index` | `toNumber` | const | `packages/foundation/ui-system/ui/src/hooks/useNumberInput.ts:272` | Convert editable number-input text into a number when the text is parseable. |
 | `@beep/ui/hooks/index` | `useNumberBoundary` | const | `packages/foundation/ui-system/ui/src/hooks/useNumberInput.ts:514` | Low-level number-input state hook for parsing, formatting, and boundary management. |
-| `@beep/ui/hooks/index` | `useNumberInput` | const | `packages/foundation/ui-system/ui/src/hooks/useNumberInput.ts:590` | Fully managed number-input hook with keyboard and spinner controls. |
+| `@beep/ui/hooks/index` | `useNumberInput` | const | `packages/foundation/ui-system/ui/src/hooks/useNumberInput.ts:579` | Fully managed number-input hook with keyboard and spinner controls. |
 | `@beep/ui/hooks/index` | `UseNumberInputOptions` | type | `packages/foundation/ui-system/ui/src/hooks/useNumberInput.ts:449` | Options accepted by {@link useNumberBoundary} and {@link useNumberInput}. |
-| `@beep/ui/hooks/index` | `useScribe` | function | `packages/foundation/ui-system/ui/src/hooks/use-scribe.ts:145` | Manage an ElevenLabs realtime Scribe connection from React components. |
+| `@beep/ui/hooks/index` | `useScribe` | function | `packages/foundation/ui-system/ui/src/hooks/use-scribe.ts:147` | Manage an ElevenLabs realtime Scribe connection from React components. |
 | `@beep/ui/hooks/use-scribe` | `AudioFormat` | enum | `node_modules/@elevenlabs/client/dist/scribe/scribe.d.ts:2` |  |
 | `@beep/ui/hooks/use-scribe` | `CommitStrategy` | enum | `node_modules/@elevenlabs/client/dist/scribe/scribe.d.ts:11` |  |
-| `@beep/ui/hooks/use-scribe` | `ScribeStatus` | type | `packages/foundation/ui-system/ui/src/hooks/use-scribe.ts:39` | Connection status for the realtime Scribe hook. |
-| `@beep/ui/hooks/use-scribe` | `useScribe` | function | `packages/foundation/ui-system/ui/src/hooks/use-scribe.ts:145` | Manage an ElevenLabs realtime Scribe connection from React components. |
+| `@beep/ui/hooks/use-scribe` | `ScribeStatus` | type | `packages/foundation/ui-system/ui/src/hooks/use-scribe.ts:41` | Connection status for the realtime Scribe hook. |
+| `@beep/ui/hooks/use-scribe` | `useScribe` | function | `packages/foundation/ui-system/ui/src/hooks/use-scribe.ts:147` | Manage an ElevenLabs realtime Scribe connection from React components. |
 | `@beep/ui/hooks/useMobile` | `resolveIsMobile` | const | `packages/foundation/ui-system/ui/src/hooks/useMobile.ts:24` | Resolve an optional mobile flag to a concrete boolean value. |
 | `@beep/ui/hooks/useMobile` | `useIsMobile` | function | `packages/foundation/ui-system/ui/src/hooks/useMobile.ts:32` | React hook that tracks whether the current viewport matches the mobile media query. |
 | `@beep/ui/hooks/useNumberInput` | `BoundaryParams` | class | `packages/foundation/ui-system/ui/src/hooks/useNumberInput.ts:223` | Schema describing optional numeric bounds and controlled values for number input hooks. |
@@ -13095,9 +13107,9 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/ui/hooks/useNumberInput` | `SpinParams` | class | `packages/foundation/ui-system/ui/src/hooks/useNumberInput.ts:241` | Schema describing step and precision overrides for spinner changes. |
 | `@beep/ui/hooks/useNumberInput` | `toNumber` | const | `packages/foundation/ui-system/ui/src/hooks/useNumberInput.ts:272` | Convert editable number-input text into a number when the text is parseable. |
 | `@beep/ui/hooks/useNumberInput` | `useNumberBoundary` | const | `packages/foundation/ui-system/ui/src/hooks/useNumberInput.ts:514` | Low-level number-input state hook for parsing, formatting, and boundary management. |
-| `@beep/ui/hooks/useNumberInput` | `useNumberInput` | const | `packages/foundation/ui-system/ui/src/hooks/useNumberInput.ts:590` | Fully managed number-input hook with keyboard and spinner controls. |
+| `@beep/ui/hooks/useNumberInput` | `useNumberInput` | const | `packages/foundation/ui-system/ui/src/hooks/useNumberInput.ts:579` | Fully managed number-input hook with keyboard and spinner controls. |
 | `@beep/ui/hooks/useNumberInput` | `UseNumberInputOptions` | type | `packages/foundation/ui-system/ui/src/hooks/useNumberInput.ts:449` | Options accepted by {@link useNumberBoundary} and {@link useNumberInput}. |
-| `@beep/ui/hooks/useSpinner` | `useSpinner` | function | `packages/foundation/ui-system/ui/src/hooks/useSpinner.ts:122` | Spinner button hook with press-and-hold repeat behavior. |
+| `@beep/ui/hooks/useSpinner` | `useSpinner` | function | `packages/foundation/ui-system/ui/src/hooks/useSpinner.ts:115` | Spinner button hook with press-and-hold repeat behavior. |
 | `@beep/ui/lib/index` | `cn` | function | `packages/foundation/ui-system/ui/src/lib/utils.ts:22` | Merge Tailwind CSS class names with conflict resolution. |
 | `@beep/ui/lib/index` | `sanitizeAnchorHref` | const | `packages/foundation/ui-system/ui/src/lib/url.ts:89` | Replaces active script URL protocols with a harmless fragment. |
 | `@beep/ui/lib/react-invariant` | `ReactContextInvariantOptions` | class | `packages/foundation/ui-system/ui/src/lib/react-invariant.ts:20` | Options for a React context invariant check. |
@@ -13802,10 +13814,10 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/sanity` | `Sanity` | class | `packages/drivers/sanity/src/Sanity.service.ts:329` | Effect service for Sanity content API requests. |
 | `@beep/sanity` | `SANITY_API_VERSION` | const | `packages/drivers/sanity/src/Sanity.config.ts:44` | Default Sanity API version used when callers do not provide one. |
 | `@beep/sanity` | `SanityConfigInput` | class | `packages/drivers/sanity/src/Sanity.config.ts:65` | Runtime configuration accepted by {@link Sanity.makeLayer}. |
-| `@beep/sanity` | `SanityError` | class | `packages/drivers/sanity/src/Sanity.errors.ts:84` | Technical failure raised by the Sanity driver boundary. |
-| `@beep/sanity` | `SanityErrorOptions` | class | `packages/drivers/sanity/src/Sanity.errors.ts:146` | Options used when constructing Sanity driver errors. |
-| `@beep/sanity` | `SanityErrorReason` | const | `packages/drivers/sanity/src/Sanity.errors.ts:37` | Technical error reasons emitted by the Sanity driver. |
-| `@beep/sanity` | `SanityErrorReason` | type | `packages/drivers/sanity/src/Sanity.errors.ts:64` | Type for {@link SanityErrorReason}. |
+| `@beep/sanity` | `SanityError` | class | `packages/drivers/sanity/src/Sanity.errors.ts:82` | Technical failure raised by the Sanity driver boundary. |
+| `@beep/sanity` | `SanityErrorOptions` | class | `packages/drivers/sanity/src/Sanity.errors.ts:140` | Options used when constructing Sanity driver errors. |
+| `@beep/sanity` | `SanityErrorReason` | const | `packages/drivers/sanity/src/Sanity.errors.ts:35` | Technical error reasons emitted by the Sanity driver. |
+| `@beep/sanity` | `SanityErrorReason` | type | `packages/drivers/sanity/src/Sanity.errors.ts:62` | Type for {@link SanityErrorReason}. |
 | `@beep/sanity` | `SanityQueryParamValue` | const | `packages/drivers/sanity/src/Sanity.service.ts:42` | Scalar JSON value accepted in Sanity query params. |
 | `@beep/sanity` | `SanityQueryParamValue` | type | `packages/drivers/sanity/src/Sanity.service.ts:67` | Type for {@link SanityQueryParamValue}. |
 | `@beep/sanity` | `SanityQueryRequest` | class | `packages/drivers/sanity/src/Sanity.service.ts:87` | Sanity GROQ query request. |
@@ -13815,10 +13827,10 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/sanity/index` | `Sanity` | class | `packages/drivers/sanity/src/Sanity.service.ts:329` | Effect service for Sanity content API requests. |
 | `@beep/sanity/index` | `SANITY_API_VERSION` | const | `packages/drivers/sanity/src/Sanity.config.ts:44` | Default Sanity API version used when callers do not provide one. |
 | `@beep/sanity/index` | `SanityConfigInput` | class | `packages/drivers/sanity/src/Sanity.config.ts:65` | Runtime configuration accepted by {@link Sanity.makeLayer}. |
-| `@beep/sanity/index` | `SanityError` | class | `packages/drivers/sanity/src/Sanity.errors.ts:84` | Technical failure raised by the Sanity driver boundary. |
-| `@beep/sanity/index` | `SanityErrorOptions` | class | `packages/drivers/sanity/src/Sanity.errors.ts:146` | Options used when constructing Sanity driver errors. |
-| `@beep/sanity/index` | `SanityErrorReason` | const | `packages/drivers/sanity/src/Sanity.errors.ts:37` | Technical error reasons emitted by the Sanity driver. |
-| `@beep/sanity/index` | `SanityErrorReason` | type | `packages/drivers/sanity/src/Sanity.errors.ts:64` | Type for {@link SanityErrorReason}. |
+| `@beep/sanity/index` | `SanityError` | class | `packages/drivers/sanity/src/Sanity.errors.ts:82` | Technical failure raised by the Sanity driver boundary. |
+| `@beep/sanity/index` | `SanityErrorOptions` | class | `packages/drivers/sanity/src/Sanity.errors.ts:140` | Options used when constructing Sanity driver errors. |
+| `@beep/sanity/index` | `SanityErrorReason` | const | `packages/drivers/sanity/src/Sanity.errors.ts:35` | Technical error reasons emitted by the Sanity driver. |
+| `@beep/sanity/index` | `SanityErrorReason` | type | `packages/drivers/sanity/src/Sanity.errors.ts:62` | Type for {@link SanityErrorReason}. |
 | `@beep/sanity/index` | `SanityQueryParamValue` | const | `packages/drivers/sanity/src/Sanity.service.ts:42` | Scalar JSON value accepted in Sanity query params. |
 | `@beep/sanity/index` | `SanityQueryParamValue` | type | `packages/drivers/sanity/src/Sanity.service.ts:67` | Type for {@link SanityQueryParamValue}. |
 | `@beep/sanity/index` | `SanityQueryRequest` | class | `packages/drivers/sanity/src/Sanity.service.ts:87` | Sanity GROQ query request. |
@@ -13827,10 +13839,10 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/sanity/index` | `VERSION` | const | `packages/drivers/sanity/src/index.ts:43` | Package version. |
 | `@beep/sanity/Sanity.config` | `SANITY_API_VERSION` | const | `packages/drivers/sanity/src/Sanity.config.ts:44` | Default Sanity API version used when callers do not provide one. |
 | `@beep/sanity/Sanity.config` | `SanityConfigInput` | class | `packages/drivers/sanity/src/Sanity.config.ts:65` | Runtime configuration accepted by {@link Sanity.makeLayer}. |
-| `@beep/sanity/Sanity.errors` | `SanityError` | class | `packages/drivers/sanity/src/Sanity.errors.ts:84` | Technical failure raised by the Sanity driver boundary. |
-| `@beep/sanity/Sanity.errors` | `SanityErrorOptions` | class | `packages/drivers/sanity/src/Sanity.errors.ts:146` | Options used when constructing Sanity driver errors. |
-| `@beep/sanity/Sanity.errors` | `SanityErrorReason` | const | `packages/drivers/sanity/src/Sanity.errors.ts:37` | Technical error reasons emitted by the Sanity driver. |
-| `@beep/sanity/Sanity.errors` | `SanityErrorReason` | type | `packages/drivers/sanity/src/Sanity.errors.ts:64` | Type for {@link SanityErrorReason}. |
+| `@beep/sanity/Sanity.errors` | `SanityError` | class | `packages/drivers/sanity/src/Sanity.errors.ts:82` | Technical failure raised by the Sanity driver boundary. |
+| `@beep/sanity/Sanity.errors` | `SanityErrorOptions` | class | `packages/drivers/sanity/src/Sanity.errors.ts:140` | Options used when constructing Sanity driver errors. |
+| `@beep/sanity/Sanity.errors` | `SanityErrorReason` | const | `packages/drivers/sanity/src/Sanity.errors.ts:35` | Technical error reasons emitted by the Sanity driver. |
+| `@beep/sanity/Sanity.errors` | `SanityErrorReason` | type | `packages/drivers/sanity/src/Sanity.errors.ts:62` | Type for {@link SanityErrorReason}. |
 | `@beep/sanity/Sanity.service` | `Sanity` | class | `packages/drivers/sanity/src/Sanity.service.ts:329` | Effect service for Sanity content API requests. |
 | `@beep/sanity/Sanity.service` | `SanityQueryParamValue` | const | `packages/drivers/sanity/src/Sanity.service.ts:42` | Scalar JSON value accepted in Sanity query params. |
 | `@beep/sanity/Sanity.service` | `SanityQueryParamValue` | type | `packages/drivers/sanity/src/Sanity.service.ts:67` | Type for {@link SanityQueryParamValue}. |

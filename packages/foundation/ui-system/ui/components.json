@@ -14,7 +14,7 @@
   "aliases": {
     "components": "@beep/ui/components",
     "utils": "@beep/ui/lib/utils",
-    "ui": "@beep/ui/components/ui",
+    "ui": "@beep/ui/components",
     "lib": "@beep/ui/lib",
     "hooks": "@beep/ui/hooks"
   },

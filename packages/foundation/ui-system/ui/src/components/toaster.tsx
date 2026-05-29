@@ -15,40 +15,53 @@ import { globalToastManager } from "../lib/toaster.ts";
 import type { ToastData } from "@beep/ui/components/toast";
 
 /**
+ * Renders the live toasts from the toast manager. Must be mounted inside a
+ * {@link ToastProvider} so `useToastManager` resolves its context.
+ *
+ * @category components
+ * @since 0.0.0
+ */
+function ToasterViewport() {
+  const { toasts } = ToastPrimitive.useToastManager();
+
+  return (
+    <ToastViewport>
+      {A.map(toasts, (toast) => (
+        <Toast
+          key={toast.id}
+          toast={toast as ToastPrimitive.Root.ToastObject<ToastData>}
+          className="bg-[--sl-color-bg]"
+        >
+          <div className="grid gap-1">
+            {toast.title && <ToastTitle className="text-[--sl-color-white]">{toast.title}</ToastTitle>}
+            {toast.description && (
+              <ToastDescription className="text-[--sl-color-text]">{toast.description}</ToastDescription>
+            )}
+          </div>
+          {toast.actionProps && (
+            <button
+              type="button"
+              className={cn(
+                "inline-flex h-8 shrink-0 items-center justify-center rounded-md border bg-transparent px-3 font-medium text-sm transition-colors hover:bg-secondary"
+              )}
+              {...toast.actionProps}
+            />
+          )}
+          <ToastClose className="cursor-pointer bg-transparent text-[--sl-color-white]" />
+        </Toast>
+      ))}
+    </ToastViewport>
+  );
+}
+
+/**
  * @category components
  * @since 0.0.0
  */
 export function Toaster() {
-  const { toasts } = ToastPrimitive.useToastManager();
-
   return (
     <ToastProvider timeout={5000} limit={3} toastManager={globalToastManager}>
-      <ToastViewport>
-        {A.map(toasts, (toast) => (
-          <Toast
-            key={toast.id}
-            toast={toast as ToastPrimitive.Root.ToastObject<ToastData>}
-            className="bg-[--sl-color-bg]"
-          >
-            <div className="grid gap-1">
-              {toast.title && <ToastTitle className="text-[--sl-color-white]">{toast.title}</ToastTitle>}
-              {toast.description && (
-                <ToastDescription className="text-[--sl-color-text]">{toast.description}</ToastDescription>
-              )}
-            </div>
-            {toast.actionProps && (
-              <button
-                type="button"
-                className={cn(
-                  "inline-flex h-8 shrink-0 items-center justify-center rounded-md border bg-transparent px-3 font-medium text-sm transition-colors hover:bg-secondary"
-                )}
-                {...toast.actionProps}
-              />
-            )}
-            <ToastClose className="cursor-pointer bg-transparent text-[--sl-color-white]" />
-          </Toast>
-        ))}
-      </ToastViewport>
+      <ToasterViewport />
     </ToastProvider>
   );
 }

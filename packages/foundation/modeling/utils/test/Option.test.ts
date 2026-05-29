@@ -46,3 +46,31 @@ describe("@beep/utils O.propFromNullishOr", () => {
     expectTypeOf(age).toEqualTypeOf<O.Option<number>>();
   });
 });
+
+describe("@beep/utils O.getSomesStruct", () => {
+  it("omits None fields and unwraps Some fields", () => {
+    const result = O.getSomesStruct({
+      id: O.some(1),
+      name: O.none<string>(),
+    });
+
+    expect(result).toEqual({ id: 1 });
+    expect("name" in result).toBe(false);
+    expectTypeOf(result).toEqualTypeOf<{
+      id?: number;
+      name?: string;
+    }>();
+  });
+
+  it("preserves explicitly present undefined values", () => {
+    const result = O.getSomesStruct({
+      value: O.some(undefined),
+    });
+
+    expect(result).toEqual({ value: undefined });
+    expect("value" in result).toBe(true);
+    expectTypeOf(result).toEqualTypeOf<{
+      value?: undefined;
+    }>();
+  });
+});

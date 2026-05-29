@@ -7,6 +7,7 @@
 
 import { $SandboxId } from "@beep/identity";
 import { A, Str } from "@beep/utils";
+import * as O from "@beep/utils/Option";
 import { DateTime, Effect, FileSystem, Path } from "effect";
 import { dual, flow } from "effect/Function";
 import * as P from "effect/Predicate";
@@ -443,7 +444,7 @@ export const syncOut: {
     if (failedStep !== undefined) {
       const recoveryMessage = buildRecoveryMessage(
         RecoveryInput.make({
-          ...(options.branch === undefined ? {} : { branch: options.branch }),
+          ...O.getSomesStruct({ branch: O.fromUndefinedOr(options.branch) }),
           failedStep,
           hasCommits: nonEmptyPatches.length > 0,
           hasDiff,

@@ -278,6 +278,7 @@
     "@types/mdx": "^2.0.13",
     "@tauri-apps/api": "^2.11.0",
     "react-day-picker": "^10.0.1",
+    "recharts": "^3.8.0",
     "@streamdown/math": "^1.0.2",
     "@streamdown/mermaid": "^1.0.2",
     "ai": "^6.0.193",

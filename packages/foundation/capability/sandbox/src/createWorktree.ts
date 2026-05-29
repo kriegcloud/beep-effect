@@ -6,6 +6,7 @@
  */
 
 import { $SandboxId } from "@beep/identity";
+import * as O from "@beep/utils/Option";
 import { Effect, Ref } from "effect";
 import * as S from "effect/Schema";
 import { run } from "./Run.ts";
@@ -90,9 +91,9 @@ export const createWorktree = Effect.fn("createWorktree.createWorktree")(functio
 ): Effect.fn.Return<Worktree<R>, SandboxError, Path.Path | SandboxProcess> {
   const info: WorktreeInfo = yield* createWorktreeInfo(
     CreateWorktreeInfoOptions.make({
-      ...(options.baseBranch === undefined ? {} : { baseBranch: options.baseBranch }),
-      ...(options.branch === undefined ? {} : { branch: options.branch }),
-      ...(options.name === undefined ? {} : { name: options.name }),
+      ...O.getSomesStruct({ baseBranch: O.fromUndefinedOr(options.baseBranch) }),
+      ...O.getSomesStruct({ branch: O.fromUndefinedOr(options.branch) }),
+      ...O.getSomesStruct({ name: O.fromUndefinedOr(options.name) }),
       repoDir: options.repoDir,
     })
   );

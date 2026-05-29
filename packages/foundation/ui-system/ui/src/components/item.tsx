@@ -1,6 +1,7 @@
 import { mergeProps } from "@base-ui/react/merge-props";
 import { useRender } from "@base-ui/react/use-render";
 import { Separator } from "@beep/ui/components/separator";
+import * as O from "@beep/utils/Option";
 import { cva } from "class-variance-authority";
 import { cn } from "../lib/index.ts";
 import type { VariantProps } from "class-variance-authority";
@@ -69,7 +70,7 @@ function Item({
       } as React.ComponentProps<"div">,
       props
     ),
-    ...(render !== undefined ? { render } : {}),
+    ...O.getSomesStruct({ render: O.fromUndefinedOr(render) }),
     state: {
       slot: "item",
       variant,

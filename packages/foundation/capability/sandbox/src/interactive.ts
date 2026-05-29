@@ -6,6 +6,7 @@
  */
 
 import { $SandboxId } from "@beep/identity";
+import * as O from "@beep/utils/Option";
 import { Effect } from "effect";
 import * as S from "effect/Schema";
 import { AgentCommandOptions } from "./Agent.provider.ts";
@@ -70,8 +71,8 @@ export const interactive: <R>(
   const promptArgs = options.promptArgs ?? {};
   const resolvedPrompt = yield* resolvePrompt(
     ResolvePromptOptions.make({
-      ...(options.prompt === undefined ? {} : { prompt: options.prompt }),
-      ...(options.promptFile === undefined ? {} : { promptFile: options.promptFile }),
+      ...O.getSomesStruct({ prompt: O.fromUndefinedOr(options.prompt) }),
+      ...O.getSomesStruct({ promptFile: O.fromUndefinedOr(options.promptFile) }),
     })
   );
 
@@ -102,7 +103,7 @@ export const interactive: <R>(
     createSandbox({
       cwd: hostRepoDir,
       env: options.agent.env,
-      ...(options.mounts === undefined ? {} : { mounts: options.mounts }),
+      ...O.getSomesStruct({ mounts: O.fromUndefinedOr(options.mounts) }),
       sandbox: options.sandbox,
       worktreePath: hostRepoDir,
     }),

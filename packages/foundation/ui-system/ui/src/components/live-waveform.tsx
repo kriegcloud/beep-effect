@@ -242,7 +242,7 @@ export const LiveWaveform = ({
       return;
     }
 
-    const setupMicrophone = () => {
+    const setupMicrophone = () =>
       navigator.mediaDevices
         .getUserMedia({
           audio: hasDeviceId
@@ -280,9 +280,8 @@ export const LiveWaveform = ({
           historyRef.current = A.empty();
         })
         .catch((error: unknown) => onError?.(error as Error));
-    };
 
-    setupMicrophone();
+    void setupMicrophone();
 
     return () => {
       if (streamRef.current !== null) {

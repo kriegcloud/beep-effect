@@ -3,9 +3,13 @@ Bodnar
 Ariary
 Barthélemy
 Bech
+Benoit
 Bjarne
 Bois
+Colm
 Cunha
+Diaz
+Duarte
 eemeli
 Eich
 elpresidank
@@ -29,4 +33,10 @@ Rossum
 Segoe
 Starenky
 Stroustrup
+Tuite
 Yukihiro
+Benoit
+Colm
+Diaz
+Duarte
+Tuite

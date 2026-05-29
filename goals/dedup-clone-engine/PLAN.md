@@ -44,7 +44,17 @@
   silently truncates), and **advisory only** — not wired into `lint:clones`/CI,
   `--fuzzy` rejects `--check`/`--write`, so the exact gate stays fast and
   deterministic. Remaining deferred toggle: intra-package near-misses
-  (`--include-intra`); currently cross-package only.
+  (`--include-intra`); currently cross-package only. **Deferred, not dropped** —
+  the cross-package restriction is a single post-clustering guard
+  (`Reuse.service.ts` `computeNearMissClusters`:
+  `if (distinctPackageCount(memberRecords) < 2) continue;`), applied *after* the
+  LSH/Jaccard/union-find work already runs over all records. Adding the flag is a
+  ~30-min, zero-perf-cost change: thread `includeIntra` through
+  `detectNearMissClones` → `computeNearMissClusters`, gate that one line, add the
+  CLI flag + a test. Held off because the fuzzy report is advisory-only with no CI
+  consumer, and intra-package near-misses (overloads, sibling schema variants,
+  local builder permutations) have materially worse signal-to-noise. Build it when
+  a concrete intra-package cleanup creates real demand.
 - **`importedBy` inbound-edge index → `repo-codegraph`** (its Phase-3 AST
   structural facts: imports / references / call-edges). Not built here — it would
   duplicate that goal.
@@ -66,11 +76,25 @@
   `drivers/runpod,drivers/sanity` finds a `structural-clone` candidate spanning
   ≥2 packages.
 
-## Current Slice
+## Status — V1 COMPLETE
 
-- Phases 0–2 shipped and merged (PR #180). Close-out branch
-  `feat/dedup-clone-engine-closeout` adds: the tests above and threshold tuning
+All five conditions in `SPEC.md` "Completion Standard (V1)" are met; the goal is
+closed.
+
+- **Phases 0–2** shipped and merged (PR #180): exact declaration-anchored
+  detector, `beep reuse clones [--scope] [--json]`, committed
+  `standards/clone.inventory.jsonc` baseline, `--check` ratchet gate wired as
+  `lint:clones` into `rootRepoLintPolicySteps` (and thus the CI Lint lane).
+- **Close-out** (PR #183): the tests below plus threshold tuning
   (`CLONE_MIN_TOKENS` 40 → 50, dropping coincidental ≤49-token schema-shape
   clusters; baseline regenerated 32 → 22).
-- Remaining in this goal: Type-3 fuzzy matching (deferred). Redirected to other
-  goals: inbound-edges → `repo-codegraph`; codemod extraction → `tooling/tool`.
+- **Phase 3 — Type-3 fuzzy** shipped and merged (PR #187): report-only
+  `detectNearMissClones` + `beep reuse clones --fuzzy [--min-similarity]`
+  (MinHash+LSH, exact-Jaccard confirm, token-length-ratio weighted, cross-package).
+
+### Remaining / redirected
+- **Owned, deferred:** intra-package near-misses (`--include-intra`) — see the
+  Phase 3 note above for the exact change site and rationale. Build on demand.
+- **Redirected (not owned here):** inbound `importedBy` edges → `repo-codegraph`
+  (its Phase-3 AST facts); codemod-assisted extraction → `tooling/tool`
+  (`@beep/repo-utils` is detection-only by doctrine).

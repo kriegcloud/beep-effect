@@ -1,5 +1,12 @@
 # @beep/codedank-web
 
+## 0.0.3
+
+### Patch Changes
+
+- Updated dependencies [[`9e5fd5c`](https://github.com/kriegcloud/beep-effect/commit/9e5fd5c1f0872a77a9573d474f931d44744e913b)]:
+  - @beep/ui@0.1.0
+
 ## 0.0.2
 
 ### Patch Changes

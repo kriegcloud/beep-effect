@@ -1,3 +1,5 @@
+"use client";
+
 /**
  * React bindings for ElevenLabs Scribe realtime transcription.
  *
@@ -5,9 +7,9 @@
  * @since 0.0.0
  * @packageDocumentation
  */
-"use client";
 
 import { A } from "@beep/utils";
+import * as O from "@beep/utils/Option";
 import { AudioFormat, CommitStrategy, RealtimeEvents, Scribe } from "@elevenlabs/client";
 import { Data, Effect } from "effect";
 import * as P from "effect/Predicate";
@@ -129,11 +131,11 @@ const toMicrophoneOptions = (
   microphone === undefined
     ? undefined
     : {
-        ...(microphone.autoGainControl === undefined ? {} : { autoGainControl: microphone.autoGainControl }),
-        ...(microphone.channelCount === undefined ? {} : { channelCount: microphone.channelCount }),
-        ...(microphone.deviceId === undefined ? {} : { deviceId: microphone.deviceId }),
-        ...(microphone.echoCancellation === undefined ? {} : { echoCancellation: microphone.echoCancellation }),
-        ...(microphone.noiseSuppression === undefined ? {} : { noiseSuppression: microphone.noiseSuppression }),
+        ...O.getSomesStruct({ autoGainControl: O.fromUndefinedOr(microphone.autoGainControl) }),
+        ...O.getSomesStruct({ channelCount: O.fromUndefinedOr(microphone.channelCount) }),
+        ...O.getSomesStruct({ deviceId: O.fromUndefinedOr(microphone.deviceId) }),
+        ...O.getSomesStruct({ echoCancellation: O.fromUndefinedOr(microphone.echoCancellation) }),
+        ...O.getSomesStruct({ noiseSuppression: O.fromUndefinedOr(microphone.noiseSuppression) }),
       };
 
 /**
@@ -190,21 +192,15 @@ export function useScribe(options: UseScribeOptions): UseScribeResult {
               const baseOptions = {
                 token,
                 modelId: currentOptions.modelId ?? defaultModelId,
-                ...(currentOptions.baseUri === undefined ? {} : { baseUri: currentOptions.baseUri }),
-                ...(currentOptions.commitStrategy === undefined
-                  ? {}
-                  : { commitStrategy: currentOptions.commitStrategy }),
-                ...(currentOptions.languageCode === undefined ? {} : { languageCode: currentOptions.languageCode }),
-                ...(currentOptions.minSilenceDurationMs === undefined
-                  ? {}
-                  : { minSilenceDurationMs: currentOptions.minSilenceDurationMs }),
-                ...(currentOptions.minSpeechDurationMs === undefined
-                  ? {}
-                  : { minSpeechDurationMs: currentOptions.minSpeechDurationMs }),
-                ...(currentOptions.vadSilenceThresholdSecs === undefined
-                  ? {}
-                  : { vadSilenceThresholdSecs: currentOptions.vadSilenceThresholdSecs }),
-                ...(currentOptions.vadThreshold === undefined ? {} : { vadThreshold: currentOptions.vadThreshold }),
+                ...O.getSomesStruct({ baseUri: O.fromUndefinedOr(currentOptions.baseUri) }),
+                ...O.getSomesStruct({ commitStrategy: O.fromUndefinedOr(currentOptions.commitStrategy) }),
+                ...O.getSomesStruct({ languageCode: O.fromUndefinedOr(currentOptions.languageCode) }),
+                ...O.getSomesStruct({ minSilenceDurationMs: O.fromUndefinedOr(currentOptions.minSilenceDurationMs) }),
+                ...O.getSomesStruct({ minSpeechDurationMs: O.fromUndefinedOr(currentOptions.minSpeechDurationMs) }),
+                ...O.getSomesStruct({
+                  vadSilenceThresholdSecs: O.fromUndefinedOr(currentOptions.vadSilenceThresholdSecs),
+                }),
+                ...O.getSomesStruct({ vadThreshold: O.fromUndefinedOr(currentOptions.vadThreshold) }),
               };
               const { audioFormat, sampleRate } = currentOptions;
               const hasManualAudio = audioFormat !== undefined || sampleRate !== undefined;
@@ -222,7 +218,7 @@ export function useScribe(options: UseScribeOptions): UseScribeResult {
                   })
                 : Scribe.connect({
                     ...baseOptions,
-                    ...(microphoneOptions === undefined ? {} : { microphone: microphoneOptions }),
+                    ...O.getSomesStruct({ microphone: O.fromUndefinedOr(microphoneOptions) }),
                   });
             },
             catch: toScribeConnectionFailure,

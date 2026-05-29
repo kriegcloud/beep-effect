@@ -8,8 +8,8 @@
 import { $RepoAiMetricsId } from "@beep/identity/packages";
 import { LiteralKit, TaggedErrorClass } from "@beep/schema";
 import { A, Str } from "@beep/utils";
+import * as O from "@beep/utils/Option";
 import { Clock, Effect, FileSystem, flow, Order, Path, pipe, Stream } from "effect";
-import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import { fileSizeBytes } from "./internal/file-info.ts";
 import { collectJsonlFiles, statOption } from "./internal/jsonl-discovery.ts";
@@ -343,7 +343,7 @@ const makeDiscoveredTranscriptFile = Effect.fn("AiMetrics.makeDiscoveredTranscri
   const relativePath = normalizedRelativePath(pathApi, root, sourcePath);
   const attribution = yield* makeAiMetricsSourceAttribution({
     content,
-    ...(hashSalt === undefined ? {} : { hashSalt }),
+    ...O.getSomesStruct({ hashSalt: O.fromUndefinedOr(hashSalt) }),
     relativePath,
     sourceKind,
     sourcePath,
@@ -351,18 +351,18 @@ const makeDiscoveredTranscriptFile = Effect.fn("AiMetrics.makeDiscoveredTranscri
   const fallbackSessionIdHash = yield* hashPrivateIdentifier(sessionIdFromPath(pathApi, sourcePath), hashSalt);
 
   return AiMetricsDiscoveredTranscriptFile.make({
-    ...(attribution.agentNicknameHash === undefined ? {} : { agentNicknameHash: attribution.agentNicknameHash }),
-    ...(attribution.agentRoleHash === undefined ? {} : { agentRoleHash: attribution.agentRoleHash }),
-    ...(attribution.forkedFromIdHash === undefined ? {} : { forkedFromIdHash: attribution.forkedFromIdHash }),
+    ...O.getSomesStruct({ agentNicknameHash: O.fromUndefinedOr(attribution.agentNicknameHash) }),
+    ...O.getSomesStruct({ agentRoleHash: O.fromUndefinedOr(attribution.agentRoleHash) }),
+    ...O.getSomesStruct({ forkedFromIdHash: O.fromUndefinedOr(attribution.forkedFromIdHash) }),
     modifiedAtMillis: modifiedAtMillis(info),
-    ...(attribution.parentSessionIdHash === undefined ? {} : { parentSessionIdHash: attribution.parentSessionIdHash }),
-    ...(attribution.parentThreadIdHash === undefined ? {} : { parentThreadIdHash: attribution.parentThreadIdHash }),
+    ...O.getSomesStruct({ parentSessionIdHash: O.fromUndefinedOr(attribution.parentSessionIdHash) }),
+    ...O.getSomesStruct({ parentThreadIdHash: O.fromUndefinedOr(attribution.parentThreadIdHash) }),
     sessionIdHash: attribution.sessionIdHash ?? fallbackSessionIdHash,
     sizeBytes: fileSizeBytes(info),
     sourceKind,
     sourcePathHash: yield* hashPrivateIdentifier(sourcePath, hashSalt),
     sourceRole: attribution.sourceRole,
-    ...(attribution.threadSpawn === undefined ? {} : { threadSpawn: attribution.threadSpawn }),
+    ...O.getSomesStruct({ threadSpawn: O.fromUndefinedOr(attribution.threadSpawn) }),
   });
 });
 
@@ -455,7 +455,7 @@ const discoverJsonlSource = Effect.fn("AiMetrics.discoverJsonlSource")(function*
           root,
           sourceKind,
           sourcePath: candidate.sourcePath,
-          ...(input.hashSalt === undefined ? {} : { hashSalt: input.hashSalt }),
+          ...O.getSomesStruct({ hashSalt: O.fromUndefinedOr(input.hashSalt) }),
         }).pipe(Effect.option),
       { concurrency: 16 }
     ),
@@ -609,11 +609,11 @@ export const discoverAiMetricsSources = Effect.fn("AiMetrics.discoverAiMetricsSo
     homeDirHash: yield* hashPrivateIdentifier(homeDir, input.hashSalt),
     includeAll: input.includeAll,
     maxFiles: input.maxFiles,
-    ...(input.maxFileBytes === undefined ? {} : { maxFileBytes: input.maxFileBytes }),
+    ...O.getSomesStruct({ maxFileBytes: O.fromUndefinedOr(input.maxFileBytes) }),
     repoRootHash: yield* hashPrivateIdentifier(repoRoot, input.hashSalt),
     sources,
     target: input.target,
-    ...(input.sinceEpochMillis === undefined ? {} : { sinceEpochMillis: input.sinceEpochMillis }),
+    ...O.getSomesStruct({ sinceEpochMillis: O.fromUndefinedOr(input.sinceEpochMillis) }),
   });
 });
 

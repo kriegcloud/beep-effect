@@ -7,10 +7,9 @@
 
 import { $HubspotId } from "@beep/identity";
 import { LiteralKit, TaggedErrorClass } from "@beep/schema";
+import { O } from "@beep/utils";
 import { pipe, Result } from "effect";
-import * as O from "effect/Option";
 import * as P from "effect/Predicate";
-import * as R from "effect/Record";
 import * as S from "effect/Schema";
 import * as HttpClientError from "effect/unstable/http/HttpClientError";
 
@@ -108,19 +107,11 @@ export class HubSpotError extends TaggedErrorClass<HubSpotError>($I`HubSpotError
   static readonly fromReason = (reason: HubSpotErrorReason, options: HubSpotErrorOptions = {}): HubSpotError =>
     HubSpotError.make({
       reason,
-      ...R.getSomes({
+      ...O.getSomesStruct({
         cause: causeFromUnknown(options.cause),
-      }),
-      ...R.getSomes({
         email: O.fromUndefinedOr(options.email),
-      }),
-      ...R.getSomes({
         formGuid: O.fromUndefinedOr(options.formGuid),
-      }),
-      ...R.getSomes({
         status: O.fromUndefinedOr(options.status),
-      }),
-      ...R.getSomes({
         url: O.fromUndefinedOr(options.url),
       }),
     });

@@ -8,9 +8,9 @@
 import { $RepoUtilsId } from "@beep/identity/packages";
 import { ArrayOfStrings } from "@beep/schema";
 import { A } from "@beep/utils";
+import * as O from "@beep/utils/Option";
 import { Effect, flow, identity, JsonPointer, Order, pipe, Result, SchemaIssue, Tuple } from "effect";
 import { dual } from "effect/Function";
-import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
@@ -133,98 +133,111 @@ const canonicalizePublishConfig = (
 const canonicalizePackageJsonEncoded = (encoded: PackageJson.Encoded): PackageJson.Encoded =>
   ({
     name: encoded.name,
-    ...(encoded.version === undefined ? {} : { version: encoded.version }),
-    ...(encoded.description === undefined ? {} : { description: encoded.description }),
-    ...(encoded.keywords === undefined ? {} : { keywords: encoded.keywords }),
-    ...(encoded.license === undefined ? {} : { license: encoded.license }),
-    ...(encoded.private === undefined ? {} : { private: encoded.private }),
-    ...(encoded.type === undefined ? {} : { type: encoded.type }),
-    ...(encoded.packageManager === undefined ? {} : { packageManager: encoded.packageManager }),
-    ...(encoded.workspaces === undefined ? {} : { workspaces: encoded.workspaces }),
-    ...(encoded.homepage === undefined ? {} : { homepage: encoded.homepage }),
-    ...(encoded.repository === undefined ? {} : { repository: encoded.repository }),
-    ...(encoded.beep === undefined ? {} : { beep: encoded.beep }),
-    ...(encoded.bugs === undefined ? {} : { bugs: encoded.bugs }),
-    ...(encoded.author === undefined ? {} : { author: encoded.author }),
-    ...(encoded.contributors === undefined ? {} : { contributors: encoded.contributors }),
-    ...(encoded.maintainers === undefined ? {} : { maintainers: encoded.maintainers }),
-    ...(encoded.funding === undefined ? {} : { funding: encoded.funding }),
-    ...(encoded.scripts === undefined ? {} : { scripts: sortStringRecord(encoded.scripts, identity) }),
-    ...(encoded.main === undefined ? {} : { main: encoded.main }),
-    ...(encoded.module === undefined ? {} : { module: encoded.module }),
-    ...(encoded.types === undefined ? {} : { types: encoded.types }),
-    ...(encoded.typings === undefined ? {} : { typings: encoded.typings }),
-    ...(encoded.exports === undefined
-      ? {}
-      : {
-          exports: Result.getOrThrowWith(
-            decodePackageExportsResult(canonicalizeUnknownValue(encoded.exports)),
-            schemaIssueToError
-          ),
-        }),
-    ...(encoded.imports === undefined
-      ? {}
-      : {
-          imports: Result.getOrThrowWith(
-            decodePackageImportsResult(canonicalizeUnknownValue(encoded.imports)),
-            schemaIssueToError
-          ),
-        }),
-    ...(encoded.browser === undefined
-      ? {}
-      : {
-          browser: P.isString(encoded.browser)
-            ? encoded.browser
-            : Result.getOrThrowWith(decodeBrowserResult(canonicalizeUnknownValue(encoded.browser)), schemaIssueToError),
-        }),
-    ...(encoded.bin === undefined ? {} : { bin: encoded.bin }),
-    ...(encoded.man === undefined ? {} : { man: encoded.man }),
-    ...(encoded.directories === undefined ? {} : { directories: encoded.directories }),
-    ...(encoded.files === undefined ? {} : { files: encoded.files }),
-    ...(encoded.sideEffects === undefined ? {} : { sideEffects: encoded.sideEffects }),
-    ...(encoded.publishConfig === undefined ? {} : { publishConfig: canonicalizePublishConfig(encoded.publishConfig) }),
-    ...(encoded.config === undefined ? {} : { config: encoded.config }),
-    ...(encoded.dependencies === undefined ? {} : { dependencies: sortStringRecord(encoded.dependencies, identity) }),
-    ...(encoded.devDependencies === undefined
-      ? {}
-      : { devDependencies: sortStringRecord(encoded.devDependencies, identity) }),
-    ...(encoded.peerDependencies === undefined
-      ? {}
-      : { peerDependencies: sortStringRecord(encoded.peerDependencies, identity) }),
-    ...(encoded.peerDependenciesMeta === undefined
-      ? {}
-      : {
-          peerDependenciesMeta: Result.getOrThrow(
-            decodePeerDependenciesMetaResult(canonicalizeUnknownValue(encoded.peerDependenciesMeta))
-          ),
-        }),
-    ...(encoded.optionalDependencies === undefined
-      ? {}
-      : { optionalDependencies: sortStringRecord(encoded.optionalDependencies, identity) }),
-    ...(encoded.bundleDependencies === undefined ? {} : { bundleDependencies: encoded.bundleDependencies }),
-    ...(encoded.bundledDependencies === undefined ? {} : { bundledDependencies: encoded.bundledDependencies }),
-    ...(encoded.overrides === undefined ? {} : { overrides: encoded.overrides }),
-    ...(encoded.resolutions === undefined ? {} : { resolutions: sortStringRecord(encoded.resolutions, identity) }),
-    ...(encoded.catalog === undefined ? {} : { catalog: sortStringRecord(encoded.catalog, identity) }),
-    ...(encoded["resolutions#"] === undefined
-      ? {}
-      : { "resolutions#": sortStringRecord(encoded["resolutions#"], identity) }),
-    ...(encoded.engines === undefined ? {} : { engines: sortStringRecord(encoded.engines, identity) }),
-    ...(encoded.engineStrict === undefined ? {} : { engineStrict: encoded.engineStrict }),
-    ...(encoded.os === undefined ? {} : { os: encoded.os }),
-    ...(encoded.cpu === undefined ? {} : { cpu: encoded.cpu }),
-    ...(encoded.libc === undefined ? {} : { libc: encoded.libc }),
-    ...(encoded.devEngines === undefined ? {} : { devEngines: encoded.devEngines }),
-    ...(encoded.preferGlobal === undefined ? {} : { preferGlobal: encoded.preferGlobal }),
-    ...(encoded.readme === undefined ? {} : { readme: encoded.readme }),
-    ...(encoded.typesVersions === undefined
-      ? {}
-      : {
-          typesVersions: Result.getOrThrowWith(
-            decodeTypesVersionsResult(canonicalizeUnknownValue(encoded.typesVersions)),
-            schemaIssueToError
-          ),
-        }),
+    ...O.getSomesStruct({ version: O.fromUndefinedOr(encoded.version) }),
+    ...O.getSomesStruct({ description: O.fromUndefinedOr(encoded.description) }),
+    ...O.getSomesStruct({ keywords: O.fromUndefinedOr(encoded.keywords) }),
+    ...O.getSomesStruct({ license: O.fromUndefinedOr(encoded.license) }),
+    ...O.getSomesStruct({ private: O.fromUndefinedOr(encoded.private) }),
+    ...O.getSomesStruct({ type: O.fromUndefinedOr(encoded.type) }),
+    ...O.getSomesStruct({ packageManager: O.fromUndefinedOr(encoded.packageManager) }),
+    ...O.getSomesStruct({ workspaces: O.fromUndefinedOr(encoded.workspaces) }),
+    ...O.getSomesStruct({ homepage: O.fromUndefinedOr(encoded.homepage) }),
+    ...O.getSomesStruct({ repository: O.fromUndefinedOr(encoded.repository) }),
+    ...O.getSomesStruct({ beep: O.fromUndefinedOr(encoded.beep) }),
+    ...O.getSomesStruct({ bugs: O.fromUndefinedOr(encoded.bugs) }),
+    ...O.getSomesStruct({ author: O.fromUndefinedOr(encoded.author) }),
+    ...O.getSomesStruct({ contributors: O.fromUndefinedOr(encoded.contributors) }),
+    ...O.getSomesStruct({ maintainers: O.fromUndefinedOr(encoded.maintainers) }),
+    ...O.getSomesStruct({ funding: O.fromUndefinedOr(encoded.funding) }),
+    ...O.getSomesStruct({
+      scripts: O.map(O.fromUndefinedOr(encoded.scripts), (scripts) => sortStringRecord(scripts, identity)),
+    }),
+    ...O.getSomesStruct({ main: O.fromUndefinedOr(encoded.main) }),
+    ...O.getSomesStruct({ module: O.fromUndefinedOr(encoded.module) }),
+    ...O.getSomesStruct({ types: O.fromUndefinedOr(encoded.types) }),
+    ...O.getSomesStruct({ typings: O.fromUndefinedOr(encoded.typings) }),
+    ...O.getSomesStruct({
+      exports: O.map(O.fromUndefinedOr(encoded.exports), (exports) =>
+        Result.getOrThrowWith(decodePackageExportsResult(canonicalizeUnknownValue(exports)), schemaIssueToError)
+      ),
+    }),
+    ...O.getSomesStruct({
+      imports: O.map(O.fromUndefinedOr(encoded.imports), (imports) =>
+        Result.getOrThrowWith(decodePackageImportsResult(canonicalizeUnknownValue(imports)), schemaIssueToError)
+      ),
+    }),
+    ...O.getSomesStruct({
+      browser: O.map(O.fromUndefinedOr(encoded.browser), (browser) =>
+        P.isString(browser)
+          ? browser
+          : Result.getOrThrowWith(decodeBrowserResult(canonicalizeUnknownValue(browser)), schemaIssueToError)
+      ),
+    }),
+    ...O.getSomesStruct({ bin: O.fromUndefinedOr(encoded.bin) }),
+    ...O.getSomesStruct({ man: O.fromUndefinedOr(encoded.man) }),
+    ...O.getSomesStruct({ directories: O.fromUndefinedOr(encoded.directories) }),
+    ...O.getSomesStruct({ files: O.fromUndefinedOr(encoded.files) }),
+    ...O.getSomesStruct({ sideEffects: O.fromUndefinedOr(encoded.sideEffects) }),
+    ...O.getSomesStruct({
+      publishConfig: O.map(O.fromUndefinedOr(encoded.publishConfig), (publishConfig) =>
+        canonicalizePublishConfig(publishConfig)
+      ),
+    }),
+    ...O.getSomesStruct({ config: O.fromUndefinedOr(encoded.config) }),
+    ...O.getSomesStruct({
+      dependencies: O.map(O.fromUndefinedOr(encoded.dependencies), (dependencies) =>
+        sortStringRecord(dependencies, identity)
+      ),
+    }),
+    ...O.getSomesStruct({
+      devDependencies: O.map(O.fromUndefinedOr(encoded.devDependencies), (devDependencies) =>
+        sortStringRecord(devDependencies, identity)
+      ),
+    }),
+    ...O.getSomesStruct({
+      peerDependencies: O.map(O.fromUndefinedOr(encoded.peerDependencies), (peerDependencies) =>
+        sortStringRecord(peerDependencies, identity)
+      ),
+    }),
+    ...O.getSomesStruct({
+      peerDependenciesMeta: O.map(O.fromUndefinedOr(encoded.peerDependenciesMeta), (peerDependenciesMeta) =>
+        Result.getOrThrow(decodePeerDependenciesMetaResult(canonicalizeUnknownValue(peerDependenciesMeta)))
+      ),
+    }),
+    ...O.getSomesStruct({
+      optionalDependencies: O.map(O.fromUndefinedOr(encoded.optionalDependencies), (optionalDependencies) =>
+        sortStringRecord(optionalDependencies, identity)
+      ),
+    }),
+    ...O.getSomesStruct({ bundleDependencies: O.fromUndefinedOr(encoded.bundleDependencies) }),
+    ...O.getSomesStruct({ bundledDependencies: O.fromUndefinedOr(encoded.bundledDependencies) }),
+    ...O.getSomesStruct({ overrides: O.fromUndefinedOr(encoded.overrides) }),
+    ...O.getSomesStruct({
+      resolutions: O.map(O.fromUndefinedOr(encoded.resolutions), (resolutions) =>
+        sortStringRecord(resolutions, identity)
+      ),
+    }),
+    ...O.getSomesStruct({
+      catalog: O.map(O.fromUndefinedOr(encoded.catalog), (catalog) => sortStringRecord(catalog, identity)),
+    }),
+    ...O.getSomesStruct({
+      "resolutions#": O.map(O.fromUndefinedOr(encoded["resolutions#"]), (value) => sortStringRecord(value, identity)),
+    }),
+    ...O.getSomesStruct({
+      engines: O.map(O.fromUndefinedOr(encoded.engines), (engines) => sortStringRecord(engines, identity)),
+    }),
+    ...O.getSomesStruct({ engineStrict: O.fromUndefinedOr(encoded.engineStrict) }),
+    ...O.getSomesStruct({ os: O.fromUndefinedOr(encoded.os) }),
+    ...O.getSomesStruct({ cpu: O.fromUndefinedOr(encoded.cpu) }),
+    ...O.getSomesStruct({ libc: O.fromUndefinedOr(encoded.libc) }),
+    ...O.getSomesStruct({ devEngines: O.fromUndefinedOr(encoded.devEngines) }),
+    ...O.getSomesStruct({ preferGlobal: O.fromUndefinedOr(encoded.preferGlobal) }),
+    ...O.getSomesStruct({ readme: O.fromUndefinedOr(encoded.readme) }),
+    ...O.getSomesStruct({
+      typesVersions: O.map(O.fromUndefinedOr(encoded.typesVersions), (typesVersions) =>
+        Result.getOrThrowWith(decodeTypesVersionsResult(canonicalizeUnknownValue(typesVersions)), schemaIssueToError)
+      ),
+    }),
   }) satisfies PackageJson.Encoded;
 
 const toPointer = (path: ReadonlyArray<string>): string =>
