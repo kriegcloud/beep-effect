@@ -1,4 +1,3 @@
-import { join as joinPath, resolve as resolvePath } from "node:path";
 import { reuseCommand } from "@beep/repo-cli/commands/Reuse";
 import { CodexSmokeResult } from "@beep/repo-cli/test/Reuse";
 import { RepoCodegraphLookupResult } from "@beep/repo-codegraph";
@@ -27,8 +26,8 @@ const provideScopedLayer =
 
 const runReuseCommand = Command.runWith(reuseCommand, { version: "0.0.0" });
 const TestFileCwd = process.cwd();
-const RepoRoot = resolvePath(TestFileCwd, "../../../..");
-const CliEntrypoint = joinPath(RepoRoot, "packages/tooling/tool/cli/src/bin.ts");
+const RepoRoot = TestFileCwd.replace(/\/packages\/tooling\/tool\/cli$/, "");
+const CliEntrypoint = `${RepoRoot}/packages/tooling/tool/cli/src/bin.ts`;
 const TOOLING_CLI_SCOPE = "packages/tooling/tool/cli";
 const TOOLING_CLI_DOT_SCOPE = "./packages/tooling/tool/cli";
 const TOOLING_CLI_FILE = "packages/tooling/tool/cli/src/commands/Docgen/index.ts";
