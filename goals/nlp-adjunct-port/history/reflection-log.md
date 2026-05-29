@@ -99,7 +99,12 @@ failing `tsgo -b` for this package. **Port approach: match `@beep/nlp`'s actual 
   graph node/edge vocabularies — the proven repo idiom (WinkVectorizer/Pattern). Tests are the
   real gate: `tsgo`+`biome` both passed while decode was broken, so scoped `vitest` must run
   before each commit (pre-commit hooks do NOT run tests).
-- **P1 progress: 4 of ~6 groups done; 96 proofs green; tree clean.**
+- **P1 progress: 4 of ~6 groups done; full nlp suite 124 tests / 11 files green; tree clean.**
+- **Process miss + recovery:** the Graph/Schema feat was first committed (`efa2534f67`) while its
+  vitest was red (`LiteralKit(...).Schema` doesn't exist — the kit IS the schema; and the proof
+  used non-existent `S.decodeUnknown`/`S.encode` → v4 `decodeUnknownEffect`/`encodeEffect`).
+  Pre-commit hooks run biome+commitlint but NOT vitest, so it slipped. Fixed forward
+  (`858b1366f0`). Reinforced rule: scoped `vitest run` is mandatory before every commit.
 
 **CHECKPOINT — Graph engine is the inflection point.** The next group (Graph engine +
 TypeClass) is **3,408 LOC across 12 files**: `EffectGraph`/`TextGraph`/`AnnotatedTextGraph`/
