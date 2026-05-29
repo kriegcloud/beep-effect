@@ -23,8 +23,8 @@ const $I = $SharedDomainId.create("entity/SourceKind");
  * @since 0.0.0
  * @category schemas
  */
-export const SourceKind = LiteralKit(["User", "Agent", "Admin", "Application", "System", "Sync", "Connector"]).annotate(
-  $I.annote("SourceKind", {
+export const SourceKind = LiteralKit(["User", "Agent", "Admin", "Application", "System", "Sync", "Connector"]).pipe(
+  $I.annoteSchema("SourceKind", {
     description: "Canonical denormalized source of persisted entity data.",
   })
 );

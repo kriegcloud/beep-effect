@@ -30,20 +30,20 @@ const PgExternalClientEndTimeout = Duration.seconds(1);
 const PgExternalSchemaDropTimeout = Duration.seconds(10);
 let pgliteImageBuild = O.none<Promise<GenericContainer>>();
 
-const SqlTestHarnessPhase = LiteralKit(["provision", "migrate", "seed", "teardown"]).annotate(
-  $I.annote("SqlTestHarnessPhase", {
+const SqlTestHarnessPhase = LiteralKit(["provision", "migrate", "seed", "teardown"]).pipe(
+  $I.annoteSchema("SqlTestHarnessPhase", {
     description: "Lifecycle phases for reusable SQL integration-test harness failures.",
   })
 );
 
-const TestDatabaseDriver = LiteralKit(["bun-sqlite", "node-sqlite", "pglite-testcontainers", "pg-external"]).annotate(
-  $I.annote("TestDatabaseDriver", {
+const TestDatabaseDriver = LiteralKit(["bun-sqlite", "node-sqlite", "pglite-testcontainers", "pg-external"]).pipe(
+  $I.annoteSchema("TestDatabaseDriver", {
     description: "Driver identifier for reusable SQL integration-test harnesses.",
   })
 );
 
-const PgExternalIsolationMode = LiteralKit(["schema", "none"]).annotate(
-  $I.annote("PgExternalIsolationMode", {
+const PgExternalIsolationMode = LiteralKit(["schema", "none"]).pipe(
+  $I.annoteSchema("PgExternalIsolationMode", {
     description: "Isolation mode for shared external PostgreSQL SQL test drivers.",
   })
 );
@@ -61,8 +61,8 @@ const PgliteTcpPort = S.Int.check(
       title: "PGLite TCP Port Range",
     }
   )
-).annotate(
-  $I.annote("PgliteTcpPort", {
+).pipe(
+  $I.annoteSchema("PgliteTcpPort", {
     description: "TCP port number used by the PGLite Testcontainers SQL test driver.",
   })
 );
@@ -74,8 +74,8 @@ const PglitePositiveInteger = S.Int.check(
     message: "PGLite numeric configuration values must be greater than zero",
     title: "PGLite Positive Integer",
   })
-).annotate(
-  $I.annote("PglitePositiveInteger", {
+).pipe(
+  $I.annoteSchema("PglitePositiveInteger", {
     description: "Positive integer used by the PGLite Testcontainers SQL test driver.",
   })
 );
@@ -87,8 +87,8 @@ const PgExternalSchemaPrefix = S.String.check(
     message: "PostgreSQL test schema prefixes must be valid unquoted identifiers",
     title: "PostgreSQL External Schema Prefix",
   })
-).annotate(
-  $I.annote("PgExternalSchemaPrefix", {
+).pipe(
+  $I.annoteSchema("PgExternalSchemaPrefix", {
     description: "Identifier-safe prefix used when creating external PostgreSQL test schemas.",
   })
 );

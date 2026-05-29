@@ -198,8 +198,8 @@ const TS_NODE_EXPERIMENTAL_SPECIFIER_RESOLUTION_VALUES = ["explicit", "node"] as
 
 const TS_NODE_MODULE_TYPE_VALUES = ["cjs", "esm", "package"] as const;
 
-const JsonRecord = S.Record(S.String, S.Json).annotate(
-  $I.annote("TSConfigJsonRecord", {
+const JsonRecord = S.Record(S.String, S.Json).pipe(
+  $I.annoteSchema("TSConfigJsonRecord", {
     description: "A JSON object used for open tsconfig extension points such as plugin extras and ts-node overrides.",
   })
 );
@@ -281,11 +281,9 @@ const makeLooseJsonObject = <Fields extends S.Struct.Fields>(fields: Fields, nam
         )
       ),
     }),
-    S.annotate(
-      $I.annote(name, {
-        description,
-      })
-    )
+    $I.annoteSchema(name, {
+      description,
+    })
   );
 };
 
@@ -318,11 +316,9 @@ const makeCaseInsensitiveLiteralSchema = <const Values extends A.NonEmptyReadonl
       }),
       encode: SchemaGetter.transform((value) => value),
     }),
-    S.annotate(
-      $I.annote(name, {
-        description,
-      })
-    )
+    $I.annoteSchema(name, {
+      description,
+    })
   );
 };
 
@@ -341,20 +337,18 @@ const makeUniqueArraySchema = <Item extends S.Top>(item: Item, name: string, des
         }
       )
     )
-    .annotate(
-      $I.annote(name, {
+    .pipe(
+      $I.annoteSchema(name, {
         description,
       })
     );
 };
 
 const optionalField = <Schema extends S.Top>(schema: Schema, name: string, description: string) =>
-  schema.pipe(S.OptionFromOptionalKey, S.annotate($I.annote(name, { description }))).annotateKey({ description });
+  schema.pipe(S.OptionFromOptionalKey, $I.annoteSchema(name, { description })).annotateKey({ description });
 
 const nullableOptionalField = <Schema extends S.Top>(schema: Schema, name: string, description: string) =>
-  Model.optionalOption(schema)
-    .pipe(S.annotate($I.annote(name, { description })))
-    .annotateKey({ description });
+  Model.optionalOption(schema).pipe($I.annoteSchema(name, { description })).annotateKey({ description });
 
 const toOptionalValue = <Value>(value: O.Option<Value> | Value | null | undefined): O.Option<Value> => {
   if (value === undefined || value === null) {
@@ -473,8 +467,8 @@ const TSNodeModuleType = makeCaseInsensitiveLiteralSchema(
   "Canonical ts-node module type override values accepted by tsconfig."
 );
 
-const TSConfigExtends = S.Union([S.String, S.Array(S.String)]).annotate(
-  $I.annote("TSConfigExtends", {
+const TSConfigExtends = S.Union([S.String, S.Array(S.String)]).pipe(
+  $I.annoteSchema("TSConfigExtends", {
     description: "A tsconfig extends reference represented as a single base config path or an ordered array of paths.",
   })
 );
@@ -521,56 +515,56 @@ const TSConfigCompilerPlugin = makeLooseJsonObject(
   "A TypeScript language service plugin entry with a required name and plugin-specific JSON extras."
 );
 
-const TSConfigCompilerPlugins = S.Array(TSConfigCompilerPlugin).annotate(
-  $I.annote("TSConfigCompilerPlugins", {
+const TSConfigCompilerPlugins = S.Array(TSConfigCompilerPlugin).pipe(
+  $I.annoteSchema("TSConfigCompilerPlugins", {
     description: "An ordered array of compiler plugin entries.",
   })
 );
 
-const TSConfigPathTargets = S.NullOr(TSConfigUniqueStringArray).annotate(
-  $I.annote("TSConfigPathTargets", {
+const TSConfigPathTargets = S.NullOr(TSConfigUniqueStringArray).pipe(
+  $I.annoteSchema("TSConfigPathTargets", {
     description: "A tsconfig `paths` entry target array or null when explicitly disabled in the encoded document.",
   })
 );
 
-const TSConfigPaths = S.Record(S.String, TSConfigPathTargets).annotate(
-  $I.annote("TSConfigPaths", {
+const TSConfigPaths = S.Record(S.String, TSConfigPathTargets).pipe(
+  $I.annoteSchema("TSConfigPaths", {
     description: "The compilerOptions.paths map from module specifier aliases to arrays of target paths or null.",
   })
 );
 
-const TSNodeIgnoreDiagnostic = S.Union([S.String, S.Number]).annotate(
-  $I.annote("TSNodeIgnoreDiagnostic", {
+const TSNodeIgnoreDiagnostic = S.Union([S.String, S.Number]).pipe(
+  $I.annoteSchema("TSNodeIgnoreDiagnostic", {
     description: "A single ts-node ignored diagnostic identifier represented as a string or numeric code.",
   })
 );
 
-const TSNodeIgnoreDiagnostics = S.Array(TSNodeIgnoreDiagnostic).annotate(
-  $I.annote("TSNodeIgnoreDiagnostics", {
+const TSNodeIgnoreDiagnostics = S.Array(TSNodeIgnoreDiagnostic).pipe(
+  $I.annoteSchema("TSNodeIgnoreDiagnostics", {
     description: "An ordered list of ts-node ignored TypeScript diagnostics.",
   })
 );
 
-const TSNodeRequire = S.Array(S.String).annotate(
-  $I.annote("TSNodeRequire", {
+const TSNodeRequire = S.Array(S.String).pipe(
+  $I.annoteSchema("TSNodeRequire", {
     description: "An ordered list of modules to require before ts-node execution.",
   })
 );
 
-const TSNodeTranspilerTuple = S.Tuple([S.NullOr(S.String), S.NullOr(JsonRecord)]).annotate(
-  $I.annote("TSNodeTranspilerTuple", {
+const TSNodeTranspilerTuple = S.Tuple([S.NullOr(S.String), S.NullOr(JsonRecord)]).pipe(
+  $I.annoteSchema("TSNodeTranspilerTuple", {
     description: "Tuple form of the ts-node transpiler setting with a transpiler id and optional JSON options object.",
   })
 );
 
-const TSNodeTranspiler = S.Union([S.String, TSNodeTranspilerTuple]).annotate(
-  $I.annote("TSNodeTranspiler", {
+const TSNodeTranspiler = S.Union([S.String, TSNodeTranspilerTuple]).pipe(
+  $I.annoteSchema("TSNodeTranspiler", {
     description: "The ts-node transpiler setting represented as either a string id or a `[id, options]` tuple.",
   })
 );
 
-const TSNodeModuleTypes = S.Record(S.String, TSNodeModuleType).annotate(
-  $I.annote("TSNodeModuleTypes", {
+const TSNodeModuleTypes = S.Record(S.String, TSNodeModuleType).pipe(
+  $I.annoteSchema("TSNodeModuleTypes", {
     description: "A ts-node module type override map from glob patterns to `cjs`, `esm`, or `package`.",
   })
 );
@@ -1215,8 +1209,8 @@ const TSConfigCompilerOptionsChecks = S.makeFilterGroup(
   }
 );
 
-const TSConfigCompilerOptionsSemantic = TSConfigCompilerOptionsShape.check(TSConfigCompilerOptionsChecks).annotate(
-  $I.annote("TSConfigCompilerOptionsSemantic", {
+const TSConfigCompilerOptionsSemantic = TSConfigCompilerOptionsShape.check(TSConfigCompilerOptionsChecks).pipe(
+  $I.annoteSchema("TSConfigCompilerOptionsSemantic", {
     description: "Compiler options shape with additional semantic refinement checks applied for strict decode helpers.",
   })
 );
@@ -1580,8 +1574,8 @@ const TSConfigSemanticChecks = S.makeFilterGroup(
   }
 );
 
-const TSConfigSemantic = TSConfigShape.check(TSConfigSemanticChecks).annotate(
-  $I.annote("TSConfigSemantic", {
+const TSConfigSemantic = TSConfigShape.check(TSConfigSemanticChecks).pipe(
+  $I.annoteSchema("TSConfigSemantic", {
     description: "Strict tsconfig shape with cross-field semantic checks used by the decode helpers.",
   })
 );

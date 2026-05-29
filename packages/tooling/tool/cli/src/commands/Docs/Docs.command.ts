@@ -17,8 +17,8 @@ import { docsAggregateCommand } from "./Docs.aggregate.js";
 
 const $I = $RepoCliId.create("docs");
 
-const DocsSectionName = LiteralKit(["laws", "skills", "policies"]).annotate(
-  $I.annote("DocsSectionName", {
+const DocsSectionName = LiteralKit(["laws", "skills", "policies"]).pipe(
+  $I.annoteSchema("DocsSectionName", {
     description: "Name of a docs section.",
   })
 );
@@ -77,13 +77,12 @@ class DocsSectionPolicies extends S.Class<DocsSectionPolicies>($I`DocsSectionPol
  */
 export const DocsSection = DocsSectionName.mapMembers(
   Tuple.evolve([() => DocsSectionLaws, () => DocsSectionSkills, () => DocsSectionPolicies])
-)
-  .pipe(S.toTaggedUnion("name"))
-  .annotate(
-    $I.annote("DocsSection", {
-      description: "A section of documentation.",
-    })
-  );
+).pipe(
+  S.toTaggedUnion("name"),
+  $I.annoteSchema("DocsSection", {
+    description: "A section of documentation.",
+  })
+);
 /**
  * Documentation section model.
  *

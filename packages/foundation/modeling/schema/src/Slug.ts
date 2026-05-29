@@ -82,11 +82,9 @@ const SlugChecks = S.makeFilterGroup(
  */
 export const Slug = S.NonEmptyString.check(SlugChecks).pipe(
   S.brand("Slug"),
-  S.annotate(
-    $I.annote("Slug", {
-      description: "Canonical lowercase kebab-case slug safe for a single URL path segment.",
-    })
-  )
+  $I.annoteSchema("Slug", {
+    description: "Canonical lowercase kebab-case slug safe for a single URL path segment.",
+  })
 );
 
 /**

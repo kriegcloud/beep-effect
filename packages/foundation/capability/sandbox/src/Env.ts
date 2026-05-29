@@ -84,7 +84,7 @@ export const resolveEnv = Effect.fn("Env.resolveEnv")(function* (
   const envPath = path.join(repoDir, ".sandcastle", ".env");
   const declared = yield* fs.readFileString(envPath).pipe(
     Effect.map(parseEnvFile),
-    Effect.catch(() => Effect.succeed(emptyEnv))
+    Effect.orElseSucceed(() => emptyEnv)
   );
   const resolved = R.empty<string, string>();
 

@@ -42,8 +42,8 @@ const DEFAULT_MAX_FILES = 200;
  * @category models
  * @since 0.0.0
  */
-export const AiMetricsSourceStatus = LiteralKit(["available", "missing", "unavailable"]).annotate(
-  $I.annote("AiMetricsSourceStatus", {
+export const AiMetricsSourceStatus = LiteralKit(["available", "missing", "unavailable"]).pipe(
+  $I.annoteSchema("AiMetricsSourceStatus", {
     description: "Availability status for a discovered AI metrics source root.",
   })
 );

@@ -33,8 +33,8 @@ export const ArchitecturalLayer = LiteralKit([
   "Adapter",
   "Core",
   "CrossCutting",
-]).annotate(
-  $I.annote("ArchitecturalLayer", {
+]).pipe(
+  $I.annoteSchema("ArchitecturalLayer", {
     description:
       'Architectural layer mappings across established patterns.\nEnables cross-framework queries such as "show me all code in the\ndomain core that depends on infrastructure".',
   })

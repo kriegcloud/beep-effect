@@ -63,11 +63,9 @@ const patternElementToBracketString = (pattern: Pattern): ReadonlyArray<string> 
  */
 export const EntityGroupName = S.NonEmptyString.pipe(
   S.brand("EntityGroupName"),
-  S.annotate(
-    $I.annote("EntityGroupName", {
-      description: "Stable identifier for a learned wink custom-entity group.",
-    })
-  )
+  $I.annoteSchema("EntityGroupName", {
+    description: "Stable identifier for a learned wink custom-entity group.",
+  })
 );
 
 /**

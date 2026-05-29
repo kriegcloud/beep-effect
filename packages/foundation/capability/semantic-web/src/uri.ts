@@ -203,12 +203,10 @@ const uriChecks = makeNonEmptyReferenceChecks("URI", "URI", "An RFC 3986 URI.", 
  */
 export const URIReference = S.String.check(uriReferenceChecks).pipe(
   S.brand("URIReference"),
-  S.annotate(
-    $I.annote("URIReference", {
-      description: "RFC 3986 URI reference syntax, including both absolute and relative forms.",
-      semanticSchemaMetadata: uriReferenceMetadata,
-    })
-  )
+  $I.annoteSchema("URIReference", {
+    description: "RFC 3986 URI reference syntax, including both absolute and relative forms.",
+    semanticSchemaMetadata: uriReferenceMetadata,
+  })
 );
 
 /**
@@ -244,12 +242,10 @@ export type URIReference = typeof URIReference.Type;
  */
 export const RelativeURIReference = S.String.check(relativeUriReferenceChecks).pipe(
   S.brand("RelativeURIReference"),
-  S.annotate(
-    $I.annote("RelativeURIReference", {
-      description: "RFC 3986 relative URI reference syntax (`relative-ref`).",
-      semanticSchemaMetadata: relativeUriReferenceMetadata,
-    })
-  )
+  $I.annoteSchema("RelativeURIReference", {
+    description: "RFC 3986 relative URI reference syntax (`relative-ref`).",
+    semanticSchemaMetadata: relativeUriReferenceMetadata,
+  })
 );
 
 /**
@@ -285,12 +281,10 @@ export type RelativeURIReference = typeof RelativeURIReference.Type;
  */
 export const AbsoluteURI = S.String.check(absoluteUriChecks).pipe(
   S.brand("AbsoluteURI"),
-  S.annotate(
-    $I.annote("AbsoluteURI", {
-      description: "RFC 3986 absolute URI syntax without a fragment component.",
-      semanticSchemaMetadata: absoluteUriMetadata,
-    })
-  )
+  $I.annoteSchema("AbsoluteURI", {
+    description: "RFC 3986 absolute URI syntax without a fragment component.",
+    semanticSchemaMetadata: absoluteUriMetadata,
+  })
 );
 
 /**
@@ -326,12 +320,10 @@ export type AbsoluteURI = typeof AbsoluteURI.Type;
  */
 export const URI = S.String.check(uriChecks).pipe(
   S.brand("URI"),
-  S.annotate(
-    $I.annote("URI", {
-      description: "RFC 3986 URI syntax.",
-      semanticSchemaMetadata: uriMetadata,
-    })
-  )
+  $I.annoteSchema("URI", {
+    description: "RFC 3986 URI syntax.",
+    semanticSchemaMetadata: uriMetadata,
+  })
 );
 
 /**

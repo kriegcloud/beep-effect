@@ -48,8 +48,8 @@ export class JSDocParam extends S.Opaque<JSDocParam & JSDocTagMember<"param">>()
     relatedTags: ["returns", "template", "callback"],
     isDeprecated: false,
     example: `/** @param {string} name - The user's display name */`,
-  }).annotate(
-    $I.annote("JSDocParam", {
+  }).pipe(
+    $I.annoteSchema("JSDocParam", {
       // description:
     })
   )
@@ -88,8 +88,8 @@ export class JSDocReturns extends S.Opaque<JSDocReturns & JSDocTagMember<"return
     relatedTags: ["param", "throws", "yields"],
     isDeprecated: false,
     example: `/** @returns {Promise<User>} The resolved user object */`,
-  }).annotate(
-    $I.annote("JSDocReturns", {
+  }).pipe(
+    $I.annoteSchema("JSDocReturns", {
       // description:
     })
   )
@@ -525,14 +525,12 @@ export const StructuralJSDoc = S.Union([
   JSDocYields,
 ]).pipe(
   S.toTaggedUnion("_tag"),
-  S.annotate(
-    $I.annote("StructuralJSDoc", {
-      description: "A Structural JSDoc Tag",
-      documentation:
-        "STRUCTURAL TAGS — AST-derivable (Layer 1)\n" +
-        "These tags can be 100% or mostly derived from the TypeScript AST.",
-    })
-  )
+  $I.annoteSchema("StructuralJSDoc", {
+    description: "A Structural JSDoc Tag",
+    documentation:
+      "STRUCTURAL TAGS — AST-derivable (Layer 1)\n" +
+      "These tags can be 100% or mostly derived from the TypeScript AST.",
+  })
 );
 
 /**
@@ -1154,7 +1152,7 @@ export const AccessModifierJSDoc = S.Union([
   JSDocSatisfies,
   JSDocImport,
   JSDocThis,
-]).pipe(S.toTaggedUnion("_tag"), S.annotate($I.annote("AccessModifierJSDoc")));
+]).pipe(S.toTaggedUnion("_tag"), $I.annoteSchema("AccessModifierJSDoc"));
 
 /**
  * JSDoc tag metadata export.
@@ -1543,7 +1541,7 @@ export const DocumentationContentJSDoc = S.Union([
   JSDocVersion,
   JSDocAuthor,
   JSDocTodo,
-]).pipe(S.toTaggedUnion("_tag"), S.annotate($I.annote("DocumentationContentJSDoc")));
+]).pipe(S.toTaggedUnion("_tag"), $I.annoteSchema("DocumentationContentJSDoc"));
 
 /**
  * JSDoc tag metadata export.
@@ -1968,7 +1966,7 @@ export const TSDocSpecificJSDoc = S.Union([
   JSDocLabel,
   JSDocDecorator,
   JSDocEventProperty,
-]).pipe(S.toTaggedUnion("_tag"), S.annotate($I.annote("TSDocSpecificJSDoc")));
+]).pipe(S.toTaggedUnion("_tag"), $I.annoteSchema("TSDocSpecificJSDoc"));
 
 /**
  * JSDoc tag metadata export.
@@ -2083,7 +2081,7 @@ export class JSDocInheritDoc extends S.Opaque<JSDocInheritDoc & JSDocTagMember<"
  */
 export const InlineJSDoc = S.Union([JSDocLink, JSDocInheritDoc]).pipe(
   S.toTaggedUnion("_tag"),
-  S.annotate($I.annote("InlineJSDoc"))
+  $I.annoteSchema("InlineJSDoc")
 );
 
 /**
@@ -2373,7 +2371,7 @@ export const OrganizationalJSDoc = S.Union([
   JSDocProperty,
   JSDocInterface,
   JSDocFunction,
-]).pipe(S.toTaggedUnion("_tag"), S.annotate($I.annote("OrganizationalJSDoc")));
+]).pipe(S.toTaggedUnion("_tag"), $I.annoteSchema("OrganizationalJSDoc"));
 
 /**
  * JSDoc tag metadata export.
@@ -2554,7 +2552,7 @@ export class JSDocRequires extends S.Opaque<JSDocRequires & JSDocTagMember<"requ
  */
 export const EventDependencyJSDoc = S.Union([JSDocFires, JSDocListens, JSDocEvent, JSDocRequires]).pipe(
   S.toTaggedUnion("_tag"),
-  S.annotate($I.annote("EventDependencyJSDoc"))
+  $I.annoteSchema("EventDependencyJSDoc")
 );
 
 /**
@@ -3297,7 +3295,7 @@ export const RemainingJSDoc = S.Union([
   JSDocName,
   JSDocVariation,
   JSDocTutorial,
-]).pipe(S.toTaggedUnion("_tag"), S.annotate($I.annote("RemainingJSDoc")));
+]).pipe(S.toTaggedUnion("_tag"), $I.annoteSchema("RemainingJSDoc"));
 
 /**
  * JSDoc tag metadata export.
@@ -3853,7 +3851,7 @@ export const ClosureSpecificJSDoc = S.Union([
   JSDocRecord,
   JSDocNoCollapse,
   JSDocNoInline,
-]).pipe(S.toTaggedUnion("_tag"), S.annotate($I.annote("ClosureSpecificJSDoc")));
+]).pipe(S.toTaggedUnion("_tag"), $I.annoteSchema("ClosureSpecificJSDoc"));
 
 /**
  * JSDoc tag metadata export.
@@ -4239,7 +4237,7 @@ export const TypeDocSpecificJSDoc = S.Union([
   JSDocPrimaryExport,
   JSDocSortStrategy,
   JSDocUseDeclaredType,
-]).pipe(S.toTaggedUnion("_tag"), S.annotate($I.annote("TypeDocSpecificJSDoc")));
+]).pipe(S.toTaggedUnion("_tag"), $I.annoteSchema("TypeDocSpecificJSDoc"));
 
 /**
  * JSDoc tag metadata export.
@@ -4320,7 +4318,7 @@ export class JSDocOverload extends S.Opaque<JSDocOverload & JSDocTagMember<"over
  */
 export const TypeScriptSpecificJSDoc = S.Union([JSDocOverload]).pipe(
   S.toTaggedUnion("_tag"),
-  S.annotate($I.annote("TypeScriptSpecificJSDoc"))
+  $I.annoteSchema("TypeScriptSpecificJSDoc")
 );
 
 /**
@@ -4376,7 +4374,7 @@ export const JSDocTag = S.Union([
   ClosureSpecificJSDoc,
   TypeDocSpecificJSDoc,
   TypeScriptSpecificJSDoc,
-]).pipe(S.toTaggedUnion("_tag"), S.annotate($I.annote("JSDocTag")));
+]).pipe(S.toTaggedUnion("_tag"), $I.annoteSchema("JSDocTag"));
 
 /**
  * JSDoc tag metadata export.

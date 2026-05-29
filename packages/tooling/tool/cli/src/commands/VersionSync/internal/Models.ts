@@ -58,8 +58,8 @@ const VersionCategoryKit = LiteralKit(["bun", "node", "docker", "biome", "effect
  * @category models
  * @since 0.0.0
  */
-export const VersionCategory = VersionCategoryKit.annotate(
-  $I.annote("VersionCategory", {
+export const VersionCategory = VersionCategoryKit.pipe(
+  $I.annoteSchema("VersionCategory", {
     description: "Version category for grouping drift items",
   })
 );
@@ -90,8 +90,8 @@ const VersionCategoryStatusKit = LiteralKit(["ok", "drift", "unpinned", "error"]
  * @category models
  * @since 0.0.0
  */
-export const VersionCategoryStatus = VersionCategoryStatusKit.annotate(
-  $I.annote("VersionCategoryStatus", {
+export const VersionCategoryStatus = VersionCategoryStatusKit.pipe(
+  $I.annoteSchema("VersionCategoryStatus", {
     description: "Status of a version category",
   })
 );
@@ -219,13 +219,12 @@ export const VersionCategoryReport = VersionCategory.mapMembers(
     () => VersionCategoryReportBiome,
     () => VersionCategoryReportEffect,
   ])
-)
-  .annotate(
-    $I.annote("VersionCategoryReport", {
-      description: "Report for a single version category, including its status, items, and error",
-    })
-  )
-  .pipe(S.toTaggedUnion("category"));
+).pipe(
+  $I.annoteSchema("VersionCategoryReport", {
+    description: "Report for a single version category, including its status, items, and error",
+  }),
+  S.toTaggedUnion("category")
+);
 /**
  * Report for a single version category (bun, node, docker, or biome).
  *
@@ -263,8 +262,8 @@ const VersionSyncModeKit = LiteralKit(["check", "write", "dry-run"]);
  * @category models
  * @since 0.0.0
  */
-export const VersionSyncMode = VersionSyncModeKit.annotate(
-  $I.annote("VersionSyncMode", {
+export const VersionSyncMode = VersionSyncModeKit.pipe(
+  $I.annoteSchema("VersionSyncMode", {
     description: "Command execution mode for version sync operations",
   })
 );
@@ -343,13 +342,12 @@ class VersionSyncOptionsDryRun extends S.Class<VersionSyncOptionsDryRun>($I`Vers
  */
 export const VersionSyncOptions = VersionSyncMode.mapMembers(
   Tuple.evolve([() => VersionSyncOptionsCheck, () => VersionSyncOptionsWrite, () => VersionSyncOptionsDryRun])
-)
-  .annotate(
-    $I.annote("VersionSyncOptions", {
-      description: "Resolved command options after flag parsing.",
-    })
-  )
-  .pipe(S.toTaggedUnion("mode"));
+).pipe(
+  $I.annoteSchema("VersionSyncOptions", {
+    description: "Resolved command options after flag parsing.",
+  }),
+  S.toTaggedUnion("mode")
+);
 
 /**
  * Resolved command options after flag parsing.

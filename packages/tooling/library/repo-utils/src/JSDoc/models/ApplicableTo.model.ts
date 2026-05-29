@@ -50,8 +50,8 @@ export const ApplicableTo = LiteralKit([
   "event",
   "mixin",
   "any", // can attach to anything
-]).annotate(
-  $I.annote("ApplicableTo", {
+]).pipe(
+  $I.annoteSchema("ApplicableTo", {
     description: "AST-level attachment surface for a documentation tag.",
   })
 );

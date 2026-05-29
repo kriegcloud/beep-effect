@@ -43,11 +43,9 @@ export const HexToRgb = NormalizeHexColor.pipe(
       encode: rgbToHexValue,
     })
   ),
-  S.annotate(
-    $I.annote("HexToRgb", {
-      description: "Decodes canonical or shorthand hex colors into normalized RGB values.",
-    })
-  )
+  $I.annoteSchema("HexToRgb", {
+    description: "Decodes canonical or shorthand hex colors into normalized RGB values.",
+  })
 );
 
 /**
@@ -69,11 +67,9 @@ export const RgbToHex = RgbInput.pipe(
     decode: SchemaGetter.transform(rgbToHexValue),
     encode: SchemaGetter.forbidden(() => "Encoding RgbToHex results back to RGB is not supported"),
   }),
-  S.annotate(
-    $I.annote("RgbToHex", {
-      description: "Encodes finite RGB input channels into canonical hex by clamping and rounding.",
-    })
-  )
+  $I.annoteSchema("RgbToHex", {
+    description: "Encodes finite RGB input channels into canonical hex by clamping and rounding.",
+  })
 );
 
 /**
@@ -95,11 +91,9 @@ export const RgbToOklch = Rgb.pipe(
     decode: SchemaGetter.transform(rgbToOklchValue),
     encode: SchemaGetter.forbidden(() => "Encoding RgbToOklch results back to RGB is not supported"),
   }),
-  S.annotate(
-    $I.annote("RgbToOklch", {
-      description: "Decodes normalized RGB values into canonical OKLCH coordinates.",
-    })
-  )
+  $I.annoteSchema("RgbToOklch", {
+    description: "Decodes normalized RGB values into canonical OKLCH coordinates.",
+  })
 );
 
 /**
@@ -121,11 +115,9 @@ export const OklchToRgb = OklchInput.pipe(
     decode: SchemaGetter.transform(oklchToRgbValue),
     encode: SchemaGetter.forbidden(() => "Encoding OklchToRgb results back to OKLCH is not supported"),
   }),
-  S.annotate(
-    $I.annote("OklchToRgb", {
-      description: "Encodes finite OKLCH coordinates into finite RGB channel values.",
-    })
-  )
+  $I.annoteSchema("OklchToRgb", {
+    description: "Encodes finite OKLCH coordinates into finite RGB channel values.",
+  })
 );
 
 /**
@@ -150,11 +142,9 @@ export const HexToOklch = NormalizeHexColor.pipe(
       encode: oklchToHexValue,
     })
   ),
-  S.annotate(
-    $I.annote("HexToOklch", {
-      description: "Decodes shorthand or canonical hex colors into canonical OKLCH coordinates.",
-    })
-  )
+  $I.annoteSchema("HexToOklch", {
+    description: "Decodes shorthand or canonical hex colors into canonical OKLCH coordinates.",
+  })
 );
 
 /**
@@ -176,11 +166,9 @@ export const OklchToHex = OklchInput.pipe(
     decode: SchemaGetter.transform(oklchToHexValue),
     encode: SchemaGetter.forbidden(() => "Encoding OklchToHex results back to OKLCH is not supported"),
   }),
-  S.annotate(
-    $I.annote("OklchToHex", {
-      description: "Encodes finite OKLCH coordinates into canonical hex colors.",
-    })
-  )
+  $I.annoteSchema("OklchToHex", {
+    description: "Encodes finite OKLCH coordinates into canonical hex colors.",
+  })
 );
 
 /**

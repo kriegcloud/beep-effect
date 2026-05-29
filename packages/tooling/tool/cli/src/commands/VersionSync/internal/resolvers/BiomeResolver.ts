@@ -43,11 +43,9 @@ const BIOME_SCHEMA_URL_PATTERN = /^https:\/\/biomejs\.dev\/schemas\/[^/]+\/schem
 
 const BiomeSchemaUrl = S.String.check(S.isPattern(BIOME_SCHEMA_URL_PATTERN)).pipe(
   S.brand("BiomeSchemaUrl"),
-  S.annotate(
-    $I.annote("BiomeSchemaUrl", {
-      description: "Biome schema URL in canonical https://biomejs.dev/schemas/<version>/schema.json format.",
-    })
-  )
+  $I.annoteSchema("BiomeSchemaUrl", {
+    description: "Biome schema URL in canonical https://biomejs.dev/schemas/<version>/schema.json format.",
+  })
 );
 
 // ── Helpers ─────────────────────────────────────────────────────────────────
@@ -68,11 +66,9 @@ const BiomeSchemaUrlToVersion = BiomeSchemaUrl.pipe(
       encode: (version) => BiomeSchemaUrl.make(`${BIOME_SCHEMA_PREFIX}${version}${BIOME_SCHEMA_SUFFIX}`),
     })
   ),
-  S.annotate(
-    $I.annote("BiomeSchemaUrlToVersion", {
-      description: "Schema transformation between canonical Biome schema URL and bare version string.",
-    })
-  )
+  $I.annoteSchema("BiomeSchemaUrlToVersion", {
+    description: "Schema transformation between canonical Biome schema URL and bare version string.",
+  })
 );
 
 /**
@@ -91,11 +87,9 @@ const VersionSpecifierToExactVersion = S.String.pipe(
       encode: identity,
     })
   ),
-  S.annotate(
-    $I.annote("VersionSpecifierToExactVersion", {
-      description: "Schema transformation that strips semver range prefixes from dependency version specifiers.",
-    })
-  )
+  $I.annoteSchema("VersionSpecifierToExactVersion", {
+    description: "Schema transformation that strips semver range prefixes from dependency version specifiers.",
+  })
 );
 
 /**

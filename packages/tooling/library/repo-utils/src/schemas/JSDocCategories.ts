@@ -137,8 +137,8 @@ export type JSDocCategory = (typeof CANONICAL_JSDOC_CATEGORIES)[number];
  * @category models
  * @since 0.0.0
  */
-export const JSDocCategoryNormalizationStatus = LiteralKit(["canonical", "alias", "rejected", "unknown"]).annotate(
-  $I.annote("JSDocCategoryNormalizationStatus", {
+export const JSDocCategoryNormalizationStatus = LiteralKit(["canonical", "alias", "rejected", "unknown"]).pipe(
+  $I.annoteSchema("JSDocCategoryNormalizationStatus", {
     description: "Normalization status for an observed @category value.",
   })
 );

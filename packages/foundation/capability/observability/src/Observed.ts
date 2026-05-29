@@ -38,11 +38,9 @@ const $I = $ObservabilityId.create("Observed");
  * @category models
  */
 export const ObservedError = S.Error.pipe(
-  S.annotate(
-    $I.annote("ObservedError", {
-      description: "A transport-safe schema for expected errors.",
-    })
-  )
+  $I.annoteSchema("ObservedError", {
+    description: "A transport-safe schema for expected errors.",
+  })
 );
 
 /**
@@ -78,11 +76,9 @@ export type ObservedError = typeof ObservedError.Type;
  * @category models
  */
 export const ObservedErrorWithStack = S.ErrorWithStack.pipe(
-  S.annotate(
-    $I.annote("ObservedErrorWithStack", {
-      description: "A transport-safe schema for expected errors that preserves stacks.",
-    })
-  )
+  $I.annoteSchema("ObservedErrorWithStack", {
+    description: "A transport-safe schema for expected errors that preserves stacks.",
+  })
 );
 
 /**
@@ -118,11 +114,9 @@ export type ObservedErrorWithStack = typeof ObservedErrorWithStack.Type;
  * @category models
  */
 export const ObservedDefect = S.Defect.pipe(
-  S.annotate(
-    $I.annote("ObservedDefect", {
-      description: "A transport-safe schema for defects.",
-    })
-  )
+  $I.annoteSchema("ObservedDefect", {
+    description: "A transport-safe schema for defects.",
+  })
 );
 
 /**
@@ -158,11 +152,9 @@ export type ObservedDefect = typeof ObservedDefect.Type;
  * @category models
  */
 export const ObservedDefectWithStack = S.DefectWithStack.pipe(
-  S.annotate(
-    $I.annote("ObservedDefectWithStack", {
-      description: "A transport-safe schema for defects that preserves stacks when possible.",
-    })
-  )
+  $I.annoteSchema("ObservedDefectWithStack", {
+    description: "A transport-safe schema for defects that preserves stacks when possible.",
+  })
 );
 
 /**
@@ -195,11 +187,9 @@ export type ObservedDefectWithStack = typeof ObservedDefectWithStack.Type;
  * @category models
  */
 export const ObservedCauseReason = S.CauseReason(ObservedErrorWithStack, ObservedDefectWithStack).pipe(
-  S.annotate(
-    $I.annote("ObservedCauseReason", {
-      description: "One serialized failure reason from a Cause.",
-    })
-  )
+  $I.annoteSchema("ObservedCauseReason", {
+    description: "One serialized failure reason from a Cause.",
+  })
 );
 
 /**
@@ -232,11 +222,9 @@ export type ObservedCauseReason = typeof ObservedCauseReason.Type;
  * @category models
  */
 export const ObservedCause = S.Cause(ObservedErrorWithStack, ObservedDefectWithStack).pipe(
-  S.annotate(
-    $I.annote("ObservedCause", {
-      description: "A transport-safe schema for full Effect causes.",
-    })
-  )
+  $I.annoteSchema("ObservedCause", {
+    description: "A transport-safe schema for full Effect causes.",
+  })
 );
 
 /**
@@ -269,11 +257,9 @@ export type ObservedCause = typeof ObservedCause.Type;
  * @category models
  */
 export const ObservedExit = S.Exit(S.Unknown, ObservedErrorWithStack, ObservedDefectWithStack).pipe(
-  S.annotate(
-    $I.annote("ObservedExit", {
-      description: "A transport-safe schema for exits carrying unknown success values.",
-    })
-  )
+  $I.annoteSchema("ObservedExit", {
+    description: "A transport-safe schema for exits carrying unknown success values.",
+  })
 );
 
 /**

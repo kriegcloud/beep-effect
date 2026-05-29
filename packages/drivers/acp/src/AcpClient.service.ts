@@ -6,8 +6,8 @@
  */
 
 import { $AcpId } from "@beep/identity";
-import { A } from "@beep/utils";
-import { Context, Effect, HashMap, HashSet, Layer, Match, Ref } from "effect";
+import { A, thunkEffectVoid } from "@beep/utils";
+import { Context, Effect, flow, HashMap, HashSet, Layer, Match, Ref } from "effect";
 import * as O from "effect/Option";
 import * as RpcClient from "effect/unstable/rpc/RpcClient";
 import * as RpcServer from "effect/unstable/rpc/RpcServer";
@@ -28,6 +28,7 @@ import type * as Stdio from "effect/Stdio";
 import type * as Stream from "effect/Stream";
 import type { ChildProcessSpawner } from "effect/unstable/process";
 import type * as AcpSchema from "./_generated/schema.gen.ts";
+import type { AcpPatchedProtocol } from "./AcpProtocol.service.ts";
 
 const $I = $AcpId.create("client");
 const ACP_CLIENT_PENDING_NOTIFICATION_CAPACITY = 256;
@@ -46,13 +47,13 @@ const ACP_CLIENT_PENDING_NOTIFICATION_CAPACITY = 256;
  * @since 0.0.0
  */
 export interface AcpClientOptions extends AcpProtocol.AcpProtocolLoggingOptions {
-  readonly logger?: (event: AcpProtocol.AcpProtocolLogEvent) => Effect.Effect<void, never>;
+  readonly logger?: (event: AcpProtocol.AcpProtocolLogEvent) => Effect.Effect<void>;
 }
 
 type AcpClientRaw = {
   readonly notifications: Stream.Stream<AcpProtocol.AcpIncomingNotification>;
-  readonly request: (method: string, payload: unknown) => Effect.Effect<unknown, AcpError.AcpError>;
-  readonly notify: (method: string, payload: unknown) => Effect.Effect<void, AcpError.AcpError>;
+  readonly request: AcpPatchedProtocol["request"];
+  readonly notify: AcpPatchedProtocol["notify"];
 };
 
 /**
@@ -383,7 +384,7 @@ export const make = Effect.fn($I`AcpClient_make`)(function* (
     Ref.get(unknownExtNotificationHandler).pipe(
       Effect.flatMap(
         O.match({
-          onNone: () => Effect.void,
+          onNone: thunkEffectVoid,
           onSome: (handler) => handler(method, params),
         })
       )
@@ -399,7 +400,7 @@ export const make = Effect.fn($I`AcpClient_make`)(function* (
       )
     );
 
-  const logNotificationHandlerFailure = (method: string, error: AcpError.AcpError) =>
+  const logNotificationHandlerFailure = (method: string) => (error: AcpError.AcpError) =>
     Effect.logWarning("ACP client notification handler failed").pipe(
       Effect.annotateLogs({
         errorMessage: error.message,
@@ -413,8 +414,8 @@ export const make = Effect.fn($I`AcpClient_make`)(function* (
       registration.handlers,
       (handler) =>
         handler(notification).pipe(
-          Effect.tapError((error) => logNotificationHandlerFailure(method, error)),
-          Effect.catch(() => Effect.void)
+          Effect.tapError(logNotificationHandlerFailure(method)),
+          Effect.catch(thunkEffectVoid)
         ),
       {
         discard: true,
@@ -640,19 +641,19 @@ export const make = Effect.fn($I`AcpClient_make`)(function* (
       notify: transport.notify,
     },
     agent: {
-      initialize: (payload) => callRpc(rpc[AGENT_METHODS.initialize](payload)),
-      authenticate: (payload) => callRpc(rpc[AGENT_METHODS.authenticate](payload)),
-      logout: (payload) => callRpc(rpc[AGENT_METHODS.logout](payload)),
-      createSession: (payload) => callRpc(rpc[AGENT_METHODS.session_new](payload)),
-      loadSession: (payload) => callRpc(rpc[AGENT_METHODS.session_load](payload)),
-      listSessions: (payload) => callRpc(rpc[AGENT_METHODS.session_list](payload)),
-      forkSession: (payload) => callRpc(rpc[AGENT_METHODS.session_fork](payload)),
-      resumeSession: (payload) => callRpc(rpc[AGENT_METHODS.session_resume](payload)),
-      closeSession: (payload) => callRpc(rpc[AGENT_METHODS.session_close](payload)),
-      setSessionModel: (payload) => callRpc(rpc[AGENT_METHODS.session_set_model](payload)),
-      setSessionConfigOption: (payload) => callRpc(rpc[AGENT_METHODS.session_set_config_option](payload)),
-      prompt: (payload) => callRpc(rpc[AGENT_METHODS.session_prompt](payload)),
-      cancel: (payload) => transport.notify(AGENT_METHODS.session_cancel, payload),
+      initialize: flow(rpc[AGENT_METHODS.initialize], callRpc),
+      authenticate: flow(rpc[AGENT_METHODS.authenticate], callRpc),
+      logout: flow(rpc[AGENT_METHODS.logout], callRpc),
+      createSession: flow(rpc[AGENT_METHODS.session_new], callRpc),
+      loadSession: flow(rpc[AGENT_METHODS.session_load], callRpc),
+      listSessions: flow(rpc[AGENT_METHODS.session_list], callRpc),
+      forkSession: flow(rpc[AGENT_METHODS.session_fork], callRpc),
+      resumeSession: flow(rpc[AGENT_METHODS.session_resume], callRpc),
+      closeSession: flow(rpc[AGENT_METHODS.session_close], callRpc),
+      setSessionModel: flow(rpc[AGENT_METHODS.session_set_model], callRpc),
+      setSessionConfigOption: flow(rpc[AGENT_METHODS.session_set_config_option], callRpc),
+      prompt: flow(rpc[AGENT_METHODS.session_prompt], callRpc),
+      cancel: transport.notify(AGENT_METHODS.session_cancel),
     },
     handleRequestPermission,
     handleElicitation,

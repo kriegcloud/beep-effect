@@ -66,8 +66,8 @@ const GITHUB_CHECK_MODES = ["quality", "repo-sanity", "secrets", "security", "sa
  * @category models
  * @since 0.0.0
  */
-export const QualityTaskName = LiteralKit(QUALITY_TASK_NAMES).annotate(
-  $I.annote("QualityTaskName", {
+export const QualityTaskName = LiteralKit(QUALITY_TASK_NAMES).pipe(
+  $I.annoteSchema("QualityTaskName", {
     description: "Canonical quality task name handled by beep-cli.",
   })
 );
@@ -875,6 +875,7 @@ const rootRepoLintPolicySteps = (repoRoot: string): ReadonlyArray<QualityTaskSte
   bunxStep(repoRoot, "lint:markdown", ["markdownlint-cli2"]),
   repoCliStep(repoRoot, "lint:circular", ["lint", "circular"]),
   repoCliStep(repoRoot, "lint:tooling-tagged-errors", ["lint", "tooling-tagged-errors"]),
+  repoCliStep(repoRoot, "lint:clones", ["reuse", "clones", "--check"]),
   bunxStep(repoRoot, "lint:typos", ["typos"]),
 ];
 

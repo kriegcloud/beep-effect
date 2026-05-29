@@ -9,6 +9,7 @@ import { $AiProviderCliId } from "@beep/identity";
 import { thunkEmptyStr } from "@beep/utils";
 import { Context, Effect, Layer, Match, Stream } from "effect";
 import * as A from "effect/Array";
+import * as S from "effect/Schema";
 import { ChildProcess, ChildProcessSpawner } from "effect/unstable/process";
 import { AiProviderCliError } from "./AiProviderCli.errors.ts";
 import { AiProviderCliAuthProbe, AiProviderCliProcessResult } from "./AiProviderCli.models.ts";
@@ -50,10 +51,15 @@ interface AiProviderCliShape {
  * @category models
  * @since 0.0.0
  */
-type AiProviderCliPaths = {
-  readonly claudePath?: string | undefined;
-  readonly codexPath?: string | undefined;
-};
+class AiProviderCliPaths extends S.Class<AiProviderCliPaths>($I`AiProviderCliPaths`)(
+  {
+    claudePath: S.optionalKey(S.String),
+    codexPath: S.optionalKey(S.String),
+  },
+  $I.annote("AiProviderCliPaths", {
+    description: "Configuration for the AI provider CLI executable paths",
+  })
+) {}
 
 const commandFor = (
   paths: AiProviderCliPaths,

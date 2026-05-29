@@ -95,11 +95,9 @@ const UnknownToTemplateHelperString = S.Unknown.pipe(
       encode: identity,
     })
   ),
-  S.annotate(
-    $I.annote("UnknownToTemplateHelperString", {
-      description: "Schema transformation that normalizes helper arguments to template-safe strings.",
-    })
-  )
+  $I.annoteSchema("UnknownToTemplateHelperString", {
+    description: "Schema transformation that normalizes helper arguments to template-safe strings.",
+  })
 );
 
 const decodeTemplateHelperString = S.decodeUnknownOption(UnknownToTemplateHelperString);

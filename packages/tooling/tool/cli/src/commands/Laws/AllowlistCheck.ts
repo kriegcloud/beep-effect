@@ -36,18 +36,16 @@ const ALLOWLIST_SNAPSHOT_PATH =
   "packages/tooling/policy-pack/repo-configs/src/internal/eslint/generated/EffectLawsAllowlistSnapshot.ts";
 const NO_NATIVE_RUNTIME_RULE_ID = "beep-laws/no-native-runtime";
 
-const NonEmptyString = S.String.check(
-  S.makeFilter((value) => value.length > 0 || "Expected non-empty string.")
-).annotate(
-  $I.annote("NonEmptyString", {
+const NonEmptyString = S.String.check(S.makeFilter((value) => value.length > 0 || "Expected non-empty string.")).pipe(
+  $I.annoteSchema("NonEmptyString", {
     description: "Non-empty string value used for effect-laws allowlist fields.",
   })
 );
 
 const DateYmdString = S.String.check(
   S.makeFilter(/^[0-9]{4}-[0-9]{2}-[0-9]{2}$/.test || "Expected YYYY-MM-DD date string format.")
-).annotate(
-  $I.annote("DateYmdString", {
+).pipe(
+  $I.annoteSchema("DateYmdString", {
     description: "Calendar date string in YYYY-MM-DD format for allowlist expiration.",
   })
 );

@@ -29,8 +29,8 @@ const SingleCharacterText = S.String.check(
     description: "A string that must contain exactly one character.",
     message: "delimiter option must be one character long",
   })
-).annotate(
-  $I.annote("SingleCharacterText", {
+).pipe(
+  $I.annoteSchema("SingleCharacterText", {
     description: "A string that must contain exactly one character.",
   })
 );

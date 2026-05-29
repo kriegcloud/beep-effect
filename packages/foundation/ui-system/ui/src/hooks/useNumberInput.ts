@@ -82,11 +82,9 @@ const NumberInputText = S.String.check(
     message: "Number input text must be a valid editable numeric string.",
   })
 ).pipe(
-  S.annotate(
-    $I.annote("NumberInputText", {
-      description: "Editable text accepted by the number input during typing.",
-    })
-  )
+  $I.annoteSchema("NumberInputText", {
+    description: "Editable text accepted by the number input during typing.",
+  })
 );
 
 const isNumberInputText = S.is(NumberInputText);
@@ -95,11 +93,9 @@ const isCoarseStepModifier = P.Tuple([P.isTruthy, P.isUnknown]);
 const isFineStepModifier = P.Tuple([P.isUnknown, P.isTruthy]);
 
 const NonNegativePrecision = S.Number.check(S.isInt(), S.isGreaterThanOrEqualTo(0)).pipe(
-  S.annotate(
-    $I.annote("NonNegativePrecision", {
-      description: "A non-negative integer precision used for fixed-point formatting.",
-    })
-  )
+  $I.annoteSchema("NonNegativePrecision", {
+    description: "A non-negative integer precision used for fixed-point formatting.",
+  })
 );
 
 const normalizeEventKey = (event: KeyboardLikeEvent): O.Option<NumberInputEventKey> =>

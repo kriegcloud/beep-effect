@@ -180,11 +180,9 @@ const CryptoWalletAddressChecks = S.makeFilterGroup(
  */
 export const CryptoWalletAddress = S.NonEmptyString.check(CryptoWalletAddressChecks).pipe(
   S.brand("CryptoWalletAddress"),
-  S.annotate(
-    $I.annote("CryptoWalletAddress", {
-      description: "Canonical mainnet wallet address for supported EVM, Bitcoin, and Solana networks.",
-    })
-  )
+  $I.annoteSchema("CryptoWalletAddress", {
+    description: "Canonical mainnet wallet address for supported EVM, Bitcoin, and Solana networks.",
+  })
 );
 
 /**
@@ -206,12 +204,9 @@ export const CryptoWalletAddressRedacted = CryptoWalletAddress.pipe(
   SchemaUtils.withStatics(() => ({
     makeRedacted: flow(CryptoWalletAddress.make, Redacted.make),
   })),
-  S.annotate(
-    $I.annote("CryptoWalletAddressRedacted", {
-      description:
-        "Redacted Canonical mainnet wallet address for supported" + " EVM," + " Bitcoin, and Solana networks.",
-    })
-  )
+  $I.annoteSchema("CryptoWalletAddressRedacted", {
+    description: "Redacted Canonical mainnet wallet address for supported" + " EVM," + " Bitcoin, and Solana networks.",
+  })
 );
 
 /**

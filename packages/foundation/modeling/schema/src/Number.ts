@@ -191,8 +191,8 @@ export const NonNegativeInt = S.Int.pipe(S.brand("Int"))
       description: "A non-negative integer",
     })
   )
-  .annotate(
-    $I.annote("NonNegativeInt", {
+  .pipe(
+    $I.annoteSchema("NonNegativeInt", {
       description: "A non-negative integer",
     })
   );

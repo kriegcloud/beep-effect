@@ -133,8 +133,8 @@ export type PhoenixAnnotatorKind = typeof PhoenixAnnotatorKind.Type;
  * @category models
  * @since 0.0.0
  */
-export const PhoenixAnnotationValue = S.Union([S.Boolean, S.Number, S.String]).annotate(
-  $I.annote("PhoenixAnnotationValue", {
+export const PhoenixAnnotationValue = S.Union([S.Boolean, S.Number, S.String]).pipe(
+  $I.annoteSchema("PhoenixAnnotationValue", {
     description: "Primitive annotation value accepted by repo-owned Phoenix annotations.",
   })
 );

@@ -98,20 +98,20 @@ const DocgenQualityWorkerRunpodEvalTemplateStrategy = LiteralKit([
   "explicit-template",
   "existing-template",
   "fallback-image",
-]).annotate(
-  $I.annote("DocgenQualityWorkerRunpodEvalTemplateStrategy", {
+]).pipe(
+  $I.annoteSchema("DocgenQualityWorkerRunpodEvalTemplateStrategy", {
     description: "How the Runpod worker eval pod image or template was selected.",
   })
 );
 
-const DocgenQualityWorkerRunpodEvalCleanupStatus = LiteralKit(["completed", "failed", "skipped-debug-keep"]).annotate(
-  $I.annote("DocgenQualityWorkerRunpodEvalCleanupStatus", {
+const DocgenQualityWorkerRunpodEvalCleanupStatus = LiteralKit(["completed", "failed", "skipped-debug-keep"]).pipe(
+  $I.annoteSchema("DocgenQualityWorkerRunpodEvalCleanupStatus", {
     description: "Cleanup outcome for a Runpod worker eval pod.",
   })
 );
 
-const DocgenQualityWorkerRunpodEvalOtlpStatus = LiteralKit(["disabled", "exported", "failed"]).annotate(
-  $I.annote("DocgenQualityWorkerRunpodEvalOtlpStatus", {
+const DocgenQualityWorkerRunpodEvalOtlpStatus = LiteralKit(["disabled", "exported", "failed"]).pipe(
+  $I.annoteSchema("DocgenQualityWorkerRunpodEvalOtlpStatus", {
     description: "OTLP export outcome for a Runpod worker eval wrapper report.",
   })
 );
@@ -700,7 +700,7 @@ const acquireRunpodPod = Effect.fn("DocgenQualityWorkerRunpodEval.acquireRunpodP
         podId,
       })
     )
-    .pipe(Effect.catch(() => Effect.succeed(created)));
+    .pipe(Effect.orElseSucceed(() => created));
 
   return {
     bootstrap: DocgenQualityWorkerRunpodEvalBootstrap.make({

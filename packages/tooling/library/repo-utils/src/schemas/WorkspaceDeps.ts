@@ -24,8 +24,8 @@ const $I = $RepoUtilsId.create("schemas/WorkspaceDeps");
  * @category models
  * @since 0.0.0
  */
-export const DependencyRecord = S.Record(S.String, S.String).annotate(
-  $I.annote("DependencyRecord", {
+export const DependencyRecord = S.Record(S.String, S.String).pipe(
+  $I.annoteSchema("DependencyRecord", {
     description: "A mapping of dependency package names to version specifiers.",
   })
 );

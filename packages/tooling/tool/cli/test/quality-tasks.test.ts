@@ -502,7 +502,7 @@ describe("quality task adapter", () => {
   it("delegates affected root lint to the aggregate repo lint lane and repo-wide policy checks", () => {
     const steps = rootQualityStepsForTesting("/repo", getInvocation(["lint", "--affected", "--summarize"]));
 
-    expect(steps).toHaveLength(18);
+    expect(steps).toHaveLength(19);
     expect(steps[0]?.args).toEqual(expectedTurboArgs("lint", ["--affected", "--summarize"]));
     expect(steps[3]).toMatchObject({
       label: "lint:effect-fn",
@@ -527,6 +527,7 @@ describe("quality task adapter", () => {
       "lint:markdown",
       "lint:circular",
       "lint:tooling-tagged-errors",
+      "lint:clones",
       "lint:typos",
     ]);
   });

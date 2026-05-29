@@ -40,11 +40,9 @@ const EthereumValidatorPublicKeyChecks = S.makeFilterGroup(
  */
 export const EthereumValidatorPublicKey = S.String.check(EthereumValidatorPublicKeyChecks).pipe(
   S.brand("EthereumValidatorPublicKey"),
-  S.annotate(
-    $I.annote("EthereumValidatorPublicKey", {
-      description: "Canonical lowercase 0x-prefixed compressed Ethereum validator public key.",
-    })
-  )
+  $I.annoteSchema("EthereumValidatorPublicKey", {
+    description: "Canonical lowercase 0x-prefixed compressed Ethereum validator public key.",
+  })
 );
 
 /**
@@ -66,11 +64,9 @@ export const EthereumValidatorPublicKeyRedacted = EthereumValidatorPublicKey.pip
   SchemaUtils.withStatics(() => ({
     makeRedacted: flow(EthereumValidatorPublicKey.make, Redacted.make),
   })),
-  S.annotate(
-    $I.annote("EthereumValidatorPublicKeyRedacted", {
-      description: "Redacted canonical lowercase 0x-prefixed compressed Ethereum validator public key.",
-    })
-  )
+  $I.annoteSchema("EthereumValidatorPublicKeyRedacted", {
+    description: "Redacted canonical lowercase 0x-prefixed compressed Ethereum validator public key.",
+  })
 );
 
 /**

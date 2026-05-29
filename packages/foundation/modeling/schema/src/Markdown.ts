@@ -124,12 +124,10 @@ export const Markdown = S.String.pipe(
     decode: SchemaGetter.transformOrFail(decodeMarkdownText),
     encode: SchemaGetter.transform((content: string): string => content),
   }),
-  S.annotate(
-    $I.annote("Markdown", {
-      description:
-        "A Markdown document string accepted by Bun Markdown or the platform-agnostic micromark GFM fallback parser.",
-    })
-  )
+  $I.annoteSchema("Markdown", {
+    description:
+      "A Markdown document string accepted by Bun Markdown or the platform-agnostic micromark GFM fallback parser.",
+  })
 );
 
 /**
@@ -174,11 +172,9 @@ export const MarkdownTextToHtml = (options?: MarkdownRenderOptions) => {
       decode: SchemaGetter.transformOrFail(renderMarkdownHtml),
       encode: SchemaGetter.transformOrFail(encodeUnsupported),
     }),
-    S.annotate(
-      $I.annote("MarkdownTextToHtml", {
-        description: "Schema factory that renders Markdown text into HTML text with Bun's Markdown runtime.",
-      })
-    )
+    $I.annoteSchema("MarkdownTextToHtml", {
+      description: "Schema factory that renders Markdown text into HTML text with Bun's Markdown runtime.",
+    })
   );
 };
 

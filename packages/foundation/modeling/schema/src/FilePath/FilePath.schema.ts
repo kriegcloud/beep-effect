@@ -28,8 +28,8 @@ const SupportedPathFamilyKit = LiteralKit([
  * @since 0.0.0
  * @category validation
  */
-export const SupportedPathFamily = SupportedPathFamilyKit.annotate(
-  $I.annote("SupportedPathFamily", {
+export const SupportedPathFamily = SupportedPathFamilyKit.pipe(
+  $I.annoteSchema("SupportedPathFamily", {
     description: "The supported filesystem path families recognized by FilePath.",
   })
 );
@@ -138,11 +138,9 @@ const FilePathChecks = S.makeFilterGroup(
  */
 export const FilePath = S.String.check(FilePathChecks).pipe(
   S.brand("FilePath"),
-  S.annotate(
-    $I.annote("FilePath", {
-      description: "A file path string valid for at least one supported operating-system path family.",
-    })
-  )
+  $I.annoteSchema("FilePath", {
+    description: "A file path string valid for at least one supported operating-system path family.",
+  })
 );
 
 /**

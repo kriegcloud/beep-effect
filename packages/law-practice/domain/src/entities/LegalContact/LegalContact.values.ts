@@ -23,8 +23,8 @@ const $I = $LawPracticeDomainId.create("entities/LegalContact/LegalContact.value
  * @category schemas
  * @since 0.0.0
  */
-export const LegalContactRole = LiteralKit(["founder"]).annotate(
-  $I.annote("LegalContactRole", {
+export const LegalContactRole = LiteralKit(["founder"]).pipe(
+  $I.annoteSchema("LegalContactRole", {
     description: "Legal contact role vocabulary represented in proof seeds.",
   })
 );

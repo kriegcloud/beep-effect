@@ -55,14 +55,14 @@ const DualArityEntryKind = LiteralKit([
   "exported-const-function",
   "static-method",
   "static-function-property",
-]).annotate(
-  $I.annote("DualArityEntryKind", {
+]).pipe(
+  $I.annoteSchema("DualArityEntryKind", {
     description: "Kinds of public helper APIs tracked by the dual-arity law.",
   })
 );
 
-const DualArityEntryStatus = LiteralKit(["candidate", "exception"]).annotate(
-  $I.annote("DualArityEntryStatus", {
+const DualArityEntryStatus = LiteralKit(["candidate", "exception"]).pipe(
+  $I.annoteSchema("DualArityEntryStatus", {
     description: "Tracked status for a dual-arity inventory entry.",
   })
 );
@@ -75,8 +75,8 @@ const DualArityDiagnosticKind = LiteralKit([
   "too-many-positional-params",
   "third-param-not-object-like",
   "obvious-wrong-first-parameter",
-]).annotate(
-  $I.annote("DualArityDiagnosticKind", {
+]).pipe(
+  $I.annoteSchema("DualArityDiagnosticKind", {
     description: "Diagnostic kinds emitted by the public API dual-arity law.",
   })
 );

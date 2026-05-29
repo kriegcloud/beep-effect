@@ -61,8 +61,8 @@ const serviceContractMetadata = (canonicalName: string, overview: string) =>
  * @since 0.0.0
  * @category models
  */
-export const ProvenanceExportProfile = LiteralKit(["prov-core-v1", "prov-core-extensions-v1"]).annotate(
-  $I.annote("ProvenanceExportProfile", {
+export const ProvenanceExportProfile = LiteralKit(["prov-core-v1", "prov-core-extensions-v1"]).pipe(
+  $I.annoteSchema("ProvenanceExportProfile", {
     description: "Provenance export profile.",
   })
 );

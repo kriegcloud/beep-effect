@@ -22,8 +22,8 @@ const $I = $SandboxId.create("Template");
  * @category schemas
  * @since 0.0.0
  */
-export const SandboxTemplateName = LiteralKit(["blank", "simple-loop"]).annotate(
-  $I.annote("SandboxTemplateName", {
+export const SandboxTemplateName = LiteralKit(["blank", "simple-loop"]).pipe(
+  $I.annoteSchema("SandboxTemplateName", {
     description: "Supported scaffold template names.",
   })
 );

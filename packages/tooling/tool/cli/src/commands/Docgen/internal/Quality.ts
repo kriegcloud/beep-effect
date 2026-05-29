@@ -100,8 +100,8 @@ const decodeContentHashFromSourceText = S.decodeUnknownEffect(ContentHashFromSou
  * @category models
  * @since 0.0.0
  */
-export const DocgenQualityScopeMode = LiteralKit(["affected", "package", "changed-files", "all"]).annotate(
-  $I.annote("DocgenQualityScopeMode", {
+export const DocgenQualityScopeMode = LiteralKit(["affected", "package", "changed-files", "all"]).pipe(
+  $I.annoteSchema("DocgenQualityScopeMode", {
     description: "Scope mode supported by docgen quality.",
   })
 );
@@ -133,8 +133,8 @@ export type DocgenQualityScopeMode = typeof DocgenQualityScopeMode.Type;
  * @category models
  * @since 0.0.0
  */
-export const DocgenQualityScoreMode = LiteralKit(["none", "rubric", "codex"]).annotate(
-  $I.annote("DocgenQualityScoreMode", {
+export const DocgenQualityScoreMode = LiteralKit(["none", "rubric", "codex"]).pipe(
+  $I.annoteSchema("DocgenQualityScoreMode", {
     description: "Optional advisory scoring mode for docgen quality.",
   })
 );
@@ -166,8 +166,8 @@ export type DocgenQualityScoreMode = typeof DocgenQualityScoreMode.Type;
  * @category models
  * @since 0.0.0
  */
-export const DocgenQualityTier = LiteralKit(["pass", "warn", "fail"]).annotate(
-  $I.annote("DocgenQualityTier", {
+export const DocgenQualityTier = LiteralKit(["pass", "warn", "fail"]).pipe(
+  $I.annoteSchema("DocgenQualityTier", {
     description: "Quality tier assigned to a JSDoc review subject.",
   })
 );
@@ -187,8 +187,8 @@ export const DocgenQualityTier = LiteralKit(["pass", "warn", "fail"]).annotate(
  */
 export type DocgenQualityTier = typeof DocgenQualityTier.Type;
 
-const DocgenQualityPackageStatus = LiteralKit(["completed", "partial", "failed"]).annotate(
-  $I.annote("DocgenQualityPackageStatus", {
+const DocgenQualityPackageStatus = LiteralKit(["completed", "partial", "failed"]).pipe(
+  $I.annoteSchema("DocgenQualityPackageStatus", {
     description: "Completion status for a package-local docgen quality analysis.",
   })
 );
@@ -219,8 +219,8 @@ export const DocgenQualityFindingCode = LiteralKit([
   "example-lacks-observable-result",
   "missing-effects-for-effectful-symbol",
   "insufficient-agent-context",
-]).annotate(
-  $I.annote("DocgenQualityFindingCode", {
+]).pipe(
+  $I.annoteSchema("DocgenQualityFindingCode", {
     description: "Typed finding code emitted by the v1 quality rubric.",
   })
 );

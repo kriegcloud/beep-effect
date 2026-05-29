@@ -118,20 +118,16 @@ const TSTYCHE_TEST_FILE_MATCH_PATTERN = /\/dtslint\/\*\*\/\*\.tst\.\*$/;
 
 const PackagePath = S.String.check(S.isPattern(PACKAGE_PATH_PATTERN)).pipe(
   S.brand("PackagePath"),
-  S.annotate(
-    $I.annote("PackagePath", {
-      description: "Repo-relative package path segment used by root config updaters.",
-    })
-  )
+  $I.annoteSchema("PackagePath", {
+    description: "Repo-relative package path segment used by root config updaters.",
+  })
 );
 
 const TstycheTestFileMatchPattern = S.String.check(S.isPattern(TSTYCHE_TEST_FILE_MATCH_PATTERN)).pipe(
   S.brand("TstycheTestFileMatchPattern"),
-  S.annotate(
-    $I.annote("TstycheTestFileMatchPattern", {
-      description: "tstyche testFileMatch glob pattern for dtslint test files.",
-    })
-  )
+  $I.annoteSchema("TstycheTestFileMatchPattern", {
+    description: "tstyche testFileMatch glob pattern for dtslint test files.",
+  })
 );
 
 const PackagePathToTstychePattern = PackagePath.pipe(
@@ -142,11 +138,9 @@ const PackagePathToTstychePattern = PackagePath.pipe(
       encode: flow(Str.replace(TSTYCHE_TEST_FILE_MATCH_PATTERN, Str.empty), PackagePath.make),
     })
   ),
-  S.annotate(
-    $I.annote("PackagePathToTstychePattern", {
-      description: "Schema transformation from package path to tstyche testFileMatch glob.",
-    })
-  )
+  $I.annoteSchema("PackagePathToTstychePattern", {
+    description: "Schema transformation from package path to tstyche testFileMatch glob.",
+  })
 );
 
 const decodeTstychePattern = S.decodeUnknownOption(PackagePathToTstychePattern);
@@ -158,8 +152,8 @@ const toTstychePattern = (packagePath: string): string =>
   );
 const isPackagePath = S.is(PackagePath);
 const stringArrayEquivalence = S.toEquivalence(S.Array(S.String));
-const JsoncUnknownObject = S.Record(S.String, S.Unknown).annotate(
-  $I.annote("JsoncUnknownObject", {
+const JsoncUnknownObject = S.Record(S.String, S.Unknown).pipe(
+  $I.annoteSchema("JsoncUnknownObject", {
     description: "Generic decoded JSONC object document map.",
   })
 );

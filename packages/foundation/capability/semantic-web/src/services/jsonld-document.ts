@@ -50,8 +50,8 @@ export const JsonLdDocumentErrorReason = LiteralKit([
   "framingFailure",
   "loaderPolicyViolation",
   "normalizationFailure",
-]).annotate(
-  $I.annote("JsonLdDocumentErrorReason", {
+]).pipe(
+  $I.annoteSchema("JsonLdDocumentErrorReason", {
     description: "JSON-LD document error reason.",
   })
 );
@@ -207,8 +207,8 @@ export class JsonLdDocumentLoaderPolicy extends S.Class<JsonLdDocumentLoaderPoli
  * @since 0.0.0
  * @category models
  */
-export const JsonLdDocumentNormalizationProfile = LiteralKit(["bounded-v1", "expanded-v1"]).annotate(
-  $I.annote("JsonLdDocumentNormalizationProfile", {
+export const JsonLdDocumentNormalizationProfile = LiteralKit(["bounded-v1", "expanded-v1"]).pipe(
+  $I.annoteSchema("JsonLdDocumentNormalizationProfile", {
     description: "JSON-LD document normalization profile.",
   })
 );

@@ -56,11 +56,9 @@ const computeSha256Hex = (input: Uint8Array): Effect.Effect<string, SchemaIssue.
  */
 export const Sha256Hex = S.String.check(Sha256HexChecks).pipe(
   S.brand("Sha256Hex"),
-  S.annotate(
-    $I.annote("Sha256Hex", {
-      description: "A canonical lowercase SHA-256 hex digest.",
-    })
-  )
+  $I.annoteSchema("Sha256Hex", {
+    description: "A canonical lowercase SHA-256 hex digest.",
+  })
 );
 
 /**
@@ -103,11 +101,9 @@ export const Sha256HexFromBytes = S.Uint8Array.pipe(
     decode: SchemaGetter.transformOrFail(computeSha256Hex),
     encode: SchemaGetter.forbidden(() => "Encoding Sha256Hex back to original bytes is not supported"),
   }),
-  S.annotate(
-    $I.annote("Sha256HexFromBytes", {
-      description: "A one-way schema that hashes bytes into a canonical lowercase SHA-256 hex digest.",
-    })
-  )
+  $I.annoteSchema("Sha256HexFromBytes", {
+    description: "A one-way schema that hashes bytes into a canonical lowercase SHA-256 hex digest.",
+  })
 );
 
 /**
@@ -146,11 +142,9 @@ export type Sha256HexFromBytes = typeof Sha256HexFromBytes.Type;
  */
 export const Sha256HexFromHexBytes = S.Uint8ArrayFromHex.pipe(
   S.decodeTo(Sha256HexFromBytes),
-  S.annotate(
-    $I.annote("Sha256HexFromHexBytes", {
-      description: "A one-way schema that hashes hex-encoded bytes into a canonical lowercase SHA-256 hex digest.",
-    })
-  )
+  $I.annoteSchema("Sha256HexFromHexBytes", {
+    description: "A one-way schema that hashes hex-encoded bytes into a canonical lowercase SHA-256 hex digest.",
+  })
 );
 
 /**
