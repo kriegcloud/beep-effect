@@ -8,7 +8,7 @@
 import { $AcpId } from "@beep/identity";
 import { LiteralKit } from "@beep/schema";
 import { A } from "@beep/utils";
-import { Deferred, Effect, HashMap, HashSet, Inspectable, Match, Queue, Ref, Stream } from "effect";
+import { Deferred, Effect, HashMap, HashSet, Inspectable, Match, Queue, Ref, Stream, Tuple } from "effect";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
@@ -71,6 +71,61 @@ const ACP_STDIO_CLIENT_IDS = {
   values: () => singleValueSetIterator(ACP_STDIO_CLIENT_ID),
 } satisfies MinimalReadonlySet<number> as unknown as ReadonlySet<number>;
 
+const AcpProtocolLogDirection = LiteralKit(["incoming", "outgoing"]);
+type AcpProtocolLogDirection = typeof AcpProtocolLogDirection.Type;
+const AcpProtocolLogStage = LiteralKit(["raw", "decoded", "decode_failed"]);
+type AcpProtocolLogStage = typeof AcpProtocolLogStage.Type;
+type AcpProtocolLogEventMember<T extends AcpProtocolLogDirection> = {
+  readonly direction: T;
+  readonly payload: unknown;
+  readonly stage: AcpProtocolLogStage;
+};
+
+/**
+ * Structured log event emitted by the ACP protocol adapter.
+ *
+ * @example
+ * ```ts
+ * import { AcpProtocolLogEvent } from "@beep/acp/protocol"
+ *
+ * console.log(AcpProtocolLogEvent.ast)
+ * ```
+ *
+ * @category observability
+ * @since 0.0.0
+ */
+export const AcpProtocolLogEvent = AcpProtocolLogDirection.mapMembers(
+  Tuple.evolve([
+    (literal: S.Literal<"incoming">) =>
+      S.Class<AcpProtocolLogEventMember<"incoming">>($I`AcpProtocolLogIncomingEvent`)(
+        {
+          direction: S.tag(literal.literal),
+          payload: S.Unknown,
+          stage: AcpProtocolLogStage,
+        },
+        $I.annote("AcpProtocolLogIncomingEvent", {
+          description: "Structured incoming log event emitted by the ACP protocol adapter.",
+        })
+      ),
+    (literal: S.Literal<"outgoing">) =>
+      S.Class<AcpProtocolLogEventMember<"outgoing">>($I`AcpProtocolLogOutgoingEvent`)(
+        {
+          direction: S.tag(literal.literal),
+          payload: S.Unknown,
+          stage: AcpProtocolLogStage,
+        },
+        $I.annote("AcpProtocolLogOutgoingEvent", {
+          description: "Structured outgoing log event emitted by the ACP protocol adapter.",
+        })
+      ),
+  ])
+).pipe(
+  $I.annoteSchema("AcpProtocolLogEvent", {
+    description: "Structured log event emitted by the ACP protocol adapter.",
+  }),
+  S.toTaggedUnion("direction")
+);
+
 /**
  * Structured log event emitted by the ACP protocol adapter.
  *
@@ -86,19 +141,10 @@ const ACP_STDIO_CLIENT_IDS = {
  * console.log(event.stage)
  * ```
  *
- * @category observability
+ * @category models
  * @since 0.0.0
  */
-export class AcpProtocolLogEvent extends S.Class<AcpProtocolLogEvent>($I`AcpProtocolLogEvent`)(
-  {
-    direction: LiteralKit(["incoming", "outgoing"]),
-    payload: S.Unknown,
-    stage: LiteralKit(["raw", "decoded", "decode_failed"]),
-  },
-  $I.annote("AcpProtocolLogEvent", {
-    description: "Structured log event emitted by the ACP protocol adapter.",
-  })
-) {}
+export type AcpProtocolLogEvent = typeof AcpProtocolLogEvent.Type;
 
 /**
  * Schema-backed ACP protocol logging flags.
@@ -190,10 +236,10 @@ export type AcpIncomingNotification = typeof AcpIncomingNotification.Type;
  * @since 0.0.0
  */
 export interface AcpPatchedProtocolOptions extends AcpProtocolLoggingOptions {
-  readonly logger?: (event: AcpProtocolLogEvent) => Effect.Effect<void, never>;
-  readonly onExtRequest?: (method: string, params: unknown) => Effect.Effect<unknown, AcpError.AcpError, never>;
-  readonly onNotification?: (notification: AcpIncomingNotification) => Effect.Effect<void, AcpError.AcpError, never>;
-  readonly onTermination?: (error: AcpError.AcpError) => Effect.Effect<void, never, never>;
+  readonly logger?: (event: AcpProtocolLogEvent) => Effect.Effect<void>;
+  readonly onExtRequest?: (method: string, params: unknown) => Effect.Effect<unknown, AcpError.AcpError>;
+  readonly onNotification?: (notification: AcpIncomingNotification) => Effect.Effect<void, AcpError.AcpError>;
+  readonly onTermination?: (error: AcpError.AcpError) => Effect.Effect<void>;
   readonly serverRequestMethods: HashSet.HashSet<string>;
   readonly stdio: Stdio.Stdio;
   readonly terminationError?: Effect.Effect<AcpError.AcpError>;
@@ -216,8 +262,14 @@ export interface AcpPatchedProtocolOptions extends AcpProtocolLoggingOptions {
 export interface AcpPatchedProtocol {
   readonly clientProtocol: RpcClient.Protocol["Service"];
   readonly incoming: Stream.Stream<AcpIncomingNotification>;
-  readonly notify: (method: string, payload: unknown) => Effect.Effect<void, AcpError.AcpError>;
-  readonly request: (method: string, payload: unknown) => Effect.Effect<unknown, AcpError.AcpError>;
+  readonly notify: {
+    (method: string, payload: unknown): Effect.Effect<void, AcpError.AcpError>;
+    (method: string): (payload: unknown) => Effect.Effect<void, AcpError.AcpError>;
+  };
+  readonly request: {
+    (method: string, payload: unknown): Effect.Effect<unknown, AcpError.AcpError>;
+    (method: string): (payload: unknown) => Effect.Effect<unknown, AcpError.AcpError>;
+  };
   readonly serverProtocol: RpcServer.Protocol["Service"];
 }
 
@@ -257,7 +309,7 @@ export const makeAcpPatchedProtocol = Effect.fn($I`makeAcpPatchedProtocol`)(func
   const clientQueue = yield* Queue.bounded<RpcMessage.FromServerEncoded>(ACP_PROTOCOL_QUEUE_CAPACITY);
   const notificationQueue = yield* Queue.bounded<AcpIncomingNotification>(ACP_PROTOCOL_QUEUE_CAPACITY);
   const disconnects = yield* Queue.bounded<number>(ACP_PROTOCOL_DISCONNECT_QUEUE_CAPACITY);
-  const outgoing = yield* Queue.bounded<string | Uint8Array, Cause.Done<void>>(ACP_PROTOCOL_QUEUE_CAPACITY);
+  const outgoing = yield* Queue.bounded<string | Uint8Array, Cause.Done>(ACP_PROTOCOL_QUEUE_CAPACITY);
   const nextRequestId = yield* Ref.make(1n);
   const terminationHandled = yield* Ref.make(false);
   const extPending = yield* Ref.make(HashMap.empty<string, Deferred.Deferred<unknown, AcpError.AcpError>>());
@@ -635,7 +687,7 @@ export const makeAcpPatchedProtocol = Effect.fn($I`makeAcpPatchedProtocol`)(func
     supportsTransferables: false,
   });
 
-  const sendNotification = Effect.fn($I`sendNotification`)(function* (method: string, payload: unknown) {
+  const sendNotificationEffect = Effect.fn($I`sendNotification`)(function* (method: string, payload: unknown) {
     yield* offerOutgoing({
       _tag: "Request",
       headers: [],
@@ -645,7 +697,19 @@ export const makeAcpPatchedProtocol = Effect.fn($I`makeAcpPatchedProtocol`)(func
     });
   });
 
-  const sendRequest = Effect.fn($I`sendRequest`)(function* (method: string, payload: unknown) {
+  function sendNotification(method: string, payload: unknown): Effect.Effect<void, AcpError.AcpError>;
+  function sendNotification(method: string): (payload: unknown) => Effect.Effect<void, AcpError.AcpError>;
+  function sendNotification(
+    method: string,
+    payload?: unknown
+  ): Effect.Effect<void, AcpError.AcpError> | ((payload: unknown) => Effect.Effect<void, AcpError.AcpError>) {
+    if (arguments.length === 1) {
+      return (curriedPayload: unknown) => sendNotificationEffect(method, curriedPayload);
+    }
+    return sendNotificationEffect(method, payload);
+  }
+
+  const sendRequestEffect = Effect.fn($I`sendRequest`)(function* (method: string, payload: unknown) {
     const requestId = yield* Ref.modify(nextRequestId, (current) => [current, current + 1n] as const);
     const requestIdString = String(requestId);
     const deferred = yield* Deferred.make<unknown, AcpError.AcpError>();
@@ -659,6 +723,20 @@ export const makeAcpPatchedProtocol = Effect.fn($I`makeAcpPatchedProtocol`)(func
     }).pipe(Effect.catch((error) => removeExtPending(requestIdString).pipe(Effect.andThen(Effect.fail(error)))));
     return yield* Deferred.await(deferred).pipe(Effect.onInterrupt(() => removeExtPending(requestIdString)));
   });
+
+  function sendRequest(method: string, payload: unknown): Effect.Effect<unknown, AcpError.AcpError>;
+  function sendRequest(method: string): (payload: unknown) => Effect.Effect<unknown, AcpError.AcpError>;
+  function sendRequest(
+    method: string,
+    payload?: unknown
+  ):
+    | Effect.Effect<unknown, AcpError.AcpError>
+    | ((payload: unknown) => Effect.Effect<unknown, AcpError.AcpError>) {
+    if (arguments.length === 1) {
+      return (curriedPayload: unknown) => sendRequestEffect(method, curriedPayload);
+    }
+    return sendRequestEffect(method, payload);
+  }
 
   return {
     clientProtocol,
