@@ -49,6 +49,8 @@ unfocuses
 Unifi
 Unradio
 Unsandboxed
+unticked
+unticking
 USPTO
 vsearch
 yeet
