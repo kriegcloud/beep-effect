@@ -262,8 +262,8 @@
     "./XssProtection/*": null,
     "./Yaml": "./src/Yaml.ts",
     "./Yaml/*": null,
-    "./test/Markdown": "./src/test/Markdown.test-kit.ts",
-    "./test/Yaml": "./src/test/Yaml.test-kit.ts",
+    "./test/Markdown": "./src/internal/test/Markdown.test-kit.ts",
+    "./test/Yaml": "./src/internal/test/Yaml.test-kit.ts",
     "./test/*": null,
     "./internal/*": null
   },

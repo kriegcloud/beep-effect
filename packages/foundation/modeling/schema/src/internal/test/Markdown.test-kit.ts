@@ -11,4 +11,4 @@
  * @category testing
  * @since 0.0.0
  */
-export { loadMarkdownGfmModule, loadMarkdownModule, makeParseMarkdownForSchema } from "../internal/markdown.ts";
+export { loadMarkdownGfmModule, loadMarkdownModule, makeParseMarkdownForSchema } from "../markdown.ts";

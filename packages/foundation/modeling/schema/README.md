@@ -69,7 +69,8 @@ not re-exported from `@beep/schema/Csv`.
 
 Package-local tests may use source-only test seams such as
 `@beep/schema/test/Markdown` and `@beep/schema/test/Yaml`. Parser internals
-under `src/internal/` are not public package subpaths.
+under `src/internal/` are not public package subpaths, and the test seam
+implementations live under `src/internal/test`.
 
 Topology is enforced by:
 

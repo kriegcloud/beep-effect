@@ -391,10 +391,10 @@
         "../../../packages/foundation/modeling/schema/src/Yaml.ts"
       ],
       "@beep/schema/test/Markdown": [
-        "../../../packages/foundation/modeling/schema/src/test/Markdown.test-kit.ts"
+        "../../../packages/foundation/modeling/schema/src/internal/test/Markdown.test-kit.ts"
       ],
       "@beep/schema/test/Yaml": [
-        "../../../packages/foundation/modeling/schema/src/test/Yaml.test-kit.ts"
+        "../../../packages/foundation/modeling/schema/src/internal/test/Yaml.test-kit.ts"
       ],
       "@beep/test-utils": [
         "../../../packages/tooling/test-kit/test-utils/src/index.ts"

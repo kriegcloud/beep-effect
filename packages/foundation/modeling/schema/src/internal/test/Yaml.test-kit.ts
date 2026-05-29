@@ -11,4 +11,4 @@
  * @category testing
  * @since 0.0.0
  */
-export { makeParseYaml, makeParseYamlForSchema } from "../internal/yaml.ts";
+export { makeParseYaml, makeParseYamlForSchema } from "../yaml.ts";
