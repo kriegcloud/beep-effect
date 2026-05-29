@@ -332,7 +332,7 @@ const cleanupPatchDir = Effect.fn("SyncOut.cleanupPatchDir")(function* (patchDir
 
   const remainingPatches = yield* fs
     .readDirectory(patchesRoot)
-    .pipe(Effect.catch(() => Effect.succeed(["preserve"] as Array<string>)));
+    .pipe(Effect.orElseSucceed(() => ["preserve"] as Array<string>));
 
   if (remainingPatches.length === 0) {
     yield* fs.remove(patchesRoot, { force: true, recursive: true }).pipe(Effect.ignore);
@@ -340,7 +340,7 @@ const cleanupPatchDir = Effect.fn("SyncOut.cleanupPatchDir")(function* (patchDir
 
   const remainingSandcastleEntries = yield* fs
     .readDirectory(sandcastleDir)
-    .pipe(Effect.catch(() => Effect.succeed(["preserve"] as Array<string>)));
+    .pipe(Effect.orElseSucceed(() => ["preserve"] as Array<string>));
 
   if (remainingSandcastleEntries.length === 0) {
     yield* fs.remove(sandcastleDir, { force: true, recursive: true }).pipe(Effect.ignore);

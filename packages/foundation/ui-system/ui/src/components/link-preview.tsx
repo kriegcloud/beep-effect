@@ -85,7 +85,7 @@ const fetchMetadataHtml = (href: string): Effect.Effect<O.Option<string>> =>
   Effect.tryPromise({
     try: () => window.fetch(href).then((response) => (response.ok ? response.text().then(O.some) : O.none<string>())),
     catch: () => undefined,
-  }).pipe(Effect.catch(() => Effect.succeed(O.none<string>())));
+  }).pipe(Effect.orElseSucceed(() => O.none<string>()));
 
 const getFallbackMetadata = (href: string): UrlMetadata => {
   let origin = href;

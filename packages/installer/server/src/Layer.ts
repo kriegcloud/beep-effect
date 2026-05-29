@@ -247,21 +247,19 @@ const probeCommand = (
       });
     })
   ).pipe(
-    Effect.catch(() =>
-      Effect.succeed(
-        HostDependencyValidationResult.make({
-          dependency: {
-            detectedVersion: O.none(),
-            id: probe.id,
-            installHint: probe.installHint,
-            kind: "cli-tool",
-            name: probe.name,
-            requiredVersion: O.none(),
-            status: "missing",
-          },
-          message: `${probe.name} command is missing or unavailable.`,
-        })
-      )
+    Effect.orElseSucceed(() =>
+      HostDependencyValidationResult.make({
+        dependency: {
+          detectedVersion: O.none(),
+          id: probe.id,
+          installHint: probe.installHint,
+          kind: "cli-tool",
+          name: probe.name,
+          requiredVersion: O.none(),
+          status: "missing",
+        },
+        message: `${probe.name} command is missing or unavailable.`,
+      })
     )
   );
 

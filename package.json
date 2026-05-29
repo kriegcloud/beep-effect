@@ -232,7 +232,7 @@
     "@effect/opentelemetry": "4.0.0-beta.74",
     "@effect/platform-browser": "4.0.0-beta.74",
     "@effect/platform-bun": "4.0.0-beta.74",
-    "@effect/tsgo": "0.11.4",
+    "@effect/tsgo": "0.13.0",
     "@better-auth/core": "^1.7.0-beta.3",
     "better-auth": "^1.7.0-beta.3",
     "@better-auth/passkey": "^1.7.0-beta.3",

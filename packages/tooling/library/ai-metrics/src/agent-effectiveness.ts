@@ -1692,21 +1692,19 @@ const buildAiMetricsSection = Effect.fn("AiMetrics.agentEffectiveness.buildAiMet
   }
 
   return yield* queryAiMetricsSection(input, duckDbPath).pipe(
-    Effect.catch(() =>
-      Effect.succeed(
-        AgentEffectivenessAiMetricsSection.make({
-          benchmarkRunCount: 0,
-          dataRoot: input.dataRoot,
-          derivedDuckDbPath: duckDbPath,
-          labelCount: 0,
-          latestForwarder: null,
-          latestScorecard: null,
-          message: "AI-metrics DuckDB evidence could not be queried.",
-          sourceCoverage: [],
-          status: AgentEffectivenessStatus.Enum.unavailable,
-          unavailableMetrics: ["provider_model_token_cost"],
-        })
-      )
+    Effect.orElseSucceed(() =>
+      AgentEffectivenessAiMetricsSection.make({
+        benchmarkRunCount: 0,
+        dataRoot: input.dataRoot,
+        derivedDuckDbPath: duckDbPath,
+        labelCount: 0,
+        latestForwarder: null,
+        latestScorecard: null,
+        message: "AI-metrics DuckDB evidence could not be queried.",
+        sourceCoverage: [],
+        status: AgentEffectivenessStatus.Enum.unavailable,
+        unavailableMetrics: ["provider_model_token_cost"],
+      })
     )
   );
 });
