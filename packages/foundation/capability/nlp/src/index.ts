@@ -51,6 +51,20 @@ export * as Algebra from "./Algebra/index.ts";
  */
 export * as Core from "./Core/index.ts";
 /**
+ * Text-graph IR: node/edge schema classes (the handoff-contract basis).
+ *
+ * @example
+ * ```typescript
+ * import { Graph } from "@beep/nlp"
+ *
+ * console.log(Graph.Schema.TextNode)
+ * ```
+ *
+ * @since 0.0.0
+ * @category graph
+ */
+export * as Graph from "./Graph/index.ts";
+/**
  * Deterministic identifier tokenization and variant helpers.
  *
  * @example
