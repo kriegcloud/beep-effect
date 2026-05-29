@@ -26,7 +26,7 @@
  */
 
 import { A } from "@beep/utils";
-import * as Effect from "effect/Effect";
+import { Effect, identity } from "effect";
 import * as O from "effect/Option";
 import { addNode, generateNodeId, getChildren, makeNode, toArray } from "./EffectGraph.ts";
 import type { EffectGraph, GraphNode } from "./EffectGraph.ts";
@@ -66,10 +66,7 @@ export const makeOperation = <A, B, R = never, E = never>(
  * @since 0.0.0
  * @category constructors
  */
-export const pureOperation = <A, B>(
-  name: string,
-  f: (data: A) => ReadonlyArray<B>
-): TextOperation<A, B, never, never> =>
+export const pureOperation = <A, B>(name: string, f: (data: A) => ReadonlyArray<B>): TextOperation<A, B> =>
   makeOperation(name, (node) => Effect.forEach(f(node.data), (b) => makeNode(b, O.some(node.id), O.some(name))));
 
 // =============================================================================
@@ -88,7 +85,7 @@ export interface Composable<A, R = never, E = never> {
     first: TextOperation<A, B, R, E>,
     second: TextOperation<B, A, R, E>
   ) => TextOperation<A, A, R, E>;
-  readonly identity: TextOperation<A, A, never, never>;
+  readonly identity: TextOperation<A, A>;
 }
 
 /**
@@ -97,7 +94,7 @@ export interface Composable<A, R = never, E = never> {
  * @since 0.0.0
  * @category constructors
  */
-export const identityOperation = <A>(): TextOperation<A, A, never, never> =>
+export const identityOperation = <A>(): TextOperation<A, A> =>
   makeOperation("identity", (node) =>
     Effect.map(generateNodeId, (id) => A.of({ ...node, id, parentId: O.some(node.id) }))
   );
@@ -250,7 +247,7 @@ export const makeAdjunction = <A, B, R, E>(
  * @since 0.0.0
  * @category combinators
  */
-export const mapOperation = <A, B>(name: string, f: (a: A) => B): TextOperation<A, B, never, never> =>
+export const mapOperation = <A, B>(name: string, f: (a: A) => B): TextOperation<A, B> =>
   pureOperation(name, (a) => A.of(f(a)));
 
 /**
@@ -259,7 +256,7 @@ export const mapOperation = <A, B>(name: string, f: (a: A) => B): TextOperation<
  * @since 0.0.0
  * @category combinators
  */
-export const filterOperation = <A>(name: string, predicate: (a: A) => boolean): TextOperation<A, A, never, never> =>
+export const filterOperation = <A>(name: string, predicate: (a: A) => boolean): TextOperation<A, A> =>
   pureOperation(name, (a) => (predicate(a) ? A.of(a) : A.empty<A>()));
 
 /**
@@ -268,10 +265,8 @@ export const filterOperation = <A>(name: string, predicate: (a: A) => boolean): 
  * @since 0.0.0
  * @category combinators
  */
-export const flatMapOperation = <A, B>(
-  name: string,
-  f: (a: A) => ReadonlyArray<B>
-): TextOperation<A, B, never, never> => pureOperation(name, f);
+export const flatMapOperation = <A, B>(name: string, f: (a: A) => ReadonlyArray<B>): TextOperation<A, B> =>
+  pureOperation(name, f);
 
 /**
  * Collect all node data values from the graph.
@@ -363,7 +358,7 @@ export const ap = <A, B, C, R1, E1, R2, E2>(
  * @since 0.0.0
  * @category applicative
  */
-export const pure = <A, B>(value: B): TextOperation<A, B, never, never> =>
+export const pure = <A, B>(value: B): TextOperation<A, B> =>
   makeOperation("pure", (node) => Effect.map(makeNode(value, O.some(node.id), O.some("pure")), A.of));
 
 // =============================================================================
@@ -430,7 +425,7 @@ export const alt = <A, B, R1, E1, R2, E2>(
  * @since 0.0.0
  * @category alternative
  */
-export const empty = <A, B>(): TextOperation<A, B, never, never> =>
+export const empty = <A, B>(): TextOperation<A, B> =>
   makeOperation("empty", () => Effect.succeed(A.empty<GraphNode<B>>()));
 
 // =============================================================================
@@ -469,10 +464,7 @@ export const replicate = <A, B, R, E>(operation: TextOperation<A, B, R, E>, n: n
       ? Effect.succeed(A.empty<GraphNode<B>>())
       : Effect.map(
           Effect.all(
-            A.map(
-              A.makeBy(n, (i) => i),
-              () => operation.apply(node)
-            ),
+            A.map(A.makeBy(n, identity), () => operation.apply(node)),
             { concurrency: 1 }
           ),
           A.flatten

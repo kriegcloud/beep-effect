@@ -19,9 +19,8 @@
 import { $NlpId } from "@beep/identity";
 import { TaggedErrorClass } from "@beep/schema";
 import { A } from "@beep/utils";
-import { Context, Inspectable, pipe } from "effect";
+import { Context, Inspectable, pipe, Struct } from "effect";
 import * as S from "effect/Schema";
-import * as Struct from "effect/Struct";
 import type * as Effect from "effect/Effect";
 import type * as GraphSchema from "../Graph/Schema.ts";
 
