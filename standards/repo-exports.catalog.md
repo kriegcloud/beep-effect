@@ -808,7 +808,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli` | `lintCommand` | const | `packages/tooling/tool/cli/src/commands/Lint/Lint.command.ts:556` | Lint command group. |
 | `@beep/repo-cli` | `purgeCommand` | const | `packages/tooling/tool/cli/src/commands/Purge/Purge.command.ts:249` | CLI command to purge workspace/root build artifacts. |
 | `@beep/repo-cli` | `qualityCommand` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:1646` | Quality command group for repo operational checks. |
-| `@beep/repo-cli` | `reuseCommand` | const | `packages/tooling/tool/cli/src/commands/Reuse/Reuse.command.ts:612` | Reuse-discovery command group. |
+| `@beep/repo-cli` | `reuseCommand` | const | `packages/tooling/tool/cli/src/commands/Reuse/Reuse.command.ts:618` | Reuse-discovery command group. |
 | `@beep/repo-cli` | `rootCommand` | const | `packages/tooling/tool/cli/src/commands/Root.ts:45` | Top-level CLI command that registers all subcommands. |
 | `@beep/repo-cli` | `syncDataToTsCommand` | const | `packages/tooling/tool/cli/src/commands/SyncDataToTs/SyncDataToTs.command.ts:441` | CLI command for syncing official upstream datasets into checked-in TypeScript modules. |
 | `@beep/repo-cli` | `topoSortCommand` | const | `packages/tooling/tool/cli/src/commands/TopoSort/TopoSort.command.ts:33` | CLI command that builds the workspace dependency graph and prints package names |
@@ -1886,20 +1886,20 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/commands/Reuse` | `CodexRunnerError` | class | `packages/tooling/tool/cli/src/commands/Reuse/Reuse.errors.ts:48` | Structured error emitted when the Codex SDK smoke path fails. |
 | `@beep/repo-cli/commands/Reuse` | `CodexRunnerStage` | const | `packages/tooling/tool/cli/src/commands/Reuse/Reuse.errors.ts:26` | Lifecycle stages surfaced by the Codex smoke runner. |
 | `@beep/repo-cli/commands/Reuse` | `CodexRunnerStage` | type | `packages/tooling/tool/cli/src/commands/Reuse/Reuse.errors.ts:40` | Runtime type for `CodexRunnerStage`. |
-| `@beep/repo-cli/commands/Reuse` | `reuseCommand` | const | `packages/tooling/tool/cli/src/commands/Reuse/Reuse.command.ts:612` | Reuse-discovery command group. |
+| `@beep/repo-cli/commands/Reuse` | `reuseCommand` | const | `packages/tooling/tool/cli/src/commands/Reuse/Reuse.command.ts:618` | Reuse-discovery command group. |
 | `@beep/repo-cli/commands/Reuse` | `sanitizeTerminalText` | const | `packages/tooling/tool/cli/src/commands/Reuse/Reuse.command.ts:154` | Remove terminal control sequences from human-readable reuse output. |
 | `@beep/repo-cli/commands/Reuse/index` | `CodexRunnerError` | class | `packages/tooling/tool/cli/src/commands/Reuse/Reuse.errors.ts:48` | Structured error emitted when the Codex SDK smoke path fails. |
 | `@beep/repo-cli/commands/Reuse/index` | `CodexRunnerStage` | const | `packages/tooling/tool/cli/src/commands/Reuse/Reuse.errors.ts:26` | Lifecycle stages surfaced by the Codex smoke runner. |
 | `@beep/repo-cli/commands/Reuse/index` | `CodexRunnerStage` | type | `packages/tooling/tool/cli/src/commands/Reuse/Reuse.errors.ts:40` | Runtime type for `CodexRunnerStage`. |
-| `@beep/repo-cli/commands/Reuse/index` | `reuseCommand` | const | `packages/tooling/tool/cli/src/commands/Reuse/Reuse.command.ts:612` | Reuse-discovery command group. |
+| `@beep/repo-cli/commands/Reuse/index` | `reuseCommand` | const | `packages/tooling/tool/cli/src/commands/Reuse/Reuse.command.ts:618` | Reuse-discovery command group. |
 | `@beep/repo-cli/commands/Reuse/index` | `sanitizeTerminalText` | const | `packages/tooling/tool/cli/src/commands/Reuse/Reuse.command.ts:154` | Remove terminal control sequences from human-readable reuse output. |
-| `@beep/repo-cli/commands/Reuse/internal/CloneBaseline` | `runCloneGate` | const | `packages/tooling/tool/cli/src/commands/Reuse/internal/CloneBaseline.ts:156` | Refresh or enforce the structural-clone baseline from current clone candidates. |
+| `@beep/repo-cli/commands/Reuse/internal/CloneBaseline` | `runCloneGate` | const | `packages/tooling/tool/cli/src/commands/Reuse/internal/CloneBaseline.ts:168` | Refresh or enforce the structural-clone baseline from current clone candidates. |
 | `@beep/repo-cli/commands/Reuse/internal/CodexRunner` | `CodexRunnerError` | class | `packages/tooling/tool/cli/src/commands/Reuse/Reuse.errors.ts:48` | Structured error emitted when the Codex SDK smoke path fails. |
 | `@beep/repo-cli/commands/Reuse/internal/CodexRunner` | `CodexRunnerStage` | const | `packages/tooling/tool/cli/src/commands/Reuse/Reuse.errors.ts:26` | Lifecycle stages surfaced by the Codex smoke runner. |
 | `@beep/repo-cli/commands/Reuse/internal/CodexRunner` | `CodexRunnerStage` | type | `packages/tooling/tool/cli/src/commands/Reuse/Reuse.errors.ts:40` | Runtime type for `CodexRunnerStage`. |
 | `@beep/repo-cli/commands/Reuse/internal/CodexRunner` | `CodexSmokeResult` | class | `packages/tooling/tool/cli/src/commands/Reuse/internal/CodexRunner.ts:32` | Structured result for `beep reuse codex-smoke`. |
 | `@beep/repo-cli/commands/Reuse/internal/CodexRunner` | `runCodexSmoke` | const | `packages/tooling/tool/cli/src/commands/Reuse/internal/CodexRunner.ts:53` | Validate the local Codex SDK adapter without running a reuse loop. |
-| `@beep/repo-cli/commands/Reuse/Reuse.command` | `reuseCommand` | const | `packages/tooling/tool/cli/src/commands/Reuse/Reuse.command.ts:612` | Reuse-discovery command group. |
+| `@beep/repo-cli/commands/Reuse/Reuse.command` | `reuseCommand` | const | `packages/tooling/tool/cli/src/commands/Reuse/Reuse.command.ts:618` | Reuse-discovery command group. |
 | `@beep/repo-cli/commands/Reuse/Reuse.command` | `sanitizeTerminalText` | const | `packages/tooling/tool/cli/src/commands/Reuse/Reuse.command.ts:154` | Remove terminal control sequences from human-readable reuse output. |
 | `@beep/repo-cli/commands/Reuse/Reuse.errors` | `CodexRunnerError` | class | `packages/tooling/tool/cli/src/commands/Reuse/Reuse.errors.ts:48` | Structured error emitted when the Codex SDK smoke path fails. |
 | `@beep/repo-cli/commands/Reuse/Reuse.errors` | `CodexRunnerStage` | const | `packages/tooling/tool/cli/src/commands/Reuse/Reuse.errors.ts:26` | Lifecycle stages surfaced by the Codex smoke runner. |
@@ -2274,7 +2274,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/test/Reuse` | `CodexRunnerStage` | const | `packages/tooling/tool/cli/src/commands/Reuse/Reuse.errors.ts:26` | Lifecycle stages surfaced by the Codex smoke runner. |
 | `@beep/repo-cli/test/Reuse` | `CodexRunnerStage` | type | `packages/tooling/tool/cli/src/commands/Reuse/Reuse.errors.ts:40` | Runtime type for `CodexRunnerStage`. |
 | `@beep/repo-cli/test/Reuse` | `CodexSmokeResult` | class | `packages/tooling/tool/cli/src/commands/Reuse/internal/CodexRunner.ts:32` | Structured result for `beep reuse codex-smoke`. |
-| `@beep/repo-cli/test/Reuse` | `reuseCommand` | const | `packages/tooling/tool/cli/src/commands/Reuse/Reuse.command.ts:612` | Reuse-discovery command group. |
+| `@beep/repo-cli/test/Reuse` | `reuseCommand` | const | `packages/tooling/tool/cli/src/commands/Reuse/Reuse.command.ts:618` | Reuse-discovery command group. |
 | `@beep/repo-cli/test/Reuse` | `runCodexSmoke` | const | `packages/tooling/tool/cli/src/commands/Reuse/internal/CodexRunner.ts:53` | Validate the local Codex SDK adapter without running a reuse loop. |
 | `@beep/repo-cli/test/Reuse` | `sanitizeTerminalText` | const | `packages/tooling/tool/cli/src/commands/Reuse/Reuse.command.ts:154` | Remove terminal control sequences from human-readable reuse output. |
 | `@beep/repo-cli/test/SyncDataToTs` | `ISO4217_SOURCE_URL` | const | `packages/tooling/tool/cli/src/commands/SyncDataToTs/targets/Iso4217.ts:27` | Official SIX XML source for ISO 4217 List One. |
@@ -8346,29 +8346,29 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-utils` | `RepoRootPath` | const | `packages/tooling/library/repo-utils/src/TSMorph/TSMorph.model.ts:121` | Repository root directory path schema. |
 | `@beep/repo-utils` | `RepoRootPath` | type | `packages/tooling/library/repo-utils/src/TSMorph/TSMorph.model.ts:141` | Branded repository root directory path. |
 | `@beep/repo-utils` | `resolveWorkspaceDirs` | const | `packages/tooling/library/repo-utils/src/Workspaces.ts:88` | Resolve all workspace directories declared in the root `package.json`. |
-| `@beep/repo-utils` | `ReuseAnalysisError` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:119` | Typed error returned when reuse analysis cannot complete a repository scan or lookup. |
+| `@beep/repo-utils` | `ReuseAnalysisError` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:118` | Typed error returned when reuse analysis cannot complete a repository scan or lookup. |
 | `@beep/repo-utils` | `ReuseCandidate` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts:293` | Ranked reuse candidate inventory item. |
 | `@beep/repo-utils` | `ReuseCandidateKind` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts:99` | Candidate kind domain for inventory items. |
 | `@beep/repo-utils` | `ReuseCandidateKind` | type | `packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts:125` | Runtime type for `ReuseCandidateKind`. |
-| `@beep/repo-utils` | `ReuseCandidateNotFoundError` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:145` | Typed error returned when a requested candidate id is absent from the current reuse inventory. |
+| `@beep/repo-utils` | `ReuseCandidateNotFoundError` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:144` | Typed error returned when a requested candidate id is absent from the current reuse inventory. |
 | `@beep/repo-utils` | `ReuseCatalogEntry` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts:180` | Catalog entry describing an existing reusable symbol or curated pattern. |
 | `@beep/repo-utils` | `ReuseCatalogOrigin` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts:27` | Catalog entry origin domain. |
 | `@beep/repo-utils` | `ReuseCatalogOrigin` | type | `packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts:51` | Runtime type for `ReuseCatalogOrigin`. |
-| `@beep/repo-utils` | `ReuseCatalogService` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1127` | Service tag for the reuse catalog contract. |
-| `@beep/repo-utils` | `ReuseCatalogServiceLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1265` | Default live layer for building the shared reuse catalog. |
-| `@beep/repo-utils` | `ReuseCloneService` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1767` | Service tag for declaration-anchored structural clone detection. |
-| `@beep/repo-utils` | `ReuseCloneServiceLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1783` | Default live layer for declaration-anchored structural clone detection. |
-| `@beep/repo-utils` | `ReuseDiscoveryService` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1195` | Service tag for reuse candidate discovery. |
-| `@beep/repo-utils` | `ReuseDiscoveryServiceLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1413` | Default live layer for reuse candidate discovery and local option lookup. |
+| `@beep/repo-utils` | `ReuseCatalogService` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1124` | Service tag for the reuse catalog contract. |
+| `@beep/repo-utils` | `ReuseCatalogServiceLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1261` | Default live layer for building the shared reuse catalog. |
+| `@beep/repo-utils` | `ReuseCloneService` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1771` | Service tag for declaration-anchored structural clone detection. |
+| `@beep/repo-utils` | `ReuseCloneServiceLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1787` | Default live layer for declaration-anchored structural clone detection. |
+| `@beep/repo-utils` | `ReuseDiscoveryService` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1192` | Service tag for reuse candidate discovery. |
+| `@beep/repo-utils` | `ReuseDiscoveryServiceLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1409` | Default live layer for reuse candidate discovery and local option lookup. |
 | `@beep/repo-utils` | `ReuseFindResult` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts:410` | Results for local-file reuse lookups. |
 | `@beep/repo-utils` | `ReuseInventory` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts:336` | Inventory payload produced for a requested scope. |
-| `@beep/repo-utils` | `ReuseInventoryService` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1229` | Service tag for reuse inventory materialization. |
-| `@beep/repo-utils` | `ReuseInventoryServiceLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1591` | Default live layer for ranked reuse inventories and implementation packets. |
+| `@beep/repo-utils` | `ReuseInventoryService` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1226` | Service tag for reuse inventory materialization. |
+| `@beep/repo-utils` | `ReuseInventoryServiceLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1587` | Default live layer for ranked reuse inventories and implementation packets. |
 | `@beep/repo-utils` | `ReusePacket` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts:380` | Materialized implementation packet for one reuse candidate. |
 | `@beep/repo-utils` | `ReusePartitionPlan` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts:248` | Partition plan covering scout and specialist work units for a selected scope. |
-| `@beep/repo-utils` | `ReusePartitionPlannerService` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1157` | Service tag for reuse partition planning. |
-| `@beep/repo-utils` | `ReusePartitionPlannerServiceLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1310` | Default live layer for reuse partition planning. |
-| `@beep/repo-utils` | `ReuseServiceSuiteLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1843` | Fully wired reuse-discovery layer suite for CLI and tests. |
+| `@beep/repo-utils` | `ReusePartitionPlannerService` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1154` | Service tag for reuse partition planning. |
+| `@beep/repo-utils` | `ReusePartitionPlannerServiceLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1306` | Default live layer for reuse partition planning. |
+| `@beep/repo-utils` | `ReuseServiceSuiteLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1846` | Fully wired reuse-discovery layer suite for CLI and tests. |
 | `@beep/repo-utils` | `ReuseSourceSymbolRef` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts:144` | File-local source symbol reference tied to a reuse opportunity. |
 | `@beep/repo-utils` | `ReuseWorkUnit` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts:216` | Partition work unit emitted for package scouts or hotspot specialists. |
 | `@beep/repo-utils` | `ReuseWorkUnitKind` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts:65` | Partition work-unit kind. |
@@ -8552,29 +8552,29 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-utils/index` | `RepoRootPath` | const | `packages/tooling/library/repo-utils/src/TSMorph/TSMorph.model.ts:121` | Repository root directory path schema. |
 | `@beep/repo-utils/index` | `RepoRootPath` | type | `packages/tooling/library/repo-utils/src/TSMorph/TSMorph.model.ts:141` | Branded repository root directory path. |
 | `@beep/repo-utils/index` | `resolveWorkspaceDirs` | const | `packages/tooling/library/repo-utils/src/Workspaces.ts:88` | Resolve all workspace directories declared in the root `package.json`. |
-| `@beep/repo-utils/index` | `ReuseAnalysisError` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:119` | Typed error returned when reuse analysis cannot complete a repository scan or lookup. |
+| `@beep/repo-utils/index` | `ReuseAnalysisError` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:118` | Typed error returned when reuse analysis cannot complete a repository scan or lookup. |
 | `@beep/repo-utils/index` | `ReuseCandidate` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts:293` | Ranked reuse candidate inventory item. |
 | `@beep/repo-utils/index` | `ReuseCandidateKind` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts:99` | Candidate kind domain for inventory items. |
 | `@beep/repo-utils/index` | `ReuseCandidateKind` | type | `packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts:125` | Runtime type for `ReuseCandidateKind`. |
-| `@beep/repo-utils/index` | `ReuseCandidateNotFoundError` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:145` | Typed error returned when a requested candidate id is absent from the current reuse inventory. |
+| `@beep/repo-utils/index` | `ReuseCandidateNotFoundError` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:144` | Typed error returned when a requested candidate id is absent from the current reuse inventory. |
 | `@beep/repo-utils/index` | `ReuseCatalogEntry` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts:180` | Catalog entry describing an existing reusable symbol or curated pattern. |
 | `@beep/repo-utils/index` | `ReuseCatalogOrigin` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts:27` | Catalog entry origin domain. |
 | `@beep/repo-utils/index` | `ReuseCatalogOrigin` | type | `packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts:51` | Runtime type for `ReuseCatalogOrigin`. |
-| `@beep/repo-utils/index` | `ReuseCatalogService` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1127` | Service tag for the reuse catalog contract. |
-| `@beep/repo-utils/index` | `ReuseCatalogServiceLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1265` | Default live layer for building the shared reuse catalog. |
-| `@beep/repo-utils/index` | `ReuseCloneService` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1767` | Service tag for declaration-anchored structural clone detection. |
-| `@beep/repo-utils/index` | `ReuseCloneServiceLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1783` | Default live layer for declaration-anchored structural clone detection. |
-| `@beep/repo-utils/index` | `ReuseDiscoveryService` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1195` | Service tag for reuse candidate discovery. |
-| `@beep/repo-utils/index` | `ReuseDiscoveryServiceLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1413` | Default live layer for reuse candidate discovery and local option lookup. |
+| `@beep/repo-utils/index` | `ReuseCatalogService` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1124` | Service tag for the reuse catalog contract. |
+| `@beep/repo-utils/index` | `ReuseCatalogServiceLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1261` | Default live layer for building the shared reuse catalog. |
+| `@beep/repo-utils/index` | `ReuseCloneService` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1771` | Service tag for declaration-anchored structural clone detection. |
+| `@beep/repo-utils/index` | `ReuseCloneServiceLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1787` | Default live layer for declaration-anchored structural clone detection. |
+| `@beep/repo-utils/index` | `ReuseDiscoveryService` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1192` | Service tag for reuse candidate discovery. |
+| `@beep/repo-utils/index` | `ReuseDiscoveryServiceLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1409` | Default live layer for reuse candidate discovery and local option lookup. |
 | `@beep/repo-utils/index` | `ReuseFindResult` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts:410` | Results for local-file reuse lookups. |
 | `@beep/repo-utils/index` | `ReuseInventory` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts:336` | Inventory payload produced for a requested scope. |
-| `@beep/repo-utils/index` | `ReuseInventoryService` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1229` | Service tag for reuse inventory materialization. |
-| `@beep/repo-utils/index` | `ReuseInventoryServiceLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1591` | Default live layer for ranked reuse inventories and implementation packets. |
+| `@beep/repo-utils/index` | `ReuseInventoryService` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1226` | Service tag for reuse inventory materialization. |
+| `@beep/repo-utils/index` | `ReuseInventoryServiceLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1587` | Default live layer for ranked reuse inventories and implementation packets. |
 | `@beep/repo-utils/index` | `ReusePacket` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts:380` | Materialized implementation packet for one reuse candidate. |
 | `@beep/repo-utils/index` | `ReusePartitionPlan` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts:248` | Partition plan covering scout and specialist work units for a selected scope. |
-| `@beep/repo-utils/index` | `ReusePartitionPlannerService` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1157` | Service tag for reuse partition planning. |
-| `@beep/repo-utils/index` | `ReusePartitionPlannerServiceLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1310` | Default live layer for reuse partition planning. |
-| `@beep/repo-utils/index` | `ReuseServiceSuiteLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1843` | Fully wired reuse-discovery layer suite for CLI and tests. |
+| `@beep/repo-utils/index` | `ReusePartitionPlannerService` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1154` | Service tag for reuse partition planning. |
+| `@beep/repo-utils/index` | `ReusePartitionPlannerServiceLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1306` | Default live layer for reuse partition planning. |
+| `@beep/repo-utils/index` | `ReuseServiceSuiteLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1846` | Fully wired reuse-discovery layer suite for CLI and tests. |
 | `@beep/repo-utils/index` | `ReuseSourceSymbolRef` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts:144` | File-local source symbol reference tied to a reuse opportunity. |
 | `@beep/repo-utils/index` | `ReuseWorkUnit` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts:216` | Partition work unit emitted for package scouts or hotspot specialists. |
 | `@beep/repo-utils/index` | `ReuseWorkUnitKind` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts:65` | Partition work-unit kind. |
@@ -9491,29 +9491,29 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-utils/JsonUtils` | `jsonParse` | const | `packages/tooling/library/repo-utils/src/JsonUtils.ts:82` | Parse a JSON string into an unknown value using `SchemaGetter.parseJson`. |
 | `@beep/repo-utils/JsonUtils` | `jsonStringifyCompact` | const | `packages/tooling/library/repo-utils/src/JsonUtils.ts:59` | Serialize a value to a compact JSON string |
 | `@beep/repo-utils/JsonUtils` | `jsonStringifyPretty` | const | `packages/tooling/library/repo-utils/src/JsonUtils.ts:35` | Serialize a value to a pretty-printed JSON string (2-space indent) |
-| `@beep/repo-utils/Reuse/index` | `ReuseAnalysisError` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:119` | Typed error returned when reuse analysis cannot complete a repository scan or lookup. |
+| `@beep/repo-utils/Reuse/index` | `ReuseAnalysisError` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:118` | Typed error returned when reuse analysis cannot complete a repository scan or lookup. |
 | `@beep/repo-utils/Reuse/index` | `ReuseCandidate` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts:293` | Ranked reuse candidate inventory item. |
 | `@beep/repo-utils/Reuse/index` | `ReuseCandidateKind` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts:99` | Candidate kind domain for inventory items. |
 | `@beep/repo-utils/Reuse/index` | `ReuseCandidateKind` | type | `packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts:125` | Runtime type for `ReuseCandidateKind`. |
-| `@beep/repo-utils/Reuse/index` | `ReuseCandidateNotFoundError` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:145` | Typed error returned when a requested candidate id is absent from the current reuse inventory. |
+| `@beep/repo-utils/Reuse/index` | `ReuseCandidateNotFoundError` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:144` | Typed error returned when a requested candidate id is absent from the current reuse inventory. |
 | `@beep/repo-utils/Reuse/index` | `ReuseCatalogEntry` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts:180` | Catalog entry describing an existing reusable symbol or curated pattern. |
 | `@beep/repo-utils/Reuse/index` | `ReuseCatalogOrigin` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts:27` | Catalog entry origin domain. |
 | `@beep/repo-utils/Reuse/index` | `ReuseCatalogOrigin` | type | `packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts:51` | Runtime type for `ReuseCatalogOrigin`. |
-| `@beep/repo-utils/Reuse/index` | `ReuseCatalogService` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1127` | Service tag for the reuse catalog contract. |
-| `@beep/repo-utils/Reuse/index` | `ReuseCatalogServiceLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1265` | Default live layer for building the shared reuse catalog. |
-| `@beep/repo-utils/Reuse/index` | `ReuseCloneService` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1767` | Service tag for declaration-anchored structural clone detection. |
-| `@beep/repo-utils/Reuse/index` | `ReuseCloneServiceLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1783` | Default live layer for declaration-anchored structural clone detection. |
-| `@beep/repo-utils/Reuse/index` | `ReuseDiscoveryService` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1195` | Service tag for reuse candidate discovery. |
-| `@beep/repo-utils/Reuse/index` | `ReuseDiscoveryServiceLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1413` | Default live layer for reuse candidate discovery and local option lookup. |
+| `@beep/repo-utils/Reuse/index` | `ReuseCatalogService` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1124` | Service tag for the reuse catalog contract. |
+| `@beep/repo-utils/Reuse/index` | `ReuseCatalogServiceLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1261` | Default live layer for building the shared reuse catalog. |
+| `@beep/repo-utils/Reuse/index` | `ReuseCloneService` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1771` | Service tag for declaration-anchored structural clone detection. |
+| `@beep/repo-utils/Reuse/index` | `ReuseCloneServiceLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1787` | Default live layer for declaration-anchored structural clone detection. |
+| `@beep/repo-utils/Reuse/index` | `ReuseDiscoveryService` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1192` | Service tag for reuse candidate discovery. |
+| `@beep/repo-utils/Reuse/index` | `ReuseDiscoveryServiceLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1409` | Default live layer for reuse candidate discovery and local option lookup. |
 | `@beep/repo-utils/Reuse/index` | `ReuseFindResult` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts:410` | Results for local-file reuse lookups. |
 | `@beep/repo-utils/Reuse/index` | `ReuseInventory` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts:336` | Inventory payload produced for a requested scope. |
-| `@beep/repo-utils/Reuse/index` | `ReuseInventoryService` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1229` | Service tag for reuse inventory materialization. |
-| `@beep/repo-utils/Reuse/index` | `ReuseInventoryServiceLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1591` | Default live layer for ranked reuse inventories and implementation packets. |
+| `@beep/repo-utils/Reuse/index` | `ReuseInventoryService` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1226` | Service tag for reuse inventory materialization. |
+| `@beep/repo-utils/Reuse/index` | `ReuseInventoryServiceLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1587` | Default live layer for ranked reuse inventories and implementation packets. |
 | `@beep/repo-utils/Reuse/index` | `ReusePacket` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts:380` | Materialized implementation packet for one reuse candidate. |
 | `@beep/repo-utils/Reuse/index` | `ReusePartitionPlan` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts:248` | Partition plan covering scout and specialist work units for a selected scope. |
-| `@beep/repo-utils/Reuse/index` | `ReusePartitionPlannerService` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1157` | Service tag for reuse partition planning. |
-| `@beep/repo-utils/Reuse/index` | `ReusePartitionPlannerServiceLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1310` | Default live layer for reuse partition planning. |
-| `@beep/repo-utils/Reuse/index` | `ReuseServiceSuiteLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1843` | Fully wired reuse-discovery layer suite for CLI and tests. |
+| `@beep/repo-utils/Reuse/index` | `ReusePartitionPlannerService` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1154` | Service tag for reuse partition planning. |
+| `@beep/repo-utils/Reuse/index` | `ReusePartitionPlannerServiceLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1306` | Default live layer for reuse partition planning. |
+| `@beep/repo-utils/Reuse/index` | `ReuseServiceSuiteLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1846` | Fully wired reuse-discovery layer suite for CLI and tests. |
 | `@beep/repo-utils/Reuse/index` | `ReuseSourceSymbolRef` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts:144` | File-local source symbol reference tied to a reuse opportunity. |
 | `@beep/repo-utils/Reuse/index` | `ReuseWorkUnit` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts:216` | Partition work unit emitted for package scouts or hotspot specialists. |
 | `@beep/repo-utils/Reuse/index` | `ReuseWorkUnitKind` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts:65` | Partition work-unit kind. |
@@ -9532,19 +9532,19 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-utils/Reuse/Reuse.model` | `ReuseWorkUnit` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts:216` | Partition work unit emitted for package scouts or hotspot specialists. |
 | `@beep/repo-utils/Reuse/Reuse.model` | `ReuseWorkUnitKind` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts:65` | Partition work-unit kind. |
 | `@beep/repo-utils/Reuse/Reuse.model` | `ReuseWorkUnitKind` | type | `packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts:85` | Runtime type for `ReuseWorkUnitKind`. |
-| `@beep/repo-utils/Reuse/Reuse.service` | `ReuseAnalysisError` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:119` | Typed error returned when reuse analysis cannot complete a repository scan or lookup. |
-| `@beep/repo-utils/Reuse/Reuse.service` | `ReuseCandidateNotFoundError` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:145` | Typed error returned when a requested candidate id is absent from the current reuse inventory. |
-| `@beep/repo-utils/Reuse/Reuse.service` | `ReuseCatalogService` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1127` | Service tag for the reuse catalog contract. |
-| `@beep/repo-utils/Reuse/Reuse.service` | `ReuseCatalogServiceLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1265` | Default live layer for building the shared reuse catalog. |
-| `@beep/repo-utils/Reuse/Reuse.service` | `ReuseCloneService` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1767` | Service tag for declaration-anchored structural clone detection. |
-| `@beep/repo-utils/Reuse/Reuse.service` | `ReuseCloneServiceLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1783` | Default live layer for declaration-anchored structural clone detection. |
-| `@beep/repo-utils/Reuse/Reuse.service` | `ReuseDiscoveryService` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1195` | Service tag for reuse candidate discovery. |
-| `@beep/repo-utils/Reuse/Reuse.service` | `ReuseDiscoveryServiceLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1413` | Default live layer for reuse candidate discovery and local option lookup. |
-| `@beep/repo-utils/Reuse/Reuse.service` | `ReuseInventoryService` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1229` | Service tag for reuse inventory materialization. |
-| `@beep/repo-utils/Reuse/Reuse.service` | `ReuseInventoryServiceLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1591` | Default live layer for ranked reuse inventories and implementation packets. |
-| `@beep/repo-utils/Reuse/Reuse.service` | `ReusePartitionPlannerService` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1157` | Service tag for reuse partition planning. |
-| `@beep/repo-utils/Reuse/Reuse.service` | `ReusePartitionPlannerServiceLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1310` | Default live layer for reuse partition planning. |
-| `@beep/repo-utils/Reuse/Reuse.service` | `ReuseServiceSuiteLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1843` | Fully wired reuse-discovery layer suite for CLI and tests. |
+| `@beep/repo-utils/Reuse/Reuse.service` | `ReuseAnalysisError` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:118` | Typed error returned when reuse analysis cannot complete a repository scan or lookup. |
+| `@beep/repo-utils/Reuse/Reuse.service` | `ReuseCandidateNotFoundError` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:144` | Typed error returned when a requested candidate id is absent from the current reuse inventory. |
+| `@beep/repo-utils/Reuse/Reuse.service` | `ReuseCatalogService` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1124` | Service tag for the reuse catalog contract. |
+| `@beep/repo-utils/Reuse/Reuse.service` | `ReuseCatalogServiceLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1261` | Default live layer for building the shared reuse catalog. |
+| `@beep/repo-utils/Reuse/Reuse.service` | `ReuseCloneService` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1771` | Service tag for declaration-anchored structural clone detection. |
+| `@beep/repo-utils/Reuse/Reuse.service` | `ReuseCloneServiceLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1787` | Default live layer for declaration-anchored structural clone detection. |
+| `@beep/repo-utils/Reuse/Reuse.service` | `ReuseDiscoveryService` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1192` | Service tag for reuse candidate discovery. |
+| `@beep/repo-utils/Reuse/Reuse.service` | `ReuseDiscoveryServiceLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1409` | Default live layer for reuse candidate discovery and local option lookup. |
+| `@beep/repo-utils/Reuse/Reuse.service` | `ReuseInventoryService` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1226` | Service tag for reuse inventory materialization. |
+| `@beep/repo-utils/Reuse/Reuse.service` | `ReuseInventoryServiceLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1587` | Default live layer for ranked reuse inventories and implementation packets. |
+| `@beep/repo-utils/Reuse/Reuse.service` | `ReusePartitionPlannerService` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1154` | Service tag for reuse partition planning. |
+| `@beep/repo-utils/Reuse/Reuse.service` | `ReusePartitionPlannerServiceLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1306` | Default live layer for reuse partition planning. |
+| `@beep/repo-utils/Reuse/Reuse.service` | `ReuseServiceSuiteLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1846` | Fully wired reuse-discovery layer suite for CLI and tests. |
 | `@beep/repo-utils/Root` | `findRepoRoot` | const | `packages/tooling/library/repo-utils/src/Root.ts:45` | Find the repository root by walking upward from the given directory |
 | `@beep/repo-utils/schemas/BiomeJson` | `renderBiomeJson` | const | `packages/tooling/library/repo-utils/src/schemas/BiomeJson.ts:43` | Render JSON with the same Biome config that repository lint uses. |
 | `@beep/repo-utils/schemas/DocgenConfig` | `buildDocgenAliasSource` | const | `packages/tooling/library/repo-utils/src/schemas/DocgenConfig.ts:290` | Build docgen alias targets for one workspace package from its exports. |
