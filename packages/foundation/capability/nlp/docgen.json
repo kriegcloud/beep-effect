@@ -53,6 +53,9 @@
       "@beep/nlp/Layers": [
         "../../../../packages/foundation/capability/nlp/src/Layers/index.ts"
       ],
+      "@beep/nlp/NLPService": [
+        "../../../../packages/foundation/capability/nlp/src/NLPService.ts"
+      ],
       "@beep/nlp/Ontology": [
         "../../../../packages/foundation/capability/nlp/src/Ontology/index.ts"
       ],

@@ -109,6 +109,13 @@ export * as IdentifierText from "./IdentifierText.ts";
  */
 export * as Layers from "./Layers/index.ts";
 /**
+ * High-level NLP service facade over a pluggable backend.
+ *
+ * @since 0.0.0
+ * @category services
+ */
+export * as NLPService from "./NLPService.ts";
+/**
  * Type-level ontology of text strata (kinds) and the containment poset.
  *
  * @example

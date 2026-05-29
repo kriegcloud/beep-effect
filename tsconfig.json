@@ -1104,6 +1104,9 @@
       ],
       "@beep/nlp/Graph/GraphOperations": [
         "./packages/foundation/capability/nlp/src/Graph/GraphOperations/index.ts"
+      ],
+      "@beep/nlp/NLPService": [
+        "./packages/foundation/capability/nlp/src/NLPService.ts"
       ]
     }
   }
