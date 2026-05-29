@@ -1,8 +1,7 @@
-import * as O from "@beep/utils/Option";
-
-("use client");
+"use client";
 
 import { TooltipProvider } from "@beep/ui/components/ui/tooltip";
+import * as O from "@beep/utils/Option";
 import { LexicalComposer } from "@lexical/react/LexicalComposer";
 import { OnChangePlugin } from "@lexical/react/LexicalOnChangePlugin";
 import { Effect } from "effect";

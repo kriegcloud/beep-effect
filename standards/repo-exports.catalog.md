@@ -12288,7 +12288,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/ui/components/banner` | `BannerDismiss` | const | `packages/foundation/ui-system/ui/src/components/banner.tsx:90` |  |
 | `@beep/ui/components/banner` | `BannerTitle` | const | `packages/foundation/ui-system/ui/src/components/banner.tsx:70` |  |
 | `@beep/ui/components/banner` | `bannerVariants` | const | `packages/foundation/ui-system/ui/src/components/banner.tsx:11` |  |
-| `@beep/ui/components/blocks/editor-00/editor` | `Editor` | function | `packages/foundation/ui-system/ui/src/components/blocks/editor-00/editor.tsx:31` | Rich text editor block assembled from the shared editor theme and plugins. |
+| `@beep/ui/components/blocks/editor-00/editor` | `Editor` | function | `packages/foundation/ui-system/ui/src/components/blocks/editor-00/editor.tsx:30` | Rich text editor block assembled from the shared editor theme and plugins. |
 | `@beep/ui/components/blocks/editor-00/plugins` | `Plugins` | function | `packages/foundation/ui-system/ui/src/components/blocks/editor-00/plugins.tsx:11` | Core plugin set for the shared editor block. |
 | `@beep/ui/components/breadcrumb` | `Breadcrumb` | function | `packages/foundation/ui-system/ui/src/components/breadcrumb.tsx:11` |  |
 | `@beep/ui/components/breadcrumb` | `BreadcrumbEllipsis` | function | `packages/foundation/ui-system/ui/src/components/breadcrumb.tsx:89` |  |
@@ -12608,11 +12608,11 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/ui/components/skeleton` | `Skeleton` | function | `packages/foundation/ui-system/ui/src/components/skeleton.tsx:8` |  |
 | `@beep/ui/components/slider` | `Slider` | function | `packages/foundation/ui-system/ui/src/components/slider.tsx:29` |  |
 | `@beep/ui/components/sonner` | `Toaster` | const | `packages/foundation/ui-system/ui/src/components/sonner.tsx:13` |  |
-| `@beep/ui/components/speech-input` | `SpeechInput` | const | `packages/foundation/ui-system/ui/src/components/speech-input.tsx:149` |  |
-| `@beep/ui/components/speech-input` | `SpeechInputCancelButton` | const | `packages/foundation/ui-system/ui/src/components/speech-input.tsx:409` |  |
-| `@beep/ui/components/speech-input` | `SpeechInputPreview` | const | `packages/foundation/ui-system/ui/src/components/speech-input.tsx:365` |  |
-| `@beep/ui/components/speech-input` | `SpeechInputRecordButton` | const | `packages/foundation/ui-system/ui/src/components/speech-input.tsx:308` |  |
-| `@beep/ui/components/speech-input` | `useSpeechInput` | function | `packages/foundation/ui-system/ui/src/components/speech-input.tsx:63` |  |
+| `@beep/ui/components/speech-input` | `SpeechInput` | const | `packages/foundation/ui-system/ui/src/components/speech-input.tsx:148` |  |
+| `@beep/ui/components/speech-input` | `SpeechInputCancelButton` | const | `packages/foundation/ui-system/ui/src/components/speech-input.tsx:408` |  |
+| `@beep/ui/components/speech-input` | `SpeechInputPreview` | const | `packages/foundation/ui-system/ui/src/components/speech-input.tsx:364` |  |
+| `@beep/ui/components/speech-input` | `SpeechInputRecordButton` | const | `packages/foundation/ui-system/ui/src/components/speech-input.tsx:307` |  |
+| `@beep/ui/components/speech-input` | `useSpeechInput` | function | `packages/foundation/ui-system/ui/src/components/speech-input.tsx:62` |  |
 | `@beep/ui/components/spinner` | `Spinner` | function | `packages/foundation/ui-system/ui/src/components/spinner.tsx:9` |  |
 | `@beep/ui/components/switch` | `Switch` | function | `packages/foundation/ui-system/ui/src/components/switch.tsx:10` |  |
 | `@beep/ui/components/table` | `Table` | function | `packages/foundation/ui-system/ui/src/components/table.tsx:10` |  |

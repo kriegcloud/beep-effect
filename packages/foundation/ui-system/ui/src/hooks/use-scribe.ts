@@ -1,4 +1,4 @@
-import * as O from "@beep/utils/Option";
+"use client";
 
 /**
  * React bindings for ElevenLabs Scribe realtime transcription.
@@ -7,9 +7,9 @@ import * as O from "@beep/utils/Option";
  * @since 0.0.0
  * @packageDocumentation
  */
-("use client");
 
 import { A } from "@beep/utils";
+import * as O from "@beep/utils/Option";
 import { AudioFormat, CommitStrategy, RealtimeEvents, Scribe } from "@elevenlabs/client";
 import { Data, Effect } from "effect";
 import * as P from "effect/Predicate";

@@ -1,10 +1,9 @@
-import * as O from "@beep/utils/Option";
-
-("use client");
+"use client";
 
 import { Button } from "@beep/ui/components/button";
 import { useScribe } from "@beep/ui/hooks/use-scribe";
 import { A, Str } from "@beep/utils";
+import * as O from "@beep/utils/Option";
 import { MicrophoneIcon, SquareIcon, XIcon } from "@phosphor-icons/react";
 import { cva } from "class-variance-authority";
 import { motion } from "framer-motion";
