@@ -44,7 +44,7 @@
     },
     "apps/architecture-lab-proof": {
       "name": "@beep/architecture-lab-proof",
-      "version": "0.0.1",
+      "version": "0.0.2",
       "dependencies": {
         "@beep/architecture-lab-config": "workspace:^",
         "@beep/architecture-lab-domain": "workspace:^",
@@ -60,7 +60,7 @@
     },
     "apps/canvas": {
       "name": "@beep/canvas",
-      "version": "0.0.0",
+      "version": "0.0.3",
       "dependencies": {
         "@beep/canvas-domain": "workspace:^",
         "@beep/canvas-server": "workspace:^",
@@ -91,7 +91,7 @@
     },
     "apps/codedank-web": {
       "name": "@beep/codedank-web",
-      "version": "0.0.1",
+      "version": "0.0.3",
       "dependencies": {
         "@beep/repo-configs": "workspace:^",
         "@beep/ui": "workspace:^",
@@ -122,7 +122,7 @@
     },
     "apps/oip-web": {
       "name": "@beep/oip-web",
-      "version": "0.1.0",
+      "version": "0.1.3",
       "dependencies": {
         "@beep/hubspot": "workspace:^",
         "@beep/identity": "workspace:^",
@@ -160,7 +160,7 @@
     },
     "apps/professional-desktop": {
       "name": "@beep/professional-desktop",
-      "version": "0.0.1",
+      "version": "0.0.3",
       "dependencies": {
         "@beep/ui": "workspace:^",
         "@phosphor-icons/react": "catalog:",
@@ -185,7 +185,7 @@
     },
     "apps/professional-runtime-proof": {
       "name": "@beep/professional-runtime-proof",
-      "version": "0.0.1",
+      "version": "0.0.2",
       "dependencies": {
         "@beep/agent-capability-domain": "workspace:^",
         "@beep/agent-capability-use-cases": "workspace:^",
@@ -205,7 +205,7 @@
     },
     "apps/stack-installer": {
       "name": "@beep/stack-installer",
-      "version": "0.0.1",
+      "version": "0.0.4",
       "dependencies": {
         "@beep/ai-provider-cli": "workspace:^",
         "@beep/discord": "workspace:^",
@@ -239,7 +239,7 @@
     },
     "infra": {
       "name": "@beep/infra",
-      "version": "0.0.1",
+      "version": "0.0.3",
       "dependencies": {
         "@beep/identity": "workspace:^",
         "@beep/repo-ai-metrics": "workspace:^",
@@ -259,7 +259,7 @@
     },
     "packages/_internal/db-admin": {
       "name": "@beep/db-admin",
-      "version": "0.0.1",
+      "version": "0.0.2",
       "dependencies": {
         "@beep/architecture-lab-tables": "workspace:^",
         "effect": "catalog:",
@@ -275,7 +275,7 @@
     },
     "packages/agent-capability/domain": {
       "name": "@beep/agent-capability-domain",
-      "version": "0.0.1",
+      "version": "0.0.2",
       "dependencies": {
         "@beep/identity": "workspace:^",
         "@beep/schema": "workspace:^",
@@ -289,7 +289,7 @@
     },
     "packages/agent-capability/use-cases": {
       "name": "@beep/agent-capability-use-cases",
-      "version": "0.0.1",
+      "version": "0.0.2",
       "dependencies": {
         "@beep/identity": "workspace:^",
         "@beep/schema": "workspace:^",
@@ -303,7 +303,7 @@
     },
     "packages/architecture-lab/client": {
       "name": "@beep/architecture-lab-client",
-      "version": "0.0.1",
+      "version": "0.0.2",
       "dependencies": {
         "@beep/architecture-lab-domain": "workspace:^",
         "@beep/architecture-lab-use-cases": "workspace:^",
@@ -329,7 +329,7 @@
     },
     "packages/architecture-lab/domain": {
       "name": "@beep/architecture-lab-domain",
-      "version": "0.0.1",
+      "version": "0.0.2",
       "dependencies": {
         "@beep/identity": "workspace:^",
         "@beep/schema": "workspace:^",
@@ -343,7 +343,7 @@
     },
     "packages/architecture-lab/server": {
       "name": "@beep/architecture-lab-server",
-      "version": "0.0.1",
+      "version": "0.0.2",
       "dependencies": {
         "@beep/architecture-lab-config": "workspace:^",
         "@beep/architecture-lab-domain": "workspace:^",
@@ -364,7 +364,7 @@
     },
     "packages/architecture-lab/tables": {
       "name": "@beep/architecture-lab-tables",
-      "version": "0.0.1",
+      "version": "0.0.2",
       "dependencies": {
         "@beep/architecture-lab-domain": "workspace:^",
         "@beep/drizzle": "workspace:^",
@@ -378,7 +378,7 @@
     },
     "packages/architecture-lab/ui": {
       "name": "@beep/architecture-lab-ui",
-      "version": "0.0.1",
+      "version": "0.0.2",
       "dependencies": {
         "@beep/architecture-lab-config": "workspace:^",
         "@beep/architecture-lab-domain": "workspace:^",
@@ -394,7 +394,7 @@
     },
     "packages/architecture-lab/use-cases": {
       "name": "@beep/architecture-lab-use-cases",
-      "version": "0.0.1",
+      "version": "0.0.2",
       "dependencies": {
         "@beep/architecture-lab-domain": "workspace:^",
         "@beep/identity": "workspace:^",
@@ -409,7 +409,7 @@
     },
     "packages/canvas/client": {
       "name": "@beep/canvas-client",
-      "version": "0.0.1",
+      "version": "0.0.2",
       "dependencies": {
         "@beep/canvas-domain": "workspace:^",
         "@beep/canvas-use-cases": "workspace:^",
@@ -423,7 +423,7 @@
     },
     "packages/canvas/domain": {
       "name": "@beep/canvas-domain",
-      "version": "0.0.1",
+      "version": "0.0.2",
       "dependencies": {
         "@beep/identity": "workspace:^",
         "@beep/schema": "workspace:^",
@@ -437,7 +437,7 @@
     },
     "packages/canvas/server": {
       "name": "@beep/canvas-server",
-      "version": "0.0.1",
+      "version": "0.0.2",
       "dependencies": {
         "@beep/canvas-domain": "workspace:^",
         "@beep/canvas-use-cases": "workspace:^",
@@ -454,7 +454,7 @@
     },
     "packages/canvas/ui": {
       "name": "@beep/canvas-ui",
-      "version": "0.0.1",
+      "version": "0.0.2",
       "dependencies": {
         "@beep/canvas-domain": "workspace:^",
         "@beep/identity": "workspace:^",
@@ -469,7 +469,7 @@
     },
     "packages/canvas/use-cases": {
       "name": "@beep/canvas-use-cases",
-      "version": "0.0.1",
+      "version": "0.0.2",
       "dependencies": {
         "@beep/canvas-domain": "workspace:^",
         "@beep/identity": "workspace:^",
@@ -484,7 +484,7 @@
     },
     "packages/drivers/acp": {
       "name": "@beep/acp",
-      "version": "0.0.1",
+      "version": "0.0.2",
       "dependencies": {
         "@beep/identity": "workspace:^",
         "@beep/schema": "workspace:^",
@@ -527,7 +527,7 @@
     },
     "packages/drivers/drizzle": {
       "name": "@beep/drizzle",
-      "version": "0.0.1",
+      "version": "0.0.2",
       "dependencies": {
         "@beep/identity": "workspace:^",
         "@beep/schema": "workspace:^",
@@ -543,7 +543,7 @@
     },
     "packages/drivers/duckdb": {
       "name": "@beep/duckdb",
-      "version": "0.0.1",
+      "version": "0.0.2",
       "dependencies": {
         "@beep/identity": "workspace:^",
         "@beep/schema": "workspace:^",
@@ -560,7 +560,7 @@
     },
     "packages/drivers/face-detection": {
       "name": "@beep/face-detection",
-      "version": "0.0.1",
+      "version": "0.0.2",
       "dependencies": {
         "@beep/identity": "workspace:^",
         "@beep/schema": "workspace:^",
@@ -576,7 +576,7 @@
     },
     "packages/drivers/ffmpeg": {
       "name": "@beep/ffmpeg",
-      "version": "0.0.1",
+      "version": "0.0.2",
       "dependencies": {
         "@beep/identity": "workspace:^",
         "@beep/schema": "workspace:^",
@@ -591,7 +591,7 @@
     },
     "packages/drivers/hubspot": {
       "name": "@beep/hubspot",
-      "version": "0.0.1",
+      "version": "0.0.2",
       "dependencies": {
         "@beep/identity": "workspace:^",
         "@beep/schema": "workspace:^",
@@ -640,7 +640,7 @@
     },
     "packages/drivers/openai-compat": {
       "name": "@beep/openai-compat",
-      "version": "0.0.1",
+      "version": "0.0.2",
       "dependencies": {
         "@beep/identity": "workspace:^",
         "@beep/schema": "workspace:^",
@@ -668,7 +668,7 @@
     },
     "packages/drivers/postgres": {
       "name": "@beep/postgres",
-      "version": "0.0.1",
+      "version": "0.0.2",
       "dependencies": {
         "@beep/colors": "workspace:^",
         "@beep/identity": "workspace:^",
@@ -687,7 +687,7 @@
     },
     "packages/drivers/runpod": {
       "name": "@beep/runpod",
-      "version": "0.0.1",
+      "version": "0.0.2",
       "dependencies": {
         "@beep/identity": "workspace:^",
         "@beep/schema": "workspace:^",
@@ -701,7 +701,7 @@
     },
     "packages/drivers/sanity": {
       "name": "@beep/sanity",
-      "version": "0.0.1",
+      "version": "0.0.2",
       "dependencies": {
         "@beep/identity": "workspace:^",
         "@beep/schema": "workspace:^",
@@ -715,7 +715,7 @@
     },
     "packages/drivers/venice-ai": {
       "name": "@beep/venice-ai",
-      "version": "0.0.1",
+      "version": "0.0.2",
       "dependencies": {
         "@beep/identity": "workspace:^",
         "@beep/openai-compat": "workspace:^",
@@ -731,7 +731,7 @@
     },
     "packages/drivers/xai": {
       "name": "@beep/xai",
-      "version": "0.0.1",
+      "version": "0.0.2",
       "dependencies": {
         "@beep/identity": "workspace:^",
         "@beep/openai-compat": "workspace:^",
@@ -749,7 +749,7 @@
     },
     "packages/epistemic/domain": {
       "name": "@beep/epistemic-domain",
-      "version": "0.0.1",
+      "version": "0.0.2",
       "dependencies": {
         "@beep/identity": "workspace:^",
         "@beep/schema": "workspace:^",
@@ -763,7 +763,7 @@
     },
     "packages/foundation/capability/chalk": {
       "name": "@beep/chalk",
-      "version": "0.0.1",
+      "version": "0.0.2",
       "dependencies": {
         "@beep/identity": "workspace:^",
         "@beep/schema": "workspace:^",
@@ -777,7 +777,7 @@
     },
     "packages/foundation/capability/colors": {
       "name": "@beep/colors",
-      "version": "0.0.1",
+      "version": "0.0.2",
       "dependencies": {
         "@beep/identity": "workspace:^",
         "@beep/schema": "workspace:^",
@@ -791,7 +791,7 @@
     },
     "packages/foundation/capability/md": {
       "name": "@beep/md",
-      "version": "0.0.1",
+      "version": "0.0.2",
       "dependencies": {
         "@beep/identity": "workspace:^",
         "@beep/schema": "workspace:^",
@@ -805,7 +805,7 @@
     },
     "packages/foundation/capability/nlp": {
       "name": "@beep/nlp",
-      "version": "0.0.1",
+      "version": "0.0.2",
       "dependencies": {
         "@beep/identity": "workspace:^",
         "@beep/schema": "workspace:^",
@@ -823,7 +823,7 @@
     },
     "packages/foundation/capability/observability": {
       "name": "@beep/observability",
-      "version": "0.0.1",
+      "version": "0.0.3",
       "dependencies": {
         "@beep/colors": "workspace:^",
         "@beep/identity": "workspace:^",
@@ -847,7 +847,7 @@
     },
     "packages/foundation/capability/sandbox": {
       "name": "@beep/sandbox",
-      "version": "0.0.1",
+      "version": "0.0.3",
       "bin": {
         "beep-sandbox": "./src/bin.ts",
       },
@@ -867,7 +867,7 @@
     },
     "packages/foundation/capability/semantic-web": {
       "name": "@beep/semantic-web",
-      "version": "0.0.1",
+      "version": "0.0.2",
       "dependencies": {
         "@beep/identity": "workspace:^",
         "@beep/schema": "workspace:^",
@@ -895,7 +895,7 @@
     },
     "packages/foundation/modeling/messages": {
       "name": "@beep/messages",
-      "version": "0.0.1",
+      "version": "0.0.2",
       "dependencies": {
         "@beep/utils": "workspace:^",
         "effect": "catalog:",
@@ -908,7 +908,7 @@
     },
     "packages/foundation/modeling/schema": {
       "name": "@beep/schema",
-      "version": "0.1.1",
+      "version": "0.1.2",
       "dependencies": {
         "@beep/data": "workspace:^",
         "@beep/identity": "workspace:^",
@@ -932,7 +932,7 @@
     },
     "packages/foundation/modeling/utils": {
       "name": "@beep/utils",
-      "version": "0.0.1",
+      "version": "0.0.2",
       "dependencies": {
         "@beep/identity": "workspace:^",
         "effect": "catalog:",
@@ -948,7 +948,7 @@
     },
     "packages/foundation/primitive/data": {
       "name": "@beep/data",
-      "version": "0.0.1",
+      "version": "0.0.2",
       "dependencies": {
         "@beep/utils": "workspace:^",
         "effect": "catalog:",
@@ -994,7 +994,7 @@
     },
     "packages/foundation/ui-system/ui": {
       "name": "@beep/ui",
-      "version": "0.0.1",
+      "version": "0.1.1",
       "dependencies": {
         "@base-ui/react": "catalog:",
         "@beep/utils": "workspace:^",
@@ -1060,7 +1060,7 @@
     },
     "packages/installer/domain": {
       "name": "@beep/installer-domain",
-      "version": "0.0.1",
+      "version": "0.0.2",
       "dependencies": {
         "@beep/identity": "workspace:^",
         "@beep/schema": "workspace:^",
@@ -1074,7 +1074,7 @@
     },
     "packages/installer/server": {
       "name": "@beep/installer-server",
-      "version": "0.0.1",
+      "version": "0.0.3",
       "dependencies": {
         "@beep/ai-provider-cli": "workspace:^",
         "@beep/discord": "workspace:^",
@@ -1091,7 +1091,7 @@
     },
     "packages/installer/use-cases": {
       "name": "@beep/installer-use-cases",
-      "version": "0.0.1",
+      "version": "0.0.2",
       "dependencies": {
         "@beep/identity": "workspace:^",
         "@beep/installer-domain": "workspace:^",
@@ -1106,7 +1106,7 @@
     },
     "packages/law-practice/domain": {
       "name": "@beep/law-practice-domain",
-      "version": "0.0.1",
+      "version": "0.0.2",
       "dependencies": {
         "@beep/identity": "workspace:^",
         "@beep/schema": "workspace:^",
@@ -1142,7 +1142,7 @@
     },
     "packages/shared/domain": {
       "name": "@beep/shared-domain",
-      "version": "0.0.1",
+      "version": "0.0.2",
       "dependencies": {
         "@beep/identity": "workspace:^",
         "@beep/schema": "workspace:^",
@@ -1167,7 +1167,7 @@
     },
     "packages/shared/tables": {
       "name": "@beep/shared-tables",
-      "version": "0.0.1",
+      "version": "0.0.2",
       "dependencies": {
         "@beep/drizzle": "workspace:^",
         "@beep/shared-domain": "workspace:^",
@@ -1182,7 +1182,7 @@
     },
     "packages/shared/ui": {
       "name": "@beep/shared-ui",
-      "version": "0.0.1",
+      "version": "0.0.2",
       "dependencies": {
         "@beep/identity": "workspace:^",
         "@beep/schema": "workspace:^",
@@ -1207,7 +1207,7 @@
     },
     "packages/tooling/library/ai-metrics": {
       "name": "@beep/repo-ai-metrics",
-      "version": "0.0.1",
+      "version": "0.0.3",
       "dependencies": {
         "@beep/duckdb": "workspace:^",
         "@beep/identity": "workspace:^",
@@ -1225,7 +1225,7 @@
     },
     "packages/tooling/library/ai-sync": {
       "name": "@beep/ai-sync",
-      "version": "0.0.1",
+      "version": "0.0.2",
       "dependencies": {
         "@beep/identity": "workspace:^",
         "@beep/schema": "workspace:^",
@@ -1241,7 +1241,7 @@
     },
     "packages/tooling/library/repo-codegraph": {
       "name": "@beep/repo-codegraph",
-      "version": "0.0.1",
+      "version": "0.0.2",
       "dependencies": {
         "@beep/identity": "workspace:^",
         "@beep/schema": "workspace:^",
@@ -1274,7 +1274,7 @@
     },
     "packages/tooling/policy-pack/repo-configs": {
       "name": "@beep/repo-configs",
-      "version": "0.1.0",
+      "version": "0.1.1",
       "dependencies": {
         "@beep/identity": "workspace:^",
         "@beep/schema": "workspace:^",
@@ -1306,7 +1306,7 @@
     },
     "packages/tooling/test-kit/test-utils": {
       "name": "@beep/test-utils",
-      "version": "0.0.1",
+      "version": "0.0.2",
       "dependencies": {
         "@beep/identity": "workspace:^",
         "@beep/schema": "workspace:^",
@@ -1370,7 +1370,7 @@
     },
     "packages/tooling/tool/docgen": {
       "name": "@beep/repo-docgen",
-      "version": "0.0.1",
+      "version": "0.0.2",
       "bin": {
         "docgen": "./src/bin.ts",
       },
@@ -1398,7 +1398,7 @@
     },
     "packages/wealth-management/domain": {
       "name": "@beep/wealth-management-domain",
-      "version": "0.0.1",
+      "version": "0.0.2",
       "dependencies": {
         "@beep/identity": "workspace:^",
         "@beep/schema": "workspace:^",
@@ -1412,7 +1412,7 @@
     },
     "packages/workspace/domain": {
       "name": "@beep/workspace-domain",
-      "version": "0.0.1",
+      "version": "0.0.2",
       "dependencies": {
         "@beep/identity": "workspace:^",
         "@beep/schema": "workspace:^",
@@ -1426,7 +1426,7 @@
     },
     "packages/workspace/tables": {
       "name": "@beep/workspace-tables",
-      "version": "0.0.1",
+      "version": "0.0.2",
       "dependencies": {
         "@beep/drizzle": "workspace:^",
         "@beep/workspace-domain": "workspace:^",
@@ -1481,7 +1481,7 @@
     "@biomejs/biome": "^2.4.16",
     "@changesets/changelog-github": "^0.7.0",
     "@changesets/cli": "^2.31.0",
-    "@clack/prompts": "^1.4.0",
+    "@clack/prompts": "^1.5.0",
     "@commitlint/cli": "^21.0.2",
     "@commitlint/config-conventional": "^21.0.2",
     "@duckdb/node-api": "1.5.3-r.2",
@@ -1530,14 +1530,14 @@
     "@mui/x-date-pickers": "^9.0.0-alpha.4",
     "@mui/x-date-pickers-pro": "^9.0.0-beta.0",
     "@mui/x-tree-view": "^9.0.0-alpha.4",
-    "@next/bundle-analyzer": "16.3.0-canary.33",
-    "@next/mdx": "16.3.0-canary.33",
+    "@next/bundle-analyzer": "16.3.0-canary.34",
+    "@next/mdx": "16.3.0-canary.34",
     "@noble/hashes": "^2.2.0",
     "@openai/codex-sdk": "~0.135.0",
     "@phosphor-icons/react": "^2.1.10",
     "@pigment-css/react": "^0.0.31",
     "@pigment-css/vite-plugin": "^0.0.31",
-    "@pulumi/aws": "^7.31.0",
+    "@pulumi/aws": "^7.32.0",
     "@pulumi/cloudflare": "^6.17.0",
     "@pulumi/command": "^1.2.1",
     "@pulumi/github": "^6.14.0",
@@ -1603,7 +1603,7 @@
     "drizzle-orm": "1.0.0-rc.3",
     "effect": "4.0.0-beta.74",
     "embla-carousel-react": "^8.6.0",
-    "eslint": "^10.4.0",
+    "eslint": "^10.4.1",
     "eslint-plugin-jsdoc": "^63.0.0",
     "eslint-plugin-tsdoc": "^0.5.2",
     "fast-xml-parser": "^5.8.0",
@@ -1626,7 +1626,7 @@
     "markdownlint-cli2": "^0.22.1",
     "micromark": "^4.0.2",
     "micromark-extension-gfm": "^3.0.0",
-    "next": "16.3.0-canary.33",
+    "next": "16.3.0-canary.34",
     "next-pwa": "^5.6.0",
     "next-themes": "^0.4.6",
     "onnxruntime-node": "^1.26.0",
@@ -1639,7 +1639,7 @@
     "react-dom": "19.2.6",
     "react-konva": "^19.2.4",
     "react-resizable-panels": "^4.11.2",
-    "recharts": "^3.8.0",
+    "recharts": "^3.8.1",
     "shacl-engine": "^1.1.0",
     "shadcn": "^4.8.3",
     "sharp": "^0.34.5",
@@ -2126,9 +2126,9 @@
 
     "@changesets/write": ["@changesets/write@0.4.0", "", { "dependencies": { "@changesets/types": "^6.1.0", "fs-extra": "^7.0.1", "human-id": "^4.1.1", "prettier": "^2.7.1" } }, "sha512-CdTLvIOPiCNuH71pyDu3rA+Q0n65cmAbXnwWH84rKGiFumFzkmHNT8KHTMEchcxN+Kl8I54xGUhJ7l3E7X396Q=="],
 
-    "@clack/core": ["@clack/core@1.3.1", "", { "dependencies": { "fast-wrap-ansi": "^0.2.0", "sisteransi": "^1.0.5" } }, "sha512-fT1qHVGAag4IEkrupZ6lRRbNCs1vS9P01KB/sG8zKgvUztbYtFBtQpjSITNwooDZ83tpsPzP0mRNs1/KVszCRA=="],
+    "@clack/core": ["@clack/core@1.4.0", "", { "dependencies": { "fast-wrap-ansi": "^0.2.0", "sisteransi": "^1.0.5" } }, "sha512-7Wctjq6f7c1CPz8sPpkwUnz8yRgVANkpNupb81q432FjcJg4l+Sw7XANdNSdWfAKq0IHI0JTcUeK5dxs/HrGPw=="],
 
-    "@clack/prompts": ["@clack/prompts@1.4.0", "", { "dependencies": { "@clack/core": "1.3.1", "fast-string-width": "^3.0.2", "fast-wrap-ansi": "^0.2.0", "sisteransi": "^1.0.5" } }, "sha512-S0My7XPGIgpRWMDG8uRqalbgT+a6FmCUdOW+HaIOVVpUPHOb7RrpvjTjiODadKp06fsrVDJZlIzc6yCTp4AnxA=="],
+    "@clack/prompts": ["@clack/prompts@1.5.0", "", { "dependencies": { "@clack/core": "1.4.0", "fast-string-width": "^3.0.2", "fast-wrap-ansi": "^0.2.0", "sisteransi": "^1.0.5" } }, "sha512-wKh+wTjmrUoUdkZg8KpJO5X+p9PWV+KE9mePseq9UYWkukgTKsGS47RRL2HstwVcvDQH+PenrPJWII8+MfiiyA=="],
 
     "@commitlint/cli": ["@commitlint/cli@21.0.2", "", { "dependencies": { "@commitlint/format": "^21.0.1", "@commitlint/lint": "^21.0.2", "@commitlint/load": "^21.0.2", "@commitlint/read": "^21.0.2", "@commitlint/types": "^21.0.1", "tinyexec": "^1.0.0", "yargs": "^18.0.0" }, "bin": { "commitlint": "cli.js" } }, "sha512-YMmfLbqBg+ZRvvmPhc+cilSQFrh/AgzVgCT1U/OifmUZEwPbvCtA8rN//YNaF9d5eoZphxVMGYtmwA2QgQORgg=="],
 
@@ -2500,7 +2500,7 @@
 
     "@eslint/object-schema": ["@eslint/object-schema@3.0.5", "", {}, "sha512-vqTaUEgxzm+YDSdElad6PiRoX4t8VGDjCtt05zn4nU810UIx/uNEV7/lZJ6KwFThKZOzOxzXy48da+No7HZaMw=="],
 
-    "@eslint/plugin-kit": ["@eslint/plugin-kit@0.7.1", "", { "dependencies": { "@eslint/core": "^1.2.1", "levn": "^0.4.1" } }, "sha512-rZAP3aVgB9ds9KOeUSL+zZ21hPmo8dh6fnIFwRQj5EAZl9gzR7wxYbYXYysAM8CTqGmUGyp2S4kUdV17MnGuWQ=="],
+    "@eslint/plugin-kit": ["@eslint/plugin-kit@0.7.2", "", { "dependencies": { "@eslint/core": "^1.2.1", "levn": "^0.4.1" } }, "sha512-+CNAzxglkrpNf/kKywqQfk74QjtceuOE7Qm+AF8miRvPF/wmmK5+OJOgVh3AVTT3RP2mH3+FOaxlE5v72owk0A=="],
 
     "@exodus/bytes": ["@exodus/bytes@1.15.0", "", { "peerDependencies": { "@noble/hashes": "^1.8.0 || ^2.0.0" }, "optionalPeers": ["@noble/hashes"] }, "sha512-UY0nlA+feH81UGSHv92sLEPLCeZFjXOuHhrIo0HQydScuQc8s0A7kL/UdgwgDq8g8ilksmuoF35YVTNphV2aBQ=="],
 
@@ -2744,27 +2744,27 @@
 
     "@napi-rs/wasm-runtime": ["@napi-rs/wasm-runtime@1.1.4", "", { "dependencies": { "@tybys/wasm-util": "^0.10.1" }, "peerDependencies": { "@emnapi/core": "^1.7.1", "@emnapi/runtime": "^1.7.1" } }, "sha512-3NQNNgA1YSlJb/kMH1ildASP9HW7/7kYnRI2szWJaofaS1hWmbGI4H+d3+22aGzXXN9IJ+n+GiFVcGipJP18ow=="],
 
-    "@next/bundle-analyzer": ["@next/bundle-analyzer@16.3.0-canary.33", "", { "dependencies": { "webpack-bundle-analyzer": "4.10.1" } }, "sha512-ddxDEQj7aVHzS9CA7Srw+/IobZi/fzcNMezjIUsLB9mrHb00aZ4pua5+6wpLcS3leHHTJsqqp5V90HwYIXNvEQ=="],
+    "@next/bundle-analyzer": ["@next/bundle-analyzer@16.3.0-canary.34", "", { "dependencies": { "webpack-bundle-analyzer": "4.10.1" } }, "sha512-7o+qdqSAqyG9DKnZQmSnGhB2k6jkcw4NbiOTdzbVKXuwZLw0ZyUb/DReEyDuvRbuCoIXlb9inNBVH3z5OJtJ/Q=="],
 
-    "@next/env": ["@next/env@16.3.0-canary.33", "", {}, "sha512-861mlS4aM6DTXTBDa7MpeL0X4n7kGHrz4rNoQYzG39WMfn20JSOOktWjqhrzNaglQ4lVcD6CBgdbKKrhYUOhoQ=="],
+    "@next/env": ["@next/env@16.3.0-canary.34", "", {}, "sha512-jjpb+CGSZlVi7e4/Sn9Gxih/+t8GWqxzMsr7E00UxknULbcXugvgGBovz06US3gcBpgj6+wnDyctqJhsr4/jEw=="],
 
-    "@next/mdx": ["@next/mdx@16.3.0-canary.33", "", { "dependencies": { "source-map": "^0.7.0" }, "peerDependencies": { "@mdx-js/loader": ">=0.15.0", "@mdx-js/react": ">=0.15.0" }, "optionalPeers": ["@mdx-js/loader", "@mdx-js/react"] }, "sha512-xubY2zY6yE4Cbh94ri3tTgL7wwDwsy2vlQ6/loypuYeiNA9Z/Rk9mv6O/RLMAfaIa/ngZB2n7xYGoJWQ3DDs2w=="],
+    "@next/mdx": ["@next/mdx@16.3.0-canary.34", "", { "dependencies": { "source-map": "^0.7.0" }, "peerDependencies": { "@mdx-js/loader": ">=0.15.0", "@mdx-js/react": ">=0.15.0" }, "optionalPeers": ["@mdx-js/loader", "@mdx-js/react"] }, "sha512-/0jBXDw2kWnrHcdhe4NKq4CcVCP01hlssJ1kfIYMtnrgnlgullyW7NPONDAduH863cNfi6kiRBtAFZCaOGI5Vw=="],
 
-    "@next/swc-darwin-arm64": ["@next/swc-darwin-arm64@16.3.0-canary.33", "", { "os": "darwin", "cpu": "arm64" }, "sha512-u/Jdb0ikVmAQeT/bTdBF2enG8dLF8HOBrH19D6412I+UDUuHbxI2YiVp2rQNMVipqiejjzDskw8YEXrjuiTjwA=="],
+    "@next/swc-darwin-arm64": ["@next/swc-darwin-arm64@16.3.0-canary.34", "", { "os": "darwin", "cpu": "arm64" }, "sha512-21NqrMRGAMtI00D2iUZ0UCyg4T+HMBjujKqUZgdTZY6zv0lOxSKFkH4AS8lE/u9J2awbJ6pMohbj1/Hv+aBMDw=="],
 
-    "@next/swc-darwin-x64": ["@next/swc-darwin-x64@16.3.0-canary.33", "", { "os": "darwin", "cpu": "x64" }, "sha512-MDgTiPTLfeGLPAL3MdtblocoGccV5aQeKqRxejHjKpNUPnNPy2xHuDSNygaGyupMSiI9Pi936blcKKA/W58hSQ=="],
+    "@next/swc-darwin-x64": ["@next/swc-darwin-x64@16.3.0-canary.34", "", { "os": "darwin", "cpu": "x64" }, "sha512-iTYrqljfqo8Z5vz8AQeDml/Y2xIjrx0BhufM355GAFe9s0CIQgMKZftW8KEeKKmd1kv54E3l32pxkHM9k/pBHQ=="],
 
-    "@next/swc-linux-arm64-gnu": ["@next/swc-linux-arm64-gnu@16.3.0-canary.33", "", { "os": "linux", "cpu": "arm64" }, "sha512-/fgs20AnZ6iRlWKILLHqn6DLXmDUxxV6FoR7H69Iz1OIddts3Dptnw0pURdJVJ/b23rT6yPp68eYl39GTcA7hw=="],
+    "@next/swc-linux-arm64-gnu": ["@next/swc-linux-arm64-gnu@16.3.0-canary.34", "", { "os": "linux", "cpu": "arm64" }, "sha512-EZ/MzUyVJeYGy2Zc/kc+G1y9TWXQ2/RJNmqbqeyQPSTS+v1gQk63Bb6BK3aLIkEo97l4KglaH0IFk09tzboJUA=="],
 
-    "@next/swc-linux-arm64-musl": ["@next/swc-linux-arm64-musl@16.3.0-canary.33", "", { "os": "linux", "cpu": "arm64" }, "sha512-81xkskxpeUQee1c7fVp4nkV7EoeGFZsrGNLcdDRx1e7qaEgir3dx8NWxM0oYBsMPviS7IVhmJyPO+wkhAd9dLw=="],
+    "@next/swc-linux-arm64-musl": ["@next/swc-linux-arm64-musl@16.3.0-canary.34", "", { "os": "linux", "cpu": "arm64" }, "sha512-5UvT7Aq0ellRYoW5NjFJ47YT9aAzyuLSojbfu5Br7+zjFkOqXvRkWSzwGSjn2ZcsoGNWvFHBtIev3elDhBeKJQ=="],
 
-    "@next/swc-linux-x64-gnu": ["@next/swc-linux-x64-gnu@16.3.0-canary.33", "", { "os": "linux", "cpu": "x64" }, "sha512-mtFT6sx/PSH5zFaOGF3ly9OzBa5UQSPy1fbTmYYsttIkyjYpaI+Rol3l8NGLbKYuMitF17Z/EH96GMXjtBMHcA=="],
+    "@next/swc-linux-x64-gnu": ["@next/swc-linux-x64-gnu@16.3.0-canary.34", "", { "os": "linux", "cpu": "x64" }, "sha512-4zhR4ToqvHWgMaOEc4UmvUTBTTLprEO8MVG1EJti0pzxqqqu83hfD2kjaaWVLDWKThXaAogxbhQJpBh2pL8Bmg=="],
 
-    "@next/swc-linux-x64-musl": ["@next/swc-linux-x64-musl@16.3.0-canary.33", "", { "os": "linux", "cpu": "x64" }, "sha512-z97MeGiFXm/vxHSTEYxQo8o8o1ekTePlXC2dmfrRcePXf8GwmebioMWo8FxsSZ9A85cTqyJmBo+b91wo1lfydQ=="],
+    "@next/swc-linux-x64-musl": ["@next/swc-linux-x64-musl@16.3.0-canary.34", "", { "os": "linux", "cpu": "x64" }, "sha512-uSIPFdEDtMA5ahpzr3T82S8R1y4mSU1f+LCkVa+gl3Et6y8t602vWaXktBQ2EX4wJQjOytpyDNDTV1OxtEJpQQ=="],
 
-    "@next/swc-win32-arm64-msvc": ["@next/swc-win32-arm64-msvc@16.3.0-canary.33", "", { "os": "win32", "cpu": "arm64" }, "sha512-tR9Wu+U90isTbizFWtyD4QaSNsST0vlX2mtntPzH1yifRN33c7DKzuekyc0ZCCjHjpeKkFHD5d7U2ZChcIZ9Ew=="],
+    "@next/swc-win32-arm64-msvc": ["@next/swc-win32-arm64-msvc@16.3.0-canary.34", "", { "os": "win32", "cpu": "arm64" }, "sha512-jc9GU8qBoq3gST/HQCfGFwUoYAne5whWz+WXWxVDLH8vPW++FHlcYSYxqVhS5Z0f3Wy1lVVioK5lbGSEMuFTuA=="],
 
-    "@next/swc-win32-x64-msvc": ["@next/swc-win32-x64-msvc@16.3.0-canary.33", "", { "os": "win32", "cpu": "x64" }, "sha512-kZSKM4DnhGH2QexKiwyV83rae8Wlo+m70Eu21CtVDgKVpK/qjxwce3ePG5YuRwm0f+2GGcGLnUJ/XyA1vSK5YQ=="],
+    "@next/swc-win32-x64-msvc": ["@next/swc-win32-x64-msvc@16.3.0-canary.34", "", { "os": "win32", "cpu": "x64" }, "sha512-SD26yOW8yOdiy0cmFufPhjJIlmx6IYvKD3CY2C7VW8npsdK6uF8vgvrVLIghcjiLU9Xe/hnNTQFx+YP+jOugwA=="],
 
     "@nicolo-ribaudo/chokidar-2": ["@nicolo-ribaudo/chokidar-2@2.1.8-no-fsevents.3", "", {}, "sha512-s88O1aVtXftvp5bCPB7WnmXc5IwOZZ7YPuwNPt+GtOOXpPvad1LfbmjYv+qII7zP6RU2QGnqve27dnLycEnyEQ=="],
 
@@ -2992,7 +2992,7 @@
 
     "@protobufjs/utf8": ["@protobufjs/utf8@1.1.1", "", {}, "sha512-oOAWABowe8EAbMyWKM0tYDKi8Yaox52D+HWZhAIJqQXbqe0xI/GV7FhLWqlEKreMkfDjshR5FKgi3mnle0h6Eg=="],
 
-    "@pulumi/aws": ["@pulumi/aws@7.31.0", "", { "dependencies": { "@pulumi/pulumi": "^3.142.0", "mime": "^2.0.0" } }, "sha512-DZlVp71B6PmLVA88EMI0nDeSUjBwYVlF/TP9l0hrGKxPXeUIf4UmnvxOx4G3+pK5IpvZN6BsUQy+bKdu0dtvkw=="],
+    "@pulumi/aws": ["@pulumi/aws@7.32.0", "", { "dependencies": { "@pulumi/pulumi": "^3.142.0", "mime": "^2.0.0" } }, "sha512-hSGfKOIN5ut1mO1PGT+NxEd7Tb48mY/MKezrvPgyR2B2pxOeXZ8hZxXu84M058ngVIqty3g7J7C1jOzS20sz/g=="],
 
     "@pulumi/cloudflare": ["@pulumi/cloudflare@6.17.0", "", { "dependencies": { "@pulumi/pulumi": "^3.142.0" } }, "sha512-sIL1rfjNavy+yZQ/OjyFHD4owe2E/TpHLFCVsogQJOC+Y6Bj7JxrhoTfsJdxVEXEFBGlNCu68T+g9im8iEZM9A=="],
 
@@ -4118,7 +4118,7 @@
 
     "escodegen": ["escodegen@2.1.0", "", { "dependencies": { "esprima": "^4.0.1", "estraverse": "^5.2.0", "esutils": "^2.0.2" }, "optionalDependencies": { "source-map": "~0.6.1" }, "bin": { "esgenerate": "bin/esgenerate.js", "escodegen": "bin/escodegen.js" } }, "sha512-2NlIDTwUWJN0mRPQOdtQBzbUHvdGY2P1VXSyU83Q3xKxM7WHX2Ql8dKq782Q9TgQUNOLEzEYu9bzLNj1q88I5w=="],
 
-    "eslint": ["eslint@10.4.0", "", { "dependencies": { "@eslint-community/eslint-utils": "^4.8.0", "@eslint-community/regexpp": "^4.12.2", "@eslint/config-array": "^0.23.5", "@eslint/config-helpers": "^0.6.0", "@eslint/core": "^1.2.1", "@eslint/plugin-kit": "^0.7.1", "@humanfs/node": "^0.16.6", "@humanwhocodes/module-importer": "^1.0.1", "@humanwhocodes/retry": "^0.4.2", "@types/estree": "^1.0.6", "ajv": "^6.14.0", "cross-spawn": "^7.0.6", "debug": "^4.3.2", "escape-string-regexp": "^4.0.0", "eslint-scope": "^9.1.2", "eslint-visitor-keys": "^5.0.1", "espree": "^11.2.0", "esquery": "^1.7.0", "esutils": "^2.0.2", "fast-deep-equal": "^3.1.3", "file-entry-cache": "^8.0.0", "find-up": "^5.0.0", "glob-parent": "^6.0.2", "ignore": "^5.2.0", "imurmurhash": "^0.1.4", "is-glob": "^4.0.0", "json-stable-stringify-without-jsonify": "^1.0.1", "minimatch": "^10.2.4", "natural-compare": "^1.4.0", "optionator": "^0.9.3" }, "peerDependencies": { "jiti": "*" }, "optionalPeers": ["jiti"], "bin": { "eslint": "bin/eslint.js" } }, "sha512-loXy6bWOoP3EP6JA7jo6p5jMpBJmHmsNZM5SFRHLdh1MGOPurMnNBj4ZlAbaqUAaQWbCr7jHV4P7gzAyryZWkQ=="],
+    "eslint": ["eslint@10.4.1", "", { "dependencies": { "@eslint-community/eslint-utils": "^4.8.0", "@eslint-community/regexpp": "^4.12.2", "@eslint/config-array": "^0.23.5", "@eslint/config-helpers": "^0.6.0", "@eslint/core": "^1.2.1", "@eslint/plugin-kit": "^0.7.2", "@humanfs/node": "^0.16.6", "@humanwhocodes/module-importer": "^1.0.1", "@humanwhocodes/retry": "^0.4.2", "@types/estree": "^1.0.6", "ajv": "^6.14.0", "cross-spawn": "^7.0.6", "debug": "^4.3.2", "escape-string-regexp": "^4.0.0", "eslint-scope": "^9.1.2", "eslint-visitor-keys": "^5.0.1", "espree": "^11.2.0", "esquery": "^1.7.0", "esutils": "^2.0.2", "fast-deep-equal": "^3.1.3", "file-entry-cache": "^8.0.0", "find-up": "^5.0.0", "glob-parent": "^6.0.2", "ignore": "^5.2.0", "imurmurhash": "^0.1.4", "is-glob": "^4.0.0", "json-stable-stringify-without-jsonify": "^1.0.1", "minimatch": "^10.2.4", "natural-compare": "^1.4.0", "optionator": "^0.9.3" }, "peerDependencies": { "jiti": "*" }, "optionalPeers": ["jiti"], "bin": { "eslint": "bin/eslint.js" } }, "sha512-AyIKhnOBuOAdueD7RB3xB+YeAWScb9jHsJBgH2Hcde8InP5JYhqrRR6iTMHyTEwgENK54Cp44e4v8BwNhsuHuw=="],
 
     "eslint-plugin-jsdoc": ["eslint-plugin-jsdoc@63.0.0", "", { "dependencies": { "@es-joy/jsdoccomment": "~0.86.0", "@es-joy/resolve.exports": "1.2.0", "are-docs-informative": "^0.0.2", "comment-parser": "1.4.6", "debug": "^4.4.3", "escape-string-regexp": "^4.0.0", "espree": "^11.2.0", "esquery": "^1.7.0", "html-entities": "^2.6.0", "object-deep-merge": "^2.0.0", "parse-imports-exports": "^0.2.4", "semver": "^7.8.0", "spdx-expression-parse": "^4.0.0", "to-valid-identifier": "^1.0.0" }, "peerDependencies": { "eslint": "^7.0.0 || ^8.0.0 || ^9.0.0 || ^10.0.0" } }, "sha512-eDHuVGyZydr4BKgjXouU7bsn5qaqUlObXBSWRJk3vXcQgXVFnrwWIqpP7uBhRX9NQpk6NIIFyRc6F6omZNi/8g=="],
 
@@ -4968,7 +4968,7 @@
 
     "neo-async": ["neo-async@2.6.2", "", {}, "sha512-Yd3UES5mWCSqR+qNT93S3UoYUkqAZ9lLg8a7g9rimsWmYGK8cVToA4/sF3RrshdyV3sAGMXVUmpMYOw+dLpOuw=="],
 
-    "next": ["next@16.3.0-canary.33", "", { "dependencies": { "@next/env": "16.3.0-canary.33", "@swc/helpers": "0.5.15", "baseline-browser-mapping": "^2.9.19", "caniuse-lite": "^1.0.30001579", "postcss": "8.5.10", "styled-jsx": "5.1.6" }, "optionalDependencies": { "@next/swc-darwin-arm64": "16.3.0-canary.33", "@next/swc-darwin-x64": "16.3.0-canary.33", "@next/swc-linux-arm64-gnu": "16.3.0-canary.33", "@next/swc-linux-arm64-musl": "16.3.0-canary.33", "@next/swc-linux-x64-gnu": "16.3.0-canary.33", "@next/swc-linux-x64-musl": "16.3.0-canary.33", "@next/swc-win32-arm64-msvc": "16.3.0-canary.33", "@next/swc-win32-x64-msvc": "16.3.0-canary.33", "sharp": "^0.34.5" }, "peerDependencies": { "@opentelemetry/api": "^1.1.0", "@playwright/test": "^1.51.1", "babel-plugin-react-compiler": "*", "react": "^18.2.0 || 19.0.0-rc-de68d2f4-20241204 || ^19.0.0", "react-dom": "^18.2.0 || 19.0.0-rc-de68d2f4-20241204 || ^19.0.0", "sass": "^1.3.0" }, "optionalPeers": ["@opentelemetry/api", "@playwright/test", "babel-plugin-react-compiler", "sass"], "bin": { "next": "dist/bin/next" } }, "sha512-RzNNyM3Seuy63+B6NBXRMXiynoq7xXXlgJEYXZg4SdS3nhZlkokxeJ+hQ0J9XwjHlzvdmACCwujIpfQ5SPVrTQ=="],
+    "next": ["next@16.3.0-canary.34", "", { "dependencies": { "@next/env": "16.3.0-canary.34", "@swc/helpers": "0.5.15", "baseline-browser-mapping": "^2.9.19", "caniuse-lite": "^1.0.30001579", "postcss": "8.5.10", "styled-jsx": "5.1.6" }, "optionalDependencies": { "@next/swc-darwin-arm64": "16.3.0-canary.34", "@next/swc-darwin-x64": "16.3.0-canary.34", "@next/swc-linux-arm64-gnu": "16.3.0-canary.34", "@next/swc-linux-arm64-musl": "16.3.0-canary.34", "@next/swc-linux-x64-gnu": "16.3.0-canary.34", "@next/swc-linux-x64-musl": "16.3.0-canary.34", "@next/swc-win32-arm64-msvc": "16.3.0-canary.34", "@next/swc-win32-x64-msvc": "16.3.0-canary.34", "sharp": "^0.34.5" }, "peerDependencies": { "@opentelemetry/api": "^1.1.0", "@playwright/test": "^1.51.1", "babel-plugin-react-compiler": "*", "react": "^18.2.0 || 19.0.0-rc-de68d2f4-20241204 || ^19.0.0", "react-dom": "^18.2.0 || 19.0.0-rc-de68d2f4-20241204 || ^19.0.0", "sass": "^1.3.0" }, "optionalPeers": ["@opentelemetry/api", "@playwright/test", "babel-plugin-react-compiler", "sass"], "bin": { "next": "dist/bin/next" } }, "sha512-5Z8cNJ3ymWR7chIULLGv7ZKHp/I2otidEOeoVjftqrJEM+GpF0SF4nmBw1lUT7zWXRzjw19mWbdrTRCFRp5mWA=="],
 
     "next-pwa": ["next-pwa@5.6.0", "", { "dependencies": { "babel-loader": "^8.2.5", "clean-webpack-plugin": "^4.0.0", "globby": "^11.0.4", "terser-webpack-plugin": "^5.3.3", "workbox-webpack-plugin": "^6.5.4", "workbox-window": "^6.5.4" }, "peerDependencies": { "next": ">=9.0.0" } }, "sha512-XV8g8C6B7UmViXU8askMEYhWwQ4qc/XqJGnexbLV68hzKaGHZDMtHsm2TNxFcbR7+ypVuth/wwpiIlMwpRJJ5A=="],
 
@@ -5298,7 +5298,7 @@
 
     "recast": ["recast@0.23.11", "", { "dependencies": { "ast-types": "^0.16.1", "esprima": "~4.0.0", "source-map": "~0.6.1", "tiny-invariant": "^1.3.3", "tslib": "^2.0.1" } }, "sha512-YTUo+Flmw4ZXiWfQKGcwwc11KnoRAYgzAE2E7mXKCjSviTKShtxBsN6YUUBB2gtaBzKzeKunxhUwNHQuRryhWA=="],
 
-    "recharts": ["recharts@3.8.0", "", { "dependencies": { "@reduxjs/toolkit": "^1.9.0 || 2.x.x", "clsx": "^2.1.1", "decimal.js-light": "^2.5.1", "es-toolkit": "^1.39.3", "eventemitter3": "^5.0.1", "immer": "^10.1.1", "react-redux": "8.x.x || 9.x.x", "reselect": "5.1.1", "tiny-invariant": "^1.3.3", "use-sync-external-store": "^1.2.2", "victory-vendor": "^37.0.2" }, "peerDependencies": { "react": "^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0", "react-dom": "^16.0.0 || ^17.0.0 || ^18.0.0 || ^19.0.0", "react-is": "^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0" } }, "sha512-Z/m38DX3L73ExO4Tpc9/iZWHmHnlzWG4njQbxsF5aSjwqmHNDDIm0rdEBArkwsBvR8U6EirlEHiQNYWCVh9sGQ=="],
+    "recharts": ["recharts@3.8.1", "", { "dependencies": { "@reduxjs/toolkit": "^1.9.0 || 2.x.x", "clsx": "^2.1.1", "decimal.js-light": "^2.5.1", "es-toolkit": "^1.39.3", "eventemitter3": "^5.0.1", "immer": "^10.1.1", "react-redux": "8.x.x || 9.x.x", "reselect": "5.1.1", "tiny-invariant": "^1.3.3", "use-sync-external-store": "^1.2.2", "victory-vendor": "^37.0.2" }, "peerDependencies": { "react": "^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0", "react-dom": "^16.0.0 || ^17.0.0 || ^18.0.0 || ^19.0.0", "react-is": "^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0" } }, "sha512-mwzmO1s9sFL0TduUpwndxCUNoXsBw3u3E/0+A+cLcrSfQitSG62L32N69GhqUrrT5qKcAE3pCGVINC6pqkBBQg=="],
 
     "recma-build-jsx": ["recma-build-jsx@1.0.0", "", { "dependencies": { "@types/estree": "^1.0.0", "estree-util-build-jsx": "^3.0.0", "vfile": "^6.0.0" } }, "sha512-8GtdyqaBcDfva+GUKDr3nev3VpKAhup1+RvkMvUxURHpW7QyIvk9F5wz7Vzo06CEMSilw6uArgRqhpiUcWp8ew=="],
 

@@ -2504,38 +2504,39 @@ describe("FormReact.make", () => {
     const AgeField = Field.makeField("age", S.String);
 
     effectTest("debounces validation updates in onChange mode", function* () {
-      const user = userEvent.setup();
+      vi.useFakeTimers();
 
-      const formBuilder = FormBuilder.empty.addField(NameFieldMinLength);
+      try {
+        const formBuilder = FormBuilder.empty.addField(NameFieldMinLength);
 
-      const form = FormReact.make(formBuilder, {
-        runtime: createRuntime(),
-        fields: { name: DebounceTextInput },
-        mode: { validation: "onChange", debounce: "300 millis" },
-        onSubmit: () => {},
-      });
+        const form = FormReact.make(formBuilder, {
+          runtime: createRuntime(),
+          fields: { name: DebounceTextInput },
+          mode: { validation: "onChange", debounce: "300 millis" },
+          onSubmit: () => {},
+        });
 
-      render(
-        <form.Initialize defaultValues={{ name: "Valid" }}>
-          <form.name />
-        </form.Initialize>
-      );
+        render(
+          <form.Initialize defaultValues={{ name: "Valid" }}>
+            <form.name />
+          </form.Initialize>
+        );
 
-      const input = screen.getByTestId("text-input");
-      yield* Effect.promise(() => user.clear(input));
-      yield* Effect.promise(() => user.type(input, "Bad"));
-      yield* Effect.promise(() => user.tab());
+        const input = screen.getByTestId("text-input");
+        act(() => {
+          fireEvent.change(input, { target: { value: "Bad" } });
+        });
 
-      expect(screen.queryByTestId("text-input-error")).not.toBeInTheDocument();
+        expect(screen.queryByTestId("text-input-error")).not.toBeInTheDocument();
 
-      yield* Effect.promise(() =>
-        waitFor(
-          () => {
-            expect(screen.getByTestId("text-input-error")).toHaveTextContent("Must be at least 5 characters");
-          },
-          { timeout: 500 }
-        )
-      );
+        yield* Effect.promise(() => act(() => vi.advanceTimersByTimeAsync(299)));
+        expect(screen.queryByTestId("text-input-error")).not.toBeInTheDocument();
+
+        yield* Effect.promise(() => act(() => vi.advanceTimersByTimeAsync(1)));
+        expect(screen.getByTestId("text-input-error")).toHaveTextContent("Must be at least 5 characters");
+      } finally {
+        vi.useRealTimers();
+      }
     });
 
     effectTest("does NOT auto-submit on initial mount without changes", function* () {
