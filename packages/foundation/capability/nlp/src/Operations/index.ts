@@ -33,7 +33,7 @@ export * as Composable from "./Composable.ts";
  *
  * @example
  * ```typescript
- * import { Definition } from "@beep/nlp/Operations"
+ * import type { Definition } from "@beep/nlp/Operations"
  *
  * type Op = Definition.OperationDefinition<never, never>
  * ```
