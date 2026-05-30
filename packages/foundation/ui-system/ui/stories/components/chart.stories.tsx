@@ -72,8 +72,8 @@ const monthTickFormatter = (value: string): string => Str.slice(0, 3)(value);
 // so this default only satisfies the type and is never the rendered output.
 const defaultChartChildren = (
   <BarChart accessibilityLayer data={[...chartData]}>
-    <Bar dataKey="desktop" fill="var(--color-desktop)" radius={4} />
-    <Bar dataKey="mobile" fill="var(--color-mobile)" radius={4} />
+    <Bar dataKey="desktop" fill="var(--color-desktop)" radius={4} isAnimationActive={false} />
+    <Bar dataKey="mobile" fill="var(--color-mobile)" radius={4} isAnimationActive={false} />
   </BarChart>
 );
 
@@ -118,8 +118,8 @@ export const Default: Story = {
   render: (args) => (
     <ChartContainer {...args}>
       <BarChart accessibilityLayer data={[...chartData]}>
-        <Bar dataKey="desktop" fill="var(--color-desktop)" radius={4} />
-        <Bar dataKey="mobile" fill="var(--color-mobile)" radius={4} />
+        <Bar dataKey="desktop" fill="var(--color-desktop)" radius={4} isAnimationActive={false} />
+        <Bar dataKey="mobile" fill="var(--color-mobile)" radius={4} isAnimationActive={false} />
       </BarChart>
     </ChartContainer>
   ),
@@ -140,8 +140,8 @@ export const BarWithAxis: Story = {
       <BarChart accessibilityLayer data={[...chartData]}>
         <CartesianGrid vertical={false} />
         <XAxis dataKey="month" tickLine={false} tickMargin={10} axisLine={false} tickFormatter={monthTickFormatter} />
-        <Bar dataKey="desktop" fill="var(--color-desktop)" radius={4} />
-        <Bar dataKey="mobile" fill="var(--color-mobile)" radius={4} />
+        <Bar dataKey="desktop" fill="var(--color-desktop)" radius={4} isAnimationActive={false} />
+        <Bar dataKey="mobile" fill="var(--color-mobile)" radius={4} isAnimationActive={false} />
       </BarChart>
     </ChartContainer>
   ),
@@ -158,8 +158,8 @@ export const WithTooltip: Story = {
         <CartesianGrid vertical={false} />
         <XAxis dataKey="month" tickLine={false} tickMargin={10} axisLine={false} tickFormatter={monthTickFormatter} />
         <ChartTooltip content={<ChartTooltipContent />} />
-        <Bar dataKey="desktop" fill="var(--color-desktop)" radius={4} />
-        <Bar dataKey="mobile" fill="var(--color-mobile)" radius={4} />
+        <Bar dataKey="desktop" fill="var(--color-desktop)" radius={4} isAnimationActive={false} />
+        <Bar dataKey="mobile" fill="var(--color-mobile)" radius={4} isAnimationActive={false} />
       </BarChart>
     </ChartContainer>
   ),
@@ -177,8 +177,8 @@ export const WithLegend: Story = {
         <XAxis dataKey="month" tickLine={false} tickMargin={10} axisLine={false} tickFormatter={monthTickFormatter} />
         <ChartTooltip content={<ChartTooltipContent />} />
         <ChartLegend content={<ChartLegendContent />} />
-        <Bar dataKey="desktop" fill="var(--color-desktop)" radius={4} />
-        <Bar dataKey="mobile" fill="var(--color-mobile)" radius={4} />
+        <Bar dataKey="desktop" fill="var(--color-desktop)" radius={4} isAnimationActive={false} />
+        <Bar dataKey="mobile" fill="var(--color-mobile)" radius={4} isAnimationActive={false} />
       </BarChart>
     </ChartContainer>
   ),
@@ -197,8 +197,20 @@ export const Line: Story = {
         <CartesianGrid vertical={false} />
         <XAxis dataKey="month" tickLine={false} tickMargin={10} axisLine={false} tickFormatter={monthTickFormatter} />
         <ChartTooltip content={<ChartTooltipContent />} />
-        <RechartsLine dataKey="desktop" stroke="var(--color-desktop)" strokeWidth={2} dot={false} />
-        <RechartsLine dataKey="mobile" stroke="var(--color-mobile)" strokeWidth={2} dot={false} />
+        <RechartsLine
+          dataKey="desktop"
+          stroke="var(--color-desktop)"
+          strokeWidth={2}
+          dot={false}
+          isAnimationActive={false}
+        />
+        <RechartsLine
+          dataKey="mobile"
+          stroke="var(--color-mobile)"
+          strokeWidth={2}
+          dot={false}
+          isAnimationActive={false}
+        />
       </LineChart>
     </ChartContainer>
   ),
@@ -219,6 +231,7 @@ export const Area: Story = {
           fillOpacity={0.4}
           stroke="var(--color-mobile)"
           stackId="a"
+          isAnimationActive={false}
         />
         <RechartsArea
           dataKey="desktop"
@@ -227,6 +240,7 @@ export const Area: Story = {
           fillOpacity={0.4}
           stroke="var(--color-desktop)"
           stackId="a"
+          isAnimationActive={false}
         />
       </AreaChart>
     </ChartContainer>
@@ -243,7 +257,7 @@ export const Pie: Story = {
     <ChartContainer {...args}>
       <PieChart>
         <ChartTooltip content={<ChartTooltipContent nameKey="visitors" hideLabel />} />
-        <RechartsPie data={[...browserData]} dataKey="visitors" nameKey="browser">
+        <RechartsPie data={[...browserData]} dataKey="visitors" nameKey="browser" isAnimationActive={false}>
           {A.map(browserData, (entry) => (
             <Cell key={entry.browser} fill={entry.fill} />
           ))}
@@ -270,7 +284,7 @@ export const DashedTooltip: Story = {
         <CartesianGrid vertical={false} />
         <XAxis dataKey="month" tickLine={false} tickMargin={10} axisLine={false} tickFormatter={monthTickFormatter} />
         <ChartTooltip content={<ChartTooltipContent indicator="dashed" />} />
-        <Bar dataKey="desktop" fill="var(--color-desktop)" radius={4} />
+        <Bar dataKey="desktop" fill="var(--color-desktop)" radius={4} isAnimationActive={false} />
       </BarChart>
     </ChartContainer>
   ),
