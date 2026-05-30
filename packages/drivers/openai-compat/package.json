@@ -1,6 +1,6 @@
 {
   "name": "@beep/openai-compat",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "OpenAI-compatible Effect AI protocol driver.",
   "license": "MIT",
   "private": true,
