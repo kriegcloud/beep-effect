@@ -8,6 +8,80 @@ import { A, O, Str } from "@beep/utils";
 import * as jsonc from "jsonc-parser";
 import { Node, Project } from "ts-morph";
 import type * as Ordering from "effect/Ordering";
+import type { SourceFile } from "ts-morph";
+
+type JsonRecord = Record<string, unknown>;
+
+type PackageJson = JsonRecord & {
+  readonly name: string;
+  readonly workspaces?: unknown;
+  readonly exports?: unknown;
+};
+
+type WorkspacePackageInfo = {
+  readonly name: string;
+  readonly path: string;
+  readonly absolutePath: string;
+  readonly packageJson: PackageJson;
+};
+
+type ExportMapEntry = {
+  readonly subpath: string;
+  readonly target: string | null | undefined;
+  readonly denied: boolean;
+};
+
+type ExportExposure = {
+  readonly exportSubpath: string;
+  readonly importSpecifier: string;
+  readonly targetPath: string;
+  readonly sourceFilePath: string;
+};
+
+type CatalogEntryInput = {
+  readonly packageName: string;
+  readonly packagePath: string;
+  readonly importSpecifier: string;
+  readonly exportSubpath: string;
+  readonly symbolName: string;
+  readonly exportKind: string;
+  readonly summary: string;
+  readonly categories: ReadonlyArray<string>;
+  readonly sourcePath: string;
+};
+
+type CatalogEntry = CatalogEntryInput & {
+  readonly topoOrder: number;
+  readonly exportedFromPath: string;
+  readonly sourceLine: number;
+  readonly since: ReadonlyArray<string>;
+  readonly tags: ReadonlyArray<string>;
+  readonly searchText: string;
+};
+
+type PackageCatalog = {
+  readonly packageName: string;
+  readonly packagePath: string;
+  readonly topoOrder: number;
+  readonly status: "has-public-exports" | "no-public-exports" | "missing-workspace-metadata";
+  readonly importSpecifiers: ReadonlyArray<string>;
+  readonly counts: {
+    readonly publicExportEntries: number;
+    readonly uniqueSymbols: number;
+    readonly sourceFiles: number;
+  };
+  readonly exports: ReadonlyArray<CatalogEntry>;
+};
+
+type Catalog = {
+  readonly standard: string;
+  readonly schemaVersion: string;
+  readonly deterministic: boolean;
+  readonly authority: JsonRecord;
+  readonly source: JsonRecord;
+  readonly totals: ReturnType<typeof catalogTotals>;
+  readonly packages: ReadonlyArray<PackageCatalog>;
+};
 
 const scriptDir = path.dirname(fileURLToPath(import.meta.url));
 const rootDir = path.resolve(scriptDir, "../../../../..");
@@ -31,11 +105,11 @@ const compareNumber = (left: number, right: number): Ordering.Ordering => {
   return 0;
 };
 
-const readText = (filePath) => readFileSync(filePath, "utf8");
+const readText = (filePath: string): string => readFileSync(filePath, "utf8");
 
-const readJsonc = (filePath) => {
+const readJsonc = (filePath: string): JsonRecord => {
   const text = readText(filePath);
-  const errors = [];
+  const errors: jsonc.ParseError[] = [];
   const parsed = jsonc.parse(text, errors, {
     allowTrailingComma: true,
     disallowComments: false,
@@ -46,10 +120,10 @@ const readJsonc = (filePath) => {
     throw new Error(`Failed to parse ${filePath}: ${jsonc.printParseErrorCode(first.error)} at offset ${first.offset}`);
   }
 
-  return parsed;
+  return parsed as JsonRecord;
 };
 
-const formatJsonc = (value) => {
+const formatJsonc = (value: unknown): string => {
   const encoded = JSON.stringify(value, null, 2);
   return `${jsonc.applyEdits(
     encoded,
@@ -60,27 +134,33 @@ const formatJsonc = (value) => {
   )}\n`;
 };
 
-const normalizeSlashes = (value) => Str.replaceAll(path.sep, "/")(value);
+const normalizeSlashes = (value: string): string => Str.replaceAll(path.sep, "/")(value);
 
-const repoRelative = (absolutePath) => normalizeSlashes(path.relative(rootDir, absolutePath) || ".");
+const repoRelative = (absolutePath: string): string => normalizeSlashes(path.relative(rootDir, absolutePath) || ".");
 
-const escapeRegExp = (value) => Str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")(value);
+const escapeRegExp = (value: string): string => Str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")(value);
 
-const markdownCell = (value) => Str.replace(/\|/g, "\\|")(Str.replace(/\r?\n/g, " ")(String(value ?? "")));
+const markdownCell = (value: unknown): string =>
+  Str.replace(/\|/g, "\\|")(Str.replace(/\r?\n/g, " ")(String(value ?? "")));
 
-const readRootPackage = () => readJsonc(path.join(rootDir, "package.json"));
+const readPackageJson = (filePath: string): PackageJson => readJsonc(filePath) as PackageJson;
 
-const workspacePatternsFrom = (workspaces) => {
+const readRootPackage = (): PackageJson => readPackageJson(path.join(rootDir, "package.json"));
+
+const workspacePatternsFrom = (workspaces: unknown): ReadonlyArray<string> => {
   if (A.isArray(workspaces)) {
-    return workspaces;
+    return workspaces.filter((pattern): pattern is string => typeof pattern === "string");
   }
-  if (workspaces !== null && typeof workspaces === "object" && A.isArray(workspaces.packages)) {
-    return workspaces.packages;
+  if (workspaces !== null && typeof workspaces === "object") {
+    const workspaceRecord = workspaces as { readonly packages?: unknown };
+    if (A.isArray(workspaceRecord.packages)) {
+      return workspaceRecord.packages.filter((pattern): pattern is string => typeof pattern === "string");
+    }
   }
   return [];
 };
 
-const expandWorkspacePattern = (pattern) => {
+const expandWorkspacePattern = (pattern: string): ReadonlyArray<string> => {
   const segments = A.filter(Str.split("/")(normalizeSlashes(pattern)), Str.isNonEmpty);
   let candidates = [rootDir];
 
@@ -109,9 +189,9 @@ const expandWorkspacePattern = (pattern) => {
   return A.filter(candidates, (candidate) => existsSync(path.join(candidate, "package.json")));
 };
 
-const discoverWorkspacePackages = () => {
+const discoverWorkspacePackages = (): Map<string, WorkspacePackageInfo> => {
   const rootPackage = readRootPackage();
-  const packages = new Map();
+  const packages = new Map<string, WorkspacePackageInfo>();
 
   packages.set(rootPackage.name, {
     name: rootPackage.name,
@@ -122,7 +202,7 @@ const discoverWorkspacePackages = () => {
 
   for (const pattern of workspacePatternsFrom(rootPackage.workspaces)) {
     for (const packagePath of expandWorkspacePattern(pattern)) {
-      const packageJson = readJsonc(path.join(packagePath, "package.json"));
+      const packageJson = readPackageJson(path.join(packagePath, "package.json"));
       packages.set(packageJson.name, {
         name: packageJson.name,
         path: repoRelative(packagePath),
@@ -135,7 +215,7 @@ const discoverWorkspacePackages = () => {
   return packages;
 };
 
-const topoSortPackageNames = () => {
+const topoSortPackageNames = (): ReadonlyArray<string> => {
   const result = spawnSync("bun", ["run", "topo-sort"], {
     cwd: rootDir,
     encoding: "utf8",
@@ -157,13 +237,13 @@ const topoSortPackageNames = () => {
   );
 };
 
-const listSourceFiles = (directory) => {
+const listSourceFiles = (directory: string): ReadonlyArray<string> => {
   if (!existsSync(directory)) {
     return [];
   }
 
-  const files = [];
-  const visit = (current) => {
+  const files: Array<string> = [];
+  const visit = (current: string): void => {
     for (const entry of readdirSync(current, { withFileTypes: true })) {
       const absolutePath = path.join(current, entry.name);
 
@@ -201,12 +281,12 @@ const listSourceFiles = (directory) => {
   return A.sortInPlace(files, compareText);
 };
 
-const stripCommentFraming = (commentText) =>
+const stripCommentFraming = (commentText: string): ReadonlyArray<string> =>
   A.map(Str.split(/\r?\n/)(Str.replace(/\*\/$/, "")(Str.replace(/^\/\*\*/, "")(commentText))), (line) =>
     Str.trimEnd(Str.replace(/^\s*\*\s?/, "")(line))
   );
 
-const summaryFromComment = (commentText) => {
+const summaryFromComment = (commentText: string): string | undefined => {
   for (const line of stripCommentFraming(commentText)) {
     const trimmed = Str.trim(line);
     if (trimmed.length === 0 || Str.startsWith("@")(trimmed) || Str.startsWith("```")(trimmed)) {
@@ -217,8 +297,8 @@ const summaryFromComment = (commentText) => {
   return undefined;
 };
 
-const tagsFromComment = (commentText) => {
-  const tags = [];
+const tagsFromComment = (commentText: string): ReadonlyArray<string> => {
+  const tags: Array<string> = [];
   for (const line of stripCommentFraming(commentText)) {
     const match = /^\s*@([A-Za-z][\w-]*)\b/.exec(line);
     if (match !== null) {
@@ -228,8 +308,8 @@ const tagsFromComment = (commentText) => {
   return [...new Set(tags)];
 };
 
-const valuesForTag = (commentText, tagName) => {
-  const values = [];
+const valuesForTag = (commentText: string, tagName: string): ReadonlyArray<string> => {
+  const values: Array<string> = [];
   const pattern = new RegExp(`^\\s*${escapeRegExp(tagName)}\\b\\s*(.*)$`);
 
   for (const line of stripCommentFraming(commentText)) {
@@ -242,7 +322,7 @@ const valuesForTag = (commentText, tagName) => {
   return values;
 };
 
-const getDocNode = (node) => {
+const getDocNode = (node: Node): Node => {
   if (Node.isVariableDeclaration(node)) {
     return node.getVariableStatement() ?? node;
   }
@@ -252,7 +332,7 @@ const getDocNode = (node) => {
   return node;
 };
 
-const getJsDocText = (node) => {
+const getJsDocText = (node: Node): string => {
   const docNode = getDocNode(node);
   if (Node.isJSDocable(docNode)) {
     const docs = docNode.getJsDocs();
@@ -261,7 +341,7 @@ const getJsDocText = (node) => {
   return "";
 };
 
-const declarationKind = (node) => {
+const declarationKind = (node: Node): string => {
   if (Node.isFunctionDeclaration(node)) {
     return "function";
   }
@@ -286,10 +366,10 @@ const declarationKind = (node) => {
   return node.getKindName();
 };
 
-const isIgnoredSourceTarget = (target) =>
+const isIgnoredSourceTarget = (target: unknown): target is string =>
   typeof target === "string" && A.some(ignoredSourceSuffixes, (suffix) => Str.endsWith(suffix)(target));
 
-const exportTargetFrom = (value) => {
+const exportTargetFrom = (value: unknown): string | undefined => {
   if (value === null || value === undefined) {
     return undefined;
   }
@@ -300,8 +380,9 @@ const exportTargetFrom = (value) => {
     return undefined;
   }
 
+  const record = value as JsonRecord;
   let ignoredSourceFallback: string | undefined;
-  const selectTarget = (target) => {
+  const selectTarget = (target: string | undefined): string | undefined => {
     if (target === undefined) {
       return undefined;
     }
@@ -313,14 +394,14 @@ const exportTargetFrom = (value) => {
   };
 
   for (const condition of conditionPreference) {
-    const target = exportTargetFrom(value[condition]);
+    const target = exportTargetFrom(record[condition]);
     const selected = selectTarget(target);
     if (selected !== undefined) {
       return selected;
     }
   }
 
-  for (const [key, nested] of Object.entries(value)) {
+  for (const [key, nested] of Object.entries(record)) {
     if (conditionNames.has(key)) {
       continue;
     }
@@ -334,12 +415,13 @@ const exportTargetFrom = (value) => {
   return ignoredSourceFallback;
 };
 
-const hasExportSubpathKeys = (value) => A.some(Object.keys(value), (key) => key === "." || Str.startsWith("./")(key));
+const hasExportSubpathKeys = (value: JsonRecord): boolean =>
+  A.some(Object.keys(value), (key) => key === "." || Str.startsWith("./")(key));
 
-const isRootConditionalExportMap = (value) =>
+const isRootConditionalExportMap = (value: JsonRecord): boolean =>
   !A.isArray(value) && !hasExportSubpathKeys(value) && A.some(Object.keys(value), (key) => conditionNames.has(key));
 
-const exportMapEntriesFrom = (packageJson) => {
+const exportMapEntriesFrom = (packageJson: PackageJson): ReadonlyArray<ExportMapEntry> => {
   const exportsField = packageJson.exports;
   if (exportsField === undefined) {
     return [];
@@ -349,7 +431,7 @@ const exportMapEntriesFrom = (packageJson) => {
     return [
       {
         subpath: ".",
-        target: exportsField,
+        target: exportsField as string | null,
         denied: exportsField === null,
       },
     ];
@@ -359,63 +441,68 @@ const exportMapEntriesFrom = (packageJson) => {
     return [];
   }
 
-  if (isRootConditionalExportMap(exportsField)) {
+  const exportsRecord = exportsField as JsonRecord;
+
+  if (isRootConditionalExportMap(exportsRecord)) {
     return [
       {
         subpath: ".",
-        target: exportTargetFrom(exportsField),
+        target: exportTargetFrom(exportsRecord),
         denied: false,
       },
     ];
   }
 
-  return A.map(Object.entries(exportsField), ([subpath, value]) => ({
+  return A.map(Object.entries(exportsRecord), ([subpath, value]) => ({
     subpath,
     target: value === null ? null : exportTargetFrom(value),
     denied: value === null,
   }));
 };
 
-const isSourceTarget = (target) =>
+const isSourceTarget = (target: unknown): target is string =>
   typeof target === "string" &&
   (Str.endsWith(".ts")(target) || Str.endsWith(".tsx")(target)) &&
   !A.some(ignoredSourceSuffixes, (suffix) => Str.endsWith(suffix)(target));
 
-const capturesForPattern = (pattern, value) => {
+const capturesForPattern = (pattern: string, value: string): Array<string> | undefined => {
   const parts = A.map(Str.split("*")(normalizeSlashes(pattern)), escapeRegExp);
   const regex = new RegExp(`^${A.join(parts, "(.+)")}$`);
   const match = regex.exec(normalizeSlashes(value));
   return match === null ? undefined : match.slice(1);
 };
 
-const fillPattern = (pattern, captures) => {
+const fillPattern = (pattern: string, captures: ReadonlyArray<string>): string => {
   let captureIndex = 0;
   return Str.replaceWith(/\*/g, () => captures[captureIndex++] ?? "")(normalizeSlashes(pattern));
 };
 
-const subpathDenied = (subpath, deniedEntries) =>
+const subpathDenied = (subpath: string, deniedEntries: ReadonlyArray<ExportMapEntry>): boolean =>
   deniedEntries.some((entry) =>
     Str.includes("*")(entry.subpath)
       ? capturesForPattern(entry.subpath, subpath) !== undefined
       : normalizeSlashes(entry.subpath) === normalizeSlashes(subpath)
   );
 
-const importSpecifierFor = (packageName, subpath) => {
+const importSpecifierFor = (packageName: string, subpath: string): string => {
   if (subpath === ".") {
     return packageName;
   }
   return `${packageName}/${Str.replace(/^\.\//, "")(subpath)}`;
 };
 
-const exportedSourceFilePath = (packagePath, target) =>
+const exportedSourceFilePath = (packagePath: string, target: string): string =>
   path.join(packagePath, Str.replace(/^\.\//, "")(normalizeSlashes(target)));
 
-const expandExportMap = (packageInfo, sourceFilePaths) => {
+const expandExportMap = (
+  packageInfo: WorkspacePackageInfo,
+  sourceFilePaths: ReadonlyArray<string>
+): ReadonlyArray<ExportExposure> => {
   const exportEntries = exportMapEntriesFrom(packageInfo.packageJson);
   const deniedEntries = A.filter(exportEntries, (entry) => entry.denied);
   const activeEntries = A.filter(exportEntries, (entry) => !entry.denied && isSourceTarget(entry.target));
-  const exposures = [];
-  const seen = new Set();
+  const exposures: Array<ExportExposure> = [];
+  const seen = new Set<string>();
 
   for (const entry of activeEntries) {
     if (Str.includes("*")(entry.target)) {
@@ -467,7 +554,7 @@ const expandExportMap = (packageInfo, sourceFilePaths) => {
   );
 };
 
-const searchTextFor = (entry) =>
+const searchTextFor = (entry: CatalogEntryInput): string =>
   Str.trim(
     Str.replace(
       /\s+/g,
@@ -492,7 +579,13 @@ const searchTextFor = (entry) =>
     )
   );
 
-const catalogEntryFor = (packageInfo, topoOrder, exposure, symbolName, declaration) => {
+const catalogEntryFor = (
+  packageInfo: WorkspacePackageInfo,
+  topoOrder: number,
+  exposure: ExportExposure,
+  symbolName: string,
+  declaration: Node
+): CatalogEntry => {
   const docText = getJsDocText(declaration);
   const categories = valuesForTag(docText, "@category");
   const sourcePath = repoRelative(declaration.getSourceFile().getFilePath());
@@ -519,20 +612,21 @@ const catalogEntryFor = (packageInfo, topoOrder, exposure, symbolName, declarati
   };
 };
 
-const packageStatusFor = (exportCount) => (exportCount === 0 ? "no-public-exports" : "has-public-exports");
+const packageStatusFor = (exportCount: number): PackageCatalog["status"] =>
+  exportCount === 0 ? "no-public-exports" : "has-public-exports";
 
-const analyzePackage = (packageInfo, topoOrder) => {
+const analyzePackage = (packageInfo: WorkspacePackageInfo, topoOrder: number): PackageCatalog => {
   const sourceRoot = path.join(packageInfo.absolutePath, "src");
   const sourceFilePaths = listSourceFiles(sourceRoot);
   const project = new Project({ skipAddingFilesFromTsConfig: true });
-  const sourceFileByPath = new Map();
+  const sourceFileByPath = new Map<string, SourceFile>();
 
   for (const sourceFilePath of sourceFilePaths) {
     sourceFileByPath.set(sourceFilePath, project.addSourceFileAtPath(sourceFilePath));
   }
 
-  const exports = [];
-  const seen = new Set();
+  const exports: Array<CatalogEntry> = [];
+  const seen = new Set<string>();
 
   for (const exposure of expandExportMap(packageInfo, sourceFilePaths)) {
     const sourceFile = sourceFileByPath.get(exposure.sourceFilePath);
@@ -548,7 +642,7 @@ const analyzePackage = (packageInfo, topoOrder) => {
             symbolName,
             declarationKind(declaration),
             repoRelative(declaration.getSourceFile().getFilePath()),
-            declaration.getStartLineNumber(),
+            `${declaration.getStartLineNumber()}`,
           ],
           ":"
         );
@@ -598,7 +692,7 @@ const analyzePackage = (packageInfo, topoOrder) => {
   };
 };
 
-const analyzeMissingPackage = (packageName, topoOrder) => ({
+const analyzeMissingPackage = (packageName: string, topoOrder: number): PackageCatalog => ({
   packageName,
   packagePath: "<unresolved>",
   topoOrder,
@@ -612,7 +706,7 @@ const analyzeMissingPackage = (packageName, topoOrder) => ({
   exports: [],
 });
 
-const catalogTotals = (packages) => ({
+const catalogTotals = (packages: ReadonlyArray<PackageCatalog>) => ({
   packages: packages.length,
   packagesWithPublicExports: packages.filter((entry) => entry.status === "has-public-exports").length,
   packagesWithoutPublicExports: packages.filter((entry) => entry.status === "no-public-exports").length,
@@ -622,9 +716,9 @@ const catalogTotals = (packages) => ({
   uniquePackageSymbols: packages.reduce((total, entry) => total + entry.counts.uniqueSymbols, 0),
 });
 
-const allExports = (catalog) => catalog.packages.flatMap((pkg) => pkg.exports);
+const allExports = (catalog: Catalog): ReadonlyArray<CatalogEntry> => catalog.packages.flatMap((pkg) => pkg.exports);
 
-const renderUnknownRecordProof = (catalog) =>
+const renderUnknownRecordProof = (catalog: Catalog): ReadonlyArray<CatalogEntry> =>
   allExports(catalog).filter(
     (entry) =>
       entry.packageName === "@beep/schema" &&
@@ -632,8 +726,8 @@ const renderUnknownRecordProof = (catalog) =>
       entry.symbolName === "UnknownRecord"
   );
 
-const renderMarkdown = (catalog) => {
-  const lines = [];
+const renderMarkdown = (catalog: Catalog): string => {
+  const lines: Array<string> = [];
   A.appendInPlace(lines, "# Repo Export Catalog");
   A.appendInPlace(lines, "");
   A.appendInPlace(
@@ -714,7 +808,7 @@ const renderMarkdown = (catalog) => {
   return `${A.join(lines, "\n")}\n`;
 };
 
-const buildCatalog = () => {
+const buildCatalog = (): Catalog => {
   const packageByName = discoverWorkspacePackages();
   const topoNames = topoSortPackageNames();
   const packages = A.map(topoNames, (packageName, index) => {
@@ -744,7 +838,7 @@ const buildCatalog = () => {
   };
 };
 
-const checkFile = (filePath, content) => {
+const checkFile = (filePath: string, content: string): ReadonlyArray<string> => {
   if (!existsSync(filePath)) {
     return [`${repoRelative(filePath)} is missing`];
   }
@@ -753,7 +847,7 @@ const checkFile = (filePath, content) => {
   return current === content ? [] : [`${repoRelative(filePath)} is stale`];
 };
 
-const writeOrCheck = (jsonContent, markdownContent) => {
+const writeOrCheck = (jsonContent: string, markdownContent: string): void => {
   if (checkMode) {
     const findings = [...checkFile(outputJsonPath, jsonContent), ...checkFile(outputMarkdownPath, markdownContent)];
     if (findings.length > 0) {
@@ -776,7 +870,7 @@ const writeOrCheck = (jsonContent, markdownContent) => {
   console.log(`wrote ${repoRelative(outputMarkdownPath)}`);
 };
 
-const main = () => {
+const main = (): void => {
   const catalog = buildCatalog();
   const jsonContent = formatJsonc(catalog);
   const markdownContent = renderMarkdown(catalog);

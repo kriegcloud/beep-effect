@@ -7,6 +7,99 @@ import { fileURLToPath } from "node:url";
 import { A, Str } from "@beep/utils";
 import * as jsonc from "jsonc-parser";
 import { Node, Project, SyntaxKind } from "ts-morph";
+import type { SourceFile } from "ts-morph";
+
+type JsonRecord = Record<string, unknown>;
+
+type PackageJson = JsonRecord & {
+  readonly name: string;
+  readonly workspaces?: unknown;
+};
+
+type WorkspacePackageInfo = {
+  readonly name: string;
+  readonly path: string;
+  readonly absolutePath: string;
+  readonly packageJson: PackageJson;
+};
+
+type DocumentationIssue = {
+  readonly rule: string;
+  readonly detail?: string;
+  readonly lineOffset?: number;
+  readonly text?: string;
+  readonly example?: number;
+};
+
+type InventoryEntry = JsonRecord & {
+  readonly remediationStatus: "open" | "resolved";
+  readonly missingSummary: boolean;
+  readonly missingRequiredTags: ReadonlyArray<string>;
+  readonly forbiddenTags: ReadonlyArray<string>;
+  readonly malformedConditionalTags: ReadonlyArray<DocumentationIssue>;
+  readonly exampleImportViolations?: ReadonlyArray<DocumentationIssue>;
+  readonly unsafeExampleViolations?: ReadonlyArray<DocumentationIssue>;
+  readonly schemaAnnotationGaps?: ReadonlyArray<DocumentationIssue>;
+  readonly categoryViolations?: ReadonlyArray<DocumentationIssue>;
+};
+
+type PackageInventory = JsonRecord & {
+  readonly packageName: string;
+  readonly packagePath: string;
+  readonly topoOrder: number;
+  readonly status: string;
+  readonly sourceCoverage: JsonRecord & {
+    readonly publicModuleCount: number;
+    readonly publicExportCount: number;
+  };
+  readonly docgenCoverage: JsonRecord;
+  readonly counts: JsonRecord & {
+    readonly openModules: number;
+    readonly openExports: number;
+    readonly missingExportExamples: number;
+    readonly missingExportCategories: number;
+    readonly missingExportSince: number;
+    readonly missingExportSummaries: number;
+    readonly forbiddenTagFindings: number;
+    readonly malformedConditionalTagFindings: number;
+    readonly exampleImportFindings: number;
+    readonly unsafeExampleFindings: number;
+    readonly schemaAnnotationFindings: number;
+  };
+  readonly modules: ReadonlyArray<InventoryEntry>;
+  readonly exports: ReadonlyArray<InventoryEntry>;
+};
+
+type RootPolicyInventory = JsonRecord & {
+  readonly filePath: string;
+  readonly customTags: ReadonlyArray<{
+    readonly tagName: string;
+    readonly status: string;
+    readonly missing: ReadonlyArray<string>;
+  }>;
+  readonly status: string;
+};
+
+type Inventory = JsonRecord & {
+  readonly generatedAt: string;
+  readonly totals: JsonRecord;
+  readonly rootPolicy: RootPolicyInventory;
+  readonly packages: ReadonlyArray<PackageInventory>;
+};
+
+type DirectExportDescriptor =
+  | {
+      readonly key: string;
+      readonly analysis: InventoryEntry;
+      readonly name?: never;
+      readonly declaration?: never;
+    }
+  | {
+      readonly key: string;
+      readonly analysis?: never;
+      readonly name: string;
+      readonly declaration: Node;
+    };
 
 const scriptDir = path.dirname(fileURLToPath(import.meta.url));
 const rootDir = path.resolve(scriptDir, "../../../../..");
@@ -19,11 +112,11 @@ const requiredTsdocCustomTags = ["@effects", "@precondition", "@postcondition", 
 const sourceExtensions = new Set([".ts", ".tsx"]);
 const ignoredSourceSuffixes = [".d.ts"];
 
-const readText = (filePath) => readFileSync(filePath, "utf8");
+const readText = (filePath: string): string => readFileSync(filePath, "utf8");
 
-const readJsonc = (filePath) => {
+const readJsonc = (filePath: string): JsonRecord => {
   const text = readText(filePath);
-  const errors = [];
+  const errors: jsonc.ParseError[] = [];
   const parsed = jsonc.parse(text, errors, {
     allowTrailingComma: true,
     disallowComments: false,
@@ -34,10 +127,10 @@ const readJsonc = (filePath) => {
     throw new Error(`Failed to parse ${filePath}: ${jsonc.printParseErrorCode(first.error)} at offset ${first.offset}`);
   }
 
-  return parsed;
+  return parsed as JsonRecord;
 };
 
-const formatJsonc = (value) => {
+const formatJsonc = (value: unknown): string => {
   const encoded = JSON.stringify(value, null, 2);
   return `${jsonc.applyEdits(
     encoded,
@@ -48,16 +141,16 @@ const formatJsonc = (value) => {
   )}\n`;
 };
 
-const normalizeSlashes = (value) => Str.replaceAll(path.sep, "/")(value);
+const normalizeSlashes = (value: string): string => Str.replaceAll(path.sep, "/")(value);
 
-const repoRelative = (absolutePath) => normalizeSlashes(path.relative(rootDir, absolutePath) || ".");
+const repoRelative = (absolutePath: string): string => normalizeSlashes(path.relative(rootDir, absolutePath) || ".");
 
-const markdownAnchor = (value) =>
+const markdownAnchor = (value: string): string =>
   Str.replace(/^-+|-+$/g, "")(Str.replace(/[^a-z0-9]+/g, "-")(Str.replace(/`/g, "")(Str.toLowerCase(value))));
 
-const escapeRegExp = (value) => Str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")(value);
+const escapeRegExp = (value: string): string => Str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")(value);
 
-const globPatternToRegExp = (pattern) => {
+const globPatternToRegExp = (pattern: string): RegExp => {
   const normalized = normalizeSlashes(Str.replace(/^\.\//, "")(pattern));
   let source = "^";
   let index = 0;
@@ -92,7 +185,12 @@ const globPatternToRegExp = (pattern) => {
   return new RegExp(`${source}$`);
 };
 
-const packageSourceMatchesExclude = (packagePath, srcDir, sourceFilePath, pattern) => {
+const packageSourceMatchesExclude = (
+  packagePath: string,
+  srcDir: string,
+  sourceFilePath: string,
+  pattern: string
+): boolean => {
   const packageRelative = normalizeSlashes(path.relative(packagePath, sourceFilePath));
   const srcRelative = Str.startsWith(`${srcDir}/`)(packageRelative)
     ? Str.slice(srcDir.length + 1)(packageRelative)
@@ -102,19 +200,24 @@ const packageSourceMatchesExclude = (packagePath, srcDir, sourceFilePath, patter
   return matcher.test(packageRelative) || matcher.test(srcRelative);
 };
 
-const readRootPackage = () => readJsonc(path.join(rootDir, "package.json"));
+const readPackageJson = (filePath: string): PackageJson => readJsonc(filePath) as PackageJson;
 
-const workspacePatternsFrom = (workspaces) => {
+const readRootPackage = (): PackageJson => readPackageJson(path.join(rootDir, "package.json"));
+
+const workspacePatternsFrom = (workspaces: unknown): ReadonlyArray<string> => {
   if (A.isArray(workspaces)) {
-    return workspaces;
+    return workspaces.filter((pattern): pattern is string => typeof pattern === "string");
   }
-  if (workspaces !== null && typeof workspaces === "object" && A.isArray(workspaces.packages)) {
-    return workspaces.packages;
+  if (workspaces !== null && typeof workspaces === "object") {
+    const workspaceRecord = workspaces as { readonly packages?: unknown };
+    if (A.isArray(workspaceRecord.packages)) {
+      return workspaceRecord.packages.filter((pattern): pattern is string => typeof pattern === "string");
+    }
   }
   return [];
 };
 
-const expandWorkspacePattern = (pattern) => {
+const expandWorkspacePattern = (pattern: string): ReadonlyArray<string> => {
   const segments = A.filter(Str.split("/")(normalizeSlashes(pattern)), Str.isNonEmpty);
   let candidates = [rootDir];
 
@@ -143,9 +246,9 @@ const expandWorkspacePattern = (pattern) => {
   return A.filter(candidates, (candidate) => existsSync(path.join(candidate, "package.json")));
 };
 
-const discoverWorkspacePackages = () => {
+const discoverWorkspacePackages = (): Map<string, WorkspacePackageInfo> => {
   const rootPackage = readRootPackage();
-  const packages = new Map();
+  const packages = new Map<string, WorkspacePackageInfo>();
 
   packages.set(rootPackage.name, {
     name: rootPackage.name,
@@ -156,7 +259,7 @@ const discoverWorkspacePackages = () => {
 
   for (const pattern of workspacePatternsFrom(rootPackage.workspaces)) {
     for (const packagePath of expandWorkspacePattern(pattern)) {
-      const packageJson = readJsonc(path.join(packagePath, "package.json"));
+      const packageJson = readPackageJson(path.join(packagePath, "package.json"));
       packages.set(packageJson.name, {
         name: packageJson.name,
         path: repoRelative(packagePath),
@@ -169,7 +272,7 @@ const discoverWorkspacePackages = () => {
   return packages;
 };
 
-const topoSortPackageNames = () => {
+const topoSortPackageNames = (): ReadonlyArray<string> => {
   const result = spawnSync("bun", ["run", "topo-sort"], {
     cwd: rootDir,
     encoding: "utf8",
@@ -191,13 +294,13 @@ const topoSortPackageNames = () => {
   );
 };
 
-const listSourceFiles = (directory) => {
+const listSourceFiles = (directory: string): ReadonlyArray<string> => {
   if (!existsSync(directory)) {
     return [];
   }
 
-  const files = [];
-  const visit = (current) => {
+  const files: Array<string> = [];
+  const visit = (current: string): void => {
     for (const entry of readdirSync(current, { withFileTypes: true })) {
       const absolutePath = path.join(current, entry.name);
 
@@ -235,12 +338,12 @@ const listSourceFiles = (directory) => {
   return A.sortInPlace(files, (left, right) => Str.localeCompare(right)(left));
 };
 
-const stripCommentFraming = (commentText) =>
+const stripCommentFraming = (commentText: string): ReadonlyArray<string> =>
   A.map(Str.split(/\r?\n/)(Str.replace(/\*\/$/, "")(Str.replace(/^\/\*\*/, "")(commentText))), (line) =>
     Str.trimEnd(Str.replace(/^\s*\*\s?/, "")(line))
   );
 
-const summaryFromComment = (commentText) => {
+const summaryFromComment = (commentText: string): string | undefined => {
   for (const line of stripCommentFraming(commentText)) {
     const trimmed = Str.trim(line);
     if (trimmed.length === 0 || Str.startsWith("@")(trimmed) || Str.startsWith("```")(trimmed)) {
@@ -251,8 +354,8 @@ const summaryFromComment = (commentText) => {
   return undefined;
 };
 
-const tagsFromComment = (commentText) => {
-  const tags = [];
+const tagsFromComment = (commentText: string): ReadonlyArray<string> => {
+  const tags: Array<string> = [];
   for (const line of stripCommentFraming(commentText)) {
     const match = /^\s*@([A-Za-z][\w-]*)\b/.exec(line);
     if (match !== null) {
@@ -262,8 +365,8 @@ const tagsFromComment = (commentText) => {
   return [...new Set(tags)];
 };
 
-const valuesForTag = (commentText, tagName) => {
-  const values = [];
+const valuesForTag = (commentText: string, tagName: string): ReadonlyArray<string> => {
+  const values: Array<string> = [];
   const pattern = new RegExp(`^\\s*${escapeRegExp(tagName)}\\b\\s*(.*)$`);
 
   for (const line of stripCommentFraming(commentText)) {
@@ -276,9 +379,9 @@ const valuesForTag = (commentText, tagName) => {
   return values;
 };
 
-const extractExamples = (commentText) => {
+const extractExamples = (commentText: string): ReadonlyArray<string> => {
   const cleaned = A.join(stripCommentFraming(commentText), "\n");
-  const examples = [];
+  const examples: Array<string> = [];
   const codeFencePattern = /```(?:ts|typescript)\s*\n([\s\S]*?)```/g;
   let match = codeFencePattern.exec(cleaned);
 
@@ -290,7 +393,7 @@ const extractExamples = (commentText) => {
   return examples;
 };
 
-const getDocNode = (node) => {
+const getDocNode = (node: Node): Node => {
   if (Node.isVariableDeclaration(node)) {
     return node.getVariableStatement() ?? node;
   }
@@ -300,7 +403,7 @@ const getDocNode = (node) => {
   return node;
 };
 
-const getJsDocText = (node) => {
+const getJsDocText = (node: Node): string => {
   const docNode = getDocNode(node);
   if (Node.isJSDocable(docNode)) {
     const docs = docNode.getJsDocs();
@@ -309,14 +412,14 @@ const getJsDocText = (node) => {
   return "";
 };
 
-const leadingJsDocText = (node) =>
+const leadingJsDocText = (node: Node): string =>
   node
     .getLeadingCommentRanges()
     .map((range) => range.getText())
-    .filter((text) => Str.startsWith("/**")(text))
+    .filter((text: string) => Str.startsWith("/**")(text))
     .at(-1) ?? "";
 
-const declarationKind = (node) => {
+const declarationKind = (node: Node): string => {
   if (Node.isFunctionDeclaration(node)) {
     return "function";
   }
@@ -341,10 +444,13 @@ const declarationKind = (node) => {
   return node.getKindName();
 };
 
-const missingRequiredTags = (presentTags, requiredTags) => requiredTags.filter((tag) => !presentTags.includes(tag));
+const missingRequiredTags = (
+  presentTags: ReadonlyArray<string>,
+  requiredTags: ReadonlyArray<string>
+): ReadonlyArray<string> => requiredTags.filter((tag) => !presentTags.includes(tag));
 
-const malformedConditionalTags = (commentText) => {
-  const findings = [];
+const malformedConditionalTags = (commentText: string): ReadonlyArray<DocumentationIssue> => {
+  const findings: Array<DocumentationIssue> = [];
   const lines = stripCommentFraming(commentText);
 
   for (const [index, line] of A.entries(lines)) {
@@ -378,8 +484,8 @@ const malformedConditionalTags = (commentText) => {
   return findings;
 };
 
-const exampleImportViolations = (commentText) => {
-  const violations = [];
+const exampleImportViolations = (commentText: string): ReadonlyArray<DocumentationIssue> => {
+  const violations: Array<DocumentationIssue> = [];
   const requiredNamespaceImports = [
     { module: "effect/Schema", alias: "S" },
     { module: "effect/Array", alias: "A" },
@@ -426,8 +532,8 @@ const exampleImportViolations = (commentText) => {
   return violations;
 };
 
-const unsafeExampleViolations = (commentText) => {
-  const violations = [];
+const unsafeExampleViolations = (commentText: string): ReadonlyArray<DocumentationIssue> => {
+  const violations: Array<DocumentationIssue> = [];
 
   for (const [exampleIndex, example] of A.entries(extractExamples(commentText))) {
     const nonImportLines = A.filter(
@@ -464,9 +570,10 @@ const unsafeExampleViolations = (commentText) => {
   return violations;
 };
 
-const forbiddenTagsIn = (presentTags) => presentTags.filter((tag) => A.contains(forbiddenTags, tag));
+const forbiddenTagsIn = (presentTags: ReadonlyArray<string>): ReadonlyArray<string> =>
+  presentTags.filter((tag) => A.contains(forbiddenTags, tag));
 
-const categoryViolations = (commentText) =>
+const categoryViolations = (commentText: string): ReadonlyArray<DocumentationIssue> =>
   A.map(
     A.filter(valuesForTag(commentText, "@category"), (value) => /[A-Z]/.test(value)),
     (value) => ({
@@ -475,7 +582,7 @@ const categoryViolations = (commentText) =>
     })
   );
 
-const textLooksLikeSchemaExport = (name, node) => {
+const textLooksLikeSchemaExport = (name: string, node: Node): boolean => {
   const text = getDocNode(node).getText();
   if (Str.startsWith("$")(name)) {
     return false;
@@ -496,12 +603,12 @@ const textLooksLikeSchemaExport = (name, node) => {
   );
 };
 
-const schemaAnnotationGaps = (name, node, sourceFile) => {
+const schemaAnnotationGaps = (name: string, node: Node, sourceFile: SourceFile): ReadonlyArray<DocumentationIssue> => {
   if (!textLooksLikeSchemaExport(name, node)) {
     return [];
   }
 
-  const gaps = [];
+  const gaps: Array<DocumentationIssue> = [];
   const text = getDocNode(node).getText();
   const hasAnnotation =
     /\$I\.annote(?:Schema)?\s*\(/.test(text) || /\.annotate\s*\(/.test(text) || /\bS\.annotate\s*\(/.test(text);
@@ -523,13 +630,13 @@ const schemaAnnotationGaps = (name, node, sourceFile) => {
   return gaps;
 };
 
-const topFileoverview = (sourceFile) => {
+const topFileoverview = (sourceFile: SourceFile): string | undefined => {
   const text = sourceFile.getFullText();
   const match = /^(?:#![^\n]*\n)?\s*(\/\*\*[\s\S]*?\*\/)/.exec(text);
   return match === null ? undefined : match[1];
 };
 
-const analyzeModule = (sourceFile, packagePath, exportCount) => {
+const analyzeModule = (sourceFile: SourceFile, packagePath: string, exportCount: number): InventoryEntry => {
   const filePath = repoRelative(sourceFile.getFilePath());
   const relativeFilePath = normalizeSlashes(path.relative(packagePath, sourceFile.getFilePath()));
   const fileoverview = topFileoverview(sourceFile);
@@ -567,7 +674,7 @@ const analyzeModule = (sourceFile, packagePath, exportCount) => {
   };
 };
 
-const analyzeExportDeclaration = (declaration, sourceFile, packagePath) => {
+const analyzeExportDeclaration = (declaration: Node, sourceFile: SourceFile, packagePath: string): InventoryEntry => {
   const commentText = `${leadingJsDocText(declaration)}\n${declaration.getText()}`;
   const presentTags = tagsFromComment(commentText);
   const missingTags = missingRequiredTags(presentTags, requiredExportTags);
@@ -603,12 +710,17 @@ const analyzeExportDeclaration = (declaration, sourceFile, packagePath) => {
     malformedConditionalTags: malformedTags,
     exampleImportViolations: importIssues,
     unsafeExampleViolations: unsafeIssues,
-    schemaAnnotationGaps: [],
+    schemaAnnotationGaps: [] as Array<DocumentationIssue>,
     remediationStatus: findingCount === 0 ? "resolved" : "open",
   };
 };
 
-const analyzeDirectExport = (name, declaration, sourceFile, packagePath) => {
+const analyzeDirectExport = (
+  name: string,
+  declaration: Node,
+  sourceFile: SourceFile,
+  packagePath: string
+): InventoryEntry => {
   const docText = getJsDocText(declaration);
   const presentTags = tagsFromComment(docText);
   const missingTags = missingRequiredTags(presentTags, requiredExportTags);
@@ -651,9 +763,12 @@ const analyzeDirectExport = (name, declaration, sourceFile, packagePath) => {
   };
 };
 
-const exportedDeclarationsFor = (sourceFile, packagePath) => {
-  const exports = [];
-  const seen = new Set();
+const exportedDeclarationsFor = (
+  sourceFile: SourceFile,
+  packagePath: string
+): ReadonlyArray<DirectExportDescriptor> => {
+  const exports: Array<DirectExportDescriptor> = [];
+  const seen = new Set<string>();
 
   for (const declaration of sourceFile.getDescendantsOfKind(SyntaxKind.ExportDeclaration)) {
     if (declaration.getModuleSpecifierValue() === undefined) {
@@ -684,13 +799,13 @@ const exportedDeclarationsFor = (sourceFile, packagePath) => {
   return exports;
 };
 
-const analyzePackage = (packageInfo, topoOrder) => {
+const analyzePackage = (packageInfo: WorkspacePackageInfo, topoOrder: number): PackageInventory => {
   const docgenPath = path.join(packageInfo.absolutePath, "docgen.json");
   const hasDocgenConfig = existsSync(docgenPath);
   const docgenConfig = hasDocgenConfig ? readJsonc(docgenPath) : {};
   const srcDir = typeof docgenConfig.srcDir === "string" ? docgenConfig.srcDir : "src";
   const exclude = A.isArray(docgenConfig.exclude)
-    ? docgenConfig.exclude.filter((item) => typeof item === "string")
+    ? docgenConfig.exclude.filter((item): item is string => typeof item === "string")
     : [];
   const sourceRoot = path.join(packageInfo.absolutePath, srcDir);
   const sourceFiles = A.filter(
@@ -699,12 +814,12 @@ const analyzePackage = (packageInfo, topoOrder) => {
       !exclude.some((pattern) => packageSourceMatchesExclude(packageInfo.absolutePath, srcDir, sourceFilePath, pattern))
   );
   const project = new Project({ skipAddingFilesFromTsConfig: true });
-  const modules = [];
-  const exports = [];
+  const modules: Array<InventoryEntry> = [];
+  const exports: Array<InventoryEntry> = [];
 
   for (const sourceFilePath of sourceFiles) {
     const sourceFile = project.addSourceFileAtPath(sourceFilePath);
-    const packageExports = [];
+    const packageExports: Array<InventoryEntry> = [];
     const directExports = exportedDeclarationsFor(sourceFile, packageInfo.absolutePath);
 
     for (const entry of directExports) {
@@ -776,7 +891,7 @@ const analyzePackage = (packageInfo, topoOrder) => {
   };
 };
 
-const analyzeMissingPackage = (packageName, topoOrder) => ({
+const analyzeMissingPackage = (packageName: string, topoOrder: number): PackageInventory => ({
   packageName,
   packagePath: "<unresolved>",
   topoOrder,
@@ -806,15 +921,17 @@ const analyzeMissingPackage = (packageName, topoOrder) => ({
     unsafeExampleFindings: 0,
     schemaAnnotationFindings: 0,
   },
-  modules: [],
-  exports: [],
+  modules: [] as Array<InventoryEntry>,
+  exports: [] as Array<InventoryEntry>,
 });
 
-const analyzeRootPolicy = () => {
+const analyzeRootPolicy = (): RootPolicyInventory => {
   const tsdocPath = path.join(rootDir, "tsdoc.json");
   const tsdoc = readJsonc(tsdocPath);
-  const tagDefinitions = A.isArray(tsdoc.tagDefinitions) ? tsdoc.tagDefinitions : [];
-  const supportForTags = tsdoc.supportForTags ?? {};
+  const tagDefinitions: Array<JsonRecord> = A.isArray(tsdoc.tagDefinitions)
+    ? (tsdoc.tagDefinitions as Array<JsonRecord>)
+    : [];
+  const supportForTags: JsonRecord = (tsdoc.supportForTags ?? {}) as JsonRecord;
 
   const customTags = A.map(requiredTsdocCustomTags, (tagName) => {
     const hasDefinition = tagDefinitions.some((entry) => entry?.tagName === tagName);
@@ -836,7 +953,7 @@ const analyzeRootPolicy = () => {
   };
 };
 
-const inventoryTotals = (packages, rootPolicy) => {
+const inventoryTotals = (packages: ReadonlyArray<PackageInventory>, rootPolicy: RootPolicyInventory) => {
   const openPackageCount = packages.filter((entry) => entry.status === "needs-remediation").length;
   return {
     packages: packages.length,
@@ -862,8 +979,8 @@ const inventoryTotals = (packages, rootPolicy) => {
   };
 };
 
-const detailList = (entry) => {
-  const details = [];
+const detailList = (entry: InventoryEntry): string => {
+  const details: Array<string> = [];
 
   if (entry.missingSummary) {
     A.appendInPlace(details, "missing summary");
@@ -893,8 +1010,8 @@ const detailList = (entry) => {
   return details.length === 0 ? "resolved" : A.join(details, "; ");
 };
 
-const renderMarkdown = (inventory) => {
-  const lines = [];
+const renderMarkdown = (inventory: Inventory): string => {
+  const lines: Array<string> = [];
   A.appendInPlace(lines, "# JSDoc Documentation Compliance Inventory");
   A.appendInPlace(lines, "");
   A.appendInPlace(lines, `Generated: ${inventory.generatedAt}`);
@@ -972,7 +1089,7 @@ const renderMarkdown = (inventory) => {
   return `${A.join(lines, "\n")}\n`;
 };
 
-const main = () => {
+const main = (): void => {
   const packageByName = discoverWorkspacePackages();
   const topoNames = topoSortPackageNames();
   const rootPolicy = analyzeRootPolicy();
