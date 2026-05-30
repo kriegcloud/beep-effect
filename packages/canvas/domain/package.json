@@ -1,6 +1,6 @@
 {
   "name": "@beep/canvas-domain",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "Canvas domain package for the bootstrap scene container aggregate.",
   "license": "MIT",
   "private": true,

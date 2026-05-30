@@ -1,6 +1,6 @@
 {
   "name": "@beep/canvas-use-cases",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "Canvas use-case package for scene commands, repository ports, and public action contracts.",
   "license": "MIT",
   "private": true,
