@@ -64,6 +64,7 @@ const config = {
     "packages/drivers/phoenix/package.json",
     "packages/drivers/konva/package.json",
     "apps/canvas/package.json",
+    "packages/drivers/box/package.json",
   ],
   customTypes: {
     catalog: {

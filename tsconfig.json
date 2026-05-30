@@ -1090,6 +1090,12 @@
       ],
       "@beep/ui/components/blocks/editor-00/nodes": [
         "./packages/foundation/ui-system/ui/src/components/blocks/editor-00/nodes.ts"
+      ],
+      "@beep/box": [
+        "./packages/drivers/box/src/index.ts"
+      ],
+      "@beep/box/*": [
+        "./packages/drivers/box/src/*"
       ]
     }
   }
