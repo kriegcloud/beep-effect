@@ -5,7 +5,7 @@
  * @since 0.0.0
  */
 
-import { oipSiteContent } from "@/content";
+import { oipSiteContent } from "@beep/oip-web/content";
 import type { MetadataRoute } from "next";
 
 /**

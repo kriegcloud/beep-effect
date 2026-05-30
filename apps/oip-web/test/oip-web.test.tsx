@@ -109,7 +109,7 @@ const formContactRequest = (formData = contactFormData()) =>
     method: "POST",
   });
 
-describe.concurrent("@beep/oip-web", () => {
+describe.sequential("@beep/oip-web", () => {
   beforeEach(() => {
     cleanup();
     document.documentElement.classList.remove("light", "dark");

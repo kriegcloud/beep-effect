@@ -687,7 +687,7 @@
     },
     {
       "file": "packages/foundation/capability/nlp/src/Graph/Schema.ts",
-      "symbol": "anonymous@241",
+      "symbol": "anonymous@255",
       "kind": "object-struct-schema",
       "status": "exception",
       "owner": "@beep/nlp",
@@ -695,7 +695,7 @@
     },
     {
       "file": "packages/foundation/capability/nlp/src/Graph/Schema.ts",
-      "symbol": "anonymous@294",
+      "symbol": "anonymous@308",
       "kind": "object-struct-schema",
       "status": "exception",
       "owner": "@beep/nlp",
@@ -703,7 +703,7 @@
     },
     {
       "file": "packages/foundation/capability/nlp/src/Graph/Schema.ts",
-      "symbol": "anonymous@295",
+      "symbol": "anonymous@309",
       "kind": "object-struct-schema",
       "status": "exception",
       "owner": "@beep/nlp",
@@ -711,7 +711,7 @@
     },
     {
       "file": "packages/foundation/capability/nlp/src/Graph/Schema.ts",
-      "symbol": "anonymous@321",
+      "symbol": "anonymous@335",
       "kind": "object-struct-schema",
       "status": "exception",
       "owner": "@beep/nlp",
@@ -719,7 +719,7 @@
     },
     {
       "file": "packages/foundation/capability/nlp/src/Graph/Schema.ts",
-      "symbol": "anonymous@324",
+      "symbol": "anonymous@338",
       "kind": "object-struct-schema",
       "status": "exception",
       "owner": "@beep/nlp",
@@ -727,7 +727,7 @@
     },
     {
       "file": "packages/foundation/capability/nlp/src/Graph/Schema.ts",
-      "symbol": "anonymous@326",
+      "symbol": "anonymous@340",
       "kind": "object-struct-schema",
       "status": "exception",
       "owner": "@beep/nlp",
@@ -735,7 +735,7 @@
     },
     {
       "file": "packages/foundation/capability/nlp/src/Graph/Schema.ts",
-      "symbol": "anonymous@329",
+      "symbol": "anonymous@343",
       "kind": "object-struct-schema",
       "status": "exception",
       "owner": "@beep/nlp",

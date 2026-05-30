@@ -29,7 +29,6 @@
     "types": [],
     "jsx": "react-jsx",
     "paths": {
-      "@/*": ["../../src/*"],
       "@beep/oip-web": ["../../apps/oip-web/src/index.ts"],
       "@beep/oip-web/app/api/contact/ContactRouteResponse": [
         "../../apps/oip-web/src/app/api/contact/ContactRouteResponse.ts"
