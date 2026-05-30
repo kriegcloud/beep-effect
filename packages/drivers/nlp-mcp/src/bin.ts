@@ -11,6 +11,7 @@
  */
 
 import * as NodeRuntime from "@effect/platform-node/NodeRuntime";
+import * as NodeStdio from "@effect/platform-node/NodeStdio";
 import * as Layer from "effect/Layer";
 import { makeServerLayer } from "./Server.ts";
 
@@ -22,4 +23,4 @@ import { makeServerLayer } from "./Server.ts";
  */
 export const SERVER_CONFIG = { name: "beep-nlp", version: "0.0.0" } as const;
 
-Layer.launch(makeServerLayer(SERVER_CONFIG)).pipe(NodeRuntime.runMain);
+Layer.launch(makeServerLayer(SERVER_CONFIG).pipe(Layer.provide(NodeStdio.layer))).pipe(NodeRuntime.runMain);
