@@ -17,9 +17,9 @@ import { Clock, ConfigProvider, Effect, Exit, Layer } from "effect";
 import * as Result from "effect/Result";
 import * as React from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import Home from "../src/app/page.tsx";
 import { OipThemeProvider } from "@/components/OipThemeProvider";
 import { oipRedirects } from "@/config/OipRedirects";
+import Home from "../src/app/page.tsx";
 
 vi.mock("next/image", () =>
   vi.importActual<typeof import("react")>("react").then((ReactModule) => {
