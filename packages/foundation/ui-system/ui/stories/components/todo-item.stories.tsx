@@ -54,9 +54,11 @@ type Story = StoryObj<typeof meta>;
 export const Default: Story = {
   play: ({ canvasElement, args }) => {
     const canvas = within(canvasElement);
-    const row = canvas.getByRole("button", { name: /Review the quarterly roadmap/ });
-    expect(row).toBeVisible();
-    return userEvent.click(row).then(() => {
+    // The row is a plain clickable region (not a button role, so the inner toggle
+    // button is not nested in an interactive role); clicking the title bubbles to it.
+    const title = canvas.getByText("Review the quarterly roadmap");
+    expect(title).toBeVisible();
+    return userEvent.click(title).then(() => {
       expect(args.onClick).toHaveBeenCalledWith("todo-1");
     });
   },
