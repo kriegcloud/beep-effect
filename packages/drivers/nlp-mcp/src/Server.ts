@@ -19,7 +19,7 @@
 import * as Backend from "@beep/nlp/Backend/NLPBackend";
 import { WinkBackendLive } from "@beep/nlp/Backend/WinkBackend";
 import * as WinkEngine from "@beep/nlp/Wink/WinkEngine";
-import { A } from "@beep/utils";
+import { A, O } from "@beep/utils";
 import { Effect, Layer } from "effect";
 import * as McpServer from "effect/unstable/ai/McpServer";
 import * as Schemas from "./Schemas.ts";
@@ -58,8 +58,10 @@ export const makeNlpHandlers = Effect.gen(function* () {
         Schemas.EntityEntry.make({
           entityType: entity.entityType,
           text: entity.text,
-          ...(entity.confidence === undefined ? {} : { confidence: entity.confidence }),
-          ...(entity.span === undefined ? {} : { span: { end: entity.span.end, start: entity.span.start } }),
+          ...O.getSomesStruct({
+            confidence: O.fromUndefinedOr(entity.confidence),
+            span: O.map(O.fromUndefinedOr(entity.span), (span) => ({ end: span.end, start: span.start })),
+          }),
         })
       );
       return Schemas.EntityOutput.make({ count: A.length(result), result });

@@ -111,7 +111,7 @@
       "status": "candidate",
       "owner": "@beep/nlp",
       "reason": "Public 2-3 parameter helper APIs must be implemented with dual from effect/Function.",
-      "line": 157,
+      "line": 159,
       "column": 14,
       "parameterCount": 2,
       "diagnostics": ["missing-dual"]
@@ -171,19 +171,7 @@
       "status": "candidate",
       "owner": "@beep/nlp",
       "reason": "Public 2-3 parameter helper APIs must be implemented with dual from effect/Function.",
-      "line": 254,
-      "column": 14,
-      "parameterCount": 2,
-      "diagnostics": ["missing-dual"]
-    },
-    {
-      "file": "packages/foundation/capability/nlp/src/Graph/EffectGraph.ts",
-      "qualifiedName": "ana",
-      "kind": "exported-const-function",
-      "status": "candidate",
-      "owner": "@beep/nlp",
-      "reason": "Public 2-3 parameter helper APIs must be implemented with dual from effect/Function.",
-      "line": 395,
+      "line": 252,
       "column": 14,
       "parameterCount": 2,
       "diagnostics": ["missing-dual"]
@@ -195,7 +183,7 @@
       "status": "candidate",
       "owner": "@beep/nlp",
       "reason": "Public 2-3 parameter helper APIs must be implemented with dual from effect/Function.",
-      "line": 349,
+      "line": 347,
       "column": 14,
       "parameterCount": 2,
       "diagnostics": ["missing-dual"]
@@ -207,7 +195,7 @@
       "status": "candidate",
       "owner": "@beep/nlp",
       "reason": "Public 2-3 parameter helper APIs must be implemented with dual from effect/Function.",
-      "line": 311,
+      "line": 309,
       "column": 14,
       "parameterCount": 2,
       "diagnostics": ["missing-dual"]
@@ -219,7 +207,7 @@
       "status": "candidate",
       "owner": "@beep/nlp",
       "reason": "Public 2-3 parameter helper APIs must be implemented with dual from effect/Function.",
-      "line": 302,
+      "line": 300,
       "column": 14,
       "parameterCount": 2,
       "diagnostics": ["missing-dual"]
@@ -231,7 +219,7 @@
       "status": "candidate",
       "owner": "@beep/nlp",
       "reason": "Public 2-3 parameter helper APIs must be implemented with dual from effect/Function.",
-      "line": 425,
+      "line": 426,
       "column": 14,
       "parameterCount": 2,
       "diagnostics": ["missing-dual"]
@@ -243,7 +231,7 @@
       "status": "candidate",
       "owner": "@beep/nlp",
       "reason": "Public 2-3 parameter helper APIs must be implemented with dual from effect/Function.",
-      "line": 483,
+      "line": 484,
       "column": 14,
       "parameterCount": 2,
       "diagnostics": ["missing-dual"]
@@ -267,7 +255,7 @@
       "status": "candidate",
       "owner": "@beep/nlp",
       "reason": "Public helper APIs may not expose more than 3 positional parameters.",
-      "line": 476,
+      "line": 475,
       "column": 14,
       "parameterCount": 4,
       "diagnostics": ["too-many-positional-params"]
@@ -418,24 +406,12 @@
     },
     {
       "file": "packages/foundation/capability/nlp/src/Graph/GraphOps.ts",
-      "qualifiedName": "mapNodesEffect",
-      "kind": "exported-const-function",
-      "status": "candidate",
-      "owner": "@beep/nlp",
-      "reason": "Public 2-3 parameter helper APIs must be implemented with dual from effect/Function.",
-      "line": 414,
-      "column": 14,
-      "parameterCount": 2,
-      "diagnostics": ["missing-dual"]
-    },
-    {
-      "file": "packages/foundation/capability/nlp/src/Graph/GraphOps.ts",
       "qualifiedName": "merge",
       "kind": "exported-const-function",
       "status": "candidate",
       "owner": "@beep/nlp",
       "reason": "Public 2-3 parameter helper APIs must be implemented with dual from effect/Function.",
-      "line": 559,
+      "line": 558,
       "column": 14,
       "parameterCount": 2,
       "diagnostics": ["missing-dual"]
@@ -483,7 +459,7 @@
       "status": "candidate",
       "owner": "@beep/nlp",
       "reason": "Public 2-3 parameter helper APIs must be implemented with dual from effect/Function. Public 3-parameter helper APIs must use a strict ObjectLike third parameter.",
-      "line": 452,
+      "line": 451,
       "column": 14,
       "parameterCount": 3,
       "diagnostics": ["missing-dual", "third-param-not-object-like"]
@@ -495,7 +471,7 @@
       "status": "candidate",
       "owner": "@beep/nlp",
       "reason": "Public 2-3 parameter helper APIs must be implemented with dual from effect/Function. Public 3-parameter helper APIs must use a strict ObjectLike third parameter.",
-      "line": 464,
+      "line": 463,
       "column": 14,
       "parameterCount": 3,
       "diagnostics": ["missing-dual", "third-param-not-object-like"]
@@ -603,7 +579,7 @@
       "status": "candidate",
       "owner": "@beep/nlp",
       "reason": "Public 2-3 parameter helper APIs must be implemented with dual from effect/Function.",
-      "line": 431,
+      "line": 432,
       "column": 14,
       "parameterCount": 2,
       "diagnostics": ["missing-dual"]
@@ -615,7 +591,7 @@
       "status": "candidate",
       "owner": "@beep/nlp",
       "reason": "Public 2-3 parameter helper APIs must be implemented with dual from effect/Function.",
-      "line": 359,
+      "line": 358,
       "column": 14,
       "parameterCount": 2,
       "diagnostics": ["missing-dual"]
@@ -646,24 +622,12 @@
     },
     {
       "file": "packages/foundation/capability/nlp/src/Graph/TypeClass.ts",
-      "qualifiedName": "executeOperation",
-      "kind": "exported-const-function",
-      "status": "candidate",
-      "owner": "@beep/nlp",
-      "reason": "Public 2-3 parameter helper APIs must be implemented with dual from effect/Function.",
-      "line": 176,
-      "column": 14,
-      "parameterCount": 2,
-      "diagnostics": ["missing-dual"]
-    },
-    {
-      "file": "packages/foundation/capability/nlp/src/Graph/TypeClass.ts",
       "qualifiedName": "filterOperation",
       "kind": "exported-const-function",
       "status": "candidate",
       "owner": "@beep/nlp",
       "reason": "Public 2-3 parameter helper APIs must be implemented with dual from effect/Function.",
-      "line": 265,
+      "line": 264,
       "column": 14,
       "parameterCount": 2,
       "diagnostics": ["missing-dual"]
@@ -675,7 +639,7 @@
       "status": "candidate",
       "owner": "@beep/nlp",
       "reason": "Public 2-3 parameter helper APIs must be implemented with dual from effect/Function.",
-      "line": 332,
+      "line": 331,
       "column": 14,
       "parameterCount": 2,
       "diagnostics": ["missing-dual"]
@@ -687,7 +651,7 @@
       "status": "candidate",
       "owner": "@beep/nlp",
       "reason": "Public 2-3 parameter helper APIs must be implemented with dual from effect/Function.",
-      "line": 274,
+      "line": 273,
       "column": 14,
       "parameterCount": 2,
       "diagnostics": ["missing-dual"]
@@ -699,7 +663,7 @@
       "status": "candidate",
       "owner": "@beep/nlp",
       "reason": "Public 2-3 parameter helper APIs must be implemented with dual from effect/Function.",
-      "line": 416,
+      "line": 417,
       "column": 14,
       "parameterCount": 2,
       "diagnostics": ["missing-dual"]
@@ -711,7 +675,7 @@
       "status": "candidate",
       "owner": "@beep/nlp",
       "reason": "Public 2-3 parameter helper APIs must be implemented with dual from effect/Function.",
-      "line": 316,
+      "line": 315,
       "column": 14,
       "parameterCount": 2,
       "diagnostics": ["missing-dual"]
@@ -723,7 +687,7 @@
       "status": "candidate",
       "owner": "@beep/nlp",
       "reason": "Public 2-3 parameter helper APIs must be implemented with dual from effect/Function.",
-      "line": 256,
+      "line": 255,
       "column": 14,
       "parameterCount": 2,
       "diagnostics": ["missing-dual"]
@@ -735,7 +699,7 @@
       "status": "candidate",
       "owner": "@beep/nlp",
       "reason": "Public 2-3 parameter helper APIs must be implemented with dual from effect/Function.",
-      "line": 489,
+      "line": 491,
       "column": 14,
       "parameterCount": 2,
       "diagnostics": ["missing-dual"]
@@ -747,7 +711,7 @@
       "status": "candidate",
       "owner": "@beep/nlp",
       "reason": "Public 2-3 parameter helper APIs must be implemented with dual from effect/Function.",
-      "line": 462,
+      "line": 464,
       "column": 14,
       "parameterCount": 2,
       "diagnostics": ["missing-dual"]
@@ -759,7 +723,7 @@
       "status": "candidate",
       "owner": "@beep/nlp",
       "reason": "Public 2-3 parameter helper APIs must be implemented with dual from effect/Function.",
-      "line": 522,
+      "line": 524,
       "column": 14,
       "parameterCount": 2,
       "diagnostics": ["missing-dual"]
@@ -771,7 +735,7 @@
       "status": "candidate",
       "owner": "@beep/nlp",
       "reason": "Public 2-3 parameter helper APIs must be implemented with dual from effect/Function.",
-      "line": 508,
+      "line": 510,
       "column": 14,
       "parameterCount": 2,
       "diagnostics": ["missing-dual"]

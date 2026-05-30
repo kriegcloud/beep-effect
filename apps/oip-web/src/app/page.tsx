@@ -10,8 +10,8 @@ import * as S from "effect/Schema";
 import { headers } from "next/headers";
 import { connection } from "next/server";
 import { OipHomePage } from "../components/OipHomePage";
-import { ContactSubmissionStatus } from "../contact";
-import { getOipSiteContent, makeJsonLdGraph, oipTwitterHandle } from "../content";
+import { ContactSubmissionStatus } from "@/contact";
+import { getOipSiteContent, makeJsonLdGraph, oipTwitterHandle } from "@/content";
 import type { Metadata } from "next";
 
 type HomeProps = {

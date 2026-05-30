@@ -21,7 +21,7 @@
 
 import { $NlpId } from "@beep/identity";
 import { TaggedErrorClass } from "@beep/schema";
-import { A } from "@beep/utils";
+import { A, O as OptionUtils } from "@beep/utils";
 import { Clock, Effect, Graph, MutableHashMap } from "effect";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
@@ -79,7 +79,7 @@ const makeTextNode = (fields: {
       text: fields.text,
       type: fields.type,
       timestamp,
-      ...(fields.operation === undefined ? {} : { operation: fields.operation }),
+      ...OptionUtils.getSomesStruct({ operation: O.fromUndefinedOr(fields.operation) }),
     })
   );
 

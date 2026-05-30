@@ -102,44 +102,46 @@ export interface CachingOptions {
  * @since 0.0.0
  * @category combinators
  */
-export const withCaching = (backend: NLPBackendShape, options?: CachingOptions): Effect.Effect<NLPBackendShape> =>
-  Effect.gen(function* () {
-    const capacity = options?.capacity ?? 1024;
-    const timeToLive = options?.timeToLive ?? Duration.minutes(10);
-    const tokenizeCache = yield* Cache.make({ capacity, lookup: backend.tokenize, timeToLive });
-    const sentencizeCache = yield* Cache.make({ capacity, lookup: backend.sentencize, timeToLive });
-    const posTagCache = yield* Cache.make({ capacity, lookup: backend.posTag, timeToLive });
-    const lemmatizeCache = yield* Cache.make({ capacity, lookup: backend.lemmatize, timeToLive });
-    const entitiesCache = yield* Cache.make({ capacity, lookup: backend.extractEntities, timeToLive });
-    const dependenciesCache = yield* Cache.make({ capacity, lookup: backend.parseDependencies, timeToLive });
-    const relationsCache = yield* Cache.make({ capacity, lookup: backend.extractRelations, timeToLive });
+export const withCaching = Effect.fn("withCaching")(function* (
+  backend: NLPBackendShape,
+  options?: CachingOptions
+): Effect.fn.Return<NLPBackendShape> {
+  const capacity = options?.capacity ?? 1024;
+  const timeToLive = options?.timeToLive ?? Duration.minutes(10);
+  const tokenizeCache = yield* Cache.make({ capacity, lookup: backend.tokenize, timeToLive });
+  const sentencizeCache = yield* Cache.make({ capacity, lookup: backend.sentencize, timeToLive });
+  const posTagCache = yield* Cache.make({ capacity, lookup: backend.posTag, timeToLive });
+  const lemmatizeCache = yield* Cache.make({ capacity, lookup: backend.lemmatize, timeToLive });
+  const entitiesCache = yield* Cache.make({ capacity, lookup: backend.extractEntities, timeToLive });
+  const dependenciesCache = yield* Cache.make({ capacity, lookup: backend.parseDependencies, timeToLive });
+  const relationsCache = yield* Cache.make({ capacity, lookup: backend.extractRelations, timeToLive });
 
-    return NLPBackend.of({
-      capabilities: backend.capabilities,
-      name: `cached(${backend.name})`,
-      tokenize: Effect.fn("CachedBackend.tokenize")(function* (text: string) {
-        return yield* Cache.get(tokenizeCache, text);
-      }),
-      sentencize: Effect.fn("CachedBackend.sentencize")(function* (text: string) {
-        return yield* Cache.get(sentencizeCache, text);
-      }),
-      posTag: Effect.fn("CachedBackend.posTag")(function* (text: string) {
-        return yield* Cache.get(posTagCache, text);
-      }),
-      lemmatize: Effect.fn("CachedBackend.lemmatize")(function* (text: string) {
-        return yield* Cache.get(lemmatizeCache, text);
-      }),
-      extractEntities: Effect.fn("CachedBackend.extractEntities")(function* (text: string) {
-        return yield* Cache.get(entitiesCache, text);
-      }),
-      parseDependencies: Effect.fn("CachedBackend.parseDependencies")(function* (sentence: string) {
-        return yield* Cache.get(dependenciesCache, sentence);
-      }),
-      extractRelations: Effect.fn("CachedBackend.extractRelations")(function* (text: string) {
-        return yield* Cache.get(relationsCache, text);
-      }),
-    });
+  return NLPBackend.of({
+    capabilities: backend.capabilities,
+    name: `cached(${backend.name})`,
+    tokenize: Effect.fn("CachedBackend.tokenize")(function* (text: string) {
+      return yield* Cache.get(tokenizeCache, text);
+    }),
+    sentencize: Effect.fn("CachedBackend.sentencize")(function* (text: string) {
+      return yield* Cache.get(sentencizeCache, text);
+    }),
+    posTag: Effect.fn("CachedBackend.posTag")(function* (text: string) {
+      return yield* Cache.get(posTagCache, text);
+    }),
+    lemmatize: Effect.fn("CachedBackend.lemmatize")(function* (text: string) {
+      return yield* Cache.get(lemmatizeCache, text);
+    }),
+    extractEntities: Effect.fn("CachedBackend.extractEntities")(function* (text: string) {
+      return yield* Cache.get(entitiesCache, text);
+    }),
+    parseDependencies: Effect.fn("CachedBackend.parseDependencies")(function* (sentence: string) {
+      return yield* Cache.get(dependenciesCache, sentence);
+    }),
+    extractRelations: Effect.fn("CachedBackend.extractRelations")(function* (text: string) {
+      return yield* Cache.get(relationsCache, text);
+    }),
   });
+});
 
 /**
  * Select the first backend that supports a given capability.

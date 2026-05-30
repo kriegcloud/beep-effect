@@ -235,22 +235,16 @@ export const SetUnion = <A>(): Monoid<ReadonlySet<A>> => ({
  */
 export const SetIntersection: <A>() => Monoid<O.Option<ReadonlySet<A>>> = <A>(): Monoid<O.Option<ReadonlySet<A>>> => ({
   empty: O.none(),
-  combine: dual(2, (x, y) =>
-    O.match(x, {
-      onNone: () => y,
-      onSome: (xs: ReadonlySet<A>) =>
-        O.match(y, {
-          onNone: () => x,
-          onSome: (ys: ReadonlySet<A>) => {
-            const result = new Set<A>();
-            for (const elem of xs) {
-              if (ys.has(elem)) result.add(elem);
-            }
-            return O.some(result);
-          },
-        }),
-    })
-  ),
+  combine: dual(2, (x, y) => {
+    if (O.isNone(x)) return y;
+    if (O.isNone(y)) return x;
+
+    const result = new Set<A>();
+    for (const elem of x.value) {
+      if (y.value.has(elem) === true) result.add(elem);
+    }
+    return O.some(result);
+  }),
 });
 
 // =============================================================================
@@ -333,16 +327,12 @@ export const Product3 = <A, B, C>(ma: Monoid<A>, mb: Monoid<B>, mc: Monoid<C>): 
  */
 export const Option = <A>(monoid: Monoid<A>): Monoid<O.Option<A>> => ({
   empty: O.none(),
-  combine: dual(2, (x, y) =>
-    O.match(x, {
-      onNone: () => y,
-      onSome: (xa: A) =>
-        O.match(y, {
-          onNone: () => x,
-          onSome: (ya: A) => O.some(monoid.combine(xa, ya)),
-        }),
-    })
-  ),
+  combine: dual(2, (x, y) => {
+    if (O.isNone(x)) return y;
+    if (O.isNone(y)) return x;
+
+    return O.some(monoid.combine(x.value, y.value));
+  }),
 });
 
 // =============================================================================

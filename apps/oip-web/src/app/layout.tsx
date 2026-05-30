@@ -10,7 +10,7 @@ import * as O from "effect/Option";
 import { headers } from "next/headers";
 import { connection } from "next/server";
 import { use } from "react";
-import { oipSiteContent, oipTwitterHandle } from "../content";
+import { oipSiteContent, oipTwitterHandle } from "@/content";
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
 import "./globals.css";

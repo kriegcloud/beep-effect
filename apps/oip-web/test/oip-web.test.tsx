@@ -18,8 +18,8 @@ import * as Result from "effect/Result";
 import * as React from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import Home from "../src/app/page.tsx";
-import { OipThemeProvider } from "../src/components/OipThemeProvider.tsx";
-import { oipRedirects } from "../src/config/OipRedirects.ts";
+import { OipThemeProvider } from "@/components/OipThemeProvider";
+import { oipRedirects } from "@/config/OipRedirects";
 
 vi.mock("next/image", () =>
   vi.importActual<typeof import("react")>("react").then((ReactModule) => {
@@ -109,7 +109,7 @@ const formContactRequest = (formData = contactFormData()) =>
     method: "POST",
   });
 
-describe.sequential("@beep/oip-web", () => {
+describe.concurrent("@beep/oip-web", () => {
   beforeEach(() => {
     cleanup();
     document.documentElement.classList.remove("light", "dark");

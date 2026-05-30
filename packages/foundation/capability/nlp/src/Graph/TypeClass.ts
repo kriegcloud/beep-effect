@@ -173,21 +173,20 @@ const getLeafNodes = <A>(graph: EffectGraph<A>): ReadonlyArray<GraphNode<A>> =>
  * @since 0.0.0
  * @category combinators
  */
-export const executeOperation = <A, B, R, E>(
+export const executeOperation = Effect.fn("executeOperation")(function* <A, B, R, E>(
   graph: EffectGraph<A>,
   operation: TextOperation<A, B, R, E>
-): Effect.Effect<EffectGraph<A | B>, E, R> =>
-  Effect.gen(function* () {
-    // EffectGraph is covariant in its node type, so the widening needs no cast.
-    let resultGraph: EffectGraph<A | B> = graph;
-    for (const leafNode of getLeafNodes(graph)) {
-      const newNodes = yield* operation.apply(leafNode);
-      for (const newNode of newNodes) {
-        resultGraph = addNode(resultGraph, newNode);
-      }
+): Effect.fn.Return<EffectGraph<A | B>, E, R> {
+  // EffectGraph is covariant in its node type, so the widening needs no cast.
+  let resultGraph: EffectGraph<A | B> = graph;
+  for (const leafNode of getLeafNodes(graph)) {
+    const newNodes = yield* operation.apply(leafNode);
+    for (const newNode of newNodes) {
+      resultGraph = addNode(resultGraph, newNode);
     }
-    return resultGraph;
-  });
+  }
+  return resultGraph;
+});
 
 /**
  * Apply a sequence of operations, each adding a DAG layer.
@@ -360,8 +359,9 @@ export const ap = <A, B, C, R1, E1, R2, E2>(
   opFn: TextOperation<A, (b: B) => C, R1, E1>,
   opVal: TextOperation<A, B, R2, E2>
 ): TextOperation<A, C, R1 | R2, E1 | E2> =>
-  makeOperation(`ap(${opFn.name}, ${opVal.name})`, (node) =>
-    Effect.gen(function* () {
+  makeOperation(
+    `ap(${opFn.name}, ${opVal.name})`,
+    Effect.fnUntraced(function* (node) {
       const fnNodes = yield* opFn.apply(node);
       const valNodes = yield* opVal.apply(node);
       return A.flatMap(fnNodes, (fnNode) =>
@@ -396,8 +396,9 @@ export const chain = <A, B, C, R1, E1, R2, E2>(
   operation: TextOperation<A, B, R1, E1>,
   f: (b: B) => TextOperation<B, C, R2, E2>
 ): TextOperation<A, C, R1 | R2, E1 | E2> =>
-  makeOperation(`${operation.name} >>= chain`, (node) =>
-    Effect.gen(function* () {
+  makeOperation(
+    `${operation.name} >>= chain`,
+    Effect.fnUntraced(function* (node) {
       const intermediateNodes = yield* operation.apply(node);
       const results = yield* Effect.all(
         A.map(intermediateNodes, (intermediate) => f(intermediate.data).apply(intermediate)),
@@ -432,8 +433,9 @@ export const alt = <A, B, R1, E1, R2, E2>(
   op1: TextOperation<A, B, R1, E1>,
   op2: TextOperation<A, B, R2, E2>
 ): TextOperation<A, B, R1 | R2, E1 | E2> =>
-  makeOperation(`alt(${op1.name}, ${op2.name})`, (node) =>
-    Effect.gen(function* () {
+  makeOperation(
+    `alt(${op1.name}, ${op2.name})`,
+    Effect.fnUntraced(function* (node) {
       const results1 = yield* op1.apply(node);
       const results2 = yield* op2.apply(node);
       return A.appendAll(results1, results2);

@@ -5,7 +5,7 @@
  * @since 0.0.0
  */
 
-import { oipSiteContent } from "../content";
+import { oipSiteContent } from "@/content";
 import type { MetadataRoute } from "next";
 
 /**

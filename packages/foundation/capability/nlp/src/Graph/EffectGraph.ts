@@ -170,26 +170,25 @@ export interface EffectGraph<A> {
  * @since 0.0.0
  * @category constructors
  */
-export const makeNode = <A>(
+export const makeNode = Effect.fn("makeNode")(function* <A>(
   data: A,
   parentId: O.Option<NodeId> = O.none(),
   operation: O.Option<string> = O.none()
-): Effect.Effect<GraphNode<A>> =>
-  Effect.gen(function* () {
-    const timestamp = yield* Clock.currentTimeMillis;
-    const id = yield* generateNodeId;
-    return {
-      id,
-      data,
-      parentId,
-      metadata: {
-        operation,
-        timestamp,
-        // recalculated when added to a graph under a parent
-        depth: O.match(parentId, { onNone: thunk0, onSome: () => 1 }),
-      },
-    };
-  });
+): Effect.fn.Return<GraphNode<A>> {
+  const timestamp = yield* Clock.currentTimeMillis;
+  const id = yield* generateNodeId;
+  return {
+    id,
+    data,
+    parentId,
+    metadata: {
+      operation,
+      timestamp,
+      // recalculated when added to a graph under a parent
+      depth: O.match(parentId, { onNone: thunk0, onSome: () => 1 }),
+    },
+  };
+});
 
 /**
  * Create an empty {@link EffectGraph}.
@@ -223,22 +222,21 @@ export const empty = <A>(): EffectGraph<A> => ({
  * @since 0.0.0
  * @category constructors
  */
-export const singleton = <A>(data: A): Effect.Effect<EffectGraph<A>> =>
-  Effect.gen(function* () {
-    const node = yield* makeNode(data);
-    let nodeIndex: O.Option<Graph.NodeIndex> = O.none();
-    const graph = Graph.directed<GraphNode<A>, GraphEdge>((mutable) => {
-      nodeIndex = O.some(Graph.addNode(mutable, node));
-    });
-    return O.match(nodeIndex, {
-      onNone: empty<A>,
-      onSome: (idx) => ({
-        graph,
-        nodeIdToIndex: HashMap.make([node.id, idx]),
-        indexToNodeId: HashMap.make([idx, node.id]),
-      }),
-    });
+export const singleton = Effect.fn("singleton")(function* <A>(data: A): Effect.fn.Return<EffectGraph<A>> {
+  const node = yield* makeNode(data);
+  let nodeIndex: O.Option<Graph.NodeIndex> = O.none();
+  const graph = Graph.directed<GraphNode<A>, GraphEdge>((mutable) => {
+    nodeIndex = O.some(Graph.addNode(mutable, node));
   });
+  return O.match(nodeIndex, {
+    onNone: empty<A>,
+    onSome: (idx) => ({
+      graph,
+      nodeIdToIndex: HashMap.make([node.id, idx]),
+      indexToNodeId: HashMap.make([idx, node.id]),
+    }),
+  });
+});
 
 // =============================================================================
 // Graph Operations
@@ -259,10 +257,10 @@ export const addNode = <A>(effectGraph: EffectGraph<A>, node: GraphNode<A>): Eff
       const parentNode = O.flatMap(HashMap.get(effectGraph.nodeIdToIndex, parentId), (idx) =>
         Graph.getNode(effectGraph.graph, idx)
       );
-      const parentDepth = O.match(parentNode, {
-        onNone: thunk0,
-        onSome: (p) => p.metadata.depth,
-      });
+      const parentDepth = O.getOrElse(
+        O.map(parentNode, (p) => p.metadata.depth),
+        thunk0
+      );
       return { ...node, metadata: { ...node.metadata, depth: parentDepth + 1 } };
     },
   });
@@ -271,16 +269,12 @@ export const addNode = <A>(effectGraph: EffectGraph<A>, node: GraphNode<A>): Eff
   const newGraph = Graph.mutate(effectGraph.graph, (mutable) => {
     const nodeIndex = Graph.addNode(mutable, updatedNode);
     newNodeIndex = O.some(nodeIndex);
-    O.match(node.parentId, {
-      onNone: R.empty,
-      onSome: (parentId) =>
-        O.match(HashMap.get(effectGraph.nodeIdToIndex, parentId), {
-          onNone: R.empty,
-          onSome: (pIdx) => {
-            Graph.addEdge(mutable, pIdx, nodeIndex, { relation: "child" });
-          },
-        }),
-    });
+    if (O.isSome(node.parentId)) {
+      const parentIndex = HashMap.get(effectGraph.nodeIdToIndex, node.parentId.value);
+      if (O.isSome(parentIndex)) {
+        Graph.addEdge(mutable, parentIndex.value, nodeIndex, { relation: "child" });
+      }
+    }
   });
 
   return O.match(newNodeIndex, {
@@ -352,25 +346,24 @@ export const cata = <A, B>(
 ): Effect.Effect<ReadonlyArray<B>, NodeNotFoundError> => {
   const memo = MutableHashMap.empty<NodeId, B>();
 
-  const go = (nodeId: NodeId): Effect.Effect<B, NodeNotFoundError> =>
-    Effect.gen(function* () {
-      const cached = MutableHashMap.get(memo, nodeId);
-      if (O.isSome(cached)) {
-        return cached.value;
-      }
-      const node = yield* O.match(getNode(graph, nodeId), {
-        onNone: () => Effect.fail(NodeNotFoundError.make({ nodeId })),
-        onSome: (n) => Effect.succeed(n),
-      });
-      // children first (bottom-up); sequential to bound memory on deep graphs
-      const processedChildren = yield* Effect.all(
-        A.map(getChildren(graph, nodeId), (child) => go(child.id)),
-        { concurrency: 1 }
-      );
-      const result = algebra(node, processedChildren);
-      MutableHashMap.set(memo, nodeId, result);
-      return result;
+  const go = Effect.fnUntraced(function* (nodeId: NodeId): Effect.fn.Return<B, NodeNotFoundError> {
+    const cached = MutableHashMap.get(memo, nodeId);
+    if (O.isSome(cached)) {
+      return cached.value;
+    }
+    const node = yield* O.match(getNode(graph, nodeId), {
+      onNone: () => Effect.fail(NodeNotFoundError.make({ nodeId })),
+      onSome: (n) => Effect.succeed(n),
     });
+    // children first (bottom-up); sequential to bound memory on deep graphs
+    const processedChildren = yield* Effect.all(
+      A.map(getChildren(graph, nodeId), (child) => go(child.id)),
+      { concurrency: 1 }
+    );
+    const result = algebra(node, processedChildren);
+    MutableHashMap.set(memo, nodeId, result);
+    return result;
+  });
 
   return Effect.all(
     A.map(getRoots(graph), (root) => go(root.id)),
@@ -392,25 +385,26 @@ export type GraphCoalgebra<A, B> = (seed: B) => Effect.Effect<readonly [A, Reado
  * @since 0.0.0
  * @category folding
  */
-export const ana = <A, B>(seed: B, coalgebra: GraphCoalgebra<A, B>): Effect.Effect<EffectGraph<A>> =>
-  Effect.gen(function* () {
-    let graph = empty<A>();
+export const ana = Effect.fn("ana")(function* <A, B>(
+  seed: B,
+  coalgebra: GraphCoalgebra<A, B>
+): Effect.fn.Return<EffectGraph<A>> {
+  let graph = empty<A>();
 
-    const go = (currentSeed: B, parentId: O.Option<NodeId>): Effect.Effect<NodeId> =>
-      Effect.gen(function* () {
-        const [data, childSeeds] = yield* coalgebra(currentSeed);
-        const node = yield* makeNode(data, parentId);
-        graph = addNode(graph, node);
-        yield* Effect.all(
-          A.map(childSeeds, (childSeed) => go(childSeed, O.some(node.id))),
-          { concurrency: 1 }
-        );
-        return node.id;
-      });
-
-    yield* go(seed, O.none());
-    return graph;
+  const go = Effect.fnUntraced(function* (currentSeed: B, parentId: O.Option<NodeId>): Effect.fn.Return<NodeId> {
+    const [data, childSeeds] = yield* coalgebra(currentSeed);
+    const node = yield* makeNode(data, parentId);
+    graph = addNode(graph, node);
+    yield* Effect.all(
+      A.map(childSeeds, (childSeed) => go(childSeed, O.some(node.id))),
+      { concurrency: 1 }
+    );
+    return node.id;
   });
+
+  yield* go(seed, O.none());
+  return graph;
+});
 
 // =============================================================================
 // Functor / utilities

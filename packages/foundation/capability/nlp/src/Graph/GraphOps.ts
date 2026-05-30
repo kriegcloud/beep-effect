@@ -411,33 +411,32 @@ export const traverseNodesCollect = <A, E, B, Err, R>(
  * @since 0.0.0
  * @category mapping
  */
-export const mapNodesEffect = <A, B, E, Err, R>(
+export const mapNodesEffect = Effect.fn("mapNodesEffect")(function* <A, B, E, Err, R>(
   graph: DirectedGraph<A, E>,
   f: (node: A, index: NodeIndex) => Effect.Effect<B, Err, R>
-): Effect.Effect<DirectedGraph<B, E>, Err, R> =>
-  Effect.gen(function* () {
-    const pairs = yield* Effect.forEach(A.fromIterable(graph.pipe(Graph.nodes, Graph.entries)), ([index, node]) =>
-      Effect.map(f(node, index), (transformed) => [index, transformed] as const)
-    );
-    const indexMap = MutableHashMap.empty<NodeIndex, NodeIndex>();
-    return Graph.directed<B, E>((mutable) => {
-      A.forEach(pairs, ([oldIndex, transformed]) => {
-        MutableHashMap.set(indexMap, oldIndex, Graph.addNode(mutable, transformed));
-      });
-      for (const edgeIndex of Graph.indices(graph.pipe(Graph.edges))) {
-        O.match(Graph.getEdge(graph, edgeIndex), {
-          onNone: () => {},
-          onSome: (edge) => {
-            const from = MutableHashMap.get(indexMap, edge.source);
-            const to = MutableHashMap.get(indexMap, edge.target);
-            if (O.isSome(from) && O.isSome(to)) {
-              Graph.addEdge(mutable, from.value, to.value, edge.data);
-            }
-          },
-        });
-      }
+): Effect.fn.Return<DirectedGraph<B, E>, Err, R> {
+  const pairs = yield* Effect.forEach(A.fromIterable(graph.pipe(Graph.nodes, Graph.entries)), ([index, node]) =>
+    Effect.map(f(node, index), (transformed) => [index, transformed] as const)
+  );
+  const indexMap = MutableHashMap.empty<NodeIndex, NodeIndex>();
+  return Graph.directed<B, E>((mutable) => {
+    A.forEach(pairs, ([oldIndex, transformed]) => {
+      MutableHashMap.set(indexMap, oldIndex, Graph.addNode(mutable, transformed));
     });
+    for (const edgeIndex of Graph.indices(graph.pipe(Graph.edges))) {
+      O.match(Graph.getEdge(graph, edgeIndex), {
+        onNone: () => {},
+        onSome: (edge) => {
+          const from = MutableHashMap.get(indexMap, edge.source);
+          const to = MutableHashMap.get(indexMap, edge.target);
+          if (O.isSome(from) && O.isSome(to)) {
+            Graph.addEdge(mutable, from.value, to.value, edge.data);
+          }
+        },
+      });
+    }
   });
+});
 
 // =============================================================================
 // Streaming Operations

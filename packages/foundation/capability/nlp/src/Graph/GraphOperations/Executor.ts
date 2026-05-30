@@ -106,54 +106,52 @@ const concurrencyOf = (strategy: Types.ExecutionStrategy): number =>
   );
 
 /** Apply the operation to one node, caching on success, yielding nodes + errors. */
-const applyOne = <A, B, R, E>(
+const applyOne = Effect.fn("applyOne")(function* <A, B, R, E>(
   store: ResultStore.ResultStoreShape,
   operation: GraphOperation<A, B, R, E>,
   cache: boolean,
   leafNode: GraphNode<A>
-): Effect.Effect<Application, ExecutionError, R> =>
-  Effect.gen(function* () {
-    const key = ResultStore.ResultKey.make(operation.name, leafNode.id);
-    const cached = cache
-      ? yield* Effect.mapError(store.get(key), (e) =>
-          ExecutionError.make({ cause: O.some(e), message: "Storage retrieve failed" })
-        )
-      : O.none<ResultStore.AnyOperationResult>();
+): Effect.fn.Return<Application, ExecutionError, R> {
+  const key = ResultStore.ResultKey.make(operation.name, leafNode.id);
+  const cached = cache
+    ? yield* Effect.mapError(store.get(key), (e) =>
+        ExecutionError.make({ cause: O.some(e), message: "Storage retrieve failed" })
+      )
+    : O.none<ResultStore.AnyOperationResult>();
 
-    if (O.isSome(cached)) {
-      return { errors: cached.value.errors, fromCache: true, newNodes: cached.value.newNodes };
-    }
+  if (O.isSome(cached)) {
+    return { errors: cached.value.errors, fromCache: true, newNodes: cached.value.newNodes };
+  }
 
-    const result = yield* Effect.result(operation.apply(leafNode));
-    return yield* Result.match(result, {
-      onFailure: (failure): Effect.Effect<Application, ExecutionError> =>
-        Effect.succeed({ errors: A.of(failure), fromCache: false, newNodes: A.empty<GraphNode<unknown>>() }),
-      onSuccess: (newNodes): Effect.Effect<Application, ExecutionError> =>
-        Effect.as(cache ? cacheResult(store, key, newNodes) : Effect.void, {
-          errors: A.empty<unknown>(),
-          fromCache: false,
-          newNodes,
-        }),
-    });
+  const result = yield* Effect.result(operation.apply(leafNode));
+  return yield* Result.match(result, {
+    onFailure: (failure): Effect.Effect<Application, ExecutionError> =>
+      Effect.succeed({ errors: A.of(failure), fromCache: false, newNodes: A.empty<GraphNode<unknown>>() }),
+    onSuccess: (newNodes): Effect.Effect<Application, ExecutionError> =>
+      Effect.as(cache ? cacheResult(store, key, newNodes) : Effect.void, {
+        errors: A.empty<unknown>(),
+        fromCache: false,
+        newNodes,
+      }),
   });
+});
 
-const cacheResult = <B>(
+const cacheResult = Effect.fn("cacheResult")(function* <B>(
   store: ResultStore.ResultStoreShape,
   key: ResultStore.ResultKey,
   newNodes: ReadonlyArray<GraphNode<B>>
-): Effect.Effect<void, ExecutionError> =>
-  Effect.gen(function* () {
-    const opResult = yield* Types.makeOperationResult(
-      yield* Types.generateExecutionId,
-      O.none(),
-      newNodes,
-      A.empty<unknown>(),
-      Types.ExecutionMetrics.empty()
-    );
-    yield* Effect.mapError(store.store(key, opResult), (e) =>
-      ExecutionError.make({ cause: O.some(e), message: "Storage store failed" })
-    );
-  });
+): Effect.fn.Return<void, ExecutionError> {
+  const opResult = yield* Types.makeOperationResult(
+    yield* Types.generateExecutionId,
+    O.none(),
+    newNodes,
+    A.empty<unknown>(),
+    Types.ExecutionMetrics.empty()
+  );
+  yield* Effect.mapError(store.store(key, opResult), (e) =>
+    ExecutionError.make({ cause: O.some(e), message: "Storage store failed" })
+  );
+});
 
 const foldApplications = (
   applications: ReadonlyArray<Application>,
@@ -172,21 +170,20 @@ const foldApplications = (
   newNodes: A.flatMap(applications, (r) => r.newNodes),
 });
 
-const runStrategy = <A, B, R, E>(
+const runStrategy = Effect.fn("runStrategy")(function* <A, B, R, E>(
   store: ResultStore.ResultStoreShape,
   leafNodes: ReadonlyArray<GraphNode<A>>,
   operation: GraphOperation<A, B, R, E>,
   cache: boolean,
   concurrency: number
-): Effect.Effect<ExecutionFold, ExecutionError, R> =>
-  Effect.gen(function* () {
-    const startTime = yield* Clock.currentTimeMillis;
-    const applications = yield* Effect.forEach(leafNodes, (leafNode) => applyOne(store, operation, cache, leafNode), {
-      concurrency,
-    });
-    const endTime = yield* Clock.currentTimeMillis;
-    return foldApplications(applications, A.length(leafNodes), endTime - startTime);
+): Effect.fn.Return<ExecutionFold, ExecutionError, R> {
+  const startTime = yield* Clock.currentTimeMillis;
+  const applications = yield* Effect.forEach(leafNodes, (leafNode) => applyOne(store, operation, cache, leafNode), {
+    concurrency,
   });
+  const endTime = yield* Clock.currentTimeMillis;
+  return foldApplications(applications, A.length(leafNodes), endTime - startTime);
+});
 
 // =============================================================================
 // Implementation
