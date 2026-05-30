@@ -7,6 +7,7 @@
 
 import { $NlpId } from "@beep/identity";
 import { NonNegativeInt } from "@beep/schema";
+import { thunkFalse, thunkTrue } from "@beep/utils";
 import { Brand } from "effect";
 import { dual } from "effect/Function";
 import * as O from "effect/Option";
@@ -72,7 +73,12 @@ export const tokenIndex: Brand.Constructor<TokenIndex> = Brand.check<TokenIndex>
  * @since 0.0.0
  * @category validation
  */
-export const TokenIndex = NonNegativeInt.pipe(S.fromBrand("TokenIndex", tokenIndex));
+export const TokenIndex = NonNegativeInt.pipe(
+  S.fromBrand("TokenIndex", tokenIndex),
+  $I.annoteSchema("TokenIndex", {
+    description: "Non-negative ordered index for an NLP token.",
+  })
+);
 
 /**
  * Branded number type for character positions.
@@ -134,7 +140,12 @@ export const charPosition: Brand.Constructor<CharPosition> = Brand.check<CharPos
  * @since 0.0.0
  * @category validation
  */
-export const CharPosition = NonNegativeInt.pipe(S.fromBrand("CharPosition", charPosition));
+export const CharPosition = NonNegativeInt.pipe(
+  S.fromBrand("CharPosition", charPosition),
+  $I.annoteSchema("CharPosition", {
+    description: "Non-negative character offset in source NLP text.",
+  })
+);
 
 /**
  * Immutable NLP token model with lexical and positional metadata.
@@ -195,7 +206,7 @@ export class Token extends S.Class<Token>($I`Token`)(
    */
   static readonly isPunctuation = (token: Token): boolean =>
     O.match(token.shape, {
-      onNone: () => false,
+      onNone: thunkFalse,
       onSome: (shape) => !/[Xxd]/.test(shape),
     });
 
@@ -204,14 +215,14 @@ export class Token extends S.Class<Token>($I`Token`)(
    */
   static readonly isWord = (token: Token): boolean =>
     O.match(token.shape, {
-      onNone: () => true,
+      onNone: thunkTrue,
       onSome: (shape) => /[Xx]/.test(shape),
     });
 
   /**
    * Whether the token is marked as a stop word.
    */
-  static readonly isStopWord = (token: Token): boolean => O.getOrElse(token.stopWordFlag, () => false);
+  static readonly isStopWord = (token: Token): boolean => O.getOrElse(token.stopWordFlag, thunkFalse);
 
   /**
    * Return a copy of the token with new text.

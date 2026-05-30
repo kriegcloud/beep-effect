@@ -64,7 +64,8 @@
     "packages/drivers/hubspot",
     "packages/drivers/phoenix",
     "packages/drivers/konva",
-    "apps/canvas"
+    "apps/canvas",
+    "packages/drivers/nlp-mcp"
   ],
   "repository": {
     "type": "git",
@@ -74,6 +75,7 @@
   "scripts": {
     "op": "op run --env-file=.env --",
     "beep": "bun run packages/tooling/tool/cli/src/bin.ts --",
+    "ai-sync": "bun run --cwd packages/tooling/library/ai-sync ai-sync",
     "topo-sort": "bun run beep topo-sort",
     "codegen": "bun run beep codegen",
     "codex:quality-review-fix-loop": "bun run beep codex quality-review-fix-loop",
@@ -93,6 +95,8 @@
     "lint": "beep-cli lint",
     "lint:fix": "beep-cli lint --fix",
     "knip": "knip-bun",
+    "pkg:verify": "bun run scripts/pkg-verify.ts",
+    "pkg:verify:quick": "bun run scripts/pkg-verify.ts --quick",
     "audit": "beep-cli audit packages",
     "audit:fresh": "beep-cli audit packages --force",
     "audit:github": "beep-cli audit github",

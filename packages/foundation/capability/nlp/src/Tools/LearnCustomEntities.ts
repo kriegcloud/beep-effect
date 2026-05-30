@@ -12,7 +12,11 @@ import { Tool } from "effect/unstable/ai";
 import { MarkRange } from "../Core/Pattern.ts";
 
 const $I = $NlpId.create("Tools/LearnCustomEntities");
-const LearnCustomEntitiesModeKit = LiteralKit(["append", "replace"]);
+const LearnCustomEntitiesModeKit = LiteralKit(["append", "replace"]).annotate(
+  $I.annote("LearnCustomEntitiesModeKit", {
+    description: "LiteralKit backing schema for custom entity learning merge modes.",
+  })
+);
 const LearnCustomEntitiesMode = LearnCustomEntitiesModeKit.pipe(
   $I.annoteSchema("LearnCustomEntitiesMode", {
     description: "How learned custom entities are merged into the current engine state.",

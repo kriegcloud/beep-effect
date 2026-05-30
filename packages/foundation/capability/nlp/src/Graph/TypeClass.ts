@@ -1,0 +1,527 @@
+/**
+ * TypeClass - categorical abstractions for text-processing operations on graphs.
+ *
+ * Formalizes text operations as morphisms in the Kleisli category of `Effect`:
+ * a {@link TextOperation} takes one {@link GraphNode} of data `A` and
+ * produces an array of nodes of data `B`, possibly requiring context `R` and
+ * failing with `E`. The module provides the Functor/Applicative/Monad/Traversable
+ * combinators (`map`/`ap`/`chain`/`traverse`), a {@link Composable} monoid of
+ * operations, a {@link Foldable} instance for graphs, and an adjunction model
+ * (free expansion ⊣ forgetful aggregation).
+ *
+ * Ported from the `adjunct` repo (Effect v3) to Effect v4 / `@beep/nlp`:
+ * - operations that mint nodes are EFFECTFUL: `EffectGraph.makeNode` /
+ *   `EffectGraph.generateNodeId` read `Clock`/`Random` (adjunct called a synchronous
+ *   `makeNode` + `NodeId.generate()`, which are repo-law violations here).
+ * - `Foldable<F>` is parameterized as `Foldable<F, A>` so the graph instance is
+ *   implementable without `any` (adjunct's `Foldable<F>` forced an `any` instance).
+ * - `executeOperation` drops adjunct's `as EffectGraph<A | B>` casts: `effect/Graph`
+ *   is covariant in its node type, so the widening is sound without assertions.
+ * - native `Array#map`/`flat`/`push` + index loops become `effect/Array` + folds +
+ *   `Effect.all`/`Effect.forEach`; the `purOperation` typo is corrected to
+ *   `pureOperation`.
+ *
+ * @since 0.0.0
+ * @packageDocumentation
+ */
+
+import { A } from "@beep/utils";
+import { Effect, identity } from "effect";
+import * as O from "effect/Option";
+import { addNode, generateNodeId, getChildren, makeNode, toArray } from "./EffectGraph.ts";
+import type { EffectGraph, GraphNode } from "./EffectGraph.ts";
+
+// =============================================================================
+// Text Operation Type Class
+// =============================================================================
+
+/**
+ * A morphism in the graph category: maps a node of data `A` to new nodes of data
+ * `B`, requiring context `R` and possibly failing with `E`. Operations produce
+ * NEW nodes, forming the next layer of the DAG.
+ *
+ * @since 0.0.0
+ * @category models
+ */
+export interface TextOperation<A, B, R = never, E = never> {
+  readonly apply: (node: GraphNode<A>) => Effect.Effect<ReadonlyArray<GraphNode<B>>, E, R>;
+  readonly name: string;
+}
+
+/**
+ * Build a {@link TextOperation} from an effectful node-producing function.
+ *
+ * @since 0.0.0
+ * @category constructors
+ */
+export const makeOperation = <A, B, R = never, E = never>(
+  name: string,
+  apply: (node: GraphNode<A>) => Effect.Effect<ReadonlyArray<GraphNode<B>>, E, R>
+): TextOperation<A, B, R, E> => ({ name, apply });
+
+/**
+ * A pure text operation: maps node data to new data values (no context/errors),
+ * minting a child node per produced value (effectful only via id/clock).
+ *
+ * @since 0.0.0
+ * @category constructors
+ */
+export const pureOperation = <A, B>(name: string, f: (data: A) => ReadonlyArray<B>): TextOperation<A, B> =>
+  makeOperation(name, (node) => Effect.forEach(f(node.data), (b) => makeNode(b, O.some(node.id), O.some(name))));
+
+// =============================================================================
+// Composable Type Class (Monoid Structure)
+// =============================================================================
+
+/**
+ * Operations composable end-to-end, forming a monoid (sequential composition +
+ * identity). Laws: associativity and identity.
+ *
+ * @since 0.0.0
+ * @category models
+ */
+export interface Composable<A, R = never, E = never> {
+  readonly compose: <B>(
+    first: TextOperation<A, B, R, E>,
+    second: TextOperation<B, A, R, E>
+  ) => TextOperation<A, A, R, E>;
+  readonly identity: TextOperation<A, A>;
+}
+
+/**
+ * The identity operation: re-emits the node under a fresh id (effectful id).
+ *
+ * @since 0.0.0
+ * @category constructors
+ */
+export const identityOperation = <A>(): TextOperation<A, A> =>
+  makeOperation("identity", (node) =>
+    Effect.map(generateNodeId, (id) =>
+      A.of({
+        ...node,
+        id,
+        parentId: O.some(node.id),
+      })
+    )
+  );
+
+/**
+ * Compose two operations sequentially: the first's outputs feed the second.
+ *
+ * @since 0.0.0
+ * @category combinators
+ */
+export const composeOperations = <A, B, C, R, E>(
+  first: TextOperation<A, B, R, E>,
+  second: TextOperation<B, C, R, E>
+): TextOperation<A, C, R, E> =>
+  makeOperation(
+    `${first.name} -> ${second.name}`,
+    Effect.fn(function* (node) {
+      const intermediateNodes = yield* first.apply(node);
+      const results = yield* Effect.all(
+        A.map(intermediateNodes, (intermediate) => second.apply(intermediate)),
+        { concurrency: 1 }
+      );
+      return A.flatten(results);
+    })
+  );
+
+// =============================================================================
+// Foldable Type Class
+// =============================================================================
+
+/**
+ * Foldable structures of element type `A`. Laws: empty/singleton/concat
+ * homomorphism. Parameterized by `A` so instances are implementable without
+ * `any`.
+ *
+ * @since 0.0.0
+ * @category models
+ */
+export interface Foldable<F, A> {
+  readonly fold: <B>(fa: F, algebra: (b: B, a: A) => B, initial: B) => B;
+}
+
+/**
+ * The {@link Foldable} instance for {@link EffectGraph}, folding over
+ * node data in graph order.
+ *
+ * @since 0.0.0
+ * @category combinators
+ */
+export const foldableGraph = <A>(): Foldable<EffectGraph<A>, A> => ({
+  fold: (graph, algebra, initial) =>
+    A.reduce(
+      A.map(toArray(graph), (node) => node.data),
+      initial,
+      algebra
+    ),
+});
+
+// =============================================================================
+// Graph Transformation Operations
+// =============================================================================
+
+const getLeafNodes = <A>(graph: EffectGraph<A>): ReadonlyArray<GraphNode<A>> =>
+  A.filter(toArray(graph), (node) => A.length(getChildren(graph, node.id)) === 0);
+
+/**
+ * Apply an operation to every current leaf node, adding the results as children
+ * (one new DAG layer). A natural transformation between graph functors.
+ *
+ * @since 0.0.0
+ * @category combinators
+ */
+export const executeOperation = Effect.fn("executeOperation")(function* <A, B, R, E>(
+  graph: EffectGraph<A>,
+  operation: TextOperation<A, B, R, E>
+): Effect.fn.Return<EffectGraph<A | B>, E, R> {
+  // EffectGraph is covariant in its node type, so the widening needs no cast.
+  let resultGraph: EffectGraph<A | B> = graph;
+  for (const leafNode of getLeafNodes(graph)) {
+    const newNodes = yield* operation.apply(leafNode);
+    for (const newNode of newNodes) {
+      resultGraph = addNode(resultGraph, newNode);
+    }
+  }
+  return resultGraph;
+});
+
+/**
+ * Apply a sequence of operations, each adding a DAG layer.
+ *
+ * @since 0.0.0
+ * @category combinators
+ */
+export const executeOperations = Effect.fn("executeOperations")(function* <R, E>(
+  graph: EffectGraph<unknown>,
+  operations: ReadonlyArray<TextOperation<unknown, unknown, R, E>>
+): Effect.fn.Return<EffectGraph<unknown>, E, R> {
+  let currentGraph: EffectGraph<unknown> = graph;
+  for (const operation of operations) {
+    currentGraph = yield* executeOperation(currentGraph, operation);
+  }
+  return currentGraph;
+});
+
+// =============================================================================
+// Adjunction Modeling (Free ⊣ Forgetful)
+// =============================================================================
+
+/**
+ * The free (expansion) functor: one node to many (e.g. text -\> sentences).
+ *
+ * @since 0.0.0
+ * @category models
+ */
+export type FreeOperation<A, B, R = never, E = never> = TextOperation<A, B, R, E>;
+
+/**
+ * The forgetful (aggregation) functor: many nodes to one (e.g. sentences -\> text).
+ *
+ * @since 0.0.0
+ * @category models
+ */
+export interface ForgetfulOperation<A, B, R = never, E = never> {
+  readonly apply: (nodes: ReadonlyArray<GraphNode<A>>) => Effect.Effect<GraphNode<B>, E, R>;
+  readonly name: string;
+}
+
+/**
+ * Pair a free expansion with its forgetful aggregation as an adjunction.
+ *
+ * @since 0.0.0
+ * @category constructors
+ */
+export const makeAdjunction = <A, B, R, E>(
+  free: FreeOperation<A, B, R, E>,
+  forgetful: ForgetfulOperation<B, A, R, E>
+): {
+  readonly expand: FreeOperation<A, B, R, E>;
+  readonly aggregate: ForgetfulOperation<B, A, R, E>;
+} => ({ expand: free, aggregate: forgetful });
+
+// =============================================================================
+// Utility Operations
+// =============================================================================
+
+/**
+ * Map operation: transform node data without changing structure (a functor map).
+ *
+ * @since 0.0.0
+ * @category combinators
+ */
+export const mapOperation = <A, B>(name: string, f: (a: A) => B): TextOperation<A, B> =>
+  pureOperation(name, (a) => A.of(f(a)));
+
+/**
+ * Filter operation: keep nodes whose data satisfies the predicate.
+ *
+ * @since 0.0.0
+ * @category combinators
+ */
+export const filterOperation = <A>(name: string, predicate: (a: A) => boolean): TextOperation<A, A> =>
+  pureOperation(name, (a) => (predicate(a) ? A.of(a) : A.empty<A>()));
+
+/**
+ * FlatMap operation: map then flatten in one step.
+ *
+ * @since 0.0.0
+ * @category combinators
+ */
+export const flatMapOperation = <A, B>(name: string, f: (a: A) => ReadonlyArray<B>): TextOperation<A, B> =>
+  pureOperation(name, f);
+
+/**
+ * Collect all node data values from the graph.
+ *
+ * @since 0.0.0
+ * @category getters
+ */
+export const collectData = <A>(graph: EffectGraph<A>): ReadonlyArray<A> => A.map(toArray(graph), (node) => node.data);
+
+/**
+ * Graph depth: the maximum node depth (longest root-to-leaf path).
+ *
+ * @since 0.0.0
+ * @category getters
+ */
+export const depth = <A>(graph: EffectGraph<A>): number =>
+  A.reduce(toArray(graph), 0, (max, node) => Math.max(max, node.metadata.depth));
+
+// =============================================================================
+// Functor Instance for TextOperation
+// =============================================================================
+
+/**
+ * A Functor over `F`: `map` transforms the output while preserving structure.
+ * Laws: identity and composition. (Documented abstraction; the standalone
+ * {@link map} witnesses it for {@link TextOperation}.)
+ *
+ * @since 0.0.0
+ * @category models
+ */
+export interface Functor<F> {
+  readonly map: <A, B>(fa: F, f: (a: A) => B) => F;
+}
+
+/**
+ * Map over a {@link TextOperation}'s output data, preserving structure/effects.
+ *
+ * @since 0.0.0
+ * @category mapping
+ */
+export const map = <A, B, C, R, E>(operation: TextOperation<A, B, R, E>, f: (b: B) => C): TextOperation<A, C, R, E> =>
+  makeOperation(`${operation.name} |> map`, (node) =>
+    Effect.map(operation.apply(node), (nodes) =>
+      A.map(nodes, (n) => ({
+        ...n,
+        data: f(n.data),
+      }))
+    )
+  );
+
+/**
+ * FlatMap over a {@link TextOperation}'s output data with an effectful function.
+ *
+ * @since 0.0.0
+ * @category mapping
+ */
+export const flatMap = <A, B, C, R1, E1, R2, E2>(
+  operation: TextOperation<A, B, R1, E1>,
+  f: (b: B) => Effect.Effect<C, E2, R2>
+): TextOperation<A, C, R1 | R2, E1 | E2> =>
+  makeOperation(`${operation.name} |> flatMap`, (node) =>
+    Effect.flatMap(operation.apply(node), (nodes) =>
+      Effect.all(
+        A.map(nodes, (n) =>
+          Effect.map(f(n.data), (newData) => ({
+            ...n,
+            data: newData,
+          }))
+        )
+      )
+    )
+  );
+
+// =============================================================================
+// Applicative Instance for TextOperation
+// =============================================================================
+
+/**
+ * Apply an operation of functions to an operation of values (Cartesian product).
+ *
+ * @since 0.0.0
+ * @category combinators
+ */
+export const ap = <A, B, C, R1, E1, R2, E2>(
+  opFn: TextOperation<A, (b: B) => C, R1, E1>,
+  opVal: TextOperation<A, B, R2, E2>
+): TextOperation<A, C, R1 | R2, E1 | E2> =>
+  makeOperation(
+    `ap(${opFn.name}, ${opVal.name})`,
+    Effect.fnUntraced(function* (node) {
+      const fnNodes = yield* opFn.apply(node);
+      const valNodes = yield* opVal.apply(node);
+      return A.flatMap(fnNodes, (fnNode) =>
+        A.map(valNodes, (valNode) => ({
+          ...valNode,
+          data: fnNode.data(valNode.data),
+        }))
+      );
+    })
+  );
+
+/**
+ * Lift a value into an operation that always produces it.
+ *
+ * @since 0.0.0
+ * @category combinators
+ */
+export const pure = <A, B>(value: B): TextOperation<A, B> =>
+  makeOperation("pure", (node) => Effect.map(makeNode(value, O.some(node.id), O.some("pure")), A.of));
+
+// =============================================================================
+// Monad Instance for TextOperation
+// =============================================================================
+
+/**
+ * Sequence dependent operations: the first's outputs choose the next operation.
+ *
+ * @since 0.0.0
+ * @category combinators
+ */
+export const chain = <A, B, C, R1, E1, R2, E2>(
+  operation: TextOperation<A, B, R1, E1>,
+  f: (b: B) => TextOperation<B, C, R2, E2>
+): TextOperation<A, C, R1 | R2, E1 | E2> =>
+  makeOperation(
+    `${operation.name} >>= chain`,
+    Effect.fnUntraced(function* (node) {
+      const intermediateNodes = yield* operation.apply(node);
+      const results = yield* Effect.all(
+        A.map(intermediateNodes, (intermediate) => f(intermediate.data).apply(intermediate)),
+        { concurrency: 1 }
+      );
+      return A.flatten(results);
+    })
+  );
+
+/**
+ * Flatten nested operations (alias of {@link chain}).
+ *
+ * @since 0.0.0
+ * @category combinators
+ */
+export const flatten = <A, B, C, R1, E1, R2, E2>(
+  operation: TextOperation<A, B, R1, E1>,
+  getInnerOp: (b: B) => TextOperation<B, C, R2, E2>
+): TextOperation<A, C, R1 | R2, E1 | E2> => chain(operation, getInnerOp);
+
+// =============================================================================
+// Alternative Instance
+// =============================================================================
+
+/**
+ * Combine two operations, collecting results from both (parallel branching).
+ *
+ * @since 0.0.0
+ * @category combinators
+ */
+export const alt = <A, B, R1, E1, R2, E2>(
+  op1: TextOperation<A, B, R1, E1>,
+  op2: TextOperation<A, B, R2, E2>
+): TextOperation<A, B, R1 | R2, E1 | E2> =>
+  makeOperation(
+    `alt(${op1.name}, ${op2.name})`,
+    Effect.fnUntraced(function* (node) {
+      const results1 = yield* op1.apply(node);
+      const results2 = yield* op2.apply(node);
+      return A.appendAll(results1, results2);
+    })
+  );
+
+/**
+ * The empty operation (identity for {@link alt}): produces no nodes.
+ *
+ * @since 0.0.0
+ * @category combinators
+ */
+export const empty = <A, B>(): TextOperation<A, B> =>
+  makeOperation("empty", () => Effect.succeed(A.empty<GraphNode<B>>()));
+
+// =============================================================================
+// Traversable Instance
+// =============================================================================
+
+/**
+ * Traverse an operation's outputs with an effectful function.
+ *
+ * @since 0.0.0
+ * @category combinators
+ */
+export const traverse = <A, B, C, R1, E1, R2, E2>(
+  operation: TextOperation<A, B, R1, E1>,
+  f: (b: B) => Effect.Effect<C, E2, R2>
+): TextOperation<A, C, R1 | R2, E1 | E2> =>
+  makeOperation(`${operation.name} |> traverse`, (node) =>
+    Effect.flatMap(operation.apply(node), (nodes) =>
+      Effect.all(
+        A.map(nodes, (n) =>
+          Effect.map(f(n.data), (newData) => ({
+            ...n,
+            data: newData,
+          }))
+        )
+      )
+    )
+  );
+
+// =============================================================================
+// Utility Combinators
+// =============================================================================
+
+/**
+ * Apply an operation `n` times and collect all results.
+ *
+ * @since 0.0.0
+ * @category combinators
+ */
+export const replicate = <A, B, R, E>(operation: TextOperation<A, B, R, E>, n: number): TextOperation<A, B, R, E> =>
+  makeOperation(`replicate(${operation.name}, ${n})`, (node) =>
+    n <= 0
+      ? Effect.succeed(A.empty<GraphNode<B>>())
+      : Effect.map(
+          Effect.all(
+            A.map(A.makeBy(n, identity), () => operation.apply(node)),
+            { concurrency: 1 }
+          ),
+          A.flatten
+        )
+  );
+
+/**
+ * Apply an operation only when the node data satisfies the predicate.
+ *
+ * @since 0.0.0
+ * @category combinators
+ */
+export const when = <A, B, R, E>(
+  predicate: (a: A) => boolean,
+  operation: TextOperation<A, B, R, E>
+): TextOperation<A, B, R, E> =>
+  makeOperation(`when(${operation.name})`, (node) =>
+    predicate(node.data) ? operation.apply(node) : Effect.succeed(A.empty<GraphNode<B>>())
+  );
+
+/**
+ * Apply an operation unless the node data satisfies the predicate.
+ *
+ * @since 0.0.0
+ * @category combinators
+ */
+export const unless = <A, B, R, E>(
+  predicate: (a: A) => boolean,
+  operation: TextOperation<A, B, R, E>
+): TextOperation<A, B, R, E> => when((a: A) => !predicate(a), operation);

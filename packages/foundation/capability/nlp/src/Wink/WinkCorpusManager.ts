@@ -8,7 +8,7 @@
 import { createRequire } from "node:module";
 import { $NlpId } from "@beep/identity";
 import { TaggedErrorClass } from "@beep/schema";
-import { A } from "@beep/utils";
+import { A, thunkEffectVoid } from "@beep/utils";
 import { Chunk, Clock, Context, Effect, HashMap, HashSet, Layer, pipe, Ref } from "effect";
 import * as Bool from "effect/Boolean";
 import { dual } from "effect/Function";
@@ -462,7 +462,7 @@ const makeWinkCorpusManager = Effect.gen(function* () {
 
       yield* Bool.match(inserted, {
         onFalse: () => CorpusManagerError.fromMessage(`Corpus "${corpusId}" already exists`, corpusId),
-        onTrue: () => Effect.void,
+        onTrue: thunkEffectVoid,
       });
 
       return {

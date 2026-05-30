@@ -109,7 +109,7 @@
     "lint:fix": "bun run beep:lint:fix",
     "beep:build": "tsc -b tsconfig.json && bun run babel",
     "beep:check": "tsgo -b tsconfig.json && bun run beep:check:support",
-    "beep:check:support": "tsgo -p tsconfig.support.json --noEmit",
+    "beep:check:support": "tsc -p tsconfig.support.json --noEmit",
     "beep:test": "bunx --bun vitest run",
     "beep:lint": "biome check .",
     "beep:lint:fix": "biome check . --write",

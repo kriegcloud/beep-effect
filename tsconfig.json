@@ -1088,6 +1088,34 @@
       "@beep/schema/test/Yaml": [
         "./packages/foundation/modeling/schema/src/internal/test/Yaml.test-kit.ts"
       ],
+      "@beep/nlp/Algebra": [
+        "./packages/foundation/capability/nlp/src/Algebra/index.ts"
+      ],
+      "@beep/nlp/Ontology": [
+        "./packages/foundation/capability/nlp/src/Ontology/index.ts"
+      ],
+      "@beep/nlp/Graph": [
+        "./packages/foundation/capability/nlp/src/Graph/index.ts"
+      ],
+      "@beep/nlp/Backend": [
+        "./packages/foundation/capability/nlp/src/Backend/index.ts"
+      ],
+      "@beep/nlp/Graph/GraphOperations": [
+        "./packages/foundation/capability/nlp/src/Graph/GraphOperations/index.ts"
+      ],
+      "@beep/nlp/NLPService": [
+        "./packages/foundation/capability/nlp/src/NLPService.ts"
+      ],
+      "@beep/nlp/Operations": [
+        "./packages/foundation/capability/nlp/src/Operations/index.ts"
+      ],
+      "@beep/nlp/Handoff": [
+        "./packages/foundation/capability/nlp/src/Handoff/index.ts"
+      ],
+      "@beep/nlp-mcp": ["./packages/drivers/nlp-mcp/src/index.ts"],
+      "@beep/nlp-mcp/*": [
+        "./packages/drivers/nlp-mcp/src/*"
+      ],
       "@beep/ui/components/blocks/editor-00/nodes": [
         "./packages/foundation/ui-system/ui/src/components/blocks/editor-00/nodes.ts"
       ]

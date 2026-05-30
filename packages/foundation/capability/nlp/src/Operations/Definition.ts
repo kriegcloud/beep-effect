@@ -1,0 +1,70 @@
+/**
+ * Operations/Definition - structured definitions of composable NLP operations.
+ *
+ * An {@link OperationDefinition} separates an operation's metadata (name,
+ * description), its type contract (input/output schemas), and its behavior (an
+ * Effect-returning implementation). Dependencies `R` and errors `E` are inferred
+ * from the implementation, following the Toolkit pattern where handlers declare
+ * their own requirements.
+ *
+ * Ported from the `adjunct` repo (Effect v3) to Effect v4 / `@beep/nlp`:
+ * the definition is parameterized by the DECODED value types `A`/`B` (with the
+ * schemas carried as `Schema.Schema<A>`/`Schema.Schema<B>` metadata) rather than
+ * by `Schema.Schema<any, any, any>` schema types — this avoids `any` and keeps the
+ * v4 schema variance (`DecodingServices`/optionality) out of the operation algebra.
+ *
+ * @since 0.0.0
+ * @packageDocumentation
+ */
+
+import type * as Effect from "effect/Effect";
+import type * as S from "effect/Schema";
+
+/**
+ * Structured definition of an NLP operation: name + description (metadata),
+ * input/output schemas (type contract), and an Effect-returning implementation
+ * whose `R`/`E` are inferred from its body.
+ *
+ * @since 0.0.0
+ * @category models
+ */
+export interface OperationDefinition<A, B, R = never, E = never> {
+  readonly description?: string;
+  readonly implementation: (input: A) => Effect.Effect<B, E, R>;
+  readonly inputSchema: S.Schema<A>;
+  readonly metadata?: Record<string, unknown>;
+  readonly name: string;
+  readonly outputSchema: S.Schema<B>;
+}
+
+/**
+ * Extract the decoded input type from an {@link OperationDefinition}.
+ *
+ * @example
+ * ```ts
+ * import type { OperationDefinition, OperationInput } from "@beep/nlp/Operations/Definition"
+ *
+ * type Example<D extends OperationDefinition<unknown, unknown, unknown, unknown>> = OperationInput<D>
+ * ```
+ *
+ * @since 0.0.0
+ * @category type-level
+ */
+export type OperationInput<D extends OperationDefinition<unknown, unknown, unknown, unknown>> =
+  D extends OperationDefinition<infer A, unknown, unknown, unknown> ? A : never;
+
+/**
+ * Extract the decoded output type from an {@link OperationDefinition}.
+ *
+ * @example
+ * ```ts
+ * import type { OperationDefinition, OperationOutput } from "@beep/nlp/Operations/Definition"
+ *
+ * type Example<D extends OperationDefinition<unknown, unknown, unknown, unknown>> = OperationOutput<D>
+ * ```
+ *
+ * @since 0.0.0
+ * @category type-level
+ */
+export type OperationOutput<D extends OperationDefinition<unknown, unknown, unknown, unknown>> =
+  D extends OperationDefinition<unknown, infer B, unknown, unknown> ? B : never;

@@ -8,15 +8,15 @@
 import { cn } from "@beep/ui/lib/utils";
 import { A } from "@beep/utils";
 import {
-  DiscordLogo,
-  InstagramLogo,
-  LinkedinLogo,
-  PinterestLogo,
-  RedditLogo,
-  ThreadsLogo,
-  TiktokLogo,
-  XLogo,
-  YoutubeLogo,
+  DiscordLogoIcon,
+  InstagramLogoIcon,
+  LinkedinLogoIcon,
+  PinterestLogoIcon,
+  RedditLogoIcon,
+  ThreadsLogoIcon,
+  TiktokLogoIcon,
+  XLogoIcon,
+  YoutubeLogoIcon,
 } from "@phosphor-icons/react/ssr";
 import * as P from "effect/Predicate";
 import Image from "next/image";
@@ -467,15 +467,15 @@ function Contact({
 }
 
 const socialIcon: Record<SocialPlatform, Icon> = {
-  instagram: InstagramLogo,
-  linkedin: LinkedinLogo,
-  x: XLogo,
-  youtube: YoutubeLogo,
-  threads: ThreadsLogo,
-  tiktok: TiktokLogo,
-  reddit: RedditLogo,
-  discord: DiscordLogo,
-  pinterest: PinterestLogo,
+  instagram: InstagramLogoIcon,
+  linkedin: LinkedinLogoIcon,
+  x: XLogoIcon,
+  youtube: YoutubeLogoIcon,
+  threads: ThreadsLogoIcon,
+  tiktok: TiktokLogoIcon,
+  reddit: RedditLogoIcon,
+  discord: DiscordLogoIcon,
+  pinterest: PinterestLogoIcon,
 };
 
 function SocialLinks({ socials }: { readonly socials: OipSiteContent["socials"] }) {

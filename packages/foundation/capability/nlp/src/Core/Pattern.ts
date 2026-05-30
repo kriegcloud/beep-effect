@@ -16,8 +16,12 @@ import * as S from "effect/Schema";
 const $I = $NlpId.create("Core/Pattern");
 const schemaIssueToError = (cause: S.SchemaError["issue"]): S.SchemaError => new S.SchemaError(cause);
 
-const EmptyPatternChoice = S.Literal("");
-const MeaningfulPatternOptionChoice = S.makeFilter((values: ReadonlyArray<string>) => A.some(values, Str.isNonEmpty), {
+const EmptyPatternChoice = S.Literal("").pipe(
+  $I.annoteSchema("EmptyPatternChoice", {
+    description: "Empty placeholder choice used to represent a wildcard in pattern alternatives.",
+  })
+);
+const MeaningfulPatternOptionChoice = S.makeFilter(A.some<string>(Str.isNonEmpty), {
   description: "Pattern options must include at least one non-empty choice.",
   identifier: $I`MeaningfulPatternOptionChoice`,
   message: "Pattern options must include at least one non-empty choice.",
@@ -42,7 +46,11 @@ const WinkPOSTagKit = LiteralKit([
   "VERB",
   "X",
   "SPACE",
-]);
+]).annotate(
+  $I.annote("WinkPOSTagKit", {
+    description: "LiteralKit backing schema for wink part-of-speech tags.",
+  })
+);
 const WinkEntityTypeKit = LiteralKit([
   "DATE",
   "ORDINAL",
@@ -57,7 +65,11 @@ const WinkEntityTypeKit = LiteralKit([
   "EMAIL",
   "URL",
   "MENTION",
-]);
+]).annotate(
+  $I.annote("WinkEntityTypeKit", {
+    description: "LiteralKit backing schema for wink named-entity types.",
+  })
+);
 
 const renderBracketString = (values: ReadonlyArray<string>): string => `[${A.join(values, "|")}]`;
 

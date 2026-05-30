@@ -135,7 +135,7 @@ const isContainerInspectable = Effect.fn("SqlTestIntegration.isContainerInspecta
   );
 });
 
-describe.sequential("PGLite shared external SQL test driver", () => {
+describe.concurrent("PGLite shared external SQL test driver", () => {
   it.effect(
     "runs select 1 through the shared external driver",
 

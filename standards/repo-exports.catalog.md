@@ -16,13 +16,13 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 
 | Metric | Count |
 |---|---:|
-| packages | 83 |
-| packagesWithPublicExports | 78 |
+| packages | 84 |
+| packagesWithPublicExports | 79 |
 | packagesWithoutPublicExports | 1 |
 | missingWorkspaceMetadata | 4 |
-| importSpecifiers | 984 |
-| publicExportEntries | 12954 |
-| uniquePackageSymbols | 5673 |
+| importSpecifiers | 1026 |
+| publicExportEntries | 13370 |
+| uniquePackageSymbols | 6002 |
 
 ## Seed Discovery Proof
 
@@ -55,71 +55,72 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | 16 | `@beep/repo-cli` | `packages/tooling/tool/cli` | has-public-exports | 143 | 1561 | 544 |
 | 17 | `@beep/ai-sync` | `packages/tooling/library/ai-sync` | has-public-exports | 11 | 180 | 57 |
 | 18 | `@beep/shared-server` | `packages/shared/server` | has-public-exports | 2 | 2 | 1 |
-| 19 | `@beep/law-practice-domain` | `packages/law-practice/domain` | has-public-exports | 6 | 36 | 8 |
-| 20 | `@beep/repo-docgen` | `packages/tooling/tool/docgen` | has-public-exports | 9 | 72 | 64 |
-| 21 | `@beep/canvas-server` | `packages/canvas/server` | has-public-exports | 4 | 19 | 15 |
-| 22 | `@beep/agent-capability-use-cases` | `packages/agent-capability/use-cases` | has-public-exports | 4 | 114 | 30 |
-| 23 | `@beep/ai-provider-cli` | `packages/drivers/ai-provider-cli` | has-public-exports | 5 | 27 | 7 |
-| 24 | `@beep/colors` | `packages/foundation/capability/colors` | has-public-exports | 4 | 34 | 8 |
-| 25 | `@beep/shared-config` | `packages/shared/config` | has-public-exports | 2 | 2 | 1 |
-| 26 | `@beep/chalk` | `packages/foundation/capability/chalk` | has-public-exports | 11 | 187 | 54 |
-| 27 | `@beep/sandbox` | `packages/foundation/capability/sandbox` | has-public-exports | 30 | 786 | 238 |
-| 28 | `@beep/phoenix` | `packages/drivers/phoenix` | has-public-exports | 6 | 137 | 36 |
-| 29 | `@beep/shared-use-cases` | `packages/shared/use-cases` | has-public-exports | 2 | 2 | 1 |
-| 30 | `@beep/canvas-use-cases` | `packages/canvas/use-cases` | has-public-exports | 5 | 46 | 25 |
-| 31 | `@beep/test-utils` | `packages/tooling/test-kit/test-utils` | has-public-exports | 4 | 62 | 21 |
-| 32 | `@beep/types` | `packages/foundation/primitive/types` | has-public-exports | 6 | 14 | 10 |
-| 33 | `@beep/oip-web` | `apps/oip-web` | has-public-exports | 12 | 46 | 41 |
-| 34 | `@beep/agent-capability-domain` | `packages/agent-capability/domain` | has-public-exports | 4 | 13 | 4 |
-| 35 | `@beep/shared-tables` | `packages/shared/tables` | has-public-exports | 14 | 19 | 7 |
-| 36 | `@beep/md` | `packages/foundation/capability/md` | has-public-exports | 5 | 253 | 97 |
-| 37 | `@beep/canvas` | `apps/canvas` | has-public-exports | 1 | 23 | 20 |
-| 38 | `@beep/workspace-domain` | `packages/workspace/domain` | has-public-exports | 12 | 35 | 11 |
-| 39 | `@beep/semantic-web` | `packages/foundation/capability/semantic-web` | has-public-exports | 30 | 272 | 219 |
-| 40 | `@beep/utils` | `packages/foundation/modeling/utils` | has-public-exports | 24 | 776 | 579 |
-| 41 | `@beep/repo-ai-metrics` | `packages/tooling/library/ai-metrics` | has-public-exports | 18 | 702 | 214 |
-| 42 | `@beep/architecture-lab-tables` | `packages/architecture-lab/tables` | has-public-exports | 4 | 19 | 16 |
-| 43 | `@beep/venice-ai` | `packages/drivers/venice-ai` | has-public-exports | 1 | 30 | 24 |
-| 44 | `@beep/form` | `packages/foundation/ui-system/form` | has-public-exports | 12 | 97 | 63 |
-| 45 | `@beep/identity` | `packages/foundation/modeling/identity` | has-public-exports | 4 | 321 | 107 |
-| 46 | `@beep/drizzle` | `packages/drivers/drizzle` | has-public-exports | 1 | 8 | 7 |
-| 47 | `@beep/openai-compat` | `packages/drivers/openai-compat` | has-public-exports | 1 | 47 | 42 |
-| 48 | `@beep/stack-installer` | `apps/stack-installer` | has-public-exports | 1 | 4 | 4 |
-| 49 | `@beep/professional-desktop` | `apps/professional-desktop` | has-public-exports | 1 | 1 | 1 |
-| 50 | `@beep/epistemic-domain` | `packages/epistemic/domain` | has-public-exports | 8 | 18 | 5 |
-| 51 | `@beep/architecture-lab-use-cases` | `packages/architecture-lab/use-cases` | has-public-exports | 7 | 77 | 44 |
-| 52 | `@beep/professional-runtime-proof` | `apps/professional-runtime-proof` | has-public-exports | 1 | 4 | 4 |
-| 53 | `@beep/acp` | `packages/drivers/acp` | has-public-exports | 8 | 404 | 228 |
-| 54 | `@beep/nlp` | `packages/foundation/capability/nlp` | has-public-exports | 53 | 589 | 178 |
-| 55 | `@beep/infra` | `infra` | has-public-exports | 1 | 19 | 19 |
-| 56 | `@beep/installer-use-cases` | `packages/installer/use-cases` | has-public-exports | 3 | 51 | 29 |
-| 57 | `@beep/runpod` | `packages/drivers/runpod` | has-public-exports | 1 | 169 | 149 |
-| 58 | `@beep/repo-utils` | `packages/tooling/library/repo-utils` | has-public-exports | 66 | 1648 | 512 |
-| 59 | `@beep/schema` | `packages/foundation/modeling/schema` | has-public-exports | 118 | 1748 | 719 |
-| 60 | `@beep/codedank-web` | `apps/codedank-web` | has-public-exports | 1 | 1 | 1 |
-| 61 | `@beep/onepassword-cli` | `packages/drivers/onepassword-cli` | has-public-exports | 5 | 27 | 8 |
-| 62 | `@beep/architecture-lab-config` | `packages/architecture-lab/config` | has-public-exports | 7 | 29 | 13 |
-| 63 | `@beep/data` | `packages/foundation/primitive/data` | has-public-exports | 8 | 44 | 38 |
-| 64 | `@beep/xai` | `packages/drivers/xai` | has-public-exports | 1 | 53 | 40 |
-| 65 | `@beep/wealth-management-domain` | `packages/wealth-management/domain` | has-public-exports | 6 | 36 | 8 |
-| 66 | `@beep/architecture-lab-server` | `packages/architecture-lab/server` | has-public-exports | 5 | 26 | 24 |
-| 67 | `@beep/duckdb` | `packages/drivers/duckdb` | has-public-exports | 1 | 12 | 10 |
-| 68 | `@beep/ffmpeg` | `packages/drivers/ffmpeg` | has-public-exports | 5 | 105 | 31 |
-| 69 | `@beep/architecture-lab-proof` | `apps/architecture-lab-proof` | has-public-exports | 1 | 3 | 3 |
-| 70 | `@beep/installer-server` | `packages/installer/server` | has-public-exports | 3 | 34 | 18 |
-| 71 | `@beep/observability` | `packages/foundation/capability/observability` | has-public-exports | 4 | 115 | 98 |
-| 72 | `@beep/konva` | `packages/drivers/konva` | has-public-exports | 2 | 2 | 1 |
-| 73 | `@beep/shared-client` | `packages/shared/client` | has-public-exports | 2 | 2 | 1 |
-| 74 | `@beep/ui` | `packages/foundation/ui-system/ui` | has-public-exports | 118 | 539 | 455 |
-| 75 | `@beep/repo-configs` | `packages/tooling/policy-pack/repo-configs` | has-public-exports | 30 | 411 | 117 |
-| 76 | `@beep/canvas-client` | `packages/canvas/client` | has-public-exports | 1 | 1 | 1 |
-| 77 | `@beep/postgres` | `packages/drivers/postgres` | has-public-exports | 7 | 65 | 31 |
-| 78 | `@beep/installer-domain` | `packages/installer/domain` | has-public-exports | 7 | 47 | 30 |
-| 79 | `@beep/architecture-lab-domain` | `packages/architecture-lab/domain` | has-public-exports | 9 | 46 | 29 |
-| 80 | `@beep/canvas-ui` | `packages/canvas/ui` | has-public-exports | 1 | 1 | 1 |
-| 81 | `@beep/messages` | `packages/foundation/modeling/messages` | has-public-exports | 3 | 15 | 5 |
-| 82 | `@beep/sanity` | `packages/drivers/sanity` | has-public-exports | 5 | 38 | 11 |
-| 83 | `@beep/shared-ui` | `packages/shared/ui` | has-public-exports | 7 | 15 | 6 |
+| 19 | `@beep/nlp-mcp` | `packages/drivers/nlp-mcp` | has-public-exports | 6 | 23 | 22 |
+| 20 | `@beep/law-practice-domain` | `packages/law-practice/domain` | has-public-exports | 6 | 36 | 8 |
+| 21 | `@beep/repo-docgen` | `packages/tooling/tool/docgen` | has-public-exports | 9 | 72 | 64 |
+| 22 | `@beep/canvas-server` | `packages/canvas/server` | has-public-exports | 4 | 19 | 15 |
+| 23 | `@beep/agent-capability-use-cases` | `packages/agent-capability/use-cases` | has-public-exports | 4 | 114 | 30 |
+| 24 | `@beep/ai-provider-cli` | `packages/drivers/ai-provider-cli` | has-public-exports | 5 | 27 | 7 |
+| 25 | `@beep/colors` | `packages/foundation/capability/colors` | has-public-exports | 4 | 34 | 8 |
+| 26 | `@beep/shared-config` | `packages/shared/config` | has-public-exports | 2 | 2 | 1 |
+| 27 | `@beep/chalk` | `packages/foundation/capability/chalk` | has-public-exports | 11 | 187 | 54 |
+| 28 | `@beep/sandbox` | `packages/foundation/capability/sandbox` | has-public-exports | 30 | 786 | 238 |
+| 29 | `@beep/phoenix` | `packages/drivers/phoenix` | has-public-exports | 6 | 137 | 36 |
+| 30 | `@beep/shared-use-cases` | `packages/shared/use-cases` | has-public-exports | 2 | 2 | 1 |
+| 31 | `@beep/canvas-use-cases` | `packages/canvas/use-cases` | has-public-exports | 5 | 46 | 25 |
+| 32 | `@beep/test-utils` | `packages/tooling/test-kit/test-utils` | has-public-exports | 4 | 60 | 20 |
+| 33 | `@beep/types` | `packages/foundation/primitive/types` | has-public-exports | 6 | 14 | 10 |
+| 34 | `@beep/oip-web` | `apps/oip-web` | has-public-exports | 12 | 46 | 41 |
+| 35 | `@beep/agent-capability-domain` | `packages/agent-capability/domain` | has-public-exports | 4 | 13 | 4 |
+| 36 | `@beep/shared-tables` | `packages/shared/tables` | has-public-exports | 14 | 19 | 7 |
+| 37 | `@beep/md` | `packages/foundation/capability/md` | has-public-exports | 5 | 253 | 97 |
+| 38 | `@beep/canvas` | `apps/canvas` | has-public-exports | 1 | 23 | 20 |
+| 39 | `@beep/workspace-domain` | `packages/workspace/domain` | has-public-exports | 12 | 35 | 11 |
+| 40 | `@beep/semantic-web` | `packages/foundation/capability/semantic-web` | has-public-exports | 30 | 272 | 219 |
+| 41 | `@beep/utils` | `packages/foundation/modeling/utils` | has-public-exports | 24 | 776 | 579 |
+| 42 | `@beep/repo-ai-metrics` | `packages/tooling/library/ai-metrics` | has-public-exports | 18 | 702 | 214 |
+| 43 | `@beep/architecture-lab-tables` | `packages/architecture-lab/tables` | has-public-exports | 4 | 19 | 16 |
+| 44 | `@beep/venice-ai` | `packages/drivers/venice-ai` | has-public-exports | 1 | 30 | 24 |
+| 45 | `@beep/form` | `packages/foundation/ui-system/form` | has-public-exports | 12 | 97 | 63 |
+| 46 | `@beep/identity` | `packages/foundation/modeling/identity` | has-public-exports | 4 | 324 | 108 |
+| 47 | `@beep/drizzle` | `packages/drivers/drizzle` | has-public-exports | 1 | 8 | 7 |
+| 48 | `@beep/openai-compat` | `packages/drivers/openai-compat` | has-public-exports | 1 | 47 | 42 |
+| 49 | `@beep/stack-installer` | `apps/stack-installer` | has-public-exports | 1 | 4 | 4 |
+| 50 | `@beep/professional-desktop` | `apps/professional-desktop` | has-public-exports | 1 | 1 | 1 |
+| 51 | `@beep/epistemic-domain` | `packages/epistemic/domain` | has-public-exports | 8 | 18 | 5 |
+| 52 | `@beep/architecture-lab-use-cases` | `packages/architecture-lab/use-cases` | has-public-exports | 7 | 77 | 44 |
+| 53 | `@beep/professional-runtime-proof` | `apps/professional-runtime-proof` | has-public-exports | 1 | 4 | 4 |
+| 54 | `@beep/acp` | `packages/drivers/acp` | has-public-exports | 8 | 404 | 228 |
+| 55 | `@beep/nlp` | `packages/foundation/capability/nlp` | has-public-exports | 89 | 981 | 485 |
+| 56 | `@beep/infra` | `infra` | has-public-exports | 1 | 19 | 19 |
+| 57 | `@beep/installer-use-cases` | `packages/installer/use-cases` | has-public-exports | 3 | 51 | 29 |
+| 58 | `@beep/runpod` | `packages/drivers/runpod` | has-public-exports | 1 | 169 | 149 |
+| 59 | `@beep/repo-utils` | `packages/tooling/library/repo-utils` | has-public-exports | 66 | 1648 | 512 |
+| 60 | `@beep/schema` | `packages/foundation/modeling/schema` | has-public-exports | 118 | 1748 | 719 |
+| 61 | `@beep/codedank-web` | `apps/codedank-web` | has-public-exports | 1 | 1 | 1 |
+| 62 | `@beep/onepassword-cli` | `packages/drivers/onepassword-cli` | has-public-exports | 5 | 27 | 8 |
+| 63 | `@beep/architecture-lab-config` | `packages/architecture-lab/config` | has-public-exports | 7 | 29 | 13 |
+| 64 | `@beep/data` | `packages/foundation/primitive/data` | has-public-exports | 8 | 44 | 38 |
+| 65 | `@beep/xai` | `packages/drivers/xai` | has-public-exports | 1 | 53 | 40 |
+| 66 | `@beep/wealth-management-domain` | `packages/wealth-management/domain` | has-public-exports | 6 | 36 | 8 |
+| 67 | `@beep/architecture-lab-server` | `packages/architecture-lab/server` | has-public-exports | 5 | 26 | 24 |
+| 68 | `@beep/duckdb` | `packages/drivers/duckdb` | has-public-exports | 1 | 12 | 10 |
+| 69 | `@beep/ffmpeg` | `packages/drivers/ffmpeg` | has-public-exports | 5 | 105 | 31 |
+| 70 | `@beep/architecture-lab-proof` | `apps/architecture-lab-proof` | has-public-exports | 1 | 3 | 3 |
+| 71 | `@beep/installer-server` | `packages/installer/server` | has-public-exports | 3 | 34 | 18 |
+| 72 | `@beep/observability` | `packages/foundation/capability/observability` | has-public-exports | 4 | 115 | 98 |
+| 73 | `@beep/konva` | `packages/drivers/konva` | has-public-exports | 2 | 2 | 1 |
+| 74 | `@beep/shared-client` | `packages/shared/client` | has-public-exports | 2 | 2 | 1 |
+| 75 | `@beep/ui` | `packages/foundation/ui-system/ui` | has-public-exports | 118 | 539 | 455 |
+| 76 | `@beep/repo-configs` | `packages/tooling/policy-pack/repo-configs` | has-public-exports | 30 | 411 | 117 |
+| 77 | `@beep/canvas-client` | `packages/canvas/client` | has-public-exports | 1 | 1 | 1 |
+| 78 | `@beep/postgres` | `packages/drivers/postgres` | has-public-exports | 7 | 65 | 31 |
+| 79 | `@beep/installer-domain` | `packages/installer/domain` | has-public-exports | 7 | 47 | 30 |
+| 80 | `@beep/architecture-lab-domain` | `packages/architecture-lab/domain` | has-public-exports | 9 | 46 | 29 |
+| 81 | `@beep/canvas-ui` | `packages/canvas/ui` | has-public-exports | 1 | 1 | 1 |
+| 82 | `@beep/messages` | `packages/foundation/modeling/messages` | has-public-exports | 3 | 15 | 5 |
+| 83 | `@beep/sanity` | `packages/drivers/sanity` | has-public-exports | 5 | 38 | 11 |
+| 84 | `@beep/shared-ui` | `packages/shared/ui` | has-public-exports | 7 | 15 | 6 |
 
 ## Public Exports
 
@@ -263,10 +264,10 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 |---|---|---|---|---|
 | `@beep/repo-codegraph` | `decodeRepoExportsCatalog` | const | `packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts:324` | Decode unknown input into a generated repo export catalog. |
 | `@beep/repo-codegraph` | `encodeRepoCodegraphLookupResult` | const | `packages/tooling/library/repo-codegraph/src/RepoCodegraphLookup.model.ts:389` | Encode a lookup result into its JSON-safe representation. |
-| `@beep/repo-codegraph` | `FromPackageResolution` | class | `packages/tooling/library/repo-codegraph/src/RepoCodegraphLookup.ts:63` | Resolved package and selector details for a lookup request. |
-| `@beep/repo-codegraph` | `LookupOptions` | class | `packages/tooling/library/repo-codegraph/src/RepoCodegraphLookup.ts:86` | Optional freshness and import-policy inputs for repo codegraph lookup. |
-| `@beep/repo-codegraph` | `lookupRepoExports` | const | `packages/tooling/library/repo-codegraph/src/RepoCodegraphLookup.ts:613` | Lookup public repo exports by symbol name or free-text intent. |
-| `@beep/repo-codegraph` | `NormalizedPathLikeSelector` | class | `packages/tooling/library/repo-codegraph/src/RepoCodegraphLookup.ts:109` | Normalized path-like selector tokens used for catalog matching. |
+| `@beep/repo-codegraph` | `FromPackageResolution` | class | `packages/tooling/library/repo-codegraph/src/RepoCodegraphLookup.ts:61` | Resolved package and selector details for a lookup request. |
+| `@beep/repo-codegraph` | `LookupOptions` | class | `packages/tooling/library/repo-codegraph/src/RepoCodegraphLookup.ts:82` | Optional freshness and import-policy inputs for repo codegraph lookup. |
+| `@beep/repo-codegraph` | `lookupRepoExports` | const | `packages/tooling/library/repo-codegraph/src/RepoCodegraphLookup.ts:607` | Lookup public repo exports by symbol name or free-text intent. |
+| `@beep/repo-codegraph` | `NormalizedPathLikeSelector` | class | `packages/tooling/library/repo-codegraph/src/RepoCodegraphLookup.ts:103` | Normalized path-like selector tokens used for catalog matching. |
 | `@beep/repo-codegraph` | `readRepoCodegraphImportPolicies` | const | `packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.ts:233` | Read package-local import policies from package.json metadata. |
 | `@beep/repo-codegraph` | `readRepoExportsCatalog` | const | `packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.ts:209` | Read and decode the generated repo export catalog from a repo root. |
 | `@beep/repo-codegraph` | `RepoCodegraphBoundaryAdvice` | class | `packages/tooling/library/repo-codegraph/src/RepoCodegraphLookup.model.ts:218` | Advisory architecture boundary note for a match. |
@@ -299,10 +300,10 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-codegraph` | `RepoExportsCatalogTotals` | class | `packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts:152` | Count metadata recorded in the generated export catalog. |
 | `@beep/repo-codegraph/index` | `decodeRepoExportsCatalog` | const | `packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts:324` | Decode unknown input into a generated repo export catalog. |
 | `@beep/repo-codegraph/index` | `encodeRepoCodegraphLookupResult` | const | `packages/tooling/library/repo-codegraph/src/RepoCodegraphLookup.model.ts:389` | Encode a lookup result into its JSON-safe representation. |
-| `@beep/repo-codegraph/index` | `FromPackageResolution` | class | `packages/tooling/library/repo-codegraph/src/RepoCodegraphLookup.ts:63` | Resolved package and selector details for a lookup request. |
-| `@beep/repo-codegraph/index` | `LookupOptions` | class | `packages/tooling/library/repo-codegraph/src/RepoCodegraphLookup.ts:86` | Optional freshness and import-policy inputs for repo codegraph lookup. |
-| `@beep/repo-codegraph/index` | `lookupRepoExports` | const | `packages/tooling/library/repo-codegraph/src/RepoCodegraphLookup.ts:613` | Lookup public repo exports by symbol name or free-text intent. |
-| `@beep/repo-codegraph/index` | `NormalizedPathLikeSelector` | class | `packages/tooling/library/repo-codegraph/src/RepoCodegraphLookup.ts:109` | Normalized path-like selector tokens used for catalog matching. |
+| `@beep/repo-codegraph/index` | `FromPackageResolution` | class | `packages/tooling/library/repo-codegraph/src/RepoCodegraphLookup.ts:61` | Resolved package and selector details for a lookup request. |
+| `@beep/repo-codegraph/index` | `LookupOptions` | class | `packages/tooling/library/repo-codegraph/src/RepoCodegraphLookup.ts:82` | Optional freshness and import-policy inputs for repo codegraph lookup. |
+| `@beep/repo-codegraph/index` | `lookupRepoExports` | const | `packages/tooling/library/repo-codegraph/src/RepoCodegraphLookup.ts:607` | Lookup public repo exports by symbol name or free-text intent. |
+| `@beep/repo-codegraph/index` | `NormalizedPathLikeSelector` | class | `packages/tooling/library/repo-codegraph/src/RepoCodegraphLookup.ts:103` | Normalized path-like selector tokens used for catalog matching. |
 | `@beep/repo-codegraph/index` | `readRepoCodegraphImportPolicies` | const | `packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.ts:233` | Read package-local import policies from package.json metadata. |
 | `@beep/repo-codegraph/index` | `readRepoExportsCatalog` | const | `packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.ts:209` | Read and decode the generated repo export catalog from a repo root. |
 | `@beep/repo-codegraph/index` | `RepoCodegraphBoundaryAdvice` | class | `packages/tooling/library/repo-codegraph/src/RepoCodegraphLookup.model.ts:218` | Advisory architecture boundary note for a match. |
@@ -333,10 +334,10 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-codegraph/index` | `RepoExportsCatalogStandard` | const | `packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts:25` | Generated export catalog standard identifier. |
 | `@beep/repo-codegraph/index` | `RepoExportsCatalogStandard` | type | `packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts:43` | Runtime type for {@link RepoExportsCatalogStandard}. |
 | `@beep/repo-codegraph/index` | `RepoExportsCatalogTotals` | class | `packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts:152` | Count metadata recorded in the generated export catalog. |
-| `@beep/repo-codegraph/RepoCodegraphLookup` | `FromPackageResolution` | class | `packages/tooling/library/repo-codegraph/src/RepoCodegraphLookup.ts:63` | Resolved package and selector details for a lookup request. |
-| `@beep/repo-codegraph/RepoCodegraphLookup` | `LookupOptions` | class | `packages/tooling/library/repo-codegraph/src/RepoCodegraphLookup.ts:86` | Optional freshness and import-policy inputs for repo codegraph lookup. |
-| `@beep/repo-codegraph/RepoCodegraphLookup` | `lookupRepoExports` | const | `packages/tooling/library/repo-codegraph/src/RepoCodegraphLookup.ts:613` | Lookup public repo exports by symbol name or free-text intent. |
-| `@beep/repo-codegraph/RepoCodegraphLookup` | `NormalizedPathLikeSelector` | class | `packages/tooling/library/repo-codegraph/src/RepoCodegraphLookup.ts:109` | Normalized path-like selector tokens used for catalog matching. |
+| `@beep/repo-codegraph/RepoCodegraphLookup` | `FromPackageResolution` | class | `packages/tooling/library/repo-codegraph/src/RepoCodegraphLookup.ts:61` | Resolved package and selector details for a lookup request. |
+| `@beep/repo-codegraph/RepoCodegraphLookup` | `LookupOptions` | class | `packages/tooling/library/repo-codegraph/src/RepoCodegraphLookup.ts:82` | Optional freshness and import-policy inputs for repo codegraph lookup. |
+| `@beep/repo-codegraph/RepoCodegraphLookup` | `lookupRepoExports` | const | `packages/tooling/library/repo-codegraph/src/RepoCodegraphLookup.ts:607` | Lookup public repo exports by symbol name or free-text intent. |
+| `@beep/repo-codegraph/RepoCodegraphLookup` | `NormalizedPathLikeSelector` | class | `packages/tooling/library/repo-codegraph/src/RepoCodegraphLookup.ts:103` | Normalized path-like selector tokens used for catalog matching. |
 | `@beep/repo-codegraph/RepoCodegraphLookup.model` | `encodeRepoCodegraphLookupResult` | const | `packages/tooling/library/repo-codegraph/src/RepoCodegraphLookup.model.ts:389` | Encode a lookup result into its JSON-safe representation. |
 | `@beep/repo-codegraph/RepoCodegraphLookup.model` | `RepoCodegraphBoundaryAdvice` | class | `packages/tooling/library/repo-codegraph/src/RepoCodegraphLookup.model.ts:218` | Advisory architecture boundary note for a match. |
 | `@beep/repo-codegraph/RepoCodegraphLookup.model` | `RepoCodegraphBoundaryStatus` | const | `packages/tooling/library/repo-codegraph/src/RepoCodegraphLookup.model.ts:89` | Advisory boundary status for a candidate import. |
@@ -794,22 +795,22 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli` | `ciCommand` | const | `packages/tooling/tool/cli/src/commands/Ci/Ci.command.ts:309` | CI helper command group. |
 | `@beep/repo-cli` | `codegenCommand` | const | `packages/tooling/tool/cli/src/commands/Codegen/Codegen.command.ts:250` | CLI command that scans a package's `src/` directory and generates (or previews) |
 | `@beep/repo-cli` | `codexCommand` | const | `packages/tooling/tool/cli/src/commands/Codex/Codex.command.ts:92` | Codex helper command group. |
-| `@beep/repo-cli` | `createPackageCommand` | const | `packages/tooling/tool/cli/src/commands/CreatePackage/CreatePackage.command.ts:23` | Package creation command. |
-| `@beep/repo-cli` | `docgenCommand` | const | `packages/tooling/tool/cli/src/commands/Docgen/Docgen.command.ts:1114` | Human-first docgen command suite. |
+| `@beep/repo-cli` | `createPackageCommand` | const | `packages/tooling/tool/cli/src/commands/CreatePackage/CreatePackage.command.ts:22` | Package creation command. |
+| `@beep/repo-cli` | `docgenCommand` | const | `packages/tooling/tool/cli/src/commands/Docgen/Docgen.command.ts:1112` | Human-first docgen command suite. |
 | `@beep/repo-cli` | `docsCommand` | const | `packages/tooling/tool/cli/src/commands/Docs/Docs.command.ts:244` | Command-first docs discovery entrypoint used by agent config surfaces. |
-| `@beep/repo-cli` | `filesCommand` | const | `packages/tooling/tool/cli/src/commands/Files/Files.command.ts:444` | File curation command group. |
+| `@beep/repo-cli` | `filesCommand` | const | `packages/tooling/tool/cli/src/commands/Files/Files.command.ts:442` | File curation command group. |
 | `@beep/repo-cli` | `graphitiCommand` | const | `packages/tooling/tool/cli/src/commands/Graphiti/Graphiti.command.ts:94` | Graphiti command group. |
 | `@beep/repo-cli` | `imageCommand` | const | `packages/tooling/tool/cli/src/commands/Image/Image.command.ts:135` | Image and video curation command group. |
 | `@beep/repo-cli` | `lawsCommand` | const | `packages/tooling/tool/cli/src/commands/Laws/Laws.command.ts:439` | Laws command group. |
 | `@beep/repo-cli` | `lintCommand` | const | `packages/tooling/tool/cli/src/commands/Lint/Lint.command.ts:556` | Lint command group. |
 | `@beep/repo-cli` | `purgeCommand` | const | `packages/tooling/tool/cli/src/commands/Purge/Purge.command.ts:249` | CLI command to purge workspace/root build artifacts. |
 | `@beep/repo-cli` | `qualityCommand` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:1682` | Quality command group for repo operational checks. |
-| `@beep/repo-cli` | `reuseCommand` | const | `packages/tooling/tool/cli/src/commands/Reuse/Reuse.command.ts:674` | Reuse-discovery command group. |
+| `@beep/repo-cli` | `reuseCommand` | const | `packages/tooling/tool/cli/src/commands/Reuse/Reuse.command.ts:672` | Reuse-discovery command group. |
 | `@beep/repo-cli` | `rootCommand` | const | `packages/tooling/tool/cli/src/commands/Root.ts:45` | Top-level CLI command that registers all subcommands. |
-| `@beep/repo-cli` | `syncDataToTsCommand` | const | `packages/tooling/tool/cli/src/commands/SyncDataToTs/SyncDataToTs.command.ts:448` | CLI command for syncing official upstream datasets into checked-in TypeScript modules. |
+| `@beep/repo-cli` | `syncDataToTsCommand` | const | `packages/tooling/tool/cli/src/commands/SyncDataToTs/SyncDataToTs.command.ts:446` | CLI command for syncing official upstream datasets into checked-in TypeScript modules. |
 | `@beep/repo-cli` | `topoSortCommand` | const | `packages/tooling/tool/cli/src/commands/TopoSort/TopoSort.command.ts:33` | CLI command that builds the workspace dependency graph and prints package names |
-| `@beep/repo-cli` | `tsconfigSyncCommand` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:1847` | CLI command for synchronizing root and workspace tsconfig state. |
-| `@beep/repo-cli` | `versionSyncCommand` | const | `packages/tooling/tool/cli/src/commands/VersionSync/VersionSync.command.ts:56` | CLI command for synchronizing version pins across the monorepo. |
+| `@beep/repo-cli` | `tsconfigSyncCommand` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:1825` | CLI command for synchronizing root and workspace tsconfig state. |
+| `@beep/repo-cli` | `versionSyncCommand` | const | `packages/tooling/tool/cli/src/commands/VersionSync/VersionSync.command.ts:54` | CLI command for synchronizing version pins across the monorepo. |
 | `@beep/repo-cli/commands/AgentEffectiveness` | `agentEffectivenessCommand` | const | `packages/tooling/tool/cli/src/commands/AgentEffectiveness/AgentEffectiveness.command.ts:657` | Agent-effectiveness root command. |
 | `@beep/repo-cli/commands/AgentEffectiveness/AgentEffectiveness.command` | `agentEffectivenessCommand` | const | `packages/tooling/tool/cli/src/commands/AgentEffectiveness/AgentEffectiveness.command.ts:657` | Agent-effectiveness root command. |
 | `@beep/repo-cli/commands/AgentEffectiveness/index` | `agentEffectivenessCommand` | const | `packages/tooling/tool/cli/src/commands/AgentEffectiveness/AgentEffectiveness.command.ts:657` | Agent-effectiveness root command. |
@@ -824,125 +825,125 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/commands/AIMetrics/index` | `AiMetricsStatusExit` | class | `packages/tooling/tool/cli/src/commands/AIMetrics/AIMetrics.errors.ts:47` | Silent non-zero status used after the status command has already rendered output. |
 | `@beep/repo-cli/commands/Architecture` | `applyCanonicalSliceOperationPlan` | const | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlanExecution.ts:266` | Apply a decoded operation plan with failsafe conflict behavior. |
 | `@beep/repo-cli/commands/Architecture` | `architectureCommand` | const | `packages/tooling/tool/cli/src/commands/Architecture/Architecture.command.ts:282` | Architecture automation command group. |
-| `@beep/repo-cli/commands/Architecture` | `ArchitectureDomainKind` | const | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:34` | Canonical architecture domain-kind folders. |
-| `@beep/repo-cli/commands/Architecture` | `ArchitectureDomainKind` | type | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:46` | Canonical architecture domain-kind folder. |
-| `@beep/repo-cli/commands/Architecture` | `ArchitectureOperation` | const | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:606` | Canonical operation-plan operation. |
-| `@beep/repo-cli/commands/Architecture` | `ArchitectureOperation` | type | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:619` | Canonical operation-plan operation. |
-| `@beep/repo-cli/commands/Architecture` | `ArchitectureOperationCheck` | class | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:639` | Idempotency status for one checked operation. |
-| `@beep/repo-cli/commands/Architecture` | `ArchitectureOperationCheckStatus` | const | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:348` | Per-operation idempotency status. |
-| `@beep/repo-cli/commands/Architecture` | `ArchitectureOperationCheckStatus` | type | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:373` | Per-operation idempotency status. |
-| `@beep/repo-cli/commands/Architecture` | `ArchitectureOperationConflictPolicy` | const | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:271` | Conflict policy metadata for architecture operations. |
-| `@beep/repo-cli/commands/Architecture` | `ArchitectureOperationConflictPolicy` | type | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:294` | Conflict policy metadata for an architecture operation. |
-| `@beep/repo-cli/commands/Architecture` | `ArchitectureOperationKind` | const | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:167` | Operation kinds supported by canonical architecture operation plans. |
-| `@beep/repo-cli/commands/Architecture` | `ArchitectureOperationKind` | type | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:191` | Operation kind supported by canonical architecture operation plans. |
-| `@beep/repo-cli/commands/Architecture` | `ArchitectureOperationSource` | const | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:309` | Source metadata for architecture operations. |
-| `@beep/repo-cli/commands/Architecture` | `ArchitectureOperationSource` | type | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:333` | Source metadata for an architecture operation. |
-| `@beep/repo-cli/commands/Architecture` | `ArchitectureOperationWriteMode` | const | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:233` | Write-mode metadata for architecture operations. |
-| `@beep/repo-cli/commands/Architecture` | `ArchitectureOperationWriteMode` | type | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:256` | Write-mode metadata for an architecture operation. |
-| `@beep/repo-cli/commands/Architecture` | `ArchitecturePackageRole` | const | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:125` | Slice role packages supported by `beep architecture create package`. |
-| `@beep/repo-cli/commands/Architecture` | `ArchitecturePackageRole` | type | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:152` | Slice role package supported by `beep architecture create package`. |
-| `@beep/repo-cli/commands/Architecture` | `ArchitecturePlanStage` | const | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:61` | Staged architecture proof targets. |
-| `@beep/repo-cli/commands/Architecture` | `ArchitecturePlanStage` | type | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:73` | Staged architecture proof target. |
-| `@beep/repo-cli/commands/Architecture` | `ArchitecturePlanTarget` | class | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:446` | Normalized architecture creation target. |
-| `@beep/repo-cli/commands/Architecture` | `ArchitectureSliceRole` | const | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:88` | Canonical architecture slice roles. |
-| `@beep/repo-cli/commands/Architecture` | `ArchitectureSliceRole` | type | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:110` | Canonical architecture slice role. |
-| `@beep/repo-cli/commands/Architecture` | `ArchitectureSliceRolePlan` | class | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:421` | Role package entry in a canonical architecture slice operation plan. |
-| `@beep/repo-cli/commands/Architecture` | `ArchitectureWriterKind` | const | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:206` | Writer families selected from normalized architecture operations. |
-| `@beep/repo-cli/commands/Architecture` | `ArchitectureWriterKind` | type | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:218` | Writer family selected from normalized architecture operations. |
-| `@beep/repo-cli/commands/Architecture` | `CanonicalSliceOperationPlan` | class | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:664` | Schema-versioned canonical architecture slice operation plan. |
+| `@beep/repo-cli/commands/Architecture` | `ArchitectureDomainKind` | const | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:32` | Canonical architecture domain-kind folders. |
+| `@beep/repo-cli/commands/Architecture` | `ArchitectureDomainKind` | type | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:44` | Canonical architecture domain-kind folder. |
+| `@beep/repo-cli/commands/Architecture` | `ArchitectureOperation` | const | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:586` | Canonical operation-plan operation. |
+| `@beep/repo-cli/commands/Architecture` | `ArchitectureOperation` | type | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:599` | Canonical operation-plan operation. |
+| `@beep/repo-cli/commands/Architecture` | `ArchitectureOperationCheck` | class | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:619` | Idempotency status for one checked operation. |
+| `@beep/repo-cli/commands/Architecture` | `ArchitectureOperationCheckStatus` | const | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:340` | Per-operation idempotency status. |
+| `@beep/repo-cli/commands/Architecture` | `ArchitectureOperationCheckStatus` | type | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:365` | Per-operation idempotency status. |
+| `@beep/repo-cli/commands/Architecture` | `ArchitectureOperationConflictPolicy` | const | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:263` | Conflict policy metadata for architecture operations. |
+| `@beep/repo-cli/commands/Architecture` | `ArchitectureOperationConflictPolicy` | type | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:286` | Conflict policy metadata for an architecture operation. |
+| `@beep/repo-cli/commands/Architecture` | `ArchitectureOperationKind` | const | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:161` | Operation kinds supported by canonical architecture operation plans. |
+| `@beep/repo-cli/commands/Architecture` | `ArchitectureOperationKind` | type | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:185` | Operation kind supported by canonical architecture operation plans. |
+| `@beep/repo-cli/commands/Architecture` | `ArchitectureOperationSource` | const | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:301` | Source metadata for architecture operations. |
+| `@beep/repo-cli/commands/Architecture` | `ArchitectureOperationSource` | type | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:325` | Source metadata for an architecture operation. |
+| `@beep/repo-cli/commands/Architecture` | `ArchitectureOperationWriteMode` | const | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:225` | Write-mode metadata for architecture operations. |
+| `@beep/repo-cli/commands/Architecture` | `ArchitectureOperationWriteMode` | type | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:248` | Write-mode metadata for an architecture operation. |
+| `@beep/repo-cli/commands/Architecture` | `ArchitecturePackageRole` | const | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:119` | Slice role packages supported by `beep architecture create package`. |
+| `@beep/repo-cli/commands/Architecture` | `ArchitecturePackageRole` | type | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:146` | Slice role package supported by `beep architecture create package`. |
+| `@beep/repo-cli/commands/Architecture` | `ArchitecturePlanStage` | const | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:57` | Staged architecture proof targets. |
+| `@beep/repo-cli/commands/Architecture` | `ArchitecturePlanStage` | type | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:69` | Staged architecture proof target. |
+| `@beep/repo-cli/commands/Architecture` | `ArchitecturePlanTarget` | class | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:434` | Normalized architecture creation target. |
+| `@beep/repo-cli/commands/Architecture` | `ArchitectureSliceRole` | const | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:82` | Canonical architecture slice roles. |
+| `@beep/repo-cli/commands/Architecture` | `ArchitectureSliceRole` | type | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:104` | Canonical architecture slice role. |
+| `@beep/repo-cli/commands/Architecture` | `ArchitectureSliceRolePlan` | class | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:411` | Role package entry in a canonical architecture slice operation plan. |
+| `@beep/repo-cli/commands/Architecture` | `ArchitectureWriterKind` | const | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:198` | Writer families selected from normalized architecture operations. |
+| `@beep/repo-cli/commands/Architecture` | `ArchitectureWriterKind` | type | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:210` | Writer family selected from normalized architecture operations. |
+| `@beep/repo-cli/commands/Architecture` | `CanonicalSliceOperationPlan` | class | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:642` | Schema-versioned canonical architecture slice operation plan. |
 | `@beep/repo-cli/commands/Architecture` | `checkCanonicalSliceOperationPlan` | const | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlanExecution.ts:174` | Validate a decoded operation plan against a repository root. |
-| `@beep/repo-cli/commands/Architecture` | `decodeCanonicalSliceOperationPlanJson` | const | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:2642` | Decode operation-plan JSON text. |
-| `@beep/repo-cli/commands/Architecture` | `defaultArchitecturePlanTarget` | const | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:771` | Default architecture target shared by command defaults and plan factories. |
-| `@beep/repo-cli/commands/Architecture` | `encodeCanonicalSliceOperationPlanJson` | const | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:2627` | Encode an operation plan as JSON text. |
-| `@beep/repo-cli/commands/Architecture` | `EnsureAbsentPathOperation` | class | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:578` | Operation that proves a legacy repo-relative path must not exist. |
-| `@beep/repo-cli/commands/Architecture` | `EnsureFileOperation` | class | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:549` | Operation that proves a repo-relative file must exist. |
-| `@beep/repo-cli/commands/Architecture` | `makeArchitectureOperationPlan` | const | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:2514` | Build a write-capable operation plan from the accepted WorkItem proof files. |
-| `@beep/repo-cli/commands/Architecture` | `makeArchitecturePackageOperationPlan` | const | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:2593` | Build a shell-only slice role package operation plan. |
-| `@beep/repo-cli/commands/Architecture` | `makeCanonicalSliceOperationPlan` | const | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:2462` | Build the canonical architecture lab WorkItem operation plan. |
-| `@beep/repo-cli/commands/Architecture` | `OperationPlanApplyResult` | class | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:736` | Result of applying a canonical operation plan. |
-| `@beep/repo-cli/commands/Architecture` | `OperationPlanCheckResult` | class | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:708` | Result of validating a canonical operation plan against a checkout. |
-| `@beep/repo-cli/commands/Architecture` | `WriteFileOperation` | class | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:472` | Operation that writes a repo-relative file when absent. |
-| `@beep/repo-cli/commands/Architecture` | `WritePackageJsonOperation` | class | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:514` | Operation that writes a structured package manifest. |
+| `@beep/repo-cli/commands/Architecture` | `decodeCanonicalSliceOperationPlanJson` | const | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:2608` | Decode operation-plan JSON text. |
+| `@beep/repo-cli/commands/Architecture` | `defaultArchitecturePlanTarget` | const | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:745` | Default architecture target shared by command defaults and plan factories. |
+| `@beep/repo-cli/commands/Architecture` | `encodeCanonicalSliceOperationPlanJson` | const | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:2595` | Encode an operation plan as JSON text. |
+| `@beep/repo-cli/commands/Architecture` | `EnsureAbsentPathOperation` | class | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:560` | Operation that proves a legacy repo-relative path must not exist. |
+| `@beep/repo-cli/commands/Architecture` | `EnsureFileOperation` | class | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:533` | Operation that proves a repo-relative file must exist. |
+| `@beep/repo-cli/commands/Architecture` | `makeArchitectureOperationPlan` | const | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:2484` | Build a write-capable operation plan from the accepted WorkItem proof files. |
+| `@beep/repo-cli/commands/Architecture` | `makeArchitecturePackageOperationPlan` | const | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:2563` | Build a shell-only slice role package operation plan. |
+| `@beep/repo-cli/commands/Architecture` | `makeCanonicalSliceOperationPlan` | const | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:2434` | Build the canonical architecture lab WorkItem operation plan. |
+| `@beep/repo-cli/commands/Architecture` | `OperationPlanApplyResult` | class | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:710` | Result of applying a canonical operation plan. |
+| `@beep/repo-cli/commands/Architecture` | `OperationPlanCheckResult` | class | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:684` | Result of validating a canonical operation plan against a checkout. |
+| `@beep/repo-cli/commands/Architecture` | `WriteFileOperation` | class | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:458` | Operation that writes a repo-relative file when absent. |
+| `@beep/repo-cli/commands/Architecture` | `WritePackageJsonOperation` | class | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:500` | Operation that writes a structured package manifest. |
 | `@beep/repo-cli/commands/Architecture/Architecture.command` | `architectureCommand` | const | `packages/tooling/tool/cli/src/commands/Architecture/Architecture.command.ts:282` | Architecture automation command group. |
 | `@beep/repo-cli/commands/Architecture/index` | `applyCanonicalSliceOperationPlan` | const | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlanExecution.ts:266` | Apply a decoded operation plan with failsafe conflict behavior. |
 | `@beep/repo-cli/commands/Architecture/index` | `architectureCommand` | const | `packages/tooling/tool/cli/src/commands/Architecture/Architecture.command.ts:282` | Architecture automation command group. |
-| `@beep/repo-cli/commands/Architecture/index` | `ArchitectureDomainKind` | const | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:34` | Canonical architecture domain-kind folders. |
-| `@beep/repo-cli/commands/Architecture/index` | `ArchitectureDomainKind` | type | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:46` | Canonical architecture domain-kind folder. |
-| `@beep/repo-cli/commands/Architecture/index` | `ArchitectureOperation` | const | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:606` | Canonical operation-plan operation. |
-| `@beep/repo-cli/commands/Architecture/index` | `ArchitectureOperation` | type | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:619` | Canonical operation-plan operation. |
-| `@beep/repo-cli/commands/Architecture/index` | `ArchitectureOperationCheck` | class | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:639` | Idempotency status for one checked operation. |
-| `@beep/repo-cli/commands/Architecture/index` | `ArchitectureOperationCheckStatus` | const | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:348` | Per-operation idempotency status. |
-| `@beep/repo-cli/commands/Architecture/index` | `ArchitectureOperationCheckStatus` | type | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:373` | Per-operation idempotency status. |
-| `@beep/repo-cli/commands/Architecture/index` | `ArchitectureOperationConflictPolicy` | const | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:271` | Conflict policy metadata for architecture operations. |
-| `@beep/repo-cli/commands/Architecture/index` | `ArchitectureOperationConflictPolicy` | type | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:294` | Conflict policy metadata for an architecture operation. |
-| `@beep/repo-cli/commands/Architecture/index` | `ArchitectureOperationKind` | const | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:167` | Operation kinds supported by canonical architecture operation plans. |
-| `@beep/repo-cli/commands/Architecture/index` | `ArchitectureOperationKind` | type | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:191` | Operation kind supported by canonical architecture operation plans. |
-| `@beep/repo-cli/commands/Architecture/index` | `ArchitectureOperationSource` | const | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:309` | Source metadata for architecture operations. |
-| `@beep/repo-cli/commands/Architecture/index` | `ArchitectureOperationSource` | type | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:333` | Source metadata for an architecture operation. |
-| `@beep/repo-cli/commands/Architecture/index` | `ArchitectureOperationWriteMode` | const | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:233` | Write-mode metadata for architecture operations. |
-| `@beep/repo-cli/commands/Architecture/index` | `ArchitectureOperationWriteMode` | type | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:256` | Write-mode metadata for an architecture operation. |
-| `@beep/repo-cli/commands/Architecture/index` | `ArchitecturePackageRole` | const | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:125` | Slice role packages supported by `beep architecture create package`. |
-| `@beep/repo-cli/commands/Architecture/index` | `ArchitecturePackageRole` | type | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:152` | Slice role package supported by `beep architecture create package`. |
-| `@beep/repo-cli/commands/Architecture/index` | `ArchitecturePlanStage` | const | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:61` | Staged architecture proof targets. |
-| `@beep/repo-cli/commands/Architecture/index` | `ArchitecturePlanStage` | type | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:73` | Staged architecture proof target. |
-| `@beep/repo-cli/commands/Architecture/index` | `ArchitecturePlanTarget` | class | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:446` | Normalized architecture creation target. |
-| `@beep/repo-cli/commands/Architecture/index` | `ArchitectureSliceRole` | const | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:88` | Canonical architecture slice roles. |
-| `@beep/repo-cli/commands/Architecture/index` | `ArchitectureSliceRole` | type | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:110` | Canonical architecture slice role. |
-| `@beep/repo-cli/commands/Architecture/index` | `ArchitectureSliceRolePlan` | class | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:421` | Role package entry in a canonical architecture slice operation plan. |
-| `@beep/repo-cli/commands/Architecture/index` | `ArchitectureWriterKind` | const | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:206` | Writer families selected from normalized architecture operations. |
-| `@beep/repo-cli/commands/Architecture/index` | `ArchitectureWriterKind` | type | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:218` | Writer family selected from normalized architecture operations. |
-| `@beep/repo-cli/commands/Architecture/index` | `CanonicalSliceOperationPlan` | class | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:664` | Schema-versioned canonical architecture slice operation plan. |
+| `@beep/repo-cli/commands/Architecture/index` | `ArchitectureDomainKind` | const | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:32` | Canonical architecture domain-kind folders. |
+| `@beep/repo-cli/commands/Architecture/index` | `ArchitectureDomainKind` | type | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:44` | Canonical architecture domain-kind folder. |
+| `@beep/repo-cli/commands/Architecture/index` | `ArchitectureOperation` | const | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:586` | Canonical operation-plan operation. |
+| `@beep/repo-cli/commands/Architecture/index` | `ArchitectureOperation` | type | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:599` | Canonical operation-plan operation. |
+| `@beep/repo-cli/commands/Architecture/index` | `ArchitectureOperationCheck` | class | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:619` | Idempotency status for one checked operation. |
+| `@beep/repo-cli/commands/Architecture/index` | `ArchitectureOperationCheckStatus` | const | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:340` | Per-operation idempotency status. |
+| `@beep/repo-cli/commands/Architecture/index` | `ArchitectureOperationCheckStatus` | type | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:365` | Per-operation idempotency status. |
+| `@beep/repo-cli/commands/Architecture/index` | `ArchitectureOperationConflictPolicy` | const | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:263` | Conflict policy metadata for architecture operations. |
+| `@beep/repo-cli/commands/Architecture/index` | `ArchitectureOperationConflictPolicy` | type | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:286` | Conflict policy metadata for an architecture operation. |
+| `@beep/repo-cli/commands/Architecture/index` | `ArchitectureOperationKind` | const | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:161` | Operation kinds supported by canonical architecture operation plans. |
+| `@beep/repo-cli/commands/Architecture/index` | `ArchitectureOperationKind` | type | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:185` | Operation kind supported by canonical architecture operation plans. |
+| `@beep/repo-cli/commands/Architecture/index` | `ArchitectureOperationSource` | const | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:301` | Source metadata for architecture operations. |
+| `@beep/repo-cli/commands/Architecture/index` | `ArchitectureOperationSource` | type | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:325` | Source metadata for an architecture operation. |
+| `@beep/repo-cli/commands/Architecture/index` | `ArchitectureOperationWriteMode` | const | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:225` | Write-mode metadata for architecture operations. |
+| `@beep/repo-cli/commands/Architecture/index` | `ArchitectureOperationWriteMode` | type | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:248` | Write-mode metadata for an architecture operation. |
+| `@beep/repo-cli/commands/Architecture/index` | `ArchitecturePackageRole` | const | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:119` | Slice role packages supported by `beep architecture create package`. |
+| `@beep/repo-cli/commands/Architecture/index` | `ArchitecturePackageRole` | type | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:146` | Slice role package supported by `beep architecture create package`. |
+| `@beep/repo-cli/commands/Architecture/index` | `ArchitecturePlanStage` | const | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:57` | Staged architecture proof targets. |
+| `@beep/repo-cli/commands/Architecture/index` | `ArchitecturePlanStage` | type | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:69` | Staged architecture proof target. |
+| `@beep/repo-cli/commands/Architecture/index` | `ArchitecturePlanTarget` | class | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:434` | Normalized architecture creation target. |
+| `@beep/repo-cli/commands/Architecture/index` | `ArchitectureSliceRole` | const | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:82` | Canonical architecture slice roles. |
+| `@beep/repo-cli/commands/Architecture/index` | `ArchitectureSliceRole` | type | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:104` | Canonical architecture slice role. |
+| `@beep/repo-cli/commands/Architecture/index` | `ArchitectureSliceRolePlan` | class | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:411` | Role package entry in a canonical architecture slice operation plan. |
+| `@beep/repo-cli/commands/Architecture/index` | `ArchitectureWriterKind` | const | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:198` | Writer families selected from normalized architecture operations. |
+| `@beep/repo-cli/commands/Architecture/index` | `ArchitectureWriterKind` | type | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:210` | Writer family selected from normalized architecture operations. |
+| `@beep/repo-cli/commands/Architecture/index` | `CanonicalSliceOperationPlan` | class | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:642` | Schema-versioned canonical architecture slice operation plan. |
 | `@beep/repo-cli/commands/Architecture/index` | `checkCanonicalSliceOperationPlan` | const | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlanExecution.ts:174` | Validate a decoded operation plan against a repository root. |
-| `@beep/repo-cli/commands/Architecture/index` | `decodeCanonicalSliceOperationPlanJson` | const | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:2642` | Decode operation-plan JSON text. |
-| `@beep/repo-cli/commands/Architecture/index` | `defaultArchitecturePlanTarget` | const | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:771` | Default architecture target shared by command defaults and plan factories. |
-| `@beep/repo-cli/commands/Architecture/index` | `encodeCanonicalSliceOperationPlanJson` | const | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:2627` | Encode an operation plan as JSON text. |
-| `@beep/repo-cli/commands/Architecture/index` | `EnsureAbsentPathOperation` | class | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:578` | Operation that proves a legacy repo-relative path must not exist. |
-| `@beep/repo-cli/commands/Architecture/index` | `EnsureFileOperation` | class | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:549` | Operation that proves a repo-relative file must exist. |
-| `@beep/repo-cli/commands/Architecture/index` | `makeArchitectureOperationPlan` | const | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:2514` | Build a write-capable operation plan from the accepted WorkItem proof files. |
-| `@beep/repo-cli/commands/Architecture/index` | `makeArchitecturePackageOperationPlan` | const | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:2593` | Build a shell-only slice role package operation plan. |
-| `@beep/repo-cli/commands/Architecture/index` | `makeCanonicalSliceOperationPlan` | const | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:2462` | Build the canonical architecture lab WorkItem operation plan. |
-| `@beep/repo-cli/commands/Architecture/index` | `OperationPlanApplyResult` | class | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:736` | Result of applying a canonical operation plan. |
-| `@beep/repo-cli/commands/Architecture/index` | `OperationPlanCheckResult` | class | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:708` | Result of validating a canonical operation plan against a checkout. |
-| `@beep/repo-cli/commands/Architecture/index` | `WriteFileOperation` | class | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:472` | Operation that writes a repo-relative file when absent. |
-| `@beep/repo-cli/commands/Architecture/index` | `WritePackageJsonOperation` | class | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:514` | Operation that writes a structured package manifest. |
-| `@beep/repo-cli/commands/Architecture/OperationPlan` | `ArchitectureDomainKind` | const | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:34` | Canonical architecture domain-kind folders. |
-| `@beep/repo-cli/commands/Architecture/OperationPlan` | `ArchitectureDomainKind` | type | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:46` | Canonical architecture domain-kind folder. |
-| `@beep/repo-cli/commands/Architecture/OperationPlan` | `ArchitectureOperation` | const | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:606` | Canonical operation-plan operation. |
-| `@beep/repo-cli/commands/Architecture/OperationPlan` | `ArchitectureOperation` | type | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:619` | Canonical operation-plan operation. |
-| `@beep/repo-cli/commands/Architecture/OperationPlan` | `ArchitectureOperationCheck` | class | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:639` | Idempotency status for one checked operation. |
-| `@beep/repo-cli/commands/Architecture/OperationPlan` | `ArchitectureOperationCheckStatus` | const | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:348` | Per-operation idempotency status. |
-| `@beep/repo-cli/commands/Architecture/OperationPlan` | `ArchitectureOperationCheckStatus` | type | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:373` | Per-operation idempotency status. |
-| `@beep/repo-cli/commands/Architecture/OperationPlan` | `ArchitectureOperationConflictPolicy` | const | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:271` | Conflict policy metadata for architecture operations. |
-| `@beep/repo-cli/commands/Architecture/OperationPlan` | `ArchitectureOperationConflictPolicy` | type | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:294` | Conflict policy metadata for an architecture operation. |
-| `@beep/repo-cli/commands/Architecture/OperationPlan` | `ArchitectureOperationKind` | const | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:167` | Operation kinds supported by canonical architecture operation plans. |
-| `@beep/repo-cli/commands/Architecture/OperationPlan` | `ArchitectureOperationKind` | type | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:191` | Operation kind supported by canonical architecture operation plans. |
-| `@beep/repo-cli/commands/Architecture/OperationPlan` | `ArchitectureOperationSource` | const | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:309` | Source metadata for architecture operations. |
-| `@beep/repo-cli/commands/Architecture/OperationPlan` | `ArchitectureOperationSource` | type | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:333` | Source metadata for an architecture operation. |
-| `@beep/repo-cli/commands/Architecture/OperationPlan` | `ArchitectureOperationWriteMode` | const | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:233` | Write-mode metadata for architecture operations. |
-| `@beep/repo-cli/commands/Architecture/OperationPlan` | `ArchitectureOperationWriteMode` | type | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:256` | Write-mode metadata for an architecture operation. |
-| `@beep/repo-cli/commands/Architecture/OperationPlan` | `ArchitecturePackageRole` | const | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:125` | Slice role packages supported by `beep architecture create package`. |
-| `@beep/repo-cli/commands/Architecture/OperationPlan` | `ArchitecturePackageRole` | type | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:152` | Slice role package supported by `beep architecture create package`. |
-| `@beep/repo-cli/commands/Architecture/OperationPlan` | `ArchitecturePlanStage` | const | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:61` | Staged architecture proof targets. |
-| `@beep/repo-cli/commands/Architecture/OperationPlan` | `ArchitecturePlanStage` | type | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:73` | Staged architecture proof target. |
-| `@beep/repo-cli/commands/Architecture/OperationPlan` | `ArchitecturePlanTarget` | class | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:446` | Normalized architecture creation target. |
-| `@beep/repo-cli/commands/Architecture/OperationPlan` | `ArchitectureSliceRole` | const | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:88` | Canonical architecture slice roles. |
-| `@beep/repo-cli/commands/Architecture/OperationPlan` | `ArchitectureSliceRole` | type | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:110` | Canonical architecture slice role. |
-| `@beep/repo-cli/commands/Architecture/OperationPlan` | `ArchitectureSliceRolePlan` | class | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:421` | Role package entry in a canonical architecture slice operation plan. |
-| `@beep/repo-cli/commands/Architecture/OperationPlan` | `ArchitectureWriterKind` | const | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:206` | Writer families selected from normalized architecture operations. |
-| `@beep/repo-cli/commands/Architecture/OperationPlan` | `ArchitectureWriterKind` | type | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:218` | Writer family selected from normalized architecture operations. |
-| `@beep/repo-cli/commands/Architecture/OperationPlan` | `CanonicalSliceOperationPlan` | class | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:664` | Schema-versioned canonical architecture slice operation plan. |
-| `@beep/repo-cli/commands/Architecture/OperationPlan` | `decodeCanonicalSliceOperationPlanJson` | const | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:2642` | Decode operation-plan JSON text. |
-| `@beep/repo-cli/commands/Architecture/OperationPlan` | `defaultArchitecturePlanTarget` | const | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:771` | Default architecture target shared by command defaults and plan factories. |
-| `@beep/repo-cli/commands/Architecture/OperationPlan` | `encodeCanonicalSliceOperationPlanJson` | const | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:2627` | Encode an operation plan as JSON text. |
-| `@beep/repo-cli/commands/Architecture/OperationPlan` | `EnsureAbsentPathOperation` | class | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:578` | Operation that proves a legacy repo-relative path must not exist. |
-| `@beep/repo-cli/commands/Architecture/OperationPlan` | `EnsureFileOperation` | class | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:549` | Operation that proves a repo-relative file must exist. |
-| `@beep/repo-cli/commands/Architecture/OperationPlan` | `makeArchitectureOperationPlan` | const | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:2514` | Build a write-capable operation plan from the accepted WorkItem proof files. |
-| `@beep/repo-cli/commands/Architecture/OperationPlan` | `makeArchitecturePackageOperationPlan` | const | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:2593` | Build a shell-only slice role package operation plan. |
-| `@beep/repo-cli/commands/Architecture/OperationPlan` | `makeCanonicalSliceOperationPlan` | const | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:2462` | Build the canonical architecture lab WorkItem operation plan. |
-| `@beep/repo-cli/commands/Architecture/OperationPlan` | `OperationPlanApplyResult` | class | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:736` | Result of applying a canonical operation plan. |
-| `@beep/repo-cli/commands/Architecture/OperationPlan` | `OperationPlanCheckResult` | class | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:708` | Result of validating a canonical operation plan against a checkout. |
-| `@beep/repo-cli/commands/Architecture/OperationPlan` | `WriteFileOperation` | class | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:472` | Operation that writes a repo-relative file when absent. |
-| `@beep/repo-cli/commands/Architecture/OperationPlan` | `WritePackageJsonOperation` | class | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:514` | Operation that writes a structured package manifest. |
+| `@beep/repo-cli/commands/Architecture/index` | `decodeCanonicalSliceOperationPlanJson` | const | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:2608` | Decode operation-plan JSON text. |
+| `@beep/repo-cli/commands/Architecture/index` | `defaultArchitecturePlanTarget` | const | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:745` | Default architecture target shared by command defaults and plan factories. |
+| `@beep/repo-cli/commands/Architecture/index` | `encodeCanonicalSliceOperationPlanJson` | const | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:2595` | Encode an operation plan as JSON text. |
+| `@beep/repo-cli/commands/Architecture/index` | `EnsureAbsentPathOperation` | class | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:560` | Operation that proves a legacy repo-relative path must not exist. |
+| `@beep/repo-cli/commands/Architecture/index` | `EnsureFileOperation` | class | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:533` | Operation that proves a repo-relative file must exist. |
+| `@beep/repo-cli/commands/Architecture/index` | `makeArchitectureOperationPlan` | const | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:2484` | Build a write-capable operation plan from the accepted WorkItem proof files. |
+| `@beep/repo-cli/commands/Architecture/index` | `makeArchitecturePackageOperationPlan` | const | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:2563` | Build a shell-only slice role package operation plan. |
+| `@beep/repo-cli/commands/Architecture/index` | `makeCanonicalSliceOperationPlan` | const | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:2434` | Build the canonical architecture lab WorkItem operation plan. |
+| `@beep/repo-cli/commands/Architecture/index` | `OperationPlanApplyResult` | class | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:710` | Result of applying a canonical operation plan. |
+| `@beep/repo-cli/commands/Architecture/index` | `OperationPlanCheckResult` | class | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:684` | Result of validating a canonical operation plan against a checkout. |
+| `@beep/repo-cli/commands/Architecture/index` | `WriteFileOperation` | class | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:458` | Operation that writes a repo-relative file when absent. |
+| `@beep/repo-cli/commands/Architecture/index` | `WritePackageJsonOperation` | class | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:500` | Operation that writes a structured package manifest. |
+| `@beep/repo-cli/commands/Architecture/OperationPlan` | `ArchitectureDomainKind` | const | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:32` | Canonical architecture domain-kind folders. |
+| `@beep/repo-cli/commands/Architecture/OperationPlan` | `ArchitectureDomainKind` | type | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:44` | Canonical architecture domain-kind folder. |
+| `@beep/repo-cli/commands/Architecture/OperationPlan` | `ArchitectureOperation` | const | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:586` | Canonical operation-plan operation. |
+| `@beep/repo-cli/commands/Architecture/OperationPlan` | `ArchitectureOperation` | type | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:599` | Canonical operation-plan operation. |
+| `@beep/repo-cli/commands/Architecture/OperationPlan` | `ArchitectureOperationCheck` | class | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:619` | Idempotency status for one checked operation. |
+| `@beep/repo-cli/commands/Architecture/OperationPlan` | `ArchitectureOperationCheckStatus` | const | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:340` | Per-operation idempotency status. |
+| `@beep/repo-cli/commands/Architecture/OperationPlan` | `ArchitectureOperationCheckStatus` | type | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:365` | Per-operation idempotency status. |
+| `@beep/repo-cli/commands/Architecture/OperationPlan` | `ArchitectureOperationConflictPolicy` | const | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:263` | Conflict policy metadata for architecture operations. |
+| `@beep/repo-cli/commands/Architecture/OperationPlan` | `ArchitectureOperationConflictPolicy` | type | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:286` | Conflict policy metadata for an architecture operation. |
+| `@beep/repo-cli/commands/Architecture/OperationPlan` | `ArchitectureOperationKind` | const | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:161` | Operation kinds supported by canonical architecture operation plans. |
+| `@beep/repo-cli/commands/Architecture/OperationPlan` | `ArchitectureOperationKind` | type | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:185` | Operation kind supported by canonical architecture operation plans. |
+| `@beep/repo-cli/commands/Architecture/OperationPlan` | `ArchitectureOperationSource` | const | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:301` | Source metadata for architecture operations. |
+| `@beep/repo-cli/commands/Architecture/OperationPlan` | `ArchitectureOperationSource` | type | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:325` | Source metadata for an architecture operation. |
+| `@beep/repo-cli/commands/Architecture/OperationPlan` | `ArchitectureOperationWriteMode` | const | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:225` | Write-mode metadata for architecture operations. |
+| `@beep/repo-cli/commands/Architecture/OperationPlan` | `ArchitectureOperationWriteMode` | type | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:248` | Write-mode metadata for an architecture operation. |
+| `@beep/repo-cli/commands/Architecture/OperationPlan` | `ArchitecturePackageRole` | const | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:119` | Slice role packages supported by `beep architecture create package`. |
+| `@beep/repo-cli/commands/Architecture/OperationPlan` | `ArchitecturePackageRole` | type | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:146` | Slice role package supported by `beep architecture create package`. |
+| `@beep/repo-cli/commands/Architecture/OperationPlan` | `ArchitecturePlanStage` | const | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:57` | Staged architecture proof targets. |
+| `@beep/repo-cli/commands/Architecture/OperationPlan` | `ArchitecturePlanStage` | type | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:69` | Staged architecture proof target. |
+| `@beep/repo-cli/commands/Architecture/OperationPlan` | `ArchitecturePlanTarget` | class | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:434` | Normalized architecture creation target. |
+| `@beep/repo-cli/commands/Architecture/OperationPlan` | `ArchitectureSliceRole` | const | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:82` | Canonical architecture slice roles. |
+| `@beep/repo-cli/commands/Architecture/OperationPlan` | `ArchitectureSliceRole` | type | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:104` | Canonical architecture slice role. |
+| `@beep/repo-cli/commands/Architecture/OperationPlan` | `ArchitectureSliceRolePlan` | class | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:411` | Role package entry in a canonical architecture slice operation plan. |
+| `@beep/repo-cli/commands/Architecture/OperationPlan` | `ArchitectureWriterKind` | const | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:198` | Writer families selected from normalized architecture operations. |
+| `@beep/repo-cli/commands/Architecture/OperationPlan` | `ArchitectureWriterKind` | type | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:210` | Writer family selected from normalized architecture operations. |
+| `@beep/repo-cli/commands/Architecture/OperationPlan` | `CanonicalSliceOperationPlan` | class | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:642` | Schema-versioned canonical architecture slice operation plan. |
+| `@beep/repo-cli/commands/Architecture/OperationPlan` | `decodeCanonicalSliceOperationPlanJson` | const | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:2608` | Decode operation-plan JSON text. |
+| `@beep/repo-cli/commands/Architecture/OperationPlan` | `defaultArchitecturePlanTarget` | const | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:745` | Default architecture target shared by command defaults and plan factories. |
+| `@beep/repo-cli/commands/Architecture/OperationPlan` | `encodeCanonicalSliceOperationPlanJson` | const | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:2595` | Encode an operation plan as JSON text. |
+| `@beep/repo-cli/commands/Architecture/OperationPlan` | `EnsureAbsentPathOperation` | class | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:560` | Operation that proves a legacy repo-relative path must not exist. |
+| `@beep/repo-cli/commands/Architecture/OperationPlan` | `EnsureFileOperation` | class | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:533` | Operation that proves a repo-relative file must exist. |
+| `@beep/repo-cli/commands/Architecture/OperationPlan` | `makeArchitectureOperationPlan` | const | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:2484` | Build a write-capable operation plan from the accepted WorkItem proof files. |
+| `@beep/repo-cli/commands/Architecture/OperationPlan` | `makeArchitecturePackageOperationPlan` | const | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:2563` | Build a shell-only slice role package operation plan. |
+| `@beep/repo-cli/commands/Architecture/OperationPlan` | `makeCanonicalSliceOperationPlan` | const | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:2434` | Build the canonical architecture lab WorkItem operation plan. |
+| `@beep/repo-cli/commands/Architecture/OperationPlan` | `OperationPlanApplyResult` | class | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:710` | Result of applying a canonical operation plan. |
+| `@beep/repo-cli/commands/Architecture/OperationPlan` | `OperationPlanCheckResult` | class | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:684` | Result of validating a canonical operation plan against a checkout. |
+| `@beep/repo-cli/commands/Architecture/OperationPlan` | `WriteFileOperation` | class | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:458` | Operation that writes a repo-relative file when absent. |
+| `@beep/repo-cli/commands/Architecture/OperationPlan` | `WritePackageJsonOperation` | class | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts:500` | Operation that writes a structured package manifest. |
 | `@beep/repo-cli/commands/Architecture/OperationPlanExecution` | `applyCanonicalSliceOperationPlan` | const | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlanExecution.ts:266` | Apply a decoded operation plan with failsafe conflict behavior. |
 | `@beep/repo-cli/commands/Architecture/OperationPlanExecution` | `checkCanonicalSliceOperationPlan` | const | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlanExecution.ts:174` | Validate a decoded operation plan against a repository root. |
 | `@beep/repo-cli/commands/Architecture/OperationPlanPackageJson` | `renderPackageJsonOperation` | const | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlanPackageJson.ts:64` | Render a structured package manifest operation. |
@@ -967,54 +968,54 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/commands/Codex/index` | `codexCommand` | const | `packages/tooling/tool/cli/src/commands/Codex/Codex.command.ts:92` | Codex helper command group. |
 | `@beep/repo-cli/commands/Codex/index` | `CodexCommandError` | class | `packages/tooling/tool/cli/src/commands/Codex/Codex.errors.ts:35` | Typed failure for Codex helper commands. |
 | `@beep/repo-cli/commands/Codex/index` | `runCodexQualityReviewFixLoop` | const | `packages/tooling/tool/cli/src/commands/Codex/Codex.command.ts:47` | Launch Codex with the repo-local quality review fix loop prompt. |
-| `@beep/repo-cli/commands/CreatePackage` | `createPackageCommand` | const | `packages/tooling/tool/cli/src/commands/CreatePackage/CreatePackage.command.ts:23` | Package creation command. |
-| `@beep/repo-cli/commands/CreatePackage/ConfigUpdater` | `checkConfigNeedsUpdate` | const | `packages/tooling/tool/cli/src/commands/CreatePackage/ConfigUpdater.ts:690` | Check whether config entries already exist (for dry-run output). |
-| `@beep/repo-cli/commands/CreatePackage/ConfigUpdater` | `checkConfigNeedsUpdateForTargets` | const | `packages/tooling/tool/cli/src/commands/CreatePackage/ConfigUpdater.ts:606` | Batch read-only drift checker for root config updates. |
-| `@beep/repo-cli/commands/CreatePackage/ConfigUpdater` | `ConfigUpdateBatchResult` | class | `packages/tooling/tool/cli/src/commands/CreatePackage/ConfigUpdater.ts:125` | Batch config orchestration result for one or more package targets. |
-| `@beep/repo-cli/commands/CreatePackage/ConfigUpdater` | `ConfigUpdateResult` | class | `packages/tooling/tool/cli/src/commands/CreatePackage/ConfigUpdater.ts:46` | Summary of which root configuration files were modified during a config update pass. |
-| `@beep/repo-cli/commands/CreatePackage/ConfigUpdater` | `ConfigUpdateTarget` | class | `packages/tooling/tool/cli/src/commands/CreatePackage/ConfigUpdater.ts:70` | Config update target for a package that should be registered in root tsconfig files. |
-| `@beep/repo-cli/commands/CreatePackage/ConfigUpdater` | `ConfigUpdateTargetResult` | class | `packages/tooling/tool/cli/src/commands/CreatePackage/ConfigUpdater.ts:95` | Per-target config update summary. |
-| `@beep/repo-cli/commands/CreatePackage/ConfigUpdater` | `updateRootConfigs` | const | `packages/tooling/tool/cli/src/commands/CreatePackage/ConfigUpdater.ts:655` | Orchestrate all root config updates for a newly created package. |
-| `@beep/repo-cli/commands/CreatePackage/ConfigUpdater` | `updateRootConfigsForTargets` | const | `packages/tooling/tool/cli/src/commands/CreatePackage/ConfigUpdater.ts:559` | Batch root config updater for slice flows creating multiple packages. |
-| `@beep/repo-cli/commands/CreatePackage/ConfigUpdater` | `updateTsconfigPackages` | const | `packages/tooling/tool/cli/src/commands/CreatePackage/ConfigUpdater.ts:333` | Add a project reference to `tsconfig.packages.json`. |
-| `@beep/repo-cli/commands/CreatePackage/ConfigUpdater` | `updateTsconfigPaths` | const | `packages/tooling/tool/cli/src/commands/CreatePackage/ConfigUpdater.ts:381` | Add path aliases to `tsconfig.json` (JSONC-safe, preserves comments). |
-| `@beep/repo-cli/commands/CreatePackage/ConfigUpdater` | `updateTstycheConfig` | const | `packages/tooling/tool/cli/src/commands/CreatePackage/ConfigUpdater.ts:442` | Add a test file match entry to `tstyche.json`. |
-| `@beep/repo-cli/commands/CreatePackage/CreatePackage.command` | `createPackageCommand` | const | `packages/tooling/tool/cli/src/commands/CreatePackage/CreatePackage.command.ts:23` | Package creation command. |
-| `@beep/repo-cli/commands/CreatePackage/FileGenerationPlanService` | `createFileGenerationPlanService` | const | `packages/tooling/tool/cli/src/commands/CreatePackage/FileGenerationPlanService.ts:537` | Construct the default generation plan service implementation. |
-| `@beep/repo-cli/commands/CreatePackage/FileGenerationPlanService` | `FileGenerationExecutionResult` | class | `packages/tooling/tool/cli/src/commands/CreatePackage/FileGenerationPlanService.ts:282` | Execution report for a plan run. |
-| `@beep/repo-cli/commands/CreatePackage/FileGenerationPlanService` | `FileGenerationPlan` | class | `packages/tooling/tool/cli/src/commands/CreatePackage/FileGenerationPlanService.ts:259` | Deterministic generation plan. |
-| `@beep/repo-cli/commands/CreatePackage/FileGenerationPlanService` | `FileGenerationPlanInput` | class | `packages/tooling/tool/cli/src/commands/CreatePackage/FileGenerationPlanService.ts:135` | Input payload used to create a generation pla. |
-| `@beep/repo-cli/commands/CreatePackage/FileGenerationPlanService` | `FileGenerationPlanService` | class | `packages/tooling/tool/cli/src/commands/CreatePackage/FileGenerationPlanService.ts:332` | Service tag for deterministic file-generation planning and execution. |
-| `@beep/repo-cli/commands/CreatePackage/FileGenerationPlanService` | `FileGenerationPlanServiceShape` | type | `packages/tooling/tool/cli/src/commands/CreatePackage/FileGenerationPlanService.ts:311` | Service contract for deterministic generation plan orchestration. |
-| `@beep/repo-cli/commands/CreatePackage/FileGenerationPlanService` | `GenerationAction` | const | `packages/tooling/tool/cli/src/commands/CreatePackage/FileGenerationPlanService.ts:219` | Planned generation action schema. |
-| `@beep/repo-cli/commands/CreatePackage/FileGenerationPlanService` | `GenerationAction` | type | `packages/tooling/tool/cli/src/commands/CreatePackage/FileGenerationPlanService.ts:244` | Planned generation action. |
-| `@beep/repo-cli/commands/CreatePackage/FileGenerationPlanService` | `GenerationActionKind` | const | `packages/tooling/tool/cli/src/commands/CreatePackage/FileGenerationPlanService.ts:160` | Planned action kinds. |
-| `@beep/repo-cli/commands/CreatePackage/FileGenerationPlanService` | `GenerationActionKind` | type | `packages/tooling/tool/cli/src/commands/CreatePackage/FileGenerationPlanService.ts:171` | Planned generation action. |
-| `@beep/repo-cli/commands/CreatePackage/FileGenerationPlanService` | `PlannedFile` | class | `packages/tooling/tool/cli/src/commands/CreatePackage/FileGenerationPlanService.ts:89` | A file write operation. |
-| `@beep/repo-cli/commands/CreatePackage/FileGenerationPlanService` | `PlannedSymlink` | class | `packages/tooling/tool/cli/src/commands/CreatePackage/FileGenerationPlanService.ts:112` | A symlink operation. |
-| `@beep/repo-cli/commands/CreatePackage/Handler` | `createPackageCommand` | const | `packages/tooling/tool/cli/src/commands/CreatePackage/Handler.ts:582` | CLI command that scaffolds a new package with templates, a Schema-validated |
-| `@beep/repo-cli/commands/CreatePackage/Handler` | `resolveCreatePackageTemplateDir` | const | `packages/tooling/tool/cli/src/commands/CreatePackage/Handler.ts:84` | Resolve create-package template directory for both src and dist runtimes. |
-| `@beep/repo-cli/commands/CreatePackage/Handler` | `TemplateContext` | class | `packages/tooling/tool/cli/src/commands/CreatePackage/Handler.ts:292` | Variables passed into every template during package scaffolding. |
-| `@beep/repo-cli/commands/CreatePackage/index` | `createPackageCommand` | const | `packages/tooling/tool/cli/src/commands/CreatePackage/CreatePackage.command.ts:23` | Package creation command. |
-| `@beep/repo-cli/commands/CreatePackage/TemplateService` | `createTemplateService` | const | `packages/tooling/tool/cli/src/commands/CreatePackage/TemplateService.ts:167` | Construct the default template service implementation. |
-| `@beep/repo-cli/commands/CreatePackage/TemplateService` | `RenderedTemplate` | class | `packages/tooling/tool/cli/src/commands/CreatePackage/TemplateService.ts:54` | Rendered template output. |
-| `@beep/repo-cli/commands/CreatePackage/TemplateService` | `TemplateRenderRequest` | class | `packages/tooling/tool/cli/src/commands/CreatePackage/TemplateService.ts:77` | Request payload for template rendering. |
-| `@beep/repo-cli/commands/CreatePackage/TemplateService` | `TemplateService` | class | `packages/tooling/tool/cli/src/commands/CreatePackage/TemplateService.ts:124` | Service tag for template rendering. |
-| `@beep/repo-cli/commands/CreatePackage/TemplateService` | `TemplateServiceShape` | type | `packages/tooling/tool/cli/src/commands/CreatePackage/TemplateService.ts:105` | Service contract for template rendering. |
-| `@beep/repo-cli/commands/CreatePackage/TemplateService` | `TemplateSpec` | class | `packages/tooling/tool/cli/src/commands/CreatePackage/TemplateService.ts:31` | Mapping between template source file and output file path. |
-| `@beep/repo-cli/commands/CreatePackage/TsMorphIntegrationService` | `createTsMorphIntegrationService` | const | `packages/tooling/tool/cli/src/commands/CreatePackage/TsMorphIntegrationService.ts:308` | Construct a ts-morph-morph integration service with an optional adapter. |
-| `@beep/repo-cli/commands/CreatePackage/TsMorphIntegrationService` | `TsMorphIntegrationResult` | class | `packages/tooling/tool/cli/src/commands/CreatePackage/TsMorphIntegrationService.ts:213` | Batch mutation result. |
-| `@beep/repo-cli/commands/CreatePackage/TsMorphIntegrationService` | `TsMorphIntegrationService` | class | `packages/tooling/tool/cli/src/commands/CreatePackage/TsMorphIntegrationService.ts:277` | Service tag for ts-morph integration orchestration. |
-| `@beep/repo-cli/commands/CreatePackage/TsMorphIntegrationService` | `TsMorphIntegrationServiceShape` | type | `packages/tooling/tool/cli/src/commands/CreatePackage/TsMorphIntegrationService.ts:257` | Service contract expected by create-package orchestration. |
-| `@beep/repo-cli/commands/CreatePackage/TsMorphIntegrationService` | `TsMorphMutation` | const | `packages/tooling/tool/cli/src/commands/CreatePackage/TsMorphIntegrationService.ts:128` | Input descriptor for one AST mutation. |
-| `@beep/repo-cli/commands/CreatePackage/TsMorphIntegrationService` | `TsMorphMutation` | type | `packages/tooling/tool/cli/src/commands/CreatePackage/TsMorphIntegrationService.ts:148` | Input descriptor for one AST mutation. |
-| `@beep/repo-cli/commands/CreatePackage/TsMorphIntegrationService` | `TsMorphMutationAdapter` | type | `packages/tooling/tool/cli/src/commands/CreatePackage/TsMorphIntegrationService.ts:239` | Adapter boundary for concrete ts-morph-morph implementations. |
-| `@beep/repo-cli/commands/CreatePackage/TsMorphIntegrationService` | `TsMorphMutationKind` | const | `packages/tooling/tool/cli/src/commands/CreatePackage/TsMorphIntegrationService.ts:30` | Supported AST mutation categories required by create-package. |
-| `@beep/repo-cli/commands/CreatePackage/TsMorphIntegrationService` | `TsMorphMutationKind` | type | `packages/tooling/tool/cli/src/commands/CreatePackage/TsMorphIntegrationService.ts:46` | Supported AST mutation categories required by create-package. |
-| `@beep/repo-cli/commands/CreatePackage/TsMorphIntegrationService` | `TsMorphMutationOutcome` | type | `packages/tooling/tool/cli/src/commands/CreatePackage/TsMorphIntegrationService.ts:198` | Outcome for one mutation. |
-| `@beep/repo-cli/commands/Docgen` | `docgenCommand` | const | `packages/tooling/tool/cli/src/commands/Docgen/Docgen.command.ts:1114` | Human-first docgen command suite. |
-| `@beep/repo-cli/commands/Docgen/Docgen.command` | `docgenCommand` | const | `packages/tooling/tool/cli/src/commands/Docgen/Docgen.command.ts:1114` | Human-first docgen command suite. |
-| `@beep/repo-cli/commands/Docgen/index` | `docgenCommand` | const | `packages/tooling/tool/cli/src/commands/Docgen/Docgen.command.ts:1114` | Human-first docgen command suite. |
+| `@beep/repo-cli/commands/CreatePackage` | `createPackageCommand` | const | `packages/tooling/tool/cli/src/commands/CreatePackage/CreatePackage.command.ts:22` | Package creation command. |
+| `@beep/repo-cli/commands/CreatePackage/ConfigUpdater` | `checkConfigNeedsUpdate` | const | `packages/tooling/tool/cli/src/commands/CreatePackage/ConfigUpdater.ts:671` | Check whether config entries already exist (for dry-run output). |
+| `@beep/repo-cli/commands/CreatePackage/ConfigUpdater` | `checkConfigNeedsUpdateForTargets` | const | `packages/tooling/tool/cli/src/commands/CreatePackage/ConfigUpdater.ts:589` | Batch read-only drift checker for root config updates. |
+| `@beep/repo-cli/commands/CreatePackage/ConfigUpdater` | `ConfigUpdateBatchResult` | class | `packages/tooling/tool/cli/src/commands/CreatePackage/ConfigUpdater.ts:118` | Batch config orchestration result for one or more package targets. |
+| `@beep/repo-cli/commands/CreatePackage/ConfigUpdater` | `ConfigUpdateResult` | class | `packages/tooling/tool/cli/src/commands/CreatePackage/ConfigUpdater.ts:44` | Summary of which root configuration files were modified during a config update pass. |
+| `@beep/repo-cli/commands/CreatePackage/ConfigUpdater` | `ConfigUpdateTarget` | class | `packages/tooling/tool/cli/src/commands/CreatePackage/ConfigUpdater.ts:67` | Config update target for a package that should be registered in root tsconfig files. |
+| `@beep/repo-cli/commands/CreatePackage/ConfigUpdater` | `ConfigUpdateTargetResult` | class | `packages/tooling/tool/cli/src/commands/CreatePackage/ConfigUpdater.ts:90` | Per-target config update summary. |
+| `@beep/repo-cli/commands/CreatePackage/ConfigUpdater` | `updateRootConfigs` | const | `packages/tooling/tool/cli/src/commands/CreatePackage/ConfigUpdater.ts:637` | Orchestrate all root config updates for a newly created package. |
+| `@beep/repo-cli/commands/CreatePackage/ConfigUpdater` | `updateRootConfigsForTargets` | const | `packages/tooling/tool/cli/src/commands/CreatePackage/ConfigUpdater.ts:544` | Batch root config updater for slice flows creating multiple packages. |
+| `@beep/repo-cli/commands/CreatePackage/ConfigUpdater` | `updateTsconfigPackages` | const | `packages/tooling/tool/cli/src/commands/CreatePackage/ConfigUpdater.ts:324` | Add a project reference to `tsconfig.packages.json`. |
+| `@beep/repo-cli/commands/CreatePackage/ConfigUpdater` | `updateTsconfigPaths` | const | `packages/tooling/tool/cli/src/commands/CreatePackage/ConfigUpdater.ts:370` | Add path aliases to `tsconfig.json` (JSONC-safe, preserves comments). |
+| `@beep/repo-cli/commands/CreatePackage/ConfigUpdater` | `updateTstycheConfig` | const | `packages/tooling/tool/cli/src/commands/CreatePackage/ConfigUpdater.ts:429` | Add a test file match entry to `tstyche.json`. |
+| `@beep/repo-cli/commands/CreatePackage/CreatePackage.command` | `createPackageCommand` | const | `packages/tooling/tool/cli/src/commands/CreatePackage/CreatePackage.command.ts:22` | Package creation command. |
+| `@beep/repo-cli/commands/CreatePackage/FileGenerationPlanService` | `createFileGenerationPlanService` | const | `packages/tooling/tool/cli/src/commands/CreatePackage/FileGenerationPlanService.ts:517` | Construct the default generation plan service implementation. |
+| `@beep/repo-cli/commands/CreatePackage/FileGenerationPlanService` | `FileGenerationExecutionResult` | class | `packages/tooling/tool/cli/src/commands/CreatePackage/FileGenerationPlanService.ts:268` | Execution report for a plan run. |
+| `@beep/repo-cli/commands/CreatePackage/FileGenerationPlanService` | `FileGenerationPlan` | class | `packages/tooling/tool/cli/src/commands/CreatePackage/FileGenerationPlanService.ts:247` | Deterministic generation plan. |
+| `@beep/repo-cli/commands/CreatePackage/FileGenerationPlanService` | `FileGenerationPlanInput` | class | `packages/tooling/tool/cli/src/commands/CreatePackage/FileGenerationPlanService.ts:129` | Input payload used to create a generation pla. |
+| `@beep/repo-cli/commands/CreatePackage/FileGenerationPlanService` | `FileGenerationPlanService` | class | `packages/tooling/tool/cli/src/commands/CreatePackage/FileGenerationPlanService.ts:314` | Service tag for deterministic file-generation planning and execution. |
+| `@beep/repo-cli/commands/CreatePackage/FileGenerationPlanService` | `FileGenerationPlanServiceShape` | type | `packages/tooling/tool/cli/src/commands/CreatePackage/FileGenerationPlanService.ts:295` | Service contract for deterministic generation plan orchestration. |
+| `@beep/repo-cli/commands/CreatePackage/FileGenerationPlanService` | `GenerationAction` | const | `packages/tooling/tool/cli/src/commands/CreatePackage/FileGenerationPlanService.ts:209` | Planned generation action schema. |
+| `@beep/repo-cli/commands/CreatePackage/FileGenerationPlanService` | `GenerationAction` | type | `packages/tooling/tool/cli/src/commands/CreatePackage/FileGenerationPlanService.ts:234` | Planned generation action. |
+| `@beep/repo-cli/commands/CreatePackage/FileGenerationPlanService` | `GenerationActionKind` | const | `packages/tooling/tool/cli/src/commands/CreatePackage/FileGenerationPlanService.ts:152` | Planned action kinds. |
+| `@beep/repo-cli/commands/CreatePackage/FileGenerationPlanService` | `GenerationActionKind` | type | `packages/tooling/tool/cli/src/commands/CreatePackage/FileGenerationPlanService.ts:163` | Planned generation action. |
+| `@beep/repo-cli/commands/CreatePackage/FileGenerationPlanService` | `PlannedFile` | class | `packages/tooling/tool/cli/src/commands/CreatePackage/FileGenerationPlanService.ts:87` | A file write operation. |
+| `@beep/repo-cli/commands/CreatePackage/FileGenerationPlanService` | `PlannedSymlink` | class | `packages/tooling/tool/cli/src/commands/CreatePackage/FileGenerationPlanService.ts:108` | A symlink operation. |
+| `@beep/repo-cli/commands/CreatePackage/Handler` | `createPackageCommand` | const | `packages/tooling/tool/cli/src/commands/CreatePackage/Handler.ts:576` | CLI command that scaffolds a new package with templates, a Schema-validated |
+| `@beep/repo-cli/commands/CreatePackage/Handler` | `resolveCreatePackageTemplateDir` | const | `packages/tooling/tool/cli/src/commands/CreatePackage/Handler.ts:82` | Resolve create-package template directory for both src and dist runtimes. |
+| `@beep/repo-cli/commands/CreatePackage/Handler` | `TemplateContext` | class | `packages/tooling/tool/cli/src/commands/CreatePackage/Handler.ts:288` | Variables passed into every template during package scaffolding. |
+| `@beep/repo-cli/commands/CreatePackage/index` | `createPackageCommand` | const | `packages/tooling/tool/cli/src/commands/CreatePackage/CreatePackage.command.ts:22` | Package creation command. |
+| `@beep/repo-cli/commands/CreatePackage/TemplateService` | `createTemplateService` | const | `packages/tooling/tool/cli/src/commands/CreatePackage/TemplateService.ts:155` | Construct the default template service implementation. |
+| `@beep/repo-cli/commands/CreatePackage/TemplateService` | `RenderedTemplate` | class | `packages/tooling/tool/cli/src/commands/CreatePackage/TemplateService.ts:50` | Rendered template output. |
+| `@beep/repo-cli/commands/CreatePackage/TemplateService` | `TemplateRenderRequest` | class | `packages/tooling/tool/cli/src/commands/CreatePackage/TemplateService.ts:71` | Request payload for template rendering. |
+| `@beep/repo-cli/commands/CreatePackage/TemplateService` | `TemplateService` | class | `packages/tooling/tool/cli/src/commands/CreatePackage/TemplateService.ts:114` | Service tag for template rendering. |
+| `@beep/repo-cli/commands/CreatePackage/TemplateService` | `TemplateServiceShape` | type | `packages/tooling/tool/cli/src/commands/CreatePackage/TemplateService.ts:97` | Service contract for template rendering. |
+| `@beep/repo-cli/commands/CreatePackage/TemplateService` | `TemplateSpec` | class | `packages/tooling/tool/cli/src/commands/CreatePackage/TemplateService.ts:29` | Mapping between template source file and output file path. |
+| `@beep/repo-cli/commands/CreatePackage/TsMorphIntegrationService` | `createTsMorphIntegrationService` | const | `packages/tooling/tool/cli/src/commands/CreatePackage/TsMorphIntegrationService.ts:294` | Construct a ts-morph-morph integration service with an optional adapter. |
+| `@beep/repo-cli/commands/CreatePackage/TsMorphIntegrationService` | `TsMorphIntegrationResult` | class | `packages/tooling/tool/cli/src/commands/CreatePackage/TsMorphIntegrationService.ts:207` | Batch mutation result. |
+| `@beep/repo-cli/commands/CreatePackage/TsMorphIntegrationService` | `TsMorphIntegrationService` | class | `packages/tooling/tool/cli/src/commands/CreatePackage/TsMorphIntegrationService.ts:265` | Service tag for ts-morph integration orchestration. |
+| `@beep/repo-cli/commands/CreatePackage/TsMorphIntegrationService` | `TsMorphIntegrationServiceShape` | type | `packages/tooling/tool/cli/src/commands/CreatePackage/TsMorphIntegrationService.ts:247` | Service contract expected by create-package orchestration. |
+| `@beep/repo-cli/commands/CreatePackage/TsMorphIntegrationService` | `TsMorphMutation` | const | `packages/tooling/tool/cli/src/commands/CreatePackage/TsMorphIntegrationService.ts:124` | Input descriptor for one AST mutation. |
+| `@beep/repo-cli/commands/CreatePackage/TsMorphIntegrationService` | `TsMorphMutation` | type | `packages/tooling/tool/cli/src/commands/CreatePackage/TsMorphIntegrationService.ts:144` | Input descriptor for one AST mutation. |
+| `@beep/repo-cli/commands/CreatePackage/TsMorphIntegrationService` | `TsMorphMutationAdapter` | type | `packages/tooling/tool/cli/src/commands/CreatePackage/TsMorphIntegrationService.ts:231` | Adapter boundary for concrete ts-morph-morph implementations. |
+| `@beep/repo-cli/commands/CreatePackage/TsMorphIntegrationService` | `TsMorphMutationKind` | const | `packages/tooling/tool/cli/src/commands/CreatePackage/TsMorphIntegrationService.ts:28` | Supported AST mutation categories required by create-package. |
+| `@beep/repo-cli/commands/CreatePackage/TsMorphIntegrationService` | `TsMorphMutationKind` | type | `packages/tooling/tool/cli/src/commands/CreatePackage/TsMorphIntegrationService.ts:44` | Supported AST mutation categories required by create-package. |
+| `@beep/repo-cli/commands/CreatePackage/TsMorphIntegrationService` | `TsMorphMutationOutcome` | type | `packages/tooling/tool/cli/src/commands/CreatePackage/TsMorphIntegrationService.ts:194` | Outcome for one mutation. |
+| `@beep/repo-cli/commands/Docgen` | `docgenCommand` | const | `packages/tooling/tool/cli/src/commands/Docgen/Docgen.command.ts:1112` | Human-first docgen command suite. |
+| `@beep/repo-cli/commands/Docgen/Docgen.command` | `docgenCommand` | const | `packages/tooling/tool/cli/src/commands/Docgen/Docgen.command.ts:1112` | Human-first docgen command suite. |
+| `@beep/repo-cli/commands/Docgen/index` | `docgenCommand` | const | `packages/tooling/tool/cli/src/commands/Docgen/Docgen.command.ts:1112` | Human-first docgen command suite. |
 | `@beep/repo-cli/commands/Docgen/internal/Local` | `buildDocgenLocalPlan` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/Local.ts:850` | Build a local docgen plan from repository state and command options. |
 | `@beep/repo-cli/commands/Docgen/internal/Local` | `DocgenLocalFullReason` | class | `packages/tooling/tool/cli/src/commands/Docgen/internal/Local.ts:211` | Reason local docgen must escalate to the full proof. |
 | `@beep/repo-cli/commands/Docgen/internal/Local` | `docgenLocalFullReasonsForTesting` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/Local.ts:813` | Resolve changed files that require the full docgen proof. |
@@ -1112,537 +1113,537 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/commands/Docs/index` | `docsCommand` | const | `packages/tooling/tool/cli/src/commands/Docs/Docs.command.ts:244` | Command-first docs discovery entrypoint used by agent config surfaces. |
 | `@beep/repo-cli/commands/Docs/index` | `DocsSection` | const | `packages/tooling/tool/cli/src/commands/Docs/Docs.command.ts:78` | Documentation section model. |
 | `@beep/repo-cli/commands/Docs/index` | `DocsSection` | type | `packages/tooling/tool/cli/src/commands/Docs/Docs.command.ts:96` | Documentation section model. |
-| `@beep/repo-cli/commands/Files` | `analyzeSolidBorders` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:1010` | Analyze raw RGB image pixels for near-solid borders on all four sides. |
-| `@beep/repo-cli/commands/Files` | `ArchivedSidecarEntry` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1637` | Caption or metadata sidecar moved with an archived image. |
-| `@beep/repo-cli/commands/Files` | `archivePoorCandidates` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:4514` | Archive obvious poor image candidates out of a dataset directory. |
-| `@beep/repo-cli/commands/Files` | `ArchivePoorCandidatesEntry` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1663` | Assessed image candidate with an archive or keep decision. |
-| `@beep/repo-cli/commands/Files` | `ArchivePoorCandidatesManifest` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1813` | Manifest written by a successful poor-candidate archive run. |
-| `@beep/repo-cli/commands/Files` | `ArchivePoorCandidatesManifestOptions` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1582` | JSON-safe options recorded in a poor-candidate archive manifest. |
-| `@beep/repo-cli/commands/Files` | `ArchivePoorCandidatesManifestSummary` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1785` | JSON-safe summary recorded by poor-candidate archival. |
-| `@beep/repo-cli/commands/Files` | `ArchivePoorCandidatesOptions` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1548` | Options used by poor-candidate archival. |
-| `@beep/repo-cli/commands/Files` | `ArchivePoorCandidatesPlan` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1725` | Planned poor-candidate archive run. |
-| `@beep/repo-cli/commands/Files` | `ArchivePoorCandidatesSkippedEntry` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1697` | Source entry skipped by poor-candidate archival. |
-| `@beep/repo-cli/commands/Files` | `ArchivePoorCandidatesSkippedReason` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:574` | Reason a direct directory entry was skipped by `files archive-poor-candidates`. |
-| `@beep/repo-cli/commands/Files` | `ArchivePoorCandidatesSkippedReason` | type | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:594` | Reason a direct directory entry was skipped by `files archive-poor-candidates`. |
-| `@beep/repo-cli/commands/Files` | `ArchivePoorCandidatesSummary` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1752` | Summary counts returned by poor-candidate archival. |
-| `@beep/repo-cli/commands/Files` | `assessImageCandidate` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:845` | Assess image dimensions against hard candidate-quality thresholds. |
-| `@beep/repo-cli/commands/Files` | `BorderDetectionKind` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:358` | Classified border layout for an analyzed image. |
-| `@beep/repo-cli/commands/Files` | `BorderDetectionKind` | type | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:370` | Classified border layout for an analyzed image. |
-| `@beep/repo-cli/commands/Files` | `BorderDetectionMaxScanPercentage` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:692` | Maximum scan percentage accepted by border detection. |
-| `@beep/repo-cli/commands/Files` | `BorderDetectionMaxScanPercentage` | type | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:726` | Maximum scan percentage accepted by border detection. |
-| `@beep/repo-cli/commands/Files` | `BorderDetectionPercentage` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:643` | Percentage threshold used by border detection options. |
-| `@beep/repo-cli/commands/Files` | `BorderDetectionPercentage` | type | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:677` | Percentage threshold used by border detection options. |
-| `@beep/repo-cli/commands/Files` | `BorderDetectionTolerance` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:741` | RGB channel tolerance accepted by border detection. |
-| `@beep/repo-cli/commands/Files` | `BorderDetectionTolerance` | type | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:775` | RGB channel tolerance accepted by border detection. |
-| `@beep/repo-cli/commands/Files` | `BorderSide` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:331` | Side of an image edge scanned for a solid border. |
-| `@beep/repo-cli/commands/Files` | `BorderSide` | type | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:343` | Side of an image edge scanned for a solid border. |
-| `@beep/repo-cli/commands/Files` | `byNameAscending` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:347` | Order regular files by name ascending. |
-| `@beep/repo-cli/commands/Files` | `bySizeDescendingThenNameAscending` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:329` | Order regular files by size descending, then name ascending. |
-| `@beep/repo-cli/commands/Files` | `CandidateAssessmentDecision` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:516` | Candidate-quality decision produced by `files archive-poor-candidates`. |
-| `@beep/repo-cli/commands/Files` | `CandidateAssessmentDecision` | type | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:528` | Candidate-quality decision produced by `files archive-poor-candidates`. |
-| `@beep/repo-cli/commands/Files` | `CandidateAssessmentMetrics` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1612` | Derived image metrics used for candidate-quality triage. |
-| `@beep/repo-cli/commands/Files` | `CandidateAssessmentProfile` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:489` | Dataset profile used by candidate-quality triage. |
-| `@beep/repo-cli/commands/Files` | `CandidateAssessmentProfile` | type | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:501` | Dataset profile used by candidate-quality triage. |
-| `@beep/repo-cli/commands/Files` | `CandidateAssessmentReason` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:543` | Hard-threshold reason that can cause an image to be archived. |
-| `@beep/repo-cli/commands/Files` | `CandidateAssessmentReason` | type | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:559` | Hard-threshold reason that can cause an image to be archived. |
-| `@beep/repo-cli/commands/Files` | `CandidateRatioThreshold` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:609` | Numeric threshold ratio used by candidate-quality triage. |
-| `@beep/repo-cli/commands/Files` | `CandidateRatioThreshold` | type | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:628` | Numeric threshold ratio used by candidate-quality triage. |
-| `@beep/repo-cli/commands/Files` | `classifyBorderSides` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:957` | Classify an analyzed image from its matched border sides. |
-| `@beep/repo-cli/commands/Files` | `collectText` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:434` | Collect a byte stream into trimmed text. |
-| `@beep/repo-cli/commands/Files` | `createCaptionFiles` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:4536` | Create same-stem caption sidecar files for direct image files. |
-| `@beep/repo-cli/commands/Files` | `CreateCaptionFilesOptions` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1168` | Options used by caption sidecar creation. |
-| `@beep/repo-cli/commands/Files` | `CreateCaptionFilesPlan` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1251` | Planned caption sidecar creation run. |
-| `@beep/repo-cli/commands/Files` | `CreateCaptionFilesPlanEntry` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1193` | Planned caption sidecar file creation. |
-| `@beep/repo-cli/commands/Files` | `CreateCaptionFilesSkippedEntry` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1222` | Source entry skipped by caption sidecar creation. |
-| `@beep/repo-cli/commands/Files` | `CreateCaptionFilesSkippedReason` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:295` | Reason a direct directory entry was skipped by `files create-captions`. |
-| `@beep/repo-cli/commands/Files` | `CreateCaptionFilesSkippedReason` | type | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:316` | Reason a direct directory entry was skipped by `files create-captions`. |
-| `@beep/repo-cli/commands/Files` | `CreateCaptionFilesSummary` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1277` | Summary returned by `createCaptionFiles`. |
-| `@beep/repo-cli/commands/Files` | `cropBordersFiles` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:4558` | Crop solid or near-solid borders from direct image files. |
-| `@beep/repo-cli/commands/Files` | `CropBordersOptions` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1928` | Options used by the image border cropping operation. |
-| `@beep/repo-cli/commands/Files` | `CropBordersPlan` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:2268` | Planned border crop entries plus skipped file counts. |
-| `@beep/repo-cli/commands/Files` | `CropBordersPlanEntry` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:2235` | Planned crop for an image with detected solid borders. |
-| `@beep/repo-cli/commands/Files` | `cropBordersPlanEntryFromDetection` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:1138` | Convert a detected-border entry into a valid crop plan entry. |
-| `@beep/repo-cli/commands/Files` | `CropBordersSummary` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:2294` | Summary returned by `cropBordersFiles`. |
-| `@beep/repo-cli/commands/Files` | `decodeArchivePoorCandidatesOptions` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:2468` | Decode unknown poor-candidate archive options. |
-| `@beep/repo-cli/commands/Files` | `decodeCreateCaptionFilesOptions` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:2483` | Decode unknown caption sidecar creation options. |
-| `@beep/repo-cli/commands/Files` | `decodeCropBordersOptions` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:2527` | Decode unknown border cropping options. |
-| `@beep/repo-cli/commands/Files` | `decodeDetectBordersOptions` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:2498` | Decode unknown border detection options. |
-| `@beep/repo-cli/commands/Files` | `decodeDetectFacesOptions` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:2512` | Decode face detection options from unknown input. |
-| `@beep/repo-cli/commands/Files` | `decodeFfprobeOutputJson` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:2408` | Decode an ffprobe JSON document. |
-| `@beep/repo-cli/commands/Files` | `decodeImageSizeMetadata` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:2393` | Decode unknown image-size metadata. |
-| `@beep/repo-cli/commands/Files` | `decodeNormalizeMaxLongEdge` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:2453` | Decode an unknown maximum long-edge value. |
-| `@beep/repo-cli/commands/Files` | `decodeRotationNumber` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:2423` | Decode an unknown rotation value into an optional number. |
-| `@beep/repo-cli/commands/Files` | `decodeSafeFilePrefix` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:2438` | Decode an unknown safe filename prefix. |
-| `@beep/repo-cli/commands/Files` | `DetectBordersEntry` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:2007` | Image entry analyzed by `files detect-borders`. |
-| `@beep/repo-cli/commands/Files` | `detectBordersFiles` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:4580` | Detect solid or near-solid borders in direct image files. |
-| `@beep/repo-cli/commands/Files` | `DetectBorderSideMeasurement` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1979` | Measurement for one scanned image side. |
-| `@beep/repo-cli/commands/Files` | `DetectBordersOptions` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1844` | Options used by the image border detection operation. |
-| `@beep/repo-cli/commands/Files` | `DetectBordersReport` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:2089` | JSON report emitted by an image border detection run. |
-| `@beep/repo-cli/commands/Files` | `DetectBordersSkippedEntry` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:2037` | Source entry skipped by image border detection. |
-| `@beep/repo-cli/commands/Files` | `DetectBordersSkippedReason` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:385` | Reason a direct directory entry was skipped by `files detect-borders`. |
-| `@beep/repo-cli/commands/Files` | `DetectBordersSkippedReason` | type | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:405` | Reason a direct directory entry was skipped by `files detect-borders`. |
-| `@beep/repo-cli/commands/Files` | `DetectBordersSummary` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:2063` | Summary counts for an image border detection run. |
-| `@beep/repo-cli/commands/Files` | `DetectFacesEntry` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:2116` | Image entry analyzed by `files detect-faces`. |
-| `@beep/repo-cli/commands/Files` | `detectFacesFiles` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:4602` | Detect human faces in direct image files. |
-| `@beep/repo-cli/commands/Files` | `DetectFacesFlag` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:456` | Triage flag emitted by `files detect-faces`. |
-| `@beep/repo-cli/commands/Files` | `DetectFacesFlag` | type | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:474` | Triage flag emitted by `files detect-faces`. |
-| `@beep/repo-cli/commands/Files` | `DetectFacesOptions` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1871` | Options used by the image face detection operation. |
-| `@beep/repo-cli/commands/Files` | `DetectFacesReport` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:2206` | JSON report emitted by an image face detection run. |
-| `@beep/repo-cli/commands/Files` | `DetectFacesReportOptions` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1900` | JSON-safe options recorded by the image face detection report. |
-| `@beep/repo-cli/commands/Files` | `DetectFacesSkippedEntry` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:2151` | Source entry skipped by image face detection. |
-| `@beep/repo-cli/commands/Files` | `DetectFacesSkippedReason` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:420` | Reason a direct directory entry was skipped by `files detect-faces`. |
-| `@beep/repo-cli/commands/Files` | `DetectFacesSkippedReason` | type | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:441` | Reason a direct directory entry was skipped by `files detect-faces`. |
-| `@beep/repo-cli/commands/Files` | `DetectFacesSummary` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:2177` | Summary counts for an image face detection run. |
-| `@beep/repo-cli/commands/Files` | `encodeArchivePoorCandidatesManifest` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:2557` | Encode a poor-candidate archive manifest into its JSON-safe shape. |
-| `@beep/repo-cli/commands/Files` | `encodeDetectBordersReport` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:2572` | Encode a detect-borders report into its JSON-safe shape. |
-| `@beep/repo-cli/commands/Files` | `encodeDetectFacesReport` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:2586` | Encode a face detection report into its JSON-safe shape. |
-| `@beep/repo-cli/commands/Files` | `encodeNormalizeManifest` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:2542` | Encode a normalize manifest into its JSON-safe shape. |
-| `@beep/repo-cli/commands/Files` | `failOnExtensionlessFile` | const | `packages/tooling/tool/cli/src/commands/Files/Files.errors.ts:106` | Fail when a rename operation selects an extensionless file. |
-| `@beep/repo-cli/commands/Files` | `FfprobeOutput` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:910` | JSON document emitted by `ffprobe`. |
-| `@beep/repo-cli/commands/Files` | `FfprobeSideData` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:863` | Side-data entry returned by `ffprobe`. |
-| `@beep/repo-cli/commands/Files` | `FfprobeStream` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:885` | Video stream metadata returned by `ffprobe`. |
-| `@beep/repo-cli/commands/Files` | `filesCommand` | const | `packages/tooling/tool/cli/src/commands/Files/Files.command.ts:444` | File curation command group. |
+| `@beep/repo-cli/commands/Files` | `analyzeSolidBorders` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:944` | Analyze raw RGB image pixels for near-solid borders on all four sides. |
+| `@beep/repo-cli/commands/Files` | `ArchivedSidecarEntry` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1541` | Caption or metadata sidecar moved with an archived image. |
+| `@beep/repo-cli/commands/Files` | `archivePoorCandidates` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:4504` | Archive obvious poor image candidates out of a dataset directory. |
+| `@beep/repo-cli/commands/Files` | `ArchivePoorCandidatesEntry` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1565` | Assessed image candidate with an archive or keep decision. |
+| `@beep/repo-cli/commands/Files` | `ArchivePoorCandidatesManifest` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1705` | Manifest written by a successful poor-candidate archive run. |
+| `@beep/repo-cli/commands/Files` | `ArchivePoorCandidatesManifestOptions` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1490` | JSON-safe options recorded in a poor-candidate archive manifest. |
+| `@beep/repo-cli/commands/Files` | `ArchivePoorCandidatesManifestSummary` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1679` | JSON-safe summary recorded by poor-candidate archival. |
+| `@beep/repo-cli/commands/Files` | `ArchivePoorCandidatesOptions` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1458` | Options used by poor-candidate archival. |
+| `@beep/repo-cli/commands/Files` | `ArchivePoorCandidatesPlan` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1623` | Planned poor-candidate archive run. |
+| `@beep/repo-cli/commands/Files` | `ArchivePoorCandidatesSkippedEntry` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1597` | Source entry skipped by poor-candidate archival. |
+| `@beep/repo-cli/commands/Files` | `ArchivePoorCandidatesSkippedReason` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:538` | Reason a direct directory entry was skipped by `files archive-poor-candidates`. |
+| `@beep/repo-cli/commands/Files` | `ArchivePoorCandidatesSkippedReason` | type | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:558` | Reason a direct directory entry was skipped by `files archive-poor-candidates`. |
+| `@beep/repo-cli/commands/Files` | `ArchivePoorCandidatesSummary` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1648` | Summary counts returned by poor-candidate archival. |
+| `@beep/repo-cli/commands/Files` | `assessImageCandidate` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:789` | Assess image dimensions against hard candidate-quality thresholds. |
+| `@beep/repo-cli/commands/Files` | `BorderDetectionKind` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:336` | Classified border layout for an analyzed image. |
+| `@beep/repo-cli/commands/Files` | `BorderDetectionKind` | type | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:348` | Classified border layout for an analyzed image. |
+| `@beep/repo-cli/commands/Files` | `BorderDetectionMaxScanPercentage` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:650` | Maximum scan percentage accepted by border detection. |
+| `@beep/repo-cli/commands/Files` | `BorderDetectionMaxScanPercentage` | type | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:684` | Maximum scan percentage accepted by border detection. |
+| `@beep/repo-cli/commands/Files` | `BorderDetectionPercentage` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:603` | Percentage threshold used by border detection options. |
+| `@beep/repo-cli/commands/Files` | `BorderDetectionPercentage` | type | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:637` | Percentage threshold used by border detection options. |
+| `@beep/repo-cli/commands/Files` | `BorderDetectionTolerance` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:697` | RGB channel tolerance accepted by border detection. |
+| `@beep/repo-cli/commands/Files` | `BorderDetectionTolerance` | type | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:731` | RGB channel tolerance accepted by border detection. |
+| `@beep/repo-cli/commands/Files` | `BorderSide` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:311` | Side of an image edge scanned for a solid border. |
+| `@beep/repo-cli/commands/Files` | `BorderSide` | type | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:323` | Side of an image edge scanned for a solid border. |
+| `@beep/repo-cli/commands/Files` | `byNameAscending` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:337` | Order regular files by name ascending. |
+| `@beep/repo-cli/commands/Files` | `bySizeDescendingThenNameAscending` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:321` | Order regular files by size descending, then name ascending. |
+| `@beep/repo-cli/commands/Files` | `CandidateAssessmentDecision` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:484` | Candidate-quality decision produced by `files archive-poor-candidates`. |
+| `@beep/repo-cli/commands/Files` | `CandidateAssessmentDecision` | type | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:496` | Candidate-quality decision produced by `files archive-poor-candidates`. |
+| `@beep/repo-cli/commands/Files` | `CandidateAssessmentMetrics` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1518` | Derived image metrics used for candidate-quality triage. |
+| `@beep/repo-cli/commands/Files` | `CandidateAssessmentProfile` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:459` | Dataset profile used by candidate-quality triage. |
+| `@beep/repo-cli/commands/Files` | `CandidateAssessmentProfile` | type | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:471` | Dataset profile used by candidate-quality triage. |
+| `@beep/repo-cli/commands/Files` | `CandidateAssessmentReason` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:509` | Hard-threshold reason that can cause an image to be archived. |
+| `@beep/repo-cli/commands/Files` | `CandidateAssessmentReason` | type | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:525` | Hard-threshold reason that can cause an image to be archived. |
+| `@beep/repo-cli/commands/Files` | `CandidateRatioThreshold` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:571` | Numeric threshold ratio used by candidate-quality triage. |
+| `@beep/repo-cli/commands/Files` | `CandidateRatioThreshold` | type | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:590` | Numeric threshold ratio used by candidate-quality triage. |
+| `@beep/repo-cli/commands/Files` | `classifyBorderSides` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:893` | Classify an analyzed image from its matched border sides. |
+| `@beep/repo-cli/commands/Files` | `collectText` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:416` | Collect a byte stream into trimmed text. |
+| `@beep/repo-cli/commands/Files` | `createCaptionFiles` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:4524` | Create same-stem caption sidecar files for direct image files. |
+| `@beep/repo-cli/commands/Files` | `CreateCaptionFilesOptions` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1104` | Options used by caption sidecar creation. |
+| `@beep/repo-cli/commands/Files` | `CreateCaptionFilesPlan` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1181` | Planned caption sidecar creation run. |
+| `@beep/repo-cli/commands/Files` | `CreateCaptionFilesPlanEntry` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1127` | Planned caption sidecar file creation. |
+| `@beep/repo-cli/commands/Files` | `CreateCaptionFilesSkippedEntry` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1154` | Source entry skipped by caption sidecar creation. |
+| `@beep/repo-cli/commands/Files` | `CreateCaptionFilesSkippedReason` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:277` | Reason a direct directory entry was skipped by `files create-captions`. |
+| `@beep/repo-cli/commands/Files` | `CreateCaptionFilesSkippedReason` | type | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:298` | Reason a direct directory entry was skipped by `files create-captions`. |
+| `@beep/repo-cli/commands/Files` | `CreateCaptionFilesSummary` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1205` | Summary returned by `createCaptionFiles`. |
+| `@beep/repo-cli/commands/Files` | `cropBordersFiles` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:4544` | Crop solid or near-solid borders from direct image files. |
+| `@beep/repo-cli/commands/Files` | `CropBordersOptions` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1812` | Options used by the image border cropping operation. |
+| `@beep/repo-cli/commands/Files` | `CropBordersPlan` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:2128` | Planned border crop entries plus skipped file counts. |
+| `@beep/repo-cli/commands/Files` | `CropBordersPlanEntry` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:2097` | Planned crop for an image with detected solid borders. |
+| `@beep/repo-cli/commands/Files` | `cropBordersPlanEntryFromDetection` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:1062` | Convert a detected-border entry into a valid crop plan entry. |
+| `@beep/repo-cli/commands/Files` | `CropBordersSummary` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:2152` | Summary returned by `cropBordersFiles`. |
+| `@beep/repo-cli/commands/Files` | `decodeArchivePoorCandidatesOptions` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:2308` | Decode unknown poor-candidate archive options. |
+| `@beep/repo-cli/commands/Files` | `decodeCreateCaptionFilesOptions` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:2321` | Decode unknown caption sidecar creation options. |
+| `@beep/repo-cli/commands/Files` | `decodeCropBordersOptions` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:2359` | Decode unknown border cropping options. |
+| `@beep/repo-cli/commands/Files` | `decodeDetectBordersOptions` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:2334` | Decode unknown border detection options. |
+| `@beep/repo-cli/commands/Files` | `decodeDetectFacesOptions` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:2346` | Decode face detection options from unknown input. |
+| `@beep/repo-cli/commands/Files` | `decodeFfprobeOutputJson` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:2256` | Decode an ffprobe JSON document. |
+| `@beep/repo-cli/commands/Files` | `decodeImageSizeMetadata` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:2243` | Decode unknown image-size metadata. |
+| `@beep/repo-cli/commands/Files` | `decodeNormalizeMaxLongEdge` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:2295` | Decode an unknown maximum long-edge value. |
+| `@beep/repo-cli/commands/Files` | `decodeRotationNumber` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:2269` | Decode an unknown rotation value into an optional number. |
+| `@beep/repo-cli/commands/Files` | `decodeSafeFilePrefix` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:2282` | Decode an unknown safe filename prefix. |
+| `@beep/repo-cli/commands/Files` | `DetectBordersEntry` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1885` | Image entry analyzed by `files detect-borders`. |
+| `@beep/repo-cli/commands/Files` | `detectBordersFiles` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:4564` | Detect solid or near-solid borders in direct image files. |
+| `@beep/repo-cli/commands/Files` | `DetectBorderSideMeasurement` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1859` | Measurement for one scanned image side. |
+| `@beep/repo-cli/commands/Files` | `DetectBordersOptions` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1734` | Options used by the image border detection operation. |
+| `@beep/repo-cli/commands/Files` | `DetectBordersReport` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1961` | JSON report emitted by an image border detection run. |
+| `@beep/repo-cli/commands/Files` | `DetectBordersSkippedEntry` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1913` | Source entry skipped by image border detection. |
+| `@beep/repo-cli/commands/Files` | `DetectBordersSkippedReason` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:361` | Reason a direct directory entry was skipped by `files detect-borders`. |
+| `@beep/repo-cli/commands/Files` | `DetectBordersSkippedReason` | type | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:381` | Reason a direct directory entry was skipped by `files detect-borders`. |
+| `@beep/repo-cli/commands/Files` | `DetectBordersSummary` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1937` | Summary counts for an image border detection run. |
+| `@beep/repo-cli/commands/Files` | `DetectFacesEntry` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1986` | Image entry analyzed by `files detect-faces`. |
+| `@beep/repo-cli/commands/Files` | `detectFacesFiles` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:4584` | Detect human faces in direct image files. |
+| `@beep/repo-cli/commands/Files` | `DetectFacesFlag` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:428` | Triage flag emitted by `files detect-faces`. |
+| `@beep/repo-cli/commands/Files` | `DetectFacesFlag` | type | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:446` | Triage flag emitted by `files detect-faces`. |
+| `@beep/repo-cli/commands/Files` | `DetectFacesOptions` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1759` | Options used by the image face detection operation. |
+| `@beep/repo-cli/commands/Files` | `DetectFacesReport` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:2070` | JSON report emitted by an image face detection run. |
+| `@beep/repo-cli/commands/Files` | `DetectFacesReportOptions` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1786` | JSON-safe options recorded by the image face detection report. |
+| `@beep/repo-cli/commands/Files` | `DetectFacesSkippedEntry` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:2019` | Source entry skipped by image face detection. |
+| `@beep/repo-cli/commands/Files` | `DetectFacesSkippedReason` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:394` | Reason a direct directory entry was skipped by `files detect-faces`. |
+| `@beep/repo-cli/commands/Files` | `DetectFacesSkippedReason` | type | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:415` | Reason a direct directory entry was skipped by `files detect-faces`. |
+| `@beep/repo-cli/commands/Files` | `DetectFacesSummary` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:2043` | Summary counts for an image face detection run. |
+| `@beep/repo-cli/commands/Files` | `encodeArchivePoorCandidatesManifest` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:2385` | Encode a poor-candidate archive manifest into its JSON-safe shape. |
+| `@beep/repo-cli/commands/Files` | `encodeDetectBordersReport` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:2398` | Encode a detect-borders report into its JSON-safe shape. |
+| `@beep/repo-cli/commands/Files` | `encodeDetectFacesReport` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:2410` | Encode a face detection report into its JSON-safe shape. |
+| `@beep/repo-cli/commands/Files` | `encodeNormalizeManifest` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:2372` | Encode a normalize manifest into its JSON-safe shape. |
+| `@beep/repo-cli/commands/Files` | `failOnExtensionlessFile` | const | `packages/tooling/tool/cli/src/commands/Files/Files.errors.ts:102` | Fail when a rename operation selects an extensionless file. |
+| `@beep/repo-cli/commands/Files` | `FfprobeOutput` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:856` | JSON document emitted by `ffprobe`. |
+| `@beep/repo-cli/commands/Files` | `FfprobeSideData` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:813` | Side-data entry returned by `ffprobe`. |
+| `@beep/repo-cli/commands/Files` | `FfprobeStream` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:833` | Video stream metadata returned by `ffprobe`. |
+| `@beep/repo-cli/commands/Files` | `filesCommand` | const | `packages/tooling/tool/cli/src/commands/Files/Files.command.ts:442` | File curation command group. |
 | `@beep/repo-cli/commands/Files` | `FilesCommandError` | class | `packages/tooling/tool/cli/src/commands/Files/Files.errors.ts:39` | Error raised by file curation commands. |
-| `@beep/repo-cli/commands/Files` | `FilesCommandService` | class | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:341` | Service tag for dataset file curation operations. |
-| `@beep/repo-cli/commands/Files` | `FilesCommandServiceLive` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:4496` | Live service layer for dataset file curation operations. |
-| `@beep/repo-cli/commands/Files` | `FilesCommandServiceShape` | interface | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:261` | Service contract for dataset file curation operations. |
-| `@beep/repo-cli/commands/Files` | `FilesConcurrency` | const | `packages/tooling/tool/cli/src/commands/Files/Files.progress.ts:30` | Shared concurrency caps for Files command phases. |
-| `@beep/repo-cli/commands/Files` | `FileSha256Hash` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:75` | SHA-256 hash recorded for normalized file bytes. |
-| `@beep/repo-cli/commands/Files` | `FileSha256Hash` | type | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:94` | SHA-256 hash recorded for normalized file bytes. |
-| `@beep/repo-cli/commands/Files` | `formatIndex` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:414` | Format a zero-padded numeric index. |
-| `@beep/repo-cli/commands/Files` | `formatPlatformError` | const | `packages/tooling/tool/cli/src/commands/Files/Files.errors.ts:79` | Convert a platform failure into a file command error. |
-| `@beep/repo-cli/commands/Files` | `hasSkippedFiles` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:585` | Check whether a plan skipped any files. |
-| `@beep/repo-cli/commands/Files` | `ImageSizeMetadata` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:839` | Dimension metadata returned by `image-size`. |
-| `@beep/repo-cli/commands/Files` | `isExifOrientationRotated` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:459` | Check whether an EXIF orientation value implies a quarter-turn image. |
-| `@beep/repo-cli/commands/Files` | `isFilesProgressEnabled` | const | `packages/tooling/tool/cli/src/commands/Files/Files.progress.ts:87` | Return true when live Files progress should be rendered. |
-| `@beep/repo-cli/commands/Files` | `isImageFileExtension` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:284` | Schema-derived image extension guard. |
-| `@beep/repo-cli/commands/Files` | `isQuarterTurnRotation` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:476` | Check whether a video rotation value implies a quarter-turn image. |
-| `@beep/repo-cli/commands/Files` | `isSupportedMetadataImageExtension` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:314` | Schema-derived metadata-strip image extension guard. |
-| `@beep/repo-cli/commands/Files` | `isSupportedMetadataImageFile` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:1237` | Check whether a selected image file can be normalized by metadata stripping. |
-| `@beep/repo-cli/commands/Files` | `isVideoFileExtension` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:299` | Schema-derived video extension guard. |
-| `@beep/repo-cli/commands/Files` | `makeStripMetadataTempEntries` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:1203` | Build temporary output paths for metadata stripping. |
-| `@beep/repo-cli/commands/Files` | `maybeSwapDimensions` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:497` | Swap dimensions when a media orientation requires it. |
-| `@beep/repo-cli/commands/Files` | `MediaDimensions` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1145` | Width and height discovered for an image or video file. |
-| `@beep/repo-cli/commands/Files` | `mediaDimensionsChanged` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:804` | Check whether two media dimensions differ. |
-| `@beep/repo-cli/commands/Files` | `MediaKind` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:152` | Media kind schema for selected dataset files. |
-| `@beep/repo-cli/commands/Files` | `MediaKind` | type | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:164` | Media kind for selected dataset files. |
-| `@beep/repo-cli/commands/Files` | `mediaKindFromExtension` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:384` | Resolve a media kind from a file extension. |
-| `@beep/repo-cli/commands/Files` | `NonNegativePixelOffset` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:109` | Non-negative pixel offset schema. |
-| `@beep/repo-cli/commands/Files` | `NonNegativePixelOffset` | type | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:137` | Non-negative pixel offset value. |
-| `@beep/repo-cli/commands/Files` | `normalizeBareExtension` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:367` | Normalize a file extension to a lowercase bare extension. |
-| `@beep/repo-cli/commands/Files` | `normalizeFiles` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:4624` | Normalize direct image files into an output directory and write a transform manifest. |
-| `@beep/repo-cli/commands/Files` | `NormalizeFilesOptions` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1304` | Options used by the image normalization operation. |
-| `@beep/repo-cli/commands/Files` | `NormalizeImageFormat` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:233` | Canonical image output format emitted by `files normalize`. |
-| `@beep/repo-cli/commands/Files` | `NormalizeImageFormat` | type | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:245` | Canonical image output format emitted by `files normalize`. |
-| `@beep/repo-cli/commands/Files` | `NormalizeImageFormatInput` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:206` | CLI image format accepted by `files normalize`. |
-| `@beep/repo-cli/commands/Files` | `NormalizeImageFormatInput` | type | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:218` | CLI image format accepted by `files normalize`. |
-| `@beep/repo-cli/commands/Files` | `NormalizeManifest` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1519` | Manifest written by a successful image normalization run. |
-| `@beep/repo-cli/commands/Files` | `NormalizeManifestOptions` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1336` | Manifest options recorded for an image normalization run. |
-| `@beep/repo-cli/commands/Files` | `NormalizeManifestSummary` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1492` | JSON-safe summary recorded in an image normalization manifest. |
-| `@beep/repo-cli/commands/Files` | `normalizeOutputDimensions` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:768` | Calculate downscaled dimensions for a max long edge without upscaling. |
-| `@beep/repo-cli/commands/Files` | `normalizeOutputExtension` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:732` | Resolve the file extension emitted for a canonical normalize format. |
-| `@beep/repo-cli/commands/Files` | `NormalizePlan` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1428` | Planned image normalization run. |
-| `@beep/repo-cli/commands/Files` | `NormalizePlanEntry` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1362` | Planned source-to-output image transform. |
-| `@beep/repo-cli/commands/Files` | `NormalizeSkippedEntry` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1397` | Source entry skipped by image normalization. |
-| `@beep/repo-cli/commands/Files` | `NormalizeSkippedReason` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:260` | Reason a direct directory entry was skipped by `files normalize`. |
-| `@beep/repo-cli/commands/Files` | `NormalizeSkippedReason` | type | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:280` | Reason a direct directory entry was skipped by `files normalize`. |
-| `@beep/repo-cli/commands/Files` | `NormalizeSummary` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1456` | Summary counts for an image normalization run. |
-| `@beep/repo-cli/commands/Files` | `PositiveMediaDimension` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:32` | Positive media dimension schema. |
-| `@beep/repo-cli/commands/Files` | `PositiveMediaDimension` | type | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:60` | Positive media dimension value. |
-| `@beep/repo-cli/commands/Files` | `printFilesIndex` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:3730` | Print the files command index. |
-| `@beep/repo-cli/commands/Files` | `RenamePlan` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:2345` | Planned rename entries plus skipped file counts. |
-| `@beep/repo-cli/commands/Files` | `RenamePlanEntry` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1026` | Planned rename from an existing file path to a generated target path. |
-| `@beep/repo-cli/commands/Files` | `renderArchivePoorCandidatesEntry` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:897` | Render a poor-candidate archive plan entry. |
-| `@beep/repo-cli/commands/Files` | `renderArchivePoorCandidatesSkippedEntry` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:921` | Render a skipped poor-candidate archive source entry. |
-| `@beep/repo-cli/commands/Files` | `renderCreateCaptionFilesPlanEntry` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:660` | Render a caption sidecar creation plan entry. |
-| `@beep/repo-cli/commands/Files` | `renderCreateCaptionFilesSkippedEntry` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:678` | Render a skipped caption sidecar creation source entry. |
-| `@beep/repo-cli/commands/Files` | `renderCropBordersPlanEntry` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:1183` | Render a border crop plan entry. |
-| `@beep/repo-cli/commands/Files` | `renderDetectBordersEntry` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:1037` | Render a detected-border report entry. |
-| `@beep/repo-cli/commands/Files` | `renderDetectBordersSkippedEntry` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:1063` | Render a skipped border-detection source entry. |
-| `@beep/repo-cli/commands/Files` | `renderDetectFacesEntry` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:1081` | Render a face-detection report entry. |
-| `@beep/repo-cli/commands/Files` | `renderDetectFacesSkippedEntry` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:1111` | Render a skipped face-detection source entry. |
-| `@beep/repo-cli/commands/Files` | `renderFilesProgressBar` | const | `packages/tooling/tool/cli/src/commands/Files/Files.progress.ts:104` | Render a single-line ASCII progress bar. |
-| `@beep/repo-cli/commands/Files` | `renderNormalizePlanEntry` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:696` | Render a normalize plan entry. |
-| `@beep/repo-cli/commands/Files` | `renderNormalizeSkippedEntry` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:714` | Render a normalize skipped entry. |
-| `@beep/repo-cli/commands/Files` | `renderPlanEntry` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:625` | Render a rename plan entry. |
-| `@beep/repo-cli/commands/Files` | `renderStripMetadataPlanEntry` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:642` | Render a metadata strip plan entry. |
-| `@beep/repo-cli/commands/Files` | `RgbChannel` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:790` | Integer RGB channel value. |
-| `@beep/repo-cli/commands/Files` | `RgbChannel` | type | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:824` | Integer RGB channel value. |
-| `@beep/repo-cli/commands/Files` | `RgbColor` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1955` | RGB color sampled from a detected image border. |
-| `@beep/repo-cli/commands/Files` | `rgbToHex` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:939` | Render an RGB color as a lowercase hexadecimal color. |
-| `@beep/repo-cli/commands/Files` | `rotationFromStream` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:526` | Resolve rotation metadata from an ffprobe stream. |
-| `@beep/repo-cli/commands/Files` | `roundCandidateMetric` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:827` | Round a candidate assessment metric for stable manifest output. |
-| `@beep/repo-cli/commands/Files` | `runFilesProgressAll` | const | `packages/tooling/tool/cli/src/commands/Files/Files.progress.ts:132` | Run an array of effects with bounded concurrency and optional TTY progress. |
-| `@beep/repo-cli/commands/Files` | `runFilesProgressForEach` | const | `packages/tooling/tool/cli/src/commands/Files/Files.progress.ts:207` | Map items to effects, then run them with bounded concurrency and optional TTY progress. |
-| `@beep/repo-cli/commands/Files` | `SafeFilePrefix` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:932` | Safe generated filename prefix schema. |
-| `@beep/repo-cli/commands/Files` | `SafeFilePrefix` | type | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:978` | Safe prefix accepted by `files sort-and-rename`. |
-| `@beep/repo-cli/commands/Files` | `selectedCanonicalPathSet` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:602` | Build a hash set of selected canonical source paths. |
-| `@beep/repo-cli/commands/Files` | `sharpFormatForNormalize` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:749` | Resolve the sharp encoder name for a canonical normalize format. |
-| `@beep/repo-cli/commands/Files` | `SortableFile` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:999` | File discovered for deterministic rename planning. |
-| `@beep/repo-cli/commands/Files` | `SortableFileCollection` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:2322` | Files selected for rename planning plus skipped file counts. |
-| `@beep/repo-cli/commands/Files` | `sortAndRenameFiles` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:4649` | Sort direct regular files in a directory by size and rename them with a generated prefix. |
-| `@beep/repo-cli/commands/Files` | `SortAndRenameSummary` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1058` | Summary returned by `sortAndRenameFiles`. |
-| `@beep/repo-cli/commands/Files` | `stripMetadataFiles` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:4676` | Strip user-authored metadata from direct image and video files in a directory. |
-| `@beep/repo-cli/commands/Files` | `StripMetadataPlan` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:2368` | Planned metadata stripping entries plus skipped file counts. |
-| `@beep/repo-cli/commands/Files` | `StripMetadataPlanEntry` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1091` | Planned metadata strip for a selected image or video file. |
-| `@beep/repo-cli/commands/Files` | `StripMetadataSummary` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1117` | Summary returned by `stripMetadataFiles`. |
-| `@beep/repo-cli/commands/Files` | `SupportedMetadataImageExtension` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:179` | Image extension schema supported by metadata stripping. |
-| `@beep/repo-cli/commands/Files` | `SupportedMetadataImageExtension` | type | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:191` | Image extension supported by metadata stripping. |
-| `@beep/repo-cli/commands/Files` | `targetNameForEntry` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:554` | Build a generated filename for a planned rename. |
-| `@beep/repo-cli/commands/Files/Files.command` | `filesCommand` | const | `packages/tooling/tool/cli/src/commands/Files/Files.command.ts:444` | File curation command group. |
-| `@beep/repo-cli/commands/Files/Files.errors` | `failOnExtensionlessFile` | const | `packages/tooling/tool/cli/src/commands/Files/Files.errors.ts:106` | Fail when a rename operation selects an extensionless file. |
+| `@beep/repo-cli/commands/Files` | `FilesCommandService` | class | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:337` | Service tag for dataset file curation operations. |
+| `@beep/repo-cli/commands/Files` | `FilesCommandServiceLive` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:4488` | Live service layer for dataset file curation operations. |
+| `@beep/repo-cli/commands/Files` | `FilesCommandServiceShape` | interface | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:259` | Service contract for dataset file curation operations. |
+| `@beep/repo-cli/commands/Files` | `FilesConcurrency` | const | `packages/tooling/tool/cli/src/commands/Files/Files.progress.ts:28` | Shared concurrency caps for Files command phases. |
+| `@beep/repo-cli/commands/Files` | `FileSha256Hash` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:71` | SHA-256 hash recorded for normalized file bytes. |
+| `@beep/repo-cli/commands/Files` | `FileSha256Hash` | type | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:90` | SHA-256 hash recorded for normalized file bytes. |
+| `@beep/repo-cli/commands/Files` | `formatIndex` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:398` | Format a zero-padded numeric index. |
+| `@beep/repo-cli/commands/Files` | `formatPlatformError` | const | `packages/tooling/tool/cli/src/commands/Files/Files.errors.ts:77` | Convert a platform failure into a file command error. |
+| `@beep/repo-cli/commands/Files` | `hasSkippedFiles` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:555` | Check whether a plan skipped any files. |
+| `@beep/repo-cli/commands/Files` | `ImageSizeMetadata` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:791` | Dimension metadata returned by `image-size`. |
+| `@beep/repo-cli/commands/Files` | `isExifOrientationRotated` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:439` | Check whether an EXIF orientation value implies a quarter-turn image. |
+| `@beep/repo-cli/commands/Files` | `isFilesProgressEnabled` | const | `packages/tooling/tool/cli/src/commands/Files/Files.progress.ts:83` | Return true when live Files progress should be rendered. |
+| `@beep/repo-cli/commands/Files` | `isImageFileExtension` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:282` | Schema-derived image extension guard. |
+| `@beep/repo-cli/commands/Files` | `isQuarterTurnRotation` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:454` | Check whether a video rotation value implies a quarter-turn image. |
+| `@beep/repo-cli/commands/Files` | `isSupportedMetadataImageExtension` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:308` | Schema-derived metadata-strip image extension guard. |
+| `@beep/repo-cli/commands/Files` | `isSupportedMetadataImageFile` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:1155` | Check whether a selected image file can be normalized by metadata stripping. |
+| `@beep/repo-cli/commands/Files` | `isVideoFileExtension` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:295` | Schema-derived video extension guard. |
+| `@beep/repo-cli/commands/Files` | `makeStripMetadataTempEntries` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:1123` | Build temporary output paths for metadata stripping. |
+| `@beep/repo-cli/commands/Files` | `maybeSwapDimensions` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:473` | Swap dimensions when a media orientation requires it. |
+| `@beep/repo-cli/commands/Files` | `MediaDimensions` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1083` | Width and height discovered for an image or video file. |
+| `@beep/repo-cli/commands/Files` | `mediaDimensionsChanged` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:752` | Check whether two media dimensions differ. |
+| `@beep/repo-cli/commands/Files` | `MediaKind` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:144` | Media kind schema for selected dataset files. |
+| `@beep/repo-cli/commands/Files` | `MediaKind` | type | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:156` | Media kind for selected dataset files. |
+| `@beep/repo-cli/commands/Files` | `mediaKindFromExtension` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:370` | Resolve a media kind from a file extension. |
+| `@beep/repo-cli/commands/Files` | `NonNegativePixelOffset` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:103` | Non-negative pixel offset schema. |
+| `@beep/repo-cli/commands/Files` | `NonNegativePixelOffset` | type | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:131` | Non-negative pixel offset value. |
+| `@beep/repo-cli/commands/Files` | `normalizeBareExtension` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:355` | Normalize a file extension to a lowercase bare extension. |
+| `@beep/repo-cli/commands/Files` | `normalizeFiles` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:4604` | Normalize direct image files into an output directory and write a transform manifest. |
+| `@beep/repo-cli/commands/Files` | `NormalizeFilesOptions` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1230` | Options used by the image normalization operation. |
+| `@beep/repo-cli/commands/Files` | `NormalizeImageFormat` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:219` | Canonical image output format emitted by `files normalize`. |
+| `@beep/repo-cli/commands/Files` | `NormalizeImageFormat` | type | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:231` | Canonical image output format emitted by `files normalize`. |
+| `@beep/repo-cli/commands/Files` | `NormalizeImageFormatInput` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:194` | CLI image format accepted by `files normalize`. |
+| `@beep/repo-cli/commands/Files` | `NormalizeImageFormatInput` | type | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:206` | CLI image format accepted by `files normalize`. |
+| `@beep/repo-cli/commands/Files` | `NormalizeManifest` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1431` | Manifest written by a successful image normalization run. |
+| `@beep/repo-cli/commands/Files` | `NormalizeManifestOptions` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1260` | Manifest options recorded for an image normalization run. |
+| `@beep/repo-cli/commands/Files` | `NormalizeManifestSummary` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1406` | JSON-safe summary recorded in an image normalization manifest. |
+| `@beep/repo-cli/commands/Files` | `normalizeOutputDimensions` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:718` | Calculate downscaled dimensions for a max long edge without upscaling. |
+| `@beep/repo-cli/commands/Files` | `normalizeOutputExtension` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:686` | Resolve the file extension emitted for a canonical normalize format. |
+| `@beep/repo-cli/commands/Files` | `NormalizePlan` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1346` | Planned image normalization run. |
+| `@beep/repo-cli/commands/Files` | `NormalizePlanEntry` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1284` | Planned source-to-output image transform. |
+| `@beep/repo-cli/commands/Files` | `NormalizeSkippedEntry` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1317` | Source entry skipped by image normalization. |
+| `@beep/repo-cli/commands/Files` | `NormalizeSkippedReason` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:244` | Reason a direct directory entry was skipped by `files normalize`. |
+| `@beep/repo-cli/commands/Files` | `NormalizeSkippedReason` | type | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:264` | Reason a direct directory entry was skipped by `files normalize`. |
+| `@beep/repo-cli/commands/Files` | `NormalizeSummary` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1372` | Summary counts for an image normalization run. |
+| `@beep/repo-cli/commands/Files` | `PositiveMediaDimension` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:30` | Positive media dimension schema. |
+| `@beep/repo-cli/commands/Files` | `PositiveMediaDimension` | type | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:58` | Positive media dimension value. |
+| `@beep/repo-cli/commands/Files` | `printFilesIndex` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:3724` | Print the files command index. |
+| `@beep/repo-cli/commands/Files` | `RenamePlan` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:2199` | Planned rename entries plus skipped file counts. |
+| `@beep/repo-cli/commands/Files` | `RenamePlanEntry` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:968` | Planned rename from an existing file path to a generated target path. |
+| `@beep/repo-cli/commands/Files` | `renderArchivePoorCandidatesEntry` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:839` | Render a poor-candidate archive plan entry. |
+| `@beep/repo-cli/commands/Files` | `renderArchivePoorCandidatesSkippedEntry` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:861` | Render a skipped poor-candidate archive source entry. |
+| `@beep/repo-cli/commands/Files` | `renderCreateCaptionFilesPlanEntry` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:622` | Render a caption sidecar creation plan entry. |
+| `@beep/repo-cli/commands/Files` | `renderCreateCaptionFilesSkippedEntry` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:638` | Render a skipped caption sidecar creation source entry. |
+| `@beep/repo-cli/commands/Files` | `renderCropBordersPlanEntry` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:1105` | Render a border crop plan entry. |
+| `@beep/repo-cli/commands/Files` | `renderDetectBordersEntry` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:969` | Render a detected-border report entry. |
+| `@beep/repo-cli/commands/Files` | `renderDetectBordersSkippedEntry` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:993` | Render a skipped border-detection source entry. |
+| `@beep/repo-cli/commands/Files` | `renderDetectFacesEntry` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:1009` | Render a face-detection report entry. |
+| `@beep/repo-cli/commands/Files` | `renderDetectFacesSkippedEntry` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:1037` | Render a skipped face-detection source entry. |
+| `@beep/repo-cli/commands/Files` | `renderFilesProgressBar` | const | `packages/tooling/tool/cli/src/commands/Files/Files.progress.ts:98` | Render a single-line ASCII progress bar. |
+| `@beep/repo-cli/commands/Files` | `renderNormalizePlanEntry` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:654` | Render a normalize plan entry. |
+| `@beep/repo-cli/commands/Files` | `renderNormalizeSkippedEntry` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:670` | Render a normalize skipped entry. |
+| `@beep/repo-cli/commands/Files` | `renderPlanEntry` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:591` | Render a rename plan entry. |
+| `@beep/repo-cli/commands/Files` | `renderStripMetadataPlanEntry` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:606` | Render a metadata strip plan entry. |
+| `@beep/repo-cli/commands/Files` | `RgbChannel` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:744` | Integer RGB channel value. |
+| `@beep/repo-cli/commands/Files` | `RgbChannel` | type | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:778` | Integer RGB channel value. |
+| `@beep/repo-cli/commands/Files` | `RgbColor` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1837` | RGB color sampled from a detected image border. |
+| `@beep/repo-cli/commands/Files` | `rgbToHex` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:877` | Render an RGB color as a lowercase hexadecimal color. |
+| `@beep/repo-cli/commands/Files` | `rotationFromStream` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:500` | Resolve rotation metadata from an ffprobe stream. |
+| `@beep/repo-cli/commands/Files` | `roundCandidateMetric` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:773` | Round a candidate assessment metric for stable manifest output. |
+| `@beep/repo-cli/commands/Files` | `runFilesProgressAll` | const | `packages/tooling/tool/cli/src/commands/Files/Files.progress.ts:124` | Run an array of effects with bounded concurrency and optional TTY progress. |
+| `@beep/repo-cli/commands/Files` | `runFilesProgressForEach` | const | `packages/tooling/tool/cli/src/commands/Files/Files.progress.ts:197` | Map items to effects, then run them with bounded concurrency and optional TTY progress. |
+| `@beep/repo-cli/commands/Files` | `SafeFilePrefix` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:876` | Safe generated filename prefix schema. |
+| `@beep/repo-cli/commands/Files` | `SafeFilePrefix` | type | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:922` | Safe prefix accepted by `files sort-and-rename`. |
+| `@beep/repo-cli/commands/Files` | `selectedCanonicalPathSet` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:570` | Build a hash set of selected canonical source paths. |
+| `@beep/repo-cli/commands/Files` | `sharpFormatForNormalize` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:701` | Resolve the sharp encoder name for a canonical normalize format. |
+| `@beep/repo-cli/commands/Files` | `SortableFile` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:943` | File discovered for deterministic rename planning. |
+| `@beep/repo-cli/commands/Files` | `SortableFileCollection` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:2178` | Files selected for rename planning plus skipped file counts. |
+| `@beep/repo-cli/commands/Files` | `sortAndRenameFiles` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:4627` | Sort direct regular files in a directory by size and rename them with a generated prefix. |
+| `@beep/repo-cli/commands/Files` | `SortAndRenameSummary` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:998` | Summary returned by `sortAndRenameFiles`. |
+| `@beep/repo-cli/commands/Files` | `stripMetadataFiles` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:4654` | Strip user-authored metadata from direct image and video files in a directory. |
+| `@beep/repo-cli/commands/Files` | `StripMetadataPlan` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:2220` | Planned metadata stripping entries plus skipped file counts. |
+| `@beep/repo-cli/commands/Files` | `StripMetadataPlanEntry` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1031` | Planned metadata strip for a selected image or video file. |
+| `@beep/repo-cli/commands/Files` | `StripMetadataSummary` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1055` | Summary returned by `stripMetadataFiles`. |
+| `@beep/repo-cli/commands/Files` | `SupportedMetadataImageExtension` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:169` | Image extension schema supported by metadata stripping. |
+| `@beep/repo-cli/commands/Files` | `SupportedMetadataImageExtension` | type | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:181` | Image extension supported by metadata stripping. |
+| `@beep/repo-cli/commands/Files` | `targetNameForEntry` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:526` | Build a generated filename for a planned rename. |
+| `@beep/repo-cli/commands/Files/Files.command` | `filesCommand` | const | `packages/tooling/tool/cli/src/commands/Files/Files.command.ts:442` | File curation command group. |
+| `@beep/repo-cli/commands/Files/Files.errors` | `failOnExtensionlessFile` | const | `packages/tooling/tool/cli/src/commands/Files/Files.errors.ts:102` | Fail when a rename operation selects an extensionless file. |
 | `@beep/repo-cli/commands/Files/Files.errors` | `FilesCommandError` | class | `packages/tooling/tool/cli/src/commands/Files/Files.errors.ts:39` | Error raised by file curation commands. |
-| `@beep/repo-cli/commands/Files/Files.errors` | `formatPlatformError` | const | `packages/tooling/tool/cli/src/commands/Files/Files.errors.ts:79` | Convert a platform failure into a file command error. |
-| `@beep/repo-cli/commands/Files/Files.media` | `analyzeSolidBorders` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:1010` | Analyze raw RGB image pixels for near-solid borders on all four sides. |
-| `@beep/repo-cli/commands/Files/Files.media` | `assessImageCandidate` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:845` | Assess image dimensions against hard candidate-quality thresholds. |
-| `@beep/repo-cli/commands/Files/Files.media` | `byNameAscending` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:347` | Order regular files by name ascending. |
-| `@beep/repo-cli/commands/Files/Files.media` | `bySizeDescendingThenNameAscending` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:329` | Order regular files by size descending, then name ascending. |
-| `@beep/repo-cli/commands/Files/Files.media` | `classifyBorderSides` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:957` | Classify an analyzed image from its matched border sides. |
-| `@beep/repo-cli/commands/Files/Files.media` | `collectText` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:434` | Collect a byte stream into trimmed text. |
-| `@beep/repo-cli/commands/Files/Files.media` | `cropBordersPlanEntryFromDetection` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:1138` | Convert a detected-border entry into a valid crop plan entry. |
-| `@beep/repo-cli/commands/Files/Files.media` | `formatIndex` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:414` | Format a zero-padded numeric index. |
-| `@beep/repo-cli/commands/Files/Files.media` | `hasSkippedFiles` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:585` | Check whether a plan skipped any files. |
-| `@beep/repo-cli/commands/Files/Files.media` | `isExifOrientationRotated` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:459` | Check whether an EXIF orientation value implies a quarter-turn image. |
-| `@beep/repo-cli/commands/Files/Files.media` | `isImageFileExtension` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:284` | Schema-derived image extension guard. |
-| `@beep/repo-cli/commands/Files/Files.media` | `isQuarterTurnRotation` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:476` | Check whether a video rotation value implies a quarter-turn image. |
-| `@beep/repo-cli/commands/Files/Files.media` | `isSupportedMetadataImageExtension` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:314` | Schema-derived metadata-strip image extension guard. |
-| `@beep/repo-cli/commands/Files/Files.media` | `isSupportedMetadataImageFile` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:1237` | Check whether a selected image file can be normalized by metadata stripping. |
-| `@beep/repo-cli/commands/Files/Files.media` | `isVideoFileExtension` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:299` | Schema-derived video extension guard. |
-| `@beep/repo-cli/commands/Files/Files.media` | `makeStripMetadataTempEntries` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:1203` | Build temporary output paths for metadata stripping. |
-| `@beep/repo-cli/commands/Files/Files.media` | `maybeSwapDimensions` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:497` | Swap dimensions when a media orientation requires it. |
-| `@beep/repo-cli/commands/Files/Files.media` | `mediaDimensionsChanged` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:804` | Check whether two media dimensions differ. |
-| `@beep/repo-cli/commands/Files/Files.media` | `mediaKindFromExtension` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:384` | Resolve a media kind from a file extension. |
-| `@beep/repo-cli/commands/Files/Files.media` | `normalizeBareExtension` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:367` | Normalize a file extension to a lowercase bare extension. |
-| `@beep/repo-cli/commands/Files/Files.media` | `normalizeOutputDimensions` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:768` | Calculate downscaled dimensions for a max long edge without upscaling. |
-| `@beep/repo-cli/commands/Files/Files.media` | `normalizeOutputExtension` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:732` | Resolve the file extension emitted for a canonical normalize format. |
-| `@beep/repo-cli/commands/Files/Files.media` | `renderArchivePoorCandidatesEntry` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:897` | Render a poor-candidate archive plan entry. |
-| `@beep/repo-cli/commands/Files/Files.media` | `renderArchivePoorCandidatesSkippedEntry` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:921` | Render a skipped poor-candidate archive source entry. |
-| `@beep/repo-cli/commands/Files/Files.media` | `renderCreateCaptionFilesPlanEntry` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:660` | Render a caption sidecar creation plan entry. |
-| `@beep/repo-cli/commands/Files/Files.media` | `renderCreateCaptionFilesSkippedEntry` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:678` | Render a skipped caption sidecar creation source entry. |
-| `@beep/repo-cli/commands/Files/Files.media` | `renderCropBordersPlanEntry` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:1183` | Render a border crop plan entry. |
-| `@beep/repo-cli/commands/Files/Files.media` | `renderDetectBordersEntry` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:1037` | Render a detected-border report entry. |
-| `@beep/repo-cli/commands/Files/Files.media` | `renderDetectBordersSkippedEntry` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:1063` | Render a skipped border-detection source entry. |
-| `@beep/repo-cli/commands/Files/Files.media` | `renderDetectFacesEntry` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:1081` | Render a face-detection report entry. |
-| `@beep/repo-cli/commands/Files/Files.media` | `renderDetectFacesSkippedEntry` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:1111` | Render a skipped face-detection source entry. |
-| `@beep/repo-cli/commands/Files/Files.media` | `renderNormalizePlanEntry` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:696` | Render a normalize plan entry. |
-| `@beep/repo-cli/commands/Files/Files.media` | `renderNormalizeSkippedEntry` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:714` | Render a normalize skipped entry. |
-| `@beep/repo-cli/commands/Files/Files.media` | `renderPlanEntry` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:625` | Render a rename plan entry. |
-| `@beep/repo-cli/commands/Files/Files.media` | `renderStripMetadataPlanEntry` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:642` | Render a metadata strip plan entry. |
-| `@beep/repo-cli/commands/Files/Files.media` | `rgbToHex` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:939` | Render an RGB color as a lowercase hexadecimal color. |
-| `@beep/repo-cli/commands/Files/Files.media` | `rotationFromStream` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:526` | Resolve rotation metadata from an ffprobe stream. |
-| `@beep/repo-cli/commands/Files/Files.media` | `roundCandidateMetric` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:827` | Round a candidate assessment metric for stable manifest output. |
-| `@beep/repo-cli/commands/Files/Files.media` | `selectedCanonicalPathSet` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:602` | Build a hash set of selected canonical source paths. |
-| `@beep/repo-cli/commands/Files/Files.media` | `sharpFormatForNormalize` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:749` | Resolve the sharp encoder name for a canonical normalize format. |
-| `@beep/repo-cli/commands/Files/Files.media` | `targetNameForEntry` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:554` | Build a generated filename for a planned rename. |
-| `@beep/repo-cli/commands/Files/Files.progress` | `FilesConcurrency` | const | `packages/tooling/tool/cli/src/commands/Files/Files.progress.ts:30` | Shared concurrency caps for Files command phases. |
-| `@beep/repo-cli/commands/Files/Files.progress` | `isFilesProgressEnabled` | const | `packages/tooling/tool/cli/src/commands/Files/Files.progress.ts:87` | Return true when live Files progress should be rendered. |
-| `@beep/repo-cli/commands/Files/Files.progress` | `renderFilesProgressBar` | const | `packages/tooling/tool/cli/src/commands/Files/Files.progress.ts:104` | Render a single-line ASCII progress bar. |
-| `@beep/repo-cli/commands/Files/Files.progress` | `runFilesProgressAll` | const | `packages/tooling/tool/cli/src/commands/Files/Files.progress.ts:132` | Run an array of effects with bounded concurrency and optional TTY progress. |
-| `@beep/repo-cli/commands/Files/Files.progress` | `runFilesProgressForEach` | const | `packages/tooling/tool/cli/src/commands/Files/Files.progress.ts:207` | Map items to effects, then run them with bounded concurrency and optional TTY progress. |
-| `@beep/repo-cli/commands/Files/Files.schemas` | `ArchivedSidecarEntry` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1637` | Caption or metadata sidecar moved with an archived image. |
-| `@beep/repo-cli/commands/Files/Files.schemas` | `ArchivePoorCandidatesEntry` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1663` | Assessed image candidate with an archive or keep decision. |
-| `@beep/repo-cli/commands/Files/Files.schemas` | `ArchivePoorCandidatesManifest` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1813` | Manifest written by a successful poor-candidate archive run. |
-| `@beep/repo-cli/commands/Files/Files.schemas` | `ArchivePoorCandidatesManifestOptions` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1582` | JSON-safe options recorded in a poor-candidate archive manifest. |
-| `@beep/repo-cli/commands/Files/Files.schemas` | `ArchivePoorCandidatesManifestSummary` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1785` | JSON-safe summary recorded by poor-candidate archival. |
-| `@beep/repo-cli/commands/Files/Files.schemas` | `ArchivePoorCandidatesOptions` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1548` | Options used by poor-candidate archival. |
-| `@beep/repo-cli/commands/Files/Files.schemas` | `ArchivePoorCandidatesPlan` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1725` | Planned poor-candidate archive run. |
-| `@beep/repo-cli/commands/Files/Files.schemas` | `ArchivePoorCandidatesSkippedEntry` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1697` | Source entry skipped by poor-candidate archival. |
-| `@beep/repo-cli/commands/Files/Files.schemas` | `ArchivePoorCandidatesSkippedReason` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:574` | Reason a direct directory entry was skipped by `files archive-poor-candidates`. |
-| `@beep/repo-cli/commands/Files/Files.schemas` | `ArchivePoorCandidatesSkippedReason` | type | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:594` | Reason a direct directory entry was skipped by `files archive-poor-candidates`. |
-| `@beep/repo-cli/commands/Files/Files.schemas` | `ArchivePoorCandidatesSummary` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1752` | Summary counts returned by poor-candidate archival. |
-| `@beep/repo-cli/commands/Files/Files.schemas` | `BorderDetectionKind` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:358` | Classified border layout for an analyzed image. |
-| `@beep/repo-cli/commands/Files/Files.schemas` | `BorderDetectionKind` | type | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:370` | Classified border layout for an analyzed image. |
-| `@beep/repo-cli/commands/Files/Files.schemas` | `BorderDetectionMaxScanPercentage` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:692` | Maximum scan percentage accepted by border detection. |
-| `@beep/repo-cli/commands/Files/Files.schemas` | `BorderDetectionMaxScanPercentage` | type | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:726` | Maximum scan percentage accepted by border detection. |
-| `@beep/repo-cli/commands/Files/Files.schemas` | `BorderDetectionPercentage` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:643` | Percentage threshold used by border detection options. |
-| `@beep/repo-cli/commands/Files/Files.schemas` | `BorderDetectionPercentage` | type | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:677` | Percentage threshold used by border detection options. |
-| `@beep/repo-cli/commands/Files/Files.schemas` | `BorderDetectionTolerance` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:741` | RGB channel tolerance accepted by border detection. |
-| `@beep/repo-cli/commands/Files/Files.schemas` | `BorderDetectionTolerance` | type | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:775` | RGB channel tolerance accepted by border detection. |
-| `@beep/repo-cli/commands/Files/Files.schemas` | `BorderSide` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:331` | Side of an image edge scanned for a solid border. |
-| `@beep/repo-cli/commands/Files/Files.schemas` | `BorderSide` | type | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:343` | Side of an image edge scanned for a solid border. |
-| `@beep/repo-cli/commands/Files/Files.schemas` | `CandidateAssessmentDecision` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:516` | Candidate-quality decision produced by `files archive-poor-candidates`. |
-| `@beep/repo-cli/commands/Files/Files.schemas` | `CandidateAssessmentDecision` | type | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:528` | Candidate-quality decision produced by `files archive-poor-candidates`. |
-| `@beep/repo-cli/commands/Files/Files.schemas` | `CandidateAssessmentMetrics` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1612` | Derived image metrics used for candidate-quality triage. |
-| `@beep/repo-cli/commands/Files/Files.schemas` | `CandidateAssessmentProfile` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:489` | Dataset profile used by candidate-quality triage. |
-| `@beep/repo-cli/commands/Files/Files.schemas` | `CandidateAssessmentProfile` | type | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:501` | Dataset profile used by candidate-quality triage. |
-| `@beep/repo-cli/commands/Files/Files.schemas` | `CandidateAssessmentReason` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:543` | Hard-threshold reason that can cause an image to be archived. |
-| `@beep/repo-cli/commands/Files/Files.schemas` | `CandidateAssessmentReason` | type | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:559` | Hard-threshold reason that can cause an image to be archived. |
-| `@beep/repo-cli/commands/Files/Files.schemas` | `CandidateRatioThreshold` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:609` | Numeric threshold ratio used by candidate-quality triage. |
-| `@beep/repo-cli/commands/Files/Files.schemas` | `CandidateRatioThreshold` | type | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:628` | Numeric threshold ratio used by candidate-quality triage. |
-| `@beep/repo-cli/commands/Files/Files.schemas` | `CreateCaptionFilesOptions` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1168` | Options used by caption sidecar creation. |
-| `@beep/repo-cli/commands/Files/Files.schemas` | `CreateCaptionFilesPlan` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1251` | Planned caption sidecar creation run. |
-| `@beep/repo-cli/commands/Files/Files.schemas` | `CreateCaptionFilesPlanEntry` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1193` | Planned caption sidecar file creation. |
-| `@beep/repo-cli/commands/Files/Files.schemas` | `CreateCaptionFilesSkippedEntry` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1222` | Source entry skipped by caption sidecar creation. |
-| `@beep/repo-cli/commands/Files/Files.schemas` | `CreateCaptionFilesSkippedReason` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:295` | Reason a direct directory entry was skipped by `files create-captions`. |
-| `@beep/repo-cli/commands/Files/Files.schemas` | `CreateCaptionFilesSkippedReason` | type | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:316` | Reason a direct directory entry was skipped by `files create-captions`. |
-| `@beep/repo-cli/commands/Files/Files.schemas` | `CreateCaptionFilesSummary` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1277` | Summary returned by `createCaptionFiles`. |
-| `@beep/repo-cli/commands/Files/Files.schemas` | `CropBordersOptions` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1928` | Options used by the image border cropping operation. |
-| `@beep/repo-cli/commands/Files/Files.schemas` | `CropBordersPlan` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:2268` | Planned border crop entries plus skipped file counts. |
-| `@beep/repo-cli/commands/Files/Files.schemas` | `CropBordersPlanEntry` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:2235` | Planned crop for an image with detected solid borders. |
-| `@beep/repo-cli/commands/Files/Files.schemas` | `CropBordersSummary` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:2294` | Summary returned by `cropBordersFiles`. |
-| `@beep/repo-cli/commands/Files/Files.schemas` | `decodeArchivePoorCandidatesOptions` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:2468` | Decode unknown poor-candidate archive options. |
-| `@beep/repo-cli/commands/Files/Files.schemas` | `decodeCreateCaptionFilesOptions` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:2483` | Decode unknown caption sidecar creation options. |
-| `@beep/repo-cli/commands/Files/Files.schemas` | `decodeCropBordersOptions` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:2527` | Decode unknown border cropping options. |
-| `@beep/repo-cli/commands/Files/Files.schemas` | `decodeDetectBordersOptions` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:2498` | Decode unknown border detection options. |
-| `@beep/repo-cli/commands/Files/Files.schemas` | `decodeDetectFacesOptions` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:2512` | Decode face detection options from unknown input. |
-| `@beep/repo-cli/commands/Files/Files.schemas` | `decodeFfprobeOutputJson` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:2408` | Decode an ffprobe JSON document. |
-| `@beep/repo-cli/commands/Files/Files.schemas` | `decodeImageSizeMetadata` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:2393` | Decode unknown image-size metadata. |
-| `@beep/repo-cli/commands/Files/Files.schemas` | `decodeNormalizeMaxLongEdge` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:2453` | Decode an unknown maximum long-edge value. |
-| `@beep/repo-cli/commands/Files/Files.schemas` | `decodeRotationNumber` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:2423` | Decode an unknown rotation value into an optional number. |
-| `@beep/repo-cli/commands/Files/Files.schemas` | `decodeSafeFilePrefix` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:2438` | Decode an unknown safe filename prefix. |
-| `@beep/repo-cli/commands/Files/Files.schemas` | `DetectBordersEntry` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:2007` | Image entry analyzed by `files detect-borders`. |
-| `@beep/repo-cli/commands/Files/Files.schemas` | `DetectBorderSideMeasurement` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1979` | Measurement for one scanned image side. |
-| `@beep/repo-cli/commands/Files/Files.schemas` | `DetectBordersOptions` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1844` | Options used by the image border detection operation. |
-| `@beep/repo-cli/commands/Files/Files.schemas` | `DetectBordersReport` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:2089` | JSON report emitted by an image border detection run. |
-| `@beep/repo-cli/commands/Files/Files.schemas` | `DetectBordersSkippedEntry` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:2037` | Source entry skipped by image border detection. |
-| `@beep/repo-cli/commands/Files/Files.schemas` | `DetectBordersSkippedReason` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:385` | Reason a direct directory entry was skipped by `files detect-borders`. |
-| `@beep/repo-cli/commands/Files/Files.schemas` | `DetectBordersSkippedReason` | type | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:405` | Reason a direct directory entry was skipped by `files detect-borders`. |
-| `@beep/repo-cli/commands/Files/Files.schemas` | `DetectBordersSummary` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:2063` | Summary counts for an image border detection run. |
-| `@beep/repo-cli/commands/Files/Files.schemas` | `DetectFacesEntry` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:2116` | Image entry analyzed by `files detect-faces`. |
-| `@beep/repo-cli/commands/Files/Files.schemas` | `DetectFacesFlag` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:456` | Triage flag emitted by `files detect-faces`. |
-| `@beep/repo-cli/commands/Files/Files.schemas` | `DetectFacesFlag` | type | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:474` | Triage flag emitted by `files detect-faces`. |
-| `@beep/repo-cli/commands/Files/Files.schemas` | `DetectFacesOptions` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1871` | Options used by the image face detection operation. |
-| `@beep/repo-cli/commands/Files/Files.schemas` | `DetectFacesReport` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:2206` | JSON report emitted by an image face detection run. |
-| `@beep/repo-cli/commands/Files/Files.schemas` | `DetectFacesReportOptions` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1900` | JSON-safe options recorded by the image face detection report. |
-| `@beep/repo-cli/commands/Files/Files.schemas` | `DetectFacesSkippedEntry` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:2151` | Source entry skipped by image face detection. |
-| `@beep/repo-cli/commands/Files/Files.schemas` | `DetectFacesSkippedReason` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:420` | Reason a direct directory entry was skipped by `files detect-faces`. |
-| `@beep/repo-cli/commands/Files/Files.schemas` | `DetectFacesSkippedReason` | type | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:441` | Reason a direct directory entry was skipped by `files detect-faces`. |
-| `@beep/repo-cli/commands/Files/Files.schemas` | `DetectFacesSummary` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:2177` | Summary counts for an image face detection run. |
-| `@beep/repo-cli/commands/Files/Files.schemas` | `encodeArchivePoorCandidatesManifest` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:2557` | Encode a poor-candidate archive manifest into its JSON-safe shape. |
-| `@beep/repo-cli/commands/Files/Files.schemas` | `encodeDetectBordersReport` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:2572` | Encode a detect-borders report into its JSON-safe shape. |
-| `@beep/repo-cli/commands/Files/Files.schemas` | `encodeDetectFacesReport` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:2586` | Encode a face detection report into its JSON-safe shape. |
-| `@beep/repo-cli/commands/Files/Files.schemas` | `encodeNormalizeManifest` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:2542` | Encode a normalize manifest into its JSON-safe shape. |
-| `@beep/repo-cli/commands/Files/Files.schemas` | `FfprobeOutput` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:910` | JSON document emitted by `ffprobe`. |
-| `@beep/repo-cli/commands/Files/Files.schemas` | `FfprobeSideData` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:863` | Side-data entry returned by `ffprobe`. |
-| `@beep/repo-cli/commands/Files/Files.schemas` | `FfprobeStream` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:885` | Video stream metadata returned by `ffprobe`. |
-| `@beep/repo-cli/commands/Files/Files.schemas` | `FileSha256Hash` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:75` | SHA-256 hash recorded for normalized file bytes. |
-| `@beep/repo-cli/commands/Files/Files.schemas` | `FileSha256Hash` | type | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:94` | SHA-256 hash recorded for normalized file bytes. |
-| `@beep/repo-cli/commands/Files/Files.schemas` | `ImageSizeMetadata` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:839` | Dimension metadata returned by `image-size`. |
-| `@beep/repo-cli/commands/Files/Files.schemas` | `MediaDimensions` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1145` | Width and height discovered for an image or video file. |
-| `@beep/repo-cli/commands/Files/Files.schemas` | `MediaKind` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:152` | Media kind schema for selected dataset files. |
-| `@beep/repo-cli/commands/Files/Files.schemas` | `MediaKind` | type | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:164` | Media kind for selected dataset files. |
-| `@beep/repo-cli/commands/Files/Files.schemas` | `NonNegativePixelOffset` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:109` | Non-negative pixel offset schema. |
-| `@beep/repo-cli/commands/Files/Files.schemas` | `NonNegativePixelOffset` | type | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:137` | Non-negative pixel offset value. |
-| `@beep/repo-cli/commands/Files/Files.schemas` | `NormalizeFilesOptions` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1304` | Options used by the image normalization operation. |
-| `@beep/repo-cli/commands/Files/Files.schemas` | `NormalizeImageFormat` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:233` | Canonical image output format emitted by `files normalize`. |
-| `@beep/repo-cli/commands/Files/Files.schemas` | `NormalizeImageFormat` | type | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:245` | Canonical image output format emitted by `files normalize`. |
-| `@beep/repo-cli/commands/Files/Files.schemas` | `NormalizeImageFormatInput` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:206` | CLI image format accepted by `files normalize`. |
-| `@beep/repo-cli/commands/Files/Files.schemas` | `NormalizeImageFormatInput` | type | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:218` | CLI image format accepted by `files normalize`. |
-| `@beep/repo-cli/commands/Files/Files.schemas` | `NormalizeManifest` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1519` | Manifest written by a successful image normalization run. |
-| `@beep/repo-cli/commands/Files/Files.schemas` | `NormalizeManifestOptions` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1336` | Manifest options recorded for an image normalization run. |
-| `@beep/repo-cli/commands/Files/Files.schemas` | `NormalizeManifestSummary` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1492` | JSON-safe summary recorded in an image normalization manifest. |
-| `@beep/repo-cli/commands/Files/Files.schemas` | `NormalizePlan` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1428` | Planned image normalization run. |
-| `@beep/repo-cli/commands/Files/Files.schemas` | `NormalizePlanEntry` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1362` | Planned source-to-output image transform. |
-| `@beep/repo-cli/commands/Files/Files.schemas` | `NormalizeSkippedEntry` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1397` | Source entry skipped by image normalization. |
-| `@beep/repo-cli/commands/Files/Files.schemas` | `NormalizeSkippedReason` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:260` | Reason a direct directory entry was skipped by `files normalize`. |
-| `@beep/repo-cli/commands/Files/Files.schemas` | `NormalizeSkippedReason` | type | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:280` | Reason a direct directory entry was skipped by `files normalize`. |
-| `@beep/repo-cli/commands/Files/Files.schemas` | `NormalizeSummary` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1456` | Summary counts for an image normalization run. |
-| `@beep/repo-cli/commands/Files/Files.schemas` | `PositiveMediaDimension` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:32` | Positive media dimension schema. |
-| `@beep/repo-cli/commands/Files/Files.schemas` | `PositiveMediaDimension` | type | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:60` | Positive media dimension value. |
-| `@beep/repo-cli/commands/Files/Files.schemas` | `RenamePlan` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:2345` | Planned rename entries plus skipped file counts. |
-| `@beep/repo-cli/commands/Files/Files.schemas` | `RenamePlanEntry` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1026` | Planned rename from an existing file path to a generated target path. |
-| `@beep/repo-cli/commands/Files/Files.schemas` | `RgbChannel` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:790` | Integer RGB channel value. |
-| `@beep/repo-cli/commands/Files/Files.schemas` | `RgbChannel` | type | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:824` | Integer RGB channel value. |
-| `@beep/repo-cli/commands/Files/Files.schemas` | `RgbColor` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1955` | RGB color sampled from a detected image border. |
-| `@beep/repo-cli/commands/Files/Files.schemas` | `SafeFilePrefix` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:932` | Safe generated filename prefix schema. |
-| `@beep/repo-cli/commands/Files/Files.schemas` | `SafeFilePrefix` | type | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:978` | Safe prefix accepted by `files sort-and-rename`. |
-| `@beep/repo-cli/commands/Files/Files.schemas` | `SortableFile` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:999` | File discovered for deterministic rename planning. |
-| `@beep/repo-cli/commands/Files/Files.schemas` | `SortableFileCollection` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:2322` | Files selected for rename planning plus skipped file counts. |
-| `@beep/repo-cli/commands/Files/Files.schemas` | `SortAndRenameSummary` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1058` | Summary returned by `sortAndRenameFiles`. |
-| `@beep/repo-cli/commands/Files/Files.schemas` | `StripMetadataPlan` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:2368` | Planned metadata stripping entries plus skipped file counts. |
-| `@beep/repo-cli/commands/Files/Files.schemas` | `StripMetadataPlanEntry` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1091` | Planned metadata strip for a selected image or video file. |
-| `@beep/repo-cli/commands/Files/Files.schemas` | `StripMetadataSummary` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1117` | Summary returned by `stripMetadataFiles`. |
-| `@beep/repo-cli/commands/Files/Files.schemas` | `SupportedMetadataImageExtension` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:179` | Image extension schema supported by metadata stripping. |
-| `@beep/repo-cli/commands/Files/Files.schemas` | `SupportedMetadataImageExtension` | type | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:191` | Image extension supported by metadata stripping. |
-| `@beep/repo-cli/commands/Files/Files.service` | `archivePoorCandidates` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:4514` | Archive obvious poor image candidates out of a dataset directory. |
-| `@beep/repo-cli/commands/Files/Files.service` | `createCaptionFiles` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:4536` | Create same-stem caption sidecar files for direct image files. |
-| `@beep/repo-cli/commands/Files/Files.service` | `cropBordersFiles` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:4558` | Crop solid or near-solid borders from direct image files. |
-| `@beep/repo-cli/commands/Files/Files.service` | `detectBordersFiles` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:4580` | Detect solid or near-solid borders in direct image files. |
-| `@beep/repo-cli/commands/Files/Files.service` | `detectFacesFiles` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:4602` | Detect human faces in direct image files. |
-| `@beep/repo-cli/commands/Files/Files.service` | `FilesCommandService` | class | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:341` | Service tag for dataset file curation operations. |
-| `@beep/repo-cli/commands/Files/Files.service` | `FilesCommandServiceLive` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:4496` | Live service layer for dataset file curation operations. |
-| `@beep/repo-cli/commands/Files/Files.service` | `FilesCommandServiceShape` | interface | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:261` | Service contract for dataset file curation operations. |
-| `@beep/repo-cli/commands/Files/Files.service` | `normalizeFiles` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:4624` | Normalize direct image files into an output directory and write a transform manifest. |
-| `@beep/repo-cli/commands/Files/Files.service` | `printFilesIndex` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:3730` | Print the files command index. |
-| `@beep/repo-cli/commands/Files/Files.service` | `sortAndRenameFiles` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:4649` | Sort direct regular files in a directory by size and rename them with a generated prefix. |
-| `@beep/repo-cli/commands/Files/Files.service` | `stripMetadataFiles` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:4676` | Strip user-authored metadata from direct image and video files in a directory. |
-| `@beep/repo-cli/commands/Files/index` | `analyzeSolidBorders` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:1010` | Analyze raw RGB image pixels for near-solid borders on all four sides. |
-| `@beep/repo-cli/commands/Files/index` | `ArchivedSidecarEntry` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1637` | Caption or metadata sidecar moved with an archived image. |
-| `@beep/repo-cli/commands/Files/index` | `archivePoorCandidates` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:4514` | Archive obvious poor image candidates out of a dataset directory. |
-| `@beep/repo-cli/commands/Files/index` | `ArchivePoorCandidatesEntry` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1663` | Assessed image candidate with an archive or keep decision. |
-| `@beep/repo-cli/commands/Files/index` | `ArchivePoorCandidatesManifest` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1813` | Manifest written by a successful poor-candidate archive run. |
-| `@beep/repo-cli/commands/Files/index` | `ArchivePoorCandidatesManifestOptions` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1582` | JSON-safe options recorded in a poor-candidate archive manifest. |
-| `@beep/repo-cli/commands/Files/index` | `ArchivePoorCandidatesManifestSummary` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1785` | JSON-safe summary recorded by poor-candidate archival. |
-| `@beep/repo-cli/commands/Files/index` | `ArchivePoorCandidatesOptions` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1548` | Options used by poor-candidate archival. |
-| `@beep/repo-cli/commands/Files/index` | `ArchivePoorCandidatesPlan` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1725` | Planned poor-candidate archive run. |
-| `@beep/repo-cli/commands/Files/index` | `ArchivePoorCandidatesSkippedEntry` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1697` | Source entry skipped by poor-candidate archival. |
-| `@beep/repo-cli/commands/Files/index` | `ArchivePoorCandidatesSkippedReason` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:574` | Reason a direct directory entry was skipped by `files archive-poor-candidates`. |
-| `@beep/repo-cli/commands/Files/index` | `ArchivePoorCandidatesSkippedReason` | type | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:594` | Reason a direct directory entry was skipped by `files archive-poor-candidates`. |
-| `@beep/repo-cli/commands/Files/index` | `ArchivePoorCandidatesSummary` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1752` | Summary counts returned by poor-candidate archival. |
-| `@beep/repo-cli/commands/Files/index` | `assessImageCandidate` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:845` | Assess image dimensions against hard candidate-quality thresholds. |
-| `@beep/repo-cli/commands/Files/index` | `BorderDetectionKind` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:358` | Classified border layout for an analyzed image. |
-| `@beep/repo-cli/commands/Files/index` | `BorderDetectionKind` | type | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:370` | Classified border layout for an analyzed image. |
-| `@beep/repo-cli/commands/Files/index` | `BorderDetectionMaxScanPercentage` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:692` | Maximum scan percentage accepted by border detection. |
-| `@beep/repo-cli/commands/Files/index` | `BorderDetectionMaxScanPercentage` | type | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:726` | Maximum scan percentage accepted by border detection. |
-| `@beep/repo-cli/commands/Files/index` | `BorderDetectionPercentage` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:643` | Percentage threshold used by border detection options. |
-| `@beep/repo-cli/commands/Files/index` | `BorderDetectionPercentage` | type | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:677` | Percentage threshold used by border detection options. |
-| `@beep/repo-cli/commands/Files/index` | `BorderDetectionTolerance` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:741` | RGB channel tolerance accepted by border detection. |
-| `@beep/repo-cli/commands/Files/index` | `BorderDetectionTolerance` | type | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:775` | RGB channel tolerance accepted by border detection. |
-| `@beep/repo-cli/commands/Files/index` | `BorderSide` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:331` | Side of an image edge scanned for a solid border. |
-| `@beep/repo-cli/commands/Files/index` | `BorderSide` | type | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:343` | Side of an image edge scanned for a solid border. |
-| `@beep/repo-cli/commands/Files/index` | `byNameAscending` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:347` | Order regular files by name ascending. |
-| `@beep/repo-cli/commands/Files/index` | `bySizeDescendingThenNameAscending` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:329` | Order regular files by size descending, then name ascending. |
-| `@beep/repo-cli/commands/Files/index` | `CandidateAssessmentDecision` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:516` | Candidate-quality decision produced by `files archive-poor-candidates`. |
-| `@beep/repo-cli/commands/Files/index` | `CandidateAssessmentDecision` | type | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:528` | Candidate-quality decision produced by `files archive-poor-candidates`. |
-| `@beep/repo-cli/commands/Files/index` | `CandidateAssessmentMetrics` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1612` | Derived image metrics used for candidate-quality triage. |
-| `@beep/repo-cli/commands/Files/index` | `CandidateAssessmentProfile` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:489` | Dataset profile used by candidate-quality triage. |
-| `@beep/repo-cli/commands/Files/index` | `CandidateAssessmentProfile` | type | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:501` | Dataset profile used by candidate-quality triage. |
-| `@beep/repo-cli/commands/Files/index` | `CandidateAssessmentReason` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:543` | Hard-threshold reason that can cause an image to be archived. |
-| `@beep/repo-cli/commands/Files/index` | `CandidateAssessmentReason` | type | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:559` | Hard-threshold reason that can cause an image to be archived. |
-| `@beep/repo-cli/commands/Files/index` | `CandidateRatioThreshold` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:609` | Numeric threshold ratio used by candidate-quality triage. |
-| `@beep/repo-cli/commands/Files/index` | `CandidateRatioThreshold` | type | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:628` | Numeric threshold ratio used by candidate-quality triage. |
-| `@beep/repo-cli/commands/Files/index` | `classifyBorderSides` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:957` | Classify an analyzed image from its matched border sides. |
-| `@beep/repo-cli/commands/Files/index` | `collectText` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:434` | Collect a byte stream into trimmed text. |
-| `@beep/repo-cli/commands/Files/index` | `createCaptionFiles` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:4536` | Create same-stem caption sidecar files for direct image files. |
-| `@beep/repo-cli/commands/Files/index` | `CreateCaptionFilesOptions` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1168` | Options used by caption sidecar creation. |
-| `@beep/repo-cli/commands/Files/index` | `CreateCaptionFilesPlan` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1251` | Planned caption sidecar creation run. |
-| `@beep/repo-cli/commands/Files/index` | `CreateCaptionFilesPlanEntry` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1193` | Planned caption sidecar file creation. |
-| `@beep/repo-cli/commands/Files/index` | `CreateCaptionFilesSkippedEntry` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1222` | Source entry skipped by caption sidecar creation. |
-| `@beep/repo-cli/commands/Files/index` | `CreateCaptionFilesSkippedReason` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:295` | Reason a direct directory entry was skipped by `files create-captions`. |
-| `@beep/repo-cli/commands/Files/index` | `CreateCaptionFilesSkippedReason` | type | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:316` | Reason a direct directory entry was skipped by `files create-captions`. |
-| `@beep/repo-cli/commands/Files/index` | `CreateCaptionFilesSummary` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1277` | Summary returned by `createCaptionFiles`. |
-| `@beep/repo-cli/commands/Files/index` | `cropBordersFiles` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:4558` | Crop solid or near-solid borders from direct image files. |
-| `@beep/repo-cli/commands/Files/index` | `CropBordersOptions` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1928` | Options used by the image border cropping operation. |
-| `@beep/repo-cli/commands/Files/index` | `CropBordersPlan` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:2268` | Planned border crop entries plus skipped file counts. |
-| `@beep/repo-cli/commands/Files/index` | `CropBordersPlanEntry` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:2235` | Planned crop for an image with detected solid borders. |
-| `@beep/repo-cli/commands/Files/index` | `cropBordersPlanEntryFromDetection` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:1138` | Convert a detected-border entry into a valid crop plan entry. |
-| `@beep/repo-cli/commands/Files/index` | `CropBordersSummary` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:2294` | Summary returned by `cropBordersFiles`. |
-| `@beep/repo-cli/commands/Files/index` | `decodeArchivePoorCandidatesOptions` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:2468` | Decode unknown poor-candidate archive options. |
-| `@beep/repo-cli/commands/Files/index` | `decodeCreateCaptionFilesOptions` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:2483` | Decode unknown caption sidecar creation options. |
-| `@beep/repo-cli/commands/Files/index` | `decodeCropBordersOptions` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:2527` | Decode unknown border cropping options. |
-| `@beep/repo-cli/commands/Files/index` | `decodeDetectBordersOptions` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:2498` | Decode unknown border detection options. |
-| `@beep/repo-cli/commands/Files/index` | `decodeDetectFacesOptions` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:2512` | Decode face detection options from unknown input. |
-| `@beep/repo-cli/commands/Files/index` | `decodeFfprobeOutputJson` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:2408` | Decode an ffprobe JSON document. |
-| `@beep/repo-cli/commands/Files/index` | `decodeImageSizeMetadata` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:2393` | Decode unknown image-size metadata. |
-| `@beep/repo-cli/commands/Files/index` | `decodeNormalizeMaxLongEdge` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:2453` | Decode an unknown maximum long-edge value. |
-| `@beep/repo-cli/commands/Files/index` | `decodeRotationNumber` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:2423` | Decode an unknown rotation value into an optional number. |
-| `@beep/repo-cli/commands/Files/index` | `decodeSafeFilePrefix` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:2438` | Decode an unknown safe filename prefix. |
-| `@beep/repo-cli/commands/Files/index` | `DetectBordersEntry` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:2007` | Image entry analyzed by `files detect-borders`. |
-| `@beep/repo-cli/commands/Files/index` | `detectBordersFiles` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:4580` | Detect solid or near-solid borders in direct image files. |
-| `@beep/repo-cli/commands/Files/index` | `DetectBorderSideMeasurement` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1979` | Measurement for one scanned image side. |
-| `@beep/repo-cli/commands/Files/index` | `DetectBordersOptions` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1844` | Options used by the image border detection operation. |
-| `@beep/repo-cli/commands/Files/index` | `DetectBordersReport` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:2089` | JSON report emitted by an image border detection run. |
-| `@beep/repo-cli/commands/Files/index` | `DetectBordersSkippedEntry` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:2037` | Source entry skipped by image border detection. |
-| `@beep/repo-cli/commands/Files/index` | `DetectBordersSkippedReason` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:385` | Reason a direct directory entry was skipped by `files detect-borders`. |
-| `@beep/repo-cli/commands/Files/index` | `DetectBordersSkippedReason` | type | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:405` | Reason a direct directory entry was skipped by `files detect-borders`. |
-| `@beep/repo-cli/commands/Files/index` | `DetectBordersSummary` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:2063` | Summary counts for an image border detection run. |
-| `@beep/repo-cli/commands/Files/index` | `DetectFacesEntry` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:2116` | Image entry analyzed by `files detect-faces`. |
-| `@beep/repo-cli/commands/Files/index` | `detectFacesFiles` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:4602` | Detect human faces in direct image files. |
-| `@beep/repo-cli/commands/Files/index` | `DetectFacesFlag` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:456` | Triage flag emitted by `files detect-faces`. |
-| `@beep/repo-cli/commands/Files/index` | `DetectFacesFlag` | type | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:474` | Triage flag emitted by `files detect-faces`. |
-| `@beep/repo-cli/commands/Files/index` | `DetectFacesOptions` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1871` | Options used by the image face detection operation. |
-| `@beep/repo-cli/commands/Files/index` | `DetectFacesReport` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:2206` | JSON report emitted by an image face detection run. |
-| `@beep/repo-cli/commands/Files/index` | `DetectFacesReportOptions` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1900` | JSON-safe options recorded by the image face detection report. |
-| `@beep/repo-cli/commands/Files/index` | `DetectFacesSkippedEntry` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:2151` | Source entry skipped by image face detection. |
-| `@beep/repo-cli/commands/Files/index` | `DetectFacesSkippedReason` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:420` | Reason a direct directory entry was skipped by `files detect-faces`. |
-| `@beep/repo-cli/commands/Files/index` | `DetectFacesSkippedReason` | type | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:441` | Reason a direct directory entry was skipped by `files detect-faces`. |
-| `@beep/repo-cli/commands/Files/index` | `DetectFacesSummary` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:2177` | Summary counts for an image face detection run. |
-| `@beep/repo-cli/commands/Files/index` | `encodeArchivePoorCandidatesManifest` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:2557` | Encode a poor-candidate archive manifest into its JSON-safe shape. |
-| `@beep/repo-cli/commands/Files/index` | `encodeDetectBordersReport` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:2572` | Encode a detect-borders report into its JSON-safe shape. |
-| `@beep/repo-cli/commands/Files/index` | `encodeDetectFacesReport` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:2586` | Encode a face detection report into its JSON-safe shape. |
-| `@beep/repo-cli/commands/Files/index` | `encodeNormalizeManifest` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:2542` | Encode a normalize manifest into its JSON-safe shape. |
-| `@beep/repo-cli/commands/Files/index` | `failOnExtensionlessFile` | const | `packages/tooling/tool/cli/src/commands/Files/Files.errors.ts:106` | Fail when a rename operation selects an extensionless file. |
-| `@beep/repo-cli/commands/Files/index` | `FfprobeOutput` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:910` | JSON document emitted by `ffprobe`. |
-| `@beep/repo-cli/commands/Files/index` | `FfprobeSideData` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:863` | Side-data entry returned by `ffprobe`. |
-| `@beep/repo-cli/commands/Files/index` | `FfprobeStream` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:885` | Video stream metadata returned by `ffprobe`. |
-| `@beep/repo-cli/commands/Files/index` | `filesCommand` | const | `packages/tooling/tool/cli/src/commands/Files/Files.command.ts:444` | File curation command group. |
+| `@beep/repo-cli/commands/Files/Files.errors` | `formatPlatformError` | const | `packages/tooling/tool/cli/src/commands/Files/Files.errors.ts:77` | Convert a platform failure into a file command error. |
+| `@beep/repo-cli/commands/Files/Files.media` | `analyzeSolidBorders` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:944` | Analyze raw RGB image pixels for near-solid borders on all four sides. |
+| `@beep/repo-cli/commands/Files/Files.media` | `assessImageCandidate` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:789` | Assess image dimensions against hard candidate-quality thresholds. |
+| `@beep/repo-cli/commands/Files/Files.media` | `byNameAscending` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:337` | Order regular files by name ascending. |
+| `@beep/repo-cli/commands/Files/Files.media` | `bySizeDescendingThenNameAscending` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:321` | Order regular files by size descending, then name ascending. |
+| `@beep/repo-cli/commands/Files/Files.media` | `classifyBorderSides` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:893` | Classify an analyzed image from its matched border sides. |
+| `@beep/repo-cli/commands/Files/Files.media` | `collectText` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:416` | Collect a byte stream into trimmed text. |
+| `@beep/repo-cli/commands/Files/Files.media` | `cropBordersPlanEntryFromDetection` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:1062` | Convert a detected-border entry into a valid crop plan entry. |
+| `@beep/repo-cli/commands/Files/Files.media` | `formatIndex` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:398` | Format a zero-padded numeric index. |
+| `@beep/repo-cli/commands/Files/Files.media` | `hasSkippedFiles` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:555` | Check whether a plan skipped any files. |
+| `@beep/repo-cli/commands/Files/Files.media` | `isExifOrientationRotated` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:439` | Check whether an EXIF orientation value implies a quarter-turn image. |
+| `@beep/repo-cli/commands/Files/Files.media` | `isImageFileExtension` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:282` | Schema-derived image extension guard. |
+| `@beep/repo-cli/commands/Files/Files.media` | `isQuarterTurnRotation` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:454` | Check whether a video rotation value implies a quarter-turn image. |
+| `@beep/repo-cli/commands/Files/Files.media` | `isSupportedMetadataImageExtension` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:308` | Schema-derived metadata-strip image extension guard. |
+| `@beep/repo-cli/commands/Files/Files.media` | `isSupportedMetadataImageFile` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:1155` | Check whether a selected image file can be normalized by metadata stripping. |
+| `@beep/repo-cli/commands/Files/Files.media` | `isVideoFileExtension` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:295` | Schema-derived video extension guard. |
+| `@beep/repo-cli/commands/Files/Files.media` | `makeStripMetadataTempEntries` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:1123` | Build temporary output paths for metadata stripping. |
+| `@beep/repo-cli/commands/Files/Files.media` | `maybeSwapDimensions` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:473` | Swap dimensions when a media orientation requires it. |
+| `@beep/repo-cli/commands/Files/Files.media` | `mediaDimensionsChanged` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:752` | Check whether two media dimensions differ. |
+| `@beep/repo-cli/commands/Files/Files.media` | `mediaKindFromExtension` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:370` | Resolve a media kind from a file extension. |
+| `@beep/repo-cli/commands/Files/Files.media` | `normalizeBareExtension` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:355` | Normalize a file extension to a lowercase bare extension. |
+| `@beep/repo-cli/commands/Files/Files.media` | `normalizeOutputDimensions` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:718` | Calculate downscaled dimensions for a max long edge without upscaling. |
+| `@beep/repo-cli/commands/Files/Files.media` | `normalizeOutputExtension` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:686` | Resolve the file extension emitted for a canonical normalize format. |
+| `@beep/repo-cli/commands/Files/Files.media` | `renderArchivePoorCandidatesEntry` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:839` | Render a poor-candidate archive plan entry. |
+| `@beep/repo-cli/commands/Files/Files.media` | `renderArchivePoorCandidatesSkippedEntry` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:861` | Render a skipped poor-candidate archive source entry. |
+| `@beep/repo-cli/commands/Files/Files.media` | `renderCreateCaptionFilesPlanEntry` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:622` | Render a caption sidecar creation plan entry. |
+| `@beep/repo-cli/commands/Files/Files.media` | `renderCreateCaptionFilesSkippedEntry` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:638` | Render a skipped caption sidecar creation source entry. |
+| `@beep/repo-cli/commands/Files/Files.media` | `renderCropBordersPlanEntry` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:1105` | Render a border crop plan entry. |
+| `@beep/repo-cli/commands/Files/Files.media` | `renderDetectBordersEntry` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:969` | Render a detected-border report entry. |
+| `@beep/repo-cli/commands/Files/Files.media` | `renderDetectBordersSkippedEntry` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:993` | Render a skipped border-detection source entry. |
+| `@beep/repo-cli/commands/Files/Files.media` | `renderDetectFacesEntry` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:1009` | Render a face-detection report entry. |
+| `@beep/repo-cli/commands/Files/Files.media` | `renderDetectFacesSkippedEntry` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:1037` | Render a skipped face-detection source entry. |
+| `@beep/repo-cli/commands/Files/Files.media` | `renderNormalizePlanEntry` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:654` | Render a normalize plan entry. |
+| `@beep/repo-cli/commands/Files/Files.media` | `renderNormalizeSkippedEntry` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:670` | Render a normalize skipped entry. |
+| `@beep/repo-cli/commands/Files/Files.media` | `renderPlanEntry` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:591` | Render a rename plan entry. |
+| `@beep/repo-cli/commands/Files/Files.media` | `renderStripMetadataPlanEntry` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:606` | Render a metadata strip plan entry. |
+| `@beep/repo-cli/commands/Files/Files.media` | `rgbToHex` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:877` | Render an RGB color as a lowercase hexadecimal color. |
+| `@beep/repo-cli/commands/Files/Files.media` | `rotationFromStream` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:500` | Resolve rotation metadata from an ffprobe stream. |
+| `@beep/repo-cli/commands/Files/Files.media` | `roundCandidateMetric` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:773` | Round a candidate assessment metric for stable manifest output. |
+| `@beep/repo-cli/commands/Files/Files.media` | `selectedCanonicalPathSet` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:570` | Build a hash set of selected canonical source paths. |
+| `@beep/repo-cli/commands/Files/Files.media` | `sharpFormatForNormalize` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:701` | Resolve the sharp encoder name for a canonical normalize format. |
+| `@beep/repo-cli/commands/Files/Files.media` | `targetNameForEntry` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:526` | Build a generated filename for a planned rename. |
+| `@beep/repo-cli/commands/Files/Files.progress` | `FilesConcurrency` | const | `packages/tooling/tool/cli/src/commands/Files/Files.progress.ts:28` | Shared concurrency caps for Files command phases. |
+| `@beep/repo-cli/commands/Files/Files.progress` | `isFilesProgressEnabled` | const | `packages/tooling/tool/cli/src/commands/Files/Files.progress.ts:83` | Return true when live Files progress should be rendered. |
+| `@beep/repo-cli/commands/Files/Files.progress` | `renderFilesProgressBar` | const | `packages/tooling/tool/cli/src/commands/Files/Files.progress.ts:98` | Render a single-line ASCII progress bar. |
+| `@beep/repo-cli/commands/Files/Files.progress` | `runFilesProgressAll` | const | `packages/tooling/tool/cli/src/commands/Files/Files.progress.ts:124` | Run an array of effects with bounded concurrency and optional TTY progress. |
+| `@beep/repo-cli/commands/Files/Files.progress` | `runFilesProgressForEach` | const | `packages/tooling/tool/cli/src/commands/Files/Files.progress.ts:197` | Map items to effects, then run them with bounded concurrency and optional TTY progress. |
+| `@beep/repo-cli/commands/Files/Files.schemas` | `ArchivedSidecarEntry` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1541` | Caption or metadata sidecar moved with an archived image. |
+| `@beep/repo-cli/commands/Files/Files.schemas` | `ArchivePoorCandidatesEntry` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1565` | Assessed image candidate with an archive or keep decision. |
+| `@beep/repo-cli/commands/Files/Files.schemas` | `ArchivePoorCandidatesManifest` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1705` | Manifest written by a successful poor-candidate archive run. |
+| `@beep/repo-cli/commands/Files/Files.schemas` | `ArchivePoorCandidatesManifestOptions` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1490` | JSON-safe options recorded in a poor-candidate archive manifest. |
+| `@beep/repo-cli/commands/Files/Files.schemas` | `ArchivePoorCandidatesManifestSummary` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1679` | JSON-safe summary recorded by poor-candidate archival. |
+| `@beep/repo-cli/commands/Files/Files.schemas` | `ArchivePoorCandidatesOptions` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1458` | Options used by poor-candidate archival. |
+| `@beep/repo-cli/commands/Files/Files.schemas` | `ArchivePoorCandidatesPlan` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1623` | Planned poor-candidate archive run. |
+| `@beep/repo-cli/commands/Files/Files.schemas` | `ArchivePoorCandidatesSkippedEntry` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1597` | Source entry skipped by poor-candidate archival. |
+| `@beep/repo-cli/commands/Files/Files.schemas` | `ArchivePoorCandidatesSkippedReason` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:538` | Reason a direct directory entry was skipped by `files archive-poor-candidates`. |
+| `@beep/repo-cli/commands/Files/Files.schemas` | `ArchivePoorCandidatesSkippedReason` | type | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:558` | Reason a direct directory entry was skipped by `files archive-poor-candidates`. |
+| `@beep/repo-cli/commands/Files/Files.schemas` | `ArchivePoorCandidatesSummary` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1648` | Summary counts returned by poor-candidate archival. |
+| `@beep/repo-cli/commands/Files/Files.schemas` | `BorderDetectionKind` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:336` | Classified border layout for an analyzed image. |
+| `@beep/repo-cli/commands/Files/Files.schemas` | `BorderDetectionKind` | type | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:348` | Classified border layout for an analyzed image. |
+| `@beep/repo-cli/commands/Files/Files.schemas` | `BorderDetectionMaxScanPercentage` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:650` | Maximum scan percentage accepted by border detection. |
+| `@beep/repo-cli/commands/Files/Files.schemas` | `BorderDetectionMaxScanPercentage` | type | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:684` | Maximum scan percentage accepted by border detection. |
+| `@beep/repo-cli/commands/Files/Files.schemas` | `BorderDetectionPercentage` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:603` | Percentage threshold used by border detection options. |
+| `@beep/repo-cli/commands/Files/Files.schemas` | `BorderDetectionPercentage` | type | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:637` | Percentage threshold used by border detection options. |
+| `@beep/repo-cli/commands/Files/Files.schemas` | `BorderDetectionTolerance` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:697` | RGB channel tolerance accepted by border detection. |
+| `@beep/repo-cli/commands/Files/Files.schemas` | `BorderDetectionTolerance` | type | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:731` | RGB channel tolerance accepted by border detection. |
+| `@beep/repo-cli/commands/Files/Files.schemas` | `BorderSide` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:311` | Side of an image edge scanned for a solid border. |
+| `@beep/repo-cli/commands/Files/Files.schemas` | `BorderSide` | type | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:323` | Side of an image edge scanned for a solid border. |
+| `@beep/repo-cli/commands/Files/Files.schemas` | `CandidateAssessmentDecision` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:484` | Candidate-quality decision produced by `files archive-poor-candidates`. |
+| `@beep/repo-cli/commands/Files/Files.schemas` | `CandidateAssessmentDecision` | type | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:496` | Candidate-quality decision produced by `files archive-poor-candidates`. |
+| `@beep/repo-cli/commands/Files/Files.schemas` | `CandidateAssessmentMetrics` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1518` | Derived image metrics used for candidate-quality triage. |
+| `@beep/repo-cli/commands/Files/Files.schemas` | `CandidateAssessmentProfile` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:459` | Dataset profile used by candidate-quality triage. |
+| `@beep/repo-cli/commands/Files/Files.schemas` | `CandidateAssessmentProfile` | type | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:471` | Dataset profile used by candidate-quality triage. |
+| `@beep/repo-cli/commands/Files/Files.schemas` | `CandidateAssessmentReason` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:509` | Hard-threshold reason that can cause an image to be archived. |
+| `@beep/repo-cli/commands/Files/Files.schemas` | `CandidateAssessmentReason` | type | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:525` | Hard-threshold reason that can cause an image to be archived. |
+| `@beep/repo-cli/commands/Files/Files.schemas` | `CandidateRatioThreshold` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:571` | Numeric threshold ratio used by candidate-quality triage. |
+| `@beep/repo-cli/commands/Files/Files.schemas` | `CandidateRatioThreshold` | type | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:590` | Numeric threshold ratio used by candidate-quality triage. |
+| `@beep/repo-cli/commands/Files/Files.schemas` | `CreateCaptionFilesOptions` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1104` | Options used by caption sidecar creation. |
+| `@beep/repo-cli/commands/Files/Files.schemas` | `CreateCaptionFilesPlan` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1181` | Planned caption sidecar creation run. |
+| `@beep/repo-cli/commands/Files/Files.schemas` | `CreateCaptionFilesPlanEntry` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1127` | Planned caption sidecar file creation. |
+| `@beep/repo-cli/commands/Files/Files.schemas` | `CreateCaptionFilesSkippedEntry` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1154` | Source entry skipped by caption sidecar creation. |
+| `@beep/repo-cli/commands/Files/Files.schemas` | `CreateCaptionFilesSkippedReason` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:277` | Reason a direct directory entry was skipped by `files create-captions`. |
+| `@beep/repo-cli/commands/Files/Files.schemas` | `CreateCaptionFilesSkippedReason` | type | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:298` | Reason a direct directory entry was skipped by `files create-captions`. |
+| `@beep/repo-cli/commands/Files/Files.schemas` | `CreateCaptionFilesSummary` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1205` | Summary returned by `createCaptionFiles`. |
+| `@beep/repo-cli/commands/Files/Files.schemas` | `CropBordersOptions` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1812` | Options used by the image border cropping operation. |
+| `@beep/repo-cli/commands/Files/Files.schemas` | `CropBordersPlan` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:2128` | Planned border crop entries plus skipped file counts. |
+| `@beep/repo-cli/commands/Files/Files.schemas` | `CropBordersPlanEntry` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:2097` | Planned crop for an image with detected solid borders. |
+| `@beep/repo-cli/commands/Files/Files.schemas` | `CropBordersSummary` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:2152` | Summary returned by `cropBordersFiles`. |
+| `@beep/repo-cli/commands/Files/Files.schemas` | `decodeArchivePoorCandidatesOptions` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:2308` | Decode unknown poor-candidate archive options. |
+| `@beep/repo-cli/commands/Files/Files.schemas` | `decodeCreateCaptionFilesOptions` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:2321` | Decode unknown caption sidecar creation options. |
+| `@beep/repo-cli/commands/Files/Files.schemas` | `decodeCropBordersOptions` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:2359` | Decode unknown border cropping options. |
+| `@beep/repo-cli/commands/Files/Files.schemas` | `decodeDetectBordersOptions` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:2334` | Decode unknown border detection options. |
+| `@beep/repo-cli/commands/Files/Files.schemas` | `decodeDetectFacesOptions` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:2346` | Decode face detection options from unknown input. |
+| `@beep/repo-cli/commands/Files/Files.schemas` | `decodeFfprobeOutputJson` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:2256` | Decode an ffprobe JSON document. |
+| `@beep/repo-cli/commands/Files/Files.schemas` | `decodeImageSizeMetadata` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:2243` | Decode unknown image-size metadata. |
+| `@beep/repo-cli/commands/Files/Files.schemas` | `decodeNormalizeMaxLongEdge` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:2295` | Decode an unknown maximum long-edge value. |
+| `@beep/repo-cli/commands/Files/Files.schemas` | `decodeRotationNumber` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:2269` | Decode an unknown rotation value into an optional number. |
+| `@beep/repo-cli/commands/Files/Files.schemas` | `decodeSafeFilePrefix` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:2282` | Decode an unknown safe filename prefix. |
+| `@beep/repo-cli/commands/Files/Files.schemas` | `DetectBordersEntry` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1885` | Image entry analyzed by `files detect-borders`. |
+| `@beep/repo-cli/commands/Files/Files.schemas` | `DetectBorderSideMeasurement` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1859` | Measurement for one scanned image side. |
+| `@beep/repo-cli/commands/Files/Files.schemas` | `DetectBordersOptions` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1734` | Options used by the image border detection operation. |
+| `@beep/repo-cli/commands/Files/Files.schemas` | `DetectBordersReport` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1961` | JSON report emitted by an image border detection run. |
+| `@beep/repo-cli/commands/Files/Files.schemas` | `DetectBordersSkippedEntry` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1913` | Source entry skipped by image border detection. |
+| `@beep/repo-cli/commands/Files/Files.schemas` | `DetectBordersSkippedReason` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:361` | Reason a direct directory entry was skipped by `files detect-borders`. |
+| `@beep/repo-cli/commands/Files/Files.schemas` | `DetectBordersSkippedReason` | type | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:381` | Reason a direct directory entry was skipped by `files detect-borders`. |
+| `@beep/repo-cli/commands/Files/Files.schemas` | `DetectBordersSummary` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1937` | Summary counts for an image border detection run. |
+| `@beep/repo-cli/commands/Files/Files.schemas` | `DetectFacesEntry` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1986` | Image entry analyzed by `files detect-faces`. |
+| `@beep/repo-cli/commands/Files/Files.schemas` | `DetectFacesFlag` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:428` | Triage flag emitted by `files detect-faces`. |
+| `@beep/repo-cli/commands/Files/Files.schemas` | `DetectFacesFlag` | type | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:446` | Triage flag emitted by `files detect-faces`. |
+| `@beep/repo-cli/commands/Files/Files.schemas` | `DetectFacesOptions` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1759` | Options used by the image face detection operation. |
+| `@beep/repo-cli/commands/Files/Files.schemas` | `DetectFacesReport` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:2070` | JSON report emitted by an image face detection run. |
+| `@beep/repo-cli/commands/Files/Files.schemas` | `DetectFacesReportOptions` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1786` | JSON-safe options recorded by the image face detection report. |
+| `@beep/repo-cli/commands/Files/Files.schemas` | `DetectFacesSkippedEntry` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:2019` | Source entry skipped by image face detection. |
+| `@beep/repo-cli/commands/Files/Files.schemas` | `DetectFacesSkippedReason` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:394` | Reason a direct directory entry was skipped by `files detect-faces`. |
+| `@beep/repo-cli/commands/Files/Files.schemas` | `DetectFacesSkippedReason` | type | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:415` | Reason a direct directory entry was skipped by `files detect-faces`. |
+| `@beep/repo-cli/commands/Files/Files.schemas` | `DetectFacesSummary` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:2043` | Summary counts for an image face detection run. |
+| `@beep/repo-cli/commands/Files/Files.schemas` | `encodeArchivePoorCandidatesManifest` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:2385` | Encode a poor-candidate archive manifest into its JSON-safe shape. |
+| `@beep/repo-cli/commands/Files/Files.schemas` | `encodeDetectBordersReport` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:2398` | Encode a detect-borders report into its JSON-safe shape. |
+| `@beep/repo-cli/commands/Files/Files.schemas` | `encodeDetectFacesReport` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:2410` | Encode a face detection report into its JSON-safe shape. |
+| `@beep/repo-cli/commands/Files/Files.schemas` | `encodeNormalizeManifest` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:2372` | Encode a normalize manifest into its JSON-safe shape. |
+| `@beep/repo-cli/commands/Files/Files.schemas` | `FfprobeOutput` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:856` | JSON document emitted by `ffprobe`. |
+| `@beep/repo-cli/commands/Files/Files.schemas` | `FfprobeSideData` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:813` | Side-data entry returned by `ffprobe`. |
+| `@beep/repo-cli/commands/Files/Files.schemas` | `FfprobeStream` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:833` | Video stream metadata returned by `ffprobe`. |
+| `@beep/repo-cli/commands/Files/Files.schemas` | `FileSha256Hash` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:71` | SHA-256 hash recorded for normalized file bytes. |
+| `@beep/repo-cli/commands/Files/Files.schemas` | `FileSha256Hash` | type | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:90` | SHA-256 hash recorded for normalized file bytes. |
+| `@beep/repo-cli/commands/Files/Files.schemas` | `ImageSizeMetadata` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:791` | Dimension metadata returned by `image-size`. |
+| `@beep/repo-cli/commands/Files/Files.schemas` | `MediaDimensions` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1083` | Width and height discovered for an image or video file. |
+| `@beep/repo-cli/commands/Files/Files.schemas` | `MediaKind` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:144` | Media kind schema for selected dataset files. |
+| `@beep/repo-cli/commands/Files/Files.schemas` | `MediaKind` | type | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:156` | Media kind for selected dataset files. |
+| `@beep/repo-cli/commands/Files/Files.schemas` | `NonNegativePixelOffset` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:103` | Non-negative pixel offset schema. |
+| `@beep/repo-cli/commands/Files/Files.schemas` | `NonNegativePixelOffset` | type | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:131` | Non-negative pixel offset value. |
+| `@beep/repo-cli/commands/Files/Files.schemas` | `NormalizeFilesOptions` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1230` | Options used by the image normalization operation. |
+| `@beep/repo-cli/commands/Files/Files.schemas` | `NormalizeImageFormat` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:219` | Canonical image output format emitted by `files normalize`. |
+| `@beep/repo-cli/commands/Files/Files.schemas` | `NormalizeImageFormat` | type | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:231` | Canonical image output format emitted by `files normalize`. |
+| `@beep/repo-cli/commands/Files/Files.schemas` | `NormalizeImageFormatInput` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:194` | CLI image format accepted by `files normalize`. |
+| `@beep/repo-cli/commands/Files/Files.schemas` | `NormalizeImageFormatInput` | type | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:206` | CLI image format accepted by `files normalize`. |
+| `@beep/repo-cli/commands/Files/Files.schemas` | `NormalizeManifest` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1431` | Manifest written by a successful image normalization run. |
+| `@beep/repo-cli/commands/Files/Files.schemas` | `NormalizeManifestOptions` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1260` | Manifest options recorded for an image normalization run. |
+| `@beep/repo-cli/commands/Files/Files.schemas` | `NormalizeManifestSummary` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1406` | JSON-safe summary recorded in an image normalization manifest. |
+| `@beep/repo-cli/commands/Files/Files.schemas` | `NormalizePlan` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1346` | Planned image normalization run. |
+| `@beep/repo-cli/commands/Files/Files.schemas` | `NormalizePlanEntry` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1284` | Planned source-to-output image transform. |
+| `@beep/repo-cli/commands/Files/Files.schemas` | `NormalizeSkippedEntry` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1317` | Source entry skipped by image normalization. |
+| `@beep/repo-cli/commands/Files/Files.schemas` | `NormalizeSkippedReason` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:244` | Reason a direct directory entry was skipped by `files normalize`. |
+| `@beep/repo-cli/commands/Files/Files.schemas` | `NormalizeSkippedReason` | type | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:264` | Reason a direct directory entry was skipped by `files normalize`. |
+| `@beep/repo-cli/commands/Files/Files.schemas` | `NormalizeSummary` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1372` | Summary counts for an image normalization run. |
+| `@beep/repo-cli/commands/Files/Files.schemas` | `PositiveMediaDimension` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:30` | Positive media dimension schema. |
+| `@beep/repo-cli/commands/Files/Files.schemas` | `PositiveMediaDimension` | type | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:58` | Positive media dimension value. |
+| `@beep/repo-cli/commands/Files/Files.schemas` | `RenamePlan` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:2199` | Planned rename entries plus skipped file counts. |
+| `@beep/repo-cli/commands/Files/Files.schemas` | `RenamePlanEntry` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:968` | Planned rename from an existing file path to a generated target path. |
+| `@beep/repo-cli/commands/Files/Files.schemas` | `RgbChannel` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:744` | Integer RGB channel value. |
+| `@beep/repo-cli/commands/Files/Files.schemas` | `RgbChannel` | type | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:778` | Integer RGB channel value. |
+| `@beep/repo-cli/commands/Files/Files.schemas` | `RgbColor` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1837` | RGB color sampled from a detected image border. |
+| `@beep/repo-cli/commands/Files/Files.schemas` | `SafeFilePrefix` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:876` | Safe generated filename prefix schema. |
+| `@beep/repo-cli/commands/Files/Files.schemas` | `SafeFilePrefix` | type | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:922` | Safe prefix accepted by `files sort-and-rename`. |
+| `@beep/repo-cli/commands/Files/Files.schemas` | `SortableFile` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:943` | File discovered for deterministic rename planning. |
+| `@beep/repo-cli/commands/Files/Files.schemas` | `SortableFileCollection` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:2178` | Files selected for rename planning plus skipped file counts. |
+| `@beep/repo-cli/commands/Files/Files.schemas` | `SortAndRenameSummary` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:998` | Summary returned by `sortAndRenameFiles`. |
+| `@beep/repo-cli/commands/Files/Files.schemas` | `StripMetadataPlan` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:2220` | Planned metadata stripping entries plus skipped file counts. |
+| `@beep/repo-cli/commands/Files/Files.schemas` | `StripMetadataPlanEntry` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1031` | Planned metadata strip for a selected image or video file. |
+| `@beep/repo-cli/commands/Files/Files.schemas` | `StripMetadataSummary` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1055` | Summary returned by `stripMetadataFiles`. |
+| `@beep/repo-cli/commands/Files/Files.schemas` | `SupportedMetadataImageExtension` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:169` | Image extension schema supported by metadata stripping. |
+| `@beep/repo-cli/commands/Files/Files.schemas` | `SupportedMetadataImageExtension` | type | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:181` | Image extension supported by metadata stripping. |
+| `@beep/repo-cli/commands/Files/Files.service` | `archivePoorCandidates` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:4504` | Archive obvious poor image candidates out of a dataset directory. |
+| `@beep/repo-cli/commands/Files/Files.service` | `createCaptionFiles` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:4524` | Create same-stem caption sidecar files for direct image files. |
+| `@beep/repo-cli/commands/Files/Files.service` | `cropBordersFiles` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:4544` | Crop solid or near-solid borders from direct image files. |
+| `@beep/repo-cli/commands/Files/Files.service` | `detectBordersFiles` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:4564` | Detect solid or near-solid borders in direct image files. |
+| `@beep/repo-cli/commands/Files/Files.service` | `detectFacesFiles` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:4584` | Detect human faces in direct image files. |
+| `@beep/repo-cli/commands/Files/Files.service` | `FilesCommandService` | class | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:337` | Service tag for dataset file curation operations. |
+| `@beep/repo-cli/commands/Files/Files.service` | `FilesCommandServiceLive` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:4488` | Live service layer for dataset file curation operations. |
+| `@beep/repo-cli/commands/Files/Files.service` | `FilesCommandServiceShape` | interface | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:259` | Service contract for dataset file curation operations. |
+| `@beep/repo-cli/commands/Files/Files.service` | `normalizeFiles` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:4604` | Normalize direct image files into an output directory and write a transform manifest. |
+| `@beep/repo-cli/commands/Files/Files.service` | `printFilesIndex` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:3724` | Print the files command index. |
+| `@beep/repo-cli/commands/Files/Files.service` | `sortAndRenameFiles` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:4627` | Sort direct regular files in a directory by size and rename them with a generated prefix. |
+| `@beep/repo-cli/commands/Files/Files.service` | `stripMetadataFiles` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:4654` | Strip user-authored metadata from direct image and video files in a directory. |
+| `@beep/repo-cli/commands/Files/index` | `analyzeSolidBorders` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:944` | Analyze raw RGB image pixels for near-solid borders on all four sides. |
+| `@beep/repo-cli/commands/Files/index` | `ArchivedSidecarEntry` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1541` | Caption or metadata sidecar moved with an archived image. |
+| `@beep/repo-cli/commands/Files/index` | `archivePoorCandidates` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:4504` | Archive obvious poor image candidates out of a dataset directory. |
+| `@beep/repo-cli/commands/Files/index` | `ArchivePoorCandidatesEntry` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1565` | Assessed image candidate with an archive or keep decision. |
+| `@beep/repo-cli/commands/Files/index` | `ArchivePoorCandidatesManifest` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1705` | Manifest written by a successful poor-candidate archive run. |
+| `@beep/repo-cli/commands/Files/index` | `ArchivePoorCandidatesManifestOptions` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1490` | JSON-safe options recorded in a poor-candidate archive manifest. |
+| `@beep/repo-cli/commands/Files/index` | `ArchivePoorCandidatesManifestSummary` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1679` | JSON-safe summary recorded by poor-candidate archival. |
+| `@beep/repo-cli/commands/Files/index` | `ArchivePoorCandidatesOptions` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1458` | Options used by poor-candidate archival. |
+| `@beep/repo-cli/commands/Files/index` | `ArchivePoorCandidatesPlan` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1623` | Planned poor-candidate archive run. |
+| `@beep/repo-cli/commands/Files/index` | `ArchivePoorCandidatesSkippedEntry` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1597` | Source entry skipped by poor-candidate archival. |
+| `@beep/repo-cli/commands/Files/index` | `ArchivePoorCandidatesSkippedReason` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:538` | Reason a direct directory entry was skipped by `files archive-poor-candidates`. |
+| `@beep/repo-cli/commands/Files/index` | `ArchivePoorCandidatesSkippedReason` | type | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:558` | Reason a direct directory entry was skipped by `files archive-poor-candidates`. |
+| `@beep/repo-cli/commands/Files/index` | `ArchivePoorCandidatesSummary` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1648` | Summary counts returned by poor-candidate archival. |
+| `@beep/repo-cli/commands/Files/index` | `assessImageCandidate` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:789` | Assess image dimensions against hard candidate-quality thresholds. |
+| `@beep/repo-cli/commands/Files/index` | `BorderDetectionKind` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:336` | Classified border layout for an analyzed image. |
+| `@beep/repo-cli/commands/Files/index` | `BorderDetectionKind` | type | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:348` | Classified border layout for an analyzed image. |
+| `@beep/repo-cli/commands/Files/index` | `BorderDetectionMaxScanPercentage` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:650` | Maximum scan percentage accepted by border detection. |
+| `@beep/repo-cli/commands/Files/index` | `BorderDetectionMaxScanPercentage` | type | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:684` | Maximum scan percentage accepted by border detection. |
+| `@beep/repo-cli/commands/Files/index` | `BorderDetectionPercentage` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:603` | Percentage threshold used by border detection options. |
+| `@beep/repo-cli/commands/Files/index` | `BorderDetectionPercentage` | type | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:637` | Percentage threshold used by border detection options. |
+| `@beep/repo-cli/commands/Files/index` | `BorderDetectionTolerance` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:697` | RGB channel tolerance accepted by border detection. |
+| `@beep/repo-cli/commands/Files/index` | `BorderDetectionTolerance` | type | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:731` | RGB channel tolerance accepted by border detection. |
+| `@beep/repo-cli/commands/Files/index` | `BorderSide` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:311` | Side of an image edge scanned for a solid border. |
+| `@beep/repo-cli/commands/Files/index` | `BorderSide` | type | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:323` | Side of an image edge scanned for a solid border. |
+| `@beep/repo-cli/commands/Files/index` | `byNameAscending` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:337` | Order regular files by name ascending. |
+| `@beep/repo-cli/commands/Files/index` | `bySizeDescendingThenNameAscending` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:321` | Order regular files by size descending, then name ascending. |
+| `@beep/repo-cli/commands/Files/index` | `CandidateAssessmentDecision` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:484` | Candidate-quality decision produced by `files archive-poor-candidates`. |
+| `@beep/repo-cli/commands/Files/index` | `CandidateAssessmentDecision` | type | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:496` | Candidate-quality decision produced by `files archive-poor-candidates`. |
+| `@beep/repo-cli/commands/Files/index` | `CandidateAssessmentMetrics` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1518` | Derived image metrics used for candidate-quality triage. |
+| `@beep/repo-cli/commands/Files/index` | `CandidateAssessmentProfile` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:459` | Dataset profile used by candidate-quality triage. |
+| `@beep/repo-cli/commands/Files/index` | `CandidateAssessmentProfile` | type | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:471` | Dataset profile used by candidate-quality triage. |
+| `@beep/repo-cli/commands/Files/index` | `CandidateAssessmentReason` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:509` | Hard-threshold reason that can cause an image to be archived. |
+| `@beep/repo-cli/commands/Files/index` | `CandidateAssessmentReason` | type | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:525` | Hard-threshold reason that can cause an image to be archived. |
+| `@beep/repo-cli/commands/Files/index` | `CandidateRatioThreshold` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:571` | Numeric threshold ratio used by candidate-quality triage. |
+| `@beep/repo-cli/commands/Files/index` | `CandidateRatioThreshold` | type | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:590` | Numeric threshold ratio used by candidate-quality triage. |
+| `@beep/repo-cli/commands/Files/index` | `classifyBorderSides` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:893` | Classify an analyzed image from its matched border sides. |
+| `@beep/repo-cli/commands/Files/index` | `collectText` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:416` | Collect a byte stream into trimmed text. |
+| `@beep/repo-cli/commands/Files/index` | `createCaptionFiles` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:4524` | Create same-stem caption sidecar files for direct image files. |
+| `@beep/repo-cli/commands/Files/index` | `CreateCaptionFilesOptions` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1104` | Options used by caption sidecar creation. |
+| `@beep/repo-cli/commands/Files/index` | `CreateCaptionFilesPlan` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1181` | Planned caption sidecar creation run. |
+| `@beep/repo-cli/commands/Files/index` | `CreateCaptionFilesPlanEntry` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1127` | Planned caption sidecar file creation. |
+| `@beep/repo-cli/commands/Files/index` | `CreateCaptionFilesSkippedEntry` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1154` | Source entry skipped by caption sidecar creation. |
+| `@beep/repo-cli/commands/Files/index` | `CreateCaptionFilesSkippedReason` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:277` | Reason a direct directory entry was skipped by `files create-captions`. |
+| `@beep/repo-cli/commands/Files/index` | `CreateCaptionFilesSkippedReason` | type | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:298` | Reason a direct directory entry was skipped by `files create-captions`. |
+| `@beep/repo-cli/commands/Files/index` | `CreateCaptionFilesSummary` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1205` | Summary returned by `createCaptionFiles`. |
+| `@beep/repo-cli/commands/Files/index` | `cropBordersFiles` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:4544` | Crop solid or near-solid borders from direct image files. |
+| `@beep/repo-cli/commands/Files/index` | `CropBordersOptions` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1812` | Options used by the image border cropping operation. |
+| `@beep/repo-cli/commands/Files/index` | `CropBordersPlan` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:2128` | Planned border crop entries plus skipped file counts. |
+| `@beep/repo-cli/commands/Files/index` | `CropBordersPlanEntry` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:2097` | Planned crop for an image with detected solid borders. |
+| `@beep/repo-cli/commands/Files/index` | `cropBordersPlanEntryFromDetection` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:1062` | Convert a detected-border entry into a valid crop plan entry. |
+| `@beep/repo-cli/commands/Files/index` | `CropBordersSummary` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:2152` | Summary returned by `cropBordersFiles`. |
+| `@beep/repo-cli/commands/Files/index` | `decodeArchivePoorCandidatesOptions` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:2308` | Decode unknown poor-candidate archive options. |
+| `@beep/repo-cli/commands/Files/index` | `decodeCreateCaptionFilesOptions` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:2321` | Decode unknown caption sidecar creation options. |
+| `@beep/repo-cli/commands/Files/index` | `decodeCropBordersOptions` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:2359` | Decode unknown border cropping options. |
+| `@beep/repo-cli/commands/Files/index` | `decodeDetectBordersOptions` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:2334` | Decode unknown border detection options. |
+| `@beep/repo-cli/commands/Files/index` | `decodeDetectFacesOptions` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:2346` | Decode face detection options from unknown input. |
+| `@beep/repo-cli/commands/Files/index` | `decodeFfprobeOutputJson` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:2256` | Decode an ffprobe JSON document. |
+| `@beep/repo-cli/commands/Files/index` | `decodeImageSizeMetadata` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:2243` | Decode unknown image-size metadata. |
+| `@beep/repo-cli/commands/Files/index` | `decodeNormalizeMaxLongEdge` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:2295` | Decode an unknown maximum long-edge value. |
+| `@beep/repo-cli/commands/Files/index` | `decodeRotationNumber` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:2269` | Decode an unknown rotation value into an optional number. |
+| `@beep/repo-cli/commands/Files/index` | `decodeSafeFilePrefix` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:2282` | Decode an unknown safe filename prefix. |
+| `@beep/repo-cli/commands/Files/index` | `DetectBordersEntry` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1885` | Image entry analyzed by `files detect-borders`. |
+| `@beep/repo-cli/commands/Files/index` | `detectBordersFiles` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:4564` | Detect solid or near-solid borders in direct image files. |
+| `@beep/repo-cli/commands/Files/index` | `DetectBorderSideMeasurement` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1859` | Measurement for one scanned image side. |
+| `@beep/repo-cli/commands/Files/index` | `DetectBordersOptions` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1734` | Options used by the image border detection operation. |
+| `@beep/repo-cli/commands/Files/index` | `DetectBordersReport` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1961` | JSON report emitted by an image border detection run. |
+| `@beep/repo-cli/commands/Files/index` | `DetectBordersSkippedEntry` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1913` | Source entry skipped by image border detection. |
+| `@beep/repo-cli/commands/Files/index` | `DetectBordersSkippedReason` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:361` | Reason a direct directory entry was skipped by `files detect-borders`. |
+| `@beep/repo-cli/commands/Files/index` | `DetectBordersSkippedReason` | type | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:381` | Reason a direct directory entry was skipped by `files detect-borders`. |
+| `@beep/repo-cli/commands/Files/index` | `DetectBordersSummary` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1937` | Summary counts for an image border detection run. |
+| `@beep/repo-cli/commands/Files/index` | `DetectFacesEntry` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1986` | Image entry analyzed by `files detect-faces`. |
+| `@beep/repo-cli/commands/Files/index` | `detectFacesFiles` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:4584` | Detect human faces in direct image files. |
+| `@beep/repo-cli/commands/Files/index` | `DetectFacesFlag` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:428` | Triage flag emitted by `files detect-faces`. |
+| `@beep/repo-cli/commands/Files/index` | `DetectFacesFlag` | type | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:446` | Triage flag emitted by `files detect-faces`. |
+| `@beep/repo-cli/commands/Files/index` | `DetectFacesOptions` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1759` | Options used by the image face detection operation. |
+| `@beep/repo-cli/commands/Files/index` | `DetectFacesReport` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:2070` | JSON report emitted by an image face detection run. |
+| `@beep/repo-cli/commands/Files/index` | `DetectFacesReportOptions` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1786` | JSON-safe options recorded by the image face detection report. |
+| `@beep/repo-cli/commands/Files/index` | `DetectFacesSkippedEntry` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:2019` | Source entry skipped by image face detection. |
+| `@beep/repo-cli/commands/Files/index` | `DetectFacesSkippedReason` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:394` | Reason a direct directory entry was skipped by `files detect-faces`. |
+| `@beep/repo-cli/commands/Files/index` | `DetectFacesSkippedReason` | type | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:415` | Reason a direct directory entry was skipped by `files detect-faces`. |
+| `@beep/repo-cli/commands/Files/index` | `DetectFacesSummary` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:2043` | Summary counts for an image face detection run. |
+| `@beep/repo-cli/commands/Files/index` | `encodeArchivePoorCandidatesManifest` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:2385` | Encode a poor-candidate archive manifest into its JSON-safe shape. |
+| `@beep/repo-cli/commands/Files/index` | `encodeDetectBordersReport` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:2398` | Encode a detect-borders report into its JSON-safe shape. |
+| `@beep/repo-cli/commands/Files/index` | `encodeDetectFacesReport` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:2410` | Encode a face detection report into its JSON-safe shape. |
+| `@beep/repo-cli/commands/Files/index` | `encodeNormalizeManifest` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:2372` | Encode a normalize manifest into its JSON-safe shape. |
+| `@beep/repo-cli/commands/Files/index` | `failOnExtensionlessFile` | const | `packages/tooling/tool/cli/src/commands/Files/Files.errors.ts:102` | Fail when a rename operation selects an extensionless file. |
+| `@beep/repo-cli/commands/Files/index` | `FfprobeOutput` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:856` | JSON document emitted by `ffprobe`. |
+| `@beep/repo-cli/commands/Files/index` | `FfprobeSideData` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:813` | Side-data entry returned by `ffprobe`. |
+| `@beep/repo-cli/commands/Files/index` | `FfprobeStream` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:833` | Video stream metadata returned by `ffprobe`. |
+| `@beep/repo-cli/commands/Files/index` | `filesCommand` | const | `packages/tooling/tool/cli/src/commands/Files/Files.command.ts:442` | File curation command group. |
 | `@beep/repo-cli/commands/Files/index` | `FilesCommandError` | class | `packages/tooling/tool/cli/src/commands/Files/Files.errors.ts:39` | Error raised by file curation commands. |
-| `@beep/repo-cli/commands/Files/index` | `FilesCommandService` | class | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:341` | Service tag for dataset file curation operations. |
-| `@beep/repo-cli/commands/Files/index` | `FilesCommandServiceLive` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:4496` | Live service layer for dataset file curation operations. |
-| `@beep/repo-cli/commands/Files/index` | `FilesCommandServiceShape` | interface | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:261` | Service contract for dataset file curation operations. |
-| `@beep/repo-cli/commands/Files/index` | `FilesConcurrency` | const | `packages/tooling/tool/cli/src/commands/Files/Files.progress.ts:30` | Shared concurrency caps for Files command phases. |
-| `@beep/repo-cli/commands/Files/index` | `FileSha256Hash` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:75` | SHA-256 hash recorded for normalized file bytes. |
-| `@beep/repo-cli/commands/Files/index` | `FileSha256Hash` | type | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:94` | SHA-256 hash recorded for normalized file bytes. |
-| `@beep/repo-cli/commands/Files/index` | `formatIndex` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:414` | Format a zero-padded numeric index. |
-| `@beep/repo-cli/commands/Files/index` | `formatPlatformError` | const | `packages/tooling/tool/cli/src/commands/Files/Files.errors.ts:79` | Convert a platform failure into a file command error. |
-| `@beep/repo-cli/commands/Files/index` | `hasSkippedFiles` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:585` | Check whether a plan skipped any files. |
-| `@beep/repo-cli/commands/Files/index` | `ImageSizeMetadata` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:839` | Dimension metadata returned by `image-size`. |
-| `@beep/repo-cli/commands/Files/index` | `isExifOrientationRotated` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:459` | Check whether an EXIF orientation value implies a quarter-turn image. |
-| `@beep/repo-cli/commands/Files/index` | `isFilesProgressEnabled` | const | `packages/tooling/tool/cli/src/commands/Files/Files.progress.ts:87` | Return true when live Files progress should be rendered. |
-| `@beep/repo-cli/commands/Files/index` | `isImageFileExtension` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:284` | Schema-derived image extension guard. |
-| `@beep/repo-cli/commands/Files/index` | `isQuarterTurnRotation` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:476` | Check whether a video rotation value implies a quarter-turn image. |
-| `@beep/repo-cli/commands/Files/index` | `isSupportedMetadataImageExtension` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:314` | Schema-derived metadata-strip image extension guard. |
-| `@beep/repo-cli/commands/Files/index` | `isSupportedMetadataImageFile` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:1237` | Check whether a selected image file can be normalized by metadata stripping. |
-| `@beep/repo-cli/commands/Files/index` | `isVideoFileExtension` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:299` | Schema-derived video extension guard. |
-| `@beep/repo-cli/commands/Files/index` | `makeStripMetadataTempEntries` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:1203` | Build temporary output paths for metadata stripping. |
-| `@beep/repo-cli/commands/Files/index` | `maybeSwapDimensions` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:497` | Swap dimensions when a media orientation requires it. |
-| `@beep/repo-cli/commands/Files/index` | `MediaDimensions` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1145` | Width and height discovered for an image or video file. |
-| `@beep/repo-cli/commands/Files/index` | `mediaDimensionsChanged` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:804` | Check whether two media dimensions differ. |
-| `@beep/repo-cli/commands/Files/index` | `MediaKind` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:152` | Media kind schema for selected dataset files. |
-| `@beep/repo-cli/commands/Files/index` | `MediaKind` | type | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:164` | Media kind for selected dataset files. |
-| `@beep/repo-cli/commands/Files/index` | `mediaKindFromExtension` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:384` | Resolve a media kind from a file extension. |
-| `@beep/repo-cli/commands/Files/index` | `NonNegativePixelOffset` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:109` | Non-negative pixel offset schema. |
-| `@beep/repo-cli/commands/Files/index` | `NonNegativePixelOffset` | type | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:137` | Non-negative pixel offset value. |
-| `@beep/repo-cli/commands/Files/index` | `normalizeBareExtension` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:367` | Normalize a file extension to a lowercase bare extension. |
-| `@beep/repo-cli/commands/Files/index` | `normalizeFiles` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:4624` | Normalize direct image files into an output directory and write a transform manifest. |
-| `@beep/repo-cli/commands/Files/index` | `NormalizeFilesOptions` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1304` | Options used by the image normalization operation. |
-| `@beep/repo-cli/commands/Files/index` | `NormalizeImageFormat` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:233` | Canonical image output format emitted by `files normalize`. |
-| `@beep/repo-cli/commands/Files/index` | `NormalizeImageFormat` | type | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:245` | Canonical image output format emitted by `files normalize`. |
-| `@beep/repo-cli/commands/Files/index` | `NormalizeImageFormatInput` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:206` | CLI image format accepted by `files normalize`. |
-| `@beep/repo-cli/commands/Files/index` | `NormalizeImageFormatInput` | type | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:218` | CLI image format accepted by `files normalize`. |
-| `@beep/repo-cli/commands/Files/index` | `NormalizeManifest` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1519` | Manifest written by a successful image normalization run. |
-| `@beep/repo-cli/commands/Files/index` | `NormalizeManifestOptions` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1336` | Manifest options recorded for an image normalization run. |
-| `@beep/repo-cli/commands/Files/index` | `NormalizeManifestSummary` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1492` | JSON-safe summary recorded in an image normalization manifest. |
-| `@beep/repo-cli/commands/Files/index` | `normalizeOutputDimensions` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:768` | Calculate downscaled dimensions for a max long edge without upscaling. |
-| `@beep/repo-cli/commands/Files/index` | `normalizeOutputExtension` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:732` | Resolve the file extension emitted for a canonical normalize format. |
-| `@beep/repo-cli/commands/Files/index` | `NormalizePlan` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1428` | Planned image normalization run. |
-| `@beep/repo-cli/commands/Files/index` | `NormalizePlanEntry` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1362` | Planned source-to-output image transform. |
-| `@beep/repo-cli/commands/Files/index` | `NormalizeSkippedEntry` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1397` | Source entry skipped by image normalization. |
-| `@beep/repo-cli/commands/Files/index` | `NormalizeSkippedReason` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:260` | Reason a direct directory entry was skipped by `files normalize`. |
-| `@beep/repo-cli/commands/Files/index` | `NormalizeSkippedReason` | type | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:280` | Reason a direct directory entry was skipped by `files normalize`. |
-| `@beep/repo-cli/commands/Files/index` | `NormalizeSummary` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1456` | Summary counts for an image normalization run. |
-| `@beep/repo-cli/commands/Files/index` | `PositiveMediaDimension` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:32` | Positive media dimension schema. |
-| `@beep/repo-cli/commands/Files/index` | `PositiveMediaDimension` | type | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:60` | Positive media dimension value. |
-| `@beep/repo-cli/commands/Files/index` | `printFilesIndex` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:3730` | Print the files command index. |
-| `@beep/repo-cli/commands/Files/index` | `RenamePlan` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:2345` | Planned rename entries plus skipped file counts. |
-| `@beep/repo-cli/commands/Files/index` | `RenamePlanEntry` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1026` | Planned rename from an existing file path to a generated target path. |
-| `@beep/repo-cli/commands/Files/index` | `renderArchivePoorCandidatesEntry` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:897` | Render a poor-candidate archive plan entry. |
-| `@beep/repo-cli/commands/Files/index` | `renderArchivePoorCandidatesSkippedEntry` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:921` | Render a skipped poor-candidate archive source entry. |
-| `@beep/repo-cli/commands/Files/index` | `renderCreateCaptionFilesPlanEntry` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:660` | Render a caption sidecar creation plan entry. |
-| `@beep/repo-cli/commands/Files/index` | `renderCreateCaptionFilesSkippedEntry` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:678` | Render a skipped caption sidecar creation source entry. |
-| `@beep/repo-cli/commands/Files/index` | `renderCropBordersPlanEntry` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:1183` | Render a border crop plan entry. |
-| `@beep/repo-cli/commands/Files/index` | `renderDetectBordersEntry` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:1037` | Render a detected-border report entry. |
-| `@beep/repo-cli/commands/Files/index` | `renderDetectBordersSkippedEntry` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:1063` | Render a skipped border-detection source entry. |
-| `@beep/repo-cli/commands/Files/index` | `renderDetectFacesEntry` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:1081` | Render a face-detection report entry. |
-| `@beep/repo-cli/commands/Files/index` | `renderDetectFacesSkippedEntry` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:1111` | Render a skipped face-detection source entry. |
-| `@beep/repo-cli/commands/Files/index` | `renderFilesProgressBar` | const | `packages/tooling/tool/cli/src/commands/Files/Files.progress.ts:104` | Render a single-line ASCII progress bar. |
-| `@beep/repo-cli/commands/Files/index` | `renderNormalizePlanEntry` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:696` | Render a normalize plan entry. |
-| `@beep/repo-cli/commands/Files/index` | `renderNormalizeSkippedEntry` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:714` | Render a normalize skipped entry. |
-| `@beep/repo-cli/commands/Files/index` | `renderPlanEntry` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:625` | Render a rename plan entry. |
-| `@beep/repo-cli/commands/Files/index` | `renderStripMetadataPlanEntry` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:642` | Render a metadata strip plan entry. |
-| `@beep/repo-cli/commands/Files/index` | `RgbChannel` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:790` | Integer RGB channel value. |
-| `@beep/repo-cli/commands/Files/index` | `RgbChannel` | type | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:824` | Integer RGB channel value. |
-| `@beep/repo-cli/commands/Files/index` | `RgbColor` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1955` | RGB color sampled from a detected image border. |
-| `@beep/repo-cli/commands/Files/index` | `rgbToHex` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:939` | Render an RGB color as a lowercase hexadecimal color. |
-| `@beep/repo-cli/commands/Files/index` | `rotationFromStream` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:526` | Resolve rotation metadata from an ffprobe stream. |
-| `@beep/repo-cli/commands/Files/index` | `roundCandidateMetric` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:827` | Round a candidate assessment metric for stable manifest output. |
-| `@beep/repo-cli/commands/Files/index` | `runFilesProgressAll` | const | `packages/tooling/tool/cli/src/commands/Files/Files.progress.ts:132` | Run an array of effects with bounded concurrency and optional TTY progress. |
-| `@beep/repo-cli/commands/Files/index` | `runFilesProgressForEach` | const | `packages/tooling/tool/cli/src/commands/Files/Files.progress.ts:207` | Map items to effects, then run them with bounded concurrency and optional TTY progress. |
-| `@beep/repo-cli/commands/Files/index` | `SafeFilePrefix` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:932` | Safe generated filename prefix schema. |
-| `@beep/repo-cli/commands/Files/index` | `SafeFilePrefix` | type | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:978` | Safe prefix accepted by `files sort-and-rename`. |
-| `@beep/repo-cli/commands/Files/index` | `selectedCanonicalPathSet` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:602` | Build a hash set of selected canonical source paths. |
-| `@beep/repo-cli/commands/Files/index` | `sharpFormatForNormalize` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:749` | Resolve the sharp encoder name for a canonical normalize format. |
-| `@beep/repo-cli/commands/Files/index` | `SortableFile` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:999` | File discovered for deterministic rename planning. |
-| `@beep/repo-cli/commands/Files/index` | `SortableFileCollection` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:2322` | Files selected for rename planning plus skipped file counts. |
-| `@beep/repo-cli/commands/Files/index` | `sortAndRenameFiles` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:4649` | Sort direct regular files in a directory by size and rename them with a generated prefix. |
-| `@beep/repo-cli/commands/Files/index` | `SortAndRenameSummary` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1058` | Summary returned by `sortAndRenameFiles`. |
-| `@beep/repo-cli/commands/Files/index` | `stripMetadataFiles` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:4676` | Strip user-authored metadata from direct image and video files in a directory. |
-| `@beep/repo-cli/commands/Files/index` | `StripMetadataPlan` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:2368` | Planned metadata stripping entries plus skipped file counts. |
-| `@beep/repo-cli/commands/Files/index` | `StripMetadataPlanEntry` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1091` | Planned metadata strip for a selected image or video file. |
-| `@beep/repo-cli/commands/Files/index` | `StripMetadataSummary` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1117` | Summary returned by `stripMetadataFiles`. |
-| `@beep/repo-cli/commands/Files/index` | `SupportedMetadataImageExtension` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:179` | Image extension schema supported by metadata stripping. |
-| `@beep/repo-cli/commands/Files/index` | `SupportedMetadataImageExtension` | type | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:191` | Image extension supported by metadata stripping. |
-| `@beep/repo-cli/commands/Files/index` | `targetNameForEntry` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:554` | Build a generated filename for a planned rename. |
+| `@beep/repo-cli/commands/Files/index` | `FilesCommandService` | class | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:337` | Service tag for dataset file curation operations. |
+| `@beep/repo-cli/commands/Files/index` | `FilesCommandServiceLive` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:4488` | Live service layer for dataset file curation operations. |
+| `@beep/repo-cli/commands/Files/index` | `FilesCommandServiceShape` | interface | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:259` | Service contract for dataset file curation operations. |
+| `@beep/repo-cli/commands/Files/index` | `FilesConcurrency` | const | `packages/tooling/tool/cli/src/commands/Files/Files.progress.ts:28` | Shared concurrency caps for Files command phases. |
+| `@beep/repo-cli/commands/Files/index` | `FileSha256Hash` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:71` | SHA-256 hash recorded for normalized file bytes. |
+| `@beep/repo-cli/commands/Files/index` | `FileSha256Hash` | type | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:90` | SHA-256 hash recorded for normalized file bytes. |
+| `@beep/repo-cli/commands/Files/index` | `formatIndex` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:398` | Format a zero-padded numeric index. |
+| `@beep/repo-cli/commands/Files/index` | `formatPlatformError` | const | `packages/tooling/tool/cli/src/commands/Files/Files.errors.ts:77` | Convert a platform failure into a file command error. |
+| `@beep/repo-cli/commands/Files/index` | `hasSkippedFiles` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:555` | Check whether a plan skipped any files. |
+| `@beep/repo-cli/commands/Files/index` | `ImageSizeMetadata` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:791` | Dimension metadata returned by `image-size`. |
+| `@beep/repo-cli/commands/Files/index` | `isExifOrientationRotated` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:439` | Check whether an EXIF orientation value implies a quarter-turn image. |
+| `@beep/repo-cli/commands/Files/index` | `isFilesProgressEnabled` | const | `packages/tooling/tool/cli/src/commands/Files/Files.progress.ts:83` | Return true when live Files progress should be rendered. |
+| `@beep/repo-cli/commands/Files/index` | `isImageFileExtension` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:282` | Schema-derived image extension guard. |
+| `@beep/repo-cli/commands/Files/index` | `isQuarterTurnRotation` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:454` | Check whether a video rotation value implies a quarter-turn image. |
+| `@beep/repo-cli/commands/Files/index` | `isSupportedMetadataImageExtension` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:308` | Schema-derived metadata-strip image extension guard. |
+| `@beep/repo-cli/commands/Files/index` | `isSupportedMetadataImageFile` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:1155` | Check whether a selected image file can be normalized by metadata stripping. |
+| `@beep/repo-cli/commands/Files/index` | `isVideoFileExtension` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:295` | Schema-derived video extension guard. |
+| `@beep/repo-cli/commands/Files/index` | `makeStripMetadataTempEntries` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:1123` | Build temporary output paths for metadata stripping. |
+| `@beep/repo-cli/commands/Files/index` | `maybeSwapDimensions` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:473` | Swap dimensions when a media orientation requires it. |
+| `@beep/repo-cli/commands/Files/index` | `MediaDimensions` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1083` | Width and height discovered for an image or video file. |
+| `@beep/repo-cli/commands/Files/index` | `mediaDimensionsChanged` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:752` | Check whether two media dimensions differ. |
+| `@beep/repo-cli/commands/Files/index` | `MediaKind` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:144` | Media kind schema for selected dataset files. |
+| `@beep/repo-cli/commands/Files/index` | `MediaKind` | type | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:156` | Media kind for selected dataset files. |
+| `@beep/repo-cli/commands/Files/index` | `mediaKindFromExtension` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:370` | Resolve a media kind from a file extension. |
+| `@beep/repo-cli/commands/Files/index` | `NonNegativePixelOffset` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:103` | Non-negative pixel offset schema. |
+| `@beep/repo-cli/commands/Files/index` | `NonNegativePixelOffset` | type | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:131` | Non-negative pixel offset value. |
+| `@beep/repo-cli/commands/Files/index` | `normalizeBareExtension` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:355` | Normalize a file extension to a lowercase bare extension. |
+| `@beep/repo-cli/commands/Files/index` | `normalizeFiles` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:4604` | Normalize direct image files into an output directory and write a transform manifest. |
+| `@beep/repo-cli/commands/Files/index` | `NormalizeFilesOptions` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1230` | Options used by the image normalization operation. |
+| `@beep/repo-cli/commands/Files/index` | `NormalizeImageFormat` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:219` | Canonical image output format emitted by `files normalize`. |
+| `@beep/repo-cli/commands/Files/index` | `NormalizeImageFormat` | type | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:231` | Canonical image output format emitted by `files normalize`. |
+| `@beep/repo-cli/commands/Files/index` | `NormalizeImageFormatInput` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:194` | CLI image format accepted by `files normalize`. |
+| `@beep/repo-cli/commands/Files/index` | `NormalizeImageFormatInput` | type | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:206` | CLI image format accepted by `files normalize`. |
+| `@beep/repo-cli/commands/Files/index` | `NormalizeManifest` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1431` | Manifest written by a successful image normalization run. |
+| `@beep/repo-cli/commands/Files/index` | `NormalizeManifestOptions` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1260` | Manifest options recorded for an image normalization run. |
+| `@beep/repo-cli/commands/Files/index` | `NormalizeManifestSummary` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1406` | JSON-safe summary recorded in an image normalization manifest. |
+| `@beep/repo-cli/commands/Files/index` | `normalizeOutputDimensions` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:718` | Calculate downscaled dimensions for a max long edge without upscaling. |
+| `@beep/repo-cli/commands/Files/index` | `normalizeOutputExtension` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:686` | Resolve the file extension emitted for a canonical normalize format. |
+| `@beep/repo-cli/commands/Files/index` | `NormalizePlan` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1346` | Planned image normalization run. |
+| `@beep/repo-cli/commands/Files/index` | `NormalizePlanEntry` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1284` | Planned source-to-output image transform. |
+| `@beep/repo-cli/commands/Files/index` | `NormalizeSkippedEntry` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1317` | Source entry skipped by image normalization. |
+| `@beep/repo-cli/commands/Files/index` | `NormalizeSkippedReason` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:244` | Reason a direct directory entry was skipped by `files normalize`. |
+| `@beep/repo-cli/commands/Files/index` | `NormalizeSkippedReason` | type | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:264` | Reason a direct directory entry was skipped by `files normalize`. |
+| `@beep/repo-cli/commands/Files/index` | `NormalizeSummary` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1372` | Summary counts for an image normalization run. |
+| `@beep/repo-cli/commands/Files/index` | `PositiveMediaDimension` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:30` | Positive media dimension schema. |
+| `@beep/repo-cli/commands/Files/index` | `PositiveMediaDimension` | type | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:58` | Positive media dimension value. |
+| `@beep/repo-cli/commands/Files/index` | `printFilesIndex` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:3724` | Print the files command index. |
+| `@beep/repo-cli/commands/Files/index` | `RenamePlan` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:2199` | Planned rename entries plus skipped file counts. |
+| `@beep/repo-cli/commands/Files/index` | `RenamePlanEntry` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:968` | Planned rename from an existing file path to a generated target path. |
+| `@beep/repo-cli/commands/Files/index` | `renderArchivePoorCandidatesEntry` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:839` | Render a poor-candidate archive plan entry. |
+| `@beep/repo-cli/commands/Files/index` | `renderArchivePoorCandidatesSkippedEntry` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:861` | Render a skipped poor-candidate archive source entry. |
+| `@beep/repo-cli/commands/Files/index` | `renderCreateCaptionFilesPlanEntry` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:622` | Render a caption sidecar creation plan entry. |
+| `@beep/repo-cli/commands/Files/index` | `renderCreateCaptionFilesSkippedEntry` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:638` | Render a skipped caption sidecar creation source entry. |
+| `@beep/repo-cli/commands/Files/index` | `renderCropBordersPlanEntry` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:1105` | Render a border crop plan entry. |
+| `@beep/repo-cli/commands/Files/index` | `renderDetectBordersEntry` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:969` | Render a detected-border report entry. |
+| `@beep/repo-cli/commands/Files/index` | `renderDetectBordersSkippedEntry` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:993` | Render a skipped border-detection source entry. |
+| `@beep/repo-cli/commands/Files/index` | `renderDetectFacesEntry` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:1009` | Render a face-detection report entry. |
+| `@beep/repo-cli/commands/Files/index` | `renderDetectFacesSkippedEntry` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:1037` | Render a skipped face-detection source entry. |
+| `@beep/repo-cli/commands/Files/index` | `renderFilesProgressBar` | const | `packages/tooling/tool/cli/src/commands/Files/Files.progress.ts:98` | Render a single-line ASCII progress bar. |
+| `@beep/repo-cli/commands/Files/index` | `renderNormalizePlanEntry` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:654` | Render a normalize plan entry. |
+| `@beep/repo-cli/commands/Files/index` | `renderNormalizeSkippedEntry` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:670` | Render a normalize skipped entry. |
+| `@beep/repo-cli/commands/Files/index` | `renderPlanEntry` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:591` | Render a rename plan entry. |
+| `@beep/repo-cli/commands/Files/index` | `renderStripMetadataPlanEntry` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:606` | Render a metadata strip plan entry. |
+| `@beep/repo-cli/commands/Files/index` | `RgbChannel` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:744` | Integer RGB channel value. |
+| `@beep/repo-cli/commands/Files/index` | `RgbChannel` | type | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:778` | Integer RGB channel value. |
+| `@beep/repo-cli/commands/Files/index` | `RgbColor` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1837` | RGB color sampled from a detected image border. |
+| `@beep/repo-cli/commands/Files/index` | `rgbToHex` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:877` | Render an RGB color as a lowercase hexadecimal color. |
+| `@beep/repo-cli/commands/Files/index` | `rotationFromStream` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:500` | Resolve rotation metadata from an ffprobe stream. |
+| `@beep/repo-cli/commands/Files/index` | `roundCandidateMetric` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:773` | Round a candidate assessment metric for stable manifest output. |
+| `@beep/repo-cli/commands/Files/index` | `runFilesProgressAll` | const | `packages/tooling/tool/cli/src/commands/Files/Files.progress.ts:124` | Run an array of effects with bounded concurrency and optional TTY progress. |
+| `@beep/repo-cli/commands/Files/index` | `runFilesProgressForEach` | const | `packages/tooling/tool/cli/src/commands/Files/Files.progress.ts:197` | Map items to effects, then run them with bounded concurrency and optional TTY progress. |
+| `@beep/repo-cli/commands/Files/index` | `SafeFilePrefix` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:876` | Safe generated filename prefix schema. |
+| `@beep/repo-cli/commands/Files/index` | `SafeFilePrefix` | type | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:922` | Safe prefix accepted by `files sort-and-rename`. |
+| `@beep/repo-cli/commands/Files/index` | `selectedCanonicalPathSet` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:570` | Build a hash set of selected canonical source paths. |
+| `@beep/repo-cli/commands/Files/index` | `sharpFormatForNormalize` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:701` | Resolve the sharp encoder name for a canonical normalize format. |
+| `@beep/repo-cli/commands/Files/index` | `SortableFile` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:943` | File discovered for deterministic rename planning. |
+| `@beep/repo-cli/commands/Files/index` | `SortableFileCollection` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:2178` | Files selected for rename planning plus skipped file counts. |
+| `@beep/repo-cli/commands/Files/index` | `sortAndRenameFiles` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:4627` | Sort direct regular files in a directory by size and rename them with a generated prefix. |
+| `@beep/repo-cli/commands/Files/index` | `SortAndRenameSummary` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:998` | Summary returned by `sortAndRenameFiles`. |
+| `@beep/repo-cli/commands/Files/index` | `stripMetadataFiles` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:4654` | Strip user-authored metadata from direct image and video files in a directory. |
+| `@beep/repo-cli/commands/Files/index` | `StripMetadataPlan` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:2220` | Planned metadata stripping entries plus skipped file counts. |
+| `@beep/repo-cli/commands/Files/index` | `StripMetadataPlanEntry` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1031` | Planned metadata strip for a selected image or video file. |
+| `@beep/repo-cli/commands/Files/index` | `StripMetadataSummary` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1055` | Summary returned by `stripMetadataFiles`. |
+| `@beep/repo-cli/commands/Files/index` | `SupportedMetadataImageExtension` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:169` | Image extension schema supported by metadata stripping. |
+| `@beep/repo-cli/commands/Files/index` | `SupportedMetadataImageExtension` | type | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:181` | Image extension supported by metadata stripping. |
+| `@beep/repo-cli/commands/Files/index` | `targetNameForEntry` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:526` | Build a generated filename for a planned rename. |
 | `@beep/repo-cli/commands/Graphiti` | `graphitiCommand` | const | `packages/tooling/tool/cli/src/commands/Graphiti/Graphiti.command.ts:94` | Graphiti command group. |
 | `@beep/repo-cli/commands/Graphiti` | `GraphitiProxyConfigLoadError` | class | `packages/tooling/tool/cli/src/commands/Graphiti/Graphiti.errors.ts:35` | Raised when graphiti proxy configuration cannot be loaded. |
 | `@beep/repo-cli/commands/Graphiti` | `GraphitiProxyOpsError` | class | `packages/tooling/tool/cli/src/commands/Graphiti/Graphiti.errors.ts:78` | Typed failure for Graphiti proxy operational helpers. |
@@ -1676,69 +1677,69 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/commands/Graphiti/internal/ProxyServices` | `ProxyHealthPayload` | class | `packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyServices.ts:184` | Structured JSON payload for health endpoints. |
 | `@beep/repo-cli/commands/Graphiti/internal/ProxyServices` | `proxyHealthResponse` | const | `packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyServices.ts:343` | Build a structured proxy health HTTP response. |
 | `@beep/repo-cli/commands/Graphiti/internal/ProxyServices` | `ProxyQueueStats` | class | `packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyServices.ts:157` | Queue and processing counters for proxy introspection. |
-| `@beep/repo-cli/commands/Image` | `decodeExtractFramesDirOptions` | const | `packages/tooling/tool/cli/src/commands/Image/Image.schemas.ts:279` | Decode unknown directory frame extraction options. |
-| `@beep/repo-cli/commands/Image` | `decodeExtractFramesOptions` | const | `packages/tooling/tool/cli/src/commands/Image/Image.schemas.ts:264` | Decode unknown single-video frame extraction options. |
-| `@beep/repo-cli/commands/Image` | `extractFrames` | const | `packages/tooling/tool/cli/src/commands/Image/Image.service.ts:325` | Extract PNG frames from a single video. |
-| `@beep/repo-cli/commands/Image` | `extractFramesDir` | const | `packages/tooling/tool/cli/src/commands/Image/Image.service.ts:347` | Extract PNG frames from every direct video in a directory. |
+| `@beep/repo-cli/commands/Image` | `decodeExtractFramesDirOptions` | const | `packages/tooling/tool/cli/src/commands/Image/Image.schemas.ts:273` | Decode unknown directory frame extraction options. |
+| `@beep/repo-cli/commands/Image` | `decodeExtractFramesOptions` | const | `packages/tooling/tool/cli/src/commands/Image/Image.schemas.ts:260` | Decode unknown single-video frame extraction options. |
+| `@beep/repo-cli/commands/Image` | `extractFrames` | const | `packages/tooling/tool/cli/src/commands/Image/Image.service.ts:317` | Extract PNG frames from a single video. |
+| `@beep/repo-cli/commands/Image` | `extractFramesDir` | const | `packages/tooling/tool/cli/src/commands/Image/Image.service.ts:337` | Extract PNG frames from every direct video in a directory. |
 | `@beep/repo-cli/commands/Image` | `ExtractFramesDirFailure` | class | `packages/tooling/tool/cli/src/commands/Image/Image.schemas.ts:182` | Failed video from a folder-based frame extraction run. |
 | `@beep/repo-cli/commands/Image` | `ExtractFramesDirOptions` | class | `packages/tooling/tool/cli/src/commands/Image/Image.schemas.ts:79` | Options accepted by `image extract-frames-dir`. |
-| `@beep/repo-cli/commands/Image` | `ExtractFramesDirOutcome` | const | `packages/tooling/tool/cli/src/commands/Image/Image.schemas.ts:207` | Ordered outcome for one `image extract-frames-dir` input video. |
-| `@beep/repo-cli/commands/Image` | `ExtractFramesDirOutcome` | type | `packages/tooling/tool/cli/src/commands/Image/Image.schemas.ts:219` | Ordered outcome for one `image extract-frames-dir` input video. |
-| `@beep/repo-cli/commands/Image` | `ExtractFramesDirResult` | class | `packages/tooling/tool/cli/src/commands/Image/Image.schemas.ts:239` | Result returned by `image extract-frames-dir`. |
+| `@beep/repo-cli/commands/Image` | `ExtractFramesDirOutcome` | const | `packages/tooling/tool/cli/src/commands/Image/Image.schemas.ts:205` | Ordered outcome for one `image extract-frames-dir` input video. |
+| `@beep/repo-cli/commands/Image` | `ExtractFramesDirOutcome` | type | `packages/tooling/tool/cli/src/commands/Image/Image.schemas.ts:217` | Ordered outcome for one `image extract-frames-dir` input video. |
+| `@beep/repo-cli/commands/Image` | `ExtractFramesDirResult` | class | `packages/tooling/tool/cli/src/commands/Image/Image.schemas.ts:237` | Result returned by `image extract-frames-dir`. |
 | `@beep/repo-cli/commands/Image` | `ExtractFramesDirSuccess` | class | `packages/tooling/tool/cli/src/commands/Image/Image.schemas.ts:152` | Successful video from a folder-based frame extraction run. |
 | `@beep/repo-cli/commands/Image` | `ExtractFramesDirVideo` | class | `packages/tooling/tool/cli/src/commands/Image/Image.schemas.ts:115` | Direct video selected by `image extract-frames-dir`. |
 | `@beep/repo-cli/commands/Image` | `ExtractFramesOptions` | class | `packages/tooling/tool/cli/src/commands/Image/Image.schemas.ts:37` | Options accepted by `image extract-frames`. |
 | `@beep/repo-cli/commands/Image` | `imageCommand` | const | `packages/tooling/tool/cli/src/commands/Image/Image.command.ts:135` | Image and video curation command group. |
 | `@beep/repo-cli/commands/Image` | `ImageCommandError` | class | `packages/tooling/tool/cli/src/commands/Image/Image.errors.ts:28` | Error raised by image curation commands. |
-| `@beep/repo-cli/commands/Image` | `ImageCommandService` | class | `packages/tooling/tool/cli/src/commands/Image/Image.service.ts:89` | Service tag for image and video curation operations. |
-| `@beep/repo-cli/commands/Image` | `ImageCommandServiceLive` | const | `packages/tooling/tool/cli/src/commands/Image/Image.service.ts:307` | Live service layer for image and video curation operations. |
-| `@beep/repo-cli/commands/Image` | `ImageCommandServiceShape` | interface | `packages/tooling/tool/cli/src/commands/Image/Image.service.ts:56` | Service contract for image and video curation commands. |
+| `@beep/repo-cli/commands/Image` | `ImageCommandService` | class | `packages/tooling/tool/cli/src/commands/Image/Image.service.ts:85` | Service tag for image and video curation operations. |
+| `@beep/repo-cli/commands/Image` | `ImageCommandServiceLive` | const | `packages/tooling/tool/cli/src/commands/Image/Image.service.ts:301` | Live service layer for image and video curation operations. |
+| `@beep/repo-cli/commands/Image` | `ImageCommandServiceShape` | interface | `packages/tooling/tool/cli/src/commands/Image/Image.service.ts:54` | Service contract for image and video curation commands. |
 | `@beep/repo-cli/commands/Image/Image.command` | `imageCommand` | const | `packages/tooling/tool/cli/src/commands/Image/Image.command.ts:135` | Image and video curation command group. |
 | `@beep/repo-cli/commands/Image/Image.errors` | `ImageCommandError` | class | `packages/tooling/tool/cli/src/commands/Image/Image.errors.ts:28` | Error raised by image curation commands. |
-| `@beep/repo-cli/commands/Image/Image.progress` | `makeExtractFramesEvents` | const | `packages/tooling/tool/cli/src/commands/Image/Image.progress.ts:67` | Build a TTY-only FFmpeg event sink. |
-| `@beep/repo-cli/commands/Image/Image.progress` | `renderExtractFramesEvent` | const | `packages/tooling/tool/cli/src/commands/Image/Image.progress.ts:31` | Render one FFmpeg event through the terminal service. |
-| `@beep/repo-cli/commands/Image/Image.render` | `renderCompletedProgress` | const | `packages/tooling/tool/cli/src/commands/Image/Image.render.ts:66` | Render a completed progress line. |
-| `@beep/repo-cli/commands/Image/Image.render` | `renderExtractFramesCommandSummary` | const | `packages/tooling/tool/cli/src/commands/Image/Image.render.ts:126` | Render the final `image extract-frames` output line. |
-| `@beep/repo-cli/commands/Image/Image.render` | `renderExtractFramesDirError` | const | `packages/tooling/tool/cli/src/commands/Image/Image.render.ts:220` | Render the aggregate directory extraction error message. |
-| `@beep/repo-cli/commands/Image/Image.render` | `renderExtractFramesDirFailure` | const | `packages/tooling/tool/cli/src/commands/Image/Image.render.ts:162` | Render one failed directory extraction outcome. |
-| `@beep/repo-cli/commands/Image/Image.render` | `renderExtractFramesDirOutcome` | const | `packages/tooling/tool/cli/src/commands/Image/Image.render.ts:180` | Render one directory extraction outcome. |
-| `@beep/repo-cli/commands/Image/Image.render` | `renderExtractFramesDirSuccess` | const | `packages/tooling/tool/cli/src/commands/Image/Image.render.ts:144` | Render one successful directory extraction outcome. |
-| `@beep/repo-cli/commands/Image/Image.render` | `renderExtractFramesDirSummary` | const | `packages/tooling/tool/cli/src/commands/Image/Image.render.ts:202` | Render the final directory extraction summary line. |
-| `@beep/repo-cli/commands/Image/Image.render` | `renderExtractFramesSummary` | const | `packages/tooling/tool/cli/src/commands/Image/Image.render.ts:108` | Render a frame extraction summary. |
-| `@beep/repo-cli/commands/Image/Image.render` | `renderInitialProgress` | const | `packages/tooling/tool/cli/src/commands/Image/Image.render.ts:90` | Render the initial progress line. |
-| `@beep/repo-cli/commands/Image/Image.render` | `renderProgressBar` | const | `packages/tooling/tool/cli/src/commands/Image/Image.render.ts:40` | Render the progress bar for one FFmpeg progress event. |
-| `@beep/repo-cli/commands/Image/Image.schemas` | `decodeExtractFramesDirOptions` | const | `packages/tooling/tool/cli/src/commands/Image/Image.schemas.ts:279` | Decode unknown directory frame extraction options. |
-| `@beep/repo-cli/commands/Image/Image.schemas` | `decodeExtractFramesOptions` | const | `packages/tooling/tool/cli/src/commands/Image/Image.schemas.ts:264` | Decode unknown single-video frame extraction options. |
+| `@beep/repo-cli/commands/Image/Image.progress` | `makeExtractFramesEvents` | const | `packages/tooling/tool/cli/src/commands/Image/Image.progress.ts:63` | Build a TTY-only FFmpeg event sink. |
+| `@beep/repo-cli/commands/Image/Image.progress` | `renderExtractFramesEvent` | const | `packages/tooling/tool/cli/src/commands/Image/Image.progress.ts:29` | Render one FFmpeg event through the terminal service. |
+| `@beep/repo-cli/commands/Image/Image.render` | `renderCompletedProgress` | const | `packages/tooling/tool/cli/src/commands/Image/Image.render.ts:62` | Render a completed progress line. |
+| `@beep/repo-cli/commands/Image/Image.render` | `renderExtractFramesCommandSummary` | const | `packages/tooling/tool/cli/src/commands/Image/Image.render.ts:116` | Render the final `image extract-frames` output line. |
+| `@beep/repo-cli/commands/Image/Image.render` | `renderExtractFramesDirError` | const | `packages/tooling/tool/cli/src/commands/Image/Image.render.ts:200` | Render the aggregate directory extraction error message. |
+| `@beep/repo-cli/commands/Image/Image.render` | `renderExtractFramesDirFailure` | const | `packages/tooling/tool/cli/src/commands/Image/Image.render.ts:148` | Render one failed directory extraction outcome. |
+| `@beep/repo-cli/commands/Image/Image.render` | `renderExtractFramesDirOutcome` | const | `packages/tooling/tool/cli/src/commands/Image/Image.render.ts:164` | Render one directory extraction outcome. |
+| `@beep/repo-cli/commands/Image/Image.render` | `renderExtractFramesDirSuccess` | const | `packages/tooling/tool/cli/src/commands/Image/Image.render.ts:132` | Render one successful directory extraction outcome. |
+| `@beep/repo-cli/commands/Image/Image.render` | `renderExtractFramesDirSummary` | const | `packages/tooling/tool/cli/src/commands/Image/Image.render.ts:184` | Render the final directory extraction summary line. |
+| `@beep/repo-cli/commands/Image/Image.render` | `renderExtractFramesSummary` | const | `packages/tooling/tool/cli/src/commands/Image/Image.render.ts:100` | Render a frame extraction summary. |
+| `@beep/repo-cli/commands/Image/Image.render` | `renderInitialProgress` | const | `packages/tooling/tool/cli/src/commands/Image/Image.render.ts:84` | Render the initial progress line. |
+| `@beep/repo-cli/commands/Image/Image.render` | `renderProgressBar` | const | `packages/tooling/tool/cli/src/commands/Image/Image.render.ts:38` | Render the progress bar for one FFmpeg progress event. |
+| `@beep/repo-cli/commands/Image/Image.schemas` | `decodeExtractFramesDirOptions` | const | `packages/tooling/tool/cli/src/commands/Image/Image.schemas.ts:273` | Decode unknown directory frame extraction options. |
+| `@beep/repo-cli/commands/Image/Image.schemas` | `decodeExtractFramesOptions` | const | `packages/tooling/tool/cli/src/commands/Image/Image.schemas.ts:260` | Decode unknown single-video frame extraction options. |
 | `@beep/repo-cli/commands/Image/Image.schemas` | `ExtractFramesDirFailure` | class | `packages/tooling/tool/cli/src/commands/Image/Image.schemas.ts:182` | Failed video from a folder-based frame extraction run. |
 | `@beep/repo-cli/commands/Image/Image.schemas` | `ExtractFramesDirOptions` | class | `packages/tooling/tool/cli/src/commands/Image/Image.schemas.ts:79` | Options accepted by `image extract-frames-dir`. |
-| `@beep/repo-cli/commands/Image/Image.schemas` | `ExtractFramesDirOutcome` | const | `packages/tooling/tool/cli/src/commands/Image/Image.schemas.ts:207` | Ordered outcome for one `image extract-frames-dir` input video. |
-| `@beep/repo-cli/commands/Image/Image.schemas` | `ExtractFramesDirOutcome` | type | `packages/tooling/tool/cli/src/commands/Image/Image.schemas.ts:219` | Ordered outcome for one `image extract-frames-dir` input video. |
-| `@beep/repo-cli/commands/Image/Image.schemas` | `ExtractFramesDirResult` | class | `packages/tooling/tool/cli/src/commands/Image/Image.schemas.ts:239` | Result returned by `image extract-frames-dir`. |
+| `@beep/repo-cli/commands/Image/Image.schemas` | `ExtractFramesDirOutcome` | const | `packages/tooling/tool/cli/src/commands/Image/Image.schemas.ts:205` | Ordered outcome for one `image extract-frames-dir` input video. |
+| `@beep/repo-cli/commands/Image/Image.schemas` | `ExtractFramesDirOutcome` | type | `packages/tooling/tool/cli/src/commands/Image/Image.schemas.ts:217` | Ordered outcome for one `image extract-frames-dir` input video. |
+| `@beep/repo-cli/commands/Image/Image.schemas` | `ExtractFramesDirResult` | class | `packages/tooling/tool/cli/src/commands/Image/Image.schemas.ts:237` | Result returned by `image extract-frames-dir`. |
 | `@beep/repo-cli/commands/Image/Image.schemas` | `ExtractFramesDirSuccess` | class | `packages/tooling/tool/cli/src/commands/Image/Image.schemas.ts:152` | Successful video from a folder-based frame extraction run. |
 | `@beep/repo-cli/commands/Image/Image.schemas` | `ExtractFramesDirVideo` | class | `packages/tooling/tool/cli/src/commands/Image/Image.schemas.ts:115` | Direct video selected by `image extract-frames-dir`. |
 | `@beep/repo-cli/commands/Image/Image.schemas` | `ExtractFramesOptions` | class | `packages/tooling/tool/cli/src/commands/Image/Image.schemas.ts:37` | Options accepted by `image extract-frames`. |
-| `@beep/repo-cli/commands/Image/Image.service` | `extractFrames` | const | `packages/tooling/tool/cli/src/commands/Image/Image.service.ts:325` | Extract PNG frames from a single video. |
-| `@beep/repo-cli/commands/Image/Image.service` | `extractFramesDir` | const | `packages/tooling/tool/cli/src/commands/Image/Image.service.ts:347` | Extract PNG frames from every direct video in a directory. |
-| `@beep/repo-cli/commands/Image/Image.service` | `ImageCommandService` | class | `packages/tooling/tool/cli/src/commands/Image/Image.service.ts:89` | Service tag for image and video curation operations. |
-| `@beep/repo-cli/commands/Image/Image.service` | `ImageCommandServiceLive` | const | `packages/tooling/tool/cli/src/commands/Image/Image.service.ts:307` | Live service layer for image and video curation operations. |
-| `@beep/repo-cli/commands/Image/Image.service` | `ImageCommandServiceShape` | interface | `packages/tooling/tool/cli/src/commands/Image/Image.service.ts:56` | Service contract for image and video curation commands. |
-| `@beep/repo-cli/commands/Image/index` | `decodeExtractFramesDirOptions` | const | `packages/tooling/tool/cli/src/commands/Image/Image.schemas.ts:279` | Decode unknown directory frame extraction options. |
-| `@beep/repo-cli/commands/Image/index` | `decodeExtractFramesOptions` | const | `packages/tooling/tool/cli/src/commands/Image/Image.schemas.ts:264` | Decode unknown single-video frame extraction options. |
-| `@beep/repo-cli/commands/Image/index` | `extractFrames` | const | `packages/tooling/tool/cli/src/commands/Image/Image.service.ts:325` | Extract PNG frames from a single video. |
-| `@beep/repo-cli/commands/Image/index` | `extractFramesDir` | const | `packages/tooling/tool/cli/src/commands/Image/Image.service.ts:347` | Extract PNG frames from every direct video in a directory. |
+| `@beep/repo-cli/commands/Image/Image.service` | `extractFrames` | const | `packages/tooling/tool/cli/src/commands/Image/Image.service.ts:317` | Extract PNG frames from a single video. |
+| `@beep/repo-cli/commands/Image/Image.service` | `extractFramesDir` | const | `packages/tooling/tool/cli/src/commands/Image/Image.service.ts:337` | Extract PNG frames from every direct video in a directory. |
+| `@beep/repo-cli/commands/Image/Image.service` | `ImageCommandService` | class | `packages/tooling/tool/cli/src/commands/Image/Image.service.ts:85` | Service tag for image and video curation operations. |
+| `@beep/repo-cli/commands/Image/Image.service` | `ImageCommandServiceLive` | const | `packages/tooling/tool/cli/src/commands/Image/Image.service.ts:301` | Live service layer for image and video curation operations. |
+| `@beep/repo-cli/commands/Image/Image.service` | `ImageCommandServiceShape` | interface | `packages/tooling/tool/cli/src/commands/Image/Image.service.ts:54` | Service contract for image and video curation commands. |
+| `@beep/repo-cli/commands/Image/index` | `decodeExtractFramesDirOptions` | const | `packages/tooling/tool/cli/src/commands/Image/Image.schemas.ts:273` | Decode unknown directory frame extraction options. |
+| `@beep/repo-cli/commands/Image/index` | `decodeExtractFramesOptions` | const | `packages/tooling/tool/cli/src/commands/Image/Image.schemas.ts:260` | Decode unknown single-video frame extraction options. |
+| `@beep/repo-cli/commands/Image/index` | `extractFrames` | const | `packages/tooling/tool/cli/src/commands/Image/Image.service.ts:317` | Extract PNG frames from a single video. |
+| `@beep/repo-cli/commands/Image/index` | `extractFramesDir` | const | `packages/tooling/tool/cli/src/commands/Image/Image.service.ts:337` | Extract PNG frames from every direct video in a directory. |
 | `@beep/repo-cli/commands/Image/index` | `ExtractFramesDirFailure` | class | `packages/tooling/tool/cli/src/commands/Image/Image.schemas.ts:182` | Failed video from a folder-based frame extraction run. |
 | `@beep/repo-cli/commands/Image/index` | `ExtractFramesDirOptions` | class | `packages/tooling/tool/cli/src/commands/Image/Image.schemas.ts:79` | Options accepted by `image extract-frames-dir`. |
-| `@beep/repo-cli/commands/Image/index` | `ExtractFramesDirOutcome` | const | `packages/tooling/tool/cli/src/commands/Image/Image.schemas.ts:207` | Ordered outcome for one `image extract-frames-dir` input video. |
-| `@beep/repo-cli/commands/Image/index` | `ExtractFramesDirOutcome` | type | `packages/tooling/tool/cli/src/commands/Image/Image.schemas.ts:219` | Ordered outcome for one `image extract-frames-dir` input video. |
-| `@beep/repo-cli/commands/Image/index` | `ExtractFramesDirResult` | class | `packages/tooling/tool/cli/src/commands/Image/Image.schemas.ts:239` | Result returned by `image extract-frames-dir`. |
+| `@beep/repo-cli/commands/Image/index` | `ExtractFramesDirOutcome` | const | `packages/tooling/tool/cli/src/commands/Image/Image.schemas.ts:205` | Ordered outcome for one `image extract-frames-dir` input video. |
+| `@beep/repo-cli/commands/Image/index` | `ExtractFramesDirOutcome` | type | `packages/tooling/tool/cli/src/commands/Image/Image.schemas.ts:217` | Ordered outcome for one `image extract-frames-dir` input video. |
+| `@beep/repo-cli/commands/Image/index` | `ExtractFramesDirResult` | class | `packages/tooling/tool/cli/src/commands/Image/Image.schemas.ts:237` | Result returned by `image extract-frames-dir`. |
 | `@beep/repo-cli/commands/Image/index` | `ExtractFramesDirSuccess` | class | `packages/tooling/tool/cli/src/commands/Image/Image.schemas.ts:152` | Successful video from a folder-based frame extraction run. |
 | `@beep/repo-cli/commands/Image/index` | `ExtractFramesDirVideo` | class | `packages/tooling/tool/cli/src/commands/Image/Image.schemas.ts:115` | Direct video selected by `image extract-frames-dir`. |
 | `@beep/repo-cli/commands/Image/index` | `ExtractFramesOptions` | class | `packages/tooling/tool/cli/src/commands/Image/Image.schemas.ts:37` | Options accepted by `image extract-frames`. |
 | `@beep/repo-cli/commands/Image/index` | `imageCommand` | const | `packages/tooling/tool/cli/src/commands/Image/Image.command.ts:135` | Image and video curation command group. |
 | `@beep/repo-cli/commands/Image/index` | `ImageCommandError` | class | `packages/tooling/tool/cli/src/commands/Image/Image.errors.ts:28` | Error raised by image curation commands. |
-| `@beep/repo-cli/commands/Image/index` | `ImageCommandService` | class | `packages/tooling/tool/cli/src/commands/Image/Image.service.ts:89` | Service tag for image and video curation operations. |
-| `@beep/repo-cli/commands/Image/index` | `ImageCommandServiceLive` | const | `packages/tooling/tool/cli/src/commands/Image/Image.service.ts:307` | Live service layer for image and video curation operations. |
-| `@beep/repo-cli/commands/Image/index` | `ImageCommandServiceShape` | interface | `packages/tooling/tool/cli/src/commands/Image/Image.service.ts:56` | Service contract for image and video curation commands. |
+| `@beep/repo-cli/commands/Image/index` | `ImageCommandService` | class | `packages/tooling/tool/cli/src/commands/Image/Image.service.ts:85` | Service tag for image and video curation operations. |
+| `@beep/repo-cli/commands/Image/index` | `ImageCommandServiceLive` | const | `packages/tooling/tool/cli/src/commands/Image/Image.service.ts:301` | Live service layer for image and video curation operations. |
+| `@beep/repo-cli/commands/Image/index` | `ImageCommandServiceShape` | interface | `packages/tooling/tool/cli/src/commands/Image/Image.service.ts:54` | Service contract for image and video curation commands. |
 | `@beep/repo-cli/commands/Laws` | `DualArityInventoryReadError` | class | `packages/tooling/tool/cli/src/commands/Laws/Laws.errors.ts:31` | Failure raised when the dual-arity inventory cannot be read or decoded. |
 | `@beep/repo-cli/commands/Laws` | `EffectImportRulesPersistenceError` | class | `packages/tooling/tool/cli/src/commands/Laws/Laws.errors.ts:62` | Failure raised when Effect import rule updates cannot be written. |
 | `@beep/repo-cli/commands/Laws` | `lawsCommand` | const | `packages/tooling/tool/cli/src/commands/Laws/Laws.command.ts:439` | Laws command group. |
@@ -1770,13 +1771,13 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/commands/Laws/Laws.errors` | `EffectImportRulesPersistenceError` | class | `packages/tooling/tool/cli/src/commands/Laws/Laws.errors.ts:62` | Failure raised when Effect import rule updates cannot be written. |
 | `@beep/repo-cli/commands/Laws/Laws.errors` | `NoNativeRuntimeRulesExecutionError` | class | `packages/tooling/tool/cli/src/commands/Laws/Laws.errors.ts:94` | Failure raised when native runtime enforcement cannot complete. |
 | `@beep/repo-cli/commands/Laws/Laws.errors` | `TerseEffectRulesPersistenceError` | class | `packages/tooling/tool/cli/src/commands/Laws/Laws.errors.ts:126` | Failure raised when terse Effect rule updates cannot be written. |
-| `@beep/repo-cli/commands/Laws/NoNativeRuntime` | `collectNativeRuntimeViolationKeys` | const | `packages/tooling/tool/cli/src/commands/Laws/NoNativeRuntime.ts:484` | Collect normalized native-runtime violation keys for allowlist integrity checks. |
-| `@beep/repo-cli/commands/Laws/NoNativeRuntime` | `NativeRuntimeViolationKeyOptions` | class | `packages/tooling/tool/cli/src/commands/Laws/NoNativeRuntime.ts:206` | Options for collecting native-runtime allowlist lookup keys. |
-| `@beep/repo-cli/commands/Laws/NoNativeRuntime` | `NoNativeRuntimeDiagnostic` | class | `packages/tooling/tool/cli/src/commands/Laws/NoNativeRuntime.ts:119` | Single repo-local native runtime diagnostic. |
-| `@beep/repo-cli/commands/Laws/NoNativeRuntime` | `NoNativeRuntimeDiagnostic` | namespace | `packages/tooling/tool/cli/src/commands/Laws/NoNativeRuntime.ts:143` | Namespace for {@link NoNativeRuntimeDiagnostic} companion types. |
-| `@beep/repo-cli/commands/Laws/NoNativeRuntime` | `NoNativeRuntimeRulesOptions` | class | `packages/tooling/tool/cli/src/commands/Laws/NoNativeRuntime.ts:91` | Runtime options for repo-local native runtime checks. |
-| `@beep/repo-cli/commands/Laws/NoNativeRuntime` | `NoNativeRuntimeRulesSummary` | class | `packages/tooling/tool/cli/src/commands/Laws/NoNativeRuntime.ts:167` | Summary of repo-local native runtime checks. |
-| `@beep/repo-cli/commands/Laws/NoNativeRuntime` | `runNoNativeRuntimeRules` | const | `packages/tooling/tool/cli/src/commands/Laws/NoNativeRuntime.ts:509` | Run repo-local native runtime checks. |
+| `@beep/repo-cli/commands/Laws/NoNativeRuntime` | `collectNativeRuntimeViolationKeys` | const | `packages/tooling/tool/cli/src/commands/Laws/NoNativeRuntime.ts:485` | Collect normalized native-runtime violation keys for allowlist integrity checks. |
+| `@beep/repo-cli/commands/Laws/NoNativeRuntime` | `NativeRuntimeViolationKeyOptions` | class | `packages/tooling/tool/cli/src/commands/Laws/NoNativeRuntime.ts:207` | Options for collecting native-runtime allowlist lookup keys. |
+| `@beep/repo-cli/commands/Laws/NoNativeRuntime` | `NoNativeRuntimeDiagnostic` | class | `packages/tooling/tool/cli/src/commands/Laws/NoNativeRuntime.ts:120` | Single repo-local native runtime diagnostic. |
+| `@beep/repo-cli/commands/Laws/NoNativeRuntime` | `NoNativeRuntimeDiagnostic` | namespace | `packages/tooling/tool/cli/src/commands/Laws/NoNativeRuntime.ts:144` | Namespace for {@link NoNativeRuntimeDiagnostic} companion types. |
+| `@beep/repo-cli/commands/Laws/NoNativeRuntime` | `NoNativeRuntimeRulesOptions` | class | `packages/tooling/tool/cli/src/commands/Laws/NoNativeRuntime.ts:92` | Runtime options for repo-local native runtime checks. |
+| `@beep/repo-cli/commands/Laws/NoNativeRuntime` | `NoNativeRuntimeRulesSummary` | class | `packages/tooling/tool/cli/src/commands/Laws/NoNativeRuntime.ts:168` | Summary of repo-local native runtime checks. |
+| `@beep/repo-cli/commands/Laws/NoNativeRuntime` | `runNoNativeRuntimeRules` | const | `packages/tooling/tool/cli/src/commands/Laws/NoNativeRuntime.ts:510` | Run repo-local native runtime checks. |
 | `@beep/repo-cli/commands/Laws/TerseEffect` | `runTerseEffectRules` | const | `packages/tooling/tool/cli/src/commands/Laws/TerseEffect.ts:542` | Run terse Effect style migration/check logic. |
 | `@beep/repo-cli/commands/Laws/TerseEffect` | `TerseEffectRulesOptions` | class | `packages/tooling/tool/cli/src/commands/Laws/TerseEffect.ts:31` | Runtime options for terse Effect style migration checks. |
 | `@beep/repo-cli/commands/Laws/TerseEffect` | `TerseEffectRulesSummary` | class | `packages/tooling/tool/cli/src/commands/Laws/TerseEffect.ts:61` | Summary of terse Effect style migration results. |
@@ -1801,9 +1802,9 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/commands/Lint/Lint.errors` | `LintCircularAnalysisError` | class | `packages/tooling/tool/cli/src/commands/Lint/Lint.errors.ts:32` | Failure raised when circular dependency analysis cannot complete. |
 | `@beep/repo-cli/commands/Lint/Lint.errors` | `LintFileDiscoveryError` | class | `packages/tooling/tool/cli/src/commands/Lint/Lint.errors.ts:63` | Failure raised when lint file discovery cannot read a source root. |
 | `@beep/repo-cli/commands/Lint/PackageTestImports` | `lintPackageTestImportsCommand` | const | `packages/tooling/tool/cli/src/commands/Lint/PackageTestImports.ts:319` | Lint command for enforcing package aliases from package test and dtslint files. |
-| `@beep/repo-cli/commands/Lint/SchemaFirst` | `lintSchemaFirstCommand` | const | `packages/tooling/tool/cli/src/commands/Lint/SchemaFirst.ts:629` | Repo-wide schema-first lint command. |
-| `@beep/repo-cli/commands/Lint/SchemaFirst` | `runSchemaFirstLint` | const | `packages/tooling/tool/cli/src/commands/Lint/SchemaFirst.ts:520` | Run schema-first inventory verification against the committed baseline. |
-| `@beep/repo-cli/commands/Lint/SchemaFirst` | `SchemaFirstInventoryEntry` | namespace | `packages/tooling/tool/cli/src/commands/Lint/SchemaFirst.ts:74` | Namespace for {@link SchemaFirstInventoryEntry} companion types. |
+| `@beep/repo-cli/commands/Lint/SchemaFirst` | `lintSchemaFirstCommand` | const | `packages/tooling/tool/cli/src/commands/Lint/SchemaFirst.ts:626` | Repo-wide schema-first lint command. |
+| `@beep/repo-cli/commands/Lint/SchemaFirst` | `runSchemaFirstLint` | const | `packages/tooling/tool/cli/src/commands/Lint/SchemaFirst.ts:517` | Run schema-first inventory verification against the committed baseline. |
+| `@beep/repo-cli/commands/Lint/SchemaFirst` | `SchemaFirstInventoryEntry` | namespace | `packages/tooling/tool/cli/src/commands/Lint/SchemaFirst.ts:75` | Namespace for {@link SchemaFirstInventoryEntry} companion types. |
 | `@beep/repo-cli/commands/Lint/SchemaTopology` | `collectSchemaTopologyViolations` | const | `packages/tooling/tool/cli/src/commands/Lint/SchemaTopology.ts:434` | Collect schema topology violations without mutating process state. |
 | `@beep/repo-cli/commands/Lint/SchemaTopology` | `lintSchemaTopologyCommand` | const | `packages/tooling/tool/cli/src/commands/Lint/SchemaTopology.ts:492` | Lint command for enforcing canonical `@beep/schema` topology. |
 | `@beep/repo-cli/commands/Lint/SchemaTopology` | `runSchemaTopologyLint` | const | `packages/tooling/tool/cli/src/commands/Lint/SchemaTopology.ts:466` | Run the schema topology lint command. |
@@ -1862,9 +1863,9 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/commands/Quality/Quality.errors` | `QualityTaskFailed` | class | `packages/tooling/tool/cli/src/commands/Quality/Quality.errors.ts:144` | Error raised when a quality task subprocess exits unsuccessfully. |
 | `@beep/repo-cli/commands/Quality/Quality.errors` | `QualityTaskGroupFailed` | class | `packages/tooling/tool/cli/src/commands/Quality/Quality.errors.ts:198` | Error raised when a bounded quality task group completes with failed steps. |
 | `@beep/repo-cli/commands/Quality/Quality.errors` | `UnexpectedQualityTaskFailure` | class | `packages/tooling/tool/cli/src/commands/Quality/Quality.errors.ts:277` | Error raised when an unexpected quality task cause reaches the command boundary. |
-| `@beep/repo-cli/commands/Quality/Tasks` | `collectStepOutput` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:1211` | Run a subprocess and capture all output. Exposed for focused unit tests. |
+| `@beep/repo-cli/commands/Quality/Tasks` | `collectStepOutput` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:1203` | Run a subprocess and capture all output. Exposed for focused unit tests. |
 | `@beep/repo-cli/commands/Quality/Tasks` | `PackageTaskProfile` | class | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:103` | Package-local script profile used by the quality task adapter. |
-| `@beep/repo-cli/commands/Quality/Tasks` | `parseQualityTaskInvocation` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:1105` | Parse a raw argv vector into a quality task invocation when the first token is |
+| `@beep/repo-cli/commands/Quality/Tasks` | `parseQualityTaskInvocation` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:1097` | Parse a raw argv vector into a quality task invocation when the first token is |
 | `@beep/repo-cli/commands/Quality/Tasks` | `QualityTaskConfigurationError` | class | `packages/tooling/tool/cli/src/commands/Quality/Quality.errors.ts:245` | Error raised when a quality task cannot resolve its required configuration. |
 | `@beep/repo-cli/commands/Quality/Tasks` | `QualityTaskFailed` | class | `packages/tooling/tool/cli/src/commands/Quality/Quality.errors.ts:144` | Error raised when a quality task subprocess exits unsuccessfully. |
 | `@beep/repo-cli/commands/Quality/Tasks` | `QualityTaskGroupFailed` | class | `packages/tooling/tool/cli/src/commands/Quality/Quality.errors.ts:198` | Error raised when a bounded quality task group completes with failed steps. |
@@ -1872,54 +1873,54 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/commands/Quality/Tasks` | `QualityTaskName` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:69` | Canonical quality task name. |
 | `@beep/repo-cli/commands/Quality/Tasks` | `QualityTaskName` | type | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:86` | Canonical quality task name. |
 | `@beep/repo-cli/commands/Quality/Tasks` | `QualityTaskStep` | class | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:130` | Planned subprocess invocation. |
-| `@beep/repo-cli/commands/Quality/Tasks` | `rootQualityStepsForTesting` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:1002` | Build root quality task subprocess steps. Exposed for focused unit tests. |
-| `@beep/repo-cli/commands/Quality/Tasks` | `runQualityTask` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:1149` | Run a parsed quality task in either repo-root or package-local mode. |
-| `@beep/repo-cli/commands/Quality/Tasks` | `runQualityTaskIfRequested` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:1179` | Run a quality task directly from a raw argv vector. |
-| `@beep/repo-cli/commands/Quality/Tasks` | `runQualityTaskStepGroupForTesting` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:1230` | Run a bounded quality task group. Exposed for focused unit tests. |
-| `@beep/repo-cli/commands/Quality/Tasks` | `runSqlIntegrationTestLaneForTesting` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:808` | Run the SQL integration lane with an injected resource and child command. |
-| `@beep/repo-cli/commands/Quality/Tasks` | `sqlIntegrationConnectionUriFromEnvForTesting` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:824` | Resolve the SQL integration database connection URI from environment variables. |
-| `@beep/repo-cli/commands/Quality/Tasks` | `sqlIntegrationStepForTesting` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:787` | Build the SQL integration test subprocess step. Exposed for focused unit tests. |
+| `@beep/repo-cli/commands/Quality/Tasks` | `rootQualityStepsForTesting` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:994` | Build root quality task subprocess steps. Exposed for focused unit tests. |
+| `@beep/repo-cli/commands/Quality/Tasks` | `runQualityTask` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:1141` | Run a parsed quality task in either repo-root or package-local mode. |
+| `@beep/repo-cli/commands/Quality/Tasks` | `runQualityTaskIfRequested` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:1171` | Run a quality task directly from a raw argv vector. |
+| `@beep/repo-cli/commands/Quality/Tasks` | `runQualityTaskStepGroupForTesting` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:1220` | Run a bounded quality task group. Exposed for focused unit tests. |
+| `@beep/repo-cli/commands/Quality/Tasks` | `runSqlIntegrationTestLaneForTesting` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:804` | Run the SQL integration lane with an injected resource and child command. |
+| `@beep/repo-cli/commands/Quality/Tasks` | `sqlIntegrationConnectionUriFromEnvForTesting` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:818` | Resolve the SQL integration database connection URI from environment variables. |
+| `@beep/repo-cli/commands/Quality/Tasks` | `sqlIntegrationStepForTesting` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:785` | Build the SQL integration test subprocess step. Exposed for focused unit tests. |
 | `@beep/repo-cli/commands/Quality/Tasks` | `UnexpectedQualityTaskFailure` | class | `packages/tooling/tool/cli/src/commands/Quality/Quality.errors.ts:277` | Error raised when an unexpected quality task cause reaches the command boundary. |
 | `@beep/repo-cli/commands/Reuse` | `buildCloneDocument` | const | `packages/tooling/tool/cli/src/commands/Reuse/internal/CloneBaseline.ts:116` | Build a sorted, deterministic baseline document from clone candidates. |
 | `@beep/repo-cli/commands/Reuse` | `CloneBaselineDocument` | class | `packages/tooling/tool/cli/src/commands/Reuse/internal/CloneBaseline.ts:67` | Committed baseline of acknowledged structural-clone clusters for the ratchet. |
 | `@beep/repo-cli/commands/Reuse` | `CloneBaselineEntry` | class | `packages/tooling/tool/cli/src/commands/Reuse/internal/CloneBaseline.ts:39` | One acknowledged structural-clone cluster recorded in the committed baseline. |
-| `@beep/repo-cli/commands/Reuse` | `CodexRunnerError` | class | `packages/tooling/tool/cli/src/commands/Reuse/Reuse.errors.ts:60` | Structured error emitted when the Codex SDK smoke path fails. |
-| `@beep/repo-cli/commands/Reuse` | `CodexRunnerStage` | const | `packages/tooling/tool/cli/src/commands/Reuse/Reuse.errors.ts:33` | Lifecycle stages surfaced by the Codex smoke runner. |
-| `@beep/repo-cli/commands/Reuse` | `CodexRunnerStage` | type | `packages/tooling/tool/cli/src/commands/Reuse/Reuse.errors.ts:45` | Runtime type for `CodexRunnerStage`. |
+| `@beep/repo-cli/commands/Reuse` | `CodexRunnerError` | class | `packages/tooling/tool/cli/src/commands/Reuse/Reuse.errors.ts:56` | Structured error emitted when the Codex SDK smoke path fails. |
+| `@beep/repo-cli/commands/Reuse` | `CodexRunnerStage` | const | `packages/tooling/tool/cli/src/commands/Reuse/Reuse.errors.ts:31` | Lifecycle stages surfaced by the Codex smoke runner. |
+| `@beep/repo-cli/commands/Reuse` | `CodexRunnerStage` | type | `packages/tooling/tool/cli/src/commands/Reuse/Reuse.errors.ts:43` | Runtime type for `CodexRunnerStage`. |
 | `@beep/repo-cli/commands/Reuse` | `diffCloneBaseline` | const | `packages/tooling/tool/cli/src/commands/Reuse/internal/CloneBaseline.ts:178` | Diff live clusters against a committed baseline, returning new and grown clusters. |
-| `@beep/repo-cli/commands/Reuse` | `reuseCommand` | const | `packages/tooling/tool/cli/src/commands/Reuse/Reuse.command.ts:674` | Reuse-discovery command group. |
+| `@beep/repo-cli/commands/Reuse` | `reuseCommand` | const | `packages/tooling/tool/cli/src/commands/Reuse/Reuse.command.ts:672` | Reuse-discovery command group. |
 | `@beep/repo-cli/commands/Reuse` | `sanitizeTerminalText` | const | `packages/tooling/tool/cli/src/commands/Reuse/Reuse.command.ts:161` | Remove terminal control sequences from human-readable reuse output. |
 | `@beep/repo-cli/commands/Reuse/index` | `buildCloneDocument` | const | `packages/tooling/tool/cli/src/commands/Reuse/internal/CloneBaseline.ts:116` | Build a sorted, deterministic baseline document from clone candidates. |
 | `@beep/repo-cli/commands/Reuse/index` | `CloneBaselineDocument` | class | `packages/tooling/tool/cli/src/commands/Reuse/internal/CloneBaseline.ts:67` | Committed baseline of acknowledged structural-clone clusters for the ratchet. |
 | `@beep/repo-cli/commands/Reuse/index` | `CloneBaselineEntry` | class | `packages/tooling/tool/cli/src/commands/Reuse/internal/CloneBaseline.ts:39` | One acknowledged structural-clone cluster recorded in the committed baseline. |
-| `@beep/repo-cli/commands/Reuse/index` | `CodexRunnerError` | class | `packages/tooling/tool/cli/src/commands/Reuse/Reuse.errors.ts:60` | Structured error emitted when the Codex SDK smoke path fails. |
-| `@beep/repo-cli/commands/Reuse/index` | `CodexRunnerStage` | const | `packages/tooling/tool/cli/src/commands/Reuse/Reuse.errors.ts:33` | Lifecycle stages surfaced by the Codex smoke runner. |
-| `@beep/repo-cli/commands/Reuse/index` | `CodexRunnerStage` | type | `packages/tooling/tool/cli/src/commands/Reuse/Reuse.errors.ts:45` | Runtime type for `CodexRunnerStage`. |
+| `@beep/repo-cli/commands/Reuse/index` | `CodexRunnerError` | class | `packages/tooling/tool/cli/src/commands/Reuse/Reuse.errors.ts:56` | Structured error emitted when the Codex SDK smoke path fails. |
+| `@beep/repo-cli/commands/Reuse/index` | `CodexRunnerStage` | const | `packages/tooling/tool/cli/src/commands/Reuse/Reuse.errors.ts:31` | Lifecycle stages surfaced by the Codex smoke runner. |
+| `@beep/repo-cli/commands/Reuse/index` | `CodexRunnerStage` | type | `packages/tooling/tool/cli/src/commands/Reuse/Reuse.errors.ts:43` | Runtime type for `CodexRunnerStage`. |
 | `@beep/repo-cli/commands/Reuse/index` | `diffCloneBaseline` | const | `packages/tooling/tool/cli/src/commands/Reuse/internal/CloneBaseline.ts:178` | Diff live clusters against a committed baseline, returning new and grown clusters. |
-| `@beep/repo-cli/commands/Reuse/index` | `reuseCommand` | const | `packages/tooling/tool/cli/src/commands/Reuse/Reuse.command.ts:674` | Reuse-discovery command group. |
+| `@beep/repo-cli/commands/Reuse/index` | `reuseCommand` | const | `packages/tooling/tool/cli/src/commands/Reuse/Reuse.command.ts:672` | Reuse-discovery command group. |
 | `@beep/repo-cli/commands/Reuse/index` | `sanitizeTerminalText` | const | `packages/tooling/tool/cli/src/commands/Reuse/Reuse.command.ts:161` | Remove terminal control sequences from human-readable reuse output. |
 | `@beep/repo-cli/commands/Reuse/internal/CloneBaseline` | `buildCloneDocument` | const | `packages/tooling/tool/cli/src/commands/Reuse/internal/CloneBaseline.ts:116` | Build a sorted, deterministic baseline document from clone candidates. |
 | `@beep/repo-cli/commands/Reuse/internal/CloneBaseline` | `CloneBaselineDocument` | class | `packages/tooling/tool/cli/src/commands/Reuse/internal/CloneBaseline.ts:67` | Committed baseline of acknowledged structural-clone clusters for the ratchet. |
 | `@beep/repo-cli/commands/Reuse/internal/CloneBaseline` | `CloneBaselineEntry` | class | `packages/tooling/tool/cli/src/commands/Reuse/internal/CloneBaseline.ts:39` | One acknowledged structural-clone cluster recorded in the committed baseline. |
 | `@beep/repo-cli/commands/Reuse/internal/CloneBaseline` | `diffCloneBaseline` | const | `packages/tooling/tool/cli/src/commands/Reuse/internal/CloneBaseline.ts:178` | Diff live clusters against a committed baseline, returning new and grown clusters. |
 | `@beep/repo-cli/commands/Reuse/internal/CloneBaseline` | `runCloneGate` | const | `packages/tooling/tool/cli/src/commands/Reuse/internal/CloneBaseline.ts:224` | Refresh or enforce the structural-clone baseline from current clone candidates. |
-| `@beep/repo-cli/commands/Reuse/internal/CodexRunner` | `CodexRunnerError` | class | `packages/tooling/tool/cli/src/commands/Reuse/Reuse.errors.ts:60` | Structured error emitted when the Codex SDK smoke path fails. |
-| `@beep/repo-cli/commands/Reuse/internal/CodexRunner` | `CodexRunnerStage` | const | `packages/tooling/tool/cli/src/commands/Reuse/Reuse.errors.ts:33` | Lifecycle stages surfaced by the Codex smoke runner. |
-| `@beep/repo-cli/commands/Reuse/internal/CodexRunner` | `CodexRunnerStage` | type | `packages/tooling/tool/cli/src/commands/Reuse/Reuse.errors.ts:45` | Runtime type for `CodexRunnerStage`. |
+| `@beep/repo-cli/commands/Reuse/internal/CodexRunner` | `CodexRunnerError` | class | `packages/tooling/tool/cli/src/commands/Reuse/Reuse.errors.ts:56` | Structured error emitted when the Codex SDK smoke path fails. |
+| `@beep/repo-cli/commands/Reuse/internal/CodexRunner` | `CodexRunnerStage` | const | `packages/tooling/tool/cli/src/commands/Reuse/Reuse.errors.ts:31` | Lifecycle stages surfaced by the Codex smoke runner. |
+| `@beep/repo-cli/commands/Reuse/internal/CodexRunner` | `CodexRunnerStage` | type | `packages/tooling/tool/cli/src/commands/Reuse/Reuse.errors.ts:43` | Runtime type for `CodexRunnerStage`. |
 | `@beep/repo-cli/commands/Reuse/internal/CodexRunner` | `CodexSmokeResult` | class | `packages/tooling/tool/cli/src/commands/Reuse/internal/CodexRunner.ts:32` | Structured result for `beep reuse codex-smoke`. |
 | `@beep/repo-cli/commands/Reuse/internal/CodexRunner` | `runCodexSmoke` | const | `packages/tooling/tool/cli/src/commands/Reuse/internal/CodexRunner.ts:53` | Validate the local Codex SDK adapter without running a reuse loop. |
-| `@beep/repo-cli/commands/Reuse/Reuse.command` | `reuseCommand` | const | `packages/tooling/tool/cli/src/commands/Reuse/Reuse.command.ts:674` | Reuse-discovery command group. |
+| `@beep/repo-cli/commands/Reuse/Reuse.command` | `reuseCommand` | const | `packages/tooling/tool/cli/src/commands/Reuse/Reuse.command.ts:672` | Reuse-discovery command group. |
 | `@beep/repo-cli/commands/Reuse/Reuse.command` | `sanitizeTerminalText` | const | `packages/tooling/tool/cli/src/commands/Reuse/Reuse.command.ts:161` | Remove terminal control sequences from human-readable reuse output. |
-| `@beep/repo-cli/commands/Reuse/Reuse.errors` | `CodexRunnerError` | class | `packages/tooling/tool/cli/src/commands/Reuse/Reuse.errors.ts:60` | Structured error emitted when the Codex SDK smoke path fails. |
-| `@beep/repo-cli/commands/Reuse/Reuse.errors` | `CodexRunnerStage` | const | `packages/tooling/tool/cli/src/commands/Reuse/Reuse.errors.ts:33` | Lifecycle stages surfaced by the Codex smoke runner. |
-| `@beep/repo-cli/commands/Reuse/Reuse.errors` | `CodexRunnerStage` | type | `packages/tooling/tool/cli/src/commands/Reuse/Reuse.errors.ts:45` | Runtime type for `CodexRunnerStage`. |
+| `@beep/repo-cli/commands/Reuse/Reuse.errors` | `CodexRunnerError` | class | `packages/tooling/tool/cli/src/commands/Reuse/Reuse.errors.ts:56` | Structured error emitted when the Codex SDK smoke path fails. |
+| `@beep/repo-cli/commands/Reuse/Reuse.errors` | `CodexRunnerStage` | const | `packages/tooling/tool/cli/src/commands/Reuse/Reuse.errors.ts:31` | Lifecycle stages surfaced by the Codex smoke runner. |
+| `@beep/repo-cli/commands/Reuse/Reuse.errors` | `CodexRunnerStage` | type | `packages/tooling/tool/cli/src/commands/Reuse/Reuse.errors.ts:43` | Runtime type for `CodexRunnerStage`. |
 | `@beep/repo-cli/commands/Root` | `rootCommand` | const | `packages/tooling/tool/cli/src/commands/Root.ts:45` | Top-level CLI command that registers all subcommands. |
-| `@beep/repo-cli/commands/SyncDataToTs` | `syncDataToTsCommand` | const | `packages/tooling/tool/cli/src/commands/SyncDataToTs/SyncDataToTs.command.ts:448` | CLI command for syncing official upstream datasets into checked-in TypeScript modules. |
-| `@beep/repo-cli/commands/SyncDataToTs` | `SyncDataToTsDriftError` | class | `packages/tooling/tool/cli/src/commands/SyncDataToTs/SyncDataToTs.errors.ts:100` | Drift detected in check mode. |
-| `@beep/repo-cli/commands/SyncDataToTs` | `SyncDataToTsError` | class | `packages/tooling/tool/cli/src/commands/SyncDataToTs/SyncDataToTs.errors.ts:42` | Operational error during source fetch, parsing, projection, or file writes. |
-| `@beep/repo-cli/commands/SyncDataToTs/index` | `syncDataToTsCommand` | const | `packages/tooling/tool/cli/src/commands/SyncDataToTs/SyncDataToTs.command.ts:448` | CLI command for syncing official upstream datasets into checked-in TypeScript modules. |
-| `@beep/repo-cli/commands/SyncDataToTs/index` | `SyncDataToTsDriftError` | class | `packages/tooling/tool/cli/src/commands/SyncDataToTs/SyncDataToTs.errors.ts:100` | Drift detected in check mode. |
-| `@beep/repo-cli/commands/SyncDataToTs/index` | `SyncDataToTsError` | class | `packages/tooling/tool/cli/src/commands/SyncDataToTs/SyncDataToTs.errors.ts:42` | Operational error during source fetch, parsing, projection, or file writes. |
+| `@beep/repo-cli/commands/SyncDataToTs` | `syncDataToTsCommand` | const | `packages/tooling/tool/cli/src/commands/SyncDataToTs/SyncDataToTs.command.ts:446` | CLI command for syncing official upstream datasets into checked-in TypeScript modules. |
+| `@beep/repo-cli/commands/SyncDataToTs` | `SyncDataToTsDriftError` | class | `packages/tooling/tool/cli/src/commands/SyncDataToTs/SyncDataToTs.errors.ts:96` | Drift detected in check mode. |
+| `@beep/repo-cli/commands/SyncDataToTs` | `SyncDataToTsError` | class | `packages/tooling/tool/cli/src/commands/SyncDataToTs/SyncDataToTs.errors.ts:40` | Operational error during source fetch, parsing, projection, or file writes. |
+| `@beep/repo-cli/commands/SyncDataToTs/index` | `syncDataToTsCommand` | const | `packages/tooling/tool/cli/src/commands/SyncDataToTs/SyncDataToTs.command.ts:446` | CLI command for syncing official upstream datasets into checked-in TypeScript modules. |
+| `@beep/repo-cli/commands/SyncDataToTs/index` | `SyncDataToTsDriftError` | class | `packages/tooling/tool/cli/src/commands/SyncDataToTs/SyncDataToTs.errors.ts:96` | Drift detected in check mode. |
+| `@beep/repo-cli/commands/SyncDataToTs/index` | `SyncDataToTsError` | class | `packages/tooling/tool/cli/src/commands/SyncDataToTs/SyncDataToTs.errors.ts:40` | Operational error during source fetch, parsing, projection, or file writes. |
 | `@beep/repo-cli/commands/SyncDataToTs/internal/Models` | `SyncDataRunMode` | const | `packages/tooling/tool/cli/src/commands/SyncDataToTs/internal/Models.ts:54` | Command execution mode for sync-data-to-ts. |
 | `@beep/repo-cli/commands/SyncDataToTs/internal/Models` | `SyncDataRunMode` | type | `packages/tooling/tool/cli/src/commands/SyncDataToTs/internal/Models.ts:66` | Command execution mode for sync-data-to-ts. |
 | `@beep/repo-cli/commands/SyncDataToTs/internal/Models` | `SyncDataSourceFormat` | const | `packages/tooling/tool/cli/src/commands/SyncDataToTs/internal/Models.ts:32` | Supported source formats for sync-data-to-ts targets. |
@@ -1928,90 +1929,90 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/commands/SyncDataToTs/internal/Models` | `SyncDataTarget` | type | `packages/tooling/tool/cli/src/commands/SyncDataToTs/internal/Models.ts:155` | {@inheritDoc SyncDataTarget} |
 | `@beep/repo-cli/commands/SyncDataToTs/internal/Models` | `SyncDataTargetProjection` | class | `packages/tooling/tool/cli/src/commands/SyncDataToTs/internal/Models.ts:74` | Rendered target projection ready to compare or write to disk. |
 | `@beep/repo-cli/commands/SyncDataToTs/internal/Models` | `SyncDataTargetResult` | class | `packages/tooling/tool/cli/src/commands/SyncDataToTs/internal/Models.ts:163` | Per-target command result after diffing or writing. |
-| `@beep/repo-cli/commands/SyncDataToTs/internal/Models` | `SyncDataToTsDriftError` | class | `packages/tooling/tool/cli/src/commands/SyncDataToTs/SyncDataToTs.errors.ts:100` | Drift detected in check mode. |
-| `@beep/repo-cli/commands/SyncDataToTs/internal/Models` | `SyncDataToTsError` | class | `packages/tooling/tool/cli/src/commands/SyncDataToTs/SyncDataToTs.errors.ts:42` | Operational error during source fetch, parsing, projection, or file writes. |
-| `@beep/repo-cli/commands/SyncDataToTs/SyncDataToTs.command` | `syncDataToTsCommand` | const | `packages/tooling/tool/cli/src/commands/SyncDataToTs/SyncDataToTs.command.ts:448` | CLI command for syncing official upstream datasets into checked-in TypeScript modules. |
-| `@beep/repo-cli/commands/SyncDataToTs/SyncDataToTs.errors` | `SyncDataToTsDriftError` | class | `packages/tooling/tool/cli/src/commands/SyncDataToTs/SyncDataToTs.errors.ts:100` | Drift detected in check mode. |
-| `@beep/repo-cli/commands/SyncDataToTs/SyncDataToTs.errors` | `SyncDataToTsError` | class | `packages/tooling/tool/cli/src/commands/SyncDataToTs/SyncDataToTs.errors.ts:42` | Operational error during source fetch, parsing, projection, or file writes. |
-| `@beep/repo-cli/commands/SyncDataToTs/targets/index` | `syncDataTargets` | const | `packages/tooling/tool/cli/src/commands/SyncDataToTs/targets/index.ts:23` | All checked-in sync targets supported by sync-data-to-ts. |
-| `@beep/repo-cli/commands/SyncDataToTs/targets/Iso4217` | `ISO4217_SOURCE_URL` | const | `packages/tooling/tool/cli/src/commands/SyncDataToTs/targets/Iso4217.ts:34` | Official SIX XML source for ISO 4217 List One. |
-| `@beep/repo-cli/commands/SyncDataToTs/targets/Iso4217` | `iso4217Target` | const | `packages/tooling/tool/cli/src/commands/SyncDataToTs/targets/Iso4217.ts:288` | Checked-in sync target for the official SIX ISO 4217 List One XML feed. |
+| `@beep/repo-cli/commands/SyncDataToTs/internal/Models` | `SyncDataToTsDriftError` | class | `packages/tooling/tool/cli/src/commands/SyncDataToTs/SyncDataToTs.errors.ts:96` | Drift detected in check mode. |
+| `@beep/repo-cli/commands/SyncDataToTs/internal/Models` | `SyncDataToTsError` | class | `packages/tooling/tool/cli/src/commands/SyncDataToTs/SyncDataToTs.errors.ts:40` | Operational error during source fetch, parsing, projection, or file writes. |
+| `@beep/repo-cli/commands/SyncDataToTs/SyncDataToTs.command` | `syncDataToTsCommand` | const | `packages/tooling/tool/cli/src/commands/SyncDataToTs/SyncDataToTs.command.ts:446` | CLI command for syncing official upstream datasets into checked-in TypeScript modules. |
+| `@beep/repo-cli/commands/SyncDataToTs/SyncDataToTs.errors` | `SyncDataToTsDriftError` | class | `packages/tooling/tool/cli/src/commands/SyncDataToTs/SyncDataToTs.errors.ts:96` | Drift detected in check mode. |
+| `@beep/repo-cli/commands/SyncDataToTs/SyncDataToTs.errors` | `SyncDataToTsError` | class | `packages/tooling/tool/cli/src/commands/SyncDataToTs/SyncDataToTs.errors.ts:40` | Operational error during source fetch, parsing, projection, or file writes. |
+| `@beep/repo-cli/commands/SyncDataToTs/targets/index` | `syncDataTargets` | const | `packages/tooling/tool/cli/src/commands/SyncDataToTs/targets/index.ts:21` | All checked-in sync targets supported by sync-data-to-ts. |
+| `@beep/repo-cli/commands/SyncDataToTs/targets/Iso4217` | `ISO4217_SOURCE_URL` | const | `packages/tooling/tool/cli/src/commands/SyncDataToTs/targets/Iso4217.ts:32` | Official SIX XML source for ISO 4217 List One. |
+| `@beep/repo-cli/commands/SyncDataToTs/targets/Iso4217` | `iso4217Target` | const | `packages/tooling/tool/cli/src/commands/SyncDataToTs/targets/Iso4217.ts:284` | Checked-in sync target for the official SIX ISO 4217 List One XML feed. |
 | `@beep/repo-cli/commands/TopoSort` | `topoSortCommand` | const | `packages/tooling/tool/cli/src/commands/TopoSort/TopoSort.command.ts:33` | CLI command that builds the workspace dependency graph and prints package names |
 | `@beep/repo-cli/commands/TopoSort/index` | `topoSortCommand` | const | `packages/tooling/tool/cli/src/commands/TopoSort/TopoSort.command.ts:33` | CLI command that builds the workspace dependency graph and prints package names |
 | `@beep/repo-cli/commands/TopoSort/TopoSort.command` | `topoSortCommand` | const | `packages/tooling/tool/cli/src/commands/TopoSort/TopoSort.command.ts:33` | CLI command that builds the workspace dependency graph and prints package names |
 | `@beep/repo-cli/commands/TsconfigSync` | `buildCanonicalAliasTargets` | const | `packages/tooling/library/repo-utils/src/schemas/TsconfigAliasTargets.ts:154` | Build root and wildcard alias targets for a package export target. |
-| `@beep/repo-cli/commands/TsconfigSync` | `PlannedFileChange` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:530` | A planned file change with transformed file content. |
-| `@beep/repo-cli/commands/TsconfigSync` | `PlannedFileChange` | type | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:553` | A planned file change with transformed file content. |
+| `@beep/repo-cli/commands/TsconfigSync` | `PlannedFileChange` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:520` | A planned file change with transformed file content. |
+| `@beep/repo-cli/commands/TsconfigSync` | `PlannedFileChange` | type | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:543` | A planned file change with transformed file content. |
 | `@beep/repo-cli/commands/TsconfigSync` | `resolveRootExportTarget` | const | `packages/tooling/library/repo-utils/src/schemas/TsconfigAliasTargets.ts:89` | Resolve the canonical root export target from a package `exports` field. |
-| `@beep/repo-cli/commands/TsconfigSync` | `syncTsconfigAtRoot` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:1705` | Synchronize tsconfig references and root aliases under a specific repository root. |
-| `@beep/repo-cli/commands/TsconfigSync` | `TsconfigSyncChange` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:399` | A single planned file change. |
-| `@beep/repo-cli/commands/TsconfigSync` | `TsconfigSyncChange` | type | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:422` | A single planned file change. |
-| `@beep/repo-cli/commands/TsconfigSync` | `tsconfigSyncCommand` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:1847` | CLI command for synchronizing root and workspace tsconfig state. |
-| `@beep/repo-cli/commands/TsconfigSync` | `TsconfigSyncCycleError` | class | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.errors.ts:74` | Cycle error raised when workspace dependency cycles are detected. |
-| `@beep/repo-cli/commands/TsconfigSync` | `TsconfigSyncDriftError` | class | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.errors.ts:28` | Drift error raised in check mode when changes are required. |
-| `@beep/repo-cli/commands/TsconfigSync` | `TsconfigSyncFilterError` | class | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.errors.ts:120` | Filter error raised when `--filter` does not match any workspace package. |
-| `@beep/repo-cli/commands/TsconfigSync` | `TsconfigSyncMode` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:192` | Command execution mode. |
-| `@beep/repo-cli/commands/TsconfigSync` | `TsconfigSyncResult` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:602` | Result emitted after a sync run. |
-| `@beep/repo-cli/commands/TsconfigSync` | `TsconfigSyncResult` | type | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:617` | Result emitted after a sync run. |
-| `@beep/repo-cli/commands/TsconfigSync` | `TsconfigSyncRunOptions` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:253` | Runtime options for executing tsconfig sync at a repo root. |
-| `@beep/repo-cli/commands/TsconfigSync` | `TsconfigSyncRunOptions` | type | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:271` | Runtime options for executing tsconfig sync at a repo root. |
-| `@beep/repo-cli/commands/TsconfigSync` | `TsconfigSyncSection` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:286` | Sync change section categories. |
-| `@beep/repo-cli/commands/TsconfigSync` | `TsconfigSyncSection` | type | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:306` | Sync change section categories. |
-| `@beep/repo-cli/commands/TsconfigSync` | `TsconfigWithPaths` | class | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:720` | Minimal tsconfig shape containing optional `compilerOptions.paths`. |
-| `@beep/repo-cli/commands/TsconfigSync` | `TsconfigWithReferences` | class | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:698` | Minimal tsconfig shape containing optional `references`. |
-| `@beep/repo-cli/commands/TsconfigSync` | `WorkspaceDescriptor` | class | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:640` | Workspace package descriptor with metadata for tsconfig synchronization. |
+| `@beep/repo-cli/commands/TsconfigSync` | `syncTsconfigAtRoot` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:1685` | Synchronize tsconfig references and root aliases under a specific repository root. |
+| `@beep/repo-cli/commands/TsconfigSync` | `TsconfigSyncChange` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:391` | A single planned file change. |
+| `@beep/repo-cli/commands/TsconfigSync` | `TsconfigSyncChange` | type | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:414` | A single planned file change. |
+| `@beep/repo-cli/commands/TsconfigSync` | `tsconfigSyncCommand` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:1825` | CLI command for synchronizing root and workspace tsconfig state. |
+| `@beep/repo-cli/commands/TsconfigSync` | `TsconfigSyncCycleError` | class | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.errors.ts:70` | Cycle error raised when workspace dependency cycles are detected. |
+| `@beep/repo-cli/commands/TsconfigSync` | `TsconfigSyncDriftError` | class | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.errors.ts:26` | Drift error raised in check mode when changes are required. |
+| `@beep/repo-cli/commands/TsconfigSync` | `TsconfigSyncFilterError` | class | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.errors.ts:114` | Filter error raised when `--filter` does not match any workspace package. |
+| `@beep/repo-cli/commands/TsconfigSync` | `TsconfigSyncMode` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:190` | Command execution mode. |
+| `@beep/repo-cli/commands/TsconfigSync` | `TsconfigSyncResult` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:590` | Result emitted after a sync run. |
+| `@beep/repo-cli/commands/TsconfigSync` | `TsconfigSyncResult` | type | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:605` | Result emitted after a sync run. |
+| `@beep/repo-cli/commands/TsconfigSync` | `TsconfigSyncRunOptions` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:249` | Runtime options for executing tsconfig sync at a repo root. |
+| `@beep/repo-cli/commands/TsconfigSync` | `TsconfigSyncRunOptions` | type | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:267` | Runtime options for executing tsconfig sync at a repo root. |
+| `@beep/repo-cli/commands/TsconfigSync` | `TsconfigSyncSection` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:280` | Sync change section categories. |
+| `@beep/repo-cli/commands/TsconfigSync` | `TsconfigSyncSection` | type | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:300` | Sync change section categories. |
+| `@beep/repo-cli/commands/TsconfigSync` | `TsconfigWithPaths` | class | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:702` | Minimal tsconfig shape containing optional `compilerOptions.paths`. |
+| `@beep/repo-cli/commands/TsconfigSync` | `TsconfigWithReferences` | class | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:682` | Minimal tsconfig shape containing optional `references`. |
+| `@beep/repo-cli/commands/TsconfigSync` | `WorkspaceDescriptor` | class | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:626` | Workspace package descriptor with metadata for tsconfig synchronization. |
 | `@beep/repo-cli/commands/TsconfigSync/index` | `buildCanonicalAliasTargets` | const | `packages/tooling/library/repo-utils/src/schemas/TsconfigAliasTargets.ts:154` | Build root and wildcard alias targets for a package export target. |
-| `@beep/repo-cli/commands/TsconfigSync/index` | `PlannedFileChange` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:530` | A planned file change with transformed file content. |
-| `@beep/repo-cli/commands/TsconfigSync/index` | `PlannedFileChange` | type | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:553` | A planned file change with transformed file content. |
+| `@beep/repo-cli/commands/TsconfigSync/index` | `PlannedFileChange` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:520` | A planned file change with transformed file content. |
+| `@beep/repo-cli/commands/TsconfigSync/index` | `PlannedFileChange` | type | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:543` | A planned file change with transformed file content. |
 | `@beep/repo-cli/commands/TsconfigSync/index` | `resolveRootExportTarget` | const | `packages/tooling/library/repo-utils/src/schemas/TsconfigAliasTargets.ts:89` | Resolve the canonical root export target from a package `exports` field. |
-| `@beep/repo-cli/commands/TsconfigSync/index` | `syncTsconfigAtRoot` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:1705` | Synchronize tsconfig references and root aliases under a specific repository root. |
-| `@beep/repo-cli/commands/TsconfigSync/index` | `TsconfigSyncChange` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:399` | A single planned file change. |
-| `@beep/repo-cli/commands/TsconfigSync/index` | `TsconfigSyncChange` | type | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:422` | A single planned file change. |
-| `@beep/repo-cli/commands/TsconfigSync/index` | `tsconfigSyncCommand` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:1847` | CLI command for synchronizing root and workspace tsconfig state. |
-| `@beep/repo-cli/commands/TsconfigSync/index` | `TsconfigSyncCycleError` | class | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.errors.ts:74` | Cycle error raised when workspace dependency cycles are detected. |
-| `@beep/repo-cli/commands/TsconfigSync/index` | `TsconfigSyncDriftError` | class | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.errors.ts:28` | Drift error raised in check mode when changes are required. |
-| `@beep/repo-cli/commands/TsconfigSync/index` | `TsconfigSyncFilterError` | class | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.errors.ts:120` | Filter error raised when `--filter` does not match any workspace package. |
-| `@beep/repo-cli/commands/TsconfigSync/index` | `TsconfigSyncMode` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:192` | Command execution mode. |
-| `@beep/repo-cli/commands/TsconfigSync/index` | `TsconfigSyncResult` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:602` | Result emitted after a sync run. |
-| `@beep/repo-cli/commands/TsconfigSync/index` | `TsconfigSyncResult` | type | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:617` | Result emitted after a sync run. |
-| `@beep/repo-cli/commands/TsconfigSync/index` | `TsconfigSyncRunOptions` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:253` | Runtime options for executing tsconfig sync at a repo root. |
-| `@beep/repo-cli/commands/TsconfigSync/index` | `TsconfigSyncRunOptions` | type | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:271` | Runtime options for executing tsconfig sync at a repo root. |
-| `@beep/repo-cli/commands/TsconfigSync/index` | `TsconfigSyncSection` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:286` | Sync change section categories. |
-| `@beep/repo-cli/commands/TsconfigSync/index` | `TsconfigSyncSection` | type | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:306` | Sync change section categories. |
-| `@beep/repo-cli/commands/TsconfigSync/index` | `TsconfigWithPaths` | class | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:720` | Minimal tsconfig shape containing optional `compilerOptions.paths`. |
-| `@beep/repo-cli/commands/TsconfigSync/index` | `TsconfigWithReferences` | class | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:698` | Minimal tsconfig shape containing optional `references`. |
-| `@beep/repo-cli/commands/TsconfigSync/index` | `WorkspaceDescriptor` | class | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:640` | Workspace package descriptor with metadata for tsconfig synchronization. |
+| `@beep/repo-cli/commands/TsconfigSync/index` | `syncTsconfigAtRoot` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:1685` | Synchronize tsconfig references and root aliases under a specific repository root. |
+| `@beep/repo-cli/commands/TsconfigSync/index` | `TsconfigSyncChange` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:391` | A single planned file change. |
+| `@beep/repo-cli/commands/TsconfigSync/index` | `TsconfigSyncChange` | type | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:414` | A single planned file change. |
+| `@beep/repo-cli/commands/TsconfigSync/index` | `tsconfigSyncCommand` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:1825` | CLI command for synchronizing root and workspace tsconfig state. |
+| `@beep/repo-cli/commands/TsconfigSync/index` | `TsconfigSyncCycleError` | class | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.errors.ts:70` | Cycle error raised when workspace dependency cycles are detected. |
+| `@beep/repo-cli/commands/TsconfigSync/index` | `TsconfigSyncDriftError` | class | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.errors.ts:26` | Drift error raised in check mode when changes are required. |
+| `@beep/repo-cli/commands/TsconfigSync/index` | `TsconfigSyncFilterError` | class | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.errors.ts:114` | Filter error raised when `--filter` does not match any workspace package. |
+| `@beep/repo-cli/commands/TsconfigSync/index` | `TsconfigSyncMode` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:190` | Command execution mode. |
+| `@beep/repo-cli/commands/TsconfigSync/index` | `TsconfigSyncResult` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:590` | Result emitted after a sync run. |
+| `@beep/repo-cli/commands/TsconfigSync/index` | `TsconfigSyncResult` | type | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:605` | Result emitted after a sync run. |
+| `@beep/repo-cli/commands/TsconfigSync/index` | `TsconfigSyncRunOptions` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:249` | Runtime options for executing tsconfig sync at a repo root. |
+| `@beep/repo-cli/commands/TsconfigSync/index` | `TsconfigSyncRunOptions` | type | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:267` | Runtime options for executing tsconfig sync at a repo root. |
+| `@beep/repo-cli/commands/TsconfigSync/index` | `TsconfigSyncSection` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:280` | Sync change section categories. |
+| `@beep/repo-cli/commands/TsconfigSync/index` | `TsconfigSyncSection` | type | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:300` | Sync change section categories. |
+| `@beep/repo-cli/commands/TsconfigSync/index` | `TsconfigWithPaths` | class | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:702` | Minimal tsconfig shape containing optional `compilerOptions.paths`. |
+| `@beep/repo-cli/commands/TsconfigSync/index` | `TsconfigWithReferences` | class | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:682` | Minimal tsconfig shape containing optional `references`. |
+| `@beep/repo-cli/commands/TsconfigSync/index` | `WorkspaceDescriptor` | class | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:626` | Workspace package descriptor with metadata for tsconfig synchronization. |
 | `@beep/repo-cli/commands/TsconfigSync/TsconfigSync.command` | `buildCanonicalAliasTargets` | const | `packages/tooling/library/repo-utils/src/schemas/TsconfigAliasTargets.ts:154` | Build root and wildcard alias targets for a package export target. |
-| `@beep/repo-cli/commands/TsconfigSync/TsconfigSync.command` | `PlannedFileChange` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:530` | A planned file change with transformed file content. |
-| `@beep/repo-cli/commands/TsconfigSync/TsconfigSync.command` | `PlannedFileChange` | type | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:553` | A planned file change with transformed file content. |
+| `@beep/repo-cli/commands/TsconfigSync/TsconfigSync.command` | `PlannedFileChange` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:520` | A planned file change with transformed file content. |
+| `@beep/repo-cli/commands/TsconfigSync/TsconfigSync.command` | `PlannedFileChange` | type | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:543` | A planned file change with transformed file content. |
 | `@beep/repo-cli/commands/TsconfigSync/TsconfigSync.command` | `resolveRootExportTarget` | const | `packages/tooling/library/repo-utils/src/schemas/TsconfigAliasTargets.ts:89` | Resolve the canonical root export target from a package `exports` field. |
-| `@beep/repo-cli/commands/TsconfigSync/TsconfigSync.command` | `syncTsconfigAtRoot` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:1705` | Synchronize tsconfig references and root aliases under a specific repository root. |
-| `@beep/repo-cli/commands/TsconfigSync/TsconfigSync.command` | `TsconfigSyncChange` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:399` | A single planned file change. |
-| `@beep/repo-cli/commands/TsconfigSync/TsconfigSync.command` | `TsconfigSyncChange` | type | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:422` | A single planned file change. |
-| `@beep/repo-cli/commands/TsconfigSync/TsconfigSync.command` | `tsconfigSyncCommand` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:1847` | CLI command for synchronizing root and workspace tsconfig state. |
-| `@beep/repo-cli/commands/TsconfigSync/TsconfigSync.command` | `TsconfigSyncMode` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:192` | Command execution mode. |
-| `@beep/repo-cli/commands/TsconfigSync/TsconfigSync.command` | `TsconfigSyncResult` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:602` | Result emitted after a sync run. |
-| `@beep/repo-cli/commands/TsconfigSync/TsconfigSync.command` | `TsconfigSyncResult` | type | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:617` | Result emitted after a sync run. |
-| `@beep/repo-cli/commands/TsconfigSync/TsconfigSync.command` | `TsconfigSyncRunOptions` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:253` | Runtime options for executing tsconfig sync at a repo root. |
-| `@beep/repo-cli/commands/TsconfigSync/TsconfigSync.command` | `TsconfigSyncRunOptions` | type | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:271` | Runtime options for executing tsconfig sync at a repo root. |
-| `@beep/repo-cli/commands/TsconfigSync/TsconfigSync.command` | `TsconfigSyncSection` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:286` | Sync change section categories. |
-| `@beep/repo-cli/commands/TsconfigSync/TsconfigSync.command` | `TsconfigSyncSection` | type | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:306` | Sync change section categories. |
-| `@beep/repo-cli/commands/TsconfigSync/TsconfigSync.command` | `TsconfigWithPaths` | class | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:720` | Minimal tsconfig shape containing optional `compilerOptions.paths`. |
-| `@beep/repo-cli/commands/TsconfigSync/TsconfigSync.command` | `TsconfigWithReferences` | class | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:698` | Minimal tsconfig shape containing optional `references`. |
-| `@beep/repo-cli/commands/TsconfigSync/TsconfigSync.command` | `WorkspaceDescriptor` | class | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:640` | Workspace package descriptor with metadata for tsconfig synchronization. |
-| `@beep/repo-cli/commands/TsconfigSync/TsconfigSync.errors` | `TsconfigSyncCycleError` | class | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.errors.ts:74` | Cycle error raised when workspace dependency cycles are detected. |
-| `@beep/repo-cli/commands/TsconfigSync/TsconfigSync.errors` | `TsconfigSyncDriftError` | class | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.errors.ts:28` | Drift error raised in check mode when changes are required. |
-| `@beep/repo-cli/commands/TsconfigSync/TsconfigSync.errors` | `TsconfigSyncFilterError` | class | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.errors.ts:120` | Filter error raised when `--filter` does not match any workspace package. |
-| `@beep/repo-cli/commands/VersionSync` | `NetworkUnavailableError` | class | `packages/tooling/tool/cli/src/commands/VersionSync/VersionSync.errors.ts:93` | Network unavailable during upstream version resolution. |
-| `@beep/repo-cli/commands/VersionSync` | `versionSyncCommand` | const | `packages/tooling/tool/cli/src/commands/VersionSync/VersionSync.command.ts:56` | CLI command for synchronizing version pins across the monorepo. |
-| `@beep/repo-cli/commands/VersionSync` | `VersionSyncDriftError` | class | `packages/tooling/tool/cli/src/commands/VersionSync/VersionSync.errors.ts:121` | Drift detected in check mode (non-zero exit). |
-| `@beep/repo-cli/commands/VersionSync` | `VersionSyncError` | class | `packages/tooling/tool/cli/src/commands/VersionSync/VersionSync.errors.ts:42` | Operational error during version sync (file read/write, parse failures). |
-| `@beep/repo-cli/commands/VersionSync/index` | `NetworkUnavailableError` | class | `packages/tooling/tool/cli/src/commands/VersionSync/VersionSync.errors.ts:93` | Network unavailable during upstream version resolution. |
-| `@beep/repo-cli/commands/VersionSync/index` | `versionSyncCommand` | const | `packages/tooling/tool/cli/src/commands/VersionSync/VersionSync.command.ts:56` | CLI command for synchronizing version pins across the monorepo. |
-| `@beep/repo-cli/commands/VersionSync/index` | `VersionSyncDriftError` | class | `packages/tooling/tool/cli/src/commands/VersionSync/VersionSync.errors.ts:121` | Drift detected in check mode (non-zero exit). |
-| `@beep/repo-cli/commands/VersionSync/index` | `VersionSyncError` | class | `packages/tooling/tool/cli/src/commands/VersionSync/VersionSync.errors.ts:42` | Operational error during version sync (file read/write, parse failures). |
+| `@beep/repo-cli/commands/TsconfigSync/TsconfigSync.command` | `syncTsconfigAtRoot` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:1685` | Synchronize tsconfig references and root aliases under a specific repository root. |
+| `@beep/repo-cli/commands/TsconfigSync/TsconfigSync.command` | `TsconfigSyncChange` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:391` | A single planned file change. |
+| `@beep/repo-cli/commands/TsconfigSync/TsconfigSync.command` | `TsconfigSyncChange` | type | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:414` | A single planned file change. |
+| `@beep/repo-cli/commands/TsconfigSync/TsconfigSync.command` | `tsconfigSyncCommand` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:1825` | CLI command for synchronizing root and workspace tsconfig state. |
+| `@beep/repo-cli/commands/TsconfigSync/TsconfigSync.command` | `TsconfigSyncMode` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:190` | Command execution mode. |
+| `@beep/repo-cli/commands/TsconfigSync/TsconfigSync.command` | `TsconfigSyncResult` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:590` | Result emitted after a sync run. |
+| `@beep/repo-cli/commands/TsconfigSync/TsconfigSync.command` | `TsconfigSyncResult` | type | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:605` | Result emitted after a sync run. |
+| `@beep/repo-cli/commands/TsconfigSync/TsconfigSync.command` | `TsconfigSyncRunOptions` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:249` | Runtime options for executing tsconfig sync at a repo root. |
+| `@beep/repo-cli/commands/TsconfigSync/TsconfigSync.command` | `TsconfigSyncRunOptions` | type | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:267` | Runtime options for executing tsconfig sync at a repo root. |
+| `@beep/repo-cli/commands/TsconfigSync/TsconfigSync.command` | `TsconfigSyncSection` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:280` | Sync change section categories. |
+| `@beep/repo-cli/commands/TsconfigSync/TsconfigSync.command` | `TsconfigSyncSection` | type | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:300` | Sync change section categories. |
+| `@beep/repo-cli/commands/TsconfigSync/TsconfigSync.command` | `TsconfigWithPaths` | class | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:702` | Minimal tsconfig shape containing optional `compilerOptions.paths`. |
+| `@beep/repo-cli/commands/TsconfigSync/TsconfigSync.command` | `TsconfigWithReferences` | class | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:682` | Minimal tsconfig shape containing optional `references`. |
+| `@beep/repo-cli/commands/TsconfigSync/TsconfigSync.command` | `WorkspaceDescriptor` | class | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:626` | Workspace package descriptor with metadata for tsconfig synchronization. |
+| `@beep/repo-cli/commands/TsconfigSync/TsconfigSync.errors` | `TsconfigSyncCycleError` | class | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.errors.ts:70` | Cycle error raised when workspace dependency cycles are detected. |
+| `@beep/repo-cli/commands/TsconfigSync/TsconfigSync.errors` | `TsconfigSyncDriftError` | class | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.errors.ts:26` | Drift error raised in check mode when changes are required. |
+| `@beep/repo-cli/commands/TsconfigSync/TsconfigSync.errors` | `TsconfigSyncFilterError` | class | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.errors.ts:114` | Filter error raised when `--filter` does not match any workspace package. |
+| `@beep/repo-cli/commands/VersionSync` | `NetworkUnavailableError` | class | `packages/tooling/tool/cli/src/commands/VersionSync/VersionSync.errors.ts:89` | Network unavailable during upstream version resolution. |
+| `@beep/repo-cli/commands/VersionSync` | `versionSyncCommand` | const | `packages/tooling/tool/cli/src/commands/VersionSync/VersionSync.command.ts:54` | CLI command for synchronizing version pins across the monorepo. |
+| `@beep/repo-cli/commands/VersionSync` | `VersionSyncDriftError` | class | `packages/tooling/tool/cli/src/commands/VersionSync/VersionSync.errors.ts:115` | Drift detected in check mode (non-zero exit). |
+| `@beep/repo-cli/commands/VersionSync` | `VersionSyncError` | class | `packages/tooling/tool/cli/src/commands/VersionSync/VersionSync.errors.ts:40` | Operational error during version sync (file read/write, parse failures). |
+| `@beep/repo-cli/commands/VersionSync/index` | `NetworkUnavailableError` | class | `packages/tooling/tool/cli/src/commands/VersionSync/VersionSync.errors.ts:89` | Network unavailable during upstream version resolution. |
+| `@beep/repo-cli/commands/VersionSync/index` | `versionSyncCommand` | const | `packages/tooling/tool/cli/src/commands/VersionSync/VersionSync.command.ts:54` | CLI command for synchronizing version pins across the monorepo. |
+| `@beep/repo-cli/commands/VersionSync/index` | `VersionSyncDriftError` | class | `packages/tooling/tool/cli/src/commands/VersionSync/VersionSync.errors.ts:115` | Drift detected in check mode (non-zero exit). |
+| `@beep/repo-cli/commands/VersionSync/index` | `VersionSyncError` | class | `packages/tooling/tool/cli/src/commands/VersionSync/VersionSync.errors.ts:40` | Operational error during version sync (file read/write, parse failures). |
 | `@beep/repo-cli/commands/VersionSync/internal/Handler` | `handleVersionSync` | const | `packages/tooling/tool/cli/src/commands/VersionSync/internal/Handler.ts:65` | Execute the version-sync command. |
-| `@beep/repo-cli/commands/VersionSync/internal/Models` | `NetworkUnavailableError` | class | `packages/tooling/tool/cli/src/commands/VersionSync/VersionSync.errors.ts:93` | Network unavailable during upstream version resolution. |
+| `@beep/repo-cli/commands/VersionSync/internal/Models` | `NetworkUnavailableError` | class | `packages/tooling/tool/cli/src/commands/VersionSync/VersionSync.errors.ts:89` | Network unavailable during upstream version resolution. |
 | `@beep/repo-cli/commands/VersionSync/internal/Models` | `VersionCategory` | const | `packages/tooling/tool/cli/src/commands/VersionSync/internal/Models.ts:61` | Version category for grouping drift items. |
 | `@beep/repo-cli/commands/VersionSync/internal/Models` | `VersionCategory` | type | `packages/tooling/tool/cli/src/commands/VersionSync/internal/Models.ts:79` | Version category for grouping drift items. |
 | `@beep/repo-cli/commands/VersionSync/internal/Models` | `VersionCategoryOptions` | const | `packages/tooling/tool/cli/src/commands/VersionSync/internal/Models.ts:72` | Literal option tuple for version categories. |
@@ -2023,8 +2024,8 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/commands/VersionSync/internal/Models` | `VersionCategoryStatusMatch` | const | `packages/tooling/tool/cli/src/commands/VersionSync/internal/Models.ts:104` | Pattern-matching helper for version category status literals. |
 | `@beep/repo-cli/commands/VersionSync/internal/Models` | `VersionCategoryStatusThunk` | const | `packages/tooling/tool/cli/src/commands/VersionSync/internal/Models.ts:118` | Thunk helpers for version category status literals. |
 | `@beep/repo-cli/commands/VersionSync/internal/Models` | `VersionDriftItem` | class | `packages/tooling/tool/cli/src/commands/VersionSync/internal/Models.ts:35` | A single version pin location with its current and expected values. |
-| `@beep/repo-cli/commands/VersionSync/internal/Models` | `VersionSyncDriftError` | class | `packages/tooling/tool/cli/src/commands/VersionSync/VersionSync.errors.ts:121` | Drift detected in check mode (non-zero exit). |
-| `@beep/repo-cli/commands/VersionSync/internal/Models` | `VersionSyncError` | class | `packages/tooling/tool/cli/src/commands/VersionSync/VersionSync.errors.ts:42` | Operational error during version sync (file read/write, parse failures). |
+| `@beep/repo-cli/commands/VersionSync/internal/Models` | `VersionSyncDriftError` | class | `packages/tooling/tool/cli/src/commands/VersionSync/VersionSync.errors.ts:115` | Drift detected in check mode (non-zero exit). |
+| `@beep/repo-cli/commands/VersionSync/internal/Models` | `VersionSyncError` | class | `packages/tooling/tool/cli/src/commands/VersionSync/VersionSync.errors.ts:40` | Operational error during version sync (file read/write, parse failures). |
 | `@beep/repo-cli/commands/VersionSync/internal/Models` | `VersionSyncMode` | const | `packages/tooling/tool/cli/src/commands/VersionSync/internal/Models.ts:265` | Command execution mode. |
 | `@beep/repo-cli/commands/VersionSync/internal/Models` | `VersionSyncMode` | type | `packages/tooling/tool/cli/src/commands/VersionSync/internal/Models.ts:284` | Command execution mode. |
 | `@beep/repo-cli/commands/VersionSync/internal/Models` | `VersionSyncModeMatch` | const | `packages/tooling/tool/cli/src/commands/VersionSync/internal/Models.ts:276` | Pattern-matching helper for version-sync mode literals. |
@@ -2068,34 +2069,34 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/commands/VersionSync/internal/updaters/PlainTextUpdater` | `updatePlainTextFile` | const | `packages/tooling/tool/cli/src/commands/VersionSync/internal/updaters/PlainTextUpdater.ts:21` | Update a plain text version file (e.g. `.bun-version`). |
 | `@beep/repo-cli/commands/VersionSync/internal/updaters/YamlFileUpdater` | `replaceNodeVersionWithFile` | const | `packages/tooling/tool/cli/src/commands/VersionSync/internal/updaters/YamlFileUpdater.ts:101` | Replace `node-version: <value>` with `node-version-file: .nvmrc` in a workflow YAML. |
 | `@beep/repo-cli/commands/VersionSync/internal/updaters/YamlFileUpdater` | `updateYamlValue` | const | `packages/tooling/tool/cli/src/commands/VersionSync/internal/updaters/YamlFileUpdater.ts:50` | Update a value at a specific path in a YAML file, preserving comments and formatting. |
-| `@beep/repo-cli/commands/VersionSync/VersionSync.command` | `versionSyncCommand` | const | `packages/tooling/tool/cli/src/commands/VersionSync/VersionSync.command.ts:56` | CLI command for synchronizing version pins across the monorepo. |
-| `@beep/repo-cli/commands/VersionSync/VersionSync.errors` | `NetworkUnavailableError` | class | `packages/tooling/tool/cli/src/commands/VersionSync/VersionSync.errors.ts:93` | Network unavailable during upstream version resolution. |
-| `@beep/repo-cli/commands/VersionSync/VersionSync.errors` | `VersionSyncDriftError` | class | `packages/tooling/tool/cli/src/commands/VersionSync/VersionSync.errors.ts:121` | Drift detected in check mode (non-zero exit). |
-| `@beep/repo-cli/commands/VersionSync/VersionSync.errors` | `VersionSyncError` | class | `packages/tooling/tool/cli/src/commands/VersionSync/VersionSync.errors.ts:42` | Operational error during version sync (file read/write, parse failures). |
-| `@beep/repo-cli/test/CreatePackage` | `checkConfigNeedsUpdate` | const | `packages/tooling/tool/cli/src/commands/CreatePackage/ConfigUpdater.ts:690` | Check whether config entries already exist (for dry-run output). |
-| `@beep/repo-cli/test/CreatePackage` | `checkConfigNeedsUpdateForTargets` | const | `packages/tooling/tool/cli/src/commands/CreatePackage/ConfigUpdater.ts:606` | Batch read-only drift checker for root config updates. |
-| `@beep/repo-cli/test/CreatePackage` | `ConfigUpdateBatchResult` | class | `packages/tooling/tool/cli/src/commands/CreatePackage/ConfigUpdater.ts:125` | Batch config orchestration result for one or more package targets. |
-| `@beep/repo-cli/test/CreatePackage` | `ConfigUpdateResult` | class | `packages/tooling/tool/cli/src/commands/CreatePackage/ConfigUpdater.ts:46` | Summary of which root configuration files were modified during a config update pass. |
-| `@beep/repo-cli/test/CreatePackage` | `ConfigUpdateTarget` | class | `packages/tooling/tool/cli/src/commands/CreatePackage/ConfigUpdater.ts:70` | Config update target for a package that should be registered in root tsconfig files. |
-| `@beep/repo-cli/test/CreatePackage` | `ConfigUpdateTargetResult` | class | `packages/tooling/tool/cli/src/commands/CreatePackage/ConfigUpdater.ts:95` | Per-target config update summary. |
-| `@beep/repo-cli/test/CreatePackage` | `createFileGenerationPlanService` | const | `packages/tooling/tool/cli/src/commands/CreatePackage/FileGenerationPlanService.ts:537` | Construct the default generation plan service implementation. |
-| `@beep/repo-cli/test/CreatePackage` | `createPackageCommand` | const | `packages/tooling/tool/cli/src/commands/CreatePackage/CreatePackage.command.ts:23` | Package creation command. |
-| `@beep/repo-cli/test/CreatePackage` | `FileGenerationExecutionResult` | class | `packages/tooling/tool/cli/src/commands/CreatePackage/FileGenerationPlanService.ts:282` | Execution report for a plan run. |
-| `@beep/repo-cli/test/CreatePackage` | `FileGenerationPlan` | class | `packages/tooling/tool/cli/src/commands/CreatePackage/FileGenerationPlanService.ts:259` | Deterministic generation plan. |
-| `@beep/repo-cli/test/CreatePackage` | `FileGenerationPlanInput` | class | `packages/tooling/tool/cli/src/commands/CreatePackage/FileGenerationPlanService.ts:135` | Input payload used to create a generation pla. |
-| `@beep/repo-cli/test/CreatePackage` | `FileGenerationPlanService` | class | `packages/tooling/tool/cli/src/commands/CreatePackage/FileGenerationPlanService.ts:332` | Service tag for deterministic file-generation planning and execution. |
-| `@beep/repo-cli/test/CreatePackage` | `FileGenerationPlanServiceShape` | type | `packages/tooling/tool/cli/src/commands/CreatePackage/FileGenerationPlanService.ts:311` | Service contract for deterministic generation plan orchestration. |
-| `@beep/repo-cli/test/CreatePackage` | `GenerationAction` | const | `packages/tooling/tool/cli/src/commands/CreatePackage/FileGenerationPlanService.ts:219` | Planned generation action schema. |
-| `@beep/repo-cli/test/CreatePackage` | `GenerationAction` | type | `packages/tooling/tool/cli/src/commands/CreatePackage/FileGenerationPlanService.ts:244` | Planned generation action. |
-| `@beep/repo-cli/test/CreatePackage` | `GenerationActionKind` | const | `packages/tooling/tool/cli/src/commands/CreatePackage/FileGenerationPlanService.ts:160` | Planned action kinds. |
-| `@beep/repo-cli/test/CreatePackage` | `GenerationActionKind` | type | `packages/tooling/tool/cli/src/commands/CreatePackage/FileGenerationPlanService.ts:171` | Planned generation action. |
-| `@beep/repo-cli/test/CreatePackage` | `PlannedFile` | class | `packages/tooling/tool/cli/src/commands/CreatePackage/FileGenerationPlanService.ts:89` | A file write operation. |
-| `@beep/repo-cli/test/CreatePackage` | `PlannedSymlink` | class | `packages/tooling/tool/cli/src/commands/CreatePackage/FileGenerationPlanService.ts:112` | A symlink operation. |
-| `@beep/repo-cli/test/CreatePackage` | `updateRootConfigs` | const | `packages/tooling/tool/cli/src/commands/CreatePackage/ConfigUpdater.ts:655` | Orchestrate all root config updates for a newly created package. |
-| `@beep/repo-cli/test/CreatePackage` | `updateRootConfigsForTargets` | const | `packages/tooling/tool/cli/src/commands/CreatePackage/ConfigUpdater.ts:559` | Batch root config updater for slice flows creating multiple packages. |
-| `@beep/repo-cli/test/CreatePackage` | `updateTsconfigPackages` | const | `packages/tooling/tool/cli/src/commands/CreatePackage/ConfigUpdater.ts:333` | Add a project reference to `tsconfig.packages.json`. |
-| `@beep/repo-cli/test/CreatePackage` | `updateTsconfigPaths` | const | `packages/tooling/tool/cli/src/commands/CreatePackage/ConfigUpdater.ts:381` | Add path aliases to `tsconfig.json` (JSONC-safe, preserves comments). |
-| `@beep/repo-cli/test/CreatePackage` | `updateTstycheConfig` | const | `packages/tooling/tool/cli/src/commands/CreatePackage/ConfigUpdater.ts:442` | Add a test file match entry to `tstyche.json`. |
+| `@beep/repo-cli/commands/VersionSync/VersionSync.command` | `versionSyncCommand` | const | `packages/tooling/tool/cli/src/commands/VersionSync/VersionSync.command.ts:54` | CLI command for synchronizing version pins across the monorepo. |
+| `@beep/repo-cli/commands/VersionSync/VersionSync.errors` | `NetworkUnavailableError` | class | `packages/tooling/tool/cli/src/commands/VersionSync/VersionSync.errors.ts:89` | Network unavailable during upstream version resolution. |
+| `@beep/repo-cli/commands/VersionSync/VersionSync.errors` | `VersionSyncDriftError` | class | `packages/tooling/tool/cli/src/commands/VersionSync/VersionSync.errors.ts:115` | Drift detected in check mode (non-zero exit). |
+| `@beep/repo-cli/commands/VersionSync/VersionSync.errors` | `VersionSyncError` | class | `packages/tooling/tool/cli/src/commands/VersionSync/VersionSync.errors.ts:40` | Operational error during version sync (file read/write, parse failures). |
+| `@beep/repo-cli/test/CreatePackage` | `checkConfigNeedsUpdate` | const | `packages/tooling/tool/cli/src/commands/CreatePackage/ConfigUpdater.ts:671` | Check whether config entries already exist (for dry-run output). |
+| `@beep/repo-cli/test/CreatePackage` | `checkConfigNeedsUpdateForTargets` | const | `packages/tooling/tool/cli/src/commands/CreatePackage/ConfigUpdater.ts:589` | Batch read-only drift checker for root config updates. |
+| `@beep/repo-cli/test/CreatePackage` | `ConfigUpdateBatchResult` | class | `packages/tooling/tool/cli/src/commands/CreatePackage/ConfigUpdater.ts:118` | Batch config orchestration result for one or more package targets. |
+| `@beep/repo-cli/test/CreatePackage` | `ConfigUpdateResult` | class | `packages/tooling/tool/cli/src/commands/CreatePackage/ConfigUpdater.ts:44` | Summary of which root configuration files were modified during a config update pass. |
+| `@beep/repo-cli/test/CreatePackage` | `ConfigUpdateTarget` | class | `packages/tooling/tool/cli/src/commands/CreatePackage/ConfigUpdater.ts:67` | Config update target for a package that should be registered in root tsconfig files. |
+| `@beep/repo-cli/test/CreatePackage` | `ConfigUpdateTargetResult` | class | `packages/tooling/tool/cli/src/commands/CreatePackage/ConfigUpdater.ts:90` | Per-target config update summary. |
+| `@beep/repo-cli/test/CreatePackage` | `createFileGenerationPlanService` | const | `packages/tooling/tool/cli/src/commands/CreatePackage/FileGenerationPlanService.ts:517` | Construct the default generation plan service implementation. |
+| `@beep/repo-cli/test/CreatePackage` | `createPackageCommand` | const | `packages/tooling/tool/cli/src/commands/CreatePackage/CreatePackage.command.ts:22` | Package creation command. |
+| `@beep/repo-cli/test/CreatePackage` | `FileGenerationExecutionResult` | class | `packages/tooling/tool/cli/src/commands/CreatePackage/FileGenerationPlanService.ts:268` | Execution report for a plan run. |
+| `@beep/repo-cli/test/CreatePackage` | `FileGenerationPlan` | class | `packages/tooling/tool/cli/src/commands/CreatePackage/FileGenerationPlanService.ts:247` | Deterministic generation plan. |
+| `@beep/repo-cli/test/CreatePackage` | `FileGenerationPlanInput` | class | `packages/tooling/tool/cli/src/commands/CreatePackage/FileGenerationPlanService.ts:129` | Input payload used to create a generation pla. |
+| `@beep/repo-cli/test/CreatePackage` | `FileGenerationPlanService` | class | `packages/tooling/tool/cli/src/commands/CreatePackage/FileGenerationPlanService.ts:314` | Service tag for deterministic file-generation planning and execution. |
+| `@beep/repo-cli/test/CreatePackage` | `FileGenerationPlanServiceShape` | type | `packages/tooling/tool/cli/src/commands/CreatePackage/FileGenerationPlanService.ts:295` | Service contract for deterministic generation plan orchestration. |
+| `@beep/repo-cli/test/CreatePackage` | `GenerationAction` | const | `packages/tooling/tool/cli/src/commands/CreatePackage/FileGenerationPlanService.ts:209` | Planned generation action schema. |
+| `@beep/repo-cli/test/CreatePackage` | `GenerationAction` | type | `packages/tooling/tool/cli/src/commands/CreatePackage/FileGenerationPlanService.ts:234` | Planned generation action. |
+| `@beep/repo-cli/test/CreatePackage` | `GenerationActionKind` | const | `packages/tooling/tool/cli/src/commands/CreatePackage/FileGenerationPlanService.ts:152` | Planned action kinds. |
+| `@beep/repo-cli/test/CreatePackage` | `GenerationActionKind` | type | `packages/tooling/tool/cli/src/commands/CreatePackage/FileGenerationPlanService.ts:163` | Planned generation action. |
+| `@beep/repo-cli/test/CreatePackage` | `PlannedFile` | class | `packages/tooling/tool/cli/src/commands/CreatePackage/FileGenerationPlanService.ts:87` | A file write operation. |
+| `@beep/repo-cli/test/CreatePackage` | `PlannedSymlink` | class | `packages/tooling/tool/cli/src/commands/CreatePackage/FileGenerationPlanService.ts:108` | A symlink operation. |
+| `@beep/repo-cli/test/CreatePackage` | `updateRootConfigs` | const | `packages/tooling/tool/cli/src/commands/CreatePackage/ConfigUpdater.ts:637` | Orchestrate all root config updates for a newly created package. |
+| `@beep/repo-cli/test/CreatePackage` | `updateRootConfigsForTargets` | const | `packages/tooling/tool/cli/src/commands/CreatePackage/ConfigUpdater.ts:544` | Batch root config updater for slice flows creating multiple packages. |
+| `@beep/repo-cli/test/CreatePackage` | `updateTsconfigPackages` | const | `packages/tooling/tool/cli/src/commands/CreatePackage/ConfigUpdater.ts:324` | Add a project reference to `tsconfig.packages.json`. |
+| `@beep/repo-cli/test/CreatePackage` | `updateTsconfigPaths` | const | `packages/tooling/tool/cli/src/commands/CreatePackage/ConfigUpdater.ts:370` | Add path aliases to `tsconfig.json` (JSONC-safe, preserves comments). |
+| `@beep/repo-cli/test/CreatePackage` | `updateTstycheConfig` | const | `packages/tooling/tool/cli/src/commands/CreatePackage/ConfigUpdater.ts:429` | Add a test file match entry to `tstyche.json`. |
 | `@beep/repo-cli/test/Docgen` | `aggregateGeneratedDocs` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/Operations.ts:1451` | Aggregate generated package docs into the current root docs layout. |
 | `@beep/repo-cli/test/Docgen` | `analyzeDocgenQuality` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/Quality.ts:1993` | Builds the consolidated report emitted by the quality command. |
 | `@beep/repo-cli/test/Docgen` | `analyzeDocgenQualityWorkerEval` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerEval.ts:1229` | Build a read-only worker eval report from a quality report. |
@@ -2116,7 +2117,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/test/Docgen` | `discoverOrphanDocgenConfigPaths` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/Operations.ts:410` | Discover package-local docgen configs that do not belong to a current workspace. |
 | `@beep/repo-cli/test/Docgen` | `DocgenAggregateResult` | class | `packages/tooling/tool/cli/src/commands/Docgen/internal/Operations.ts:314` | Per-package aggregated docs result. |
 | `@beep/repo-cli/test/Docgen` | `DocgenAnalysisSummary` | class | `packages/tooling/tool/cli/src/commands/Docgen/internal/Operations.ts:254` | Summary counts for a package analysis run. |
-| `@beep/repo-cli/test/Docgen` | `docgenCommand` | const | `packages/tooling/tool/cli/src/commands/Docgen/Docgen.command.ts:1114` | Human-first docgen command suite. |
+| `@beep/repo-cli/test/Docgen` | `docgenCommand` | const | `packages/tooling/tool/cli/src/commands/Docgen/Docgen.command.ts:1112` | Human-first docgen command suite. |
 | `@beep/repo-cli/test/Docgen` | `DocgenConfigDocument` | class | `packages/tooling/tool/cli/src/commands/Docgen/internal/Operations.ts:130` | Parsed `docgen.json` document used by the command suite. |
 | `@beep/repo-cli/test/Docgen` | `DocgenExportAnalysis` | class | `packages/tooling/tool/cli/src/commands/Docgen/internal/Operations.ts:228` | Analysis finding for a single export or module-level doc requirement. |
 | `@beep/repo-cli/test/Docgen` | `DocgenExportKind` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/Operations.ts:199` | Export kind surfaced by analysis. |
@@ -2212,7 +2213,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/test/Laws` | `ALLOWLIST_PATH` | const | `packages/tooling/tool/cli/src/commands/Laws/AllowlistCheck.ts:34` | Relative path to the effect laws allowlist. |
 | `@beep/repo-cli/test/Laws` | `AllowlistCheckOptions` | class | `packages/tooling/tool/cli/src/commands/Laws/AllowlistCheck.ts:93` | Runtime options for allowlist integrity checks. |
 | `@beep/repo-cli/test/Laws` | `AllowlistCheckSummary` | class | `packages/tooling/tool/cli/src/commands/Laws/AllowlistCheck.ts:112` | Result of an allowlist integrity check. |
-| `@beep/repo-cli/test/Laws` | `collectNativeRuntimeViolationKeys` | const | `packages/tooling/tool/cli/src/commands/Laws/NoNativeRuntime.ts:484` | Collect normalized native-runtime violation keys for allowlist integrity checks. |
+| `@beep/repo-cli/test/Laws` | `collectNativeRuntimeViolationKeys` | const | `packages/tooling/tool/cli/src/commands/Laws/NoNativeRuntime.ts:485` | Collect normalized native-runtime violation keys for allowlist integrity checks. |
 | `@beep/repo-cli/test/Laws` | `DualArityInventoryEntry` | namespace | `packages/tooling/tool/cli/src/commands/Laws/DualArity.ts:113` | Namespace for {@link DualArityInventoryEntry} companion types. |
 | `@beep/repo-cli/test/Laws` | `DualArityInventoryReadError` | class | `packages/tooling/tool/cli/src/commands/Laws/Laws.errors.ts:31` | Failure raised when the dual-arity inventory cannot be read or decoded. |
 | `@beep/repo-cli/test/Laws` | `DualArityRulesOptions` | class | `packages/tooling/tool/cli/src/commands/Laws/DualArity.ts:159` | Runtime options for public API dual-arity enforcement. |
@@ -2224,18 +2225,18 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/test/Laws` | `EffectImportRulesPersistenceError` | class | `packages/tooling/tool/cli/src/commands/Laws/Laws.errors.ts:62` | Failure raised when Effect import rule updates cannot be written. |
 | `@beep/repo-cli/test/Laws` | `EffectImportRulesSummary` | class | `packages/tooling/tool/cli/src/commands/Laws/EffectImports.ts:60` | Summary of effect import law migration results. |
 | `@beep/repo-cli/test/Laws` | `lawsCommand` | const | `packages/tooling/tool/cli/src/commands/Laws/Laws.command.ts:439` | Laws command group. |
-| `@beep/repo-cli/test/Laws` | `NativeRuntimeViolationKeyOptions` | class | `packages/tooling/tool/cli/src/commands/Laws/NoNativeRuntime.ts:206` | Options for collecting native-runtime allowlist lookup keys. |
-| `@beep/repo-cli/test/Laws` | `NoNativeRuntimeDiagnostic` | class | `packages/tooling/tool/cli/src/commands/Laws/NoNativeRuntime.ts:119` | Single repo-local native runtime diagnostic. |
-| `@beep/repo-cli/test/Laws` | `NoNativeRuntimeDiagnostic` | namespace | `packages/tooling/tool/cli/src/commands/Laws/NoNativeRuntime.ts:143` | Namespace for {@link NoNativeRuntimeDiagnostic} companion types. |
+| `@beep/repo-cli/test/Laws` | `NativeRuntimeViolationKeyOptions` | class | `packages/tooling/tool/cli/src/commands/Laws/NoNativeRuntime.ts:207` | Options for collecting native-runtime allowlist lookup keys. |
+| `@beep/repo-cli/test/Laws` | `NoNativeRuntimeDiagnostic` | class | `packages/tooling/tool/cli/src/commands/Laws/NoNativeRuntime.ts:120` | Single repo-local native runtime diagnostic. |
+| `@beep/repo-cli/test/Laws` | `NoNativeRuntimeDiagnostic` | namespace | `packages/tooling/tool/cli/src/commands/Laws/NoNativeRuntime.ts:144` | Namespace for {@link NoNativeRuntimeDiagnostic} companion types. |
 | `@beep/repo-cli/test/Laws` | `NoNativeRuntimeRulesExecutionError` | class | `packages/tooling/tool/cli/src/commands/Laws/Laws.errors.ts:94` | Failure raised when native runtime enforcement cannot complete. |
-| `@beep/repo-cli/test/Laws` | `NoNativeRuntimeRulesOptions` | class | `packages/tooling/tool/cli/src/commands/Laws/NoNativeRuntime.ts:91` | Runtime options for repo-local native runtime checks. |
-| `@beep/repo-cli/test/Laws` | `NoNativeRuntimeRulesSummary` | class | `packages/tooling/tool/cli/src/commands/Laws/NoNativeRuntime.ts:167` | Summary of repo-local native runtime checks. |
+| `@beep/repo-cli/test/Laws` | `NoNativeRuntimeRulesOptions` | class | `packages/tooling/tool/cli/src/commands/Laws/NoNativeRuntime.ts:92` | Runtime options for repo-local native runtime checks. |
+| `@beep/repo-cli/test/Laws` | `NoNativeRuntimeRulesSummary` | class | `packages/tooling/tool/cli/src/commands/Laws/NoNativeRuntime.ts:168` | Summary of repo-local native runtime checks. |
 | `@beep/repo-cli/test/Laws` | `reportAllowlistCheckSummary` | const | `packages/tooling/tool/cli/src/commands/Laws/AllowlistCheck.ts:313` | Print allowlist integrity diagnostics to the console. |
 | `@beep/repo-cli/test/Laws` | `runAllowlistCheck` | const | `packages/tooling/tool/cli/src/commands/Laws/AllowlistCheck.ts:251` | Run the effect laws allowlist integrity check. |
 | `@beep/repo-cli/test/Laws` | `runDualArityRules` | const | `packages/tooling/tool/cli/src/commands/Laws/DualArity.ts:1425` | Run public API dual-arity inventory verification. |
 | `@beep/repo-cli/test/Laws` | `runEffectFnRules` | const | `packages/tooling/tool/cli/src/commands/Laws/EffectFn.ts:391` | Run the repo-local Effect.fn supplemental law. |
 | `@beep/repo-cli/test/Laws` | `runEffectImportRules` | const | `packages/tooling/tool/cli/src/commands/Laws/EffectImports.ts:110` | Run effect import style migration/check logic. |
-| `@beep/repo-cli/test/Laws` | `runNoNativeRuntimeRules` | const | `packages/tooling/tool/cli/src/commands/Laws/NoNativeRuntime.ts:509` | Run repo-local native runtime checks. |
+| `@beep/repo-cli/test/Laws` | `runNoNativeRuntimeRules` | const | `packages/tooling/tool/cli/src/commands/Laws/NoNativeRuntime.ts:510` | Run repo-local native runtime checks. |
 | `@beep/repo-cli/test/Laws` | `runTerseEffectRules` | const | `packages/tooling/tool/cli/src/commands/Laws/TerseEffect.ts:542` | Run terse Effect style migration/check logic. |
 | `@beep/repo-cli/test/Laws` | `TerseEffectRulesOptions` | class | `packages/tooling/tool/cli/src/commands/Laws/TerseEffect.ts:31` | Runtime options for terse Effect style migration checks. |
 | `@beep/repo-cli/test/Laws` | `TerseEffectRulesPersistenceError` | class | `packages/tooling/tool/cli/src/commands/Laws/Laws.errors.ts:126` | Failure raised when terse Effect rule updates cannot be written. |
@@ -2245,13 +2246,13 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/test/Quality` | `ChangesetGraphSummary` | class | `packages/tooling/tool/cli/src/commands/Quality/ChangesetGraph.ts:102` | Summary emitted by the changeset package graph guard. |
 | `@beep/repo-cli/test/Quality` | `changesetPackageReferencesFromText` | const | `packages/tooling/tool/cli/src/commands/Quality/ChangesetGraph.ts:309` | Parse package references from one changeset Markdown document. |
 | `@beep/repo-cli/test/Quality` | `collectEffectTsgoDiagnosticLines` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:866` | Collect Effect tsgo diagnostics from command output regardless of process exit code. |
-| `@beep/repo-cli/test/Quality` | `collectStepOutput` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:1211` | Run a subprocess and capture all output. Exposed for focused unit tests. |
+| `@beep/repo-cli/test/Quality` | `collectStepOutput` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:1203` | Run a subprocess and capture all output. Exposed for focused unit tests. |
 | `@beep/repo-cli/test/Quality` | `findMissingChangesetPackageReferences` | const | `packages/tooling/tool/cli/src/commands/Quality/ChangesetGraph.ts:402` | Find changeset package references that are not in the workspace graph. |
 | `@beep/repo-cli/test/Quality` | `GithubCheckMode` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:138` | GitHub check mode handled by `beep quality github-checks`. |
 | `@beep/repo-cli/test/Quality` | `GithubCheckMode` | type | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:155` | GitHub check mode handled by `beep quality github-checks`. |
 | `@beep/repo-cli/test/Quality` | `makeChangesetGraphSummary` | const | `packages/tooling/tool/cli/src/commands/Quality/ChangesetGraph.ts:449` | Build a changeset graph summary from already-collected inputs. |
 | `@beep/repo-cli/test/Quality` | `PackageTaskProfile` | class | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:103` | Package-local script profile used by the quality task adapter. |
-| `@beep/repo-cli/test/Quality` | `parseQualityTaskInvocation` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:1105` | Parse a raw argv vector into a quality task invocation when the first token is |
+| `@beep/repo-cli/test/Quality` | `parseQualityTaskInvocation` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:1097` | Parse a raw argv vector into a quality task invocation when the first token is |
 | `@beep/repo-cli/test/Quality` | `qualityCommand` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:1682` | Quality command group for repo operational checks. |
 | `@beep/repo-cli/test/Quality` | `QualityScriptCommandError` | class | `packages/tooling/tool/cli/src/commands/Quality/Quality.errors.ts:88` | Typed failure for repo operational commands. |
 | `@beep/repo-cli/test/Quality` | `QualityTaskConfigurationError` | class | `packages/tooling/tool/cli/src/commands/Quality/Quality.errors.ts:245` | Error raised when a quality task cannot resolve its required configuration. |
@@ -2261,7 +2262,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/test/Quality` | `QualityTaskName` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:69` | Canonical quality task name. |
 | `@beep/repo-cli/test/Quality` | `QualityTaskName` | type | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:86` | Canonical quality task name. |
 | `@beep/repo-cli/test/Quality` | `QualityTaskStep` | class | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:130` | Planned subprocess invocation. |
-| `@beep/repo-cli/test/Quality` | `rootQualityStepsForTesting` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:1002` | Build root quality task subprocess steps. Exposed for focused unit tests. |
+| `@beep/repo-cli/test/Quality` | `rootQualityStepsForTesting` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:994` | Build root quality task subprocess steps. Exposed for focused unit tests. |
 | `@beep/repo-cli/test/Quality` | `runBunAudit` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:358` | Run Bun's high-severity package audit with OSV ignores mirrored from config. |
 | `@beep/repo-cli/test/Quality` | `runChangesetGraphCheck` | const | `packages/tooling/tool/cli/src/commands/Quality/ChangesetGraph.ts:464` | Run the non-mutating changeset package graph guard. |
 | `@beep/repo-cli/test/Quality` | `runDtslintTsgoChecks` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:1203` | Run repo-wide tsgo diagnostics for dtslint files. |
@@ -2269,30 +2270,30 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/test/Quality` | `runJSDocInventory` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:1523` | Run the JSDoc inventory generator now owned by repo-cli. |
 | `@beep/repo-cli/test/Quality` | `runJSDocModuleTagsCheck` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:1446` | Verify tracked fileoverview comments do not use the legacy `@module` tag. |
 | `@beep/repo-cli/test/Quality` | `runJSDocQuality` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:1570` | Run the repo-wide JSDoc quality gate. |
-| `@beep/repo-cli/test/Quality` | `runQualityTask` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:1149` | Run a parsed quality task in either repo-root or package-local mode. |
-| `@beep/repo-cli/test/Quality` | `runQualityTaskIfRequested` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:1179` | Run a quality task directly from a raw argv vector. |
-| `@beep/repo-cli/test/Quality` | `runQualityTaskStepGroupForTesting` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:1230` | Run a bounded quality task group. Exposed for focused unit tests. |
+| `@beep/repo-cli/test/Quality` | `runQualityTask` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:1141` | Run a parsed quality task in either repo-root or package-local mode. |
+| `@beep/repo-cli/test/Quality` | `runQualityTaskIfRequested` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:1171` | Run a quality task directly from a raw argv vector. |
+| `@beep/repo-cli/test/Quality` | `runQualityTaskStepGroupForTesting` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:1220` | Run a bounded quality task group. Exposed for focused unit tests. |
 | `@beep/repo-cli/test/Quality` | `runRepoExportsCatalog` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:1546` | Run the repo export catalog generator now owned by repo-cli. |
-| `@beep/repo-cli/test/Quality` | `runSqlIntegrationTestLaneForTesting` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:808` | Run the SQL integration lane with an injected resource and child command. |
+| `@beep/repo-cli/test/Quality` | `runSqlIntegrationTestLaneForTesting` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:804` | Run the SQL integration lane with an injected resource and child command. |
 | `@beep/repo-cli/test/Quality` | `runTestTsgoChecks` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:1249` | Run repo-wide Effect diagnostics for test files. |
 | `@beep/repo-cli/test/Quality` | `runTsgoRulesCheck` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:1012` | Check that the root tsgo Effect diagnostics configuration enables every installed rule as an error. |
 | `@beep/repo-cli/test/Quality` | `runTsgoSmokeCheck` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:1345` | Verify that tsgo reports the Effect diagnostic expected by this repo. |
-| `@beep/repo-cli/test/Quality` | `sqlIntegrationConnectionUriFromEnvForTesting` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:824` | Resolve the SQL integration database connection URI from environment variables. |
-| `@beep/repo-cli/test/Quality` | `sqlIntegrationStepForTesting` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:787` | Build the SQL integration test subprocess step. Exposed for focused unit tests. |
+| `@beep/repo-cli/test/Quality` | `sqlIntegrationConnectionUriFromEnvForTesting` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:818` | Resolve the SQL integration database connection URI from environment variables. |
+| `@beep/repo-cli/test/Quality` | `sqlIntegrationStepForTesting` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:785` | Build the SQL integration test subprocess step. Exposed for focused unit tests. |
 | `@beep/repo-cli/test/Quality` | `UnexpectedQualityTaskFailure` | class | `packages/tooling/tool/cli/src/commands/Quality/Quality.errors.ts:277` | Error raised when an unexpected quality task cause reaches the command boundary. |
 | `@beep/repo-cli/test/Reuse` | `buildCloneDocument` | const | `packages/tooling/tool/cli/src/commands/Reuse/internal/CloneBaseline.ts:116` | Build a sorted, deterministic baseline document from clone candidates. |
 | `@beep/repo-cli/test/Reuse` | `CloneBaselineDocument` | class | `packages/tooling/tool/cli/src/commands/Reuse/internal/CloneBaseline.ts:67` | Committed baseline of acknowledged structural-clone clusters for the ratchet. |
 | `@beep/repo-cli/test/Reuse` | `CloneBaselineEntry` | class | `packages/tooling/tool/cli/src/commands/Reuse/internal/CloneBaseline.ts:39` | One acknowledged structural-clone cluster recorded in the committed baseline. |
-| `@beep/repo-cli/test/Reuse` | `CodexRunnerError` | class | `packages/tooling/tool/cli/src/commands/Reuse/Reuse.errors.ts:60` | Structured error emitted when the Codex SDK smoke path fails. |
-| `@beep/repo-cli/test/Reuse` | `CodexRunnerStage` | const | `packages/tooling/tool/cli/src/commands/Reuse/Reuse.errors.ts:33` | Lifecycle stages surfaced by the Codex smoke runner. |
-| `@beep/repo-cli/test/Reuse` | `CodexRunnerStage` | type | `packages/tooling/tool/cli/src/commands/Reuse/Reuse.errors.ts:45` | Runtime type for `CodexRunnerStage`. |
+| `@beep/repo-cli/test/Reuse` | `CodexRunnerError` | class | `packages/tooling/tool/cli/src/commands/Reuse/Reuse.errors.ts:56` | Structured error emitted when the Codex SDK smoke path fails. |
+| `@beep/repo-cli/test/Reuse` | `CodexRunnerStage` | const | `packages/tooling/tool/cli/src/commands/Reuse/Reuse.errors.ts:31` | Lifecycle stages surfaced by the Codex smoke runner. |
+| `@beep/repo-cli/test/Reuse` | `CodexRunnerStage` | type | `packages/tooling/tool/cli/src/commands/Reuse/Reuse.errors.ts:43` | Runtime type for `CodexRunnerStage`. |
 | `@beep/repo-cli/test/Reuse` | `CodexSmokeResult` | class | `packages/tooling/tool/cli/src/commands/Reuse/internal/CodexRunner.ts:32` | Structured result for `beep reuse codex-smoke`. |
 | `@beep/repo-cli/test/Reuse` | `diffCloneBaseline` | const | `packages/tooling/tool/cli/src/commands/Reuse/internal/CloneBaseline.ts:178` | Diff live clusters against a committed baseline, returning new and grown clusters. |
-| `@beep/repo-cli/test/Reuse` | `reuseCommand` | const | `packages/tooling/tool/cli/src/commands/Reuse/Reuse.command.ts:674` | Reuse-discovery command group. |
+| `@beep/repo-cli/test/Reuse` | `reuseCommand` | const | `packages/tooling/tool/cli/src/commands/Reuse/Reuse.command.ts:672` | Reuse-discovery command group. |
 | `@beep/repo-cli/test/Reuse` | `runCodexSmoke` | const | `packages/tooling/tool/cli/src/commands/Reuse/internal/CodexRunner.ts:53` | Validate the local Codex SDK adapter without running a reuse loop. |
 | `@beep/repo-cli/test/Reuse` | `sanitizeTerminalText` | const | `packages/tooling/tool/cli/src/commands/Reuse/Reuse.command.ts:161` | Remove terminal control sequences from human-readable reuse output. |
-| `@beep/repo-cli/test/SyncDataToTs` | `ISO4217_SOURCE_URL` | const | `packages/tooling/tool/cli/src/commands/SyncDataToTs/targets/Iso4217.ts:34` | Official SIX XML source for ISO 4217 List One. |
-| `@beep/repo-cli/test/SyncDataToTs` | `iso4217Target` | const | `packages/tooling/tool/cli/src/commands/SyncDataToTs/targets/Iso4217.ts:288` | Checked-in sync target for the official SIX ISO 4217 List One XML feed. |
+| `@beep/repo-cli/test/SyncDataToTs` | `ISO4217_SOURCE_URL` | const | `packages/tooling/tool/cli/src/commands/SyncDataToTs/targets/Iso4217.ts:32` | Official SIX XML source for ISO 4217 List One. |
+| `@beep/repo-cli/test/SyncDataToTs` | `iso4217Target` | const | `packages/tooling/tool/cli/src/commands/SyncDataToTs/targets/Iso4217.ts:284` | Checked-in sync target for the official SIX ISO 4217 List One XML feed. |
 | `@beep/repo-cli/test/SyncDataToTs` | `SyncDataRunMode` | const | `packages/tooling/tool/cli/src/commands/SyncDataToTs/internal/Models.ts:54` | Command execution mode for sync-data-to-ts. |
 | `@beep/repo-cli/test/SyncDataToTs` | `SyncDataRunMode` | type | `packages/tooling/tool/cli/src/commands/SyncDataToTs/internal/Models.ts:66` | Command execution mode for sync-data-to-ts. |
 | `@beep/repo-cli/test/SyncDataToTs` | `SyncDataSourceFormat` | const | `packages/tooling/tool/cli/src/commands/SyncDataToTs/internal/Models.ts:32` | Supported source formats for sync-data-to-ts targets. |
@@ -2301,10 +2302,10 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/test/SyncDataToTs` | `SyncDataTarget` | type | `packages/tooling/tool/cli/src/commands/SyncDataToTs/internal/Models.ts:155` | {@inheritDoc SyncDataTarget} |
 | `@beep/repo-cli/test/SyncDataToTs` | `SyncDataTargetProjection` | class | `packages/tooling/tool/cli/src/commands/SyncDataToTs/internal/Models.ts:74` | Rendered target projection ready to compare or write to disk. |
 | `@beep/repo-cli/test/SyncDataToTs` | `SyncDataTargetResult` | class | `packages/tooling/tool/cli/src/commands/SyncDataToTs/internal/Models.ts:163` | Per-target command result after diffing or writing. |
-| `@beep/repo-cli/test/SyncDataToTs` | `syncDataTargets` | const | `packages/tooling/tool/cli/src/commands/SyncDataToTs/targets/index.ts:23` | All checked-in sync targets supported by sync-data-to-ts. |
-| `@beep/repo-cli/test/SyncDataToTs` | `syncDataToTsCommand` | const | `packages/tooling/tool/cli/src/commands/SyncDataToTs/SyncDataToTs.command.ts:448` | CLI command for syncing official upstream datasets into checked-in TypeScript modules. |
-| `@beep/repo-cli/test/SyncDataToTs` | `SyncDataToTsDriftError` | class | `packages/tooling/tool/cli/src/commands/SyncDataToTs/SyncDataToTs.errors.ts:100` | Drift detected in check mode. |
-| `@beep/repo-cli/test/SyncDataToTs` | `SyncDataToTsError` | class | `packages/tooling/tool/cli/src/commands/SyncDataToTs/SyncDataToTs.errors.ts:42` | Operational error during source fetch, parsing, projection, or file writes. |
+| `@beep/repo-cli/test/SyncDataToTs` | `syncDataTargets` | const | `packages/tooling/tool/cli/src/commands/SyncDataToTs/targets/index.ts:21` | All checked-in sync targets supported by sync-data-to-ts. |
+| `@beep/repo-cli/test/SyncDataToTs` | `syncDataToTsCommand` | const | `packages/tooling/tool/cli/src/commands/SyncDataToTs/SyncDataToTs.command.ts:446` | CLI command for syncing official upstream datasets into checked-in TypeScript modules. |
+| `@beep/repo-cli/test/SyncDataToTs` | `SyncDataToTsDriftError` | class | `packages/tooling/tool/cli/src/commands/SyncDataToTs/SyncDataToTs.errors.ts:96` | Drift detected in check mode. |
+| `@beep/repo-cli/test/SyncDataToTs` | `SyncDataToTsError` | class | `packages/tooling/tool/cli/src/commands/SyncDataToTs/SyncDataToTs.errors.ts:40` | Operational error during source fetch, parsing, projection, or file writes. |
 | `@beep/repo-cli/test/VersionSync` | `BiomeSchemaState` | class | `packages/tooling/tool/cli/src/commands/VersionSync/internal/resolvers/BiomeResolver.ts:141` | Resolved Biome schema state. |
 | `@beep/repo-cli/test/VersionSync` | `buildBiomeReport` | const | `packages/tooling/tool/cli/src/commands/VersionSync/internal/resolvers/BiomeResolver.ts:212` | Build the Biome schema category report from resolved state. |
 | `@beep/repo-cli/test/VersionSync` | `buildBunReport` | const | `packages/tooling/tool/cli/src/commands/VersionSync/internal/resolvers/BunResolver.ts:366` | Build the Bun category report from resolved state. |
@@ -2315,7 +2316,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/test/VersionSync` | `BunVersionState` | class | `packages/tooling/tool/cli/src/commands/VersionSync/internal/resolvers/BunResolver.ts:260` | Resolved Bun version state. |
 | `@beep/repo-cli/test/VersionSync` | `DockerImageState` | class | `packages/tooling/tool/cli/src/commands/VersionSync/internal/resolvers/DockerResolver.ts:117` | Resolved Docker image state. |
 | `@beep/repo-cli/test/VersionSync` | `EffectCatalogState` | class | `packages/tooling/tool/cli/src/commands/VersionSync/internal/resolvers/EffectResolver.ts:61` | Resolved Effect catalog state derived from the root `package.json` catalog entries. |
-| `@beep/repo-cli/test/VersionSync` | `NetworkUnavailableError` | class | `packages/tooling/tool/cli/src/commands/VersionSync/VersionSync.errors.ts:93` | Network unavailable during upstream version resolution. |
+| `@beep/repo-cli/test/VersionSync` | `NetworkUnavailableError` | class | `packages/tooling/tool/cli/src/commands/VersionSync/VersionSync.errors.ts:89` | Network unavailable during upstream version resolution. |
 | `@beep/repo-cli/test/VersionSync` | `NodeVersionLocation` | class | `packages/tooling/tool/cli/src/commands/VersionSync/internal/resolvers/NodeResolver.ts:31` | A workflow file location with a `node-version` field. |
 | `@beep/repo-cli/test/VersionSync` | `NodeVersionState` | class | `packages/tooling/tool/cli/src/commands/VersionSync/internal/resolvers/NodeResolver.ts:50` | Resolved Node version state. |
 | `@beep/repo-cli/test/VersionSync` | `replaceNodeVersionWithFile` | const | `packages/tooling/tool/cli/src/commands/VersionSync/internal/updaters/YamlFileUpdater.ts:101` | Replace `node-version: <value>` with `node-version-file: .nvmrc` in a workflow YAML. |
@@ -2340,9 +2341,9 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/test/VersionSync` | `VersionCategoryStatusMatch` | const | `packages/tooling/tool/cli/src/commands/VersionSync/internal/Models.ts:104` | Pattern-matching helper for version category status literals. |
 | `@beep/repo-cli/test/VersionSync` | `VersionCategoryStatusThunk` | const | `packages/tooling/tool/cli/src/commands/VersionSync/internal/Models.ts:118` | Thunk helpers for version category status literals. |
 | `@beep/repo-cli/test/VersionSync` | `VersionDriftItem` | class | `packages/tooling/tool/cli/src/commands/VersionSync/internal/Models.ts:35` | A single version pin location with its current and expected values. |
-| `@beep/repo-cli/test/VersionSync` | `versionSyncCommand` | const | `packages/tooling/tool/cli/src/commands/VersionSync/VersionSync.command.ts:56` | CLI command for synchronizing version pins across the monorepo. |
-| `@beep/repo-cli/test/VersionSync` | `VersionSyncDriftError` | class | `packages/tooling/tool/cli/src/commands/VersionSync/VersionSync.errors.ts:121` | Drift detected in check mode (non-zero exit). |
-| `@beep/repo-cli/test/VersionSync` | `VersionSyncError` | class | `packages/tooling/tool/cli/src/commands/VersionSync/VersionSync.errors.ts:42` | Operational error during version sync (file read/write, parse failures). |
+| `@beep/repo-cli/test/VersionSync` | `versionSyncCommand` | const | `packages/tooling/tool/cli/src/commands/VersionSync/VersionSync.command.ts:54` | CLI command for synchronizing version pins across the monorepo. |
+| `@beep/repo-cli/test/VersionSync` | `VersionSyncDriftError` | class | `packages/tooling/tool/cli/src/commands/VersionSync/VersionSync.errors.ts:115` | Drift detected in check mode (non-zero exit). |
+| `@beep/repo-cli/test/VersionSync` | `VersionSyncError` | class | `packages/tooling/tool/cli/src/commands/VersionSync/VersionSync.errors.ts:40` | Operational error during version sync (file read/write, parse failures). |
 | `@beep/repo-cli/test/VersionSync` | `VersionSyncMode` | const | `packages/tooling/tool/cli/src/commands/VersionSync/internal/Models.ts:265` | Command execution mode. |
 | `@beep/repo-cli/test/VersionSync` | `VersionSyncMode` | type | `packages/tooling/tool/cli/src/commands/VersionSync/internal/Models.ts:284` | Command execution mode. |
 | `@beep/repo-cli/test/VersionSync` | `VersionSyncModeMatch` | const | `packages/tooling/tool/cli/src/commands/VersionSync/internal/Models.ts:276` | Pattern-matching helper for version-sync mode literals. |
@@ -2418,20 +2419,20 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/ai-sync/_generated/schemas.gen` | `CodexSkillEntry` | class | `packages/tooling/library/ai-sync/src/_generated/schemas.gen.ts:53` | Generated Codex skill entry. |
 | `@beep/ai-sync/_generated/schemas.gen` | `CodexSkills` | class | `packages/tooling/library/ai-sync/src/_generated/schemas.gen.ts:74` | Generated Codex skills block. |
 | `@beep/ai-sync/_generated/schemas.gen` | `McpJsonServer` | class | `packages/tooling/library/ai-sync/src/_generated/schemas.gen.ts:128` | Generated Claude-style MCP server schema. |
-| `@beep/ai-sync/_generated/source-metadata.gen` | `GENERATED_TIER_ONE_SOURCE_METADATA` | const | `packages/tooling/library/ai-sync/src/_generated/source-metadata.gen.ts:23` | Generated source metadata with content hashes for Tier-1 sources. |
+| `@beep/ai-sync/_generated/source-metadata.gen` | `GENERATED_TIER_ONE_SOURCE_METADATA` | const | `packages/tooling/library/ai-sync/src/_generated/source-metadata.gen.ts:21` | Generated source metadata with content hashes for Tier-1 sources. |
 | `@beep/ai-sync/drift` | `assertNoStrictDrift` | const | `packages/tooling/library/ai-sync/src/drift.ts:187` | Fail when strict drift reports any findings. |
 | `@beep/ai-sync/drift` | `checkGeneratedArtifacts` | const | `packages/tooling/library/ai-sync/src/drift.ts:70` | Offline generated artifact freshness check. |
 | `@beep/ai-sync/drift` | `checkSourceDriftWithFetcher` | const | `packages/tooling/library/ai-sync/src/drift.ts:133` | Compare a set of sources with an injected fetcher. |
 | `@beep/ai-sync/drift` | `checkStrictDrift` | const | `packages/tooling/library/ai-sync/src/drift.ts:169` | Networked strict drift check against committed Tier-1 hashes. |
 | `@beep/ai-sync/drift` | `getGeneratedSourceMetadata` | const | `packages/tooling/library/ai-sync/src/drift.ts:48` | Decode committed generated source metadata. |
-| `@beep/ai-sync/generator` | `AiSyncHttpLayer` | const | `packages/tooling/library/ai-sync/src/generator.ts:436` | Runtime layer for generator and drift commands. |
-| `@beep/ai-sync/generator` | `fetchSourceText` | const | `packages/tooling/library/ai-sync/src/generator.ts:342` | Fetch an upstream source body. |
-| `@beep/ai-sync/generator` | `generateAiSyncArtifacts` | const | `packages/tooling/library/ai-sync/src/generator.ts:416` | Generate committed schema and source metadata files. |
-| `@beep/ai-sync/generator` | `GENERATED_SCHEMAS_PATH` | const | `packages/tooling/library/ai-sync/src/generator.ts:28` | Generated schemas file path relative to the package root. |
-| `@beep/ai-sync/generator` | `GENERATED_SOURCE_METADATA_PATH` | const | `packages/tooling/library/ai-sync/src/generator.ts:43` | Generated source metadata file path relative to the package root. |
-| `@beep/ai-sync/generator` | `hashSourceText` | const | `packages/tooling/library/ai-sync/src/generator.ts:318` | Compute a public SHA-256 content hash. |
-| `@beep/ai-sync/generator` | `renderGeneratedSchemas` | const | `packages/tooling/library/ai-sync/src/generator.ts:403` | Render generated schemas without network access. |
-| `@beep/ai-sync/generator` | `renderGeneratedSourceMetadata` | const | `packages/tooling/library/ai-sync/src/generator.ts:108` | Render generated source metadata without network access. |
+| `@beep/ai-sync/generator` | `AiSyncHttpLayer` | const | `packages/tooling/library/ai-sync/src/generator.ts:430` | Runtime layer for generator and drift commands. |
+| `@beep/ai-sync/generator` | `fetchSourceText` | const | `packages/tooling/library/ai-sync/src/generator.ts:338` | Fetch an upstream source body. |
+| `@beep/ai-sync/generator` | `generateAiSyncArtifacts` | const | `packages/tooling/library/ai-sync/src/generator.ts:412` | Generate committed schema and source metadata files. |
+| `@beep/ai-sync/generator` | `GENERATED_SCHEMAS_PATH` | const | `packages/tooling/library/ai-sync/src/generator.ts:26` | Generated schemas file path relative to the package root. |
+| `@beep/ai-sync/generator` | `GENERATED_SOURCE_METADATA_PATH` | const | `packages/tooling/library/ai-sync/src/generator.ts:39` | Generated source metadata file path relative to the package root. |
+| `@beep/ai-sync/generator` | `hashSourceText` | const | `packages/tooling/library/ai-sync/src/generator.ts:314` | Compute a public SHA-256 content hash. |
+| `@beep/ai-sync/generator` | `renderGeneratedSchemas` | const | `packages/tooling/library/ai-sync/src/generator.ts:399` | Render generated schemas without network access. |
+| `@beep/ai-sync/generator` | `renderGeneratedSourceMetadata` | const | `packages/tooling/library/ai-sync/src/generator.ts:104` | Render generated source metadata without network access. |
 | `@beep/ai-sync/index` | `AgentCommandMetadata` | class | `packages/tooling/library/ai-sync/src/schemas.ts:115` | Documentation-backed generic command metadata. |
 | `@beep/ai-sync/index` | `AgentInstructionDocument` | const | `packages/tooling/library/ai-sync/src/schemas.ts:35` | Agent instruction markdown document. |
 | `@beep/ai-sync/index` | `AgentInstructionDocument` | type | `packages/tooling/library/ai-sync/src/schemas.ts:53` | Runtime type for {@link AgentInstructionDocument}. |
@@ -2543,6 +2544,34 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 |---|---|---|---|---|
 | `@beep/shared-server` | `VERSION` | const | `packages/shared/server/src/index.ts:21` | Shared server package version. |
 | `@beep/shared-server/index` | `VERSION` | const | `packages/shared/server/src/index.ts:21` | Shared server package version. |
+
+### @beep/nlp-mcp
+
+| Import | Symbol | Kind | Source | Summary |
+|---|---|---|---|---|
+| `@beep/nlp-mcp` | `VERSION` | const | `packages/drivers/nlp-mcp/src/index.ts:12` |  |
+| `@beep/nlp-mcp/bin` | `SERVER_CONFIG` | const | `packages/drivers/nlp-mcp/src/bin.ts:24` | The server identity advertised to MCP clients by this entrypoint. |
+| `@beep/nlp-mcp/index` | `VERSION` | const | `packages/drivers/nlp-mcp/src/index.ts:12` |  |
+| `@beep/nlp-mcp/Schemas` | `EntityEntry` | class | `packages/drivers/nlp-mcp/src/Schemas.ts:100` | A single extracted named entity. |
+| `@beep/nlp-mcp/Schemas` | `EntityOutput` | class | `packages/drivers/nlp-mcp/src/Schemas.ts:167` | Output of the named-entity extraction tool. |
+| `@beep/nlp-mcp/Schemas` | `LemmaEntry` | class | `packages/drivers/nlp-mcp/src/Schemas.ts:85` | A single lemmatized token. |
+| `@beep/nlp-mcp/Schemas` | `LemmaOutput` | class | `packages/drivers/nlp-mcp/src/Schemas.ts:153` | Output of the lemmatization tool. |
+| `@beep/nlp-mcp/Schemas` | `NlpToolError` | class | `packages/drivers/nlp-mcp/src/Schemas.ts:56` | The failure a tool returns when the underlying NLP backend operation fails. |
+| `@beep/nlp-mcp/Schemas` | `POSEntry` | class | `packages/drivers/nlp-mcp/src/Schemas.ts:70` | A single part-of-speech tagged token. |
+| `@beep/nlp-mcp/Schemas` | `POSOutput` | class | `packages/drivers/nlp-mcp/src/Schemas.ts:139` | Output of the part-of-speech tagging tool. |
+| `@beep/nlp-mcp/Schemas` | `TextArrayOutput` | class | `packages/drivers/nlp-mcp/src/Schemas.ts:125` | Output of a tool that returns an array of strings (tokens or sentences). |
+| `@beep/nlp-mcp/Schemas` | `TextInput` | class | `packages/drivers/nlp-mcp/src/Schemas.ts:36` | Parameters for a text-only NLP tool call. |
+| `@beep/nlp-mcp/Server` | `BackendLive` | const | `packages/drivers/nlp-mcp/src/Server.ts:129` | The live wink-nlp backend layer (the default {@link @beep/nlp/Backend#NLPBackend} |
+| `@beep/nlp-mcp/Server` | `makeNlpHandlers` | const | `packages/drivers/nlp-mcp/src/Server.ts:51` | Build the {@link Tools.NlpToolkit} handler record from an |
+| `@beep/nlp-mcp/Server` | `makeServerLayer` | const | `packages/drivers/nlp-mcp/src/Server.ts:165` | Build the stdio-transport MCP server layer exposing the NLP toolkit. |
+| `@beep/nlp-mcp/Server` | `NlpMcpServerConfig` | interface | `packages/drivers/nlp-mcp/src/Server.ts:140` | Configuration for the MCP server identity advertised to clients. |
+| `@beep/nlp-mcp/Server` | `NlpToolkitHandlersLive` | const | `packages/drivers/nlp-mcp/src/Server.ts:112` | The handler layer binding each {@link Tools.NlpToolkit} tool to an |
+| `@beep/nlp-mcp/Tools` | `ExtractEntities` | const | `packages/drivers/nlp-mcp/src/Tools.ts:114` | Extract named entities from text. |
+| `@beep/nlp-mcp/Tools` | `Lemmatize` | const | `packages/drivers/nlp-mcp/src/Tools.ts:94` | Reduce each token to its canonical lemma. |
+| `@beep/nlp-mcp/Tools` | `NlpToolkit` | const | `packages/drivers/nlp-mcp/src/Tools.ts:134` | The toolkit bundling every NLP tool exposed by this MCP server. |
+| `@beep/nlp-mcp/Tools` | `PosTag` | const | `packages/drivers/nlp-mcp/src/Tools.ts:74` | Tag each token with its part-of-speech label. |
+| `@beep/nlp-mcp/Tools` | `Sentencize` | const | `packages/drivers/nlp-mcp/src/Tools.ts:34` | Split text into sentences. |
+| `@beep/nlp-mcp/Tools` | `Tokenize` | const | `packages/drivers/nlp-mcp/src/Tools.ts:54` | Split text into tokens (words). |
 
 ### @beep/law-practice-domain
 
@@ -4070,67 +4099,65 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 
 | Import | Symbol | Kind | Source | Summary |
 |---|---|---|---|---|
-| `@beep/test-utils` | `BunSqliteTestDriver` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:993` | Fresh Bun SQLite integration-test driver backed by a scoped temp directory. |
-| `@beep/test-utils` | `makePgliteSqlTestLayer` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:1135` | Build the recommended PGLite SQL test layer for vertical-slice integration tests. |
-| `@beep/test-utils` | `makePgliteTestcontainerResource` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:709` | Start a scoped PGLite Testcontainers PostgreSQL wire-protocol resource. |
-| `@beep/test-utils` | `makeSqlTestLayer` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:538` | Build a fresh, scoped SQL integration-test layer for a concrete driver. |
-| `@beep/test-utils` | `NodeSqliteTestDriver` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:1043` | Fresh Node SQLite integration-test driver backed by a scoped temp directory. |
-| `@beep/test-utils` | `PgExternalTestDriver` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:1087` | External PostgreSQL-compatible integration-test driver backed by a caller-managed server. |
-| `@beep/test-utils` | `PgExternalTestDriverConfig` | class | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:214` | Runtime configuration for an externally managed PostgreSQL-compatible SQL test driver. |
-| `@beep/test-utils` | `PgExternalTestDriverConfigInput` | type | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:257` | Constructor input accepted by the external PostgreSQL SQL test driver. |
-| `@beep/test-utils` | `PgliteSqlTestLayerMode` | type | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:273` | Mode selector for the public PGLite SQL test layer helper. |
-| `@beep/test-utils` | `PgliteSqlTestLayerOptions` | interface | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:289` | Options for `makePgliteSqlTestLayer`. |
-| `@beep/test-utils` | `PgliteTestcontainerResource` | interface | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:470` | Scoped PGLite Testcontainers resource metadata. |
-| `@beep/test-utils` | `PgliteTestcontainersTestDriver` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:1065` | Fresh PGLite integration-test driver backed by a scoped Testcontainers PostgreSQL wire-protocol server. |
+| `@beep/test-utils` | `BunSqliteTestDriver` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:988` | Fresh Bun SQLite integration-test driver backed by a scoped temp directory. |
+| `@beep/test-utils` | `makePgliteSqlTestLayer` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:1130` | Build the recommended PGLite SQL test layer for vertical-slice integration tests. |
+| `@beep/test-utils` | `makePgliteTestcontainerResource` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:704` | Start a scoped PGLite Testcontainers PostgreSQL wire-protocol resource. |
+| `@beep/test-utils` | `makeSqlTestLayer` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:533` | Build a fresh, scoped SQL integration-test layer for a concrete driver. |
+| `@beep/test-utils` | `NodeSqliteTestDriver` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:1038` | Fresh Node SQLite integration-test driver backed by a scoped temp directory. |
+| `@beep/test-utils` | `PgExternalTestDriver` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:1082` | External PostgreSQL-compatible integration-test driver backed by a caller-managed server. |
+| `@beep/test-utils` | `PgExternalTestDriverConfig` | class | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:213` | Runtime configuration for an externally managed PostgreSQL-compatible SQL test driver. |
+| `@beep/test-utils` | `PgExternalTestDriverConfigInput` | type | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:255` | Constructor input accepted by the external PostgreSQL SQL test driver. |
+| `@beep/test-utils` | `PgliteSqlTestLayerMode` | type | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:270` | Mode selector for the public PGLite SQL test layer helper. |
+| `@beep/test-utils` | `PgliteSqlTestLayerOptions` | interface | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:284` | Options for `makePgliteSqlTestLayer`. |
+| `@beep/test-utils` | `PgliteTestcontainerResource` | interface | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:465` | Scoped PGLite Testcontainers resource metadata. |
+| `@beep/test-utils` | `PgliteTestcontainersTestDriver` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:1060` | Fresh PGLite integration-test driver backed by a scoped Testcontainers PostgreSQL wire-protocol server. |
 | `@beep/test-utils` | `PgliteTestcontainersTestDriverConfig` | class | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:150` | Runtime configuration for the PGLite Testcontainers SQL test driver. |
-| `@beep/test-utils` | `PgliteTestcontainersTestDriverConfigInput` | type | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:198` | Constructor input accepted by the PGLite Testcontainers SQL test driver. |
+| `@beep/test-utils` | `PgliteTestcontainersTestDriverConfigInput` | type | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:197` | Constructor input accepted by the PGLite Testcontainers SQL test driver. |
 | `@beep/test-utils` | `provideScopedLayer` | const | `packages/tooling/test-kit/test-utils/src/Layer.ts:30` | Provide a layer to an effect inside a scoped lifetime. |
-| `@beep/test-utils` | `SqlTestDriver` | interface | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:374` | Driver contract for reusable SQL integration-test layers. |
-| `@beep/test-utils` | `SqlTestHarnessError` | class | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:330` | Typed harness error surfaced while provisioning or preparing a test database. |
-| `@beep/test-utils` | `SqlTestHooks` | interface | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:355` | Optional database setup hooks executed after the driver layer has been built. |
-| `@beep/test-utils` | `TestDatabaseInfo` | class | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:308` | Runtime metadata for an ephemeral integration-test database instance. |
+| `@beep/test-utils` | `SqlTestDriver` | interface | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:369` | Driver contract for reusable SQL integration-test layers. |
+| `@beep/test-utils` | `SqlTestHarnessError` | class | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:325` | Typed harness error surfaced while provisioning or preparing a test database. |
+| `@beep/test-utils` | `SqlTestHooks` | interface | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:350` | Optional database setup hooks executed after the driver layer has been built. |
+| `@beep/test-utils` | `TestDatabaseInfo` | class | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:303` | Runtime metadata for an ephemeral integration-test database instance. |
 | `@beep/test-utils` | `TestDatabaseInfoShape` | class | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:120` | Runtime metadata for an ephemeral integration-test database instance. |
-| `@beep/test-utils` | `VERSION` | const | `packages/tooling/test-kit/test-utils/src/index.ts:37` | Package version marker for test utilities. |
-| `@beep/test-utils/index` | `BunSqliteTestDriver` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:993` | Fresh Bun SQLite integration-test driver backed by a scoped temp directory. |
-| `@beep/test-utils/index` | `makePgliteSqlTestLayer` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:1135` | Build the recommended PGLite SQL test layer for vertical-slice integration tests. |
-| `@beep/test-utils/index` | `makePgliteTestcontainerResource` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:709` | Start a scoped PGLite Testcontainers PostgreSQL wire-protocol resource. |
-| `@beep/test-utils/index` | `makeSqlTestLayer` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:538` | Build a fresh, scoped SQL integration-test layer for a concrete driver. |
-| `@beep/test-utils/index` | `NodeSqliteTestDriver` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:1043` | Fresh Node SQLite integration-test driver backed by a scoped temp directory. |
-| `@beep/test-utils/index` | `PgExternalTestDriver` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:1087` | External PostgreSQL-compatible integration-test driver backed by a caller-managed server. |
-| `@beep/test-utils/index` | `PgExternalTestDriverConfig` | class | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:214` | Runtime configuration for an externally managed PostgreSQL-compatible SQL test driver. |
-| `@beep/test-utils/index` | `PgExternalTestDriverConfigInput` | type | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:257` | Constructor input accepted by the external PostgreSQL SQL test driver. |
-| `@beep/test-utils/index` | `PgliteSqlTestLayerMode` | type | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:273` | Mode selector for the public PGLite SQL test layer helper. |
-| `@beep/test-utils/index` | `PgliteSqlTestLayerOptions` | interface | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:289` | Options for `makePgliteSqlTestLayer`. |
-| `@beep/test-utils/index` | `PgliteTestcontainerResource` | interface | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:470` | Scoped PGLite Testcontainers resource metadata. |
-| `@beep/test-utils/index` | `PgliteTestcontainersTestDriver` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:1065` | Fresh PGLite integration-test driver backed by a scoped Testcontainers PostgreSQL wire-protocol server. |
+| `@beep/test-utils/index` | `BunSqliteTestDriver` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:988` | Fresh Bun SQLite integration-test driver backed by a scoped temp directory. |
+| `@beep/test-utils/index` | `makePgliteSqlTestLayer` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:1130` | Build the recommended PGLite SQL test layer for vertical-slice integration tests. |
+| `@beep/test-utils/index` | `makePgliteTestcontainerResource` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:704` | Start a scoped PGLite Testcontainers PostgreSQL wire-protocol resource. |
+| `@beep/test-utils/index` | `makeSqlTestLayer` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:533` | Build a fresh, scoped SQL integration-test layer for a concrete driver. |
+| `@beep/test-utils/index` | `NodeSqliteTestDriver` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:1038` | Fresh Node SQLite integration-test driver backed by a scoped temp directory. |
+| `@beep/test-utils/index` | `PgExternalTestDriver` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:1082` | External PostgreSQL-compatible integration-test driver backed by a caller-managed server. |
+| `@beep/test-utils/index` | `PgExternalTestDriverConfig` | class | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:213` | Runtime configuration for an externally managed PostgreSQL-compatible SQL test driver. |
+| `@beep/test-utils/index` | `PgExternalTestDriverConfigInput` | type | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:255` | Constructor input accepted by the external PostgreSQL SQL test driver. |
+| `@beep/test-utils/index` | `PgliteSqlTestLayerMode` | type | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:270` | Mode selector for the public PGLite SQL test layer helper. |
+| `@beep/test-utils/index` | `PgliteSqlTestLayerOptions` | interface | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:284` | Options for `makePgliteSqlTestLayer`. |
+| `@beep/test-utils/index` | `PgliteTestcontainerResource` | interface | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:465` | Scoped PGLite Testcontainers resource metadata. |
+| `@beep/test-utils/index` | `PgliteTestcontainersTestDriver` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:1060` | Fresh PGLite integration-test driver backed by a scoped Testcontainers PostgreSQL wire-protocol server. |
 | `@beep/test-utils/index` | `PgliteTestcontainersTestDriverConfig` | class | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:150` | Runtime configuration for the PGLite Testcontainers SQL test driver. |
-| `@beep/test-utils/index` | `PgliteTestcontainersTestDriverConfigInput` | type | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:198` | Constructor input accepted by the PGLite Testcontainers SQL test driver. |
+| `@beep/test-utils/index` | `PgliteTestcontainersTestDriverConfigInput` | type | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:197` | Constructor input accepted by the PGLite Testcontainers SQL test driver. |
 | `@beep/test-utils/index` | `provideScopedLayer` | const | `packages/tooling/test-kit/test-utils/src/Layer.ts:30` | Provide a layer to an effect inside a scoped lifetime. |
-| `@beep/test-utils/index` | `SqlTestDriver` | interface | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:374` | Driver contract for reusable SQL integration-test layers. |
-| `@beep/test-utils/index` | `SqlTestHarnessError` | class | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:330` | Typed harness error surfaced while provisioning or preparing a test database. |
-| `@beep/test-utils/index` | `SqlTestHooks` | interface | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:355` | Optional database setup hooks executed after the driver layer has been built. |
-| `@beep/test-utils/index` | `TestDatabaseInfo` | class | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:308` | Runtime metadata for an ephemeral integration-test database instance. |
+| `@beep/test-utils/index` | `SqlTestDriver` | interface | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:369` | Driver contract for reusable SQL integration-test layers. |
+| `@beep/test-utils/index` | `SqlTestHarnessError` | class | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:325` | Typed harness error surfaced while provisioning or preparing a test database. |
+| `@beep/test-utils/index` | `SqlTestHooks` | interface | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:350` | Optional database setup hooks executed after the driver layer has been built. |
+| `@beep/test-utils/index` | `TestDatabaseInfo` | class | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:303` | Runtime metadata for an ephemeral integration-test database instance. |
 | `@beep/test-utils/index` | `TestDatabaseInfoShape` | class | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:120` | Runtime metadata for an ephemeral integration-test database instance. |
-| `@beep/test-utils/index` | `VERSION` | const | `packages/tooling/test-kit/test-utils/src/index.ts:37` | Package version marker for test utilities. |
 | `@beep/test-utils/Layer` | `provideScopedLayer` | const | `packages/tooling/test-kit/test-utils/src/Layer.ts:30` | Provide a layer to an effect inside a scoped lifetime. |
-| `@beep/test-utils/SqlTest` | `BunSqliteTestDriver` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:993` | Fresh Bun SQLite integration-test driver backed by a scoped temp directory. |
-| `@beep/test-utils/SqlTest` | `makePgliteSqlTestLayer` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:1135` | Build the recommended PGLite SQL test layer for vertical-slice integration tests. |
-| `@beep/test-utils/SqlTest` | `makePgliteTestcontainerResource` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:709` | Start a scoped PGLite Testcontainers PostgreSQL wire-protocol resource. |
-| `@beep/test-utils/SqlTest` | `makeSqlTestLayer` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:538` | Build a fresh, scoped SQL integration-test layer for a concrete driver. |
-| `@beep/test-utils/SqlTest` | `NodeSqliteTestDriver` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:1043` | Fresh Node SQLite integration-test driver backed by a scoped temp directory. |
-| `@beep/test-utils/SqlTest` | `PgExternalTestDriver` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:1087` | External PostgreSQL-compatible integration-test driver backed by a caller-managed server. |
-| `@beep/test-utils/SqlTest` | `PgExternalTestDriverConfig` | class | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:214` | Runtime configuration for an externally managed PostgreSQL-compatible SQL test driver. |
-| `@beep/test-utils/SqlTest` | `PgExternalTestDriverConfigInput` | type | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:257` | Constructor input accepted by the external PostgreSQL SQL test driver. |
-| `@beep/test-utils/SqlTest` | `PgliteSqlTestLayerMode` | type | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:273` | Mode selector for the public PGLite SQL test layer helper. |
-| `@beep/test-utils/SqlTest` | `PgliteSqlTestLayerOptions` | interface | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:289` | Options for `makePgliteSqlTestLayer`. |
-| `@beep/test-utils/SqlTest` | `PgliteTestcontainerResource` | interface | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:470` | Scoped PGLite Testcontainers resource metadata. |
-| `@beep/test-utils/SqlTest` | `PgliteTestcontainersTestDriver` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:1065` | Fresh PGLite integration-test driver backed by a scoped Testcontainers PostgreSQL wire-protocol server. |
+| `@beep/test-utils/SqlTest` | `BunSqliteTestDriver` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:988` | Fresh Bun SQLite integration-test driver backed by a scoped temp directory. |
+| `@beep/test-utils/SqlTest` | `makePgliteSqlTestLayer` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:1130` | Build the recommended PGLite SQL test layer for vertical-slice integration tests. |
+| `@beep/test-utils/SqlTest` | `makePgliteTestcontainerResource` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:704` | Start a scoped PGLite Testcontainers PostgreSQL wire-protocol resource. |
+| `@beep/test-utils/SqlTest` | `makeSqlTestLayer` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:533` | Build a fresh, scoped SQL integration-test layer for a concrete driver. |
+| `@beep/test-utils/SqlTest` | `NodeSqliteTestDriver` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:1038` | Fresh Node SQLite integration-test driver backed by a scoped temp directory. |
+| `@beep/test-utils/SqlTest` | `PgExternalTestDriver` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:1082` | External PostgreSQL-compatible integration-test driver backed by a caller-managed server. |
+| `@beep/test-utils/SqlTest` | `PgExternalTestDriverConfig` | class | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:213` | Runtime configuration for an externally managed PostgreSQL-compatible SQL test driver. |
+| `@beep/test-utils/SqlTest` | `PgExternalTestDriverConfigInput` | type | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:255` | Constructor input accepted by the external PostgreSQL SQL test driver. |
+| `@beep/test-utils/SqlTest` | `PgliteSqlTestLayerMode` | type | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:270` | Mode selector for the public PGLite SQL test layer helper. |
+| `@beep/test-utils/SqlTest` | `PgliteSqlTestLayerOptions` | interface | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:284` | Options for `makePgliteSqlTestLayer`. |
+| `@beep/test-utils/SqlTest` | `PgliteTestcontainerResource` | interface | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:465` | Scoped PGLite Testcontainers resource metadata. |
+| `@beep/test-utils/SqlTest` | `PgliteTestcontainersTestDriver` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:1060` | Fresh PGLite integration-test driver backed by a scoped Testcontainers PostgreSQL wire-protocol server. |
 | `@beep/test-utils/SqlTest` | `PgliteTestcontainersTestDriverConfig` | class | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:150` | Runtime configuration for the PGLite Testcontainers SQL test driver. |
-| `@beep/test-utils/SqlTest` | `PgliteTestcontainersTestDriverConfigInput` | type | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:198` | Constructor input accepted by the PGLite Testcontainers SQL test driver. |
-| `@beep/test-utils/SqlTest` | `SqlTestDriver` | interface | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:374` | Driver contract for reusable SQL integration-test layers. |
-| `@beep/test-utils/SqlTest` | `SqlTestHarnessError` | class | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:330` | Typed harness error surfaced while provisioning or preparing a test database. |
-| `@beep/test-utils/SqlTest` | `SqlTestHooks` | interface | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:355` | Optional database setup hooks executed after the driver layer has been built. |
-| `@beep/test-utils/SqlTest` | `TestDatabaseInfo` | class | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:308` | Runtime metadata for an ephemeral integration-test database instance. |
+| `@beep/test-utils/SqlTest` | `PgliteTestcontainersTestDriverConfigInput` | type | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:197` | Constructor input accepted by the PGLite Testcontainers SQL test driver. |
+| `@beep/test-utils/SqlTest` | `SqlTestDriver` | interface | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:369` | Driver contract for reusable SQL integration-test layers. |
+| `@beep/test-utils/SqlTest` | `SqlTestHarnessError` | class | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:325` | Typed harness error surfaced while provisioning or preparing a test database. |
+| `@beep/test-utils/SqlTest` | `SqlTestHooks` | interface | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:350` | Optional database setup hooks executed after the driver layer has been built. |
+| `@beep/test-utils/SqlTest` | `TestDatabaseInfo` | class | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:303` | Runtime metadata for an ephemeral integration-test database instance. |
 | `@beep/test-utils/SqlTest` | `TestDatabaseInfoShape` | class | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:120` | Runtime metadata for an ephemeral integration-test database instance. |
 
 ### @beep/types
@@ -6501,92 +6528,93 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 
 | Import | Symbol | Kind | Source | Summary |
 |---|---|---|---|---|
-| `@beep/identity` | `$AcpId` | const | `packages/foundation/modeling/identity/src/packages.ts:1018` | Identity composer for `@beep/acp`. |
-| `@beep/identity` | `$AgentCapabilityDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:589` | Identity composer for the `@beep/agent-capability-domain` package. |
-| `@beep/identity` | `$AgentCapabilityUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:605` | Identity composer for the `@beep/agent-capability-use-cases` package. |
-| `@beep/identity` | `$AiProviderCliId` | const | `packages/foundation/modeling/identity/src/packages.ts:1314` | Identity composer for `@beep/ai-provider-cli`. |
-| `@beep/identity` | `$AiSyncId` | const | `packages/foundation/modeling/identity/src/packages.ts:1507` | Identity composer for `@beep/ai-sync`. |
-| `@beep/identity` | `$ArchitectureLabClientId` | const | `packages/foundation/modeling/identity/src/packages.ts:1151` | Identity composer for `@beep/architecture-lab-client`. |
-| `@beep/identity` | `$ArchitectureLabConfigId` | const | `packages/foundation/modeling/identity/src/packages.ts:1100` | Identity composer for `@beep/architecture-lab-config`. |
-| `@beep/identity` | `$ArchitectureLabDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:1066` | Identity composer for `@beep/architecture-lab-domain`. |
-| `@beep/identity` | `$ArchitectureLabProofId` | const | `packages/foundation/modeling/identity/src/packages.ts:1185` | Identity composer for `@beep/architecture-lab-proof`. |
-| `@beep/identity` | `$ArchitectureLabServerId` | const | `packages/foundation/modeling/identity/src/packages.ts:1117` | Identity composer for `@beep/architecture-lab-server`. |
-| `@beep/identity` | `$ArchitectureLabTablesId` | const | `packages/foundation/modeling/identity/src/packages.ts:1134` | Identity composer for `@beep/architecture-lab-tables`. |
-| `@beep/identity` | `$ArchitectureLabUiId` | const | `packages/foundation/modeling/identity/src/packages.ts:1168` | Identity composer for `@beep/architecture-lab-ui`. |
-| `@beep/identity` | `$ArchitectureLabUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:1083` | Identity composer for `@beep/architecture-lab-use-cases`. |
-| `@beep/identity` | `$BillingDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:832` | Identity composer for the `@beep/billing-domain` package. |
-| `@beep/identity` | `$BillingServerId` | const | `packages/foundation/modeling/identity/src/packages.ts:849` | Identity composer for the `@beep/billing-server` package. |
-| `@beep/identity` | `$BillingUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:866` | Identity composer for the `@beep/billing-use-cases` package. |
-| `@beep/identity` | `$CanvasClientId` | const | `packages/foundation/modeling/identity/src/packages.ts:1442` | Identity composer for `@beep/canvas-client`. |
-| `@beep/identity` | `$CanvasDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:1394` | Identity composer for `@beep/canvas-domain`. |
-| `@beep/identity` | `$CanvasId` | const | `packages/foundation/modeling/identity/src/packages.ts:1474` | Identity composer for `@beep/canvas`. |
-| `@beep/identity` | `$CanvasServerId` | const | `packages/foundation/modeling/identity/src/packages.ts:1426` | Identity composer for `@beep/canvas-server`. |
-| `@beep/identity` | `$CanvasUiId` | const | `packages/foundation/modeling/identity/src/packages.ts:1458` | Identity composer for `@beep/canvas-ui`. |
-| `@beep/identity` | `$CanvasUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:1410` | Identity composer for `@beep/canvas-use-cases`. |
-| `@beep/identity` | `$ChalkId` | const | `packages/foundation/modeling/identity/src/packages.ts:497` | Identity composer for the `@beep/chalk` package. |
-| `@beep/identity` | `$CodedankWebId` | const | `packages/foundation/modeling/identity/src/packages.ts:717` | $codedank web id export. |
-| `@beep/identity` | `$ColorsId` | const | `packages/foundation/modeling/identity/src/packages.ts:482` | Identity composer for the `@beep/colors` package. |
-| `@beep/identity` | `$DataId` | const | `packages/foundation/modeling/identity/src/packages.ts:161` | Identity composer for the `@beep/data` package. |
-| `@beep/identity` | `$DiscordId` | const | `packages/foundation/modeling/identity/src/packages.ts:1298` | Identity composer for `@beep/discord`. |
-| `@beep/identity` | `$DrizzleId` | const | `packages/foundation/modeling/identity/src/packages.ts:749` | $drizzle id export. |
-| `@beep/identity` | `$DuckdbId` | const | `packages/foundation/modeling/identity/src/packages.ts:765` | $duckdb id export. |
-| `@beep/identity` | `$EpistemicDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:574` | Identity composer for the `@beep/epistemic-domain` package. |
-| `@beep/identity` | `$FaceDetectionId` | const | `packages/foundation/modeling/identity/src/packages.ts:781` | $face detection id export. |
-| `@beep/identity` | `$FfmpegId` | const | `packages/foundation/modeling/identity/src/packages.ts:797` | $ffmpeg id export. |
-| `@beep/identity` | `$FormId` | const | `packages/foundation/modeling/identity/src/packages.ts:1523` | Identity composer for `@beep/form`. |
-| `@beep/identity` | `$HubspotId` | const | `packages/foundation/modeling/identity/src/packages.ts:1346` | Identity composer for `@beep/hubspot`. |
+| `@beep/identity` | `$AcpId` | const | `packages/foundation/modeling/identity/src/packages.ts:1019` | Identity composer for `@beep/acp`. |
+| `@beep/identity` | `$AgentCapabilityDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:590` | Identity composer for the `@beep/agent-capability-domain` package. |
+| `@beep/identity` | `$AgentCapabilityUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:606` | Identity composer for the `@beep/agent-capability-use-cases` package. |
+| `@beep/identity` | `$AiProviderCliId` | const | `packages/foundation/modeling/identity/src/packages.ts:1315` | Identity composer for `@beep/ai-provider-cli`. |
+| `@beep/identity` | `$AiSyncId` | const | `packages/foundation/modeling/identity/src/packages.ts:1508` | Identity composer for `@beep/ai-sync`. |
+| `@beep/identity` | `$ArchitectureLabClientId` | const | `packages/foundation/modeling/identity/src/packages.ts:1152` | Identity composer for `@beep/architecture-lab-client`. |
+| `@beep/identity` | `$ArchitectureLabConfigId` | const | `packages/foundation/modeling/identity/src/packages.ts:1101` | Identity composer for `@beep/architecture-lab-config`. |
+| `@beep/identity` | `$ArchitectureLabDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:1067` | Identity composer for `@beep/architecture-lab-domain`. |
+| `@beep/identity` | `$ArchitectureLabProofId` | const | `packages/foundation/modeling/identity/src/packages.ts:1186` | Identity composer for `@beep/architecture-lab-proof`. |
+| `@beep/identity` | `$ArchitectureLabServerId` | const | `packages/foundation/modeling/identity/src/packages.ts:1118` | Identity composer for `@beep/architecture-lab-server`. |
+| `@beep/identity` | `$ArchitectureLabTablesId` | const | `packages/foundation/modeling/identity/src/packages.ts:1135` | Identity composer for `@beep/architecture-lab-tables`. |
+| `@beep/identity` | `$ArchitectureLabUiId` | const | `packages/foundation/modeling/identity/src/packages.ts:1169` | Identity composer for `@beep/architecture-lab-ui`. |
+| `@beep/identity` | `$ArchitectureLabUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:1084` | Identity composer for `@beep/architecture-lab-use-cases`. |
+| `@beep/identity` | `$BillingDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:833` | Identity composer for the `@beep/billing-domain` package. |
+| `@beep/identity` | `$BillingServerId` | const | `packages/foundation/modeling/identity/src/packages.ts:850` | Identity composer for the `@beep/billing-server` package. |
+| `@beep/identity` | `$BillingUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:867` | Identity composer for the `@beep/billing-use-cases` package. |
+| `@beep/identity` | `$CanvasClientId` | const | `packages/foundation/modeling/identity/src/packages.ts:1443` | Identity composer for `@beep/canvas-client`. |
+| `@beep/identity` | `$CanvasDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:1395` | Identity composer for `@beep/canvas-domain`. |
+| `@beep/identity` | `$CanvasId` | const | `packages/foundation/modeling/identity/src/packages.ts:1475` | Identity composer for `@beep/canvas`. |
+| `@beep/identity` | `$CanvasServerId` | const | `packages/foundation/modeling/identity/src/packages.ts:1427` | Identity composer for `@beep/canvas-server`. |
+| `@beep/identity` | `$CanvasUiId` | const | `packages/foundation/modeling/identity/src/packages.ts:1459` | Identity composer for `@beep/canvas-ui`. |
+| `@beep/identity` | `$CanvasUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:1411` | Identity composer for `@beep/canvas-use-cases`. |
+| `@beep/identity` | `$ChalkId` | const | `packages/foundation/modeling/identity/src/packages.ts:498` | Identity composer for the `@beep/chalk` package. |
+| `@beep/identity` | `$CodedankWebId` | const | `packages/foundation/modeling/identity/src/packages.ts:718` | $codedank web id export. |
+| `@beep/identity` | `$ColorsId` | const | `packages/foundation/modeling/identity/src/packages.ts:483` | Identity composer for the `@beep/colors` package. |
+| `@beep/identity` | `$DataId` | const | `packages/foundation/modeling/identity/src/packages.ts:162` | Identity composer for the `@beep/data` package. |
+| `@beep/identity` | `$DiscordId` | const | `packages/foundation/modeling/identity/src/packages.ts:1299` | Identity composer for `@beep/discord`. |
+| `@beep/identity` | `$DrizzleId` | const | `packages/foundation/modeling/identity/src/packages.ts:750` | $drizzle id export. |
+| `@beep/identity` | `$DuckdbId` | const | `packages/foundation/modeling/identity/src/packages.ts:766` | $duckdb id export. |
+| `@beep/identity` | `$EpistemicDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:575` | Identity composer for the `@beep/epistemic-domain` package. |
+| `@beep/identity` | `$FaceDetectionId` | const | `packages/foundation/modeling/identity/src/packages.ts:782` | $face detection id export. |
+| `@beep/identity` | `$FfmpegId` | const | `packages/foundation/modeling/identity/src/packages.ts:798` | $ffmpeg id export. |
+| `@beep/identity` | `$FormId` | const | `packages/foundation/modeling/identity/src/packages.ts:1524` | Identity composer for `@beep/form`. |
+| `@beep/identity` | `$HubspotId` | const | `packages/foundation/modeling/identity/src/packages.ts:1347` | Identity composer for `@beep/hubspot`. |
 | `@beep/identity` | `$I` | const | `packages/foundation/modeling/identity/src/packages.ts:40` | Root identity composer for the `@beep` namespace. |
-| `@beep/identity` | `$IamDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:885` | Identity composer for the `@beep/iam-domain` package. |
-| `@beep/identity` | `$IamServerId` | const | `packages/foundation/modeling/identity/src/packages.ts:902` | Identity composer for the `@beep/iam-server` package. |
-| `@beep/identity` | `$IamTablesId` | const | `packages/foundation/modeling/identity/src/packages.ts:919` | Identity composer for the `@beep/iam-tables` package. |
-| `@beep/identity` | `$IamUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:936` | Identity composer for the `@beep/iam-use-cases` package. |
-| `@beep/identity` | `$IdentityId` | const | `packages/foundation/modeling/identity/src/packages.ts:176` | Identity composer for the `@beep/identity` package. |
-| `@beep/identity` | `$InfraId` | const | `packages/foundation/modeling/identity/src/packages.ts:527` | Identity composer for the `@beep/infra` package. |
-| `@beep/identity` | `$InstallerDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:1219` | Identity composer for `@beep/installer-domain`. |
-| `@beep/identity` | `$InstallerServerId` | const | `packages/foundation/modeling/identity/src/packages.ts:1250` | Identity composer for `@beep/installer-server`. |
-| `@beep/identity` | `$InstallerUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:1234` | Identity composer for `@beep/installer-use-cases`. |
-| `@beep/identity` | `$KonvaId` | const | `packages/foundation/modeling/identity/src/packages.ts:1378` | Identity composer for `@beep/konva`. |
-| `@beep/identity` | `$LawPracticeDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:621` | Identity composer for the `@beep/law-practice-domain` package. |
-| `@beep/identity` | `$MdId` | const | `packages/foundation/modeling/identity/src/packages.ts:701` | $md id export. |
-| `@beep/identity` | `$MessagesId` | const | `packages/foundation/modeling/identity/src/packages.ts:191` | Identity composer for the `@beep/messages` package. |
-| `@beep/identity` | `$NlpId` | const | `packages/foundation/modeling/identity/src/packages.ts:452` | Identity composer for the `@beep/nlp` package. |
-| `@beep/identity` | `$ObservabilityId` | const | `packages/foundation/modeling/identity/src/packages.ts:467` | Identity composer for the `@beep/observability` package. |
-| `@beep/identity` | `$OipWebId` | const | `packages/foundation/modeling/identity/src/packages.ts:733` | $oip web id export. |
-| `@beep/identity` | `$OnepasswordCliId` | const | `packages/foundation/modeling/identity/src/packages.ts:1282` | Identity composer for `@beep/onepassword-cli`. |
-| `@beep/identity` | `$OpenaiCompatId` | const | `packages/foundation/modeling/identity/src/packages.ts:1034` | Identity composer for `@beep/openai-compat`. |
-| `@beep/identity` | `$PhoenixId` | const | `packages/foundation/modeling/identity/src/packages.ts:1362` | Identity composer for `@beep/phoenix`. |
-| `@beep/identity` | `$PostgresId` | const | `packages/foundation/modeling/identity/src/packages.ts:813` | $postgres id export. |
-| `@beep/identity` | `$ProfessionalDesktopId` | const | `packages/foundation/modeling/identity/src/packages.ts:653` | Identity composer for the `@beep/professional-desktop` package. |
-| `@beep/identity` | `$ProfessionalRuntimeProofId` | const | `packages/foundation/modeling/identity/src/packages.ts:669` | Identity composer for the `@beep/professional-runtime-proof` package. |
-| `@beep/identity` | `$RepoAiMetricsId` | const | `packages/foundation/modeling/identity/src/packages.ts:270` | Identity composer for the `@beep/repo-ai-metrics` package. |
-| `@beep/identity` | `$RepoCliId` | const | `packages/foundation/modeling/identity/src/packages.ts:285` | Identity composer for the `@beep/repo-cli` package. |
-| `@beep/identity` | `$RepoCodegraphId` | const | `packages/foundation/modeling/identity/src/packages.ts:1491` | Identity composer for `@beep/repo-codegraph`. |
-| `@beep/identity` | `$RepoConfigsId` | const | `packages/foundation/modeling/identity/src/packages.ts:300` | Identity composer for the `@beep/repo-configs` package. |
-| `@beep/identity` | `$RepoDocgenId` | const | `packages/foundation/modeling/identity/src/packages.ts:512` | Identity composer for the `@beep/repo-docgen` package. |
-| `@beep/identity` | `$RepoUtilsId` | const | `packages/foundation/modeling/identity/src/packages.ts:315` | Identity composer for the `@beep/repo-utils` package. |
-| `@beep/identity` | `$RunpodId` | const | `packages/foundation/modeling/identity/src/packages.ts:1266` | Identity composer for `@beep/runpod`. |
-| `@beep/identity` | `$SandboxId` | const | `packages/foundation/modeling/identity/src/packages.ts:970` | Identity composer for the `@beep/sandbox` package. |
-| `@beep/identity` | `$SanityId` | const | `packages/foundation/modeling/identity/src/packages.ts:1330` | Identity composer for `@beep/sanity`. |
-| `@beep/identity` | `$SchemaId` | const | `packages/foundation/modeling/identity/src/packages.ts:206` | Identity composer for the `@beep/schema` package. |
-| `@beep/identity` | `$ScratchpadId` | const | `packages/foundation/modeling/identity/src/packages.ts:953` | Identity composer for the `@beep/scratchpad` package. |
-| `@beep/identity` | `$SemanticWebId` | const | `packages/foundation/modeling/identity/src/packages.ts:437` | Identity composer for the `@beep/semantic-web` package. |
-| `@beep/identity` | `$SharedClientId` | const | `packages/foundation/modeling/identity/src/packages.ts:377` | Identity composer for the `@beep/shared-client` package. |
-| `@beep/identity` | `$SharedConfigId` | const | `packages/foundation/modeling/identity/src/packages.ts:422` | Identity composer for the `@beep/shared-config` package. |
-| `@beep/identity` | `$SharedDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:347` | Identity composer for the `@beep/shared-domain` package. |
-| `@beep/identity` | `$SharedServerId` | const | `packages/foundation/modeling/identity/src/packages.ts:392` | Identity composer for the `@beep/shared-server` package. |
-| `@beep/identity` | `$SharedTablesId` | const | `packages/foundation/modeling/identity/src/packages.ts:362` | Identity composer for the `@beep/shared-tables` package. |
-| `@beep/identity` | `$SharedUiId` | const | `packages/foundation/modeling/identity/src/packages.ts:407` | Identity composer for the `@beep/shared-ui` package. |
-| `@beep/identity` | `$SharedUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:542` | Identity composer for the `@beep/shared-use-cases` package. |
-| `@beep/identity` | `$StackInstallerId` | const | `packages/foundation/modeling/identity/src/packages.ts:1204` | Identity composer for `@beep/stack-installer`. |
-| `@beep/identity` | `$TestUtilsId` | const | `packages/foundation/modeling/identity/src/packages.ts:330` | Identity composer for the `@beep/test-utils` package. |
-| `@beep/identity` | `$TypesId` | const | `packages/foundation/modeling/identity/src/packages.ts:221` | Identity composer for the `@beep/types` package. |
-| `@beep/identity` | `$UiId` | const | `packages/foundation/modeling/identity/src/packages.ts:253` | Identity composer for the `@beep/ui` package. |
-| `@beep/identity` | `$UtilsId` | const | `packages/foundation/modeling/identity/src/packages.ts:236` | Identity composer for the `@beep/utils` package. |
-| `@beep/identity` | `$VeniceAiId` | const | `packages/foundation/modeling/identity/src/packages.ts:986` | $venice ai id export. |
-| `@beep/identity` | `$WealthManagementDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:637` | Identity composer for the `@beep/wealth-management-domain` package. |
-| `@beep/identity` | `$WorkspaceDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:559` | Identity composer for the `@beep/workspace-domain` package. |
-| `@beep/identity` | `$WorkspaceTablesId` | const | `packages/foundation/modeling/identity/src/packages.ts:1050` | Identity composer for `@beep/workspace-tables`. |
-| `@beep/identity` | `$XaiId` | const | `packages/foundation/modeling/identity/src/packages.ts:1002` | $xai id export. |
+| `@beep/identity` | `$IamDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:886` | Identity composer for the `@beep/iam-domain` package. |
+| `@beep/identity` | `$IamServerId` | const | `packages/foundation/modeling/identity/src/packages.ts:903` | Identity composer for the `@beep/iam-server` package. |
+| `@beep/identity` | `$IamTablesId` | const | `packages/foundation/modeling/identity/src/packages.ts:920` | Identity composer for the `@beep/iam-tables` package. |
+| `@beep/identity` | `$IamUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:937` | Identity composer for the `@beep/iam-use-cases` package. |
+| `@beep/identity` | `$IdentityId` | const | `packages/foundation/modeling/identity/src/packages.ts:177` | Identity composer for the `@beep/identity` package. |
+| `@beep/identity` | `$InfraId` | const | `packages/foundation/modeling/identity/src/packages.ts:528` | Identity composer for the `@beep/infra` package. |
+| `@beep/identity` | `$InstallerDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:1220` | Identity composer for `@beep/installer-domain`. |
+| `@beep/identity` | `$InstallerServerId` | const | `packages/foundation/modeling/identity/src/packages.ts:1251` | Identity composer for `@beep/installer-server`. |
+| `@beep/identity` | `$InstallerUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:1235` | Identity composer for `@beep/installer-use-cases`. |
+| `@beep/identity` | `$KonvaId` | const | `packages/foundation/modeling/identity/src/packages.ts:1379` | Identity composer for `@beep/konva`. |
+| `@beep/identity` | `$LawPracticeDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:622` | Identity composer for the `@beep/law-practice-domain` package. |
+| `@beep/identity` | `$MdId` | const | `packages/foundation/modeling/identity/src/packages.ts:702` | $md id export. |
+| `@beep/identity` | `$MessagesId` | const | `packages/foundation/modeling/identity/src/packages.ts:192` | Identity composer for the `@beep/messages` package. |
+| `@beep/identity` | `$NlpId` | const | `packages/foundation/modeling/identity/src/packages.ts:453` | Identity composer for the `@beep/nlp` package. |
+| `@beep/identity` | `$NlpMcpId` | const | `packages/foundation/modeling/identity/src/packages.ts:1540` | Identity composer for `@beep/nlp-mcp`. |
+| `@beep/identity` | `$ObservabilityId` | const | `packages/foundation/modeling/identity/src/packages.ts:468` | Identity composer for the `@beep/observability` package. |
+| `@beep/identity` | `$OipWebId` | const | `packages/foundation/modeling/identity/src/packages.ts:734` | $oip web id export. |
+| `@beep/identity` | `$OnepasswordCliId` | const | `packages/foundation/modeling/identity/src/packages.ts:1283` | Identity composer for `@beep/onepassword-cli`. |
+| `@beep/identity` | `$OpenaiCompatId` | const | `packages/foundation/modeling/identity/src/packages.ts:1035` | Identity composer for `@beep/openai-compat`. |
+| `@beep/identity` | `$PhoenixId` | const | `packages/foundation/modeling/identity/src/packages.ts:1363` | Identity composer for `@beep/phoenix`. |
+| `@beep/identity` | `$PostgresId` | const | `packages/foundation/modeling/identity/src/packages.ts:814` | $postgres id export. |
+| `@beep/identity` | `$ProfessionalDesktopId` | const | `packages/foundation/modeling/identity/src/packages.ts:654` | Identity composer for the `@beep/professional-desktop` package. |
+| `@beep/identity` | `$ProfessionalRuntimeProofId` | const | `packages/foundation/modeling/identity/src/packages.ts:670` | Identity composer for the `@beep/professional-runtime-proof` package. |
+| `@beep/identity` | `$RepoAiMetricsId` | const | `packages/foundation/modeling/identity/src/packages.ts:271` | Identity composer for the `@beep/repo-ai-metrics` package. |
+| `@beep/identity` | `$RepoCliId` | const | `packages/foundation/modeling/identity/src/packages.ts:286` | Identity composer for the `@beep/repo-cli` package. |
+| `@beep/identity` | `$RepoCodegraphId` | const | `packages/foundation/modeling/identity/src/packages.ts:1492` | Identity composer for `@beep/repo-codegraph`. |
+| `@beep/identity` | `$RepoConfigsId` | const | `packages/foundation/modeling/identity/src/packages.ts:301` | Identity composer for the `@beep/repo-configs` package. |
+| `@beep/identity` | `$RepoDocgenId` | const | `packages/foundation/modeling/identity/src/packages.ts:513` | Identity composer for the `@beep/repo-docgen` package. |
+| `@beep/identity` | `$RepoUtilsId` | const | `packages/foundation/modeling/identity/src/packages.ts:316` | Identity composer for the `@beep/repo-utils` package. |
+| `@beep/identity` | `$RunpodId` | const | `packages/foundation/modeling/identity/src/packages.ts:1267` | Identity composer for `@beep/runpod`. |
+| `@beep/identity` | `$SandboxId` | const | `packages/foundation/modeling/identity/src/packages.ts:971` | Identity composer for the `@beep/sandbox` package. |
+| `@beep/identity` | `$SanityId` | const | `packages/foundation/modeling/identity/src/packages.ts:1331` | Identity composer for `@beep/sanity`. |
+| `@beep/identity` | `$SchemaId` | const | `packages/foundation/modeling/identity/src/packages.ts:207` | Identity composer for the `@beep/schema` package. |
+| `@beep/identity` | `$ScratchpadId` | const | `packages/foundation/modeling/identity/src/packages.ts:954` | Identity composer for the `@beep/scratchpad` package. |
+| `@beep/identity` | `$SemanticWebId` | const | `packages/foundation/modeling/identity/src/packages.ts:438` | Identity composer for the `@beep/semantic-web` package. |
+| `@beep/identity` | `$SharedClientId` | const | `packages/foundation/modeling/identity/src/packages.ts:378` | Identity composer for the `@beep/shared-client` package. |
+| `@beep/identity` | `$SharedConfigId` | const | `packages/foundation/modeling/identity/src/packages.ts:423` | Identity composer for the `@beep/shared-config` package. |
+| `@beep/identity` | `$SharedDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:348` | Identity composer for the `@beep/shared-domain` package. |
+| `@beep/identity` | `$SharedServerId` | const | `packages/foundation/modeling/identity/src/packages.ts:393` | Identity composer for the `@beep/shared-server` package. |
+| `@beep/identity` | `$SharedTablesId` | const | `packages/foundation/modeling/identity/src/packages.ts:363` | Identity composer for the `@beep/shared-tables` package. |
+| `@beep/identity` | `$SharedUiId` | const | `packages/foundation/modeling/identity/src/packages.ts:408` | Identity composer for the `@beep/shared-ui` package. |
+| `@beep/identity` | `$SharedUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:543` | Identity composer for the `@beep/shared-use-cases` package. |
+| `@beep/identity` | `$StackInstallerId` | const | `packages/foundation/modeling/identity/src/packages.ts:1205` | Identity composer for `@beep/stack-installer`. |
+| `@beep/identity` | `$TestUtilsId` | const | `packages/foundation/modeling/identity/src/packages.ts:331` | Identity composer for the `@beep/test-utils` package. |
+| `@beep/identity` | `$TypesId` | const | `packages/foundation/modeling/identity/src/packages.ts:222` | Identity composer for the `@beep/types` package. |
+| `@beep/identity` | `$UiId` | const | `packages/foundation/modeling/identity/src/packages.ts:254` | Identity composer for the `@beep/ui` package. |
+| `@beep/identity` | `$UtilsId` | const | `packages/foundation/modeling/identity/src/packages.ts:237` | Identity composer for the `@beep/utils` package. |
+| `@beep/identity` | `$VeniceAiId` | const | `packages/foundation/modeling/identity/src/packages.ts:987` | $venice ai id export. |
+| `@beep/identity` | `$WealthManagementDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:638` | Identity composer for the `@beep/wealth-management-domain` package. |
+| `@beep/identity` | `$WorkspaceDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:560` | Identity composer for the `@beep/workspace-domain` package. |
+| `@beep/identity` | `$WorkspaceTablesId` | const | `packages/foundation/modeling/identity/src/packages.ts:1051` | Identity composer for `@beep/workspace-tables`. |
+| `@beep/identity` | `$XaiId` | const | `packages/foundation/modeling/identity/src/packages.ts:1003` | $xai id export. |
 | `@beep/identity` | `HttpAnnotationExtras` | type | `packages/foundation/modeling/identity/src/Id.ts:477` | Annotation fields accepted by `annoteHttp`, extending schema extras with HTTP API metadata. |
 | `@beep/identity` | `HttpApiEncoding` | type | `packages/foundation/modeling/identity/src/Id.ts:450` | Mirrors the raw HTTP encoding annotation shape used by Effect's HttpApiSchema. |
 | `@beep/identity` | `IdentityAnnotation` | type | `packages/foundation/modeling/identity/src/Id.ts:521` | Fully resolved identity annotation record applied to Effect schemas. |
@@ -6601,7 +6629,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/identity` | `make` | const | `packages/foundation/modeling/identity/src/Id.ts:1211` | Create a root identity composer for a `@beep` package namespace. |
 | `@beep/identity` | `ModuleAccessor` | type | `packages/foundation/modeling/identity/src/Id.ts:345` | Derive a PascalCase accessor name suffixed with `Id` from a module segment. |
 | `@beep/identity` | `ModuleSegmentValue` | type | `packages/foundation/modeling/identity/src/Id.ts:327` | Type-level constraint for module-safe identity segments. |
-| `@beep/identity` | `RepoPkgs` | const | `packages/foundation/modeling/identity/src/packages.ts:685` | RepoPkgs - export object containing all package IdentityComposer's |
+| `@beep/identity` | `RepoPkgs` | const | `packages/foundation/modeling/identity/src/packages.ts:686` | RepoPkgs - export object containing all package IdentityComposer's |
 | `@beep/identity` | `SchemaAnnotationExtras` | type | `packages/foundation/modeling/identity/src/Id.ts:414` | Additional schema annotation fields that identity annotation helpers accept. |
 | `@beep/identity` | `SegmentValue` | type | `packages/foundation/modeling/identity/src/Id.ts:199` | Type-level constraint ensuring an identity segment does not start or end with a slash. |
 | `@beep/identity` | `TaggedAccessor` | type | `packages/foundation/modeling/identity/src/Id.ts:362` | Derive a `$`-prefixed PascalCase accessor key from a module segment. |
@@ -6628,92 +6656,93 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/identity/Id` | `TaggedModuleRecord` | type | `packages/foundation/modeling/identity/src/Id.ts:576` | Record mapping `$`-prefixed accessor keys to child {@link IdentityComposer} instances, |
 | `@beep/identity/Id` | `TitleFromIdentifier` | type | `packages/foundation/modeling/identity/src/Id.ts:287` | Derive a human-readable title from a kebab-case or snake_case identifier. |
 | `@beep/identity/Id` | `VERSION` | const | `packages/foundation/modeling/identity/src/Id.ts:180` | Current version of the `@beep/identity` package. |
-| `@beep/identity/index` | `$AcpId` | const | `packages/foundation/modeling/identity/src/packages.ts:1018` | Identity composer for `@beep/acp`. |
-| `@beep/identity/index` | `$AgentCapabilityDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:589` | Identity composer for the `@beep/agent-capability-domain` package. |
-| `@beep/identity/index` | `$AgentCapabilityUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:605` | Identity composer for the `@beep/agent-capability-use-cases` package. |
-| `@beep/identity/index` | `$AiProviderCliId` | const | `packages/foundation/modeling/identity/src/packages.ts:1314` | Identity composer for `@beep/ai-provider-cli`. |
-| `@beep/identity/index` | `$AiSyncId` | const | `packages/foundation/modeling/identity/src/packages.ts:1507` | Identity composer for `@beep/ai-sync`. |
-| `@beep/identity/index` | `$ArchitectureLabClientId` | const | `packages/foundation/modeling/identity/src/packages.ts:1151` | Identity composer for `@beep/architecture-lab-client`. |
-| `@beep/identity/index` | `$ArchitectureLabConfigId` | const | `packages/foundation/modeling/identity/src/packages.ts:1100` | Identity composer for `@beep/architecture-lab-config`. |
-| `@beep/identity/index` | `$ArchitectureLabDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:1066` | Identity composer for `@beep/architecture-lab-domain`. |
-| `@beep/identity/index` | `$ArchitectureLabProofId` | const | `packages/foundation/modeling/identity/src/packages.ts:1185` | Identity composer for `@beep/architecture-lab-proof`. |
-| `@beep/identity/index` | `$ArchitectureLabServerId` | const | `packages/foundation/modeling/identity/src/packages.ts:1117` | Identity composer for `@beep/architecture-lab-server`. |
-| `@beep/identity/index` | `$ArchitectureLabTablesId` | const | `packages/foundation/modeling/identity/src/packages.ts:1134` | Identity composer for `@beep/architecture-lab-tables`. |
-| `@beep/identity/index` | `$ArchitectureLabUiId` | const | `packages/foundation/modeling/identity/src/packages.ts:1168` | Identity composer for `@beep/architecture-lab-ui`. |
-| `@beep/identity/index` | `$ArchitectureLabUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:1083` | Identity composer for `@beep/architecture-lab-use-cases`. |
-| `@beep/identity/index` | `$BillingDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:832` | Identity composer for the `@beep/billing-domain` package. |
-| `@beep/identity/index` | `$BillingServerId` | const | `packages/foundation/modeling/identity/src/packages.ts:849` | Identity composer for the `@beep/billing-server` package. |
-| `@beep/identity/index` | `$BillingUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:866` | Identity composer for the `@beep/billing-use-cases` package. |
-| `@beep/identity/index` | `$CanvasClientId` | const | `packages/foundation/modeling/identity/src/packages.ts:1442` | Identity composer for `@beep/canvas-client`. |
-| `@beep/identity/index` | `$CanvasDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:1394` | Identity composer for `@beep/canvas-domain`. |
-| `@beep/identity/index` | `$CanvasId` | const | `packages/foundation/modeling/identity/src/packages.ts:1474` | Identity composer for `@beep/canvas`. |
-| `@beep/identity/index` | `$CanvasServerId` | const | `packages/foundation/modeling/identity/src/packages.ts:1426` | Identity composer for `@beep/canvas-server`. |
-| `@beep/identity/index` | `$CanvasUiId` | const | `packages/foundation/modeling/identity/src/packages.ts:1458` | Identity composer for `@beep/canvas-ui`. |
-| `@beep/identity/index` | `$CanvasUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:1410` | Identity composer for `@beep/canvas-use-cases`. |
-| `@beep/identity/index` | `$ChalkId` | const | `packages/foundation/modeling/identity/src/packages.ts:497` | Identity composer for the `@beep/chalk` package. |
-| `@beep/identity/index` | `$CodedankWebId` | const | `packages/foundation/modeling/identity/src/packages.ts:717` | $codedank web id export. |
-| `@beep/identity/index` | `$ColorsId` | const | `packages/foundation/modeling/identity/src/packages.ts:482` | Identity composer for the `@beep/colors` package. |
-| `@beep/identity/index` | `$DataId` | const | `packages/foundation/modeling/identity/src/packages.ts:161` | Identity composer for the `@beep/data` package. |
-| `@beep/identity/index` | `$DiscordId` | const | `packages/foundation/modeling/identity/src/packages.ts:1298` | Identity composer for `@beep/discord`. |
-| `@beep/identity/index` | `$DrizzleId` | const | `packages/foundation/modeling/identity/src/packages.ts:749` | $drizzle id export. |
-| `@beep/identity/index` | `$DuckdbId` | const | `packages/foundation/modeling/identity/src/packages.ts:765` | $duckdb id export. |
-| `@beep/identity/index` | `$EpistemicDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:574` | Identity composer for the `@beep/epistemic-domain` package. |
-| `@beep/identity/index` | `$FaceDetectionId` | const | `packages/foundation/modeling/identity/src/packages.ts:781` | $face detection id export. |
-| `@beep/identity/index` | `$FfmpegId` | const | `packages/foundation/modeling/identity/src/packages.ts:797` | $ffmpeg id export. |
-| `@beep/identity/index` | `$FormId` | const | `packages/foundation/modeling/identity/src/packages.ts:1523` | Identity composer for `@beep/form`. |
-| `@beep/identity/index` | `$HubspotId` | const | `packages/foundation/modeling/identity/src/packages.ts:1346` | Identity composer for `@beep/hubspot`. |
+| `@beep/identity/index` | `$AcpId` | const | `packages/foundation/modeling/identity/src/packages.ts:1019` | Identity composer for `@beep/acp`. |
+| `@beep/identity/index` | `$AgentCapabilityDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:590` | Identity composer for the `@beep/agent-capability-domain` package. |
+| `@beep/identity/index` | `$AgentCapabilityUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:606` | Identity composer for the `@beep/agent-capability-use-cases` package. |
+| `@beep/identity/index` | `$AiProviderCliId` | const | `packages/foundation/modeling/identity/src/packages.ts:1315` | Identity composer for `@beep/ai-provider-cli`. |
+| `@beep/identity/index` | `$AiSyncId` | const | `packages/foundation/modeling/identity/src/packages.ts:1508` | Identity composer for `@beep/ai-sync`. |
+| `@beep/identity/index` | `$ArchitectureLabClientId` | const | `packages/foundation/modeling/identity/src/packages.ts:1152` | Identity composer for `@beep/architecture-lab-client`. |
+| `@beep/identity/index` | `$ArchitectureLabConfigId` | const | `packages/foundation/modeling/identity/src/packages.ts:1101` | Identity composer for `@beep/architecture-lab-config`. |
+| `@beep/identity/index` | `$ArchitectureLabDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:1067` | Identity composer for `@beep/architecture-lab-domain`. |
+| `@beep/identity/index` | `$ArchitectureLabProofId` | const | `packages/foundation/modeling/identity/src/packages.ts:1186` | Identity composer for `@beep/architecture-lab-proof`. |
+| `@beep/identity/index` | `$ArchitectureLabServerId` | const | `packages/foundation/modeling/identity/src/packages.ts:1118` | Identity composer for `@beep/architecture-lab-server`. |
+| `@beep/identity/index` | `$ArchitectureLabTablesId` | const | `packages/foundation/modeling/identity/src/packages.ts:1135` | Identity composer for `@beep/architecture-lab-tables`. |
+| `@beep/identity/index` | `$ArchitectureLabUiId` | const | `packages/foundation/modeling/identity/src/packages.ts:1169` | Identity composer for `@beep/architecture-lab-ui`. |
+| `@beep/identity/index` | `$ArchitectureLabUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:1084` | Identity composer for `@beep/architecture-lab-use-cases`. |
+| `@beep/identity/index` | `$BillingDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:833` | Identity composer for the `@beep/billing-domain` package. |
+| `@beep/identity/index` | `$BillingServerId` | const | `packages/foundation/modeling/identity/src/packages.ts:850` | Identity composer for the `@beep/billing-server` package. |
+| `@beep/identity/index` | `$BillingUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:867` | Identity composer for the `@beep/billing-use-cases` package. |
+| `@beep/identity/index` | `$CanvasClientId` | const | `packages/foundation/modeling/identity/src/packages.ts:1443` | Identity composer for `@beep/canvas-client`. |
+| `@beep/identity/index` | `$CanvasDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:1395` | Identity composer for `@beep/canvas-domain`. |
+| `@beep/identity/index` | `$CanvasId` | const | `packages/foundation/modeling/identity/src/packages.ts:1475` | Identity composer for `@beep/canvas`. |
+| `@beep/identity/index` | `$CanvasServerId` | const | `packages/foundation/modeling/identity/src/packages.ts:1427` | Identity composer for `@beep/canvas-server`. |
+| `@beep/identity/index` | `$CanvasUiId` | const | `packages/foundation/modeling/identity/src/packages.ts:1459` | Identity composer for `@beep/canvas-ui`. |
+| `@beep/identity/index` | `$CanvasUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:1411` | Identity composer for `@beep/canvas-use-cases`. |
+| `@beep/identity/index` | `$ChalkId` | const | `packages/foundation/modeling/identity/src/packages.ts:498` | Identity composer for the `@beep/chalk` package. |
+| `@beep/identity/index` | `$CodedankWebId` | const | `packages/foundation/modeling/identity/src/packages.ts:718` | $codedank web id export. |
+| `@beep/identity/index` | `$ColorsId` | const | `packages/foundation/modeling/identity/src/packages.ts:483` | Identity composer for the `@beep/colors` package. |
+| `@beep/identity/index` | `$DataId` | const | `packages/foundation/modeling/identity/src/packages.ts:162` | Identity composer for the `@beep/data` package. |
+| `@beep/identity/index` | `$DiscordId` | const | `packages/foundation/modeling/identity/src/packages.ts:1299` | Identity composer for `@beep/discord`. |
+| `@beep/identity/index` | `$DrizzleId` | const | `packages/foundation/modeling/identity/src/packages.ts:750` | $drizzle id export. |
+| `@beep/identity/index` | `$DuckdbId` | const | `packages/foundation/modeling/identity/src/packages.ts:766` | $duckdb id export. |
+| `@beep/identity/index` | `$EpistemicDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:575` | Identity composer for the `@beep/epistemic-domain` package. |
+| `@beep/identity/index` | `$FaceDetectionId` | const | `packages/foundation/modeling/identity/src/packages.ts:782` | $face detection id export. |
+| `@beep/identity/index` | `$FfmpegId` | const | `packages/foundation/modeling/identity/src/packages.ts:798` | $ffmpeg id export. |
+| `@beep/identity/index` | `$FormId` | const | `packages/foundation/modeling/identity/src/packages.ts:1524` | Identity composer for `@beep/form`. |
+| `@beep/identity/index` | `$HubspotId` | const | `packages/foundation/modeling/identity/src/packages.ts:1347` | Identity composer for `@beep/hubspot`. |
 | `@beep/identity/index` | `$I` | const | `packages/foundation/modeling/identity/src/packages.ts:40` | Root identity composer for the `@beep` namespace. |
-| `@beep/identity/index` | `$IamDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:885` | Identity composer for the `@beep/iam-domain` package. |
-| `@beep/identity/index` | `$IamServerId` | const | `packages/foundation/modeling/identity/src/packages.ts:902` | Identity composer for the `@beep/iam-server` package. |
-| `@beep/identity/index` | `$IamTablesId` | const | `packages/foundation/modeling/identity/src/packages.ts:919` | Identity composer for the `@beep/iam-tables` package. |
-| `@beep/identity/index` | `$IamUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:936` | Identity composer for the `@beep/iam-use-cases` package. |
-| `@beep/identity/index` | `$IdentityId` | const | `packages/foundation/modeling/identity/src/packages.ts:176` | Identity composer for the `@beep/identity` package. |
-| `@beep/identity/index` | `$InfraId` | const | `packages/foundation/modeling/identity/src/packages.ts:527` | Identity composer for the `@beep/infra` package. |
-| `@beep/identity/index` | `$InstallerDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:1219` | Identity composer for `@beep/installer-domain`. |
-| `@beep/identity/index` | `$InstallerServerId` | const | `packages/foundation/modeling/identity/src/packages.ts:1250` | Identity composer for `@beep/installer-server`. |
-| `@beep/identity/index` | `$InstallerUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:1234` | Identity composer for `@beep/installer-use-cases`. |
-| `@beep/identity/index` | `$KonvaId` | const | `packages/foundation/modeling/identity/src/packages.ts:1378` | Identity composer for `@beep/konva`. |
-| `@beep/identity/index` | `$LawPracticeDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:621` | Identity composer for the `@beep/law-practice-domain` package. |
-| `@beep/identity/index` | `$MdId` | const | `packages/foundation/modeling/identity/src/packages.ts:701` | $md id export. |
-| `@beep/identity/index` | `$MessagesId` | const | `packages/foundation/modeling/identity/src/packages.ts:191` | Identity composer for the `@beep/messages` package. |
-| `@beep/identity/index` | `$NlpId` | const | `packages/foundation/modeling/identity/src/packages.ts:452` | Identity composer for the `@beep/nlp` package. |
-| `@beep/identity/index` | `$ObservabilityId` | const | `packages/foundation/modeling/identity/src/packages.ts:467` | Identity composer for the `@beep/observability` package. |
-| `@beep/identity/index` | `$OipWebId` | const | `packages/foundation/modeling/identity/src/packages.ts:733` | $oip web id export. |
-| `@beep/identity/index` | `$OnepasswordCliId` | const | `packages/foundation/modeling/identity/src/packages.ts:1282` | Identity composer for `@beep/onepassword-cli`. |
-| `@beep/identity/index` | `$OpenaiCompatId` | const | `packages/foundation/modeling/identity/src/packages.ts:1034` | Identity composer for `@beep/openai-compat`. |
-| `@beep/identity/index` | `$PhoenixId` | const | `packages/foundation/modeling/identity/src/packages.ts:1362` | Identity composer for `@beep/phoenix`. |
-| `@beep/identity/index` | `$PostgresId` | const | `packages/foundation/modeling/identity/src/packages.ts:813` | $postgres id export. |
-| `@beep/identity/index` | `$ProfessionalDesktopId` | const | `packages/foundation/modeling/identity/src/packages.ts:653` | Identity composer for the `@beep/professional-desktop` package. |
-| `@beep/identity/index` | `$ProfessionalRuntimeProofId` | const | `packages/foundation/modeling/identity/src/packages.ts:669` | Identity composer for the `@beep/professional-runtime-proof` package. |
-| `@beep/identity/index` | `$RepoAiMetricsId` | const | `packages/foundation/modeling/identity/src/packages.ts:270` | Identity composer for the `@beep/repo-ai-metrics` package. |
-| `@beep/identity/index` | `$RepoCliId` | const | `packages/foundation/modeling/identity/src/packages.ts:285` | Identity composer for the `@beep/repo-cli` package. |
-| `@beep/identity/index` | `$RepoCodegraphId` | const | `packages/foundation/modeling/identity/src/packages.ts:1491` | Identity composer for `@beep/repo-codegraph`. |
-| `@beep/identity/index` | `$RepoConfigsId` | const | `packages/foundation/modeling/identity/src/packages.ts:300` | Identity composer for the `@beep/repo-configs` package. |
-| `@beep/identity/index` | `$RepoDocgenId` | const | `packages/foundation/modeling/identity/src/packages.ts:512` | Identity composer for the `@beep/repo-docgen` package. |
-| `@beep/identity/index` | `$RepoUtilsId` | const | `packages/foundation/modeling/identity/src/packages.ts:315` | Identity composer for the `@beep/repo-utils` package. |
-| `@beep/identity/index` | `$RunpodId` | const | `packages/foundation/modeling/identity/src/packages.ts:1266` | Identity composer for `@beep/runpod`. |
-| `@beep/identity/index` | `$SandboxId` | const | `packages/foundation/modeling/identity/src/packages.ts:970` | Identity composer for the `@beep/sandbox` package. |
-| `@beep/identity/index` | `$SanityId` | const | `packages/foundation/modeling/identity/src/packages.ts:1330` | Identity composer for `@beep/sanity`. |
-| `@beep/identity/index` | `$SchemaId` | const | `packages/foundation/modeling/identity/src/packages.ts:206` | Identity composer for the `@beep/schema` package. |
-| `@beep/identity/index` | `$ScratchpadId` | const | `packages/foundation/modeling/identity/src/packages.ts:953` | Identity composer for the `@beep/scratchpad` package. |
-| `@beep/identity/index` | `$SemanticWebId` | const | `packages/foundation/modeling/identity/src/packages.ts:437` | Identity composer for the `@beep/semantic-web` package. |
-| `@beep/identity/index` | `$SharedClientId` | const | `packages/foundation/modeling/identity/src/packages.ts:377` | Identity composer for the `@beep/shared-client` package. |
-| `@beep/identity/index` | `$SharedConfigId` | const | `packages/foundation/modeling/identity/src/packages.ts:422` | Identity composer for the `@beep/shared-config` package. |
-| `@beep/identity/index` | `$SharedDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:347` | Identity composer for the `@beep/shared-domain` package. |
-| `@beep/identity/index` | `$SharedServerId` | const | `packages/foundation/modeling/identity/src/packages.ts:392` | Identity composer for the `@beep/shared-server` package. |
-| `@beep/identity/index` | `$SharedTablesId` | const | `packages/foundation/modeling/identity/src/packages.ts:362` | Identity composer for the `@beep/shared-tables` package. |
-| `@beep/identity/index` | `$SharedUiId` | const | `packages/foundation/modeling/identity/src/packages.ts:407` | Identity composer for the `@beep/shared-ui` package. |
-| `@beep/identity/index` | `$SharedUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:542` | Identity composer for the `@beep/shared-use-cases` package. |
-| `@beep/identity/index` | `$StackInstallerId` | const | `packages/foundation/modeling/identity/src/packages.ts:1204` | Identity composer for `@beep/stack-installer`. |
-| `@beep/identity/index` | `$TestUtilsId` | const | `packages/foundation/modeling/identity/src/packages.ts:330` | Identity composer for the `@beep/test-utils` package. |
-| `@beep/identity/index` | `$TypesId` | const | `packages/foundation/modeling/identity/src/packages.ts:221` | Identity composer for the `@beep/types` package. |
-| `@beep/identity/index` | `$UiId` | const | `packages/foundation/modeling/identity/src/packages.ts:253` | Identity composer for the `@beep/ui` package. |
-| `@beep/identity/index` | `$UtilsId` | const | `packages/foundation/modeling/identity/src/packages.ts:236` | Identity composer for the `@beep/utils` package. |
-| `@beep/identity/index` | `$VeniceAiId` | const | `packages/foundation/modeling/identity/src/packages.ts:986` | $venice ai id export. |
-| `@beep/identity/index` | `$WealthManagementDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:637` | Identity composer for the `@beep/wealth-management-domain` package. |
-| `@beep/identity/index` | `$WorkspaceDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:559` | Identity composer for the `@beep/workspace-domain` package. |
-| `@beep/identity/index` | `$WorkspaceTablesId` | const | `packages/foundation/modeling/identity/src/packages.ts:1050` | Identity composer for `@beep/workspace-tables`. |
-| `@beep/identity/index` | `$XaiId` | const | `packages/foundation/modeling/identity/src/packages.ts:1002` | $xai id export. |
+| `@beep/identity/index` | `$IamDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:886` | Identity composer for the `@beep/iam-domain` package. |
+| `@beep/identity/index` | `$IamServerId` | const | `packages/foundation/modeling/identity/src/packages.ts:903` | Identity composer for the `@beep/iam-server` package. |
+| `@beep/identity/index` | `$IamTablesId` | const | `packages/foundation/modeling/identity/src/packages.ts:920` | Identity composer for the `@beep/iam-tables` package. |
+| `@beep/identity/index` | `$IamUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:937` | Identity composer for the `@beep/iam-use-cases` package. |
+| `@beep/identity/index` | `$IdentityId` | const | `packages/foundation/modeling/identity/src/packages.ts:177` | Identity composer for the `@beep/identity` package. |
+| `@beep/identity/index` | `$InfraId` | const | `packages/foundation/modeling/identity/src/packages.ts:528` | Identity composer for the `@beep/infra` package. |
+| `@beep/identity/index` | `$InstallerDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:1220` | Identity composer for `@beep/installer-domain`. |
+| `@beep/identity/index` | `$InstallerServerId` | const | `packages/foundation/modeling/identity/src/packages.ts:1251` | Identity composer for `@beep/installer-server`. |
+| `@beep/identity/index` | `$InstallerUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:1235` | Identity composer for `@beep/installer-use-cases`. |
+| `@beep/identity/index` | `$KonvaId` | const | `packages/foundation/modeling/identity/src/packages.ts:1379` | Identity composer for `@beep/konva`. |
+| `@beep/identity/index` | `$LawPracticeDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:622` | Identity composer for the `@beep/law-practice-domain` package. |
+| `@beep/identity/index` | `$MdId` | const | `packages/foundation/modeling/identity/src/packages.ts:702` | $md id export. |
+| `@beep/identity/index` | `$MessagesId` | const | `packages/foundation/modeling/identity/src/packages.ts:192` | Identity composer for the `@beep/messages` package. |
+| `@beep/identity/index` | `$NlpId` | const | `packages/foundation/modeling/identity/src/packages.ts:453` | Identity composer for the `@beep/nlp` package. |
+| `@beep/identity/index` | `$NlpMcpId` | const | `packages/foundation/modeling/identity/src/packages.ts:1540` | Identity composer for `@beep/nlp-mcp`. |
+| `@beep/identity/index` | `$ObservabilityId` | const | `packages/foundation/modeling/identity/src/packages.ts:468` | Identity composer for the `@beep/observability` package. |
+| `@beep/identity/index` | `$OipWebId` | const | `packages/foundation/modeling/identity/src/packages.ts:734` | $oip web id export. |
+| `@beep/identity/index` | `$OnepasswordCliId` | const | `packages/foundation/modeling/identity/src/packages.ts:1283` | Identity composer for `@beep/onepassword-cli`. |
+| `@beep/identity/index` | `$OpenaiCompatId` | const | `packages/foundation/modeling/identity/src/packages.ts:1035` | Identity composer for `@beep/openai-compat`. |
+| `@beep/identity/index` | `$PhoenixId` | const | `packages/foundation/modeling/identity/src/packages.ts:1363` | Identity composer for `@beep/phoenix`. |
+| `@beep/identity/index` | `$PostgresId` | const | `packages/foundation/modeling/identity/src/packages.ts:814` | $postgres id export. |
+| `@beep/identity/index` | `$ProfessionalDesktopId` | const | `packages/foundation/modeling/identity/src/packages.ts:654` | Identity composer for the `@beep/professional-desktop` package. |
+| `@beep/identity/index` | `$ProfessionalRuntimeProofId` | const | `packages/foundation/modeling/identity/src/packages.ts:670` | Identity composer for the `@beep/professional-runtime-proof` package. |
+| `@beep/identity/index` | `$RepoAiMetricsId` | const | `packages/foundation/modeling/identity/src/packages.ts:271` | Identity composer for the `@beep/repo-ai-metrics` package. |
+| `@beep/identity/index` | `$RepoCliId` | const | `packages/foundation/modeling/identity/src/packages.ts:286` | Identity composer for the `@beep/repo-cli` package. |
+| `@beep/identity/index` | `$RepoCodegraphId` | const | `packages/foundation/modeling/identity/src/packages.ts:1492` | Identity composer for `@beep/repo-codegraph`. |
+| `@beep/identity/index` | `$RepoConfigsId` | const | `packages/foundation/modeling/identity/src/packages.ts:301` | Identity composer for the `@beep/repo-configs` package. |
+| `@beep/identity/index` | `$RepoDocgenId` | const | `packages/foundation/modeling/identity/src/packages.ts:513` | Identity composer for the `@beep/repo-docgen` package. |
+| `@beep/identity/index` | `$RepoUtilsId` | const | `packages/foundation/modeling/identity/src/packages.ts:316` | Identity composer for the `@beep/repo-utils` package. |
+| `@beep/identity/index` | `$RunpodId` | const | `packages/foundation/modeling/identity/src/packages.ts:1267` | Identity composer for `@beep/runpod`. |
+| `@beep/identity/index` | `$SandboxId` | const | `packages/foundation/modeling/identity/src/packages.ts:971` | Identity composer for the `@beep/sandbox` package. |
+| `@beep/identity/index` | `$SanityId` | const | `packages/foundation/modeling/identity/src/packages.ts:1331` | Identity composer for `@beep/sanity`. |
+| `@beep/identity/index` | `$SchemaId` | const | `packages/foundation/modeling/identity/src/packages.ts:207` | Identity composer for the `@beep/schema` package. |
+| `@beep/identity/index` | `$ScratchpadId` | const | `packages/foundation/modeling/identity/src/packages.ts:954` | Identity composer for the `@beep/scratchpad` package. |
+| `@beep/identity/index` | `$SemanticWebId` | const | `packages/foundation/modeling/identity/src/packages.ts:438` | Identity composer for the `@beep/semantic-web` package. |
+| `@beep/identity/index` | `$SharedClientId` | const | `packages/foundation/modeling/identity/src/packages.ts:378` | Identity composer for the `@beep/shared-client` package. |
+| `@beep/identity/index` | `$SharedConfigId` | const | `packages/foundation/modeling/identity/src/packages.ts:423` | Identity composer for the `@beep/shared-config` package. |
+| `@beep/identity/index` | `$SharedDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:348` | Identity composer for the `@beep/shared-domain` package. |
+| `@beep/identity/index` | `$SharedServerId` | const | `packages/foundation/modeling/identity/src/packages.ts:393` | Identity composer for the `@beep/shared-server` package. |
+| `@beep/identity/index` | `$SharedTablesId` | const | `packages/foundation/modeling/identity/src/packages.ts:363` | Identity composer for the `@beep/shared-tables` package. |
+| `@beep/identity/index` | `$SharedUiId` | const | `packages/foundation/modeling/identity/src/packages.ts:408` | Identity composer for the `@beep/shared-ui` package. |
+| `@beep/identity/index` | `$SharedUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:543` | Identity composer for the `@beep/shared-use-cases` package. |
+| `@beep/identity/index` | `$StackInstallerId` | const | `packages/foundation/modeling/identity/src/packages.ts:1205` | Identity composer for `@beep/stack-installer`. |
+| `@beep/identity/index` | `$TestUtilsId` | const | `packages/foundation/modeling/identity/src/packages.ts:331` | Identity composer for the `@beep/test-utils` package. |
+| `@beep/identity/index` | `$TypesId` | const | `packages/foundation/modeling/identity/src/packages.ts:222` | Identity composer for the `@beep/types` package. |
+| `@beep/identity/index` | `$UiId` | const | `packages/foundation/modeling/identity/src/packages.ts:254` | Identity composer for the `@beep/ui` package. |
+| `@beep/identity/index` | `$UtilsId` | const | `packages/foundation/modeling/identity/src/packages.ts:237` | Identity composer for the `@beep/utils` package. |
+| `@beep/identity/index` | `$VeniceAiId` | const | `packages/foundation/modeling/identity/src/packages.ts:987` | $venice ai id export. |
+| `@beep/identity/index` | `$WealthManagementDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:638` | Identity composer for the `@beep/wealth-management-domain` package. |
+| `@beep/identity/index` | `$WorkspaceDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:560` | Identity composer for the `@beep/workspace-domain` package. |
+| `@beep/identity/index` | `$WorkspaceTablesId` | const | `packages/foundation/modeling/identity/src/packages.ts:1051` | Identity composer for `@beep/workspace-tables`. |
+| `@beep/identity/index` | `$XaiId` | const | `packages/foundation/modeling/identity/src/packages.ts:1003` | $xai id export. |
 | `@beep/identity/index` | `HttpAnnotationExtras` | type | `packages/foundation/modeling/identity/src/Id.ts:477` | Annotation fields accepted by `annoteHttp`, extending schema extras with HTTP API metadata. |
 | `@beep/identity/index` | `HttpApiEncoding` | type | `packages/foundation/modeling/identity/src/Id.ts:450` | Mirrors the raw HTTP encoding annotation shape used by Effect's HttpApiSchema. |
 | `@beep/identity/index` | `IdentityAnnotation` | type | `packages/foundation/modeling/identity/src/Id.ts:521` | Fully resolved identity annotation record applied to Effect schemas. |
@@ -6728,100 +6757,101 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/identity/index` | `make` | const | `packages/foundation/modeling/identity/src/Id.ts:1211` | Create a root identity composer for a `@beep` package namespace. |
 | `@beep/identity/index` | `ModuleAccessor` | type | `packages/foundation/modeling/identity/src/Id.ts:345` | Derive a PascalCase accessor name suffixed with `Id` from a module segment. |
 | `@beep/identity/index` | `ModuleSegmentValue` | type | `packages/foundation/modeling/identity/src/Id.ts:327` | Type-level constraint for module-safe identity segments. |
-| `@beep/identity/index` | `RepoPkgs` | const | `packages/foundation/modeling/identity/src/packages.ts:685` | RepoPkgs - export object containing all package IdentityComposer's |
+| `@beep/identity/index` | `RepoPkgs` | const | `packages/foundation/modeling/identity/src/packages.ts:686` | RepoPkgs - export object containing all package IdentityComposer's |
 | `@beep/identity/index` | `SchemaAnnotationExtras` | type | `packages/foundation/modeling/identity/src/Id.ts:414` | Additional schema annotation fields that identity annotation helpers accept. |
 | `@beep/identity/index` | `SegmentValue` | type | `packages/foundation/modeling/identity/src/Id.ts:199` | Type-level constraint ensuring an identity segment does not start or end with a slash. |
 | `@beep/identity/index` | `TaggedAccessor` | type | `packages/foundation/modeling/identity/src/Id.ts:362` | Derive a `$`-prefixed PascalCase accessor key from a module segment. |
 | `@beep/identity/index` | `TaggedModuleRecord` | type | `packages/foundation/modeling/identity/src/Id.ts:576` | Record mapping `$`-prefixed accessor keys to child {@link IdentityComposer} instances, |
 | `@beep/identity/index` | `TitleFromIdentifier` | type | `packages/foundation/modeling/identity/src/Id.ts:287` | Derive a human-readable title from a kebab-case or snake_case identifier. |
 | `@beep/identity/index` | `VERSION` | const | `packages/foundation/modeling/identity/src/Id.ts:180` | Current version of the `@beep/identity` package. |
-| `@beep/identity/packages` | `$AcpId` | const | `packages/foundation/modeling/identity/src/packages.ts:1018` | Identity composer for `@beep/acp`. |
-| `@beep/identity/packages` | `$AgentCapabilityDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:589` | Identity composer for the `@beep/agent-capability-domain` package. |
-| `@beep/identity/packages` | `$AgentCapabilityUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:605` | Identity composer for the `@beep/agent-capability-use-cases` package. |
-| `@beep/identity/packages` | `$AiProviderCliId` | const | `packages/foundation/modeling/identity/src/packages.ts:1314` | Identity composer for `@beep/ai-provider-cli`. |
-| `@beep/identity/packages` | `$AiSyncId` | const | `packages/foundation/modeling/identity/src/packages.ts:1507` | Identity composer for `@beep/ai-sync`. |
-| `@beep/identity/packages` | `$ArchitectureLabClientId` | const | `packages/foundation/modeling/identity/src/packages.ts:1151` | Identity composer for `@beep/architecture-lab-client`. |
-| `@beep/identity/packages` | `$ArchitectureLabConfigId` | const | `packages/foundation/modeling/identity/src/packages.ts:1100` | Identity composer for `@beep/architecture-lab-config`. |
-| `@beep/identity/packages` | `$ArchitectureLabDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:1066` | Identity composer for `@beep/architecture-lab-domain`. |
-| `@beep/identity/packages` | `$ArchitectureLabProofId` | const | `packages/foundation/modeling/identity/src/packages.ts:1185` | Identity composer for `@beep/architecture-lab-proof`. |
-| `@beep/identity/packages` | `$ArchitectureLabServerId` | const | `packages/foundation/modeling/identity/src/packages.ts:1117` | Identity composer for `@beep/architecture-lab-server`. |
-| `@beep/identity/packages` | `$ArchitectureLabTablesId` | const | `packages/foundation/modeling/identity/src/packages.ts:1134` | Identity composer for `@beep/architecture-lab-tables`. |
-| `@beep/identity/packages` | `$ArchitectureLabUiId` | const | `packages/foundation/modeling/identity/src/packages.ts:1168` | Identity composer for `@beep/architecture-lab-ui`. |
-| `@beep/identity/packages` | `$ArchitectureLabUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:1083` | Identity composer for `@beep/architecture-lab-use-cases`. |
-| `@beep/identity/packages` | `$BillingDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:832` | Identity composer for the `@beep/billing-domain` package. |
-| `@beep/identity/packages` | `$BillingServerId` | const | `packages/foundation/modeling/identity/src/packages.ts:849` | Identity composer for the `@beep/billing-server` package. |
-| `@beep/identity/packages` | `$BillingUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:866` | Identity composer for the `@beep/billing-use-cases` package. |
-| `@beep/identity/packages` | `$CanvasClientId` | const | `packages/foundation/modeling/identity/src/packages.ts:1442` | Identity composer for `@beep/canvas-client`. |
-| `@beep/identity/packages` | `$CanvasDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:1394` | Identity composer for `@beep/canvas-domain`. |
-| `@beep/identity/packages` | `$CanvasId` | const | `packages/foundation/modeling/identity/src/packages.ts:1474` | Identity composer for `@beep/canvas`. |
-| `@beep/identity/packages` | `$CanvasServerId` | const | `packages/foundation/modeling/identity/src/packages.ts:1426` | Identity composer for `@beep/canvas-server`. |
-| `@beep/identity/packages` | `$CanvasUiId` | const | `packages/foundation/modeling/identity/src/packages.ts:1458` | Identity composer for `@beep/canvas-ui`. |
-| `@beep/identity/packages` | `$CanvasUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:1410` | Identity composer for `@beep/canvas-use-cases`. |
-| `@beep/identity/packages` | `$ChalkId` | const | `packages/foundation/modeling/identity/src/packages.ts:497` | Identity composer for the `@beep/chalk` package. |
-| `@beep/identity/packages` | `$CodedankWebId` | const | `packages/foundation/modeling/identity/src/packages.ts:717` | $codedank web id export. |
-| `@beep/identity/packages` | `$ColorsId` | const | `packages/foundation/modeling/identity/src/packages.ts:482` | Identity composer for the `@beep/colors` package. |
-| `@beep/identity/packages` | `$DataId` | const | `packages/foundation/modeling/identity/src/packages.ts:161` | Identity composer for the `@beep/data` package. |
-| `@beep/identity/packages` | `$DiscordId` | const | `packages/foundation/modeling/identity/src/packages.ts:1298` | Identity composer for `@beep/discord`. |
-| `@beep/identity/packages` | `$DrizzleId` | const | `packages/foundation/modeling/identity/src/packages.ts:749` | $drizzle id export. |
-| `@beep/identity/packages` | `$DuckdbId` | const | `packages/foundation/modeling/identity/src/packages.ts:765` | $duckdb id export. |
-| `@beep/identity/packages` | `$EpistemicDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:574` | Identity composer for the `@beep/epistemic-domain` package. |
-| `@beep/identity/packages` | `$FaceDetectionId` | const | `packages/foundation/modeling/identity/src/packages.ts:781` | $face detection id export. |
-| `@beep/identity/packages` | `$FfmpegId` | const | `packages/foundation/modeling/identity/src/packages.ts:797` | $ffmpeg id export. |
-| `@beep/identity/packages` | `$FormId` | const | `packages/foundation/modeling/identity/src/packages.ts:1523` | Identity composer for `@beep/form`. |
-| `@beep/identity/packages` | `$HubspotId` | const | `packages/foundation/modeling/identity/src/packages.ts:1346` | Identity composer for `@beep/hubspot`. |
+| `@beep/identity/packages` | `$AcpId` | const | `packages/foundation/modeling/identity/src/packages.ts:1019` | Identity composer for `@beep/acp`. |
+| `@beep/identity/packages` | `$AgentCapabilityDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:590` | Identity composer for the `@beep/agent-capability-domain` package. |
+| `@beep/identity/packages` | `$AgentCapabilityUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:606` | Identity composer for the `@beep/agent-capability-use-cases` package. |
+| `@beep/identity/packages` | `$AiProviderCliId` | const | `packages/foundation/modeling/identity/src/packages.ts:1315` | Identity composer for `@beep/ai-provider-cli`. |
+| `@beep/identity/packages` | `$AiSyncId` | const | `packages/foundation/modeling/identity/src/packages.ts:1508` | Identity composer for `@beep/ai-sync`. |
+| `@beep/identity/packages` | `$ArchitectureLabClientId` | const | `packages/foundation/modeling/identity/src/packages.ts:1152` | Identity composer for `@beep/architecture-lab-client`. |
+| `@beep/identity/packages` | `$ArchitectureLabConfigId` | const | `packages/foundation/modeling/identity/src/packages.ts:1101` | Identity composer for `@beep/architecture-lab-config`. |
+| `@beep/identity/packages` | `$ArchitectureLabDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:1067` | Identity composer for `@beep/architecture-lab-domain`. |
+| `@beep/identity/packages` | `$ArchitectureLabProofId` | const | `packages/foundation/modeling/identity/src/packages.ts:1186` | Identity composer for `@beep/architecture-lab-proof`. |
+| `@beep/identity/packages` | `$ArchitectureLabServerId` | const | `packages/foundation/modeling/identity/src/packages.ts:1118` | Identity composer for `@beep/architecture-lab-server`. |
+| `@beep/identity/packages` | `$ArchitectureLabTablesId` | const | `packages/foundation/modeling/identity/src/packages.ts:1135` | Identity composer for `@beep/architecture-lab-tables`. |
+| `@beep/identity/packages` | `$ArchitectureLabUiId` | const | `packages/foundation/modeling/identity/src/packages.ts:1169` | Identity composer for `@beep/architecture-lab-ui`. |
+| `@beep/identity/packages` | `$ArchitectureLabUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:1084` | Identity composer for `@beep/architecture-lab-use-cases`. |
+| `@beep/identity/packages` | `$BillingDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:833` | Identity composer for the `@beep/billing-domain` package. |
+| `@beep/identity/packages` | `$BillingServerId` | const | `packages/foundation/modeling/identity/src/packages.ts:850` | Identity composer for the `@beep/billing-server` package. |
+| `@beep/identity/packages` | `$BillingUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:867` | Identity composer for the `@beep/billing-use-cases` package. |
+| `@beep/identity/packages` | `$CanvasClientId` | const | `packages/foundation/modeling/identity/src/packages.ts:1443` | Identity composer for `@beep/canvas-client`. |
+| `@beep/identity/packages` | `$CanvasDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:1395` | Identity composer for `@beep/canvas-domain`. |
+| `@beep/identity/packages` | `$CanvasId` | const | `packages/foundation/modeling/identity/src/packages.ts:1475` | Identity composer for `@beep/canvas`. |
+| `@beep/identity/packages` | `$CanvasServerId` | const | `packages/foundation/modeling/identity/src/packages.ts:1427` | Identity composer for `@beep/canvas-server`. |
+| `@beep/identity/packages` | `$CanvasUiId` | const | `packages/foundation/modeling/identity/src/packages.ts:1459` | Identity composer for `@beep/canvas-ui`. |
+| `@beep/identity/packages` | `$CanvasUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:1411` | Identity composer for `@beep/canvas-use-cases`. |
+| `@beep/identity/packages` | `$ChalkId` | const | `packages/foundation/modeling/identity/src/packages.ts:498` | Identity composer for the `@beep/chalk` package. |
+| `@beep/identity/packages` | `$CodedankWebId` | const | `packages/foundation/modeling/identity/src/packages.ts:718` | $codedank web id export. |
+| `@beep/identity/packages` | `$ColorsId` | const | `packages/foundation/modeling/identity/src/packages.ts:483` | Identity composer for the `@beep/colors` package. |
+| `@beep/identity/packages` | `$DataId` | const | `packages/foundation/modeling/identity/src/packages.ts:162` | Identity composer for the `@beep/data` package. |
+| `@beep/identity/packages` | `$DiscordId` | const | `packages/foundation/modeling/identity/src/packages.ts:1299` | Identity composer for `@beep/discord`. |
+| `@beep/identity/packages` | `$DrizzleId` | const | `packages/foundation/modeling/identity/src/packages.ts:750` | $drizzle id export. |
+| `@beep/identity/packages` | `$DuckdbId` | const | `packages/foundation/modeling/identity/src/packages.ts:766` | $duckdb id export. |
+| `@beep/identity/packages` | `$EpistemicDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:575` | Identity composer for the `@beep/epistemic-domain` package. |
+| `@beep/identity/packages` | `$FaceDetectionId` | const | `packages/foundation/modeling/identity/src/packages.ts:782` | $face detection id export. |
+| `@beep/identity/packages` | `$FfmpegId` | const | `packages/foundation/modeling/identity/src/packages.ts:798` | $ffmpeg id export. |
+| `@beep/identity/packages` | `$FormId` | const | `packages/foundation/modeling/identity/src/packages.ts:1524` | Identity composer for `@beep/form`. |
+| `@beep/identity/packages` | `$HubspotId` | const | `packages/foundation/modeling/identity/src/packages.ts:1347` | Identity composer for `@beep/hubspot`. |
 | `@beep/identity/packages` | `$I` | const | `packages/foundation/modeling/identity/src/packages.ts:40` | Root identity composer for the `@beep` namespace. |
-| `@beep/identity/packages` | `$IamDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:885` | Identity composer for the `@beep/iam-domain` package. |
-| `@beep/identity/packages` | `$IamServerId` | const | `packages/foundation/modeling/identity/src/packages.ts:902` | Identity composer for the `@beep/iam-server` package. |
-| `@beep/identity/packages` | `$IamTablesId` | const | `packages/foundation/modeling/identity/src/packages.ts:919` | Identity composer for the `@beep/iam-tables` package. |
-| `@beep/identity/packages` | `$IamUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:936` | Identity composer for the `@beep/iam-use-cases` package. |
-| `@beep/identity/packages` | `$IdentityId` | const | `packages/foundation/modeling/identity/src/packages.ts:176` | Identity composer for the `@beep/identity` package. |
-| `@beep/identity/packages` | `$InfraId` | const | `packages/foundation/modeling/identity/src/packages.ts:527` | Identity composer for the `@beep/infra` package. |
-| `@beep/identity/packages` | `$InstallerDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:1219` | Identity composer for `@beep/installer-domain`. |
-| `@beep/identity/packages` | `$InstallerServerId` | const | `packages/foundation/modeling/identity/src/packages.ts:1250` | Identity composer for `@beep/installer-server`. |
-| `@beep/identity/packages` | `$InstallerUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:1234` | Identity composer for `@beep/installer-use-cases`. |
-| `@beep/identity/packages` | `$KonvaId` | const | `packages/foundation/modeling/identity/src/packages.ts:1378` | Identity composer for `@beep/konva`. |
-| `@beep/identity/packages` | `$LawPracticeDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:621` | Identity composer for the `@beep/law-practice-domain` package. |
-| `@beep/identity/packages` | `$MdId` | const | `packages/foundation/modeling/identity/src/packages.ts:701` | $md id export. |
-| `@beep/identity/packages` | `$MessagesId` | const | `packages/foundation/modeling/identity/src/packages.ts:191` | Identity composer for the `@beep/messages` package. |
-| `@beep/identity/packages` | `$NlpId` | const | `packages/foundation/modeling/identity/src/packages.ts:452` | Identity composer for the `@beep/nlp` package. |
-| `@beep/identity/packages` | `$ObservabilityId` | const | `packages/foundation/modeling/identity/src/packages.ts:467` | Identity composer for the `@beep/observability` package. |
-| `@beep/identity/packages` | `$OipWebId` | const | `packages/foundation/modeling/identity/src/packages.ts:733` | $oip web id export. |
-| `@beep/identity/packages` | `$OnepasswordCliId` | const | `packages/foundation/modeling/identity/src/packages.ts:1282` | Identity composer for `@beep/onepassword-cli`. |
-| `@beep/identity/packages` | `$OpenaiCompatId` | const | `packages/foundation/modeling/identity/src/packages.ts:1034` | Identity composer for `@beep/openai-compat`. |
-| `@beep/identity/packages` | `$PhoenixId` | const | `packages/foundation/modeling/identity/src/packages.ts:1362` | Identity composer for `@beep/phoenix`. |
-| `@beep/identity/packages` | `$PostgresId` | const | `packages/foundation/modeling/identity/src/packages.ts:813` | $postgres id export. |
-| `@beep/identity/packages` | `$ProfessionalDesktopId` | const | `packages/foundation/modeling/identity/src/packages.ts:653` | Identity composer for the `@beep/professional-desktop` package. |
-| `@beep/identity/packages` | `$ProfessionalRuntimeProofId` | const | `packages/foundation/modeling/identity/src/packages.ts:669` | Identity composer for the `@beep/professional-runtime-proof` package. |
-| `@beep/identity/packages` | `$RepoAiMetricsId` | const | `packages/foundation/modeling/identity/src/packages.ts:270` | Identity composer for the `@beep/repo-ai-metrics` package. |
-| `@beep/identity/packages` | `$RepoCliId` | const | `packages/foundation/modeling/identity/src/packages.ts:285` | Identity composer for the `@beep/repo-cli` package. |
-| `@beep/identity/packages` | `$RepoCodegraphId` | const | `packages/foundation/modeling/identity/src/packages.ts:1491` | Identity composer for `@beep/repo-codegraph`. |
-| `@beep/identity/packages` | `$RepoConfigsId` | const | `packages/foundation/modeling/identity/src/packages.ts:300` | Identity composer for the `@beep/repo-configs` package. |
-| `@beep/identity/packages` | `$RepoDocgenId` | const | `packages/foundation/modeling/identity/src/packages.ts:512` | Identity composer for the `@beep/repo-docgen` package. |
-| `@beep/identity/packages` | `$RepoUtilsId` | const | `packages/foundation/modeling/identity/src/packages.ts:315` | Identity composer for the `@beep/repo-utils` package. |
-| `@beep/identity/packages` | `$RunpodId` | const | `packages/foundation/modeling/identity/src/packages.ts:1266` | Identity composer for `@beep/runpod`. |
-| `@beep/identity/packages` | `$SandboxId` | const | `packages/foundation/modeling/identity/src/packages.ts:970` | Identity composer for the `@beep/sandbox` package. |
-| `@beep/identity/packages` | `$SanityId` | const | `packages/foundation/modeling/identity/src/packages.ts:1330` | Identity composer for `@beep/sanity`. |
-| `@beep/identity/packages` | `$SchemaId` | const | `packages/foundation/modeling/identity/src/packages.ts:206` | Identity composer for the `@beep/schema` package. |
-| `@beep/identity/packages` | `$ScratchpadId` | const | `packages/foundation/modeling/identity/src/packages.ts:953` | Identity composer for the `@beep/scratchpad` package. |
-| `@beep/identity/packages` | `$SemanticWebId` | const | `packages/foundation/modeling/identity/src/packages.ts:437` | Identity composer for the `@beep/semantic-web` package. |
-| `@beep/identity/packages` | `$SharedClientId` | const | `packages/foundation/modeling/identity/src/packages.ts:377` | Identity composer for the `@beep/shared-client` package. |
-| `@beep/identity/packages` | `$SharedConfigId` | const | `packages/foundation/modeling/identity/src/packages.ts:422` | Identity composer for the `@beep/shared-config` package. |
-| `@beep/identity/packages` | `$SharedDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:347` | Identity composer for the `@beep/shared-domain` package. |
-| `@beep/identity/packages` | `$SharedServerId` | const | `packages/foundation/modeling/identity/src/packages.ts:392` | Identity composer for the `@beep/shared-server` package. |
-| `@beep/identity/packages` | `$SharedTablesId` | const | `packages/foundation/modeling/identity/src/packages.ts:362` | Identity composer for the `@beep/shared-tables` package. |
-| `@beep/identity/packages` | `$SharedUiId` | const | `packages/foundation/modeling/identity/src/packages.ts:407` | Identity composer for the `@beep/shared-ui` package. |
-| `@beep/identity/packages` | `$SharedUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:542` | Identity composer for the `@beep/shared-use-cases` package. |
-| `@beep/identity/packages` | `$StackInstallerId` | const | `packages/foundation/modeling/identity/src/packages.ts:1204` | Identity composer for `@beep/stack-installer`. |
-| `@beep/identity/packages` | `$TestUtilsId` | const | `packages/foundation/modeling/identity/src/packages.ts:330` | Identity composer for the `@beep/test-utils` package. |
-| `@beep/identity/packages` | `$TypesId` | const | `packages/foundation/modeling/identity/src/packages.ts:221` | Identity composer for the `@beep/types` package. |
-| `@beep/identity/packages` | `$UiId` | const | `packages/foundation/modeling/identity/src/packages.ts:253` | Identity composer for the `@beep/ui` package. |
-| `@beep/identity/packages` | `$UtilsId` | const | `packages/foundation/modeling/identity/src/packages.ts:236` | Identity composer for the `@beep/utils` package. |
-| `@beep/identity/packages` | `$VeniceAiId` | const | `packages/foundation/modeling/identity/src/packages.ts:986` | $venice ai id export. |
-| `@beep/identity/packages` | `$WealthManagementDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:637` | Identity composer for the `@beep/wealth-management-domain` package. |
-| `@beep/identity/packages` | `$WorkspaceDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:559` | Identity composer for the `@beep/workspace-domain` package. |
-| `@beep/identity/packages` | `$WorkspaceTablesId` | const | `packages/foundation/modeling/identity/src/packages.ts:1050` | Identity composer for `@beep/workspace-tables`. |
-| `@beep/identity/packages` | `$XaiId` | const | `packages/foundation/modeling/identity/src/packages.ts:1002` | $xai id export. |
-| `@beep/identity/packages` | `RepoPkgs` | const | `packages/foundation/modeling/identity/src/packages.ts:685` | RepoPkgs - export object containing all package IdentityComposer's |
+| `@beep/identity/packages` | `$IamDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:886` | Identity composer for the `@beep/iam-domain` package. |
+| `@beep/identity/packages` | `$IamServerId` | const | `packages/foundation/modeling/identity/src/packages.ts:903` | Identity composer for the `@beep/iam-server` package. |
+| `@beep/identity/packages` | `$IamTablesId` | const | `packages/foundation/modeling/identity/src/packages.ts:920` | Identity composer for the `@beep/iam-tables` package. |
+| `@beep/identity/packages` | `$IamUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:937` | Identity composer for the `@beep/iam-use-cases` package. |
+| `@beep/identity/packages` | `$IdentityId` | const | `packages/foundation/modeling/identity/src/packages.ts:177` | Identity composer for the `@beep/identity` package. |
+| `@beep/identity/packages` | `$InfraId` | const | `packages/foundation/modeling/identity/src/packages.ts:528` | Identity composer for the `@beep/infra` package. |
+| `@beep/identity/packages` | `$InstallerDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:1220` | Identity composer for `@beep/installer-domain`. |
+| `@beep/identity/packages` | `$InstallerServerId` | const | `packages/foundation/modeling/identity/src/packages.ts:1251` | Identity composer for `@beep/installer-server`. |
+| `@beep/identity/packages` | `$InstallerUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:1235` | Identity composer for `@beep/installer-use-cases`. |
+| `@beep/identity/packages` | `$KonvaId` | const | `packages/foundation/modeling/identity/src/packages.ts:1379` | Identity composer for `@beep/konva`. |
+| `@beep/identity/packages` | `$LawPracticeDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:622` | Identity composer for the `@beep/law-practice-domain` package. |
+| `@beep/identity/packages` | `$MdId` | const | `packages/foundation/modeling/identity/src/packages.ts:702` | $md id export. |
+| `@beep/identity/packages` | `$MessagesId` | const | `packages/foundation/modeling/identity/src/packages.ts:192` | Identity composer for the `@beep/messages` package. |
+| `@beep/identity/packages` | `$NlpId` | const | `packages/foundation/modeling/identity/src/packages.ts:453` | Identity composer for the `@beep/nlp` package. |
+| `@beep/identity/packages` | `$NlpMcpId` | const | `packages/foundation/modeling/identity/src/packages.ts:1540` | Identity composer for `@beep/nlp-mcp`. |
+| `@beep/identity/packages` | `$ObservabilityId` | const | `packages/foundation/modeling/identity/src/packages.ts:468` | Identity composer for the `@beep/observability` package. |
+| `@beep/identity/packages` | `$OipWebId` | const | `packages/foundation/modeling/identity/src/packages.ts:734` | $oip web id export. |
+| `@beep/identity/packages` | `$OnepasswordCliId` | const | `packages/foundation/modeling/identity/src/packages.ts:1283` | Identity composer for `@beep/onepassword-cli`. |
+| `@beep/identity/packages` | `$OpenaiCompatId` | const | `packages/foundation/modeling/identity/src/packages.ts:1035` | Identity composer for `@beep/openai-compat`. |
+| `@beep/identity/packages` | `$PhoenixId` | const | `packages/foundation/modeling/identity/src/packages.ts:1363` | Identity composer for `@beep/phoenix`. |
+| `@beep/identity/packages` | `$PostgresId` | const | `packages/foundation/modeling/identity/src/packages.ts:814` | $postgres id export. |
+| `@beep/identity/packages` | `$ProfessionalDesktopId` | const | `packages/foundation/modeling/identity/src/packages.ts:654` | Identity composer for the `@beep/professional-desktop` package. |
+| `@beep/identity/packages` | `$ProfessionalRuntimeProofId` | const | `packages/foundation/modeling/identity/src/packages.ts:670` | Identity composer for the `@beep/professional-runtime-proof` package. |
+| `@beep/identity/packages` | `$RepoAiMetricsId` | const | `packages/foundation/modeling/identity/src/packages.ts:271` | Identity composer for the `@beep/repo-ai-metrics` package. |
+| `@beep/identity/packages` | `$RepoCliId` | const | `packages/foundation/modeling/identity/src/packages.ts:286` | Identity composer for the `@beep/repo-cli` package. |
+| `@beep/identity/packages` | `$RepoCodegraphId` | const | `packages/foundation/modeling/identity/src/packages.ts:1492` | Identity composer for `@beep/repo-codegraph`. |
+| `@beep/identity/packages` | `$RepoConfigsId` | const | `packages/foundation/modeling/identity/src/packages.ts:301` | Identity composer for the `@beep/repo-configs` package. |
+| `@beep/identity/packages` | `$RepoDocgenId` | const | `packages/foundation/modeling/identity/src/packages.ts:513` | Identity composer for the `@beep/repo-docgen` package. |
+| `@beep/identity/packages` | `$RepoUtilsId` | const | `packages/foundation/modeling/identity/src/packages.ts:316` | Identity composer for the `@beep/repo-utils` package. |
+| `@beep/identity/packages` | `$RunpodId` | const | `packages/foundation/modeling/identity/src/packages.ts:1267` | Identity composer for `@beep/runpod`. |
+| `@beep/identity/packages` | `$SandboxId` | const | `packages/foundation/modeling/identity/src/packages.ts:971` | Identity composer for the `@beep/sandbox` package. |
+| `@beep/identity/packages` | `$SanityId` | const | `packages/foundation/modeling/identity/src/packages.ts:1331` | Identity composer for `@beep/sanity`. |
+| `@beep/identity/packages` | `$SchemaId` | const | `packages/foundation/modeling/identity/src/packages.ts:207` | Identity composer for the `@beep/schema` package. |
+| `@beep/identity/packages` | `$ScratchpadId` | const | `packages/foundation/modeling/identity/src/packages.ts:954` | Identity composer for the `@beep/scratchpad` package. |
+| `@beep/identity/packages` | `$SemanticWebId` | const | `packages/foundation/modeling/identity/src/packages.ts:438` | Identity composer for the `@beep/semantic-web` package. |
+| `@beep/identity/packages` | `$SharedClientId` | const | `packages/foundation/modeling/identity/src/packages.ts:378` | Identity composer for the `@beep/shared-client` package. |
+| `@beep/identity/packages` | `$SharedConfigId` | const | `packages/foundation/modeling/identity/src/packages.ts:423` | Identity composer for the `@beep/shared-config` package. |
+| `@beep/identity/packages` | `$SharedDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:348` | Identity composer for the `@beep/shared-domain` package. |
+| `@beep/identity/packages` | `$SharedServerId` | const | `packages/foundation/modeling/identity/src/packages.ts:393` | Identity composer for the `@beep/shared-server` package. |
+| `@beep/identity/packages` | `$SharedTablesId` | const | `packages/foundation/modeling/identity/src/packages.ts:363` | Identity composer for the `@beep/shared-tables` package. |
+| `@beep/identity/packages` | `$SharedUiId` | const | `packages/foundation/modeling/identity/src/packages.ts:408` | Identity composer for the `@beep/shared-ui` package. |
+| `@beep/identity/packages` | `$SharedUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:543` | Identity composer for the `@beep/shared-use-cases` package. |
+| `@beep/identity/packages` | `$StackInstallerId` | const | `packages/foundation/modeling/identity/src/packages.ts:1205` | Identity composer for `@beep/stack-installer`. |
+| `@beep/identity/packages` | `$TestUtilsId` | const | `packages/foundation/modeling/identity/src/packages.ts:331` | Identity composer for the `@beep/test-utils` package. |
+| `@beep/identity/packages` | `$TypesId` | const | `packages/foundation/modeling/identity/src/packages.ts:222` | Identity composer for the `@beep/types` package. |
+| `@beep/identity/packages` | `$UiId` | const | `packages/foundation/modeling/identity/src/packages.ts:254` | Identity composer for the `@beep/ui` package. |
+| `@beep/identity/packages` | `$UtilsId` | const | `packages/foundation/modeling/identity/src/packages.ts:237` | Identity composer for the `@beep/utils` package. |
+| `@beep/identity/packages` | `$VeniceAiId` | const | `packages/foundation/modeling/identity/src/packages.ts:987` | $venice ai id export. |
+| `@beep/identity/packages` | `$WealthManagementDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:638` | Identity composer for the `@beep/wealth-management-domain` package. |
+| `@beep/identity/packages` | `$WorkspaceDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:560` | Identity composer for the `@beep/workspace-domain` package. |
+| `@beep/identity/packages` | `$WorkspaceTablesId` | const | `packages/foundation/modeling/identity/src/packages.ts:1051` | Identity composer for `@beep/workspace-tables`. |
+| `@beep/identity/packages` | `$XaiId` | const | `packages/foundation/modeling/identity/src/packages.ts:1003` | $xai id export. |
+| `@beep/identity/packages` | `RepoPkgs` | const | `packages/foundation/modeling/identity/src/packages.ts:686` | RepoPkgs - export object containing all package IdentityComposer's |
 
 ### @beep/drizzle
 
@@ -7430,15 +7460,100 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 
 | Import | Symbol | Kind | Source | Summary |
 |---|---|---|---|---|
+| `@beep/nlp` | `Algebra` | SourceFile | `packages/foundation/capability/nlp/src/Algebra/index.ts:21` |  |
+| `@beep/nlp` | `Backend` | SourceFile | `packages/foundation/capability/nlp/src/Backend/index.ts:21` |  |
 | `@beep/nlp` | `Core` | SourceFile | `packages/foundation/capability/nlp/src/Core/index.ts:11` |  |
+| `@beep/nlp` | `Graph` | SourceFile | `packages/foundation/capability/nlp/src/Graph/index.ts:22` |  |
+| `@beep/nlp` | `Handoff` | SourceFile | `packages/foundation/capability/nlp/src/Handoff/index.ts:26` |  |
 | `@beep/nlp` | `IdentifierText` | SourceFile | `packages/foundation/capability/nlp/src/IdentifierText.ts:7` |  |
 | `@beep/nlp` | `Layers` | SourceFile | `packages/foundation/capability/nlp/src/Layers/index.ts:8` |  |
+| `@beep/nlp` | `NLPService` | SourceFile | `packages/foundation/capability/nlp/src/NLPService.ts:18` |  |
+| `@beep/nlp` | `Ontology` | SourceFile | `packages/foundation/capability/nlp/src/Ontology/index.ts:22` |  |
 | `@beep/nlp` | `PathText` | SourceFile | `packages/foundation/capability/nlp/src/PathText.ts:7` |  |
 | `@beep/nlp` | `QueryText` | SourceFile | `packages/foundation/capability/nlp/src/QueryText.ts:7` |  |
 | `@beep/nlp` | `Tools` | SourceFile | `packages/foundation/capability/nlp/src/Tools/index.ts:8` |  |
 | `@beep/nlp` | `VariantText` | SourceFile | `packages/foundation/capability/nlp/src/VariantText.ts:7` |  |
 | `@beep/nlp` | `VERSION` | const | `packages/foundation/capability/nlp/src/index.ts:22` | Package version constant. |
 | `@beep/nlp` | `Wink` | SourceFile | `packages/foundation/capability/nlp/src/Wink/index.ts:7` |  |
+| `@beep/nlp/Algebra` | `Monoid` | SourceFile | `packages/foundation/capability/nlp/src/Algebra/Monoid.ts:8` |  |
+| `@beep/nlp/Algebra` | `NLPMonoid` | SourceFile | `packages/foundation/capability/nlp/src/Algebra/NLPMonoid.ts:25` |  |
+| `@beep/nlp/Algebra/index` | `Monoid` | SourceFile | `packages/foundation/capability/nlp/src/Algebra/Monoid.ts:8` |  |
+| `@beep/nlp/Algebra/index` | `NLPMonoid` | SourceFile | `packages/foundation/capability/nlp/src/Algebra/NLPMonoid.ts:25` |  |
+| `@beep/nlp/Algebra/Monoid` | `ArrayConcat` | const | `packages/foundation/capability/nlp/src/Algebra/Monoid.ts:194` | Array concatenation monoid (empty: []). |
+| `@beep/nlp/Algebra/Monoid` | `BooleanAll` | const | `packages/foundation/capability/nlp/src/Algebra/Monoid.ts:385` | Logical AND monoid (empty: true). |
+| `@beep/nlp/Algebra/Monoid` | `BooleanAny` | const | `packages/foundation/capability/nlp/src/Algebra/Monoid.ts:396` | Logical OR monoid (empty: false). |
+| `@beep/nlp/Algebra/Monoid` | `checkAssociativity` | const | `packages/foundation/capability/nlp/src/Algebra/Monoid.ts:435` | Check associativity law: (x ⊕ y) ⊕ z = x ⊕ (y ⊕ z) |
+| `@beep/nlp/Algebra/Monoid` | `checkLaws` | const | `packages/foundation/capability/nlp/src/Algebra/Monoid.ts:453` | Check all monoid laws against a representative triple. |
+| `@beep/nlp/Algebra/Monoid` | `checkLeftIdentity` | const | `packages/foundation/capability/nlp/src/Algebra/Monoid.ts:411` | Check left identity law: empty ⊕ x = x |
+| `@beep/nlp/Algebra/Monoid` | `checkRightIdentity` | const | `packages/foundation/capability/nlp/src/Algebra/Monoid.ts:423` | Check right identity law: x ⊕ empty = x |
+| `@beep/nlp/Algebra/Monoid` | `combineAll` | const | `packages/foundation/capability/nlp/src/Algebra/Monoid.ts:79` | Combine an array of values using a monoid, seeded with the identity. |
+| `@beep/nlp/Algebra/Monoid` | `Dual` | const | `packages/foundation/capability/nlp/src/Algebra/Monoid.ts:370` | Dual monoid: reverse the order of combination (x ⊕' y = y ⊕ x). |
+| `@beep/nlp/Algebra/Monoid` | `Endo` | const | `packages/foundation/capability/nlp/src/Algebra/Monoid.ts:355` | Endomorphism monoid: functions from A to A under composition (empty: identity). |
+| `@beep/nlp/Algebra/Monoid` | `fold` | const | `packages/foundation/capability/nlp/src/Algebra/Monoid.ts:63` | Fold a collection using a monoid |
+| `@beep/nlp/Algebra/Monoid` | `getAverage` | const | `packages/foundation/capability/nlp/src/Algebra/Monoid.ts:294` | Extract the average from a {@link VectorAverage} result. |
+| `@beep/nlp/Algebra/Monoid` | `make` | const | `packages/foundation/capability/nlp/src/Algebra/Monoid.ts:49` | Helper to create a Monoid instance |
+| `@beep/nlp/Algebra/Monoid` | `Monoid` | interface | `packages/foundation/capability/nlp/src/Algebra/Monoid.ts:27` | Monoid type class |
+| `@beep/nlp/Algebra/Monoid` | `MultiSet` | const | `packages/foundation/capability/nlp/src/Algebra/Monoid.ts:212` | Multiset (bag) union monoid. |
+| `@beep/nlp/Algebra/Monoid` | `NumberMax` | const | `packages/foundation/capability/nlp/src/Algebra/Monoid.ts:168` | Max monoid for numbers (empty: -Infinity). |
+| `@beep/nlp/Algebra/Monoid` | `NumberMin` | const | `packages/foundation/capability/nlp/src/Algebra/Monoid.ts:179` | Min monoid for numbers (empty: Infinity). |
+| `@beep/nlp/Algebra/Monoid` | `NumberProduct` | const | `packages/foundation/capability/nlp/src/Algebra/Monoid.ts:157` | Multiplication monoid for numbers (empty: 1). |
+| `@beep/nlp/Algebra/Monoid` | `NumberSum` | const | `packages/foundation/capability/nlp/src/Algebra/Monoid.ts:146` | Addition monoid for numbers (empty: 0). |
+| `@beep/nlp/Algebra/Monoid` | `Option` | const | `packages/foundation/capability/nlp/src/Algebra/Monoid.ts:335` | Lift a monoid through Option: combine point-wise, treating `None` as the identity. |
+| `@beep/nlp/Algebra/Monoid` | `Product` | const | `packages/foundation/capability/nlp/src/Algebra/Monoid.ts:309` | Product monoid: combine two monoids component-wise. |
+| `@beep/nlp/Algebra/Monoid` | `Product3` | const | `packages/foundation/capability/nlp/src/Algebra/Monoid.ts:320` | Triple product monoid. |
+| `@beep/nlp/Algebra/Monoid` | `SetIntersection` | const | `packages/foundation/capability/nlp/src/Algebra/Monoid.ts:243` | Set intersection monoid. |
+| `@beep/nlp/Algebra/Monoid` | `SetUnion` | const | `packages/foundation/capability/nlp/src/Algebra/Monoid.ts:227` | Set union monoid (empty: ∅). |
+| `@beep/nlp/Algebra/Monoid` | `StringConcat` | const | `packages/foundation/capability/nlp/src/Algebra/Monoid.ts:97` | String concatenation monoid. |
+| `@beep/nlp/Algebra/Monoid` | `StringDelimited` | const | `packages/foundation/capability/nlp/src/Algebra/Monoid.ts:125` | String join with prefix and suffix, useful for creating delimited lists. |
+| `@beep/nlp/Algebra/Monoid` | `StringJoin` | const | `packages/foundation/capability/nlp/src/Algebra/Monoid.ts:110` | String join with separator monoid. |
+| `@beep/nlp/Algebra/Monoid` | `VectorAdd` | const | `packages/foundation/capability/nlp/src/Algebra/Monoid.ts:267` | Vector addition monoid (element-wise addition; empty: zero vector). |
+| `@beep/nlp/Algebra/Monoid` | `VectorAverage` | const | `packages/foundation/capability/nlp/src/Algebra/Monoid.ts:278` | Vector average monoid (tracks sum and count to compute a running average). |
+| `@beep/nlp/Algebra/NLPMonoid` | `aggregateSentences` | const | `packages/foundation/capability/nlp/src/Algebra/NLPMonoid.ts:400` | Aggregate sentences into a single document string. |
+| `@beep/nlp/Algebra/NLPMonoid` | `aggregateStats` | const | `packages/foundation/capability/nlp/src/Algebra/NLPMonoid.ts:408` | Aggregate document statistics. |
+| `@beep/nlp/Algebra/NLPMonoid` | `aggregateTokens` | const | `packages/foundation/capability/nlp/src/Algebra/NLPMonoid.ts:385` | Aggregate tokens into a bag of words. |
+| `@beep/nlp/Algebra/NLPMonoid` | `AnnotationMap` | const | `packages/foundation/capability/nlp/src/Algebra/NLPMonoid.ts:162` | Linguistic annotation monoid (left-biased map merge). |
+| `@beep/nlp/Algebra/NLPMonoid` | `BagOfWords` | type | `packages/foundation/capability/nlp/src/Algebra/NLPMonoid.ts:34` | Bag-of-words frequency map carrier: term -\> frequency. |
+| `@beep/nlp/Algebra/NLPMonoid` | `bagOfWordsToTF` | const | `packages/foundation/capability/nlp/src/Algebra/NLPMonoid.ts:339` | Convert a bag of words to term frequency (each count normalized by the total). |
+| `@beep/nlp/Algebra/NLPMonoid` | `computeTFIDF` | const | `packages/foundation/capability/nlp/src/Algebra/NLPMonoid.ts:361` | Compute TF-IDF scores from term frequency and document frequency. |
+| `@beep/nlp/Algebra/NLPMonoid` | `DependencyEdge` | interface | `packages/foundation/capability/nlp/src/Algebra/NLPMonoid.ts:202` | Dependency parse edge carrier: a syntactic dependency (head, dependent, relation). |
+| `@beep/nlp/Algebra/NLPMonoid` | `DependencyParse` | const | `packages/foundation/capability/nlp/src/Algebra/NLPMonoid.ts:214` | Dependency parse monoid (concatenate edges). |
+| `@beep/nlp/Algebra/NLPMonoid` | `DocumentFrequency` | const | `packages/foundation/capability/nlp/src/Algebra/NLPMonoid.ts:234` | Document frequency monoid (counts presence across documents; union with addition). |
+| `@beep/nlp/Algebra/NLPMonoid` | `DocumentStatistics` | interface | `packages/foundation/capability/nlp/src/Algebra/NLPMonoid.ts:128` | Document statistics carrier. |
+| `@beep/nlp/Algebra/NLPMonoid` | `DocumentStats` | const | `packages/foundation/capability/nlp/src/Algebra/NLPMonoid.ts:140` | Document statistics monoid (sum counts component-wise). |
+| `@beep/nlp/Algebra/NLPMonoid` | `DocumentText` | const | `packages/foundation/capability/nlp/src/Algebra/NLPMonoid.ts:120` | Document text monoid (join paragraphs with a blank line). |
+| `@beep/nlp/Algebra/NLPMonoid` | `NamedEntity` | interface | `packages/foundation/capability/nlp/src/Algebra/NLPMonoid.ts:181` | Named entity carrier. |
+| `@beep/nlp/Algebra/NLPMonoid` | `NamedEntityList` | const | `packages/foundation/capability/nlp/src/Algebra/NLPMonoid.ts:194` | Named entity list monoid (concatenation; preserves order, allows duplicates). |
+| `@beep/nlp/Algebra/NLPMonoid` | `NGramFrequency` | const | `packages/foundation/capability/nlp/src/Algebra/NLPMonoid.ts:280` | N-gram frequency monoid (bag-of-words over space-joined n-gram keys). |
+| `@beep/nlp/Algebra/NLPMonoid` | `SentenceArray` | const | `packages/foundation/capability/nlp/src/Algebra/NLPMonoid.ts:108` | Sentence array monoid (concatenation; preserves order and boundaries). |
+| `@beep/nlp/Algebra/NLPMonoid` | `SentenceConcat` | const | `packages/foundation/capability/nlp/src/Algebra/NLPMonoid.ts:92` | Sentence concatenation "near-monoid". |
+| `@beep/nlp/Algebra/NLPMonoid` | `TermFrequency` | const | `packages/foundation/capability/nlp/src/Algebra/NLPMonoid.ts:226` | Term frequency monoid (alias of {@link TokenBagOfWords}; semantic distinction). |
+| `@beep/nlp/Algebra/NLPMonoid` | `TextAnalysis` | interface | `packages/foundation/capability/nlp/src/Algebra/NLPMonoid.ts:301` | Combined text analysis carrier (bag-of-words + entities + sentence count + vocabulary). |
+| `@beep/nlp/Algebra/NLPMonoid` | `TextAnalysisMonoid` | const | `packages/foundation/capability/nlp/src/Algebra/NLPMonoid.ts:314` | Text analysis monoid (product monoid over the linguistic features). |
+| `@beep/nlp/Algebra/NLPMonoid` | `TokenBagOfWords` | const | `packages/foundation/capability/nlp/src/Algebra/NLPMonoid.ts:58` | Token bag-of-words monoid (union with frequency addition). |
+| `@beep/nlp/Algebra/NLPMonoid` | `TokenConcat` | const | `packages/foundation/capability/nlp/src/Algebra/NLPMonoid.ts:48` | Token concatenation monoid (join with a space). |
+| `@beep/nlp/Algebra/NLPMonoid` | `TokenSetUnion` | const | `packages/foundation/capability/nlp/src/Algebra/NLPMonoid.ts:75` | Token set-union monoid (collect unique tokens; useful for vocabulary). |
+| `@beep/nlp/Algebra/NLPMonoid` | `Vocabulary` | const | `packages/foundation/capability/nlp/src/Algebra/NLPMonoid.ts:251` | Vocabulary monoid (unique terms; alias of {@link TokenSetUnion}). |
+| `@beep/nlp/Algebra/NLPMonoid` | `WeightedTokens` | const | `packages/foundation/capability/nlp/src/Algebra/NLPMonoid.ts:263` | Weighted token monoid (combine weights additively per token). |
+| `@beep/nlp/Backend` | `NLPBackend` | SourceFile | `packages/foundation/capability/nlp/src/Backend/NLPBackend.ts:19` |  |
+| `@beep/nlp/Backend/Composition` | `CachingOptions` | interface | `packages/foundation/capability/nlp/src/Backend/Composition.ts:86` | Options controlling {@link withCaching}. |
+| `@beep/nlp/Backend/Composition` | `selectByCapability` | const | `packages/foundation/capability/nlp/src/Backend/Composition.ts:159` | Select the first backend that supports a given capability. |
+| `@beep/nlp/Backend/Composition` | `withCaching` | const | `packages/foundation/capability/nlp/src/Backend/Composition.ts:105` | Wrap a backend so each text-keyed operation is memoized behind an `effect/Cache` |
+| `@beep/nlp/Backend/Composition` | `withFallback` | const | `packages/foundation/capability/nlp/src/Backend/Composition.ts:40` | Compose two backends so each operation tries `primary` first, then `secondary` |
+| `@beep/nlp/Backend/index` | `NLPBackend` | SourceFile | `packages/foundation/capability/nlp/src/Backend/NLPBackend.ts:19` |  |
+| `@beep/nlp/Backend/NLPBackend` | `BackendCapabilities` | interface | `packages/foundation/capability/nlp/src/Backend/NLPBackend.ts:150` | Capabilities a backend may or may not support, enabling runtime capability |
+| `@beep/nlp/Backend/NLPBackend` | `BackendInitError` | class | `packages/foundation/capability/nlp/src/Backend/NLPBackend.ts:69` | Failure raised when a backend fails to initialize. |
+| `@beep/nlp/Backend/NLPBackend` | `BackendNotSupported` | class | `packages/foundation/capability/nlp/src/Backend/NLPBackend.ts:44` | Failure raised when a backend does not support a requested operation. |
+| `@beep/nlp/Backend/NLPBackend` | `BackendOperationError` | class | `packages/foundation/capability/nlp/src/Backend/NLPBackend.ts:94` | Failure raised when a backend operation fails at runtime. |
+| `@beep/nlp/Backend/NLPBackend` | `getSupportedCapabilities` | const | `packages/foundation/capability/nlp/src/Backend/NLPBackend.ts:235` | List all capabilities a backend supports. |
+| `@beep/nlp/Backend/NLPBackend` | `initError` | const | `packages/foundation/capability/nlp/src/Backend/NLPBackend.ts:260` | Construct a {@link BackendInitError} from an unknown cause. |
+| `@beep/nlp/Backend/NLPBackend` | `NLPBackend` | class | `packages/foundation/capability/nlp/src/Backend/NLPBackend.ts:218` | Service tag for the pluggable {@link NLPBackendShape} backend. |
+| `@beep/nlp/Backend/NLPBackend` | `NLPBackendError` | const | `packages/foundation/capability/nlp/src/Backend/NLPBackend.ts:120` | Union of all backend failures. |
+| `@beep/nlp/Backend/NLPBackend` | `NLPBackendError` | type | `packages/foundation/capability/nlp/src/Backend/NLPBackend.ts:141` | Runtime type for backend failures. |
+| `@beep/nlp/Backend/NLPBackend` | `NLPBackendShape` | interface | `packages/foundation/capability/nlp/src/Backend/NLPBackend.ts:182` | Structural shape of the {@link NLPBackend} service. |
+| `@beep/nlp/Backend/NLPBackend` | `notSupported` | const | `packages/foundation/capability/nlp/src/Backend/NLPBackend.ts:247` | Construct a {@link BackendNotSupported} failure. |
+| `@beep/nlp/Backend/NLPBackend` | `operationError` | const | `packages/foundation/capability/nlp/src/Backend/NLPBackend.ts:273` | Construct a {@link BackendOperationError} from an unknown cause. |
+| `@beep/nlp/Backend/NLPBackend` | `supportsCapability` | const | `packages/foundation/capability/nlp/src/Backend/NLPBackend.ts:226` | Check whether a backend supports a specific capability. |
+| `@beep/nlp/Backend/WinkBackend` | `WinkBackendLive` | const | `packages/foundation/capability/nlp/src/Backend/WinkBackend.ts:150` | Live {@link NLPBackend} layer backed by wink-nlp (requires {@link WinkEngine}). |
 | `@beep/nlp/Core` | `addElements` | const | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:302` | Append elements to a pattern. |
 | `@beep/nlp/Core` | `applyPatch` | const | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:613` | Apply a patch to a pattern. |
 | `@beep/nlp/Core` | `BracketStringToEntityPatternElement` | const | `packages/foundation/capability/nlp/src/Core/PatternParsers.ts:132` | Decode an entity bracket string into a pattern element. |
@@ -7446,12 +7561,12 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/nlp/Core` | `BracketStringToPatternElement` | const | `packages/foundation/capability/nlp/src/Core/PatternParsers.ts:194` | Decode any supported bracket string element. |
 | `@beep/nlp/Core` | `BracketStringToPatternElement` | type | `packages/foundation/capability/nlp/src/Core/PatternParsers.ts:217` | Runtime type for {@link BracketStringToPatternElement}. |
 | `@beep/nlp/Core` | `BracketStringToPOSPatternElement` | const | `packages/foundation/capability/nlp/src/Core/PatternParsers.ts:103` | Decode a POS bracket string into a pattern element. |
-| `@beep/nlp/Core` | `charPosition` | const | `packages/foundation/capability/nlp/src/Core/Token.ts:120` | Constructor for {@link CharPosition}. |
-| `@beep/nlp/Core` | `CharPosition` | const | `packages/foundation/capability/nlp/src/Core/Token.ts:137` | Schema for {@link CharPosition}. |
-| `@beep/nlp/Core` | `CharPosition` | type | `packages/foundation/capability/nlp/src/Core/Token.ts:90` | Branded number type for character positions. |
+| `@beep/nlp/Core` | `charPosition` | const | `packages/foundation/capability/nlp/src/Core/Token.ts:126` | Constructor for {@link CharPosition}. |
+| `@beep/nlp/Core` | `CharPosition` | const | `packages/foundation/capability/nlp/src/Core/Token.ts:143` | Schema for {@link CharPosition}. |
+| `@beep/nlp/Core` | `CharPosition` | type | `packages/foundation/capability/nlp/src/Core/Token.ts:96` | Branded number type for character positions. |
 | `@beep/nlp/Core` | `combine` | const | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:576` | Combine two patterns into a new one. |
 | `@beep/nlp/Core` | `composePatches` | const | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:631` | Compose multiple patches from left to right. |
-| `@beep/nlp/Core` | `Document` | class | `packages/foundation/capability/nlp/src/Core/Document.ts:167` | Immutable NLP document model. |
+| `@beep/nlp/Core` | `Document` | class | `packages/foundation/capability/nlp/src/Core/Document.ts:175` | Immutable NLP document model. |
 | `@beep/nlp/Core` | `DocumentId` | const | `packages/foundation/capability/nlp/src/Core/Document.ts:43` | Branded identifier for NLP documents. |
 | `@beep/nlp/Core` | `DocumentId` | type | `packages/foundation/capability/nlp/src/Core/Document.ts:63` | Runtime type for {@link DocumentId}. |
 | `@beep/nlp/Core` | `documentIndex` | const | `packages/foundation/capability/nlp/src/Core/Document.ts:93` | Constructor for {@link DocumentIndex}. |
@@ -7463,9 +7578,9 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/nlp/Core` | `entity` | function | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:116` | Create an entity pattern element. |
 | `@beep/nlp/Core` | `entity` | function | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:117` |  |
 | `@beep/nlp/Core` | `entity` | function | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:118` |  |
-| `@beep/nlp/Core` | `EntityPatternElement` | class | `packages/foundation/capability/nlp/src/Core/Pattern.ts:290` | Pattern element matching one or more entity types. |
-| `@beep/nlp/Core` | `EntityPatternOption` | const | `packages/foundation/capability/nlp/src/Core/Pattern.ts:194` | Entity alternatives for a single pattern position. |
-| `@beep/nlp/Core` | `EntityPatternOption` | type | `packages/foundation/capability/nlp/src/Core/Pattern.ts:215` | Runtime type for {@link EntityPatternOption}. |
+| `@beep/nlp/Core` | `EntityPatternElement` | class | `packages/foundation/capability/nlp/src/Core/Pattern.ts:302` | Pattern element matching one or more entity types. |
+| `@beep/nlp/Core` | `EntityPatternOption` | const | `packages/foundation/capability/nlp/src/Core/Pattern.ts:206` | Entity alternatives for a single pattern position. |
+| `@beep/nlp/Core` | `EntityPatternOption` | type | `packages/foundation/capability/nlp/src/Core/Pattern.ts:227` | Runtime type for {@link EntityPatternOption}. |
 | `@beep/nlp/Core` | `extractBracketContent` | const | `packages/foundation/capability/nlp/src/Core/PatternOperations.ts:89` | Create a bracket-string content slice if the input is bracketed. |
 | `@beep/nlp/Core` | `extractElementValues` | const | `packages/foundation/capability/nlp/src/Core/PatternOperations.ts:74` | Extract element values as a readonly array. |
 | `@beep/nlp/Core` | `filterElements` | const | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:513` | Filter pattern elements. |
@@ -7473,25 +7588,25 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/nlp/Core` | `getMark` | const | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:377` | Get a pattern's mark if present. |
 | `@beep/nlp/Core` | `hasMark` | const | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:362` | Test whether a pattern has a mark. |
 | `@beep/nlp/Core` | `head` | const | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:462` | Get the first pattern element. |
-| `@beep/nlp/Core` | `isCharPosition` | const | `packages/foundation/capability/nlp/src/Core/Token.ts:105` | Predicate for {@link CharPosition}. |
+| `@beep/nlp/Core` | `isCharPosition` | const | `packages/foundation/capability/nlp/src/Core/Token.ts:111` | Predicate for {@link CharPosition}. |
 | `@beep/nlp/Core` | `isEmpty` | const | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:447` | Test whether a pattern is empty. |
 | `@beep/nlp/Core` | `isEntityElement` | const | `packages/foundation/capability/nlp/src/Core/PatternOperations.ts:42` | Check whether an element is an entity element. |
 | `@beep/nlp/Core` | `isLiteralElement` | const | `packages/foundation/capability/nlp/src/Core/PatternOperations.ts:58` | Check whether an element is a literal element. |
 | `@beep/nlp/Core` | `isPOSElement` | const | `packages/foundation/capability/nlp/src/Core/PatternOperations.ts:26` | Check whether an element is a POS element. |
-| `@beep/nlp/Core` | `isTokenIndex` | const | `packages/foundation/capability/nlp/src/Core/Token.ts:45` | Predicate for {@link TokenIndex}. |
+| `@beep/nlp/Core` | `isTokenIndex` | const | `packages/foundation/capability/nlp/src/Core/Token.ts:46` | Predicate for {@link TokenIndex}. |
 | `@beep/nlp/Core` | `joinBracketValues` | const | `packages/foundation/capability/nlp/src/Core/PatternOperations.ts:120` | Join values into bracket-string form. |
 | `@beep/nlp/Core` | `last` | const | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:477` | Get the last pattern element. |
 | `@beep/nlp/Core` | `length` | const | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:393` | Count pattern elements. |
 | `@beep/nlp/Core` | `literal` | function | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:141` | Create a literal pattern element. |
 | `@beep/nlp/Core` | `literal` | function | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:142` |  |
 | `@beep/nlp/Core` | `literal` | function | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:143` |  |
-| `@beep/nlp/Core` | `LiteralPatternElement` | class | `packages/foundation/capability/nlp/src/Core/Pattern.ts:313` | Pattern element matching one or more literal strings. |
-| `@beep/nlp/Core` | `LiteralPatternOption` | const | `packages/foundation/capability/nlp/src/Core/Pattern.ts:230` | Literal alternatives for a single pattern position. |
-| `@beep/nlp/Core` | `LiteralPatternOption` | type | `packages/foundation/capability/nlp/src/Core/Pattern.ts:252` | Runtime type for {@link LiteralPatternOption}. |
+| `@beep/nlp/Core` | `LiteralPatternElement` | class | `packages/foundation/capability/nlp/src/Core/Pattern.ts:325` | Pattern element matching one or more literal strings. |
+| `@beep/nlp/Core` | `LiteralPatternOption` | const | `packages/foundation/capability/nlp/src/Core/Pattern.ts:242` | Literal alternatives for a single pattern position. |
+| `@beep/nlp/Core` | `LiteralPatternOption` | type | `packages/foundation/capability/nlp/src/Core/Pattern.ts:264` | Runtime type for {@link LiteralPatternOption}. |
 | `@beep/nlp/Core` | `make` | const | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:241` | Construct a pattern from an id and ordered elements. |
 | `@beep/nlp/Core` | `mapElements` | const | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:492` | Map pattern elements. |
-| `@beep/nlp/Core` | `MarkRange` | const | `packages/foundation/capability/nlp/src/Core/Pattern.ts:405` | Inclusive mark range over pattern element positions. |
-| `@beep/nlp/Core` | `MarkRange` | type | `packages/foundation/capability/nlp/src/Core/Pattern.ts:424` | Runtime type for {@link MarkRange}. |
+| `@beep/nlp/Core` | `MarkRange` | const | `packages/foundation/capability/nlp/src/Core/Pattern.ts:417` | Inclusive mark range over pattern element positions. |
+| `@beep/nlp/Core` | `MarkRange` | type | `packages/foundation/capability/nlp/src/Core/Pattern.ts:436` | Runtime type for {@link MarkRange}. |
 | `@beep/nlp/Core` | `optionalEntity` | function | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:188` | Create an optional entity pattern element. |
 | `@beep/nlp/Core` | `optionalEntity` | function | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:189` |  |
 | `@beep/nlp/Core` | `optionalEntity` | function | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:190` |  |
@@ -7503,44 +7618,44 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/nlp/Core` | `optionalPos` | function | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:165` |  |
 | `@beep/nlp/Core` | `patchReplaceAllLiterals` | const | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:675` | Replace all literal elements. |
 | `@beep/nlp/Core` | `patchReplaceLiteralAt` | const | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:647` | Replace a literal element at a given index. |
-| `@beep/nlp/Core` | `Pattern` | class | `packages/foundation/capability/nlp/src/Core/Pattern.ts:439` | Immutable NLP pattern. |
-| `@beep/nlp/Core` | `PatternElement` | const | `packages/foundation/capability/nlp/src/Core/Pattern.ts:336` | Union of supported pattern elements. |
-| `@beep/nlp/Core` | `PatternElement` | type | `packages/foundation/capability/nlp/src/Core/Pattern.ts:355` | Runtime type for {@link PatternElement}. |
+| `@beep/nlp/Core` | `Pattern` | class | `packages/foundation/capability/nlp/src/Core/Pattern.ts:451` | Immutable NLP pattern. |
+| `@beep/nlp/Core` | `PatternElement` | const | `packages/foundation/capability/nlp/src/Core/Pattern.ts:348` | Union of supported pattern elements. |
+| `@beep/nlp/Core` | `PatternElement` | type | `packages/foundation/capability/nlp/src/Core/Pattern.ts:367` | Runtime type for {@link PatternElement}. |
 | `@beep/nlp/Core` | `PatternFromString` | const | `packages/foundation/capability/nlp/src/Core/PatternParsers.ts:232` | Decode a string array into ordered pattern elements. |
-| `@beep/nlp/Core` | `PatternId` | const | `packages/foundation/capability/nlp/src/Core/Pattern.ts:370` | Branded pattern identifier. |
-| `@beep/nlp/Core` | `PatternId` | type | `packages/foundation/capability/nlp/src/Core/Pattern.ts:390` | Runtime type for {@link PatternId}. |
+| `@beep/nlp/Core` | `PatternId` | const | `packages/foundation/capability/nlp/src/Core/Pattern.ts:382` | Branded pattern identifier. |
+| `@beep/nlp/Core` | `PatternId` | type | `packages/foundation/capability/nlp/src/Core/Pattern.ts:402` | Runtime type for {@link PatternId}. |
 | `@beep/nlp/Core` | `PatternPatch` | type | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:598` | Functional patch over a pattern. |
 | `@beep/nlp/Core` | `pos` | function | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:91` | Create a POS pattern element. |
 | `@beep/nlp/Core` | `pos` | function | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:92` |  |
 | `@beep/nlp/Core` | `pos` | function | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:93` |  |
-| `@beep/nlp/Core` | `POSPatternElement` | class | `packages/foundation/capability/nlp/src/Core/Pattern.ts:267` | Pattern element matching one or more POS tags. |
-| `@beep/nlp/Core` | `POSPatternOption` | const | `packages/foundation/capability/nlp/src/Core/Pattern.ts:158` | POS alternatives for a single pattern position. |
-| `@beep/nlp/Core` | `POSPatternOption` | type | `packages/foundation/capability/nlp/src/Core/Pattern.ts:179` | Runtime type for {@link POSPatternOption}. |
+| `@beep/nlp/Core` | `POSPatternElement` | class | `packages/foundation/capability/nlp/src/Core/Pattern.ts:279` | Pattern element matching one or more POS tags. |
+| `@beep/nlp/Core` | `POSPatternOption` | const | `packages/foundation/capability/nlp/src/Core/Pattern.ts:170` | POS alternatives for a single pattern position. |
+| `@beep/nlp/Core` | `POSPatternOption` | type | `packages/foundation/capability/nlp/src/Core/Pattern.ts:191` | Runtime type for {@link POSPatternOption}. |
 | `@beep/nlp/Core` | `prependElements` | const | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:323` | Prepend elements to a pattern. |
-| `@beep/nlp/Core` | `Sentence` | class | `packages/foundation/capability/nlp/src/Core/Sentence.ts:82` | Immutable NLP sentence model. |
+| `@beep/nlp/Core` | `Sentence` | class | `packages/foundation/capability/nlp/src/Core/Sentence.ts:87` | Immutable NLP sentence model. |
 | `@beep/nlp/Core` | `sentenceIndex` | const | `packages/foundation/capability/nlp/src/Core/Sentence.ts:50` | Constructor for {@link SentenceIndex}. |
 | `@beep/nlp/Core` | `SentenceIndex` | const | `packages/foundation/capability/nlp/src/Core/Sentence.ts:67` | Schema for {@link SentenceIndex}. |
 | `@beep/nlp/Core` | `SentenceIndex` | type | `packages/foundation/capability/nlp/src/Core/Sentence.ts:35` | Branded index for sentences in ordered collections. |
 | `@beep/nlp/Core` | `sentences` | const | `packages/foundation/capability/nlp/src/Core/Tokenization.ts:95` | Split text into sentences using the configured service. |
 | `@beep/nlp/Core` | `splitBracketValues` | const | `packages/foundation/capability/nlp/src/Core/PatternOperations.ts:105` | Split bracket content into trimmed segments. |
 | `@beep/nlp/Core` | `take` | const | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:534` | Take the first `count` elements. |
-| `@beep/nlp/Core` | `Token` | class | `packages/foundation/capability/nlp/src/Core/Token.ts:152` | Immutable NLP token model with lexical and positional metadata. |
+| `@beep/nlp/Core` | `Token` | class | `packages/foundation/capability/nlp/src/Core/Token.ts:163` | Immutable NLP token model with lexical and positional metadata. |
 | `@beep/nlp/Core` | `tokenCount` | const | `packages/foundation/capability/nlp/src/Core/Tokenization.ts:134` | Count tokens using the configured service. |
-| `@beep/nlp/Core` | `tokenIndex` | const | `packages/foundation/capability/nlp/src/Core/Token.ts:60` | Constructor for {@link TokenIndex}. |
-| `@beep/nlp/Core` | `TokenIndex` | const | `packages/foundation/capability/nlp/src/Core/Token.ts:75` | Schema for {@link TokenIndex}. |
-| `@beep/nlp/Core` | `TokenIndex` | type | `packages/foundation/capability/nlp/src/Core/Token.ts:30` | Branded number type for token indices. |
+| `@beep/nlp/Core` | `tokenIndex` | const | `packages/foundation/capability/nlp/src/Core/Token.ts:61` | Constructor for {@link TokenIndex}. |
+| `@beep/nlp/Core` | `TokenIndex` | const | `packages/foundation/capability/nlp/src/Core/Token.ts:76` | Schema for {@link TokenIndex}. |
+| `@beep/nlp/Core` | `TokenIndex` | type | `packages/foundation/capability/nlp/src/Core/Token.ts:31` | Branded number type for token indices. |
 | `@beep/nlp/Core` | `Tokenization` | class | `packages/foundation/capability/nlp/src/Core/Tokenization.ts:62` | Tokenization service. |
 | `@beep/nlp/Core` | `TokenizationError` | class | `packages/foundation/capability/nlp/src/Core/Tokenization.ts:38` | Tokenization error. |
 | `@beep/nlp/Core` | `tokenize` | const | `packages/foundation/capability/nlp/src/Core/Tokenization.ts:77` | Tokenize text into tokens using the configured service. |
 | `@beep/nlp/Core` | `tokenizeToDocument` | const | `packages/foundation/capability/nlp/src/Core/Tokenization.ts:113` | Build a document using the configured service. |
-| `@beep/nlp/Core` | `WinkEntityType` | const | `packages/foundation/capability/nlp/src/Core/Pattern.ts:112` | Supported wink entity types. |
-| `@beep/nlp/Core` | `WinkEntityType` | type | `packages/foundation/capability/nlp/src/Core/Pattern.ts:132` | Runtime type for {@link WinkEntityType}. |
-| `@beep/nlp/Core` | `WinkPOSTag` | const | `packages/foundation/capability/nlp/src/Core/Pattern.ts:77` | Supported wink part-of-speech tags. |
-| `@beep/nlp/Core` | `WinkPOSTag` | type | `packages/foundation/capability/nlp/src/Core/Pattern.ts:97` | Runtime type for {@link WinkPOSTag}. |
+| `@beep/nlp/Core` | `WinkEntityType` | const | `packages/foundation/capability/nlp/src/Core/Pattern.ts:124` | Supported wink entity types. |
+| `@beep/nlp/Core` | `WinkEntityType` | type | `packages/foundation/capability/nlp/src/Core/Pattern.ts:144` | Runtime type for {@link WinkEntityType}. |
+| `@beep/nlp/Core` | `WinkPOSTag` | const | `packages/foundation/capability/nlp/src/Core/Pattern.ts:89` | Supported wink part-of-speech tags. |
+| `@beep/nlp/Core` | `WinkPOSTag` | type | `packages/foundation/capability/nlp/src/Core/Pattern.ts:109` | Runtime type for {@link WinkPOSTag}. |
 | `@beep/nlp/Core` | `withId` | const | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:344` | Replace the pattern id. |
 | `@beep/nlp/Core` | `withMark` | const | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:263` | Add a mark range to a pattern. |
 | `@beep/nlp/Core` | `withoutMark` | const | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:281` | Remove a mark range from a pattern. |
-| `@beep/nlp/Core/Document` | `Document` | class | `packages/foundation/capability/nlp/src/Core/Document.ts:167` | Immutable NLP document model. |
+| `@beep/nlp/Core/Document` | `Document` | class | `packages/foundation/capability/nlp/src/Core/Document.ts:175` | Immutable NLP document model. |
 | `@beep/nlp/Core/Document` | `DocumentId` | const | `packages/foundation/capability/nlp/src/Core/Document.ts:43` | Branded identifier for NLP documents. |
 | `@beep/nlp/Core/Document` | `DocumentId` | type | `packages/foundation/capability/nlp/src/Core/Document.ts:63` | Runtime type for {@link DocumentId}. |
 | `@beep/nlp/Core/Document` | `documentIndex` | const | `packages/foundation/capability/nlp/src/Core/Document.ts:93` | Constructor for {@link DocumentIndex}. |
@@ -7553,12 +7668,12 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/nlp/Core/index` | `BracketStringToPatternElement` | const | `packages/foundation/capability/nlp/src/Core/PatternParsers.ts:194` | Decode any supported bracket string element. |
 | `@beep/nlp/Core/index` | `BracketStringToPatternElement` | type | `packages/foundation/capability/nlp/src/Core/PatternParsers.ts:217` | Runtime type for {@link BracketStringToPatternElement}. |
 | `@beep/nlp/Core/index` | `BracketStringToPOSPatternElement` | const | `packages/foundation/capability/nlp/src/Core/PatternParsers.ts:103` | Decode a POS bracket string into a pattern element. |
-| `@beep/nlp/Core/index` | `charPosition` | const | `packages/foundation/capability/nlp/src/Core/Token.ts:120` | Constructor for {@link CharPosition}. |
-| `@beep/nlp/Core/index` | `CharPosition` | const | `packages/foundation/capability/nlp/src/Core/Token.ts:137` | Schema for {@link CharPosition}. |
-| `@beep/nlp/Core/index` | `CharPosition` | type | `packages/foundation/capability/nlp/src/Core/Token.ts:90` | Branded number type for character positions. |
+| `@beep/nlp/Core/index` | `charPosition` | const | `packages/foundation/capability/nlp/src/Core/Token.ts:126` | Constructor for {@link CharPosition}. |
+| `@beep/nlp/Core/index` | `CharPosition` | const | `packages/foundation/capability/nlp/src/Core/Token.ts:143` | Schema for {@link CharPosition}. |
+| `@beep/nlp/Core/index` | `CharPosition` | type | `packages/foundation/capability/nlp/src/Core/Token.ts:96` | Branded number type for character positions. |
 | `@beep/nlp/Core/index` | `combine` | const | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:576` | Combine two patterns into a new one. |
 | `@beep/nlp/Core/index` | `composePatches` | const | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:631` | Compose multiple patches from left to right. |
-| `@beep/nlp/Core/index` | `Document` | class | `packages/foundation/capability/nlp/src/Core/Document.ts:167` | Immutable NLP document model. |
+| `@beep/nlp/Core/index` | `Document` | class | `packages/foundation/capability/nlp/src/Core/Document.ts:175` | Immutable NLP document model. |
 | `@beep/nlp/Core/index` | `DocumentId` | const | `packages/foundation/capability/nlp/src/Core/Document.ts:43` | Branded identifier for NLP documents. |
 | `@beep/nlp/Core/index` | `DocumentId` | type | `packages/foundation/capability/nlp/src/Core/Document.ts:63` | Runtime type for {@link DocumentId}. |
 | `@beep/nlp/Core/index` | `documentIndex` | const | `packages/foundation/capability/nlp/src/Core/Document.ts:93` | Constructor for {@link DocumentIndex}. |
@@ -7570,9 +7685,9 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/nlp/Core/index` | `entity` | function | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:116` | Create an entity pattern element. |
 | `@beep/nlp/Core/index` | `entity` | function | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:117` |  |
 | `@beep/nlp/Core/index` | `entity` | function | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:118` |  |
-| `@beep/nlp/Core/index` | `EntityPatternElement` | class | `packages/foundation/capability/nlp/src/Core/Pattern.ts:290` | Pattern element matching one or more entity types. |
-| `@beep/nlp/Core/index` | `EntityPatternOption` | const | `packages/foundation/capability/nlp/src/Core/Pattern.ts:194` | Entity alternatives for a single pattern position. |
-| `@beep/nlp/Core/index` | `EntityPatternOption` | type | `packages/foundation/capability/nlp/src/Core/Pattern.ts:215` | Runtime type for {@link EntityPatternOption}. |
+| `@beep/nlp/Core/index` | `EntityPatternElement` | class | `packages/foundation/capability/nlp/src/Core/Pattern.ts:302` | Pattern element matching one or more entity types. |
+| `@beep/nlp/Core/index` | `EntityPatternOption` | const | `packages/foundation/capability/nlp/src/Core/Pattern.ts:206` | Entity alternatives for a single pattern position. |
+| `@beep/nlp/Core/index` | `EntityPatternOption` | type | `packages/foundation/capability/nlp/src/Core/Pattern.ts:227` | Runtime type for {@link EntityPatternOption}. |
 | `@beep/nlp/Core/index` | `extractBracketContent` | const | `packages/foundation/capability/nlp/src/Core/PatternOperations.ts:89` | Create a bracket-string content slice if the input is bracketed. |
 | `@beep/nlp/Core/index` | `extractElementValues` | const | `packages/foundation/capability/nlp/src/Core/PatternOperations.ts:74` | Extract element values as a readonly array. |
 | `@beep/nlp/Core/index` | `filterElements` | const | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:513` | Filter pattern elements. |
@@ -7580,25 +7695,25 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/nlp/Core/index` | `getMark` | const | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:377` | Get a pattern's mark if present. |
 | `@beep/nlp/Core/index` | `hasMark` | const | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:362` | Test whether a pattern has a mark. |
 | `@beep/nlp/Core/index` | `head` | const | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:462` | Get the first pattern element. |
-| `@beep/nlp/Core/index` | `isCharPosition` | const | `packages/foundation/capability/nlp/src/Core/Token.ts:105` | Predicate for {@link CharPosition}. |
+| `@beep/nlp/Core/index` | `isCharPosition` | const | `packages/foundation/capability/nlp/src/Core/Token.ts:111` | Predicate for {@link CharPosition}. |
 | `@beep/nlp/Core/index` | `isEmpty` | const | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:447` | Test whether a pattern is empty. |
 | `@beep/nlp/Core/index` | `isEntityElement` | const | `packages/foundation/capability/nlp/src/Core/PatternOperations.ts:42` | Check whether an element is an entity element. |
 | `@beep/nlp/Core/index` | `isLiteralElement` | const | `packages/foundation/capability/nlp/src/Core/PatternOperations.ts:58` | Check whether an element is a literal element. |
 | `@beep/nlp/Core/index` | `isPOSElement` | const | `packages/foundation/capability/nlp/src/Core/PatternOperations.ts:26` | Check whether an element is a POS element. |
-| `@beep/nlp/Core/index` | `isTokenIndex` | const | `packages/foundation/capability/nlp/src/Core/Token.ts:45` | Predicate for {@link TokenIndex}. |
+| `@beep/nlp/Core/index` | `isTokenIndex` | const | `packages/foundation/capability/nlp/src/Core/Token.ts:46` | Predicate for {@link TokenIndex}. |
 | `@beep/nlp/Core/index` | `joinBracketValues` | const | `packages/foundation/capability/nlp/src/Core/PatternOperations.ts:120` | Join values into bracket-string form. |
 | `@beep/nlp/Core/index` | `last` | const | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:477` | Get the last pattern element. |
 | `@beep/nlp/Core/index` | `length` | const | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:393` | Count pattern elements. |
 | `@beep/nlp/Core/index` | `literal` | function | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:141` | Create a literal pattern element. |
 | `@beep/nlp/Core/index` | `literal` | function | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:142` |  |
 | `@beep/nlp/Core/index` | `literal` | function | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:143` |  |
-| `@beep/nlp/Core/index` | `LiteralPatternElement` | class | `packages/foundation/capability/nlp/src/Core/Pattern.ts:313` | Pattern element matching one or more literal strings. |
-| `@beep/nlp/Core/index` | `LiteralPatternOption` | const | `packages/foundation/capability/nlp/src/Core/Pattern.ts:230` | Literal alternatives for a single pattern position. |
-| `@beep/nlp/Core/index` | `LiteralPatternOption` | type | `packages/foundation/capability/nlp/src/Core/Pattern.ts:252` | Runtime type for {@link LiteralPatternOption}. |
+| `@beep/nlp/Core/index` | `LiteralPatternElement` | class | `packages/foundation/capability/nlp/src/Core/Pattern.ts:325` | Pattern element matching one or more literal strings. |
+| `@beep/nlp/Core/index` | `LiteralPatternOption` | const | `packages/foundation/capability/nlp/src/Core/Pattern.ts:242` | Literal alternatives for a single pattern position. |
+| `@beep/nlp/Core/index` | `LiteralPatternOption` | type | `packages/foundation/capability/nlp/src/Core/Pattern.ts:264` | Runtime type for {@link LiteralPatternOption}. |
 | `@beep/nlp/Core/index` | `make` | const | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:241` | Construct a pattern from an id and ordered elements. |
 | `@beep/nlp/Core/index` | `mapElements` | const | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:492` | Map pattern elements. |
-| `@beep/nlp/Core/index` | `MarkRange` | const | `packages/foundation/capability/nlp/src/Core/Pattern.ts:405` | Inclusive mark range over pattern element positions. |
-| `@beep/nlp/Core/index` | `MarkRange` | type | `packages/foundation/capability/nlp/src/Core/Pattern.ts:424` | Runtime type for {@link MarkRange}. |
+| `@beep/nlp/Core/index` | `MarkRange` | const | `packages/foundation/capability/nlp/src/Core/Pattern.ts:417` | Inclusive mark range over pattern element positions. |
+| `@beep/nlp/Core/index` | `MarkRange` | type | `packages/foundation/capability/nlp/src/Core/Pattern.ts:436` | Runtime type for {@link MarkRange}. |
 | `@beep/nlp/Core/index` | `optionalEntity` | function | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:188` | Create an optional entity pattern element. |
 | `@beep/nlp/Core/index` | `optionalEntity` | function | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:189` |  |
 | `@beep/nlp/Core/index` | `optionalEntity` | function | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:190` |  |
@@ -7610,63 +7725,63 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/nlp/Core/index` | `optionalPos` | function | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:165` |  |
 | `@beep/nlp/Core/index` | `patchReplaceAllLiterals` | const | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:675` | Replace all literal elements. |
 | `@beep/nlp/Core/index` | `patchReplaceLiteralAt` | const | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:647` | Replace a literal element at a given index. |
-| `@beep/nlp/Core/index` | `Pattern` | class | `packages/foundation/capability/nlp/src/Core/Pattern.ts:439` | Immutable NLP pattern. |
-| `@beep/nlp/Core/index` | `PatternElement` | const | `packages/foundation/capability/nlp/src/Core/Pattern.ts:336` | Union of supported pattern elements. |
-| `@beep/nlp/Core/index` | `PatternElement` | type | `packages/foundation/capability/nlp/src/Core/Pattern.ts:355` | Runtime type for {@link PatternElement}. |
+| `@beep/nlp/Core/index` | `Pattern` | class | `packages/foundation/capability/nlp/src/Core/Pattern.ts:451` | Immutable NLP pattern. |
+| `@beep/nlp/Core/index` | `PatternElement` | const | `packages/foundation/capability/nlp/src/Core/Pattern.ts:348` | Union of supported pattern elements. |
+| `@beep/nlp/Core/index` | `PatternElement` | type | `packages/foundation/capability/nlp/src/Core/Pattern.ts:367` | Runtime type for {@link PatternElement}. |
 | `@beep/nlp/Core/index` | `PatternFromString` | const | `packages/foundation/capability/nlp/src/Core/PatternParsers.ts:232` | Decode a string array into ordered pattern elements. |
-| `@beep/nlp/Core/index` | `PatternId` | const | `packages/foundation/capability/nlp/src/Core/Pattern.ts:370` | Branded pattern identifier. |
-| `@beep/nlp/Core/index` | `PatternId` | type | `packages/foundation/capability/nlp/src/Core/Pattern.ts:390` | Runtime type for {@link PatternId}. |
+| `@beep/nlp/Core/index` | `PatternId` | const | `packages/foundation/capability/nlp/src/Core/Pattern.ts:382` | Branded pattern identifier. |
+| `@beep/nlp/Core/index` | `PatternId` | type | `packages/foundation/capability/nlp/src/Core/Pattern.ts:402` | Runtime type for {@link PatternId}. |
 | `@beep/nlp/Core/index` | `PatternPatch` | type | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:598` | Functional patch over a pattern. |
 | `@beep/nlp/Core/index` | `pos` | function | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:91` | Create a POS pattern element. |
 | `@beep/nlp/Core/index` | `pos` | function | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:92` |  |
 | `@beep/nlp/Core/index` | `pos` | function | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:93` |  |
-| `@beep/nlp/Core/index` | `POSPatternElement` | class | `packages/foundation/capability/nlp/src/Core/Pattern.ts:267` | Pattern element matching one or more POS tags. |
-| `@beep/nlp/Core/index` | `POSPatternOption` | const | `packages/foundation/capability/nlp/src/Core/Pattern.ts:158` | POS alternatives for a single pattern position. |
-| `@beep/nlp/Core/index` | `POSPatternOption` | type | `packages/foundation/capability/nlp/src/Core/Pattern.ts:179` | Runtime type for {@link POSPatternOption}. |
+| `@beep/nlp/Core/index` | `POSPatternElement` | class | `packages/foundation/capability/nlp/src/Core/Pattern.ts:279` | Pattern element matching one or more POS tags. |
+| `@beep/nlp/Core/index` | `POSPatternOption` | const | `packages/foundation/capability/nlp/src/Core/Pattern.ts:170` | POS alternatives for a single pattern position. |
+| `@beep/nlp/Core/index` | `POSPatternOption` | type | `packages/foundation/capability/nlp/src/Core/Pattern.ts:191` | Runtime type for {@link POSPatternOption}. |
 | `@beep/nlp/Core/index` | `prependElements` | const | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:323` | Prepend elements to a pattern. |
-| `@beep/nlp/Core/index` | `Sentence` | class | `packages/foundation/capability/nlp/src/Core/Sentence.ts:82` | Immutable NLP sentence model. |
+| `@beep/nlp/Core/index` | `Sentence` | class | `packages/foundation/capability/nlp/src/Core/Sentence.ts:87` | Immutable NLP sentence model. |
 | `@beep/nlp/Core/index` | `sentenceIndex` | const | `packages/foundation/capability/nlp/src/Core/Sentence.ts:50` | Constructor for {@link SentenceIndex}. |
 | `@beep/nlp/Core/index` | `SentenceIndex` | const | `packages/foundation/capability/nlp/src/Core/Sentence.ts:67` | Schema for {@link SentenceIndex}. |
 | `@beep/nlp/Core/index` | `SentenceIndex` | type | `packages/foundation/capability/nlp/src/Core/Sentence.ts:35` | Branded index for sentences in ordered collections. |
 | `@beep/nlp/Core/index` | `sentences` | const | `packages/foundation/capability/nlp/src/Core/Tokenization.ts:95` | Split text into sentences using the configured service. |
 | `@beep/nlp/Core/index` | `splitBracketValues` | const | `packages/foundation/capability/nlp/src/Core/PatternOperations.ts:105` | Split bracket content into trimmed segments. |
 | `@beep/nlp/Core/index` | `take` | const | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:534` | Take the first `count` elements. |
-| `@beep/nlp/Core/index` | `Token` | class | `packages/foundation/capability/nlp/src/Core/Token.ts:152` | Immutable NLP token model with lexical and positional metadata. |
+| `@beep/nlp/Core/index` | `Token` | class | `packages/foundation/capability/nlp/src/Core/Token.ts:163` | Immutable NLP token model with lexical and positional metadata. |
 | `@beep/nlp/Core/index` | `tokenCount` | const | `packages/foundation/capability/nlp/src/Core/Tokenization.ts:134` | Count tokens using the configured service. |
-| `@beep/nlp/Core/index` | `tokenIndex` | const | `packages/foundation/capability/nlp/src/Core/Token.ts:60` | Constructor for {@link TokenIndex}. |
-| `@beep/nlp/Core/index` | `TokenIndex` | const | `packages/foundation/capability/nlp/src/Core/Token.ts:75` | Schema for {@link TokenIndex}. |
-| `@beep/nlp/Core/index` | `TokenIndex` | type | `packages/foundation/capability/nlp/src/Core/Token.ts:30` | Branded number type for token indices. |
+| `@beep/nlp/Core/index` | `tokenIndex` | const | `packages/foundation/capability/nlp/src/Core/Token.ts:61` | Constructor for {@link TokenIndex}. |
+| `@beep/nlp/Core/index` | `TokenIndex` | const | `packages/foundation/capability/nlp/src/Core/Token.ts:76` | Schema for {@link TokenIndex}. |
+| `@beep/nlp/Core/index` | `TokenIndex` | type | `packages/foundation/capability/nlp/src/Core/Token.ts:31` | Branded number type for token indices. |
 | `@beep/nlp/Core/index` | `Tokenization` | class | `packages/foundation/capability/nlp/src/Core/Tokenization.ts:62` | Tokenization service. |
 | `@beep/nlp/Core/index` | `TokenizationError` | class | `packages/foundation/capability/nlp/src/Core/Tokenization.ts:38` | Tokenization error. |
 | `@beep/nlp/Core/index` | `tokenize` | const | `packages/foundation/capability/nlp/src/Core/Tokenization.ts:77` | Tokenize text into tokens using the configured service. |
 | `@beep/nlp/Core/index` | `tokenizeToDocument` | const | `packages/foundation/capability/nlp/src/Core/Tokenization.ts:113` | Build a document using the configured service. |
-| `@beep/nlp/Core/index` | `WinkEntityType` | const | `packages/foundation/capability/nlp/src/Core/Pattern.ts:112` | Supported wink entity types. |
-| `@beep/nlp/Core/index` | `WinkEntityType` | type | `packages/foundation/capability/nlp/src/Core/Pattern.ts:132` | Runtime type for {@link WinkEntityType}. |
-| `@beep/nlp/Core/index` | `WinkPOSTag` | const | `packages/foundation/capability/nlp/src/Core/Pattern.ts:77` | Supported wink part-of-speech tags. |
-| `@beep/nlp/Core/index` | `WinkPOSTag` | type | `packages/foundation/capability/nlp/src/Core/Pattern.ts:97` | Runtime type for {@link WinkPOSTag}. |
+| `@beep/nlp/Core/index` | `WinkEntityType` | const | `packages/foundation/capability/nlp/src/Core/Pattern.ts:124` | Supported wink entity types. |
+| `@beep/nlp/Core/index` | `WinkEntityType` | type | `packages/foundation/capability/nlp/src/Core/Pattern.ts:144` | Runtime type for {@link WinkEntityType}. |
+| `@beep/nlp/Core/index` | `WinkPOSTag` | const | `packages/foundation/capability/nlp/src/Core/Pattern.ts:89` | Supported wink part-of-speech tags. |
+| `@beep/nlp/Core/index` | `WinkPOSTag` | type | `packages/foundation/capability/nlp/src/Core/Pattern.ts:109` | Runtime type for {@link WinkPOSTag}. |
 | `@beep/nlp/Core/index` | `withId` | const | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:344` | Replace the pattern id. |
 | `@beep/nlp/Core/index` | `withMark` | const | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:263` | Add a mark range to a pattern. |
 | `@beep/nlp/Core/index` | `withoutMark` | const | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:281` | Remove a mark range from a pattern. |
-| `@beep/nlp/Core/Pattern` | `EntityPatternElement` | class | `packages/foundation/capability/nlp/src/Core/Pattern.ts:290` | Pattern element matching one or more entity types. |
-| `@beep/nlp/Core/Pattern` | `EntityPatternOption` | const | `packages/foundation/capability/nlp/src/Core/Pattern.ts:194` | Entity alternatives for a single pattern position. |
-| `@beep/nlp/Core/Pattern` | `EntityPatternOption` | type | `packages/foundation/capability/nlp/src/Core/Pattern.ts:215` | Runtime type for {@link EntityPatternOption}. |
-| `@beep/nlp/Core/Pattern` | `LiteralPatternElement` | class | `packages/foundation/capability/nlp/src/Core/Pattern.ts:313` | Pattern element matching one or more literal strings. |
-| `@beep/nlp/Core/Pattern` | `LiteralPatternOption` | const | `packages/foundation/capability/nlp/src/Core/Pattern.ts:230` | Literal alternatives for a single pattern position. |
-| `@beep/nlp/Core/Pattern` | `LiteralPatternOption` | type | `packages/foundation/capability/nlp/src/Core/Pattern.ts:252` | Runtime type for {@link LiteralPatternOption}. |
-| `@beep/nlp/Core/Pattern` | `MarkRange` | const | `packages/foundation/capability/nlp/src/Core/Pattern.ts:405` | Inclusive mark range over pattern element positions. |
-| `@beep/nlp/Core/Pattern` | `MarkRange` | type | `packages/foundation/capability/nlp/src/Core/Pattern.ts:424` | Runtime type for {@link MarkRange}. |
-| `@beep/nlp/Core/Pattern` | `Pattern` | class | `packages/foundation/capability/nlp/src/Core/Pattern.ts:439` | Immutable NLP pattern. |
-| `@beep/nlp/Core/Pattern` | `PatternElement` | const | `packages/foundation/capability/nlp/src/Core/Pattern.ts:336` | Union of supported pattern elements. |
-| `@beep/nlp/Core/Pattern` | `PatternElement` | type | `packages/foundation/capability/nlp/src/Core/Pattern.ts:355` | Runtime type for {@link PatternElement}. |
-| `@beep/nlp/Core/Pattern` | `PatternId` | const | `packages/foundation/capability/nlp/src/Core/Pattern.ts:370` | Branded pattern identifier. |
-| `@beep/nlp/Core/Pattern` | `PatternId` | type | `packages/foundation/capability/nlp/src/Core/Pattern.ts:390` | Runtime type for {@link PatternId}. |
-| `@beep/nlp/Core/Pattern` | `POSPatternElement` | class | `packages/foundation/capability/nlp/src/Core/Pattern.ts:267` | Pattern element matching one or more POS tags. |
-| `@beep/nlp/Core/Pattern` | `POSPatternOption` | const | `packages/foundation/capability/nlp/src/Core/Pattern.ts:158` | POS alternatives for a single pattern position. |
-| `@beep/nlp/Core/Pattern` | `POSPatternOption` | type | `packages/foundation/capability/nlp/src/Core/Pattern.ts:179` | Runtime type for {@link POSPatternOption}. |
-| `@beep/nlp/Core/Pattern` | `WinkEntityType` | const | `packages/foundation/capability/nlp/src/Core/Pattern.ts:112` | Supported wink entity types. |
-| `@beep/nlp/Core/Pattern` | `WinkEntityType` | type | `packages/foundation/capability/nlp/src/Core/Pattern.ts:132` | Runtime type for {@link WinkEntityType}. |
-| `@beep/nlp/Core/Pattern` | `WinkPOSTag` | const | `packages/foundation/capability/nlp/src/Core/Pattern.ts:77` | Supported wink part-of-speech tags. |
-| `@beep/nlp/Core/Pattern` | `WinkPOSTag` | type | `packages/foundation/capability/nlp/src/Core/Pattern.ts:97` | Runtime type for {@link WinkPOSTag}. |
+| `@beep/nlp/Core/Pattern` | `EntityPatternElement` | class | `packages/foundation/capability/nlp/src/Core/Pattern.ts:302` | Pattern element matching one or more entity types. |
+| `@beep/nlp/Core/Pattern` | `EntityPatternOption` | const | `packages/foundation/capability/nlp/src/Core/Pattern.ts:206` | Entity alternatives for a single pattern position. |
+| `@beep/nlp/Core/Pattern` | `EntityPatternOption` | type | `packages/foundation/capability/nlp/src/Core/Pattern.ts:227` | Runtime type for {@link EntityPatternOption}. |
+| `@beep/nlp/Core/Pattern` | `LiteralPatternElement` | class | `packages/foundation/capability/nlp/src/Core/Pattern.ts:325` | Pattern element matching one or more literal strings. |
+| `@beep/nlp/Core/Pattern` | `LiteralPatternOption` | const | `packages/foundation/capability/nlp/src/Core/Pattern.ts:242` | Literal alternatives for a single pattern position. |
+| `@beep/nlp/Core/Pattern` | `LiteralPatternOption` | type | `packages/foundation/capability/nlp/src/Core/Pattern.ts:264` | Runtime type for {@link LiteralPatternOption}. |
+| `@beep/nlp/Core/Pattern` | `MarkRange` | const | `packages/foundation/capability/nlp/src/Core/Pattern.ts:417` | Inclusive mark range over pattern element positions. |
+| `@beep/nlp/Core/Pattern` | `MarkRange` | type | `packages/foundation/capability/nlp/src/Core/Pattern.ts:436` | Runtime type for {@link MarkRange}. |
+| `@beep/nlp/Core/Pattern` | `Pattern` | class | `packages/foundation/capability/nlp/src/Core/Pattern.ts:451` | Immutable NLP pattern. |
+| `@beep/nlp/Core/Pattern` | `PatternElement` | const | `packages/foundation/capability/nlp/src/Core/Pattern.ts:348` | Union of supported pattern elements. |
+| `@beep/nlp/Core/Pattern` | `PatternElement` | type | `packages/foundation/capability/nlp/src/Core/Pattern.ts:367` | Runtime type for {@link PatternElement}. |
+| `@beep/nlp/Core/Pattern` | `PatternId` | const | `packages/foundation/capability/nlp/src/Core/Pattern.ts:382` | Branded pattern identifier. |
+| `@beep/nlp/Core/Pattern` | `PatternId` | type | `packages/foundation/capability/nlp/src/Core/Pattern.ts:402` | Runtime type for {@link PatternId}. |
+| `@beep/nlp/Core/Pattern` | `POSPatternElement` | class | `packages/foundation/capability/nlp/src/Core/Pattern.ts:279` | Pattern element matching one or more POS tags. |
+| `@beep/nlp/Core/Pattern` | `POSPatternOption` | const | `packages/foundation/capability/nlp/src/Core/Pattern.ts:170` | POS alternatives for a single pattern position. |
+| `@beep/nlp/Core/Pattern` | `POSPatternOption` | type | `packages/foundation/capability/nlp/src/Core/Pattern.ts:191` | Runtime type for {@link POSPatternOption}. |
+| `@beep/nlp/Core/Pattern` | `WinkEntityType` | const | `packages/foundation/capability/nlp/src/Core/Pattern.ts:124` | Supported wink entity types. |
+| `@beep/nlp/Core/Pattern` | `WinkEntityType` | type | `packages/foundation/capability/nlp/src/Core/Pattern.ts:144` | Runtime type for {@link WinkEntityType}. |
+| `@beep/nlp/Core/Pattern` | `WinkPOSTag` | const | `packages/foundation/capability/nlp/src/Core/Pattern.ts:89` | Supported wink part-of-speech tags. |
+| `@beep/nlp/Core/Pattern` | `WinkPOSTag` | type | `packages/foundation/capability/nlp/src/Core/Pattern.ts:109` | Runtime type for {@link WinkPOSTag}. |
 | `@beep/nlp/Core/PatternBuilders` | `addElements` | const | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:302` | Append elements to a pattern. |
 | `@beep/nlp/Core/PatternBuilders` | `applyPatch` | const | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:613` | Apply a patch to a pattern. |
 | `@beep/nlp/Core/PatternBuilders` | `combine` | const | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:576` | Combine two patterns into a new one. |
@@ -7723,25 +7838,280 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/nlp/Core/PatternParsers` | `BracketStringToPatternElement` | type | `packages/foundation/capability/nlp/src/Core/PatternParsers.ts:217` | Runtime type for {@link BracketStringToPatternElement}. |
 | `@beep/nlp/Core/PatternParsers` | `BracketStringToPOSPatternElement` | const | `packages/foundation/capability/nlp/src/Core/PatternParsers.ts:103` | Decode a POS bracket string into a pattern element. |
 | `@beep/nlp/Core/PatternParsers` | `PatternFromString` | const | `packages/foundation/capability/nlp/src/Core/PatternParsers.ts:232` | Decode a string array into ordered pattern elements. |
-| `@beep/nlp/Core/Sentence` | `Sentence` | class | `packages/foundation/capability/nlp/src/Core/Sentence.ts:82` | Immutable NLP sentence model. |
+| `@beep/nlp/Core/Sentence` | `Sentence` | class | `packages/foundation/capability/nlp/src/Core/Sentence.ts:87` | Immutable NLP sentence model. |
 | `@beep/nlp/Core/Sentence` | `sentenceIndex` | const | `packages/foundation/capability/nlp/src/Core/Sentence.ts:50` | Constructor for {@link SentenceIndex}. |
 | `@beep/nlp/Core/Sentence` | `SentenceIndex` | const | `packages/foundation/capability/nlp/src/Core/Sentence.ts:67` | Schema for {@link SentenceIndex}. |
 | `@beep/nlp/Core/Sentence` | `SentenceIndex` | type | `packages/foundation/capability/nlp/src/Core/Sentence.ts:35` | Branded index for sentences in ordered collections. |
-| `@beep/nlp/Core/Token` | `charPosition` | const | `packages/foundation/capability/nlp/src/Core/Token.ts:120` | Constructor for {@link CharPosition}. |
-| `@beep/nlp/Core/Token` | `CharPosition` | const | `packages/foundation/capability/nlp/src/Core/Token.ts:137` | Schema for {@link CharPosition}. |
-| `@beep/nlp/Core/Token` | `CharPosition` | type | `packages/foundation/capability/nlp/src/Core/Token.ts:90` | Branded number type for character positions. |
-| `@beep/nlp/Core/Token` | `isCharPosition` | const | `packages/foundation/capability/nlp/src/Core/Token.ts:105` | Predicate for {@link CharPosition}. |
-| `@beep/nlp/Core/Token` | `isTokenIndex` | const | `packages/foundation/capability/nlp/src/Core/Token.ts:45` | Predicate for {@link TokenIndex}. |
-| `@beep/nlp/Core/Token` | `Token` | class | `packages/foundation/capability/nlp/src/Core/Token.ts:152` | Immutable NLP token model with lexical and positional metadata. |
-| `@beep/nlp/Core/Token` | `tokenIndex` | const | `packages/foundation/capability/nlp/src/Core/Token.ts:60` | Constructor for {@link TokenIndex}. |
-| `@beep/nlp/Core/Token` | `TokenIndex` | const | `packages/foundation/capability/nlp/src/Core/Token.ts:75` | Schema for {@link TokenIndex}. |
-| `@beep/nlp/Core/Token` | `TokenIndex` | type | `packages/foundation/capability/nlp/src/Core/Token.ts:30` | Branded number type for token indices. |
+| `@beep/nlp/Core/Token` | `charPosition` | const | `packages/foundation/capability/nlp/src/Core/Token.ts:126` | Constructor for {@link CharPosition}. |
+| `@beep/nlp/Core/Token` | `CharPosition` | const | `packages/foundation/capability/nlp/src/Core/Token.ts:143` | Schema for {@link CharPosition}. |
+| `@beep/nlp/Core/Token` | `CharPosition` | type | `packages/foundation/capability/nlp/src/Core/Token.ts:96` | Branded number type for character positions. |
+| `@beep/nlp/Core/Token` | `isCharPosition` | const | `packages/foundation/capability/nlp/src/Core/Token.ts:111` | Predicate for {@link CharPosition}. |
+| `@beep/nlp/Core/Token` | `isTokenIndex` | const | `packages/foundation/capability/nlp/src/Core/Token.ts:46` | Predicate for {@link TokenIndex}. |
+| `@beep/nlp/Core/Token` | `Token` | class | `packages/foundation/capability/nlp/src/Core/Token.ts:163` | Immutable NLP token model with lexical and positional metadata. |
+| `@beep/nlp/Core/Token` | `tokenIndex` | const | `packages/foundation/capability/nlp/src/Core/Token.ts:61` | Constructor for {@link TokenIndex}. |
+| `@beep/nlp/Core/Token` | `TokenIndex` | const | `packages/foundation/capability/nlp/src/Core/Token.ts:76` | Schema for {@link TokenIndex}. |
+| `@beep/nlp/Core/Token` | `TokenIndex` | type | `packages/foundation/capability/nlp/src/Core/Token.ts:31` | Branded number type for token indices. |
 | `@beep/nlp/Core/Tokenization` | `sentences` | const | `packages/foundation/capability/nlp/src/Core/Tokenization.ts:95` | Split text into sentences using the configured service. |
 | `@beep/nlp/Core/Tokenization` | `tokenCount` | const | `packages/foundation/capability/nlp/src/Core/Tokenization.ts:134` | Count tokens using the configured service. |
 | `@beep/nlp/Core/Tokenization` | `Tokenization` | class | `packages/foundation/capability/nlp/src/Core/Tokenization.ts:62` | Tokenization service. |
 | `@beep/nlp/Core/Tokenization` | `TokenizationError` | class | `packages/foundation/capability/nlp/src/Core/Tokenization.ts:38` | Tokenization error. |
 | `@beep/nlp/Core/Tokenization` | `tokenize` | const | `packages/foundation/capability/nlp/src/Core/Tokenization.ts:77` | Tokenize text into tokens using the configured service. |
 | `@beep/nlp/Core/Tokenization` | `tokenizeToDocument` | const | `packages/foundation/capability/nlp/src/Core/Tokenization.ts:113` | Build a document using the configured service. |
+| `@beep/nlp/Graph` | `AnnotatedTextGraph` | SourceFile | `packages/foundation/capability/nlp/src/Graph/AnnotatedTextGraph.ts:28` |  |
+| `@beep/nlp/Graph` | `EffectGraph` | SourceFile | `packages/foundation/capability/nlp/src/Graph/EffectGraph.ts:27` |  |
+| `@beep/nlp/Graph` | `GraphOperations` | SourceFile | `packages/foundation/capability/nlp/src/Graph/GraphOperations/index.ts:26` |  |
+| `@beep/nlp/Graph` | `GraphOps` | SourceFile | `packages/foundation/capability/nlp/src/Graph/GraphOps.ts:23` |  |
+| `@beep/nlp/Graph` | `Schema` | SourceFile | `packages/foundation/capability/nlp/src/Graph/Schema.ts:21` |  |
+| `@beep/nlp/Graph` | `TypeClass` | SourceFile | `packages/foundation/capability/nlp/src/Graph/TypeClass.ts:28` |  |
+| `@beep/nlp/Graph/AnnotatedTextGraph` | `addDependencyAnnotations` | const | `packages/foundation/capability/nlp/src/Graph/AnnotatedTextGraph.ts:333` | Add syntactic-dependency annotation nodes to each sentence (idempotent). |
+| `@beep/nlp/Graph/AnnotatedTextGraph` | `addEntityAnnotations` | const | `packages/foundation/capability/nlp/src/Graph/AnnotatedTextGraph.ts:317` | Add named-entity annotation nodes to each sentence (idempotent). |
+| `@beep/nlp/Graph/AnnotatedTextGraph` | `addLemmaAnnotations` | const | `packages/foundation/capability/nlp/src/Graph/AnnotatedTextGraph.ts:301` | Add lemma annotation nodes to each sentence (idempotent). |
+| `@beep/nlp/Graph/AnnotatedTextGraph` | `addPOSAnnotations` | const | `packages/foundation/capability/nlp/src/Graph/AnnotatedTextGraph.ts:285` | Add part-of-speech annotation nodes to each sentence (idempotent). |
+| `@beep/nlp/Graph/AnnotatedTextGraph` | `AnnotatedNode` | type | `packages/foundation/capability/nlp/src/Graph/AnnotatedTextGraph.ts:45` | Union of all node types (structural + linguistic annotations). |
+| `@beep/nlp/Graph/AnnotatedTextGraph` | `AnnotatedTextGraph` | type | `packages/foundation/capability/nlp/src/Graph/AnnotatedTextGraph.ts:105` | A directed text graph whose nodes may be structural or annotation nodes. |
+| `@beep/nlp/Graph/AnnotatedTextGraph` | `AnnotationOptions` | interface | `packages/foundation/capability/nlp/src/Graph/AnnotatedTextGraph.ts:154` | Options controlling which annotation strata {@link fromDocumentAnnotated} adds. |
+| `@beep/nlp/Graph/AnnotatedTextGraph` | `countNodesByType` | const | `packages/foundation/capability/nlp/src/Graph/AnnotatedTextGraph.ts:439` | Count of nodes by kind (`text`/`pos`/`entity`/`lemma`/`dependency`/`relation`). |
+| `@beep/nlp/Graph/AnnotatedTextGraph` | `empty` | const | `packages/foundation/capability/nlp/src/Graph/AnnotatedTextGraph.ts:146` | Create an empty annotated text graph. |
+| `@beep/nlp/Graph/AnnotatedTextGraph` | `filterByPOSTag` | const | `packages/foundation/capability/nlp/src/Graph/AnnotatedTextGraph.ts:427` | POS nodes carrying a given tag. |
+| `@beep/nlp/Graph/AnnotatedTextGraph` | `filterEntitiesByType` | const | `packages/foundation/capability/nlp/src/Graph/AnnotatedTextGraph.ts:415` | Entities of a given type. |
+| `@beep/nlp/Graph/AnnotatedTextGraph` | `fromDocumentAnnotated` | const | `packages/foundation/capability/nlp/src/Graph/AnnotatedTextGraph.ts:181` | Build a fully annotated text graph from a document. |
+| `@beep/nlp/Graph/AnnotatedTextGraph` | `getEntityNodes` | const | `packages/foundation/capability/nlp/src/Graph/AnnotatedTextGraph.ts:376` | All entity-annotation nodes with their indices. |
+| `@beep/nlp/Graph/AnnotatedTextGraph` | `getLemmaNodes` | const | `packages/foundation/capability/nlp/src/Graph/AnnotatedTextGraph.ts:389` | All lemma-annotation nodes with their indices. |
+| `@beep/nlp/Graph/AnnotatedTextGraph` | `getPOSNodes` | const | `packages/foundation/capability/nlp/src/Graph/AnnotatedTextGraph.ts:363` | All POS-annotation nodes with their indices. |
+| `@beep/nlp/Graph/AnnotatedTextGraph` | `getRoots` | const | `packages/foundation/capability/nlp/src/Graph/AnnotatedTextGraph.ts:484` | Root node indices (no incoming edges). |
+| `@beep/nlp/Graph/AnnotatedTextGraph` | `getTextNodes` | const | `packages/foundation/capability/nlp/src/Graph/AnnotatedTextGraph.ts:402` | All structural text nodes with their indices. |
+| `@beep/nlp/Graph/AnnotatedTextGraph` | `isDependencyNode` | const | `packages/foundation/capability/nlp/src/Graph/AnnotatedTextGraph.ts:85` | Type guard: the node is a {@link DependencyNode}. |
+| `@beep/nlp/Graph/AnnotatedTextGraph` | `isEntityNode` | const | `packages/foundation/capability/nlp/src/Graph/AnnotatedTextGraph.ts:69` | Type guard: the node is an {@link EntityNode}. |
+| `@beep/nlp/Graph/AnnotatedTextGraph` | `isLemmaNode` | const | `packages/foundation/capability/nlp/src/Graph/AnnotatedTextGraph.ts:77` | Type guard: the node is a {@link LemmaNode}. |
+| `@beep/nlp/Graph/AnnotatedTextGraph` | `isPOSNode` | const | `packages/foundation/capability/nlp/src/Graph/AnnotatedTextGraph.ts:61` | Type guard: the node is a {@link POSNode}. |
+| `@beep/nlp/Graph/AnnotatedTextGraph` | `isRelationNode` | const | `packages/foundation/capability/nlp/src/Graph/AnnotatedTextGraph.ts:93` | Type guard: the node is a {@link RelationNode}. |
+| `@beep/nlp/Graph/AnnotatedTextGraph` | `isTextNode` | const | `packages/foundation/capability/nlp/src/Graph/AnnotatedTextGraph.ts:53` | Type guard: the node is a structural {@link TextNode}. |
+| `@beep/nlp/Graph/AnnotatedTextGraph` | `MutableAnnotatedTextGraph` | type | `packages/foundation/capability/nlp/src/Graph/AnnotatedTextGraph.ts:113` | Mutable annotated text graph used during construction. |
+| `@beep/nlp/Graph/AnnotatedTextGraph` | `nodeCount` | const | `packages/foundation/capability/nlp/src/Graph/AnnotatedTextGraph.ts:476` | Total node count. |
+| `@beep/nlp/Graph/AnnotatedTextGraph` | `toArray` | const | `packages/foundation/capability/nlp/src/Graph/AnnotatedTextGraph.ts:467` | All nodes as an array. |
+| `@beep/nlp/Graph/EffectGraph` | `addNode` | const | `packages/foundation/capability/nlp/src/Graph/EffectGraph.ts:252` | Add a node to the graph, recalculating its depth from its parent and linking |
+| `@beep/nlp/Graph/EffectGraph` | `ana` | const | `packages/foundation/capability/nlp/src/Graph/EffectGraph.ts:388` | Anamorphism: top-down unfold building a graph from a seed (dual of {@link cata}). |
+| `@beep/nlp/Graph/EffectGraph` | `cata` | const | `packages/foundation/capability/nlp/src/Graph/EffectGraph.ts:343` | Catamorphism: bottom-up fold over the graph (children before parents). |
+| `@beep/nlp/Graph/EffectGraph` | `EffectGraph` | interface | `packages/foundation/capability/nlp/src/Graph/EffectGraph.ts:150` | A directed acyclic graph of {@link GraphNode}s, backed by `effect/Graph` with |
+| `@beep/nlp/Graph/EffectGraph` | `empty` | const | `packages/foundation/capability/nlp/src/Graph/EffectGraph.ts:206` | Create an empty {@link EffectGraph}. |
+| `@beep/nlp/Graph/EffectGraph` | `generateNodeId` | const | `packages/foundation/capability/nlp/src/Graph/EffectGraph.ts:84` | Generate a fresh, unique {@link NodeId} (timestamp + random suffix). |
+| `@beep/nlp/Graph/EffectGraph` | `getChildren` | const | `packages/foundation/capability/nlp/src/Graph/EffectGraph.ts:305` | Get all children of a node. |
+| `@beep/nlp/Graph/EffectGraph` | `getNode` | const | `packages/foundation/capability/nlp/src/Graph/EffectGraph.ts:296` | Get a node by id. |
+| `@beep/nlp/Graph/EffectGraph` | `getRoots` | const | `packages/foundation/capability/nlp/src/Graph/EffectGraph.ts:318` | Get all root nodes (those with no incoming edges). |
+| `@beep/nlp/Graph/EffectGraph` | `GraphAlgebra` | type | `packages/foundation/capability/nlp/src/Graph/EffectGraph.ts:335` | F-algebra: collapse a node and its already-processed children into a result. |
+| `@beep/nlp/Graph/EffectGraph` | `GraphCoalgebra` | type | `packages/foundation/capability/nlp/src/Graph/EffectGraph.ts:380` | Coalgebra: from a seed, produce node data and child seeds. |
+| `@beep/nlp/Graph/EffectGraph` | `GraphNode` | interface | `packages/foundation/capability/nlp/src/Graph/EffectGraph.ts:132` | A node in the directed acyclic graph: an id, a data payload, an optional parent |
+| `@beep/nlp/Graph/EffectGraph` | `makeNode` | const | `packages/foundation/capability/nlp/src/Graph/EffectGraph.ts:173` | Create a new {@link GraphNode} (effectful: reads `Clock` + a random id). |
+| `@beep/nlp/Graph/EffectGraph` | `makeNodeId` | const | `packages/foundation/capability/nlp/src/Graph/EffectGraph.ts:69` | Constructor for {@link NodeId}. |
+| `@beep/nlp/Graph/EffectGraph` | `map` | const | `packages/foundation/capability/nlp/src/Graph/EffectGraph.ts:419` | Map over all node data, preserving graph structure (the Functor instance). |
+| `@beep/nlp/Graph/EffectGraph` | `NodeId` | type | `packages/foundation/capability/nlp/src/Graph/EffectGraph.ts:54` | Unique identifier for graph nodes. |
+| `@beep/nlp/Graph/EffectGraph` | `NodeMetadata` | interface | `packages/foundation/capability/nlp/src/Graph/EffectGraph.ts:119` | Per-node processing metadata. |
+| `@beep/nlp/Graph/EffectGraph` | `NodeNotFoundError` | class | `packages/foundation/capability/nlp/src/Graph/EffectGraph.ts:103` | Error raised when a node is not found in the graph. |
+| `@beep/nlp/Graph/EffectGraph` | `show` | const | `packages/foundation/capability/nlp/src/Graph/EffectGraph.ts:477` | Render the graph as an indented plain-text tree. |
+| `@beep/nlp/Graph/EffectGraph` | `singleton` | const | `packages/foundation/capability/nlp/src/Graph/EffectGraph.ts:225` | Create an {@link EffectGraph} with a single root node (effectful via {@link makeNode}). |
+| `@beep/nlp/Graph/EffectGraph` | `size` | const | `packages/foundation/capability/nlp/src/Graph/EffectGraph.ts:469` | Number of nodes in the graph. |
+| `@beep/nlp/Graph/EffectGraph` | `toArray` | const | `packages/foundation/capability/nlp/src/Graph/EffectGraph.ts:460` | Collect all nodes as an array (topologically ordered by the backing graph). |
+| `@beep/nlp/Graph/GraphOperations` | `Catalog` | SourceFile | `packages/foundation/capability/nlp/src/Graph/GraphOperations/Catalog.ts:27` |  |
+| `@beep/nlp/Graph/GraphOperations` | `Errors` | SourceFile | `packages/foundation/capability/nlp/src/Graph/GraphOperations/Errors.ts:13` |  |
+| `@beep/nlp/Graph/GraphOperations` | `Executor` | SourceFile | `packages/foundation/capability/nlp/src/Graph/GraphOperations/Executor.ts:27` |  |
+| `@beep/nlp/Graph/GraphOperations` | `Operation` | SourceFile | `packages/foundation/capability/nlp/src/Graph/GraphOperations/Operation.ts:18` |  |
+| `@beep/nlp/Graph/GraphOperations` | `ResultStore` | SourceFile | `packages/foundation/capability/nlp/src/Graph/GraphOperations/ResultStore.ts:22` |  |
+| `@beep/nlp/Graph/GraphOperations` | `Types` | SourceFile | `packages/foundation/capability/nlp/src/Graph/GraphOperations/Types.ts:22` |  |
+| `@beep/nlp/Graph/GraphOperations/Catalog` | `extractEntities` | const | `packages/foundation/capability/nlp/src/Graph/GraphOperations/Catalog.ts:144` | Extract named entities (functor `Text -> [EntityNode]`). |
+| `@beep/nlp/Graph/GraphOperations/Catalog` | `extractRelations` | const | `packages/foundation/capability/nlp/src/Graph/GraphOperations/Catalog.ts:194` | Extract semantic relations between entities (functor `Text -> [RelationNode]`). |
+| `@beep/nlp/Graph/GraphOperations/Catalog` | `getOperationNames` | const | `packages/foundation/capability/nlp/src/Graph/GraphOperations/Catalog.ts:304` | List the names of all operations in the {@link StandardOperations} catalog. |
+| `@beep/nlp/Graph/GraphOperations/Catalog` | `lemmatize` | const | `packages/foundation/capability/nlp/src/Graph/GraphOperations/Catalog.ts:120` | Lemmatize tokens to canonical forms (forgetful functor `Text -> [LemmaNode]`). |
+| `@beep/nlp/Graph/GraphOperations/Catalog` | `parseDependencies` | const | `packages/foundation/capability/nlp/src/Graph/GraphOperations/Catalog.ts:169` | Parse syntactic dependencies (functor `Sentence -> [DependencyNode]`). |
+| `@beep/nlp/Graph/GraphOperations/Catalog` | `posTag` | const | `packages/foundation/capability/nlp/src/Graph/GraphOperations/Catalog.ts:96` | Tag tokens with part-of-speech labels (functor `Text -> [POSNode]`). |
+| `@beep/nlp/Graph/GraphOperations/Catalog` | `sentencize` | const | `packages/foundation/capability/nlp/src/Graph/GraphOperations/Catalog.ts:48` | Split text into sentences (free functor `Text -> [Sentence]`). |
+| `@beep/nlp/Graph/GraphOperations/Catalog` | `StandardOperations` | const | `packages/foundation/capability/nlp/src/Graph/GraphOperations/Catalog.ts:278` | The standard catalog of linguistic + pure string operations, keyed by name. |
+| `@beep/nlp/Graph/GraphOperations/Catalog` | `tokenize` | const | `packages/foundation/capability/nlp/src/Graph/GraphOperations/Catalog.ts:72` | Split text into tokens (free functor `Text -> [Token]`). |
+| `@beep/nlp/Graph/GraphOperations/Catalog` | `toLowerCase` | const | `packages/foundation/capability/nlp/src/Graph/GraphOperations/Catalog.ts:221` | Lowercase the node text (pure transformation). |
+| `@beep/nlp/Graph/GraphOperations/Catalog` | `toUpperCase` | const | `packages/foundation/capability/nlp/src/Graph/GraphOperations/Catalog.ts:240` | Uppercase the node text (pure transformation). |
+| `@beep/nlp/Graph/GraphOperations/Catalog` | `trim` | const | `packages/foundation/capability/nlp/src/Graph/GraphOperations/Catalog.ts:259` | Trim leading/trailing whitespace from the node text (pure transformation). |
+| `@beep/nlp/Graph/GraphOperations/Errors` | `ExecutionError` | class | `packages/foundation/capability/nlp/src/Graph/GraphOperations/Errors.ts:155` | General execution failure. |
+| `@beep/nlp/Graph/GraphOperations/Errors` | `GraphError` | class | `packages/foundation/capability/nlp/src/Graph/GraphOperations/Errors.ts:107` | Invalid graph structure. |
+| `@beep/nlp/Graph/GraphOperations/Errors` | `GraphOperationError` | type | `packages/foundation/capability/nlp/src/Graph/GraphOperations/Errors.ts:179` | Union of all graph-operation failures. |
+| `@beep/nlp/Graph/GraphOperations/Errors` | `OperationError` | class | `packages/foundation/capability/nlp/src/Graph/GraphOperations/Errors.ts:82` | Operation failed during execution. |
+| `@beep/nlp/Graph/GraphOperations/Errors` | `StorageError` | class | `packages/foundation/capability/nlp/src/Graph/GraphOperations/Errors.ts:131` | Failed to store or retrieve a cached result. |
+| `@beep/nlp/Graph/GraphOperations/Errors` | `TimeoutError` | class | `packages/foundation/capability/nlp/src/Graph/GraphOperations/Errors.ts:57` | Operation exceeded its time limit. |
+| `@beep/nlp/Graph/GraphOperations/Errors` | `ValidationError` | class | `packages/foundation/capability/nlp/src/Graph/GraphOperations/Errors.ts:32` | Operation cannot be applied to a node. |
+| `@beep/nlp/Graph/GraphOperations/Executor` | `GraphExecutor` | class | `packages/foundation/capability/nlp/src/Graph/GraphOperations/Executor.ts:93` | Service tag for the {@link GraphExecutorShape} engine. |
+| `@beep/nlp/Graph/GraphOperations/Executor` | `GraphExecutorLive` | const | `packages/foundation/capability/nlp/src/Graph/GraphOperations/Executor.ts:262` | Live {@link GraphExecutor} layer (requires a {@link ResultStore.ResultStore}). |
+| `@beep/nlp/Graph/GraphOperations/Executor` | `GraphExecutorShape` | interface | `packages/foundation/capability/nlp/src/Graph/GraphOperations/Executor.ts:64` | Structural shape of the {@link GraphExecutor} service. Results are type-erased |
+| `@beep/nlp/Graph/GraphOperations/Executor` | `GraphExecutorTest` | const | `packages/foundation/capability/nlp/src/Graph/GraphOperations/Executor.ts:279` | Test layer providing both {@link GraphExecutor} and the {@link ResultStore.ResultStore} |
+| `@beep/nlp/Graph/GraphOperations/index` | `Catalog` | SourceFile | `packages/foundation/capability/nlp/src/Graph/GraphOperations/Catalog.ts:27` |  |
+| `@beep/nlp/Graph/GraphOperations/index` | `Errors` | SourceFile | `packages/foundation/capability/nlp/src/Graph/GraphOperations/Errors.ts:13` |  |
+| `@beep/nlp/Graph/GraphOperations/index` | `Executor` | SourceFile | `packages/foundation/capability/nlp/src/Graph/GraphOperations/Executor.ts:27` |  |
+| `@beep/nlp/Graph/GraphOperations/index` | `Operation` | SourceFile | `packages/foundation/capability/nlp/src/Graph/GraphOperations/Operation.ts:18` |  |
+| `@beep/nlp/Graph/GraphOperations/index` | `ResultStore` | SourceFile | `packages/foundation/capability/nlp/src/Graph/GraphOperations/ResultStore.ts:22` |  |
+| `@beep/nlp/Graph/GraphOperations/index` | `Types` | SourceFile | `packages/foundation/capability/nlp/src/Graph/GraphOperations/Types.ts:22` |  |
+| `@beep/nlp/Graph/GraphOperations/Operation` | `expand` | const | `packages/foundation/capability/nlp/src/Graph/GraphOperations/Operation.ts:147` | An expansion operation (`A -> [B]`). |
+| `@beep/nlp/Graph/GraphOperations/Operation` | `filter` | const | `packages/foundation/capability/nlp/src/Graph/GraphOperations/Operation.ts:167` | A filter operation (`A -> Option<A>`, modeled as `A -> [A]`). |
+| `@beep/nlp/Graph/GraphOperations/Operation` | `flatMap` | const | `packages/foundation/capability/nlp/src/Graph/GraphOperations/Operation.ts:235` | FlatMap operation - map and flatten. |
+| `@beep/nlp/Graph/GraphOperations/Operation` | `getCategory` | const | `packages/foundation/capability/nlp/src/Graph/GraphOperations/Operation.ts:248` | Get an operation's category. |
+| `@beep/nlp/Graph/GraphOperations/Operation` | `GraphOperation` | interface | `packages/foundation/capability/nlp/src/Graph/GraphOperations/Operation.ts:36` | A categorical morphism in the category of graphs: `Node<A> -> Effect<[Node<B>], E, R>`. |
+| `@beep/nlp/Graph/GraphOperations/Operation` | `identity` | const | `packages/foundation/capability/nlp/src/Graph/GraphOperations/Operation.ts:198` | The identity operation: re-emits the node under a fresh id (effectful id). |
+| `@beep/nlp/Graph/GraphOperations/Operation` | `make` | const | `packages/foundation/capability/nlp/src/Graph/GraphOperations/Operation.ts:66` | Build a {@link GraphOperation} from a config, defaulting validate/estimateCost. |
+| `@beep/nlp/Graph/GraphOperations/Operation` | `map` | const | `packages/foundation/capability/nlp/src/Graph/GraphOperations/Operation.ts:219` | Map operation - transform data without changing structure. |
+| `@beep/nlp/Graph/GraphOperations/Operation` | `pure` | const | `packages/foundation/capability/nlp/src/Graph/GraphOperations/Operation.ts:96` | A pure operation: map node data to new data values, minting a child node per |
+| `@beep/nlp/Graph/GraphOperations/Operation` | `transform` | const | `packages/foundation/capability/nlp/src/Graph/GraphOperations/Operation.ts:122` | A transformation operation (`A -> B`). |
+| `@beep/nlp/Graph/GraphOperations/ResultStore` | `AnyOperationResult` | type | `packages/foundation/capability/nlp/src/Graph/GraphOperations/ResultStore.ts:39` | An {@link OperationResult} with its concrete type parameters erased, as stored |
+| `@beep/nlp/Graph/GraphOperations/ResultStore` | `CacheStats` | interface | `packages/foundation/capability/nlp/src/Graph/GraphOperations/ResultStore.ts:94` | Cache statistics. |
+| `@beep/nlp/Graph/GraphOperations/ResultStore` | `ResultKey` | const | `packages/foundation/capability/nlp/src/Graph/GraphOperations/ResultStore.ts:70` | Constructors for {@link ResultKey}. |
+| `@beep/nlp/Graph/GraphOperations/ResultStore` | `ResultKey` | interface | `packages/foundation/capability/nlp/src/Graph/GraphOperations/ResultStore.ts:51` | Cache key: an operation name paired with a node id. |
+| `@beep/nlp/Graph/GraphOperations/ResultStore` | `ResultStore` | class | `packages/foundation/capability/nlp/src/Graph/GraphOperations/ResultStore.ts:135` | Service tag for the {@link ResultStoreShape} cache. |
+| `@beep/nlp/Graph/GraphOperations/ResultStore` | `ResultStoreLive` | const | `packages/foundation/capability/nlp/src/Graph/GraphOperations/ResultStore.ts:216` | Live in-memory {@link ResultStore} layer. |
+| `@beep/nlp/Graph/GraphOperations/ResultStore` | `ResultStoreShape` | interface | `packages/foundation/capability/nlp/src/Graph/GraphOperations/ResultStore.ts:111` | Structural shape of the {@link ResultStore} service. |
+| `@beep/nlp/Graph/GraphOperations/ResultStore` | `ResultStoreTest` | const | `packages/foundation/capability/nlp/src/Graph/GraphOperations/ResultStore.ts:231` | Test {@link ResultStore} layer (starts empty; same as {@link ResultStoreLive}). |
+| `@beep/nlp/Graph/GraphOperations/ResultStore` | `StoredResult` | interface | `packages/foundation/capability/nlp/src/Graph/GraphOperations/ResultStore.ts:81` | A cached result with metadata. |
+| `@beep/nlp/Graph/GraphOperations/Types` | `Complexity` | type | `packages/foundation/capability/nlp/src/Graph/GraphOperations/Types.ts:126` | Asymptotic complexity class used to scale an {@link OperationCost}. |
+| `@beep/nlp/Graph/GraphOperations/Types` | `ExecutionId` | type | `packages/foundation/capability/nlp/src/Graph/GraphOperations/Types.ts:285` | Unique identifier for one execution. |
+| `@beep/nlp/Graph/GraphOperations/Types` | `ExecutionMetrics` | const | `packages/foundation/capability/nlp/src/Graph/GraphOperations/Types.ts:97` | The {@link ExecutionMetrics} monoid: {@link ExecutionMetrics.empty} is the |
+| `@beep/nlp/Graph/GraphOperations/Types` | `ExecutionMetrics` | interface | `packages/foundation/capability/nlp/src/Graph/GraphOperations/Types.ts:73` | Metrics collected while executing an operation. |
+| `@beep/nlp/Graph/GraphOperations/Types` | `ExecutionOptions` | const | `packages/foundation/capability/nlp/src/Graph/GraphOperations/Types.ts:261` | Constructors for {@link ExecutionOptions}. |
+| `@beep/nlp/Graph/GraphOperations/Types` | `ExecutionOptions` | interface | `packages/foundation/capability/nlp/src/Graph/GraphOperations/Types.ts:241` | Options controlling a single execution. |
+| `@beep/nlp/Graph/GraphOperations/Types` | `ExecutionStrategy` | const | `packages/foundation/capability/nlp/src/Graph/GraphOperations/Types.ts:56` | Constructors for the {@link ExecutionStrategy} variants. |
+| `@beep/nlp/Graph/GraphOperations/Types` | `ExecutionStrategy` | type | `packages/foundation/capability/nlp/src/Graph/GraphOperations/Types.ts:37` | Strategy determining how an operation is executed across the graph's nodes. |
+| `@beep/nlp/Graph/GraphOperations/Types` | `generateExecutionId` | const | `packages/foundation/capability/nlp/src/Graph/GraphOperations/Types.ts:315` | Generate a fresh {@link ExecutionId} (timestamp + random suffix). |
+| `@beep/nlp/Graph/GraphOperations/Types` | `makeExecutionId` | const | `packages/foundation/capability/nlp/src/Graph/GraphOperations/Types.ts:300` | Constructor for {@link ExecutionId}. |
+| `@beep/nlp/Graph/GraphOperations/Types` | `makeOperationResult` | const | `packages/foundation/capability/nlp/src/Graph/GraphOperations/Types.ts:354` | Build an {@link OperationResult} (effectful: reads `Clock` for the timestamp). |
+| `@beep/nlp/Graph/GraphOperations/Types` | `OperationCategory` | type | `packages/foundation/capability/nlp/src/Graph/GraphOperations/Types.ts:229` | Category of an operation (its morphism shape). |
+| `@beep/nlp/Graph/GraphOperations/Types` | `OperationCost` | const | `packages/foundation/capability/nlp/src/Graph/GraphOperations/Types.ts:156` | Constructors/combinators for {@link OperationCost}. |
+| `@beep/nlp/Graph/GraphOperations/Types` | `OperationCost` | interface | `packages/foundation/capability/nlp/src/Graph/GraphOperations/Types.ts:134` | Estimated cost of applying an operation. |
+| `@beep/nlp/Graph/GraphOperations/Types` | `OperationResult` | interface | `packages/foundation/capability/nlp/src/Graph/GraphOperations/Types.ts:331` | Result of executing an operation over a graph. |
+| `@beep/nlp/Graph/GraphOperations/Types` | `ValidationResult` | const | `packages/foundation/capability/nlp/src/Graph/GraphOperations/Types.ts:210` | Constructors/combinators for {@link ValidationResult}. |
+| `@beep/nlp/Graph/GraphOperations/Types` | `ValidationResult` | interface | `packages/foundation/capability/nlp/src/Graph/GraphOperations/Types.ts:191` | Result of validating that an operation can be applied. |
+| `@beep/nlp/Graph/GraphOps` | `batchNodes` | const | `packages/foundation/capability/nlp/src/Graph/GraphOps.ts:489` | Stream node data in fixed-size batches. |
+| `@beep/nlp/Graph/GraphOps` | `bimap` | const | `packages/foundation/capability/nlp/src/Graph/GraphOps.ts:175` | Map over both node and edge data simultaneously (Bifunctor). |
+| `@beep/nlp/Graph/GraphOps` | `buildIndex` | const | `packages/foundation/capability/nlp/src/Graph/GraphOps.ts:322` | Build a search index from a graph (the `index` functor of `query ⊣ index`). |
+| `@beep/nlp/Graph/GraphOps` | `collectNodes` | const | `packages/foundation/capability/nlp/src/Graph/GraphOps.ts:257` | Collect all node data into an array (order unspecified). |
+| `@beep/nlp/Graph/GraphOps` | `collectTraversal` | const | `packages/foundation/capability/nlp/src/Graph/GraphOps.ts:266` | Collect node data in a traversal order. |
+| `@beep/nlp/Graph/GraphOps` | `DirectedGraph` | type | `packages/foundation/capability/nlp/src/Graph/GraphOps.ts:42` | A directed graph with node data `A` and edge data `E`. |
+| `@beep/nlp/Graph/GraphOps` | `edgeCount` | const | `packages/foundation/capability/nlp/src/Graph/GraphOps.ts:532` | Number of edges. |
+| `@beep/nlp/Graph/GraphOps` | `empty` | const | `packages/foundation/capability/nlp/src/Graph/GraphOps.ts:552` | Create an empty directed graph. |
+| `@beep/nlp/Graph/GraphOps` | `filterEdges` | const | `packages/foundation/capability/nlp/src/Graph/GraphOps.ts:207` | Keep only edges matching the predicate; all nodes are preserved. |
+| `@beep/nlp/Graph/GraphOps` | `filterNodes` | const | `packages/foundation/capability/nlp/src/Graph/GraphOps.ts:198` | Keep only nodes matching the predicate; edges touching dropped nodes are removed. |
+| `@beep/nlp/Graph/GraphOps` | `findNodes` | const | `packages/foundation/capability/nlp/src/Graph/GraphOps.ts:216` | Find all node indices whose data matches the predicate. |
+| `@beep/nlp/Graph/GraphOps` | `foldNodes` | const | `packages/foundation/capability/nlp/src/Graph/GraphOps.ts:231` | Fold over all node data in unspecified order. |
+| `@beep/nlp/Graph/GraphOps` | `foldTraversal` | const | `packages/foundation/capability/nlp/src/Graph/GraphOps.ts:240` | Fold over node data in a specific traversal order. |
+| `@beep/nlp/Graph/GraphOps` | `getChildren` | const | `packages/foundation/capability/nlp/src/Graph/GraphOps.ts:300` | Child node indices of a node. |
+| `@beep/nlp/Graph/GraphOps` | `getLeaves` | const | `packages/foundation/capability/nlp/src/Graph/GraphOps.ts:291` | Leaf node indices (no outgoing edges). |
+| `@beep/nlp/Graph/GraphOps` | `getNode` | const | `packages/foundation/capability/nlp/src/Graph/GraphOps.ts:309` | Node data at an index, if present. |
+| `@beep/nlp/Graph/GraphOps` | `getRoots` | const | `packages/foundation/capability/nlp/src/Graph/GraphOps.ts:282` | Root node indices (no incoming edges). |
+| `@beep/nlp/Graph/GraphOps` | `isAcyclic` | const | `packages/foundation/capability/nlp/src/Graph/GraphOps.ts:506` | Whether the graph is acyclic (a DAG). |
+| `@beep/nlp/Graph/GraphOps` | `isEmpty` | const | `packages/foundation/capability/nlp/src/Graph/GraphOps.ts:540` | Whether the graph has no nodes. |
+| `@beep/nlp/Graph/GraphOps` | `mapEdges` | const | `packages/foundation/capability/nlp/src/Graph/GraphOps.ts:166` | Map over edge data, preserving nodes (Functor). |
+| `@beep/nlp/Graph/GraphOps` | `mapNodes` | const | `packages/foundation/capability/nlp/src/Graph/GraphOps.ts:157` | Map over node data, preserving edges (Functor; obeys identity/composition). |
+| `@beep/nlp/Graph/GraphOps` | `mapNodesEffect` | const | `packages/foundation/capability/nlp/src/Graph/GraphOps.ts:428` | Map over node data with an effectful function, returning a new graph. |
+| `@beep/nlp/Graph/GraphOps` | `merge` | const | `packages/foundation/capability/nlp/src/Graph/GraphOps.ts:572` | Merge two graphs, copying the second graph's nodes and edges into the first |
+| `@beep/nlp/Graph/GraphOps` | `nodeCount` | const | `packages/foundation/capability/nlp/src/Graph/GraphOps.ts:524` | Number of nodes. |
+| `@beep/nlp/Graph/GraphOps` | `NodeIndex` | type | `packages/foundation/capability/nlp/src/Graph/GraphOps.ts:50` | A node index within a graph. |
+| `@beep/nlp/Graph/GraphOps` | `NodeWalker` | type | `packages/foundation/capability/nlp/src/Graph/GraphOps.ts:58` | A graph walker for ordered traversals. |
+| `@beep/nlp/Graph/GraphOps` | `queryIndex` | const | `packages/foundation/capability/nlp/src/Graph/GraphOps.ts:348` | Query a search index for a single key (the `query` functor of `query ⊣ index`). |
+| `@beep/nlp/Graph/GraphOps` | `queryIndexIntersection` | const | `packages/foundation/capability/nlp/src/Graph/GraphOps.ts:373` | Query a search index for all of several keys (intersection semantics). |
+| `@beep/nlp/Graph/GraphOps` | `queryIndexUnion` | const | `packages/foundation/capability/nlp/src/Graph/GraphOps.ts:357` | Query a search index for any of several keys (union semantics, deduplicated). |
+| `@beep/nlp/Graph/GraphOps` | `SearchIndex` | interface | `packages/foundation/capability/nlp/src/Graph/GraphOps.ts:67` | An immutable search index mapping search keys to node indices, paired with the |
+| `@beep/nlp/Graph/GraphOps` | `singleton` | const | `packages/foundation/capability/nlp/src/Graph/GraphOps.ts:560` | Create a graph with a single node. |
+| `@beep/nlp/Graph/GraphOps` | `streamNodes` | const | `packages/foundation/capability/nlp/src/Graph/GraphOps.ts:465` | Stream node data in a traversal order. |
+| `@beep/nlp/Graph/GraphOps` | `streamNodesWithIndex` | const | `packages/foundation/capability/nlp/src/Graph/GraphOps.ts:477` | Stream `[index, node]` entries in a traversal order. |
+| `@beep/nlp/Graph/GraphOps` | `stronglyConnectedComponents` | const | `packages/foundation/capability/nlp/src/Graph/GraphOps.ts:514` | Strongly connected components. |
+| `@beep/nlp/Graph/GraphOps` | `TraversalOrder` | const | `packages/foundation/capability/nlp/src/Graph/GraphOps.ts:78` | Traversal order for ordered folds and walks. |
+| `@beep/nlp/Graph/GraphOps` | `TraversalOrder` | type | `packages/foundation/capability/nlp/src/Graph/GraphOps.ts:98` | Runtime type for graph traversal order values. |
+| `@beep/nlp/Graph/GraphOps` | `traverseNodes` | const | `packages/foundation/capability/nlp/src/Graph/GraphOps.ts:398` | Traverse the graph in order, running an effect per node (effects sequenced). |
+| `@beep/nlp/Graph/GraphOps` | `traverseNodesCollect` | const | `packages/foundation/capability/nlp/src/Graph/GraphOps.ts:414` | Traverse the graph in order, running an effect per node and collecting results. |
+| `@beep/nlp/Graph/index` | `AnnotatedTextGraph` | SourceFile | `packages/foundation/capability/nlp/src/Graph/AnnotatedTextGraph.ts:28` |  |
+| `@beep/nlp/Graph/index` | `EffectGraph` | SourceFile | `packages/foundation/capability/nlp/src/Graph/EffectGraph.ts:27` |  |
+| `@beep/nlp/Graph/index` | `GraphOperations` | SourceFile | `packages/foundation/capability/nlp/src/Graph/GraphOperations/index.ts:26` |  |
+| `@beep/nlp/Graph/index` | `GraphOps` | SourceFile | `packages/foundation/capability/nlp/src/Graph/GraphOps.ts:23` |  |
+| `@beep/nlp/Graph/index` | `Schema` | SourceFile | `packages/foundation/capability/nlp/src/Graph/Schema.ts:21` |  |
+| `@beep/nlp/Graph/index` | `TypeClass` | SourceFile | `packages/foundation/capability/nlp/src/Graph/TypeClass.ts:28` |  |
+| `@beep/nlp/Graph/Schema` | `DependencyNode` | class | `packages/foundation/capability/nlp/src/Graph/Schema.ts:305` | Syntactic dependency relation between two tokens. |
+| `@beep/nlp/Graph/Schema` | `EntityNode` | class | `packages/foundation/capability/nlp/src/Graph/Schema.ts:250` | Named entity extracted from text (a functor `Text -> Entity`). |
+| `@beep/nlp/Graph/Schema` | `LemmaNode` | class | `packages/foundation/capability/nlp/src/Graph/Schema.ts:278` | Lemmatized (canonical) form of a token (a forgetful functor `Token -> Lemma`). |
+| `@beep/nlp/Graph/Schema` | `NLPAnalysis` | class | `packages/foundation/capability/nlp/src/Graph/Schema.ts:197` | Summary result of analyzing a piece of text. |
+| `@beep/nlp/Graph/Schema` | `POSNode` | class | `packages/foundation/capability/nlp/src/Graph/Schema.ts:223` | Part-of-speech annotation for a token (a functor `Token -> POS`). |
+| `@beep/nlp/Graph/Schema` | `RelationNode` | class | `packages/foundation/capability/nlp/src/Graph/Schema.ts:332` | Semantic relation between two entities. |
+| `@beep/nlp/Graph/Schema` | `TextEdge` | class | `packages/foundation/capability/nlp/src/Graph/Schema.ts:173` | Edge between text nodes, labeled with a structural or linguistic relation. |
+| `@beep/nlp/Graph/Schema` | `TextEdgeRelation` | const | `packages/foundation/capability/nlp/src/Graph/Schema.ts:60` | Edge-relation vocabulary (structural + linguistic-annotation relations). |
+| `@beep/nlp/Graph/Schema` | `TextNode` | const | `packages/foundation/capability/nlp/src/Graph/Schema.ts:102` | Text node stored in the graph: a piece of text with processing metadata. |
+| `@beep/nlp/Graph/Schema` | `TextNode` | type | `packages/foundation/capability/nlp/src/Graph/Schema.ts:158` | Runtime type for text-graph nodes. |
+| `@beep/nlp/Graph/Schema` | `TextNodeType` | const | `packages/foundation/capability/nlp/src/Graph/Schema.ts:41` | Structural text-node kind vocabulary. |
+| `@beep/nlp/Graph/TextGraph` | `addChildren` | const | `packages/foundation/capability/nlp/src/Graph/TextGraph.ts:173` | Add child nodes under a parent, validating the result stays acyclic. |
+| `@beep/nlp/Graph/TextGraph` | `bfs` | const | `packages/foundation/capability/nlp/src/Graph/TextGraph.ts:300` | Breadth-first node walker. |
+| `@beep/nlp/Graph/TextGraph` | `dfs` | const | `packages/foundation/capability/nlp/src/Graph/TextGraph.ts:291` | Depth-first node walker. |
+| `@beep/nlp/Graph/TextGraph` | `edgeCount` | const | `packages/foundation/capability/nlp/src/Graph/TextGraph.ts:338` | Number of edges. |
+| `@beep/nlp/Graph/TextGraph` | `empty` | const | `packages/foundation/capability/nlp/src/Graph/TextGraph.ts:103` | Create an empty text graph. |
+| `@beep/nlp/Graph/TextGraph` | `filterNodes` | const | `packages/foundation/capability/nlp/src/Graph/TextGraph.ts:278` | Keep only nodes matching the predicate (and edges between kept nodes). |
+| `@beep/nlp/Graph/TextGraph` | `findNodesByType` | const | `packages/foundation/capability/nlp/src/Graph/TextGraph.ts:346` | Find node indices by node type. |
+| `@beep/nlp/Graph/TextGraph` | `fromDocument` | const | `packages/foundation/capability/nlp/src/Graph/TextGraph.ts:138` | Build a text graph from a document by splitting it into sentence children. |
+| `@beep/nlp/Graph/TextGraph` | `getChildren` | const | `packages/foundation/capability/nlp/src/Graph/TextGraph.ts:373` | Child node indices of a node. |
+| `@beep/nlp/Graph/TextGraph` | `getLeaves` | const | `packages/foundation/capability/nlp/src/Graph/TextGraph.ts:364` | Leaf node indices (no outgoing edges). |
+| `@beep/nlp/Graph/TextGraph` | `getRoots` | const | `packages/foundation/capability/nlp/src/Graph/TextGraph.ts:355` | Root node indices (no incoming edges). |
+| `@beep/nlp/Graph/TextGraph` | `GraphCycleError` | class | `packages/foundation/capability/nlp/src/Graph/TextGraph.ts:62` | Raised when adding children would introduce a cycle (graphs must stay acyclic). |
+| `@beep/nlp/Graph/TextGraph` | `isAcyclic` | const | `packages/foundation/capability/nlp/src/Graph/TextGraph.ts:441` | Whether the graph is acyclic (a DAG). |
+| `@beep/nlp/Graph/TextGraph` | `mapNodes` | const | `packages/foundation/capability/nlp/src/Graph/TextGraph.ts:270` | Map over all node data, preserving structure (reconstructs the graph). |
+| `@beep/nlp/Graph/TextGraph` | `MutableTextGraph` | type | `packages/foundation/capability/nlp/src/Graph/TextGraph.ts:47` | Mutable text graph used during construction. |
+| `@beep/nlp/Graph/TextGraph` | `nodeCount` | const | `packages/foundation/capability/nlp/src/Graph/TextGraph.ts:330` | Number of nodes. |
+| `@beep/nlp/Graph/TextGraph` | `show` | const | `packages/foundation/capability/nlp/src/Graph/TextGraph.ts:419` | Render the graph as an indented plain-text tree (roots downward). |
+| `@beep/nlp/Graph/TextGraph` | `singleton` | const | `packages/foundation/capability/nlp/src/Graph/TextGraph.ts:118` | Create a text graph with a single root node (effectful: reads `Clock`). |
+| `@beep/nlp/Graph/TextGraph` | `stronglyConnectedComponents` | const | `packages/foundation/capability/nlp/src/Graph/TextGraph.ts:449` | Strongly connected components. |
+| `@beep/nlp/Graph/TextGraph` | `TextGraph` | type | `packages/foundation/capability/nlp/src/Graph/TextGraph.ts:39` | A text-processing graph: `TextNode` data with `TextEdge` relationships. |
+| `@beep/nlp/Graph/TextGraph` | `toArray` | const | `packages/foundation/capability/nlp/src/Graph/TextGraph.ts:317` | All nodes as an array. |
+| `@beep/nlp/Graph/TextGraph` | `toGraphViz` | const | `packages/foundation/capability/nlp/src/Graph/TextGraph.ts:386` | Export the graph to GraphViz DOT format. |
+| `@beep/nlp/Graph/TextGraph` | `tokenizeNodes` | const | `packages/foundation/capability/nlp/src/Graph/TextGraph.ts:195` | Tokenize every sentence node, adding token children (idempotent: skips |
+| `@beep/nlp/Graph/TextGraph` | `toMermaid` | const | `packages/foundation/capability/nlp/src/Graph/TextGraph.ts:399` | Export the graph to a Mermaid diagram. |
+| `@beep/nlp/Graph/TextGraph` | `topo` | const | `packages/foundation/capability/nlp/src/Graph/TextGraph.ts:309` | Topological node walker (parents before children). |
+| `@beep/nlp/Graph/TypeClass` | `alt` | const | `packages/foundation/capability/nlp/src/Graph/TypeClass.ts:432` | Combine two operations, collecting results from both (parallel branching). |
+| `@beep/nlp/Graph/TypeClass` | `ap` | const | `packages/foundation/capability/nlp/src/Graph/TypeClass.ts:358` | Apply an operation of functions to an operation of values (Cartesian product). |
+| `@beep/nlp/Graph/TypeClass` | `chain` | const | `packages/foundation/capability/nlp/src/Graph/TypeClass.ts:395` | Sequence dependent operations: the first's outputs choose the next operation. |
+| `@beep/nlp/Graph/TypeClass` | `collectData` | const | `packages/foundation/capability/nlp/src/Graph/TypeClass.ts:282` | Collect all node data values from the graph. |
+| `@beep/nlp/Graph/TypeClass` | `Composable` | interface | `packages/foundation/capability/nlp/src/Graph/TypeClass.ts:83` | Operations composable end-to-end, forming a monoid (sequential composition + |
+| `@beep/nlp/Graph/TypeClass` | `composeOperations` | const | `packages/foundation/capability/nlp/src/Graph/TypeClass.ts:114` | Compose two operations sequentially: the first's outputs feed the second. |
+| `@beep/nlp/Graph/TypeClass` | `depth` | const | `packages/foundation/capability/nlp/src/Graph/TypeClass.ts:290` | Graph depth: the maximum node depth (longest root-to-leaf path). |
+| `@beep/nlp/Graph/TypeClass` | `empty` | const | `packages/foundation/capability/nlp/src/Graph/TypeClass.ts:451` | The empty operation (identity for {@link alt}): produces no nodes. |
+| `@beep/nlp/Graph/TypeClass` | `executeOperation` | const | `packages/foundation/capability/nlp/src/Graph/TypeClass.ts:176` | Apply an operation to every current leaf node, adding the results as children |
+| `@beep/nlp/Graph/TypeClass` | `executeOperations` | const | `packages/foundation/capability/nlp/src/Graph/TypeClass.ts:197` | Apply a sequence of operations, each adding a DAG layer. |
+| `@beep/nlp/Graph/TypeClass` | `filterOperation` | const | `packages/foundation/capability/nlp/src/Graph/TypeClass.ts:264` | Filter operation: keep nodes whose data satisfies the predicate. |
+| `@beep/nlp/Graph/TypeClass` | `flatMap` | const | `packages/foundation/capability/nlp/src/Graph/TypeClass.ts:331` | FlatMap over a {@link TextOperation}'s output data with an effectful function. |
+| `@beep/nlp/Graph/TypeClass` | `flatMapOperation` | const | `packages/foundation/capability/nlp/src/Graph/TypeClass.ts:273` | FlatMap operation: map then flatten in one step. |
+| `@beep/nlp/Graph/TypeClass` | `flatten` | const | `packages/foundation/capability/nlp/src/Graph/TypeClass.ts:417` | Flatten nested operations (alias of {@link chain}). |
+| `@beep/nlp/Graph/TypeClass` | `Foldable` | interface | `packages/foundation/capability/nlp/src/Graph/TypeClass.ts:142` | Foldable structures of element type `A`. Laws: empty/singleton/concat |
+| `@beep/nlp/Graph/TypeClass` | `foldableGraph` | const | `packages/foundation/capability/nlp/src/Graph/TypeClass.ts:153` | The {@link Foldable} instance for {@link EffectGraph}, folding over |
+| `@beep/nlp/Graph/TypeClass` | `ForgetfulOperation` | interface | `packages/foundation/capability/nlp/src/Graph/TypeClass.ts:226` | The forgetful (aggregation) functor: many nodes to one (e.g. sentences -\> text). |
+| `@beep/nlp/Graph/TypeClass` | `FreeOperation` | type | `packages/foundation/capability/nlp/src/Graph/TypeClass.ts:218` | The free (expansion) functor: one node to many (e.g. text -\> sentences). |
+| `@beep/nlp/Graph/TypeClass` | `Functor` | interface | `packages/foundation/capability/nlp/src/Graph/TypeClass.ts:305` | A Functor over `F`: `map` transforms the output while preserving structure. |
+| `@beep/nlp/Graph/TypeClass` | `identityOperation` | const | `packages/foundation/capability/nlp/src/Graph/TypeClass.ts:97` | The identity operation: re-emits the node under a fresh id (effectful id). |
+| `@beep/nlp/Graph/TypeClass` | `makeAdjunction` | const | `packages/foundation/capability/nlp/src/Graph/TypeClass.ts:237` | Pair a free expansion with its forgetful aggregation as an adjunction. |
+| `@beep/nlp/Graph/TypeClass` | `makeOperation` | const | `packages/foundation/capability/nlp/src/Graph/TypeClass.ts:57` | Build a {@link TextOperation} from an effectful node-producing function. |
+| `@beep/nlp/Graph/TypeClass` | `map` | const | `packages/foundation/capability/nlp/src/Graph/TypeClass.ts:315` | Map over a {@link TextOperation}'s output data, preserving structure/effects. |
+| `@beep/nlp/Graph/TypeClass` | `mapOperation` | const | `packages/foundation/capability/nlp/src/Graph/TypeClass.ts:255` | Map operation: transform node data without changing structure (a functor map). |
+| `@beep/nlp/Graph/TypeClass` | `pure` | const | `packages/foundation/capability/nlp/src/Graph/TypeClass.ts:382` | Lift a value into an operation that always produces it. |
+| `@beep/nlp/Graph/TypeClass` | `pureOperation` | const | `packages/foundation/capability/nlp/src/Graph/TypeClass.ts:69` | A pure text operation: maps node data to new data values (no context/errors), |
+| `@beep/nlp/Graph/TypeClass` | `replicate` | const | `packages/foundation/capability/nlp/src/Graph/TypeClass.ts:491` | Apply an operation `n` times and collect all results. |
+| `@beep/nlp/Graph/TypeClass` | `TextOperation` | interface | `packages/foundation/capability/nlp/src/Graph/TypeClass.ts:46` | A morphism in the graph category: maps a node of data `A` to new nodes of data |
+| `@beep/nlp/Graph/TypeClass` | `traverse` | const | `packages/foundation/capability/nlp/src/Graph/TypeClass.ts:464` | Traverse an operation's outputs with an effectful function. |
+| `@beep/nlp/Graph/TypeClass` | `unless` | const | `packages/foundation/capability/nlp/src/Graph/TypeClass.ts:524` | Apply an operation unless the node data satisfies the predicate. |
+| `@beep/nlp/Graph/TypeClass` | `when` | const | `packages/foundation/capability/nlp/src/Graph/TypeClass.ts:510` | Apply an operation only when the node data satisfies the predicate. |
+| `@beep/nlp/Handoff` | `Contract` | SourceFile | `packages/foundation/capability/nlp/src/Handoff/Contract.ts:21` |  |
+| `@beep/nlp/Handoff/Contract` | `AnnotatedDocument` | class | `packages/foundation/capability/nlp/src/Handoff/Contract.ts:330` | The top-level handoff envelope: a fully annotated document — its chunks, |
+| `@beep/nlp/Handoff/Contract` | `ChunkId` | const | `packages/foundation/capability/nlp/src/Handoff/Contract.ts:41` | Stable identifier for a {@link TextChunk}. |
+| `@beep/nlp/Handoff/Contract` | `ChunkId` | type | `packages/foundation/capability/nlp/src/Handoff/Contract.ts:52` | Runtime type of {@link ChunkId}. |
+| `@beep/nlp/Handoff/Contract` | `ChunkKind` | const | `packages/foundation/capability/nlp/src/Handoff/Contract.ts:145` | Closed vocabulary of {@link TextChunk} granularities. |
+| `@beep/nlp/Handoff/Contract` | `Entity` | class | `packages/foundation/capability/nlp/src/Handoff/Contract.ts:270` | An entity: a canonical thing referred to by one or more {@link Mention}s. Its |
+| `@beep/nlp/Handoff/Contract` | `EntityId` | const | `packages/foundation/capability/nlp/src/Handoff/Contract.ts:93` | Stable identifier for an {@link Entity}. |
+| `@beep/nlp/Handoff/Contract` | `EntityId` | type | `packages/foundation/capability/nlp/src/Handoff/Contract.ts:104` | Runtime type of {@link EntityId}. |
+| `@beep/nlp/Handoff/Contract` | `makeProvenance` | const | `packages/foundation/capability/nlp/src/Handoff/Contract.ts:357` | Build a {@link Provenance} stamped with the current time (effectful: reads |
+| `@beep/nlp/Handoff/Contract` | `Mention` | class | `packages/foundation/capability/nlp/src/Handoff/Contract.ts:242` | A surface mention occurrence: where a span of text within a chunk refers to |
+| `@beep/nlp/Handoff/Contract` | `MentionId` | const | `packages/foundation/capability/nlp/src/Handoff/Contract.ts:67` | Stable identifier for a {@link Mention}. |
+| `@beep/nlp/Handoff/Contract` | `MentionId` | type | `packages/foundation/capability/nlp/src/Handoff/Contract.ts:78` | Runtime type of {@link MentionId}. |
+| `@beep/nlp/Handoff/Contract` | `Provenance` | class | `packages/foundation/capability/nlp/src/Handoff/Contract.ts:188` | PROV-O-aligned provenance for a piece of derived annotation: where it came |
+| `@beep/nlp/Handoff/Contract` | `Relation` | class | `packages/foundation/capability/nlp/src/Handoff/Contract.ts:299` | A directed relation between two {@link Entity}s. Its `type` is a GENERIC |
+| `@beep/nlp/Handoff/Contract` | `RelationId` | const | `packages/foundation/capability/nlp/src/Handoff/Contract.ts:119` | Stable identifier for a {@link Relation}. |
+| `@beep/nlp/Handoff/Contract` | `RelationId` | type | `packages/foundation/capability/nlp/src/Handoff/Contract.ts:130` | Runtime type of {@link RelationId}. |
+| `@beep/nlp/Handoff/Contract` | `Span` | class | `packages/foundation/capability/nlp/src/Handoff/Contract.ts:162` | A half-open character span `[start, end)` into the source text. |
+| `@beep/nlp/Handoff/Contract` | `TextChunk` | class | `packages/foundation/capability/nlp/src/Handoff/Contract.ts:215` | A contiguous chunk of source text at a given granularity, with its span and |
+| `@beep/nlp/Handoff/index` | `Contract` | SourceFile | `packages/foundation/capability/nlp/src/Handoff/Contract.ts:21` |  |
 | `@beep/nlp/IdentifierText` | `tokens` | const | `packages/foundation/capability/nlp/src/IdentifierText.ts:35` | Convert a candidate identifier phrase into lowercase word tokens. |
 | `@beep/nlp/IdentifierText` | `variants` | const | `packages/foundation/capability/nlp/src/IdentifierText.ts:54` | Generate deterministic identifier variants for symbol lookup. |
 | `@beep/nlp/Layers` | `NLPAppLive` | const | `packages/foundation/capability/nlp/src/Layers/index.ts:55` | Compatibility application layer matching the legacy tokenization-focused bundle. |
@@ -7754,6 +8124,58 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/nlp/Layers/index` | `TokenizationModuleLive` | const | `packages/foundation/capability/nlp/src/Layers/index.ts:40` | Tokenization module layer exposing both the wink engine and tokenization service. |
 | `@beep/nlp/Layers/index` | `WinkEngine` | const | `packages/foundation/capability/nlp/src/Layers/index.ts:70` | Wink engine service. |
 | `@beep/nlp/Layers/index` | `WinkEngineLive` | const | `packages/foundation/capability/nlp/src/Layers/index.ts:84` | Wink engine live layer. |
+| `@beep/nlp/NLPService` | `extractEntities` | const | `packages/foundation/capability/nlp/src/NLPService.ts:123` | Extract entities using the {@link NLPService} from context. |
+| `@beep/nlp/NLPService` | `extractRelations` | const | `packages/foundation/capability/nlp/src/NLPService.ts:132` | Extract relations using the {@link NLPService} from context. |
+| `@beep/nlp/NLPService` | `layer` | const | `packages/foundation/capability/nlp/src/NLPService.ts:105` | Construct an {@link NLPService} layer from a backend layer. |
+| `@beep/nlp/NLPService` | `make` | const | `packages/foundation/capability/nlp/src/NLPService.ts:75` | Build an {@link NLPServiceShape} facade from a backend. |
+| `@beep/nlp/NLPService` | `NLPService` | class | `packages/foundation/capability/nlp/src/NLPService.ts:60` | Service tag for the {@link NLPServiceShape} facade. |
+| `@beep/nlp/NLPService` | `NLPServiceShape` | interface | `packages/foundation/capability/nlp/src/NLPService.ts:34` | Structural shape of the {@link NLPService}. |
+| `@beep/nlp/NLPService` | `processText` | const | `packages/foundation/capability/nlp/src/NLPService.ts:114` | Process text into an annotated graph using the {@link NLPService} from context. |
+| `@beep/nlp/NLPService` | `tagPartsOfSpeech` | const | `packages/foundation/capability/nlp/src/NLPService.ts:143` | Tag parts of speech using the {@link NLPService} from context. |
+| `@beep/nlp/Ontology` | `Kind` | SourceFile | `packages/foundation/capability/nlp/src/Ontology/Kind.ts:24` |  |
+| `@beep/nlp/Ontology/index` | `Kind` | SourceFile | `packages/foundation/capability/nlp/src/Ontology/Kind.ts:24` |  |
+| `@beep/nlp/Ontology/Kind` | `canContain` | const | `packages/foundation/capability/nlp/src/Ontology/Kind.ts:409` | Check whether `parent` can contain `child` per the containment poset. |
+| `@beep/nlp/Ontology/Kind` | `Character` | const | `packages/foundation/capability/nlp/src/Ontology/Kind.ts:242` | Create a Character-level typed text (atomic element of text). |
+| `@beep/nlp/Ontology/Kind` | `Chunk` | const | `packages/foundation/capability/nlp/src/Ontology/Kind.ts:321` | Create a Chunk-level typed text (shallow-parsing constituent: NP, VP, ...). |
+| `@beep/nlp/Ontology/Kind` | `content` | const | `packages/foundation/capability/nlp/src/Ontology/Kind.ts:443` | Extract raw content from typed text. |
+| `@beep/nlp/Ontology/Kind` | `Dependency` | const | `packages/foundation/capability/nlp/src/Ontology/Kind.ts:305` | Create a Dependency-level typed text (syntactic dependency arc). |
+| `@beep/nlp/Ontology/Kind` | `Document` | const | `packages/foundation/capability/nlp/src/Ontology/Kind.ts:179` | Create a Document-level typed text (top of the structural hierarchy). |
+| `@beep/nlp/Ontology/Kind` | `Embedding` | const | `packages/foundation/capability/nlp/src/Ontology/Kind.ts:289` | Create an Embedding-level typed text (vector-space representation). |
+| `@beep/nlp/Ontology/Kind` | `Entity` | const | `packages/foundation/capability/nlp/src/Ontology/Kind.ts:258` | Create an Entity-level typed text (named entity from NER). |
+| `@beep/nlp/Ontology/Kind` | `getValidChildren` | const | `packages/foundation/capability/nlp/src/Ontology/Kind.ts:424` | Get all valid child kinds for a given parent kind. |
+| `@beep/nlp/Ontology/Kind` | `isKind` | const | `packages/foundation/capability/nlp/src/Ontology/Kind.ts:509` | Type guard: whether a value is a {@link TypedText} of a specific kind. |
+| `@beep/nlp/Ontology/Kind` | `KindContainment` | interface | `packages/foundation/capability/nlp/src/Ontology/Kind.ts:365` | Structural containment hierarchy: which kinds can contain which others. |
+| `@beep/nlp/Ontology/Kind` | `kindOf` | const | `packages/foundation/capability/nlp/src/Ontology/Kind.ts:458` | Get the kind of a typed text. |
+| `@beep/nlp/Ontology/Kind` | `Lemma` | const | `packages/foundation/capability/nlp/src/Ontology/Kind.ts:351` | Create a Lemma-level typed text (canonical/dictionary form of a token). |
+| `@beep/nlp/Ontology/Kind` | `mapContent` | const | `packages/foundation/capability/nlp/src/Ontology/Kind.ts:473` | Map over the content of typed text, preserving its kind. |
+| `@beep/nlp/Ontology/Kind` | `Paragraph` | const | `packages/foundation/capability/nlp/src/Ontology/Kind.ts:195` | Create a Paragraph-level typed text (logical grouping within a document). |
+| `@beep/nlp/Ontology/Kind` | `POS` | const | `packages/foundation/capability/nlp/src/Ontology/Kind.ts:336` | Create a POS-level typed text (part-of-speech annotation). |
+| `@beep/nlp/Ontology/Kind` | `recast` | const | `packages/foundation/capability/nlp/src/Ontology/Kind.ts:527` | Re-tag typed text to a new kind (use only when the transition is valid). |
+| `@beep/nlp/Ontology/Kind` | `Relation` | const | `packages/foundation/capability/nlp/src/Ontology/Kind.ts:273` | Create a Relation-level typed text (semantic connection between entities). |
+| `@beep/nlp/Ontology/Kind` | `Sentence` | const | `packages/foundation/capability/nlp/src/Ontology/Kind.ts:211` | Create a Sentence-level typed text (fundamental unit of meaning). |
+| `@beep/nlp/Ontology/Kind` | `TextKind` | const | `packages/foundation/capability/nlp/src/Ontology/Kind.ts:49` | Textual strata in the NLP category (the object layer). |
+| `@beep/nlp/Ontology/Kind` | `TextKind` | type | `packages/foundation/capability/nlp/src/Ontology/Kind.ts:84` | Runtime type for {@link TextKind}. |
+| `@beep/nlp/Ontology/Kind` | `TextKindSchema` | const | `packages/foundation/capability/nlp/src/Ontology/Kind.ts:99` | Schema for {@link TextKind} (alias of the LiteralKit schema). |
+| `@beep/nlp/Ontology/Kind` | `Token` | const | `packages/foundation/capability/nlp/src/Ontology/Kind.ts:227` | Create a Token-level typed text (an individual word or punctuation mark). |
+| `@beep/nlp/Ontology/Kind` | `TypedText` | interface | `packages/foundation/capability/nlp/src/Ontology/Kind.ts:127` | Text content tagged with its ontological kind. |
+| `@beep/nlp/Ontology/Kind` | `TypedTextSchema` | const | `packages/foundation/capability/nlp/src/Ontology/Kind.ts:146` | Runtime validation schema for {@link TypedText} of a given kind. |
+| `@beep/nlp/Ontology/Kind` | `withMetadata` | const | `packages/foundation/capability/nlp/src/Ontology/Kind.ts:491` | Merge additional metadata into typed text. |
+| `@beep/nlp/Operations` | `Composable` | SourceFile | `packages/foundation/capability/nlp/src/Operations/Composable.ts:29` |  |
+| `@beep/nlp/Operations` | `Definition` | SourceFile | `packages/foundation/capability/nlp/src/Operations/Definition.ts:20` |  |
+| `@beep/nlp/Operations/Composable` | `aggregate` | const | `packages/foundation/capability/nlp/src/Operations/Composable.ts:248` | Aggregate an array of values into a single value using a {@link Monoid.Monoid}. |
+| `@beep/nlp/Operations/Composable` | `compose` | const | `packages/foundation/capability/nlp/src/Operations/Composable.ts:209` | Sequential composition: feed the first operation's output into the second. |
+| `@beep/nlp/Operations/Composable` | `fromDefinition` | const | `packages/foundation/capability/nlp/src/Operations/Composable.ts:179` | Build an {@link OperationBuilder} from a structured {@link OperationDefinition}. |
+| `@beep/nlp/Operations/Composable` | `identity` | const | `packages/foundation/capability/nlp/src/Operations/Composable.ts:228` | The identity operation: returns its input unchanged. |
+| `@beep/nlp/Operations/Composable` | `makeOperation` | const | `packages/foundation/capability/nlp/src/Operations/Composable.ts:157` | Build an {@link OperationBuilder} from name, schemas, and an effectful arrow. |
+| `@beep/nlp/Operations/Composable` | `makePureOperation` | const | `packages/foundation/capability/nlp/src/Operations/Composable.ts:196` | Build a pure (context-free, infallible) operation from a plain function. |
+| `@beep/nlp/Operations/Composable` | `NLPOperation` | type | `packages/foundation/capability/nlp/src/Operations/Composable.ts:41` | An effectful arrow from `A` to `B` requiring context `R` and failing with `E`. |
+| `@beep/nlp/Operations/Composable` | `OperationBuilder` | class | `packages/foundation/capability/nlp/src/Operations/Composable.ts:50` | A composable operation carrying its input/output schemas alongside its arrow, |
+| `@beep/nlp/Operations/Composable` | `traverse` | const | `packages/foundation/capability/nlp/src/Operations/Composable.ts:237` | Traverse an array of inputs through an operation, collecting decoded results. |
+| `@beep/nlp/Operations/Definition` | `OperationDefinition` | interface | `packages/foundation/capability/nlp/src/Operations/Definition.ts:31` | Structured definition of an NLP operation: name + description (metadata), |
+| `@beep/nlp/Operations/Definition` | `OperationInput` | type | `packages/foundation/capability/nlp/src/Operations/Definition.ts:53` | Extract the decoded input type from an {@link OperationDefinition}. |
+| `@beep/nlp/Operations/Definition` | `OperationOutput` | type | `packages/foundation/capability/nlp/src/Operations/Definition.ts:69` | Extract the decoded output type from an {@link OperationDefinition}. |
+| `@beep/nlp/Operations/index` | `Composable` | SourceFile | `packages/foundation/capability/nlp/src/Operations/Composable.ts:29` |  |
+| `@beep/nlp/Operations/index` | `Definition` | SourceFile | `packages/foundation/capability/nlp/src/Operations/Definition.ts:20` |  |
 | `@beep/nlp/PathText` | `filePathVariants` | const | `packages/foundation/capability/nlp/src/PathText.ts:76` | Generate deterministic file-query variants for source-file lookup. |
 | `@beep/nlp/PathText` | `isPathLike` | const | `packages/foundation/capability/nlp/src/PathText.ts:59` | True when the input is a bounded single-token path or module fragment. |
 | `@beep/nlp/PathText` | `moduleSpecifierVariants` | const | `packages/foundation/capability/nlp/src/PathText.ts:93` | Generate deterministic module-specifier variants for import-edge lookup. |
@@ -7799,21 +8221,21 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/nlp/Tools` | `Tokenize` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:498` | Tokenize tool. |
 | `@beep/nlp/Tools` | `TransformText` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:512` | Transform text tool. |
 | `@beep/nlp/Tools` | `TverskySimilarity` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:526` | Tversky similarity tool. |
-| `@beep/nlp/Tools/_schemas` | `AiCorpusConfig` | class | `packages/foundation/capability/nlp/src/Tools/_schemas.ts:290` | BM25 corpus configuration model for tool outputs. |
-| `@beep/nlp/Tools/_schemas` | `AiCorpusIdf` | class | `packages/foundation/capability/nlp/src/Tools/_schemas.ts:366` | Corpus IDF value model for tool outputs. |
-| `@beep/nlp/Tools/_schemas` | `AiCorpusMatrixShape` | class | `packages/foundation/capability/nlp/src/Tools/_schemas.ts:389` | Corpus matrix-shape model for tool outputs. |
-| `@beep/nlp/Tools/_schemas` | `AiCorpusRankedDocument` | class | `packages/foundation/capability/nlp/src/Tools/_schemas.ts:341` | Ranked corpus document model for tool outputs. |
-| `@beep/nlp/Tools/_schemas` | `AiCorpusStats` | class | `packages/foundation/capability/nlp/src/Tools/_schemas.ts:412` | Corpus stats model for tool outputs. |
-| `@beep/nlp/Tools/_schemas` | `AiCorpusSummary` | class | `packages/foundation/capability/nlp/src/Tools/_schemas.ts:315` | Corpus summary model for tool outputs. |
-| `@beep/nlp/Tools/_schemas` | `AiDocumentStats` | class | `packages/foundation/capability/nlp/src/Tools/_schemas.ts:139` | Flat document-stats model for tool outputs. |
-| `@beep/nlp/Tools/_schemas` | `AiEntity` | class | `packages/foundation/capability/nlp/src/Tools/_schemas.ts:213` | Flat entity model for tool outputs. |
-| `@beep/nlp/Tools/_schemas` | `AiKeyword` | class | `packages/foundation/capability/nlp/src/Tools/_schemas.ts:116` | Flat keyword model for tool outputs. |
-| `@beep/nlp/Tools/_schemas` | `AiNGram` | class | `packages/foundation/capability/nlp/src/Tools/_schemas.ts:241` | Flat n-gram model for tool outputs. |
-| `@beep/nlp/Tools/_schemas` | `AiPhoneticMatch` | class | `packages/foundation/capability/nlp/src/Tools/_schemas.ts:264` | Flat phonetic-match model for tool outputs. |
-| `@beep/nlp/Tools/_schemas` | `AiRankedText` | class | `packages/foundation/capability/nlp/src/Tools/_schemas.ts:190` | Flat ranked-text model for tool outputs. |
-| `@beep/nlp/Tools/_schemas` | `AiSentence` | class | `packages/foundation/capability/nlp/src/Tools/_schemas.ts:90` | Flat sentence model for tool outputs. |
-| `@beep/nlp/Tools/_schemas` | `AiSentenceChunk` | class | `packages/foundation/capability/nlp/src/Tools/_schemas.ts:164` | Flat sentence-chunk model for tool outputs. |
-| `@beep/nlp/Tools/_schemas` | `AiToken` | class | `packages/foundation/capability/nlp/src/Tools/_schemas.ts:59` | Flat token model for tool outputs. |
+| `@beep/nlp/Tools/_schemas` | `AiCorpusConfig` | class | `packages/foundation/capability/nlp/src/Tools/_schemas.ts:298` | BM25 corpus configuration model for tool outputs. |
+| `@beep/nlp/Tools/_schemas` | `AiCorpusIdf` | class | `packages/foundation/capability/nlp/src/Tools/_schemas.ts:374` | Corpus IDF value model for tool outputs. |
+| `@beep/nlp/Tools/_schemas` | `AiCorpusMatrixShape` | class | `packages/foundation/capability/nlp/src/Tools/_schemas.ts:397` | Corpus matrix-shape model for tool outputs. |
+| `@beep/nlp/Tools/_schemas` | `AiCorpusRankedDocument` | class | `packages/foundation/capability/nlp/src/Tools/_schemas.ts:349` | Ranked corpus document model for tool outputs. |
+| `@beep/nlp/Tools/_schemas` | `AiCorpusStats` | class | `packages/foundation/capability/nlp/src/Tools/_schemas.ts:420` | Corpus stats model for tool outputs. |
+| `@beep/nlp/Tools/_schemas` | `AiCorpusSummary` | class | `packages/foundation/capability/nlp/src/Tools/_schemas.ts:323` | Corpus summary model for tool outputs. |
+| `@beep/nlp/Tools/_schemas` | `AiDocumentStats` | class | `packages/foundation/capability/nlp/src/Tools/_schemas.ts:147` | Flat document-stats model for tool outputs. |
+| `@beep/nlp/Tools/_schemas` | `AiEntity` | class | `packages/foundation/capability/nlp/src/Tools/_schemas.ts:221` | Flat entity model for tool outputs. |
+| `@beep/nlp/Tools/_schemas` | `AiKeyword` | class | `packages/foundation/capability/nlp/src/Tools/_schemas.ts:124` | Flat keyword model for tool outputs. |
+| `@beep/nlp/Tools/_schemas` | `AiNGram` | class | `packages/foundation/capability/nlp/src/Tools/_schemas.ts:249` | Flat n-gram model for tool outputs. |
+| `@beep/nlp/Tools/_schemas` | `AiPhoneticMatch` | class | `packages/foundation/capability/nlp/src/Tools/_schemas.ts:272` | Flat phonetic-match model for tool outputs. |
+| `@beep/nlp/Tools/_schemas` | `AiRankedText` | class | `packages/foundation/capability/nlp/src/Tools/_schemas.ts:198` | Flat ranked-text model for tool outputs. |
+| `@beep/nlp/Tools/_schemas` | `AiSentence` | class | `packages/foundation/capability/nlp/src/Tools/_schemas.ts:98` | Flat sentence model for tool outputs. |
+| `@beep/nlp/Tools/_schemas` | `AiSentenceChunk` | class | `packages/foundation/capability/nlp/src/Tools/_schemas.ts:172` | Flat sentence-chunk model for tool outputs. |
+| `@beep/nlp/Tools/_schemas` | `AiToken` | class | `packages/foundation/capability/nlp/src/Tools/_schemas.ts:67` | Flat token model for tool outputs. |
 | `@beep/nlp/Tools/BowCosineSimilarity` | `BowCosineSimilarity` | const | `packages/foundation/capability/nlp/src/Tools/BowCosineSimilarity.ts:58` | Tool for computing bag-of-words cosine similarity. |
 | `@beep/nlp/Tools/ChunkBySentences` | `ChunkBySentences` | const | `packages/foundation/capability/nlp/src/Tools/ChunkBySentences.ts:57` | Tool for chunking text along sentence boundaries. |
 | `@beep/nlp/Tools/CorpusStats` | `CorpusStats` | const | `packages/foundation/capability/nlp/src/Tools/CorpusStats.ts:49` | Tool for inspecting corpus internals. |
@@ -7861,42 +8283,42 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/nlp/Tools/index` | `TransformText` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:512` | Transform text tool. |
 | `@beep/nlp/Tools/index` | `TverskySimilarity` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:526` | Tversky similarity tool. |
 | `@beep/nlp/Tools/LearnCorpus` | `LearnCorpus` | const | `packages/foundation/capability/nlp/src/Tools/LearnCorpus.ts:68` | Tool for incrementally learning documents into a corpus. |
-| `@beep/nlp/Tools/LearnCustomEntities` | `LearnCustomEntities` | const | `packages/foundation/capability/nlp/src/Tools/LearnCustomEntities.ts:83` | Tool for teaching custom pattern-based entities. |
-| `@beep/nlp/Tools/NGrams` | `NGrams` | const | `packages/foundation/capability/nlp/src/Tools/NGrams.ts:71` | Tool for extracting character n-grams. |
-| `@beep/nlp/Tools/NlpToolkit` | `NlpToolkit` | const | `packages/foundation/capability/nlp/src/Tools/NlpToolkit.ts:371` | NLP toolkit definition containing the full tool surface. |
-| `@beep/nlp/Tools/NlpToolkit` | `NlpToolkitLive` | const | `packages/foundation/capability/nlp/src/Tools/NlpToolkit.ts:386` | Live toolkit handlers backed by the wink runtime layers. |
-| `@beep/nlp/Tools/NlpToolkit` | `NlpTools` | const | `packages/foundation/capability/nlp/src/Tools/NlpToolkit.ts:336` | Canonical ordered NLP tool list used to build the toolkit and export adapters. |
-| `@beep/nlp/Tools/PhoneticMatch` | `PhoneticMatch` | const | `packages/foundation/capability/nlp/src/Tools/PhoneticMatch.ts:58` | Tool for comparing texts by phonetic overlap. |
+| `@beep/nlp/Tools/LearnCustomEntities` | `LearnCustomEntities` | const | `packages/foundation/capability/nlp/src/Tools/LearnCustomEntities.ts:87` | Tool for teaching custom pattern-based entities. |
+| `@beep/nlp/Tools/NGrams` | `NGrams` | const | `packages/foundation/capability/nlp/src/Tools/NGrams.ts:75` | Tool for extracting character n-grams. |
+| `@beep/nlp/Tools/NlpToolkit` | `NlpToolkit` | const | `packages/foundation/capability/nlp/src/Tools/NlpToolkit.ts:381` | NLP toolkit definition containing the full tool surface. |
+| `@beep/nlp/Tools/NlpToolkit` | `NlpToolkitLive` | const | `packages/foundation/capability/nlp/src/Tools/NlpToolkit.ts:396` | Live toolkit handlers backed by the wink runtime layers. |
+| `@beep/nlp/Tools/NlpToolkit` | `NlpTools` | const | `packages/foundation/capability/nlp/src/Tools/NlpToolkit.ts:346` | Canonical ordered NLP tool list used to build the toolkit and export adapters. |
+| `@beep/nlp/Tools/PhoneticMatch` | `PhoneticMatch` | const | `packages/foundation/capability/nlp/src/Tools/PhoneticMatch.ts:62` | Tool for comparing texts by phonetic overlap. |
 | `@beep/nlp/Tools/QueryCorpus` | `QueryCorpus` | const | `packages/foundation/capability/nlp/src/Tools/QueryCorpus.ts:75` | Tool for querying a previously learned corpus session. |
-| `@beep/nlp/Tools/RankByRelevance` | `RankByRelevance` | const | `packages/foundation/capability/nlp/src/Tools/RankByRelevance.ts:63` | Tool for ranking texts against a query. |
+| `@beep/nlp/Tools/RankByRelevance` | `RankByRelevance` | const | `packages/foundation/capability/nlp/src/Tools/RankByRelevance.ts:65` | Tool for ranking texts against a query. |
 | `@beep/nlp/Tools/Sentences` | `Sentences` | const | `packages/foundation/capability/nlp/src/Tools/Sentences.ts:50` | Tool for splitting text into sentences with metadata. |
 | `@beep/nlp/Tools/TextSimilarity` | `TextSimilarity` | const | `packages/foundation/capability/nlp/src/Tools/TextSimilarity.ts:58` | Tool for computing similarity between two texts. |
 | `@beep/nlp/Tools/Tokenize` | `Tokenize` | const | `packages/foundation/capability/nlp/src/Tools/Tokenize.ts:50` | Tool for tokenizing text into annotated linguistic tokens. |
 | `@beep/nlp/Tools/ToolExport` | `ExportedTool` | interface | `packages/foundation/capability/nlp/src/Tools/ToolExport.ts:138` | Runtime descriptor for an exported positional tool. |
 | `@beep/nlp/Tools/ToolExport` | `ExportedToolError` | class | `packages/foundation/capability/nlp/src/Tools/ToolExport.ts:92` | Error raised while exporting or executing positional NLP tools. |
-| `@beep/nlp/Tools/ToolExport` | `exportTools` | const | `packages/foundation/capability/nlp/src/Tools/ToolExport.ts:288` | Export tools export. |
-| `@beep/nlp/Tools/TransformText` | `TransformText` | const | `packages/foundation/capability/nlp/src/Tools/TransformText.ts:79` | Tool for applying text cleaning and normalization operations. |
+| `@beep/nlp/Tools/ToolExport` | `exportTools` | const | `packages/foundation/capability/nlp/src/Tools/ToolExport.ts:283` | Export tools export. |
+| `@beep/nlp/Tools/TransformText` | `TransformText` | const | `packages/foundation/capability/nlp/src/Tools/TransformText.ts:83` | Tool for applying text cleaning and normalization operations. |
 | `@beep/nlp/Tools/TverskySimilarity` | `TverskySimilarity` | const | `packages/foundation/capability/nlp/src/Tools/TverskySimilarity.ts:71` | Tool for computing asymmetric set similarity. |
 | `@beep/nlp/VariantText` | `orderedDedupe` | const | `packages/foundation/capability/nlp/src/VariantText.ts:31` | Remove empty strings and duplicates while preserving the first occurrence of |
-| `@beep/nlp/Wink` | `BagOfWords` | class | `packages/foundation/capability/nlp/src/Wink/WinkVectorizer.ts:269` | Bag-of-words representation for a document or query. |
-| `@beep/nlp/Wink` | `BM25Config` | class | `packages/foundation/capability/nlp/src/Wink/WinkVectorizer.ts:192` | BM25 configuration used by wink vectorization and corpus management. |
-| `@beep/nlp/Wink` | `BM25Norm` | const | `packages/foundation/capability/nlp/src/Wink/WinkVectorizer.ts:117` | BM25 normalization mode used by the vectorizer and corpus services. |
+| `@beep/nlp/Wink` | `BagOfWords` | class | `packages/foundation/capability/nlp/src/Wink/WinkVectorizer.ts:273` | Bag-of-words representation for a document or query. |
+| `@beep/nlp/Wink` | `BM25Config` | class | `packages/foundation/capability/nlp/src/Wink/WinkVectorizer.ts:196` | BM25 configuration used by wink vectorization and corpus management. |
+| `@beep/nlp/Wink` | `BM25Norm` | const | `packages/foundation/capability/nlp/src/Wink/WinkVectorizer.ts:121` | BM25 normalization mode used by the vectorizer and corpus services. |
 | `@beep/nlp/Wink` | `CorpusManagerError` | class | `packages/foundation/capability/nlp/src/Wink/WinkCorpusManager.ts:262` | Error raised while managing a live corpus session. |
 | `@beep/nlp/Wink` | `CustomEntityExample` | class | `packages/foundation/capability/nlp/src/Wink/WinkPattern.ts:99` | One custom-entity example expressed as ordered bracket-pattern elements. |
-| `@beep/nlp/Wink` | `DefaultBM25Config` | const | `packages/foundation/capability/nlp/src/Wink/WinkVectorizer.ts:221` | Default BM25 configuration used by the live wink vectorizer. |
-| `@beep/nlp/Wink` | `DocumentTermSet` | class | `packages/foundation/capability/nlp/src/Wink/WinkSimilarity.ts:100` | Set of normalized document terms used for set-based similarity. |
-| `@beep/nlp/Wink` | `DocumentVector` | class | `packages/foundation/capability/nlp/src/Wink/WinkVectorizer.ts:241` | Dense vector representation for a document or query. |
+| `@beep/nlp/Wink` | `DefaultBM25Config` | const | `packages/foundation/capability/nlp/src/Wink/WinkVectorizer.ts:225` | Default BM25 configuration used by the live wink vectorizer. |
+| `@beep/nlp/Wink` | `DocumentTermSet` | class | `packages/foundation/capability/nlp/src/Wink/WinkSimilarity.ts:104` | Set of normalized document terms used for set-based similarity. |
+| `@beep/nlp/Wink` | `DocumentVector` | class | `packages/foundation/capability/nlp/src/Wink/WinkVectorizer.ts:245` | Dense vector representation for a document or query. |
 | `@beep/nlp/Wink` | `EntityGroupName` | const | `packages/foundation/capability/nlp/src/Wink/WinkPattern.ts:64` | Branded identifier for a wink custom-entity group. |
 | `@beep/nlp/Wink` | `EntityGroupName` | type | `packages/foundation/capability/nlp/src/Wink/WinkPattern.ts:84` | Runtime type for {@link EntityGroupName}. |
 | `@beep/nlp/Wink` | `InstanceId` | const | `packages/foundation/capability/nlp/src/Wink/WinkEngine.ts:51` | Branded runtime identifier for one live wink engine instance. |
 | `@beep/nlp/Wink` | `InstanceId` | type | `packages/foundation/capability/nlp/src/Wink/WinkEngine.ts:71` | Runtime type for {@link InstanceId}. |
-| `@beep/nlp/Wink` | `ScopedVectorizer` | interface | `packages/foundation/capability/nlp/src/Wink/WinkVectorizer.ts:80` | Minimal isolated vectorizer surface used by ranking and keyword extraction. |
+| `@beep/nlp/Wink` | `ScopedVectorizer` | interface | `packages/foundation/capability/nlp/src/Wink/WinkVectorizer.ts:84` | Minimal isolated vectorizer surface used by ranking and keyword extraction. |
 | `@beep/nlp/Wink` | `SentenceSpanFailure` | class | `packages/foundation/capability/nlp/src/Wink/WinkTokenizer.ts:44` | Failure raised when wink sentence spans cannot be derived from the token stream. |
-| `@beep/nlp/Wink` | `SimilarityError` | class | `packages/foundation/capability/nlp/src/Wink/WinkSimilarity.ts:157` | Error raised while computing wink-backed similarity. |
-| `@beep/nlp/Wink` | `SimilarityScore` | class | `packages/foundation/capability/nlp/src/Wink/WinkSimilarity.ts:127` | Similarity score returned from a wink-backed comparison. |
-| `@beep/nlp/Wink` | `TermFrequency` | class | `packages/foundation/capability/nlp/src/Wink/WinkVectorizer.ts:296` | Term-frequency entry for a learned document. |
-| `@beep/nlp/Wink` | `TverskyParams` | class | `packages/foundation/capability/nlp/src/Wink/WinkSimilarity.ts:73` | Parameters controlling the asymmetric Tversky index. |
-| `@beep/nlp/Wink` | `VectorizerError` | class | `packages/foundation/capability/nlp/src/Wink/WinkVectorizer.ts:323` | Error raised while learning or querying wink BM25 vectors. |
+| `@beep/nlp/Wink` | `SimilarityError` | class | `packages/foundation/capability/nlp/src/Wink/WinkSimilarity.ts:161` | Error raised while computing wink-backed similarity. |
+| `@beep/nlp/Wink` | `SimilarityScore` | class | `packages/foundation/capability/nlp/src/Wink/WinkSimilarity.ts:131` | Similarity score returned from a wink-backed comparison. |
+| `@beep/nlp/Wink` | `TermFrequency` | class | `packages/foundation/capability/nlp/src/Wink/WinkVectorizer.ts:300` | Term-frequency entry for a learned document. |
+| `@beep/nlp/Wink` | `TverskyParams` | class | `packages/foundation/capability/nlp/src/Wink/WinkSimilarity.ts:77` | Parameters controlling the asymmetric Tversky index. |
+| `@beep/nlp/Wink` | `VectorizerError` | class | `packages/foundation/capability/nlp/src/Wink/WinkVectorizer.ts:327` | Error raised while learning or querying wink BM25 vectors. |
 | `@beep/nlp/Wink` | `WinkCorpusManager` | class | `packages/foundation/capability/nlp/src/Wink/WinkCorpusManager.ts:727` | Wink corpus manager service. |
 | `@beep/nlp/Wink` | `WinkCorpusManagerLive` | const | `packages/foundation/capability/nlp/src/Wink/WinkCorpusManager.ts:744` | Live wink corpus manager layer. |
 | `@beep/nlp/Wink` | `WinkEngine` | class | `packages/foundation/capability/nlp/src/Wink/WinkEngine.ts:238` | Wink engine service tag. |
@@ -7911,35 +8333,35 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/nlp/Wink` | `WinkError` | type | `packages/foundation/capability/nlp/src/Wink/WinkErrors.ts:180` | Union of wink runtime errors. |
 | `@beep/nlp/Wink` | `WinkLayerAllLive` | const | `packages/foundation/capability/nlp/src/Wink/index.ts:23` | Wink layer all live layer. |
 | `@beep/nlp/Wink` | `WinkLayerLive` | const | `packages/foundation/capability/nlp/src/Wink/index.ts:37` | Wink layer live layer. |
-| `@beep/nlp/Wink` | `WinkSimilarity` | class | `packages/foundation/capability/nlp/src/Wink/WinkSimilarity.ts:284` | Wink similarity service. |
-| `@beep/nlp/Wink` | `WinkSimilarityLive` | const | `packages/foundation/capability/nlp/src/Wink/WinkSimilarity.ts:299` | Live wink similarity layer. |
+| `@beep/nlp/Wink` | `WinkSimilarity` | class | `packages/foundation/capability/nlp/src/Wink/WinkSimilarity.ts:288` | Wink similarity service. |
+| `@beep/nlp/Wink` | `WinkSimilarityLive` | const | `packages/foundation/capability/nlp/src/Wink/WinkSimilarity.ts:303` | Live wink similarity layer. |
 | `@beep/nlp/Wink` | `WinkTokenization` | const | `packages/foundation/capability/nlp/src/Wink/WinkTokenizer.ts:343` | Wink-backed tokenization layer. |
 | `@beep/nlp/Wink` | `WinkTokenizationError` | class | `packages/foundation/capability/nlp/src/Wink/WinkErrors.ts:82` | Failure raised while reading or tokenizing text through wink. |
 | `@beep/nlp/Wink` | `WinkTokenizationLive` | const | `packages/foundation/capability/nlp/src/Wink/WinkTokenizer.ts:358` | Wink-backed tokenization layer with the live engine provided. |
-| `@beep/nlp/Wink` | `WinkUtils` | class | `packages/foundation/capability/nlp/src/Wink/WinkUtils.ts:242` | Wink utility service. |
-| `@beep/nlp/Wink` | `WinkUtilsError` | class | `packages/foundation/capability/nlp/src/Wink/WinkUtils.ts:118` | Error raised while calling wink utility helpers. |
-| `@beep/nlp/Wink` | `WinkUtilsLive` | const | `packages/foundation/capability/nlp/src/Wink/WinkUtils.ts:257` | Live wink utility layer. |
-| `@beep/nlp/Wink` | `WinkVectorizer` | class | `packages/foundation/capability/nlp/src/Wink/WinkVectorizer.ts:526` | Wink vectorizer service. |
-| `@beep/nlp/Wink` | `WinkVectorizerLive` | const | `packages/foundation/capability/nlp/src/Wink/WinkVectorizer.ts:541` | Live wink vectorizer layer. |
-| `@beep/nlp/Wink/index` | `BagOfWords` | class | `packages/foundation/capability/nlp/src/Wink/WinkVectorizer.ts:269` | Bag-of-words representation for a document or query. |
-| `@beep/nlp/Wink/index` | `BM25Config` | class | `packages/foundation/capability/nlp/src/Wink/WinkVectorizer.ts:192` | BM25 configuration used by wink vectorization and corpus management. |
-| `@beep/nlp/Wink/index` | `BM25Norm` | const | `packages/foundation/capability/nlp/src/Wink/WinkVectorizer.ts:117` | BM25 normalization mode used by the vectorizer and corpus services. |
+| `@beep/nlp/Wink` | `WinkUtils` | class | `packages/foundation/capability/nlp/src/Wink/WinkUtils.ts:247` | Wink utility service. |
+| `@beep/nlp/Wink` | `WinkUtilsError` | class | `packages/foundation/capability/nlp/src/Wink/WinkUtils.ts:123` | Error raised while calling wink utility helpers. |
+| `@beep/nlp/Wink` | `WinkUtilsLive` | const | `packages/foundation/capability/nlp/src/Wink/WinkUtils.ts:262` | Live wink utility layer. |
+| `@beep/nlp/Wink` | `WinkVectorizer` | class | `packages/foundation/capability/nlp/src/Wink/WinkVectorizer.ts:530` | Wink vectorizer service. |
+| `@beep/nlp/Wink` | `WinkVectorizerLive` | const | `packages/foundation/capability/nlp/src/Wink/WinkVectorizer.ts:545` | Live wink vectorizer layer. |
+| `@beep/nlp/Wink/index` | `BagOfWords` | class | `packages/foundation/capability/nlp/src/Wink/WinkVectorizer.ts:273` | Bag-of-words representation for a document or query. |
+| `@beep/nlp/Wink/index` | `BM25Config` | class | `packages/foundation/capability/nlp/src/Wink/WinkVectorizer.ts:196` | BM25 configuration used by wink vectorization and corpus management. |
+| `@beep/nlp/Wink/index` | `BM25Norm` | const | `packages/foundation/capability/nlp/src/Wink/WinkVectorizer.ts:121` | BM25 normalization mode used by the vectorizer and corpus services. |
 | `@beep/nlp/Wink/index` | `CorpusManagerError` | class | `packages/foundation/capability/nlp/src/Wink/WinkCorpusManager.ts:262` | Error raised while managing a live corpus session. |
 | `@beep/nlp/Wink/index` | `CustomEntityExample` | class | `packages/foundation/capability/nlp/src/Wink/WinkPattern.ts:99` | One custom-entity example expressed as ordered bracket-pattern elements. |
-| `@beep/nlp/Wink/index` | `DefaultBM25Config` | const | `packages/foundation/capability/nlp/src/Wink/WinkVectorizer.ts:221` | Default BM25 configuration used by the live wink vectorizer. |
-| `@beep/nlp/Wink/index` | `DocumentTermSet` | class | `packages/foundation/capability/nlp/src/Wink/WinkSimilarity.ts:100` | Set of normalized document terms used for set-based similarity. |
-| `@beep/nlp/Wink/index` | `DocumentVector` | class | `packages/foundation/capability/nlp/src/Wink/WinkVectorizer.ts:241` | Dense vector representation for a document or query. |
+| `@beep/nlp/Wink/index` | `DefaultBM25Config` | const | `packages/foundation/capability/nlp/src/Wink/WinkVectorizer.ts:225` | Default BM25 configuration used by the live wink vectorizer. |
+| `@beep/nlp/Wink/index` | `DocumentTermSet` | class | `packages/foundation/capability/nlp/src/Wink/WinkSimilarity.ts:104` | Set of normalized document terms used for set-based similarity. |
+| `@beep/nlp/Wink/index` | `DocumentVector` | class | `packages/foundation/capability/nlp/src/Wink/WinkVectorizer.ts:245` | Dense vector representation for a document or query. |
 | `@beep/nlp/Wink/index` | `EntityGroupName` | const | `packages/foundation/capability/nlp/src/Wink/WinkPattern.ts:64` | Branded identifier for a wink custom-entity group. |
 | `@beep/nlp/Wink/index` | `EntityGroupName` | type | `packages/foundation/capability/nlp/src/Wink/WinkPattern.ts:84` | Runtime type for {@link EntityGroupName}. |
 | `@beep/nlp/Wink/index` | `InstanceId` | const | `packages/foundation/capability/nlp/src/Wink/WinkEngine.ts:51` | Branded runtime identifier for one live wink engine instance. |
 | `@beep/nlp/Wink/index` | `InstanceId` | type | `packages/foundation/capability/nlp/src/Wink/WinkEngine.ts:71` | Runtime type for {@link InstanceId}. |
-| `@beep/nlp/Wink/index` | `ScopedVectorizer` | interface | `packages/foundation/capability/nlp/src/Wink/WinkVectorizer.ts:80` | Minimal isolated vectorizer surface used by ranking and keyword extraction. |
+| `@beep/nlp/Wink/index` | `ScopedVectorizer` | interface | `packages/foundation/capability/nlp/src/Wink/WinkVectorizer.ts:84` | Minimal isolated vectorizer surface used by ranking and keyword extraction. |
 | `@beep/nlp/Wink/index` | `SentenceSpanFailure` | class | `packages/foundation/capability/nlp/src/Wink/WinkTokenizer.ts:44` | Failure raised when wink sentence spans cannot be derived from the token stream. |
-| `@beep/nlp/Wink/index` | `SimilarityError` | class | `packages/foundation/capability/nlp/src/Wink/WinkSimilarity.ts:157` | Error raised while computing wink-backed similarity. |
-| `@beep/nlp/Wink/index` | `SimilarityScore` | class | `packages/foundation/capability/nlp/src/Wink/WinkSimilarity.ts:127` | Similarity score returned from a wink-backed comparison. |
-| `@beep/nlp/Wink/index` | `TermFrequency` | class | `packages/foundation/capability/nlp/src/Wink/WinkVectorizer.ts:296` | Term-frequency entry for a learned document. |
-| `@beep/nlp/Wink/index` | `TverskyParams` | class | `packages/foundation/capability/nlp/src/Wink/WinkSimilarity.ts:73` | Parameters controlling the asymmetric Tversky index. |
-| `@beep/nlp/Wink/index` | `VectorizerError` | class | `packages/foundation/capability/nlp/src/Wink/WinkVectorizer.ts:323` | Error raised while learning or querying wink BM25 vectors. |
+| `@beep/nlp/Wink/index` | `SimilarityError` | class | `packages/foundation/capability/nlp/src/Wink/WinkSimilarity.ts:161` | Error raised while computing wink-backed similarity. |
+| `@beep/nlp/Wink/index` | `SimilarityScore` | class | `packages/foundation/capability/nlp/src/Wink/WinkSimilarity.ts:131` | Similarity score returned from a wink-backed comparison. |
+| `@beep/nlp/Wink/index` | `TermFrequency` | class | `packages/foundation/capability/nlp/src/Wink/WinkVectorizer.ts:300` | Term-frequency entry for a learned document. |
+| `@beep/nlp/Wink/index` | `TverskyParams` | class | `packages/foundation/capability/nlp/src/Wink/WinkSimilarity.ts:77` | Parameters controlling the asymmetric Tversky index. |
+| `@beep/nlp/Wink/index` | `VectorizerError` | class | `packages/foundation/capability/nlp/src/Wink/WinkVectorizer.ts:327` | Error raised while learning or querying wink BM25 vectors. |
 | `@beep/nlp/Wink/index` | `WinkCorpusManager` | class | `packages/foundation/capability/nlp/src/Wink/WinkCorpusManager.ts:727` | Wink corpus manager service. |
 | `@beep/nlp/Wink/index` | `WinkCorpusManagerLive` | const | `packages/foundation/capability/nlp/src/Wink/WinkCorpusManager.ts:744` | Live wink corpus manager layer. |
 | `@beep/nlp/Wink/index` | `WinkEngine` | class | `packages/foundation/capability/nlp/src/Wink/WinkEngine.ts:238` | Wink engine service tag. |
@@ -7954,16 +8376,16 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/nlp/Wink/index` | `WinkError` | type | `packages/foundation/capability/nlp/src/Wink/WinkErrors.ts:180` | Union of wink runtime errors. |
 | `@beep/nlp/Wink/index` | `WinkLayerAllLive` | const | `packages/foundation/capability/nlp/src/Wink/index.ts:23` | Wink layer all live layer. |
 | `@beep/nlp/Wink/index` | `WinkLayerLive` | const | `packages/foundation/capability/nlp/src/Wink/index.ts:37` | Wink layer live layer. |
-| `@beep/nlp/Wink/index` | `WinkSimilarity` | class | `packages/foundation/capability/nlp/src/Wink/WinkSimilarity.ts:284` | Wink similarity service. |
-| `@beep/nlp/Wink/index` | `WinkSimilarityLive` | const | `packages/foundation/capability/nlp/src/Wink/WinkSimilarity.ts:299` | Live wink similarity layer. |
+| `@beep/nlp/Wink/index` | `WinkSimilarity` | class | `packages/foundation/capability/nlp/src/Wink/WinkSimilarity.ts:288` | Wink similarity service. |
+| `@beep/nlp/Wink/index` | `WinkSimilarityLive` | const | `packages/foundation/capability/nlp/src/Wink/WinkSimilarity.ts:303` | Live wink similarity layer. |
 | `@beep/nlp/Wink/index` | `WinkTokenization` | const | `packages/foundation/capability/nlp/src/Wink/WinkTokenizer.ts:343` | Wink-backed tokenization layer. |
 | `@beep/nlp/Wink/index` | `WinkTokenizationError` | class | `packages/foundation/capability/nlp/src/Wink/WinkErrors.ts:82` | Failure raised while reading or tokenizing text through wink. |
 | `@beep/nlp/Wink/index` | `WinkTokenizationLive` | const | `packages/foundation/capability/nlp/src/Wink/WinkTokenizer.ts:358` | Wink-backed tokenization layer with the live engine provided. |
-| `@beep/nlp/Wink/index` | `WinkUtils` | class | `packages/foundation/capability/nlp/src/Wink/WinkUtils.ts:242` | Wink utility service. |
-| `@beep/nlp/Wink/index` | `WinkUtilsError` | class | `packages/foundation/capability/nlp/src/Wink/WinkUtils.ts:118` | Error raised while calling wink utility helpers. |
-| `@beep/nlp/Wink/index` | `WinkUtilsLive` | const | `packages/foundation/capability/nlp/src/Wink/WinkUtils.ts:257` | Live wink utility layer. |
-| `@beep/nlp/Wink/index` | `WinkVectorizer` | class | `packages/foundation/capability/nlp/src/Wink/WinkVectorizer.ts:526` | Wink vectorizer service. |
-| `@beep/nlp/Wink/index` | `WinkVectorizerLive` | const | `packages/foundation/capability/nlp/src/Wink/WinkVectorizer.ts:541` | Live wink vectorizer layer. |
+| `@beep/nlp/Wink/index` | `WinkUtils` | class | `packages/foundation/capability/nlp/src/Wink/WinkUtils.ts:247` | Wink utility service. |
+| `@beep/nlp/Wink/index` | `WinkUtilsError` | class | `packages/foundation/capability/nlp/src/Wink/WinkUtils.ts:123` | Error raised while calling wink utility helpers. |
+| `@beep/nlp/Wink/index` | `WinkUtilsLive` | const | `packages/foundation/capability/nlp/src/Wink/WinkUtils.ts:262` | Live wink utility layer. |
+| `@beep/nlp/Wink/index` | `WinkVectorizer` | class | `packages/foundation/capability/nlp/src/Wink/WinkVectorizer.ts:530` | Wink vectorizer service. |
+| `@beep/nlp/Wink/index` | `WinkVectorizerLive` | const | `packages/foundation/capability/nlp/src/Wink/WinkVectorizer.ts:545` | Live wink vectorizer layer. |
 | `@beep/nlp/Wink/Layer` | `WinkCorpusManagerLive` | const | `packages/foundation/capability/nlp/src/Wink/Layer.ts:71` | Wink corpus manager live layer. |
 | `@beep/nlp/Wink/Layer` | `WinkEngine` | const | `packages/foundation/capability/nlp/src/Wink/Layer.ts:85` | Wink engine service. |
 | `@beep/nlp/Wink/Layer` | `WinkEngineLive` | const | `packages/foundation/capability/nlp/src/Wink/Layer.ts:99` | Wink engine live layer. |
@@ -7997,28 +8419,28 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/nlp/Wink/WinkPattern` | `EntityGroupName` | const | `packages/foundation/capability/nlp/src/Wink/WinkPattern.ts:64` | Branded identifier for a wink custom-entity group. |
 | `@beep/nlp/Wink/WinkPattern` | `EntityGroupName` | type | `packages/foundation/capability/nlp/src/Wink/WinkPattern.ts:84` | Runtime type for {@link EntityGroupName}. |
 | `@beep/nlp/Wink/WinkPattern` | `WinkEngineCustomEntities` | class | `packages/foundation/capability/nlp/src/Wink/WinkPattern.ts:143` | Collection of learned custom-entity examples tracked as one logical group. |
-| `@beep/nlp/Wink/WinkSimilarity` | `DocumentTermSet` | class | `packages/foundation/capability/nlp/src/Wink/WinkSimilarity.ts:100` | Set of normalized document terms used for set-based similarity. |
-| `@beep/nlp/Wink/WinkSimilarity` | `SimilarityError` | class | `packages/foundation/capability/nlp/src/Wink/WinkSimilarity.ts:157` | Error raised while computing wink-backed similarity. |
-| `@beep/nlp/Wink/WinkSimilarity` | `SimilarityScore` | class | `packages/foundation/capability/nlp/src/Wink/WinkSimilarity.ts:127` | Similarity score returned from a wink-backed comparison. |
-| `@beep/nlp/Wink/WinkSimilarity` | `TverskyParams` | class | `packages/foundation/capability/nlp/src/Wink/WinkSimilarity.ts:73` | Parameters controlling the asymmetric Tversky index. |
-| `@beep/nlp/Wink/WinkSimilarity` | `WinkSimilarity` | class | `packages/foundation/capability/nlp/src/Wink/WinkSimilarity.ts:284` | Wink similarity service. |
-| `@beep/nlp/Wink/WinkSimilarity` | `WinkSimilarityLive` | const | `packages/foundation/capability/nlp/src/Wink/WinkSimilarity.ts:299` | Live wink similarity layer. |
+| `@beep/nlp/Wink/WinkSimilarity` | `DocumentTermSet` | class | `packages/foundation/capability/nlp/src/Wink/WinkSimilarity.ts:104` | Set of normalized document terms used for set-based similarity. |
+| `@beep/nlp/Wink/WinkSimilarity` | `SimilarityError` | class | `packages/foundation/capability/nlp/src/Wink/WinkSimilarity.ts:161` | Error raised while computing wink-backed similarity. |
+| `@beep/nlp/Wink/WinkSimilarity` | `SimilarityScore` | class | `packages/foundation/capability/nlp/src/Wink/WinkSimilarity.ts:131` | Similarity score returned from a wink-backed comparison. |
+| `@beep/nlp/Wink/WinkSimilarity` | `TverskyParams` | class | `packages/foundation/capability/nlp/src/Wink/WinkSimilarity.ts:77` | Parameters controlling the asymmetric Tversky index. |
+| `@beep/nlp/Wink/WinkSimilarity` | `WinkSimilarity` | class | `packages/foundation/capability/nlp/src/Wink/WinkSimilarity.ts:288` | Wink similarity service. |
+| `@beep/nlp/Wink/WinkSimilarity` | `WinkSimilarityLive` | const | `packages/foundation/capability/nlp/src/Wink/WinkSimilarity.ts:303` | Live wink similarity layer. |
 | `@beep/nlp/Wink/WinkTokenizer` | `SentenceSpanFailure` | class | `packages/foundation/capability/nlp/src/Wink/WinkTokenizer.ts:44` | Failure raised when wink sentence spans cannot be derived from the token stream. |
 | `@beep/nlp/Wink/WinkTokenizer` | `WinkTokenization` | const | `packages/foundation/capability/nlp/src/Wink/WinkTokenizer.ts:343` | Wink-backed tokenization layer. |
 | `@beep/nlp/Wink/WinkTokenizer` | `WinkTokenizationLive` | const | `packages/foundation/capability/nlp/src/Wink/WinkTokenizer.ts:358` | Wink-backed tokenization layer with the live engine provided. |
-| `@beep/nlp/Wink/WinkUtils` | `WinkUtils` | class | `packages/foundation/capability/nlp/src/Wink/WinkUtils.ts:242` | Wink utility service. |
-| `@beep/nlp/Wink/WinkUtils` | `WinkUtilsError` | class | `packages/foundation/capability/nlp/src/Wink/WinkUtils.ts:118` | Error raised while calling wink utility helpers. |
-| `@beep/nlp/Wink/WinkUtils` | `WinkUtilsLive` | const | `packages/foundation/capability/nlp/src/Wink/WinkUtils.ts:257` | Live wink utility layer. |
-| `@beep/nlp/Wink/WinkVectorizer` | `BagOfWords` | class | `packages/foundation/capability/nlp/src/Wink/WinkVectorizer.ts:269` | Bag-of-words representation for a document or query. |
-| `@beep/nlp/Wink/WinkVectorizer` | `BM25Config` | class | `packages/foundation/capability/nlp/src/Wink/WinkVectorizer.ts:192` | BM25 configuration used by wink vectorization and corpus management. |
-| `@beep/nlp/Wink/WinkVectorizer` | `BM25Norm` | const | `packages/foundation/capability/nlp/src/Wink/WinkVectorizer.ts:117` | BM25 normalization mode used by the vectorizer and corpus services. |
-| `@beep/nlp/Wink/WinkVectorizer` | `DefaultBM25Config` | const | `packages/foundation/capability/nlp/src/Wink/WinkVectorizer.ts:221` | Default BM25 configuration used by the live wink vectorizer. |
-| `@beep/nlp/Wink/WinkVectorizer` | `DocumentVector` | class | `packages/foundation/capability/nlp/src/Wink/WinkVectorizer.ts:241` | Dense vector representation for a document or query. |
-| `@beep/nlp/Wink/WinkVectorizer` | `ScopedVectorizer` | interface | `packages/foundation/capability/nlp/src/Wink/WinkVectorizer.ts:80` | Minimal isolated vectorizer surface used by ranking and keyword extraction. |
-| `@beep/nlp/Wink/WinkVectorizer` | `TermFrequency` | class | `packages/foundation/capability/nlp/src/Wink/WinkVectorizer.ts:296` | Term-frequency entry for a learned document. |
-| `@beep/nlp/Wink/WinkVectorizer` | `VectorizerError` | class | `packages/foundation/capability/nlp/src/Wink/WinkVectorizer.ts:323` | Error raised while learning or querying wink BM25 vectors. |
-| `@beep/nlp/Wink/WinkVectorizer` | `WinkVectorizer` | class | `packages/foundation/capability/nlp/src/Wink/WinkVectorizer.ts:526` | Wink vectorizer service. |
-| `@beep/nlp/Wink/WinkVectorizer` | `WinkVectorizerLive` | const | `packages/foundation/capability/nlp/src/Wink/WinkVectorizer.ts:541` | Live wink vectorizer layer. |
+| `@beep/nlp/Wink/WinkUtils` | `WinkUtils` | class | `packages/foundation/capability/nlp/src/Wink/WinkUtils.ts:247` | Wink utility service. |
+| `@beep/nlp/Wink/WinkUtils` | `WinkUtilsError` | class | `packages/foundation/capability/nlp/src/Wink/WinkUtils.ts:123` | Error raised while calling wink utility helpers. |
+| `@beep/nlp/Wink/WinkUtils` | `WinkUtilsLive` | const | `packages/foundation/capability/nlp/src/Wink/WinkUtils.ts:262` | Live wink utility layer. |
+| `@beep/nlp/Wink/WinkVectorizer` | `BagOfWords` | class | `packages/foundation/capability/nlp/src/Wink/WinkVectorizer.ts:273` | Bag-of-words representation for a document or query. |
+| `@beep/nlp/Wink/WinkVectorizer` | `BM25Config` | class | `packages/foundation/capability/nlp/src/Wink/WinkVectorizer.ts:196` | BM25 configuration used by wink vectorization and corpus management. |
+| `@beep/nlp/Wink/WinkVectorizer` | `BM25Norm` | const | `packages/foundation/capability/nlp/src/Wink/WinkVectorizer.ts:121` | BM25 normalization mode used by the vectorizer and corpus services. |
+| `@beep/nlp/Wink/WinkVectorizer` | `DefaultBM25Config` | const | `packages/foundation/capability/nlp/src/Wink/WinkVectorizer.ts:225` | Default BM25 configuration used by the live wink vectorizer. |
+| `@beep/nlp/Wink/WinkVectorizer` | `DocumentVector` | class | `packages/foundation/capability/nlp/src/Wink/WinkVectorizer.ts:245` | Dense vector representation for a document or query. |
+| `@beep/nlp/Wink/WinkVectorizer` | `ScopedVectorizer` | interface | `packages/foundation/capability/nlp/src/Wink/WinkVectorizer.ts:84` | Minimal isolated vectorizer surface used by ranking and keyword extraction. |
+| `@beep/nlp/Wink/WinkVectorizer` | `TermFrequency` | class | `packages/foundation/capability/nlp/src/Wink/WinkVectorizer.ts:300` | Term-frequency entry for a learned document. |
+| `@beep/nlp/Wink/WinkVectorizer` | `VectorizerError` | class | `packages/foundation/capability/nlp/src/Wink/WinkVectorizer.ts:327` | Error raised while learning or querying wink BM25 vectors. |
+| `@beep/nlp/Wink/WinkVectorizer` | `WinkVectorizer` | class | `packages/foundation/capability/nlp/src/Wink/WinkVectorizer.ts:530` | Wink vectorizer service. |
+| `@beep/nlp/Wink/WinkVectorizer` | `WinkVectorizerLive` | const | `packages/foundation/capability/nlp/src/Wink/WinkVectorizer.ts:545` | Live wink vectorizer layer. |
 
 ### @beep/infra
 
@@ -8369,21 +8791,21 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-utils` | `ReuseCatalogEntry` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts:177` | Catalog entry describing an existing reusable symbol or curated pattern. |
 | `@beep/repo-utils` | `ReuseCatalogOrigin` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts:27` | Catalog entry origin domain. |
 | `@beep/repo-utils` | `ReuseCatalogOrigin` | type | `packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts:49` | Runtime type for `ReuseCatalogOrigin`. |
-| `@beep/repo-utils` | `ReuseCatalogService` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1387` | Service tag for the reuse catalog contract. |
-| `@beep/repo-utils` | `ReuseCatalogServiceLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1525` | Default live layer for building the shared reuse catalog. |
-| `@beep/repo-utils` | `ReuseCloneService` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:2055` | Service tag for declaration-anchored structural clone detection. |
-| `@beep/repo-utils` | `ReuseCloneServiceLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:2071` | Default live layer for declaration-anchored structural clone detection. |
-| `@beep/repo-utils` | `ReuseDiscoveryService` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1455` | Service tag for reuse candidate discovery. |
-| `@beep/repo-utils` | `ReuseDiscoveryServiceLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1673` | Default live layer for reuse candidate discovery and local option lookup. |
+| `@beep/repo-utils` | `ReuseCatalogService` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1385` | Service tag for the reuse catalog contract. |
+| `@beep/repo-utils` | `ReuseCatalogServiceLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1523` | Default live layer for building the shared reuse catalog. |
+| `@beep/repo-utils` | `ReuseCloneService` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:2053` | Service tag for declaration-anchored structural clone detection. |
+| `@beep/repo-utils` | `ReuseCloneServiceLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:2069` | Default live layer for declaration-anchored structural clone detection. |
+| `@beep/repo-utils` | `ReuseDiscoveryService` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1453` | Service tag for reuse candidate discovery. |
+| `@beep/repo-utils` | `ReuseDiscoveryServiceLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1671` | Default live layer for reuse candidate discovery and local option lookup. |
 | `@beep/repo-utils` | `ReuseFindResult` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts:407` | Results for local-file reuse lookups. |
 | `@beep/repo-utils` | `ReuseInventory` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts:333` | Inventory payload produced for a requested scope. |
-| `@beep/repo-utils` | `ReuseInventoryService` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1489` | Service tag for reuse inventory materialization. |
-| `@beep/repo-utils` | `ReuseInventoryServiceLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1851` | Default live layer for ranked reuse inventories and implementation packets. |
+| `@beep/repo-utils` | `ReuseInventoryService` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1487` | Service tag for reuse inventory materialization. |
+| `@beep/repo-utils` | `ReuseInventoryServiceLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1849` | Default live layer for ranked reuse inventories and implementation packets. |
 | `@beep/repo-utils` | `ReusePacket` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts:377` | Materialized implementation packet for one reuse candidate. |
 | `@beep/repo-utils` | `ReusePartitionPlan` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts:245` | Partition plan covering scout and specialist work units for a selected scope. |
-| `@beep/repo-utils` | `ReusePartitionPlannerService` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1417` | Service tag for reuse partition planning. |
-| `@beep/repo-utils` | `ReusePartitionPlannerServiceLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1570` | Default live layer for reuse partition planning. |
-| `@beep/repo-utils` | `ReuseServiceSuiteLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:2156` | Fully wired reuse-discovery layer suite for CLI and tests. |
+| `@beep/repo-utils` | `ReusePartitionPlannerService` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1415` | Service tag for reuse partition planning. |
+| `@beep/repo-utils` | `ReusePartitionPlannerServiceLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1568` | Default live layer for reuse partition planning. |
+| `@beep/repo-utils` | `ReuseServiceSuiteLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:2154` | Fully wired reuse-discovery layer suite for CLI and tests. |
 | `@beep/repo-utils` | `ReuseSourceSymbolRef` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts:141` | File-local source symbol reference tied to a reuse opportunity. |
 | `@beep/repo-utils` | `ReuseWorkUnit` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts:213` | Partition work unit emitted for package scouts or hotspot specialists. |
 | `@beep/repo-utils` | `ReuseWorkUnitKind` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts:63` | Partition work-unit kind. |
@@ -8581,21 +9003,21 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-utils/index` | `ReuseCatalogEntry` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts:177` | Catalog entry describing an existing reusable symbol or curated pattern. |
 | `@beep/repo-utils/index` | `ReuseCatalogOrigin` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts:27` | Catalog entry origin domain. |
 | `@beep/repo-utils/index` | `ReuseCatalogOrigin` | type | `packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts:49` | Runtime type for `ReuseCatalogOrigin`. |
-| `@beep/repo-utils/index` | `ReuseCatalogService` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1387` | Service tag for the reuse catalog contract. |
-| `@beep/repo-utils/index` | `ReuseCatalogServiceLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1525` | Default live layer for building the shared reuse catalog. |
-| `@beep/repo-utils/index` | `ReuseCloneService` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:2055` | Service tag for declaration-anchored structural clone detection. |
-| `@beep/repo-utils/index` | `ReuseCloneServiceLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:2071` | Default live layer for declaration-anchored structural clone detection. |
-| `@beep/repo-utils/index` | `ReuseDiscoveryService` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1455` | Service tag for reuse candidate discovery. |
-| `@beep/repo-utils/index` | `ReuseDiscoveryServiceLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1673` | Default live layer for reuse candidate discovery and local option lookup. |
+| `@beep/repo-utils/index` | `ReuseCatalogService` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1385` | Service tag for the reuse catalog contract. |
+| `@beep/repo-utils/index` | `ReuseCatalogServiceLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1523` | Default live layer for building the shared reuse catalog. |
+| `@beep/repo-utils/index` | `ReuseCloneService` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:2053` | Service tag for declaration-anchored structural clone detection. |
+| `@beep/repo-utils/index` | `ReuseCloneServiceLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:2069` | Default live layer for declaration-anchored structural clone detection. |
+| `@beep/repo-utils/index` | `ReuseDiscoveryService` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1453` | Service tag for reuse candidate discovery. |
+| `@beep/repo-utils/index` | `ReuseDiscoveryServiceLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1671` | Default live layer for reuse candidate discovery and local option lookup. |
 | `@beep/repo-utils/index` | `ReuseFindResult` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts:407` | Results for local-file reuse lookups. |
 | `@beep/repo-utils/index` | `ReuseInventory` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts:333` | Inventory payload produced for a requested scope. |
-| `@beep/repo-utils/index` | `ReuseInventoryService` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1489` | Service tag for reuse inventory materialization. |
-| `@beep/repo-utils/index` | `ReuseInventoryServiceLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1851` | Default live layer for ranked reuse inventories and implementation packets. |
+| `@beep/repo-utils/index` | `ReuseInventoryService` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1487` | Service tag for reuse inventory materialization. |
+| `@beep/repo-utils/index` | `ReuseInventoryServiceLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1849` | Default live layer for ranked reuse inventories and implementation packets. |
 | `@beep/repo-utils/index` | `ReusePacket` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts:377` | Materialized implementation packet for one reuse candidate. |
 | `@beep/repo-utils/index` | `ReusePartitionPlan` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts:245` | Partition plan covering scout and specialist work units for a selected scope. |
-| `@beep/repo-utils/index` | `ReusePartitionPlannerService` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1417` | Service tag for reuse partition planning. |
-| `@beep/repo-utils/index` | `ReusePartitionPlannerServiceLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1570` | Default live layer for reuse partition planning. |
-| `@beep/repo-utils/index` | `ReuseServiceSuiteLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:2156` | Fully wired reuse-discovery layer suite for CLI and tests. |
+| `@beep/repo-utils/index` | `ReusePartitionPlannerService` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1415` | Service tag for reuse partition planning. |
+| `@beep/repo-utils/index` | `ReusePartitionPlannerServiceLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1568` | Default live layer for reuse partition planning. |
+| `@beep/repo-utils/index` | `ReuseServiceSuiteLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:2154` | Fully wired reuse-discovery layer suite for CLI and tests. |
 | `@beep/repo-utils/index` | `ReuseSourceSymbolRef` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts:141` | File-local source symbol reference tied to a reuse opportunity. |
 | `@beep/repo-utils/index` | `ReuseWorkUnit` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts:213` | Partition work unit emitted for package scouts or hotspot specialists. |
 | `@beep/repo-utils/index` | `ReuseWorkUnitKind` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts:63` | Partition work-unit kind. |
@@ -9526,21 +9948,21 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-utils/Reuse/index` | `ReuseCatalogEntry` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts:177` | Catalog entry describing an existing reusable symbol or curated pattern. |
 | `@beep/repo-utils/Reuse/index` | `ReuseCatalogOrigin` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts:27` | Catalog entry origin domain. |
 | `@beep/repo-utils/Reuse/index` | `ReuseCatalogOrigin` | type | `packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts:49` | Runtime type for `ReuseCatalogOrigin`. |
-| `@beep/repo-utils/Reuse/index` | `ReuseCatalogService` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1387` | Service tag for the reuse catalog contract. |
-| `@beep/repo-utils/Reuse/index` | `ReuseCatalogServiceLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1525` | Default live layer for building the shared reuse catalog. |
-| `@beep/repo-utils/Reuse/index` | `ReuseCloneService` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:2055` | Service tag for declaration-anchored structural clone detection. |
-| `@beep/repo-utils/Reuse/index` | `ReuseCloneServiceLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:2071` | Default live layer for declaration-anchored structural clone detection. |
-| `@beep/repo-utils/Reuse/index` | `ReuseDiscoveryService` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1455` | Service tag for reuse candidate discovery. |
-| `@beep/repo-utils/Reuse/index` | `ReuseDiscoveryServiceLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1673` | Default live layer for reuse candidate discovery and local option lookup. |
+| `@beep/repo-utils/Reuse/index` | `ReuseCatalogService` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1385` | Service tag for the reuse catalog contract. |
+| `@beep/repo-utils/Reuse/index` | `ReuseCatalogServiceLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1523` | Default live layer for building the shared reuse catalog. |
+| `@beep/repo-utils/Reuse/index` | `ReuseCloneService` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:2053` | Service tag for declaration-anchored structural clone detection. |
+| `@beep/repo-utils/Reuse/index` | `ReuseCloneServiceLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:2069` | Default live layer for declaration-anchored structural clone detection. |
+| `@beep/repo-utils/Reuse/index` | `ReuseDiscoveryService` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1453` | Service tag for reuse candidate discovery. |
+| `@beep/repo-utils/Reuse/index` | `ReuseDiscoveryServiceLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1671` | Default live layer for reuse candidate discovery and local option lookup. |
 | `@beep/repo-utils/Reuse/index` | `ReuseFindResult` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts:407` | Results for local-file reuse lookups. |
 | `@beep/repo-utils/Reuse/index` | `ReuseInventory` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts:333` | Inventory payload produced for a requested scope. |
-| `@beep/repo-utils/Reuse/index` | `ReuseInventoryService` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1489` | Service tag for reuse inventory materialization. |
-| `@beep/repo-utils/Reuse/index` | `ReuseInventoryServiceLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1851` | Default live layer for ranked reuse inventories and implementation packets. |
+| `@beep/repo-utils/Reuse/index` | `ReuseInventoryService` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1487` | Service tag for reuse inventory materialization. |
+| `@beep/repo-utils/Reuse/index` | `ReuseInventoryServiceLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1849` | Default live layer for ranked reuse inventories and implementation packets. |
 | `@beep/repo-utils/Reuse/index` | `ReusePacket` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts:377` | Materialized implementation packet for one reuse candidate. |
 | `@beep/repo-utils/Reuse/index` | `ReusePartitionPlan` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts:245` | Partition plan covering scout and specialist work units for a selected scope. |
-| `@beep/repo-utils/Reuse/index` | `ReusePartitionPlannerService` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1417` | Service tag for reuse partition planning. |
-| `@beep/repo-utils/Reuse/index` | `ReusePartitionPlannerServiceLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1570` | Default live layer for reuse partition planning. |
-| `@beep/repo-utils/Reuse/index` | `ReuseServiceSuiteLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:2156` | Fully wired reuse-discovery layer suite for CLI and tests. |
+| `@beep/repo-utils/Reuse/index` | `ReusePartitionPlannerService` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1415` | Service tag for reuse partition planning. |
+| `@beep/repo-utils/Reuse/index` | `ReusePartitionPlannerServiceLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1568` | Default live layer for reuse partition planning. |
+| `@beep/repo-utils/Reuse/index` | `ReuseServiceSuiteLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:2154` | Fully wired reuse-discovery layer suite for CLI and tests. |
 | `@beep/repo-utils/Reuse/index` | `ReuseSourceSymbolRef` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts:141` | File-local source symbol reference tied to a reuse opportunity. |
 | `@beep/repo-utils/Reuse/index` | `ReuseWorkUnit` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts:213` | Partition work unit emitted for package scouts or hotspot specialists. |
 | `@beep/repo-utils/Reuse/index` | `ReuseWorkUnitKind` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts:63` | Partition work-unit kind. |
@@ -9563,17 +9985,17 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-utils/Reuse/Reuse.service` | `normalizedDeclarationSignature` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:609` | Normalize a declaration to a structural signature that ignores formatting, |
 | `@beep/repo-utils/Reuse/Reuse.service` | `ReuseAnalysisError` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:119` | Typed error returned when reuse analysis cannot complete a repository scan or lookup. |
 | `@beep/repo-utils/Reuse/Reuse.service` | `ReuseCandidateNotFoundError` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:145` | Typed error returned when a requested candidate id is absent from the current reuse inventory. |
-| `@beep/repo-utils/Reuse/Reuse.service` | `ReuseCatalogService` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1387` | Service tag for the reuse catalog contract. |
-| `@beep/repo-utils/Reuse/Reuse.service` | `ReuseCatalogServiceLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1525` | Default live layer for building the shared reuse catalog. |
-| `@beep/repo-utils/Reuse/Reuse.service` | `ReuseCloneService` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:2055` | Service tag for declaration-anchored structural clone detection. |
-| `@beep/repo-utils/Reuse/Reuse.service` | `ReuseCloneServiceLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:2071` | Default live layer for declaration-anchored structural clone detection. |
-| `@beep/repo-utils/Reuse/Reuse.service` | `ReuseDiscoveryService` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1455` | Service tag for reuse candidate discovery. |
-| `@beep/repo-utils/Reuse/Reuse.service` | `ReuseDiscoveryServiceLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1673` | Default live layer for reuse candidate discovery and local option lookup. |
-| `@beep/repo-utils/Reuse/Reuse.service` | `ReuseInventoryService` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1489` | Service tag for reuse inventory materialization. |
-| `@beep/repo-utils/Reuse/Reuse.service` | `ReuseInventoryServiceLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1851` | Default live layer for ranked reuse inventories and implementation packets. |
-| `@beep/repo-utils/Reuse/Reuse.service` | `ReusePartitionPlannerService` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1417` | Service tag for reuse partition planning. |
-| `@beep/repo-utils/Reuse/Reuse.service` | `ReusePartitionPlannerServiceLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1570` | Default live layer for reuse partition planning. |
-| `@beep/repo-utils/Reuse/Reuse.service` | `ReuseServiceSuiteLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:2156` | Fully wired reuse-discovery layer suite for CLI and tests. |
+| `@beep/repo-utils/Reuse/Reuse.service` | `ReuseCatalogService` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1385` | Service tag for the reuse catalog contract. |
+| `@beep/repo-utils/Reuse/Reuse.service` | `ReuseCatalogServiceLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1523` | Default live layer for building the shared reuse catalog. |
+| `@beep/repo-utils/Reuse/Reuse.service` | `ReuseCloneService` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:2053` | Service tag for declaration-anchored structural clone detection. |
+| `@beep/repo-utils/Reuse/Reuse.service` | `ReuseCloneServiceLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:2069` | Default live layer for declaration-anchored structural clone detection. |
+| `@beep/repo-utils/Reuse/Reuse.service` | `ReuseDiscoveryService` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1453` | Service tag for reuse candidate discovery. |
+| `@beep/repo-utils/Reuse/Reuse.service` | `ReuseDiscoveryServiceLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1671` | Default live layer for reuse candidate discovery and local option lookup. |
+| `@beep/repo-utils/Reuse/Reuse.service` | `ReuseInventoryService` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1487` | Service tag for reuse inventory materialization. |
+| `@beep/repo-utils/Reuse/Reuse.service` | `ReuseInventoryServiceLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1849` | Default live layer for ranked reuse inventories and implementation packets. |
+| `@beep/repo-utils/Reuse/Reuse.service` | `ReusePartitionPlannerService` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1415` | Service tag for reuse partition planning. |
+| `@beep/repo-utils/Reuse/Reuse.service` | `ReusePartitionPlannerServiceLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1568` | Default live layer for reuse partition planning. |
+| `@beep/repo-utils/Reuse/Reuse.service` | `ReuseServiceSuiteLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:2154` | Fully wired reuse-discovery layer suite for CLI and tests. |
 | `@beep/repo-utils/Reuse/TokenSimilarity` | `fnv1a32` | const | `packages/tooling/library/repo-utils/src/Reuse/TokenSimilarity.ts:39` | 32-bit FNV-1a hash of a string (unsigned). The narrow-width sibling of the |
 | `@beep/repo-utils/Reuse/TokenSimilarity` | `jaccardSimilarity` | const | `packages/tooling/library/repo-utils/src/Reuse/TokenSimilarity.ts:193` | Exact Jaccard similarity between two shingle sets: `\|A ∩ B\| / \|A ∪ B\|`. Two |
 | `@beep/repo-utils/Reuse/TokenSimilarity` | `lshBandKeys` | const | `packages/tooling/library/repo-utils/src/Reuse/TokenSimilarity.ts:160` | Project a MinHash signature into `bands` LSH band keys. The signature is split |
@@ -9896,14 +10318,14 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-utils/TSMorph/TSMorph.shared` | `byNormalizedDiagnosticAscending` | const | `packages/tooling/library/repo-utils/src/TSMorph/TSMorph.shared.ts:102` | Deterministic ordering for normalized diagnostics. |
 | `@beep/repo-utils/TSMorph/TSMorph.shared` | `byTsMorphSymbolAscending` | const | `packages/tooling/library/repo-utils/src/TSMorph/TSMorph.shared.ts:73` | Deterministic symbol ordering used by normalized TSMorph symbol collections. |
 | `@beep/repo-utils/TSMorph/TSMorph.shared` | `flattenDiagnosticMessageText` | const | `packages/tooling/library/repo-utils/src/TSMorph/TSMorph.shared.ts:302` | Flatten a TypeScript diagnostic message chain into normalized text. |
-| `@beep/repo-utils/TSMorph/TSMorph.shared` | `getDeclarationName` | const | `packages/tooling/library/repo-utils/src/TSMorph/TSMorph.shared.ts:384` | Read the normalized name and kind for a supported declaration node. |
+| `@beep/repo-utils/TSMorph/TSMorph.shared` | `getDeclarationName` | const | `packages/tooling/library/repo-utils/src/TSMorph/TSMorph.shared.ts:382` | Read the normalized name and kind for a supported declaration node. |
 | `@beep/repo-utils/TSMorph/TSMorph.shared` | `makeKeywords` | const | `packages/tooling/library/repo-utils/src/TSMorph/TSMorph.shared.ts:215` | Build stable symbol keywords from normalized declaration metadata. |
 | `@beep/repo-utils/TSMorph/TSMorph.shared` | `makeScopeSymbolSearchText` | const | `packages/tooling/library/repo-utils/src/TSMorph/TSMorph.shared.ts:254` | Build deterministic lowercased search text for a normalized symbol entry. |
 | `@beep/repo-utils/TSMorph/TSMorph.shared` | `makeSummary` | const | `packages/tooling/library/repo-utils/src/TSMorph/TSMorph.shared.ts:198` | Derive the normalized summary text for a declaration. |
-| `@beep/repo-utils/TSMorph/TSMorph.shared` | `NamedDeclaration` | class | `packages/tooling/library/repo-utils/src/TSMorph/TSMorph.shared.ts:346` | Named declaration summary discovered from a TypeScript source file. |
+| `@beep/repo-utils/TSMorph/TSMorph.shared` | `NamedDeclaration` | class | `packages/tooling/library/repo-utils/src/TSMorph/TSMorph.shared.ts:344` | Named declaration summary discovered from a TypeScript source file. |
 | `@beep/repo-utils/TSMorph/TSMorph.shared` | `normalizeDiagnosticCategory` | const | `packages/tooling/library/repo-utils/src/TSMorph/TSMorph.shared.ts:330` | Normalize TypeScript diagnostic categories into the public service literal domain. |
 | `@beep/repo-utils/TSMorph/TSMorph.shared` | `OutlineDeclaration` | type | `packages/tooling/library/repo-utils/src/TSMorph/TSMorph.shared.ts:44` | Supported declaration nodes for normalized TSMorph symbol extraction. |
-| `@beep/repo-utils/TSMorph/TSMorph.shared` | `pipeQualifiedName` | const | `packages/tooling/library/repo-utils/src/TSMorph/TSMorph.shared.ts:442` | Extend a parent symbol qualified name with one child declaration segment. |
+| `@beep/repo-utils/TSMorph/TSMorph.shared` | `pipeQualifiedName` | const | `packages/tooling/library/repo-utils/src/TSMorph/TSMorph.shared.ts:440` | Extend a parent symbol qualified name with one child declaration segment. |
 | `@beep/repo-utils/TSMorph/TSMorph.shared` | `readDecorators` | const | `packages/tooling/library/repo-utils/src/TSMorph/TSMorph.shared.ts:156` | Read normalized decorator text attached to a declaration. |
 | `@beep/repo-utils/TSMorph/TSMorph.shared` | `readDocstring` | const | `packages/tooling/library/repo-utils/src/TSMorph/TSMorph.shared.ts:128` | Read the normalized JSDoc description text attached to a declaration. |
 | `@beep/repo-utils/TSMorph/TSMorph.shared` | `readSignature` | const | `packages/tooling/library/repo-utils/src/TSMorph/TSMorph.shared.ts:174` | Read the first non-empty signature line for a declaration. |

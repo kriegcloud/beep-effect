@@ -69,10 +69,8 @@ export class FilesCommandError extends TaggedErrorClass<FilesCommandError>($I`Fi
  * @example
  * ```ts
  * import { formatPlatformError } from "@beep/repo-cli/commands/Files"
- *
  * console.log(formatPlatformError)
  * ```
- *
  * @category error-handling
  * @since 0.0.0
  */
@@ -96,10 +94,8 @@ export const formatPlatformError: {
  * @example
  * ```ts
  * import { failOnExtensionlessFile } from "@beep/repo-cli/commands/Files"
- *
  * console.log(failOnExtensionlessFile)
  * ```
- *
  * @category error-handling
  * @since 0.0.0
  */

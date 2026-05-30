@@ -44,7 +44,11 @@ type WinkSimilarityShape = {
   ) => Effect.Effect<SimilarityScore, SimilarityError>;
 };
 
-const SimilarityMethodKit = LiteralKit(["vector.cosine", "set.tversky", "bow.cosine"]);
+const SimilarityMethodKit = LiteralKit(["vector.cosine", "set.tversky", "bow.cosine"]).annotate(
+  $I.annote("SimilarityMethodKit", {
+    description: "LiteralKit backing schema for wink similarity method identifiers.",
+  })
+);
 const SimilarityMethod = SimilarityMethodKit.pipe(
   $I.annoteSchema("SimilarityMethod", {
     description: "Similarity methods exposed by wink-backed NLP services.",

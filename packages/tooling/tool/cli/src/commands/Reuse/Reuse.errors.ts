@@ -23,10 +23,8 @@ const causeMessage = (cause: unknown): string =>
  * @example
  * ```ts
  * import { CodexRunnerStage } from "@beep/repo-cli/commands/Reuse"
- *
  * console.log(CodexRunnerStage)
  * ```
- *
  * @category models
  * @since 0.0.0
  */
@@ -50,10 +48,8 @@ export type CodexRunnerStage = typeof CodexRunnerStage.Type;
  * @example
  * ```ts
  * import { CodexRunnerError } from "@beep/repo-cli/commands/Reuse"
- *
  * console.log(CodexRunnerError)
  * ```
- *
  * @category models
  * @since 0.0.0
  */

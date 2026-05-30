@@ -434,10 +434,8 @@ const filesStripMetadataCommand = Command.make(
  * @example
  * ```ts
  * import { filesCommand } from "@beep/repo-cli/commands/Files"
- *
  * console.log(filesCommand)
  * ```
- *
  * @category use-cases
  * @since 0.0.0
  */

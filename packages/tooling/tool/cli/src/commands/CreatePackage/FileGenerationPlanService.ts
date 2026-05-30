@@ -79,10 +79,8 @@ const SymlinkTargetPath = RelativePlanPath.pipe(
  * @example
  * ```ts
  * import { PlannedFile } from "@beep/repo-cli/commands/CreatePackage"
- *
  * console.log(PlannedFile)
  * ```
- *
  * @category models
  * @since 0.0.0
  */
@@ -102,10 +100,8 @@ export class PlannedFile extends S.Class<PlannedFile>($I`PlannedFile`)(
  * @example
  * ```ts
  * import { PlannedSymlink } from "@beep/repo-cli/commands/CreatePackage"
- *
  * console.log(PlannedSymlink)
  * ```
- *
  * @category models
  * @since 0.0.0
  */
@@ -125,10 +121,8 @@ export class PlannedSymlink extends S.Class<PlannedSymlink>($I`PlannedSymlink`)(
  * @example
  * ```ts
  * import { FileGenerationPlanInput } from "@beep/repo-cli/commands/CreatePackage"
- *
  * console.log(FileGenerationPlanInput)
  * ```
- *
  * @category models
  * @since 0.0.0
  */
@@ -150,10 +144,8 @@ export class FileGenerationPlanInput extends S.Class<FileGenerationPlanInput>($I
  * @example
  * ```ts
  * import { GenerationActionKind } from "@beep/repo-cli/commands/CreatePackage"
- *
  * console.log(GenerationActionKind)
  * ```
- *
  * @category models
  * @since 0.0.0
  */
@@ -209,10 +201,8 @@ class GenerationActionSymlink extends S.Class<GenerationActionSymlink>($I`Genera
  * @example
  * ```ts
  * import { GenerationAction } from "@beep/repo-cli/commands/CreatePackage"
- *
  * console.log(GenerationAction)
  * ```
- *
  * @category models
  * @since 0.0.0
  */
@@ -249,10 +239,8 @@ export type GenerationAction = typeof GenerationAction.Type;
  * @example
  * ```ts
  * import { FileGenerationPlan } from "@beep/repo-cli/commands/CreatePackage"
- *
  * console.log(FileGenerationPlan)
  * ```
- *
  * @category models
  * @since 0.0.0
  */
@@ -272,10 +260,8 @@ export class FileGenerationPlan extends S.Class<FileGenerationPlan>($I`FileGener
  * @example
  * ```ts
  * import { FileGenerationExecutionResult } from "@beep/repo-cli/commands/CreatePackage"
- *
  * console.log(FileGenerationExecutionResult)
  * ```
- *
  * @category models
  * @since 0.0.0
  */
@@ -300,11 +286,9 @@ export class FileGenerationExecutionResult extends S.Class<FileGenerationExecuti
  * @example
  * ```ts
  * import type { FileGenerationPlanServiceShape } from "@beep/repo-cli/commands/CreatePackage"
- *
  * const value = {} as FileGenerationPlanServiceShape
  * console.log(value)
  * ```
- *
  * @category models
  * @since 0.0.0
  */
@@ -322,10 +306,8 @@ export type FileGenerationPlanServiceShape = {
  * @example
  * ```ts
  * import { FileGenerationPlanService } from "@beep/repo-cli/commands/CreatePackage"
- *
  * console.log(FileGenerationPlanService)
  * ```
- *
  * @category ports
  * @since 0.0.0
  */
@@ -527,10 +509,8 @@ const resolveContainedSymlinkDestinationPath: {
  * @example
  * ```ts
  * import { createFileGenerationPlanService } from "@beep/repo-cli/commands/CreatePackage"
- *
  * console.log(createFileGenerationPlanService)
  * ```
- *
  * @category models
  * @since 0.0.0
  */
@@ -727,8 +707,8 @@ export const createFileGenerationPlanService = (): FileGenerationPlanServiceShap
     );
 
     const runAction: {
-      (absolutePath: string, action: GenerationAction): Effect.Effect<void, DomainError, never>;
-      (action: GenerationAction): (absolutePath: string) => Effect.Effect<void, DomainError, never>;
+      (absolutePath: string, action: GenerationAction): Effect.Effect<void, DomainError>;
+      (action: GenerationAction): (absolutePath: string) => Effect.Effect<void, DomainError>;
     } = dual(2, (absolutePath: string, action: GenerationAction) =>
       GenerationAction.match(action, {
         mkdir: () => createDirectory(absolutePath),

@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generatedOn": "2026-05-29",
+  "generatedOn": "2026-05-30",
   "scope": [
     "apps/**/*.{ts,tsx}",
     "packages/**/*.{ts,tsx}",
@@ -228,6 +228,22 @@
       "status": "exception",
       "owner": "@beep/hubspot",
       "reason": "Type alias contains non-schema signals such as function members or runtime handles."
+    },
+    {
+      "file": "packages/drivers/nlp-mcp/src/Schemas.ts",
+      "symbol": "anonymous@104",
+      "kind": "object-struct-schema",
+      "status": "exception",
+      "owner": "@beep/nlp-mcp",
+      "reason": "Inline nested S.Struct boundary shapes stay tracked until a dedicated class extraction pass."
+    },
+    {
+      "file": "packages/drivers/nlp-mcp/src/Server.ts",
+      "symbol": "NlpMcpServerConfig",
+      "kind": "exported-interface",
+      "status": "candidate",
+      "owner": "@beep/nlp-mcp",
+      "reason": "Exported pure-data interface should be modeled as an annotated schema."
     },
     {
       "file": "packages/drivers/openai-compat/src/OpenAiCompatClient.service.ts",
@@ -476,6 +492,334 @@
       "status": "exception",
       "owner": "@beep/md",
       "reason": "Generic public constructor overload helper contains function signatures and stays tracked as an API-boundary exception."
+    },
+    {
+      "file": "packages/foundation/capability/nlp/src/Algebra/Monoid.ts",
+      "symbol": "Monoid",
+      "kind": "exported-interface",
+      "status": "exception",
+      "owner": "@beep/nlp",
+      "reason": "Generic interface requires manual modeling and is tracked as an exception."
+    },
+    {
+      "file": "packages/foundation/capability/nlp/src/Algebra/NLPMonoid.ts",
+      "symbol": "DependencyEdge",
+      "kind": "exported-interface",
+      "status": "candidate",
+      "owner": "@beep/nlp",
+      "reason": "Exported pure-data interface should be modeled as an annotated schema."
+    },
+    {
+      "file": "packages/foundation/capability/nlp/src/Algebra/NLPMonoid.ts",
+      "symbol": "DocumentStatistics",
+      "kind": "exported-interface",
+      "status": "candidate",
+      "owner": "@beep/nlp",
+      "reason": "Exported pure-data interface should be modeled as an annotated schema."
+    },
+    {
+      "file": "packages/foundation/capability/nlp/src/Algebra/NLPMonoid.ts",
+      "symbol": "NamedEntity",
+      "kind": "exported-interface",
+      "status": "candidate",
+      "owner": "@beep/nlp",
+      "reason": "Exported pure-data interface should be modeled as an annotated schema."
+    },
+    {
+      "file": "packages/foundation/capability/nlp/src/Algebra/NLPMonoid.ts",
+      "symbol": "TextAnalysis",
+      "kind": "exported-interface",
+      "status": "candidate",
+      "owner": "@beep/nlp",
+      "reason": "Exported pure-data interface should be modeled as an annotated schema."
+    },
+    {
+      "file": "packages/foundation/capability/nlp/src/Backend/Composition.ts",
+      "symbol": "CachingOptions",
+      "kind": "exported-interface",
+      "status": "candidate",
+      "owner": "@beep/nlp",
+      "reason": "Exported pure-data interface should be modeled as an annotated schema."
+    },
+    {
+      "file": "packages/foundation/capability/nlp/src/Backend/NLPBackend.ts",
+      "symbol": "BackendCapabilities",
+      "kind": "exported-interface",
+      "status": "candidate",
+      "owner": "@beep/nlp",
+      "reason": "Exported pure-data interface should be modeled as an annotated schema."
+    },
+    {
+      "file": "packages/foundation/capability/nlp/src/Backend/NLPBackend.ts",
+      "symbol": "NLPBackendShape",
+      "kind": "exported-interface",
+      "status": "exception",
+      "owner": "@beep/nlp",
+      "reason": "Interface contains non-schema signals such as function members or runtime handles."
+    },
+    {
+      "file": "packages/foundation/capability/nlp/src/Graph/AnnotatedTextGraph.ts",
+      "symbol": "AnnotationOptions",
+      "kind": "exported-interface",
+      "status": "candidate",
+      "owner": "@beep/nlp",
+      "reason": "Exported pure-data interface should be modeled as an annotated schema."
+    },
+    {
+      "file": "packages/foundation/capability/nlp/src/Graph/EffectGraph.ts",
+      "symbol": "EffectGraph",
+      "kind": "exported-interface",
+      "status": "exception",
+      "owner": "@beep/nlp",
+      "reason": "Generic interface requires manual modeling and is tracked as an exception."
+    },
+    {
+      "file": "packages/foundation/capability/nlp/src/Graph/EffectGraph.ts",
+      "symbol": "GraphNode",
+      "kind": "exported-interface",
+      "status": "exception",
+      "owner": "@beep/nlp",
+      "reason": "Generic interface requires manual modeling and is tracked as an exception."
+    },
+    {
+      "file": "packages/foundation/capability/nlp/src/Graph/EffectGraph.ts",
+      "symbol": "NodeMetadata",
+      "kind": "exported-interface",
+      "status": "candidate",
+      "owner": "@beep/nlp",
+      "reason": "Exported pure-data interface should be modeled as an annotated schema."
+    },
+    {
+      "file": "packages/foundation/capability/nlp/src/Graph/GraphOperations/Executor.ts",
+      "symbol": "GraphExecutorShape",
+      "kind": "exported-interface",
+      "status": "exception",
+      "owner": "@beep/nlp",
+      "reason": "Interface contains non-schema signals such as function members or runtime handles."
+    },
+    {
+      "file": "packages/foundation/capability/nlp/src/Graph/GraphOperations/Operation.ts",
+      "symbol": "GraphOperation",
+      "kind": "exported-interface",
+      "status": "exception",
+      "owner": "@beep/nlp",
+      "reason": "Generic interface requires manual modeling and is tracked as an exception."
+    },
+    {
+      "file": "packages/foundation/capability/nlp/src/Graph/GraphOperations/ResultStore.ts",
+      "symbol": "CacheStats",
+      "kind": "exported-interface",
+      "status": "candidate",
+      "owner": "@beep/nlp",
+      "reason": "Exported pure-data interface should be modeled as an annotated schema."
+    },
+    {
+      "file": "packages/foundation/capability/nlp/src/Graph/GraphOperations/ResultStore.ts",
+      "symbol": "ResultKey",
+      "kind": "exported-interface",
+      "status": "candidate",
+      "owner": "@beep/nlp",
+      "reason": "Exported pure-data interface should be modeled as an annotated schema."
+    },
+    {
+      "file": "packages/foundation/capability/nlp/src/Graph/GraphOperations/ResultStore.ts",
+      "symbol": "ResultStoreShape",
+      "kind": "exported-interface",
+      "status": "exception",
+      "owner": "@beep/nlp",
+      "reason": "Interface contains non-schema signals such as function members or runtime handles."
+    },
+    {
+      "file": "packages/foundation/capability/nlp/src/Graph/GraphOperations/ResultStore.ts",
+      "symbol": "StoredResult",
+      "kind": "exported-interface",
+      "status": "candidate",
+      "owner": "@beep/nlp",
+      "reason": "Exported pure-data interface should be modeled as an annotated schema."
+    },
+    {
+      "file": "packages/foundation/capability/nlp/src/Graph/GraphOperations/Types.ts",
+      "symbol": "ExecutionMetrics",
+      "kind": "exported-interface",
+      "status": "candidate",
+      "owner": "@beep/nlp",
+      "reason": "Exported pure-data interface should be modeled as an annotated schema."
+    },
+    {
+      "file": "packages/foundation/capability/nlp/src/Graph/GraphOperations/Types.ts",
+      "symbol": "ExecutionOptions",
+      "kind": "exported-interface",
+      "status": "candidate",
+      "owner": "@beep/nlp",
+      "reason": "Exported pure-data interface should be modeled as an annotated schema."
+    },
+    {
+      "file": "packages/foundation/capability/nlp/src/Graph/GraphOperations/Types.ts",
+      "symbol": "OperationCost",
+      "kind": "exported-interface",
+      "status": "candidate",
+      "owner": "@beep/nlp",
+      "reason": "Exported pure-data interface should be modeled as an annotated schema."
+    },
+    {
+      "file": "packages/foundation/capability/nlp/src/Graph/GraphOperations/Types.ts",
+      "symbol": "OperationResult",
+      "kind": "exported-interface",
+      "status": "exception",
+      "owner": "@beep/nlp",
+      "reason": "Generic interface requires manual modeling and is tracked as an exception."
+    },
+    {
+      "file": "packages/foundation/capability/nlp/src/Graph/GraphOperations/Types.ts",
+      "symbol": "ValidationResult",
+      "kind": "exported-interface",
+      "status": "candidate",
+      "owner": "@beep/nlp",
+      "reason": "Exported pure-data interface should be modeled as an annotated schema."
+    },
+    {
+      "file": "packages/foundation/capability/nlp/src/Graph/GraphOps.ts",
+      "symbol": "SearchIndex",
+      "kind": "exported-interface",
+      "status": "exception",
+      "owner": "@beep/nlp",
+      "reason": "Generic interface requires manual modeling and is tracked as an exception."
+    },
+    {
+      "file": "packages/foundation/capability/nlp/src/Graph/Schema.ts",
+      "symbol": "anonymous@255",
+      "kind": "object-struct-schema",
+      "status": "exception",
+      "owner": "@beep/nlp",
+      "reason": "Inline nested S.Struct boundary shapes stay tracked until a dedicated class extraction pass."
+    },
+    {
+      "file": "packages/foundation/capability/nlp/src/Graph/Schema.ts",
+      "symbol": "anonymous@308",
+      "kind": "object-struct-schema",
+      "status": "exception",
+      "owner": "@beep/nlp",
+      "reason": "Inline nested S.Struct boundary shapes stay tracked until a dedicated class extraction pass."
+    },
+    {
+      "file": "packages/foundation/capability/nlp/src/Graph/Schema.ts",
+      "symbol": "anonymous@309",
+      "kind": "object-struct-schema",
+      "status": "exception",
+      "owner": "@beep/nlp",
+      "reason": "Inline nested S.Struct boundary shapes stay tracked until a dedicated class extraction pass."
+    },
+    {
+      "file": "packages/foundation/capability/nlp/src/Graph/Schema.ts",
+      "symbol": "anonymous@335",
+      "kind": "object-struct-schema",
+      "status": "exception",
+      "owner": "@beep/nlp",
+      "reason": "Inline nested S.Struct boundary shapes stay tracked until a dedicated class extraction pass."
+    },
+    {
+      "file": "packages/foundation/capability/nlp/src/Graph/Schema.ts",
+      "symbol": "anonymous@338",
+      "kind": "object-struct-schema",
+      "status": "exception",
+      "owner": "@beep/nlp",
+      "reason": "Inline nested S.Struct boundary shapes stay tracked until a dedicated class extraction pass."
+    },
+    {
+      "file": "packages/foundation/capability/nlp/src/Graph/Schema.ts",
+      "symbol": "anonymous@340",
+      "kind": "object-struct-schema",
+      "status": "exception",
+      "owner": "@beep/nlp",
+      "reason": "Inline nested S.Struct boundary shapes stay tracked until a dedicated class extraction pass."
+    },
+    {
+      "file": "packages/foundation/capability/nlp/src/Graph/Schema.ts",
+      "symbol": "anonymous@343",
+      "kind": "object-struct-schema",
+      "status": "exception",
+      "owner": "@beep/nlp",
+      "reason": "Inline nested S.Struct boundary shapes stay tracked until a dedicated class extraction pass."
+    },
+    {
+      "file": "packages/foundation/capability/nlp/src/Graph/TypeClass.ts",
+      "symbol": "Composable",
+      "kind": "exported-interface",
+      "status": "exception",
+      "owner": "@beep/nlp",
+      "reason": "Generic interface requires manual modeling and is tracked as an exception."
+    },
+    {
+      "file": "packages/foundation/capability/nlp/src/Graph/TypeClass.ts",
+      "symbol": "Foldable",
+      "kind": "exported-interface",
+      "status": "exception",
+      "owner": "@beep/nlp",
+      "reason": "Generic interface requires manual modeling and is tracked as an exception."
+    },
+    {
+      "file": "packages/foundation/capability/nlp/src/Graph/TypeClass.ts",
+      "symbol": "ForgetfulOperation",
+      "kind": "exported-interface",
+      "status": "exception",
+      "owner": "@beep/nlp",
+      "reason": "Generic interface requires manual modeling and is tracked as an exception."
+    },
+    {
+      "file": "packages/foundation/capability/nlp/src/Graph/TypeClass.ts",
+      "symbol": "Functor",
+      "kind": "exported-interface",
+      "status": "exception",
+      "owner": "@beep/nlp",
+      "reason": "Generic interface requires manual modeling and is tracked as an exception."
+    },
+    {
+      "file": "packages/foundation/capability/nlp/src/Graph/TypeClass.ts",
+      "symbol": "TextOperation",
+      "kind": "exported-interface",
+      "status": "exception",
+      "owner": "@beep/nlp",
+      "reason": "Generic interface requires manual modeling and is tracked as an exception."
+    },
+    {
+      "file": "packages/foundation/capability/nlp/src/NLPService.ts",
+      "symbol": "NLPServiceShape",
+      "kind": "exported-interface",
+      "status": "exception",
+      "owner": "@beep/nlp",
+      "reason": "Interface contains non-schema signals such as function members or runtime handles."
+    },
+    {
+      "file": "packages/foundation/capability/nlp/src/Ontology/Kind.ts",
+      "symbol": "KindContainment",
+      "kind": "exported-interface",
+      "status": "candidate",
+      "owner": "@beep/nlp",
+      "reason": "Exported pure-data interface should be modeled as an annotated schema."
+    },
+    {
+      "file": "packages/foundation/capability/nlp/src/Ontology/Kind.ts",
+      "symbol": "TypedText",
+      "kind": "exported-interface",
+      "status": "exception",
+      "owner": "@beep/nlp",
+      "reason": "Generic interface requires manual modeling and is tracked as an exception."
+    },
+    {
+      "file": "packages/foundation/capability/nlp/src/Ontology/Kind.ts",
+      "symbol": "TypedTextSchema",
+      "kind": "object-struct-schema",
+      "status": "candidate",
+      "owner": "@beep/nlp",
+      "reason": "Object schema should prefer an annotated S.Class over S.Struct."
+    },
+    {
+      "file": "packages/foundation/capability/nlp/src/Operations/Definition.ts",
+      "symbol": "OperationDefinition",
+      "kind": "exported-interface",
+      "status": "exception",
+      "owner": "@beep/nlp",
+      "reason": "Generic interface requires manual modeling and is tracked as an exception."
     },
     {
       "file": "packages/foundation/capability/nlp/src/Tools/ToolExport.ts",

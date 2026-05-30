@@ -197,10 +197,8 @@ export class ExtractFramesDirFailure extends S.Class<ExtractFramesDirFailure>($I
  * @example
  * ```ts
  * import { ExtractFramesDirOutcome } from "@beep/repo-cli/commands/Image"
- *
  * console.log(ExtractFramesDirOutcome)
  * ```
- *
  * @category models
  * @since 0.0.0
  */
@@ -254,10 +252,8 @@ export class ExtractFramesDirResult extends S.Class<ExtractFramesDirResult>($I`E
  * @example
  * ```ts
  * import { decodeExtractFramesOptions } from "@beep/repo-cli/commands/Image"
- *
  * console.log(decodeExtractFramesOptions)
  * ```
- *
  * @category decoding
  * @since 0.0.0
  */
@@ -269,10 +265,8 @@ export const decodeExtractFramesOptions = S.decodeUnknownEffect(ExtractFramesOpt
  * @example
  * ```ts
  * import { decodeExtractFramesDirOptions } from "@beep/repo-cli/commands/Image"
- *
  * console.log(decodeExtractFramesDirOptions)
  * ```
- *
  * @category decoding
  * @since 0.0.0
  */

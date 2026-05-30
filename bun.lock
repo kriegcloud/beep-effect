@@ -614,6 +614,19 @@
         "@types/node": "catalog:",
       },
     },
+    "packages/drivers/nlp-mcp": {
+      "name": "@beep/nlp-mcp",
+      "version": "0.0.0",
+      "dependencies": {
+        "@beep/nlp": "workspace:^",
+        "@effect/platform-node": "catalog:",
+        "effect": "catalog:",
+      },
+      "devDependencies": {
+        "@effect/vitest": "catalog:",
+        "@types/node": "catalog:",
+      },
+    },
     "packages/drivers/onepassword-cli": {
       "name": "@beep/onepassword-cli",
       "version": "0.0.1",
@@ -805,6 +818,7 @@
         "wink-nlp-utils": "catalog:",
       },
       "devDependencies": {
+        "@beep/test-utils": "workspace:^",
         "@effect/vitest": "catalog:",
         "@types/bun": "catalog:",
         "@types/node": "catalog:",
@@ -957,7 +971,7 @@
     },
     "packages/foundation/ui-system/form": {
       "name": "@beep/form",
-      "version": "0.0.0",
+      "version": "0.0.1",
       "dependencies": {
         "@beep/identity": "workspace:^",
         "@beep/types": "workspace:^",
@@ -983,7 +997,7 @@
     },
     "packages/foundation/ui-system/ui": {
       "name": "@beep/ui",
-      "version": "0.1.1",
+      "version": "0.1.2",
       "dependencies": {
         "@base-ui/react": "catalog:",
         "@beep/utils": "workspace:^",
@@ -1978,6 +1992,8 @@
     "@beep/messages": ["@beep/messages@workspace:packages/foundation/modeling/messages"],
 
     "@beep/nlp": ["@beep/nlp@workspace:packages/foundation/capability/nlp"],
+
+    "@beep/nlp-mcp": ["@beep/nlp-mcp@workspace:packages/drivers/nlp-mcp"],
 
     "@beep/observability": ["@beep/observability@workspace:packages/foundation/capability/observability"],
 

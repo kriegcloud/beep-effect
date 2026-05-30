@@ -103,6 +103,9 @@
       "path": "packages/drivers/konva"
     },
     {
+      "path": "packages/drivers/nlp-mcp"
+    },
+    {
       "path": "packages/drivers/onepassword-cli"
     },
     {

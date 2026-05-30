@@ -21,10 +21,8 @@ const $I = $RepoCliId.create("commands/CreatePackage/TemplateService");
  * @example
  * ```ts
  * import { TemplateSpec } from "@beep/repo-cli/commands/CreatePackage"
- *
  * console.log(TemplateSpec)
  * ```
- *
  * @category models
  * @since 0.0.0
  */
@@ -44,10 +42,8 @@ export class TemplateSpec extends S.Class<TemplateSpec>($I`TemplateSpec`)(
  * @example
  * ```ts
  * import { RenderedTemplate } from "@beep/repo-cli/commands/CreatePackage"
- *
  * console.log(RenderedTemplate)
  * ```
- *
  * @category models
  * @since 0.0.0
  */
@@ -67,10 +63,8 @@ export class RenderedTemplate extends S.Class<RenderedTemplate>($I`RenderedTempl
  * @example
  * ```ts
  * import { TemplateRenderRequest } from "@beep/repo-cli/commands/CreatePackage"
- *
  * console.log(TemplateRenderRequest)
  * ```
- *
  * @category models
  * @since 0.0.0
  */
@@ -94,11 +88,9 @@ export class TemplateRenderRequest extends S.Class<TemplateRenderRequest>($I`Tem
  * @example
  * ```ts
  * import type { TemplateServiceShape } from "@beep/repo-cli/commands/CreatePackage"
- *
  * const value = {} as TemplateServiceShape
  * console.log(value)
  * ```
- *
  * @category models
  * @since 0.0.0
  */
@@ -114,10 +106,8 @@ export type TemplateServiceShape = {
  * @example
  * ```ts
  * import { TemplateService } from "@beep/repo-cli/commands/CreatePackage"
- *
  * console.log(TemplateService)
  * ```
- *
  * @category ports
  * @since 0.0.0
  */
@@ -157,10 +147,8 @@ const createHandlebarsEnvironment = () => {
  * @example
  * ```ts
  * import { createTemplateService } from "@beep/repo-cli/commands/CreatePackage"
- *
  * console.log(createTemplateService)
  * ```
- *
  * @category models
  * @since 0.0.0
  */

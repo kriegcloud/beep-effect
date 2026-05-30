@@ -22,6 +22,34 @@
 export const VERSION = "0.0.0";
 
 /**
+ * Algebraic structures (monoids) for NLP aggregation.
+ *
+ * @example
+ * ```typescript
+ * import { Algebra } from "@beep/nlp"
+ *
+ * console.log(Algebra.Monoid.fold(Algebra.Monoid.NumberSum)([1, 2, 3])) // 6
+ * ```
+ *
+ * @since 0.0.0
+ * @category combinators
+ */
+export * as Algebra from "./Algebra/index.ts";
+/**
+ * Pluggable NLP backend interface, capabilities, and failures.
+ *
+ * @example
+ * ```typescript
+ * import { Backend } from "@beep/nlp"
+ *
+ * console.log(Backend.NLPBackend.NLPBackend.key)
+ * ```
+ *
+ * @since 0.0.0
+ * @category ports
+ */
+export * as Backend from "./Backend/index.ts";
+/**
  * Core NLP models, tokenization, and pattern utilities.
  *
  * @example
@@ -36,6 +64,35 @@ export const VERSION = "0.0.0";
  * @category models
  */
 export * as Core from "./Core/index.ts";
+/**
+ * Text-graph IR: node/edge schema classes (the handoff-contract basis).
+ *
+ * @example
+ * ```typescript
+ * import { Graph } from "@beep/nlp"
+ *
+ * console.log(Graph.Schema.TextNode)
+ * ```
+ *
+ * @since 0.0.0
+ * @category models
+ */
+export * as Graph from "./Graph/index.ts";
+/**
+ * The product-neutral generic IR handoff contract emitted for downstream
+ * consumers (chunks/mentions/entities/relations + spans + PROV-O provenance).
+ *
+ * @example
+ * ```typescript
+ * import { Handoff } from "@beep/nlp"
+ *
+ * console.log(Handoff.Contract.AnnotatedDocument)
+ * ```
+ *
+ * @since 0.0.0
+ * @category interop
+ */
+export * as Handoff from "./Handoff/index.ts";
 /**
  * Deterministic identifier tokenization and variant helpers.
  *
@@ -66,6 +123,27 @@ export * as IdentifierText from "./IdentifierText.ts";
  * @category layers
  */
 export * as Layers from "./Layers/index.ts";
+/**
+ * High-level NLP service facade over a pluggable backend.
+ *
+ * @since 0.0.0
+ * @category services
+ */
+export * as NLPService from "./NLPService.ts";
+/**
+ * Type-level ontology of text strata (kinds) and the containment poset.
+ *
+ * @example
+ * ```typescript
+ * import { Ontology } from "@beep/nlp"
+ *
+ * console.log(Ontology.Kind.canContain("Document", "Sentence")) // true
+ * ```
+ *
+ * @since 0.0.0
+ * @category models
+ */
+export * as Ontology from "./Ontology/index.ts";
 /**
  * Deterministic path and module-specifier normalization helpers.
  *

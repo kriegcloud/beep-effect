@@ -13,10 +13,8 @@ import { iso4217Target } from "./Iso4217.js";
  * @example
  * ```ts
  * import { syncDataTargets } from "@beep/repo-cli/commands/SyncDataToTs"
- *
  * console.log(syncDataTargets)
  * ```
- *
  * @category configuration
  * @since 0.0.0
  */

@@ -178,18 +178,13 @@ const handleTool = <T extends NlpTool>(
   toolkit: NlpToolkitWithHandler,
   tool: T,
   params: Tool.Parameters<T>
-): Effect.Effect<
-  Stream.Stream<Tool.HandlerResult<T>, Tool.HandlerError<T> | AiError.AiError, never>,
-  AiError.AiError,
-  never
-> =>
+): Effect.Effect<Stream.Stream<Tool.HandlerResult<T>, Tool.HandlerError<T> | AiError.AiError>, AiError.AiError> =>
   // `Toolkit.handle` is keyed by a literal tool-name map. At this adapter boundary
   // we validate `params` against the selected tool schema immediately beforehand,
   // so the runtime pairing of tool name and decoded parameters is sound.
   toolkit.handle(tool.name as never, params as never) as Effect.Effect<
-    Stream.Stream<Tool.HandlerResult<T>, Tool.HandlerError<T> | AiError.AiError, never>,
-    AiError.AiError,
-    never
+    Stream.Stream<Tool.HandlerResult<T>, Tool.HandlerError<T> | AiError.AiError>,
+    AiError.AiError
   >;
 
 const buildExportedTool: {

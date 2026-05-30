@@ -18,10 +18,8 @@ const $I = $RepoCliId.create("commands/TsconfigSync/TsconfigSync.errors");
  * @example
  * ```ts
  * import { TsconfigSyncDriftError } from "@beep/repo-cli/commands/TsconfigSync"
- *
  * console.log(TsconfigSyncDriftError)
  * ```
- *
  * @category utilities
  * @since 0.0.0
  */
@@ -64,10 +62,8 @@ export class TsconfigSyncDriftError extends TaggedErrorClass<TsconfigSyncDriftEr
  * @example
  * ```ts
  * import { TsconfigSyncCycleError } from "@beep/repo-cli/commands/TsconfigSync"
- *
  * console.log(TsconfigSyncCycleError)
  * ```
- *
  * @category utilities
  * @since 0.0.0
  */
@@ -110,10 +106,8 @@ export class TsconfigSyncCycleError extends TaggedErrorClass<TsconfigSyncCycleEr
  * @example
  * ```ts
  * import { TsconfigSyncFilterError } from "@beep/repo-cli/commands/TsconfigSync"
- *
  * console.log(TsconfigSyncFilterError)
  * ```
- *
  * @category utilities
  * @since 0.0.0
  */

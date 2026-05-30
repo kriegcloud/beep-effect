@@ -22,10 +22,8 @@ const $I = $RepoCliId.create("commands/Files/Files.schemas");
  * @example
  * ```ts
  * import { PositiveMediaDimension } from "@beep/repo-cli/commands/Files"
- *
  * console.log(PositiveMediaDimension)
  * ```
- *
  * @category schemas
  * @since 0.0.0
  */
@@ -65,10 +63,8 @@ export type PositiveMediaDimension = typeof PositiveMediaDimension.Type;
  * @example
  * ```ts
  * import { FileSha256Hash } from "@beep/repo-cli/commands/Files"
- *
  * console.log(FileSha256Hash)
  * ```
- *
  * @category schemas
  * @since 0.0.0
  */
@@ -99,10 +95,8 @@ export type FileSha256Hash = typeof FileSha256Hash.Type;
  * @example
  * ```ts
  * import { NonNegativePixelOffset } from "@beep/repo-cli/commands/Files"
- *
  * console.log(NonNegativePixelOffset)
  * ```
- *
  * @category schemas
  * @since 0.0.0
  */
@@ -142,10 +136,8 @@ export type NonNegativePixelOffset = typeof NonNegativePixelOffset.Type;
  * @example
  * ```ts
  * import { MediaKind } from "@beep/repo-cli/commands/Files"
- *
  * console.log(MediaKind)
  * ```
- *
  * @category schemas
  * @since 0.0.0
  */
@@ -169,10 +161,8 @@ export type MediaKind = typeof MediaKind.Type;
  * @example
  * ```ts
  * import { SupportedMetadataImageExtension } from "@beep/repo-cli/commands/Files"
- *
  * console.log(SupportedMetadataImageExtension)
  * ```
- *
  * @category schemas
  * @since 0.0.0
  */
@@ -196,10 +186,8 @@ export type SupportedMetadataImageExtension = typeof SupportedMetadataImageExten
  * @example
  * ```ts
  * import { NormalizeImageFormatInput } from "@beep/repo-cli/commands/Files"
- *
  * console.log(NormalizeImageFormatInput)
  * ```
- *
  * @category schemas
  * @since 0.0.0
  */
@@ -223,10 +211,8 @@ export type NormalizeImageFormatInput = typeof NormalizeImageFormatInput.Type;
  * @example
  * ```ts
  * import { NormalizeImageFormat } from "@beep/repo-cli/commands/Files"
- *
  * console.log(NormalizeImageFormat)
  * ```
- *
  * @category schemas
  * @since 0.0.0
  */
@@ -250,10 +236,8 @@ export type NormalizeImageFormat = typeof NormalizeImageFormat.Type;
  * @example
  * ```ts
  * import { NormalizeSkippedReason } from "@beep/repo-cli/commands/Files"
- *
  * console.log(NormalizeSkippedReason)
  * ```
- *
  * @category schemas
  * @since 0.0.0
  */
@@ -285,10 +269,8 @@ export type NormalizeSkippedReason = typeof NormalizeSkippedReason.Type;
  * @example
  * ```ts
  * import { CreateCaptionFilesSkippedReason } from "@beep/repo-cli/commands/Files"
- *
  * console.log(CreateCaptionFilesSkippedReason)
  * ```
- *
  * @category schemas
  * @since 0.0.0
  */
@@ -321,10 +303,8 @@ export type CreateCaptionFilesSkippedReason = typeof CreateCaptionFilesSkippedRe
  * @example
  * ```ts
  * import { BorderSide } from "@beep/repo-cli/commands/Files"
- *
  * console.log(BorderSide)
  * ```
- *
  * @category schemas
  * @since 0.0.0
  */
@@ -348,10 +328,8 @@ export type BorderSide = typeof BorderSide.Type;
  * @example
  * ```ts
  * import { BorderDetectionKind } from "@beep/repo-cli/commands/Files"
- *
  * console.log(BorderDetectionKind)
  * ```
- *
  * @category schemas
  * @since 0.0.0
  */
@@ -375,10 +353,8 @@ export type BorderDetectionKind = typeof BorderDetectionKind.Type;
  * @example
  * ```ts
  * import { DetectBordersSkippedReason } from "@beep/repo-cli/commands/Files"
- *
  * console.log(DetectBordersSkippedReason)
  * ```
- *
  * @category schemas
  * @since 0.0.0
  */
@@ -410,10 +386,8 @@ export type DetectBordersSkippedReason = typeof DetectBordersSkippedReason.Type;
  * @example
  * ```ts
  * import { DetectFacesSkippedReason } from "@beep/repo-cli/commands/Files"
- *
  * console.log(DetectFacesSkippedReason)
  * ```
- *
  * @category schemas
  * @since 0.0.0
  */
@@ -446,10 +420,8 @@ export type DetectFacesSkippedReason = typeof DetectFacesSkippedReason.Type;
  * @example
  * ```ts
  * import { DetectFacesFlag } from "@beep/repo-cli/commands/Files"
- *
  * console.log(DetectFacesFlag)
  * ```
- *
  * @category schemas
  * @since 0.0.0
  */
@@ -479,10 +451,8 @@ export type DetectFacesFlag = typeof DetectFacesFlag.Type;
  * @example
  * ```ts
  * import { CandidateAssessmentProfile } from "@beep/repo-cli/commands/Files"
- *
  * console.log(CandidateAssessmentProfile)
  * ```
- *
  * @category schemas
  * @since 0.0.0
  */
@@ -506,10 +476,8 @@ export type CandidateAssessmentProfile = typeof CandidateAssessmentProfile.Type;
  * @example
  * ```ts
  * import { CandidateAssessmentDecision } from "@beep/repo-cli/commands/Files"
- *
  * console.log(CandidateAssessmentDecision)
  * ```
- *
  * @category schemas
  * @since 0.0.0
  */
@@ -533,10 +501,8 @@ export type CandidateAssessmentDecision = typeof CandidateAssessmentDecision.Typ
  * @example
  * ```ts
  * import { CandidateAssessmentReason } from "@beep/repo-cli/commands/Files"
- *
  * console.log(CandidateAssessmentReason)
  * ```
- *
  * @category schemas
  * @since 0.0.0
  */
@@ -564,10 +530,8 @@ export type CandidateAssessmentReason = typeof CandidateAssessmentReason.Type;
  * @example
  * ```ts
  * import { ArchivePoorCandidatesSkippedReason } from "@beep/repo-cli/commands/Files"
- *
  * console.log(ArchivePoorCandidatesSkippedReason)
  * ```
- *
  * @category schemas
  * @since 0.0.0
  */
@@ -599,10 +563,8 @@ export type ArchivePoorCandidatesSkippedReason = typeof ArchivePoorCandidatesSki
  * @example
  * ```ts
  * import { CandidateRatioThreshold } from "@beep/repo-cli/commands/Files"
- *
  * console.log(CandidateRatioThreshold)
  * ```
- *
  * @category schemas
  * @since 0.0.0
  */
@@ -633,10 +595,8 @@ export type CandidateRatioThreshold = typeof CandidateRatioThreshold.Type;
  * @example
  * ```ts
  * import { BorderDetectionPercentage } from "@beep/repo-cli/commands/Files"
- *
  * console.log(BorderDetectionPercentage)
  * ```
- *
  * @category schemas
  * @since 0.0.0
  */
@@ -682,10 +642,8 @@ export type BorderDetectionPercentage = typeof BorderDetectionPercentage.Type;
  * @example
  * ```ts
  * import { BorderDetectionMaxScanPercentage } from "@beep/repo-cli/commands/Files"
- *
  * console.log(BorderDetectionMaxScanPercentage)
  * ```
- *
  * @category schemas
  * @since 0.0.0
  */
@@ -731,10 +689,8 @@ export type BorderDetectionMaxScanPercentage = typeof BorderDetectionMaxScanPerc
  * @example
  * ```ts
  * import { BorderDetectionTolerance } from "@beep/repo-cli/commands/Files"
- *
  * console.log(BorderDetectionTolerance)
  * ```
- *
  * @category schemas
  * @since 0.0.0
  */
@@ -780,10 +736,8 @@ export type BorderDetectionTolerance = typeof BorderDetectionTolerance.Type;
  * @example
  * ```ts
  * import { RgbChannel } from "@beep/repo-cli/commands/Files"
- *
  * console.log(RgbChannel)
  * ```
- *
  * @category schemas
  * @since 0.0.0
  */
@@ -829,10 +783,8 @@ export type RgbChannel = typeof RgbChannel.Type;
  * @example
  * ```ts
  * import { ImageSizeMetadata } from "@beep/repo-cli/commands/Files"
- *
  * console.log(ImageSizeMetadata)
  * ```
- *
  * @category models
  * @since 0.0.0
  */
@@ -853,10 +805,8 @@ export class ImageSizeMetadata extends S.Class<ImageSizeMetadata>($I`ImageSizeMe
  * @example
  * ```ts
  * import { FfprobeSideData } from "@beep/repo-cli/commands/Files"
- *
  * console.log(FfprobeSideData)
  * ```
- *
  * @category models
  * @since 0.0.0
  */
@@ -875,10 +825,8 @@ export class FfprobeSideData extends S.Class<FfprobeSideData>($I`FfprobeSideData
  * @example
  * ```ts
  * import { FfprobeStream } from "@beep/repo-cli/commands/Files"
- *
  * console.log(FfprobeStream)
  * ```
- *
  * @category models
  * @since 0.0.0
  */
@@ -900,10 +848,8 @@ export class FfprobeStream extends S.Class<FfprobeStream>($I`FfprobeStream`)(
  * @example
  * ```ts
  * import { FfprobeOutput } from "@beep/repo-cli/commands/Files"
- *
  * console.log(FfprobeOutput)
  * ```
- *
  * @category models
  * @since 0.0.0
  */
@@ -922,10 +868,8 @@ export class FfprobeOutput extends S.Class<FfprobeOutput>($I`FfprobeOutput`)(
  * @example
  * ```ts
  * import { SafeFilePrefix } from "@beep/repo-cli/commands/Files"
- *
  * console.log(SafeFilePrefix)
  * ```
- *
  * @category schemas
  * @since 0.0.0
  */
@@ -1016,10 +960,8 @@ export class SortableFile extends S.Class<SortableFile>($I`SortableFile`)(
  * @example
  * ```ts
  * import { RenamePlanEntry } from "@beep/repo-cli/commands/Files"
- *
  * console.log(RenamePlanEntry)
  * ```
- *
  * @category models
  * @since 0.0.0
  */
@@ -1048,10 +990,8 @@ export class RenamePlanEntry extends S.Class<RenamePlanEntry>($I`RenamePlanEntry
  * @example
  * ```ts
  * import { SortAndRenameSummary } from "@beep/repo-cli/commands/Files"
- *
  * console.log(SortAndRenameSummary)
  * ```
- *
  * @category models
  * @since 0.0.0
  */
@@ -1107,10 +1047,8 @@ export class StripMetadataPlanEntry extends S.Class<StripMetadataPlanEntry>($I`S
  * @example
  * ```ts
  * import { StripMetadataSummary } from "@beep/repo-cli/commands/Files"
- *
  * console.log(StripMetadataSummary)
  * ```
- *
  * @category models
  * @since 0.0.0
  */
@@ -1158,10 +1096,8 @@ export class MediaDimensions extends S.Class<MediaDimensions>($I`MediaDimensions
  * @example
  * ```ts
  * import { CreateCaptionFilesOptions } from "@beep/repo-cli/commands/Files"
- *
  * console.log(CreateCaptionFilesOptions)
  * ```
- *
  * @category models
  * @since 0.0.0
  */
@@ -1183,10 +1119,8 @@ export class CreateCaptionFilesOptions extends S.Class<CreateCaptionFilesOptions
  * @example
  * ```ts
  * import { CreateCaptionFilesPlanEntry } from "@beep/repo-cli/commands/Files"
- *
  * console.log(CreateCaptionFilesPlanEntry)
  * ```
- *
  * @category models
  * @since 0.0.0
  */
@@ -1212,10 +1146,8 @@ export class CreateCaptionFilesPlanEntry extends S.Class<CreateCaptionFilesPlanE
  * @example
  * ```ts
  * import { CreateCaptionFilesSkippedEntry } from "@beep/repo-cli/commands/Files"
- *
  * console.log(CreateCaptionFilesSkippedEntry)
  * ```
- *
  * @category models
  * @since 0.0.0
  */
@@ -1241,10 +1173,8 @@ export class CreateCaptionFilesSkippedEntry extends S.Class<CreateCaptionFilesSk
  * @example
  * ```ts
  * import { CreateCaptionFilesPlan } from "@beep/repo-cli/commands/Files"
- *
  * console.log(CreateCaptionFilesPlan)
  * ```
- *
  * @category models
  * @since 0.0.0
  */
@@ -1267,10 +1197,8 @@ export class CreateCaptionFilesPlan extends S.Class<CreateCaptionFilesPlan>($I`C
  * @example
  * ```ts
  * import { CreateCaptionFilesSummary } from "@beep/repo-cli/commands/Files"
- *
  * console.log(CreateCaptionFilesSummary)
  * ```
- *
  * @category models
  * @since 0.0.0
  */
@@ -1294,10 +1222,8 @@ export class CreateCaptionFilesSummary extends S.Class<CreateCaptionFilesSummary
  * @example
  * ```ts
  * import { NormalizeFilesOptions } from "@beep/repo-cli/commands/Files"
- *
  * console.log(NormalizeFilesOptions)
  * ```
- *
  * @category models
  * @since 0.0.0
  */
@@ -1326,10 +1252,8 @@ export class NormalizeFilesOptions extends S.Class<NormalizeFilesOptions>($I`Nor
  * @example
  * ```ts
  * import { NormalizeManifestOptions } from "@beep/repo-cli/commands/Files"
- *
  * console.log(NormalizeManifestOptions)
  * ```
- *
  * @category models
  * @since 0.0.0
  */
@@ -1352,10 +1276,8 @@ export class NormalizeManifestOptions extends S.Class<NormalizeManifestOptions>(
  * @example
  * ```ts
  * import { NormalizePlanEntry } from "@beep/repo-cli/commands/Files"
- *
  * console.log(NormalizePlanEntry)
  * ```
- *
  * @category models
  * @since 0.0.0
  */
@@ -1387,10 +1309,8 @@ export class NormalizePlanEntry extends S.Class<NormalizePlanEntry>($I`Normalize
  * @example
  * ```ts
  * import { NormalizeSkippedEntry } from "@beep/repo-cli/commands/Files"
- *
  * console.log(NormalizeSkippedEntry)
  * ```
- *
  * @category models
  * @since 0.0.0
  */
@@ -1418,10 +1338,8 @@ export class NormalizeSkippedEntry extends S.Class<NormalizeSkippedEntry>($I`Nor
  * @example
  * ```ts
  * import { NormalizePlan } from "@beep/repo-cli/commands/Files"
- *
  * console.log(NormalizePlan)
  * ```
- *
  * @category models
  * @since 0.0.0
  */
@@ -1446,10 +1364,8 @@ export class NormalizePlan extends S.Class<NormalizePlan>($I`NormalizePlan`)(
  * @example
  * ```ts
  * import { NormalizeSummary } from "@beep/repo-cli/commands/Files"
- *
  * console.log(NormalizeSummary)
  * ```
- *
  * @category models
  * @since 0.0.0
  */
@@ -1482,10 +1398,8 @@ export class NormalizeSummary extends S.Class<NormalizeSummary>($I`NormalizeSumm
  * @example
  * ```ts
  * import { NormalizeManifestSummary } from "@beep/repo-cli/commands/Files"
- *
  * console.log(NormalizeManifestSummary)
  * ```
- *
  * @category models
  * @since 0.0.0
  */
@@ -1509,10 +1423,8 @@ export class NormalizeManifestSummary extends S.Class<NormalizeManifestSummary>(
  * @example
  * ```ts
  * import { NormalizeManifest } from "@beep/repo-cli/commands/Files"
- *
  * console.log(NormalizeManifest)
  * ```
- *
  * @category models
  * @since 0.0.0
  */
@@ -1538,10 +1450,8 @@ export class NormalizeManifest extends S.Class<NormalizeManifest>($I`NormalizeMa
  * @example
  * ```ts
  * import { ArchivePoorCandidatesOptions } from "@beep/repo-cli/commands/Files"
- *
  * console.log(ArchivePoorCandidatesOptions)
  * ```
- *
  * @category models
  * @since 0.0.0
  */
@@ -1572,10 +1482,8 @@ export class ArchivePoorCandidatesOptions extends S.Class<ArchivePoorCandidatesO
  * @example
  * ```ts
  * import { ArchivePoorCandidatesManifestOptions } from "@beep/repo-cli/commands/Files"
- *
  * console.log(ArchivePoorCandidatesManifestOptions)
  * ```
- *
  * @category models
  * @since 0.0.0
  */
@@ -1602,10 +1510,8 @@ export class ArchivePoorCandidatesManifestOptions extends S.Class<ArchivePoorCan
  * @example
  * ```ts
  * import { CandidateAssessmentMetrics } from "@beep/repo-cli/commands/Files"
- *
  * console.log(CandidateAssessmentMetrics)
  * ```
- *
  * @category models
  * @since 0.0.0
  */
@@ -1627,10 +1533,8 @@ export class CandidateAssessmentMetrics extends S.Class<CandidateAssessmentMetri
  * @example
  * ```ts
  * import { ArchivedSidecarEntry } from "@beep/repo-cli/commands/Files"
- *
  * console.log(ArchivedSidecarEntry)
  * ```
- *
  * @category models
  * @since 0.0.0
  */
@@ -1653,10 +1557,8 @@ export class ArchivedSidecarEntry extends S.Class<ArchivedSidecarEntry>($I`Archi
  * @example
  * ```ts
  * import { ArchivePoorCandidatesEntry } from "@beep/repo-cli/commands/Files"
- *
  * console.log(ArchivePoorCandidatesEntry)
  * ```
- *
  * @category models
  * @since 0.0.0
  */
@@ -1687,10 +1589,8 @@ export class ArchivePoorCandidatesEntry extends S.Class<ArchivePoorCandidatesEnt
  * @example
  * ```ts
  * import { ArchivePoorCandidatesSkippedEntry } from "@beep/repo-cli/commands/Files"
- *
  * console.log(ArchivePoorCandidatesSkippedEntry)
  * ```
- *
  * @category models
  * @since 0.0.0
  */
@@ -1715,10 +1615,8 @@ export class ArchivePoorCandidatesSkippedEntry extends S.Class<ArchivePoorCandid
  * @example
  * ```ts
  * import { ArchivePoorCandidatesPlan } from "@beep/repo-cli/commands/Files"
- *
  * console.log(ArchivePoorCandidatesPlan)
  * ```
- *
  * @category models
  * @since 0.0.0
  */
@@ -1742,10 +1640,8 @@ export class ArchivePoorCandidatesPlan extends S.Class<ArchivePoorCandidatesPlan
  * @example
  * ```ts
  * import { ArchivePoorCandidatesSummary } from "@beep/repo-cli/commands/Files"
- *
  * console.log(ArchivePoorCandidatesSummary)
  * ```
- *
  * @category models
  * @since 0.0.0
  */
@@ -1775,10 +1671,8 @@ export class ArchivePoorCandidatesSummary extends S.Class<ArchivePoorCandidatesS
  * @example
  * ```ts
  * import { ArchivePoorCandidatesManifestSummary } from "@beep/repo-cli/commands/Files"
- *
  * console.log(ArchivePoorCandidatesManifestSummary)
  * ```
- *
  * @category models
  * @since 0.0.0
  */
@@ -1803,10 +1697,8 @@ export class ArchivePoorCandidatesManifestSummary extends S.Class<ArchivePoorCan
  * @example
  * ```ts
  * import { ArchivePoorCandidatesManifest } from "@beep/repo-cli/commands/Files"
- *
  * console.log(ArchivePoorCandidatesManifest)
  * ```
- *
  * @category models
  * @since 0.0.0
  */
@@ -1834,10 +1726,8 @@ export class ArchivePoorCandidatesManifest extends S.Class<ArchivePoorCandidates
  * @example
  * ```ts
  * import { DetectBordersOptions } from "@beep/repo-cli/commands/Files"
- *
  * console.log(DetectBordersOptions)
  * ```
- *
  * @category models
  * @since 0.0.0
  */
@@ -1861,10 +1751,8 @@ export class DetectBordersOptions extends S.Class<DetectBordersOptions>($I`Detec
  * @example
  * ```ts
  * import { DetectFacesOptions } from "@beep/repo-cli/commands/Files"
- *
  * console.log(DetectFacesOptions)
  * ```
- *
  * @category models
  * @since 0.0.0
  */
@@ -1890,10 +1778,8 @@ export class DetectFacesOptions extends S.Class<DetectFacesOptions>($I`DetectFac
  * @example
  * ```ts
  * import { DetectFacesReportOptions } from "@beep/repo-cli/commands/Files"
- *
  * console.log(DetectFacesReportOptions)
  * ```
- *
  * @category models
  * @since 0.0.0
  */
@@ -1918,10 +1804,8 @@ export class DetectFacesReportOptions extends S.Class<DetectFacesReportOptions>(
  * @example
  * ```ts
  * import { CropBordersOptions } from "@beep/repo-cli/commands/Files"
- *
  * console.log(CropBordersOptions)
  * ```
- *
  * @category models
  * @since 0.0.0
  */
@@ -1945,10 +1829,8 @@ export class CropBordersOptions extends S.Class<CropBordersOptions>($I`CropBorde
  * @example
  * ```ts
  * import { RgbColor } from "@beep/repo-cli/commands/Files"
- *
  * console.log(RgbColor)
  * ```
- *
  * @category models
  * @since 0.0.0
  */
@@ -1969,10 +1851,8 @@ export class RgbColor extends S.Class<RgbColor>($I`RgbColor`)(
  * @example
  * ```ts
  * import { DetectBorderSideMeasurement } from "@beep/repo-cli/commands/Files"
- *
  * console.log(DetectBorderSideMeasurement)
  * ```
- *
  * @category models
  * @since 0.0.0
  */
@@ -1997,10 +1877,8 @@ export class DetectBorderSideMeasurement extends S.Class<DetectBorderSideMeasure
  * @example
  * ```ts
  * import { DetectBordersEntry } from "@beep/repo-cli/commands/Files"
- *
  * console.log(DetectBordersEntry)
  * ```
- *
  * @category models
  * @since 0.0.0
  */
@@ -2027,10 +1905,8 @@ export class DetectBordersEntry extends S.Class<DetectBordersEntry>($I`DetectBor
  * @example
  * ```ts
  * import { DetectBordersSkippedEntry } from "@beep/repo-cli/commands/Files"
- *
  * console.log(DetectBordersSkippedEntry)
  * ```
- *
  * @category models
  * @since 0.0.0
  */
@@ -2053,10 +1929,8 @@ export class DetectBordersSkippedEntry extends S.Class<DetectBordersSkippedEntry
  * @example
  * ```ts
  * import { DetectBordersSummary } from "@beep/repo-cli/commands/Files"
- *
  * console.log(DetectBordersSummary)
  * ```
- *
  * @category models
  * @since 0.0.0
  */
@@ -2079,10 +1953,8 @@ export class DetectBordersSummary extends S.Class<DetectBordersSummary>($I`Detec
  * @example
  * ```ts
  * import { DetectBordersReport } from "@beep/repo-cli/commands/Files"
- *
  * console.log(DetectBordersReport)
  * ```
- *
  * @category models
  * @since 0.0.0
  */
@@ -2106,10 +1978,8 @@ export class DetectBordersReport extends S.Class<DetectBordersReport>($I`DetectB
  * @example
  * ```ts
  * import { DetectFacesEntry } from "@beep/repo-cli/commands/Files"
- *
  * console.log(DetectFacesEntry)
  * ```
- *
  * @category models
  * @since 0.0.0
  */
@@ -2141,10 +2011,8 @@ export class DetectFacesEntry extends S.Class<DetectFacesEntry>($I`DetectFacesEn
  * @example
  * ```ts
  * import { DetectFacesSkippedEntry } from "@beep/repo-cli/commands/Files"
- *
  * console.log(DetectFacesSkippedEntry)
  * ```
- *
  * @category models
  * @since 0.0.0
  */
@@ -2167,10 +2035,8 @@ export class DetectFacesSkippedEntry extends S.Class<DetectFacesSkippedEntry>($I
  * @example
  * ```ts
  * import { DetectFacesSummary } from "@beep/repo-cli/commands/Files"
- *
  * console.log(DetectFacesSummary)
  * ```
- *
  * @category models
  * @since 0.0.0
  */
@@ -2196,10 +2062,8 @@ export class DetectFacesSummary extends S.Class<DetectFacesSummary>($I`DetectFac
  * @example
  * ```ts
  * import { DetectFacesReport } from "@beep/repo-cli/commands/Files"
- *
  * console.log(DetectFacesReport)
  * ```
- *
  * @category models
  * @since 0.0.0
  */
@@ -2225,10 +2089,8 @@ export class DetectFacesReport extends S.Class<DetectFacesReport>($I`DetectFaces
  * @example
  * ```ts
  * import { CropBordersPlanEntry } from "@beep/repo-cli/commands/Files"
- *
  * console.log(CropBordersPlanEntry)
  * ```
- *
  * @category models
  * @since 0.0.0
  */
@@ -2258,10 +2120,8 @@ export class CropBordersPlanEntry extends S.Class<CropBordersPlanEntry>($I`CropB
  * @example
  * ```ts
  * import { CropBordersPlan } from "@beep/repo-cli/commands/Files"
- *
  * console.log(CropBordersPlan)
  * ```
- *
  * @category models
  * @since 0.0.0
  */
@@ -2284,10 +2144,8 @@ export class CropBordersPlan extends S.Class<CropBordersPlan>($I`CropBordersPlan
  * @example
  * ```ts
  * import { CropBordersSummary } from "@beep/repo-cli/commands/Files"
- *
  * console.log(CropBordersSummary)
  * ```
- *
  * @category models
  * @since 0.0.0
  */
@@ -2312,10 +2170,8 @@ export class CropBordersSummary extends S.Class<CropBordersSummary>($I`CropBorde
  * @example
  * ```ts
  * import { SortableFileCollection } from "@beep/repo-cli/commands/Files"
- *
  * console.log(SortableFileCollection)
  * ```
- *
  * @category models
  * @since 0.0.0
  */
@@ -2335,10 +2191,8 @@ export class SortableFileCollection extends S.Class<SortableFileCollection>($I`S
  * @example
  * ```ts
  * import { RenamePlan } from "@beep/repo-cli/commands/Files"
- *
  * console.log(RenamePlan)
  * ```
- *
  * @category models
  * @since 0.0.0
  */
@@ -2358,10 +2212,8 @@ export class RenamePlan extends S.Class<RenamePlan>($I`RenamePlan`)(
  * @example
  * ```ts
  * import { StripMetadataPlan } from "@beep/repo-cli/commands/Files"
- *
  * console.log(StripMetadataPlan)
  * ```
- *
  * @category models
  * @since 0.0.0
  */
@@ -2383,10 +2235,8 @@ export class StripMetadataPlan extends S.Class<StripMetadataPlan>($I`StripMetada
  * @example
  * ```ts
  * import { decodeImageSizeMetadata } from "@beep/repo-cli/commands/Files"
- *
  * console.log(decodeImageSizeMetadata)
  * ```
- *
  * @category decoding
  * @since 0.0.0
  */
@@ -2398,10 +2248,8 @@ export const decodeImageSizeMetadata = S.decodeUnknownEffect(ImageSizeMetadata);
  * @example
  * ```ts
  * import { decodeFfprobeOutputJson } from "@beep/repo-cli/commands/Files"
- *
  * console.log(decodeFfprobeOutputJson)
  * ```
- *
  * @category decoding
  * @since 0.0.0
  */
@@ -2413,10 +2261,8 @@ export const decodeFfprobeOutputJson = S.decodeUnknownEffect(S.fromJsonString(Ff
  * @example
  * ```ts
  * import { decodeRotationNumber } from "@beep/repo-cli/commands/Files"
- *
  * console.log(decodeRotationNumber)
  * ```
- *
  * @category decoding
  * @since 0.0.0
  */
@@ -2428,10 +2274,8 @@ export const decodeRotationNumber = S.decodeUnknownOption(S.Union([S.Number, S.N
  * @example
  * ```ts
  * import { decodeSafeFilePrefix } from "@beep/repo-cli/commands/Files"
- *
  * console.log(decodeSafeFilePrefix)
  * ```
- *
  * @category decoding
  * @since 0.0.0
  */
@@ -2443,10 +2287,8 @@ export const decodeSafeFilePrefix = S.decodeUnknownEffect(SafeFilePrefix);
  * @example
  * ```ts
  * import { decodeNormalizeMaxLongEdge } from "@beep/repo-cli/commands/Files"
- *
  * console.log(decodeNormalizeMaxLongEdge)
  * ```
- *
  * @category decoding
  * @since 0.0.0
  */
@@ -2458,10 +2300,8 @@ export const decodeNormalizeMaxLongEdge = S.decodeUnknownEffect(PositiveMediaDim
  * @example
  * ```ts
  * import { decodeArchivePoorCandidatesOptions } from "@beep/repo-cli/commands/Files"
- *
  * console.log(decodeArchivePoorCandidatesOptions)
  * ```
- *
  * @category decoding
  * @since 0.0.0
  */
@@ -2473,10 +2313,8 @@ export const decodeArchivePoorCandidatesOptions = S.decodeUnknownEffect(ArchiveP
  * @example
  * ```ts
  * import { decodeCreateCaptionFilesOptions } from "@beep/repo-cli/commands/Files"
- *
  * console.log(decodeCreateCaptionFilesOptions)
  * ```
- *
  * @category decoding
  * @since 0.0.0
  */
@@ -2488,10 +2326,8 @@ export const decodeCreateCaptionFilesOptions = S.decodeUnknownEffect(CreateCapti
  * @example
  * ```ts
  * import { decodeDetectBordersOptions } from "@beep/repo-cli/commands/Files"
- *
  * console.log(decodeDetectBordersOptions)
  * ```
- *
  * @category decoding
  * @since 0.0.0
  */
@@ -2502,10 +2338,8 @@ export const decodeDetectBordersOptions = S.decodeUnknownEffect(DetectBordersOpt
  * @example
  * ```ts
  * import { decodeDetectFacesOptions } from "@beep/repo-cli/commands/Files"
- *
  * console.log(decodeDetectFacesOptions)
  * ```
- *
  * @category codecs
  * @since 0.0.0
  */
@@ -2517,10 +2351,8 @@ export const decodeDetectFacesOptions = S.decodeUnknownEffect(DetectFacesOptions
  * @example
  * ```ts
  * import { decodeCropBordersOptions } from "@beep/repo-cli/commands/Files"
- *
  * console.log(decodeCropBordersOptions)
  * ```
- *
  * @category decoding
  * @since 0.0.0
  */
@@ -2532,10 +2364,8 @@ export const decodeCropBordersOptions = S.decodeUnknownEffect(CropBordersOptions
  * @example
  * ```ts
  * import { encodeNormalizeManifest } from "@beep/repo-cli/commands/Files"
- *
  * console.log(encodeNormalizeManifest)
  * ```
- *
  * @category encoding
  * @since 0.0.0
  */
@@ -2547,10 +2377,8 @@ export const encodeNormalizeManifest = S.encodeUnknownEffect(NormalizeManifest);
  * @example
  * ```ts
  * import { encodeArchivePoorCandidatesManifest } from "@beep/repo-cli/commands/Files"
- *
  * console.log(encodeArchivePoorCandidatesManifest)
  * ```
- *
  * @category encoding
  * @since 0.0.0
  */
@@ -2562,10 +2390,8 @@ export const encodeArchivePoorCandidatesManifest = S.encodeUnknownEffect(Archive
  * @example
  * ```ts
  * import { encodeDetectBordersReport } from "@beep/repo-cli/commands/Files"
- *
  * console.log(encodeDetectBordersReport)
  * ```
- *
  * @category encoding
  * @since 0.0.0
  */
@@ -2576,10 +2402,8 @@ export const encodeDetectBordersReport = S.encodeUnknownEffect(DetectBordersRepo
  * @example
  * ```ts
  * import { encodeDetectFacesReport } from "@beep/repo-cli/commands/Files"
- *
  * console.log(encodeDetectFacesReport)
  * ```
- *
  * @category codecs
  * @since 0.0.0
  */

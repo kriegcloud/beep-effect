@@ -2,18 +2,8 @@
   "schemaVersion": "effect-native-migration-progress/v1",
   "updated": "2026-05-20",
   "legend": {
-    "phaseStatus": [
-      "pending",
-      "in_progress",
-      "done"
-    ],
-    "packageStatus": [
-      "pending",
-      "discovery",
-      "remediation",
-      "blocked",
-      "done"
-    ]
+    "phaseStatus": ["pending", "in_progress", "done"],
+    "packageStatus": ["pending", "discovery", "remediation", "blocked", "done"]
   },
   "phases": {
     "phase0_bootstrap": "done",
@@ -145,9 +135,7 @@
       "canImportUtils": false,
       "discovery": "done",
       "remediation": "done",
-      "categoriesWithFindings": [
-        "String"
-      ],
+      "categoriesWithFindings": ["String"],
       "needsHumanDecision": 0,
       "triageWeight": "heavy",
       "remediationNote": "applied 2, waived 0; committed in c7dd06a (bundled with artifacts)"
@@ -260,9 +248,7 @@
       "canImportUtils": true,
       "discovery": "done",
       "remediation": "done",
-      "categoriesWithFindings": [
-        "Array"
-      ],
+      "categoriesWithFindings": ["Array"],
       "needsHumanDecision": 0,
       "triageWeight": "heavy",
       "remediationNote": "applied entries.map->A.map; index/record findings out of scope (scrubbed), A.get/R.get kept as voluntary improvements"
@@ -424,10 +410,7 @@
       "canImportUtils": true,
       "discovery": "done",
       "remediation": "done",
-      "categoriesWithFindings": [
-        "JSON",
-        "Date"
-      ],
+      "categoriesWithFindings": ["JSON", "Date"],
       "needsHumanDecision": 3,
       "triageWeight": "heavy",
       "remediationNote": "applied 2 JSON sync codecs; 3 FS-contract Date getTime waived (genuine)"
@@ -448,9 +431,7 @@
       "canImportUtils": true,
       "discovery": "done",
       "remediation": "done",
-      "categoriesWithFindings": [
-        "JSON"
-      ],
+      "categoriesWithFindings": ["JSON"],
       "needsHumanDecision": 0,
       "triageWeight": "heavy",
       "remediationNote": "applied test JSON sync codec + R.set (voluntary); Object spread/literal findings out of scope (scrubbed)"
@@ -461,9 +442,7 @@
       "canImportUtils": true,
       "discovery": "done",
       "remediation": "done",
-      "categoriesWithFindings": [
-        "String"
-      ],
+      "categoriesWithFindings": ["String"],
       "needsHumanDecision": 0,
       "triageWeight": "heavy",
       "remediationNote": "applied 3, waived 0; committed in c7dd06a (bundled with artifacts)"
@@ -504,9 +483,7 @@
       "canImportUtils": true,
       "discovery": "done",
       "remediation": "done",
-      "categoriesWithFindings": [
-        "JSON"
-      ],
+      "categoriesWithFindings": ["JSON"],
       "needsHumanDecision": 1,
       "triageWeight": "light",
       "remediationNote": "applied 1 JSON sync codec; commit"
@@ -558,9 +535,7 @@
       "canImportUtils": true,
       "discovery": "done",
       "remediation": "done",
-      "categoriesWithFindings": [
-        "JSON"
-      ],
+      "categoriesWithFindings": ["JSON"],
       "needsHumanDecision": 1,
       "triageWeight": "light",
       "remediationNote": "applied 1 JSON sync codec; commit"
@@ -651,12 +626,7 @@
       "canImportUtils": true,
       "discovery": "done",
       "remediation": "done",
-      "categoriesWithFindings": [
-        "JSON",
-        "String",
-        "Array",
-        "Date"
-      ],
+      "categoriesWithFindings": ["JSON", "String", "Array", "Date"],
       "needsHumanDecision": 1,
       "triageWeight": "heavy",
       "remediationNote": "applied 12 method/JSON migrations; 1 FS-contract Date getTime waived"
@@ -697,9 +667,7 @@
       "canImportUtils": true,
       "discovery": "done",
       "remediation": "done",
-      "categoriesWithFindings": [
-        "String"
-      ],
+      "categoriesWithFindings": ["String"],
       "needsHumanDecision": 0,
       "triageWeight": "heavy",
       "remediationNote": "applied 4 String .replace; Array .length/index findings out of scope (scrubbed)"
@@ -720,9 +688,7 @@
       "canImportUtils": true,
       "discovery": "done",
       "remediation": "done",
-      "categoriesWithFindings": [
-        "JSON"
-      ],
+      "categoriesWithFindings": ["JSON"],
       "needsHumanDecision": 1,
       "triageWeight": "light",
       "remediationNote": "applied 1, waived 0; committed in c7dd06a (bundled with artifacts)"
@@ -763,9 +729,7 @@
       "canImportUtils": true,
       "discovery": "done",
       "remediation": "done",
-      "categoriesWithFindings": [
-        "Set"
-      ],
+      "categoriesWithFindings": ["Set"],
       "needsHumanDecision": 6,
       "triageWeight": "heavy",
       "remediationNote": "WeakSet cycle-detection guard waived (genuine constructor, identity/GC semantics)"
@@ -796,9 +760,7 @@
       "canImportUtils": true,
       "discovery": "done",
       "remediation": "done",
-      "categoriesWithFindings": [
-        "Array"
-      ],
+      "categoriesWithFindings": ["Array"],
       "needsHumanDecision": 0,
       "triageWeight": "light",
       "remediationNote": "applied 1, waived 0; committed in c7dd06a (bundled with artifacts)"
@@ -809,9 +771,7 @@
       "canImportUtils": true,
       "discovery": "done",
       "remediation": "done",
-      "categoriesWithFindings": [
-        "JSON"
-      ],
+      "categoriesWithFindings": ["JSON"],
       "needsHumanDecision": 1,
       "triageWeight": "light",
       "remediationNote": "applied 1, waived 0; committed in c7dd06a (bundled with artifacts)"
@@ -833,9 +793,7 @@
       "canImportUtils": true,
       "discovery": "done",
       "remediation": "done",
-      "categoriesWithFindings": [
-        "Set"
-      ],
+      "categoriesWithFindings": ["Set"],
       "needsHumanDecision": 1,
       "triageWeight": "heavy",
       "remediationNote": "applied 3 A.head/last (voluntary); wink-nlp FFI native Set kept (WONTFIX)"

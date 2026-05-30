@@ -18,10 +18,8 @@ import { TIER_ONE_SOURCES } from "./source-map.ts";
  * @example
  * ```ts
  * import { GENERATED_SCHEMAS_PATH } from "@beep/ai-sync/generator"
- *
  * console.log(GENERATED_SCHEMAS_PATH)
  * ```
- *
  * @category constants
  * @since 0.0.0
  */
@@ -33,10 +31,8 @@ export const GENERATED_SCHEMAS_PATH = "src/_generated/schemas.gen.ts" as const;
  * @example
  * ```ts
  * import { GENERATED_SOURCE_METADATA_PATH } from "@beep/ai-sync/generator"
- *
  * console.log(GENERATED_SOURCE_METADATA_PATH)
  * ```
- *
  * @category constants
  * @since 0.0.0
  */
@@ -426,10 +422,8 @@ export const generateAiSyncArtifacts = Effect.fn("AiSync.generateAiSyncArtifacts
  * @example
  * ```ts
  * import { AiSyncHttpLayer } from "@beep/ai-sync/generator"
- *
  * console.log(AiSyncHttpLayer)
  * ```
- *
  * @category services
  * @since 0.0.0
  */

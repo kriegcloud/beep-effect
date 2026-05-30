@@ -74,10 +74,8 @@ const templateDirCandidates = (baseDir: string, path: Path.Path): ReadonlyArray<
  * @example
  * ```ts
  * import { resolveCreatePackageTemplateDir } from "@beep/repo-cli/commands/CreatePackage"
- *
  * console.log(resolveCreatePackageTemplateDir)
  * ```
- *
  * @category models
  * @since 0.0.0
  */
@@ -282,10 +280,8 @@ const IDENTITY_PACKAGES_EXPORT_PATH = ["src", "packages.ts"] as const;
  * @example
  * ```ts
  * import { TemplateContext } from "@beep/repo-cli/commands/CreatePackage"
- *
  * console.log(TemplateContext)
  * ```
- *
  * @category models
  * @since 0.0.0
  */
@@ -572,10 +568,8 @@ const identityPackageRegistrationNeeded = Effect.fn(function* (
  * @example
  * ```ts
  * import { createPackageCommand } from "@beep/repo-cli/commands/CreatePackage"
- *
  * console.log(createPackageCommand)
  * ```
- *
  * @category use-cases
  * @since 0.0.0
  */

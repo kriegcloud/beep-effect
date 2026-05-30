@@ -64,7 +64,12 @@ export const sentenceIndex: Brand.Constructor<SentenceIndex> = Brand.check<Sente
  * @since 0.0.0
  * @category validation
  */
-export const SentenceIndex = NonNegativeInt.pipe(S.fromBrand("SentenceIndex", sentenceIndex));
+export const SentenceIndex = NonNegativeInt.pipe(
+  S.fromBrand("SentenceIndex", sentenceIndex),
+  $I.annoteSchema("SentenceIndex", {
+    description: "Non-negative ordered index for an NLP sentence.",
+  })
+);
 
 /**
  * Immutable NLP sentence model.

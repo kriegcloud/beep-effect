@@ -191,7 +191,6 @@ export class PgliteTestcontainersTestDriverConfig extends S.Class<PgliteTestcont
  * const value = {} as PgliteTestcontainersTestDriverConfigInput
  * console.log(value)
  * ```
- *
  * @category models
  * @since 0.0.0
  */
@@ -250,7 +249,6 @@ export class PgExternalTestDriverConfig extends S.Class<PgExternalTestDriverConf
  * const value = {} as PgExternalTestDriverConfigInput
  * console.log(value)
  * ```
- *
  * @category models
  * @since 0.0.0
  */
@@ -266,7 +264,6 @@ export type PgExternalTestDriverConfigInput = Partial<PgExternalTestDriverConfig
  * const value = {} as PgliteSqlTestLayerMode
  * console.log(value)
  * ```
- *
  * @category models
  * @since 0.0.0
  */
@@ -278,11 +275,9 @@ export type PgliteSqlTestLayerMode = "auto" | "external" | "testcontainers";
  * @example
  * ```ts
  * import type { PgliteSqlTestLayerOptions } from "@beep/test-utils/SqlTest"
- *
  * const value = {} as PgliteSqlTestLayerOptions
  * console.log(value)
  * ```
- *
  * @category models
  * @since 0.0.0
  */

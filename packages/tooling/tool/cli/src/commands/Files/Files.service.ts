@@ -250,11 +250,9 @@ const resolveTrustedMediaToolPath = Effect.fn("Files.resolveTrustedMediaToolPath
  * @example
  * ```ts
  * import type { FilesCommandServiceShape } from "@beep/repo-cli/commands/Files"
- *
  * const value = {} as FilesCommandServiceShape
  * console.log(value)
  * ```
- *
  * @category services
  * @since 0.0.0
  */
@@ -331,10 +329,8 @@ export interface FilesCommandServiceShape {
  * @example
  * ```ts
  * import { FilesCommandService } from "@beep/repo-cli/commands/Files"
- *
  * console.log(FilesCommandService)
  * ```
- *
  * @category services
  * @since 0.0.0
  */
@@ -3720,10 +3716,8 @@ const logCropBordersPlan = Effect.fn("Files.logCropBordersPlan")(function* (plan
  * @example
  * ```ts
  * import { printFilesIndex } from "@beep/repo-cli/commands/Files"
- *
  * console.log(printFilesIndex)
  * ```
- *
  * @category use-cases
  * @since 0.0.0
  */
@@ -4486,10 +4480,8 @@ const makeFilesCommandService = Effect.fn("FilesCommandService.make")(function* 
  * @example
  * ```ts
  * import { FilesCommandServiceLive } from "@beep/repo-cli/commands/Files"
- *
  * console.log(FilesCommandServiceLive)
  * ```
- *
  * @category layers
  * @since 0.0.0
  */
@@ -4504,10 +4496,8 @@ export const FilesCommandServiceLive: Layer.Layer<FilesCommandService, never, Fi
  * @example
  * ```ts
  * import { archivePoorCandidates } from "@beep/repo-cli/commands/Files"
- *
  * console.log(archivePoorCandidates)
  * ```
- *
  * @category use-cases
  * @since 0.0.0
  */
@@ -4526,10 +4516,8 @@ export const archivePoorCandidates = Effect.fn("Files.archivePoorCandidates")(fu
  * @example
  * ```ts
  * import { createCaptionFiles } from "@beep/repo-cli/commands/Files"
- *
  * console.log(createCaptionFiles)
  * ```
- *
  * @category use-cases
  * @since 0.0.0
  */
@@ -4548,10 +4536,8 @@ export const createCaptionFiles = Effect.fn("Files.createCaptionFiles")(function
  * @example
  * ```ts
  * import { cropBordersFiles } from "@beep/repo-cli/commands/Files"
- *
  * console.log(cropBordersFiles)
  * ```
- *
  * @category use-cases
  * @since 0.0.0
  */
@@ -4570,10 +4556,8 @@ export const cropBordersFiles = Effect.fn("Files.cropBordersFiles")(function* (
  * @example
  * ```ts
  * import { detectBordersFiles } from "@beep/repo-cli/commands/Files"
- *
  * console.log(detectBordersFiles)
  * ```
- *
  * @category use-cases
  * @since 0.0.0
  */
@@ -4592,10 +4576,8 @@ export const detectBordersFiles = Effect.fn("Files.detectBordersFiles")(function
  * @example
  * ```ts
  * import { detectFacesFiles } from "@beep/repo-cli/commands/Files"
- *
  * console.log(detectFacesFiles)
  * ```
- *
  * @category use-cases
  * @since 0.0.0
  */
@@ -4614,10 +4596,8 @@ export const detectFacesFiles = Effect.fn("Files.detectFacesFiles")(function* (
  * @example
  * ```ts
  * import { normalizeFiles } from "@beep/repo-cli/commands/Files"
- *
  * console.log(normalizeFiles)
  * ```
- *
  * @category use-cases
  * @since 0.0.0
  */
@@ -4639,10 +4619,8 @@ export const normalizeFiles = Effect.fn("Files.normalizeFiles")(function* (
  * @example
  * ```ts
  * import { sortAndRenameFiles } from "@beep/repo-cli/commands/Files"
- *
  * console.log(sortAndRenameFiles)
  * ```
- *
  * @category use-cases
  * @since 0.0.0
  */
